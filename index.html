@@ -409,6 +409,34 @@ body.title-open.title-ship .title-sky, body.title-open.title-ship .title-hull { 
 .hull-dims .sl-num { width: 78px; }
 .hull-dims select { min-width: 0; width: 100%; padding: 9px; color: var(--fg); background: var(--bg); border: 1px solid var(--line-2); border-radius: 6px; font: inherit; }
 .command-sub .seg { flex-wrap: wrap; }
+/* tutorial */
+.tut{position:absolute;left:var(--gl);top:52px;width:min(372px,calc(100% - 32px));max-height:calc(100% - 120px);overflow:auto;background:var(--hud-bg);border:1px solid var(--hud-line);border-left:3px solid var(--accent);border-radius:10px;padding:10px 12px 12px;color:var(--hud-fg);z-index:6;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 10px 30px rgba(0,0,0,.35);display:grid;gap:8px}
+.tut.min{width:auto;max-width:calc(100% - 32px);padding:0;background:none;border:0;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+.tut-head{display:flex;align-items:center;gap:8px}
+.tut-kicker{font:600 11px/1.3 var(--font-ui);letter-spacing:.08em;color:var(--hud-dim);flex:1;min-width:0}
+.tut-no{font:13px var(--font-mono);color:var(--accent)}
+.tut-ic{width:28px;height:28px;border-radius:6px;border:1px solid var(--hud-line);background:transparent;color:var(--hud-fg);font-size:14px;line-height:1;cursor:pointer;flex:none}
+.tut h3{margin:0;font:700 18px/1.3 var(--font-display);letter-spacing:.02em;text-wrap:balance}
+.tut-text{margin:0;font-size:13px;line-height:1.65}
+.tut-text b{color:var(--accent);font-weight:700}
+.tut-dots{display:flex;gap:4px;margin:0;padding:0;list-style:none}
+.tut-dots li{flex:1;height:3px;border-radius:2px;background:var(--hud-line)}
+.tut-dots li.past{background:var(--cyan)}
+.tut-dots li.now{background:var(--accent)}
+.tut-state{margin:0;font-size:12px;color:var(--hud-dim)}
+.tut-state.ok{color:var(--ok);font-weight:700}
+.tut-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.tut-pill{border:1px solid var(--hud-line);background:var(--hud-bg);color:var(--hud-fg);border-left:3px solid var(--accent);border-radius:999px;padding:7px 12px;font:600 12px var(--font-ui);cursor:pointer;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tut-sum{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 10px;margin:0}
+.tut-sum div{display:grid;min-width:0}.tut-sum dt{font-size:11px;color:var(--hud-dim)}.tut-sum dd{margin:0;font:600 15px var(--font-mono)}
+.tut-note,.tut-wait{margin:0;font-size:12px;color:var(--hud-dim)}
+.tut-focus{outline:2px solid var(--accent)!important;outline-offset:2px;box-shadow:0 0 0 5px var(--accent-soft)!important;animation:tutPulse 1.6s ease-in-out infinite}
+@keyframes tutPulse{50%{box-shadow:0 0 0 9px transparent}}
+@media (prefers-reduced-motion: reduce){.tut-focus{animation:none}}
+body.tut-on .viewport-guide{display:none}
+body.tut-on .inspect{top:auto;bottom:70px;left:auto;right:var(--gr)}
+.fleet-active .tut{display:none}
+@media(max-width:600px){.tut{top:48px;max-height:calc(100% - 96px);padding:8px 10px 10px;gap:6px}.tut h3{font-size:16px}.tut-dots{display:none}.tut-text{font-size:12.5px;line-height:1.55;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}.tut-text.full{display:block}}
 </style>
 
 <div id="title" class="title" role="dialog" aria-modal="true" aria-labelledby="titleName">
@@ -433,6 +461,7 @@ body.title-open.title-ship .title-sky, body.title-open.title-ship .title-hull { 
         <button type="button" class="tmenu" data-title="continue" disabled><b>途中から設計</b><span id="titleDraft">保存された下書きを確認中…</span></button>
         <button type="button" class="tmenu" data-title="new" disabled><b>新規設計</b><span>艦種と船体の型・全長を決めて始める</span></button>
         <button type="button" class="tmenu" data-title="load" disabled><b>設計図を読み込む</b><span>保存した設計・ファイル・配置見本から開く</span></button>
+        <button type="button" class="tmenu" data-tut="start" disabled><b>チュートリアル</b><span>ごく簡素なインペリアル級を順番に作って操作を覚える</span></button>
       </nav>
       <section class="title-panel" id="titlePanel" hidden></section>
     </div>
@@ -523,6 +552,9 @@ body.title-open.title-ship .title-sky, body.title-open.title-ship .title-hull { 
       </div>
     </section>
     <section>
+      <h3>チュートリアル</h3>
+      <div class="iorow"><button type="button" class="btn" data-tut="start">簡素なインペリアル級を作る</button></div>
+      <p class="note">船体・艦橋・炉・エンジン・主砲・格納庫を1つずつ置いて、設計の流れを覚えます。</p>
       <h3>配置見本</h3>
       <div class="ref-grid" id="refGrid"></div>
       <p class="note">見本や新規船体に切り替えても「元に戻す」で前の設計へ戻れます。残しておく設計は保存してください。</p>
@@ -531,12 +563,12 @@ body.title-open.title-ship .title-sky, body.title-open.title-ship .title-hull { 
       <div class="iorow" style="margin-top:8px"><button type="button" class="btn ghost" id="btnSample">ヴェネター配置見本を開く</button></div>
     </section>
     <section>
-      <h3>設計の手順</h3><p class="note">①船体・構造物で外殻を作る → ②炉と艦尾ノズルを置く → ③「系統」で接続と自動占有を確認 → ④空きへ主要区画・格納庫を配置 → ⑤航空区画の接触面に出口を設定し、航空隊を編成 → ⑥武装・窓・装甲を付ける。</p><h3>計算の考え方</h3>
+      <h3>設計の手順</h3><p class="note">①船体・構造物で外殻を作る → ②炉と艦尾ノズルを置く → ③「系統」で接続と自動占有を確認 → ④空きへ主要区画・格納庫を配置 → ⑤航空区画の接触面に出口を設定し、航空隊を編成 → ⑥武装・艦橋・装甲を付ける。</p><h3>計算の考え方</h3>
       <ul class="rules">
-        <li><b>窓とスキン</b>　スキンは外板の形状・塗装。窓は構造物の側面・前後壁へ取り付ける独立部品で、船体・甲板・天井には配置できません。</li>
+        <li><b>艦橋とスキン</b>　スキンは外板の形状・塗装。インペリアル級・ヴェネター級の艦橋本体はそれだけで指揮所になる。自作の艦橋には、インペリアル級艦橋の円筒形ポッドを構造物の側面・前後壁へ取り付ける（船体・甲板・天井には置けない）。</li>
         <li><b>出力</b>　球形ジェネレーターの有効体積（直径の3乗）で決まる。標準インペリアル級の主炉・予備炉・補助炉の合計を1 ISDとし、全艦に同じ係数を適用する。干渉した炉は停止する。</li>
         <li><b>内部区画</b>　船体と構造物の範囲で自動切取り。容量と質量は内側の実体積で計算する。指定寸法は保持され、構造物を広げると利用できる部分も増える。</li>
-        <li><b>張出し</b>　主出力炉・シールド発生器・エンジンは船外へ張り出せる。武装・窓・センサーも外装として設置する。露出した主炉は防御上の弱点になる。</li>
+        <li><b>張出し</b>　主出力炉・シールド発生器・エンジンは船外へ張り出せる。武装・艦橋ポッド・センサーも外装として設置する。露出した主炉は防御上の弱点になる。</li>
         <li><b>表面積</b>　装甲の質量とシールドに要る出力は表面積に比例する。削って凹凸を増やすほど負担が増える。</li>
         <li><b>加速と縦強度</b>　加速は「推力÷質量」と「竜骨と構造物の断面÷その断面が支える質量」の小さいほう。ラザー化で船体を削っても竜骨は残るので、どちらの上限も上がる。</li>
         <li><b>航空区画</b>　長さ・幅・高さと前後幅を指定する。船体・外装に接する面の開放型・シールド型・ハッチ化しないを選ぶ。「航空隊」で機体サイズと機数を入力する。</li>

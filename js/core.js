@@ -1049,6 +1049,8 @@ function baseComputeStats(ship) {
       const vw = bridgeView(ship, f, hf, obst)*effective; fitInfo[f.id] = vw; viewSum += vw; sensor += d.sensor * (0.5 + 0.5 * vw)*effective;
     }
   }
+  // Model bridge bodies command from their own drum or window band.
+  for(const f of intrinsicCommandFits(ship)){const d=FITS[f.k];if(d.role!=='bridge'&&d.role!=='combat')continue;const effective=commandInfo[f.id]?.ratio||0;if(effective<=0)continue;bridges++;bPower+=d.power*effective;const vw=bridgeView(ship,f,hf,obst)*effective;fitInfo[f.id]=vw;viewSum+=vw;sensor+=d.sensor*(0.5+0.5*vw)*effective;}
   for(const p of ship.parts)if(p.k==='command'&&!invalid.has(p.id)){const ratio=clamp(partVolume(p)/Math.max(1,unclippedPartVolume(p)),0,1);if(ratio<=0)continue;bridges++;sensor+=.7*ratio;viewSum+=.7*ratio;bPower+=4e20*ratio;}
   // armour
   const area = exposedSurface(ship,occupied);
@@ -1387,11 +1389,27 @@ addComp('vehicle','車両格納・整備区画','cube',0.12,[119,147,91],'air','
 addComp('cargo','貨物・物資庫','cube',0.18,[157,137,111],'air','貨物搭載量を確保する区画。',{def:45});
 addComp('crew','居住区','cube',0.08,[127,163,132],'command','乗員の居住空間。収容可能人数を独立して計算します。',{def:60});
 addComp('troops','兵員収容区画','cube',0.09,[163,172,114],'command','揚陸兵員の収容空間。',{def:60});
-addComp('command','無窓式指揮室','cube',0.22,[180,178,213],'command','艦内へ置ける航行・戦闘指揮室。艦橋窓がなくても指揮できます。',{def:24});
+addComp('command','無窓式指揮室','cube',0.22,[180,178,213],'command','艦内へ置ける航行・戦闘指揮室。艦橋ポッドや艦橋本体がなくても指揮できます。',{def:24});
 addComp('firecontrol','射撃管制・砲機構区画','cube',0.38,[192,118,113],'support','砲の管制と甲板下機構。武装規模に対して設備量を点検します。',{def:24});
 addComp('machinery','自動推進機関','route',0.55,[87,164,205],'power','炉とノズルの間に自動生成される機関。',{def:30,min:1});
-for(const [k,name,role,col] of [['winBridge','艦橋窓','bridge',[172,223,247]],['winAir','航空指揮所窓','air',[142,229,192]],['winHangar','格納庫管制窓','hangar',[236,192,104]],['winCombat','戦闘指揮所窓','combat',[218,174,245]]]) {
-  FITS[k]={key:k,cat:'b',window:true,role,name,short:name,fm:32,wm:4,hm:0.8,r:16,sensor:role==='bridge'?0.8:0.4,power:4e20,mass:180,crew:16,cost:50000,col,desc:'構造物の側面・前後壁に限定した独立の窓列。スキン・甲板・船体面には含まれません。背後の指揮区画を自動確保し、取り付け先の移動に追従します。'};
+// Command pods: the drum of the Imperial-class bridge, as a part of its own.
+// They seat on the side, fore or aft walls of a structure and keep a command
+// compartment behind that wall. Old window rows load as pods.
+const POD_ASSET='bridge_pod',POD_KEYS={bridge:'podBridge',air:'podAir',hangar:'podHangar',combat:'podCombat'},LEGACY_WINDOWS={winBridge:'podBridge',winAir:'podAir',winHangar:'podHangar',winCombat:'podCombat'};
+for(const [k,name,role,col] of [['podBridge','艦橋ポッド','bridge',[172,223,247]],['podAir','航空指揮ポッド','air',[142,229,192]],['podHangar','格納庫管制ポッド','hangar',[236,192,104]],['podCombat','戦闘指揮ポッド','combat',[218,174,245]]]) {
+  FITS[k]={key:k,cat:'b',window:true,pod:true,role,name,short:name.replace('ポッド',''),fm:16,wm:6.4,hm:0.8,r:9,sensor:role==='bridge'?0.8:0.4,power:4e20,mass:900,crew:16,cost:80000,col,desc:'インペリアル級艦橋の円筒形指揮ポッド。構造物・艦橋本体の側面や前後の壁に取り付け、背後に指揮区画を自動確保します。取り付け先の移動に追従します。'};
+}
+// Model bridge bodies carry their command role themselves; the view is
+// measured from the drum on their fore face (both models have one).
+const BRIDGE_BODY_COMMAND={isd_bridge:{role:'bridge',at:[.5,-.0374,0]},ven_bridge_stbd:{role:'bridge',at:[.5,-.207,0]},ven_bridge_port:{role:'air',at:[.5,-.207,0]}};
+function bridgeBodyRole(p){const d=p?.k==='struct'&&p.form==='reference'&&BRIDGE_BODY_COMMAND[p.skinAsset];if(!d)return null;return ['bridge','air','hangar','combat'].includes(p.commandRole)?p.commandRole:d.role;}
+function podDepth(f){const a=REFERENCE_ASSETS[POD_ASSET];return (f.width||FITS[f.k].fm)*a.size[0]/a.size[2];}
+function podPoint(f,v){const fr=windowFrame(f),w=f.width||FITS[f.k].fm,h=f.height||FITS[f.k].wm;return add(f.p,add(add(mul(fr.up,(v[0]+.5)*podDepth(f)),mul(fr.rt,-v[1]*h)),mul(fr.fw,-v[2]*w)));}
+function intrinsicCommandFits(ship){
+ const out=[];
+ for(const p of ship.parts){const role=bridgeBodyRole(p);if(!role||p.commandEnabled===false)continue;const d=BRIDGE_BODY_COMMAND[p.skinAsset],at=[d.at[0]*p.s[0],d.at[1]*p.s[2],d.at[2]*p.s[1]],q=worldStruct(p,at),n=norm(sub(worldStruct(p,add(at,[1,0,0])),q)),k=POD_KEYS[role],scale=p.s[1]/REFERENCE_ASSETS[p.skinAsset].size[2];
+  out.push({id:-300000-p.id,k,p:q,n,a:AXES.reduce((i,x,j)=>dot(x,n)>dot(AXES[i],n)?j:i,0),ped:0,base:0,low:0,width:15.3*scale,height:6.2*scale,host:p.id,intrinsic:true,_wallUp:structFrame(p).up});}
+ return out;
 }
 function isReactor(p){return p.k==='gen'||p.k==='aux';}
 function reactorFor(ship,p){
@@ -1542,7 +1560,7 @@ function engineeringStats(ship,S){
   if(S.integritySupport<S.mass)S.warnings.push({lv:'warn',text:'構造維持装置の対応質量が不足しています。'});
   if(S.habit<1)S.warnings.push({lv:'warn',text:`居住区の収容 ${S.crewCapacity.toLocaleString()} 名／必要乗員 ${S.crew.toLocaleString()} 名。`});
   if(S.slots>S.serviceCapacity)S.warnings.push({lv:'warn',text:`航空整備能力 ${S.serviceCapacity} 機分／搭載 ${Math.floor(S.slots)} 機。`});
-  if(S.slots>0&&!S.airControl)S.warnings.push({lv:'info',text:'航空指揮所を設置すると艦載機の管制を分担できます。'});
+  if(S.slots>0&&!S.airControl)S.warnings.push({lv:'info',text:'航空指揮ポッド（航空指揮所）を設置すると艦載機の管制を分担できます。'});
   return S;
 }
 
@@ -1560,28 +1578,28 @@ function mountFit(ship,f){
   if(f.host&&!host){f.float=true;return f;}
   if(host&&f.local){const local=[f.local[0]*host.s[0],f.local[1]*host.s[2],f.local[2]*host.s[1]];p=worldStruct(host,local);const normal=f.localNormal?worldStruct({...host,c:[0,0,0]},[f.localNormal[0]/host.s[0],f.localNormal[1]/host.s[2],f.localNormal[2]/host.s[1]]):sub(p,host.c),out=norm(normal),far=f.localNormal?8:len(host.s)+10;h=rayPart(add(p,mul(out,far)),mul(out,-1),host);if(h)h.part=host;}
   else h=rayEnv(ship,add(p,mul(n,4)),mul(n,-1),{maxT:12,structOnly:true});
-  // Window fittings belong to exposed structure walls, never hull skins or roofs.
+  // Command pods belong to exposed structure walls, never hull skins or roofs.
   const valid=h?.part?.k==='struct'&&Math.abs(dot(h.n,structFrame(h.part).up))<.65;
   f.float=!valid;f.base=0;f.low=0;f.ped=0;
   if(!valid)return f;f.p=h.p;f.n=h.n;f._wallUp=structFrame(h.part).up;
   if(h.part?.k==='struct'&&!f.local){f.host=h.part.id;const q=localStruct(h.part,f.p);f.local=[q[0]/h.part.s[0],q[1]/h.part.s[2],q[2]/h.part.s[1]];const nn=localStruct({...h.part,c:[0,0,0]},f.n);f.localNormal=[nn[0]*h.part.s[0],nn[1]*h.part.s[2],nn[2]*h.part.s[1]];}
   return f;
 }
-function fitOrigin(f){if(FITS[f.k]?.window)return add(f.p,mul(f.n||AXES[f.a],.45));return baseFitOrigin(f);}
+function fitOrigin(f){if(FITS[f.k]?.window)return add(f.p,mul(f.n||AXES[f.a],(f.intrinsic?0:podDepth(f))+.45));return baseFitOrigin(f);}
 function fitAABB(f){
   if(FITS[f.k]?.asset)return referenceFitAABB(f);
   if(!FITS[f.k]?.window)return baseFitAABB(f);
-  const fr=windowFrame(f),w=f.width||FITS[f.k].fm,h=f.height||FITS[f.k].wm,e=[0,1,2].map(a=>Math.abs(fr.fw[a])*w/2+Math.abs(fr.rt[a])*h/2+Math.abs(fr.up[a])*1);
-  return sub(f.p,e).concat(add(f.p,e));
+  const fr=windowFrame(f),w=f.width||FITS[f.k].fm,h=f.height||FITS[f.k].wm,depth=podDepth(f),c=add(f.p,mul(fr.up,depth/2)),e=[0,1,2].map(a=>Math.abs(fr.fw[a])*w/2+Math.abs(fr.rt[a])*h/2+Math.abs(fr.up[a])*depth/2);
+  return sub(c,e).concat(add(c,e));
 }
 function placeFit(ship,k,p,n,ped,mirror,options={}){
   if(FITS[k]?.casemate){if(Math.abs(n[1])>.65)return {err:'ケースメイト砲はトレンチ内壁・船体や構造の側壁に配置してください'};options={...options,localMount:true};}
   if(!FITS[k]?.window)return basePlaceFit(ship,k,p,n,ped,mirror,options);
   if(ship.fits.length+(mirror?2:1)>DESIGN_LIMITS.fits)return {err:'装備数の上限は'+DESIGN_LIMITS.fits+'基です'};
   const make=(p,n)=>mountFit(ship,{id:ship.nextId++,k,p:p.slice(),n:n.slice(),a:AXES.reduce((i,x,j)=>dot(x,n)>dot(AXES[i],n)?j:i,0),ped:0,width:FITS[k].fm,height:FITS[k].wm});
-  const f=make(p,n);if(f.float)return {err:'窓は構造物の側面・前後の壁面に取り付けてください。船体・甲板・天井には取り付けられません'};
-  if(fitClash(ship,f))return {err:'別の窓・装備と重なっています'};
-  const bay=windowBay(f);if(hardConflicts(ship,bay).length)return {err:'窓の背後の指揮区画が機関と干渉します'};
+  const f=make(p,n);if(f.float)return {err:'艦橋ポッドは構造物・艦橋本体の側面や前後の壁に取り付けてください。船体・甲板・天井には取り付けられません'};
+  if(fitClash(ship,f))return {err:'別のポッド・装備と重なっています'};
+  const bay=windowBay(f);if(hardConflicts(ship,bay).length)return {err:'ポッドの背後の指揮区画が機関と干渉します'};
   ship.fits.push(f);
   if(mirror&&Math.abs(p[2])>FITS[k].r){const q=make(mirrorP(p),mirrorP(n));if(!q.float&&!fitClash(ship,q)&&!hardConflicts(ship,windowBay(q)).length){f.tw=q.id;q.tw=f.id;ship.fits.push(q);}}
   return {fit:f};
@@ -1607,7 +1625,7 @@ function v3Deserialize(o){
     const q={id:ident(p.id),k:p.k,c:vec(p.c)};if(p.k==='struct'){q.s=vec(p.s,[100,100,50]).map(v=>clamp(v,2,DESIGN_LIMITS.partSize));q.taper=number(p.taper,0,.95,0);q.form=Object.hasOwn(STRUCT_SHAPES,p.form)?p.form:'trap';if(Array.isArray(p.angles))q.angles=[0,1,2,3].map(i=>number(p.angles[i],-60,70,0));q.yaw=number(p.yaw,-180,180,0);q.offsetX=number(p.offsetX,-2000,2000,0);q.offsetZ=number(p.offsetZ,-2000,2000,0);}else q.d=number(p.d,4,DESIGN_LIMITS.diameter,PARTS[p.k].def||40);
     if(p.dir)q.dir=norm(vec(p.dir,[-1,0,0]));if(p.k==='engine'){if(!q.dir)q.dir=[-1,0,0];if(o.v===2)q.c[0]-=q.d*.64;if(Number.isInteger(p.reactor)&&p.reactor>=0)q.reactor=p.reactor;}if(Number.isInteger(p.tw))q.tw=p.tw;if(Number.isInteger(p.vt))q.vt=p.vt;return q;
   });
-  s.fits=o.fits.filter(f=>f&&Object.hasOwn(FITS,f.k)).map(f=>{const q={id:ident(f.id),k:f.k,p:vec(f.p),a:Math.floor(number(f.a,0,5,2)),ped:number(f.ped,0,500,0),base:0,low:0,slope:0};if(f.n)q.n=norm(vec(f.n,[1,0,0]));if(f.host)q.host=f.host;if(f.local)q.local=vec(f.local);if(f.localNormal)q.localNormal=vec(f.localNormal);if(FITS[f.k].window){q.width=number(f.width,8,160,FITS[f.k].fm);q.height=number(f.height,2,20,FITS[f.k].wm);}else{if(f.width!=null)q.width=number(f.width,.01,DESIGN_LIMITS.partSize,FITS[f.k].fm);if(f.height!=null)q.height=number(f.height,.01,DESIGN_LIMITS.partSize,FITS[f.k].wm);}if(f.tw)q.tw=f.tw;if(Number.isInteger(f.vt))q.vt=f.vt;if(f.pedShape==='trap')q.pedShape='trap';if(Number.isFinite(f.pedSize))q.pedSize=number(f.pedSize,.4,3,1);return q;});
+  s.fits=o.fits.filter(f=>f&&(Object.hasOwn(FITS,f.k)||Object.hasOwn(LEGACY_WINDOWS,f.k))).map(f=>{const legacy=LEGACY_WINDOWS[f.k],q={id:ident(f.id),k:legacy||f.k,p:vec(f.p),a:Math.floor(number(f.a,0,5,2)),ped:number(f.ped,0,500,0),base:0,low:0,slope:0};if(f.n)q.n=norm(vec(f.n,[1,0,0]));if(f.host)q.host=f.host;if(f.local)q.local=vec(f.local);if(f.localNormal)q.localNormal=vec(f.localNormal);if(legacy){q.width=clamp(Math.round(number(f.width,8,160,32)/2),6,60);q.height=Math.round(q.width*4)/10;q.legacyWindow=true;}else if(FITS[q.k].window){q.width=number(f.width,6,60,FITS[q.k].fm);q.height=number(f.height,3,30,FITS[q.k].wm);}else{if(f.width!=null)q.width=number(f.width,.01,DESIGN_LIMITS.partSize,FITS[q.k].fm);if(f.height!=null)q.height=number(f.height,.01,DESIGN_LIMITS.partSize,FITS[q.k].wm);}if(f.tw)q.tw=f.tw;if(Number.isInteger(f.vt))q.vt=f.vt;if(f.pedShape==='trap')q.pedShape='trap';if(Number.isFinite(f.pedSize))q.pedSize=number(f.pedSize,.4,3,1);return q;});
   s.cuts=(Array.isArray(o.cuts)?o.cuts:[]).slice(0,50).map(c=>c.type==='planTrapezoid'?normalizePlanCut({id:ident(c.id),side:['both','port','stbd'].includes(c.side)?c.side:'both',from:number(c.from,0,.96,.25),to:number(c.to,.03,1,.52),innerFrom:number(c.innerFrom,0,1,.38),innerTo:number(c.innerTo,0,1,.44),remainingWidth:number(c.remainingWidth,.03,.98,.493)}):({id:ident(c.id),side:['both','port','stbd'].includes(c.side)?c.side:'both',edge:['top','bottom','both'].includes(c.edge)?c.edge:'top',inset:number(c.inset,0,1000,20),slope:number(c.slope,1,1000,30),from:number(c.from,0,.99,0),to:number(c.to,.01,1,1),prop:!!c.prop}));
   s.trenches=(Array.isArray(o.trenches)?o.trenches:[]).slice(0,30).map(c=>({id:ident(c.id),side:['both','port','stbd'].includes(c.side)?c.side:'both',from:number(c.from,0,.99,.1),to:number(c.to,.01,1,.9),level:number(c.level,.1,.9,.5),height:number(c.height,1,500,14),depth:number(c.depth,1,800,20),taper:c.mode==='split'?false:c.taper!==false,...(c.mode==='split'?{mode:'split'}:{})}));
   if(o.solidCuts!=null&&(!Array.isArray(o.solidCuts)||o.solidCuts.length>32))throw new Error('立体切削は32箇所までです');
@@ -1887,7 +1905,12 @@ function deserialize(o){
   for(const p of s.parts){const q=o.parts.find(q=>q.id===p.id);if(q.customEquipment===true)p.customEquipment=true;if(typeof q.autoFit==='boolean')p.autoFit=q.autoFit;if(((Object.hasOwn(EQUIPMENT,q.equipmentId)&&EQUIPMENT[q.equipmentId].k===p.k)||(p.k==='engine'&&Object.hasOwn(LEGACY_ENGINES,q.equipmentId))))p.equipmentId=q.equipmentId;}
   adoptEquipment(s);
   for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(h.tw==null)delete h.tw;if(q.portal){h.portal=true;h.face=Object.hasOwn(AVIATION_SURFACE_FACES,q.face)?q.face:'top';if(q.surface)h.surface=true;h.open=finite(q.open,0,1,1);h.aperture=finite(q.aperture,.1,1,.85);if(q.sill!=null)h.sill=finite(q.sill,0,1,.5);if(s.parts.some(p=>p.id===q.bay&&p.k==='hangar'))h.bay=q.bay;else if(Array.isArray(q.cut)&&q.cut.length===6&&q.cut.every(Number.isFinite))h.cut=q.cut.map(v=>clamp(v,-DESIGN_LIMITS.coordinate,DESIGN_LIMITS.coordinate));}}
-  s.paint=['republic','neutral','dark'].includes(o.paint)?o.paint:'neutral';s.detail=finite(o.detail,0,2,1);if(o.reference)s.reference=String(o.reference).slice(0,80);for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.motion==='fixed')h.motion='fixed';else if(q.motion==='slide'||isSlidingHatch(s,h))h.motion='slide';}if(REFERENCE_ASSETS[o.hullSkin?.asset]?.kind==='hull'&&o.hullSkin.base?.hull){const b=o.hullSkin.base,valid=[b.hull.L,b.hull.W,b.hull.H].every(v=>Number.isFinite(v)&&v>0&&v<=4000)&&Array.isArray(b.hull.stations)&&b.hull.stations.length>=2&&b.hull.stations.length<=64&&b.hull.stations.every(a=>Array.isArray(a)&&a.length>=3&&a.every(Number.isFinite))&&Array.isArray(b.trenches)&&b.trenches.length<=30&&Array.isArray(b.cuts)&&b.cuts.length<=50;if(valid){s.hullSkin=JSON.parse(JSON.stringify(o.hullSkin));s.hullSkin.enabled=!!o.hullSkin.enabled;}}for(const f of s.fits){const q=o.fits.find(q=>q.id===f.id);if(q.localMount)f.localMount=true;if(typeof q.batteryZone==='string')f.batteryZone=q.batteryZone.slice(0,40);if(FITS[f.k].window){f.commandEnabled=q.commandEnabled!==false;if(q.commandDepth!=null)f.commandDepth=finite(q.commandDepth,2,200,12);if(q.commandHeight!=null)f.commandHeight=finite(q.commandHeight,2,80,8);}if(Number.isFinite(q.chargeSalvos))f.chargeSalvos=finite(q.chargeSalvos,1,20,1);if(Number.isFinite(q.chargeDepth))f.chargeDepth=finite(q.chargeDepth,1,500,10);if(Number.isFinite(q.chargeScale))f.chargeScale=finite(q.chargeScale,.25,4,1);if(Number.isFinite(q.assetYaw))f.assetYaw=finite(q.assetYaw,-180,180,0);if(Number.isFinite(q.scale))f.scale=finite(q.scale,.25,4,1);if(Number.isInteger(q.mountAxis)&&q.mountAxis>=0&&q.mountAxis<=5)f.mountAxis=q.mountAxis;if(Number.isFinite(q.mountOffset))f.mountOffset=finite(q.mountOffset,-50,50,0);if(REFERENCE_ASSETS[q.skinAsset])f.skinAsset=q.skinAsset;}for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.referenceMouth)h.referenceMouth=true;if(REFERENCE_ASSETS[q.skinAsset]){h.skinAsset=q.skinAsset;if(Array.isArray(q.skinBayAnchor)&&q.skinBayAnchor.length===3&&q.skinBayAnchor.every(Number.isFinite))h.skinBayAnchor=q.skinBayAnchor.slice();}}migrateAviationSurfaces(s,o);migrateAviation(s,o);return s;
+  s.paint=['republic','neutral','dark'].includes(o.paint)?o.paint:'neutral';s.detail=finite(o.detail,0,2,1);if(o.reference)s.reference=String(o.reference).slice(0,80);for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.motion==='fixed')h.motion='fixed';else if(q.motion==='slide'||isSlidingHatch(s,h))h.motion='slide';}if(REFERENCE_ASSETS[o.hullSkin?.asset]?.kind==='hull'&&o.hullSkin.base?.hull){const b=o.hullSkin.base,valid=[b.hull.L,b.hull.W,b.hull.H].every(v=>Number.isFinite(v)&&v>0&&v<=4000)&&Array.isArray(b.hull.stations)&&b.hull.stations.length>=2&&b.hull.stations.length<=64&&b.hull.stations.every(a=>Array.isArray(a)&&a.length>=3&&a.every(Number.isFinite))&&Array.isArray(b.trenches)&&b.trenches.length<=30&&Array.isArray(b.cuts)&&b.cuts.length<=50;if(valid){s.hullSkin=JSON.parse(JSON.stringify(o.hullSkin));s.hullSkin.enabled=!!o.hullSkin.enabled;}}for(const f of s.fits){const q=o.fits.find(q=>q.id===f.id);if(q.localMount)f.localMount=true;if(typeof q.batteryZone==='string')f.batteryZone=q.batteryZone.slice(0,40);if(FITS[f.k].window){f.commandEnabled=q.commandEnabled!==false;if(q.commandDepth!=null)f.commandDepth=finite(q.commandDepth,2,200,12);if(q.commandHeight!=null)f.commandHeight=finite(q.commandHeight,2,80,8);}if(Number.isFinite(q.chargeSalvos))f.chargeSalvos=finite(q.chargeSalvos,1,20,1);if(Number.isFinite(q.chargeDepth))f.chargeDepth=finite(q.chargeDepth,1,500,10);if(Number.isFinite(q.chargeScale))f.chargeScale=finite(q.chargeScale,.25,4,1);if(Number.isFinite(q.assetYaw))f.assetYaw=finite(q.assetYaw,-180,180,0);if(Number.isFinite(q.scale))f.scale=finite(q.scale,.25,4,1);if(Number.isInteger(q.mountAxis)&&q.mountAxis>=0&&q.mountAxis<=5)f.mountAxis=q.mountAxis;if(Number.isFinite(q.mountOffset))f.mountOffset=finite(q.mountOffset,-50,50,0);if(REFERENCE_ASSETS[q.skinAsset])f.skinAsset=q.skinAsset;}for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.referenceMouth)h.referenceMouth=true;if(REFERENCE_ASSETS[q.skinAsset]){h.skinAsset=q.skinAsset;if(Array.isArray(q.skinBayAnchor)&&q.skinBayAnchor.length===3&&q.skinBayAnchor.every(Number.isFinite))h.skinBayAnchor=q.skinBayAnchor.slice();}}migrateAviationSurfaces(s,o);migrateAviation(s,o);
+  // Old window rows on a model bridge repeat the role the body now carries.
+  for(const p of s.parts){const q=o.parts.find(q=>q.id===p.id);if(bridgeBodyRole(p)){if(['bridge','air','hangar','combat'].includes(q.commandRole))p.commandRole=q.commandRole;if(q.commandEnabled===false)p.commandEnabled=false;}}
+  const dropped=new Set(s.fits.filter(f=>f.legacyWindow&&bridgeBodyRole(s.parts.find(p=>p.id===f.host))===FITS[f.k].role).map(f=>f.id));
+  s.fits=s.fits.filter(f=>!dropped.has(f.id));for(const f of s.fits){delete f.legacyWindow;if(dropped.has(f.tw))delete f.tw;}
+  return s;
 }
 
 function pointInRing(x,y,ring){let yes=false;for(let i=0,j=ring.length-1;i<ring.length;j=i++){const a=ring[i],b=ring[j];if((a[1]>y)!==(b[1]>y)&&x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])yes=!yes;}return yes;}
@@ -2249,7 +2272,7 @@ const REFERENCE_ASSETS=YardReferenceData.assets;
 // their average tones differ (warm turrets, dark engine bells). Each factor
 // brings an asset's mean texture colour to one shared neutral hull grey;
 // engines keep half of their extra darkness. Measured from the atlas.
-const REFERENCE_TONE=Object.freeze({"ven_hull":[0.98,1.009,1.04],"ven_tower_port":[0.965,0.998,1.036],"ven_tower_stbd":[0.965,0.998,1.036],"ven_bridge_port":[0.941,0.973,1.013],"ven_bridge_stbd":[0.941,0.973,1.013],"ven_spine":[0.945,0.978,1.013],"ven_outer_port":[1.131,1.142,1.153],"ven_outer_stbd":[1.131,1.142,1.153],"ven_inner_port":[1.127,1.138,1.148],"ven_inner_stbd":[1.127,1.138,1.148],"ven_upper_port":[1.13,1.141,1.151],"ven_upper_stbd":[1.13,1.141,1.151],"ven_aux_port":[1.098,1.109,1.119],"ven_aux_stbd":[1.098,1.109,1.119],"ven_turret":[1.097,1.173,1.236],"ven_turret_0":[1.097,1.173,1.236],"ven_turret_1":[1.097,1.173,1.236],"ven_turret_2":[1.097,1.173,1.236],"ven_turret_3":[1.097,1.173,1.236],"ven_turret_4":[1.097,1.173,1.236],"ven_turret_5":[1.097,1.173,1.236],"ven_turret_6":[1.097,1.173,1.236],"ven_turret_7":[1.097,1.173,1.236],"ven_side_gun":[0.952,0.961,0.969],"ven_side_port":[0.952,0.961,0.969],"ven_side_stbd":[0.952,0.961,0.969],"isd_hull":[1.037,1.081,1.107],"isd_support":[1.052,1.094,1.12],"isd_citadel":[1.082,1.131,1.161],"isd_bridge":[1.064,1.108,1.132],"isd_engine_0":[1.032,1.087,1.122],"isd_engine_1":[1.042,1.096,1.131],"isd_engine_3":[1.042,1.101,1.136],"isd_engine_4":[1.042,1.101,1.136],"isd_mast":[1.128,1.186,1.224],"isd_sensor_port":[1.017,1.062,1.087],"isd_engine_2":[1.032,1.087,1.122],"isd_engine_5":[1.042,1.101,1.136],"isd_engine_6":[1.042,1.101,1.136],"isd_sensor_stbd":[1.017,1.062,1.087],"isd_turret":[1.118,1.173,1.208],"isd_turret_0":[1.118,1.173,1.208],"isd_turret_1":[1.118,1.173,1.208],"isd_turret_2":[1.118,1.173,1.208],"isd_turret_3":[1.118,1.173,1.208],"isd_turret_4":[1.118,1.173,1.205],"isd_turret_5":[1.118,1.173,1.205],"isd_turret_6":[1.118,1.173,1.205],"isd_turret_7":[1.118,1.173,1.205],"isd2_octuple":[0.877,0.886,0.894],"isd2_casemate":[0.877,0.886,0.894]});
+const REFERENCE_TONE=Object.freeze({"bridge_pod":[1.064,1.108,1.132],"ven_hull":[0.98,1.009,1.04],"ven_tower_port":[0.965,0.998,1.036],"ven_tower_stbd":[0.965,0.998,1.036],"ven_bridge_port":[0.941,0.973,1.013],"ven_bridge_stbd":[0.941,0.973,1.013],"ven_spine":[0.945,0.978,1.013],"ven_outer_port":[1.131,1.142,1.153],"ven_outer_stbd":[1.131,1.142,1.153],"ven_inner_port":[1.127,1.138,1.148],"ven_inner_stbd":[1.127,1.138,1.148],"ven_upper_port":[1.13,1.141,1.151],"ven_upper_stbd":[1.13,1.141,1.151],"ven_aux_port":[1.098,1.109,1.119],"ven_aux_stbd":[1.098,1.109,1.119],"ven_turret":[1.097,1.173,1.236],"ven_turret_0":[1.097,1.173,1.236],"ven_turret_1":[1.097,1.173,1.236],"ven_turret_2":[1.097,1.173,1.236],"ven_turret_3":[1.097,1.173,1.236],"ven_turret_4":[1.097,1.173,1.236],"ven_turret_5":[1.097,1.173,1.236],"ven_turret_6":[1.097,1.173,1.236],"ven_turret_7":[1.097,1.173,1.236],"ven_side_gun":[0.952,0.961,0.969],"ven_side_port":[0.952,0.961,0.969],"ven_side_stbd":[0.952,0.961,0.969],"isd_hull":[1.037,1.081,1.107],"isd_support":[1.052,1.094,1.12],"isd_citadel":[1.082,1.131,1.161],"isd_bridge":[1.064,1.108,1.132],"isd_engine_0":[1.032,1.087,1.122],"isd_engine_1":[1.042,1.096,1.131],"isd_engine_3":[1.042,1.101,1.136],"isd_engine_4":[1.042,1.101,1.136],"isd_mast":[1.128,1.186,1.224],"isd_sensor_port":[1.017,1.062,1.087],"isd_engine_2":[1.032,1.087,1.122],"isd_engine_5":[1.042,1.101,1.136],"isd_engine_6":[1.042,1.101,1.136],"isd_sensor_stbd":[1.017,1.062,1.087],"isd_turret":[1.118,1.173,1.208],"isd_turret_0":[1.118,1.173,1.208],"isd_turret_1":[1.118,1.173,1.208],"isd_turret_2":[1.118,1.173,1.208],"isd_turret_3":[1.118,1.173,1.208],"isd_turret_4":[1.118,1.173,1.205],"isd_turret_5":[1.118,1.173,1.205],"isd_turret_6":[1.118,1.173,1.205],"isd_turret_7":[1.118,1.173,1.205],"isd2_octuple":[0.877,0.886,0.894],"isd2_casemate":[0.877,0.886,0.894]});
 function decodeReference(id){
  const a=REFERENCE_ASSETS[id];if(!a)return null;if(a._decoded)return a._decoded;
  // Identical meshes are stored once; a copy names its source with dataFrom.
@@ -2675,7 +2698,7 @@ function refitReferenceInterior(ship){
   }
   for(const p of ship.parts)if(p.k==='shield')p.d=54;
   const bridge=ship.parts.find(p=>p.label==='横長指揮艦橋の装甲外殻');
-  if(bridge){const hit=rayPart([bridge.c[0]+bridge.s[0],427,80],[-1,0,0],bridge);if(hit){const r=placeFit(ship,'winAir',hit.p,hit.n,0,false);if(r.fit){r.fit.width=22;r.fit.height=3;}}}
+  if(bridge){const hit=rayPart([bridge.c[0]+bridge.s[0],427,80],[-1,0,0],bridge);if(hit){const r=placeFit(ship,'podAir',hit.p,hit.n,0,false);if(r.fit){r.fit.width=12;r.fit.height=4.8;}}}
  }else{
   for(const p of ship.parts){if(p.k==='shield')p.d=33;if(p.k==='crew')setRoomSize(p,[85,35,34]);if(p.k==='service')setRoomSize(p,[110,28,16]);}
   for(const sg of [-1,1])part('inertial','分散慣性制御設備',[225,109,sg*68],24,{length:40});
@@ -2786,7 +2809,7 @@ function referenceDesign(key){
   const part=(k,label,c,d,opt={})=>placePart(s,k,c,d,{label,...opt});
   const structure=(label,c,size,opt={})=>part('struct',label,c,size,{form:'chamfer',corner:.12,taper:.14,...opt});
   const room=(k,label,c,size,opt={})=>part(k,label,c,40,{room:size,...opt});
-  const window=(cap,k,width=32)=>{const hit=rayPart([cap.c[0]+cap.s[0],cap.c[1],cap.c[2]],[-1,0,0],cap);if(hit){const r=placeFit(s,k,hit.p,hit.n,0,false);if(r.fit){r.fit.width=width;r.fit.height=3;}}};
+  const pod=(cap,k,width=16)=>{const hit=rayPart([cap.c[0]+cap.s[0],cap.c[1],cap.c[2]],[-1,0,0],cap);if(hit){const r=placeFit(s,k,hit.p,hit.n,0,false);if(r.fit){r.fit.width=width;r.fit.height=Math.round(width*4)/10;}}};
   const engine=(r,label,x,y,z,d,bl)=>part('engine',label,[x,y,z],d,{reactor:r.id,dir:[-1,0,0],bodyLength:bl,bodyRadius:.5});
   if(ven){
     s.cuts.push({id:s.nextId++,type:'planTrapezoid',side:'both',from:.251,to:.519,innerFrom:.378,innerTo:.440,remainingWidth:.493});
@@ -2795,7 +2818,7 @@ function referenceDesign(key){
     loft('双塔間の反応炉被覆',[350,124,0],[180,106,48],[[0,1,.5,0],[.43,1,1,0],[1,.7,.12,0]]);
     for(const z of [-26,26]){
       loft(z<0?'航空指揮塔・傾斜支持構造':'航行指揮塔・傾斜支持構造',[392,166,z],[264,29,130],[[0,1,.06,0],[.15,1,1,0],[.48,.84,1,0],[1,.65,.035,0]],{wallInset:.12});
-      const cap=loft(z<0?'航空指揮所の長形外殻':'航行艦橋の長形外殻',[350,236,z],[156,32,20],[[0,.95,1,.15],[.78,1,1,0],[1,.65,.55,.1]],{corner:.11});window(cap,z<0?'winAir':'winBridge',20);
+      const cap=loft(z<0?'航空指揮所の長形外殻':'航行艦橋の長形外殻',[350,236,z],[156,32,20],[[0,.95,1,.15],[.78,1,1,0],[1,.65,.55,.1]],{corner:.11});
       structure('指揮所屋上レール',[335,247,z],[120,18,3],{foreWidth:.85,corner:.12});
       structure('前部通信架台',[392,245,z],[20,19,7],{form:'box'});
       part('scanner','傾斜通信・走査アレイ',[361,247,z],10,{dir:[.7,.7,0],length:5});
@@ -2826,7 +2849,7 @@ function referenceDesign(key){
     part('inertial','艦尾主慣性圧縮器',[228,95,0],14,{length:30});
     const flight=room('hangar','先細り中央連続飛行甲板',[857,63,0],[530,84,26],{foreWidth:.15});const hatch=openBay(s,flight,'top');hatch.aperture=.95;hatch.motion='slide';hatch.open=0;
     const ventral=room('hangar','腹部ドッキングベイ',[568,36,0],[140,80,24],{foreWidth:.8});openBay(s,ventral,'bottom','ray');
-    const control=structure('格納口管制室外殻',[576,110,50],[25,17,12]);window(control,'winHangar',13);
+    const control=structure('格納口管制室外殻',[576,110,50],[25,17,12]);pod(control,'podHangar',10);
     for(const x of [336,401,469,536])for(const z of [-76,76]){const hit=rayEnv(s,[x,400,z],[0,-1,0]);if(hit)placeFit(s,'htl',hit.p,hit.n,0,false);}
     gunsDeck(s,'mtl',[.67],[.92],null,false,0);gunsDeck(s,'pd',[.23,.31,.42,.57,.69,.79,.9],[.86],null,false,0);
   }else if(acc){
@@ -2875,7 +2898,7 @@ function referenceDesign(key){
     for(const sg of [-1,1])structure('舷側重砲列の装甲砲座甲板',[383,181.2,sg*244],[340,78,22],{form:'outline',outline:[[-.5,-.34],[-.47,-.5],[.45,-.5],[.5,-.3],[.5,.3],[.45,.5],[-.47,.5],[-.5,.34]],deckSlope:-4.0,skin:'armor'});
     loft('司令塔・後方傾斜支持壁',[141,340,0],[258,62,184],[[0,.82,.025,0],[.76,1,1,0],[1,.9,1,0]],{wallInset:.10,skin:'armor'});
     structure('艦橋前部支持幹',[260,381,0],[90,76,100],{foreWidth:.87,angles:[4,9,5,5],skin:'armor'});
-    const cap=structure('横長指揮艦橋の装甲外殻',[270,428,0],[136,288,38],{corner:.09,aftWidth:.98,foreWidth:1,angles:[0,7,0,0],skin:'service'});window(cap,'winBridge',62);
+    const cap=structure('横長指揮艦橋の装甲外殻',[270,428,0],[136,288,38],{corner:.09,aftWidth:.98,foreWidth:1,angles:[0,7,0,0],skin:'service'});
     structure('艦橋の庇・上部装甲',[269,449,0],[141,294,5],{corner:.11});
     structure('艦橋の下部装甲縁',[270,408,0],[139,292,5],{corner:.11});
     for(const z of [-108,108]){structure('標的追跡アレイの支持架台',[282,456,z],[22,23,14],{form:'cylinder',skin:'service'});part('sensor','トラクタービーム標的追跡アレイ',[282,473,z],40);}
@@ -2907,7 +2930,7 @@ function referenceDesign(key){
     const bay=room('hangar','主腹部ドッキング・航空機発着ベイ',[935,100,0],[340,180,62]);openBay(s,bay,'bottom');
     const small=room('hangar','前方シャトル格納庫',[1172,109.5,0],[130,60,59]);openBay(s,small,'bottom','ray');
     room('hangar','航空機移送・発進甲板',[650,93,0],[82,116,35]);
-    const ctl=structure('飛行甲板管制室外殻',[812,167,0],[32,30,13]);window(ctl,'winHangar',20);
+    const ctl=structure('飛行甲板管制室外殻',[812,167,0],[32,30,13]);pod(ctl,'podHangar',12);
     for(const x of [293,354,415,478])for(const z of [-256,256]){const hit=rayEnv(s,[x,600,z],[0,-1,0]);if(hit)placeFit(s,x===478?'ion':'stl',hit.p,hit.n,0,false);}gunsDeck(s,'pd',[.14,.24,.36,.47,.58,.69,.81],[.84],null,false,0);
   }
   s.trenches.push({id:s.nextId++,side:'both',from:ven?.207:acc?.15:.077,to:.94,level:ven?.60:.51,height:ven?18:acc?10:17,depth:ven?8:acc?11:12,taper:true});
@@ -2978,7 +3001,7 @@ function dreadnoughtTools(s){
  };
  const bridge=(center)=>{
   const e=equipmentOptions('isdBridge'),p=part('struct','インペリアル級 艦橋本体',center,e.s,e);
-  for(const [k,z] of [['winBridge',30],['winAir',80]]){const h=rayPart([p.c[0]+p.s[0],p.c[1]+2,p.c[2]+z],[-1,0,0],p);if(h){const r=placeFit(s,k,h.p,h.n,0,false);if(r.fit){r.fit.width=k==='winBridge'?52:22;r.fit.height=3;}}}
+  {const h=rayPart([p.c[0]+p.s[0],p.c[1]+2,p.c[2]+80],[-1,0,0],p);if(h){const r=placeFit(s,'podAir',h.p,h.n,0,false);if(r.fit){r.fit.width=14;r.fit.height=5.6;}}}
   const base=REFERENCE_ASSETS.isd_bridge.c;
   for(const id of ['isd_sensor_port','isd_sensor_stbd','isd_mast']){const a=REFERENCE_ASSETS[id],q=part('sensor',a.title,add(center,sub(a.c,base)),Math.max(...a.size),{skinAsset:id,skinSize:a.size.slice(),equipmentId:id==='isd_mast'?'isdMast':'isdSensor'});}
   return p;
@@ -3173,7 +3196,10 @@ function commandCompartments(ship){
  ship._commands={key,parts};return parts;
 }
 function commandStatus(ship,invalid=new Set()){
- const byFit={};for(const p of commandCompartments(ship)){const volume=partVolume(p),ratio=invalid.has(p.id)?0:clamp(volume/Math.max(1,p.requiredVolume),0,1);byFit[p.windowId]={id:p.id,volume,required:p.requiredVolume,ratio,host:p.host,role:p.commandRole,blocked:invalid.has(p.id)};}return byFit;
+ const byFit={};for(const p of commandCompartments(ship)){const volume=partVolume(p),ratio=invalid.has(p.id)?0:clamp(volume/Math.max(1,p.requiredVolume),0,1);byFit[p.windowId]={id:p.id,volume,required:p.requiredVolume,ratio,host:p.host,role:p.commandRole,blocked:invalid.has(p.id)};}
+ // A model bridge body is its own command space.
+ for(const f of intrinsicCommandFits(ship)){const ok=!invalid.has(f.host);byFit[f.id]={id:f.id,volume:0,required:0,ratio:ok?1:0,host:f.host,role:FITS[f.k].role,blocked:!ok,intrinsic:true};}
+ return byFit;
 }
 
 // Spatial integration of the envelope UNION, minus the occupancy UNION. This
@@ -3228,7 +3254,7 @@ function inspectionTargets(ship,S,w){
  if(/取り付け面/.test(txt))return ship.fits.filter(f=>f.float).map(f=>({list:'fits',id:f.id}));
  if(/ノズル|エンジン|噴射口/.test(txt))return parts(p=>p.k==='engine'&&(!reactorFor(ship,p)||!S.info[p.id]?.vent),'engine');
  if(/艦橋/.test(txt))return [{tab:'bridge',section:'command'}];
- if(/航空指揮所/.test(txt))return [{tab:'bridge',window:'winAir'}];
+ if(/航空指揮所/.test(txt))return [{tab:'bridge',window:'podAir'}];
  if(/航空整備/.test(txt))return parts(p=>p.k==='service','service');
  if(/ハッチに通じていない/.test(txt))return parts(p=>p.k==='hangar'&&!S.info[p.id]?.acc,'hangar');
  if(/ハッチ/.test(txt))return ship.hatches.filter(h=>!S.hatchInfo[h.id]?.connected).map(h=>({list:'hatches',id:h.id}));
@@ -3489,7 +3515,7 @@ function syncAviationSurfaces(ship){
 }
 
 
-return {REFERENCE_TONE,engineSkinMesh,referenceFitYaw,rayTris,vmirrorPlane,vmirrorPoint,vmirrorPart,SHIP_CLASSES,shipClassFor,PUBLIC_LISTS,publicJSON,patchShip,patchItem,cache,AIRCRAFT_CLEARANCE,aircraftFitsBay,AVIATION_SIZE_VOLUME,AIR_WING_LIMITS,hangarCapacity,normalizeAirWings,aviationStatus,AVIATION_SURFACE_FACES,hatchAxes,aviationSurfaceContacts,setAviationSurfaceMode,syncAviationSurfaces,aviationHatchActive,isSlidingHatch,slidingHatchSpec,slidingHatchPanels,hatchOpenArea,ISD_HYPER_BASELINE,HYPER_CLASS_COEFFICIENT,HYPER_POWER_DENSITY,ISD_SHIELD_VOLUME,SHIELD_BUFFER_SECONDS,SHIELD_ENERGY_DENSITY,SHIELD_POWER_DENSITY,REACTOR_POWER_DENSITY,SOLID_CUT_SHAPES,normalizeSolidCut,mirrorSolidCut,solidCutTriangles,solidCutBounds,solidCutContains,solidCutsContain,applySolidCuts,solidPartCutContains,solidStructVolume,solidCutIntersectsShip,flexibleCompartment,hardConflicts,weaponChargeSpec,DREADNOUGHT_EXAMPLES,DESIGN_LIMITS,ALIGNMENTS,alignedPosition,alignPart,replacementShape,replacementOptions,replacePart,COMMAND_ROLES,commandCompartments,commandStatus,habitationSpace,inspectionTargets,planCutEdge,normalizePlanCut,structFrame,alignStructure,FLEET_RULES,fleetProfile,fleetUnit,fleetFormation,fleetBattle,fleetOrder,fleetArc,fleetTick,fleetCommit,fleetFinish,fleetSample,fleetFrame,normalizeBow,bowStation,engineHullEntry,ENGINE_BASELINES,engineBaseline,resizeEngine,parametricEngine,engineRating,sourceEngine,EQUIPMENT,equipmentSpec,equipmentOptions,enforceEquipment,customizeEquipment,adoptEquipment,HYPERDRIVE_REFERENCE,hyperCapacity,arcParameters,arcPoint,arcTriangles,inArc,SEPARATIST_EXAMPLES,STATS_SOURCE,SHIP_REFERENCE,PART_RATINGS,reactorPower,nozzleThrust,nozzleDemand,shieldLoad,partRatingKeys,validOutline,outlinePoints,outlineArea,outlineTriangles,AVIATION_ROLES,CHARGE_TT_M3,aircraftCapacity,aviationConnected,needsCapacitor,weaponCapacitors,refitReferenceInterior,clipReferenceBox, referenceEnginePoint, fitSpec, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface,
+return {bridgeBodyRole,podPoint,podDepth,intrinsicCommandFits,POD_ASSET,BRIDGE_BODY_COMMAND,REFERENCE_TONE,engineSkinMesh,referenceFitYaw,rayTris,vmirrorPlane,vmirrorPoint,vmirrorPart,SHIP_CLASSES,shipClassFor,PUBLIC_LISTS,publicJSON,patchShip,patchItem,cache,AIRCRAFT_CLEARANCE,aircraftFitsBay,AVIATION_SIZE_VOLUME,AIR_WING_LIMITS,hangarCapacity,normalizeAirWings,aviationStatus,AVIATION_SURFACE_FACES,hatchAxes,aviationSurfaceContacts,setAviationSurfaceMode,syncAviationSurfaces,aviationHatchActive,isSlidingHatch,slidingHatchSpec,slidingHatchPanels,hatchOpenArea,ISD_HYPER_BASELINE,HYPER_CLASS_COEFFICIENT,HYPER_POWER_DENSITY,ISD_SHIELD_VOLUME,SHIELD_BUFFER_SECONDS,SHIELD_ENERGY_DENSITY,SHIELD_POWER_DENSITY,REACTOR_POWER_DENSITY,SOLID_CUT_SHAPES,normalizeSolidCut,mirrorSolidCut,solidCutTriangles,solidCutBounds,solidCutContains,solidCutsContain,applySolidCuts,solidPartCutContains,solidStructVolume,solidCutIntersectsShip,flexibleCompartment,hardConflicts,weaponChargeSpec,DREADNOUGHT_EXAMPLES,DESIGN_LIMITS,ALIGNMENTS,alignedPosition,alignPart,replacementShape,replacementOptions,replacePart,COMMAND_ROLES,commandCompartments,commandStatus,habitationSpace,inspectionTargets,planCutEdge,normalizePlanCut,structFrame,alignStructure,FLEET_RULES,fleetProfile,fleetUnit,fleetFormation,fleetBattle,fleetOrder,fleetArc,fleetTick,fleetCommit,fleetFinish,fleetSample,fleetFrame,normalizeBow,bowStation,engineHullEntry,ENGINE_BASELINES,engineBaseline,resizeEngine,parametricEngine,engineRating,sourceEngine,EQUIPMENT,equipmentSpec,equipmentOptions,enforceEquipment,customizeEquipment,adoptEquipment,HYPERDRIVE_REFERENCE,hyperCapacity,arcParameters,arcPoint,arcTriangles,inArc,SEPARATIST_EXAMPLES,STATS_SOURCE,SHIP_REFERENCE,PART_RATINGS,reactorPower,nozzleThrust,nozzleDemand,shieldLoad,partRatingKeys,validOutline,outlinePoints,outlineArea,outlineTriangles,AVIATION_ROLES,CHARGE_TT_M3,aircraftCapacity,aviationConnected,needsCapacitor,weaponCapacitors,refitReferenceInterior,clipReferenceBox, referenceEnginePoint, fitSpec, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface,
   TT, G0, ISD_W, K, PARTS, FITS, HULLS, SECTIONS, KEELS, SECTORS, CLASSES, DESIGNS, AXES, AXNAME, ARMOR_MAX,
   newShip, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,

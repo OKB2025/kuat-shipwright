@@ -467,15 +467,9 @@ function meshFits(ship, filter, ranges) {
       if(ph>0.3)pedestal(g,frameM(f),C.fitOrigin(f),ph,d.r*.72*(f.pedSize||1),f.pedShape,FC.ped,d.r*.8);
       return;
     }
-    if(C.FITS[f.k].window&&f.float)return;
+    // Command pods are the bridge drum mesh, drawn with the model fittings.
+    if(C.FITS[f.k].window)return;
     const d = C.fitSpec(f), M = frameM(f), o = C.fitOrigin(f), L = d.fm, W = d.wm, h = d.hm, k = f.k;
-    if(d.window){
-      const ww=f.width||d.fm,hh=f.height||d.wm;
-      box(g,M,o,0,0,0,ww,0.65,hh,FC.dark);
-      const count=Math.max(2,Math.round(ww/4));
-      for(let i=0;i<count;i++)box(g,M,o,-ww/2+ww/count*(i+.5),.42,0,ww/count*.78,.22,hh*.75,d.col,UV_WINDOW);
-      return;
-    }
     // pedestal from below the surface up to the mount
     const ph = f.base + f.ped - (f.low || 0);
     if (ph > 0.3) pedestal(g, M, o, ph, d.r * (d.cat === 'b' ? 0.55 : 0.72) * (f.pedSize || 1), f.pedShape, FC.ped, d.r * 0.8);
@@ -1173,8 +1167,8 @@ function meshReferenceParts(ship,ranges,only){
  return {refStruct,refEngine,refPlant};
 }
 function meshReferenceFits(ship,ranges,only){
- const g=new Geo(16);for(const f of only||ship.fits){const d=C.FITS[f.k];if(!d.asset||f.float)continue;const before=g.ni;
-  appendReference(g,f.skinAsset||d.asset,v=>C.referenceFitPoint(f,v));
+ const g=new Geo(16);for(const f of only||ship.fits){const d=C.FITS[f.k];if(!(d.asset||d.pod)||f.float)continue;const before=g.ni;
+  if(d.pod)appendReference(g,C.POD_ASSET,v=>C.podPoint(f,v));else appendReference(g,f.skinAsset||d.asset,v=>C.referenceFitPoint(f,v));
   if(ranges&&g.ni>before)(ranges[f.id]||(ranges[f.id]=[])).push(['refFits',before,g.ni-before]);
  }return g;
 }
