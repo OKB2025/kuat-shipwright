@@ -159,13 +159,21 @@ function handleBuild(job) {
   post({type: 'built', id: job.id, key: job.key, state: C.publicJSON(ship), ms: now() - t0});
 }
 
+let trialHold = null;
+function handleTrialRays(job) {
+  const ids = job.ids || [], dirs = job.dirs || [], out = new Uint8Array(ids.length), t = trialHold;
+  if (t) for (let i = 0; i < ids.length; i++) { const f = t.fits.get(ids[i]); out[i] = f && C.turretClear(t.ship, f, [dirs[i * 3], dirs[i * 3 + 1], dirs[i * 3 + 2]], t.ctx) ? 1 : 0; }
+  post({type: 'trialRays', id: job.id, clear: out, ready: !!t});
+}
 function handleFleet(job) {
   const t0 = now();
   const d = job.key ? C.buildDesign(job.key) : C.deserialize(job.design);
   C.syncCompartments(d); C.remount(d); C.syncCompartments(d);
   const stats = C.computeStats(d), profile = C.fleetProfile(stats, d.name), transfer = [];
-  const geometry = G.fleetGeometry(d);
+  const geometry = G.fleetGeometry(d, job.trial ? {trial: true} : null);
   for (const m of Object.values(geometry.meshes)) { m.geo = geoOut(m.geo, transfer); }
+  // A trial keeps its ship here so turret rays can be tested against it.
+  if (job.trial) trialHold = {ship: d, ctx: C.turretRayContext(d), fits: new Map(d.fits.map(f => [f.id, f]))};
   post({type: 'fleet', id: job.id, stats, profile, geometry, design: C.serialize(d), ms: now() - t0}, transfer);
 }
 
@@ -189,6 +197,8 @@ async function pump() {
         if (job.type === 'update') await handleUpdate(job);
         else if (job.type === 'build') handleBuild(job);
         else if (job.type === 'fleet') handleFleet(job);
+        else if (job.type === 'trialRays') handleTrialRays(job);
+        else if (job.type === 'trialEnd') trialHold = null;
         else if (job.type === 'op') handleOp(job);
         else if (job.type === 'ping') post({type: 'pong', id: job.id});
       } catch (e) {

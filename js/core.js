@@ -823,6 +823,35 @@ function fireArcs(ship, f, hf, obst) {
     return free / 9;
   });
 }
+// ---------- trial gunnery: one ray per turret and direction ----------
+// Same rules as fireArcs (mount facing, casemate cone, hull heightfield,
+// trench walls and other fittings) for a single direction; rays stop testing
+// the heightfield once they leave the ship's bounding box.
+function turretRayContext(ship){
+  const hf=heightfield(ship);let ymin=1e9,ymax=-1e9;
+  for(let k=0;k<hf.top.length;k++){if(hf.top[k]>ymax)ymax=hf.top[k];if(hf.bot[k]<ymin)ymin=hf.bot[k];}
+  return {hf,obst:obstacles(ship),box:[hf.x0,ymin-1,-hf.zmax,hf.x0+hf.nx*hf.dx,ymax+1,hf.zmax]};
+}
+function boxExit(o,d,b){let t1=Infinity;for(let a=0;a<3;a++){if(Math.abs(d[a])<1e-12){if(o[a]<b[a]||o[a]>b[a+3])return 0;continue;}const ta=(b[a]-o[a])/d[a],tb=(b[a+3]-o[a])/d[a];t1=Math.min(t1,Math.max(ta,tb));}return Math.max(0,t1);}
+function turretOrigin(f){const d=fitSpec(f),fr=fitFrame(f.a);return d.casemate?referenceFitPoint(f,[.5,0,0]):add(fitOrigin(f),mul(fr.up,d.hm*0.7));}
+function turretClear(ship,f,dir,ctx){
+  // Guns may depress about 10° below their mounting plane; the hull still blocks.
+  const d=fitSpec(f),facing=dot(dir,AXES[f.mountAxis??f.a]);
+  if(facing<-.17||d.casemate&&(facing<Math.cos(65*Math.PI/180)||Math.abs(dir[1])>Math.sin(20*Math.PI/180)))return false;
+  const start=add(turretOrigin(f),mul(dir,d.casemate?.2:d.r*1.1)),maxT=ship.hull.L*2.2+400;
+  if(f.localMount||d.casemate){
+    const c=cache(ship);if(!c.trenchBVH||c.trenchBVHKey!==c.hfKey){const tris=[...hullGeo(ship).tris];for(const p of ship.parts)if(p.k==='struct')for(const n of structTriangles(p))tris.push(n);c.trenchBVH=buildBVH(Float32Array.from(tris));c.trenchBVHKey=c.hfKey;}
+    if(rayBVH(c.trenchBVH,start,dir,maxT))return false;
+  }else{
+    const hf=ctx.hf,step=Math.min(hf.dx,hf.dz)*0.8,end=Math.min(maxT,boxExit(start,dir,ctx.box));
+    for(let t=step;t<end;t+=step){const p=[start[0]+dir[0]*t,start[1]+dir[1]*t,start[2]+dir[2]*t];if(hfBlocked(hf,p))return false;}
+  }
+  for(const ob of ctx.obst){if(ob.fit===f)continue;const h=ob.sphere?raySphere(start,dir,ob.c,ob.r):rayAABB(start,dir,ob.b);if(h&&h.t<maxT)return false;}
+  return true;
+}
+// Traverse speed by turret radius: a point-defence mount ~55°/s, a 30 m
+// heavy turret ~12°/s, a dreadnought's 56 m mount ~5°/s.
+function turretRate(f){const r=Math.max(2,fitSpec(f).r);return clamp(400/Math.pow(r,1.3),3,90);}
 function bridgeView(ship, f, hf, obst) {
   const d = fitSpec(f), fr = fitFrame(f.a), o = add(fitOrigin(f), mul(fr.up, d.hm * 0.85));
   let free = 0, tot = 0;
@@ -3584,7 +3613,7 @@ function syncAviationSurfaces(ship){
 }
 
 
-return {GROUND_LIMITS,GROUND_PRESETS,GROUND_VEHICLE_VOLUME,normalizeGroundForces,groundStatus,planStations,bridgeBodyRole,podPoint,podDepth,intrinsicCommandFits,POD_ASSET,BRIDGE_BODY_COMMAND,REFERENCE_TONE,engineSkinMesh,referenceFitYaw,rayTris,vmirrorPlane,vmirrorPoint,vmirrorPart,SHIP_CLASSES,shipClassFor,PUBLIC_LISTS,publicJSON,patchShip,patchItem,cache,AIRCRAFT_CLEARANCE,aircraftFitsBay,AVIATION_SIZE_VOLUME,AIR_WING_LIMITS,hangarCapacity,normalizeAirWings,aviationStatus,AVIATION_SURFACE_FACES,hatchAxes,aviationSurfaceContacts,setAviationSurfaceMode,syncAviationSurfaces,aviationHatchActive,isSlidingHatch,slidingHatchSpec,slidingHatchPanels,hatchOpenArea,ISD_HYPER_BASELINE,HYPER_CLASS_COEFFICIENT,HYPER_POWER_DENSITY,ISD_SHIELD_VOLUME,SHIELD_BUFFER_SECONDS,SHIELD_ENERGY_DENSITY,SHIELD_POWER_DENSITY,REACTOR_POWER_DENSITY,SOLID_CUT_SHAPES,normalizeSolidCut,mirrorSolidCut,solidCutTriangles,solidCutBounds,solidCutContains,solidCutsContain,applySolidCuts,solidPartCutContains,solidStructVolume,solidCutIntersectsShip,flexibleCompartment,hardConflicts,weaponChargeSpec,DREADNOUGHT_EXAMPLES,DESIGN_LIMITS,ALIGNMENTS,alignedPosition,alignPart,replacementShape,replacementOptions,replacePart,COMMAND_ROLES,commandCompartments,commandStatus,habitationSpace,inspectionTargets,planCutEdge,normalizePlanCut,structFrame,alignStructure,FLEET_RULES,fleetProfile,fleetUnit,fleetFormation,fleetBattle,fleetOrder,fleetArc,fleetTick,fleetCommit,fleetFinish,fleetSample,fleetFrame,normalizeBow,bowStation,engineHullEntry,ENGINE_BASELINES,engineBaseline,resizeEngine,parametricEngine,engineRating,sourceEngine,EQUIPMENT,equipmentSpec,equipmentOptions,enforceEquipment,customizeEquipment,adoptEquipment,HYPERDRIVE_REFERENCE,hyperCapacity,arcParameters,arcPoint,arcTriangles,inArc,SEPARATIST_EXAMPLES,STATS_SOURCE,SHIP_REFERENCE,PART_RATINGS,reactorPower,nozzleThrust,nozzleDemand,shieldLoad,partRatingKeys,validOutline,outlinePoints,outlineArea,outlineTriangles,AVIATION_ROLES,CHARGE_TT_M3,aircraftCapacity,aviationConnected,needsCapacitor,weaponCapacitors,refitReferenceInterior,clipReferenceBox, referenceEnginePoint, fitSpec, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface,
+return {turretRayContext,turretClear,turretOrigin,turretRate,GROUND_LIMITS,GROUND_PRESETS,GROUND_VEHICLE_VOLUME,normalizeGroundForces,groundStatus,planStations,bridgeBodyRole,podPoint,podDepth,intrinsicCommandFits,POD_ASSET,BRIDGE_BODY_COMMAND,REFERENCE_TONE,engineSkinMesh,referenceFitYaw,rayTris,vmirrorPlane,vmirrorPoint,vmirrorPart,SHIP_CLASSES,shipClassFor,PUBLIC_LISTS,publicJSON,patchShip,patchItem,cache,AIRCRAFT_CLEARANCE,aircraftFitsBay,AVIATION_SIZE_VOLUME,AIR_WING_LIMITS,hangarCapacity,normalizeAirWings,aviationStatus,AVIATION_SURFACE_FACES,hatchAxes,aviationSurfaceContacts,setAviationSurfaceMode,syncAviationSurfaces,aviationHatchActive,isSlidingHatch,slidingHatchSpec,slidingHatchPanels,hatchOpenArea,ISD_HYPER_BASELINE,HYPER_CLASS_COEFFICIENT,HYPER_POWER_DENSITY,ISD_SHIELD_VOLUME,SHIELD_BUFFER_SECONDS,SHIELD_ENERGY_DENSITY,SHIELD_POWER_DENSITY,REACTOR_POWER_DENSITY,SOLID_CUT_SHAPES,normalizeSolidCut,mirrorSolidCut,solidCutTriangles,solidCutBounds,solidCutContains,solidCutsContain,applySolidCuts,solidPartCutContains,solidStructVolume,solidCutIntersectsShip,flexibleCompartment,hardConflicts,weaponChargeSpec,DREADNOUGHT_EXAMPLES,DESIGN_LIMITS,ALIGNMENTS,alignedPosition,alignPart,replacementShape,replacementOptions,replacePart,COMMAND_ROLES,commandCompartments,commandStatus,habitationSpace,inspectionTargets,planCutEdge,normalizePlanCut,structFrame,alignStructure,FLEET_RULES,fleetProfile,fleetUnit,fleetFormation,fleetBattle,fleetOrder,fleetArc,fleetTick,fleetCommit,fleetFinish,fleetSample,fleetFrame,normalizeBow,bowStation,engineHullEntry,ENGINE_BASELINES,engineBaseline,resizeEngine,parametricEngine,engineRating,sourceEngine,EQUIPMENT,equipmentSpec,equipmentOptions,enforceEquipment,customizeEquipment,adoptEquipment,HYPERDRIVE_REFERENCE,hyperCapacity,arcParameters,arcPoint,arcTriangles,inArc,SEPARATIST_EXAMPLES,STATS_SOURCE,SHIP_REFERENCE,PART_RATINGS,reactorPower,nozzleThrust,nozzleDemand,shieldLoad,partRatingKeys,validOutline,outlinePoints,outlineArea,outlineTriangles,AVIATION_ROLES,CHARGE_TT_M3,aircraftCapacity,aviationConnected,needsCapacitor,weaponCapacitors,refitReferenceInterior,clipReferenceBox, referenceEnginePoint, fitSpec, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface,
   TT, G0, ISD_W, K, PARTS, FITS, HULLS, SECTIONS, KEELS, SECTORS, CLASSES, DESIGNS, AXES, AXNAME, ARMOR_MAX,
   newShip, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,

@@ -1207,7 +1207,7 @@ function attachControls(canvas) {
     canvas.setPointerCapture(e.pointerId);
     ptrs.set(e.pointerId, {x: e.clientX, y: e.clientY});
     if (trial.on) {   // trial flights: drag only looks around, pinch only zooms
-      if (ptrs.size === 1) { start = {x: e.clientX, y: e.clientY, t: performance.now()}; last = {x: e.clientX, y: e.clientY}; moved = true; mode = 'rotate'; }
+      if (ptrs.size === 1) { start = {x: e.clientX, y: e.clientY, t: performance.now()}; last = {x: e.clientX, y: e.clientY}; moved = false; mode = 'trialPending'; }
       else if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch = {d: Math.hypot(a.x - b.x, a.y - b.y), mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2}; mode = 'pinch'; }
       return;
     }
@@ -1239,7 +1239,7 @@ function attachControls(canvas) {
     if(mode === 'cutter'){cutterDragMove(e.clientX,e.clientY);last={x:e.clientX,y:e.clientY};moved=true;return;}
     if(mode === 'itemPending' && Math.hypot(e.clientX - start.x, e.clientY - start.y) > 7){mode='item';moved=true;clearHover();}
     if(mode === 'item'){dragItemMove(e.clientX,e.clientY);last={x:e.clientX,y:e.clientY};return;}
-    if (mode === 'pending' && Math.hypot(e.clientX - start.x, e.clientY - start.y) > 7) { mode = 'rotate'; moved = true; clearHover(); }
+    if ((mode === 'pending' || mode === 'trialPending') && Math.hypot(e.clientX - start.x, e.clientY - start.y) > 7) { mode = 'rotate'; moved = true; clearHover(); }
     if (mode === 'rotate') {
       view.cam.th += dx * 0.009; view.cam.ph = Math.max(0.0006, Math.min(Math.PI - 0.02, view.cam.ph - dy * 0.009)); requestDraw();
     } else if (mode === 'pan') { pan(dx, dy); requestDraw(); moved = true; }
@@ -1252,6 +1252,7 @@ function attachControls(canvas) {
     if(mode === 'item')dragItemEnd(false);
     if(mode === 'itemPending'){itemDrag=null;if(ptrs.size === 0)onTap(e.clientX, e.clientY);}
     if (mode === 'pending' && ptrs.size === 0 && !moved && performance.now() - start.t < 900) onTap(e.clientX, e.clientY);
+    if (mode === 'trialPending' && ptrs.size === 0 && performance.now() - start.t < 600) trialCommand('fireTap');
     if (ptrs.size === 0) { mode = null; pinch = null; if (e.pointerType !== 'mouse') clearHover(); }
     else if (ptrs.size === 1) { const p = [...ptrs.values()][0]; last = {x: p.x, y: p.y}; mode = 'rotate'; moved = true; }
   };
@@ -1593,7 +1594,7 @@ function start(hot) {
     window.claude.hot.snapshot(() => ({design: ship ? C.serialize(ship) : null, ui: {tab: st.tab, part: st.part, partTool: st.partTool, mirror: st.mirror, view: st.view, coded: st.coded, fit: st.fit, bridge: st.bridge, bridgeMode:st.bridgeMode,bridgeEquipment:st.bridgeEquipment,equipmentId:st.equipmentId,group:st.group,ped: st.ped}}));
   }
   Store.init();
-  window.__yard = {get ship() { return ship; }, get stats() { return S; }, st, draw: requestDraw, fleet, fleetSetMode, renderHealth, restoreRenderer, view: () => view, setShip, C, pick, onTap, touch, eng, openExample, title: titleApi, meshStore, trial, trialCommand};
+  window.__yard = {get ship() { return ship; }, get stats() { return S; }, st, draw: requestDraw, fleet, fleetSetMode, renderHealth, restoreRenderer, view: () => view, setShip, C, pick, onTap, touch, eng, openExample, title: titleApi, meshStore, trial, trialCommand, trialStep: dt => trialStep(dt), trialCamera: dt => trialCamera(dt)};
   const boot = window.KSBoot, draft = readDraft(hot);
   const engineStart = YardEngineClient.start(boot ? null : collectSources(), boot ? {workerReady: boot.workerReady} : {});
   engineStart.then(mode => { engineHello(mode); boot?.step('engine', 'done'); titleStatus(); }).catch(e => { console.error(e); toast('設計エンジンを起動できませんでした'); });
@@ -2170,49 +2171,72 @@ function bindGround(){
  });
 }
 // ---------- 公試: a free flight trial in low orbit over Coruscant ----------
-// WoWS-style standing orders (telegraph, rudder, planes and roll) on a fleet
-// asset of the current design. The ship stays at the render origin; its
+// WoWS-style standing orders for speed and rudder, a stick for pitch and roll,
+// and turrets that follow the view. The ship stays at the render origin; its
 // position is kept in double precision relative to the planet centre.
 const TRIAL_PLANET={radius:6.12e6,altitude:160000,floor:40000,sun:(()=>{const v=[.85,-.1,.5],l=Math.hypot(...v);return v.map(x=>x/l);})()};
 const TRIAL_TELEGRAPH=[['後進',-.25],['停止',0],['1/4',.25],['1/2',.5],['3/4',.75],['全速',1]];
-const TRIAL_ORDERS={rudder:['取舵一杯','取舵','舵中央','面舵','面舵一杯'],pitch:['下げ舵一杯','下げ舵','水平','上げ舵','上げ舵一杯'],roll:['左ロール大','左ロール','ロール中立','右ロール','右ロール大']};
-const trial={on:false,busy:false,asset:null,p:null,P:[0,0,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],w:[0,0,0],tele:1,rudder:0,pitch:0,roll:0,level:false,t:0,last:0,hud:0,vf:0,thrust:0,camMode:'horizon',camF:null,rec:null,dust:null,warn:'',designCamera:null};
-const tv={dot:(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2],cross:(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],len:a=>Math.hypot(a[0],a[1],a[2]),norm:a=>{const l=Math.hypot(a[0],a[1],a[2])||1;return [a[0]/l,a[1]/l,a[2]/l];},add:(a,b,k=1)=>[a[0]+b[0]*k,a[1]+b[1]*k,a[2]+b[2]*k],scale:(a,k)=>[a[0]*k,a[1]*k,a[2]*k]};
+const TRIAL_RUDDER=['取舵一杯','取舵','舵中央','面舵','面舵一杯'];
+// The orbit centre floats above the ship and the default view is nearly level,
+// so the reticle (screen centre) looks at the horizon with the ship below it.
+const TRIAL_CAM_PH=1.54,TRIAL_CAM_LIFT=.2;
+const TRIAL_GUN={boltSpeed:4500,range:40000,aim:20000,maxBolts:2400,hitsToKill:10,targets:4};
+const trial={on:false,busy:false,asset:null,p:null,P:[0,0,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],w:[0,0,0],tele:1,rudder:0,level:false,t:0,last:0,hud:0,vf:0,thrust:0,camMode:'horizon',camF:null,rec:null,dust:null,warn:'',designCamera:null,
+ stick:{x:0,y:0},keyStick:{x:0,y:0},keys:new Set(),fire:false,fireKey:false,fireTap:0,turrets:[],bolts:[],fx:[],targets:[],gun:null,rays:{busy:false,last:0},aim:null};
+const tv={dot:(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2],cross:(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],len:a=>Math.hypot(a[0],a[1],a[2]),norm:a=>{const l=Math.hypot(a[0],a[1],a[2])||1;return [a[0]/l,a[1]/l,a[2]/l];},add:(a,b,k=1)=>[a[0]+b[0]*k,a[1]+b[1]*k,a[2]+b[2]*k],scale:(a,k)=>[a[0]*k,a[1]*k,a[2]*k],sub:(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]]};
 function trialRot(v,axis,ang){const c=Math.cos(ang),s=Math.sin(ang),d=tv.dot(axis,v),x=tv.cross(axis,v);return [v[0]*c+x[0]*s+axis[0]*d*(1-c),v[1]*c+x[1]*s+axis[1]*d*(1-c),v[2]*c+x[2]*s+axis[2]*d*(1-c)];}
 // Column-major frame from forward and approximate up (Gram-Schmidt).
 function trialFrame(f,u){f=tv.norm(f);u=tv.norm(tv.add(u,f,-tv.dot(u,f)));const r=tv.cross(f,u);return [f[0],f[1],f[2],u[0],u[1],u[2],r[0],r[1],r[2]];}
 const trialCol=(M,i)=>[M[i*3],M[i*3+1],M[i*3+2]];
+const trialApply=(M,v)=>[M[0]*v[0]+M[3]*v[1]+M[6]*v[2],M[1]*v[0]+M[4]*v[1]+M[7]*v[2],M[2]*v[0]+M[5]*v[1]+M[8]*v[2]];
+const trialApplyT=(M,v)=>[M[0]*v[0]+M[1]*v[1]+M[2]*v[2],M[3]*v[0]+M[4]*v[1]+M[5]*v[2],M[6]*v[0]+M[7]*v[1]+M[8]*v[2]];
+// Rotation about a unit axis, column-major.
+function trialAxisMatrix(a,t,out){const c=Math.cos(t),s=Math.sin(t),k=1-c,[x,y,z]=a;out=out||new Array(9);out[0]=c+x*x*k;out[1]=y*x*k+z*s;out[2]=z*x*k-y*s;out[3]=x*y*k-z*s;out[4]=c+y*y*k;out[5]=z*y*k+x*s;out[6]=x*z*k+y*s;out[7]=y*z*k-x*s;out[8]=c+z*z*k;return out;}
+const trialWrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
 function trialProfile(){if(!ship||!S)return null;try{return C.fleetProfile(S,ship.name);}catch(e){return null;}}
-function trialFigures(p){const v=p?.maxSpeed||0,ok=!!(p&&p.accel>0&&v>0&&p.turnRate>0);return {ok,v,kmh:v*3.6,accelTime:ok?v/p.accel:0,turn:ok?p.turnRate*180/Math.PI:0,circle:ok?2*v/p.turnRate:0};}
+function trialFigures(p){const v=p?.maxSpeed||0,ok=!!(p&&p.accel>0&&v>0&&p.turnRate>0);const rates=(ship?.fits||[]).filter(f=>{const d=C.FITS[f.k];return d.cat==='w'&&(d.tt||d.ion)&&!f.float&&!d.casemate;}).map(f=>C.turretRate(f));return {ok,v,kmh:v*3.6,accelTime:ok?v/p.accel:0,turn:ok?p.turnRate*180/Math.PI:0,circle:ok?2*v/p.turnRate:0,traverse:rates.length?[Math.min(...rates),Math.max(...rates)]:null};}
 function trialCardHTML(side){
- if(!ship||!S)return '';const f=trialFigures(trialProfile());
- return `<div class="pgroup trial-card${side?' side':''}"><div class="trial-head"><h4>公試</h4><span>コルサント低軌道</span></div><p class="note">設計した艦を軌道上で操艦し、速力・加速・旋回を確かめます。</p>${f.ok?`<dl class="trial-kv"><dt>最大速力</dt><dd>${num(Math.round(f.v))} m/s</dd><dt>0→全速</dt><dd>${Math.round(f.accelTime)} 秒</dd><dt>全舵旋回率</dt><dd>${f.turn.toFixed(1)}°/秒</dd><dt>全速旋回径</dt><dd>${(f.circle/1000).toFixed(1)} km</dd></dl>`:`<p class="note neg">加速度が 0 G のため航行できません。推進・慣性補償・構造の上限を確認してください。</p>`}<button type="button" class="btn primary trial-go" data-trial="start" ${f.ok?'':'disabled'}>公試に出る</button></div>`;
-}
-function trialReset(){
- const R=TRIAL_PLANET.radius;Object.assign(trial,{P:[0,R+TRIAL_PLANET.altitude,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],w:[0,0,0],tele:1,rudder:0,pitch:0,roll:0,level:false,t:0,last:0,vf:0,thrust:0,camF:null,warn:''});
- trial.rec={top:0,accel:null,run:null,turn:null,turnSpeed:0};
- const L=trial.p.len,H=C.clamp(L*2,1400,30000),n=280,pos=new Float32Array(n*3);for(let i=0;i<pos.length;i++)pos[i]=(Math.random()*2-1)*H;
- trial.dust={H,pos,col:new Uint8Array(n*4).map((_,i)=>i%4===3?120:170+(i%4)*14),size:new Float32Array(n).fill(Math.max(2,L*.0035))};
- if(view){view.cam.th=Math.PI;view.cam.ph=1.22;view.cam.r=trialCamRange(L*1.35+260);}
+ if(!ship||!S)return '';const f=trialFigures(trialProfile()),tr=f.traverse;
+ return `<div class="pgroup trial-card${side?' side':''}"><div class="trial-head"><h4>公試</h4><span>コルサント低軌道</span></div><p class="note">設計した艦を軌道上で操艦し、速力・加速・旋回と砲塔の射界を確かめます。</p>${f.ok?`<dl class="trial-kv"><dt>最大速力</dt><dd>${num(Math.round(f.v))} m/s</dd><dt>0→全速</dt><dd>${Math.round(f.accelTime)} 秒</dd><dt>全舵旋回率</dt><dd>${f.turn.toFixed(1)}°/秒</dd><dt>全速旋回径</dt><dd>${(f.circle/1000).toFixed(1)} km</dd>${tr?`<dt>砲塔旋回</dt><dd>${tr[0]===tr[1]?tr[0].toFixed(0):tr[0].toFixed(0)+'〜'+tr[1].toFixed(0)}°/秒</dd>`:''}</dl>`:`<p class="note neg">加速度が 0 G のため航行できません。推進・慣性補償・構造の上限を確認してください。</p>`}<button type="button" class="btn primary trial-go" data-trial="start" ${f.ok?'':'disabled'}>公試に出る</button></div>`;
 }
 const trialCamRange=r=>C.clamp(r,trial.p.len*.45+60,trial.p.len*10+4000);
+function trialReset(){
+ const R=TRIAL_PLANET.radius;Object.assign(trial,{P:[0,R+TRIAL_PLANET.altitude,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],w:[0,0,0],tele:1,rudder:0,level:false,t:0,last:0,vf:0,thrust:0,camF:null,warn:'',bolts:[],fx:[],fireTap:0,aim:null});
+ trial.rec={top:0,accel:null,run:null,turn:null,turnSpeed:0};trial.gun={shots:0,hits:0,kills:0};
+ const L=trial.p.len,H=C.clamp(L*2,1400,30000),n=280,pos=new Float32Array(n*3);for(let i=0;i<pos.length;i++)pos[i]=(Math.random()*2-1)*H;
+ trial.dust={H,pos,col:new Uint8Array(n*4).map((_,i)=>i%4===3?120:170+(i%4)*14),size:new Float32Array(n).fill(Math.max(2,L*.0035))};
+ for(const t of trial.turrets){t.yaw=0;t.el=0;t.reload=Math.random()*t.cycle;t.clear=false;t.clearDir=null;t.aimed=false;t.arc=true;t.rot=trialAxisMatrix(t.axis,0,t.rot);}
+ trial.targets=[];for(let i=0;i<TRIAL_GUN.targets;i++)trial.targets.push(trialSpawnTarget(i,true));
+ if(view){const asp=(view.canvas.clientWidth||900)/(view.canvas.clientHeight||600);view.cam.th=Math.PI;view.cam.ph=TRIAL_CAM_PH;view.cam.r=trialCamRange((L*1.35+260)*Math.max(1,.95/asp));}
+}
+// Target buoys sit ahead of the ship in its local horizon, 8–28 km out.
+function trialSpawnTarget(i,first){
+ const up=tv.norm(trial.P),f=trialCol(trial.R,0);let fh=tv.add(f,up,-tv.dot(f,up));fh=tv.len(fh)>.2?tv.norm(fh):tv.norm(tv.cross(up,[0,0,1]));const rt=tv.cross(fh,up);
+ const L=trial.p.len,bearing=first?[-.6,.25,-.15,.55][i%4]:(Math.random()*2-1)*1.2,dist=first?[9000,14000,20000,27000][i%4]+L*.6:8000+L*.6+Math.random()*20000,rise=(Math.random()*2-1)*1500;
+ const off=tv.add(tv.add(tv.scale(fh,Math.cos(bearing)*dist),rt,Math.sin(bearing)*dist),up,rise);
+ return {id:i,pos:tv.add(trial.P,off),vel:tv.scale(tv.norm(tv.cross(up,off)),(Math.random()*2-1)*25),hits:0,alive:true,respawn:0,spin:Math.random()*6.28,rot:[1,0,0,0,1,0,0,0,1]};
+}
+function trialTurretState(t){const fw=tv.norm(t.fw),axis=tv.norm(t.axis);return {...t,fw,axis,e2:tv.cross(axis,fw),rateRad:t.rate*Math.PI/180,yaw:0,el:0,reload:0,clear:false,clearDir:null,aimed:false,arc:true,rot:trialAxisMatrix(axis,0)};}
 async function trialStart(){
  if(trial.on||trial.busy||!ship||!view||fleet.mode!=='design')return;
  const f=trialFigures(trialProfile());if(!f.ok){toast('加速度が 0 G のため公試を行えません');return;}
- trial.busy=true;showBusyOverlay('公試の準備中…');
- let a=null;try{a=await fleetAsset('current');}catch(e){console.error(e);toast('公試を開始できません：'+esc(e.message||e));}finally{trial.busy=false;hideBusyOverlay();}
+ trial.busy=true;showBusyOverlay('公試の準備中…（砲塔の旋回軸と射界を計算）');
+ let a=null;try{const data=C.serialize(ship),key='trial-'+fleetHash(JSON.stringify(data)),r=await YardEngineClient.request('fleet',{design:data,trial:true});a={key,design:r.design,stats:r.stats,p:r.profile,geometry:r.geometry};if(view)view.loadFleet(key,r.geometry);}
+ catch(e){console.error(e);toast('公試を開始できません：'+esc(e.message||e));}finally{trial.busy=false;hideBusyOverlay();}
  if(!a||trial.on||fleet.mode!=='design')return;
  if(!(a.p.accel>0&&a.p.maxSpeed>0)){toast('加速度が 0 G のため公試を行えません');return;}
- trial.asset=a;trial.p=a.p;trial.designCamera={cam:JSON.parse(JSON.stringify(view.cam)),off:[...view.off]};
+ trial.asset=a;trial.p=a.p;trial.turrets=(a.geometry.turrets||[]).map(trialTurretState);trial.designCamera={cam:JSON.parse(JSON.stringify(view.cam)),off:[...view.off]};
  closeSheet();hideInspect();clearHover();if(dragSnap)endDrag();
  view.off=[0,0,0];view.cam={...view.cam,target:[0,0,0],ortho:false};trialReset();
- trial.on=true;document.body.classList.add('trial-on');const hud=$('#trialHud');hud.hidden=false;hud.innerHTML=trialHudHTML();trialHudUpdate(true);
+ trial.on=true;document.body.classList.add('trial-on');const hud=$('#trialHud');hud.hidden=false;hud.innerHTML=trialHudHTML();trialBindHud(hud);trialHudUpdate(true);
  requestAnimationFrame(()=>{requestDraw();});
 }
 function trialStop(){
- if(!trial.on)return;trial.on=false;document.body.classList.remove('trial-on');const hud=$('#trialHud');hud.hidden=true;hud.innerHTML='';
- if(view){if(trial.designCamera){view.cam=trial.designCamera.cam;view.off=trial.designCamera.off;}delete view.cam.frame;}
- trial.asset=null;fleetPrune();renderPanel();renderSpecTargets();syncHud();requestDraw();
+ if(!trial.on)return;trial.on=false;trial.fire=trial.fireKey=false;trial.keys.clear();trial.stick={x:0,y:0};trial.keyStick={x:0,y:0};
+ document.body.classList.remove('trial-on');const hud=$('#trialHud');hud.hidden=true;hud.innerHTML='';
+ if(view){if(trial.designCamera){view.cam=trial.designCamera.cam;view.off=trial.designCamera.off;}delete view.cam.frame;delete view.cam.far;}
+ try{YardEngineClient.post({type:'trialEnd'});}catch(e){}
+ trial.asset=null;trial.turrets=[];trial.bolts=[];trial.fx=[];trial.targets=[];fleetPrune();renderPanel();renderSpecTargets();syncHud();requestDraw();
 }
 function trialAttitude(){
  const R=trial.R,f=trialCol(R,0),u=trialCol(R,1),r=trialCol(R,2),up=tv.norm(trial.P),north=[0,0,-1];
@@ -2221,10 +2245,13 @@ function trialAttitude(){
  return {f,u,r,up,pitch:Math.asin(C.clamp(tv.dot(f,up),-1,1)),bank:Math.atan2(-tv.dot(r,up),tv.dot(u,up)),heading,alt:tv.len(trial.P)-TRIAL_PLANET.radius};
 }
 function trialMaxRates(){const p=trial.p,tr=p.turnRate||0,sf=.45+.55*Math.min(1,Math.abs(trial.vf)/Math.max(1,p.maxSpeed));return [tr*2.2,tr*sf,tr*.75*sf];}
+// Touch stick and held keys: the larger deflection on each axis wins.
+function trialStickInput(){const a=trial.stick,b=trial.keyStick,pick=(x,y)=>Math.abs(x)>=Math.abs(y)?x:y;return {x:C.clamp(pick(a.x,b.x),-1,1),y:C.clamp(pick(a.y,b.y),-1,1)};}
 function trialStep(dt){
- const p=trial.p,a=trialAttitude(),max=trialMaxRates();
- const want=[trial.roll/2*max[0],trial.rudder/2*max[1],trial.pitch/2*max[2]];
- if(trial.level){want[0]=C.clamp(-a.bank*.9,-max[0],max[0]);want[2]=C.clamp(-a.pitch*.9,-max[2]||-.01,max[2]||.01);if(Math.abs(a.bank)<.003&&Math.abs(a.pitch)<.003&&Math.abs(trial.w[0])<.003&&Math.abs(trial.w[2])<.003){trial.level=false;trial.pitch=0;trial.roll=0;trial.w[0]=trial.w[2]=0;}}
+ const p=trial.p,a=trialAttitude(),max=trialMaxRates(),stick=trialStickInput();
+ if(Math.abs(stick.x)>.05||Math.abs(stick.y)>.05)trial.level=false;
+ const want=[stick.x*max[0],trial.rudder/2*max[1],stick.y*max[2]];
+ if(trial.level){want[0]=C.clamp(-a.bank*.9,-max[0],max[0]);want[2]=C.clamp(-a.pitch*.9,-max[2]||-.01,max[2]||.01);if(Math.abs(a.bank)<.003&&Math.abs(a.pitch)<.003&&Math.abs(trial.w[0])<.003&&Math.abs(trial.w[2])<.003){trial.level=false;trial.w[0]=trial.w[2]=0;}}
  const k=1-Math.exp(-dt/C.clamp(1.3*Math.sqrt(p.len/1600),.5,5));for(let i=0;i<3;i++)trial.w[i]+=(want[i]-trial.w[i])*k;
  // roll about forward, yaw (positive = starboard) about -up, pitch about starboard
  const om=tv.add(tv.add(tv.scale(a.f,trial.w[0]),a.u,-trial.w[1]),a.r,trial.w[2]),mag=tv.len(om);
@@ -2240,33 +2267,114 @@ function trialStep(dt){
  const r=trial.rec,vmax=p.maxSpeed;r.top=Math.max(r.top,trial.vf);
  if(trial.tele===5&&!r.run&&trial.vf<.02*vmax)r.run={t0:trial.t};if(r.run&&trial.tele!==5)r.run=null;if(r.run&&trial.vf>=.98*vmax){r.accel=trial.t-r.run.t0;r.run=null;}
  if(Math.abs(trial.rudder)===2&&Math.abs(trial.vf)>.05*vmax&&Math.abs(Math.abs(trial.w[1])-max[1])<.03*max[1]){r.turn=2*Math.abs(trial.vf)/Math.abs(trial.w[1]);r.turnSpeed=trial.vf;}
+ trialGunnery(dt);
+}
+// ---- gunnery ----
+const trialBarrel=(t,yaw,el)=>{const c=Math.cos(el),h=tv.add(tv.scale(t.fw,Math.cos(yaw)),t.e2,Math.sin(yaw));return tv.norm(tv.add(tv.scale(h,c),t.axis,Math.sin(el)));};
+const trialLimits=t=>t.casemate?{yaw:65*Math.PI/180,lo:-20*Math.PI/180,hi:20*Math.PI/180}:{yaw:null,lo:-10*Math.PI/180,hi:85*Math.PI/180};
+function trialAim(){
+ if(!view)return null;const eye=view.eye(),dir=tv.norm(tv.sub(view.cam.target,eye));let dist=Math.max(TRIAL_GUN.aim,trial.p.len*1.5),lock=null,best=Infinity;
+ for(const t of trial.targets){if(!t.alive)continue;const v=tv.sub(tv.sub(t.pos,trial.P),eye),d=tv.len(v),ang=Math.acos(C.clamp(tv.dot(v,dir)/d,-1,1)),cone=Math.atan(trial.asset.geometry.targetRadius*1.6/d)+.006;if(ang<cone&&ang<best){best=ang;lock=t;dist=d;}}
+ return {eye,dir,dist,lock,point:tv.add(eye,dir,dist)};
+}
+function trialGunnery(dt){
+ const a=trial.aim=trialAim();if(!a)return;const R=trial.R,center=trial.asset.geometry.center,wantFire=trial.fire||trial.fireKey||trial.fireTap>0;trial.fireTap=Math.max(0,trial.fireTap-dt);
+ const color=trial.asset.geometry.reference==='venator'||trial.asset.geometry.paint==='republic'?[120,175,255]:[95,255,120];
+ for(const t of trial.turrets){
+  const oW=trialApply(R,tv.sub(t.origin,center)),dl=trialApplyT(R,tv.norm(tv.sub(a.point,oW))),lim=trialLimits(t);
+  let ty=Math.atan2(tv.dot(dl,t.e2),tv.dot(dl,t.fw)),te=Math.asin(C.clamp(tv.dot(dl,t.axis),-1,1));t.arc=true;
+  if(lim.yaw!=null&&Math.abs(ty)>lim.yaw){ty=Math.sign(ty)*lim.yaw;t.arc=false;}if(te<lim.lo||te>lim.hi){te=C.clamp(te,lim.lo,lim.hi);t.arc=false;}
+  const sy=t.rateRad*dt,dy=trialWrap(ty-t.yaw);t.yaw=trialWrap(t.yaw+C.clamp(dy,-sy,sy));const se=t.rateRad*1.5*dt;t.el+=C.clamp(te-t.el,-se,se);
+  if(t.mesh)trialAxisMatrix(t.axis,t.yaw,t.rot);
+  const err=Math.max(Math.abs(trialWrap(ty-t.yaw)),Math.abs(te-t.el));t.aimed=t.arc&&err<.018;t.laid=t.arc&&err<.005;
+  t.reload=Math.max(0,t.reload-dt);
+  const bd=trialBarrel(t,t.yaw,t.el),ok=t.clear&&t.clearDir&&tv.dot(bd,t.clearDir)>.9986;t.ready=t.aimed&&ok;
+  if(wantFire&&t.ready&&t.laid&&t.reload<=0){
+   t.reload=t.cycle*(1+Math.random()*.08);const n=Math.min(t.barrels,t.r>12?2:t.barrels>2?2:1),g=()=>(Math.random()+Math.random()+Math.random()-1.5)*.0012,bw=trialApply(R,tv.norm(tv.add(tv.add(bd,t.e2,g()),t.axis,g()))),side=trialApply(R,tv.norm(tv.cross(t.axis,bd))),base=tv.add(tv.add(trial.P,oW),bw,t.r*1.2),spread=t.r*.35;
+   trial.gun.shots+=t.barrels;
+   for(let i=0;i<n;i++){const off=n>1?(i/(n-1)-.5)*spread:0,pos=tv.add(base,side,off);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(bw,TRIAL_GUN.boltSpeed),trial.V),life:Math.max(TRIAL_GUN.range,trial.p.len*3)/TRIAL_GUN.boltSpeed,len:Math.max(70,t.r*9),size:Math.max(5,t.r*.9),col:t.ion?[170,215,255]:color,weight:t.barrels/n});}
+   trial.fx.push({pos:base,vel:trial.V,life:.12,max:.12,size:Math.max(6,t.r*1.6),col:[255,240,210]});
+  }
+ }
+ if(trial.bolts.length>TRIAL_GUN.maxBolts)trial.bolts.splice(0,trial.bolts.length-TRIAL_GUN.maxBolts);
+ const Rt=trial.asset.geometry.targetRadius;
+ for(const b of trial.bolts){b.prev=b.pos;b.pos=tv.add(b.pos,b.vel,dt);b.life-=dt;
+  for(const t of trial.targets){if(!t.alive||b.life<=0)continue;const seg=tv.sub(b.pos,b.prev),l2=tv.dot(seg,seg)||1,u=C.clamp(tv.dot(tv.sub(t.pos,b.prev),seg)/l2,0,1),q=tv.add(b.prev,seg,u);if(tv.len(tv.sub(q,t.pos))<Rt){b.life=0;trial.gun.hits+=b.weight;t.hits+=b.weight;
+   for(let k=0;k<6;k++)trial.fx.push({pos:q,vel:tv.add(t.vel,tv.scale(tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),40+Math.random()*120)),life:.5,max:.5,size:Rt*.18,col:[255,200,120]});
+   if(t.hits>=TRIAL_GUN.hitsToKill){t.alive=false;t.respawn=4;trial.gun.kills++;for(let k=0;k<46;k++)trial.fx.push({pos:t.pos,vel:tv.add(t.vel,tv.scale(tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),Rt*(.6+Math.random()*2.2))),life:1.6,max:1.6,size:Rt*(.25+Math.random()*.4),col:[255,170+Math.random()*60|0,90]});trial.fx.push({pos:t.pos,vel:t.vel,life:.5,max:.5,size:Rt*4,col:[255,245,220]});}}}}
+ trial.bolts=trial.bolts.filter(b=>b.life>0);
+ for(const t of trial.targets){if(t.alive){t.pos=tv.add(t.pos,t.vel,dt);t.spin+=dt*.3;const up=tv.norm(t.pos);t.rot=trialAxisMatrix(up,t.spin,t.rot);t.rot=trialFrame(trialApply(t.rot,[1,0,0]),up);}else if((t.respawn-=dt)<=0)Object.assign(t,trialSpawnTarget(t.id,false));}
+ for(const e of trial.fx){e.pos=tv.add(e.pos,e.vel,dt);e.life-=dt;}trial.fx=trial.fx.filter(e=>e.life>0);
+ const due=performance.now();if(!trial.rays.busy&&due-trial.rays.last>140&&trial.turrets.length)trialRays(due);
+}
+// The engine tests each barrel direction against the hull, structures and
+// other fittings; firing waits for a clear answer for the current direction.
+function trialRays(now){
+ const ts=trial.turrets,ids=new Int32Array(ts.length),dirs=new Float32Array(ts.length*3),sent=ts.map(t=>trialBarrel(t,t.yaw,t.el));
+ ts.forEach((t,i)=>{ids[i]=t.id;dirs.set(sent[i],i*3);});trial.rays.busy=true;trial.rays.last=now;const asset=trial.asset;
+ YardEngineClient.request('trialRays',{ids:Array.from(ids),dirs:Array.from(dirs)}).then(r=>{if(trial.asset!==asset)return;const c=r.clear||[];ts.forEach((t,i)=>{t.clear=!!c[i];t.clearDir=sent[i];});}).catch(()=>{}).finally(()=>{trial.rays.busy=false;});
+}
+function trialRenderSets(){
+ const b=trial.bolts,P=trial.P,K=7,pos=new Float32Array(b.length*K*3),col=new Uint8Array(b.length*K*4),size=new Float32Array(b.length*K);
+ b.forEach((q,i)=>{const d=tv.norm(q.vel);for(let k=0;k<K;k++){const j=i*K+k,s=k/(K-1),p=tv.add(tv.sub(q.pos,P),d,-q.len*s);pos.set(p,j*3);col.set([q.col[0],q.col[1],q.col[2],Math.round(235*(1-s*.7))],j*4);size[j]=q.size*(1-s*.55);}});
+ view.setPoints('trialBolts',pos,col,size);
+ const f=trial.fx,fp=new Float32Array(f.length*3),fc=new Uint8Array(f.length*4),fs=new Float32Array(f.length);
+ f.forEach((e,i)=>{const k=e.life/e.max;fp.set(tv.sub(e.pos,P),i*3);fc.set([e.col[0],e.col[1],e.col[2],Math.round(255*Math.min(1,k*1.4))],i*4);fs[i]=e.size*(e.max>1?1.4-k*.6:1);});
+ view.setPoints('trialFx',fp,fc,fs);
+ const ts=trial.turrets,R=trial.R,c=trial.asset.geometry.center,mp=new Float32Array(ts.length*3),mc=new Uint8Array(ts.length*4),ms=new Float32Array(ts.length);
+ ts.forEach((t,i)=>{const p=trialApply(R,tv.sub(tv.add(t.pivot,t.axis,t.hm+Math.max(3,t.r*.6)),c));mp.set(p,i*3);mc.set(t.ready?(t.reload>0?[255,196,80,170]:[90,255,140,190]):t.arc&&t.clearDir&&!t.clear?[255,80,70,170]:t.arc?[255,196,80,150]:[255,80,70,120],i*4);ms[i]=Math.max(1.5,t.r*.3);});
+ view.setPoints('trialMarks',mp,mc,ms);
 }
 function trialCamera(dt){
  const a=trialAttitude();let F;
  if(trial.camMode==='ship')F=trial.R;
  else{let fh=tv.add(a.f,a.up,-tv.dot(a.f,a.up));if(tv.len(fh)<.25&&trial.camF){const old=trialCol(trial.camF,0);fh=tv.add(old,a.up,-tv.dot(old,a.up));}F=trialFrame(fh,a.up);}
  if(!trial.camF)trial.camF=[...F];else{const k=1-Math.exp(-dt*4),x=tv.add(trialCol(trial.camF,0),tv.add(trialCol(F,0),trialCol(trial.camF,0),-1),k),y=tv.add(trialCol(trial.camF,1),tv.add(trialCol(F,1),trialCol(trial.camF,1),-1),k);trial.camF=trialFrame(x,y);}
- const c=view.cam;c.frame=trial.camF;c.ortho=false;c.r=trialCamRange(c.r);c.ph=C.clamp(c.ph,.12,2.9);const up=trialCol(trial.camF,1);c.target=tv.scale(up,c.r*.16);
+ const c=view.cam;c.frame=trial.camF;c.ortho=false;c.r=trialCamRange(c.r);c.ph=C.clamp(c.ph,.12,2.9);c.far=Math.max(90000,trial.p.len*30);const up=trialCol(trial.camF,1);c.target=tv.scale(up,c.r*TRIAL_CAM_LIFT);
 }
 function trialLoop(now){
  const dt=trial.last?Math.min(.05,(now-trial.last)/1000):0;trial.last=now;
- if(dt>0){const n=dt>.025?2:1;for(let i=0;i<n;i++)trialStep(dt/n);}
  trialCamera(dt||.016);
- const d=trial.dust;view.setPoints('trialDust',d.pos,d.col,d.size);
- const unit={key:trial.asset.key,pos:[0,0,0],yaw:0,rot:trial.R,glow:.3+.7*Math.min(1,Math.max(Math.abs(TRIAL_TELEGRAPH[trial.tele][1]),trial.thrust)),hatchOpen:0,dead:false};
+ if(dt>0){const n=dt>.025?2:1;for(let i=0;i<n;i++)trialStep(dt/n);}
+ const d=trial.dust;view.setPoints('trialDust',d.pos,d.col,d.size);trialRenderSets();
+ const geo=trial.asset.geometry,unit={key:trial.asset.key,pos:[0,0,0],yaw:0,rot:trial.R,glow:.3+.7*Math.min(1,Math.max(Math.abs(TRIAL_TELEGRAPH[trial.tele][1]),trial.thrust)),hatchOpen:0,dead:false,
+  turrets:trial.turrets.filter(t=>t.mesh).map(t=>({mesh:t.mesh,pivot:t.pivot,rot:t.rot})),targets:trial.targets.filter(t=>t.alive).map(t=>({pos:tv.sub(t.pos,trial.P),rot:t.rot}))};
  if(view.draw({fleet:[unit],mode:'trial',planet:{center:tv.scale(trial.P,-1),radius:TRIAL_PLANET.radius,sun:TRIAL_PLANET.sun}})!==false){renderHealth.frames++;renderHealth.lastFrame=now;renderHealth.failures=0;}
+ trialMarkers();
  if(now-trial.hud>120){trial.hud=now;trialHudUpdate();}
 }
-const trialStepNames=(k,v)=>TRIAL_ORDERS[k][v+2];
-function trialGauge(k,label,minus,plus){return `<div class="th-helm-row" data-th-row="${k}"><button type="button" class="th-btn" data-trial-cmd="${k}-" aria-label="${minus}">${minus}</button><div class="th-gauge" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><i class="ord"></i><i class="act"></i></div><button type="button" class="th-btn" data-trial-cmd="${k}+" aria-label="${plus}">${plus}</button><b class="th-order" data-th-order="${k}">${label}</b></div>`;}
+// Brackets over the target buoys, as in a naval HUD; off-screen ones are hidden.
+function trialMarkers(){
+ const hud=$('#trialHud');if(!hud||!view)return;const rect=view.canvas.getBoundingClientRect(),hr=hud.getBoundingClientRect();
+ for(const t of trial.targets){const el=hud.querySelector(`[data-tmark="${t.id}"]`);if(!el)continue;const rel=tv.sub(t.pos,trial.P),q=t.alive?view.project(rel):null,vis=q&&q[2]>-1&&q[2]<1&&q[0]>rect.left&&q[0]<rect.right&&q[1]>rect.top&&q[1]<rect.bottom;el.hidden=!vis;if(!vis)continue;
+  el.style.transform=`translate(${(q[0]-hr.left).toFixed(1)}px,${(q[1]-hr.top).toFixed(1)}px)`;const lab=`標的 ${(tv.len(tv.sub(rel,view.eye()))/1000).toFixed(1)} km${t.hits?' · '+Math.round(t.hits/TRIAL_GUN.hitsToKill*100)+'%':''}`,b=el.querySelector('b');if(b.textContent!==lab)b.textContent=lab;el.classList.toggle('lock',trial.aim?.lock===t);}
+
+}
+// ---- HUD ----
 function trialHudHTML(){
  return `<div class="th-top"><div class="th-card th-id"><span>公試 · コルサント低軌道</span><b>${esc(ship?.name||'設計艦')}</b><small data-th="clock">T+0:00</small></div>
  <dl class="th-card th-read"><div><dt>速力</dt><dd data-th="speed">0</dd></div><div><dt>方位</dt><dd data-th="head">090°</dd></div><div><dt>高度</dt><dd data-th="alt">160 km</dd></div><div><dt>仰角</dt><dd data-th="pitch">0.0°</dd></div><div><dt>傾斜</dt><dd data-th="bank">0.0°</dd></div></dl>
  <div class="th-actions"><button type="button" class="th-btn" data-trial-cmd="cam" data-th="cam">視点 水平</button><button type="button" class="th-btn" data-trial-cmd="level">水平復帰</button><button type="button" class="th-btn" data-trial-cmd="center">舵中央</button><button type="button" class="th-btn" data-trial-cmd="reset">再開始</button><button type="button" class="th-btn th-exit" data-trial-cmd="exit">公試終了</button></div></div>
  <p class="th-records" data-th="records"></p><p class="th-warn" data-th="warn" hidden></p>
- <div class="th-bottom"><div class="th-card th-tele" role="group" aria-label="速力通信機"><div class="th-tele-steps">${TRIAL_TELEGRAPH.map((t,i)=>`<button type="button" class="th-step" data-trial-cmd="tele=${i}" aria-pressed="false">${t[0]}</button>`).reverse().join('')}</div><div class="th-tele-bar" aria-hidden="true"><i data-th="speedbar"></i></div></div>
- <div class="th-card th-helm">${trialGauge('rudder','舵中央','取舵','面舵')}${trialGauge('pitch','水平','下げ','上げ')}${trialGauge('roll','ロール中立','左','右')}</div></div>
- <p class="th-keys">W/S 速力 · A/D 舵 · R/F 上げ下げ · Q/E ロール · Z 水平復帰 · X 舵中央 · V 視点 · ドラッグで見回す · ホイールで距離</p>`;
+ <div class="th-reticle" aria-hidden="true"><i class="h"></i><i class="v"></i><b data-th="range">20.0 km</b></div>
+ <div class="th-guns" data-th="guns" aria-live="off"></div><div class="th-tmarks" aria-hidden="true">${Array.from({length:TRIAL_GUN.targets},(_,i)=>`<div class="th-tmark" data-tmark="${i}" hidden><i></i><b></b></div>`).join('')}</div>
+ <div class="th-card th-pad"><div class="th-tele-ladder" aria-label="速力通信機">${TRIAL_TELEGRAPH.map((t,i)=>`<span data-tele="${i}">${t[0]}</span>`).reverse().join('')}</div><div class="th-tele-bar" aria-hidden="true"><i data-th="speedbar"></i></div>
+  <div class="th-dpad"><button type="button" class="th-arrow up" data-trial-cmd="tele+" aria-label="増速">▲</button><button type="button" class="th-arrow left" data-trial-cmd="rudder-" aria-label="取舵">◀</button><b class="th-dmid" data-th="tele">停止</b><button type="button" class="th-arrow right" data-trial-cmd="rudder+" aria-label="面舵">▶</button><button type="button" class="th-arrow down" data-trial-cmd="tele-" aria-label="減速">▼</button></div>
+  <div class="th-rudder"><div class="th-gauge" data-th-row="rudder" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><i class="ord"></i><i class="act"></i></div><b class="th-order" data-th="rudder">舵中央</b></div></div>
+ <div class="th-stick" data-th-stick role="slider" aria-label="ピッチとロール" aria-valuetext="中立"><span class="lab up">上げ</span><span class="lab down">下げ</span><span class="lab left">左</span><span class="lab right">右</span><i class="knob"></i></div>
+ <button type="button" class="th-fire" data-th-fire aria-label="射撃">射撃<small>Space</small></button>
+ <p class="th-keys">W/S 速力 · A/D 舵 · R/F 上げ下げ · Q/E ロール · Space 射撃 · Z 水平復帰 · X 舵中央 · V 視点 · ドラッグで照準 · ホイールで距離</p>`;
+}
+function trialBindHud(hud){
+ const stick=hud.querySelector('[data-th-stick]'),knob=stick?.querySelector('.knob'),fire=hud.querySelector('[data-th-fire]');
+ let sid=null;const move=e=>{const r=stick.getBoundingClientRect(),R=r.width/2,dx=(e.clientX-r.left-R)/R,dy=(e.clientY-r.top-R)/R,l=Math.hypot(dx,dy),k=l>1?1/l:1;trial.stick={x:dx*k,y:-dy*k};knob.style.transform=`translate(${(dx*k*R*.62).toFixed(1)}px,${(dy*k*R*.62).toFixed(1)}px)`;};
+ const end=()=>{sid=null;trial.stick={x:0,y:0};knob.style.transform='';stick.classList.remove('on');};
+ stick?.addEventListener('pointerdown',e=>{e.preventDefault();sid=e.pointerId;stick.setPointerCapture(e.pointerId);stick.classList.add('on');move(e);});
+ stick?.addEventListener('pointermove',e=>{if(e.pointerId===sid)move(e);});
+ for(const ev of ['pointerup','pointercancel','lostpointercapture'])stick?.addEventListener(ev,e=>{if(e.pointerId===sid)end();});
+ fire?.addEventListener('pointerdown',e=>{e.preventDefault();fire.setPointerCapture(e.pointerId);trial.fire=true;fire.classList.add('on');});
+ for(const ev of ['pointerup','pointercancel','lostpointercapture'])fire?.addEventListener(ev,()=>{trial.fire=false;fire.classList.remove('on');});
+ fire?.addEventListener('contextmenu',e=>e.preventDefault());
 }
 function trialHudUpdate(full){
  const hud=$('#trialHud');if(!hud||!trial.on&&!full)return;const a=trialAttitude(),q=k=>hud.querySelector(`[data-th="${k}"]`),set=(k,v)=>{const e=q(k);if(e&&e.textContent!==v)e.textContent=v;};
@@ -2274,28 +2382,39 @@ function trialHudUpdate(full){
  set('speed',`${num(Math.round(v))} m/s`);set('head',String(Math.round(a.heading)%360).padStart(3,'0')+'°');set('alt',`${(a.alt/1000).toFixed(1)} km`);
  set('pitch',`${deg(a.pitch)>=0?'+':''}${deg(a.pitch).toFixed(1)}°`);const b=deg(a.bank);set('bank',Math.abs(b)<.05?'0.0°':`${b>0?'右':'左'} ${Math.abs(b).toFixed(1)}°`);
  const s=Math.floor(trial.t);set('clock',`T+${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`);set('cam',trial.camMode==='ship'?'視点 追従':'視点 水平');
- const r=trial.rec;set('records',`公試記録　最高速力 ${num(Math.round(r.top))} m/s · 0→全速 ${r.accel==null?(r.run?'計測中…':'—'):Math.round(r.accel)+' 秒'} · 全舵旋回径 ${r.turn==null?'—':(r.turn/1000).toFixed(1)+' km（'+num(Math.round(Math.abs(r.turnSpeed)))+' m/s）'}`);
+ const r=trial.rec,g=trial.gun;set('records',`公試記録　最高速力 ${num(Math.round(r.top))} m/s · 0→全速 ${r.accel==null?(r.run?'計測中…':'—'):Math.round(r.accel)+' 秒'} · 全舵旋回径 ${r.turn==null?'—':(r.turn/1000).toFixed(1)+' km'} · 射撃 ${num(g.shots)} 発 / 命中 ${num(Math.round(g.hits))} / 撃破 ${g.kills}`);
  const w=q('warn');if(w){w.hidden=!trial.warn&&!trial.level;const txt=trial.warn||(trial.level?'姿勢を水平に戻しています…':'');if(w.textContent!==txt)w.textContent=txt;}
  const bar=q('speedbar');if(bar){const lo=-.25,frac=C.clamp((v/Math.max(1,p.maxSpeed)-lo)/(1-lo),0,1);bar.style.height=(frac*100).toFixed(1)+'%';}
- hud.querySelectorAll('[data-trial-cmd^="tele="]').forEach(e=>e.setAttribute('aria-pressed',String(+e.dataset.trialCmd.slice(5)===trial.tele)));
- for(const [k,i] of [['roll',0],['rudder',1],['pitch',2]]){const row=hud.querySelector(`[data-th-row="${k}"]`);if(!row)continue;const ord=row.querySelector('.ord'),act=row.querySelector('.act'),val=trial[k];ord.style.left=((val+2)/4*100)+'%';const m=max[i]||1,actual=k==='rudder'?trial.w[1]:trial.w[i];act.style.left=(C.clamp(actual/m,-1,1)*50+50).toFixed(1)+'%';const o=row.querySelector('.th-order'),name=trial.level&&k!=='rudder'?'自動水平':trialStepNames(k,val);if(o.textContent!==name)o.textContent=name;}
+ hud.querySelectorAll('[data-tele]').forEach(e=>e.classList.toggle('on',+e.dataset.tele===trial.tele));set('tele',TRIAL_TELEGRAPH[trial.tele][0]);
+ const row=hud.querySelector('[data-th-row="rudder"]');if(row){row.querySelector('.ord').style.left=((trial.rudder+2)/4*100)+'%';row.querySelector('.act').style.left=(C.clamp(trial.w[1]/(max[1]||1),-1,1)*50+50).toFixed(1)+'%';}set('rudder',TRIAL_RUDDER[trial.rudder+2]);
+ const aim=trial.aim;set('range',aim?(aim.lock?'標的 ':'')+(aim.dist/1000).toFixed(1)+' km':'—');hud.querySelector('.th-reticle')?.classList.toggle('lock',!!aim?.lock);
+ const ts=trial.turrets,ready=ts.filter(t=>t.ready).length,loaded=ts.filter(t=>t.ready&&t.reload<=0).length,blocked=ts.filter(t=>t.arc&&t.clearDir&&!t.clear).length,out=ts.filter(t=>!t.arc).length,turning=ts.length-ready-blocked-out;
+ const gn=q('guns');if(gn){const html=ts.length?`<span class="ok">● 射撃可 ${loaded}</span><span class="wait">● 装填・旋回 ${ready-loaded+Math.max(0,turning)}</span><span class="ng">● 遮蔽・射界外 ${blocked+out}</span>`:'<span class="ng">砲塔なし</span>';if(gn.innerHTML!==html)gn.innerHTML=html;}
+ const st=hud.querySelector('[data-th-stick]'),si=trialStickInput();if(st){const txt=Math.abs(si.x)<.05&&Math.abs(si.y)<.05?'中立':`${si.y>0?'上げ':'下げ'} ${Math.round(Math.abs(si.y)*100)}% · ${si.x>0?'右':'左'}ロール ${Math.round(Math.abs(si.x)*100)}%`;if(st.getAttribute('aria-valuetext')!==txt)st.setAttribute('aria-valuetext',txt);}
 }
 function trialCommand(cmd){
- if(!trial.on)return;const step=(k,d)=>{trial[k]=C.clamp(trial[k]+d,-2,2);if(k!=='rudder')trial.level=false;};
- if(cmd.startsWith('tele=')){trial.tele=C.clamp(+cmd.slice(5)|0,0,5);}
- else if(cmd==='tele+')trial.tele=Math.min(5,trial.tele+1);else if(cmd==='tele-')trial.tele=Math.max(0,trial.tele-1);
- else if(/^(rudder|pitch|roll)[+-]$/.test(cmd))step(cmd.slice(0,-1),cmd.endsWith('+')?1:-1);
- else if(cmd==='level'){trial.level=true;trial.pitch=0;trial.roll=0;}
- else if(cmd==='center'){trial.rudder=0;trial.pitch=0;trial.roll=0;trial.level=false;}
- else if(cmd==='cam'){trial.camMode=trial.camMode==='ship'?'horizon':'ship';if(view){view.cam.th=Math.PI;view.cam.ph=1.22;}}
+ if(!trial.on)return;
+ if(cmd==='tele+')trial.tele=Math.min(5,trial.tele+1);else if(cmd==='tele-')trial.tele=Math.max(0,trial.tele-1);
+ else if(cmd==='rudder+'||cmd==='rudder-')trial.rudder=C.clamp(trial.rudder+(cmd.endsWith('+')?1:-1),-2,2);
+ else if(cmd==='level')trial.level=true;
+ else if(cmd==='center'){trial.rudder=0;trial.level=false;}
+ else if(cmd==='cam'){trial.camMode=trial.camMode==='ship'?'horizon':'ship';if(view){view.cam.th=Math.PI;view.cam.ph=TRIAL_CAM_PH;}}
  else if(cmd==='reset')trialReset();
+ else if(cmd==='fireTap')trial.fireTap=.25;
  else if(cmd==='exit'){trialStop();return;}
  trialHudUpdate(true);
 }
-const TRIAL_KEYS={KeyW:'tele+',ArrowUp:'tele+',KeyS:'tele-',ArrowDown:'tele-',KeyA:'rudder-',ArrowLeft:'rudder-',KeyD:'rudder+',ArrowRight:'rudder+',KeyR:'pitch+',KeyF:'pitch-',KeyQ:'roll-',KeyE:'roll+',KeyZ:'level',KeyX:'center',KeyV:'cam',Escape:'exit'};
+const TRIAL_KEYS={KeyW:'tele+',ArrowUp:'tele+',KeyS:'tele-',ArrowDown:'tele-',KeyA:'rudder-',ArrowLeft:'rudder-',KeyD:'rudder+',ArrowRight:'rudder+',KeyZ:'level',KeyX:'center',KeyV:'cam',Escape:'exit'};
+const TRIAL_HOLD={KeyR:['y',1],KeyF:['y',-1],KeyQ:['x',-1],KeyE:['x',1]};
+function trialKeyStick(){const s={x:0,y:0};for(const k of trial.keys){const h=TRIAL_HOLD[k];if(h)s[h[0]]+=h[1];}trial.keyStick={x:C.clamp(s.x,-1,1),y:C.clamp(s.y,-1,1)};}
 function bindTrial(){
  document.addEventListener('click',e=>{const b=e.target.closest('[data-trial],[data-trial-cmd]');if(!b||b.disabled)return;if(b.dataset.trial==='start'){e.preventDefault();trialStart();return;}if(b.dataset.trialCmd){e.preventDefault();trialCommand(b.dataset.trialCmd);}});
- window.addEventListener('keydown',e=>{if(!trial.on)return;if(e.ctrlKey||e.metaKey||e.altKey)return;const cmd=TRIAL_KEYS[e.code];if(!cmd)return;e.preventDefault();e.stopImmediatePropagation();if(!e.repeat)trialCommand(cmd);},true);
+ window.addEventListener('keydown',e=>{if(!trial.on||e.ctrlKey||e.metaKey||e.altKey)return;
+  if(TRIAL_HOLD[e.code]){e.preventDefault();e.stopImmediatePropagation();trial.keys.add(e.code);trialKeyStick();return;}
+  if(e.code==='Space'){e.preventDefault();e.stopImmediatePropagation();trial.fireKey=true;return;}
+  const cmd=TRIAL_KEYS[e.code];if(!cmd)return;e.preventDefault();e.stopImmediatePropagation();if(!e.repeat)trialCommand(cmd);},true);
+ window.addEventListener('keyup',e=>{if(!trial.on)return;if(TRIAL_HOLD[e.code]){trial.keys.delete(e.code);trialKeyStick();}if(e.code==='Space')trial.fireKey=false;},true);
+ window.addEventListener('blur',()=>{trial.keys.clear();trialKeyStick();trial.fire=trial.fireKey=false;});
  document.addEventListener('visibilitychange',()=>{trial.last=0;});
 }
 function updateAviationUI(){
@@ -2766,7 +2885,8 @@ function restoreRenderer(useCompat=false,fit=false){
   renderHealth.mode=view.kind==='compat'?'compat':'webgl';renderHealth.lost=false;renderHealth.failures=0;
   if(cam)view.cam=cam;if(off)view.off=off;
   bindCanvasRendering(canvas);attachControls(canvas);view.onTextureReady=requestDraw;
-  if(fleet?.assets)for(const [key,a] of fleet.assets)if((fleet.mode==='review'||trial.on&&trial.asset?.key===key)&&a.geometry)view.loadFleet(key,a.geometry);
+  if(fleet?.assets)for(const [key,a] of fleet.assets)if(fleet.mode==='review'&&a.geometry)view.loadFleet(key,a.geometry);
+  if(trial.on&&trial.asset?.geometry)view.loadFleet(trial.asset.key,trial.asset.geometry);
   if(ship){invalidateRendering();refreshOverlay();if(fit||!cam)fitCamera();}
   const fail=$('#glfail');if(fail)fail.hidden=true;
   renderingMessage(renderHealth.mode==='compat'?'互換3D表示 · テクスチャ省略／形状と選択は同じ':'');
@@ -2849,7 +2969,7 @@ const TUT_STEPS=[
   done:()=>ship&&ship.fits.filter(f=>C.FITS[f.k].cat==='w').length>=4,auto:()=>{for(const [x,z] of [[.22,300],[.36,230],[.5,160]])tutTap(...tutDeck(TUT_HULL.L*x,z));}},
  tutPartStep({title:'格納庫を設ける',group:'air',cam:'bottom',text:'<b>航空区画</b>（格納庫）を選び、下から見る視点にしました。<b>船底の中央</b>をタップすると船内に収まります。続けて「腹面に発着口を開ける」を押すと、格納庫を船底まで下げてシールド式の発着口を開けます。航空隊の編成は「航空隊」タブで決めます。',
   items:[{k:'hangar',room:[240,120,40],mirror:false,at:()=>tutBelly(TUT_HULL.L*.42,0)}],extra:{label:'腹面に発着口を開ける',show:()=>!!tutClosedHangar(),run:()=>tutOpenHangar()},after:()=>tutOpenHangar()}),
- {title:'性能を確かめて完成',text:'ごく簡素なインペリアル級の完成です。「性能」タブと右の性能諸元で出力・加速・火力を確かめ、注意点は「系統」タブで点検します。「公試に出る」でコルサント上空を実際に操艦できます。艦名を付けて「設計図」から保存しましょう。次は装甲・トレンチ・航空隊や地上部隊の編成に挑戦できます。',
+ {title:'性能を確かめて完成',text:'ごく簡素なインペリアル級の完成です。「性能」タブと右の性能諸元で出力・加速・火力を確かめ、注意点は「系統」タブで点検します。「公試に出る」でコルサント上空を操艦し、標的ブイへの射撃で砲塔の射界も確かめられます。艦名を付けて「設計図」から保存しましょう。次は装甲・トレンチ・航空隊や地上部隊の編成に挑戦できます。',
   focus:['#tabs [data-tab="spec"]','#btnMenu'],setup(){st.tab='spec';st.view='normal';st.sel=null;tutCam('iso');},done:()=>true,summary:true}
 ];
 function tutStart(){
