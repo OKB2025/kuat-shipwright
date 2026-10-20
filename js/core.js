@@ -137,7 +137,7 @@ const KEELS = {light: {name: '軽構造', w: 0.09, h: 0.22}, std: {name: '標準
 
 function planW(hp, t) {
   switch (hp.plan) {
-    case 'arrow': { const tm = 0.3; return t < tm ? lerp(hp.stern, 1, t / tm) : lerp(1, hp.bowW, (t - tm) / (1 - tm)); }
+    case 'arrow': { const tm = clamp(hp.maxAt ?? 0.3, 0.05, 0.9); return t < tm ? lerp(hp.stern, 1, t / tm) : lerp(1, hp.bowW, (t - tm) / (1 - tm)); }
     case 'rect': return t < 0.7 ? 1 : lerp(1, hp.bowW, (t - 0.7) / 0.3);
     case 'ellipse': { const u = 2 * t - 1; return Math.sqrt(Math.max(0, 1 - u * u)); }
     case 'cigar': {
@@ -411,12 +411,35 @@ function sampleSection(ship, x, options={}) {
   if (sb.ell) {
     const N = 96; Z = new Float64Array(N); Y = new Float64Array(N);
     for (let j = 0; j < N; j++) { const a = -Math.PI / 2 + j / N * Math.PI * 2; Z[j] = Math.cos(a) * sb.ell.a; Y[j] = yc + Math.sin(a) * sb.ell.b; }
-  } else {
-    const k = SAMPLES[ship.hull.sec] || 24, V = sb.poly.length, N = V * k;
-    Z = new Float64Array(N); Y = new Float64Array(N);
-    for (let e = 0; e < V; e++) { const P = sb.poly[e], Q = sb.poly[(e + 1) % V]; for (let m = 0; m < k; m++) { const f = m / k; Z[e * k + m] = P[0] + (Q[0] - P[0]) * f; Y[e * k + m] = P[1] + (Q[1] - P[1]) * f; } }
   }
   const rem = removersAt(ship, x, sb);
+  // Where a cutting plane crosses a section edge, the crossing sits in a fixed
+  // sample slot of that edge at every station, so the cut corner runs as one
+  // straight seam instead of hopping between slots (a saw-tooth edge).
+  let exact = null;
+  if (!sb.ell) {
+    const k = SAMPLES[ship.hull.sec] || 24, V = sb.poly.length, N = V * k, planes = rem.filter(r => r.hp), q4 = Math.max(1, Math.round(k / 4));
+    Z = new Float64Array(N); Y = new Float64Array(N); exact = new Uint8Array(N);
+    for (let e = 0; e < V; e++) {
+      const P = sb.poly[e], Q = sb.poly[(e + 1) % V];
+      let ta = 0, tb = 1;
+      for (const h of planes) {
+        const fa = (P[0] - h.A[0]) * h.n[0] + (P[1] - h.A[1]) * h.n[1], fb = (Q[0] - h.A[0]) * h.n[0] + (Q[1] - h.A[1]) * h.n[1];
+        if (fa <= 1e-9 && fb <= 1e-9) continue;
+        if (fa > 1e-9 && fb > 1e-9) { ta = 1; tb = 0; break; }
+        const t = fa / (fa - fb); if (fa > 1e-9) ta = Math.max(ta, t); else tb = Math.min(tb, t);
+      }
+      const head = ta > 1e-6 && ta < tb, tail = tb < 1 - 1e-6 && ta < tb, ia = head ? q4 : 0, ib = tail ? k - q4 : k;
+      for (let m = 0; m < k; m++) {
+        // Removed head [0,ta] → slots 0..ia, kept part [ta,tb] → ia..ib, removed tail → ib..k.
+        const t0 = head ? ta : 0;
+        let f = m / k;
+        if (head || tail) f = ia && m <= ia ? ta * m / ia : m <= ib ? t0 + (tb - t0) * (m - ia) / (ib - ia) : tb + (1 - tb) * (m - ib) / (k - ib);
+        if ((head && m === ia) || (tail && m === ib)) { f += (m === ia && head ? 1 : -1) * 1e-7; exact[e * k + m] = 1; }
+        Z[e * k + m] = P[0] + (Q[0] - P[0]) * f; Y[e * k + m] = P[1] + (Q[1] - P[1]) * f;
+      }
+    }
+  }
   let cutMask = null;
   if (rem.length) {
     const N = Z.length, oz = Z.slice(), oy = Y.slice(), who = new Int8Array(N).fill(-1);
@@ -428,8 +451,8 @@ function sampleSection(ship, x, options={}) {
       if(tr.trench){Z[j]=oz[j]>0?tr.z0:tr.z1;continue;}
       cutMask[j] = 1;
       const pv = (j + N - 1) % N, nx = (j + 1) % N;
-      if (who[pv] < 0) { const p = segEnter(rem[who[j]], oz[pv], oy[pv], oz[j], oy[j]); Z[j] = p[0]; Y[j] = p[1]; continue; }
-      if (who[nx] < 0) { const p = segEnter(rem[who[j]], oz[nx], oy[nx], oz[j], oy[j]); Z[j] = p[0]; Y[j] = p[1]; continue; }
+      if (who[pv] < 0 && !exact?.[pv]) { const p = segEnter(rem[who[j]], oz[pv], oy[pv], oz[j], oy[j]); Z[j] = p[0]; Y[j] = p[1]; continue; }
+      if (who[nx] < 0 && !exact?.[nx]) { const p = segEnter(rem[who[j]], oz[nx], oy[nx], oz[j], oy[j]); Z[j] = p[0]; Y[j] = p[1]; continue; }
       const vz = oz[j], vy = oy[j] - yc, r0 = Math.hypot(vz, vy);
       if (r0 < 1e-9) continue;
       let r = r0; for (const rm of rem) r = clampRem(rm, 0, yc, vz / r0, vy / r0, r);
@@ -650,6 +673,7 @@ function rayEnv(ship, o, d, opts) {
   for (const pt of ship.parts) {
     if (opts.structOnly && pt.k !== 'struct') continue;
     if (opts.skip && opts.skip === pt) continue;
+    if (opts.skipSet && opts.skipSet.has(pt)) continue;
     const h = rayPart(o, d, pt);
     if (h && (!best || h.t < best.t) && (opts.maxT == null || h.t < opts.maxT)) { best = h; best.kind = 'part'; best.part = pt; }
   }
@@ -1654,17 +1678,19 @@ STRUCT_SHAPES.loft='断面ロフト・傾斜甲板';
 STRUCT_SHAPES.ellipsoid='球・楕円体（腹部装甲）';
 addComp('sensor','センサー・標的追跡装置','sphere',.18,[166,178,185],'support','シールドとは別の索敵・標的追跡機器。外殻やマストに配置します。',{def:16});
 function partLabel(p){return p.label||equipmentSpec(p)?.name||PARTS[p.k]?.name||'区画';}
+// Default stations for the section table: they fall on the plan's own corners.
+function planStations(h){if(h.plan==='arrow'){const m=clamp(h.maxAt??.3,.05,.9);return [0,m/2,m,m+(1-m)/3,m+(1-m)*2/3,1];}if(h.plan==='rect')return [0,.35,.7,.8,.9,1];return [0,.2,.4,.6,.8,1];}
 function profileAt(h,t){
-  if(!h.stations?.length)return [t,planW(h,t),planH(h,t,planW(h,t)),0,h.deckWidth??.52];
+  if(!h.stations?.length)return [t,planW(h,t),planH(h,t,planW(h,t)),0,h.deckWidth??.52,h.keelWidth??0];
   const a=h.stations;let i=0;while(i<a.length-2&&t>a[i+1][0])i++;
   const u=clamp((t-a[i][0])/Math.max(1e-6,a[i+1][0]-a[i][0]),0,1);
-  return [t,lerp(a[i][1],a[i+1][1],u),lerp(bowStation(h,i)?a[i][1]:a[i][2],bowStation(h,i+1)?a[i+1][1]:a[i+1][2],u),lerp(a[i][3]??0,a[i+1][3]??0,u),lerp(a[i][4]??h.deckWidth??.52,a[i+1][4]??h.deckWidth??.52,u)];
+  return [t,lerp(a[i][1],a[i+1][1],u),lerp(bowStation(h,i)?a[i][1]:a[i][2],bowStation(h,i+1)?a[i+1][1]:a[i+1][2],u),lerp(a[i][3]??0,a[i+1][3]??0,u),lerp(a[i][4]??h.deckWidth??.52,a[i+1][4]??h.deckWidth??.52,u),lerp(a[i][5]??h.keelWidth??0,a[i+1][5]??h.keelWidth??0,u)];
 }
 function sectionBase(hp,x){
   if(hp.assembly)return {t:x/hp.L,pw:0,ph:0,hw:0,h:0,yc:0,poly:[[0,0],[0,0],[0,0],[0,0]],ell:null,ytop:0,ybot:0,E:0};
   if(!hp.stations?.length&&hp.sec!=='warship')return v3SectionBase(hp,x);
-  const t=clamp(x/hp.L,0,1),[,pw,ph,dy,dw]=profileAt(hp,t),hw=hp.W*pw/2,h=hp.H*ph,yc=hp.H*(.5+dy),top=yc+h/2,bot=yc-h/2;
-  const deck=clamp(dw,0,.98),belt=clamp(hp.belt??.13,.02,.6),edge=bot+h*clamp(hp.chineHeight??.5,.2,.8),keel=clamp(hp.keelWidth??0,0,.95);
+  const t=clamp(x/hp.L,0,1),[,pw,ph,dy,dw,kw]=profileAt(hp,t),hw=hp.W*pw/2,h=hp.H*ph,yc=hp.H*(.5+dy),top=yc+h/2,bot=yc-h/2;
+  const deck=clamp(dw,0,.98),belt=clamp(hp.belt??.13,.02,.6),edge=bot+h*clamp(hp.chineHeight??.5,.2,.8),keel=clamp(kw??hp.keelWidth??0,0,.98);
   let poly;
   if(hp.sec==='warship')poly=[[-hw*keel,bot],[hw*keel,bot],[hw,Math.max(bot,edge-h*belt/2)],[hw,Math.min(top,edge+h*belt/2)],[hw*deck,top],[-hw*deck,top],[-hw,Math.min(top,edge+h*belt/2)],[-hw,Math.max(bot,edge-h*belt/2)]];
   else {const s=v3SectionBase({...hp,stations:null,W:hp.W*pw,H:h,plan:'rect',bowW:1,bowH:1},0);if(s.ell)return {...s,t,pw,ph,hw,h,yc,ytop:top,ybot:bot};poly=s.poly.map(q=>[q[0],q[1]+yc-h/2]);}
@@ -1880,12 +1906,13 @@ function computeStats(ship){syncCompartments(ship);ship._lockedCache=cache(ship)
 function serialize(ship){const o=v3Serialize(ship);for(const k of ['paint','detail','reference','hullSkin','autoHabitation','hullLocked','shipClass'])if(ship[k]!=null)o[k]=JSON.parse(JSON.stringify(ship[k]));return o;}
 function deserialize(o){
   const s=v3Deserialize(o),finite=(v,lo,hi,d)=>Number.isFinite(v)?clamp(v,lo,hi):d;
-  if(Array.isArray(o.hull?.stations)&&o.hull.stations.length>=2&&o.hull.stations.length<=32){const a=o.hull.stations.map((p,i)=>{const r=[finite(p?.[0],0,1,i/(o.hull.stations.length-1)),finite(p?.[1],.005,1.5,1),finite(p?.[2],.005,1.5,1)];if(p?.length>3)r.push(finite(p[3],-.5,.8,0));if(p?.length>4)r.push(finite(p[4],0,.98,.52));return r;}).sort((a,b)=>a[0]-b[0]);if(a.some((p,i)=>i&&p[0]-a[i-1][0]<.001))throw new Error('船体断面の位置が重複しています');a[0][0]=0;a.at(-1)[0]=1;s.hull.stations=a;}
+  if(Array.isArray(o.hull?.stations)&&o.hull.stations.length>=2&&o.hull.stations.length<=32){const a=o.hull.stations.map((p,i)=>{const r=[finite(p?.[0],0,1,i/(o.hull.stations.length-1)),finite(p?.[1],.005,1.5,1),finite(p?.[2],.005,1.5,1)];if(p?.length>3)r.push(finite(p[3],-.5,.8,0));if(p?.length>4)r.push(finite(p[4],0,.98,.52));if(p?.length>5)r.push(finite(p[5],0,.98,0));return r;}).sort((a,b)=>a[0]-b[0]);if(a.some((p,i)=>i&&p[0]-a[i-1][0]<.001))throw new Error('船体断面の位置が重複しています');a[0][0]=0;a.at(-1)[0]=1;s.hull.stations=a;}
   if(SHIP_CLASSES.some(c=>c.id===o.shipClass))s.shipClass=o.shipClass;
   s.autoHabitation=o.autoHabitation!==false;s.hullLocked=o.hullLocked!==false;s.hull.assembly=!!o.hull?.assembly;normalizeBow(s.hull);
   s.hull.deckWidth=finite(o.hull?.deckWidth,0,.98,.52);s.hull.belt=finite(o.hull?.belt,.02,.45,.13);
   if(o.hull?.start!=null)s.hull.start=finite(o.hull.start,0,.6,0);
-  for(const k of ['chineHeight','keelWidth'])if(o.hull?.[k]!=null)s.hull[k]=finite(o.hull[k],k==='chineHeight'?.2:0,.95,k==='chineHeight'?.5:0);
+  for(const k of ['chineHeight','keelWidth'])if(o.hull?.[k]!=null)s.hull[k]=finite(o.hull[k],k==='chineHeight'?.2:0,k==='chineHeight'?.95:.98,k==='chineHeight'?.5:0);
+  if(o.hull?.maxAt!=null)s.hull.maxAt=finite(o.hull.maxAt,.05,.9,.3);
   for(const p of s.parts){const q=o.parts.find(q=>q.id===p.id);for(const [k,lo,hi,d] of [['arcInner',.05,.95,.65],['arcStart',-180,180,30],['arcSweep',5,360,300]])if(q[k]!=null)p[k]=finite(q[k],lo,hi,d);if(q.label)p.label=String(q.label).slice(0,80);if(Array.isArray(q.room)&&q.room.length===3&&PARTS[p.k].shape==='cube')setRoomSize(p,q.room.map((v,i)=>finite(v,4,DESIGN_LIMITS.partSize,40)));
     for(const k of ['aftWidth','foreWidth'])if(q[k]!=null)p[k]=finite(q[k],.03,2,1);
     if(q.loft){if(!Array.isArray(q.loft)||q.loft.length<2||q.loft.length>32)throw new Error('ロフト断面は2〜32個にしてください');p.loft=q.loft.map(a=>[finite(a?.[0],0,1,0),finite(a?.[1],.02,2,1),finite(a?.[2],.03,1.5,1),finite(a?.[3],0,1,0),...(a?.length>4?[finite(a[4],-2,2,0)]:[])]).sort((a,b)=>a[0]-b[0]);if(p.loft.some((a,i)=>a[3]>=a[2]||(i&&a[0]-p.loft[i-1][0]<.002)))throw new Error('ロフトの断面位置か上下寸法が不正です');p.loft[0][0]=0;p.loft.at(-1)[0]=1;}
@@ -2608,7 +2635,9 @@ function solidCutCaps(p,b){
 // Aviation uses and per-turret charging plants. Capacity calculations live in
 // aviation.js and use one shared density for every aircraft and ship.
 const AVIATION_ROLES={storage:'機体格納',flight:'飛行・移送甲板',dock:'ドッキング区画',mixed:'格納・発着兼用'};
-const CHARGE_TT_M3=.08;
+// Charging plant volume per teraton of salvo (raised from 0.08 so the below-deck
+// plant reads in proportion to the turret above it).
+const CHARGE_TT_M3=.05;
 addComp('capacitor','主砲充電装置','cube',.45,[220,161,73],'power','砲の威力・門数・斉射備蓄分の容積を自動確保。周辺区画と干渉すると、必要容積を保って空き空間に形を組み替えます。',{crew:.08,def:16});
 INTERNAL_PARTS.add('capacitor');
 function needsCapacitor(f){return FITS[f.k]?.cat==='w'&&(FITS[f.k].casemate||Math.max(fitSpec(f).tt||0,fitSpec(f).ion||0)>=10);}
@@ -2683,6 +2712,8 @@ function refitReferenceInterior(ship){
   for(const p of ship.parts){if(p.k==='shield')p.d=42;if(p.k==='integrity')setRoomSize(p,[85,20,24]);}
   for(const sg of [-1,1])part('inertial','舷側慣性制御設備',[360,55,sg*108],22,{length:100});
   for(const p of ship.parts)if(p.k==='crew'){p.c[1]=65;setRoomSize(p,[70,50,42]);}
+  // Embarked clone troopers: 2,000 in two bays.
+  for(const sg of [-1,1])room('troops',(sg<0?'左舷':'右舷')+'クローン兵員区画（1,000名）',[480,60,sg*120],[60,20,10.0005]);
   part('struct','主炉の球状装甲・構造被覆',[350,80,0],[104,104,104],{form:'ellipsoid',skin:'armor'});
  }else if(!acc){
   remove(ship.parts.filter(p=>p.k==='service').map(p=>p.id));
@@ -2697,6 +2728,8 @@ function refitReferenceInterior(ship){
    room('integrity','上段構造維持フィールド幹線',[650,131,sg*230],[200,18,22]);
   }
   for(const p of ship.parts)if(p.k==='shield')p.d=54;
+  // One embarked division of four regiments: 9,700 troops.
+  for(const [x,sg,n] of [[890,-1,1],[890,1,2],[1000,-1,3],[1000,1,4]])room('troops',`師団兵員区画・第${n}連隊（2,425名）`,[x,120,sg*110],[97,20,15.0005]);
   const bridge=ship.parts.find(p=>p.label==='横長指揮艦橋の装甲外殻');
   if(bridge){const hit=rayPart([bridge.c[0]+bridge.s[0],427,80],[-1,0,0],bridge);if(hit){const r=placeFit(ship,'podAir',hit.p,hit.n,0,false);if(r.fit){r.fit.width=12;r.fit.height=4.8;}}}
  }else{
@@ -3044,6 +3077,8 @@ function executorDesign(){
   room('cargo','輸送・物資集積区画',[15000,405,sg*350],[600,180,70]);
  }
  const bay=room('hangar','中央腹部ドッキングベイ',[12000,277.5,0],[1700,300,355],{airRole:'dock'});openBay(s,bay,'bottom','ray');
+ // One embarked army corps: four divisions, 38,800 troops.
+ for(const [x,sg,n] of [[6500,-1,1],[6500,1,2],[9500,-1,3],[9500,1,4]])room('troops',`軍団兵員区画・第${n}師団（9,700名）`,[x,420,sg*1300],[200,40,14.5502]);
  part('hyper','主ハイパードライブ',[9700,400,0],190,{length:650});
  // Parallel deck lanes preserve free spaces between real charging plants.
  for(const axis of [2,3])for(const sg of [-1,1])for(let i=0;i<20;i++){
@@ -3515,7 +3550,7 @@ function syncAviationSurfaces(ship){
 }
 
 
-return {bridgeBodyRole,podPoint,podDepth,intrinsicCommandFits,POD_ASSET,BRIDGE_BODY_COMMAND,REFERENCE_TONE,engineSkinMesh,referenceFitYaw,rayTris,vmirrorPlane,vmirrorPoint,vmirrorPart,SHIP_CLASSES,shipClassFor,PUBLIC_LISTS,publicJSON,patchShip,patchItem,cache,AIRCRAFT_CLEARANCE,aircraftFitsBay,AVIATION_SIZE_VOLUME,AIR_WING_LIMITS,hangarCapacity,normalizeAirWings,aviationStatus,AVIATION_SURFACE_FACES,hatchAxes,aviationSurfaceContacts,setAviationSurfaceMode,syncAviationSurfaces,aviationHatchActive,isSlidingHatch,slidingHatchSpec,slidingHatchPanels,hatchOpenArea,ISD_HYPER_BASELINE,HYPER_CLASS_COEFFICIENT,HYPER_POWER_DENSITY,ISD_SHIELD_VOLUME,SHIELD_BUFFER_SECONDS,SHIELD_ENERGY_DENSITY,SHIELD_POWER_DENSITY,REACTOR_POWER_DENSITY,SOLID_CUT_SHAPES,normalizeSolidCut,mirrorSolidCut,solidCutTriangles,solidCutBounds,solidCutContains,solidCutsContain,applySolidCuts,solidPartCutContains,solidStructVolume,solidCutIntersectsShip,flexibleCompartment,hardConflicts,weaponChargeSpec,DREADNOUGHT_EXAMPLES,DESIGN_LIMITS,ALIGNMENTS,alignedPosition,alignPart,replacementShape,replacementOptions,replacePart,COMMAND_ROLES,commandCompartments,commandStatus,habitationSpace,inspectionTargets,planCutEdge,normalizePlanCut,structFrame,alignStructure,FLEET_RULES,fleetProfile,fleetUnit,fleetFormation,fleetBattle,fleetOrder,fleetArc,fleetTick,fleetCommit,fleetFinish,fleetSample,fleetFrame,normalizeBow,bowStation,engineHullEntry,ENGINE_BASELINES,engineBaseline,resizeEngine,parametricEngine,engineRating,sourceEngine,EQUIPMENT,equipmentSpec,equipmentOptions,enforceEquipment,customizeEquipment,adoptEquipment,HYPERDRIVE_REFERENCE,hyperCapacity,arcParameters,arcPoint,arcTriangles,inArc,SEPARATIST_EXAMPLES,STATS_SOURCE,SHIP_REFERENCE,PART_RATINGS,reactorPower,nozzleThrust,nozzleDemand,shieldLoad,partRatingKeys,validOutline,outlinePoints,outlineArea,outlineTriangles,AVIATION_ROLES,CHARGE_TT_M3,aircraftCapacity,aviationConnected,needsCapacitor,weaponCapacitors,refitReferenceInterior,clipReferenceBox, referenceEnginePoint, fitSpec, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface,
+return {planStations,bridgeBodyRole,podPoint,podDepth,intrinsicCommandFits,POD_ASSET,BRIDGE_BODY_COMMAND,REFERENCE_TONE,engineSkinMesh,referenceFitYaw,rayTris,vmirrorPlane,vmirrorPoint,vmirrorPart,SHIP_CLASSES,shipClassFor,PUBLIC_LISTS,publicJSON,patchShip,patchItem,cache,AIRCRAFT_CLEARANCE,aircraftFitsBay,AVIATION_SIZE_VOLUME,AIR_WING_LIMITS,hangarCapacity,normalizeAirWings,aviationStatus,AVIATION_SURFACE_FACES,hatchAxes,aviationSurfaceContacts,setAviationSurfaceMode,syncAviationSurfaces,aviationHatchActive,isSlidingHatch,slidingHatchSpec,slidingHatchPanels,hatchOpenArea,ISD_HYPER_BASELINE,HYPER_CLASS_COEFFICIENT,HYPER_POWER_DENSITY,ISD_SHIELD_VOLUME,SHIELD_BUFFER_SECONDS,SHIELD_ENERGY_DENSITY,SHIELD_POWER_DENSITY,REACTOR_POWER_DENSITY,SOLID_CUT_SHAPES,normalizeSolidCut,mirrorSolidCut,solidCutTriangles,solidCutBounds,solidCutContains,solidCutsContain,applySolidCuts,solidPartCutContains,solidStructVolume,solidCutIntersectsShip,flexibleCompartment,hardConflicts,weaponChargeSpec,DREADNOUGHT_EXAMPLES,DESIGN_LIMITS,ALIGNMENTS,alignedPosition,alignPart,replacementShape,replacementOptions,replacePart,COMMAND_ROLES,commandCompartments,commandStatus,habitationSpace,inspectionTargets,planCutEdge,normalizePlanCut,structFrame,alignStructure,FLEET_RULES,fleetProfile,fleetUnit,fleetFormation,fleetBattle,fleetOrder,fleetArc,fleetTick,fleetCommit,fleetFinish,fleetSample,fleetFrame,normalizeBow,bowStation,engineHullEntry,ENGINE_BASELINES,engineBaseline,resizeEngine,parametricEngine,engineRating,sourceEngine,EQUIPMENT,equipmentSpec,equipmentOptions,enforceEquipment,customizeEquipment,adoptEquipment,HYPERDRIVE_REFERENCE,hyperCapacity,arcParameters,arcPoint,arcTriangles,inArc,SEPARATIST_EXAMPLES,STATS_SOURCE,SHIP_REFERENCE,PART_RATINGS,reactorPower,nozzleThrust,nozzleDemand,shieldLoad,partRatingKeys,validOutline,outlinePoints,outlineArea,outlineTriangles,AVIATION_ROLES,CHARGE_TT_M3,aircraftCapacity,aviationConnected,needsCapacitor,weaponCapacitors,refitReferenceInterior,clipReferenceBox, referenceEnginePoint, fitSpec, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface,
   TT, G0, ISD_W, K, PARTS, FITS, HULLS, SECTIONS, KEELS, SECTORS, CLASSES, DESIGNS, AXES, AXNAME, ARMOR_MAX,
   newShip, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,

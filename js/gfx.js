@@ -192,6 +192,22 @@ const FC = {body: hex('#c3c8cd'), dark: hex('#3e444a'), barrel: hex('#878e95'), 
 const WHITE = [255, 255, 255];
 
 // ---------- hull loft ----------
+// Hull plating is projected along the dominant axis of each face, so its seams
+// run straight fore and aft on decks, flanks and cut walls alike.
+function hullUV(nx, ny, nz) {
+  const ax = Math.abs(nx), ay = Math.abs(ny), az = Math.abs(nz);
+  if (ax > ay && ax > az) return p => [p[2], p[1]];
+  if (ay >= az) return p => [p[0], p[2]];
+  return p => [p[0], p[1]];
+}
+function hullTriangleMesh(g, T, col, scale) {
+  const nt = Math.floor(T.length / 9); if (!nt) return; g.room(nt * 3, nt * 3);
+  for (let i = 0; i < nt * 9; i += 9) {
+    const a = [T[i], T[i + 1], T[i + 2]], b = [T[i + 3], T[i + 4], T[i + 5]], c = [T[i + 6], T[i + 7], T[i + 8]], n = C.cross(C.sub(b, a), C.sub(c, a)), l = Math.hypot(n[0], n[1], n[2]) || 1, uv = hullUV(n[0], n[1], n[2]), k = g.n;
+    for (const p of [a, b, c]) { const q = uv(p); g.v(p[0], p[1], p[2], n[0] / l, n[1] / l, n[2] / l, q[0] / scale, q[1] / scale, col, 255); }
+    g.tri(k, k + 1, k + 2);
+  }
+}
 function v3MeshHull(ship) {
   const g0 = C.hullGeo(ship), xs = g0.xs, secs = g0.secs, N = g0.N, S = xs.length;
   const P = (i, j) => [xs[i], secs[i].Y[j], secs[i].Z[j]];
@@ -205,8 +221,6 @@ function v3MeshHull(ship) {
     FA[i * N + j] = l / 2;
     if (l > 1e-9) { FN[k] = n[0] / l; FN[k + 1] = n[1] / l; FN[k + 2] = n[2] / l; }
   }
-  // arc length per station for v
-  const ARC = secs.map(s => { const a = new Float32Array(N + 1); for (let j = 0; j < N; j++) { const j2 = (j + 1) % N; a[j + 1] = a[j] + Math.hypot(s.Z[j2] - s.Z[j], s.Y[j2] - s.Y[j]); } return a; });
   const g = new Geo(Q * N * 4 + 4096), cosC = Math.cos(38 * Math.PI / 180), TS = 96;
   const vn = [0, 0, 0];
   const vnormal = (i, j, qi, qj) => {   // vertex (i,j) normal for quad (qi,qj)
@@ -225,12 +239,12 @@ function v3MeshHull(ship) {
   };
   for (let i = 0; i < Q; i++) for (let j = 0; j < N; j++) {
     if (FA[i * N + j] <= 1e-6) continue;
-    const j2 = (j + 1) % N, base = g.n;
-    const corners = [[i, j, j], [i + 1, j, j], [i + 1, j2, j + 1], [i, j2, j + 1]];
+    const j2 = (j + 1) % N, base = g.n, kq = (i * N + j) * 3, uvOf = hullUV(FN[kq], FN[kq + 1], FN[kq + 2]);
+    const corners = [[i, j], [i + 1, j], [i + 1, j2], [i, j2]];
     g.room(4);
-    for (const [ci, cj, ca] of corners) {
-      const p = P(ci, cj), n = vnormal(ci, cj, i, j);
-      g.v(p[0], p[1], p[2], n[0], n[1], n[2], p[0] / TS, ARC[ci][ca] / TS, PAINT, 255);
+    for (const [ci, cj] of corners) {
+      const p = P(ci, cj), n = vnormal(ci, cj, i, j), uv = uvOf(p);
+      g.v(p[0], p[1], p[2], n[0], n[1], n[2], uv[0] / TS, uv[1] / TS, PAINT, 255);
     }
     g.tri(base, base + 1, base + 2); g.tri(base, base + 2, base + 3);
   }
@@ -969,7 +983,7 @@ function meshHull(ship){
   for(let i=0;i<T.length;i+=9){const tri=T.subarray(i,i+9),p=[(T[i]+T[i+3]+T[i+6])/3,(T[i+1]+T[i+4]+T[i+7])/3,(T[i+2]+T[i+5]+T[i+8])/3],n=C.norm(C.cross(C.sub(Array.from(tri.slice(3,6)),Array.from(tri.slice(0,3))),C.sub(Array.from(tri.slice(6)),Array.from(tri.slice(0,3)))));
     let color=paint;
     if(openings.some(b=>p.every((v,a)=>v>=b[a]-.1&&v<=b[a+3]+.1)&&[0,1,2].some(a=>[b[a],b[a+3]].some(v=>Math.abs(T[i+a]-v)<.1&&Math.abs(T[i+3+a]-v)<.1&&Math.abs(T[i+6+a]-v)<.1))))color=[48,60,67];
-    triangleMesh(g,tri,color,42);
+    hullTriangleMesh(g,tri,color,42);
     if(ship.paint==='republic'&&n[1]>.5&&color===paint){
       const triangle=[Array.from(tri.slice(0,3)),Array.from(tri.slice(3,6)),Array.from(tri.slice(6,9))],h=ship.hull,start=h.L*.520,end=h.L*.996,w0=h.W*.084,w1=h.W*.014;
       const bands=[[start,-10000,-w0,end,10000,w0,w0,w1]];

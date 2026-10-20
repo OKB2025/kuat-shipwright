@@ -437,6 +437,44 @@ body.tut-on .viewport-guide{display:none}
 body.tut-on .inspect{top:auto;bottom:70px;left:auto;right:var(--gr)}
 .fleet-active .tut{display:none}
 @media(max-width:600px){.tut{top:48px;max-height:calc(100% - 96px);padding:8px 10px 10px;gap:6px}.tut h3{font-size:16px}.tut-dots{display:none}.tut-text{font-size:12.5px;line-height:1.55;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}.tut-text.full{display:block}}
+.station-scroll{overflow-x:auto;margin:6px 0;max-width:100%}.station-table input{min-width:42px}
+/* touch screens: 16px text in fields keeps iOS from zooming the page on focus */
+@media (pointer: coarse) {
+  input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color]), select, textarea { font-size: 16px !important; }
+  .station-table input { padding: 5px 2px; }
+}
+/* phone held sideways: the controls sit beside the 3D view */
+@media (orientation: landscape) and (max-height: 560px) and (max-width: 999px) {
+  .app { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto minmax(0, 1fr); }
+  .topbar { grid-column: 1; grid-row: 1; padding-block: 3px; gap: 8px; }
+  .mode-switch { grid-column: 2; grid-row: 1; padding: 3px max(10px, env(safe-area-inset-right, 0px)) 3px 10px; border-left: 1px solid var(--line); }
+  .mode-switch button { padding: 5px 10px; font-size: 12px; }
+  .main { grid-column: 1 / -1; grid-row: 2; flex-direction: row; }
+  .mark { width: 24px; height: 24px; }
+  .brand-name { font-size: 13px; } .ship-name { font-size: 11px; max-width: 26vw; }
+  .icon-btn { width: 30px; height: 30px; } .btn-ghost { height: 30px; padding: 0 10px; }
+  .viewport { min-height: 0; }
+  .dock { width: min(400px, 47vw); max-height: none; border-top: 0; border-left: 1px solid var(--line); }
+  .statstrip { padding-block: 4px; } .ss b { font-size: 14px; } .ss i { font-size: 10px; }
+  .tabs button { padding: 7px 8px 5px; font-size: 12.5px; }
+  .panel { padding-block: 8px 14px; padding-right: max(12px, env(safe-area-inset-right, 0px)); padding-left: 12px; }
+  .hudbar { top: 6px; } .hudbottom { bottom: 6px; } .viewport-guide { display: none; }
+  .render-tools { top: 44px; }
+  .tut { top: 44px; width: min(330px, calc(100% - 24px)); max-height: calc(100% - 56px); padding: 8px 10px 10px; gap: 6px; }
+  .tut h3 { font-size: 15px; } .tut-dots { display: none; }
+  .tut-text { font-size: 12px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; cursor: pointer; }
+  .tut-text.full { display: block; }
+  .tactical-active .viewport { min-height: 0; } .tactical-active .dock { max-height: none; }
+}
+@media (orientation: landscape) and (max-height: 560px) {
+  .title-inner { gap: 10px; padding-block: max(10px, env(safe-area-inset-top, 0px)) max(8px, env(safe-area-inset-bottom, 0px)); }
+  .title-brand h1 { font-size: 30px; margin: 2px 0 0; line-height: 1.1; } .title-sub { font-size: 12px; letter-spacing: .4em; margin-top: 2px; } .title-kicker { font-size: 10px; }
+  .title-body { grid-template-columns: minmax(260px, 340px) minmax(0, 1fr); gap: 16px; }
+  .title-menu { display: grid; grid-template-columns: 1fr 1fr; }
+  .tmenu { padding: 9px 12px 9px 4px; } .tmenu b { font-size: 15px; } .tmenu span { font-size: 11px; line-height: 1.4; }
+  .title-panel { max-height: calc(100vh - 120px); padding: 12px 14px; }
+  .title-foot { gap: 4px 12px; } .title-steps { display: none; }
+}
 </style>
 
 <div id="title" class="title" role="dialog" aria-modal="true" aria-labelledby="titleName">
@@ -565,6 +603,7 @@ body.tut-on .inspect{top:auto;bottom:70px;left:auto;right:var(--gr)}
     <section>
       <h3>設計の手順</h3><p class="note">①船体・構造物で外殻を作る → ②炉と艦尾ノズルを置く → ③「系統」で接続と自動占有を確認 → ④空きへ主要区画・格納庫を配置 → ⑤航空区画の接触面に出口を設定し、航空隊を編成 → ⑥武装・艦橋・装甲を付ける。</p><h3>計算の考え方</h3>
       <ul class="rules">
+        <li><b>移動と複製</b>　選択した区画・構造物・装備は、3D画面で枠ごとドラッグして動かせる。甲板に載った構造物は甲板に沿い、装備は面に沿って動く。「選択・調整」から「配置」へ切り替えると、直前に編集したものを同じ設定で続けて置ける。</li>
         <li><b>艦橋とスキン</b>　スキンは外板の形状・塗装。インペリアル級・ヴェネター級の艦橋本体はそれだけで指揮所になる。自作の艦橋には、インペリアル級艦橋の円筒形ポッドを構造物の側面・前後壁へ取り付ける（船体・甲板・天井には置けない）。</li>
         <li><b>出力</b>　球形ジェネレーターの有効体積（直径の3乗）で決まる。標準インペリアル級の主炉・予備炉・補助炉の合計を1 ISDとし、全艦に同じ係数を適用する。干渉した炉は停止する。</li>
         <li><b>内部区画</b>　船体と構造物の範囲で自動切取り。容量と質量は内側の実体積で計算する。指定寸法は保持され、構造物を広げると利用できる部分も増える。</li>
