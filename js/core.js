@@ -151,11 +151,12 @@ function planW(hp, t) {
 function planH(hp, t, pw) { return (hp.plan === 'cigar' || hp.plan === 'ellipse') ? Math.max(0.3, pw) : pw; }
 // The final bow stations share the hull's width/thickness ratio. Intermediate
 // stations remain editable for shoulders, carrier flight decks and stern wells.
-function bowStation(h,i){return !h.assembly&&!!h.stations&&i>=h.stations.length-2;}
+function bowStation(h,i){return !h.assembly&&!!h.stations&&!h.bowFree&&i>=h.stations.length-2;}
 function normalizeBow(h){
  if(h.assembly)return h;
  if(h.stations?.length){h.stations=h.stations.map((a,i)=>{const q=a.slice();if(bowStation(h,i))q[2]=q[1];return q;});h.bowW=h.stations.at(-1)[1];}
- h.bowH=h.bowW;return h;
+ // Unlinked bows keep their own thickness at the tip.
+ h.bowH=h.bowFree&&h.stations?.length?h.stations.at(-1)[2]:h.bowW;return h;
 }
 
 // ---------- ship ----------
@@ -1908,7 +1909,7 @@ function deserialize(o){
   const s=v3Deserialize(o),finite=(v,lo,hi,d)=>Number.isFinite(v)?clamp(v,lo,hi):d;
   if(Array.isArray(o.hull?.stations)&&o.hull.stations.length>=2&&o.hull.stations.length<=32){const a=o.hull.stations.map((p,i)=>{const r=[finite(p?.[0],0,1,i/(o.hull.stations.length-1)),finite(p?.[1],.005,1.5,1),finite(p?.[2],.005,1.5,1)];if(p?.length>3)r.push(finite(p[3],-.5,.8,0));if(p?.length>4)r.push(finite(p[4],0,.98,.52));if(p?.length>5)r.push(finite(p[5],0,.98,0));return r;}).sort((a,b)=>a[0]-b[0]);if(a.some((p,i)=>i&&p[0]-a[i-1][0]<.001))throw new Error('船体断面の位置が重複しています');a[0][0]=0;a.at(-1)[0]=1;s.hull.stations=a;}
   if(SHIP_CLASSES.some(c=>c.id===o.shipClass))s.shipClass=o.shipClass;
-  s.autoHabitation=o.autoHabitation!==false;s.hullLocked=o.hullLocked!==false;s.hull.assembly=!!o.hull?.assembly;normalizeBow(s.hull);
+  s.autoHabitation=o.autoHabitation!==false;s.hullLocked=o.hullLocked!==false;s.hull.assembly=!!o.hull?.assembly;if(o.hull?.bowFree===true)s.hull.bowFree=true;normalizeBow(s.hull);
   s.hull.deckWidth=finite(o.hull?.deckWidth,0,.98,.52);s.hull.belt=finite(o.hull?.belt,.02,.45,.13);
   if(o.hull?.start!=null)s.hull.start=finite(o.hull.start,0,.6,0);
   for(const k of ['chineHeight','keelWidth'])if(o.hull?.[k]!=null)s.hull[k]=finite(o.hull[k],k==='chineHeight'?.2:0,k==='chineHeight'?.95:.98,k==='chineHeight'?.5:0);
