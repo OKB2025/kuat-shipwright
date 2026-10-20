@@ -40,14 +40,17 @@ const rgb = (c) => `rgb(${c[0]},${c[1]},${c[2]})`;
 const PART_KEYS = Object.keys(C.PARTS).filter(k=>!['machinery','capacitor'].includes(k));
 const WEAPONS = ['refVen','refISD','refIon','refSide','oct40','casemate40','casemateLight','triple40','quad200','pd', 'ltl', 'mtl', 'htl', 'stl', 'utl', 'ion', 'msl', 'trc'];
 const BRIDGES = ['podBridge','podAir','podHangar','podCombat'];
-const TABS = [['hull', '船体'], ['mod', '区画および艤装'], ['systems','系統'], ['launch', '航空隊'], ['armor', '装甲'], ['carve', '削る'], ['spec', '性能'], ['sim', '戦術']];
+const TABS = [['hull', '船体'], ['mod', '区画および艤装'], ['systems','系統'], ['launch', '航空隊'], ['ground', '地上部隊'], ['spec', '性能']];
+// 削る・装甲 live inside 船体; their editors keep their own tab keys.
+const HULL_SUB = [['hull', '船体の形'], ['carve', '削る'], ['armor', '装甲']];
+const TAB_NAMES = {...Object.fromEntries(TABS), carve: '削る', armor: '装甲', bridge: '艦橋'};
 // Weapons and the bridge live inside 区画および艤装 as groups of their own.
 const armMode = () => st.tab === 'arm' || st.tab === 'mod' && st.group === 'weapons';
 function layoutGroups() { const out = []; for (const e of Object.entries(C.GROUPS)) { out.push(e); if (e[0] === 'command') out.push(['bridge', '艦橋']); } return out; }
 const BRIDGE_SUB = [['body', '艦橋本体'], ['windows', '艦橋ポッド']];
 function bridgeSubHTML() { return `<div class="pgroup command-sub"><h4>艦橋</h4>${seg('cmdsub', BRIDGE_SUB, st.bridgeMode === 'windows' ? 'windows' : 'body')}</div>`; }
 // The bridge editor lives inside 区画 → 指揮・生活; its state keeps the 'bridge' key.
-const tabKey = () => st.tab === 'bridge' ? 'mod' : st.tab;
+const tabKey = () => st.tab === 'bridge' ? 'mod' : st.tab === 'carve' || st.tab === 'armor' ? 'hull' : st.tab;
 function markTabs() { $$('#tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === tabKey()))); }
 const PLACE = [['inside', '内蔵'], ['partial', '一部露出'], ['outside', '外付け']];
 const st = {
@@ -181,7 +184,7 @@ function onEngineStats(msg) {
   prevS = S; S = msg.stats;
   renderStrip(); renderSpecTargets(); if (st.tab === 'systems' || armMode() && st.sel?.list === 'fits' && !dragSnap) renderPanel();
   if (st.tab !== 'spec' && st.tab !== 'sim') renderPanelInfo();
-  updateAviationUI();
+  updateAviationUI(); updateGroundUI();
   if (msg.gen === eng.gen) {
     if (prevS && eng.label && !eng.quiet && msg.gen >= eng.labelGen) toastDiff(eng.label, prevS, S);
     eng.label = ''; eng.quiet = false;
@@ -263,6 +266,7 @@ function hideBusyOverlay() { clearTimeout(busyT); const el = $('#busy'); if (el)
 
 function loop(now=performance.now()) {
   if(document.hidden){requestAnimationFrame(loop);return;}
+  if(trial.on){try{if(view&&!renderHealth.lost&&!renderRetryTimer)trialLoop(now);}catch(e){renderingFailed(e);}requestAnimationFrame(loop);return;}
   if(fleet.mode!=='design'){try{if(!renderHealth.lost&&!renderRetryTimer)fleetLoop(now);}catch(e){renderingFailed(e);}requestAnimationFrame(loop);return;}
   if (view && ship && !renderHealth.lost && !renderRetryTimer) {
     view.onTextureReady=requestDraw;
@@ -506,7 +510,7 @@ function refreshOverlay() {
   requestDraw();
 }
 function onHover(px, py) {
-  if(fleet.mode!=='design')return;
+  if(fleet.mode!=='design'||trial.on)return;
   if (!ship || !view) return;
   const t = tool();
   if(t === 'solid') return;
@@ -516,6 +520,7 @@ function onHover(px, py) {
 function clearHover() { hoverLines = null; refreshOverlay(); }
 
 function onTap(px, py) {
+  if(trial.on)return;
   if(fleet.mode!=='design'){fleetTap(px,py);return;}
   if(!view)return;
   const t = tool();
@@ -720,7 +725,7 @@ function specHTML(S) {
 function renderSpecTargets() {
   if(fleet.mode!=='design'){fleetRender();return;}
   const side = $('#specSide');
-  if (isWide()) side.innerHTML = `<div class="spec-title"><h3>性能諸元</h3></div>` + specHTML(S);
+  if (isWide()) side.innerHTML = `<div class="spec-title"><h3>性能諸元</h3></div>` + trialCardHTML(true) + specHTML(S);
   if (st.tab === 'spec') { const p = $('#panel .spec-wrap'); if (p) p.innerHTML = specHTML(S); }
 }
 const isWide = () => window.matchMedia('(min-width: 1000px)').matches;
@@ -1201,6 +1206,11 @@ function attachControls(canvas) {
   canvas.addEventListener('pointerdown', e => {
     canvas.setPointerCapture(e.pointerId);
     ptrs.set(e.pointerId, {x: e.clientX, y: e.clientY});
+    if (trial.on) {   // trial flights: drag only looks around, pinch only zooms
+      if (ptrs.size === 1) { start = {x: e.clientX, y: e.clientY, t: performance.now()}; last = {x: e.clientX, y: e.clientY}; moved = true; mode = 'rotate'; }
+      else if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch = {d: Math.hypot(a.x - b.x, a.y - b.y), mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2}; mode = 'pinch'; }
+      return;
+    }
     if (ptrs.size === 1) {
       start = {x: e.clientX, y: e.clientY, t: performance.now()};
       last = {x: e.clientX, y: e.clientY}; moved = false;
@@ -1380,6 +1390,7 @@ function bind() {
   $('#panel').addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
     if(blockedHullControl(b))return;const d = b.dataset;
+    if (d.hullsub) { st.tab = d.hullsub; st.sel = null; st.hatchA = null; hideInspect(); renderPanel(); syncHud(); requestDraw(); return; }
     if (d.notchstructures) { st.notchStructures=d.notchstructures==='yes';renderPanel(); }
     else if (d.parttool) { if (d.parttool === 'place' && st.partTool !== 'place') carryToPlace(); st.partTool = d.parttool; renderPanel(); }
     else if (d.part) { st.template=null;st.equipmentId=null;if(st.structForm==='reference'){st.structForm='trap';delete st.skinAsset;}st.part = d.part; st.partTool = 'place'; renderPanel(); }
@@ -1496,6 +1507,7 @@ function bind() {
   $('#chipVMirror').addEventListener('click', () => { st.vmirror = !st.vmirror; syncHud(); updateHint(); });
   $('#btnFull').addEventListener('click', toggleFullscreen);
   $('#btnTitle').addEventListener('click', () => { closeSheet(); showTitle(); });
+  $('#btnHome')?.addEventListener('click', () => { if (trial.on) trialStop(); closeSheet(); showTitle(); });
   $('#inspect').addEventListener('click', e => { if (e.target.closest('.ins-x')) hideInspect(); });
   $('#btnUndo').addEventListener('click', undo);
   $('#btnRedo').addEventListener('click', redo);
@@ -1527,7 +1539,7 @@ function bind() {
     const rd = new FileReader(); rd.onload = () => importText(String(rd.result)); rd.readAsText(f); e.target.value = '';
   });
   window.addEventListener('keydown', e => {
-    if(fleet.mode!=='design')return;
+    if(fleet.mode!=='design'||trial.on)return;
     if (e.target.matches('input, textarea, select')) return;
     const mod = e.ctrlKey || e.metaKey;
     if (mod && e.key.toLowerCase() === 'z') { e.preventDefault(); e.shiftKey ? redo() : undo(); }
@@ -1566,7 +1578,7 @@ function start(hot) {
   $('#newHulls').innerHTML = Object.entries(C.HULLS).map(([k, v]) => `<button type="button" class="hullcard" data-newhull="${k}">${silhouette(v)}<span>${v.name}</span></button>`).join('');
   $('#refGrid').innerHTML = EXAMPLES.map(e => `<button class="btn" data-reference="${e.key}">${esc(e.name)}<small>${esc(e.side)}・${esc(e.note)}</small></button>`).join('');
   restoreRenderer(false,false);bindRendering();
-  bind();bindEngineering();bindRealism();bindReference();bindAviation();bindFleet();bindSurface();bindPlanCuts();bindLayout();bindSolidCuts();bindTitle();bindTutorial();
+  bind();bindEngineering();bindRealism();bindReference();bindAviation();bindFleet();bindSurface();bindPlanCuts();bindLayout();bindSolidCuts();bindTitle();bindTutorial();bindGround();bindTrial();
   if (hot && hot.ui) { for (const k of ['tab', 'part', 'partTool', 'mirror', 'view', 'coded', 'fit', 'bridge', 'bridgeMode', 'bridgeEquipment', 'equipmentId', 'group', 'ped']) if (hot.ui[k] != null) st[k] = hot.ui[k]; }
   if(!BRIDGES.includes(st.bridge))st.bridge='podBridge';
   if(!['body','windows'].includes(st.bridgeMode))st.bridgeMode='body';
@@ -1574,13 +1586,14 @@ function start(hot) {
   if(!Object.hasOwn(C.EQUIPMENT,st.equipmentId)||C.EQUIPMENT[st.equipmentId].group==='bridge')st.equipmentId=null;
   if (st.view === 'cut') st.view = 'xray';
   if (st.tab === 'bridge') st.tab = 'mod';
+  if (st.tab === 'sim' || st.tab === 'arm') st.tab = st.tab === 'arm' ? 'mod' : 'spec';
   syncHud();
   requestAnimationFrame(loop);
   if (window.claude && window.claude.hot && window.claude.hot.snapshot) {
     window.claude.hot.snapshot(() => ({design: ship ? C.serialize(ship) : null, ui: {tab: st.tab, part: st.part, partTool: st.partTool, mirror: st.mirror, view: st.view, coded: st.coded, fit: st.fit, bridge: st.bridge, bridgeMode:st.bridgeMode,bridgeEquipment:st.bridgeEquipment,equipmentId:st.equipmentId,group:st.group,ped: st.ped}}));
   }
   Store.init();
-  window.__yard = {get ship() { return ship; }, get stats() { return S; }, st, draw: requestDraw, fleet, fleetSetMode, renderHealth, restoreRenderer, view: () => view, setShip, C, pick, onTap, touch, eng, openExample, title: titleApi, meshStore};
+  window.__yard = {get ship() { return ship; }, get stats() { return S; }, st, draw: requestDraw, fleet, fleetSetMode, renderHealth, restoreRenderer, view: () => view, setShip, C, pick, onTap, touch, eng, openExample, title: titleApi, meshStore, trial, trialCommand};
   const boot = window.KSBoot, draft = readDraft(hot);
   const engineStart = YardEngineClient.start(boot ? null : collectSources(), boot ? {workerReady: boot.workerReady} : {});
   engineStart.then(mode => { engineHello(mode); boot?.step('engine', 'done'); titleStatus(); }).catch(e => { console.error(e); toast('設計エンジンを起動できませんでした'); });
@@ -1870,6 +1883,7 @@ function renderPanel(){
   refreshSolidCutterOverlay();
 
   if(ship&&st.tab==='mod'&&st.group==='weapons'){compartmentWeaponsPanel();return;}
+  if(ship&&st.tab==='ground'){markTabs();$('#panel').innerHTML=groundPanelHTML();updateHint();refreshOverlay();return;}
   v3RenderPanel();if(!ship)return;const panel=$('#panel');
   if(st.tab==='hull'){
     panel.insertAdjacentHTML('afterbegin',`<div class="pgroup"><label><input type="checkbox" data-assembly ${ship.hull.assembly?'checked':''}> 船体を独立した構造パーツで組み立てる</label><p class="note">有効時は一体船体を表示せず、配置した船殻だけを容積・質量・内部区画の境界に使います。環状船体や分離したポッドを作れます。長さ・幅・高さは設計範囲です。</p></div>`);
@@ -1882,6 +1896,8 @@ function renderPanel(){
   referencePanel(panel);layoutPanel(panel);
   if(st.tab==='hull')panel.insertAdjacentHTML('afterbegin',hullDimsHTML());
   if(st.tab==='bridge'&&st.bridgeMode==='body')panel.insertAdjacentHTML('beforeend',surfaceControls({},false));
+  if(['hull','carve','armor'].includes(st.tab))panel.insertAdjacentHTML('afterbegin',`<div class="pgroup hull-sub">${seg('hullsub',HULL_SUB,st.tab)}</div>`);
+  if(st.tab==='spec')panel.insertAdjacentHTML('afterbegin',trialCardHTML());
 }
 function partEditor(){
   let html=v3PartEditor(),p=selItem();if(!p||st.sel.list!=='parts')return html;
@@ -2111,6 +2127,177 @@ function aviationPanelHTML(){
  const a=aviationNumbers(),wings=a.wings,bays=ship.parts.filter(p=>p.k==='hangar'),selected=st.sel?.list==='parts'?selItem():null,slides=ship.hatches.filter(h=>h.bay&&C.isSlidingHatch(ship,h));
  return `<div class="pgroup blueprint-card aviation-editor"><h4>航空隊編集</h4><p class="note">航空隊ごとに「1機のサイズ × 機数」を入力し、合計が格納容量に収まるように組みます。小型戦闘機はサイズ1、大型の機体はサイズ2以上です。残り <b>${aviationSize(Math.max(0,a.capacity-a.usedSize))} サイズ</b>（サイズ1の機体で ${num(Math.floor(Math.max(0,a.capacity-a.usedSize)+1e-6))} 機分）。</p><div id="aviationSummary" aria-live="polite">${aviationCapacityHTML(a)}</div></div><div class="pgroup"><h4>搭載する航空隊</h4><p class="note">航空隊ごとに1機のサイズと搭載機数を入力します。使用サイズは「サイズ × 機数」の合計です。</p><div class="aviation-wings">${wings.map(aviationWingHTML).join('')||'<p class="note">航空隊がありません。追加して搭載数を指定してください。</p>'}</div><button type="button" class="btn primary" data-addairwing ${wings.length>=C.AIR_WING_LIMITS.rows?'disabled':''}>航空隊を追加</button></div>${selected?.k==='hangar'?`<div class="pgroup"><h4>選択中 · ${esc(C.partLabel(selected))}</h4>${aviationPartHTML(selected)}</div>`:''}<details class="trench-editor aviation-bays"><summary>航空区画と出入口 · ${num(bays.length)} 区画</summary><p class="note">区画を選んで、位置・寸法・用途・接触面の開口を編集できます。開放型は高速に発艦し、シールドは電力を使って開口を防護します。</p><ul class="ilist">${bays.map(p=>`<li><button type="button" class="btn sm ghost" data-layout-part="${p.id}">${esc(C.partLabel(p))}</button><span data-aviation-capacity="${p.id}">${aviationSize(C.hangarCapacity(p))} サイズ</span></li>`).join('')||'<li><span>「区画」から航空区画を配置してください。</span></li>'}</ul></details>${slides.length?`<details class="trench-editor"><summary>スライド扉の開閉を確認</summary><p class="note">上甲板・腹部の扉は左右へ、舷側の扉は上下へ移動します。観閲式と戦闘開始時は閉じ、発艦指示で4秒かけて開き、発艦完了・中止後に閉じます。</p>${slides.map(aviationDoorHTML).join('')}</details>`:''}`;
 }
+// ---------- ground forces ----------
+function groundNumbers(){return S?.ground||C.groundStatus(ship,S);}
+const groundNum=v=>num(Math.round(v*10)/10);
+function groundBudgetHTML(used,cap,label,unit){return `<div class="aviation-budget"><span>${label}</span><strong>${groundNum(cap)} <small>${unit}</small></strong><p>編成 <b>${groundNum(used)}</b> / ${groundNum(cap)} ${unit}</p><meter min="0" max="${Math.max(1,cap)}" value="${Math.min(used,Math.max(1,cap))}" aria-label="${label}の使用量"></meter><p class="${used>cap+1e-6?'neg':'ok'}">${used>cap+1e-6?'容量超過 '+groundNum(used-cap):'残り '+groundNum(Math.max(0,cap-used))} ${unit}</p></div>`;}
+function groundRowHTML(r,i,n){
+ const id=esc(r.id),L=C.GROUND_LIMITS,open=st.groundOpen?st.groundOpen.has(r.id):i<3,unit=r.kind==='troops'?'名':'両';
+ return `<details class="airwing-row" data-ground-card="${id}" ${open?'open':''}><summary><b>${esc(r.name)}</b><span data-ground-summary="${id}">${r.kind==='troops'?num(r.count)+' 名':'サイズ '+r.size+' × '+num(r.count)+' 両'}${r.unembarked>0?` · ${num(r.unembarked)} 未搭載`:''}</span></summary>
+ <label class="field-label">部隊名<input type="text" data-ground="${id}" data-groundfield="name" value="${esc(r.name)}" maxlength="${L.nameLength}" aria-label="部隊 ${i+1} の名前"></label>
+ <div class="airwing-fields"><label>種別<select data-ground="${id}" data-groundfield="kind" aria-label="部隊 ${i+1} の種別"><option value="troops" ${r.kind==='troops'?'selected':''}>歩兵</option><option value="vehicle" ${r.kind==='vehicle'?'selected':''}>車両</option></select></label>${r.kind==='vehicle'?`<label>1両のサイズ<input type="number" data-ground="${id}" data-groundfield="size" value="${r.size}" min="${L.minSize}" max="${L.maxSize}" step=".1" inputmode="decimal" aria-label="部隊 ${i+1} の1両のサイズ"></label>`:''}<label>${r.kind==='troops'?'人数':'両数'}<input type="number" data-ground="${id}" data-groundfield="count" value="${r.count}" min="0" max="${L.maxCount}" step="1" inputmode="numeric" aria-label="部隊 ${i+1} の${r.kind==='troops'?'人数':'両数'}"></label></div>
+ <p class="note" data-ground-status="${id}">${r.unembarked>0?`<span class="neg">容量不足で ${num(r.unembarked)} ${unit}が未搭載。</span>`:''}搭載 ${num(r.embarked)} / ${num(r.count)} ${unit}</p>
+ <div class="chips"><button type="button" class="btn sm" data-fillground="${id}">空きまで搭載</button><button type="button" class="btn sm ghost" data-moveground="${id}" data-direction="-1" ${i===0?'disabled':''}>上へ</button><button type="button" class="btn sm ghost" data-moveground="${id}" data-direction="1" ${i===n-1?'disabled':''}>下へ</button><button type="button" class="btn sm danger" data-delground="${id}">削除</button></div></details>`;
+}
+function groundPanelHTML(){
+ const g=groundNumbers();
+ return `<div class="pgroup blueprint-card ground-editor"><h4>地上部隊編成</h4><p class="note">歩兵は「兵員収容区画」の容積（1名あたり12 m³）、車両は「車両格納・整備区画」の容積（サイズ1あたり600 m³）で搭載数が決まります。容量が足りないときは上の部隊から順に収容します。</p><div class="ground-budgets" id="groundSummary">${groundBudgetHTML(g.troops.used,g.troops.capacity,'兵員','名')}${groundBudgetHTML(g.vehicles.used,g.vehicles.capacity,'車両','サイズ')}</div><div class="chips"><button type="button" class="btn sm" data-groundroom="troops">兵員収容区画を配置</button><button type="button" class="btn sm" data-groundroom="vehicle">車両格納・整備区画を配置</button></div></div>
+ <div class="pgroup"><h4>搭載する部隊</h4>${g.rows.map((r,i)=>groundRowHTML(r,i,g.rows.length)).join('')||'<p class="note">まだ部隊がありません。下のボタンから追加します。</p>'}<h4>部隊を追加</h4><div class="chips ground-add">${C.GROUND_PRESETS.map((p,i)=>`<button type="button" class="btn sm" data-addground="${i}">＋ ${esc(p.name)}${p.kind==='vehicle'?`（サイズ${p.size}）`:''}</button>`).join('')}</div><p class="note">AT-ATはサイズ8、AT-STはサイズ1が目安です。サイズは1両の格納に要る空間で、自由に変えられます。</p></div>`;
+}
+function updateGroundUI(){
+ if(!ship||fleet.mode!=='design'||st.tab!=='ground')return;
+ const g=groundNumbers(),sum=$('#groundSummary');if(sum)sum.innerHTML=groundBudgetHTML(g.troops.used,g.troops.capacity,'兵員','名')+groundBudgetHTML(g.vehicles.used,g.vehicles.capacity,'車両','サイズ');
+ for(const r of g.rows){const unit=r.kind==='troops'?'名':'両',a=document.querySelector(`[data-ground-status="${r.id}"]`),b=document.querySelector(`[data-ground-summary="${r.id}"]`);if(a)a.innerHTML=`${r.unembarked>0?`<span class="neg">容量不足で ${num(r.unembarked)} ${unit}が未搭載。</span>`:''}搭載 ${num(r.embarked)} / ${num(r.count)} ${unit}`;if(b)b.textContent=`${r.kind==='troops'?num(r.count)+' 名':'サイズ '+r.size+' × '+num(r.count)+' 両'}${r.unembarked>0?` · ${num(r.unembarked)} 未搭載`:''}`;}
+}
+function editGroundInput(t,finish=false){
+ const id=t.dataset.ground,k=t.dataset.groundfield,row=ship.groundForces?.find(r=>r.id===id);if(!row||!['name','kind','size','count'].includes(k))return;
+ const value=k==='name'||k==='kind'?t.value:Number(t.value);if(!['name','kind'].includes(k)&&(t.value===''||!Number.isFinite(value))){if(finish){if(dragSnap)endDrag();t.value=String(row[k]);}return;}
+ const rows=C.normalizeGroundForces(ship.groundForces.map(r=>r.id===id?{...r,[k]:value}:r));
+ if(JSON.stringify(rows)!==JSON.stringify(ship.groundForces)){beginDrag('地上部隊を編集');ship.groundForces=rows;touch('none');scheduleStats(180);}
+ if(finish){if(dragSnap)endDrag();if(k==='kind')renderPanel();}
+}
+function bindGround(){
+ const panel=$('#panel');
+ panel.addEventListener('toggle',e=>{const id=e.target.dataset?.groundCard;if(!id)return;st.groundOpen||=new Set((ship.groundForces||[]).slice(0,3).map(r=>r.id));if(e.target.open)st.groundOpen.add(id);else st.groundOpen.delete(id);},true);
+ panel.addEventListener('input',e=>{if(e.target.dataset.ground&&e.target.tagName!=='SELECT')editGroundInput(e.target);});
+ panel.addEventListener('change',e=>{if(e.target.dataset.ground)editGroundInput(e.target,true);});
+ panel.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!ship)return;const d=b.dataset,rows=ship.groundForces||[];
+  if(d.addground!=null){const p=C.GROUND_PRESETS[+d.addground];if(!p||rows.length>=C.GROUND_LIMITS.rows)return;if(dragSnap)endDrag();const ids=new Set(rows.map(r=>r.id));let n=1;while(ids.has('ground-'+n))n++;const id='ground-'+n;mutate('地上部隊を追加',()=>ship.groundForces=C.normalizeGroundForces([...rows,{id,name:p.name,kind:p.kind,size:p.size,count:0}]),'none');st.groundOpen||=new Set();st.groundOpen.add(id);renderPanel();return;}
+  if(d.fillground){const row=rows.find(r=>r.id===d.fillground),g=groundNumbers();if(!row)return;if(dragSnap)endDrag();const cap=row.kind==='troops'?g.troops.capacity:g.vehicles.capacity,other=rows.reduce((n,r)=>n+(r.id!==row.id&&r.kind===row.kind?r.size*r.count:0),0);mutate('空きまで搭載',()=>{row.count=Math.min(C.GROUND_LIMITS.maxCount,Math.max(0,Math.floor((cap-other+1e-6)/row.size)));},'none');renderPanel();return;}
+  if(d.delground){if(dragSnap)endDrag();mutate('地上部隊を削除',()=>ship.groundForces=rows.filter(r=>r.id!==d.delground),'none');renderPanel();return;}
+  if(d.moveground){const i=rows.findIndex(r=>r.id===d.moveground),j=i+Number(d.direction);if(i<0||j<0||j>=rows.length)return;if(dragSnap)endDrag();mutate('地上部隊の収容優先順',()=>{const r=rows.splice(i,1)[0];rows.splice(j,0,r);ship.groundForces=rows;},'none');renderPanel();return;}
+  if(d.groundroom){st.tab='mod';st.group=d.groundroom==='troops'?'command':'air';st.part=d.groundroom;st.partTool='place';st.equipmentId=null;st.template=null;renderPanel();return;}
+ });
+}
+// ---------- 公試: a free flight trial in low orbit over Coruscant ----------
+// WoWS-style standing orders (telegraph, rudder, planes and roll) on a fleet
+// asset of the current design. The ship stays at the render origin; its
+// position is kept in double precision relative to the planet centre.
+const TRIAL_PLANET={radius:6.12e6,altitude:160000,floor:40000,sun:(()=>{const v=[.85,-.1,.5],l=Math.hypot(...v);return v.map(x=>x/l);})()};
+const TRIAL_TELEGRAPH=[['後進',-.25],['停止',0],['1/4',.25],['1/2',.5],['3/4',.75],['全速',1]];
+const TRIAL_ORDERS={rudder:['取舵一杯','取舵','舵中央','面舵','面舵一杯'],pitch:['下げ舵一杯','下げ舵','水平','上げ舵','上げ舵一杯'],roll:['左ロール大','左ロール','ロール中立','右ロール','右ロール大']};
+const trial={on:false,busy:false,asset:null,p:null,P:[0,0,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],w:[0,0,0],tele:1,rudder:0,pitch:0,roll:0,level:false,t:0,last:0,hud:0,vf:0,thrust:0,camMode:'horizon',camF:null,rec:null,dust:null,warn:'',designCamera:null};
+const tv={dot:(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2],cross:(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],len:a=>Math.hypot(a[0],a[1],a[2]),norm:a=>{const l=Math.hypot(a[0],a[1],a[2])||1;return [a[0]/l,a[1]/l,a[2]/l];},add:(a,b,k=1)=>[a[0]+b[0]*k,a[1]+b[1]*k,a[2]+b[2]*k],scale:(a,k)=>[a[0]*k,a[1]*k,a[2]*k]};
+function trialRot(v,axis,ang){const c=Math.cos(ang),s=Math.sin(ang),d=tv.dot(axis,v),x=tv.cross(axis,v);return [v[0]*c+x[0]*s+axis[0]*d*(1-c),v[1]*c+x[1]*s+axis[1]*d*(1-c),v[2]*c+x[2]*s+axis[2]*d*(1-c)];}
+// Column-major frame from forward and approximate up (Gram-Schmidt).
+function trialFrame(f,u){f=tv.norm(f);u=tv.norm(tv.add(u,f,-tv.dot(u,f)));const r=tv.cross(f,u);return [f[0],f[1],f[2],u[0],u[1],u[2],r[0],r[1],r[2]];}
+const trialCol=(M,i)=>[M[i*3],M[i*3+1],M[i*3+2]];
+function trialProfile(){if(!ship||!S)return null;try{return C.fleetProfile(S,ship.name);}catch(e){return null;}}
+function trialFigures(p){const v=p?.maxSpeed||0,ok=!!(p&&p.accel>0&&v>0&&p.turnRate>0);return {ok,v,kmh:v*3.6,accelTime:ok?v/p.accel:0,turn:ok?p.turnRate*180/Math.PI:0,circle:ok?2*v/p.turnRate:0};}
+function trialCardHTML(side){
+ if(!ship||!S)return '';const f=trialFigures(trialProfile());
+ return `<div class="pgroup trial-card${side?' side':''}"><div class="trial-head"><h4>公試</h4><span>コルサント低軌道</span></div><p class="note">設計した艦を軌道上で操艦し、速力・加速・旋回を確かめます。</p>${f.ok?`<dl class="trial-kv"><dt>最大速力</dt><dd>${num(Math.round(f.v))} m/s</dd><dt>0→全速</dt><dd>${Math.round(f.accelTime)} 秒</dd><dt>全舵旋回率</dt><dd>${f.turn.toFixed(1)}°/秒</dd><dt>全速旋回径</dt><dd>${(f.circle/1000).toFixed(1)} km</dd></dl>`:`<p class="note neg">加速度が 0 G のため航行できません。推進・慣性補償・構造の上限を確認してください。</p>`}<button type="button" class="btn primary trial-go" data-trial="start" ${f.ok?'':'disabled'}>公試に出る</button></div>`;
+}
+function trialReset(){
+ const R=TRIAL_PLANET.radius;Object.assign(trial,{P:[0,R+TRIAL_PLANET.altitude,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],w:[0,0,0],tele:1,rudder:0,pitch:0,roll:0,level:false,t:0,last:0,vf:0,thrust:0,camF:null,warn:''});
+ trial.rec={top:0,accel:null,run:null,turn:null,turnSpeed:0};
+ const L=trial.p.len,H=C.clamp(L*2,1400,30000),n=280,pos=new Float32Array(n*3);for(let i=0;i<pos.length;i++)pos[i]=(Math.random()*2-1)*H;
+ trial.dust={H,pos,col:new Uint8Array(n*4).map((_,i)=>i%4===3?120:170+(i%4)*14),size:new Float32Array(n).fill(Math.max(2,L*.0035))};
+ if(view){view.cam.th=Math.PI;view.cam.ph=1.22;view.cam.r=trialCamRange(L*1.35+260);}
+}
+const trialCamRange=r=>C.clamp(r,trial.p.len*.45+60,trial.p.len*10+4000);
+async function trialStart(){
+ if(trial.on||trial.busy||!ship||!view||fleet.mode!=='design')return;
+ const f=trialFigures(trialProfile());if(!f.ok){toast('加速度が 0 G のため公試を行えません');return;}
+ trial.busy=true;showBusyOverlay('公試の準備中…');
+ let a=null;try{a=await fleetAsset('current');}catch(e){console.error(e);toast('公試を開始できません：'+esc(e.message||e));}finally{trial.busy=false;hideBusyOverlay();}
+ if(!a||trial.on||fleet.mode!=='design')return;
+ if(!(a.p.accel>0&&a.p.maxSpeed>0)){toast('加速度が 0 G のため公試を行えません');return;}
+ trial.asset=a;trial.p=a.p;trial.designCamera={cam:JSON.parse(JSON.stringify(view.cam)),off:[...view.off]};
+ closeSheet();hideInspect();clearHover();if(dragSnap)endDrag();
+ view.off=[0,0,0];view.cam={...view.cam,target:[0,0,0],ortho:false};trialReset();
+ trial.on=true;document.body.classList.add('trial-on');const hud=$('#trialHud');hud.hidden=false;hud.innerHTML=trialHudHTML();trialHudUpdate(true);
+ requestAnimationFrame(()=>{requestDraw();});
+}
+function trialStop(){
+ if(!trial.on)return;trial.on=false;document.body.classList.remove('trial-on');const hud=$('#trialHud');hud.hidden=true;hud.innerHTML='';
+ if(view){if(trial.designCamera){view.cam=trial.designCamera.cam;view.off=trial.designCamera.off;}delete view.cam.frame;}
+ trial.asset=null;fleetPrune();renderPanel();renderSpecTargets();syncHud();requestDraw();
+}
+function trialAttitude(){
+ const R=trial.R,f=trialCol(R,0),u=trialCol(R,1),r=trialCol(R,2),up=tv.norm(trial.P),north=[0,0,-1];
+ let nt=tv.add(north,up,-tv.dot(north,up));nt=tv.len(nt)>1e-6?tv.norm(nt):[1,0,0];const et=tv.cross(nt,up),fh=tv.add(f,up,-tv.dot(f,up));
+ const heading=((Math.atan2(tv.dot(fh,et),tv.dot(fh,nt))*180/Math.PI)%360+360)%360;
+ return {f,u,r,up,pitch:Math.asin(C.clamp(tv.dot(f,up),-1,1)),bank:Math.atan2(-tv.dot(r,up),tv.dot(u,up)),heading,alt:tv.len(trial.P)-TRIAL_PLANET.radius};
+}
+function trialMaxRates(){const p=trial.p,tr=p.turnRate||0,sf=.45+.55*Math.min(1,Math.abs(trial.vf)/Math.max(1,p.maxSpeed));return [tr*2.2,tr*sf,tr*.75*sf];}
+function trialStep(dt){
+ const p=trial.p,a=trialAttitude(),max=trialMaxRates();
+ const want=[trial.roll/2*max[0],trial.rudder/2*max[1],trial.pitch/2*max[2]];
+ if(trial.level){want[0]=C.clamp(-a.bank*.9,-max[0],max[0]);want[2]=C.clamp(-a.pitch*.9,-max[2]||-.01,max[2]||.01);if(Math.abs(a.bank)<.003&&Math.abs(a.pitch)<.003&&Math.abs(trial.w[0])<.003&&Math.abs(trial.w[2])<.003){trial.level=false;trial.pitch=0;trial.roll=0;trial.w[0]=trial.w[2]=0;}}
+ const k=1-Math.exp(-dt/C.clamp(1.3*Math.sqrt(p.len/1600),.5,5));for(let i=0;i<3;i++)trial.w[i]+=(want[i]-trial.w[i])*k;
+ // roll about forward, yaw (positive = starboard) about -up, pitch about starboard
+ const om=tv.add(tv.add(tv.scale(a.f,trial.w[0]),a.u,-trial.w[1]),a.r,trial.w[2]),mag=tv.len(om);
+ if(mag>1e-9){const ax=tv.scale(om,1/mag),ang=mag*dt;trial.R=trialFrame(trialRot(a.f,ax,ang),trialRot(a.u,ax,ang));}
+ const f=trialCol(trial.R,0),sp=TRIAL_TELEGRAPH[trial.tele][1]*p.maxSpeed,vf=tv.dot(trial.V,f),dv=C.clamp(sp-vf,-p.accel*dt,p.accel*dt);
+ trial.thrust=p.accel>0&&dt>0?Math.abs(dv)/(p.accel*dt):0;
+ const lat=tv.add(trial.V,f,-vf),damp=Math.exp(-dt/2.5);trial.V=tv.add(tv.scale(f,vf+dv),lat,damp);trial.vf=vf+dv;
+ trial.P=tv.add(trial.P,trial.V,dt);trial.t+=dt;
+ const up=tv.norm(trial.P),floor=TRIAL_PLANET.radius+TRIAL_PLANET.floor;trial.warn='';
+ if(tv.len(trial.P)<floor){trial.P=tv.scale(up,floor);const vr=tv.dot(trial.V,up);if(vr<0)trial.V=tv.add(trial.V,up,-vr);trial.warn='大気圏上層：これ以上は降下できません';}
+ else if(tv.len(trial.P)<floor+20000)trial.warn='大気圏に接近中';
+ const d=trial.dust,H=d.H,mv=tv.scale(trial.V,dt);for(let i=0;i<d.pos.length;i+=3)for(let j=0;j<3;j++){let x=d.pos[i+j]-mv[j];if(x>H)x-=2*H*Math.ceil((x-H)/(2*H));else if(x<-H)x+=2*H*Math.ceil((-H-x)/(2*H));d.pos[i+j]=x;}
+ const r=trial.rec,vmax=p.maxSpeed;r.top=Math.max(r.top,trial.vf);
+ if(trial.tele===5&&!r.run&&trial.vf<.02*vmax)r.run={t0:trial.t};if(r.run&&trial.tele!==5)r.run=null;if(r.run&&trial.vf>=.98*vmax){r.accel=trial.t-r.run.t0;r.run=null;}
+ if(Math.abs(trial.rudder)===2&&Math.abs(trial.vf)>.05*vmax&&Math.abs(Math.abs(trial.w[1])-max[1])<.03*max[1]){r.turn=2*Math.abs(trial.vf)/Math.abs(trial.w[1]);r.turnSpeed=trial.vf;}
+}
+function trialCamera(dt){
+ const a=trialAttitude();let F;
+ if(trial.camMode==='ship')F=trial.R;
+ else{let fh=tv.add(a.f,a.up,-tv.dot(a.f,a.up));if(tv.len(fh)<.25&&trial.camF){const old=trialCol(trial.camF,0);fh=tv.add(old,a.up,-tv.dot(old,a.up));}F=trialFrame(fh,a.up);}
+ if(!trial.camF)trial.camF=[...F];else{const k=1-Math.exp(-dt*4),x=tv.add(trialCol(trial.camF,0),tv.add(trialCol(F,0),trialCol(trial.camF,0),-1),k),y=tv.add(trialCol(trial.camF,1),tv.add(trialCol(F,1),trialCol(trial.camF,1),-1),k);trial.camF=trialFrame(x,y);}
+ const c=view.cam;c.frame=trial.camF;c.ortho=false;c.r=trialCamRange(c.r);c.ph=C.clamp(c.ph,.12,2.9);const up=trialCol(trial.camF,1);c.target=tv.scale(up,c.r*.16);
+}
+function trialLoop(now){
+ const dt=trial.last?Math.min(.05,(now-trial.last)/1000):0;trial.last=now;
+ if(dt>0){const n=dt>.025?2:1;for(let i=0;i<n;i++)trialStep(dt/n);}
+ trialCamera(dt||.016);
+ const d=trial.dust;view.setPoints('trialDust',d.pos,d.col,d.size);
+ const unit={key:trial.asset.key,pos:[0,0,0],yaw:0,rot:trial.R,glow:.3+.7*Math.min(1,Math.max(Math.abs(TRIAL_TELEGRAPH[trial.tele][1]),trial.thrust)),hatchOpen:0,dead:false};
+ if(view.draw({fleet:[unit],mode:'trial',planet:{center:tv.scale(trial.P,-1),radius:TRIAL_PLANET.radius,sun:TRIAL_PLANET.sun}})!==false){renderHealth.frames++;renderHealth.lastFrame=now;renderHealth.failures=0;}
+ if(now-trial.hud>120){trial.hud=now;trialHudUpdate();}
+}
+const trialStepNames=(k,v)=>TRIAL_ORDERS[k][v+2];
+function trialGauge(k,label,minus,plus){return `<div class="th-helm-row" data-th-row="${k}"><button type="button" class="th-btn" data-trial-cmd="${k}-" aria-label="${minus}">${minus}</button><div class="th-gauge" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><i class="ord"></i><i class="act"></i></div><button type="button" class="th-btn" data-trial-cmd="${k}+" aria-label="${plus}">${plus}</button><b class="th-order" data-th-order="${k}">${label}</b></div>`;}
+function trialHudHTML(){
+ return `<div class="th-top"><div class="th-card th-id"><span>公試 · コルサント低軌道</span><b>${esc(ship?.name||'設計艦')}</b><small data-th="clock">T+0:00</small></div>
+ <dl class="th-card th-read"><div><dt>速力</dt><dd data-th="speed">0</dd></div><div><dt>方位</dt><dd data-th="head">090°</dd></div><div><dt>高度</dt><dd data-th="alt">160 km</dd></div><div><dt>仰角</dt><dd data-th="pitch">0.0°</dd></div><div><dt>傾斜</dt><dd data-th="bank">0.0°</dd></div></dl>
+ <div class="th-actions"><button type="button" class="th-btn" data-trial-cmd="cam" data-th="cam">視点 水平</button><button type="button" class="th-btn" data-trial-cmd="level">水平復帰</button><button type="button" class="th-btn" data-trial-cmd="center">舵中央</button><button type="button" class="th-btn" data-trial-cmd="reset">再開始</button><button type="button" class="th-btn th-exit" data-trial-cmd="exit">公試終了</button></div></div>
+ <p class="th-records" data-th="records"></p><p class="th-warn" data-th="warn" hidden></p>
+ <div class="th-bottom"><div class="th-card th-tele" role="group" aria-label="速力通信機"><div class="th-tele-steps">${TRIAL_TELEGRAPH.map((t,i)=>`<button type="button" class="th-step" data-trial-cmd="tele=${i}" aria-pressed="false">${t[0]}</button>`).reverse().join('')}</div><div class="th-tele-bar" aria-hidden="true"><i data-th="speedbar"></i></div></div>
+ <div class="th-card th-helm">${trialGauge('rudder','舵中央','取舵','面舵')}${trialGauge('pitch','水平','下げ','上げ')}${trialGauge('roll','ロール中立','左','右')}</div></div>
+ <p class="th-keys">W/S 速力 · A/D 舵 · R/F 上げ下げ · Q/E ロール · Z 水平復帰 · X 舵中央 · V 視点 · ドラッグで見回す · ホイールで距離</p>`;
+}
+function trialHudUpdate(full){
+ const hud=$('#trialHud');if(!hud||!trial.on&&!full)return;const a=trialAttitude(),q=k=>hud.querySelector(`[data-th="${k}"]`),set=(k,v)=>{const e=q(k);if(e&&e.textContent!==v)e.textContent=v;};
+ const v=trial.vf,p=trial.p,max=trialMaxRates(),deg=x=>x*180/Math.PI;
+ set('speed',`${num(Math.round(v))} m/s`);set('head',String(Math.round(a.heading)%360).padStart(3,'0')+'°');set('alt',`${(a.alt/1000).toFixed(1)} km`);
+ set('pitch',`${deg(a.pitch)>=0?'+':''}${deg(a.pitch).toFixed(1)}°`);const b=deg(a.bank);set('bank',Math.abs(b)<.05?'0.0°':`${b>0?'右':'左'} ${Math.abs(b).toFixed(1)}°`);
+ const s=Math.floor(trial.t);set('clock',`T+${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`);set('cam',trial.camMode==='ship'?'視点 追従':'視点 水平');
+ const r=trial.rec;set('records',`公試記録　最高速力 ${num(Math.round(r.top))} m/s · 0→全速 ${r.accel==null?(r.run?'計測中…':'—'):Math.round(r.accel)+' 秒'} · 全舵旋回径 ${r.turn==null?'—':(r.turn/1000).toFixed(1)+' km（'+num(Math.round(Math.abs(r.turnSpeed)))+' m/s）'}`);
+ const w=q('warn');if(w){w.hidden=!trial.warn&&!trial.level;const txt=trial.warn||(trial.level?'姿勢を水平に戻しています…':'');if(w.textContent!==txt)w.textContent=txt;}
+ const bar=q('speedbar');if(bar){const lo=-.25,frac=C.clamp((v/Math.max(1,p.maxSpeed)-lo)/(1-lo),0,1);bar.style.height=(frac*100).toFixed(1)+'%';}
+ hud.querySelectorAll('[data-trial-cmd^="tele="]').forEach(e=>e.setAttribute('aria-pressed',String(+e.dataset.trialCmd.slice(5)===trial.tele)));
+ for(const [k,i] of [['roll',0],['rudder',1],['pitch',2]]){const row=hud.querySelector(`[data-th-row="${k}"]`);if(!row)continue;const ord=row.querySelector('.ord'),act=row.querySelector('.act'),val=trial[k];ord.style.left=((val+2)/4*100)+'%';const m=max[i]||1,actual=k==='rudder'?trial.w[1]:trial.w[i];act.style.left=(C.clamp(actual/m,-1,1)*50+50).toFixed(1)+'%';const o=row.querySelector('.th-order'),name=trial.level&&k!=='rudder'?'自動水平':trialStepNames(k,val);if(o.textContent!==name)o.textContent=name;}
+}
+function trialCommand(cmd){
+ if(!trial.on)return;const step=(k,d)=>{trial[k]=C.clamp(trial[k]+d,-2,2);if(k!=='rudder')trial.level=false;};
+ if(cmd.startsWith('tele=')){trial.tele=C.clamp(+cmd.slice(5)|0,0,5);}
+ else if(cmd==='tele+')trial.tele=Math.min(5,trial.tele+1);else if(cmd==='tele-')trial.tele=Math.max(0,trial.tele-1);
+ else if(/^(rudder|pitch|roll)[+-]$/.test(cmd))step(cmd.slice(0,-1),cmd.endsWith('+')?1:-1);
+ else if(cmd==='level'){trial.level=true;trial.pitch=0;trial.roll=0;}
+ else if(cmd==='center'){trial.rudder=0;trial.pitch=0;trial.roll=0;trial.level=false;}
+ else if(cmd==='cam'){trial.camMode=trial.camMode==='ship'?'horizon':'ship';if(view){view.cam.th=Math.PI;view.cam.ph=1.22;}}
+ else if(cmd==='reset')trialReset();
+ else if(cmd==='exit'){trialStop();return;}
+ trialHudUpdate(true);
+}
+const TRIAL_KEYS={KeyW:'tele+',ArrowUp:'tele+',KeyS:'tele-',ArrowDown:'tele-',KeyA:'rudder-',ArrowLeft:'rudder-',KeyD:'rudder+',ArrowRight:'rudder+',KeyR:'pitch+',KeyF:'pitch-',KeyQ:'roll-',KeyE:'roll+',KeyZ:'level',KeyX:'center',KeyV:'cam',Escape:'exit'};
+function bindTrial(){
+ document.addEventListener('click',e=>{const b=e.target.closest('[data-trial],[data-trial-cmd]');if(!b||b.disabled)return;if(b.dataset.trial==='start'){e.preventDefault();trialStart();return;}if(b.dataset.trialCmd){e.preventDefault();trialCommand(b.dataset.trialCmd);}});
+ window.addEventListener('keydown',e=>{if(!trial.on)return;if(e.ctrlKey||e.metaKey||e.altKey)return;const cmd=TRIAL_KEYS[e.code];if(!cmd)return;e.preventDefault();e.stopImmediatePropagation();if(!e.repeat)trialCommand(cmd);},true);
+ document.addEventListener('visibilitychange',()=>{trial.last=0;});
+}
 function updateAviationUI(){
  if(!ship||fleet.mode!=='design'||!['launch','mod'].includes(st.tab))return;
  const a=aviationNumbers(),summary=$('#aviationSummary');if(summary)summary.innerHTML=aviationCapacityHTML(a);
@@ -2336,7 +2523,7 @@ function layoutPanel(panel){
  if(st.tab==='systems')panel.insertAdjacentHTML('afterbegin',habitationHTML()+derivedRoomsHTML());
  if(st.tab==='mod'&&st.group==='command')panel.insertAdjacentHTML('beforeend',derivedRoomsHTML()+`<button class="btn" data-habitation-menu>自動居住区画の設定</button>`);
 }
-function inspectionHTML(w){const links=w.targets?.length?w.targets:[{tab:'systems'}],button=t=>{const obj=t.list&&ship[t.list]?.find(p=>p.id===t.id),name=obj?t.list==='parts'?C.partLabel(obj):t.list==='fits'?C.FITS[obj.k].name:'ハッチ':t.part?C.PARTS[t.part].name:(t.tab==='bridge'?'艦橋':t.tab==='arm'?'武装':TABS.find(x=>x[0]===t.tab)?.[1])||'編集';return `<button class="btn sm ghost" data-inspect-target="${esc(JSON.stringify(t))}">${esc(name)}${obj?' #'+obj.id:''}を編集 →</button>`;};return `<li class="w-${w.lv}"><span>${esc(w.text)}</span><div class="inspection-links">${links.slice(0,3).map(button).join('')}</div>${links.length>3?`<details><summary>ほか ${links.length-3} 件の対象</summary><div class="inspection-links">${links.slice(3).map(button).join('')}</div></details>`:''}</li>`;}
+function inspectionHTML(w){const links=w.targets?.length?w.targets:[{tab:'systems'}],button=t=>{const obj=t.list&&ship[t.list]?.find(p=>p.id===t.id),name=obj?t.list==='parts'?C.partLabel(obj):t.list==='fits'?C.FITS[obj.k].name:'ハッチ':t.part?C.PARTS[t.part].name:(t.tab==='arm'?'武装':TAB_NAMES[t.tab])||'編集';return `<button class="btn sm ghost" data-inspect-target="${esc(JSON.stringify(t))}">${esc(name)}${obj?' #'+obj.id:''}を編集 →</button>`;};return `<li class="w-${w.lv}"><span>${esc(w.text)}</span><div class="inspection-links">${links.slice(0,3).map(button).join('')}</div>${links.length>3?`<details><summary>ほか ${links.length-3} 件の対象</summary><div class="inspection-links">${links.slice(3).map(button).join('')}</div></details>`:''}</li>`;}
 
 function openLayoutTarget(t){
  if(fleet.mode!=='design')fleetSetMode('design');
@@ -2579,7 +2766,7 @@ function restoreRenderer(useCompat=false,fit=false){
   renderHealth.mode=view.kind==='compat'?'compat':'webgl';renderHealth.lost=false;renderHealth.failures=0;
   if(cam)view.cam=cam;if(off)view.off=off;
   bindCanvasRendering(canvas);attachControls(canvas);view.onTextureReady=requestDraw;
-  if(fleet?.assets)for(const [key,a] of fleet.assets)if(fleet.mode==='review'&&a.geometry)view.loadFleet(key,a.geometry);
+  if(fleet?.assets)for(const [key,a] of fleet.assets)if((fleet.mode==='review'||trial.on&&trial.asset?.key===key)&&a.geometry)view.loadFleet(key,a.geometry);
   if(ship){invalidateRendering();refreshOverlay();if(fit||!cam)fitCamera();}
   const fail=$('#glfail');if(fail)fail.hidden=true;
   renderingMessage(renderHealth.mode==='compat'?'互換3D表示 · テクスチャ省略／形状と選択は同じ':'');
@@ -2662,7 +2849,7 @@ const TUT_STEPS=[
   done:()=>ship&&ship.fits.filter(f=>C.FITS[f.k].cat==='w').length>=4,auto:()=>{for(const [x,z] of [[.22,300],[.36,230],[.5,160]])tutTap(...tutDeck(TUT_HULL.L*x,z));}},
  tutPartStep({title:'格納庫を設ける',group:'air',cam:'bottom',text:'<b>航空区画</b>（格納庫）を選び、下から見る視点にしました。<b>船底の中央</b>をタップすると船内に収まります。続けて「腹面に発着口を開ける」を押すと、格納庫を船底まで下げてシールド式の発着口を開けます。航空隊の編成は「航空隊」タブで決めます。',
   items:[{k:'hangar',room:[240,120,40],mirror:false,at:()=>tutBelly(TUT_HULL.L*.42,0)}],extra:{label:'腹面に発着口を開ける',show:()=>!!tutClosedHangar(),run:()=>tutOpenHangar()},after:()=>tutOpenHangar()}),
- {title:'性能を確かめて完成',text:'ごく簡素なインペリアル級の完成です。「性能」タブと右の性能諸元で出力・加速・火力を確かめ、注意点は「系統」タブで点検します。艦名を付けて「設計図」から保存しましょう。次は装甲・トレンチ・航空隊の編成に挑戦できます。',
+ {title:'性能を確かめて完成',text:'ごく簡素なインペリアル級の完成です。「性能」タブと右の性能諸元で出力・加速・火力を確かめ、注意点は「系統」タブで点検します。「公試に出る」でコルサント上空を実際に操艦できます。艦名を付けて「設計図」から保存しましょう。次は装甲・トレンチ・航空隊や地上部隊の編成に挑戦できます。',
   focus:['#tabs [data-tab="spec"]','#btnMenu'],setup(){st.tab='spec';st.view='normal';st.sel=null;tutCam('iso');},done:()=>true,summary:true}
 ];
 function tutStart(){

@@ -446,7 +446,7 @@ body.tut-on .inspect{top:auto;bottom:70px;left:auto;right:var(--gr)}
 /* phone held sideways: the controls sit beside the 3D view */
 @media (orientation: landscape) and (max-height: 560px) and (max-width: 999px) {
   .app { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto minmax(0, 1fr); }
-  .topbar { grid-column: 1; grid-row: 1; padding-block: 3px; gap: 8px; }
+  .topbar { grid-column: 1 / -1; grid-row: 1; padding-block: 3px; gap: 8px; }
   .mode-switch { grid-column: 2; grid-row: 1; padding: 3px max(10px, env(safe-area-inset-right, 0px)) 3px 10px; border-left: 1px solid var(--line); }
   .mode-switch button { padding: 5px 10px; font-size: 12px; }
   .main { grid-column: 1 / -1; grid-row: 2; flex-direction: row; }
@@ -475,6 +475,46 @@ body.tut-on .inspect{top:auto;bottom:70px;left:auto;right:var(--gr)}
   .title-panel { max-height: calc(100vh - 120px); padding: 12px 14px; }
   .title-foot { gap: 4px 12px; } .title-steps { display: none; }
 }
+/* ---- ground forces ---- */
+.ground-budgets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.ground-add{flex-wrap:wrap}.airwing-fields select{box-sizing:border-box;width:100%;min-width:0;min-height:44px;padding:8px 10px;background:var(--bg);color:var(--fg);border:1px solid var(--line-2);border-radius:5px;font:14px var(--font-ui)}@media(max-width:560px){.airwing-fields select{font-size:16px}}
+/* ---- 公試 (trial flight) ---- */
+.trial-card{border:1px solid rgba(104,194,219,.35);background:linear-gradient(135deg,rgba(104,194,219,.10),rgba(240,160,58,.05));border-radius:10px;padding:12px 14px}
+.trial-card.side{margin:0 0 12px}
+.trial-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px}.trial-head h4{margin:0;font:600 22px/1.1 var(--font-display);letter-spacing:.08em;color:var(--fg)}.trial-head span{font-size:11px;color:var(--cyan);letter-spacing:.14em}
+.trial-kv{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;margin:10px 0 12px;align-items:baseline}.trial-kv dt{font-size:12px;color:var(--muted)}.trial-kv dd{margin:0;text-align:right;font:600 17px/1.2 var(--font-display);font-variant-numeric:tabular-nums}
+.trial-go{width:100%}
+body.trial-on .topbar,body.trial-on .mode-switch,body.trial-on .dock,body.trial-on .spec,body.trial-on .hudbar,body.trial-on .hudrow,body.trial-on .viewport-guide,body.trial-on #inspect,body.trial-on .tut,body.trial-on .render-tools,body.trial-on #fleetHud,body.trial-on #fleetLabels{display:none!important}
+body.trial-on .main{display:flex!important;flex-direction:column}body.trial-on .viewport{flex:1 1 auto;min-height:0}body.trial-on #cv{cursor:grab;touch-action:none}
+#trialHud{position:absolute;inset:0;z-index:6;pointer-events:none;display:grid;grid-template-rows:auto auto auto minmax(0,1fr) auto auto;padding-block:max(10px,env(safe-area-inset-top,0px)) max(10px,env(safe-area-inset-bottom,0px));padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px));color:var(--hud-fg);font-variant-numeric:tabular-nums}
+#trialHud[hidden]{display:none}
+.th-top{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;justify-content:space-between}
+.th-card{background:var(--hud-bg);border:1px solid var(--hud-line);border-radius:10px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:8px 12px;pointer-events:auto}
+.th-id{display:grid;gap:1px;min-width:0}.th-id span{font-size:10px;letter-spacing:.16em;color:var(--hud-on)}.th-id b{font:600 18px/1.15 var(--font-display);letter-spacing:.04em;max-width:34vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.th-id small{font-size:11px;color:var(--hud-dim)}
+.th-read{display:flex;flex-wrap:wrap;gap:4px 16px;margin:0}.th-read div{display:grid}.th-read dt{font-size:10px;letter-spacing:.12em;color:var(--hud-dim)}.th-read dd{margin:0;font:600 19px/1.15 var(--font-display);white-space:nowrap}
+.th-actions{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;max-width:420px}
+.th-btn{pointer-events:auto;min-height:34px;padding:5px 11px;border-radius:8px;border:1px solid var(--hud-line);background:var(--hud-bg);color:var(--hud-fg);font:700 12px/1.2 var(--font-ui);touch-action:manipulation;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.th-btn:active{background:var(--hud-on);color:var(--hud-on-ink)}.th-exit{border-color:rgba(240,160,58,.6);color:#ffd59a}
+.th-records{justify-self:center;margin:8px 0 0;font-size:12px;background:var(--hud-bg);border:1px solid var(--hud-line);padding:3px 12px;border-radius:999px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.th-warn{justify-self:center;margin:6px 0 0;color:#ffcf8a;background:rgba(60,32,8,.78);border:1px solid rgba(240,160,58,.5);padding:4px 12px;border-radius:8px;font-weight:700;font-size:12px}
+.th-bottom{grid-row:5;display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
+.th-tele{display:flex;gap:8px;padding:8px}.th-tele-steps{display:grid;gap:4px}
+.th-step{pointer-events:auto;min-width:64px;min-height:30px;border-radius:6px;border:1px solid var(--hud-line);background:rgba(255,255,255,.03);color:var(--hud-fg);font:700 13px/1 var(--font-ui);touch-action:manipulation}
+.th-step[aria-pressed="true"]{background:var(--hud-on);color:var(--hud-on-ink);border-color:transparent}
+.th-tele-bar{position:relative;width:8px;border-radius:4px;background:rgba(255,255,255,.08);overflow:hidden}.th-tele-bar i{position:absolute;left:0;right:0;bottom:0;height:20%;background:linear-gradient(#9fe3f4,#2b7f99)}
+.th-helm{display:grid;gap:4px;padding:8px 10px}.th-helm .th-btn{padding-inline:4px;white-space:nowrap}
+.th-helm-row{display:grid;grid-template-columns:54px 150px 54px;align-items:center;column-gap:8px}
+.th-order{grid-column:2;text-align:center;font-size:11px;font-weight:500;color:var(--hud-dim);line-height:1.3}
+.th-gauge{position:relative;height:22px;margin:0 8px;border-radius:6px;background:rgba(255,255,255,.05)}
+.th-gauge span{position:absolute;top:7px;width:2px;height:8px;background:rgba(219,229,232,.35);transform:translateX(-50%)}
+.th-gauge span:nth-child(1){left:0}.th-gauge span:nth-child(2){left:25%}.th-gauge span:nth-child(3){left:50%;height:12px;top:5px}.th-gauge span:nth-child(4){left:75%}.th-gauge span:nth-child(5){left:100%}
+.th-gauge .ord{position:absolute;top:3px;bottom:3px;width:16px;transform:translateX(-50%);border-radius:4px;background:var(--hud-on);opacity:.85;transition:left .15s}
+.th-gauge .act{position:absolute;top:-3px;bottom:-3px;width:3px;transform:translateX(-50%);border-radius:2px;background:#fff;box-shadow:0 0 6px rgba(104,194,219,.9)}
+.th-keys{grid-row:6;justify-self:center;margin:8px 0 0;font-size:11px;color:var(--hud-dim);background:var(--hud-bg);padding:3px 12px;border-radius:999px;text-align:center}
+@media (pointer:coarse){.th-keys{display:none}}
+@media (max-width:640px){.th-read dd{font-size:16px}.th-read{gap:2px 12px}.th-id b{max-width:60vw}.th-actions{justify-content:flex-start}.th-helm{flex:1 1 auto;max-width:300px}.th-helm-row{grid-template-columns:44px minmax(60px,1fr) 44px;column-gap:4px}.th-step{min-width:52px}.th-records{font-size:10.5px;white-space:normal;text-align:center;border-radius:10px}}
+@media (orientation:landscape) and (max-height:560px){#trialHud{padding-block:max(6px,env(safe-area-inset-top,0px)) max(6px,env(safe-area-inset-bottom,0px))}.th-card{padding:5px 9px}.th-id b{font-size:14px}.th-read dd{font-size:15px}.th-btn{min-height:30px;padding:4px 9px;font-size:11px}.th-step{min-height:24px;min-width:50px;font-size:11px}.th-tele-steps{gap:3px}.th-helm{gap:2px;padding:5px 8px}.th-helm-row{grid-template-columns:44px 120px 44px}.th-order{font-size:10px}.th-gauge{height:18px}.th-gauge span{top:5px}.th-gauge span:nth-child(3){top:3px}.th-records{font-size:10.5px;margin-top:4px}}
+@media (max-width:420px){.btn-ghost{padding:0 8px;font-size:12px}.tb-actions{gap:4px}.icon-btn{width:32px;height:32px}}
+@media (min-width:1000px){.tabs button{padding:9px 6px 7px;font-size:13px;letter-spacing:.02em}}
 </style>
 
 <div id="title" class="title" role="dialog" aria-modal="true" aria-labelledby="titleName">
@@ -525,17 +565,18 @@ body.tut-on .inspect{top:auto;bottom:70px;left:auto;right:var(--gr)}
       <button type="button" class="icon-btn" id="btnUndo" aria-label="元に戻す" title="元に戻す"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg></button>
       <button type="button" class="icon-btn" id="btnRedo" aria-label="やり直す" title="やり直す"><svg viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></svg></button>
       <button type="button" class="icon-btn" id="btnFull" aria-label="全画面" title="全画面" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+      <button type="button" class="btn-ghost" id="btnHome" title="タイトルメニューに戻る">メニュー</button>
       <button type="button" class="btn-ghost" id="btnMenu">設計図</button>
     </div>
   </header>
-  <nav class="mode-switch" id="modeSwitch" aria-label="ゲームモード"><button type="button" data-mode="design" aria-pressed="true">設計</button><button type="button" data-mode="tactical" aria-pressed="false">戦術・航行</button><button type="button" data-mode="review" aria-pressed="false">観閲式</button><span>KUAT SHIPWRIGHT</span></nav>
+  <nav class="mode-switch" id="modeSwitch" aria-label="ゲームモード" hidden><button type="button" data-mode="design" aria-pressed="true">設計</button><button type="button" data-mode="tactical" aria-pressed="false">戦術・航行</button><button type="button" data-mode="review" aria-pressed="false">観閲式</button><span>KUAT SHIPWRIGHT</span></nav>
   <main class="main">
     <section class="viewport" id="viewport" aria-label="船台">
       <canvas id="cv" aria-label="艦の3D表示。ドラッグで回転、2本指で拡大と移動、タップで操作"></canvas>
       <canvas id="fleetMap" hidden tabindex="0" aria-label="艦隊の戦術状況図。友軍を選択して空白をタップすると移動、攻撃を選んで敵艦をタップすると目標指定。ドラッグで平行移動、2本指やホイールで拡大縮小。矢印キーで移動、プラスとマイナスで拡大縮小、0で全体表示"></canvas>
       <p id="fleetMapFallback" hidden>状況図を表示できません。艦隊一覧から艦を選択し、「座標で移動を指定」で命令を設定できます。</p>
       <div id="fleetMapTools" hidden aria-label="状況図の艦隊命令と拡大縮小"></div>
-      <div id="fleetLabels" hidden></div><div id="fleetHud" hidden></div>
+      <div id="fleetLabels" hidden></div><div id="fleetHud" hidden></div><div id="trialHud" hidden aria-label="公試の操艦表示"></div>
       <div class="hudbar">
         <div class="hudgrp">
           <button type="button" class="chip" id="chipMirror" aria-pressed="true">左右対称</button>
@@ -621,13 +662,14 @@ body.tut-on .inspect{top:auto;bottom:70px;left:auto;right:var(--gr)}
     <section>
       <h3>操作</h3>
       <dl class="howto">
-        <dt>1本指ドラッグ</dt><dd>設計・観閲式は回転、戦闘状況図は平行移動（マウスは左ドラッグ）</dd>
+        <dt>1本指ドラッグ</dt><dd>設計は回転、公試は艦の周りを見回す（マウスは左ドラッグ）</dd>
         <dt>2本指</dt><dd>拡大縮小と移動（マウスはホイールと右ドラッグ）</dd>
-        <dt>タップ</dt><dd>設計では選んだ道具を使う。戦闘状況図では艦の選択、移動先・攻撃目標の指定</dd>
+        <dt>タップ</dt><dd>設計では選んだ道具を使う</dd>
         <dt>区画の配置</dt><dd>面をタップし、配置深さを選ぶ。内部区画は外殻外を切り取るため、張り出す区画には先に構造物が必要。内部の位置は「座標を指定して配置」でも指定できる</dd>
         <dt>選択・調整</dt><dd>区画を選んで、位置と大きさをスライダーで動かす。形状と性能はバックグラウンドで再計算され、操作は止まらない</dd>
         <dt>透視</dt><dd>内部の区画・機関・竜骨を見る。内部の区画は透視で選択できる</dd>
         <dt>同じタブを再タップ</dt><dd>下の操作盤をたたんで表示を広くする</dd>
+        <dt>公試</dt><dd>「性能」の「公試に出る」でコルサント低軌道を操艦する。W/S 速力通信機（後進〜全速）、A/D 舵、R/F 上げ舵・下げ舵、Q/E ロール。命令は保持され、艦は旋回性能に応じて追従する。Z で姿勢を水平に戻し、X で舵中央、V で視点（水平／艦に追従）を切り替え。画面のボタンでも同じ操作ができる</dd>
       </dl>
     </section>
   </section>

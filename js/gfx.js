@@ -556,8 +556,8 @@ function meshFits(ship, filter, ranges) {
 
 // ---------- WebGL ----------
 const VS_MESH = `attribute vec3 aPos;attribute vec3 aNor;attribute vec2 aUv;attribute vec4 aCol;
-uniform mat4 uVP;uniform vec3 uOff;uniform vec3 uCenter;uniform float uYaw;uniform vec3 uScl;varying vec3 vN;varying vec2 vUv;varying vec4 vCol;varying vec3 vW;varying vec3 vS;
-void main(){float c=cos(uYaw),s=sin(uYaw);vec3 a=aPos*uScl-uCenter;vec3 p=vec3(c*a.x-s*a.z,a.y,s*a.x+c*a.z)+uOff;vW=p;vS=aPos;vN=vec3(c*aNor.x-s*aNor.z,aNor.y,s*aNor.x+c*aNor.z);vUv=aUv;vCol=aCol;gl_Position=uVP*vec4(p,1.0);}`;
+uniform mat4 uVP;uniform vec3 uOff;uniform vec3 uCenter;uniform mat3 uRot;uniform vec3 uScl;varying vec3 vN;varying vec2 vUv;varying vec4 vCol;varying vec3 vW;varying vec3 vS;
+void main(){vec3 a=aPos*uScl-uCenter;vec3 p=uRot*a+uOff;vW=p;vS=aPos;vN=uRot*aNor;vUv=aUv;vCol=aCol;gl_Position=uVP*vec4(p,1.0);}`;
 const FS_MESH = `#ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
 #else
@@ -582,6 +582,54 @@ const FS_LINE = `precision mediump float;varying vec4 vC;uniform float uA;void m
 const VS_PT = `attribute vec3 aPos;attribute vec4 aCol;attribute float aSize;uniform mat4 uVP;uniform vec3 uOff;uniform float uScale;uniform float uMin;varying vec4 vC;
 void main(){vC=aCol;vec4 p=uVP*vec4(aPos+uOff,1.0);gl_Position=p;gl_PointSize=uScale>0.0?max(uMin,aSize*uScale/max(p.w,0.001)):aSize*uMin;}`;
 const FS_PT = `precision mediump float;varying vec4 vC;void main(){float d=length(gl_PointCoord-vec2(0.5))*2.0;float a=1.0-smoothstep(0.0,1.0,d);a*=a;gl_FragColor=vec4(vC.rgb*a*vC.a,1.0);}`;
+// Column-major rotation about +Y matching the old yaw-only transform.
+function yawMatrix(t){const c=Math.cos(t),s=Math.sin(t);return [c,0,s,0,1,0,-s,0,c];}
+// Coruscant for the trial flights: an analytic ecumenopolis sphere drawn per
+// pixel behind the ship. Lengths are in planet radii to keep float precision.
+const FS_PLANET = `#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+uniform mat4 uInv;uniform vec3 uEye;uniform vec3 uPC;uniform float uR;uniform vec3 uSun;uniform float uPix;varying vec2 vP;
+float h3(vec3 p){p=fract(p*0.1031);p+=dot(p,p.yzx+33.33);return fract((p.x+p.y)*p.z);}
+float vn(vec3 x){vec3 i=floor(x),f=fract(x);f=f*f*(3.0-2.0*f);
+ return mix(mix(mix(h3(i),h3(i+vec3(1,0,0)),f.x),mix(h3(i+vec3(0,1,0)),h3(i+vec3(1,1,0)),f.x),f.y),mix(mix(h3(i+vec3(0,0,1)),h3(i+vec3(1,0,1)),f.x),mix(h3(i+vec3(0,1,1)),h3(i+vec3(1,1,1)),f.x),f.y),f.z);}
+float fbm(vec3 x){float a=0.5,s=0.0;for(int i=0;i<5;i++){s+=a*vn(x);x*=2.03;a*=0.5;}return s;}
+// Distance along the surface to a lattice of planes; the family nearly
+// parallel to the ground is suppressed so the grid reads as streets.
+float lines(vec3 q,vec3 n,float cell,float width,float foot){vec3 g=(0.5-abs(fract(q/cell)-0.5))*cell/sqrt(max(vec3(1e-4),1.0-n*n));float d=min(min(g.x,g.y),g.z);float w=max(width,foot*0.7);return (1.0-smoothstep(w*0.5,w,d))*clamp(width/w,0.0,1.0);}
+// Lit or dark city blocks; below a pixel they average to their mean.
+float blocks(vec3 q,vec3 n,float cell,float foot){vec3 id=floor(q/cell);float lit=smoothstep(0.5,0.95,h3(id+vec3(cell*0.013)));
+ vec3 g=(0.5-abs(fract(q/cell)-0.5))*cell/sqrt(max(vec3(1e-4),1.0-n*n));float d=min(min(g.x,g.y),g.z),gap=smoothstep(cell*0.035,cell*0.075,d);
+ return mix(0.2,lit*mix(0.5,1.0,gap),1.0-smoothstep(cell*0.3,cell*1.2,foot));}
+void main(){
+ vec4 a=uInv*vec4(vP,-1.0,1.0),b=uInv*vec4(vP,1.0,1.0);vec3 rd=normalize(b.xyz/b.w-a.xyz/a.w);
+ vec3 o=(uEye-uPC)/uR;float B=dot(o,rd),Cc=dot(o,o)-1.0,h=B*B-Cc;
+ if(h<0.0||B>0.0){float limb=B>0.0?length(o):sqrt(max(0.0,dot(o,o)-B*B));vec3 cp=B>0.0?o:o-rd*B;float glow=exp(-max(0.0,limb-1.0)*110.0)*smoothstep(-0.35,0.35,dot(normalize(cp),uSun)+0.2);
+  float sd=dot(rd,uSun),disc=smoothstep(0.99990,0.99996,sd)*3.0+pow(max(0.0,sd),900.0)*0.6+pow(max(0.0,sd),60.0)*0.12;
+  vec3 c=vec3(0.30,0.52,1.0)*glow+vec3(1.0,0.86,0.66)*glow*pow(max(0.0,sd),6.0)+vec3(1.0,0.95,0.86)*disc;gl_FragColor=vec4(c,clamp(max(glow*0.9,disc),0.0,1.0));return;}
+ float t=-B-sqrt(h);vec3 n=normalize(o+rd*t);float dist=t*uR,view=clamp(-dot(rd,n),0.0,1.0);
+ vec3 q=n*uR;float foot=dist*uPix/max(0.12,view);
+ float sun=dot(n,uSun),day=smoothstep(-0.08,0.18,sun),night=1.0-smoothstep(-0.12,0.06,sun);
+ // two street lattices at odd angles so no grid lines up with the flight path
+ mat3 R1=mat3(0.819,0.0,0.574,0.0,1.0,0.0,-0.574,0.0,0.819),R2=mat3(0.966,0.0,-0.259,0.0,1.0,0.0,0.259,0.0,0.966);
+ vec3 q1=R1*q,n1=R1*n,q2=R2*q,n2=R2*n;
+ float region=fbm(n*6.0+3.1),dens=fbm(n*30.0);
+ float cluster=mix(0.5,vn(n*260.0)*0.6+vn(n*900.0+1.7)*0.4,1.0-smoothstep(2500.0,9000.0,foot));
+ float density=(0.30+0.95*smoothstep(0.28,0.72,dens))*(0.55+0.7*region)*(0.3+1.4*smoothstep(0.25,0.8,cluster));
+ float b1=blocks(q1,n1,2600.0,foot),b2=blocks(q1+vec3(311.0),n1,640.0,foot),b3=blocks(q2+vec3(57.0),n2,170.0,foot);
+ float arter=lines(q2,n2,7000.0,140.0,foot)*mix(0.35,1.0,step(0.4,h3(floor(q2/7000.0)+vec3(5.0)))),street=lines(q1,n1,1300.0,26.0,foot);
+ float lit=density*(0.55*b1+0.4*b2+0.3*b3)+arter*1.5+street*0.45*density;
+ vec3 warm=mix(vec3(1.0,0.56,0.20),vec3(1.0,0.84,0.58),h3(floor(q1/2600.0)+vec3(7.0)));
+ vec3 lightc=warm*lit;
+ vec3 dayc=mix(vec3(0.30,0.31,0.33),vec3(0.56,0.54,0.50),0.35*b1+0.35*b2+0.3*b3)*(0.8+0.3*region);
+ dayc*=1.0-0.45*arter-0.25*street;
+ vec3 col=dayc*(0.05+1.05*max(0.0,sun))*day+lightc*night*0.95+lightc*0.08*day;
+ float haze=pow(1.0-view,3.0);
+ vec3 air=mix(vec3(0.05,0.07,0.13),vec3(0.35,0.55,0.95),day);col=mix(col,air,haze*0.75);
+ col=1.0-exp(-col*1.25);
+ gl_FragColor=vec4(col,1.0);}`;
 const VS_BG = `attribute vec2 aP;varying vec2 vP;void main(){vP=aP;gl_Position=vec4(aP,0.9999,1.0);}`;
 const FS_BG = `precision mediump float;varying vec2 vP;
 float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
@@ -711,13 +759,15 @@ class Renderer {
     if (this.canvas.width !== w || this.canvas.height !== h) { this.canvas.width = w; this.canvas.height = h; }
   }
   eye() {
-    const c = this.cam, s = Math.sin(c.ph);
-    return [c.target[0] + c.r * s * Math.cos(c.th), c.target[1] + c.r * Math.cos(c.ph), c.target[2] + c.r * s * Math.sin(c.th)];
+    const c = this.cam, s = Math.sin(c.ph), v = [c.r * s * Math.cos(c.th), c.r * Math.cos(c.ph), c.r * s * Math.sin(c.th)], F = c.frame;
+    // An optional orbit frame (column-major 3x3) lets the trial camera follow a pitched or rolled ship.
+    if (F) return [c.target[0] + F[0] * v[0] + F[3] * v[1] + F[6] * v[2], c.target[1] + F[1] * v[0] + F[4] * v[1] + F[7] * v[2], c.target[2] + F[2] * v[0] + F[5] * v[1] + F[8] * v[2]];
+    return [c.target[0] + v[0], c.target[1] + v[1], c.target[2] + v[2]];
   }
   matrices() {
     const w = this.canvas.width, h = this.canvas.height, c = this.cam;
     const e = this.eye();
-    const up = Math.abs(Math.sin(c.ph)) < 1e-3 ? [Math.cos(c.th + Math.PI), 0, Math.sin(c.th + Math.PI)] : [0, 1, 0];
+    const up = c.frame ? [c.frame[3], c.frame[4], c.frame[5]] : Math.abs(Math.sin(c.ph)) < 1e-3 ? [Math.cos(c.th + Math.PI), 0, Math.sin(c.th + Math.PI)] : [0, 1, 0];
     const P = c.ortho?M4.ortho(2*c.r*Math.tan(c.fov/2),w/h,Math.max(.5,c.r*.02),c.r*8+6000):M4.persp(c.fov, w / h, Math.max(0.5, c.r * 0.02), c.r * 8 + 6000);
     const V = M4.lookAt(e, c.target, up);
     return {P, V, VP: M4.mul(P, V), eye: e};
@@ -750,6 +800,7 @@ class Renderer {
     gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE);
     const e = m.eye;
     this.drawPoints('stars', m, [e[0], e[1], e[2]], this.cam.r * 6 + 3000, 1, true);
+    this.planetLight = !!opt.planet; if (opt.planet) this.drawPlanet(m, opt.planet);
     gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     if(opt.fleet){this.drawFleet(m,opt);return true;}
@@ -803,10 +854,10 @@ class Renderer {
     const gl = this.gl, p = this.pm, tx = this.tex[MESH_TEX[name] || 'hull'];
     gl.useProgram(p.p);
     gl.uniformMatrix4fv(p.u.uVP, false, m.VP); gl.uniform3fv(p.u.uOff, this.off);
-    gl.uniform3fv(p.u.uCenter,this.modelCenter||[0,0,0]);gl.uniform1f(p.u.uYaw,this.modelYaw||0);gl.uniform3fv(p.u.uScl,this.meshScale?.[name]||[1,1,1]);
+    gl.uniform3fv(p.u.uCenter,this.modelCenter||[0,0,0]);gl.uniformMatrix3fv(p.u.uRot,false,this.modelRot||yawMatrix(this.modelYaw||0));gl.uniform3fv(p.u.uScl,this.meshScale?.[name]||[1,1,1]);
     gl.uniform3fv(p.u.uL1, L1); gl.uniform3fv(p.u.uL2, L2);
     gl.uniform3fv(p.u.uC1, [1.05, 1.0, 0.94]); gl.uniform3fv(p.u.uC2, [0.22, 0.30, 0.42]);
-    gl.uniform3fv(p.u.uSky, [0.30, 0.34, 0.40]); gl.uniform3fv(p.u.uGnd, [0.10, 0.11, 0.13]);
+    gl.uniform3fv(p.u.uSky, this.planetLight ? [0.24, 0.27, 0.34] : [0.30, 0.34, 0.40]); gl.uniform3fv(p.u.uGnd, this.planetLight ? [0.17, 0.13, 0.10] : [0.10, 0.11, 0.13]);
     gl.uniform3fv(p.u.uEye, m.eye); gl.uniform1f(p.u.uAlpha, alpha);
     gl.uniform1f(p.u.uPaint,this.paint==='dark'?2:this.paint==='republic'?1:0);gl.uniform1f(p.u.uRefHull,name==='refHull'&&!this.sourceRed?1:0);gl.uniform1f(p.u.uHullLength,this.hullLength||1600);
     gl.uniform1f(p.u.uReference, REFERENCE_SHADED.has(name)?1:name==='refEngine'?2:0);
@@ -833,6 +884,18 @@ class Renderer {
     gl.bindBuffer(gl.ARRAY_BUFFER, l.col); gl.enableVertexAttribArray(p.a.aCol); gl.vertexAttribPointer(p.a.aCol, 4, gl.UNSIGNED_BYTE, true, 0, 0);
     gl.drawArrays(gl.LINES, 0, l.count);
     gl.disableVertexAttribArray(p.a.aPos); gl.disableVertexAttribArray(p.a.aCol);
+  }
+  drawPlanet(m, planet) {
+    const gl = this.gl;
+    if (this.pplanet === undefined) { try { this.pplanet = compile(gl, VS_BG, FS_PLANET); } catch (e) { console.error(e); this.pplanet = null; } }
+    const p = this.pplanet; if (!p) return;
+    const inv = M4.inv(m.VP); if (!inv) return;
+    gl.disable(gl.DEPTH_TEST); gl.depthMask(false); gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+    gl.useProgram(p.p);
+    gl.uniformMatrix4fv(p.u.uInv, false, inv); gl.uniform3fv(p.u.uEye, m.eye); gl.uniform3fv(p.u.uPC, planet.center); gl.uniform1f(p.u.uR, planet.radius);
+    gl.uniform3fv(p.u.uSun, planet.sun); gl.uniform1f(p.u.uPix, 2 * Math.tan(this.cam.fov / 2) / Math.max(1, this.canvas.height));
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.bgBuf); gl.enableVertexAttribArray(p.a.aP); gl.vertexAttribPointer(p.a.aP, 2, gl.FLOAT, false, 0, 0);
+    gl.drawArrays(gl.TRIANGLES, 0, 3); gl.disableVertexAttribArray(p.a.aP);
   }
   drawPoints(name, m, off, scale, minPx, unitSphere) {
     const pt = this.points[name]; if (!pt || !pt.count) return;
@@ -1246,14 +1309,14 @@ Renderer.prototype.loadFleet=function(key,data){
 Renderer.prototype.pruneFleet=function(keys){if(!this.fleetCache)return;for(const [k,a] of this.fleetCache)if(!keys.has(k)){for(const m of Object.values(a.meshes))for(const n of ['pos','nor','uv','col','idx'])this.gl.deleteBuffer(m[n]);this.fleetCache.delete(k);}};
 Renderer.prototype.drawFleet=function(m,opt){
  const gl=this.gl,old=this.meshes,off=this.off;gl.disable(gl.BLEND);gl.depthMask(true);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);this.clip=null;
- try{for(const u of opt.fleet){if(u.dead)continue;const a=this.fleetCache?.get(u.key);if(!a)continue;this.meshes=a.meshes;this.off=u.pos;this.modelCenter=a.center;this.modelYaw=u.yaw||0;this.paint=a.paint||'neutral';this.sourceRed=a.reference==='venator';this.hullLength=a.length;
+ try{for(const u of opt.fleet){if(u.dead)continue;const a=this.fleetCache?.get(u.key);if(!a)continue;this.meshes=a.meshes;this.off=u.pos;this.modelCenter=a.center;this.modelYaw=u.yaw||0;this.modelRot=u.rot||null;this.paint=a.paint||'neutral';this.sourceRed=a.reference==='venator';this.hullLength=a.length;const R=u.rot||yawMatrix(this.modelYaw),rv=v=>[R[0]*v[0]+R[3]*v[1]+R[6]*v[2],R[1]*v[0]+R[4]*v[1]+R[7]*v[2],R[2]*v[0]+R[5]*v[1]+R[8]*v[2]];
   for(const n of ['hull','struct','refHull','refStruct','refHatches','gen','shield','hyper','engine','refEngine','nozzle','hangar'])this.drawMesh(n,m,1);
-  const open=opt.mode==='review'?0:C.clamp(u.hatchOpen??0,0,1),c=Math.cos(this.modelYaw),s=Math.sin(this.modelYaw);for(const door of a.doors||[]){const delta=[0,0,0];delta[door.axis]=door.side*door.travel*open;this.off=[u.pos[0]+c*delta[0]-s*delta[2],u.pos[1]+delta[1],u.pos[2]+s*delta[0]+c*delta[2]];this.drawMesh(door.name,m,1,0);}this.off=u.pos;
+  const open=opt.mode==='review'?0:C.clamp(u.hatchOpen??0,0,1);for(const door of a.doors||[]){const delta=[0,0,0];delta[door.axis]=door.side*door.travel*open;const q=rv(delta);this.off=[u.pos[0]+q[0],u.pos[1]+q[1],u.pos[2]+q[2]];this.drawMesh(door.name,m,1,0);}this.off=u.pos;
   gl.enable(gl.POLYGON_OFFSET_FILL);gl.polygonOffset(-1,-2);this.drawMesh('hatchOpen',m,1);this.drawMesh('hatchRay',m,1);gl.disable(gl.POLYGON_OFFSET_FILL);if(open>0)for(const ray of a.rays||[])this.drawMesh(ray.name,m,1);gl.disable(gl.CULL_FACE);this.drawMesh('fits',m,1);this.drawMesh('refFits',m,1);gl.enable(gl.CULL_FACE);
- }}finally{this.meshes=old;this.off=off;this.modelCenter=null;this.modelYaw=0;}
- gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.depthMask(false);gl.disable(gl.CULL_FACE);this.drawLines('fleetGrid',m,.65);gl.disable(gl.DEPTH_TEST);this.drawLines('fleetOrders',m,.8);gl.enable(gl.DEPTH_TEST);this.drawLines('fleetShots',m,1);
- const glow=[];for(const u of opt.fleet){if(u.dead)continue;const a=this.fleetCache?.get(u.key);if(!a)continue;const c=Math.cos(u.yaw),s=Math.sin(u.yaw);for(let i=0;i<a.glow.length;i+=4){const x=a.glow[i]-a.center[0],y=a.glow[i+1]-a.center[1],z=a.glow[i+2]-a.center[2];glow.push(u.pos[0]+c*x-s*z,u.pos[1]+y,u.pos[2]+s*x+c*z,a.glow[i+3]);}}
- const pos=new Float32Array(glow.length/4*3),col=new Uint8Array(glow.length),size=new Float32Array(glow.length/4);for(let i=0;i<size.length;i++){pos.set(glow.slice(i*4,i*4+3),i*3);col.set([110,185,255,150],i*4);size[i]=glow[i*4+3];}this.setPoints('fleetGlow',pos,col,size);gl.blendFunc(gl.ONE,gl.ONE);this.drawPoints('fleetGlow',m,[0,0,0],1,2,false);gl.depthMask(true);
+ }}finally{this.meshes=old;this.off=off;this.modelCenter=null;this.modelYaw=0;this.modelRot=null;}
+ gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.depthMask(false);gl.disable(gl.CULL_FACE);if(!opt.planet){this.drawLines('fleetGrid',m,.65);gl.disable(gl.DEPTH_TEST);this.drawLines('fleetOrders',m,.8);gl.enable(gl.DEPTH_TEST);this.drawLines('fleetShots',m,1);}
+ const glow=[];for(const u of opt.fleet){if(u.dead)continue;const a=this.fleetCache?.get(u.key);if(!a)continue;const R=u.rot||yawMatrix(u.yaw||0),k=u.glow??1;for(let i=0;i<a.glow.length;i+=4){const x=a.glow[i]-a.center[0],y=a.glow[i+1]-a.center[1],z=a.glow[i+2]-a.center[2];glow.push(u.pos[0]+R[0]*x+R[3]*y+R[6]*z,u.pos[1]+R[1]*x+R[4]*y+R[7]*z,u.pos[2]+R[2]*x+R[5]*y+R[8]*z,a.glow[i+3]*k);}}
+ const pos=new Float32Array(glow.length/4*3),col=new Uint8Array(glow.length),size=new Float32Array(glow.length/4);for(let i=0;i<size.length;i++){pos.set(glow.slice(i*4,i*4+3),i*3);col.set([110,185,255,150],i*4);size[i]=glow[i*4+3];}this.setPoints('fleetGlow',pos,col,size);gl.blendFunc(gl.ONE,gl.ONE);this.drawPoints('fleetGlow',m,[0,0,0],1,2,false);if(opt.planet)this.drawPoints('trialDust',m,[0,0,0],1,1,false);gl.depthMask(true);
 };
 
 function meshSolidCutter(c){
@@ -1313,7 +1376,7 @@ class CompatRenderer {
   this._frame={w,h,m,pixels,depth};
   const external=['hull','struct','refHull','refStruct','refHatches','gen','shield','hyper','engine','refEngine','nozzle','hangar','fits','refFits','hatchOpen','hatchRay','preview','previewRef','previewFits','previewRefFits'];
   const inside=['keel','plant','refPlant','interior'];
-  if(opt.fleet){for(const unit of opt.fleet){if(unit.dead)continue;const a=this.fleetCache.get(unit.key);if(!a)continue;for(const name of external)this.rasterMesh(a.meshes[name]?.geo,name,1,null,{off:unit.pos,center:a.center,yaw:unit.yaw||0});for(const e of a.extra||[])this.rasterMesh(e.geo,e.name.startsWith('ref')?'refFits':'hull',1,null,{off:unit.pos,center:a.center,yaw:unit.yaw||0});}}
+  if(opt.fleet){for(const unit of opt.fleet){if(unit.dead)continue;const a=this.fleetCache.get(unit.key);if(!a)continue;for(const name of external)this.rasterMesh(a.meshes[name]?.geo,name,1,null,{off:unit.pos,center:a.center,yaw:unit.yaw||0,rot:unit.rot||null});for(const e of a.extra||[])this.rasterMesh(e.geo,e.name.startsWith('ref')?'refFits':'hull',1,null,{off:unit.pos,center:a.center,yaw:unit.yaw||0,rot:unit.rot||null});}}
   else {
    const clip=opt.mode==='cut'?opt.clip:null,translucent=new Set(['hull','struct','refHull','refStruct','refHatches','hatchOpen','hatchRay']);
    if(opt.mode==='xray'){
@@ -1327,9 +1390,9 @@ class CompatRenderer {
   delete this._frame;this.frames++;return true;
  }
  rasterMesh(g,name,alpha,clip,transform){
-  if(!g?.ni)return;const colScale=REFERENCE_SHADED.has(name)||name==='refEngine'?2:1;const {w,h,m,pixels,depth}=this._frame,off=transform?.off||this.off,center=transform?.center||[0,0,0],yaw=transform?.yaw||0,cs=Math.cos(yaw),sn=Math.sin(yaw),M=m.VP;
+  if(!g?.ni)return;const colScale=REFERENCE_SHADED.has(name)||name==='refEngine'?2:1;const {w,h,m,pixels,depth}=this._frame,off=transform?.off||this.off,center=transform?.center||[0,0,0],R=transform?.rot||yawMatrix(transform?.yaw||0),M=m.VP;
   const projected=new Float32Array(g.n*4);
-  for(let i=0;i<g.n;i++){let x=g.pos[i*3]-center[0],y=g.pos[i*3+1]-center[1],z=g.pos[i*3+2]-center[2];const xx=cs*x-sn*z+off[0];z=sn*x+cs*z+off[2];x=xx;y+=off[1];const cw=M[3]*x+M[7]*y+M[11]*z+M[15],k=i*4;projected[k]=((M[0]*x+M[4]*y+M[8]*z+M[12])/cw+1)*w*.5;projected[k+1]=(1-(M[1]*x+M[5]*y+M[9]*z+M[13])/cw)*h*.5;projected[k+2]=(M[2]*x+M[6]*y+M[10]*z+M[14])/cw;projected[k+3]=cw;}
+  for(let i=0;i<g.n;i++){const ax=g.pos[i*3]-center[0],ay=g.pos[i*3+1]-center[1],az=g.pos[i*3+2]-center[2],x=R[0]*ax+R[3]*ay+R[6]*az+off[0],y=R[1]*ax+R[4]*ay+R[7]*az+off[1],z=R[2]*ax+R[5]*ay+R[8]*az+off[2];const cw=M[3]*x+M[7]*y+M[11]*z+M[15],k=i*4;projected[k]=((M[0]*x+M[4]*y+M[8]*z+M[12])/cw+1)*w*.5;projected[k+1]=(1-(M[1]*x+M[5]*y+M[9]*z+M[13])/cw)*h*.5;projected[k+2]=(M[2]*x+M[6]*y+M[10]*z+M[14])/cw;projected[k+3]=cw;}
   for(let t=0;t<g.ni;t+=3){
    const a=g.idx[t],b=g.idx[t+1],c=g.idx[t+2],ai=a*4,bi=b*4,ci=c*4;
    if(projected[ai+3]<=0||projected[bi+3]<=0||projected[ci+3]<=0)continue;
