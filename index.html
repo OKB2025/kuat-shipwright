@@ -477,6 +477,14 @@ body.tut-on .inspect{top:auto;bottom:70px;left:auto;right:var(--gr)}
 }
 /* ---- ground forces ---- */
 .ground-budgets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.ground-add{flex-wrap:wrap}.airwing-fields select{box-sizing:border-box;width:100%;min-width:0;min-height:44px;padding:8px 10px;background:var(--bg);color:var(--fg);border:1px solid var(--line-2);border-radius:5px;font:14px var(--font-ui)}@media(max-width:560px){.airwing-fields select{font-size:16px}}
+/* ---- multiple selection ---- */
+.multi-count{display:flex;gap:16px;margin:8px 0 4px}.multi-count span{color:var(--muted);font-size:12px}.multi-count b{font:600 26px/1 var(--font-display);color:var(--accent);margin-right:4px;font-variant-numeric:tabular-nums}
+.multi-kinds{margin:0 0 8px}.multi-actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.multi-move{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.multi-step{max-width:200px}.multi-step input{padding:8px;background:var(--bg);color:var(--fg);border:1px solid var(--line-2);border-radius:5px;font:15px var(--font-display);width:100%;box-sizing:border-box}
+.multi-clip{display:grid;gap:2px;margin:6px 0 10px}.multi-clip b{color:var(--accent);font:600 18px var(--font-display)}.multi-clip small{color:var(--muted);font-size:11px}
+/* phone landscape: hide/show the editor column */
+#btnDock{display:none}
+@media (orientation: landscape) and (max-height: 560px) and (max-width: 999px){#btnDock{display:grid}#btnDock[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}.app.dock-off .dock{display:none}}
 /* ---- 公試 (trial flight) ---- */
 .trial-card{border:1px solid rgba(104,194,219,.35);background:linear-gradient(135deg,rgba(104,194,219,.10),rgba(240,160,58,.05));border-radius:10px;padding:12px 14px}
 .trial-card.side{margin:0 0 12px}
@@ -526,13 +534,17 @@ body.trial-on .main{display:flex!important;flex-direction:column}body.trial-on .
 .th-stick.on .knob{transition:none;background:radial-gradient(circle at 40% 35%,#ffe0b0,var(--hud-on) 70%)}
 .th-fire{--sz:88px;position:absolute;right:var(--th-gr);bottom:var(--th-gb);width:var(--sz);height:var(--sz);border-radius:50%;pointer-events:auto;touch-action:none;border:2px solid rgba(255,120,90,.75);background:radial-gradient(circle at 45% 40%,rgba(255,120,80,.55),rgba(120,24,12,.75));color:#fff;font:700 17px/1.1 var(--font-ui);letter-spacing:.08em;display:grid;place-content:center;gap:2px;box-shadow:0 0 0 4px rgba(8,13,17,.45)}
 .th-fire small{font-size:9px;letter-spacing:.06em;color:rgba(255,230,220,.75);font-weight:500}.th-fire.on{background:radial-gradient(circle,#ffd2a0,#ff6b3a 70%);color:#2a0b03;transform:scale(.96)}
+.th-msl{--sz:62px;--fill:1;position:absolute;right:calc(var(--th-gr) + 100px);bottom:var(--th-gb);width:var(--sz);height:var(--sz);border-radius:50%;pointer-events:auto;touch-action:manipulation;border:0;color:#ffe6c8;font:700 12px/1.1 var(--font-ui);display:grid;place-content:center;gap:2px;background:conic-gradient(rgba(255,170,90,.9) calc(var(--fill) * 360deg),rgba(255,255,255,.12) 0) border-box;box-shadow:0 0 0 4px rgba(8,13,17,.45)}
+.th-msl::before{content:"";position:absolute;inset:3px;border-radius:50%;background:radial-gradient(circle at 45% 40%,rgba(120,70,30,.9),rgba(40,22,10,.92));z-index:-1}.th-msl{isolation:isolate}
+.th-msl small{font-size:9px;font-weight:500;color:rgba(255,225,200,.8)}.th-msl.ready{color:#fff}.th-msl:active{transform:scale(.95)}.th-msl:disabled{opacity:.4}
+.th-lead{position:absolute;left:0;top:0;width:12px;height:12px;margin:-6px 0 0 -6px;border:1.5px solid #ff9a5a;box-shadow:0 0 6px rgba(255,140,70,.8);will-change:transform}
 .th-keys{grid-row:5;justify-self:center;margin:8px 0 0;font-size:11px;color:var(--hud-dim);background:var(--hud-bg);padding:3px 12px;border-radius:999px;text-align:center;max-width:calc(100% - 520px)}
 @media (pointer:coarse){.th-keys{display:none}.th-fire small{display:none}}
 @media (max-width:900px){.th-keys{display:none}}
-@media (max-width:640px){.th-read dd{font-size:16px}.th-read{gap:2px 12px}.th-id b{max-width:60vw}.th-actions{justify-content:flex-start}.th-records{font-size:10.5px;white-space:normal;text-align:center;border-radius:10px}.th-dpad{grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,44px)}.th-stick{--sz:120px}.th-fire{--sz:78px}}
+@media (max-width:640px){.th-read dd{font-size:16px}.th-read{gap:2px 12px}.th-id b{max-width:60vw}.th-actions{justify-content:flex-start}.th-records{font-size:10.5px;white-space:normal;text-align:center;border-radius:10px}.th-dpad{grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,44px)}.th-stick{--sz:120px}.th-fire{--sz:78px}.th-msl{--sz:56px;right:calc(var(--th-gr) + 88px)}}
 @media (orientation:landscape) and (max-height:560px){#trialHud{padding-block:max(6px,env(safe-area-inset-top,0px)) max(6px,env(safe-area-inset-bottom,0px));--th-gb:max(6px,env(safe-area-inset-bottom,0px))}.th-card{padding:5px 9px}.th-id b{font-size:14px}.th-read dd{font-size:15px}.th-btn{min-height:30px;padding:4px 9px;font-size:11px}.th-records{font-size:10.5px;margin-top:4px}
  .th-pad{grid-template-columns:auto 6px auto;gap:4px 6px;padding:5px 8px}.th-tele-ladder span{padding:2px 6px;font-size:10px}.th-dpad{grid-template-columns:repeat(3,38px);grid-template-rows:repeat(3,38px);gap:3px}.th-arrow{font-size:15px}.th-gauge{height:14px}.th-gauge span{top:3px}.th-gauge span:nth-child(3){top:1px}.th-order{font-size:10px}
- .th-stick{--sz:112px;margin-top:-30px}.th-fire{--sz:70px;font-size:14px}.th-guns{top:calc(50% + 44px)}.th-reticle b{top:calc(100% + 8px)}}
+ .th-stick{--sz:112px;margin-top:-30px}.th-fire{--sz:70px;font-size:14px}.th-msl{--sz:52px;right:calc(var(--th-gr) + 80px);font-size:11px}.th-guns{top:calc(50% + 44px)}.th-reticle b{top:calc(100% + 8px)}}
 @media (max-width:420px){.btn-ghost{padding:0 8px;font-size:12px}.tb-actions{gap:4px}.icon-btn{width:32px;height:32px}}
 @media (min-width:1000px){.tabs button{padding:9px 6px 7px;font-size:13px;letter-spacing:.02em}}
 </style>
@@ -582,6 +594,7 @@ body.trial-on .main{display:flex!important;flex-direction:column}body.trial-on .
       </div>
     </div>
     <div class="tb-actions">
+      <button type="button" class="icon-btn" id="btnDock" aria-pressed="false" aria-label="操作パネルを隠す" title="操作パネルを隠す"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/></svg></button>
       <button type="button" class="icon-btn" id="btnUndo" aria-label="元に戻す" title="元に戻す"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg></button>
       <button type="button" class="icon-btn" id="btnRedo" aria-label="やり直す" title="やり直す"><svg viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></svg></button>
       <button type="button" class="icon-btn" id="btnFull" aria-label="全画面" title="全画面" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
@@ -689,7 +702,9 @@ body.trial-on .main{display:flex!important;flex-direction:column}body.trial-on .
         <dt>選択・調整</dt><dd>区画を選んで、位置と大きさをスライダーで動かす。形状と性能はバックグラウンドで再計算され、操作は止まらない</dd>
         <dt>透視</dt><dd>内部の区画・機関・竜骨を見る。内部の区画は透視で選択できる</dd>
         <dt>同じタブを再タップ</dt><dd>下の操作盤をたたんで表示を広くする</dd>
-        <dt>公試</dt><dd>「性能」の「公試に出る」でコルサント低軌道を操艦する。左下の▲▼で速力通信機（後進〜全速）、◀▶で取舵・面舵（命令は保持）。右のスティックでピッチとロール（離すと中立）、右下の「射撃」で砲撃。砲塔は視点の中心（照準）へ旋回し、大きな砲塔ほど遅い。射線が船体・構造物・他の砲塔に掛かる砲は撃てない。キーボードは W/S 速力、A/D 舵、R/F・Q/E を押している間ピッチ・ロール、Space 射撃、Z 水平復帰、X 舵中央、V 視点。前方の標的ブイは10発で撃破</dd>
+        <dt>公試</dt><dd>「性能」の「公試に出る」でコルサント低軌道を操艦する。左下の▲▼で速力通信機（後進〜全速）、◀▶で取舵・面舵（命令は保持）。右のスティックでピッチとロール（離すと中立）、右下の「射撃」で砲撃、その左の「ミサイル」で全発射管から8発ずつ斉射（20秒で再装填）。砲塔は視点の中心（照準）へ旋回し、大きな砲塔ほど遅い。射線が船体・構造物・他の砲塔に掛かる砲は撃てない。標的に照準を重ねるとロックし、ターボレーザーとイオン砲は見越し位置（◇）へ撃ち、ミサイルは追尾する。反応炉の余力が足りないと連射が遅くなり、加速中は機関が電力を使うためさらに落ちる（「兵装電力」）。充電装置の小さい砲は再充電が遅い。キーボードは W/S 速力、A/D 舵、R/F・Q/E を押している間ピッチ・ロール、Space 射撃、M ミサイル、Z 水平復帰、X 舵中央、V 視点</dd>
+        <dt>複数選択・コピー</dt><dd>「区画および艤装」の「複数選択」で区画・構造物・装備をタップして集め、コピー・切り取り・撤去・まとめて移動ができる。コピーはこの端末に残るので、設計図から別の艦を開いて「貼り付け」できる（同じ座標／艦の寸法に合わせる）。Ctrl+C・Ctrl+X・Ctrl+V も使える</dd>
+        <dt>横持ちの操作パネル</dt><dd>スマホ横持ちでは上部のパネルボタンで右側の操作パネルを隠し、3D表示を全幅にできる</dd>
       </dl>
     </section>
   </section>
