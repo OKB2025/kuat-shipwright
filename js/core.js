@@ -2712,8 +2712,8 @@ function refitReferenceInterior(ship){
   for(const p of ship.parts){if(p.k==='shield')p.d=42;if(p.k==='integrity')setRoomSize(p,[85,20,24]);}
   for(const sg of [-1,1])part('inertial','舷側慣性制御設備',[360,55,sg*108],22,{length:100});
   for(const p of ship.parts)if(p.k==='crew'){p.c[1]=65;setRoomSize(p,[70,50,42]);}
-  // Embarked clone troopers: 2,000 in two bays.
-  for(const sg of [-1,1])room('troops',(sg<0?'左舷':'右舷')+'クローン兵員区画（1,000名）',[480,60,sg*120],[60,20,10.0005]);
+  // One embarked clone regiment: four battalions of 576, 2,304 troops.
+  for(const [x,sg,n] of [[455,-1,1],[455,1,2],[505,-1,3],[505,1,4]])room('troops',`クローン連隊・第${n}大隊（576名）`,[x,60,sg*120],[48,16,9.0002]);
   part('struct','主炉の球状装甲・構造被覆',[350,80,0],[104,104,104],{form:'ellipsoid',skin:'armor'});
  }else if(!acc){
   remove(ship.parts.filter(p=>p.k==='service').map(p=>p.id));
@@ -2728,8 +2728,11 @@ function refitReferenceInterior(ship){
    room('integrity','上段構造維持フィールド幹線',[650,131,sg*230],[200,18,22]);
   }
   for(const p of ship.parts)if(p.k==='shield')p.d=54;
-  // One embarked division of four regiments: 9,700 troops.
-  for(const [x,sg,n] of [[890,-1,1],[890,1,2],[1000,-1,3],[1000,1,4]])room('troops',`師団兵員区画・第${n}連隊（2,425名）`,[x,120,sg*110],[97,20,15.0005]);
+  // One embarked corps of four regiments (9,216 troops) and one prefabricated
+  // garrison base with its 484 support staff: 9,700 embarked in all.
+  for(const [x,sg,n] of [[890,-1,1],[890,1,2],[1000,-1,3],[1000,1,4]])room('troops',`軍団兵員区画・第${n}連隊（2,304名）`,[x,120,sg*110],[97,20,14.2518]);
+  room('troops','プレハブ駐屯基地の支援要員区画（484名）',[780,120,-110],[44,12,11.0003]);
+  room('cargo','プレハブ駐屯基地（分解収納）',[780,120,110],[97,20,15]);
   const bridge=ship.parts.find(p=>p.label==='横長指揮艦橋の装甲外殻');
   if(bridge){const hit=rayPart([bridge.c[0]+bridge.s[0],427,80],[-1,0,0],bridge);if(hit){const r=placeFit(ship,'podAir',hit.p,hit.n,0,false);if(r.fit){r.fit.width=12;r.fit.height=4.8;}}}
  }else{
@@ -3077,8 +3080,10 @@ function executorDesign(){
   room('cargo','輸送・物資集積区画',[15000,405,sg*350],[600,180,70]);
  }
  const bay=room('hangar','中央腹部ドッキングベイ',[12000,277.5,0],[1700,300,355],{airRole:'dock'});openBay(s,bay,'bottom','ray');
- // One embarked army corps: four divisions, 38,800 troops.
- for(const [x,sg,n] of [[6500,-1,1],[6500,1,2],[9500,-1,3],[9500,1,4]])room('troops',`軍団兵員区画・第${n}師団（9,700名）`,[x,420,sg*1300],[200,40,14.5502]);
+ // One embarked army of four corps (36,864 troops) and four prefabricated
+ // garrison bases, each with 484 support staff: 38,800 embarked in all.
+ for(const [x,sg,n] of [[6500,-1,1],[6500,1,2],[9500,-1,3],[9500,1,4]])room('troops',`兵団兵員区画・第${n}軍団（9,216名）`,[x,420,sg*1300],[200,40,13.8241]);
+ for(const [x,sg,n] of [[7200,-1,1],[7200,1,2],[8800,-1,3],[8800,1,4]]){room('troops',`第${n}プレハブ駐屯基地の支援要員区画（484名）`,[x,420,sg*1300],[44,12,11.0003]);room('cargo',`プレハブ駐屯基地 ${n}（分解収納）`,[x+(n<3?200:-200),420,sg*1300],[97,20,15]);}
  part('hyper','主ハイパードライブ',[9700,400,0],190,{length:650});
  // Parallel deck lanes preserve free spaces between real charging plants.
  for(const axis of [2,3])for(const sg of [-1,1])for(let i=0;i<20;i++){
