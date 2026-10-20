@@ -1015,7 +1015,7 @@ function baseComputeStats(ship) {
     const m = V * d.dens; hpSum += m * d.hp; cost += V * d.cost; crew += V * d.crew / 1000; Vint += V * newHull/Math.max(1,vs.length);
     const ab = partAABB(pt), k0 = binOf(ab[0]), k1 = binOf(ab[3]), span = k1 - k0 + 1;
     for (let k = k0; k <= k1; k++) {bins[k]+=m/span;hullBins[k]-=V*newHull/Math.max(1,vs.length)*K.hullDens/span;} accepted.push(pt); { const pad = Math.max(ab[3] - ab[0], ab[4] - ab[1], ab[5] - ab[2]) * .05; acceptedBounds.push([ab[0] - pad, ab[1] - pad, ab[2] - pad, ab[3] + pad, ab[4] + pad, ab[5] + pad]); }
-    if (V > 0 && fE < 0.02 && expF > 0.98 && !attachedEngine(ship,pt)) floating++;
+    if (V > 0 && fE < 0.02 && expF > 0.98 && !attachedEngine(ship,pt)) { floating++; info[pt.id].floating = true; }
     if (d.crit) {
       critN += V; critExp += V * expF; citArea += A;
       const sh = surfSamples(pt, 14); let deep = 0; for (const p of sh) if (inEnv(ship, p, pt)) deep++;
@@ -1933,7 +1933,7 @@ function hatchGrid(ship,h){
   for(let i=0;i<5;i++)for(let j=0;j<3;j++){const p=[0,0,0];p[l]=lerp(b[l],b[l+3],i/4);p[u]=(b[u]+b[u+3])/2+(j-1)*openingHalf(b,p[l],u);p[axis]=h.n[axis]>0?b[axis]:b[axis+3];pts.push(p);nrm.push(h.n);}
   return {nl:5,nw:3,pts,nrm,area:hatchOpenArea(ship,h)};
 }
-function computeStats(ship){syncCompartments(ship);ship._lockedCache=cache(ship);try{const s=v3ComputeStats(ship);s.sensorVolume=ship.parts.filter(p=>p.k==='sensor'||p.k==='scanner').reduce((n,p)=>n+partVolume(p),0);return hatchMotionStats(ship,layoutStats(ship,outfittingStats(ship,s)));}finally{delete ship._lockedCache;}}
+function computeStats(ship){syncCompartments(ship);ship._lockedCache=cache(ship);try{const s=v3ComputeStats(ship);s.sensorVolume=ship.parts.filter(p=>p.k==='sensor'||p.k==='scanner').reduce((n,p)=>n+partVolume(p),0);return hatchMotionStats(ship,layoutStats(ship,groundingStats(ship,outfittingStats(ship,s))));}finally{delete ship._lockedCache;}}
 function serialize(ship){const o=v3Serialize(ship);o.groundForces=normalizeGroundForces(ship.groundForces);for(const k of ['paint','detail','reference','hullSkin','autoHabitation','hullLocked','shipClass'])if(ship[k]!=null)o[k]=JSON.parse(JSON.stringify(ship[k]));return o;}
 function deserialize(o){
   const s=v3Deserialize(o),finite=(v,lo,hi,d)=>Number.isFinite(v)?clamp(v,lo,hi):d;
@@ -3337,7 +3337,42 @@ function layoutStats(ship,S){
  for(const p of ship.parts)if(p._packing?.limited)S.warnings.push({lv:'warn',code:'packing-space',partId:p.id,text:`${partLabel(p)} #${p.id} の自動統合後の容積が不足しています（${Math.round(p._packing.retained*100)}%）。近くの空間を空けるか構造を追加してください。`});
  S.warnings=S.warnings.map(w=>({...w,targets:inspectionTargets(ship,S,w)}));return S;
 }
+// ---------- grounding ----------
+// Every part must touch the hull, or touch a chain of parts that does. Contact
+// is tested with surface samples pushed slightly outward (into whatever the
+// part rests on). Fittings follow the surface they were mounted on.
+function groundingStats(ship,S){
+ const parts=ship.parts.filter(p=>p.id>0),tol=clamp(ship.hull.L*.001,1.5,6),hullOK=!ship.hull.assembly;
+ const box=new Map(),samples=new Map();
+ for(const p of parts){try{const b=partAABB(p);box.set(p.id,[b[0]-tol,b[1]-tol,b[2]-tol,b[3]+tol,b[4]+tol,b[5]+tol]);}catch(e){}}
+ const sm=p=>{let a=samples.get(p.id);if(!a){try{a=surfSamples(p,tol);}catch(e){a=[];}if(a.length>180){const k=a.length/180;a=Array.from({length:180},(_,i)=>a[Math.floor(i*k)]);}samples.set(p.id,a);}return a;};
+ const safeIn=(p,q)=>{try{return inPart(p,q);}catch(e){return false;}};
+ // Hull mesh corners inside a part's padded box catch contact along edges and
+ // stern faces that sparse surface samples can step over.
+ let hv=null;if(hullOK){try{const T=hullGeo(ship).tris||[];hv=T;}catch(e){hv=null;}}
+ const hullCorner=p=>{const b=box.get(p.id);if(!hv||!b)return false;for(let i=0;i<hv.length;i+=3){const x=hv[i],y=hv[i+1],z=hv[i+2];if(x>=b[0]&&x<=b[3]&&y>=b[1]&&y<=b[4]&&z>=b[2]&&z<=b[5])return true;}return false;};
+ const touchesHull=p=>{if(!hullOK)return false;if(p.k==='engine'&&attachedEngine(ship,p))return true;let vs=[];try{vs=volSamples(p);}catch(e){}const st=Math.max(1,Math.floor(vs.length/80));for(let i=0;i<vs.length;i+=st)if(inHull(ship,vs[i]))return true;for(const q of sm(p))if(inHull(ship,q))return true;return hullCorner(p);};
+ const near=(a,b)=>{const A=box.get(a.id),B=box.get(b.id);return !!A&&!!B&&A[0]<=B[3]&&B[0]<=A[3]&&A[1]<=B[4]&&B[1]<=A[4]&&A[2]<=B[5]&&B[2]<=A[5];};
+ // Two parts whose padded bounding boxes overlap are treated as touching: the
+ // check is meant to catch parts left out in space, never to reject a fit-up.
+ const touch=(a,b)=>near(a,b);
+ const grounded=new Set();for(const p of parts)if(touchesHull(p))grounded.add(p.id);
+ if(!hullOK&&parts.length){const big=parts.reduce((a,b)=>partVolume(b)>partVolume(a)?b:a);grounded.add(big.id);}
+ let pending=parts.filter(p=>!grounded.has(p.id)),changed=true;
+ while(changed&&pending.length){changed=false;const g=parts.filter(p=>grounded.has(p.id));for(const p of pending)if(g.some(q=>touch(p,q))){grounded.add(p.id);g.push(p);changed=true;}pending=pending.filter(p=>!grounded.has(p.id));}
+ const loose=pending.map(p=>p.id),looseSet=new Set(loose),looseFits=[];
+ for(const f of ship.fits){if(f.float)continue;const up=FITS[f.k]?.window?(f.n||AXES[f.a]):AXES[f.mountAxis??f.a],probes=[tol,tol*3,(f.mountOffset||0)+tol,Math.max(0,f.base||0)+(f.ped||0)+tol].map(d=>sub(f.p,mul(up,d)));
+  if(hullOK&&probes.some(q=>inHull(ship,q)))continue;let onGround=false,onLoose=false;
+  for(const p of parts){const b=box.get(p.id);if(!b)continue;for(const q of probes){if(q[0]<b[0]||q[0]>b[3]||q[1]<b[1]||q[1]>b[4]||q[2]<b[2]||q[2]>b[5]||!safeIn(p,q))continue;if(looseSet.has(p.id))onLoose=true;else onGround=true;}if(onGround)break;}
+  if(!onGround&&onLoose)looseFits.push(f.id);}
+ S.ungrounded={parts:loose,fits:looseFits};
+ if(S.floating){const n=parts.filter(p=>S.info?.[p.id]?.floating&&!looseSet.has(p.id)).length;S.warnings=S.warnings.filter(w=>!/浮いている区画/.test(w.text));if(n)S.warnings.unshift({lv:'bad',text:`船体から離れて浮いている区画が ${n} 個あります。`});}
+ if(loose.length)S.warnings.unshift({lv:'bad',code:'ungrounded',text:`接地していない部品が ${loose.length} 個あります。船体にも、船体につながる構造物・区画にも接していません。動かして接するようにしてください。`});
+ if(looseFits.length)S.warnings.unshift({lv:'bad',code:'ungrounded',text:`接地していない構造物の上に取り付けた装備が ${looseFits.length} 基あります。`});
+ return S;
+}
 function inspectionTargets(ship,S,w){
+ if(w.code==='ungrounded')return [...(S.ungrounded?.parts||[]).map(id=>({list:'parts',id})),...(S.ungrounded?.fits||[]).map(id=>({list:'fits',id}))];
  const target=(p)=>p.windowId?{list:'fits',id:p.windowId}:p.weaponId?{list:'fits',id:p.weaponId}:p.nozzle?{list:'parts',id:p.nozzle}:{list:'parts',id:p.id};
  const parts=(pred,fallback)=>{const a=allOccupied(ship).filter(pred).map(target);return a.length?a:[{part:fallback}];};
  const txt=w.text;
@@ -3613,7 +3648,7 @@ function syncAviationSurfaces(ship){
 }
 
 
-return {turretRayContext,turretClear,turretOrigin,turretRate,GROUND_LIMITS,GROUND_PRESETS,GROUND_VEHICLE_VOLUME,normalizeGroundForces,groundStatus,planStations,bridgeBodyRole,podPoint,podDepth,intrinsicCommandFits,POD_ASSET,BRIDGE_BODY_COMMAND,REFERENCE_TONE,engineSkinMesh,referenceFitYaw,rayTris,vmirrorPlane,vmirrorPoint,vmirrorPart,SHIP_CLASSES,shipClassFor,PUBLIC_LISTS,publicJSON,patchShip,patchItem,cache,AIRCRAFT_CLEARANCE,aircraftFitsBay,AVIATION_SIZE_VOLUME,AIR_WING_LIMITS,hangarCapacity,normalizeAirWings,aviationStatus,AVIATION_SURFACE_FACES,hatchAxes,aviationSurfaceContacts,setAviationSurfaceMode,syncAviationSurfaces,aviationHatchActive,isSlidingHatch,slidingHatchSpec,slidingHatchPanels,hatchOpenArea,ISD_HYPER_BASELINE,HYPER_CLASS_COEFFICIENT,HYPER_POWER_DENSITY,ISD_SHIELD_VOLUME,SHIELD_BUFFER_SECONDS,SHIELD_ENERGY_DENSITY,SHIELD_POWER_DENSITY,REACTOR_POWER_DENSITY,SOLID_CUT_SHAPES,normalizeSolidCut,mirrorSolidCut,solidCutTriangles,solidCutBounds,solidCutContains,solidCutsContain,applySolidCuts,solidPartCutContains,solidStructVolume,solidCutIntersectsShip,flexibleCompartment,hardConflicts,weaponChargeSpec,DREADNOUGHT_EXAMPLES,DESIGN_LIMITS,ALIGNMENTS,alignedPosition,alignPart,replacementShape,replacementOptions,replacePart,COMMAND_ROLES,commandCompartments,commandStatus,habitationSpace,inspectionTargets,planCutEdge,normalizePlanCut,structFrame,alignStructure,FLEET_RULES,fleetProfile,fleetUnit,fleetFormation,fleetBattle,fleetOrder,fleetArc,fleetTick,fleetCommit,fleetFinish,fleetSample,fleetFrame,normalizeBow,bowStation,engineHullEntry,ENGINE_BASELINES,engineBaseline,resizeEngine,parametricEngine,engineRating,sourceEngine,EQUIPMENT,equipmentSpec,equipmentOptions,enforceEquipment,customizeEquipment,adoptEquipment,HYPERDRIVE_REFERENCE,hyperCapacity,arcParameters,arcPoint,arcTriangles,inArc,SEPARATIST_EXAMPLES,STATS_SOURCE,SHIP_REFERENCE,PART_RATINGS,reactorPower,nozzleThrust,nozzleDemand,shieldLoad,partRatingKeys,validOutline,outlinePoints,outlineArea,outlineTriangles,AVIATION_ROLES,CHARGE_TT_M3,aircraftCapacity,aviationConnected,needsCapacitor,weaponCapacitors,refitReferenceInterior,clipReferenceBox, referenceEnginePoint, fitSpec, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface,
+return {surfSamples,groundingStats,turretRayContext,turretClear,turretOrigin,turretRate,GROUND_LIMITS,GROUND_PRESETS,GROUND_VEHICLE_VOLUME,normalizeGroundForces,groundStatus,planStations,bridgeBodyRole,podPoint,podDepth,intrinsicCommandFits,POD_ASSET,BRIDGE_BODY_COMMAND,REFERENCE_TONE,engineSkinMesh,referenceFitYaw,rayTris,vmirrorPlane,vmirrorPoint,vmirrorPart,SHIP_CLASSES,shipClassFor,PUBLIC_LISTS,publicJSON,patchShip,patchItem,cache,AIRCRAFT_CLEARANCE,aircraftFitsBay,AVIATION_SIZE_VOLUME,AIR_WING_LIMITS,hangarCapacity,normalizeAirWings,aviationStatus,AVIATION_SURFACE_FACES,hatchAxes,aviationSurfaceContacts,setAviationSurfaceMode,syncAviationSurfaces,aviationHatchActive,isSlidingHatch,slidingHatchSpec,slidingHatchPanels,hatchOpenArea,ISD_HYPER_BASELINE,HYPER_CLASS_COEFFICIENT,HYPER_POWER_DENSITY,ISD_SHIELD_VOLUME,SHIELD_BUFFER_SECONDS,SHIELD_ENERGY_DENSITY,SHIELD_POWER_DENSITY,REACTOR_POWER_DENSITY,SOLID_CUT_SHAPES,normalizeSolidCut,mirrorSolidCut,solidCutTriangles,solidCutBounds,solidCutContains,solidCutsContain,applySolidCuts,solidPartCutContains,solidStructVolume,solidCutIntersectsShip,flexibleCompartment,hardConflicts,weaponChargeSpec,DREADNOUGHT_EXAMPLES,DESIGN_LIMITS,ALIGNMENTS,alignedPosition,alignPart,replacementShape,replacementOptions,replacePart,COMMAND_ROLES,commandCompartments,commandStatus,habitationSpace,inspectionTargets,planCutEdge,normalizePlanCut,structFrame,alignStructure,FLEET_RULES,fleetProfile,fleetUnit,fleetFormation,fleetBattle,fleetOrder,fleetArc,fleetTick,fleetCommit,fleetFinish,fleetSample,fleetFrame,normalizeBow,bowStation,engineHullEntry,ENGINE_BASELINES,engineBaseline,resizeEngine,parametricEngine,engineRating,sourceEngine,EQUIPMENT,equipmentSpec,equipmentOptions,enforceEquipment,customizeEquipment,adoptEquipment,HYPERDRIVE_REFERENCE,hyperCapacity,arcParameters,arcPoint,arcTriangles,inArc,SEPARATIST_EXAMPLES,STATS_SOURCE,SHIP_REFERENCE,PART_RATINGS,reactorPower,nozzleThrust,nozzleDemand,shieldLoad,partRatingKeys,validOutline,outlinePoints,outlineArea,outlineTriangles,AVIATION_ROLES,CHARGE_TT_M3,aircraftCapacity,aviationConnected,needsCapacitor,weaponCapacitors,refitReferenceInterior,clipReferenceBox, referenceEnginePoint, fitSpec, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface,
   TT, G0, ISD_W, K, PARTS, FITS, HULLS, SECTIONS, KEELS, SECTORS, CLASSES, DESIGNS, AXES, AXNAME, ARMOR_MAX,
   newShip, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,

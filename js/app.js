@@ -185,8 +185,11 @@ function onEngineStats(msg) {
   renderStrip(); renderSpecTargets(); if (st.tab === 'systems' || armMode() && st.sel?.list === 'fits' && !dragSnap) renderPanel();
   if (st.tab !== 'spec' && st.tab !== 'sim') renderPanelInfo();
   updateAviationUI(); updateGroundUI();
+  if (JSON.stringify(S?.ungrounded || null) !== JSON.stringify(prevS?.ungrounded || null)) refreshOverlay();
   if (msg.gen === eng.gen) {
     if (prevS && eng.label && !eng.quiet && msg.gen >= eng.labelGen) toastDiff(eng.label, prevS, S);
+    const ug = x => (x?.ungrounded?.parts.length || 0) + (x?.ungrounded?.fits.length || 0);
+    if (prevS && ug(S) > ug(prevS)) toast(`接地していない部品があります（赤枠 ${ug(S)} 個）。船体か、船体につながる部品に接するよう動かしてください`);
     eng.label = ''; eng.quiet = false;
   }
   engineStatus();
@@ -501,6 +504,8 @@ function refreshOverlay() {
     ls.part(shape(it), cy); const tw = twinOfItem('parts', it); if (tw) ls.part(shape(tw), [105, 195, 220, 140]);
     const vt = it.vt != null ? ship.parts.find(q => q.id === it.vt) : null; if (vt) { ls.part(shape(vt), [105, 195, 220, 140]); const vtw = twinOfItem('parts', vt); if (vtw) ls.part(shape(vtw), [105, 195, 220, 100]); }
   }
+  // Parts that touch neither the hull nor anything connected to it are outlined in red.
+  if (S?.ungrounded && fleet.mode === 'design') { const red = [255, 86, 76, 255], gp = new Set(S.ungrounded.parts), gf = new Set(S.ungrounded.fits); for (const p of ship.parts) if (gp.has(p.id)) ls.part(shape(p), red); for (const f of ship.fits) if (gf.has(f.id)) ls.box(C.fitAABB(f), red); }
   if (tool() === 'multi') { const am = [240, 170, 70, 255]; for (const p of ship.parts) if (st.multi.parts.has(p.id)) ls.part(shape(p), am); for (const f of ship.fits) if (st.multi.fits.has(f.id)) ls.box(C.fitAABB(f), am); }
   if (it && st.sel.list === 'fits' && (armMode() || st.tab === 'bridge')) { ls.box(C.fitAABB(it), cy);const room=C.commandCompartments(ship).find(p=>p.windowId===it.id);if(room)ls.part(room,[142,229,192,255]); }
   const base = ls.out();
