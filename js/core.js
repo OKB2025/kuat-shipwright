@@ -2356,9 +2356,19 @@ function mountReferenceFit(ship,f){
 }
 // Source turrets were extracted in the pose they had on their ship. A newly
 // placed copy turns by this much so that, at yaw 0, its barrels face the bow.
-const REFERENCE_FORWARD_YAW={ven_turret:90,isd_turret:-90,ven_side_gun:74.5};
+const REFERENCE_FORWARD_YAW={ven_turret:89.7,isd_turret:-85,ven_side_gun:74.5};
+// Deck turrets also kept the tilt of the hull face they sat on (the ISD
+// turrets about 13°). The broadside gun keeps its pose: its barrels were level. up: the source base-plane normal; base: the bottom-centre of the
+// turntable after levelling. A new copy is levelled about that point.
+const REFERENCE_LEVEL={"isd_turret":{"up":[0.06811,0.97392,0.21645],"base":[0.132,-2.892,0.421]},"ven_turret":{"up":[0.02532,0.99968,0.00055],"base":[0.015,-4.985,1.401]}};
+const LEVEL_MATRIX=new Map();
+function levelMatrix(id){
+  if(LEVEL_MATRIX.has(id))return LEVEL_MATRIX.get(id);const L=REFERENCE_LEVEL[id];let R=null;
+  if(L){const u=norm(L.up),v=cross(u,[0,1,0]),sn=len(v),c=u[1];if(sn>1e-9){const K=[[0,-v[2],v[1]],[v[2],0,-v[0]],[-v[1],v[0],0]],K2=K.map((r,i)=>[0,1,2].map(j=>r[0]*K[0][j]+r[1]*K[1][j]+r[2]*K[2][j])),f=(1-c)/(sn*sn);R=[0,1,2].map(i=>[0,1,2].map(j=>(i===j?1:0)+K[i][j]+K2[i][j]*f));}else R=[[1,0,0],[0,1,0],[0,0,1]];}
+  LEVEL_MATRIX.set(id,R);return R;
+}
 function referenceFitYaw(f){return FITS[f.k].casemate?0:(f.assetYaw||0)+(f.skinAsset?0:REFERENCE_FORWARD_YAW[FITS[f.k].asset]||0);}
-function referenceFitPoint(f,v){const a=REFERENCE_ASSETS[f.skinAsset||FITS[f.k].asset],r=referenceFitYaw(f)*Math.PI/180,k=f.scale||1,q=a.mount?v.map((n,i)=>(n*a.size[i]+a.c[i]-a.mount[i])*k):[v[0]*a.size[0]*k,(v[1]+.5)*a.size[1]*k,v[2]*a.size[2]*k],[x,y,z]=q,fr=FITS[f.k].casemate?{fw:AXES[f.a],up:[0,1,0],rt:cross(AXES[f.a],[0,1,0])}:fitFrame(f.a),o=fitOrigin(f);return add(o,add(add(mul(fr.fw,x*Math.cos(r)-z*Math.sin(r)),mul(fr.up,y)),mul(fr.rt,x*Math.sin(r)+z*Math.cos(r))));}
+function referenceFitPoint(f,v){const id=f.skinAsset||FITS[f.k].asset,a=REFERENCE_ASSETS[id],r=referenceFitYaw(f)*Math.PI/180,k=f.scale||1,R=!f.skinAsset&&!a.mount&&!FITS[f.k].casemate?levelMatrix(id):null,q=R?(()=>{const p=[v[0]*a.size[0],v[1]*a.size[1],v[2]*a.size[2]],b=REFERENCE_LEVEL[id].base;return [0,1,2].map(i=>(R[i][0]*p[0]+R[i][1]*p[1]+R[i][2]*p[2]-b[i])*k);})():a.mount?v.map((n,i)=>(n*a.size[i]+a.c[i]-a.mount[i])*k):[v[0]*a.size[0]*k,(v[1]+.5)*a.size[1]*k,v[2]*a.size[2]*k],[x,y,z]=q,fr=FITS[f.k].casemate?{fw:AXES[f.a],up:[0,1,0],rt:cross(AXES[f.a],[0,1,0])}:fitFrame(f.a),o=fitOrigin(f);return add(o,add(add(mul(fr.fw,x*Math.cos(r)-z*Math.sin(r)),mul(fr.up,y)),mul(fr.rt,x*Math.sin(r)+z*Math.cos(r))));}
 function referenceFitAABB(f){const points=[];for(const x of [-.5,.5])for(const y of [-.5,.5])for(const z of [-.5,.5])points.push(referenceFitPoint(f,[x,y,z]));if(!FITS[f.k].casemate&&!f.localMount&&f.mountAxis==null&&(f.low||0)<0)points.push(add(f.p,mul(fitFrame(f.a).up,f.low)));return [0,1,2].map(i=>Math.min(...points.map(p=>p[i]))).concat([0,1,2].map(i=>Math.max(...points.map(p=>p[i]))));}
 
 function clipReferenceBox(d,b){
