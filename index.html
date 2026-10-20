@@ -477,6 +477,7 @@ body.tut-on .inspect{top:auto;bottom:70px;left:auto;right:var(--gr)}
 }
 /* ---- ground forces ---- */
 .ground-budgets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.ground-add{flex-wrap:wrap}.airwing-fields select{box-sizing:border-box;width:100%;min-width:0;min-height:44px;padding:8px 10px;background:var(--bg);color:var(--fg);border:1px solid var(--line-2);border-radius:5px;font:14px var(--font-ui)}@media(max-width:560px){.airwing-fields select{font-size:16px}}
+.pair-edit{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin:4px 0 10px}.pair-tags{display:flex;gap:4px}
 /* ---- multiple selection ---- */
 .multi-count{display:flex;gap:16px;margin:8px 0 4px}.multi-count span{color:var(--muted);font-size:12px}.multi-count b{font:600 26px/1 var(--font-display);color:var(--accent);margin-right:4px;font-variant-numeric:tabular-nums}
 .multi-kinds{margin:0 0 8px}.multi-actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.multi-move{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
@@ -703,6 +704,7 @@ body.trial-on .main{display:flex!important;flex-direction:column}body.trial-on .
         <dt>透視</dt><dd>内部の区画・機関・竜骨を見る。内部の区画は透視で選択できる</dd>
         <dt>同じタブを再タップ</dt><dd>下の操作盤をたたんで表示を広くする</dd>
         <dt>公試</dt><dd>「性能」の「公試に出る」でコルサント低軌道を操艦する。左下の▲▼で速力通信機（後進〜全速）、◀▶で取舵・面舵（命令は保持）。右のスティックでピッチとロール（離すと中立）、右下の「射撃」で砲撃、その左の「ミサイル」で全発射管から8発ずつ斉射（20秒で再装填）。砲塔は視点の中心（照準）へ旋回し、大きな砲塔ほど遅い。射線が船体・構造物・他の砲塔に掛かる砲は撃てない。標的に照準を重ねるとロックし、ターボレーザーとイオン砲は見越し位置（◇）へ撃ち、ミサイルは追尾する。反応炉の余力が足りないと連射が遅くなり、加速中は機関が電力を使うためさらに落ちる（「兵装電力」）。充電装置の小さい砲は再充電が遅い。キーボードは W/S 速力、A/D 舵、R/F・Q/E を押している間ピッチ・ロール、Space 射撃、M ミサイル、Z 水平復帰、X 舵中央、V 視点</dd>
+        <dt>対称の武装</dt><dd>左右対称・上下対称で置いた武装は、片方を調整すると対の武装（左右・上下・対角）も鏡写しに変わる。位置・支持台・大きさ・旋回角・砲塔の交換・撤去が対象。片側だけ変えたいときは編集欄の「対の武装も同時に編集」を切る</dd>
         <dt>複数選択・コピー</dt><dd>「区画および艤装」の「複数選択」で区画・構造物・装備をタップして集め、コピー・切り取り・撤去・まとめて移動ができる。コピーはこの端末に残るので、設計図から別の艦を開いて「貼り付け」できる（同じ座標／艦の寸法に合わせる）。Ctrl+C・Ctrl+X・Ctrl+V も使える</dd>
         <dt>横持ちの操作パネル</dt><dd>スマホ横持ちでは上部のパネルボタンで右側の操作パネルを隠し、3D表示を全幅にできる</dd>
       </dl>

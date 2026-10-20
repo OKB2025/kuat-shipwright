@@ -507,7 +507,7 @@ function refreshOverlay() {
   // Parts that touch neither the hull nor anything connected to it are outlined in red.
   if (S?.ungrounded && fleet.mode === 'design') { const red = [255, 86, 76, 255], gp = new Set(S.ungrounded.parts), gf = new Set(S.ungrounded.fits); for (const p of ship.parts) if (gp.has(p.id)) ls.part(shape(p), red); for (const f of ship.fits) if (gf.has(f.id)) ls.box(C.fitAABB(f), red); }
   if (tool() === 'multi') { const am = [240, 170, 70, 255]; for (const p of ship.parts) if (st.multi.parts.has(p.id)) ls.part(shape(p), am); for (const f of ship.fits) if (st.multi.fits.has(f.id)) ls.box(C.fitAABB(f), am); }
-  if (it && st.sel.list === 'fits' && (armMode() || st.tab === 'bridge')) { ls.box(C.fitAABB(it), cy);const room=C.commandCompartments(ship).find(p=>p.windowId===it.id);if(room)ls.part(room,[142,229,192,255]); }
+  if (it && st.sel.list === 'fits' && (armMode() || st.tab === 'bridge')) { ls.box(C.fitAABB(it), cy); for (const l of fitLinks(it)) ls.box(C.fitAABB(l.fit), [105, 195, 220, 130]);const room=C.commandCompartments(ship).find(p=>p.windowId===it.id);if(room)ls.part(room,[142,229,192,255]); }
   const base = ls.out();
   if (hoverLines) {
     const h = hoverLines.out(), pos = new Float32Array(base.pos.length + h.pos.length), col = new Uint8Array(base.col.length + h.col.length);
@@ -788,9 +788,9 @@ function basePartEditor() {
 }
 function baseFitEditor() {
   const it = selItem(); if (!it || st.sel.list !== 'fits') return '';
-  const d = C.fitSpec(it), tw = twinOfItem('fits', it);
-  return `<div class="editor"><div class="ed-head"><b>${esc(d.name)}</b>${tw ? '<span class="tag">左右対</span>' : ''}<button type="button" class="btn sm ghost" data-desel>選択解除</button><button type="button" class="btn sm danger" data-delsel>撤去</button></div>
-    ${fitPositionSliders(it)}
+  const d = C.fitSpec(it);
+  return `<div class="editor"><div class="ed-head"><b>${esc(d.name)}</b><button type="button" class="btn sm ghost" data-desel>選択解除</button><button type="button" class="btn sm danger" data-delsel>撤去</button></div>
+    ${fitPairHTML(it)}${fitPositionSliders(it)}
     <h4>支持台</h4>${seg('pedshapesel', PED_SHAPES, it.pedShape || 'round')}
     <div class="sliders">${slider('pedsel', '追加の高さ', it.ped.toFixed(1), 0, Math.max(60, Math.round(d.r * 4)), 0.5, `${it.ped.toFixed(1)} m`)}${slider('pedsizesel', '大きさ', Math.round((it.pedSize || 1) * 100), 40, 250, 5, Math.round((it.pedSize || 1) * 100) + '%')}</div>
     <p class="note" id="pedinfo">傾斜に合わせた自動の高さ ${it.base.toFixed(1)} m ＋ 追加 ${it.ped.toFixed(1)} m。高くすると射界が開けますが、標的にもなりやすくなります。</p></div>`;
@@ -1195,11 +1195,10 @@ function dragItemMove(px, py) {
 function moveFitTo(f, p, n0) {
   const d = C.FITS[f.k], n = d.cat === 'w' ? weaponPlacementNormal(f.k, n0) : n0;
   const set = (g, q, m) => { g.p = q.slice(); g.n = C.norm(m); if (g.mountAxis == null) g.a = C.AXES.reduce((i, x, j) => C.dot(x, g.n) > C.dot(C.AXES[i], g.n) ? j : i, 0); delete g.local; delete g.localNormal; delete g.host; try { C.mountFit(ship, g); } catch (e) { g.float = true; } };
+  const links = fitLinks(f);
   set(f, p, n);
-  const find = id => id == null ? null : ship.fits.find(q => q.id === id), tw = st.mirror ? find(f.tw) : null, vt = st.vmirror ? find(f.vt) : null, vtw = vt && st.mirror ? find(vt.tw) : null;
-  if (tw) set(tw, C.mirrorP(p), C.mirrorP(n));
-  if (vt) { const vp = C.vmirrorPoint(ship, p), vn = [n[0], -n[1], n[2]]; set(vt, vp, vn); if (vtw) set(vtw, C.mirrorP(vp), C.mirrorP(vn)); }
-  queuePreview('fits', [f, tw, vt, vtw]);
+  for (const l of links) { let q = p, m = n; if (l.y) { q = C.vmirrorPoint(ship, q); m = [m[0], -m[1], m[2]]; } if (l.z) { q = C.mirrorP(q); m = C.mirrorP(m); } set(l.fit, q, m); }
+  queuePreview('fits', [f, ...links.map(l => l.fit)]);
 }
 function dragItemEnd(cancel) {
   const D = itemDrag; itemDrag = null; if (!D?.moving) return;
@@ -1287,8 +1286,27 @@ function assignMirror(target, q) {
   if (tw != null) target.tw = tw; if (vt != null) target.vt = vt;
 }
 function copyFitSettings(from, to) { to.ped = from.ped; if (from.width) to.width = from.width; if (from.height) to.height = from.height; for (const k of ['commandDepth', 'commandHeight', 'commandEnabled', 'chargeSalvos', 'chargeDepth', 'chargeScale', 'scale']) if (from[k] != null) to[k] = from[k]; }
+// Fittings placed with 左右対称 / 上下対称 keep links to their counterparts
+// (tw: across the centreline, vt: top/bottom). Edits follow those links unless
+// 「対の武装も同時に編集」 is switched off; the symmetry toggles only decide
+// how new fittings are placed.
+st.fitPairEdit = true;
+function fitLinks(f) {
+  if (!f || st.fitPairEdit === false) return [];
+  const find = id => id == null ? null : ship.fits.find(q => q.id === id), tw = find(f.tw), vt = find(f.vt), vtw = (vt && find(vt.tw)) || (tw && find(tw.vt));
+  const out = []; if (tw) out.push({fit: tw, z: true, y: false}); if (vt) out.push({fit: vt, z: false, y: true}); if (vtw && vtw !== tw && vtw !== vt) out.push({fit: vtw, z: true, y: true});
+  return out;
+}
+const FIT_SYNC_KEYS = ['ped', 'pedShape', 'pedSize', 'scale', 'width', 'height', 'commandDepth', 'commandHeight', 'commandEnabled', 'chargeSalvos', 'chargeDepth', 'chargeScale', 'localMount'];
+function syncFitTwin(from, to, link) {
+  if (to.k !== from.k) { to.k = from.k; for (const k of ['skinAsset', 'mountOffset', 'mountAxis']) if (from[k] === undefined) delete to[k]; }
+  for (const k of FIT_SYNC_KEYS) { if (from[k] === undefined) delete to[k]; else to[k] = JSON.parse(JSON.stringify(from[k])); }
+  // A mirror image turns the other way: one flip negates the train angle, two restore it.
+  if (from.assetYaw != null || to.assetYaw != null) to.assetYaw = (from.assetYaw || 0) * ((link.z ? -1 : 1) * (link.y ? -1 : 1));
+}
 function editSel(fn) {   // live edit of the selected part/fit (and its mirrored twins)
   const it = selItem(); if (!it) return;
+  if (st.sel.list === 'fits') { const links = fitLinks(it); fn(it); C.enforceEquipment(it); for (const l of links) syncFitTwin(it, l.fit, l); queuePreview('fits', [it, ...links.map(l => l.fit)]); return; }
   const list = st.sel.list, find = (id) => id == null ? null : ship[list].find(q => q.id === id), tw = st.mirror ? twinOfItem(list, it) : null;
   fn(it);C.enforceEquipment(it);
   if (tw) {
@@ -1410,10 +1428,14 @@ function bind() {
     else if (d.hsize) { mutate('格納庫の大きさ', () => editSel(it => { it.d = +d.hsize; }), 'parts'); renderPanel(); }
     else if (d.selpart) { st.sel = {list: 'parts', id: +d.selpart}; st.partTool = 'select'; renderPanel(); }
     else if ('desel' in d) { st.sel = null; renderPanel(); }
+    else if ('fitpair' in d) { st.fitPairEdit = st.fitPairEdit === false; renderPanel(); refreshOverlay(); }
     else if ('delsel' in d) {
       const it = selItem(); if (!it) return;
       const list = st.sel.list;
-      removeWithPreview('撤去', list, it);
+      if (list === 'fits') {   // the editor removes the pair it edits
+        const ids = new Set([it.id, ...fitLinks(it).map(l => l.fit.id)]);
+        if (mutate('撤去', () => { for (const id of ids) C.removeItem(ship, 'fits', id, false); for (const q of ship.fits) { if (ids.has(q.tw)) delete q.tw; if (ids.has(q.vt)) delete q.vt; } }, 'fits')) showPreview('fits', [], [...ids]);
+      } else removeWithPreview('撤去', list, it);
       st.sel = null; renderPanel();
     }
     else if (d.fittool) { if (d.fittool === 'place' && st.fitTool !== 'place') carryToPlace(); st.fitTool = d.fittool; if (d.fittool !== 'adjust') st.sel = null; renderPanel(); }
@@ -1803,9 +1825,13 @@ function fitPositionSliders(f){
   }
   return `<h4>位置</h4><div class="sliders">${slider('fitX','前後 X',Math.round(f.p[0]),Math.round(-hp.L*.1),Math.round(hp.L*1.1),1,fmtM(f.p[0]))}${slider('fitZ','左右 Z',Math.round(f.p[2]),Math.round(-hp.W*.75),Math.round(hp.W*.75),1,fmtM(f.p[2]))}</div><p class="note">面に沿って据え直します。3D画面で装備をドラッグしても動かせます。</p>`;
 }
+function fitPairHTML(f){
+  const find=id=>id==null?null:ship.fits.find(q=>q.id===id),tw=find(f.tw),vt=find(f.vt),vtw=(vt&&find(vt.tw))||(tw&&find(tw.vt)),n=[tw,vt,vtw].filter(Boolean).length;if(!n)return '';
+  return `<div class="pair-edit"><span class="pair-tags">${tw?'<span class="tag">左右対</span>':''}${vt?'<span class="tag">上下対</span>':''}${vtw?'<span class="tag">対角</span>':''}</span><button type="button" class="chip" data-fitpair aria-pressed="${st.fitPairEdit!==false}">${st.fitPairEdit!==false?`対の武装 ${n} 基も同時に編集`:'この武装だけ編集'}</button></div>`;
+}
 function fitEditor(){
   const p=selItem();if(!p||st.sel.list!=='fits'||!C.FITS[p.k].window)return baseFitEditor();
-  return `<div class="editor"><div class="ed-head"><b>${esc(C.FITS[p.k].name)}</b><button class="btn sm ghost" data-desel>選択解除</button><button class="btn sm danger" data-delsel>撤去</button></div>${fitPositionSliders(p)}<div class="sliders">${slider('winWidth','ポッドの直径',p.width||16,6,60,.5,fmtM(p.width||16))}${slider('winHeight','ポッドの高さ',p.height||6.4,3,30,.5,fmtM(p.height||6.4))}</div><p class="note">構造物・艦橋本体の側面や前後の壁にのみ取り付けられます。甲板・船体には取り付けられません。背後に指揮区画を確保します。</p></div>`;
+  return `<div class="editor"><div class="ed-head"><b>${esc(C.FITS[p.k].name)}</b><button class="btn sm ghost" data-desel>選択解除</button><button class="btn sm danger" data-delsel>撤去</button></div>${fitPairHTML(p)}${fitPositionSliders(p)}<div class="sliders">${slider('winWidth','ポッドの直径',p.width||16,6,60,.5,fmtM(p.width||16))}${slider('winHeight','ポッドの高さ',p.height||6.4,3,30,.5,fmtM(p.height||6.4))}</div><p class="note">構造物・艦橋本体の側面や前後の壁にのみ取り付けられます。甲板・船体には取り付けられません。背後に指揮区画を確保します。</p></div>`;
 }
 function v3RenderPanel(){
   if(!ship)return;
