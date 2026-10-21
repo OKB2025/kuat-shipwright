@@ -165,16 +165,28 @@ function handleTrialRays(job) {
   if (t) for (let i = 0; i < ids.length; i++) { const f = t.fits.get(ids[i]); out[i] = f && C.turretClear(t.ship, f, [dirs[i * 3], dirs[i * 3 + 1], dirs[i * 3 + 2]], t.ctx) ? 1 : 0; }
   post({type: 'trialRays', id: job.id, clear: out, ready: !!t});
 }
+// Built fleet ships are kept for a while: a fleet battle asks for the same
+// design again (its 3D model, then the turrets when it is flown), and building
+// a large example takes tens of seconds. Very large designs are not kept.
+const fleetBuilt = new Map(), FLEET_KEEP = 4;
+const designHash = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(36) + ':' + s.length; };
 function handleFleet(job) {
   const t0 = now();
-  const d = job.key ? C.buildDesign(job.key) : C.deserialize(job.design);
-  C.syncCompartments(d); C.remount(d); C.syncCompartments(d);
-  const stats = C.computeStats(d), profile = C.fleetProfile(stats, d.name, d), transfer = [];
+  const dkey = job.key ? 'k:' + job.key : 'd:' + designHash(JSON.stringify(job.design));
+  let hit = fleetBuilt.get(dkey), d, stats, profile, serial;
+  if (hit) { ({d, stats, profile, serial} = hit); fleetBuilt.delete(dkey); fleetBuilt.set(dkey, hit); }
+  else {
+    d = job.key ? C.buildDesign(job.key) : C.deserialize(job.design);
+    C.syncCompartments(d); C.remount(d); C.syncCompartments(d);
+    stats = C.computeStats(d); profile = C.fleetProfile(stats, d.name, d); serial = C.serialize(d);
+    if (d.parts.length + d.fits.length < 3000) { const rec = {d, stats, profile, serial}; fleetBuilt.set(dkey, rec); fleetBuilt.set('d:' + designHash(JSON.stringify(serial)), rec); while (fleetBuilt.size > FLEET_KEEP * 2) fleetBuilt.delete(fleetBuilt.keys().next().value); }
+  }
+  const transfer = [];
   const geometry = G.fleetGeometry(d, job.trial ? {trial: true} : null);
   for (const m of Object.values(geometry.meshes)) { m.geo = geoOut(m.geo, transfer); }
   // A trial keeps its ship here so turret rays can be tested against it.
   if (job.trial) trialHold = {ship: d, ctx: C.turretRayContext(d), fits: new Map(d.fits.map(f => [f.id, f]))};
-  post({type: 'fleet', id: job.id, stats, profile, geometry, design: C.serialize(d), ms: now() - t0}, transfer);
+  post({type: 'fleet', id: job.id, stats, profile, geometry, design: serial, ms: now() - t0, cached: !!hit}, transfer);
 }
 
 function handleOp(job) {

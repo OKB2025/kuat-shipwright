@@ -1120,7 +1120,7 @@ function baseComputeStats(ship) {
   let Vacc = 0; for (const H of hangars) { info[H.pt.id].acc = H.acc; if (H.acc&&H.pt.k==='hangar') Vacc += partVolume(H.pt); }
   const aviation=aviationStatus(ship,info),slots=aviation.embarkedCount,chargeInfo=chargingStatus(ship,invalid);
   // fittings
-  const alpha = [0, 0, 0, 0, 0, 0], ionS = [0, 0, 0, 0, 0, 0], alphaRate=[0,0,0,0,0,0],ionRate=[0,0,0,0,0,0];
+  const alpha = [0, 0, 0, 0, 0, 0], ionS = [0, 0, 0, 0, 0, 0], alphaRate=[0,0,0,0,0,0],ionRate=[0,0,0,0,0,0],aaArc=[0,0,0,0,0,0];
   let alphaTot = 0, ionTot = 0, aa = 0, mslSalvo = 0, tractors = 0, wPower = 0, bPower = 0, bridges = 0, sensor = 0, viewSum = 0, floatFits = 0, pedVol = 0;
   const commandInfo=commandStatus(ship,invalid),fitInfo = {};
   for (const f of ship.fits) {
@@ -1135,7 +1135,7 @@ function baseComputeStats(ship) {
       if (d.tt || d.ion || d.aa) {
         const arc = fireArcs(ship, f, hf, obst); fitInfo[f.id] = arc;
         const mean = arc.reduce((a, b) => a + b, 0) / 6;
-        for (let k = 0; k < 6; k++) { if (d.tt){alpha[k] += d.tt * arc[k];alphaRate[k]+=d.tt*arc[k]/(d.cycle||K.cycle);}if (d.ion){ionS[k] += d.ion * arc[k];ionRate[k]+=d.ion*arc[k]/(d.cycle||K.cycle);} }
+        for (let k = 0; k < 6; k++) { if (d.tt){alpha[k] += d.tt * arc[k];alphaRate[k]+=d.tt*arc[k]/(d.cycle||K.cycle);}if (d.ion){ionS[k] += d.ion * arc[k];ionRate[k]+=d.ion*arc[k]/(d.cycle||K.cycle);}if (d.aa) aaArc[k] += d.aa * arc[k]; }
         if (d.tt) alphaTot += d.tt; if (d.ion) ionTot += d.ion; if (d.aa) aa += d.aa * Math.min(1, mean * 1.6);
       }
       if (d.msl) mslSalvo += d.msl; if (d.trac) tractors++;
@@ -1200,7 +1200,7 @@ function baseComputeStats(ship) {
     engN, ventEng, Veng, hyperEffectiveVolume, hyperClass: hyperEffectiveVolume > 0 ? clamp(K.hyperK * M / hyperEffectiveVolume, 0.5, 30) : null,
     shieldP, shieldPct, shieldCapacity:shieldCapacity*coreRate, shieldTarget:ship.shieldTarget||1, armorHull: ship.armor.hull, armorCit: cit, armorAvg: ship.armor.hull,
     slots, aviation, deployableSlots:aviation.deployableCount, launch, launchTime: launch > 0 && aviation.deployableCount > 0 ? aviation.deployableCount / launch : null, Vhang, Vacc, openA, rayA, deadHatch,
-    alphaRate,ionRate,alpha, alphaTot, alphaBest, alphaMean, ionBest: Math.max(...ionS), ionMean: ionS.reduce((a, b) => a + b, 0) / 6, ionTot, aa, mslSalvo, tractors,
+    alphaRate,ionRate,aaArc,alpha, alphaTot, alphaBest, alphaMean, ionBest: Math.max(...ionS), ionMean: ionS.reduce((a, b) => a + b, 0) / 6, ionTot, aa, mslSalvo, tractors,
     arcEff: alphaTot > 0 ? alphaBest / alphaTot : 0,
     commandInfo, bridges, view, accuracy, sensor, protectedFrac, critExpo: expo, genExpFrac, vuln,
     hp: hpSum * K.hpPerT + (armHull + armCit) * 0.2 * K.hpPerT, crew: Math.round(crew), habit, cost,
@@ -1735,6 +1735,7 @@ function v3Deserialize(o){
 }
 function buildDesign(key){
   const finish=s=>{s.hullLocked=true;return initializeAviation(s,key);};
+  if(Object.hasOwn(SHIP_EXAMPLES,key)){const s=SHIP_EXAMPLES[key].build();s.reference=s.reference||key;return finish(s);}
   if(Object.hasOwn(DREADNOUGHT_EXAMPLES,key))return finish(dreadnoughtDesign(key));
   if(['venator','imperial'].includes(key))return finish(referenceDesign(key));
   const d=DESIGNS[key];if(!d)throw new Error('設計見本が見つかりません');
@@ -1988,11 +1989,14 @@ function hatchGrid(ship,h){
   return {nl:5,nw:3,pts,nrm,area:hatchOpenArea(ship,h)};
 }
 function computeStats(ship){return withFrozenStructures(()=>{syncCompartments(ship);ship._lockedCache=cache(ship);try{const s=v3ComputeStats(ship);s.sensorVolume=ship.parts.filter(p=>p.k==='sensor'||p.k==='scanner').reduce((n,p)=>n+partVolume(p),0);return hatchMotionStats(ship,layoutStats(ship,groundingStats(ship,outfittingStats(ship,s))));}finally{delete ship._lockedCache;}});}
-function serialize(ship){const o=v3Serialize(ship);o.groundForces=normalizeGroundForces(ship.groundForces);for(const k of ['paint','detail','reference','hullSkin','autoHabitation','hullLocked','shipClass'])if(ship[k]!=null)o[k]=JSON.parse(JSON.stringify(ship[k]));return o;}
+// Port-light colours a design may carry (the renderer holds the tints).
+const SHIP_LIGHT_KINDS=['white','blue','warm','off'];
+function serialize(ship){const o=v3Serialize(ship);o.groundForces=normalizeGroundForces(ship.groundForces);for(const k of ['paint','lights','detail','reference','hullSkin','autoHabitation','hullLocked','shipClass'])if(ship[k]!=null)o[k]=JSON.parse(JSON.stringify(ship[k]));return o;}
 function deserialize(o){
   const s=v3Deserialize(o),finite=(v,lo,hi,d)=>Number.isFinite(v)?clamp(v,lo,hi):d;
   if(Array.isArray(o.hull?.stations)&&o.hull.stations.length>=2&&o.hull.stations.length<=32){const a=o.hull.stations.map((p,i)=>{const r=[finite(p?.[0],0,1,i/(o.hull.stations.length-1)),finite(p?.[1],.005,1.5,1),finite(p?.[2],.005,1.5,1)];if(p?.length>3)r.push(finite(p[3],-.5,.8,0));if(p?.length>4)r.push(finite(p[4],0,.98,.52));if(p?.length>5)r.push(finite(p[5],0,.98,0));if(p?.length>6)r.push(finite(p[6],.02,.98,.13));if(p?.length>7)r.push(finite(p[7],.2,.8,.5));return r;}).sort((a,b)=>a[0]-b[0]);if(a.some((p,i)=>i&&p[0]-a[i-1][0]<.001))throw new Error('船体断面の位置が重複しています');a[0][0]=0;a.at(-1)[0]=1;s.hull.stations=a;}
   if(SHIP_CLASSES.some(c=>c.id===o.shipClass))s.shipClass=o.shipClass;
+  if(SHIP_LIGHT_KINDS.includes(o.lights))s.lights=o.lights;
   s.autoHabitation=o.autoHabitation!==false;s.hullLocked=o.hullLocked!==false;s.hull.assembly=!!o.hull?.assembly;if(o.hull?.bowFree===true)s.hull.bowFree=true;normalizeBow(s.hull);
   s.hull.deckWidth=finite(o.hull?.deckWidth,0,.98,.52);s.hull.belt=finite(o.hull?.belt,.02,.45,.13);
   if(o.hull?.start!=null)s.hull.start=finite(o.hull.start,0,.6,0);
@@ -2017,7 +2021,7 @@ function deserialize(o){
   for(const p of s.parts){const q=o.parts.find(q=>q.id===p.id);if(q.customEquipment===true)p.customEquipment=true;if(typeof q.autoFit==='boolean')p.autoFit=q.autoFit;if(((Object.hasOwn(EQUIPMENT,q.equipmentId)&&EQUIPMENT[q.equipmentId].k===p.k)||(p.k==='engine'&&Object.hasOwn(LEGACY_ENGINES,q.equipmentId))))p.equipmentId=q.equipmentId;}
   adoptEquipment(s);
   for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(h.tw==null)delete h.tw;if(q.portal){h.portal=true;h.face=Object.hasOwn(AVIATION_SURFACE_FACES,q.face)?q.face:'top';if(q.surface)h.surface=true;h.open=finite(q.open,0,1,1);h.aperture=finite(q.aperture,.1,1,.85);if(q.sill!=null)h.sill=finite(q.sill,0,1,.5);if(s.parts.some(p=>p.id===q.bay&&p.k==='hangar'))h.bay=q.bay;else if(Array.isArray(q.cut)&&q.cut.length===6&&q.cut.every(Number.isFinite))h.cut=q.cut.map(v=>clamp(v,-DESIGN_LIMITS.coordinate,DESIGN_LIMITS.coordinate));}}
-  s.paint=['republic','neutral','dark'].includes(o.paint)?o.paint:'neutral';s.detail=finite(o.detail,0,2,1);if(o.reference)s.reference=String(o.reference).slice(0,80);for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.motion==='fixed')h.motion='fixed';else if(q.motion==='slide'||isSlidingHatch(s,h))h.motion='slide';}if(REFERENCE_ASSETS[o.hullSkin?.asset]?.kind==='hull'&&o.hullSkin.base?.hull){const b=o.hullSkin.base,valid=[b.hull.L,b.hull.W,b.hull.H].every(v=>Number.isFinite(v)&&v>0&&v<=4000)&&Array.isArray(b.hull.stations)&&b.hull.stations.length>=2&&b.hull.stations.length<=64&&b.hull.stations.every(a=>Array.isArray(a)&&a.length>=3&&a.every(Number.isFinite))&&Array.isArray(b.trenches)&&b.trenches.length<=30&&Array.isArray(b.cuts)&&b.cuts.length<=50;if(valid){s.hullSkin=JSON.parse(JSON.stringify(o.hullSkin));s.hullSkin.enabled=!!o.hullSkin.enabled;}}for(const f of s.fits){const q=o.fits.find(q=>q.id===f.id);if(q.localMount)f.localMount=true;if(Array.isArray(q.tilt)&&q.tilt.length===3&&q.tilt.every(Number.isFinite)&&len(q.tilt)>.5&&FITS[f.k].cat==='w'&&!FITS[f.k].casemate&&!f.localMount){f.tilt=norm(q.tilt);if(!f.n)f.n=f.tilt.slice();}if(typeof q.batteryZone==='string')f.batteryZone=q.batteryZone.slice(0,40);if(FITS[f.k].window){f.commandEnabled=q.commandEnabled!==false;if(q.commandDepth!=null)f.commandDepth=finite(q.commandDepth,2,200,12);if(q.commandHeight!=null)f.commandHeight=finite(q.commandHeight,2,80,8);}if(Number.isFinite(q.chargeSalvos))f.chargeSalvos=finite(q.chargeSalvos,1,20,1);if(Number.isFinite(q.chargeDepth))f.chargeDepth=finite(q.chargeDepth,1,500,10);if(Number.isFinite(q.chargeScale))f.chargeScale=finite(q.chargeScale,.25,4,1);if(Number.isFinite(q.assetYaw))f.assetYaw=finite(q.assetYaw,-180,180,0);if(Number.isFinite(q.scale))f.scale=finite(q.scale,.25,4,1);if(Number.isInteger(q.mountAxis)&&q.mountAxis>=0&&q.mountAxis<=5)f.mountAxis=q.mountAxis;if(Number.isFinite(q.mountOffset))f.mountOffset=finite(q.mountOffset,-50,50,0);if(REFERENCE_ASSETS[q.skinAsset])f.skinAsset=q.skinAsset;}for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.referenceMouth)h.referenceMouth=true;if(REFERENCE_ASSETS[q.skinAsset]){h.skinAsset=q.skinAsset;if(Array.isArray(q.skinBayAnchor)&&q.skinBayAnchor.length===3&&q.skinBayAnchor.every(Number.isFinite))h.skinBayAnchor=q.skinBayAnchor.slice();}}migrateAviationSurfaces(s,o);migrateAviation(s,o);s.groundForces=normalizeGroundForces(o.groundForces);
+  s.paint=['republic','neutral','dark','cis'].includes(o.paint)?o.paint:'neutral';s.detail=finite(o.detail,0,2,1);if(o.reference)s.reference=String(o.reference).slice(0,80);for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.motion==='fixed')h.motion='fixed';else if(q.motion==='slide'||isSlidingHatch(s,h))h.motion='slide';}if(REFERENCE_ASSETS[o.hullSkin?.asset]?.kind==='hull'&&o.hullSkin.base?.hull){const b=o.hullSkin.base,valid=[b.hull.L,b.hull.W,b.hull.H].every(v=>Number.isFinite(v)&&v>0&&v<=4000)&&Array.isArray(b.hull.stations)&&b.hull.stations.length>=2&&b.hull.stations.length<=64&&b.hull.stations.every(a=>Array.isArray(a)&&a.length>=3&&a.every(Number.isFinite))&&Array.isArray(b.trenches)&&b.trenches.length<=30&&Array.isArray(b.cuts)&&b.cuts.length<=50;if(valid){s.hullSkin=JSON.parse(JSON.stringify(o.hullSkin));s.hullSkin.enabled=!!o.hullSkin.enabled;}}for(const f of s.fits){const q=o.fits.find(q=>q.id===f.id);if(q.localMount)f.localMount=true;if(Array.isArray(q.tilt)&&q.tilt.length===3&&q.tilt.every(Number.isFinite)&&len(q.tilt)>.5&&FITS[f.k].cat==='w'&&!FITS[f.k].casemate&&!f.localMount){f.tilt=norm(q.tilt);if(!f.n)f.n=f.tilt.slice();}if(typeof q.batteryZone==='string')f.batteryZone=q.batteryZone.slice(0,40);if(FITS[f.k].window){f.commandEnabled=q.commandEnabled!==false;if(q.commandDepth!=null)f.commandDepth=finite(q.commandDepth,2,200,12);if(q.commandHeight!=null)f.commandHeight=finite(q.commandHeight,2,80,8);}if(Number.isFinite(q.chargeSalvos))f.chargeSalvos=finite(q.chargeSalvos,1,20,1);if(Number.isFinite(q.chargeDepth))f.chargeDepth=finite(q.chargeDepth,1,500,10);if(Number.isFinite(q.chargeScale))f.chargeScale=finite(q.chargeScale,.25,4,1);if(Number.isFinite(q.assetYaw))f.assetYaw=finite(q.assetYaw,-180,180,0);if(Number.isFinite(q.scale))f.scale=finite(q.scale,.25,4,1);if(Number.isInteger(q.mountAxis)&&q.mountAxis>=0&&q.mountAxis<=5)f.mountAxis=q.mountAxis;if(Number.isFinite(q.mountOffset))f.mountOffset=finite(q.mountOffset,-50,50,0);if(REFERENCE_ASSETS[q.skinAsset])f.skinAsset=q.skinAsset;}for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.referenceMouth)h.referenceMouth=true;if(REFERENCE_ASSETS[q.skinAsset]){h.skinAsset=q.skinAsset;if(Array.isArray(q.skinBayAnchor)&&q.skinBayAnchor.length===3&&q.skinBayAnchor.every(Number.isFinite))h.skinBayAnchor=q.skinBayAnchor.slice();}}migrateAviationSurfaces(s,o);migrateAviation(s,o);s.groundForces=normalizeGroundForces(o.groundForces);
   // Old window rows on a model bridge repeat the role the body now carries.
   for(const p of s.parts){const q=o.parts.find(q=>q.id===p.id);if(bridgeBodyRole(p)){if(['bridge','air','hangar','combat'].includes(q.commandRole))p.commandRole=q.commandRole;if(q.commandEnabled===false)p.commandEnabled=false;}}
   const dropped=new Set(s.fits.filter(f=>f.legacyWindow&&bridgeBodyRole(s.parts.find(p=>p.id===f.host))===FITS[f.k].role).map(f=>f.id));
@@ -2306,6 +2310,16 @@ function completeReferenceArmament(ship){
   for(const x of [200,470])for(const z of [-160,160])gun('htl',x,z);
   for(const x of [360,420,480])for(const z of [-60,60])gun('triple40',x,z);
   for(const z of [-110,110])gun('triple40',560,z);gun('triple40',600,0);
+  // The ISD-I weapon plan beyond the main batteries: ion batteries along the
+  // dorsal edges, missile launchers on the centre line (fore, amidships, aft
+  // under the keel), tractor projectors round the ventral hangar and point
+  // defence lasers along the lower hull. zf is a share of the half-width there.
+  const hull=(k,x,zf,under,scale)=>{const z=zf*sectionBase(ship.hull,x).hw,h=rayEnv(ship,[x,under?-1000:1000,z],[0,under?1:-1,0]);if(!h)return null;const r=placeFit(ship,k,h.p,h.n,0,false);if(r.fit&&scale)r.fit.scale=scale;if(r.fit&&needsCapacitor(r.fit))r.fit.chargeDepth=14;return r.fit||null;};
+  for(const x of [640,880,1120])for(const zf of [-.74,.74])hull('ion',x,zf,false,.8);
+  for(const x of [700,980,1260])hull('msl',x,0,false);
+  for(const x of [380,1230])hull('msl',x,0,true);
+  for(const [x,zf] of [[740,.42],[1010,.62],[1140,.34]])for(const sg of [-1,1])hull('trc',x,sg*zf,true);
+  for(const x of [430,660,1170,1330])for(const zf of [-.62,.62])hull('pd',x,zf,true);
  }
  if(key==='acclamator'){
   for(const f of ship.fits)if(f.k==='ltl')f.k='quad200';
@@ -2945,9 +2959,10 @@ function initializeAviation(ship,key){
  syncCompartments(ship);
  const capacity=aviationStatus(ship).capacity;
  if(key==='executor')ship.airWings=Array.from({length:50},(_,i)=>({id:'air-'+(i+1),name:'第'+(i+1)+'飛行隊',size:1,count:72}));
+ else if(SHIP_EXAMPLES[key]?.airWings?.length)ship.airWings=SHIP_EXAMPLES[key].airWings.map(w=>({...w}));
  else ship.airWings=smallAircraftWings(key==='venator'?420:capacity);
  for(const p of ship.parts){delete p.aircraftType;delete p.berths;}
- ship.groundForces=normalizeGroundForces({
+ ship.groundForces=normalizeGroundForces(SHIP_EXAMPLES[key]?.groundForces||{
   venator:[{id:'ground-1',name:'クローン・トルーパー連隊',kind:'troops',count:2304}],
   imperial:[{id:'ground-1',name:'ストームトルーパー軍団（4個連隊）',kind:'troops',count:9216},{id:'ground-2',name:'プレハブ駐屯基地の支援要員',kind:'troops',count:484}],
   executor:[{id:'ground-1',name:'ストームトルーパー兵団（4個軍団）',kind:'troops',count:36864},{id:'ground-2',name:'プレハブ駐屯基地4基の支援要員',kind:'troops',count:1936}]
@@ -3199,7 +3214,7 @@ function dreadnoughtTools(s){
  return {part,solid,room,outline,symmetric,gun,trench,bridge};
 }
 function executorDesign(){
- const b=EXECUTOR_BLUEPRINT,s=newShip(JSON.parse(JSON.stringify(b.hull)),'エグゼクター級｜超大型指揮戦艦');s._building=true;s.reference='executor';s.detail=1;s.paint='neutral';s.keel='light';s.armor={hull:.3,cit:.35};s.shieldTarget=1;
+ const b=EXECUTOR_BLUEPRINT,s=newShip(JSON.parse(JSON.stringify(b.hull)),'エグゼクター級｜超大型指揮戦艦');s._building=true;s.reference='executor';s.detail=1;s.paint='neutral';s.lights='blue';s.keel='light';s.armor={hull:.3,cit:.35};s.shieldTarget=1;
  const {part,solid,room,gun,trench}=dreadnoughtTools(s);
  // The side trench runs between the upper plate tip and the lower hull tip.
  s.trenches.push({id:s.nextId++,side:'both',from:b.trench.from,to:b.trench.to,level:.5,height:b.trench.height,depth:b.trench.depth,taper:false,chine:true});
@@ -3254,6 +3269,1059 @@ function executorDesign(){
  delete s._building;adoptEquipment(s,true);remount(s);calibrateReferenceRatings(s);return s;
 }
 function dreadnoughtDesign(key){if(key!=='executor')throw new Error('設計見本が見つかりません');return executorDesign();}
+// Model-measured example ships, one file each in src/ships/ (inserted below at
+// build time). Each registers {key,name,side,role,length,author,source,license,
+// note,build}; build() returns a finished ship made of ordinary parts.
+const SHIP_EXAMPLES={};
+function registerShipExample(d){
+ if(!d||typeof d.key!=='string'||typeof d.build!=='function')throw new Error('作例の登録が不正です');
+ SHIP_EXAMPLES[d.key]=d;DESIGNS[d.key]={name:d.name,hull:{L:d.length}};return d;
+}
+// Measured-section helpers for those builders (absolute metres, x bow, y up,
+// z starboard). Rows are [x, zMin, zMax, yMin, yMax]; the bounding box of the
+// rows sets the part's centre and size.
+function shipKit(s){
+ const put=(label,c,size,opt={},mirror=false)=>placePart(s,'struct',c,size,{label,skin:'armor',...opt},!!mirror);
+ const loftX=(label,rows,opt={},mirror=false)=>{
+  rows=rows.slice().sort((a,b)=>a[0]-b[0]);
+  const x0=rows[0][0],x1=rows.at(-1)[0],z0=Math.min(...rows.map(r=>r[1])),z1=Math.max(...rows.map(r=>r[2])),y0=Math.min(...rows.map(r=>r[3])),y1=Math.max(...rows.map(r=>r[4]));
+  const L=Math.max(2,x1-x0),W=Math.max(2,z1-z0),H=Math.max(2,y1-y0),cz=(z0+z1)/2;
+  // Sizes raised to the 2 m minimum stay centred on the measured span.
+  const bx=(x0+x1)/2-L/2,by=(y0+y1)/2-H/2;
+  const loft=rows.map(r=>[clamp((r[0]-bx)/L,0,1),clamp((r[2]-r[1])/W,.02,2),clamp((r[4]-by)/H,.03,1.5),clamp((r[3]-by)/H,0,.97),clamp(((r[1]+r[2])/2-cz)/(W/2),-2,2)]);
+  for(const r of loft)if(r[3]>=r[2]-.005)r[3]=Math.max(0,r[2]-.01);
+  return put(label,[(x0+x1)/2,(y0+y1)/2,cz],[L,W,H],{form:opt.round?'roundloft':'loft',loft,corner:opt.corner??.08,...opt},mirror);
+ };
+ const box=(label,lo,hi,opt={},mirror=false)=>put(label,[(lo[0]+hi[0])/2,(lo[1]+hi[1])/2,(lo[2]+hi[2])/2],[hi[0]-lo[0],hi[2]-lo[2],hi[1]-lo[1]],{form:'chamfer',corner:opt.corner??.06,...opt},mirror);
+ const ellipsoid=(label,c,size,opt={},mirror=false)=>put(label,c,size,{form:'ellipsoid',...opt},mirror);
+ const slab=(label,pts,y0,y1,opt={},mirror=false)=>{
+  const xs=pts.map(p=>p[0]),zs=pts.map(p=>p[1]),x0=Math.min(...xs),x1=Math.max(...xs),z0=Math.min(...zs),z1=Math.max(...zs),cx=(x0+x1)/2,cz=(z0+z1)/2;
+  return put(label,[cx,(y0+y1)/2,cz],[x1-x0,z1-z0,y1-y0],{form:'outline',outline:pts.map(([x,z])=>[(x-cx)/(x1-x0),(z-cz)/(z1-z0)]),corner:0,taper:0,...opt},mirror);
+ };
+ const ring=(label,c,outerX,outerZ,thick,opt={})=>put(label,c,[outerX*2,outerZ*2,thick],{form:'arc',arcInner:opt.inner??.65,arcStart:opt.start??30,arcSweep:opt.sweep??300,...opt},false);
+ return {put,loftX,box,ellipsoid,slab,ring};
+}
+// ---- src/ships/cr90.js ----
+// CR90 corvette, measured from "Star Wars: CR-90" by Daniel (DanielAndersson)
+// on Sketchfab, CC BY 4.0. Ship frame: x from the stern (0) to the bow (150 m),
+// y up from the lowest point, z to starboard. The hull is a single rod, the
+// round spine tube; engines, engine block, radar drum, bracing plates, turret
+// section and the hammerhead are ordinary structures measured from the model.
+{
+const CR90_WHITE='#d9d7d0',CR90_RED='#a1373a',CR90_DARK='#4f565d',CR90_THROAT='#2b3238';
+// A thin flat plate through 3D corner points (x,y,z): the plane comes from
+// the corners and the outline is the corners projected into it.
+function cr90Plate(s,label,pts,thick,opt={},mirror=false){
+ let n=[0,0,0];for(let i=0;i<pts.length;i++){const a=pts[i],b=pts[(i+1)%pts.length];n[0]+=(a[1]-b[1])*(a[2]+b[2]);n[1]+=(a[2]-b[2])*(a[0]+b[0]);n[2]+=(a[0]-b[0])*(a[1]+b[1]);}
+ n=norm(n);if(n[1]<0)n=mul(n,-1);
+ let fw=sub([1,0,0],mul(n,n[0]));if(len(fw)<.001)fw=sub([0,0,1],mul(n,n[2]));fw=norm(fw);const rt=norm(cross(fw,n));
+ const c0=mul(pts.reduce((a,b)=>add(a,b),[0,0,0]),1/pts.length),uv=pts.map(p=>[dot(sub(p,c0),fw),dot(sub(p,c0),rt)]);
+ const u0=Math.min(...uv.map(q=>q[0])),u1=Math.max(...uv.map(q=>q[0])),v0=Math.min(...uv.map(q=>q[1])),v1=Math.max(...uv.map(q=>q[1]));
+ const c=add(c0,add(mul(fw,(u0+u1)/2),mul(rt,(v0+v1)/2))),L=Math.max(.5,u1-u0),W=Math.max(.5,v1-v0);
+ return placePart(s,'struct',c,[L,W,thick],{label,skin:'plain',form:'outline',outline:uv.map(q=>[(q[0]-(u0+u1)/2)/L,(q[1]-(v0+v1)/2)/W]),corner:0,taper:0,surfaceNormal:n,...opt},mirror);
+}
+// A prism along x with an exact cross-section polygon [[z,y],...]. With
+// sym the points are a half profile (z >= 0) from top centre to bottom centre.
+function cr90Prism(s,label,x0,x1,poly,opt={},sym=true,mirror=false){
+ const pts=sym?poly.concat(poly.slice(1,-1).reverse().map(([z,y])=>[-z,y])):poly;
+ const ys=pts.map(p=>p[1]),zs=pts.map(p=>p[0]),y0=Math.min(...ys),y1=Math.max(...ys),z0=Math.min(...zs),z1=Math.max(...zs),cy=(y0+y1)/2,cz=(z0+z1)/2;
+ // pitch -90: local x is world -y, local y is world x, local z is world z.
+ return placePart(s,'struct',[(x0+x1)/2,cy,cz],[y1-y0,z1-z0,x1-x0],{label,skin:'armor',form:'outline',outline:pts.map(([z,y])=>[(cy-y)/(y1-y0),(z-cz)/(z1-z0)]),corner:0,taper:0,pitch:-90,...opt},mirror);
+}
+// An elliptical-section loft along z (yaw 90): rows [z, xMin, xMax, yMin, yMax].
+function cr90RoundZ(s,label,rows,opt={},mirror=false){
+ rows=rows.slice().sort((a,b)=>a[0]-b[0]);
+ const z0=rows[0][0],z1=rows.at(-1)[0],X0=Math.min(...rows.map(r=>r[1])),X1=Math.max(...rows.map(r=>r[2])),Y0=Math.min(...rows.map(r=>r[3])),Y1=Math.max(...rows.map(r=>r[4]));
+ const L=z1-z0,W=X1-X0,H=Y1-Y0,cx=(X0+X1)/2;
+ const loft=rows.map(r=>[(r[0]-z0)/L,(r[2]-r[1])/W,(r[4]-Y0)/H,(r[3]-Y0)/H,-((r[1]+r[2])/2-cx)/(W/2)]);
+ return placePart(s,'struct',[cx,(Y0+Y1)/2,(z0+z1)/2],[L,W,H],{label,skin:'armor',form:'roundloft',yaw:90,loft,...opt},mirror);
+}
+registerShipExample({
+ key:'cr90',name:'CR90コルベット',side:'反乱同盟',role:'コルベット',length:150,
+ title:'Star Wars: CR-90',author:'Daniel',authorUrl:'https://sketchfab.com/DanielAndersson',
+ source:'https://sketchfab.com/3d-models/star-wars-cr-90-60e26a508ca84126b30f01461f60086e',license:'CC-BY-4.0',
+ credit:'This work is based on "Star Wars: CR-90" (https://sketchfab.com/3d-models/star-wars-cr-90-60e26a508ca84126b30f01461f60086e) by Daniel (https://sketchfab.com/DanielAndersson) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',
+ note:'150 m・11基の機関・連装ターボレーザー6基。背骨の円筒1本を船体とし、外形は原型モデルから実測した構造物',
+ // Suggested embarked forces (buildDesign's finish() does not read these yet).
+ groundForces:[{name:'反乱同盟艦隊兵小隊',kind:'troops',count:60}],
+ build(){
+  // Rod hull: the 12.4 m spine tube. Inside the centre engine it narrows to a
+  // thread so the nozzle stays open, and it slims again through the neck.
+  const s=newShip({L:150,W:20,H:14,sec:'ellipse',plan:'rect',bowW:1,bowH:1,stern:1,keel:'light',bowFree:true,stations:[
+   [0,.005,.007,.5],[.05,.005,.007,.5],[.062,.33,.47,.5],[.145,.33,.47,.5],[.149,.26,.37,.5],[.168,.26,.37,.5],[.174,.35,.5,.5],[.229,.35,.5,.5],[.255,.62,.886,.5],
+   [.765,.62,.886,.5],[.79,.45,.64,.5],[.81,.4,.57,.5],[.825,.31,.443,.5],[.85,.33,.47,.5],[.88,.41,.586,.5],[.9,.49,.7,.5],[.92,.5,.71,.5],[.98,.5,.71,.5],[1,.25,.3,.5]]},'CR90コルベット');
+  s._building=true;s.paint='neutral';s.detail=1;s.keel='light';s.armor={hull:.1,cit:.1};s.shieldTarget=1;
+  const k=shipKit(s),part=(kind,label,c,d,opt={},mirror=false)=>placePart(s,kind,c,d,{label,...opt},mirror),room=(kind,label,c,size,opt={},mirror=false)=>part(kind,label,c,30,{room:size,...opt},mirror);
+  const W={paint:CR90_WHITE},R={paint:CR90_RED},D={paint:CR90_DARK};
+  // Engines: 11 nozzles in rows of 4, 3 and 4. Each long nozzle runs inside a
+  // boxy casing; the dark throat plate closes the casing behind the bell.
+  const ENG=[[23.6,18.85],[23.6,6.35],[14.15,12.45],[14.15,0],[4.85,18.85],[4.85,6.35]];
+  const CASE=[[8,4.75,4.55],[21.5,4.75,4.55],[22.3,5.2,2.8],[25.2,5.2,2.8],[26,3.7,3.7],[35,3.6,3.5]];
+  for(const [y,z] of ENG){
+   k.loftX('機関ナセル外殻',CASE.map(([x,hz,hy])=>[x,z-hz,z+hz,y-hy,y+hy]),{corner:.2,skin:'service',...W},z>0);
+   k.loftX('機関ノズル奥の遮熱板',[[7.95,z-3.3,z+3.3,y-3.3,y+3.3],[9.95,z-3.3,z+3.3,y-3.3,y+3.3]],{round:true,skin:'plain',paint:CR90_THROAT},z>0);
+   // Ribbed nozzle sleeve (also the stern's longitudinal strength).
+   for(const sg of z>0?[-1,1]:[1])placePart(s,'struct',[4,y,sg*z],[8.9,8.9,8],{label:'機関ノズル外筒',form:'arc',arcInner:.88,arcStart:0,arcSweep:360,pitch:-90,skin:'plain',...D},false);
+  }
+  // Engine block: central box with C-shaped side brackets, measured at x 38.
+  cr90Prism(s,'機関ブロック',34.4,44.4,[[0,27],[7.5,27],[10.2,26.3],[10.2,24.8],[22.4,24.6],[22.6,19],[21.2,18],[19.3,17],[17.8,16],[17.8,12.3],[19.3,11.2],[21.2,10.2],[22.6,9.3],[22.4,3.9],[10.2,3.8],[10.2,1.8],[7.5,1],[0,1]],{skin:'service',...W});
+  k.box('機関ブロック前面の枠',[44,4.4,-9.6],[46,23.8,9.6],{corner:.08,...W});
+  // Radar drum across the spine with its red rims, mount and sensors.
+  k.put('レーダー・ドラム',[60.25,14.2,0],[29.8,12.2,12.2],{form:'roundloft',yaw:90,loft:[[0,1,1,0],[1,1,1,0]],...W});
+  for(const sg of [-1,1])placePart(s,'struct',[60.25,14.2,sg*14.95],[11.6,11.6,2],{label:'ドラム端の赤帯',form:'arc',arcInner:.78,arcStart:0,arcSweep:360,roll:90,skin:'plain',...R},false);
+  k.box('ドラム支持架',[54.6,4,-3.6],[65.6,24.4,3.6],{corner:.08,...W});
+  k.ellipsoid('背部センサードーム',[60.4,24.6,0],[8.8,8.8,5.2],{skin:'plain',...W});
+  k.box('アンテナ支持腕',[60,26,-1.1],[63.4,29.5,1.1],{corner:.1,skin:'plain',...D});
+  k.loftX('通信アンテナ皿',[[62.2,-4.6,4.6,27.4,32.5],[64.2,-4.6,4.6,27.4,32.5]],{round:true,skin:'plain',...D});
+  k.box('腹部センサー',[56.4,1.6,-4.1],[64.5,4.6,4.1],{corner:.15,skin:'plain',...W});
+  // Bracing plates (an X seen from the bow) and the red horizontal side plates.
+  cr90Plate(s,'上部筋交い板',[[44,15.6,4.6],[44,20,9.2],[57,20.1,9.8],[57,15.6,5.2]],2,W,true);
+  cr90Plate(s,'下部筋交い板',[[44,12.4,4.6],[44,8,9.2],[57,7.9,9.8],[57,12.4,5.2]],2,W,true);
+  cr90Plate(s,'上部X字補強板',[[60,14.4,4],[60,19.7,12.4],[95,22.4,.6],[82,18.4,.4]],2,W,true);
+  cr90Plate(s,'下部X字補強板',[[60,13.6,4],[60,8.3,12.4],[95,5.6,.6],[82,9.6,.4]],2,W,true);
+  k.slab('側面赤帯板',[[62,3.4],[80,3.4],[94,3.4],[94,12.4],[80,8.6],[62,8.6]],13.1,15.1,{skin:'plain',...R},true);
+  // Turret section: belt, roof and keel as measured; tapered ends.
+  cr90Prism(s,'主船体（砲塔区画）',94,112.5,[[0,23.1],[1.5,23],[2.2,22],[3.1,21],[4,20],[5.1,19],[7.7,18],[10.5,17],[13.4,16.5],[13.5,13],[13,12],[12.2,10.5],[11.6,9.6],[4.6,9.2],[3.8,8],[3.2,7],[2.2,6],[.8,5],[0,4.8]],W);
+  k.loftX('砲塔区画の後端',[[91.8,-6,6,7.5,20.8],[94.1,-13.5,13.5,5.2,23]],{corner:.3,...W});
+  k.loftX('砲塔区画の前端',[[112.4,-13.5,13.5,5,23.1],[115.5,-11.2,11.2,6,22],[118,-8.4,8.4,8.6,19.5]],{corner:.3,...W});
+  k.box('背部砲塔台座',[95.7,16.4,3],[110.3,21.3,11.4],{corner:.12,...W},true);
+  k.box('脱出ポッド列',[94.5,8.5,8.6],[111.7,10.5,12.4],{corner:.2,skin:'plain',...D},true);
+  k.box('連装砲塔の支柱',[114.5,3.3,-3.9],[122.3,24.9,3.9],{corner:.2,...W});
+  k.box('前部背鰭',[121.5,16,-1.5],[142.4,22.6,1.5],{corner:.2,...W});
+  // Hammerhead: a barrel across the bow with red end bands and the cockpit slot.
+  const HEAD=[[0,137,149.2,7.3,20.8],[2.5,137,149,7.5,20.6],[5,137.3,148.6,8.2,20.2],[8,138,147.9,8.9,19.6],[10,138.6,147.5,9.6,19.4],[11,138.9,147.2,10,18.5],[12.3,140,146.6,11.2,16.8],[12.75,141.2,146.5,13,15]];
+  cr90RoundZ(s,'ハンマーヘッド（艦首区画）',HEAD.slice(1).map(([z,...r])=>[-z,...r]).concat(HEAD),W);
+  cr90RoundZ(s,'艦首両端の赤帯',[[9.4,138.3,147.74,9.27,19.58],[10,138.48,147.62,9.48,19.52],[11,138.78,147.32,9.88,18.62],[12.1,139.7,146.82,10.86,17.24]],R,true);
+  k.box('艦橋窓',[147.35,14.9,-4.6],[149.35,17,4.6],{corner:.15,skin:'plain',paint:CR90_THROAT});
+  // Machinery. Reactors fill the engine block, the spine, the radar drum and
+  // the turret section; each nozzle draws on the block reactor nearest it.
+  const gen=part('gen','主反応炉',[39.6,14,0],10.6);
+  const auxS=part('aux','機関補助炉',[39.4,14,13.9],7.2,{},true),auxP=s.parts.find(p=>p.id===auxS.tw);
+  for(const z of [-17,17])part('aux','分散補助炉',[39.4,21.8,z],5);
+  room('cargo','貨物区画（機関ブロック下部）',[39.4,6.6,16.3],[9,11,4.6],{},true);
+  part('aux','補助反応炉（背骨）',[50,14,0],8.4);
+  part('aux','補助反応炉（レーダー・ドラム）',[60.25,14.2,10.6],7,{},true);
+  part('aux','補助反応炉（砲塔区画）',[103,14,0],10.6);
+  for(const [y,z] of ENG)for(const sg of z>0?[-1,1]:[1]){const outer=Math.abs(z)>10;part('engine','亜光速機関',[6.4,y,sg*z],8,{dir:[-1,0,0],nozzleLength:12.8,bodyLength:2,bodyRadius:.4,reactor:outer?(sg>0?auxS.id:auxP.id):gen.id});}
+  room('pump','反応物供給設備',[39.4,21.8,0],[6,6,4]);
+  part('hyper','ハイパードライブ',[60.25,14.2,0],5,{length:10,dir:[0,0,1]});
+  part('inertial','慣性制御装置',[72.5,14,0],8,{length:12});
+  room('integrity','構造維持装置',[83,14,0],[8,8,8]);
+  part('fuel','反応物サイロ',[89.6,14,0],8,{length:4});
+  room('troops','兵員区画',[103,13.2,9.6],[16,5,4.8],{},true);
+  part('shield','シールド発生器',[143,14,6.5],7,{},true);
+  room('command','指揮所',[143.5,14,0],[7,5,6]);
+  // Armament (canon: two dual and four single turbolasers): light turrets on
+  // the turret blocks, the two dual turrets on the column ahead (dorsal and
+  // ventral) and four point-defence guns for fighters and missiles.
+  const gun=(kind,x,z,axis,scale,zone)=>{const up=AXES[axis],h=rayEnv(s,[x,axis===3?-500:500,z],mul(up,-1),{structOnly:true});if(!h)throw new Error('CR90の砲座がありません: '+x+','+z);const f={id:s.nextId++,k:kind,p:h.p,a:axis,ped:0,base:0,low:0,float:false,scale,chargeDepth:4,batteryZone:zone};mountFit(s,f);s.fits.push(f);return f;};
+  syncAviationSurfaces(s);s._lockedCache=cache(s);
+  try{withFrozenStructures(()=>{
+   for(const x of [99,107.2])for(const z of [-7.4,7.4])gun('ltl',x,z,2,.5,z<0?'port':'stbd');
+   gun('mtl',118.4,0,2,.44,'dorsal');gun('mtl',118.4,0,3,.44,'ventral');
+   for(const z of [-6.5,6.5])gun('pd',142.5,z,2,.45,'bow');
+   for(const z of [-16,16])gun('pd',39.4,z,3,.45,'stern');
+  });}finally{delete s._lockedCache;}
+  delete s._building;remount(s);return s;
+ }
+});
+}
+
+// ---- src/ships/dreadnaught.js ----
+// Dreadnaught-class heavy cruiser, measured from flannelandfilm's Sketchfab
+// model scaled to 600 m (x0.98620). Ship frame: x stern 0 -> bow 600, y up
+// from the keel of the main hull, z starboard.
+registerShipExample({
+ key:'dreadnaught',name:'ドレッドノート級重巡洋艦',side:'銀河帝国',role:'重巡洋艦',length:600,
+ author:'flannelandfilm (https://sketchfab.com/flannelandfilm)',
+ source:'https://sketchfab.com/3d-models/star-wars-dreadnaught-class-heavy-cruiser-14e6ad1266104dec96541b17000925f2',
+ license:'CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',
+ credit:'This work is based on "Star Wars Dreadnaught-Class Heavy Cruiser" (https://sketchfab.com/3d-models/star-wars-dreadnaught-class-heavy-cruiser-14e6ad1266104dec96541b17000925f2) by flannelandfilm (https://sketchfab.com/flannelandfilm) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',
+ note:'旧共和国の設計を帝国軍が改装した全長600 mの重巡洋艦。八角断面の船体を2 m毎の断面測定から28断面で合わせ、艦首下部の楕円体、舷側の砲塔ブリスター、腹部の機関区画、6基の機関ハウジングを構造物で再現。四連レーザー20基・ターボレーザー10基・レーザー砲10基、兵員3,000名、貨物9,000 t、TIE戦闘機1個中隊（12機）。',
+ build(){
+  const s=newShip({L:600,W:96.566,H:90.242,sec:'warship',plan:'rect',bowFree:true,stern:1,
+   stations:[[0,.7746,.20722,.00697,.97,.97,.9,.5],[.01767,.7746,.20722,.00697,.97,.97,.9,.5],[.01883,.7746,.47206,.13939,.845,.97,.455,.232],[.02667,.7746,.47206,.13939,.845,.97,.455,.232],[.02783,.7746,.71585,.0175,.845,.89,.319,.485],[.0309,.7746,.71585,.0175,.845,.89,.319,.485],[.032,.76927,.32936,.00663,.85211,.98,.05496,.48305],[.03333,.94473,.33074,.00732,.83898,.87978,.05496,.46924],[.04333,.98077,.33142,.00759,.75014,.79305,.05027,.43731],[.04667,.96781,.92353,.03824,.62644,.60826,.04255,.43637],[.19,.96678,.97457,-.0127,.68011,.68693,.02,.44862],[.26667,.86769,.82318,.01702,.69207,.75659,.04345,.42505],[.31,.69987,.65566,-.00628,.68985,.75983,.04373,.44786],[.35667,.76556,.6551,-.0067,.69354,.74928,.02057,.45374],[.36,.7664,.70716,-.03176,.69354,.68506,.02057,.48435],[.37667,.77352,.71799,-.03303,.6859,.67452,.02,.48922],[.40333,.76586,.61325,-.02545,.7399,.75519,.04788,.48224],[.61333,.76128,.70109,-.02,.69461,.74403,.04723,.48075],[.63,.76833,.63184,.01649,.68643,.76857,.04358,.40911],[.66,.77321,.63164,.0166,.68467,.76397,.04358,.40884],[.66333,.79922,.58944,.03769,.65036,.73863,.03659,.32874],[.67667,.82028,.66797,.07834,.6963,.62375,.04188,.29443],[.68,.82287,.50415,.1648,.7111,.98,.04188,.2],[.71333,.82423,.55544,.19045,.68793,.98,.02,.2],[.86667,.81029,.53139,.17893,.7164,.98,.02,.2],[.93667,.70861,.38687,.10616,.77618,.98,.02,.2],[.97333,.60168,.21541,.02042,.84234,.98,.02,.2],[1,.42669,.05399,-.05613,.96441,.98,.03793,.51014]]},'ドレッドノート級重巡洋艦');
+  s._building=true;s.paint='neutral';s.detail=1;s.keel='std';s.armor={hull:.35,cit:.3};
+  const k=shipKit(s),part=(kind,label,c,d,opt={},mirror=false)=>placePart(s,kind,c,d,{label,...opt},mirror),room=(kind,label,c,size,opt={},mirror=false)=>part(kind,label,c,30,{room:size,...opt},mirror);
+  // Six engine housings in three rows; the main hull's flanged stern starts at x 19.
+  k.box('中段機関ハウジング',[0,35.4,.7],[50.4,56.1,38.2],{corner:.16,skin:'service'},true);
+  k.box('上段機関ハウジング',[10.7,62.4,1],[53.4,80,32.6],{corner:.16,skin:'service'},true);
+  k.box('下段機関ハウジング',[16.7,13.4,1],[61.9,32,34.5],{corner:.16,skin:'service'},true);
+  // The bow overlaps a rounded lower hull, an ellipsoid measured slice by slice.
+  k.ellipsoid('艦首下部の円胴',[485.5,38.9,0],[182.6,70,67.7]);
+  // Flanking machinery modules hanging below the waist.
+  // Their walls lean outward with the hull's lower flank (a parallelogram section).
+  for(const [x0,x1] of [[182.4,212.1],[209.7,239.4],[236.9,265.9]])k.put('舷側の機関モジュール',[(x0+x1)/2,24.9,31.15],[x1-x0,13.7,40],{form:'trap',angles:[0,0,15.8,-15.8],skin:'service',paint:'#7c8478'},true);
+  // Weapon and shield blisters along the flanks.
+  for(const [c,size] of [[[304.1,59.3,31.2],[37.8,22.1,13.7]],[[344.1,47.4,30.4],[37.8,22.1,13.7]],[[378,59.3,29.3],[37.8,22.1,13.7]],[[340.2,67,23.8],[30.2,17.7,11]],[[424.2,49.6,35.5],[31.3,18.3,11.4]]])k.ellipsoid('舷側ブリスター',c,size,{paint:'#949ca4'},true);
+  // Armoured dorsal superstructure over the forward hull: the command decks.
+  k.box('背部装甲甲板',[290,72.4,-26],[345,74.6,26],{corner:.04});
+  k.loftX('背部装甲上部構造',[[342,-25.8,25.8,73.4,78.8],[355,-25.8,25.8,73.4,78.8],[355.5,-25.8,25.8,73.4,83.6],[396,-25.8,25.8,73.4,83.6]],{corner:.06,skin:'service',paint:'#808a7e'});
+  // Dorsal and ventral sensor masts.
+  k.box('背部センサー支柱',[223,72,-3],[229.5,84,3],{corner:.15});
+  k.box('腹部センサー支柱',[224.4,2,-3],[230.8,12,3],{corner:.15});
+  part('sensor','背部走査アンテナ',[226.3,89.4,0],13);
+  part('sensor','腹部走査アンテナ',[227.6,-3.3,0],13);
+  // Power: one main reactor amidships aft feeds twelve turbines, two per housing.
+  const r=part('gen','主反応炉',[112,44,0],49.5);
+  for(const [x,y,zs,d] of [[0,45.75,[10.4,29.1],17],[10.7,71.2,[8.9,24.7],15],[16.7,22.7,[9.4,26.1],16]])for(const z of zs){
+   const o=equipmentOptions('internalTurbine'),e=placePart(s,'engine',[x,y,z],d,{...o,label:'主推進機関',d,reactor:r.id,dir:[-1,0,0]},true);
+   for(const q of s.parts.filter(q=>q.id===e.id||q.id===e.tw)){resizeEngine(q,d);q.c[0]=x-1+q.nozzleLength/2;}
+  }
+  for(const sg of [-1,1]){
+   part('shield','舷側シールド発生器',[300,44,sg*14],13.4);
+   part('fuel','反応物サイロ',[150,44,sg*16],12,{dir:[0,1,0],length:30});
+   room('troops',(sg<0?'左舷':'右舷')+'兵員区画（1,500名）',[440,52,sg*18],[62,16,18.2]);
+   room('cargo',(sg<0?'左舷':'右舷')+'中央貨物倉',[269,44,sg*16],[42,18,24]);
+  }
+  room('pump','反応物供給・冷却区画',[150,25,0],[12,10,10]);
+  room('crew','乗員居住区画',[152.5,70,0],[35,28,16]);
+  part('hyper','主ハイパードライブ（クラス2）',[190,44,0],18,{length:20.6,dir:[1,0,0]});
+  part('inertial','主慣性補償装置',[226,52,0],22,{length:38,dir:[1,0,0]});
+  room('integrity','縦通構造維持幹線',[520,62,0],[60,16,12]);
+  room('cargo','前部腹部貨物倉',[520,40,0],[60,30,18]);
+  room('command','背部装甲指揮甲板（艦橋）',[372,72,0],[40,30,12]);
+  room('service','格納庫前方の航空整備・補給区画',[384.5,30.25,0],[25,44,16.5]);
+  const bay=room('hangar','腹部戦闘機格納庫（TIE 1個中隊）',[347,32.2,0],[50,44,38.4],{airRole:'mixed'});openBay(s,bay,'bottom','ray');
+  delete s._building;
+  // Armament (Legends): 20 quad laser cannons (6 bow, 7 port, 7 starboard),
+  // 10 turbolaser cannons in the flank blisters, 10 laser cannons (5 bow, 5 stern).
+  syncAviationSurfaces(s);s._lockedCache=cache(s);
+  try{withFrozenStructures(()=>{
+   const up=(k,x,z,opt={})=>{const h=rayEnv(s,[x,400,z],[0,-1,0],{structOnly:true});if(!h)throw new Error('作例の砲座がありません: '+x+','+z);const f={id:s.nextId++,k,p:h.p,a:2,ped:0,base:0,low:0,float:false,...opt};mountFit(s,f);s.fits.push(f);return f;};
+   const side=(k,x,y,sg,opt={})=>{const h=rayEnv(s,[x,y,sg*300],[0,0,-sg],{structOnly:true});if(!h)throw new Error('作例の舷側砲座がありません: '+x+','+y);const f={id:s.nextId++,k,p:h.p,a:sg>0?4:5,ped:0,base:0,low:0,float:false,...opt};mountFit(s,f);s.fits.push(f);return f;};
+   for(const x of [445,482,519])for(const sg of [-1,1])up('quad200',x,sg*18,{batteryZone:'bow'});
+   for(const sg of [-1,1]){const zone=sg<0?'port':'stbd';for(const [x,z] of [[44,22],[80,22],[118,22],[154,22],[278,22],[312,15],[408,22]])up('quad200',x,sg*z,{batteryZone:zone});}
+   for(const sg of [-1,1])for(const [x,y] of [[304.1,59.3],[344.1,47.4],[378,59.3],[340.2,67],[424.2,49.6]])side('htl',x,y,sg,{batteryZone:sg<0?'port':'stbd'});
+   for(const [x,z] of [[560,0],[545,-14],[545,14],[580,-8],[580,8]])up('pd',x,z,{batteryZone:'bow'});
+   for(const [x,z] of [[30,-16],[30,16],[44,0],[64,-24],[64,24]])up('pd',x,z,{batteryZone:'stern'});
+  });}finally{delete s._lockedCache;}
+  adoptEquipment(s,true);remount(s);return s;
+ }
+});
+
+// ---- src/ships/gozanti.js ----
+// Imperial Gozanti-class cruiser, measured from "Star Wars: Gozanti-Class
+// Cruiser" by Daniel (DanielAndersson) on Sketchfab, CC BY 4.0. Ship frame:
+// x from the stern (0) to the bow (63.8 m), y up from the lowest point, z to
+// starboard. The hull is a single rod, the dorsal spine and nose; the delta
+// wing, engine pods, docking clamps and fittings are ordinary structures.
+{
+const GZ_GREY='#8c9297',GZ_LIGHT='#a3a8ac',GZ_DARK='#4b5258',GZ_GLASS='#2b3238';
+// A prism along x with an exact cross-section polygon [[z,y],...], split into
+// pieces no longer than its height for the longitudinal-strength bins.
+function gzPrismX(s,label,x0,x1,pts,opt={}){
+ const ys=pts.map(p=>p[1]),zs=pts.map(p=>p[0]),y0=Math.min(...ys),y1=Math.max(...ys),z0=Math.min(...zs),z1=Math.max(...zs),cy=(y0+y1)/2,cz=(z0+z1)/2;
+ // Pieces stay at least 2 m long (the loader's minimum structure size).
+ const n=Math.max(1,Math.min(Math.ceil((x1-x0)/(y1-y0)-1e-9),Math.floor((x1-x0)/2))),dx=(x1-x0)/n;
+ for(let i=0;i<n;i++)placePart(s,'struct',[x0+dx*(i+.5),cy,cz],[y1-y0,z1-z0,dx],{label,skin:'armor',form:'outline',outline:pts.map(([z,y])=>[(cy-y)/(y1-y0),(z-cz)/(z1-z0)]),corner:0,taper:0,pitch:-90,...opt},false);
+}
+registerShipExample({
+ key:'gozanti',name:'ゴザンティ級巡洋艦',side:'銀河帝国',role:'巡洋艦（輸送・護衛）',length:63.8,
+ title:'Star Wars: Gozanti-Class Cruiser',author:'Daniel',authorUrl:'https://sketchfab.com/DanielAndersson',
+ source:'https://sketchfab.com/3d-models/star-wars-gozanti-class-cruiser-6a587e545b1c48bea95480b49458ac63',license:'CC-BY-4.0',
+ credit:'This work is based on "Star Wars: Gozanti-Class Cruiser" (https://sketchfab.com/3d-models/star-wars-gozanti-class-cruiser-6a587e545b1c48bea95480b49458ac63) by Daniel (https://sketchfab.com/DanielAndersson) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',
+ note:'63.8 m・三角翼と2基の主機・腹部のドッキング・クランプ。背骨と艦首を1本の船体とし、外形は原型モデルから実測した構造物',
+ // The model's TIE fighters / walker ride on external clamps; the yard counts
+ // only internal hangar volume, so none are embarked by default.
+ build(){
+  // Rod hull: the dorsal spine, a trapezoid narrowing upwards, widening into
+  // the nose. Rows [x, half width, y bottom, y top]; deck .55 of the keel.
+  const ROD=[[0,1,6.6,9],[3,1.2,3.7,9],[13,1.6,2.2,9.8],[15,2,4,10.4],[20,3.3,4.5,9.8],[44,3.9,4.5,9.8],[46.5,4.85,3.8,9.8],[50,4.1,3.8,9.4],[54,3.2,3.8,9.1],[58,2.5,2.2,8.9],[62,1.8,1.5,8.4],[63.8,1.8,1.5,6.2]];
+  const W=20,H=10,stations=ROD.map(([x,hw,y0,y1])=>[x/63.8,hw*2/W,(y1-y0)/H,(y0+y1)/2/H-.5,.55,.98,.1,.2]);
+  const s=newShip({L:63.8,W,H,sec:'warship',plan:'rect',bowW:1,bowH:1,stern:1,keel:'std',bowFree:true,deckWidth:.55,keelWidth:.98,belt:.1,chineHeight:.2,stations},'ゴザンティ級巡洋艦');
+  s._building=true;s.paint='neutral';s.detail=1;s.keel='std';s.armor={hull:.1,cit:.05};s.shieldTarget=.45;
+  const k=shipKit(s),part=(kind,label,c,d,opt={},mirror=false)=>placePart(s,kind,c,d,{label,...opt},mirror),room=(kind,label,c,size,opt={},mirror=false)=>part(kind,label,c,30,{room:size,...opt},mirror);
+  const G={paint:GZ_GREY},L={paint:GZ_LIGHT},D={paint:GZ_DARK};
+  // Delta wing: flat upper deck with a V-shaped ventral keel beneath it.
+  k.slab('三角翼',[[14.4,-14.7],[18,-14.7],[30,-9.9],[46.6,-9.75],[46.6,9.75],[30,9.9],[18,14.7],[14.4,14.7]],2.75,4.75,{skin:'armor',...G});
+  // Ventral V keel under the wing, three planform steps measured from the model.
+  for(const [x0,x1,o] of [[15,24,12],[24,32,10.7],[32,46.6,9.7]]){const half=[[0,3.4],[o,3.4],[o,3],[7.5,2.2],[3.6,1.4],[0,1.4]];gzPrismX(s,'腹部竜骨',x0,x1,half.concat(half.slice(1,-1).reverse().map(([z,y])=>[-z,y])),L);}
+  k.loftX('艦首下部竜骨',[[45.5,-2.8,2.8,.8,4],[54,-2.4,2.4,1.2,4],[58,-2.4,2.4,1.5,4],[60,-1.6,1.6,1.8,3.6]],{corner:.25,...G});
+  // Engine pods at the wing's trailing corners, and the tail boom's nozzle.
+  k.loftX('主機ポッド',[[14.6,9.7-2.65,9.7+2.65,1,6.3],[21.3,9.7-2.55,9.7+2.55,1.1,6.2],[22.6,9.7-1.6,9.7+1.6,2,5.3]],{round:true,...G},true);
+  for(const sg of [-1,1])placePart(s,'struct',[14,3.65,sg*9.7],[5.6,5.6,2],{label:'主機ノズル外筒',form:'arc',arcInner:.82,arcStart:0,arcSweep:360,pitch:-90,skin:'plain',...D},false);
+  // Dorsal fittings: gun tower, sensor dish, side blocks ahead of the wing root.
+  k.box('背部砲塔基部',[13.6,9.4,-1],[17.2,11.4,1],{corner:.2,...D});
+  k.box('腹部砲塔基部',[13.6,.4,-1],[17.2,2.4,1],{corner:.2,...D});
+  k.box('センサー皿の支柱',[25.9,8.6,1.5],[27.9,10.6,3.5],{corner:.2,skin:'plain',...D});
+  k.loftX('センサー皿',[[26.9,1,4.1,10,12.8],[28.9,1,4.1,10,12.8]],{round:true,skin:'plain',...D});
+  k.box('前部側方区画',[41.8,5.2,3],[47,8.2,5.85],{corner:.12,...G},true);
+  k.loftX('艦首の肩部',[[46.4,-4.85,4.85,3.8,7.6],[50,-4.1,4.1,3.8,7.5],[54,-3.2,3.2,3.8,7]],{corner:.06,...G});
+  // Docking clamps for carried fighters beneath the wing.
+  for(const z of [-5.8,5.8])k.box('ドッキング・クランプ',[30.6,.3,z-1],[40.4,2.3,z+1],{corner:.15,skin:'plain',...D});
+  k.box('クランプ支持架',[30,1.5,-6.8],[41,3.5,6.8],{corner:.1,skin:'plain',...D});
+  k.loftX('艦橋窓',[[52.4,-3.45,3.45,5.4,7.4],[62.7,-1.9,1.9,5.4,7.4]],{corner:.2,skin:'plain',paint:GZ_GLASS});
+  // Machinery.
+  const gen=part('gen','主反応炉',[34,4.4,0],5.6);
+  part('aux','補助反応炉',[24,5.4,0],5.2);
+  for(const sg of [-1,1])part('engine','主機',[17.9,3.65,sg*9.7],4.4,{dir:[-1,0,0],nozzleLength:9,bodyLength:2,bodyRadius:.4,reactor:gen.id});
+  part('aux','補助反応炉（艦首）',[51.4,6.5,0],4.2);
+  part('inertial','慣性制御装置',[28.9,6.8,0],4,{length:3.5,dir:[1,0,0]});
+  room('pump','反応物供給設備',[39.5,7.35,0],[4,4,4]);
+  part('fuel','反応物サイロ',[44,3.3,0],4,{length:4,dir:[0,0,1]});
+  part('shield','シールド発生器',[40,3.3,0],4);
+  room('integrity','構造維持装置',[43.9,7.4,0],[4,4,4]);
+  part('hyper','ハイパードライブ',[48.2,6.4,0],4,{length:2,dir:[1,0,0]});
+  room('command','艦橋',[55.5,5.6,0],[4,4,4]);
+  // Armament: twin dorsal and ventral laser turrets aft, point defence forward.
+  const gun=(kind,x,z,axis,scale,zone)=>{const up=AXES[axis],h=rayEnv(s,[x,axis===3?-100:100,z],mul(up,-1),{structOnly:true});if(!h)throw new Error('ゴザンティ級の砲座がありません: '+x+','+z);const f={id:s.nextId++,k:kind,p:h.p,a:axis,ped:0,base:0,low:0,float:false,scale,chargeDepth:1.5,batteryZone:zone};mountFit(s,f);s.fits.push(f);return f;};
+  syncAviationSurfaces(s);s._lockedCache=cache(s);
+  try{withFrozenStructures(()=>{
+   gun('ltl',15.4,0,2,.3,'dorsal');gun('ltl',15.4,0,3,.3,'ventral');
+   for(const z of [-7,7])gun('pd',36,z,2,.35,'wing');
+   gun('pd',52,0,2,.35,'bow');gun('pd',50,0,3,.35,'bow');
+  });}finally{delete s._lockedCache;}
+  delete s._building;remount(s);return s;
+ }
+});
+}
+
+// ---- src/ships/gr75.js ----
+// GR-75 medium transport, measured from "Star Wars: GR-75 Medium Transport"
+// by Daniel (DanielAndersson) on Sketchfab, CC BY 4.0. Ship frame: x from
+// the stern (0) to the bow (90 m), y up from the lowest point, z to starboard.
+// The armoured upper shell is an ordinary fitted hull (station table); the
+// open cargo cradle beneath it, the engines and the cockpit are structures.
+{
+const GR_HULL='#b9b6ad',GR_DARK='#4a5056',GR_RACK='#3b4146',GR_THROAT='#2b3238';
+const GR_CARGO={red:'#9b3d39',green:'#4b6a3f',brown:'#8a5a33',grey:'#8e9396'};
+// A prism along x with an exact cross-section polygon [[z,y],...], split into
+// pieces no longer than its height for the longitudinal-strength bins.
+// zscale(x) narrows a piece's section towards the centreline (bilge taper).
+function grPrismX(s,label,x0,x1,pts,opt={},mirror=false,zscale=null){
+ const n=Math.max(1,Math.ceil((x1-x0)/(Math.max(...pts.map(p=>p[1]))-Math.min(...pts.map(p=>p[1])))-1e-9)),dx=(x1-x0)/n;let first=null;
+ for(let i=0;i<n;i++){
+  const k=zscale?zscale(x0+dx*(i+.5)):1,q=pts.map(([z,y])=>[z*k,y]);
+  const ys=q.map(p=>p[1]),zs=q.map(p=>p[0]),y0=Math.min(...ys),y1=Math.max(...ys),z0=Math.min(...zs),z1=Math.max(...zs),cy=(y0+y1)/2,cz=(z0+z1)/2;
+  const p=placePart(s,'struct',[x0+dx*(i+.5),cy,cz],[y1-y0,z1-z0,dx],{label,skin:'armor',form:'outline',outline:q.map(([z,y])=>[(cy-y)/(y1-y0),(z-cz)/(z1-z0)]),corner:0,taper:0,pitch:-90,...opt},mirror);first=first||p;
+ }
+ return first;
+}
+registerShipExample({
+ key:'gr75',name:'GR-75中型輸送船',side:'反乱同盟',role:'輸送船',length:90,
+ title:'Star Wars: GR-75 Medium Transport',author:'Daniel',authorUrl:'https://sketchfab.com/DanielAndersson',
+ source:'https://sketchfab.com/3d-models/star-wars-gr-75-medium-transport-071b158d02c044ee9b431aeb28b85b6a',license:'CC-BY-4.0',
+ credit:'This work is based on "Star Wars: GR-75 Medium Transport" (https://sketchfab.com/3d-models/star-wars-gr-75-medium-transport-071b158d02c044ee9b431aeb28b85b6a) by Daniel (https://sketchfab.com/DanielAndersson) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',
+ note:'90 m・装甲殻の下に開いた貨物架。上部殻を通常船体（断面表）とし、貨物架・機関・操縦室は原型モデルから実測した構造物',
+ build(){
+  // Upper shell: a domed section (warship section with a full-width keel and
+  // a narrow deck) measured every 4 m; its underside stays flat at y 6.6.
+  const SHELL=[[0,3.43,7.15,8.95],[5,5.34,6.5,8.93],[9,6.36,6.54,8.92],[13,7.11,6.62,9.3],[17,7.91,6.62,9.88],[21,8.7,6.64,10.44],[25,9.4,6.66,11.05],[29,10.21,6.68,11.6],[33,10.91,6.67,12.19],[37,11.74,6.67,12.77],[41,12.43,6.67,13.27],[45,12.73,6.68,13.91],[49,13.24,6.68,14.31],[53,13.68,6.68,14.64],[57,13.78,6.68,14.71],[61,13.58,6.69,14.59],[65,13.52,6.6,14.5],[69,12.85,6.79,14.13],[73,12.2,6.75,13.81],[77,10.1,7.4,13.06],[81,8.89,7.8,12.43],[85,6.62,7.84,10.98],[88,4.6,7.7,9.8],[90,2.2,7.9,9]];
+  const W=27.6,H=10,stations=SHELL.map(([x,hw,y0,y1])=>[x/90,hw*2/W,(y1-y0)/H,(y0+y1)/2/H-.5,.36,.97,.12,.2]);
+  const s=newShip({L:90,W,H,sec:'warship',plan:'rect',bowW:1,bowH:1,stern:1,keel:'std',bowFree:true,deckWidth:.36,keelWidth:.97,belt:.12,chineHeight:.2,stations},'GR-75中型輸送船');
+  s._building=true;s.paint='neutral';s.detail=1;s.keel='std';s.armor={hull:.1,cit:.05};s.shieldTarget=1;
+  const k=shipKit(s),part=(kind,label,c,d,opt={},mirror=false)=>placePart(s,kind,c,d,{label,...opt},mirror),room=(kind,label,c,size,opt={},mirror=false)=>part(kind,label,c,30,{room:size,...opt},mirror);
+  const P={paint:GR_HULL},D={paint:GR_DARK};
+  // Dorsal engine ridges along the shell and the raised cockpit pod.
+  k.loftX('背部上部構造',[[6,-2.8,2.8,7.8,13.6],[9,-2.8,2.8,8,14.4],[30,-2.8,2.8,9.2,14.6],[40,-2.5,2.5,10.2,14.6],[46,-1.2,1.2,12.6,14.6]],{corner:.18,...P});
+  for(const [z,y1,x1] of [[4.6,12.4,40],[7.2,11.2,36]])k.loftX('背部機関フィン',[[12.4,z-1.1,z+1.1,7.4,y1],[16,z-1.15,z+1.15,7.6,y1],[x1-6,z-1,z+1,9.4,y1+.4],[x1,z-.5,z+.5,11,y1+.1]],{corner:.3,...P},true);
+  k.box('操縦室の支柱',[18.4,13.7,-1],[21.4,15.7,1],{corner:.2,skin:'plain',...D});
+  k.ellipsoid('操縦室',[20.2,16.3,0],[7,4,4.2],{skin:'plain',...P});
+  k.loftX('操縦室の窓',[[21.1,-1.3,1.3,15.85,17.85],[23.1,-1.1,1.1,16,17.7]],{corner:.3,skin:'plain',paint:GR_THROAT});
+  // Ventral engine housing and the three ventral nozzles' sleeves.
+  k.loftX('腹部機関収容部',[[13,-6.3,6.3,2.6,6.6],[20,-6.4,6.4,3.2,7.2],[25,-7.2,7.2,3.6,7.4],[30,-7.2,7.2,2.5,7.4],[38,-7.2,7.2,4,7.2],[42.3,-6,6,5.5,7]],{corner:.25,skin:'service',...P});
+  // Cargo cradle: dark rack between the curved bilge walls, with containers.
+  k.loftX('貨物架',[[39.3,-7.4,7.4,.6,6.8],[74,-7.4,7.4,.55,6.8],[77,-7,7,2.7,7],[81,-6,6,4.5,7.4],[86.9,-4,4,6.1,7.8]],{corner:.04,skin:'plain',paint:GR_RACK});
+  const BILGE=[[5.6,.3],[7.5,.8],[9.3,1.8],[10.8,3],[12,4.2],[12.8,5.3],[13.5,6.8],[12.8,6.8],[12.2,5.4],[11.4,4.3],[10.2,3.2],[8.8,2.1],[7.2,1.3],[5.6,.95]];
+  grPrismX(s,'下部舷側殻',40,73,BILGE,P,true,x=>x<52?.83+.17*(x-40)/12:x>64?1-.12*(x-64)/9:1);
+  grPrismX(s,'下部舷側殻（後部）',27,40,[[7,1.6],[8.6,2.5],[9.6,3.6],[10.4,4.8],[11.2,6.8],[10.6,6.8],[9.9,4.9],[9.1,3.8],[8.1,2.8],[6.8,2.1]],P,true,x=>.86+.1*(x-27)/13);
+  grPrismX(s,'下部舷側殻（前部）',73,77,[[7.6,1.6],[9.2,2.4],[10.4,3.6],[11.2,5],[11.9,6.8],[11.2,6.8],[10.6,5.1],[9.8,3.8],[8.8,2.9],[7.4,2.2]],P,true,()=>.93);
+  for(const [x0,x1,y0,y1,z0,z1,c] of [[43.1,46,0.4,3.1,-1.7,1.7,'grey'],[46.2,48.8,2.9,4.9,7.9,10.5,'red'],[46.4,49.9,4.1,6.1,-11.6,-9.6,'green'],[48.9,52.7,2.8,7.5,2.7,10.5,'grey'],[51.7,54.3,2.9,4.9,-10.5,-7.9,'brown'],[54.3,57.8,0.8,2.8,-4.6,4.6,'green'],[57.55,59.55,2.65,4.65,-7.3,-2.7,'red'],[59.3,62,0.4,3.1,-1.7,4.7,'brown'],[62.4,67.6,2.8,4.8,3.7,10.5,'brown'],[65.2,67.6,2.8,4.8,-10.5,-7.9,'red'],[67.6,70.2,0.4,3.1,-4.7,4.8,'red'],[69.85,71.85,5.45,7.45,-9.8,9.8,'brown'],[71.9,74.4,0.4,3,-4.7,-0.3,'green'],[73.1,75.6,2.8,4.8,-6.2,6.2,'grey'],[76.2,79.8,3.4,6.4,-6.6,6.6,'green'],[80,85.2,5.95,7.95,-3.8,3.8,'brown']])
+   k.box('貨物コンテナ',[x0,y0,z0],[x1,y1,z1],{corner:.05,skin:'plain',paint:GR_CARGO[c]});
+  // Machinery. The aft reactor straddles the shell and the engine housing and
+  // feeds every nozzle; two forward reactors carry the shields and hotel load.
+  const gen=part('gen','主反応炉',[30.5,7.3,0],8.2);
+  part('aux','補助反応炉',[47,10.2,0],6.8);
+  part('aux','補助反応炉（前部）',[55,10.6,0],7.9);
+  part('aux','補助反応炉（貨物架）',[66.5,3.7,0],5.6);
+  for(const [x,y,z,d,l] of [[8,3.7,0,4.4,15],[11,4.5,4.4,4,14]])for(const sg of z>0?[-1,1]:[1]){
+   placePart(s,'struct',[x+1.6,y,sg*z],[d+.9,d+.9,3.2],{label:'機関ノズル外筒',form:'arc',arcInner:.84,arcStart:0,arcSweep:360,pitch:-90,skin:'plain',...D},false);
+   part('engine','亜光速機関',[x+l/2,y,sg*z],d,{dir:[-1,0,0],nozzleLength:l,bodyLength:2,bodyRadius:.4,reactor:gen.id});
+  }
+  // Blue running lights on the dorsal fins' aft faces (the model's glow panels).
+  for(const z of [4.6,7.2])k.box('背部フィンの航行灯',[11.9,8.4,z-1],[13.9,10.4,z+1],{corner:.25,skin:'plain',paint:'#5f8ff0'},true);
+  room('pump','反応物供給設備',[38.5,9.5,0],[5,6,4]);
+  room('integrity','構造維持装置',[47,9,6.6],[8,4,4],{},true);
+  part('fuel','反応物サイロ',[63,10.4,0],5.4,{length:8,dir:[1,0,0]});
+  part('shield','シールド発生器',[64,9.2,6],5.6,{},true);
+  part('hyper','ハイパードライブ',[71,10.2,0],4,{length:2,dir:[1,0,0]});
+  part('inertial','慣性制御装置',[72.6,3.8,0],5.4,{length:5.2,dir:[1,0,0]});
+  room('cargo','貨物区画（貨物架）',[52,3.7,0],[22,13,5]);
+  room('command','操縦・指揮区画',[23,9.2,0],[4,4,4]);
+  // Four twin laser cannons for close defence.
+  const gun=(kind,x,z,axis,scale,zone)=>{const up=AXES[axis],h=rayEnv(s,[x,axis===3?-200:200,z],mul(up,-1),{structOnly:true});if(!h)throw new Error('GR-75の砲座がありません: '+x+','+z);const f={id:s.nextId++,k:kind,p:h.p,a:axis,ped:0,base:0,low:0,float:false,scale,chargeDepth:2,batteryZone:zone};mountFit(s,f);s.fits.push(f);return f;};
+  syncAviationSurfaces(s);s._lockedCache=cache(s);
+  try{withFrozenStructures(()=>{for(const x of [58,74])for(const z of [-6,6])gun('pd',x,z,2,.45,x<70?'dorsal':'bow');});}finally{delete s._lockedCache;}
+  delete s._building;remount(s);return s;
+ }
+});
+}
+
+// ---- src/ships/heraklon.js ----
+// Heraklon-class transport (Star Wars: The Old Republic), measured from
+// Daniel's Sketchfab model at its own metric scale (272.4 m). Ship frame:
+// x stern 0 -> bow 272.4, y up from the keel, z starboard. The hull is a
+// single slender rod hidden in the spine; every visible body is a structure.
+registerShipExample({
+ key:'heraklon',name:'ヘラクロン級輸送艦',side:'銀河共和国',role:'輸送艦（貨物・旅客）',length:272.4,
+ author:'Daniel (https://sketchfab.com/DanielAndersson)',
+ source:'https://sketchfab.com/3d-models/star-wars-heraklon-class-transport-c1d686a791194ab680524094813cde17',
+ license:'CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',
+ credit:'This work is based on "Star Wars: Heraklon-class Transport" (https://sketchfab.com/3d-models/star-wars-heraklon-class-transport-c1d686a791194ab680524094813cde17) by Daniel (https://sketchfab.com/DanielAndersson) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',
+ note:'サドン・シップライト社のフリゲート型輸送艦。旧共和国が広く用いた非武装の貨客船。細い棒状の船体を背骨に、幅広の機関区画、艦尾の艦橋楼、細い連結部、前部の大型貨物区画をすべて構造物で組み、左舷のドッキングベイにシャトル2機。旅客450名（三段寝台）、貨物倉が艦内の大半を占める。',
+ build(){
+  // [t, width, depth, centre]: a 10 m rod at y 37 that drops into the engine
+  // block at the stern and tapers out inside the sloped bow.
+  const s=newShip({L:272.4,W:20,H:30,sec:'ellipse',plan:'rect',bowFree:true,stern:1,
+   stations:[[0,.05,.0333,.0333],[.015786,.5,.2667,.0333],[.047724,.5,.3333,.7333],[.954479,.5,.3333,.7333],[1,.025,.0167,.35]]},'ヘラクロン級輸送艦');
+  s._building=true;s.paint='neutral';s.detail=1;s.keel='light';s.armor={hull:.15,cit:0};
+  const k=shipKit(s),part=(kind,label,c,d,opt={},mirror=false)=>placePart(s,kind,c,d,{label,...opt},mirror),room=(kind,label,c,size,opt={},mirror=false)=>part(kind,label,c,30,{room:size,...opt},mirror);
+  const dark='#454a50',yellow='#b8a14a';
+  // ---- Stern engine block: a broad V-bottomed body under a shallow roof.
+  k.put('艦尾機関区画（V字船底）',[34.75,14.25,0],[69.5,102.6,15.5],{form:'trap',angles:[0,0,70,70],roll:180,skin:'service'});
+  k.put('艦尾機関区画の上甲板',[34.75,24.05,0],[69.5,102.6,4.1],{form:'trap',angles:[0,0,70,70]});
+  // Bridge castle with its sloped aft face, hip roof and windowed cabin.
+  k.loftX('艦尾艦橋楼',[[4.8,-11.5,11.5,25.2,25.6],[12,-11.5,11.5,25.2,54.5],[49,-11.5,11.5,25.2,54.5],[49.8,-11.5,11.5,25.2,53.7]],{corner:.04});
+  k.put('艦橋楼の寄棟屋根',[30.9,57.1,0],[37.8,23,5.7],{form:'trap',angles:[54.5,50,33,33]});
+  const cabin=k.put('艦橋キャビン',[31.65,63.85,0],[22.7,14,8.7],{form:'trap',angles:[19,19,8.5,8.5],skin:'service'});
+  k.put('艦橋楼の基部補強',[27.5,27.85,0],[43,34,5.3],{form:'trap',angles:[0,0,44,44]});
+  // ---- Narrow spine between the engine block and the cargo section.
+  k.loftX('後部連結胴',[[46,-8.8,8.8,25.2,52.9],[113.5,-8.8,8.8,25.2,52.9]],{corner:.1});
+  k.loftX('連結胴の下部竜骨',[[65.7,-5.15,5.15,20.4,25.6],[169.7,-5.15,5.15,12.7,25.6]],{corner:.1,paint:dark});
+  k.loftX('前部連結胴',[[113.5,-6.1,6.1,23,50.2],[137.5,-6.1,6.1,23,50.2]],{corner:.08,paint:dark});
+  k.loftX('連結胴の黄色い接続部',[[119.8,-5.4,5.4,19.7,37.6],[137,-8.6,8.6,19.7,37.6]],{corner:.06,paint:yellow});
+  k.loftX('貨物区画下の黄色い接続部',[[137,-8.6,8.6,19.7,27.5],[168,-11.5,11.5,19.7,27.5]],{corner:.06,paint:yellow});
+  // ---- Forward cargo and passenger section: a tapering tower over a lower hold.
+  k.put('前部貨物区画・後端',[148.4,38.45,0],[23.2,34.8,28.5],{form:'trap',angles:[0,0,11.8,11.8]});
+  k.put('前部貨物区画・主部',[181.5,40.95,0],[43,45,33.5],{form:'trap',angles:[8.5,6.8,13.1,13.1]});
+  k.put('前部貨物区画・中部',[220,39.1,0],[34,35.4,29.8],{form:'trap',angles:[0,0,11.8,11.8]});
+  k.put('前部貨物区画・艦首',[254.7,39.5,0],[35.4,35.8,30.6],{form:'trap',angles:[0,24.6,12.4,12.4]});
+  k.box('艦首の展望キャビン',[246.8,54.4,-10.6],[261.9,59.4,10.6],{corner:.1,skin:'service'});
+  k.box('貨物区画の中央帯',[167,18.1,-13.25],[268.5,24.5,13.25],{corner:.04,paint:dark});
+  k.put('下部貨物倉・後部',[183.95,9.55,0],[39.1,47.2,17.9],{form:'trap',angles:[6.7,0,10.4,10.4],roll:180});
+  k.put('下部貨物倉・前部',[226.75,11.15,0],[46.5,36.4,14.7],{form:'trap',angles:[0,0,11.5,11.5],roll:180});
+  k.loftX('下部貨物倉・艦首',[[250,-17.9,17.9,5.2,18.5],[260,-17.5,17.5,7.4,18.5],[266,-17.3,17.3,9.8,18.5],[270,-17.1,17.1,12.7,18.5],[272,-17.1,17.1,16.5,18.5]],{corner:.12});
+  // ---- Machinery. Eight turbines across the rear face of the engine block.
+  const r=part('gen','主反応炉',[30,18.6,0],22.6);
+  for(const [z,y,d] of [[12,16.5,9],[21.5,18.3,9],[30.5,20,8],[38.2,21.5,6]]){
+   const o=equipmentOptions('exposedTurbine'),e=placePart(s,'engine',[0,y,z],d,{...o,label:'艦尾主推進機関',d,reactor:r.id,dir:[-1,0,0]},true);
+   for(const q of s.parts.filter(q=>q.id===e.id||q.id===e.tw)){resizeEngine(q,d,engineBaseline('exposed',d,'length'));q.c[0]=-.5+q.nozzleLength/2;}
+  }
+  part('shield','偏向シールド発生器',[58,15.2,0],11.8);
+  part('hyper','ハイパードライブ（クラス2）',[90,37,0],8,{length:18,dir:[1,0,0]});
+  part('fuel','反応物サイロ',[58,18,-24],7,{dir:[1,0,0],length:12},true);
+  room('pump','反応物供給設備',[44,16,-18],[6,5,5],{},true);
+  part('inertial','慣性補償装置',[60,40,0],10.5,{length:26,dir:[1,0,0]});
+  room('integrity','構造維持装置',[124,37,0],[14,10,11]);
+  room('troops','旅客・兵員区画（三段寝台450名）',[30,40.5,0],[32,18,9.4]);
+  room('crew','乗員居住区画',[30,49.5,0],[30,18,6]);
+  room('cargo','主貨物倉（右舷）',[190.25,37.5,11],[15.5,10,22]);
+  room('service','シャトル整備・補給区画',[174.5,37.5,11],[15,10,20]);
+  room('cargo','中部貨物倉',[220,36.5,0],[30,24,21]);
+  room('cargo','艦首貨物倉',[248,37,0],[18,24,20]);
+  room('cargo','下部貨物倉（後部）',[184,9.5,0],[34,36,13]);
+  room('cargo','下部貨物倉（前部）',[226,11.5,0],[34,28,11]);
+  const bay=room('hangar','左舷ドッキングベイ（シャトル2機）',[182,38.6,-5.6],[32,22,20],{airRole:'mixed'});openBay(s,bay,'port','ray');
+  delete s._building;
+  // Bridge pod on the windowed front of the cabin.
+  {const h=rayPart([cabin.c[0]+40,cabin.c[1],0],[-1,0,0],cabin);if(h){const f=placeFit(s,'podBridge',h.p,h.n,0,false);if(f.fit){f.fit.width=10;f.fit.height=4;mountFit(s,f.fit);}}}
+  adoptEquipment(s,true);remount(s);return s;
+ }
+});
+
+// ---- src/ships/lucrehulk.js ----
+// Lucrehulk-class battleship (droid control ship), measured from "Lucrehulk" by
+// Professor E12^2 on Sketchfab (CC BY 4.0). Ship frame: x from the stern (0)
+// to the bow (3,170 m), y up from the lowest point, z to starboard. The hull is
+// the core sphere (elliptical sections; a thin keel line runs fore and aft of
+// it). The C-shaped ring is an arc structure open at the bow; the engine block,
+// the spine to the core, the three drive nacelles, the forward arm claws and
+// the keel spike under the core are ordinary structures.
+{
+const LUCR={"W":640.0,"H":660.0,"st":[[0.0,0.005,0.005,0.1258],[0.40418,0.005,0.005,0.1258],[0.40618,0.0596,0.0585,0.1258],[0.41633,0.4328,0.4249,0.1258],[0.42648,0.5957,0.5849,0.1258],[0.43663,0.709,0.6962,0.1258],[0.44678,0.7942,0.7799,0.1258],[0.45692,0.8598,0.8442,0.1258],[0.46707,0.9099,0.8935,0.1258],[0.47722,0.9471,0.9299,0.1258],[0.48737,0.9728,0.9552,0.1258],[0.49752,0.9878,0.97,0.1258],[0.50767,0.9928,0.9748,0.1258],[0.51781,0.9878,0.97,0.1258],[0.52796,0.9728,0.9552,0.1258],[0.53811,0.9471,0.9299,0.1258],[0.54826,0.9099,0.8935,0.1258],[0.55841,0.8598,0.8442,0.1258],[0.56856,0.7942,0.7799,0.1258],[0.5787,0.709,0.6962,0.1258],[0.58885,0.5957,0.5849,0.1258],[0.599,0.4328,0.4249,0.1258],[0.60915,0.0596,0.0585,0.1258],[0.61115,0.005,0.005,0.1258],[1.0,0.005,0.005,0.1258]],"loft":{"engineBlock":[[231.71,-38.12,38.12,258.17,258.3],[241.99,-38.12,38.12,232.62,258.45],[244.56,-101.01,101.01,226.2,533.75],[265.12,-232.65,232.65,174.85,551.2],[267.69,-516.8,516.8,168.43,553.39],[329.38,-614.97,614.97,164.21,598.04],[375.64,-682.41,682.41,164.21,610.89],[519.57,-602.9,602.9,164.21,636.15],[619.81,-550.99,550.99,164.21,641.61],[624.95,-548.35,548.35,154.29,641.6],[655.79,-532.5,532.5,157.37,641.55],[676.35,-521.94,521.94,164.21,641.51],[748.32,-484.96,484.96,164.21,634.15],[750.89,-483.64,483.64,177.02,632.54],[786.87,-465.15,465.15,177.93,610.06],[789.44,-463.83,463.83,178.04,306.06],[838.28,-438.74,438.74,180.14,306.06],[840.85,-103.13,103.13,180.25,306.06],[925.66,-111.15,111.15,190.23,306.06],[971.93,-115.53,115.53,247.79,306.06],[1002.77,-118.44,118.44,305.96,306.06]],"spine":[[841.23,-177.87,177.87,252.68,557.13],[1004.66,-173.66,173.66,255.14,554.66],[1124.27,-129.62,129.62,278.82,530.84],[1344.98,-129.62,129.62,279.07,530.84],[1346.66,-129.62,129.62,386.93,435.91]],"nacelleC":[[26.02,-86.94,86.94,321.87,495.74],[30.63,-90.85,90.85,317.96,499.65],[38.91,-86.8,86.8,322.0,495.61],[302.21,-86.8,86.8,322.0,495.61]],"nacelleS":[[26.02,223.87,397.75,321.87,495.74],[30.63,219.96,401.66,317.96,499.65],[38.91,224.01,397.61,322.0,495.61],[302.21,224.01,397.61,322.0,495.61]],"claw":[[2286.75,736.29,736.5,229.03,597.2],[2300.65,716.88,775.1,206.14,620.1],[2303.43,712.98,1208.95,202.9,623.33],[2464.66,461.88,1096.06,186.67,639.56],[2481.34,412.28,1084.38,186.67,639.57],[2484.12,366.78,1082.44,186.67,639.56],[2528.6,348.23,1043.83,186.75,639.49],[2573.07,288.32,999.35,186.77,639.46],[2631.45,264.83,940.98,195.05,631.19],[2703.72,295.36,855.26,211.26,614.97],[2714.84,311.39,839.38,234.78,591.46],[2725.96,339.27,823.5,327.59,498.64],[2731.52,353.22,815.56,334.32,496.93],[2734.3,416.66,811.59,340.16,496.93],[2784.34,428.7,751.49,334.61,499.78],[2806.58,435.06,750.19,329.14,505.25],[2809.36,437.2,745.39,328.45,505.94],[2812.13,437.87,740.59,296.82,537.57],[2831.59,416.35,706.99,298.66,535.73],[2909.43,432.94,579.05,334.92,499.47],[2953.9,442.42,535.23,359.43,474.96],[2956.68,468.06,532.49,370.39,465.63],[2995.6,490.11,494.15,405.42,430.6],[2998.38,461.28,461.88,370.92,474.52],[3028.96,439.04,479.01,370.92,474.52],[3109.57,394.02,420.27,370.92,474.52],[3112.35,396.79,418.24,370.92,474.52],[3115.13,400.12,416.22,399.4,446.04],[3120.69,412.06,412.2,401.98,443.46]],"sphereKeel":[[1261.8,-25.76,25.76,297.06,297.13],[1427.0,-25.76,25.76,56.68,297.13],[1510.84,-25.76,25.76,56.68,297.13]]},"rooms":[["hangar","右舷アーム格納庫",[2440,415,725],[39.4,649.4,349.4],"storage"],["hangar","右舷アーム格納庫 2",[2400,420,745],[39.4,689.4,319.4],"storage"],["hangar","右舷アーム格納庫 3",[2560,415,665],[39.4,529.4,389.4],"storage"],["hangar","右舷アーム格納庫 4",[2520,410,695],[39.4,589.4,339.4],"storage"],["hangar","右舷アーム格納庫 5",[2360,415,770],[39.4,739.4,269.4],"storage"],["hangar","右舷アーム格納庫 6",[2597.75,415,640],[34.89,479.4,389.4],"storage"],["hangar","左舷アーム格納庫",[2440,415,-725],[39.4,649.4,349.4],"storage"],["hangar","左舷アーム格納庫 2",[2400,420,-745],[39.4,689.4,319.4],"storage"],["hangar","左舷アーム格納庫 3",[2560,415,-665],[39.4,529.4,389.4],"storage"],["hangar","左舷アーム格納庫 4",[2520,410,-695],[39.4,589.4,339.4],"storage"],["hangar","左舷アーム格納庫 5",[2360,415,-770],[39.4,739.4,269.4],"storage"],["hangar","左舷アーム格納庫 6",[2597.75,415,-640],[34.89,479.4,389.4],"storage"],["service","航空整備・補給区画",[730,540,0],[59.4,1619.4,139.4]],["service","航空整備・補給区画 2",[770,290,0],[59.4,1739.4,119.4]],["service","航空整備・補給区画 3",[278.86,275,0],[37.11,259.4,129.4]],["service","航空整備・補給区画 4",[230,420,-110],[19.4,79.4,59.4]],["vehicle","車両格納・整備区画（MTT・AAT）",[321.26,255,0],[41.93,939.4,169.4]],["vehicle","車両格納・整備区画（MTT・AAT） 2",[230,420,110],[19.4,79.4,59.4]],["troops","兵員収容区画（B1バトル・ドロイド）",[292.37,520,0],[24.15,879.4,79.4]],["troops","兵員収容区画（B1バトル・ドロイド） 2",[230,380,-80],[19.4,39.4,19.4]],["cargo","貨物・物資庫",[386.82,255,0],[53.05,1119.4,169.4]],["cargo","貨物・物資庫 2",[245.5,380,80],[50.4,39.4,19.4]],["cargo","貨物・物資庫 3",[250,415,-155],[19.4,169.4,109.4]],["integrity","構造維持装置",[342.57,535,0],[44.55,999.4,109.4]],["integrity","構造維持装置 2",[250,415,170],[19.4,139.4,109.4]],["pump","反応物供給設備",[255.68,490,0],[30.77,259.4,19.4]],["pump","反応物供給設備 2",[250,435,85],[19.4,29.4,89.4]]]};
+const LUC_AIR=[{id:'air-1',name:'ヴァルチャー級ドロイド・スターファイター',size:1,count:1500},{id:'air-2',name:'C-9979 上陸艇',size:200,count:50}];
+const LUC_GROUND=[{id:'ground-1',name:'B1バトル・ドロイド',kind:'troops',count:139000},{id:'ground-2',name:'MTT 大型兵員輸送車',kind:'vehicle',size:8,count:550},{id:'ground-3',name:'AAT 装甲強襲戦車',kind:'vehicle',size:1,count:6520}];
+const LUC_TAN='#a89a7c',LUC_BROWN='#8f8268',LUC_STEEL='#6f7a86',LUC_DARK='#5f646b';
+function lucrehulkBuild(opt={}){
+ const D=LUCR,L=3170;
+ const s=newShip({L,W:D.W,H:D.H,sec:'ellipse',plan:'ellipse',bowW:1,bowH:1,stern:1,bowFree:true,stations:D.st.map(a=>a.slice()),keel:'light'},'ルクレハルク級');
+ s._building=true;s.reference='lucrehulk';s.paint='cis';s.lights='warm';s.detail=1;s.armor={hull:.2,cit:.2};s.shieldTarget=1;
+ const k=shipKit(s),part=(kind,label,c,d,o={})=>placePart(s,kind,c,d,{label,...o});
+ const loft=(name,label,paint,o={},mirror=false)=>k.loftX(label,D.loft[name],{paint,corner:.12,...o},mirror);
+ // The ring: outer radius 1,403 m about the core axis, inner radius ratio 0.535,
+ // 428 m deep, open ±25° at the bow.
+ k.ring('環状船体（C字リング）',[1611,418,0],1403,1403,428,{inner:.535,start:25,sweep:310,paint:LUC_TAN});
+ loft('engineBlock','艦尾機関ブロック',LUC_BROWN,{corner:.2});
+ loft('spine','中央脊柱',LUC_TAN,{corner:.25});
+ loft('nacelleC','中央推進ナセル',LUC_STEEL,{round:true});
+ loft('nacelleS','舷側推進ナセル',LUC_STEEL,{round:true},true);
+ loft('claw','前部アームのドッキング・クロー',LUC_BROWN,{corner:.2},true);
+ loft('sphereKeel','コア下部の竜骨スパイク',LUC_DARK,{corner:.1});
+ // ---- hangar mouths on the inner faces of the forward arms (facing the bow gap) ----
+ const dockS=part('hangar','右舷アーム発着ベイ',[2500,418,300],30,{room:[400,200,400],airRole:'mixed'}),dockP=part('hangar','左舷アーム発着ベイ',[2500,418,-300],30,{room:[400,200,400],airRole:'mixed'});
+ openBay(s,dockS,'port','open');openBay(s,dockP,'stbd','open');
+ // ---- power: central plant in the core sphere (sized to the reference output), three drive nacelles ----
+ const r=part('gen','中央主反応炉（コア）',[1609,413,0],250);
+ const eo=equipmentOptions('exposedTurbine');
+ for(const z of [-311,0,311]){const d=183,nl=engineBaseline('exposed',d,'nozzleLength'),len=engineBaseline('exposed',d,'length')*1.5;const p=placePart(s,'engine',[nl/2,409,z],d,{...eo,label:z?'舷側主推進機':'中央主推進機',d,reactor:r.id,dir:[-1,0,0],engineLength:len},false);resizeEngine(p,d,len);}
+ // ---- defence, hyperdrive and support machinery ----
+ for(const sg of [-1,1])part('shield','偏向シールド発生器（コア）',[1609,413,sg*210],90);
+ part('hyper','主ハイパードライブ',[520,565,0],150,{length:180});
+ for(const sg of [-1,1])part('inertial','慣性補償装置',[1250,418,sg*1080],170,{length:160,dir:[1,0,0]});
+ for(const sg of [-1,1])part('fuel','反応物サイロ',[1611,418,sg*1250],70,{length:200,dir:[0,1,0]});
+ if(opt.stage==='machinery'){delete s._building;return s;}
+ // Heavy guns keep their charging plant wholly inside the envelope and clear of
+ // machinery: the plant is pushed deeper until all its corners are enclosed.
+ let solidList=null;
+ const plantFits=f=>{if(!needsCapacitor(f))return true;const q=weaponChargeSpec(f),depth=12*(f.scale||1),side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
+  for(const cd of [10,13,16,20,24,28,33,38,44]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
+   for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
+   if(ok){f.chargeDepth=cd;return true;}}return false;};
+ // A mount is cast onto the outermost hull/structure surface; if a probe line
+ // misses, it is retried closer to the centreline (or the given height for beams).
+ const mount=(kind,p,axis,zone,o={})=>{for(const f0 of [1,.85,.7,.55,.4,.25,0]){const q=p.slice();if(axis===2||axis===3)q[2]*=f0;else q[1]=lerp(o.y0??q[1],q[1],f0);const f={id:s.nextId++,k:kind,p:q,a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone};mountFit(s,f);if(!f.float&&plantFits(f)){s.fits.push(f);return f;}s.nextId--;}throw new Error('作例の砲座がありません: '+kind+' '+p.map(Math.round).join(','));};
+ // Pods seat on the first wall hit among a few probe heights.
+ const pod=(kind,host,o,dir,w,h)=>{let err='取付面がありません';for(const dy of [0,-4,4,-8,8,-12,12,-16,16])for(const dz of [0,-6,6,-12,12]){const q0=[o[0],o[1]+dy,o[2]+(dir[2]?0:dz)];const hit=rayPart(q0,dir,host);if(!hit)continue;const r=placeFit(s,kind,hit.p,hit.n,0,false);if(r.fit){r.fit.width=w;r.fit.height=h;r.fit.commandDepth=7;r.fit.commandHeight=5;return r.fit;}err=r.err;}throw new Error('艦橋ポッド: '+err);};
+
+ const claw=s.parts.find(p=>p.label==='前部アームのドッキング・クロー'&&p.c[2]>0);
+ pod('podAir',claw,[2800,418,-200],[0,0,1],14,5);
+ part('command','コア内の司令ブリッジ',[1609,600,0],30,{room:[60,40,20]});
+ part('command','コア内の戦闘指揮所',[1609,240,0],30,{room:[60,40,20]});
+ syncAviationSurfaces(s);s._lockedCache=cache(s);
+ try{withFrozenStructures(()=>{
+  // 42 quad turbolaser batteries in fourteen groups of three along the ring's equatorial bands
+  for(let g=0;g<7;g++)for(let i=0;i<3;i++){const a=(48+g*44+(i-1)*5)*Math.PI/180,x=1611+1290*Math.cos(a),z=1290*Math.sin(a);mount('quad200',[x,0,z],2,'ring-dorsal');mount('quad200',[x,0,z],3,'ring-ventral');}
+ });}finally{delete s._lockedCache;}
+ if(opt.stage==='fitted'){delete s._building;return s;}
+
+ if(opt.stage==='shape'){delete s._building;return s;}
+ for(const [kind,label,c,size,role,mirror] of D.rooms||[]){const o={room:size};if(typeof role==='string')o.airRole=role;placePart(s,kind,c,30,{label,...o},mirror===1||role===1);}
+ s.airWings=LUC_AIR.map(r=>({...r}));s.groundForces=normalizeGroundForces(LUC_GROUND);
+ delete s._building;adoptEquipment(s,true);remount(s);calibrateReferenceRatings(s);syncCompartments(s);
+ return s;
+
+}
+registerShipExample({
+ key:'lucrehulk',name:'ルクレハルク級',side:'独立星系連合',role:'環状母艦（ドロイド司令船）',length:3170,
+ title:'Lucrehulk',author:'Professor E12^2',authorUrl:'https://sketchfab.com/profanity2009',
+ source:'https://sketchfab.com/3d-models/lucrehulk-8bb11e0ad31e4b23b1783e10242c5115',license:'CC BY 4.0',
+ credit:'This work is based on "Lucrehulk" (https://sketchfab.com/3d-models/lucrehulk-8bb11e0ad31e4b23b1783e10242c5115) by Professor E12^2 (https://sketchfab.com/profanity2009) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',
+ note:'Sketchfab の 3D モデル（Professor E12^2 作、CC BY 4.0）を全長 3,170 m に合わせて実測。中央の球形コアを基本船体とし、開口部のある C 字形の環状船体（円弧）、中央脊柱、推進ナセル、前部アームのドッキング・クローをロフト構造物で再現した通商連合由来のドロイド司令船。兵装は四連ターボレーザー 42 基。ヴァルチャー 1,500 機と C-9979 上陸艇 50 隻、B1 バトル・ドロイド 13 万 9,000 体、MTT 550 両、AAT 6,520 両を搭載。ハイパードライブ・クラス 2。加速約 1,050 G はゲーム上の設定値。公式の乗員はドロイド 150 体と指揮要員 25 名。',
+ airWings:LUC_AIR,groundForces:LUC_GROUND,
+ build:lucrehulkBuild
+});
+}
+
+// ---- src/ships/munificent.js ----
+// Munificent-class star frigate, measured from "Munificent Class Star Frigate"
+// by SomeGuyUsingBlender on Sketchfab (CC BY 4.0). Ship frame: x from the
+// stern (0) to the bow (825 m), y up from the lowest point, z to starboard.
+// The hull is a single slender rod (elliptical section) along the spine; the
+// forward dome halves and centre dome, the forward core and keel, the command
+// tower, the neck, the broad wing, the two hyperwave transceiver masts, the
+// aft dorsal shells and the drive section are ordinary structures.
+{
+const MUNI={"loft":{"aftShell":[[0.0,14.63,14.74,108.89,109.02],[8.81,12.82,22.04,108.58,116.35],[10.58,13.05,25.37,108.12,117.13],[14.98,13.16,27.18,108.73,118.61],[15.86,13.19,33.93,103.85,118.91],[27.32,12.8,39.35,106.84,122.49],[38.78,12.83,42.69,108.42,125.41],[39.66,12.74,47.37,102.41,125.66],[57.29,13.81,51.1,108.19,129.66],[59.93,13.58,54.55,106.61,130.37],[66.1,14.19,52.92,107.14,130.39],[84.61,14.73,57.75,106.9,133.61],[85.49,14.73,62.97,107.04,133.7],[95.19,14.73,59.98,108.0,133.89],[117.22,14.73,63.72,108.3,137.1],[118.1,14.73,68.33,101.61,137.26],[148.07,14.73,73.3,100.86,139.94],[150.71,14.73,70.22,106.87,140.04],[152.48,14.73,74.43,103.63,140.41],[159.53,14.73,70.42,106.69,140.79],[200.95,14.73,72.27,107.37,142.1],[201.83,14.73,63.78,112.98,142.14],[204.48,14.73,53.6,112.98,142.25],[229.15,14.73,53.6,112.97,142.04],[230.04,14.73,67.81,112.97,142.07],[247.66,14.73,64.69,113.02,142.81],[248.54,14.73,52.93,113.99,142.84],[258.24,14.73,34.43,124.76,143.25],[259.12,14.73,32.6,125.73,133.69],[264.41,14.73,14.92,131.62,131.68]],"aftCore":[[85.65,-31.51,31.51,90.01,127.1],[92.7,-34.25,34.25,87.67,129.71],[94.82,-35.01,35.01,74.6,132.17],[115.98,-36.93,36.93,67.73,134.06],[121.62,-45.26,45.26,66.42,136.18],[132.9,-37.71,37.71,64.94,134.06],[141.36,-45.79,45.79,63.33,134.06],[147.0,-38.7,38.7,63.21,135.05],[158.29,-47.18,47.18,61.61,135.05],[162.52,-38.7,38.7,60.52,135.05],[166.04,-38.7,38.7,58.73,135.05],[168.86,-48.07,48.07,58.73,132.03],[174.5,-48.45,48.45,54.48,135.83],[177.32,-39.49,39.49,54.48,135.83],[182.26,-40.04,40.04,54.48,144.56],[185.79,-48.71,48.71,53.92,144.27],[198.48,-41.15,41.15,54.31,148.17],[207.65,-48.24,48.24,54.33,147.73],[256.3,-37.94,37.94,62.97,150.35],[257.71,-37.94,37.94,68.56,150.35],[258.42,-37.94,37.94,84.62,150.35],[271.82,-29.62,29.62,91.09,150.35],[272.52,-13.51,13.51,122.33,150.35],[280.28,-13.51,13.51,122.71,150.36],[280.98,-28.51,28.51,52.48,150.36],[290.86,-28.5,28.5,47.3,136.7],[291.56,-11.04,11.04,86.58,135.29],[296.5,-5.18,5.18,90.93,125.43],[297.2,-0.42,0.42,93.65,94.66]],"aftSide":[[196.94,74.06,74.53,116.85,117.77],[197.57,71.44,74.53,115.22,120.94],[198.19,65.15,74.53,112.62,126.87],[200.36,53.09,74.99,103.53,137.96],[202.85,39.16,74.93,101.92,144.64],[205.03,25.16,74.76,101.85,145.42],[222.12,23.6,75.81,100.05,144.15],[223.36,23.57,76.47,97.51,145.1],[224.92,23.56,75.41,99.37,144.35],[226.47,23.58,74.51,101.38,144.55],[244.5,21.59,72.4,102.57,146.59],[248.54,12.0,71.67,102.37,148.14],[250.4,7.79,71.51,102.86,148.59],[268.43,6.35,67.2,106.56,148.65],[279.93,6.16,58.79,106.65,144.17],[287.7,7.23,45.47,107.06,132.94],[289.25,7.75,34.68,107.2,125.93],[289.56,7.9,32.4,107.23,122.54],[289.87,8.13,30.13,107.26,116.48],[290.18,15.61,20.75,113.93,116.05]],"mastUp":[[183.49,-8.36,7.3,142.53,142.58],[183.99,-8.3,7.23,142.68,143.16],[184.49,-10.18,9.17,141.6,143.81],[188.99,-10.95,10.7,141.6,149.62],[189.24,-10.95,10.79,141.6,203.15],[189.74,-10.95,10.95,141.6,203.15],[189.99,-10.95,10.95,141.6,210.97],[191.24,-10.95,10.95,141.6,210.97],[191.49,-10.95,10.95,141.6,214.9],[236.24,-11.62,11.65,141.6,214.9],[236.49,-11.62,11.65,141.6,210.97],[237.24,-11.62,11.65,141.6,210.97],[237.49,-10.95,10.95,141.6,203.15],[238.24,-10.95,10.95,141.6,203.15],[238.49,-10.95,10.95,141.6,167.43],[239.74,-10.95,10.95,141.6,155.88],[241.61,-10.95,10.95,141.6,141.98]],"mastDown":[[183.49,-8.36,7.3,72.32,72.37],[183.99,-8.3,7.23,71.74,72.22],[184.49,-10.18,9.17,71.09,73.3],[188.99,-10.95,10.7,65.28,73.3],[189.24,-10.95,10.79,11.75,73.3],[189.74,-10.95,10.95,11.75,73.3],[189.99,-10.95,10.95,3.93,73.3],[191.24,-10.95,10.95,3.93,73.3],[191.49,-10.95,10.95,0.0,73.3],[236.24,-11.62,11.65,0.0,73.3],[236.49,-11.62,11.65,3.93,73.3],[237.24,-11.62,11.65,3.93,73.3],[237.49,-10.95,10.95,11.75,73.3],[238.24,-10.95,10.95,11.75,73.3],[238.49,-10.95,10.95,47.46,73.3],[239.74,-10.95,10.95,59.01,73.3],[241.61,-10.95,10.95,72.92,73.3]],"neck":[[281.5,-35.93,35.93,102.89,128.64],[287.37,-35.93,35.93,102.87,132.43],[288.27,-35.93,35.93,102.87,135.77],[300.46,-35.93,35.93,104.57,135.77],[302.27,-35.93,35.93,106.8,135.77],[302.72,-35.93,35.93,102.84,135.77],[303.17,-35.93,35.93,102.84,141.61],[305.43,-35.93,35.93,102.84,140.48],[306.78,-35.93,35.93,102.83,145.18],[324.39,-35.93,35.93,104.52,146.18],[326.64,-35.93,35.93,107.31,146.31],[327.1,-35.93,35.93,102.83,146.34],[346.06,-35.93,35.93,102.83,147.41],[346.51,-35.93,35.93,102.83,145.44],[346.96,-35.93,35.93,102.83,137.91],[348.76,-35.93,35.93,105.04,139.37],[349.22,-35.93,35.93,105.6,135.18],[350.57,-35.93,35.93,107.27,135.18],[351.02,-35.93,35.93,102.83,135.18],[351.47,-35.93,35.93,102.83,139.37],[372.24,-35.93,35.93,104.44,139.97],[374.49,-35.93,35.93,107.23,139.97],[374.95,-35.93,35.93,102.83,139.97],[398.42,-35.93,35.93,104.95,139.97],[410.16,-35.93,35.93,111.8,139.37],[410.61,-35.93,35.93,111.81,135.18],[412.41,-35.93,35.93,111.82,135.18],[414.67,-35.93,35.93,111.83,130.59],[416.93,-35.93,35.93,111.85,128.64]],"keelAft":[[274.82,-4.95,4.95,67.67,79.88],[279.99,-6.06,6.06,67.66,105.1],[282.94,-28.51,28.51,47.3,106.01],[291.07,-28.5,28.5,47.3,105.11],[292.54,-7.24,7.24,67.64,105.46],[296.24,-28.68,28.68,47.21,106.01],[304.36,-29.04,29.04,46.92,105.41],[305.84,-8.97,8.97,67.62,106.01],[310.27,-29.61,29.61,46.51,106.01],[317.65,-30.41,30.41,45.93,106.01],[319.13,-10.69,10.69,67.6,106.01],[324.3,-31.26,31.26,45.27,100.05],[332.42,-32.32,32.32,44.43,106.01],[334.64,-12.71,12.71,67.57,106.01],[339.81,-33.28,33.28,43.61,105.11],[348.67,-34.41,34.41,42.62,88.91],[350.89,-14.81,14.81,67.54,104.96],[355.32,-35.17,35.17,41.92,106.01],[365.66,-36.24,36.24,40.86,106.01],[367.14,-16.92,16.92,67.52,106.01],[375.26,-35.54,35.54,40.36,104.96],[384.12,-37.63,37.63,39.35,105.11],[385.6,-19.32,19.32,67.48,105.11],[392.98,-37.94,37.94,38.91,106.01],[402.58,-38.15,38.15,38.56,82.08],[404.06,-21.72,21.72,67.45,81.34],[494.16,-4.95,4.95,54.97,58.92],[496.38,-4.95,4.95,56.96,57.05]],"coreFwd":[[404.16,-0.26,0.26,93.79,93.88],[411.28,-9.47,9.47,89.86,96.03],[414.84,-14.8,14.8,86.23,109.36],[419.58,-21.96,21.96,75.87,111.4],[432.63,-19.95,19.95,75.88,111.0],[439.75,-18.85,18.85,75.88,115.31],[478.91,-13.16,13.16,75.89,114.34],[491.96,-15.25,15.25,71.64,110.54],[524.0,-15.25,15.25,75.47,112.69],[548.91,-14.73,14.73,73.52,112.69],[550.1,-23.61,23.61,71.75,112.69],[560.78,-26.61,26.61,68.89,110.12],[603.5,-26.59,26.59,68.27,110.13],[607.06,-26.59,26.59,72.49,110.13],[608.24,-26.32,26.32,56.77,110.13],[617.73,-18.62,18.62,56.02,110.13],[618.92,-12.69,12.69,55.99,110.13],[622.48,-12.69,12.69,56.99,112.12],[623.67,-12.69,12.69,74.62,112.09],[630.79,-11.33,11.33,76.38,111.95],[635.53,-8.67,8.67,89.97,111.85],[642.65,-8.85,8.85,92.15,111.66],[645.03,-8.9,8.9,96.47,111.57],[679.44,-5.97,5.97,97.36,109.72],[757.75,-0.9,0.9,102.88,104.25],[760.12,-0.02,0.02,104.06,104.09]],"keelFwd":[[401.92,-0.2,0.2,43.21,43.27],[410.21,-25.51,25.51,37.5,53.2],[411.39,-35.02,35.02,37.53,54.23],[419.68,-36.6,36.6,37.74,54.01],[420.87,-26.82,26.82,37.66,53.98],[437.44,-25.13,25.13,38.25,53.62],[438.63,-33.34,33.34,38.94,53.74],[444.55,-31.24,31.24,39.31,53.91],[445.73,-25.84,25.84,39.41,54.07],[449.28,-29.49,29.49,41.5,53.48],[456.39,-21.48,21.48,42.8,53.99],[467.05,-19.32,19.32,48.08,54.53],[472.97,-4.0,4.0,51.42,72.0],[474.15,-2.51,2.51,42.66,72.0],[475.34,-7.36,7.36,42.66,72.0],[476.52,-11.79,11.79,42.66,72.0],[477.7,-14.46,14.46,34.82,72.0],[483.62,-25.99,25.99,35.01,72.0],[484.81,-35.8,35.8,35.05,72.0],[500.2,-39.07,39.07,35.43,72.0],[502.57,-28.58,28.58,35.47,72.0],[555.85,-27.82,27.82,36.32,72.0],[557.04,-36.72,36.72,36.34,72.0],[607.95,-28.88,28.88,39.01,72.0],[612.69,-27.6,27.6,39.17,72.0],[616.24,-32.43,32.43,39.3,72.0],[665.98,-23.76,23.76,45.48,72.0],[744.13,-11.62,11.62,52.79,72.0],[757.15,-0.09,0.09,56.02,72.0]],"tower":[[644.23,-5.94,5.94,153.84,153.94],[653.26,-7.87,7.87,144.38,162.83],[655.35,-7.71,7.69,142.04,167.02],[658.82,-6.46,6.46,137.54,167.3],[663.33,-7.17,7.17,134.69,172.49],[663.68,-7.17,7.17,135.0,172.1],[664.03,-7.17,7.17,135.31,204.78],[665.07,-7.17,7.17,136.23,204.76],[665.77,-11.17,11.17,136.85,207.74],[677.57,-16.05,16.04,148.52,212.09],[680.7,-15.95,15.94,151.23,215.49],[693.9,-16.46,16.34,161.09,215.49],[703.62,-16.18,16.06,167.29,209.55],[714.39,-14.97,14.97,170.04,209.55],[722.03,-14.75,14.75,173.2,208.63],[728.97,-16.23,16.23,177.12,208.63],[729.32,-15.95,15.95,181.4,208.63],[735.92,-15.11,15.11,181.76,207.74],[740.09,-12.05,12.05,184.1,204.78],[740.43,-11.8,11.8,188.52,204.79],[742.17,-10.53,10.53,188.57,201.95],[742.52,-10.27,10.27,188.58,196.72],[744.6,-8.75,8.75,188.64,196.73],[744.95,-8.49,8.49,188.65,191.04],[748.42,-5.58,5.58,190.41,190.86]],"towerBase":[[609.81,-2.71,3.6,156.59,156.59],[611.25,-2.63,3.51,156.59,156.61],[611.54,-2.61,3.5,156.59,159.89],[611.83,-2.59,3.48,156.6,159.89],[612.12,-21.24,20.97,130.4,159.89],[632.96,-21.58,20.97,130.4,161.83],[633.54,-21.58,20.97,130.4,159.87],[637.6,-22.43,21.81,129.74,157.09],[658.44,-22.43,21.81,129.74,157.09],[678.7,-21.58,20.97,131.28,156.61],[679.28,-19.71,19.1,131.28,156.6],[687.1,-19.71,19.1,131.28,156.29],[688.83,-18.71,18.01,132.13,160.23],[692.89,-18.72,18.03,132.13,161.27],[694.62,-19.72,19.11,131.28,155.79],[694.91,-19.71,19.11,131.28,155.76],[695.2,-19.71,19.1,137.9,155.73],[695.49,-2.36,3.25,152.86,155.72],[696.65,-2.44,3.33,154.66,155.68]],"domeFins":[[468.31,30.36,61.8,101.81,108.09],[468.77,30.36,67.31,101.81,112.21],[469.22,30.37,68.23,92.55,112.2],[480.98,30.51,68.1,91.17,112.08],[481.44,33.76,37.63,91.16,92.76],[483.25,33.81,37.61,91.15,91.42],[493.2,31.02,69.28,101.11,111.51],[493.66,31.05,70.21,91.85,111.5],[505.88,31.83,70.62,90.49,111.37],[506.33,34.89,39.06,90.48,90.91],[518.1,32.5,72.61,99.98,110.8],[518.55,32.52,72.64,91.14,110.8],[529.86,32.92,73.32,89.82,110.68],[530.31,32.94,72.46,100.27,110.67],[542.53,32.98,72.53,99.28,110.1],[542.99,32.98,73.4,90.44,110.1],[553.85,32.96,73.23,90.33,109.98],[554.3,32.96,73.23,99.16,109.98],[566.52,32.71,68.54,99.0,103.16],[566.97,32.69,72.03,99.0,107.93],[567.43,32.67,72.87,89.74,107.92],[578.29,32.2,72.14,89.63,107.81],[578.74,32.18,72.11,98.46,107.8],[591.41,31.47,70.11,98.3,108.7],[591.86,31.44,70.95,89.04,108.69],[602.73,30.88,69.95,88.92,108.58],[603.18,30.86,69.91,96.87,108.58],[603.63,30.84,68.99,98.17,108.57],[604.08,30.87,68.95,102.29,108.57]],"dome":[[407.88,-29.68,29.68,119.75,121.87],[409.27,-51.51,51.51,109.18,136.36],[412.05,-67.78,67.78,108.95,147.78],[425.95,-88.24,88.24,108.52,164.97],[452.37,-101.82,101.82,106.17,169.96],[501.03,-108.59,108.59,100.71,162.67],[503.81,-111.23,111.23,95.25,163.68],[512.16,-108.84,108.84,100.9,162.59],[534.4,-109.09,109.09,101.63,161.23],[555.26,-105.52,105.52,105.53,158.52],[602.53,-103.88,103.88,105.53,157.2],[606.71,-108.14,108.14,104.1,156.63],[608.1,-101.92,101.92,105.53,156.4],[619.22,-105.86,105.86,100.25,155.97],[655.37,-99.49,99.49,101.15,152.37],[658.15,-92.61,92.61,101.9,151.87],[698.47,-89.46,89.46,100.5,146.5],[701.25,-92.03,92.03,101.15,146.19],[704.03,-84.14,84.14,101.79,147.07],[737.4,-77.23,77.23,109.9,142.68],[741.58,-78.67,78.67,109.33,141.79],[767.99,-69.39,69.39,102.3,135.72],[769.38,-62.61,62.61,110.94,135.32],[786.07,-58.24,58.24,107.89,131.07],[802.75,-49.73,49.73,104.28,125.83],[804.14,-39.8,39.8,111.39,125.36],[811.1,-37.76,37.76,110.24,122.98],[825.0,-22.46,22.46,111.63,111.77]],"wingTip":[[302.64,149.69,149.98,123.15,130.24],[303.64,148.42,154.62,123.15,130.82],[304.64,149.77,159.49,123.15,130.82],[312.39,149.77,197.01,123.15,130.86],[322.14,149.15,197.02,124.43,131.04],[328.89,148.37,196.18,125.54,131.06],[330.64,149.15,195.15,124.62,131.05],[334.39,149.15,196.18,124.62,131.06],[334.89,149.77,196.18,123.15,131.06],[335.14,149.77,196.18,123.15,129.09],[336.89,149.77,196.18,123.15,129.12],[337.14,149.77,196.18,123.15,131.94],[347.89,149.77,197.0,123.15,131.98],[348.14,149.77,197.0,123.15,129.13],[349.39,149.77,197.0,123.15,129.13],[349.64,148.53,197.0,123.15,129.13],[350.33,149.67,197.0,123.15,129.13]]},"rooms":[["hangar","航空機格納庫",[574.5,58.85,-0.5],[182.4,32.4,17.7],"storage"],["hangar","航空機格納庫 2",[559.5,55.85,20.5],[146.4,8.4,11.7],"storage"],["hangar","航空機格納庫 3",[682.5,60.35,-0.5],[32.4,20.4,20.7],"storage"],["hangar","航空機格納庫 4",[558,54.35,-21.5],[143.4,8.4,8.7],"storage"],["service","航空整備・補給区画",[527.47,125,-53],[208.33,17.4,23.4]],["service","航空整備・補給区画 2",[405,125,-0.5],[5.4,56.4,23.4]],["vehicle","車両格納区画（DSD1）",[415.5,125,-0.5],[14.4,56.4,23.4]],["cargo","貨物・物資庫",[157.3,123.5,-33.5],[200,14.4,8.4]],["cargo","貨物・物資庫 2",[46.5,113,-27.5],[56.4,8.4,5.4]],["integrity","構造維持装置",[160.3,123.5,35.5],[200,14.4,8.4]],["integrity","構造維持装置 2",[46.5,113,26.5],[56.4,8.4,5.4]],["pump","反応物供給設備",[111.74,116,43],[138.89,5.4,5.4]],["troops","兵員収容区画（停止保管ドロイド）",[594,126.5,35.5],[119.4,38.4,38.4]],["troops","兵員収容区画（停止保管ドロイド） 2",[613.5,126.5,-30.5],[158.4,26.4,38.4]],["troops","兵員収容区画（停止保管ドロイド） 3",[564,117.5,67],[179.4,23.4,20.4]],["troops","兵員収容区画（停止保管ドロイド） 4",[709.5,126.5,-0.5],[32.4,80.4,32.4]],["troops","兵員収容区画（停止保管ドロイド） 5",[580.5,150.5,-0.5],[92.4,98.4,8.4]],["troops","兵員収容区画（停止保管ドロイド） 6",[447,135.5,1],[47.4,29.4,50.4]],["troops","兵員収容区画（停止保管ドロイド） 7",[499.5,131,44.5],[68.4,20.4,47.4]],["troops","兵員収容区画（停止保管ドロイド） 8",[328.5,129.5,-59],[56.4,77.4,14.4]],["troops","兵員収容区画（停止保管ドロイド） 9",[564,117.5,-71],[173.4,17.4,20.4]],["troops","兵員収容区画（停止保管ドロイド） 10",[216,173,-0.5],[41.4,20.4,71.4]],["troops","兵員収容区画（停止保管ドロイド） 11",[204,123.5,-51.5],[131.4,20.4,20.4]],["troops","兵員収容区画（停止保管ドロイド） 12",[216,41,-0.5],[41.4,20.4,65.4]],["troops","兵員収容区画（停止保管ドロイド） 13",[523.5,86,-0.5],[206.4,20.4,11.4]],["troops","兵員収容区画（停止保管ドロイド） 14",[328.5,129.5,67],[56.4,59.4,14.4]],["troops","兵員収容区画（停止保管ドロイド） 15",[301.5,120.5,2.5],[38.4,44.4,26.4]],["troops","兵員収容区画（停止保管ドロイド） 16",[747,116,-0.5],[41.4,92.4,11.4]],["troops","兵員収容区画（停止保管ドロイド） 17",[205.5,123.5,55],[122.4,17.4,20.4]],["troops","兵員収容区画（停止保管ドロイド） 18",[673.5,120.5,34],[38.4,35.4,32.4]],["troops","兵員収容区画（停止保管ドロイド） 19",[258,123.5,1],[23.4,53.4,32.4]],["troops","兵員収容区画（停止保管ドロイド） 20",[556.5,126.5,-0.5],[32.4,32.4,38.4]],["troops","兵員収容区画（停止保管ドロイド） 21",[354,81.5,-0.5],[89.4,26.4,14.4]],["troops","兵員収容区画（停止保管ドロイド） 22",[351,122,4],[23.4,47.4,29.4]],["troops","兵員収容区画（停止保管ドロイド） 23",[499.5,134,-39.5],[68.4,8.4,53.4]],["troops","兵員収容区画（停止保管ドロイド） 24",[142.5,86,-0.5],[74.4,32.4,11.4]],["troops","兵員収容区画（停止保管ドロイド） 25",[522,141.5,-53],[167.4,17.4,8.4]],["troops","兵員収容区画（停止保管ドロイド） 26",[696,191,-0.5],[59.4,14.4,29.4]],["troops","兵員収容区画（停止保管ドロイド） 27",[568.5,110,-53],[248.4,17.4,5.4]],["troops","兵員収容区画（停止保管ドロイド） 28",[520.5,134,61],[170.4,11.4,11.4]],["troops","兵員収容区画（停止保管ドロイド） 29",[585,74,1],[65.4,29.4,11.4]],["troops","兵員収容区画（停止保管ドロイド） 30",[781.5,120.5,1],[26.4,53.4,14.4]],["troops","兵員収容区画（停止保管ドロイド） 31",[216,132.5,37],[131.4,17.4,8.4]],["troops","兵員収容区画（停止保管ドロイド） 32",[544.5,122,83.5],[122.4,8.4,17.4]],["troops","兵員収容区画（停止保管ドロイド） 33",[145.5,120.5,20.5],[86.4,14.4,14.4]],["troops","兵員収容区画（停止保管ドロイド） 34",[430.5,128,34],[14.4,35.4,35.4]],["troops","兵員収容区画（停止保管ドロイド） 35",[549,104,-50],[107.4,29.4,5.4]],["troops","兵員収容区画（停止保管ドロイド） 36",[382.5,123.5,-20],[38.4,17.4,26.4]],["troops","兵員収容区画（停止保管ドロイド） 37",[430.5,131,-29],[14.4,29.4,41.4]],["troops","兵員収容区画（停止保管ドロイド） 38",[547.5,104,50.5],[110.4,26.4,5.4]],["troops","兵員収容区画（停止保管ドロイド） 39",[687,129.5,-0.5],[11.4,32.4,44.4]],["troops","兵員収容区画（停止保管ドロイド） 40",[133.09,101,-8],[61.57,11.4,17.4]]]};
+const MUN_AIR=[{id:'air-1',name:'ヴァルチャー級ドロイド・スターファイター（4個中隊）',size:1,count:24},{id:'air-2',name:'シースパイド級輸送シャトル',size:2,count:2}];
+const MUN_GROUND=[{id:'ground-1',name:'バトル・ドロイド（停止保管）',kind:'troops',count:149000},{id:'ground-2',name:'DSD1 ドワーフ・スパイダー・ドロイド',kind:'vehicle',size:.3,count:100}];
+const MUN_TAN='#a89a7c',MUN_BROWN='#8f8268',MUN_STEEL='#6f7a86',MUN_DARK='#5f646b';
+function munificentBuild(opt={}){
+ const D=MUNI,L=825;
+ // The rod: 24 m wide, 15 m deep, centred 100 m above the keel line.
+ const rod=(t,f)=>[t,f,Math.max(.005,.1*f),100/150-.5];
+ const s=newShip({L,W:24,H:150,sec:'ellipse',plan:'rect',bowW:.5,bowH:.5,stern:1,bowFree:true,stations:[rod(0,.03),rod(.1,.03),rod(.106,1),rod(.92,1),rod(.926,.03),rod(1,.03)],keel:'light'},'ミュニフィセント級スター・フリゲート');
+ s._building=true;s.reference='munificent';s.paint='cis';s.lights='warm';s.detail=1;s.armor={hull:.2,cit:.3};s.shieldTarget=1;
+ const k=shipKit(s),part=(kind,label,c,d,o={})=>placePart(s,kind,c,d,{label,...o});
+ const loft=(name,label,paint,o={},mirror=false)=>k.loftX(label,D.loft[name],{paint,corner:.12,...o},mirror);
+ loft('dome','前部ドーム外殻',MUN_TAN,{corner:.45,wallInset:.28});
+ loft('coreFwd','前部中央船体',MUN_BROWN,{corner:.2});
+ loft('keelFwd','前部腹部竜骨',MUN_BROWN,{corner:.35});
+ loft('towerBase','司令塔基部',MUN_BROWN,{corner:.15});
+ loft('tower','司令塔・長距離センサー',MUN_STEEL,{corner:.25});
+ loft('domeFins','ドーム下部の舷側フィン',MUN_DARK,{corner:.1},true);
+ loft('neck','中央連結部',MUN_TAN,{corner:.2});
+ // The broad wing: inner and outer planform plates (measured outline), thinner outboard.
+ k.slab('中央翼（内翼）',[[289.4,0],[298.2,-100],[357.7,-100],[371.6,0],[357.7,100],[298.2,100]],121.5,137,{paint:MUN_TAN});
+ k.slab('中央翼（外翼）',[[298.2,100],[302.6,149.8],[312,182],[350,182],[352,141.3],[357.7,100]],123.3,133.3,{paint:MUN_TAN},true);
+ loft('wingTip','中央翼の翼端板',MUN_STEEL,{corner:.08},true);
+ loft('keelAft','中央竜骨・肋材',MUN_BROWN,{corner:.35});
+ loft('mastUp','背部ハイパーウェーブ送受信マスト',MUN_STEEL,{corner:.1});
+ loft('mastDown','腹部ハイパーウェーブ送受信マスト',MUN_STEEL,{corner:.1});
+ loft('aftCore','機関区画',MUN_BROWN,{round:true});
+ loft('aftSide','機関区画の舷側外板',MUN_TAN,{corner:.2},true);
+ loft('aftShell','艦尾背部外殻',MUN_TAN,{round:true},true);
+ // ---- ventral hangar bay in the forward keel (opens downward) ----
+ const dock=part('hangar','腹部格納庫発着ベイ',[590,43,0],30,{room:[220,30,14],airRole:'mixed'});
+ openBay(s,dock,'bottom','open');
+ // ---- power and propulsion: forward main plant, drive-section plant for the seven ion drives ----
+ const r=part('gen','主反応炉',[505,129,0],66);
+ const ra=part('aux','機関区画補助炉',[215,104,0],60);
+ const eo=equipmentOptions('exposedTurbine');
+ const engine=(label,mouth,y,z,d,body,mirror)=>{const nl=engineBaseline('exposed',d,'nozzleLength'),len=engineBaseline('exposed',d,'length')*body/engineBaseline('exposed',d,'body');const p=placePart(s,'engine',[mouth+nl/2,y,z],d,{...eo,label,d,reactor:ra.id,dir:[-1,0,0],engineLength:len},false);resizeEngine(p,d,len);if(mirror){const q=placePart(s,'engine',[mouth+nl/2,y,-z],d,{...eo,label,d,reactor:ra.id,dir:[-1,0,0],engineLength:len},false);resizeEngine(q,d,len);}return p;};
+ engine('上部イオン主機',82,123,0,34,110,false);
+ engine('舷側イオン主機',82,99,28,38,110,true);
+ engine('下部イオン補機',82,74,12,16,90,true);
+ engine('最下部イオン補機',82,58,7,12,70,true);
+ // ---- defence, hyperdrive and support machinery ----
+ for(const sg of [-1,1])part('shield','偏向シールド発生器',[452,134,sg*30],28);
+ for(const sg of [-1,1])part('fuel','反応物サイロ',[330,124,sg*12],14,{length:24,dir:[0,1,0]});
+ part('hyper','主ハイパードライブ',[600,126,0],28,{length:53});
+ part('inertial','慣性補償装置',[653,129,0],30,{length:52});
+ part('inertial','中央慣性補償装置',[380,122,0],22,{length:30});
+ if(opt.stage==='machinery'){delete s._building;return s;}
+ // Heavy guns keep their charging plant wholly inside the envelope and clear of
+ // machinery: the plant is pushed deeper until all its corners are enclosed.
+ let solidList=null;
+ const plantFits=f=>{if(!needsCapacitor(f))return true;const q=weaponChargeSpec(f),depth=12*(f.scale||1),side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
+  for(const cd of [10,13,16,20,24,28,33,38,44]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
+   for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
+   if(ok){f.chargeDepth=cd;return true;}}return false;};
+ // A mount is cast onto the outermost hull/structure surface; if a probe line
+ // misses, it is retried closer to the centreline (or the given height for beams).
+ const mount=(kind,p,axis,zone,o={})=>{for(const f0 of [1,.85,.7,.55,.4,.25,0]){const q=p.slice();if(axis===2||axis===3)q[2]*=f0;else q[1]=lerp(o.y0??q[1],q[1],f0);const f={id:s.nextId++,k:kind,p:q,a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone};mountFit(s,f);if(!f.float&&plantFits(f)){s.fits.push(f);return f;}s.nextId--;}throw new Error('作例の砲座がありません: '+kind+' '+p.map(Math.round).join(','));};
+ // Pods seat on the first wall hit among a few probe heights.
+ const pod=(kind,host,o,dir,w,h)=>{let err='取付面がありません';for(const dy of [0,-4,4,-8,8,-12,12,-16,16])for(const dz of [0,-6,6,-12,12]){const q0=[o[0],o[1]+dy,o[2]+(dir[2]?0:dz)];const hit=rayPart(q0,dir,host);if(!hit)continue;const r=placeFit(s,kind,hit.p,hit.n,0,false);if(r.fit){r.fit.width=w;r.fit.height=h;r.fit.commandDepth=7;r.fit.commandHeight=5;return r.fit;}err=r.err;}throw new Error('艦橋ポッド: '+err);};
+
+ const tower=s.parts.find(p=>p.label==='司令塔・長距離センサー'),neck=s.parts.find(p=>p.label==='中央連結部');
+ pod('podBridge',tower,[800,195,0],[-1,0,0],12,5);
+ pod('podAir',neck,[350,130,80],[0,0,-1],14,5);
+ pod('podCombat',tower,[705,195,80],[0,0,-1],12,5);
+ const hw=x=>{const b=s.parts.find(p=>p.label==='前部ドーム外殻');return 100;};
+ syncAviationSurfaces(s);s._lockedCache=cache(s);
+ try{withFrozenStructures(()=>{
+  // 2 forward heavy turbolaser cannons and 2 forward heavy ion cannons
+  for(const sg of [-1,1])mount('stl',[738,0,sg*30],2,'bow-heavy');
+  for(const sg of [-1,1])mount('ion',[705,0,sg*62],2,'bow-ion');
+  // 26 twin light turbolaser cannons on the beams (13 a side)
+  for(let i=0;i<13;i++)for(const sg of [-1,1])mount('ltl',[440+i*25,118,sg*300],sg>0?4:5,(sg<0?'port':'stbd')+'-twin',{y0:125});
+  // 20 turret light turbolasers on the dome shoulders (10 a side)
+  for(let i=0;i<10;i++)for(const sg of [-1,1])mount('ltl',[450+i*30,0,sg*80],2,(sg<0?'port':'stbd')+'-turret');
+  // 12 medium flak guns (6 a side) on the drive section and aft shells
+  for(const x of [60,100,140,180,240,280])for(const sg of [-1,1])mount('pd',[x,0,sg*45],2,'flak');
+  // 40 retractable point-defence twin light turbolasers: 10 dorsal, 10 ventral, 10 a beam
+  for(let i=0;i<10;i++)mount('pd',[445+i*32,0,0],2,'dorsal-pd');
+  for(let i=0;i<5;i++)for(const sg of [-1,1])mount('pd',[490+i*45,0,sg*28],3,'ventral-pd');
+  for(let i=0;i<10;i++)for(const sg of [-1,1])mount('pd',[110+i*16,95,sg*300],sg>0?4:5,(sg<0?'port':'stbd')+'-pd',{y0:100});
+  // ordnance launchers
+  for(const x of [420,445])for(const sg of [-1,1])mount('msl',[x,0,sg*20],3,'ordnance');
+ });}finally{delete s._lockedCache;}
+ if(opt.stage==='fitted'){delete s._building;return s;}
+
+ if(opt.stage==='shape'){delete s._building;return s;}
+ for(const [kind,label,c,size,role,mirror] of D.rooms||[]){const o={room:size};if(typeof role==='string')o.airRole=role;placePart(s,kind,c,30,{label,...o},mirror===1||role===1);}
+ s.airWings=MUN_AIR.map(r=>({...r}));s.groundForces=normalizeGroundForces(MUN_GROUND);
+ delete s._building;adoptEquipment(s,true);remount(s);syncCompartments(s);
+ return s;
+
+}
+registerShipExample({
+ key:'munificent',name:'ミュニフィセント級スター・フリゲート',side:'独立星系連合',role:'通信フリゲート',length:825,
+ title:'Munificent Class Star Frigate',author:'SomeGuyUsingBlender',authorUrl:'https://sketchfab.com/SomeGuyUsingBlender',
+ source:'https://sketchfab.com/3d-models/munificent-class-star-frigate-966265e37e61433b919ba640a12a33f5',license:'CC BY 4.0',
+ credit:'This work is based on "Munificent Class Star Frigate" (https://sketchfab.com/3d-models/munificent-class-star-frigate-966265e37e61433b919ba640a12a33f5) by SomeGuyUsingBlender (https://sketchfab.com/SomeGuyUsingBlender) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',
+ note:'Sketchfab の 3D モデル（SomeGuyUsingBlender 作、CC BY 4.0）を全長 825 m に合わせて実測。細い棒状の基本船体に、前部ドーム外殻・中央翼・司令塔・背部と腹部のハイパーウェーブ送受信マスト・機関区画をすべて実測構造物として組み上げた通信フリゲート。兵装は重ターボレーザー砲 2 基、重イオン砲 2 基、軽ターボレーザー 46 基（二連 26・砲塔 20）、中型フラック砲と格納式二連軽ターボレーザーを点防御砲 52 基で代表、兵装発射管 4 基。停止保管のバトル・ドロイド約 15 万体と DSD1 ドワーフ・スパイダー・ドロイド 100 体、ヴァルチャー 24 機とシャトル 2 機を搭載（公式のヴァルチャー 4 個中隊 48 機は船内容積の都合で半数）。ハイパードライブ・クラス 1。加速約 1,650 G はゲーム上の設定値（公式最大 2,500 G）。公式の乗員は最低 200 体のバトル・ドロイド。',
+ airWings:MUN_AIR,groundForces:MUN_GROUND,
+ build:munificentBuild
+});
+}
+
+// ---- src/ships/nebulonb.js ----
+// EF76 Nebulon-B escort frigate, measured from "Star Wars: Nebulon B Frigate"
+// by Daniel (DanielAndersson) on Sketchfab, CC BY 4.0. Ship frame: x from
+// the stern (0) to the bow (300 m), y up from the lowest point, z to
+// starboard. The hull is a single rod, the connecting spar; the engine block,
+// the forward hull, the lower tower and the fittings are ordinary structures.
+{
+const NB_WHITE='#d3d4d1',NB_GREY='#b9bcbd',NB_DARK='#565d63',NB_THROAT='#2b3238';
+// A prism along an axis with an exact cross-section polygon. With sym the
+// points are a half profile (second coordinate >= 0 side omitted) mirrored.
+// The prism is split into pieces no longer than its height, because the
+// longitudinal-strength bins read a part's unrotated box.
+function nbPrismX(s,label,x0,x1,poly,opt={},sym=true,mirror=false){
+ const pts=sym?poly.concat(poly.slice(1,-1).reverse().map(([z,y])=>[-z,y])):poly;
+ const ys=pts.map(p=>p[1]),zs=pts.map(p=>p[0]),y0=Math.min(...ys),y1=Math.max(...ys),z0=Math.min(...zs),z1=Math.max(...zs),cy=(y0+y1)/2,cz=(z0+z1)/2;
+ const n=Math.max(1,Math.ceil((x1-x0)/(y1-y0)-1e-9)),dx=(x1-x0)/n;let first=null;
+ // pitch -90: local x is world -y, local y is world x, local z is world z.
+ for(let i=0;i<n;i++){const p=placePart(s,'struct',[x0+dx*(i+.5),cy,cz],[y1-y0,z1-z0,dx],{label,skin:'armor',form:'outline',outline:pts.map(([z,y])=>[(cy-y)/(y1-y0),(z-cz)/(z1-z0)]),corner:0,taper:0,pitch:-90,...opt},mirror);first=first||p;}
+ return first;
+}
+// A thin flat plate through 3D corner points (x,y,z).
+function nbPlate(s,label,pts,thick,opt={},mirror=false){
+ let n=[0,0,0];for(let i=0;i<pts.length;i++){const a=pts[i],b=pts[(i+1)%pts.length];n[0]+=(a[1]-b[1])*(a[2]+b[2]);n[1]+=(a[2]-b[2])*(a[0]+b[0]);n[2]+=(a[0]-b[0])*(a[1]+b[1]);}
+ n=norm(n);if(n[1]<0)n=mul(n,-1);
+ let fw=sub([1,0,0],mul(n,n[0]));if(len(fw)<.001)fw=sub([0,0,1],mul(n,n[2]));fw=norm(fw);const rt=norm(cross(fw,n));
+ const c0=mul(pts.reduce((a,b)=>add(a,b),[0,0,0]),1/pts.length),uv=pts.map(p=>[dot(sub(p,c0),fw),dot(sub(p,c0),rt)]);
+ const u0=Math.min(...uv.map(q=>q[0])),u1=Math.max(...uv.map(q=>q[0])),v0=Math.min(...uv.map(q=>q[1])),v1=Math.max(...uv.map(q=>q[1]));
+ const c=add(c0,add(mul(fw,(u0+u1)/2),mul(rt,(v0+v1)/2))),L=Math.max(.5,u1-u0),W=Math.max(.5,v1-v0);
+ return placePart(s,'struct',c,[L,W,thick],{label,skin:'plain',form:'outline',outline:uv.map(q=>[(q[0]-(u0+u1)/2)/L,(q[1]-(v0+v1)/2)/W]),corner:0,taper:0,surfaceNormal:n,...opt},mirror);
+}
+// A loft standing on the y axis (pitch 90): rows [y, zMin, zMax, xMin, xMax].
+function nbLoftY(s,label,rows,opt={},mirror=false){
+ rows=rows.slice().sort((a,b)=>a[0]-b[0]);
+ const y0=rows[0][0],y1=rows.at(-1)[0],Z0=Math.min(...rows.map(r=>r[1])),Z1=Math.max(...rows.map(r=>r[2])),X0=Math.min(...rows.map(r=>r[3])),X1=Math.max(...rows.map(r=>r[4]));
+ const L=y1-y0,W=Z1-Z0,H=X1-X0,cz=(Z0+Z1)/2;
+ // pitch 90: local x is world y, local y is world -x, local z is world z.
+ const loft=rows.map(r=>[(r[0]-y0)/L,(r[2]-r[1])/W,(X1-r[3])/H,(X1-r[4])/H,((r[1]+r[2])/2-cz)/(W/2)]);
+ return placePart(s,'struct',[(X0+X1)/2,(y0+y1)/2,cz],[L,W,H],{label,skin:'armor',form:opt.round?'roundloft':'loft',loft,corner:opt.corner??.1,pitch:90,...opt},mirror);
+}
+// An elliptical-section loft along z (yaw 90): rows [z, xMin, xMax, yMin, yMax].
+function nbRoundZ(s,label,rows,opt={},mirror=false){
+ rows=rows.slice().sort((a,b)=>a[0]-b[0]);
+ const z0=rows[0][0],z1=rows.at(-1)[0],X0=Math.min(...rows.map(r=>r[1])),X1=Math.max(...rows.map(r=>r[2])),Y0=Math.min(...rows.map(r=>r[3])),Y1=Math.max(...rows.map(r=>r[4]));
+ const L=z1-z0,W=X1-X0,H=Y1-Y0,cx=(X0+X1)/2;
+ const loft=rows.map(r=>[(r[0]-z0)/L,(r[2]-r[1])/W,(r[4]-Y0)/H,(r[3]-Y0)/H,-((r[1]+r[2])/2-cx)/(W/2)]);
+ return placePart(s,'struct',[cx,(Y0+Y1)/2,(z0+z1)/2],[L,W,H],{label,skin:'armor',form:'roundloft',yaw:90,loft,...opt},mirror);
+}
+registerShipExample({
+ key:'nebulonb',name:'ネビュロンB護衛フリゲート',side:'反乱同盟',role:'フリゲート',length:300,
+ title:'Star Wars: Nebulon B Frigate',author:'Daniel',authorUrl:'https://sketchfab.com/DanielAndersson',
+ source:'https://sketchfab.com/3d-models/star-wars-nebulon-b-frigate-1986f7b0dee647b3b2374eb80dbd1faf',license:'CC-BY-4.0',
+ credit:'This work is based on "Star Wars: Nebulon B Frigate" (https://sketchfab.com/3d-models/star-wars-nebulon-b-frigate-1986f7b0dee647b3b2374eb80dbd1faf) by Daniel (https://sketchfab.com/DanielAndersson) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',
+ note:'300 m・連結桁で結ぶ機関ブロックと前部船体・7基の機関。連結桁1本を船体とし、外形は原型モデルから実測した構造物',
+ // Suggested embarked forces (buildDesign's finish() does not read these yet).
+ groundForces:[{name:'反乱同盟艦隊兵中隊',kind:'troops',count:75}],
+ build(){
+  // Rod hull: the 13 m connecting spar from the engine block to the bow. It is
+  // a thread behind the block so the stern face stays open between engines.
+  const s=newShip({L:300,W:60,H:100,sec:'rect',plan:'rect',bowW:1,bowH:1,stern:1,keel:'heavy',bowFree:true,stations:[
+   [0,.005,.005,.5335],[.03,.005,.005,.5335],[.04,.22,.086,.5335],[.95,.22,.086,.5335],[.985,.14,.07,.5335],[1,.033,.03,.5335]]},'ネビュロンB護衛フリゲート');
+  s._building=true;s.paint='neutral';s.detail=1;s.keel='heavy';s.armor={hull:.1,cit:.1};s.shieldTarget=1;
+  const k=shipKit(s),part=(kind,label,c,d,opt={},mirror=false)=>placePart(s,kind,c,d,{label,...opt},mirror),room=(kind,label,c,size,opt={},mirror=false)=>part(kind,label,c,30,{room:size,...opt},mirror);
+  const W={paint:NB_WHITE},G={paint:NB_GREY},D={paint:NB_DARK};
+  // Engine block: the measured section (wide shoulders, tapering keel),
+  // its sloped forward face, the top rails, the dorsal pod and the tower.
+  const BLOCK=[[0,111.3],[29.2,111],[30.8,109.5],[32.5,108],[34.2,106.5],[35,105],[35.6,102],[36.2,99],[36.4,97.5],[36,96],[33,93],[30,90],[27,87],[24,84],[21,81],[19.4,79.5],[18,78],[17,76.5],[15.4,73.5],[13.9,70.5],[12.3,67.5],[10.8,64.5],[9.2,61.5],[7,60.8],[0,60.8]];
+  nbPrismX(s,'機関ブロック',10.4,52.2,BLOCK,{skin:'service',...W});
+  nbPrismX(s,'機関ブロック前面の上部',52,57.2,[[0,111.3],[29.2,111],[32.5,108],[35,105],[36.2,99],[36.4,97.5],[33,93],[27,87],[21,81],[18.7,78],[0,78]],W);
+  k.box('上面の側部レール',[10,110.4,16.5],[50.5,114.2,24],{corner:.15,...G},true);
+  k.loftX('背部ポッド',[[19.5,-3.5,3.5,108,114.5],[25,-7.2,7.2,107.4,115.8],[30,-8.4,8.4,107.4,116.2],[40,-9,9,107.4,117],[50,-8.4,8.4,107.4,116.2],[55,-8,8,107.4,116.2],[60,-6.4,6.4,107.4,115.4],[62.5,-4,4,107.4,113]],{round:true,...W});
+  k.box('背部砲塔塔（右舷）',[34.6,106,14.3],[51,122.2,24.7],{corner:.12,...W});
+  k.loftX('背部砲塔塔の上部',[[35.5,15.1,23.5,121.5,128.5],[40,15.1,23.5,121.5,131],[45,15.1,23.5,121.5,131.4],[51,15.1,23.5,121.5,127]],{corner:.25,...W});
+  // Lower drum and the two static-discharge vanes beneath the block.
+  nbRoundZ(s,'腹部ドラム',[[-13.3,37.8,50.5,58,71],[13.3,37.8,50.5,58,71]],W);
+  nbPlate(s,'静電放出翼',[[43.5,67.5,14.2],[43.5,67.5,26],[50.5,55.3,25.8],[63.1,33.4,15.6],[63.1,33.4,14.2]],2,G,true);
+  // Spar root brace and keel under the spar.
+  k.loftX('連結桁の基部',[[52,-2.9,2.9,94.6,105],[56,-5.3,5.3,87.4,105],[63.5,-5.3,5.3,87.4,105],[67,-4.4,4.4,89.2,105],[70.5,-2.9,2.9,96.6,105],[84,-2.9,2.9,96.6,105],[86,-2,2,98.6,105]],{corner:.15,...W});
+  // Forward hull: lens section (prism), dorsal superstructure, bow and the
+  // stepped aft end where it meets the spar.
+  const FORE=[[0,117.4],[5.7,117],[10.4,116.2],[13.3,114],[16.3,111],[19.3,108],[21.6,105],[21.6,102],[21.2,99],[17.3,96],[13.3,93],[11.7,90],[11,88.2],[0,88]];
+  nbPrismX(s,'前部船体',190,258,FORE,W);
+  k.loftX('前部船体の後端',[[164,-6.8,6.8,97,108.4],[172,-9.8,9.8,93.5,109.8],[180,-12.5,12.5,92.6,115],[188,-13.8,13.8,91.7,116.5],[190.4,-21,21,90.8,117]],{corner:.3,...W});
+  k.loftX('艦首',[[257.8,-21.6,21.6,86,117.4],[262,-16.3,16.3,86,117],[272,-15.3,15.3,87,117.4],[280,-14.4,14.4,92.8,114.4],[288,-12.6,12.6,95.4,112],[295,-8.4,8.4,97.3,110.6],[300,-2.4,2.4,101,107]],{corner:.32,...W});
+  k.loftX('背部上部構造',[[213,-4,4,115,118.6],[218,-7.9,7.9,115,122.3],[224,-7.9,7.9,115,124.5],[246,-7.9,7.9,115,124.5],[252,-5.4,5.4,115,120.6],[258,-4,4,115,118.8],[266,-1.6,1.6,115,119.2]],{corner:.3,...W});
+  k.ellipsoid('背部センサードーム',[200.5,117.6,0],[14,7.6,5],{skin:'plain',...W});
+  // Communication masts: a cluster of four on the port side and two small ones aft.
+  for(const [x,z,y0,y1,r] of [[233.5,-12,115,167,1],[235.3,-14,115,165,1],[236.9,-11.2,115,162,1],[239,-12.4,115,160,1],[203.4,0,118,138.9,1],[206.4,0,118,136.5,1]])k.put('通信マスト',[x,(y0+y1)/2,z],[r*2,r*2,y1-y0],{form:'cylinder',skin:'plain',...G});
+  // Lower tower: a tapering core with its stacked fore-and-aft pods.
+  nbLoftY(s,'下部船体の柱',[[2.5,-3.6,3.6,231,260],[9,-4.2,4.2,228,267],[30,-6.1,6.1,226,269],[60,-8.7,8.7,226,269],[87,-11,11,215,272]],W);
+  for(const [y0,y1,x0,x1,hz,label] of [[11.5,21.5,208.6,270.8,5.4,'下部格納ポッド'],[26.5,37,222.8,274.2,6.6,'下部区画ポッド'],[41.5,55.5,221.7,268.6,8.2,'下部区画ポッド'],[62.5,84.5,213,272,14.3,'上部区画ポッド'],[83,93,199.5,280,13.4,'前部船体の腹部']])
+   k.ellipsoid(label,[(x0+x1)/2,(y0+y1)/2,0],[x1-x0,hz*2,y1-y0],W);
+  // Engines: seven nozzles (4-2-1) in ribbed sleeves on the block's aft face.
+  const ENG=[[99.6,22],[99.6,9.6],[78.8,14.6],[68,0]];
+  for(const [y,z] of ENG){
+   for(const sg of z>0?[-1,1]:[1])placePart(s,'struct',[5.4,y,sg*z],[11.6,11.6,10.8],{label:'機関ノズル外筒',form:'arc',arcInner:.86,arcStart:0,arcSweep:360,pitch:-90,skin:'plain',...D},false);
+   k.loftX('機関ノズル奥の遮熱板',[[10.3,z-4.4,z+4.4,y-4.4,y+4.4],[12.3,z-4.4,z+4.4,y-4.4,y+4.4]],{round:true,skin:'plain',paint:NB_THROAT},z>0);
+  }
+  // Machinery: reactor, drives and supply in the engine block; hangar, troops
+  // and structural field in the forward hull; shields and bridge in the bow.
+  const gen=part('gen','主反応炉',[44,97,0],24);
+  for(const [y,z] of ENG)for(const sg of z>0?[-1,1]:[1])part('engine','亜光速機関',[15,y,sg*z],10,{dir:[-1,0,0],nozzleLength:30,bodyLength:2,bodyRadius:.4,reactor:gen.id});
+  room('pump','反応物供給設備',[44,64.5,0],[14,6,4]);
+  part('fuel','反応物サイロ',[46,70,7],6,{length:16,dir:[1,0,0]},true);
+  part('inertial','慣性制御装置',[48.5,104,24],10,{length:17,dir:[1,0,0]},true);
+  // Hangar across the forward hull's widest band, open to port and starboard
+  // behind ray shields; servicing deck below it.
+  const bay=room('hangar','格納庫',[224,103,0],[60,42.6,8.8],{airRole:'storage'});
+  openBay(s,bay,'port','ray');openBay(s,bay,'stbd','ray');
+  room('service','航空整備・補給区画',[224,93.3,0],[50,20,9]);
+  room('integrity','構造維持装置',[242.5,73.5,0],[30,14,10]);
+  room('troops','兵員区画',[248,31.75,0],[28,9,7]);
+  room('cargo','貨物区画',[246,47,0],[30,12,10]);
+  part('hyper','ハイパードライブ',[247,60.5,0],9,{length:13,dir:[0,1,0]});
+  part('shield','シールド発生器',[270,103,8],10,{},true);
+  room('command','艦橋',[284,108,0],[10,8,6]);
+  // Armament (12 turbolasers, 12 laser cannons, 2 tractor beams).
+  const gun=(kind,x,z,axis,scale,zone)=>{const up=AXES[axis],h=rayEnv(s,[x,axis===3?-600:600,z],mul(up,-1),{structOnly:true});if(!h)throw new Error('ネビュロンBの砲座がありません: '+x+','+z);const f={id:s.nextId++,k:kind,p:h.p,a:axis,ped:0,base:0,low:0,float:false,scale,chargeDepth:6,batteryZone:zone};mountFit(s,f);s.fits.push(f);return f;};
+  syncAviationSurfaces(s);s._lockedCache=cache(s);
+  try{withFrozenStructures(()=>{
+   // Twelve turbolasers on the dorsal decks, the rails and the bow.
+   for(const x of [228,242])for(const z of [-4.5,4.5])gun('mtl',x,z,2,.45,'fore-dorsal');
+   for(const z of [-4,4])gun('mtl',213,z,2,.45,'fore-dorsal');
+   for(const x of [16,46])for(const z of [-20.25,20.25])gun('mtl',x,z,2,.45,'aft-'+(z<0?'port':'stbd'));
+   gun('mtl',258,0,2,.45,'fore-dorsal');gun('mtl',276,0,2,.45,'bow');
+   // Twelve laser cannons under the forward hull, the bow and the block.
+   for(const [x,z] of [[200,17],[222,17],[244,17],[270,12]])for(const sg of [-1,1])gun('pd',x,sg*z,3,.6,'fore-ventral');
+   for(const x of [22,40])for(const z of [-16,16])gun('pd',x,z,3,.6,'aft-ventral');
+   gun('trc',286,0,3,.6,'bow');gun('trc',30,0,3,.6,'stern');
+  });}finally{delete s._lockedCache;}
+  delete s._building;remount(s);return s;
+ }
+});
+}
+
+// ---- src/ships/providence.js ----
+// Providence-class carrier/destroyer, measured from "Star Wars: The Clone Wars
+// Providence" by lolqeeeeeeeeee on Sketchfab (CC BY-NC 4.0). Ship frame: x from
+// the stern (0) to the bow (1,088 m), y up from the lowest point, z to
+// starboard. The hull is fitted to the main body (aft hangar section and the
+// forward prow); the dorsal shell, spine, command tower, bridge, ventral fin,
+// forward ventral pod and the three engine housings are ordinary structures.
+{
+const PROV={"W":202.635,"H":120.0,"st":[[0.0,0.079,0.0083,0.6358,0.8,0.8,0.5,0.5],[0.00956,0.0987,0.0083,0.6492,0.8,0.8,0.5,0.5],[0.12813,0.0987,0.0083,0.6492,0.8,0.8,0.5,0.5],[0.12923,0.7067,0.6333,0.3667,0.9186,0.552,0.65,0.61],[0.16912,0.7852,0.6917,0.3875,0.9405,0.5223,0.52,0.46],[0.19118,0.883,0.725,0.3958,0.8551,0.5163,0.38,0.48],[0.21048,0.9192,0.7333,0.4083,0.8374,0.6317,0.27,0.56],[0.21875,0.9298,0.75,0.4083,0.8298,0.5937,0.3,0.55],[0.28217,0.9824,0.7833,0.4167,0.8206,0.6001,0.34,0.56],[0.33456,0.9763,0.7833,0.4167,0.8338,0.5915,0.39,0.55],[0.3704,0.9734,0.7667,0.4167,0.8287,0.6207,0.33,0.56],[0.39246,0.9545,0.75,0.4167,0.8333,0.6226,0.34,0.55],[0.41176,0.9041,0.7333,0.4083,0.8645,0.4664,0.56,0.49],[0.43658,0.8513,0.6833,0.4,0.882,0.4757,0.55,0.5],[0.45588,0.7484,0.6333,0.3917,0.8317,0.4661,0.68,0.57],[0.45864,0.7192,0.575,0.4125,0.8256,0.6262,0.73,0.55],[0.4614,0.7012,0.6917,0.4792,0.4669,0.6304,0.59,0.44],[0.47518,0.5748,0.675,0.4875,0.5771,0.4686,0.5,0.44],[0.48621,0.6543,0.6917,0.4792,0.5184,0.3364,0.21,0.28],[0.6682,0.7396,0.7083,0.4875,0.5904,0.3186,0.29,0.28],[0.78952,0.6907,0.7,0.4833,0.6297,0.3193,0.26,0.27],[0.85846,0.5813,0.65,0.475,0.5627,0.3635,0.22,0.26],[0.92463,0.2311,0.4167,0.425,0.6844,0.4825,0.27,0.27],[0.96048,0.0932,0.2333,0.3917,0.3833,0.1111,0.02,0.51],[0.96324,0.0857,0.1,0.45,0.3569,0.9702,0.02,0.2],[0.99632,0.0403,0.1167,0.4167,0.6298,0.8266,0.46,0.31],[1.0,0.0204,0.15,0.4,0.9518,0.9747,0.93,0.48]],"loft":{"deck":[[0.0,-21.64,21.64,134.89,137.63],[10.43,-41.26,41.26,137.0,143.84],[76.89,-53.75,53.75,136.54,156.62],[121.19,-63.12,63.12,132.0,165.06],[139.44,-64.74,64.74,125.85,168.03],[260.63,-77.97,77.97,155.26,180.49],[269.76,-77.97,77.97,155.64,180.8],[277.57,-74.57,74.57,155.98,181.07],[427.44,-74.76,74.76,154.57,175.01],[489.99,-59.38,59.38,145.62,160.71],[521.27,-41.57,41.57,136.79,147.18]],"spine":[[121.3,-12.72,12.72,184.8,192.49],[127.79,-17.6,17.6,184.8,192.49],[148.19,-17.95,17.95,184.8,192.49],[150.04,-23.2,23.2,172.51,192.49],[404.97,-27.89,27.89,176.59,192.49],[430.0,-28.35,28.35,173.36,192.49],[446.69,-23.71,23.71,171.2,192.49],[455.96,-29.75,29.75,169.44,192.49],[482.84,-28.96,28.96,160.25,192.49],[490.26,-18.47,18.47,157.59,192.49],[492.11,-16.41,16.41,156.94,157.09]],"aftKeel":[[62.43,-0.24,0.24,73.1,73.16],[70.93,-38.12,38.12,68.07,73.29],[115.93,-40.98,40.98,66.41,75.39],[116.18,-60.8,60.8,66.4,136.88],[125.68,-68.73,68.73,66.06,139.08],[135.93,-70.8,70.8,67.27,141.52],[136.93,-71.0,71.0,74.69,141.75],[137.18,-68.18,68.18,78.39,134.68],[139.35,-68.18,68.18,78.39,134.68]],"tower":[[109.68,-8.16,8.16,330.16,330.28],[120.33,-11.3,11.3,305.42,330.37],[140.35,-13.77,13.77,258.94,327.19],[155.26,-13.77,13.77,224.5,303.96],[193.59,-10.77,10.77,191.75,244.63],[215.32,-8.16,8.16,191.84,211.5],[280.06,-8.16,8.16,191.84,191.85]],"bridge":[[81.9,-18.18,18.18,329.73,333.14],[84.15,-18.18,18.18,329.73,334.31],[88.9,-18.18,18.18,329.73,342.56],[93.9,-18.18,18.18,329.73,343.07],[96.65,-18.18,18.18,329.73,346.93],[164.9,-17.51,17.51,329.73,346.93],[169.65,-15.54,15.54,329.73,346.13],[174.15,-11.45,11.45,329.73,342.56],[177.08,-4.49,4.49,329.73,342.56]],"mast":[[90.45,-4.25,4.25,342.04,342.13],[95.2,-4.25,4.25,342.04,349.17],[106.45,-4.25,4.25,342.04,349.17],[106.7,-1.38,1.38,311.42,318.11],[106.95,-1.38,1.38,311.41,373.94],[111.7,-1.38,1.38,311.33,363.8],[118.45,-1.38,1.38,311.21,347.28],[118.7,-1.38,1.38,311.21,313.07],[118.95,-1.38,1.38,311.2,311.84],[129.7,-2.98,2.98,346.66,349.22],[157.2,-2.98,2.98,346.66,350.31],[160.45,-2.98,2.98,346.66,358.28],[162.45,-2.98,2.98,346.66,356.86],[163.2,-2.98,2.98,346.66,349.22],[165.79,-2.98,2.98,346.66,346.75]],"vfin":[[214.29,-4.17,4.17,64.9,64.94],[246.99,-5.3,5.3,41.86,64.48],[253.58,-6.93,6.93,37.21,64.43],[270.07,-6.93,6.93,25.57,64.27],[299.47,-10.71,10.71,0.45,63.87],[315.13,-10.71,10.71,1.42,15.93],[324.2,-10.71,10.71,6.2,12.64]],"vpod":[[662.63,-0.07,0.07,72.55,72.62],[669.46,-9.15,9.15,67.04,73.99],[678.33,-18.19,18.19,61.57,81.75],[722.0,-33.27,33.27,52.43,81.75],[786.15,-42.09,42.09,47.08,81.75],[840.74,-42.88,42.88,46.6,81.75],[881.0,-36.89,36.89,50.23,81.75],[909.66,-27.04,27.04,56.2,81.75],[928.08,-14.7,14.7,63.68,81.75],[935.59,-0.1,0.1,72.53,72.62]],"ridge":[[708.45,-2.4,2.4,160.25,162.52],[710.94,-2.4,2.4,160.25,164.86],[740.83,-2.4,2.4,160.25,164.86],[744.56,-4.37,4.37,160.25,166.49],[759.5,-3.83,3.83,160.25,164.86],[762.62,-4.37,4.37,160.25,166.49],[780.05,-3.83,3.83,160.19,164.79],[781.92,-7.96,7.96,160.19,166.27],[786.9,-7.96,7.96,160.19,166.27],[788.77,-3.85,3.85,160.19,164.8],[857.26,-3.83,3.83,158.82,164.53],[865.35,-8.25,8.25,158.26,166.41],[885.27,-8.34,8.34,157.31,170.64],[921.38,-7.0,7.0,154.88,168.92],[923.88,-7.38,7.38,154.85,168.1],[935.08,-9.65,9.65,152.42,170.54],[938.2,-15.4,15.4,152.38,170.54],[948.78,-15.05,15.05,160.95,170.54],[953.14,-11.23,11.23,162.0,167.87],[957.5,-7.46,7.46,163.59,166.28]],"plate":[[488.2,-14.99,14.99,154.99,164.65],[488.97,-15.0,15.0,155.01,166.35],[633.88,-17.21,17.21,157.95,166.35],[639.26,-13.16,13.16,157.95,164.65],[641.95,-10.66,10.66,161.59,164.65]],"box83":[[453.71,-11.29,11.29,187.62,194.5],[484.46,-16.49,16.49,180.41,196.19],[491.46,-14.15,14.15,157.2,193.34],[501.71,-10.72,10.72,157.2,189.17],[501.96,-10.64,10.64,180.96,189.06],[505.28,-9.55,9.55,180.96,187.73]],"rail":[[270.15,-6.64,6.64,192.35,194.39],[292.77,-6.64,6.64,192.35,194.39],[295.33,-8.07,8.07,192.3,195.82],[302.99,-6.64,6.64,192.35,194.39],[305.55,-8.07,8.07,192.3,195.82],[308.1,-8.07,8.07,192.3,195.82],[310.66,-6.64,6.64,192.35,194.39],[316.86,-6.64,6.64,192.35,194.39],[319.41,-8.07,8.07,192.3,195.82],[327.81,-6.64,6.64,192.35,194.39],[330.36,-8.07,8.07,192.3,195.82],[341.67,-6.64,6.64,192.35,194.39],[344.23,-8.07,8.07,192.3,195.82],[357.0,-6.64,6.64,192.35,194.39],[363.93,-8.07,8.07,192.3,195.82],[366.49,-6.64,6.64,192.35,194.39],[375.61,-6.64,6.64,192.35,194.39],[378.17,-8.07,8.07,192.3,195.82],[380.72,-8.07,8.07,192.3,195.82],[383.28,-6.64,6.64,192.35,194.39],[387.29,-6.64,6.64,192.35,194.39],[389.84,-8.07,8.07,192.3,195.82],[392.4,-8.07,8.07,192.3,195.82],[394.95,-6.64,6.64,192.35,194.39],[416.12,-6.64,6.64,192.35,194.39]],"towerBase":[[102.91,-6.37,6.37,160.81,160.85],[116.91,-6.37,6.37,162.69,173.69],[121.41,-19.1,19.1,163.24,176.94],[194.41,-19.1,19.1,172.02,175.53]],"aftFin":[[27.14,-2.03,2.03,174.04,174.47],[27.64,-2.03,2.03,171.14,174.47],[38.14,-2.03,2.03,168.92,174.45],[38.39,-8.52,8.52,168.87,174.45],[39.64,-8.52,8.52,168.61,174.45],[46.14,-8.52,8.52,149.24,174.44],[68.89,-8.52,8.52,152.95,174.06],[71.64,-8.52,8.52,153.4,171.66],[71.89,-2.03,2.03,153.44,171.45],[88.31,-2.03,2.03,157.13,157.19]],"engC":[[41.4,-12.99,12.99,109.41,135.12],[53.81,-12.99,12.99,109.41,135.12],[58.87,-13.64,13.64,109.41,138.8],[63.17,-16.64,16.64,109.41,138.8],[69.25,-16.64,16.64,108.8,138.8],[71.02,-16.64,16.64,105.73,138.8],[142.67,-16.67,16.67,105.73,138.8]],"engS":[[60.82,25.92,60.78,94.75,129.61],[73.32,25.92,60.78,94.75,129.61],[80.32,20.92,60.78,93.72,130.64],[86.07,20.92,60.78,89.8,134.56],[94.07,20.92,61.3,89.8,134.56],[96.82,20.92,65.78,89.79,134.57],[148.27,20.92,65.78,89.75,134.61]],"engLow":[[82.04,-8.86,8.86,105.4,106.4],[88.54,-12.38,12.38,99.37,106.4],[116.79,-14.87,14.87,94.62,106.4],[117.04,-27.85,27.85,94.49,106.4],[128.54,-36.26,36.26,85.61,106.4],[140.61,-36.24,36.24,85.66,106.4]],"engKeel":[[105.41,-3.18,3.18,92.03,104.92],[110.16,-4.0,4.0,90.48,104.92],[110.41,-6.92,6.92,82.88,104.92],[139.79,-6.92,6.92,78.02,104.92]],"pipeS":[[28.05,20.62,27.31,90.77,97.46],[30.31,20.62,27.31,90.77,97.46],[30.87,19.91,28.03,90.06,98.18],[46.1,19.91,28.03,90.06,98.18],[60.76,21.42,26.27,91.98,96.93],[65.27,19.92,25.25,94.22,101.06],[77.96,15.33,20.61,106.04,112.46],[81.62,14.82,19.67,108.84,113.69],[140.84,14.82,19.67,108.83,113.68]],"nozC":[[10.27,-10.2,10.2,112.2,132.32],[36.52,-11.91,11.91,110.51,134.02],[41.91,-10.21,10.21,112.2,132.32]],"nozS":[[18.61,29.72,57.0,98.56,125.84],[54.36,27.46,59.25,96.31,128.09],[61.5,29.71,57.01,98.55,125.85]],"nozSrim":[[15.31,36.2,50.9,94.33,129.55],[16.81,34.46,52.64,94.24,129.65],[17.06,28.12,58.98,94.23,129.67],[24.06,28.29,58.82,93.82,130.15],[26.06,34.19,52.91,93.71,130.29],[41.31,36.18,50.92,92.83,131.34],[41.5,36.2,50.9,92.82,129.26]]},"rooms":[["hangar","上部航空機格納庫",[353,149.85,-1],[155.4,125.4,44.7],"storage"],["hangar","上部航空機格納庫 2",[353,140.85,71],[155.4,17.4,26.7],"storage"],["hangar","上部航空機格納庫 3",[353,139.35,-73],[155.4,17.4,23.7],"storage"],["hangar","上部航空機格納庫 4",[351.5,134.85,84.5],[140.4,8.4,14.7],"storage"],["hangar","下部航空機格納庫",[353,102.15,-1],[155.4,173.4,20.7],"storage"],["hangar","下部航空機格納庫 2",[351.5,105.15,90.5],[140.4,8.4,14.7],"storage"],["hangar","下部航空機格納庫 3",[348.5,106.65,-92.5],[146.4,8.4,11.7],"storage"],["service","航空整備・補給区画",[345.5,79.5,-35.5],[164.4,50.4,23.4]],["service","航空整備・補給区画 2",[347,79.5,35],[167.4,47.4,23.4]],["service","航空整備・補給区画 3",[306.95,181.5,0.5],[99.31,44.4,17.4]],["service","航空整備・補給区画 4",[261.5,120,60.5],[8.4,44.4,56.4]],["troops","兵員収容区画（バトル・ドロイド）",[713,147,0.5],[383.4,68.4,20.4]],["troops","兵員収容区画（バトル・ドロイド） 2",[531.89,120,0.5],[21.19,92.4,32.4]],["troops","兵員収容区画（バトル・ドロイド） 3",[524,94.5,-26.5],[5.4,32.4,17.4]],["vehicle","車両格納・整備区画",[712.34,111,33.5],[196.08,32.4,50.4]],["vehicle","車両格納・整備区画 2",[529.56,94.5,27.5],[16.51,32.4,17.4]],["cargo","貨物・物資庫",[147.5,150,0.5],[14.4,104.4,32.4]],["integrity","構造維持装置",[196.74,183,0.5],[88.89,38.4,14.4]],["integrity","構造維持装置 2",[143,103.5,0.5],[5.4,50.4,17.4]],["pump","反応物供給設備",[160.5,171,0.5],[40.4,32.4,8.4]]]};
+const PROV_AIR=[{id:'air-1',name:'ヴァルチャー級ドロイド・スターファイター',size:1,count:120},{id:'air-2',name:'ドロイド・トライファイター',size:1,count:120},{id:'air-3',name:'ハイエナ級ドロイド爆撃機',size:1,count:10},{id:'air-4',name:'HMPドロイド・ガンシップ',size:2,count:12},{id:'air-5',name:'シースパイド級シャトル',size:2,count:4}];
+const PROV_GROUND=[{id:'ground-1',name:'バトル・ドロイド部隊',kind:'troops',count:48247},{id:'ground-2',name:'MTT 大型兵員輸送車',kind:'vehicle',size:8,count:40},{id:'ground-3',name:'AAT 装甲強襲戦車',kind:'vehicle',size:1,count:200}];
+const PROV_TAN='#a89a7c',PROV_BROWN='#8f8268',PROV_STEEL='#6f7a86',PROV_DARK='#5f646b';
+function providenceBuild(opt={}){
+ const D=PROV,L=1088;
+ const s=newShip({L,W:D.W,H:D.H,sec:'warship',plan:'wedge',deckWidth:0,keelWidth:0,belt:.13,chineHeight:.5,bowFree:true,stations:D.st.map(a=>a.slice()),keel:'light'},'プロヴィデンス級空母／駆逐艦');
+ s._building=true;s.reference='providence';s.paint='cis';s.lights='warm';s.detail=1;s.armor={hull:.45,cit:.3};s.shieldTarget=1;
+ const k=shipKit(s),part=(kind,label,c,d,o={})=>placePart(s,kind,c,d,{label,...o});
+ const loft=(name,label,paint,o={},mirror=false)=>k.loftX(label,D.loft[name],{paint,corner:.12,...o},mirror);
+ // ---- structures (measured loft sections) ----
+ loft('deck','背部装甲殻',PROV_TAN,{corner:.22});
+ loft('spine','背部中央稜線',PROV_BROWN,{corner:.1});
+ loft('aftKeel','艦尾下部の機関台座',PROV_BROWN,{corner:.15});
+ loft('tower','司令塔',PROV_TAN,{corner:.14});
+ loft('towerBase','司令塔の基部',PROV_BROWN,{corner:.1});
+ loft('bridge','艦橋区画',PROV_STEEL,{corner:.18});
+ loft('mast','艦橋上の通信マスト',PROV_DARK,{corner:.05});
+ loft('vfin','腹部安定翼と下部センサー',PROV_TAN,{corner:.1});
+ loft('vpod','前部腹部ポッド',PROV_BROWN,{round:true});
+ loft('ridge','前部背面の稜線',PROV_BROWN,{corner:.1});
+ loft('plate','中央背面の装甲板',PROV_TAN,{corner:.1});
+ loft('box83','背面の機器区画',PROV_BROWN,{corner:.1});
+ loft('rail','背面の通信レール',PROV_DARK,{corner:.05});
+ loft('aftFin','艦尾背面の小翼',PROV_TAN,{corner:.08});
+ loft('engC','中央機関ハウジング',PROV_STEEL,{round:true});
+ loft('engS','舷側機関ハウジング',PROV_STEEL,{round:true},true);
+ loft('engLow','機関下部の補機架台',PROV_BROWN,{corner:.12});
+ loft('engKeel','機関下部の竜骨',PROV_BROWN,{corner:.1});
+ loft('pipeS','機関間の導管',PROV_DARK,{round:true},true);
+ // ---- through hangar (the measured slot), with open bays on both beams ----
+ const dock=part('hangar','舷側貫通発着甲板',[353,120,0],30,{room:[156,206,15],airRole:'mixed'});
+ openBay(s,dock,'port','open');openBay(s,dock,'stbd','open');
+ if(opt.stage==='dock'){delete s._building;return s;}
+ // ---- power and propulsion ----
+ const r=part('gen','主反応炉',[216,120,0],110);
+ const eo=equipmentOptions('exposedTurbine');
+ const engine=(label,mouth,y,z,d,body,mirror)=>{const nl=engineBaseline('exposed',d,'nozzleLength'),len=engineBaseline('exposed',d,'length')*body/engineBaseline('exposed',d,'body');const p=placePart(s,'engine',[mouth+nl/2,y,z],d,{...eo,label,d,reactor:r.id,dir:[-1,0,0],engineLength:len},mirror);resizeEngine(p,d,len);return p;};
+ engine('中央主機（クレヴェルド4放射状イオン機関）',10.3,122.3,0,34,engineBaseline('exposed',34,'body'),false);
+ engine('舷側主機（クレヴェルド4放射状イオン機関）',18.6,112.2,43.35,54,engineBaseline('exposed',54,'body'),true);
+ // ---- defence, hyperdrive and support machinery ----
+ for(const sg of [-1,1])part('shield','偏向シールド発生器',[470,117,sg*28],39);
+ for(const sg of [-1,1])part('fuel','反応物サイロ',[600,116,sg*40],24,{length:36,dir:[0,1,0]});
+ part('inertial','慣性補償装置',[700,118,0],34,{length:80});
+ part('hyper','主ハイパードライブ',[780,114,0],26,{length:60});
+ if(opt.stage==='machinery'){delete s._building;return s;}
+ // ---- command: bridge pods on the tower-top bridge and the hangar control post ----
+ const pod=(kind,host,o,dir,w,h)=>{const hit=rayPart(o,dir,host);if(!hit)throw new Error('艦橋ポッドの取付面がありません');const r=placeFit(s,kind,hit.p,hit.n,0,false);if(!r.fit)throw new Error('艦橋ポッド: '+r.err);r.fit.width=w;r.fit.height=h;return r.fit;};
+ const bridgeBody=s.parts.find(p=>p.label==='艦橋区画'),box83=s.parts.find(p=>p.label==='背面の機器区画');
+ pod('podBridge',bridgeBody,[260,338,0],[-1,0,0],8,5);
+ pod('podCombat',bridgeBody,[130,338,60],[0,0,-1],14,5);
+ pod('podAir',box83,[560,180,0],[-1,0,0],14,5);
+ // ---- armament (canon counts; game calibres) ----
+ const mount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:p.slice(),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);if(f.float)throw new Error('作例の砲座がありません: '+kind+' '+p.map(Math.round).join(','));s.fits.push(f);return f;};
+ syncAviationSurfaces(s);s._lockedCache=cache(s);
+ try{withFrozenStructures(()=>{
+  // 14 heavy quad turbolasers on the beam shoulders (7 a side)
+  for(const x of [560,640,720,800,880,180,470])for(const sg of [-1,1])mount('htl',[x,0,sg*(x<500?78:58)],2,(sg<0?'port':'stbd')+'-heavy',{chargeDepth:12});
+  // 2 forward battleship heavy ion cannons
+  for(const sg of [-1,1])mount('ion',[975,0,sg*18],2,'bow-ion',{chargeDepth:12});
+  // 34 heavy dual laser cannons, dorsal and ventral turrets
+  for(let i=0;i<9;i++)for(const sg of [-1,1])if(!(i===8&&sg>0))mount('ltl',[545+i*50,0,sg*34],2,'dorsal-laser');
+  for(let i=0;i<9;i++)for(const sg of [-1,1])if(!(i===8&&sg>0))mount('ltl',[540+i*48,0,sg*48],3,'ventral-laser');
+  // 12 twin point-defence ion cannons and 12 heavy flak guns on the beams
+  for(const x of [200,240,460,600,760,920])for(const sg of [-1,1])mount('pd',[x,100,sg*300],sg>0?4:5,(sg<0?'port':'stbd')+'-pd');
+  for(const x of [520,680,840,960,160,250])for(const sg of [-1,1])mount('pd',[x,0,sg*(x<500?60:30)],2,'flak');
+  // 10 heavy tractor beam emitters (5 a side)
+  for(const x of [500,620,740,860,950])for(const sg of [-1,1])mount('trc',[x,95,sg*300],sg>0?4:5,(sg<0?'port':'stbd')+'-tractor');
+  // 102 proton torpedo launchers in dorsal and ventral rows
+  for(let i=0;i<17;i++)for(const z of [-14,0,14])mount('msl',[555+i*25,0,z],2,'dorsal-torpedo');
+  for(let i=0;i<17;i++)for(const z of [-60,0,60])mount('msl',[560+i*22,0,z],3,'ventral-torpedo');
+ });}finally{delete s._lockedCache;}
+ if(opt.stage==='fitted'){delete s._building;return s;}
+
+ if(opt.stage==='shape'){delete s._building;return s;}
+ // ---- compartments packed into the measured hull and structures ----
+ for(const [kind,label,c,size,role,mirror] of D.rooms){const o={room:size};if(typeof role==='string')o.airRole=role;placePart(s,kind,c,30,{label,...o},mirror===1||role===1);}
+ // Canon complement: 120 Vulture droids, 120 droid tri-fighters, 10 Hyena bombers;
+ // HMP gunships and Sheathipede shuttles are a game setting. 48,247 troops.
+ s.airWings=PROV_AIR.map(r=>({...r}));s.groundForces=normalizeGroundForces(PROV_GROUND);
+ delete s._building;adoptEquipment(s,true);remount(s);syncCompartments(s);
+ return s;
+
+}
+registerShipExample({
+ key:'providence',name:'プロヴィデンス級空母／駆逐艦',side:'独立星系連合',role:'空母／駆逐艦',length:1088,
+ title:'Star Wars: The Clone Wars Providence',author:'lolqeeeeeeeeee',authorUrl:'https://sketchfab.com/lolqeeeeeeeeee',
+ source:'https://sketchfab.com/3d-models/star-wars-the-clone-wars-providence-8d27764a7d254fd7948557daf6d7ccdc',license:'CC BY-NC 4.0',
+ credit:'This work is based on "Star Wars: The Clone Wars Providence" (https://sketchfab.com/3d-models/star-wars-the-clone-wars-providence-8d27764a7d254fd7948557daf6d7ccdc) by lolqeeeeeeeeee (https://sketchfab.com/lolqeeeeeeeeee) licensed under CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)',
+ note:'Sketchfab の 3D モデル（lolqeeeeeeeeee 作、CC BY-NC 4.0）を全長 1,088 m に合わせて実測し、27 断面のフィット船体に背部装甲殻・司令塔・機関ハウジングなどの実測構造物を重ねて再現した独立星系連合の空母／駆逐艦。兵装は四連重ターボレーザー 14 基（重ターボレーザー連装砲塔で代表）、二連レーザー砲 34 基（軽ターボレーザー四連砲塔）、重イオン砲 2 基、プロトン魚雷発射管 102 基、点防御砲 24 基、トラクター・ビーム投射機 10 基。艦載機はヴァルチャー 120 機、トライファイター 120 機、ハイエナ爆撃機 10 機、HMP ガンシップ 12 機、シャトル 4 機。バトル・ドロイド 48,247 体、MTT 40 両、AAT 200 両を輸送。ハイパードライブ・クラス 1.5。加速約 2,500 G はゲーム上の設定値。公式の乗員は最低 600 体のドロイド。',
+ airWings:PROV_AIR,groundForces:PROV_GROUND,
+ build:providenceBuild
+});
+}
+
+// ---- src/ships/recusant.js ----
+// Recusant-class light destroyer, measured from "Star Wars: The Clone Wars
+// Recusant (S3E2 style)" by lolqeeeeeeeeee on Sketchfab (CC BY-NC 4.0). Ship
+// frame: x from the stern (0) to the bow (1,187 m), y up from the lowest point,
+// z to starboard. The hull is fitted to the domed superstructure (mid dome and
+// prow); a thin keel line runs aft inside the spine and the core. The central
+// core under the domes, the aft spine, the aft command block, the two stern pods, the dorsal
+// ridges, the ventral shell, the nose keel and the ventral fins are structures.
+{
+const RECU={"W":133.28,"H":140,"st":[[0.0,0.015,0.0107,0.0518,0.8,0.8,0.5,0.5],[0.05223,0.015,0.0107,-0.0696,0.8,0.8,0.5,0.5],[0.45358,0.015,0.0107,-0.0696,0.8,0.8,0.5,0.5],[0.45746,0.4342,0.05,0.2393,0.9384,0.98,0.02,0.2],[0.46757,0.4546,0.1786,0.325,0.4418,0.9771,0.02,0.29],[0.49284,0.5334,0.2143,0.3357,0.3949,0.9698,0.02,0.27],[0.53075,0.6949,0.2714,0.3571,0.3839,0.9754,0.02,0.2],[0.55602,0.7845,0.3,0.3786,0.3647,0.9745,0.02,0.2],[0.56613,0.8404,0.3429,0.3714,0.3616,0.9763,0.02,0.2],[0.5813,0.8435,0.3143,0.4071,0.3253,0.9778,0.02,0.2],[0.58888,0.8634,0.3214,0.4107,0.3301,0.9779,0.02,0.2],[0.59393,0.9276,0.3714,0.3857,0.3409,0.9709,0.02,0.2],[0.62426,0.9948,0.3857,0.3857,0.3124,0.9712,0.02,0.2],[0.63184,0.9602,0.3429,0.4071,0.3054,0.9735,0.02,0.2],[0.63943,0.9979,0.3786,0.3893,0.3087,0.974,0.02,0.2],[0.64448,0.9949,0.3857,0.3857,0.3124,0.9793,0.02,0.21],[0.65965,0.996,0.5429,0.2857,0.3762,0.98,0.52,0.2],[0.67734,0.9617,0.5357,0.2607,0.3704,0.98,0.65,0.2],[0.68745,0.934,0.4786,0.275,0.3595,0.98,0.56,0.2],[0.68997,0.9254,0.4214,0.2964,0.3803,0.98,0.44,0.2],[0.70008,0.883,0.5286,0.2214,0.4048,0.9288,0.11,0.51],[0.72536,0.7924,0.4214,0.1821,0.5658,0.98,0.02,0.22],[0.74052,0.7645,0.3286,0.1857,0.3499,0.9753,0.02,0.26],[0.78349,0.6951,0.2929,0.1893,0.3878,0.9771,0.02,0.24],[0.80118,0.599,0.2071,0.225,0.4094,0.9778,0.02,0.2],[0.82393,0.5647,0.2214,0.2107,0.4298,0.98,0.02,0.2],[0.8492,0.5531,0.2429,0.1857,0.3933,0.9722,0.02,0.24],[0.87447,0.5442,0.3,0.1429,0.3794,0.9752,0.02,0.24],[0.96546,0.2234,0.0857,0.0643,0.2833,0.9784,0.02,0.2],[1.0,0.0468,0.0143,0.0071,0.301,0.98,0.19,0.2]],"loft":{"domeRidge":[[585.67,-3.27,3.27,142.84,142.94],[589.71,-5.67,5.67,140.67,147.87],[601.16,-9.74,9.74,140.87,152.13],[601.83,-10.6,10.6,132.69,152.38],[604.52,-12.84,12.84,133.14,152.78],[615.3,-13.52,13.52,134.93,153.57],[617.32,-13.65,13.65,135.27,152.14],[624.05,-14.07,14.07,136.39,152.23],[625.4,-14.15,14.15,136.61,151.18],[626.07,-10.0,10.0,136.72,151.14],[707.57,-11.3,11.3,149.0,160.99],[708.91,-14.95,14.95,148.04,161.0],[769.53,-14.82,14.82,148.44,161.0],[770.2,-14.5,14.5,148.58,161.0],[770.87,-14.17,14.17,155.56,161.0],[785.69,-7.02,7.02,155.56,161.0],[787.04,-6.32,6.32,158.84,161.0],[787.71,-6.0,6.0,160.84,161.0]],"bowRidge":[[845.0,-17.58,17.58,121.31,130.33],[845.82,-17.57,17.57,111.17,130.33],[855.66,-17.39,17.39,111.17,130.61],[859.76,-17.31,17.31,111.17,133.1],[898.3,-16.59,16.59,111.17,131.53],[901.58,-16.53,16.53,111.17,130.33],[940.94,-15.35,15.35,111.17,130.33],[943.4,-12.7,12.7,111.17,130.33],[946.68,-12.7,12.7,111.17,125.79],[947.5,-12.7,12.7,111.17,121.4],[950.78,-12.7,12.7,111.17,121.4],[953.24,-12.7,12.7,111.17,117.41],[1016.38,-12.7,12.7,111.17,117.41],[1017.2,-12.7,12.7,104.94,117.41],[1040.98,-12.43,12.43,104.94,117.41],[1041.8,-12.42,12.42,104.94,121.35],[1057.38,-12.99,12.99,104.94,121.34],[1058.2,-13.22,13.22,113.46,121.34],[1060.66,-15.24,15.24,113.56,121.34],[1067.22,-15.21,15.21,113.82,121.34],[1068.04,-12.72,12.72,113.85,121.34],[1079.52,-12.55,12.55,113.86,120.79],[1083.62,-11.93,11.93,113.86,119.64],[1089.36,-8.25,8.25,114.62,117.93],[1091.0,-5.06,5.06,115.15,117.35]],"lowerShell":[[825.08,-19.5,19.5,35.62,52.8],[827.22,-19.49,19.49,35.62,52.77],[827.93,-60.45,60.45,33.03,52.76],[834.35,-60.48,60.48,29.29,52.69],[835.77,-60.48,60.48,23.38,52.67],[863.57,-60.6,60.6,17.88,53.52],[867.13,-60.61,60.61,17.88,59.43],[891.36,-60.72,60.72,15.22,59.57],[934.12,-60.74,60.74,13.26,59.81],[934.83,-52.03,52.03,17.88,59.82],[956.21,-24.67,24.67,17.88,59.94],[959.78,-21.9,21.9,23.42,59.96],[960.49,-21.9,21.9,34.27,59.96],[1016.08,-21.9,21.9,36.37,60.29],[1017.5,-21.9,21.9,41.07,60.29],[1033.9,-21.9,21.9,53.35,60.39],[1038.89,-21.9,21.9,60.35,60.42]],"noseKeel":[[1027.68,-12.27,12.27,52.86,70.56],[1047.6,-12.69,12.69,52.86,71.96],[1048.1,-12.71,12.71,43.01,72.0],[1050.09,-12.75,12.75,37.48,72.14],[1083.96,-12.93,12.93,39.31,72.74],[1087.95,-12.93,12.93,45.15,72.74],[1089.44,-12.93,12.93,48.71,72.74],[1089.94,-12.93,12.93,54.03,72.74],[1095.42,-12.85,12.85,54.56,72.47],[1100.9,-12.32,12.32,61.95,70.74],[1118.83,-10.15,10.15,62.25,70.55],[1121.32,-9.83,9.83,64.78,70.82],[1145.73,-6.45,6.45,66.29,73.33],[1173.12,-1.55,1.55,68.07,71.04],[1177.11,-0.81,0.81,70.52,70.56]],"vfinC":[[848.77,-8.4,8.4,10.98,11.03],[856.15,-8.4,8.4,4.87,11.03],[869.36,-8.4,8.4,4.45,11.03],[878.29,-8.48,8.48,1.79,11.22],[883.73,-9.83,9.83,1.78,14.29],[952.49,-9.74,9.74,1.64,13.91],[965.31,-5.71,5.71,1.62,4.74]],"vfinS":[[920.02,4.35,8.32,4.02,11.21],[920.28,4.28,11.42,3.05,11.35],[920.54,4.21,15.24,1.84,11.52],[921.07,4.05,16.1,1.37,11.86],[923.17,3.83,16.84,0.55,12.31],[928.68,3.83,16.68,0.71,12.31],[929.47,4.25,16.04,1.38,11.87],[930.78,5.92,15.34,2.12,10.08],[937.6,5.9,15.34,2.12,10.1],[939.7,3.83,16.28,1.13,12.31],[941.54,3.83,16.84,0.55,12.31],[943.64,3.83,16.84,0.0,12.31],[946.52,3.83,16.84,0.27,12.31],[948.62,3.83,16.53,0.87,12.31],[949.67,4.31,15.84,1.6,11.8],[951.51,6.08,15.34,2.12,9.92],[956.76,5.94,15.43,2.04,10.19],[957.81,5.58,16.3,1.22,10.8],[960.69,5.65,16.26,1.26,10.8],[962.27,6.14,14.77,2.42,9.8],[966.73,6.52,11.91,3.91,9.04],[987.2,6.45,12.12,3.72,9.23],[988.77,6.21,13.41,2.5,9.92],[990.08,6.21,14.05,1.89,9.92],[993.23,6.29,14.05,2.08,9.92],[996.38,7.53,13.66,5.11,9.92],[998.74,8.45,12.78,7.34,9.92]],"aftSpine":[[62.4,-12.45,12.45,76.54,76.65],[86.85,-12.45,12.45,59.23,79.42],[95.0,-12.45,12.45,58.73,79.42],[97.71,-12.45,12.45,58.56,89.63],[143.89,-12.58,12.58,61.78,87.19],[160.19,-8.05,8.05,61.78,87.17],[162.9,-20.71,20.71,61.78,87.17],[175.13,-23.19,23.19,61.78,87.16],[179.2,-23.17,23.17,48.47,87.15],[198.22,-23.08,23.08,36.41,87.13],[241.68,-18.37,18.37,37.05,87.06],[243.04,-24.47,24.47,37.07,101.53],[286.5,-27.0,27.0,37.07,112.54],[289.21,-19.57,19.57,37.07,108.73],[290.57,-19.54,19.54,53.93,108.73],[309.58,-23.03,23.03,53.93,101.44],[319.09,-23.02,23.02,53.93,101.2],[321.81,-23.01,23.01,53.93,90.5],[370.7,-21.88,21.88,37.96,83.05],[382.93,-25.05,25.05,37.96,82.63],[416.88,-26.99,26.99,48.1,80.66],[450.83,-26.99,26.99,45.73,87.16],[465.77,-26.99,26.99,48.1,92.77],[467.13,-26.99,26.99,48.1,68.3],[469.85,-15.9,15.9,48.1,57.73]],"aftUpper":[[172.04,-6.48,6.48,134.07,134.13],[174.86,-6.48,6.48,132.66,136.34],[175.56,-13.56,13.56,132.3,136.9],[194.58,-15.06,15.06,128.59,146.81],[212.19,-15.06,15.06,125.97,153.99],[225.57,-15.06,15.06,119.12,153.85],[248.11,-15.06,15.06,117.38,155.35],[248.81,-24.07,24.07,116.83,153.72],[252.34,-24.07,24.07,114.06,146.25],[258.67,-24.07,24.07,112.44,148.39],[262.2,-26.78,26.78,112.44,148.11],[263.6,-26.78,26.78,111.38,147.7],[264.31,-26.78,26.78,100.95,146.25],[278.4,-26.78,26.78,100.95,147.78],[286.14,-26.78,26.78,100.95,148.81],[296.71,-26.78,26.78,100.95,154.26],[303.75,-26.78,26.78,100.95,154.26],[305.16,-27.72,27.72,100.95,157.94],[323.47,-27.72,27.72,100.95,156.4],[327.7,-27.72,27.72,103.39,156.4],[328.4,-27.72,27.72,108.12,156.4],[347.42,-27.72,27.72,108.12,151.64],[349.53,-27.72,27.72,108.12,149.2],[350.94,-24.07,24.07,108.12,147.56],[355.17,-21.78,21.78,110.11,141.78],[357.28,-21.78,21.78,110.11,141.78],[359.39,-24.07,24.07,108.12,145.01],[375.59,-19.17,19.17,109.53,140.44],[382.63,-15.24,15.24,110.67,136.77],[383.34,-14.87,14.87,126.17,136.43]],"aftPod":[[104.63,57.4,62.84,28.95,40.77],[108.89,55.46,65.82,27.59,41.65],[109.6,54.27,66.33,22.52,47.3],[122.38,50.61,72.84,19.74,48.97],[148.66,48.95,82.01,17.9,49.09],[158.6,44.18,81.92,17.9,49.09],[174.94,44.18,85.27,15.95,49.09],[182.04,42.9,85.27,15.95,49.26],[182.75,42.39,84.26,11.72,55.63],[187.01,39.34,76.98,11.72,57.45],[192.69,38.1,76.98,11.72,59.88],[194.12,38.1,76.98,9.12,60.48],[196.96,38.1,76.98,9.12,60.52],[197.67,33.38,76.98,9.12,60.66],[198.38,23.96,76.98,9.12,64.7],[222.52,23.96,78.47,9.17,64.7],[230.34,23.96,81.83,9.18,64.7],[238.15,23.96,81.83,9.19,64.7],[239.57,23.96,84.46,9.19,64.7],[258.04,23.96,83.41,10.38,64.7],[258.75,28.08,83.41,10.38,64.7],[280.05,29.24,81.26,10.38,64.7],[286.45,29.24,76.77,11.72,64.7],[289.29,31.72,73.8,14.36,62.2],[291.42,31.72,73.8,14.36,62.2],[292.84,29.24,76.79,11.72,64.7],[304.2,30.33,74.74,13.86,63.04],[316.99,34.91,66.12,22.83,56.05],[317.7,47.87,65.67,23.29,51.16]],"core":[[449.23,-19.74,19.74,67.69,83.39],[468.4,-31.5,31.5,63.43,91.82],[472.66,-32.35,32.35,48.89,91.8],[500.34,-29.11,29.11,39.73,91.69],[508.85,-30.37,30.37,36.27,112.99],[570.6,-29.11,29.11,29.42,123.94],[591.89,-29.11,29.11,29.42,123.94],[604.67,-27.7,27.7,39.73,123.94],[608.93,-27.7,27.7,26.85,123.94],[664.29,-26.96,26.96,26.95,113.42],[668.55,-40.21,40.21,26.95,113.42],[683.45,-34.91,34.91,30.21,113.42],[711.13,-37.62,37.62,38.39,113.42],[743.07,-37.96,37.96,38.39,113.42],[764.36,-39.35,39.35,29.34,113.42],[785.65,-38.84,38.84,30.44,113.42],[804.82,-38.54,38.54,31.08,113.42],[834.63,-33.73,33.73,28.89,114.09],[836.76,-33.73,33.73,28.89,82.06],[951.73,-40.1,40.1,30.81,88.29],[953.86,-33.73,33.73,12.09,88.25],[968.77,-33.73,33.73,7.29,88.03],[973.03,-20.51,20.51,7.33,87.97],[975.16,-20.51,20.51,7.35,87.93],[977.28,-20.51,20.51,7.37,126.32],[981.54,-20.51,20.51,8.42,125.56],[983.67,-20.51,20.51,54.28,122.95],[1024.13,-20.5,20.5,54.28,131.93],[1026.26,-19.14,19.14,54.28,82.77],[1032.64,-19.14,19.14,58.98,70.32],[1062.45,-7.53,7.53,111.76,114.91],[1088.0,-6.22,6.22,113.17,113.51]]},"rooms":[["hangar","航空機格納庫",[616.5,72.85,0],[146.4,47.4,45.7],"storage"],["hangar","航空機格納庫 2",[729,71.35,0],[41.4,65.4,42.7],"storage"],["hangar","航空機格納庫 3",[852,56.35,0],[53.4,65.4,12.7],"storage"],["hangar","航空機格納庫 4",[510,66.85,-12],[65.4,17.4,33.7],"storage"],["hangar","航空機格納庫 5",[510,66.85,12],[65.4,17.4,33.7],"storage"],["hangar","航空機格納庫 6",[699,57.85,0],[17.4,65.4,15.7],"storage"],["hangar","航空機格納庫 7",[754.5,60.85,0],[8.4,71.4,21.7],"storage"],["hangar","航空機格納庫 8",[679.5,74.35,-28.5],[20.4,8.4,48.7],"storage"],["hangar","航空機格納庫 9",[679.5,74.35,28.5],[20.4,8.4,48.7],"storage"],["hangar","航空機格納庫 10",[765,54.85,0],[11.4,77.4,9.7],"storage"],["service","航空整備・補給区画",[889.5,82.5,-21],[98.4,17.4,38.4]],["service","航空整備・補給区画 2",[889.5,82.5,21],[98.4,17.4,38.4]],["service","航空整備・補給区画 3",[614.43,102,-15],[178.27,17.4,11.4]],["service","航空整備・補給区画 4",[445.5,72,0],[8.4,41.4,17.4]],["troops","兵員収容区画（B1バトル・ドロイド）",[291,103.5,0],[53.4,29.4,80.4]],["troops","兵員収容区画（B1バトル・ドロイド） 2",[907.5,31.5,0],[50.4,89.4,14.4]],["troops","兵員収容区画（B1バトル・ドロイド） 3",[379.5,70.5,0],[122.4,35.4,14.4]],["troops","兵員収容区画（B1バトル・ドロイド） 4",[967.5,49.5,0],[26.4,35.4,62.4]],["troops","兵員収容区画（B1バトル・ドロイド） 5",[886.5,117,0],[92.4,29.4,17.4]],["troops","兵員収容区画（B1バトル・ドロイド） 6",[333,129,0],[29.4,41.4,35.4]],["troops","兵員収容区画（B1バトル・ドロイド） 7",[618,102,15],[185.4,17.4,11.4]],["troops","兵員収容区画（B1バトル・ドロイド） 8",[739.5,147,0],[56.4,23.4,23.4]],["troops","兵員収容区画（B1バトル・ドロイド） 9",[251.31,45,0],[70.02,23.4,11.4]],["cargo","貨物・物資庫",[253.5,76.5,0],[20.4,47.4,26.4]],["integrity","構造維持装置",[287.14,37.5,-52.5],[33.67,26.4,32.4]],["pump","反応物供給設備",[218.71,136.5,0],[64.81,17.4,8.4]]]};
+const REC_AIR=[{id:'air-1',name:'ヴァルチャー級ドロイド・スターファイター',size:1,count:72},{id:'air-2',name:'ドロイド・トライファイター',size:1,count:36}];
+const REC_GROUND=[{id:'ground-1',name:'B1バトル・ドロイド（停止保管）',kind:'troops',count:40000}];
+const REC_TAN='#a89a7c',REC_BROWN='#8f8268',REC_STEEL='#6f7a86',REC_DARK='#5f646b';
+function recusantBuild(opt={}){
+ const D=RECU,L=1187;
+ const s=newShip({L,W:D.W,H:D.H,sec:'warship',plan:'wedge',deckWidth:0,keelWidth:0,belt:.13,chineHeight:.5,bowFree:true,stations:D.st.map(a=>a.slice()),keel:'light'},'レキュザント級軽駆逐艦');
+ s._building=true;s.reference='recusant';s.paint='cis';s.lights='warm';s.detail=1;s.armor={hull:.3,cit:.3};s.shieldTarget=1;
+ const k=shipKit(s),part=(kind,label,c,d,o={})=>placePart(s,kind,c,d,{label,...o});
+ const loft=(name,label,paint,o={},mirror=false)=>k.loftX(label,D.loft[name],{paint,corner:.12,...o},mirror);
+ loft('core','中央船体の竜骨区画',REC_BROWN,{corner:.3});
+ loft('aftSpine','艦尾脊柱',REC_TAN,{corner:.16});
+ loft('aftUpper','艦尾司令ブロック',REC_TAN,{corner:.16});
+ loft('aftPod','艦尾舷側ポッド',REC_BROWN,{round:true},true);
+ loft('domeRidge','背部ドーム稜線',REC_BROWN,{corner:.1});
+ loft('bowRidge','艦首背面稜線',REC_BROWN,{corner:.1});
+ loft('lowerShell','前部腹部外殻',REC_TAN,{round:true});
+ loft('noseKeel','艦首下部竜骨',REC_BROWN,{corner:.12});
+ loft('vfinC','腹部中央安定翼',REC_STEEL,{corner:.08});
+ loft('vfinS','腹部舷側安定翼',REC_STEEL,{corner:.08},true);
+ // ---- ventral docking bay under the core (opens through the keel) ----
+ const dock=part('hangar','腹部発着ベイ',[675,41,0],30,{room:[410,32,18],airRole:'mixed'});
+ openBay(s,dock,'bottom','open');
+ // ---- power: main plant in the superstructure, two pod plants and a spine plant feed the stern drives ----
+ const r=part('gen','主反応炉（上部構造内）',[795,98,0],90);
+ const ra=part('aux','脊柱補助炉',[200,65,0],42);
+ const rpS=part('aux','右舷ポッド補助炉',[243,38,55],52),rpP=part('aux','左舷ポッド補助炉',[243,38,-55],52);
+ const eo=equipmentOptions('exposedTurbine');
+ const engine=(label,mouth,y,z,d,body,reactor,mirror)=>{const nl=engineBaseline('exposed',d,'nozzleLength'),len=engineBaseline('exposed',d,'length')*body/engineBaseline('exposed',d,'body');const p=placePart(s,'engine',[mouth+nl/2,y,z],d,{...eo,label,d,reactor:reactor.id,dir:[-1,0,0],engineLength:len},mirror);resizeEngine(p,d,len);return p;};
+ engine('艦尾中央主機',58,69,0,36,120,ra,false);
+ engine('右舷ポッド主機',100,35,61,44,140,rpS,false);engine('左舷ポッド主機',100,35,-61,44,140,rpP,false);
+ // ---- defence, hyperdrive and support machinery ----
+ for(const sg of [-1,1])part('shield','偏向シールド発生器',[728,110,sg*22],32);
+ for(const sg of [-1,1])part('fuel','反応物サイロ',[700,80,sg*14],16,{length:28,dir:[0,1,0]});
+ part('inertial','慣性補償装置',[924,53,0],28,{length:60});
+ part('hyper','主ハイパードライブ',[864,86,0],22,{length:42.5});
+ if(opt.stage==='machinery'){delete s._building;return s;}
+ // ---- command: pods on the aft command block ----
+ // Pods seat on the first wall hit among a few probe heights.
+ const pod=(kind,host,o,dir,w,h)=>{let err='取付面がありません';for(const dy of [0,-4,4,-8,8,-12,12,-16,16])for(const dz of [0,-6,6,-12,12]){const q0=[o[0]+(dir[0]?0:0),o[1]+dy,o[2]+(dir[2]?0:dz)];const hit=rayPart(q0,dir,host);if(!hit)continue;const q=placeFit(s,kind,hit.p,hit.n,0,false);if(q.fit){q.fit.width=w;q.fit.height=h;q.fit.commandDepth=7;q.fit.commandHeight=5;return q.fit;}err=q.err;}throw new Error('艦橋ポッド: '+err);};
+ const cmd=s.parts.find(p=>p.label==='艦尾司令ブロック');
+ pod('podBridge',cmd,[300,136,80],[0,0,-1],14,5);
+ pod('podCombat',cmd,[300,136,-80],[0,0,1],14,5);
+ pod('podAir',cmd,[255,136,80],[0,0,-1],14,5);
+ // ---- armament (Legends counts; game calibres) ----
+ // A mount is cast onto the outermost hull/structure surface; if a probe line
+ // misses, it is retried closer to the centreline (or the waterline for beams).
+ // Heavy guns keep their charging plant wholly inside the envelope and clear of
+ // machinery: the plant is pushed deeper until all its corners are enclosed.
+ const solids=()=>allOccupied(s).map(p=>({p,b:partAABB(p)}));let solidList=null;
+ const plantFits=f=>{if(!needsCapacitor(f))return true;const q=weaponChargeSpec(f),depth=12*(f.scale||1),side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||solids();
+  for(const cd of [10,13,16,20,24,28,33,38,44]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
+   for(const a of [-.5,0,.5])for(const b of [-.5,.5])for(const e of [-.5,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
+   if(ok){f.chargeDepth=cd;return true;}}return false;};
+ const mount=(kind,p,axis,zone,o={})=>{for(const f0 of [1,.85,.7,.55,.4,.25,0]){const q=p.slice();if(axis===2||axis===3)q[2]*=f0;else q[1]=lerp(o.y0??q[1],q[1],f0);const f={id:s.nextId++,k:kind,p:q,a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone};mountFit(s,f);if(!f.float&&plantFits(f)){s.fits.push(f);return f;}s.nextId--;}throw new Error('作例の砲座がありません: '+kind+' '+p.map(Math.round).join(','));};
+ const hw=x=>sectionBase(s.hull,x).hw;
+ syncAviationSurfaces(s);s._lockedCache=cache(s);
+ try{withFrozenStructures(()=>{
+  // 1 prow heavy turbolaser cannon
+  mount('stl',[1105,0,0],2,'prow',{chargeDepth:12});
+  // 4 heavy turbolasers and 6 heavy turbolaser turrets on the dome
+  for(const x of [585,620,655,690,725])for(const sg of [-1,1])mount('htl',[x,0,sg*hw(x)*.42],2,'dorsal-heavy',{chargeDepth:12});
+  // 5 turbolaser cannons on the prow ridge and the aft dome
+  for(const x of [560,880,930,980,1030])mount('mtl',[x,0,0],2,'dorsal-medium');
+  // 30 dual laser cannons along the dome rim (15 a side)
+  for(let i=0;i<15;i++)for(const sg of [-1,1]){const x=575+i*30,b=sectionBase(s.hull,x);mount('ltl',[x,b.ybot+b.h*.12,sg*400],sg>0?4:5,(sg<0?'port':'stbd')+'-laser',{y0:b.ybot+b.h*.5});}
+  // 12 dual light laser cannons and 60 point-defence lasers
+  for(let i=0;i<13;i++)for(const sg of [-1,1])mount('pd',[490+i*48,0,sg*14],3,'ventral-pd');
+  for(let i=0;i<12;i++)for(const sg of [-1,1])mount('pd',[585+i*40,0,sg*hw(585+i*40)*.78],2,'dorsal-pd');
+  for(let i=0;i<7;i++)for(const sg of [-1,1])mount('pd',[195+i*28,0,sg*8],2,'aft-pd');
+  for(const x of [140,200,260,300])for(const sg of [-1,1])if(!(x===300&&sg>0))mount('pd',[x,0,sg*62],2,'pod-pd');
+ });}finally{delete s._lockedCache;}
+ if(opt.stage==='fitted'){delete s._building;return s;}
+
+ if(opt.stage==='shape'){delete s._building;return s;}
+ for(const [kind,label,c,size,role,mirror] of D.rooms||[]){const o={room:size};if(typeof role==='string')o.airRole=role;placePart(s,kind,c,30,{label,...o},mirror===1||role===1);}
+ s.airWings=REC_AIR.map(r=>({...r}));s.groundForces=normalizeGroundForces(REC_GROUND);
+ delete s._building;adoptEquipment(s,true);remount(s);syncCompartments(s);
+ return s;
+
+}
+registerShipExample({
+ key:'recusant',name:'レキュザント級軽駆逐艦',side:'独立星系連合',role:'軽駆逐艦',length:1187,
+ title:'Star Wars: The Clone Wars Recusant (S3E2 style)',author:'lolqeeeeeeeeee',authorUrl:'https://sketchfab.com/lolqeeeeeeeeee',
+ source:'https://sketchfab.com/3d-models/star-wars-the-clone-wars-recusant-s3e2-style-c0abad60cab44d9197589a69e78fb6c5',license:'CC BY-NC 4.0',
+ credit:'This work is based on "Star Wars: The Clone Wars Recusant (S3E2 style)" (https://sketchfab.com/3d-models/star-wars-the-clone-wars-recusant-s3e2-style-c0abad60cab44d9197589a69e78fb6c5) by lolqeeeeeeeeee (https://sketchfab.com/lolqeeeeeeeeee) licensed under CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)',
+ note:'Sketchfab の 3D モデル（lolqeeeeeeeeee 作、S3E2 版、CC BY-NC 4.0）を全長 1,187 m に合わせて実測し、30 断面のフィット船体に背部ドーム稜線・艦尾司令ブロック・舷側ポッド・腹部安定翼などの実測構造物を重ねた軽駆逐艦。兵装は艦首重ターボレーザー砲 1 基、重ターボレーザー 10 基（砲 4・砲塔 6）、ターボレーザー砲 5 基、二連レーザー砲 30 基、二連軽レーザーと点防御レーザー砲を点防御砲 71 基で代表。停止保管のバトル・ドロイド 4 万体、ヴァルチャー 72 機とトライファイター 36 機を搭載（艦載機数は公式に定めがなく、ゲーム上の設定値）。ハイパードライブ・クラス 2。加速約 2,400 G（公式最大 2,800 G）。公式の乗員は 300。',
+ airWings:REC_AIR,groundForces:REC_GROUND,
+ build:recusantBuild
+});
+}
+
+// ---- src/ships/reptransport.js ----
+// Republic transport (Star Wars: The Old Republic era), measured from Daniel's
+// Sketchfab model. The 35.9 m source is scaled to the yard's 60 m minimum hull
+// length (x1.6696); every figure below is in that scaled ship frame
+// (x stern 0 -> bow 60, y up from the keel, z starboard).
+registerShipExample({
+ key:'reptransport',name:'共和国輸送艦',side:'銀河共和国',role:'兵員・物資輸送艦',length:60,
+ author:'Daniel (https://sketchfab.com/DanielAndersson)',
+ source:'https://sketchfab.com/3d-models/star-wars-republic-transport-f12eab9e4a7b47e4b3a2fe9c61d8b8e1',
+ license:'CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',
+ credit:'This work is based on "Star Wars: Republic Transport" (https://sketchfab.com/3d-models/star-wars-republic-transport-f12eab9e4a7b47e4b3a2fe9c61d8b8e1) by Daniel (https://sketchfab.com/DanielAndersson) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',
+ note:'旧共和国時代の共和国輸送艦。丸い上部船殻と下部船倉を楕円断面の船体で測り、舷側の縁、背部の操縦甲板、展望塔、艦尾の機関区画を構造物で再現。原型 35.9 m を設計局の最小船体長 60 m に拡大。',
+ build(){
+  // Elliptic sections fitted every 0.5 m to the upper shell and lower hold:
+  // [t, width, depth, centre offset]. The first three stations run inside the
+  // stern engine block, which is a structure.
+  const s=newShip({L:60,W:20,H:16.118,sec:'ellipse',plan:'rect',bowFree:true,stern:1,
+   stations:[[0,0.56,0.471523,0.033565],[0.023333,0.76,0.564586,0.030463],[0.086667,0.77,0.576995,0.030463],[0.123333,0.931756,0.917153,0.036835],[0.156667,0.936623,0.951241,0.021318],[0.165,0.937747,0.982476,0.006934],[0.665,0.939678,0.985324,0.005452],[0.723333,0.93576,0.968273,0.0142],[0.798333,0.891994,0.889861,0.037683],[0.856667,0.79123,0.76005,0.052868],[0.915,0.644175,0.513243,0.081705],[0.931667,0.629654,0.34559,0.09124],[0.94,0.565089,0.276085,0.121165],[0.956667,0.470837,0.239326,0.10899],[0.981667,0.312419,0.128081,0.071071],[0.996667,0.15067,0.047275,0.033771],[1,0.06592,0.020482,0.029334]]},'共和国輸送艦');
+  s._building=true;s.paint='republic';s.detail=1;s.keel='light';s.armor={hull:.1,cit:0};
+  const k=shipKit(s),part=(kind,label,c,d,opt={})=>placePart(s,kind,c,d,{label,...opt}),room=(kind,label,c,size,opt={})=>part(kind,label,c,30,{room:size,...opt});
+  // Rim of the upper shell: the widest line of the ship, following the plan of
+  // the rounded nose. Its first row reaches 10.2 m so the 2 m minimum height of
+  // a structure maps every row exactly.
+  k.loftX('上部船殻の舷側リム',[[4.35,-10.2,10.2,8.2,10.2],[44,-10.25,10.25,8.2,9.6],[46,-10.18,10.18,8.2,9.62],[48,-9.94,9.94,8.2,9.65],[50,-9.53,9.53,8.2,9.65],[52,-8.91,8.91,8.2,9.6],[54,-8.03,8.03,8.2,9.55],[55,-7.47,7.47,8.2,9.5],[56,-6.8,6.8,8.22,9.4],[57,-5.99,5.99,8.22,9.3],[58,-4.97,4.97,8.22,9.15],[59,-3.53,3.53,8.22,8.95],[59.5,-2.47,2.47,8.25,8.85],[60,-.8,.8,8.3,8.75]],{corner:.3,paint:'#e9e6df'});
+  // Dorsal flight deck with its sloped, windowed front.
+  const deck=k.loftX('背部操縦甲板',[[6.66,-3.54,3.54,15.2,17.78],[19,-3.54,3.54,15.2,17.78],[20.9,-3.1,3.1,15.2,17.78],[29.4,-3.1,3.1,15.2,17.78],[31.7,-2.4,2.4,15.2,15.6]],{corner:.08,skin:'service'});
+  // Observation cupola over the aft end of the deck.
+  k.loftX('展望塔の基部',[[7.75,-1.95,1.95,17.5,17.8],[7.8,-1.95,1.95,17.5,20],[12.4,-1.95,1.95,17.5,20],[12.8,-1.95,1.95,17.5,17.8]],{corner:.1});
+  k.loftX('展望塔の頂部',[[8,-2.84,2.84,19.6,20.1],[8.3,-2.84,2.84,19.6,20.75],[8.8,-2.84,2.84,19.6,21.2],[9.5,-2.84,2.84,19.6,21.5],[10.4,-2.84,2.84,19.6,21.6],[11.3,-2.84,2.84,19.6,21.5],[12,-2.84,2.84,19.6,21.2],[12.5,-2.84,2.84,19.6,20.75],[12.8,-2.84,2.84,19.6,20.1]],{corner:.1,paint:'#d8d6d0'});
+  // Stern engine block and the stepped housings above and below it.
+  k.box('艦尾機関ブロック',[.9,3.66,-8.08],[8.7,13.41,8.08],{corner:.14,skin:'service'});
+  k.box('艦尾上部の段',[1.67,12.8,-5.3],[6.9,14.8,5.3],{corner:.1});
+  k.box('艦尾上部の機器筐体',[4.97,14.29,-2.14],[7.4,16.67,2.14],{corner:.1});
+  k.box('艦尾下部の乗降ランプ',[2,.9,-4.5],[10,3.7,4.5],{corner:.12,skin:'service'});
+  k.box('艦尾下部の機器筐体',[4.8,2.38,-5.74],[9.9,4.8,5.74],{corner:.1});
+  // Equipment diameters stay at the yard's 4 m minimum so saved copies load unchanged.
+  // Power and drive: two internal turbines in the stern block feed from one
+  // reactor amidships; the lower hold carries the troop bay and cargo.
+  const r=part('gen','主反応炉',[23,10.5,0],9.4);
+  {const o=equipmentOptions('internalTurbine'),d=7,e=placePart(s,'engine',[.35+d*.25,8.55,3.6],d,{...o,label:'艦尾主推進機関',d,reactor:r.id,dir:[-1,0,0]},true);
+   for(const q of s.parts.filter(q=>q.id===e.id||q.id===e.tw)){resizeEngine(q,d);q.c[0]=.35+q.nozzleLength/2;}}
+  part('shield','偏向シールド発生器',[31,9.6,0],4.8);
+  part('hyper','ハイパードライブ（クラス1）',[37.4,9.2,0],4,{length:4,dir:[1,0,0]});
+  part('fuel','反応物サイロ',[13,3.3,0],4,{dir:[0,1,0],length:3});
+  room('pump','反応物供給設備',[8.8,3.1,0],[3,3,3]);
+  part('inertial','慣性補償装置',[45,9.4,0],4,{length:6.4,dir:[1,0,0]});
+  room('integrity','構造維持装置',[51.4,9.4,0],[4.6,4,3.2]);
+  room('command','操縦室（背部操縦甲板）',[25,15.7,0],[8,5.4,4]);
+  room('troops','下部兵員室',[28,3.6,0],[18,9.2,4]);
+  room('cargo','下部貨物倉',[42.5,4.2,0],[9,8,4]);
+  room('crew','上部乗員区画',[47,12.2,0],[6,8,3.4]);
+  delete s._building;
+  // One dorsal laser turret ahead of the deck, scaled to the source's turret.
+  {const h=rayEnv(s,[41.1,60,0],[0,-1,0],{structOnly:true});const f={id:s.nextId++,k:'pd',p:h.p,a:2,ped:0,base:0,low:0,float:false,scale:.35};mountFit(s,f);s.fits.push(f);}
+  adoptEquipment(s,true);remount(s);return s;
+ }
+});
+
 
 // Fleet exercises use metres and seconds; tactical acceleration/turn/range are
 // explicit game rules. A turn is solved from shared snapshots, never unit order.
@@ -3294,16 +4362,16 @@ const CRIT_MODULES=new Set(['reactor','shield','hyper','fuel','battery']);
 const AIM_KINDS={auto:'艦全体',reactor:'反応炉',bridge:'艦橋',weapon:'砲塔',engine:'推進機関',shield:'シールド発生器'};
 const MAGAZINE_MISSILES=120,FLEET_MIN_CREW=.35;
 function fleetModules(ship,S){
- const mods=[],protect=1-.4*(S.protectedFrac||0),byFit=new Map();
+ const mods=[],protect=1-.4*(S.protectedFrac||0),byFit=new Map(),L=Math.max(1,ship.hull.L);
  for(const f of ship.fits){const d=FITS[f.k];if(!d||f.float)continue;let k=null;
   if(d.cat==='w')k=d.msl?'launcher':'weapon';else if(d.cat==='b'&&(!d.role||d.role==='bridge'||d.role==='combat')&&(S.commandInfo?.[f.id]?.ratio??1)>0)k='bridge';if(!k)continue;
   const s=fitSpec(f);byFit.set(f.id,mods.length);
-  mods.push({k,fit:f.id,name:d.short||d.name,w:s.fm*s.wm*1.2,hits:clamp(Math.round(Math.max(s.fm,s.wm)/24),1,4),crew:s.crew||0,size:k==='weapon'?(s.tt||0)+(s.ion||0)+(s.aa||0)*.5:1,stock:k==='launcher'?MAGAZINE_MISSILES:0});}
- for(const f of intrinsicCommandFits(ship)){const d=FITS[f.k];if(!d||(d.role!=='bridge'&&d.role!=='combat')||(S.commandInfo?.[f.id]?.ratio??0)<=0)continue;mods.push({k:'bridge',name:d.short||d.name,w:(f.width||15)*(f.height||6)*1.2,hits:1,crew:d.crew||16,size:1});}
+  mods.push({k,fit:f.id,name:d.short||d.name,w:s.fm*s.wm*1.2,hits:clamp(Math.round(Math.max(s.fm,s.wm)/24),1,4),crew:s.crew||0,size:k==='weapon'?(s.tt||0)+(s.ion||0)+(s.aa||0)*.5:1,stock:k==='launcher'?MAGAZINE_MISSILES:0,at:+clamp(f.p[0]/L,0,1).toFixed(3),pd:k==='weapon'&&(d.aa||0)>0&&!((d.tt||0)>.01)&&!d.ion});}
+ for(const f of intrinsicCommandFits(ship)){const d=FITS[f.k];if(!d||(d.role!=='bridge'&&d.role!=='combat')||(S.commandInfo?.[f.id]?.ratio??0)<=0)continue;mods.push({k:'bridge',name:d.short||d.name,w:(f.width||15)*(f.height||6)*1.2,hits:1,crew:d.crew||16,size:1,at:+clamp(f.p[0]/L,0,1).toFixed(3)});}
  for(const p of allOccupied(ship)){
   if(p.windowId!=null)continue;const V=partVolume(p);if(!(V>1))continue;const k=MODULE_PART_KIND[p.k]||'other';
   let w=Math.pow(V,2/3)*((p._packing?.retained??p._clip?.retained??1)<.97?1.5:1);if(CRIT_MODULES.has(k))w*=protect;
-  const m={k,name:partLabel(p),w,hits:clamp(Math.round(Math.cbrt(V)/22),1,5),crew:V*(PARTS[p.k]?.crew||0)/1000,size:V};
+  const m={k,name:partLabel(p),w,hits:clamp(Math.round(Math.cbrt(V)/22),1,5),crew:V*(PARTS[p.k]?.crew||0)/1000,size:V,at:+clamp((p.c?.[0]??L/2)/L,0,1).toFixed(3)};
   if(k==='capacitor'&&byFit.has(p.weaponId))m.link=byFit.get(p.weaponId);mods.push(m);}
  const total={};for(const m of mods)total[m.k]=(total[m.k]||0)+m.size;for(const m of mods)m.share=total[m.k]>0?m.size/total[m.k]:0;
  const rest=mods.reduce((n,m)=>n+m.w,0);mods.push({k:'hull',name:MODULE_LABEL.hull,w:Math.max(1,rest*.6),hits:Infinity,crew:0,size:1,share:1});
@@ -3311,14 +4379,29 @@ function fleetModules(ship,S){
 }
 function fleetProfile(S,name,ship){
  const p=profile(S,name),accel=Math.max(0,S.accelG||0)*G0*FLEET_RULES.accelScale,dr=S.draw||{};
- const out={...p,embarkedSlots:Math.floor(S.slots||0),aviationSize:S.aviation?.usedSize||0,launch:S.launchPotential??p.launch,slidingHatches:S.slidingHatches||0,hatchOpenSeconds:S.slidingHatches?S.hatchOpenSeconds||4:0,hatchCloseSeconds:S.slidingHatches?S.hatchCloseSeconds||4:0,gunArcs:[...S.alphaRate],ionArcs:[...S.ionRate],accel,maxSpeed:accel>0?Math.min(FLEET_RULES.maxSpeed,Math.sqrt(accel*Math.max(200,p.len)*24)):0,turnRate:accel>0?clamp(.11*Math.sqrt(Math.max(1,S.accelG)/3000)*Math.sqrt(1600/Math.max(100,p.len)),.015,.24):0,width:S.dims[1],height:S.dims[2],power:S.xISD};
+ const out={...p,embarkedSlots:Math.floor(S.slots||0),aviationSize:S.aviation?.usedSize||0,launch:S.launchPotential??p.launch,slidingHatches:S.slidingHatches||0,hatchOpenSeconds:S.slidingHatches?S.hatchOpenSeconds||4:0,hatchCloseSeconds:S.slidingHatches?S.hatchCloseSeconds||4:0,gunArcs:[...S.alphaRate],ionArcs:[...S.ionRate],aaArcs:[...(S.aaArc||[0,0,0,0,0,0])],accel,maxSpeed:accel>0?Math.min(FLEET_RULES.maxSpeed,Math.sqrt(accel*Math.max(200,p.len)*24)):0,turnRate:accel>0?clamp(.11*Math.sqrt(Math.max(1,S.accelG)/3000)*Math.sqrt(1600/Math.max(100,p.len)),.015,.24):0,width:S.dims[1],height:S.dims[2],power:S.xISD};
  // Power figures in watts; weapon energy in TT (one TT fired costs one TT stored).
  out.grid={P:S.power||0,fixed:(dr.hotel||0)+(dr.ray||0),De:dr.engines||0,Ds:dr.shields||0,Dw:dr.weapons||0};
  out.armorHull=S.armorHull||0;out.crewNeed=S.crew||0;
  out.wCap=ship?ship.fits.filter(f=>FITS[f.k]?.cat==='w'&&!f.float).reduce((n,f)=>{const s=fitSpec(f);return n+(needsCapacitor(f)?S.chargeInfo?.[f.id]?.storedTT||0:(s.tt||0)+(s.ion||0));},0):(S.alphaTot||0)+(S.ionTot||0);
- if(ship)out.modules=fleetModules(ship,S);
+ if(ship){out.modules=fleetModules(ship,S);const hs=hullSectionShares(ship);out.sections=hs.shares;out.sectionCuts=hs.cuts;}
  return out;
 }
+// The hull is fought as five sections from stern to bow, each holding a fifth
+// of the ship's volume: the hull's own cross section plus structures and
+// compartments. The cuts between them (shares of the length) follow the volume,
+// so a wedge's long, thin bow is one section and its broad stern another.
+const HULL_SECTIONS=5,SECTION_NAMES=['艦尾区画','後部区画','中央区画','前部区画','艦首区画'];
+function hullSectionShares(ship){
+ const L=Math.max(1,ship.hull.L),B=80,v=new Array(B).fill(0),put=(x,vol)=>{if(!(vol>0))return;v[clamp(Math.floor(x/L*B),0,B-1)]+=vol;};
+ if(!ship.hull.assembly)for(let i=0;i<B;i++){const x=(i+.5)/B*L,b=sectionBase(ship.hull,x);put(x,Math.max(0,b.hw*2*b.h*.8)*L/B);}
+ for(const p of ship.parts){if(p.windowId!=null)continue;let vol=0;try{vol=partVolume(p);}catch(e){vol=0;}put(p.c?.[0]??L/2,vol*(p.k==='struct'?1:.6));}
+ const tot=v.reduce((a,b)=>a+b,0),cuts=[];if(!(tot>0))return {shares:new Array(HULL_SECTIONS).fill(1/HULL_SECTIONS),cuts:[.2,.4,.6,.8]};
+ let acc=0,want=1;for(let i=0;i<B&&cuts.length<HULL_SECTIONS-1;i++){const before=acc;acc+=v[i]/tot;while(cuts.length<HULL_SECTIONS-1&&acc>=want/HULL_SECTIONS){const f=v[i]>0?(want/HULL_SECTIONS-before)/(v[i]/tot):1;cuts.push(+((i+clamp(f,0,1))/B).toFixed(4));want++;}}
+ for(let i=1;i<cuts.length;i++)if(cuts[i]<=cuts[i-1]+.02)cuts[i]=Math.min(.99,cuts[i-1]+.02);
+ return {shares:new Array(HULL_SECTIONS).fill(1/HULL_SECTIONS),cuts};
+}
+
 function fleetUnit(id,key,p,team=0){
  const shield=Math.max(0,(p.shieldBuffer??p.D*K.bufferS)+(p.reserve||0)),mods=p.modules||[];
  return {id,key,name:p.name,team,p,pos:[0,0,0],yaw:0,velocity:[0,0,0],hp:p.hp,shield,shieldMax:shield,armor:1,energy:p.wCap||0,load:0,engF:1,crew:p.crewNeed||0,mods:mods.map(()=>1),ammo:mods.map(m=>m.stock||0),hitAcc:0,out:null,fate:null,air:0,launched:0,lost:0,hatchOpen:0,hatchTarget:0,queue:[],order:{type:'hold',fire:true,launch:false,power:'auto',aim:'auto'},dead:false};
@@ -3923,7 +5006,7 @@ function syncAviationSurfaces(ship){
 }
 
 
-return {fitTilt,fitUp,fitFrameOf,openingRimPoint,surfSamples,groundingStats,turretRayContext,turretClear,turretOrigin,turretRate,GROUND_LIMITS,GROUND_PRESETS,GROUND_VEHICLE_VOLUME,normalizeGroundForces,groundStatus,planStations,bridgeBodyRole,podPoint,podDepth,intrinsicCommandFits,POD_ASSET,BRIDGE_BODY_COMMAND,REFERENCE_TONE,engineSkinMesh,referenceFitYaw,rayTris,vmirrorPlane,vmirrorPoint,vmirrorPart,SHIP_CLASSES,shipClassFor,PUBLIC_LISTS,publicJSON,patchShip,patchItem,cache,AIRCRAFT_CLEARANCE,aircraftFitsBay,AVIATION_SIZE_VOLUME,AIR_WING_LIMITS,hangarCapacity,normalizeAirWings,aviationStatus,AVIATION_SURFACE_FACES,hatchAxes,aviationSurfaceContacts,setAviationSurfaceMode,syncAviationSurfaces,aviationHatchActive,isSlidingHatch,slidingHatchSpec,slidingHatchPanels,hatchOpenArea,ISD_HYPER_BASELINE,HYPER_CLASS_COEFFICIENT,HYPER_POWER_DENSITY,ISD_SHIELD_VOLUME,SHIELD_BUFFER_SECONDS,SHIELD_ENERGY_DENSITY,SHIELD_POWER_DENSITY,REACTOR_POWER_DENSITY,SOLID_CUT_SHAPES,normalizeSolidCut,mirrorSolidCut,solidCutTriangles,solidCutBounds,solidCutContains,solidCutsContain,applySolidCuts,solidPartCutContains,solidStructVolume,solidCutIntersectsShip,flexibleCompartment,hardConflicts,weaponChargeSpec,DREADNOUGHT_EXAMPLES,DESIGN_LIMITS,ALIGNMENTS,alignedPosition,alignPart,replacementShape,replacementOptions,replacePart,COMMAND_ROLES,commandCompartments,commandStatus,habitationSpace,inspectionTargets,planCutEdge,normalizePlanCut,structFrame,alignStructure,FLEET_RULES,POWER_MODES,POWER_AUTO_NOTE,fleetAutoPower,AIM_KINDS,MODULE_LABEL,FLEET_MIN_CREW,powerSplit,coreDetonation,fleetModules,fleetSystems,fleetCrewEff,fleetEffective,fleetProfile,fleetUnit,fleetFormation,fleetBattle,fleetOrder,fleetArc,fleetTick,fleetCommit,fleetFinish,fleetSample,fleetFrame,normalizeBow,bowStation,engineHullEntry,ENGINE_BASELINES,engineBaseline,resizeEngine,parametricEngine,engineRating,sourceEngine,EQUIPMENT,equipmentSpec,equipmentOptions,enforceEquipment,customizeEquipment,adoptEquipment,HYPERDRIVE_REFERENCE,hyperCapacity,arcParameters,arcPoint,arcTriangles,inArc,SEPARATIST_EXAMPLES,STATS_SOURCE,SHIP_REFERENCE,PART_RATINGS,reactorPower,nozzleThrust,nozzleDemand,shieldLoad,partRatingKeys,validOutline,outlinePoints,outlineArea,outlineTriangles,AVIATION_ROLES,CHARGE_TT_M3,aircraftCapacity,aviationConnected,needsCapacitor,weaponCapacitors,refitReferenceInterior,clipReferenceBox, referenceEnginePoint, fitSpec, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface,
+return {HULL_SECTIONS,SECTION_NAMES,hullSectionShares,SHIP_LIGHT_KINDS,SHIP_EXAMPLES,registerShipExample,shipKit,fitTilt,fitUp,fitFrameOf,openingRimPoint,surfSamples,groundingStats,turretRayContext,turretClear,turretOrigin,turretRate,GROUND_LIMITS,GROUND_PRESETS,GROUND_VEHICLE_VOLUME,normalizeGroundForces,groundStatus,planStations,bridgeBodyRole,podPoint,podDepth,intrinsicCommandFits,POD_ASSET,BRIDGE_BODY_COMMAND,REFERENCE_TONE,engineSkinMesh,referenceFitYaw,rayTris,vmirrorPlane,vmirrorPoint,vmirrorPart,SHIP_CLASSES,shipClassFor,PUBLIC_LISTS,publicJSON,patchShip,patchItem,cache,AIRCRAFT_CLEARANCE,aircraftFitsBay,AVIATION_SIZE_VOLUME,AIR_WING_LIMITS,hangarCapacity,normalizeAirWings,aviationStatus,AVIATION_SURFACE_FACES,hatchAxes,aviationSurfaceContacts,setAviationSurfaceMode,syncAviationSurfaces,aviationHatchActive,isSlidingHatch,slidingHatchSpec,slidingHatchPanels,hatchOpenArea,ISD_HYPER_BASELINE,HYPER_CLASS_COEFFICIENT,HYPER_POWER_DENSITY,ISD_SHIELD_VOLUME,SHIELD_BUFFER_SECONDS,SHIELD_ENERGY_DENSITY,SHIELD_POWER_DENSITY,REACTOR_POWER_DENSITY,SOLID_CUT_SHAPES,normalizeSolidCut,mirrorSolidCut,solidCutTriangles,solidCutBounds,solidCutContains,solidCutsContain,applySolidCuts,solidPartCutContains,solidStructVolume,solidCutIntersectsShip,flexibleCompartment,hardConflicts,weaponChargeSpec,DREADNOUGHT_EXAMPLES,DESIGN_LIMITS,ALIGNMENTS,alignedPosition,alignPart,replacementShape,replacementOptions,replacePart,COMMAND_ROLES,commandCompartments,commandStatus,habitationSpace,inspectionTargets,planCutEdge,normalizePlanCut,structFrame,alignStructure,FLEET_RULES,POWER_MODES,POWER_AUTO_NOTE,fleetAutoPower,AIM_KINDS,MODULE_LABEL,FLEET_MIN_CREW,powerSplit,coreDetonation,fleetModules,fleetSystems,fleetCrewEff,fleetEffective,fleetProfile,fleetUnit,fleetFormation,fleetBattle,fleetOrder,fleetArc,fleetTick,fleetCommit,fleetFinish,fleetSample,fleetFrame,normalizeBow,bowStation,engineHullEntry,ENGINE_BASELINES,engineBaseline,resizeEngine,parametricEngine,engineRating,sourceEngine,EQUIPMENT,equipmentSpec,equipmentOptions,enforceEquipment,customizeEquipment,adoptEquipment,HYPERDRIVE_REFERENCE,hyperCapacity,arcParameters,arcPoint,arcTriangles,inArc,SEPARATIST_EXAMPLES,STATS_SOURCE,SHIP_REFERENCE,PART_RATINGS,reactorPower,nozzleThrust,nozzleDemand,shieldLoad,partRatingKeys,validOutline,outlinePoints,outlineArea,outlineTriangles,AVIATION_ROLES,CHARGE_TT_M3,aircraftCapacity,aviationConnected,needsCapacitor,weaponCapacitors,refitReferenceInterior,clipReferenceBox, referenceEnginePoint, fitSpec, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface,
   TT, G0, ISD_W, K, PARTS, FITS, HULLS, SECTIONS, KEELS, SECTORS, CLASSES, DESIGNS, AXES, AXNAME, ARMOR_MAX,
   newShip, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
@@ -3931,3 +5014,705 @@ return {fitTilt,fitUp,fitFrameOf,openingRimPoint,surfSamples,groundingStats,turr
   clamp, lerp, add, sub, mul, dot, cross, norm, len, mirrorP};
 })();
 if (typeof module !== 'undefined') module.exports = Core;
+
+/* ============================================================
+   rts.js — fleet operations in real time (v13).
+   A sector of star systems; task groups that jump between them at
+   the pace of their slowest hyperdrive; battles fought in each
+   system by ships whose state is their hull sections and modules
+   rather than a hit-point pool; squadrons with wing orders and
+   missile salvos that point defence can shoot down. One game
+   clock runs the operational map and every battle. No DOM.
+   ============================================================ */
+const Rts = (() => {
+'use strict';
+const C = Core, TT = C.TT;
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v, hyp = Math.hypot;
+const add = (a, b, k = 1) => [a[0] + b[0] * k, a[1] + b[1] * k, a[2] + b[2] * k], sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+const scale = (a, k) => [a[0] * k, a[1] * k, a[2] * k], dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2], len = a => hyp(a[0], a[1], a[2]);
+const norm = a => { const l = len(a) || 1; return [a[0] / l, a[1] / l, a[2] / l]; };
+const angle = a => Math.atan2(Math.sin(a), Math.cos(a));
+
+// ---------- rules ----------
+// Distances in metres inside a system, light years between systems; time in
+// seconds of one shared game clock.
+const TICK = .25;
+const RULES = {
+ range: 40000, engage: 14000, missileRange: 60000, pdRange: 6000, damage: .4,
+ arrive: 70000,           // a group drops out this far from the system's centre, on its line of approach
+ withdrawSpool: 45,       // seconds to spool a hyperdrive and plot a jump
+ hyperRate: 160 / 60,     // light years per second at hyperdrive class 1
+ minTrip: 20,             // shortest time in hyperspace
+ detectLy: 900,           // long-range detection per unit of sensor rating
+ wakeLy: 1200,            // a reversion from hyperspace is felt this far away
+ reportDelay: 120,        // inhabited worlds report fleets in their system after this long
+ dwell: 180,              // the AI searches a system this long before moving on
+ contactTTL: 1800,        // a contact not refreshed for half an hour is dropped
+ aiStrategic: 30, aiTactical: 2, detectEvery: 2,
+ pdMissile: .012, pdCraft: .0015, dogfight: .02, missileTT: 10,
+ craftRearm: 60, launchPerSize: 1,
+ maxSquadSize: 36
+};
+const CAPITAL_LENGTH = 900;   // star destroyers and up count against the 24-ship limit
+
+// ---------- small craft ----------
+// Speeds in m/s; aa is air-to-air strength, strike the TT one craft delivers on
+// an attack run, armor how much punishment it takes; size in hangar units.
+const CRAFT = {
+ tie_ln:   {name: 'TIE/ln 戦闘機', short: 'TIE/ln', side: 'empire', role: 'fighter', speed: 2100, aa: 1.0, strike: 10, armor: .6, size: 1, crew: 1},
+ tie_in:   {name: 'TIE/IN インターセプター', short: 'TIE/IN', side: 'empire', role: 'interceptor', speed: 2500, aa: 1.3, strike: 10, armor: .65, size: 1, crew: 1},
+ tie_sa:   {name: 'TIE/sa ボマー', short: 'TIE/sa', side: 'empire', role: 'bomber', speed: 1800, aa: .35, strike: 380, armor: .9, size: 1.2, crew: 1},
+ lambda:   {name: 'ラムダ級シャトル', short: 'ラムダ', side: 'empire', role: 'transport', speed: 1500, aa: .2, strike: 0, armor: 1.4, size: 3, crew: 6},
+ xwing:    {name: 'T-65 Xウイング', short: 'Xウイング', side: 'rebel', role: 'fighter', speed: 2000, aa: 1.25, strike: 160, armor: 1.2, size: 1, crew: 1},
+ ywing:    {name: 'BTL Yウイング', short: 'Yウイング', side: 'rebel', role: 'bomber', speed: 1600, aa: .55, strike: 300, armor: 1.5, size: 1.2, crew: 2},
+ awing:    {name: 'RZ-1 Aウイング', short: 'Aウイング', side: 'rebel', role: 'interceptor', speed: 2600, aa: 1.35, strike: 12, armor: .9, size: 1, crew: 1},
+ bwing:    {name: 'A/SF-01 Bウイング', short: 'Bウイング', side: 'rebel', role: 'bomber', speed: 1800, aa: .7, strike: 520, armor: 1.6, size: 1.5, crew: 1},
+ vwing:    {name: 'アルファ3 Vウイング', short: 'Vウイング', side: 'republic', role: 'interceptor', speed: 2300, aa: 1.1, strike: 10, armor: .8, size: 1, crew: 1},
+ arc170:   {name: 'ARC-170 スターファイター', short: 'ARC-170', side: 'republic', role: 'fighter', speed: 1900, aa: .9, strike: 220, armor: 1.4, size: 1.4, crew: 3},
+ eta2:     {name: 'イータ2 アクティス', short: 'イータ2', side: 'republic', role: 'interceptor', speed: 2500, aa: 1.3, strike: 10, armor: .8, size: 1, crew: 1},
+ btlb:     {name: 'BTL-B Yウイング', short: 'Yウイング', side: 'republic', role: 'bomber', speed: 1600, aa: .55, strike: 300, armor: 1.5, size: 1.2, crew: 2},
+ laat:     {name: 'LAAT/i ガンシップ', short: 'LAAT', side: 'republic', role: 'transport', speed: 1300, aa: .4, strike: 12, armor: 1.6, size: 2.5, crew: 4},
+ vulture:  {name: 'ヴァルチャー級ドロイド', short: 'ヴァルチャー', side: 'cis', role: 'fighter', speed: 2000, aa: .8, strike: 10, armor: .55, size: .8, crew: 0},
+ tri:      {name: 'ドロイド・トライファイター', short: 'トライ', side: 'cis', role: 'interceptor', speed: 2200, aa: 1.15, strike: 14, armor: .7, size: 1, crew: 0},
+ hyena:    {name: 'ハイエナ級ボマー', short: 'ハイエナ', side: 'cis', role: 'bomber', speed: 1700, aa: .4, strike: 330, armor: .8, size: 1.2, crew: 0}
+};
+const ROLE_NAME = {fighter: '戦闘', interceptor: '迎撃', bomber: '爆撃', transport: '輸送'};
+// A carrier's default complement, by faction: one wing of six squadrons per 72 units.
+const CRAFT_MIX = {
+ empire: ['tie_ln', 'tie_ln', 'tie_ln', 'tie_ln', 'tie_in', 'tie_sa'],
+ rebel: ['xwing', 'xwing', 'awing', 'ywing', 'ywing', 'bwing'],
+ republic: ['vwing', 'vwing', 'eta2', 'arc170', 'arc170', 'btlb'],
+ cis: ['vulture', 'vulture', 'vulture', 'tri', 'hyena', 'hyena']
+};
+const FACTIONS = {
+ empire: {name: '銀河帝国', short: '帝国', color: '#9fb6c6'},
+ rebel: {name: '反乱同盟', short: '同盟', color: '#e48a6a'},
+ republic: {name: '銀河共和国', short: '共和国', color: '#d65a5a'},
+ cis: {name: '独立星系連合', short: '分離主義', color: '#c7a76a'}
+};
+const SIDE_OF = {'銀河帝国': 'empire', '反乱同盟': 'rebel', '銀河共和国': 'republic', '独立星系連合': 'cis'};
+
+// ---------- ground forces ----------
+// Companies of 144 (four platoons of 36), four to a battalion, four battalions
+// to a regiment of 2,304, as in the clone army's order of battle. Vehicles are
+// held by companies; size is in vehicle-bay units of 600 m³.
+const VEHICLES = {
+ atat: {name: 'AT-AT', side: 'empire', size: 8, crew: 5, note: '全地形装甲トランスポート'},
+ atst: {name: 'AT-ST', side: 'empire', size: 1, crew: 2, note: '全地形偵察トランスポート'},
+ tx130: {name: 'TX-130 ホバータンク', side: 'republic', size: 1.5, crew: 2, note: 'ファイター・タンク'},
+ atte: {name: 'AT-TE', side: 'republic', size: 2, crew: 7, note: '全地形戦術攻撃トランスポート'},
+ juggernaut: {name: 'A6 ジャガーノート', side: 'republic', size: 6, crew: 2, note: 'ターボ・タンク'},
+ t47: {name: 'T-47 エアスピーダー', side: 'rebel', size: .6, crew: 2, note: 'スノースピーダー'},
+ t2b: {name: 'T2-B 反重力戦車', side: 'rebel', size: 1.4, crew: 2, note: 'リパルサー戦車'},
+ aat: {name: 'AAT 装甲強襲戦車', side: 'cis', size: 2, crew: 4, note: '装甲強襲戦車'},
+ mtt: {name: 'MTT 兵員輸送車', side: 'cis', size: 6, crew: 2, note: '大型兵員輸送車'},
+ speeder: {name: '74-Z スピーダーバイク', side: 'any', size: .1, crew: 1, note: '偵察用'},
+ apc: {name: '装甲兵員輸送車', side: 'any', size: 1, crew: 2, note: '汎用'}
+};
+const COMPANY_TROOPS = 144, BATTALION_COMPANIES = 4, REGIMENT_BATTALIONS = 4;
+const COMPANY_TYPES = {infantry: '歩兵中隊', armor: '機甲中隊', walker: '歩行機中隊', recon: '偵察中隊', support: '支援中隊'};
+// Regiment templates: company types and vehicles per company type, by faction.
+const REGIMENT_TEMPLATES = {
+ empire: {name: 'ストームトルーパー連隊', companies: ['infantry', 'infantry', 'walker', 'recon'], vehicles: {walker: {atat: 1, atst: 1}, recon: {speeder: 6, atst: 1}}},
+ rebel: {name: '同盟軍歩兵連隊', companies: ['infantry', 'infantry', 'armor', 'recon'], vehicles: {armor: {t2b: 2}, recon: {t47: 2, speeder: 4}}},
+ republic: {name: 'クローン・トルーパー連隊', companies: ['infantry', 'infantry', 'armor', 'walker'], vehicles: {armor: {tx130: 2}, walker: {atte: 1}}},
+ cis: {name: 'バトル・ドロイド連隊', companies: ['infantry', 'infantry', 'armor', 'armor'], vehicles: {armor: {aat: 2}}}
+};
+
+// ---------- random ----------
+function rng(seed) { let t = seed >>> 0; return () => { t = (t + 0x6D2B79F5) | 0; let x = Math.imul(t ^ t >>> 15, t | 1); x ^= x + Math.imul(x ^ x >>> 7, x | 61); return ((x ^ x >>> 14) >>> 0) / 4294967296; }; }
+
+// ---------- the sector ----------
+// Grid squares of the galaxy map are 5,000 light years on a side. The major
+// worlds of the map are placed by name; the rest of the square is filled with
+// lesser and uninhabited systems a few hundred light years apart.
+const GRID_LY = 5000, GRID_COLS = 'ABCDEFGHIJKLMNOPQRSTUVW';
+const SECTOR_DEFS = {
+ 'M-10': {name: 'クワット宙域', grid: 'M-10', major: [
+  {name: 'クワット', kind: 'shipyard', at: [.62, .38], pop: 4, note: 'クワット・ドライブ・ヤードの造船星系。惑星を軌道造船リングが取り巻く', planet: {kind: 1, ring: [1.16, 1.25], radius: 5.2e6}},
+  {name: 'オルデラン', kind: 'capital', at: [.3, .58], pop: 5, note: '中核世界の文化の中心', planet: {kind: 2, radius: 6.3e6}},
+  {name: 'デラヤ', kind: 'habitable', at: [.36, .66], pop: 3, note: 'オルデランの姉妹星系', planet: {kind: 2, radius: 5.8e6}}]}
+};
+const NAME_A = ['ヴェ', 'ドル', 'ケー', 'サル', 'ミラ', 'トー', 'ネム', 'アル', 'ゼン', 'フィ', 'ロウ', 'カ', 'イス', 'ベル', 'オル', 'ヤン', 'テシ', 'グラ', 'ハル', 'ルーメ'];
+const NAME_B = ['ラス', 'ミン', 'リス', 'ドア', 'ナイ', 'セル', 'カント', 'ヴィア', 'ロン', 'ティス', 'マール', 'ガ', 'ゼア', 'ニス', 'オス', 'ル', 'ダン', 'リム'];
+function makeSector(gridKey = 'M-10', seed = 13) {
+ const def = SECTOR_DEFS[gridKey] || SECTOR_DEFS['M-10'], R = rng(seed), size = GRID_LY;
+ const col = GRID_COLS.indexOf(def.grid.split('-')[0]), row = +def.grid.split('-')[1];
+ const systems = [], minD = 430, used = new Set();
+ const place = (x, y, o) => { systems.push({id: systems.length, pos: [x, y], ...o}); };
+ for (const m of def.major) place(m.at[0] * size, m.at[1] * size, {name: m.name, kind: m.kind, pop: m.pop, major: true, note: m.note, planet: m.planet});
+ const nameOf = () => { for (let k = 0; k < 50; k++) { const n = NAME_A[Math.floor(R() * NAME_A.length)] + NAME_B[Math.floor(R() * NAME_B.length)]; if (!used.has(n) && !systems.some(s => s.name === n)) { used.add(n); return n; } } return '無名'; };
+ const kinds = ['habitable', 'habitable', 'industrial', 'outpost', 'mining', 'barren', 'barren', 'barren', 'gas', 'gas', 'ice', 'ice', 'nebula'];
+ let tries = 0;
+ while (systems.length < 42 && tries++ < 6000) {
+  const x = (.04 + .92 * R()) * size, y = (.04 + .92 * R()) * size;
+  if (systems.some(s => hyp(s.pos[0] - x, s.pos[1] - y) < minD)) continue;
+  const k = systems.length < 6 ? 'habitable' : kinds[Math.floor(R() * kinds.length)], inhab = ['habitable', 'industrial', 'outpost', 'mining'].includes(k);
+  const name = inhab ? nameOf() : `${def.grid.replace('-', '')}-${String(100 + systems.length * 7 + Math.floor(R() * 7)).padStart(3, '0')}`;
+  place(x, y, {name, kind: k, pop: k === 'habitable' ? 2 + Math.floor(R() * 2) : inhab ? 1 : 0, major: false, planet: {kind: k === 'habitable' ? 2 : k === 'gas' ? 3 : k === 'ice' ? 4 : 5, radius: (k === 'gas' ? 4e7 : 3e6 + R() * 4e6)}});
+ }
+ for (const s of systems) { s.star = ['黄色矮星', '橙色矮星', '赤色矮星', '白色星', '青色巨星'][Math.floor(R() * 5)]; s.inhabited = s.pop > 0; }
+ return {key: gridKey, name: def.name, grid: def.grid, col, row, size, origin: [col * GRID_LY, row * GRID_LY], systems};
+}
+const sysDistance = (S, a, b) => { const p = S.systems[a].pos, q = S.systems[b].pos; return hyp(p[0] - q[0], p[1] - q[1]); };
+// Seconds in hyperspace for d light years at hyperdrive class hc (lower is faster).
+function tripSeconds(d, hc) { return Math.max(RULES.minTrip, d / (RULES.hyperRate / Math.max(.25, hc))); }
+const KIND_NAME = {capital: '首都星系', shipyard: '造船星系', habitable: '居住星系', industrial: '工業星系', outpost: '前哨基地', mining: '採掘星系', barren: '無人星系', gas: 'ガス巨星系', ice: '氷惑星系', nebula: '星雲'};
+
+// ---------- designs and units ----------
+// info: what the operational layer needs beyond the fleet profile.
+function designInfo(S, p, extra = {}) {
+ return {len: p.len, hyper: S.jumpOK ? S.hyperClass : null, sensor: S.sensor || 0, crew: S.crew || 0, troopCap: S.troopCapacity || 0,
+  vehicleCap: (S.vehicleSizeCapacity || 0) + Math.floor((S.cargoCapacity || 0) / 600), slotCap: S.slots || 0, mass: S.mass || 0, cost: S.cost || 0,
+  capital: p.len >= CAPITAL_LENGTH, ...extra};
+}
+// Personnel and supplies a ship draws from the fleet's allowance: its crew,
+// pilots and embarked troops; provisions for them and stores by tonnage.
+function unitDemand(info, air = 0, troops = 0) {
+ const people = (info.crew || 0) + air + troops;
+ return {people, supply: Math.round(people * .4 + (info.mass || 0) * .0005)};
+}
+function sectionState(p) {
+ const shares = (p.sections && p.sections.length ? p.sections : new Array(C.HULL_SECTIONS).fill(1 / C.HULL_SECTIONS)), tot = shares.reduce((a, b) => a + b, 0) || 1;
+ return shares.map(s => ({max: Math.max(1, p.hp * s / tot), s: Math.max(1, p.hp * s / tot)}));
+}
+function makeUnit(w, side, design, name, group) {
+ const p = design.p, base = C.fleetUnit('u' + (w.nextId++), design.key, p, side);
+ const u = Object.assign(base, {name: name || p.name, side, team: side, design: design.key, info: design.info, group, sys: null, sec: sectionState(p), secLost: [], order: {type: 'auto', fire: true, power: 'auto', aim: 'auto'}, jump: null, squads: [], status: 'ready', kills: 0, dmgDone: 0, arrived: 0});
+ const mods = p.modules || [], cuts = p.sectionCuts || [.2, .4, .6, .8];u.secOf = mods.map(m => { const at = m.at ?? .5; let i = 0; while (i < cuts.length && at >= cuts[i]) i++; return i; });
+ w.units.set(u.id, u); return u;
+}
+const unitStruct = u => { let s = 0, m = 0; for (const x of u.sec) { s += Math.max(0, x.s); m += x.max; } return m > 0 ? s / m : 0; };
+const alive = u => u && !u.dead && u.status !== 'withdrawn';
+const fighting = u => alive(u) && !u.out;
+// A rough fighting value used by the AI and the strength readouts.
+function unitStrength(u) {
+ const p = u.p, sx = C.fleetSystems(u), health = unitStruct(u) * (u.out ? .15 : 1);
+ const fire = (p.gunBest || 0) + .5 * (p.ionBest || 0) + .2 * (p.aa || 0) + 2 * (p.msl || 0);
+ const tough = Math.sqrt(Math.max(1, p.hp) * Math.max(1, (p.shieldBuffer ?? p.D * 10) + 1)) * .02;
+ return Math.sqrt(Math.max(1, fire * sx.weapon) * tough) * health + (p.slots || 0) * 4 * (sx.hangar ?? 1);
+}
+
+// ---------- the world ----------
+// opts.sides: [{faction, name, ai}] ; opts.fleets[side] = [{design, name, tg, air:[squads], troops}].
+function createWorld(opts) {
+ const sector = opts.sector || makeSector(opts.grid || 'M-10', opts.seed || 13);
+ const w = {seed: opts.seed || 13, rand: rng((opts.seed || 13) * 7919 + 17), time: 0, acc: 0, nextId: 1, sector, mode: opts.mode || 'fleet',
+  sides: (opts.sides || [{faction: 'empire', ai: false}, {faction: 'rebel', ai: true}]).map((s, i) => ({id: i, faction: s.faction, name: s.name || FACTIONS[s.faction]?.name || ('陣営' + i), ai: !!s.ai, contacts: new Map(), seen: new Map(), start: null, lost: 0, initial: 0, ended: null})),
+  units: new Map(), groups: new Map(), squads: new Map(), wings: new Map(), missiles: [], battles: new Map(), events: [], designs: new Map(), timers: {ai: 0, det: 0, tac: 0}, result: null};
+ for (const d of opts.designs || []) w.designs.set(d.key, d);
+ // Each side starts in its own corner of the sector, at the inhabited systems nearest it.
+ const corner = [[.12, .82], [.88, .14]], S = sector.systems;
+ w.sides.forEach((sd, i) => {
+  const c = corner[i % 2].map(v => v * sector.size), near = S.slice().sort((a, b) => hyp(a.pos[0] - c[0], a.pos[1] - c[1]) - hyp(b.pos[0] - c[0], b.pos[1] - c[1]));
+  sd.start = (near.find(s => s.inhabited) || near[0]).id; sd.home = near.slice(0, 4).map(s => s.id);
+ });
+ for (const [i, list] of (opts.fleets || []).entries()) {
+  const sd = w.sides[i];if (!sd) continue;const byTg = new Map();
+  for (const e of list) {
+   const d = w.designs.get(e.design);if (!d) continue;const tg = e.tg || 1;
+   let g = byTg.get(tg);if (!g) {g = makeGroup(w, i, `第${tg}任務部隊`, sd.home[(tg - 1) % sd.home.length] ?? sd.start);byTg.set(tg, g);}
+   const u = makeUnit(w, i, d, e.name, g.id);g.units.push(u.id);u.sys = g.sys;u.troops = e.troops || 0;u.ground = e.ground || null;
+   for (const q of e.air || []) addSquad(w, u, q);
+  }
+  for (const g of byTg.values()) { deployGroup(w, g, null); g.flag = g.units.slice().sort((a, b) => w.units.get(b).p.len - w.units.get(a).p.len)[0]; }
+  sd.initial = [...w.units.values()].filter(u => u.side === i).reduce((n, u) => n + unitStrength(u), 0);
+ }
+ for (const sd of w.sides) seeSystem(w, sd.id, sd.start);
+ return w;
+}
+function makeGroup(w, side, name, sys) {
+ const g = {id: 'g' + (w.nextId++), side, name, units: [], sys, transit: null, spool: null, flag: null, formation: 'line', created: w.time};
+ w.groups.set(g.id, g); return g;
+}
+// Squadrons fly in wings; a wing is the unit that takes orders. Each carrier's
+// squadrons form one wing unless the order of battle says otherwise.
+function addSquad(w, u, q) {
+ const c = CRAFT[q.craft];if (!c) return null;const n = clamp(Math.round(q.n || 12), 1, RULES.maxSquadSize);
+ let wing = q.wing && w.wings.get(q.wing);
+ if (!wing) {const no = q.wingNo || 1, id = q.wing || ('w-' + u.id + '-' + no);wing = w.wings.get(id);if (!wing) {wing = {id, side: u.side, no, name: q.wingName || `${u.name} 第${no}飛行隊`, group: q.groupName || '', squads: [], order: {type: 'auto'}, home: u.id};w.wings.set(id, wing);}}
+ const s = {id: 's' + (w.nextId++), side: u.side, name: q.name || `${c.short}中隊`, craft: q.craft, n, n0: n, home: u.id, wing: wing.id, state: 'docked', sys: u.sys, pos: [...u.pos], vel: [0, 0, 0], h: [1, 0, 0], t: 0, runs: 0, kills: 0, target: null};
+ w.squads.set(s.id, s);wing.squads.push(s.id);u.squads.push(s.id);return s;
+}
+// Ships take station in the system: a line abreast across the line of approach.
+function deployGroup(w, g, fromSys) {
+ const S = w.sector.systems, sys = S[g.sys];let dir;
+ if (fromSys != null) { const a = S[fromSys].pos, b = sys.pos, d = norm([a[0] - b[0], 0, a[1] - b[1]]); dir = d; }
+ else { const c = [w.sector.size / 2, w.sector.size / 2], d = norm([c[0] - sys.pos[0], 0, c[1] - sys.pos[1]]); dir = len(d) > 0 ? d : [1, 0, 0]; }
+ const us = g.units.map(id => w.units.get(id)).filter(alive), side = [-dir[2], 0, dir[0]], dist = fromSys != null ? RULES.arrive : 30000;
+ let off = -(us.length - 1) / 2;
+ for (const u of us) { const gap = Math.max(2500, u.p.len * 1.6), jit = (w.rand() - .5) * 1500; u.pos = add(add(scale(dir, dist + jit), side, off * gap), [0, (w.rand() - .5) * 2000, 0]); u.yaw = Math.atan2(-dir[2], -dir[0]); u.velocity = [0, 0, 0]; u.sys = g.sys; u.arrived = w.time; off++;
+  for (const id of u.squads) { const s = w.squads.get(id); if (s && s.state === 'docked') { s.sys = g.sys; s.pos = [...u.pos]; } } }
+}
+// Events carry a running number, so readers keep their place while old ones are dropped.
+function event(w, text, o = {}) { w.events.push({n: w.evN = (w.evN || 0) + 1, t: w.time, text, ...o}); if (w.events.length > 400) w.events.splice(0, w.events.length - 400); }
+
+// ---------- operational layer ----------
+// A group can jump when every ship able to fight still has a hyperdrive; ships
+// without one are left behind in a group of their own.
+function groupHyper(w, g) {
+ let worst = 0;
+ for (const id of g.units) { const u = w.units.get(id); if (!alive(u)) continue; const hc = unitHyper(u); if (hc == null) return null; worst = Math.max(worst, hc); }
+ return worst || null;
+}
+// A ship's hyperdrive class while any of its hyperdrive modules survives
+// (wrecked units slow it in proportion), or null.
+function unitHyper(u) {
+ const hc = u.info?.hyper;if (hc == null) return null;const mods = u.p.modules || [];let has = 0, left = 0;
+ mods.forEach((m, i) => { if (m.k !== 'hyper') return; has += m.share; left += m.share * Math.max(0, u.mods[i]); });
+ if (!has) return hc;if (left <= 1e-6) return null;return hc / clamp(left / has, .25, 1);
+}
+function orderJump(w, gid, dest) {
+ const g = w.groups.get(gid);if (!g || g.transit || g.sys == null || dest == null || dest === g.sys || !w.sector.systems[dest]) return {ok: false, why: '移動できません'};
+ const stay = g.units.filter(id => { const u = w.units.get(id); return alive(u) && unitHyper(u) == null; });
+ if (stay.length && stay.length === g.units.filter(id => alive(w.units.get(id))).length) return {ok: false, why: 'ハイパードライブが使えません'};
+ if (stay.length) { const h = makeGroup(w, g.side, g.name + '（残置）', g.sys); h.units = stay; g.units = g.units.filter(id => !stay.includes(id)); for (const id of stay) w.units.get(id).group = h.id; event(w, `${g.name}：ハイパードライブを失った艦を残置`, {side: g.side}); }
+ const hc = groupHyper(w, g), d = sysDistance(w.sector, g.sys, dest);
+ const inBattle = g.units.some(id => { const u = w.units.get(id); return alive(u) && w.battles.has(u.sys); });
+ g.spool = {t: 0, need: inBattle ? RULES.withdrawSpool : 8, dest, trip: tripSeconds(d, hc), hc};
+ // Craft out get the spool time to land; any still out when the ship jumps are left behind.
+ for (const wing of w.wings.values()) if (g.units.includes(wing.home)) for (const sid of wing.squads) { const s = w.squads.get(sid); if (s && s.state === 'out') s.state = 'return'; }
+ for (const id of g.units) { const u = w.units.get(id); if (alive(u)) u.jump = {phase: 'spool', t: 0, dest}; }
+ return {ok: true, eta: g.spool.need + g.spool.trip, hc};
+}
+function cancelJump(w, gid) { const g = w.groups.get(gid); if (!g || !g.spool) return; g.spool = null; for (const id of g.units) { const u = w.units.get(id); if (u) u.jump = null; } }
+// Seconds until a group would arrive at dest if ordered now.
+function etaTo(w, gid, dest) {
+ const g = w.groups.get(gid);if (!g) return null;const hc = groupHyper(w, g);if (hc == null) return null;
+ const from = g.transit ? g.transit.to : g.sys;if (from === dest) return 0;
+ const inBattle = g.units.some(id => { const u = w.units.get(id); return alive(u) && w.battles.has(u.sys); });
+ return (g.transit ? g.transit.t1 - w.time : 0) + (inBattle ? RULES.withdrawSpool : 8) + tripSeconds(sysDistance(w.sector, from, dest), hc);
+}
+function departGroup(w, g) {
+ const sp = g.spool;g.spool = null;const from = g.sys;
+ // Ships still docking their squadrons leave them behind to follow later? No: craft aboard go along, craft out are lost with the jump.
+ for (const id of g.units) { const u = w.units.get(id); if (!alive(u)) continue; u.jump = null; u.sys = null; u.velocity = [0, 0, 0];
+  for (const sid of u.squads) { const s = w.squads.get(sid); if (!s) continue; if (s.state === 'docked') s.sys = null; else if (s.state !== 'lost') { s.state = 'stranded'; } } }
+ g.transit = {from, to: sp.dest, t0: w.time, t1: w.time + sp.trip, hc: sp.hc};g.sys = null;
+ event(w, `${g.name} が ${w.sector.systems[from].name} からハイパースペースへ（${w.sector.systems[sp.dest].name}まで ${Math.round(sp.trip / 60)} 分）`, {side: g.side, sys: from});
+ // Enemies in the system see the departure and its heading.
+ for (const sd of w.sides) if (sd.id !== g.side && sidePresent(w, sd.id, from)) noteContact(w, sd.id, g, {sys: sp.dest, transit: true, heading: sp.dest, eta: g.transit.t1});
+}
+function arriveGroup(w, g) {
+ const tr = g.transit;g.transit = null;g.sys = tr.to;g.arrivedAt = w.time;deployGroup(w, g, tr.from);
+ for (const id of g.units) { const u = w.units.get(id); if (!alive(u)) continue; u.warp = {t: 0}; for (const sid of u.squads) { const s = w.squads.get(sid); if (s && s.state === 'docked') { s.sys = g.sys; s.pos = [...u.pos]; } } }
+ seeSystem(w, g.side, g.sys);
+ event(w, `${g.name} が ${w.sector.systems[g.sys].name} に到着`, {side: g.side, sys: g.sys});
+ // Reverting to realspace leaves a disturbance other fleets nearby can read.
+ for (const sd of w.sides) { if (sd.id === g.side) continue; let near = false; for (const u of w.units.values()) if (u.side === sd.id && alive(u) && u.sys != null && sysDistance(w.sector, u.sys, g.sys) <= RULES.wakeLy) { near = true; break; } if (near) noteContact(w, sd.id, g, {sys: g.sys, exact: sidePresent(w, sd.id, g.sys)}); }
+}
+const sidePresent = (w, side, sys) => { for (const u of w.units.values()) if (u.side === side && u.sys === sys && alive(u)) return true; return false; };
+function seeSystem(w, side, sys) { w.sides[side].seen.set(sys, w.time); }
+// ---- detection ----
+// Ships see everything in their own system and, with long-range sensors,
+// groups in systems within a few hundred light years. Groups in hyperspace
+// cannot be seen; a departure is seen by enemies present.
+function detect(w) {
+ const S = w.sector;
+ for (const sd of w.sides) {
+  const eyes = [];for (const u of w.units.values()) if (u.side === sd.id && alive(u) && u.sys != null) eyes.push(u);
+  const reach = new Map();for (const u of eyes) { const r = RULES.detectLy * (u.info?.sensor || 0) * (u.out ? .3 : 1); reach.set(u.sys, Math.max(reach.get(u.sys) || 0, r)); }
+  for (const g of w.groups.values()) {
+   if (g.side === sd.id || g.sys == null) continue;const us = g.units.map(id => w.units.get(id)).filter(alive);if (!us.length) continue;
+   let seen = reach.has(g.sys), exact = seen;
+   if (!seen) for (const [sys, r] of reach) if (r > 0 && sysDistance(S, sys, g.sys) <= r) { seen = true; break; }
+   // Traffic control and informants on inhabited worlds report fleets in their system.
+   if (!seen && S.systems[g.sys].inhabited && w.time - (g.arrivedAt ?? g.created) >= RULES.reportDelay) seen = true;
+   if (seen) noteContact(w, sd.id, g, {sys: g.sys, exact});
+  }
+  for (const [gid, c] of sd.contacts) if (w.time - c.time > RULES.contactTTL) sd.contacts.delete(gid);
+ }
+}
+function noteContact(w, side, g, o) {
+ const us = g.units.map(id => w.units.get(id)).filter(alive), sd = w.sides[side], had = sd.contacts.get(g.id);
+ const c = {gid: g.id, sys: o.sys, time: w.time, ships: us.length, capital: us.filter(u => u.info?.capital).length, strength: us.reduce((n, u) => n + unitStrength(u), 0), exact: !!o.exact, transit: !!o.transit, eta: o.eta || null, names: o.exact ? us.map(u => u.name) : null};
+ sd.contacts.set(g.id, c);
+ if (!had || had.sys !== c.sys) event(w, o.transit ? `敵部隊のハイパースペース航跡：${w.sector.systems[o.sys].name}方面へ` : `敵艦隊を探知：${w.sector.systems[o.sys].name}（${c.ships} 隻）`, {side, sys: o.sys, contact: true});
+}
+
+// ---------- battles ----------
+// A system with ships of both sides is a battle. Ships fight as in the fleet
+// model, with three additions: hull sections that break, squadrons that fly
+// their wing's orders, and missile salvos that point defence can thin out.
+function systemUnits(w, sys) { const out = []; for (const u of w.units.values()) if (u.sys === sys && alive(u)) out.push(u); return out; }
+function updateBattles(w) {
+ const bySys = new Map();
+ for (const u of w.units.values()) { if (!alive(u) || u.sys == null) continue; let a = bySys.get(u.sys); if (!a) bySys.set(u.sys, a = new Set()); a.add(u.side); }
+ for (const [sys, sides] of bySys) if (sides.size > 1 && !w.battles.has(sys)) { w.battles.set(sys, {sys, t0: w.time, log: [], sides: [...sides]}); event(w, `${w.sector.systems[sys].name}で交戦開始`, {sys, battle: true}); }
+ for (const [sys, b] of w.battles) { const sides = bySys.get(sys); if (!sides || sides.size < 2) { w.battles.delete(sys); const win = sides ? [...sides][0] : null; event(w, `${w.sector.systems[sys].name}の戦闘終結${win != null ? '：' + w.sides[win].name + 'が宙域を確保' : ''}`, {sys, battle: true, end: true, winner: win}); for (const s of w.squads.values()) if (s.sys === sys && s.state !== 'docked' && s.state !== 'lost') s.state = 'return'; } }
+}
+const blog = (w, sys, text, u) => { const b = w.battles.get(sys); const e = {n: w.evN = (w.evN || 0) + 1, t: w.time, text, side: u?.side, id: u?.id}; if (b) { b.log.push(e); if (b.log.length > 120) b.log.shift(); } w.events.push({...e, sys, combat: true}); if (w.events.length > 400) w.events.shift(); };
+
+// Firepower (guns, missiles, carried craft) against what is left to destroy.
+function targetValue(a) { const p = a.p, fire = (p.gunBest || 0) + .5 * (p.ionBest || 0) + .2 * (p.aa || 0) + 2 * (p.msl || 0) + (p.slots || 0) * 4 + 1; return fire / (Math.max(1, p.hp || 0) * Math.max(.05, unitStruct(a)) + Math.max(0, a.shield || 0) + 1); }
+// Unit orders inside a battle. 'auto' is the AI's choice; the player may hold,
+// move, attack a target or withdraw any ship.
+function tacticalOrders(w, sys, us) {
+ for (const u of us) {
+  if (u.manual || u.out || u.jump) continue;
+  const side = w.sides[u.side], ai = side.ai || u.order.type === 'auto';if (!ai) continue;
+  const foes = us.filter(t => t.side !== u.side && alive(t));if (!foes.length) { u.auto = {type: 'hold'}; continue; }
+  // Badly damaged ships with a hyperdrive leave; the rest press the nearest enemy, preferring ships still able to fight
+  // and those whose loss costs the enemy most firepower for the effort (escorts before a heavily built carrier).
+  if (side.ai && unitStruct(u) < .28 && unitHyper(u) != null && !u.leaving) { u.leaving = true; aiWithdrawUnit(w, u); continue; }
+  const score = a => len(sub(a.pos, u.pos)) * (a.info?.capital === u.info?.capital ? 1 : 1.6) * Math.pow(1 / Math.max(1e-12, targetValue(a)), .35);
+  const tgt = foes.slice().sort((a, b) => (!!a.out - !!b.out) || score(a) - score(b))[0];
+  u.auto = {type: 'attack', target: tgt.id};
+ }
+}
+function effectiveOrder(u) { return u.order.type === 'auto' ? (u.auto || {type: 'hold'}) : u.order; }
+
+function battleTick(w, sys, dt) {
+ const us = systemUnits(w, sys), byId = new Map(us.map(u => [u.id, u])), sysOf = new Map(us.map(u => [u.id, C.fleetSystems(u)]));
+ const DMG = RULES.damage, inc = new Map(us.map(u => [u.id, {sf: 0, hull: 0, direct: 0, ion: 0, aim: {}, dir: [0, 0, 0]}]));
+ // --- movement (as in the fleet model; arriving ships hang still for a moment after reversion)
+ for (const u of us) {
+  if (u.manual) continue;const s = sysOf.get(u.id);
+  if (u.warp) { u.warp.t += dt; if (u.warp.t > 1) delete u.warp; continue; }
+  if (u.out || u.jump) { u.velocity = scale(u.velocity, Math.max(0, 1 - .05 * dt)); u.pos = add(u.pos, u.velocity, dt); continue; }
+  const o = effectiveOrder(u), t = byId.get(o.target);
+  const acc = u.p.accel * s.engine * clamp(u.engF ?? 1, 0, 1.2) * (.6 + .4 * unitStruct(u));let dest = o.type === 'move' ? o.point : o.type === 'attack' && t ? attackStation(u, t) : null, want = [0, 0, 0];
+  if (dest) {
+   const delta = sub(dest, u.pos), d = len(delta), yaw = Math.atan2(delta[2], delta[0]), err = angle(yaw - u.yaw);u.yaw += clamp(err, -u.p.turnRate * dt, u.p.turnRate * dt);
+   const remaining = Math.max(0, d - (o.type === 'attack' ? 1500 : 0)), dirn = 1;
+   const speed = Math.min(u.p.maxSpeed, Math.sqrt(2 * acc * remaining)) * Math.max(.08, Math.cos(err));
+   if (d > 1) { want = scale(norm(delta), speed * dirn); const hor = hyp(want[0], want[2]) * dirn; want[0] = Math.cos(u.yaw) * hor; want[2] = Math.sin(u.yaw) * hor; }
+  }
+  const dv = sub(want, u.velocity), n = len(dv), step = Math.min(n, acc * dt);u.velocity = add(u.velocity, scale(dv, step / Math.max(1e-9, n)));u.pos = add(u.pos, u.velocity, dt);u.pos[1] = clamp(u.pos[1], -15000, 15000);
+  u.maneuver = acc > 0 ? clamp(n / (acc * dt), 0, 1) : 0;
+  if (o.type === 'move' && len(sub(dest, u.pos)) < Math.max(10, acc * dt * dt) && len(u.velocity) < acc * dt * 2) { u.pos = [...dest]; u.velocity = [0, 0, 0]; }
+ }
+ for (let i = 0; i < us.length; i++) for (let j = i + 1; j < us.length; j++) { const a = us[i], z = us[j], d = sub(z.pos, a.pos), dist = len(d), r = (a.p.len + z.p.len) * .24; if (dist < r) { const v = dist > 1e-6 ? scale(d, 1 / dist) : [0, 0, 1], push = scale(v, (r - dist) / 2); if (!a.manual) a.pos = sub(a.pos, push); if (!z.manual) z.pos = add(z.pos, push); } }
+ // --- gunnery and power
+ for (const u of us) {
+  if (u.manual || u.warp) continue;const o = effectiveOrder(u), p = u.p, s = sysOf.get(u.id), g = p.grid, crewEff = C.fleetCrewEff(u);
+  const foes = us.filter(x => x.side !== u.side && !x.warp), live = foes.filter(x => !x.out), pool = live.length ? live : foes;
+  let t = null, raw = 0;
+  if (!u.out && u.order.fire !== false) { t = byId.get(o.target); if (!t || t.side === u.side || t.warp) t = pool.slice().sort((a, b) => len(sub(a.pos, u.pos)) - len(sub(b.pos, u.pos)))[0] || null; if (t && len(sub(t.pos, u.pos)) > RULES.range) t = null; if (t) raw = (C.fleetArc(u, t, p.gunArcs) + C.fleetArc(u, t, p.ionArcs)) * s.weapon; }
+  u.firingAt = t ? t.id : null;u.lastShot = null;
+  const mode = u.order.power === 'auto' || !C.POWER_MODES[u.order.power] ? C.fleetAutoPower(u, t) : u.order.power, M = C.POWER_MODES[mode];u.mode = mode;
+  const cap = (p.wCap || 0) * s.weapon, nominalShield = g ? g.Ds * s.shield : 0;let fire = raw > 0 ? 1 : 0;
+  if (g) { const regen = u.shield < u.shieldMax * .999 || u.underFire, want = {engines: u.out ? 0 : g.De * s.engine * (.15 + .85 * (u.maneuver || 0)), shields: nominalShield * (regen ? M.shields : 1), weapons: u.out ? 0 : Math.min(g.Dw * s.weapon * M.weapons, TT * (raw + Math.max(0, cap - u.energy) / dt))};
+   const P = g.P * s.reactor, got = C.powerSplit(P, g.fixed, want, mode);u.load = P > 0 ? got.load : 0;u.engF = want.engines > 0 ? got.engines / want.engines : 1;u.shF = nominalShield > 0 ? got.shields / nominalShield : 0;
+   const avail = u.energy + got.weapons * dt / TT, spend = Math.min(avail, raw * dt);fire = raw > 0 ? spend / (raw * dt) : 0;u.energy = clamp(avail - spend, 0, cap); }
+  else { u.load = .7; u.engF = 1; u.shF = 1; }
+  if (!t || u.out) continue;
+  const distance = len(sub(t.pos, u.pos)), aim = u.order.aim && u.order.aim !== 'auto' ? u.order.aim : null;
+  const fall = clamp(1 - .72 * distance / RULES.range, .2, 1), hit = p.acc * fall * crewEff * (.6 + .4 * s.fire) * (aim ? .8 : 1), gun = C.fleetArc(u, t, p.gunArcs) * s.weapon * fire * hit, ion = C.fleetArc(u, t, p.ionArcs) * s.weapon * fire * hit;
+  const x = inc.get(t.id), hd = dt * DMG, dealt = (gun + ion) * hd;x.sf += (gun + 2 * ion) * hd;x.hull += (gun + .2 * ion) * hd;x.ion += ion * hd;x.aim[aim || 'auto'] = (x.aim[aim || 'auto'] || 0) + dealt;x.dir = add(x.dir, norm(sub(u.pos, t.pos)), dealt);
+  u.dmgDone += dealt;u.shots = (u.shots || 0) + (gun + ion) * dt;if (gun + ion > 0) u.lastShot = {to: t.id, gun: (gun + ion) * dt, ion: ion > gun};
+ }
+ // --- missiles: launch, flight, point defence, impact
+ for (const u of us) {
+  if (u.manual || u.out || u.warp || !(u.p.msl > 0)) continue;const o = effectiveOrder(u), want = byId.get(o.target);
+  let t = want && want.side !== u.side && !want.warp ? want : null;if (!t) { let bd = Infinity; for (const x of us) { if (x.side === u.side || x.warp || x.out) continue; const d = len(sub(x.pos, u.pos)); if (d < bd) { bd = d; t = x; } } }
+  if (!t || len(sub(t.pos, u.pos)) > RULES.missileRange) continue;
+  const mods = u.p.modules || [];u.mslT = (u.mslT || 0) - dt;if (u.mslT > 0) continue;u.mslT = 20;
+  const tubes = mods.map((m, i) => m.k === 'launcher' && u.mods[i] > 0 && u.ammo[i] >= 8 ? i : -1).filter(i => i >= 0), total = mods.filter(m => m.k === 'launcher').length;
+  let n = 0;if (!total) n = Math.round(u.p.msl / 10);else for (const i of tubes) { u.ammo[i] -= 8; n += 8; }
+  if (n > 0) w.missiles.push({id: 'm' + (w.nextId++), side: u.side, sys, from: u.id, target: t.id, n, pos: add(u.pos, [0, u.p.height ? u.p.height * .3 : 50, 0]), vel: scale(norm(sub(t.pos, u.pos)), 220), s: 220, life: 45});
+ }
+ for (const m of w.missiles) {
+  if (m.sys !== sys || m.n <= 0) continue;const t = byId.get(m.target);if (!t) { m.life = 0; continue; }
+  const rel = sub(t.pos, m.pos), d = len(rel);m.s = Math.min(2600, m.s + 650 * dt);m.vel = scale(norm(add(rel, t.velocity || [0, 0, 0], d / Math.max(300, m.s))), m.s);m.pos = add(m.pos, m.vel, dt);m.life -= dt;
+  // Every enemy ship within reach adds its point defence, weighted by the arc facing the salvo.
+  let kill = 0;for (const x of us) { if (x.side === m.side || x.warp || x.manual) continue; const r = len(sub(m.pos, x.pos)); if (r > RULES.pdRange + x.p.len * .5) continue; kill += RULES.pdMissile * pdToward(x, m.pos) * sysOf.get(x.id).weapon * C.fleetCrewEff(x) * dt; }
+  if (kill > 0) { const k = Math.min(m.n, kill * (1 + (w.rand() - .5) * .4)); m.n -= k; m.downed = (m.downed || 0) + k; }
+  if (m.n < .5) { m.n = 0; continue; }
+  if (d < Math.max(300, t.p.len * .4)) { const tt = m.n * RULES.missileTT * DMG, x = inc.get(t.id); x.sf += .5 * tt; x.hull += .5 * tt; x.direct += .5 * tt; x.aim.auto = (x.aim.auto || 0) + tt; x.dir = add(x.dir, norm(sub(m.pos, t.pos)), tt); m.hit = m.n; m.n = 0; const src = byId.get(m.from); if (src) src.dmgDone += tt; }
+  else if (m.life <= 0) m.n = 0;
+ }
+ w.missiles = w.missiles.filter(m => m.n > 0 && m.life > 0 || m.sys !== sys);
+ // --- small craft
+ craftTick(w, sys, us, byId, sysOf, inc, dt);
+ // --- damage to hulls and modules
+ for (const u of us) { if (u.manual && !u.takesDamage) { /* the piloted ship's damage arrives through extra */ } applyDamage(w, sys, u, inc.get(u.id), dt, sysOf.get(u.id)); }
+}
+// Where a ship attacks from: level with its target, or below it when its
+// batteries bear best upward (dorsal mounts), above when they bear downward.
+// The station is at fighting range on the line from the target toward the ship.
+function attackStation(u, t) {
+ const a = u.p.gunArcs || [], side = Math.max(a[2] || 0, a[3] || 0, a[0] || 0), up = a[4] || 0, dn = a[5] || 0;
+ const range = Math.max(RULES.engage, (u.p.len + t.p.len) * 1.3), k = up > side * 1.15 && up >= dn ? -.6 : dn > side * 1.15 ? .6 : 0;
+ const dx = u.pos[0] - t.pos[0], dz = u.pos[2] - t.pos[2], h = hyp(dx, dz) || 1, hd = range / Math.sqrt(1 + k * k);
+ return [t.pos[0] + dx / h * hd, clamp(t.pos[1] + k * hd, -15000, 15000), t.pos[2] + dz / h * hd];
+}
+// Point-defence rating a ship brings to bear toward a point (its arc share).
+function pdToward(u, pt) {
+ const a = u.p.aaArcs;if (!a || !a.some(v => v > 0)) return u.p.aa || 0;
+ const d = sub(pt, u.pos), c = Math.cos(u.yaw), s = Math.sin(u.yaw), v = [d[0] * c + d[2] * s, d[1], -d[0] * s + d[2] * c], wts = [Math.max(0, v[0]), Math.max(0, -v[0]), Math.max(0, v[2]), Math.max(0, -v[2]), Math.max(0, v[1]), Math.max(0, -v[1])], sum = wts.reduce((x, y) => x + y, 0) || 1;
+ return wts.reduce((n, x, i) => n + x * (a[i] || 0), 0) / sum;
+}
+// A wing on automatic orders covers its carrier (the AI's wings get the AI's orders).
+function wingOrder(w, wing) { const o = wing?.order || {type: 'standby'}; if (o.type !== 'auto') return o; return wing.auto || {type: 'escort', target: wing.home}; }
+// The bearing in a ship's frame from which an attack run comes in.
+const APPROACH = {bow: [1, 0, 0], stern: [-1, 0, 0], stbd: [0, 0, 1], port: [0, 0, -1], above: [0, 1, 0], below: [0, -1, 0]};
+const APPROACH_NAME = {bow: '艦首', stern: '艦尾', stbd: '右舷', port: '左舷', above: '上方', below: '下方'};
+const shipToWorld = (u, v) => { const c = Math.cos(u.yaw), s = Math.sin(u.yaw); return [v[0] * c - v[2] * s, v[1], v[0] * s + v[2] * c]; };
+
+// Squadrons: launch from their carrier at the hangar's rate, fly to the goal
+// their wing's order sets, dogfight enemy craft they meet and make attack runs
+// on ships, then return to rearm. Point defence and enemy fighters thin them.
+function craftTick(w, sys, us, byId, sysOf, inc, dt) {
+ const sq = [];for (const s of w.squads.values()) if (s.sys === sys && s.state !== 'lost' && s.state !== 'stranded') sq.push(s);
+ if (!sq.length) return;
+ const foesOf = side => us.filter(u => u.side !== side && !u.warp);
+ for (const s of sq) {
+  const c = CRAFT[s.craft], home = byId.get(s.home), wing = w.wings.get(s.wing), o = wingOrder(w, wing);
+  if (s.state === 'docked') {
+   if (!home || home.out && !home.dead) { continue; }
+   s.pos = [...home.pos];
+   if (s.t > 0) { s.t -= dt; continue; }
+   if (o.type === 'standby' || !w.battles.has(sys) || home.jump) continue;
+   // Launch: one squadron at a time per carrier, at the hangar's rate.
+   const rate = Math.max(.05, (home.p.launch || 1) * (sysOf.get(home.id)?.hangar ?? 1));home.launchQ = (home.launchQ || 0);if (home.launchQ > 0) { home.launchQ -= dt; continue; }
+   home.launchQ = s.n * c.size / rate;s.state = 'out';s.pos = add(home.pos, [0, -home.p.height * .3 || -60, 0]);s.h = [Math.cos(home.yaw), 0, Math.sin(home.yaw)];s.phase = 'go';s.runs = 0;s.launched = w.time;continue;
+  }
+  if (s.state === 'return') { if (!home || home.dead || home.sys !== sys) { s.state = 'lost'; s.n = 0; continue; } const d = sub(home.pos, s.pos); if (len(d) < Math.max(400, home.p.len * .5)) { s.state = 'docked'; s.t = RULES.craftRearm; s.runs = 0; continue; } steer(s, home.pos, c.speed, dt); continue; }
+  // Out: pick a goal from the wing's order.
+  let goal = null, engageR = 0;const foes = foesOf(s.side);
+  if (o.type === 'strike') {
+   const t = byId.get(o.target);if (!t || t.dead || t.side === s.side) { s.state = 'return'; continue; }
+   const ap = APPROACH[o.approach] || APPROACH.bow, ip = add(t.pos, shipToWorld(t, scale(ap, 12000 + t.p.len * .6)));
+   if (s.phase === 'go') { goal = ip; if (len(sub(ip, s.pos)) < 1800) s.phase = 'run'; }
+   else if (s.phase === 'run') { goal = t.pos; if (len(sub(t.pos, s.pos)) < Math.max(900, t.p.len * .45)) {
+     // Attack run: bombers and torpedo craft release; fighters strafe.
+     const tt = s.n * c.strike * RULES.damage, x = inc.get(t.id);if (x) { x.sf += .7 * tt; x.hull += .7 * tt; x.direct += .3 * tt; x.aim[o.aim || 'auto'] = (x.aim[o.aim || 'auto'] || 0) + tt; x.dir = add(x.dir, norm(sub(s.pos, t.pos)), tt); }
+     s.runs++;s.dmg = (s.dmg || 0) + tt;s.phase = 'egress';s.egress = add(t.pos, shipToWorld(t, scale(ap, -9000 - t.p.len * .5))); } }
+   else { goal = s.egress; if (len(sub(s.egress, s.pos)) < 1500) { if (c.role === 'bomber') s.state = 'return'; else s.phase = 'go'; } }
+   engageR = c.role === 'bomber' ? 0 : 3000;
+  } else if (o.type === 'cap') { goal = o.point || home?.pos || s.pos; engageR = (o.radius || 15000) + 4000; }
+  else if (o.type === 'escort') { const e = byId.get(o.target) || home; if (!e) { s.state = 'return'; continue; } goal = add(e.pos, [0, e.p.height * .8 || 300, 0]); engageR = 9000; }
+  else { s.state = 'return'; continue; }
+  // Engage enemy craft within reach of the goal (CAP/escort) or of the squadron (strike escorts).
+  if (engageR > 0) { let best = null, bd = Infinity; for (const e of sq) { if (e.side === s.side || e.state !== 'out' || e.n <= 0) continue; const dg = len(sub(e.pos, o.type === 'strike' ? s.pos : goal)); if (dg < engageR) { const ds = len(sub(e.pos, s.pos)); if (ds < bd) { bd = ds; best = e; } } } if (best) { goal = best.pos; s.target = best.id; } else s.target = null; }
+  steer(s, goal || s.pos, c.speed, dt);
+ }
+ // Dogfights: hostile squadrons within 2.5 km wear each other down.
+ const loss = new Map();
+ for (let i = 0; i < sq.length; i++) for (let j = i + 1; j < sq.length; j++) {
+  const a = sq[i], b = sq[j];if (a.side === b.side || a.state !== 'out' || b.state !== 'out' || a.n <= 0 || b.n <= 0) continue;if (len(sub(a.pos, b.pos)) > 2500) continue;
+  const ca = CRAFT[a.craft], cb = CRAFT[b.craft];
+  loss.set(a.id, (loss.get(a.id) || 0) + RULES.dogfight * b.n * cb.aa / ca.armor * dt);loss.set(b.id, (loss.get(b.id) || 0) + RULES.dogfight * a.n * ca.aa / cb.armor * dt);
+  a.dogfight = b.dogfight = w.time;
+ }
+ // Point defence on craft near enemy ships.
+ for (const s of sq) { if (s.state !== 'out' || s.n <= 0) continue; const c = CRAFT[s.craft]; for (const x of us) { if (x.side === s.side || x.warp || x.manual) continue; const r = len(sub(s.pos, x.pos)); if (r > RULES.pdRange + x.p.len * .5) continue; loss.set(s.id, (loss.get(s.id) || 0) + RULES.pdCraft * pdToward(x, s.pos) * sysOf.get(x.id).weapon * C.fleetCrewEff(x) * dt / c.armor); } }
+ for (const [id, l] of loss) { const s = w.squads.get(id); const k = Math.min(s.n, l * (1 + (w.rand() - .5) * .5)); s.n -= k; s.lostN = (s.lostN || 0) + k; if (s.n < .5) { s.n = 0; s.state = 'lost'; blog(w, sys, `${s.name} 全滅`, {side: s.side}); } }
+}
+function steer(s, goal, speed, dt) {
+ const d = sub(goal, s.pos), l = len(d);if (l < 1) return;const want = scale(d, 1 / l), c = clamp(dot(s.h, want), -1, 1), ang = Math.acos(c), maxA = 1.3 * dt;
+ if (ang > 1e-4) { const k = Math.min(1, maxA / ang); s.h = norm(add(scale(s.h, 1 - k), want, k)); }
+ const v = Math.min(speed, l / dt);s.vel = scale(s.h, v);s.pos = add(s.pos, s.vel, dt);
+}
+
+// ---- damage: shields, armour, then hull sections and the modules in them ----
+function applyDamage(w, sys, u, o, dt, s) {
+ const p = u.p, DMG = RULES.damage, ev = text => blog(w, sys, u.name + '：' + text, u);
+ // Damage dealt outside the battle model (the bolts of a piloted ship) arrives here.
+ if (u.extra) { for (const k of ['sf', 'hull', 'direct', 'ion']) o[k] += u.extra[k] || 0; for (const [k, v] of Object.entries(u.extra.aim || {})) o.aim[k] = (o.aim[k] || 0) + v; u.extra = null; }
+ u.shieldMax = Math.max(0, (p.shieldBuffer ?? p.D * C.K.bufferS) * s.shield + (p.reserve || 0) * s.battery);
+ const D = p.D * s.shield, eff = D * (u.shF ?? 1), gen = eff * dt * DMG, decay = Math.max(0, 1 - (u.shF ?? 1)) * D * dt * DMG * .5, over = Math.max(0, o.sf - gen), ab = Math.min(u.shield, over), leak = over - ab, had = u.shield > 0;
+ u.shield = clamp(u.shield - ab + Math.max(0, gen - o.sf) - decay, 0, u.shieldMax);u.underFire = o.sf > 0;if (had && u.shield <= 0 && u.shieldMax > 0) ev('シールド消失');
+ const hullHit = leak * (o.sf ? o.hull / o.sf : 0) + o.direct, a = (p.armorHull || 0) / (1 + (p.armorHull || 0)) * u.armor, absorbed = hullHit * a, pen = (hullHit - absorbed) * p.crit + o.direct * (1 - a) * p.crit * .4;
+ if (absorbed > 0) { const pool = Math.max(1, p.hp * (p.armorHull || 0) * .6), was = u.armor; u.armor = Math.max(0, u.armor - absorbed / pool); if (was > .5 && u.armor <= .5) ev('装甲損耗 50%'); if (was > 0 && u.armor <= 0) ev('装甲喪失'); }
+ if (o.ion > 0 && leak > 0) u.energy = Math.max(0, u.energy - leak * (o.ion / Math.max(1e-9, o.sf)) * 2);
+ if (!(pen > 0) || u.dead) { statusCheck(w, sys, u); return; }
+ // Penetrating damage lands in quanta on a section: the side facing the fire
+ // takes more, the aimed-at system more still; each quantum may wreck a module there.
+ const quantum = Math.max(1, p.hp * .015), aims = Object.entries(o.aim), aimTotal = aims.reduce((n, [, v]) => n + v, 0), dl = len(o.dir) > 0 ? norm(o.dir) : null;
+ const local = dl ? (() => { const c = Math.cos(u.yaw), sn = Math.sin(u.yaw); return [dl[0] * c + dl[2] * sn, dl[1], -dl[0] * sn + dl[2] * c]; })() : [0, 0, 0];
+ u.hitAcc = (u.hitAcc || 0) + pen;
+ while (u.hitAcc >= quantum && !u.dead) {
+  u.hitAcc -= quantum;let r = w.rand() * aimTotal, aim = null;for (const [k, v] of aims) { r -= v; if (r <= 0) { aim = k === 'auto' ? null : k; break; } }
+  const N = u.sec.length, wts = u.sec.map((x, i) => x.s <= 0 ? .15 : Math.pow(x.max, 2 / 3) * (1 + .9 * local[0] * (i - (N - 1) / 2) / ((N - 1) / 2)) * (aim ? 1 + 4 * aimShare(u, i, aim) : 1));
+  let tw = wts.reduce((a, b) => a + Math.max(0, b), 0), q = w.rand() * tw, si = 0;for (; si < N - 1; si++) { q -= Math.max(0, wts[si]); if (q <= 0) break; }
+  hitSection(w, sys, u, si, quantum, aim, ev);
+ }
+ statusCheck(w, sys, u);
+}
+function aimShare(u, si, aim) { const mods = u.p.modules || []; let a = 0, t = 0; mods.forEach((m, i) => { if (m.k !== aim) return; t += m.w; if (u.secOf[i] === si && u.mods[i] > 0) a += m.w; }); return t > 0 ? a / t : 0; }
+function hitSection(w, sys, u, si, q, aim, ev) {
+ const p = u.p, sec = u.sec[si], mods = p.modules || [], need = p.crewNeed || 0;
+ sec.s -= q;u.crew -= need * .003;
+ // A module in the section: weighted by its exposed area, six times for the aimed system.
+ let total = 0;const wts = mods.map((m, i) => { if (m.k === 'hull' || u.secOf[i] !== si) return 0; let x = m.w * (u.mods[i] > 0 ? 1 : .2); if (aim && m.k === aim) x *= 6; total += x; return x; });
+ const hullW = Math.max(1, total * .6);if (w.rand() * (total + hullW) < total) { let r = w.rand() * total, i = 0; for (; i < mods.length - 1; i++) { r -= wts[i]; if (r <= 0) break; } moduleHit(w, sys, u, i, ev); }
+ if (sec.s <= 0 && !u.secLost.includes(si)) sectionLost(w, sys, u, si, ev);
+}
+function moduleHit(w, sys, u, i, ev) {
+ const p = u.p, m = p.modules[i], need = p.crewNeed || 0;if (!m || u.mods[i] <= 0) return;
+ u.mods[i] = Math.max(0, u.mods[i] - 1 / m.hits);u.crew -= m.crew / m.hits * .7;if (m.k === 'quarters') u.crew -= need * .5 * m.share / m.hits * .6;
+ const blast = (k, text, fate) => { const si = u.secOf[i], sec = u.sec[si]; sec.s -= sec.max * k; for (const j of [si - 1, si + 1]) if (u.sec[j]) u.sec[j].s -= u.sec[j].max * k * .45; u.crew -= need * Math.min(.5, k * .3); ev(text); u.fateHint = fate; for (const j of [si - 1, si, si + 1]) if (u.sec[j] && u.sec[j].s <= 0 && !u.secLost.includes(j)) sectionLost(w, sys, u, j, ev); };
+ if (m.k === 'reactor' && w.rand() < C.coreDetonation(u.load) * (1.2 - u.mods[i])) { u.mods[i] = 0; blast(.35 + .6 * m.share * (.6 + u.load), `${m.name} 炉心誘爆（炉心負荷 ${Math.round(u.load * 100)}%）`, 'reactor'); return; }
+ if (m.k === 'fuel' && w.rand() < (.08 + .08 * u.load) * (1.2 - u.mods[i])) { u.mods[i] = 0; blast(.3 + .5 * m.share, `${m.name} 反応物誘爆`, 'fuel'); return; }
+ if (m.k === 'launcher' && u.ammo[i] > 0 && w.rand() < .4 * u.ammo[i] / 120) { const n = u.ammo[i]; u.ammo[i] = 0; u.mods[i] = 0; blast(clamp(n * 250 / Math.max(1, u.sec[u.secOf[i]].max), .2, .9), `弾薬庫誘爆（ミサイル ${Math.round(n)} 発）`, 'magazine'); return; }
+ if (u.mods[i] > 0) return;
+ if (m.k === 'capacitor' && m.link != null && u.mods[m.link] > 0) { u.mods[m.link] = 0; ev(`${m.name} 破壊（${p.modules[m.link].name} 射撃不能）`); return; }
+ if (m.k === 'reactor') ev(`${m.name} 停止（出力 −${Math.round(m.share * 100)}%）`);
+ else if (m.k !== 'other' && m.k !== 'quarters') ev(`${m.name} 破壊`);
+}
+// A section whose structure is gone collapses: most of what it holds goes with it.
+function sectionLost(w, sys, u, si, ev) {
+ u.secLost.push(si);u.sec[si].s = 0;const mods = u.p.modules || [], need = u.p.crewNeed || 0;
+ mods.forEach((m, i) => { if (u.secOf[i] === si && m.k !== 'hull' && u.mods[i] > 0 && w.rand() < .65) u.mods[i] = 0; });
+ u.crew -= need * u.sec[si].max / Math.max(1, u.p.hp) * .7;ev(`${C.SECTION_NAMES[si] || '区画'} 崩壊`);
+}
+// The ship breaks up when two sections are gone or a midship section goes;
+// it is out of the fight without power, without a bridge, or short of crew.
+function statusCheck(w, sys, u) {
+ if (u.dead) return;u.crew = Math.max(0, u.crew);const N = u.sec.length, lost = u.secLost;
+ if (lost.length >= 2 || lost.some(i => i > 0 && i < N - 1)) { u.dead = true; u.velocity = [0, 0, 0]; u.fate = u.fateHint || 'hull'; const why = {reactor: '炉心誘爆', fuel: '反応物誘爆', magazine: '弾薬庫誘爆'}[u.fate] || '船体破断'; blog(w, sys, `${u.name}：撃沈（${why}）`, u); event(w, `${u.name} 撃沈（${why}）`, {side: u.side, sys, sunk: true}); w.sides[u.side].lost++; for (const id of u.squads) { const s = w.squads.get(id); if (s && s.state === 'docked') { s.state = 'lost'; s.n = 0; } } return; }
+ if (!u.out) { const p = u.p, after = C.fleetSystems(u), why = after.hasReactor && p.grid?.P > 0 && after.reactor <= 0 ? '電源喪失' : after.hasBridge && !after.bridge ? '艦橋喪失' : (p.crewNeed || 0) > 0 && u.crew < p.crewNeed * C.FLEET_MIN_CREW ? '乗員不足' : null; if (why) { u.out = why; u.order = {...u.order, type: 'hold'}; blog(w, sys, `${u.name}：戦闘不能（${why}）`, u); event(w, `${u.name} 戦闘不能（${why}）`, {side: u.side, sys}); } }
+}
+
+// ---------- AI ----------
+// The opposing commander splits its fleet into a main body, a detachment and
+// scouts; scouts search systems not seen lately, and the main body moves to
+// strike any group it can outmatch, gathering the detachment to arrive together.
+function aiWithdrawUnit(w, u) {
+ const g = w.groups.get(u.group);if (!g) return;const safe = safeSystem(w, u.side, u.sys);if (safe == null) return;
+ // A lone damaged ship leaves in a group of its own.
+ const h = makeGroup(w, u.side, `${u.name}（撤退）`, u.sys);g.units = g.units.filter(id => id !== u.id);h.units = [u.id];u.group = h.id;orderJump(w, h.id, safe);
+}
+function safeSystem(w, side, from) {
+ const sd = w.sides[side], danger = new Set([...sd.contacts.values()].map(c => c.sys));
+ const cands = w.sector.systems.filter(s => s.id !== from && !danger.has(s.id)).sort((a, b) => sysDistance(w.sector, from, a.id) - sysDistance(w.sector, from, b.id));
+ const homeFirst = cands.filter(s => sd.home.includes(s.id));return (homeFirst[0] || cands[0])?.id ?? null;
+}
+function aiSetup(w, side) {
+ const sd = w.sides[side];if (sd.brain) return;
+ const gs = [...w.groups.values()].filter(g => g.side === side), all = gs.flatMap(g => g.units);
+ // Fast small ships with long-range sensors scout; the rest is a main body and a detachment.
+ const us = all.map(id => w.units.get(id)).filter(alive), scouts = us.filter(u => !u.info.capital && u.info.hyper != null && u.info.hyper <= 2).sort((a, b) => (a.info.hyper - b.info.hyper) || (b.info.sensor - a.info.sensor)).slice(0, Math.max(1, Math.round(us.length * .12)));
+ const rest = us.filter(u => !scouts.includes(u)).sort((a, b) => unitStrength(b) - unitStrength(a)), main = rest.filter((_, i) => i % 3 !== 2), det = rest.filter((_, i) => i % 3 === 2);
+ for (const g of gs) w.groups.delete(g.id);
+ const mk = (name, list, sys) => { if (!list.length) return null; const g = makeGroup(w, side, name, sys); g.units = list.map(u => u.id); for (const u of list) { u.group = g.id; u.sys = sys; } g.flag = list[0].id; deployGroup(w, g, null); return g; };
+ sd.brain = {main: mk('敵主力', main, sd.start)?.id, det: mk('敵分遣隊', det, sd.home[1] ?? sd.start)?.id, scouts: scouts.map((u, i) => mk(`敵偵察隊${i + 1}`, [u], sd.home[(i + 2) % sd.home.length] ?? sd.start)?.id).filter(Boolean), plan: null};
+}
+function aiStrategic(w, side) {
+ const sd = w.sides[side];aiSetup(w, side);const A = sd.brain, S = w.sector;
+ const live = id => { const g = w.groups.get(id); return g && g.units.some(u => alive(w.units.get(u))) ? g : null; };
+ const contacts = [...sd.contacts.values()].filter(c => !c.transit).sort((a, b) => b.time - a.time);
+ // Scouts: the nearest system not seen for the longest.
+ for (const id of A.scouts) { const g = live(id); if (!g || g.transit || g.spool || w.battles.has(g.sys) || w.time - (g.arrivedAt ?? -1e9) < RULES.dwell * .6) continue; const stale = S.systems.filter(s => s.id !== g.sys).map(s => ({s, age: w.time - (sd.seen.get(s.id) ?? -1e9), d: sysDistance(S, g.sys, s.id)})).sort((a, b) => (b.age > 600) - (a.age > 600) || a.d - b.d)[0]; if (stale) orderJump(w, g.id, stale.s.id); }
+ const main = live(A.main), det = live(A.det), mine = [main, det].filter(Boolean);
+ const strength = g => g.units.map(id => w.units.get(id)).filter(fighting).reduce((n, u) => n + unitStrength(u), 0);
+ // Break off a battle going badly; otherwise join or reinforce battles where our ships fight.
+ for (const g of mine) { if (g.transit || g.spool || !w.battles.has(g.sys)) continue; const us = systemUnits(w, g.sys), ours = us.filter(u => u.side === side && fighting(u)).reduce((n, u) => n + unitStrength(u), 0), theirs = us.filter(u => u.side !== side && fighting(u)).reduce((n, u) => n + unitStrength(u), 0); if (ours < theirs * .45 && theirs > 0) { const safe = safeSystem(w, side, g.sys); if (safe != null) { orderJump(w, g.id, safe); event(w, `${g.name} が撤退を開始`, {side}); } } }
+ for (const [sys] of w.battles) { if (!sidePresent(w, side, sys)) continue; for (const g of mine) if (!g.transit && !g.spool && g.sys !== sys && !w.battles.has(g.sys)) { const eta = etaTo(w, g.id, sys); if (eta != null && eta < 900) orderJump(w, g.id, sys); } }
+ // Strike the nearest fresh contact we outmatch, both groups arriving together.
+ // A commander kept from battle for an hour grows bolder about the odds.
+ if ([...w.battles.keys()].some(sys => sidePresent(w, side, sys))) A.lastBattle = w.time;
+ const fresh = contacts.filter(c => w.time - c.time < 900), ours = mine.reduce((n, g) => n + strength(g), 0), odds = w.time - (A.lastBattle ?? 0) > 3600 ? .85 : 1.15;
+ const danger = new Set(fresh.filter(c => c.strength * odds >= ours).map(c => c.sys));
+ if (fresh.length && main && !main.transit && !main.spool && !w.battles.has(main.sys) && !main.waitUntil) {
+  const prey = fresh.filter(c => c.sys !== main.sys && ours > c.strength * odds).map(c => ({c, eta: etaTo(w, main.id, c.sys)})).filter(x => x.eta != null).sort((a, b) => a.eta - b.eta)[0];
+  if (prey) {
+   const c = prey.c, etas = mine.map(g => ({g, eta: etaTo(w, g.id, c.sys)})).filter(x => x.eta != null), last = Math.max(...etas.map(x => x.eta));
+   for (const x of etas) { if (x.g.transit || x.g.spool) continue; if (last - x.eta < 60) orderJump(w, x.g.id, c.sys); else x.g.waitUntil = w.time + (last - x.eta); }
+   A.plan = {sys: c.sys, at: w.time};
+  } else if (det && !det.transit && det.sys !== main.sys && !det.spool && !w.battles.has(det.sys)) orderJump(w, det.id, main.sys);
+ }
+ for (const g of mine) if (g.waitUntil && w.time >= g.waitUntil && A.plan && !g.transit && !g.spool) { g.waitUntil = null; orderJump(w, g.id, A.plan.sys); }
+ // Nothing to strike: the main body sweeps toward the enemy's side of the sector,
+ // through the systems not seen for longest and round any force too strong for it;
+ // the detachment keeps within a jump.
+ const busy = main && (main.transit || main.spool || main.waitUntil || w.battles.has(main.sys) || (A.plan && w.time - A.plan.at < RULES.dwell));
+ if (main && !busy && w.time - (main.arrivedAt ?? -1e9) > RULES.dwell) {
+  const far = w.sides.find(x => x.id !== side), aim = far ? S.systems[far.start].pos : [S.size / 2, S.size / 2], here = S.systems[main.sys].pos;
+  const cand = S.systems.filter(x => x.id !== main.sys && !danger.has(x.id)).map(x => { const d = sysDistance(S, main.sys, x.id), toward = hyp(x.pos[0] - aim[0], x.pos[1] - aim[1]) < hyp(here[0] - aim[0], here[1] - aim[1]) - 200, seen = sd.seen.get(x.id), age = seen == null ? 1e9 : w.time - seen; return {x, score: (toward ? 0 : 1200) + d + (age < 3600 ? 3500 : 0) - (x.inhabited ? 300 : 0)}; }).sort((a, b) => a.score - b.score)[0];
+  if (cand) { orderJump(w, main.id, cand.x.id); A.moved = w.time; if (det && !det.transit && !det.spool && !w.battles.has(det.sys)) { const near = S.systems.filter(x => x.id !== cand.x.id && sysDistance(S, x.id, cand.x.id) < 1400).sort((a, b) => (w.time - (sd.seen.get(b.id) ?? -1e9)) - (w.time - (sd.seen.get(a.id) ?? -1e9)))[0]; orderJump(w, det.id, (near || cand.x).id); } }
+ }
+ // Carriers in battle send their wings: fighters to cover the fleet, bombers at the biggest enemy.
+ for (const wing of w.wings.values()) { if (wing.side !== side) continue; const home = w.units.get(wing.home); if (!home || !alive(home) || !w.battles.has(home.sys)) { wing.auto = null; continue; } aiWing(w, wing, home); }
+}
+// AI wings: mostly-bomber wings strike the largest enemy from its weakest
+// point-defence arc; the rest cover their carrier.
+function aiWing(w, wing, home) {
+ const sqs = wing.squads.map(id => w.squads.get(id)).filter(s => s && s.state !== 'lost'), bombers = sqs.filter(s => CRAFT[s.craft].role === 'bomber').length;
+ const foes = systemUnits(w, home.sys).filter(u => u.side !== home.side && fighting(u)).sort((a, b) => b.p.len - a.p.len);if (!foes.length) return;
+ const cur = wing.auto;if (cur && (cur.type !== 'strike' || fighting(w.units.get(cur.target)))) return;
+ if (bombers > 0 || (wing.no || 1) % 2 === 0) wing.auto = {type: 'strike', target: foes[0].id, approach: weakestApproach(foes[0])};
+ else wing.auto = {type: 'escort', target: home.id};
+}
+function weakestApproach(t) { return Object.keys(APPROACH).sort((a, b) => pdToward(t, add(t.pos, shipToWorld(t, scale(APPROACH[a], 9000)))) - pdToward(t, add(t.pos, shipToWorld(t, scale(APPROACH[b], 9000)))))[0]; }
+
+// ---------- the clock ----------
+function step(w, dt) {
+ if (w.result) return;w.acc += dt;let n = 0;
+ while (w.acc >= TICK && n < 4000) { w.acc -= TICK; n++; tick(w, TICK); if (w.result) break; }
+}
+function tick(w, dt) {
+ w.time += dt;
+ for (const g of w.groups.values()) {
+  if (g.transit && w.time >= g.transit.t1) arriveGroup(w, g);
+  if (g.spool) { g.spool.t += dt; for (const id of g.units) { const u = w.units.get(id); if (u?.jump) u.jump.t = g.spool.t; } if (g.spool.t >= g.spool.need) departGroup(w, g); }
+ }
+ updateBattles(w);
+ if ((w.timers.det -= dt) <= 0) { w.timers.det = RULES.detectEvery; detect(w); }
+ if ((w.timers.tac -= dt) <= 0) { w.timers.tac = RULES.aiTactical; for (const [sys] of w.battles) tacticalOrders(w, sys, systemUnits(w, sys)); }
+ if ((w.timers.ai -= dt) <= 0) { w.timers.ai = RULES.aiStrategic; for (const sd of w.sides) if (sd.ai) aiStrategic(w, sd.id); }
+ for (const [sys] of w.battles) battleTick(w, sys, dt);
+ // Out of battle, shields recharge and docked craft rearm.
+ for (const u of w.units.values()) if (alive(u) && u.sys != null && !w.battles.has(u.sys)) { u.shield = Math.min(u.shieldMax, u.shield + (u.p.D || 0) * dt * .5); u.underFire = false; if (u.warp) { u.warp.t += dt; if (u.warp.t > 1) delete u.warp; } }
+ for (const s of w.squads.values()) if (s.state === 'docked' && s.t > 0 && !w.battles.has(s.sys)) s.t -= dt;
+ checkResult(w);
+}
+// The fleet battle ends when one side has lost three quarters of its fighting
+// value (sunk, disabled or fled) or has no ship left able to fight.
+function checkResult(w) {
+ if (w.mode !== 'fleet' || w.result) return;
+ const now = w.sides.map(sd => [...w.units.values()].filter(u => u.side === sd.id && fighting(u)).reduce((n, u) => n + unitStrength(u), 0));
+ w.sides.forEach((sd, i) => sd.now = now[i]);
+ const broken = w.sides.map((sd, i) => now[i] < sd.initial * .25 || ![...w.units.values()].some(u => u.side === sd.id && fighting(u)));
+ if (broken.some(Boolean)) { const winner = broken[0] && broken[1] ? -1 : broken[0] ? 1 : 0; w.result = {winner, time: w.time}; event(w, winner < 0 ? '両軍とも戦闘力を失いました' : `${w.sides[winner].name}の勝利`, {result: true}); }
+}
+
+// ---------- player orders ----------
+function orderUnit(w, id, o) {
+ const u = w.units.get(id);if (!u || !alive(u) || w.sides[u.side].ai) return false;
+ if (o.type && !['auto', 'hold', 'move', 'attack'].includes(o.type)) return false;
+ if (o.type === 'attack' && !w.units.has(o.target)) return false;
+ u.order = {...u.order, ...o};if (o.type && o.type !== 'attack') delete u.order.target;if (o.type && o.type !== 'move') delete u.order.point;return true;
+}
+function orderWing(w, id, o) {
+ const wing = w.wings.get(id);if (!wing || w.sides[wing.side].ai) return false;
+ if (!['auto', 'standby', 'strike', 'cap', 'escort'].includes(o.type)) return false;
+ if (o.type === 'strike' && !(w.units.get(o.target)?.side !== wing.side)) return false;
+ wing.order = {...o};if (o.type === 'standby') for (const sid of wing.squads) { const s = w.squads.get(sid); if (s && s.state === 'out') s.state = 'return'; }
+ return true;
+}
+function splitGroup(w, gid, ids, name) {
+ const g = w.groups.get(gid);if (!g || g.transit || g.spool) return null;const take = ids.filter(id => g.units.includes(id));if (!take.length || take.length === g.units.length) return null;
+ const h = makeGroup(w, g.side, name || g.name + '分遣隊', g.sys);h.units = take;g.units = g.units.filter(id => !take.includes(id));for (const id of take) w.units.get(id).group = h.id;h.flag = take[0];return h;
+}
+function mergeGroups(w, a, b) {
+ const g = w.groups.get(a), h = w.groups.get(b);if (!g || !h || g === h || g.side !== h.side || g.sys == null || g.sys !== h.sys || g.transit || h.transit || g.spool || h.spool) return false;
+ for (const id of h.units) { g.units.push(id); w.units.get(id).group = g.id; } w.groups.delete(h.id);return true;
+}
+
+// ---------- order of battle ----------
+// Default complements for a ship from its hangar and troop space.
+// Squadrons of twelve (larger for the biggest carriers), six to a wing.
+function defaultAir(info, faction) {
+ const mix = CRAFT_MIX[faction] || CRAFT_MIX.empire, cap = Math.floor(info.slotCap || 0), out = [];let used = 0, k = 0;
+ const per = cap > 900 ? RULES.maxSquadSize : 12;
+ while (k < 400) { const craft = mix[k % mix.length], c = CRAFT[craft], n = Math.min(per, Math.floor((cap - used) / c.size)); if (n < 4) break; out.push({craft, n, name: `第${out.length + 1}${ROLE_NAME[c.role]}中隊`, wingNo: Math.floor(out.length / 6) + 1}); used += n * c.size; k++; }
+ return out;
+}
+function defaultGround(info, faction) {
+ const tpl = REGIMENT_TEMPLATES[faction] || REGIMENT_TEMPLATES.empire, per = COMPANY_TROOPS * BATTALION_COMPANIES * REGIMENT_BATTALIONS, n = Math.floor((info.troopCap || 0) / per);
+ return Array.from({length: n}, (_, i) => makeRegiment(faction, `第${i + 1}${tpl.name}`));
+}
+function makeRegiment(faction, name) {
+ const tpl = REGIMENT_TEMPLATES[faction] || REGIMENT_TEMPLATES.empire;
+ return {name, faction, battalions: Array.from({length: REGIMENT_BATTALIONS}, (_, b) => ({name: `第${b + 1}大隊`, companies: tpl.companies.map((type, c) => ({name: `${'ABCD'[c]}中隊（${COMPANY_TYPES[type]}）`, type, troops: COMPANY_TROOPS, vehicles: {...(tpl.vehicles[type] || {})}}))}))};
+}
+function regimentTotals(r) { const t = {troops: 0, vehicles: {}, size: 0}; for (const b of r.battalions || []) for (const c of b.companies || []) { t.troops += c.troops || 0; for (const [k, n] of Object.entries(c.vehicles || {})) { if (!VEHICLES[k]) continue; t.vehicles[k] = (t.vehicles[k] || 0) + n; t.size += VEHICLES[k].size * n; } } return t; }
+function airTotals(list) { let n = 0, size = 0, crew = 0; for (const q of list || []) { const c = CRAFT[q.craft]; if (!c) continue; n += q.n; size += q.n * c.size; crew += q.n * c.crew; } return {n, size, crew}; }
+
+return {RULES, TICK, CRAFT, CRAFT_MIX, ROLE_NAME, FACTIONS, SIDE_OF, VEHICLES, COMPANY_TYPES, REGIMENT_TEMPLATES, COMPANY_TROOPS, CAPITAL_LENGTH, GRID_LY, GRID_COLS, SECTOR_DEFS, KIND_NAME, APPROACH, APPROACH_NAME,
+ rng, makeSector, sysDistance, tripSeconds, designInfo, unitDemand, createWorld, makeUnit, makeGroup, addSquad, step, tick, detect, orderJump, cancelJump, etaTo, orderUnit, orderWing, splitGroup, mergeGroups,
+ systemUnits, unitStruct, unitStrength, unitHyper, groupHyper, alive, fighting, pdToward, effectiveOrder, defaultAir, defaultGround, makeRegiment, regimentTotals, airTotals, sectionState, battleTick};
+})();

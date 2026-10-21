@@ -187,7 +187,9 @@ const UV_WHITE = [0.03, 0.03, 0.47, 0.97], UV_WINDOW = [0.53, 0.05, 0.97, 0.95];
 
 // ---------- colours ----------
 const hex = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
-const PAINT = hex('#c6cbd0'), STRUCT_PAINT = hex('#ced2d6'), STRUCT_DARK = [112, 124, 136];
+const PAINT = hex('#c6cbd0'), STRUCT_PAINT = hex('#ced2d6'), STRUCT_DARK = [112, 124, 136], STRUCT_CIS = [190, 176, 146];
+// The Separatist fleet's sand-coloured plating.
+const HULL_CIS = [182, 168, 136], DETAIL_CIS = [150, 136, 108], PANEL_CIS = [170, 156, 126];
 const FC = {body: hex('#c3c8cd'), dark: hex('#3e444a'), barrel: hex('#878e95'), ring: hex('#9aa1a8'), glass: hex('#f2f4f6'), ped: hex('#a9b0b6')};
 const WHITE = [255, 255, 255];
 
@@ -472,6 +474,31 @@ function cyl(g, M, o, cx, cy, cz, r0, r1, len, axis, col, seg) {
     }
   }
 }
+// Dome in the fitting frame: a half-ellipsoid (radius r, height ry) on its base
+// ring at (cx,cy,cz), closed underneath.
+function domeL(g, M, o, cx, cy, cz, r, ry, col, seg, rings) {
+  seg = seg || 12; rings = rings || 4;
+  const P = (a, b) => [cx + Math.cos(a) * Math.cos(b) * r, cy + Math.sin(b) * ry, cz + Math.sin(a) * Math.cos(b) * r];
+  const N = (a, b) => C.norm([Math.cos(a) * Math.cos(b) / r, Math.sin(b) / ry, Math.sin(a) * Math.cos(b) / r]);
+  for (let j = 0; j < rings; j++) {
+    const b0 = j / rings * Math.PI / 2, b1 = (j + 1) / rings * Math.PI / 2;
+    for (let i = 0; i < seg; i++) {
+      const a0 = i / seg * Math.PI * 2, a1 = (i + 1) / seg * Math.PI * 2, q = [[a0, b0], [a0, b1], [a1, b1], [a1, b0]];
+      g.room(4); const b = g.n;
+      for (const [a, e] of q) { const p = mx(M, o, P(a, e)), n = mv(M, N(a, e)); g.v(p[0], p[1], p[2], n[0], n[1], n[2], 0.25, 0.5, col, 240); }
+      g.tri(b, b + 1, b + 2); g.tri(b, b + 2, b + 3);
+    }
+  }
+  const c = mx(M, o, [cx, cy, cz]), dn = mv(M, [0, -1, 0]);g.room(seg + 1); const b = g.n;
+  g.v(c[0], c[1], c[2], dn[0], dn[1], dn[2], 0.25, 0.5, col, 240);
+  for (let i = 0; i < seg; i++) { const p = mx(M, o, P(i / seg * Math.PI * 2, 0)); g.v(p[0], p[1], p[2], dn[0], dn[1], dn[2], 0.25, 0.5, col, 240); }
+  for (let i = 0; i < seg; i++) g.tri(b, b + 1 + i, b + 1 + (i + 1) % seg);
+}
+// A frame pitched up by ang about the local Z axis at a local origin.
+function subFrame(M, o, at, ang) {
+  const c = Math.cos(ang), s = Math.sin(ang), x = mv(M, [c, s, 0]), y = mv(M, [-s, c, 0]), z = mv(M, [0, 0, 1]);
+  return [[x[0], x[1], x[2], y[0], y[1], y[2], z[0], z[1], z[2]], mx(M, o, at)];
+}
 function frameM(f) { const fr = C.FITS[f.k].window ? C.windowFrame(f) : C.fitFrameOf(f); return [fr.fw[0], fr.fw[1], fr.fw[2], fr.up[0], fr.up[1], fr.up[2], fr.rt[0], fr.rt[1], fr.rt[2]]; }
 let FIT_SKIP_BODY = null, FIT_SKIP_PED = null;
 function meshFits(ship, filter, ranges) {
@@ -520,39 +547,58 @@ function meshFits(ship, filter, ranges) {
       }
       return;
     }
+    // Weapons after the turret kit: hexagonal bases, wedge housings with a
+    // mantlet and sleeved barrels, ion domes with coiled barrels, angled
+    // missile boxes, dish projectors and ball-mounted point defence.
     if (k === 'msl') {
-      box(g, M, o, 0, h * 0.5, 0, L, h, W, FC.dark);
-      for (const a of [-0.22, 0.22]) for (const b of [-0.22, 0.22]) box(g, M, o, L * a, h * 1.02, W * b, L * 0.3, h * 0.08, W * 0.3, hex('#1c2024'));
+      cyl(g, M, o, 0, h * 0.3, 0, W * 0.34, W * 0.3, h * 0.6, 1, FC.dark, 8);
+      const [Mp, op] = subFrame(M, o, [0, h * 0.95, 0], 0.32);
+      box(g, Mp, op, 0, 0, 0, L * 0.78, h * 0.9, W * 0.82, FC.body);
+      box(g, Mp, op, -L * 0.36, 0, 0, L * 0.1, h * 0.7, W * 0.6, FC.ring);
+      for (const a of [-0.27, 0, 0.27]) for (const b of [-0.2, 0.2]) cyl(g, Mp, op, L * 0.4, h * b, W * a, W * 0.085, W * 0.085, L * 0.04, 0, FC.dark, 6);
       return;
     }
     if (k === 'pd') {
-      cyl(g, M, o, 0, h * 0.18, 0, W * 0.42, W * 0.36, h * 0.36, 1, FC.dark, 10);
-      wedge(g, M, o, -L * 0.05, h * 0.56, 0, L * 0.5, h * 0.4, W * 0.44, 0.35, body);
-      for (const z of [-0.09, 0.09]) cyl(g, M, o, L * 0.36, h * 0.6, W * z, W * 0.035, W * 0.03, L * 0.5, 0, FC.barrel, 6);
+      cyl(g, M, o, 0, h * 0.12, 0, W * 0.44, W * 0.4, h * 0.24, 1, FC.dark, 6);
+      domeL(g, M, o, 0, h * 0.24, 0, W * 0.33, h * 0.5, body, 10, 3);
+      box(g, M, o, L * 0.12, h * 0.5, 0, L * 0.12, h * 0.2, W * 0.36, FC.dark);
+      for (const z of [-0.1, 0.1]) cyl(g, M, o, L * 0.42, h * 0.52, W * z, W * 0.04, W * 0.032, L * 0.5, 0, FC.barrel, 6);
       return;
     }
     if (k === 'trc') {
-      cyl(g, M, o, 0, h * 0.2, 0, W * 0.42, W * 0.36, h * 0.4, 1, FC.dark, 12);
-      cyl(g, M, o, 0, h * 0.66, 0, W * 0.12, W * 0.46, h * 0.5, 1, body, 16);
-      cyl(g, M, o, 0, h * 0.95, 0, W * 0.05, W * 0.05, h * 0.2, 1, FC.ring, 8);
+      cyl(g, M, o, 0, h * 0.16, 0, W * 0.46, W * 0.42, h * 0.32, 1, FC.dark, 8);
+      cyl(g, M, o, 0, h * 0.42, 0, W * 0.16, W * 0.2, h * 0.24, 1, FC.ring, 10);
+      cyl(g, M, o, 0, h * 0.66, 0, W * 0.2, W * 0.5, h * 0.26, 1, body, 16);
+      cyl(g, M, o, 0, h * 0.8, 0, W * 0.5, W * 0.46, h * 0.04, 1, FC.ring, 16);
+      cyl(g, M, o, 0, h * 0.8, 0, W * 0.3, W * 0.28, h * 0.05, 1, FC.dark, 12);
+      cyl(g, M, o, 0, h * 0.9, 0, W * 0.05, W * 0.03, h * 0.2, 1, FC.barrel, 6);
       return;
     }
-    // turbolaser / ion turrets: low ring, chamfered housing, barrels
-    const nb = d.barrels||2;
-    cyl(g, M, o, 0, h * 0.11, 0, W * 0.47, W * 0.44, h * 0.22, 1, FC.dark, 18);
+    const nb = d.barrels || 2;
     if (k === 'ion') {
-      cyl(g, M, o, -L * 0.04, h * 0.48, 0, W * 0.36, W * 0.28, h * 0.5, 1, body, 16);
-      for(const zz of [-W*.14,W*.14]){cyl(g, M, o, L * 0.38, h * 0.52, zz, W * 0.07, W * 0.07, L * 0.72, 0, FC.barrel, 10);
-      for (const q of [0.3, 0.5, 0.7]) cyl(g, M, o, L * q, h * 0.52, zz, W * 0.12, W * 0.12, L * 0.04, 0, FC.ring, 10);}
+      cyl(g, M, o, 0, h * 0.09, 0, W * 0.5, W * 0.46, h * 0.18, 1, FC.dark, 6);
+      cyl(g, M, o, 0, h * 0.2, 0, W * 0.4, W * 0.4, h * 0.06, 1, FC.ring, 12);
+      domeL(g, M, o, -L * 0.04, h * 0.22, 0, W * 0.38, h * 0.66, body, 14, 4);
+      for (const zz of [-W * 0.13, W * 0.13]) {
+        cyl(g, M, o, L * 0.48, h * 0.5, zz, W * 0.055, W * 0.05, L * 0.62, 0, FC.barrel, 8);
+        for (const q of [0.3, 0.46, 0.62]) cyl(g, M, o, L * q, h * 0.5, zz, W * 0.09, W * 0.09, L * 0.035, 0, FC.ring, 8);
+      }
       return;
     }
-    wedge(g, M, o, -L * 0.03, h * 0.5, 0, L * 0.7, h * 0.56, W * 0.8, 0.38, body);
-    box(g, M, o, -L * 0.3, h * 0.82, W * 0.22, L * 0.12, h * 0.1, W * 0.12, FC.ring);
-    const sp = W * 0.56 / nb, br = Math.max(0.25, W * (nb > 2 ? 0.03 : 0.04)), bl = L * 0.9;
+    // Turbolaser turrets. Many barrels (quad and up) sit in two rows.
+    const big = d.r > 14, hexBase = nb <= 3;
+    cyl(g, M, o, 0, h * 0.07, 0, W * 0.5, W * 0.47, h * 0.14, 1, FC.dark, hexBase ? 6 : 10);
+    cyl(g, M, o, 0, h * 0.17, 0, W * 0.41, W * 0.41, h * 0.07, 1, FC.ring, 12);
+    wedge(g, M, o, -L * 0.07, h * 0.47, 0, L * 0.66, h * 0.54, W * (nb > 3 ? 0.72 : 0.8), 0.42, body);
+    box(g, M, o, -L * 0.3, h * 0.8, 0, L * 0.18, h * 0.13, W * 0.34, body);
+    if (big) for (const sg of [-1, 1]) box(g, M, o, -L * 0.12, h * 0.5, sg * W * 0.41, L * 0.34, h * 0.24, W * 0.04, FC.ring);
+    const rows = nb > 3 ? 2 : 1, per = Math.ceil(nb / rows), sp = W * (nb > 3 ? 0.62 : 0.58) / Math.max(per, 2), br = Math.max(0.22, W * (nb > 3 ? 0.028 : nb > 2 ? 0.036 : 0.045)), bl = L * (nb > 3 ? 0.62 : 0.72);
+    box(g, M, o, L * 0.27, h * 0.44, 0, L * 0.08, h * (rows > 1 ? 0.4 : 0.28), Math.min(W * 0.74, sp * per + br * 4), FC.dark);
     for (let q = 0; q < nb; q++) {
-      const zz = (q - (nb - 1) / 2) * sp;
-      cyl(g, M, o, L * 0.2 + bl / 2, h * 0.46, zz, br, br * 0.85, bl, 0, FC.barrel, 8);
-      cyl(g, M, o, L * 0.2 + bl * 0.08, h * 0.46, zz, br * 1.7, br * 1.7, bl * 0.12, 0, FC.ring, 8);
+      const row = rows > 1 ? Math.floor(q / per) : 0, col = rows > 1 ? q % per : q, zz = (col - (per - 1) / 2) * sp, yy = rows > 1 ? h * (row ? 0.56 : 0.34) : h * 0.44;
+      if (nb <= 3) cyl(g, M, o, L * 0.36, yy, zz, br * 1.6, br * 1.5, L * 0.12, 0, FC.ring, 8);
+      cyl(g, M, o, L * 0.3 + bl / 2, yy, zz, br, br * 0.85, bl, 0, FC.barrel, nb > 3 ? 6 : 8);
+      if (nb <= 3) cyl(g, M, o, L * 0.3 + bl * 0.97, yy, zz, br * 1.3, br * 1.3, bl * 0.06, 0, FC.ring, 8);
     }
   };
   for (const f of ship.fits) { if (filter && !filter(f)) continue; const before = g.ni; one(f); if (ranges && g.ni > before) (ranges[f.id] || (ranges[f.id] = [])).push(['fits', before, g.ni - before]); }
@@ -561,8 +607,8 @@ function meshFits(ship, filter, ranges) {
 
 // ---------- WebGL ----------
 const VS_MESH = `attribute vec3 aPos;attribute vec3 aNor;attribute vec2 aUv;attribute vec4 aCol;
-uniform mat4 uVP;uniform vec3 uOff;uniform vec3 uCenter;uniform mat3 uRot;uniform vec3 uScl;varying vec3 vN;varying vec2 vUv;varying vec4 vCol;varying vec3 vW;varying vec3 vS;
-void main(){vec3 a=aPos*uScl-uCenter;vec3 p=uRot*a+uOff;vW=p;vS=aPos;vN=uRot*aNor;vUv=aUv;vCol=aCol;gl_Position=uVP*vec4(p,1.0);}`;
+uniform mat4 uVP;uniform vec3 uOff;uniform vec3 uCenter;uniform mat3 uRot;uniform vec3 uScl;varying vec3 vN;varying vec2 vUv;varying vec4 vCol;varying vec3 vW;varying vec3 vS;varying vec3 vNS;
+void main(){vec3 a=aPos*uScl-uCenter;vec3 p=uRot*a+uOff;vW=p;vS=aPos;vN=uRot*aNor;vNS=aNor;vUv=aUv;vCol=aCol;gl_Position=uVP*vec4(p,1.0);}`;
 const FS_MESH = `#ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
 #else
@@ -570,7 +616,24 @@ precision mediump float;
 #endif
 uniform sampler2D uTex;uniform sampler2D uEmiTex;uniform vec3 uL1;uniform vec3 uL2;uniform vec3 uC1;uniform vec3 uC2;
 uniform vec3 uSky;uniform vec3 uGnd;uniform vec3 uEye;uniform float uAlpha;uniform float uEmi;uniform vec3 uClip;uniform float uClipOn;uniform float uBack;uniform float uReference;uniform float uPaint;uniform float uRefHull;uniform float uHullLength;uniform float uFlash;
-varying vec3 vN;varying vec2 vUv;varying vec4 vCol;varying vec3 vW;varying vec3 vS;
+uniform vec3 uLightCol;uniform float uLightK;uniform vec2 uPix;
+varying vec3 vN;varying vec2 vUv;varying vec4 vCol;varying vec3 vW;varying vec3 vS;varying vec3 vNS;
+float hash12(vec2 p){vec3 q=fract(vec3(p.xyx)*0.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
+// Ports on vertical walls (trenches, superstructure sides) in the ship's own
+// frame: decks 8 m apart, ports 4 m apart, lit in clusters; unlit ports read as
+// dark slots. Past the size of a pixel the ports give way to sparse lights kept
+// a pixel or two wide, as distant ships look in the films. x: lit, y: dark slot.
+vec2 shipLights(vec3 ns){
+ float wall=1.0-smoothstep(0.28,0.42,abs(ns.y));if(wall<=0.0)return vec2(0.0);
+ float u=abs(ns.z)>abs(ns.x)?vS.x:vS.z;float v=vS.y;float mpp=uPix.y>0.0?uPix.y:length(uEye-vW)*uPix.x;
+ vec2 g=vec2(u/4.0,v/8.0);vec2 id=floor(g);vec2 f=fract(g);
+ float blk=step(0.42,hash12(floor(vec2(u/28.0,v/24.0))+vec2(7.0,3.0)));
+ float on=blk*step(0.55,hash12(id));
+ float box=step(0.3,f.x)*step(f.x,0.7)*step(0.44,f.y)*step(f.y,0.56)*(1.0-smoothstep(0.35,1.1,mpp))*wall;
+ vec2 G=vec2(u/34.0,v/16.0);vec2 ID=floor(G);float pb=step(0.8,hash12(ID+vec2(13.0,5.0)));vec2 ctr=(ID+vec2(0.5))*vec2(34.0,16.0);
+ float r=max(1.0,mpp*1.15);float dd=length(vec2(u,v)-ctr);float far=pb*(1.0-smoothstep(r*0.45,r,dd))*smoothstep(0.5,1.6,mpp)*(1.0-smoothstep(7.0,12.0,mpp))*wall;
+ return vec2(on*box*2.4+far*2.0,box*(1.0-on));
+}
 void main(){
 if(uClipOn>0.5&&(vS.x>uClip.x||vS.y>uClip.y||vS.z>uClip.z))discard;
 vec3 n=normalize(vN);vec3 tx=texture2D(uTex,vUv).rgb;float mask=max(max(texture2D(uEmiTex,vUv).r,texture2D(uEmiTex,vUv).g),texture2D(uEmiTex,vUv).b);float lit=smoothstep(0.035,0.18,mask);if(uReference>0.5&&uReference<1.5)tx=mix(tx,vec3(0.48,0.50,0.51),lit);if(uReference>0.5){bool red=tx.r>tx.g*1.35&&tx.r>tx.b*1.25;if(uPaint<0.5&&red)tx=vec3(min(0.8,tx.r*1.3));if(uPaint>1.5)tx*=uReference>1.5?mix(0.62,1.0,lit):0.62;else if(uPaint>0.5&&uRefHull>0.5&&vS.x>uHullLength*.52&&abs(vS.z)<(uHullLength-vS.x)*.065&&n.y>.4)tx*=vec3(.7,.28,.31);}
@@ -579,7 +642,9 @@ float ef=1.0;
 if(!gl_FrontFacing){n=-n;ef=0.0;if(uBack<0.5){base=vec3(0.085,0.092,0.10);}else{base*=0.62;}}
 vec3 amb=mix(uGnd,uSky,n.y*0.5+0.5)*ao;float d1=max(dot(n,uL1),0.0);float d2=max(dot(n,uL2),0.0);
 vec3 V=normalize(uEye-vW);vec3 H=normalize(uL1+V);float sp=pow(max(dot(n,H),0.0),40.0)*0.22*ao*ef;
-vec3 c=base*(amb+uC1*d1*(0.6+0.4*ao)+uC2*d2*ao)+uC1*sp;vec3 e=texture2D(uEmiTex,vUv).rgb;c+=e*e*uEmi*ef;c=mix(c,vec3(0.72,0.86,1.0),clamp(uFlash,0.0,1.0));
+vec3 c=base*(amb+uC1*d1*(0.6+0.4*ao)+uC2*d2*ao)+uC1*sp;vec3 e=texture2D(uEmiTex,vUv).rgb;c+=e*e*uEmi*ef;
+if(uLightK>0.0&&ef>0.5){vec2 pl=shipLights(normalize(vNS));c*=1.0-0.5*pl.y;float lk=uLightK*pl.x;c=mix(c,uLightCol,clamp(lk,0.0,1.0))+uLightCol*(max(0.0,lk-1.0)*0.25);}
+c=mix(c,vec3(0.72,0.86,1.0),clamp(uFlash,0.0,1.0));
 gl_FragColor=vec4(sqrt(c),uAlpha);}`;
 // Ray shields: premultiplied output blended with (ONE, ONE_MINUS_SRC_ALPHA). The
 // field adds a blue-white glow with drifting filaments and only lightly tints
@@ -747,6 +812,9 @@ for(const k of ['refHull','refStruct','refEngine','refPlant','refFits','refHatch
 MESH_TEX.preview='struct';MESH_TEX.previewFits='fits';
 const BACK_OWN = new Set(['gen', 'shield', 'hyper', 'engine', 'nozzle', 'hangar', 'keel', 'fits', 'preview', 'previewFits']);
 const REFERENCE_SHADED = new Set(['refHull','refStruct','refPlant','refFits','refHatches','previewRef','previewRefFits']);
+// Meshes that carry lit ports, and the port colours a design can choose.
+const LIGHT_MESHES = new Set(['hull', 'struct', 'refHull', 'refStruct']);
+const SHIP_LIGHTS = {white: [1.0, 0.94, 0.82], blue: [0.34, 0.58, 1.0], warm: [1.0, 0.7, 0.4]};
 const MESH_EMI = {hull: 0.9, struct: 1, keel: 0, gen: 1.1, shield: 0.8, hyper: 0.8, interior:0.8, engine: 0, plant:0, nozzle: 1.5, hangar: 0.6, hatchOpen: 1, hatchRay: 1, fits: 0.6};
 
 for(const k of ['refHull','refStruct','refEngine','refPlant','refFits','refHatches','previewRef','previewRefFits'])MESH_EMI[k]=0;
@@ -889,7 +957,7 @@ class Renderer {
     // Shields shimmer in the animated fleet and trial views; the editor redraws
     // on demand, so it keeps one still frame of the pattern.
     this.rayTime=opt.fleet?(performance.now()/1000)%600:7.3;
-    this.paint=opt.paint||'neutral';this.hullLength=opt.hullLength||1600;this.sourceRed=opt.reference==='venator';this.meshScale=opt.fleet?null:opt.meshScale||null;this.hidden=opt.fleet?null:opt.hidden||null;
+    this.paint=opt.paint||'neutral';this.setLights(opt.lights);this.hullLength=opt.hullLength||1600;this.sourceRed=opt.reference==='venator';this.meshScale=opt.fleet?null:opt.meshScale||null;this.hidden=opt.fleet?null:opt.hidden||null;
     this.clip = opt.mode === 'cut' ? opt.clip : null;
     gl.disable(gl.DEPTH_TEST); gl.depthMask(false); gl.disable(gl.BLEND); gl.disable(gl.CULL_FACE);
     gl.useProgram(this.pb.p);
@@ -973,10 +1041,14 @@ class Renderer {
     this.drawPoints('glow', m, this.off, 1, 2, false);
     gl.depthMask(true); gl.disable(gl.BLEND);
   }
+  // Port lights: a colour name from the design ('off' for none; white by default).
+  setLights(k){const c=k==='off'?null:SHIP_LIGHTS[k]||SHIP_LIGHTS.white;this.lightCol=c||[0,0,0];this.lightK=c?1:0;}
   drawMesh(name, m, alpha, emi) {
     const mm = this.meshes[name]; if (!mm || !mm.count) return;
     const gl = this.gl, p = this.pm, tx = this.tex[MESH_TEX[name] || 'hull'];
     gl.useProgram(p.p);
+    const lit=this.lightK>0&&LIGHT_MESHES.has(name)&&(alpha==null||alpha>.9);gl.uniform1f(p.u.uLightK,lit?this.lightK:0);
+    if(lit){const H=Math.max(1,this.canvas.height),t=2*Math.tan((this.cam.fov||.72)/2);gl.uniform3fv(p.u.uLightCol,this.lightCol);gl.uniform2f(p.u.uPix,t/H,this.cam.ortho?t*this.cam.r/H:0);}
     gl.uniformMatrix4fv(p.u.uVP, false, m.VP); gl.uniform3fv(p.u.uOff, this.off);
     gl.uniform3fv(p.u.uCenter,this.modelCenter||[0,0,0]);gl.uniformMatrix3fv(p.u.uRot,false,this.modelRot||yawMatrix(this.modelYaw||0));gl.uniform3fv(p.u.uScl,this.unitScl||this.meshScale?.[name]||[1,1,1]);gl.uniform1f(p.u.uFlash,this.unitFlash||0);
     gl.uniform3fv(p.u.uL1, L1); gl.uniform3fv(p.u.uL2, L2);
@@ -1157,7 +1229,7 @@ function meshOnePart(out,p,ship,opt,glow){
     const k=p.k,d=C.PARTS[k],color=opt.info?.[p.id]?.overlap?[240,91,85]:(opt.coded?d.col:PAINT);
     if(k==='struct'&&(p.form==='reference'&&C.REFERENCE_ASSETS[p.skinAsset]||(p.form==='ellipsoid'&&ship.hullSkin?.enabled)))return;
     if(k==='sensor'&&p.skinAsset)return;
-    if(k==='struct'){triangleMesh(out.struct,C.structTriangles(p),p.paint?hex(p.paint):ship.paint==='dark'?STRUCT_DARK:STRUCT_PAINT);if(p.bands)structureBands(p,out.struct);if(p.arcBands&&!ship.solidCuts?.some(c=>ship.hull.assembly||c.structures))arcPaintBands(p,out.struct);return;}
+    if(k==='struct'){triangleMesh(out.struct,C.structTriangles(p),p.paint?hex(p.paint):ship.paint==='dark'?STRUCT_DARK:ship.paint==='cis'?STRUCT_CIS:STRUCT_PAINT);if(p.bands)structureBands(p,out.struct);if(p.arcBands&&!ship.solidCuts?.some(c=>ship.hull.assembly||c.structures))arcPaintBands(p,out.struct);return;}
     if(p._packing){triangleMesh(out.interior,p._packing.tris,color,36);return;}
     if(p._clip&&k!=='hangar'){triangleMesh(out.interior,p._clip.tris,color,36);return;}
     if(p.boxSize){const f=p.boxFrame;box(out.interior,[...f.fw,...f.up,...f.rt],p.c,0,0,0,...p.boxSize,color);return;}
@@ -1177,7 +1249,7 @@ function markRanges(ranges,id,before,out){for(const k in out){const n=out[k].ni-
 function meshHull(ship){
   if(ship.hullSkin?.enabled||ship.hull.assembly)return new Geo(16);
   if(!ship.solidCuts?.length&&!ship.trenches?.some(t=>t.mode==='split')&&!ship.hull.stations?.length&&!ship.hatches.some(h=>h.portal)&&ship.hull.sec!=='warship')return v3MeshHull(ship);
-  const T=C.hullGeo(ship).tris,g=new Geo(T.length/3+100),openings=ship.hatches.map(h=>C.openingBounds(ship,h)).filter(Boolean),paint=ship.paint==='dark'?[103,116,129]:[189,193,192];
+  const T=C.hullGeo(ship).tris,g=new Geo(T.length/3+100),openings=ship.hatches.map(h=>C.openingBounds(ship,h)).filter(Boolean),paint=ship.paint==='dark'?[103,116,129]:ship.paint==='cis'?HULL_CIS:[189,193,192];
   for(let i=0;i<T.length;i+=9){const tri=T.subarray(i,i+9),p=[(T[i]+T[i+3]+T[i+6])/3,(T[i+1]+T[i+4]+T[i+7])/3,(T[i+2]+T[i+5]+T[i+8])/3],n=C.norm(C.cross(C.sub(Array.from(tri.slice(3,6)),Array.from(tri.slice(0,3))),C.sub(Array.from(tri.slice(6)),Array.from(tri.slice(0,3)))));
     let color=paint;
     if(openings.some(b=>p.every((v,a)=>v>=b[a]-.1&&v<=b[a+3]+.1)&&[0,1,2].some(a=>[b[a],b[a+3]].some(v=>Math.abs(T[i+a]-v)<.1&&Math.abs(T[i+3+a]-v)<.1&&Math.abs(T[i+6+a]-v)<.1))))color=[48,60,67];
@@ -1207,7 +1279,7 @@ function meshParts(ship,opt){
       if(p.form==='reference')return;
       if(p.form==='ellipsoid'){if(!ship.hullSkin?.enabled)bulbDetail(p,g);return;}
       if(p.form==='dome'||p.form==='cylinder'||p.form==='cone')return;
-      structuralDetail(p,g,Math.max(1,ship.hull.L/3200));const T=C.structTriangles(p),col=p.paint?hex(p.paint):ship.paint==='dark'?[92,103,114]:[156,163,166];
+      structuralDetail(p,g,Math.max(1,ship.hull.L/3200));const T=C.structTriangles(p),col=p.paint?hex(p.paint):ship.paint==='dark'?[92,103,114]:ship.paint==='cis'?DETAIL_CIS:[156,163,166];
       if(p.ribSpacing){const spacing=Math.max(5,p.ribSpacing),[l,w,h]=p.s;
         for(let x=-l/2+spacing;x<l/2-spacing;x+=spacing)for(const sg of [-1,1]){
           const local=[x,-h*.1,sg*w*.5],c=C.worldStruct(p,local);if(p.form==='box'){const f=C.structFrame(p);box(g,[...f.fw,...f.up,...f.rt],c,0,0,0,1.3,h*.64,1.6,col);}
@@ -1225,7 +1297,7 @@ function meshParts(ship,opt){
   return result;
 }
 function meshSlidingHatchPanel(ship,h,panel,open=0){
-  const g=new Geo(panel.tris.length/3+100),T=panel.tris,offset=[0,0,0],edges=new Map(),face=ship.paint==='republic'&&h.face==='top'?[132,48,56]:ship.paint==='dark'?[103,116,129]:[174,180,184];offset[panel.axis]=panel.side*panel.travel*C.clamp(open,0,1);
+  const g=new Geo(panel.tris.length/3+100),T=panel.tris,offset=[0,0,0],edges=new Map(),face=ship.paint==='republic'&&h.face==='top'?[132,48,56]:ship.paint==='dark'?[103,116,129]:ship.paint==='cis'?PANEL_CIS:[174,180,184];offset[panel.axis]=panel.side*panel.travel*C.clamp(open,0,1);
   const point=(i,lift)=>[T[i],T[i+1],T[i+2]].map((v,k)=>v+offset[k]+h.n[k]*lift),key=p=>p.map(v=>Math.round(v*1000)).join(',');
   for(let i=0;i<T.length;i+=9){const q=[0,3,6].map(j=>point(i+j,.18)),back=[0,6,3].map(j=>point(i+j,-.8));triangleMesh(g,q.flat(),face,42);triangleMesh(g,back.flat(),[93,105,113],42);
     for(let j=0;j<3;j++){const a=q[j],b=q[(j+1)%3],ak=key(a),bk=key(b),edge=ak<bk?ak+'|'+bk:bk+'|'+ak,old=edges.get(edge);if(old)old.count++;else edges.set(edge,{a,b,count:1});}
@@ -1443,7 +1515,7 @@ Renderer.prototype.prepareFleet=function(key,ship){
    if(hatch.skinAsset){for(const side of [-1,1]){const name='refSlideDoor_'+hatch.id+'_'+(side<0?'l':'r');MESH_TEX[name]='reference';MESH_EMI[name]=0;this.upload(name,meshReferenceHatches({...model,_referenceDoorOnly:true,hatches:[{...hatch,open:0,_doorDetached:false,_slideSide:side}]}));doors.push({name,axis:spec.slideAxis,side,travel:spec.travel});}}
    else for(const panel of C.slidingHatchPanels(model,hatch)){const name='slideDoor_'+hatch.id+'_'+(panel.side<0?'l':'r');MESH_EMI[name]=0;this.upload(name,meshSlidingHatchPanel(model,hatch,panel));doors.push({name,axis:panel.axis,side:panel.side,travel:panel.travel});}
   }
-  const asset={meshes,doors,rays,center,glow:parts.glow,bounds:b,paint:ship.paint,reference:ship.reference,length:ship.hull.L};this.fleetCache.set(key,asset);return asset;}catch(e){for(const m of Object.values(meshes))for(const k of ['pos','nor','uv','col','idx'])this.gl.deleteBuffer(m[k]);throw e;}finally{this.meshes=old;}
+  const asset={meshes,doors,rays,center,glow:parts.glow,bounds:b,paint:ship.paint,lights:ship.lights,reference:ship.reference,length:ship.hull.L};this.fleetCache.set(key,asset);return asset;}catch(e){for(const m of Object.values(meshes))for(const k of ['pos','nor','uv','col','idx'])this.gl.deleteBuffer(m[k]);throw e;}finally{this.meshes=old;}
 };
 // Fleet geometry is built by the background engine; the renderer only uploads it.
 function fleetGeometry(ship,opts){
@@ -1458,7 +1530,7 @@ function fleetGeometry(ship,opts){
   if(hatch.skinAsset){for(const side of [-1,1]){const name='refSlideDoor_'+hatch.id+'_'+(side<0?'l':'r');put(name,meshReferenceHatches({...model,_referenceDoorOnly:true,hatches:[{...hatch,open:0,_doorDetached:false,_slideSide:side}]}),'reference',0);doors.push({name,axis:spec.slideAxis,side,travel:spec.travel});}}
   else for(const panel of C.slidingHatchPanels(model,hatch)){const name='slideDoor_'+hatch.id+'_'+(panel.side<0?'l':'r');put(name,meshSlidingHatchPanel(model,hatch,panel),null,0);doors.push({name,axis:panel.axis,side:panel.side,travel:panel.travel});}
  }
- return {meshes,doors,rays,center,glow:parts.glow,bounds:b,paint:ship.paint,reference:ship.reference,length:ship.hull.L,turrets,launchers,targetRadius};
+ return {meshes,doors,rays,center,glow:parts.glow,bounds:b,paint:ship.paint,lights:ship.lights,reference:ship.reference,length:ship.hull.L,turrets,launchers,targetRadius};
 }
 // ---------- trial turrets ----------
 // Every gun turret becomes its own mesh with a pivot, a traverse axis and the
@@ -1539,13 +1611,13 @@ Renderer.prototype.loadFleet=function(key,data){
  this.fleetCache=this.fleetCache||new Map();if(this.fleetCache.has(key))return this.fleetCache.get(key);
  const old=this.meshes,meshes={};this.meshes=meshes;
  try{for(const [name,m] of Object.entries(data.meshes)){if(m.tex)MESH_TEX[name]=m.tex;if(m.emi!=null)MESH_EMI[name]=m.emi;if(m.geo)this.upload(name,m.geo);}
-  const asset={meshes,doors:data.doors,rays:data.rays,center:data.center,glow:data.glow,bounds:data.bounds,paint:data.paint,reference:data.reference,length:data.length};this.fleetCache.set(key,asset);return asset;}
+  const asset={meshes,doors:data.doors,rays:data.rays,center:data.center,glow:data.glow,bounds:data.bounds,paint:data.paint,lights:data.lights,reference:data.reference,length:data.length};this.fleetCache.set(key,asset);return asset;}
  catch(e){for(const m of Object.values(meshes))for(const k of ['pos','nor','uv','col','idx'])this.gl.deleteBuffer(m[k]);throw e;}finally{this.meshes=old;}
 };
 Renderer.prototype.pruneFleet=function(keys){if(!this.fleetCache)return;for(const [k,a] of this.fleetCache)if(!keys.has(k)){for(const m of Object.values(a.meshes))for(const n of ['pos','nor','uv','col','idx'])this.gl.deleteBuffer(m[n]);this.fleetCache.delete(k);}};
 Renderer.prototype.drawFleet=function(m,opt){
  const gl=this.gl,old=this.meshes,off=this.off,shields=[];gl.disable(gl.BLEND);gl.depthMask(true);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);this.clip=null;
- try{for(const u of opt.fleet){if(u.dead||u.hidden)continue;const a=this.fleetCache?.get(u.key);if(!a)continue;this.meshes=a.meshes;this.off=u.pos;this.modelCenter=a.center;this.modelYaw=u.yaw||0;this.modelRot=u.rot||null;this.paint=a.paint||'neutral';this.sourceRed=a.reference==='venator';this.hullLength=a.length;const R=u.rot||yawMatrix(this.modelYaw),rv=v=>[R[0]*v[0]+R[3]*v[1]+R[6]*v[2],R[1]*v[0]+R[4]*v[1]+R[7]*v[2],R[2]*v[0]+R[5]*v[1]+R[8]*v[2]];
+ try{for(const u of opt.fleet){if(u.dead||u.hidden)continue;const a=this.fleetCache?.get(u.key);if(!a)continue;this.meshes=a.meshes;this.off=u.pos;this.modelCenter=a.center;this.modelYaw=u.yaw||0;this.modelRot=u.rot||null;this.paint=a.paint||'neutral';this.setLights(a.lights);this.sourceRed=a.reference==='venator';this.hullLength=a.length;const R=u.rot||yawMatrix(this.modelYaw),rv=v=>[R[0]*v[0]+R[3]*v[1]+R[6]*v[2],R[1]*v[0]+R[4]*v[1]+R[7]*v[2],R[2]*v[0]+R[5]*v[1]+R[8]*v[2]];
   // A ship dropping out of (or into) hyperspace is drawn stretched along its
   // own length with the bow held in place, and washed toward blue-white.
   const sx=u.stretch||1;this.unitScl=sx!==1?[sx,1,1]:null;this.unitFlash=u.flash||0;if(sx!==1&&a.bounds)this.modelCenter=[a.center[0]+a.bounds[3]*(sx-1),a.center[1],a.center[2]];const center=this.modelCenter;
@@ -1562,7 +1634,7 @@ Renderer.prototype.drawFleet=function(m,opt){
  }finally{this.meshes=old;this.off=off;this.modelCenter=null;this.modelYaw=0;this.modelRot=null;this.unitScl=null;this.unitFlash=0;}
  gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.depthMask(false);gl.disable(gl.CULL_FACE);if(!opt.planet){this.drawLines('fleetGrid',m,.65);gl.disable(gl.DEPTH_TEST);this.drawLines('fleetOrders',m,.8);gl.enable(gl.DEPTH_TEST);this.drawLines('fleetShots',m,1);}
  const glow=[];for(const u of opt.fleet){if(u.dead||u.hidden||(u.stretch||1)>1.05)continue;const a=this.fleetCache?.get(u.key);if(!a)continue;const R=u.rot||yawMatrix(u.yaw||0),k=u.glow??1;for(let i=0;i<a.glow.length;i+=4){const x=a.glow[i]-a.center[0],y=a.glow[i+1]-a.center[1],z=a.glow[i+2]-a.center[2];glow.push(u.pos[0]+R[0]*x+R[3]*y+R[6]*z,u.pos[1]+R[1]*x+R[4]*y+R[7]*z,u.pos[2]+R[2]*x+R[5]*y+R[8]*z,a.glow[i+3]*k);}}
- const pos=new Float32Array(glow.length/4*3),col=new Uint8Array(glow.length),size=new Float32Array(glow.length/4);for(let i=0;i<size.length;i++){pos.set(glow.slice(i*4,i*4+3),i*3);col.set([110,185,255,150],i*4);size[i]=glow[i*4+3];}this.setPoints('fleetGlow',pos,col,size);gl.blendFunc(gl.ONE,gl.ONE);this.drawPoints('fleetGlow',m,[0,0,0],1,2,false);if(opt.planet||opt.hyper){if(!opt.hyper)this.drawPoints('trialDust',m,[0,0,0],1,1,false);this.drawPoints('trialFx',m,[0,0,0],1,2,false);this.drawPoints('trialBolts',m,[0,0,0],1,2,false);if(!opt.hyper)this.drawPoints('trialMarks',m,[0,0,0],1,3,false);}
+ const pos=new Float32Array(glow.length/4*3),col=new Uint8Array(glow.length),size=new Float32Array(glow.length/4);for(let i=0;i<size.length;i++){pos.set(glow.slice(i*4,i*4+3),i*3);col.set([110,185,255,150],i*4);size[i]=glow[i*4+3];}this.setPoints('fleetGlow',pos,col,size);gl.blendFunc(gl.ONE,gl.ONE);this.drawPoints('fleetGlow',m,[0,0,0],1,2,false);if(opt.planet||opt.hyper){if(!opt.hyper)this.drawPoints('trialDust',m,[0,0,0],1,1,false);this.drawPoints('trialFx',m,[0,0,0],1,2,false);this.drawPoints('trialBolts',m,[0,0,0],1,2,false);if(!opt.hyper)this.drawPoints('trialCraft',m,[0,0,0],1,2,false);}
  // Star streaks of a hyperspace jump, drawn at the far distance without depth.
  if(opt.streaks){gl.disable(gl.DEPTH_TEST);this.drawLines('warpStreaks',m,1);gl.enable(gl.DEPTH_TEST);}
  gl.depthMask(true);
