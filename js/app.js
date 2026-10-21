@@ -405,10 +405,10 @@ function pickRay(o, d, want) {
 // ---------- tools ----------
 function tool() {
   switch (st.tab) {
-    case 'mod': return st.group==='weapons'?(st.fitTool==='place'?'fit':st.fitTool==='remove'?'unfit':st.fitTool==='multi'?'multi':'adjust'):st.partTool === 'select' ? 'select' : st.partTool === 'multi' ? 'multi' : 'part';
+    case 'mod': return st.group==='weapons'?(st.fitTool==='place'?'fit':st.fitTool==='remove'?'unfit':st.fitTool==='multi'?'multi':'adjust'):st.partTool === 'select' ? 'select' : st.partTool === 'multi' ? 'multi' : st.partTool === 'remove' ? 'unpart' : 'part';
     case 'launch': return 'select';
     case 'arm': return st.fitTool === 'place' ? 'fit' : st.fitTool === 'remove' ? 'unfit' : st.fitTool === 'multi' ? 'multi' : 'adjust';
-    case 'bridge': if(st.bridgeMode==='body')return st.partTool==='select'?'select':'part';return st.bridgeTool === 'place' ? 'fit' : st.bridgeTool === 'remove' ? 'unfit' : 'adjust';
+    case 'bridge': if(st.bridgeMode==='body')return st.partTool==='select'?'select':st.partTool==='multi'?'multi':st.partTool==='remove'?'unpart':'part';return st.bridgeTool === 'place' ? 'fit' : st.bridgeTool === 'remove' ? 'unfit' : 'adjust';
     case 'carve': return st.carveTool === 'solid' ? 'solid' : st.carveTool === 'notch' ? 'notch' : 'inspect';
     default: return 'inspect';
   }
@@ -418,6 +418,7 @@ function hintText() {
   const t = tool();
   switch (t) {
     case 'multi': return '区画・構造物・装備をタップして選択に追加／もう一度で解除';
+    case 'unpart': return '撤去する区画・構造物をタップ（対称の相手も外れます）';
     case 'part': {
       const spec=activeEquipment();if(spec)return `面をタップして${spec.name}を配置${spec.k==='engine'?'（寸法で推力が変化）':''}`;
       const k = st.part, nm = C.PARTS[k].name;
@@ -521,7 +522,7 @@ function onHover(px, py) {
   if (!ship || !view) return;
   const t = tool();
   if(t === 'solid') return;
-  hoverLines = ghostFor(pick(px, py, {parts: t === 'select' || t === 'multi', fits: t === 'unfit' || t === 'adjust' || t === 'inspect' || t === 'fit' || t === 'multi'}));
+  hoverLines = ghostFor(pick(px, py, {parts: t === 'select' || t === 'multi' || t === 'unpart', fits: t === 'unfit' || t === 'adjust' || t === 'inspect' || t === 'fit' || t === 'multi'}));
   refreshOverlay();
 }
 function clearHover() { hoverLines = null; refreshOverlay(); }
@@ -537,7 +538,7 @@ function onTap(px, py) {
 // Alignment snaps the placement point, except along the face normal (that
 // coordinate stays on the tapped face).
 function alignFitPoint(p, n) { if (!st.alignment || st.alignment === 'none') return p; const q = C.alignedPosition(ship, p, st.alignment); for (let a = 0; a < 3; a++) if (Math.abs(n[a]) > .7) q[a] = p[a]; return q; }
-function tapWant(t) { return {parts: t === 'select' || t === 'multi' || t === 'inspect' || (t === 'notch' && st.notchStructures), fits: t !== 'part' && t !== 'notch'}; }
+function tapWant(t) { return {parts: t === 'select' || t === 'multi' || t === 'unpart' || t === 'inspect' || (t === 'notch' && st.notchStructures), fits: t !== 'part' && t !== 'notch' && t !== 'unpart'}; }
 function tapHit(t, hit) {
   hoverLines = null;
   switch (t) {
@@ -566,6 +567,10 @@ function tapHit(t, hit) {
       break;
     }
     case 'multi': multiToggle(hit); break;
+    case 'unpart':
+      if (hit && hit.part && hit.part.id > 0 && ship.parts.some(p => p.id === hit.part.id)) { removeWithPreview('撤去', 'parts', ship.parts.find(p => p.id === hit.part.id)); if (st.sel?.list === 'parts' && !findSel(st.sel)) st.sel = null; renderPanel(); }
+      else toast(st.view === 'normal' ? '撤去する区画・構造物をタップしてください（内部の区画は「透視」で選べます）' : '撤去する区画・構造物をタップしてください');
+      break;
     case 'unfit':
       if (hit && hit.fit) removeWithPreview('撤去', 'fits', hit.fit);
       else toast('撤去する装備をタップしてください');
@@ -824,7 +829,7 @@ function baseRenderPanel() {
     }
     case 'mod': {
       const k = st.part;
-      h = `<div class="pgroup">${seg('parttool', [['place', '配置'], ['select', '選択・調整'], ['multi', '複数選択']], st.partTool)}</div>`;
+      h = `<div class="pgroup">${seg('parttool', [['place', '配置'], ['select', '選択・調整'], ['multi', '複数選択'], ['remove', '撤去']], st.partTool)}</div>`;
       if (st.partTool === 'place') {
         h += `<div class="parts">${PART_KEYS.filter(t=>C.PARTS[t].group===st.group).map(t => partCard(t, k === t&&!activeEquipment())).join('')}${Object.values(C.EQUIPMENT).filter(d=>d.group===st.group).map(d=>equipmentCard(d.id)).join('')}</div>`;
         if (k === 'struct') {
@@ -846,6 +851,8 @@ function baseRenderPanel() {
         }
       } else if (st.partTool === 'multi') {
         h += multiPanelHTML();
+      } else if (st.partTool === 'remove') {
+        h += '<p class="note keep">撤去する区画・構造物を3D表示でタップします。左右・上下対称がオンなら対の部品も外れます。「元に戻す」で取り消せます。</p>';
       } else {
         h += partEditor() || '<p class="note">区画をタップするか、下の一覧から選んでください。</p>';
       }
@@ -1591,6 +1598,7 @@ function syncHud() {
   $$('#viewSeg button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === st.view)));
   $('#chipCode').setAttribute('aria-pressed', String(st.coded));
   $('#chipVMirror').setAttribute('aria-pressed', String(!!st.vmirror));
+  renderRail();
 }
 
 // ---------- boot ----------
@@ -1612,7 +1620,7 @@ function start(hot) {
   $('#newHulls').innerHTML = Object.entries(C.HULLS).map(([k, v]) => `<button type="button" class="hullcard" data-newhull="${k}">${silhouette(v)}<span>${v.name}</span></button>`).join('');
   $('#refGrid').innerHTML = EXAMPLES.map(e => `<button class="btn" data-reference="${e.key}">${esc(e.name)}<small>${esc(e.side)}・${esc(e.note)}</small></button>`).join('');
   restoreRenderer(false,false);bindRendering();
-  bind();bindEngineering();bindRealism();bindReference();bindAviation();bindFleet();bindSurface();bindPlanCuts();bindLayout();bindSolidCuts();bindTitle();bindTutorial();bindGround();bindTrial();bindMulti();bindDockToggle();
+  bind();bindEngineering();bindRealism();bindReference();bindAviation();bindFleet();bindSurface();bindPlanCuts();bindLayout();bindSolidCuts();bindTitle();bindTutorial();bindGround();bindTrial();bindMulti();bindDockToggle();bindRail();bindPalette();
   if (hot && hot.ui) { for (const k of ['tab', 'part', 'partTool', 'mirror', 'view', 'coded', 'fit', 'bridge', 'bridgeMode', 'bridgeEquipment', 'equipmentId', 'group', 'ped']) if (hot.ui[k] != null) st[k] = hot.ui[k]; }
   if(!BRIDGES.includes(st.bridge))st.bridge='podBridge';
   if(!['body','windows'].includes(st.bridgeMode))st.bridgeMode='body';
@@ -1920,7 +1928,7 @@ function renderPanel(){
   if(fleet.mode!=='design'){fleetRender();return;}
   refreshSolidCutterOverlay();
 
-  if(ship&&st.tab==='mod'&&st.group==='weapons'){compartmentWeaponsPanel();return;}
+  if(ship&&st.tab==='mod'&&st.group==='weapons'){compartmentWeaponsPanel();organizePanel();return;}
   if(ship&&st.tab==='ground'){markTabs();$('#panel').innerHTML=groundPanelHTML();updateHint();refreshOverlay();return;}
   v3RenderPanel();if(!ship)return;const panel=$('#panel');
   if(st.tab==='hull'){
@@ -1936,6 +1944,7 @@ function renderPanel(){
   if(st.tab==='bridge'&&st.bridgeMode==='body')panel.insertAdjacentHTML('beforeend',surfaceControls({},false));
   if(['hull','carve','armor'].includes(st.tab))panel.insertAdjacentHTML('afterbegin',`<div class="pgroup hull-sub">${seg('hullsub',HULL_SUB,st.tab)}</div>`);
   if(st.tab==='spec')panel.insertAdjacentHTML('afterbegin',trialCardHTML());
+  organizePanel();
 }
 function partEditor(){
   let html=v3PartEditor(),p=selItem();if(!p||st.sel.list!=='parts')return html;
@@ -2116,7 +2125,7 @@ function bridgePanel(){
  const body=st.bridgeMode==='body',selected=selItem(),bodies=ship.parts.filter(p=>C.equipmentSpec(p)?.group==='bridge'||C.REFERENCE_ASSETS[p.skinAsset]?.kind==='bridge');
  const head='';
  if(!body)return head+`<div class="pgroup">${seg('bridgetool',[['place','ポッドを設置'],['adjust','調整'],['remove','撤去']],st.bridgeTool)}</div>${st.bridgeTool==='adjust'?fitEditor():''}<div class="fits">${BRIDGES.map(k=>fitBtn(k,st.bridge===k,'bridge')).join('')}</div><p class="note">インペリアル級艦橋の円筒形ポッドです。構造物の側面や前後の壁に取り付けると、その役割の指揮所になります。甲板と船体には置けません。ポッドの背後には指揮区画が確保されます。インペリアル級・ヴェネター級の艦橋本体は、ポッドを足さなくても艦橋として機能します。</p><button class="btn" data-commandroom>無窓式指揮室を配置する</button>`;
- return head+`<div class="pgroup">${seg('parttool',[['place','本体を配置'],['select','選択・調整']],st.partTool)}</div><div class="parts">${Object.values(C.EQUIPMENT).filter(d=>d.group==='bridge').map(d=>equipmentCard(d.id)).join('')}</div>${st.partTool==='place'?equipmentInfo(C.EQUIPMENT[st.bridgeEquipment])+coordinateControls():(bodyRoleHTML(selected)+(partEditor()||'<p class="note">艦橋本体をタップするか下の一覧から選択してください。</p>'))}<div class="pgroup"><h4>配置済みの艦橋本体</h4><div class="plist">${bodies.map(p=>`<button class="chip${selected?.id===p.id?' on':''}" data-selpart="${p.id}">${esc(C.partLabel(p))}</button>`).join('')||'<p class="note">まだ配置されていません。</p>'}</div></div><button class="btn" data-custombridge>構造パーツから艦橋を組む</button>`;
+ return head+`<div class="pgroup">${seg('parttool',[['place','本体を配置'],['select','選択・調整'],['multi','複数選択'],['remove','撤去']],st.partTool)}</div><div class="parts">${Object.values(C.EQUIPMENT).filter(d=>d.group==='bridge').map(d=>equipmentCard(d.id)).join('')}</div>${st.partTool==='place'?equipmentInfo(C.EQUIPMENT[st.bridgeEquipment])+coordinateControls():(bodyRoleHTML(selected)+(partEditor()||'<p class="note">艦橋本体をタップするか下の一覧から選択してください。</p>'))}<div class="pgroup"><h4>配置済みの艦橋本体</h4><div class="plist">${bodies.map(p=>`<button class="chip${selected?.id===p.id?' on':''}" data-selpart="${p.id}">${esc(C.partLabel(p))}</button>`).join('')||'<p class="note">まだ配置されていません。</p>'}</div></div><button class="btn" data-custombridge>構造パーツから艦橋を組む</button>`;
 }
 
 // Placement direction is shared by the preview and the actual mount.
@@ -2206,6 +2215,99 @@ function bindGround(){
   if(d.moveground){const i=rows.findIndex(r=>r.id===d.moveground),j=i+Number(d.direction);if(i<0||j<0||j>=rows.length)return;if(dragSnap)endDrag();mutate('地上部隊の収容優先順',()=>{const r=rows.splice(i,1)[0];rows.splice(j,0,r);ship.groundForces=rows;},'none');renderPanel();return;}
   if(d.groundroom){st.tab='mod';st.group=d.groundroom==='troops'?'command':'air';st.part=d.groundroom;st.partTool='place';st.equipmentId=null;st.template=null;renderPanel();return;}
  });
+}
+// ---------- tool rail on the 3D view ----------
+// The place / select / multi / remove tools sit on the viewport so they are one
+// tap away on every screen; the panel's own tool switches mirror them.
+const RAIL_ICONS={place:'<path d="M12 5v14M5 12h14"/>',select:'<path d="M6 3l12 9-5.5 1.2L9.5 19z"/>',multi:'<rect x="3" y="8" width="11" height="11" rx="1.5"/><path d="M8 8V4.5h12.5V16H14"/>',remove:'<path d="M4 7h16M9.5 7V4h5v3M6.5 7l1 13h9l1-13M10 11v5M14 11v5"/>'};
+const RAIL_LABELS={place:'配置',select:'選択',multi:'複数',remove:'撤去'};
+function railContext(){
+ if(!ship||fleet.mode!=='design'||trial.on)return null;
+ if(st.tab==='mod'&&st.group!=='weapons')return {kind:'parts',tools:['place','select','multi','remove'],cur:st.partTool||'place'};
+ if(st.tab==='mod'&&st.group==='weapons'||st.tab==='arm')return {kind:'fits',tools:['place','select','multi','remove'],cur:st.fitTool==='adjust'?'select':st.fitTool||'place'};
+ if(st.tab==='bridge')return st.bridgeMode==='body'?{kind:'parts',tools:['place','select','multi','remove'],cur:st.partTool||'place'}:{kind:'pods',tools:['place','select','remove'],cur:st.bridgeTool==='adjust'?'select':st.bridgeTool||'place'};
+ return null;
+}
+function renderRail(){
+ const box=$('#railTools');if(!box)return;const c=railContext();
+ const html=c?c.tools.map(t=>`<button type="button" class="tr-btn" data-rail="${t}" aria-pressed="${c.cur===t}" title="${RAIL_LABELS[t]}"><svg viewBox="0 0 24 24" aria-hidden="true">${RAIL_ICONS[t]}</svg><span>${RAIL_LABELS[t]}</span></button>`).join('')+'<i class="tr-sep" aria-hidden="true"></i>':'';
+ if(box.innerHTML!==html)box.innerHTML=html;
+}
+function railSet(v){
+ const c=railContext();if(!c||!c.tools.includes(v))return;
+ if(c.kind==='parts'){if(v==='place'&&st.partTool!=='place')carryToPlace();st.partTool=v;if(v!=='select'&&st.sel?.list==='fits')st.sel=null;}
+ else{const t=v==='select'?'adjust':v,key=c.kind==='fits'?'fitTool':'bridgeTool';if(t==='place'&&st[key]!=='place')carryToPlace();st[key]=t;if(t!=='adjust')st.sel=null;}
+ hideInspect();clearHover();renderPanel();refreshOverlay();updateHint();
+ if(st.dockCollapsed){st.dockCollapsed=false;$('#dock').classList.remove('collapsed');}
+}
+function bindRail(){$('#toolRail')?.addEventListener('click',e=>{const b=e.target.closest('[data-rail]');if(b)railSet(b.dataset.rail);});}
+
+// ---------- panel layout ----------
+// After a panel is built: the palette moves to the top (with search and recent
+// picks), the panel's tool switches hide behind the rail, long lists fold away
+// and explanatory notes shrink to two lines (tap to read the rest).
+function placeMode(){const t=tool();return t==='part'||t==='fit';}
+function organizePanel(){
+ const panel=$('#panel');if(!panel||!ship||fleet.mode!=='design')return;
+ for(const sel of ['[data-parttool]','[data-fittool]','[data-bridgetool]']){const g=panel.querySelector(sel)?.closest('.pgroup');if(g)g.classList.add('rail-dup');}
+ for(const n of panel.querySelectorAll('.note'))if(!n.classList.contains('keep')&&!n.closest('.trial-card,.ground-editor .aviation-budget'))n.classList.add('clamp');
+ for(const h of panel.querySelectorAll('.pgroup > h4')){const t=h.textContent.trim();const g=h.parentElement;if(g.tagName==='DETAILS')continue;
+  if(/^配置済みの/.test(t)){const n=g.querySelectorAll('button').length;foldGroup(g,h,`${t}（${n}）`,false);}
+  else if(/^配置位置を揃える$/.test(t)){const cur=g.querySelector('[aria-pressed="true"]')?.textContent||'';foldGroup(g,h,`${t}：${cur}`,false);}}
+ const pal=placeMode()?panel.querySelector('.parts, .fits'):null;
+ if(pal){const anchor=panel.querySelector('[data-group]')?.closest('.pgroup')||panel.querySelector('.command-sub')||panel.querySelector('.rail-dup');
+  const tools=document.createElement('div');tools.className='pgroup pal-head';tools.innerHTML=paletteHeadHTML();
+  if(anchor){anchor.after(tools);tools.after(pal);}else{panel.prepend(pal);panel.prepend(tools);}
+  pal.classList.add('palette');
+  if(st.palQuery)paletteSearch(st.palQuery);}
+ renderRail();
+}
+function foldGroup(g,h,label,open){const d=document.createElement('details');d.className=g.className+' fold';d.open=!!open;const sm=document.createElement('summary');sm.textContent=label;d.append(sm);h.remove();while(g.firstChild)d.append(g.firstChild);g.replaceWith(d);}
+
+// ---------- palette search and recent picks ----------
+st.recent=(()=>{try{const r=JSON.parse(LS.get('yard.recent1')||'[]');return Array.isArray(r)?r.slice(0,8):[];}catch(e){return [];}})();
+function paletteItems(){
+ const out=[];
+ for(const k of PART_KEYS){const d=C.PARTS[k];out.push({type:'part',key:k,name:d.name,sub:d.desc||'',col:d.col,shape:d.shape,group:C.GROUPS[d.group]||''});}
+ for(const d of Object.values(C.EQUIPMENT))out.push({type:'equipment',key:d.id,name:d.name,sub:d.group==='bridge'?'艦橋本体':C.GROUPS[d.group]||'',col:C.PARTS[d.k]?.col,shape:C.PARTS[d.k]?.shape,group:d.group==='bridge'?'艦橋':C.GROUPS[d.group]||''});
+ for(const k of WEAPONS)if(C.FITS[k])out.push({type:'fit',key:k,name:C.FITS[k].name,sub:C.FITS[k].short||'',col:[214,120,90],shape:'fit',group:'武装'});
+ for(const k of BRIDGES)if(C.FITS[k])out.push({type:'bridge',key:k,name:C.FITS[k].name,sub:'艦橋ポッド',col:[150,200,230],shape:'pod',group:'艦橋'});
+ return out;
+}
+const palIcon=it=>`<i class="sw sh-${it.shape||'cube'}" style="background:${rgb(it.col||[160,170,180])}"></i>`;
+function paletteHeadHTML(){
+ const items=paletteItems(),find=r=>items.find(i=>i.type===r.type&&i.key===r.key),rec=st.recent.map(find).filter(Boolean).slice(0,6);
+ return `<label class="pal-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><input type="search" data-palsearch placeholder="部品を探す（反応炉・砲塔・格納庫…）" value="${esc(st.palQuery||'')}" aria-label="部品を検索"></label>${rec.length?`<div class="pal-recent" aria-label="最近使った部品"><span>最近</span>${rec.map(it=>`<button type="button" class="chip pal-chip" data-palpick="${it.type}:${esc(it.key)}">${palIcon(it)}${esc(it.name)}</button>`).join('')}</div>`:''}<div class="pal-results" data-palresults hidden></div>`;
+}
+function paletteSearch(q){
+ const box=document.querySelector('[data-palresults]'),pal=document.querySelector('#panel .palette');if(!box)return;q=(q||'').trim();st.palQuery=q;
+ if(!q){box.hidden=true;box.innerHTML='';if(pal)pal.hidden=false;return;}
+ const terms=q.toLowerCase().split(/\s+/),hits=paletteItems().filter(it=>terms.every(t=>(it.name+' '+it.sub+' '+it.group+' '+it.key).toLowerCase().includes(t))).slice(0,24);
+ box.hidden=false;if(pal)pal.hidden=true;
+ box.innerHTML=hits.length?hits.map(it=>`<button type="button" class="part pal-hit" data-palpick="${it.type}:${esc(it.key)}">${palIcon(it)}<span class="pn">${esc(it.name)}</span><span class="pd">${esc(it.group)}${it.sub?' · '+esc(it.sub):''}</span></button>`).join(''):'<p class="note keep">見つかりません。別の言葉で探してください。</p>';
+}
+function rememberPick(type,key){st.recent=[{type,key},...st.recent.filter(r=>!(r.type===type&&r.key===key))].slice(0,8);LS.set('yard.recent1',JSON.stringify(st.recent));}
+// Jump to the tab and group that own the item, then press its own card so the
+// usual selection code runs.
+function palettePick(type,key){
+ st.palQuery='';
+ if(type==='part'){st.tab='mod';st.group=C.PARTS[key].group;st.partTool='place';}
+ else if(type==='equipment'){const d=C.EQUIPMENT[key];if(d.group==='bridge'){st.tab='bridge';st.bridgeMode='body';}else{st.tab='mod';st.group=d.group;}st.partTool='place';}
+ else if(type==='fit'){st.tab='mod';st.group='weapons';st.fitTool='place';}
+ else if(type==='bridge'){st.tab='bridge';st.bridgeMode='windows';st.bridgeTool='place';}
+ st.sel=null;renderPanel();
+ const sel={part:`[data-part="${key}"]`,equipment:`[data-equipment="${key}"]`,fit:`[data-fit="${key}"]`,bridge:`[data-bridge="${key}"]`}[type];
+ const b=document.querySelector('#panel '+sel);if(b)b.click();
+ if(st.dockCollapsed){st.dockCollapsed=false;$('#dock').classList.remove('collapsed');}
+}
+function bindPalette(){
+ const panel=$('#panel');
+ panel.addEventListener('input',e=>{if(e.target.dataset.palsearch!=null)paletteSearch(e.target.value);});
+ panel.addEventListener('click',e=>{
+  const pk=e.target.closest('[data-palpick]');if(pk){e.stopPropagation();const i=pk.dataset.palpick.indexOf(':');palettePick(pk.dataset.palpick.slice(0,i),pk.dataset.palpick.slice(i+1));return;}
+  const card=e.target.closest('[data-part],[data-equipment],[data-fit],[data-bridge]');if(card&&card.closest('.palette, .parts, .fits')){const d=card.dataset;if(d.part)rememberPick('part',d.part);else if(d.equipment)rememberPick('equipment',d.equipment);else if(d.fit)rememberPick('fit',d.fit);else if(d.bridge)rememberPick('bridge',d.bridge);}
+  const note=e.target.closest('.note.clamp');if(note&&!e.target.closest('a,button,input,select'))note.classList.toggle('full');
+ },true);
 }
 // ---------- multiple selection, copy and paste ----------
 // Parts and fittings can be gathered into one selection, copied to a clipboard
@@ -2516,9 +2618,10 @@ function trialMarkers(){
 }
 // ---- HUD ----
 function trialHudHTML(){
- return `<div class="th-top"><div class="th-card th-id"><span>公試 · コルサント低軌道</span><b>${esc(ship?.name||'設計艦')}</b><small data-th="clock">T+0:00</small></div>
- <dl class="th-card th-read"><div><dt>速力</dt><dd data-th="speed">0</dd></div><div><dt>方位</dt><dd data-th="head">090°</dd></div><div><dt>高度</dt><dd data-th="alt">160 km</dd></div><div><dt>仰角</dt><dd data-th="pitch">0.0°</dd></div><div><dt>傾斜</dt><dd data-th="bank">0.0°</dd></div></dl>
- <div class="th-actions"><button type="button" class="th-btn" data-trial-cmd="cam" data-th="cam">視点 水平</button><button type="button" class="th-btn" data-trial-cmd="level">水平復帰</button><button type="button" class="th-btn" data-trial-cmd="center">舵中央</button><button type="button" class="th-btn" data-trial-cmd="reset">再開始</button><button type="button" class="th-btn th-exit" data-trial-cmd="exit">公試終了</button></div></div>
+ return `<div class="th-top"><div class="th-card th-bar"><div class="th-id"><b>${esc(ship?.name||'設計艦')}</b><small><span>公試 · コルサント低軌道</span> <span data-th="clock">T+0:00</span></small></div>
+ <dl class="th-read"><div><dt>速力</dt><dd data-th="speed">0</dd></div><div><dt>方位</dt><dd data-th="head">090°</dd></div><div><dt>高度</dt><dd data-th="alt">160 km</dd></div><div class="th-att"><dt>仰角</dt><dd data-th="pitch">0.0°</dd></div><div class="th-att"><dt>傾斜</dt><dd data-th="bank">0.0°</dd></div></dl></div>
+ <div class="th-actions"><button type="button" class="th-btn th-more" data-trial-cmd="menu" aria-expanded="false" aria-controls="thMenu" aria-label="その他の操作">⋯</button><button type="button" class="th-btn th-exit" data-trial-cmd="exit">公試終了</button>
+ <div class="th-card th-menu" id="thMenu" hidden><button type="button" class="th-btn" data-trial-cmd="cam" data-th="cam">視点 水平</button><button type="button" class="th-btn" data-trial-cmd="level">水平復帰 <kbd>Z</kbd></button><button type="button" class="th-btn" data-trial-cmd="center">舵中央 <kbd>X</kbd></button><button type="button" class="th-btn" data-trial-cmd="records" data-th="recbtn">記録を表示</button><button type="button" class="th-btn" data-trial-cmd="reset">再開始</button></div></div></div>
  <p class="th-records" data-th="records"></p><p class="th-warn" data-th="warn" hidden></p>
  <div class="th-reticle" aria-hidden="true"><i class="h"></i><i class="v"></i><b data-th="range">20.0 km</b></div>
  <div class="th-guns" data-th="guns" aria-live="off"></div><div class="th-tmarks" aria-hidden="true">${Array.from({length:TRIAL_GUN.targets},(_,i)=>`<div class="th-tmark" data-tmark="${i}" hidden><i></i><b></b></div>`).join('')}</div>
@@ -2526,6 +2629,7 @@ function trialHudHTML(){
   <div class="th-dpad"><button type="button" class="th-arrow up" data-trial-cmd="tele+" aria-label="増速">▲</button><button type="button" class="th-arrow left" data-trial-cmd="rudder-" aria-label="取舵">◀</button><b class="th-dmid" data-th="tele">停止</b><button type="button" class="th-arrow right" data-trial-cmd="rudder+" aria-label="面舵">▶</button><button type="button" class="th-arrow down" data-trial-cmd="tele-" aria-label="減速">▼</button></div>
   <div class="th-rudder"><div class="th-gauge" data-th-row="rudder" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><i class="ord"></i><i class="act"></i></div><b class="th-order" data-th="rudder">舵中央</b></div></div>
  <div class="th-stick" data-th-stick role="slider" aria-label="ピッチとロール" aria-valuetext="中立"><span class="lab up">上げ</span><span class="lab down">下げ</span><span class="lab left">左</span><span class="lab right">右</span><i class="knob"></i></div>
+ <button type="button" class="th-btn th-level" data-trial-cmd="level">水平</button>
  <button type="button" class="th-fire" data-th-fire aria-label="射撃">射撃<small>Space</small></button>
  <button type="button" class="th-msl" data-trial-cmd="missile" data-th="msl" aria-label="ミサイル発射" ${trial.launchers.length?'':'disabled'}>ミサイル<small data-th="mslstate">${trial.launchers.length?trial.launchers.length*8+' 発':'発射管なし'}</small></button>
  <i class="th-lead" data-th="lead" hidden aria-hidden="true"></i>
@@ -2549,6 +2653,7 @@ function trialHudUpdate(full){
  set('pitch',`${deg(a.pitch)>=0?'+':''}${deg(a.pitch).toFixed(1)}°`);const b=deg(a.bank);set('bank',Math.abs(b)<.05?'0.0°':`${b>0?'右':'左'} ${Math.abs(b).toFixed(1)}°`);
  const s=Math.floor(trial.t);set('clock',`T+${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`);set('cam',trial.camMode==='ship'?'視点 追従':'視点 水平');
  const r=trial.rec,g=trial.gun;set('records',`公試記録　最高速力 ${num(Math.round(r.top))} m/s · 0→全速 ${r.accel==null?(r.run?'計測中…':'—'):Math.round(r.accel)+' 秒'} · 全舵旋回径 ${r.turn==null?'—':(r.turn/1000).toFixed(1)+' km'} · 射撃 ${num(g.shots)} 発${g.missiles?` · ミサイル ${num(g.missiles)} 発`:''} / 命中 ${num(Math.round(g.hits))} / 撃破 ${g.kills}`);
+ const rp=q('records');if(rp)rp.hidden=!trialRecordsOn();set('recbtn',trialRecordsOn()?'記録を隠す':'記録を表示');
  const w=q('warn');if(w){w.hidden=!trial.warn&&!trial.level;const txt=trial.warn||(trial.level?'姿勢を水平に戻しています…':'');if(w.textContent!==txt)w.textContent=txt;}
  const bar=q('speedbar');if(bar){const lo=-.25,frac=C.clamp((v/Math.max(1,p.maxSpeed)-lo)/(1-lo),0,1);bar.style.height=(frac*100).toFixed(1)+'%';}
  hud.querySelectorAll('[data-tele]').forEach(e=>e.classList.toggle('on',+e.dataset.tele===trial.tele));set('tele',TRIAL_TELEGRAPH[trial.tele][0]);
@@ -2557,10 +2662,12 @@ function trialHudUpdate(full){
  const ts=trial.turrets,ready=ts.filter(t=>t.ready).length,loaded=ts.filter(t=>t.ready&&t.reload<=0).length,blocked=ts.filter(t=>t.arc&&t.clearDir&&!t.clear).length,out=ts.filter(t=>!t.arc).length,turning=ts.length-ready-blocked-out;
  const pw=trial.power,cap=pw&&pw.full>0?C.clamp(pw.budget/pw.full,0,1):1,rate=pw?.demand>0?pw.rate:cap,nochg=ts.filter(t=>t.charge<=0).length;
  const gn=q('guns');if(gn){const html=ts.length?`<span class="ok">● 射撃可 ${loaded}</span><span class="wait">● 装填・旋回 ${Math.max(0,ready-loaded+turning-nochg)}</span><span class="ng">● 遮蔽・射界外 ${blocked+out}</span>${nochg?`<span class="ng">● 充電装置なし ${nochg}</span>`:''}<span class="${rate<.999?(rate<.5?'ng':'wait'):'ok'}">⚡ 兵装電力 ${Math.round(rate*100)}%</span>`:'<span class="ng">砲塔なし</span>';if(gn.innerHTML!==html)gn.innerHTML=html;}
- const ml=q('msl');if(ml&&trial.launchers.length){const ready=trial.launchers.filter(l=>l.reload<=0).length,rl=Math.min(...trial.launchers.map(l=>l.reload)),f=1-rl/20;ml.style.setProperty('--fill',(ready?1:f).toFixed(3));set('mslstate',ready?`${ready*8} 発 装填済`:`装填 ${Math.ceil(rl)} 秒`);ml.classList.toggle('ready',ready>0);}
+ const ml=q('msl');if(ml&&trial.launchers.length){const ready=trial.launchers.filter(l=>l.reload<=0).length,rl=Math.min(...trial.launchers.map(l=>l.reload)),f=1-rl/20;ml.style.setProperty('--fill',(ready?1:f).toFixed(3));set('mslstate',ready?`${ready*8} 発`:`${Math.ceil(rl)} 秒`);ml.classList.toggle('ready',ready>0);}
  const ld=q('lead');if(ld){const p=trial.lead&&view?view.project(trial.lead):null,hr=hud.getBoundingClientRect(),ok=p&&p[2]>-1&&p[2]<1;ld.hidden=!ok;if(ok)ld.style.transform=`translate(${(p[0]-hr.left).toFixed(1)}px,${(p[1]-hr.top).toFixed(1)}px) rotate(45deg)`;}
  const st=hud.querySelector('[data-th-stick]'),si=trialStickInput();if(st){const txt=Math.abs(si.x)<.05&&Math.abs(si.y)<.05?'中立':`${si.y>0?'上げ':'下げ'} ${Math.round(Math.abs(si.y)*100)}% · ${si.x>0?'右':'左'}ロール ${Math.round(Math.abs(si.x)*100)}%`;if(st.getAttribute('aria-valuetext')!==txt)st.setAttribute('aria-valuetext',txt);}
 }
+// The record line is shown by default on wide screens and folded on phones.
+const trialRecordsOn=()=>trial.showRecords??(window.innerWidth>=900);
 function trialCommand(cmd){
  if(!trial.on)return;
  if(cmd==='tele+')trial.tele=Math.min(5,trial.tele+1);else if(cmd==='tele-')trial.tele=Math.max(0,trial.tele-1);
@@ -2570,6 +2677,8 @@ function trialCommand(cmd){
  else if(cmd==='cam'){trial.camMode=trial.camMode==='ship'?'horizon':'ship';if(view){view.cam.th=Math.PI;view.cam.ph=TRIAL_CAM_PH;}}
  else if(cmd==='reset')trialReset();
  else if(cmd==='fireTap')trial.fireTap=.25;
+ else if(cmd==='menu'){const m=$('#thMenu'),b=document.querySelector('[data-trial-cmd="menu"]');if(m){m.hidden=!m.hidden;b?.setAttribute('aria-expanded',String(!m.hidden));}return;}
+ else if(cmd==='records'){trial.showRecords=!trialRecordsOn();}
  else if(cmd==='missile'){if(!trial.launchers.length){toast('ミサイル発射管がありません');return;}trial.mslOrder=true;}
  else if(cmd==='exit'){trialStop();return;}
  trialHudUpdate(true);
@@ -2578,7 +2687,7 @@ const TRIAL_KEYS={KeyM:'missile',KeyW:'tele+',ArrowUp:'tele+',KeyS:'tele-',Arrow
 const TRIAL_HOLD={KeyR:['y',1],KeyF:['y',-1],KeyQ:['x',-1],KeyE:['x',1]};
 function trialKeyStick(){const s={x:0,y:0};for(const k of trial.keys){const h=TRIAL_HOLD[k];if(h)s[h[0]]+=h[1];}trial.keyStick={x:C.clamp(s.x,-1,1),y:C.clamp(s.y,-1,1)};}
 function bindTrial(){
- document.addEventListener('click',e=>{const b=e.target.closest('[data-trial],[data-trial-cmd]');if(!b||b.disabled)return;if(b.dataset.trial==='start'){e.preventDefault();trialStart();return;}if(b.dataset.trialCmd){e.preventDefault();trialCommand(b.dataset.trialCmd);}});
+ document.addEventListener('click',e=>{const b=e.target.closest('[data-trial],[data-trial-cmd]');const m=$('#thMenu');if(m&&!m.hidden&&!e.target.closest('#thMenu,[data-trial-cmd="menu"]')){m.hidden=true;document.querySelector('[data-trial-cmd="menu"]')?.setAttribute('aria-expanded','false');}if(!b||b.disabled)return;if(b.dataset.trial==='start'){e.preventDefault();trialStart();return;}if(b.dataset.trialCmd){e.preventDefault();const inMenu=!!b.closest('#thMenu');trialCommand(b.dataset.trialCmd);if(inMenu&&m){m.hidden=true;document.querySelector('[data-trial-cmd="menu"]')?.setAttribute('aria-expanded','false');}}});
  window.addEventListener('keydown',e=>{if(!trial.on||e.ctrlKey||e.metaKey||e.altKey)return;
   if(TRIAL_HOLD[e.code]){e.preventDefault();e.stopImmediatePropagation();trial.keys.add(e.code);trialKeyStick();return;}
   if(e.code==='Space'){e.preventDefault();e.stopImmediatePropagation();trial.fireKey=true;return;}
@@ -3028,6 +3137,7 @@ const renderHealth={mode:'starting',lost:false,error:null,frames:0,lastFrame:0,f
 let renderRetryTimer=0;
 function renderingMessage(message,error=false){
  const el=$('#renderStatus');if(el){el.textContent=message;el.hidden=!message;el.classList.toggle('render-error',error);}
+ document.body.classList.toggle('render-trouble',!!message||renderHealth.mode==='compat');
 }
 function invalidateRendering(){
  uploadStored();dirty.draw=true;
@@ -3074,6 +3184,7 @@ function renderingFailed(e){
 }
 function bindRendering(){
  $('#btnRestoreView')?.addEventListener('click',()=>{renderHealth.automaticRetries=0;restoreRenderer(false,true);});
+ $('#sheet')?.addEventListener('click',e=>{const b=e.target.closest('[data-viewfix]');if(!b)return;closeSheet();renderHealth.automaticRetries=0;if(b.dataset.viewfix==='compat')restoreRenderer(true,false);else restoreRenderer(false,true);});
  $('#btnCompatView')?.addEventListener('click',()=>{renderHealth.automaticRetries=0;restoreRenderer(true,false);});
  const wake=()=>{if(document.hidden)return;requestDraw();};
  document.addEventListener?.('visibilitychange',wake);window.addEventListener?.('pageshow',wake);window.addEventListener?.('focus',wake);

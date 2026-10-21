@@ -391,7 +391,7 @@ body.title-open.title-ship .title-sky, body.title-open.title-ship .title-hull { 
 .title-credit { background: none; border: 0; color: var(--cyan); text-decoration: underline; font-size: 12px; padding: 4px 0; }
 @keyframes ks-pulse { 50% { opacity: .35; } }
 @media (max-width: 760px) { .title-body { grid-template-columns: 1fr; } .title-panel { max-height: none; } .title-hull { top: 4%; opacity: .5; } .title-inner { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); } }
-.engine-status { position: absolute; left: 14px; top: 110px; z-index: 6; padding: 5px 10px 5px 24px; font-size: 11px; color: var(--hud-fg); background: var(--hud-bg); border: 1px solid var(--hud-line); border-radius: 13px; pointer-events: none; }
+.engine-status { position: absolute; left: calc(var(--gl) + 70px); top: 110px; z-index: 6; padding: 5px 10px 5px 24px; font-size: 11px; color: var(--hud-fg); background: var(--hud-bg); border: 1px solid var(--hud-line); border-radius: 13px; pointer-events: none; }
 .engine-status::before { content: ""; position: absolute; left: 9px; top: 50%; width: 8px; height: 8px; margin-top: -4px; border-radius: 50%; background: var(--cyan); animation: ks-pulse 1s ease-in-out infinite; }
 .engine-status.geo::before { background: var(--accent); }
 .statstrip.stale b, .spec.stale .kv dd, .spec.stale .spec-cls { opacity: .55; transition: opacity .2s; }
@@ -478,6 +478,41 @@ body.tut-on .inspect{top:auto;bottom:70px;left:auto;right:var(--gr)}
 /* ---- ground forces ---- */
 .ground-budgets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.ground-add{flex-wrap:wrap}.airwing-fields select{box-sizing:border-box;width:100%;min-width:0;min-height:44px;padding:8px 10px;background:var(--bg);color:var(--fg);border:1px solid var(--line-2);border-radius:5px;font:14px var(--font-ui)}@media(max-width:560px){.airwing-fields select{font-size:16px}}
 .pair-edit{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin:4px 0 10px}.pair-tags{display:flex;gap:4px}
+/* ---- tool rail on the 3D view ---- */
+.toolrail{position:absolute;z-index:4;left:var(--gl);top:52px;display:flex;flex-direction:column;gap:4px;padding:5px;background:var(--hud-bg);border:1px solid var(--hud-line);border-radius:12px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.tr-tools{display:contents}.tr-sep{display:block;height:1px;margin:2px 4px;background:var(--hud-line)}
+.tr-btn{display:grid;justify-items:center;gap:1px;width:52px;padding:6px 2px 5px;border-radius:8px;border:1px solid transparent;background:transparent;color:var(--hud-fg);font:700 10.5px/1.15 var(--font-ui);letter-spacing:.02em;touch-action:manipulation}
+.tr-btn svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tr-btn:hover{background:rgba(255,255,255,.06)}.tr-btn[aria-pressed="true"]{background:var(--hud-on);color:var(--hud-on-ink)}
+#chipMirror[aria-pressed="true"],#chipVMirror[aria-pressed="true"]{background:rgba(240,160,58,.18);color:#ffc27a;border-color:rgba(240,160,58,.55)}
+.hudbar{justify-content:flex-end}.viewport-guide{display:none!important}
+.tut{left:calc(var(--gl) + 70px);width:min(372px,calc(100% - 100px))}.inspect{left:calc(var(--gl) + 70px)}
+.render-tools{display:none}body.render-trouble .render-tools{display:flex}
+.fleet-active .toolrail,body.trial-on .toolrail,body.title-open.title-ship .toolrail{display:none!important}
+@media (orientation:landscape) and (max-height:560px){.toolrail{top:44px;padding:4px;gap:2px}.tr-btn{width:46px;padding:4px 2px 3px;font-size:9.5px}.tr-btn svg{width:18px;height:18px}.tut{left:calc(var(--gl) + 60px)}}
+@media (max-width:560px){.toolrail{top:48px}.tr-btn{width:46px;font-size:9.5px}.tr-btn svg{width:18px;height:18px}.tut{left:calc(var(--gl) + 60px);width:calc(100% - 76px)}.inspect{left:calc(var(--gl) + 60px);max-width:calc(100% - 76px)}}
+/* ---- shorter editor panel ---- */
+.panel .rail-dup{display:none}
+.panel .note.clamp{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;cursor:pointer}.panel .note.clamp.full{display:block}
+.panel details.fold{border:1px solid var(--line);border-radius:8px;padding:0 10px;margin:0 0 12px;background:var(--panel-2)}
+.panel details.fold>summary{cursor:pointer;padding:9px 0;font-size:12.5px;font-weight:700;color:var(--muted);letter-spacing:.04em;list-style:none}
+.panel details.fold>summary::-webkit-details-marker{display:none}.panel details.fold>summary::before{content:"▸ ";color:var(--cyan)}.panel details.fold[open]>summary::before{content:"▾ "}
+.panel details.fold[open]{padding-bottom:10px}
+/* ---- palette ---- */
+.pal-head{display:grid;gap:8px;margin-bottom:10px}
+.pal-search{display:flex;align-items:center;gap:8px;padding:0 10px;border:1px solid var(--line-2);border-radius:8px;background:var(--bg)}
+.pal-search svg{width:16px;height:16px;flex:none;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round}
+.pal-search input{flex:1;min-width:0;border:0;background:transparent;color:var(--fg);padding:9px 0;font:14px var(--font-ui);outline:none}
+.pal-recent{display:flex;flex-wrap:wrap;gap:5px;align-items:center}.pal-recent>span{font-size:11px;color:var(--muted);margin-right:2px}
+.pal-chip{display:inline-flex;align-items:center;gap:5px;max-width:13em;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.pal-chip .sw{width:9px;height:9px;flex:none}
+.pal-results{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}
+.palette.parts,.palette.fits,.pal-results{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px}
+.palette .part,.pal-results .part{padding:7px 9px}.palette .part .pd,.pal-results .part .pd{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;font-size:11px}
+.palette .fitb{padding:7px 9px}.palette .fitb .fd{display:none}.palette .fitb.on .fd{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.palette .fitb .fn{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.3}.palette .fitb .fs{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px}
+.panel .compartment-rule.clamp{-webkit-line-clamp:1}
+.sw.sh-fit{border-radius:3px;transform:rotate(45deg) scale(.8)}.sw.sh-pod{border-radius:50%/35%}
+@media (pointer:coarse){.pal-search input{font-size:16px}}
 /* ---- multiple selection ---- */
 .multi-count{display:flex;gap:16px;margin:8px 0 4px}.multi-count span{color:var(--muted);font-size:12px}.multi-count b{font:600 26px/1 var(--font-display);color:var(--accent);margin-right:4px;font-variant-numeric:tabular-nums}
 .multi-kinds{margin:0 0 8px}.multi-actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.multi-move{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
@@ -537,8 +572,20 @@ body.trial-on .main{display:flex!important;flex-direction:column}body.trial-on .
 .th-fire small{font-size:9px;letter-spacing:.06em;color:rgba(255,230,220,.75);font-weight:500}.th-fire.on{background:radial-gradient(circle,#ffd2a0,#ff6b3a 70%);color:#2a0b03;transform:scale(.96)}
 .th-msl{--sz:62px;--fill:1;position:absolute;right:calc(var(--th-gr) + 100px);bottom:var(--th-gb);width:var(--sz);height:var(--sz);border-radius:50%;pointer-events:auto;touch-action:manipulation;border:0;color:#ffe6c8;font:700 12px/1.1 var(--font-ui);display:grid;place-content:center;gap:2px;background:conic-gradient(rgba(255,170,90,.9) calc(var(--fill) * 360deg),rgba(255,255,255,.12) 0) border-box;box-shadow:0 0 0 4px rgba(8,13,17,.45)}
 .th-msl::before{content:"";position:absolute;inset:3px;border-radius:50%;background:radial-gradient(circle at 45% 40%,rgba(120,70,30,.9),rgba(40,22,10,.92));z-index:-1}.th-msl{isolation:isolate}
+.th-msl{white-space:nowrap;letter-spacing:-.02em}@media (max-width:640px),(orientation:landscape) and (max-height:560px){.th-msl{font-size:10.5px}}
 .th-msl small{font-size:9px;font-weight:500;color:rgba(255,225,200,.8)}.th-msl.ready{color:#fff}.th-msl:active{transform:scale(.95)}.th-msl:disabled{opacity:.4}
 .th-lead{position:absolute;left:0;top:0;width:12px;height:12px;margin:-6px 0 0 -6px;border:1.5px solid #ff9a5a;box-shadow:0 0 6px rgba(255,140,70,.8);will-change:transform}
+.th-bar{display:flex;flex-wrap:wrap;align-items:center;gap:4px 16px;min-width:0;max-width:calc(100% - 150px)}
+.th-bar .th-id{display:grid;gap:1px;min-width:0}.th-bar .th-id b{font:600 16px/1.15 var(--font-display);letter-spacing:.04em;max-width:30vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.th-bar .th-id small{font-size:10.5px;color:var(--hud-dim);white-space:nowrap}.th-bar .th-id small span:first-child{color:var(--hud-on);letter-spacing:.1em}
+.th-bar .th-read{flex-wrap:nowrap}.th-actions{position:relative;flex-wrap:nowrap;align-items:flex-start}
+.th-more{min-width:40px;font-size:18px;line-height:1}
+.th-menu{position:absolute;right:0;top:calc(100% + 6px);display:grid;gap:4px;min-width:150px;padding:6px;z-index:3}.th-menu[hidden]{display:none}.th-menu .th-btn{text-align:left;display:flex;justify-content:space-between;gap:12px}
+.th-menu kbd{font:500 10px var(--font-ui);color:var(--hud-dim);border:1px solid var(--hud-line);border-radius:4px;padding:0 4px}
+.th-level{position:absolute;right:calc(var(--th-gr) + 34px);top:calc(50% + 74px);min-height:30px;padding:4px 14px}
+.th-records[hidden]{display:none}
+@media (max-width:760px){.th-bar{max-width:calc(100% - 140px);gap:2px 10px}.th-bar .th-id b{max-width:42vw;font-size:14px}.th-att{display:none!important}.th-read dd{font-size:15px}}
+@media (orientation:landscape) and (max-height:560px){.th-keys{display:none}.th-level{top:calc(50% + 46px);right:calc(var(--th-gr) + 120px);min-height:26px;padding:2px 12px}.th-bar .th-id b{font-size:13px}.th-bar{gap:2px 12px}}
+@media (max-width:640px){.th-level{top:auto;bottom:calc(50% + 68px);right:calc(var(--th-gr) + 30px)}.th-guns{flex-wrap:wrap;justify-content:center;row-gap:2px;width:min(92vw,330px);white-space:normal}}
 .th-keys{grid-row:5;justify-self:center;margin:8px 0 0;font-size:11px;color:var(--hud-dim);background:var(--hud-bg);padding:3px 12px;border-radius:999px;text-align:center;max-width:calc(100% - 520px)}
 @media (pointer:coarse){.th-keys{display:none}.th-fire small{display:none}}
 @media (max-width:900px){.th-keys{display:none}}
@@ -611,11 +658,12 @@ body.trial-on .main{display:flex!important;flex-direction:column}body.trial-on .
       <p id="fleetMapFallback" hidden>状況図を表示できません。艦隊一覧から艦を選択し、「座標で移動を指定」で命令を設定できます。</p>
       <div id="fleetMapTools" hidden aria-label="状況図の艦隊命令と拡大縮小"></div>
       <div id="fleetLabels" hidden></div><div id="fleetHud" hidden></div><div id="trialHud" hidden aria-label="公試の操艦表示"></div>
+      <nav class="toolrail" id="toolRail" aria-label="道具と対称">
+        <div class="tr-tools" id="railTools"></div>
+        <button type="button" class="tr-btn" id="chipMirror" aria-pressed="true" title="左右対称：左右の対になる位置にも同時に配置・編集"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18"/><path d="M4 7l5 5-5 5z"/><path d="M20 7l-5 5 5 5z"/></svg><span>左右対称</span></button>
+        <button type="button" class="tr-btn" id="chipVMirror" aria-pressed="false" title="上下対称：上下の対になる位置にも同時に配置"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12h18"/><path d="M7 4l5 5 5-5z"/><path d="M7 20l5-5 5 5z"/></svg><span>上下対称</span></button>
+      </nav>
       <div class="hudbar">
-        <div class="hudgrp">
-          <button type="button" class="chip" id="chipMirror" aria-pressed="true">左右対称</button>
-          <button type="button" class="chip" id="chipVMirror" aria-pressed="false">上下対称</button>
-        </div>
         <div class="hudgrp">
           <div class="seg" id="viewSeg" role="group" aria-label="表示"><button type="button" data-view="normal">外観</button><button type="button" data-view="xray">透視</button></div>
           <button type="button" class="chip" id="chipCode" aria-pressed="true">区画色</button>
@@ -665,6 +713,11 @@ body.trial-on .main{display:flex!important;flex-direction:column}body.trial-on .
       </div>
     </section>
     <section>
+      <h3>3D表示</h3>
+      <div class="iorow"><button type="button" class="btn sm" data-viewfix="restore">表示を復旧</button><button type="button" class="btn sm" data-viewfix="compat">互換表示に切り替え</button></div>
+      <p class="note">表示が乱れたり止まったりしたときに使います。設計データはそのまま残ります。</p>
+    </section>
+    <section>
       <h3>チュートリアル</h3>
       <div class="iorow"><button type="button" class="btn" data-tut="start">簡素なインペリアル級を作る</button></div>
       <p class="note">船体・艦橋・炉・エンジン・主砲・格納庫を1つずつ置いて、設計の流れを覚えます。</p>
@@ -699,6 +752,9 @@ body.trial-on .main{display:flex!important;flex-direction:column}body.trial-on .
         <dt>1本指ドラッグ</dt><dd>設計は回転、公試は艦の周りを見回す（マウスは左ドラッグ）</dd>
         <dt>2本指</dt><dd>拡大縮小と移動（マウスはホイールと右ドラッグ）</dd>
         <dt>タップ</dt><dd>設計では選んだ道具を使う</dd>
+        <dt>道具バー</dt><dd>3D表示の左端に「配置・選択・複数・撤去」と「左右対称・上下対称」。区画・構造物・武装・艦橋のどの画面でも同じ場所で切り替えられる</dd>
+        <dt>部品を探す</dt><dd>部品一覧の上の検索欄に名前や用途（反応炉・砲塔・格納庫など）を入れると、全分類から探して選べる。「最近」には最後に使った部品が並ぶ</dd>
+        <dt>説明文</dt><dd>操作盤の説明は2行に縮めてある。タップで全文を表示</dd>
         <dt>区画の配置</dt><dd>面をタップし、配置深さを選ぶ。内部区画は外殻外を切り取るため、張り出す区画には先に構造物が必要。内部の位置は「座標を指定して配置」でも指定できる</dd>
         <dt>選択・調整</dt><dd>区画を選んで、位置と大きさをスライダーで動かす。形状と性能はバックグラウンドで再計算され、操作は止まらない</dd>
         <dt>透視</dt><dd>内部の区画・機関・竜骨を見る。内部の区画は透視で選択できる</dd>
