@@ -381,11 +381,14 @@ function v3MeshHatches(ship) {
       const ns = ids.map(([a, b]) => nat(a, b));
       if (ns.some(n => C.dot(n, h.n) < 0.3)) continue;
       const off = ps.map((p, k) => C.add(p, C.mul(ns[k], 0.6)));
-      const uv = ids.map(([a, b]) => [a / (gr.nl - 1) * fr.L / 40, b / (gr.nw - 1) * h.w / 40]);
+      // A shielded strip has no real opening: FS_RAY darkens the plating under it
+      // (vertex alpha 128) and lights a rim from the distance to its border.
+      const ray = h.k === 'ray', R = C.clamp(Math.min(fr.L, h.w) * .1, 2.5, 12);
+      const uv = ids.map(([a, b]) => ray ? [Math.min(1, Math.min(Math.min(a, gr.nl - 1 - a) / (gr.nl - 1) * fr.L, Math.min(b, gr.nw - 1 - b) / (gr.nw - 1) * h.w) / R), 0] : [a / (gr.nl - 1) * fr.L / 40, b / (gr.nw - 1) * h.w / 40]);
       let face = C.cross(C.sub(off[1], off[0]), C.sub(off[3], off[0]));
       const order = C.dot(face, h.n) >= 0 ? [0, 1, 2, 3] : [0, 3, 2, 1];
       const nn = ns.reduce((a, b) => C.add(a, b), [0, 0, 0]), nu = C.norm(nn);
-      quad(g, order.map(k => off[k]), nu, order.map(k => uv[k]), WHITE, 255);
+      quad(g, order.map(k => off[k]), nu, order.map(k => uv[k]), ray ? RAY_FIELD_COL : WHITE, ray ? 128 : 255);
     }
   }
   return out;
@@ -578,6 +581,35 @@ vec3 amb=mix(uGnd,uSky,n.y*0.5+0.5)*ao;float d1=max(dot(n,uL1),0.0);float d2=max
 vec3 V=normalize(uEye-vW);vec3 H=normalize(uL1+V);float sp=pow(max(dot(n,H),0.0),40.0)*0.22*ao*ef;
 vec3 c=base*(amb+uC1*d1*(0.6+0.4*ao)+uC2*d2*ao)+uC1*sp;vec3 e=texture2D(uEmiTex,vUv).rgb;c+=e*e*uEmi*ef;
 gl_FragColor=vec4(sqrt(c),uAlpha);}`;
+// Ray shields: premultiplied output blended with (ONE, ONE_MINUS_SRC_ALPHA). The
+// field adds a blue-white glow with drifting filaments and only lightly tints
+// what lies behind; the halo (vertex alpha 0) is purely additive; a legacy
+// strip (alpha ~0.5) also darkens the plating so it reads as an opening.
+const FS_RAY = `#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+uniform vec3 uEye;uniform float uTime;uniform float uAlpha;uniform vec3 uClip;uniform float uClipOn;
+varying vec3 vN;varying vec2 vUv;varying vec4 vCol;varying vec3 vW;varying vec3 vS;
+float h3(vec3 p){p=fract(p*0.1031);p+=dot(p,p.yzx+33.33);return fract((p.x+p.y)*p.z);}
+float vn(vec3 x){vec3 i=floor(x),f=fract(x);f=f*f*(3.0-2.0*f);
+ return mix(mix(mix(h3(i),h3(i+vec3(1,0,0)),f.x),mix(h3(i+vec3(0,1,0)),h3(i+vec3(1,1,0)),f.x),f.y),mix(mix(h3(i+vec3(0,0,1)),h3(i+vec3(1,0,1)),f.x),mix(h3(i+vec3(0,1,1)),h3(i+vec3(1,1,1)),f.x),f.y),f.z);}
+void main(){
+ if(uClipOn>0.5&&(vS.x>uClip.x||vS.y>uClip.y||vS.z>uClip.z))discard;
+ float e=1.0-clamp(vUv.x,0.0,1.0);
+ float flick=0.93+0.07*sin(uTime*8.0+dot(vS,vec3(0.031,0.047,0.023)));
+ if(vCol.a<0.25){float g=e*e*0.5+pow(e,7.0)*0.9;gl_FragColor=vec4(mix(vec3(0.30,0.56,1.0),vec3(0.84,0.95,1.0),e*e)*g*flick*uAlpha,0.0);return;}
+ vec3 n=normalize(vN),V=normalize(uEye-vW);float fr=1.0-abs(dot(n,V));fr*=fr;
+ vec3 q=vS*0.045;
+ float a1=vn(q+vec3(0.0,uTime*0.35,uTime*0.2)),a2=vn(q*2.3+vec3(uTime*0.5,0.0,-uTime*0.3)+a1*1.7);
+ float fil=pow(1.0-abs(a2*2.0-1.0),8.0);
+ float band=0.5+0.5*sin(dot(vS,vec3(0.073,0.046,0.06))-uTime*2.2),scan=0.5+0.5*sin(dot(vS,vec3(0.61,0.43,0.52))+uTime*3.0);
+ float rim=e*e*0.75+pow(e,9.0)*1.5;
+ float I=(0.07+0.08*a1+0.24*fil+0.05*band+0.04*scan+0.25*fr+rim)*flick;
+ vec3 c=mix(vec3(0.22,0.50,1.0),vec3(0.82,0.94,1.0),clamp(rim*0.7+fil*0.5,0.0,1.0))*I;
+ float cover=vCol.a<0.75?0.86:0.06+0.06*a1;
+ gl_FragColor=vec4(c*uAlpha,cover*uAlpha);}`;
 const VS_LINE = `attribute vec3 aPos;attribute vec4 aCol;uniform mat4 uVP;uniform vec3 uOff;varying vec4 vC;
 void main(){vC=aCol;gl_Position=uVP*vec4(aPos+uOff,1.0);}`;
 const FS_LINE = `precision mediump float;varying vec4 vC;uniform float uA;void main(){gl_FragColor=vec4(vC.rgb,vC.a*uA);}`;
@@ -697,7 +729,7 @@ class Renderer {
     this.disposed=true;const gl=this.gl;if(!gl||gl.isContextLost())return;
     const sets=[this.meshes,this.lines,this.points,...Array.from(this.fleetCache?.values()||[],a=>a.meshes)];
     for(const set of sets)for(const item of Object.values(set||{}))for(const k of ['pos','nor','uv','col','idx','size'])if(item[k])gl.deleteBuffer(item[k]);
-    for(const p of [this.pm,this.pl,this.pp,this.pb])if(p?.p)gl.deleteProgram(p.p);
+    for(const p of [this.pm,this.pl,this.pp,this.pb,this.pray,this.pplanet])if(p?.p)gl.deleteProgram(p.p);
     for(const t of this.ownedTextures||[])gl.deleteTexture(t);if(this.bgBuf)gl.deleteBuffer(this.bgBuf);
   }
   upload(name, geo) {
@@ -795,6 +827,9 @@ class Renderer {
     gl.viewport(0, 0, this.canvas.width, this.canvas.height);
     gl.clearColor(0.02, 0.03, 0.045, 1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     const m = this.matrices();
+    // Shields shimmer in the animated fleet and trial views; the editor redraws
+    // on demand, so it keeps one still frame of the pattern.
+    this.rayTime=opt.fleet?(performance.now()/1000)%600:7.3;
     this.paint=opt.paint||'neutral';this.hullLength=opt.hullLength||1600;this.sourceRed=opt.reference==='venator';this.meshScale=opt.fleet?null:opt.meshScale||null;this.hidden=opt.fleet?null:opt.hidden||null;
     this.clip = opt.mode === 'cut' ? opt.clip : null;
     gl.disable(gl.DEPTH_TEST); gl.depthMask(false); gl.disable(gl.BLEND); gl.disable(gl.CULL_FACE);
@@ -820,8 +855,9 @@ class Renderer {
       gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); gl.depthMask(false); gl.enable(gl.CULL_FACE);
       this.drawMesh('hull', m, 0.13, 0.25); this.drawMesh('struct', m, 0.16, 0.25);this.drawMesh('refHull',m,.13,0);this.drawMesh('refStruct',m,.16,0);this.drawMesh('refHatches',m,.3,0);
       gl.enable(gl.POLYGON_OFFSET_FILL); gl.polygonOffset(-1, -2);
-      this.drawMesh('hatchOpen', m, 0.45); this.drawMesh('hatchRay', m, 0.45);
+      this.drawMesh('hatchOpen', m, 0.45);
       gl.disable(gl.POLYGON_OFFSET_FILL);
+      this.drawRays(m, ['hatchRay'], 0.8);
     } else {
       const cut = opt.mode === 'cut';
       if (cut) gl.disable(gl.CULL_FACE); else { gl.enable(gl.CULL_FACE); gl.cullFace(gl.BACK); }
@@ -830,10 +866,11 @@ class Renderer {
       this.drawMesh('preview',m,1);this.drawMesh('previewRef',m,1,0);
       if (cut){this.drawMesh('keel', m, 1);this.drawMesh('plant',m,1);this.drawMesh('refPlant',m,1);this.drawMesh('interior',m,1);}
       gl.enable(gl.POLYGON_OFFSET_FILL); gl.polygonOffset(-1, -2);
-      this.drawMesh('hatchOpen', m, 1); this.drawMesh('hatchRay', m, 1);
+      this.drawMesh('hatchOpen', m, 1);
       gl.disable(gl.POLYGON_OFFSET_FILL);
       gl.disable(gl.CULL_FACE); this.drawMesh('fits', m, 1);this.drawMesh('refFits', m, 1);this.drawMesh('previewFits',m,1);this.drawMesh('previewRefFits',m,1,0);
       this.drawGlow(m);
+      this.drawRays(m, ['hatchRay'], 1);
     }
     gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); gl.disable(gl.CULL_FACE); gl.depthMask(false);
     if (opt.mode === 'cut') this.drawLines('section', m, 1);
@@ -847,6 +884,30 @@ class Renderer {
     // getError() stalls the GPU pipeline; sample it occasionally.
     this._errCheck=(this._errCheck||0)+1;if(this._errCheck%120===1){const error=gl.getError();if(error===gl.OUT_OF_MEMORY)throw new Error('描画メモリが不足しました');}
     if(gl.isContextLost())return false;return true;
+  }
+  // Translucent pass for ray shields, after every opaque surface: depth-tested
+  // but not depth-writing, pulled forward so the halo never fights the plating.
+  drawRays(m, names, alpha) {
+    const gl = this.gl; gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA); gl.depthMask(false); gl.disable(gl.CULL_FACE);
+    gl.enable(gl.POLYGON_OFFSET_FILL); gl.polygonOffset(-2, -4);
+    for (const n of names) this.drawRay(n, m, alpha);
+    gl.disable(gl.POLYGON_OFFSET_FILL); gl.depthMask(true); gl.disable(gl.BLEND);
+  }
+  drawRay(name, m, alpha) {
+    const mm = this.meshes[name]; if (!mm || !mm.count) return;
+    const gl = this.gl;
+    if (this.pray === undefined) { try { this.pray = compile(gl, VS_MESH, FS_RAY); } catch (e) { console.error(e); this.pray = null; } }
+    const p = this.pray; if (!p) { gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); this.drawMesh(name, m, 0.6 * alpha); gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA); return; }
+    gl.useProgram(p.p);
+    gl.uniformMatrix4fv(p.u.uVP, false, m.VP); gl.uniform3fv(p.u.uOff, this.off);
+    gl.uniform3fv(p.u.uCenter, this.modelCenter || [0, 0, 0]); gl.uniformMatrix3fv(p.u.uRot, false, this.modelRot || yawMatrix(this.modelYaw || 0)); gl.uniform3fv(p.u.uScl, this.meshScale?.[name] || [1, 1, 1]);
+    gl.uniform3fv(p.u.uEye, m.eye); gl.uniform1f(p.u.uTime, this.rayTime || 0); gl.uniform1f(p.u.uAlpha, alpha);
+    gl.uniform3fv(p.u.uClip, this.clip || [1e9, 1e9, 1e9]); gl.uniform1f(p.u.uClipOn, this.clip ? 1 : 0);
+    const used = [], at = (k, buf, n, type, normd) => { const loc = p.a[k]; if (loc == null || loc < 0) return; gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, n, type, normd, 0, 0); used.push(loc); };
+    at('aPos', mm.pos, 3, gl.FLOAT, false); at('aNor', mm.nor, 3, gl.BYTE, true); at('aUv', mm.uv, 2, gl.FLOAT, false); at('aCol', mm.col, 4, gl.UNSIGNED_BYTE, true);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, mm.idx);
+    if (mm.flat) gl.drawArrays(gl.TRIANGLES, 0, mm.count); else gl.drawElements(gl.TRIANGLES, mm.count, mm.type, 0);
+    for (const loc of used) gl.disableVertexAttribArray(loc);
   }
   drawGlow(m) {
     const gl = this.gl; gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE); gl.depthMask(false);
@@ -1117,13 +1178,38 @@ function meshHatches(ship){
         const ps=[sample(x0,e0+rim),sample(x1,e1+rim),sample(x1,e1),sample(x0,e0)];if(ps.every(Boolean))quad(g,ps,h.n,UV_WHITE,col,255);
 
       }
-      if(h.k==='ray'&&open>0&&(!h._doorDetached||h._rayOnly)){const mid=(b[u]+b[u+3])/2,slide=C.slidingHatchSpec(ship,h),half=x=>slide?Math.min(C.openingHalf(b,x,u),slide.travel*open):C.openingHalf(b,x,u)*open,h0=half(x0),h1=half(x1),ps=[sample(x0,mid-h0),sample(x1,mid-h1),sample(x1,mid+h1),sample(x0,mid+h0)];if(ps.every(Boolean))quad(out.ray,ps.map(p=>h._rayInset?C.sub(p,C.mul(h.n,h._rayInset)):p),h.n,[[0,0],[1,0],[1,1],[0,1]],WHITE,255);}
       // Landing deck centerline and bay-side guidance lamps, located down inside the mouth.
       if(axis===1&&h.n[1]>0){const zmid=(b[2]+b[5])/2,y=b[1]+.5;boxSolid(g,[x0,y,zmid-.4],[x1-2,y+.18,zmid+.4],[218,183,94],8);for(const z of [zmid-C.openingHalf(b,x0)+2,zmid+C.openingHalf(b,x0)-2])boxSolid(g,[x0+2,y,z-.4],[x0+3,y+.7,z+.4],[140,206,214],2);}
     }
+    if(h.k==='ray'&&open>0&&(!h._doorDetached||h._rayOnly))meshRayField(out.ray,ship,h,b,open);
     if(C.isSlidingHatch(ship,h)&&!h._doorDetached)for(const panel of C.slidingHatchPanels(ship,h))appendGeo(out.open,meshSlidingHatchPanel(ship,h,panel,open));
   }
   return out;
+}
+// Ray shield over an open mouth, drawn by FS_RAY. The field (vertex alpha 255)
+// carries uv.x = 0 on its boundary rising to 1 one rim width inside, so the
+// shader can light the emitter edge; the halo (vertex alpha 0) is a strip on the
+// plating around the mouth with uv.x = 0 at the edge and 1 at its outer border.
+const RAY_FIELD_COL=[150,205,255],RAY_HALO_COL=[110,180,255];
+function meshRayField(g,ship,h,b,open){
+  const {longAxis:l,widthAxis:u}=C.hatchAxes(h),x0=b[l],x1=b[l+3],len=x1-x0;if(!(len>0))return;
+  const mid=(b[u]+b[u+3])/2,slide=C.slidingHatchSpec(ship,h),full=x=>C.openingHalf(b,x,u),half=x=>slide?Math.min(full(x),slide.travel*open):full(x)*open;
+  const R=C.clamp(Math.min(len,2*Math.max(full(x0),full(x1)))*.1,2.5,12),r=Math.min(R,len/2),sample=(x,v)=>C.openingSurfacePoint(ship,h,x,v),inset=h._rayInset||0;
+  const xs=[x0,x0+r],inner=len-2*r,n=Math.ceil(inner/16);for(let i=1;i<n;i++)xs.push(x0+r+inner*i/n);if(inner>1e-6)xs.push(x1-r);xs.push(x1);
+  const put=(ps,ts,col,a)=>{if(ps.every(Boolean))quad(g,ps,h.n,ts.map(t=>[C.clamp(t,0,1),0]),col,a);};
+  // Field: four columns across (edge, one rim width in, mirrored) at every station.
+  const rows=xs.map(x=>{const hw=half(x),rr=Math.min(R,hw),dx=Math.min(x-x0,x1-x),vs=[-hw,-hw+rr,hw-rr,hw],dv=[0,rr,rr,0];return vs.map((v,j)=>{const p=sample(x,mid+v);return {p:p&&inset?C.sub(p,C.mul(h.n,inset)):p,t:Math.min(dx,dv[j])/R};});});
+  for(let i=0;i+1<rows.length;i++)for(let j=0;j<3;j++){const q=[rows[i][j],rows[i+1][j],rows[i+1][j+1],rows[i][j+1]];put(q.map(o=>o.p),q.map(o=>o.t),RAY_FIELD_COL,255);}
+  // Halo on the plating along both sides, across both ends and round the corners.
+  // A strip that would bridge a step in the plating is left out.
+  const W=C.clamp(R*1.6,4,20),rim=(x,v)=>C.openingRimPoint(ship,h,x,v),axis=C.hatchAxes(h).axis;
+  const halo=(ps,ts)=>{if(!ps.every(Boolean))return;const lo=Math.min(...ps.map(p=>p[axis])),hi=Math.max(...ps.map(p=>p[axis]));if(hi-lo<=W*.9)quad(g,ps,h.n,ts.map(t=>[t,0]),RAY_HALO_COL,0);};
+  for(const s of [-1,1]){
+    for(let i=0;i+1<xs.length;i++){const xa=xs[i],xb=xs[i+1],ea=mid+s*full(xa),eb=mid+s*full(xb);halo([rim(xa,ea),rim(xb,eb),rim(xb,eb+s*W),rim(xa,ea+s*W)],[0,0,1,1]);}
+    const x=s<0?x0:x1,hw=full(x),m=Math.max(1,Math.ceil(2*hw/16));
+    for(let j=0;j<m;j++){const va=mid-hw+2*hw*j/m,vb=mid-hw+2*hw*(j+1)/m;halo([rim(x,va),rim(x,vb),rim(x+s*W,vb),rim(x+s*W,va)],[0,0,1,1]);}
+    for(const c of [-1,1]){const e=mid+c*hw;halo([rim(x,e),rim(x+s*W,e),rim(x+s*W,e+c*W),rim(x,e+c*W)],[0,1,1,1]);}
+  }
 }
 
 function convexRim(points){const a=points.slice().sort((p,q)=>p[0]-q[0]||p[2]-q[2]),cross=(o,a,b)=>(a[0]-o[0])*(b[2]-o[2])-(a[2]-o[2])*(b[0]-o[0]),lo=[],hi=[];for(const p of a){while(lo.length>1&&cross(lo.at(-2),lo.at(-1),p)<=.001)lo.pop();lo.push(p);}for(const p of a.slice().reverse()){while(hi.length>1&&cross(hi.at(-2),hi.at(-1),p)<=.001)hi.pop();hi.push(p);}return lo.slice(0,-1).concat(hi.slice(0,-1));}
@@ -1388,15 +1474,18 @@ Renderer.prototype.loadFleet=function(key,data){
 };
 Renderer.prototype.pruneFleet=function(keys){if(!this.fleetCache)return;for(const [k,a] of this.fleetCache)if(!keys.has(k)){for(const m of Object.values(a.meshes))for(const n of ['pos','nor','uv','col','idx'])this.gl.deleteBuffer(m[n]);this.fleetCache.delete(k);}};
 Renderer.prototype.drawFleet=function(m,opt){
- const gl=this.gl,old=this.meshes,off=this.off;gl.disable(gl.BLEND);gl.depthMask(true);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);this.clip=null;
+ const gl=this.gl,old=this.meshes,off=this.off,shields=[];gl.disable(gl.BLEND);gl.depthMask(true);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);this.clip=null;
  try{for(const u of opt.fleet){if(u.dead)continue;const a=this.fleetCache?.get(u.key);if(!a)continue;this.meshes=a.meshes;this.off=u.pos;this.modelCenter=a.center;this.modelYaw=u.yaw||0;this.modelRot=u.rot||null;this.paint=a.paint||'neutral';this.sourceRed=a.reference==='venator';this.hullLength=a.length;const R=u.rot||yawMatrix(this.modelYaw),rv=v=>[R[0]*v[0]+R[3]*v[1]+R[6]*v[2],R[1]*v[0]+R[4]*v[1]+R[7]*v[2],R[2]*v[0]+R[5]*v[1]+R[8]*v[2]];
   for(const n of ['hull','struct','refHull','refStruct','refHatches','gen','shield','hyper','engine','refEngine','nozzle','hangar'])this.drawMesh(n,m,1);
   const open=opt.mode==='review'?0:C.clamp(u.hatchOpen??0,0,1);for(const door of a.doors||[]){const delta=[0,0,0];delta[door.axis]=door.side*door.travel*open;const q=rv(delta);this.off=[u.pos[0]+q[0],u.pos[1]+q[1],u.pos[2]+q[2]];this.drawMesh(door.name,m,1,0);}this.off=u.pos;
-  gl.enable(gl.POLYGON_OFFSET_FILL);gl.polygonOffset(-1,-2);this.drawMesh('hatchOpen',m,1);this.drawMesh('hatchRay',m,1);gl.disable(gl.POLYGON_OFFSET_FILL);if(open>0)for(const ray of a.rays||[])this.drawMesh(ray.name,m,1);gl.disable(gl.CULL_FACE);this.drawMesh('fits',m,1);this.drawMesh('refFits',m,1);
+  gl.enable(gl.POLYGON_OFFSET_FILL);gl.polygonOffset(-1,-2);this.drawMesh('hatchOpen',m,1);gl.disable(gl.POLYGON_OFFSET_FILL);shields.push({u,a,names:['hatchRay',...(open>0?(a.rays||[]).map(r=>r.name):[])]});gl.disable(gl.CULL_FACE);this.drawMesh('fits',m,1);this.drawMesh('refFits',m,1);
   if(u.turrets){for(const t of u.turrets){const q=rv([t.pivot[0]-a.center[0],t.pivot[1]-a.center[1],t.pivot[2]-a.center[2]]);this.off=[u.pos[0]+q[0],u.pos[1]+q[1],u.pos[2]+q[2]];this.modelCenter=t.pivot;this.modelRot=mat3Mul(R,t.rot);this.drawMesh(t.mesh,m,1);}this.off=u.pos;this.modelCenter=a.center;this.modelRot=u.rot||null;}
   for(const t of u.targets||[]){this.off=t.pos;this.modelCenter=[0,0,0];this.modelRot=t.rot||MAT3_I;this.drawMesh('trialTarget',m,1);}
   gl.enable(gl.CULL_FACE);
- }}finally{this.meshes=old;this.off=off;this.modelCenter=null;this.modelYaw=0;this.modelRot=null;}
+ }
+ // Shields go on after every hull so a translucent field never hides a ship behind it.
+ for(const {u,a,names} of shields){this.meshes=a.meshes;this.off=u.pos;this.modelCenter=a.center;this.modelYaw=u.yaw||0;this.modelRot=u.rot||null;this.drawRays(m,names,1);}
+ }finally{this.meshes=old;this.off=off;this.modelCenter=null;this.modelYaw=0;this.modelRot=null;}
  gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.depthMask(false);gl.disable(gl.CULL_FACE);if(!opt.planet){this.drawLines('fleetGrid',m,.65);gl.disable(gl.DEPTH_TEST);this.drawLines('fleetOrders',m,.8);gl.enable(gl.DEPTH_TEST);this.drawLines('fleetShots',m,1);}
  const glow=[];for(const u of opt.fleet){if(u.dead)continue;const a=this.fleetCache?.get(u.key);if(!a)continue;const R=u.rot||yawMatrix(u.yaw||0),k=u.glow??1;for(let i=0;i<a.glow.length;i+=4){const x=a.glow[i]-a.center[0],y=a.glow[i+1]-a.center[1],z=a.glow[i+2]-a.center[2];glow.push(u.pos[0]+R[0]*x+R[3]*y+R[6]*z,u.pos[1]+R[1]*x+R[4]*y+R[7]*z,u.pos[2]+R[2]*x+R[5]*y+R[8]*z,a.glow[i+3]*k);}}
  const pos=new Float32Array(glow.length/4*3),col=new Uint8Array(glow.length),size=new Float32Array(glow.length/4);for(let i=0;i<size.length;i++){pos.set(glow.slice(i*4,i*4+3),i*3);col.set([110,185,255,150],i*4);size[i]=glow[i*4+3];}this.setPoints('fleetGlow',pos,col,size);gl.blendFunc(gl.ONE,gl.ONE);this.drawPoints('fleetGlow',m,[0,0,0],1,2,false);if(opt.planet){this.drawPoints('trialDust',m,[0,0,0],1,1,false);this.drawPoints('trialFx',m,[0,0,0],1,2,false);this.drawPoints('trialBolts',m,[0,0,0],1,2,false);this.drawPoints('trialMarks',m,[0,0,0],1,3,false);}gl.depthMask(true);
@@ -1459,13 +1548,13 @@ class CompatRenderer {
   this._frame={w,h,m,pixels,depth};
   const external=['hull','struct','refHull','refStruct','refHatches','gen','shield','hyper','engine','refEngine','nozzle','hangar','fits','refFits','hatchOpen','hatchRay','preview','previewRef','previewFits','previewRefFits'];
   const inside=['keel','plant','refPlant','interior'];
-  if(opt.fleet){for(const unit of opt.fleet){if(unit.dead)continue;const a=this.fleetCache.get(unit.key);if(!a)continue;for(const name of external)this.rasterMesh(a.meshes[name]?.geo,name,1,null,{off:unit.pos,center:a.center,yaw:unit.yaw||0,rot:unit.rot||null});for(const e of a.extra||[])this.rasterMesh(e.geo,e.name.startsWith('ref')?'refFits':'hull',1,null,{off:unit.pos,center:a.center,yaw:unit.yaw||0,rot:unit.rot||null});const R=unit.rot||yawMatrix(unit.yaw||0);for(const t of unit.turrets||[]){const v=[t.pivot[0]-a.center[0],t.pivot[1]-a.center[1],t.pivot[2]-a.center[2]];this.rasterMesh(a.meshes[t.mesh]?.geo,t.mesh.startsWith('ref')?'refFits':'fits',1,null,{off:[unit.pos[0]+R[0]*v[0]+R[3]*v[1]+R[6]*v[2],unit.pos[1]+R[1]*v[0]+R[4]*v[1]+R[7]*v[2],unit.pos[2]+R[2]*v[0]+R[5]*v[1]+R[8]*v[2]],center:t.pivot,rot:mat3Mul(R,t.rot)});}for(const t of unit.targets||[])this.rasterMesh(a.meshes.trialTarget?.geo,'fits',1,null,{off:t.pos,center:[0,0,0],rot:t.rot||MAT3_I});}}
+  if(opt.fleet){for(const unit of opt.fleet){if(unit.dead)continue;const a=this.fleetCache.get(unit.key);if(!a)continue;for(const name of external)this.rasterMesh(a.meshes[name]?.geo,name,name==='hatchRay'?.5:1,null,{off:unit.pos,center:a.center,yaw:unit.yaw||0,rot:unit.rot||null});for(const e of a.extra||[])this.rasterMesh(e.geo,e.name.startsWith('ref')?'refFits':'hull',1,null,{off:unit.pos,center:a.center,yaw:unit.yaw||0,rot:unit.rot||null});const R=unit.rot||yawMatrix(unit.yaw||0);for(const t of unit.turrets||[]){const v=[t.pivot[0]-a.center[0],t.pivot[1]-a.center[1],t.pivot[2]-a.center[2]];this.rasterMesh(a.meshes[t.mesh]?.geo,t.mesh.startsWith('ref')?'refFits':'fits',1,null,{off:[unit.pos[0]+R[0]*v[0]+R[3]*v[1]+R[6]*v[2],unit.pos[1]+R[1]*v[0]+R[4]*v[1]+R[7]*v[2],unit.pos[2]+R[2]*v[0]+R[5]*v[1]+R[8]*v[2]],center:t.pivot,rot:mat3Mul(R,t.rot)});}for(const t of unit.targets||[])this.rasterMesh(a.meshes.trialTarget?.geo,'fits',1,null,{off:t.pos,center:[0,0,0],rot:t.rot||MAT3_I});}}
   else {
    const clip=opt.mode==='cut'?opt.clip:null,translucent=new Set(['hull','struct','refHull','refStruct','refHatches','hatchOpen','hatchRay']);
    if(opt.mode==='xray'){
     for(const name of [...external.filter(n=>!translucent.has(n)),...inside])this.rasterMesh(this.meshes[name]?.geo,name,1,clip);
     for(const name of external.filter(n=>translucent.has(n)))this.rasterMesh(this.meshes[name]?.geo,name,.20,clip);
-   }else for(const name of [...external,...(opt.mode==='cut'?inside:[])])this.rasterMesh(this.meshes[name]?.geo,name,1,clip);
+   }else for(const name of [...external,...(opt.mode==='cut'?inside:[])])this.rasterMesh(this.meshes[name]?.geo,name,name==='hatchRay'?.5:1,clip);
    this.rasterMesh(this.meshes.cutter?.geo,'cutter',.28,null);
   }
   ctx.putImageData(image,0,0);
