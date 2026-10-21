@@ -3038,6 +3038,7 @@ function powerSplitHTML(u){
  return `<div class="ts-row ts-pw"><span>出力</span><span class="pw3"><i class="e" style="width:${Math.min(100,pc(w.eng))}%" title="推進 ${pc(w.eng)}%"></i><i class="s" style="width:${Math.min(100,pc(w.sh))}%" title="シールド ${pc(w.sh)}%"></i><i class="w" style="width:${Math.min(100,pc(w.wpn))}%" title="兵装 ${pc(w.wpn)}%"></i></span><small title="推進 ${pc(w.eng)}% · シールド ${pc(w.sh)}% · 兵装 ${pc(w.wpn)}%">${pc(w.wpn)}%</small></div>`;
 }
 function statusFlagsHTML(u){
+ if(u.dead)return '';
  const fires=(u.fire||[]).map((f,i)=>f>0?C.SECTION_NAMES[i]:null).filter(Boolean),out=[];
  if(fires.length)out.push(`<span class="fl fire">火災 ${esc(fires.join('・'))}</span>`);
  if((u.ionK||0)>.05)out.push(`<span class="fl ion">イオン障害 出力 −${Math.round(u.ionK*C.COMBAT.ionReactor*100)}%</span>`);
@@ -4279,7 +4280,7 @@ function voyDrawOps(ctx, W, H) {
   if (s.major) { ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.beginPath(); ctx.arc(x, y, r + 3, 0, Math.PI * 2); ctx.stroke(); }
   if (voy.sel.sys === s.id || voy.sel.dest === s.id) { ctx.strokeStyle = VC.own; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.arc(x, y, r + 7, 0, Math.PI * 2); ctx.stroke(); ctx.lineWidth = 1; }
   if (s.major || s.inhabited || k > .22 || w.battles.has(s.id) || [...w.groups.values()].some(h => h.side === 0 && h.sys === s.id)) names.push({s, x, y, r});
-  label.block(x - r - 1, y - r - 1, x + r + 1, y + r + 1);
+  { const rr = voy.sel.sys === s.id || voy.sel.dest === s.id ? r + 9 : s.major ? r + 4 : r + 1; label.block(x - rr, y - rr, x + rr, y + rr); }
   ctx.globalAlpha = 1;
   if (w.battles.has(s.id)) { const pr = r + 9 + 4 * Math.sin(now * 5); ctx.strokeStyle = VC.battle; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, pr, 0, Math.PI * 2); ctx.stroke(); ctx.lineWidth = 1; }
  }
@@ -4294,7 +4295,8 @@ function voyDrawOps(ctx, W, H) {
  for (const [sys, c] of bySys) {
   const age = w.time - c.time, p = P(S.systems[sys].pos), q = [p[0] + 4, p[1] + 17 * voy.fz];ctx.globalAlpha = C.clamp(1 - age / R.RULES.contactTTL, .25, 1);ctx.fillStyle = VC.foe;
   ctx.beginPath();ctx.moveTo(q[0], q[1] - 6);ctx.lineTo(q[0] + 6, q[1]);ctx.lineTo(q[0], q[1] + 6);ctx.lineTo(q[0] - 6, q[1]);ctx.closePath();ctx.fill();label.block(q[0] - 6, q[1] - 6, q[0] + 6, q[1] + 6);
-  label(`敵 ${c.exact ? c.ships : '約' + c.ships} 隻${age > 120 ? ` · ${Math.round(age / 60)}分前` : ''}`, wd => [[q[0] + 9, q[1] + 4], [q[0] - 9 - wd, q[1] + 4], [q[0] - wd / 2, q[1] + 18]], VC.foe, '700 10.5px ' + font, true);
+  const n = c.exact ? c.ships : '約' + c.ships, ago = age > 120 ? ` · ${Math.round(age / 60)}分前` : '';
+  label([`敵 ${n} 隻${ago}`, `敵 ${n}${ago}`, `敵 ${n}`], wd => [[q[0] + 9, q[1] + 4], [q[0] - 9 - wd, q[1] + 4], [q[0] - wd / 2, q[1] + 18], [q[0] + 9, q[1] + 16], [q[0] - 9 - wd, q[1] + 16], [q[0] - wd / 2, q[1] - 9]], VC.foe, '700 10.5px ' + font, true);
   ctx.globalAlpha = 1;
  }
  // Our groups: chevrons at their systems (stacked), or on their way through hyperspace.
@@ -4305,13 +4307,14 @@ function voyDrawOps(ctx, W, H) {
   if (h.transit) { const q = P(S.systems[h.transit.to].pos); ctx.setLineDash([4, 4]); ctx.strokeStyle = 'rgba(127,211,255,.45)'; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(...q); ctx.stroke(); ctx.setLineDash([]); }
   const sel = voy.sel.group === h.id;ctx.fillStyle = sel ? '#ffffff' : VC.own;ctx.strokeStyle = '#06222e';ctx.beginPath();ctx.moveTo(x - 7, y + 5);ctx.lineTo(x, y - 6);ctx.lineTo(x + 7, y + 5);ctx.lineTo(x, y + 1);ctx.closePath();ctx.fill();ctx.stroke();label.block(x - 7, y - 6, x + 7, y + 5);
   const ships = h.units.filter(id => R.alive(w.units.get(id))).length;
-  label(`${h.name.replace('任務部隊', 'TF')} ${ships}隻${h.transit ? ` · ${voyClock(h.transit.t1 - w.time)}` : h.spool ? ' · 発進準備' : ''}`, wd => [[x + 10, y + 4], [x - 10 - wd, y + 4], [x + 10, y - 9]], sel ? '#ffffff' : '#bfe9ff', '700 10.5px ' + font, true);
+  const tf = h.name.replace('任務部隊', 'TF'), short = tf.replace(/^第/, ''), tail = h.transit ? ` · ${voyClock(h.transit.t1 - w.time)}` : h.spool ? ' · 発進準備' : '';
+  label([`${tf} ${ships}隻${tail}`, `${short} ${ships}${tail}`, `${short} ${ships}`, short], wd => [[x + 10, y + 4], [x - 10 - wd, y + 4], [x + 10, y - 9], [x - wd / 2, y - 11], [x - 10 - wd, y - 9], [x + 10, y + 16], [x - 10 - wd, y + 16]], sel ? '#ffffff' : '#bfe9ff', '700 10.5px ' + font, true);
  }
  // System names last, where they fit: the major systems first.
  // Systems with a battle, with our forces or selected are always named, then the major ones.
  const ours = new Set([...w.groups.values()].filter(h => h.side === 0 && h.sys != null).map(h => h.sys)), must = s => w.battles.has(s.id) || ours.has(s.id) || voy.sel.sys === s.id || voy.sel.dest === s.id;
  names.sort((a, b) => (must(b.s) - must(a.s)) || (b.s.major - a.s.major) || (b.s.inhabited - a.s.inhabited));
- for (const {s, x, y, r} of names) { ctx.globalAlpha = me.seen.has(s.id) || s.inhabited ? 1 : .7; label(s.name, wd => [[x + r + 4, y + 4], [x - r - 4 - wd, y + 4], [x - wd / 2, y + r + 14], [x - wd / 2, y - r - 5]], s.major ? VC.major : s.inhabited ? '#c9d6dc' : '#7d8b95', (s.major || must(s) ? '700 12px ' : '500 10.5px ') + font, s.major || must(s)); ctx.globalAlpha = 1; }
+ for (const {s, x, y, r: r0} of names) { const r = voy.sel.sys === s.id || voy.sel.dest === s.id ? r0 + 8 : s.major ? r0 + 3 : r0; ctx.globalAlpha = me.seen.has(s.id) || s.inhabited ? 1 : .7; label(s.name, wd => [[x + r + 4, y + 4], [x - r - 4 - wd, y + 4], [x - wd / 2, y + r + 14], [x - wd / 2, y - r - 5], [x + r + 2, y + r + 12], [x - r - 2 - wd, y + r + 12], [x + r + 2, y - r - 3], [x - r - 2 - wd, y - r - 3]], s.major ? VC.major : s.inhabited ? '#c9d6dc' : '#7d8b95', (s.major || must(s) ? '700 12px ' : '500 10.5px ') + font, s.major || must(s)); ctx.globalAlpha = 1; }
 }
 function voyClock(s) { s = Math.max(0, Math.round(s)); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return h ? `${h}:${String(m).padStart(2, '0')}:${String(x).padStart(2, '0')}` : `${m}:${String(x).padStart(2, '0')}`; }
 // ---- tactical map: one system's battle, seen from above in kilometres ----
@@ -4326,14 +4329,19 @@ const tacP = (p, W, H) => { const t = voy.tac; return [W / 2 + (p[0] - t.c[0]) /
 // a list of points, or a function of the text width giving the list) and is
 // left out where all are taken, unless forced. Marks can be blocked out too.
 function voyLabeler(ctx, W = Infinity) {
- const boxes = [], taken = b => boxes.some(q => b[0] < q[2] && b[2] > q[0] && b[1] < q[3] && b[3] > q[1]);
- // label(text, x, y, color, font, force) or label(text, places, color, font, force)
+ const boxes = [], overlap = b => { let a = 0; for (const q of boxes) { const dx = Math.min(b[2], q[2]) - Math.max(b[0], q[0]), dy = Math.min(b[3], q[3]) - Math.max(b[1], q[1]); if (dx > 0 && dy > 0) a += dx * dy; } return a; };
+ // label(text, x, y, color, font, force) or label(text, places, color, font, force).
+ // text may be a list of ever shorter forms: the first form that fits clear of
+ // the other labels and markers at any of its places is drawn. When none fits,
+ // a forced label uses its shortest form where it overlaps least.
  const label = (text, x, y, color, font, force) => {
   if (typeof x === 'function' || Array.isArray(x)) { force = font; font = color; color = y; }
-  const fz = voy.fz || 1;ctx.font = fz < 1 ? font.replace(/([\d.]+)px/, (m, n) => (n * fz).toFixed(1) + 'px') : font;const wdt = ctx.measureText(text).width, list = typeof x === 'function' ? x(wdt) : Array.isArray(x) ? x : [[x, y]], inside = q => q[0] >= 2 && q[0] + wdt <= W - 2;
-  let at = null;for (const q of list) { const b = [q[0] - 1, q[1] - 11 * fz, q[0] + wdt + 1, q[1] + 3 * fz]; if (inside(q) && !taken(b)) { at = q; break; } }
-  if (!at) { if (!force) return false; at = list.find(inside) || [C.clamp(list[0][0], 2, Math.max(2, W - 2 - wdt)), list[0][1]]; }
-  boxes.push([at[0] - 1, at[1] - 11 * fz, at[0] + wdt + 1, at[1] + 3 * fz]);ctx.fillStyle = color;ctx.fillText(text, at[0], at[1]);return true;
+  const fz = voy.fz || 1, forms = Array.isArray(text) ? text : [text];ctx.font = fz < 1 ? font.replace(/([\d.]+)px/, (m, n) => (n * fz).toFixed(1) + 'px') : font;
+  const places = t => { const wdt = ctx.measureText(t).width, list = typeof x === 'function' ? x(wdt) : Array.isArray(x) ? x : [[x, y]]; return list.map(q => ({t, q, b: [q[0] - 1, q[1] - 11 * fz, q[0] + wdt + 1, q[1] + 3 * fz], ok: q[0] >= 2 && q[0] + wdt <= W - 2})); };
+  let at = null;
+  for (const t of forms) { at = places(t).find(c => c.ok && overlap(c.b) === 0); if (at) break; }
+  if (!at) { if (!force) return false; const last = places(forms[forms.length - 1]), inside = last.filter(c => c.ok); at = inside.length ? inside.reduce((m, c) => overlap(c.b) < overlap(m.b) ? c : m) : last[0]; if (!at.ok) { const wdt = at.b[2] - at.b[0] - 2, q = [C.clamp(at.q[0], 2, Math.max(2, W - 2 - wdt)), at.q[1]]; at = {t: at.t, q, b: [q[0] - 1, at.b[1], q[0] + wdt + 1, at.b[3]]}; } }
+  boxes.push(at.b);ctx.fillStyle = color;ctx.fillText(at.t, at.q[0], at.q[1]);return true;
  };
  label.block = (x0, y0, x1, y1) => boxes.push([x0, y0, x1, y1]);
  return label;
