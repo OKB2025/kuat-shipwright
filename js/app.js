@@ -426,7 +426,7 @@ function hintText() {
       return `面をタップして${nm}（${st.size[k]} m・${PLACE.find(p => p[0] === st.placeBy[k])[1]}）を置く`;
     }
     case 'select': return st.tab==='launch'?'航空区画を選んで出口を設定。航空隊のサイズと機数は下の欄で編集できます':st.sel?.list === 'parts' ? '選択中の区画は枠ごとドラッグで移動・別の区画はタップで選択' : st.view === 'normal' ? '区画をタップで選択（内部は透視で）・選ぶとドラッグで移動' : '区画をタップで選択・選ぶとドラッグで移動';
-    case 'fit': return C.FITS[curFit()].pod?`構造物・艦橋本体の壁をタップして${C.FITS[curFit()].name}を設置`:`面をタップして${C.FITS[curFit()].short}を設置（傾斜には支持台）`;
+    case 'fit': return C.FITS[curFit()].pod?`構造物・艦橋本体の壁をタップして${C.FITS[curFit()].name}を設置`:`面をタップして${C.FITS[curFit()].short}を設置（${weaponTiltMode(curFit())?'斜面では面に沿って傾ける':'傾斜には支持台'}）`;
     case 'unfit': return '撤去する装備をタップ';
     case 'adjust': return st.sel?.list === 'fits' ? '選択中の装備はドラッグで面に沿って移動・別の装備はタップで選択' : '装備をタップして選択・選ぶとドラッグで移動';
     case 'notch': return `外面をタップして ${st.notch.l}×${st.notch.w}×深さ${st.notch.d} m を切り欠く`;
@@ -483,7 +483,8 @@ function ghostFor(hit) {
   } else if (t === 'fit' && hit.p && !hit.fit && hit.kind !== 'section') {
     const k = curFit(), d = C.FITS[k],normal=weaponPlacementNormal(k,hit.n);
     let a = 2; if (d.cat !== 'b') { let bv = -2; for (let i = 0; i < 6; i++) { const v = C.dot(C.AXES[i], normal); if (v > bv) { bv = v; a = i; } } }
-    const f = C.mountFit(ship, {id:-1,k,p:alignFitPoint(hit.p,hit.n).slice(),n:normal.slice(),a,ped:st.ped,...(['trench','casemate'].includes(st.weaponMount)&&d.cat==='w'?{localMount:true}:{})});
+    const tilt=weaponTiltMode(k)?C.fitTilt(normal):null;
+    const f = C.mountFit(ship, {id:-1,k,p:alignFitPoint(hit.p,hit.n).slice(),n:normal.slice(),a,ped:st.ped,...(['trench','casemate'].includes(st.weaponMount)&&d.cat==='w'?{localMount:true}:{}),...(tilt?{tilt}:{})});
     const bad = f.float || (d.casemate&&Math.abs(normal[1])>.65) || (d.cat === 'b' && !d.window && hit.n[1] < 0.2) || C.fitClash(ship, f);
     ls.box(C.fitAABB(f), bad ? ng : ok);
   } else if ((t === 'unfit' || t === 'adjust' || t === 'inspect') && hit.fit) {
@@ -562,7 +563,7 @@ function tapHit(t, hit) {
       if (!hit || hit.kind === 'section') { toast('船体の外面をタップしてください'); break; }
       if (hit.fit) { toast('その場所には装備があります'); break; }
       const k = curFit(); let err = null, made = null;
-      mutate(C.FITS[k].short + 'を設置', () => { const opts = {localMount:['trench','casemate'].includes(st.weaponMount)}, r = C.placeFit(ship, k, alignFitPoint(hit.p, hit.n), weaponPlacementNormal(k,hit.n), st.ped, st.mirror, opts); err = r.err; made = r.fit; if (made) { placeVerticalFits(made, k, st.ped, opts); applyPedDefaults(made); applyFitTemplate(made); } }, 'fits', {silent: true});
+      mutate(C.FITS[k].short + 'を設置', () => { const opts = {localMount:['trench','casemate'].includes(st.weaponMount),tilt:weaponTiltMode(k)}, r = C.placeFit(ship, k, alignFitPoint(hit.p, hit.n), weaponPlacementNormal(k,hit.n), st.ped, st.mirror, opts); err = r.err; made = r.fit; if (made) { placeVerticalFits(made, k, st.ped, opts); applyPedDefaults(made); applyFitTemplate(made); } }, 'fits', {silent: true});
       if (err) toast(err); else if (made) { showPreview('fits', linkedItems('fits', made)); st.sel = {list: 'fits', id: made.id}; renderPanel(); }
       break;
     }
@@ -601,7 +602,7 @@ function showInspect(hit) {
     const f = hit.fit, d = C.FITS[f.k];
     html = `<b>${esc(d.name)}</b>`;
     const ped = f.base + f.ped;
-    html += `<div class="ins-row">支持台 ${ped.toFixed(1)} m（自動 ${f.base.toFixed(1)}＋追加 ${f.ped.toFixed(1)}）・${esc(C.AXNAME[f.a])}</div>`;
+    html += `<div class="ins-row">支持台 ${ped.toFixed(1)} m（自動 ${f.base.toFixed(1)}＋追加 ${f.ped.toFixed(1)}）・${esc(C.AXNAME[f.a])}${f.tilt?` · 面に沿って ${Math.round(Math.acos(C.clamp(C.dot(f.tilt,C.AXES[f.a]),-1,1))*180/Math.PI)}° 傾斜`:''}</div>`;
     if (d.cat === 'w') {
       const arc = (S && S.fitInfo[f.id]) || C.fireArcs(ship, f);
       if (d.tt) html += `<div class="ins-row">一斉射 ${fTT(d.tt)}・電力 ${fW(d.power)}</div>`;
@@ -1201,7 +1202,7 @@ function dragItemMove(px, py) {
 }
 function moveFitTo(f, p, n0) {
   const d = C.FITS[f.k], n = d.cat === 'w' ? weaponPlacementNormal(f.k, n0) : n0;
-  const set = (g, q, m) => { g.p = q.slice(); g.n = C.norm(m); if (g.mountAxis == null) g.a = C.AXES.reduce((i, x, j) => C.dot(x, g.n) > C.dot(C.AXES[i], g.n) ? j : i, 0); delete g.local; delete g.localNormal; delete g.host; try { C.mountFit(ship, g); } catch (e) { g.float = true; } };
+  const set = (g, q, m) => { g.p = q.slice(); g.n = C.norm(m); if (g.mountAxis == null) g.a = C.AXES.reduce((i, x, j) => C.dot(x, g.n) > C.dot(C.AXES[i], g.n) ? j : i, 0); const tl = g.mountAxis == null && !g.localMount && weaponTiltMode(g.k) ? C.fitTilt(g.n) : null; if (tl) g.tilt = tl; else delete g.tilt; delete g.local; delete g.localNormal; delete g.host; try { C.mountFit(ship, g); } catch (e) { g.float = true; } };
   const links = fitLinks(f);
   set(f, p, n);
   for (const l of links) { let q = p, m = n; if (l.y) { q = C.vmirrorPoint(ship, q); m = [m[0], -m[1], m[2]]; } if (l.z) { q = C.mirrorP(q); m = C.mirrorP(m); } set(l.fit, q, m); }
@@ -1331,7 +1332,7 @@ function editSel(fn) {   // live edit of the selected part/fit (and its mirrored
 const PED_SHAPES = [['round', '円形'], ['trap', '台形']];
 // Switching from 編集 to 設置 keeps what was just being edited ready to place:
 // the same kind, size and settings, apart from where it sits.
-const TEMPLATE_SKIP = ['id', 'tw', 'vt', 'c', 'p', 'n', 'a', 'host', 'local', 'localNormal', 'base', 'low', 'slope', 'float', 'surfaceNormal', 'pitch', 'roll', 'mountAxis', 'mountOffset', 'localMount', 'batteryZone', 'assetYaw'];
+const TEMPLATE_SKIP = ['id', 'tw', 'vt', 'c', 'p', 'n', 'a', 'tilt', 'host', 'local', 'localNormal', 'base', 'low', 'slope', 'float', 'surfaceNormal', 'pitch', 'roll', 'mountAxis', 'mountOffset', 'localMount', 'batteryZone', 'assetYaw'];
 const FIT_TEMPLATE_KEYS = ['width', 'height', 'scale', 'chargeSalvos', 'chargeDepth', 'chargeScale', 'commandDepth', 'commandHeight', 'commandEnabled', 'pedShape', 'pedSize', 'skinAsset'];
 function templateFor(it, list) { const data = JSON.parse(JSON.stringify(it, (k, v) => k.startsWith('_') ? undefined : v)); for (const k of TEMPLATE_SKIP) delete data[k]; return {list, k: it.k, equipmentId: list === 'parts' ? (C.equipmentSpec(it)?.id || null) : null, data}; }
 function activeTemplate(list, k) { const t = st.template; if (!t || t.list !== list || t.k !== k) return null; if (list === 'parts' && (t.equipmentId || null) !== (activeEquipment()?.id || null)) return null; return t; }
@@ -2130,8 +2131,10 @@ function bridgePanel(){
 
 // Placement direction is shared by the preview and the actual mount.
 st.weaponMount='auto';
+// 「面に合わせる」 stands a weapon on the face's own normal, slopes included.
+function weaponTiltMode(k){const d=C.FITS[k];return d?.cat==='w'&&!d.casemate&&st.weaponMount==='auto';}
 function weaponPlacementNormal(k,n){return C.FITS[k]?.cat==='w'&&!['auto','trench','casemate'].includes(st.weaponMount)?(st.weaponMount==='bottom'?[0,-1,0]:[0,1,0]):n;}
-function weaponMountControls(){return `<div class="pgroup"><h4>武装の取付面</h4>${seg('weaponmount',[['auto','面に合わせる'],['top','上面に配置'],['bottom','下面に配置'],['trench','トレンチ内'],['casemate','側壁ケースメイト']],st.weaponMount)}<p class="note">下面を選ぶと船底へ視点を切り替えます。船体・構造物の下面をタップして搭載。砲塔は下向き、充電装置は取付面の船内側に配置されます。射界は取付面の外向き半球です。「トレンチ内」では溝の床・内壁に局所固定し、外甲板へ移しません。「側壁ケースメイト」は砲口を壁の外向きにして、背面の船内に充電装置を確保します。</p></div>`;}
+function weaponMountControls(){return `<div class="pgroup"><h4>武装の取付面</h4>${seg('weaponmount',[['auto','面に合わせる'],['top','上面に配置'],['bottom','下面に配置'],['trench','トレンチ内'],['casemate','側壁ケースメイト']],st.weaponMount)}<p class="note">「面に合わせる」では斜めの面にも面の傾きに沿って傾けて据え付け、射界はその面の外向き半球になります。垂直に立てるときは「上面に配置」「下面に配置」。下面を選ぶと船底へ視点を切り替えます。船体・構造物の下面をタップして搭載。砲塔は下向き、充電装置は取付面の船内側に配置されます。射界は取付面の外向き半球です。「トレンチ内」では溝の床・内壁に局所固定し、外甲板へ移しません。「側壁ケースメイト」は砲口を壁の外向きにして、背面の船内に充電装置を確保します。</p></div>`;}
 function chooseWeaponMount(face){
  if(!['auto','top','bottom','trench','casemate'].includes(face))return;
  if(face==='casemate'&&C.FITS.casemate40)st.fit='casemate40';
@@ -2635,10 +2638,10 @@ function trialCamera(dt){
  const a=trialAttitude();let F;
  if(trial.camMode==='ship')F=trial.R;
  else{let fh=tv.add(a.f,a.up,-tv.dot(a.f,a.up));if(tv.len(fh)<.25&&trial.camF){const old=trialCol(trial.camF,0);fh=tv.add(old,a.up,-tv.dot(old,a.up));}F=trialFrame(fh,a.up);}
- if(!trial.camF)trial.camF=[...F];else{const k=1-Math.exp(-dt*4),x=tv.add(trialCol(trial.camF,0),tv.add(trialCol(F,0),trialCol(trial.camF,0),-1),k),y=tv.add(trialCol(trial.camF,1),tv.add(trialCol(F,1),trialCol(trial.camF,1),-1),k);trial.camF=trialFrame(x,y);}
+ // While coasting out of the system and in the tunnel the camera keeps the frame it had.
+ if(!trial.camF)trial.camF=[...F];else if(trialCoasting()||trial.jump?.phase==='tunnel'){}else{const k=1-Math.exp(-dt*4),x=tv.add(trialCol(trial.camF,0),tv.add(trialCol(F,0),trialCol(trial.camF,0),-1),k),y=tv.add(trialCol(trial.camF,1),tv.add(trialCol(F,1),trialCol(trial.camF,1),-1),k);trial.camF=trialFrame(x,y);}
  const c=view.cam;c.frame=trial.camF;c.ortho=false;c.r=trialCamRange(c.r);c.ph=C.clamp(c.ph,.12,2.9);c.far=Math.max(90000,trial.p.len*30);const up=trialCol(trial.camF,1);c.target=tv.scale(up,c.r*TRIAL_CAM_LIFT);
- const j=trial.jump;if(j&&trial.camSave&&(j.phase==='exit'||j.phase==='arrive'))c.target=tv.add(c.target,trialCol(trial.camF,0),-trial.p.len*1.3);
- const k=trial.cine;if(k){const us=(trial.battle?.b.units||[]).filter(u=>k.ids.includes(u.id)&&!u.dead);if(!us.length)spaceCineEnd();else{const cw=us.reduce((a,u)=>tv.add(a,spaceWorld(u),1/us.length),[0,0,0]),loc=trialApplyT(trial.camF,k.dirW);c.target=tv.add(tv.sub(cw,trial.P),k.lead,-k.L*2);c.r=k.r;c.ph=Math.acos(C.clamp(loc[1],-1,1));c.th=Math.atan2(loc[2],loc[0]);c.far=Math.max(c.far,k.r*14);}}
+ const k=trial.cine;if(k){const us=(trial.battle?.b.units||[]).filter(u=>k.ids.includes(u.id)&&!u.dead);if(!us.length)spaceCineEnd();else{const cw=us.reduce((a,u)=>tv.add(a,spaceWorld(u),1/us.length),[0,0,0]),loc=trialApplyT(trial.camF,k.dirW);c.target=tv.add(tv.sub(cw,trial.P),k.lead,-k.L*.6);c.r=k.r;c.ph=Math.acos(C.clamp(loc[1],-1,1));c.th=Math.atan2(loc[2],loc[0]);c.far=Math.max(c.far,k.r*14);}}
 }
 function trialLoop(now){
  const dt=trial.last?Math.min(.05,(now-trial.last)/1000):0;trial.last=now;
@@ -2646,14 +2649,14 @@ function trialLoop(now){
  trialCamera(dt||.016);trialJumpStep(dt);
  // In hyperspace the ship holds still in the tunnel; everything else waits.
  const tunnel=trial.jump?.phase==='tunnel';
- if(dt>0&&!tunnel){const n=dt>.025?2:1;for(let i=0;i<n;i++)trialStep(dt/n);if(trial.battle)spaceStep(dt);spaceBolts(dt);}
+ if(dt>0&&!tunnel){if(trialCoasting())trialSublight(dt);else{const n=dt>.025?2:1;for(let i=0;i<n;i++)trialStep(dt/n);}if(trial.battle)spaceStep(dt);spaceBolts(dt);}
  trial.flash=Math.max(0,(trial.flash||0)-dt*3);trial.hitFlash=Math.max(0,(trial.hitFlash||0)-dt*1.6);
- const d=trial.dust;view.setPoints('trialDust',d.pos,d.col,d.size);trialRenderSets();
+ const d=trial.dust,ds=trialDustStreaks();if(ds)view.setPoints('trialDust',new Float32Array(0),new Uint8Array(0),new Float32Array(0));else view.setPoints('trialDust',d.pos,d.col,d.size);trialRenderSets();
  const me=trial.battle?.me,unit={key:trial.asset.key,pos:[0,0,0],yaw:0,rot:trial.R,glow:me?.out?0:.3+.7*Math.min(1,Math.max(Math.abs(TRIAL_TELEGRAPH[trial.tele][1]),trial.thrust)),hatchOpen:0,dead:!!me?.dead,
   turrets:trial.turrets.filter(t=>t.mesh).map(t=>({mesh:t.mesh,pivot:t.pivot,rot:t.rot})),targets:trial.targets.filter(t=>t.alive&&!t.ship).map(t=>({pos:tv.sub(t.pos,trial.P),rot:t.rot}))};
  // Reverting to realspace: seen from the front quarter, the ship arrives as a streak.
  const j=trial.jump;if(j&&(j.phase==='exit'||j.phase==='arrive')){const k=warpLook((j.phase==='exit'?j.t:JUMP.exit+j.t)-.08,trial.p.len);unit.pos=tv.scale(trialCol(trial.R,0),-k.D);unit.stretch=k.stretch;unit.flash=k.flash;}
- const hyper=tunnel?{dir:trialCol(trial.R,0),time:j.t,k:Math.min(1,j.t*3,(j.tunnel-j.t)*3+.2)}:null,s=trialStreak(),streaks=s>0&&trialStreakLines(s,j.dir||trialCol(trial.R,0));
+ const hyper=tunnel?{dir:trialCol(trial.R,0),time:j.t,k:Math.min(1,j.t*3,(j.tunnel-j.t)*3+.2)}:null,s=trialStreak(),streaks=(s>0||ds)&&trialStreakLines(s,j?.dir||trialCol(trial.R,0),ds);
  if(view.draw({fleet:[unit,...spaceDrawUnits()],mode:'trial',planet:hyper?null:trialPlanet(),hyper,streaks,noStars:s>.3})!==false){renderHealth.frames++;renderHealth.lastFrame=now;renderHealth.failures=0;}
  const hud=$('#trialHud'),fl=hud?.querySelector('[data-th="flash"]'),hf=hud?.querySelector('[data-th="hit"]');if(fl)fl.style.opacity=trial.flash.toFixed(3);if(hf)hf.style.opacity=(trial.hitFlash*.8).toFixed(3);
  trialMarkers();
@@ -2711,7 +2714,7 @@ function trialBindHud(hud){
 function trialHudUpdate(full){
  const hud=$('#trialHud');if(!hud||!trial.on&&!full)return;const a=trialAttitude(),q=k=>hud.querySelector(`[data-th="${k}"]`),set=(k,v)=>{const e=q(k);if(e&&e.textContent!==v)e.textContent=v;};
  const v=trial.vf,p=trial.p,max=trialMaxRates(),deg=x=>x*180/Math.PI;
- set('speed',`${num(Math.round(v))} m/s`);set('head',String(Math.round(a.heading)%360).padStart(3,'0')+'°');set('alt',`${(a.alt/1000).toFixed(1)} km`);
+ set('speed',v>=1e5?`${num(Math.round(v/1000))} km/s`:`${num(Math.round(v))} m/s`);set('head',String(Math.round(a.heading)%360).padStart(3,'0')+'°');set('alt',`${(a.alt/1000).toFixed(1)} km`);
  set('pitch',`${deg(a.pitch)>=0?'+':''}${deg(a.pitch).toFixed(1)}°`);const b=deg(a.bank);set('bank',Math.abs(b)<.05?'0.0°':`${b>0?'右':'左'} ${Math.abs(b).toFixed(1)}°`);
  set('where',trialWhere());trialSelfUpdate(hud);trialHyperUpdate(hud);
  const s=Math.floor(trial.t);set('clock',`T+${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`);set('cam',trial.camMode==='ship'?'視点 追従':'視点 水平');
@@ -2745,7 +2748,7 @@ function trialSelfUpdate(hud){
 }
 function trialHyperUpdate(hud){
  const el=hud.querySelector('[data-th="hyper"]'),j=trial.jump;if(!el)return;el.hidden=!j;if(!j)return;const d=SYSTEMS[j.dest]?.name||'';
- const txt=j.phase==='spool'?`ハイパードライブ充填中 · ${d}へ ${Math.max(0,JUMP.spool-j.t).toFixed(1)} 秒`:j.phase==='enter'?'ハイパースペースへ突入':j.phase==='tunnel'?`ハイパースペース航行中 · ${d}まで ${Math.ceil(Math.max(0,j.tunnel-j.t))} 秒`:`リアルスペースへ復帰 · ${trialSys().name}`;
+ const txt=j.phase==='spool'?`ハイパードライブ充填中 · ${d}へ ${Math.max(0,JUMP.spool-j.t).toFixed(1)} 秒`:j.phase==='accel'?`亜光速へ加速 · 光速の ${(trial.vf/LIGHT*100).toFixed(trial.vf<LIGHT*.01?2:1)}%`:j.phase==='enter'?'ハイパースペースへ突入':j.phase==='tunnel'?`ハイパースペース航行中 · ${d}まで ${Math.ceil(Math.max(0,j.tunnel-j.t))} 秒`:`リアルスペースへ復帰 · ${trialSys().name}`;
  if(el.textContent!==txt)el.textContent=txt;el.dataset.phase=j.phase;
 }
 // The record line is shown by default on wide screens and folded on phones.
@@ -2786,17 +2789,20 @@ const trialPlanet=()=>{const s=trialSys();return {center:tv.scale(trial.P,-1),ra
 function trialDust(){const L=trial.p.len,H=C.clamp(L*2,1400,30000),n=280,pos=new Float32Array(n*3);for(let i=0;i<pos.length;i++)pos[i]=(Math.random()*2-1)*H;trial.dust={H,pos,col:new Uint8Array(n*4).map((_,i)=>i%4===3?120:170+(i%4)*14),size:new Float32Array(n).fill(Math.max(2,L*.0035))};}
 
 // ---------- hyperspace ----------
-// A jump runs: spool-up at full ahead, the stars stretch into streaks, a flash
+// A jump runs: spool-up at full ahead, a sublight burst that sends the planet,
+// ring and dust streaming past, the stars stretching into streaks, a flash
 // into the tunnel, and reversion at the destination. Seen from outside, a ship
-// dropping out arrives as a long blue-white streak that snaps back into the
-// ship with a flash; the camera cuts to a front quarter to show it.
-const JUMP={spool:2.6,enter:.75,exit:.9,arrive:1.5};
+// dropping out comes in at sublight and stops dead within a fifth of a second:
+// a long blue-white streak that snaps back into the ship with a flash; the
+// camera cuts to a front quarter to show it.
+const JUMP={spool:1.8,accel:1.4,enter:.8,exit:.9,arrive:1.4},SUBLIGHT=3e7,LIGHT=2.998e8;
 const jumpSeconds=hc=>C.clamp(3+2.2*hc,3.5,14);
 const trialHyperClass=()=>trial.asset?.stats?.hyperClass??null;
 // A ship dropping out covers D(t)=D0·e^(−kt) in its last instants; it is drawn
 // stretched by that speed, bow in place, and washed blue-white.
-const WARP_D0=8;
-function warpLook(t,L){const k=7,D=WARP_D0*L*Math.exp(-k*Math.max(0,t)),v=D*k;return {D,stretch:1+v*.22/Math.max(1,L),flash:Math.exp(-Math.max(0,t)/.22)};}
+// Reversion: 160 ship lengths out at sublight, brought to rest at e^(−22t).
+const WARP={D0:160,k:22,cap:36};
+function warpLook(t,L){const tt=Math.max(0,t),D=WARP.D0*L*Math.exp(-WARP.k*tt);return {D,stretch:1+Math.min(WARP.cap,D/Math.max(1,L)*.9),flash:Math.exp(-tt/.18)};}
 function trialJump(dest){
  if(!trial.on||trial.jump||!SYSTEMS[dest])return;if(dest===trial.sysKey){toast('すでにこの星系にいます');return;}
  const hc=trialHyperClass();if(hc==null){toast('この艦にはハイパードライブがありません');return;}
@@ -2807,10 +2813,23 @@ function trialJump(dest){
 }
 // Streak length (radians added to each star's angle from the bow) per phase.
 // Reversion is watched from outside, so only the departure streaks the stars.
-function trialStreak(){const j=trial.jump;if(!j)return 0;if(j.phase==='spool')return Math.max(0,(j.t-(JUMP.spool-.9))/.9)*.1;if(j.phase==='enter')return .1+(j.t/JUMP.enter)**2*1.7;return 0;}
+function trialStreak(){const j=trial.jump;if(!j)return 0;if(j.phase==='accel')return Math.max(0,(j.t-(JUMP.accel-.35))/.35)*.08;if(j.phase==='enter')return .08+(j.t/JUMP.enter)**2*1.72;return 0;}
+// The sublight burst: speed climbs from the ship's own to 10% of light by the
+// end of the burst and keeps climbing into the stretch. The ship flies straight
+// on its heading, so the planet drops away behind and the ring sweeps overhead.
+const trialCoasting=()=>{const p=trial.jump?.phase;return p==='accel'||p==='enter';};
+function trialSublight(dt){
+ const j=trial.jump;if(!trialCoasting())return;const T=j.phase==='accel'?j.t:JUMP.accel+j.t,tau=JUMP.accel/Math.log(SUBLIGHT/j.v0),v=Math.min(LIGHT*.6,j.v0*Math.exp(T/tau)),f=j.dir;
+ trial.P=tv.add(trial.P,f,v*dt);trial.V=tv.scale(f,v);trial.vf=v;trial.w=[0,0,0];
+ const d=trial.dust,H=d.H,mv=tv.scale(f,v*dt);for(let i=0;i<d.pos.length;i+=3)for(let k=0;k<3;k++){let x=d.pos[i+k]-mv[k];if(x>H)x-=2*H*Math.ceil((x-H)/(2*H));else if(x<-H)x+=2*H*Math.ceil((-H-x)/(2*H));d.pos[i+k]=x;}
+}
+// Dust drawn as speed lines while coasting.
+function trialDustStreaks(){const v=trial.vf,d=trial.dust,f=trial.jump?.dir;if(!trialCoasting()||!f||v<2000)return null;const n=d.pos.length/3,L=Math.min(v*.035,d.H*1.7),pos=new Float32Array(n*6),col=new Uint8Array(n*8),b=Math.min(1,v/2e5);
+ for(let i=0;i<n;i++){const p=[d.pos[i*3],d.pos[i*3+1],d.pos[i*3+2]];pos.set(p,i*6);pos.set(tv.add(p,f,-L),i*6+3);col.set([215*b,230*b,255*b,255],i*8);col.set([40*b,60*b,110*b,255],i*8+4);}return {pos,col};}
 function trialJumpStep(dt){
  const j=trial.jump;if(!j)return;j.t+=dt;const next=p=>{j.phase=p;j.t=0;};
- if(j.phase==='spool'){j.dir=trialCol(trial.R,0);if(j.t>=JUMP.spool)next('enter');}
+ if(j.phase==='spool'){j.dir=trialCol(trial.R,0);if(j.t>=JUMP.spool){j.v0=Math.max(300,trial.vf,trial.p.maxSpeed||0);next('accel');}}
+ else if(j.phase==='accel'){if(j.t>=JUMP.accel)next('enter');}
  else if(j.phase==='enter'){if(j.t>=JUMP.enter){next('tunnel');trial.flash=1;trial.bolts=[];trial.missiles=[];trial.fx=[];trial.vbolts=[];if(trial.battle&&!trial.battle.result)spaceWithdraw();}}
  else if(j.phase==='tunnel'){if(j.t>=j.tunnel){trialArrive(j.dest);next('exit');trial.flash=.6;}}
  else if(j.phase==='exit'){if(j.t>=JUMP.exit)next('arrive');}
@@ -2820,17 +2839,18 @@ function trialArrive(dest){
  trial.sysKey=dest;const s=trialSys(),R=s.planet.radius,L=trial.p.len;
  Object.assign(trial,{P:[0,R+s.altitude,0],R:[1,0,0,0,1,0,0,0,1],w:[0,0,0],V:[trial.p.maxSpeed*.3,0,0],tele:2,rudder:0,level:false,camF:null,warn:''});trial.vf=trial.V[0];trialDust();
  if(trial.mode==='trial'){trial.targets=[];for(let i=0;i<TRIAL_GUN.targets;i++)trial.targets.push(trialSpawnTarget(i,true));}else trial.targets=[];
- if(view){trial.camSave=trial.camSave||{th:view.cam.th,ph:view.cam.ph,r:view.cam.r};view.cam.th=.62;view.cam.ph=1.36;view.cam.r=trialCamRange(L*3.4+300);}
- const bow=tv.add(trial.P,[L*.5-warpLook(0,L).D,0,0]);trial.fx.push({pos:bow,vel:[0,0,0],life:.4,max:.4,size:L*1.1,col:[205,228,255]},{pos:bow,vel:[0,0,0],life:.25,max:.25,size:L*.5,col:[255,255,255]});
+ if(view){trial.camSave=trial.camSave||{th:view.cam.th,ph:view.cam.ph,r:view.cam.r};view.cam.th=.62;view.cam.ph=1.36;view.cam.r=trialCamRange(L*3.8+300);}
+ const bow=tv.add(trial.P,[L*.5,0,0]);trial.fx.push({pos:bow,vel:[0,0,0],life:.5,max:.5,size:L*1.2,col:[205,228,255]},{pos:bow,vel:[0,0,0],life:.3,max:.3,size:L*.55,col:[255,255,255]});
  if(trial.jump)trial.jump.dir=trialCol(trial.R,0);toast(`${s.name}に到着 — ${s.note}`);
 }
-function trialStreakLines(s,f){
- const dirs=view?.starDirs,cols=view?.starCol;if(!dirs||s<=.001)return false;
- const n=dirs.length/3,eye=view.eye(),K=(view.cam.far||90000)*.45,pos=new Float32Array(n*6),col=new Uint8Array(n*8);let m=0;
+function trialStreakLines(s,f,extra){
+ const dirs=view?.starDirs,cols=view?.starCol;if(!dirs||s<=.001&&!extra)return false;
+ const n=s>.001?dirs.length/3:0,eye=view.eye(),K=(view.cam.far||90000)*.45,ne=extra?extra.pos.length/6:0,pos=new Float32Array((n+ne)*6),col=new Uint8Array((n+ne)*8);let m=0;
  for(let i=0;i<n;i++){const d=[dirs[i*3],dirs[i*3+1],dirs[i*3+2]],c=tv.dot(d,f),r=tv.add(d,f,-c),rl=tv.len(r);if(rl<1e-4)continue;
   const rh=tv.scale(r,1/rl),phi=Math.atan2(rl,c),phi2=Math.min(Math.PI*.95,phi+s*(.18+phi*.9)),e=tv.add(tv.scale(f,Math.cos(phi2)),rh,Math.sin(phi2)),b=(cols?cols[i*4]/255:.8)*Math.min(1,.4+s);
   pos.set(tv.add(eye,d,K),m*6);pos.set(tv.add(eye,e,K),m*6+3);col.set([210*b,230*b,255*b,255],m*8);col.set([30*b,55*b,120*b,255],m*8+4);m++;}
- view.setLines('warpStreaks',{pos:pos.subarray(0,m*6),col:col.subarray(0,m*8)});return true;
+ if(extra){pos.set(extra.pos,m*6);col.set(extra.col,m*8);m+=ne;}
+ view.setLines('warpStreaks',{pos:pos.subarray(0,m*6),col:col.subarray(0,m*8)});return m>0;
 }
 // Star map of the Core Worlds: the current system, the other system and the
 // hyperlane between them. Jumping from a battle withdraws from it.
@@ -2914,7 +2934,7 @@ function spaceCineStart(){
  const f=trialCol(spaceRot(B.E,foes[0].yaw),0),up=tv.norm(trial.P),s0=tv.norm(tv.cross(up,f)),side=tv.dot(s0,tv.sub(trial.P,spaceWorld(foes[0])))>0?s0:tv.scale(s0,-1);
  const pts=foes.map(u=>spaceWorld(u)),c=pts.reduce((a,p)=>tv.add(a,p,1/pts.length),[0,0,0]),span=Math.max(0,...pts.map(p=>tv.len(tv.sub(p,c)))),L=Math.max(...foes.map(u=>u.p.len));
  const asp=(view.canvas.clientWidth||16)/(view.canvas.clientHeight||9);
- trial.cine={t:0,dur:Math.max(...foes.map(u=>u.warp.at-u.warp.t))+2.3,dirW:tv.norm(tv.add(tv.add(tv.scale(f,.8),side,.52),up,.2)),r:(span*1.4+L*4.2)*C.clamp(1.2/asp,1,2.2),lead:f,L,ids:foes.map(u=>u.id),save:{th:view.cam.th,ph:view.cam.ph,r:view.cam.r}};
+ trial.cine={t:0,dur:Math.max(...foes.map(u=>u.warp.at-u.warp.t))+1.9,dirW:tv.norm(tv.add(tv.add(tv.scale(f,.8),side,.52),up,.2)),r:(span*1.4+L*4.2)*C.clamp(1.2/asp,1,2.2),lead:f,L,ids:foes.map(u=>u.id),save:{th:view.cam.th,ph:view.cam.ph,r:view.cam.r}};
  $('#trialHud')?.classList.add('cine');
 }
 function spaceCineEnd(){const k=trial.cine;if(!k)return;trial.cine=null;if(view)Object.assign(view.cam,k.save);$('#trialHud')?.classList.remove('cine');}
@@ -2925,7 +2945,7 @@ function spaceLog(text,u){const B=trial.battle;if(!B)return;const who=!u?'':u.ma
 function spaceStep(dt){
  const B=trial.battle;if(!B||B.left)return;const b=B.b;
  if(!B.cined&&b.units.some(u=>u.warp&&u.warp.t+dt>=u.warp.at-.5)){B.cined=true;spaceCineStart();}
- for(const u of b.units){if(u.warp){u.warp.t+=dt;const tt=u.warp.t-u.warp.at;if(tt>=0&&!u.warp.flashed){u.warp.flashed=true;const f=trialCol(spaceRot(B.E,u.yaw),0),bow=tv.add(spaceWorld(u),f,u.p.len*.5-warpLook(0,u.p.len).D);trial.fx.push({pos:bow,vel:[0,0,0],life:.4,max:.4,size:u.p.len*1.2,col:[205,228,255]},{pos:bow,vel:[0,0,0],life:.25,max:.25,size:u.p.len*.5,col:[255,255,255]});}if(tt>=.9){u.absent=false;delete u.warp;spaceLog('ハイパースペースから出現',u);if(b.units.filter(x=>x.team===1).every(x=>!x.warp))toast('敵艦隊がハイパースペースから出現');}}
+ for(const u of b.units){if(u.warp){u.warp.t+=dt;const tt=u.warp.t-u.warp.at;if(tt>=0&&!u.warp.flashed){u.warp.flashed=true;const f=trialCol(spaceRot(B.E,u.yaw),0),bow=tv.add(spaceWorld(u),f,u.p.len*.5);trial.fx.push({pos:bow,vel:[0,0,0],life:.5,max:.5,size:u.p.len*1.2,col:[205,228,255]},{pos:bow,vel:[0,0,0],life:.3,max:.3,size:u.p.len*.5,col:[255,255,255]});}if(tt>=.9){u.absent=false;delete u.warp;spaceLog('ハイパースペースから出現',u);if(b.units.filter(x=>x.team===1).every(x=>!x.warp))toast('敵艦隊がハイパースペースから出現');}}
   if(u.depart){u.depart.t+=dt;if(u.depart.t>=.8){u.absent=true;u.hidden=true;delete u.depart;}}}
  if(B.result){for(const u of b.units)if(!u.manual&&!u.dead)u.pos=tv.add(u.pos,u.velocity||[0,0,0],dt);spaceRefresh();return;}
  B.acc+=dt;B.orderT-=dt;

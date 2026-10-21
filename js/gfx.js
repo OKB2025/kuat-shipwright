@@ -472,7 +472,7 @@ function cyl(g, M, o, cx, cy, cz, r0, r1, len, axis, col, seg) {
     }
   }
 }
-function frameM(f) { const fr = C.FITS[f.k].window ? C.windowFrame(f) : C.fitFrame(f.a); return [fr.fw[0], fr.fw[1], fr.fw[2], fr.up[0], fr.up[1], fr.up[2], fr.rt[0], fr.rt[1], fr.rt[2]]; }
+function frameM(f) { const fr = C.FITS[f.k].window ? C.windowFrame(f) : C.fitFrameOf(f); return [fr.fw[0], fr.fw[1], fr.fw[2], fr.up[0], fr.up[1], fr.up[2], fr.rt[0], fr.rt[1], fr.rt[2]]; }
 let FIT_SKIP_BODY = null, FIT_SKIP_PED = null;
 function meshFits(ship, filter, ranges) {
   const g = new Geo(8192), body = FC.body;
@@ -720,7 +720,7 @@ void main(){
  vec3 e1=normalize(abs(f.y)<0.95?cross(f,vec3(0.0,1.0,0.0)):cross(f,vec3(1.0,0.0,0.0))),e2=cross(f,e1);
  float al=dot(rd,f),rr=length(vec2(dot(rd,e1),dot(rd,e2)))+1e-4,z=al/rr,th=atan(dot(rd,e2),dot(rd,e1))+z*0.04+uTime*0.25;
  vec2 cs=vec2(cos(th),sin(th));
- float s1=vn(vec3(cs*6.0,z*0.25-uTime*5.0)),s2=vn(vec3(cs*15.0+3.0,z*0.6-uTime*9.0)),s3=vn(vec3(cs*40.0+7.0,z*1.5-uTime*16.0));
+ float s1=vn(vec3(cs*6.0,z*0.25+uTime*5.0)),s2=vn(vec3(cs*15.0+3.0,z*0.6+uTime*9.0)),s3=vn(vec3(cs*40.0+7.0,z*1.5+uTime*16.0));
  float st=pow(s1,3.0)*0.8+pow(s2,5.0)*1.1+pow(s3,8.0)*0.9;
  float core=exp(-max(0.0,1.0-al)*22.0),rim=smoothstep(-0.2,0.6,al);
  vec3 col=vec3(0.015,0.04,0.13)+vec3(0.12,0.32,0.95)*st*rim+vec3(0.85,0.93,1.0)*pow(st,2.4)*0.9*rim+vec3(0.65,0.82,1.0)*core;
@@ -1452,7 +1452,7 @@ function fleetGeometry(ship,opts){
  const meshes={},b=shipBounds(ship),center=[(b[0]+b[3])/2,(b[1]+b[4])/2,(b[2]+b[5])/2],doors=[],rays=[],put=(name,geo,tex,emi)=>{meshes[name]={geo,tex,emi};};
  put('hull',meshHull(model));const parts=meshParts(model,{coded:false});for(const name of ['struct','refStruct','gen','shield','hyper','engine','refEngine','nozzle','hangar'])if(parts.g[name])put(name,parts.g[name]);
  const h=meshHatches(model);put('hatchOpen',h.open);put('hatchRay',h.ray);put('refHatches',meshReferenceHatches(model));put('refHull',meshReferenceHull(model));
- const turrets=opts?.trial?trialTurrets(model,put):null,launchers=opts?.trial?model.fits.filter(f=>C.FITS[f.k].msl&&!f.float).map(f=>{const d=C.fitSpec(f),up=C.AXES[f.mountAxis??f.a];return {id:f.id,origin:C.add(C.fitOrigin(f),C.mul(up,d.hm)),axis:up,salvo:8,cycle:20,tt:(d.msl||80)/8};}):null,targetRadius=C.clamp(ship.hull.L*.05,40,500);if(!turrets){put('fits',meshFits(model));put('refFits',meshReferenceFits(model));}else put('trialTarget',trialTargetMesh(targetRadius),'fits',.6);
+ const turrets=opts?.trial?trialTurrets(model,put):null,launchers=opts?.trial?model.fits.filter(f=>C.FITS[f.k].msl&&!f.float).map(f=>{const d=C.fitSpec(f),up=C.fitUp(f);return {id:f.id,origin:C.add(C.fitOrigin(f),C.mul(up,d.hm)),axis:up,salvo:8,cycle:20,tt:(d.msl||80)/8};}):null,targetRadius=C.clamp(ship.hull.L*.05,40,500);if(!turrets){put('fits',meshFits(model));put('refFits',meshReferenceFits(model));}else put('trialTarget',trialTargetMesh(targetRadius),'fits',.6);
  for(const hatch of model.hatches){const spec=C.slidingHatchSpec(model,hatch);if(!spec)continue;
   if(hatch.k==='ray'){const name='slideRay_'+hatch.id;put(name,meshHatches({...model,hatches:[{...hatch,_rayOnly:true,_rayInset:5}]}).ray,'ray',1);rays.push({name});}
   if(hatch.skinAsset){for(const side of [-1,1]){const name='refSlideDoor_'+hatch.id+'_'+(side<0?'l':'r');put(name,meshReferenceHatches({...model,_referenceDoorOnly:true,hatches:[{...hatch,open:0,_doorDetached:false,_slideSide:side}]}),'reference',0);doors.push({name,axis:spec.slideAxis,side,travel:spec.travel});}}
@@ -1507,7 +1507,7 @@ function mirroredTurretPose(f,fits,poses){
  return null;
 }
 function turretPose(f){
- const d=C.FITS[f.k],fr=C.fitFrame(f.a);
+ const d=C.FITS[f.k],fr=C.fitFrameOf(f);
  if(d.asset&&f.skinAsset&&f.skinAsset!==d.asset){const k=skinTurretPose(f);if(k)return k;return null;}
  if(d.casemate)return {pivot:C.fitOrigin(f),axis:[0,1,0],fw:C.AXES[f.a]};
  if(d.asset){const y=(f.assetYaw||0)*Math.PI/180;return {pivot:C.fitOrigin(f),axis:fr.up,fw:C.norm(C.add(C.mul(fr.fw,Math.cos(y)),C.mul(fr.rt,Math.sin(y))))};}
@@ -1520,11 +1520,11 @@ function trialTurrets(model,put){
  put('refFits',meshReferenceFits(model,null,model.fits.filter(f=>!turning.has(f.id))));
  const all=new Set(model.fits.map(f=>f.id)),poses=new Map();
  for(const f of list){const p=turretPose(f);if(p)poses.set(f.id,p);}
- for(const f of list)if(!poses.has(f.id))poses.set(f.id,mirroredTurretPose(f,list,poses)||(()=>{const fr=C.fitFrame(f.a);return {pivot:C.fitOrigin(f),axis:fr.up,fw:fr.fw};})());
+ for(const f of list)if(!poses.has(f.id))poses.set(f.id,mirroredTurretPose(f,list,poses)||(()=>{const fr=C.fitFrameOf(f);return {pivot:C.fitOrigin(f),axis:fr.up,fw:fr.fw};})());
  for(const f of list){
   const d=C.fitSpec(f),spec=C.FITS[f.k],pose=poses.get(f.id),axis=C.norm(pose.axis),fw=C.norm(C.sub(pose.fw,C.mul(axis,C.dot(pose.fw,axis)))),rot=turning.has(f.id);
   let mesh=null;if(rot){if(spec.asset){mesh='refTur_'+f.id;put(mesh,meshReferenceFits(model,null,[f]),'reference',null);}else{mesh='tur_'+f.id;FIT_SKIP_PED=all;try{put(mesh,meshFits(model,x=>x===f),'fits',.6);}finally{FIT_SKIP_PED=null;}}}
-  out.push({id:f.id,k:f.k,name:spec.short||spec.name,mesh,pivot:pose.pivot,axis,fw,origin:C.turretOrigin(f),mount:C.AXES[f.mountAxis??f.a],r:d.r,hm:d.hm,casemate:!!spec.casemate,barrels:spec.barrels||TRIAL_BARRELS[f.k]||2,cycle:spec.cycle||2.5,tt:d.tt||0,ion:!!d.ion&&!d.tt,rate:C.turretRate(f),power:d.power||0,cap:C.needsCapacitor(f)});
+  out.push({id:f.id,k:f.k,name:spec.short||spec.name,mesh,pivot:pose.pivot,axis,fw,origin:C.turretOrigin(f),mount:C.fitUp(f),r:d.r,hm:d.hm,casemate:!!spec.casemate,barrels:spec.barrels||TRIAL_BARRELS[f.k]||2,cycle:spec.cycle||2.5,tt:d.tt||0,ion:!!d.ion&&!d.tt,rate:C.turretRate(f),power:d.power||0,cap:C.needsCapacitor(f)});
  }
  return out;
 }
