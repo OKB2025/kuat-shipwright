@@ -1982,11 +1982,14 @@ function loftTriangles(p){const key=JSON.stringify([p.c,p.s,p.form,p.loft,p.surf
  // end faces never span the empty space below the centre ridge.
  for(const j of [0,rings.length-1])for(const side of [false,true]){const ring=clipPoly(local[j],2,(rows[j][4]||0)*p.s[1]/2,side).map(q=>worldStruct(p,q));if(ring.length<3)continue;const c=mul(ring.reduce((a,b)=>add(a,b),[0,0,0]),1/ring.length);for(let i=0;i<ring.length;i++){const k=(i+1)%ring.length;T.push(...c,...ring[j===0?i:k],...ring[j===0?k:i]);}}
  p._loft={key,tris:Float32Array.from(T)};return p._loft.tris;}
-function openingSurfacePoint(ship,h,x,v){const {axis:ax,longAxis:l,widthAxis:u}=hatchAxes(h);if(h.surface){const bay=ship.parts.find(p=>p.id===h.bay),hit=bay&&aviationSurfaceHit(ship,bay,h,x,v);return hit?add(hit.p,mul(h.n,.9)):null;}const p=[0,0,0],skin=originalSurface(ship,x,ax,v,h.n[ax]);if(skin==null)return null;p[l]=x;p[u]=v;p[ax]=skin+h.n[ax]*.9;return p;}
+function openingSurfacePoint(ship,h,x,v){const {axis:ax,longAxis:l,widthAxis:u}=hatchAxes(h);if(h.surface){const bay=ship.parts.find(p=>p.id===h.bay);let hit=bay&&aviationSurfaceHit(ship,bay,h,x,v);if(!hit&&bay&&(h._surfaceMode!==undefined?h._surfaceMode:aviationContact(ship,bay,h.face).mode)==='face')hit=aviationFaceHit(ship,bay,h,x,v);return hit?add(hit.p,mul(h.n,.9)):null;}const p=[0,0,0],skin=originalSurface(ship,x,ax,v,h.n[ax]);if(skin==null)return null;p[l]=x;p[u]=v;p[ax]=skin+h.n[ax]*.9;return p;}
 
 // Plating just outside an opening (the ray-shield halo). Unlike
 // openingSurfacePoint it does not require the point to belong to the bay.
-function openingRimPoint(ship,h,x,v){if(!h.surface)return openingSurfacePoint(ship,h,x,v);const env=aviationEnvelope(ship);if(!env.bvh)return null;const {axis,longAxis,widthAxis}=hatchAxes(h),sign=h.n[axis],o=[0,0,0],d=[0,0,0];o[longAxis]=x;o[widthAxis]=v;o[axis]=env.bounds[axis+(sign>0?3:0)]+sign*2;d[axis]=-sign;const hit=rayBVH(env.bvh,o,d);return hit?add(hit.p,mul(h.n,.9)):null;}
+// A mouth inside a recess is reached from the open space in front of it.
+function openingRimPoint(ship,h,x,v){if(!h.surface)return openingSurfacePoint(ship,h,x,v);const env=aviationEnvelope(ship);if(!env.bvh)return null;const {axis,longAxis,widthAxis}=hatchAxes(h),sign=h.n[axis],o=[0,0,0],d=[0,0,0];o[longAxis]=x;o[widthAxis]=v;d[axis]=-sign;
+ const b=openingBounds(ship,h);if(b){o[axis]=b[axis+(sign>0?3:0)]+sign*.5;if(!insideOriginalEnvelope(ship,o)){const hit=rayBVH(env.bvh,o,d);if(hit)return add(hit.p,mul(h.n,.9));}}
+ o[axis]=env.bounds[axis+(sign>0?3:0)]+sign*2;const hit=rayBVH(env.bvh,o,d);return hit?add(hit.p,mul(h.n,.9)):null;}
 function originalSurface(ship,x,axis,value,sign){
   if(ship.hull.assembly){const o=[x,0,0],d=[0,0,0];o[axis]=sign*12000;o[axis===1?2:1]=value;d[axis]=-sign;let hit=null;for(const p of ship.parts.filter(p=>p.k==='struct')){const h=rayTris(unpiercedStructTriangles(p),o,d);if(h&&(!hit||h.t<hit.t))hit=h;}return hit?hit.p[axis]:null;}
   if(x<(ship.hull.start||0)*ship.hull.L||x>ship.hull.L)return null;const s=sampleSection(ship,x),out=[];
@@ -3595,11 +3598,48 @@ function aviationSurfaceHit(ship,p,h,t,v,envelope=aviationEnvelope(ship)){
  const b=aviationFiniteBounds(p,h);if(hit.p[axis]<b[axis]-.05||hit.p[axis]>b[axis+3]+.05)return null;
  return hit;
 }
+// Second look for faces the outside test cannot see: a recess cut into the hull
+// in front of the face (so the skin seen from outside is not the one the face
+// meets), a surface crossing the far half of the compartment, or a compartment
+// set just inside the skin. The ray starts in the open space in front of the
+// face, so the surface it meets is the one the opening would actually pierce.
+const AVIATION_STANDOFF=1.5;
+function aviationFaceHit(ship,p,h,t,v,envelope=aviationEnvelope(ship)){
+ if(!envelope.bvh)return null;const {axis,longAxis,widthAxis}=hatchAxes(h),sign=h.n[axis],pb=partAABB({...p,_packing:null}),face=sign>0?pb[axis+3]:pb[axis];
+ const o=[0,0,0],d=[0,0,0];o[longAxis]=t;o[widthAxis]=v;o[axis]=face+sign*(AVIATION_STANDOFF+.5);d[axis]=-sign;
+ if(insideOriginalEnvelope(ship,o))return null;
+ const hit=rayBVH(envelope.bvh,o,d);if(!hit)return null;const gap=(hit.p[axis]-face)*sign;
+ if(gap>AVIATION_STANDOFF)return null;
+ // A surface beyond the face needs the compartment right behind it; one inside
+ // the compartment must belong to it.
+ if(gap>=0){const q=o.slice();q[axis]=face-sign*.05;if(!unclippedInPart(p,q))return null;}
+ else if(!unclippedInPart(p,sub(hit.p,mul(h.n,.02))))return null;
+ return hit;
+}
 function aviationContact(ship,p,face,envelope=aviationEnvelope(ship)){
  const existing=ship.hatches.find(h=>h.bay===p.id&&h.face===face),h={n:aviationFaceNormal(face),aperture:existing?.aperture??.85,sill:existing?.sill??.5},key=envelope.key+aviationPublicJSON([p.c,p.room,p.d,p.yaw,p.pitch,p.roll,p.surfaceNormal,p.outline,p.corner,p.aftWidth,p.foreWidth,p.deckSlope,p.ridge,h]);
  let cache=AVIATION_CONTACT_CACHE.get(p);if(!cache){cache=new Map();AVIATION_CONTACT_CACHE.set(p,cache);}const old=cache.get(face);if(old?.key===key)return old;
- const b=aviationFiniteBounds(p,h),{axis,longAxis,widthAxis}=hatchAxes(h),nu=24,nv=16,points=[],valid=[],mid=(b[widthAxis]+b[widthAxis+3])/2;
- const point=(i,j)=>{const t=lerp(b[longAxis],b[longAxis+3],i/nu),v=mid+(j/nv*2-1)*openingHalf(b,t,widthAxis),hit=aviationSurfaceHit(ship,p,h,t,v,envelope);return {t,v,hit};};
+ const b=aviationFiniteBounds(p,h),{axis}=hatchAxes(h);
+ let value=aviationContactScan(ship,p,h,b,(t,v)=>aviationSurfaceHit(ship,p,h,t,v,envelope));
+ if(!value.bounds){
+  const alt=aviationContactScan(ship,p,h,b,(t,v)=>aviationFaceHit(ship,p,h,t,v,envelope));
+  if(alt.bounds){
+   // The mouth reaches from the skin it pierces to the sill, measured over the
+   // part of the compartment that lies behind that skin.
+   const sign=h.n[axis],pb=partAABB({...p,_packing:null}),faceAt=sign>0?pb[axis+3]:pb[axis],thick=pb[axis+3]-pb[axis],f=sign>0?1-(h.sill??.5):(h.sill??.5);
+   let deep=0,gap=0;for(const hit of alt.hits){const dd=(faceAt-hit.p[axis])*sign;deep=Math.max(deep,dd);gap=Math.max(gap,-dd);}
+   const reach=Math.min(thick,deep+(thick-deep)*f),bb=alt.bounds;
+   if(sign>0){bb[axis]=faceAt-reach;bb[axis+3]=faceAt+gap+.3;}else{bb[axis]=faceAt-gap-.3;bb[axis+3]=faceAt+reach;}
+   value={...alt,mode:'face'};
+  }
+ }
+ value={key,face,label:AVIATION_SURFACE_FACES[face],contact:!!value.bounds,area:value.bounds?value.area:0,bounds:value.bounds,mode:value.bounds?value.mode||'outside':null};cache.set(face,value);return value;
+}
+// Samples the face on a grid and keeps the largest contiguous rectangle where
+// every corner and centre meets a surface belonging to the compartment.
+function aviationContactScan(ship,p,h,b,hitAt){
+ const {longAxis,widthAxis}=hatchAxes(h),nu=24,nv=16,points=[],valid=[],mid=(b[widthAxis]+b[widthAxis+3])/2;
+ const point=(i,j)=>{const t=lerp(b[longAxis],b[longAxis+3],i/nu),v=mid+(j/nv*2-1)*openingHalf(b,t,widthAxis),hit=hitAt(t,v);return {t,v,hit};};
  for(let i=0;i<=nu;i++)for(let j=0;j<=nv;j++){const q=point(i,j);points.push(q);valid.push(!!q.hit);}
  const index=(i,j)=>i*(nv+1)+j,cells=Array.from({length:nu},(_,i)=>Array.from({length:nv},(_,j)=>valid[index(i,j)]&&valid[index(i+1,j)]&&valid[index(i,j+1)]&&valid[index(i+1,j+1)]&&!!point(i+.5,j+.5).hit));
  // Select a contiguous uncovered rectangle. This keeps a covering structure or
@@ -3610,7 +3650,8 @@ function aviationContact(ship,p,face,envelope=aviationEnvelope(ship)){
   else{const lows=[],highs=[];for(let i=q.i0;i<=q.i1;i++){const t=lerp(b[longAxis],b[longAxis+3],i/nu),half=openingHalf(b,t,widthAxis);lows.push(mid+(q.j0/nv*2-1)*half);highs.push(mid+(q.j1/nv*2-1)*half);}bounds.length=6;bounds[widthAxis]=Math.max(...lows);bounds[widthAxis+3]=Math.min(...highs);area=(t1-t0)*Math.max(0,bounds[widthAxis+3]-bounds[widthAxis]);}
   if(area<.1)bounds=null;
  }
- const value={key,face,label:AVIATION_SURFACE_FACES[face],contact:!!bounds,area:bounds?area:0,bounds};cache.set(face,value);return value;
+ const hits=[];if(bounds)for(let i=best.i0;i<=best.i1;i++)for(let j=best.j0;j<=best.j1;j++){const q=points[index(i,j)];if(q.hit)hits.push(q.hit);}
+ return {bounds,area,hits};
 }
 function aviationSurfaceContacts(ship,p){if(p?.k!=='hangar')return [];const env=aviationEnvelope(ship);return Object.keys(AVIATION_SURFACE_FACES).map(face=>{const c=aviationContact(ship,p,face,env);return {face,label:c.label,contact:c.contact,area:c.area,kind:p.aviationSurfaces?.[face]||ship.hatches.find(h=>h.bay===p.id&&h.face===face)?.k||'none'};});}
 function aviationOpeningBounds(ship,h){const p=ship.parts.find(p=>p.id===h.bay&&p.k==='hangar');if(!p)return null;if(ship._aviationSyncing||ship._lockedCache)return h._surfaceBounds||null;return aviationContact(ship,p,h.face).bounds?.slice()||null;}
@@ -3645,7 +3686,7 @@ function syncAviationSurfaces(ship){
   p.aviationSurfaces||={};for(const h of ship.hatches.filter(h=>h.bay===p.id&&Object.hasOwn(AVIATION_SURFACE_FACES,h.face))){if(p.aviationSurfaces[h.face]==null)p.aviationSurfaces[h.face]=h.k;h.surface=true;}
   for(const [face,kind] of Object.entries(p.aviationSurfaces)){if(!Object.hasOwn(AVIATION_SURFACE_FACES,face))continue;if(kind==='none'){ship.hatches=ship.hatches.filter(h=>h.bay!==p.id||h.face!==face);continue;}let h=ship.hatches.find(h=>h.bay===p.id&&h.face===face);if(!h){h={id:ship.nextId++,k:kind,a:p.c.slice(),b:p.c.slice(),n:aviationFaceNormal(face),w:4,bay:p.id,portal:true,surface:true,face,open:ship.reference==='venator'?0:1,aperture:.85};if(ship.reference==='venator')h.motion='slide';ship.hatches.push(h);}h.k=kind;h.portal=true;h.surface=true;h.n=aviationFaceNormal(face);}
  }
- const envelope=aviationEnvelope(ship);for(const h of ship.hatches.filter(h=>h.surface)){const p=ship.parts.find(p=>p.id===h.bay&&p.k==='hangar'),contact=p&&aviationContact(ship,p,h.face,envelope);h._surfaceBounds=contact?.bounds?.slice()||null;h._surfaceArea=contact?.area||0;if(!h._surfaceBounds)continue;const b=h._surfaceBounds,{axis,longAxis,widthAxis}=hatchAxes(h),mid=(b[widthAxis]+b[widthAxis+3])/2;h.a=[0,0,0];h.b=[0,0,0];for(const q of [h.a,h.b]){q[axis]=b[axis+(h.n[axis]>0?3:0)];q[widthAxis]=mid;}h.a[longAxis]=b[longAxis];h.b[longAxis]=b[longAxis+3];h.w=b[widthAxis+3]-b[widthAxis];}
+ const envelope=aviationEnvelope(ship);for(const h of ship.hatches.filter(h=>h.surface)){const p=ship.parts.find(p=>p.id===h.bay&&p.k==='hangar'),contact=p&&aviationContact(ship,p,h.face,envelope);h._surfaceBounds=contact?.bounds?.slice()||null;h._surfaceMode=contact?.mode||null;h._surfaceArea=contact?.area||0;if(!h._surfaceBounds)continue;const b=h._surfaceBounds,{axis,longAxis,widthAxis}=hatchAxes(h),mid=(b[widthAxis]+b[widthAxis+3])/2;h.a=[0,0,0];h.b=[0,0,0];for(const q of [h.a,h.b]){q[axis]=b[axis+(h.n[axis]>0?3:0)];q[widthAxis]=mid;}h.a[longAxis]=b[longAxis];h.b[longAxis]=b[longAxis+3];h.w=b[widthAxis+3]-b[widthAxis];}
  const signature=JSON.stringify(ship.hatches.filter(h=>h.surface).map(h=>[h.id,h.k,h._surfaceBounds]));if(ship._aviationSurfaceKey!==signature){ship._aviationSurfaceKey=signature;for(const key of ['_cache','_portalGeo','_solidHull','_referenceHull','_armoredMaterial','_interiorKey'])delete ship[key];}
  }finally{delete ship._aviationSyncing;}
 }
