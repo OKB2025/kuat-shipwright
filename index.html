@@ -600,6 +600,36 @@ body.trial-on .main{display:flex!important;flex-direction:column}body.trial-on .
  .th-stick{--sz:112px;margin-top:-30px}.th-fire{--sz:70px;font-size:14px}.th-msl{--sz:52px;right:calc(var(--th-gr) + 80px);font-size:11px}.th-reticle b{top:calc(100% + 8px)}}
 @media (max-width:420px){.btn-ghost{padding:0 8px;font-size:12px}.tb-actions{gap:4px}.icon-btn{width:32px;height:32px}}
 @media (min-width:1000px){.tabs button{padding:9px 6px 7px;font-size:13px;letter-spacing:.02em}}
+/* v12.16 space battle, star map and hyperspace */
+.th-tmark s{position:absolute;left:16px;top:8px;width:64px;display:grid;gap:2px;text-decoration:none}.th-tmark s em{display:block;height:2px;width:0;background:#ffb27a;box-shadow:0 0 0 .5px rgba(0,0,0,.5)}.th-tmark s em.sh{background:#8fb6ff}.th-tmark:not(.foe):not(.ally) s{display:none}
+.th-tmark.foe i{border-color:rgba(255,118,92,.92)}.th-tmark.foe b{color:#ffab95}
+.th-tmark.ally i{left:-11px;top:-11px;width:22px;height:22px;border-radius:50%;clip-path:none;border-color:rgba(110,225,255,.75)}.th-tmark.ally b{color:#9fe6ff;font-size:10px}.th-tmark.ally s em.hp{background:#7fe0ff}
+.th-tmark.out i{border-color:rgba(165,175,185,.6);box-shadow:none}.th-tmark.out b{color:#aab4bc}.th-tmark.lock s{display:grid}
+.th-mapbtn{color:#a9cbff}
+.th-card.th-map{width:min(430px,92vw);min-width:0;max-height:min(78vh,560px);overflow:auto;padding:10px;gap:8px}
+.th-map-head{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px}.th-map-head .th-btn{min-height:28px;padding:3px 10px}
+.tm-svg{display:block;width:100%;height:auto;border-radius:8px;border:1px solid var(--hud-line)}
+.tm-arm{fill:none;stroke:rgba(150,172,226,.1);stroke-width:30;stroke-linecap:round}.tm-grid{fill:none;stroke:rgba(150,180,220,.12);stroke-dasharray:2 5}.tm-lanelab{fill:#86b8ff;font:600 9px var(--font-ui);letter-spacing:.12em}.tm-region{fill:rgba(220,230,255,.38);font:600 10px var(--font-ui);letter-spacing:.2em}
+.tm-lane{fill:none;stroke:#86b8ff;stroke-width:1.6;stroke-dasharray:5 4}
+.tm-sys circle{fill:#9fc4ff;stroke:#eef5ff;stroke-width:1}.tm-sys.here circle{fill:#ffd391}.tm-sys .tm-ring{fill:none;stroke:#ffd391;stroke-dasharray:3 3}
+.tm-sys text{fill:#e9f0f6;font:700 12px var(--font-ui)}.tm-sys .tm-sub{fill:#a2b6c0;font:500 10px var(--font-ui)}.tm-sys[data-trial-cmd]{cursor:pointer}.tm-sys[data-trial-cmd]:hover circle{fill:#d8e8ff}
+.th-map-note{margin:0;font-size:11px;line-height:1.55;color:var(--hud-dim)}.th-map-go{display:flex;flex-wrap:wrap;gap:6px}.th-map .th-jumpbtn{color:#d4e6ff;border-color:rgba(124,172,255,.62);justify-content:center}
+.th-flash,.th-hit{position:absolute;inset:0;opacity:0;pointer-events:none}.th-flash{background:radial-gradient(circle at 50% 50%,#ffffff 0,#eef4ff 45%,#c4d8ff 100%)}.th-hit{background:radial-gradient(ellipse at center,rgba(255,60,30,0) 52%,rgba(255,64,32,.5) 100%)}
+.th-hyper{position:absolute;left:50%;top:calc(50% - 96px);transform:translateX(-50%);margin:0;padding:5px 16px;border-radius:999px;font-weight:700;font-size:12px;letter-spacing:.05em;white-space:nowrap;color:#d6e7ff;background:rgba(8,20,48,.8);border:1px solid rgba(124,172,255,.55);text-shadow:0 0 8px rgba(120,170,255,.6)}.th-hyper[hidden]{display:none}.th-hyper[data-phase="tunnel"]{color:#eaf3ff;border-color:rgba(170,205,255,.75)}
+.th-card.th-self{position:absolute;left:var(--th-gl);top:50%;transform:translateY(-50%);width:204px;display:grid;gap:4px;padding:8px 10px;font-size:11px;pointer-events:none}.th-self[hidden]{display:none}
+.th-self .ts-head{font-size:12px;letter-spacing:.04em}.ts-row{display:grid;grid-template-columns:50px minmax(0,1fr) 32px;align-items:center;gap:6px}.ts-row i{display:block;height:5px;border-radius:3px;overflow:hidden;background:rgba(255,255,255,.12)}.ts-row em{display:block;height:100%;background:#ffb27a}.ts-row i.sh em{background:#8fb6ff}.ts-row i.ar em{background:#c7d2d9}.ts-row small{text-align:right;color:var(--hud-dim)}
+.ts-line{margin:2px 0 0;line-height:1.45;color:var(--hud-dim)}.ts-log{margin:2px 0 0;padding:0;list-style:none;display:grid;gap:2px;font-size:10.5px;line-height:1.35;color:#c9d6dc}.ts-log li{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ts-log li:first-child{color:#e8f0f4}
+.th-result{position:absolute;inset:0;z-index:5;display:grid;place-items:center;padding:16px;background:rgba(2,6,10,.42);pointer-events:auto}.th-result[hidden]{display:none}
+.th-card.th-result-card{width:min(380px,92vw);display:grid;gap:8px;padding:16px 18px}.th-result-card>b{font:700 28px/1 var(--font-display);letter-spacing:.14em;color:var(--hud-fg)}.th-result-card>b.win{color:#a4ecb6}.th-result-card>b.lose{color:#ff9f90}.th-result-card p{margin:0;color:var(--hud-dim)}
+.th-result-card dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;margin:4px 0;font-size:12px}.th-result-card dt{color:var(--hud-dim)}.th-result-card dd{margin:0}.th-result-go{display:flex;flex-wrap:wrap;gap:6px}.th-result-go .th-btn:first-child{color:var(--hud-on)}
+.ts-row span{white-space:nowrap}
+@media (max-width:640px){.th-actions .th-menu{left:0;right:auto}.th-card.th-self{width:148px;top:calc(50% - 170px);transform:none;padding:6px 8px;gap:3px}.th-self .ts-head{font-size:11px}.ts-row{grid-template-columns:40px minmax(0,1fr) 28px;gap:4px}.ts-line,.ts-log{display:none}.th-hyper{top:calc(50% + 72px);font-size:11px}}
+@media (orientation:landscape) and (max-height:560px){.th-card.th-self{top:calc(env(safe-area-inset-top,0px) + 74px);transform:none;width:178px}.ts-log{display:none}.th-hyper{top:calc(50% - 70px)}}
+.fleet-space{display:grid;gap:9px;background:var(--panel-2);border:1px solid var(--line-2);padding:12px;margin:0 0 14px;border-radius:7px}.fleet-space label{font-size:12px;display:grid;gap:4px}.fleet-space .primary{width:100%}.fleet-space .note{margin:0}
+.fleet-flag{display:flex;align-items:baseline;gap:8px;margin:0;font-size:13px}.fleet-flag span{font-size:11px;color:var(--muted);flex:none}.fleet-flag b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#fleetHud .chip.primary,.fleet-map-commands .chip.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}#fleetHud .chip.primary:disabled,.fleet-map-commands .chip.primary:disabled{opacity:.45}
+.th-cine{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .3s}#trialHud.cine .th-cine{opacity:1}.th-cine .bar{position:absolute;left:0;right:0;height:9vh;background:#000}.th-cine .bar.top{top:0}.th-cine .bar.bot{bottom:0}.th-cine b{position:absolute;left:16px;right:16px;bottom:calc(4.5vh - .6em);text-align:center;font:600 13px/1.2 var(--font-display);letter-spacing:.3em;color:#dfe9f0}
+#trialHud.cine>:not(.th-cine):not(.th-flash):not(.th-hit){opacity:0;transition:opacity .3s}
 </style>
 
 <div id="title" class="title" role="dialog" aria-modal="true" aria-labelledby="titleName">
@@ -655,11 +685,11 @@ body.trial-on .main{display:flex!important;flex-direction:column}body.trial-on .
       <button type="button" class="btn-ghost" id="btnMenu">設計図</button>
     </div>
   </header>
-  <nav class="mode-switch" id="modeSwitch" aria-label="ゲームモード" hidden><button type="button" data-mode="design" aria-pressed="true">設計</button><button type="button" data-mode="tactical" aria-pressed="false">戦術・航行</button><button type="button" data-mode="review" aria-pressed="false">観閲式</button><span>KUAT SHIPWRIGHT</span></nav>
+  <nav class="mode-switch" id="modeSwitch" aria-label="ゲームモード" hidden><button type="button" data-mode="design" aria-pressed="true">設計</button><button type="button" data-mode="tactical" aria-pressed="false">艦隊戦</button><button type="button" data-mode="review" aria-pressed="false">観閲式</button><span>KUAT SHIPWRIGHT</span></nav>
   <main class="main">
     <section class="viewport" id="viewport" aria-label="船台">
       <canvas id="cv" aria-label="艦の3D表示。ドラッグで回転、2本指で拡大と移動、タップで操作"></canvas>
-      <canvas id="fleetMap" hidden tabindex="0" aria-label="艦隊の戦術状況図。友軍を選択して空白をタップすると移動、攻撃を選んで敵艦をタップすると目標指定。ドラッグで平行移動、2本指やホイールで拡大縮小。矢印キーで移動、プラスとマイナスで拡大縮小、0で全体表示"></canvas>
+      <canvas id="fleetMap" hidden tabindex="0" aria-label="艦隊編成図。艦の記号をタップして選択。ドラッグで平行移動、2本指やホイールで拡大縮小。矢印キーで移動、プラスとマイナスで拡大縮小、0で全体表示"></canvas>
       <p id="fleetMapFallback" hidden>状況図を表示できません。艦隊一覧から艦を選択し、「座標で移動を指定」で命令を設定できます。</p>
       <div id="fleetMapTools" hidden aria-label="状況図の艦隊命令と拡大縮小"></div>
       <div id="fleetLabels" hidden></div><div id="fleetHud" hidden></div><div id="trialHud" hidden aria-label="公試の操艦表示"></div>
@@ -765,6 +795,8 @@ body.trial-on .main{display:flex!important;flex-direction:column}body.trial-on .
         <dt>透視</dt><dd>内部の区画・機関・竜骨を見る。内部の区画は透視で選択できる</dd>
         <dt>同じタブを再タップ</dt><dd>下の操作盤をたたんで表示を広くする</dd>
         <dt>公試</dt><dd>「性能」の「公試に出る」でコルサント低軌道を操艦する。左下の▲▼で速力通信機（後進〜全速）、◀▶で取舵・面舵（命令は保持）。右のスティックでピッチとロール（離すと中立）、右下の「射撃」で砲撃、その左の「ミサイル」で全発射管から8発ずつ斉射（20秒で再装填）。砲塔は視点の中心（照準）へ旋回し、大きな砲塔ほど遅い。射線が船体・構造物・他の砲塔に掛かる砲は撃てない。標的に照準を重ねるとロックし、ターボレーザーとイオン砲は見越し位置（◇）へ撃ち、ミサイルは追尾する。砲は充電装置に蓄えた「兵装エネルギー」で撃ち、1斉射ごとに減る。反応炉がシールド維持・推進の残りで再充電するので、停止中は速く、全速中は遅く撃てる。右上の「⚡」で出力配分（巡航・均衡・兵装優先・防御優先・全力）を選ぶ。兵装優先は推進を削って充電に回し、炉を上げるほど「炉心」負荷が高まる。キーボードは W/S 速力、A/D 舵、R/F・Q/E を押している間ピッチ・ロール、Space 射撃、M ミサイル、P 出力配分、Z 水平復帰、X 舵中央、V 視点</dd>
+        <dt>艦隊戦</dt><dd>上部の「艦隊戦」で友軍と敵の艦を編成し、戦場（コルサント低軌道／クワットの造船リング）を選んで「旗艦で出撃」。旗艦は公試と同じ操作で自分で操艦し、僚艦と敵はAIが戦う。敵艦隊は数秒後にハイパースペースから出現する（射撃または任意の操作で演出を飛ばせる）。主砲が「遮蔽・射界外」なら、機首を下げるかロールして甲板を敵艦に向ける。敵の括弧は青がシールド、橙が船体</dd>
+        <dt>星図とハイパードライブ</dt><dd>公試・艦隊戦の「星図」（J キー）からコルサントとクワットを行き来する。ハイパードライブのある艦は全速で加速し、星が流れて超空間へ突入、到着時は外から見た視点で艦がリアルスペースに戻る。戦闘中にジャンプすると戦域から離脱し、僚艦も続く</dd>
         <dt>艦隊戦の損害</dt><dd>シールドが落ちると装甲が削れ、抜けた弾は区画と装備に当たる。反応炉・シールド発生器・機関・砲塔・格納庫などは壊れるとその能力を失う。撃沈は船体破断、炉心誘爆、反応物誘爆、弾薬庫誘爆。戦闘不能は全反応炉の停止（電源喪失）、艦橋・指揮所の全損、乗員が必要数の35%を割ったとき。出力配分で炉を上げるほど、炉に被弾したときの誘爆率が上がる。攻撃の「照準」で部位を狙える（命中率は2割落ちる）</dd>
         <dt>対称の武装</dt><dd>左右対称・上下対称で置いた武装は、片方を調整すると対の武装（左右・上下・対角）も鏡写しに変わる。位置・支持台・大きさ・旋回角・砲塔の交換・撤去が対象。片側だけ変えたいときは編集欄の「対の武装も同時に編集」を切る</dd>
         <dt>複数選択・コピー</dt><dd>「区画および艤装」の「複数選択」で区画・構造物・装備をタップして集め、コピー・切り取り・撤去・まとめて移動ができる。コピーはこの端末に残るので、設計図から別の艦を開いて「貼り付け」できる（同じ座標／艦の寸法に合わせる）。Ctrl+C・Ctrl+X・Ctrl+V も使える</dd>

@@ -3203,7 +3203,7 @@ function fleetModules(ship,S){
  for(const f of ship.fits){const d=FITS[f.k];if(!d||f.float)continue;let k=null;
   if(d.cat==='w')k=d.msl?'launcher':'weapon';else if(d.cat==='b'&&(!d.role||d.role==='bridge'||d.role==='combat')&&(S.commandInfo?.[f.id]?.ratio??1)>0)k='bridge';if(!k)continue;
   const s=fitSpec(f);byFit.set(f.id,mods.length);
-  mods.push({k,name:d.short||d.name,w:s.fm*s.wm*1.2,hits:clamp(Math.round(Math.max(s.fm,s.wm)/24),1,4),crew:s.crew||0,size:k==='weapon'?(s.tt||0)+(s.ion||0)+(s.aa||0)*.5:1,stock:k==='launcher'?MAGAZINE_MISSILES:0});}
+  mods.push({k,fit:f.id,name:d.short||d.name,w:s.fm*s.wm*1.2,hits:clamp(Math.round(Math.max(s.fm,s.wm)/24),1,4),crew:s.crew||0,size:k==='weapon'?(s.tt||0)+(s.ion||0)+(s.aa||0)*.5:1,stock:k==='launcher'?MAGAZINE_MISSILES:0});}
  for(const f of intrinsicCommandFits(ship)){const d=FITS[f.k];if(!d||(d.role!=='bridge'&&d.role!=='combat')||(S.commandInfo?.[f.id]?.ratio??0)<=0)continue;mods.push({k:'bridge',name:d.short||d.name,w:(f.width||15)*(f.height||6)*1.2,hits:1,crew:d.crew||16,size:1});}
  for(const p of allOccupied(ship)){
   if(p.windowId!=null)continue;const V=partVolume(p);if(!(V>1))continue;const k=MODULE_PART_KIND[p.k]||'other';
@@ -3272,12 +3272,18 @@ function fleetModuleHit(b,u,aim,dt){
  if(m.k==='reactor')ev(`${m.name} 停止（出力 −${Math.round(m.share*100)}%）`);
  else if(m.k!=='other'&&m.k!=='quarters')ev(`${m.name} 破壊`);
 }
-function fleetTick(b,dt){
- const alive=b.units.filter(u=>!u.dead).sort((a,b)=>String(a.id).localeCompare(String(b.id))),before=alive.map(u=>({...u,pos:[...u.pos],velocity:[...u.velocity]})),byId=new Map(before.map(u=>[u.id,u])),sys=new Map(alive.map(u=>[u.id,fleetSystems(u)]));
+// opts.rules overrides ranges for close-in battles; opts.extra adds damage dealt
+// outside the model (a piloted ship's bolts). A unit with manual set is flown
+// and fought by the player: the model only resolves the damage it takes. An
+// absent unit (still in hyperspace) takes no part at all.
+function fleetTick(b,dt,opts={}){
+ const RULES=opts.rules||FLEET_RULES,DMG=RULES.damage??1;
+ const alive=b.units.filter(u=>!u.dead&&!u.absent).sort((a,b)=>String(a.id).localeCompare(String(b.id))),before=alive.map(u=>({...u,pos:[...u.pos],velocity:[...u.velocity]})),byId=new Map(before.map(u=>[u.id,u])),sys=new Map(alive.map(u=>[u.id,fleetSystems(u)]));
  for(const u of alive){const o=u.order,t=byId.get(o.target),old=byId.get(u.id),s=sys.get(u.id);
+  if(u.manual)continue;
   if(u.out){u.velocity=mul(old.velocity,Math.max(0,1-.03*dt));u.pos=add(old.pos,mul(u.velocity,dt));u.maneuver=0;continue;}
   const acc=u.p.accel*s.engine*clamp(u.engF??1,0,1.2)*(.6+.4*Math.max(0,u.hp)/u.p.hp);let dest=o.type==='move'?o.point:o.type==='attack'&&t?t.pos:null;let want=[0,0,0];
-  if(dest){const delta=sub(dest,old.pos),d=len(delta),yaw=Math.atan2(delta[2],delta[0]),err=fleetAngle(yaw-u.yaw);u.yaw+=clamp(err,-u.p.turnRate*dt,u.p.turnRate*dt);const attack=o.type==='attack',stop=attack?Math.max(FLEET_RULES.engagementDistance,(u.p.len+(t?.p.len||0))*1.3):0,signed=attack?d-stop:d,remaining=attack?Math.max(0,Math.abs(signed)-2500):Math.max(0,signed),direction=attack&&signed<0?-1:1,speed=Math.min(u.p.maxSpeed,Math.sqrt(2*acc*remaining))*Math.max(.08,Math.cos(err));if(d>1){want=mul(norm(delta),speed*direction);const hor=Math.hypot(want[0],want[2])*direction;want[0]=Math.cos(u.yaw)*hor;want[2]=Math.sin(u.yaw)*hor;}}
+  if(dest){const delta=sub(dest,old.pos),d=len(delta),yaw=Math.atan2(delta[2],delta[0]),err=fleetAngle(yaw-u.yaw);u.yaw+=clamp(err,-u.p.turnRate*dt,u.p.turnRate*dt);const attack=o.type==='attack',stop=attack?Math.max(RULES.engagementDistance,(u.p.len+(t?.p.len||0))*1.3):0,signed=attack?d-stop:d,remaining=attack?Math.max(0,Math.abs(signed)-2500):Math.max(0,signed),direction=attack&&signed<0?-1:1,speed=Math.min(u.p.maxSpeed,Math.sqrt(2*acc*remaining))*Math.max(.08,Math.cos(err));if(d>1){want=mul(norm(delta),speed*direction);const hor=Math.hypot(want[0],want[2])*direction;want[0]=Math.cos(u.yaw)*hor;want[2]=Math.sin(u.yaw)*hor;}}
   const dv=sub(want,old.velocity),n=len(dv),step=Math.min(n,acc*dt);u.velocity=add(old.velocity,mul(dv,step/Math.max(1e-9,n)));u.pos=add(old.pos,mul(u.velocity,dt));u.pos[1]=clamp(u.pos[1],-15000,15000);
   u.maneuver=acc>0?clamp(n/(acc*dt),0,1):0;
   if(o.type==='move'&&len(sub(dest,u.pos))<Math.max(10,acc*dt*dt)&&len(u.velocity)<acc*dt*2){u.pos=[...dest];u.velocity=[0,0,0];}
@@ -3285,10 +3291,12 @@ function fleetTick(b,dt){
  // Resolve close approaches symmetrically. Hull damage from ramming is not modelled.
  for(let i=0;i<alive.length;i++)for(let j=i+1;j<alive.length;j++){const a=alive[i],z=alive[j],d=sub(z.pos,a.pos),dist=len(d),r=(a.p.len+z.p.len)*.24;if(dist<r){const v=dist>1e-6?mul(d,1/dist):[0,0,1],push=mul(v,(r-dist)/2);a.pos=sub(a.pos,push);z.pos=add(z.pos,push);a.velocity=mul(a.velocity,.8);z.velocity=mul(z.velocity,.8);}}
  const incoming=new Map(alive.map(u=>[u.id,{sf:0,hull:0,direct:0,ion:0,aim:{}}])),shots=[];
+ for(const [id,x] of opts.extra||[]){const inc=incoming.get(id);if(!inc)continue;inc.sf+=x.sf||0;inc.hull+=x.hull||0;inc.direct+=x.direct||0;inc.ion+=x.ion||0;for(const [k,v] of Object.entries(x.aim||{auto:x.sf||0}))inc.aim[k]=(inc.aim[k]||0)+v;}
  for(const u of alive){const o=u.order,p=u.p,s=sys.get(u.id),g=p.grid,crewEff=fleetCrewEff(u);
+  if(u.manual)continue;
   let t=null,raw=0;const enemies=alive.filter(x=>x.team!==u.team),live=enemies.filter(fleetEffective),pool=live.length?live:enemies;
   if(b.combat&&!u.out&&o.fire!==false){const explicit=pool.find(x=>x.id===o.target)||enemies.find(x=>x.id===o.target);t=explicit||pool.slice().sort((a,z)=>len(sub(a.pos,u.pos))-len(sub(z.pos,u.pos))||String(a.id).localeCompare(String(z.id)))[0]||null;
-   if(t&&len(sub(t.pos,u.pos))>FLEET_RULES.range)t=null;if(t)raw=(fleetArc(u,t,p.gunArcs)+fleetArc(u,t,p.ionArcs))*s.weapon;}
+   if(t&&len(sub(t.pos,u.pos))>RULES.range)t=null;if(t)raw=(fleetArc(u,t,p.gunArcs)+fleetArc(u,t,p.ionArcs))*s.weapon;}
   const mode=o.power==='auto'||!POWER_MODES[o.power]?fleetAutoPower(u,t&&byId.get(t.id)):o.power,M=POWER_MODES[mode];u.mode=mode;
   // Power: the reactor's intact share sets rated output; the mode decides who is fed first.
   const cap=(p.wCap||0)*s.weapon,nominalShield=g?g.Ds*s.shield:0;let fire=raw>0?1:0;
@@ -3303,7 +3311,7 @@ function fleetTick(b,dt){
   if(launchDt>0){const n=Math.min(p.slots-u.launched,p.launch*s.hangar*crewEff*launchDt);if(n>0){u.launched+=n;u.queue.push([b.time+dt-launchDt+25,n]);}if(u.launched>=p.slots-1e-9){u.launched=p.slots;u.hatchTarget=0;}}
   while(u.queue.length&&u.queue[0][0]<=b.time)u.air+=u.queue.shift()[1];
   if(!t)continue;const distance=len(sub(t.pos,u.pos)),aim=o.aim&&o.aim!=='auto'?o.aim:null;
-  const fall=clamp(1-.72*distance/FLEET_RULES.range,.2,1),hit=p.acc*fall*crewEff*(.6+.4*s.fire)*(aim?.8:1),gun=fleetArc(u,t,p.gunArcs)*s.weapon*fire*hit,ion=fleetArc(u,t,p.ionArcs)*s.weapon*fire*hit;
+  const fall=clamp(1-.72*distance/RULES.range,.2,1),hit=p.acc*fall*crewEff*(.6+.4*s.fire)*(aim?.8:1),gun=fleetArc(u,t,p.gunArcs)*s.weapon*fire*hit,ion=fleetArc(u,t,p.ionArcs)*s.weapon*fire*hit;
   // Missiles draw on each intact launcher's magazine.
   let msl=0;if(p.msl>0){const tubes=(p.modules||[]).map((m,i)=>m.k==='launcher'&&u.mods[i]>0&&u.ammo[i]>0?i:-1).filter(i=>i>=0),total=(p.modules||[]).filter(m=>m.k==='launcher').length;
    if(!total)msl=p.msl/20*crewEff;else if(tubes.length){let fired=0;for(const i of tubes){const n=Math.min(u.ammo[i],8/20*dt);u.ammo[i]-=n;fired+=n;}msl=p.msl/(total*8)*fired/dt*crewEff;}
@@ -3311,15 +3319,15 @@ function fleetTick(b,dt){
   // Aircraft attrition also reads the common pre-damage snapshot.
   const airEnemy=enemies.reduce((v,e)=>v+byId.get(e.id).air,0),fd=u.air*.6*(1-.5*airEnemy/(u.air+airEnemy+1));
   const loss=Math.min(u.air,(t.p.aa*.012+airEnemy*.012/enemies.length)*dt);u.air-=loss;u.lost+=loss;
-  const inc=incoming.get(t.id),dealt=(gun+ion+msl+fd)*dt;inc.sf+=(gun+2*ion+.5*msl+.3*fd)*dt;inc.hull+=(gun+.2*ion+.5*msl+.3*fd)*dt;inc.direct+=(.5*msl+.7*fd)*dt;inc.ion+=ion*dt;inc.aim[aim||'auto']=(inc.aim[aim||'auto']||0)+dealt;
-  if(gun+ion+msl+fd>0)shots.push({from:u.id,to:t.id,team:u.team,ion:ion>gun});
+  const inc=incoming.get(t.id),hd=dt*DMG,dealt=(gun+ion+msl+fd)*hd;inc.sf+=(gun+2*ion+.5*msl+.3*fd)*hd;inc.hull+=(gun+.2*ion+.5*msl+.3*fd)*hd;inc.direct+=(.5*msl+.7*fd)*hd;inc.ion+=ion*hd;inc.aim[aim||'auto']=(inc.aim[aim||'auto']||0)+dealt;
+  if(gun+ion+msl+fd>0)shots.push({from:u.id,to:t.id,team:u.team,ion:ion>gun,gun:(gun+ion)*dt,msl:msl*dt});
  }
  for(const u of alive){
   const o=incoming.get(u.id),p=u.p,s=fleetSystems(u),ev=text=>b.events.push({time:b.time+dt,text:u.name+'：'+text,id:u.id});
   // Shields: the generator's share of power both deflects and regenerates; short
   // of its upkeep the field decays. Batteries add to the field's reserve.
   u.shieldMax=Math.max(0,(p.shieldBuffer??p.D*K.bufferS)*s.shield+(p.reserve||0)*s.battery);
-  const D=p.D*s.shield,eff=D*(u.shF??1),gen=eff*dt,decay=Math.max(0,1-(u.shF??1))*D*dt*.5,over=Math.max(0,o.sf-gen),ab=Math.min(u.shield,over),leak=over-ab,hadShield=u.shield>0;
+  const D=p.D*s.shield,eff=D*(u.shF??1),gen=eff*dt*DMG,decay=Math.max(0,1-(u.shF??1))*D*dt*DMG*.5,over=Math.max(0,o.sf-gen),ab=Math.min(u.shield,over),leak=over-ab,hadShield=u.shield>0;
   u.shield=clamp(u.shield-ab+Math.max(0,gen-o.sf)-decay,0,u.shieldMax);u.underFire=o.sf>0;if(hadShield&&u.shield<=0&&u.shieldMax>0)ev('シールド消失');
   // Armour ablates as it absorbs; what passes it damages structure and modules.
   const hullHit=leak*(o.sf?o.hull/o.sf:0)+o.direct,a=(p.armorHull||0)/(1+(p.armorHull||0))*u.armor,absorbed=hullHit*a,pen=(hullHit-absorbed)*p.crit;
