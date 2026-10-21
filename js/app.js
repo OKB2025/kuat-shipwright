@@ -2593,6 +2593,20 @@ function trialRenderSets(){
  ts.forEach((t,i)=>{const p=trialApply(R,tv.sub(tv.add(t.pivot,t.axis,t.hm+Math.max(3,t.r*.6)),c));mp.set(p,i*3);mc.set(t.ready?(t.reload>0?[255,196,80,170]:[90,255,140,190]):t.arc&&t.clearDir&&!t.clear?[255,80,70,170]:t.arc?[255,196,80,150]:[255,80,70,120],i*4);ms[i]=Math.max(1.5,t.r*.3);});
  view.setPoints('trialMarks',mp,mc,ms);
 }
+// The turret status runs along the bottom edge between the throttle pad and the
+// fire buttons, clear of the reticle. Where that gap is too narrow (a phone held
+// upright) it sits just above the pad instead.
+let trialGunsLaidAt=0;
+function trialGunsLayout(hud,gn,force){
+ const now=performance.now();if(!force&&now-trialGunsLaidAt<400)return;trialGunsLaidAt=now;
+ const hr=hud.getBoundingClientRect(),box=s=>{const e=hud.querySelector(s);if(!e||e.hidden)return null;const r=e.getBoundingClientRect();return r.width?r:null;};
+ const pad=box('.th-pad'),right=[box('.th-fire'),box('.th-msl')].filter(Boolean),keys=box('.th-keys');if(!pad||!hr.width)return;
+ const lo=pad.right+12,hi=(right.length?Math.min(...right.map(r=>r.left)):hr.right)-12;
+ Object.assign(gn.style,{width:'auto',maxWidth:'none',whiteSpace:'nowrap'});const w=gn.offsetWidth;let x,bottom;
+ if(w<=hi-lo){x=C.clamp(hr.left+hr.width/2,lo+w/2,hi-w/2);bottom=hr.bottom-pad.bottom+4;if(keys&&keys.left<x+w/2&&keys.right>x-w/2)bottom=hr.bottom-keys.top+6;}
+ else{Object.assign(gn.style,{width:'',maxWidth:'',whiteSpace:''});x=hr.left+hr.width/2;bottom=hr.bottom-pad.top+8;}
+ Object.assign(gn.style,{top:'auto',left:(x-hr.left).toFixed(0)+'px',bottom:bottom.toFixed(0)+'px'});
+}
 function trialCamera(dt){
  const a=trialAttitude();let F;
  if(trial.camMode==='ship')F=trial.R;
@@ -2663,7 +2677,7 @@ function trialHudUpdate(full){
  const aim=trial.aim;set('range',aim?(aim.lock?'標的 ':'')+(aim.dist/1000).toFixed(1)+' km':'—');hud.querySelector('.th-reticle')?.classList.toggle('lock',!!aim?.lock);
  const ts=trial.turrets,ready=ts.filter(t=>t.ready).length,loaded=ts.filter(t=>t.ready&&t.reload<=0).length,blocked=ts.filter(t=>t.arc&&t.clearDir&&!t.clear).length,out=ts.filter(t=>!t.arc).length,turning=ts.length-ready-blocked-out;
  const pw=trial.power,cap=pw&&pw.full>0?C.clamp(pw.budget/pw.full,0,1):1,rate=pw?.demand>0?pw.rate:cap,nochg=ts.filter(t=>t.charge<=0).length;
- const gn=q('guns');if(gn){const html=ts.length?`<span class="ok">● 射撃可 ${loaded}</span><span class="wait">● 装填・旋回 ${Math.max(0,ready-loaded+turning-nochg)}</span><span class="ng">● 遮蔽・射界外 ${blocked+out}</span>${nochg?`<span class="ng">● 充電装置なし ${nochg}</span>`:''}<span class="${rate<.999?(rate<.5?'ng':'wait'):'ok'}">⚡ 兵装電力 ${Math.round(rate*100)}%</span>`:'<span class="ng">砲塔なし</span>';if(gn.innerHTML!==html)gn.innerHTML=html;}
+ const gn=q('guns');if(gn){const html=ts.length?`<span class="ok">● 射撃可 ${loaded}</span><span class="wait">● 装填・旋回 ${Math.max(0,ready-loaded+turning-nochg)}</span><span class="ng">● 遮蔽・射界外 ${blocked+out}</span>${nochg?`<span class="ng">● 充電装置なし ${nochg}</span>`:''}<span class="${rate<.999?(rate<.5?'ng':'wait'):'ok'}">⚡ 兵装電力 ${Math.round(rate*100)}%</span>`:'<span class="ng">砲塔なし</span>';const grew=gn.innerHTML.length!==html.length;if(gn.innerHTML!==html)gn.innerHTML=html;trialGunsLayout(hud,gn,grew);}
  const ml=q('msl');if(ml&&trial.launchers.length){const ready=trial.launchers.filter(l=>l.reload<=0).length,rl=Math.min(...trial.launchers.map(l=>l.reload)),f=1-rl/20;ml.style.setProperty('--fill',(ready?1:f).toFixed(3));set('mslstate',ready?`${ready*8} 発`:`${Math.ceil(rl)} 秒`);ml.classList.toggle('ready',ready>0);}
  const ld=q('lead');if(ld){const p=trial.lead&&view?view.project(trial.lead):null,hr=hud.getBoundingClientRect(),ok=p&&p[2]>-1&&p[2]<1;ld.hidden=!ok;if(ok)ld.style.transform=`translate(${(p[0]-hr.left).toFixed(1)}px,${(p[1]-hr.top).toFixed(1)}px) rotate(45deg)`;}
  const st=hud.querySelector('[data-th-stick]'),si=trialStickInput();if(st){const txt=Math.abs(si.x)<.05&&Math.abs(si.y)<.05?'中立':`${si.y>0?'上げ':'下げ'} ${Math.round(Math.abs(si.y)*100)}% · ${si.x>0?'右':'左'}ロール ${Math.round(Math.abs(si.x)*100)}%`;if(st.getAttribute('aria-valuetext')!==txt)st.setAttribute('aria-valuetext',txt);}
