@@ -729,7 +729,9 @@ function fitFrameOf(f) {
 function baseMountFit(ship, f) {
   const d = fitSpec(f), fr = fitFrameOf(f), R = d.r, big = f.localMount||d.casemate ? Math.max(2,Math.min(6,R*.25)) : Math.max(ship.hull.H, ship.hull.W, 200) * 2;
   const h0 = rayEnv(ship, add(f.p, mul(fr.up, big)), mul(fr.up, -1), {maxT: big * 2,structOnly:true});
+  delete f._onPlate;
   if (!h0) { f.float = true; f.base = 0; f.low = 0; f.slope = 0; return f; }
+  if (h0.part?.plate) { f.float = true; f._onPlate = true; f.base = 0; f.low = 0; f.slope = 0; return f; }
   f.float = false; f.p = h0.p;
   let hi = 0, lo = 0, miss = 0;
   for (let k = 0; k < 12; k++) {
@@ -928,7 +930,7 @@ function basePlaceFit(ship, k, p, n, ped, mirror, options={}) {
   else { let bv = -2; for (let i = 0; i < 6; i++) { const v = dot(AXES[i], n); if (v > bv) { bv = v; a = i; } } }
   const tilt = options.tilt && d.cat === 'w' && !options.localMount && !d.casemate ? fitTilt(n) : null;
   const f = mountFit(ship, {id: nid(ship), k, p: p.slice(), a, ped: ped == null ? 2 : ped,...(options.localMount?{localMount:true}:{}),...(tilt?{tilt,n:tilt.slice()}:{})});
-  if (f.float) return {err: '取り付ける面が見つかりません'};
+  if (f.float) return {err: f._onPlate ? '装甲外板には武装・装備を取り付けられません' : '取り付ける面が見つかりません'};
   const clash = fitClash(ship, f); if (clash) return {err: clash};
   ship.fits.push(f);
   if (mirror && Math.abs(f.p[2]) > d.r) {
@@ -1036,7 +1038,7 @@ function baseComputeStats(ship) {
   let crew = 0, cost = 0, hpSum = 0;
   let Vgen = 0, Vsh = 0, Vhyp = 0, Veng = 0, ventEng = 0, engN = 0, Vhang = 0, Vstruct = 0, structOut = 0, Vint = 0;
   let reactorOutput=0,availableThrust=0,engineDemand=0,shieldCapacity=0,hyperEffectiveVolume=0;
-  let exposedArea = 0, critExp = 0, critN = 0, critProt = 0, genExpFrac = 0, floating = 0, overlap = 0, citArea = 0;
+  let exposedArea = 0, critExp = 0, critN = 0, critProt = 0, genExpFrac = 0, floating = 0, overlap = 0, citArea = 0, plateA = 0, plateAT = 0, plateM = 0;
   const info = {}, hangars = [];
   for (const pt of physical) {
     const d = PARTS[pt.k], V = partVolume(pt), vs = volSamples(pt);
@@ -1047,6 +1049,15 @@ function baseComputeStats(ship) {
     const expF = ss.length ? out / ss.length : 1, A = partArea(pt);
     info[pt.id] = {inside: fE, inHull: fH, exposed: expF, overlap:invalid.has(pt.id)};
     exposedArea += A * expF;
+    if (pt.k === 'struct' && pt.plate) {
+      // The outer plateT of the exposed skin is armour; behind it, light framing.
+      const t = plateThickness(pt), skin = unclippedPartArea(pt) * expF, armV = Math.min(V, skin * t), m = (V - armV) * .05 + armV * K.armorDens;
+      plateA += skin; plateAT += skin * t; plateM += armV * K.armorDens;
+      Vstruct += V; structOut += V * (1 - fH); hpSum += (V - armV) * .05 * 1.5; cost += V * d.cost + armV * 30; crew += V * d.crew / 1000;
+      const b = structBox(pt);
+      for (let k = binOf(b.x0); k <= binOf(b.x1); k++) { strA[k] += b.w * b.h * (1 - b.tp * 0.5) * .12; bins[k] += m * Math.min(1, dxb / Math.max(1, b.l)); }
+      continue;
+    }
     if (pt.k === 'struct') {
       const vOut = V * (1 - fH), m = V*.08 + vOut*(K.structDens-.08);
       Vstruct += V; structOut += vOut; hpSum += m * 1.5; cost += V * d.cost; crew += V * d.crew / 1000;
@@ -1121,11 +1132,11 @@ function baseComputeStats(ship) {
   const aviation=aviationStatus(ship,info),slots=aviation.embarkedCount,chargeInfo=chargingStatus(ship,invalid);
   // fittings
   const alpha = [0, 0, 0, 0, 0, 0], ionS = [0, 0, 0, 0, 0, 0], alphaRate=[0,0,0,0,0,0],ionRate=[0,0,0,0,0,0],aaArc=[0,0,0,0,0,0];
-  let alphaTot = 0, ionTot = 0, aa = 0, mslSalvo = 0, tractors = 0, wPower = 0, bPower = 0, bridges = 0, sensor = 0, viewSum = 0, floatFits = 0, pedVol = 0;
+  let alphaTot = 0, ionTot = 0, aa = 0, mslSalvo = 0, tractors = 0, wPower = 0, bPower = 0, bridges = 0, sensor = 0, viewSum = 0, floatFits = 0, plateFits = 0, pedVol = 0;
   const commandInfo=commandStatus(ship,invalid),fitInfo = {};
   for (const f of ship.fits) {
     const raw=fitSpec(f),cr=needsCapacitor(f)?(chargeInfo[f.id]?.ratio||0):1,d={...raw,power:raw.power*cr,tt:(raw.tt||0)*cr,ion:(raw.ion||0)*cr};
-    if (f.float) floatFits++;
+    if (f.float) { floatFits++; if (f._onPlate) plateFits++; }
     const ph = Math.max(0, f.base + f.ped - (f.low || 0)), pr = d.r * 0.8, pv = Math.PI * pr * pr * ph; pedVol += pv;
     const m = d.mass + pv * 0.3; crew += d.crew; cost += d.cost;
     bins[binOf(f.p[0])] += m;
@@ -1193,18 +1204,18 @@ function baseComputeStats(ship) {
   for(const p of ship.parts){const b=refPartBounds(p);if(b){xmin=Math.min(xmin,b[0]);ymin=Math.min(ymin,b[1]);zmax=Math.max(zmax,Math.abs(b[2]),Math.abs(b[5]));xmax=Math.max(xmax,b[3]);ymax=Math.max(ymax,b[4]);}}
   const S = {
     volume, area, VS: area > 0 ? volume / area : 0, hullVolume: ship.hull.assembly?volume:g.volume, hullArea: ship.hull.assembly?area:g.area,
-    mass: M, armorMass: armHull + armCit, dims: [xmax - xmin, zmax * 2, ymax - ymin], hullLen: L,
+    mass: M, armorMass: armHull + armCit + plateM, dims: [xmax - xmin, zmax * 2, ymax - ymin], hullLen: ship.hull.core ? Math.max(L, xmax - xmin) : L,
     power: P, xISD: P / ISD_W, draw: {weapons: Dw, shields: Ds, engines: De, hotel: Dh, ray: Dr, jump: Dj},
     rc, coreRate,weaponBudget,chargeInfo, rm, jumpOK, thrust, aThrust, aStruct, aEff, accelG: aEff / G0, thrustG: aThrust / G0, structG: aStruct / G0,
     weakAt: worstX, cutSection: cut, structLimited: aStruct < aThrust, MGLT: Math.round(aEff / G0 / 30),
     engN, ventEng, Veng, hyperEffectiveVolume, hyperClass: hyperEffectiveVolume > 0 ? clamp(K.hyperK * M / hyperEffectiveVolume, 0.5, 30) : null,
-    shieldP, shieldPct, shieldCapacity:shieldCapacity*coreRate, shieldTarget:ship.shieldTarget||1, armorHull: ship.armor.hull, armorCit: cit, armorAvg: ship.armor.hull,
+    shieldP, shieldPct, shieldCapacity:shieldCapacity*coreRate, shieldTarget:ship.shieldTarget||1, armorHull: ship.armor.hull, armorCit: cit, armorAvg: ship.armor.hull + (area > 0 ? plateAT / area : 0), armorPlate: plateA > 0 ? plateAT / plateA : 0, plateArea: plateA, plateShare: area > 0 ? Math.min(1, plateA / area) : 0, plateMass: plateM,
     slots, aviation, deployableSlots:aviation.deployableCount, launch, launchTime: launch > 0 && aviation.deployableCount > 0 ? aviation.deployableCount / launch : null, Vhang, Vacc, openA, rayA, deadHatch,
     alphaRate,ionRate,aaArc,alpha, alphaTot, alphaBest, alphaMean, ionBest: Math.max(...ionS), ionMean: ionS.reduce((a, b) => a + b, 0) / 6, ionTot, aa, mslSalvo, tractors,
     arcEff: alphaTot > 0 ? alphaBest / alphaTot : 0,
     commandInfo, bridges, view, accuracy, sensor, protectedFrac, critExpo: expo, genExpFrac, vuln,
-    hp: hpSum * K.hpPerT + (armHull + armCit) * 0.2 * K.hpPerT, crew: Math.round(crew), habit, cost,
-    floating, floatFits, overlap, info, fitInfo, hatchInfo, pedVol,
+    hp: hpSum * K.hpPerT + (armHull + armCit + plateM) * 0.2 * K.hpPerT, crew: Math.round(crew), habit, cost,
+    floating, floatFits, plateFits, overlap, info, fitInfo, hatchInfo, pedVol,
     frac: {gen: Vgen / Math.max(1, ship.hull.assembly?volume:g.volume), engine: Veng / Math.max(1, ship.hull.assembly?volume:g.volume), hyper: Vhyp / Math.max(1, ship.hull.assembly?volume:g.volume), shield: Vsh / Math.max(1, ship.hull.assembly?volume:g.volume), hangar: Vhang / Math.max(1, ship.hull.assembly?volume:g.volume), struct: Vstruct / Math.max(1, ship.hull.assembly?volume:g.volume)},
     Vgen, Vsh, Vhyp,
   };
@@ -1220,7 +1231,7 @@ function classify(S) {
   let role;
   if (hf >= 0.22) role = '航宙母艦'; else if (hf >= 0.09) role = '打撃空母';
   else if (S.alphaTot <= 0) role = S.slots > 0 ? '支援艦' : '非武装';
-  else if (S.accelG >= 3000) role = '高速'; else if (S.armorHull >= 1.2) role = '重装'; else role = '砲戦';
+  else if (S.accelG >= 3000) role = '高速'; else if ((S.armorAvg ?? S.armorHull) >= 1.2) role = '重装'; else role = '砲戦';
   return {name, role, hangarFrac: hf};
 }
 function warnings(S) {
@@ -1231,7 +1242,8 @@ function warnings(S) {
   else if (S.ventEng < S.Veng * 0.999) add2('warn', '噴射口が塞がったエンジンがあります（推力に寄与しません）。');
   if (S.bridges === 0) add2('bad', '艦橋がありません。命中率が大きく落ちます。');
   if (S.floating) add2('bad', `船体から離れて浮いている区画が ${S.floating} 個あります。`);
-  if (S.floatFits) add2('bad', `取り付け面を失った装備が ${S.floatFits} 基あります。`);
+  if (S.floatFits - (S.plateFits || 0) > 0) add2('bad', `取り付け面を失った装備が ${S.floatFits - (S.plateFits || 0)} 基あります。`);
+  if (S.plateFits) add2('bad', `装甲外板の上に置かれた装備が ${S.plateFits} 基あります。装甲外板には武装・装備を取り付けられません。`);
   if (S.overlap) add2('warn', `重なり合っている区画があります（${S.overlap} 区画）。`);
   if (S.cutSection) add2('bad', '竜骨と構造物が途切れた断面があります。縦強度がゼロです。');
   if (S.Vgen > 0 && S.coreRate < 0.999) add2('warn', `生命維持・シールド・機関への給電が不足しています（稼働率 ${Math.round(S.coreRate * 100)}%）。`);
@@ -1411,7 +1423,7 @@ function baseBuildDesign(key) { const d = DESIGNS[key], s = newShip(d.hull, d.na
 
 // ---------- engagement simulation ----------
 function baseProfile(S, name) {
-  return {name, hp: Math.max(1, S.hp), dr: 1 / (1 + S.armorHull), crit: 1 + 0.7 * S.vuln,
+  return {name, hp: Math.max(1, S.hp), dr: 1 / (1 + (S.armorAvg ?? S.armorHull)), crit: 1 + 0.7 * S.vuln,
     D: S.shieldP / TT * K.deflect, gunBest: S.alphaBest, gunMean: S.alphaMean, ionBest: S.ionBest, ionMean: S.ionMean,
     msl: S.mslSalvo, aa: S.aa, rc: S.rc, acc: S.accuracy, agility: clamp(S.accelG / 3000, 0.08, 0.9),
     trac: S.tractors, slots: Math.floor(S.deployableSlots??S.aviation?.deployableCount??S.slots), launch: S.launch, len: S.hullLen, cls: S.cls};
@@ -1464,6 +1476,10 @@ function simulate(A, B, tmax) {
 
 // Yard v3: editable envelopes, derived machinery and compartment accounting.
 const STRUCT_SHAPES = {box:'直方体',trap:'台形',wedge:'楔形',cylinder:'円筒',cone:'円錐台',dome:'ドーム'};
+// Armoured outer plating (装甲外板): a structure whose exposed skin is armour of
+// thickness plateT. Its inside is still part of the ship; nothing can be mounted on it.
+const PLATE = {def: 1.0, min: 0.2, max: 6};
+const plateThickness = p => clamp(Number.isFinite(p?.plateT) ? p.plateT : PLATE.def, PLATE.min, PLATE.max);
 const GROUPS = {power:'動力・推進',support:'防御・船体維持',air:'航空・輸送',command:'指揮・生活',shape:'構造'};
 Object.assign(PARTS.gen,{name:'主反応炉',group:'power',desc:'主動力源。ノズルを置くと、その間の推進機関を自動生成します。'});
 Object.assign(PARTS.engine,{name:'汎用ノズル',group:'power',ratio:0.32,desc:'炉との間を機関として自動占有。接続炉・向き・口径を調整できます。'});
@@ -1675,8 +1691,9 @@ function mountFit(ship,f){
   if(f.host&&!host){f.float=true;return f;}
   if(host&&f.local){const local=[f.local[0]*host.s[0],f.local[1]*host.s[2],f.local[2]*host.s[1]];p=worldStruct(host,local);const normal=f.localNormal?worldStruct({...host,c:[0,0,0]},[f.localNormal[0]/host.s[0],f.localNormal[1]/host.s[2],f.localNormal[2]/host.s[1]]):sub(p,host.c),out=norm(normal),far=f.localNormal?8:len(host.s)+10;h=rayPart(add(p,mul(out,far)),mul(out,-1),host);if(h)h.part=host;}
   else h=rayEnv(ship,add(p,mul(n,4)),mul(n,-1),{maxT:12,structOnly:true});
-  // Command pods belong to exposed structure walls, never hull skins or roofs.
-  const valid=h?.part?.k==='struct'&&Math.abs(dot(h.n,structFrame(h.part).up))<.65;
+  // Command pods belong to exposed structure walls, never hull skins, roofs or armoured plating.
+  const valid=h?.part?.k==='struct'&&!h.part.plate&&Math.abs(dot(h.n,structFrame(h.part).up))<.65;
+  if(h?.part?.plate)f._onPlate=true;else delete f._onPlate;
   f.float=!valid;f.base=0;f.low=0;f.ped=0;
   if(!valid)return f;f.p=h.p;f.n=h.n;f._wallUp=structFrame(h.part).up;
   if(h.part?.k==='struct'&&!f.local){f.host=h.part.id;const q=localStruct(h.part,f.p);f.local=[q[0]/h.part.s[0],q[1]/h.part.s[2],q[2]/h.part.s[1]];const nn=localStruct({...h.part,c:[0,0,0]},f.n);f.localNormal=[nn[0]*h.part.s[0],nn[1]*h.part.s[2],nn[2]*h.part.s[1]];}
@@ -1694,7 +1711,7 @@ function placeFit(ship,k,p,n,ped,mirror,options={}){
   if(!FITS[k]?.window)return basePlaceFit(ship,k,p,n,ped,mirror,options);
   if(ship.fits.length+(mirror?2:1)>DESIGN_LIMITS.fits)return {err:'装備数の上限は'+DESIGN_LIMITS.fits+'基です'};
   const make=(p,n)=>mountFit(ship,{id:ship.nextId++,k,p:p.slice(),n:n.slice(),a:AXES.reduce((i,x,j)=>dot(x,n)>dot(AXES[i],n)?j:i,0),ped:0,width:FITS[k].fm,height:FITS[k].wm});
-  const f=make(p,n);if(f.float)return {err:'艦橋ポッドは構造物・艦橋本体の側面や前後の壁に取り付けてください。船体・甲板・天井には取り付けられません'};
+  const f=make(p,n);if(f.float)return {err:f._onPlate?'装甲外板には艦橋ポッドを取り付けられません。外板のない構造物の壁に取り付けてください':'艦橋ポッドは構造物・艦橋本体の側面や前後の壁に取り付けてください。船体・甲板・天井には取り付けられません'};
   if(fitClash(ship,f))return {err:'別のポッド・装備と重なっています'};
   const bay=windowBay(f);if(hardConflicts(ship,bay).length)return {err:'ポッドの背後の指揮区画が機関と干渉します'};
   ship.fits.push(f);
@@ -1751,7 +1768,7 @@ STRUCT_SHAPES.chamfer='切隅・平面台形';
 STRUCT_SHAPES.loft='断面ロフト・傾斜甲板';
 STRUCT_SHAPES.ellipsoid='球・楕円体（腹部装甲）';
 addComp('sensor','センサー・標的追跡装置','sphere',.18,[166,178,185],'support','シールドとは別の索敵・標的追跡機器。外殻やマストに配置します。',{def:16});
-function partLabel(p){return p.label||equipmentSpec(p)?.name||PARTS[p.k]?.name||'区画';}
+function partLabel(p){return p.label||equipmentSpec(p)?.name||(p.k==='struct'&&p.plate?'装甲外板':PARTS[p.k]?.name)||'区画';}
 // Default stations for the section table: they fall on the plan's own corners.
 function planStations(h){if(h.plan==='arrow'){const m=clamp(h.maxAt??.3,.05,.9);return [0,m/2,m,m+(1-m)/3,m+(1-m)*2/3,1];}if(h.plan==='rect')return [0,.35,.7,.8,.9,1];return [0,.2,.4,.6,.8,1];}
 function profileAt(h,t){
@@ -1849,7 +1866,7 @@ function placePart(ship,k,c,size,opt={},mirror=false){
   const old=ship._building;ship._building=true;let p;
   try{p=v3PlacePart(ship,k,c,size,opt,mirror);}finally{ship._building=old;}
   const made=ship.parts.filter(q=>q.id===p.id||q.id===p.tw);
-  for(const q of made){for(const a of ['autoFit','engineLength','equipmentId','customEquipment','arcBands','bands','arcInner','arcStart','arcSweep','label','length','corner','aftWidth','foreWidth','paint','bodyLength','bodyRadius','ribSpacing','nozzleLength','throatRatio','wallInset','ridge','deckSlope','skin','skinAsset','skinAxial','skinAnchor','skinDiameter','skinSize','airRole','pitch','roll','surfaceNormal'])if(opt[a]!=null)q[a]=opt[a];if(opt.outline)q.outline=opt.outline.map(a=>[a[0],a[1]*(q===p?1:-1)]);if(opt.loft)q.loft=opt.loft.map(a=>a.length>4?[...a.slice(0,4),a[4]*(q===p?1:-1)]:a.slice());if(q!==p&&q.form==='arc')q.arcStart=((-(p.arcStart??30)-(p.arcSweep??300)+540)%360)-180;if(opt.surfaceNormal)q.surfaceNormal=q===p?opt.surfaceNormal.slice():mirrorP(opt.surfaceNormal);if(q!==p&&opt.roll!=null)q.roll=-opt.roll;if(opt.room)setRoomSize(q,opt.room);if(opt.yaw!=null&&q.k!=='struct')q.yaw=q===p?opt.yaw:-opt.yaw;}
+  for(const q of made){for(const a of ['autoFit','engineLength','equipmentId','customEquipment','arcBands','bands','arcInner','arcStart','arcSweep','label','length','corner','aftWidth','foreWidth','paint','bodyLength','bodyRadius','ribSpacing','nozzleLength','throatRatio','wallInset','ridge','deckSlope','skin','skinAsset','skinAxial','skinAnchor','skinDiameter','skinSize','airRole','pitch','roll','surfaceNormal'])if(opt[a]!=null)q[a]=opt[a];if(q.k==='struct'&&opt.plate){q.plate=true;q.plateT=plateThickness(opt);}if(opt.outline)q.outline=opt.outline.map(a=>[a[0],a[1]*(q===p?1:-1)]);if(opt.loft)q.loft=opt.loft.map(a=>a.length>4?[...a.slice(0,4),a[4]*(q===p?1:-1)]:a.slice());if(q!==p&&q.form==='arc')q.arcStart=((-(p.arcStart??30)-(p.arcSweep??300)+540)%360)-180;if(opt.surfaceNormal)q.surfaceNormal=q===p?opt.surfaceNormal.slice():mirrorP(opt.surfaceNormal);if(q!==p&&opt.roll!=null)q.roll=-opt.roll;if(opt.room)setRoomSize(q,opt.room);if(opt.yaw!=null&&q.k!=='struct')q.yaw=q===p?opt.yaw:-opt.yaw;}
   for(const q of made){enforceEquipment(q);if(q.k==='struct')q._solidCutShip=ship;}
   if(made.length===2&&equipmentSpec(p)){const q=made.find(q=>q!==p),id=q.id,tw=q.tw;Object.assign(q,mirrorPart(p,ship),{id,tw});}
   for(const q of made)if(isInternal(q))q._envelope=ship;
@@ -1997,7 +2014,7 @@ function deserialize(o){
   if(Array.isArray(o.hull?.stations)&&o.hull.stations.length>=2&&o.hull.stations.length<=32){const a=o.hull.stations.map((p,i)=>{const r=[finite(p?.[0],0,1,i/(o.hull.stations.length-1)),finite(p?.[1],.005,1.5,1),finite(p?.[2],.005,1.5,1)];if(p?.length>3)r.push(finite(p[3],-.5,.8,0));if(p?.length>4)r.push(finite(p[4],0,.98,.52));if(p?.length>5)r.push(finite(p[5],0,.98,0));if(p?.length>6)r.push(finite(p[6],.02,.98,.13));if(p?.length>7)r.push(finite(p[7],.2,.8,.5));return r;}).sort((a,b)=>a[0]-b[0]);if(a.some((p,i)=>i&&p[0]-a[i-1][0]<.001))throw new Error('船体断面の位置が重複しています');a[0][0]=0;a.at(-1)[0]=1;s.hull.stations=a;}
   if(SHIP_CLASSES.some(c=>c.id===o.shipClass))s.shipClass=o.shipClass;
   if(SHIP_LIGHT_KINDS.includes(o.lights))s.lights=o.lights;
-  s.autoHabitation=o.autoHabitation!==false;s.hullLocked=o.hullLocked!==false;s.hull.assembly=!!o.hull?.assembly;if(o.hull?.bowFree===true)s.hull.bowFree=true;normalizeBow(s.hull);
+  s.autoHabitation=o.autoHabitation!==false;s.hullLocked=o.hullLocked!==false;s.hull.assembly=!!o.hull?.assembly;if(o.hull?.core===true)s.hull.core=true;if(o.hull?.bowFree===true)s.hull.bowFree=true;normalizeBow(s.hull);
   s.hull.deckWidth=finite(o.hull?.deckWidth,0,.98,.52);s.hull.belt=finite(o.hull?.belt,.02,.45,.13);
   if(o.hull?.start!=null)s.hull.start=finite(o.hull.start,0,.6,0);
   for(const k of ['chineHeight','keelWidth'])if(o.hull?.[k]!=null)s.hull[k]=finite(o.hull[k],k==='chineHeight'?.2:0,k==='chineHeight'?.95:.98,k==='chineHeight'?.5:0);
@@ -2011,6 +2028,7 @@ function deserialize(o){
     if(q.outline){if(!validOutline(q.outline)||q.outline.some(a=>a.some(v=>Math.abs(v)>2)))throw new Error('輪郭が交差しているか、頂点が不正です');p.outline=q.outline.map(a=>a.slice());}if(q.deckSlope!=null)p.deckSlope=finite(q.deckSlope,-60,60,0);
     if(q.ridge!=null)p.ridge=finite(q.ridge,-1000,1000,0);
     if(['armor','service','plain'].includes(q.skin))p.skin=q.skin;
+    if(p.k==='struct'&&q.plate===true){p.plate=true;p.plateT=plateThickness(q);}
     if(REFERENCE_ASSETS[q.skinAsset]){p.skinAsset=q.skinAsset;for(const k of ['skinAnchor','skinSize'])if(Array.isArray(q[k])&&q[k].length===3&&q[k].every(Number.isFinite))p[k]=q[k].slice();if(Number.isFinite(q.skinDiameter))p.skinDiameter=finite(q.skinDiameter,1,1000,p.d);}
     if(p.k==='hangar'&&Object.hasOwn(AVIATION_ROLES,q.airRole))p.airRole=q.airRole;
     if(Array.isArray(q.arcBands)&&q.arcBands.length<=12&&q.arcBands.every(a=>Array.isArray(a)&&a.length===2&&a.every(Number.isFinite)&&a[0]>=0&&a[1]<=1&&a[0]<a[1]))p.arcBands=q.arcBands.map(a=>a.slice());
@@ -2514,7 +2532,7 @@ function mountReferenceFit(ship,f){
  // Newly placed model turrets use the same slope-fitting pedestal on all faces.
  // Authored example poses keep their explicit mountAxis and offset.
   if(f.localMount||FITS[f.k].casemate||f.mountAxis==null)return baseMountFit(ship,f);
- const up=AXES[f.mountAxis??f.a],h=rayEnv(ship,add(f.p,mul(up,Math.max(ship.hull.H,ship.hull.W)*2)),mul(up,-1),{structOnly:true});f.float=!h;f.base=0;f.low=0;f.slope=0;if(h)f.p=add(h.p,mul(up,f.mountOffset||0));return f;
+ const up=AXES[f.mountAxis??f.a],h=rayEnv(ship,add(f.p,mul(up,Math.max(ship.hull.H,ship.hull.W)*2)),mul(up,-1),{structOnly:true});f.float=!h||!!h.part?.plate;if(h?.part?.plate)f._onPlate=true;else delete f._onPlate;f.base=0;f.low=0;f.slope=0;if(h&&!h.part?.plate)f.p=add(h.p,mul(up,f.mountOffset||0));return f;
 }
 // Source turrets were extracted in the pose they had on their ship. A newly
 // placed copy turns by this much so that, at yaw 0, its barrels face the bow.
@@ -3739,37 +3757,78 @@ registerShipExample({
 // the spine to the core, the three drive nacelles, the forward arm claws and
 // the keel spike under the core are ordinary structures.
 {
-const LUCR={"W":640.0,"H":660.0,"st":[[0.0,0.005,0.005,0.1258],[0.40418,0.005,0.005,0.1258],[0.40618,0.0596,0.0585,0.1258],[0.41633,0.4328,0.4249,0.1258],[0.42648,0.5957,0.5849,0.1258],[0.43663,0.709,0.6962,0.1258],[0.44678,0.7942,0.7799,0.1258],[0.45692,0.8598,0.8442,0.1258],[0.46707,0.9099,0.8935,0.1258],[0.47722,0.9471,0.9299,0.1258],[0.48737,0.9728,0.9552,0.1258],[0.49752,0.9878,0.97,0.1258],[0.50767,0.9928,0.9748,0.1258],[0.51781,0.9878,0.97,0.1258],[0.52796,0.9728,0.9552,0.1258],[0.53811,0.9471,0.9299,0.1258],[0.54826,0.9099,0.8935,0.1258],[0.55841,0.8598,0.8442,0.1258],[0.56856,0.7942,0.7799,0.1258],[0.5787,0.709,0.6962,0.1258],[0.58885,0.5957,0.5849,0.1258],[0.599,0.4328,0.4249,0.1258],[0.60915,0.0596,0.0585,0.1258],[0.61115,0.005,0.005,0.1258],[1.0,0.005,0.005,0.1258]],"loft":{"engineBlock":[[231.71,-38.12,38.12,258.17,258.3],[241.99,-38.12,38.12,232.62,258.45],[244.56,-101.01,101.01,226.2,533.75],[265.12,-232.65,232.65,174.85,551.2],[267.69,-516.8,516.8,168.43,553.39],[329.38,-614.97,614.97,164.21,598.04],[375.64,-682.41,682.41,164.21,610.89],[519.57,-602.9,602.9,164.21,636.15],[619.81,-550.99,550.99,164.21,641.61],[624.95,-548.35,548.35,154.29,641.6],[655.79,-532.5,532.5,157.37,641.55],[676.35,-521.94,521.94,164.21,641.51],[748.32,-484.96,484.96,164.21,634.15],[750.89,-483.64,483.64,177.02,632.54],[786.87,-465.15,465.15,177.93,610.06],[789.44,-463.83,463.83,178.04,306.06],[838.28,-438.74,438.74,180.14,306.06],[840.85,-103.13,103.13,180.25,306.06],[925.66,-111.15,111.15,190.23,306.06],[971.93,-115.53,115.53,247.79,306.06],[1002.77,-118.44,118.44,305.96,306.06]],"spine":[[841.23,-177.87,177.87,252.68,557.13],[1004.66,-173.66,173.66,255.14,554.66],[1124.27,-129.62,129.62,278.82,530.84],[1344.98,-129.62,129.62,279.07,530.84],[1346.66,-129.62,129.62,386.93,435.91]],"nacelleC":[[26.02,-86.94,86.94,321.87,495.74],[30.63,-90.85,90.85,317.96,499.65],[38.91,-86.8,86.8,322.0,495.61],[302.21,-86.8,86.8,322.0,495.61]],"nacelleS":[[26.02,223.87,397.75,321.87,495.74],[30.63,219.96,401.66,317.96,499.65],[38.91,224.01,397.61,322.0,495.61],[302.21,224.01,397.61,322.0,495.61]],"claw":[[2286.75,736.29,736.5,229.03,597.2],[2300.65,716.88,775.1,206.14,620.1],[2303.43,712.98,1208.95,202.9,623.33],[2464.66,461.88,1096.06,186.67,639.56],[2481.34,412.28,1084.38,186.67,639.57],[2484.12,366.78,1082.44,186.67,639.56],[2528.6,348.23,1043.83,186.75,639.49],[2573.07,288.32,999.35,186.77,639.46],[2631.45,264.83,940.98,195.05,631.19],[2703.72,295.36,855.26,211.26,614.97],[2714.84,311.39,839.38,234.78,591.46],[2725.96,339.27,823.5,327.59,498.64],[2731.52,353.22,815.56,334.32,496.93],[2734.3,416.66,811.59,340.16,496.93],[2784.34,428.7,751.49,334.61,499.78],[2806.58,435.06,750.19,329.14,505.25],[2809.36,437.2,745.39,328.45,505.94],[2812.13,437.87,740.59,296.82,537.57],[2831.59,416.35,706.99,298.66,535.73],[2909.43,432.94,579.05,334.92,499.47],[2953.9,442.42,535.23,359.43,474.96],[2956.68,468.06,532.49,370.39,465.63],[2995.6,490.11,494.15,405.42,430.6],[2998.38,461.28,461.88,370.92,474.52],[3028.96,439.04,479.01,370.92,474.52],[3109.57,394.02,420.27,370.92,474.52],[3112.35,396.79,418.24,370.92,474.52],[3115.13,400.12,416.22,399.4,446.04],[3120.69,412.06,412.2,401.98,443.46]],"sphereKeel":[[1261.8,-25.76,25.76,297.06,297.13],[1427.0,-25.76,25.76,56.68,297.13],[1510.84,-25.76,25.76,56.68,297.13]]},"rooms":[["hangar","右舷アーム格納庫",[2440,415,725],[39.4,649.4,349.4],"storage"],["hangar","右舷アーム格納庫 2",[2400,420,745],[39.4,689.4,319.4],"storage"],["hangar","右舷アーム格納庫 3",[2560,415,665],[39.4,529.4,389.4],"storage"],["hangar","右舷アーム格納庫 4",[2520,410,695],[39.4,589.4,339.4],"storage"],["hangar","右舷アーム格納庫 5",[2360,415,770],[39.4,739.4,269.4],"storage"],["hangar","右舷アーム格納庫 6",[2597.75,415,640],[34.89,479.4,389.4],"storage"],["hangar","左舷アーム格納庫",[2440,415,-725],[39.4,649.4,349.4],"storage"],["hangar","左舷アーム格納庫 2",[2400,420,-745],[39.4,689.4,319.4],"storage"],["hangar","左舷アーム格納庫 3",[2560,415,-665],[39.4,529.4,389.4],"storage"],["hangar","左舷アーム格納庫 4",[2520,410,-695],[39.4,589.4,339.4],"storage"],["hangar","左舷アーム格納庫 5",[2360,415,-770],[39.4,739.4,269.4],"storage"],["hangar","左舷アーム格納庫 6",[2597.75,415,-640],[34.89,479.4,389.4],"storage"],["service","航空整備・補給区画",[730,540,0],[59.4,1619.4,139.4]],["service","航空整備・補給区画 2",[770,290,0],[59.4,1739.4,119.4]],["service","航空整備・補給区画 3",[278.86,275,0],[37.11,259.4,129.4]],["service","航空整備・補給区画 4",[230,420,-110],[19.4,79.4,59.4]],["vehicle","車両格納・整備区画（MTT・AAT）",[321.26,255,0],[41.93,939.4,169.4]],["vehicle","車両格納・整備区画（MTT・AAT） 2",[230,420,110],[19.4,79.4,59.4]],["troops","兵員収容区画（B1バトル・ドロイド）",[292.37,520,0],[24.15,879.4,79.4]],["troops","兵員収容区画（B1バトル・ドロイド） 2",[230,380,-80],[19.4,39.4,19.4]],["cargo","貨物・物資庫",[386.82,255,0],[53.05,1119.4,169.4]],["cargo","貨物・物資庫 2",[245.5,380,80],[50.4,39.4,19.4]],["cargo","貨物・物資庫 3",[250,415,-155],[19.4,169.4,109.4]],["integrity","構造維持装置",[342.57,535,0],[44.55,999.4,109.4]],["integrity","構造維持装置 2",[250,415,170],[19.4,139.4,109.4]],["pump","反応物供給設備",[255.68,490,0],[30.77,259.4,19.4]],["pump","反応物供給設備 2",[250,435,85],[19.4,29.4,89.4]]]};
+const LUCR={"W":640.0,"H":660.0,"st":[[0.0,0.005,0.005,0.1258],[0.40418,0.005,0.005,0.1258],[0.40618,0.0596,0.0585,0.1258],[0.41633,0.4328,0.4249,0.1258],[0.42648,0.5957,0.5849,0.1258],[0.43663,0.709,0.6962,0.1258],[0.44678,0.7942,0.7799,0.1258],[0.45692,0.8598,0.8442,0.1258],[0.46707,0.9099,0.8935,0.1258],[0.47722,0.9471,0.9299,0.1258],[0.48737,0.9728,0.9552,0.1258],[0.49752,0.9878,0.97,0.1258],[0.50767,0.9928,0.9748,0.1258],[0.51781,0.9878,0.97,0.1258],[0.52796,0.9728,0.9552,0.1258],[0.53811,0.9471,0.9299,0.1258],[0.54826,0.9099,0.8935,0.1258],[0.55841,0.8598,0.8442,0.1258],[0.56856,0.7942,0.7799,0.1258],[0.5787,0.709,0.6962,0.1258],[0.58885,0.5957,0.5849,0.1258],[0.599,0.4328,0.4249,0.1258],[0.60915,0.0596,0.0585,0.1258],[0.61115,0.005,0.005,0.1258],[1.0,0.005,0.005,0.1258]],"loft":{"engineBlock":[[-1057.59,-38.12,38.12,258.17,258.3],[-1047.31,-38.12,38.12,232.62,258.45],[-1044.74,-101.01,101.01,226.2,533.75],[-1024.18,-232.65,232.65,174.85,551.2],[-1021.61,-516.8,516.8,168.43,553.39],[-959.92,-614.97,614.97,164.21,598.04],[-913.66,-682.41,682.41,164.21,610.89],[-769.73,-602.9,602.9,164.21,636.15],[-669.49,-550.99,550.99,164.21,641.61],[-664.35,-548.35,548.35,154.29,641.6],[-633.51,-532.5,532.5,157.37,641.55],[-612.95,-521.94,521.94,164.21,641.51],[-540.98,-484.96,484.96,164.21,634.15],[-538.41,-483.64,483.64,177.02,632.54],[-502.43,-465.15,465.15,177.93,610.06],[-499.86,-463.83,463.83,178.04,306.06],[-451.02,-438.74,438.74,180.14,306.06],[-448.45,-103.13,103.13,180.25,306.06],[-363.64,-111.15,111.15,190.23,306.06],[-317.37,-115.53,115.53,247.79,306.06],[-286.53,-118.44,118.44,305.96,306.06]],"spine":[[-448.07,-177.87,177.87,252.68,557.13],[-284.64,-173.66,173.66,255.14,554.66],[-165.03,-129.62,129.62,278.82,530.84],[55.68,-129.62,129.62,279.07,530.84],[57.36,-129.62,129.62,386.93,435.91]],"nacelleC":[[-1263.28,-86.94,86.94,321.87,495.74],[-1258.67,-90.85,90.85,317.96,499.65],[-1250.39,-86.8,86.8,322.0,495.61],[-987.09,-86.8,86.8,322.0,495.61]],"nacelleS":[[-1263.28,223.87,397.75,321.87,495.74],[-1258.67,219.96,401.66,317.96,499.65],[-1250.39,224.01,397.61,322.0,495.61],[-987.09,224.01,397.61,322.0,495.61]],"claw":[[997.45,736.29,736.5,229.03,597.2],[1011.35,716.88,775.1,206.14,620.1],[1014.13,712.98,1208.95,202.9,623.33],[1175.36,461.88,1096.06,186.67,639.56],[1192.04,412.28,1084.38,186.67,639.57],[1194.82,366.78,1082.44,186.67,639.56],[1239.3,348.23,1043.83,186.75,639.49],[1283.77,288.32,999.35,186.77,639.46],[1342.15,264.83,940.98,195.05,631.19],[1414.42,295.36,855.26,211.26,614.97],[1425.54,311.39,839.38,234.78,591.46],[1436.66,339.27,823.5,327.59,498.64],[1442.22,353.22,815.56,334.32,496.93],[1445.0,416.66,811.59,340.16,496.93],[1495.04,428.7,751.49,334.61,499.78],[1517.28,435.06,750.19,329.14,505.25],[1520.06,437.2,745.39,328.45,505.94],[1522.83,437.87,740.59,296.82,537.57],[1542.29,416.35,706.99,298.66,535.73],[1620.13,432.94,579.05,334.92,499.47],[1664.6,442.42,535.23,359.43,474.96],[1667.38,468.06,532.49,370.39,465.63],[1706.3,490.11,494.15,405.42,430.6],[1709.08,461.28,461.88,370.92,474.52],[1739.66,439.04,479.01,370.92,474.52],[1820.27,394.02,420.27,370.92,474.52],[1823.05,396.79,418.24,370.92,474.52],[1825.83,400.12,416.22,399.4,446.04],[1831.39,412.06,412.2,401.98,443.46]],"sphereKeel":[[-27.5,-25.76,25.76,297.06,297.13],[137.7,-25.76,25.76,56.68,297.13],[221.54,-25.76,25.76,56.68,297.13]]},"rooms":[["hangar","右舷アーム 艦載機ラック（ドロイド・スターファイター）",[1150.7,415,725],[39.4,649.4,349.4],"storage"],["hangar","右舷アーム 艦載機ラック（ドロイド・スターファイター） 2",[1110.7,420,745],[39.4,689.4,319.4],"storage"],["hangar","右舷アーム 艦載機ラック（ドロイド・スターファイター） 3",[1270.7,415,665],[39.4,529.4,389.4],"storage"],["hangar","右舷アーム 艦載機ラック（ドロイド・スターファイター） 4",[1230.7,410,695],[39.4,589.4,339.4],"storage"],["hangar","右舷アーム 艦載機ラック（ドロイド・スターファイター） 5",[1070.7,415,770],[39.4,739.4,269.4],"storage"],["hangar","右舷アーム 艦載機ラック（ドロイド・スターファイター） 6",[1308.45,415,640],[34.89,479.4,389.4],"storage"],["hangar","左舷アーム 艦載機ラック（ドロイド・スターファイター）",[1150.7,415,-725],[39.4,649.4,349.4],"storage"],["hangar","左舷アーム 艦載機ラック（ドロイド・スターファイター） 2",[1110.7,420,-745],[39.4,689.4,319.4],"storage"],["hangar","左舷アーム 艦載機ラック（ドロイド・スターファイター） 3",[1270.7,415,-665],[39.4,529.4,389.4],"storage"],["hangar","左舷アーム 艦載機ラック（ドロイド・スターファイター） 4",[1230.7,410,-695],[39.4,589.4,339.4],"storage"],["hangar","左舷アーム 艦載機ラック（ドロイド・スターファイター） 5",[1070.7,415,-770],[39.4,739.4,269.4],"storage"],["hangar","左舷アーム 艦載機ラック（ドロイド・スターファイター） 6",[1308.45,415,-640],[34.89,479.4,389.4],"storage"],["service","航空整備・補給区画",[-539.3,525,0],[59.4,1739.4,149.4]],["service","航空整備・補給区画 2",[-940.09,270,0],[57.82,999.4,199.4]],["vehicle","MTT・AAT 格納区画",[-999.3,270,0],[19.4,879.4,199.4]],["vehicle","地上装甲車両の長期保管ガレージ（格納甲板床下）",[-979.3,270,0],[19.4,939.4,199.4]],["troops","兵員収容区画（B1バトル・ドロイド）",[-1000.57,435,-155],[56.86,229.4,129.4]],["cargo","貨物ベイ",[-944.3,520,0],[49.4,999.4,139.4]],["cargo","貨物ベイ 2",[-1199.56,350,0],[58.89,99.4,19.4]],["cargo","貨物ベイ 3",[-1239.3,410,-380],[19.4,19.4,59.4]],["cargo","大規模弾薬庫",[-899.3,270,0],[19.4,1139.4,199.4]],["integrity","主ドロイド制御コンピューター支援システム（構造維持）",[-895.57,530,0],[26.86,1139.4,159.4]],["integrity","主ドロイド制御コンピューター支援システム（構造維持） 2",[-1239.3,410,-240],[19.4,19.4,59.4]],["pump","パイロット炉燃料ポンプ・圧力安定装置",[-1039.3,415,-155],[19.4,229.4,109.4]]]};
 const LUC_AIR=[{id:'air-1',name:'ヴァルチャー級ドロイド・スターファイター',size:1,count:1500},{id:'air-2',name:'C-9979 上陸艇',size:200,count:50}];
-const LUC_GROUND=[{id:'ground-1',name:'B1バトル・ドロイド',kind:'troops',count:139000},{id:'ground-2',name:'MTT 大型兵員輸送車',kind:'vehicle',size:8,count:550},{id:'ground-3',name:'AAT 装甲強襲戦車',kind:'vehicle',size:1,count:6520}];
+const LUC_GROUND=[{id:'ground-1',name:'B1バトル・ドロイド',kind:'troops',count:139000},{id:'ground-2',name:'MTT 大型兵員輸送車',kind:'vehicle',size:8,count:550},{id:'ground-3',name:'AAT 装甲強襲戦車',kind:'vehicle',size:1,count:6250}];
 const LUC_TAN='#a89a7c',LUC_BROWN='#8f8268',LUC_STEEL='#6f7a86',LUC_DARK='#5f646b';
 function lucrehulkBuild(opt={}){
- const D=LUCR,L=3170;
- const s=newShip({L,W:D.W,H:D.H,sec:'ellipse',plan:'ellipse',bowW:1,bowH:1,stern:1,bowFree:true,stations:D.st.map(a=>a.slice()),keel:'light'},'ルクレハルク級');
+ const D=LUCR,DX=-1289.3,X=v=>v+DX,R=320,L=2*R;
+ // The base hull is the core ship: a sphere 640 m across (measured from the model;
+ // canon gives about 696 m), centred 413 m above the lowest point of the ring.
+ // Everything else, the C-ring, aft block, arms, claws and towers, is structure.
+ const st=[];for(let i=0;i<=24;i++){const t=(1-Math.cos(Math.PI*i/24))/2,r=Math.max(.005,Math.sqrt(Math.max(0,1-(2*t-1)**2)));st.push([+t.toFixed(5),+r.toFixed(4),+r.toFixed(4),+(413/L-.5).toFixed(4)]);}
+ const s=newShip({L,W:L,H:L,sec:'ellipse',plan:'ellipse',bowW:1,bowH:1,stern:1,bowFree:true,stations:st,keel:'light'},'ルクレハルク級');
+ s.hull.core=true;s.shipClass='battlecruiser';
  s._building=true;s.reference='lucrehulk';s.paint='cis';s.lights='warm';s.detail=1;s.armor={hull:.2,cit:.2};s.shieldTarget=1;
  const k=shipKit(s),part=(kind,label,c,d,o={})=>placePart(s,kind,c,d,{label,...o});
  const loft=(name,label,paint,o={},mirror=false)=>k.loftX(label,D.loft[name],{paint,corner:.12,...o},mirror);
+ const col=(label,x,z,y0,y1,w,paint,o={},mirror=false)=>k.box(label,[x-w/2,y0,z-w/2],[x+w/2,y1,z+w/2],{paint,corner:.2,...o},mirror);
+ const dish=(label,c,d,t,paint,mirror=false)=>k.ellipsoid(label,c,[t,d,d],{paint},mirror);
  // The ring: outer radius 1,403 m about the core axis, inner radius ratio 0.535,
  // 428 m deep, open ±25° at the bow.
- k.ring('環状船体（C字リング）',[1611,418,0],1403,1403,428,{inner:.535,start:25,sweep:310,paint:LUC_TAN});
- loft('engineBlock','艦尾機関ブロック',LUC_BROWN,{corner:.2});
- loft('spine','中央脊柱',LUC_TAN,{corner:.25});
- loft('nacelleC','中央推進ナセル',LUC_STEEL,{round:true});
- loft('nacelleS','舷側推進ナセル',LUC_STEEL,{round:true},true);
- loft('claw','前部アームのドッキング・クロー',LUC_BROWN,{corner:.2},true);
- loft('sphereKeel','コア下部の竜骨スパイク',LUC_DARK,{corner:.1});
- // ---- hangar mouths on the inner faces of the forward arms (facing the bow gap) ----
- const dockS=part('hangar','右舷アーム発着ベイ',[2500,418,300],30,{room:[400,200,400],airRole:'mixed'}),dockP=part('hangar','左舷アーム発着ベイ',[2500,418,-300],30,{room:[400,200,400],airRole:'mixed'});
- openBay(s,dockS,'port','open');openBay(s,dockP,'stbd','open');
- // ---- power: central plant in the core sphere (sized to the reference output), three drive nacelles ----
- const r=part('gen','中央主反応炉（コア）',[1609,413,0],250);
+ k.ring('環状船体（C字リング）',[X(1611),418,0],1403,1403,428,{inner:.535,start:25,sweep:310,paint:LUC_TAN});
+ loft('engineBlock','艦尾ブロック（主反応炉・主推進区画）',LUC_BROWN,{corner:.2});
+ loft('spine','中央脊柱（コアシップ接続部）',LUC_TAN,{corner:.25});
+ loft('nacelleC','主推進機関スラスト・チャンバー（中央）',LUC_STEEL,{round:true});
+ loft('nacelleS','主推進機関スラスト・チャンバー（舷側）',LUC_STEEL,{round:true},true);
+ loft('claw','主ドッキング・クロー',LUC_BROWN,{corner:.2},true);
+ k.box('主ドッキング・クロー先端',[X(3105),404,403],[X(3170),440,421],{paint:LUC_BROWN,corner:.3},true);
+ loft('sphereKeel','コアシップ下部の着陸脚基部',LUC_DARK,{corner:.1});
+ // ---- aft dorsal signal transmitter platform and its towers ----
+ k.box('信号送信プラットフォーム',[X(560),600,-150],[X(860),652,150],{paint:LUC_BROWN,corner:.1});
+ for(const z of [-60,60])col('予備制御信号送信塔',X(650),z,640,880,16,LUC_STEEL);
+ col('予備制御信号送信塔',X(760),0,640,850,16,LUC_STEEL);
+ for(const z of [-115,115])col('送信塔アンテナ',X(700),z,640,820,6,LUC_DARK);
+ for(const x of [600,700,810])col('高エネルギー送信塔',X(x),-30,640,790,10,LUC_STEEL);
+ col('主センサー・レクテナ支柱',X(820),60,640,700,14,LUC_DARK);
+ dish('主センサー・レクテナ',[X(820),720,60],90,12,LUC_STEEL);
+ for(const z of [-95,95])dish('補助センサー・レクテナ',[X(600),670,z],40,8,LUC_STEEL);
+ // ---- ring top near the core: deflector shield generator housing and projectors ----
+ k.ellipsoid('偏向シールド発生器ハウジング',[X(960),575,0],[140,150,80],{paint:LUC_TAN});
+ for(const z of [-380,380])k.ellipsoid('偏向シールド投射器',[X(830),592,z],[40,40,30],{paint:LUC_STEEL});
+ // ---- core ship: control bridge tower on top ----
+ col('コアシップ管制ブリッジ塔',X(1609),0,700,790,44,LUC_TAN);
+ col('ブリッジ塔頂部アンテナ',X(1609),0,780,900,4,LUC_DARK);
+ // ---- forward arms: receiver station, forward control tower, rectenna, tractor housings ----
+ // (each seated on the arm's top or underside where the tapering arm still carries it)
+ for(const sg of [1,-1]){
+  k.ellipsoid('ドロイド信号受信ステーション',[X(2639),632,sg*850],[70,70,36],{paint:LUC_STEEL});
+  col('前部管制塔',X(2539),sg*930,630,710,30,LUC_TAN);
+  dish('予備センサー・レクテナ',[X(2789),573,sg*600],40,8,LUC_STEEL);
+  k.ellipsoid('主トラクター・ビーム発生器',[X(2950),470,sg*560],[90,70,90],{paint:LUC_DARK});
+  k.ellipsoid('ドッキング・トラクター・ビーム収納部',[X(3040),349,sg*455],[70,50,60],{paint:LUC_DARK});
+ }
+ // ---- forward arms: three hangar zones a side, portals on the inner faces facing the gap ----
+ const docks=[];
+ for(const [x,zone] of [[2650,'外側格納庫（第1区画）'],[2520,'中間格納庫（第2区画）'],[2390,'内側格納庫（第3区画）']])for(const sg of [1,-1]){
+  const d=part('hangar',(sg>0?'右舷アーム ':'左舷アーム ')+zone+'・主格納庫口',[X(x),418,sg*300],30,{room:[100,200,400],airRole:'mixed'});
+  openBay(s,d,sg>0?'port':'stbd','open');docks.push(d);}
+ if(opt.stage==='dock'){delete s._building;return s;}
+ // ---- core ship: centersphere reactor and power generator assemblies in the lower half ----
+ const r=part('gen','コア中央球反応炉・発電機集合体',[X(1609),290,0],240);
+ // ---- aft block: port and starboard main reactors; the drive thrust chambers draw on the core plant ----
+ for(const sg of [1,-1])part('aux',sg>0?'右舷主反応炉（艦尾ブロック）':'左舷主反応炉（艦尾ブロック）',[X(640),470,sg*420],150);
  const eo=equipmentOptions('exposedTurbine');
- for(const z of [-311,0,311]){const d=183,nl=engineBaseline('exposed',d,'nozzleLength'),len=engineBaseline('exposed',d,'length')*1.5;const p=placePart(s,'engine',[nl/2,409,z],d,{...eo,label:z?'舷側主推進機':'中央主推進機',d,reactor:r.id,dir:[-1,0,0],engineLength:len},false);resizeEngine(p,d,len);}
- // ---- defence, hyperdrive and support machinery ----
- for(const sg of [-1,1])part('shield','偏向シールド発生器（コア）',[1609,413,sg*210],90);
- part('hyper','主ハイパードライブ',[520,565,0],150,{length:180});
- for(const sg of [-1,1])part('inertial','慣性補償装置',[1250,418,sg*1080],170,{length:160,dir:[1,0,0]});
- for(const sg of [-1,1])part('fuel','反応物サイロ',[1611,418,sg*1250],70,{length:200,dir:[0,1,0]});
+ for(const [z,rr] of [[-311,r],[0,r],[311,r]]){const d=120,nl=engineBaseline('exposed',d,'nozzleLength'),len=engineBaseline('exposed',d,'length')*1.5;const p=placePart(s,'engine',[X(nl/2),409,z],d,{...eo,label:z?'舷側主推進機関':'中央主推進機関',d,reactor:rr.id,dir:[-1,0,0],engineLength:len},false);resizeEngine(p,d,len);}
+ // ---- deflector shield generators under the housing; hyperdrive; inertial units; fuel ----
+ for(const sg of [-1,1])part('shield','偏向シールド発生器',[X(960),500,sg*70],80);
+ part('hyper','主ハイパードライブ',[X(520),565,0],73.5,{length:180});
+ for(const sg of [-1,1])part('inertial','慣性補償装置',[X(1250),418,sg*1080],170,{length:160,dir:[1,0,0]});
+ for(const sg of [-1,1])part('fuel','パイロット炉燃料タンク',[X(1611),418,sg*1250],70,{length:200,dir:[0,1,0]});
+ // ---- core ship interior: droid control computer core, monitoring stations, repulsorlifts ----
+ part('command','ドロイド制御コンピューター・コア',[X(1609),470,0],30,{room:[90,90,70]});
+ for(const sg of [-1,1])part('command','制御コンピューター・コア配電監視ステーション',[X(1609),470,sg*120],30,{room:[60,50,40]});
+ part('repulsor','コアシップ着陸用リパルサーリフト',[X(1609),140,0],140,{dir:[0,1,0],length:30});
  if(opt.stage==='machinery'){delete s._building;return s;}
  // Heavy guns keep their charging plant wholly inside the envelope and clear of
  // machinery: the plant is pushed deeper until all its corners are enclosed.
@@ -3778,20 +3837,35 @@ function lucrehulkBuild(opt={}){
   for(const cd of [10,13,16,20,24,28,33,38,44]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
    for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
    if(ok){f.chargeDepth=cd;return true;}}return false;};
- // A mount is cast onto the outermost hull/structure surface; if a probe line
- // misses, it is retried closer to the centreline (or the given height for beams).
- const mount=(kind,p,axis,zone,o={})=>{for(const f0 of [1,.85,.7,.55,.4,.25,0]){const q=p.slice();if(axis===2||axis===3)q[2]*=f0;else q[1]=lerp(o.y0??q[1],q[1],f0);const f={id:s.nextId++,k:kind,p:q,a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone};mountFit(s,f);if(!f.float&&plantFits(f)){s.fits.push(f);return f;}s.nextId--;}throw new Error('作例の砲座がありません: '+kind+' '+p.map(Math.round).join(','));};
+ // One fitting cast onto the outermost surface along its axis. Armour plates take
+ // no fittings, so a probe that lands on a plate (or finds no surface) is refused.
+ const tryMount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:p.slice(),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':!plantFits(f)?'plant':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(Math.round).join(','),why||'ok',f.p.map(Math.round).join(',')]);if(why){s.nextId--;return null;}return f;};
+ const clearOf=(f,list)=>list.every(g=>Math.hypot(f.p[0]-g.p[0],f.p[1]-g.p[1],f.p[2]-g.p[2])>=((FITS[f.k]?.fm||10)+(FITS[g.k]?.fm||10))*.5+2);
+ // n fittings over candidate stations: dorsal ('top') and ventral ('bottom') rows
+ // take |z| offsets and mount as mirrored pairs (0 = centreline); 'beam' rows take
+ // heights and mount one a side. Stations on plates or crowding others are skipped.
+ const spread=(kind,n,mode,zone,xs,offs,o={})=>{let got=0;
+  for(const off of offs)for(const x of xs){if(got>=n)break;
+   const ps=mode==='beam'?[[[x,off,400],4],[[x,off,-400],5]]:(off?[1,-1]:[1]).map(sg=>[[x,0,sg*off],mode==='top'?2:3]);
+   if(got+ps.length>n)continue;const fs=[];
+   for(const [p,a] of ps){const f=tryMount(kind,p,a,zone+(ps.length>1?(p[2]>0?'-stbd':'-port'):''),o);if(!f||!clearOf(f,s.fits.concat(fs)))break;fs.push(f);}
+   if(fs.length<ps.length)continue;s.fits.push(...fs);got+=fs.length;}
+  if(got<n)throw new Error('作例の砲座が不足しています: '+kind+' '+zone+' '+got+'/'+n);};
+ const range=(a,b,st)=>{const r=[];for(let x=a;x<=b+1e-6;x+=st)r.push(x);return r;};
  // Pods seat on the first wall hit among a few probe heights.
- const pod=(kind,host,o,dir,w,h)=>{let err='取付面がありません';for(const dy of [0,-4,4,-8,8,-12,12,-16,16])for(const dz of [0,-6,6,-12,12]){const q0=[o[0],o[1]+dy,o[2]+(dir[2]?0:dz)];const hit=rayPart(q0,dir,host);if(!hit)continue;const r=placeFit(s,kind,hit.p,hit.n,0,false);if(r.fit){r.fit.width=w;r.fit.height=h;r.fit.commandDepth=7;r.fit.commandHeight=5;return r.fit;}err=r.err;}throw new Error('艦橋ポッド: '+err);};
+ const pod=(kind,host,o,dir,w,h)=>{let err='取付面がありません';for(const dy of [0,-4,4,-8,8,-12,12,-16,16])for(const dz of [0,-6,6,-12,12]){const q0=[o[0],o[1]+dy,o[2]+(dir[2]?0:dz)];const hit=rayPart(q0,dir,host);if(!hit)continue;const r=placeFit(s,kind,hit.p,hit.n,0,false);if(r.fit){r.fit.width=w;r.fit.height=h;r.fit.commandDepth=7;r.fit.commandHeight=5;return r.fit;}err=r.err;}throw new Error('艦橋ポッド '+kind+': '+err);};
 
- const claw=s.parts.find(p=>p.label==='前部アームのドッキング・クロー'&&p.c[2]>0);
- pod('podAir',claw,[2800,418,-200],[0,0,1],14,5);
- part('command','コア内の司令ブリッジ',[1609,600,0],30,{room:[60,40,20]});
- part('command','コア内の戦闘指揮所',[1609,240,0],30,{room:[60,40,20]});
+ const claw=s.parts.find(p=>p.label==='主ドッキング・クロー'&&p.c[2]>0),btower=s.parts.find(p=>p.label==='コアシップ管制ブリッジ塔');
+ pod('podBridge',btower,[X(1609),750,60],[0,0,-1],14,5);
+ pod('podAir',claw,[X(2800),418,-200],[0,0,1],14,5);
  syncAviationSurfaces(s);s._lockedCache=cache(s);
  try{withFrozenStructures(()=>{
-  // 42 quad turbolaser batteries in fourteen groups of three along the ring's equatorial bands
-  for(let g=0;g<7;g++)for(let i=0;i<3;i++){const a=(48+g*44+(i-1)*5)*Math.PI/180,x=1611+1290*Math.cos(a),z=1290*Math.sin(a);mount('quad200',[x,0,z],2,'ring-dorsal');mount('quad200',[x,0,z],3,'ring-ventral');}
+  // 42 quad laser batteries: fourteen typical triple quad laser batteries along the ring's equator
+  for(let g=0;g<7;g++){const a0=42+g*20;spread('quad200',6,'beam','midline-'+(g+1),[a0-4,a0,a0+4].map(a=>X(1611)+1403*Math.cos(a*Math.PI/180)),[418,430,406,442,394]);}
+  // transmitter platform defence artillery
+  spread('pd',4,'top','platform-defence',range(X(570),X(850),30),[130,100]);
+  // main tractor beam generators and multiple tractor beam projectors on the forward arms
+  spread('trc',6,'beam','arm-tractor',range(X(2860),X(3060),20),[470,430,510,390]);
  });}finally{delete s._lockedCache;}
  if(opt.stage==='fitted'){delete s._building;return s;}
 
@@ -3807,7 +3881,7 @@ registerShipExample({
  title:'Lucrehulk',author:'Professor E12^2',authorUrl:'https://sketchfab.com/profanity2009',
  source:'https://sketchfab.com/3d-models/lucrehulk-8bb11e0ad31e4b23b1783e10242c5115',license:'CC BY 4.0',
  credit:'This work is based on "Lucrehulk" (https://sketchfab.com/3d-models/lucrehulk-8bb11e0ad31e4b23b1783e10242c5115) by Professor E12^2 (https://sketchfab.com/profanity2009) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',
- note:'Sketchfab の 3D モデル（Professor E12^2 作、CC BY 4.0）を全長 3,170 m に合わせて実測。中央の球形コアを基本船体とし、開口部のある C 字形の環状船体（円弧）、中央脊柱、推進ナセル、前部アームのドッキング・クローをロフト構造物で再現した通商連合由来のドロイド司令船。兵装は四連ターボレーザー 42 基。ヴァルチャー 1,500 機と C-9979 上陸艇 50 隻、B1 バトル・ドロイド 13 万 9,000 体、MTT 550 両、AAT 6,520 両を搭載。ハイパードライブ・クラス 2。加速約 1,050 G はゲーム上の設定値。公式の乗員はドロイド 150 体と指揮要員 25 名。',
+ note:'基本船体は直径 640 m の球形のコアシップ（モデルから実測、公式は約 696 m）で、C 字形の環状船体・艦尾ブロック・前部アームとドッキング・クロー・各種の塔はすべて構造物（全長 3,170 m）。コアシップの中心にドロイド制御コンピューター・コアと配電監視ステーション、下半分にコア中央球反応炉・発電機集合体、底部に着陸用リパルサーリフト、頂部に管制ブリッジ塔。艦尾背部の信号送信プラットフォームに予備制御信号送信塔・送信塔アンテナ・主／補助センサー・レクテナ・高エネルギー送信塔と防衛砲、前部アームにドロイド信号受信ステーション・前部管制塔・予備センサー・レクテナ・主トラクター・ビーム発生器とドッキング用トラクター・ビーム収納部、環状船体上部に偏向シールド発生器ハウジングと投射器。各アームの内側面に外側・中間・内側の 3 区画の主格納庫口、ドロイド・スターファイターのラック、MTT・AAT 格納区画、格納甲板床下の長期保管ガレージ、貨物ベイ、大規模弾薬庫。艦尾ブロックに左右の主反応炉と主推進機関スラスト・チャンバー。兵装は環状船体の赤道に沿った三連四連レーザー砲台 14 群（計 42 基）。ヴァルチャー 1,500 機、C-9979 上陸艇 50 隻、B1 バトル・ドロイド 13 万 9,000 体、MTT 550 両、AAT 6,250 両。ハイパードライブ・クラス 2、加速約 1,300 G はゲーム上の設定値。Sketchfab の 3D モデル（Professor E12^2 作、CC BY 4.0）を実測。',
  airWings:LUC_AIR,groundForces:LUC_GROUND,
  build:lucrehulkBuild
 });
@@ -3822,53 +3896,59 @@ registerShipExample({
 // tower, the neck, the broad wing, the two hyperwave transceiver masts, the
 // aft dorsal shells and the drive section are ordinary structures.
 {
-const MUNI={"loft":{"aftShell":[[0.0,14.63,14.74,108.89,109.02],[8.81,12.82,22.04,108.58,116.35],[10.58,13.05,25.37,108.12,117.13],[14.98,13.16,27.18,108.73,118.61],[15.86,13.19,33.93,103.85,118.91],[27.32,12.8,39.35,106.84,122.49],[38.78,12.83,42.69,108.42,125.41],[39.66,12.74,47.37,102.41,125.66],[57.29,13.81,51.1,108.19,129.66],[59.93,13.58,54.55,106.61,130.37],[66.1,14.19,52.92,107.14,130.39],[84.61,14.73,57.75,106.9,133.61],[85.49,14.73,62.97,107.04,133.7],[95.19,14.73,59.98,108.0,133.89],[117.22,14.73,63.72,108.3,137.1],[118.1,14.73,68.33,101.61,137.26],[148.07,14.73,73.3,100.86,139.94],[150.71,14.73,70.22,106.87,140.04],[152.48,14.73,74.43,103.63,140.41],[159.53,14.73,70.42,106.69,140.79],[200.95,14.73,72.27,107.37,142.1],[201.83,14.73,63.78,112.98,142.14],[204.48,14.73,53.6,112.98,142.25],[229.15,14.73,53.6,112.97,142.04],[230.04,14.73,67.81,112.97,142.07],[247.66,14.73,64.69,113.02,142.81],[248.54,14.73,52.93,113.99,142.84],[258.24,14.73,34.43,124.76,143.25],[259.12,14.73,32.6,125.73,133.69],[264.41,14.73,14.92,131.62,131.68]],"aftCore":[[85.65,-31.51,31.51,90.01,127.1],[92.7,-34.25,34.25,87.67,129.71],[94.82,-35.01,35.01,74.6,132.17],[115.98,-36.93,36.93,67.73,134.06],[121.62,-45.26,45.26,66.42,136.18],[132.9,-37.71,37.71,64.94,134.06],[141.36,-45.79,45.79,63.33,134.06],[147.0,-38.7,38.7,63.21,135.05],[158.29,-47.18,47.18,61.61,135.05],[162.52,-38.7,38.7,60.52,135.05],[166.04,-38.7,38.7,58.73,135.05],[168.86,-48.07,48.07,58.73,132.03],[174.5,-48.45,48.45,54.48,135.83],[177.32,-39.49,39.49,54.48,135.83],[182.26,-40.04,40.04,54.48,144.56],[185.79,-48.71,48.71,53.92,144.27],[198.48,-41.15,41.15,54.31,148.17],[207.65,-48.24,48.24,54.33,147.73],[256.3,-37.94,37.94,62.97,150.35],[257.71,-37.94,37.94,68.56,150.35],[258.42,-37.94,37.94,84.62,150.35],[271.82,-29.62,29.62,91.09,150.35],[272.52,-13.51,13.51,122.33,150.35],[280.28,-13.51,13.51,122.71,150.36],[280.98,-28.51,28.51,52.48,150.36],[290.86,-28.5,28.5,47.3,136.7],[291.56,-11.04,11.04,86.58,135.29],[296.5,-5.18,5.18,90.93,125.43],[297.2,-0.42,0.42,93.65,94.66]],"aftSide":[[196.94,74.06,74.53,116.85,117.77],[197.57,71.44,74.53,115.22,120.94],[198.19,65.15,74.53,112.62,126.87],[200.36,53.09,74.99,103.53,137.96],[202.85,39.16,74.93,101.92,144.64],[205.03,25.16,74.76,101.85,145.42],[222.12,23.6,75.81,100.05,144.15],[223.36,23.57,76.47,97.51,145.1],[224.92,23.56,75.41,99.37,144.35],[226.47,23.58,74.51,101.38,144.55],[244.5,21.59,72.4,102.57,146.59],[248.54,12.0,71.67,102.37,148.14],[250.4,7.79,71.51,102.86,148.59],[268.43,6.35,67.2,106.56,148.65],[279.93,6.16,58.79,106.65,144.17],[287.7,7.23,45.47,107.06,132.94],[289.25,7.75,34.68,107.2,125.93],[289.56,7.9,32.4,107.23,122.54],[289.87,8.13,30.13,107.26,116.48],[290.18,15.61,20.75,113.93,116.05]],"mastUp":[[183.49,-8.36,7.3,142.53,142.58],[183.99,-8.3,7.23,142.68,143.16],[184.49,-10.18,9.17,141.6,143.81],[188.99,-10.95,10.7,141.6,149.62],[189.24,-10.95,10.79,141.6,203.15],[189.74,-10.95,10.95,141.6,203.15],[189.99,-10.95,10.95,141.6,210.97],[191.24,-10.95,10.95,141.6,210.97],[191.49,-10.95,10.95,141.6,214.9],[236.24,-11.62,11.65,141.6,214.9],[236.49,-11.62,11.65,141.6,210.97],[237.24,-11.62,11.65,141.6,210.97],[237.49,-10.95,10.95,141.6,203.15],[238.24,-10.95,10.95,141.6,203.15],[238.49,-10.95,10.95,141.6,167.43],[239.74,-10.95,10.95,141.6,155.88],[241.61,-10.95,10.95,141.6,141.98]],"mastDown":[[183.49,-8.36,7.3,72.32,72.37],[183.99,-8.3,7.23,71.74,72.22],[184.49,-10.18,9.17,71.09,73.3],[188.99,-10.95,10.7,65.28,73.3],[189.24,-10.95,10.79,11.75,73.3],[189.74,-10.95,10.95,11.75,73.3],[189.99,-10.95,10.95,3.93,73.3],[191.24,-10.95,10.95,3.93,73.3],[191.49,-10.95,10.95,0.0,73.3],[236.24,-11.62,11.65,0.0,73.3],[236.49,-11.62,11.65,3.93,73.3],[237.24,-11.62,11.65,3.93,73.3],[237.49,-10.95,10.95,11.75,73.3],[238.24,-10.95,10.95,11.75,73.3],[238.49,-10.95,10.95,47.46,73.3],[239.74,-10.95,10.95,59.01,73.3],[241.61,-10.95,10.95,72.92,73.3]],"neck":[[281.5,-35.93,35.93,102.89,128.64],[287.37,-35.93,35.93,102.87,132.43],[288.27,-35.93,35.93,102.87,135.77],[300.46,-35.93,35.93,104.57,135.77],[302.27,-35.93,35.93,106.8,135.77],[302.72,-35.93,35.93,102.84,135.77],[303.17,-35.93,35.93,102.84,141.61],[305.43,-35.93,35.93,102.84,140.48],[306.78,-35.93,35.93,102.83,145.18],[324.39,-35.93,35.93,104.52,146.18],[326.64,-35.93,35.93,107.31,146.31],[327.1,-35.93,35.93,102.83,146.34],[346.06,-35.93,35.93,102.83,147.41],[346.51,-35.93,35.93,102.83,145.44],[346.96,-35.93,35.93,102.83,137.91],[348.76,-35.93,35.93,105.04,139.37],[349.22,-35.93,35.93,105.6,135.18],[350.57,-35.93,35.93,107.27,135.18],[351.02,-35.93,35.93,102.83,135.18],[351.47,-35.93,35.93,102.83,139.37],[372.24,-35.93,35.93,104.44,139.97],[374.49,-35.93,35.93,107.23,139.97],[374.95,-35.93,35.93,102.83,139.97],[398.42,-35.93,35.93,104.95,139.97],[410.16,-35.93,35.93,111.8,139.37],[410.61,-35.93,35.93,111.81,135.18],[412.41,-35.93,35.93,111.82,135.18],[414.67,-35.93,35.93,111.83,130.59],[416.93,-35.93,35.93,111.85,128.64]],"keelAft":[[274.82,-4.95,4.95,67.67,79.88],[279.99,-6.06,6.06,67.66,105.1],[282.94,-28.51,28.51,47.3,106.01],[291.07,-28.5,28.5,47.3,105.11],[292.54,-7.24,7.24,67.64,105.46],[296.24,-28.68,28.68,47.21,106.01],[304.36,-29.04,29.04,46.92,105.41],[305.84,-8.97,8.97,67.62,106.01],[310.27,-29.61,29.61,46.51,106.01],[317.65,-30.41,30.41,45.93,106.01],[319.13,-10.69,10.69,67.6,106.01],[324.3,-31.26,31.26,45.27,100.05],[332.42,-32.32,32.32,44.43,106.01],[334.64,-12.71,12.71,67.57,106.01],[339.81,-33.28,33.28,43.61,105.11],[348.67,-34.41,34.41,42.62,88.91],[350.89,-14.81,14.81,67.54,104.96],[355.32,-35.17,35.17,41.92,106.01],[365.66,-36.24,36.24,40.86,106.01],[367.14,-16.92,16.92,67.52,106.01],[375.26,-35.54,35.54,40.36,104.96],[384.12,-37.63,37.63,39.35,105.11],[385.6,-19.32,19.32,67.48,105.11],[392.98,-37.94,37.94,38.91,106.01],[402.58,-38.15,38.15,38.56,82.08],[404.06,-21.72,21.72,67.45,81.34],[494.16,-4.95,4.95,54.97,58.92],[496.38,-4.95,4.95,56.96,57.05]],"coreFwd":[[404.16,-0.26,0.26,93.79,93.88],[411.28,-9.47,9.47,89.86,96.03],[414.84,-14.8,14.8,86.23,109.36],[419.58,-21.96,21.96,75.87,111.4],[432.63,-19.95,19.95,75.88,111.0],[439.75,-18.85,18.85,75.88,115.31],[478.91,-13.16,13.16,75.89,114.34],[491.96,-15.25,15.25,71.64,110.54],[524.0,-15.25,15.25,75.47,112.69],[548.91,-14.73,14.73,73.52,112.69],[550.1,-23.61,23.61,71.75,112.69],[560.78,-26.61,26.61,68.89,110.12],[603.5,-26.59,26.59,68.27,110.13],[607.06,-26.59,26.59,72.49,110.13],[608.24,-26.32,26.32,56.77,110.13],[617.73,-18.62,18.62,56.02,110.13],[618.92,-12.69,12.69,55.99,110.13],[622.48,-12.69,12.69,56.99,112.12],[623.67,-12.69,12.69,74.62,112.09],[630.79,-11.33,11.33,76.38,111.95],[635.53,-8.67,8.67,89.97,111.85],[642.65,-8.85,8.85,92.15,111.66],[645.03,-8.9,8.9,96.47,111.57],[679.44,-5.97,5.97,97.36,109.72],[757.75,-0.9,0.9,102.88,104.25],[760.12,-0.02,0.02,104.06,104.09]],"keelFwd":[[401.92,-0.2,0.2,43.21,43.27],[410.21,-25.51,25.51,37.5,53.2],[411.39,-35.02,35.02,37.53,54.23],[419.68,-36.6,36.6,37.74,54.01],[420.87,-26.82,26.82,37.66,53.98],[437.44,-25.13,25.13,38.25,53.62],[438.63,-33.34,33.34,38.94,53.74],[444.55,-31.24,31.24,39.31,53.91],[445.73,-25.84,25.84,39.41,54.07],[449.28,-29.49,29.49,41.5,53.48],[456.39,-21.48,21.48,42.8,53.99],[467.05,-19.32,19.32,48.08,54.53],[472.97,-4.0,4.0,51.42,72.0],[474.15,-2.51,2.51,42.66,72.0],[475.34,-7.36,7.36,42.66,72.0],[476.52,-11.79,11.79,42.66,72.0],[477.7,-14.46,14.46,34.82,72.0],[483.62,-25.99,25.99,35.01,72.0],[484.81,-35.8,35.8,35.05,72.0],[500.2,-39.07,39.07,35.43,72.0],[502.57,-28.58,28.58,35.47,72.0],[555.85,-27.82,27.82,36.32,72.0],[557.04,-36.72,36.72,36.34,72.0],[607.95,-28.88,28.88,39.01,72.0],[612.69,-27.6,27.6,39.17,72.0],[616.24,-32.43,32.43,39.3,72.0],[665.98,-23.76,23.76,45.48,72.0],[744.13,-11.62,11.62,52.79,72.0],[757.15,-0.09,0.09,56.02,72.0]],"tower":[[644.23,-5.94,5.94,153.84,153.94],[653.26,-7.87,7.87,144.38,162.83],[655.35,-7.71,7.69,142.04,167.02],[658.82,-6.46,6.46,137.54,167.3],[663.33,-7.17,7.17,134.69,172.49],[663.68,-7.17,7.17,135.0,172.1],[664.03,-7.17,7.17,135.31,204.78],[665.07,-7.17,7.17,136.23,204.76],[665.77,-11.17,11.17,136.85,207.74],[677.57,-16.05,16.04,148.52,212.09],[680.7,-15.95,15.94,151.23,215.49],[693.9,-16.46,16.34,161.09,215.49],[703.62,-16.18,16.06,167.29,209.55],[714.39,-14.97,14.97,170.04,209.55],[722.03,-14.75,14.75,173.2,208.63],[728.97,-16.23,16.23,177.12,208.63],[729.32,-15.95,15.95,181.4,208.63],[735.92,-15.11,15.11,181.76,207.74],[740.09,-12.05,12.05,184.1,204.78],[740.43,-11.8,11.8,188.52,204.79],[742.17,-10.53,10.53,188.57,201.95],[742.52,-10.27,10.27,188.58,196.72],[744.6,-8.75,8.75,188.64,196.73],[744.95,-8.49,8.49,188.65,191.04],[748.42,-5.58,5.58,190.41,190.86]],"towerBase":[[609.81,-2.71,3.6,156.59,156.59],[611.25,-2.63,3.51,156.59,156.61],[611.54,-2.61,3.5,156.59,159.89],[611.83,-2.59,3.48,156.6,159.89],[612.12,-21.24,20.97,130.4,159.89],[632.96,-21.58,20.97,130.4,161.83],[633.54,-21.58,20.97,130.4,159.87],[637.6,-22.43,21.81,129.74,157.09],[658.44,-22.43,21.81,129.74,157.09],[678.7,-21.58,20.97,131.28,156.61],[679.28,-19.71,19.1,131.28,156.6],[687.1,-19.71,19.1,131.28,156.29],[688.83,-18.71,18.01,132.13,160.23],[692.89,-18.72,18.03,132.13,161.27],[694.62,-19.72,19.11,131.28,155.79],[694.91,-19.71,19.11,131.28,155.76],[695.2,-19.71,19.1,137.9,155.73],[695.49,-2.36,3.25,152.86,155.72],[696.65,-2.44,3.33,154.66,155.68]],"domeFins":[[468.31,30.36,61.8,101.81,108.09],[468.77,30.36,67.31,101.81,112.21],[469.22,30.37,68.23,92.55,112.2],[480.98,30.51,68.1,91.17,112.08],[481.44,33.76,37.63,91.16,92.76],[483.25,33.81,37.61,91.15,91.42],[493.2,31.02,69.28,101.11,111.51],[493.66,31.05,70.21,91.85,111.5],[505.88,31.83,70.62,90.49,111.37],[506.33,34.89,39.06,90.48,90.91],[518.1,32.5,72.61,99.98,110.8],[518.55,32.52,72.64,91.14,110.8],[529.86,32.92,73.32,89.82,110.68],[530.31,32.94,72.46,100.27,110.67],[542.53,32.98,72.53,99.28,110.1],[542.99,32.98,73.4,90.44,110.1],[553.85,32.96,73.23,90.33,109.98],[554.3,32.96,73.23,99.16,109.98],[566.52,32.71,68.54,99.0,103.16],[566.97,32.69,72.03,99.0,107.93],[567.43,32.67,72.87,89.74,107.92],[578.29,32.2,72.14,89.63,107.81],[578.74,32.18,72.11,98.46,107.8],[591.41,31.47,70.11,98.3,108.7],[591.86,31.44,70.95,89.04,108.69],[602.73,30.88,69.95,88.92,108.58],[603.18,30.86,69.91,96.87,108.58],[603.63,30.84,68.99,98.17,108.57],[604.08,30.87,68.95,102.29,108.57]],"dome":[[407.88,-29.68,29.68,119.75,121.87],[409.27,-51.51,51.51,109.18,136.36],[412.05,-67.78,67.78,108.95,147.78],[425.95,-88.24,88.24,108.52,164.97],[452.37,-101.82,101.82,106.17,169.96],[501.03,-108.59,108.59,100.71,162.67],[503.81,-111.23,111.23,95.25,163.68],[512.16,-108.84,108.84,100.9,162.59],[534.4,-109.09,109.09,101.63,161.23],[555.26,-105.52,105.52,105.53,158.52],[602.53,-103.88,103.88,105.53,157.2],[606.71,-108.14,108.14,104.1,156.63],[608.1,-101.92,101.92,105.53,156.4],[619.22,-105.86,105.86,100.25,155.97],[655.37,-99.49,99.49,101.15,152.37],[658.15,-92.61,92.61,101.9,151.87],[698.47,-89.46,89.46,100.5,146.5],[701.25,-92.03,92.03,101.15,146.19],[704.03,-84.14,84.14,101.79,147.07],[737.4,-77.23,77.23,109.9,142.68],[741.58,-78.67,78.67,109.33,141.79],[767.99,-69.39,69.39,102.3,135.72],[769.38,-62.61,62.61,110.94,135.32],[786.07,-58.24,58.24,107.89,131.07],[802.75,-49.73,49.73,104.28,125.83],[804.14,-39.8,39.8,111.39,125.36],[811.1,-37.76,37.76,110.24,122.98],[825.0,-22.46,22.46,111.63,111.77]],"wingTip":[[302.64,149.69,149.98,123.15,130.24],[303.64,148.42,154.62,123.15,130.82],[304.64,149.77,159.49,123.15,130.82],[312.39,149.77,197.01,123.15,130.86],[322.14,149.15,197.02,124.43,131.04],[328.89,148.37,196.18,125.54,131.06],[330.64,149.15,195.15,124.62,131.05],[334.39,149.15,196.18,124.62,131.06],[334.89,149.77,196.18,123.15,131.06],[335.14,149.77,196.18,123.15,129.09],[336.89,149.77,196.18,123.15,129.12],[337.14,149.77,196.18,123.15,131.94],[347.89,149.77,197.0,123.15,131.98],[348.14,149.77,197.0,123.15,129.13],[349.39,149.77,197.0,123.15,129.13],[349.64,148.53,197.0,123.15,129.13],[350.33,149.67,197.0,123.15,129.13]]},"rooms":[["hangar","航空機格納庫",[574.5,58.85,-0.5],[182.4,32.4,17.7],"storage"],["hangar","航空機格納庫 2",[559.5,55.85,20.5],[146.4,8.4,11.7],"storage"],["hangar","航空機格納庫 3",[682.5,60.35,-0.5],[32.4,20.4,20.7],"storage"],["hangar","航空機格納庫 4",[558,54.35,-21.5],[143.4,8.4,8.7],"storage"],["service","航空整備・補給区画",[527.47,125,-53],[208.33,17.4,23.4]],["service","航空整備・補給区画 2",[405,125,-0.5],[5.4,56.4,23.4]],["vehicle","車両格納区画（DSD1）",[415.5,125,-0.5],[14.4,56.4,23.4]],["cargo","貨物・物資庫",[157.3,123.5,-33.5],[200,14.4,8.4]],["cargo","貨物・物資庫 2",[46.5,113,-27.5],[56.4,8.4,5.4]],["integrity","構造維持装置",[160.3,123.5,35.5],[200,14.4,8.4]],["integrity","構造維持装置 2",[46.5,113,26.5],[56.4,8.4,5.4]],["pump","反応物供給設備",[111.74,116,43],[138.89,5.4,5.4]],["troops","兵員収容区画（停止保管ドロイド）",[594,126.5,35.5],[119.4,38.4,38.4]],["troops","兵員収容区画（停止保管ドロイド） 2",[613.5,126.5,-30.5],[158.4,26.4,38.4]],["troops","兵員収容区画（停止保管ドロイド） 3",[564,117.5,67],[179.4,23.4,20.4]],["troops","兵員収容区画（停止保管ドロイド） 4",[709.5,126.5,-0.5],[32.4,80.4,32.4]],["troops","兵員収容区画（停止保管ドロイド） 5",[580.5,150.5,-0.5],[92.4,98.4,8.4]],["troops","兵員収容区画（停止保管ドロイド） 6",[447,135.5,1],[47.4,29.4,50.4]],["troops","兵員収容区画（停止保管ドロイド） 7",[499.5,131,44.5],[68.4,20.4,47.4]],["troops","兵員収容区画（停止保管ドロイド） 8",[328.5,129.5,-59],[56.4,77.4,14.4]],["troops","兵員収容区画（停止保管ドロイド） 9",[564,117.5,-71],[173.4,17.4,20.4]],["troops","兵員収容区画（停止保管ドロイド） 10",[216,173,-0.5],[41.4,20.4,71.4]],["troops","兵員収容区画（停止保管ドロイド） 11",[204,123.5,-51.5],[131.4,20.4,20.4]],["troops","兵員収容区画（停止保管ドロイド） 12",[216,41,-0.5],[41.4,20.4,65.4]],["troops","兵員収容区画（停止保管ドロイド） 13",[523.5,86,-0.5],[206.4,20.4,11.4]],["troops","兵員収容区画（停止保管ドロイド） 14",[328.5,129.5,67],[56.4,59.4,14.4]],["troops","兵員収容区画（停止保管ドロイド） 15",[301.5,120.5,2.5],[38.4,44.4,26.4]],["troops","兵員収容区画（停止保管ドロイド） 16",[747,116,-0.5],[41.4,92.4,11.4]],["troops","兵員収容区画（停止保管ドロイド） 17",[205.5,123.5,55],[122.4,17.4,20.4]],["troops","兵員収容区画（停止保管ドロイド） 18",[673.5,120.5,34],[38.4,35.4,32.4]],["troops","兵員収容区画（停止保管ドロイド） 19",[258,123.5,1],[23.4,53.4,32.4]],["troops","兵員収容区画（停止保管ドロイド） 20",[556.5,126.5,-0.5],[32.4,32.4,38.4]],["troops","兵員収容区画（停止保管ドロイド） 21",[354,81.5,-0.5],[89.4,26.4,14.4]],["troops","兵員収容区画（停止保管ドロイド） 22",[351,122,4],[23.4,47.4,29.4]],["troops","兵員収容区画（停止保管ドロイド） 23",[499.5,134,-39.5],[68.4,8.4,53.4]],["troops","兵員収容区画（停止保管ドロイド） 24",[142.5,86,-0.5],[74.4,32.4,11.4]],["troops","兵員収容区画（停止保管ドロイド） 25",[522,141.5,-53],[167.4,17.4,8.4]],["troops","兵員収容区画（停止保管ドロイド） 26",[696,191,-0.5],[59.4,14.4,29.4]],["troops","兵員収容区画（停止保管ドロイド） 27",[568.5,110,-53],[248.4,17.4,5.4]],["troops","兵員収容区画（停止保管ドロイド） 28",[520.5,134,61],[170.4,11.4,11.4]],["troops","兵員収容区画（停止保管ドロイド） 29",[585,74,1],[65.4,29.4,11.4]],["troops","兵員収容区画（停止保管ドロイド） 30",[781.5,120.5,1],[26.4,53.4,14.4]],["troops","兵員収容区画（停止保管ドロイド） 31",[216,132.5,37],[131.4,17.4,8.4]],["troops","兵員収容区画（停止保管ドロイド） 32",[544.5,122,83.5],[122.4,8.4,17.4]],["troops","兵員収容区画（停止保管ドロイド） 33",[145.5,120.5,20.5],[86.4,14.4,14.4]],["troops","兵員収容区画（停止保管ドロイド） 34",[430.5,128,34],[14.4,35.4,35.4]],["troops","兵員収容区画（停止保管ドロイド） 35",[549,104,-50],[107.4,29.4,5.4]],["troops","兵員収容区画（停止保管ドロイド） 36",[382.5,123.5,-20],[38.4,17.4,26.4]],["troops","兵員収容区画（停止保管ドロイド） 37",[430.5,131,-29],[14.4,29.4,41.4]],["troops","兵員収容区画（停止保管ドロイド） 38",[547.5,104,50.5],[110.4,26.4,5.4]],["troops","兵員収容区画（停止保管ドロイド） 39",[687,129.5,-0.5],[11.4,32.4,44.4]],["troops","兵員収容区画（停止保管ドロイド） 40",[133.09,101,-8],[61.57,11.4,17.4]]]};
-const MUN_AIR=[{id:'air-1',name:'ヴァルチャー級ドロイド・スターファイター（4個中隊）',size:1,count:24},{id:'air-2',name:'シースパイド級輸送シャトル',size:2,count:2}];
-const MUN_GROUND=[{id:'ground-1',name:'バトル・ドロイド（停止保管）',kind:'troops',count:149000},{id:'ground-2',name:'DSD1 ドワーフ・スパイダー・ドロイド',kind:'vehicle',size:.3,count:100}];
-const MUN_TAN='#a89a7c',MUN_BROWN='#8f8268',MUN_STEEL='#6f7a86',MUN_DARK='#5f646b';
+const MUNI={"loft":{"aftShell":[[0.0,15.52,15.64,108.89,109.02],[8.81,13.6,23.38,108.58,116.35],[10.58,13.85,26.92,108.12,117.13],[14.98,13.96,28.84,108.73,118.61],[15.86,13.99,36.0,103.85,118.91],[27.32,13.58,41.75,106.84,122.49],[38.78,13.61,45.29,108.42,125.41],[39.66,13.52,50.26,102.41,125.66],[57.29,14.65,54.22,108.19,129.66],[59.93,14.41,57.88,106.61,130.37],[66.1,15.06,56.15,107.14,130.39],[84.61,15.63,61.27,106.9,133.61],[85.49,15.63,66.81,107.04,133.7],[95.19,15.63,63.64,108.0,133.89],[117.22,15.63,67.61,108.3,137.1],[118.1,15.63,72.5,101.61,137.26],[148.07,15.63,77.77,100.86,139.94],[150.71,15.63,74.5,106.87,140.04],[152.48,15.63,78.97,103.63,140.41],[159.53,15.63,74.72,106.69,140.79],[200.95,15.63,76.68,107.37,142.1],[201.83,15.63,67.67,112.98,142.14],[204.48,15.63,56.87,112.98,142.25],[229.15,15.63,56.87,112.97,142.04],[230.04,15.63,71.95,112.97,142.07],[247.66,15.63,68.64,113.02,142.81],[248.54,15.63,56.16,113.99,142.84],[258.24,15.63,36.53,124.76,143.25],[259.12,15.63,34.59,125.73,133.69],[264.41,15.63,15.83,131.62,131.68]],"aftCore":[[85.65,-33.43,33.43,90.01,127.1],[92.7,-36.34,36.34,87.67,129.71],[94.82,-37.15,37.15,74.6,132.17],[115.98,-39.18,39.18,67.73,134.06],[121.62,-48.02,48.02,66.42,136.18],[132.9,-40.01,40.01,64.94,134.06],[141.36,-48.58,48.58,63.33,134.06],[147.0,-41.06,41.06,63.21,135.05],[158.29,-50.06,50.06,61.61,135.05],[162.52,-41.06,41.06,60.52,135.05],[166.04,-41.06,41.06,58.73,135.05],[168.86,-51.0,51.0,58.73,132.03],[174.5,-51.41,51.41,54.48,135.83],[177.32,-41.9,41.9,54.48,135.83],[182.26,-42.48,42.48,54.48,144.56],[185.79,-51.68,51.68,53.92,144.27],[198.48,-43.66,43.66,54.31,148.17],[207.65,-51.18,51.18,54.33,147.73],[256.3,-40.25,40.25,62.97,150.35],[257.71,-40.25,40.25,68.56,150.35],[258.42,-40.25,40.25,84.62,150.35],[271.82,-31.43,31.43,91.09,150.35],[272.52,-14.33,14.33,122.33,150.35],[280.28,-14.33,14.33,122.71,150.36],[280.98,-30.25,30.25,52.48,150.36],[290.86,-30.24,30.24,47.3,136.7],[291.56,-11.71,11.71,86.58,135.29],[296.5,-5.5,5.5,90.93,125.43],[297.2,-0.45,0.45,93.65,94.66]],"aftSide":[[196.94,78.58,79.08,116.85,117.77],[197.57,75.8,79.08,115.22,120.94],[198.19,69.12,79.08,112.62,126.87],[200.36,56.33,79.56,103.53,137.96],[202.85,41.55,79.5,101.92,144.64],[205.03,26.69,79.32,101.85,145.42],[222.12,25.04,80.43,100.05,144.15],[223.36,25.01,81.13,97.51,145.1],[224.92,25.0,80.01,99.37,144.35],[226.47,25.02,79.06,101.38,144.55],[244.5,22.91,76.82,102.57,146.59],[248.54,12.73,76.04,102.37,148.14],[250.4,8.27,75.87,102.86,148.59],[268.43,6.74,71.3,106.56,148.65],[279.93,6.54,62.38,106.65,144.17],[287.7,7.67,48.24,107.06,132.94],[289.25,8.22,36.8,107.2,125.93],[289.56,8.38,34.38,107.23,122.54],[289.87,8.63,31.97,107.26,116.48],[290.18,16.56,22.02,113.93,116.05]],"mastUp":[[183.49,-8.87,7.75,142.53,142.58],[183.99,-8.81,7.67,142.68,143.16],[184.49,-10.8,9.73,141.6,143.81],[188.99,-11.62,11.35,141.6,149.62],[189.24,-11.62,11.45,141.6,203.15],[189.74,-11.62,11.62,141.6,203.15],[189.99,-11.62,11.62,141.6,210.97],[191.24,-11.62,11.62,141.6,210.97],[191.49,-11.62,11.62,141.6,214.9],[236.24,-12.33,12.36,141.6,214.9],[236.49,-12.33,12.36,141.6,210.97],[237.24,-12.33,12.36,141.6,210.97],[237.49,-11.62,11.62,141.6,203.15],[238.24,-11.62,11.62,141.6,203.15],[238.49,-11.62,11.62,141.6,167.43],[239.74,-11.62,11.62,141.6,155.88],[241.61,-11.62,11.62,141.6,141.98]],"mastDown":[[183.49,-8.87,7.75,72.32,72.37],[183.99,-8.81,7.67,71.74,72.22],[184.49,-10.8,9.73,71.09,73.3],[188.99,-11.62,11.35,65.28,73.3],[189.24,-11.62,11.45,11.75,73.3],[189.74,-11.62,11.62,11.75,73.3],[189.99,-11.62,11.62,3.93,73.3],[191.24,-11.62,11.62,3.93,73.3],[191.49,-11.62,11.62,0.0,73.3],[236.24,-12.33,12.36,0.0,73.3],[236.49,-12.33,12.36,3.93,73.3],[237.24,-12.33,12.36,3.93,73.3],[237.49,-11.62,11.62,11.75,73.3],[238.24,-11.62,11.62,11.75,73.3],[238.49,-11.62,11.62,47.46,73.3],[239.74,-11.62,11.62,59.01,73.3],[241.61,-11.62,11.62,72.92,73.3]],"neck":[[281.5,-38.12,38.12,102.89,128.64],[287.37,-38.12,38.12,102.87,132.43],[288.27,-38.12,38.12,102.87,135.77],[300.46,-38.12,38.12,104.57,135.77],[302.27,-38.12,38.12,106.8,135.77],[302.72,-38.12,38.12,102.84,135.77],[303.17,-38.12,38.12,102.84,141.61],[305.43,-38.12,38.12,102.84,140.48],[306.78,-38.12,38.12,102.83,145.18],[324.39,-38.12,38.12,104.52,146.18],[326.64,-38.12,38.12,107.31,146.31],[327.1,-38.12,38.12,102.83,146.34],[346.06,-38.12,38.12,102.83,147.41],[346.51,-38.12,38.12,102.83,145.44],[346.96,-38.12,38.12,102.83,137.91],[348.76,-38.12,38.12,105.04,139.37],[349.22,-38.12,38.12,105.6,135.18],[350.57,-38.12,38.12,107.27,135.18],[351.02,-38.12,38.12,102.83,135.18],[351.47,-38.12,38.12,102.83,139.37],[372.24,-38.12,38.12,104.44,139.97],[374.49,-38.12,38.12,107.23,139.97],[374.95,-38.12,38.12,102.83,139.97],[398.42,-38.12,38.12,104.95,139.97],[410.16,-38.12,38.12,111.8,139.37],[410.61,-38.12,38.12,111.81,135.18],[412.41,-38.12,38.12,111.82,135.18],[414.67,-38.12,38.12,111.83,130.59],[416.93,-38.12,38.12,111.85,128.64]],"keelAft":[[274.82,-5.25,5.25,67.67,79.88],[279.99,-6.43,6.43,67.66,105.1],[282.94,-30.25,30.25,47.3,106.01],[291.07,-30.24,30.24,47.3,105.11],[292.54,-7.68,7.68,67.64,105.46],[296.24,-30.43,30.43,47.21,106.01],[304.36,-30.81,30.81,46.92,105.41],[305.84,-9.52,9.52,67.62,106.01],[310.27,-31.42,31.42,46.51,106.01],[317.65,-32.27,32.27,45.93,106.01],[319.13,-11.34,11.34,67.6,106.01],[324.3,-33.17,33.17,45.27,100.05],[332.42,-34.29,34.29,44.43,106.01],[334.64,-13.49,13.49,67.57,106.01],[339.81,-35.31,35.31,43.61,105.11],[348.67,-36.51,36.51,42.62,88.91],[350.89,-15.71,15.71,67.54,104.96],[355.32,-37.32,37.32,41.92,106.01],[365.66,-38.45,38.45,40.86,106.01],[367.14,-17.95,17.95,67.52,106.01],[375.26,-37.71,37.71,40.36,104.96],[384.12,-39.93,39.93,39.35,105.11],[385.6,-20.5,20.5,67.48,105.11],[392.98,-40.25,40.25,38.91,106.01],[402.58,-40.48,40.48,38.56,82.08],[404.06,-23.04,23.04,67.45,81.34],[494.16,-5.25,5.25,54.97,58.92],[496.38,-5.25,5.25,56.96,57.05]],"coreFwd":[[404.16,-0.28,0.28,93.79,93.88],[411.28,-10.05,10.05,89.86,96.03],[414.84,-15.7,15.7,86.23,109.36],[419.58,-23.3,23.3,75.87,111.4],[432.63,-21.17,21.17,75.88,111.0],[439.75,-20.0,20.0,75.88,115.31],[478.91,-13.96,13.96,75.89,114.34],[491.96,-16.18,16.18,71.64,110.54],[524.0,-16.18,16.18,75.47,112.69],[548.91,-15.63,15.63,73.52,112.69],[550.1,-25.05,25.05,71.75,112.69],[560.78,-28.23,28.23,68.89,110.12],[603.5,-28.21,28.21,68.27,110.13],[607.06,-28.21,28.21,72.49,110.13],[608.24,-27.93,27.93,56.77,110.13],[617.73,-19.76,19.76,56.02,110.13],[618.92,-13.46,13.46,55.99,110.13],[622.48,-13.46,13.46,56.99,112.12],[623.67,-13.46,13.46,74.62,112.09],[630.79,-12.02,12.02,76.38,111.95],[635.53,-9.2,9.2,89.97,111.85],[642.65,-9.39,9.39,92.15,111.66],[645.03,-9.44,9.44,96.47,111.57],[679.44,-6.33,6.33,97.36,109.72],[757.75,-0.95,0.95,102.88,104.25],[760.12,-0.02,0.02,104.06,104.09]],"keelFwd":[[401.92,-0.21,0.21,43.21,43.27],[410.21,-27.07,27.07,37.5,53.2],[411.39,-37.16,37.16,37.53,54.23],[419.68,-38.83,38.83,37.74,54.01],[420.87,-28.46,28.46,37.66,53.98],[437.44,-26.66,26.66,38.25,53.62],[438.63,-35.37,35.37,38.94,53.74],[444.55,-33.15,33.15,39.31,53.91],[445.73,-27.42,27.42,39.41,54.07],[449.28,-31.29,31.29,41.5,53.48],[456.39,-22.79,22.79,42.8,53.99],[467.05,-20.5,20.5,48.08,54.53],[472.97,-4.24,4.24,51.42,72.0],[474.15,-2.66,2.66,42.66,72.0],[475.34,-7.81,7.81,42.66,72.0],[476.52,-12.51,12.51,42.66,72.0],[477.7,-15.34,15.34,34.82,72.0],[483.62,-27.58,27.58,35.01,72.0],[484.81,-37.98,37.98,35.05,72.0],[500.2,-41.45,41.45,35.43,72.0],[502.57,-30.32,30.32,35.47,72.0],[555.85,-29.52,29.52,36.32,72.0],[557.04,-38.96,38.96,36.34,72.0],[607.95,-30.64,30.64,39.01,72.0],[612.69,-29.28,29.28,39.17,72.0],[616.24,-34.41,34.41,39.3,72.0],[665.98,-25.21,25.21,45.48,72.0],[744.13,-12.33,12.33,52.79,72.0],[757.15,-0.1,0.1,56.02,72.0]],"tower":[[644.23,-6.3,6.3,153.84,153.94],[653.26,-8.35,8.35,144.38,162.83],[655.35,-8.18,8.16,142.04,167.02],[658.82,-6.85,6.85,137.54,167.3],[663.33,-7.61,7.61,134.69,172.49],[663.68,-7.61,7.61,135.0,172.1],[664.03,-7.61,7.61,135.31,204.78],[665.07,-7.61,7.61,136.23,204.76],[665.77,-11.85,11.85,136.85,207.74],[677.57,-17.03,17.02,148.52,212.09],[680.7,-16.92,16.91,151.23,215.49],[693.9,-17.46,17.34,161.09,215.49],[703.62,-17.17,17.04,167.29,209.55],[714.39,-15.88,15.88,170.04,209.55],[722.03,-15.65,15.65,173.2,208.63],[728.97,-17.22,17.22,177.12,208.63],[729.32,-16.92,16.92,181.4,208.63],[735.92,-16.03,16.03,181.76,207.74],[740.09,-12.79,12.79,184.1,204.78],[740.43,-12.52,12.52,188.52,204.79],[742.17,-11.17,11.17,188.57,201.95],[742.52,-10.9,10.9,188.58,196.72],[744.6,-9.28,9.28,188.64,196.73],[744.95,-9.01,9.01,188.65,191.04],[748.42,-5.92,5.92,190.41,190.86]],"towerBase":[[609.81,-2.88,3.82,156.59,156.59],[611.25,-2.79,3.72,156.59,156.61],[611.54,-2.77,3.71,156.59,159.89],[611.83,-2.75,3.69,156.6,159.89],[612.12,-22.54,22.25,130.4,159.89],[632.96,-22.9,22.25,130.4,161.83],[633.54,-22.9,22.25,130.4,159.87],[637.6,-23.8,23.14,129.74,157.09],[658.44,-23.8,23.14,129.74,157.09],[678.7,-22.9,22.25,131.28,156.61],[679.28,-20.91,20.27,131.28,156.6],[687.1,-20.91,20.27,131.28,156.29],[688.83,-19.85,19.11,132.13,160.23],[692.89,-19.86,19.13,132.13,161.27],[694.62,-20.92,20.28,131.28,155.79],[694.91,-20.91,20.28,131.28,155.76],[695.2,-20.91,20.27,137.9,155.73],[695.49,-2.5,3.45,152.86,155.72],[696.65,-2.59,3.53,154.66,155.68]],"domeFins":[[468.31,32.21,65.57,101.81,108.09],[468.77,32.21,71.42,101.81,112.21],[469.22,32.22,72.39,92.55,112.2],[480.98,32.37,72.25,91.17,112.08],[481.44,35.82,39.93,91.16,92.76],[483.25,35.87,39.9,91.15,91.42],[493.2,32.91,73.51,101.11,111.51],[493.66,32.94,74.49,91.85,111.5],[505.88,33.77,74.93,90.49,111.37],[506.33,37.02,41.44,90.48,90.91],[518.1,34.48,77.04,99.98,110.8],[518.55,34.5,77.07,91.14,110.8],[529.86,34.93,77.79,89.82,110.68],[530.31,34.95,76.88,100.27,110.67],[542.53,34.99,76.95,99.28,110.1],[542.99,34.99,77.88,90.44,110.1],[553.85,34.97,77.7,90.33,109.98],[554.3,34.97,77.7,99.16,109.98],[566.52,34.71,72.72,99.0,103.16],[566.97,34.68,76.42,99.0,107.93],[567.43,34.66,77.32,89.74,107.92],[578.29,34.16,76.54,89.63,107.81],[578.74,34.14,76.51,98.46,107.8],[591.41,33.39,74.39,98.3,108.7],[591.86,33.36,75.28,89.04,108.69],[602.73,32.76,74.22,88.92,108.58],[603.18,32.74,74.17,96.87,108.58],[603.63,32.72,73.2,98.17,108.57],[604.08,32.75,73.16,102.29,108.57]],"dome":[[407.88,-31.49,31.49,119.75,121.87],[409.27,-54.65,54.65,109.18,136.36],[412.05,-71.91,71.91,108.95,147.78],[425.95,-93.62,93.62,108.52,164.97],[452.37,-108.03,108.03,106.17,169.96],[501.03,-115.21,115.21,100.71,162.67],[503.81,-118.02,118.02,95.25,163.68],[512.16,-115.48,115.48,100.9,162.59],[534.4,-115.74,115.74,101.63,161.23],[555.26,-111.96,111.96,105.53,158.52],[602.53,-110.22,110.22,105.53,157.2],[606.71,-114.74,114.74,104.1,156.63],[608.1,-108.14,108.14,105.53,156.4],[619.22,-112.32,112.32,100.25,155.97],[655.37,-105.56,105.56,101.15,152.37],[658.15,-98.26,98.26,101.9,151.87],[698.47,-94.92,94.92,100.5,146.5],[701.25,-97.64,97.64,101.15,146.19],[704.03,-89.27,89.27,101.79,147.07],[737.4,-81.94,81.94,109.9,142.68],[741.58,-83.47,83.47,109.33,141.79],[767.99,-73.62,73.62,102.3,135.72],[769.38,-66.43,66.43,110.94,135.32],[786.07,-61.79,61.79,107.89,131.07],[802.75,-52.76,52.76,104.28,125.83],[804.14,-42.23,42.23,111.39,125.36],[811.1,-40.06,40.06,110.24,122.98],[825.0,-23.83,23.83,111.63,111.77]],"wingTip":[[302.64,158.82,159.13,123.15,130.24],[303.64,157.47,164.05,123.15,130.82],[304.64,158.91,169.22,123.15,130.82],[312.39,158.91,209.03,123.15,130.86],[322.14,158.25,209.04,124.43,131.04],[328.89,157.42,208.15,125.54,131.06],[330.64,158.25,207.05,124.62,131.05],[334.39,158.25,208.15,124.62,131.06],[334.89,158.91,208.15,123.15,131.06],[335.14,158.91,208.15,123.15,129.09],[336.89,158.91,208.15,123.15,129.12],[337.14,158.91,208.15,123.15,131.94],[347.89,158.91,209.02,123.15,131.98],[348.14,158.91,209.02,123.15,129.13],[349.39,158.91,209.02,123.15,129.13],[349.64,157.59,209.02,123.15,129.13],[350.33,158.8,209.02,123.15,129.13]]},"rooms":[["cargo","貨物庫（旧通貨・貴金属保管庫）",[564,132.5,0.5],[5.4,110.4,50.4]],["integrity","張力場発生器（構造維持）",[157.3,123.5,-35.5],[200,14.4,8.4]],["integrity","張力場発生器（構造維持） 2",[46.5,113,-29.5],[56.4,8.4,5.4]],["pump","反応物供給設備",[52.08,116,27.5],[55.56,14.4,5.4]],["troops","兵員収容区画（停止保管ドロイド）",[597,131,-1],[59.4,107.4,47.4]],["troops","兵員収容区画（停止保管ドロイド） 2",[714,125,0.5],[65.4,86.4,29.4]],["troops","兵員収容区画（停止保管ドロイド） 3",[547.5,132.5,0.5],[26.4,110.4,50.4]],["troops","兵員収容区画（停止保管ドロイド） 4",[561,117.5,71],[173.4,29.4,20.4]],["troops","兵員収容区画（停止保管ドロイド） 5",[561,117.5,-71.5],[179.4,26.4,20.4]],["troops","兵員収容区画（停止保管ドロイド） 6",[202.5,123.5,48.5],[134.4,32.4,20.4]],["troops","兵員収容区画（停止保管ドロイド） 7",[453,131,35],[47.4,41.4,41.4]],["troops","兵員収容区画（停止保管ドロイド） 8",[453,129.5,-37],[47.4,41.4,38.4]],["troops","兵員収容区画（停止保管ドロイド） 9",[654,122,-35.5],[53.4,38.4,35.4]],["troops","兵員収容区画（停止保管ドロイド） 10",[654,122,36.5],[53.4,38.4,35.4]],["troops","兵員収容区画（停止保管ドロイド） 11",[544.5,48.5,0.5],[122.4,38.4,14.4]],["troops","兵員収容区画（停止保管ドロイド） 12",[214.5,173,0.5],[44.4,20.4,71.4]],["troops","兵員収容区画（停止保管ドロイド） 13",[460.5,158,0.5],[62.4,86.4,11.4]],["troops","兵員収容区画（停止保管ドロイド） 14",[195,122,-52],[149.4,17.4,23.4]],["troops","兵員収容区画（停止保管ドロイド） 15",[214.5,35,0.5],[38.4,20.4,65.4]],["troops","兵員収容区画（停止保管ドロイド） 16",[766.5,122,-1],[38.4,65.4,17.4]],["troops","兵員収容区画（停止保管ドロイド） 17",[331.5,125,-1],[20.4,59.4,35.4]],["troops","兵員収容区画（停止保管ドロイド） 18",[421.5,128,0.5],[14.4,74.4,35.4]],["troops","兵員収容区画（停止保管ドロイド） 19",[328.5,129.5,-68.5],[56.4,74.4,8.4]],["troops","兵員収容区画（停止保管ドロイド） 20",[328.5,129.5,66.5],[56.4,74.4,8.4]],["troops","兵員収容区画（停止保管ドロイド） 21",[367.5,122,-1],[20.4,59.4,29.4]],["troops","兵員収容区画（停止保管ドロイド） 22",[528,134,63.5],[185.4,14.4,11.4]],["troops","兵員収容区画（停止保管ドロイド） 23",[144,86,0.5],[77.4,32.4,11.4]],["troops","兵員収容区画（停止保管ドロイド） 24",[522,134,-65.5],[167.4,14.4,11.4]],["troops","兵員収容区画（停止保管ドロイド） 25",[142.97,120.5,23],[75.34,17.4,14.4]]]};
+const MUN_AIR=[];
+const MUN_GROUND=[{id:'ground-1',name:'B1バトル・ドロイド（停止保管）',kind:'troops',count:150000}];
+const MUN_TAN='#a89a7c',MUN_BROWN='#8f8268',MUN_STEEL='#6f7a86',MUN_DARK='#5f646b',MUN_PLATE='#d2d4cf',MUN_BLUE='#5f7f9f';
 function munificentBuild(opt={}){
- const D=MUNI,L=825;
+ const D=MUNI,L=825,SZ=1.061,Z=v=>v*SZ;
  // The rod: 24 m wide, 15 m deep, centred 100 m above the keel line.
  const rod=(t,f)=>[t,f,Math.max(.005,.1*f),100/150-.5];
  const s=newShip({L,W:24,H:150,sec:'ellipse',plan:'rect',bowW:.5,bowH:.5,stern:1,bowFree:true,stations:[rod(0,.03),rod(.1,.03),rod(.106,1),rod(.92,1),rod(.926,.03),rod(1,.03)],keel:'light'},'ミュニフィセント級スター・フリゲート');
  s._building=true;s.reference='munificent';s.paint='cis';s.lights='warm';s.detail=1;s.armor={hull:.2,cit:.3};s.shieldTarget=1;
  const k=shipKit(s),part=(kind,label,c,d,o={})=>placePart(s,kind,c,d,{label,...o});
  const loft=(name,label,paint,o={},mirror=false)=>k.loftX(label,D.loft[name],{paint,corner:.12,...o},mirror);
- loft('dome','前部ドーム外殻',MUN_TAN,{corner:.45,wallInset:.28});
+ // The great curved armour shells over the reactors and forward hull are plates:
+ // nothing mounts on them, so the guns sit on the dorsal spine, keels, masts and wings.
+ loft('dome','前部湾曲装甲殻',MUN_PLATE,{corner:.45,wallInset:.28,plate:true,plateT:.35});
+ k.loftX('背部縦通材（軽ターボレーザー砲座）',D.loft.dome.filter(r=>r[0]>=430&&r[0]<=700).map(r=>[r[0],-7,7,r[4]-3,r[4]+4]),{paint:MUN_STEEL,corner:.2});
  loft('coreFwd','前部中央船体',MUN_BROWN,{corner:.2});
  loft('keelFwd','前部腹部竜骨',MUN_BROWN,{corner:.35});
  loft('towerBase','司令塔基部',MUN_BROWN,{corner:.15});
  loft('tower','司令塔・長距離センサー',MUN_STEEL,{corner:.25});
- loft('domeFins','ドーム下部の舷側フィン',MUN_DARK,{corner:.1},true);
+ loft('domeFins','装甲殻下部の舷側装甲板',MUN_BLUE,{corner:.1,plate:true,plateT:.3},true);
  loft('neck','中央連結部',MUN_TAN,{corner:.2});
  // The broad wing: inner and outer planform plates (measured outline), thinner outboard.
- k.slab('中央翼（内翼）',[[289.4,0],[298.2,-100],[357.7,-100],[371.6,0],[357.7,100],[298.2,100]],121.5,137,{paint:MUN_TAN});
- k.slab('中央翼（外翼）',[[298.2,100],[302.6,149.8],[312,182],[350,182],[352,141.3],[357.7,100]],123.3,133.3,{paint:MUN_TAN},true);
+ k.slab('中央翼（内翼）',[[289.4,0],[298.2,-100],[357.7,-100],[371.6,0],[357.7,100],[298.2,100]].map(([x,z])=>[x,Z(z)]),123,135.5,{paint:MUN_TAN});
+ k.slab('中央翼（外翼）',[[298.2,100],[302.6,149.8],[312,182],[350,182],[352,141.3],[357.7,100]].map(([x,z])=>[x,Z(z)]),124.5,132,{paint:MUN_TAN},true);
  loft('wingTip','中央翼の翼端板',MUN_STEEL,{corner:.08},true);
  loft('keelAft','中央竜骨・肋材',MUN_BROWN,{corner:.35});
  loft('mastUp','背部ハイパーウェーブ送受信マスト',MUN_STEEL,{corner:.1});
  loft('mastDown','腹部ハイパーウェーブ送受信マスト',MUN_STEEL,{corner:.1});
  loft('aftCore','機関区画',MUN_BROWN,{round:true});
- loft('aftSide','機関区画の舷側外板',MUN_TAN,{corner:.2},true);
- loft('aftShell','艦尾背部外殻',MUN_TAN,{round:true},true);
- // ---- ventral hangar bay in the forward keel (opens downward) ----
- const dock=part('hangar','腹部格納庫発着ベイ',[590,43,0],30,{room:[220,30,14],airRole:'mixed'});
- openBay(s,dock,'bottom','open');
- // ---- power and propulsion: forward main plant, drive-section plant for the seven ion drives ----
- const r=part('gen','主反応炉',[505,129,0],66);
- const ra=part('aux','機関区画補助炉',[215,104,0],60);
+ loft('aftSide','機関区画の舷側装甲殻',MUN_PLATE,{corner:.2,plate:true,plateT:.3},true);
+ loft('aftShell','艦尾背部装甲殻（放熱器・シールド・ヒートシンク）',MUN_PLATE,{round:true,plate:true,plateT:.3},true);
+ // DK cutaway layout. No hangar: the frigate carries no fighter complement.
+ if(opt.stage==='dock'){delete s._building;return s;}
+ // ---- middle: twin main reactors under the armour shells (either can run the ship alone) ----
+ const r=part('gen','第一主反応炉',[505,129,Z(27)],54);
+ part('aux','第二主反応炉',[505,129,Z(-27)],54);
+ // ---- stern: energy cells feeding the seven ion drive thrusters ----
+ const ra=part('aux','艦尾エネルギー・セル',[215,104,0],64);
  const eo=equipmentOptions('exposedTurbine');
  const engine=(label,mouth,y,z,d,body,mirror)=>{const nl=engineBaseline('exposed',d,'nozzleLength'),len=engineBaseline('exposed',d,'length')*body/engineBaseline('exposed',d,'body');const p=placePart(s,'engine',[mouth+nl/2,y,z],d,{...eo,label,d,reactor:ra.id,dir:[-1,0,0],engineLength:len},false);resizeEngine(p,d,len);if(mirror){const q=placePart(s,'engine',[mouth+nl/2,y,-z],d,{...eo,label,d,reactor:ra.id,dir:[-1,0,0],engineLength:len},false);resizeEngine(q,d,len);}return p;};
- engine('上部イオン主機',82,123,0,34,110,false);
- engine('舷側イオン主機',82,99,28,38,110,true);
- engine('下部イオン補機',82,74,12,16,90,true);
- engine('最下部イオン補機',82,58,7,12,70,true);
- // ---- defence, hyperdrive and support machinery ----
- for(const sg of [-1,1])part('shield','偏向シールド発生器',[452,134,sg*30],28);
- for(const sg of [-1,1])part('fuel','反応物サイロ',[330,124,sg*12],14,{length:24,dir:[0,1,0]});
- part('hyper','主ハイパードライブ',[600,126,0],28,{length:53});
- part('inertial','慣性補償装置',[653,129,0],30,{length:52});
- part('inertial','中央慣性補償装置',[380,122,0],22,{length:30});
+ engine('上部イオン・ドライブ・スラスター',82,123,0,36,150,false);
+ engine('舷側イオン・ドライブ・スラスター',82,99,Z(28),40,150,true);
+ engine('下部イオン・ドライブ補助スラスター',82,74,Z(12),18,120,true);
+ engine('最下部イオン・ドライブ補助スラスター',82,58,Z(7),13,95,true);
+ // ---- stern ray-shield generator, mid deflector; hyperdrive units at the mast base ----
+ part('shield','艦尾レイ・シールド発生器',[262,128,0],22);
+ part('shield','偏向シールド発生器',[452,134,0],28);
+ part('hyper','ハイパードライブ・ユニット（送受信マスト基部）',[300,126,0],32,{length:41.5});
+ for(const sg of [-1,1])part('fuel','超高密度反応物タンク',[350,124,Z(sg*12)],14,{length:24,dir:[0,1,0]});
+ // ---- inertial compensators and tensor fields along the longitudinal spines ----
+ part('inertial','慣性補償装置（前部縦通材）',[653,129,0],30,{length:52});
+ part('inertial','慣性補償装置（中央縦通材）',[395,122,0],22,{length:30});
  if(opt.stage==='machinery'){delete s._building;return s;}
  // Heavy guns keep their charging plant wholly inside the envelope and clear of
  // machinery: the plant is pushed deeper until all its corners are enclosed.
@@ -3877,34 +3957,40 @@ function munificentBuild(opt={}){
   for(const cd of [10,13,16,20,24,28,33,38,44]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
    for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
    if(ok){f.chargeDepth=cd;return true;}}return false;};
- // A mount is cast onto the outermost hull/structure surface; if a probe line
- // misses, it is retried closer to the centreline (or the given height for beams).
- const mount=(kind,p,axis,zone,o={})=>{for(const f0 of [1,.85,.7,.55,.4,.25,0]){const q=p.slice();if(axis===2||axis===3)q[2]*=f0;else q[1]=lerp(o.y0??q[1],q[1],f0);const f={id:s.nextId++,k:kind,p:q,a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone};mountFit(s,f);if(!f.float&&plantFits(f)){s.fits.push(f);return f;}s.nextId--;}throw new Error('作例の砲座がありません: '+kind+' '+p.map(Math.round).join(','));};
+ // One fitting cast onto the outermost surface along its axis. Armour plates take
+ // no fittings, so a probe that lands on a plate (or finds no surface) is refused.
+ const tryMount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:p.slice(),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':!plantFits(f)?'plant':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(Math.round).join(','),why||'ok',f.p.map(Math.round).join(',')]);if(why){s.nextId--;return null;}return f;};
+ const clearOf=(f,list)=>list.every(g=>Math.hypot(f.p[0]-g.p[0],f.p[1]-g.p[1],f.p[2]-g.p[2])>=((FITS[f.k]?.fm||10)+(FITS[g.k]?.fm||10))*.5+2);
+ // n fittings over candidate stations: dorsal ('top') and ventral ('bottom') rows
+ // take |z| offsets and mount as mirrored pairs (0 = centreline); 'beam' rows take
+ // heights and mount one a side. Stations on plates or crowding others are skipped.
+ const spread=(kind,n,mode,zone,xs,offs,o={})=>{let got=0;
+  for(const off of offs)for(const x of xs){if(got>=n)break;
+   const ps=mode==='beam'?[[[x,off,400],4],[[x,off,-400],5]]:(off?[1,-1]:[1]).map(sg=>[[x,0,sg*off],mode==='top'?2:3]);
+   if(got+ps.length>n)continue;const fs=[];
+   for(const [p,a] of ps){const f=tryMount(kind,p,a,zone+(ps.length>1?(p[2]>0?'-stbd':'-port'):''),o);if(!f||!clearOf(f,s.fits.concat(fs)))break;fs.push(f);}
+   if(fs.length<ps.length)continue;s.fits.push(...fs);got+=fs.length;}
+  if(got<n)throw new Error('作例の砲座が不足しています: '+kind+' '+zone+' '+got+'/'+n);};
+ const range=(a,b,st)=>{const r=[];for(let x=a;x<=b+1e-6;x+=st)r.push(x);return r;};
  // Pods seat on the first wall hit among a few probe heights.
- const pod=(kind,host,o,dir,w,h)=>{let err='取付面がありません';for(const dy of [0,-4,4,-8,8,-12,12,-16,16])for(const dz of [0,-6,6,-12,12]){const q0=[o[0],o[1]+dy,o[2]+(dir[2]?0:dz)];const hit=rayPart(q0,dir,host);if(!hit)continue;const r=placeFit(s,kind,hit.p,hit.n,0,false);if(r.fit){r.fit.width=w;r.fit.height=h;r.fit.commandDepth=7;r.fit.commandHeight=5;return r.fit;}err=r.err;}throw new Error('艦橋ポッド: '+err);};
+ const pod=(kind,host,o,dir,w,h)=>{let err='取付面がありません';for(const dy of [0,-4,4,-8,8,-12,12,-16,16])for(const dz of [0,-6,6,-12,12]){const q0=[o[0],o[1]+dy,o[2]+(dir[2]?0:dz)];const hit=rayPart(q0,dir,host);if(!hit)continue;const r=placeFit(s,kind,hit.p,hit.n,0,false);if(r.fit){r.fit.width=w;r.fit.height=h;r.fit.commandDepth=7;r.fit.commandHeight=5;return r.fit;}err=r.err;}throw new Error('艦橋ポッド '+kind+': '+err);};
 
- const tower=s.parts.find(p=>p.label==='司令塔・長距離センサー'),neck=s.parts.find(p=>p.label==='中央連結部');
+ const tower=s.parts.find(p=>p.label==='司令塔・長距離センサー');
  pod('podBridge',tower,[800,195,0],[-1,0,0],12,5);
- pod('podAir',neck,[350,130,80],[0,0,-1],14,5);
- pod('podCombat',tower,[705,195,80],[0,0,-1],12,5);
- const hw=x=>{const b=s.parts.find(p=>p.label==='前部ドーム外殻');return 100;};
+ pod('podCombat',tower,[705,195,Z(80)],[0,0,-1],12,5);
  syncAviationSurfaces(s);s._lockedCache=cache(s);
  try{withFrozenStructures(()=>{
-  // 2 forward heavy turbolaser cannons and 2 forward heavy ion cannons
-  for(const sg of [-1,1])mount('stl',[738,0,sg*30],2,'bow-heavy');
-  for(const sg of [-1,1])mount('ion',[705,0,sg*62],2,'bow-ion');
-  // 26 twin light turbolaser cannons on the beams (13 a side)
-  for(let i=0;i<13;i++)for(const sg of [-1,1])mount('ltl',[440+i*25,118,sg*300],sg>0?4:5,(sg<0?'port':'stbd')+'-twin',{y0:125});
-  // 20 turret light turbolasers on the dome shoulders (10 a side)
-  for(let i=0;i<10;i++)for(const sg of [-1,1])mount('ltl',[450+i*30,0,sg*80],2,(sg<0?'port':'stbd')+'-turret');
-  // 12 medium flak guns (6 a side) on the drive section and aft shells
-  for(const x of [60,100,140,180,240,280])for(const sg of [-1,1])mount('pd',[x,0,sg*45],2,'flak');
-  // 40 retractable point-defence twin light turbolasers: 10 dorsal, 10 ventral, 10 a beam
-  for(let i=0;i<10;i++)mount('pd',[445+i*32,0,0],2,'dorsal-pd');
-  for(let i=0;i<5;i++)for(const sg of [-1,1])mount('pd',[490+i*45,0,sg*28],3,'ventral-pd');
-  for(let i=0;i<10;i++)for(const sg of [-1,1])mount('pd',[110+i*16,95,sg*300],sg>0?4:5,(sg<0?'port':'stbd')+'-pd',{y0:100});
-  // ordnance launchers
-  for(const x of [420,445])for(const sg of [-1,1])mount('msl',[x,0,sg*20],3,'ordnance');
+  // 2 heavy turbolaser cannons on the prow elevation mounts, ventral bow
+  spread('stl',2,'beam','prow-heavy',range(600,740,8).reverse(),[70,62,78,86,54]);
+  // 2 long-range ion cannons under the bow
+  spread('ion',2,'beam','bow-ion',range(560,740,8).reverse(),[70,62,78,86,54]);
+  // 26 twin turbolaser cannons on the flanks below the shells and on the keels
+  spread('htl',26,'beam','twin',range(290,750,12),[82,64,72,56,46,92]);
+  // 20 light turbolaser turrets on top: the dorsal spine and the central neck
+  spread('ltl',20,'top','dorsal-light',range(290,690,16),[0,Z(18)]);
+  // 38 point-defence laser cannons: lower mast and transceiver mast, wings, stern
+  spread('pd',16,'beam','mast-pd',range(188,238,14),[20,38,56,165,180]);
+  spread('pd',22,'top','wing-pd',range(295,365,14),[Z(60),Z(100),Z(140),Z(170),Z(40)]);
  });}finally{delete s._lockedCache;}
  if(opt.stage==='fitted'){delete s._building;return s;}
 
@@ -3920,7 +4006,7 @@ registerShipExample({
  title:'Munificent Class Star Frigate',author:'SomeGuyUsingBlender',authorUrl:'https://sketchfab.com/SomeGuyUsingBlender',
  source:'https://sketchfab.com/3d-models/munificent-class-star-frigate-966265e37e61433b919ba640a12a33f5',license:'CC BY 4.0',
  credit:'This work is based on "Munificent Class Star Frigate" (https://sketchfab.com/3d-models/munificent-class-star-frigate-966265e37e61433b919ba640a12a33f5) by SomeGuyUsingBlender (https://sketchfab.com/SomeGuyUsingBlender) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',
- note:'Sketchfab の 3D モデル（SomeGuyUsingBlender 作、CC BY 4.0）を全長 825 m に合わせて実測。細い棒状の基本船体に、前部ドーム外殻・中央翼・司令塔・背部と腹部のハイパーウェーブ送受信マスト・機関区画をすべて実測構造物として組み上げた通信フリゲート。兵装は重ターボレーザー砲 2 基、重イオン砲 2 基、軽ターボレーザー 46 基（二連 26・砲塔 20）、中型フラック砲と格納式二連軽ターボレーザーを点防御砲 52 基で代表、兵装発射管 4 基。停止保管のバトル・ドロイド約 15 万体と DSD1 ドワーフ・スパイダー・ドロイド 100 体、ヴァルチャー 24 機とシャトル 2 機を搭載（公式のヴァルチャー 4 個中隊 48 機は船内容積の都合で半数）。ハイパードライブ・クラス 1。加速約 1,650 G はゲーム上の設定値（公式最大 2,500 G）。公式の乗員は最低 200 体のバトル・ドロイド。',
+ note:'DK の断面図の配置と寸法（全長 825 m・幅 426 m・高さ 243 m）に合わせ、Sketchfab の 3D モデル（SomeGuyUsingBlender 作、CC BY 4.0）の実測形状を幅方向に 1.061 倍して組み直した銀行グループのフリゲート。主反応炉を覆う前部湾曲装甲殻（厚さ 0.35 m）、艦尾背部と機関区画の装甲殻、舷側の青い装甲板は装甲外板で、武装は背部縦通材・中央連結部・竜骨・翼・送受信マストに載せる。艦尾にイオン・ドライブ・スラスターとエネルギー・セル、レイ・シールド発生器、送受信マスト基部にハイパードライブ・ユニット、中央に双子の主反応炉と超高密度反応物タンク、艦首側の縦通材に慣性補償装置、艦首下部に居住・兵員区画と旧保管庫の貨物区画。兵装は艦首の重ターボレーザー砲 2 基、長距離イオン砲 2 基、連装ターボレーザー砲 26 基、軽ターボレーザー砲塔 20 基、点防御レーザー砲 38 基。格納庫は持たず、停止保管バトル・ドロイド 15 万体を積む。加速約 2,300 G、ハイパードライブ・クラス 1。公式の乗員は 200。',
  airWings:MUN_AIR,groundForces:MUN_GROUND,
  build:munificentBuild
 });
@@ -4068,28 +4154,30 @@ registerShipExample({
 // forward prow); the dorsal shell, spine, command tower, bridge, ventral fin,
 // forward ventral pod and the three engine housings are ordinary structures.
 {
-const PROV={"W":202.635,"H":120.0,"st":[[0.0,0.079,0.0083,0.6358,0.8,0.8,0.5,0.5],[0.00956,0.0987,0.0083,0.6492,0.8,0.8,0.5,0.5],[0.12813,0.0987,0.0083,0.6492,0.8,0.8,0.5,0.5],[0.12923,0.7067,0.6333,0.3667,0.9186,0.552,0.65,0.61],[0.16912,0.7852,0.6917,0.3875,0.9405,0.5223,0.52,0.46],[0.19118,0.883,0.725,0.3958,0.8551,0.5163,0.38,0.48],[0.21048,0.9192,0.7333,0.4083,0.8374,0.6317,0.27,0.56],[0.21875,0.9298,0.75,0.4083,0.8298,0.5937,0.3,0.55],[0.28217,0.9824,0.7833,0.4167,0.8206,0.6001,0.34,0.56],[0.33456,0.9763,0.7833,0.4167,0.8338,0.5915,0.39,0.55],[0.3704,0.9734,0.7667,0.4167,0.8287,0.6207,0.33,0.56],[0.39246,0.9545,0.75,0.4167,0.8333,0.6226,0.34,0.55],[0.41176,0.9041,0.7333,0.4083,0.8645,0.4664,0.56,0.49],[0.43658,0.8513,0.6833,0.4,0.882,0.4757,0.55,0.5],[0.45588,0.7484,0.6333,0.3917,0.8317,0.4661,0.68,0.57],[0.45864,0.7192,0.575,0.4125,0.8256,0.6262,0.73,0.55],[0.4614,0.7012,0.6917,0.4792,0.4669,0.6304,0.59,0.44],[0.47518,0.5748,0.675,0.4875,0.5771,0.4686,0.5,0.44],[0.48621,0.6543,0.6917,0.4792,0.5184,0.3364,0.21,0.28],[0.6682,0.7396,0.7083,0.4875,0.5904,0.3186,0.29,0.28],[0.78952,0.6907,0.7,0.4833,0.6297,0.3193,0.26,0.27],[0.85846,0.5813,0.65,0.475,0.5627,0.3635,0.22,0.26],[0.92463,0.2311,0.4167,0.425,0.6844,0.4825,0.27,0.27],[0.96048,0.0932,0.2333,0.3917,0.3833,0.1111,0.02,0.51],[0.96324,0.0857,0.1,0.45,0.3569,0.9702,0.02,0.2],[0.99632,0.0403,0.1167,0.4167,0.6298,0.8266,0.46,0.31],[1.0,0.0204,0.15,0.4,0.9518,0.9747,0.93,0.48]],"loft":{"deck":[[0.0,-21.64,21.64,134.89,137.63],[10.43,-41.26,41.26,137.0,143.84],[76.89,-53.75,53.75,136.54,156.62],[121.19,-63.12,63.12,132.0,165.06],[139.44,-64.74,64.74,125.85,168.03],[260.63,-77.97,77.97,155.26,180.49],[269.76,-77.97,77.97,155.64,180.8],[277.57,-74.57,74.57,155.98,181.07],[427.44,-74.76,74.76,154.57,175.01],[489.99,-59.38,59.38,145.62,160.71],[521.27,-41.57,41.57,136.79,147.18]],"spine":[[121.3,-12.72,12.72,184.8,192.49],[127.79,-17.6,17.6,184.8,192.49],[148.19,-17.95,17.95,184.8,192.49],[150.04,-23.2,23.2,172.51,192.49],[404.97,-27.89,27.89,176.59,192.49],[430.0,-28.35,28.35,173.36,192.49],[446.69,-23.71,23.71,171.2,192.49],[455.96,-29.75,29.75,169.44,192.49],[482.84,-28.96,28.96,160.25,192.49],[490.26,-18.47,18.47,157.59,192.49],[492.11,-16.41,16.41,156.94,157.09]],"aftKeel":[[62.43,-0.24,0.24,73.1,73.16],[70.93,-38.12,38.12,68.07,73.29],[115.93,-40.98,40.98,66.41,75.39],[116.18,-60.8,60.8,66.4,136.88],[125.68,-68.73,68.73,66.06,139.08],[135.93,-70.8,70.8,67.27,141.52],[136.93,-71.0,71.0,74.69,141.75],[137.18,-68.18,68.18,78.39,134.68],[139.35,-68.18,68.18,78.39,134.68]],"tower":[[109.68,-8.16,8.16,330.16,330.28],[120.33,-11.3,11.3,305.42,330.37],[140.35,-13.77,13.77,258.94,327.19],[155.26,-13.77,13.77,224.5,303.96],[193.59,-10.77,10.77,191.75,244.63],[215.32,-8.16,8.16,191.84,211.5],[280.06,-8.16,8.16,191.84,191.85]],"bridge":[[81.9,-18.18,18.18,329.73,333.14],[84.15,-18.18,18.18,329.73,334.31],[88.9,-18.18,18.18,329.73,342.56],[93.9,-18.18,18.18,329.73,343.07],[96.65,-18.18,18.18,329.73,346.93],[164.9,-17.51,17.51,329.73,346.93],[169.65,-15.54,15.54,329.73,346.13],[174.15,-11.45,11.45,329.73,342.56],[177.08,-4.49,4.49,329.73,342.56]],"mast":[[90.45,-4.25,4.25,342.04,342.13],[95.2,-4.25,4.25,342.04,349.17],[106.45,-4.25,4.25,342.04,349.17],[106.7,-1.38,1.38,311.42,318.11],[106.95,-1.38,1.38,311.41,373.94],[111.7,-1.38,1.38,311.33,363.8],[118.45,-1.38,1.38,311.21,347.28],[118.7,-1.38,1.38,311.21,313.07],[118.95,-1.38,1.38,311.2,311.84],[129.7,-2.98,2.98,346.66,349.22],[157.2,-2.98,2.98,346.66,350.31],[160.45,-2.98,2.98,346.66,358.28],[162.45,-2.98,2.98,346.66,356.86],[163.2,-2.98,2.98,346.66,349.22],[165.79,-2.98,2.98,346.66,346.75]],"vfin":[[214.29,-4.17,4.17,64.9,64.94],[246.99,-5.3,5.3,41.86,64.48],[253.58,-6.93,6.93,37.21,64.43],[270.07,-6.93,6.93,25.57,64.27],[299.47,-10.71,10.71,0.45,63.87],[315.13,-10.71,10.71,1.42,15.93],[324.2,-10.71,10.71,6.2,12.64]],"vpod":[[662.63,-0.07,0.07,72.55,72.62],[669.46,-9.15,9.15,67.04,73.99],[678.33,-18.19,18.19,61.57,81.75],[722.0,-33.27,33.27,52.43,81.75],[786.15,-42.09,42.09,47.08,81.75],[840.74,-42.88,42.88,46.6,81.75],[881.0,-36.89,36.89,50.23,81.75],[909.66,-27.04,27.04,56.2,81.75],[928.08,-14.7,14.7,63.68,81.75],[935.59,-0.1,0.1,72.53,72.62]],"ridge":[[708.45,-2.4,2.4,160.25,162.52],[710.94,-2.4,2.4,160.25,164.86],[740.83,-2.4,2.4,160.25,164.86],[744.56,-4.37,4.37,160.25,166.49],[759.5,-3.83,3.83,160.25,164.86],[762.62,-4.37,4.37,160.25,166.49],[780.05,-3.83,3.83,160.19,164.79],[781.92,-7.96,7.96,160.19,166.27],[786.9,-7.96,7.96,160.19,166.27],[788.77,-3.85,3.85,160.19,164.8],[857.26,-3.83,3.83,158.82,164.53],[865.35,-8.25,8.25,158.26,166.41],[885.27,-8.34,8.34,157.31,170.64],[921.38,-7.0,7.0,154.88,168.92],[923.88,-7.38,7.38,154.85,168.1],[935.08,-9.65,9.65,152.42,170.54],[938.2,-15.4,15.4,152.38,170.54],[948.78,-15.05,15.05,160.95,170.54],[953.14,-11.23,11.23,162.0,167.87],[957.5,-7.46,7.46,163.59,166.28]],"plate":[[488.2,-14.99,14.99,154.99,164.65],[488.97,-15.0,15.0,155.01,166.35],[633.88,-17.21,17.21,157.95,166.35],[639.26,-13.16,13.16,157.95,164.65],[641.95,-10.66,10.66,161.59,164.65]],"box83":[[453.71,-11.29,11.29,187.62,194.5],[484.46,-16.49,16.49,180.41,196.19],[491.46,-14.15,14.15,157.2,193.34],[501.71,-10.72,10.72,157.2,189.17],[501.96,-10.64,10.64,180.96,189.06],[505.28,-9.55,9.55,180.96,187.73]],"rail":[[270.15,-6.64,6.64,192.35,194.39],[292.77,-6.64,6.64,192.35,194.39],[295.33,-8.07,8.07,192.3,195.82],[302.99,-6.64,6.64,192.35,194.39],[305.55,-8.07,8.07,192.3,195.82],[308.1,-8.07,8.07,192.3,195.82],[310.66,-6.64,6.64,192.35,194.39],[316.86,-6.64,6.64,192.35,194.39],[319.41,-8.07,8.07,192.3,195.82],[327.81,-6.64,6.64,192.35,194.39],[330.36,-8.07,8.07,192.3,195.82],[341.67,-6.64,6.64,192.35,194.39],[344.23,-8.07,8.07,192.3,195.82],[357.0,-6.64,6.64,192.35,194.39],[363.93,-8.07,8.07,192.3,195.82],[366.49,-6.64,6.64,192.35,194.39],[375.61,-6.64,6.64,192.35,194.39],[378.17,-8.07,8.07,192.3,195.82],[380.72,-8.07,8.07,192.3,195.82],[383.28,-6.64,6.64,192.35,194.39],[387.29,-6.64,6.64,192.35,194.39],[389.84,-8.07,8.07,192.3,195.82],[392.4,-8.07,8.07,192.3,195.82],[394.95,-6.64,6.64,192.35,194.39],[416.12,-6.64,6.64,192.35,194.39]],"towerBase":[[102.91,-6.37,6.37,160.81,160.85],[116.91,-6.37,6.37,162.69,173.69],[121.41,-19.1,19.1,163.24,176.94],[194.41,-19.1,19.1,172.02,175.53]],"aftFin":[[27.14,-2.03,2.03,174.04,174.47],[27.64,-2.03,2.03,171.14,174.47],[38.14,-2.03,2.03,168.92,174.45],[38.39,-8.52,8.52,168.87,174.45],[39.64,-8.52,8.52,168.61,174.45],[46.14,-8.52,8.52,149.24,174.44],[68.89,-8.52,8.52,152.95,174.06],[71.64,-8.52,8.52,153.4,171.66],[71.89,-2.03,2.03,153.44,171.45],[88.31,-2.03,2.03,157.13,157.19]],"engC":[[41.4,-12.99,12.99,109.41,135.12],[53.81,-12.99,12.99,109.41,135.12],[58.87,-13.64,13.64,109.41,138.8],[63.17,-16.64,16.64,109.41,138.8],[69.25,-16.64,16.64,108.8,138.8],[71.02,-16.64,16.64,105.73,138.8],[142.67,-16.67,16.67,105.73,138.8]],"engS":[[60.82,25.92,60.78,94.75,129.61],[73.32,25.92,60.78,94.75,129.61],[80.32,20.92,60.78,93.72,130.64],[86.07,20.92,60.78,89.8,134.56],[94.07,20.92,61.3,89.8,134.56],[96.82,20.92,65.78,89.79,134.57],[148.27,20.92,65.78,89.75,134.61]],"engLow":[[82.04,-8.86,8.86,105.4,106.4],[88.54,-12.38,12.38,99.37,106.4],[116.79,-14.87,14.87,94.62,106.4],[117.04,-27.85,27.85,94.49,106.4],[128.54,-36.26,36.26,85.61,106.4],[140.61,-36.24,36.24,85.66,106.4]],"engKeel":[[105.41,-3.18,3.18,92.03,104.92],[110.16,-4.0,4.0,90.48,104.92],[110.41,-6.92,6.92,82.88,104.92],[139.79,-6.92,6.92,78.02,104.92]],"pipeS":[[28.05,20.62,27.31,90.77,97.46],[30.31,20.62,27.31,90.77,97.46],[30.87,19.91,28.03,90.06,98.18],[46.1,19.91,28.03,90.06,98.18],[60.76,21.42,26.27,91.98,96.93],[65.27,19.92,25.25,94.22,101.06],[77.96,15.33,20.61,106.04,112.46],[81.62,14.82,19.67,108.84,113.69],[140.84,14.82,19.67,108.83,113.68]],"nozC":[[10.27,-10.2,10.2,112.2,132.32],[36.52,-11.91,11.91,110.51,134.02],[41.91,-10.21,10.21,112.2,132.32]],"nozS":[[18.61,29.72,57.0,98.56,125.84],[54.36,27.46,59.25,96.31,128.09],[61.5,29.71,57.01,98.55,125.85]],"nozSrim":[[15.31,36.2,50.9,94.33,129.55],[16.81,34.46,52.64,94.24,129.65],[17.06,28.12,58.98,94.23,129.67],[24.06,28.29,58.82,93.82,130.15],[26.06,34.19,52.91,93.71,130.29],[41.31,36.18,50.92,92.83,131.34],[41.5,36.2,50.9,92.82,129.26]]},"rooms":[["hangar","上部航空機格納庫",[353,149.85,-1],[155.4,125.4,44.7],"storage"],["hangar","上部航空機格納庫 2",[353,140.85,71],[155.4,17.4,26.7],"storage"],["hangar","上部航空機格納庫 3",[353,139.35,-73],[155.4,17.4,23.7],"storage"],["hangar","上部航空機格納庫 4",[351.5,134.85,84.5],[140.4,8.4,14.7],"storage"],["hangar","下部航空機格納庫",[353,102.15,-1],[155.4,173.4,20.7],"storage"],["hangar","下部航空機格納庫 2",[351.5,105.15,90.5],[140.4,8.4,14.7],"storage"],["hangar","下部航空機格納庫 3",[348.5,106.65,-92.5],[146.4,8.4,11.7],"storage"],["service","航空整備・補給区画",[345.5,79.5,-35.5],[164.4,50.4,23.4]],["service","航空整備・補給区画 2",[347,79.5,35],[167.4,47.4,23.4]],["service","航空整備・補給区画 3",[306.95,181.5,0.5],[99.31,44.4,17.4]],["service","航空整備・補給区画 4",[261.5,120,60.5],[8.4,44.4,56.4]],["troops","兵員収容区画（バトル・ドロイド）",[713,147,0.5],[383.4,68.4,20.4]],["troops","兵員収容区画（バトル・ドロイド） 2",[531.89,120,0.5],[21.19,92.4,32.4]],["troops","兵員収容区画（バトル・ドロイド） 3",[524,94.5,-26.5],[5.4,32.4,17.4]],["vehicle","車両格納・整備区画",[712.34,111,33.5],[196.08,32.4,50.4]],["vehicle","車両格納・整備区画 2",[529.56,94.5,27.5],[16.51,32.4,17.4]],["cargo","貨物・物資庫",[147.5,150,0.5],[14.4,104.4,32.4]],["integrity","構造維持装置",[196.74,183,0.5],[88.89,38.4,14.4]],["integrity","構造維持装置 2",[143,103.5,0.5],[5.4,50.4,17.4]],["pump","反応物供給設備",[160.5,171,0.5],[40.4,32.4,8.4]]]};
-const PROV_AIR=[{id:'air-1',name:'ヴァルチャー級ドロイド・スターファイター',size:1,count:120},{id:'air-2',name:'ドロイド・トライファイター',size:1,count:120},{id:'air-3',name:'ハイエナ級ドロイド爆撃機',size:1,count:10},{id:'air-4',name:'HMPドロイド・ガンシップ',size:2,count:12},{id:'air-5',name:'シースパイド級シャトル',size:2,count:4}];
-const PROV_GROUND=[{id:'ground-1',name:'バトル・ドロイド部隊',kind:'troops',count:48247},{id:'ground-2',name:'MTT 大型兵員輸送車',kind:'vehicle',size:8,count:40},{id:'ground-3',name:'AAT 装甲強襲戦車',kind:'vehicle',size:1,count:200}];
-const PROV_TAN='#a89a7c',PROV_BROWN='#8f8268',PROV_STEEL='#6f7a86',PROV_DARK='#5f646b';
+const PROV={"W":202.635,"H":111.36,"st":[[0.0,0.079,0.0083,0.6358,0.8,0.8,0.5,0.5],[0.00956,0.0987,0.0083,0.6492,0.8,0.8,0.5,0.5],[0.12813,0.0987,0.0083,0.6492,0.8,0.8,0.5,0.5],[0.12923,0.7067,0.6333,0.3667,0.9186,0.552,0.65,0.61],[0.16912,0.7852,0.6917,0.3875,0.9405,0.5223,0.52,0.46],[0.19118,0.883,0.725,0.3958,0.8551,0.5163,0.38,0.48],[0.21048,0.9192,0.7333,0.4083,0.8374,0.6317,0.27,0.56],[0.21875,0.9298,0.75,0.4083,0.8298,0.5937,0.3,0.55],[0.28217,0.9824,0.7833,0.4167,0.8206,0.6001,0.34,0.56],[0.33456,0.9763,0.7833,0.4167,0.8338,0.5915,0.39,0.55],[0.3704,0.9734,0.7667,0.4167,0.8287,0.6207,0.33,0.56],[0.39246,0.9545,0.75,0.4167,0.8333,0.6226,0.34,0.55],[0.41176,0.9041,0.7333,0.4083,0.8645,0.4664,0.56,0.49],[0.43658,0.8513,0.6833,0.4,0.882,0.4757,0.55,0.5],[0.45588,0.7484,0.6333,0.3917,0.8317,0.4661,0.68,0.57],[0.45864,0.7192,0.575,0.4125,0.8256,0.6262,0.73,0.55],[0.4614,0.7012,0.6917,0.4792,0.4669,0.6304,0.59,0.44],[0.47518,0.5748,0.675,0.4875,0.5771,0.4686,0.5,0.44],[0.48621,0.6543,0.6917,0.4792,0.5184,0.3364,0.21,0.28],[0.6682,0.7396,0.7083,0.4875,0.5904,0.3186,0.29,0.28],[0.78952,0.6907,0.7,0.4833,0.6297,0.3193,0.26,0.27],[0.85846,0.5813,0.65,0.475,0.5627,0.3635,0.22,0.26],[0.92463,0.2311,0.4167,0.425,0.6844,0.4825,0.27,0.27],[0.96048,0.0932,0.2333,0.3917,0.3833,0.1111,0.02,0.51],[0.96324,0.0857,0.1,0.45,0.3569,0.9702,0.02,0.2],[0.99632,0.0403,0.1167,0.4167,0.6298,0.8266,0.46,0.31],[1.0,0.0204,0.15,0.4,0.9518,0.9747,0.93,0.48]],"loft":{"deck":[[0.0,-21.64,21.64,125.18,127.72],[10.43,-41.26,41.26,127.14,133.48],[76.89,-53.75,53.75,126.71,145.34],[121.19,-63.12,63.12,122.5,153.18],[139.44,-64.74,64.74,116.79,155.93],[260.63,-77.97,77.97,144.08,167.49],[269.76,-77.97,77.97,144.43,167.78],[277.57,-74.57,74.57,144.75,168.03],[427.44,-74.76,74.76,143.44,162.41],[489.99,-59.38,59.38,135.14,149.14],[521.27,-41.57,41.57,126.94,136.58]],"spine":[[121.3,-12.72,12.72,171.49,178.63],[127.79,-17.6,17.6,171.49,178.63],[148.19,-17.95,17.95,171.49,178.63],[150.04,-23.2,23.2,160.09,178.63],[404.97,-27.89,27.89,163.88,178.63],[430.0,-28.35,28.35,160.88,178.63],[446.69,-23.71,23.71,158.87,178.63],[455.96,-29.75,29.75,157.24,178.63],[482.84,-28.96,28.96,148.71,178.63],[490.26,-18.47,18.47,146.24,178.63],[492.11,-16.41,16.41,145.64,145.78]],"aftKeel":[[62.43,-0.24,0.24,67.84,67.89],[70.93,-38.12,38.12,63.17,68.01],[115.93,-40.98,40.98,61.63,69.96],[116.18,-60.8,60.8,61.62,127.02],[125.68,-68.73,68.73,61.3,129.07],[135.93,-70.8,70.8,62.43,131.33],[136.93,-71.0,71.0,69.31,131.54],[137.18,-68.18,68.18,72.75,124.98],[139.35,-68.18,68.18,72.75,124.98]],"tower":[[109.68,-8.16,8.16,306.39,306.5],[120.33,-11.3,11.3,283.43,306.58],[140.35,-13.77,13.77,240.3,303.63],[155.26,-13.77,13.77,208.34,282.07],[193.59,-10.77,10.77,177.94,227.02],[215.32,-8.16,8.16,178.03,196.27],[280.06,-8.16,8.16,178.03,178.04]],"bridge":[[81.9,-18.18,18.18,305.99,309.15],[84.15,-18.18,18.18,305.99,310.24],[88.9,-18.18,18.18,305.99,317.9],[93.9,-18.18,18.18,305.99,318.37],[96.65,-18.18,18.18,305.99,321.95],[164.9,-17.51,17.51,305.99,321.95],[169.65,-15.54,15.54,305.99,321.21],[174.15,-11.45,11.45,305.99,317.9],[177.08,-4.49,4.49,305.99,317.9]],"mast":[[90.45,-4.25,4.25,317.41,317.5],[95.2,-4.25,4.25,317.41,324.03],[106.45,-4.25,4.25,317.41,324.03],[106.7,-1.38,1.38,289.0,295.21],[106.95,-1.38,1.38,288.99,347.02],[111.7,-1.38,1.38,288.91,337.61],[118.45,-1.38,1.38,288.8,322.28],[118.7,-1.38,1.38,288.8,290.53],[118.95,-1.38,1.38,288.79,289.39],[129.7,-2.98,2.98,321.7,324.08],[157.2,-2.98,2.98,321.7,325.09],[160.45,-2.98,2.98,321.7,332.48],[162.45,-2.98,2.98,321.7,331.17],[163.2,-2.98,2.98,321.7,324.08],[165.79,-2.98,2.98,321.7,321.78]],"vfin":[[214.29,-4.17,4.17,60.23,60.26],[246.99,-5.3,5.3,38.85,59.84],[253.58,-6.93,6.93,34.53,59.79],[270.07,-6.93,6.93,23.73,59.64],[299.47,-10.71,10.71,0.42,59.27],[315.13,-10.71,10.71,1.32,14.78],[324.2,-10.71,10.71,5.75,11.73]],"vpod":[[662.63,-0.07,0.07,67.33,67.39],[669.46,-9.15,9.15,62.21,68.66],[678.33,-18.19,18.19,57.14,75.86],[722.0,-33.27,33.27,48.66,75.86],[786.15,-42.09,42.09,43.69,75.86],[840.74,-42.88,42.88,43.24,75.86],[881.0,-36.89,36.89,46.61,75.86],[909.66,-27.04,27.04,52.15,75.86],[928.08,-14.7,14.7,59.1,75.86],[935.59,-0.1,0.1,67.31,67.39]],"ridge":[[708.45,-2.4,2.4,148.71,150.82],[710.94,-2.4,2.4,148.71,152.99],[740.83,-2.4,2.4,148.71,152.99],[744.56,-4.37,4.37,148.71,154.5],[759.5,-3.83,3.83,148.71,152.99],[762.62,-4.37,4.37,148.71,154.5],[780.05,-3.83,3.83,148.66,152.93],[781.92,-7.96,7.96,148.66,154.3],[786.9,-7.96,7.96,148.66,154.3],[788.77,-3.85,3.85,148.66,152.93],[857.26,-3.83,3.83,147.38,152.68],[865.35,-8.25,8.25,146.87,154.43],[885.27,-8.34,8.34,145.98,158.35],[921.38,-7.0,7.0,143.73,156.76],[923.88,-7.38,7.38,143.7,156.0],[935.08,-9.65,9.65,141.45,158.26],[938.2,-15.4,15.4,141.41,158.26],[948.78,-15.05,15.05,149.36,158.26],[953.14,-11.23,11.23,150.34,155.78],[957.5,-7.46,7.46,151.81,154.31]],"plate":[[488.2,-14.99,14.99,143.83,152.8],[488.97,-15.0,15.0,143.85,154.37],[633.88,-17.21,17.21,146.58,154.37],[639.26,-13.16,13.16,146.58,152.8],[641.95,-10.66,10.66,149.96,152.8]],"box83":[[453.71,-11.29,11.29,174.11,180.5],[484.46,-16.49,16.49,167.42,182.06],[491.46,-14.15,14.15,145.88,179.42],[501.71,-10.72,10.72,145.88,175.55],[501.96,-10.64,10.64,167.93,175.45],[505.28,-9.55,9.55,167.93,174.21]],"rail":[[270.15,-6.64,6.64,178.5,180.39],[292.77,-6.64,6.64,178.5,180.39],[295.33,-8.07,8.07,178.45,181.72],[302.99,-6.64,6.64,178.5,180.39],[305.55,-8.07,8.07,178.45,181.72],[308.1,-8.07,8.07,178.45,181.72],[310.66,-6.64,6.64,178.5,180.39],[316.86,-6.64,6.64,178.5,180.39],[319.41,-8.07,8.07,178.45,181.72],[327.81,-6.64,6.64,178.5,180.39],[330.36,-8.07,8.07,178.45,181.72],[341.67,-6.64,6.64,178.5,180.39],[344.23,-8.07,8.07,178.45,181.72],[357.0,-6.64,6.64,178.5,180.39],[363.93,-8.07,8.07,178.45,181.72],[366.49,-6.64,6.64,178.5,180.39],[375.61,-6.64,6.64,178.5,180.39],[378.17,-8.07,8.07,178.45,181.72],[380.72,-8.07,8.07,178.45,181.72],[383.28,-6.64,6.64,178.5,180.39],[387.29,-6.64,6.64,178.5,180.39],[389.84,-8.07,8.07,178.45,181.72],[392.4,-8.07,8.07,178.45,181.72],[394.95,-6.64,6.64,178.5,180.39],[416.12,-6.64,6.64,178.5,180.39]],"towerBase":[[102.91,-6.37,6.37,149.23,149.27],[116.91,-6.37,6.37,150.98,161.18],[121.41,-19.1,19.1,151.49,164.2],[194.41,-19.1,19.1,159.63,162.89]],"aftFin":[[27.14,-2.03,2.03,161.51,161.91],[27.64,-2.03,2.03,158.82,161.91],[38.14,-2.03,2.03,156.76,161.89],[38.39,-8.52,8.52,156.71,161.89],[39.64,-8.52,8.52,156.47,161.89],[46.14,-8.52,8.52,138.49,161.88],[68.89,-8.52,8.52,141.94,161.53],[71.64,-8.52,8.52,142.36,159.3],[71.89,-2.03,2.03,142.39,159.11],[88.31,-2.03,2.03,145.82,145.87]],"engC":[[41.4,-12.99,12.99,101.53,125.39],[53.81,-12.99,12.99,101.53,125.39],[58.87,-13.64,13.64,101.53,128.81],[63.17,-16.64,16.64,101.53,128.81],[69.25,-16.64,16.64,100.97,128.81],[71.02,-16.64,16.64,98.12,128.81],[142.67,-16.67,16.67,98.12,128.81]],"engS":[[60.82,25.92,60.78,87.93,120.28],[73.32,25.92,60.78,87.93,120.28],[80.32,20.92,60.78,86.97,121.23],[86.07,20.92,60.78,83.33,124.87],[94.07,20.92,61.3,83.33,124.87],[96.82,20.92,65.78,83.33,124.88],[148.27,20.92,65.78,83.29,124.92]],"engLow":[[82.04,-8.86,8.86,97.81,98.74],[88.54,-12.38,12.38,92.22,98.74],[116.79,-14.87,14.87,87.81,98.74],[117.04,-27.85,27.85,87.69,98.74],[128.54,-36.26,36.26,79.45,98.74],[140.61,-36.24,36.24,79.49,98.74]],"engKeel":[[105.41,-3.18,3.18,85.4,97.37],[110.16,-4.0,4.0,83.97,97.37],[110.41,-6.92,6.92,76.91,97.37],[139.79,-6.92,6.92,72.4,97.37]],"pipeS":[[28.05,20.62,27.31,84.23,90.44],[30.31,20.62,27.31,84.23,90.44],[30.87,19.91,28.03,83.58,91.11],[46.1,19.91,28.03,83.58,91.11],[60.76,21.42,26.27,85.36,89.95],[65.27,19.92,25.25,87.44,93.78],[77.96,15.33,20.61,98.41,104.36],[81.62,14.82,19.67,101.0,105.5],[140.84,14.82,19.67,100.99,105.5]],"nozC":[[10.27,-10.2,10.2,104.12,122.79],[36.52,-11.91,11.91,102.55,124.37],[41.91,-10.21,10.21,104.12,122.79]],"nozS":[[18.61,29.72,57.0,91.46,116.78],[54.36,27.46,59.25,89.38,118.87],[61.5,29.71,57.01,91.45,116.79]],"nozSrim":[[15.31,36.2,50.9,87.54,120.22],[16.81,34.46,52.64,87.45,120.32],[17.06,28.12,58.98,87.45,120.33],[24.06,28.29,58.82,87.06,120.78],[26.06,34.19,52.91,86.96,120.91],[41.31,36.18,50.92,86.15,121.88],[41.5,36.2,50.9,86.14,119.95]]},"rooms":[["hangar","上部格納甲板（天井ラックの艦載機）",[353,139.71,0.5],[155.4,128.4,41.7],"storage"],["hangar","上部格納甲板（天井ラックの艦載機） 2",[353,129.21,-73],[155.4,17.4,20.7],"storage"],["hangar","上部格納甲板（天井ラックの艦載機） 3",[351.5,129.21,74],[152.4,17.4,20.7],"storage"],["hangar","上部格納甲板（天井ラックの艦載機） 4",[350,124.71,-86.5],[119.4,8.4,11.7],"storage"],["hangar","下部格納甲板（艦載機ラック）",[353,95.01,0.5],[155.4,176.4,17.7],"storage"],["hangar","下部格納甲板（艦載機ラック） 2",[348.5,98.01,-92.5],[122.4,8.4,11.7],"storage"],["hangar","下部格納甲板（艦載機ラック） 3",[347,98.01,93.5],[95.4,8.4,11.7],"storage"],["service","艦載機整備・ドロイド整備甲板",[462.5,117.36,-1],[62.4,101.4,56.4]],["service","艦載機整備・ドロイド整備甲板 2",[308.46,73.86,-31],[102.32,41.4,23.4]],["service","艦載機整備・ドロイド整備甲板 3",[261.5,117.36,48.5],[8.4,38.4,92.4]],["vehicle","MTT・装甲車両格納区画（重量物昇降台）",[621.5,136.86,0.5],[236.4,68.4,17.4]],["vehicle","MTT・装甲車両格納区画（重量物昇降台） 2",[581,105.36,32],[173.4,29.4,44.4]],["vehicle","MTT・装甲車両格納区画（重量物昇降台） 3",[581,103.86,-34],[173.4,29.4,41.4]],["vehicle","MTT・装甲車両格納区画（重量物昇降台） 4",[827,133.86,-1],[83.4,83.4,23.4]],["vehicle","MTT・装甲車両格納区画（重量物昇降台） 5",[365.59,73.86,30.5],[126.58,38.4,23.4]],["vehicle","MTT・装甲車両格納区画（重量物昇降台） 6",[306.5,168.36,-1],[8.4,47.4,14.4]],["cargo","貨物・物資庫",[148.24,139.86,0.5],[15.87,104.4,29.4]],["integrity","構造維持装置",[203.49,103.86,-65.5],[120.37,8.4,47.4]],["integrity","構造維持装置 2",[143,94.86,0.5],[5.4,50.4,17.4]],["pump","反応物供給設備",[177.34,136.86,57.5],[74.07,8.4,17.4]],["troops","停止保管バトル・ドロイド収容区画",[749,97.86,-46],[113.4,35.4,35.4]],["troops","停止保管バトル・ドロイド収容区画 2",[749,99.36,45.5],[113.4,32.4,38.4]],["troops","停止保管バトル・ドロイド収容区画 3",[932,117.36,0.5],[59.4,56.4,32.4]],["troops","停止保管バトル・ドロイド収容区画 4",[683,112.86,-1],[95.4,35.4,29.4]],["troops","停止保管バトル・ドロイド収容区画 5",[807.5,63.36,0.5],[176.4,56.4,8.4]],["troops","停止保管バトル・ドロイド収容区画 6",[422,76.86,-31],[119.4,41.4,17.4]],["troops","停止保管バトル・ドロイド収容区画 7",[869,99.36,36.5],[65.4,32.4,38.4]],["troops","停止保管バトル・ドロイド収容区画 8",[270.5,126.36,9.5],[8.4,110.4,80.4]],["troops","停止保管バトル・ドロイド収容区画 9",[869,99.36,-37],[65.4,29.4,38.4]],["troops","停止保管バトル・ドロイド収容区画 10",[528.5,112.86,-1],[68.4,35.4,29.4]],["troops","停止保管バトル・ドロイド収容区画 11",[398,171.36,0.5],[173.4,44.4,8.4]],["troops","停止保管バトル・ドロイド収容区画 12",[453.5,109.86,63.5],[44.4,26.4,47.4]],["troops","停止保管バトル・ドロイド収容区画 13",[209,169.86,-1],[113.4,41.4,11.4]],["troops","停止保管バトル・ドロイド収容区画 14",[612.5,94.86,54.5],[158.4,14.4,23.4]],["troops","停止保管バトル・ドロイド収容区画 15",[453.5,111.36,-64],[44.4,23.4,50.4]],["troops","停止保管バトル・ドロイド収容区画 16",[633.5,78.36,21.5],[404.4,14.4,8.4]],["troops","停止保管バトル・ドロイド収容区画 17",[219.5,106.86,68],[74.4,11.4,59.4]],["troops","停止保管バトル・ドロイド収容区画 18",[824,109.86,-1],[71.4,29.4,23.4]],["troops","停止保管バトル・ドロイド収容区画 19",[659,78.36,-20.5],[353.4,14.4,8.4]],["troops","停止保管バトル・ドロイド収容区画 20",[762.5,142.86,0.5],[44.4,86.4,11.4]],["troops","停止保管バトル・ドロイド収容区画 21",[611,94.86,-55],[161.4,11.4,23.4]],["troops","停止保管バトル・ドロイド収容区画 22",[885.5,136.86,-1],[32.4,71.4,17.4]],["troops","停止保管バトル・ドロイド収容区画 23",[284,73.86,35],[35.4,47.4,23.4]],["troops","停止保管バトル・ドロイド収容区画 24",[240.5,106.86,-76],[68.4,11.4,41.4]],["troops","停止保管バトル・ドロイド収容区画 25",[534.5,148.86,0.5],[206.4,26.4,5.4]],["troops","停止保管バトル・ドロイド収容区画 26",[927.5,91.86,-28],[50.4,35.4,17.4]],["troops","停止保管バトル・ドロイド収容区画 27",[734,93.36,65],[257.4,5.4,20.4]],["troops","停止保管バトル・ドロイド収容区画 28",[929,91.86,27.5],[53.4,32.4,17.4]],["troops","停止保管バトル・ドロイド収容区画 29",[164,142.86,-2.5],[11.4,110.4,23.4]],["troops","停止保管バトル・ドロイド収容区画 30",[738.5,121.86,-41.5],[92.4,26.4,11.4]],["troops","停止保管バトル・ドロイド収容区画 31",[348.5,82.86,-67],[152.4,29.4,5.4]],["troops","停止保管バトル・ドロイド収容区画 32",[776,127.86,45.5],[167.4,8.4,17.4]],["troops","停止保管バトル・ドロイド収容区画 33",[615.5,88.86,-14.5],[242.4,8.4,11.4]],["troops","停止保管バトル・ドロイド収容区画 34",[737,91.86,-67],[239.4,5.4,17.4]],["troops","停止保管バトル・ドロイド収容区画 35",[713,105.36,23],[47.4,11.4,44.4]],["troops","停止保管バトル・ドロイド収容区画 36",[243.5,105.36,80],[62.4,11.4,32.4]]]};
+const PROV_AIR=[{id:'air-1',name:'ヴァルチャー級ドロイド・スターファイター',size:1,count:120},{id:'air-2',name:'ドロイド・トライファイター',size:1,count:120}];
+const PROV_GROUND=[{id:'ground-1',name:'B1バトル・ドロイド（停止保管）',kind:'troops',count:162000},{id:'ground-2',name:'MTT 大型兵員輸送車',kind:'vehicle',size:8,count:160},{id:'ground-3',name:'AAT 装甲強襲戦車',kind:'vehicle',size:1,count:100},{id:'ground-4',name:'IG-227 ヘイルファイア級ドロイド戦車',kind:'vehicle',size:1,count:60},{id:'ground-5',name:'OG-9 ホームワールド・スパイダー・ドロイド',kind:'vehicle',size:2,count:60},{id:'ground-6',name:'LM-432 クラブ・ドロイド',kind:'vehicle',size:.5,count:60}];
+const PROV_TAN='#a89a7c',PROV_BROWN='#8f8268',PROV_STEEL='#6f7a86',PROV_DARK='#5f646b',PROV_PLATE='#aaa28e',PROV_RED='#6f4637';
 function providenceBuild(opt={}){
- const D=PROV,L=1088;
+ const D=PROV,L=1088,SY=.928,Y=v=>v*SY;
  const s=newShip({L,W:D.W,H:D.H,sec:'warship',plan:'wedge',deckWidth:0,keelWidth:0,belt:.13,chineHeight:.5,bowFree:true,stations:D.st.map(a=>a.slice()),keel:'light'},'プロヴィデンス級空母／駆逐艦');
  s._building=true;s.reference='providence';s.paint='cis';s.lights='warm';s.detail=1;s.armor={hull:.45,cit:.3};s.shieldTarget=1;
  const k=shipKit(s),part=(kind,label,c,d,o={})=>placePart(s,kind,c,d,{label,...o});
  const loft=(name,label,paint,o={},mirror=false)=>k.loftX(label,D.loft[name],{paint,corner:.12,...o},mirror);
  // ---- structures (measured loft sections) ----
- loft('deck','背部装甲殻',PROV_TAN,{corner:.22});
+ // The flowing curved panelling is armour plate: the dorsal shell over the hangar
+ // decks, the central dorsal plate and the forward ventral bulge. Nothing mounts on it.
+ loft('deck','背部湾曲装甲殻（格納甲板上部）',PROV_PLATE,{corner:.22,plate:true,plateT:.8});
  loft('spine','背部中央稜線',PROV_BROWN,{corner:.1});
  loft('aftKeel','艦尾下部の機関台座',PROV_BROWN,{corner:.15});
- loft('tower','司令塔',PROV_TAN,{corner:.14});
+ loft('tower','ウィザーズ・タワー（司令塔・ターボシャフト）',PROV_TAN,{corner:.14});
  loft('towerBase','司令塔の基部',PROV_BROWN,{corner:.1});
- loft('bridge','艦橋区画',PROV_STEEL,{corner:.18});
- loft('mast','艦橋上の通信マスト',PROV_DARK,{corner:.05});
+ loft('bridge','改装通信・センサー・ポッド（展望甲板）',PROV_STEEL,{corner:.18});
+ loft('mast','タワー頂部の通信・センサー・マスト',PROV_DARK,{corner:.05});
  loft('vfin','腹部安定翼と下部センサー',PROV_TAN,{corner:.1});
- loft('vpod','前部腹部ポッド',PROV_BROWN,{round:true});
- loft('ridge','前部背面の稜線',PROV_BROWN,{corner:.1});
- loft('plate','中央背面の装甲板',PROV_TAN,{corner:.1});
+ loft('vpod','前部腹部の湾曲装甲（厚い主船体下部）',PROV_RED,{round:true,plate:true,plateT:.6});
+ loft('ridge','艦首上部の艦橋稜線',PROV_BROWN,{corner:.1});
+ loft('plate','中央背面の装甲板',PROV_RED,{corner:.1,plate:true,plateT:.6});
  loft('box83','背面の機器区画',PROV_BROWN,{corner:.1});
  loft('rail','背面の通信レール',PROV_DARK,{corner:.05});
  loft('aftFin','艦尾背面の小翼',PROV_TAN,{corner:.08});
@@ -4098,47 +4186,70 @@ function providenceBuild(opt={}){
  loft('engLow','機関下部の補機架台',PROV_BROWN,{corner:.12});
  loft('engKeel','機関下部の竜骨',PROV_BROWN,{corner:.1});
  loft('pipeS','機関間の導管',PROV_DARK,{round:true},true);
- // ---- through hangar (the measured slot), with open bays on both beams ----
- const dock=part('hangar','舷側貫通発着甲板',[353,120,0],30,{room:[156,206,15],airRole:'mixed'});
+ // ---- aft half: the expansive hangar decks in the measured through-slot (open on both beams) ----
+ const dock=part('hangar','後部格納甲板（舷側貫通発着口）',[353,Y(120),0],30,{room:[156,206,15],airRole:'mixed'});
  openBay(s,dock,'port','open');openBay(s,dock,'stbd','open');
  if(opt.stage==='dock'){delete s._building;return s;}
- // ---- power and propulsion ----
- const r=part('gen','主反応炉',[216,120,0],110);
+ // ---- stern: auxiliary reactor for the radial ion drives; port-side hyperdrive module ----
+ const ra=part('aux','艦尾補助炉',[216,Y(120),0],100);
  const eo=equipmentOptions('exposedTurbine');
- const engine=(label,mouth,y,z,d,body,mirror)=>{const nl=engineBaseline('exposed',d,'nozzleLength'),len=engineBaseline('exposed',d,'length')*body/engineBaseline('exposed',d,'body');const p=placePart(s,'engine',[mouth+nl/2,y,z],d,{...eo,label,d,reactor:r.id,dir:[-1,0,0],engineLength:len},mirror);resizeEngine(p,d,len);return p;};
- engine('中央主機（クレヴェルド4放射状イオン機関）',10.3,122.3,0,34,engineBaseline('exposed',34,'body'),false);
- engine('舷側主機（クレヴェルド4放射状イオン機関）',18.6,112.2,43.35,54,engineBaseline('exposed',54,'body'),true);
- // ---- defence, hyperdrive and support machinery ----
- for(const sg of [-1,1])part('shield','偏向シールド発生器',[470,117,sg*28],39);
- for(const sg of [-1,1])part('fuel','反応物サイロ',[600,116,sg*40],24,{length:36,dir:[0,1,0]});
- part('inertial','慣性補償装置',[700,118,0],34,{length:80});
- part('hyper','主ハイパードライブ',[780,114,0],26,{length:60});
+ const engine=(label,mouth,y,z,d,body,mirror)=>{const nl=engineBaseline('exposed',d,'nozzleLength'),len=engineBaseline('exposed',d,'length')*body/engineBaseline('exposed',d,'body');const p=placePart(s,'engine',[mouth+nl/2,y,z],d,{...eo,label,d,reactor:ra.id,dir:[-1,0,0],engineLength:len},mirror);resizeEngine(p,d,len);return p;};
+ engine('中央主機（ヌビアン・クレヴェルド4放射状イオン機関）',10.3,Y(122.3),0,34,engineBaseline('exposed',34,'body'),false);
+ engine('舷側主機（ヌビアン・クレヴェルド4放射状イオン機関）',18.6,Y(112.2),43.35,54,engineBaseline('exposed',54,'body'),true);
+ part('hyper','左舷ハイパードライブ・モジュール',[240,Y(160),-60],24,{length:70});
+ // ---- bow: main and subsidiary reactors, the deflector shield generator network,
+ //      the hyperdrive reactant silo and compressed reactant tank; mid: inertial compensator ----
+ part('gen','主反応炉（艦首）',[760,Y(116),0],56);
+ part('aux','副反応炉（艦首）',[880,Y(114),0],40);
+ for(const sg of [-1,1])part('shield','偏向シールド発生器網',[820,Y(114),sg*30],28);
+ for(const sg of [-1,1])part('fuel','ハイパードライブ反応物サイロ／圧縮反応物タンク',[680,Y(114),sg*36],22,{length:30,dir:[0,1,0]});
+ part('inertial','慣性補償装置',[600,Y(118),0],34,{length:70});
  if(opt.stage==='machinery'){delete s._building;return s;}
- // ---- command: bridge pods on the tower-top bridge and the hangar control post ----
- const pod=(kind,host,o,dir,w,h)=>{const hit=rayPart(o,dir,host);if(!hit)throw new Error('艦橋ポッドの取付面がありません');const r=placeFit(s,kind,hit.p,hit.n,0,false);if(!r.fit)throw new Error('艦橋ポッド: '+r.err);r.fit.width=w;r.fit.height=h;return r.fit;};
- const bridgeBody=s.parts.find(p=>p.label==='艦橋区画'),box83=s.parts.find(p=>p.label==='背面の機器区画');
- pod('podBridge',bridgeBody,[260,338,0],[-1,0,0],8,5);
- pod('podCombat',bridgeBody,[130,338,60],[0,0,-1],14,5);
- pod('podAir',box83,[560,180,0],[-1,0,0],14,5);
- // ---- armament (canon counts; game calibres) ----
- const mount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:p.slice(),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);if(f.float)throw new Error('作例の砲座がありません: '+kind+' '+p.map(Math.round).join(','));s.fits.push(f);return f;};
+ // Heavy guns keep their charging plant wholly inside the envelope and clear of
+ // machinery: the plant is pushed deeper until all its corners are enclosed.
+ let solidList=null;
+ const plantFits=f=>{if(!needsCapacitor(f))return true;const q=weaponChargeSpec(f),depth=12*(f.scale||1),side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
+  for(const cd of [10,13,16,20,24,28,33,38,44]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
+   for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
+   if(ok){f.chargeDepth=cd;return true;}}return false;};
+ // One fitting cast onto the outermost surface along its axis. Armour plates take
+ // no fittings, so a probe that lands on a plate (or finds no surface) is refused.
+ const tryMount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:p.slice(),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':!plantFits(f)?'plant':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(Math.round).join(','),why||'ok',f.p.map(Math.round).join(',')]);if(why){s.nextId--;return null;}return f;};
+ const clearOf=(f,list)=>list.every(g=>Math.hypot(f.p[0]-g.p[0],f.p[1]-g.p[1],f.p[2]-g.p[2])>=((FITS[f.k]?.fm||10)+(FITS[g.k]?.fm||10))*.5+2);
+ // n fittings over candidate stations: dorsal ('top') and ventral ('bottom') rows
+ // take |z| offsets and mount as mirrored pairs (0 = centreline); 'beam' rows take
+ // heights and mount one a side. Stations on plates or crowding others are skipped.
+ const spread=(kind,n,mode,zone,xs,offs,o={})=>{let got=0;
+  for(const off of offs)for(const x of xs){if(got>=n)break;
+   const ps=mode==='beam'?[[[x,off,400],4],[[x,off,-400],5]]:(off?[1,-1]:[1]).map(sg=>[[x,0,sg*off],mode==='top'?2:3]);
+   if(got+ps.length>n)continue;const fs=[];
+   for(const [p,a] of ps){const f=tryMount(kind,p,a,zone+(ps.length>1?(p[2]>0?'-stbd':'-port'):''),o);if(!f||!clearOf(f,s.fits.concat(fs)))break;fs.push(f);}
+   if(fs.length<ps.length)continue;s.fits.push(...fs);got+=fs.length;}
+  if(got<n)throw new Error('作例の砲座が不足しています: '+kind+' '+zone+' '+got+'/'+n);};
+ const range=(a,b,st)=>{const r=[];for(let x=a;x<=b+1e-6;x+=st)r.push(x);return r;};
+ // Pods seat on the first wall hit among a few probe heights.
+ const pod=(kind,host,o,dir,w,h)=>{let err='取付面がありません';for(const dy of [0,-4,4,-8,8,-12,12,-16,16])for(const dz of [0,-6,6,-12,12]){const q0=[o[0],o[1]+dy,o[2]+(dir[2]?0:dz)];const hit=rayPart(q0,dir,host);if(!hit)continue;const r=placeFit(s,kind,hit.p,hit.n,0,false);if(r.fit){r.fit.width=w;r.fit.height=h;r.fit.commandDepth=7;r.fit.commandHeight=5;return r.fit;}err=r.err;}throw new Error('艦橋ポッド '+kind+': '+err);};
+
+ const ridge=s.parts.find(p=>p.label==='艦首上部の艦橋稜線'),obs=s.parts.find(p=>p.label==='改装通信・センサー・ポッド（展望甲板）'),box83=s.parts.find(p=>p.label==='背面の機器区画');
+ pod('podBridge',ridge,[930,Y(162),40],[0,0,-1],12,5);
+ pod('podCombat',obs,[130,Y(338),60],[0,0,-1],14,5);
+ pod('podAir',box83,[560,Y(180),0],[-1,0,0],14,5);
  syncAviationSurfaces(s);s._lockedCache=cache(s);
  try{withFrozenStructures(()=>{
-  // 14 heavy quad turbolasers on the beam shoulders (7 a side)
-  for(const x of [560,640,720,800,880,180,470])for(const sg of [-1,1])mount('htl',[x,0,sg*(x<500?78:58)],2,(sg<0?'port':'stbd')+'-heavy',{chargeDepth:12});
-  // 2 forward battleship heavy ion cannons
-  for(const sg of [-1,1])mount('ion',[975,0,sg*18],2,'bow-ion',{chargeDepth:12});
-  // 34 heavy dual laser cannons, dorsal and ventral turrets
-  for(let i=0;i<9;i++)for(const sg of [-1,1])if(!(i===8&&sg>0))mount('ltl',[545+i*50,0,sg*34],2,'dorsal-laser');
-  for(let i=0;i<9;i++)for(const sg of [-1,1])if(!(i===8&&sg>0))mount('ltl',[540+i*48,0,sg*48],3,'ventral-laser');
-  // 12 twin point-defence ion cannons and 12 heavy flak guns on the beams
-  for(const x of [200,240,460,600,760,920])for(const sg of [-1,1])mount('pd',[x,100,sg*300],sg>0?4:5,(sg<0?'port':'stbd')+'-pd');
-  for(const x of [520,680,840,960,160,250])for(const sg of [-1,1])mount('pd',[x,0,sg*(x<500?60:30)],2,'flak');
-  // 10 heavy tractor beam emitters (5 a side)
-  for(const x of [500,620,740,860,950])for(const sg of [-1,1])mount('trc',[x,95,sg*300],sg>0?4:5,(sg<0?'port':'stbd')+'-tractor');
-  // 102 proton torpedo launchers in dorsal and ventral rows
-  for(let i=0;i<17;i++)for(const z of [-14,0,14])mount('msl',[555+i*25,0,z],2,'dorsal-torpedo');
-  for(let i=0;i<17;i++)for(const z of [-60,0,60])mount('msl',[560+i*22,0,z],3,'ventral-torpedo');
+  // 14 quad turbolaser turrets (heavy), ventral
+  spread('htl',14,'bottom','ventral-quad',range(330,1040,26),[60,45,75,30,88]);
+  // 2 ion cannons at the bow
+  spread('ion',2,'top','bow-ion',range(950,1050,8).reverse(),[18,24,12,30]);
+  // 34 dual laser cannon turrets along the sides of the bow
+  spread('ltl',34,'beam','side-laser',range(540,1020,15),[Y(130),Y(116),Y(104),Y(142)]);
+  // 102 proton torpedo tubes in rows along the bow sides and dorsal
+  spread('msl',52,'beam','side-torpedo',range(545,1020,14),[Y(124),Y(110),Y(136),Y(98)]);
+  spread('msl',50,'top','dorsal-torpedo',range(545,1010,14),[14,28,0,42,56]);
+  // 12 point-defence ion cannons: ventral and dorsal-aft
+  spread('pd',8,'bottom','ventral-pd',range(300,980,30),[70,85,55]);
+  spread('pd',4,'top','dorsal-aft-pd',range(280,500,24),[0,20]);
+  // tractor beam projectors, ventral
+  spread('trc',4,'bottom','tractor',range(500,960,25),[55,70,40,85]);
  });}finally{delete s._lockedCache;}
  if(opt.stage==='fitted'){delete s._building;return s;}
 
@@ -4157,7 +4268,7 @@ registerShipExample({
  title:'Star Wars: The Clone Wars Providence',author:'lolqeeeeeeeeee',authorUrl:'https://sketchfab.com/lolqeeeeeeeeee',
  source:'https://sketchfab.com/3d-models/star-wars-the-clone-wars-providence-8d27764a7d254fd7948557daf6d7ccdc',license:'CC BY-NC 4.0',
  credit:'This work is based on "Star Wars: The Clone Wars Providence" (https://sketchfab.com/3d-models/star-wars-the-clone-wars-providence-8d27764a7d254fd7948557daf6d7ccdc) by lolqeeeeeeeeee (https://sketchfab.com/lolqeeeeeeeeee) licensed under CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)',
- note:'Sketchfab の 3D モデル（lolqeeeeeeeeee 作、CC BY-NC 4.0）を全長 1,088 m に合わせて実測し、27 断面のフィット船体に背部装甲殻・司令塔・機関ハウジングなどの実測構造物を重ねて再現した独立星系連合の空母／駆逐艦。兵装は四連重ターボレーザー 14 基（重ターボレーザー連装砲塔で代表）、二連レーザー砲 34 基（軽ターボレーザー四連砲塔）、重イオン砲 2 基、プロトン魚雷発射管 102 基、点防御砲 24 基、トラクター・ビーム投射機 10 基。艦載機はヴァルチャー 120 機、トライファイター 120 機、ハイエナ爆撃機 10 機、HMP ガンシップ 12 機、シャトル 4 機。バトル・ドロイド 48,247 体、MTT 40 両、AAT 200 両を輸送。ハイパードライブ・クラス 1.5。加速約 2,500 G はゲーム上の設定値。公式の乗員は最低 600 体のドロイド。',
+ note:'DK の断面図（インヴィジブル・ハンド）の配置と寸法（全長 1,088 m・幅 198 m・塔を含む高さ 347 m）に合わせ、Sketchfab の 3D モデル（lolqeeeeeeeeee 作、CC BY-NC 4.0）の実測形状を高さ方向に 0.928 倍して組み直した独立星系連合の空母／駆逐艦。格納甲板上部の背部湾曲装甲殻、中央背面の装甲板、前部腹部の湾曲装甲は装甲外板（厚さ 0.6〜0.8 m）で、武装は載せない。艦首上部に艦橋、艦首に主反応炉・副反応炉・偏向シールド発生器網・ハイパードライブ反応物サイロ、中央に慣性補償装置、後半部に格納甲板（艦載機ラック、MTT と装甲車両の格納区画、整備甲板）、艦尾上部にウィザーズ・タワー（改装通信・センサー・ポッド）、艦尾に補助炉・放射状イオン機関・左舷ハイパードライブ・モジュール。兵装は四連ターボレーザー 14 基（重ターボレーザー連装砲塔で代表）、二連レーザー砲 34 基、イオン砲 2 基、点防御イオン砲 12 基、プロトン魚雷発射管 102 基、トラクター・ビーム投射機 4 基。艦載機はトライファイター 120 機とヴァルチャー 120 機、MTT 160 両と装甲ドロイド車両 280 両（AAT・ヘイルファイア・OG-9・LM-432）。停止保管ドロイドは DK では最大 150 万体だが、船内に収まる 16 万 2,000 体とした。加速約 2,560 G、ハイパードライブ・クラス 1.5。公式の乗員は 600 体のドロイド。',
  airWings:PROV_AIR,groundForces:PROV_GROUND,
  build:providenceBuild
 });
@@ -4172,77 +4283,93 @@ registerShipExample({
 // core under the domes, the aft spine, the aft command block, the two stern pods, the dorsal
 // ridges, the ventral shell, the nose keel and the ventral fins are structures.
 {
-const RECU={"W":133.28,"H":140,"st":[[0.0,0.015,0.0107,0.0518,0.8,0.8,0.5,0.5],[0.05223,0.015,0.0107,-0.0696,0.8,0.8,0.5,0.5],[0.45358,0.015,0.0107,-0.0696,0.8,0.8,0.5,0.5],[0.45746,0.4342,0.05,0.2393,0.9384,0.98,0.02,0.2],[0.46757,0.4546,0.1786,0.325,0.4418,0.9771,0.02,0.29],[0.49284,0.5334,0.2143,0.3357,0.3949,0.9698,0.02,0.27],[0.53075,0.6949,0.2714,0.3571,0.3839,0.9754,0.02,0.2],[0.55602,0.7845,0.3,0.3786,0.3647,0.9745,0.02,0.2],[0.56613,0.8404,0.3429,0.3714,0.3616,0.9763,0.02,0.2],[0.5813,0.8435,0.3143,0.4071,0.3253,0.9778,0.02,0.2],[0.58888,0.8634,0.3214,0.4107,0.3301,0.9779,0.02,0.2],[0.59393,0.9276,0.3714,0.3857,0.3409,0.9709,0.02,0.2],[0.62426,0.9948,0.3857,0.3857,0.3124,0.9712,0.02,0.2],[0.63184,0.9602,0.3429,0.4071,0.3054,0.9735,0.02,0.2],[0.63943,0.9979,0.3786,0.3893,0.3087,0.974,0.02,0.2],[0.64448,0.9949,0.3857,0.3857,0.3124,0.9793,0.02,0.21],[0.65965,0.996,0.5429,0.2857,0.3762,0.98,0.52,0.2],[0.67734,0.9617,0.5357,0.2607,0.3704,0.98,0.65,0.2],[0.68745,0.934,0.4786,0.275,0.3595,0.98,0.56,0.2],[0.68997,0.9254,0.4214,0.2964,0.3803,0.98,0.44,0.2],[0.70008,0.883,0.5286,0.2214,0.4048,0.9288,0.11,0.51],[0.72536,0.7924,0.4214,0.1821,0.5658,0.98,0.02,0.22],[0.74052,0.7645,0.3286,0.1857,0.3499,0.9753,0.02,0.26],[0.78349,0.6951,0.2929,0.1893,0.3878,0.9771,0.02,0.24],[0.80118,0.599,0.2071,0.225,0.4094,0.9778,0.02,0.2],[0.82393,0.5647,0.2214,0.2107,0.4298,0.98,0.02,0.2],[0.8492,0.5531,0.2429,0.1857,0.3933,0.9722,0.02,0.24],[0.87447,0.5442,0.3,0.1429,0.3794,0.9752,0.02,0.24],[0.96546,0.2234,0.0857,0.0643,0.2833,0.9784,0.02,0.2],[1.0,0.0468,0.0143,0.0071,0.301,0.98,0.19,0.2]],"loft":{"domeRidge":[[585.67,-3.27,3.27,142.84,142.94],[589.71,-5.67,5.67,140.67,147.87],[601.16,-9.74,9.74,140.87,152.13],[601.83,-10.6,10.6,132.69,152.38],[604.52,-12.84,12.84,133.14,152.78],[615.3,-13.52,13.52,134.93,153.57],[617.32,-13.65,13.65,135.27,152.14],[624.05,-14.07,14.07,136.39,152.23],[625.4,-14.15,14.15,136.61,151.18],[626.07,-10.0,10.0,136.72,151.14],[707.57,-11.3,11.3,149.0,160.99],[708.91,-14.95,14.95,148.04,161.0],[769.53,-14.82,14.82,148.44,161.0],[770.2,-14.5,14.5,148.58,161.0],[770.87,-14.17,14.17,155.56,161.0],[785.69,-7.02,7.02,155.56,161.0],[787.04,-6.32,6.32,158.84,161.0],[787.71,-6.0,6.0,160.84,161.0]],"bowRidge":[[845.0,-17.58,17.58,121.31,130.33],[845.82,-17.57,17.57,111.17,130.33],[855.66,-17.39,17.39,111.17,130.61],[859.76,-17.31,17.31,111.17,133.1],[898.3,-16.59,16.59,111.17,131.53],[901.58,-16.53,16.53,111.17,130.33],[940.94,-15.35,15.35,111.17,130.33],[943.4,-12.7,12.7,111.17,130.33],[946.68,-12.7,12.7,111.17,125.79],[947.5,-12.7,12.7,111.17,121.4],[950.78,-12.7,12.7,111.17,121.4],[953.24,-12.7,12.7,111.17,117.41],[1016.38,-12.7,12.7,111.17,117.41],[1017.2,-12.7,12.7,104.94,117.41],[1040.98,-12.43,12.43,104.94,117.41],[1041.8,-12.42,12.42,104.94,121.35],[1057.38,-12.99,12.99,104.94,121.34],[1058.2,-13.22,13.22,113.46,121.34],[1060.66,-15.24,15.24,113.56,121.34],[1067.22,-15.21,15.21,113.82,121.34],[1068.04,-12.72,12.72,113.85,121.34],[1079.52,-12.55,12.55,113.86,120.79],[1083.62,-11.93,11.93,113.86,119.64],[1089.36,-8.25,8.25,114.62,117.93],[1091.0,-5.06,5.06,115.15,117.35]],"lowerShell":[[825.08,-19.5,19.5,35.62,52.8],[827.22,-19.49,19.49,35.62,52.77],[827.93,-60.45,60.45,33.03,52.76],[834.35,-60.48,60.48,29.29,52.69],[835.77,-60.48,60.48,23.38,52.67],[863.57,-60.6,60.6,17.88,53.52],[867.13,-60.61,60.61,17.88,59.43],[891.36,-60.72,60.72,15.22,59.57],[934.12,-60.74,60.74,13.26,59.81],[934.83,-52.03,52.03,17.88,59.82],[956.21,-24.67,24.67,17.88,59.94],[959.78,-21.9,21.9,23.42,59.96],[960.49,-21.9,21.9,34.27,59.96],[1016.08,-21.9,21.9,36.37,60.29],[1017.5,-21.9,21.9,41.07,60.29],[1033.9,-21.9,21.9,53.35,60.39],[1038.89,-21.9,21.9,60.35,60.42]],"noseKeel":[[1027.68,-12.27,12.27,52.86,70.56],[1047.6,-12.69,12.69,52.86,71.96],[1048.1,-12.71,12.71,43.01,72.0],[1050.09,-12.75,12.75,37.48,72.14],[1083.96,-12.93,12.93,39.31,72.74],[1087.95,-12.93,12.93,45.15,72.74],[1089.44,-12.93,12.93,48.71,72.74],[1089.94,-12.93,12.93,54.03,72.74],[1095.42,-12.85,12.85,54.56,72.47],[1100.9,-12.32,12.32,61.95,70.74],[1118.83,-10.15,10.15,62.25,70.55],[1121.32,-9.83,9.83,64.78,70.82],[1145.73,-6.45,6.45,66.29,73.33],[1173.12,-1.55,1.55,68.07,71.04],[1177.11,-0.81,0.81,70.52,70.56]],"vfinC":[[848.77,-8.4,8.4,10.98,11.03],[856.15,-8.4,8.4,4.87,11.03],[869.36,-8.4,8.4,4.45,11.03],[878.29,-8.48,8.48,1.79,11.22],[883.73,-9.83,9.83,1.78,14.29],[952.49,-9.74,9.74,1.64,13.91],[965.31,-5.71,5.71,1.62,4.74]],"vfinS":[[920.02,4.35,8.32,4.02,11.21],[920.28,4.28,11.42,3.05,11.35],[920.54,4.21,15.24,1.84,11.52],[921.07,4.05,16.1,1.37,11.86],[923.17,3.83,16.84,0.55,12.31],[928.68,3.83,16.68,0.71,12.31],[929.47,4.25,16.04,1.38,11.87],[930.78,5.92,15.34,2.12,10.08],[937.6,5.9,15.34,2.12,10.1],[939.7,3.83,16.28,1.13,12.31],[941.54,3.83,16.84,0.55,12.31],[943.64,3.83,16.84,0.0,12.31],[946.52,3.83,16.84,0.27,12.31],[948.62,3.83,16.53,0.87,12.31],[949.67,4.31,15.84,1.6,11.8],[951.51,6.08,15.34,2.12,9.92],[956.76,5.94,15.43,2.04,10.19],[957.81,5.58,16.3,1.22,10.8],[960.69,5.65,16.26,1.26,10.8],[962.27,6.14,14.77,2.42,9.8],[966.73,6.52,11.91,3.91,9.04],[987.2,6.45,12.12,3.72,9.23],[988.77,6.21,13.41,2.5,9.92],[990.08,6.21,14.05,1.89,9.92],[993.23,6.29,14.05,2.08,9.92],[996.38,7.53,13.66,5.11,9.92],[998.74,8.45,12.78,7.34,9.92]],"aftSpine":[[62.4,-12.45,12.45,76.54,76.65],[86.85,-12.45,12.45,59.23,79.42],[95.0,-12.45,12.45,58.73,79.42],[97.71,-12.45,12.45,58.56,89.63],[143.89,-12.58,12.58,61.78,87.19],[160.19,-8.05,8.05,61.78,87.17],[162.9,-20.71,20.71,61.78,87.17],[175.13,-23.19,23.19,61.78,87.16],[179.2,-23.17,23.17,48.47,87.15],[198.22,-23.08,23.08,36.41,87.13],[241.68,-18.37,18.37,37.05,87.06],[243.04,-24.47,24.47,37.07,101.53],[286.5,-27.0,27.0,37.07,112.54],[289.21,-19.57,19.57,37.07,108.73],[290.57,-19.54,19.54,53.93,108.73],[309.58,-23.03,23.03,53.93,101.44],[319.09,-23.02,23.02,53.93,101.2],[321.81,-23.01,23.01,53.93,90.5],[370.7,-21.88,21.88,37.96,83.05],[382.93,-25.05,25.05,37.96,82.63],[416.88,-26.99,26.99,48.1,80.66],[450.83,-26.99,26.99,45.73,87.16],[465.77,-26.99,26.99,48.1,92.77],[467.13,-26.99,26.99,48.1,68.3],[469.85,-15.9,15.9,48.1,57.73]],"aftUpper":[[172.04,-6.48,6.48,134.07,134.13],[174.86,-6.48,6.48,132.66,136.34],[175.56,-13.56,13.56,132.3,136.9],[194.58,-15.06,15.06,128.59,146.81],[212.19,-15.06,15.06,125.97,153.99],[225.57,-15.06,15.06,119.12,153.85],[248.11,-15.06,15.06,117.38,155.35],[248.81,-24.07,24.07,116.83,153.72],[252.34,-24.07,24.07,114.06,146.25],[258.67,-24.07,24.07,112.44,148.39],[262.2,-26.78,26.78,112.44,148.11],[263.6,-26.78,26.78,111.38,147.7],[264.31,-26.78,26.78,100.95,146.25],[278.4,-26.78,26.78,100.95,147.78],[286.14,-26.78,26.78,100.95,148.81],[296.71,-26.78,26.78,100.95,154.26],[303.75,-26.78,26.78,100.95,154.26],[305.16,-27.72,27.72,100.95,157.94],[323.47,-27.72,27.72,100.95,156.4],[327.7,-27.72,27.72,103.39,156.4],[328.4,-27.72,27.72,108.12,156.4],[347.42,-27.72,27.72,108.12,151.64],[349.53,-27.72,27.72,108.12,149.2],[350.94,-24.07,24.07,108.12,147.56],[355.17,-21.78,21.78,110.11,141.78],[357.28,-21.78,21.78,110.11,141.78],[359.39,-24.07,24.07,108.12,145.01],[375.59,-19.17,19.17,109.53,140.44],[382.63,-15.24,15.24,110.67,136.77],[383.34,-14.87,14.87,126.17,136.43]],"aftPod":[[104.63,57.4,62.84,28.95,40.77],[108.89,55.46,65.82,27.59,41.65],[109.6,54.27,66.33,22.52,47.3],[122.38,50.61,72.84,19.74,48.97],[148.66,48.95,82.01,17.9,49.09],[158.6,44.18,81.92,17.9,49.09],[174.94,44.18,85.27,15.95,49.09],[182.04,42.9,85.27,15.95,49.26],[182.75,42.39,84.26,11.72,55.63],[187.01,39.34,76.98,11.72,57.45],[192.69,38.1,76.98,11.72,59.88],[194.12,38.1,76.98,9.12,60.48],[196.96,38.1,76.98,9.12,60.52],[197.67,33.38,76.98,9.12,60.66],[198.38,23.96,76.98,9.12,64.7],[222.52,23.96,78.47,9.17,64.7],[230.34,23.96,81.83,9.18,64.7],[238.15,23.96,81.83,9.19,64.7],[239.57,23.96,84.46,9.19,64.7],[258.04,23.96,83.41,10.38,64.7],[258.75,28.08,83.41,10.38,64.7],[280.05,29.24,81.26,10.38,64.7],[286.45,29.24,76.77,11.72,64.7],[289.29,31.72,73.8,14.36,62.2],[291.42,31.72,73.8,14.36,62.2],[292.84,29.24,76.79,11.72,64.7],[304.2,30.33,74.74,13.86,63.04],[316.99,34.91,66.12,22.83,56.05],[317.7,47.87,65.67,23.29,51.16]],"core":[[449.23,-19.74,19.74,67.69,83.39],[468.4,-31.5,31.5,63.43,91.82],[472.66,-32.35,32.35,48.89,91.8],[500.34,-29.11,29.11,39.73,91.69],[508.85,-30.37,30.37,36.27,112.99],[570.6,-29.11,29.11,29.42,123.94],[591.89,-29.11,29.11,29.42,123.94],[604.67,-27.7,27.7,39.73,123.94],[608.93,-27.7,27.7,26.85,123.94],[664.29,-26.96,26.96,26.95,113.42],[668.55,-40.21,40.21,26.95,113.42],[683.45,-34.91,34.91,30.21,113.42],[711.13,-37.62,37.62,38.39,113.42],[743.07,-37.96,37.96,38.39,113.42],[764.36,-39.35,39.35,29.34,113.42],[785.65,-38.84,38.84,30.44,113.42],[804.82,-38.54,38.54,31.08,113.42],[834.63,-33.73,33.73,28.89,114.09],[836.76,-33.73,33.73,28.89,82.06],[951.73,-40.1,40.1,30.81,88.29],[953.86,-33.73,33.73,12.09,88.25],[968.77,-33.73,33.73,7.29,88.03],[973.03,-20.51,20.51,7.33,87.97],[975.16,-20.51,20.51,7.35,87.93],[977.28,-20.51,20.51,7.37,126.32],[981.54,-20.51,20.51,8.42,125.56],[983.67,-20.51,20.51,54.28,122.95],[1024.13,-20.5,20.5,54.28,131.93],[1026.26,-19.14,19.14,54.28,82.77],[1032.64,-19.14,19.14,58.98,70.32],[1062.45,-7.53,7.53,111.76,114.91],[1088.0,-6.22,6.22,113.17,113.51]]},"rooms":[["hangar","航空機格納庫",[616.5,72.85,0],[146.4,47.4,45.7],"storage"],["hangar","航空機格納庫 2",[729,71.35,0],[41.4,65.4,42.7],"storage"],["hangar","航空機格納庫 3",[852,56.35,0],[53.4,65.4,12.7],"storage"],["hangar","航空機格納庫 4",[510,66.85,-12],[65.4,17.4,33.7],"storage"],["hangar","航空機格納庫 5",[510,66.85,12],[65.4,17.4,33.7],"storage"],["hangar","航空機格納庫 6",[699,57.85,0],[17.4,65.4,15.7],"storage"],["hangar","航空機格納庫 7",[754.5,60.85,0],[8.4,71.4,21.7],"storage"],["hangar","航空機格納庫 8",[679.5,74.35,-28.5],[20.4,8.4,48.7],"storage"],["hangar","航空機格納庫 9",[679.5,74.35,28.5],[20.4,8.4,48.7],"storage"],["hangar","航空機格納庫 10",[765,54.85,0],[11.4,77.4,9.7],"storage"],["service","航空整備・補給区画",[889.5,82.5,-21],[98.4,17.4,38.4]],["service","航空整備・補給区画 2",[889.5,82.5,21],[98.4,17.4,38.4]],["service","航空整備・補給区画 3",[614.43,102,-15],[178.27,17.4,11.4]],["service","航空整備・補給区画 4",[445.5,72,0],[8.4,41.4,17.4]],["troops","兵員収容区画（B1バトル・ドロイド）",[291,103.5,0],[53.4,29.4,80.4]],["troops","兵員収容区画（B1バトル・ドロイド） 2",[907.5,31.5,0],[50.4,89.4,14.4]],["troops","兵員収容区画（B1バトル・ドロイド） 3",[379.5,70.5,0],[122.4,35.4,14.4]],["troops","兵員収容区画（B1バトル・ドロイド） 4",[967.5,49.5,0],[26.4,35.4,62.4]],["troops","兵員収容区画（B1バトル・ドロイド） 5",[886.5,117,0],[92.4,29.4,17.4]],["troops","兵員収容区画（B1バトル・ドロイド） 6",[333,129,0],[29.4,41.4,35.4]],["troops","兵員収容区画（B1バトル・ドロイド） 7",[618,102,15],[185.4,17.4,11.4]],["troops","兵員収容区画（B1バトル・ドロイド） 8",[739.5,147,0],[56.4,23.4,23.4]],["troops","兵員収容区画（B1バトル・ドロイド） 9",[251.31,45,0],[70.02,23.4,11.4]],["cargo","貨物・物資庫",[253.5,76.5,0],[20.4,47.4,26.4]],["integrity","構造維持装置",[287.14,37.5,-52.5],[33.67,26.4,32.4]],["pump","反応物供給設備",[218.71,136.5,0],[64.81,17.4,8.4]]]};
-const REC_AIR=[{id:'air-1',name:'ヴァルチャー級ドロイド・スターファイター',size:1,count:72},{id:'air-2',name:'ドロイド・トライファイター',size:1,count:36}];
+const RECU={"W":122.751,"H":140.0,"st":[[0.0,0.015,0.0107,0.0518,0.8,0.8,0.5,0.5],[0.05223,0.015,0.0107,-0.0696,0.8,0.8,0.5,0.5],[0.45358,0.015,0.0107,-0.0696,0.8,0.8,0.5,0.5],[0.45746,0.4342,0.05,0.2393,0.9384,0.98,0.02,0.2],[0.46757,0.4546,0.1786,0.325,0.4418,0.9771,0.02,0.29],[0.49284,0.5334,0.2143,0.3357,0.3949,0.9698,0.02,0.27],[0.53075,0.6949,0.2714,0.3571,0.3839,0.9754,0.02,0.2],[0.55602,0.7845,0.3,0.3786,0.3647,0.9745,0.02,0.2],[0.56613,0.8404,0.3429,0.3714,0.3616,0.9763,0.02,0.2],[0.5813,0.8435,0.3143,0.4071,0.3253,0.9778,0.02,0.2],[0.58888,0.8634,0.3214,0.4107,0.3301,0.9779,0.02,0.2],[0.59393,0.9276,0.3714,0.3857,0.3409,0.9709,0.02,0.2],[0.62426,0.9948,0.3857,0.3857,0.3124,0.9712,0.02,0.2],[0.63184,0.9602,0.3429,0.4071,0.3054,0.9735,0.02,0.2],[0.63943,0.9979,0.3786,0.3893,0.3087,0.974,0.02,0.2],[0.64448,0.9949,0.3857,0.3857,0.3124,0.9793,0.02,0.21],[0.65965,0.996,0.5429,0.2857,0.3762,0.98,0.52,0.2],[0.67734,0.9617,0.5357,0.2607,0.3704,0.98,0.65,0.2],[0.68745,0.934,0.4786,0.275,0.3595,0.98,0.56,0.2],[0.68997,0.9254,0.4214,0.2964,0.3803,0.98,0.44,0.2],[0.70008,0.883,0.5286,0.2214,0.4048,0.9288,0.11,0.51],[0.72536,0.7924,0.4214,0.1821,0.5658,0.98,0.02,0.22],[0.74052,0.7645,0.3286,0.1857,0.3499,0.9753,0.02,0.26],[0.78349,0.6951,0.2929,0.1893,0.3878,0.9771,0.02,0.24],[0.80118,0.599,0.2071,0.225,0.4094,0.9778,0.02,0.2],[0.82393,0.5647,0.2214,0.2107,0.4298,0.98,0.02,0.2],[0.8492,0.5531,0.2429,0.1857,0.3933,0.9722,0.02,0.24],[0.87447,0.5442,0.3,0.1429,0.3794,0.9752,0.02,0.24],[0.96546,0.2234,0.0857,0.0643,0.2833,0.9784,0.02,0.2],[1.0,0.0468,0.0143,0.0071,0.301,0.98,0.19,0.2]],"loft":{"domeRidge":[[585.67,-3.01,3.01,142.84,142.94],[589.71,-5.22,5.22,140.67,147.87],[601.16,-8.97,8.97,140.87,152.13],[601.83,-9.76,9.76,132.69,152.38],[604.52,-11.83,11.83,133.14,152.78],[615.3,-12.45,12.45,134.93,153.57],[617.32,-12.57,12.57,135.27,152.14],[624.05,-12.96,12.96,136.39,152.23],[625.4,-13.03,13.03,136.61,151.18],[626.07,-9.21,9.21,136.72,151.14],[707.57,-10.41,10.41,149.0,160.99],[708.91,-13.77,13.77,148.04,161.0],[769.53,-13.65,13.65,148.44,161.0],[770.2,-13.35,13.35,148.58,161.0],[770.87,-13.05,13.05,155.56,161.0],[785.69,-6.47,6.47,155.56,161.0],[787.04,-5.82,5.82,158.84,161.0],[787.71,-5.53,5.53,160.84,161.0]],"bowRidge":[[845.0,-16.19,16.19,121.31,130.33],[845.82,-16.18,16.18,111.17,130.33],[855.66,-16.02,16.02,111.17,130.61],[859.76,-15.94,15.94,111.17,133.1],[898.3,-15.28,15.28,111.17,131.53],[901.58,-15.22,15.22,111.17,130.33],[940.94,-14.14,14.14,111.17,130.33],[943.4,-11.7,11.7,111.17,130.33],[946.68,-11.7,11.7,111.17,125.79],[947.5,-11.7,11.7,111.17,121.4],[950.78,-11.7,11.7,111.17,121.4],[953.24,-11.7,11.7,111.17,117.41],[1016.38,-11.7,11.7,111.17,117.41],[1017.2,-11.7,11.7,104.94,117.41],[1040.98,-11.45,11.45,104.94,117.41],[1041.8,-11.44,11.44,104.94,121.35],[1057.38,-11.96,11.96,104.94,121.34],[1058.2,-12.18,12.18,113.46,121.34],[1060.66,-14.04,14.04,113.56,121.34],[1067.22,-14.01,14.01,113.82,121.34],[1068.04,-11.72,11.72,113.85,121.34],[1079.52,-11.56,11.56,113.86,120.79],[1083.62,-10.99,10.99,113.86,119.64],[1089.36,-7.6,7.6,114.62,117.93],[1091.0,-4.66,4.66,115.15,117.35]],"lowerShell":[[825.08,-17.96,17.96,35.62,52.8],[827.22,-17.95,17.95,35.62,52.77],[827.93,-55.67,55.67,33.03,52.76],[834.35,-55.7,55.7,29.29,52.69],[835.77,-55.7,55.7,23.38,52.67],[863.57,-55.81,55.81,17.88,53.52],[867.13,-55.82,55.82,17.88,59.43],[891.36,-55.92,55.92,15.22,59.57],[934.12,-55.94,55.94,13.26,59.81],[934.83,-47.92,47.92,17.88,59.82],[956.21,-22.72,22.72,17.88,59.94],[959.78,-20.17,20.17,23.42,59.96],[960.49,-20.17,20.17,34.27,59.96],[1016.08,-20.17,20.17,36.37,60.29],[1017.5,-20.17,20.17,41.07,60.29],[1033.9,-20.17,20.17,53.35,60.39],[1038.89,-20.17,20.17,60.35,60.42]],"noseKeel":[[1027.68,-11.3,11.3,52.86,70.56],[1047.6,-11.69,11.69,52.86,71.96],[1048.1,-11.71,11.71,43.01,72.0],[1050.09,-11.74,11.74,37.48,72.14],[1083.96,-11.91,11.91,39.31,72.74],[1087.95,-11.91,11.91,45.15,72.74],[1089.44,-11.91,11.91,48.71,72.74],[1089.94,-11.91,11.91,54.03,72.74],[1095.42,-11.83,11.83,54.56,72.47],[1100.9,-11.35,11.35,61.95,70.74],[1118.83,-9.35,9.35,62.25,70.55],[1121.32,-9.05,9.05,64.78,70.82],[1145.73,-5.94,5.94,66.29,73.33],[1173.12,-1.43,1.43,68.07,71.04],[1177.11,-0.75,0.75,70.52,70.56]],"vfinC":[[848.77,-7.74,7.74,10.98,11.03],[856.15,-7.74,7.74,4.87,11.03],[869.36,-7.74,7.74,4.45,11.03],[878.29,-7.81,7.81,1.79,11.22],[883.73,-9.05,9.05,1.78,14.29],[952.49,-8.97,8.97,1.64,13.91],[965.31,-5.26,5.26,1.62,4.74]],"vfinS":[[920.02,4.01,7.66,4.02,11.21],[920.28,3.94,10.52,3.05,11.35],[920.54,3.88,14.04,1.84,11.52],[921.07,3.73,14.83,1.37,11.86],[923.17,3.53,15.51,0.55,12.31],[928.68,3.53,15.36,0.71,12.31],[929.47,3.91,14.77,1.38,11.87],[930.78,5.45,14.13,2.12,10.08],[937.6,5.43,14.13,2.12,10.1],[939.7,3.53,14.99,1.13,12.31],[941.54,3.53,15.51,0.55,12.31],[943.64,3.53,15.51,0.0,12.31],[946.52,3.53,15.51,0.27,12.31],[948.62,3.53,15.22,0.87,12.31],[949.67,3.97,14.59,1.6,11.8],[951.51,5.6,14.13,2.12,9.92],[956.76,5.47,14.21,2.04,10.19],[957.81,5.14,15.01,1.22,10.8],[960.69,5.2,14.98,1.26,10.8],[962.27,5.65,13.6,2.42,9.8],[966.73,6.0,10.97,3.91,9.04],[987.2,5.94,11.16,3.72,9.23],[988.77,5.72,12.35,2.5,9.92],[990.08,5.72,12.94,1.89,9.92],[993.23,5.79,12.94,2.08,9.92],[996.38,6.94,12.58,5.11,9.92],[998.74,7.78,11.77,7.34,9.92]],"aftSpine":[[62.4,-11.47,11.47,76.54,76.65],[86.85,-11.47,11.47,59.23,79.42],[95.0,-11.47,11.47,58.73,79.42],[97.71,-11.47,11.47,58.56,89.63],[143.89,-11.59,11.59,61.78,87.19],[160.19,-7.41,7.41,61.78,87.17],[162.9,-19.07,19.07,61.78,87.17],[175.13,-21.36,21.36,61.78,87.16],[179.2,-21.34,21.34,48.47,87.15],[198.22,-21.26,21.26,36.41,87.13],[241.68,-16.92,16.92,37.05,87.06],[243.04,-22.54,22.54,37.07,101.53],[286.5,-24.87,24.87,37.07,112.54],[289.21,-18.02,18.02,37.07,108.73],[290.57,-18.0,18.0,53.93,108.73],[309.58,-21.21,21.21,53.93,101.44],[319.09,-21.2,21.2,53.93,101.2],[321.81,-21.19,21.19,53.93,90.5],[370.7,-20.15,20.15,37.96,83.05],[382.93,-23.07,23.07,37.96,82.63],[416.88,-24.86,24.86,48.1,80.66],[450.83,-24.86,24.86,45.73,87.16],[465.77,-24.86,24.86,48.1,92.77],[467.13,-24.86,24.86,48.1,68.3],[469.85,-14.64,14.64,48.1,57.73]],"aftUpper":[[172.04,-5.97,5.97,134.07,134.13],[174.86,-5.97,5.97,132.66,136.34],[175.56,-12.49,12.49,132.3,136.9],[194.58,-13.87,13.87,128.59,146.81],[212.19,-13.87,13.87,125.97,153.99],[225.57,-13.87,13.87,119.12,153.85],[248.11,-13.87,13.87,117.38,155.35],[248.81,-22.17,22.17,116.83,153.72],[252.34,-22.17,22.17,114.06,146.25],[258.67,-22.17,22.17,112.44,148.39],[262.2,-24.66,24.66,112.44,148.11],[263.6,-24.66,24.66,111.38,147.7],[264.31,-24.66,24.66,100.95,146.25],[278.4,-24.66,24.66,100.95,147.78],[286.14,-24.66,24.66,100.95,148.81],[296.71,-24.66,24.66,100.95,154.26],[303.75,-24.66,24.66,100.95,154.26],[305.16,-25.53,25.53,100.95,157.94],[323.47,-25.53,25.53,100.95,156.4],[327.7,-25.53,25.53,103.39,156.4],[328.4,-25.53,25.53,108.12,156.4],[347.42,-25.53,25.53,108.12,151.64],[349.53,-25.53,25.53,108.12,149.2],[350.94,-22.17,22.17,108.12,147.56],[355.17,-20.06,20.06,110.11,141.78],[357.28,-20.06,20.06,110.11,141.78],[359.39,-22.17,22.17,108.12,145.01],[375.59,-17.66,17.66,109.53,140.44],[382.63,-14.04,14.04,110.67,136.77],[383.34,-13.7,13.7,126.17,136.43]],"aftPod":[[104.63,52.87,57.88,28.95,40.77],[108.89,51.08,60.62,27.59,41.65],[109.6,49.98,61.09,22.52,47.3],[122.38,46.61,67.09,19.74,48.97],[148.66,45.08,75.53,17.9,49.09],[158.6,40.69,75.45,17.9,49.09],[174.94,40.69,78.53,15.95,49.09],[182.04,39.51,78.53,15.95,49.26],[182.75,39.04,77.6,11.72,55.63],[187.01,36.23,70.9,11.72,57.45],[192.69,35.09,70.9,11.72,59.88],[194.12,35.09,70.9,9.12,60.48],[196.96,35.09,70.9,9.12,60.52],[197.67,30.74,70.9,9.12,60.66],[198.38,22.07,70.9,9.12,64.7],[222.52,22.07,72.27,9.17,64.7],[230.34,22.07,75.37,9.18,64.7],[238.15,22.07,75.37,9.19,64.7],[239.57,22.07,77.79,9.19,64.7],[258.04,22.07,76.82,10.38,64.7],[258.75,25.86,76.82,10.38,64.7],[280.05,26.93,74.84,10.38,64.7],[286.45,26.93,70.71,11.72,64.7],[289.29,29.21,67.97,14.36,62.2],[291.42,29.21,67.97,14.36,62.2],[292.84,26.93,70.72,11.72,64.7],[304.2,27.93,68.84,13.86,63.04],[316.99,32.15,60.9,22.83,56.05],[317.7,44.09,60.48,23.29,51.16]],"core":[[449.23,-18.18,18.18,67.69,83.39],[468.4,-29.01,29.01,63.43,91.82],[472.66,-29.79,29.79,48.89,91.8],[500.34,-26.81,26.81,39.73,91.69],[508.85,-27.97,27.97,36.27,112.99],[570.6,-26.81,26.81,29.42,123.94],[591.89,-26.81,26.81,29.42,123.94],[604.67,-25.51,25.51,39.73,123.94],[608.93,-25.51,25.51,26.85,123.94],[664.29,-24.83,24.83,26.95,113.42],[668.55,-37.03,37.03,26.95,113.42],[683.45,-32.15,32.15,30.21,113.42],[711.13,-34.65,34.65,38.39,113.42],[743.07,-34.96,34.96,38.39,113.42],[764.36,-36.24,36.24,29.34,113.42],[785.65,-35.77,35.77,30.44,113.42],[804.82,-35.5,35.5,31.08,113.42],[834.63,-31.07,31.07,28.89,114.09],[836.76,-31.07,31.07,28.89,82.06],[951.73,-36.93,36.93,30.81,88.29],[953.86,-31.07,31.07,12.09,88.25],[968.77,-31.07,31.07,7.29,88.03],[973.03,-18.89,18.89,7.33,87.97],[975.16,-18.89,18.89,7.35,87.93],[977.28,-18.89,18.89,7.37,126.32],[981.54,-18.89,18.89,8.42,125.56],[983.67,-18.89,18.89,54.28,122.95],[1024.13,-18.88,18.88,54.28,131.93],[1026.26,-17.63,17.63,54.28,82.77],[1032.64,-17.63,17.63,58.98,70.32],[1062.45,-6.94,6.94,111.76,114.91],[1088.0,-5.73,5.73,113.17,113.51]]},"rooms":[["hangar","艦載機待機区画（中空構造内のラック）",[637.5,72.85,0],[104.4,47.4,45.7],"storage"],["hangar","艦載機待機区画（中空構造内のラック） 2",[823.5,84.85,-18],[56.4,23.4,69.7],"storage"],["hangar","艦載機待機区画（中空構造内のラック） 3",[823.5,84.85,18],[56.4,23.4,69.7],"storage"],["hangar","艦載機待機区画（中空構造内のラック） 4",[715.5,72.85,0],[14.4,59.4,45.7],"storage"],["hangar","艦載機待機区画（中空構造内のラック） 5",[876,83.35,-12],[47.4,11.4,66.7],"storage"],["hangar","艦載機待機区画（中空構造内のラック） 6",[876,83.35,12],[47.4,11.4,66.7],"storage"],["hangar","艦載機待機区画（中空構造内のラック） 7",[843,56.35,0],[113.4,11.4,12.7],"storage"],["hangar","艦載機待機区画（中空構造内のラック） 8",[699,57.85,0],[17.4,59.4,15.7],"storage"],["hangar","艦載機待機区画（中空構造内のラック） 9",[727.5,57.85,0],[8.4,59.4,15.7],"storage"],["service","航空整備・補給区画",[934.5,51,0],[68.4,53.4,35.4]],["service","航空整備・補給区画 2",[494.37,73.5,0],[46.14,41.4,20.4]],["service","航空整備・補給区画 3",[483,52.5,0],[11.4,29.4,8.4]],["cargo","貨物・物資庫",[269.17,78,0],[93.75,23.4,11.4]],["cargo","貨物・物資庫 2",[195,135,0],[29.4,17.4,5.4]],["integrity","構造維持装置",[280.86,67.5,0],[111.11,29.4,8.4]],["integrity","構造維持装置 2",[213,141,0],[41.4,11.4,5.4]],["pump","反応物供給設備",[242.71,133.5,0],[64.81,17.4,8.4]],["troops","居住甲板・兵員収容区画（停止保管ドロイド）",[564,70.5,0],[41.4,47.4,56.4]],["troops","居住甲板・兵員収容区画（停止保管ドロイド） 2",[405,70.5,0],[131.4,29.4,14.4]],["troops","居住甲板・兵員収容区画（停止保管ドロイド） 3",[291,100.5,0],[53.4,29.4,32.4]],["troops","居住甲板・兵員収容区画（停止保管ドロイド） 4",[660,112.5,-12],[125.4,11.4,32.4]],["troops","居住甲板・兵員収容区画（停止保管ドロイド） 5",[660,112.5,12],[125.4,11.4,32.4]],["troops","居住甲板・兵員収容区画（停止保管ドロイド） 6",[529.5,82.5,0],[20.4,53.4,38.4]],["troops","居住甲板・兵員収容区画（停止保管ドロイド） 7",[744,141,0],[83.4,41.4,11.4]],["troops","居住甲板・兵員収容区画（停止保管ドロイド） 8",[891,37.5,0],[17.4,83.4,26.4]],["troops","居住甲板・兵員収容区画（停止保管ドロイド） 9",[807,127.5,0],[53.4,47.4,14.4]],["troops","居住甲板・兵員収容区画（停止保管ドロイド） 10",[334.5,130.5,0],[26.4,35.4,38.4]],["troops","居住甲板・兵員収容区画（停止保管ドロイド） 11",[203.47,36,-37.5],[10.35,8.4,35.4]]]};
+const REC_AIR=[{id:'air-1',name:'ヴァルチャー級ドロイド・スターファイター',size:1,count:66},{id:'air-2',name:'ドロイド・トライファイター',size:1,count:32}];
 const REC_GROUND=[{id:'ground-1',name:'B1バトル・ドロイド（停止保管）',kind:'troops',count:40000}];
-const REC_TAN='#a89a7c',REC_BROWN='#8f8268',REC_STEEL='#6f7a86',REC_DARK='#5f646b';
+const REC_TAN='#a89a7c',REC_BROWN='#8f8268',REC_STEEL='#6f7a86',REC_DARK='#5f646b',REC_PLATE='#c9d0d8';
 function recusantBuild(opt={}){
- const D=RECU,L=1187;
+ const D=RECU,L=1187,SZ=.921,Z=v=>v*SZ;
  const s=newShip({L,W:D.W,H:D.H,sec:'warship',plan:'wedge',deckWidth:0,keelWidth:0,belt:.13,chineHeight:.5,bowFree:true,stations:D.st.map(a=>a.slice()),keel:'light'},'レキュザント級軽駆逐艦');
- s._building=true;s.reference='recusant';s.paint='cis';s.lights='warm';s.detail=1;s.armor={hull:.3,cit:.3};s.shieldTarget=1;
+ s._building=true;s.reference='recusant';s.paint='cis';s.lights='warm';s.detail=1;s.armor={hull:.25,cit:.3};s.shieldTarget=1;
  const k=shipKit(s),part=(kind,label,c,d,o={})=>placePart(s,kind,c,d,{label,...o});
  const loft=(name,label,paint,o={},mirror=false)=>k.loftX(label,D.loft[name],{paint,corner:.12,...o},mirror);
  loft('core','中央船体の竜骨区画',REC_BROWN,{corner:.3});
  loft('aftSpine','艦尾脊柱',REC_TAN,{corner:.16});
- loft('aftUpper','艦尾司令ブロック',REC_TAN,{corner:.16});
- loft('aftPod','艦尾舷側ポッド',REC_BROWN,{round:true},true);
+ loft('aftUpper','艦尾ハイパードライブ・ブロック',REC_TAN,{corner:.16});
+ loft('aftPod','イオン化室（艦尾舷側ポッド）',REC_BROWN,{round:true},true);
  loft('domeRidge','背部ドーム稜線',REC_BROWN,{corner:.1});
  loft('bowRidge','艦首背面稜線',REC_BROWN,{corner:.1});
- loft('lowerShell','前部腹部外殻',REC_TAN,{round:true});
+ // Smooth armoured hull segments (they guide the circulating shields): plates, no guns.
+ loft('lowerShell','前部腹部の平滑装甲セグメント',REC_PLATE,{round:true,plate:true,plateT:.6});
+ {const rows=[];for(let x=885;x<=1140;x+=15){const b=sectionBase(s.hull,x);rows.push([x,-(b.hw+.8),b.hw+.8,b.ybot+b.h*.62,b.ybot+b.h+.8]);}
+  k.loftX('艦首上部の平滑装甲セグメント',rows,{paint:REC_PLATE,corner:.35,plate:true,plateT:.6});}
  loft('noseKeel','艦首下部竜骨',REC_BROWN,{corner:.12});
  loft('vfinC','腹部中央安定翼',REC_STEEL,{corner:.08});
  loft('vfinS','腹部舷側安定翼',REC_STEEL,{corner:.08},true);
- // ---- ventral docking bay under the core (opens through the keel) ----
- const dock=part('hangar','腹部発着ベイ',[675,41,0],30,{room:[410,32,18],airRole:'mixed'});
+ // ---- mid-ship: the hollow ribbed interior that shelters fighters (open through the keel) ----
+ const dock=part('hangar','艦載機待機空洞（中央部の中空構造）',[735,41,0],30,{room:[290,Z(32),18],airRole:'mixed'});
  openBay(s,dock,'bottom','open');
- // ---- power: main plant in the superstructure, two pod plants and a spine plant feed the stern drives ----
- const r=part('gen','主反応炉（上部構造内）',[795,98,0],90);
- const ra=part('aux','脊柱補助炉',[200,65,0],42);
- const rpS=part('aux','右舷ポッド補助炉',[243,38,55],52),rpP=part('aux','左舷ポッド補助炉',[243,38,-55],52);
+ if(opt.stage==='dock'){delete s._building;return s;}
+ // ---- power: main reactor at the aft end of the main hull; stern plants feed the drives ----
+ const r=part('gen','主反応炉（主船体後半部）',[760,89,0],72);
+ const ra=part('aux','艦尾脊柱補助炉',[200,65,0],46);
+ const rpS=part('aux','右舷イオン化室補助炉',[243,38,Z(55)],52),rpP=part('aux','左舷イオン化室補助炉',[243,38,Z(-55)],52);
  const eo=equipmentOptions('exposedTurbine');
  const engine=(label,mouth,y,z,d,body,reactor,mirror)=>{const nl=engineBaseline('exposed',d,'nozzleLength'),len=engineBaseline('exposed',d,'length')*body/engineBaseline('exposed',d,'body');const p=placePart(s,'engine',[mouth+nl/2,y,z],d,{...eo,label,d,reactor:reactor.id,dir:[-1,0,0],engineLength:len},mirror);resizeEngine(p,d,len);return p;};
- engine('艦尾中央主機',58,69,0,36,120,ra,false);
- engine('右舷ポッド主機',100,35,61,44,140,rpS,false);engine('左舷ポッド主機',100,35,-61,44,140,rpP,false);
- // ---- defence, hyperdrive and support machinery ----
- for(const sg of [-1,1])part('shield','偏向シールド発生器',[728,110,sg*22],32);
- for(const sg of [-1,1])part('fuel','反応物サイロ',[700,80,sg*14],16,{length:28,dir:[0,1,0]});
- part('inertial','慣性補償装置',[924,53,0],28,{length:60});
- part('hyper','主ハイパードライブ',[864,86,0],22,{length:42.5});
+ engine('艦尾中央スラスター',58,69,0,38,140,ra,false);
+ engine('右舷ポッド・スラスター',100,35,Z(61),44,150,rpS,false);engine('左舷ポッド・スラスター',100,35,Z(-61),44,150,rpP,false);
+ // ---- stern block: hyperdrive; forward: shield generators under the smooth segments ----
+ part('hyper','ハイパードライブ（艦尾ブロック）',[300,130,0],21,{length:42.5});
+ for(const sg of [-1,1])part('shield','偏向シールド発生器（平滑装甲セグメント内）',[930,86,Z(sg*20)],30);
+ for(const sg of [-1,1])part('fuel','反応物サイロ',[700,82,Z(sg*14)],16,{length:28,dir:[0,1,0]});
+ part('inertial','慣性補償装置',[1005,56,0],28,{length:60});
  if(opt.stage==='machinery'){delete s._building;return s;}
- // ---- command: pods on the aft command block ----
- // Pods seat on the first wall hit among a few probe heights.
- const pod=(kind,host,o,dir,w,h)=>{let err='取付面がありません';for(const dy of [0,-4,4,-8,8,-12,12,-16,16])for(const dz of [0,-6,6,-12,12]){const q0=[o[0]+(dir[0]?0:0),o[1]+dy,o[2]+(dir[2]?0:dz)];const hit=rayPart(q0,dir,host);if(!hit)continue;const q=placeFit(s,kind,hit.p,hit.n,0,false);if(q.fit){q.fit.width=w;q.fit.height=h;q.fit.commandDepth=7;q.fit.commandHeight=5;return q.fit;}err=q.err;}throw new Error('艦橋ポッド: '+err);};
- const cmd=s.parts.find(p=>p.label==='艦尾司令ブロック');
- pod('podBridge',cmd,[300,136,80],[0,0,-1],14,5);
- pod('podCombat',cmd,[300,136,-80],[0,0,1],14,5);
- pod('podAir',cmd,[255,136,80],[0,0,-1],14,5);
- // ---- armament (Legends counts; game calibres) ----
- // A mount is cast onto the outermost hull/structure surface; if a probe line
- // misses, it is retried closer to the centreline (or the waterline for beams).
  // Heavy guns keep their charging plant wholly inside the envelope and clear of
  // machinery: the plant is pushed deeper until all its corners are enclosed.
- const solids=()=>allOccupied(s).map(p=>({p,b:partAABB(p)}));let solidList=null;
- const plantFits=f=>{if(!needsCapacitor(f))return true;const q=weaponChargeSpec(f),depth=12*(f.scale||1),side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||solids();
+ let solidList=null;
+ const plantFits=f=>{if(!needsCapacitor(f))return true;const q=weaponChargeSpec(f),depth=12*(f.scale||1),side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
   for(const cd of [10,13,16,20,24,28,33,38,44]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
-   for(const a of [-.5,0,.5])for(const b of [-.5,.5])for(const e of [-.5,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
+   for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
    if(ok){f.chargeDepth=cd;return true;}}return false;};
- const mount=(kind,p,axis,zone,o={})=>{for(const f0 of [1,.85,.7,.55,.4,.25,0]){const q=p.slice();if(axis===2||axis===3)q[2]*=f0;else q[1]=lerp(o.y0??q[1],q[1],f0);const f={id:s.nextId++,k:kind,p:q,a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone};mountFit(s,f);if(!f.float&&plantFits(f)){s.fits.push(f);return f;}s.nextId--;}throw new Error('作例の砲座がありません: '+kind+' '+p.map(Math.round).join(','));};
- const hw=x=>sectionBase(s.hull,x).hw;
+ // One fitting cast onto the outermost surface along its axis. Armour plates take
+ // no fittings, so a probe that lands on a plate (or finds no surface) is refused.
+ const tryMount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:p.slice(),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':!plantFits(f)?'plant':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(Math.round).join(','),why||'ok',f.p.map(Math.round).join(',')]);if(why){s.nextId--;return null;}return f;};
+ const clearOf=(f,list)=>list.every(g=>Math.hypot(f.p[0]-g.p[0],f.p[1]-g.p[1],f.p[2]-g.p[2])>=((FITS[f.k]?.fm||10)+(FITS[g.k]?.fm||10))*.5+2);
+ // n fittings over candidate stations: dorsal ('top') and ventral ('bottom') rows
+ // take |z| offsets and mount as mirrored pairs (0 = centreline); 'beam' rows take
+ // heights and mount one a side. Stations on plates or crowding others are skipped.
+ const spread=(kind,n,mode,zone,xs,offs,o={})=>{let got=0;
+  for(const off of offs)for(const x of xs){if(got>=n)break;
+   const ps=mode==='beam'?[[[x,off,400],4],[[x,off,-400],5]]:(off?[1,-1]:[1]).map(sg=>[[x,0,sg*off],mode==='top'?2:3]);
+   if(got+ps.length>n)continue;const fs=[];
+   for(const [p,a] of ps){const f=tryMount(kind,p,a,zone+(ps.length>1?(p[2]>0?'-stbd':'-port'):''),o);if(!f||!clearOf(f,s.fits.concat(fs)))break;fs.push(f);}
+   if(fs.length<ps.length)continue;s.fits.push(...fs);got+=fs.length;}
+  if(got<n)throw new Error('作例の砲座が不足しています: '+kind+' '+zone+' '+got+'/'+n);};
+ const range=(a,b,st)=>{const r=[];for(let x=a;x<=b+1e-6;x+=st)r.push(x);return r;};
+ // Pods seat on the first wall hit among a few probe heights.
+ const pod=(kind,host,o,dir,w,h)=>{let err='取付面がありません';for(const dy of [0,-4,4,-8,8,-12,12,-16,16])for(const dz of [0,-6,6,-12,12]){const q0=[o[0],o[1]+dy,o[2]+(dir[2]?0:dz)];const hit=rayPart(q0,dir,host);if(!hit)continue;const r=placeFit(s,kind,hit.p,hit.n,0,false);if(r.fit){r.fit.width=w;r.fit.height=h;r.fit.commandDepth=7;r.fit.commandHeight=5;return r.fit;}err=r.err;}throw new Error('艦橋ポッド '+kind+': '+err);};
+
+ const bow=s.parts.find(p=>p.label==='艦首背面稜線'),dome=s.parts.find(p=>p.label==='背部ドーム稜線');
+ pod('podBridge',bow,[1010,122,Z(60)],[0,0,-1],12,5);
+ pod('podCombat',bow,[1010,122,Z(-60)],[0,0,1],12,5);
+ pod('podAir',dome,[700,150,Z(60)],[0,0,-1],12,5);
  syncAviationSurfaces(s);s._lockedCache=cache(s);
  try{withFrozenStructures(()=>{
-  // 1 prow heavy turbolaser cannon
-  mount('stl',[1105,0,0],2,'prow',{chargeDepth:12});
-  // 4 heavy turbolasers and 6 heavy turbolaser turrets on the dome
-  for(const x of [585,620,655,690,725])for(const sg of [-1,1])mount('htl',[x,0,sg*hw(x)*.42],2,'dorsal-heavy',{chargeDepth:12});
-  // 5 turbolaser cannons on the prow ridge and the aft dome
-  for(const x of [560,880,930,980,1030])mount('mtl',[x,0,0],2,'dorsal-medium');
-  // 30 dual laser cannons along the dome rim (15 a side)
-  for(let i=0;i<15;i++)for(const sg of [-1,1]){const x=575+i*30,b=sectionBase(s.hull,x);mount('ltl',[x,b.ybot+b.h*.12,sg*400],sg>0?4:5,(sg<0?'port':'stbd')+'-laser',{y0:b.ybot+b.h*.5});}
-  // 12 dual light laser cannons and 60 point-defence lasers
-  for(let i=0;i<13;i++)for(const sg of [-1,1])mount('pd',[490+i*48,0,sg*14],3,'ventral-pd');
-  for(let i=0;i<12;i++)for(const sg of [-1,1])mount('pd',[585+i*40,0,sg*hw(585+i*40)*.78],2,'dorsal-pd');
-  for(let i=0;i<7;i++)for(const sg of [-1,1])mount('pd',[195+i*28,0,sg*8],2,'aft-pd');
-  for(const x of [140,200,260,300])for(const sg of [-1,1])if(!(x===300&&sg>0))mount('pd',[x,0,sg*62],2,'pod-pd');
+  // 1 prow heavy turbolaser cannon at the very front
+  spread('stl',1,'bottom','prow',range(1080,1170,6).reverse(),[0]);
+  // 4 heavy turbolaser cannons on the forward flanks, below the smooth segments
+  spread('htl',4,'beam','fwd-flank-heavy',range(860,1060,14),[66,72,60,78,54]);
+  // 6 heavy turbolaser turrets on the dorsal hump
+  spread('htl',6,'top','dorsal-heavy',range(590,800,18),[Z(28),Z(20),Z(36),0]);
+  // 5 turbolaser cannons on the bow ridge
+  spread('mtl',5,'top','bow-ridge',range(850,1090,20),[0]);
+  // 30 dual laser cannons along the mid-ship flanks
+  spread('ltl',30,'beam','laser',range(470,880,12),[34,48,80,92,62]);
+  // 12 dual light laser cannons and 60 point-defence laser cannons
+  spread('pd',24,'bottom','ventral-pd',range(470,1010,20),[Z(14),Z(30),Z(44)]);
+  spread('pd',24,'top','dorsal-pd',range(470,1080,18),[Z(40),Z(48),Z(30),Z(56)]);
+  spread('pd',14,'top','aft-pd',range(150,460,20),[Z(8),Z(20)]);
+  spread('pd',10,'top','pod-pd',range(110,320,18),[Z(62),Z(52)]);
  });}finally{delete s._lockedCache;}
  if(opt.stage==='fitted'){delete s._building;return s;}
 
@@ -4258,7 +4385,7 @@ registerShipExample({
  title:'Star Wars: The Clone Wars Recusant (S3E2 style)',author:'lolqeeeeeeeeee',authorUrl:'https://sketchfab.com/lolqeeeeeeeeee',
  source:'https://sketchfab.com/3d-models/star-wars-the-clone-wars-recusant-s3e2-style-c0abad60cab44d9197589a69e78fb6c5',license:'CC BY-NC 4.0',
  credit:'This work is based on "Star Wars: The Clone Wars Recusant (S3E2 style)" (https://sketchfab.com/3d-models/star-wars-the-clone-wars-recusant-s3e2-style-c0abad60cab44d9197589a69e78fb6c5) by lolqeeeeeeeeee (https://sketchfab.com/lolqeeeeeeeeee) licensed under CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)',
- note:'Sketchfab の 3D モデル（lolqeeeeeeeeee 作、S3E2 版、CC BY-NC 4.0）を全長 1,187 m に合わせて実測し、30 断面のフィット船体に背部ドーム稜線・艦尾司令ブロック・舷側ポッド・腹部安定翼などの実測構造物を重ねた軽駆逐艦。兵装は艦首重ターボレーザー砲 1 基、重ターボレーザー 10 基（砲 4・砲塔 6）、ターボレーザー砲 5 基、二連レーザー砲 30 基、二連軽レーザーと点防御レーザー砲を点防御砲 71 基で代表。停止保管のバトル・ドロイド 4 万体、ヴァルチャー 72 機とトライファイター 36 機を搭載（艦載機数は公式に定めがなく、ゲーム上の設定値）。ハイパードライブ・クラス 2。加速約 2,400 G（公式最大 2,800 G）。公式の乗員は 300。',
+ note:'DK の断面図の配置と寸法（全長 1,187 m・幅 157 m・高さ 163 m）に合わせ、Sketchfab の 3D モデル（lolqeeeeeeeeee 作、S3E2 版、CC BY-NC 4.0）の実測形状を幅方向に 0.921 倍して組み直した軽駆逐艦。艦首上部と前部腹部の平滑装甲セグメントは装甲外板（厚さ 0.6 m）で、武装は載せない。艦尾ブロックにハイパードライブとイオン化室（舷側ポッド）、主船体後端に主反応炉、中央部の中空構造に艦載機の待機空洞（腹部に開口、格納庫ではない）、下部に居住甲板、艦首側に偏向シールド発生器と慣性補償装置、艦首上部の稜線に艦橋。兵装は艦首重ターボレーザー砲 1 基、艦首側面の重ターボレーザー砲 4 基、背部の重ターボレーザー砲塔 6 基、ターボレーザー砲 5 基、二連レーザー砲 30 基、二連軽レーザー砲 12 基と点防御レーザー砲 60 基（点防御砲 72 基で代表）。停止保管バトル・ドロイド 4 万体、空洞にヴァルチャー 66 機とトライファイター 32 機（機数はゲーム上の設定）。加速約 2,840 G、ハイパードライブ・クラス 2。公式の乗員は 300。',
  airWings:REC_AIR,groundForces:REC_GROUND,
  build:recusantBuild
 });
@@ -4362,16 +4489,16 @@ const CRIT_MODULES=new Set(['reactor','shield','hyper','fuel','battery']);
 const AIM_KINDS={auto:'艦全体',reactor:'反応炉',bridge:'艦橋',weapon:'砲塔',engine:'推進機関',shield:'シールド発生器'};
 const MAGAZINE_MISSILES=120,FLEET_MIN_CREW=.35;
 function fleetModules(ship,S){
- const mods=[],protect=1-.4*(S.protectedFrac||0),byFit=new Map(),L=Math.max(1,ship.hull.L);
+ const mods=[],protect=1-.4*(S.protectedFrac||0),byFit=new Map(),[X0,X1]=shipSpan(ship),L=Math.max(1,X1-X0);
  for(const f of ship.fits){const d=FITS[f.k];if(!d||f.float)continue;let k=null;
   if(d.cat==='w')k=d.msl?'launcher':'weapon';else if(d.cat==='b'&&(!d.role||d.role==='bridge'||d.role==='combat')&&(S.commandInfo?.[f.id]?.ratio??1)>0)k='bridge';if(!k)continue;
   const s=fitSpec(f);byFit.set(f.id,mods.length);
-  mods.push({k,fit:f.id,name:d.short||d.name,w:s.fm*s.wm*1.2,hits:clamp(Math.round(Math.max(s.fm,s.wm)/24),1,4),crew:s.crew||0,size:k==='weapon'?(s.tt||0)+(s.ion||0)+(s.aa||0)*.5:1,stock:k==='launcher'?MAGAZINE_MISSILES:0,at:+clamp(f.p[0]/L,0,1).toFixed(3),pd:k==='weapon'&&(d.aa||0)>0&&!((d.tt||0)>.01)&&!d.ion});}
- for(const f of intrinsicCommandFits(ship)){const d=FITS[f.k];if(!d||(d.role!=='bridge'&&d.role!=='combat')||(S.commandInfo?.[f.id]?.ratio??0)<=0)continue;mods.push({k:'bridge',name:d.short||d.name,w:(f.width||15)*(f.height||6)*1.2,hits:1,crew:d.crew||16,size:1,at:+clamp(f.p[0]/L,0,1).toFixed(3)});}
+  mods.push({k,fit:f.id,name:d.short||d.name,w:s.fm*s.wm*1.2,hits:clamp(Math.round(Math.max(s.fm,s.wm)/24),1,4),crew:s.crew||0,size:k==='weapon'?(s.tt||0)+(s.ion||0)+(s.aa||0)*.5:1,stock:k==='launcher'?MAGAZINE_MISSILES:0,at:+clamp((f.p[0]-X0)/L,0,1).toFixed(3),pd:k==='weapon'&&(d.aa||0)>0&&!((d.tt||0)>.01)&&!d.ion});}
+ for(const f of intrinsicCommandFits(ship)){const d=FITS[f.k];if(!d||(d.role!=='bridge'&&d.role!=='combat')||(S.commandInfo?.[f.id]?.ratio??0)<=0)continue;mods.push({k:'bridge',name:d.short||d.name,w:(f.width||15)*(f.height||6)*1.2,hits:1,crew:d.crew||16,size:1,at:+clamp((f.p[0]-X0)/L,0,1).toFixed(3)});}
  for(const p of allOccupied(ship)){
   if(p.windowId!=null)continue;const V=partVolume(p);if(!(V>1))continue;const k=MODULE_PART_KIND[p.k]||'other';
   let w=Math.pow(V,2/3)*((p._packing?.retained??p._clip?.retained??1)<.97?1.5:1);if(CRIT_MODULES.has(k))w*=protect;
-  const m={k,name:partLabel(p),w,hits:clamp(Math.round(Math.cbrt(V)/22),1,5),crew:V*(PARTS[p.k]?.crew||0)/1000,size:V,at:+clamp((p.c?.[0]??L/2)/L,0,1).toFixed(3)};
+  const m={k,name:partLabel(p),w,hits:clamp(Math.round(Math.cbrt(V)/22),1,5),crew:V*(PARTS[p.k]?.crew||0)/1000,size:V,at:+clamp(((p.c?.[0]??X0+L/2)-X0)/L,0,1).toFixed(3)};
   if(k==='capacitor'&&byFit.has(p.weaponId))m.link=byFit.get(p.weaponId);mods.push(m);}
  const total={};for(const m of mods)total[m.k]=(total[m.k]||0)+m.size;for(const m of mods)m.share=total[m.k]>0?m.size/total[m.k]:0;
  const rest=mods.reduce((n,m)=>n+m.w,0);mods.push({k:'hull',name:MODULE_LABEL.hull,w:Math.max(1,rest*.6),hits:Infinity,crew:0,size:1,share:1});
@@ -4382,7 +4509,7 @@ function fleetProfile(S,name,ship){
  const out={...p,embarkedSlots:Math.floor(S.slots||0),aviationSize:S.aviation?.usedSize||0,launch:S.launchPotential??p.launch,slidingHatches:S.slidingHatches||0,hatchOpenSeconds:S.slidingHatches?S.hatchOpenSeconds||4:0,hatchCloseSeconds:S.slidingHatches?S.hatchCloseSeconds||4:0,gunArcs:[...S.alphaRate],ionArcs:[...S.ionRate],aaArcs:[...(S.aaArc||[0,0,0,0,0,0])],accel,maxSpeed:accel>0?Math.min(FLEET_RULES.maxSpeed,Math.sqrt(accel*Math.max(200,p.len)*24)):0,turnRate:accel>0?clamp(.11*Math.sqrt(Math.max(1,S.accelG)/3000)*Math.sqrt(1600/Math.max(100,p.len)),.015,.24):0,width:S.dims[1],height:S.dims[2],power:S.xISD};
  // Power figures in watts; weapon energy in TT (one TT fired costs one TT stored).
  out.grid={P:S.power||0,fixed:(dr.hotel||0)+(dr.ray||0),De:dr.engines||0,Ds:dr.shields||0,Dw:dr.weapons||0};
- out.armorHull=S.armorHull||0;out.crewNeed=S.crew||0;
+ out.armorHull=S.armorAvg??S.armorHull??0;out.armorPlate=S.armorPlate||0;out.plateShare=S.plateShare||0;out.crewNeed=S.crew||0;
  out.wCap=ship?ship.fits.filter(f=>FITS[f.k]?.cat==='w'&&!f.float).reduce((n,f)=>{const s=fitSpec(f);return n+(needsCapacitor(f)?S.chargeInfo?.[f.id]?.storedTT||0:(s.tt||0)+(s.ion||0));},0):(S.alphaTot||0)+(S.ionTot||0);
  if(ship){out.modules=fleetModules(ship,S);const hs=hullSectionShares(ship);out.sections=hs.shares;out.sectionCuts=hs.cuts;}
  return out;
@@ -4392,9 +4519,13 @@ function fleetProfile(S,name,ship){
 // compartments. The cuts between them (shares of the length) follow the volume,
 // so a wedge's long, thin bow is one section and its broad stern another.
 const HULL_SECTIONS=5,SECTION_NAMES=['艦尾区画','後部区画','中央区画','前部区画','艦首区画'];
+// The ship's extent along its length: the hull's own, or for a core hull (a
+// small hull inside a larger assembly of structures, like a Lucrehulk's core
+// sphere) the whole ship's, structures included.
+function shipSpan(ship){const L=Math.max(1,ship.hull.L);if(!ship.hull.core)return [0,L];let x0=0,x1=L;for(const p of ship.parts){let b;try{b=partAABB(p);}catch(e){continue;}if(!b||!Number.isFinite(b[0])||!Number.isFinite(b[3]))continue;if(b[0]<x0)x0=b[0];if(b[3]>x1)x1=b[3];}return [x0,Math.max(x0+1,x1)];}
 function hullSectionShares(ship){
- const L=Math.max(1,ship.hull.L),B=80,v=new Array(B).fill(0),put=(x,vol)=>{if(!(vol>0))return;v[clamp(Math.floor(x/L*B),0,B-1)]+=vol;};
- if(!ship.hull.assembly)for(let i=0;i<B;i++){const x=(i+.5)/B*L,b=sectionBase(ship.hull,x);put(x,Math.max(0,b.hw*2*b.h*.8)*L/B);}
+ const [x0,x1]=shipSpan(ship),L=x1-x0,HL=Math.max(1,ship.hull.L),B=80,v=new Array(B).fill(0),put=(x,vol)=>{if(!(vol>0))return;v[clamp(Math.floor((x-x0)/L*B),0,B-1)]+=vol;};
+ if(!ship.hull.assembly)for(let i=0;i<B;i++){const x=x0+(i+.5)/B*L;if(x<0||x>HL)continue;const b=sectionBase(ship.hull,x);put(x,Math.max(0,b.hw*2*b.h*.8)*L/B);}
  for(const p of ship.parts){if(p.windowId!=null)continue;let vol=0;try{vol=partVolume(p);}catch(e){vol=0;}put(p.c?.[0]??L/2,vol*(p.k==='struct'?1:.6));}
  const tot=v.reduce((a,b)=>a+b,0),cuts=[];if(!(tot>0))return {shares:new Array(HULL_SECTIONS).fill(1/HULL_SECTIONS),cuts:[.2,.4,.6,.8]};
  let acc=0,want=1;for(let i=0;i<B&&cuts.length<HULL_SECTIONS-1;i++){const before=acc;acc+=v[i]/tot;while(cuts.length<HULL_SECTIONS-1&&acc>=want/HULL_SECTIONS){const f=v[i]>0?(want/HULL_SECTIONS-before)/(v[i]/tot):1;cuts.push(+((i+clamp(f,0,1))/B).toFixed(4));want++;}}
@@ -4423,11 +4554,14 @@ const fleetAngle=a=>Math.atan2(Math.sin(a),Math.cos(a));
 function fleetArc(u,target,rates){const dx=target.pos[0]-u.pos[0],dy=target.pos[1]-u.pos[1],dz=target.pos[2]-u.pos[2],c=Math.cos(u.yaw),s=Math.sin(u.yaw),v=[dx*c+dz*s,dy,-dx*s+dz*c],weights=[Math.max(0,v[0]),Math.max(0,-v[0]),Math.max(0,v[2]),Math.max(0,-v[2]),Math.max(0,v[1]),Math.max(0,-v[1])],sum=weights.reduce((a,b)=>a+b,0);return sum?weights.reduce((a,w,i)=>a+w*(rates[i]||0),0)/sum:0;}
 // Remaining capability by module kind: the intact share of each kind (1 where a
 // design has none of that kind, so a missing system never limits anything).
+// The module list of a design indexed once by kind (a battle asks every tick).
+const FLEET_SYS_KINDS=['reactor','shield','engine','weapon','launcher','hangar','battery','fire'],fleetSysIndex=new WeakMap();
+function fleetSysIdx(mods){let x=fleetSysIndex.get(mods);if(x)return x;x={kinds:FLEET_SYS_KINDS.map(k=>{const idx=[],sh=[];mods.forEach((m,i)=>{if(m.k===k){idx.push(i);sh.push(m.share);}});return {k,idx:Int32Array.from(idx),sh:Float64Array.from(sh)};}),bridge:Int32Array.from(mods.flatMap((m,i)=>m.k==='bridge'?[i]:[]))};fleetSysIndex.set(mods,x);return x;}
 function fleetSystems(u){
- const mods=u.p.modules||[],s={},has={};
- mods.forEach((m,i)=>{if(m.k==='hull')return;has[m.k]=true;s[m.k]=(s[m.k]||0)+m.share*Math.max(0,u.mods[i]);});
- const k=x=>has[x]?clamp(s[x],0,1):1;
- return {reactor:k('reactor'),shield:k('shield'),engine:k('engine'),weapon:k('weapon'),launcher:k('launcher'),hangar:k('hangar'),battery:k('battery'),fire:k('fire'),bridge:has.bridge?mods.some((m,i)=>m.k==='bridge'&&u.mods[i]>0):true,hasReactor:!!has.reactor,hasBridge:!!has.bridge};
+ const mods=u.p.modules||[],um=u.mods||[],X=fleetSysIdx(mods),out={};
+ for(const {k,idx,sh} of X.kinds){if(!idx.length){out[k]=1;continue;}let s=0;for(let j=0;j<idx.length;j++){const v=um[idx[j]];if(v>0)s+=sh[j]*v;}out[k]=clamp(s,0,1);}
+ let br=!X.bridge.length;for(let j=0;j<X.bridge.length&&!br;j++)if(um[X.bridge[j]]>0)br=true;
+ out.bridge=br;out.hasReactor=X.kinds[0].idx.length>0;out.hasBridge=X.bridge.length>0;return out;
 }
 const fleetCrewEff=u=>{const need=u.p.crewNeed||0;return need>0?clamp((u.crew/need-FLEET_MIN_CREW)/(1-FLEET_MIN_CREW)*.6+.4,.4,1):1;};
 const fleetEffective=u=>!u.dead&&!u.out;
@@ -5006,7 +5140,7 @@ function syncAviationSurfaces(ship){
 }
 
 
-return {HULL_SECTIONS,SECTION_NAMES,hullSectionShares,SHIP_LIGHT_KINDS,SHIP_EXAMPLES,registerShipExample,shipKit,fitTilt,fitUp,fitFrameOf,openingRimPoint,surfSamples,groundingStats,turretRayContext,turretClear,turretOrigin,turretRate,GROUND_LIMITS,GROUND_PRESETS,GROUND_VEHICLE_VOLUME,normalizeGroundForces,groundStatus,planStations,bridgeBodyRole,podPoint,podDepth,intrinsicCommandFits,POD_ASSET,BRIDGE_BODY_COMMAND,REFERENCE_TONE,engineSkinMesh,referenceFitYaw,rayTris,vmirrorPlane,vmirrorPoint,vmirrorPart,SHIP_CLASSES,shipClassFor,PUBLIC_LISTS,publicJSON,patchShip,patchItem,cache,AIRCRAFT_CLEARANCE,aircraftFitsBay,AVIATION_SIZE_VOLUME,AIR_WING_LIMITS,hangarCapacity,normalizeAirWings,aviationStatus,AVIATION_SURFACE_FACES,hatchAxes,aviationSurfaceContacts,setAviationSurfaceMode,syncAviationSurfaces,aviationHatchActive,isSlidingHatch,slidingHatchSpec,slidingHatchPanels,hatchOpenArea,ISD_HYPER_BASELINE,HYPER_CLASS_COEFFICIENT,HYPER_POWER_DENSITY,ISD_SHIELD_VOLUME,SHIELD_BUFFER_SECONDS,SHIELD_ENERGY_DENSITY,SHIELD_POWER_DENSITY,REACTOR_POWER_DENSITY,SOLID_CUT_SHAPES,normalizeSolidCut,mirrorSolidCut,solidCutTriangles,solidCutBounds,solidCutContains,solidCutsContain,applySolidCuts,solidPartCutContains,solidStructVolume,solidCutIntersectsShip,flexibleCompartment,hardConflicts,weaponChargeSpec,DREADNOUGHT_EXAMPLES,DESIGN_LIMITS,ALIGNMENTS,alignedPosition,alignPart,replacementShape,replacementOptions,replacePart,COMMAND_ROLES,commandCompartments,commandStatus,habitationSpace,inspectionTargets,planCutEdge,normalizePlanCut,structFrame,alignStructure,FLEET_RULES,POWER_MODES,POWER_AUTO_NOTE,fleetAutoPower,AIM_KINDS,MODULE_LABEL,FLEET_MIN_CREW,powerSplit,coreDetonation,fleetModules,fleetSystems,fleetCrewEff,fleetEffective,fleetProfile,fleetUnit,fleetFormation,fleetBattle,fleetOrder,fleetArc,fleetTick,fleetCommit,fleetFinish,fleetSample,fleetFrame,normalizeBow,bowStation,engineHullEntry,ENGINE_BASELINES,engineBaseline,resizeEngine,parametricEngine,engineRating,sourceEngine,EQUIPMENT,equipmentSpec,equipmentOptions,enforceEquipment,customizeEquipment,adoptEquipment,HYPERDRIVE_REFERENCE,hyperCapacity,arcParameters,arcPoint,arcTriangles,inArc,SEPARATIST_EXAMPLES,STATS_SOURCE,SHIP_REFERENCE,PART_RATINGS,reactorPower,nozzleThrust,nozzleDemand,shieldLoad,partRatingKeys,validOutline,outlinePoints,outlineArea,outlineTriangles,AVIATION_ROLES,CHARGE_TT_M3,aircraftCapacity,aviationConnected,needsCapacitor,weaponCapacitors,refitReferenceInterior,clipReferenceBox, referenceEnginePoint, fitSpec, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface,
+return {PLATE,plateThickness,shipSpan,HULL_SECTIONS,SECTION_NAMES,hullSectionShares,SHIP_LIGHT_KINDS,SHIP_EXAMPLES,registerShipExample,shipKit,fitTilt,fitUp,fitFrameOf,openingRimPoint,surfSamples,groundingStats,turretRayContext,turretClear,turretOrigin,turretRate,GROUND_LIMITS,GROUND_PRESETS,GROUND_VEHICLE_VOLUME,normalizeGroundForces,groundStatus,planStations,bridgeBodyRole,podPoint,podDepth,intrinsicCommandFits,POD_ASSET,BRIDGE_BODY_COMMAND,REFERENCE_TONE,engineSkinMesh,referenceFitYaw,rayTris,vmirrorPlane,vmirrorPoint,vmirrorPart,SHIP_CLASSES,shipClassFor,PUBLIC_LISTS,publicJSON,patchShip,patchItem,cache,AIRCRAFT_CLEARANCE,aircraftFitsBay,AVIATION_SIZE_VOLUME,AIR_WING_LIMITS,hangarCapacity,normalizeAirWings,aviationStatus,AVIATION_SURFACE_FACES,hatchAxes,aviationSurfaceContacts,setAviationSurfaceMode,syncAviationSurfaces,aviationHatchActive,isSlidingHatch,slidingHatchSpec,slidingHatchPanels,hatchOpenArea,ISD_HYPER_BASELINE,HYPER_CLASS_COEFFICIENT,HYPER_POWER_DENSITY,ISD_SHIELD_VOLUME,SHIELD_BUFFER_SECONDS,SHIELD_ENERGY_DENSITY,SHIELD_POWER_DENSITY,REACTOR_POWER_DENSITY,SOLID_CUT_SHAPES,normalizeSolidCut,mirrorSolidCut,solidCutTriangles,solidCutBounds,solidCutContains,solidCutsContain,applySolidCuts,solidPartCutContains,solidStructVolume,solidCutIntersectsShip,flexibleCompartment,hardConflicts,weaponChargeSpec,DREADNOUGHT_EXAMPLES,DESIGN_LIMITS,ALIGNMENTS,alignedPosition,alignPart,replacementShape,replacementOptions,replacePart,COMMAND_ROLES,commandCompartments,commandStatus,habitationSpace,inspectionTargets,planCutEdge,normalizePlanCut,structFrame,alignStructure,FLEET_RULES,POWER_MODES,POWER_AUTO_NOTE,fleetAutoPower,AIM_KINDS,MODULE_LABEL,FLEET_MIN_CREW,powerSplit,coreDetonation,fleetModules,fleetSystems,fleetCrewEff,fleetEffective,fleetProfile,fleetUnit,fleetFormation,fleetBattle,fleetOrder,fleetArc,fleetTick,fleetCommit,fleetFinish,fleetSample,fleetFrame,normalizeBow,bowStation,engineHullEntry,ENGINE_BASELINES,engineBaseline,resizeEngine,parametricEngine,engineRating,sourceEngine,EQUIPMENT,equipmentSpec,equipmentOptions,enforceEquipment,customizeEquipment,adoptEquipment,HYPERDRIVE_REFERENCE,hyperCapacity,arcParameters,arcPoint,arcTriangles,inArc,SEPARATIST_EXAMPLES,STATS_SOURCE,SHIP_REFERENCE,PART_RATINGS,reactorPower,nozzleThrust,nozzleDemand,shieldLoad,partRatingKeys,validOutline,outlinePoints,outlineArea,outlineTriangles,AVIATION_ROLES,CHARGE_TT_M3,aircraftCapacity,aviationConnected,needsCapacitor,weaponCapacitors,refitReferenceInterior,clipReferenceBox, referenceEnginePoint, fitSpec, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface,
   TT, G0, ISD_W, K, PARTS, FITS, HULLS, SECTIONS, KEELS, SECTORS, CLASSES, DESIGNS, AXES, AXNAME, ARMOR_MAX,
   newShip, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
@@ -5348,6 +5482,7 @@ function targetValue(a) { const p = a.p, fire = (p.gunBest || 0) + .5 * (p.ionBe
 // Unit orders inside a battle. 'auto' is the AI's choice; the player may hold,
 // move, attack a target or withdraw any ship.
 function tacticalOrders(w, sys, us) {
+ const worth = new Map(us.map(a => [a.id, Math.pow(1 / Math.max(1e-12, targetValue(a)), .35)]));
  for (const u of us) {
   if (u.manual || u.out || u.jump) continue;
   const side = w.sides[u.side], ai = side.ai || u.order.type === 'auto';if (!ai) continue;
@@ -5355,8 +5490,8 @@ function tacticalOrders(w, sys, us) {
   // Badly damaged ships with a hyperdrive leave; the rest press the nearest enemy, preferring ships still able to fight
   // and those whose loss costs the enemy most firepower for the effort (escorts before a heavily built carrier).
   if (side.ai && unitStruct(u) < .28 && unitHyper(u) != null && !u.leaving) { u.leaving = true; aiWithdrawUnit(w, u); continue; }
-  const score = a => len(sub(a.pos, u.pos)) * (a.info?.capital === u.info?.capital ? 1 : 1.6) * Math.pow(1 / Math.max(1e-12, targetValue(a)), .35);
-  const tgt = foes.slice().sort((a, b) => (!!a.out - !!b.out) || score(a) - score(b))[0];
+  let tgt = null, best = Infinity, bestOut = true;
+  for (const a of foes) { const out = !!a.out; if (out && !bestOut) continue; const dx = a.pos[0] - u.pos[0], dy = a.pos[1] - u.pos[1], dz = a.pos[2] - u.pos[2], sc = Math.sqrt(dx * dx + dy * dy + dz * dz) * (a.info?.capital === u.info?.capital ? 1 : 1.6) * worth.get(a.id); if ((bestOut && !out) || sc < best) { tgt = a; best = sc; bestOut = out; } }
   u.auto = {type: 'attack', target: tgt.id};
  }
 }
@@ -5388,7 +5523,7 @@ function battleTick(w, sys, dt) {
   if (u.manual || u.warp) continue;const o = effectiveOrder(u), p = u.p, s = sysOf.get(u.id), g = p.grid, crewEff = C.fleetCrewEff(u);
   const foes = us.filter(x => x.side !== u.side && !x.warp), live = foes.filter(x => !x.out), pool = live.length ? live : foes;
   let t = null, raw = 0;
-  if (!u.out && u.order.fire !== false) { t = byId.get(o.target); if (!t || t.side === u.side || t.warp) t = pool.slice().sort((a, b) => len(sub(a.pos, u.pos)) - len(sub(b.pos, u.pos)))[0] || null; if (t && len(sub(t.pos, u.pos)) > RULES.range) t = null; if (t) raw = (C.fleetArc(u, t, p.gunArcs) + C.fleetArc(u, t, p.ionArcs)) * s.weapon; }
+  if (!u.out && u.order.fire !== false) { t = byId.get(o.target); if (!t || t.side === u.side || t.warp) t = nearestOf(pool, u.pos); if (t && len(sub(t.pos, u.pos)) > RULES.range) t = null; if (t) raw = (C.fleetArc(u, t, p.gunArcs) + C.fleetArc(u, t, p.ionArcs)) * s.weapon; }
   u.firingAt = t ? t.id : null;u.lastShot = null;
   const mode = u.order.power === 'auto' || !C.POWER_MODES[u.order.power] ? C.fleetAutoPower(u, t) : u.order.power, M = C.POWER_MODES[mode];u.mode = mode;
   const cap = (p.wCap || 0) * s.weapon, nominalShield = g ? g.Ds * s.shield : 0;let fire = raw > 0 ? 1 : 0;
@@ -5439,10 +5574,13 @@ function attackStation(u, t) {
 }
 // Point-defence rating a ship brings to bear toward a point (its arc share).
 function pdToward(u, pt) {
- const a = u.p.aaArcs;if (!a || !a.some(v => v > 0)) return u.p.aa || 0;
- const d = sub(pt, u.pos), c = Math.cos(u.yaw), s = Math.sin(u.yaw), v = [d[0] * c + d[2] * s, d[1], -d[0] * s + d[2] * c], wts = [Math.max(0, v[0]), Math.max(0, -v[0]), Math.max(0, v[2]), Math.max(0, -v[2]), Math.max(0, v[1]), Math.max(0, -v[1])], sum = wts.reduce((x, y) => x + y, 0) || 1;
- return wts.reduce((n, x, i) => n + x * (a[i] || 0), 0) / sum;
+ const a = u.p.aaArcs;if (!a || !(a[0] > 0 || a[1] > 0 || a[2] > 0 || a[3] > 0 || a[4] > 0 || a[5] > 0)) return u.p.aa || 0;
+ const dx = pt[0] - u.pos[0], dy = pt[1] - u.pos[1], dz = pt[2] - u.pos[2], c = Math.cos(u.yaw), s = Math.sin(u.yaw), vx = dx * c + dz * s, vz = -dx * s + dz * c;
+ const w0 = vx > 0 ? vx : 0, w1 = vx < 0 ? -vx : 0, w2 = vz > 0 ? vz : 0, w3 = vz < 0 ? -vz : 0, w4 = dy > 0 ? dy : 0, w5 = dy < 0 ? -dy : 0, sum = w0 + w1 + w2 + w3 + w4 + w5 || 1;
+ return (w0 * (a[0] || 0) + w1 * (a[1] || 0) + w2 * (a[2] || 0) + w3 * (a[3] || 0) + w4 * (a[4] || 0) + w5 * (a[5] || 0)) / sum;
 }
+// The nearest of a list of ships to a point (null for none).
+function nearestOf(list, p) { let best = null, bd = Infinity; for (const x of list) { const dx = x.pos[0] - p[0], dy = x.pos[1] - p[1], dz = x.pos[2] - p[2], d = dx * dx + dy * dy + dz * dz; if (d < bd) { bd = d; best = x; } } return best; }
 // A wing on automatic orders covers its carrier (the AI's wings get the AI's orders).
 function wingOrder(w, wing) { const o = wing?.order || {type: 'standby'}; if (o.type !== 'auto') return o; return wing.auto || {type: 'escort', target: wing.home}; }
 // The bearing in a ship's frame from which an attack run comes in.
@@ -5456,7 +5594,9 @@ const shipToWorld = (u, v) => { const c = Math.cos(u.yaw), s = Math.sin(u.yaw); 
 function craftTick(w, sys, us, byId, sysOf, inc, dt) {
  const sq = [];for (const s of w.squads.values()) if (s.sys === sys && s.state !== 'lost' && s.state !== 'stranded') sq.push(s);
  if (!sq.length) return;
- const foesOf = side => us.filter(u => u.side !== side && !u.warp);
+ // Enemy craft aloft for each side, packed once a tick (positions as at its start).
+ const aloft = sq.filter(s => s.state === 'out' && s.n > 0), packs = new Map(), every = aloft.length > 300 ? 8 : 4;
+ const packOf = side => { let pk = packs.get(side); if (pk) return pk; const l = aloft.filter(e => e.side !== side), xyz = new Float64Array(l.length * 3); l.forEach((e, i) => { xyz[i * 3] = e.pos[0]; xyz[i * 3 + 1] = e.pos[1]; xyz[i * 3 + 2] = e.pos[2]; }); packs.set(side, pk = {l, xyz}); return pk; };
  for (const s of sq) {
   const c = CRAFT[s.craft], home = byId.get(s.home), wing = w.wings.get(s.wing), o = wingOrder(w, wing);
   if (s.state === 'docked') {
@@ -5470,7 +5610,7 @@ function craftTick(w, sys, us, byId, sysOf, inc, dt) {
   }
   if (s.state === 'return') { if (!home || home.dead || home.sys !== sys) { s.state = 'lost'; s.n = 0; continue; } const d = sub(home.pos, s.pos); if (len(d) < Math.max(400, home.p.len * .5)) { s.state = 'docked'; s.t = RULES.craftRearm; s.runs = 0; continue; } steer(s, home.pos, c.speed, dt); continue; }
   // Out: pick a goal from the wing's order.
-  let goal = null, engageR = 0;const foes = foesOf(s.side);
+  let goal = null, engageR = 0;
   if (o.type === 'strike') {
    const t = byId.get(o.target);if (!t || t.dead || t.side === s.side) { s.state = 'return'; continue; }
    const ap = APPROACH[o.approach] || APPROACH.bow, ip = add(t.pos, shipToWorld(t, scale(ap, 12000 + t.p.len * .6)));
@@ -5485,20 +5625,35 @@ function craftTick(w, sys, us, byId, sysOf, inc, dt) {
   else if (o.type === 'escort') { const e = byId.get(o.target) || home; if (!e) { s.state = 'return'; continue; } goal = add(e.pos, [0, e.p.height * .8 || 300, 0]); engageR = 9000; }
   else { s.state = 'return'; continue; }
   // Engage enemy craft within reach of the goal (CAP/escort) or of the squadron (strike escorts).
-  if (engageR > 0) { let best = null, bd = Infinity; for (const e of sq) { if (e.side === s.side || e.state !== 'out' || e.n <= 0) continue; const dg = len(sub(e.pos, o.type === 'strike' ? s.pos : goal)); if (dg < engageR) { const ds = len(sub(e.pos, s.pos)); if (ds < bd) { bd = ds; best = e; } } } if (best) { goal = best.pos; s.target = best.id; } else s.target = null; }
+  // The nearest enemy craft is looked for once a second (squadrons staggered); between looks the squadron keeps after its quarry.
+  if (engageR > 0 && (s.engT = (s.engT ?? (s.n * 7 % 4)) - 1) > 0) { if (s.target) { const e = w.squads.get(s.target); if (e && e.state === 'out' && e.n > 0) goal = e.pos; else { s.target = null; s.engT = 0; } } }
+  else if (engageR > 0) {
+   s.engT = every;const ref = o.type === 'strike' ? s.pos : goal, R2 = engageR * engageR, {l, xyz} = packOf(s.side), rx = ref[0], ry = ref[1], rz = ref[2], qx = s.pos[0], qy = s.pos[1], qz = s.pos[2];let best = null, bd = Infinity;
+   for (let i = 0, n = l.length; i < n; i++) { const ex = xyz[i * 3], ey = xyz[i * 3 + 1], ez = xyz[i * 3 + 2], gx = ex - rx, gy = ey - ry, gz = ez - rz; if (gx * gx + gy * gy + gz * gz >= R2) continue; const dx = ex - qx, dy = ey - qy, dz = ez - qz, ds = dx * dx + dy * dy + dz * dz; if (ds < bd) { const e = l[i]; if (e.state !== 'out' || e.n <= 0) continue; bd = ds; best = e; } }
+   if (best) { goal = best.pos; s.target = best.id; } else s.target = null; }
   steer(s, goal || s.pos, c.speed, dt);
  }
- // Dogfights: hostile squadrons within 2.5 km wear each other down.
- const loss = new Map();
- for (let i = 0; i < sq.length; i++) for (let j = i + 1; j < sq.length; j++) {
-  const a = sq[i], b = sq[j];if (a.side === b.side || a.state !== 'out' || b.state !== 'out' || a.n <= 0 || b.n <= 0) continue;if (len(sub(a.pos, b.pos)) > 2500) continue;
-  const ca = CRAFT[a.craft], cb = CRAFT[b.craft];
-  loss.set(a.id, (loss.get(a.id) || 0) + RULES.dogfight * b.n * cb.aa / ca.armor * dt);loss.set(b.id, (loss.get(b.id) || 0) + RULES.dogfight * a.n * ca.aa / cb.armor * dt);
-  a.dogfight = b.dogfight = w.time;
+ // Dogfights: a squadron is worn down by the air-to-air strength of every
+ // enemy squadron in the 4.5 km cube around it (cells of 1.5 km, summed per
+ // side), so a swarm of thousands costs no more than a handful.
+ const air = sq.filter(s => s.state === 'out' && s.n > 0), N = air.length, nS = w.sides.length, DFC = 1500, cells = new Map(), near = new Map(), key = (i, j, k) => ((i & 1023) << 20) | ((j & 1023) << 10) | (k & 1023);
+ const P = new Float64Array(N * 3), side = new Int8Array(N), soft = new Float64Array(N), cellOf = new Int32Array(N), loss = new Float64Array(N);
+ for (let n = 0; n < N; n++) { const s = air[n], c = CRAFT[s.craft], x = s.pos[0], y = s.pos[1], z = s.pos[2], kk = key(Math.floor(x / DFC), Math.floor(y / DFC), Math.floor(z / DFC));P[n * 3] = x;P[n * 3 + 1] = y;P[n * 3 + 2] = z;side[n] = s.side;soft[n] = 1 / c.armor;cellOf[n] = kk;let e = cells.get(kk); if (!e) cells.set(kk, e = new Float64Array(nS)); e[s.side] += s.n * c.aa; }
+ for (let n = 0; n < N; n++) {
+  const kk = cellOf[n];let e = near.get(kk);
+  if (!e) { e = new Float64Array(nS); const i = Math.floor(P[n * 3] / DFC), j = Math.floor(P[n * 3 + 1] / DFC), k = Math.floor(P[n * 3 + 2] / DFC); for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) for (let c = -1; c <= 1; c++) { const q = cells.get(key(i + a, j + b, k + c)); if (q) for (let t = 0; t < nS; t++) e[t] += q[t]; } near.set(kk, e); }
+  let foe = 0;for (let t = 0; t < nS; t++) if (t !== side[n]) foe += e[t];
+  if (foe > 0) { loss[n] = RULES.dogfight * foe * soft[n] * dt; air[n].dogfight = w.time; }
  }
  // Point defence on craft near enemy ships.
- for (const s of sq) { if (s.state !== 'out' || s.n <= 0) continue; const c = CRAFT[s.craft]; for (const x of us) { if (x.side === s.side || x.warp || x.manual) continue; const r = len(sub(s.pos, x.pos)); if (r > RULES.pdRange + x.p.len * .5) continue; loss.set(s.id, (loss.get(s.id) || 0) + RULES.pdCraft * pdToward(x, s.pos) * sysOf.get(x.id).weapon * C.fleetCrewEff(x) * dt / c.armor); } }
- for (const [id, l] of loss) { const s = w.squads.get(id); const k = Math.min(s.n, l * (1 + (w.rand() - .5) * .5)); s.n -= k; s.lostN = (s.lostN || 0) + k; if (s.n < .5) { s.n = 0; s.state = 'lost'; blog(w, sys, `${s.name} 全滅`, {side: s.side}); } }
+ for (const x of us) {
+  if (x.warp || x.manual) continue;const k = RULES.pdCraft * sysOf.get(x.id).weapon * C.fleetCrewEff(x) * dt, lim2 = (RULES.pdRange + x.p.len * .5) ** 2, px = x.pos[0], py = x.pos[1], pz = x.pos[2], a = x.p.aaArcs, arcs = a && (a[0] > 0 || a[1] > 0 || a[2] > 0 || a[3] > 0 || a[4] > 0 || a[5] > 0), cy = Math.cos(x.yaw), sy = Math.sin(x.yaw), flat = x.p.aa || 0, xs = x.side;
+  if (!(k > 0) || !(arcs || flat > 0)) continue;
+  const a0 = arcs ? a[0] || 0 : 0, a1 = arcs ? a[1] || 0 : 0, a2 = arcs ? a[2] || 0 : 0, a3 = arcs ? a[3] || 0 : 0, a4 = arcs ? a[4] || 0 : 0, a5 = arcs ? a[5] || 0 : 0;
+  for (let n = 0; n < N; n++) { if (side[n] === xs) continue; const dx = P[n * 3] - px, dy = P[n * 3 + 1] - py, dz = P[n * 3 + 2] - pz; if (dx * dx + dy * dy + dz * dz > lim2) continue;
+   let r = flat;if (arcs) { const vx = dx * cy + dz * sy, vz = -dx * sy + dz * cy, w0 = vx > 0 ? vx : 0, w1 = vx < 0 ? -vx : 0, w2 = vz > 0 ? vz : 0, w3 = vz < 0 ? -vz : 0, w4 = dy > 0 ? dy : 0, w5 = dy < 0 ? -dy : 0; r = (w0 * a0 + w1 * a1 + w2 * a2 + w3 * a3 + w4 * a4 + w5 * a5) / (w0 + w1 + w2 + w3 + w4 + w5 || 1); }
+   loss[n] += k * r * soft[n]; } }
+ for (let n = 0; n < N; n++) { if (!(loss[n] > 0)) continue; const s = air[n], k = Math.min(s.n, loss[n] * (1 + (w.rand() - .5) * .5)); s.n -= k; s.lostN = (s.lostN || 0) + k; if (s.n < .5) { s.n = 0; s.state = 'lost'; blog(w, sys, `${s.name} 全滅`, {side: s.side}); } }
 }
 function steer(s, goal, speed, dt) {
  const d = sub(goal, s.pos), l = len(d);if (l < 1) return;const want = scale(d, 1 / l), c = clamp(dot(s.h, want), -1, 1), ang = Math.acos(c), maxA = 1.3 * dt;
@@ -5639,9 +5794,12 @@ function aiWing(w, wing, home) {
 function weakestApproach(t) { return Object.keys(APPROACH).sort((a, b) => pdToward(t, add(t.pos, shipToWorld(t, scale(APPROACH[a], 9000)))) - pdToward(t, add(t.pos, shipToWorld(t, scale(APPROACH[b], 9000)))))[0]; }
 
 // ---------- the clock ----------
-function step(w, dt) {
- if (w.result) return;w.acc += dt;let n = 0;
- while (w.acc >= TICK && n < 4000) { w.acc -= TICK; n++; tick(w, TICK); if (w.result) break; }
+// maxN caps the ticks run in one call; time that could not be run is dropped,
+// so a heavy battle slows the clock instead of stalling the screen.
+function step(w, dt, maxN = 4000) {
+ if (w.result) return 0;w.acc += dt;let n = 0;
+ while (w.acc >= TICK && n < maxN) { w.acc -= TICK; n++; tick(w, TICK); if (w.result) break; }
+ if (w.acc > TICK) w.acc = TICK;return n;
 }
 function tick(w, dt) {
  w.time += dt;

@@ -611,6 +611,8 @@ body.shot-mode .main{display:flex!important;flex-direction:column}body.shot-mode
 .th-tmark.foe i{border-color:rgba(255,118,92,.92)}.th-tmark.foe b{color:#ffab95}
 .th-tmark.ally i{left:-11px;top:-11px;width:22px;height:22px;border-radius:50%;clip-path:none;border-color:rgba(110,225,255,.75)}.th-tmark.ally b{color:#9fe6ff;font-size:10px}.th-tmark.ally s em.hp{background:#7fe0ff}
 .th-tmark.out i{border-color:rgba(165,175,185,.6);box-shadow:none}.th-tmark.out b{color:#aab4bc}.th-tmark.lock s{display:grid}
+.th-tmark.lf b{left:auto;right:16px}.th-tmark.lf s{left:auto;right:16px}.th-tmark.nl b,.th-tmark.nl:not(.lock) s{display:none}
+@media (max-width:720px),(max-height:480px){.th-tmark b{font-size:9.5px}.th-tmark.ally b{font-size:9px}.th-tmark s{width:48px}}
 .th-mapbtn{color:#a9cbff}
 .th-card.th-map{width:min(430px,92vw);min-width:0;max-height:min(78vh,560px);overflow:auto;padding:10px;gap:8px}
 .th-map-head{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px}.th-map-head .th-btn{min-height:28px;padding:3px 10px}
@@ -687,7 +689,7 @@ body.shot-mode .main{display:flex!important;flex-direction:column}body.shot-mode
 .voy-hud{position:absolute;left:0;right:0;top:0;display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;padding-block:max(8px,env(safe-area-inset-top,0px)) 10px;padding-left:var(--gl);padding-right:var(--gr);background:linear-gradient(rgba(5,8,11,.94),rgba(5,8,11,.66) 70%,transparent);pointer-events:none;z-index:2}
 .voy-hud>*{pointer-events:auto}
 .vh-l{display:grid;gap:1px;min-width:0}.vh-l b{font:600 18px/1.1 var(--font-display);letter-spacing:.08em}.vh-l span{font-size:11px;color:var(--muted)}
-.vh-clock{display:grid;text-align:center}.vh-clock span{font-size:10px;color:var(--muted)}.vh-clock b{font:600 16px var(--font-mono)}
+.vh-clock{display:grid;text-align:center}.vh-clock span{font-size:10px;color:var(--muted)}.vh-clock b{font:600 16px var(--font-mono)}.vh-clock .vh-lag{font:600 10px/1.1 var(--font-mono);color:#f0b45a;white-space:nowrap}
 .vh-speed button{min-height:30px;padding:2px 9px;font:700 12px var(--font-mono)}
 .vh-str{display:grid;grid-template-columns:auto 86px auto;gap:2px 6px;align-items:center;font-size:11px;color:var(--muted)}.vh-str i{height:6px;border-radius:3px;background:rgba(255,255,255,.12);overflow:hidden}.vh-str em{display:block;height:100%;background:var(--cyan)}.vh-str small.foe{grid-column:1/-1;color:#ffb29e}
 .vh-r{margin-left:auto;display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}.btn.warn{border-color:rgba(255,184,90,.7);color:#ffd59a;background:rgba(255,160,60,.12)}
@@ -714,6 +716,56 @@ body.shot-mode .main{display:flex!important;flex-direction:column}body.shot-mode
 @media (max-width:760px){.voy-side{left:var(--gl);right:var(--gr);top:auto;bottom:0;width:auto;max-height:44vh;padding-bottom:max(10px,env(safe-area-inset-bottom,0px))}.voy-log{bottom:calc(44vh + 8px);max-width:calc(100% - 32px)}.voy-log p:nth-child(n+3){display:none}.vh-str{display:none}.vh-l b{font-size:15px}}
 @media (orientation:landscape) and (max-height:560px){.voy-hud{padding-block:max(4px,env(safe-area-inset-top,0px)) 6px;gap:4px 8px}.vh-l b{font-size:14px}.vh-l span{display:none}.vh-str{display:none}.voy-side{top:48px;bottom:6px;width:min(300px,40vw);left:auto;max-height:none}.vs-card{padding:7px 9px;gap:4px}.voy-log{max-width:calc(100% - min(300px,40vw) - 48px);bottom:6px}.voy-log p:nth-child(n+3){display:none}.vh-speed button{min-height:26px;padding:1px 7px}}
 
+
+/* v13.2 phones are held sideways: in portrait a gate asks to rotate the device. */
+.rotate-gate{display:none}
+@media (orientation:portrait) and (max-width:600px) and (pointer:coarse){
+ body:not(.rotate-skip) .rotate-gate{display:grid;place-items:center;position:fixed;inset:0;z-index:10000;background:var(--bg);color:var(--fg);padding-block:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+}
+.rotate-card{display:grid;justify-items:center;gap:10px;text-align:center;max-width:300px}
+.rotate-card svg{width:72px;height:72px;fill:none;stroke:var(--accent);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;animation:ks-turn 2.4s ease-in-out infinite}
+.rotate-card b{font:600 18px var(--font-display);letter-spacing:.08em}.rotate-card p{margin:0;font-size:13px;color:var(--muted);line-height:1.6}
+@keyframes ks-turn{0%,20%{transform:rotate(0)}55%,85%{transform:rotate(-90deg)}100%{transform:rotate(0)}}
+@media (prefers-reduced-motion:reduce){.rotate-card svg{animation:none}}
+/* Phones held sideways: smaller type and tighter cards on the voyage screens. */
+@media (orientation:landscape) and (max-height:500px){
+ .voy-hud{gap:3px 6px;padding-block:max(3px,env(safe-area-inset-top,0px)) 4px}
+ .vh-l b{font-size:12.5px;letter-spacing:.06em}.vh-clock span{display:none}.vh-clock b{font-size:12.5px}
+ .vh-speed button{min-height:24px;padding:0 6px;font-size:10.5px}
+ .vh-r{gap:4px}.vh-r .btn{min-height:26px;padding:2px 8px;font-size:11px}
+ .voy-side{top:36px;bottom:4px;width:min(244px,34vw);gap:5px}
+ .vs-card{padding:6px 8px;gap:3px;border-radius:9px}.vs-card h3{font-size:12px}
+ .vs-where{font-size:11px}.vs-sub,.vs-head span{font-size:9.5px}.vs-card .foe{font-size:10.5px}.vs-hint{font-size:10.5px;padding:3px 6px}
+ .vs-ships li,.vs-send li,.vs-list li,.vs-log li{font-size:10.5px}
+ .vs-ships li small,.vs-send li small,.vs-list li>button small,.vs-list li>button span{font-size:9px}
+ .vs-list li>button{padding:3px 5px}.vs-list li>button b{font-size:11px}
+ .vs-card .btn,.vs-acts .btn{min-height:26px;padding:2px 7px;font-size:10.5px}
+ .voy-log{bottom:max(3px,env(safe-area-inset-bottom,0px));max-width:calc(100% - min(244px,34vw) - 36px);gap:1px}
+ .voy-log p{font-size:9.5px;line-height:1.3;padding:1px 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .voy-log p:nth-child(n+3){display:none}
+ .voy-setupscreen{padding-block:max(4px,env(safe-area-inset-top,0px)) 18px}
+ .voy-head{margin-bottom:6px;padding:4px 0;gap:6px}.voy-head h2{font-size:17px}.voy-head .eyebrow{font-size:10px}
+ .voy-head .btn{min-height:30px;padding:3px 12px;font-size:12px}
+ .voy-setup{gap:8px}.voy-card{padding:8px 10px;gap:6px;border-radius:10px}.voy-card h3{font-size:12.5px}
+ .voy-card .note{font-size:10.5px;line-height:1.5}
+ .voy-setupscreen select,.voy-setupscreen input[type=number]{font-size:12.5px;min-height:30px;padding-block:2px}
+ .vbar{font-size:10.5px}.vbar b{font-size:11px}.vbal b{font-size:12.5px}.vbal span,.vbal small{font-size:10px}
+ .voy-entry{padding:6px 8px;gap:4px 8px}.ve-name b{font-size:12.5px}.ve-name small{font-size:10px}.ve-count b{font-size:15px}
+ .ve-orbat{padding:3px 7px}.ve-orbat b{font-size:11px}.ve-orbat span{font-size:9.5px}.ve-dem{font-size:9.5px}
+ .voy-orbat-row{font-size:10.5px}.voy-orbat-row b{font-size:11.5px}
+ .voy-sheet{padding:6px}.voy-sheet-card{max-height:calc(100dvh - 12px);padding:8px 10px;gap:6px}.voy-sheet-card h3{font-size:14px}
+}
+
+/* v13.2 3D spectating */
+#trialHud.spectate .spec-bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px}
+#trialHud.spectate .th-id span{font-size:10px;letter-spacing:.16em;color:var(--hud-on)}
+#trialHud.spectate .th-id b{max-width:42vw}
+.spec-follow,.spec-speed{display:flex;gap:4px}.spec-follow .th-btn,.spec-speed .th-btn{min-width:38px}
+.spec-speed .th-btn[aria-pressed="true"]{border-color:var(--hud-on);color:var(--hud-on)}
+#trialHud.spectate .th-tmark{pointer-events:auto;cursor:pointer}
+.spec-log{grid-row:5;align-self:end;justify-self:start;list-style:none;margin:0;padding:0;display:grid;gap:2px;max-width:min(560px,70vw);pointer-events:none}
+.spec-log li{font-size:11.5px;line-height:1.35;background:var(--hud-bg);border:1px solid var(--hud-line);border-radius:6px;padding:2px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.spec-log span{font-family:var(--font-mono);color:var(--hud-dim);margin-right:6px}
+@media (orientation:landscape) and (max-height:500px){#trialHud.spectate .th-btn{min-height:28px;padding:3px 8px;font-size:11px}.spec-log li{font-size:9.5px;padding:1px 6px}.spec-log li:nth-child(n+3){display:none}#trialHud.spectate .th-id b{font-size:13px}#trialHud.spectate .th-id small{font-size:9.5px}}
 </style>
 
 <div id="title" class="title" role="dialog" aria-modal="true" aria-labelledby="titleName">
@@ -916,6 +968,16 @@ body.shot-mode .main{display:flex!important;flex-direction:column}body.shot-mode
     </section>
   </section>
 </div>
+
+<div class="rotate-gate" id="rotateGate" role="dialog" aria-modal="true" aria-labelledby="rotateGateTitle">
+  <div class="rotate-card">
+    <svg viewBox="0 0 64 64" aria-hidden="true"><rect x="20" y="8" width="24" height="40" rx="4"/><path d="M44 52 a18 18 0 0 1 -26 4"/><path d="M18 50 l0 7 l7 -1"/></svg>
+    <b id="rotateGateTitle">横向きにしてください</b>
+    <p>スマートフォンでは横持ちで操作します。端末を横に回すと続けられます。</p>
+    <button type="button" class="btn sm ghost" data-rotate-skip>縦のまま続ける</button>
+  </div>
+</div>
+<script>document.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('[data-rotate-skip]'))document.body.classList.add('rotate-skip');});</script>
 <script>window.KS_FILES={data:["data/reference.js","data/textures.js","data/imperial2.js","data/fleet.js"],core:"js/core.js",gfx:"js/gfx.js",engine:"js/engine.js",app:"js/app.js",worker:"js/worker.js"};</script>
 <script>
 /* ============================================================
