@@ -169,7 +169,7 @@ function handleFleet(job) {
   const t0 = now();
   const d = job.key ? C.buildDesign(job.key) : C.deserialize(job.design);
   C.syncCompartments(d); C.remount(d); C.syncCompartments(d);
-  const stats = C.computeStats(d), profile = C.fleetProfile(stats, d.name), transfer = [];
+  const stats = C.computeStats(d), profile = C.fleetProfile(stats, d.name, d), transfer = [];
   const geometry = G.fleetGeometry(d, job.trial ? {trial: true} : null);
   for (const m of Object.values(geometry.meshes)) { m.geo = geoOut(m.geo, transfer); }
   // A trial keeps its ship here so turret rays can be tested against it.

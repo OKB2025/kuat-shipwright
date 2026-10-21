@@ -3163,63 +3163,191 @@ function dreadnoughtDesign(key){if(key!=='executor')throw new Error('設計見�
 // Fleet exercises use metres and seconds; tactical acceleration/turn/range are
 // explicit game rules. A turn is solved from shared snapshots, never unit order.
 const FLEET_RULES={step:.25,seconds:20,maxShips:12,range:150000,initialDistance:120000,engagementDistance:75000,formationGap:6000,accelScale:.002,maxSpeed:2400,maxAltitude:15000,maxCoordinate:2000000};
-function fleetProfile(S,name){
- const p=profile(S,name),accel=Math.max(0,S.accelG||0)*G0*FLEET_RULES.accelScale;
- return {...p,embarkedSlots:Math.floor(S.slots||0),aviationSize:S.aviation?.usedSize||0,launch:S.launchPotential??p.launch,slidingHatches:S.slidingHatches||0,hatchOpenSeconds:S.slidingHatches?S.hatchOpenSeconds||4:0,hatchCloseSeconds:S.slidingHatches?S.hatchCloseSeconds||4:0,gunArcs:[...S.alphaRate],ionArcs:[...S.ionRate],accel,maxSpeed:accel>0?Math.min(FLEET_RULES.maxSpeed,Math.sqrt(accel*Math.max(200,p.len)*24)):0,turnRate:accel>0?clamp(.11*Math.sqrt(Math.max(1,S.accelG)/3000)*Math.sqrt(1600/Math.max(100,p.len)),.015,.24):0,width:S.dims[1],height:S.dims[2],power:S.xISD};
+// ---------- combat power ----------
+// Reactor output feeds the hotel load and ray shields first, then shields,
+// engines and weapon charging in the order the distribution mode sets. A mode
+// also sets how hard the reactor may be driven; the share of rated output it
+// ends up carrying (core load) sets how likely a reactor hit is to set the
+// core off, so driving weapons and shields harder makes the reactor a better
+// target instead of making it the only target worth shooting.
+const POWER_MODES={
+ cruise:{name:'巡航',max:.8,order:['engines','shields','weapons'],weapons:1,shields:1,note:'炉を80%に抑えて推進を優先。被弾時の誘爆率が最も低い。'},
+ balanced:{name:'均衡',max:1,order:['shields','engines','weapons'],weapons:1,shields:1,note:'シールド維持→推進→兵装充電の順。停止すると兵装に多く回る。'},
+ weapons:{name:'兵装優先',max:1.2,order:['weapons','shields','engines'],weapons:1.25,shields:1,note:'炉を120%まで上げて兵装充電を最優先。推進が落ちる。'},
+ shields:{name:'防御優先',max:1.2,order:['shields','weapons','engines'],weapons:1,shields:1.5,note:'炉を120%まで上げてシールド再生を最大1.5倍に。'},
+ overload:{name:'全力',max:1.4,order:['shields','engines','weapons'],weapons:1.25,shields:1.5,note:'炉を140%まで上げて推進・シールド・兵装のすべてに給電。被弾時の誘爆率が高い。'}};
+function powerSplit(P,fixed,want,mode){
+ const m=POWER_MODES[mode]||POWER_MODES.balanced,top=Math.max(0,P*m.max);let left=Math.max(0,top-fixed);const got={engines:0,shields:0,weapons:0};
+ for(const k of m.order){const g=Math.min(left,Math.max(0,want[k]||0));got[k]=g;left-=g;}
+ const draw=Math.min(top,fixed)+got.engines+got.shields+got.weapons;return {...got,draw,load:P>0?draw/P:0,short:fixed>top};
 }
-function fleetUnit(id,key,p,team=0){const shield=Math.max(0,(p.shieldBuffer??p.D*K.bufferS)+(p.reserve||0));return {id,key,name:p.name,team,p,pos:[0,0,0],yaw:0,velocity:[0,0,0],hp:p.hp,shield,shieldMax:shield,air:0,launched:0,lost:0,hatchOpen:0,hatchTarget:0,queue:[],order:{type:'hold',fire:true,launch:false},dead:false};}
+// 'auto' runs balanced, turns to the shields when they run low and drives the
+// weapons to finish a target whose shields are down.
+const POWER_AUTO_NOTE='シールドが35%を切ると防御優先、目標のシールドが落ちると兵装優先に切り替え、それ以外は均衡で戦います。';
+function fleetAutoPower(u,t){const sh=u.shieldMax>0?u.shield/u.shieldMax:1,theirs=t&&t.shieldMax>0?t.shield/t.shieldMax:1;return sh<.35?'shields':t&&theirs<.25&&sh>.5?'weapons':'balanced';}
+// Chance that one penetrating hit on a reactor sets its core off.
+function coreDetonation(load){return clamp(.02+.25*Math.max(0,load-.55)**2+1.2*Math.max(0,load-1)**2,0,.6);}
+
+// ---------- combat damage ----------
+// Penetrating hits strike modules: every compartment and fitting the design
+// carries. Weight is the area a module presents (exposed ones count more,
+// critical ones less behind a citadel); hits is how many penetrating hits wreck
+// it. The hull itself takes a share of hits that only damage structure.
+const MODULE_LABEL={hull:'船体構造',reactor:'反応炉',shield:'シールド発生器',engine:'推進機関',hyper:'ハイパードライブ',hangar:'格納庫',battery:'パワーセル',fuel:'反応物サイロ',quarters:'居住区',bridge:'艦橋・指揮所',fire:'射撃管制',capacitor:'主砲充電装置',weapon:'砲塔',launcher:'ミサイル発射管',other:'その他区画'};
+const MODULE_PART_KIND={gen:'reactor',aux:'reactor',shield:'shield',localShield:'shield',engine:'engine',machinery:'engine',hyper:'hyper',hangar:'hangar',service:'hangar',battery:'battery',fuel:'fuel',crew:'quarters',troops:'quarters',command:'bridge',firecontrol:'fire',capacitor:'capacitor'};
+const CRIT_MODULES=new Set(['reactor','shield','hyper','fuel','battery']);
+const AIM_KINDS={auto:'艦全体',reactor:'反応炉',bridge:'艦橋',weapon:'砲塔',engine:'推進機関',shield:'シールド発生器'};
+const MAGAZINE_MISSILES=120,FLEET_MIN_CREW=.35;
+function fleetModules(ship,S){
+ const mods=[],protect=1-.4*(S.protectedFrac||0),byFit=new Map();
+ for(const f of ship.fits){const d=FITS[f.k];if(!d||f.float)continue;let k=null;
+  if(d.cat==='w')k=d.msl?'launcher':'weapon';else if(d.cat==='b'&&(!d.role||d.role==='bridge'||d.role==='combat')&&(S.commandInfo?.[f.id]?.ratio??1)>0)k='bridge';if(!k)continue;
+  const s=fitSpec(f);byFit.set(f.id,mods.length);
+  mods.push({k,name:d.short||d.name,w:s.fm*s.wm*1.2,hits:clamp(Math.round(Math.max(s.fm,s.wm)/24),1,4),crew:s.crew||0,size:k==='weapon'?(s.tt||0)+(s.ion||0)+(s.aa||0)*.5:1,stock:k==='launcher'?MAGAZINE_MISSILES:0});}
+ for(const f of intrinsicCommandFits(ship)){const d=FITS[f.k];if(!d||(d.role!=='bridge'&&d.role!=='combat')||(S.commandInfo?.[f.id]?.ratio??0)<=0)continue;mods.push({k:'bridge',name:d.short||d.name,w:(f.width||15)*(f.height||6)*1.2,hits:1,crew:d.crew||16,size:1});}
+ for(const p of allOccupied(ship)){
+  if(p.windowId!=null)continue;const V=partVolume(p);if(!(V>1))continue;const k=MODULE_PART_KIND[p.k]||'other';
+  let w=Math.pow(V,2/3)*((p._packing?.retained??p._clip?.retained??1)<.97?1.5:1);if(CRIT_MODULES.has(k))w*=protect;
+  const m={k,name:partLabel(p),w,hits:clamp(Math.round(Math.cbrt(V)/22),1,5),crew:V*(PARTS[p.k]?.crew||0)/1000,size:V};
+  if(k==='capacitor'&&byFit.has(p.weaponId))m.link=byFit.get(p.weaponId);mods.push(m);}
+ const total={};for(const m of mods)total[m.k]=(total[m.k]||0)+m.size;for(const m of mods)m.share=total[m.k]>0?m.size/total[m.k]:0;
+ const rest=mods.reduce((n,m)=>n+m.w,0);mods.push({k:'hull',name:MODULE_LABEL.hull,w:Math.max(1,rest*.6),hits:Infinity,crew:0,size:1,share:1});
+ return mods;
+}
+function fleetProfile(S,name,ship){
+ const p=profile(S,name),accel=Math.max(0,S.accelG||0)*G0*FLEET_RULES.accelScale,dr=S.draw||{};
+ const out={...p,embarkedSlots:Math.floor(S.slots||0),aviationSize:S.aviation?.usedSize||0,launch:S.launchPotential??p.launch,slidingHatches:S.slidingHatches||0,hatchOpenSeconds:S.slidingHatches?S.hatchOpenSeconds||4:0,hatchCloseSeconds:S.slidingHatches?S.hatchCloseSeconds||4:0,gunArcs:[...S.alphaRate],ionArcs:[...S.ionRate],accel,maxSpeed:accel>0?Math.min(FLEET_RULES.maxSpeed,Math.sqrt(accel*Math.max(200,p.len)*24)):0,turnRate:accel>0?clamp(.11*Math.sqrt(Math.max(1,S.accelG)/3000)*Math.sqrt(1600/Math.max(100,p.len)),.015,.24):0,width:S.dims[1],height:S.dims[2],power:S.xISD};
+ // Power figures in watts; weapon energy in TT (one TT fired costs one TT stored).
+ out.grid={P:S.power||0,fixed:(dr.hotel||0)+(dr.ray||0),De:dr.engines||0,Ds:dr.shields||0,Dw:dr.weapons||0};
+ out.armorHull=S.armorHull||0;out.crewNeed=S.crew||0;
+ out.wCap=ship?ship.fits.filter(f=>FITS[f.k]?.cat==='w'&&!f.float).reduce((n,f)=>{const s=fitSpec(f);return n+(needsCapacitor(f)?S.chargeInfo?.[f.id]?.storedTT||0:(s.tt||0)+(s.ion||0));},0):(S.alphaTot||0)+(S.ionTot||0);
+ if(ship)out.modules=fleetModules(ship,S);
+ return out;
+}
+function fleetUnit(id,key,p,team=0){
+ const shield=Math.max(0,(p.shieldBuffer??p.D*K.bufferS)+(p.reserve||0)),mods=p.modules||[];
+ return {id,key,name:p.name,team,p,pos:[0,0,0],yaw:0,velocity:[0,0,0],hp:p.hp,shield,shieldMax:shield,armor:1,energy:p.wCap||0,load:0,engF:1,crew:p.crewNeed||0,mods:mods.map(()=>1),ammo:mods.map(m=>m.stock||0),hitAcc:0,out:null,fate:null,air:0,launched:0,lost:0,hatchOpen:0,hatchTarget:0,queue:[],order:{type:'hold',fire:true,launch:false,power:'auto',aim:'auto'},dead:false};
+}
 function fleetFormation(units,form='line',gap=600){
  if(!units.length)return units;gap=clamp(Number(gap)||0,0,10000);
  const L=Math.max(...units.map(u=>u.p.len)),W=Math.max(...units.map(u=>u.p.width||u.p.len*.5));
  units.forEach((u,i)=>{let x=0,z=0;if(form==='column')x=-i*(L+gap);else if(form==='wedge'){const row=Math.ceil(i/2);x=-row*(L+gap);z=(i%2?1:-1)*row*(W+gap);}else if(form==='grid'){x=-Math.floor(i/3)*(L+gap);z=(i%3-1)*(W+gap);}else z=i*(W+gap);u.pos=[x,0,z];u.yaw=0;u.velocity=[0,0,0];});
  const x=units.reduce((s,u)=>s+u.pos[0],0)/units.length,z=units.reduce((s,u)=>s+u.pos[2],0)/units.length;for(const u of units){u.pos[0]-=x;u.pos[2]-=z;}return units;
 }
-function fleetBattle(units,combat=true){return {units,combat,turn:1,time:0,phase:'plan',seconds:FLEET_RULES.seconds,winner:null,events:[],last:null};}
+function fleetBattle(units,combat=true){return {units,combat,turn:1,time:0,phase:'plan',seconds:FLEET_RULES.seconds,winner:null,events:[],last:null,seed:0x9e3779b9};}
 function fleetOrder(b,id,order){
- const u=b.units.find(u=>u.id===id);if(b.phase!=='plan'||!u||u.dead||u.team!==0||!['hold','move','attack'].includes(order.type))return false;
+ const u=b.units.find(u=>u.id===id);if(b.phase!=='plan'||!u||u.dead||u.out||u.team!==0||!['hold','move','attack'].includes(order.type))return false;
  const q={...u.order,...order};if(q.type==='move'){if(!Array.isArray(q.point)||q.point.length!==3||!q.point.every(Number.isFinite))return false;q.point=q.point.map((v,i)=>clamp(v,-(i===1?FLEET_RULES.maxAltitude:FLEET_RULES.maxCoordinate),i===1?FLEET_RULES.maxAltitude:FLEET_RULES.maxCoordinate));}
+ if(q.power!=='auto'&&!Object.hasOwn(POWER_MODES,q.power))q.power='auto';if(!Object.hasOwn(AIM_KINDS,q.aim))q.aim='auto';
  if(q.type==='attack'&&!b.units.some(t=>t.id===q.target&&t.team!==u.team&&!t.dead))return false;u.order=q;return true;
 }
 const fleetAngle=a=>Math.atan2(Math.sin(a),Math.cos(a));
 function fleetArc(u,target,rates){const dx=target.pos[0]-u.pos[0],dy=target.pos[1]-u.pos[1],dz=target.pos[2]-u.pos[2],c=Math.cos(u.yaw),s=Math.sin(u.yaw),v=[dx*c+dz*s,dy,-dx*s+dz*c],weights=[Math.max(0,v[0]),Math.max(0,-v[0]),Math.max(0,v[2]),Math.max(0,-v[2]),Math.max(0,v[1]),Math.max(0,-v[1])],sum=weights.reduce((a,b)=>a+b,0);return sum?weights.reduce((a,w,i)=>a+w*(rates[i]||0),0)/sum:0;}
-function fleetFrame(b,shots=[]){return {time:b.time,units:b.units.map(u=>({id:u.id,pos:[...u.pos],yaw:u.yaw,hp:u.hp,shield:u.shield,air:u.air,launched:u.launched,hatchOpen:u.hatchOpen||0,hatchTarget:u.hatchTarget||0,dead:u.dead,velocity:[...u.velocity]})),shots};}
+// Remaining capability by module kind: the intact share of each kind (1 where a
+// design has none of that kind, so a missing system never limits anything).
+function fleetSystems(u){
+ const mods=u.p.modules||[],s={},has={};
+ mods.forEach((m,i)=>{if(m.k==='hull')return;has[m.k]=true;s[m.k]=(s[m.k]||0)+m.share*Math.max(0,u.mods[i]);});
+ const k=x=>has[x]?clamp(s[x],0,1):1;
+ return {reactor:k('reactor'),shield:k('shield'),engine:k('engine'),weapon:k('weapon'),launcher:k('launcher'),hangar:k('hangar'),battery:k('battery'),fire:k('fire'),bridge:has.bridge?mods.some((m,i)=>m.k==='bridge'&&u.mods[i]>0):true,hasReactor:!!has.reactor,hasBridge:!!has.bridge};
+}
+const fleetCrewEff=u=>{const need=u.p.crewNeed||0;return need>0?clamp((u.crew/need-FLEET_MIN_CREW)/(1-FLEET_MIN_CREW)*.6+.4,.4,1):1;};
+const fleetEffective=u=>!u.dead&&!u.out;
+function fleetFrame(b,shots=[]){return {time:b.time,units:b.units.map(u=>({id:u.id,pos:[...u.pos],yaw:u.yaw,hp:u.hp,shield:u.shield,shieldMax:u.shieldMax,armor:u.armor,energy:u.energy,load:u.load,mode:u.mode,crew:u.crew,air:u.air,launched:u.launched,hatchOpen:u.hatchOpen||0,hatchTarget:u.hatchTarget||0,dead:u.dead,out:u.out,fate:u.fate,mods:u.mods?u.mods.slice():[],ammo:u.ammo?u.ammo.slice():[],velocity:[...u.velocity]})),shots};}
+function fleetRandom(b){let t=(b.seed=(b.seed+0x6D2B79F5)|0);t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296;}
+// One penetrating hit on a module of u. aim names the kind the attackers were
+// aiming at (null for the whole ship).
+function fleetModuleHit(b,u,aim,dt){
+ const p=u.p,mods=p.modules;if(!mods?.length)return;const ev=text=>b.events.push({time:b.time+dt,text:u.name+'：'+text,id:u.id});
+ let total=0;const wts=mods.map((m,i)=>{let w=m.w*(m.k==='hull'||u.mods[i]>0?1:.25);if(aim&&m.k===aim)w*=6;total+=w;return w;});
+ let r=fleetRandom(b)*total,i=0;for(;i<mods.length-1;i++){r-=wts[i];if(r<=0)break;}
+ const m=mods[i],need=p.crewNeed||0;u.crew-=need*.003;if(m.k==='hull'||u.mods[i]<=0)return;
+ const before=u.mods[i];u.mods[i]=Math.max(0,before-1/m.hits);u.crew-=m.crew/m.hits*.7;if(m.k==='quarters')u.crew-=need*.5*m.share/m.hits*.6;
+ const blast=(dmg,text,fate)=>{u.hp-=dmg;u.crew-=need*Math.min(.5,dmg/Math.max(1,p.hp)*.3);ev(text);if(u.hp<=0)u.fate=fate;};
+ if(m.k==='reactor'&&fleetRandom(b)<coreDetonation(u.load)){u.mods[i]=0;blast(p.hp*m.share*(.9+1.4*u.load),`${m.name} 炉心誘爆（炉心負荷 ${Math.round(u.load*100)}%）`,'reactor');return;}
+ if(m.k==='fuel'&&fleetRandom(b)<.12+.1*u.load){u.mods[i]=0;blast(p.hp*m.share*.5,`${m.name} 反応物誘爆`,'fuel');return;}
+ if(m.k==='launcher'&&u.ammo[i]>0&&fleetRandom(b)<.4*u.ammo[i]/MAGAZINE_MISSILES){const n=u.ammo[i];u.ammo[i]=0;u.mods[i]=0;blast(n*10*25,`弾薬庫誘爆（ミサイル ${Math.round(n)} 発）`,'magazine');return;}
+ if(u.mods[i]>0)return;
+ if(m.k==='capacitor'&&m.link!=null&&u.mods[m.link]>0){u.mods[m.link]=0;ev(`${m.name} 破壊（${mods[m.link].name} 射撃不能）`);return;}
+ if(m.k==='reactor')ev(`${m.name} 停止（出力 −${Math.round(m.share*100)}%）`);
+ else if(m.k!=='other'&&m.k!=='quarters')ev(`${m.name} 破壊`);
+}
 function fleetTick(b,dt){
- const alive=b.units.filter(u=>!u.dead).sort((a,b)=>String(a.id).localeCompare(String(b.id))),before=alive.map(u=>({...u,pos:[...u.pos],velocity:[...u.velocity]})),byId=new Map(before.map(u=>[u.id,u]));
- for(const u of alive){const o=u.order,t=byId.get(o.target);let dest=o.type==='move'?o.point:o.type==='attack'&&t?t.pos:null;const old=byId.get(u.id),acc=u.p.accel*(.35+.65*u.hp/u.p.hp);let want=[0,0,0];
+ const alive=b.units.filter(u=>!u.dead).sort((a,b)=>String(a.id).localeCompare(String(b.id))),before=alive.map(u=>({...u,pos:[...u.pos],velocity:[...u.velocity]})),byId=new Map(before.map(u=>[u.id,u])),sys=new Map(alive.map(u=>[u.id,fleetSystems(u)]));
+ for(const u of alive){const o=u.order,t=byId.get(o.target),old=byId.get(u.id),s=sys.get(u.id);
+  if(u.out){u.velocity=mul(old.velocity,Math.max(0,1-.03*dt));u.pos=add(old.pos,mul(u.velocity,dt));u.maneuver=0;continue;}
+  const acc=u.p.accel*s.engine*clamp(u.engF??1,0,1.2)*(.6+.4*Math.max(0,u.hp)/u.p.hp);let dest=o.type==='move'?o.point:o.type==='attack'&&t?t.pos:null;let want=[0,0,0];
   if(dest){const delta=sub(dest,old.pos),d=len(delta),yaw=Math.atan2(delta[2],delta[0]),err=fleetAngle(yaw-u.yaw);u.yaw+=clamp(err,-u.p.turnRate*dt,u.p.turnRate*dt);const attack=o.type==='attack',stop=attack?Math.max(FLEET_RULES.engagementDistance,(u.p.len+(t?.p.len||0))*1.3):0,signed=attack?d-stop:d,remaining=attack?Math.max(0,Math.abs(signed)-2500):Math.max(0,signed),direction=attack&&signed<0?-1:1,speed=Math.min(u.p.maxSpeed,Math.sqrt(2*acc*remaining))*Math.max(.08,Math.cos(err));if(d>1){want=mul(norm(delta),speed*direction);const hor=Math.hypot(want[0],want[2])*direction;want[0]=Math.cos(u.yaw)*hor;want[2]=Math.sin(u.yaw)*hor;}}
-  const dv=sub(want,old.velocity),n=len(dv);u.velocity=add(old.velocity,mul(dv,Math.min(1,acc*dt/Math.max(1e-9,n))));u.pos=add(old.pos,mul(u.velocity,dt));u.pos[1]=clamp(u.pos[1],-15000,15000);
+  const dv=sub(want,old.velocity),n=len(dv),step=Math.min(n,acc*dt);u.velocity=add(old.velocity,mul(dv,step/Math.max(1e-9,n)));u.pos=add(old.pos,mul(u.velocity,dt));u.pos[1]=clamp(u.pos[1],-15000,15000);
+  u.maneuver=acc>0?clamp(n/(acc*dt),0,1):0;
   if(o.type==='move'&&len(sub(dest,u.pos))<Math.max(10,acc*dt*dt)&&len(u.velocity)<acc*dt*2){u.pos=[...dest];u.velocity=[0,0,0];}
  }
  // Resolve close approaches symmetrically. Hull damage from ramming is not modelled.
  for(let i=0;i<alive.length;i++)for(let j=i+1;j<alive.length;j++){const a=alive[i],z=alive[j],d=sub(z.pos,a.pos),dist=len(d),r=(a.p.len+z.p.len)*.24;if(dist<r){const v=dist>1e-6?mul(d,1/dist):[0,0,1],push=mul(v,(r-dist)/2);a.pos=sub(a.pos,push);z.pos=add(z.pos,push);a.velocity=mul(a.velocity,.8);z.velocity=mul(z.velocity,.8);}}
- const incoming=new Map(alive.map(u=>[u.id,{sf:0,hull:0,direct:0}])),shots=[];
- if(b.combat)for(const u of alive){const o=u.order,p=u.p,health=.35+.65*u.hp/p.hp;
+ const incoming=new Map(alive.map(u=>[u.id,{sf:0,hull:0,direct:0,ion:0,aim:{}}])),shots=[];
+ for(const u of alive){const o=u.order,p=u.p,s=sys.get(u.id),g=p.grid,crewEff=fleetCrewEff(u);
+  let t=null,raw=0;const enemies=alive.filter(x=>x.team!==u.team),live=enemies.filter(fleetEffective),pool=live.length?live:enemies;
+  if(b.combat&&!u.out&&o.fire!==false){const explicit=pool.find(x=>x.id===o.target)||enemies.find(x=>x.id===o.target);t=explicit||pool.slice().sort((a,z)=>len(sub(a.pos,u.pos))-len(sub(z.pos,u.pos))||String(a.id).localeCompare(String(z.id)))[0]||null;
+   if(t&&len(sub(t.pos,u.pos))>FLEET_RULES.range)t=null;if(t)raw=(fleetArc(u,t,p.gunArcs)+fleetArc(u,t,p.ionArcs))*s.weapon;}
+  const mode=o.power==='auto'||!POWER_MODES[o.power]?fleetAutoPower(u,t&&byId.get(t.id)):o.power,M=POWER_MODES[mode];u.mode=mode;
+  // Power: the reactor's intact share sets rated output; the mode decides who is fed first.
+  const cap=(p.wCap||0)*s.weapon,nominalShield=g?g.Ds*s.shield:0;let fire=raw>0?1:0;
+  if(g){const regen=u.shield<u.shieldMax*.999||u.underFire,want={engines:u.out?0:g.De*s.engine*(.15+.85*(u.maneuver||0)),shields:nominalShield*(regen?M.shields:1),weapons:u.out?0:Math.min(g.Dw*s.weapon*M.weapons,TT*(raw+Math.max(0,cap-u.energy)/dt))};
+   const P=g.P*s.reactor,got=powerSplit(P,g.fixed,want,mode);u.load=P>0?got.load:0;u.engF=want.engines>0?got.engines/want.engines:1;u.shF=nominalShield>0?got.shields/nominalShield:0;
+   const avail=u.energy+got.weapons*dt/TT,spend=Math.min(avail,raw*dt);fire=raw>0?spend/(raw*dt):0;u.energy=clamp(avail-spend,0,cap);}
+  else{u.load=.7;u.engF=1;u.shF=1;}
+  if(!b.combat||u.out)continue;
   const requested=o.launch===true&&u.launched<p.slots&&p.launch>0,sliding=(p.slidingHatches||0)>0,oldOpen=clamp(u.hatchOpen||0,0,1);u.hatchTarget=sliding&&requested?1:0;
   const hatchSeconds=u.hatchTarget?(p.hatchOpenSeconds||4):(p.hatchCloseSeconds||4);u.hatchOpen=sliding?clamp(oldOpen+(u.hatchTarget?1:-1)*dt/hatchSeconds,0,1):0;
   const launchDt=requested?(sliding?Math.max(0,dt-(1-oldOpen)*(p.hatchOpenSeconds||4)):dt):0;
-  if(launchDt>0){const n=Math.min(p.slots-u.launched,p.launch*health*launchDt);if(n>0){u.launched+=n;u.queue.push([b.time+dt-launchDt+25,n]);}if(u.launched>=p.slots-1e-9){u.launched=p.slots;u.hatchTarget=0;}}
+  if(launchDt>0){const n=Math.min(p.slots-u.launched,p.launch*s.hangar*crewEff*launchDt);if(n>0){u.launched+=n;u.queue.push([b.time+dt-launchDt+25,n]);}if(u.launched>=p.slots-1e-9){u.launched=p.slots;u.hatchTarget=0;}}
   while(u.queue.length&&u.queue[0][0]<=b.time)u.air+=u.queue.shift()[1];
-  const enemies=alive.filter(t=>t.team!==u.team),explicit=enemies.find(t=>t.id===o.target),t=explicit||enemies.sort((a,z)=>len(sub(a.pos,u.pos))-len(sub(z.pos,u.pos))||String(a.id).localeCompare(String(z.id)))[0];
-  if(!t||o.fire===false)continue;const distance=len(sub(t.pos,u.pos));if(distance>FLEET_RULES.range)continue;
-  const fall=clamp(1-.72*distance/FLEET_RULES.range,.2,1),hit=p.acc*p.rc*health*fall,gun=fleetArc(u,t,p.gunArcs)*hit,ion=fleetArc(u,t,p.ionArcs)*hit,msl=(p.msl||0)/20*health*(1-.7*t.p.aa/(t.p.aa+p.msl*.5+1e-9));
+  if(!t)continue;const distance=len(sub(t.pos,u.pos)),aim=o.aim&&o.aim!=='auto'?o.aim:null;
+  const fall=clamp(1-.72*distance/FLEET_RULES.range,.2,1),hit=p.acc*fall*crewEff*(.6+.4*s.fire)*(aim?.8:1),gun=fleetArc(u,t,p.gunArcs)*s.weapon*fire*hit,ion=fleetArc(u,t,p.ionArcs)*s.weapon*fire*hit;
+  // Missiles draw on each intact launcher's magazine.
+  let msl=0;if(p.msl>0){const tubes=(p.modules||[]).map((m,i)=>m.k==='launcher'&&u.mods[i]>0&&u.ammo[i]>0?i:-1).filter(i=>i>=0),total=(p.modules||[]).filter(m=>m.k==='launcher').length;
+   if(!total)msl=p.msl/20*crewEff;else if(tubes.length){let fired=0;for(const i of tubes){const n=Math.min(u.ammo[i],8/20*dt);u.ammo[i]-=n;fired+=n;}msl=p.msl/(total*8)*fired/dt*crewEff;}
+   msl*=1-.7*t.p.aa/(t.p.aa+p.msl*.5+1e-9);}
   // Aircraft attrition also reads the common pre-damage snapshot.
   const airEnemy=enemies.reduce((v,e)=>v+byId.get(e.id).air,0),fd=u.air*.6*(1-.5*airEnemy/(u.air+airEnemy+1));
   const loss=Math.min(u.air,(t.p.aa*.012+airEnemy*.012/enemies.length)*dt);u.air-=loss;u.lost+=loss;
-  const inc=incoming.get(t.id);inc.sf+=(gun+2*ion+.5*msl+.3*fd)*dt;inc.hull+=(gun+.2*ion+.5*msl+.3*fd)*dt;inc.direct+=(.5*msl+.7*fd)*dt;
+  const inc=incoming.get(t.id),dealt=(gun+ion+msl+fd)*dt;inc.sf+=(gun+2*ion+.5*msl+.3*fd)*dt;inc.hull+=(gun+.2*ion+.5*msl+.3*fd)*dt;inc.direct+=(.5*msl+.7*fd)*dt;inc.ion+=ion*dt;inc.aim[aim||'auto']=(inc.aim[aim||'auto']||0)+dealt;
   if(gun+ion+msl+fd>0)shots.push({from:u.id,to:t.id,team:u.team,ion:ion>gun});
  }
- for(const u of alive){const o=incoming.get(u.id),diss=u.p.D*dt,over=Math.max(0,o.sf-diss),ab=Math.min(u.shield,over);u.shield=clamp(u.shield+Math.max(0,diss-o.sf)-ab,0,u.shieldMax);u.hp=Math.max(0,u.hp-((over-ab)*(o.sf?o.hull/o.sf:0)+o.direct)*u.p.dr*u.p.crit);if(u.hp<=0){u.dead=true;u.velocity=[0,0,0];b.events.push({time:b.time+dt,text:u.name+'：撃沈',id:u.id});}}
+ for(const u of alive){
+  const o=incoming.get(u.id),p=u.p,s=fleetSystems(u),ev=text=>b.events.push({time:b.time+dt,text:u.name+'：'+text,id:u.id});
+  // Shields: the generator's share of power both deflects and regenerates; short
+  // of its upkeep the field decays. Batteries add to the field's reserve.
+  u.shieldMax=Math.max(0,(p.shieldBuffer??p.D*K.bufferS)*s.shield+(p.reserve||0)*s.battery);
+  const D=p.D*s.shield,eff=D*(u.shF??1),gen=eff*dt,decay=Math.max(0,1-(u.shF??1))*D*dt*.5,over=Math.max(0,o.sf-gen),ab=Math.min(u.shield,over),leak=over-ab,hadShield=u.shield>0;
+  u.shield=clamp(u.shield-ab+Math.max(0,gen-o.sf)-decay,0,u.shieldMax);u.underFire=o.sf>0;if(hadShield&&u.shield<=0&&u.shieldMax>0)ev('シールド消失');
+  // Armour ablates as it absorbs; what passes it damages structure and modules.
+  const hullHit=leak*(o.sf?o.hull/o.sf:0)+o.direct,a=(p.armorHull||0)/(1+(p.armorHull||0))*u.armor,absorbed=hullHit*a,pen=(hullHit-absorbed)*p.crit;
+  if(absorbed>0){const pool=Math.max(1,p.hp*(p.armorHull||0)*.6),was=u.armor;u.armor=Math.max(0,u.armor-absorbed/pool);if(was>.5&&u.armor<=.5)ev('装甲損耗 50%');if(was>0&&u.armor<=0)ev('装甲喪失');}
+  u.hp-=pen+o.direct*(1-a)*p.crit*.4;if(o.ion>0&&leak>0)u.energy=Math.max(0,u.energy-leak*(o.ion/Math.max(1e-9,o.sf))*2);
+  const aims=Object.entries(o.aim),aimTotal=aims.reduce((n,[,v])=>n+v,0),quantum=Math.max(1,p.hp*.015);u.hitAcc=(u.hitAcc||0)+pen;
+  while(u.hitAcc>=quantum&&u.hp>0){u.hitAcc-=quantum;let r=fleetRandom(b)*aimTotal,aim=null;for(const [k,v] of aims){r-=v;if(r<=0){aim=k==='auto'?null:k;break;}}fleetModuleHit(b,u,aim,dt);}
+  u.crew=Math.max(0,u.crew);
+  if(u.hp<=0){u.hp=0;u.dead=true;u.velocity=[0,0,0];const why={reactor:'炉心誘爆',fuel:'反応物誘爆',magazine:'弾薬庫誘爆'}[u.fate]||'船体破断';u.fate=u.fate||'hull';ev(`撃沈（${why}）`);continue;}
+  if(!u.out){const after=fleetSystems(u),why=after.hasReactor&&p.grid?.P>0&&after.reactor<=0?'電源喪失':after.hasBridge&&!after.bridge?'艦橋喪失':(p.crewNeed||0)>0&&u.crew<p.crewNeed*FLEET_MIN_CREW?'乗員不足':null;if(why){u.out=why;u.order={...u.order,type:'hold'};ev(`戦闘不能（${why}）`);}}
+ }
  b.time+=dt;return shots;
 }
-function fleetCommit(b){
- if(b.phase!=='plan'||b.winner!==null||!b.units.some(u=>u.team===0&&!u.dead))return null;
- const seconds=clamp(Number(b.seconds)||FLEET_RULES.seconds,5,30),work={...b,units:b.units.map(u=>({...u,pos:[...u.pos],velocity:[...u.velocity],order:JSON.parse(JSON.stringify(u.order)),queue:u.queue.map(q=>[...q])})),events:[]};
- for(const u of work.units.filter(u=>u.team===1&&!u.dead)){const enemies=work.units.filter(t=>t.team===0&&!t.dead).sort((a,z)=>len(sub(a.pos,u.pos))-len(sub(z.pos,u.pos))||String(a.id).localeCompare(String(z.id)));u.order={type:enemies.length?'attack':'hold',target:enemies[0]?.id,fire:true,launch:true};}
- const frames=[fleetFrame(work)];for(let t=0;t<seconds;t+=FLEET_RULES.step){const shots=fleetTick(work,FLEET_RULES.step);frames.push(fleetFrame(work,shots));if(b.combat){const teams=[0,1].map(k=>work.units.some(u=>u.team===k&&!u.dead));if(!teams[0]||!teams[1]){work.winner=teams[0]?0:teams[1]?1:-1;break;}}}
- b.phase='execute';b.last={frames,units:work.units,events:work.events,winner:work.winner,time:work.time,duration:work.time-b.time};return b.last;
+// AI ships attack the nearest enemy still able to fight, with automatic power
+// distribution.
+function fleetAiOrders(work){
+ for(const u of work.units.filter(u=>u.team===1&&!u.dead&&!u.out)){const enemies=work.units.filter(t=>t.team===0&&!t.dead).sort((a,z)=>(!!a.out-!!z.out)||len(sub(a.pos,u.pos))-len(sub(z.pos,u.pos))||String(a.id).localeCompare(String(z.id)));
+  const near=enemies[0];u.order={type:enemies.length?'attack':'hold',target:near?.id,fire:true,launch:true,power:'auto',aim:'auto'};}
 }
-function fleetFinish(b){if(b.phase!=='execute'||!b.last)return false;b.units=b.last.units;b.time=b.last.time;b.winner=b.last.winner;b.events.push(...b.last.events);b.events=b.events.slice(-80);b.turn++;b.phase=b.winner!==null?'finished':'plan';return true;}
-function fleetSample(result,elapsed){const fs=result.frames,t=fs[0].time+clamp(elapsed,0,result.duration);let i=Math.min(fs.length-2,Math.max(0,Math.floor((t-fs[0].time)/FLEET_RULES.step))),a=fs[i],b=fs[i+1]||a,q=clamp((t-a.time)/Math.max(1e-9,b.time-a.time),0,1);return {time:t,shots:b.shots,units:a.units.map((u,k)=>{const v=b.units[k];return {...u,pos:u.pos.map((x,j)=>lerp(x,v.pos[j],q)),velocity:u.velocity.map((x,j)=>lerp(x,v.velocity[j],q)),yaw:u.yaw+fleetAngle(v.yaw-u.yaw)*q,hp:lerp(u.hp,v.hp,q),shield:lerp(u.shield,v.shield,q),air:lerp(u.air,v.air,q),launched:lerp(u.launched||0,v.launched||0,q),hatchOpen:lerp(u.hatchOpen||0,v.hatchOpen||0,q),hatchTarget:q>0?v.hatchTarget:u.hatchTarget,dead:q>=1?v.dead:u.dead};})};}
+function fleetCommit(b){
+ if(b.phase!=='plan'||b.winner!==null||!b.units.some(u=>u.team===0&&fleetEffective(u)))return null;
+ const seconds=clamp(Number(b.seconds)||FLEET_RULES.seconds,5,30),work={...b,units:b.units.map(u=>({...u,pos:[...u.pos],velocity:[...u.velocity],order:JSON.parse(JSON.stringify(u.order)),queue:u.queue.map(q=>[...q]),mods:(u.mods||[]).slice(),ammo:(u.ammo||[]).slice()})),events:[]};
+ fleetAiOrders(work);
+ const frames=[fleetFrame(work)];for(let t=0;t<seconds;t+=FLEET_RULES.step){const shots=fleetTick(work,FLEET_RULES.step);frames.push(fleetFrame(work,shots));if(b.combat){const teams=[0,1].map(k=>work.units.some(u=>u.team===k&&fleetEffective(u)));if(!teams[0]||!teams[1]){work.winner=teams[0]?0:teams[1]?1:-1;break;}}}
+ b.phase='execute';b.last={frames,units:work.units,events:work.events,winner:work.winner,time:work.time,duration:work.time-b.time,seed:work.seed};return b.last;
+}
+function fleetFinish(b){if(b.phase!=='execute'||!b.last)return false;b.units=b.last.units;b.time=b.last.time;b.winner=b.last.winner;if(b.last.seed!=null)b.seed=b.last.seed;b.events.push(...b.last.events);b.events=b.events.slice(-80);b.turn++;b.phase=b.winner!==null?'finished':'plan';return true;}
+function fleetSample(result,elapsed){const fs=result.frames,t=fs[0].time+clamp(elapsed,0,result.duration);let i=Math.min(fs.length-2,Math.max(0,Math.floor((t-fs[0].time)/FLEET_RULES.step))),a=fs[i],b=fs[i+1]||a,q=clamp((t-a.time)/Math.max(1e-9,b.time-a.time),0,1),L=(x,y)=>lerp(x??0,y??x??0,q);return {time:t,shots:b.shots,units:a.units.map((u,k)=>{const v=b.units[k],w=q>=1?v:u;return {...u,pos:u.pos.map((x,j)=>lerp(x,v.pos[j],q)),velocity:u.velocity.map((x,j)=>lerp(x,v.velocity[j],q)),yaw:u.yaw+fleetAngle(v.yaw-u.yaw)*q,hp:L(u.hp,v.hp),shield:L(u.shield,v.shield),shieldMax:L(u.shieldMax,v.shieldMax),armor:L(u.armor,v.armor),energy:L(u.energy,v.energy),load:L(u.load,v.load),crew:L(u.crew,v.crew),air:L(u.air,v.air),launched:L(u.launched,v.launched),hatchOpen:L(u.hatchOpen,v.hatchOpen),hatchTarget:q>0?v.hatchTarget:u.hatchTarget,dead:w.dead,out:w.out,fate:w.fate,mode:w.mode,mods:w.mods,ammo:w.ammo};})};}
 
 // A structure's local +Y may follow any contacted face, including the underside.
 // Heading, pitch and roll are applied in that local frame; mirrors stay proper
@@ -3692,7 +3820,7 @@ function syncAviationSurfaces(ship){
 }
 
 
-return {openingRimPoint,surfSamples,groundingStats,turretRayContext,turretClear,turretOrigin,turretRate,GROUND_LIMITS,GROUND_PRESETS,GROUND_VEHICLE_VOLUME,normalizeGroundForces,groundStatus,planStations,bridgeBodyRole,podPoint,podDepth,intrinsicCommandFits,POD_ASSET,BRIDGE_BODY_COMMAND,REFERENCE_TONE,engineSkinMesh,referenceFitYaw,rayTris,vmirrorPlane,vmirrorPoint,vmirrorPart,SHIP_CLASSES,shipClassFor,PUBLIC_LISTS,publicJSON,patchShip,patchItem,cache,AIRCRAFT_CLEARANCE,aircraftFitsBay,AVIATION_SIZE_VOLUME,AIR_WING_LIMITS,hangarCapacity,normalizeAirWings,aviationStatus,AVIATION_SURFACE_FACES,hatchAxes,aviationSurfaceContacts,setAviationSurfaceMode,syncAviationSurfaces,aviationHatchActive,isSlidingHatch,slidingHatchSpec,slidingHatchPanels,hatchOpenArea,ISD_HYPER_BASELINE,HYPER_CLASS_COEFFICIENT,HYPER_POWER_DENSITY,ISD_SHIELD_VOLUME,SHIELD_BUFFER_SECONDS,SHIELD_ENERGY_DENSITY,SHIELD_POWER_DENSITY,REACTOR_POWER_DENSITY,SOLID_CUT_SHAPES,normalizeSolidCut,mirrorSolidCut,solidCutTriangles,solidCutBounds,solidCutContains,solidCutsContain,applySolidCuts,solidPartCutContains,solidStructVolume,solidCutIntersectsShip,flexibleCompartment,hardConflicts,weaponChargeSpec,DREADNOUGHT_EXAMPLES,DESIGN_LIMITS,ALIGNMENTS,alignedPosition,alignPart,replacementShape,replacementOptions,replacePart,COMMAND_ROLES,commandCompartments,commandStatus,habitationSpace,inspectionTargets,planCutEdge,normalizePlanCut,structFrame,alignStructure,FLEET_RULES,fleetProfile,fleetUnit,fleetFormation,fleetBattle,fleetOrder,fleetArc,fleetTick,fleetCommit,fleetFinish,fleetSample,fleetFrame,normalizeBow,bowStation,engineHullEntry,ENGINE_BASELINES,engineBaseline,resizeEngine,parametricEngine,engineRating,sourceEngine,EQUIPMENT,equipmentSpec,equipmentOptions,enforceEquipment,customizeEquipment,adoptEquipment,HYPERDRIVE_REFERENCE,hyperCapacity,arcParameters,arcPoint,arcTriangles,inArc,SEPARATIST_EXAMPLES,STATS_SOURCE,SHIP_REFERENCE,PART_RATINGS,reactorPower,nozzleThrust,nozzleDemand,shieldLoad,partRatingKeys,validOutline,outlinePoints,outlineArea,outlineTriangles,AVIATION_ROLES,CHARGE_TT_M3,aircraftCapacity,aviationConnected,needsCapacitor,weaponCapacitors,refitReferenceInterior,clipReferenceBox, referenceEnginePoint, fitSpec, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface,
+return {openingRimPoint,surfSamples,groundingStats,turretRayContext,turretClear,turretOrigin,turretRate,GROUND_LIMITS,GROUND_PRESETS,GROUND_VEHICLE_VOLUME,normalizeGroundForces,groundStatus,planStations,bridgeBodyRole,podPoint,podDepth,intrinsicCommandFits,POD_ASSET,BRIDGE_BODY_COMMAND,REFERENCE_TONE,engineSkinMesh,referenceFitYaw,rayTris,vmirrorPlane,vmirrorPoint,vmirrorPart,SHIP_CLASSES,shipClassFor,PUBLIC_LISTS,publicJSON,patchShip,patchItem,cache,AIRCRAFT_CLEARANCE,aircraftFitsBay,AVIATION_SIZE_VOLUME,AIR_WING_LIMITS,hangarCapacity,normalizeAirWings,aviationStatus,AVIATION_SURFACE_FACES,hatchAxes,aviationSurfaceContacts,setAviationSurfaceMode,syncAviationSurfaces,aviationHatchActive,isSlidingHatch,slidingHatchSpec,slidingHatchPanels,hatchOpenArea,ISD_HYPER_BASELINE,HYPER_CLASS_COEFFICIENT,HYPER_POWER_DENSITY,ISD_SHIELD_VOLUME,SHIELD_BUFFER_SECONDS,SHIELD_ENERGY_DENSITY,SHIELD_POWER_DENSITY,REACTOR_POWER_DENSITY,SOLID_CUT_SHAPES,normalizeSolidCut,mirrorSolidCut,solidCutTriangles,solidCutBounds,solidCutContains,solidCutsContain,applySolidCuts,solidPartCutContains,solidStructVolume,solidCutIntersectsShip,flexibleCompartment,hardConflicts,weaponChargeSpec,DREADNOUGHT_EXAMPLES,DESIGN_LIMITS,ALIGNMENTS,alignedPosition,alignPart,replacementShape,replacementOptions,replacePart,COMMAND_ROLES,commandCompartments,commandStatus,habitationSpace,inspectionTargets,planCutEdge,normalizePlanCut,structFrame,alignStructure,FLEET_RULES,POWER_MODES,POWER_AUTO_NOTE,fleetAutoPower,AIM_KINDS,MODULE_LABEL,FLEET_MIN_CREW,powerSplit,coreDetonation,fleetModules,fleetSystems,fleetCrewEff,fleetEffective,fleetProfile,fleetUnit,fleetFormation,fleetBattle,fleetOrder,fleetArc,fleetTick,fleetCommit,fleetFinish,fleetSample,fleetFrame,normalizeBow,bowStation,engineHullEntry,ENGINE_BASELINES,engineBaseline,resizeEngine,parametricEngine,engineRating,sourceEngine,EQUIPMENT,equipmentSpec,equipmentOptions,enforceEquipment,customizeEquipment,adoptEquipment,HYPERDRIVE_REFERENCE,hyperCapacity,arcParameters,arcPoint,arcTriangles,inArc,SEPARATIST_EXAMPLES,STATS_SOURCE,SHIP_REFERENCE,PART_RATINGS,reactorPower,nozzleThrust,nozzleDemand,shieldLoad,partRatingKeys,validOutline,outlinePoints,outlineArea,outlineTriangles,AVIATION_ROLES,CHARGE_TT_M3,aircraftCapacity,aviationConnected,needsCapacitor,weaponCapacitors,refitReferenceInterior,clipReferenceBox, referenceEnginePoint, fitSpec, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface,
   TT, G0, ISD_W, K, PARTS, FITS, HULLS, SECTIONS, KEELS, SECTORS, CLASSES, DESIGNS, AXES, AXNAME, ARMOR_MAX,
   newShip, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
