@@ -1935,7 +1935,7 @@ function renderPanel(){
   if(st.tab==='hull'){
     panel.insertAdjacentHTML('afterbegin',`<div class="pgroup"><label><input type="checkbox" data-assembly ${ship.hull.assembly?'checked':''}> 船体を独立した構造パーツで組み立てる</label><p class="note">有効時は一体船体を表示せず、配置した船殻だけを容積・質量・内部区画の境界に使います。環状船体や分離したポッドを作れます。長さ・幅・高さは設計範囲です。</p></div>`);
     const rows=ship.hull.stations||C.planStations(ship.hull).map(t=>C.profileAt(ship.hull,t)),deckOK=ship.hull.sec!=='ellipse';
-    panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>船体断面・艦尾を設計</h4><p class="note">艦尾から艦首へ。肩の張り出し・舷側の切り込み・艦首の薄さを個別に作れます。幅・厚さ・上下位置は船体寸法に対する割合。甲板（上面）・船底（下面）の平らな幅は各断面の幅に対する割合です。艦首の末端2断面は幅・厚さが同率で連動し、船体の幅：高さを保ちます（表の下のチェックで解除できます）。断面と断面の間の「＋」で、その位置に断面を追加します。菱形は上下が頂点です。装甲楔形も甲板・船底幅を0%にすれば尖ります。</p><div class="station-scroll"><table class="station-table"><thead><tr><th>前後 %</th><th>幅 %</th><th>厚さ %</th><th>上下 %</th><th>甲板 %</th><th>船底 %</th><th></th></tr></thead><tbody>${rows.map((a,i)=>`<tr>${[a[0],a[1],a[2],a[3]??0,a[4]??ship.hull.deckWidth??.52,a[5]??ship.hull.keelWidth??0].map((v,j)=>`<td><input aria-label="断面${i+1} ${['前後位置','幅','厚さ','上下位置','甲板幅','船底幅'][j]}" type="number" inputmode="decimal" data-station="${i}" data-axis="${j}" value="${Math.round(v*1000)/10}" min="${[0,.5,.5,-50,0,0][j]}" max="${[100,150,150,80,98,98][j]}" step=".1" ${(j===0&&(i===0||i===rows.length-1))||(j===2&&C.bowStation({...ship.hull,stations:rows},i))||(j>=4&&!deckOK)?'disabled':''} ${j===2&&C.bowStation({...ship.hull,stations:rows},i)?'title="艦首は幅と厚さが連動しています。表の下のチェックを外すと個別に変更できます"':''}></td>`).join('')}<td>${i&&i<rows.length-1?`<button class="btn sm ghost" data-dropstation="${i}" aria-label="断面${i+1}を削除">×</button>`:''}</td></tr>${i<rows.length-1?`<tr class="station-gap"><td colspan="7"><button type="button" class="station-add" data-insertstation="${i}" ${rows.length>=32?'disabled':''} aria-label="断面${i+1}と断面${i+2}の間に断面を追加"><b aria-hidden="true">＋</b>${num((a[0]+rows[i+1][0])*50,1)}% に断面を追加</button></td></tr>`:''}`).join('')}</tbody></table></div><label class="check"><input type="checkbox" data-bowlink ${ship.hull.bowFree?'':'checked'}> 艦首の末端2断面は幅と厚さを連動する（船体の幅：高さの比を保つ）</label>${ship.hull.sec!=='warship'?`<p class="note">${deckOK?'甲板・船底の幅を変えると、断面は今の形に近い「装甲楔形」へ切り替わります。':'楕円断面では甲板・船底の幅は使いません。'}</p>`:''}<div class="sliders">${slider('deckWidth','上甲板の幅',Math.round((ship.hull.deckWidth??.52)*100),0,98,1,Math.round((ship.hull.deckWidth??.52)*100)+'%')}${slider('keelWidth','船底の平坦幅',Math.round((ship.hull.keelWidth??0)*100),0,95,1,Math.round((ship.hull.keelWidth??0)*100)+'%')}${slider('hullStart','本体船殻の艦尾位置',Math.round((ship.hull.start||0)*1000)/10,0,60,.1,Math.round((ship.hull.start||0)*ship.hull.L)+' m')}${slider('chineHeight','舷側帯の上下位置',Math.round((ship.hull.chineHeight??.5)*100),20,80,1,Math.round((ship.hull.chineHeight??.5)*100)+'%')}${slider('belt','舷側帯の厚さ',Math.round((ship.hull.belt??.13)*100),2,45,1,Math.round((ship.hull.belt??.13)*100)+'%')}</div></div>`);
+    panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>船体断面・艦尾を設計</h4><p class="note">艦尾から艦首へ。肩の張り出し・舷側の切り込み・艦首の薄さを個別に作れます。幅・厚さ・上下位置は船体寸法に対する割合。甲板（上面）・船底（下面）の平らな幅は各断面の幅に対する割合です。舷側帯・帯位置は装甲楔形の舷側にある垂直帯の厚さと高さ位置（各断面の厚さに対する割合）で、断面ごとに変えられます。艦首の末端2断面は幅・厚さが同率で連動し、船体の幅：高さを保ちます（表の下のチェックで解除できます）。断面と断面の間の「＋」で、その位置に断面を追加します。菱形は上下が頂点です。装甲楔形も甲板・船底幅を0%にすれば尖ります。</p><div class="station-scroll"><table class="station-table"><thead><tr><th>前後 %</th><th>幅 %</th><th>厚さ %</th><th>上下 %</th><th>甲板 %</th><th>船底 %</th><th>舷側帯 %</th><th>帯位置 %</th><th></th></tr></thead><tbody>${rows.map((a,i)=>`<tr>${[a[0],a[1],a[2],a[3]??0,a[4]??ship.hull.deckWidth??.52,a[5]??ship.hull.keelWidth??0,a[6]??ship.hull.belt??.13,a[7]??ship.hull.chineHeight??.5].map((v,j)=>`<td><input aria-label="断面${i+1} ${['前後位置','幅','厚さ','上下位置','甲板幅','船底幅','舷側帯の厚さ','舷側帯の上下位置'][j]}" type="number" inputmode="decimal" data-station="${i}" data-axis="${j}" value="${Math.round(v*1000)/10}" min="${[0,.5,.5,-50,0,0,2,20][j]}" max="${[100,150,150,80,98,98,98,80][j]}" step=".1" ${(j===0&&(i===0||i===rows.length-1))||(j===2&&C.bowStation({...ship.hull,stations:rows},i))||(j>=4&&!deckOK)?'disabled':''} ${j===2&&C.bowStation({...ship.hull,stations:rows},i)?'title="艦首は幅と厚さが連動しています。表の下のチェックを外すと個別に変更できます"':''}></td>`).join('')}<td>${i&&i<rows.length-1?`<button class="btn sm ghost" data-dropstation="${i}" aria-label="断面${i+1}を削除">×</button>`:''}</td></tr>${i<rows.length-1?`<tr class="station-gap"><td colspan="9"><button type="button" class="station-add" data-insertstation="${i}" ${rows.length>=32?'disabled':''} aria-label="断面${i+1}と断面${i+2}の間に断面を追加"><b aria-hidden="true">＋</b>${num((a[0]+rows[i+1][0])*50,1)}% に断面を追加</button></td></tr>`:''}`).join('')}</tbody></table></div><label class="check"><input type="checkbox" data-bowlink ${ship.hull.bowFree?'':'checked'}> 艦首の末端2断面は幅と厚さを連動する（船体の幅：高さの比を保つ）</label>${ship.hull.sec!=='warship'?`<p class="note">${deckOK?'甲板・船底の幅を変えると、断面は今の形に近い「装甲楔形」へ切り替わります。':'楕円断面では甲板・船底の幅は使いません。'}</p>`:''}<div class="sliders">${slider('deckWidth','上甲板の幅',Math.round((ship.hull.deckWidth??.52)*100),0,98,1,Math.round((ship.hull.deckWidth??.52)*100)+'%')}${slider('keelWidth','船底の平坦幅',Math.round((ship.hull.keelWidth??0)*100),0,95,1,Math.round((ship.hull.keelWidth??0)*100)+'%')}${slider('hullStart','本体船殻の艦尾位置',Math.round((ship.hull.start||0)*1000)/10,0,60,.1,Math.round((ship.hull.start||0)*ship.hull.L)+' m')}${slider('chineHeight','舷側帯の上下位置',Math.round((ship.hull.chineHeight??.5)*100),20,80,1,Math.round((ship.hull.chineHeight??.5)*100)+'%')}${slider('belt','舷側帯の厚さ',Math.round((ship.hull.belt??.13)*100),2,45,1,Math.round((ship.hull.belt??.13)*100)+'%')}</div></div>`);
     panel.insertAdjacentHTML('beforeend',`<div class="pgroup"><h4>外板スキン</h4>${seg('yardpaint',[['neutral','無塗装'],['republic','共和国の赤帯'],['dark','暗色']],ship.paint||'neutral')}<div class="sliders">${slider('yardDetail','トレンチ内の設備密度',ship.detail??1,0,2,.5,String(ship.detail??1))}</div><p class="note">スキンは塗装・装甲継ぎ目のみで、指揮能力は追加されません。指揮所は「艦橋」から艦橋本体やポッドを配置します。</p></div>`);
   }
   if(st.tab==='mod'&&st.partTool==='place'&&C.PARTS[st.part].shape==='cube')panel.insertAdjacentHTML('beforeend',`<div class="pgroup"><h4>区画の寸法</h4><div class="sliders">${st.roomSize.map((v,i)=>slider('newRoom'+i,['長さ','幅','高さ'][i],v,4,[ship.hull.L,ship.hull.W,ship.hull.H][i],1,fmtM(v))).join('')}</div><p class="note">立方体に限らず、飛行甲板・居住甲板のような薄く長い区画を配置できます。</p></div>`);
@@ -1991,7 +1991,7 @@ function bindRealism(){
     if(t.dataset.outline!=null){const i=+t.dataset.outline,j=+t.dataset.axis,v=+t.value/100;if(!Number.isFinite(v))return;mutate('輪郭の頂点を移動',()=>editSel(p=>{const a=C.outlinePoints(p).map(q=>q.slice());a[i][j]=C.clamp(v,-2,2);if(C.validOutline(a))p.outline=a;else toast('輪郭の線が交差するため変更できません');}),'parts');renderPanel();}
     if(t.dataset.loft!=null){const i=+t.dataset.loft,j=+t.dataset.axis,v=+t.value/100;if(!Number.isFinite(v))return;mutate('構造断面を調整',()=>editSel(p=>{p.loft||=[[0,p.aftWidth??1,1,0],[1,p.foreWidth??1,1,0]];const a=p.loft;if(j===0)a[i][j]=C.clamp(v,a[i-1][0]+.003,a[i+1][0]-.003);else if(j===1)a[i][j]=C.clamp(v,.02,2);else if(j===2)a[i][j]=C.clamp(v,a[i][3]+.03,1.5);else if(j===3)a[i][j]=C.clamp(v,0,a[i][2]-.03);else a[i][j]=C.clamp(v,-2,2);}),'parts');renderPanel();}
     if('bowlink'in t.dataset){mutate('艦首の幅と厚さの連動',()=>{ensureStations();if(t.checked)delete ship.hull.bowFree;else ship.hull.bowFree=true;C.normalizeBow(ship.hull);},'hull');renderPanel();return;}
-    if(t.dataset.station!=null){const i=+t.dataset.station,j=+t.dataset.axis,v=+t.value/100;if(!Number.isFinite(v)||j>5)return;let switched=false;mutate('船体断面を調整',()=>{const a=ensureStations();if(j>=4)switched=deckSection(a);for(const row of a){while(row.length<6)row.push(row.length===3?0:row.length===4?ship.hull.deckWidth??.52:ship.hull.keelWidth??0);}a[i][j]=j===0?C.clamp(v,a[i-1][0]+.002,a[i+1][0]-.002):C.clamp(v,[0,.005,.005,-.5,0,0][j],[1,1.5,1.5,.8,.98,.98][j]);C.normalizeBow(ship.hull);},'hull');if(switched)toast('甲板・船底の幅を使うため、断面を「装甲楔形」に切り替えました');renderPanel();}
+    if(t.dataset.station!=null){const i=+t.dataset.station,j=+t.dataset.axis,v=+t.value/100;if(!Number.isFinite(v)||j>7)return;let switched=false;mutate('船体断面を調整',()=>{const a=ensureStations();if(j>=4)switched=deckSection(a);for(const row of a){while(row.length<Math.max(6,j+1))row.push(row.length===3?0:row.length===4?ship.hull.deckWidth??.52:row.length===5?ship.hull.keelWidth??0:row.length===6?ship.hull.belt??.13:ship.hull.chineHeight??.5);}a[i][j]=j===0?C.clamp(v,a[i-1][0]+.002,a[i+1][0]-.002):C.clamp(v,[0,.005,.005,-.5,0,0,.02,.2][j],[1,1.5,1.5,.8,.98,.98,.98,.8][j]);C.normalizeBow(ship.hull);},'hull');if(switched)toast('甲板・船底の幅を使うため、断面を「装甲楔形」に切り替えました');renderPanel();}
     if('autofit'in t.dataset){mutate('区画の自動統合',()=>editSel(p=>p.autoFit=t.checked),'parts');renderPanel();}
     if('partlabel'in t.dataset){mutate('区画名',()=>editSel(p=>p.label=t.value.slice(0,80)),'none');renderPanel();}
     if('partpaint'in t.dataset){mutate('構造物の色',()=>editSel(p=>p.paint=t.value),'parts');}
@@ -2005,7 +2005,7 @@ function bindRealism(){
     if(k==='bodyLength'||k==='bodyRadius')live(()=>editSel(p=>p[k]=k==='bodyRadius'?v/200:v));
     if(k==='deckSlope')live(()=>editSel(p=>p.deckSlope=v));
     if(k==='cylLength')live(()=>editSel(p=>p.length=v));
-    if(['deckWidth','keelWidth','belt','chineHeight','hullStart'].includes(k))live(()=>{ship.hull[k==='hullStart'?'start':k]=v/100;if(k==='deckWidth')for(const row of ship.hull.stations||[])if(row.length>4)row[4]=v/100;if(k==='keelWidth')for(const row of ship.hull.stations||[])if(row.length>5)row[5]=v/100;},'hull');
+    if(['deckWidth','keelWidth','belt','chineHeight','hullStart'].includes(k))live(()=>{ship.hull[k==='hullStart'?'start':k]=v/100;if(k==='deckWidth')for(const row of ship.hull.stations||[])if(row.length>4)row[4]=v/100;if(k==='keelWidth')for(const row of ship.hull.stations||[])if(row.length>5)row[5]=v/100;if(k==='belt')for(const row of ship.hull.stations||[])if(row.length>6)row[6]=v/100;if(k==='chineHeight')for(const row of ship.hull.stations||[])if(row.length>7)row[7]=v/100;},'hull');
     if(k==='yardDetail')live(()=>ship.detail=v,'parts');
     if(t.dataset.door){const h=ship.hatches.find(h=>h.id===+t.dataset.door);if(h&&C.isSlidingHatch(ship,h)&&C.openingBounds(ship,h)){live(()=>{h.open=v/100;},'hatches');if(t.nextElementSibling)t.nextElementSibling.textContent=v+'%';}}
     if(k==='deckSlope'&&out)out.textContent=deg(v);
@@ -2639,7 +2639,7 @@ function trialCamera(dt){
  if(trial.camMode==='ship')F=trial.R;
  else{let fh=tv.add(a.f,a.up,-tv.dot(a.f,a.up));if(tv.len(fh)<.25&&trial.camF){const old=trialCol(trial.camF,0);fh=tv.add(old,a.up,-tv.dot(old,a.up));}F=trialFrame(fh,a.up);}
  // While coasting out of the system and in the tunnel the camera keeps the frame it had.
- if(!trial.camF)trial.camF=[...F];else if(trialCoasting()||trial.jump?.phase==='tunnel'){}else{const k=1-Math.exp(-dt*4),x=tv.add(trialCol(trial.camF,0),tv.add(trialCol(F,0),trialCol(trial.camF,0),-1),k),y=tv.add(trialCol(trial.camF,1),tv.add(trialCol(F,1),trialCol(trial.camF,1),-1),k);trial.camF=trialFrame(x,y);}
+ if(!trial.camF)trial.camF=[...F];else if(trialFast()||trial.jump?.phase==='tunnel'){}else{const k=1-Math.exp(-dt*4),x=tv.add(trialCol(trial.camF,0),tv.add(trialCol(F,0),trialCol(trial.camF,0),-1),k),y=tv.add(trialCol(trial.camF,1),tv.add(trialCol(F,1),trialCol(trial.camF,1),-1),k);trial.camF=trialFrame(x,y);}
  const c=view.cam;c.frame=trial.camF;c.ortho=false;c.r=trialCamRange(c.r);c.ph=C.clamp(c.ph,.12,2.9);c.far=Math.max(90000,trial.p.len*30);const up=trialCol(trial.camF,1);c.target=tv.scale(up,c.r*TRIAL_CAM_LIFT);
  const k=trial.cine;if(k){const us=(trial.battle?.b.units||[]).filter(u=>k.ids.includes(u.id)&&!u.dead);if(!us.length)spaceCineEnd();else{const cw=us.reduce((a,u)=>tv.add(a,spaceWorld(u),1/us.length),[0,0,0]),loc=trialApplyT(trial.camF,k.dirW);c.target=tv.add(tv.sub(cw,trial.P),k.lead,-k.L*.6);c.r=k.r;c.ph=Math.acos(C.clamp(loc[1],-1,1));c.th=Math.atan2(loc[2],loc[0]);c.far=Math.max(c.far,k.r*14);}}
 }
@@ -2649,13 +2649,13 @@ function trialLoop(now){
  trialCamera(dt||.016);trialJumpStep(dt);
  // In hyperspace the ship holds still in the tunnel; everything else waits.
  const tunnel=trial.jump?.phase==='tunnel';
- if(dt>0&&!tunnel){if(trialCoasting())trialSublight(dt);else{const n=dt>.025?2:1;for(let i=0;i<n;i++)trialStep(dt/n);}if(trial.battle)spaceStep(dt);spaceBolts(dt);}
+ if(dt>0&&!tunnel){if(trialCoasting())trialSublight(dt);else if(trial.jump?.phase==='exit')trialReversion();else{const n=dt>.025?2:1;for(let i=0;i<n;i++)trialStep(dt/n);}if(trial.battle)spaceStep(dt);spaceBolts(dt);}
  trial.flash=Math.max(0,(trial.flash||0)-dt*3);trial.hitFlash=Math.max(0,(trial.hitFlash||0)-dt*1.6);
  const d=trial.dust,ds=trialDustStreaks();if(ds)view.setPoints('trialDust',new Float32Array(0),new Uint8Array(0),new Float32Array(0));else view.setPoints('trialDust',d.pos,d.col,d.size);trialRenderSets();
  const me=trial.battle?.me,unit={key:trial.asset.key,pos:[0,0,0],yaw:0,rot:trial.R,glow:me?.out?0:.3+.7*Math.min(1,Math.max(Math.abs(TRIAL_TELEGRAPH[trial.tele][1]),trial.thrust)),hatchOpen:0,dead:!!me?.dead,
   turrets:trial.turrets.filter(t=>t.mesh).map(t=>({mesh:t.mesh,pivot:t.pivot,rot:t.rot})),targets:trial.targets.filter(t=>t.alive&&!t.ship).map(t=>({pos:tv.sub(t.pos,trial.P),rot:t.rot}))};
  // Reverting to realspace: seen from the front quarter, the ship arrives as a streak.
- const j=trial.jump;if(j&&(j.phase==='exit'||j.phase==='arrive')){const k=warpLook((j.phase==='exit'?j.t:JUMP.exit+j.t)-.08,trial.p.len);unit.pos=tv.scale(trialCol(trial.R,0),-k.D);unit.stretch=k.stretch;unit.flash=k.flash;}
+ const j=trial.jump;
  const hyper=tunnel?{dir:trialCol(trial.R,0),time:j.t,k:Math.min(1,j.t*3,(j.tunnel-j.t)*3+.2)}:null,s=trialStreak(),streaks=(s>0||ds)&&trialStreakLines(s,j?.dir||trialCol(trial.R,0),ds);
  if(view.draw({fleet:[unit,...spaceDrawUnits()],mode:'trial',planet:hyper?null:trialPlanet(),hyper,streaks,noStars:s>.3})!==false){renderHealth.frames++;renderHealth.lastFrame=now;renderHealth.failures=0;}
  const hud=$('#trialHud'),fl=hud?.querySelector('[data-th="flash"]'),hf=hud?.querySelector('[data-th="hit"]');if(fl)fl.style.opacity=trial.flash.toFixed(3);if(hf)hf.style.opacity=(trial.hitFlash*.8).toFixed(3);
@@ -2790,19 +2790,20 @@ function trialDust(){const L=trial.p.len,H=C.clamp(L*2,1400,30000),n=280,pos=new
 
 // ---------- hyperspace ----------
 // A jump runs: spool-up at full ahead, a sublight burst that sends the planet,
-// ring and dust streaming past, the stars stretching into streaks, a flash
-// into the tunnel, and reversion at the destination. Seen from outside, a ship
-// dropping out comes in at sublight and stops dead within a fifth of a second:
-// a long blue-white streak that snaps back into the ship with a flash; the
-// camera cuts to a front quarter to show it.
-const JUMP={spool:1.8,accel:1.4,enter:.8,exit:.9,arrive:1.4},SUBLIGHT=3e7,LIGHT=2.998e8;
+// ring and dust streaming past, the stars stretching into streaks, the tunnel,
+// and reversion at the destination. Reversion is the burst in reverse: from
+// sublight the ship stops dead within a fifth of a second. The flagship is
+// watched from its usual chase view (the streaks collapse and the scenery
+// rushes in and halts); another ship dropping out is seen from outside as a
+// long streak that snaps back to the ship's true length.
+const JUMP={spool:1.8,accel:1.4,enter:.8,exit:.9,arrive:.4},SUBLIGHT=3e7,LIGHT=2.998e8;
 const jumpSeconds=hc=>C.clamp(3+2.2*hc,3.5,14);
 const trialHyperClass=()=>trial.asset?.stats?.hyperClass??null;
 // A ship dropping out covers D(t)=D0·e^(−kt) in its last instants; it is drawn
 // stretched by that speed, bow in place, and washed blue-white.
 // Reversion: 160 ship lengths out at sublight, brought to rest at e^(−22t).
 const WARP={D0:160,k:22,cap:36};
-function warpLook(t,L){const tt=Math.max(0,t),D=WARP.D0*L*Math.exp(-WARP.k*tt);return {D,stretch:1+Math.min(WARP.cap,D/Math.max(1,L)*.9),flash:Math.exp(-tt/.18)};}
+function warpLook(t,L){const tt=Math.max(0,t),D=WARP.D0*L*Math.exp(-WARP.k*tt),stretch=1+Math.min(WARP.cap,D/Math.max(1,L)*.9);return {D,stretch,tint:C.clamp((stretch-1)/16,0,.45)};}
 function trialJump(dest){
  if(!trial.on||trial.jump||!SYSTEMS[dest])return;if(dest===trial.sysKey){toast('すでにこの星系にいます');return;}
  const hc=trialHyperClass();if(hc==null){toast('この艦にはハイパードライブがありません');return;}
@@ -2813,7 +2814,7 @@ function trialJump(dest){
 }
 // Streak length (radians added to each star's angle from the bow) per phase.
 // Reversion is watched from outside, so only the departure streaks the stars.
-function trialStreak(){const j=trial.jump;if(!j)return 0;if(j.phase==='accel')return Math.max(0,(j.t-(JUMP.accel-.35))/.35)*.08;if(j.phase==='enter')return .08+(j.t/JUMP.enter)**2*1.72;return 0;}
+function trialStreak(){const j=trial.jump;if(!j)return 0;if(j.phase==='accel')return Math.max(0,(j.t-(JUMP.accel-.35))/.35)*.08;if(j.phase==='enter')return .08+(j.t/JUMP.enter)**2*1.72;if(j.phase==='exit')return 1.8*Math.max(0,1-j.t/.35)**2;return 0;}
 // The sublight burst: speed climbs from the ship's own to 10% of light by the
 // end of the burst and keeps climbing into the stretch. The ship flies straight
 // on its heading, so the planet drops away behind and the ring sweeps overhead.
@@ -2823,25 +2824,32 @@ function trialSublight(dt){
  trial.P=tv.add(trial.P,f,v*dt);trial.V=tv.scale(f,v);trial.vf=v;trial.w=[0,0,0];
  const d=trial.dust,H=d.H,mv=tv.scale(f,v*dt);for(let i=0;i<d.pos.length;i+=3)for(let k=0;k<3;k++){let x=d.pos[i+k]-mv[k];if(x>H)x-=2*H*Math.ceil((x-H)/(2*H));else if(x<-H)x+=2*H*Math.ceil((-H-x)/(2*H));d.pos[i+k]=x;}
 }
+// Reversion: the flagship comes in from sublight along its heading and stops
+// dead at its arrival point; the chase camera rides along.
+function trialReversion(){
+ const j=trial.jump;if(j?.phase!=='exit'||!j.to)return;const L=trial.p.len,k=warpLook(j.t,L),f=j.dir,old=trial.P;
+ trial.P=tv.add(j.to,f,-k.D);const v=k.D*WARP.k;trial.V=tv.scale(f,Math.max(v,j.v1));trial.vf=Math.max(v,j.v1);trial.w=[0,0,0];
+ const d=trial.dust,H=d.H,mv=tv.sub(trial.P,old);for(let i=0;i<d.pos.length;i+=3)for(let q=0;q<3;q++){let x=d.pos[i+q]-mv[q];if(x>H)x-=2*H*Math.ceil((x-H)/(2*H));else if(x<-H)x+=2*H*Math.ceil((-H-x)/(2*H));d.pos[i+q]=x;}
+}
+const trialFast=()=>trialCoasting()||trial.jump?.phase==='exit';
 // Dust drawn as speed lines while coasting.
-function trialDustStreaks(){const v=trial.vf,d=trial.dust,f=trial.jump?.dir;if(!trialCoasting()||!f||v<2000)return null;const n=d.pos.length/3,L=Math.min(v*.035,d.H*1.7),pos=new Float32Array(n*6),col=new Uint8Array(n*8),b=Math.min(1,v/2e5);
+function trialDustStreaks(){const v=trial.vf,d=trial.dust,f=trial.jump?.dir;if(!trialFast()||!f||v<2000)return null;const n=d.pos.length/3,L=Math.min(v*.035,d.H*1.7),pos=new Float32Array(n*6),col=new Uint8Array(n*8),b=Math.min(1,v/2e5);
  for(let i=0;i<n;i++){const p=[d.pos[i*3],d.pos[i*3+1],d.pos[i*3+2]];pos.set(p,i*6);pos.set(tv.add(p,f,-L),i*6+3);col.set([215*b,230*b,255*b,255],i*8);col.set([40*b,60*b,110*b,255],i*8+4);}return {pos,col};}
 function trialJumpStep(dt){
  const j=trial.jump;if(!j)return;j.t+=dt;const next=p=>{j.phase=p;j.t=0;};
  if(j.phase==='spool'){j.dir=trialCol(trial.R,0);if(j.t>=JUMP.spool){j.v0=Math.max(300,trial.vf,trial.p.maxSpeed||0);next('accel');}}
  else if(j.phase==='accel'){if(j.t>=JUMP.accel)next('enter');}
- else if(j.phase==='enter'){if(j.t>=JUMP.enter){next('tunnel');trial.flash=1;trial.bolts=[];trial.missiles=[];trial.fx=[];trial.vbolts=[];if(trial.battle&&!trial.battle.result)spaceWithdraw();}}
- else if(j.phase==='tunnel'){if(j.t>=j.tunnel){trialArrive(j.dest);next('exit');trial.flash=.6;}}
- else if(j.phase==='exit'){if(j.t>=JUMP.exit)next('arrive');}
- else if(j.phase==='arrive'){if(j.t>=JUMP.arrive){if(trial.camSave&&view){Object.assign(view.cam,trial.camSave);trial.camSave=null;}trial.jump=null;if(trial.battle?.result)spaceShowResult();}}
+ else if(j.phase==='enter'){if(j.t>=JUMP.enter){next('tunnel');trial.bolts=[];trial.missiles=[];trial.fx=[];trial.vbolts=[];if(trial.battle&&!trial.battle.result)spaceWithdraw();}}
+ else if(j.phase==='tunnel'){if(j.t>=j.tunnel){trialArrive(j.dest);next('exit');trialReversion();}}
+ else if(j.phase==='exit'){if(j.t>=JUMP.exit){trial.P=j.to.slice();trial.V=tv.scale(j.dir,j.v1);trial.vf=j.v1;next('arrive');}}
+ else if(j.phase==='arrive'){if(j.t>=JUMP.arrive){trial.jump=null;if(trial.battle?.result)spaceShowResult();}}
 }
 function trialArrive(dest){
  trial.sysKey=dest;const s=trialSys(),R=s.planet.radius,L=trial.p.len;
  Object.assign(trial,{P:[0,R+s.altitude,0],R:[1,0,0,0,1,0,0,0,1],w:[0,0,0],V:[trial.p.maxSpeed*.3,0,0],tele:2,rudder:0,level:false,camF:null,warn:''});trial.vf=trial.V[0];trialDust();
  if(trial.mode==='trial'){trial.targets=[];for(let i=0;i<TRIAL_GUN.targets;i++)trial.targets.push(trialSpawnTarget(i,true));}else trial.targets=[];
- if(view){trial.camSave=trial.camSave||{th:view.cam.th,ph:view.cam.ph,r:view.cam.r};view.cam.th=.62;view.cam.ph=1.36;view.cam.r=trialCamRange(L*3.8+300);}
- const bow=tv.add(trial.P,[L*.5,0,0]);trial.fx.push({pos:bow,vel:[0,0,0],life:.5,max:.5,size:L*1.2,col:[205,228,255]},{pos:bow,vel:[0,0,0],life:.3,max:.3,size:L*.55,col:[255,255,255]});
- if(trial.jump)trial.jump.dir=trialCol(trial.R,0);toast(`${s.name}に到着 — ${s.note}`);
+ // The arrival point; reversion brings the ship in along its heading to it.
+ if(trial.jump){trial.jump.dir=trialCol(trial.R,0);trial.jump.to=trial.P.slice();trial.jump.v1=trial.vf;}toast(`${s.name}に到着 — ${s.note}`);
 }
 function trialStreakLines(s,f,extra){
  const dirs=view?.starDirs,cols=view?.starCol;if(!dirs||s<=.001&&!extra)return false;
@@ -2945,7 +2953,7 @@ function spaceLog(text,u){const B=trial.battle;if(!B)return;const who=!u?'':u.ma
 function spaceStep(dt){
  const B=trial.battle;if(!B||B.left)return;const b=B.b;
  if(!B.cined&&b.units.some(u=>u.warp&&u.warp.t+dt>=u.warp.at-.5)){B.cined=true;spaceCineStart();}
- for(const u of b.units){if(u.warp){u.warp.t+=dt;const tt=u.warp.t-u.warp.at;if(tt>=0&&!u.warp.flashed){u.warp.flashed=true;const f=trialCol(spaceRot(B.E,u.yaw),0),bow=tv.add(spaceWorld(u),f,u.p.len*.5);trial.fx.push({pos:bow,vel:[0,0,0],life:.5,max:.5,size:u.p.len*1.2,col:[205,228,255]},{pos:bow,vel:[0,0,0],life:.3,max:.3,size:u.p.len*.5,col:[255,255,255]});}if(tt>=.9){u.absent=false;delete u.warp;spaceLog('ハイパースペースから出現',u);if(b.units.filter(x=>x.team===1).every(x=>!x.warp))toast('敵艦隊がハイパースペースから出現');}}
+ for(const u of b.units){if(u.warp){u.warp.t+=dt;const tt=u.warp.t-u.warp.at;if(tt>=.9){u.absent=false;delete u.warp;spaceLog('ハイパースペースから出現',u);if(b.units.filter(x=>x.team===1).every(x=>!x.warp))toast('敵艦隊がハイパースペースから出現');}}
   if(u.depart){u.depart.t+=dt;if(u.depart.t>=.8){u.absent=true;u.hidden=true;delete u.depart;}}}
  if(B.result){for(const u of b.units)if(!u.manual&&!u.dead)u.pos=tv.add(u.pos,u.velocity||[0,0,0],dt);spaceRefresh();return;}
  B.acc+=dt;B.orderT-=dt;
@@ -2964,9 +2972,9 @@ function spaceStep(dt){
 function spaceDrawUnits(){
  const B=trial.battle;if(!B||B.left)return [];const out=[];
  for(const u of B.b.units){if(u.manual||u.dead||u.hidden)continue;let w=spaceWorld(u),stretch=1,flash=0;const R=spaceRot(B.E,u.yaw),f=trialCol(R,0);
-  if(u.warp){const tt=u.warp.t-u.warp.at;if(tt<0)continue;const k=warpLook(tt,u.p.len);w=tv.add(w,f,-k.D);stretch=k.stretch;flash=k.flash;}
+  if(u.warp){const tt=u.warp.t-u.warp.at;if(tt<0)continue;const k=warpLook(tt,u.p.len);w=tv.add(w,f,-k.D);stretch=k.stretch;flash=k.tint;}
   else if(u.absent&&!u.depart)continue;
-  if(u.depart){const t=u.depart.t;w=tv.add(w,f,u.p.len*40*(t/.8)**3);stretch=1+25*t*t;flash=Math.min(1,t*2);}
+  if(u.depart){const t=u.depart.t;w=tv.add(w,f,u.p.len*40*(t/.8)**3);stretch=1+25*t*t;flash=C.clamp((stretch-1)/16,0,.45);}
   out.push({key:u.key,pos:tv.sub(w,trial.P),rot:R,glow:u.out?0:.55,hatchOpen:0,dead:false,stretch,flash});}
  return out;
 }
@@ -3262,7 +3270,7 @@ function deckSection(rows){
   const hp=ship.hull;if(hp.sec==='warship'||hp.sec==='ellipse')return false;
   const [deck,keel,chine,belt]={rect:[.98,.98,.5,.13],trap:[.6,.98,.5,.02],roof:[.02,.98,.55,.02],diamond:[.02,.02,.5,.02]}[hp.sec]||[.98,.98,.5,.13];
   hp.sec='warship';hp.deckWidth=deck;hp.keelWidth=keel;hp.chineHeight=chine;hp.belt=belt;
-  for(const row of rows){while(row.length<4)row.push(0);row[4]=deck;row[5]=keel;}
+  for(const row of rows){while(row.length<4)row.push(0);row[4]=deck;row[5]=keel;if(row.length>6)row[6]=belt;if(row.length>7)row[7]=chine;}
   return true;
 }
 function blockedHullControl(t){return false;const d=t.dataset||{},sl=d.sl;return ['hull','sec','assembly','station','loftHull','addstation','dropstation'].some(k=>k in d)||['L','W','H','bowW','bowH','stern','deckWidth','keelWidth','belt','chineHeight','hullStart'].includes(sl);}
