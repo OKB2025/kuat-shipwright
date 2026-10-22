@@ -1425,7 +1425,11 @@ function v3MeshParts(ship,opt){
   for(const p of [...ship.parts,...C.enginePaths(ship),...C.weaponCapacitors(ship),...C.missileCells(ship),...C.commandCompartments(ship)]){
     const before=geoMarks(out);meshOnePart(out,p,ship,opt,glow);markRanges(ranges,p.id,before,out);
   }
-  if(opt.habitation&&ship.autoHabitation!==false){const h=C.habitationSpace(ship),d=h.cell.map(v=>v*.46);for(const p of h.points)boxSolid(out.interior,C.sub(p,d),C.add(p,d),[104,159,124],24);}
+  if(opt.habitation&&ship.autoHabitation!==false){const h=C.habitationSpace(ship),d=h.cell.map(v=>v*.46);for(const p of h.points)boxSolid(out.interior,C.sub(p,d),C.add(p,d),[104,159,124],24);
+    // Weapon conduits as straight tubes as thick as their cross-section: orange from the
+    // power cell or reactor to each mount, yellow for the charging lines from the reactors to the cells.
+    const fd=C.feedConduits(ship),tube=(k,col)=>{if(C.len(C.sub(k.b,k.a))<.5)return;const r=Math.max(.15,Math.sqrt(k.area/Math.PI));axisFrustum(out.interior,k.a,k.b,r,r,col,false,false,10);};
+    for(const w of fd.rows)for(const k of w.links)tube(k,[222,154,64]);for(const k of fd.charge)tube(k,[236,212,96]);}
   return {g:out,glow,ranges};
 }
 // One part into the group meshes (shared by the full build and the live preview).
