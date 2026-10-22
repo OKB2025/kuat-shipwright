@@ -643,8 +643,22 @@ precision mediump float;
 uniform sampler2D uTex;uniform sampler2D uEmiTex;uniform vec3 uL1;uniform vec3 uL2;uniform vec3 uC1;uniform vec3 uC2;
 uniform vec3 uSky;uniform vec3 uGnd;uniform vec3 uEye;uniform float uAlpha;uniform float uEmi;uniform vec3 uClip;uniform vec3 uClipLo;uniform float uClipOn;uniform vec4 uSeam;uniform float uChar;uniform float uBack;uniform float uReference;uniform float uPaint;uniform float uRefHull;uniform float uHullLength;uniform float uFlash;uniform vec4 uEmiTint;
 uniform vec3 uLightCol;uniform float uLightK;uniform vec2 uPix;
+uniform sampler2D uShadow;uniform mat4 uShM;uniform vec4 uShTile;uniform vec4 uShK;uniform vec2 uLook;
 varying vec3 vN;varying vec2 vUv;varying vec4 vCol;varying vec3 vW;varying vec3 vS;varying vec3 vNS;
 float hash12(vec2 p){vec3 q=fract(vec3(p.xyx)*0.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
+// v20.2 The key light's shadow, from the ship's depth map seen from the light in the mesh's own
+// frame (uShM), four texels blended for a clean edge; 1 lit, 0 shadowed. uShK: on, texel (atlas
+// UV), depth bias, normal offset (m). The bias grows on faces turned away from the light.
+float unpackD(vec4 v){return dot(v,(255.0/256.0)/vec4(16777216.0,65536.0,256.0,1.0));}
+float shadowK(vec3 nl,float ndl){
+ vec4 c=uShM*vec4(vS+nl*uShK.w,1.0);vec3 s=c.xyz*0.5+0.5;
+ if(s.x<=0.0||s.y<=0.0||s.x>=1.0||s.y>=1.0||s.z>=1.0)return 1.0;
+ float z=s.z-uShK.z*(1.0+min(4.0,sqrt(max(0.0,1.0-ndl*ndl))/max(ndl,0.05)));
+ vec2 t=(uShTile.xy+s.xy*uShTile.zw)/uShK.y-0.5,f=fract(t),b=(floor(t)+0.5)*uShK.y;float e=uShK.y;
+ float a0=step(z,unpackD(texture2D(uShadow,b))),a1=step(z,unpackD(texture2D(uShadow,b+vec2(e,0.0))));
+ float a2=step(z,unpackD(texture2D(uShadow,b+vec2(0.0,e)))),a3=step(z,unpackD(texture2D(uShadow,b+vec2(e,e))));
+ return mix(mix(a0,a1,f.x),mix(a2,a3,f.x),f.y);
+}
 // Ports on vertical walls (trenches, superstructure sides) in the ship's own
 // frame: decks 8 m apart, ports 4 m apart, lit in clusters; unlit ports read as
 // dark slots. Past the size of a pixel the ports give way to sparse lights kept
@@ -667,14 +681,25 @@ vec3 vc=uReference>0.5?vCol.rgb*2.0:vCol.rgb;vec3 base=vc*vc*tx*tx;float ao=vCol
 float ef=1.0;
 if(!gl_FrontFacing){n=-n;ef=0.0;if(uBack<0.5){base=vec3(0.085,0.092,0.10);}else{base*=0.62;}}
 vec3 amb=mix(uGnd,uSky,n.y*0.5+0.5)*ao;float d1=max(dot(n,uL1),0.0);float d2=max(dot(n,uL2),0.0);
-vec3 V=normalize(uEye-vW);vec3 H=normalize(uL1+V);float sp=pow(max(dot(n,H),0.0),40.0)*0.22*ao*ef;
+float sh=1.0;if(uShK.x>0.5&&d1>0.0)sh=shadowK(normalize(vNS)*(gl_FrontFacing?1.0:-1.0),d1);d1*=sh;
+vec3 V=normalize(uEye-vW);vec3 H=normalize(uL1+V);float sp=pow(max(dot(n,H),0.0),40.0)*0.22*ao*ef*sh;
 vec3 c=base*(amb+uC1*d1*(0.6+0.4*ao)+uC2*d2*ao)+uC1*sp;vec3 e=texture2D(uEmiTex,vUv).rgb;if(uEmiTint.w>0.5){float l=dot(e,vec3(0.3,0.5,0.2));e=mix(uEmiTint.rgb*min(1.0,l*1.3),vec3(l),smoothstep(0.86,1.0,l)*0.7);}c+=e*e*uEmi*ef;
 if(uLightK>0.0&&ef>0.5){vec2 pl=shipLights(normalize(vNS));c*=1.0-0.5*pl.y;float lk=uLightK*pl.x;c=mix(c,uLightCol,clamp(lk,0.0,1.0))+uLightCol*(max(0.0,lk-1.0)*0.25);}
 // A wreck: plating scorched in patches, and the edges where it broke glowing hot.
 if(uChar>0.0){float sc=hash12(floor(vS.xz/9.0))*0.5+hash12(floor(vS.xy/23.0+vec2(3.0)))*0.5;c*=1.0-uChar*(0.45+0.4*sc);}
 if(uSeam.w>0.0){float sd=min(abs(vS.x-uSeam.x),abs(vS.x-uSeam.y)),g=uSeam.w*(1.0-smoothstep(0.0,uSeam.z,sd))*(0.75+0.25*hash12(floor(vS.yz/4.0)));c=c*(1.0-0.6*g)+vec3(1.0,0.42,0.12)*g*1.6;}
 c=mix(c,vec3(0.72,0.86,1.0),clamp(uFlash,0.0,1.0));
-gl_FragColor=vec4(sqrt(c),uAlpha);}`;
+// v20.2 The lit looks roll the highlights off like film (ACES fit) so a strong key light keeps its whites.
+if(uLook.x>0.5){c*=uLook.y;c=(c*(2.51*c+0.03))/(c*(2.43*c+0.59)+0.14);}
+gl_FragColor=vec4(sqrt(max(c,vec3(0.0))),uAlpha);}`;
+// v20.2 The shadow pass: depth seen from the key light, packed into RGBA (WebGL 1 everywhere).
+const VS_SHADOW = `attribute vec3 aPos;uniform mat4 uSM;varying float vZ;void main(){vec4 p=uSM*vec4(aPos,1.0);vZ=clamp(p.z*0.5+0.5,0.0,0.99999);gl_Position=p;}`;
+const FS_SHADOW = `#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+varying float vZ;void main(){vec4 r=vec4(fract(vZ*vec3(16777216.0,65536.0,256.0)),vZ);r.yzw-=r.xyz*(1.0/256.0);gl_FragColor=r*(256.0/255.0);}`;
 // Ray shields: premultiplied output blended with (ONE, ONE_MINUS_SRC_ALPHA). The
 // field adds a blue-white glow with drifting filaments and only lightly tints
 // what lies behind; the halo (vertex alpha 0) is purely additive; a legacy
@@ -983,11 +1008,14 @@ class Renderer {
     for(const p of [this.pm,this.pl,this.pp,this.pb,this.pray,this.pplanet,this.phyper,this.psky,this.pskyt,this.pstar])if(p?.p)gl.deleteProgram(p.p);
     for(const t of this.ownedTextures||[])gl.deleteTexture(t);if(this.bgBuf)gl.deleteBuffer(this.bgBuf);
     if(this.sky)for(const k of ['dir','cor','col','idx'])gl.deleteBuffer(this.sky[k]);
+    if(this.sh){gl.deleteFramebuffer(this.sh.fb);gl.deleteRenderbuffer(this.sh.rb);if(this.sh.prog?.p)gl.deleteProgram(this.sh.prog.p);}
   }
   upload(name, geo) {
     const gl = this.gl;
     let m = this.meshes[name];
     if (!m) m = this.meshes[name] = {pos: gl.createBuffer(), nor: gl.createBuffer(), uv: gl.createBuffer(), col: gl.createBuffer(), idx: gl.createBuffer(), count: 0};
+    // v20.2 A version and a box per mesh: the shadow map is redrawn only when a caster changes.
+    m.ver = (m.ver || 0) + 1; { const P = geo.pos, b = [Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity]; for (let i = 0; i < geo.n * 3; i += 3) for (let k = 0; k < 3; k++) { const v = P[i + k]; if (v < b[k]) b[k] = v; if (v > b[k + 3]) b[k + 3] = v; } m.bb = geo.n ? b : null; }
     m.flat = !this.u32 && geo.n >= 65536;
     if (m.flat) {
       // Clipped rooms can exceed 16-bit indices. Expand only on devices without
@@ -1154,6 +1182,7 @@ class Renderer {
     this.rayTime=opt.fleet?(performance.now()/1000)%600:7.3;
     this.paint=opt.paint||'neutral';this.setLights(opt.lights);this.engineTint=opt.engineGlow&&opt.engineGlow!=='blue'?C.engineGlowRGB(opt.engineGlow):null;this.engineK=1;this.hullLength=opt.hullLength||1600;this.sourceRed=opt.reference==='venator';this.meshScale=opt.fleet?null:opt.meshScale||null;this.hidden=opt.fleet?null:opt.hidden||null;
     this.clip = opt.mode === 'cut' ? opt.clip : null;
+    this.look = this.pickLook(opt); this.shTile = null;
     gl.disable(gl.DEPTH_TEST); gl.depthMask(false); gl.disable(gl.BLEND); gl.disable(gl.CULL_FACE);
     // The space views (opt.sky) have their own sky: the galactic band, then the
     // stars, which the hyperspace jump stretches; the planet and the tunnel go over them.
@@ -1170,7 +1199,8 @@ class Renderer {
     this.planetLight = !!opt.planet; if (opt.planet) this.drawPlanet(m, opt.planet); if (opt.hyper) this.drawHyper(m, opt.hyper);
     gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    if(opt.fleet){this.drawFleet(m,opt);return true;}
+    if(opt.fleet){this.drawFleet(m,opt);this.shTile=null;return true;}
+    if (this.look.shadow && !this.noShadow) this.shTile = this.shadowDesign(opt);
     this.drawLines('grid', m, 1);
     gl.disable(gl.BLEND); gl.depthMask(true);
     const solids = ['gen', 'shield', 'hyper', 'engine', 'refEngine', 'nozzle', 'hangar'];
@@ -1208,7 +1238,7 @@ class Renderer {
     gl.enable(gl.DEPTH_TEST);this.drawLines('cutter',m,1);this.clip=cutterClip;
     gl.disable(gl.DEPTH_TEST); this.drawLines('ghost', m, 0.35);
     gl.enable(gl.DEPTH_TEST); this.drawLines('ghost', m, 1);
-    gl.depthMask(true);
+    gl.depthMask(true); this.shTile = null;
     // getError() stalls the GPU pipeline; sample it occasionally.
     this._errCheck=(this._errCheck||0)+1;if(this._errCheck%120===1){const error=gl.getError();if(error===gl.OUT_OF_MEMORY)throw new Error('描画メモリが不足しました');}
     if(gl.isContextLost())return false;return true;
@@ -1252,9 +1282,9 @@ class Renderer {
     if(lit){const H=Math.max(1,this.canvas.height),t=2*Math.tan((this.cam.fov||.72)/2);gl.uniform3fv(p.u.uLightCol,this.lightCol);gl.uniform2f(p.u.uPix,t/H,this.cam.ortho?t*this.cam.r/H:0);}
     gl.uniformMatrix4fv(p.u.uVP, false, m.VP); gl.uniform3fv(p.u.uOff, this.off);
     gl.uniform3fv(p.u.uCenter,this.modelCenter||[0,0,0]);gl.uniformMatrix3fv(p.u.uRot,false,this.modelRot||yawMatrix(this.modelYaw||0));gl.uniform3fv(p.u.uScl,this.unitScl||this.meshScale?.[name]||[1,1,1]);gl.uniform1f(p.u.uFlash,this.unitFlash||0);
-    gl.uniform3fv(p.u.uL1, L1); gl.uniform3fv(p.u.uL2, L2);
-    gl.uniform3fv(p.u.uC1, [1.05, 1.0, 0.94]); gl.uniform3fv(p.u.uC2, [0.22, 0.30, 0.42]);
-    gl.uniform3fv(p.u.uSky, this.planetLight ? [0.24, 0.27, 0.34] : [0.30, 0.34, 0.40]); gl.uniform3fv(p.u.uGnd, this.planetLight ? [0.17, 0.13, 0.10] : [0.10, 0.11, 0.13]);
+    const lk = this.look || LOOKS.flat; gl.uniform3fv(p.u.uL1, lk.L1); gl.uniform3fv(p.u.uL2, lk.L2);
+    gl.uniform3fv(p.u.uC1, lk.C1); gl.uniform3fv(p.u.uC2, lk.C2); gl.uniform3fv(p.u.uSky, lk.sky); gl.uniform3fv(p.u.uGnd, lk.gnd); gl.uniform2f(p.u.uLook, lk.tone, lk.exp);
+    const sht = this.shTile, SH = this.sh; if (sht && SH && sht.M && !this.unitScl) { gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, SH.t); gl.uniform1i(p.u.uShadow, 2); gl.uniformMatrix4fv(p.u.uShM, false, sht.M); gl.uniform4fv(p.u.uShTile, sht.uv); gl.uniform4f(p.u.uShK, 1, 1 / SH.size, sht.bias, sht.noff); } else gl.uniform4f(p.u.uShK, 0, 0, 0, 0);
     gl.uniform3fv(p.u.uEye, m.eye); gl.uniform1f(p.u.uAlpha, alpha);
     gl.uniform1f(p.u.uPaint,this.paint==='dark'?2:this.paint==='republic'?1:0);gl.uniform1f(p.u.uRefHull,name==='refHull'&&!this.sourceRed?1:0);gl.uniform1f(p.u.uHullLength,this.hullLength||1600);
     gl.uniform1f(p.u.uReference, REFERENCE_SHADED.has(name)||name.startsWith('refTur_')?1:name==='refEngine'?2:0);
@@ -1330,6 +1360,102 @@ class Renderer {
   }
 }
 const L1 = C.norm([0.55, 0.9, 0.45]), L2 = C.norm([-0.6, -0.35, -0.7]);
+// v20.2 Lighting looks. 'flat' keeps the even light of the x-ray and cut-away views. 'studio' (design
+// screen, fleet review) is one strong key light from high on the port bow, so the deck and the faces
+// forward catch it and the starboard walls fall dark, with the
+// rest left nearly black; 'space' takes the system's sun as the key. Highlights roll off on film's curve.
+const LOOKS = {
+ flat: {L1, L2, C1: [1.05, 1.0, 0.94], C2: [0.22, 0.30, 0.42], sky: [0.30, 0.34, 0.40], gnd: [0.10, 0.11, 0.13], tone: 0, exp: 1, shadow: false},
+ studio: {L1: C.norm([0.5, 0.7, -0.5]), L2: C.norm([-0.35, -0.3, 0.88]), C1: [1.8, 1.73, 1.62], C2: [0.07, 0.085, 0.11], sky: [0.065, 0.072, 0.086], gnd: [0.028, 0.03, 0.034], tone: 1, exp: 1, shadow: true},
+ space: {C1: [1.95, 1.88, 1.76], C2: [0.04, 0.05, 0.065], sky: [0.035, 0.04, 0.05], gnd: [0.025, 0.025, 0.03], tone: 1, exp: 1, shadow: true},
+ tunnel: {C1: [1.0, 1.15, 1.5], C2: [0.12, 0.17, 0.28], sky: [0.12, 0.17, 0.26], gnd: [0.06, 0.09, 0.15], tone: 1, exp: 1, shadow: true},
+};
+// Meshes that cast the key light's shadow (on the design screen; fleet assets take all their static meshes).
+const SHADOW_CASTERS = ['hull', 'struct', 'plate', 'refHull', 'refStruct', 'refHatches', 'gen', 'shield', 'hyper', 'engine', 'refEngine', 'nozzle', 'hangar', 'fits', 'refFits'];
+const SHADOW_SKIP = /^(hatchOpen|hatchRay|trialTarget|slideRay_|slideDoor_|refSlideDoor_|preview)/;
+Renderer.prototype.pickLook = function (opt) {
+ if (this.keyOverride && !(opt.fleet && (opt.planet || opt.sky || opt.hyper)) && opt.mode !== 'xray' && opt.mode !== 'cut') { const k = this.keyOverride.join(); if (this._kov?.k !== k) this._kov = {...LOOKS.studio, k, L1: C.norm(this.keyOverride)}; return this._kov; }
+ if (!opt.fleet) return opt.mode === 'xray' || opt.mode === 'cut' ? LOOKS.flat : LOOKS.studio;
+ if (!(opt.planet || opt.sky || opt.hyper)) return LOOKS.studio;
+ const hk = opt.hyper ? (opt.hyper.k ?? 1) : 0, base = hk >= 1 ? LOOKS.tunnel : LOOKS.space, L = hk < 1 && opt.planet?.sun ? C.norm(opt.planet.sun) : LOOKS.studio.L1, key = base === LOOKS.tunnel ? 't' : L.map(v => v.toFixed(5)).join();
+ if (this._look?.key !== key) this._look = {...base, key, L1: L, L2: C.norm([-L[0], -L[1] - .5, -L[2]])};
+ return this._look;
+};
+// The shadow map: one RGBA texture (depth packed into its bytes) with a depth buffer, laid out as one
+// map for the design screen or four tiles for the fleet views. Off where the GPU lacks high precision.
+Renderer.prototype.shadowInit = function () {
+ if (this.sh !== undefined) return this.sh; this.sh = null; const gl = this.gl;
+ try {
+  const hp = gl.getShaderPrecisionFormat(gl.FRAGMENT_SHADER, gl.HIGH_FLOAT); if (!hp || hp.precision < 20) return null;
+  const size = Math.min(2048, gl.getParameter(gl.MAX_TEXTURE_SIZE), gl.getParameter(gl.MAX_RENDERBUFFER_SIZE)); if (size < 1024) return null;
+  const t = gl.createTexture(); this.ownedTextures.add(t); gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, t); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, size, size, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+  for (const [k, v] of [[gl.TEXTURE_MIN_FILTER, gl.NEAREST], [gl.TEXTURE_MAG_FILTER, gl.NEAREST], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, k, v);
+  gl.bindTexture(gl.TEXTURE_2D, null); gl.activeTexture(gl.TEXTURE0);
+  const rb = gl.createRenderbuffer(); gl.bindRenderbuffer(gl.RENDERBUFFER, rb); gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, size, size); gl.bindRenderbuffer(gl.RENDERBUFFER, null);
+  const fb = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, fb); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0); gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, rb);
+  const ok = gl.checkFramebufferStatus(gl.FRAMEBUFFER) === gl.FRAMEBUFFER_COMPLETE; gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+  if (!ok) { gl.deleteFramebuffer(fb); gl.deleteRenderbuffer(rb); return null; }
+  this.sh = {t, rb, fb, size, prog: compile(gl, VS_SHADOW, FS_SHADOW), tiles: [], layout: null, frame: 0};
+ } catch (e) { console.warn('shadows off', e); this.sh = null; }
+ return this.sh;
+};
+Renderer.prototype.shadowLayout = function (kind) {
+ const S = this.sh; if (S.layout === kind) return; S.layout = kind; const n = kind === 'one' ? 1 : 2, s = S.size / n; S.tiles = [];
+ for (let j = 0; j < n; j++) for (let i = 0; i < n; i++) S.tiles.push({x: i * s, y: j * s, s, key: null, L: null, sig: null, used: -1, M: null});
+};
+// Draws one tile: the casters' depth from the light L (in the ship's frame, toward the light), fitted
+// to the box b. The map's long side follows the ship's length (x) where the light allows.
+Renderer.prototype.shadowRender = function (tile, meshes, names, L, b, hidden) {
+ const gl = this.gl, S = this.sh, p = S.prog, w = C.norm(L), X = Math.abs(w[0]) < .97 ? [1, 0, 0] : [0, 0, 1], u = C.norm(C.sub(X, C.mul(w, C.dot(X, w)))), v = C.cross(w, u);
+ const lo = [Infinity, Infinity, Infinity], hi = [-Infinity, -Infinity, -Infinity];
+ for (let k = 0; k < 8; k++) { const q = [k & 1 ? b[3] : b[0], k & 2 ? b[4] : b[1], k & 4 ? b[5] : b[2]], r = [C.dot(q, u), C.dot(q, v), C.dot(q, w)]; for (let i = 0; i < 3; i++) { lo[i] = Math.min(lo[i], r[i]); hi[i] = Math.max(hi[i], r[i]); } }
+ for (let i = 0; i < 3; i++) { const pad = (hi[i] - lo[i]) * .01 + 1; lo[i] -= pad; hi[i] += pad; }
+ const hu = (hi[0] - lo[0]) / 2, hv = (hi[1] - lo[1]) / 2, cu = (hi[0] + lo[0]) / 2, cv = (hi[1] + lo[1]) / 2, zr = hi[2] - lo[2];
+ // Column-major: clip x, y across the light; z 0 at the side nearest the light.
+ const M = new Float32Array([u[0] / hu, v[0] / hv, -2 * w[0] / zr, 0, u[1] / hu, v[1] / hv, -2 * w[1] / zr, 0, u[2] / hu, v[2] / hv, -2 * w[2] / zr, 0, -cu / hu, -cv / hv, (hi[2] + lo[2]) / zr, 1]);
+ const g = 2, vs = tile.s - 2 * g;
+ gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, null); gl.activeTexture(gl.TEXTURE0);
+ gl.bindFramebuffer(gl.FRAMEBUFFER, S.fb); gl.viewport(tile.x, tile.y, tile.s, tile.s); gl.enable(gl.SCISSOR_TEST); gl.scissor(tile.x, tile.y, tile.s, tile.s);
+ gl.colorMask(true, true, true, true); gl.depthMask(true); gl.clearColor(1, 1, 1, 1); gl.clearDepth(1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+ gl.viewport(tile.x + g, tile.y + g, vs, vs); gl.disable(gl.BLEND); gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LESS); gl.disable(gl.CULL_FACE); gl.disable(gl.POLYGON_OFFSET_FILL);
+ gl.useProgram(p.p); gl.uniformMatrix4fv(p.u.uSM, false, M); const loc = p.a.aPos; gl.enableVertexAttribArray(loc);
+ for (const n of names) { const mm = meshes[n]; if (!mm || !mm.count) continue;
+  gl.bindBuffer(gl.ARRAY_BUFFER, mm.pos); gl.vertexAttribPointer(loc, 3, gl.FLOAT, false, 0, 0); gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, mm.idx);
+  const span = (st0, c) => { if (c <= 0) return; if (mm.flat) gl.drawArrays(gl.TRIANGLES, st0, c); else gl.drawElements(gl.TRIANGLES, c, mm.type, st0 * (mm.type === gl.UNSIGNED_INT ? 4 : 2)); };
+  const hid = hidden && hidden[n]; if (hid && hid.length) { let cur = 0; for (const [s0, k] of hid) { span(cur, s0 - cur); cur = Math.max(cur, s0 + k); } span(cur, mm.count - cur); } else span(0, mm.count); }
+ gl.disableVertexAttribArray(loc); gl.disable(gl.SCISSOR_TEST); gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+ gl.viewport(0, 0, this.canvas.width, this.canvas.height); gl.clearColor(0.02, 0.03, 0.045, 1); gl.depthFunc(gl.LEQUAL);
+ const tw = Math.max(hu, hv) * 2 / vs; tile.M = M; tile.uv = [(tile.x + g) / S.size, (tile.y + g) / S.size, vs / S.size, vs / S.size]; tile.bias = .75 * tw / zr; tile.noff = 1.25 * tw; tile.L = w;
+};
+// The design screen: the whole map for the ship on the stocks, redrawn only when a caster, the parts
+// hidden for an edit or the light changes (a live resize keeps the last map until it is let go).
+Renderer.prototype.shadowDesign = function (opt) {
+ const S = this.shadowInit(); if (!S) return null; this.shadowLayout('one'); const t = S.tiles[0];
+ const names = SHADOW_CASTERS.filter(n => this.meshes[n]?.count && this.meshes[n].bb); if (!names.length) return null;
+ const R = this.modelRot || yawMatrix(this.modelYaw || 0), W = this.look.L1, L = [R[0] * W[0] + R[1] * W[1] + R[2] * W[2], R[3] * W[0] + R[4] * W[1] + R[5] * W[2], R[6] * W[0] + R[7] * W[1] + R[8] * W[2]];
+ const sig = names.map(n => n + ':' + this.meshes[n].ver).join(',') + '|' + JSON.stringify(opt.hidden || null) + '|' + L.map(x => x.toFixed(5)).join();
+ if (t.sig !== sig && !(opt.meshScale && Object.keys(opt.meshScale).length && t.M)) {
+  const b = [Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity]; for (const n of names) { const q = this.meshes[n].bb; for (let k = 0; k < 3; k++) { b[k] = Math.min(b[k], q[k]); b[k + 3] = Math.max(b[k + 3], q[k + 3]); } }
+  this.shadowRender(t, this.meshes, names, L, b, opt.hidden); t.sig = sig; t.key = 'design';
+ }
+ return t.M ? t : null;
+};
+// The fleet and space views: the (up to) four ships largest on screen get a tile. A map belongs to a
+// design lit from one side in its own frame, so ships of one design on one heading share it; a turning
+// ship's map is redrawn when its light has moved by about half a degree (two maps a frame at most).
+Renderer.prototype.shadowFleet = function (list) {
+ const S = this.shadowInit(); if (!S) return null; this.shadowLayout('four'); S.frame++; const out = new Map(), W = this.look.L1; let budget = 2;
+ // A battle already drawn at the lowest resolution keeps a map for the largest ship only.
+ for (const c of list.sort((a, b) => b.px - a.px).slice(0, (this.renderScale || 1) <= .55 ? 1 : 4)) {
+  const R = c.u.rot || yawMatrix(c.u.yaw || 0), L = [R[0] * W[0] + R[1] * W[1] + R[2] * W[2], R[3] * W[0] + R[4] * W[1] + R[5] * W[2], R[6] * W[0] + R[7] * W[1] + R[8] * W[2]];
+  let best = null, bd = -2; for (const t of S.tiles) if (t.key === c.u.key && t.M) { const d = C.dot(t.L, L); if (d > bd) { bd = d; best = t; } }
+  if (best && bd > .99996) { best.used = S.frame; out.set(c.u, best); continue; }
+  if (budget > 0) { const t = best && best.used !== S.frame ? best : S.tiles.filter(x => x.used !== S.frame).sort((a, b) => a.used - b.used)[0];
+   if (t) { const a = c.a; if (!a._casters) a._casters = Object.keys(a.meshes).filter(n => !SHADOW_SKIP.test(n)); this.shadowRender(t, a.meshes, a._casters, L, a.bounds, null); t.key = c.u.key; t.used = S.frame; budget--; out.set(c.u, t); continue; } }
+  if (best && bd > .9986) { best.used = S.frame; out.set(c.u, best); }
+ }
+ return out;
+};
 
 // ---------- line helpers ----------
 function lineSet() {
@@ -1840,7 +1966,9 @@ Renderer.prototype.drawFleet=function(m,opt){
  const gl=this.gl,old=this.meshes,off=this.off,shields=[];gl.disable(gl.BLEND);gl.depthMask(true);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);this.clip=null;
  // Distant ships draw only their outer shell, and specks or ships behind the eye are skipped.
  const eye=this.eye(),vd=(()=>{const t=this.cam.target||[0,0,0],d=[t[0]-eye[0],t[1]-eye[1],t[2]-eye[2]],l=Math.hypot(...d)||1;return [d[0]/l,d[1]/l,d[2]/l];})(),focal=this.canvas.height/(2*Math.tan((this.cam.fov||.72)/2)),SHELL=['hull','struct','plate','refHull','refStruct'],FULL=['hull','struct','plate','refHull','refStruct','refHatches','gen','shield','hyper','engine','refEngine','nozzle','hangar'];this.lodSkipped=0;
- try{for(const u of opt.fleet){if(u.dead||u.hidden)continue;const a=this.fleetCache?.get(u.key);if(!a)continue;
+ // v20.2 Key-light shadows for the ships largest on screen (not pieces of wrecks or ships in a jump).
+ let shadows=null;if(this.look?.shadow&&!this.noShadow){const c=[];for(const u of opt.fleet){if(u.dead||u.hidden||u.clip||Math.abs((u.stretch||1)-1)>.02)continue;const a=this.fleetCache?.get(u.key);if(!a?.bounds)continue;const L=a.length||300,rx=u.pos[0]-eye[0],ry=u.pos[1]-eye[1],rz=u.pos[2]-eye[2],px=L/Math.max(1,Math.hypot(rx,ry,rz))*focal;if(px>=140&&rx*vd[0]+ry*vd[1]+rz*vd[2]>=-L)c.push({u,a,px});}if(c.length)shadows=this.shadowFleet(c);}
+ try{for(const u of opt.fleet){if(u.dead||u.hidden)continue;const a=this.fleetCache?.get(u.key);if(!a)continue;this.shTile=shadows?.get(u)||null;
   const L=(a.length||300)*(u.stretch||1),rx=u.pos[0]-eye[0],ry=u.pos[1]-eye[1],rz=u.pos[2]-eye[2],dist=Math.hypot(rx,ry,rz),px=L/Math.max(1,dist)*focal,ahead=rx*vd[0]+ry*vd[1]+rz*vd[2];
   if(opt.lod&&(px<2.2||ahead<-L)){this.lodSkipped++;continue;}const lod=opt.lod&&px<44&&!u.turrets;
   this.meshes=a.meshes;this.off=u.pos;this.modelCenter=u.center||a.center;this.modelYaw=u.yaw||0;this.modelRot=u.rot||null;this.paint=a.paint||'neutral';
@@ -1856,12 +1984,12 @@ Renderer.prototype.drawFleet=function(m,opt){
   gl.enable(gl.POLYGON_OFFSET_FILL);gl.polygonOffset(-1,-2);this.drawMesh('hatchOpen',m,1);gl.disable(gl.POLYGON_OFFSET_FILL);shields.push({u,a,names:['hatchRay',...(open>0?(a.rays||[]).map(r=>r.name):[])]});gl.disable(gl.CULL_FACE);this.drawMesh('fits',m,1);this.drawMesh('refFits',m,1);
   if(u.turrets&&sx<1.02){for(const t of u.turrets){const q=rv([t.pivot[0]-a.center[0],t.pivot[1]-a.center[1],t.pivot[2]-a.center[2]]);this.off=[u.pos[0]+q[0],u.pos[1]+q[1],u.pos[2]+q[2]];this.modelCenter=t.pivot;this.modelRot=mat3Mul(R,t.rot);this.drawMesh(t.mesh,m,1);}this.off=u.pos;this.modelCenter=center;this.modelRot=u.rot||null;}
   this.unitScl=null;this.unitFlash=0;this.clip=this.clipLo=this.seam=null;this.char=0;
-  for(const t of u.targets||[]){this.off=t.pos;this.modelCenter=[0,0,0];this.modelRot=t.rot||MAT3_I;this.drawMesh('trialTarget',m,1);}
+  this.shTile=null;for(const t of u.targets||[]){this.off=t.pos;this.modelCenter=[0,0,0];this.modelRot=t.rot||MAT3_I;this.drawMesh('trialTarget',m,1);}
   gl.enable(gl.CULL_FACE);
  }
  // Shields go on after every hull so a translucent field never hides a ship behind it.
  for(const {u,a,names} of shields){if((u.stretch||1)!==1)continue;this.meshes=a.meshes;this.off=u.pos;this.modelCenter=a.center;this.modelYaw=u.yaw||0;this.modelRot=u.rot||null;this.drawRays(m,names,1);}
- }finally{this.meshes=old;this.off=off;this.modelCenter=null;this.modelYaw=0;this.modelRot=null;this.unitScl=null;this.unitFlash=0;this.clip=this.clipLo=this.seam=null;this.char=0;this.engineTint=null;this.engineK=1;}
+ }finally{this.shTile=null;this.meshes=old;this.off=off;this.modelCenter=null;this.modelYaw=0;this.modelRot=null;this.unitScl=null;this.unitFlash=0;this.clip=this.clipLo=this.seam=null;this.char=0;this.engineTint=null;this.engineK=1;}
  gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.depthMask(false);gl.disable(gl.CULL_FACE);if(!opt.planet){this.drawLines('fleetGrid',m,.65);gl.disable(gl.DEPTH_TEST);this.drawLines('fleetOrders',m,.8);gl.enable(gl.DEPTH_TEST);this.drawLines('fleetShots',m,1);}
  // v18 Drive glow: each nozzle glows in its design's engine colour, sized and
  // lit by how hard the drives burn (u.glow 0–1); above a third of full thrust a

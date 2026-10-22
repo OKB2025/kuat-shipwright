@@ -4208,12 +4208,12 @@ function trialCommand(cmd){
 // orbit a ship arrives in. A ship arrives at 20° latitude heading toward the
 // equator, so the ring stands as an arch across the sky ahead, 8–18° up.
 const SYSTEMS={
- coruscant:{key:'coruscant',name:'コルサント',note:'銀河の首都。全球を覆う都市惑星',short:'銀河の首都',planet:{radius:6.12e6,kind:0,axis:[0,0,1],ring:null},altitude:160000,floor:40000,sun:[.85,-.1,.5],map:[150,146]},
- kuat:{key:'kuat',name:'クワット',note:'クワット・ドライブ・ヤードの軌道造船リングが惑星を取り巻く造船星系',short:'KDY 造船所',planet:{radius:5.2e6,kind:1,axis:[-Math.cos(20*Math.PI/180),Math.sin(20*Math.PI/180),0],ring:[1.16,1.25]},altitude:180000,floor:60000,sun:[-.42,.32,.85],map:[262,86]},
- corellia:{key:'corellia',name:'コレリア',note:'造船と交易で栄えるコア・ワールド。コレリアン・ランの起点',short:'交易と造船',planet:{radius:6.1e6,kind:2,axis:[0,0,1],ring:null},altitude:170000,floor:50000,sun:[.62,.28,-.73],map:[312,130]},
- geonosis:{key:'geonosis',name:'ジオノーシス',note:'アウター・リムの赤い岩石惑星。荒野にドロイド工場が並ぶ',short:'岩石の惑星',planet:{radius:5.3e6,kind:5,axis:[0,0,1],ring:null},altitude:160000,floor:45000,sun:[-.3,.42,.86],map:[356,42]},
- bespin:{key:'bespin',name:'ベスピン',note:'アウター・リムのガス巨星。雲の層にタイバナガスの採掘都市が浮かぶ',short:'ガス巨星',planet:{radius:5.9e7,kind:3,axis:[.2,0,.98],ring:null},altitude:1.2e6,floor:3e5,sun:[-.7,.35,.62],map:[378,198]},
- hoth:{key:'hoth',name:'ホス',note:'アウター・リムの氷の惑星。吹雪と氷原に覆われている',short:'氷の惑星',planet:{radius:3.6e6,kind:4,axis:[0,0,1],ring:null},altitude:150000,floor:40000,sun:[.42,.2,.88],map:[340,222]}};
+ coruscant:{key:'coruscant',name:'コルサント',note:'銀河の首都。全球を覆う都市惑星',short:'銀河の首都',planet:{radius:6.12e6,kind:0,axis:[0,0,1],ring:null},altitude:160000,floor:40000,sun:[.787,.407,.463],map:[150,146]},
+ kuat:{key:'kuat',name:'クワット',note:'クワット・ドライブ・ヤードの軌道造船リングが惑星を取り巻く造船星系',short:'KDY 造船所',planet:{radius:5.2e6,kind:1,axis:[-Math.cos(20*Math.PI/180),Math.sin(20*Math.PI/180),0],ring:[1.16,1.25]},altitude:180000,floor:60000,sun:[-.384,.5,.776],map:[262,86]},
+ corellia:{key:'corellia',name:'コレリア',note:'造船と交易で栄えるコア・ワールド。コレリアン・ランの起点',short:'交易と造船',planet:{radius:6.1e6,kind:2,axis:[0,0,1],ring:null},altitude:170000,floor:50000,sun:[.561,.5,-.66],map:[312,130]},
+ geonosis:{key:'geonosis',name:'ジオノーシス',note:'アウター・リムの赤い岩石惑星。荒野にドロイド工場が並ぶ',short:'岩石の惑星',planet:{radius:5.3e6,kind:5,axis:[0,0,1],ring:null},altitude:160000,floor:45000,sun:[-.279,.53,.801],map:[356,42]},
+ bespin:{key:'bespin',name:'ベスピン',note:'アウター・リムのガス巨星。雲の層にタイバナガスの採掘都市が浮かぶ',short:'ガス巨星',planet:{radius:5.9e7,kind:3,axis:[.2,0,.98],ring:null},altitude:1.2e6,floor:3e5,sun:[-.648,.5,.574],map:[378,198]},
+ hoth:{key:'hoth',name:'ホス',note:'アウター・リムの氷の惑星。吹雪と氷原に覆われている',short:'氷の惑星',planet:{radius:3.6e6,kind:4,axis:[0,0,1],ring:null},altitude:150000,floor:40000,sun:[.387,.438,.811],map:[340,222]}};
 // The lanes drawn on the star map (any system can be jumped to directly).
 const STAR_LANES=[['coruscant','kuat'],['kuat','corellia'],['coruscant','corellia'],['corellia','geonosis'],['corellia','bespin'],['bespin','hoth']];
 for(const s of Object.values(SYSTEMS))if(s.planet?.axis){const l=Math.hypot(...s.planet.axis)||1;s.planet.axis=s.planet.axis.map(x=>x/l);}
@@ -6612,7 +6612,7 @@ async function voySpectate(sys, followId) {
 // that its glow does not wash over the sky.
 function voySysDesc(w, id) {
  const sy = w.sector.systems[id], radius = sy.planet?.radius || 6e6;
- return {key: 'rts', name: sy.name, note: sy.note || '', short: sy.name, planet: {radius, kind: sy.planet?.kind ?? 1, axis: sy.planet?.ring ? [-Math.cos(20 * Math.PI / 180), Math.sin(20 * Math.PI / 180), 0] : [0, 0, 1], ring: sy.planet?.ring || null}, altitude: Math.max(200000, radius * .04), floor: 60000, sun: [-.42, .32, .85].map(v => v / Math.hypot(.42, .32, .85)), map: [0, 0]};
+ return {key: 'rts', name: sy.name, note: sy.note || '', short: sy.name, planet: {radius, kind: sy.planet?.kind ?? 1, axis: sy.planet?.ring ? [-Math.cos(20 * Math.PI / 180), Math.sin(20 * Math.PI / 180), 0] : [0, 0, 1], ring: sy.planet?.ring || null}, altitude: Math.max(200000, radius * .04), floor: 60000, sun: [-0.384, 0.5, 0.776], map: [0, 0]};
 }
 function voySpectateInit(snap = true) {
  const {w, sys, uid} = trial.rts, f = w.units.get(uid) && w.units.get(uid).sys === sys ? w.units.get(uid) : R.systemUnits(w, sys).find(R.alive);
