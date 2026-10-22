@@ -446,6 +446,7 @@ function setShip(s, opts) {
   if(fleet.mode!=='design')fleetSetMode('design');
   if(ship && !(opts&&opts.keepHistory)){undoStack.push(snap());if(undoStack.length>60)undoStack.shift();redoStack.length=0;}
   if (s.retiredRooms) { const n = s.retiredRooms; delete s.retiredRooms; setTimeout(() => toast(`居住区・兵員室 ${n} 区画を外しました（v19 から乗員と兵員は船内の空き容積に乗ります）`), 400); }
+  if (s.vehicleBays) { const n = s.vehicleBays; delete s.vehicleBays; setTimeout(() => toast(`車両格納区画 ${n} 区画を機体格納の格納区画に変えました（v20 から車両は航空機と同じ格納庫に寸法で入ります。ハッチか、ハッチにつながる格納区画に接するようにしてください）`), 700); }
   ship = s; s._client = true; S = null; prevS = null; st.sel = null; st.multi = {parts: new Set(), fits: new Set()}; st.hatchA = null; resetSolidCutter();
   // Loading another design remains undoable. The engine starts from scratch.
   eng.reset = true; eng.fitOnGeometry = true; eng.keepCam = !!(opts && opts.keepCam);
@@ -570,7 +571,7 @@ function hintText() {
       if (k === 'struct') return `面をタップして${st.structPlate ? '装甲外板' : st.structLight ? '軽構造' : '構造物'}（${st.structSize.map(v => Math.round(v)).join('×')} m${st.structPlate ? `・装甲 ${num(st.structPlateT, 1)} m` : ''}）を据える`;
       return `面をタップして${nm}（${st.size[k]} m・${PLACE.find(p => p[0] === st.placeBy[k])[1]}）を置く`;
     }
-    case 'select': return st.tab==='launch'?'航空区画を選んで出口を設定。航空隊のサイズと機数は下の欄で編集できます':st.sel?.list === 'parts' ? '選択中の区画は枠ごとドラッグで移動・別の区画はタップで選択' : st.view === 'normal' ? '区画をタップで選択（内部は透視で）・選ぶとドラッグで移動' : '区画をタップで選択・選ぶとドラッグで移動';
+    case 'select': return st.tab==='launch'?'航空区画を選んで出口を設定。航空隊の機種と機数は下の欄で編集できます':st.sel?.list === 'parts' ? '選択中の区画は枠ごとドラッグで移動・別の区画はタップで選択' : st.view === 'normal' ? '区画をタップで選択（内部は透視で）・選ぶとドラッグで移動' : '区画をタップで選択・選ぶとドラッグで移動';
     case 'fit': return (C.FITS[curFit()].pod?`構造物・艦橋本体の壁をタップして${C.FITS[curFit()].name}を設置`:`面をタップして${C.FITS[curFit()].short}を設置（${weaponTiltMode(curFit())?'斜面では面に沿って傾ける':'傾斜には支持台'}）`)+(ship?.parts.some(p=>p.plate)?'・装甲外板には付けられません':'');
     case 'unfit': return '撤去する装備をタップ';
     case 'adjust': return st.sel?.list === 'fits' ? '選択中の装備はドラッグで面に沿って移動・別の装備はタップで選択' : '装備をタップして選択・選ぶとドラッグで移動';
@@ -2085,7 +2086,7 @@ function systemsHTML(){
   return `<div class="flow-intro"><span class="eyebrow">ENGINEERING / 03</span><h3>炉とノズルで機関を組む</h3><p>接続された機関は自動生成され、航空区画の自動充填から除外されます。</p><button class="btn primary" data-internal>内部を透視する</button></div>
   <h4>動力の接続</h4>${rs.map(r=>`<div class="system-card"><button class="system-title" data-goto="${r.id}"><i style="background:${rgb(C.PARTS[r.k].col)}"></i>${C.PARTS[r.k].name} #${r.id}<span>${fW(C.reactorPower(r))}</span></button>${eng.filter(e=>C.reactorFor(ship,e)?.id===r.id).map(e=>{const path=routes.find(p=>p.nozzle===e.id);return `<button class="engine-row" data-goto="${e.id}"><span>↳ ノズル #${e.id} · ⌀${Math.round(e.d)} m</span><b>${path?fLen(path.seg.l):'接続不可'}</b></button>`;}).join('')||'<p class="note">接続されたノズルはありません。</p>'}</div>`).join('')||'<p class="note">先に主反応炉か補助反応炉を配置してください。</p>'}
   ${eng.filter(e=>!C.reactorFor(ship,e)).map(e=>`<button class="engine-row neg" data-goto="${e.id}">未接続ノズル #${e.id}</button>`).join('')}
-  ${S0?`<h4>区画の能力</h4><dl class="engineering-stats">${[['自動機関の占有',ja(S0.engineVolume)+' m³'],['反応物貯蔵',ja(S0.fuelVolume)+' m³'],['巡航時持続',S0.fuelHours.toFixed(1)+' 時間'],['反応物供給能力',fPct(S0.supplyRatio)],['慣性制御 対応質量',fMass(S0.inertialSupport)],['構造維持 対応質量',fMass(S0.integritySupport)],['リパルサー 支持質量',fMass(S0.repulsorSupport)],['乗艦可能',num(S0.personCapacity??S0.crewCapacity)+' 名'],['自動化装置の受け持ち',num(S0.autoCrew||0)+' 名分'],['兵員枠（定員を除く）',num(S0.troopCapacity)+' 名'],['車両収容',num(S0.vehicleCapacity)+' 両相当'],['航空整備',num(S0.serviceCapacity)+' 機分'],['貨物容量',fMass(S0.cargoCapacity)]].map(([a,b])=>`<div><dt>${a}</dt><dd>${b}</dd></div>`).join('')}</dl>`:''}
+  ${S0?`<h4>区画の能力</h4><dl class="engineering-stats">${[['自動機関の占有',ja(S0.engineVolume)+' m³'],['反応物貯蔵',ja(S0.fuelVolume)+' m³'],['巡航時持続',S0.fuelHours.toFixed(1)+' 時間'],['反応物供給能力',fPct(S0.supplyRatio)],['慣性制御 対応質量',fMass(S0.inertialSupport)],['構造維持 対応質量',fMass(S0.integritySupport)],['リパルサー 支持質量',fMass(S0.repulsorSupport)],['乗艦可能',num(S0.personCapacity??S0.crewCapacity)+' 名'],['自動化装置の受け持ち',num(S0.autoCrew||0)+' 名分'],['兵員枠（定員を除く）',num(S0.troopCapacity)+' 名'],['車両の搭載',num(S0.vehicleCapacity)+' 両'],['航空整備',num(S0.serviceCapacity)+' 機分'],['貨物容量',fMass(S0.cargoCapacity)]].map(([a,b])=>`<div><dt>${a}</dt><dd>${b}</dd></div>`).join('')}</dl>`:''}
   `;
 }
 function bindEngineering(){
@@ -2378,23 +2379,51 @@ function chooseWeaponMount(face){
 function aviationNumbers(){return C.aviationStatus(ship,S?.info);}
 function aviationSize(v){return num(Number.isFinite(v)?v:0,2);}
 function aviationCapacityHTML(a){
- const excess=Math.max(0,a.usedSize-a.capacity),unloaded=Math.max(0,a.requestedCount-a.embarkedCount),stranded=Math.max(0,a.embarkedCount-a.deployableCount);
- return `<div class="aviation-budget"><span>格納容量</span><strong>${aviationSize(a.capacity)} <small>サイズ</small></strong><p>使用サイズ（指定） <b>${aviationSize(a.usedSize)}</b> / ${aviationSize(a.capacity)}</p><meter min="0" max="${Math.max(1,a.capacity)}" value="${Math.min(a.usedSize,Math.max(1,a.capacity))}" aria-label="格納庫の使用サイズ"></meter><p class="${excess?'neg':'ok'}">${excess?'容量超過 '+aviationSize(excess):'残り '+aviationSize(Math.max(0,a.capacity-a.usedSize))} サイズ</p></div><dl class="engineering-stats aviation-counts"><div><dt>指定した機数</dt><dd>${num(a.requestedCount)} 機</dd></div><div><dt>実際に搭載</dt><dd>${num(a.embarkedCount)} 機</dd></div><div><dt>発着路に接続</dt><dd>${num(a.deployableCount)} 機</dd></div><div><dt>1区画の容量によるサイズ上限</dt><dd>${aviationSize(a.maxAircraftSize)}</dd></div></dl>${unloaded?`<p class="note neg" role="status">${num(unloaded)} 機は搭載できません。各航空隊の表示から、容量超過か1機のサイズ超過を確認してください。指定機数は保持しています。</p>`:''}${stranded?`<p class="note neg" role="status">搭載機のうち ${num(stranded)} 機は発着路に接続していません。表面に接触した航空区画の開口設定と、区画間の接続を確認してください。</p>`:''}`;
+ const used=a.embarkedSize+(a.vehicleSize||0),unloaded=Math.max(0,a.requestedCount-a.embarkedCount),ships=Math.max(0,a.shipCount-a.shipEmbarked);
+ return `<div class="aviation-budget"><span>格納容量（航空機・搭載艦・車両で共用）</span><strong>${aviationSize(a.capacity)} <small>サイズ</small></strong><p>使用 <b>${aviationSize(used)}</b> / ${aviationSize(a.capacity)}${a.vehicleSize>0?`（うち車両 ${aviationSize(a.vehicleSize)}）`:''}</p><meter min="0" max="${Math.max(1,a.capacity)}" value="${Math.min(used,Math.max(1,a.capacity))}" aria-label="格納庫の使用サイズ"></meter><p class="${unloaded||ships?'neg':'ok'}">${unloaded||ships?`未搭載 ${unloaded?num(unloaded)+' 機':''}${unloaded&&ships?'・':''}${ships?num(ships)+' 隻':''}`:`残り ${aviationSize(a.freeSize)} サイズ`}</p></div><dl class="engineering-stats aviation-counts"><div><dt>指定した機数</dt><dd>${num(a.requestedCount)} 機</dd></div><div><dt>実際に搭載</dt><dd>${num(a.embarkedCount)} 機</dd></div><div><dt>発艦できる（うち戦闘用）</dt><dd>${num(a.deployableCount)} 機（${num(a.combatDeployable??a.deployableCount)}）</dd></div>${a.shipCount?`<div><dt>搭載艦</dt><dd>${num(a.shipEmbarked)} / ${num(a.shipCount)} 隻</dd></div>`:''}${a.lift&&(a.lift.troops>0||a.lift.vehicleSize>0)?`<div><dt>1回の降下（輸送機）</dt><dd>兵員 ${num(a.lift.troops)} 名${a.lift.vehicleSize>0?` · 車両 ${aviationSize(a.lift.vehicleSize)} サイズ`:''}</dd></div>`:''}</dl>`;
 }
+// v20 Sizes and shapes: a craft is its type's official box; it fits a bay with STOW_GAP clear on every side.
+const CRAFT_SIDE_NAMES={empire:'銀河帝国',republic:'銀河共和国',cis:'独立星系連合',rebel:'反乱同盟',neutral:'汎用'};
+const CRAFT_ROLE_NAMES={fighter:'戦闘機',interceptor:'迎撃機',bomber:'爆撃機',gunship:'ガンシップ',shuttle:'シャトル',lander:'揚陸艇'};
+const dimsText=d=>(d||[]).map(v=>num(Math.round(v*10)/10)).join(' × ')+' m';
+const exitNeed=d=>{const s=d.slice().sort((a,b)=>a-b);return [s[1]+.5,s[0]+.5];};
+function typeOptionsHTML(types,cur,extra){
+ const by={};for(const [k,t] of Object.entries(types))(by[t.side]||(by[t.side]=[])).push([k,t]);
+ const label=t=>t.role?`${CRAFT_ROLE_NAMES[t.role]||''}${t.carry?'・輸送':''}`:dimsText(t.dims);
+ return Object.entries(CRAFT_SIDE_NAMES).filter(([s])=>by[s]).map(([s,n])=>`<optgroup label="${n}">${by[s].map(([k,t])=>`<option value="${k}" ${cur===k?'selected':''}>${esc(t.name)}（${label(t)}${t.approx?'・推定':''}）</option>`).join('')}</optgroup>`).join('')+`<optgroup label="そのほか">${extra.map(([k,n])=>`<option value="${k}" ${cur===k?'selected':''}>${n}</option>`).join('')}</optgroup>`;
+}
+const rawWing=w=>ship.airWings?.find(x=>x.id===w.id)||w;
+const wingMode=r=>r.kind==='ship'?'ship':C.CRAFT_TYPES[r.type]?'type':Array.isArray(r.dims)?'custom':'legacy';
+const bayName=id=>{const p=ship.parts.find(p=>p.id===id);return p?C.partLabel(p):'#'+id;};
+function placedHTML(w){return w.placed?.length?`<p class="note">格納先：${w.placed.slice(0,4).map(([id,k])=>`${esc(bayName(id))} ${num(k)}`).join('・')}${w.placed.length>4?' ほか':''}</p>`:'';}
 function aviationWingStatusHTML(w){
  if(!w)return '';
- if(w.kind==='ship'){let h=`<p>使用 ${aviationSize(w.usedSize)} サイズ · 搭載 ${num(w.embarked)} / 指定 ${num(w.count)} 隻</p>`;if(w.count>0&&w.tooLarge)h+=`<p class="note neg">この艦（${w.dims.map(v=>num(Math.round(v))).join(' × ')} m）が入る格納区画がありません。全長・全幅・全高とも ${C.SHIP_STOW_CLEAR} m の余裕が要ります。</p>`;else if(w.unembarked>0)h+=`<p class="note neg">容量不足で ${num(w.unembarked)} 隻が未搭載。</p>`;if(w.undeployable>0)h+=`<p class="note neg">${num(w.undeployable)} 隻は発着路に通じた格納区画に入れないため発進できません。</p>`;return h;}
- let h=`<p>使用 ${aviationSize(w.usedSize)} サイズ · 搭載 ${num(w.embarked)} / 指定 ${num(w.count)} 機</p>`;
- if(w.count>0&&w.tooLarge)h+='<p class="note neg">1機のサイズが、最大の格納区画に収まりません。格納庫を大きくするか、機体サイズを小さくしてください。サイズ1の機体は長さ12 m・幅10 m・高さ5 m の空間を使います。</p>';
- else if(w.unembarked>0)h+=`<p class="note neg">容量不足で ${num(w.unembarked)} 機が未搭載。上にある航空隊から順に収容します。</p>`;
- if(w.undeployable>0)h+=`<p class="note neg">搭載済みの ${num(w.undeployable)} 機が発着路に未接続です。${w.blocked?'この機体サイズを収容できる格納区画を発着路につないでください。':''}</p>`;
- return h;
+ if(w.kind==='ship'){let h=`<p>外形 ${dimsText(w.dims)} · サイズ ${aviationSize(w.size)} · 搭載 ${num(w.embarked)} / 指定 ${num(w.count)} 隻</p>`;if(w.count>0&&w.tooLarge)h+=`<p class="note neg">この艦が入る格納区画がありません。全長・全幅・全高とも ${C.SHIP_STOW_CLEAR} m の余裕が要ります。</p>`;else if(w.unembarked>0)h+=`<p class="note neg">格納庫の空きか配置が足りず ${num(w.unembarked)} 隻が未搭載。</p>`;if(w.undeployable>0)h+=`<p class="note neg">${num(w.undeployable)} 隻は、通れる大きさのハッチ（開口 ${dimsText(exitNeed(w.dims))} 以上）につながる区画に入らないため発進できません。</p>`;return h+placedHTML(w);}
+ const t=C.CRAFT_TYPES[w.type],L=t?.carry?C.craftLift(w.type):null;
+ let h=`<p>外形 ${dimsText(w.dims)}${t?.approx?'（推定）':''} · 1機 サイズ ${aviationSize(w.size)} · 搭載 ${num(w.embarked)} / ${num(w.count)} 機${w.deployable<w.embarked?` · 発艦可能 ${num(w.deployable)} 機`:''}</p>`;
+ if(L)h+=`<p class="note">輸送機：1機で兵員 ${num(L.troops)} 名${L.size>0?`、車両 ${aviationSize(L.size)} サイズ（${dimsText(L.box.slice().reverse())} まで）`:''}を降ろします。</p>`;
+ if(w.count>0&&w.tooLarge)h+=`<p class="note neg">この機体が入る格納区画がありません。全長・全幅・全高とも ${C.STOW_GAP} m の余裕をもって入る内寸の区画が要ります（機首はどちらの水平方向にも向けられます）。</p>`;
+ else if(w.unembarked>0)h+=`<p class="note neg">格納庫の空きか配置が足りず ${num(w.unembarked)} 機が未搭載。上の航空隊から順に収容します。</p>`;
+ if(w.undeployable>0)h+=`<p class="note neg">${num(w.undeployable)} 機は、${w.blocked?`通れる大きさのハッチ（開口 ${dimsText(exitNeed(w.dims))} 以上）につながる区画に入らない`:'ハッチにつながる区画の空きが足りない'}ため発艦できません。</p>`;
+ return h+placedHTML(w);
 }
-const wingSummary=w=>w.kind==='ship'?`艦艇 ${w.dims.map(v=>num(Math.round(v))).join(' × ')} m · サイズ ${aviationSize(w.size)} × ${num(w.count)} 隻`:`サイズ ${aviationSize(w.size)} × ${num(w.count)} 機`;
+function wingSummary(w){
+ const r=rawWing(w),m=wingMode(r),n=` · ${num(w.count)} ${m==='ship'?'隻':'機'}`;
+ if(m==='ship')return `艦艇 ${dimsText(w.dims)} · サイズ ${aviationSize(w.size)}${n}`;
+ if(m==='type')return C.CRAFT_TYPES[r.type].name+n;
+ if(m==='custom')return `寸法指定 ${dimsText(r.dims)}${n}`;
+ return `サイズ ${aviationSize(w.size)}${n}`;
+}
+function wingButtonsHTML(id,w,i){return `<div class="chips"><button type="button" class="btn sm" data-fillairwing="${id}">空き容量まで搭載</button><button type="button" class="btn sm ghost" data-moveairwing="${id}" data-direction="-1" ${i===0?'disabled':''} aria-label="${esc(w.name)}の収容優先順を上げる">上へ</button><button type="button" class="btn sm ghost" data-moveairwing="${id}" data-direction="1" ${i>=(ship.airWings?.length||0)-1?'disabled':''} aria-label="${esc(w.name)}の収容優先順を下げる">下へ</button><button type="button" class="btn sm ghost" data-delairwing="${id}">削除</button></div>`;}
+function dimsInputsHTML(attr,id,d,label){return `<div class="airwing-fields dims3">${['全長','全幅','全高'].map((n,k)=>`<label>${n}（m）<input type="number" ${attr}="${id}" ${attr==='data-airwing'?'data-wingfield':'data-groundfield'}="d${k}" value="${Math.round((d?.[k]||0)*100)/100}" min=".1" max="4000" step=".1" inputmode="decimal" aria-label="${label}の${n}"></label>`).join('')}</div>`;}
 function aviationWingHTML(w,i){
- const limits=C.AIR_WING_LIMITS,id=esc(w.id),expanded=st.aviationExpanded?.has(w.id)??i===0;
- if(w.kind==='ship')return `<details class="airwing-row ship-row" data-airwing-card="${id}" ${expanded?'open':''}><summary><b data-airwing-title="${id}">${esc(w.name)}</b><span data-airwing-summary="${id}">${wingSummary(w)}</span></summary><label class="field-label">表示名<input type="text" data-airwing="${id}" data-wingfield="name" value="${esc(w.name)}" maxlength="${limits.nameLength}" aria-label="搭載艦 ${i+1} の名前"></label><div class="airwing-fields"><label>1隻のサイズ<input type="number" value="${w.size}" disabled aria-label="搭載艦 ${i+1} のサイズ（外形から計算）"></label><label>搭載する隻数<input type="number" data-airwing="${id}" data-wingfield="count" value="${w.count}" min="0" max="${limits.maxCount}" step="1" inputmode="numeric" aria-label="搭載艦 ${i+1} の隻数"></label></div><div data-airwing-status="${id}" class="airwing-status" aria-live="polite">${aviationWingStatusHTML(w)}</div><div class="chips"><button type="button" class="btn sm" data-fillairwing="${id}">空き容量まで搭載</button><button type="button" class="btn sm ghost" data-moveairwing="${id}" data-direction="-1" ${i===0?'disabled':''}>上へ</button><button type="button" class="btn sm ghost" data-moveairwing="${id}" data-direction="1" ${i>=(ship.airWings?.length||0)-1?'disabled':''}>下へ</button><button type="button" class="btn sm danger" data-delairwing="${id}">削除</button></div></details>`;
- return `<details class="airwing-row" data-airwing-card="${id}" ${expanded?'open':''}><summary><b data-airwing-title="${id}">${esc(w.name)}</b><span data-airwing-summary="${id}">サイズ ${aviationSize(w.size)} × ${num(w.count)} 機</span></summary><label class="field-label">航空隊名<input type="text" data-airwing="${id}" data-wingfield="name" value="${esc(w.name)}" maxlength="${limits.nameLength}" aria-label="航空隊 ${i+1} の名前"></label><div class="airwing-fields"><label>1機のサイズ<input type="number" data-airwing="${id}" data-wingfield="size" value="${w.size}" min="${limits.minSize}" max="${limits.maxSize}" step=".01" inputmode="decimal" aria-label="航空隊 ${i+1} の機体サイズ"></label><label>搭載する機数<input type="number" data-airwing="${id}" data-wingfield="count" value="${w.count}" min="0" max="${limits.maxCount}" step="1" inputmode="numeric" aria-label="航空隊 ${i+1} の機数"></label></div><div data-airwing-status="${id}" class="airwing-status" aria-live="polite">${aviationWingStatusHTML(w)}</div><div class="chips"><button type="button" class="btn sm" data-fillairwing="${id}">空き容量まで搭載</button><button type="button" class="btn sm ghost" data-moveairwing="${id}" data-direction="-1" ${i===0?'disabled':''} aria-label="${esc(w.name)}の収容優先順を上げる">上へ</button><button type="button" class="btn sm ghost" data-moveairwing="${id}" data-direction="1" ${i>=(ship.airWings?.length||0)-1?'disabled':''} aria-label="${esc(w.name)}の収容優先順を下げる">下へ</button><button type="button" class="btn sm ghost" data-delairwing="${id}">削除</button></div></details>`;
+ const limits=C.AIR_WING_LIMITS,id=esc(w.id),expanded=st.aviationExpanded?.has(w.id)??i===0,r=rawWing(w),m=wingMode(r);
+ const head=`<details class="airwing-row${m==='ship'?' ship-row':''}" data-airwing-card="${id}" ${expanded?'open':''}><summary><b data-airwing-title="${id}">${esc(w.name)}</b><span data-airwing-summary="${id}">${esc(wingSummary(w))}</span></summary>`;
+ const status=`<div data-airwing-status="${id}" class="airwing-status" aria-live="polite">${aviationWingStatusHTML(w)}</div>`;
+ if(m==='ship')return `${head}<label class="field-label">表示名<input type="text" data-airwing="${id}" data-wingfield="name" value="${esc(w.name)}" maxlength="${limits.nameLength}" aria-label="搭載艦 ${i+1} の名前"></label><div class="airwing-fields"><label>1隻のサイズ<input type="number" value="${w.size}" disabled aria-label="搭載艦 ${i+1} のサイズ（外形から計算）"></label><label>搭載する隻数<input type="number" data-airwing="${id}" data-wingfield="count" value="${w.count}" min="0" max="${limits.maxCount}" step="1" inputmode="numeric" aria-label="搭載艦 ${i+1} の隻数"></label></div>${status}${wingButtonsHTML(id,w,i)}</details>`;
+ return `${head}<label class="field-label">航空隊名<input type="text" data-airwing="${id}" data-wingfield="name" value="${esc(w.name)}" maxlength="${limits.nameLength}" aria-label="航空隊 ${i+1} の名前"></label>
+ <label class="field-label">機種<select data-airwing="${id}" data-wingfield="type" aria-label="航空隊 ${i+1} の機種">${typeOptionsHTML(C.CRAFT_TYPES,m==='type'?r.type:m,[['custom','寸法を指定する'],['legacy','サイズで指定する（旧形式）']])}</select></label>${m==='custom'?dimsInputsHTML('data-airwing',id,r.dims,'航空隊 '+(i+1)):''}
+ <div class="airwing-fields">${m==='legacy'?`<label>1機のサイズ<input type="number" data-airwing="${id}" data-wingfield="size" value="${w.size}" min="${limits.minSize}" max="${limits.maxSize}" step=".01" inputmode="decimal" aria-label="航空隊 ${i+1} の機体サイズ"></label>`:''}<label>搭載する機数<input type="number" data-airwing="${id}" data-wingfield="count" value="${w.count}" min="0" max="${limits.maxCount}" step="1" inputmode="numeric" aria-label="航空隊 ${i+1} の機数"></label></div>${status}${wingButtonsHTML(id,w,i)}</details>`;
 }
 function aviationSurfacesHTML(p){
  const names={none:'ハッチ化しない',open:'開放型',ray:'シールド'},contacts=C.aviationSurfaceContacts(ship,p),kept=p._packing?.retained??p._clip?.retained??1;
@@ -2404,7 +2433,7 @@ function aviationSurfacesHTML(p){
 }
 function aviationPartHTML(p){
  if(!p||p.k!=='hangar')return '';
- return `<div class="pgroup blueprint-card aviation-part"><h4>航空区画の用途と容量</h4><label class="field-label">用途<select data-airrole>${Object.entries(C.AVIATION_ROLES).map(([k,n])=>`<option value="${k}" ${(p.airRole||'mixed')===k?'selected':''}>${n}</option>`).join('')}</select></label><p>この区画の容量 <b data-aviation-capacity="${p.id}">${aviationSize(C.hangarCapacity(p))} サイズ</b></p><p class="note">外殻内で使える実容積から計算します。格納・兼用区画を大きくすると容量が増え、飛行・移送甲板とドッキング区画は格納容量に含みません。</p>${st.tab!=='launch'?'<button type="button" class="btn" data-editaviation>航空隊の機体サイズ・機数を編集</button>':''}${aviationSurfacesHTML(p)}</div>`;
+ return `<div class="pgroup blueprint-card aviation-part"><h4>航空区画の用途と容量</h4><label class="field-label">用途<select data-airrole>${Object.entries(C.AVIATION_ROLES).map(([k,n])=>`<option value="${k}" ${(p.airRole||'mixed')===k?'selected':''}>${n}</option>`).join('')}</select></label><p>この区画の容量 <b data-aviation-capacity="${p.id}">${aviationSize(C.hangarCapacity(p))} サイズ</b></p><p class="note">外殻内で使える実容積から計算します。格納・兼用区画を大きくすると容量が増え、飛行・移送甲板とドッキング区画は格納容量に含みません。機体・車両が入るかは区画の内寸（全長・全幅・高さ）で、発艦できるかは出入口の開口で決まります。</p>${st.tab!=='launch'?'<button type="button" class="btn" data-editaviation>航空隊の機種・機数を編集</button>':''}${aviationSurfacesHTML(p)}</div>`;
 }
 function aviationDoorHTML(h){
  const p=ship.parts.find(p=>p.id===h.bay);if(!p)return '';const active=!!C.openingBounds(ship,h),face=C.aviationSurfaceContacts(ship,p).find(q=>q.face===h.face)?.label||h.face;
@@ -2433,53 +2462,78 @@ function carryPickHTML(a){
  const cs=carryCandidates(),ok=cs.filter(c=>c.fits),free=Math.max(0,a.capacity-a.usedSize);
  return `<div class="pgroup carry-pick"><h4>艦艇を搭載</h4><p class="note">小型の艦も、艦載機と同じ「サイズ」に換算して格納庫に積めます（外形の全長×全幅×全高に ${C.SHIP_STOW_CLEAR} m ずつ足した容積 × ${C.SHIP_STOW_FACTOR} ÷ 艦載機1機分の格納容積）。格納・兼用区画のどれか一つに丸ごと入る艦だけを選べます。保存した設計も選べます。</p>${ok.length?`<div class="chips"><select data-shipcarry aria-label="搭載する艦">${ok.map(c=>`<option value="${esc(c.ref)}" ${c.size>free+1e-6?'disabled':''}>${esc(c.name)}${c.saved?'（保存）':''} · ${c.dims.map(v=>num(Math.round(v))).join('×')} m · サイズ ${aviationSize(c.size)}</option>`).join('')}</select><button type="button" class="btn sm" data-addshipwing>艦を搭載</button></div>`:`<p class="note">${ship.parts.some(p=>p.k==='hangar')?'格納区画に入る艦がありません。格納区画を大きくすると、小型艦を積めるようになります。':'航空区画（格納・兼用）を配置すると、小型艦を積めます。'}</p>`}${cs.length>ok.length?`<p class="note">入らない艦：${esc(cs.filter(c=>!c.fits).slice(0,6).map(c=>c.name).join('・'))}${cs.length-ok.length>6?' ほか':''}</p>`:''}</div>`;
 }
+function bayText(p,a){const b=a.bays.find(x=>x.id===p.id),info=S?.info?.[p.id],doors=info?.doors||[];return `${C.AVIATION_ROLES[p.airRole||'mixed']||''} · 内寸 ${dimsText(C.roomShape(p).s)} · ${b?`容量 ${aviationSize(b.capacity)}・空き ${aviationSize(Math.max(0,b.sizeLeft))} サイズ`:'格納容量なし'} · ${info?.acc?`出入口 ${doors.length?doors.map(o=>dimsText(o)).join('・'):'—'}`:'ハッチにつながっていません'}`;}
 function aviationPanelHTML(){
  const a=aviationNumbers(),wings=a.wings,bays=ship.parts.filter(p=>p.k==='hangar'),selected=st.sel?.list==='parts'?selItem():null,slides=ship.hatches.filter(h=>h.bay&&C.isSlidingHatch(ship,h));
- return `<div class="pgroup blueprint-card aviation-editor"><h4>航空隊編集</h4><p class="note">航空隊ごとに「1機のサイズ × 機数」を入力し、合計が格納容量に収まるように組みます。小型戦闘機はサイズ1、大型の機体はサイズ2以上です。残り <b>${aviationSize(Math.max(0,a.capacity-a.usedSize))} サイズ</b>（サイズ1の機体で ${num(Math.floor(Math.max(0,a.capacity-a.usedSize)+1e-6))} 機分）。</p><div id="aviationSummary" aria-live="polite">${aviationCapacityHTML(a)}</div></div><div class="pgroup"><h4>搭載する航空隊</h4><p class="note">航空隊ごとに1機のサイズと搭載機数を入力します。使用サイズは「サイズ × 機数」の合計です。</p><div class="aviation-wings">${wings.map(aviationWingHTML).join('')||'<p class="note">航空隊がありません。追加して搭載数を指定してください。</p>'}</div><button type="button" class="btn primary" data-addairwing ${wings.length>=C.AIR_WING_LIMITS.rows?'disabled':''}>航空隊を追加</button></div>${carryPickHTML(a)}${selected?.k==='hangar'?`<div class="pgroup"><h4>選択中 · ${esc(C.partLabel(selected))}</h4>${aviationPartHTML(selected)}</div>`:''}<details class="trench-editor aviation-bays"><summary>航空区画と出入口 · ${num(bays.length)} 区画</summary><p class="note">区画を選んで、位置・寸法・用途・接触面の開口を編集できます。開放型は高速に発艦し、シールドは電力を使って開口を防護します。</p><ul class="ilist">${bays.map(p=>`<li><button type="button" class="btn sm ghost" data-layout-part="${p.id}">${esc(C.partLabel(p))}</button><span data-aviation-capacity="${p.id}">${aviationSize(C.hangarCapacity(p))} サイズ</span></li>`).join('')||'<li><span>「区画」から航空区画を配置してください。</span></li>'}</ul></details>${slides.length?`<details class="trench-editor"><summary>スライド扉の開閉を確認</summary><p class="note">上甲板・腹部の扉は左右へ、舷側の扉は上下へ移動します。観閲式と戦闘開始時は閉じ、発艦指示で4秒かけて開き、発艦完了・中止後に閉じます。</p>${slides.map(aviationDoorHTML).join('')}</details>`:''}`;
+ return `<div class="pgroup blueprint-card aviation-editor"><h4>航空隊編集</h4><p class="note">航空隊ごとに機種と機数を選びます。機体は公式の寸法（全長・全幅・全高）で、格納区画の内寸に ${C.STOW_GAP} m の余裕をもって入るか、出入口のハッチを通れるかで搭載・発艦が決まります。格納容量は航空機・搭載艦・地上部隊の車両で共用です。残り <b>${aviationSize(a.freeSize)} サイズ</b>。</p><div id="aviationSummary" aria-live="polite">${aviationCapacityHTML(a)}</div></div><div class="pgroup"><h4>搭載する航空隊</h4><p class="note">上の航空隊から順に、内寸の合う小さい区画から収容します。シャトル・揚陸艇は地上部隊を降ろす輸送機です（「地上部隊」タブで降下量を確認できます）。</p><div class="aviation-wings">${wings.map(aviationWingHTML).join('')||'<p class="note">航空隊がありません。追加して機種と機数を指定してください。</p>'}</div><button type="button" class="btn primary" data-addairwing ${wings.length>=C.AIR_WING_LIMITS.rows?'disabled':''}>航空隊を追加</button></div>${carryPickHTML(a)}${selected?.k==='hangar'?`<div class="pgroup"><h4>選択中 · ${esc(C.partLabel(selected))}</h4>${aviationPartHTML(selected)}</div>`:''}<details class="trench-editor aviation-bays" open><summary>航空区画と出入口 · ${num(bays.length)} 区画</summary><p class="note">内寸は区画の外形（全長 × 全幅 × 高さ）、出入口はハッチの開口（長辺 × 短辺）です。機体は小さい方の2辺が開口を通れば発艦できます。区画を選んで、位置・寸法・用途・接触面の開口を編集できます。</p><ul class="ilist">${bays.map(p=>`<li><button type="button" class="btn sm ghost" data-layout-part="${p.id}">${esc(C.partLabel(p))}</button><span data-aviation-capacity="${p.id}">${esc(bayText(p,a))}</span></li>`).join('')||'<li><span>「区画」から航空区画を配置してください。</span></li>'}</ul></details>${slides.length?`<details class="trench-editor"><summary>スライド扉の開閉を確認</summary><p class="note">上甲板・腹部の扉は左右へ、舷側の扉は上下へ移動します。観閲式と戦闘開始時は閉じ、発艦指示で4秒かけて開き、発艦完了・中止後に閉じます。</p>${slides.map(aviationDoorHTML).join('')}</details>`:''}`;
 }
 // ---------- ground forces ----------
 function groundNumbers(){return S?.ground||C.groundStatus(ship,S);}
 const groundNum=v=>num(Math.round(v*10)/10);
 function groundBudgetHTML(used,cap,label,unit){return `<div class="aviation-budget"><span>${label}</span><strong>${groundNum(cap)} <small>${unit}</small></strong><p>編成 <b>${groundNum(used)}</b> / ${groundNum(cap)} ${unit}</p><meter min="0" max="${Math.max(1,cap)}" value="${Math.min(used,Math.max(1,cap))}" aria-label="${label}の使用量"></meter><p class="${used>cap+1e-6?'neg':'ok'}">${used>cap+1e-6?'容量超過 '+groundNum(used-cap):'残り '+groundNum(Math.max(0,cap-used))} ${unit}</p></div>`;}
 const groundUnit=k=>C.GROUND_KINDS[k]?.unit||'名';
-const groundSummary=r=>r.kind==='vehicle'?'サイズ '+r.size+' × '+num(r.count)+' 両':num(r.count)+' '+groundUnit(r.kind);
+const rawGround=r=>ship.groundForces?.find(x=>x.id===r.id)||r;
+const groundSummary=r=>r.kind==='vehicle'?`${C.VEHICLE_TYPES[rawGround(r).type]?.name||'寸法指定 '+dimsText(r.dims||C.groundDims(r))} · ${num(r.count)} 両`:num(r.count)+' '+groundUnit(r.kind);
+function groundStatusHTML(r){
+ const unit=groundUnit(r.kind);
+ if(r.kind!=='vehicle')return `${r.unembarked>0?`<span class="neg">容量不足で ${num(r.unembarked)} ${unit}が未搭載。</span>`:''}搭載 ${num(r.embarked)} / ${num(r.count)} ${unit}`;
+ const t=C.VEHICLE_TYPES[rawGround(r).type];
+ return `外形 ${dimsText(r.dims)}${t?.approx?'（推定）':''} · 1両 ${aviationSize(r.size)} サイズ · 搭載 ${num(r.embarked)} / ${num(r.count)} 両${r.embarked?`（輸送機に積載 ${num(r.loaded||0)}・格納庫 ${num(r.stowed||0)}）`:''}${t?.troops?` · 1両に兵員 ${num(t.troops)} 名`:''}${r.unembarked>0?`<br><span class="neg">${r.tooLarge?'寸法の合う格納区画も輸送機もなく':'格納庫の空きか配置が足りず'} ${num(r.unembarked)} 両が未搭載。</span>`:''}${r.embarked>0&&!r.landable?(S?.canLand?'<br>この車両は艦が着陸して降ろします。':`<br><span class="neg">この車両を積める輸送機がありません（降ろせません）。</span>`):''}`;
+}
 function groundRowHTML(r,i,n){
- const id=esc(r.id),L=C.GROUND_LIMITS,open=st.groundOpen?st.groundOpen.has(r.id):i<3,unit=groundUnit(r.kind),countLabel={troops:'人数',droids:'体数',vehicle:'両数'}[r.kind];
- return `<details class="airwing-row" data-ground-card="${id}" ${open?'open':''}><summary><b>${esc(r.name)}</b><span data-ground-summary="${id}">${groundSummary(r)}${r.unembarked>0?` · ${num(r.unembarked)} 未搭載`:''}</span></summary>
+ const id=esc(r.id),L=C.GROUND_LIMITS,open=st.groundOpen?st.groundOpen.has(r.id):i<3,countLabel={troops:'人数',droids:'体数',vehicle:'両数'}[r.kind],raw=rawGround(r),typed=r.kind==='vehicle'&&!!C.VEHICLE_TYPES[raw.type];
+ return `<details class="airwing-row" data-ground-card="${id}" ${open?'open':''}><summary><b>${esc(r.name)}</b><span data-ground-summary="${id}">${esc(groundSummary(r))}${r.unembarked>0?` · ${num(r.unembarked)} 未搭載`:''}</span></summary>
  <label class="field-label">部隊名<input type="text" data-ground="${id}" data-groundfield="name" value="${esc(r.name)}" maxlength="${L.nameLength}" aria-label="部隊 ${i+1} の名前"></label>
- <div class="airwing-fields"><label>種別<select data-ground="${id}" data-groundfield="kind" aria-label="部隊 ${i+1} の種別">${Object.entries(C.GROUND_KINDS).map(([k,d])=>`<option value="${k}" ${r.kind===k?'selected':''}>${d.name}</option>`).join('')}</select></label>${r.kind==='vehicle'?`<label>1両のサイズ<input type="number" data-ground="${id}" data-groundfield="size" value="${r.size}" min="${L.minSize}" max="${L.maxSize}" step=".1" inputmode="decimal" aria-label="部隊 ${i+1} の1両のサイズ"></label>`:''}<label>${countLabel}<input type="number" data-ground="${id}" data-groundfield="count" value="${r.count}" min="0" max="${L.maxCount}" step="1" inputmode="numeric" aria-label="部隊 ${i+1} の${countLabel}"></label></div>
- <p class="note" data-ground-status="${id}">${r.unembarked>0?`<span class="neg">容量不足で ${num(r.unembarked)} ${unit}が未搭載。</span>`:''}搭載 ${num(r.embarked)} / ${num(r.count)} ${unit}</p>
+ <div class="airwing-fields"><label>種別<select data-ground="${id}" data-groundfield="kind" aria-label="部隊 ${i+1} の種別">${Object.entries(C.GROUND_KINDS).map(([k,d])=>`<option value="${k}" ${r.kind===k?'selected':''}>${d.name}</option>`).join('')}</select></label><label>${countLabel}<input type="number" data-ground="${id}" data-groundfield="count" value="${r.count}" min="0" max="${L.maxCount}" step="1" inputmode="numeric" aria-label="部隊 ${i+1} の${countLabel}"></label></div>
+ ${r.kind==='vehicle'?`<label class="field-label">車種<select data-ground="${id}" data-groundfield="type" aria-label="部隊 ${i+1} の車種">${typeOptionsHTML(C.VEHICLE_TYPES,typed?raw.type:'custom',[['custom','寸法を指定する']])}</select></label>${typed?'':dimsInputsHTML('data-ground',id,r.dims||C.groundDims(raw),'部隊 '+(i+1))}`:''}
+ <p class="note" data-ground-status="${id}">${groundStatusHTML(r)}</p>
  <div class="chips"><button type="button" class="btn sm" data-fillground="${id}">空きまで搭載</button><button type="button" class="btn sm ghost" data-moveground="${id}" data-direction="-1" ${i===0?'disabled':''}>上へ</button><button type="button" class="btn sm ghost" data-moveground="${id}" data-direction="1" ${i===n-1?'disabled':''}>下へ</button><button type="button" class="btn sm danger" data-delground="${id}">削除</button></div></details>`;
 }
 // The troop space is shared: soldiers take a person's volume, stored droids DROID_STORE_M3.
-function groundBudgetsHTML(g){const K=Math.max(1,g.personVolume||1);return groundBudgetHTML(Math.ceil(g.space.used/K-1e-9),g.troops.capacity,'兵員枠','名分')+groundBudgetHTML(g.vehicles.used,g.vehicles.capacity,'車両','サイズ');}
+// Vehicles ride in the transports' holds first and in the hangars (shared with the aircraft) after.
+function groundBudgetsHTML(g){const K=Math.max(1,g.personVolume||1),A=S?.aviation,veh=g.rows.filter(r=>r.kind==='vehicle'),used=veh.reduce((n,r)=>n+r.size*r.count,0),room=(A?.vehicleSize||0)+(A?.freeSize||0)+(g.lift?.vehicleSize||0);return groundBudgetHTML(Math.ceil(g.space.used/K-1e-9),g.troops.capacity,'兵員枠','名分')+groundBudgetHTML(used,room,'車両（輸送機の積載区画・格納庫の空き）','サイズ');}
+function groundLiftHTML(g){
+ const L=g.lift||{},t=L.transports||[];
+ return `<div class="pgroup lift-card"><h4>降下（輸送機の1回の出撃）</h4>${t.length?`<p class="note">${t.map(x=>`${esc(x.name)} ${num(x.n)} 機`).join('・')}</p><dl class="engineering-stats"><div><dt>兵員</dt><dd>${num(L.troops)} 名${L.troopsInVehicles?`（うち車両に乗る ${num(L.troopsInVehicles)} 名）`:''}</dd></div><div><dt>車両の積載</dt><dd>${aviationSize(L.loadedSize)} / ${aviationSize(L.vehicleSize)} サイズ</dd></div>${L.boxes?.length?`<div><dt>積める車両の大きさ</dt><dd>${L.boxes.map(b=>dimsText(b.slice().reverse())).join('・')} まで</dd></div>`:''}</dl>`:(S?.canLand?'<p class="note">輸送機はありませんが、この艦は着陸して地上部隊を降ろせます。</p>':'<p class="note">輸送機（シャトル・揚陸艇・降下バージ）がありません。地上部隊は輸送機に載せて降ろします。「航空」タブで輸送機を搭載してください。</p>')}${S?.canLand?`<p class="note">この艦はリパルサーリフト（支持 ${fMass(S.repulsorSupport)}）が艦の質量（${fMass(S.mass)}）を支えるので、着陸して地上部隊と車両をそのまま降ろせます。</p>`:''}<p class="note">車両は、まず内寸の合う輸送機の積載区画に、入らない分は格納庫に載ります。格納庫の車両と、1回で降ろしきれない兵員は2回目以降の便で降ろします。</p></div>`;
+}
 function groundPanelHTML(){
- const g=groundNumbers(),K=Math.round(g.personVolume||0);
- return `<div class="pgroup blueprint-card ground-editor"><h4>地上部隊編成</h4><p class="note">歩兵は、船内の空き容積に乗れる人数から定員（必要乗員）を除いた「兵員枠」に乗ります（1名あたり ${ja(K)} m³）。停止保管ドロイドは同じ枠を 1 体 ${C.DROID_STORE_M3} m³ で使います（兵員 1 名分に ${num(Math.floor(K/C.DROID_STORE_M3))} 体）。車両は「車両格納・整備区画」の容積（サイズ1あたり600 m³）で搭載数が決まります。容量が足りないときは上の部隊から順に収容します。</p><div class="ground-budgets" id="groundSummary">${groundBudgetsHTML(g)}</div><p class="note">兵員枠 ${num(g.troops.capacity)} 名（停止保管ドロイドだけなら ${num(g.droids.capacity)} 体）。</p><div class="chips"><button type="button" class="btn sm" data-habitation-menu>空き容積と乗員を確認</button><button type="button" class="btn sm" data-groundroom="vehicle">車両格納・整備区画を配置</button></div></div>
- <div class="pgroup"><h4>搭載する部隊</h4>${g.rows.map((r,i)=>groundRowHTML(r,i,g.rows.length)).join('')||'<p class="note">まだ部隊がありません。下のボタンから追加します。</p>'}<h4>部隊を追加</h4><div class="chips ground-add">${C.GROUND_PRESETS.map((p,i)=>`<button type="button" class="btn sm" data-addground="${i}">＋ ${esc(p.name)}${p.kind==='vehicle'?`（サイズ${p.size}）`:''}</button>`).join('')}</div><p class="note">AT-ATはサイズ8、AT-STはサイズ1が目安です。サイズは1両の格納に要る空間で、自由に変えられます。</p></div>`;
+ const g=groundNumbers(),K=Math.round(g.personVolume||0),vp=C.GROUND_PRESETS.findIndex(p=>p.kind==='vehicle');
+ return `<div class="pgroup blueprint-card ground-editor"><h4>地上部隊編成</h4><p class="note">歩兵は、船内の空き容積に乗れる人数から定員（必要乗員）を除いた「兵員枠」に乗ります（1名あたり ${ja(K)} m³）。停止保管ドロイドは同じ枠を 1 体 ${C.DROID_STORE_M3} m³ で使います（兵員 1 名分に ${num(Math.floor(K/C.DROID_STORE_M3))} 体）。車両は公式の寸法で、輸送機の積載区画か格納庫（航空機と共用）に寸法で入ります。容量が足りないときは上の部隊から順に収容します。</p><div class="ground-budgets" id="groundSummary">${groundBudgetsHTML(g)}</div><p class="note">兵員枠 ${num(g.troops.capacity)} 名（停止保管ドロイドだけなら ${num(g.droids.capacity)} 体）。</p><div class="chips"><button type="button" class="btn sm" data-habitation-menu>空き容積と乗員を確認</button><button type="button" class="btn sm" data-groundroom="hangar">格納区画を配置</button></div></div>
+ <div id="groundLift">${groundLiftHTML(g)}</div>
+ <div class="pgroup"><h4>搭載する部隊</h4>${g.rows.map((r,i)=>groundRowHTML(r,i,g.rows.length)).join('')||'<p class="note">まだ部隊がありません。下のボタンから追加します。</p>'}<h4>部隊を追加</h4><div class="chips ground-add">${C.GROUND_PRESETS.map((p,i)=>p.kind==='vehicle'?'':`<button type="button" class="btn sm" data-addground="${i}">＋ ${esc(p.name)}</button>`).join('')}</div>${vp>=0?`<div class="airwing-fields ground-add-vehicle"><label>車種<select data-addvehicletype aria-label="追加する車両の車種">${typeOptionsHTML(C.VEHICLE_TYPES,st.addVehicleType||'atat',[])}</select></label><button type="button" class="btn sm" data-addground="${vp}">＋ 車両を追加</button></div>`:''}<p class="note">車両の寸法は公式の数値です（「推定」は資料に寸法がない車種）。「寸法を指定する」で自作の車両も載せられます。</p></div>`;
 }
 function updateGroundUI(){
  if(!ship||fleet.mode!=='design'||st.tab!=='ground')return;
- const g=groundNumbers(),sum=$('#groundSummary');if(sum)sum.innerHTML=groundBudgetsHTML(g);
- for(const r of g.rows){const unit=groundUnit(r.kind),a=document.querySelector(`[data-ground-status="${r.id}"]`),b=document.querySelector(`[data-ground-summary="${r.id}"]`);if(a)a.innerHTML=`${r.unembarked>0?`<span class="neg">容量不足で ${num(r.unembarked)} ${unit}が未搭載。</span>`:''}搭載 ${num(r.embarked)} / ${num(r.count)} ${unit}`;if(b)b.textContent=`${groundSummary(r)}${r.unembarked>0?` · ${num(r.unembarked)} 未搭載`:''}`;}
+ const g=groundNumbers(),sum=$('#groundSummary');if(sum)sum.innerHTML=groundBudgetsHTML(g);const lift=$('#groundLift');if(lift)lift.innerHTML=groundLiftHTML(g);
+ for(const r of g.rows){const a=document.querySelector(`[data-ground-status="${r.id}"]`),b=document.querySelector(`[data-ground-summary="${r.id}"]`);if(a)a.innerHTML=groundStatusHTML(r);if(b)b.textContent=`${groundSummary(r)}${r.unembarked>0?` · ${num(r.unembarked)} 未搭載`:''}`;}
 }
 function editGroundInput(t,finish=false){
- const id=t.dataset.ground,k=t.dataset.groundfield,row=ship.groundForces?.find(r=>r.id===id);if(!row||!['name','kind','size','count'].includes(k))return;
- const value=k==='name'||k==='kind'?t.value:Number(t.value);if(!['name','kind'].includes(k)&&(t.value===''||!Number.isFinite(value))){if(finish){if(dragSnap)endDrag();t.value=String(row[k]);}return;}
- const rows=C.normalizeGroundForces(ship.groundForces.map(r=>r.id===id?{...r,[k]:value}:r));
+ const id=t.dataset.ground,k=t.dataset.groundfield,row=ship.groundForces?.find(r=>r.id===id);if(!row||!['name','kind','type','count','d0','d1','d2'].includes(k))return;
+ let next;
+ if(k==='type'){const old=C.VEHICLE_TYPES[row.type];if(t.value==='custom')next={...row,type:null,dims:C.groundDims(row)};else if(C.VEHICLE_TYPES[t.value]){next={...row,type:t.value};delete next.dims;if(!row.name||row.name===old?.name||/^車両隊 \d+$/.test(row.name))next.name=C.VEHICLE_TYPES[t.value].name;}else return;}
+ else if(k[0]==='d'){const v=Number(t.value);if(t.value===''||!Number.isFinite(v)||v<=0){if(finish){if(dragSnap)endDrag();renderPanel();}return;}const d=(Array.isArray(row.dims)?row.dims:C.groundDims(row)).slice();d[+k[1]]=v;next={...row,type:null,dims:d};}
+ else{const value=k==='name'||k==='kind'?t.value:Number(t.value);if(!['name','kind'].includes(k)&&(t.value===''||!Number.isFinite(value))){if(finish){if(dragSnap)endDrag();t.value=String(row[k]);}return;}next={...row,[k]:value};if(k==='kind'&&value==='vehicle'&&row.kind!=='vehicle'){next.type=st.addVehicleType||'atat';}}
+ const rows=C.normalizeGroundForces(ship.groundForces.map(r=>r.id===id?next:r));
  if(JSON.stringify(rows)!==JSON.stringify(ship.groundForces)){beginDrag('地上部隊を編集');ship.groundForces=rows;touch('none');scheduleStats(180);}
- if(finish){if(dragSnap)endDrag();if(k==='kind')renderPanel();}
+ if(finish){if(dragSnap)endDrag();if(['kind','type'].includes(k)||k[0]==='d')renderPanel();}
+}
+// The most of one row the hangars and holds take, the rows above it loaded first.
+function maxEmbark(list,id){
+ const save=ship[list];if(!save?.some(r=>r.id===id))return 0;
+ try{ship[list]=save.map(r=>r.id===id?{...r,count:list==='airWings'?C.AIR_WING_LIMITS.maxCount:C.GROUND_LIMITS.maxCount}:r);const a=C.aviationStatus(ship,S?.info),w=(list==='airWings'?a.wings:a.vehicles).find(r=>r.id===id);return w?w.embarked:0;}
+ finally{ship[list]=save;}
 }
 function bindGround(){
  const panel=$('#panel');
  panel.addEventListener('toggle',e=>{const id=e.target.dataset?.groundCard;if(!id)return;st.groundOpen||=new Set((ship.groundForces||[]).slice(0,3).map(r=>r.id));if(e.target.open)st.groundOpen.add(id);else st.groundOpen.delete(id);},true);
  panel.addEventListener('input',e=>{if(e.target.dataset.ground&&e.target.tagName!=='SELECT')editGroundInput(e.target);});
- panel.addEventListener('change',e=>{if(e.target.dataset.ground)editGroundInput(e.target,true);});
+ panel.addEventListener('change',e=>{if(e.target.dataset.ground)editGroundInput(e.target,true);else if('addvehicletype' in e.target.dataset)st.addVehicleType=e.target.value;});
  panel.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||!ship)return;const d=b.dataset,rows=ship.groundForces||[];
-  if(d.addground!=null){const p=C.GROUND_PRESETS[+d.addground];if(!p||rows.length>=C.GROUND_LIMITS.rows)return;if(dragSnap)endDrag();const ids=new Set(rows.map(r=>r.id));let n=1;while(ids.has('ground-'+n))n++;const id='ground-'+n;mutate('地上部隊を追加',()=>ship.groundForces=C.normalizeGroundForces([...rows,{id,name:p.name,kind:p.kind,size:p.size,count:0}]),'none');st.groundOpen||=new Set();st.groundOpen.add(id);renderPanel();return;}
+  if(d.addground!=null){const p=C.GROUND_PRESETS[+d.addground];if(!p||rows.length>=C.GROUND_LIMITS.rows)return;if(dragSnap)endDrag();const ids=new Set(rows.map(r=>r.id));let n=1;while(ids.has('ground-'+n))n++;const id='ground-'+n,type=p.kind==='vehicle'?(C.VEHICLE_TYPES[$('#panel [data-addvehicletype]')?.value]?$('#panel [data-addvehicletype]').value:p.type):null;if(type)st.addVehicleType=type;mutate('地上部隊を追加',()=>ship.groundForces=C.normalizeGroundForces([...rows,type?{id,name:C.VEHICLE_TYPES[type].name,kind:'vehicle',type,count:0}:{id,name:p.name,kind:p.kind,size:p.size,count:0}]),'none');st.groundOpen||=new Set();st.groundOpen.add(id);renderPanel();return;}
   if(d.fillground){const row=rows.find(r=>r.id===d.fillground),g=groundNumbers();if(!row)return;if(dragSnap)endDrag();
-   // Vehicles fill their bays; soldiers and droids share the troop space in m³.
-   const per=r=>r.kind==='vehicle'?r.size:r.kind==='droids'?C.DROID_STORE_M3:g.personVolume,cap=row.kind==='vehicle'?g.vehicles.capacity:g.space.capacity,other=rows.reduce((n,r)=>n+(r.id!==row.id&&(r.kind==='vehicle')===(row.kind==='vehicle')?per(r)*r.count:0),0);
+   // Vehicles: as many as the holds and hangars take; soldiers and droids share the troop space in m³.
+   if(row.kind==='vehicle'){const n=maxEmbark('groundForces',row.id);mutate('空きまで搭載',()=>{row.count=n;},'none');renderPanel();return;}
+   const per=r=>r.kind==='droids'?C.DROID_STORE_M3:g.personVolume,cap=g.space.capacity,other=rows.reduce((n,r)=>n+(r.id!==row.id&&r.kind!=='vehicle'?per(r)*r.count:0),0);
    mutate('空きまで搭載',()=>{row.count=Math.min(C.GROUND_LIMITS.maxCount,Math.max(0,Math.floor((cap-other+1e-6)/per(row))));},'none');renderPanel();return;}
   if(d.delground){if(dragSnap)endDrag();mutate('地上部隊を削除',()=>ship.groundForces=rows.filter(r=>r.id!==d.delground),'none');renderPanel();return;}
   if(d.moveground){const i=rows.findIndex(r=>r.id===d.moveground),j=i+Number(d.direction);if(i<0||j<0||j>=rows.length)return;if(dragSnap)endDrag();mutate('地上部隊の収容優先順',()=>{const r=rows.splice(i,1)[0];rows.splice(j,0,r);ship.groundForces=rows;},'none');renderPanel();return;}
@@ -3778,16 +3832,24 @@ function updateAviationUI(){
  for(const node of document.querySelectorAll('[data-airwing-status]')){const w=byId.get(node.dataset.airwingStatus);if(w)node.innerHTML=aviationWingStatusHTML(w);}
  for(const node of document.querySelectorAll('[data-airwing-title]')){const w=byId.get(node.dataset.airwingTitle);if(w)node.textContent=w.name;}
  for(const node of document.querySelectorAll('[data-airwing-summary]')){const w=byId.get(node.dataset.airwingSummary);if(w)node.textContent=wingSummary(w);}
- for(const node of document.querySelectorAll('[data-aviation-capacity]')){const p=ship.parts.find(p=>p.id===+node.dataset.aviationCapacity);if(p)node.textContent=aviationSize(C.hangarCapacity(p))+' サイズ';}
+ for(const node of document.querySelectorAll('[data-aviation-capacity]')){const p=ship.parts.find(p=>p.id===+node.dataset.aviationCapacity);if(p)node.textContent=node.closest('.aviation-bays')?bayText(p,a):aviationSize(C.hangarCapacity(p))+' サイズ';}
 }
 function editAirWingInput(t,finish=false){
- const id=t.dataset.airwing,k=t.dataset.wingfield,row=ship.airWings?.find(w=>w.id===id);if(!row||!['name','size','count'].includes(k))return;
- const value=k==='name'?t.value:Number(t.value);if(k!=='name'&&(t.value===''||!Number.isFinite(value))){if(finish){if(dragSnap)endDrag();t.value=String(row[k]);updateAviationUI();}return;}
- const rows=C.normalizeAirWings(ship.airWings.map(w=>w.id===id?{...w,[k]:value}:w));
+ const id=t.dataset.airwing,k=t.dataset.wingfield,row=ship.airWings?.find(w=>w.id===id);if(!row||!['name','size','count','type','d0','d1','d2'].includes(k))return;
+ let next;
+ if(k==='type'){const old=C.CRAFT_TYPES[row.type],cur=C.aviationStatus(ship,S?.info).wings.find(w=>w.id===id);
+  if(t.value==='custom'){next={...row,type:null,dims:(cur?.dims||C.airWingDims(row)).map(v=>Math.round(v*100)/100)};}
+  else if(t.value==='legacy'){next={...row,type:null,size:Math.max(C.AIR_WING_LIMITS.minSize,Math.round((cur?.size||row.size||1)*100)/100)};delete next.dims;}
+  else if(C.CRAFT_TYPES[t.value]){next={...row,type:t.value};delete next.dims;if(!row.name||row.name===old?.name||/^航空隊 \d+$/.test(row.name))next.name=C.CRAFT_TYPES[t.value].name;}else return;}
+ else if(k[0]==='d'){const v=Number(t.value);if(t.value===''||!Number.isFinite(v)||v<=0){if(finish){if(dragSnap)endDrag();renderPanel();}return;}const d=(Array.isArray(row.dims)?row.dims:C.airWingDims(row)).slice();d[+k[1]]=v;next={...row,type:null,dims:d};}
+ else{const value=k==='name'?t.value:Number(t.value);if(k!=='name'&&(t.value===''||!Number.isFinite(value))){if(finish){if(dragSnap)endDrag();t.value=String(row[k]);updateAviationUI();}return;}next={...row,[k]:value};}
+ const rows=C.normalizeAirWings(ship.airWings.map(w=>w.id===id?next:w));
  if(JSON.stringify(rows)!==JSON.stringify(ship.airWings)){beginDrag('航空隊を編集');ship.airWings=rows;touch('none');scheduleStats(180);}
- if(finish){if(dragSnap)endDrag();t.value=String(ship.airWings.find(w=>w.id===id)?.[k]??'');}
+ if(finish){if(dragSnap)endDrag();if(k==='type'||k[0]==='d'){renderPanel();return;}t.value=String(ship.airWings.find(w=>w.id===id)?.[k]??'');}
  updateAviationUI();
 }
+// A new wing takes the craft of the ship's livery: TIEs for the Empire's dark grey, V-wings for the Republic, droid fighters for the Separatists.
+const defaultCraftType=()=>({dark:'tie_ln',republic:'vwing',cis:'vulture'})[ship?.paint]||'xwing';
 function bindAviation(){
  const panel=$('#panel');
  panel.addEventListener('toggle',e=>{const id=e.target.dataset?.airwingCard;if(!id)return;st.aviationExpanded||=new Set();if(e.target.open)st.aviationExpanded.add(id);else st.aviationExpanded.delete(id);},true);
@@ -3799,9 +3861,9 @@ function bindAviation(){
   if(t.dataset.aviationSurface){const p=ship.parts.find(p=>p.id===+t.dataset.aviationBay),face=t.dataset.aviationSurface,mode=t.value;if(!p||!['none','open','ray'].includes(mode))return;const contact=C.aviationSurfaceContacts(ship,p).find(q=>q.face===face);if(!contact?.contact){toast('この面は船体・外装の表面に接触していません');return;}mutate('航空区画の開口方式',()=>{C.setAviationSurfaceMode(ship,p,face,mode);const twin=st.mirror&&p.tw?ship.parts.find(q=>q.id===p.tw):null;if(twin)C.setAviationSurfaceMode(ship,twin,face==='port'?'stbd':face==='stbd'?'port':face,mode);},'all');renderPanel();}
  });
  panel.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
-  if('addairwing'in d){if((ship.airWings?.length||0)>=C.AIR_WING_LIMITS.rows)return;if(dragSnap)endDrag();const ids=new Set((ship.airWings||[]).map(w=>w.id));let n=1;while(ids.has('wing-'+n))n++;const id='wing-'+n;mutate('航空隊を追加',()=>ship.airWings=C.normalizeAirWings([...(ship.airWings||[]),{id,name:'航空隊 '+n,size:1,count:0}]),'none');st.aviationExpanded||=new Set();st.aviationExpanded.add(id);renderPanel();return;}
+  if('addairwing'in d){if((ship.airWings?.length||0)>=C.AIR_WING_LIMITS.rows)return;if(dragSnap)endDrag();const ids=new Set((ship.airWings||[]).map(w=>w.id));let n=1;while(ids.has('wing-'+n))n++;const id='wing-'+n;const type=defaultCraftType();mutate('航空隊を追加',()=>ship.airWings=C.normalizeAirWings([...(ship.airWings||[]),{id,name:C.CRAFT_TYPES[type].name,type,count:0}]),'none');st.aviationExpanded||=new Set();st.aviationExpanded.add(id);renderPanel();return;}
   if('addshipwing'in d){const ref=$('#panel [data-shipcarry]')?.value,c=carryCandidates().find(x=>x.ref===ref);if(!c||!c.fits){toast('格納区画に入りません');return;}if((ship.airWings?.length||0)>=C.AIR_WING_LIMITS.rows)return;if(dragSnap)endDrag();const ids=new Set((ship.airWings||[]).map(w=>w.id));let n=1;while(ids.has('ship-'+n))n++;const id='ship-'+n;mutate('艦艇を搭載',()=>ship.airWings=C.normalizeAirWings([...(ship.airWings||[]),{id,name:c.name,kind:'ship',ref:c.ref,dims:c.dims,count:1}]),'none');st.aviationExpanded||=new Set();st.aviationExpanded.add(id);renderPanel();return;}
-  if(d.fillairwing){const row=ship.airWings?.find(w=>w.id===d.fillairwing);if(!row)return;if(dragSnap)endDrag();const a=aviationNumbers(),other=(ship.airWings||[]).reduce((n,w)=>n+(w.id===row.id?0:w.size*w.count),0);mutate('空き容量まで搭載',()=>{row.count=Math.min(C.AIR_WING_LIMITS.maxCount,Math.max(0,Math.floor((a.capacity-other+1e-6)/row.size)));},'none');renderPanel();return;}
+  if(d.fillairwing){const row=ship.airWings?.find(w=>w.id===d.fillairwing);if(!row)return;if(dragSnap)endDrag();const n=maxEmbark('airWings',row.id);mutate('空き容量まで搭載',()=>{row.count=n;},'none');renderPanel();return;}
   if(d.delairwing){if(dragSnap)endDrag();mutate('航空隊を削除',()=>ship.airWings=(ship.airWings||[]).filter(w=>w.id!==d.delairwing),'none');st.aviationExpanded?.delete(d.delairwing);renderPanel();return;}
   if(d.moveairwing){const i=ship.airWings?.findIndex(w=>w.id===d.moveairwing),direction=Number(d.direction),j=i+direction;if(i<0||![1,-1].includes(direction)||j<0||j>=ship.airWings.length)return;if(dragSnap)endDrag();mutate('航空隊の収容優先順',()=>{const row=ship.airWings.splice(i,1)[0];ship.airWings.splice(j,0,row);},'none');renderPanel();return;}
   if('editaviation'in d){st.tab='launch';hideInspect();renderPanel();}
@@ -4514,10 +4576,19 @@ const voyUid = ob => (ob.next = (ob.next || 1) + 1, 'o' + ob.next);
 function voyShipDesign(sh) { return voyDesign(sh.key) || voyDesign(sh.src) || null; }
 // ---- carried ships (v19): small ships in a carrier's hangar ----
 const voyDims = d => [d.p?.len || d.info?.len || 0, d.p?.width || 0, d.p?.height || 0];
-// Whether one bay of the carrier takes the ship (stowed in any orientation), and its stowage size.
-function voyCarryFit(carrier, d2) { const dims = voyDims(d2), need = dims.map(v => v + C.SHIP_STOW_CLEAR), perms = [[0, 1, 2], [1, 0, 2], [0, 2, 1], [2, 0, 1], [1, 2, 0], [2, 1, 0]], ok = d2.key !== carrier.key && (carrier.info?.bays || []).some(b => perms.some(o => need[o[0]] <= b[0] && need[o[1]] <= b[1] && need[o[2]] <= b[2])); return {ok, size: C.shipStowSize(dims), dims}; }
+// v20 A ship's hangar load in the order of battle — squadrons, carried ships, the vehicles of its
+// regiments — by size and shape against its bays and hatches (R.shipStow), as in the designer.
+const voyHasStow = d => !!d?.info?.stow;
+function voyCarryFit(carrier, d2) {
+ const dims = voyDims(d2), size = C.shipStowSize(dims);if (!d2 || d2.key === carrier.key) return {ok: false, size, dims};
+ if (!voyHasStow(carrier)) { const need = dims.map(v => v + C.SHIP_STOW_CLEAR), perms = [[0, 1, 2], [1, 0, 2], [0, 2, 1], [2, 0, 1], [1, 2, 0], [2, 1, 0]]; return {ok: (carrier.info?.bays || []).some(b => perms.some(o => need[o[0]] <= b[0] && need[o[1]] <= b[1] && need[o[2]] <= b[2])), exit: true, size, dims}; }
+ const r = R.shipStow(carrier.info, [], [{dims}]).carried[0];return {ok: !!r && !r.tooLarge, exit: !!r?.deployable, size, dims};
+}
+const voyCarriedDims = sh => (sh.carried || []).map(c => { const d2 = voyShipDesign(c); return d2 ? {dims: voyDims(d2)} : null; });
+function voyStowShort(sh, d) { const st = voyStow(sh, d);return {short: st.wings.reduce((n, r) => n + r.unembarked, 0) + st.carried.reduce((n, r) => n + r.unembarked, 0)}; }
+function voyStow(sh, d) { return R.shipStow(d.info, sh.air || [], voyCarriedDims(sh).map(x => x || {dims: null}), sh.ground || []); }
 function voyCarriedSize(sh) { return (sh.carried || []).reduce((n, c) => { const d2 = voyShipDesign(c); return n + (d2 ? C.shipStowSize(voyDims(d2)) : 0); }, 0); }
-function voyCarryRoom(sh, d) { return Math.max(0, (d.info?.hangarCap || d.info?.slotCap || 0) - R.airTotals(sh.air).size); }
+function voyCarryRoom(sh, d) { if (!voyHasStow(d)) return Math.max(0, (d.info?.hangarCap || d.info?.slotCap || 0) - R.airTotals(sh.air).size); const st = voyStow({...sh, carried: []}, d);return st.free; }
 // A design's own carried-ship rows (kind 'ship') become its default complement.
 function voyDefaultCarried(d) { const out = []; for (const r of d.air || []) { if (r.kind !== 'ship') continue; const d2 = voyDesign(r.ref); if (!d2 || !voyCarryFit(d, d2).ok) continue; for (let i = 0; i < Math.min(12, r.count || 0); i++) out.push({src: d2.key, key: d2.key, name: `${voyShort(d2.name)} ${out.length + 1}`}); } return out; }
 async function voyEnsureDesigns(ob) {
@@ -4535,7 +4606,7 @@ function voyShipDemand(sh, faction) {
  return {people, supply};
 }
 function voyShipsTotals(ships) { const t = {people: 0, supply: 0, ships: 0}; for (const sh of ships) { const x = voyShipDemand(sh); t.people += x.people; t.supply += x.supply; t.ships++; } return t; }
-function voyShipsStrength(ships) { let n = 0; for (const sh of ships) { const d = voyShipDesign(sh); if (!d) continue; const u = C.fleetUnit('x', d.key, d.p, 0); n += R.unitStrength(u) + R.airTotals(sh.air).n * 4; for (const c of sh.carried || []) { const d2 = voyShipDesign(c); if (d2) n += R.unitStrength(C.fleetUnit('x', d2.key, d2.p, 0)); } } return n; }
+function voyShipsStrength(ships) { let n = 0; for (const sh of ships) { const d = voyShipDesign(sh); if (!d) continue; const u = C.fleetUnit('x', d.key, d.p, 0); n += R.unitStrength(u) + R.airTotals(sh.air).fight * 4; for (const c of sh.carried || []) { const d2 = voyShipDesign(c); if (d2) n += R.unitStrength(C.fleetUnit('x', d2.key, d2.p, 0)); } } return n; }
 // Fleet allowances: total crew (with pilots and troops) and materials. No limit on the number of ships.
 const VOY_SCALES = {
  small: {name: '小規模', people: 110000, supply: 140000},
@@ -4557,7 +4628,7 @@ const VOY_RIVAL = {empire: 'rebel', rebel: 'empire', republic: 'cis', cis: 'repu
 function voyAutoOrbat(faction, scale, rand = Math.random, opt = {}) {
  const cap = VOY_SCALES[scale] || VOY_SCALES.standard, pool = voyExampleDesigns(), mine = pool.filter(d => voyServes(d, faction)), use = mine.length ? mine : pool;
  const memo = new Map(), str = d => { if (!memo.has(d.key)) memo.set(d.key, R.unitStrength(C.fleetUnit('x', d.key, d.p, 0))); return memo.get(d.key); };
- const air = d => R.defaultAir(d.info, faction), people = d => voyShipDemand({key: d.key, air: air(d), ground: []}).people;
+ const air = d => R.defaultAir(d.info, faction, d.air), people = d => voyShipDemand({key: d.key, air: air(d), ground: []}).people;
  const normal = use.filter(d => d.info.len < 5000), best = Math.max(0, ...normal.map(str)), supers = cap.dread ? use.filter(d => d.info.len >= 5000).sort((a, b) => b.info.len - a.info.len) : [];
  // Capital ships whose crew would take more than three tenths of the allowance stay home.
  const caps = normal.filter(d => d.info.capital && people(d) <= cap.people * .3).sort((a, b) => b.info.len - a.info.len);
@@ -4567,7 +4638,7 @@ function voyAutoOrbat(faction, scale, rand = Math.random, opt = {}) {
  const take = d => { const sh = {id: '', src: d.key, key: d.key, name: '', air: air(d), ground: []}, x = voyShipDemand(sh);
   if (ships.length >= limit) return null;
   if (!opt.target && (tot.people + x.people > cap.people || tot.supply + x.supply > cap.supply)) return null;
-  sh.name = voyNextName(faction, used, rand);used.add(sh.name);ships.push(sh);tot.people += x.people;tot.supply += x.supply;tot.str += str(d) + R.airTotals(sh.air).n * 4;return sh; };
+  sh.name = voyNextName(faction, used, rand);used.add(sh.name);ships.push(sh);tot.people += x.people;tot.supply += x.supply;tot.str += str(d) + R.airTotals(sh.air).fight * 4;return sh; };
  for (let k = 0; k < 60 && !done; k++) {
   const plan = k === 0 ? supers.slice() : [];
   for (let i = 0; i < (caps.length ? 2 : 0); i++) plan.push(caps[ci++ % caps.length]);
@@ -4658,9 +4729,9 @@ function voyCtgHTML(s, ob, c) {
 function voyTgHTML(s, ob, tg) {
  const n = tg.ships.length, warn = n && n < TG_MIN ? `（${TG_MIN}隻未満）` : '', full = n >= TG_MAX, tgs = voyObTgs(ob);
  return `<div class="ob-tg" data-tg="${tg.id}"><div class="ob-tg-head"><input class="ob-name" data-obname="tg" value="${esc(tg.name)}" aria-label="任務群の名前" maxlength="24"><label class="ob-form">陣形<select data-obform>${Object.entries(R.FORMATIONS).map(([k, v]) => `<option value="${k}" ${tg.formation === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label><b class="ob-count${warn ? ' warn' : ''}">${n} / ${TG_MAX} 隻${warn}</b><button type="button" class="btn sm ghost" data-ob="tgdel" aria-label="この任務群を解散">×</button></div>
-  <ul class="ob-ships">${tg.ships.map((sh, i) => { const d = voyShipDesign(sh), air = R.airTotals(sh.air), troops = (sh.ground || []).reduce((k, r) => k + R.regimentTotals(r).troops, 0), dem = voyShipDemand(sh);
+  <ul class="ob-ships">${tg.ships.map((sh, i) => { const d = voyShipDesign(sh), air = R.airTotals(sh.air), troops = (sh.ground || []).reduce((k, r) => k + R.regimentTotals(r).troops, 0), dem = voyShipDemand(sh), st = d && voyHasStow(d) && (sh.air?.length || sh.carried?.length) ? voyStowShort(sh, d) : null;
    return `<li class="ob-ship" data-ship="${sh.id}"><span class="ob-flag" title="${i ? '' : '旗艦（任務群の先頭）'}">${i ? '' : '旗'}</span><input class="ob-name" data-obname="ship" value="${esc(sh.name)}" aria-label="艦名" maxlength="28"><small class="ob-cls">${d ? `${esc(voyShort(d.name))} · ${fLen(d.info.len)} · 乗員 ${num(dem.people)}` : '準備中…'}</small>
-    <button type="button" class="ve-orbat" data-ob="air"><span>航空</span><b>${air.n ? `${num(air.n)} 機` : d?.info.slotCap ? '未搭載' : '—'}${sh.carried?.length ? ` ＋艦 ${sh.carried.length}` : ''}</b></button><button type="button" class="ve-orbat" data-ob="ground"><span>陸戦</span><b>${troops ? `${num(troops)} ${voy.setup.own === 'cis' ? '体' : '名'}` : R.troopRoom(d?.info || {}, voy.setup.own) ? '未乗艦' : '—'}</b></button>
+    <button type="button" class="ve-orbat${st && st.short ? ' warn' : ''}" data-ob="air"><span>航空</span><b>${air.n ? `${num(air.n)} 機` : d?.info.slotCap || d?.info.hangarCap ? '未搭載' : '—'}${sh.carried?.length ? ` ＋艦 ${sh.carried.length}` : ''}${st && st.short ? ` · ${num(st.short)} 入らず` : ''}</b></button><button type="button" class="ve-orbat" data-ob="ground"><span>陸戦</span><b>${troops ? `${num(troops)} ${voy.setup.own === 'cis' ? '体' : '名'}` : R.troopRoom(d?.info || {}, voy.setup.own) ? '未乗艦' : '—'}</b></button>
     <label class="ob-move">所属<select data-obmove>${tgs.map(x => `<option value="${x.id}" ${x.id === tg.id ? 'selected' : ''} ${x.id !== tg.id && x.ships.length >= TG_MAX ? 'disabled' : ''}>${esc(x.name)}</option>`).join('')}</select></label>
     <span class="ob-ord">${i ? `<button type="button" class="btn sm ghost" data-ob="lead" title="任務群の先頭（旗艦）にする">旗艦に</button>` : ''}<button type="button" class="btn sm ghost" data-ob="shipdel" aria-label="艦を外す">×</button></span></li>`; }).join('') || '<li class="muted">艦がありません</li>'}</ul>
   <div class="voy-add"><select data-obadd aria-label="追加する艦">${voyDesignOptions(s.own)}</select><button type="button" class="btn sm" data-ob="shipadd" ${full ? 'disabled' : ''}>${full ? `${TG_MAX}隻まで` : '艦を追加'}</button></div></div>`;
@@ -4684,19 +4755,22 @@ function voyOrbatSheet() {
  const s = voy.setup, f = s.editing && voyFindShip(s.editing);if (!f) { $('#voySheet').hidden = true; return; }
  const e = f.sh, d = voyShipDesign(e), tab = s.sheetTab, el = $('#voySheet');if (!d) { el.hidden = true; return; }el.hidden = false;
  let body = '';
+ const stow = voyHasStow(d) ? voyStow(e, d) : null;
  if (tab === 'air') {
   const air = R.airTotals(e.air), cap = d.info.slotCap || 0, wings = [...new Set(e.air.map(q => q.wingNo || 1))].sort((a, b) => a - b);
-  body = `${voyBar('格納庫（機体の大きさの合計）', air.size, Math.max(0, (d.info.hangarCap || cap) - voyCarriedSize(e)), x => num(x, 1))}
-  ${wings.map(wn => `<div class="vo-wing"><h4>第${wn}飛行隊</h4>${e.air.map((q, i) => (q.wingNo || 1) !== wn ? '' : `<div class="vo-sq"><select data-sq="${i}" data-sqk="craft">${Object.entries(R.CRAFT).map(([k, c]) => `<option value="${k}" ${k === q.craft ? 'selected' : ''}>${esc(c.name)}（${R.ROLE_NAME[c.role]}）</option>`).join('')}</select><label>機数<input type="number" data-sq="${i}" data-sqk="n" value="${q.n}" min="1" max="${R.RULES.maxSquadSize}"></label><label>飛行隊<input type="number" data-sq="${i}" data-sqk="wingNo" value="${q.wingNo || 1}" min="1" max="99"></label><button type="button" class="btn sm ghost" data-sqdel="${i}" aria-label="中隊を外す">×</button></div>`).join('')}</div>`).join('') || '<p class="muted">中隊がありません。</p>'}
+  const sqStatus = i => { const r = stow?.wings[i];if (!r) return '';const c = R.CRAFT[e.air[i].craft];return `<small class="vo-fit${r.unembarked || r.undeployable ? ' bad' : ''}">${r.tooLarge ? '入る格納区画なし' : r.unembarked ? `${num(r.embarked)} 機だけ搭載（${num(r.unembarked)} 機入らず）` : r.undeployable ? `${num(r.undeployable)} 機はハッチを通れず発艦不可` : c?.stay ? '輸送機（艦隊戦では艦内に待機）' : '搭載・発艦可'}</small>`; };
+  body = `${stow ? voyBar('格納庫（機体・搭載艦・車両で共用）', stow.used, stow.capacity, x => num(x, 1)) : voyBar('格納庫（機体の大きさの合計）', air.size, Math.max(0, (d.info.hangarCap || cap) - voyCarriedSize(e)), x => num(x, 1))}
+  ${wings.map(wn => `<div class="vo-wing"><h4>第${wn}飛行隊</h4>${e.air.map((q, i) => (q.wingNo || 1) !== wn ? '' : `<div class="vo-sq"><select data-sq="${i}" data-sqk="craft">${Object.entries(R.CRAFT).map(([k, c]) => `<option value="${k}" ${k === q.craft ? 'selected' : ''}>${esc(c.name)}（${R.ROLE_NAME[c.role]}）</option>`).join('')}</select><label>機数<input type="number" data-sq="${i}" data-sqk="n" value="${q.n}" min="1" max="${R.RULES.maxSquadSize}"></label><label>飛行隊<input type="number" data-sq="${i}" data-sqk="wingNo" value="${q.wingNo || 1}" min="1" max="99"></label><button type="button" class="btn sm ghost" data-sqdel="${i}" aria-label="中隊を外す">×</button>${sqStatus(i)}</div>`).join('')}</div>`).join('') || '<p class="muted">中隊がありません。</p>'}
   <div class="voy-row"><button type="button" class="btn sm" data-vo="sqadd">中隊を追加</button><button type="button" class="btn sm ghost" data-vo="airdefault">標準の搭載に戻す</button><button type="button" class="btn sm ghost" data-vo="airclear">すべて降ろす</button></div>
-  <p class="note">中隊は同じ機種12機が基本（大型キャリアは最大${R.RULES.maxSquadSize}機）。飛行隊の番号で中隊をまとめ、戦闘では飛行隊ごとに発艦・移動・攻撃・帰還します。</p>${voyCarriedEditHTML(e, d)}`;
+  <p class="note">中隊は同じ機種12機が基本（大型キャリアは最大${R.RULES.maxSquadSize}機）。飛行隊の番号で中隊をまとめ、戦闘では飛行隊ごとに発艦・移動・攻撃・帰還します。機体は公式の寸法で、格納区画の内寸に入るか、ハッチを通れるかで搭載・発艦が決まります（設計画面と同じ判定）。シャトル・揚陸艇は地上部隊を降ろす輸送機で、艦隊戦では艦内に待機します。</p>${voyCarriedEditHTML(e, d)}`;
  } else {
-  const gs = (e.ground || []).map(r => R.regimentTotals(r)), troops = gs.reduce((n, x) => n + x.troops, 0), veh = gs.reduce((n, x) => n + x.size, 0);
-  body = `${voy.setup.own === 'cis' ? voyBar('ドロイド格納（空き容積）', troops, R.troopRoom(d.info, 'cis'), x => num(Math.round(x)) + ' 体') : voyBar('兵員枠（空き容積から定員を除く）', troops, R.troopRoom(d.info, voy.setup.own), x => num(Math.round(x)) + ' 名')}${voyBar('車両（車両区画・貨物区画）', veh, d.info.vehicleCap || 0, x => num(x, 1))}
+  const gs = (e.ground || []).map(r => R.regimentTotals(r)), troops = gs.reduce((n, x) => n + x.troops, 0), veh = gs.reduce((n, x) => n + x.size, 0), L = stow?.lift;
+  const vehRows = stow ? stow.vehicles.map(v => `<li class="${v.unembarked || !v.landable ? 'bad' : ''}"><b>${esc(v.name)}</b> ${num(v.embarked)} / ${num(v.count)} 両${v.loaded ? `（輸送機に ${num(v.loaded)}）` : ''}${v.unembarked ? ` · ${num(v.unembarked)} 両入らず` : ''}${v.embarked && !v.landable ? ' · 積める輸送機なし' : ''}</li>`).join('') : '';
+  body = `${voy.setup.own === 'cis' ? voyBar('ドロイド格納（空き容積）', troops, R.troopRoom(d.info, 'cis'), x => num(Math.round(x)) + ' 体') : voyBar('兵員枠（空き容積から定員を除く）', troops, R.troopRoom(d.info, voy.setup.own), x => num(Math.round(x)) + ' 名')}${stow ? `<div class="vo-wing"><h4>車両と降下</h4>${vehRows ? `<ul class="vo-veh-fit">${vehRows}</ul>` : '<p class="muted">車両はありません。</p>'}<p class="note">${L && L.transports.length ? `1回の降下：兵員 ${num(L.troops)} 名${L.vehicleSize > 0 ? `・車両 ${num(L.vehicleSize, 1)} サイズ` : ''}（${Object.entries(L.transports.reduce((m, x) => { const k = R.CRAFT[x.type]?.name || x.name || x.type; m[k] = (m[k] || 0) + x.n; return m; }, {})).map(([k, n]) => `${esc(k)} ${num(n)} 機`).join('・')}）` : '輸送機（シャトル・揚陸艇）が搭載されていません。地上部隊は輸送機で降ろします（「航空隊」で輸送機の中隊を加えてください）。'}</p></div>` : voyBar('車両（車両区画・貨物区画）', veh, d.info.vehicleCap || 0, x => num(x, 1))}
   ${(e.ground || []).map((r, ri) => { const t = R.regimentTotals(r); return `<details class="vo-reg"><summary><b>${esc(r.name)}</b><span>${num(t.troops)} 名${Object.keys(t.vehicles).length ? ' · ' + Object.entries(t.vehicles).map(([k, n]) => `${R.VEHICLES[k]?.name || k} ${n}`).join('・') : ''}</span><button type="button" class="btn sm ghost" data-regdel="${ri}" aria-label="連隊を外す">×</button></summary>
    ${r.battalions.map((b, bi) => `<div class="vo-bat"><h5>${esc(b.name)}</h5>${b.companies.map((c, ci) => `<div class="vo-co"><span>${esc(c.name)}</span><label>兵員<input type="number" data-co="${ri}.${bi}.${ci}" data-cok="troops" value="${c.troops}" min="0" max="600"></label>${voyVehicleSelect(ri, bi, ci, c, voy.setup.own)}</div>`).join('')}</div>`).join('')}</details>`; }).join('') || '<p class="muted">連隊がありません。</p>'}
   <div class="voy-row"><button type="button" class="btn sm" data-vo="regadd">連隊を追加（${esc(R.REGIMENT_TEMPLATES[voy.setup.own]?.name || '連隊')}）</button><button type="button" class="btn sm ghost" data-vo="grclear">すべて降ろす</button></div>
-  <p class="note">連隊は4個大隊、大隊は4個中隊（144名）。乗艦した陸戦隊は拿捕のときに移乗攻撃の兵力になります。</p>`;
+  <p class="note">連隊は4個大隊、大隊は4個中隊（144名）。乗艦した陸戦隊は拿捕のときに移乗攻撃の兵力になります。車両は輸送機の積載区画か格納庫（航空機と共用）に寸法で入ります。</p>`;
  }
  el.innerHTML = `<div class="voy-sheet-card" role="dialog" aria-label="編成の詳細"><div class="voy-sheet-head"><div><span class="eyebrow">${esc(e.name)} · ${esc(voyShort(d.name))}</span><h3>${tab === 'air' ? '航空隊・搭載艦' : '陸戦隊'}の編成</h3></div><div class="seg" role="group"><button type="button" data-vo="tab:air" aria-pressed="${tab === 'air'}">航空隊</button><button type="button" data-vo="tab:ground" aria-pressed="${tab === 'ground'}">陸戦隊</button></div><button type="button" class="btn sm" data-vo="close">閉じる</button></div><div class="voy-sheet-body">${body}</div></div>`;
 }
@@ -4716,7 +4790,7 @@ function voyObChanged(render = true) { voyOrbatSave(); if (render) voyRenderSetu
 async function voyObAddShip(t, src) {
  const s = voy.setup, ob = voyOb(s.own);if (t.ships.length >= TG_MAX) { toast(`任務群は${TG_MAX}隻までです`); return; }
  const d = await voyPrepare(src), used = new Set(voyObShips(ob).map(x => x.name));
- t.ships.push({id: voyUid(ob), src, key: d.key, name: voyNextName(s.own, used), air: R.defaultAir(d.info, s.own), ground: [], carried: voyDefaultCarried(d)});voyObChanged();
+ t.ships.push({id: voyUid(ob), src, key: d.key, name: voyNextName(s.own, used), air: R.defaultAir(d.info, s.own, d.air), ground: [], carried: voyDefaultCarried(d)});voyObChanged();
 }
 function voyBindSetup() {
  const root = $('#voyage');
@@ -4755,7 +4829,7 @@ function voyBindSetup() {
    if (d.vo.startsWith('tab:')) { s.sheetTab = d.vo.slice(4); voyOrbatSheet(); return; }
    if (!x || !des) return;
    if (d.vo === 'sqadd') { const mix = R.CRAFT_MIX[s.own] || R.CRAFT_MIX.empire, last = x.air[x.air.length - 1], wn = last ? (x.air.filter(q => (q.wingNo || 1) === (last.wingNo || 1)).length >= 6 ? (last.wingNo || 1) + 1 : last.wingNo || 1) : 1, craft = mix[x.air.length % mix.length]; x.air.push({craft, n: 12, name: `${R.ROLE_NAME[R.CRAFT[craft].role]}中隊`, wingNo: wn}); }
-   if (d.vo === 'airdefault') x.air = R.defaultAir(des.info, s.own);
+   if (d.vo === 'airdefault') x.air = R.defaultAir(des.info, s.own, des.air);
    if (d.vo === 'airclear') x.air = [];
    if (d.vo === 'regadd') { const tpl = R.REGIMENT_TEMPLATES[s.own] || R.REGIMENT_TEMPLATES.empire; x.ground = x.ground || []; x.ground.push(R.makeRegiment(s.own, `第${x.ground.length + 1}${tpl.name}`)); }
    if (d.vo === 'grclear') x.ground = [];
@@ -4771,7 +4845,7 @@ function voyBindSetup() {
 // The order of battle as the battle model takes it: combined task groups of task groups of ships.
 function voyBattleOrbat(ob, tgs, faction) {
  const pick = new Set(tgs.map(t => t.id));
- return {ctgs: ob.ctgs.map(c => ({name: c.name, tgs: c.tgs.filter(t => pick.has(t.id) && t.ships.length).map(t => ({name: t.name, formation: t.formation, ships: t.ships.map(sh => { const d = voyShipDesign(sh); return d ? {design: d.key, name: sh.name, air: (sh.air || []).map(q => ({...q, groupName: `${c.name}飛行団`})), ground: sh.ground || null, troops: (sh.ground || []).reduce((n, r) => n + R.regimentTotals(r).troops, 0), carried: (sh.carried || []).map(x => { const d2 = voyShipDesign(x); return d2 ? {design: d2.key, name: `${sh.name}搭載艦 ${x.name}`} : null; }).filter(Boolean)} : null; }).filter(Boolean)}))})).filter(c => c.tgs.length)};
+ return {ctgs: ob.ctgs.map(c => ({name: c.name, tgs: c.tgs.filter(t => pick.has(t.id) && t.ships.length).map(t => ({name: t.name, formation: t.formation, ships: t.ships.map(sh => { const d = voyShipDesign(sh);if (!d) return null;const st = voyHasStow(d) ? voyStow(sh, d) : null; return {design: d.key, name: sh.name, air: (sh.air || []).map((q, i) => ({...q, n: st ? Math.min(q.n, st.wings[i]?.deployable ?? q.n) : q.n, groupName: `${c.name}飛行団`})).filter(q => q.n > 0 && !R.CRAFT[q.craft]?.stay), ground: sh.ground || null, troops: (sh.ground || []).reduce((n, r) => n + R.regimentTotals(r).troops, 0), carried: (sh.carried || []).map((x, i) => { const d2 = voyShipDesign(x); return d2 && (!st || st.carried[i]?.embarked) ? {design: d2.key, name: `${sh.name}搭載艦 ${x.name}`} : null; }).filter(Boolean)}; }).filter(Boolean)}))})).filter(c => c.tgs.length)};
 }
 function voyStartBattle() {
  const s = voy.setup, ob = voyOb(s.own), mine = voySortieTgs(s), foeOb = voyFoeOrbat(s);
@@ -5219,7 +5293,7 @@ function voySysCard(s) {
   <p class="vs-sub">${s.trunk ? '主要幹線上の星系' : '支線の星系'} · 航路 ${lanes.length} 本${lanes.some(e => e.kind === 'trunk') ? `（幹線 ${lanes.filter(e => e.kind === 'trunk').length}）` : ''}</p>
   ${mine.length ? `<p>自軍：${mine.map(h => esc(h.name)).join('・')}</p>` : ''}${c.length ? `<p class="foe">敵：${c.map(x => `${x.exact ? x.ships : '約' + x.ships} 隻（${voyClock(w.time - x.time)} 前）`).join('・')}</p>` : ''}
   <p class="vs-sub">ここへ送る部隊</p><ul class="vs-send">${ctgs.map(x => { const eta = ctgEta(x); return `<li><div><b>${esc(x.name)}</b><small>${eta == null ? 'ジャンプ不能' : '全任務群の到着まで ' + voyClock(eta)}</small></div><button type="button" class="btn sm" data-vsendc="${x.id}" ${eta == null ? 'disabled' : ''}>合同で送る</button></li>`; }).join('')}${send.map(h => { const eta = R.etaTo(w, h.id, s.id); return `<li><div><b>${esc(h.name)}</b><small>${eta == null ? 'ジャンプ不能' : '到着まで ' + voyClock(eta)}</small></div><button type="button" class="btn sm" data-vsend="${h.id}" ${eta == null || h.transit || h.spool ? 'disabled' : ''}>送る</button></li>`; }).join('') || '<li class="muted">送れる部隊がありません</li>'}</ul>
-  ${w.battles.has(s.id) ? `<button type="button" class="btn sm warn" data-vgo="tac:${s.id}">戦術図</button>` : ''}</div>`;
+  ${w.battles.has(s.id) ? `<button type="button" class="btn sm warn" data-vgo="tac:${s.id}">戦術図</button>` : mine.length ? `<button type="button" class="btn sm" data-vgo="tac:${s.id}">戦術図（艦隊を動かす）</button>` : ''}</div>`;
 }
 function voyMergeButtons(g) { if (g.sys == null || g.transit || g.spool) return ''; const w = voy.w; return [...w.groups.values()].filter(h => h !== g && h.side === 0 && h.sys === g.sys && !h.transit && !h.spool && voyLive(h)).map(h => `<button type="button" class="btn sm ghost" data-vmerge="${h.id}">${esc(h.name)}と合流</button>`).join(''); }
 // ---- tactical map ----
@@ -5334,7 +5408,7 @@ function voyApply(o) {
 }
 function voyApplyMove(pt) {
  const w = voy.w, s = voyTacSel();
- if (s.kind === 'ship') s.units.forEach((u, i) => { const off = (i - (s.units.length - 1) / 2) * Math.max(2500, u.p.len * 1.6); R.orderUnit(w, u.id, {type: 'move', point: [pt[0], u.pos[1], pt[2] + off]}); });
+ if (s.kind === 'ship') { const gz = R.formationGaps(s.units).gz; s.units.forEach((u, i) => { const off = (i - (s.units.length - 1) / 2) * gz; R.orderUnit(w, u.id, {type: 'move', point: [pt[0], u.pos[1], pt[2] + off]}); }); }
  else if (s.kind === 'tg') { const gd = w.units.get(s.g.flag); R.orderGroup(w, s.g.id, {type: 'move', point: [pt[0], gd?.pos[1] || 0, pt[2]]}); }
  else if (s.kind === 'ctg') R.orderCtg(w, s.c.id, {type: 'move', point: pt});
 }
@@ -5941,7 +6015,7 @@ async function voyOpenWithCurrent() {
   if (voyObShips(ob).some(sh => sh.key === d.key)) return;
   let t = voyObTgs(ob).find(x => x.ships.length < TG_MAX);
   if (!t) { if (!ob.ctgs.length) ob.ctgs.push({id: voyUid(ob), name: '第1合同任務群', tgs: []}); const c = ob.ctgs[ob.ctgs.length - 1], n = ob.ctgs.indexOf(c) + 1; t = {id: voyUid(ob), name: `第${n}${c.tgs.length + 1}任務群`, formation: 'abreast', ships: []}; c.tgs.push(t); }
-  t.ships.push({id: voyUid(ob), src: 'current', key: d.key, name: voyNextName(s.own, new Set(voyObShips(ob).map(x => x.name))), air: R.defaultAir(d.info, s.own), ground: [], carried: voyDefaultCarried(d)});
+  t.ships.push({id: voyUid(ob), src: 'current', key: d.key, name: voyNextName(s.own, new Set(voyObShips(ob).map(x => x.name))), air: R.defaultAir(d.info, s.own, d.air), ground: [], carried: voyDefaultCarried(d)});
   voyObChanged();toast(`設計中の艦を${esc(t.name)}に加えました`);
  } catch (e) { console.error(e); toast('設計中の艦を準備できません：' + esc(e.message || e)); }
 }

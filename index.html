@@ -515,7 +515,7 @@ body.tut-on .inspect{top:auto;bottom:70px;left:auto;right:var(--gr)}
   .title-foot { gap: 4px 12px; } .title-steps { display: none; }
 }
 /* ---- ground forces ---- */
-.ground-budgets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.ground-add{flex-wrap:wrap}.airwing-fields select{box-sizing:border-box;width:100%;min-width:0;min-height:44px;padding:8px 10px;background:var(--bg);color:var(--fg);border:1px solid var(--line-2);border-radius:5px;font:14px var(--font-ui)}@container ks (max-width:560px) {.airwing-fields select{font-size:16px}}
+.airwing-row .field-label select{box-sizing:border-box;width:100%;min-width:0;min-height:44px;margin-top:6px;padding:8px 10px;background:var(--bg);color:var(--fg);border:1px solid var(--line-2);border-radius:5px;font:14px var(--font-ui)}.airwing-fields.dims3{grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:12px}.ground-add-vehicle{margin-top:10px;align-items:end}.lift-card dl{margin-top:6px}.airwing-status p{overflow-wrap:anywhere}.ground-budgets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.ground-add{flex-wrap:wrap}.airwing-fields select{box-sizing:border-box;width:100%;min-width:0;min-height:44px;padding:8px 10px;background:var(--bg);color:var(--fg);border:1px solid var(--line-2);border-radius:5px;font:14px var(--font-ui)}@container ks (max-width:560px) {.airwing-fields select{font-size:16px}}
 .pair-edit{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin:4px 0 10px}.pair-tags{display:flex;gap:4px}
 /* ---- tool rail on the 3D view ---- */
 .toolrail{position:absolute;z-index:4;left:var(--gl);top:52px;display:flex;flex-direction:column;gap:4px;padding:5px;background:var(--hud-bg);border:1px solid var(--hud-line);border-radius:12px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
@@ -900,6 +900,17 @@ body.trial-on .tut.vtut{display:grid!important;top:max(96px,calc(var(--sa-top,0p
 .btn.vh-3d{border-color:rgba(240,170,70,.85);color:#ffe2b0;background:rgba(240,160,58,.16);letter-spacing:.06em}
 @container ks (orientation:landscape) and (max-height:560px) {.spec-orders{min-width:100px;min-height:52px;padding:5px 12px;font-size:17px;border-radius:14px}.spec-orders small{font-size:9.5px}#trialHud.spectate .spec-log{max-width:calc(100% - 140px)}.vh-maps button{min-height:26px;padding:1px 9px;font-size:11px}}
 @container ks (orientation:landscape) and (max-height:500px) {#trialHud.spectate .th-btn{min-height:28px;padding:3px 8px;font-size:11px}.spec-log li{font-size:9.5px;padding:1px 6px}.spec-log li:nth-child(n+3){display:none}#trialHud.spectate .th-id b{font-size:13px}#trialHud.spectate .th-id small{font-size:9.5px}}
+/* v20 The app covers the whole screen, the safe areas too. The frame pads the root by the
+   insets, which left the home indicator's strip black under the 3D view; the body now spans
+   the screen and the controls keep clear of the insets themselves (--sa-*). */
+html:not(.ks-rot) body{position:fixed;inset:0;width:auto;height:auto}
+.hudbottom{bottom:calc(10px + var(--sa-bottom,0px))}
+.panel{padding-bottom:calc(18px + var(--sa-bottom,0px))}
+#fleetMapTools{bottom:calc(12px + var(--sa-bottom,0px))}
+#renderStatus{bottom:calc(67px + var(--sa-bottom,0px))}
+.tactical-active .hudbottom{bottom:calc(135px + var(--sa-bottom,0px))}
+body.tut-on .inspect{bottom:calc(70px + var(--sa-bottom,0px))}
+@container ks (orientation: landscape) and (max-height: 560px) {.hudbottom{bottom:calc(6px + var(--sa-bottom,0px))}.panel{padding-bottom:calc(14px + var(--sa-bottom,0px))}}
 </style>
 <script>
 /* v15.3 Phones show the game sideways however they are held. With the page
