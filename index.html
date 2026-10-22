@@ -834,6 +834,16 @@ body.shot-mode .main{display:flex!important;flex-direction:column}body.shot-mode
 #trialHud.spectate .th-tmark{pointer-events:auto;cursor:pointer}
 .spec-log{grid-row:5;align-self:end;justify-self:start;list-style:none;margin:0;padding:0;display:grid;gap:2px;max-width:min(560px,70cqw);pointer-events:none}
 .spec-log li{font-size:11.5px;line-height:1.35;background:var(--hud-bg);border:1px solid var(--hud-line);border-radius:6px;padding:2px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.spec-log span{font-family:var(--font-mono);color:var(--hud-dim);margin-right:6px}
+/* The 3D view of a fleet battle: 命令 (orders) opens the maps over it. */
+.spec-orders{position:absolute;right:var(--th-gr);bottom:var(--th-gb);pointer-events:auto;touch-action:manipulation;display:grid;place-items:center;gap:2px;min-width:122px;min-height:64px;padding:8px 18px;border-radius:16px;border:1.5px solid rgba(240,170,70,.85);background:linear-gradient(180deg,rgba(66,42,12,.9),rgba(28,17,6,.92));color:#ffe2b0;font:700 21px/1.05 var(--font-ui);letter-spacing:.3em;box-shadow:0 0 0 4px rgba(8,13,17,.45),0 0 22px rgba(240,160,58,.25);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);cursor:pointer}
+.spec-orders b{font:inherit;letter-spacing:inherit;margin-right:-.3em}.spec-orders small{font:600 10.5px/1.2 var(--font-ui);letter-spacing:.06em;color:#f2c98a;display:flex;align-items:center;gap:5px}.spec-orders kbd{font:700 9.5px/1 var(--font-mono);padding:1px 4px;border:1px solid rgba(242,201,138,.6);border-radius:3px;letter-spacing:0}@media (pointer:coarse){.spec-orders kbd{display:none}}
+.spec-orders:hover{border-color:#ffc56e}.spec-orders:active{background:rgba(240,160,58,.92);color:#1a1006}.spec-orders:active small{color:#3a2408}.spec-orders:focus-visible{outline:2px solid #ffd59a;outline-offset:3px}
+.spec-alert{justify-self:center;margin-top:6px;border-color:rgba(255,184,90,.75);color:#ffd59a;background:rgba(70,36,8,.82)}.spec-alert[hidden]{display:none}
+#trialHud.spectate .spec-log{max-width:min(560px,calc(100% - 170px))}
+#trialHud.spectate .th-btn:disabled{opacity:.4}
+.vh-maps button{min-height:30px;padding:2px 12px;font-size:12px;font-weight:700}.vh-maps button:disabled{opacity:.4;cursor:default}
+.btn.vh-3d{border-color:rgba(240,170,70,.85);color:#ffe2b0;background:rgba(240,160,58,.16);letter-spacing:.06em}
+@container ks (orientation:landscape) and (max-height:560px) {.spec-orders{min-width:100px;min-height:52px;padding:5px 12px;font-size:17px;border-radius:14px}.spec-orders small{font-size:9.5px}#trialHud.spectate .spec-log{max-width:calc(100% - 140px)}.vh-maps button{min-height:26px;padding:1px 9px;font-size:11px}}
 @container ks (orientation:landscape) and (max-height:500px) {#trialHud.spectate .th-btn{min-height:28px;padding:3px 8px;font-size:11px}.spec-log li{font-size:9.5px;padding:1px 6px}.spec-log li:nth-child(n+3){display:none}#trialHud.spectate .th-id b{font-size:13px}#trialHud.spectate .th-id small{font-size:9.5px}}
 </style>
 <script>

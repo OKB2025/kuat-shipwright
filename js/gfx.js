@@ -806,6 +806,75 @@ void main(){
  float core=exp(-max(0.0,1.0-al)*22.0),rim=smoothstep(-0.2,0.6,al);
  vec3 col=vec3(0.015,0.04,0.13)+vec3(0.12,0.32,0.95)*st*rim+vec3(0.85,0.93,1.0)*pow(st,2.4)*0.9*rim+vec3(0.65,0.82,1.0)*core;
  gl_FragColor=vec4(col*uK,uK);}`;
+// The sky of the space views: a faint galactic band with dust lanes and a few
+// coloured nebulae. It is painted once into an equirectangular texture (the
+// square root of the colour, so the faint gradients keep their steps fine)
+// and looked up per pixel from the view direction behind the stars.
+const SKY_COLOR = `float h3(vec3 p){p=fract(p*0.1031);p+=dot(p,p.yzx+33.33);return fract((p.x+p.y)*p.z);}
+float vn(vec3 x){vec3 i=floor(x),f=fract(x);f=f*f*(3.0-2.0*f);
+ return mix(mix(mix(h3(i),h3(i+vec3(1,0,0)),f.x),mix(h3(i+vec3(0,1,0)),h3(i+vec3(1,1,0)),f.x),f.y),mix(mix(h3(i+vec3(0,0,1)),h3(i+vec3(1,0,1)),f.x),mix(h3(i+vec3(0,1,1)),h3(i+vec3(1,1,1)),f.x),f.y),f.z);}
+float fbm(vec3 p){float a=0.5,s=0.0;for(int i=0;i<5;i++){s+=a*vn(p);p=p*2.03+vec3(1.7,9.2,3.1);a*=0.5;}return s;}
+vec3 skyColor(vec3 rd){
+ float lat=dot(rd,uG),n1=fbm(rd*2.4),n2=fbm(rd*7.0+vec3(3.0,1.0,4.0));
+ float band=exp(-lat*lat/(0.018+0.03*n1)),core=exp(-(1.0-dot(rd,uGC))*2.6);
+ float dust=smoothstep(0.4,0.68,n2)*exp(-lat*lat/0.006);
+ float glow=band*(0.3+0.7*n1)*(0.5+1.1*core)*(1.0-0.8*dust);
+ vec3 col=vec3(0.005,0.008,0.015)+vec3(0.075,0.078,0.1)*glow+vec3(0.11,0.08,0.05)*core*band*(1.0-0.75*dust);
+ return col+vec3(0.03,0.01,0.028)*smoothstep(0.56,0.86,fbm(rd*1.3+vec3(7.0)))*(0.4+0.6*n2)+vec3(0.006,0.018,0.034)*smoothstep(0.6,0.9,fbm(rd*1.8+vec3(2.0,5.0,1.0)));}`;
+const SKY_HEAD = `#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+`;
+// Paints the texture: each texel's longitude and latitude give its direction.
+const FS_SKYGEN = SKY_HEAD + `uniform vec3 uG;uniform vec3 uGC;varying vec2 vP;
+` + SKY_COLOR + `
+void main(){vec2 uv=vP*0.5+0.5;float lon=(uv.x-0.5)*6.2831853,lat=(0.5-uv.y)*3.14159265;
+ gl_FragColor=vec4(sqrt(clamp(skyColor(vec3(cos(lat)*cos(lon),sin(lat),cos(lat)*sin(lon))),0.0,1.0)),1.0);}`;
+const FS_SKYTEX = SKY_HEAD + `uniform mat4 uInv;uniform sampler2D uTex;uniform float uK;varying vec2 vP;
+float hd(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233)))*43758.5453);}
+void main(){vec4 a=uInv*vec4(vP,-1.0,1.0),b=uInv*vec4(vP,1.0,1.0);vec3 rd=normalize(b.xyz/b.w-a.xyz/a.w);
+ vec2 uv=vec2(atan(rd.z,rd.x)/6.2831853+0.5,0.5-asin(clamp(rd.y,-1.0,1.0))/3.14159265);vec3 c=texture2D(uTex,uv).rgb;
+ gl_FragColor=vec4(c*c*uK+(hd(gl_FragCoord.xy)-0.5)/255.0,1.0);}`;
+// Without a texture to paint into, the sky is worked out per pixel.
+const FS_SKY = SKY_HEAD + `uniform mat4 uInv;uniform vec3 uG;uniform vec3 uGC;uniform float uK;varying vec2 vP;
+` + SKY_COLOR + `
+void main(){vec4 a=uInv*vec4(vP,-1.0,1.0),b=uInv*vec4(vP,1.0,1.0);vec3 rd=normalize(b.xyz/b.w-a.xyz/a.w);
+ gl_FragColor=vec4(skyColor(rd)*uK+(h3(vec3(gl_FragCoord.xy,1.0))-0.5)/255.0,1.0);}`;
+// Stars of the space views, one quad each. At rest a star is a small round
+// dot; going into hyperspace each is stretched radially away from the
+// direction of travel (uS, the angle added at its outer end), a streak that is
+// brightest at its outer end. A great circle projects to a straight line, so
+// the streak is the segment between the two projected ends, clipped in front
+// of the eye.
+const VS_STAR = `attribute vec3 aDir;attribute vec2 aCorner;attribute vec4 aCol;
+uniform mat4 uVP;uniform vec3 uF;uniform float uS;uniform vec2 uRes;uniform float uPx;uniform float uK;
+varying vec3 vC;varying vec3 vQ;varying vec2 vSig;
+void main(){
+ float m=aCol.a,c=dot(aDir,uF);vec3 r=aDir-uF*c;float rl=length(r);
+ vec3 rh=rl>1e-5?r/rl:normalize(cross(uF,abs(uF.y)<0.9?vec3(0.0,1.0,0.0):vec3(1.0,0.0,0.0)));
+ float phi=atan(rl,c),ph2=min(phi+uS*(0.18+phi*0.9),3.05);vec3 hd=uF*cos(ph2)+rh*sin(ph2);
+ vec4 A=uVP*vec4(aDir,0.0),B=uVP*vec4(hd,0.0);const float E=1e-3;
+ if(A.w<E&&B.w<E){gl_Position=vec4(2.0,2.0,2.0,1.0);vC=vec3(0.0);vQ=vec3(0.0);vSig=vec2(1.0);return;}
+ if(A.w<E)A=mix(A,B,(E-A.w)/(B.w-A.w));if(B.w<E)B=mix(B,A,(E-B.w)/(A.w-B.w));
+ vec2 pa=(A.xy/A.w*0.5+0.5)*uRes,pb=(B.xy/B.w*0.5+0.5)*uRes,ax=pb-pa;float L=length(ax),Lm=3.0*length(uRes);
+ if(L>Lm){ax*=Lm/L;L=Lm;}vec2 dir=L>1e-3?ax/L:vec2(1.0,0.0),per=vec2(-dir.y,dir.x);
+ float st=smoothstep(0.0,1.0,uS),sig=(0.42+0.75*m*m)*uPx,halo=pow(m,8.0),ext=(3.0*sig+uPx)*(1.0+3.0*halo);
+ vec2 p=(aCorner.x<0.5?pa-dir*ext:pa+ax+dir*ext)+per*ext*aCorner.y;
+ vQ=vec3(dot(p-pa,dir),ext*aCorner.y,L);vSig=vec2(sig,halo);
+ vec3 col=mix(aCol.rgb,vec3(0.78,0.88,1.0),0.65*st);
+ vC=col*(0.15+0.9*pow(m,1.5))*(1.0+1.3*st)*uK;
+ gl_Position=vec4(p/uRes*2.0-1.0,0.0,1.0);}`;
+const FS_STAR = `#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+varying vec3 vC;varying vec3 vQ;varying vec2 vSig;
+void main(){float u=vQ.x,L=vQ.z,dx=u<0.0?-u:(u>L?u-L:0.0),d2=dx*dx+vQ.y*vQ.y,s=vSig.x;
+ float g=exp(-d2/(2.0*s*s))+0.1*vSig.y*exp(-d2/(32.0*s*s)),t=L>0.5?clamp(u/L,0.0,1.0):1.0;
+ gl_FragColor=vec4(vC*g*mix(0.5,1.0,t),1.0);}`;
 const VS_BG = `attribute vec2 aP;varying vec2 vP;void main(){vP=aP;gl_Position=vec4(aP,0.9999,1.0);}`;
 const FS_BG = `precision mediump float;varying vec2 vP;
 float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
@@ -872,8 +941,9 @@ class Renderer {
     this.disposed=true;const gl=this.gl;if(!gl||gl.isContextLost())return;
     const sets=[this.meshes,this.lines,this.points,...Array.from(this.fleetCache?.values()||[],a=>a.meshes)];
     for(const set of sets)for(const item of Object.values(set||{}))for(const k of ['pos','nor','uv','col','idx','size'])if(item[k])gl.deleteBuffer(item[k]);
-    for(const p of [this.pm,this.pl,this.pp,this.pb,this.pray,this.pplanet,this.phyper])if(p?.p)gl.deleteProgram(p.p);
+    for(const p of [this.pm,this.pl,this.pp,this.pb,this.pray,this.pplanet,this.phyper,this.psky,this.pskyt,this.pstar])if(p?.p)gl.deleteProgram(p.p);
     for(const t of this.ownedTextures||[])gl.deleteTexture(t);if(this.bgBuf)gl.deleteBuffer(this.bgBuf);
+    if(this.sky)for(const k of ['dir','cor','col','idx'])gl.deleteBuffer(this.sky[k]);
   }
   upload(name, geo) {
     const gl = this.gl;
@@ -932,6 +1002,73 @@ class Renderer {
     }
     this.setPoints('stars', pos, col, size); this.starDirs = pos; this.starCol = col;
   }
+  // The space views' sky: 8000 stars on the unit sphere, two in five of them
+  // crowded along the galactic band (thickest toward its core), most faint and
+  // a few bright, blue-white to orange. Each star is a quad of four corners.
+  makeSky() {
+    const gl = this.gl, n = 8000, R = rng(1977), nrm = v => { const l = Math.hypot(v[0], v[1], v[2]) || 1; return [v[0] / l, v[1] / l, v[2] / l]; };
+    const G = nrm([0.3, 0.86, -0.41]), e1 = nrm([G[1] * 1 - G[2] * 0, G[2] * 0 - G[0] * 1, 0]), e2 = [G[1] * e1[2] - G[2] * e1[1], G[2] * e1[0] - G[0] * e1[2], G[0] * e1[1] - G[1] * e1[0]];
+    const ca = 2.3, GC = nrm([e1[0] * Math.cos(ca) + e2[0] * Math.sin(ca), e1[1] * Math.cos(ca) + e2[1] * Math.sin(ca), e1[2] * Math.cos(ca) + e2[2] * Math.sin(ca)]);
+    const gauss = () => { let u = 0; for (let k = 0; k < 4; k++) u += R(); return (u - 2) * 1.7; };
+    const TEMP = [[.12, [.68, .78, 1]], [.45, [.85, .9, 1]], [.75, [1, .98, .95]], [.9, [1, .9, .72]], [1, [1, .72, .52]]];
+    const dir = new Float32Array(n * 12), cor = new Float32Array(n * 8), col = new Uint8Array(n * 16), idx = new Uint16Array(n * 6);
+    for (let k = 0; k < n; k++) {
+      let d, m = Math.pow(R(), 3.2);
+      if (R() < 0.4) { const th = R() < 0.5 ? ca + gauss() * 0.7 : R() * Math.PI * 2, b = gauss() * 0.09, cb = Math.cos(b), sb = Math.sin(b); d = [0, 1, 2].map(i => cb * (Math.cos(th) * e1[i] + Math.sin(th) * e2[i]) + sb * G[i]); m *= 0.8; }
+      else { const u = R() * 2 - 1, a = R() * Math.PI * 2, s = Math.sqrt(1 - u * u); d = [Math.cos(a) * s, u, Math.sin(a) * s]; }
+      d = nrm(d); const t = R(), c = (TEMP.find(x => t < x[0]) || TEMP[4])[1];
+      for (let v = 0; v < 4; v++) { dir.set(d, (k * 4 + v) * 3); cor.set([v >> 1, v & 1 ? 1 : -1], (k * 4 + v) * 2); col.set([c[0] * 255, c[1] * 255, c[2] * 255, Math.round(m * 255)], (k * 4 + v) * 4); }
+      idx.set([k * 4, k * 4 + 1, k * 4 + 2, k * 4 + 2, k * 4 + 1, k * 4 + 3], k * 6);
+    }
+    const buf = (target, data) => { const b = gl.createBuffer(); gl.bindBuffer(target, b); gl.bufferData(target, data, gl.STATIC_DRAW); return b; };
+    this.sky = {G, GC, count: n * 6, dir: buf(gl.ARRAY_BUFFER, dir), cor: buf(gl.ARRAY_BUFFER, cor), col: buf(gl.ARRAY_BUFFER, col), idx: buf(gl.ELEMENT_ARRAY_BUFFER, idx)};
+  }
+  // The sky texture, painted on first use (null where it cannot be).
+  skyTexture() {
+    if (this.skyTex !== undefined) return this.skyTex;
+    const gl = this.gl; this.skyTex = null; let fb = null, gen = null;
+    try {
+      if (!this.sky) this.makeSky();
+      gen = compile(gl, VS_BG, FS_SKYGEN); const W = 2048, H = 1024, t = gl.createTexture(); this.ownedTextures.add(t);
+      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, t); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, W, H, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      fb = gl.createFramebuffer(); gl.bindFramebuffer(gl.FRAMEBUFFER, fb); gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0);
+      if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) throw new Error('sky framebuffer incomplete');
+      gl.viewport(0, 0, W, H); gl.disable(gl.BLEND); gl.disable(gl.DEPTH_TEST); gl.useProgram(gen.p); gl.uniform3fv(gen.u.uG, this.sky.G); gl.uniform3fv(gen.u.uGC, this.sky.GC);
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.bgBuf); gl.enableVertexAttribArray(gen.a.aP); gl.vertexAttribPointer(gen.a.aP, 2, gl.FLOAT, false, 0, 0);
+      gl.drawArrays(gl.TRIANGLES, 0, 3); gl.disableVertexAttribArray(gen.a.aP);
+      this.skyTex = t;
+    } catch (e) { console.error(e); }
+    finally { gl.bindFramebuffer(gl.FRAMEBUFFER, null); if (fb) gl.deleteFramebuffer(fb); if (gen) gl.deleteProgram(gen.p); gl.viewport(0, 0, this.canvas.width, this.canvas.height); }
+    return this.skyTex;
+  }
+  // The galactic band and nebulae behind everything (sky.k dims them).
+  drawSkyBg(m, sky) {
+    const gl = this.gl, inv = M4.inv(m.VP); if (!inv) return false;
+    if (!this.sky) this.makeSky();
+    const tex = this.skyTexture(), key = tex ? 'pskyt' : 'psky';
+    if (this[key] === undefined) { try { this[key] = compile(gl, VS_BG, tex ? FS_SKYTEX : FS_SKY); } catch (e) { console.error(e); this[key] = null; } }
+    const p = this[key]; if (!p) return false;
+    gl.useProgram(p.p); gl.uniformMatrix4fv(p.u.uInv, false, inv); gl.uniform1f(p.u.uK, sky.k ?? 1);
+    if (tex) { gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex); gl.uniform1i(p.u.uTex, 0); } else { gl.uniform3fv(p.u.uG, this.sky.G); gl.uniform3fv(p.u.uGC, this.sky.GC); }
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.bgBuf); gl.enableVertexAttribArray(p.a.aP); gl.vertexAttribPointer(p.a.aP, 2, gl.FLOAT, false, 0, 0);
+    gl.drawArrays(gl.TRIANGLES, 0, 3); gl.disableVertexAttribArray(p.a.aP); return true;
+  }
+  // The stars, as dots or (sky.s > 0) streaks away from sky.dir; added onto the sky.
+  drawStars(m, sky) {
+    const gl = this.gl;
+    if (this.pstar === undefined) { try { this.pstar = compile(gl, VS_STAR, FS_STAR); } catch (e) { console.error(e); this.pstar = null; } }
+    const p = this.pstar; if (!p) return; if (!this.sky) this.makeSky(); const S = this.sky;
+    gl.disable(gl.DEPTH_TEST); gl.depthMask(false); gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE);
+    gl.useProgram(p.p); gl.uniformMatrix4fv(p.u.uVP, false, m.VP); gl.uniform3fv(p.u.uF, sky.dir || [1, 0, 0]); gl.uniform1f(p.u.uS, sky.s || 0);
+    gl.uniform2f(p.u.uRes, this.canvas.width, this.canvas.height); gl.uniform1f(p.u.uPx, this.canvas.width / Math.max(1, this.canvas.clientWidth || this.canvas.width)); gl.uniform1f(p.u.uK, sky.stars ?? 1);
+    gl.bindBuffer(gl.ARRAY_BUFFER, S.dir); gl.enableVertexAttribArray(p.a.aDir); gl.vertexAttribPointer(p.a.aDir, 3, gl.FLOAT, false, 0, 0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, S.cor); gl.enableVertexAttribArray(p.a.aCorner); gl.vertexAttribPointer(p.a.aCorner, 2, gl.FLOAT, false, 0, 0);
+    gl.bindBuffer(gl.ARRAY_BUFFER, S.col); gl.enableVertexAttribArray(p.a.aCol); gl.vertexAttribPointer(p.a.aCol, 4, gl.UNSIGNED_BYTE, true, 0, 0);
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, S.idx); gl.drawElements(gl.TRIANGLES, S.count, gl.UNSIGNED_SHORT, 0);
+    gl.disableVertexAttribArray(p.a.aDir); gl.disableVertexAttribArray(p.a.aCorner); gl.disableVertexAttribArray(p.a.aCol);
+  }
   resize() {
     // renderScale (≤1) lowers the resolution when a busy scene drops frames.
     const dpr = Math.min(2, window.devicePixelRatio || 1) * C.clamp(this.renderScale || 1, .4, 1);
@@ -977,13 +1114,19 @@ class Renderer {
     this.paint=opt.paint||'neutral';this.setLights(opt.lights);this.hullLength=opt.hullLength||1600;this.sourceRed=opt.reference==='venator';this.meshScale=opt.fleet?null:opt.meshScale||null;this.hidden=opt.fleet?null:opt.hidden||null;
     this.clip = opt.mode === 'cut' ? opt.clip : null;
     gl.disable(gl.DEPTH_TEST); gl.depthMask(false); gl.disable(gl.BLEND); gl.disable(gl.CULL_FACE);
-    gl.useProgram(this.pb.p);
-    gl.bindBuffer(gl.ARRAY_BUFFER, this.bgBuf); gl.enableVertexAttribArray(this.pb.a.aP); gl.vertexAttribPointer(this.pb.a.aP, 2, gl.FLOAT, false, 0, 0);
-    gl.drawArrays(gl.TRIANGLES, 0, 3); gl.disableVertexAttribArray(this.pb.a.aP);
+    // The space views (opt.sky) have their own sky: the galactic band, then the
+    // stars, which the hyperspace jump stretches; the planet and the tunnel go over them.
+    const sky = opt.sky && !(opt.hyper && (opt.hyper.k ?? 1) >= 1) ? opt.sky : null;
+    if (!(sky && this.drawSkyBg(m, sky))) {
+      gl.useProgram(this.pb.p);
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.bgBuf); gl.enableVertexAttribArray(this.pb.a.aP); gl.vertexAttribPointer(this.pb.a.aP, 2, gl.FLOAT, false, 0, 0);
+      gl.drawArrays(gl.TRIANGLES, 0, 3); gl.disableVertexAttribArray(this.pb.a.aP);
+    }
     gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE);
     const e = m.eye;
-    if (!opt.noStars && !opt.hyper) this.drawPoints('stars', m, [e[0], e[1], e[2]], this.cam.r * 6 + 3000, 1, true);
-    this.planetLight = !!opt.planet; if (opt.hyper) this.drawHyper(m, opt.hyper); else if (opt.planet) this.drawPlanet(m, opt.planet);
+    if (sky) this.drawStars(m, sky);
+    else if (!opt.sky && !opt.noStars && !opt.hyper) this.drawPoints('stars', m, [e[0], e[1], e[2]], this.cam.r * 6 + 3000, 1, true);
+    this.planetLight = !!opt.planet; if (opt.planet) this.drawPlanet(m, opt.planet); if (opt.hyper) this.drawHyper(m, opt.hyper);
     gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     if(opt.fleet){this.drawFleet(m,opt);return true;}
@@ -1658,9 +1801,7 @@ Renderer.prototype.drawFleet=function(m,opt){
  }finally{this.meshes=old;this.off=off;this.modelCenter=null;this.modelYaw=0;this.modelRot=null;this.unitScl=null;this.unitFlash=0;}
  gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.depthMask(false);gl.disable(gl.CULL_FACE);if(!opt.planet){this.drawLines('fleetGrid',m,.65);gl.disable(gl.DEPTH_TEST);this.drawLines('fleetOrders',m,.8);gl.enable(gl.DEPTH_TEST);this.drawLines('fleetShots',m,1);}
  const glow=[];for(const u of opt.fleet){if(u.dead||u.hidden||(u.stretch||1)>1.05)continue;const a=this.fleetCache?.get(u.key);if(!a)continue;const R=u.rot||yawMatrix(u.yaw||0),k=u.glow??1;for(let i=0;i<a.glow.length;i+=4){const x=a.glow[i]-a.center[0],y=a.glow[i+1]-a.center[1],z=a.glow[i+2]-a.center[2];glow.push(u.pos[0]+R[0]*x+R[3]*y+R[6]*z,u.pos[1]+R[1]*x+R[4]*y+R[7]*z,u.pos[2]+R[2]*x+R[5]*y+R[8]*z,a.glow[i+3]*k);}}
- const pos=new Float32Array(glow.length/4*3),col=new Uint8Array(glow.length),size=new Float32Array(glow.length/4);for(let i=0;i<size.length;i++){pos.set(glow.slice(i*4,i*4+3),i*3);col.set([110,185,255,150],i*4);size[i]=glow[i*4+3];}this.setPoints('fleetGlow',pos,col,size);gl.blendFunc(gl.ONE,gl.ONE);this.drawPoints('fleetGlow',m,[0,0,0],1,2,false);if(opt.planet||opt.hyper){if(!opt.hyper)this.drawPoints('trialDust',m,[0,0,0],1,1,false);this.drawPoints('trialFx',m,[0,0,0],1,2,false);this.drawPoints('trialBolts',m,[0,0,0],1,2,false);if(!opt.hyper)this.drawPoints('trialCraft',m,[0,0,0],1,2,false);}
- // Star streaks of a hyperspace jump, drawn at the far distance without depth.
- if(opt.streaks){gl.disable(gl.DEPTH_TEST);this.drawLines('warpStreaks',m,1);gl.enable(gl.DEPTH_TEST);}
+ const pos=new Float32Array(glow.length/4*3),col=new Uint8Array(glow.length),size=new Float32Array(glow.length/4);for(let i=0;i<size.length;i++){pos.set(glow.slice(i*4,i*4+3),i*3);col.set([110,185,255,150],i*4);size[i]=glow[i*4+3];}this.setPoints('fleetGlow',pos,col,size);gl.blendFunc(gl.ONE,gl.ONE);this.drawPoints('fleetGlow',m,[0,0,0],1,2,false);if(opt.planet||opt.hyper||opt.sky){if(!opt.hyper&&!opt.noDust)this.drawPoints('trialDust',m,[0,0,0],1,1,false);this.drawPoints('trialFx',m,[0,0,0],1,2,false);this.drawPoints('trialBolts',m,[0,0,0],1,2,false);if(!opt.hyper)this.drawPoints('trialCraft',m,[0,0,0],1,2,false);}
  gl.depthMask(true);
 };
 
