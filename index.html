@@ -904,6 +904,8 @@ body.trial-on .tut.vtut{display:grid!important;top:max(96px,calc(var(--sa-top,0p
    insets, which left the home indicator's strip black under the 3D view; the body now spans
    the screen and the controls keep clear of the insets themselves (--sa-*). */
 html:not(.ks-rot) body{position:fixed;inset:0;width:auto;height:auto}
+/* v20.1 the sound toggle: waves when on, a cross when muted */
+.snd-btn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.snd-btn .snd-x{display:none}.ks-muted .snd-btn .snd-x{display:inline}.ks-muted .snd-btn .snd-wave{display:none}.ks-muted .snd-btn{color:var(--accent)}.th-btn.snd-btn{display:inline-grid;place-items:center;min-width:38px}
 .hudbottom{bottom:calc(10px + var(--sa-bottom,0px))}
 .panel{padding-bottom:calc(18px + var(--sa-bottom,0px))}
 #fleetMapTools{bottom:calc(12px + var(--sa-bottom,0px))}
@@ -1006,6 +1008,7 @@ body.tut-on .inspect{bottom:calc(70px + var(--sa-bottom,0px))}
       <p class="title-status" id="titleStatus" role="status" aria-live="polite">読み込み中…</p>
       <button type="button" class="title-credit title-land" data-landscape>全画面・横向きにする</button>
       <button type="button" class="title-credit ks-rot-only" data-rotflip>画面の向きを反転</button>
+      <button type="button" class="title-credit" data-title-sound>音の設定</button>
       <button type="button" class="title-credit" data-title-credits>使用素材とライセンス</button>
     </footer>
   </div>
@@ -1023,6 +1026,7 @@ body.tut-on .inspect{bottom:calc(70px + var(--sa-bottom,0px))}
       <button type="button" class="icon-btn" id="btnDock" aria-pressed="false" aria-label="操作パネルを隠す" title="操作パネルを隠す"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M15 4v16"/></svg></button>
       <button type="button" class="icon-btn" id="btnUndo" aria-label="元に戻す" title="元に戻す"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg></button>
       <button type="button" class="icon-btn" id="btnRedo" aria-label="やり直す" title="やり直す"><svg viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></svg></button>
+      <button type="button" class="icon-btn snd-btn" data-sound-toggle aria-pressed="false" aria-label="音を切る" title="音の入・切（設定はタイトルの「音の設定」）"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="snd-wave" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/><path class="snd-x" d="M16 9l5 6M21 9l-5 6"/></svg></button>
       <button type="button" class="icon-btn" id="btnShot" aria-label="スクリーンショット表示（操作表示を隠す）" title="スクリーンショット表示：操作表示を隠して3D表示だけにします（H）" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button>
       
       <button type="button" class="btn-ghost" id="btnHome" title="タイトルメニューに戻る">メニュー</button>

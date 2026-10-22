@@ -1,3 +1,823 @@
+// ---- src/45_audio.js ----
+// 45_audio.js — KSAudio: synthesized orchestral BGM and SFX (Web Audio only; no samples, all themes original).
+// createEngine(ctx, dest) builds the graph on any BaseAudioContext, so the same code renders offline for tests.
+(function () {
+'use strict';
+const W = typeof window !== 'undefined' ? window : globalThis;
+if (W.KSAudio && W.KSAudio.__ks) return;
+const AC = W.AudioContext || W.webkitAudioContext, OAC = W.OfflineAudioContext || W.webkitOfflineAudioContext;
+
+// ---------- small helpers ----------
+const clamp = (x, a, b) => x < a ? a : x > b ? b : x;
+const mtof = m => 440*Math.pow(2, (m - 69) / 12);
+const smooth = x => { x = clamp(x,0,1); return x*x*(3 - 2*x); };
+function rng(a) { a = a >>> 0 || 1; return () => { a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15,1 | a); t = t + Math.imul(t ^ t >>> 7,61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const PCN = {C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11};
+const pcOf = s => (PCN[s[0]] + (s[1] === 'b' ? -1 : s[1] === '#' ? 1 : 0) + 12) % 12;
+function nm(s) { const m = /^([A-G])(b|#)?(-?\d)$/.exec(s); if (!m) throw new Error('note ' + s); return 12*(+m[3] + 1) + PCN[m[1]] + (m[2] === 'b' ? -1 : m[2] === '#' ? 1 : 0); }
+function mel(str) { const out = []; let t = 0; for (const tok of str.split(/\s+/)) { if (!tok || tok === '|') continue; const p = tok.split(':'), d = +p[1]; if (p[0] !== 'r') out.push([nm(p[0]), t, d]); t += d; } out.len = t; return out; }
+const QUAL = {'': [0,4,7], m: [0,3,7],7: [0,4,7,10], m7: [0,3,7,10], maj7: [0,4,7,11], sus: [0,5,7], sus2: [0,2,7], dim: [0,3,6], m7b5: [0,3,6,10],5: [0,7], add9: [0,4,7,2], madd9: [0,3,7,2],6: [0,4,7,9], m6: [0,3,7,9],9: [0,4,7,10,2], aug: [0,4,8]};
+function chord(s) { const m = /^([A-G][b#]?)([^/]*)(?:\/([A-G][b#]?))?$/.exec(s); const r = pcOf(m[1]), iv = QUAL[m[2]]; if (!iv) throw new Error('chord ' + s); return {r, pcs: iv.map(i => (r + i) % 12), b: m[3] ? pcOf(m[3]) : r, q: m[2]}; }
+function prog(str) { const out = []; let t = 0; for (const tok of str.split(/\s+/)) { if (!tok || tok === '|') continue; const p = tok.split(':'), d = +(p[1] || 4); out.push({c: chord(p[0]), t, d}); t += d; } out.len = t; return out; }
+function vlead(pcs, prev, lo, hi, n) {
+ const cand = []; for (let m = lo; m <= hi; m++) if (pcs.includes(m % 12)) cand.push(m);
+ if (!prev || prev.length !== n) { const s = Math.max(0, Math.floor((cand.length - n) / 2)); return cand.slice(s, s + n); }
+ const out = [], used = {};
+ for (let i = n - 1; i >= 0; i--) { let best = cand[0], bs = 1e9; for (const c of cand) { if (out.includes(c)) continue; const s = Math.abs(c - prev[i]) + (used[c % 12] ? 2.6 : 0) + (i === n - 1 && c % 12 === pcs[0] ? -.4 : 0); if (s < bs) { bs = s; best = c; } } out.push(best); used[best % 12] = 1; }
+ return out.sort((a, b) => a - b);
+}
+const lowNote = (pc, lo) => lo + ((pc - lo) % 12 + 12) % 12; // lowest midi >= lo with that pitch class
+
+// ---------- generated buffers (shared per context) ----------
+function makeNoise(ctx, sec) { const n = Math.floor(ctx.sampleRate*sec), b = ctx.createBuffer(1, n, ctx.sampleRate), d = b.getChannelData(0), r = rng(9); for (let i = 0; i < n; i++) d[i] = r()*2 - 1; return b; }
+function makeCrackle(ctx, sec) { const n = Math.floor(ctx.sampleRate*sec), b = ctx.createBuffer(1, n, ctx.sampleRate), d = b.getChannelData(0), r = rng(21); for (let i = 0; i < n; i++) if (r() < .0022) { const a = (r()*.8 + .2)*(r() < .5 ? -1 : 1), len = 1 + (r()*9 | 0); for (let k = 0; k < len && i + k < n; k++) d[i + k] = a*(1 - k / len)*(k & 1 ? -1 : 1); i += len; } return b; }
+function makeBrown(ctx, sec) { const sr = ctx.sampleRate, n = Math.floor(sr*sec), m = Math.floor(sr*.05), x = new Float32Array(n + m), r = rng(5); let y = 0, ss = 0;
+ for (let i = 0; i < n + m; i++) { y = y*.996 + (r()*2 - 1)*.06; x[i] = y; ss += y*y; }
+ const k = .5 / Math.sqrt(ss / (n + m)), b = ctx.createBuffer(1, n, sr), d = b.getChannelData(0); for (let i = 0; i < n; i++) d[i] = (i < m ? x[i]*(i / m) + x[n + i]*(1 - i / m) : x[i])*k; return b; }
+function makeGrit(ctx, sec) { const sr = ctx.sampleRate, n = Math.floor(sr*sec), b = ctx.createBuffer(1, n, sr), d = b.getChannelData(0), r = rng(13); let e = 0, nx = 0; for (let i = 0; i < n; i++) { if (i >= nx) { e = .25 + r()*.75; nx = i + (sr*(.002 + r()*.006) | 0); } e *= .9994; d[i] = (r()*2 - 1)*e; } return b; }
+function makeIR(ctx, sec) {
+ const sr = ctx.sampleRate, n = Math.floor(sr*sec), b = ctx.createBuffer(2, n, sr);
+ for (let ch = 0; ch < 2; ch++) {
+  const d = b.getChannelData(ch), r = rng(ch ? 77 : 33); let lp = 0;
+  for (let i = 0; i < n; i++) { const x = i / sr, c = .92 - .78*Math.min(1, x / sec); lp += c*((r()*2 - 1) - lp); const pre = x < .012 ? x / .012 : 1; d[i] = lp*Math.exp(-3.1*x)*pre*(1 - i / n); }
+  for (let k = 0; k < 7; k++) { const at = Math.floor(sr*(.011 + .013*k + r()*.009)); if (at < n) d[at] += (r() < .5 ? -1 : 1)*(.5 - k*.05); }
+ }
+ return b;
+}
+function clipCurve() { const n = 2048, c = new Float32Array(n); for (let i = 0; i < n; i++) { const x = i / (n - 1)*2 - 1, a = Math.abs(x); c[i] = Math.sign(x)*(a < .6 ? a : .6 + .36*Math.tanh((a - .6) / .36)); } return c; }
+
+// ---------- the engine ----------
+function createEngine(ctx, dest, opt) {
+ opt = opt || {};
+ const E = {ctx, intensity: 0, stats: {started: 0, thinned: 0, stolen: 0, dropped: 0, peakVoices: 0}};
+ E.noise = makeNoise(ctx,2.2); E.crackle = makeCrackle(ctx,1.6); E.ir = makeIR(ctx,2.6); E.brown = makeBrown(ctx,2.5); E.grit = makeGrit(ctx,1.6);
+ const satC = new Float32Array(1024); for (let i = 0; i < 1024; i++) satC[i] = .6*Math.tanh(3.5*(i / 511.5 - 1)) / Math.tanh(3.5);
+ let made = 0;
+ const G = v => { const g = ctx.createGain(); g.gain.value = v; made++; return g; };
+ E.G = G;
+ const sum = G(1), comp = ctx.createDynamicsCompressor(), trim = G(.72), lim = ctx.createDynamicsCompressor(), clip = ctx.createWaveShaper();
+ comp.threshold.value = -20; comp.knee.value = 16; comp.ratio.value = 2.6; comp.attack.value = .012; comp.release.value = .3;
+ lim.threshold.value = -5; lim.knee.value = 0; lim.ratio.value = 20; lim.attack.value = .001; lim.release.value = .12;
+ clip.curve = clipCurve(); clip.oversample = '2x';
+ E.hide = G(1); E.vol = G(.7);
+ sum.connect(comp); comp.connect(trim); trim.connect(lim); lim.connect(clip); clip.connect(E.hide); E.hide.connect(E.vol); E.vol.connect(dest || ctx.destination);
+ const conv = ctx.createConvolver(); conv.buffer = E.ir; const revOut = G(.9); conv.connect(revOut); revOut.connect(sum);
+ E.mDry = G(1); E.mWet = G(1); const mVol = G(.55), mVolW = G(.55), duck = G(1), duckW = G(1);
+ E.mDry.connect(mVol); mVol.connect(duck); duck.connect(sum); E.mWet.connect(mVolW); mVolW.connect(duckW); duckW.connect(conv);
+ E.stDry = G(1); E.stWet = G(1); const stV = G(.55), stVW = G(.55);
+ E.stDry.connect(stV); stV.connect(sum); E.stWet.connect(stVW); stVW.connect(conv);
+ E.sDry = G(1); E.sWet = G(1); const sVol = G(.7), sVolW = G(.7);
+ E.sDry.connect(sVol); sVol.connect(sum); E.sWet.connect(sVolW); sVolW.connect(conv);
+ const ramp = (p, v, tc) => { const t = ctx.currentTime; p.cancelScheduledValues(t); p.setTargetAtTime(v, t, tc || .05); };
+ E.apply = s => {
+  ramp(E.vol.gain, s.muted ? 0 : s.master,.04);
+  for (const g of [mVol, mVolW, stV, stVW]) ramp(g.gain, s.music,.08);
+  ramp(sVol.gain, s.sfx,.04); ramp(sVolW.gain, s.sfx,.04);
+ };
+ E.duck = (t, hold, depth) => { for (const g of [duck, duckW]) { const p = g.gain; p.cancelScheduledValues(t); p.setTargetAtTime(depth, t,.08); p.setTargetAtTime(1, t + hold,.7); } };
+ E.setHidden = h => { const p = E.hide.gain, t = ctx.currentTime; p.cancelScheduledValues(t); p.setTargetAtTime(h ? 0 : 1, t, h ? .07 : .15); };
+
+ // Finished notes are disconnected explicitly (graves), so the render thread never keeps pulling dead chains until GC.
+ let curV = null, curN = null; const graves = [];
+ const reg = (node, t0, t1) => { made++; node.start(t0); node.stop(t1); if (curV) curV.src.push([node, t1]); if (curN && t1 > curN.e) curN.e = t1; return node; };
+ E.osc = (type, f, t0, t1, det) => { const o = ctx.createOscillator(); o.type = type; o.frequency.value = f; if (det) o.detune.value = det; return reg(o, t0, t1); };
+ E.nz = (t0, t1, rate, buf) => { const s = ctx.createBufferSource(); made++; s.buffer = buf || E.noise; s.loop = true; if (rate) s.playbackRate.value = rate; s.start(t0, Math.random()*1.5); s.stop(t1); if (curV) curV.src.push([s, t1]); if (curN && t1 > curN.e) curN.e = t1; return s; };
+ E.flt = (type, f, q, g) => { const b = ctx.createBiquadFilter(); made++; b.type = type; b.frequency.value = f; try { b.frequency.automationRate = 'k-rate'; } catch (e) {} if (q != null) b.Q.value = q; if (g != null) b.gain.value = g; return b; };
+ E.sat = () => { const w = ctx.createWaveShaper(); made++; w.curve = satC; return w; };
+ E.pan = v => { if (!ctx.createStereoPanner) return G(1); const p = ctx.createStereoPanner(); p.pan.value = clamp(v,-1,1); return p; };
+ E.nOut = (dst, wet, pan) => { const g = G(0); let o = g; if (pan) { o = E.pan(pan); g.connect(o); } o.connect(dst.d); if (curN) curN.o.push(o); if (wet > 0 && dst.w) { const w = G(wet); o.connect(w); w.connect(dst.w); if (curN) curN.o.push(w); } return g; };
+ E.note = (f, a, b, c, d, e, g, h) => { curN = {e: 0, o: []}; try { f(E, a, b, c, d, e, g, h); } finally { if (curN.o.length) graves.push(curN); curN = null; } };
+ const sweepGraves = () => { const now = ctx.currentTime - .05; let j = 0; for (let i = 0; i < graves.length; i++) { const g = graves[i]; if (g.e < now) { for (const n of g.o) try { n.disconnect(); } catch (e) {} } else graves[j++] = g; } graves.length = j; };
+ E.graves = () => graves.length;
+
+ const voices = [], lastAt = {}, pend = []; let tok = 14, tokT = 0;
+ E.DEFER = .25; E.RATE = opt.rate || 60; // voice starts per second (token bucket); priority >= 4 always passes
+ E.VOICE_CAP = opt.voiceCap || 24; E.BUDGET = opt.budget || 320;
+ E.voices = () => { const t = ctx.currentTime; let n = 0; for (const v of voices) if (v.t1 > t && v.t0 <= t + .05) n++; return n; };
+ const kill = (v, t) => { E.stats.stolen++; v.gv.e = t + .05; const p = v.gate.gain; p.cancelScheduledValues(t); p.setValueAtTime(v.g, t); p.linearRampToValueAtTime(0, t + .035); for (const [s, st] of v.src) if (st > t + .045) try { s.stop(t + .045); } catch (e) {} v.t1 = t + .045; };
+ E.sfx = (name, p) => {
+  const R = E.SFX[name]; if (!R) return false;
+  p = p || {};
+  const t = Math.max(ctx.currentTime, p.at != null ? p.at : ctx.currentTime + .004) + Math.max(0, +p.delay || 0);
+  if (t > ctx.currentTime + E.DEFER) { if (pend.length < 512) pend.push([t, name, p]); return true; } // built just in time by advance()
+  const la = lastAt[name];
+  if (la != null && t >= la && t - la < R.gap) { E.stats.thinned++; return false; }
+  const g = clamp(p.gain == null ? 1 : +p.gain || 0,0,1.5)*R.vol; if (g < .004) return false;
+  if (t > tokT) { tok = Math.min(14, tok + (t - tokT)*E.RATE); tokT = t; }
+  if (tok < 1 && R.pri < 4) { E.stats.thinned++; return false; } tok = Math.max(0, tok - 1);
+  for (let i = voices.length - 1; i >= 0; i--) if (voices[i].t1 <= t) voices.splice(i,1);
+  let same = 0, oldest = null; for (const v of voices) if (v.n === name && v.t1 > t) { same++; if (!oldest || v.t0 < oldest.t0) oldest = v; }
+  if (same >= R.cap) { kill(oldest, t); voices.splice(voices.indexOf(oldest),1); }
+  for (let k = 0; k < 8; k++) {
+   let sw = R.w || 16; for (const v of voices) sw += v.w;
+   if (voices.length < E.VOICE_CAP && sw <= E.BUDGET) break;
+   let w = null; for (const v of voices) if (!w || v.pri < w.pri || v.pri === w.pri && v.g*(v.t1 - t) < w.g*(w.t1 - t)) w = v;
+   if (!w || w.pri > R.pri) { E.stats.dropped++; return false; }
+   kill(w, t); voices.splice(voices.indexOf(w),1);
+  }
+  const gate = G(g), pn = E.pan(p.pan || 0), gv = {e: 0, o: [pn]};
+  gate.connect(pn); pn.connect(E.sDry); if (R.wet) { const w = G(R.wet); pn.connect(w); w.connect(E.sWet); gv.o.push(w); }
+  const v = {n: name, t0: t, t1: t + 1, g, pri: R.pri, gate, src: [], gv, w: 0}, m0 = made;
+  curV = v;
+  try { v.t1 = t + R.f(E, t, gate, clamp(p.pitch || 1,.25,4), p); } finally { curV = null; }
+  for (const s of v.src) if (s[1] > v.t1) v.t1 = s[1];
+  v.w = R.w = made - m0 + 3;
+  gv.e = v.t1 + .05; graves.push(gv); voices.push(v); lastAt[name] = t; E.stats.started++; E.last = v;
+  let n = 0; for (const x of voices) if (x.t0 <= t && x.t1 > t) n++;
+  if (n > E.stats.peakVoices) E.stats.peakVoices = n;
+  return true;
+ };
+
+ E.players = []; E.scene = null;
+ E.playScene = (name, o) => {
+  const def = E.SCENES[name]; if (!def) return null;
+  const t = ctx.currentTime + .06, fade = o && o.fade != null ? o.fade : 1.6;
+  for (const pl of E.players) if (!pl.once && !pl.dead) pl.stop(t,1.8);
+  const pl = new Player(E, def, o || {}, t, fade, false); E.players.push(pl); E.scene = pl; return pl;
+ };
+ E.stopMusic = fade => { const t = ctx.currentTime + .02; for (const pl of E.players) if (!pl.once && !pl.dead) pl.stop(t, fade == null ? 1.8 : fade); E.scene = null; };
+ E.stinger = (name, o) => {
+  const def = E.STINGERS[name]; if (!def) return null;
+  const t = ctx.currentTime + .05 + (o && o.delay || 0), pl = new Player(E, def, o || {}, t,0, true);
+  E.players.push(pl); E.duck(t, def.hold || 3, def.duck == null ? .3 : def.duck); pl.advance(t + .15); return pl;
+ };
+ E.setIntensity = x => { E.intensity = clamp(+x || 0,0,1); for (const pl of E.players) if (!pl.dead && pl.def.layers) pl.setLayers(); };
+ E.advance = until => { sweepGraves();
+  if (pend.length) { pend.sort((a, b) => a[0] - b[0]); let k = 0; while (k < pend.length && pend[k][0] <= until + .1) k++; for (const [t, n, p] of pend.splice(0, k)) E.sfx(n, Object.assign({}, p, {at: t, delay: 0})); }
+  for (let i = E.players.length - 1; i >= 0; i--) { const pl = E.players[i]; pl.advance(until); if (pl.gone(ctx.currentTime)) { pl.free(); E.players.splice(i,1); } } };
+ E.SFX = SFX; E.SCENES = SCENES; E.STINGERS = STINGERS;
+ return E;
+}
+
+function Player(E, def, o, t, fade, once) {
+ const ctx = E.ctx;
+ this.E = E; this.def = def; this.once = once; this.fac = FLAVOR[o.faction] ? o.faction : 'none'; this.flv = FLAVOR[this.fac];
+ this.out = E.G(fade > 0 ? 0 : 1); this.outW = E.G(fade > 0 ? 0 : 1);
+ this.out.connect(once ? E.stDry : E.mDry); this.outW.connect(once ? E.stWet : E.mWet);
+ if (fade > 0) for (const g of [this.out, this.outW]) { g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(1, t + fade); }
+ const nL = def.layers || 1; this.L = []; this.lv = [];
+ for (let i = 0; i < nL; i++) { const d = E.G(i ? 0 : 1), w = E.G(i ? 0 : 1); d.connect(this.out); w.connect(this.outW); this.L.push({d, w}); this.lv.push({v: i ? 0 : 1, tg: i ? 0 : 1, t: t}); }
+ this.t0 = t; this.sec = null; this.i = 0; this.dead = 0; this.end = once ? Infinity : 0;
+ this.rnd = rng((o.seed || 0) + (def.seed || 1)*977 + (this.fac.length*31));
+ this.st = {}; this.tr = (def.tr || 0) + (this.flv.tr || 0);
+ if (nL > 1) this.setLayers(true);
+ this.advance(t + .12);
+}
+Player.prototype.setLayers = function (now) {
+ const E = this.E, t = E.ctx.currentTime, x = E.intensity, f = this.def.layers;
+ for (let i = 1; i < f; i++) {
+  const tg = i === 1 ? smooth((x - .18) / .3) : smooth((x - .55) / .3), l = this.lv[i];
+  l.v = this.level(i, t); l.tg = tg; l.t = t;
+  for (const g of [this.L[i].d.gain, this.L[i].w.gain]) { g.cancelScheduledValues(t); if (now) g.setValueAtTime(tg, t); else g.setTargetAtTime(tg, t,.9); }
+ }
+};
+Player.prototype.level = function (i, t) { const l = this.lv[i]; return l.tg + (l.v - l.tg)*Math.exp(-Math.max(0, t - l.t) / .9); };
+Player.prototype.stop = function (t, fade) {
+ if (this.dead) return; this.dead = t + fade + .1;
+ for (const g of [this.out.gain, this.outW.gain]) { g.cancelScheduledValues(t); g.setValueAtTime(g.value, t); g.linearRampToValueAtTime(0, t + fade); }
+};
+Player.prototype.gone = function (now) { return this.dead ? now > this.dead + 3 : this.once && now > this.end + 4; };
+Player.prototype.free = function () { try { this.out.disconnect(); this.outW.disconnect(); } catch (e) {} };
+Player.prototype.advance = function (until) {
+ const E = this.E;
+ for (let guard = 0; guard < 64; guard++) {
+  if (this.dead && this.t0 > this.dead) return;
+  if (!this.sec) {
+   if (this.once && this.played) return;
+   const s = new Sec(); this.def.next(this, s); s.ev.sort((a, b) => a.t - b.t); this.sec = s; this.i = 0; this.spb = 60 / (s.bpm || this.def.bpm || 100) / (this.flv.tempo || 1); this.played = 1;
+   if (this.once) this.end = this.t0 + s.len*this.spb;
+  }
+  const q = this.sec.ev, spb = this.spb;
+  while (this.i < q.length) {
+   const e = q[this.i], at = this.t0 + e.t*spb; if (at > until) break; this.i++;
+   if (this.dead && at > this.dead) continue;
+   if (e.L && this.level(e.L, at) < .015 && this.lv[e.L].tg < .015) continue;
+   E.note(e.f, at, e.d*spb, e.m + (e.f.perc ? 0 : this.tr), e.v, this.L[e.L || 0], e.x || {});
+  }
+  const end = this.t0 + this.sec.len*spb;
+  if (this.i >= q.length && end <= until) { this.t0 = end; this.sec = null; if (this.once) return; continue; }
+  return;
+ }
+};
+function Sec() { this.ev = []; this.len = 0; }
+Sec.prototype.n = function (t, d, f, m, v, L, x) { this.ev.push({t, d, f, m, v, L: L || 0, x}); return this; };
+
+// ---------- instruments: f(E, time, seconds, midi, velocity 0..1, layer {d,w}, extra) ----------
+function adsr(p, t, a, pk, s, dk, t1, r) { p.setValueAtTime(0, t); p.linearRampToValueAtTime(pk, t + a); if (s < 1) p.setTargetAtTime(pk*s, t + a, dk); p.setTargetAtTime(0, Math.max(t1, t + a), r / 4); }
+const sweep = (p, a, b, t, d) => { p.setValueAtTime(a, t); p.exponentialRampToValueAtTime(b, t + d); };
+function vib(E, t, end, rate, cents, delay, os) { const l = E.osc('sine', rate*(.94 + Math.random()*.12), t, end), g = E.G(0), hz = os[0].frequency.value*cents*.000578; g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(hz, t + delay); l.connect(g); for (const o of os) g.connect(o.frequency); }
+const I = {};
+I.brass = (E, t, d, m, v, dst, x) => {
+ const f = mtof(m), br = x.br || 1, t1 = t + d, r = x.r || .22, end = t1 + r + .05, sfz = x.sfz, a = x.a || (sfz ? .014 : .05);
+ const out = E.nOut(dst, x.wet == null ? .32 : x.wet, x.pan), lp = E.flt('lowpass', f*1.1, x.q || 1.3), F = lp.frequency;
+ F.setValueAtTime(f*1.1, t); F.linearRampToValueAtTime(Math.min(9000, f*(2.6 + 6.5*v)*br), t + a + .02);
+ F.setTargetAtTime(Math.min(7000, f*(1.5 + 2.8*v)*br), t + a + .02, sfz ? .06 : .28); F.setTargetAtTime(f*1.15, t1, r / 3);
+ const os = x.one ? [E.osc('sawtooth', f, t, end)] : [E.osc('sawtooth', f, t, end,-4), E.osc('sawtooth', f, t, end,5)];
+ for (const o of os) { o.frequency.setValueAtTime(f*.986, t); o.frequency.linearRampToValueAtTime(f, t + .06); o.connect(lp); }
+ if (d > .6 && x.vib !== 0) vib(E, t, end,5.2, x.vib || 8,.4, os);
+ lp.connect(out); adsr(out.gain, t, a,.17*v*(x.lv || 1), sfz ? .38 : .8, sfz ? .07 : .3, t1, r);
+};
+I.horn = (E, t, d, m, v, dst, x) => I.brass(E, t, d, m, v, dst, Object.assign({br: .55, a: .075, vib: 6, wet: .42, lv: 1.15}, x));
+I.tpt = (E, t, d, m, v, dst, x) => I.brass(E, t, d, m, v, dst, Object.assign({br: 1.2, a: .035, lv: .85}, x));
+I.tbn = (E, t, d, m, v, dst, x) => I.brass(E, t, d, m, v, dst, Object.assign({br: .8, q: 1.8, a: .045, lv: 1.1}, x));
+I.str = (E, t, d, m, v, dst, x) => {
+ const f = mtof(m), a = x.a || .32, r = x.r || .7, t1 = t + d, end = t1 + r + .05;
+ const out = E.nOut(dst, x.wet == null ? .45 : x.wet, x.pan), lp = E.flt('lowpass', Math.min(7500, f*(x.br || 5)),.5);
+ const os = [E.osc('sawtooth', f, t, end,-9), E.osc('sawtooth', f, t, end,2), E.osc('sawtooth', f, t, end,10)];
+ if (x.vib !== 0) vib(E, t, end,5.4, x.vib || 7,.3, os); for (const o of os) o.connect(lp);
+ let last = lp;
+ if (x.trem) { const tg = E.G(.55), l = E.osc('sine', x.trem, t, end), lg = E.G(.45); l.connect(lg); lg.connect(tg.gain); lp.connect(tg); last = tg; }
+ last.connect(out); adsr(out.gain, t, a,.06*v,.9,.5, t1, r);
+};
+I.stac = (E, t, d, m, v, dst, x) => {
+ const f = mtof(m), end = t + d + .14, out = E.nOut(dst, x.wet == null ? .22 : x.wet, x.pan), lp = E.flt('lowpass',8000,.9), F = lp.frequency;
+ F.setValueAtTime(Math.min(9000, f*(x.br || 10)), t); F.setTargetAtTime(f*2.4, t + .01, x.dry ? .03 : .06);
+ for (const c of [-7,7]) E.osc('sawtooth', f, t, end, c).connect(lp);
+ lp.connect(out); const g = out.gain; g.setValueAtTime(0, t); g.linearRampToValueAtTime(.085*v, t + .006); g.setTargetAtTime(.04*v, t + .006, x.dry ? .025 : .05); g.setTargetAtTime(0, t + d,.025);
+};
+I.harp = (E, t, d, m, v, dst, x) => {
+ const f = mtof(m), dec = x.dec || 1.4, end = t + dec*1.3, out = E.nOut(dst, x.wet == null ? .5 : x.wet, x.pan), lp = E.flt('lowpass', Math.min(9000, f*8),.7);
+ lp.frequency.setTargetAtTime(f*2, t + .005, dec*.25);
+ const o = E.osc('triangle', f, t, end), o2 = E.osc('sine', f*2, t, end), g2 = E.G(.3); g2.gain.setTargetAtTime(0, t, dec*.15);
+ o.connect(lp); o2.connect(g2); g2.connect(lp); lp.connect(out);
+ const g = out.gain; g.setValueAtTime(0, t); g.linearRampToValueAtTime(.15*v, t + .004); g.setTargetAtTime(0, t + .004, dec*.3);
+};
+I.pizz = (E, t, d, m, v, dst, x) => I.harp(E, t, d, m, v*1.2, dst, Object.assign({dec: .42, wet: .3}, x));
+I.cel = (E, t, d, m, v, dst, x) => {
+ const f = mtof(m), dec = x.dec || 1.1, end = t + dec*1.4, out = E.nOut(dst, x.wet == null ? .55 : x.wet, x.pan);
+ const car = E.osc('sine', f, t, end), mod = E.osc('sine', f*(x.ratio || 4), t, end), mg = E.G(f*(x.idx || 1.5));
+ mg.gain.setTargetAtTime(f*.08, t,.1); mod.connect(mg); mg.connect(car.frequency); car.connect(out);
+ const g = out.gain; g.setValueAtTime(0, t); g.linearRampToValueAtTime(.1*v, t + .003); g.setTargetAtTime(0, t + .003, dec*.3);
+};
+const FORM = {o: [[430,6,1], [820,8,.5], [2700,10,.12]], a: [[700,5,1], [1150,7,.55], [2600,10,.15]], u: [[320,6,1], [720,8,.3], [2400,10,.07]]};
+I.choir = (E, t, d, m, v, dst, x) => {
+ const f = mtof(m), a = x.a || .7, r = x.r || 1.1, t1 = t + d, end = t1 + r + .05, out = E.nOut(dst, x.wet == null ? .6 : x.wet, x.pan), src = E.G(1);
+ const os = [E.osc('sawtooth', f, t, end,-11), E.osc('sawtooth', f, t, end,9)]; vib(E, t, end,4.7,10,.45, os); for (const o of os) o.connect(src);
+ for (const [ff, q, gg] of FORM[x.vow || 'o']) { const b = E.flt('bandpass', ff, q), g = E.G(gg*2.6); src.connect(b); b.connect(g); g.connect(out); }
+ adsr(out.gain, t, a,.11*v,.92,.6, t1, r);
+};
+I.timp = (E, t, d, m, v, dst, x) => {
+ const f = mtof(m), dec = x.dec || .85, out = E.nOut(dst, x.wet == null ? .38 : x.wet, x.pan);
+ const o = E.osc('sine', f*1.07, t, t + dec*6); sweep(o.frequency, f*1.07, f, t,.08); o.connect(out);
+ for (const [k, a, dk] of [[1.505,.42,.45], [1.99,.24,.3], [2.44,.12,.2]]) { const p = E.osc('sine', f*k, t, t + dec*2.5), g = E.G(a); g.gain.setTargetAtTime(0, t, dec*dk); p.connect(g); g.connect(out); }
+ const n = E.nz(t, t + .07), bp = E.flt('bandpass', Math.min(2800, f*7),.9), ng = E.G(.55); ng.gain.setTargetAtTime(0, t,.014); n.connect(bp); bp.connect(ng); ng.connect(out);
+ const g = out.gain; g.setValueAtTime(0, t); g.linearRampToValueAtTime(.4*v, t + .004); g.setTargetAtTime(0, t + .004, dec);
+};
+I.snare = (E, t, d, m, v, dst, x) => {
+ const out = E.nOut(dst, x.wet == null ? .3 : x.wet, x.pan), n = E.nz(t, t + .4), hp = E.flt('highpass',1500,.7), pk = E.flt('peaking',4300,1,5);
+ n.connect(hp); hp.connect(pk); pk.connect(out);
+ const b = E.osc('triangle',215, t, t + .12), bg = E.G(.7); sweep(b.frequency,215,150, t,.05); bg.gain.setTargetAtTime(0, t,.022); b.connect(bg); bg.connect(out);
+ const g = out.gain; g.setValueAtTime(0, t); g.linearRampToValueAtTime(.24*v, t + .002); g.setTargetAtTime(0, t + .002, x.dec || .05);
+};
+I.snare.perc = true;
+I.drum = (E, t, d, m, v, dst, x) => {
+ const f = x.f || 55, dec = x.dec || .3, out = E.nOut(dst, x.wet == null ? .3 : x.wet, x.pan);
+ const o = E.osc('sine', f*2.3, t, t + dec*5); sweep(o.frequency, f*2.3, f, t,.07); o.connect(out);
+ const n = E.nz(t, t + .05), lp = E.flt('lowpass',1100,.7), ng = E.G(.6); ng.gain.setTargetAtTime(0, t,.01); n.connect(lp); lp.connect(ng); ng.connect(out);
+ const g = out.gain; g.setValueAtTime(0, t); g.linearRampToValueAtTime(.4*v, t + .003); g.setTargetAtTime(0, t + .003, dec);
+};
+I.drum.perc = true;
+I.cym = (E, t, d, m, v, dst, x) => {
+ const dec = x.dec || 1.3, sw = x.sw ? d : 0, out = E.nOut(dst, x.wet == null ? .5 : x.wet, x.pan), n = E.nz(t, t + sw + dec*4.5), hp = E.flt('highpass',5200,.6), pk = E.flt('peaking',9000,.8,6);
+ n.connect(hp); hp.connect(pk); pk.connect(out);
+ const g = out.gain; g.setValueAtTime(0, t);
+ if (sw) { g.linearRampToValueAtTime(.002, t + .01); g.exponentialRampToValueAtTime(.1*v, t + sw); g.setTargetAtTime(0, t + sw,.1); }
+ else { g.linearRampToValueAtTime(.12*v, t + .003); g.setTargetAtTime(.045*v, t + .003,.07); g.setTargetAtTime(0, t + .12, dec); }
+};
+I.cym.perc = true;
+I.metal = (E, t, d, m, v, dst, x) => {
+ const f = mtof(m), dec = x.dec || .22, out = E.nOut(dst, x.wet == null ? .35 : x.wet, x.pan);
+ const car = E.osc('sine', f, t, t + dec*5), mod = E.osc('sine', f*1.414, t, t + dec*5), mg = E.G(f*2.4); mg.gain.setTargetAtTime(f*.3, t, dec*.5);
+ mod.connect(mg); mg.connect(car.frequency); const hp = E.flt('highpass',280,.7); car.connect(hp); hp.connect(out);
+ const g = out.gain; g.setValueAtTime(0, t); g.linearRampToValueAtTime(.09*v, t + .002); g.setTargetAtTime(0, t + .002, dec);
+};
+I.flute = (E, t, d, m, v, dst, x) => {
+ const f = mtof(m), r = x.r || .25, t1 = t + d, end = t1 + r + .05, out = E.nOut(dst, x.wet == null ? .5 : x.wet, x.pan);
+ const o = E.osc('sine', f, t, end), o2 = E.osc('triangle', f, t, end,3), g2 = E.G(.35); vib(E, t, end,5.1,11,.3, [o, o2]);
+ o.connect(out); o2.connect(g2); g2.connect(out);
+ const n = E.nz(t, end), bp = E.flt('bandpass', Math.min(8000, f*2),2), ng = E.G(.14); n.connect(bp); bp.connect(ng); ng.connect(out);
+ adsr(out.gain, t, x.a || .08,.09*v,.85,.3, t1, r);
+};
+I.reed = (E, t, d, m, v, dst, x) => {
+ const f = mtof(m), r = x.r || .2, t1 = t + d, end = t1 + r + .05, out = E.nOut(dst, x.wet == null ? .45 : x.wet, x.pan);
+ const o = E.osc('square', f, t, end), lp = E.flt('lowpass', Math.min(5000, f*3.2),.9); vib(E, t, end,5,7,.35, [o]);
+ o.connect(lp); lp.connect(out); adsr(out.gain, t, x.a || .06,.045*v,.85,.3, t1, r);
+};
+I.sub = (E, t, d, m, v, dst, x) => { const f = mtof(m), t1 = t + d, r = x.r || .3, out = E.nOut(dst,0); E.osc('sine', f, t, t1 + r + .05).connect(out); adsr(out.gain, t, x.a || .02,.2*v,.85,.3, t1, r); };
+I.drone = (E, t, d, m, v, dst, x) => {
+ const f = mtof(m), t1 = t + d, r = x.r || 2.5, end = t1 + r + .05, out = E.nOut(dst, x.wet == null ? .5 : x.wet), lp = E.flt('lowpass',320,2.5);
+ const l = E.osc('sine', x.lfo || .07, t, end), lg = E.G(x.sweep || 260); l.connect(lg); lg.connect(lp.frequency);
+ for (const c of [-6,6]) E.osc('sawtooth', f, t, end, c).connect(lp);
+ lp.connect(out); adsr(out.gain, t, x.a || 2.2,.07*v,1,1, t1, r);
+};
+I.steam = (E, t, d, m, v, dst, x) => {
+ const out = E.nOut(dst, x.wet == null ? .7 : x.wet, x.pan), n = E.nz(t, t + d + 1.2), bp = E.flt('bandpass', x.f || 700,.9);
+ bp.frequency.setValueAtTime(x.f || 700, t); bp.frequency.linearRampToValueAtTime((x.f || 700)*1.8, t + d);
+ n.connect(bp); bp.connect(out); const g = out.gain; g.setValueAtTime(0, t); g.linearRampToValueAtTime(.05*v, t + d*.6); g.setTargetAtTime(0, t + d*.6, d*.25);
+};
+
+// ---------- sound effects (heavy: saturated sub booms, grit crunch, transients, brown-noise rumbles) ----------
+const ENV = (E, t, a, pk, tau, hold) => { const g = E.G(0), p = g.gain; p.setValueAtTime(0, t); p.linearRampToValueAtTime(pk, t + a); if (hold) p.setValueAtTime(pk, t + a + hold); p.setTargetAtTime(0, t + a + (hold || 0), tau); return g; };
+const jit = k => 1 + (Math.random() - .5)*k;
+const life = (a, hold, tau) => a + (hold || 0) + tau*(tau > .5 ? 5 : 6);
+function nzf(E, out, t, dur, type, f0, f1, q, a, pk, tau, hold, buf, rate) {
+ const n = E.nz(t, t + Math.max(dur, life(a, hold, tau)), rate, buf), b = E.flt(type, f0, q); if (f1 && f1 !== f0) sweep(b.frequency, f0, f1, t, dur*.8);
+ const g = ENV(E, t, a, pk, tau, hold); n.connect(b); b.connect(g); g.connect(out); return b;
+}
+function tone(E, out, t, dur, type, f0, f1, a, pk, tau, sd, hold) {
+ const o = E.osc(type, f0, t, t + Math.max(dur, life(a, hold, tau))); if (f1 && f1 !== f0) sweep(o.frequency, f0, f1, t, sd || dur*.5);
+ const g = ENV(E, t, a, pk, tau, hold); o.connect(g); g.connect(out); return o;
+}
+// sub-bass boom: sine sweep into soft saturation (harmonics make it heavy on small speakers too)
+function boom(E, out, t, f0, f1, sd, pk, tau) { const o = E.osc('sine', f0, t, t + sd + life(.003,0, tau)); sweep(o.frequency, f0, f1, t, sd); const g = ENV(E, t,.003, pk, tau), sh = E.sat(); o.connect(g); g.connect(sh); sh.connect(out); }
+// rolling rumble: brown noise through a closing low-pass; am adds a slow (or fast, rate) swell
+function rumble(E, out, t, dur, f0, f1, pk, a, tau, hold, am, rate) {
+ const end = t + Math.max(dur, life(a, hold, tau)), n = E.nz(t, end,1, E.brown), lp = E.flt('lowpass', f0,.8); if (f1 !== f0) sweep(lp.frequency, f0, f1, t, dur*.9);
+ const g = ENV(E, t, a, pk, tau, hold); n.connect(lp);
+ if (am) { const m = E.G(1 - am*.5), r = rate || .7, lg = E.G(am*.5); for (const k of [1,2.9]) E.osc('sine', r*k*jit(.3), t, end).connect(lg); lg.connect(m.gain); lp.connect(m); m.connect(g); } else lp.connect(g);
+ g.connect(out);
+}
+const crunch = (E, out, t, f0, f1, dur, pk, tau) => nzf(E, out, t, dur, 'bandpass', f0, f1,.6,.002, pk*2.8, tau,0, E.grit);
+const snapT = (E, out, t, pk, f) => nzf(E, out, t,.03, 'highpass', f || 2200,0,.7,.0006, pk,.008);
+const thock = (E, out, t, f, pk, tau) => tone(E, out, t, tau*6, 'sine', f, f*.5,.002, pk, tau, tau*1.2);
+function metalHit(E, out, t, base, pk, tau) {
+ const c = E.osc('sine', base, t, t + life(0,0, tau)), m = E.osc('sine', base*1.41, t, t + life(0,0, tau)), mg = E.G(base*2.2); mg.gain.setTargetAtTime(base*.3, t, tau*.6); m.connect(mg); mg.connect(c.frequency);
+ const g = ENV(E, t,.002, pk*1.6, tau); c.connect(g); g.connect(out); tone(E, out, t, tau*4, 'sine', base*2.76*jit(.04),0,.002, pk*.5, tau*.6);
+}
+
+const SFX = {};
+const def = (name, gap, cap, pri, vol, wet, f) => { SFX[name] = {gap, cap, pri, vol, wet, f}; };
+// --- interface: short mechanical thunks and latches
+def('ui_click',.03,3,3,.6,.05, (E, t, o, p) => { thock(E, o, t,190*p,.5,.022); nzf(E, o, t,.03, 'bandpass',1900*p,0,2,.0008,.26,.008); snapT(E, o, t,.09,4000); return .12; });
+def('ui_toggle',.03,3,3,.58,.05, (E, t, o, p) => { thock(E, o, t,230*p,.45,.02); nzf(E, o, t,.03, 'bandpass',2600*p,0,2,.0008,.24,.007); thock(E, o, t + .038,145*p,.38,.022); nzf(E, o, t + .038,.03, 'bandpass',1500*p,0,2,.0008,.2,.008); return .16; });
+def('ui_confirm',.05,3,3,.52,.14, (E, t, o, p) => { thock(E, o, t,160*p,.45,.035); [[440,0], [659.3,.075]].forEach(([f, d]) => { tone(E, o, t + d,.5, 'triangle', f*p,0,.004,.2,.09); tone(E, o, t + d,.3, 'sine', f*.5*p,0,.004,.14,.07); }); return .5; });
+def('ui_error',.08,2,3,.55,.06, (E, t, o, p) => { const lp = E.flt('lowpass',750,1.2); lp.connect(o); [0,.13].forEach(d => { tone(E, lp, t + d,.22, 'square',110*p,98*p,.004,.26,.05,.1,.06); thock(E, o, t + d,120*p,.35,.03); }); return .45; });
+// --- designer
+def('place',.04,3,3,.6,.14, (E, t, o, p) => { boom(E, o, t,110*p,55*p,.08,.35,.08); thock(E, o, t,240*p,.45,.04); nzf(E, o, t,.06, 'bandpass',1600*p,0,2,.001,.42,.02); nzf(E, o, t + .075,.03, 'bandpass',3000*p,0,1.5,.0006,.28,.006); thock(E, o, t + .075,320*p,.2,.014); return .45; });
+def('remove',.04,3,3,.58,.14, (E, t, o, p) => { nzf(E, o, t,.03, 'bandpass',2600*p,0,1.5,.0006,.28,.007); thock(E, o, t,270*p,.4,.015); boom(E, o, t + .05,90*p,55*p,.07,.3,.07); nzf(E, o, t + .05,.35, 'bandpass',1200*p,250*p,1.3,.02,.25,.07,.04); return .55; });
+def('snap',.035,3,3,.55,.16, (E, t, o, p) => {
+ snapT(E, o, t,.3,4000); boom(E, o, t,135*p,60*p,.05,.4,.05);
+ const c = E.osc('sine',740*p, t, t + .45), m = E.osc('sine',1110*p, t, t + .45), mg = E.G(700*p); mg.gain.setTargetAtTime(0, t,.03); m.connect(mg); mg.connect(c.frequency); const g = ENV(E, t,.002,.16,.06); c.connect(g); g.connect(o); return .45;
+});
+// --- weapons
+def('laser_light',.04,6,1,.72,.18, (E, t, o, p) => {
+ p *= jit(.1); const bp = E.flt('bandpass',1500*p,1), le = ENV(E, t,.002,.45,.05); bp.connect(o); le.connect(bp);
+ for (const [ty, k, a] of [['square',1,1], ['sawtooth',1.507,.45]]) { const z = E.osc(ty,1300*p*k, t, t + .32); sweep(z.frequency,1300*p*k,210*p*k, t,.12); if (a < 1) { const ga = E.G(a); z.connect(ga); ga.connect(le); } else z.connect(le); }
+ boom(E, o, t,160*p,62*p,.06,.38,.05); nzf(E, o, t,.04, 'bandpass',1200,0,1,.001,.32,.014); return .3;
+});
+def('turbolaser',.04,5,2,.85,.38, (E, t, o, p) => {
+ p *= jit(.07); nzf(E, o, t,.1, 'bandpass',1100,0,.7,.001,1.4,.04); snapT(E, o, t,.35,2500);
+ const lp = E.flt('lowpass',2600,5), ze = ENV(E, t,.003,1.1,.2); sweep(lp.frequency,2600,210, t,.7); lp.connect(o); ze.connect(lp);
+ for (const k of [1,1.009]) { const z = E.osc('sawtooth',300*p*k, t, t + 1.4); sweep(z.frequency,300*p*k,52*p*k, t,.38); z.connect(ze); }
+ boom(E, o, t,70*p,35*p,.25,.95,.32);
+ const bl = E.flt('lowpass',600,1); bl.connect(o); tone(E, bl, t,.8, 'square',110*p,55*p,.003,.36,.13,.2);
+ rumble(E, o, t + .02,1.6,700,180,.62,.02,.45,.05); return 2.4;
+});
+def('ion',.05,4,2,.95,.3, (E, t, o, p) => {
+ nzf(E, o, t,1.1, 'bandpass',2800*p,1700*p,.8,.005,1.3,.22,.08, E.crackle,.8 + Math.random()*.35);
+ const bp = E.flt('bandpass',1800,2); sweep(bp.frequency,1800*p,380*p, t,.7); bp.connect(o);
+ const c = E.osc('sawtooth',55*p, t, t + 1.4), m = E.osc('sine',23*p, t, t + 1.4), mg = E.G(30); m.connect(mg); mg.connect(c.frequency);
+ const g = ENV(E, t,.004,.9,.28,.06); c.connect(g); g.connect(bp);
+ const hl = E.flt('lowpass',420,1); hl.connect(o); tone(E, hl, t,1.4, 'square',110*p,0,.01,.4,.35,0,.1);
+ boom(E, o, t,82*p,40*p,.15,.5,.12); tone(E, o, t,.12, 'sine',1800*p,300*p,.001,.16,.03,.08); return 1.5;
+});
+def('missile',.06,3,2,.75,.3, (E, t, o, p) => {
+ boom(E, o, t,92*p,40*p,.12,.8,.12); nzf(E, o, t,.1, 'lowpass',700,0,.7,.002,.6,.05);
+ const b = nzf(E, o, t,1.8, 'bandpass',400*p,0,1.2,.04,.5,.45,.15); sweep(b.frequency,400*p,2200*p, t,.25); b.frequency.exponentialRampToValueAtTime(700*p, t + 1.3);
+ rumble(E, o, t + .03,1.6,450,170,.6,.05,.45,.3,.35,9); return 2.2;
+});
+def('torpedo',.08,3,2,.85,.34, (E, t, o, p) => {
+ boom(E, o, t,72*p,32*p,.18,1,.2); nzf(E, o, t,.12, 'lowpass',520,0,.7,.002,.6,.07); nzf(E, o, t,.8, 'bandpass',900*p,2400*p,1.4,.02,.4,.2,.05);
+ const lp = E.flt('lowpass',1200,.8), tr = E.G(.7), l = E.osc('sine',6, t, t + 2.8), lg = E.G(.3); l.connect(lg); lg.connect(tr.gain); lp.connect(tr); tr.connect(o);
+ [[150,190], [226,286]].forEach(([a, b]) => { const x = E.osc('sine', a*p, t, t + 2.8); sweep(x.frequency, a*p, b*p, t,.6); const g = ENV(E, t,.1,.35,.6,.4); x.connect(g); g.connect(lp); });
+ rumble(E, o, t + .04,2,380,150,.55,.05,.6,.4,.3,7); return 2.8;
+});
+def('point_defense',.04,4,1,.7,.14, (E, t, o, p) => {
+ const lp = E.flt('lowpass',3200,.7), x = E.osc('square',900*p, t, t + .3), g = E.G(0), s = E.osc('sine',160*p, t, t + .3), sg = E.G(0), n = E.nz(t, t + .3), nb = E.flt('bandpass',1500,1), ng = E.G(0);
+ x.connect(g); g.connect(lp); lp.connect(o); s.connect(sg); sg.connect(o); n.connect(nb); nb.connect(ng); ng.connect(o);
+ for (let i = 0; i < 3; i++) { const d = t + i*.055 + Math.random()*.01, q = p*jit(.1); sweep(x.frequency,900*q,300*q, d,.035); sweep(s.frequency,160*q,70*q, d,.03);
+  for (const [G, pk, tau] of [[g,.4,.016], [sg,.35,.025], [ng,.35,.01]]) { G.gain.setValueAtTime(0, d); G.gain.linearRampToValueAtTime(pk, d + .0015); G.gain.setTargetAtTime(0, d + .0015, tau); } }
+ return .32;
+});
+// --- impacts
+def('hit_shield',.04,5,1,.8,.3, (E, t, o, p) => {
+ nzf(E, o, t,.5, 'bandpass',3000*p,700*p,4,.002,.65,.1);
+ const lp = E.flt('lowpass',520,1.5), te = ENV(E, t,.005,.6,.3); te.connect(lp); lp.connect(o); for (const f of [62,63.6]) E.osc('sawtooth', f*p, t, t + 1.9).connect(te);
+ const m = E.osc('sine',510*p, t, t + 1.2), mg = E.G(400*p), c = E.osc('sine',340*p, t, t + 1.2), ce = ENV(E, t,.004,.2,.2); mg.gain.setTargetAtTime(0, t,.1); m.connect(mg); mg.connect(c.frequency); c.connect(ce); ce.connect(o);
+ boom(E, o, t,110*p,50*p,.1,.5,.1); return 1.3;
+});
+def('hit_hull',.04,4,1,.8,.3, (E, t, o, p) => {
+ p *= jit(.1); boom(E, o, t,120*p,45*p,.1,.85,.14); metalHit(E, o, t,150*p,.4,.45);
+ nzf(E, o, t,1, 'bandpass',180*p,0,8,.003,1.4,.35); crunch(E, o, t,900,500,.3,.9,.05); snapT(E, o, t,.4,2000); return 2;
+});
+def('explosion_small',.06,4,3,.85,.36, (E, t, o, p) => {
+ p *= jit(.12); boom(E, o, t,90*p,32*p,.3,1,.35); crunch(E, o, t,1200*p,400*p,.5,1.2,.18); snapT(E, o, t,.6,1500);
+ rumble(E, o, t,1.6,650*p,150,.85,.01,.6,.05); nzf(E, o, t + .05,1.2, 'highpass',1500,0,.7,.01,.4,.3,.1, E.crackle); return 2.6;
+});
+def('explosion_large',.09,2,4,.95,.5, (E, t, o, p) => {
+ p *= jit(.08); boom(E, o, t,70*p,24*p,.8,1,.8); crunch(E, o, t,900*p,250*p,1,1.3,.35); snapT(E, o, t,.7,1200);
+ rumble(E, o, t,4,450*p,110,1,.05,1.4,.4,.3,.7);
+ const d = .45 + Math.random()*.25; boom(E, o, t + d,60*p,28*p,.4,.6,.4); crunch(E, o, t + d,700*p,300*p,.5,.9,.2);
+ nzf(E, o, t + .15,4, 'bandpass',2000,1400,.8,.15,.5,1,.5, E.crackle,.9); return 6;
+});
+def('ship_destroyed',.2,2,5,1,.55, (E, t, o, p) => {
+ boom(E, o, t,60*p,20*p,1.2,1,1); crunch(E, o, t,800*p,200*p,1.4,1.3,.5); snapT(E, o, t,.7,1000);
+ rumble(E, o, t,7,380*p,90,1.1,.3,2,1.2,.35,.6);
+ for (const d of [.6,1.4,2.3,3.4]) { const q = d + Math.random()*.3; boom(E, o, t + q,75*p,30*p,.3,.6,.3); crunch(E, o, t + q,1000*p,350*p,.4,.9,.15); }
+ nzf(E, o, t + .3,6, 'bandpass',2200,1500,.7,.3,.55,1.5,1.5, E.crackle,.8);
+ const bp = E.flt('bandpass',300,6), gr = E.osc('sawtooth',60*p, t + .5, t + 7), gl = E.osc('sine',4, t, t + 7), gg = E.G(12), ge = ENV(E, t + .5,1,.2,1.5);
+ bp.connect(o); sweep(gr.frequency,60*p,38*p, t + .5,4); gl.connect(gg); gg.connect(bp.frequency); gr.connect(ge); ge.connect(bp);
+ return 9;
+});
+// --- movement
+def('flyby',.15,3,2,.65,.25, (E, t, o, p, x) => {
+ const dir = x.pan < 0 ? -1 : 1, pn = E.pan(-dir*.8); if (pn.pan) { pn.pan.setValueAtTime(-dir*.8, t); pn.pan.linearRampToValueAtTime(-dir*.2, t + .7); pn.pan.linearRampToValueAtTime(dir*.85, t + 1.25); } pn.connect(o);
+ const sw = E.G(0), q = sw.gain; q.setValueAtTime(.001, t); q.exponentialRampToValueAtTime(1, t + .86); q.setTargetAtTime(0, t + .86,.3); sw.connect(pn);
+ const lp = E.flt('lowpass',1300,1); lp.frequency.setValueAtTime(1300, t); lp.frequency.linearRampToValueAtTime(2200, t + .85); lp.frequency.exponentialRampToValueAtTime(500, t + 1.6); lp.connect(sw);
+ for (const [k, a] of [[1,.34], [1.5,.12]]) { const f = 120*p*k, s = E.osc('sawtooth', f*1.22, t, t + 2.2); s.frequency.setValueAtTime(f*1.22, t); s.frequency.linearRampToValueAtTime(f*1.17, t + .65); s.frequency.exponentialRampToValueAtTime(f*.8, t + 1.05); s.frequency.linearRampToValueAtTime(f*.76, t + 2); const g = E.G(a); s.connect(g); g.connect(lp); }
+ const b = E.flt('bandpass',2200,.8); b.frequency.setValueAtTime(2200*p, t); b.frequency.linearRampToValueAtTime(2000*p, t + .7); b.frequency.exponentialRampToValueAtTime(700*p, t + 1.1); const ng = E.G(.42); E.nz(t, t + 2.2).connect(b); b.connect(ng); ng.connect(sw);
+ const rl = E.flt('lowpass',450,.8), rg = E.G(1); E.nz(t, t + 2.2,1, E.brown).connect(rl); rl.connect(rg); rg.connect(sw);
+ return 2.2;
+});
+def('launch',.1,3,2,.8,.3, (E, t, o, p) => {
+ metalHit(E, o, t,180*p,.28,.25); boom(E, o, t,90*p,40*p,.12,.8,.15); snapT(E, o, t,.4,1800);
+ rumble(E, o, t + .04,.8,300*p,1500*p,.7,.05,.25,.2); nzf(E, o, t + .06,.7, 'bandpass',700*p,3000*p,1.5,.03,.4,.2,.1);
+ const lp = E.flt('lowpass',500,1); sweep(lp.frequency,500,1800, t + .3,.9); lp.connect(o); tone(E, lp, t + .3,1.8, 'sawtooth',60*p,220*p,.15,.38,.4,.9,.4);
+ rumble(E, o, t + .3,1.6,420,220,.55,.2,.5,.6); return 2.6;
+});
+def('dock',.2,2,2,.8,.3, (E, t, o, p) => {
+ boom(E, o, t,80*p,38*p,.12,.6,.15); metalHit(E, o, t,140*p,.35,.35); snapT(E, o, t,.4,1800);
+ for (const d of [.22,.4]) { thock(E, o, t + d,150*p,.55,.05); nzf(E, o, t + d,.03, 'bandpass',2200*p,0,1.5,.0006,.3,.006); }
+ nzf(E, o, t + .5,1.4, 'highpass',3500,0,.7,.05,.22,.4,.05); tone(E, o, t + .5,2, 'sine',55*p,0,.1,.3,.5,0,.2); return 2.2;
+});
+def('hyperspace_out',.15,2,4,.9,.5, (E, t, o, p) => {
+ const T = 1.15, lp = E.flt('lowpass',1800,1.5), rise = (src, f, a, pk) => { const g = E.G(0); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(pk, t + T); g.gain.setTargetAtTime(0, t + T,.035); src.connect(f); f.connect(g); g.connect(a); };
+ lp.connect(o);
+ for (const [ty, a] of [['sine',.34], ['sawtooth',.14]]) { const s = E.osc(ty,45*p, t, t + T + .25), g = E.G(0); sweep(s.frequency,45*p,900*p, t, T); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(a, t + T); g.gain.setTargetAtTime(0, t + T,.03); s.connect(g); g.connect(lp); }
+ const rl = E.flt('lowpass',200,1), b = E.flt('bandpass',300,2); sweep(rl.frequency,200,2500, t, T); sweep(b.frequency,300,3000, t, T);
+ rise(E.nz(t, t + T + .3,1, E.brown), rl, o,.8); rise(E.nz(t, t + T + .3), b, o,.35);
+ boom(E, o, t + T,90*p,28*p,.4,1,.35); nzf(E, o, t + T,1.2, 'lowpass',3000,150,.7,.002,.8,.25); rumble(E, o, t + T,1.5,500,110,.7,.01,.6,.05); return T + 2.2;
+});
+def('hyperspace_in',.15,2,4,.9,.5, (E, t, o, p) => {
+ const T = .36, b = E.flt('bandpass',2500,1.3), ng = E.G(0), q = ng.gain; sweep(b.frequency,2500,300, t, T); q.setValueAtTime(.002, t); q.exponentialRampToValueAtTime(.65, t + T); q.setTargetAtTime(0, t + T,.04); E.nz(t, t + T + .25).connect(b); b.connect(ng); ng.connect(o);
+ boom(E, o, t + T,80*p,26*p,.4,1,.35); nzf(E, o, t + T,1.2, 'lowpass',2500,120,.7,.002,.8,.3); rumble(E, o, t + T,1.8,450,100,.75,.01,.7,.05);
+ const lp = E.flt('lowpass',1500,1); lp.connect(o); tone(E, lp, t + T,1.4, 'sawtooth',900*p,60*p,.01,.28,.35,1); return T + 2.4;
+});
+// --- alerts
+def('alarm',1.2,1,5,.55,.25, (E, t, o, p) => {
+ const bp = E.flt('bandpass',700,.9); bp.connect(o);
+ for (let c = 0; c < 3; c++) { const s = t + c*.55; for (const [ty, k, a] of [['square',1,.22], ['sawtooth',1,.15], ['square',.5,.16]]) { const x = E.osc(ty,250*p*k, s, s + .45), g = ENV(E, s,.02, a,.03,.34); x.frequency.setValueAtTime(250*p*k, s); x.frequency.linearRampToValueAtTime(400*p*k, s + .38); x.connect(g); g.connect(bp); } }
+ return 1.75;
+});
+def('comms',.3,2,3,.5,.1, (E, t, o, p) => {
+ const r = E.flt('bandpass',1500,.5); r.connect(o); thock(E, o, t,170*p,.3,.02);
+ nzf(E, r, t,.06, 'bandpass',2400,0,1.5,.002,.2,.025); tone(E, r, t + .035,.1, 'sine',1100*p,0,.003,.2,.03,0,.045); tone(E, r, t + .115,.1, 'sine',1650*p,0,.003,.2,.03,0,.05);
+ nzf(E, r, t + .2,.06, 'bandpass',2200,0,1.5,.002,.09,.025); return .4;
+});
+
+// ---------- arrangement helpers (all times in beats) ----------
+const line = (s, t0, M, f, v, L, x, tr) => { for (const [m, t, d] of M) s.n(t0 + t, d, f, m + (tr || 0), v, L, x); };
+function pad(P, key, s, t0, C, f, lo, hi, n, v, L, x) { let prev = P.st[key]; for (const {c, t, d} of C) { const vs = vlead(c.pcs, prev, lo, hi, n); vs.forEach((m, i) => s.n(t0 + t, d + .05, f, m, v, L, Object.assign({pan: n > 1 ? (i / (n - 1) - .5)*.7 : 0, vib: f === I.choir ? 10 : 0}, x))); prev = vs; } P.st[key] = prev; }
+function bass(s, t0, C, f, lo, v, L, x) { for (const {c, t, d} of C) s.n(t0 + t, d, f, lowNote(c.b, lo), v, L, x); }
+function stack(c, lo, n) { const out = []; for (let m = lowNote(c.pcs[0], lo); out.length < n; m++) if (c.pcs.includes(m % 12)) out.push(m); return out; }
+function arp(s, t0, C, f, lo, idx, step, v, L, x, dl) { for (const {c, t, d} of C) { const st = stack(c, lo,9); for (let k = 0; k*step < d - 1e-6; k++) s.n(t0 + t + k*step, step*(dl || 1.6), f, st[idx[k % idx.length]], v*(k % 4 ? .8 : 1), L, x); } }
+function perc(s, t0, pat, step, f, m, v, L, x) { for (let i = 0; i < pat.length; i++) { const ch = pat[i]; if (ch !== '.') s.n(t0 + i*step, step, f, m, v*(ch === 'X' ? 1 : ch === 'x' ? .68 : .35), L, x); } }
+function roll(s, t, beats, f, m, v0, v1, step, L, x) { const n = Math.round(beats / step); for (let k = 0; k < n; k++) s.n(t + k*step, step, f, m, (v0 + (v1 - v0)*k / n)*(.9 + .02*(k*7 % 10)), L, x); }
+function gliss(s, t, beats, lo, pcs, n, v, f, L) { const st = beats / n; for (let m = lo, k = 0; k < n; m++) if (pcs.includes(m % 12)) { s.n(t + k*st,.5, f || I.harp, m, v*(.7 + .3*k / n), L || 0, {dec: 1.3}); k++; } }
+const chordAt = (C, t) => { for (const e of C) if (t >= e.t && t < e.t + e.d) return e.c; return C[C.length - 1].c; };
+const nearest = (pcs, tg, lo, hi) => { let b = lo, bd = 1e9; for (let m = lo; m <= hi; m++) if (pcs.includes(m % 12) && Math.abs(m - tg) < bd) { bd = Math.abs(m - tg); b = m; } return b; };
+function scaleFor(c, base) { let sc = base.slice(); for (const p of c.pcs) if (!sc.includes(p)) { sc = sc.filter(q => Math.min((q - p + 12) % 12, (p - q + 12) % 12) !== 1); sc.push(p); } return sc; }
+const CELLS = [[3,1,2,2], [2,2,4], [4,2,2], [1.5,.5,2,4], [2,1,1,4], [6,2], [-2,2,2,2], [-1,1,2,4], [-4,1,1,2], [3,1,4]];
+function gen(P, s, t0, C, base, f, lo, hi, v, L, x) {
+ let cur = P.st.mel || Math.round((lo + hi) / 2); const mid = (lo + hi) / 2;
+ C.forEach(({c, t}, ci) => {
+  const sc = scaleFor(c, base), cell = CELLS[P.rnd()*CELLS.length | 0], nn = cell.filter(z => z > 0).length; let tt = t, i = 0;
+  const up = ci < C.length / 2 ? cur < hi - 4 : cur < mid - 4;
+  for (const z of cell) {
+   if (z < 0) { tt -= z; continue; }
+   let m;
+   if (i === 0 || i === nn - 1) m = nearest(c.pcs, cur + (up ? 2 : -2)*(P.rnd() < .6 ? 1 : 0), lo, hi);
+   else { const dir = up ? 1 : -1; m = cur + dir; for (let g = 0; g < 3 && !sc.includes(((m % 12) + 12) % 12); g++) m += dir; if (m < lo || m > hi) m = cur - dir*2; }
+   s.n(t0 + tt, z*.96, f, m, v*(i === 0 ? 1 : .86), L, x); cur = m; tt += z; i++;
+  }
+ });
+ P.st.mel = cur;
+}
+
+// ---------- faction flavours (kept light) ----------
+// empire: darker key, low brass and male choir; republic: noble horns and harp; cis: mechanical percussion; rebel: brighter, trumpet-led
+const FLAVOR = {none: {}, empire: {tr: -2, low: 1, choir: 1}, republic: {tr: 1, noble: 1}, cis: {tr: -1, mech: 1, tempo: 1.04}, rebel: {tr: 2, bright: 1}};
+const SCENES = {}, STINGERS = {};
+const nextK = P => (P.st.k = P.st.k == null ? 0 : P.st.k + 1);
+
+// ---------- title: an original hymn-like theme in E-flat, brass chorale over strings ----------
+const TT = {
+ I: [prog('Eb:4 | Cb/Eb:4 | Ab/Eb:4 | Bbsus/Eb:2 Bb/Eb:2'), mel('G4:2 F4:1 Bb4:1 | Eb5:4')],
+ A: [prog('Eb:4 | Ab:3 Bb:1 | Cm:2 Ab:2 | Bbsus:2 Bb:2 | Eb:4 | G:4 | Ab:2 Bb:2 | Eb:4'), mel('G4:2 F4:1 Bb4:1 | Eb5:3 D5:1 | C5:1.5 Bb4:.5 Ab4:1 G4:1 | F4:4 | G4:2 F4:1 Bb4:1 | B4:3 D5:1 | C5:2 D5:2 | Eb5:4')],
+ B: [prog('Cm:4 | Ab:4 | Fm:4 | G:4 | Ab:4 | Fm7:4 | Cb:4 | Bbsus:2 Bb:2'), mel('G4:3 Ab4:.5 G4:.5 | Eb4:2 C5:2 | Bb4:1.5 Ab4:.5 G4:1 F4:1 | G4:2 D4:2 | C5:3 Eb5:1 | Ab5:2 G5:1 F5:1 | Eb5:1.5 Db5:.5 Cb5:2 | Bb4:2 C5:1 D5:1')],
+ T: [prog('Eb:4 | Cb:4 | Ab:4 | Eb:4'), mel('G5:2 F5:1 Bb5:1 | Eb6:4')]
+};
+SCENES.title = {bpm: 72, seed: 1, next(P, s) {
+ const k = nextK(P), f = P.flv, name = k === 0 ? 'I' : ['A', 'A2', 'B', 'A3', 'T'][(k - 1) % 5], [C, M] = TT[name[0]];
+ const lead = f.bright ? I.tpt : I.horn, big = name === 'A3';
+ s.len = C.len;
+ pad(P, 'sp', s,0, C, I.str,50,70,4, name === 'I' || name === 'T' ? .42 : big ? .68 : .52,0, {a: name === 'I' ? 1.6 : .7, r: 1.3});
+ bass(s,0, C, I.str,36,.55,0, {a: .5, r: 1.1, br: 3}); bass(s,0, C, I.sub,31,.22,0, {a: .3, r: .8});
+ if (f.choir) pad(P, 'sc', s,0, C, I.choir,46,62,3,.42,0, {vow: 'o', a: 1.2, r: 1.5});
+ if (f.mech && name !== 'I' && name !== 'T') perc(s,0, 'x.o.x.o.'.repeat(C.len / 8),.5, I.metal,84,.3,0, {dec: .12, wet: .5});
+ const harpV = f.noble ? .5 : .32;
+ if (name === 'I') {
+  line(s,0, M, I.horn,.5,0, {wet: .6}); line(s,8, M, I.cel,.45,0, {},12);
+  arp(s,0, C.slice(1), I.harp,55, [0,1,2,3,4,5,4,3],.5,.42,0);
+  roll(s,12,4, I.timp,46,.15,.65,.125,0, {dec: .35}); s.n(13,3, I.cym,0,.55,0, {sw: 1});
+ } else if (name === 'A') {
+  line(s,0, M, lead,.7,0, {wet: .45});
+  arp(s,0, C, I.harp,51, [0,1,2,1],1, harpV,0);
+  pad(P, 'tb', s,0, C.slice(4), I.tbn,46,63,3,.32,0, {a: .2});
+  s.n(0,1, I.timp,39,.45,0, {dec: 1});
+ } else if (name === 'A2') {
+  line(s,0, M, I.tpt,.62,0, {wet: .4}); line(s,0, M, I.horn,.5,0, {},-12);
+  pad(P, 'tb', s,0, C, I.tbn, f.low ? 34 : 46, f.low ? 52 : 63,3,.42,0, {a: .15});
+  for (const {c, t} of C) s.n(t,1, I.timp, lowNote(c.r,38),.42,0, {dec: .8});
+  s.n(29,3, I.cym,0,.5,0, {sw: 1});
+ } else if (name === 'B') {
+  line(s,0, M, I.str,.72,0, {a: .22, r: .7, wet: .5}); line(s,0, M, I.flute,.3,0, {},12);
+  pad(P, 'hp', s,0, C, I.horn,53,70,3,.38,0, {a: .3});
+  arp(s,0, C, I.harp,48, [0,2,1,3],1, harpV,0);
+  roll(s,12,4, I.timp,43,.1,.45,.125,0, {dec: .35}); roll(s,28,4, I.timp,46,.15,.7,.125,0, {dec: .35}); s.n(29,3, I.cym,0,.6,0, {sw: 1});
+ } else if (big) {
+  s.n(0,1, I.cym,0,.8);
+  line(s,0, M, lead,.85,0, {wet: .4}); line(s,0, M, I.tpt, f.bright ? .62 : .48,0, {},12);
+  pad(P, 'tb', s,0, C, I.tbn, f.low ? 34 : 43, f.low ? 55 : 62,4,.55,0, {a: .12});
+  for (const {c, t} of C) s.n(t,1, I.timp, lowNote(c.r,38),.6,0, {dec: .9});
+  roll(s,12,4, I.timp,46,.2,.7,.125,0, {dec: .3}); roll(s,28,3, I.timp,46,.25,.8,.125,0, {dec: .3}); s.n(31,1, I.timp,39,.9,0, {dec: 1.4});
+  arp(s,0, C, I.harp,55, [0,1,2,3],.5, harpV*.8,0);
+ } else {
+  line(s,0, M, I.cel,.38,0, {dec: 1.8}); s.n(8,8, I.horn,63,.38,0, {wet: .6});
+  arp(s,0, C, I.harp,55, [0,1,2,3,4,3,2,1],.5,.3,0);
+ }
+ return s;
+}};
+
+// ---------- yard: slow, modal, industrial-orchestral; generative walk through harmonic palettes ----------
+const YP = [
+ ['Dm:8 | G/D:8 | Bb:8 | C:8', [2,4,5,7,9,11,0]],
+ ['Fmaj7:8 | C/E:8 | Dm7:8 | Bb:8', [5,7,9,10,0,2,4]],
+ ['Gm:8 | Eb:8 | Bb:8 | F:8', [7,9,10,0,2,3,5]],
+ ['Dm:8 | Bb:8 | Gm:8 | A:8', [2,4,5,7,9,10,1]],
+ ['Dm:8 | Bbm:8 | F:8 | Asus:4 A:4', [2,4,5,7,9,10,0]]
+].map(([c, sc]) => [prog(c), sc]);
+const YNEXT = [[1,3,4], [2,0], [3,1], [0,4], [0,1]];
+const YT = mel('r:2 D4:2 E4:2 F4:2 | A4:4 G4:4 | r:2 F4:2 G4:2 A4:2 | Bb4:4 A4:2 G4:2');
+const YMP = ['x...x.x.x...x...', 'x..x..x...x..x..', 'x.......x.x.....', '..x...x...x...x.'];
+SCENES.yard = {bpm: 63, seed: 2, next(P, s) {
+ const st = P.st, f = P.flv, k = nextK(P);
+ st.p = k === 0 ? 0 : YNEXT[st.p][P.rnd()*YNEXT[st.p].length | 0];
+ const [C, base] = YP[st.p];
+ let tx = k === 0 ? 0 : P.rnd()*4 | 0; if (tx === st.tx) tx = (tx + 1) % 4; st.tx = tx;
+ s.len = 32;
+ s.n(0,32, I.drone, lowNote(C[0].c.r,38),.75,0, {a: 3, r: 4});
+ pad(P, 'yp', s,0, C, I.str,50,67,3,.38,0, {a: 2.4, r: 2.6, br: 3, vib: 4});
+ bass(s,0, C, I.str,36,.3,0, {a: 2, r: 2.4, br: 2.5});
+ const mp = YMP[st.mp = (st.mp == null ? 0 : st.mp + 1 + (P.rnd()*2 | 0)) % YMP.length];
+ if (k === 0 || P.rnd() < .7) for (const {c, t} of C) for (let i = 0; i < 16; i++) if (mp[i] === 'x') s.n(t + i*.5,.5, I.metal, nearest(c.pcs, i % 8 ? 79 : 67,60,86),.2 + .1*P.rnd(),0, {dec: .35, wet: .75, pan: P.rnd() - .5});
+ if (f.mech) for (const {t} of C) perc(s, t, 'x.x.x.x.x.x.x.x.',.5, I.metal,91,.14,0, {dec: .06, wet: .4});
+ if (P.rnd() < .55) s.n(6 + (P.rnd()*18 | 0),5, I.steam,0,.7,0, {f: 450 + P.rnd()*650});
+ if (f.choir) pad(P, 'yc', s,0, C, I.choir,43,57,3,.35,0, {vow: 'o', a: 2.5, r: 3});
+ if (tx === 0) {
+  if (st.p === 0 && k % 3 === 0) line(s,0, YT, f.bright ? I.tpt : I.horn,.5,0, {wet: .55});
+  else for (const {c, t} of C) s.n(t + 2,6, I.cel, nearest(c.pcs,74,69,81),.3,0, {dec: 2.2});
+ } else if (tx === 1) {
+  arp(s,0, C, I.pizz,38, [0,2,1,2],1,.42,0);
+  arp(s,0, C, I.cel,72, [0,1,2,3,2,1,2,3],.5,.22,0, {dec: 1.5});
+ } else if (tx === 2) {
+  gen(P, s,0, C, base, P.rnd() < .5 ? I.horn : I.reed,57,74,.48,0, {wet: .55});
+  arp(s,0, C, I.harp,50, [0,1,2,3],2, f.noble ? .45 : .3,0);
+ } else {
+  pad(P, 'yv', s,0, C, I.choir,50,64,3,.4,0, {vow: 'u', a: 2.6, r: 3});
+  gen(P, s,0, C, base, I.flute,69,84,.38,0);
+ }
+ if (k % 2 === 1) s.n(0,1, I.timp, lowNote(C[0].c.r,38),.25,0, {dec: 1.4});
+ return s;
+}};
+
+// ---------- voyage: exploratory, Lydian colour, chromatic-mediant travel; 8th-note pulse ----------
+const VS = {
+ V1: [prog('A:4 | B/A:4 | F#m:4 | D:4 | A:4 | C:4 | G:4 | Esus:2 E:2'), mel('C#5:2 E5:1.5 D#5:.5 | F#5:2 D#5:1 B4:1 | C#5:3 A4:1 | B4:1 A4:1 F#4:2 | C#5:2 E5:1.5 D#5:.5 | E5:2 G5:2 | D5:1.5 B4:.5 G4:2 | A4:2 G#4:2')],
+ V2: [prog('F#m:4 | D:4 | A:4 | E:4 | F#m:4 | D:4 | Bm:4 | Esus:2 E:2'), mel('A4:3 B4:1 | F#4:4 | E4:2 A4:2 | B4:4 | C#5:3 D5:1 | A4:4 | B4:2 D5:2 | E5:4')],
+ V3: [prog('A:4 | F:4 | Db:4 | Esus:2 E:2 | A:4 | C:4 | D:4 | E:4'), mel('E4:4 | F4:4 | F4:4 | E4:4 | E4:4 | E4:4 | F#4:4 | G#4:4')]
+};
+SCENES.voyage = {bpm: 96, seed: 3, next(P, s) {
+ const k = nextK(P), f = P.flv, name = ['V1', 'V2', 'V3'][k % 3], cyc = (k / 3 | 0) % 2, [C, M] = VS[name];
+ s.len = 32;
+ arp(s,0, C, cyc ? I.pizz : I.stac,45, [0,2,3,2,0,2,3,2],.5,.42,0, {br: 7}, cyc ? 1.6 : .9);
+ for (const {c, t, d} of C) for (let b = 0; b < d; b += 2) s.n(t + b,1, I.timp, lowNote(c.r,38), b ? .2 : .32,0, {dec: .45});
+ pad(P, 'vp', s,0, C, I.str,52,72,4,.36,0, {a: .9, r: 1.2});
+ bass(s,0, C, I.str,33,.45,0, {a: .2, r: .6, br: 3});
+ if (f.mech) for (const {t, d} of C) perc(s, t, 'x.xx'.repeat(d),.25, I.metal,86,.16,0, {dec: .05, wet: .3});
+ if (f.choir) pad(P, 'vc', s,0, C, I.choir,45,60,3,.32,0, {vow: 'o', a: 1.2});
+ if (name === 'V1') {
+  line(s,0, M, cyc ? I.horn : I.flute, cyc ? .62 : .55,0, {wet: .5}, cyc ? -12 : 0);
+  if (cyc && f.bright) line(s,0, M, I.tpt,.35,0, {});
+  arp(s,0, C, I.harp,57, [0,1,2,3],1, f.noble ? .42 : .26,0);
+ } else if (name === 'V2') {
+  line(s,0, M, cyc ? I.str : I.reed, cyc ? .62 : .6,0, {wet: .5, a: .12});
+  pad(P, 'vh', s,0, C, I.horn,53,67,3,.3,0, {a: .4});
+ } else {
+  line(s,0, M, I.horn,.48,0, {wet: .55});
+  arp(s,0, C, I.cel,69, [0,1,2,3,4,3,2,1],.5,.24,0, {dec: 1.2});
+  gliss(s,0,1,57, C[0].c.pcs,9,.35);
+  s.n(14,2, I.cym,0,.4,0, {sw: 1});
+ }
+ s.n(0,1, I.drum,0,.35,0, {f: 70, dec: .4});
+ return s;
+}};
+
+// ---------- battle: driving 3+3+2 string ostinato; layers 0 patrol / 1 engaged / 2 full ----------
+const BS = {
+ P: [prog('Dm:8 | Bb:8 | Gm:8 | A:8'), mel('A4:8 | F4:8 | G4:6 F4:2 | E4:8')],
+ B1: [prog('Dm:4 | Dm:4 | Bb:4 | C:4 | Dm:4 | Dm:4 | Eb:4 | A:4'), mel('A4:.5 D5:.5 F5:1 E5:.5 D5:.5 E5:1 | D5:3 r:1 | Bb4:.5 D5:.5 F5:1 G5:1 F5:1 | E5:1.5 D5:.5 C5:1 G4:1 | A4:.5 D5:.5 F5:1 E5:.5 D5:.5 E5:1 | D5:2 A5:2 | G5:1.5 F5:.5 Eb5:1 D5:1 | C#5:4')],
+ B2: [prog('Gm:4 | Eb:4 | Dm:4 | Bb:4 | Gm:4 | Eb:4 | Asus:2 A:2 | A:4'), mel('D5:1 G5:1 Bb5:1.5 A5:.5 | G5:2 Eb5:2 | F5:1 E5:.5 D5:.5 A4:2 | Bb4:1 D5:1 F5:2 | G5:1.5 A5:.5 Bb5:1 G5:1 | Bb5:2 G5:2 | E5:1 D5:1 C#5:2 | E5:4')],
+ B3: [prog('Dm:4 | Bbm:4 | Dm:4 | Bbm:4 | Gm:4 | Eb:4 | Dm/A:2 A:2 | A:4'), mel('D4:4 | Db4:4 | D4:4 | F4:4 | G4:4 | G4:4 | F4:2 E4:2 | E4:4')]
+};
+const OST = [0,0,12,0,0,12,0,7,0,0,12,0,0,12,7,-1], ACC = [1,0,0,1,0,0,1,0,1,0,0,1,0,0,1,0];
+const SN = ['X..X..X.X..X..X.', 'x.oX.ox.x.oX.oxx'], STAB = ['X.....X...X.....', 'X.......X.X.X...'];
+SCENES.battle = {bpm: 144, seed: 4, layers: 3, next(P, s) {
+ const st = P.st, f = P.flv, k = nextK(P), x = P.E.intensity;
+ let name = 'P'; if (x >= .3 || st.c && x >= .2) { st.c = (st.c || 0) + 1; name = ['B1', 'B2', 'B1', 'B3'][(st.c - 1) % 4]; }
+ const [C, M] = BS[name]; s.len = 32;
+ bass(s,0, C, I.str,38,.5,0, {a: .12, r: .5, br: 3}); bass(s,0, C, I.sub,31,.25,0, {a: .05});
+ for (let b = 0; b < 8; b++) s.n(b*4,1, I.timp, lowNote(chordAt(C, b*4).r,38), b % 2 ? .28 : .42,0, {dec: .6});
+ pad(P, 'bc', s,0, C, f.choir ? I.choir : I.horn,50,65,3, f.choir ? .45 : .3,0, {a: .8, r: 1, vow: 'o', wet: .5, one: 1});
+ arp(s,0, C, I.stac,50, [0,2],.5,.32,0, {br: 6},.8);
+ if (name === 'P') { line(s,0, M, I.horn,.42,0, {wet: .55}); s.n(0,32, I.str,81,.2,0, {a: 2, r: 1.5, trem: 11, wet: .6}); }
+ if (f.noble && name === 'P') gliss(s,0,1,50, C[0].c.pcs,10,.3);
+ for (let b = 0; b < 8; b++) {
+  const c = chordAt(C, b*4), r = lowNote(c.r,45), third = c.pcs.includes((c.r + 4) % 12) ? 4 : 3;
+  for (let i = 0; i < 16; i++) s.n(b*4 + i*.25,.22, I.stac, r + (OST[i] < 0 ? third : OST[i]), ACC[i] ? .62 : .4,1, {dry: f.mech, br: ACC[i] ? 11 : 7});
+  perc(s, b*4, SN[b % 2],.25, I.snare,0, f.low ? .55 : .45,1);
+  s.n(b*4,.5, I.drum,0,.4,1, {f: 88, dec: .2}); s.n(b*4 + 2,.5, I.drum,0,.32,1, {f: 80, dec: .2});
+  if (f.mech) perc(s, b*4, 'x.xx.xx.x.xx.x.x',.25, I.metal,88,.2,1, {dec: .05, wet: .25});
+ }
+ pad(P, 'bh', s,0, C, I.horn,53,69,3,.46,1, {a: .12, one: 1});
+ for (let i = 0; i < 4; i++) s.n(28 + i*.25,.25, I.drum,0,.4 + i*.1,1, {f: 110 - i*10, dec: .18});
+ for (let b = 0; b < 8; b++) {
+  const c = chordAt(C, b*4), lowv = vlead(c.pcs, null, f.low ? 38 : 45, f.low ? 55 : 60,3), hi = nearest(c.pcs,69,62,74), pat = STAB[b % 2];
+  for (let i = 0; i < 16; i++) if (pat[i] !== '.') { const t = b*4 + i*.25; for (const m of lowv) s.n(t,.45, I.tbn, m,.8,2, {sfz: 1, r: .1, one: 1}); s.n(t,.4, I.tpt, hi,.75,2, {sfz: 1, r: .1}); }
+  const tr = lowNote(c.r,38); s.n(b*4,.5, I.timp, tr,.75,2, {dec: .4}); s.n(b*4 + 1.5,.5, I.timp, tr,.5,2, {dec: .35}); s.n(b*4 + 2,.5, I.timp, tr + 7 > 57 ? tr - 5 : tr + 7,.6,2, {dec: .35});
+  s.n(b*4,.5, I.drum,0,.6,2, {f: 56, dec: .32}); s.n(b*4 + 2,.5, I.drum,0,.42,2, {f: 56, dec: .28});
+ }
+ if (name === 'B3') { line(s,0, M, I.tbn,.8,2, {wet: .35}); line(s,0, M, I.horn,.6,2, {one: 1},12); }
+ else if (name !== 'P') { line(s,0, M, I.brass,.85,2, {wet: .35, br: f.bright ? 1.15 : .85, lv: 1.25}); if (f.bright) line(s,0, M, I.tpt,.35,2, {one: 1},12); }
+ else line(s,0, M, I.tpt,.45,2, {one: 1},12);
+ s.n(0,1, I.cym,0,.7,2); s.n(28,4, I.cym,0,.5,2, {sw: 1}); roll(s,28,4, I.snare,0,.2,.7,.125,2);
+ return s;
+}};
+
+// ---------- stingers (one-shot, 3-6 s; the scene ducks under them) ----------
+STINGERS.victory = {bpm: 100, hold: 4.6, duck: .22, next(P, s) {
+ const C = prog('Cb:2 Db:2 Eb:5'), M = mel('Eb5:1 Gb5:1 F5:1 Ab5:1 G5:5'); s.len = 9;
+ line(s,0, M, I.tpt,.85,0, {wet: .45}); line(s,0, M, I.horn,.6,0, {},-12);
+ pad(P, 'v', s,0, C, I.horn,53,67,3,.55,0, {a: .05}); pad(P, 'vs', s,0, C, I.str,55,79,4,.58,0, {a: .12, r: 1.4});
+ bass(s,0, C, I.tbn,34,.62,0); bass(s,0, C, I.sub,31,.3,0);
+ s.n(0,1, I.timp,47,.6); s.n(2,1, I.timp,49,.65); roll(s,4.5,2.5, I.timp,51,.3,.8,.125,0, {dec: .3}); s.n(7,2, I.timp,39,.95,0, {dec: 1.5});
+ roll(s,2,2, I.snare,0,.2,.75,.125); s.n(4,1, I.cym,0,.85); s.n(7,1, I.cym,0,.6,0, {dec: 2});
+ gliss(s,4,1,63, [3,7,10],12,.45);
+}};
+STINGERS.defeat = {bpm: 84, hold: 5.2, duck: .18, next(P, s) {
+ const C = prog('Cm:2 Ab:2 Fm:1 Cm:3'), M = mel('G4:1.5 F4:.5 Eb4:2 F4:1 C4:3'); s.len = 8;
+ line(s,0, M, I.horn,.62,0, {wet: .6});
+ pad(P, 'd', s,0, C, I.str,48,67,4,.48,0, {a: .5, r: 1.8, br: 3}); pad(P, 'dc', s,0, C, I.choir,43,58,3,.5,0, {vow: 'o', a: .9, r: 2});
+ bass(s,0, C, I.str,36,.5,0, {a: .4, r: 1.6, br: 2}); bass(s,0, C, I.sub,31,.3,0, {a: .3});
+ roll(s,0,1.5, I.timp,43,.45,.15,.125,0, {dec: .4}); s.n(5,1, I.timp,36,.7,0, {dec: 1.8}); s.n(4,2, I.cym,0,.25,0, {sw: 1});
+}};
+STINGERS.alert = {bpm: 120, hold: 2.8, duck: .32, next(P, s) {
+ s.len = 7;
+ for (const m of [38,45,50]) s.n(0,.6, I.tbn, m,.9,0, {sfz: 1}); for (const m of [62,63]) s.n(0,.6, I.tpt, m,.72,0, {sfz: 1});
+ s.n(0,1, I.timp,38,1,0, {dec: .7}); s.n(0,1, I.drum,0,.8,0, {f: 45, dec: .5});
+ [62,63,64,65].forEach((m, i) => { s.n(.5 + i,1.05, I.str, m,.55 + i*.1,0, {a: .05, r: .2, trem: 13}); s.n(.5 + i,1.05, I.str, m - 12,.45 + i*.1,0, {a: .05, r: .2, trem: 13}); });
+ roll(s,2,2.5, I.snare,0,.15,.8,.125); roll(s,2,2.5, I.timp,45,.2,.8,.125,0, {dec: .3});
+ for (const m of [38,46,50]) s.n(4.5,1.2, I.tbn, m,.95,0, {sfz: 1}); for (const m of [62,65,70]) s.n(4.5,1.2, I.tpt, m,.8,0, {sfz: 1});
+ s.n(4.5,1, I.timp,38,1,0, {dec: 1}); s.n(4.5,1, I.cym,0,.8);
+}};
+STINGERS.jump = {bpm: 100, hold: 3.2, duck: .4, next(P, s) {
+ s.len = 7;
+ gliss(s,0,1.5,50, [2,4,6,8,9,11,1],15,.45);
+ for (const m of [50,57,62,66,68,69]) s.n(0,3.2, I.str, m,.48,0, {a: 1.1, r: 1.2});
+ s.n(0,3, I.cym,0,.5,0, {sw: 1});
+ for (const m of [50,57,62,66]) s.n(3,3, I.horn, m,.55,0, {a: .08}); s.n(3,3, I.tpt,69,.45); s.n(3,3, I.tpt,76,.32);
+ s.n(3,1, I.timp,38,.6,0, {dec: 1.2});
+ [74,78,81,86].forEach((m, i) => s.n(3 + i*.25,.5, I.cel, m,.4,0, {dec: 1.6}));
+}};
+
+// ---------- realtime wrapper: one AudioContext after the first gesture ----------
+const KEY = 'ks.audio.v1', DEF = {master: .7, music: .55, sfx: .7, muted: false};
+const hasDoc = typeof document !== 'undefined';
+const isHidden = () => hasDoc && !!document.hidden;
+function normS(s, base) { const o = Object.assign({}, base || DEF); if (s && typeof s === 'object') { for (const k of ['master', 'music', 'sfx']) { const v = s[k]; if (v !== null && v !== '' && isFinite(+v)) o[k] = clamp(+v,0,1); } if (typeof s.muted === 'boolean') o.muted = s.muted; } return o; }
+function loadS() { try { return normS(JSON.parse(W.localStorage.getItem(KEY) || 'null')); } catch (e) { return normS(null); } }
+function saveS() { try { W.localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+let S = loadS(), ctx = null, eng = null, timer = 0, everRan = false, want = {scene: null, opts: {}}, curScene = null, curFac = 'none', intensity = 0, vtok = 0;
+const subs = new Set(), quiet = () => S.muted || S.master <= 0;
+function tick() { if (eng && ctx.state === 'running') eng.advance(ctx.currentTime + .12); }
+function ensure() {
+ if (ctx) return true; if (!AC) return false;
+ try { ctx = new AC({latencyHint: 'interactive'}); } catch (e) { try { ctx = new AC(); } catch (e2) { return false; } }
+ eng = createEngine(ctx, ctx.destination); eng.apply(S); eng.setIntensity(intensity); configure();
+ timer = setInterval(tick,25);
+ if (ctx.addEventListener) ctx.addEventListener('statechange', () => { if (ctx.state === 'running') { everRan = true; detach(); } });
+ if (want.scene) startScene(want.scene, want.opts);
+ if (isHidden()) eng.setHidden(true);
+ return true;
+}
+function unlock() {
+ if (!ensure()) return Promise.resolve(false);
+ const done = () => { if (ctx.state === 'running') { everRan = true; detach(); tick(); if (quiet()) applyS(); } return ctx.state === 'running'; };
+ if (ctx.state !== 'running' && !isHidden()) { try { const p = ctx.resume(); if (p && p.then) return p.then(done, () => false); } catch (e) {} }
+ return Promise.resolve(done());
+}
+const EVTS = ['pointerdown', 'pointerup', 'touchend', 'keydown', 'click'];
+const onGesture = () => { unlock(); };
+function attach() { if (hasDoc) for (const e of EVTS) document.addEventListener(e, onGesture, true); }
+function detach() { if (hasDoc) for (const e of EVTS) document.removeEventListener(e, onGesture, true); }
+function onVis() {
+ if (!ctx) return; const tok = ++vtok;
+ if (isHidden()) { eng.setHidden(true); setTimeout(() => { if (tok === vtok && isHidden() && ctx.state === 'running') ctx.suspend().catch(() => {}); },320); }
+ else { const go = () => { if (tok === vtok) { eng.setHidden(false); tick(); } }; if (ctx.state !== 'running' && everRan && !quiet()) ctx.resume().then(go, go); else go(); }
+}
+function applyS() {
+ if (!eng) return; eng.apply(S);
+ if (quiet()) setTimeout(() => { if (quiet() && ctx.state === 'running') ctx.suspend().catch(() => {}); },260);
+ else if (ctx.state !== 'running' && everRan && !isHidden()) ctx.resume().then(tick, () => {});
+}
+function startScene(scene, o) {
+ const fac = FLAVOR[o && o.faction] ? o.faction : 'none';
+ if (!scene) { if (curScene) eng.stopMusic(o && o.fade); curScene = null; return; }
+ if (scene === curScene && fac === curFac && eng.scene && !eng.scene.dead) return;
+ curScene = scene; curFac = fac;
+ eng.playScene(scene, {faction: fac, fade: o && o.fade, seed: Math.random()*1e6 | 0}); tick();
+}
+function setMusic(scene, o) {
+ if (scene != null && scene !== '' && !SCENES[scene]) return false;
+ want = {scene: scene || null, opts: o || {}};
+ if (eng) startScene(want.scene, want.opts);
+ return true;
+}
+const audible = () => eng && ctx.state === 'running' && !isHidden() && !quiet();
+function sfx(name, o) { return audible() && S.sfx > 0 ? eng.sfx(name, o) : false; }
+function stinger(name, o) { if (!audible() || !STINGERS[name]) return false; eng.stinger(name, {faction: o && FLAVOR[o.faction] ? o.faction : curFac, delay: o && o.delay}); tick(); return true; }
+let cfg = {};
+function configure(o) { cfg = Object.assign(cfg, o || {}); if (eng) { if (cfg.voiceCap) eng.VOICE_CAP = clamp(cfg.voiceCap | 0,4,64); if (cfg.rate) eng.RATE = clamp(+cfg.rate,5,400); if (cfg.nodeBudget) eng.BUDGET = clamp(cfg.nodeBudget | 0,40,2000); } return {voiceCap: eng ? eng.VOICE_CAP : cfg.voiceCap || 24, rate: eng ? eng.RATE : cfg.rate || 60, nodeBudget: eng ? eng.BUDGET : cfg.nodeBudget || 320}; }
+function setIntensity(x) { intensity = clamp(+x || 0,0,1); if (eng) eng.setIntensity(intensity); }
+const settings = {
+ get: () => Object.assign({}, S),
+ set(p) { S = normS(p, S); saveS(); applyS(); for (const f of subs) try { f(S); } catch (e) {} return Object.assign({}, S); }
+};
+
+// ---------- the settings control (scoped .ksa-* styles, app tokens with fallbacks) ----------
+const CSS = '.ksa{display:grid;gap:8px;font:13px/1.4 var(--font-ui,system-ui,sans-serif);color:var(--fg,#dbe5e8)}' +
+ '.ksa-mute{justify-self:start;display:inline-flex;align-items:center;gap:7px;min-height:34px;padding:4px 12px 4px 9px;border-radius:8px;border:1px solid var(--line-2,#2e404b);background:var(--raise,#1a2730);color:inherit;font:inherit;font-weight:700;cursor:pointer}' +
+ '.ksa-mute svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.ksa-x,.ksa-mute[aria-pressed=true] .ksa-w{display:none}' +
+ '.ksa-mute[aria-pressed=true]{color:var(--accent,#f0a03a);border-color:var(--accent,#f0a03a);background:var(--accent-soft,rgba(240,160,58,.15))}.ksa-mute[aria-pressed=true] .ksa-x{display:inline}' +
+ '.ksa-row{display:grid;grid-template-columns:4.4em minmax(0,1fr) 2.4em;align-items:center;gap:10px}.ksa-l{font-size:12.5px;color:var(--muted,#8fa2ab)}' +
+ '.ksa-row input{width:100%;min-width:0;margin:0;accent-color:var(--accent,#f0a03a)}.ksa-v{font:600 14px/1 var(--font-display,system-ui,sans-serif);font-variant-numeric:tabular-nums;text-align:right}.ksa-muted .ksa-row{opacity:.5}';
+function mountSettings(el) {
+ if (!hasDoc || !el || !el.appendChild) return null;
+ if (!document.getElementById('ksa-style')) { const st = document.createElement('style'); st.id = 'ksa-style'; st.textContent = CSS; (document.head || document.documentElement).appendChild(st); }
+ const root = document.createElement('div'); root.className = 'ksa'; root.setAttribute('role', 'group'); root.setAttribute('aria-label', 'サウンド設定');
+ root.innerHTML = '<button type="button" class="ksa-mute" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="ksa-w" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/><path class="ksa-x" d="M16 9l6 6M22 9l-6 6"/></svg><span>ミュート</span></button>' +
+  [['master', '音量'], ['music', '音楽'], ['sfx', '効果音']].map(([k, l]) => '<label class="ksa-row"><span class="ksa-l">' + l + '</span><input type="range" min="0" max="100" step="1" data-k="' + k + '" aria-label="' + l + '"><output class="ksa-v" data-o="' + k + '"></output></label>').join('');
+ const btn = root.querySelector('.ksa-mute'), lab = btn.querySelector('span');
+ const sync = s => { btn.setAttribute('aria-pressed', s.muted ? 'true' : 'false'); lab.textContent = s.muted ? 'ミュート中' : 'ミュート'; root.classList.toggle('ksa-muted', s.muted);
+  for (const inp of root.querySelectorAll('input[data-k]')) { const v = Math.round(s[inp.dataset.k]*100); if (+inp.value !== v) inp.value = v; root.querySelector('[data-o="' + inp.dataset.k + '"]').textContent = v; } };
+ btn.addEventListener('click', () => { const m = !S.muted; settings.set({muted: m}); if (!m) setTimeout(() => sfx('ui_toggle'),120); });
+ root.addEventListener('input', e => { const k = e.target && e.target.dataset && e.target.dataset.k; if (!k) return; const p = {}; p[k] = +e.target.value / 100; if (k === 'master' && S.muted && p[k] > 0) p.muted = false; settings.set(p); });
+ root.addEventListener('change', e => { if (e.target && e.target.dataset && e.target.dataset.k === 'sfx') sfx('ui_click'); });
+ subs.add(sync); sync(S); el.appendChild(root);
+ return {el: root, destroy() { subs.delete(sync); root.remove(); }};
+}
+
+// ---------- offline rendering (tests, previews) ----------
+function renderOffline(seconds, setup, o) {
+ o = o || {}; const sr = o.sampleRate || 44100, off = new OAC(2, Math.ceil(sr*seconds), sr), e = createEngine(off, off.destination, {offline: true});
+ e.apply(Object.assign({}, DEF, {master: 1, music: 1, sfx: 1}, o.settings || {}));
+ const r = (setup && setup(e)) || {}, acts = (r.at || []).slice().sort((a, b) => a[0] - b[0]), step = .25;
+ const run = t => { for (const a of acts) if (!a.done && a[0] <= t + 1e-6) { a.done = 1; a[1](e); } e.advance(t + step + .15); };
+ run(0);
+ for (let t = step; t < seconds - .01; t += step) { const tt = t; off.suspend(tt).then(() => { run(tt); off.resume(); }); }
+ return off.startRendering().then(b => { b.engineStats = e.stats; return b; });
+}
+const atten = (d, near, far) => { near = near || 1; far = far || near*12; d = +d || 0; return d <= near ? 1 : d >= far ? 0 : near / d*smooth((far - d) / (far - near)); };
+const panX = (x, w) => clamp((x / (w || 1))*2 - 1,-1,1)*.85;
+
+const API = {__ks: 1, version: '1.0.0', unlock, configure, setMusic, setIntensity, stinger, sfx, settings, mountSettings, state() {
+ return {unlocked: everRan, ctxState: ctx ? ctx.state : 'none', scene: curScene, faction: curFac, requested: want.scene, intensity, voices: eng ? eng.voices() : 0, players: eng ? eng.players.length : 0, pendingNodes: eng ? eng.graves() : 0, hidden: isHidden(), settings: Object.assign({}, S), stats: eng ? JSON.parse(JSON.stringify(eng.stats)) : null, time: ctx ? +ctx.currentTime.toFixed(3) : 0};
+}, renderOffline, createEngine, atten, panX, names: {scenes: Object.keys(SCENES), stingers: Object.keys(STINGERS), sfx: Object.keys(SFX), factions: Object.keys(FLAVOR).filter(k => k !== 'none')}};
+W.KSAudio = API;
+attach();
+if (hasDoc) document.addEventListener('visibilitychange', onVis);
+})();
+
 /* ============================================================
    app.js — UI, tools, panels, persistence, exercises (v2).
    ============================================================ */
@@ -467,8 +1287,9 @@ function restore(json) {
 function mutate(label, fn, what, opts) {
   const before = snap();
   let res;
-  try { res = fn(); } catch (e) { console.error(e); toast(esc(e.message||'操作できませんでした')); return false; }
+  try { res = fn(); } catch (e) { console.error(e); sndUI('ui_error'); toast(esc(e.message||'操作できませんでした')); return false; }
   if (snap() === before) { if (!(opts && opts.silent)) toast(typeof res === 'string' ? res : '変化はありません'); return false; }
+  sndEdit(label);
 
   undoStack.push(before); if (undoStack.length > 60) undoStack.shift(); redoStack.length = 0;
   lastOp = label; touch(what || 'all'); scheduleStats(opts && opts.quiet ? -1 : 60); updateUndo(); autosave();
@@ -1782,7 +2603,7 @@ function start(hot) {
   $('#newHulls').innerHTML = Object.entries(C.HULLS).map(([k, v]) => `<button type="button" class="hullcard" data-newhull="${k}">${silhouette(v)}<span>${v.name}</span></button>`).join('');
   $('#refGrid').innerHTML = EXAMPLES.map(e => `<button class="btn" data-reference="${e.key}">${esc(e.name)}<small>${esc(e.side)} · ${esc(exampleLine(e))}</small></button>`).join('');
   restoreRenderer(false,false);bindRendering();
-  bind();bindEngineering();bindRealism();bindReference();bindAviation();bindFleet();bindSurface();bindPlanCuts();bindLayout();bindSolidCuts();bindTitle();bindTutorial();bindGround();bindTrial();bindMulti();bindDockToggle();bindShot();bindVoyage();bindRail();bindPalette();
+  bind();bindEngineering();bindRealism();bindReference();bindAviation();bindFleet();bindSurface();bindPlanCuts();bindLayout();bindSolidCuts();bindTitle();bindTutorial();bindGround();bindTrial();bindMulti();bindDockToggle();bindShot();bindVoyage();bindRail();bindPalette();bindSound();
   if (hot && hot.ui) { for (const k of ['tab', 'part', 'partTool', 'mirror', 'view', 'coded', 'fit', 'bridge', 'bridgeMode', 'bridgeEquipment', 'equipmentId', 'group', 'ped']) if (hot.ui[k] != null) st[k] = hot.ui[k]; }
   if(!BRIDGES.includes(st.bridge))st.bridge='podBridge';
   if(!['body','windows'].includes(st.bridgeMode))st.bridgeMode='body';
@@ -1810,7 +2631,7 @@ function start(hot) {
 
 // ---------- title screen ----------
 // The examples are listed by class, size and purpose only.
-const EXAMPLE_PURPOSE = {venator: '艦隊戦・艦載機運用', imperial: '艦隊主力・星系制圧', executor: '艦隊旗艦・指揮', cr90: '護衛・高速輸送', dreadnaught: '艦隊戦・護衛', gozanti: '輸送・護衛', gr75: '物資輸送', heraklon: '貨物・旅客輸送', lucrehulk: 'ドロイド軍の司令・母艦', munificent: '通信中継・艦隊戦', nebulonb: '船団護衛', providence: '艦隊旗艦・艦載機運用', recusant: '艦隊戦', reptransport: '兵員・物資輸送', mc80home: '艦隊旗艦・イオン砲と艦載機', mc80liberty: '主力・イオン砲戦', mc75: '旗艦・イオン砲戦', providenceDn: '艦隊旗艦・強襲揚陸', recusantDn: '重砲撃戦', mc30c: '雷撃・イオン砲でシールド剥ぎ', mandator2: '艦隊旗艦・重砲撃戦'};
+const EXAMPLE_PURPOSE = {venator: '艦隊戦・艦載機運用', imperial: '艦隊主力・星系制圧', executor: '艦隊旗艦・指揮', cr90: '護衛・高速輸送', dreadnaught: '艦隊戦・護衛', gozanti: '輸送・護衛', gr75: '物資輸送', heraklon: '貨物・旅客輸送', lucrehulk: 'ドロイド軍の司令・母艦', munificent: '通信中継・艦隊戦', nebulonb: '船団護衛', providence: '艦隊旗艦・艦載機運用', recusant: '艦隊戦', reptransport: '兵員・物資輸送', mc80home: '艦隊旗艦・イオン砲と艦載機', mc80liberty: '主力・イオン砲戦', mc75: '旗艦・イオン砲戦', providenceDn: '艦隊旗艦・強襲揚陸', recusantDn: '重砲撃戦', mc30c: '雷撃・イオン砲でシールド剥ぎ', mandator2: '艦隊旗艦・重砲撃戦', acclamator: '強襲揚陸・兵員輸送'};
 const EXAMPLES = [
   {key: 'venator', name: 'ヴェネター級', len: 1137, side: '銀河共和国'},
   {key: 'imperial', name: 'インペリアル級', len: 1600, side: '銀河帝国'},
@@ -1880,6 +2701,7 @@ function renderTitle() {
   if (titleState.panel === 'new') panel.innerHTML = titleNewHTML();
   else if (titleState.panel === 'load') { panel.innerHTML = titleLoadHTML(); renderTitleSaves(); }
   else if (titleState.panel === 'patrol') { panel.innerHTML = titlePatrolHTML(); renderTitlePatrolSaves(); }
+  else if (titleState.panel === 'sound') { panel.innerHTML = soundSettingsHTML(); const el = $('#soundSettings'); if (el && window.KSAudio) window.KSAudio.mountSettings(el); else if (el) el.innerHTML = '<p class="note">この端末では音を鳴らせません（Web Audio に対応していません）。</p>'; }
   else if (titleState.panel === 'credits') panel.innerHTML = `<div class="tpanel-head"><h2>使用素材とライセンス</h2><button type="button" class="btn ghost sm" data-title-back>戻る</button></div>${$$('#sheet .src').map(e => `<p class="src">${e.innerHTML}</p>`).join('')}`;
   else panel.innerHTML = '';
   titleStatus();
@@ -1965,6 +2787,7 @@ function bindTitle() {
     if ('landscape' in d) { landscapeTry(true); return; }
     if (d.titleMode === 'design' || d.titleMode === 'voyage') landscapeTry(false);
     if ('titleCredits' in d) { titleState.panel = 'credits'; renderTitle(); return; }
+    if ('titleSound' in d) { titleState.panel = 'sound'; renderTitle(); return; }
     if ('titleBack' in d) { titleState.panel = null; renderTitle(); return; }
     if (d.titleMode) { titleState.mode = d.titleMode; titleState.panel = null; renderTitle(); setTimeout(() => t.querySelector(`[data-tgroup="${d.titleMode}"] .tmenu:not([disabled]):not(.tback)`)?.focus?.({preventScroll: true}), 20); return; }
     if (d.title === 'patrol') { titleState.panel = titleState.panel === 'patrol' ? null : 'patrol'; renderTitle(); return; }
@@ -2911,7 +3734,7 @@ function trialPdBoltHit(b){
 }
 function trialThreatDown(q,p){
  q.alive=false;q.respawn=6;trial.gun.pdKills=(trial.gun.pdKills||0)+1;if(q.onDown)q.onDown(q);const L=q.kind==='missile'?14:30;
- trial.fx.push({pos:p,vel:q.vel,life:.4,max:.4,size:L*2.4,col:[255,240,210]});
+ trial.fx.push({pos:p,vel:q.vel,life:.4,max:.4,size:L*2.4,col:[255,240,210]});sndAt('explosion_small',p,{gain:.6});
  for(let k=0;k<(q.kind==='missile'?6:14);k++)trial.fx.push({pos:p,vel:tv.add(q.vel,tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),40+Math.random()*120),life:.7,max:.7,size:L*.5,col:[255,170+(Math.random()*60|0),80]});
 }
 // Target drones alternate between a stand-off point 7–10 km out and a pass
@@ -2988,8 +3811,9 @@ function trialGunnery(dt){
   if(t.firing&&(t.laid||t.pd)&&t.reload<=0){
    const shotTT=t.power*t.cycle*t.charge/TT_J,cost=shotTT*(t.costK??1);if(en.E<cost){t.starved=true;continue;}en.E-=cost;
    t.reload=t.cycle*(1+Math.random()*.08);const bd=t.bd,n=Math.min(t.barrels,t.r>12?2:t.barrels>2?2:1),sc=t.pd?.009:.0012,g=()=>(Math.random()+Math.random()+Math.random()-1.5)*sc,bw=trialApply(R,tv.norm(tv.add(tv.add(bd,t.e2,g()),t.axis,g()))),side=trialApply(R,tv.norm(tv.cross(t.axis,bd))),base=tv.add(tv.add(trial.P,t.oW),bw,t.r*1.2),spread=t.r*.35;
-   if(t.pd){trial.gun.pd=(trial.gun.pd||0)+t.barrels;for(let i=0;i<n;i++){const off=n>1?(i/(n-1)-.5)*spread:0,pos=tv.add(base,side,off);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(bw,spd),trial.V),life:TRIAL_PD.range*1.15/spd,len:Math.max(40,t.r*6),size:Math.max(3,t.r*.45),col:trialPdColor(),weight:0,tt:0,pd:true,target:t.pdTarget});}continue;}
+   if(t.pd){sndAt('point_defense',base,{gain:.45});trial.gun.pd=(trial.gun.pd||0)+t.barrels;for(let i=0;i<n;i++){const off=n>1?(i/(n-1)-.5)*spread:0,pos=tv.add(base,side,off);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(bw,spd),trial.V),life:TRIAL_PD.range*1.15/spd,len:Math.max(40,t.r*6),size:Math.max(3,t.r*.45),col:trialPdColor(),weight:0,tt:0,pd:true,target:t.pdTarget});}continue;}
    trial.gun.shots+=t.barrels;
+   sndAt(t.ion?'ion':t.r>5?'turbolaser':'laser_light',base,{gain:.85,near:2500,pitch:t.r>14?.85:1});
    for(let i=0;i<n;i++){const off=n>1?(i/(n-1)-.5)*spread:0,pos=tv.add(base,side,off);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(bw,spd),trial.V),life:Math.max(t.reach||TRIAL_GUN.range,trial.p.len*(t.band==='close'?1.2:3))/spd,len:Math.max(70,t.r*9),size:Math.max(5,t.r*.9),col:t.ion?[170,215,255]:color,weight:t.barrels/n,tt:shotTT/n,ion:!!t.ion});}
    trial.fx.push({pos:base,vel:trial.V,life:.12,max:.12,size:Math.max(6,t.r*1.6),col:[255,240,210]});
   }
@@ -3000,7 +3824,7 @@ function trialGunnery(dt){
  trialMissiles(dt,mode==='enemy'?lock:a.lock);
  const Rt=trial.asset.geometry.targetRadius,hitTarget=(t,q,w,esc)=>{if(esc)trial.gun.escHits=(trial.gun.escHits||0)+w;else trial.gun.hits+=w;t.hits+=w;
    for(let k=0;k<6;k++)trial.fx.push({pos:q,vel:tv.add(t.vel,tv.scale(tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),40+Math.random()*120)),life:.5,max:.5,size:Rt*.18,col:[255,200,120]});
-   if(t.hits>=TRIAL_GUN.hitsToKill){t.alive=false;t.respawn=4;trial.gun.kills++;for(let k=0;k<46;k++)trial.fx.push({pos:t.pos,vel:tv.add(t.vel,tv.scale(tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),Rt*(.6+Math.random()*2.2))),life:1.6,max:1.6,size:Rt*(.25+Math.random()*.4),col:[255,170+Math.random()*60|0,90]});trial.fx.push({pos:t.pos,vel:t.vel,life:.5,max:.5,size:Rt*4,col:[255,245,220]});}};
+   if(t.hits>=TRIAL_GUN.hitsToKill){t.alive=false;t.respawn=4;trial.gun.kills++;sndAt('explosion_small',t.pos);for(let k=0;k<46;k++)trial.fx.push({pos:t.pos,vel:tv.add(t.vel,tv.scale(tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),Rt*(.6+Math.random()*2.2))),life:1.6,max:1.6,size:Rt*(.25+Math.random()*.4),col:[255,170+Math.random()*60|0,90]});trial.fx.push({pos:t.pos,vel:t.vel,life:.5,max:.5,size:Rt*4,col:[255,245,220]});}};
  const segHit=(t,a0,a1)=>{const seg=tv.sub(a1,a0),l2=tv.dot(seg,seg)||1,k=C.clamp(tv.dot(tv.sub(t.pos,a0),seg)/l2,0,1),q=tv.add(a0,seg,k);return tv.len(tv.sub(q,t.pos))<Rt?q:null;};
  // Ships are ellipsoids of their own length, height and width.
  const segShip=(t,a0,a1)=>{const s=t.semi,la=trialApplyT(t.rot,tv.sub(a0,t.pos)),lb=trialApplyT(t.rot,tv.sub(a1,t.pos)),pa=[la[0]/s[0],la[1]/s[1],la[2]/s[2]],pb=[lb[0]/s[0],lb[1]/s[1],lb[2]/s[2]],d=tv.sub(pb,pa),l2=tv.dot(d,d)||1,k=C.clamp(-tv.dot(pa,d)/l2,0,1);return tv.len(tv.add(pa,d,k))<1?tv.add(a0,tv.sub(a1,a0),k):null;};
@@ -3023,7 +3847,7 @@ function trialMissiles(dt,lock){
  for(const l of trial.launchers){l.reload=Math.max(0,l.reload-dt);if(l.queue>0&&(l.next-=dt)<=0){l.queue--;l.next=TRIAL_MSL.ripple;
   const ax=trialApply(R,l.axis),pos=tv.add(trial.P,trialApply(R,tv.sub(l.origin,center))),jit=tv.norm(tv.add(ax,tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),.12));
   trial.missiles.push({pos,prev:pos,base:[...trial.V],h:jit,s:TRIAL_MSL.launch,life:TRIAL_MSL.life,target:lock||null,dir:trial.aim?trial.aim.dir:ax,weight:1,trail:0,boost:.6});
-  trial.fx.push({pos,vel:trial.V,life:.25,max:.25,size:14,col:[255,210,150]});trial.gun.missiles=(trial.gun.missiles||0)+1;}}
+  trial.fx.push({pos,vel:trial.V,life:.25,max:.25,size:14,col:[255,210,150]});trial.gun.missiles=(trial.gun.missiles||0)+1;sndAt('missile',pos,{gain:.8});}}
  for(const m of trial.missiles){
   m.prev=m.pos;m.boost-=dt;
   let want=m.dir;if(m.target&&m.target.alive&&m.boost<=0){const t=m.target,rel=tv.sub(t.pos,m.pos),vrel=tv.sub(t.vel,m.base),tgo=tv.len(rel)/Math.max(300,m.s);want=tv.norm(tv.add(rel,vrel,tgo));}
@@ -3245,7 +4069,7 @@ function hitcamStep(now){
 function trialHudHTML(){
  return `<div class="th-top"><div class="th-card th-bar"><div class="th-id"><b>${esc(trial.p?.name||ship?.name||'設計艦')}</b><small><span data-th="where">${trialWhere()}</span> <span data-th="clock">T+0:00</span></small></div>
  <dl class="th-read"><div><dt>速力</dt><dd data-th="speed">0</dd></div><div><dt>方位</dt><dd data-th="head">090°</dd></div><div><dt>高度</dt><dd data-th="alt">160 km</dd></div><div class="th-att"><dt>仰角</dt><dd data-th="pitch">0.0°</dd></div><div class="th-att"><dt>傾斜</dt><dd data-th="bank">0.0°</dd></div></dl></div>
- <div class="th-actions">${trial.rts?'':'<button type="button" class="th-btn th-mapbtn" data-trial-cmd="map" aria-expanded="false" aria-controls="thMap" aria-label="星図とハイパードライブ">星図</button>'}<button type="button" class="th-btn th-pw" data-trial-cmd="power" data-th="pwbtn" aria-expanded="false" aria-controls="thPower" aria-label="出力配分">⚡ ${(C.POWER_MODES[trial.powerMode]||C.POWER_MODES.balanced).name}</button><button type="button" class="th-btn th-more" data-trial-cmd="menu" aria-expanded="false" aria-controls="thMenu" aria-label="その他の操作">⋯</button>
+ <div class="th-actions">${trial.rts?'':'<button type="button" class="th-btn th-mapbtn" data-trial-cmd="map" aria-expanded="false" aria-controls="thMap" aria-label="星図とハイパードライブ">星図</button>'}<button type="button" class="th-btn th-pw" data-trial-cmd="power" data-th="pwbtn" aria-expanded="false" aria-controls="thPower" aria-label="出力配分">⚡ ${(C.POWER_MODES[trial.powerMode]||C.POWER_MODES.balanced).name}</button><button type="button" class="th-btn snd-btn" data-trial-cmd="mute" data-sound-toggle aria-pressed="false" aria-label="音を切る"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="snd-wave" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/><path class="snd-x" d="M16 9l5 6M21 9l-5 6"/></svg></button><button type="button" class="th-btn th-more" data-trial-cmd="menu" aria-expanded="false" aria-controls="thMenu" aria-label="その他の操作">⋯</button>
  <div class="th-card th-menu th-power" id="thPower" hidden><p class="th-power-head">出力配分 <kbd>P</kbd></p>${Object.entries(C.POWER_MODES).map(([k,m])=>`<button type="button" class="th-btn th-pmode" data-trial-cmd="pmode:${k}" aria-pressed="${(trial.powerMode||'balanced')===k}"><b>${m.name}</b><small>${esc(m.note)}</small></button>`).join('')}</div><button type="button" class="th-btn th-exit" data-trial-cmd="exit">${trial.rts?'操艦終了':trial.mode==='battle'?'戦闘終了':trial.returnTo==='title'?'帰還':'公試終了'}</button>
  <div class="th-card th-menu th-map" id="thMap" hidden></div>
  <div class="th-card th-menu" id="thMenu" hidden><button type="button" class="th-btn" data-trial-cmd="cam" data-th="cam">視点 水平</button><button type="button" class="th-btn" data-trial-cmd="gunmode" data-th="gunmenu">主砲 ${GUN_MODES[trial.gunMode||'free'].name} <kbd>G</kbd></button><button type="button" class="th-btn" data-trial-cmd="shot">スクリーンショット <kbd>H</kbd></button><button type="button" class="th-btn" data-trial-cmd="level">水平復帰 <kbd>Z</kbd></button><button type="button" class="th-btn" data-trial-cmd="center">舵中央 <kbd>X</kbd></button><button type="button" class="th-btn" data-trial-cmd="records" data-th="recbtn">記録を表示</button><button type="button" class="th-btn" data-trial-cmd="reset">再開始</button></div></div></div>
@@ -3368,6 +4192,7 @@ function trialCommand(cmd){
  else if(cmd==='records'){trial.showRecords=!trialRecordsOn();}
  else if(cmd==='gunmode'||cmd.startsWith('gun:')){const ks=Object.keys(GUN_MODES),k=cmd==='gunmode'?ks[(ks.indexOf(trial.gunMode||'free')+1)%ks.length]:cmd.slice(4);if(!GUN_MODES[k])return;trial.gunMode=k;trial.gunTarget=null;const M=GUN_MODES[k];toast(`主砲：${M.name} — ${M.note}`);const mb=document.querySelector('[data-th="gunmenu"]');if(mb)mb.innerHTML=`主砲 ${M.name} <kbd>G</kbd>`;}
  else if(cmd==='shot'){shotSet(!shot.on);return;}
+ else if(cmd==='mute'){sndToggle();return;}
  else if(cmd==='pause'){trialPause();return;}
  else if(cmd==='missile'){if(!trial.launchers.length){toast('ミサイル発射管がありません');return;}trial.mslOrder=true;}
  else if(cmd==='map'){if(trial.rts){toast('ジャンプは戦術図の「離脱」「増援」で命じます');return;}trialMapShow();return;}
@@ -3448,6 +4273,7 @@ function escortsFire(dt,lock,firing){
  for(const e of es){e.gun-=dt;if(!firing||!lock||!lock.alive||e.gun>0||trial.jump)continue;const rel=tv.sub(lock.pos,e.pos),d=tv.len(rel);if(d>TRIAL_GUN.range*1.2){e.gun=.5;continue;}
   const me={pos:trial.P,rot:trial.R,radius:trial.p.len*.5,semi:[trial.p.len*.5,(trial.p.height||trial.p.len*.2)*.5,(trial.p.width||trial.p.len*.5)*.5]};if(trialBoxOnLine(me,e.pos,tv.scale(rel,1/d),d)){e.gun=.4;continue;}
   e.gun=1.1+Math.random()*.9;const spd=TRIAL_GUN.boltSpeed,t=trialIntercept(rel,tv.sub(lock.vel,e.V),spd)||d/spd,aim=tv.norm(tv.add(tv.add(rel,tv.sub(lock.vel,e.V),t),[(Math.random()-.5)*d*.01,(Math.random()-.5)*d*.01,(Math.random()-.5)*d*.01]));
+  sndAt('laser_light',e.pos,{gain:.55,pitch:1.15});
   for(let i=0;i<2;i++){const pos=tv.add(tv.add(e.pos,trialApply(e.R,[e.p.len*(.1-.2*i),(e.p.height||e.p.len*.2)*.3,0])),aim,e.p.len*.2);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(aim,spd),e.V),life:(d+e.p.len)/spd*1.15,len:Math.max(70,e.p.len*.04),size:Math.max(5,e.p.len*.006),col:[120,235,255],weight:1,tt:0,esc:true});}
   trial.fx.push({pos:e.pos,vel:e.V,life:.1,max:.1,size:Math.max(8,e.p.len*.02),col:[200,240,255]});}
 }
@@ -3580,8 +4406,9 @@ function spaceDamage(u,tt,kind,q,t){const B=trial.battle;if(!B||B.result)return;
  x.aim.auto=(x.aim.auto||0)+h+.1*tt;if(B.me)x.from=[...B.me.pos];
  if(q&&t?.rot&&t.semi){const z=C.combatZoneAt(u.p,trialApplyT(t.rot,tv.sub(q,t.pos)),t.semi);x.zw=x.zw||new Array(30).fill(0);x.zw[z]+=h;}
  B.extra.set(u.id,x);}
-function spaceImpact(pos,vel,u,size){const sh=u&&u.shield>0;for(let k=0;k<(sh?5:7);k++)trial.fx.push({pos,vel:tv.add(vel,tv.scale(tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),30+Math.random()*90)),life:sh?.35:.6,max:sh?.35:.6,size:size*(sh?1.3:.9),col:sh?[120,190,255]:[255,170+(Math.random()*50|0),90]});}
+function spaceImpact(pos,vel,u,size){const sh=u&&u.shield>0;sndAt(sh?'hit_shield':'hit_hull',pos,{gain:.7});for(let k=0;k<(sh?5:7);k++)trial.fx.push({pos,vel:tv.add(vel,tv.scale(tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),30+Math.random()*90)),life:sh?.35:.6,max:sh?.35:.6,size:size*(sh?1.3:.9),col:sh?[120,190,255]:[255,170+(Math.random()*50|0),90]});}
 function trialExplosion(pos,vel,L,big){
+ sndAt(big?'ship_destroyed':'explosion_large',pos,{near:Math.max(1500,L*2),far:Math.max(60000,L*40),gain:1});
  trial.fx.push({pos,vel,life:big?1.1:.7,max:big?1.1:.7,size:L*(big?3.2:1.6),col:[255,250,235]});
  for(let k=0;k<(big?160:90);k++){const d=tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),sp=L*(.3+Math.random()*(big?2.6:1.4));trial.fx.push({pos,vel:tv.add(vel,d,sp),life:1.4+Math.random()*1.4,max:2.8,size:L*(.06+Math.random()*.14),col:k%5===0?[150,155,165]:[255,150+(Math.random()*90|0),70]});}
  if(big)for(let k=0;k<72;k++){const a=k/72*Math.PI*2,d=[Math.cos(a),(Math.random()-.5)*.08,Math.sin(a)];trial.fx.push({pos,vel:tv.add(vel,d,L*3.5),life:1.2,max:1.2,size:L*.12,col:[190,220,255]});}
@@ -3703,7 +4530,7 @@ function spaceFires(now){
 // Sparks where two hulls met.
 const bumpSeen=new WeakSet();
 function spaceBumps(list){
- const B=trial.battle;if(!B)return;for(const x of list||[]){if(!x||bumpSeen.has(x))continue;bumpSeen.add(x);const w=tv.add(B.O,trialApply(B.E,x.point)),n=C.clamp(Math.round(x.vn/4),4,40);
+ const B=trial.battle;if(!B)return;for(const x of list||[]){if(!x||bumpSeen.has(x))continue;bumpSeen.add(x);const w=tv.add(B.O,trialApply(B.E,x.point)),n=C.clamp(Math.round(x.vn/4),4,40);sndAt('hit_hull',w,{gain:Math.min(1,.3+x.vn/30)});
   for(let k=0;k<n;k++)trial.fx.push({pos:w,vel:tv.scale(tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),40+Math.random()*(60+x.vn*2)),life:.5+Math.random()*.6,max:1.1,size:10+x.vn*.25,col:[255,190+(Math.random()*50|0),120]});
   if(x.vn>15)trial.fx.push({pos:w,vel:[0,0,0],life:.4,max:.4,size:60+x.vn*1.5,col:[255,235,200]});}
 }
@@ -3724,10 +4551,10 @@ function spaceDeaths(){
 function trialFxStep(dt){for(const e of trial.fx){e.pos=tv.add(e.pos,e.vel,dt);e.life-=dt;}trial.fx=trial.fx.filter(e=>e.life>0);if(trial.fx.length>3000)trial.fx.splice(0,trial.fx.length-3000);}
 function spaceShots(shots){
  const B=trial.battle,byId=new Map(B.b.units.map(u=>[u.id,u]));
- for(const s of shots){const a=byId.get(s.from),t=byId.get(s.to);if(!a||!t||a.manual)continue;const n=C.clamp(Math.round((s.gun||0)/30),s.gun>0?1:0,6);
+ for(const s of shots){const a=byId.get(s.from),t=byId.get(s.to);if(!a||!t||a.manual)continue;const n=C.clamp(Math.round((s.gun||0)/30),s.gun>0?1:0,6);if(n)sndAt(s.ion?'ion':'turbolaser',spaceWorld(a),{gain:.7,near:Math.max(2000,a.p.len*1.5),far:Math.max(40000,a.p.len*25),pitch:a.p.len>900?.85:1});
   for(let i=0;i<n;i++){const from=spaceHullPoint(a,.4),tw=spaceWorld(t),tof=C.len(C.sub(tw,from))/TRIAL_GUN.boltSpeed,to=tv.add(spaceHullPoint(t,.3),spaceVel(t),tof),d=tv.sub(to,from),dist=tv.len(d);if(dist<1)continue;
    trial.vbolts.push({pos:from,vel:tv.scale(d,TRIAL_GUN.boltSpeed/dist),life:dist/TRIAL_GUN.boltSpeed,delay:Math.random()*SPACE_RULES.step,len:Math.max(80,a.p.len*.06),size:Math.max(6,a.p.len*.007),col:s.ion?[170,215,255]:a.team?[255,95,70]:[110,255,140],target:t});}
-  if(s.msl>0&&Math.random()<.5)for(let k=0;k<2;k++){const from=spaceHullPoint(a,.3);trial.fx.push({pos:from,vel:tv.add(spaceVel(a),tv.norm(tv.sub(spaceWorld(t),from)),2600),life:2.5,max:2.5,size:9,col:[255,210,150]});}}
+  if(s.msl>0&&Math.random()<.5&&(sndAt('missile',spaceWorld(a),{gain:.6}),true))for(let k=0;k<2;k++){const from=spaceHullPoint(a,.3);trial.fx.push({pos:from,vel:tv.add(spaceVel(a),tv.norm(tv.sub(spaceWorld(t),from)),2600),life:2.5,max:2.5,size:9,col:[255,210,150]});}}
  if(trial.vbolts.length>1600)trial.vbolts.splice(0,trial.vbolts.length-1600);
 }
 function spaceBolts(dt){
@@ -4486,6 +5313,67 @@ function bindTutorial(){
  });
 }
 
+// ---------- v20.1 sound ----------
+// KSAudio (src/45_audio.js) synthesizes everything live: original music in the space-opera
+// manner and generic effects, no samples. The music follows the screen — the title (and the
+// fleet review), the yard (designing), the fleet's organisation, maps and patrols (voyage),
+// and battle (a fight in the 3D view or on the tactical map), which grows as more guns fire.
+// Stingers mark contact, victory and defeat; effects follow the guns, hits and explosions near
+// the camera, the parts placed and removed, and the buttons.
+const SND = {scene: '', fac: '', fire: 0, t: 0, alerts: new Set(), result: null, evN: 0};
+const snd = () => window.KSAudio || null;
+function sndScene() {
+ if (titleVisible()) return ['title'];
+ if (trial.on) {
+  if (trial.rts && voy.w) return voy.w.battles.has(trial.rts.sys) ? ['battle', voy.setup?.own] : ['voyage', voy.setup?.own];
+  return trial.mode === 'battle' ? ['battle'] : ['voyage'];
+ }
+ if (voy.open) { const w = voy.w, sys = voy.screen === 'tac' ? voy.tac.sys : null; return w && sys != null && w.battles.has(sys) ? ['battle', voy.setup?.own] : ['voyage', voy.setup?.own]; }
+ if (fleet.mode === 'review') return ['title'];
+ if (fleet.mode !== 'design') return ['battle'];
+ return ['yard'];
+}
+// Distance to the listener: the piloted ship in the 3D view, else the camera's target.
+function sndListener() { if (trial.on) return trial.P; const c = view?.cam; return c?.target || [0, 0, 0]; }
+function sndAt(name, pos, o = {}) {
+ const A = snd();if (!A || !pos) return false;const L = sndListener(), d = Math.hypot(pos[0] - L[0], pos[1] - L[1], pos[2] - L[2]), near = o.near || 1500, far = o.far || 40000;
+ const g = (A.atten ? A.atten(d, near, far) : Math.max(0, 1 - d / far)) * (o.gain ?? 1);if (g < .02) return false;
+ if (/laser|turbolaser|ion|point_defense|missile|torpedo/.test(name)) SND.fire += 1;
+ return A.sfx(name, {gain: g, pitch: o.pitch});
+}
+function sndUI(name, gain = .5) { const A = snd();if (A) A.sfx(name, {gain}); }
+// Designing: placing and removing parts, from the label of the change.
+function sndEdit(label) { const l = String(label || ''); sndUI(/配置|取り付け|追加|貼り付け|複製|搭載/.test(l) ? 'place' : /削除|撤去|外す|降ろす/.test(l) ? 'remove' : 'snap', .45); }
+// Battle events from the voyage: contact, and the end of a fight we were in.
+function sndVoyEvent(e) {
+ const A = snd();if (!A || !voy.w) return;
+ if (e.battle && !e.end && R.systemUnits(voy.w, e.sys).some(u => u.side === 0)) { SND.alerts.add(e.sys); A.stinger('alert', {faction: voy.setup?.own}); A.sfx('alarm', {gain: .45}); }
+ else if (e.battle && e.end && SND.alerts.has(e.sys)) { SND.alerts.delete(e.sys); A.stinger(e.winner === 0 ? 'victory' : 'defeat', {faction: voy.setup?.own}); }
+}
+function sndTick() {
+ const A = snd();if (!A) return;
+ const [scene, fac] = sndScene(), key = scene + '|' + (fac || '');
+ if (key !== SND.scene) { SND.scene = key; A.setMusic(scene, fac ? {faction: fac} : undefined); }
+ // Battle intensity: guns heard in the last seconds (decaying), on a floor so a battle never sounds idle.
+ SND.fire *= .7;if (scene === 'battle') A.setIntensity(Math.min(1, .25 + SND.fire / 10));
+ const w = voy.w;if (w?.result && SND.result !== w.result) { SND.result = w.result; A.stinger(w.result.winner === 0 ? 'victory' : 'defeat', {faction: voy.setup?.own}); }
+}
+// Mute from the top bar or the 3D view; the buttons show the state (pressed = sound off).
+function sndToggle() { const A = snd();if (!A) { toast('この端末では音を鳴らせません'); return; } A.settings.set({muted: !A.settings.get().muted}); sndButtons(); }
+function sndButtons() { const A = snd(), m = !A || !!A.settings.get().muted; for (const b of document.querySelectorAll('[data-sound-toggle]')) { b.setAttribute('aria-pressed', String(m)); b.setAttribute('aria-label', m ? '音を出す' : '音を切る'); } document.documentElement.classList.toggle('ks-muted', m); }
+function soundSettingsHTML() { return `<div class="tpanel-head"><h2>音の設定</h2><button type="button" class="btn ghost sm" data-title-back>戻る</button></div><div id="soundSettings"></div><p class="note">音楽と効果音はすべてこの場で合成しています（録音や既存の曲は使っていません）。最初に画面に触れたときに鳴り始めます。</p>`; }
+function bindSound() {
+ const A = snd();if (!A) return;
+ setInterval(() => { try { sndTick(); } catch (e) { console.warn('sound', e); } }, 500);
+ // The jump: the roar going in and the burst coming out (watched each frame, the phases are short).
+ const frame = () => { const ph = trial.on ? trial.jump?.phase || null : null; if (ph !== SND.jph) { if (ph === 'enter' || ph === 'tunnel' && SND.jph !== 'enter') sndUI('hyperspace_out', .9); else if (ph === 'exit') sndUI('hyperspace_in', .9); SND.jph = ph; } requestAnimationFrame(frame); };
+ requestAnimationFrame(frame);
+ // Buttons click, tabs and toggles tick (quietly; repeated taps are thinned by the module).
+ document.addEventListener('click', e => { const t = e.target.closest?.('[data-sound-toggle]'); if (t && !t.dataset.trialCmd) { sndToggle(); } }, false);
+ setInterval(sndButtons, 1500);sndButtons();
+ document.addEventListener('click', e => { const b = e.target.closest?.('button,[role=tab],summary');if (!b || b.disabled) return; sndUI(b.matches('[role=tab],.seg button,summary,[aria-pressed]') ? 'ui_toggle' : 'ui_click', .35); }, true);
+}
+
 // ---- src/55_voyage.js ----
 // ============================================================
 // 航行 (voyage): patrol, fleet battle and — in a later version —
@@ -4897,7 +5785,7 @@ function voyEvents() {
  const w = voy.w, ev = w.events;let i = ev.length;while (i > 0 && ev[i - 1].n > voy.seenEv) i--;
  for (; i < ev.length; i++) {
   // The battle's own blow-by-blow stays on the tactical map; losses come as world events.
-  const e = ev[i];voy.seenEv = e.n;if (e.combat) continue;if (e.side != null && e.side !== 0 && !e.battle && !e.result && !e.sunk && !e.captured) continue;
+  const e = ev[i];voy.seenEv = e.n;if (e.battle) sndVoyEvent(e);if (e.combat) continue;if (e.side != null && e.side !== 0 && !e.battle && !e.result && !e.sunk && !e.captured) continue;
   if (e.battle && !e.end && R.systemUnits(w, e.sys).some(u => u.side === 0)) { if (voy.speed > 1) voy.speed = 1; toast(`${esc(e.text)} — ${voy3D() && !voy.orders ? '「命令」の戦術図で' : '戦術図で'}指揮できます`); voy.battleAlert = e.sys; }
   voyNote((e.sunk && e.side != null && e.side !== 0 ? '敵 ' : '') + e.text, e.sys);
  }
@@ -5868,7 +6756,7 @@ function voySpectateKey(e) {
 function voySpectateHudHTML() {
  return `<div class="th-top"><div class="th-card th-bar spec-bar"><div class="th-id"><span>3D視点</span><b data-sp="name">—</b><small data-sp="where"></small></div>
   <div class="spec-follow" role="group" aria-label="追尾する艦" title="追尾する艦（← → キー）"><button type="button" class="th-btn" data-spec="prev" aria-label="前の艦">◀</button><button type="button" class="th-btn" data-spec="side" data-sp="side">全艦</button><button type="button" class="th-btn" data-spec="next" aria-label="次の艦">▶</button></div></div>
-  <div class="th-actions"><div class="spec-speed" role="group" aria-label="時間の速さ" title="時間の速さ（1〜5 キー、Space で一時停止）">${VOY_SPEEDS.map(k => `<button type="button" class="th-btn" data-spec="speed:${k}" aria-pressed="false" aria-label="${k ? '時間 ' + k + ' 倍' : '一時停止'}">${k ? k + '×' : '❚❚'}</button>`).join('')}</div><button type="button" class="th-btn" data-spec="cam" data-sp="cam">視点 追尾</button><button type="button" class="th-btn" data-trial-cmd="shot">撮影</button></div></div>
+  <div class="th-actions"><div class="spec-speed" role="group" aria-label="時間の速さ" title="時間の速さ（1〜5 キー、Space で一時停止）">${VOY_SPEEDS.map(k => `<button type="button" class="th-btn" data-spec="speed:${k}" aria-pressed="false" aria-label="${k ? '時間 ' + k + ' 倍' : '一時停止'}">${k ? k + '×' : '❚❚'}</button>`).join('')}</div><button type="button" class="th-btn" data-spec="cam" data-sp="cam">視点 追尾</button><button type="button" class="th-btn" data-trial-cmd="shot">撮影</button><button type="button" class="th-btn snd-btn" data-trial-cmd="mute" data-sound-toggle aria-pressed="false" aria-label="音を切る"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="snd-wave" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/><path class="snd-x" d="M16 9l5 6M21 9l-5 6"/></svg></button></div></div>
  <p class="th-records" data-sp="records"></p><button type="button" class="th-btn spec-alert" data-spec="alert" data-sp="alert" hidden></button>
  <div class="th-flash" data-th="flash" aria-hidden="true"></div><p class="th-hyper" data-sp="hyper" hidden aria-live="polite"></p>
  <div class="th-tmarks" aria-hidden="true"></div><div class="th-hitcam" data-th="hitcam" hidden><canvas></canvas></div>
