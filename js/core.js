@@ -2406,7 +2406,8 @@ const HYPERDRIVE_REFERENCE={
  imperial:{class:2},
  imperial2:{class:2},
  venator:{class:1},
- executor:{class:2}
+ executor:{class:2},
+ acclamator:{class:0.6}
 };
 const SHIP_REFERENCE={
  // Executor formation is the user's explicit setting; aircraftText remains the workbook's original text.
@@ -3691,6 +3692,134 @@ function shipKit(s){
 // stripes (Wookieepedia: the Invisible Hand is "light blue-gray, with subtle
 // yellow bow stripes"; Recusants wear "the standard blue of the CIS").
 const CIS_PAINT=Object.freeze({grey:'#9fa6af',panel:'#7c838e',slate:'#6b778c',steel:'#647081',dark:'#4c525c',plate:'#c3c9d0',blue:'#3e4c8a',blueLight:'#5a68a0',gold:'#b89a5e'});
+// ---- src/ships/acclamator.js ----
+// Acclamator-class assault ship, measured from the STL file the user supplied
+// (Acclamator.stl, exported from Blender 2.82; no author or licence came with
+// it). Ship frame: x from the stern (0) to the bow (752 m), y up from the
+// lowest point (the V keel amidships), z to starboard. The hull is fitted
+// station by station: the tail block, the body (V-bottomed amidships, the
+// brim slab's band taken at the body's own width) and, forward, the body
+// above the ventral box. The brim slab and its lip, the ventral box, the
+// tail's lower block, the dorsal terrace block, the bridge tower module and
+// the conning-tower housing are ordinary structures measured from the model.
+// Interior after the DK cut-away (Republic Assault Ship).
+{
+const ACC={"W":211.742,"H":94.75,"st":[[0.0,0.1238,0.4274,0.0989,0.6689,0.98,0.51,0.21],[0.07447,0.1356,0.8443,0.0224,0.8994,0.9492,0.27,0.68],[0.10372,0.1356,0.7968,0.0831,0.9149,0.98,0.11,0.2],[0.19176,0.1356,0.9763,0.004,0.8924,0.98,0.31,0.2],[0.19282,1.0,1.0,0.0026,0.4538,0.498,0.22,0.52],[0.35053,1.0,0.9736,-0.0053,0.5019,0.4996,0.21,0.52],[0.3516,0.9992,0.5646,0.2098,0.4897,0.98,0.03,0.34],[0.43085,0.8857,0.5726,0.2164,0.5023,0.9762,0.03,0.31],[0.4734,0.8255,0.4274,0.1438,0.4968,0.9586,0.02,0.45],[0.47872,0.8246,0.4116,0.1306,0.4985,0.9415,0.02,0.46],[0.48404,0.8241,0.3984,0.1187,0.4946,0.9302,0.02,0.48],[0.48936,0.8236,0.3826,0.1055,0.524,0.9227,0.02,0.49],[0.49468,0.8198,0.3668,0.095,0.523,0.9174,0.02,0.52],[0.5,0.8127,0.3483,0.0858,0.5074,0.9153,0.02,0.55],[0.50532,0.8057,0.3272,0.0752,0.5436,0.8989,0.02,0.57],[0.51064,0.7986,0.3087,0.066,0.6663,0.9631,0.02,0.2],[0.51596,0.7916,0.3668,0.095,0.3693,0.9567,0.02,0.55],[0.52128,0.7845,0.3668,0.095,0.3662,0.9562,0.02,0.55],[0.53191,0.7693,0.3615,0.095,0.3665,0.9563,0.02,0.55],[0.54255,0.7536,0.3562,0.095,0.3674,0.9557,0.02,0.55],[0.54787,0.7465,0.3536,0.0937,0.3652,0.9545,0.02,0.56],[0.55319,0.7394,0.3536,0.0937,0.3689,0.9533,0.02,0.55],[0.55851,0.7323,0.3536,0.0937,0.3656,0.9338,0.02,0.55],[0.56383,0.7252,0.3509,0.0923,0.3637,0.8791,0.02,0.56],[0.56915,0.7148,0.3483,0.0937,0.3688,0.4859,0.48,0.32],[0.57447,0.6832,0.3272,0.1016,0.3806,0.98,0.74,0.2],[0.59043,0.6606,0.3245,0.1003,0.3768,0.98,0.67,0.24],[0.67553,0.5402,0.3113,0.1016,0.2248,0.98,0.76,0.2],[0.75532,0.4278,0.2797,0.0884,0.3721,0.98,0.02,0.6],[0.79255,0.3748,0.2823,0.095,0.1785,0.9776,0.02,0.59],[0.79787,0.3673,0.219,0.0607,0.5491,0.9763,0.05,0.8],[1.0,0.0372,0.1741,0.0435,0.98,0.98,0.98,0.49]],"brim":[[143.0,207.0],[145.0,211.7],[188.5,211.6],[188.6,206.35],[262.0,206.45],[600.0,67.6],[684.0,36.0],[722.0,20.0],[751.8,9.5],[751.8,0.98],[740,3.7],[720,8.3],[700,12.89],[690,15.19],[680,17.49],[660,22.09],[640,26.69],[620,31.29],[600,35.89],[580,39.89],[560,43.88],[520,51.81],[480,59.77],[440,67.74],[400,78.45],[360,84.3],[320,91.58],[300,95.61],[280,99.64],[270,101.66],[264.4,102.79],[263.6,102.87],[145.0,102.87],[144.9,14.0],[143.0,14.0]],"lip":[[189.5,212.3],[262.0,212.4],[600.0,73.55],[684.0,41.95],[722.0,25.95],[723.0,20.15],[722.0,19.0],[684.0,35.0],[600.0,66.6],[262.0,205.45],[189.5,205.35]],"vbox":[[263.0,-53.0,53.0,1.0,40.0],[264.4,-52.96,52.96,0.75,42.0],[356.0,-43.99,43.99,5.25,42.25],[376.0,-42.05,42.05,6.25,40.5],[396.0,-40.11,40.11,8.75,40.75],[428.0,-37.03,37.03,15.25,41.25],[432.0,-36.65,36.65,16.0,43.0],[508.0,-29.37,29.37,31.0,43.75],[742.0,-6.66,6.66,42.75,44.0]],"tail":[[72.5,-17.62,17.62,18.75,40.25],[108.0,-17.62,17.62,10.75,40.25],[144.9,-17.62,17.62,0.75,40.25]],"terrace":[[144.6,-26.58,26.58,93.5,106.0],[261.0,-26.58,26.58,93.5,97.0],[263.6,-26.58,26.58,93.5,96.6]],"fin":[[136.5,-6.0,6.0,93.5,94.5],[143.0,-6.74,6.74,93.5,124.0],[145.5,-8.6,8.6,93.5,132.4],[188.8,-9.6,9.6,93.5,132.3],[190.0,-10.2,10.2,93.5,122.0],[214.0,-10.6,10.6,93.5,121.0],[253.5,-11.4,11.4,93.5,98.6],[255.0,-11.4,11.4,93.5,97.6]],"pod":[[189.4,-7.6,7.6,121.0,133.0],[192.5,-11.2,11.2,120.8,134.2],[210.0,-11.0,11.0,121.0,134.2],[255.0,-10.6,10.6,121.2,134.0],[260.0,-10.2,10.2,121.6,133.5],[264.0,-8.6,8.6,122.3,132.9],[266.0,-7.3,7.3,123.0,132.0],[268.0,-5.6,5.6,123.8,131.2],[269.4,-3.4,3.4,125.2,130.2],[270.2,-0.9,0.9,127.1,128.4]]};
+const ACC_AIR=[{id:'air-1',name:'LAAT/i ガンシップ',type:'laat',count:32},{id:'air-2',name:'LAAT/c 歩行機輸送機',type:'laatc',count:12}];
+const ACC_GROUND=[{id:'ground-1',name:'クローン・トルーパーと支援要員',kind:'troops',count:16000},{id:'ground-2',name:'SPHA-T 自走式重砲',kind:'vehicle',type:'spha',count:1},{id:'ground-3',name:'AT-TE 全地形戦術攻撃トランスポート',kind:'vehicle',type:'atte',count:48},{id:'ground-4',name:'BARC スピーダー',kind:'vehicle',type:'barc',count:320}];
+// Weapon placement with ground and step checks (as for the measured Mon Calamari ships); the
+// Acclamator's guns are all below the charging-plant threshold.
+function accMountKit(s,opt={}){
+ const tryMount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:p.slice(),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':(f.base-f.low)>(o.maxStep??fitSpec(f).fm*.6)?'steep':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(v=>Math.round(v*10)/10).join(','),why||'ok',f.p.map(v=>Math.round(v*10)/10).join(',')]);if(why){s.nextId--;return null;}return f;};
+ const clearOf=(f,list)=>list.every(g=>Math.hypot(f.p[0]-g.p[0],f.p[1]-g.p[1],f.p[2]-g.p[2])>=(fitSpec(f).fm+fitSpec(g).fm)*.5+1.5);
+ // n fittings over candidate stations [x, |z|]: mirrored pairs on the dorsal ('top') or ventral ('bottom') surface.
+ const pairs=(kind,n,mode,zone,stations,o={})=>{let got=0;
+  for(const [x,off] of stations){if(got>=n)break;const ps=(off?[1,-1]:[1]).map(sg=>[[x,0,sg*off],mode==='top'?2:3]);if(got+ps.length>n)continue;const fs=[];
+   for(const [p,a] of ps){const f=tryMount(kind,p,a,zone+(ps.length>1?(p[2]>0?'-stbd':'-port'):''),o);if(!f||!clearOf(f,s.fits.concat(fs)))break;fs.push(f);}
+   if(fs.length<ps.length)continue;s.fits.push(...fs);got+=fs.length;}
+  if(got<n&&!o.soft)throw new Error('作例の砲座が不足しています: '+kind+' '+zone+' '+got+'/'+n);return got;};
+ return {tryMount,clearOf,pairs};
+}
+function accBuild(opt={}){
+ const D=ACC,L=752;
+ const s=newShip({L,W:D.W,H:D.H,sec:'warship',plan:'wedge',deckWidth:0,keelWidth:0,belt:.2,chineHeight:.5,bowFree:true,stations:D.st.map(a=>a.slice()),keel:'light'},'アクラメイター級');
+ s._building=true;s.reference='acclamator';s.paint='republic';s.lights='white';s.detail=1;s.armor={hull:.3,cit:.35};s.shieldTarget=1;
+ const k=shipKit(s),part=(kind,label,c,d,o={},mirror=false)=>placePart(s,kind,c,d,{label,...o},mirror),room=(kind,label,c,size,o={},mirror=false)=>part(kind,label,c,30,{room:size,...o},mirror);
+ const tidy=p=>{for(const q of s.parts.filter(q=>q.id===p.id||q.id===p.tw))q.loft=q.loft.map(r=>r.map(v=>Math.round(v*1e9)/1e9));return p;};
+ const tidyO=p=>{for(const q of s.parts.filter(q=>q.id===p.id||q.id===p.tw))q.outline=q.outline.map(r=>r.map(v=>Math.round(v*1e9)/1e9));return p;};
+ if(opt.stage==='hull'){delete s._building;return s;}
+ // ---- the brim: the wide flat slab round the body, with the thin plate along its top edge ----
+ tidyO(k.slab('舷側ブリム（翼状甲板）',D.brim,44.45,59.34,{},true));
+ tidyO(k.slab('ブリム上縁の張り出し',D.lip,57.34,59.34,{},true));
+ // ---- ventral box under the forward body, its shoulders at the aft end ----
+ tidy(k.loftX('腹部前方ブロック',D.vbox,{corner:.05}));
+ k.box('腹部ブロック後端の肩',[264.0,24.0,51.5],[275.0,40.6,66.3],{corner:.06},true);
+ // ---- tail: the wider lower block aft of the stern face; the ledge between the drives ----
+ tidy(k.loftX('尾部下部ブロック',D.tail,{corner:.06}));
+ k.box('艦尾機関間の張り出し',[133.6,43.1,39.7],[145.4,55.0,66.3],{corner:.06},true);
+ // ---- dorsal terrace block, the KDY bridge tower module and the conning-tower scanner and communications housing ----
+ tidy(k.loftX('背部テラス・ブロック',D.terrace,{corner:.05}));
+ tidy(k.loftX('艦橋塔モジュール',D.fin,{corner:.12}));
+ tidy(k.loftX('司令塔走査・通信機器ハウジング',D.pod,{round:true,skin:'plain'}));
+ if(opt.stage==='shape'){delete s._building;return s;}
+ // ---- machinery (DK cut-away) ----
+ // The main reactor is hidden within the hull terraces under the tower (no ventral dome);
+ // a subsidiary reactor sits in the bow under the dorsal plating. calibrateReferenceRatings
+ // sizes the main reactor to the reference output (2×10²³ W in all) and the shield nodes to its load.
+ const gen=part('gen','テラス内蔵主反応炉',[205,74,0],42);
+ part('aux','艦首副反応炉',[612,52,0],14);
+ // Two main and two auxiliary thrusters leave the stern face beside the tail; the auxiliaries,
+ // set further off the axis, draw on small reactors of their own just ahead of them.
+ const eng=(label,exit,front,y,z,d,r,mirror=true)=>part('engine',label,[(exit+front)/2,y,z],d,{dir:[-1,0,0],nozzleLength:front-exit,bodyLength:2,bodyRadius:.4,reactor:r.id},mirror);
+ eng('主推進機関',92.4,202.8,22.4,35.2,28.7,gen);
+ for(const sg of [1,-1]){const r=part('aux',(sg>0?'右舷':'左舷')+'補助推進機関用反応炉',[190,20,sg*60],12);eng((sg>0?'右舷':'左舷')+'補助推進機関',118.4,176.8,17.7,sg*58.7,15,r,false);}
+ // The tail: the hyperdrive generator at its end and the extended spinal conduit of the
+ // inertial compensator fields that keep the void-filled structure whole.
+ part('hyper','尾部ハイパードライブ発生装置',[52,58,0],22.4,{length:84,dir:[1,0,0]});
+ part('inertial','慣性補償フィールド脊柱導管（尾部）',[119,60,0],18,{length:48,dir:[1,0,0]});
+ part('inertial','慣性補償フィールド導管（尾部下部）',[108,28,0],15,{length:68,dir:[1,0,0]});
+ // Tensorial integrity field conduits in the brim.
+ room('integrity','構造維持フィールド導管（ブリム）',[330,51.9,140],[100,8.6,9],{},true);
+ // Regional shield generator nodes in the aft and forward brim.
+ part('shield','区域シールド発生器ノード（後部）',[170,51.9,150],12,{},true);
+ part('shield','区域シールド発生器ノード（前部）',[575,51.9,57],12,{},true);
+ // Antigrav repulsorlifts: generators in the aft brim corners and under the forward brim carry the ship's weight on landing.
+ part('repulsor','反重力リパルサーリフト発生装置（後部）',[163,51.9,186],35,{dir:[0,1,0],length:13},true);
+ part('repulsor','反重力リパルサーリフト発生装置（前部）',[600,51.9,52],26,{dir:[0,1,0],length:13},true);
+ // Annihilation reactant silos and the reactant valve module forward of the tower.
+ for(const x of [315,340])part('fuel','反応物凝縮サイロ',[x,76,34],18,{dir:[0,1,0],length:18},true);
+ room('pump','反応物バルブ・モジュール',[360,71,0],[14,14,8]);
+ // 200,000 m³ of cargo in the forward brim (outline rooms that follow its taper).
+ const brimRoom=(kind,label,pts,y0,y1,o={})=>{const xs=pts.map(p=>p[0]),zs=pts.map(p=>p[1]),x0=Math.min(...xs),x1=Math.max(...xs),z0=Math.min(...zs),z1=Math.max(...zs),cx=(x0+x1)/2,cz=(z0+z1)/2;
+  return room(kind,label,[cx,(y0+y1)/2,cz],[x1-x0,z1-z0,y1-y0],{outline:pts.map(([x,z])=>[(x-cx)/(x1-x0),(z-cz)/(z1-z0)]),...o},true);};
+ brimRoom('cargo','貨物庫（前部ブリム）',[[402,76],[402,148.5],[542,90.1],[542,48.2],[438.5,71]],45.4,58.4);
+ // Windowless main bridge and battle operations rooms in the tower module; the scanner in the housing.
+ room('command','無窓式主艦橋',[166,116,0],[34,14,8]);
+ room('command','戦闘指揮室',[202,112,0],[26,16,8]);
+ part('sensor','司令塔走査・通信機器',[232,127.6,0],9);
+ if(opt.stage==='machinery'){delete s._building;return s;}
+ // ---- hangars and vehicle decks ----
+ // Gunship hangar in the V amidships: action-ready gunships drop through the hatch in the keel.
+ const bayA=room('hangar','ガンシップ格納庫（降下ハッチ）',[239,21.75,0],[46,100,40.5],{airRole:'mixed'});openBay(s,bayA,'bottom','ray');
+ // The landing deck over the ventral box: AT-TEs stand at the front of the bays with the
+ // SPHA-Ts stored behind, the gunship boarding platform above; drop hatch in the box's keel.
+ const bayG=room('hangar','揚陸甲板（AT-TE・SPHA-T・ガンシップ搭乗甲板）',[352,29,0],[172,190,54],{airRole:'mixed',foreWidth:.74});openBay(s,bayG,'bottom','ray');
+ room('hangar','前部ガンシップ甲板',[514.25,52.5,0],[151.5,136,19],{airRole:'storage',foreWidth:.56});
+ // Gunship decks in the aft brim, dropping through hatches in its underside.
+ for(const sg of [1,-1]){const e=room('hangar',(sg>0?'右舷':'左舷')+'ブリム・ガンシップ甲板',[221.5,51.9,sg*155],[77,98,13],{airRole:'mixed'});openBay(s,e,'bottom','ray');}
+ // Logistics reception bay under the dorsal logistics hangar hatch.
+ const bayL=room('hangar','兵站受入ベイ',[300,88.25,0],[40,40,14.5],{airRole:'mixed'});openBay(s,bayL,'top','open');
+ // Gunships circulating on the rail deck for basic maintenance, the heavy combat vehicle service bay,
+ // and the assembly hall where the battalions form up.
+ room('service','ガンシップ周回整備レール・重戦闘車両整備ベイ',[353,63.5,0],[170,82,6],{foreWidth:.6});
+ room('service','集合ホール（大隊整列区画）',[286,71.5,0],[36,44,10]);
+ if(opt.stage==='rooms'){delete s._building;return s;}
+ const {pairs}=accMountKit(s,opt);
+ syncAviationSurfaces(s);s._lockedCache=cache(s);
+ try{withFrozenStructures(()=>{
+  // 12 quad turbolaser turrets on the dorsal hull and the brim.
+  pairs('quad200',12,'top','dorsal-tl',[[200,118],[245,118],[290,104],[340,96],[390,84],[440,74],[490,62],[540,52]]);
+  // 4 missile and torpedo launch tubes forward on the dorsal hull.
+  pairs('msl',4,'top','bow-msl',[[640,8],[665,7],[690,6]],{mount:'ext'});
+  // 24 point-defence laser cannons along the brim.
+  const st=[];for(let x=200;x<=720;x+=26){const e=x<262?200:Math.max(8,206.45-.411*(x-262)-9);st.push([x,Math.min(198,e)]);}
+  pairs('pd',24,'top','brim-pd',st,{scale:.6});
+ });}finally{delete s._lockedCache;}
+ if(opt.stage==='fitted'){delete s._building;return s;}
+ s.airWings=ACC_AIR.map(r=>({...r}));s.groundForces=normalizeGroundForces(ACC_GROUND);
+ delete s._building;adoptEquipment(s,true);remount(s);calibrateReferenceRatings(s);syncCompartments(s);
+ return s;
+}
+registerShipExample({
+ key:'acclamator',name:'アクラメイター級',side:'銀河共和国',role:'強襲揚陸艦（兵員輸送）',length:752,
+ title:'Acclamator',author:'不明（ユーザー提供の STL）',source:'ユーザー提供の STL ファイル（Acclamator.stl、Blender 2.82 書き出し）',license:'不明（出典未記載）',
+ credit:'アクラメイター級の形状は、ユーザーが提供した STL ファイル（Acclamator.stl、作者・ライセンス表記なし）から実測した。',
+ note:'752 m（正史）。ユーザー提供の STL ファイル（Acclamator.stl、Blender 2.82 書き出し、作者・ライセンス表記なし）の実測形状を正史の全長に等倍で合わせた（モデルは幅 425 m・高さ 134 m で、正史の 460 m・飛行時 183 m より平たい。形状はモデルに従った）。尾部ブロック、V 字底の中央胴（ブリムの帯は胴自身の幅で取る）、腹部ブロック上の前部胴を1本の主船体として断面ごとに合わせ、周囲の翼状ブリムとその上縁の張り出し、腹部前方ブロック、尾部下部ブロック、背部テラス・ブロック、KDY 標準の艦橋塔モジュール、司令塔走査・通信機器ハウジング、艦尾機関間の張り出しを構造物として組み直した。機関は DK 断面図に従う。主反応炉は艦橋塔の下の船体テラスに内蔵（腹部ドームなし）、艦首に副反応炉、補助推進機関には専用の小型炉。艦尾面から尾部の両脇に主推進機関2基・補助推進機関2基、尾部の先端にハイパードライブ発生装置（クラス 0.6）、尾部に慣性補償フィールドの脊柱導管、ブリムに構造維持フィールド導管、区域シールド発生器ノード4基、反応物凝縮サイロ4基と反応物バルブ・モジュール、前部ブリムに貨物庫 20 万 m³、艦橋塔に無窓式の主艦橋と戦闘指揮室、ハウジングに走査・通信機器、集合ホール、ガンシップ周回整備レールと重戦闘車両整備ベイ。反重力リパルサーリフトが艦の全質量を支え、自ら着陸して地上部隊と車両を降ろせる。格納区画は中央胴の V 字部のガンシップ格納庫（竜骨の降下ハッチ）、腹部ブロックの揚陸甲板（前に AT-TE、後ろに SPHA-T、上にガンシップ搭乗甲板。竜骨の降下ハッチ）、前部ガンシップ甲板、後部ブリムのガンシップ甲板（下面ハッチ）と背部の兵站受入ベイ（上面ハッチ）。兵装は四連ターボレーザー砲塔 12 基（4門×200 GT）、点防御レーザー砲 24 基、ミサイル・魚雷発射管 4 基。乗艦はクローン・トルーパーと支援要員 1万6,000 名（正史どおり）、LAAT/i 32 機、LAAT/c 12 機、AT-TE 48 両（12 両は LAAT/c に積載）、BARC スピーダー 320 両（128 両は LAAT/i に積載）、SPHA-T 1 両。正史のガンシップ 80 機と SPHA-T 36 両は、寸法と整備空間による格納の規則（LAAT/i 1機あたり約 2.8 万 m³、SPHA-T 1両あたり約 11 万 m³）では兵員 1万6,000 名と同時に艦内に収まらないため、兵員を優先して数を減らした。必要乗員は艦の規模・格納庫・兵装から計算した値（正史は 700 名）。加速度はモデルの推進機関の大きさから計算した値で、正史の 3,500 G には届かない。出力 2×10²³ W、シールド蓄積 2×10²⁴ J（シールド出力は全出力の 35%＝7×10²² W）。',
+ airWings:ACC_AIR,groundForces:ACC_GROUND,
+ build:accBuild
+});
+}
+
 // ---- src/ships/cr90.js ----
 // CR90 corvette, measured from "Star Wars: CR-90" by Daniel (DanielAndersson)
 // on Sketchfab, CC BY 4.0. Ship frame: x from the stern (0) to the bow (150 m),
