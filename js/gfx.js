@@ -577,6 +577,20 @@ function meshFits(ship, filter, ranges) {
       return;
     }
     const nb = d.barrels || 2;
+    if (d.casemate) {
+      // A gun port in the wall: an armoured frame barely proud of the plating, a
+      // dark embrasure under a short hood, a ball mantlet and twin barrels.
+      const up = M[7] < 0 ? -1 : 1, br = Math.max(.22, W * .05), bl = h * .62, y0 = Math.min(1.2, h * .1);
+      box(g, M, o, 0, y0 * .4, 0, L, y0 * .8, W, FC.ring);
+      box(g, M, o, 0, y0 * .82, 0, L * .7, y0 * .1, W * .58, FC.dark);
+      box(g, M, o, 0, y0 * 1.1, up * W * .36, L * .86, y0 * 1.2, W * .16, FC.body);
+      cyl(g, M, o, 0, y0 * 1.1, 0, W * .25, W * .22, y0 * 1.4, 1, FC.body, 12);
+      for (const xx of [-L * .15, L * .15]) {
+        cyl(g, M, o, xx, y0 * 1.6 + bl / 2, 0, br, br * .85, bl, 1, FC.barrel, 8);
+        cyl(g, M, o, xx, y0 * 1.6 + bl * .97, 0, br * 1.35, br * 1.35, bl * .06, 1, FC.ring, 8);
+      }
+      return;
+    }
     if (k === 'ion') {
       cyl(g, M, o, 0, h * 0.09, 0, W * 0.5, W * 0.46, h * 0.18, 1, FC.dark, 6);
       cyl(g, M, o, 0, h * 0.2, 0, W * 0.4, W * 0.4, h * 0.06, 1, FC.ring, 12);

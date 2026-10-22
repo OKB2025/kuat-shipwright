@@ -402,8 +402,6 @@ body.title-open.title-ship .title-sky, body.title-open.title-ship .title-hull { 
 .busy-card { display: flex; align-items: center; gap: 12px; padding: 14px 18px; background: var(--panel); border: 1px solid var(--line-2); border-radius: 10px; font-size: 13px; }
 .spinner { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--line-2); border-top-color: var(--accent); animation: ks-spin .8s linear infinite; }
 @keyframes ks-spin { to { transform: rotate(360deg); } }
-.app.immersive .topbar, .app.immersive .mode-switch { display: none; }
-#btnFull svg path { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
 @media (prefers-reduced-motion: reduce) { .title-steps li[data-state="run"]::before, .engine-status::before, .spinner { animation: none; } }
 @media (max-width: 600px) { .engine-status { top: 96px; left: 8px; } }
 .firepower-class { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; }
@@ -716,17 +714,50 @@ body.shot-mode .main{display:flex!important;flex-direction:column}body.shot-mode
 @media (max-width:760px){.voy-side{left:var(--gl);right:var(--gr);top:auto;bottom:0;width:auto;max-height:44vh;padding-bottom:max(10px,env(safe-area-inset-bottom,0px))}.voy-log{bottom:calc(44vh + 8px);max-width:calc(100% - 32px)}.voy-log p:nth-child(n+3){display:none}.vh-str{display:none}.vh-l b{font-size:15px}}
 @media (orientation:landscape) and (max-height:560px){.voy-hud{padding-block:max(4px,env(safe-area-inset-top,0px)) 6px;gap:4px 8px}.vh-l b{font-size:14px}.vh-l span{display:none}.vh-str{display:none}.voy-side{top:48px;bottom:6px;width:min(300px,40vw);left:auto;max-height:none}.vs-card{padding:7px 9px;gap:4px}.voy-log{max-width:calc(100% - min(300px,40vw) - 48px);bottom:6px}.voy-log p:nth-child(n+3){display:none}.vh-speed button{min-height:26px;padding:1px 7px}}
 
+/* v15 order of battle (艦隊編成) and sortie (出撃準備) */
+.voy-tabs button{min-width:7.5em;min-height:34px}
+.voy-wide{grid-column:1/-1}
+.voy-setup.orbat{grid-template-columns:minmax(0,1fr)}
+.ob-name{font:600 14px var(--font-ui);color:var(--fg);background:transparent;border:1px solid transparent;border-radius:6px;padding:3px 6px;min-width:0;width:100%}
+.ob-name:hover{border-color:var(--line-2)}.ob-name:focus{border-color:var(--cyan);background:var(--panel-2);outline:none}
+.ob-ctg>.voy-card-head{flex-wrap:wrap}.ob-ctgname{font:600 16px var(--font-display);letter-spacing:.06em;color:var(--cyan);flex:1 1 200px;width:auto}
+.ob-tgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,470px),1fr));gap:10px}
+.ob-tg{border:1px solid var(--line);border-radius:10px;background:var(--panel-2);padding:8px 10px;display:grid;gap:6px;min-width:0;align-content:start}
+.ob-tg-head{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}.ob-tg-head .ob-name{flex:1 1 140px;width:auto}
+.ob-form{display:flex;gap:5px;align-items:center;font-size:11px;color:var(--muted)}
+.ob-count{font:600 12px var(--font-mono);white-space:nowrap}.ob-count.warn{color:var(--warn)}
+.ob-ships{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.ob-ship{display:grid;grid-template-columns:20px minmax(0,1fr) auto auto;grid-template-areas:"f n a g" "f c m o";gap:3px 8px;align-items:center;padding:5px 0;border-top:1px dashed var(--line)}
+.ob-ship:first-child{border-top:0}.ob-ship.muted{display:block;font-size:12px;color:var(--muted)}
+.ob-flag{grid-area:f;align-self:start;margin-top:5px;font:700 10px var(--font-ui);color:var(--cyan);text-align:center}
+.ob-ship>.ob-name{grid-area:n}.ob-ship>.ob-cls{grid-area:c;padding-left:7px;font-size:11px;color:var(--muted);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ob-ship>.ve-orbat:nth-of-type(1){grid-area:a}.ob-ship>.ve-orbat:nth-of-type(2){grid-area:g}
+.ob-move{grid-area:m;display:flex;gap:4px;align-items:center;font-size:10.5px;color:var(--muted)}.ob-move select{max-width:10em;min-height:28px;font-size:11.5px}
+.ob-ord{grid-area:o;display:flex;gap:3px;justify-content:flex-end}
+.ob-ship .ve-orbat{padding:2px 8px;grid-template-columns:auto auto;align-items:baseline;gap:0 6px}.ob-ship .ve-orbat b{font-size:11.5px}
+.ob-pick{display:grid;gap:5px;padding:7px 0;border-top:1px solid var(--line)}
+.ob-pick-ctg{display:flex;gap:8px;align-items:center;font-size:13px;cursor:pointer}
+.ob-pick-tgs{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:5px 10px;padding-left:22px}
+.ob-pick-tg{display:flex;gap:8px;align-items:flex-start;font-size:12px;padding:5px 8px;border:1px solid var(--line);border-radius:8px;background:var(--panel-2);cursor:pointer;min-width:0}
+.ob-pick-tg span{display:grid;gap:1px;min-width:0}.ob-pick-tg small{color:var(--muted);font-size:10.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.voy-card .note.bad{color:var(--bad)}
+/* v15 command by task group on the maps */
+.vs-tree{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.vs-tree>li{display:grid;gap:2px}
+.vs-ctg{width:100%;display:flex;justify-content:space-between;gap:8px;align-items:baseline;text-align:left;background:transparent;border:1px solid transparent;border-radius:8px;padding:4px 7px;color:var(--cyan);font:600 12.5px var(--font-ui);letter-spacing:.04em}
+.vs-ctg small{color:var(--hud-dim);font-weight:500;letter-spacing:0;font-size:10.5px}.vs-ctg:hover{background:rgba(255,255,255,.05)}.vs-tree li.on>.vs-ctg{border-color:var(--cyan);background:var(--cyan-soft)}
+.vs-tree ul{list-style:none;margin:0;padding:0 0 0 10px;display:grid;gap:2px;border-left:1px solid var(--hud-line);margin-left:8px}
+.vs-tgrow{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1px 8px;text-align:left;background:transparent;border:1px solid transparent;border-radius:8px;padding:4px 7px;color:var(--fg)}
+.vs-tgrow b{font-size:12.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.vs-tgrow small,.vs-tgrow span{font-size:10.5px;color:var(--hud-dim)}.vs-tgrow span{grid-column:1/-1}
+.vs-tgrow:hover{background:rgba(255,255,255,.05)}.vs-tree li.on>.vs-tgrow{border-color:var(--cyan);background:var(--cyan-soft)}.vs-tgrow.bad span{color:#ffb29e}
+.vs-crumbs{display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:10.5px;color:var(--hud-dim)}.vs-crumbs button{background:none;border:0;padding:0;color:var(--cyan);font:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.vs-jump .vs-route{margin:0;font-size:11px;color:var(--hud-dim);line-height:1.45}.vs-route b{color:var(--fg);font-weight:600}
+.vs-state{font-size:11.5px}.vs-state.bad{color:#ffb29e}.vs-state.warn{color:#ffd59a}
+.vs-tr{display:grid;gap:3px;padding:5px 7px;border:1px solid rgba(170,140,255,.4);border-radius:8px;background:rgba(150,120,255,.08)}.vs-tr p{font-size:11.5px}
+.vs-tr i{display:block;height:4px;border-radius:2px;background:rgba(255,255,255,.12);overflow:hidden}.vs-tr em{display:block;height:100%;background:#c3a8ff}
 
-/* v13.2 phones are held sideways: in portrait a gate asks to rotate the device. */
-.rotate-gate{display:none}
-@media (orientation:portrait) and (max-width:600px) and (pointer:coarse){
- body:not(.rotate-skip) .rotate-gate{display:grid;place-items:center;position:fixed;inset:0;z-index:10000;background:var(--bg);color:var(--fg);padding-block:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
-}
-.rotate-card{display:grid;justify-items:center;gap:10px;text-align:center;max-width:300px}
-.rotate-card svg{width:72px;height:72px;fill:none;stroke:var(--accent);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;animation:ks-turn 2.4s ease-in-out infinite}
-.rotate-card b{font:600 18px var(--font-display);letter-spacing:.08em}.rotate-card p{margin:0;font-size:13px;color:var(--muted);line-height:1.6}
-@keyframes ks-turn{0%,20%{transform:rotate(0)}55%,85%{transform:rotate(-90deg)}100%{transform:rotate(0)}}
-@media (prefers-reduced-motion:reduce){.rotate-card svg{animation:none}}
+
+
 /* Phones held sideways: smaller type and tighter cards on the voyage screens. */
 @media (orientation:landscape) and (max-height:500px){
  .voy-hud{gap:3px 6px;padding-block:max(3px,env(safe-area-inset-top,0px)) 4px}
@@ -754,6 +785,13 @@ body.shot-mode .main{display:flex!important;flex-direction:column}body.shot-mode
  .ve-orbat{padding:3px 7px}.ve-orbat b{font-size:11px}.ve-orbat span{font-size:9.5px}.ve-dem{font-size:9.5px}
  .voy-orbat-row{font-size:10.5px}.voy-orbat-row b{font-size:11.5px}
  .voy-sheet{padding:6px}.voy-sheet-card{max-height:calc(100dvh - 12px);padding:8px 10px;gap:6px}.voy-sheet-card h3{font-size:14px}
+ .voy-tabs button{min-width:6em;min-height:28px;font-size:11.5px}
+ .ob-name{font-size:12px;padding:2px 5px}.ob-ctgname{font-size:13.5px}.ob-tgs{gap:6px}.ob-tg{padding:5px 7px;gap:4px}
+ .ob-ship{gap:2px 6px;padding:3px 0}.ob-ship>.ob-cls{font-size:9.5px}.ob-count{font-size:10.5px}.ob-form{font-size:10px}
+ .ob-move select,.ob-form select{min-height:26px;font-size:10.5px}.ob-tg .btn.sm{min-height:26px;padding:2px 8px;font-size:10.5px}
+ .ob-pick-tg{padding:3px 6px;font-size:11px}.ob-pick-tg small{font-size:9.5px}.ob-pick-tgs{padding-left:10px}
+ .vs-ctg{font-size:11px;padding:3px 5px}.vs-tgrow{padding:3px 5px}.vs-tgrow b{font-size:11px}.vs-tgrow small,.vs-tgrow span{font-size:9px}
+ .vs-jump p{font-size:10.5px}.vs-jump .vs-route,.vs-state,.vs-tr p{font-size:10px}.vs-crumbs{font-size:9.5px}.vs-jump{padding:4px 6px;gap:3px}
 }
 
 /* v13.2 3D spectating */
@@ -783,7 +821,7 @@ body.shot-mode .main{display:flex!important;flex-direction:column}body.shot-mode
   <div class="title-inner">
     <header class="title-head">
       <div class="title-brand"><span class="title-kicker">KUAT DRIVE YARDS · DESIGN BUREAU</span><h1 id="titleName">航宙艦設計局</h1><p class="title-sub">KUAT SHIPWRIGHT</p></div>
-      <div class="title-tools"><button type="button" class="chip" data-title-fullscreen aria-pressed="false">全画面</button></div>
+      
     </header>
     <div class="title-body">
       <nav class="title-menu" id="titleMenu" aria-label="開始メニュー">
@@ -801,7 +839,8 @@ body.shot-mode .main{display:flex!important;flex-direction:column}body.shot-mode
         <div class="tmenu-group" data-tgroup="voyage" hidden>
           <button type="button" class="tmenu tback" data-title-mode="top"><b>← 航行</b><span>メニューに戻る</span></button>
           <button type="button" class="tmenu" data-title="patrol" disabled><b>パトロール</b><span>単艦で星系を航行し、操艦と砲術を試す</span></button>
-          <button type="button" class="tmenu" data-title="fleetbattle" disabled><b>艦隊戦</b><span>24隻のスター・デストロイヤーと小型艦艇まで。同規模の敵艦隊とリアルタイムで戦う</span></button>
+          <button type="button" class="tmenu" data-title="orbat" disabled><b>艦隊編成</b><span>合同任務群・任務群（4〜8隻）・艦名を編成して保存する</span></button>
+          <button type="button" class="tmenu" data-title="fleetbattle" disabled><b>艦隊戦</b><span>編成した任務群で出撃し、航路でつながる500光年四方の宙域で同規模の敵艦隊とリアルタイムで戦う</span></button>
           <button type="button" class="tmenu" data-title="mission" disabled><b>任務</b><span>通商護衛・惑星攻略・弩級艦の撃破など（次の版で追加します）</span></button>
         </div>
       </nav>
@@ -830,7 +869,7 @@ body.shot-mode .main{display:flex!important;flex-direction:column}body.shot-mode
       <button type="button" class="icon-btn" id="btnUndo" aria-label="元に戻す" title="元に戻す"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg></button>
       <button type="button" class="icon-btn" id="btnRedo" aria-label="やり直す" title="やり直す"><svg viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/></svg></button>
       <button type="button" class="icon-btn" id="btnShot" aria-label="スクリーンショット表示（操作表示を隠す）" title="スクリーンショット表示：操作表示を隠して3D表示だけにします（H）" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button>
-      <button type="button" class="icon-btn" id="btnFull" aria-label="全画面" title="全画面" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+      
       <button type="button" class="btn-ghost" id="btnHome" title="タイトルメニューに戻る">メニュー</button>
       <button type="button" class="btn-ghost" id="btnMenu">設計図</button>
     </div>
@@ -969,15 +1008,7 @@ body.shot-mode .main{display:flex!important;flex-direction:column}body.shot-mode
   </section>
 </div>
 
-<div class="rotate-gate" id="rotateGate" role="dialog" aria-modal="true" aria-labelledby="rotateGateTitle">
-  <div class="rotate-card">
-    <svg viewBox="0 0 64 64" aria-hidden="true"><rect x="20" y="8" width="24" height="40" rx="4"/><path d="M44 52 a18 18 0 0 1 -26 4"/><path d="M18 50 l0 7 l7 -1"/></svg>
-    <b id="rotateGateTitle">横向きにしてください</b>
-    <p>スマートフォンでは横持ちで操作します。端末を横に回すと続けられます。</p>
-    <button type="button" class="btn sm ghost" data-rotate-skip>縦のまま続ける</button>
-  </div>
-</div>
-<script>document.addEventListener('click',function(e){if(e.target.closest&&e.target.closest('[data-rotate-skip]'))document.body.classList.add('rotate-skip');});</script>
+
 <script>window.KS_FILES={data:["data/reference.js","data/textures.js","data/imperial2.js","data/fleet.js"],core:"js/core.js",gfx:"js/gfx.js",engine:"js/engine.js",app:"js/app.js",worker:"js/worker.js"};</script>
 <script>
 /* ============================================================
