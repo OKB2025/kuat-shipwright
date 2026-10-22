@@ -34,6 +34,9 @@ function makeCrackle(ctx, sec) { const n = Math.floor(ctx.sampleRate*sec), b = c
 function makeBrown(ctx, sec) { const sr = ctx.sampleRate, n = Math.floor(sr*sec), m = Math.floor(sr*.05), x = new Float32Array(n + m), r = rng(5); let y = 0, ss = 0;
  for (let i = 0; i < n + m; i++) { y = y*.996 + (r()*2 - 1)*.06; x[i] = y; ss += y*y; }
  const k = .5 / Math.sqrt(ss / (n + m)), b = ctx.createBuffer(1, n, sr), d = b.getChannelData(0); for (let i = 0; i < n; i++) d[i] = (i < m ? x[i]*(i / m) + x[n + i]*(1 - i / m) : x[i])*k; return b; }
+function makePink(ctx, sec) { const sr = ctx.sampleRate, n = Math.floor(sr * sec), m = Math.floor(sr * .05), x = new Float32Array(n + m), r = rng(17); let b0 = 0, b1 = 0, b2 = 0, ss = 0;
+ for (let i = 0; i < n + m; i++) { const w = r() * 2 - 1; b0 = .99765 * b0 + w * .099046; b1 = .963 * b1 + w * .2965164; b2 = .57 * b2 + w * 1.0526913; x[i] = b0 + b1 + b2 + w * .1848; ss += x[i] * x[i]; }
+ const k = .5 / Math.sqrt(ss / (n + m)), b = ctx.createBuffer(1, n, sr), d = b.getChannelData(0); for (let i = 0; i < n; i++) d[i] = (i < m ? x[i] * (i / m) + x[n + i] * (1 - i / m) : x[i]) * k; return b; }
 function makeGrit(ctx, sec) { const sr = ctx.sampleRate, n = Math.floor(sr*sec), b = ctx.createBuffer(1, n, sr), d = b.getChannelData(0), r = rng(13); let e = 0, nx = 0; for (let i = 0; i < n; i++) { if (i >= nx) { e = .25 + r()*.75; nx = i + (sr*(.002 + r()*.006) | 0); } e *= .9994; d[i] = (r()*2 - 1)*e; } return b; }
 function makeIR(ctx, sec) {
  const sr = ctx.sampleRate, n = Math.floor(sr*sec), b = ctx.createBuffer(2, n, sr);
@@ -50,7 +53,7 @@ function clipCurve() { const n = 2048, c = new Float32Array(n); for (let i = 0; 
 function createEngine(ctx, dest, opt) {
  opt = opt || {};
  const E = {ctx, intensity: 0, stats: {started: 0, thinned: 0, stolen: 0, dropped: 0, peakVoices: 0}};
- E.noise = makeNoise(ctx,2.2); E.crackle = makeCrackle(ctx,1.6); E.ir = makeIR(ctx,2.6); E.brown = makeBrown(ctx,2.5); E.grit = makeGrit(ctx,1.6);
+ E.noise = makeNoise(ctx,2.2); E.crackle = makeCrackle(ctx,1.6); E.ir = makeIR(ctx,2.6); E.brown = makeBrown(ctx,2.5); E.pink = makePink(ctx,2.5); E.grit = makeGrit(ctx,1.6);
  const satC = new Float32Array(1024); for (let i = 0; i < 1024; i++) satC[i] = .6*Math.tanh(3.5*(i / 511.5 - 1)) / Math.tanh(3.5);
  let made = 0;
  const G = v => { const g = ctx.createGain(); g.gain.value = v; made++; return g; };
@@ -84,6 +87,7 @@ function createEngine(ctx, dest, opt) {
  E.nz = (t0, t1, rate, buf) => { const s = ctx.createBufferSource(); made++; s.buffer = buf || E.noise; s.loop = true; if (rate) s.playbackRate.value = rate; s.start(t0, Math.random()*1.5); s.stop(t1); if (curV) curV.src.push([s, t1]); if (curN && t1 > curN.e) curN.e = t1; return s; };
  E.flt = (type, f, q, g) => { const b = ctx.createBiquadFilter(); made++; b.type = type; b.frequency.value = f; try { b.frequency.automationRate = 'k-rate'; } catch (e) {} if (q != null) b.Q.value = q; if (g != null) b.gain.value = g; return b; };
  E.sat = () => { const w = ctx.createWaveShaper(); made++; w.curve = satC; return w; };
+ E.dly = mx => { made++; return ctx.createDelay(mx || .05); };
  E.pan = v => { if (!ctx.createStereoPanner) return G(1); const p = ctx.createStereoPanner(); p.pan.value = clamp(v,-1,1); return p; };
  E.nOut = (dst, wet, pan) => { const g = G(0); let o = g; if (pan) { o = E.pan(pan); g.connect(o); } o.connect(dst.d); if (curN) curN.o.push(o); if (wet > 0 && dst.w) { const w = G(wet); o.connect(w); w.connect(dst.w); if (curN) curN.o.push(w); } return g; };
  E.note = (f, a, b, c, d, e, g, h) => { curN = {e: 0, o: []}; try { f(E, a, b, c, d, e, g, h); } finally { if (curN.o.length) graves.push(curN); curN = null; } };
@@ -128,6 +132,27 @@ function createEngine(ctx, dest, opt) {
   return true;
  };
 
+ // ----- loops (engines, passing craft): continuous voices outside the one-shot caps; pitch via detune
+ E.loop = (name, p) => {
+  const R = E.LOOPS[name]; if (!R) return null; p = p || {};
+  const out = G(0), pn = E.pan(p.pan || 0), w = G(R.wet || .15), mix = G(R.vol), L = {out, pn, src: [], det: [], extra: [w, mix]};
+  out.connect(pn); pn.connect(E.sDry); pn.connect(w); w.connect(E.sWet); mix.connect(out);
+  const keep = curV; curV = L; try { R.f(E, mix, L); } finally { curV = keep; }
+  const c = 1200 * Math.log2(clamp(+p.pitch || 1, .25, 4)); for (const d of L.det) d.value = c;
+  E.loopSet(L, {gain: p.gain == null ? 1 : p.gain}, .6); return L;
+ };
+ const glide = (q, v, t, r) => { q.cancelScheduledValues(t); q.setValueAtTime(q.value, t); q.linearRampToValueAtTime(v, t + r); };
+ E.loopSet = (L, p, rt) => {
+  const t = ctx.currentTime, r = rt || .12;
+  if (p.gain != null) glide(L.out.gain, clamp(+p.gain || 0, 0, 1.5), t, r);
+  if (p.pitch != null) { const c = 1200 * Math.log2(clamp(+p.pitch || 1, .25, 4)); for (const d of L.det) glide(d, c, t, r); }
+  if (p.pan != null && L.pn.pan) glide(L.pn.pan, clamp(+p.pan || 0, -1, 1), t, r);
+ };
+ E.loopStop = (L, f) => {
+  const t = ctx.currentTime; f = Math.max(.02, f == null ? .5 : +f || 0); glide(L.out.gain, 0, t, f);
+  for (const [s] of L.src) try { s.stop(t + f + .05); } catch (e) {}
+  graves.push({e: t + f + .1, o: [L.pn].concat(L.extra)});
+ };
  E.players = []; E.scene = null;
  E.playScene = (name, o) => {
   const def = E.SCENES[name]; if (!def) return null;
@@ -145,7 +170,7 @@ function createEngine(ctx, dest, opt) {
  E.advance = until => { sweepGraves();
   if (pend.length) { pend.sort((a, b) => a[0] - b[0]); let k = 0; while (k < pend.length && pend[k][0] <= until + .1) k++; for (const [t, n, p] of pend.splice(0, k)) E.sfx(n, Object.assign({}, p, {at: t, delay: 0})); }
   for (let i = E.players.length - 1; i >= 0; i--) { const pl = E.players[i]; pl.advance(until); if (pl.gone(ctx.currentTime)) { pl.free(); E.players.splice(i,1); } } };
- E.SFX = SFX; E.SCENES = SCENES; E.STINGERS = STINGERS;
+ E.SFX = SFX; E.LOOPS = LOOPS; E.SCENES = SCENES; E.STINGERS = STINGERS;
  return E;
 }
 
@@ -316,120 +341,230 @@ I.steam = (E, t, d, m, v, dst, x) => {
  n.connect(bp); bp.connect(out); const g = out.gain; g.setValueAtTime(0, t); g.linearRampToValueAtTime(.05*v, t + d*.6); g.setTargetAtTime(0, t + d*.6, d*.25);
 };
 
-// ---------- sound effects (heavy: saturated sub booms, grit crunch, transients, brown-noise rumbles) ----------
+// ---------- sound effects: f(E, t, out, pitch, opts) -> seconds ----------
+// v1.2: voiced after measured references (energy in the mids, bright onsets that darken, long natural tails).
 const ENV = (E, t, a, pk, tau, hold) => { const g = E.G(0), p = g.gain; p.setValueAtTime(0, t); p.linearRampToValueAtTime(pk, t + a); if (hold) p.setValueAtTime(pk, t + a + hold); p.setTargetAtTime(0, t + a + (hold || 0), tau); return g; };
-const jit = k => 1 + (Math.random() - .5)*k;
-const life = (a, hold, tau) => a + (hold || 0) + tau*(tau > .5 ? 5 : 6);
+const jit = k => 1 + (Math.random() - .5) * k;
+const life = (a, hold, tau) => a + (hold || 0) + tau * (tau > .5 ? 5 : 6);
 function nzf(E, out, t, dur, type, f0, f1, q, a, pk, tau, hold, buf, rate) {
- const n = E.nz(t, t + Math.max(dur, life(a, hold, tau)), rate, buf), b = E.flt(type, f0, q); if (f1 && f1 !== f0) sweep(b.frequency, f0, f1, t, dur*.8);
+ const n = E.nz(t, t + Math.max(dur, life(a, hold, tau)), rate, buf), b = E.flt(type, f0, q); if (f1 && f1 !== f0) sweep(b.frequency, f0, f1, t, dur * .8);
  const g = ENV(E, t, a, pk, tau, hold); n.connect(b); b.connect(g); g.connect(out); return b;
 }
 function tone(E, out, t, dur, type, f0, f1, a, pk, tau, sd, hold) {
- const o = E.osc(type, f0, t, t + Math.max(dur, life(a, hold, tau))); if (f1 && f1 !== f0) sweep(o.frequency, f0, f1, t, sd || dur*.5);
+ const o = E.osc(type, f0, t, t + Math.max(dur, life(a, hold, tau))); if (f1 && f1 !== f0) sweep(o.frequency, f0, f1, t, sd || dur * .5);
  const g = ENV(E, t, a, pk, tau, hold); o.connect(g); g.connect(out); return o;
 }
-// sub-bass boom: sine sweep into soft saturation (harmonics make it heavy on small speakers too)
-function boom(E, out, t, f0, f1, sd, pk, tau) { const o = E.osc('sine', f0, t, t + sd + life(.003,0, tau)); sweep(o.frequency, f0, f1, t, sd); const g = ENV(E, t,.003, pk, tau), sh = E.sat(); o.connect(g); g.connect(sh); sh.connect(out); }
-// rolling rumble: brown noise through a closing low-pass; am adds a slow (or fast, rate) swell
-function rumble(E, out, t, dur, f0, f1, pk, a, tau, hold, am, rate) {
- const end = t + Math.max(dur, life(a, hold, tau)), n = E.nz(t, end,1, E.brown), lp = E.flt('lowpass', f0,.8); if (f1 !== f0) sweep(lp.frequency, f0, f1, t, dur*.9);
+// sub boom: sine sweep into soft saturation
+function boom(E, out, t, f0, f1, sd, pk, tau) { const o = E.osc('sine', f0, t, t + sd + life(.003, 0, tau)); sweep(o.frequency, f0, f1, t, sd); const g = ENV(E, t, .003, pk, tau), sh = E.sat(); o.connect(g); g.connect(sh); sh.connect(out); }
+// rumble: brown noise through a closing low-pass; am adds a slow (or fast, rate) swell
+function rumble(E, out, t, dur, f0, f1, pk, a, tau, hold, am, rate, buf) {
+ const end = t + Math.max(dur, life(a, hold, tau)), n = E.nz(t, end, 1, buf || E.brown), lp = E.flt('lowpass', f0, .8); if (f1 !== f0) sweep(lp.frequency, f0, f1, t, dur * .9);
  const g = ENV(E, t, a, pk, tau, hold); n.connect(lp);
- if (am) { const m = E.G(1 - am*.5), r = rate || .7, lg = E.G(am*.5); for (const k of [1,2.9]) E.osc('sine', r*k*jit(.3), t, end).connect(lg); lg.connect(m.gain); lp.connect(m); m.connect(g); } else lp.connect(g);
+ if (am) { const m = E.G(1 - am * .5), r = rate || .7, lg = E.G(am * .5); for (const k of [1, 2.9]) E.osc('sine', r * k * jit(.3), t, end).connect(lg); lg.connect(m.gain); lp.connect(m); m.connect(g); } else lp.connect(g);
  g.connect(out);
 }
-const crunch = (E, out, t, f0, f1, dur, pk, tau) => nzf(E, out, t, dur, 'bandpass', f0, f1,.6,.002, pk*2.8, tau,0, E.grit);
-const snapT = (E, out, t, pk, f) => nzf(E, out, t,.03, 'highpass', f || 2200,0,.7,.0006, pk,.008);
-const thock = (E, out, t, f, pk, tau) => tone(E, out, t, tau*6, 'sine', f, f*.5,.002, pk, tau, tau*1.2);
+const crunch = (E, out, t, f0, f1, dur, pk, tau) => nzf(E, out, t, dur, 'bandpass', f0, f1, .6, .002, pk * 2.8, tau, 0, E.grit);
+const snapT = (E, out, t, pk, f) => nzf(E, out, t, .03, 'highpass', f || 2200, 0, .7, .0006, pk, .008);
+const thock = (E, out, t, f, pk, tau) => tone(E, out, t, tau * 6, 'sine', f, f * .5, .002, pk, tau, tau * 1.2);
 function metalHit(E, out, t, base, pk, tau) {
- const c = E.osc('sine', base, t, t + life(0,0, tau)), m = E.osc('sine', base*1.41, t, t + life(0,0, tau)), mg = E.G(base*2.2); mg.gain.setTargetAtTime(base*.3, t, tau*.6); m.connect(mg); mg.connect(c.frequency);
- const g = ENV(E, t,.002, pk*1.6, tau); c.connect(g); g.connect(out); tone(E, out, t, tau*4, 'sine', base*2.76*jit(.04),0,.002, pk*.5, tau*.6);
+ const c = E.osc('sine', base, t, t + life(0, 0, tau)), m = E.osc('sine', base * 1.41, t, t + life(0, 0, tau)), mg = E.G(base * 2.2); mg.gain.setTargetAtTime(base * .3, t, tau * .6); m.connect(mg); mg.connect(c.frequency);
+ const g = ENV(E, t, .002, pk * 1.6, tau); c.connect(g); g.connect(out); tone(E, out, t, tau * 4, 'sine', base * 2.76 * jit(.04), 0, .002, pk * .5, tau * .6);
 }
+// feed-forward comb: peaks every 1/d Hz; the delay drifts d0 -> d1 so the teeth slide down (the blaster "ring")
+function comb(E, src, t, d0, d1, sd, g) { const o = E.G(1), dl = E.dly(), k = E.G(g); dl.delayTime.setValueAtTime(d0, t); dl.delayTime.linearRampToValueAtTime(d1, t + sd); src.connect(o); src.connect(dl); dl.connect(k); k.connect(o); return o; }
+// a discharge: white noise -> comb -> darkening low-pass -> envelope (bright onset that closes to the mids)
+function bolt(E, out, t, o) {
+ const end = t + life(o.a, o.hold, o.tau), n = E.nz(t, end), c = comb(E, n, t, o.d0, o.d1, o.sd || 1.4, o.g || .9), lp = E.flt('lowpass', o.f0, .7), F = lp.frequency;
+ F.setValueAtTime(o.f0, t); F.exponentialRampToValueAtTime(o.f1, t + o.fs); F.exponentialRampToValueAtTime(o.f2, t + o.fs + (o.fl || 1));
+ const hp = E.flt('highpass', o.hp || 90, .7), g = ENV(E, t, o.a, o.pk, o.tau, o.hold); c.connect(lp); lp.connect(hp); hp.connect(g); g.connect(out);
+}
+const body = (E, out, t, dur, f0, f1, q, a, pk, tau, hold) => nzf(E, out, t, dur, 'bandpass', f0, f1, q, a, pk, tau, hold, E.pink);
+// a descending zap tone through a band-pass
+function zap(E, out, t, type, f0, f1, sd, bp, pk, tau, q) { const b = E.flt('bandpass', bp, q || .8); b.connect(out); tone(E, b, t, sd + tau * 6, type, f0, f1, .002, pk, tau, sd); }
 
 const SFX = {};
 const def = (name, gap, cap, pri, vol, wet, f) => { SFX[name] = {gap, cap, pri, vol, wet, f}; };
-// --- interface: short mechanical thunks and latches
+
+// --- weapons (turbolaser family: light / medium / heavy share one voice: comb-ringing discharge + zap + mid body)
+def('turbolaser_light', .04, 5, 2, 1.1, .12, (E, t, o, p) => {
+ p *= jit(.08);
+ bolt(E, o, t, {d0: .00098 / p, d1: .00108 / p, sd: 1.2, f0: 6000, f1: 2300, fs: .12, f2: 1100, fl: .9, a: .003, pk: .7, tau: .28, hold: .15, hp: 150});
+ const ring = E.flt('lowpass', 3000, .7); ring.connect(o);
+ for (const [ty, k, a] of [['sawtooth', 1, .12], ['square', 2, .03]]) tone(E, ring, t, 1, ty, 1020 * p * k, 950 * p * k, .02, a, .2, .9, .06);
+ zap(E, o, t, 'sawtooth', 1900 * p, 700 * p, .1, 1500 * p, .2, .07);
+ body(E, o, t, .8, 420, 300, .7, .005, 1.5, .24, .15); tone(E, o, t, .5, 'sine', 140 * p, 80 * p, .003, .3, .1, .08); nzf(E, o, t, .8, 'lowpass', 150, 0, .7, .005, .35, .25, 0, E.brown); return 1.5;
+});
+def('turbolaser', .04, 5, 2, 1.4, .12, (E, t, o, p) => {
+ p *= jit(.08);
+ bolt(E, o, t, {d0: .00085 / p, d1: .00125 / p, sd: 1.4, f0: 6500, f1: 2200, fs: .18, f2: 950, fl: 1.1, a: .004, pk: .85, tau: .3, hold: .22});
+ zap(E, o, t, 'sawtooth', 1150 * p, 260 * p, .14, 1300 * p, .35, .1);
+ body(E, o, t, 1.6, 400, 280, .6, .006, 1.7, .3, .22);
+ tone(E, o, t, .6, 'sine', 150 * p, 75 * p, .003, .3, .1, .08); nzf(E, o, t, 1, 'lowpass', 150, 0, .7, .005, .4, .3, 0, E.brown); return 2;
+});
+def('turbolaser_heavy', .05, 4, 3, 1.25, .15, (E, t, o, p) => {
+ p *= jit(.06);
+ bolt(E, o, t, {d0: .0013 / p, d1: .002 / p, sd: 1.8, f0: 6500, f1: 1500, fs: .2, f2: 750, fl: 1.3, a: .006, pk: .9, tau: .38, hold: .3});
+ zap(E, o, t, 'sawtooth', 900 * p, 170 * p, .2, 900 * p, .55, .14);
+ body(E, o, t, 2, 340, 230, .6, .008, 1.7, .36, .3); nzf(E, o, t, 1.6, 'lowpass', 200, 0, .7, .008, .75, .42, .04, E.brown);
+ boom(E, o, t, 105 * p, 50 * p, .2, .3, .22); snapT(E, o, t, .3, 1800); return 2.2;
+});
+// starfighter guns: the same family, short and high
+def('laser_light', .04, 6, 1, 6, .05, (E, t, o, p) => {
+ p *= jit(.1);
+ bolt(E, o, t, {d0: .0007 / p, d1: .00078 / p, sd: .3, f0: 4500, f1: 2600, fs: .05, f2: 1800, fl: .3, a: .002, pk: .5, tau: .07, hp: 400});
+ zap(E, o, t, 'sawtooth', 2200 * p, 1100 * p, .08, 1600 * p, .6, .065, .9); zap(E, o, t, 'square', 3000 * p, 1400 * p, .07, 2200 * p, .14, .05);
+ body(E, o, t, .2, 520, 420, .8, .002, 1.2, .07); return .4;
+});
+def('point_defense', .04, 4, 1, 1.6, .12, (E, t, o, p) => {
+ [[0, 1], [.09 + Math.random() * .02, .7]].forEach(([d, k]) => { const q = p * jit(.1);
+  zap(E, o, t + d, 'sawtooth', 2800 * q, 1100 * q, .06, 2000 * q, .4 * k, .07, .7); nzf(E, o, t + d, .1, 'highpass', 2400, 0, .7, .001, .45 * k, .07);
+  body(E, o, t + d, .5, 380, 300, .7, .002, .8 * k, .16); tone(E, o, t + d, .2, 'sine', 160 * q, 90 * q, .002, .3 * k, .07, .05); });
+ return 1;
+});
+// ion: bright crack, then a crackling low-mid electric body that swells and sags
+function ionBody(E, o, t, p, hold, tau, lo) {
+ nzf(E, o, t, .12, 'highpass', 2200, 0, .7, .001, hold > .5 ? .3 : .45, .045);
+ nzf(E, o, t, .6, 'bandpass', 1200 * p, 700 * p, .7, .1, 1.3, tau, hold, E.crackle, .9 + Math.random() * .25);
+ const lp = E.flt('lowpass', 1300, 1), c = E.osc('sawtooth', 118 * p, t, t + life(.1, hold, tau)), m = E.osc('sine', 31 * p, t, t + life(.1, hold, tau)), mg = E.G(45);
+ m.connect(mg); mg.connect(c.frequency); const g = ENV(E, t, .1, .42, tau, hold); c.connect(lp); lp.connect(g); g.connect(o);
+ body(E, o, t, .5, 420, 320, .7, .08, lo * 1.4, tau * 1.1, hold); nzf(E, o, t, .5, 'lowpass', 130, 0, .7, .08, lo * .4, tau, hold, E.brown);
+}
+def('ion', .05, 4, 2, 1.75, .16, (E, t, o, p) => { ionBody(E, o, t, p, .3, .15, .6); zap(E, o, t, 'square', 3200 * p, 900 * p, .1, 2500 * p, .3, .05); return 1.2; });
+def('ion_heavy', .06, 3, 3, .9, .2, (E, t, o, p) => {
+ ionBody(E, o, t, p * .85, .85, .55, .8);
+ bolt(E, o, t + .15, {d0: .0012, d1: .0021, sd: 2.6, f0: 4200, f1: 2600, fs: .4, f2: 1000, fl: 2, a: .3, pk: .7, tau: .7, hold: .4, hp: 250});
+ zap(E, o, t, 'square', 2600 * p, 600 * p, .16, 2000 * p, .1, .08); nzf(E, o, t, 2, 'lowpass', 160, 0, .7, .05, .3, .6, .6, E.brown); return 3.6;
+});
+// missiles: launch pop, then a held rocket hiss over a low roar, crackling as it burns out
+def('missile', .06, 3, 2, 1, .2, (E, t, o, p) => {
+ nzf(E, o, t, 1.2, 'bandpass', 2800 * p, 2300 * p, .6, .012, .95, .3, .72);
+ body(E, o, t, 1.2, 380, 300, .7, .15, .8, .3, .55);
+ rumble(E, o, t, 1.2, 240, 150, 1.05, .1, .35, .55, .3, 11);
+ nzf(E, o, t + .05, 1.2, 'bandpass', 1500, 900, .8, .05, .35, .3, .6, E.crackle); return 2.1;
+});
+def('torpedo', .08, 3, 2, 1, .3, (E, t, o, p) => {
+ boom(E, o, t, 72 * p, 32 * p, .18, .45, .2); nzf(E, o, t, 1.6, 'bandpass', 1900 * p, 1500 * p, .6, .03, .8, .4, 1);
+ rumble(E, o, t, 1.8, 200, 120, 1.1, .05, .5, 1, .3, 7);
+ const lp = E.flt('lowpass', 1200, .8), tr = E.G(.7), l = E.osc('sine', 6, t, t + 2.8), lg = E.G(.3); l.connect(lg); lg.connect(tr.gain); lp.connect(tr); tr.connect(o);
+ [[150, 190], [226, 286]].forEach(([a, b]) => { const x = E.osc('sine', a * p, t, t + 2.8); sweep(x.frequency, a * p, b * p, t, .6); const g = ENV(E, t, .1, .3, .6, .4); x.connect(g); g.connect(lp); });
+ return 2.8;
+});
+
+// --- impacts: mostly low-mid, short plateau, ~1-1.5 s
+def('hit_shield', .04, 5, 1, 1.8, .15, (E, t, o, p) => {
+ nzf(E, o, t, .2, 'lowpass', 900, 0, .7, .003, .4, .05, 0, E.pink);
+ rumble(E, o, t, 1, 950 * p, 520 * p, 1.3, .07, .14, .55, .45, 4.3, E.pink); rumble(E, o, t, 1, 220, 160, .55, .07, .14, .52);
+ tone(E, o, t, 1.2, 'sine', 78 * p, 56 * p, .05, .25, .2, .5, .33); nzf(E, o, t, .4, 'bandpass', 900 * p, 500 * p, 1.5, .01, .15, .12); return 1.2;
+});
+def('hit_hull', .04, 4, 1, 1.05, .14, (E, t, o, p) => {
+ p *= jit(.1); snapT(E, o, t, .25, 1500);
+ nzf(E, o, t, .8, 'lowpass', 1800 * p, 420 * p, .8, .002, .85, .18, .03); nzf(E, o, t, 1, 'lowpass', 1100 * p, 380 * p, .7, .004, .9, .22, .04, E.pink);
+ metalHit(E, o, t, 150 * p, .34, .3); boom(E, o, t, 110 * p, 55 * p, .12, .3, .14); crunch(E, o, t, 1000, 480, .3, .55, .1);
+ nzf(E, o, t, .8, 'lowpass', 220, 0, .7, .01, .3, .24, .05, E.brown); return 1.3;
+});
+def('turret_destroyed', .06, 3, 3, 1.35, .16, (E, t, o, p) => {
+ p *= jit(.1); snapT(E, o, t, .25, 1800); boom(E, o, t, 95 * p, 45 * p, .18, .2, .2);
+ crunch(E, o, t, 1500 * p, 650 * p, .5, .45, .2); nzf(E, o, t, 1, 'lowpass', 1000, 380, .7, .01, 1, .24, .05, E.pink); nzf(E, o, t, .8, 'lowpass', 200, 0, .7, .01, .2, .22, .03, E.brown);
+ nzf(E, o, t + .08, 1.1, 'bandpass', 3000, 2200, .7, .05, 2.2, .4, .2, E.crackle, 1.1); metalHit(E, o, t + .05, 210 * p, .16, .22); return 1.2;
+});
+// --- explosions: a pink-noise body closing toward the low mids, a modest sub, grit crunch, debris crackle
+function blast(E, o, t, s, p, quiet) { // s: size 0..1
+ body(E, o, t, 1 + 2.5 * s, (520 - 120 * s) * p, (300 - 80 * s) * p, .55, .008 + .12 * s, 2.1, .2 + .35 * s, .15 + .6 * s);
+ rumble(E, o, t, 1 + 2 * s, 260, 140, .6 + .45 * s, .02 + .1 * s, .25 + .4 * s, .15 + .6 * s);
+ boom(E, o, t, (95 - 25 * s) * p, (48 - 12 * s) * p, .15 + .35 * s, .3 + .15 * s, .18 + .3 * s);
+ crunch(E, o, t, (1400 - 300 * s) * p, (520 - 120 * s) * p, .4 + .5 * s, .25 + .05 * s, .14 + .2 * s);
+ if (!quiet) snapT(E, o, t, .85 - .5 * s, 1400);
+}
+def('explosion_small', .06, 4, 3, 1.1, .15, (E, t, o, p) => { p *= jit(.12); blast(E, o, t, .12, p); nzf(E, o, t + .05, .9, 'highpass', 1500, 0, .7, .02, .35, .22, .06, E.crackle); return 1.4; });
+def('explosion_fighter', .08, 3, 3, 1.25, .2, (E, t, o, p) => {
+ p *= jit(.1); nzf(E, o, t, 1.8, 'lowpass', 1500 * p, 520 * p, .7, .3, 1.3, .38, .28, E.pink); rumble(E, o, t, 1.6, 300, 160, .65, .26, .4, .3, .25, 11);
+ nzf(E, o, t, 1.2, 'bandpass', 850 * p, 500 * p, .6, .3, .3, .32, .2, E.grit); boom(E, o, t + .2, 85 * p, 42 * p, .3, .15, .3);
+ nzf(E, o, t + .15, 1.6, 'bandpass', 3000, 2000, .8, .2, 1, .35, .4, E.crackle); return 2.2;
+});
+def('explosion_large', .09, 2, 4, .7, .25, (E, t, o, p) => {
+ p *= jit(.08); blast(E, o, t, .75, p);
+ const d = .5 + Math.random() * .4; blast(E, o, t + d, .35, p * .9, 1);
+ nzf(E, o, t + .15, 3, 'bandpass', 3000, 2000, .8, .15, .7, .8, .5, E.crackle, .9); return 3.6;
+});
+// capital ship death: a chain of blasts over a held body, then the fall-off (~6 s)
+def('ship_destroyed', .2, 2, 5, .65, .28, (E, t, o, p) => {
+ blast(E, o, t, .9, p, 1);
+ rumble(E, o, t, 4.5, 420 * p, 300, .6, .05, .8, 2.6, .3, .9, E.pink); body(E, o, t, 4.5, 320, 240, .6, .05, 2.1, .8, 2.6); rumble(E, o, t, 4.5, 200, 120, .25, .05, .8, 2.6);
+ let d = .4; for (let i = 0; i < 6; i++) { blast(E, o, t + d, (.3 + .4 * Math.random()) * (i === 3 ? 1.4 : 1), p * jit(.2), 1); d += .35 + Math.random() * .35; }
+ nzf(E, o, t + .3, 4.5, 'bandpass', 2200, 1500, .7, .3, .4, .9, 2.8, E.crackle, .8);
+ return 6;
+});
+// --- hyperspace: arrival = sudden whoosh-burst that settles into a falling rumble; departure = its counterpart (rise, then a short burst)
+def('hyperspace_in', .15, 2, 4, 1.45, .22, (E, t, o, p) => {
+ nzf(E, o, t, 1, 'bandpass', 1100 * p, 240 * p, .5, .02, .9, .28);
+ nzf(E, o, t, 1.2, 'lowpass', 800 * p, 200 * p, .7, .02, 1, .36, .05, E.pink);
+ rumble(E, o, t, 1.4, 360 * p, 110, 1, .03, .38, .2); boom(E, o, t, 80 * p, 36 * p, .3, .3, .28);
+ tone(E, o, t, 1, 'sawtooth', 230 * p, 70 * p, .02, .1, .3, .8); return 1.9;
+});
+def('hyperspace_out', .15, 2, 4, 1.35, .3, (E, t, o, p) => {
+ const T = .95, b = E.flt('bandpass', 200, .6), n = E.nz(t, t + T + .3), g = E.G(0), q = g.gain;
+ sweep(b.frequency, 200 * p, 2200 * p, t, T); q.setValueAtTime(.001, t); q.exponentialRampToValueAtTime(.8, t + T); q.setTargetAtTime(0, t + T, .05); n.connect(b); b.connect(g); g.connect(o);
+ const r = E.flt('lowpass', 180, .8), bn = E.nz(t, t + T + .3, 1, E.pink), rg = E.G(0); sweep(r.frequency, 180, 900, t, T); rg.gain.setValueAtTime(.001, t); rg.gain.exponentialRampToValueAtTime(1.1, t + T); rg.gain.setTargetAtTime(0, t + T, .06); bn.connect(r); r.connect(rg); rg.connect(o);
+ const w = E.osc('sawtooth', 70 * p, t, t + T + .2), wl = E.flt('lowpass', 900, 1), wg = E.G(0); sweep(w.frequency, 70 * p, 330 * p, t, T); wg.gain.setValueAtTime(0, t); wg.gain.linearRampToValueAtTime(.16, t + T); wg.gain.setTargetAtTime(0, t + T, .04); w.connect(wl); wl.connect(wg); wg.connect(o);
+ boom(E, o, t + T, 90 * p, 38 * p, .25, .3, .2); nzf(E, o, t + T, .7, 'lowpass', 900, 250, .7, .005, .9, .22, 0, E.pink); rumble(E, o, t + T, .9, 300, 110, .6, .01, .3, .05); return T + 1.1;
+});
+// --- alerts: one long klaxon blare (rises into pitch), harmonics kept low
+def('alarm', 1.2, 1, 5, 1.75, .2, (E, t, o, p) => {
+ const lp = E.flt('lowpass', 700, 1.2), g = E.G(0), q = g.gain; lp.connect(g); g.connect(o); sweep(lp.frequency, 2600, 700, t, .35);
+ q.setValueAtTime(0, t); q.linearRampToValueAtTime(.5, t + .4); q.setValueAtTime(.5, t + 1.25); q.setTargetAtTime(0, t + 1.25, .2);
+ for (const [ty, k, a] of [['sawtooth', 1, .55], ['square', 1.004, .3], ['sawtooth', .5, .18]]) { const x = E.osc(ty, 300 * p * k, t, t + 2.4), xg = E.G(a); x.frequency.setValueAtTime(300 * p * k, t); x.frequency.linearRampToValueAtTime(365 * p * k, t + .32); x.connect(xg); xg.connect(lp); }
+ return 2.3;
+});
+// --- passing craft (one-shots with a doppler-ish sweep and pan glide; x.pan sign picks the direction)
+function pass(E, o, t, x, T, build) {
+ const dir = x.pan < 0 ? -1 : 1, pn = E.pan(-dir * .8); if (pn.pan) { pn.pan.setValueAtTime(-dir * .8, t); pn.pan.linearRampToValueAtTime(dir * .85, t + T); } pn.connect(o);
+ const sw = E.G(0), q = sw.gain; q.setValueAtTime(.001, t); q.exponentialRampToValueAtTime(1, t + T * .5); q.setTargetAtTime(0, t + T * .5, T * .16); sw.connect(pn);
+ const dop = (param, f) => { param.setValueAtTime(f * 1.1, t); param.linearRampToValueAtTime(f * 1.06, t + T * .42); param.linearRampToValueAtTime(f * .92, t + T * .58); param.linearRampToValueAtTime(f * .9, t + T * 1.2); };
+ build(sw, dop); return T * 1.25;
+}
+def('flyby_fighter', .15, 3, 2, 4.1, .22, (E, t, o, p, x) => pass(E, o, t, x, 1.5, (sw, dop) => {
+ const b = E.flt('bandpass', 760 * p, .6); b.connect(sw);
+ for (const [ty, k, a] of [['sawtooth', 1, .5], ['square', 2.01, .12]]) { const s = E.osc(ty, 390 * p * k, t, t + 2); dop(s.frequency, 390 * p * k); const g = E.G(a); s.connect(g); g.connect(b); }
+ const n = E.nz(t, t + 2), nb = E.flt('bandpass', 1100, .8), ng = E.G(.25); n.connect(nb); nb.connect(ng); ng.connect(sw);
+}));
+function shuttleTone(E, t, sw, dop, p, end, hum, whine, wl, low, lpf) {
+ const lp = E.flt('lowpass', lpf, .8); lp.connect(sw);
+ for (const [k, a] of [[1, .5], [1.5, .25]]) { const s = E.osc('sawtooth', hum * p * k, t, end); dop(s.frequency, hum * p * k); const g = E.G(a); s.connect(g); g.connect(lp); }
+ const w = E.osc('sine', whine * p, t, end), wg = E.G(wl); dop(w.frequency, whine * p); w.connect(wg); wg.connect(sw);
+ const n = E.nz(t, end, 1, E.pink), nl = E.flt('lowpass', low, .7), ng = E.G(.9); n.connect(nl); nl.connect(ng); ng.connect(sw);
+}
+def('shuttle_light', .3, 2, 2, 1.2, .25, (E, t, o, p, x) => pass(E, o, t, x, 3.6, (sw, dop) => shuttleTone(E, t, sw, dop, p, t + 4.6, 86, 3600, .18, 240, 300)));
+def('shuttle_heavy', .3, 2, 2, 1.65, .25, (E, t, o, p, x) => pass(E, o, t, x, 4.4, (sw, dop) => shuttleTone(E, t, sw, dop, p, t + 5.6, 86, 4400, .03, 520, 650)));
+
+// ---------- loops: f(E, t, out, L) builds a continuous voice; L.det collects detune params for pitch control ----------
+const LOOPS = {};
+const ldef = (name, vol, wet, f) => { LOOPS[name] = {vol, wet, f}; };
+const forever = 1e6;
+function lsrc(E, L, type, f, gain, out, filt) { const s = type === 'brown' || type === 'white' ? E.nz(0, forever, 1, type === 'brown' ? E.brown : 0) : E.osc(type, f, E.ctx.currentTime, E.ctx.currentTime + forever); L.det.push(s.detune); const g = E.G(gain); if (filt) { s.connect(filt); filt.connect(g); } else s.connect(g); g.connect(out); return s; }
+function lam(E, out, rate, depth) { const m = E.G(1 - depth), l = E.osc('sine', rate, E.ctx.currentTime, E.ctx.currentTime + forever), lg = E.G(depth); l.connect(lg); lg.connect(m.gain); m.connect(out); return m; }
+// big ships: deep breathing hum; medium: a little higher with a flutter; small: brighter hum with a thin whine
+function engine(E, out, L, hum, low, whine, wl, am, br, sw) {
+ const a = lam(E, out, am, .12), b = lam(E, a, br, .14), lp = E.flt('lowpass', hum * 4.5, .7), lp2 = E.flt('lowpass', hum * 7, .7), lb = E.flt('lowpass', low, .7);
+ lsrc(E, L, 'brown', 0, 1.1, b, lb); lsrc(E, L, 'sawtooth', hum, sw || .32, b, lp); lsrc(E, L, 'sawtooth', hum * 2.006, .12, b, lp2); lsrc(E, L, 'sine', whine, wl, b);
+}
+ldef('engine_large', .42, .2, (E, out, L) => engine(E, out, L, 55, 210, 1060, .02, 37, .33));
+ldef('engine_medium', .37, .2, (E, out, L) => engine(E, out, L, 66, 260, 1320, .022, 9, .25));
+ldef('engine_small', .42, .18, (E, out, L) => engine(E, out, L, 90, 420, 1600, .03, 3.2, .4, .45));
+ldef('fighter', 1, .15, (E, out, L) => { const a = lam(E, out, 9.9, .2), b = E.flt('bandpass', 760, .6); b.connect(a); lsrc(E, L, 'sawtooth', 390, .5, b); lsrc(E, L, 'square', 784, .16, b); lsrc(E, L, 'white', 0, .25, a, E.flt('bandpass', 1400, .8)); });
+ldef('shuttle_light', .28, .2, (E, out, L) => { const a = lam(E, out, 19, .1), lp = E.flt('lowpass', 290, .8); lsrc(E, L, 'sawtooth', 86, .5, a, lp); lsrc(E, L, 'sine', 3600, .16, a); lsrc(E, L, 'brown', 0, .9, a, E.flt('lowpass', 260, .7)); });
+ldef('shuttle_heavy', .34, .2, (E, out, L) => { const a = lam(E, out, 12, .14), lp = E.flt('lowpass', 650, .8); lsrc(E, L, 'sawtooth', 86, .5, a, lp); lsrc(E, L, 'sawtooth', 129, .25, a, lp); lsrc(E, L, 'sine', 4400, .03, a); lsrc(E, L, 'brown', 0, .9, a, E.flt('lowpass', 520, .7)); });
+
+// --- unchanged from v1.1: interface, designer, generic flyby, hangar, comms
 def('ui_click',.03,3,3,.6,.05, (E, t, o, p) => { thock(E, o, t,190*p,.5,.022); nzf(E, o, t,.03, 'bandpass',1900*p,0,2,.0008,.26,.008); snapT(E, o, t,.09,4000); return .12; });
 def('ui_toggle',.03,3,3,.58,.05, (E, t, o, p) => { thock(E, o, t,230*p,.45,.02); nzf(E, o, t,.03, 'bandpass',2600*p,0,2,.0008,.24,.007); thock(E, o, t + .038,145*p,.38,.022); nzf(E, o, t + .038,.03, 'bandpass',1500*p,0,2,.0008,.2,.008); return .16; });
 def('ui_confirm',.05,3,3,.52,.14, (E, t, o, p) => { thock(E, o, t,160*p,.45,.035); [[440,0], [659.3,.075]].forEach(([f, d]) => { tone(E, o, t + d,.5, 'triangle', f*p,0,.004,.2,.09); tone(E, o, t + d,.3, 'sine', f*.5*p,0,.004,.14,.07); }); return .5; });
 def('ui_error',.08,2,3,.55,.06, (E, t, o, p) => { const lp = E.flt('lowpass',750,1.2); lp.connect(o); [0,.13].forEach(d => { tone(E, lp, t + d,.22, 'square',110*p,98*p,.004,.26,.05,.1,.06); thock(E, o, t + d,120*p,.35,.03); }); return .45; });
-// --- designer
 def('place',.04,3,3,.6,.14, (E, t, o, p) => { boom(E, o, t,110*p,55*p,.08,.35,.08); thock(E, o, t,240*p,.45,.04); nzf(E, o, t,.06, 'bandpass',1600*p,0,2,.001,.42,.02); nzf(E, o, t + .075,.03, 'bandpass',3000*p,0,1.5,.0006,.28,.006); thock(E, o, t + .075,320*p,.2,.014); return .45; });
 def('remove',.04,3,3,.58,.14, (E, t, o, p) => { nzf(E, o, t,.03, 'bandpass',2600*p,0,1.5,.0006,.28,.007); thock(E, o, t,270*p,.4,.015); boom(E, o, t + .05,90*p,55*p,.07,.3,.07); nzf(E, o, t + .05,.35, 'bandpass',1200*p,250*p,1.3,.02,.25,.07,.04); return .55; });
 def('snap',.035,3,3,.55,.16, (E, t, o, p) => {
  snapT(E, o, t,.3,4000); boom(E, o, t,135*p,60*p,.05,.4,.05);
  const c = E.osc('sine',740*p, t, t + .45), m = E.osc('sine',1110*p, t, t + .45), mg = E.G(700*p); mg.gain.setTargetAtTime(0, t,.03); m.connect(mg); mg.connect(c.frequency); const g = ENV(E, t,.002,.16,.06); c.connect(g); g.connect(o); return .45;
 });
-// --- weapons
-def('laser_light',.04,6,1,.72,.18, (E, t, o, p) => {
- p *= jit(.1); const bp = E.flt('bandpass',1500*p,1), le = ENV(E, t,.002,.45,.05); bp.connect(o); le.connect(bp);
- for (const [ty, k, a] of [['square',1,1], ['sawtooth',1.507,.45]]) { const z = E.osc(ty,1300*p*k, t, t + .32); sweep(z.frequency,1300*p*k,210*p*k, t,.12); if (a < 1) { const ga = E.G(a); z.connect(ga); ga.connect(le); } else z.connect(le); }
- boom(E, o, t,160*p,62*p,.06,.38,.05); nzf(E, o, t,.04, 'bandpass',1200,0,1,.001,.32,.014); return .3;
-});
-def('turbolaser',.04,5,2,.85,.38, (E, t, o, p) => {
- p *= jit(.07); nzf(E, o, t,.1, 'bandpass',1100,0,.7,.001,1.4,.04); snapT(E, o, t,.35,2500);
- const lp = E.flt('lowpass',2600,5), ze = ENV(E, t,.003,1.1,.2); sweep(lp.frequency,2600,210, t,.7); lp.connect(o); ze.connect(lp);
- for (const k of [1,1.009]) { const z = E.osc('sawtooth',300*p*k, t, t + 1.4); sweep(z.frequency,300*p*k,52*p*k, t,.38); z.connect(ze); }
- boom(E, o, t,70*p,35*p,.25,.95,.32);
- const bl = E.flt('lowpass',600,1); bl.connect(o); tone(E, bl, t,.8, 'square',110*p,55*p,.003,.36,.13,.2);
- rumble(E, o, t + .02,1.6,700,180,.62,.02,.45,.05); return 2.4;
-});
-def('ion',.05,4,2,.95,.3, (E, t, o, p) => {
- nzf(E, o, t,1.1, 'bandpass',2800*p,1700*p,.8,.005,1.3,.22,.08, E.crackle,.8 + Math.random()*.35);
- const bp = E.flt('bandpass',1800,2); sweep(bp.frequency,1800*p,380*p, t,.7); bp.connect(o);
- const c = E.osc('sawtooth',55*p, t, t + 1.4), m = E.osc('sine',23*p, t, t + 1.4), mg = E.G(30); m.connect(mg); mg.connect(c.frequency);
- const g = ENV(E, t,.004,.9,.28,.06); c.connect(g); g.connect(bp);
- const hl = E.flt('lowpass',420,1); hl.connect(o); tone(E, hl, t,1.4, 'square',110*p,0,.01,.4,.35,0,.1);
- boom(E, o, t,82*p,40*p,.15,.5,.12); tone(E, o, t,.12, 'sine',1800*p,300*p,.001,.16,.03,.08); return 1.5;
-});
-def('missile',.06,3,2,.75,.3, (E, t, o, p) => {
- boom(E, o, t,92*p,40*p,.12,.8,.12); nzf(E, o, t,.1, 'lowpass',700,0,.7,.002,.6,.05);
- const b = nzf(E, o, t,1.8, 'bandpass',400*p,0,1.2,.04,.5,.45,.15); sweep(b.frequency,400*p,2200*p, t,.25); b.frequency.exponentialRampToValueAtTime(700*p, t + 1.3);
- rumble(E, o, t + .03,1.6,450,170,.6,.05,.45,.3,.35,9); return 2.2;
-});
-def('torpedo',.08,3,2,.85,.34, (E, t, o, p) => {
- boom(E, o, t,72*p,32*p,.18,1,.2); nzf(E, o, t,.12, 'lowpass',520,0,.7,.002,.6,.07); nzf(E, o, t,.8, 'bandpass',900*p,2400*p,1.4,.02,.4,.2,.05);
- const lp = E.flt('lowpass',1200,.8), tr = E.G(.7), l = E.osc('sine',6, t, t + 2.8), lg = E.G(.3); l.connect(lg); lg.connect(tr.gain); lp.connect(tr); tr.connect(o);
- [[150,190], [226,286]].forEach(([a, b]) => { const x = E.osc('sine', a*p, t, t + 2.8); sweep(x.frequency, a*p, b*p, t,.6); const g = ENV(E, t,.1,.35,.6,.4); x.connect(g); g.connect(lp); });
- rumble(E, o, t + .04,2,380,150,.55,.05,.6,.4,.3,7); return 2.8;
-});
-def('point_defense',.04,4,1,.7,.14, (E, t, o, p) => {
- const lp = E.flt('lowpass',3200,.7), x = E.osc('square',900*p, t, t + .3), g = E.G(0), s = E.osc('sine',160*p, t, t + .3), sg = E.G(0), n = E.nz(t, t + .3), nb = E.flt('bandpass',1500,1), ng = E.G(0);
- x.connect(g); g.connect(lp); lp.connect(o); s.connect(sg); sg.connect(o); n.connect(nb); nb.connect(ng); ng.connect(o);
- for (let i = 0; i < 3; i++) { const d = t + i*.055 + Math.random()*.01, q = p*jit(.1); sweep(x.frequency,900*q,300*q, d,.035); sweep(s.frequency,160*q,70*q, d,.03);
-  for (const [G, pk, tau] of [[g,.4,.016], [sg,.35,.025], [ng,.35,.01]]) { G.gain.setValueAtTime(0, d); G.gain.linearRampToValueAtTime(pk, d + .0015); G.gain.setTargetAtTime(0, d + .0015, tau); } }
- return .32;
-});
-// --- impacts
-def('hit_shield',.04,5,1,.8,.3, (E, t, o, p) => {
- nzf(E, o, t,.5, 'bandpass',3000*p,700*p,4,.002,.65,.1);
- const lp = E.flt('lowpass',520,1.5), te = ENV(E, t,.005,.6,.3); te.connect(lp); lp.connect(o); for (const f of [62,63.6]) E.osc('sawtooth', f*p, t, t + 1.9).connect(te);
- const m = E.osc('sine',510*p, t, t + 1.2), mg = E.G(400*p), c = E.osc('sine',340*p, t, t + 1.2), ce = ENV(E, t,.004,.2,.2); mg.gain.setTargetAtTime(0, t,.1); m.connect(mg); mg.connect(c.frequency); c.connect(ce); ce.connect(o);
- boom(E, o, t,110*p,50*p,.1,.5,.1); return 1.3;
-});
-def('hit_hull',.04,4,1,.8,.3, (E, t, o, p) => {
- p *= jit(.1); boom(E, o, t,120*p,45*p,.1,.85,.14); metalHit(E, o, t,150*p,.4,.45);
- nzf(E, o, t,1, 'bandpass',180*p,0,8,.003,1.4,.35); crunch(E, o, t,900,500,.3,.9,.05); snapT(E, o, t,.4,2000); return 2;
-});
-def('explosion_small',.06,4,3,.85,.36, (E, t, o, p) => {
- p *= jit(.12); boom(E, o, t,90*p,32*p,.3,1,.35); crunch(E, o, t,1200*p,400*p,.5,1.2,.18); snapT(E, o, t,.6,1500);
- rumble(E, o, t,1.6,650*p,150,.85,.01,.6,.05); nzf(E, o, t + .05,1.2, 'highpass',1500,0,.7,.01,.4,.3,.1, E.crackle); return 2.6;
-});
-def('explosion_large',.09,2,4,.95,.5, (E, t, o, p) => {
- p *= jit(.08); boom(E, o, t,70*p,24*p,.8,1,.8); crunch(E, o, t,900*p,250*p,1,1.3,.35); snapT(E, o, t,.7,1200);
- rumble(E, o, t,4,450*p,110,1,.05,1.4,.4,.3,.7);
- const d = .45 + Math.random()*.25; boom(E, o, t + d,60*p,28*p,.4,.6,.4); crunch(E, o, t + d,700*p,300*p,.5,.9,.2);
- nzf(E, o, t + .15,4, 'bandpass',2000,1400,.8,.15,.5,1,.5, E.crackle,.9); return 6;
-});
-def('ship_destroyed',.2,2,5,1,.55, (E, t, o, p) => {
- boom(E, o, t,60*p,20*p,1.2,1,1); crunch(E, o, t,800*p,200*p,1.4,1.3,.5); snapT(E, o, t,.7,1000);
- rumble(E, o, t,7,380*p,90,1.1,.3,2,1.2,.35,.6);
- for (const d of [.6,1.4,2.3,3.4]) { const q = d + Math.random()*.3; boom(E, o, t + q,75*p,30*p,.3,.6,.3); crunch(E, o, t + q,1000*p,350*p,.4,.9,.15); }
- nzf(E, o, t + .3,6, 'bandpass',2200,1500,.7,.3,.55,1.5,1.5, E.crackle,.8);
- const bp = E.flt('bandpass',300,6), gr = E.osc('sawtooth',60*p, t + .5, t + 7), gl = E.osc('sine',4, t, t + 7), gg = E.G(12), ge = ENV(E, t + .5,1,.2,1.5);
- bp.connect(o); sweep(gr.frequency,60*p,38*p, t + .5,4); gl.connect(gg); gg.connect(bp.frequency); gr.connect(ge); ge.connect(bp);
- return 9;
-});
-// --- movement
 def('flyby',.15,3,2,.65,.25, (E, t, o, p, x) => {
  const dir = x.pan < 0 ? -1 : 1, pn = E.pan(-dir*.8); if (pn.pan) { pn.pan.setValueAtTime(-dir*.8, t); pn.pan.linearRampToValueAtTime(-dir*.2, t + .7); pn.pan.linearRampToValueAtTime(dir*.85, t + 1.25); } pn.connect(o);
  const sw = E.G(0), q = sw.gain; q.setValueAtTime(.001, t); q.exponentialRampToValueAtTime(1, t + .86); q.setTargetAtTime(0, t + .86,.3); sw.connect(pn);
@@ -449,25 +584,6 @@ def('dock',.2,2,2,.8,.3, (E, t, o, p) => {
  boom(E, o, t,80*p,38*p,.12,.6,.15); metalHit(E, o, t,140*p,.35,.35); snapT(E, o, t,.4,1800);
  for (const d of [.22,.4]) { thock(E, o, t + d,150*p,.55,.05); nzf(E, o, t + d,.03, 'bandpass',2200*p,0,1.5,.0006,.3,.006); }
  nzf(E, o, t + .5,1.4, 'highpass',3500,0,.7,.05,.22,.4,.05); tone(E, o, t + .5,2, 'sine',55*p,0,.1,.3,.5,0,.2); return 2.2;
-});
-def('hyperspace_out',.15,2,4,.9,.5, (E, t, o, p) => {
- const T = 1.15, lp = E.flt('lowpass',1800,1.5), rise = (src, f, a, pk) => { const g = E.G(0); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(pk, t + T); g.gain.setTargetAtTime(0, t + T,.035); src.connect(f); f.connect(g); g.connect(a); };
- lp.connect(o);
- for (const [ty, a] of [['sine',.34], ['sawtooth',.14]]) { const s = E.osc(ty,45*p, t, t + T + .25), g = E.G(0); sweep(s.frequency,45*p,900*p, t, T); g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(a, t + T); g.gain.setTargetAtTime(0, t + T,.03); s.connect(g); g.connect(lp); }
- const rl = E.flt('lowpass',200,1), b = E.flt('bandpass',300,2); sweep(rl.frequency,200,2500, t, T); sweep(b.frequency,300,3000, t, T);
- rise(E.nz(t, t + T + .3,1, E.brown), rl, o,.8); rise(E.nz(t, t + T + .3), b, o,.35);
- boom(E, o, t + T,90*p,28*p,.4,1,.35); nzf(E, o, t + T,1.2, 'lowpass',3000,150,.7,.002,.8,.25); rumble(E, o, t + T,1.5,500,110,.7,.01,.6,.05); return T + 2.2;
-});
-def('hyperspace_in',.15,2,4,.9,.5, (E, t, o, p) => {
- const T = .36, b = E.flt('bandpass',2500,1.3), ng = E.G(0), q = ng.gain; sweep(b.frequency,2500,300, t, T); q.setValueAtTime(.002, t); q.exponentialRampToValueAtTime(.65, t + T); q.setTargetAtTime(0, t + T,.04); E.nz(t, t + T + .25).connect(b); b.connect(ng); ng.connect(o);
- boom(E, o, t + T,80*p,26*p,.4,1,.35); nzf(E, o, t + T,1.2, 'lowpass',2500,120,.7,.002,.8,.3); rumble(E, o, t + T,1.8,450,100,.75,.01,.7,.05);
- const lp = E.flt('lowpass',1500,1); lp.connect(o); tone(E, lp, t + T,1.4, 'sawtooth',900*p,60*p,.01,.28,.35,1); return T + 2.4;
-});
-// --- alerts
-def('alarm',1.2,1,5,.55,.25, (E, t, o, p) => {
- const bp = E.flt('bandpass',700,.9); bp.connect(o);
- for (let c = 0; c < 3; c++) { const s = t + c*.55; for (const [ty, k, a] of [['square',1,.22], ['sawtooth',1,.15], ['square',.5,.16]]) { const x = E.osc(ty,250*p*k, s, s + .45), g = ENV(E, s,.02, a,.03,.34); x.frequency.setValueAtTime(250*p*k, s); x.frequency.linearRampToValueAtTime(400*p*k, s + .38); x.connect(g); g.connect(bp); } }
- return 1.75;
 });
 def('comms',.3,2,3,.5,.1, (E, t, o, p) => {
  const r = E.flt('bandpass',1500,.5); r.connect(o); thock(E, o, t,170*p,.3,.02);
@@ -727,6 +843,7 @@ function ensure() {
  timer = setInterval(tick,25);
  if (ctx.addEventListener) ctx.addEventListener('statechange', () => { if (ctx.state === 'running') { everRan = true; detach(); } });
  if (want.scene) startScene(want.scene, want.opts);
+ for (const h of loops) if (!h.L) h.L = eng.loop(h.name, h.o);
  if (isHidden()) eng.setHidden(true);
  return true;
 }
@@ -768,6 +885,15 @@ function sfx(name, o) { return audible() && S.sfx > 0 ? eng.sfx(name, o) : false
 function stinger(name, o) { if (!audible() || !STINGERS[name]) return false; eng.stinger(name, {faction: o && FLAVOR[o.faction] ? o.faction : curFac, delay: o && o.delay}); tick(); return true; }
 let cfg = {};
 function configure(o) { cfg = Object.assign(cfg, o || {}); if (eng) { if (cfg.voiceCap) eng.VOICE_CAP = clamp(cfg.voiceCap | 0,4,64); if (cfg.rate) eng.RATE = clamp(+cfg.rate,5,400); if (cfg.nodeBudget) eng.BUDGET = clamp(cfg.nodeBudget | 0,40,2000); } return {voiceCap: eng ? eng.VOICE_CAP : cfg.voiceCap || 24, rate: eng ? eng.RATE : cfg.rate || 60, nodeBudget: eng ? eng.BUDGET : cfg.nodeBudget || 320}; }
+const loops = new Set();
+function loop(name, o) {
+ if (!LOOPS[name]) return null;
+ const h = {name, o: Object.assign({gain: 1, pitch: 1, pan: 0}, o || {}), L: null, stopped: false,
+  set(p) { if (!h.stopped) { Object.assign(h.o, p || {}); if (h.L) eng.loopSet(h.L, p || {}); } return h; },
+  stop(f) { if (h.stopped) return; h.stopped = true; loops.delete(h); if (h.L) eng.loopStop(h.L, f); h.L = null; }};
+ loops.add(h); if (eng) h.L = eng.loop(name, h.o);
+ return h;
+}
 function setIntensity(x) { intensity = clamp(+x || 0,0,1); if (eng) eng.setIntensity(intensity); }
 const settings = {
  get: () => Object.assign({}, S),
@@ -810,9 +936,9 @@ function renderOffline(seconds, setup, o) {
 const atten = (d, near, far) => { near = near || 1; far = far || near*12; d = +d || 0; return d <= near ? 1 : d >= far ? 0 : near / d*smooth((far - d) / (far - near)); };
 const panX = (x, w) => clamp((x / (w || 1))*2 - 1,-1,1)*.85;
 
-const API = {__ks: 1, version: '1.0.0', unlock, configure, setMusic, setIntensity, stinger, sfx, settings, mountSettings, state() {
- return {unlocked: everRan, ctxState: ctx ? ctx.state : 'none', scene: curScene, faction: curFac, requested: want.scene, intensity, voices: eng ? eng.voices() : 0, players: eng ? eng.players.length : 0, pendingNodes: eng ? eng.graves() : 0, hidden: isHidden(), settings: Object.assign({}, S), stats: eng ? JSON.parse(JSON.stringify(eng.stats)) : null, time: ctx ? +ctx.currentTime.toFixed(3) : 0};
-}, renderOffline, createEngine, atten, panX, names: {scenes: Object.keys(SCENES), stingers: Object.keys(STINGERS), sfx: Object.keys(SFX), factions: Object.keys(FLAVOR).filter(k => k !== 'none')}};
+const API = {__ks: 1, version: '1.2.0', unlock, configure, loop, setMusic, setIntensity, stinger, sfx, settings, mountSettings, state() {
+ return {unlocked: everRan, ctxState: ctx ? ctx.state : 'none', scene: curScene, faction: curFac, requested: want.scene, intensity, voices: eng ? eng.voices() : 0, players: eng ? eng.players.length : 0, loops: loops.size, pendingNodes: eng ? eng.graves() : 0, hidden: isHidden(), settings: Object.assign({}, S), stats: eng ? JSON.parse(JSON.stringify(eng.stats)) : null, time: ctx ? +ctx.currentTime.toFixed(3) : 0};
+}, renderOffline, createEngine, atten, panX, names: {scenes: Object.keys(SCENES), stingers: Object.keys(STINGERS), sfx: Object.keys(SFX), loops: Object.keys(LOOPS), factions: Object.keys(FLAVOR).filter(k => k !== 'none')}};
 W.KSAudio = API;
 attach();
 if (hasDoc) document.addEventListener('visibilitychange', onVis);
@@ -3734,7 +3860,7 @@ function trialPdBoltHit(b){
 }
 function trialThreatDown(q,p){
  q.alive=false;q.respawn=6;trial.gun.pdKills=(trial.gun.pdKills||0)+1;if(q.onDown)q.onDown(q);const L=q.kind==='missile'?14:30;
- trial.fx.push({pos:p,vel:q.vel,life:.4,max:.4,size:L*2.4,col:[255,240,210]});sndAt('explosion_small',p,{gain:.6});
+ trial.fx.push({pos:p,vel:q.vel,life:.4,max:.4,size:L*2.4,col:[255,240,210]});sndAt(q.kind==='missile'?'explosion_small':sndPick('explosion_fighter','explosion_small'),p,{gain:.6});
  for(let k=0;k<(q.kind==='missile'?6:14);k++)trial.fx.push({pos:p,vel:tv.add(q.vel,tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),40+Math.random()*120),life:.7,max:.7,size:L*.5,col:[255,170+(Math.random()*60|0),80]});
 }
 // Target drones alternate between a stand-off point 7–10 km out and a pass
@@ -3813,7 +3939,7 @@ function trialGunnery(dt){
    t.reload=t.cycle*(1+Math.random()*.08);const bd=t.bd,n=Math.min(t.barrels,t.r>12?2:t.barrels>2?2:1),sc=t.pd?.009:.0012,g=()=>(Math.random()+Math.random()+Math.random()-1.5)*sc,bw=trialApply(R,tv.norm(tv.add(tv.add(bd,t.e2,g()),t.axis,g()))),side=trialApply(R,tv.norm(tv.cross(t.axis,bd))),base=tv.add(tv.add(trial.P,t.oW),bw,t.r*1.2),spread=t.r*.35;
    if(t.pd){sndAt('point_defense',base,{gain:.45});trial.gun.pd=(trial.gun.pd||0)+t.barrels;for(let i=0;i<n;i++){const off=n>1?(i/(n-1)-.5)*spread:0,pos=tv.add(base,side,off);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(bw,spd),trial.V),life:TRIAL_PD.range*1.15/spd,len:Math.max(40,t.r*6),size:Math.max(3,t.r*.45),col:trialPdColor(),weight:0,tt:0,pd:true,target:t.pdTarget});}continue;}
    trial.gun.shots+=t.barrels;
-   sndAt(t.ion?'ion':t.r>5?'turbolaser':'laser_light',base,{gain:.85,near:2500,pitch:t.r>14?.85:1});
+   sndAt(sndGun(t),base,{gain:.85,near:2500});
    for(let i=0;i<n;i++){const off=n>1?(i/(n-1)-.5)*spread:0,pos=tv.add(base,side,off);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(bw,spd),trial.V),life:Math.max(t.reach||TRIAL_GUN.range,trial.p.len*(t.band==='close'?1.2:3))/spd,len:Math.max(70,t.r*9),size:Math.max(5,t.r*.9),col:t.ion?[170,215,255]:color,weight:t.barrels/n,tt:shotTT/n,ion:!!t.ion});}
    trial.fx.push({pos:base,vel:trial.V,life:.12,max:.12,size:Math.max(6,t.r*1.6),col:[255,240,210]});
   }
@@ -3875,7 +4001,7 @@ function trialRenderSets(){
  view.setPoints('trialFx',fp,fc,fs);
  // Small craft and incoming missiles: a hull point and an engine glow behind it.
  const crafts=[...trialThreats(true),...(trial.ownCraft||[])],cp=new Float32Array(crafts.length*6),cc=new Uint8Array(crafts.length*8),cs=new Float32Array(crafts.length*2);
- crafts.forEach((q,i)=>{const h=q.h||tv.norm(q.vel),m=q.kind==='missile',body=tv.sub(q.pos,P);cp.set(body,i*6);cp.set(tv.add(body,h,m?-9:-7),i*6+3);cc.set(m?[255,225,190,255]:q.team===0?[205,230,255,255]:[225,228,232,255],i*8);cc.set(m?[255,120,60,230]:q.glow||[255,110,80,230],i*8+4);cs[i*2]=m?6:q.size||10;cs[i*2+1]=m?11:(q.size||10)*.8;});
+ sndFlyby(crafts,P);crafts.forEach((q,i)=>{const h=q.h||tv.norm(q.vel),m=q.kind==='missile',body=tv.sub(q.pos,P);cp.set(body,i*6);cp.set(tv.add(body,h,m?-9:-7),i*6+3);cc.set(m?[255,225,190,255]:q.team===0?[205,230,255,255]:[225,228,232,255],i*8);cc.set(m?[255,120,60,230]:q.glow||[255,110,80,230],i*8+4);cs[i*2]=m?6:q.size||10;cs[i*2+1]=m?11:(q.size||10)*.8;});
  view.setPoints('trialCraft',cp,cc,cs);
 }
 // The turret status runs along the bottom edge between the throttle pad and the
@@ -4551,7 +4677,7 @@ function spaceDeaths(){
 function trialFxStep(dt){for(const e of trial.fx){e.pos=tv.add(e.pos,e.vel,dt);e.life-=dt;}trial.fx=trial.fx.filter(e=>e.life>0);if(trial.fx.length>3000)trial.fx.splice(0,trial.fx.length-3000);}
 function spaceShots(shots){
  const B=trial.battle,byId=new Map(B.b.units.map(u=>[u.id,u]));
- for(const s of shots){const a=byId.get(s.from),t=byId.get(s.to);if(!a||!t||a.manual)continue;const n=C.clamp(Math.round((s.gun||0)/30),s.gun>0?1:0,6);if(n)sndAt(s.ion?'ion':'turbolaser',spaceWorld(a),{gain:.7,near:Math.max(2000,a.p.len*1.5),far:Math.max(40000,a.p.len*25),pitch:a.p.len>900?.85:1});
+ for(const s of shots){const a=byId.get(s.from),t=byId.get(s.to);if(!a||!t||a.manual)continue;const n=C.clamp(Math.round((s.gun||0)/30),s.gun>0?1:0,6);if(n)sndAt(sndSalvo(s,a.p.len),spaceWorld(a),{gain:.7,near:Math.max(2000,a.p.len*1.5),far:Math.max(40000,a.p.len*25)});
   for(let i=0;i<n;i++){const from=spaceHullPoint(a,.4),tw=spaceWorld(t),tof=C.len(C.sub(tw,from))/TRIAL_GUN.boltSpeed,to=tv.add(spaceHullPoint(t,.3),spaceVel(t),tof),d=tv.sub(to,from),dist=tv.len(d);if(dist<1)continue;
    trial.vbolts.push({pos:from,vel:tv.scale(d,TRIAL_GUN.boltSpeed/dist),life:dist/TRIAL_GUN.boltSpeed,delay:Math.random()*SPACE_RULES.step,len:Math.max(80,a.p.len*.06),size:Math.max(6,a.p.len*.007),col:s.ion?[170,215,255]:a.team?[255,95,70]:[110,255,140],target:t});}
   if(s.msl>0&&Math.random()<.5&&(sndAt('missile',spaceWorld(a),{gain:.6}),true))for(let k=0;k<2;k++){const from=spaceHullPoint(a,.3);trial.fx.push({pos:from,vel:tv.add(spaceVel(a),tv.norm(tv.sub(spaceWorld(t),from)),2600),life:2.5,max:2.5,size:9,col:[255,210,150]});}}
@@ -5342,6 +5468,44 @@ function sndAt(name, pos, o = {}) {
  return A.sfx(name, {gain: g, pitch: o.pitch});
 }
 function sndUI(name, gain = .5) { const A = snd();if (A) A.sfx(name, {gain}); }
+// v20.4 Names the sound module has (newer modules add classes of guns, blasts, engines and passes).
+const sndHas = n => { const A = snd(); return !!A && (A.names?.sfx || []).includes(n); };
+const sndPick = (...ns) => ns.find(sndHas) || ns[ns.length - 1];
+// A turret's voice: point defence, ion or heavy ion, light, medium or heavy turbolaser (by bolt energy, else by size).
+function sndGun(t) {
+ if (t.pd) return 'point_defense';
+ const e = t.tt || 0, big = e >= 10 || (!e && t.r > 14), small = e ? e < .1 : t.r <= 5;
+ if (t.ion) return big || t.k === 'ionL' ? sndPick('ion_heavy', 'ion') : 'ion';
+ return big ? sndPick('turbolaser_heavy', 'turbolaser') : small ? sndPick('turbolaser_light', 'laser_light') : 'turbolaser';
+}
+// Another ship's salvo: big ships fire the heavy guns, small ones the light (s.gun: the salvo in TT).
+function sndSalvo(s, len) {
+ if (s.ion) return len > 900 || s.gun > 600 ? sndPick('ion_heavy', 'ion') : 'ion';
+ return len > 900 || s.gun > 600 ? sndPick('turbolaser_heavy', 'turbolaser') : len < 250 && s.gun < 30 ? sndPick('turbolaser_light', 'laser_light') : 'turbolaser';
+}
+// Craft passing close by the camera: one pass each (fighters, light or heavy shuttles), a few a second at most.
+const SND_PASS = new Map();
+function sndFlyby(list, P) {
+ const A = snd(); if (!A || !view || trial.paused) return; const now = performance.now(); if (now - (SND.pass || 0) < 350) return;
+ const e = view.eye(), E = [e[0] + P[0], e[1] + P[1], e[2] + P[2]];
+ for (const q of list) { if (!q.alive || q.far || q.kind === 'missile') continue; const d = Math.hypot(q.pos[0] - E[0], q.pos[1] - E[1], q.pos[2] - E[2]); if (d > 520) continue;
+  const k = q.id ?? q, last = SND_PASS.get(k) || 0; if (now - last < 6000) continue; SND_PASS.set(k, now); if (SND_PASS.size > 600) SND_PASS.clear();
+  const role = q.craft ? R.CRAFT[q.craft]?.role : null, heavy = q.craft && /sentinel|barge|c9979|laatc/.test(q.craft), name = role === 'shuttle' || role === 'lander' || role === 'gunship' ? sndPick(heavy ? 'shuttle_heavy' : 'shuttle_light', 'flyby') : sndPick('flyby_fighter', 'flyby');
+  const v = view.cam, rx = Math.cos(v.th + Math.PI / 2), rz = Math.sin(v.th + Math.PI / 2), pan = C.clamp(((q.pos[0] - E[0]) * rx + (q.pos[2] - E[2]) * rz) / 300, -1, 1) * .7;
+  A.sfx(name, {gain: C.clamp(1.15 - d / 520, .2, .9), pan}); SND.pass = now; break; }
+}
+// The engines of the piloted (or watched) ship: a steady hum whose loudness and pitch follow the thrust.
+function sndEngine() {
+ const A = snd(); if (!A?.loop) return; let want = null;
+ if (trial.on && !trial.paused && trial.jump?.phase !== 'tunnel') {
+  const B = trial.battle; let len = 0, lvl = 0;
+  if (trial.spectate && B) { const u = B.b.units.find(x => x.id === B.follow); if (u && !u.dead) { len = u.p.len; lvl = C.clamp(C.engineLevel(u), 0, 1); } }
+  else if (trial.p && !B?.me?.dead) { len = trial.p.len; lvl = C.clamp(Math.max(trial.thrust || 0, Math.abs(TRIAL_TELEGRAPH[trial.tele]?.[1] || 0) * .8), 0, 1); }
+  if (len > 0) { const name = len < 300 ? 'engine_small' : len < 1200 ? 'engine_medium' : 'engine_large'; if ((A.names?.loops || []).includes(name)) want = {name, gain: .18 + .42 * lvl, pitch: .92 + .2 * lvl}; }
+ }
+ if (want) { if (SND.eng?.name !== want.name) { SND.eng?.h?.stop(1.2); SND.eng = {name: want.name, h: A.loop(want.name, {gain: 0, pitch: want.pitch})}; } SND.eng.h?.set({gain: want.gain, pitch: want.pitch}); }
+ else if (SND.eng) { SND.eng.h?.stop(1); SND.eng = null; }
+}
 // Designing: placing and removing parts, from the label of the change.
 function sndEdit(label) { const l = String(label || ''); sndUI(/配置|取り付け|追加|貼り付け|複製|搭載/.test(l) ? 'place' : /削除|撤去|外す|降ろす/.test(l) ? 'remove' : 'snap', .45); }
 // Battle events from the voyage: contact, and the end of a fight we were in.
@@ -5366,7 +5530,7 @@ function bindSound() {
  const A = snd();if (!A) return;
  setInterval(() => { try { sndTick(); } catch (e) { console.warn('sound', e); } }, 500);
  // The jump: the roar going in and the burst coming out (watched each frame, the phases are short).
- const frame = () => { const ph = trial.on ? trial.jump?.phase || null : null; if (ph !== SND.jph) { if (ph === 'enter' || ph === 'tunnel' && SND.jph !== 'enter') sndUI('hyperspace_out', .9); else if (ph === 'exit') sndUI('hyperspace_in', .9); SND.jph = ph; } requestAnimationFrame(frame); };
+ const frame = () => { try { if (!(SND.ef = (SND.ef || 0) + 1) || SND.ef % 6 === 0) sndEngine(); } catch (e) {} const ph = trial.on ? trial.jump?.phase || null : null; if (ph !== SND.jph) { if (ph === 'enter' || ph === 'tunnel' && SND.jph !== 'enter') sndUI('hyperspace_out', .9); else if (ph === 'exit') sndUI('hyperspace_in', .9); SND.jph = ph; } requestAnimationFrame(frame); };
  requestAnimationFrame(frame);
  // Buttons click, tabs and toggles tick (quietly; repeated taps are thinned by the module).
  document.addEventListener('click', e => { const t = e.target.closest?.('[data-sound-toggle]'); if (t && !t.dataset.trialCmd) { sndToggle(); } }, false);
@@ -6541,7 +6705,7 @@ function voyPilotThreats() {
  for (const s of w.squads.values()) {
   if (s.sys !== sys || s.state !== 'out' || s.n <= 0) continue;const n = Math.ceil(s.n), c = R.CRAFT[s.craft], h = trialApply(B.E, s.h), v = trialApply(B.E, s.vel), c0 = world(s.pos);
   if (tv.len(tv.sub(c0, P)) > VOY_NEAR) { (s.side === mine ? own : foe).push({id: s.id, kind: 'craft', pos: c0, vel: v, h, alive: true, team: s.side === mine ? 0 : 1, size: Math.min(46, 12 + Math.sqrt(n) * 3.2), glow: s.side === mine ? [120, 200, 255, 230] : [255, 110, 80, 230], far: true}); continue; }
-  for (let i = 0; i < n; i++) { const pos = world(tv.add(s.pos, voyCraftOff(i, n))), q = {id: s.id + ':' + i, kind: 'craft', pos, vel: v, h, alive: true, team: s.side === mine ? 0 : 1, size: c.role === 'bomber' ? 12 : 10, glow: s.side === mine ? [120, 200, 255, 230] : [255, 110, 80, 230], onDown: () => { s.n = Math.max(0, s.n - 1); s.lostN = (s.lostN || 0) + 1; if (s.n < .5) s.state = 'lost'; }}; (s.side === mine ? own : foe).push(q); }
+  for (let i = 0; i < n; i++) { const pos = world(tv.add(s.pos, voyCraftOff(i, n))), q = {id: s.id + ':' + i, kind: 'craft', craft: s.craft, pos, vel: v, h, alive: true, team: s.side === mine ? 0 : 1, size: c.role === 'bomber' ? 12 : 10, glow: s.side === mine ? [120, 200, 255, 230] : [255, 110, 80, 230], onDown: () => { s.n = Math.max(0, s.n - 1); s.lostN = (s.lostN || 0) + 1; if (s.n < .5) s.state = 'lost'; }}; (s.side === mine ? own : foe).push(q); }
  }
  for (const m of w.missiles) {
   if (m.sys !== sys || m.n <= 0 || (!B.spectate && m.side === me.side)) continue;const n = Math.ceil(m.n), v = trialApply(B.E, m.vel), h = tv.norm(v), c0 = world(m.pos);
