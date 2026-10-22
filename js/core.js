@@ -78,7 +78,17 @@ const WEAPON_CREW_K=2,CREW_M3_K=17,DROID_STORE_M3=5;
 // Weapon power conduits: FEED_FLUX watts through each square metre of conduit;
 // a power cell stores CELL_ENERGY_DENSITY J/m³ and can pour it out in CELL_DISCHARGE_S seconds.
 const FEED_FLUX=1e21,CELL_ENERGY_DENSITY=5e21,CELL_DISCHARGE_S=30;
-function personVolume(L){return CREW_M3_K*Math.sqrt(Math.max(10,+L||0));}
+// Automation units take over crew posts: AUTO_M3_PER_CREW m³ of unit per post, drawing
+// AUTO_W_PER_CREW watts per post all the time; at least AUTO_MIN_HUMAN of the posts stay human.
+const AUTO_M3_PER_CREW=20,AUTO_W_PER_CREW=5e19,AUTO_MIN_HUMAN=.05;
+// Volume one person takes aboard: CREW_LIVING_M3 of living space plus the ship's shared
+// spaces (transit lines, passages and the like), which grow progressively with length.
+// Fitted to the official complements: the Dreadnaught-class (601 m) about 20,000 with
+// its early, lighter battery, the Imperial-class (1,600 m) about 40,000 and the
+// Executor-class (19 km) about 320,000. ln(K/1,195 m³) is a quadratic in ln(L/1,600 m),
+// held level beyond its peak (about 76 km).
+const CREW_LIVING_M3=100,CREW_REF_L=1600,CREW_REF_M3=1195,CREW_B=2.19132,CREW_C=-.283787;
+function personVolume(L){const d=Math.min(Math.log(Math.max(10,+L||0)/CREW_REF_L),CREW_B/(-2*CREW_C));return Math.max(CREW_LIVING_M3,CREW_REF_M3*Math.exp(CREW_B*d+CREW_C*d*d));}
 // ---------- parts (compartments) ----------
 const PARTS = {
   gen: {name: 'ジェネレーター', shape: 'sphere', dens: 0.90, hp: 0.7, crew: 0.5, cost: 8, col: [238, 140, 62], min: 10, max: 400, def: 110, crit: true,
@@ -1194,10 +1204,13 @@ function baseComputeStats(ship) {
   hpSum += Math.max(0, g.volume - Vint) * K.hullDens;
   cost += g.volume * 0.6 + (ship.armor.hull * armorArea + ship.armor.cit * citArea) * 30;
   crew += g.volume * 0.3 / 1000 + slots * 3;
+  // Automation units take over crew posts (never the last AUTO_MIN_HUMAN of them) and draw power all the time.
+  const autoV=ship.parts.filter(p=>p.k==='automation').reduce((n,p)=>n+partVolume(p),0),crewBase=crew,autoCrew=Math.max(0,Math.min(Math.floor(autoV/AUTO_M3_PER_CREW),Math.floor(crewBase*(1-AUTO_MIN_HUMAN)))),autoW=autoV/AUTO_M3_PER_CREW*AUTO_W_PER_CREW;
+  crew=crewBase-autoCrew;
   // power
   const P = reactorOutput, thrust = availableThrust;
   const De = engineDemand, Ds = Vsh>0 ? area*K.shieldStd*(ship.shieldTarget||1) : 0, Dw = wPower;
-  const Dh = (g.volume + Vstruct) * K.hotelW + bPower, Dr = rayAll * K.rayW, Dj = hyperEffectiveVolume * K.hyperW;
+  const Dh = (g.volume + Vstruct) * K.hotelW + bPower + autoW, Dr = rayAll * K.rayW, Dj = hyperEffectiveVolume * K.hyperW;
   const coreNeed=Ds+.35*De+Dh+Dr,coreRate=coreNeed>0?Math.min(1,P/coreNeed):1,weaponBudget=Math.max(0,P-coreNeed),rc=Dw>0?Math.min(1,weaponBudget/Dw):1;
   const needM = De + 0.5 * Ds + Dh + Dr, rm = needM > 0 ? Math.min(1, P / needM) : 1;
   const jumpOK = hyperEffectiveVolume > 0 && P >= Dj + Dh + 0.3 * Ds;
@@ -1239,7 +1252,7 @@ function baseComputeStats(ship) {
     alphaRate,ionRate,aaArc,bandRate,alpha, alphaTot, alphaBest, alphaMean, ionBest: Math.max(...ionS), ionMean: ionS.reduce((a, b) => a + b, 0) / 6, ionTot, aa, mslSalvo, tractors,
     arcEff: alphaTot > 0 ? alphaBest / alphaTot : 0,
     commandInfo, bridges, view, accuracy, sensor, protectedFrac, critExpo: expo, genExpFrac, vuln,
-    hp: hpSum * K.hpPerT + (armHull + armCit + plateM) * 0.2 * K.hpPerT, crew: Math.round(crew), weaponCrew: Math.round(weaponCrew), habit, cost,
+    hp: hpSum * K.hpPerT + (armHull + armCit + plateM) * 0.2 * K.hpPerT, crew: Math.round(crew), crewBase: Math.round(crewBase), autoCrew, autoVolume: autoV, autoPower: autoW, weaponCrew: Math.round(weaponCrew), habit, cost,
     floating, floatFits, plateFits, overlap, info, fitInfo, hatchInfo, pedVol,
     frac: {gen: Vgen / Math.max(1, ship.hull.assembly?volume:g.volume), engine: Veng / Math.max(1, ship.hull.assembly?volume:g.volume), hyper: Vhyp / Math.max(1, ship.hull.assembly?volume:g.volume), shield: Vsh / Math.max(1, ship.hull.assembly?volume:g.volume), hangar: Vhang / Math.max(1, ship.hull.assembly?volume:g.volume), struct: Vstruct / Math.max(1, ship.hull.assembly?volume:g.volume)},
     Vgen, Vsh, Vhyp,
@@ -1534,6 +1547,7 @@ addComp('cargo','貨物・物資庫','cube',0.18,[157,137,111],'air','貨物搭�
 const RETIRED_PARTS=new Set(['crew','troops']);
 addComp('command','無窓式指揮室','cube',0.22,[180,178,213],'command','艦内へ置ける航行・戦闘指揮室。艦橋ポッドや艦橋本体がなくても指揮できます。',{def:24});
 addComp('firecontrol','射撃管制・砲機構区画','cube',0.38,[192,118,113],'support','砲の管制と甲板下機構。武装規模に対して設備量を点検します。',{def:24});
+addComp('automation','自動化装置','cube',0.3,[146,182,206],'command','艦の運用の一部を機械に任せる装置。容積 20 m³ ごとに乗員 1 名分を代わりに受け持ちますが、1 名分あたり 5×10¹⁹ W を常に使い、高価です（乗員の 95% まで）。戦闘で装置が壊れたり、炉の出力が落ちたり、イオン砲を受けたりすると受け持ち分が抜け、人と装置を合わせた乗員の充足率が 35% を割ると操艦不能になります。',{def:40,crew:.05,cost:20,hp:.5});
 addComp('machinery','自動推進機関','route',0.55,[87,164,205],'power','炉とノズルの間に自動生成される機関。',{def:30,min:1});
 // Command pods: the drum of the Imperial-class bridge, as a part of its own.
 // They seat on the side, fore or aft walls of a structure and keep a command
@@ -2207,7 +2221,7 @@ function ellipsoidTriangles(p){
 
 // Internal systems retain their requested dimensions; their usable solid is clipped
 // by the hull and structural envelope. External machinery and fittings stay free.
-const INTERNAL_PARTS=new Set(['aux','hyper','fuel','pump','battery','hangar','inertial','integrity','repulsor','vehicle','cargo','service','command','firecontrol']);
+const INTERNAL_PARTS=new Set(['aux','hyper','fuel','pump','battery','hangar','inertial','integrity','repulsor','vehicle','cargo','service','command','firecontrol','automation']);
 function isInternal(p){return INTERNAL_PARTS.has(p.k);}
 function inPart(p,q){return p._packing?packingContains(p,q):unclippedInPart(p,q)&&(!p._envelope||!isInternal(p)||insideOriginalEnvelope(p._envelope,q));}
 function partVolume(p){return p._packing?p._packing.volume:p._clip?p._clip.volume:unclippedPartVolume(p);}
@@ -3324,7 +3338,7 @@ const EXECUTOR_BLUEPRINT={"exactCredit":"This work is based on \"Star Wars - Exe
 // independently reusable fittings use source model geometry.
 const DREADNOUGHT_EXAMPLES={
  imperial2:{name:'インペリアルII級',length:1600,author:'Daniel',source:'https://sketchfab.com/3d-models/star-wars-imperial-ii-star-destroyer-b8bd2d35f7604670ab85242c06c6d280',note:'八連装主砲8基・補助重砲13基・左右トレンチ砲。航空隊は格納区画の実容積に従い、主機は旧作例の物理寸法を保持します。船体・段状甲板は通常部品、艦橋は既存ISD本体です。'},
- executor:{name:'エグゼクター級',length:19000,author:'Admiral_Forever',source:'https://sketchfab.com/3d-models/star-wars-executor-super-star-destroyer-df018bc2cecc4a5182fde06ddc9b1496',note:'船体断面・舷側トレンチ・都市段丘・腹部構造と13基の機関を原型モデルから実測して構成。艦橋本体と標的追跡ドームは原型の形状です。左右の上下甲板・中央・トレンチを武装化。搭載機は50個飛行隊・3,600機、主機クラス2.0、出力はインペリアル級200隻分。'}
+ executor:{name:'エグゼクター級',length:19000,author:'Admiral_Forever',source:'https://sketchfab.com/3d-models/star-wars-executor-super-star-destroyer-df018bc2cecc4a5182fde06ddc9b1496',note:'船体断面・舷側トレンチ・都市段丘・腹部構造と13基の機関を原型モデルから実測して構成。艦橋本体と標的追跡ドームは原型の形状です。左右の上下甲板・中央・トレンチを武装化。搭載機は50個飛行隊・3,600機、主機クラス2.0、出力はインペリアル級200隻分。持ち場の 95% 近くを艦内運用の自動化装置が受け持ち、必要乗員は公式の約28万人（v19.1）。自動化装置が止まると操艦不能になる危険を抱えています。'}
 };
 // Keep the old ISD-II builder and model provenance available to saved designs;
 // only the Executor remains in the public example catalog.
@@ -3411,6 +3425,8 @@ function executorDesign(){
   room('hangar','中央発着ベイへの移送路',[12000,410,sg*185],[1500,70,100],{airRole:'flight'});
   room('service','航空整備・補給施設',[13700,440,sg*450],[650,250,90]);
   room('cargo','輸送・物資集積区画',[15000,420,sg*350],[600,180,70]);
+  // v19.1: automation carries most of the posts, so the crew comes to the official ~280,000.
+  room('automation','艦内運用の自動化装置',[9500,693,sg*311],[1480,263,130]);
  }
  const bay=room('hangar','中央腹部ドッキングベイ',[12000,330,0],[1700,300,250],{airRole:'dock'});openBay(s,bay,'bottom','ray');
  // One embarked army of four corps (36,864 troops) and four prefabricated
@@ -3650,7 +3666,7 @@ registerShipExample({
  source:'https://sketchfab.com/3d-models/star-wars-dreadnaught-class-heavy-cruiser-14e6ad1266104dec96541b17000925f2',
  license:'CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',
  credit:'This work is based on "Star Wars Dreadnaught-Class Heavy Cruiser" (https://sketchfab.com/3d-models/star-wars-dreadnaught-class-heavy-cruiser-14e6ad1266104dec96541b17000925f2) by flannelandfilm (https://sketchfab.com/flannelandfilm) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',
- note:'旧共和国の設計を帝国軍が改装した全長600 mの重巡洋艦。八角断面の船体を2 m毎の断面測定から28断面で合わせ、艦首下部の楕円体、舷側の砲塔ブリスター、腹部の機関区画、6基の機関ハウジングを構造物で再現。四連レーザー8基・ターボレーザー10基（舷側ブリスター）・点防御砲4基・舷側の連装ケースメイト砲4基（甲板上の砲は見やすい数に減らし、ケースメイト砲は v19.1 で武装の配電路が空き容積を使う分、乗員が乗れるよう 8 基から減らしています）、兵員3,000名、貨物9,000 t、TIE戦闘機1個中隊（12機）。',
+ note:'旧共和国の設計を帝国軍が改装した全長600 mの重巡洋艦。八角断面の船体を2 m毎の断面測定から28断面で合わせ、艦首下部の楕円体、舷側の砲塔ブリスター、腹部の機関区画、6基の機関ハウジングを構造物で再現。四連レーザー8基・舷側ブリスターの連装ケースメイト中砲10基・点防御砲4基・舷側の連装ケースメイト砲4基（甲板上の砲は見やすい数に減らしています。v19.1 で、公式の乗員・兵員約2万人は武装が軽かった頃の値とみて、ブリスターの砲を重ターボレーザーから下げ、舷側砲も 8 基から減らしました。武装の配電路が空き容積を使うためです）、兵員3,000名、貨物9,000 t、TIE戦闘機1個中隊（12機）。',
  build(){
   const s=newShip({L:600,W:96.566,H:90.242,sec:'warship',plan:'rect',bowFree:true,stern:1,
    stations:[[0,.7746,.20722,.00697,.97,.97,.9,.5],[.01767,.7746,.20722,.00697,.97,.97,.9,.5],[.01883,.7746,.47206,.13939,.845,.97,.455,.232],[.02667,.7746,.47206,.13939,.845,.97,.455,.232],[.02783,.7746,.71585,.0175,.845,.89,.319,.485],[.0309,.7746,.71585,.0175,.845,.89,.319,.485],[.032,.76927,.32936,.00663,.85211,.98,.05496,.48305],[.03333,.94473,.33074,.00732,.83898,.87978,.05496,.46924],[.04333,.98077,.33142,.00759,.75014,.79305,.05027,.43731],[.04667,.96781,.92353,.03824,.62644,.60826,.04255,.43637],[.19,.96678,.97457,-.0127,.68011,.68693,.02,.44862],[.26667,.86769,.82318,.01702,.69207,.75659,.04345,.42505],[.31,.69987,.65566,-.00628,.68985,.75983,.04373,.44786],[.35667,.76556,.6551,-.0067,.69354,.74928,.02057,.45374],[.36,.7664,.70716,-.03176,.69354,.68506,.02057,.48435],[.37667,.77352,.71799,-.03303,.6859,.67452,.02,.48922],[.40333,.76586,.61325,-.02545,.7399,.75519,.04788,.48224],[.61333,.76128,.70109,-.02,.69461,.74403,.04723,.48075],[.63,.76833,.63184,.01649,.68643,.76857,.04358,.40911],[.66,.77321,.63164,.0166,.68467,.76397,.04358,.40884],[.66333,.79922,.58944,.03769,.65036,.73863,.03659,.32874],[.67667,.82028,.66797,.07834,.6963,.62375,.04188,.29443],[.68,.82287,.50415,.1648,.7111,.98,.04188,.2],[.71333,.82423,.55544,.19045,.68793,.98,.02,.2],[.86667,.81029,.53139,.17893,.7164,.98,.02,.2],[.93667,.70861,.38687,.10616,.77618,.98,.02,.2],[.97333,.60168,.21541,.02042,.84234,.98,.02,.2],[1,.42669,.05399,-.05613,.96441,.98,.03793,.51014]]},'ドレッドノート級重巡洋艦');
@@ -3696,7 +3712,7 @@ registerShipExample({
   const bay=room('hangar','腹部戦闘機格納庫（TIE 1個中隊）',[347,32.2,0],[50,44,38.4],{airRole:'mixed'});openBay(s,bay,'bottom','ray');
   delete s._building;
   // Armament (Legends): 20 quad laser cannons (6 bow, 7 port, 7 starboard),
-  // 10 turbolaser cannons in the flank blisters, 10 laser cannons (5 bow, 5 stern).
+  // 10 turbolaser cannons in the flank blisters (here twin casemate guns), 10 laser cannons (5 bow, 5 stern).
   syncAviationSurfaces(s);s._lockedCache=cache(s);
   try{withFrozenStructures(()=>{
    const up=(k,x,z,opt={})=>{const h=rayEnv(s,[x,400,z],[0,-1,0],{structOnly:true});if(!h)throw new Error('作例の砲座がありません: '+x+','+z);const f={id:s.nextId++,k,p:h.p,a:2,ped:0,base:0,low:0,float:false,...opt};mountFit(s,f);s.fits.push(f);return f;};
@@ -3704,7 +3720,9 @@ registerShipExample({
    // Quad laser cannons: a pair at the bow and three a side along the deck edge (v15 keeps the deck readable).
    for(const x of [482])for(const sg of [-1,1])up('quad200',x,sg*18,{batteryZone:'bow'});
    for(const sg of [-1,1]){const zone=sg<0?'port':'stbd';for(const [x,z] of [[80,22],[278,22],[408,22]])up('quad200',x,sg*z,{batteryZone:zone});}
-   for(const sg of [-1,1])for(const [x,y] of [[304.1,59.3],[344.1,47.4],[378,59.3],[340.2,67],[424.2,49.6]])side('htl',x,y,sg,{batteryZone:sg<0?'port':'stbd'});
+   // v19.1: the official complement (about 20,000) belongs to the early, lighter battery, so the
+   // flank blisters carry twin casemate guns rather than heavy turbolaser turrets.
+   for(const sg of [-1,1])for(const [x,y] of [[304.1,59.3],[344.1,47.4],[378,59.3],[340.2,67],[424.2,49.6]])side('casemateMid',x,y,sg,{batteryZone:sg<0?'port':'stbd',localMount:true,chargeDepth:14});
    for(const [x,z] of [[545,-14],[545,14]])up('pd',x,z,{batteryZone:'bow'});
    for(const [x,z] of [[30,-16],[30,16]])up('pd',x,z,{batteryZone:'stern'});
   });}finally{delete s._lockedCache;}
@@ -4182,6 +4200,8 @@ function mandator2Build(opt={}){
  room('command','予備艦橋',[5900,410,0],[70,40,24]);
  room('vehicle','車両格納・整備区画',[1900,400,700],[320,150,70],{},true);
  room('cargo','物資庫',[6150,340,170],[400,110,50],{},true);
+ // Automation carries most of the posts (no official complement; the crew must fit the hull).
+ room('automation','艦内運用の自動化装置',[4000,486,220],[930,150,71],{},true);
  // Hangars: the two ventral launch bays open through the hull bottom where the
  // model has its recessed bays; the storage decks and the servicing bays adjoin them.
  for(const sg of [1,-1]){
@@ -4227,7 +4247,7 @@ function mandator2Build(opt={}){
 registerShipExample({
  key:'mandator2',name:'マンデイターII級スター・ドレッドノート',side:'銀河共和国',role:'艦隊旗艦・ドレッドノート',length:8000,
  title:'Mandator II-class Star Dreadnaught',credit:'MandatorIIClassDreadnaught.STL（ユーザー提供。作者・ライセンスの表記なし）',author:'不明（ユーザー提供の STL）',source:'ユーザー提供の STL ファイル（MandatorIIClassDreadnaught.STL）',license:'不明（出典未記載）',
- note:'公式の寸法は無く、ファン設定で多い全長 8 km とした。ユーザー提供の STL モデル（作者・ライセンス表記なし）の実測形状から、V 字の竜骨と舷側帯をもつ短剣形の主船体、段状の城郭と艦橋塔（頂部はインペリアル級の艦橋本体）、腹部の装甲区画と二つの反応炉ドーム（大きい方に主反応炉、前方の小さい方に副反応炉）、艦尾の11基の亜光速機関を組み直した。武装はモデルの砲座（凹んだ床を囲む八角形・角形のカラー）にちょうど収まる砲塔を一基ずつ置いている：八角形 47 基に超重ターボレーザー連装砲塔、角形 24 基に大型重ターボレーザー連装砲塔（前方の 6 基は同寸の重イオン砲）、輻のある六角形ハッチ 2 基に重魚雷サイロ。ハイパードライブ（クラス 2、予備クラス 10）も公式値が無いため想定。',
+ note:'公式の寸法は無く、ファン設定で多い全長 8 km とした。ユーザー提供の STL モデル（作者・ライセンス表記なし）の実測形状から、V 字の竜骨と舷側帯をもつ短剣形の主船体、段状の城郭と艦橋塔（頂部はインペリアル級の艦橋本体）、腹部の装甲区画と二つの反応炉ドーム（大きい方に主反応炉、前方の小さい方に副反応炉）、艦尾の11基の亜光速機関を組み直した。武装はモデルの砲座（凹んだ床を囲む八角形・角形のカラー）にちょうど収まる砲塔を一基ずつ置いている：八角形 47 基に超重ターボレーザー連装砲塔、角形 24 基に大型重ターボレーザー連装砲塔（前方の 6 基は同寸の重イオン砲）、輻のある六角形ハッチ 2 基に重魚雷サイロ。ハイパードライブ（クラス 2、予備クラス 10）も公式値が無いため想定。公式の乗員数も無く、持ち場の約 9 割を自動化装置に任せて必要乗員を約 8 万 6,000 名に抑えている（v19.1）。',
  airWings:MAN_AIR,groundForces:MAN_GROUND,
  build:mandator2Build
 });
@@ -5219,6 +5239,8 @@ function providenceBuild(opt={}){
  if(opt.stage==='shape'){delete s._building;return s;}
  // ---- compartments packed into the measured hull and structures ----
  for(const [kind,label,c,size,role,mirror] of D.rooms){const o={room:dn?size.map(M):size};if(typeof role==='string')o.airRole=role;placePart(s,kind,dn?c.map(M):c,dn?M(30):30,{label,...o},mirror===1||role===1);}
+ // v19.1: the dreadnought hands most posts to automation (droid control) so its crew fits beside the conduits.
+ if(dn)placePart(s,'automation',[1511,245,101],30,{label:'艦内運用の自動化装置',room:[299,42,21]},true);
  if(opt.stage==='rooms'){delete s._building;return s;}
  // Canon complement: 120 Vulture droids, 120 droid tri-fighters, 10 Hyena bombers;
  // HMP gunships and Sheathipede shuttles are a game setting. 48,247 troops.
@@ -5240,7 +5262,7 @@ registerShipExample({
 });
 registerShipExample({
  key:'providenceDn',name:'プロヴィデンス級ドレッドノート',side:'独立星系連合',role:'ドレッドノート',length:2177.35,...PROV_CREDIT,
- note:'プロヴィデンス級キャリア／デストロイヤーと同じ Sketchfab の 3D モデル（lolqeeeeeeeeee 作、CC BY-NC 4.0）から組み直した船体・構造物・区画を、レジェンズの全長 2,177.35 m に合わせて全寸法 2.001 倍（ほぼ 2 倍、容積は約 8 倍）にした独立星系連合のドレッドノート。区画の配置はキャリア／デストロイヤーと同じ。兵装は正史のプロヴィデンス級ドレッドノートの一覧に合わせ、重四連ターボレーザー砲を大型重ターボレーザー砲塔 14 基、背部・腹部の二連重レーザー砲を重ターボレーザー連装砲塔 34 基、艦首の戦艦級重イオン砲 2 基、プロトン魚雷発射機 102 門を 3 門ずつまとめた発射機 34 基、重対空砲を軽ターボレーザー四連砲塔 12 基、点防御イオン砲 12 基、トラクター・ビーム投射機 10 基とし、舷側に連装ケースメイト砲 24 基。艦載機はヴァルチャー 120 機、トライファイター 120 機、ハイエナ級ボマー 10 機。停止保管バトル・ドロイドは正史の 150 万体のうち船内に収まる 120 万体、MTT 640 両と装甲ドロイド車両 1,120 両。加速約 3,130 G（装甲外板の厚さは拡大しないため質量が 8 倍より軽い）、ハイパードライブ・クラス 1.2。正史の乗員は士官 900 名とドロイド。',
+ note:'プロヴィデンス級キャリア／デストロイヤーと同じ Sketchfab の 3D モデル（lolqeeeeeeeeee 作、CC BY-NC 4.0）から組み直した船体・構造物・区画を、レジェンズの全長 2,177.35 m に合わせて全寸法 2.001 倍（ほぼ 2 倍、容積は約 8 倍）にした独立星系連合のドレッドノート。区画の配置はキャリア／デストロイヤーと同じ。兵装は正史のプロヴィデンス級ドレッドノートの一覧に合わせ、重四連ターボレーザー砲を大型重ターボレーザー砲塔 14 基、背部・腹部の二連重レーザー砲を重ターボレーザー連装砲塔 34 基、艦首の戦艦級重イオン砲 2 基、プロトン魚雷発射機 102 門を 3 門ずつまとめた発射機 34 基、重対空砲を軽ターボレーザー四連砲塔 12 基、点防御イオン砲 12 基、トラクター・ビーム投射機 10 基とし、舷側に連装ケースメイト砲 24 基。艦載機はヴァルチャー 120 機、トライファイター 120 機、ハイエナ級ボマー 10 機。停止保管バトル・ドロイドは正史の 150 万体のうち 100 万体（1 部隊の上限）、MTT 640 両と装甲ドロイド車両 1,120 両。加速約 3,130 G（装甲外板の厚さは拡大しないため質量が 8 倍より軽い）、ハイパードライブ・クラス 1.2。正史の乗員は士官 900 名とドロイドで、持ち場の約 7 割を自動化装置（ドロイド制御）が受け持つ（v19.1）。',
  airWings:PROV_DN_AIR,groundForces:PROV_DN_GROUND,
  build:(opt={})=>providenceBuild({...opt,scale:PROV_DN_K})
 });
@@ -5373,6 +5395,8 @@ function recusantBuild(opt={}){
 
  if(opt.stage==='shape'){delete s._building;return s;}
  for(const [kind,label,c,size,role,mirror] of D.rooms||[]){const o={room:dn?size.map(M):size};if(typeof role==='string')o.airRole=role;placePart(s,kind,dn?c.map(M):c,dn?M(30):30,{label,...o},mirror===1||role===1);}
+ // v19.1: the dreadnought hands most posts to automation (droid control) so its crew fits beside the conduits.
+ if(dn)placePart(s,'automation',[1271,206,46],30,{label:'艦内運用の自動化装置',room:[270,33,16.5]},true);
  if(opt.stage==='rooms'){delete s._building;return s;}
  s.airWings=(dn?REC_DN_AIR:REC_AIR).map(r=>({...r}));s.groundForces=normalizeGroundForces(dn?REC_DN_GROUND:REC_GROUND);
  delete s._building;adoptEquipment(s,true);remount(s);
@@ -5392,7 +5416,7 @@ registerShipExample({
 });
 registerShipExample({
  key:'recusantDn',name:'レキューザント級ドレッドノート',side:'独立星系連合',role:'ドレッドノート',length:2374,...REC_CREDIT,
- note:'レキューザント級軽デストロイヤーと同じ Sketchfab の 3D モデル（lolqeeeeeeeeee 作、S3E2 版、CC BY-NC 4.0）から組み直した船体・構造物・区画を全寸法 2 倍（全長 2,374 m、容積は約 8 倍）にした独立星系連合のドレッドノート。正史の諸元はなく、ゲーム上の設定。区画の配置は軽デストロイヤーと同じ。兵装は軽デストロイヤーの約 3 倍で、艦首の大型重ターボレーザー砲 1 基、艦首側面の大型重ターボレーザー砲 8 基（v19.1 で武装の配電路が空き容積を使うため、乗員が乗れるよう艦首砲を超重から一段軽くし、艦首側面砲を 12 基から減らした）、背部の重ターボレーザー砲塔 12 基、艦首稜線の重ターボレーザー砲 9 基、二連レーザー砲 30 基、点防御砲 60 基、舷側の連装ケースメイト砲 24 基。停止保管バトル・ドロイド 32 万体、中央の空洞にヴァルチャー 264 機とトライファイター 128 機（機数はゲーム上の設定）。加速約 2,960 G（装甲外板の厚さは拡大しないため質量が 8 倍より軽い）、ハイパードライブ・クラス 1.7。',
+ note:'レキューザント級軽デストロイヤーと同じ Sketchfab の 3D モデル（lolqeeeeeeeeee 作、S3E2 版、CC BY-NC 4.0）から組み直した船体・構造物・区画を全寸法 2 倍（全長 2,374 m、容積は約 8 倍）にした独立星系連合のドレッドノート。正史の諸元はなく、ゲーム上の設定。区画の配置は軽デストロイヤーと同じ。兵装は軽デストロイヤーの約 3 倍で、艦首の大型重ターボレーザー砲 1 基、艦首側面の大型重ターボレーザー砲 8 基（v19.1 で武装の配電路が空き容積を使うため、乗員が乗れるよう艦首砲を超重から一段軽くし、艦首側面砲を 12 基から減らした）、背部の重ターボレーザー砲塔 12 基、艦首稜線の重ターボレーザー砲 9 基、二連レーザー砲 30 基、点防御砲 60 基、舷側の連装ケースメイト砲 24 基。停止保管バトル・ドロイド 32 万体、中央の空洞にヴァルチャー 264 機とトライファイター 128 機（機数はゲーム上の設定）。持ち場の約 9 割を自動化装置（ドロイド制御）が受け持つ（v19.1）。加速約 2,960 G（装甲外板の厚さは拡大しないため質量が 8 倍より軽い）、ハイパードライブ・クラス 1.7。',
  airWings:REC_DN_AIR,groundForces:REC_DN_GROUND,
  build:(opt={})=>recusantBuild({...opt,scale:2})
 });
@@ -5581,7 +5605,7 @@ function coreDetonation(load){return clamp(.02+.25*Math.max(0,load-.55)**2+1.2*M
 // critical ones less behind a citadel); hits is how many penetrating hits wreck
 // it. The hull itself takes a share of hits that only damage structure.
 const MODULE_LABEL={magazine:'VLS弾庫',hull:'船体構造',reactor:'反応炉',shield:'シールド発生器',engine:'推進機関',hyper:'ハイパードライブ',hangar:'格納庫',battery:'パワーセル',fuel:'反応物サイロ',quarters:'居住空間',bridge:'艦橋・指揮所',fire:'射撃管制',capacitor:'主砲充電装置',weapon:'砲塔',launcher:'ミサイル発射管',other:'その他区画'};
-const MODULE_PART_KIND={vls:'magazine',gen:'reactor',aux:'reactor',shield:'shield',localShield:'shield',engine:'engine',machinery:'engine',hyper:'hyper',hangar:'hangar',service:'hangar',battery:'battery',fuel:'fuel',command:'bridge',firecontrol:'fire',capacitor:'capacitor'};
+const MODULE_PART_KIND={automation:'automation',vls:'magazine',gen:'reactor',aux:'reactor',shield:'shield',localShield:'shield',engine:'engine',machinery:'engine',hyper:'hyper',hangar:'hangar',service:'hangar',battery:'battery',fuel:'fuel',command:'bridge',firecontrol:'fire',capacitor:'capacitor'};
 const CRIT_MODULES=new Set(['reactor','shield','hyper','fuel','battery']);
 const AIM_KINDS={auto:'艦全体',reactor:'反応炉',bridge:'艦橋',weapon:'砲塔',engine:'推進機関',shield:'シールド発生器'};
 const MAGAZINE_MISSILES=120,FLEET_MIN_CREW=.35,QUARTERS_WEIGHT=.15;
@@ -5614,7 +5638,7 @@ function fleetProfile(S,name,ship){
  const out={...p,embarkedSlots:Math.floor(S.slots||0),aviationSize:S.aviation?.usedSize||0,launch:S.launchPotential??p.launch,slidingHatches:S.slidingHatches||0,hatchOpenSeconds:S.slidingHatches?S.hatchOpenSeconds||4:0,hatchCloseSeconds:S.slidingHatches?S.hatchCloseSeconds||4:0,gunArcs:[...S.alphaRate],ionArcs:[...S.ionRate],aaArcs:[...(S.aaArc||[0,0,0,0,0,0])],accel,maxSpeed:accel>0?Math.min(FLEET_RULES.maxSpeed,Math.sqrt(accel*Math.max(200,p.len)*24)):0,turnRate:accel>0?clamp(.11*Math.sqrt(Math.max(1,S.accelG)/3000)*Math.sqrt(1600/Math.max(100,p.len)),.015,.24):0,width:S.dims[1],height:S.dims[2],power:S.xISD};
  // Power figures in watts; weapon energy in TT (one TT fired costs one TT stored).
  out.grid={P:S.power||0,fixed:(dr.hotel||0)+(dr.ray||0),De:dr.engines||0,Ds:dr.shields||0,Dw:dr.weapons||0};
- out.armorHull=S.armorAvg??S.armorHull??0;out.armorPlate=S.armorPlate||0;out.plateShare=S.plateShare||0;out.crewNeed=S.crew||0;out.crewMax=Math.min(S.crew||0,S.crewAboard??S.crew??0);
+ out.armorHull=S.armorAvg??S.armorHull??0;out.armorPlate=S.armorPlate||0;out.plateShare=S.plateShare||0;out.crewNeed=S.crew||0;out.crewMax=Math.min(S.crew||0,S.crewAboard??S.crew??0);out.autoCrew=S.autoCrew||0;
  out.wCap=ship?ship.fits.filter(f=>FITS[f.k]?.cat==='w'&&!f.float).reduce((n,f)=>{const s=fitSpec(f);return n+(needsCapacitor(f)?S.chargeInfo?.[f.id]?.storedTT||0:(s.tt||0)+(s.ion||0));},0):(S.alphaTot||0)+(S.ionTot||0);
  if(S.bandRate)out.gunBands={long:[...S.bandRate.long],mid:[...S.bandRate.mid],close:[...S.bandRate.close]};
  if(ship){out.modules=fleetModules(ship,S);const hs=hullSectionShares(ship);out.sections=hs.shares;out.sectionCuts=hs.cuts;
@@ -5682,7 +5706,7 @@ function fleetArc(u,target,rates){const dx=target.pos[0]-u.pos[0],dy=target.pos[
 // Remaining capability by module kind: the intact share of each kind (1 where a
 // design has none of that kind, so a missing system never limits anything).
 // The module list of a design indexed once by kind (a battle asks every tick).
-const FLEET_SYS_KINDS=['reactor','shield','engine','weapon','launcher','hangar','battery','fire'],fleetSysIndex=new WeakMap();
+const FLEET_SYS_KINDS=['reactor','shield','engine','weapon','launcher','hangar','battery','fire','automation'],fleetSysIndex=new WeakMap();
 function fleetSysIdx(mods){let x=fleetSysIndex.get(mods);if(x)return x;x={kinds:FLEET_SYS_KINDS.map(k=>{const idx=[],sh=[];mods.forEach((m,i)=>{if(m.k===k){idx.push(i);sh.push(m.share);}});return {k,idx:Int32Array.from(idx),sh:Float64Array.from(sh)};}),bridge:Int32Array.from(mods.flatMap((m,i)=>m.k==='bridge'?[i]:[]))};fleetSysIndex.set(mods,x);return x;}
 function fleetSystems(u){
  const mods=u.p.modules||[],um=u.mods||[],X=fleetSysIdx(mods),out={};
@@ -5690,7 +5714,14 @@ function fleetSystems(u){
  let br=!X.bridge.length;for(let j=0;j<X.bridge.length&&!br;j++)if(um[X.bridge[j]]>0)br=true;
  out.bridge=br;out.hasReactor=X.kinds[0].idx.length>0;out.hasBridge=X.bridge.length>0;return out;
 }
-const fleetCrewEff=u=>{const need=u.p.crewNeed||0;return need>0?clamp((u.crew/need-FLEET_MIN_CREW)/(1-FLEET_MIN_CREW)*.6+.4,.4,1):1;};
+// Automation covers its posts only while its units stand and the reactors and ion load let it run.
+const fleetAutoAvail=(u,sys)=>{if(!(u.p.autoCrew>0))return 1;const s=sys||fleetSystems(u);return clamp((s.automation??1)*(s.hasReactor?s.reactor:1)*(1-COMBAT.ionReactor*(u.ionK||0)),0,1);};
+// Share of all posts manned: the crew aboard plus the posts automation still covers.
+const fleetCrewRatio=(u,sys)=>{const need=u.p.crewNeed||0,a=u.p.autoCrew||0;return need+a>0?(Math.max(0,u.crew)+a*fleetAutoAvail(u,sys))/(need+a):1;};
+const fleetCrewEff=u=>{const need=(u.p.crewNeed||0)+(u.p.autoCrew||0);return need>0?clamp((fleetCrewRatio(u)-FLEET_MIN_CREW)/(1-FLEET_MIN_CREW)*.6+.4,.4,1):1;};
+// Why a ship is out of action, or null.
+function fleetOutReason(u,sys){const p=u.p,s=sys||fleetSystems(u);if(s.hasReactor&&p.grid?.P>0&&s.reactor<=0)return '電源喪失';if(s.hasBridge&&!s.bridge)return '艦橋喪失';
+ if((p.crewNeed||0)+(p.autoCrew||0)>0&&fleetCrewRatio(u,s)<FLEET_MIN_CREW)return (p.autoCrew||0)>0&&fleetAutoAvail(u,s)<.999?'操艦不能（自動化装置の停止）':'乗員不足';return null;}
 const fleetEffective=u=>!u.dead&&!u.out;
 function fleetFrame(b,shots=[]){return {time:b.time,units:b.units.map(u=>({id:u.id,pos:[...u.pos],yaw:u.yaw,hp:u.hp,shield:u.shield,shieldMax:u.shieldMax,bank:u.bank||0,bankMax:u.bankMax||0,armor:u.armor,energy:u.energy,load:u.load,mode:u.mode,crew:u.crew,air:u.air,launched:u.launched,hatchOpen:u.hatchOpen||0,hatchTarget:u.hatchTarget||0,dead:u.dead,out:u.out,fate:u.fate,mods:u.mods?u.mods.slice():[],ammo:u.ammo?u.ammo.slice():[],fire:u.fire?u.fire.slice():[],sec:u.sec?u.sec.map(x=>x.s/x.max):[],velocity:[...u.velocity]})),shots};}
 function fleetRandom(b){let t=(b.seed=(b.seed+0x6D2B79F5)|0);t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296;}
@@ -5818,7 +5849,7 @@ function combatStatus(ctx,u){
  if(u.dead)return;u.crew=Math.max(0,u.crew);let hp=0;for(const x of u.sec)hp+=Math.max(0,x.s);u.hp=hp;
  const N=u.sec.length,lost=u.secLost;
  if(lost.length>=2||lost.some(i=>i>0&&i<N-1)){u.dead=true;u.velocity=[0,0,0];u.fate=u.fateHint||'hull';u.fire=u.fire.map(()=>0);ctx.sunk(u,{reactor:'炉心誘爆',fuel:'反応物誘爆',magazine:'弾薬庫誘爆'}[u.fate]||'船体破断');return;}
- if(!u.out){const p=u.p,after=fleetSystems(u),why=after.hasReactor&&p.grid?.P>0&&after.reactor<=0?'電源喪失':after.hasBridge&&!after.bridge?'艦橋喪失':(p.crewNeed||0)>0&&u.crew<p.crewNeed*FLEET_MIN_CREW?'乗員不足':null;if(why){u.out=why;u.order={...u.order,type:'hold'};ctx.out(u,why);}}
+ if(!u.out){const why=fleetOutReason(u);if(why){u.out=why;u.order={...u.order,type:'hold'};ctx.out(u,why);}}
 }
 // Everything that reached u this step (o, from combatIncoming): shields first,
 // then the armour zones, penetrations, fires and the ship's state.
@@ -6141,22 +6172,25 @@ function habitationSpace(ship){
  if(ship._habitation?.key===key)return ship._habitation;
  const boxes=ship.parts.filter(p=>p.k==='struct').map(partAABB);
  if(!ship.hull.assembly){const secs=hullGeo(ship).secs;let lo=Infinity,hi=-Infinity;for(const s of secs)for(const y of s.Y){if(y<lo)lo=y;if(y>hi)hi=y;}boxes.push([0,lo,-ship.hull.W/2,ship.hull.L,hi,ship.hull.W/2]);}
- if(!boxes.length)return {volume:0,envelopeVolume:0,step:0,points:[],cell:[1,1,1]};
+ if(!boxes.length)return {volume:0,envelopeVolume:0,step:0,points:[],cell:[1,1,1],b:[0,0,0,0,0,0],ns:[0,0,0],mask:new Uint8Array(0)};
  const b=[0,1,2].map(i=>Math.min(...boxes.map(b=>b[i]))).concat([3,4,5].map(i=>Math.max(...boxes.map(b=>b[i])))),span=[0,1,2].map(i=>Math.max(.01,b[i+3]-b[i]));
  const step=Math.cbrt(span.reduce((a,b)=>a*b,1)/36000),ns=span.map((v,i)=>clamp(Math.ceil(v/step),8,[140,70,100][i])),cell=span.map((v,i)=>v/ns[i]),dv=cell.reduce((a,b)=>a*b,1);
  const bodies=allOccupied(ship).map(p=>({p,b:partAABB(p)})),mouths=ship.hatches.map(h=>openingBounds(ship,h)).filter(Boolean),points=[];let n=0,envelope=0;
+ // mask per cell (index (i·ny+j)·nz+k): 0 outside the ship, 1 free, 2 taken by a
+ // compartment or the keel, 3 an opening to space. The weapon conduits are routed on it.
+ const mask=new Uint8Array(ns[0]*ns[1]*ns[2]);
  for(let i=0;i<ns[0];i++){
   const x=b[0]+(i+.5)*cell[0],row=bodies.filter(q=>x>=q.b[0]&&x<=q.b[3]),holes=mouths.filter(q=>x>=q[0]&&x<=q[3]),keel=ship.hull.assembly?null:keelAt(ship,x);
   for(let j=0;j<ns[1];j++)for(let k=0;k<ns[2];k++){
-   const q=[x,b[1]+(j+.5)*cell[1],b[2]+(k+.5)*cell[2]];
+   const q=[x,b[1]+(j+.5)*cell[1],b[2]+(k+.5)*cell[2]],id=(i*ns[1]+j)*ns[2]+k;
    if(!insideOriginalEnvelope(ship,q))continue;envelope++;
-   if(keel&&q[1]>=keel.y0&&q[1]<=keel.y1&&Math.abs(q[2])<=keel.w/2)continue;
-   if(holes.some(h=>inBox(q,h)))continue;
-   if(row.some(r=>q[1]>=r.b[1]&&q[1]<=r.b[4]&&q[2]>=r.b[2]&&q[2]<=r.b[5]&&inPart(r.p,q)))continue;
-   n++;points.push(q);
+   if(keel&&q[1]>=keel.y0&&q[1]<=keel.y1&&Math.abs(q[2])<=keel.w/2){mask[id]=2;continue;}
+   if(holes.some(h=>inBox(q,h))){mask[id]=3;continue;}
+   if(row.some(r=>q[1]>=r.b[1]&&q[1]<=r.b[4]&&q[2]>=r.b[2]&&q[2]<=r.b[5]&&inPart(r.p,q))){mask[id]=2;continue;}
+   mask[id]=1;n++;points.push(q);
   }
  }
- return ship._habitation={key,volume:n*dv,envelopeVolume:envelope*dv,step,cell,points};
+ return ship._habitation={key,volume:n*dv,envelopeVolume:envelope*dv,step,cell,points,b,ns,mask};
 }
 // ---------- weapon power conduits ----------
 // Every weapon draws its power through a conduit whose cross-section is the
@@ -6168,25 +6202,74 @@ function habitationSpace(ship){
 // The cells are recharged from the reactors through charging lines that carry
 // only the average power the reactors can spare for the guns (the cells' load
 // × min(1, reactor output / weapon draw)), so cells set close to the batteries
-// shorten the thick runs. All of it runs through the free volume and takes
-// that space from the people aboard.
+// shorten the thick runs. The runs are routed inside the ship on the free-volume
+// grid: through free space where it can, through compartments at FEED_OCC_COST
+// times the length, off the cells along the hull skin (FEED_SKIN_COST), and
+// outside the hull only to bridge gaps finer than the grid (FEED_OUT_COST).
+// All of it takes its volume from the people aboard.
+const FEED_OCC_COST=3,FEED_OUT_COST=25,FEED_SKIN_COST=1.6;
+function feedGrid(h){
+ if(h._grid)return h._grid;
+ const [nx,ny,nz]=h.ns,N=nx*ny*nz,c=h.cell,b=h.b,offs=[],lens=[];
+ for(let di=-1;di<=1;di++)for(let dj=-1;dj<=1;dj++)for(let dk=-1;dk<=1;dk++)if(di||dj||dk){offs.push(di,dj,dk);lens.push(Math.hypot(di*c[0],dj*c[1],dk*c[2]));}
+ // Cells next to the outside (or on the grid's edge) cost FEED_SKIN_COST times more, so runs keep off the hull skin.
+ const cost=new Float32Array(N),skin=new Uint8Array(N),M=h.mask;for(let q=0;q<N;q++){const m=M[q];cost[q]=m===1?1:m===2?FEED_OCC_COST:FEED_OUT_COST;}
+ for(let i=0;i<nx;i++)for(let j=0;j<ny;j++)for(let k=0;k<nz;k++){const q=(i*ny+j)*nz+k,m=M[q];if(m!==1&&m!==2)continue;let sk=i===0||j===0||k===0||i===nx-1||j===ny-1||k===nz-1;
+  for(let o=0;!sk&&o<78;o+=3){const v=M[((i+offs[o])*ny+j+offs[o+1])*nz+k+offs[o+2]];if(v===0||v===3)sk=true;}if(sk){cost[q]*=FEED_SKIN_COST;skin[q]=1;}}
+ const ijk=q=>[clamp(Math.floor((q[0]-b[0])/c[0]),0,nx-1),clamp(Math.floor((q[1]-b[1])/c[1]),0,ny-1),clamp(Math.floor((q[2]-b[2])/c[2]),0,nz-1)];
+ const at=q=>{const [i,j,k]=ijk(q);return (i*ny+j)*nz+k;};
+ const centre=id=>{const k=id%nz,j=((id-k)/nz)%ny,i=(id-k-j*nz)/(ny*nz);return [b[0]+(i+.5)*c[0],b[1]+(j+.5)*c[1],b[2]+(k+.5)*c[2]];};
+ return h._grid={nx,ny,nz,N,offs,lens,cost,skin,mask:h.mask,ijk,at,centre,cmax:Math.max(...c),cmin:Math.min(...c)};
+}
+function feedDijkstra(G,seeds){
+ const {N,nx,ny,nz,offs,lens,cost,mask:M}=G,nyz=ny*nz,dist=new Float64Array(N).fill(Infinity),prev=new Int32Array(N).fill(-1),hd=[],hi=[];
+ const push=(d,id)=>{let n=hd.length;hd.push(d);hi.push(id);while(n>0){const p=(n-1)>>1;if(hd[p]<=d)break;hd[n]=hd[p];hi[n]=hi[p];n=p;}hd[n]=d;hi[n]=id;};
+ const pop=()=>{const d=hd[0],id=hi[0],ld=hd.pop(),li=hi.pop(),n=hd.length;if(n){let q=0;for(;;){let l=2*q+1;if(l>=n)break;if(l+1<n&&hd[l+1]<hd[l])l++;if(hd[l]>=ld)break;hd[q]=hd[l];hi[q]=hi[l];q=l;}hd[q]=ld;hi[q]=li;}return id;};
+ for(const [id,d] of seeds)if(d<dist[id]){dist[id]=d;push(d,id);}
+ while(hd.length){const d=hd[0],id=pop();if(d>dist[id])continue;const k=id%nz,j=((id-k)/nz)%ny,i=(id-k-j*nz)/nyz,ci=cost[id];
+  const inCur=M[id]===1||M[id]===2;
+  for(let t=0,o=0;t<26;t++,o+=3){const di=offs[o],dj=offs[o+1],dk=offs[o+2],ii=i+di,jj=j+dj,kk=k+dk;if(ii<0||jj<0||kk<0||ii>=nx||jj>=ny||kk>=nz)continue;const nid=(ii*ny+jj)*nz+kk;
+   // A diagonal step between two cells inside the ship may not squeeze past outside cells.
+   if(inCur&&(M[nid]===1||M[nid]===2)&&(di?1:0)+(dj?1:0)+(dk?1:0)>1){const a=di?M[((i+di)*ny+j)*nz+k]:1,b=dj?M[(i*ny+j+dj)*nz+k]:1,c2=dk?M[(i*ny+j)*nz+k+dk]:1;if(a===0||a===3||b===0||b===3||c2===0||c2===3)continue;}
+   const nd=d+lens[t]*(ci+cost[nid])*.5;if(nd<dist[nid]){dist[nid]=nd;prev[nid]=id;push(nd,nid);}}}
+ return {dist,prev};
+}
 function feedConduits(ship){
- const W=ship.fits.filter(f=>FITS[f.k]?.cat==='w'&&!f.float),Rp=ship.parts.filter(isReactor),Cp=ship.parts.filter(p=>p.k==='battery');
+ const W=ship.fits.filter(f=>FITS[f.k]?.cat==='w'&&!f.float),Rp=ship.parts.filter(isReactor),Cp=ship.parts.filter(p=>p.k==='battery'),h=habitationSpace(ship);
  const key=JSON.stringify([ship.hull.L,W.map(f=>[f.id,f.k,f.p,f.scale||1]),Rp.map(p=>[p.id,p.c,p.d,+reactorPower(p).toPrecision(6)]),Cp.map(p=>[p.id,partAABB(p).map(v=>+v.toFixed(2)),+partVolume(p).toPrecision(6)])]);
- if(ship._feed?.key===key)return ship._feed;
- const Lmin=Math.max(4,.015*(ship.hull.L||0));
+ if(ship._feed?.key===key&&ship._feed.h===h)return ship._feed;
+ const Lmin=Math.max(4,.015*(ship.hull.L||0)),G=h.mask?.length?feedGrid(h):null;
  const sphere=(c,r)=>q=>{const d=sub(q,c),l=len(d),u=l>1e-9?mul(d,1/l):[1,0,0];return {p:add(c,mul(u,r)),l:Math.max(0,l-r)};};
  const box=b=>q=>{const p=[0,1,2].map(i=>clamp(q[i],b[i],b[i+3]));return {p,l:len(sub(q,p))};};
  const mid=b=>[0,1,2].map(i=>(b[i]+b[i+3])/2);
- const R=Rp.map(p=>{const b=p.c&&p.d?null:partAABB(p);return {id:p.id,kind:'reactor',out:reactorPower(p),c:p.c||mid(b),near:b?box(b):sphere(p.c,p.d/2),left:0};}).filter(r=>r.out>0);
- const Cs=Cp.map(p=>{const b=partAABB(p),E=partVolume(p)*CELL_ENERGY_DENSITY;return {id:p.id,kind:'cell',E,cap:E/CELL_DISCHARGE_S,c:mid(b),near:box(b),left:0};}).filter(c=>c.cap>0);
+ const R=Rp.map(p=>{const b=partAABB(p),sph=!!(p.c&&p.d);return {id:p.id,kind:'reactor',out:reactorPower(p),c:p.c||mid(b),b,near:sph?sphere(p.c,p.d/2):box(b),left:0};}).filter(r=>r.out>0);
+ const Cs=Cp.map(p=>{const b=partAABB(p),E=partVolume(p)*CELL_ENERGY_DENSITY;return {id:p.id,kind:'cell',E,cap:E/CELL_DISCHARGE_S,c:mid(b),b,near:box(b),left:0};}).filter(c=>c.cap>0);
  const rows=W.map(f=>({id:f.id,k:f.k,P:fitSpec(f).power||0,p:f.p,left:0,links:[],volume:0,length:0,fromCells:0})).filter(w=>w.P>0);
- const res={key,volume:0,branchVolume:0,chargeVolume:0,demand:0,cellDraw:0,cellCap:0,cells:[],length:0,count:rows.length,flux:FEED_FLUX,rows,charge:[]};
+ const res={key,h,volume:0,branchVolume:0,chargeVolume:0,demand:0,cellDraw:0,cellCap:0,cells:[],length:0,count:rows.length,flux:FEED_FLUX,rows,charge:[],routed:!!G};
  res.demand=rows.reduce((n,w)=>n+w.P,0);for(const w of rows)w.left=w.P;
+ // Routing: each source floods the interior grid once from the cells around its walls.
+ const seedsOf=s=>{const e=1.5*G.cmax,[i0,j0,k0]=G.ijk([s.b[0]-e,s.b[1]-e,s.b[2]-e]),[i1,j1,k1]=G.ijk([s.b[3]+e,s.b[4]+e,s.b[5]+e]),out=[];
+  for(let i=i0;i<=i1;i++)for(let j=j0;j<=j1;j++)for(let k=k0;k<=k1;k++){const id=(i*G.ny+j)*G.nz+k,d=s.near(G.centre(id)).l;if(d<=e)out.push([id,d*G.cost[id]]);}
+  if(!out.length)out.push([G.at(s.c),0]);return out;};
+ const exitOf=q=>{const [i0,j0,k0]=G.ijk(q);let best=-1,bd=Infinity;
+  for(let r=0;r<=6&&best<0;r++)for(let i=Math.max(0,i0-r);i<=Math.min(G.nx-1,i0+r);i++)for(let j=Math.max(0,j0-r);j<=Math.min(G.ny-1,j0+r);j++)for(let k=Math.max(0,k0-r);k<=Math.min(G.nz-1,k0+r);k++){const id=(i*G.ny+j)*G.nz+k,m=G.mask[id];if(m!==1&&m!==2)continue;const d=len(sub(G.centre(id),q))*(m===1?1:1.5);if(d<bd){bd=d;best=id;}}
+  if(best<0)best=G.at(q);return {id:best,d:len(sub(G.centre(best),q))};};
+ if(G){for(const s of [...R,...Cs]){s.seeds=seedsOf(s);s.dij=feedDijkstra(G,s.seeds);}for(const w of rows)w.exit=exitOf(w.p);}
+ // The path from a grid cell back to a source, with corners cut wherever the
+ // straight run stays in cells no costlier than the stretch of path it replaces.
+ const route=(s,start,startPt)=>{const ids=[];let id=start,guard=0;while(id>=0&&guard++<G.N){ids.push(id);const p=s.dij.prev[id];if(p<0)break;id=p;}
+  const last=ids[ids.length-1],pts=[startPt,...ids.map(G.centre),s.near(G.centre(last)).p],cs=[0,...ids.map(q=>G.cost[q]),0],out=[pts[0]];let a=0;
+  const on=new Set(ids);
+  const clear=(ia,ib)=>{let mx=0;for(let t=ia;t<=ib;t++)if(cs[t]>mx)mx=cs[t];const A=pts[ia],B=pts[ib],L=len(sub(B,A)),n=Math.ceil(L/(G.cmin*.5));for(let t=1;t<n;t++){const q=add(A,mul(sub(B,A),t/n)),c=G.at(q);if(G.cost[c]>mx+1e-6||G.skin[c]&&!on.has(c))return false;}return true;};
+  for(let t=2;t<pts.length;t++)if(!clear(a,t)){out.push(pts[t-1]);a=t-1;}
+  out.push(pts[pts.length-1]);let L=0;for(let t=1;t<out.length;t++)L+=len(sub(out[t],out[t-1]));return {path:out,l:Math.max(Lmin,L)};};
+ const runLength=(w,s)=>G?s.dij.dist[w.exit.id]+w.exit.d:s.near(w.p).l;
  const order=(x,y)=>x.l-y.l||x.s.id-y.s.id||x.w.id-y.w.id;
- const feed=srcs=>{const pairs=[];for(const w of rows)if(w.left>0)for(const s of srcs){const n=s.near(w.p);pairs.push({w,s,l:Math.max(Lmin,n.l),a:n.p});}
+ const feed=srcs=>{const pairs=[];for(const w of rows)if(w.left>0)for(const s of srcs)pairs.push({w,s,l:Math.max(Lmin,runLength(w,s))});
   pairs.sort(order);
-  for(const q of pairs){const amt=Math.min(q.w.left,q.s.left);if(!(amt>q.w.P*1e-9))continue;q.w.left-=amt;q.s.left-=amt;const area=amt/FEED_FLUX,v=area*q.l;q.w.links.push({from:q.s.kind,src:q.s.id,P:amt,l:q.l,area,v,a:q.a,b:q.w.p});q.w.volume+=v;if(q.s.kind==='cell')q.w.fromCells+=amt;}};
+  for(const q of pairs){const amt=Math.min(q.w.left,q.s.left);if(!(amt>q.w.P*1e-9))continue;q.w.left-=amt;q.s.left-=amt;
+   const r=G?route(q.s,q.w.exit.id,q.w.p):{path:[q.s.near(q.w.p).p,q.w.p],l:q.l},area=amt/FEED_FLUX,v=area*r.l;
+   q.w.links.push({from:q.s.kind,src:q.s.id,P:amt,l:r.l,area,v,path:r.path,a:r.path[r.path.length-1],b:q.w.p});q.w.volume+=v;if(q.s.kind==='cell')q.w.fromCells+=amt;}};
  // 1. the nearest power cells and reactors, each up to what it can deliver
  for(const c of Cs)c.left=c.cap;for(const r of R)r.left=r.out;feed([...Cs,...R]);
  res.cellCap=Cs.reduce((n,c)=>n+c.cap,0);res.cellDraw=Cs.reduce((n,c)=>n+(c.cap-c.left),0);res.cells=Cs.map(c=>({id:c.id,cap:c.cap,used:c.cap-c.left}));
@@ -6197,11 +6280,14 @@ function feedConduits(ship){
  if(R.length&&res.cellDraw>0){
   const k=Math.min(1,O/Math.max(1e-9,res.demand)),need=Cs.map(c=>({id:c.id,c,left:(c.cap-c.left)*k})).filter(x=>x.left>0),T=need.reduce((n,x)=>n+x.left,0),pairs=[];
   for(const r of R)r.left=r.out/O*T;
-  for(const x of need)for(const r of R){const b=x.c.near(r.c).p,n=r.near(b);pairs.push({w:x,s:r,l:Math.max(Lmin,len(sub(b,n.p))),a:n.p,b});}
+  for(const x of need)for(const r of R){let l,from=null;if(G){let bd=Infinity;for(const [id,d] of x.c.seeds){const v=r.dij.dist[id]+d;if(v<bd){bd=v;from=id;}}l=bd;}else{const b=x.c.near(r.c).p;l=r.near(b).l;}pairs.push({w:x,s:r,l:Math.max(Lmin,l),from});}
   pairs.sort(order);
-  for(const q of pairs){const amt=Math.min(q.w.left,q.s.left);if(!(amt>T*1e-12))continue;q.w.left-=amt;q.s.left-=amt;const area=amt/FEED_FLUX,v=area*q.l;res.charge.push({cell:q.w.id,reactor:q.s.id,P:amt,l:q.l,area,v,a:q.a,b:q.b});res.chargeVolume+=v;}
+  for(const q of pairs){const amt=Math.min(q.w.left,q.s.left);if(!(amt>T*1e-12))continue;q.w.left-=amt;q.s.left-=amt;
+   const r=G?route(q.s,q.from,q.w.c.near(G.centre(q.from)).p):(()=>{const b=q.w.c.near(q.s.c).p;return {path:[q.s.near(b).p,b],l:q.l};})(),area=amt/FEED_FLUX,v=area*r.l;
+   res.charge.push({cell:q.w.id,reactor:q.s.id,P:amt,l:r.l,area,v,path:r.path,a:r.path[r.path.length-1],b:r.path[0]});res.chargeVolume+=v;}
  }
- for(const w of rows){w.length=w.links.reduce((n,k)=>n+k.P*k.l,0)/w.P;w.fromCells/=w.P;delete w.left;}
+ for(const w of rows){w.length=w.links.reduce((n,k)=>n+k.P*k.l,0)/w.P;w.fromCells/=w.P;delete w.left;delete w.exit;}
+ for(const s of [...R,...Cs]){delete s.dij;delete s.seeds;}
  res.branchVolume=rows.reduce((n,w)=>n+w.volume,0);res.volume=res.branchVolume+res.chargeVolume;
  res.length=res.demand>0?rows.reduce((n,w)=>n+w.P*w.length,0)/res.demand:0;
  return ship._feed=res;
@@ -6220,8 +6306,9 @@ function layoutStats(ship,S){
  S.troopVolume=Math.max(0,S.habitableVolume-S.crewAboard*K);S.troopCapacity=Math.max(0,S.personCapacity-S.crewAboard);S.droidCapacity=Math.floor(S.troopVolume/DROID_STORE_M3);
  S.ground=groundStatus(ship,S);
  S.commandVolume=[...commandCompartments(ship),...ship.parts.filter(p=>p.k==='command')].reduce((n,p)=>n+partVolume(p),0);
- S.warnings=S.warnings.filter(w=>!w.text.startsWith('居住区')&&w.code!=='habitation'&&w.code!=='ground-troops');
+ S.warnings=S.warnings.filter(w=>!w.text.startsWith('居住区')&&w.code!=='habitation'&&w.code!=='ground-troops'&&w.code!=='automation');
  if(S.habit<1){const low=S.habit<FLEET_MIN_CREW;S.warnings.push({lv:low?'bad':'warn',code:'habitation',text:`船内の空き容積から武装の配電路 ${Math.round(S.feedVolume).toLocaleString()} m³ を除いた居住容積に乗れるのは ${S.crewCapacity.toLocaleString()} 名（1名あたり ${Math.round(K).toLocaleString()} m³）で、必要な乗員 ${S.crew.toLocaleString()} 名（うち武装 ${(S.weaponCrew||0).toLocaleString()} 名）に ${(S.crew-S.crewCapacity).toLocaleString()} 名足りません（${Math.round(S.habit*100)}%）。${low?'最低限の乗員にも届かず、戦闘では動けません。':'戦闘では射撃と応急が遅れます。'}武装を減らす・小さくするか、砲の近くにパワーセルを置くと配電路が細く短くなります。区画を減らすか、船体・構造を大きくして空き容積を増やす方法もあります。`});}
+ if(S.autoCrew>0){const share=S.autoCrew/Math.max(1,S.crewBase),idle=S.autoVolume/AUTO_M3_PER_CREW-S.autoCrew;const sup='⁰¹²³⁴⁵⁶⁷⁸⁹',e=Math.floor(Math.log10(Math.max(1,S.autoPower))),wTxt=(S.autoPower/10**e).toFixed(1)+'×10'+String(e).split('').map(c=>sup[+c]).join('')+' W';S.warnings.push({lv:share>=1-FLEET_MIN_CREW?'warn':'info',code:'automation',text:`自動化装置が持ち場 ${S.autoCrew.toLocaleString()} 名分（全持ち場 ${S.crewBase.toLocaleString()} 名の ${Math.round(share*100)}%）を受け持ち、電力 ${wTxt} を常に使っています。装置の損傷・炉の出力低下・イオン被弾で受け持ち分が抜け、人と装置を合わせた乗員の充足率が 35% を割ると操艦不能になります。${share>=1-FLEET_MIN_CREW?'人の乗員だけでは 35% に届かないため、装置が止まれば即座に操艦不能です。':''}${idle>=1?`装置の ${Math.round(idle).toLocaleString()} 名分は余っています（受け持てるのは全持ち場の ${Math.round((1-AUTO_MIN_HUMAN)*100)}% まで）。`:''}`});}
  const gs=S.ground.space;if(gs.used>gs.capacity+1e-6){const t=S.ground.troops.used,d=S.ground.droids.used;S.warnings.push({lv:'warn',code:'ground-troops',text:`地上部隊（${[t?`兵員 ${t.toLocaleString()} 名`:'',d?`停止保管ドロイド ${d.toLocaleString()} 体`:''].filter(Boolean).join('・')}）が、乗員を除いた空き容積の兵員枠（兵員 ${S.troopCapacity.toLocaleString()} 名分）を超えています。`});}
  for(const [id,c] of Object.entries(S.commandInfo))if(c.ratio<.95)S.warnings.push({lv:'warn',code:'command-room',fitId:+id,text:`${COMMAND_ROLES[c.role]}区画 #${id} は${c.blocked?'他区画と干渉':'外殻内の容積が不足'}しています（有効 ${Math.round(c.ratio*100)}%）。`});
  for(const p of ship.parts.filter(p=>p.k==='command')){const ratio=clamp(partVolume(p)/Math.max(1,unclippedPartVolume(p)),0,1);if(ratio<.95)S.warnings.push({lv:'warn',code:'command-room',partId:p.id,text:`無窓式指揮室 #${p.id} は外殻内の容積が不足しています（有効 ${Math.round(ratio*100)}%）。`});}
@@ -6274,6 +6361,7 @@ function inspectionTargets(ship,S,w){
  if(w.code==='air-access')return [{tab:'launch'},...parts(p=>p.k==='hangar'&&!S.info[p.id]?.acc,'hangar')];
  if(w.code==='habitation'||/居住/.test(txt))return [{tab:'systems',section:'habitation'}];
  if(w.code==='ground-troops')return [{tab:'ground'}];
+ if(w.code==='automation')return parts(p=>p.k==='automation','automation');
  if(/重なり|干渉/.test(txt))return parts(p=>S.info[p.id]?.overlap,'struct');
  if(/浮いている区画/.test(txt))return parts(p=>S.info[p.id]?.inside<.02&&S.info[p.id]?.exposed>.98&&!attachedEngine(ship,p),'struct');
  if(/取り付け面/.test(txt))return ship.fits.filter(f=>f.float).map(f=>({list:'fits',id:f.id}));
@@ -6578,7 +6666,7 @@ function syncAviationSurfaces(ship){
 }
 
 
-return {ENGINE_GLOWS,engineGlowOK,engineGlowRGB,engineLevel,MISSILE_MOUNTS,missileMount,missileCells,missileStatus,PLATE,plateThickness,shipSpan,HULL_SECTIONS,SECTION_NAMES,hullSectionShares,SHIP_LIGHT_KINDS,SHIP_EXAMPLES,registerShipExample,shipKit,SHELL_ROWS,structRows,shellSection,shellPoint,CIS_PAINT,fitTilt,fitUp,fitFrameOf,openingRimPoint,surfSamples,groundingStats,turretRayContext,turretClear,turretOrigin,turretRate,GROUND_LIMITS,GROUND_PRESETS,GROUND_KINDS,GROUND_VEHICLE_VOLUME,DROID_STORE_M3,CREW_M3_K,personVolume,RETIRED_PARTS,FEED_FLUX,CELL_ENERGY_DENSITY,CELL_DISCHARGE_S,feedConduits,normalizeGroundForces,groundStatus,planStations,bridgeBodyRole,podPoint,podDepth,intrinsicCommandFits,POD_ASSET,BRIDGE_BODY_COMMAND,REFERENCE_TONE,engineSkinMesh,referenceFitYaw,rayTris,vmirrorPlane,vmirrorPoint,vmirrorPart,SHIP_CLASSES,shipClassFor,PUBLIC_LISTS,publicJSON,patchShip,patchItem,cache,AIRCRAFT_CLEARANCE,aircraftFitsBay,shipFitsBay,shipStowSize,SHIP_STOW_CLEAR,SHIP_STOW_FACTOR,AVIATION_SIZE_VOLUME,AIR_WING_LIMITS,hangarCapacity,normalizeAirWings,aviationStatus,AVIATION_SURFACE_FACES,hatchAxes,aviationSurfaceContacts,setAviationSurfaceMode,syncAviationSurfaces,aviationHatchActive,isSlidingHatch,slidingHatchSpec,slidingHatchPanels,hatchOpenArea,ISD_HYPER_BASELINE,HYPER_CLASS_COEFFICIENT,HYPER_POWER_DENSITY,ISD_SHIELD_VOLUME,SHIELD_BUFFER_SECONDS,SHIELD_ENERGY_DENSITY,SHIELD_POWER_DENSITY,REACTOR_POWER_DENSITY,SOLID_CUT_SHAPES,normalizeSolidCut,mirrorSolidCut,solidCutTriangles,solidCutBounds,solidCutContains,solidCutsContain,applySolidCuts,solidPartCutContains,solidStructVolume,solidCutIntersectsShip,flexibleCompartment,hardConflicts,weaponChargeSpec,DREADNOUGHT_EXAMPLES,DESIGN_LIMITS,ALIGNMENTS,alignedPosition,alignPart,replacementShape,replacementOptions,replacePart,COMMAND_ROLES,commandCompartments,commandStatus,habitationSpace,inspectionTargets,planCutEdge,normalizePlanCut,structFrame,alignStructure,FLEET_RULES,POWER_MODES,POWER_AUTO_NOTE,fleetAutoPower,AIM_KINDS,MODULE_LABEL,FLEET_MIN_CREW,powerSplit,coreDetonation,fleetModules,fleetSystems,fleetCrewEff,fleetEffective,fleetProfile,fleetUnit,fleetIntegrity,trenchBattery,sideBattery,fleetFire,fleetReach,fleetStandoff,fleetHeading,fleetBroadside,fleetPowerStep,bandFireAt,fitBand,GUN_BANDS,COMBAT,combatInit,combatIncoming,combatAdd,combatMerge,combatResolve,combatZones,combatClone,combatZoneAt,COMBAT_FACE,unpackBits,fleetFormation,fleetBattle,fleetOrder,fleetArc,fleetTick,hullHalf,hullMass,hullLocal,hullOverlap,hullSegment,fireBlocker,fireStray,hullCollide,hullImpact,HULL_HIT,HULL_FALL,hullFall,hullCarve,hullAvoid,fleetCommit,fleetFinish,fleetSample,fleetFrame,normalizeBow,bowStation,engineHullEntry,ENGINE_BASELINES,engineBaseline,resizeEngine,parametricEngine,engineRating,sourceEngine,EQUIPMENT,equipmentSpec,equipmentOptions,enforceEquipment,customizeEquipment,adoptEquipment,HYPERDRIVE_REFERENCE,hyperCapacity,arcParameters,arcPoint,arcTriangles,inArc,SEPARATIST_EXAMPLES,STATS_SOURCE,SHIP_REFERENCE,PART_RATINGS,reactorPower,nozzleThrust,nozzleDemand,shieldLoad,partRatingKeys,validOutline,outlinePoints,outlineArea,outlineTriangles,AVIATION_ROLES,CHARGE_TT_M3,aircraftCapacity,aviationConnected,needsCapacitor,weaponCapacitors,refitReferenceInterior,clipReferenceBox, referenceEnginePoint, fitSpec, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface,
+return {ENGINE_GLOWS,engineGlowOK,engineGlowRGB,engineLevel,MISSILE_MOUNTS,missileMount,missileCells,missileStatus,PLATE,plateThickness,shipSpan,HULL_SECTIONS,SECTION_NAMES,hullSectionShares,SHIP_LIGHT_KINDS,SHIP_EXAMPLES,registerShipExample,shipKit,SHELL_ROWS,structRows,shellSection,shellPoint,CIS_PAINT,fitTilt,fitUp,fitFrameOf,openingRimPoint,surfSamples,groundingStats,turretRayContext,turretClear,turretOrigin,turretRate,GROUND_LIMITS,GROUND_PRESETS,GROUND_KINDS,GROUND_VEHICLE_VOLUME,DROID_STORE_M3,CREW_M3_K,CREW_LIVING_M3,personVolume,RETIRED_PARTS,FEED_FLUX,CELL_ENERGY_DENSITY,CELL_DISCHARGE_S,feedConduits,normalizeGroundForces,groundStatus,planStations,bridgeBodyRole,podPoint,podDepth,intrinsicCommandFits,POD_ASSET,BRIDGE_BODY_COMMAND,REFERENCE_TONE,engineSkinMesh,referenceFitYaw,rayTris,vmirrorPlane,vmirrorPoint,vmirrorPart,SHIP_CLASSES,shipClassFor,PUBLIC_LISTS,publicJSON,patchShip,patchItem,cache,AIRCRAFT_CLEARANCE,aircraftFitsBay,shipFitsBay,shipStowSize,SHIP_STOW_CLEAR,SHIP_STOW_FACTOR,AVIATION_SIZE_VOLUME,AIR_WING_LIMITS,hangarCapacity,normalizeAirWings,aviationStatus,AVIATION_SURFACE_FACES,hatchAxes,aviationSurfaceContacts,setAviationSurfaceMode,syncAviationSurfaces,aviationHatchActive,isSlidingHatch,slidingHatchSpec,slidingHatchPanels,hatchOpenArea,ISD_HYPER_BASELINE,HYPER_CLASS_COEFFICIENT,HYPER_POWER_DENSITY,ISD_SHIELD_VOLUME,SHIELD_BUFFER_SECONDS,SHIELD_ENERGY_DENSITY,SHIELD_POWER_DENSITY,REACTOR_POWER_DENSITY,SOLID_CUT_SHAPES,normalizeSolidCut,mirrorSolidCut,solidCutTriangles,solidCutBounds,solidCutContains,solidCutsContain,applySolidCuts,solidPartCutContains,solidStructVolume,solidCutIntersectsShip,flexibleCompartment,hardConflicts,weaponChargeSpec,DREADNOUGHT_EXAMPLES,DESIGN_LIMITS,ALIGNMENTS,alignedPosition,alignPart,replacementShape,replacementOptions,replacePart,COMMAND_ROLES,commandCompartments,commandStatus,habitationSpace,inspectionTargets,planCutEdge,normalizePlanCut,structFrame,alignStructure,FLEET_RULES,POWER_MODES,POWER_AUTO_NOTE,fleetAutoPower,AIM_KINDS,MODULE_LABEL,FLEET_MIN_CREW,powerSplit,coreDetonation,fleetModules,fleetSystems,fleetCrewEff,fleetCrewRatio,fleetAutoAvail,fleetOutReason,AUTO_M3_PER_CREW,AUTO_W_PER_CREW,AUTO_MIN_HUMAN,fleetEffective,fleetProfile,fleetUnit,fleetIntegrity,trenchBattery,sideBattery,fleetFire,fleetReach,fleetStandoff,fleetHeading,fleetBroadside,fleetPowerStep,bandFireAt,fitBand,GUN_BANDS,COMBAT,combatInit,combatIncoming,combatAdd,combatMerge,combatResolve,combatZones,combatClone,combatZoneAt,COMBAT_FACE,unpackBits,fleetFormation,fleetBattle,fleetOrder,fleetArc,fleetTick,hullHalf,hullMass,hullLocal,hullOverlap,hullSegment,fireBlocker,fireStray,hullCollide,hullImpact,HULL_HIT,HULL_FALL,hullFall,hullCarve,hullAvoid,fleetCommit,fleetFinish,fleetSample,fleetFrame,normalizeBow,bowStation,engineHullEntry,ENGINE_BASELINES,engineBaseline,resizeEngine,parametricEngine,engineRating,sourceEngine,EQUIPMENT,equipmentSpec,equipmentOptions,enforceEquipment,customizeEquipment,adoptEquipment,HYPERDRIVE_REFERENCE,hyperCapacity,arcParameters,arcPoint,arcTriangles,inArc,SEPARATIST_EXAMPLES,STATS_SOURCE,SHIP_REFERENCE,PART_RATINGS,reactorPower,nozzleThrust,nozzleDemand,shieldLoad,partRatingKeys,validOutline,outlinePoints,outlineArea,outlineTriangles,AVIATION_ROLES,CHARGE_TT_M3,aircraftCapacity,aviationConnected,needsCapacitor,weaponCapacitors,refitReferenceInterior,clipReferenceBox, referenceEnginePoint, fitSpec, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface,
   TT, G0, ISD_W, K, PARTS, FITS, HULLS, SECTIONS, KEELS, SECTORS, CLASSES, DESIGNS, AXES, AXNAME, ARMOR_MAX,
   newShip, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
@@ -7527,7 +7615,7 @@ function supplyGive(w, u, nd, t) {
  use(nd.plate, k => { const Z = C.combatZones(p, u.sec.length);let a = 0, s = 0; for (let z = 0; z < u.zi.length; z++) { if (u.zi[z] < 1) u.zi[z] = Math.min(1, u.zi[z] + (1 - u.zi[z]) * k); a += Z.A[z] || 0; s += (Z.A[z] || 0) * u.zi[z]; } u.armor = a > 0 ? s / a : 1; });
  use(nd.parts, k => { for (let i = 0; i < mods.length; i++) if (u.mods[i] <= 0 && mods[i].k !== 'hull' && !u.secLost.includes(u.secOf[i])) u.mods[i] = Math.max(.02, k); });
  // A disabled ship whose power, bridge and crew are restored is back in the fight.
- if (u.out) { const sx = C.fleetSystems(u), why = sx.hasReactor && p.grid?.P > 0 && sx.reactor <= 0 ? '電源喪失' : sx.hasBridge && !sx.bridge ? '艦橋喪失' : (p.crewNeed || 0) > 0 && u.crew < p.crewNeed * C.FLEET_MIN_CREW ? '乗員不足' : null;
+ if (u.out) { const why = C.fleetOutReason(u);
   if (!why) { u.out = null; u.fall = null; u.order = {...u.order, type: 'group'}; blog(w, u.sys, `${u.name}：修理を終えて戦列に復帰`, u); event(w, `${u.name} が修理を終えて戦列に復帰`, {side: u.side, sys: u.sys}); } }
 }
 function supplyTick(w, dt) {
