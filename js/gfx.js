@@ -187,11 +187,14 @@ const UV_WHITE = [0.03, 0.03, 0.47, 0.97], UV_WINDOW = [0.53, 0.05, 0.97, 0.95];
 
 // ---------- colours ----------
 const hex = (h) => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
-const PAINT = hex('#c6cbd0'), STRUCT_PAINT = hex('#ced2d6'), STRUCT_DARK = [112, 124, 136], STRUCT_CIS = [190, 176, 146];
+const PAINT = hex('#c6cbd0'), STRUCT_PAINT = hex('#ced2d6'), STRUCT_DARK = [112, 124, 136], STRUCT_CIS = [166, 173, 182];
 // Armoured plating reads as smooth, slightly lighter panels (and steel blue in the coded view).
-const PLATE_PAINT = [212, 216, 218], PLATE_DARK = [122, 134, 146], PLATE_CIS = [200, 188, 158], PLATE_CODED = [92, 128, 166];
-// The Separatist fleet's sand-coloured plating.
-const HULL_CIS = [182, 168, 136], DETAIL_CIS = [150, 136, 108], PANEL_CIS = [170, 156, 126];
+const PLATE_PAINT = [212, 216, 218], PLATE_DARK = [122, 134, 146], PLATE_CIS = [184, 191, 200], PLATE_CODED = [92, 128, 166];
+// The Separatist fleet's light blue-grey plating (Separatist blue markings are
+// structure bands; see CIS_PAINT in the core).
+const HULL_CIS = [160, 167, 177], DETAIL_CIS = [122, 130, 142], PANEL_CIS = [146, 154, 166];
+// Identification bands: the default navy, or the colour a structure names.
+const BAND_PAINT = [55, 71, 111], bandColor = p => p.bandPaint ? hex(p.bandPaint) : BAND_PAINT;
 const FC = {body: hex('#c3c8cd'), dark: hex('#3e444a'), barrel: hex('#878e95'), ring: hex('#9aa1a8'), glass: hex('#f2f4f6'), ped: hex('#a9b0b6')};
 const WHITE = [255, 255, 255];
 
@@ -598,7 +601,7 @@ function meshFits(ship, filter, ranges) {
       }
       return;
     }
-    if (k === 'ion') {
+    if (k === 'ion' || k === 'ionL') {
       cyl(g, M, o, 0, h * 0.09, 0, W * 0.5, W * 0.46, h * 0.18, 1, FC.dark, 6);
       cyl(g, M, o, 0, h * 0.2, 0, W * 0.4, W * 0.4, h * 0.06, 1, FC.ring, 12);
       domeL(g, M, o, -L * 0.04, h * 0.22, 0, W * 0.38, h * 0.66, body, 14, 4);
@@ -1430,8 +1433,8 @@ function meshOnePart(out,p,ship,opt,glow){
     const k=p.k,d=C.PARTS[k],color=opt.info?.[p.id]?.overlap?[240,91,85]:(opt.coded?d.col:PAINT);
     if(k==='struct'&&(p.form==='reference'&&C.REFERENCE_ASSETS[p.skinAsset]||(p.form==='ellipsoid'&&ship.hullSkin?.enabled)))return;
     if(k==='sensor'&&p.skinAsset)return;
-    if(k==='struct'&&p.plate){triangleMesh(out.plate,C.structTriangles(p),opt.coded?PLATE_CODED:p.paint?hex(p.paint):ship.paint==='dark'?PLATE_DARK:ship.paint==='cis'?PLATE_CIS:PLATE_PAINT,64);if(p.bands)structureBands(p,out.plate);return;}
-    if(k==='struct'){triangleMesh(out.struct,C.structTriangles(p),p.paint?hex(p.paint):ship.paint==='dark'?STRUCT_DARK:ship.paint==='cis'?STRUCT_CIS:STRUCT_PAINT);if(p.bands)structureBands(p,out.struct);if(p.arcBands&&!ship.solidCuts?.some(c=>ship.hull.assembly||c.structures))arcPaintBands(p,out.struct);return;}
+    if(k==='struct'&&p.plate){triangleMesh(out.plate,C.structTriangles(p),opt.coded?PLATE_CODED:p.paint?hex(p.paint):ship.paint==='dark'?PLATE_DARK:ship.paint==='cis'?PLATE_CIS:PLATE_PAINT,64);if(p.bands)structureBands(p,out.plate);if(p.stripes&&p.form==='shell')shellStripes(p,out.plate);return;}
+    if(k==='struct'){triangleMesh(out.struct,C.structTriangles(p),p.paint?hex(p.paint):ship.paint==='dark'?STRUCT_DARK:ship.paint==='cis'?STRUCT_CIS:STRUCT_PAINT);if(p.bands)structureBands(p,out.struct);if(p.stripes&&p.form==='shell')shellStripes(p,out.struct);if(p.arcBands&&!ship.solidCuts?.some(c=>ship.hull.assembly||c.structures))arcPaintBands(p,out.struct);return;}
     if(p._packing){triangleMesh(out.interior,p._packing.tris,color,36);return;}
     if(p._clip&&k!=='hangar'){triangleMesh(out.interior,p._clip.tris,color,36);return;}
     if(p.boxSize){const f=p.boxFrame;box(out.interior,[...f.fw,...f.up,...f.rt],p.c,0,0,0,...p.boxSize,color);return;}
@@ -1456,6 +1459,8 @@ function meshHull(ship){
     let color=paint;
     if(openings.some(b=>p.every((v,a)=>v>=b[a]-.1&&v<=b[a+3]+.1)&&[0,1,2].some(a=>[b[a],b[a+3]].some(v=>Math.abs(T[i+a]-v)<.1&&Math.abs(T[i+3+a]-v)<.1&&Math.abs(T[i+6+a]-v)<.1))))color=[48,60,67];
     hullTriangleMesh(g,tri,color,42);
+    // v19 painted bands across the hull's upper surface (the Invisible Hand's yellow bow stripes).
+    if(ship.hullBands?.length&&n[1]>.35&&color===paint){const triangle=[Array.from(tri.slice(0,3)),Array.from(tri.slice(3,6)),Array.from(tri.slice(6,9))];for(const [x0,x1,col] of ship.hullBands){const out=[];C.triangulateFan(C.clipOpening(triangle,[ship.hull.L*x0,-10000,-10000,ship.hull.L*x1,10000,10000]).map(q=>C.add(q,C.mul(n,.16))),out);if(out.length)triangleMesh(g,out,col?hex(col):BAND_PAINT,42);}}
     if(ship.paint==='republic'&&n[1]>.5&&color===paint){
       const triangle=[Array.from(tri.slice(0,3)),Array.from(tri.slice(3,6)),Array.from(tri.slice(6,9))],h=ship.hull,start=h.L*.520,end=h.L*.996,w0=h.W*.084,w1=h.W*.014;
       const bands=[[start,-10000,-w0,end,10000,w0,w0,w1]];
@@ -1488,7 +1493,7 @@ function meshParts(ship,opt){
         }
       }
       // Slim rim seated on the upper contour. Each segment follows the actual chamfered/sloped wall.
-      if(!['loft','roundloft','arc','outline'].includes(p.form)&&p.s[2]>8&&p.s[0]>30){const pts=[];for(let i=0;i<T.length;i+=3){const q=Array.from(T.slice(i,i+3));if(C.localStruct(p,q)[1]>p.s[2]/2-.1&&!pts.some(a=>C.len(C.sub(a,q))<.1))pts.push(q);}if(pts.length>3){const hull=convexRim(pts.map(q=>C.localStruct(p,q))).map(q=>C.worldStruct(p,q));pts.length=0;pts.push(...hull);const center=pts.reduce((a,b)=>C.add(a,C.mul(b,1/pts.length)),[0,0,0]);pts.sort((a,b)=>Math.atan2(C.localStruct(p,a)[2],C.localStruct(p,a)[0])-Math.atan2(C.localStruct(p,b)[2],C.localStruct(p,b)[0]));for(let i=0;i<pts.length;i++){const a=pts[i],b=pts[(i+1)%pts.length];if(C.len(C.sub(a,b))>5)axisFrustum(g,C.add(a,C.mul(C.structFrame(p).up,.25)),C.add(b,C.mul(C.structFrame(p).up,.25)),.55,.55,[110,118,124],false);}}
+      if(!['loft','roundloft','arc','outline','shell'].includes(p.form)&&p.s[2]>8&&p.s[0]>30){const pts=[];for(let i=0;i<T.length;i+=3){const q=Array.from(T.slice(i,i+3));if(C.localStruct(p,q)[1]>p.s[2]/2-.1&&!pts.some(a=>C.len(C.sub(a,q))<.1))pts.push(q);}if(pts.length>3){const hull=convexRim(pts.map(q=>C.localStruct(p,q))).map(q=>C.worldStruct(p,q));pts.length=0;pts.push(...hull);const center=pts.reduce((a,b)=>C.add(a,C.mul(b,1/pts.length)),[0,0,0]);pts.sort((a,b)=>Math.atan2(C.localStruct(p,a)[2],C.localStruct(p,a)[0])-Math.atan2(C.localStruct(p,b)[2],C.localStruct(p,b)[0]));for(let i=0;i<pts.length;i++){const a=pts[i],b=pts[(i+1)%pts.length];if(C.len(C.sub(a,b))>5)axisFrustum(g,C.add(a,C.mul(C.structFrame(p).up,.25)),C.add(b,C.mul(C.structFrame(p).up,.25)),.55,.55,[110,118,124],false);}}
       }
     }
     // Service equipment and transverse frames recessed inside the side trench.
@@ -1620,8 +1625,17 @@ function sensorShell(g,p,color){
  for(const f of faces)draw(...f.map(i=>v[i]),2);
 }
 
-function structureBands(p,g){const T=C.structTriangles(p);for(let i=0;i<T.length;i+=9){const world=[Array.from(T.slice(i,i+3)),Array.from(T.slice(i+3,i+6)),Array.from(T.slice(i+6,i+9))],poly=world.map(q=>C.localStruct(p,q)),n=C.norm(C.cross(C.sub(world[1],world[0]),C.sub(world[2],world[0])));for(const [a,b] of p.bands){const q=C.clipPoly(C.clipPoly(poly,0,(a-.5)*p.s[0],true),0,(b-.5)*p.s[0],false).map(v=>C.add(C.worldStruct(p,v),C.mul(n,.3))),out=[];C.triangulateFan(q,out);triangleMesh(g,out,[55,71,111],42);}}}
+function structureBands(p,g){const T=C.structTriangles(p);for(let i=0;i<T.length;i+=9){const world=[Array.from(T.slice(i,i+3)),Array.from(T.slice(i+3,i+6)),Array.from(T.slice(i+6,i+9))],poly=world.map(q=>C.localStruct(p,q)),n=C.norm(C.cross(C.sub(world[1],world[0]),C.sub(world[2],world[0])));for(const [a,b] of p.bands){const q=C.clipPoly(C.clipPoly(poly,0,(a-.5)*p.s[0],true),0,(b-.5)*p.s[0],false).map(v=>C.add(C.worldStruct(p,v),C.mul(n,.3))),out=[];C.triangulateFan(q,out);triangleMesh(g,out,bandColor(p),42);}}}
 
+// Paint stripes running a curved shell plate's length, just proud of its outer face.
+function shellStripes(p,g){
+ const rows=C.structRows(p),n=Math.max(8,Math.min(48,rows.length*6)),T=[];
+ for(const [a,b] of p.stripes)for(let i=0;i<n;i++)for(let j=0;j<3;j++){
+  const u0=i/n,u1=(i+1)/n,v0=a+(b-a)*j/3,v1=a+(b-a)*(j+1)/3,q=[[u0,v0],[u0,v1],[u1,v1],[u1,v0]].map(([u,v])=>C.shellPoint(p,u,v,.3)),up=C.sub(C.shellPoint(p,(u0+u1)/2,(v0+v1)/2,1.3),C.shellPoint(p,(u0+u1)/2,(v0+v1)/2,.3));
+  for(const [x,y,z] of [[q[0],q[1],q[2]],[q[0],q[2],q[3]]]){const nn=C.cross(C.sub(y,x),C.sub(z,x));if(C.dot(nn,up)>=0)T.push(...x,...y,...z);else T.push(...x,...z,...y);}
+ }
+ triangleMesh(g,Float32Array.from(T),bandColor(p),42);
+}
 function arcPaintBands(p,g){
  const {start,sweep}=C.arcParameters(p),N=Math.ceil(sweep*22),paint={...p,s:[p.s[0]+.7,p.s[1]+.7,p.s[2]+.7]},T=[];
  for(const band of p.arcBands)for(let i=0;i<N;i++)for(let j=0;j<3;j++){
@@ -1629,7 +1643,7 @@ function arcPaintBands(p,g){
   const ps=[[a,b],[a,bn],[an,bn],[an,b]].map(([a,b])=>C.arcPoint(paint,a,b));C.triangulateFan(ps,T);
  }
  let tris=Float32Array.from(T);for(const m of p._apertures||[])tris=C.subtractBoxMesh(tris,m.b);
- triangleMesh(g,tris,[55,71,111],42);
+ triangleMesh(g,tris,bandColor(p),42);
 }
 
 // Indexed, textured modules from the two CC BY reference models.
@@ -1787,7 +1801,7 @@ function turretPose(f){
  if(d.asset){const y=(f.assetYaw||0)*Math.PI/180;return {pivot:C.fitOrigin(f),axis:fr.up,fw:C.norm(C.add(C.mul(fr.fw,Math.cos(y)),C.mul(fr.rt,Math.sin(y))))};}
  return {pivot:C.fitOrigin(f),axis:fr.up,fw:fr.fw};
 }
-const TRIAL_BARRELS={pd:2,ltl:4,mtl:3,htl:2,stl:2,utl:2,ion:2};
+const TRIAL_BARRELS={pd:2,ltl:4,mtl:3,htl:2,stl:2,utl:2,ion:2,ionL:2};
 function trialTurrets(model,put){
  const list=model.fits.filter(trialTurretFit),turning=new Set(list.filter(f=>!C.FITS[f.k].casemate).map(f=>f.id)),out=[];
  FIT_SKIP_BODY=turning;try{put('fits',meshFits(model));}finally{FIT_SKIP_BODY=null;}
