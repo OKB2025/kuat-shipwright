@@ -266,6 +266,146 @@ function liveHidden() {
 let busyT = 0;
 function showBusyOverlay(text) { const el = $('#busy'); if (!el || titleVisible()) return; $('#busyText').textContent = text || '設計を展開中…'; clearTimeout(busyT); busyT = setTimeout(() => { el.hidden = false; }, 120); }
 function hideBusyOverlay() { clearTimeout(busyT); const el = $('#busy'); if (el) el.hidden = true; }
+// ---------- loading screen (v17) ----------
+// Every change of scene — a flight, a battle, the 3D view of a fleet battle —
+// loads behind a full-screen camera roll: moments captured from the player's
+// own 3D views, and painted stills until there are enough of those. The
+// fleet's clock is held while it shows (voy.loading).
+const LS_SHOTS='yard.shots1';
+const LOAD_TIPS=[
+ '航行不能になった艦は、任務群のジャンプを止めます。「回収」か「自沈」を選びましょう。',
+ '補給線は母港の星系から航路沿いに延びます。敵艦のいる星系は越えられません。',
+ '補給の回復力は艦隊全体で分け合います。あちこちで同時に戦うと、修理と補充が追いつきません。',
+ '味方艦が射線上にいると主砲は撃てません。艦どうしの間隔に注意しましょう。',
+ '艦どうしがぶつかると船体が損傷します。軽い艦ほど大きな傷を負います。',
+ '母艦がハイパースペースに入るまでに戻れなかった艦載機は失われます。',
+ '航行不能の艦は惑星の重力に引かれて落ちていきます。牽引ビームで捕まえれば止められます。',
+ '戦術図で艦をタップすると、1回目でその任務群、2回目でその艦を選びます。',
+ '「命令」で作戦図と戦術図を開きます。3D視点に戻るには「3D視点」を押します。',
+ 'ハイパードライブの準備中は砲撃できず、被弾している間は準備が止まります。',
+ '母港の星系では、破壊された機器の交換や乗員の補充まで行えます。',
+ '船体破断・爆沈・航行不能。艦の最期はその壊れ方で決まります。'
+];
+const load={on:false,timer:0,tipT:0,n:0,w:0,h:0,gap:0,pool:[],tip:Math.floor(Math.random()*12)};
+const shots={list:(()=>{try{const l=JSON.parse(LS.get(LS_SHOTS)||'[]');return Array.isArray(l)?l.filter(x=>x&&typeof x.u==='string'&&x.u.startsWith('data:image/')).slice(0,12):[];}catch(e){return [];}})(),last:0,painted:null};
+function loadShow(text,title){
+ const el=$('#loadScreen');if(!el)return;$('#lsText').textContent=text||'準備中…';$('#lsTitle').textContent=title||'出撃準備';
+ if(load.on)return;load.on=true;hideBusyOverlay();el.classList.remove('out');el.hidden=false;loadLayout();loadFill();
+ clearInterval(load.timer);load.timer=setInterval(loadAdvance,2000);loadTip();clearInterval(load.tipT);load.tipT=setInterval(loadTip,5600);
+}
+function loadHide(){
+ const el=$('#loadScreen');if(!el||!load.on)return;load.on=false;clearInterval(load.timer);clearInterval(load.tipT);el.classList.add('out');
+ setTimeout(()=>{if(load.on)return;el.hidden=true;el.classList.remove('out');const s=$('#lsStrip');if(s)s.innerHTML='';},420);
+}
+// Hidden once the new scene has drawn a frame or two.
+function loadHideSoon(){requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(loadHide,60)));}
+function loadLayout(){
+ const el=$('#loadScreen'),W=innerWidth,H=innerHeight,w=Math.round(Math.max(200,Math.min(W*.6,H*.52*16/9,780))),h=Math.round(w*9/16),gap=Math.round(w*.06);
+ Object.assign(load,{w,h,gap});el.style.setProperty('--ls-w',w+'px');el.style.setProperty('--ls-h',h+'px');el.style.setProperty('--ls-gap',gap+'px');
+}
+function loadTip(){const t=$('#lsTip');if(!t)return;load.tip=(load.tip+1)%LOAD_TIPS.length;t.textContent='ヒント：'+LOAD_TIPS[load.tip];}
+function loadFrame(it){const f=document.createElement('div');f.className='ls-frame';const img=new Image();img.alt='';img.decoding='async';img.src=it.src;f.append(img);const c=document.createElement('span');c.className='ls-cap';c.textContent=it.cap;f.append(c);return f;}
+function loadFill(){
+ const own=shots.list.map(s=>({src:s.u,cap:s.c})),painted=paintedStills().slice();for(let i=painted.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[painted[i],painted[j]]=[painted[j],painted[i]];}
+ load.pool=own.length>=4?own:own.concat(painted);load.n=0;
+ const strip=$('#lsStrip');strip.innerHTML='';for(let i=0;i<7;i++)strip.append(loadFrame(load.pool[load.n++%load.pool.length]));loadPlace(false);
+}
+function loadPlace(anim){
+ const strip=$('#lsStrip');if(!strip)return;const k=3,step=load.w+load.gap;
+ strip.style.transition=anim?'transform .8s cubic-bezier(.62,.04,.24,1)':'none';strip.style.transform=`translateX(${-(k*step+load.w/2)-(anim?step:0)}px)`;
+ [...strip.children].forEach((f,i)=>f.classList.toggle('on',i===k+(anim?1:0)));
+}
+function loadAdvance(){
+ if(!load.on)return;const strip=$('#lsStrip');if(!strip||!load.pool.length)return;loadPlace(true);
+ setTimeout(()=>{if(!load.on)return;strip.firstElementChild?.remove();strip.append(loadFrame(load.pool[load.n++%load.pool.length]));loadPlace(false);},840);
+}
+// ---- the player's own moments ----
+// A frame of the 3D view, grabbed right after it is drawn: cropped to 16:9,
+// kept small, the latest few remembered in this browser.
+function shotSoon(kind,delay=0){if(!trial.on||load.on)return;const now=performance.now();if(now-(shots.last||0)<12000)return;const at=now+delay*1000;if(!trial.shotAt||at<trial.shotAt)trial.shotAt=at;}
+function shotCaption(){
+ const B=trial.battle,f=B?.rts&&voy.w&&B.follow!=null?voy.w.units.get(B.follow):null,me=B?.me,who=f?.name||me?.name||trial.asset?.design?.name||'',sys=trialSys()?.name||'';
+ const t=voy.w&&trial.rts?'T+'+voyClock(voy.w.time):new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
+ return [sys&&sys+'星系',shipShort(who),t].filter(Boolean).join(' · ');
+}
+function shotCapture(){
+ const src=view?.canvas;if(!src||!src.width||!src.height||load.on)return;
+ try{const W=480,H=270,c=shots.cv||(shots.cv=document.createElement('canvas'));c.width=W;c.height=H;const g=c.getContext('2d',{willReadFrequently:true}),sw=src.width,sh=src.height,k=Math.min(sw/16,sh/9);
+  g.drawImage(src,(sw-k*16)/2,(sh-k*9)/2,k*16,k*9,0,0,W,H);
+  // A frame of nearly nothing (black space, a fade) is not worth keeping.
+  const px=g.getImageData(0,0,W,H).data;let sum=0,n=0;for(let i=0;i<px.length;i+=4*61){sum+=px[i]+px[i+1]+px[i+2];n++;}if(sum/n<22)return;
+  shots.list.unshift({u:c.toDataURL('image/jpeg',.74),c:shotCaption(),t:Date.now()});shots.list=shots.list.slice(0,12);shots.last=performance.now();LS.set(LS_SHOTS,JSON.stringify(shots.list.slice(0,6)));
+ }catch(e){shots.last=performance.now();}
+}
+// Called after each 3D frame: a capture when one is due, and one every 45 s.
+function shotTick(now){
+ if(trial.shotAt&&now>=trial.shotAt){trial.shotAt=0;shotCapture();return;}
+ if(!trial.shotAt&&!trial.jump&&now-(trial.startedAt||now)>4500&&now-(shots.last||0)>45000)trial.shotAt=now+200;
+}
+// ---- painted stills ----
+// Until the player has a roll of their own: an orbit, hyperspace, a task
+// group, a battle, the sector map and a hull plan, painted once per visit.
+function paintedStills(){
+ if(shots.painted)return shots.painted;const out=[];let seed=(Date.now()%100000)+7;const R=()=>{seed=(seed*16807)%2147483647;return seed/2147483647;};
+ const mk=(fn,cap)=>{try{const c=document.createElement('canvas');c.width=480;c.height=270;const g=c.getContext('2d');fn(g,480,270,R);out.push({src:c.toDataURL('image/jpeg',.82),cap});}catch(e){}};
+ mk(paintOrbit,'記録 · クワット軌道');mk(paintHyper,'記録 · ハイパースペース');mk(paintFleet,'記録 · 第1合同任務群');mk(paintBattle,'記録 · 交戦');mk(paintMap,'作戦図 · クワット宙域');mk(paintPlan,'設計局 · 船体図');
+ shots.painted=out;return out;
+}
+function paintStars(g,W,H,R,n){for(let i=0;i<n;i++){const b=R(),s=b>.97?1.6:b>.85?1.1:.7;g.fillStyle=`rgba(${200+R()*55|0},${210+R()*45|0},255,${.25+b*.7})`;g.fillRect(R()*W,R()*H,s,s);}}
+// A wedge-hulled warship seen from above and astern, bow toward ang.
+function paintWedge(g,x,y,s,ang,lit=1){
+ g.save();g.translate(x,y);g.rotate(ang);
+ const hull=g.createLinearGradient(0,-s*.3,0,s*.3);hull.addColorStop(0,`rgba(${150*lit|0},${160*lit|0},${170*lit|0},1)`);hull.addColorStop(.55,`rgba(${78*lit|0},${84*lit|0},${92*lit|0},1)`);hull.addColorStop(1,'#1d2227');
+ g.fillStyle=hull;g.beginPath();g.moveTo(s,0);g.lineTo(-s*.62,-s*.36);g.lineTo(-s*.7,0);g.lineTo(-s*.62,s*.36);g.closePath();g.fill();
+ g.strokeStyle='rgba(20,24,28,.7)';g.lineWidth=Math.max(.5,s*.012);g.beginPath();g.moveTo(s*.9,0);g.lineTo(-s*.66,0);g.stroke();
+ g.fillStyle=`rgba(${120*lit|0},${128*lit|0},${136*lit|0},1)`;g.fillRect(-s*.52,-s*.09,s*.26,s*.18);g.fillRect(-s*.46,-s*.05,s*.12,s*.1);
+ for(const k of [-.2,0,.2]){const e=g.createRadialGradient(-s*.7,k*s,0,-s*.7,k*s,s*.12);e.addColorStop(0,'rgba(220,240,255,.95)');e.addColorStop(.35,'rgba(120,190,255,.6)');e.addColorStop(1,'rgba(60,120,255,0)');g.fillStyle=e;g.beginPath();g.arc(-s*.7,k*s,s*.12,0,Math.PI*2);g.fill();}
+ g.restore();
+}
+function paintGlow(g,x,y,r,c0,c1){const e=g.createRadialGradient(x,y,0,x,y,r);e.addColorStop(0,c0);e.addColorStop(1,c1);g.fillStyle=e;g.beginPath();g.arc(x,y,r,0,Math.PI*2);g.fill();}
+function paintOrbit(g,W,H,R){
+ g.fillStyle='#03060a';g.fillRect(0,0,W,H);paintStars(g,W,H,R,260);
+ const cx=W*.75,cy=H*2.15,r=H*1.65,p=g.createRadialGradient(cx-r*.3,cy-r*.75,r*.2,cx,cy,r);p.addColorStop(0,'#5a8fb0');p.addColorStop(.55,'#1c4a66');p.addColorStop(.85,'#0b2130');p.addColorStop(1,'#040a10');
+ g.fillStyle=p;g.beginPath();g.arc(cx,cy,r,0,Math.PI*2);g.fill();
+ g.strokeStyle='rgba(120,190,255,.55)';g.lineWidth=5;g.beginPath();g.arc(cx,cy,r+2,Math.PI*1.08,Math.PI*1.82);g.stroke();g.strokeStyle='rgba(170,220,255,.25)';g.lineWidth=14;g.beginPath();g.arc(cx,cy,r+6,Math.PI*1.1,Math.PI*1.8);g.stroke();
+ g.globalCompositeOperation='lighter';paintGlow(g,W*.12,H*.16,70,'rgba(255,240,210,.9)','rgba(255,200,140,0)');g.globalCompositeOperation='source-over';
+ paintWedge(g,W*.44,H*.47,W*.2,-.18,1.05);paintWedge(g,W*.73,H*.28,W*.06,-.22,.8);paintWedge(g,W*.2,H*.62,W*.045,-.15,.7);
+}
+function paintHyper(g,W,H,R){
+ const bg=g.createRadialGradient(W/2,H/2,0,W/2,H/2,W*.7);bg.addColorStop(0,'#c9e6ff');bg.addColorStop(.08,'#2f5f9c');bg.addColorStop(.45,'#0a1630');bg.addColorStop(1,'#02040a');g.fillStyle=bg;g.fillRect(0,0,W,H);
+ g.globalCompositeOperation='lighter';
+ for(let i=0;i<700;i++){const a=R()*Math.PI*2,r0=20+R()*W*.2,r1=r0+40+R()*W*.6,b=.25+R()*.7;g.strokeStyle=`rgba(${150+R()*100|0},${200+R()*55|0},255,${b*.55})`;g.lineWidth=.6+R()*1.6;g.beginPath();g.moveTo(W/2+Math.cos(a)*r0,H/2+Math.sin(a)*r0*.8);g.lineTo(W/2+Math.cos(a)*r1,H/2+Math.sin(a)*r1*.8);g.stroke();}
+ paintGlow(g,W/2,H/2,60,'rgba(240,250,255,.95)','rgba(120,180,255,0)');g.globalCompositeOperation='source-over';paintWedge(g,W*.5,H*.62,W*.14,-Math.PI/2+.06,.9);
+}
+function paintFleet(g,W,H,R){
+ g.fillStyle='#04070c';g.fillRect(0,0,W,H);g.globalCompositeOperation='lighter';paintGlow(g,W*.3,H*.4,W*.45,'rgba(90,50,130,.35)','rgba(20,10,40,0)');paintGlow(g,W*.75,H*.7,W*.4,'rgba(30,110,130,.3)','rgba(10,30,40,0)');g.globalCompositeOperation='source-over';
+ paintStars(g,W,H,R,200);
+ [[.22,.66,.09],[.37,.52,.13],[.55,.4,.17],[.73,.3,.11],[.86,.22,.07]].forEach(([x,y,s],i)=>paintWedge(g,W*x,H*y,W*s,-.42,.75+i*.06));
+}
+function paintBattle(g,W,H,R){
+ g.fillStyle='#050608';g.fillRect(0,0,W,H);paintStars(g,W,H,R,150);
+ g.globalCompositeOperation='lighter';paintGlow(g,W*.68,H*.36,90,'rgba(255,170,90,.55)','rgba(120,40,10,0)');paintGlow(g,W*.7,H*.35,26,'rgba(255,245,220,.95)','rgba(255,160,80,0)');
+ for(let i=0;i<70;i++){const fromL=R()<.55,x0=fromL?W*(.1+R()*.3):W*(.6+R()*.3),y0=H*(.3+R()*.5),dx=(fromL?1:-1)*(14+R()*20),dy=(R()-.5)*6;g.strokeStyle=fromL?'rgba(110,255,140,.85)':'rgba(255,90,70,.85)';g.lineWidth=1.6;g.beginPath();g.moveTo(x0,y0);g.lineTo(x0+dx,y0+dy);g.stroke();}
+ for(let i=0;i<5;i++)paintGlow(g,W*(.55+R()*.35),H*(.25+R()*.5),8+R()*14,'rgba(255,220,160,.9)','rgba(255,120,40,0)');
+ g.globalCompositeOperation='source-over';paintWedge(g,W*.24,H*.58,W*.16,-.05,.95);paintWedge(g,W*.14,H*.36,W*.08,-.08,.8);
+ g.save();g.translate(W*.72,H*.5);g.scale(-1,1);paintWedge(g,0,0,W*.13,.1,.7);g.restore();
+}
+function paintMap(g,W,H,R){
+ g.fillStyle='#071019';g.fillRect(0,0,W,H);g.strokeStyle='rgba(104,194,219,.08)';g.lineWidth=1;for(let x=0;x<W;x+=24){g.beginPath();g.moveTo(x,0);g.lineTo(x,H);g.stroke();}for(let y=0;y<H;y+=24){g.beginPath();g.moveTo(0,y);g.lineTo(W,y);g.stroke();}
+ const pts=Array.from({length:26},()=>[20+R()*(W-40),16+R()*(H-32)]);
+ g.strokeStyle='rgba(104,194,219,.3)';g.lineWidth=1;for(let i=0;i<pts.length;i++){const a=pts[i],b=pts.map((q,j)=>[j,Math.hypot(q[0]-a[0],q[1]-a[1])]).filter(q=>q[0]!==i).sort((x,y)=>x[1]-y[1]).slice(0,2);for(const [j] of b){g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(pts[j][0],pts[j][1]);g.stroke();}}
+ const route=pts.slice().sort((a,b)=>a[0]-b[0]).filter((_,i)=>i%4===0);g.strokeStyle='rgba(240,160,58,.85)';g.lineWidth=2.4;g.beginPath();route.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.stroke();
+ for(const p of pts){g.fillStyle='rgba(200,230,240,.85)';g.beginPath();g.arc(p[0],p[1],2.4,0,Math.PI*2);g.fill();}
+ for(const p of [route[1],route[route.length-2]]){if(!p)continue;g.strokeStyle='rgba(240,160,58,.9)';g.lineWidth=1.5;g.beginPath();g.arc(p[0],p[1],8,0,Math.PI*2);g.stroke();}
+}
+function paintPlan(g,W,H,R){
+ g.fillStyle='#0a2236';g.fillRect(0,0,W,H);g.strokeStyle='rgba(160,210,255,.1)';for(let x=0;x<W;x+=12){g.lineWidth=x%60?1:1.6;g.beginPath();g.moveTo(x,0);g.lineTo(x,H);g.stroke();}for(let y=0;y<H;y+=12){g.lineWidth=y%60?1:1.6;g.beginPath();g.moveTo(0,y);g.lineTo(W,y);g.stroke();}
+ g.strokeStyle='rgba(225,240,255,.85)';g.lineWidth=1.4;g.beginPath();g.moveTo(W*.88,H*.5);g.lineTo(W*.14,H*.2);g.lineTo(W*.1,H*.5);g.lineTo(W*.14,H*.8);g.closePath();g.stroke();
+ g.beginPath();for(const k of [.3,.45,.6,.75]){g.moveTo(W*k,H*.5-(W*.88-W*k)/(W*.74)*H*.3);g.lineTo(W*k,H*.5+(W*.88-W*k)/(W*.74)*H*.3);}g.stroke();
+ g.strokeRect(W*.2,H*.42,W*.12,H*.16);g.setLineDash([4,4]);g.beginPath();g.moveTo(W*.1,H*.5);g.lineTo(W*.9,H*.5);g.stroke();g.setLineDash([]);
+ g.strokeStyle='rgba(240,160,58,.85)';g.beginPath();g.moveTo(W*.1,H*.9);g.lineTo(W*.88,H*.9);g.moveTo(W*.1,H*.87);g.lineTo(W*.1,H*.93);g.moveTo(W*.88,H*.87);g.lineTo(W*.88,H*.93);g.stroke();
+ g.fillStyle='rgba(240,160,58,.95)';g.font='600 12px ui-monospace, monospace';g.textAlign='center';g.fillText('1,600 m',W*.49,H*.885);
+}
 
 function loop(now=performance.now()) {
   if(document.hidden){requestAnimationFrame(loop);return;}
@@ -1752,13 +1892,24 @@ function titleLoadHTML() {
 }
 // Patrol: one ship flown through a system — the design on the board, a saved
 // design or one of the examples.
+// The options are kept: the system to start in, and up to four escorts.
+const patrolOpt = (() => { try { const o = JSON.parse(LS.get('yard.patrol1') || 'null'); if (o && typeof o === 'object') return {sys: typeof o.sys === 'string' ? o.sys : 'kuat', escorts: Array.isArray(o.escorts) ? o.escorts.filter(k => typeof k === 'string').slice(0, 4) : []}; } catch (e) {} return {sys: 'kuat', escorts: []}; })();
+function patrolSave() { LS.set('yard.patrol1', JSON.stringify(patrolOpt)); }
+const PATROL_ESCORTS = 4;
 function titlePatrolHTML() {
-  const ex = Object.values(YardFleetData?.designs || {}), sides = [...new Set(ex.map(d => d.side))];
+  const ex = Object.values(YardFleetData?.designs || {}), sides = [...new Set(ex.map(d => d.side))], sysList = Object.values(SYSTEMS).filter(x => x.key !== 'rts');
+  if (!SYSTEMS[patrolOpt.sys] || patrolOpt.sys === 'rts') patrolOpt.sys = 'kuat';patrolOpt.escorts = patrolOpt.escorts.filter(k => YardFleetData?.designs?.[k]);
+  const esc1 = patrolOpt.escorts, count = k => esc1.filter(x => x === k).length;
   return `<div class="tpanel-head"><h2>パトロール</h2><button type="button" class="btn ghost sm" data-title-back>戻る</button></div>
-  <p class="note">選んだ艦でクワット星系を航行します。操艦・砲術・点防御（標的機）を試せます。星図からコルサントへジャンプもできます。</p>
-  ${ship ? `<h3>設計中の艦</h3><div class="ref-grid"><button type="button" class="btn" data-title-patrol="current">${esc(ship.name)}<small>${fLen(ship.hull.L)} · ${esc(C.shipClassFor(ship.hull.L, ship.shipClass).name)}</small></button></div>` : ''}
-  <h3>保存した設計</h3><div class="ref-grid" id="titlePatrolSaves"><p class="muted">一覧を確認中…</p></div>
-  <h3>作例</h3>${sides.map(side => `<p class="eyebrow">${esc(side)}</p><div class="ref-grid">${ex.filter(d => d.side === side).sort((a, b) => b.info.len - a.info.len).map(d => `<button type="button" class="btn" data-title-patrol="${esc(d.key)}">${esc(String(d.name).split('｜')[0])}<small>${fLen(d.info.len)} · ${esc(examplePurpose(d.key, d.cls || ''))}</small></button>`).join('')}</div>`).join('')}
+  <p class="note">選んだ星系を旗艦で航行します。操艦・砲術・点防御（標的機）を試せます。星図からほかの星系へジャンプもできます。</p>
+  <h3>1 · 星系</h3><div class="tclass">${sysList.map(x => `<button type="button" class="tcard" data-patrol-sys="${x.key}" aria-pressed="${x.key === patrolOpt.sys}"><b>${esc(x.name)}</b><small>${esc(x.short)}${x.planet.ring ? '' : ''}</small></button>`).join('')}</div>
+  <h3>2 · 随伴艦（AI）<small class="tp-count">${esc1.length} / ${PATROL_ESCORTS} 隻</small></h3><p class="note">旗艦の後方で隊形を組んで続き、ハイパースペースにも同行し、旗艦が狙う目標に援護射撃します。タップで追加、もう一度で外します（同じ艦を複数も可：右上の＋）。</p>
+  <div class="ref-grid tp-escorts">${sides.map(side => ex.filter(d => d.side === side).sort((a, b) => b.info.len - a.info.len).map(d => { const n = count(d.key); return `<button type="button" class="btn${n ? ' on' : ''}" data-patrol-esc="${esc(d.key)}" aria-pressed="${n > 0}">${esc(String(d.name).split('｜')[0])}${n > 1 ? ` ×${n}` : ''}<small>${fLen(d.info.len)}</small>${n ? `<i class="tp-plus" data-patrol-more="${esc(d.key)}" role="button" aria-label="もう1隻">＋</i>` : ''}</button>`; }).join('')).join('')}</div>
+  ${esc1.length ? '<button type="button" class="btn sm ghost" data-patrol-esc-clear>随伴艦をすべて外す</button>' : ''}
+  <h3>3 · 旗艦を選んで出発</h3>
+  ${ship ? `<h4>設計中の艦</h4><div class="ref-grid"><button type="button" class="btn" data-title-patrol="current">${esc(ship.name)}<small>${fLen(ship.hull.L)} · ${esc(C.shipClassFor(ship.hull.L, ship.shipClass).name)}</small></button></div>` : ''}
+  <h4>保存した設計</h4><div class="ref-grid" id="titlePatrolSaves"><p class="muted">一覧を確認中…</p></div>
+  <h4>作例</h4>${sides.map(side => `<p class="eyebrow">${esc(side)}</p><div class="ref-grid">${ex.filter(d => d.side === side).sort((a, b) => b.info.len - a.info.len).map(d => `<button type="button" class="btn" data-title-patrol="${esc(d.key)}">${esc(String(d.name).split('｜')[0])}<small>${fLen(d.info.len)} · ${esc(examplePurpose(d.key, d.cls || ''))}</small></button>`).join('')}</div>`).join('')}
   <p class="note">大型艦は準備に時間がかかります。</p>`;
 }
 async function renderTitlePatrolSaves() {
@@ -1780,16 +1931,35 @@ function titleStartNew() {
   setShip(s, {keepHistory: true}); hideTitle(); renderPanel();
   toast(`${C.shipClassFor(t.L, t.cls).name}・${P.name}の船体を用意しました`);
 }
+// On a phone, starting the game asks for the full screen held in landscape —
+// where the browser allows it (Android; iOS and some embedded views do not);
+// elsewhere the turned layout (KSRotate) keeps the game sideways as before.
+let landscapeAsked = false;
+function landscapeTry(force) {
+  if (landscapeAsked && !force) return; landscapeAsked = true;
+  if (!force && !(window.matchMedia && matchMedia('(pointer: coarse)').matches)) return;
+  const lock = () => { try { const p = screen.orientation?.lock?.('landscape'); if (p && p.catch) p.catch(() => { if (force) toast('この環境では画面の向きを固定できません（端末を横にしてください）'); }); } catch (e) {} };
+  try {
+    const de = document.documentElement, fs = de.requestFullscreen || de.webkitRequestFullscreen;
+    if (!document.fullscreenElement && fs) { const p = fs.call(de, {navigationUI: 'hide'}); if (p && p.then) p.then(lock, () => { lock(); }); else lock(); } else lock();
+  } catch (e) { lock(); }
+}
 function bindTitle() {
   const t = $('#title'); if (!t) return;
   t.addEventListener('click', async e => {
     const b = e.target.closest('button'); if (!b) return; const d = b.dataset;
+    if ('landscape' in d) { landscapeTry(true); return; }
+    if (d.titleMode === 'design' || d.titleMode === 'voyage') landscapeTry(false);
     if ('titleCredits' in d) { titleState.panel = 'credits'; renderTitle(); return; }
     if ('titleBack' in d) { titleState.panel = null; renderTitle(); return; }
     if (d.titleMode) { titleState.mode = d.titleMode; titleState.panel = null; renderTitle(); setTimeout(() => t.querySelector(`[data-tgroup="${d.titleMode}"] .tmenu:not([disabled]):not(.tback)`)?.focus?.({preventScroll: true}), 20); return; }
     if (d.title === 'patrol') { titleState.panel = titleState.panel === 'patrol' ? null : 'patrol'; renderTitle(); return; }
     if (d.title === 'fleetbattle' || d.title === 'orbat') { hideTitle(); voy.saves = await Store.list().catch(() => []); voyOpen('setup', d.title === 'orbat' ? 'orbat' : 'sortie'); return; }
     if (d.titlePatrol) { voyPatrol(d.titlePatrol); return; }
+    if (d.patrolSys) { if (SYSTEMS[d.patrolSys]) { patrolOpt.sys = d.patrolSys; patrolSave(); renderTitle(); } return; }
+    if ('patrolEscClear' in d) { patrolOpt.escorts = []; patrolSave(); renderTitle(); return; }
+    if (e.target.closest('[data-patrol-more]')) { const k = e.target.closest('[data-patrol-more]').dataset.patrolMore; if (patrolOpt.escorts.length < PATROL_ESCORTS) patrolOpt.escorts.push(k); else toast(`随伴艦は ${PATROL_ESCORTS} 隻までです`); patrolSave(); renderTitle(); return; }
+    if (d.patrolEsc) { const k = d.patrolEsc, i = patrolOpt.escorts.indexOf(k); if (i >= 0) patrolOpt.escorts = patrolOpt.escorts.filter(x => x !== k); else if (patrolOpt.escorts.length < PATROL_ESCORTS) patrolOpt.escorts.push(k); else toast(`随伴艦は ${PATROL_ESCORTS} 隻までです`); patrolSave(); renderTitle(); return; }
     if (d.title === 'continue') { if (ship) hideTitle(); return; }
     if (d.title === 'new' || d.title === 'load') { titleState.panel = titleState.panel === d.title ? null : d.title; renderTitle(); return; }
     if (d.titleClass) { const c = C.SHIP_CLASSES.find(c => c.id === d.titleClass); if (!c) return; titleState.cls = c.id; Object.assign(titleState, titleHullDims(C.HULLS[titleState.hull], c.def)); renderTitle(); return; }
@@ -2479,7 +2649,7 @@ const GUN_MODES={
  enemy:{name:'敵方固定',short:'敵固定',note:'視点を動かしても、捉えた目標（なければ最寄りの敵）を追い続けます'},
  home:{name:'初期位置固定',short:'初期位置',note:'砲塔を初期位置に戻して固定します。射撃は砲身の向きへ'}};
 const trial={on:false,gunMode:'free',gunTarget:null,paused:false,busy:false,asset:null,p:null,P:[0,0,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],w:[0,0,0],tele:1,rudder:0,level:false,t:0,last:0,hud:0,vf:0,thrust:0,camMode:'horizon',camF:null,rec:null,dust:null,warn:'',designCamera:null,
- stick:{x:0,y:0},keyStick:{x:0,y:0},keys:new Set(),fire:false,fireKey:false,fireTap:0,turrets:[],launchers:[],bolts:[],missiles:[],fx:[],targets:[],gun:null,rays:{busy:false,last:0},aim:null,lead:null,power:null,mslOrder:false,energy:null,powerMode:'balanced',engF:1,thrustWant:0,sysKey:'coruscant',mode:'trial',vbolts:[],jump:null,flash:0,hitFlash:0,battle:null,battlePlan:null};
+ stick:{x:0,y:0},keyStick:{x:0,y:0},keys:new Set(),fire:false,fireKey:false,fireTap:0,turrets:[],launchers:[],bolts:[],missiles:[],fx:[],wrecks:[],targets:[],gun:null,rays:{busy:false,last:0},aim:null,lead:null,power:null,mslOrder:false,energy:null,powerMode:'balanced',engF:1,thrustWant:0,sysKey:'coruscant',mode:'trial',vbolts:[],jump:null,flash:0,hitFlash:0,battle:null,battlePlan:null};
 const tv={dot:(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2],cross:(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],len:a=>Math.hypot(a[0],a[1],a[2]),norm:a=>{const l=Math.hypot(a[0],a[1],a[2])||1;return [a[0]/l,a[1]/l,a[2]/l];},add:(a,b,k=1)=>[a[0]+b[0]*k,a[1]+b[1]*k,a[2]+b[2]*k],scale:(a,k)=>[a[0]*k,a[1]*k,a[2]*k],sub:(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]]};
 function trialRot(v,axis,ang){const c=Math.cos(ang),s=Math.sin(ang),d=tv.dot(axis,v),x=tv.cross(axis,v);return [v[0]*c+x[0]*s+axis[0]*d*(1-c),v[1]*c+x[1]*s+axis[1]*d*(1-c),v[2]*c+x[2]*s+axis[2]*d*(1-c)];}
 // Column-major frame from forward and approximate up (Gram-Schmidt).
@@ -2499,13 +2669,14 @@ function trialCardHTML(side){
 // Watching a battle, the range follows the ship in view and reaches out to take in the fight.
 const trialCamRange=r=>{const L=trial.spectate&&trial.camLen?trial.camLen:trial.p.len;return C.clamp(r,L*.45+60,trial.spectate?Math.max(L*12+6000,60000):L*10+4000);};
 function trialReset(){
- if(trial.cine)spaceCineEnd();const sy=trialSys(),R=sy.planet.radius;Object.assign(trial,{P:[0,R+sy.altitude,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],w:[0,0,0],tele:1,rudder:0,level:false,t:0,last:0,vf:0,thrust:0,camF:null,warn:'',bolts:[],missiles:[],fx:[],vbolts:[],fireTap:0,aim:null,lead:null,mslOrder:false,jump:null,flash:0,hitFlash:0,camSave:null,drones:[],gunTarget:null,heldLock:null});
+ if(trial.cine)spaceCineEnd();const sy=trialSys(),R=sy.planet.radius;Object.assign(trial,{P:[0,R+sy.altitude,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],w:[0,0,0],tele:1,rudder:0,level:false,t:0,last:0,vf:0,thrust:0,camF:null,warn:'',bolts:[],missiles:[],fx:[],wrecks:[],vbolts:[],fireTap:0,aim:null,lead:null,mslOrder:false,jump:null,flash:0,hitFlash:0,camSave:null,drones:[],gunTarget:null,heldLock:null});
  trial.rec={top:0,accel:null,run:null,turn:null,turnSpeed:0};trial.gun={shots:0,hits:0,kills:0,missiles:0};for(const l of trial.launchers){l.reload=0;l.queue=0;l.next=0;}
  // The charging banks start full; their size is one volley per gun (more where a gun stores extra salvos).
  const bank=trial.p.wCap||trial.turrets.reduce((n,t)=>n+t.power*t.cycle*t.charge/TT_J,0);trial.energy={E:bank,cap:bank};trial.engF=1;trial.thrustWant=0;trial.power=null;
  const L=trial.p.len;trialDust();
  for(const t of trial.turrets){t.yaw=0;t.el=0;t.reload=Math.random()*t.cycle;t.clear=false;t.clearDir=null;t.aimed=false;t.arc=true;t.dead=false;t.rot=trialAxisMatrix(t.axis,0,t.rot);}for(const l of trial.launchers)l.dead=false;
  trial.targets=[];trial.battle=null;if(trial.rts)voyPilotInit();else if(trial.mode==='battle'&&trial.battlePlan)spaceBattleInit(trial.battlePlan);else for(let i=0;i<TRIAL_GUN.targets;i++)trial.targets.push(trialSpawnTarget(i,true));
+ escortsInit();
  if(view){const asp=(view.canvas.clientWidth||900)/(view.canvas.clientHeight||600);view.cam.th=Math.PI;view.cam.ph=TRIAL_CAM_PH;view.cam.r=trialCamRange((L*1.35+260)*Math.max(1,.95/asp));}
 }
 // Target buoys sit ahead of the ship in its local horizon, 8–28 km out.
@@ -2523,25 +2694,26 @@ function trialTurretState(t){const fw=tv.norm(t.fw),axis=tv.norm(t.axis),spec=C.
 async function trialStart(opts={}){
  if(trial.on||trial.busy||!view||fleet.mode!=='design')return;if(!opts.design&&!ship)return;
  if(!opts.design){const f=trialFigures(trialProfile());if(!f.ok){toast('加速度が 0 G のため公試を行えません');return;}}
- trial.busy=true;showBusyOverlay(opts.rts?.spectate?'3D視点の準備中…':opts.battle||opts.rts?'艦隊戦の準備中…（旗艦の砲塔と射界を計算）':'公試の準備中…（砲塔の旋回軸と射界を計算）');
- let a=null;try{const data=opts.design||C.serialize(ship),key='trial-'+fleetHash(JSON.stringify(data)),r=await YardEngineClient.request('fleet',{design:data,trial:true});a={key,design:r.design,stats:r.stats,p:r.profile,geometry:r.geometry};if(view)view.loadFleet(key,r.geometry);}
+ trial.busy=true;loadShow(opts.rts?.spectate?'3D視点の準備中…（この星系の艦の3Dモデル）':opts.battle||opts.rts?'艦隊戦の準備中…（旗艦の砲塔と射界を計算）':opts.patrol?'パトロールの準備中…（砲塔の旋回軸と射界を計算）':'公試の準備中…（砲塔の旋回軸と射界を計算）',opts.rts?.spectate?'3D視点':opts.rts?'操艦準備':opts.battle?'艦隊戦':opts.patrol?'パトロール':'公試');
+ let a=null;try{const data=opts.design||C.serialize(ship),key='trial-'+fleetHash(JSON.stringify(data)),r=await YardEngineClient.request('fleet',{design:data,trial:true});a={key,design:r.design,stats:r.stats,p:r.profile,geometry:r.geometry};if(view)view.loadFleet(key,r.geometry);
+  if(opts.escorts?.length){$('#lsText').textContent='随伴艦の3Dモデルを準備中…';for(const k of opts.escorts)await fleetAsset(k);}}
  catch(e){console.error(e);toast('公試を開始できません：'+esc(e.message||e));}finally{trial.busy=false;hideBusyOverlay();}
- if(!a||trial.on||fleet.mode!=='design')return;
- if(!(a.p.accel>0&&a.p.maxSpeed>0)){toast('加速度が 0 G のため公試を行えません');return;}
- trial.paused=false;trial.rts=opts.rts||null;trial.spectate=!!opts.rts?.spectate;trial.specCam='chase';trial.frameMs=0;trial.scaleAt=0;if(view)view.renderScale=1;trial.mode=opts.battle||opts.rts?'battle':'trial';trial.battlePlan=opts.battle||null;trial.returnTo=opts.returnTo||null;if(opts.system&&SYSTEMS[opts.system])trial.sysKey=opts.system;trial.sysKey=trial.sysKey||'coruscant';
+ if(!a||trial.on||fleet.mode!=='design'){loadHide();return;}
+ if(!(a.p.accel>0&&a.p.maxSpeed>0)){loadHide();toast('加速度が 0 G のため公試を行えません');return;}
+ trial.paused=false;trial.rts=opts.rts||null;trial.spectate=!!opts.rts?.spectate;trial.specCam='chase';trial.frameMs=0;trial.scaleAt=0;if(view)view.renderScale=1;trial.mode=opts.battle||opts.rts?'battle':'trial';trial.battlePlan=opts.battle||null;trial.returnTo=opts.returnTo||null;trial.escortKeys=!opts.battle&&!opts.rts?(opts.escorts||[]).filter(k=>fleet.assets.has(k)):[];if(opts.system&&SYSTEMS[opts.system])trial.sysKey=opts.system;trial.sysKey=trial.sysKey||'coruscant';
  if(trial.rts){SYSTEMS.rts=voySysDesc(trial.rts.w,trial.rts.sys);trial.sysKey='rts';}
  trial.asset=a;trial.p=a.p;trial.turrets=(a.geometry.turrets||[]).map(trialTurretState);for(const t of trial.turrets)t.charge=t.cap?C.clamp(a.stats.chargeInfo?.[t.id]?.ratio??0,0,1):1;trial.launchers=(a.geometry.launchers||[]).map(l=>({...l,reload:0,queue:0,next:0}));trial.designCamera={cam:JSON.parse(JSON.stringify(view.cam)),off:[...view.off]};
  closeSheet();hideInspect();clearHover();if(dragSnap)endDrag();
  view.off=[0,0,0];view.cam={...view.cam,target:[0,0,0],ortho:false};trialReset();
- trial.on=true;document.body.classList.add('trial-on');const hud=$('#trialHud');hud.hidden=false;hud.classList.toggle('spectate',!!trial.spectate);if(trial.spectate){hud.innerHTML=voySpectateHudHTML();voySpectateHudUpdate(true);}else{hud.innerHTML=trialHudHTML();trialBindHud(hud);trialHudUpdate(true);}
- requestAnimationFrame(()=>{requestDraw();});
+ trial.on=true;trial.startedAt=performance.now();trial.shotAt=0;document.body.classList.add('trial-on');const hud=$('#trialHud');hud.hidden=false;hud.classList.toggle('spectate',!!trial.spectate);if(trial.spectate){hud.innerHTML=voySpectateHudHTML();voySpectateHudUpdate(true);}else{hud.innerHTML=trialHudHTML();trialBindHud(hud);trialHudUpdate(true);}
+ requestAnimationFrame(()=>{requestDraw();});loadHideSoon();
 }
 function trialStop(){
  if(!trial.on)return;if(shot.on)shotSet(false);trial.paused=false;trial.on=false;trial.hitcam=null;trial.fire=trial.fireKey=false;trial.keys.clear();trial.stick={x:0,y:0};trial.keyStick={x:0,y:0};
  document.body.classList.remove('trial-on');const hud=$('#trialHud');hud.hidden=true;hud.innerHTML='';hud.classList.remove('spectate');if(view)view.renderScale=1;
  if(view){if(trial.designCamera){view.cam=trial.designCamera.cam;view.off=trial.designCamera.off;}delete view.cam.frame;delete view.cam.far;}
  try{YardEngineClient.post({type:'trialEnd'});}catch(e){}
- trial.asset=null;trial.turrets=[];trial.launchers=[];trial.bolts=[];trial.missiles=[];trial.fx=[];trial.vbolts=[];trial.targets=[];trial.battle=null;trial.jump=null;trial.cine=null;
+ trial.asset=null;trial.turrets=[];trial.launchers=[];trial.bolts=[];trial.missiles=[];trial.fx=[];trial.wrecks=[];trial.vbolts=[];trial.targets=[];trial.battle=null;trial.jump=null;trial.cine=null;
  const back=trial.returnTo,wasRts=!!trial.rts;trial.spectate=false;trial.returnTo=null;trial.battlePlan=null;trial.rts=null;trial.mode='trial';trial.foeCraft=[];trial.ownCraft=[];trial.foeMissiles=[];fleetPrune();renderPanel();renderSpecTargets();syncHud();requestDraw();if(back==='tactical')fleetSetMode('tactical');if(back==='voyage'||wasRts)voyPilotEnd();else if(back==='title')showTitle('voyage');
 }
 function trialAttitude(){
@@ -2584,8 +2756,21 @@ const trialBarrel=(t,yaw,el)=>{const c=Math.cos(el),h=tv.add(tv.scale(t.fw,Math.
 const trialLimits=t=>t.casemate?{yaw:65*Math.PI/180,lo:-20*Math.PI/180,hi:20*Math.PI/180}:{yaw:null,lo:-10*Math.PI/180,hi:85*Math.PI/180};
 function trialAim(){
  if(!view)return null;const eye=view.eye(),dir=tv.norm(tv.sub(view.cam.target,eye));let dist=Math.max(TRIAL_GUN.aim,trial.p.len*1.5),lock=null,best=Infinity;
- for(const t of trial.targets){if(!t.alive)continue;const v=tv.sub(tv.sub(t.pos,trial.P),eye),d=tv.len(v),ang=Math.acos(C.clamp(tv.dot(v,dir)/d,-1,1)),cone=Math.atan((t.radius||trial.asset.geometry.targetRadius*1.6)/d)+.006;if(ang<cone&&ang<best){best=ang;lock=t;dist=d;}}
+ for(const t of trial.targets){if(!t.alive||t.ally)continue;const v=tv.sub(tv.sub(t.pos,trial.P),eye),d=tv.len(v),ang=Math.acos(C.clamp(tv.dot(v,dir)/d,-1,1)),cone=Math.atan((t.radius||trial.asset.geometry.targetRadius*1.6)/d)+.006;if(ang<cone&&ang<best){best=ang;lock=t;dist=d;}}
  return {eye,dir,dist,lock,point:tv.add(eye,dir,dist)};
+}
+// One of our own ships across a gun's line of fire (from p along unit d, for r metres), or null.
+function trialAllyOnLine(p,d,r){
+ for(const t of trial.targets)if(t.ally&&t.alive&&trialBoxOnLine(t,p,d,r))return t;
+ for(const e of trial.escorts||[]){const b={pos:e.pos,rot:e.R,radius:e.p.len*.5,semi:[e.p.len*.5,(e.p.height||e.p.len*.2)*.5,(e.p.width||e.p.len*.5)*.5]};if(trialBoxOnLine(b,p,d,r))return b;}
+ return null;
+}
+// Whether a ship's box (pos, rot, semi, radius) lies across the segment from p along unit d for r metres.
+function trialBoxOnLine(t,p,d,r,k=.9){
+ const rel=tv.sub(t.pos,p),s=tv.dot(rel,d),Rr=t.radius*1.1;if(s<-Rr||s>r+Rr||tv.len(tv.add(rel,d,-s))>Rr)return false;
+ const a=trialApplyT(t.rot,tv.sub(p,t.pos)),b=trialApplyT(t.rot,tv.sub(tv.add(p,d,r),t.pos));let t0=0,t1=1;
+ for(let i=0;i<3;i++){const e=t.semi[i]*k,dd=b[i]-a[i];if(Math.abs(dd)<1e-9){if(a[i]<-e||a[i]>e)return false;continue;}let lo=(-e-a[i])/dd,hi=(e-a[i])/dd;if(lo>hi){const q=lo;lo=hi;hi=q;}t0=Math.max(t0,lo);t1=Math.min(t1,hi);if(t0>t1)return false;}
+ return true;
 }
 // Time for a bolt leaving o at speed s (plus the ship's own velocity) to meet a
 // target at p moving at u relative to the ship. Null when it cannot catch up.
@@ -2594,7 +2779,7 @@ function trialIntercept(d,u,s){const a=tv.dot(u,u)-s*s,b=2*tv.dot(d,u),c=tv.dot(
 // is one, else the last one held while it lives, else the nearest enemy.
 function trialGunTarget(lk){
  if(lk)trial.gunTarget=lk;const g=trial.gunTarget;if(g&&g.alive&&trial.targets.includes(g))return g;
- let best=null,d=Infinity;for(const t of trial.targets){if(!t.alive)continue;const x=tv.len(tv.sub(t.pos,trial.P));if(x<d){d=x;best=t;}}
+ let best=null,d=Infinity;for(const t of trial.targets){if(!t.alive||t.ally)continue;const x=tv.len(tv.sub(t.pos,trial.P));if(x<d){d=x;best=t;}}
  trial.gunTarget=best;return best;
 }
 // ---- point defence ----
@@ -2688,9 +2873,11 @@ function trialGunnery(dt){
   // Point defence fires on its own at the threat it is tracking.
   t.firing=(t.pd?!!t.pdTarget&&!trial.jump&&!me?.dead&&!me?.out&&!(trial.battle?.result):wantFire)&&t.ready;if(t.firing)demand+=t.power*t.charge*(t.costK??1);t.bd=bd;t.oW=oW;
  }
- trialPowerStep(dt,demand);const en=trial.energy;
+ trialPowerStep(dt,demand);const en=trial.energy;let held=0;
  for(const t of trial.turrets){
   t.reload=Math.max(0,t.reload-dt);t.starved=false;
+  // A main battery holds its fire while one of our own ships is across its line.
+  if(t.firing&&!t.pd&&trial.battle){t.held=!!trialAllyOnLine(tv.add(trial.P,t.oW),trialApply(R,t.bd),Math.max(t.reach||TRIAL_GUN.range,trial.p.len*2));if(t.held){held++;continue;}}else t.held=false;
   if(t.firing&&(t.laid||t.pd)&&t.reload<=0){
    const shotTT=t.power*t.cycle*t.charge/TT_J,cost=shotTT*(t.costK??1);if(en.E<cost){t.starved=true;continue;}en.E-=cost;
    t.reload=t.cycle*(1+Math.random()*.08);const bd=t.bd,n=Math.min(t.barrels,t.r>12?2:t.barrels>2?2:1),sc=t.pd?.009:.0012,g=()=>(Math.random()+Math.random()+Math.random()-1.5)*sc,bw=trialApply(R,tv.norm(tv.add(tv.add(bd,t.e2,g()),t.axis,g()))),side=trialApply(R,tv.norm(tv.cross(t.axis,bd))),base=tv.add(tv.add(trial.P,t.oW),bw,t.r*1.2),spread=t.r*.35;
@@ -2700,22 +2887,24 @@ function trialGunnery(dt){
    trial.fx.push({pos:base,vel:trial.V,life:.12,max:.12,size:Math.max(6,t.r*1.6),col:[255,240,210]});
   }
  }
+ escortsFire(dt,lock||a.lock,wantFire);
  if(trial.bolts.length>TRIAL_GUN.maxBolts)trial.bolts.splice(0,trial.bolts.length-TRIAL_GUN.maxBolts);
+ trial.held=held;if(held&&!trial.warn)trial.warn=`味方艦が射線上：主砲 ${held} 基が射撃を控えています`;
  trialMissiles(dt,mode==='enemy'?lock:a.lock);
- const Rt=trial.asset.geometry.targetRadius,hitTarget=(t,q,w)=>{trial.gun.hits+=w;t.hits+=w;
+ const Rt=trial.asset.geometry.targetRadius,hitTarget=(t,q,w,esc)=>{if(esc)trial.gun.escHits=(trial.gun.escHits||0)+w;else trial.gun.hits+=w;t.hits+=w;
    for(let k=0;k<6;k++)trial.fx.push({pos:q,vel:tv.add(t.vel,tv.scale(tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),40+Math.random()*120)),life:.5,max:.5,size:Rt*.18,col:[255,200,120]});
    if(t.hits>=TRIAL_GUN.hitsToKill){t.alive=false;t.respawn=4;trial.gun.kills++;for(let k=0;k<46;k++)trial.fx.push({pos:t.pos,vel:tv.add(t.vel,tv.scale(tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),Rt*(.6+Math.random()*2.2))),life:1.6,max:1.6,size:Rt*(.25+Math.random()*.4),col:[255,170+Math.random()*60|0,90]});trial.fx.push({pos:t.pos,vel:t.vel,life:.5,max:.5,size:Rt*4,col:[255,245,220]});}};
  const segHit=(t,a0,a1)=>{const seg=tv.sub(a1,a0),l2=tv.dot(seg,seg)||1,k=C.clamp(tv.dot(tv.sub(t.pos,a0),seg)/l2,0,1),q=tv.add(a0,seg,k);return tv.len(tv.sub(q,t.pos))<Rt?q:null;};
  // Ships are ellipsoids of their own length, height and width.
  const segShip=(t,a0,a1)=>{const s=t.semi,la=trialApplyT(t.rot,tv.sub(a0,t.pos)),lb=trialApplyT(t.rot,tv.sub(a1,t.pos)),pa=[la[0]/s[0],la[1]/s[1],la[2]/s[2]],pb=[lb[0]/s[0],lb[1]/s[1],lb[2]/s[2]],d=tv.sub(pb,pa),l2=tv.dot(d,d)||1,k=C.clamp(-tv.dot(pa,d)/l2,0,1);return tv.len(tv.add(pa,d,k))<1?tv.add(a0,tv.sub(a1,a0),k):null;};
- const shipHit=(t,q,tt,kind,w)=>{trial.gun.hits+=w;t.hits+=w;spaceDamage(t.unit,tt,kind,q,t);spaceImpact(q,t.vel,t.unit,Math.max(8,t.radius*.05));};
+ const shipHit=(t,q,tt,kind,w)=>{if(t.ally){trial.gun.ff=(trial.gun.ff||0)+w;if(performance.now()-(trial.ffToast||0)>4000){trial.ffToast=performance.now();toast(`誤射：味方艦 ${esc(shipShort(t.unit.name))} に命中`);}}else{trial.gun.hits+=w;t.hits+=w;}spaceDamage(t.unit,tt,kind,q,t);spaceImpact(q,t.vel,t.unit,Math.max(8,t.radius*.05));};
  for(const b of trial.bolts){b.prev=b.pos;b.pos=tv.add(b.pos,b.vel,dt);b.life-=dt;
   if(b.pd){trialPdBoltHit(b);continue;}
-  for(const t of trial.targets){if(!t.alive||b.life<=0)continue;if(t.ship){const q=segShip(t,b.prev,b.pos);if(q){b.life=0;shipHit(t,q,b.tt||0,b.ion?'ion':'bolt',b.weight);}continue;}const q=segHit(t,b.prev,b.pos);if(q){b.life=0;hitTarget(t,q,b.weight);}}}
+  if(!b.esc&&trial.escorts?.length){let hitE=null;for(const e of trial.escorts){const sd=tv.sub(b.pos,b.prev),l=tv.len(sd);if(l>0&&trialBoxOnLine({pos:e.pos,rot:e.R,radius:e.p.len*.5,semi:[e.p.len*.5,(e.p.height||e.p.len*.2)*.5,(e.p.width||e.p.len*.5)*.5]},b.prev,tv.scale(sd,1/l),l,1)){hitE=e;break;}}if(hitE){b.life=0;spaceImpact(b.pos,hitE.V,{shield:1},10);if(performance.now()-(trial.ffToast||0)>4000){trial.ffToast=performance.now();toast(`誤射：随伴艦 ${esc(hitE.name)} に命中`);}continue;}}
+  for(const t of trial.targets){if(!t.alive||b.life<=0)continue;if(t.ship){const q=segShip(t,b.prev,b.pos);if(q){b.life=0;shipHit(t,q,b.tt||0,b.ion?'ion':'bolt',b.weight);}continue;}const q=segHit(t,b.prev,b.pos);if(q){b.life=0;hitTarget(t,q,b.weight,b.esc);}}}
  for(const m of trial.missiles)for(const t of trial.targets){if(!t.alive||m.life<=0)continue;if(t.ship){const q=segShip(t,m.prev,m.pos);if(q){m.life=0;shipHit(t,q,10,'missile',m.weight);}continue;}const q=segHit(t,m.prev,m.pos);if(q){m.life=0;hitTarget(t,q,m.weight);for(let k=0;k<10;k++)trial.fx.push({pos:q,vel:tv.add(t.vel,tv.scale(tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),60+Math.random()*200)),life:.8,max:.8,size:Rt*.3,col:[255,150,70]});}}
  trial.bolts=trial.bolts.filter(b=>b.life>0);trial.missiles=trial.missiles.filter(m=>{if(m.life<=0&&!m.burst){m.burst=true;}return m.life>0;});
  for(const t of trial.targets){if(t.ship)continue;if(t.alive){t.pos=tv.add(t.pos,t.vel,dt);t.spin+=dt*.3;const up=tv.norm(t.pos);t.rot=trialAxisMatrix(up,t.spin,t.rot);t.rot=trialFrame(trialApply(t.rot,[1,0,0]),up);}else if((t.respawn-=dt)<=0)Object.assign(t,trialSpawnTarget(t.id,false));}
- for(const e of trial.fx){e.pos=tv.add(e.pos,e.vel,dt);e.life-=dt;}trial.fx=trial.fx.filter(e=>e.life>0);if(trial.fx.length>3000)trial.fx.splice(0,trial.fx.length-3000);
  const due=performance.now();if(!trial.rays.busy&&due-trial.rays.last>140&&trial.turrets.length)trialRays(due);
 }
 // Missiles leave their tubes along the mounting axis, then home on the locked
@@ -2748,7 +2937,8 @@ function trialRenderSets(){
  const b=trial.vbolts?.length?[...trial.bolts,...trial.vbolts.filter(x=>!(x.delay>0))]:trial.bolts,P=trial.P,K=7,pos=new Float32Array(b.length*K*3),col=new Uint8Array(b.length*K*4),size=new Float32Array(b.length*K);
  b.forEach((q,i)=>{const d=tv.norm(q.vel);for(let k=0;k<K;k++){const j=i*K+k,s=k/(K-1),p=tv.add(tv.sub(q.pos,P),d,-q.len*s);pos.set(p,j*3);col.set([q.col[0],q.col[1],q.col[2],Math.round(235*(1-s*.7))],j*4);size[j]=q.size*(1-s*.55);}});
  view.setPoints('trialBolts',pos,col,size);
- const f=trial.fx,ms0=trial.missiles,nf=f.length+ms0.length*2,fp=new Float32Array(nf*3),fc=new Uint8Array(nf*4),fs=new Float32Array(nf);
+ const fires=trial.battle?spaceFires(performance.now()/1000):[],f=trial.fx,ms0=trial.missiles,nf=f.length+ms0.length*2+fires.length,fp=new Float32Array(nf*3),fc=new Uint8Array(nf*4),fs=new Float32Array(nf);
+ fires.forEach((q,j)=>{const i=f.length+ms0.length*2+j;fp.set(q[0],i*3);fc.set(q[1],i*4);fs[i]=q[2];});
  f.forEach((e,i)=>{const k=e.life/e.max;fp.set(tv.sub(e.pos,P),i*3);fc.set([e.col[0],e.col[1],e.col[2],Math.round(255*Math.min(1,k*1.4)*(e.col[0]===150?.45:1))],i*4);fs[i]=e.size*(e.max>1?1.4-k*.6:e.col[0]===150?1.6-k*.8:1);});
  ms0.forEach((m,j)=>{const i=f.length+j*2;fp.set(tv.sub(m.pos,P),i*3);fc.set([255,235,190,255],i*4);fs[i]=7;fp.set(tv.add(tv.sub(m.pos,P),m.h,-14),i*3+3);fc.set([255,140,60,220],i*4+4);fs[i+1]=12;});
  view.setPoints('trialFx',fp,fc,fs);
@@ -2800,7 +2990,8 @@ function trialLoop(now){
  // else waits, while a fleet battle watched in 3D runs on (the far end of the
  // tunnel is where the followed group comes out).
  const tunnel=trial.jump?.phase==='tunnel',ph=trial.jump?.phase;
- if(dt>0){if(trial.spectate)voySpectateStep(dt);else if(!tunnel){if(trialCoasting())trialSublight(dt);else if(ph==='exit'||ph==='brake'){}else{const n=dt>.025?2:1;for(let i=0;i<n;i++)trialStep(dt/n);}if(trial.rts)voyPilotStep(dt);else if(trial.battle)spaceStep(dt);}if(!tunnel)spaceBolts(dt);}
+ if(dt>0){escortsStep(dt);if(trial.spectate)voySpectateStep(dt);else if(!tunnel){if(trialCoasting())trialSublight(dt);else if(ph==='exit'||ph==='brake'){}else{const n=dt>.025?2:1;for(let i=0;i<n;i++)trialStep(dt/n);}if(trial.rts)voyPilotStep(dt);else if(trial.battle)spaceStep(dt);}if(!tunnel){spaceBolts(dt);trialFxStep(dt);trialWrecksStep(dt);}}
+ if(trial.battle&&!tunnel){spaceAttStep(dt);spaceDeaths();}
  trial.flash=Math.max(0,(trial.flash||0)-dt*2.2);trial.hitFlash=Math.max(0,(trial.hitFlash||0)-dt*1.6);
  const d=trial.dust;view.setPoints('trialDust',d.pos,d.col,d.size);trialRenderSets();
  const me=trial.battle?.me,unit={key:trial.asset.key,pos:[0,0,0],yaw:0,rot:trial.R,glow:me?.out?0:.3+.7*Math.min(1,Math.max(Math.abs(TRIAL_TELEGRAPH[trial.tele][1]),trial.thrust)),hatchOpen:0,dead:!!me?.dead,
@@ -2808,8 +2999,8 @@ function trialLoop(now){
  // The stars stretch around the direction of travel; the tunnel covers them.
  const j=trial.jump,dir=j?.dir||trialCol(trial.R,0),hk=trialTunnelK(j);
  const hyper=tunnel?{dir,time:j.t,k:hk}:null,sky={dir,s:trialStreak(),k:1};
- if(view.draw({fleet:trial.spectate?spaceDrawUnits():[unit,...spaceDrawUnits()],mode:'trial',lod:!!trial.battle,planet:hk>=1?null:trialPlanet(),hyper,sky,noDust:trialFast()||tunnel})!==false){renderHealth.frames++;renderHealth.lastFrame=now;renderHealth.failures=0;}
- trialAdaptScale(real);
+ if(view.draw({fleet:trial.spectate?spaceDrawUnits():[unit,...escortsDraw(),...spaceDrawUnits()],mode:'trial',lod:!!trial.battle,planet:hk>=1?null:trialPlanet(),hyper,sky,noDust:trialFast()||tunnel})!==false){renderHealth.frames++;renderHealth.lastFrame=now;renderHealth.failures=0;}
+ trialAdaptScale(real);if(dt>0)shotTick(now);
  const hud=$('#trialHud'),fl=hud?.querySelector('[data-th="flash"]'),hf=hud?.querySelector('[data-th="hit"]');if(fl)fl.style.opacity=trial.flash.toFixed(3);if(hf)hf.style.opacity=(trial.hitFlash*.8).toFixed(3);
  trialMarkers();if(trial.battle)hitcamStep(now);
  if(now-trial.hud>120){trial.hud=now;if(trial.spectate)voySpectateHudUpdate();else trialHudUpdate();}
@@ -3086,7 +3277,14 @@ function trialCommand(cmd){
 // equator, so the ring stands as an arch across the sky ahead, 8–18° up.
 const SYSTEMS={
  coruscant:{key:'coruscant',name:'コルサント',note:'銀河の首都。全球を覆う都市惑星',short:'銀河の首都',planet:{radius:6.12e6,kind:0,axis:[0,0,1],ring:null},altitude:160000,floor:40000,sun:[.85,-.1,.5],map:[150,146]},
- kuat:{key:'kuat',name:'クワット',note:'クワット・ドライブ・ヤードの軌道造船リングが惑星を取り巻く造船星系',short:'KDY 造船所',planet:{radius:5.2e6,kind:1,axis:[-Math.cos(20*Math.PI/180),Math.sin(20*Math.PI/180),0],ring:[1.16,1.25]},altitude:180000,floor:60000,sun:[-.42,.32,.85],map:[262,86]}};
+ kuat:{key:'kuat',name:'クワット',note:'クワット・ドライブ・ヤードの軌道造船リングが惑星を取り巻く造船星系',short:'KDY 造船所',planet:{radius:5.2e6,kind:1,axis:[-Math.cos(20*Math.PI/180),Math.sin(20*Math.PI/180),0],ring:[1.16,1.25]},altitude:180000,floor:60000,sun:[-.42,.32,.85],map:[262,86]},
+ corellia:{key:'corellia',name:'コレリア',note:'造船と交易で栄えるコア・ワールド。コレリアン・ランの起点',short:'交易と造船',planet:{radius:6.1e6,kind:2,axis:[0,0,1],ring:null},altitude:170000,floor:50000,sun:[.62,.28,-.73],map:[312,130]},
+ geonosis:{key:'geonosis',name:'ジオノーシス',note:'アウター・リムの赤い岩石惑星。荒野にドロイド工場が並ぶ',short:'岩石の惑星',planet:{radius:5.3e6,kind:5,axis:[0,0,1],ring:null},altitude:160000,floor:45000,sun:[-.3,.42,.86],map:[356,42]},
+ bespin:{key:'bespin',name:'ベスピン',note:'アウター・リムのガス巨星。雲の層にタイバナガスの採掘都市が浮かぶ',short:'ガス巨星',planet:{radius:5.9e7,kind:3,axis:[.2,0,.98],ring:null},altitude:1.2e6,floor:3e5,sun:[-.7,.35,.62],map:[378,198]},
+ hoth:{key:'hoth',name:'ホス',note:'アウター・リムの氷の惑星。吹雪と氷原に覆われている',short:'氷の惑星',planet:{radius:3.6e6,kind:4,axis:[0,0,1],ring:null},altitude:150000,floor:40000,sun:[.42,.2,.88],map:[340,222]}};
+// The lanes drawn on the star map (any system can be jumped to directly).
+const STAR_LANES=[['coruscant','kuat'],['kuat','corellia'],['coruscant','corellia'],['corellia','geonosis'],['corellia','bespin'],['bespin','hoth']];
+for(const s of Object.values(SYSTEMS))if(s.planet?.axis){const l=Math.hypot(...s.planet.axis)||1;s.planet.axis=s.planet.axis.map(x=>x/l);}
 for(const s of Object.values(SYSTEMS)){const l=Math.hypot(...s.sun);s.sun=s.sun.map(x=>x/l);}
 const trialSys=()=>SYSTEMS[trial.sysKey]||SYSTEMS.coruscant;
 const trialPlanet=()=>{const s=trialSys();return {center:tv.scale(trial.P,-1),radius:s.planet.radius,sun:s.sun,kind:s.planet.kind,axis:s.planet.axis,ring:s.planet.ring};};
@@ -3103,17 +3301,54 @@ function trialDust(){const L=trial.p.len,H=C.clamp(L*2,1400,30000),n=280,pos=new
 // dropping out is seen from outside as a long streak that snaps back to the
 // ship's true length.
 const JUMP={spool:1.8,accel:1.4,enter:1.25,close:.45,exit:1.1,brake:1.3,arrive:.4},SUBLIGHT=3e7,LIGHT=2.998e8,STREAK=1.9;
-const jumpSeconds=hc=>C.clamp(3+2.2*hc,3.5,14);
+const jumpSeconds=(hc,from,to)=>{const a=SYSTEMS[from]?.map,b=SYSTEMS[to]?.map,d=a&&b?Math.hypot(a[0]-b[0],a[1]-b[1])/127:1;return C.clamp((3+2.2*hc)*(.6+.4*d),3.5,24);};
 const trialHyperClass=()=>trial.asset?.stats?.hyperClass??null;
 // A ship dropping out covers D(t)=D0·e^(−kt) in its last instants; it is drawn
 // stretched by that speed, bow in place, and washed blue-white.
 const WARP={D0:160,k:22,cap:36};
 function warpLook(t,L){const tt=Math.max(0,t),D=WARP.D0*L*Math.exp(-WARP.k*tt),stretch=1+Math.min(WARP.cap,D/Math.max(1,L)*.9);return {D,stretch,tint:C.clamp((stretch-1)/16,0,.45)};}
+// ---------- patrol escorts (v17) ----------
+// Ships of the player's choosing keep station astern and abeam of the flown
+// ship, ride along through hyperspace, and put their fire on the target the
+// flagship is shooting at.
+const ESCORT_SLOTS=[[.45,.06,1.5],[.45,-.06,-1.5],[2,.55,0],[-.4,-.1,2.7],[-.4,.1,-2.7],[3.3,0,0]];
+function escortsInit(){
+ trial.escorts=[];if(trial.mode!=='trial'||!trial.escortKeys?.length)return;const L=trial.p.len;
+ trial.escortKeys.forEach((k,i)=>{const a=fleet.assets.get(k);if(!a?.p||i>=ESCORT_SLOTS.length)return;const s=ESCORT_SLOTS[i],sp=Math.max(L,a.p.len)*1.15+260,slot=[s[0]*sp,s[1]*sp,s[2]*sp];
+  trial.escorts.push({key:k,p:a.p,name:String(a.design?.name||a.p.name||'随伴艦').split('｜')[0],slot,pos:tv.add(trial.P,trialApply(trial.R,slot)),V:[...trial.V],R:[...trial.R],f:trialCol(trial.R,0),gun:Math.random()*2});});
+}
+function escortsPlace(){for(const e of trial.escorts||[]){e.pos=tv.add(trial.P,trialApply(trial.R,e.slot));e.V=[...trial.V];e.R=[...trial.R];e.f=trialCol(trial.R,0);}}
+function escortsStep(dt){
+ const es=trial.escorts;if(!es?.length||!(dt>0))return;const j=trial.jump;
+ // In a jump they keep their places exactly: the whole formation goes to lightspeed together.
+ if(j&&j.phase!=='spool'){escortsPlace();return;}
+ const up0=tv.norm(trial.P);
+ for(const e of es){
+  const want=tv.add(trial.P,trialApply(trial.R,e.slot)),err=tv.sub(want,e.pos),d=tv.len(err),vmax=Math.max(e.p.maxSpeed||200,tv.len(trial.V)*1.2+60),acc=Math.max(8,(e.p.accel||10)*2);
+  let goal=tv.add(trial.V,err,Math.min(.35,1/(1+d/4000)));const gl=tv.len(goal);if(gl>vmax)goal=tv.scale(goal,vmax/gl);
+  // Clear of the flagship and of each other.
+  for(const o of [{pos:trial.P,L:trial.p.len},...es.filter(x=>x!==e).map(x=>({pos:x.pos,L:x.p.len}))]){const r=tv.sub(e.pos,o.pos),l=tv.len(r),min=(e.p.len+o.L)*.62;if(l<min&&l>1)goal=tv.add(goal,r,(min-l)/l*.6);}
+  const dv=tv.sub(goal,e.V),n=tv.len(dv),st=Math.min(n,acc*dt);e.V=tv.add(e.V,dv,st/Math.max(1e-6,n));e.pos=tv.add(e.pos,e.V,dt);
+  // The bow follows the way it moves (the flagship's heading when it is nearly still), turning at its own rate.
+  const sp=tv.len(e.V),tf=sp>25?tv.norm(e.V):trialCol(trial.R,0),k=1-Math.exp(-dt*Math.max(.25,(e.p.turnRate||.05)*6));e.f=tv.norm(tv.add(e.f,tv.sub(tf,e.f),k));
+  e.R=trialFrame(e.f,tv.add(tv.scale(up0,.85),trialCol(trial.R,1),.15));
+ }
+}
+function escortsDraw(){return (trial.escorts||[]).map(e=>({key:e.key,pos:tv.sub(e.pos,trial.P),rot:e.R,glow:.75,hatchOpen:0,dead:false,stretch:1,flash:0}));}
+// Supporting fire: while the flagship fires at a target, each escort in range sends a burst at it.
+function escortsFire(dt,lock,firing){
+ const es=trial.escorts;if(!es?.length)return;
+ for(const e of es){e.gun-=dt;if(!firing||!lock||!lock.alive||e.gun>0||trial.jump)continue;const rel=tv.sub(lock.pos,e.pos),d=tv.len(rel);if(d>TRIAL_GUN.range*1.2){e.gun=.5;continue;}
+  const me={pos:trial.P,rot:trial.R,radius:trial.p.len*.5,semi:[trial.p.len*.5,(trial.p.height||trial.p.len*.2)*.5,(trial.p.width||trial.p.len*.5)*.5]};if(trialBoxOnLine(me,e.pos,tv.scale(rel,1/d),d)){e.gun=.4;continue;}
+  e.gun=1.1+Math.random()*.9;const spd=TRIAL_GUN.boltSpeed,t=trialIntercept(rel,tv.sub(lock.vel,e.V),spd)||d/spd,aim=tv.norm(tv.add(tv.add(rel,tv.sub(lock.vel,e.V),t),[(Math.random()-.5)*d*.01,(Math.random()-.5)*d*.01,(Math.random()-.5)*d*.01]));
+  for(let i=0;i<2;i++){const pos=tv.add(tv.add(e.pos,trialApply(e.R,[e.p.len*(.1-.2*i),(e.p.height||e.p.len*.2)*.3,0])),aim,e.p.len*.2);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(aim,spd),e.V),life:(d+e.p.len)/spd*1.15,len:Math.max(70,e.p.len*.04),size:Math.max(5,e.p.len*.006),col:[120,235,255],weight:1,tt:0,esc:true});}
+  trial.fx.push({pos:e.pos,vel:e.V,life:.1,max:.1,size:Math.max(8,e.p.len*.02),col:[200,240,255]});}
+}
 function trialJump(dest){
  if(!trial.on||trial.jump||!SYSTEMS[dest])return;if(dest===trial.sysKey){toast('すでにこの星系にいます');return;}
  const hc=trialHyperClass();if(hc==null){toast('この艦にはハイパードライブがありません');return;}
  if(trial.battle?.me?.out||trial.battle?.me?.dead){toast('戦闘不能のためジャンプできません');return;}
- spaceCineEnd();trial.jump={phase:'spool',t:0,dest,tunnel:jumpSeconds(hc),dir:trialCol(trial.R,0)};trial.tele=5;trial.fire=trial.fireKey=false;trial.fireTap=0;
+ spaceCineEnd();trial.jump={phase:'spool',t:0,dest,tunnel:jumpSeconds(hc,trial.sysKey,dest),dir:trialCol(trial.R,0)};trial.tele=5;trial.fire=trial.fireKey=false;trial.fireTap=0;
  trialMapShow(false);toast(`ハイパードライブ起動 — ${SYSTEMS[dest].name}へ（超空間 ${Math.round(trial.jump.tunnel)} 秒）`);
  if(trial.battle&&!trial.battle.result)spaceDepartEscorts();
 }
@@ -3157,7 +3392,7 @@ function trialJumpStep(dt){
  const j=trial.jump;if(!j)return;j.t+=dt;const next=p=>{j.phase=p;j.t=0;};
  if(j.phase==='spool'){j.dir=trialCol(trial.R,0);if(j.t>=JUMP.spool){j.v0=Math.max(300,trial.vf,trial.p.maxSpeed||0);next('accel');}}
  else if(j.phase==='accel'){if(j.t>=JUMP.accel)next('enter');}
- else if(j.phase==='enter'){if(j.t>=JUMP.enter){next('tunnel');trial.flash=Math.max(trial.flash||0,.8);trial.bolts=[];trial.missiles=[];trial.fx=[];trial.vbolts=[];if(j.follow)j.end=null;else{j.end=j.tunnel;if(trial.battle&&!trial.battle.result)spaceWithdraw();}}}
+ else if(j.phase==='enter'){if(j.t>=JUMP.enter){next('tunnel');shotSoon('hyper',1.1);trial.flash=Math.max(trial.flash||0,.8);trial.bolts=[];trial.missiles=[];trial.fx=[];trial.wrecks=[];trial.vbolts=[];if(j.follow)j.end=null;else{j.end=j.tunnel;if(trial.battle&&!trial.battle.result)spaceWithdraw();}}}
  else if(j.phase==='tunnel'){
   // The far end: the new system is set up while the tunnel still covers it.
   if(!j.arrived&&!j.follow&&trialTunnelLeft(j)<=JUMP.close){j.arrived=true;trialArrive(j.dest);}
@@ -3172,24 +3407,25 @@ function trialArrive(dest){
  Object.assign(trial,{P:[0,R+s.altitude,0],R:[1,0,0,0,1,0,0,0,1],w:[0,0,0],V:[trial.p.maxSpeed*.3,0,0],tele:2,rudder:0,level:false,camF:null,warn:''});trial.vf=trial.V[0];trialDust();
  if(trial.mode==='trial'){trial.targets=[];for(let i=0;i<TRIAL_GUN.targets;i++)trial.targets.push(trialSpawnTarget(i,true));}else trial.targets=[];
  // The arrival point; reversion brings the ship in along its heading to it.
- if(trial.jump){trial.jump.dir=trialCol(trial.R,0);trial.jump.to=trial.P.slice();trial.jump.v1=trial.vf;trial.camF=trialFrame(trial.jump.dir,tv.norm(trial.P));}toast(`${s.name}に到着 — ${s.note}`);
+ if(trial.jump){trial.jump.dir=trialCol(trial.R,0);trial.jump.to=trial.P.slice();trial.jump.v1=trial.vf;trial.camF=trialFrame(trial.jump.dir,tv.norm(trial.P));}escortsPlace();toast(`${s.name}に到着 — ${s.note}`);
 }
 // Star map of the Core Worlds: the current system, the other system and the
 // hyperlane between them. Jumping from a battle withdraws from it.
 function trialMapHTML(){
- const cur=trialSys(),hc=trialHyperClass(),inBattle=trial.battle&&!trial.battle.result,C0=SYSTEMS.coruscant.map,K0=SYSTEMS.kuat.map;
- const sys=Object.values(SYSTEMS),core=[64,196],mid=[(C0[0]+K0[0])/2+6,(C0[1]+K0[1])/2-14];
- const marks=sys.map(s=>{const here=s.key===cur.key,left=s.key==='coruscant',tx=left?s.map[0]-14:s.map[0]+14,anc=left?'end':'start';return `<g class="tm-sys ${here?'here':''}" ${here||hc==null?'':`data-trial-cmd="jump:${s.key}"`}>${here?`<circle class="tm-ring" cx="${s.map[0]}" cy="${s.map[1]}" r="12"/>`:''}<circle cx="${s.map[0]}" cy="${s.map[1]}" r="${here?6:5}"/><text x="${tx}" y="${s.map[1]-2}" text-anchor="${anc}">${esc(s.name)}</text><text class="tm-sub" x="${tx}" y="${s.map[1]+12}" text-anchor="${anc}">${here?'現在地 · ':''}${esc(s.short)}</text></g>`;}).join('');
+ const cur=trialSys(),hc=trialHyperClass(),inBattle=trial.battle&&!trial.battle.result;
+ const sys=Object.values(SYSTEMS).filter(s=>s.key!=='rts'),core=[64,196];
+ const lanes=STAR_LANES.map(([a,b])=>{const p=SYSTEMS[a].map,q=SYSTEMS[b].map,m=[(p[0]+q[0])/2+(q[1]-p[1])*.08,(p[1]+q[1])/2-(q[0]-p[0])*.08];return `<path class="tm-lane" d="M${p.join(' ')} Q ${m.join(' ')} ${q.join(' ')}"/>`;}).join('');
+ const marks=sys.map(s=>{const here=s.key===cur.key,left=s.key==='coruscant'||s.map[0]>330,tx=left?s.map[0]-14:s.map[0]+14,anc=left?'end':'start';return `<g class="tm-sys ${here?'here':''}" ${here||hc==null?'':`data-trial-cmd="jump:${s.key}"`}>${here?`<circle class="tm-ring" cx="${s.map[0]}" cy="${s.map[1]}" r="12"/>`:''}<circle cx="${s.map[0]}" cy="${s.map[1]}" r="${here?6:5}"/><text x="${tx}" y="${s.map[1]-2}" text-anchor="${anc}">${esc(s.name)}</text><text class="tm-sub" x="${tx}" y="${s.map[1]+12}" text-anchor="${anc}">${here?'現在地 · ':''}${esc(s.short)}</text></g>`;}).join('');
  const dests=sys.filter(s=>s.key!==cur.key);
- return `<div class="th-map-head"><b>星図 · コア・ワールド</b><button type="button" class="th-btn" data-trial-cmd="map">閉じる</button></div>
- <svg class="tm-svg" viewBox="0 0 400 240" role="img" aria-label="コア・ワールドの星図。コルサントとクワットがハイパーレーンで結ばれている"><defs><radialGradient id="tmCore" cx="${core[0]/4}%" cy="${core[1]/2.4}%" r="62%"><stop offset="0" stop-color="#fff3cf" stop-opacity=".9"/><stop offset=".1" stop-color="#ffcd7d" stop-opacity=".5"/><stop offset=".34" stop-color="#5d72ad" stop-opacity=".2"/><stop offset="1" stop-color="#060a14" stop-opacity="0"/></radialGradient></defs>
+ return `<div class="th-map-head"><b>星図 · コア・ワールドとアウター・リム</b><button type="button" class="th-btn" data-trial-cmd="map">閉じる</button></div>
+ <svg class="tm-svg" viewBox="0 0 400 240" role="img" aria-label="星図。コア・ワールドのコルサント・クワット・コレリアと、アウター・リムのジオノーシス・ベスピン・ホスがハイパーレーンで結ばれている"><defs><radialGradient id="tmCore" cx="${core[0]/4}%" cy="${core[1]/2.4}%" r="62%"><stop offset="0" stop-color="#fff3cf" stop-opacity=".9"/><stop offset=".1" stop-color="#ffcd7d" stop-opacity=".5"/><stop offset=".34" stop-color="#5d72ad" stop-opacity=".2"/><stop offset="1" stop-color="#060a14" stop-opacity="0"/></radialGradient></defs>
  <rect width="400" height="240" fill="#060a14"/><rect width="400" height="240" fill="url(#tmCore)"/>
  ${[80,150,225,300].map(r=>`<circle class="tm-grid" cx="${core[0]}" cy="${core[1]}" r="${r}"/>`).join('')}
  <path class="tm-arm" d="M-10 64 C 90 20, 250 10, 410 60"/><path class="tm-arm" d="M120 250 C 200 200, 320 180, 410 196"/>
- <text class="tm-region" x="${core[0]-30}" y="${core[1]+26}">ディープ・コア</text><text class="tm-region" x="214" y="176">コア・ワールド</text>
- <path class="tm-lane" d="M${C0.join(' ')} Q ${mid.join(' ')} ${K0.join(' ')}"/><text class="tm-lanelab" x="${mid[0]}" y="${mid[1]+2}" text-anchor="middle">ハイパーレーン</text>${marks}</svg>
- <p class="th-map-note">${hc==null?'この艦にはハイパードライブがありません。':`ハイパードライブ クラス ${num(hc,1)} · 超空間 約 ${Math.round(jumpSeconds(hc))} 秒（演習時間）。全速から亜光速まで加速し、星空が放射状に引き伸ばされてハイパースペースへ。ジャンプ中は射撃できません。${inBattle?'戦闘中にジャンプすると戦域から離脱し、僚艦も続きます。':''}`}</p>
- <div class="th-map-go">${dests.map(s=>`<button type="button" class="th-btn th-jumpbtn" data-trial-cmd="jump:${s.key}" ${hc==null?'disabled':''}>${inBattle?'離脱して':''}${esc(s.name)}へジャンプ</button>`).join('')}</div>`;
+ <text class="tm-region" x="${core[0]-30}" y="${core[1]+26}">ディープ・コア</text><text class="tm-region" x="184" y="186">コア・ワールド</text><text class="tm-region" x="392" y="132" text-anchor="end">アウター・リム</text>
+ ${lanes}${marks}</svg>
+ <p class="th-map-note">${hc==null?'この艦にはハイパードライブがありません。':`ハイパードライブ クラス ${num(hc,1)} · 超空間 約 ${Math.round(jumpSeconds(hc,'coruscant','kuat'))}〜${Math.round(jumpSeconds(hc,'coruscant','hoth'))} 秒（演習時間・遠い星系ほど長い）。全速から亜光速まで加速し、星空が放射状に引き伸ばされてハイパースペースへ。ジャンプ中は射撃できません。${inBattle?'戦闘中にジャンプすると戦域から離脱し、僚艦も続きます。':''}`}</p>
+ <div class="th-map-go">${dests.map(s=>`<button type="button" class="th-btn th-jumpbtn" data-trial-cmd="jump:${s.key}" ${hc==null?'disabled':''}>${inBattle?'離脱して':''}${esc(s.name)}へ${hc==null?'':`（${Math.round(jumpSeconds(hc,cur.key,s.key))} 秒）`}</button>`).join('')}</div>`;
 }
 function trialMapShow(on){const m=$('#thMap');if(!m)return;if(on==null)on=m.hidden;if(on)m.innerHTML=trialMapHTML();m.hidden=!on;document.querySelector('[data-trial-cmd="map"].th-mapbtn')?.setAttribute('aria-expanded',String(on));}
 
@@ -3219,12 +3455,14 @@ const spaceRot=(E,yaw)=>{const c=Math.cos(yaw),s=Math.sin(yaw),a=trialApply(E,[c
 // World position of a unit, carried forward by its velocity between model steps.
 function spaceWorld(u,lead=0){const B=trial.battle;if(u.manual)return trial.P;return tv.add(B.O,trialApply(B.E,tv.add(u.pos,u.velocity||[0,0,0],B.acc+lead)));}
 function spaceVel(u){return u.manual?trial.V:trialApply(trial.battle.E,u.velocity||[0,0,0]);}
-function spaceHullPoint(u,k){const L=u.p.len,W=u.p.width||L*.5,H=u.p.height||L*.2,R=u.manual?trial.R:spaceRot(trial.battle.E,u.yaw),c=u.manual?tv.sub(trial.P,[0,0,0]):spaceWorld(u);return tv.add(c,trialApply(R,[(Math.random()-.5)*L*k*2,(Math.random()-.3)*H*.5,(Math.random()-.5)*W*.6]));}
+function spaceHullPoint(u,k){const L=u.p.len,W=u.p.width||L*.5,H=u.p.height||L*.2,R=u.manual?trial.R:spaceRotU(trial.battle.E,u),c=u.manual?tv.sub(trial.P,[0,0,0]):spaceWorld(u);return tv.add(c,trialApply(R,[(Math.random()-.5)*L*k*2,(Math.random()-.3)*H*.5,(Math.random()-.5)*W*.6]));}
 // Enemy ships become gunnery targets: an ellipsoid of the ship's own size.
+// Our own ships are targets too, though never picked or locked: a bolt that
+// strikes one damages it (friendly fire).
 function spaceRefresh(){
- const B=trial.battle;if(!B)return;const live=new Map(trial.targets.map(t=>[t.id,t]));trial.targets=[];
- for(const u of B.b.units){if(u.team!==1||u.dead||u.absent)continue;const t=live.get(u.id)||{id:u.id,ship:true,unit:u,hits:0};
-  Object.assign(t,{alive:true,pos:spaceWorld(u),vel:spaceVel(u),rot:spaceRot(B.E,u.yaw),radius:u.p.len*.5,semi:[u.p.len*.5,(u.p.height||u.p.len*.2)*.5,(u.p.width||u.p.len*.5)*.5]});trial.targets.push(t);}
+ const B=trial.battle;if(!B)return;const live=new Map(trial.targets.map(t=>[t.id,t]));trial.targets=[];const mine=B.me?.team??0;
+ for(const u of B.b.units){if(u.manual||u.dead||u.absent||(u.team!==1&&!B.me))continue;const t=live.get(u.id)||{id:u.id,ship:true,unit:u,hits:0};
+  Object.assign(t,{alive:true,ally:u.team===mine,pos:spaceWorld(u),vel:spaceVel(u),rot:spaceRotU(B.E,u),radius:u.p.len*.5,semi:[u.p.len*.5,(u.p.height||u.p.len*.2)*.5,(u.p.width||u.p.len*.5)*.5]});trial.targets.push(t);}
 }
 function spaceSync(){const B=trial.battle,me=B.me,loc=w=>trialApplyT(B.E,w);me.pos=loc(tv.sub(trial.P,B.O));me.velocity=loc(trial.V);const f=loc(trialCol(trial.R,0));me.yaw=Math.atan2(f[2],f[0]);me.order={...me.order,power:trial.powerMode};}
 function spaceOrders(b){for(const u of b.units){if(u.manual||u.dead||u.out||u.absent)continue;const foes=b.units.filter(t=>t.team!==u.team&&!t.dead&&!t.absent).sort((a,z)=>(!!a.out-!!z.out)||C.len(C.sub(a.pos,u.pos))-C.len(C.sub(z.pos,u.pos)));u.order={...u.order,type:foes.length?'attack':'hold',target:foes[0]?.id,fire:true,launch:true};}}
@@ -3241,6 +3479,142 @@ function trialExplosion(pos,vel,L,big){
  for(let k=0;k<(big?160:90);k++){const d=tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),sp=L*(.3+Math.random()*(big?2.6:1.4));trial.fx.push({pos,vel:tv.add(vel,d,sp),life:1.4+Math.random()*1.4,max:2.8,size:L*(.06+Math.random()*.14),col:k%5===0?[150,155,165]:[255,150+(Math.random()*90|0),70]});}
  if(big)for(let k=0;k<72;k++){const a=k/72*Math.PI*2,d=[Math.cos(a),(Math.random()-.5)*.08,Math.sin(a)];trial.fx.push({pos,vel:tv.add(vel,d,L*3.5),life:1.2,max:1.2,size:L*.12,col:[190,220,255]});}
 }
+// ---------- attitude, fires and wrecks (v17) ----------
+// A ship's attitude in a battle: its heading, the bow raised or lowered with
+// its climb, a little bank in a turn and — disabled — the bow dropping as it
+// falls. Smoothed per ship, since the battle model moves in quarter seconds;
+// the last velocity seen alive is kept for its wreck.
+const spaceAtt=new WeakMap(),m3Mul=(A,B)=>{const o=new Array(9);for(let c=0;c<3;c++)for(let r=0;r<3;r++)o[c*3+r]=A[r]*B[c*3]+A[3+r]*B[c*3+1]+A[6+r]*B[c*3+2];return o;};
+function spaceAttStep(dt){
+ const B=trial.battle;if(!B)return;const k=1-Math.exp(-Math.max(0,dt)*1.6);
+ for(const u of B.b.units){if(u.manual||u.dead)continue;let a=spaceAtt.get(u);if(!a){a={p:0,r:0,v:[0,0,0]};spaceAtt.set(u,a);}
+  const v=u.velocity||[0,0,0],h=Math.hypot(v[0],v[2]);let p=0,r=0;
+  if(u.fall){p=-u.fall.pitch;r=u.fall.roll*Math.min(1,u.fall.t/25);}
+  else if(!u.out&&!u.towedBy){p=C.clamp(Math.atan2(v[1],Math.max(80,h))*.7,-.32,.32);r=C.clamp(-(u.turnK||0)*.1,-.12,.12);}
+  a.p+=(p-a.p)*k;a.r+=(r-a.r)*k;a.v=[...v];}
+}
+function spaceRotU(E,u){
+ const R=spaceRot(E,u.yaw),a=spaceAtt.get(u);if(!a||Math.abs(a.p)+Math.abs(a.r)<1e-4)return R;
+ const f=trialCol(R,0),up=trialCol(R,1),sd=trialCol(R,2),cp=Math.cos(a.p),sp=Math.sin(a.p),f1=tv.add(tv.scale(f,cp),up,sp),u1=tv.add(tv.scale(up,cp),f,-sp),cr=Math.cos(a.r),sr=Math.sin(a.r);
+ return [...f1,...tv.add(tv.scale(u1,cr),sd,sr),...tv.add(tv.scale(sd,cr),u1,-sr)];
+}
+// Points on a design's skin where fires show, by hull section (stern to bow),
+// sampled once from its geometry (relative to the model's centre).
+const fireAnchorCache=new Map();
+function fireAnchors(key,p){
+ const hit=fireAnchorCache.get(key);if(hit)return hit;
+ const asset=key===trial.asset?.key?trial.asset:fleet.assets.get(key),g=asset?.geometry,a=view?.fleetCache?.get(key);if(!g?.meshes||!a?.bounds)return null;
+ const b=a.bounds,c=a.center,L=Math.max(1,b[3]-b[0]),cuts=p?.sectionCuts||[.2,.4,.6,.8],N=cuts.length+1,out=Array.from({length:N},()=>[]);
+ for(const name of ['hull','refHull','struct','plate','refStruct']){const geo=g.meshes[name]?.geo;if(!geo?.pos||!geo.nor)continue;const n=geo.pos.length/3,step=Math.max(1,Math.floor(n/500));
+  for(let i=0;i<n;i+=step){const ny=geo.nor[i*3+1]/127;if(ny<-.35)continue;const x=geo.pos[i*3],y=geo.pos[i*3+1],z=geo.pos[i*3+2],nx=geo.nor[i*3]/127,nz=geo.nor[i*3+2]/127,at=(x-b[0])/L;let si=0;while(si<cuts.length&&at>=cuts[si])si++;
+   out[si].push([x-c[0]+nx*3,y-c[1]+ny*3,z-c[2]+nz*3]);}}
+ for(let si=0;si<N;si++){const l=out[si];if(l.length>28){const k=l.length/28;out[si]=Array.from({length:28},(_,j)=>l[Math.floor(j*k+((j*7)%3)*k/3)]);}}
+ fireAnchorCache.set(key,out);return out;
+}
+const fireHash=(a,b)=>{let h=(a*374761393+b*668265263)|0;h=(h^(h>>>13))*1274126177|0;return ((h^(h>>>16))>>>0)/4294967296;};
+// Flames on the hull of a burning ship, held to the plating where the fire is
+// (no trail): a white-yellow core and an orange glow, flickering, shifting
+// from one spot to the next every few seconds within the burning section.
+function fireEmit(out,key,p,pos,R,fire,L,seed,now){
+ const A=fireAnchors(key,p);if(!A)return;
+ for(let si=0;si<fire.length;si++){const f=fire[si];if(!(f>0))continue;const list=A[si]||[];if(!list.length)continue;const n=Math.min(list.length,2+Math.round(f*6));
+  for(let j=0;j<n;j++){const ep=Math.floor(now/3.2+j*.37+seed*.01),q=list[Math.floor(fireHash(seed*31+si,j*977+ep)*list.length)],w=tv.add(pos,trialApply(R,q)),fl=.72+.18*Math.sin(now*13.1+j*1.7+seed)+.1*Math.sin(now*29.3+j*3.1),s=C.clamp(L*.042,10,150)*(.55+f*.9)*fl;
+   out.push([w,[255,226,150,235],s*.5],[w,[255,104,34,150],s*1.7]);}}
+}
+// Re-entry: a disabled ship deep in its fall glows along its underside.
+function fireReentry(out,key,p,pos,R,depth,L,now){
+ const k=C.clamp((depth-22000)/35000,0,1);if(!(k>0))return;const A=fireAnchors(key,p);if(!A)return;const all=A.flat();if(!all.length)return;
+ const low=all.slice().sort((a,b)=>a[1]-b[1]).slice(0,Math.max(4,Math.floor(all.length*.2)));
+ for(let j=0;j<Math.min(10,low.length);j++){const q=low[Math.floor(j*low.length/10)],w=tv.add(pos,trialApply(R,q)),s=C.clamp(L*.05,12,160)*(.5+k)*(.85+.15*Math.sin(now*17+j));out.push([w,[255,170+Math.round(60*k),110,200],s],[w,[255,90,30,140],s*2.2]);}
+}
+// ---- wrecks ----
+// How a ship dies decides what is left of it: a broken hull (船体破断) parts at
+// its failed sections and the pieces tumble down toward the planet, glowing
+// where they tore; a detonation — reactor, reactant, magazine or scuttling
+// charges — throws it apart in burning chunks; a ship lost in its fall flares
+// and is gone. Wrecks are only seen: the battle model is done with them.
+const WRECK={breakG:3,chunkG:1.2,life:95,chunkLife:40,seamT:24};
+function spaceWreck(u){
+ const B=trial.battle;if(!B||!view)return;const key=u.manual?trial.asset?.key:u.key,a=view.fleetCache?.get(key);
+ const pos=u.manual?[...trial.P]:spaceWorld(u),att=spaceAtt.get(u),vel=u.manual?[...trial.V]:trialApply(B.E,att?.v||u.velocity||[0,0,0]),R=u.manual?[...trial.R]:spaceRotU(B.E,u),L=u.p.len;
+ const fate=u.fate||'hull',boom=['reactor','fuel','magazine','scuttle'].includes(fate);
+ if(fate==='fall'){trialExplosion(pos,vel,L*.6,false);trial.flash=Math.max(trial.flash||0,.15);return;}
+ trialExplosion(pos,vel,L,boom&&fate!=='scuttle');if(!a?.bounds)return;
+ const b=a.bounds,c=a.center,X0=b[0],X1=b[3],span=Math.max(1,X1-X0),cuts=(u.p.sectionCuts||[.2,.4,.6,.8]).map(k=>X0+k*span),N=cuts.length+1,secX=i=>[i?cuts[i-1]:X0-1,i<cuts.length?cuts[i]:X1+1],lost=new Set(u.secLost||[]);
+ const down=tv.norm(tv.scale(pos,-1)),fwd=trialCol(R,0),side=trialCol(R,2),up=trialCol(R,1),seed=Math.random()*1000,pieces=[];
+ const piece=(lo,hi,o)=>{const cm=[(Math.max(lo[0],X0)+Math.min(hi[0],X1))/2,(Math.max(lo[1],b[1])+Math.min(hi[1],b[4]))/2,(Math.max(lo[2],b[2])+Math.min(hi[2],b[5]))/2],w=tv.add(pos,trialApply(R,tv.sub(cm,c)));
+  pieces.push({key,c:cm,lo,hi,pos:w,vel:tv.add(vel,o.v||[0,0,0]),rot:[...R],axis:tv.norm(o.axis||[0,1,0]),rate:o.rate||0,t:0,life:o.life,g:o.g,seam:[lo[0]>X0?lo[0]:-1e9,hi[0]<X1?hi[0]:1e9,Math.max(4,span*.018),1],seamT:o.seamT||WRECK.seamT,char:o.char??.55,L:Math.max(40,Math.min(hi[0],X1)-Math.max(lo[0],X0)),p:u.p,secs:o.secs||[],fire:o.fire??1,seed:seed+pieces.length*17,boomT:o.boomT??(2+Math.random()*4)});};
+ const B9=1e9;
+ if(!boom){
+  // The hull parts at its failed sections: each run of standing sections is a piece; what was lost goes as two smaller halves.
+  const runs=[];let cur=null;for(let i=0;i<N;i++){if(lost.has(i)){cur=null;continue;}if(!cur){cur=[i,i];runs.push(cur);}else cur[1]=i;}
+  if(!runs.length||(runs.length===1&&lost.size===0)){const mid=Math.floor(N/2);runs.length=0;runs.push([0,mid-1],[mid+1,N-1]);lost.add(mid);}
+  const breakX=[...lost].map(i=>(secX(i)[0]+secX(i)[1])/2),bx=breakX.length?breakX.reduce((s,x)=>s+x,0)/breakX.length:(X0+X1)/2;
+  for(const [i0,i1] of runs){const lo=[secX(i0)[0],-B9,-B9],hi=[secX(i1)[1],B9,B9],cx=(Math.max(lo[0],X0)+Math.min(hi[0],X1))/2,dir=Math.sign(cx-bx)||1,sp=C.clamp(L*.012,4,30);
+   // The halves move apart along the old keel and pitch down at the break, like a ship broken in two.
+   piece(lo,hi,{v:tv.add(tv.scale(fwd,dir*sp),down,sp*.3),axis:tv.add(tv.scale(side,-dir),fwd,(Math.random()-.5)*.3),rate:.012+Math.random()*.02,life:WRECK.life,g:WRECK.breakG,secs:Array.from({length:i1-i0+1},(_,k)=>i0+k)});}
+  for(const i of lost){const [x0,x1]=secX(i),zs=(b[2]+b[5])/2;for(const s of [-1,1]){piece([x0,-B9,s<0?-B9:zs],[x1,B9,s<0?zs:B9],{v:tv.add(tv.add(tv.scale(side,s*C.clamp(L*.02,6,50)),up,(Math.random()-.3)*L*.01),down,L*.004),axis:[Math.random()-.5,Math.random()-.5,Math.random()-.5],rate:.05+Math.random()*.08,life:WRECK.life*.8,g:WRECK.breakG,secs:[i],char:.75});}}
+ }else{
+  // Detonation: every section flies apart, the broad ones in halves, outward from the blast.
+  const sp0=fate==='scuttle'?.03:.07,zs=(b[2]+b[5])/2,ys=(b[1]+b[4])/2;
+  for(let i=0;i<N;i++){const [x0,x1]=secX(i),halves=(x1-x0)>span*.12&&(b[5]-b[2])>span*.18;
+   for(const s of halves?[-1,1]:[0]){const lo=[x0,-B9,s>0?zs:-B9],hi=[x1,s<0&&halves?B9:B9,s<0&&halves?zs:B9],cm=[(Math.max(x0,X0)+Math.min(x1,X1))/2,ys,s?zs+s*(b[5]-b[2])*.25:zs],out=tv.norm(tv.add(trialApply(R,tv.sub(cm,c)),[(Math.random()-.5)*L*.2,(Math.random()-.5)*L*.2,(Math.random()-.5)*L*.2])),sp=L*sp0*(.6+Math.random()*.9);
+    piece(lo,hi,{v:tv.scale(out,sp),axis:[Math.random()-.5,Math.random()-.5,Math.random()-.5],rate:.08+Math.random()*.35,life:WRECK.chunkLife+Math.random()*15,g:WRECK.chunkG,seamT:10,char:.8,secs:[i],boomT:1+Math.random()*3});}}
+ }
+ // Each piece keeps the flames near its torn edges.
+ for(const q of pieces){const A=fireAnchors(key,u.p);q.fl=[];if(A)for(const si of q.secs)for(const an of A[si]||[]){const x=an[0]+c[0];if(Math.abs(x-q.seam[0])<span*.08||Math.abs(x-q.seam[1])<span*.08)q.fl.push(an);}if(!q.fl.length&&A)for(const si of q.secs)q.fl.push(...(A[si]||[]).slice(0,6));}
+ (trial.wrecks=trial.wrecks||[]).push(...pieces);if(trial.wrecks.length>90)trial.wrecks.splice(0,trial.wrecks.length-90);
+ shotSoon('wreck',.5);
+}
+function trialWrecksStep(dt){
+ const ws=trial.wrecks;if(!ws?.length)return;
+ for(const q of ws){q.t+=dt;q.pos=tv.add(q.pos,q.vel,dt);q.vel=tv.add(q.vel,tv.norm(tv.scale(q.pos,-1)),q.g*dt);if(q.rate){const R=trialAxisMatrix(q.axis,q.rate*dt);q.rot=m3Mul(R,q.rot);}
+  q.seam[3]=Math.max(0,1-q.t/q.seamT);
+  // Secondary explosions while the fires still reach something.
+  if(q.t<20&&(q.boomT-=dt)<=0){q.boomT=1.5+Math.random()*5;const an=q.fl?.length?q.fl[Math.floor(Math.random()*q.fl.length)]:null,a=view?.fleetCache?.get(q.key);if(an&&a){const w=tv.add(q.pos,trialApply(q.rot,tv.sub(tv.add(an,a.center),q.c))),L=Math.max(30,q.L*.15);trial.fx.push({pos:w,vel:q.vel,life:.5,max:.5,size:L*1.4,col:[255,236,200]});for(let k=0;k<14;k++)trial.fx.push({pos:w,vel:tv.add(q.vel,tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),L*(.4+Math.random()*1.2)),life:.8+Math.random()*.8,max:1.6,size:L*(.08+Math.random()*.1),col:[255,150+(Math.random()*80|0),60]});}}}
+ trial.wrecks=ws.filter(q=>q.t<q.life&&tv.len(tv.sub(q.pos,trial.P))<4e5);
+}
+// Wreck pieces as the renderer draws them (relative to the camera's ship).
+function spaceWreckDraw(){return (trial.wrecks||[]).map(q=>({key:q.key,pos:tv.sub(q.pos,trial.P),rot:q.rot,center:q.c,clip:{lo:q.lo,hi:q.hi},seam:q.seam,char:q.char,wreck:true,glow:0,hatchOpen:0,dead:false,stretch:1,flash:0}));}
+// Fires of wreck pieces: along the torn edges, dying down.
+function wreckFireEmit(out,now){
+ for(const q of trial.wrecks||[]){if(!q.fl?.length)continue;const a=view?.fleetCache?.get(q.key);if(!a)continue;const k=Math.max(0,1-q.t/(q.life*.8));if(!(k>0))continue;const n=Math.min(q.fl.length,2+Math.round(5*k));
+  for(let j=0;j<n;j++){const an=q.fl[Math.floor(fireHash(q.seed,j*131+Math.floor(now/2.6+j*.41))*q.fl.length)],w=tv.add(q.pos,trialApply(q.rot,tv.sub(tv.add(an,a.center),q.c))),fl=.7+.2*Math.sin(now*12.7+j*2.3+q.seed)+.1*Math.sin(now*31+j),s=C.clamp(q.p.len*.04,10,140)*(.5+k)*fl;
+   out.push([tv.sub(w,trial.P),[255,220,140,230],s*.5],[tv.sub(w,trial.P),[255,96,30,150],s*1.6]);}}
+}
+// Every flame in view this frame: burning ships, the flown ship, falling
+// ships glowing with re-entry, and the wrecks (positions relative to trial.P).
+function spaceFires(now){
+ const out=[],B=trial.battle;if(!B||!view)return out;
+ for(const u of B.b.units){if(u.dead||u.absent||u.hidden)continue;let pos,R,key;
+  if(u.manual){pos=[0,0,0];R=trial.R;key=trial.asset?.key;}else{pos=tv.sub(spaceWorld(u),trial.P);if(tv.len(pos)>3e5)continue;R=spaceRotU(B.E,u);key=u.key;}
+  if(u.fire?.some(f=>f>0))fireEmit(out,key,u.p,pos,R,u.fire,u.p.len,fireHash(String(u.id).length*977+String(u.id).charCodeAt(String(u.id).length-1),3)*997,now);
+  if(u.fall&&!u.manual)fireReentry(out,key,u.p,pos,R,-u.pos[1],u.p.len,now);}
+ wreckFireEmit(out,now);
+ return out;
+}
+// Sparks where two hulls met.
+const bumpSeen=new WeakSet();
+function spaceBumps(list){
+ const B=trial.battle;if(!B)return;for(const x of list||[]){if(!x||bumpSeen.has(x))continue;bumpSeen.add(x);const w=tv.add(B.O,trialApply(B.E,x.point)),n=C.clamp(Math.round(x.vn/4),4,40);
+  for(let k=0;k<n;k++)trial.fx.push({pos:w,vel:tv.scale(tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),40+Math.random()*(60+x.vn*2)),life:.5+Math.random()*.6,max:1.1,size:10+x.vn*.25,col:[255,190+(Math.random()*50|0),120]});
+  if(x.vn>15)trial.fx.push({pos:w,vel:[0,0,0],life:.4,max:.4,size:60+x.vn*1.5,col:[255,235,200]});}
+}
+// A collision of the flown ship: the model's share of the separation and of the
+// impulse moves the flight model, with a jolt on the screen.
+function spaceBump(me){
+ const B=trial.battle,b=me?.bump;if(!b||!B)return;me.bump=null;
+ trial.P=tv.add(trial.P,trialApply(B.E,b.dp));trial.V=tv.add(trial.V,trialApply(B.E,b.dv));trial.vf=tv.dot(trial.V,trialCol(trial.R,0));
+ if(b.vn>C.HULL_HIT.min){trial.hitFlash=Math.min(1,(trial.hitFlash||0)+C.clamp(b.vn/60,.15,.8));if(performance.now()-(trial.bumpToast||0)>2500){trial.bumpToast=performance.now();toast(`衝突（相対速度 ${Math.round(b.vn)} m/s）`);}}
+}
+// A ship killed since the last frame (also ones scuttled from the maps) leaves its wreck.
+function spaceDeaths(){
+ const B=trial.battle;if(!B)return;const seen=B.deadSeen||(B.deadSeen=new Set());const list=B.rts?[...voy.w.units.values()].filter(u=>u.sys===trial.rts.sys||u.manual):B.b.units;
+ for(const u of list){if(!u.dead||seen.has(u.id))continue;seen.add(u.id);if(B.started)spaceWreck(u);}
+ B.started=true;
+}
+// Fire and debris age in every mode (flight, battle or a fleet battle watched in 3D).
+function trialFxStep(dt){for(const e of trial.fx){e.pos=tv.add(e.pos,e.vel,dt);e.life-=dt;}trial.fx=trial.fx.filter(e=>e.life>0);if(trial.fx.length>3000)trial.fx.splice(0,trial.fx.length-3000);}
 function spaceShots(shots){
  const B=trial.battle,byId=new Map(B.b.units.map(u=>[u.id,u]));
  for(const s of shots){const a=byId.get(s.from),t=byId.get(s.to);if(!a||!t||a.manual)continue;const n=C.clamp(Math.round((s.gun||0)/30),s.gun>0?1:0,6);
@@ -3279,8 +3653,9 @@ function spaceStep(dt){
  B.acc+=dt;B.orderT-=dt;
  while(B.acc>=SPACE_RULES.step){B.acc-=SPACE_RULES.step;if(B.orderT<=0){spaceOrders(b);B.orderT=2;}spaceSync();
   const before=new Map(b.units.map(u=>[u.id,{dead:u.dead,out:u.out}]));
-  const shots=C.fleetTick(b,SPACE_RULES.step,{rules:SPACE_RULES,extra:B.extra,onHit:(u,rec)=>{if(u.manual)hitcamOffer(u,rec,'taken');else if(B.me&&String(rec.src)===String(B.me.id))hitcamOffer(u,rec,'dealt');}});B.extra=new Map();spaceShots(shots);
-  for(const u of b.units){const was=before.get(u.id);if(u.dead&&!was.dead){trialExplosion(spaceWorld(u),spaceVel(u),u.p.len,u.fate==='reactor'||u.fate==='fuel'||u.fate==='magazine');if(u.team===1)B.kills++;}else if(u.out&&!was.out&&u.team===1)B.disabled++;}
+  const shots=C.fleetTick(b,SPACE_RULES.step,{rules:SPACE_RULES,extra:B.extra,gravity:true,onHit:(u,rec)=>{if(u.manual)hitcamOffer(u,rec,'taken');else if(B.me&&String(rec.src)===String(B.me.id))hitcamOffer(u,rec,'dealt');}});B.extra=new Map();spaceShots(shots);
+  spaceBumps(b.bumps);spaceBump(B.me);
+  for(const u of b.units){const was=before.get(u.id);if(u.dead&&!was.dead){if(u.team===1)B.kills++;}else if(u.out&&!was.out&&u.team===1)B.disabled++;}
   for(const t of trial.turrets){const i=B.modIndex.get(t.id);t.dead=i!=null&&B.me.mods[i]<=0;}
   for(const l of trial.launchers){const i=B.modIndex.get(l.id);l.dead=i!=null&&B.me.mods[i]<=0;}
   for(;B.seen<b.events.length;B.seen++){const e=b.events[B.seen],u=b.units.find(x=>x.id===e.id),text=e.text.replace(/^[^：]*：/,'');spaceLog(text,u);if(u?.manual&&/破壊|停止|誘爆|消失|喪失|戦闘不能|撃沈/.test(text))toast('自艦：'+text);}
@@ -3293,7 +3668,7 @@ function spaceDrawUnits(){
  const B=trial.battle;if(!B||B.left)return [];const j=trial.jump?.follow?trial.jump:null,out=j?voyFollowDraw(j):[];
  // In the tunnel only the followed group is there; coming out, it is drawn by the ride.
  if(j&&!j.arrived)return out;const skip=j?j.gid:null;
- for(const u of B.b.units){if(u.manual||u.dead||u.hidden||skip!=null&&u.group===skip)continue;let w=spaceWorld(u),stretch=1,flash=0;const R=spaceRot(B.E,u.yaw),f=trialCol(R,0);
+ for(const u of B.b.units){if(u.manual||u.dead||u.hidden||skip!=null&&u.group===skip)continue;let w=spaceWorld(u),stretch=1,flash=0;const R=spaceRotU(B.E,u),f=trialCol(R,0);
   // A ship dropping out of hyperspace, timed on the battle's clock (or, watching a fleet battle, the screen's).
   const aw=B.rts?B.arrive?.get(u.id):null,tt=B.rts?(aw?aw.t:null):u.warp?(u.warp.at!=null?u.warp.t-u.warp.at:u.warp.t):null;
   if(tt!=null&&tt<.9){if(tt<0)continue;const k=warpLook(tt,u.p.len);w=tv.add(w,f,-k.D);stretch=k.stretch;flash=k.tint;}
@@ -3302,6 +3677,7 @@ function spaceDrawUnits(){
   out.push({key:u.key,pos:tv.sub(w,trial.P),rot:R,glow:u.out?0:.55,hatchOpen:0,dead:false,stretch,flash});}
  // Ships that jumped out, seen from outside: stretched along their heading and gone.
  for(const g of B.ghosts||[]){const t=g.t,stretch=1+25*t*t;out.push({key:g.key,pos:tv.sub(tv.add(g.w,g.f,g.L*40*(t/.8)**3),trial.P),rot:g.rot,glow:.55,hatchOpen:0,dead:false,stretch,flash:C.clamp((stretch-1)/16,0,.45)});}
+ out.push(...spaceWreckDraw());
  return out;
 }
 function spaceShowResult(){
@@ -3480,7 +3856,7 @@ function fleetRoster(){return `<div class="fleet-roster">${fleetDisplay().map(u=
 function fleetControlsHTML(){
  const review=fleet.mode==='review',b=fleet.battle,u=fleetSelected(),editable=fleetEditable()&&u&&!u.dead&&!u.out&&(review||u.team===0),lock=!fleetCanRefit(),busy=fleet.busy;
  let h=`<div class="fleet-heading"><span>${review?'FLEET REVIEW':'FLEET ACTION'}</span><h2>${review?'観閲式':'艦隊戦'}</h2><p>${review?'設計した艦を、同じ縮尺の宇宙に。':'旗艦を自ら操艦し、僚艦と敵艦隊は実空間で戦う。'}</p></div>`;
- if(!review){const flag=fleetFlag(),foes=fleetUnits().filter(x=>x.team===1).length,ready=!!flag&&foes>0&&!busy;h+=`<div class="fleet-space"><label>戦場<select data-fleet-setting="system">${Object.values(SYSTEMS).map(x=>`<option value="${x.key}" ${fleet.system===x.key?'selected':''}>${esc(x.name)}${x.planet.ring?' · 造船リング':' · 低軌道'}</option>`).join('')}</select></label><p class="fleet-flag"><span>旗艦</span><b>${flag?esc(flag.name):'友軍の艦を追加してください'}</b></p><button class="btn primary" data-fleet-action="space" ${ready?'':'disabled'}>旗艦で出撃</button><p class="note keep">${!flag?'友軍の艦を追加すると出撃できます。':!foes?'敵艦を1隻以上追加してください。':`旗艦を公試と同じ操作で操艦します。僚艦 ${fleetUnits().filter(x=>x.team===0).length-1} 隻と敵 ${foes} 隻はAIが戦い、敵は数秒後にハイパースペースから出現します。`}</p></div>`;}
+ if(!review){const flag=fleetFlag(),foes=fleetUnits().filter(x=>x.team===1).length,ready=!!flag&&foes>0&&!busy;h+=`<div class="fleet-space"><label>戦場<select data-fleet-setting="system">${Object.values(SYSTEMS).filter(x=>x.key!=='rts').map(x=>`<option value="${x.key}" ${fleet.system===x.key?'selected':''}>${esc(x.name)}${x.planet.ring?' · 造船リング':' · '+esc(x.short)}</option>`).join('')}</select></label><p class="fleet-flag"><span>旗艦</span><b>${flag?esc(flag.name):'友軍の艦を追加してください'}</b></p><button class="btn primary" data-fleet-action="space" ${ready?'':'disabled'}>旗艦で出撃</button><p class="note keep">${!flag?'友軍の艦を追加すると出撃できます。':!foes?'敵艦を1隻以上追加してください。':`旗艦を公試と同じ操作で操艦します。僚艦 ${fleetUnits().filter(x=>x.team===0).length-1} 隻と敵 ${foes} 隻はAIが戦い、敵は数秒後にハイパースペースから出現します。`}</p></div>`;}
  h+=`<details class="fleet-add" ${lock?'':'open'}><summary>艦隊編成 · ${fleetUnits().length} / 12 隻</summary><label>追加する設計<select id="fleetSource" ${lock||busy?'disabled':''}>${fleetOptions()}</select></label>${!review?`<div class="seg"><button type="button" data-fleet-team="0" aria-pressed="${fleet.team===0}">友軍</button><button type="button" data-fleet-team="1" aria-pressed="${fleet.team===1}">敵軍（AI）</button></div>`:''}<button class="btn" data-fleet-action="add" ${lock||busy?'disabled':''}>${busy?'艦を準備中…':'艦を追加'}</button>${lock?'<p class="note">編成を変えるときは「開始位置に戻す」を押してください。</p>':''}</details>`;
  h+=fleetRoster();
  if(review)h+=`<div class="pgroup"><h4>隊列</h4><div class="chips">${[['line','横列'],['column','縦列'],['wedge','楔形'],['grid','整列']].map(([k,l])=>`<button class="chip" data-fleet-form="${k}" aria-pressed="${fleet.form===k}">${l}</button>`).join('')}</div><label class="fleet-range">艦間隔 <b>${fLen(fleet.gap)}</b><input aria-label="隊列の艦間隔" type="range" min="0" max="5000" step="100" value="${fleet.gap}" data-fleet-setting="gap"></label><p class="note">間隔は最大艦の長さ・幅に加算します。隊列を選び直すと個別配置を整列します。</p></div>`;
@@ -4143,7 +4519,7 @@ function voyOpen(screen = 'setup', tab) {
  voyShow(screen);voyEnsureDesigns(voyOb(voy.setup.own));
 }
 function voyClose() {
- voy.open = false;voy.screen = null;$('#voyage').hidden = true;document.body.classList.remove('voy-on');voyToast(false);requestDraw();
+ vtutStop();voy.open = false;voy.screen = null;$('#voyage').hidden = true;document.body.classList.remove('voy-on');voyToast(false);requestDraw();
 }
 function voyShow(screen) {
  voy.screen = screen;for (const id of ['voySetup', 'voyMapScreen']) $('#' + id).hidden = true;$('#voySheet').hidden = true;
@@ -4427,6 +4803,14 @@ function voyDrawOps(ctx, W, H) {
   ctx.save();ctx.translate(mx, my);ctx.rotate(ang);ctx.fillStyle = 'rgba(236,244,248,.62)';ctx.fillText(text, -wd / 2, -7);ctx.restore();
   const cs = Math.abs(Math.cos(ang)), sn = Math.abs(Math.sin(ang)), hw = (wd * cs + 16 * sn) / 2, hh = (wd * sn + 16 * cs) / 2;label.block(mx - hw, my - hh, mx + hw, my + hh);
  }
+ // Supply lines: from home along the lanes to each system where our ships are; cut ones crossed out.
+ const sup = me.supply;
+ if (sup) {
+  ctx.lineWidth = 3.2;const drawn = new Set();
+  for (const h of w.groups.values()) { if (h.side !== 0 || h.sys == null || !voyLive(h)) continue; let x = h.sys; while (x != null && x >= 0) { const ln = sup.lines.get(x); if (!ln || ln.prev < 0) break; const key = x * 4096 + ln.prev; if (!drawn.has(key)) { drawn.add(key); const p = P(S.systems[x].pos), q = P(S.systems[ln.prev].pos); ctx.strokeStyle = `rgba(110,225,150,${(.18 + .3 * ln.eff).toFixed(2)})`; ctx.beginPath(); ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]); ctx.stroke(); } x = ln.prev; } }
+  ctx.lineWidth = 1.2;for (const hm of me.home) { const [x, y] = P(S.systems[hm].pos), ok = sup.lines.has(hm); ctx.strokeStyle = ok ? 'rgba(110,225,150,.75)' : 'rgba(255,120,100,.75)'; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.arc(x, y, 11, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); }
+  ctx.lineWidth = 1;
+ }
  // The way the selected task group (or each group of the combined task group) would go.
  const g = voySelGroup(), c = g ? null : voySelCtg(), dest = voy.sel.dest;
  const prev = dest == null ? [] : (g ? [g] : voyCtgGroups(c)).filter(h => h.sys != null && h.sys !== dest && !h.transit);
@@ -4472,6 +4856,7 @@ function voyDrawOps(ctx, W, H) {
   if (h.sys != null) { const n = stack.get(h.sys) || 0; stack.set(h.sys, n + 1); y -= (14 + n * 15) * fz; x -= 2; }
   const on = hot(h);ctx.fillStyle = on ? '#ffffff' : VC.own;ctx.strokeStyle = '#06222e';ctx.beginPath();ctx.moveTo(x - 7, y + 5);ctx.lineTo(x, y - 6);ctx.lineTo(x + 7, y + 5);ctx.lineTo(x, y + 1);ctx.closePath();ctx.fill();ctx.stroke();label.block(x - 7, y - 6, x + 7, y + 5);
   voy.opsMarks.push({g: h.id, x, y});
+  if (h.sys != null && sup && !sup.lines.has(h.sys)) { ctx.strokeStyle = '#ff7b62'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x + 6, y - 12); ctx.lineTo(x + 12, y - 6); ctx.moveTo(x + 12, y - 12); ctx.lineTo(x + 6, y - 6); ctx.stroke(); ctx.lineWidth = 1; }
   const ships = h.units.filter(id => R.alive(w.units.get(id))).length, tg = voyTgShort(h.name), tail = h.transit ? ` · ${voyClock(h.transit.t1 - w.time)}` : h.spool ? (h.spool.blocked ? ' · 発進停止' : ' · 発進準備') : h.waitJump ? ' · 出発待ち' : '';
   label([`${h.name} ${ships}隻${tail}`, `${tg} ${ships}隻${tail}`, `${tg} ${ships}`, tg], wd => [[x + 10, y + 4], [x - 10 - wd, y + 4], [x + 10, y - 9], [x - wd / 2, y - 11], [x - 10 - wd, y - 9], [x + 10, y + 16], [x - 10 - wd, y + 16]], on ? '#ffffff' : '#bfe9ff', '700 10.5px ' + font, true);
  }
@@ -4550,6 +4935,8 @@ function voyDrawTac(ctx, W, H) {
   if (u.shieldMax > 0 && u.shield > 0) { ctx.strokeStyle = `rgba(120,190,255,${(.15 + .55 * u.shield / u.shieldMax).toFixed(2)})`; ctx.beginPath(); ctx.arc(x, y, L * .62 + 3, 0, Math.PI * 2); ctx.stroke(); }
   if (sel.has(u.id) || voy.sel.foe === u.id) { ctx.strokeStyle = voy.sel.foe === u.id ? '#ffd0c4' : '#ffffff'; ctx.lineWidth = shipSel || voy.sel.foe === u.id ? 1.6 : 1; ctx.beginPath(); ctx.arc(x, y, L * .62 + 7, 0, Math.PI * 2); ctx.stroke(); ctx.lineWidth = 1; }
   // A ship on fire flickers orange.
+  // A disabled ship falling: a down arrow and how far below the battle it has sunk.
+  if (u.fall && !u.dead) { ctx.strokeStyle = '#ffb27a'; ctx.fillStyle = '#ffb27a'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(x - L * .55 - 6, y - 6); ctx.lineTo(x - L * .55 - 6, y + 5); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x - L * .55 - 10, y + 2); ctx.lineTo(x - L * .55 - 6, y + 8); ctx.lineTo(x - L * .55 - 2, y + 2); ctx.fill(); ctx.lineWidth = 1; const dz = Math.max(0, -u.pos[1]) / 1000; if (dz > .5) { ctx.font = '600 10px ' + getComputedStyle(document.body).fontFamily; ctx.fillText(`−${dz.toFixed(1)}km`, x - L * .55 - 14 - ctx.measureText(`−${dz.toFixed(1)}km`).width, y + 4); } }
   const burn = (u.fire || []).reduce((a, b) => a + b, 0);if (burn > 0 && !u.dead) { const fl = .6 + .4 * Math.sin(performance.now() / 90 + x); ctx.fillStyle = `rgba(255,${120 + (fl * 80 | 0)},40,${(.5 + .5 * Math.min(1, burn)) * fl})`; ctx.beginPath(); ctx.arc(x + L * .25, y - L * .25, 2.5 + 2 * Math.min(1, burn), 0, Math.PI * 2); ctx.fill(); }
   // Hull sections under the mark, stern to bow.
   const bw = Math.max(22, L * .9), sx = x - bw / 2, sy = y + L * .62 + 6;u.sec.forEach((q, i) => { const f = C.clamp(q.s / q.max, 0, 1); ctx.fillStyle = 'rgba(255,255,255,.12)'; ctx.fillRect(sx + i * bw / u.sec.length, sy, bw / u.sec.length - 1, 3); ctx.fillStyle = f > .5 ? '#9be7a6' : f > .2 ? '#ffd27a' : f > 0 ? '#ff8a70' : '#5a2a24'; ctx.fillRect(sx + i * bw / u.sec.length, sy, (bw / u.sec.length - 1) * (f > 0 ? Math.max(.15, f) : 1), 3); });
@@ -4587,9 +4974,17 @@ function voyRenderHud() {
  <div class="vh-clock"><span>経過</span><b>${voyClock(w.time)}</b>${voy.speed > 1 && voy.eff < voy.speed * .75 ? `<small class="vh-lag" title="艦載機や艦が多く計算が追いつかないため、時間の進みを抑えています">実効 ${voy.eff < 10 ? voy.eff.toFixed(1) : Math.round(voy.eff)}×</small>` : ''}</div>
  <div class="vh-speed seg" role="group" aria-label="時間の速さ">${VOY_SPEEDS.map(v => `<button type="button" data-vspeed="${v}" aria-pressed="${voy.speed === v}">${v ? v + '×' : '❚❚'}</button>`).join('')}</div>
  <div class="vh-str"><span>戦力</span><i><em style="width:${pct(ownNow, own.initial)}%"></em></i><small>自軍 ${pct(ownNow, own.initial)}%</small><small class="foe">敵（推定） ${foeKnown ? Math.round(foeKnown) : '不明'}</small></div>
+ ${voySupplyHud(own)}
  <div class="vh-r">${alert ? `<button type="button" class="btn sm warn" data-vgo="tac:${voy.battleAlert}">交戦中：${esc(S.systems[voy.battleAlert].name)}</button>` : ''}<div class="seg vh-maps" role="group" aria-label="地図"><button type="button" data-vgo="ops" aria-pressed="${!tac}">作戦図</button><button type="button" ${tsys != null ? `data-vgo="tac:${tsys}"` : 'disabled'} aria-pressed="${tac}">戦術図</button></div>${v3 ? '<button type="button" class="btn sm primary vh-3d" data-vgo="3d" title="地図を閉じて3D視点に戻る（M）">3D視点</button>' : ''}<button type="button" class="btn sm ghost" data-vgo="side" aria-pressed="${voy.side}">一覧</button><button type="button" class="btn sm ghost" data-vgo="quit">終了</button></div>`;
  // Morphed in place, so a button stays the same node while the clock ticks and a tap on it lands.
  if (el.dataset.html !== html) { const t = document.createElement('div'); t.innerHTML = html; voyMorph(el, t); el.dataset.html = html; }
+}
+// The fleet's supply: what the train can hand out per minute (回復力) against
+// what the ships want, and how many of our groups are cut off from home.
+function voySupplyHud(own) {
+ const sp = own.supply;if (!sp) return '';const w = voy.w, want = sp.want * 60, rate = sp.rate * 60, ratio = want > rate * .02 ? Math.min(1, sp.ratio) : 1;
+ const cut = [...w.groups.values()].filter(g => g.side === 0 && g.sys != null && voyLive(g) && !sp.lines.has(g.sys)).length, rear = [...w.units.values()].filter(u => u.side === 0 && u.status === 'rear' && !u.dead).length;
+ return `<div class="vh-sup${ratio < .5 ? ' bad' : ratio < .95 ? ' warn' : ''}" title="補給の回復力（艦隊全体で毎分配れる資材）と、修理・補充を待つ艦の需要。補給線が切れた星系の艦は補給を受けられません。"><span>補給</span><b>${want > rate * .02 ? Math.round(ratio * 100) + '%' : '充足'}</b><small>回復力 ${num(Math.round(rate))} t/分${want > rate * .02 ? ` · 需要 ${num(Math.round(want))}` : ''}${cut ? ` · 遮断 ${cut}` : ''}${rear ? ` · 後方修理 ${rear} 隻` : ''}</small></div>`;
 }
 function voyRenderLog() { const el = $('#voyLog'); if (!el) return; const html = voy.notes.slice(0, 4).map(n => `<p><span>${voyClock(n.t)}</span>${esc(n.text)}</p>`).join(''); if (el.innerHTML !== html) el.innerHTML = html; }
 
@@ -4641,7 +5036,7 @@ function voyTgStatus(g) {
  if (g.transit) return `ハイパースペース → ${S.systems[g.transit.to].name}（${voyClock(g.transit.t1 - w.time)}）`;
  if (g.spool) return g.spool.blocked ? `発進準備（被弾中で停止）→ ${S.systems[g.spool.dest].name}` : `発進準備 あと ${Math.ceil(g.spool.need - g.spool.t)} 秒 → ${S.systems[g.spool.dest].name}`;
  if (g.waitJump) return `出発待ち ${voyClock(g.waitJump.at - w.time)} → ${S.systems[g.waitJump.dest].name}`;
- const at = S.systems[g.sys]?.name || '';return w.battles.has(g.sys) ? `${at} · 交戦中 · ${voyGroupOrderText(g)}` : `${at} · 待機中`;
+ const at = S.systems[g.sys]?.name || '', held = R.groupDisabled(w, g).length;return w.battles.has(g.sys) ? `${at} · 交戦中 · ${voyGroupOrderText(g)}${held ? ` · 航行不能 ${held}` : ''}` : held ? `${at} · 航行不能艦あり（回収か自沈を）` : `${at} · 待機中`;
 }
 function voyTgRow(g, sys) {
  const w = voy.w, us = g.units.map(id => w.units.get(id)).filter(u => R.alive(u) && (sys == null || u.sys === sys)), str = us.reduce((n, u) => n + R.unitStruct(u), 0) / Math.max(1, us.length), out = us.filter(u => u.out).length;
@@ -4656,6 +5051,20 @@ function voyForceTree(sys) {
  const rest = [...w.groups.values()].filter(g => g.side === 0 && !seen.has(g.id) && voyLive(g) && (sys == null || voyGroupIn(g, sys)));
  if (rest.length) out.push(`<li><span class="vs-ctg">分遣隊・残置部隊</span><ul>${rest.map(g => voyTgRow(g, sys)).join('')}</ul></li>`);
  return `<ul class="vs-tree">${out.join('') || '<li class="muted">部隊がありません</li>'}</ul>`;
+}
+// Disabled ships holding a group: recovered — sent back to the yards by the
+// fleet train, or taken in tow — or scuttled (a second tap confirms).
+function voyDisabledHTML(list, head) {
+ const w = voy.w;if (!list.length) return '';const armed = id => voy.scuttleArm === id && performance.now() < (voy.scuttleAt || 0);
+ return `<div class="vs-dis">${head !== false ? `<p class="vs-sub bad">航行不能艦 ${list.length} 隻：回収か自沈をするまで、この任務群はジャンプできません</p>` : ''}${list.map(u => { const why = R.recoverCheck(w, u), tw = u.towedBy ? [] : voyTowers(u).filter(x => !x.tractor?.lock); return `<div class="vs-disrow"><p><b>${esc(u.name)}</b><small>${esc(u.out || '')}${u.fall ? ` · 落下中（−${(Math.max(0, -u.pos[1]) / 1000).toFixed(1)} km）` : ''}${u.towedBy ? ' · 牽引中' : ''}</small></p><div class="vs-acts"><button type="button" class="btn sm" data-vrec="${u.id}" ${why ? 'disabled' : ''}>後方へ回収</button>${tw.length ? `<button type="button" class="btn sm" data-vtrq="tow:${u.id}">牽引で回収（${esc(tw[0].name)}）</button>` : ''}<button type="button" class="btn sm ${armed(u.id) ? 'warn' : 'ghost'}" data-vscuttle="${u.id}">${armed(u.id) ? '自沈を確定' : '自沈'}</button></div><p class="note">${why ? esc(why) : `後方へ回収すると約 ${Math.round(R.rearSeconds(u) / 60)} 分で修理を終え、母港で戦列に復帰します。`}${u.fall && !u.towedBy ? ' 放置すると大気圏に落下して失われます。' : ''}</p></div>`; }).join('')}</div>`;
+}
+// The supply line to a system as a short phrase, and what a ship still lacks.
+function voySupplyLine(sys) { const ln = voy.w.sides[0].supply?.lines.get(sys); return !ln ? '遮断' : ln.home ? '母港（工廠あり）' : `効率 ${Math.round(ln.eff * 100)}%`; }
+function voyNeedText(u) {
+ const nd = u.supplyNeed;if (!nd?.total) return '補給・修理は不要';const parts = [];
+ if (nd.hull + nd.mods + nd.plate > .5) parts.push(`修理 ${num(Math.round(nd.hull + nd.mods + nd.plate))} t`);if (nd.parts > .5) parts.push(`機器交換 ${num(Math.round(nd.parts))} t`);
+ if (nd.ammo > .5) parts.push(`ミサイル ${num(Math.round(nd.ammo / R.SUPPLY.missile))} 発`);if (nd.craft > .5) parts.push(`艦載機の補充`);if (nd.crew > .5) parts.push(`乗員 ${num(Math.round(nd.crew / R.SUPPLY.crew))} 名`);
+ return '補給待ち：' + parts.join('・');
 }
 function voyCrumbs(c, g) { return `<div class="vs-crumbs">${c ? `<button type="button" data-vctg="${c.id}">${esc(c.name)}</button>` : '<span>分遣隊</span>'}${g ? ` › <button type="button" data-vgroup="${g.id}">${esc(g.name)}</button>` : ''}</div>`; }
 // A route along the lanes: its length on the trunk and on branch lines, and the systems passed.
@@ -4672,14 +5081,18 @@ function voyOpsSide() {
  else if (c) parts.push(voyCtgOpsCard(c));
  else if (voy.sel.sys != null) parts.push(voySysCard(S.systems[voy.sel.sys]));
  parts.push(`<div class="vs-card vs-list"><h3>部隊一覧</h3>${voyForceTree(null)}<p class="note">合同任務群を選ぶと、配下の任務群をそろえてジャンプさせられます。艦隊は航路（主要幹線・支線）に沿ってだけ移動します。</p></div>`);
+ const rear = [...w.units.values()].filter(u => u.side === 0 && u.status === 'rear' && !u.dead);
+ if (rear.length) parts.push(`<div class="vs-card vs-list"><h3>後方で修理中</h3><ul>${rear.map(u => `<li class="muted"><b>${esc(u.name)}</b><small>母港で復帰まで ${voyClock(u.rear.back - w.time)}</small></li>`).join('')}</ul></div>`);
  return parts.join('');
 }
 function voyTgOpsCard(g) {
- const w = voy.w, S = w.sector, us = g.units.map(id => w.units.get(id)).filter(R.alive), hc = R.groupHyper(w, g), c = R.ctgOf(w, g), tow = us.filter(u => u.tractor?.lock && u.tractor.mode === 'tow').length;
+ const w = voy.w, S = w.sector, us = g.units.map(id => w.units.get(id)).filter(R.alive), hc = R.groupHyper(w, g), c = R.ctgOf(w, g), tow = us.filter(u => u.tractor?.lock && u.tractor.mode === 'tow').length, held = R.groupDisabled(w, g), stay = R.groupStay(w, g);
  const dest = voy.sel.dest != null && voy.sel.dest !== g.sys ? voy.sel.dest : null, from = g.sys ?? g.transit?.to, eta = dest != null ? R.etaTo(w, g.id, dest) : null, free = !g.transit && !g.spool && !g.waitJump;
  return `<div class="vs-card">${voyCrumbs(c, null)}<div class="vs-head"><h3>${esc(g.name)}</h3><span>${us.length} 隻 · ${esc(R.FORMATIONS[g.formation] || '')}</span></div>
   <p class="vs-state${g.spool?.blocked ? ' bad' : g.spool || g.waitJump ? ' warn' : ''}">${esc(voyTgStatus(g))}</p>
-  <p class="vs-sub">ハイパードライブ ${hc == null ? '使用不能の艦あり' : 'クラス ' + hc.toFixed(1) + '（任務群で最も遅い艦）'}${tow ? ` · 牽引中 ${tow} 隻（同行）` : ''}</p>
+  <p class="vs-sub">ハイパードライブ ${hc == null ? (held.length ? 'ジャンプ不能（航行不能艦あり）' : 'ジャンプできる艦がありません') : 'クラス ' + hc.toFixed(1) + '（任務群で最も遅い艦）'}${tow ? ` · 牽引中 ${tow} 隻（同行）` : ''}${stay.length ? ` · ハイパードライブを失った ${stay.length} 隻は残置` : ''}</p>
+  ${g.sys != null ? `<p class="vs-sub">補給線 ${voySupplyLine(g.sys)}${us.some(u => u.supplyNeed?.total) ? ` · 補給待ち ${us.filter(u => u.supplyNeed?.total).length} 隻` : ''}</p>` : ''}
+  ${voyDisabledHTML(held)}
   <ul class="vs-ships">${us.map(u => `<li><label>${voy.split ? `<input type="checkbox" data-vsplit="${u.id}" ${voy.splitSel?.has(u.id) ? 'checked' : ''}>` : ''}<b>${u.id === g.flag ? '旗 ' : ''}${esc(u.name)}</b></label>${voySecHTML(u)}<small>${esc(voyUnitState(u))}</small></li>`).join('')}</ul>
   ${dest != null ? `<div class="vs-jump"><p>→ <b>${esc(S.systems[dest].name)}</b>　到着まで <b>${eta == null ? '—' : voyClock(eta)}</b></p><p class="vs-route">${voyRouteHTML(from, dest)}</p><div class="vs-acts"><button type="button" class="btn sm primary" data-vact="jump" ${eta == null || !free ? 'disabled' : ''}>ジャンプ</button><button type="button" class="btn sm ghost" data-vact="nodest">取消</button></div></div>` : ''}
   <div class="vs-acts">${free ? `<button type="button" class="btn sm" data-vact="pickdest" aria-pressed="${voy.cmd?.type === 'jump'}">ジャンプ先を選ぶ</button>` : ''}${g.spool || g.waitJump ? '<button type="button" class="btn sm ghost" data-vact="cancel">発進を取り消す</button>' : ''}${free && us.length > 1 ? `<button type="button" class="btn sm ghost" data-vact="split" aria-pressed="${!!voy.split}">${voy.split ? '分割を確定' : '任務群を分割'}</button>` : ''}${voyMergeButtons(g)}${g.sys != null && w.battles.has(g.sys) ? `<button type="button" class="btn sm warn" data-vgo="tac:${g.sys}">戦術図</button>` : ''}</div>
@@ -4688,8 +5101,9 @@ function voyTgOpsCard(g) {
 function voyCtgOpsCard(c) {
  const w = voy.w, S = w.sector, gs = voyCtgGroups(c), ships = gs.reduce((n, g) => n + g.units.filter(id => R.alive(w.units.get(id))).length, 0), dest = voy.sel.dest;
  const go = dest == null ? [] : gs.filter(g => !g.transit && g.sys != null && g.sys !== dest), etas = go.map(g => R.etaTo(w, g.id, dest)).filter(x => x != null), eta = etas.length ? Math.max(...etas) : null, busy = gs.some(g => g.spool || g.waitJump), battle = gs.find(g => g.sys != null && w.battles.has(g.sys));
+ const heldC = gs.flatMap(g => R.groupDisabled(w, g));
  return `<div class="vs-card"><div class="vs-head"><h3>${esc(c.name)}</h3><span>${gs.length} 個任務群 · ${ships} 隻</span></div>
-  <ul class="vs-tree">${gs.map(g => voyTgRow(g)).join('')}</ul>
+  <ul class="vs-tree">${gs.map(g => voyTgRow(g)).join('')}</ul>${heldC.length ? `<p class="vs-sub bad">航行不能艦のある任務群はジャンプできません（回収か自沈を）</p>${voyDisabledHTML(heldC, false)}` : ''}
   ${dest != null ? `<div class="vs-jump"><p>→ <b>${esc(S.systems[dest].name)}</b>　全任務群の到着まで <b>${eta == null ? '—' : voyClock(eta)}</b></p>${go[0] ? `<p class="vs-route">${voyRouteHTML(go[0].sys, dest)}</p>` : ''}<div class="vs-acts"><button type="button" class="btn sm primary" data-vact="ctgjump" ${eta == null ? 'disabled' : ''}>合同でジャンプ</button><button type="button" class="btn sm" data-vact="ctgjump1" ${eta == null ? 'disabled' : ''}>各個にジャンプ</button><button type="button" class="btn sm ghost" data-vact="nodest">取消</button></div><p class="note">合同でジャンプすると、早く着く任務群は出発を遅らせて全任務群が同時に到着します。</p></div>` : ''}
   <div class="vs-acts"><button type="button" class="btn sm" data-vact="pickdest" aria-pressed="${voy.cmd?.type === 'jump'}">ジャンプ先を選ぶ</button>${busy ? '<button type="button" class="btn sm ghost" data-vact="cancel">発進を取り消す</button>' : ''}${battle ? `<button type="button" class="btn sm warn" data-vgo="tac:${battle.sys}">戦術図</button>` : ''}</div></div>`;
 }
@@ -4697,7 +5111,7 @@ function voySysCard(s) {
  const w = voy.w, mine = [...w.groups.values()].filter(h => h.side === 0 && h.sys === s.id && voyLive(h)), c = [...w.sides[0].contacts.values()].filter(x => x.sys === s.id && !x.transit), seen = w.sides[0].seen.get(s.id), lanes = s.links.map(i => w.sector.edges[i]);
  const send = [...w.groups.values()].filter(h => h.side === 0 && h.sys !== s.id && voyLive(h)), ctgs = [...w.ctgs.values()].filter(x => x.side === 0 && voyCtgGroups(x).some(h => h.sys !== s.id));
  const ctgEta = x => { const e = voyCtgGroups(x).filter(h => !h.transit && h.sys != null && h.sys !== s.id).map(h => R.etaTo(w, h.id, s.id)).filter(v => v != null); return e.length ? Math.max(...e) : null; };
- return `<div class="vs-card"><div class="vs-head"><h3>${esc(s.name)}</h3><span>${esc(R.KIND_NAME[s.kind] || '')}</span></div>${s.note ? `<p class="vs-sub">${esc(s.note)}</p>` : ''}<p class="vs-sub">${esc(s.star)}${s.pop ? ' · 人口規模 ' + '●'.repeat(s.pop) : ' · 無人'}${seen != null ? ' · 最終確認 ' + voyClock(w.time - seen) + ' 前' : ' · 未確認'}</p>
+ return `<div class="vs-card"><div class="vs-head"><h3>${esc(s.name)}</h3><span>${esc(R.KIND_NAME[s.kind] || '')}</span></div>${s.note ? `<p class="vs-sub">${esc(s.note)}</p>` : ''}<p class="vs-sub">補給線 ${voySupplyLine(s.id)}</p><p class="vs-sub">${esc(s.star)}${s.pop ? ' · 人口規模 ' + '●'.repeat(s.pop) : ' · 無人'}${seen != null ? ' · 最終確認 ' + voyClock(w.time - seen) + ' 前' : ' · 未確認'}</p>
   <p class="vs-sub">${s.trunk ? '主要幹線上の星系' : '支線の星系'} · 航路 ${lanes.length} 本${lanes.some(e => e.kind === 'trunk') ? `（幹線 ${lanes.filter(e => e.kind === 'trunk').length}）` : ''}</p>
   ${mine.length ? `<p>自軍：${mine.map(h => esc(h.name)).join('・')}</p>` : ''}${c.length ? `<p class="foe">敵：${c.map(x => `${x.exact ? x.ships : '約' + x.ships} 隻（${voyClock(w.time - x.time)} 前）`).join('・')}</p>` : ''}
   <p class="vs-sub">ここへ送る部隊</p><ul class="vs-send">${ctgs.map(x => { const eta = ctgEta(x); return `<li><div><b>${esc(x.name)}</b><small>${eta == null ? 'ジャンプ不能' : '全任務群の到着まで ' + voyClock(eta)}</small></div><button type="button" class="btn sm" data-vsendc="${x.id}" ${eta == null ? 'disabled' : ''}>合同で送る</button></li>`; }).join('')}${send.map(h => { const eta = R.etaTo(w, h.id, s.id); return `<li><div><b>${esc(h.name)}</b><small>${eta == null ? 'ジャンプ不能' : '到着まで ' + voyClock(eta)}</small></div><button type="button" class="btn sm" data-vsend="${h.id}" ${eta == null || h.transit || h.spool ? 'disabled' : ''}>送る</button></li>`; }).join('') || '<li class="muted">送れる部隊がありません</li>'}</ul>
@@ -4722,7 +5136,7 @@ function voyTgTacCard(g) {
  const w = voy.w, sys = voy.tac.sys, c = R.ctgOf(w, g), ms = g.units.map(id => w.units.get(id)).filter(u => R.alive(u) && u.sys === sys), indiv = ms.filter(u => u.order.type !== 'group' && !u.out), trac = ms.filter(u => u.p.trac > 0 && !u.out);
  return `<div class="vs-card">${voyCrumbs(c, null)}<div class="vs-head"><h3>${esc(g.name)}</h3><span>${ms.length} 隻 · ${esc(R.FORMATIONS[g.formation] || '')}</span></div>
   <p class="vs-state${g.spool?.blocked ? ' bad' : g.spool ? ' warn' : ''}">${esc(g.spool ? voyTgStatus(g) : voyGroupOrderText(g))}</p>
-  <div class="vs-list"><ul>${ms.map(voyShipRow).join('')}</ul></div>
+  <div class="vs-list"><ul>${ms.map(voyShipRow).join('')}</ul></div>${voyDisabledHTML(R.groupDisabled(w, g).filter(u => u.sys === sys))}
   <p class="vs-sub">任務群への命令</p>${voyOrderButtons('tg', g.order.type)}${voyFormHTML(g.formation)}${voyPowerAimHTML(ms)}
   ${trac.length ? voyTractorHTML(trac) : ''}
   ${indiv.length ? `<div class="vs-acts"><p class="vs-sub">${indiv.length} 隻が個別の命令で行動中</p><button type="button" class="btn sm ghost" data-vact="rejoin">任務群に戻す</button></div>` : ''}
@@ -4730,8 +5144,9 @@ function voyTgTacCard(g) {
 }
 function voyCtgTacCard(c) {
  const w = voy.w, sys = voy.tac.sys, gs = voyCtgGroups(c).filter(g => voyGroupIn(g, sys)), ms = gs.flatMap(g => g.units.map(id => w.units.get(id)).filter(u => R.alive(u) && u.sys === sys)), trac = ms.filter(u => u.p.trac > 0 && !u.out);
+ const heldC = gs.flatMap(g => R.groupDisabled(w, g));
  return `<div class="vs-card"><div class="vs-head"><h3>${esc(c.name)}</h3><span>${gs.length} 個任務群 · ${ms.length} 隻</span></div>
-  <ul class="vs-tree">${gs.map(g => voyTgRow(g, sys)).join('')}</ul>
+  <ul class="vs-tree">${gs.map(g => voyTgRow(g, sys)).join('')}</ul>${heldC.length ? voyDisabledHTML(heldC) : ''}
   <p class="vs-sub">合同任務群への命令（全任務群）</p>${voyOrderButtons('ctg', voyCommon(gs, g => g.order.type))}${voyFormHTML(voyCommon(gs, g => g.formation))}${voyPowerAimHTML(ms)}
   ${trac.length ? voyTractorHTML(trac) : ''}
   <p class="note">移動を命じると、任務群は進路を横切る線上に並んで進みます。</p></div>`;
@@ -4739,9 +5154,9 @@ function voyCtgTacCard(c) {
 function voyShipCard(sel) {
  const w = voy.w, u = sel[0], one = sel.length === 1, g = w.groups.get(u.group), c = g && R.ctgOf(w, g), sx = C.fleetSystems(u), lost = (u.p.modules || []).map((m, i) => u.mods[i] <= 0 && m.k !== 'hull' ? m.name : null).filter(Boolean), trac = sel.filter(x => x.p.trac > 0 && !x.out);
  return `<div class="vs-card">${voyCrumbs(c, g)}<div class="vs-head"><h3>${one ? esc(u.name) : `${sel.length} 隻を選択`}</h3><span>${esc(voyUnitState(u))}</span></div>
-  ${one ? `${voySecHTML(u)}<p class="vs-sub">シールド ${Math.round(u.shield / Math.max(1, u.shieldMax) * 100)}%${u.bankMax > 0 ? ` · 蓄電 ${Math.round(u.bank / u.bankMax * 100)}%` : ''} · 装甲 ${Math.round(u.armor * 100)}% · 乗員 ${num(Math.round(u.crew))} 名 · 炉 ${Math.round(sx.reactor * 100)}% · 推進 ${Math.round(sx.engine * 100)}% · 兵装 ${Math.round(sx.weapon * 100)}%</p><div class="vs-status">${armourFacesHTML(u)}${powerSplitHTML(u)}${statusFlagsHTML(u)}</div>${lost.length ? `<p class="vs-sub bad">損傷：${esc([...new Set(lost)].slice(0, 6).join('・'))}${lost.length > 6 ? ' ほか' : ''}</p>` : ''}${voyHitLogHTML(u)}` : ''}
+  ${one ? `${voySecHTML(u)}<p class="vs-sub">シールド ${Math.round(u.shield / Math.max(1, u.shieldMax) * 100)}%${u.bankMax > 0 ? ` · 蓄電 ${Math.round(u.bank / u.bankMax * 100)}%` : ''} · 装甲 ${Math.round(u.armor * 100)}% · 乗員 ${num(Math.round(u.crew))} 名 · 炉 ${Math.round(sx.reactor * 100)}% · 推進 ${Math.round(sx.engine * 100)}% · 兵装 ${Math.round(sx.weapon * 100)}%</p><div class="vs-status">${armourFacesHTML(u)}${powerSplitHTML(u)}${statusFlagsHTML(u)}</div>${lost.length ? `<p class="vs-sub bad">損傷：${esc([...new Set(lost)].slice(0, 6).join('・'))}${lost.length > 6 ? ' ほか' : ''}</p>` : ''}<p class="vs-sub">${esc(voyNeedText(u))} · 補給線 ${voySupplyLine(u.sys)}${w.battles.has(u.sys) && u.supplyNeed?.total ? '（戦闘中は補給できません）' : ''}</p>${voyHitLogHTML(u)}` : ''}
   <p class="vs-sub">${one ? 'この艦' : '選んだ艦'}への命令</p>${voyOrderButtons('ship', voyCommon(sel, x => x.order.type))}${voyPowerAimHTML(sel)}
-  ${trac.length ? voyTractorHTML(trac) : ''}${one && u.out && !u.towedBy && voyTowers(u).length ? `<div class="vs-acts"><button type="button" class="btn sm" data-vtrq="tow:${u.id}">この艦を牽引させる（${esc(voyTowers(u)[0].name)}）</button></div>` : ''}
+  ${trac.length ? voyTractorHTML(trac) : ''}${one && u.out ? voyDisabledHTML([u], false) : ''}
   ${one && !u.out ? `<button type="button" class="btn primary vs-pilot" data-vpilot="${u.id}">この艦を3Dで操艦</button>` : ''}${one ? `<button type="button" class="btn sm ghost vs-pilot" data-vspectate="${voy.tac.sys}" data-vfollow="${u.id}">${voy3D() ? '3D視点でこの艦を追う' : 'この艦を追って観戦'}</button>` : ''}</div>`;
 }
 function voyFoeCard(fs) {
@@ -4855,6 +5270,8 @@ function voySidebarClick(e) {
  if (d.vsend) { const sys = voy.screen === 'tac' ? voy.tac.sys : voy.sel.sys, r = R.orderJump(w, d.vsend, sys); toast(r.ok ? `${esc(w.groups.get(d.vsend)?.name || '')} を ${esc(w.sector.systems[sys].name)} へ（到着まで ${voyClock(r.eta)}）` : esc(r.why)); voyRenderSide(); return; }
  if (d.vsendc) { const sys = voy.screen === 'tac' ? voy.tac.sys : voy.sel.sys, c = w.ctgs.get(d.vsendc), r = R.orderCtgJump(w, d.vsendc, sys, true); toast(r.ok ? `${esc(c?.name || '')} を ${esc(w.sector.systems[sys].name)} へ（全任務群の到着まで ${voyClock(r.eta)}）` : esc(r.why)); voyRenderSide(); return; }
  if (d.vtrq) { const [mode, id] = d.vtrq.split(':'), t = w.units.get(id); if (t) voyTractorOrder(mode, t); voyRenderSide(); return; }
+ if (d.vrec) { const u = w.units.get(d.vrec), r = R.orderRecover(w, d.vrec); toast(r.ok ? `${esc(u?.name || '')}を後方へ回収（約 ${Math.round(r.eta / 60)} 分で修理を終えて母港に復帰）` : esc(r.why)); if (r.ok) voy.sel.units = voy.sel.units.filter(x => x !== d.vrec); voyRenderSide(); return; }
+ if (d.vscuttle) { const id = d.vscuttle, u = w.units.get(id); if (voy.scuttleArm === id && performance.now() < (voy.scuttleAt || 0)) { voy.scuttleArm = null; const r = R.orderScuttle(w, id); toast(r.ok ? `${esc(u?.name || '')}：乗員を退艦させて自沈させました` : esc(r.why)); if (r.ok) voy.sel.units = voy.sel.units.filter(x => x !== id); } else { voy.scuttleArm = id; voy.scuttleAt = performance.now() + 4000; toast('もう一度押すと自沈させます'); } voyRenderSide(); return; }
  if (d.vact) {
   const g = voySelGroup(), c = g ? null : voySelCtg();
   if (d.vact === 'pickdest') { voy.cmd = voy.cmd?.type === 'jump' ? null : {type: 'jump'}; voyRenderSide(); return; }
@@ -5013,15 +5430,16 @@ async function voyPilot(id) {
  const w = voy.w, u = w.units.get(id);if (!u || !R.alive(u) || u.out || u.sys == null) { toast('この艦は操艦できません'); return; }
  voyStop3D();voy.orders = false;$('#voyage').hidden = false;voyToast(true);
  // The clock waits while the ship's model and guns are made ready.
- voyPilotBusy(true, `${esc(u.name)}の3Dモデルと砲塔を準備中…`);voy.loading = true;
+ loadShow(`${u.name}の3Dモデルと砲塔を準備中…`, '操艦準備');voy.loading = true;
  try {
   const keys = [...new Set(R.systemUnits(w, u.sys).map(x => x.design))];
   for (const k of keys) await fleetAsset(k);
   const a = await fleetAsset(u.design);if (!a?.design) throw new Error('設計を準備できません');
-  voyPilotBusy(false);voy.pilot = {uid: id, sys: u.sys};$('#voyage').hidden = true;voyToast(false);voy.loading = false;
+  voy.pilot = {uid: id, sys: u.sys};$('#voyage').hidden = true;voyToast(false);
   await trialStart({design: a.design, rts: {w, sys: u.sys, uid: id}, returnTo: 'voyage'});
+  voy.loading = false;
   if (!trial.on) throw new Error('操艦を開始できませんでした');
- } catch (e) { console.error(e); voy.loading = false; voyPilotBusy(false); $('#voyage').hidden = false; voyToast(true); voy.pilot = null; toast('操艦を開始できません：' + esc(e.message || e)); }
+ } catch (e) { console.error(e); voy.loading = false; loadHide(); $('#voyage').hidden = false; voyToast(true); voy.pilot = null; toast('操艦を開始できません：' + esc(e.message || e)); }
 }
 function voyPilotBusy(on, text) { const el = $('#voyBusy'); if (!el) return; el.hidden = !on; if (on) el.querySelector('span').innerHTML = text || '準備中…'; }
 function voyPilotInit() {
@@ -5032,7 +5450,7 @@ function voyPilotInit() {
  const up = tv.norm(trial.P), f0 = trialCol(trial.R, 0), E = trialFrame(f0, up), fw = trialApply(E, [Math.cos(me.yaw), 0, Math.sin(me.yaw)]);
  trial.R = trialFrame(fw, up);const O = tv.sub(trial.P, trialApply(E, me.pos));
  trial.V = trialApply(E, me.velocity || [0, 0, 0]);trial.vf = tv.dot(trial.V, fw);
- const B = {rts: true, O, E, acc: 0, extra: new Map(), seen: w.battles.get(sys)?.log.at(-1)?.n || 0, result: null, orderT: 0, me, plan: null, ticker: [], kills: 0, disabled: 0, cined: true,
+ const B = {rts: true, O, E, acc: 0, extra: new Map(), seen: w.battles.get(sys)?.log.at(-1)?.n || 0, result: null, orderT: 0, me, plan: null, ticker: [], kills: 0, disabled: 0, cined: true, hadBattle: w.battles.has(sys),
   modIndex: new Map((me.p.modules || []).map((m, i) => [m.fit, i]).filter(([f]) => f != null)), b: {get units() { return R.systemUnits(w, sys); }, get time() { return w.time; }}};
  trial.battle = B;trial.targets = [];trial.vbolts = [];trial.foeCraft = [];trial.foeMissiles = [];trial.ownCraft = [];spaceRefresh();
  let near = null, nd = Infinity;for (const u of R.systemUnits(w, sys)) { if (u.side === me.side || !R.fighting(u)) continue; const d = Math.hypot(u.pos[0] - me.pos[0], u.pos[1] - me.pos[1], u.pos[2] - me.pos[2]); if (d < nd) { nd = d; near = u; } }
@@ -5070,13 +5488,16 @@ function voyPilotStep(dt) {
  R.step(w, dt);B.acc = w.acc;
  // Bolts from the other ships, one burst per battle step in which they fired.
  if (w.time > t0) { const shots = []; for (const u of R.systemUnits(w, sys)) if (!u.manual && u.lastShot) shots.push({from: u.id, to: u.lastShot.to, gun: u.lastShot.gun, ion: u.lastShot.ion}); spaceShots(shots); }
- for (const [id, was] of before) { const u = w.units.get(id); if (!u) continue; if (u.dead && !was.dead) { trialExplosion(spaceWorld(u), spaceVel(u), u.p.len, u.fate === 'reactor' || u.fate === 'fuel' || u.fate === 'magazine'); if (u.side !== me.side) B.kills++; } else if (u.out && !was.out && u.side !== me.side) B.disabled++; }
+ for (const [id, was] of before) { const u = w.units.get(id); if (!u) continue; if (u.dead && !was.dead) { if (u.side !== me.side) B.kills++; } else if (u.out && !was.out && u.side !== me.side) B.disabled++; }
+ spaceBumps(R.systemUnits(w, sys).map(u => u.lastBump));spaceBump(me);
  for (const t of trial.turrets) { const i = B.modIndex.get(t.id); t.dead = i != null && me.mods[i] <= 0; }
  for (const l of trial.launchers) { const i = B.modIndex.get(l.id); l.dead = i != null && me.mods[i] <= 0; }
  const log = w.battles.get(sys)?.log || [];let li = log.length;while (li > 0 && log[li - 1].n > B.seen) li--;for (; li < log.length; li++) { const e = log[li];B.seen = e.n;const u = w.units.get(e.id), text = e.text.replace(/^[^：]*：/, ''); spaceLog(text, u ? {...u, team: u.side === me.side ? 0 : 1, manual: u === me} : null); if (u === me && /破壊|停止|誘爆|消失|喪失|戦闘不能|撃沈|崩壊/.test(text)) toast('自艦：' + esc(text)); }
  voyPilotThreats();
  if (me.dead || me.out) { spaceEnd(me.dead ? 'sunk' : 'out'); return; }
- if (!w.battles.has(sys)) { const foes = R.systemUnits(w, sys).filter(u => u.side !== me.side); spaceEnd(foes.some(R.fighting) ? 'withdrew' : 'win'); }
+ // Flying in a quiet system is just flying; a battle that began (or was on) and is over ends the sortie.
+ if (w.battles.has(sys)) B.hadBattle = true;
+ else if (B.hadBattle) { const foes = R.systemUnits(w, sys).filter(u => u.side !== me.side); spaceEnd(foes.some(R.fighting) ? 'withdrew' : 'win'); }
  spaceRefresh();
 }
 // The 3D view has ended (flying a ship, or the view itself). Flying ends back
@@ -5103,22 +5524,23 @@ async function voySpectate(sys, followId) {
  if (!us.length) { toast('この星系に艦がいません'); return false; }
  const first = (followId != null && us.find(u => u.id === followId)) || us.find(u => u.side === 0 && !u.out) || us[0];
  $('#voyage').hidden = false;voyToast(true);voy.orders = false;voy.loading = true;
- voyPilotBusy(true, '3D視点の準備中…（この星系の艦の3Dモデル）');
+ loadShow('3D視点の準備中…（この星系の艦の3Dモデル）', `${w.sector.systems[sys]?.name || ''}星系`);
  try {
   for (const k of [...new Set(R.systemUnits(w, sys).map(x => x.design))]) await fleetAsset(k);
   const a = await fleetAsset(first.design);if (!a?.design) throw new Error('設計を準備できません');
-  voyPilotBusy(false);voy.pilot = {uid: null, sys, spectate: true};$('#voyage').hidden = true;voyToast(false);voy.loading = false;
+  voy.pilot = {uid: null, sys, spectate: true};$('#voyage').hidden = true;voyToast(false);
   await trialStart({design: a.design, rts: {w, sys, uid: first.id, spectate: true}, returnTo: 'voyage'});
+  voy.loading = false;
   if (!trial.on) throw new Error('3D視点を開始できませんでした');
   return true;
- } catch (e) { console.error(e); voy.loading = false; voyPilotBusy(false); $('#voyage').hidden = false; voyToast(true); voy.pilot = null; toast('3D視点を開始できません：' + esc(e.message || e)); return false; }
+ } catch (e) { console.error(e); voy.loading = false; loadHide(); $('#voyage').hidden = false; voyToast(true); voy.pilot = null; toast('3D視点を開始できません：' + esc(e.message || e)); return false; }
 }
 // The planet and sun of a system of the sector, as the 3D views draw them.
 // Ships hold above the haze of the planet's limb: higher over a gas giant, so
 // that its glow does not wash over the sky.
 function voySysDesc(w, id) {
  const sy = w.sector.systems[id], radius = sy.planet?.radius || 6e6;
- return {key: 'rts', name: sy.name, note: sy.note || '', short: sy.name, planet: {radius, kind: sy.planet?.kind === 0 ? 0 : 1, axis: sy.planet?.ring ? [-Math.cos(20 * Math.PI / 180), Math.sin(20 * Math.PI / 180), 0] : [0, 0, 1], ring: sy.planet?.ring || null}, altitude: Math.max(200000, radius * .04), floor: 60000, sun: [-.42, .32, .85].map(v => v / Math.hypot(.42, .32, .85)), map: [0, 0]};
+ return {key: 'rts', name: sy.name, note: sy.note || '', short: sy.name, planet: {radius, kind: sy.planet?.kind ?? 1, axis: sy.planet?.ring ? [-Math.cos(20 * Math.PI / 180), Math.sin(20 * Math.PI / 180), 0] : [0, 0, 1], ring: sy.planet?.ring || null}, altitude: Math.max(200000, radius * .04), floor: 60000, sun: [-.42, .32, .85].map(v => v / Math.hypot(.42, .32, .85)), map: [0, 0]};
 }
 function voySpectateInit(snap = true) {
  const {w, sys, uid} = trial.rts, f = w.units.get(uid) && w.units.get(uid).sys === sys ? w.units.get(uid) : R.systemUnits(w, sys).find(R.alive);
@@ -5140,7 +5562,7 @@ function voySpectateFollow(u, snap) {
 function voySpectateRebase(u) {
  const w = voy.w;trial.rts.sys = u.sys;trial.rts.uid = u.id;SYSTEMS.rts = voySysDesc(w, u.sys);trial.sysKey = 'rts';
  const s = trialSys();trial.P = [0, s.planet.radius + s.altitude, 0];trial.R = [1, 0, 0, 0, 1, 0, 0, 0, 1];trial.V = [0, 0, 0];trial.w = [0, 0, 0];
- trial.bolts = [];trial.vbolts = [];trial.fx = [];trial.missiles = [];trial.hitcam = null;trialDust();spaceCineEnd();
+ trial.bolts = [];trial.vbolts = [];trial.fx = [];trial.wrecks = [];trial.missiles = [];trial.hitcam = null;trialDust();spaceCineEnd();
  voySpectateInit(false);
 }
 // Follow u wherever it is: in this system, another one, or in hyperspace.
@@ -5208,7 +5630,7 @@ function voySpectateStep(dt) {
  if (gone.length) { const f = w.units.get(B.follow), fly = !j0 && f && f.side === 0 && f.sys == null && gone.includes(f) ? gone.filter(u => u.group === f.group) : []; if (fly.length) voyFollowDepart(f, fly.filter(u => u !== f)); for (const u of gone) if (!fly.includes(u)) voyGhost(u); }
  if (!away) {
   if (w.time > t0) { const shots = []; for (const u of R.systemUnits(w, sys)) if (u.lastShot) shots.push({from: u.id, to: u.lastShot.to, gun: u.lastShot.gun, ion: u.lastShot.ion}); spaceShots(shots); }
-  for (const [id, was] of before) { const u = w.units.get(id); if (u?.dead && !was.dead) trialExplosion(spaceWorld(u), spaceVel(u), u.p.len, u.fate === 'reactor' || u.fate === 'fuel' || u.fate === 'magazine'); }
+  spaceBumps(R.systemUnits(w, sys).map(u => u.lastBump));
   const log = w.battles.get(sys)?.log || [];let li = log.length;while (li > 0 && log[li - 1].n > B.seen) li--;
   for (; li < log.length; li++) { const e = log[li], u = w.units.get(e.id);B.seen = e.n;spaceLog(e.text.replace(/^[^：]*：/, ''), u ? {...u, manual: false} : null); }
  }
@@ -5223,7 +5645,11 @@ function voySpectateStep(dt) {
   let f = w.units.get(B.follow);
   // Ours elsewhere (gone while the maps were up): follow it there; anyone else is let go.
   if (f && R.alive(f) && f.side === 0 && f.sys !== sys) { voySpectateSwitch(f); f = null; }
-  else if (!f || f.dead || f.sys !== sys) { const next = voySpectateNext(1); if (next && next !== f) { if (f) toast(`${esc(f.name)}${f.dead ? 'は撃沈されました' : 'は星系を離れました'} — ${esc(next.name)}を追います`); f = next; voySpectateFollow(f, true); } }
+  else if (!f || f.dead || f.sys !== sys) {
+   // A followed ship that is lost: the camera stays with its wreck a few seconds before moving on.
+   if (f?.dead && f.sys === sys && (!B.hold || B.hold.id !== f.id)) { B.hold = {id: f.id, t: 0}; toast(`${esc(f.name)}は${f.fate === 'scuttle' ? '自沈しました' : f.fate === 'fall' ? '大気圏に落下しました' : '撃沈されました'}`); }
+   if (B.hold && f && B.hold.id === f.id && (B.hold.t += dt) < 6) { trial.P = tv.add(trial.P, trial.V, dt); f = null; }
+   else { B.hold = null; const next = voySpectateNext(1); if (next && next !== f) { if (f && !f.dead) toast(`${esc(f.name)}は星系を離れました — ${esc(next.name)}を追います`); f = next; voySpectateFollow(f, true); } } }
   if (f && !f.dead && f.sys === trial.rts.sys && !trial.jump) voySpectateFollow(f, false);
  }
  if (trial.jump?.follow && !trial.jump.arrived) { trial.foeCraft = []; trial.ownCraft = []; trial.foeMissiles = []; } else voyPilotThreats();
@@ -5310,14 +5736,90 @@ function voyHitReplay(uid, idx) {
  requestAnimationFrame(loop);
 }
 
+// ---------- voyage tutorial (v17) ----------
+// A small battle one jump from home: our combined task group (a Venator with
+// its squadrons and two Dreadnaughts, in two task groups) against a pair of
+// Separatist frigates in the next system. Each step says what to do and
+// checks that it is done; 「おまかせ」 does it for the player.
+const vtut = {on: false, i: 0, min: false, timer: 0, last: '', foeSys: null, armed: false};
+const vtutW = () => voy.w;
+function vtutOwnCtg() { const w = vtutW(); return w ? [...w.ctgs.values()].find(c => c.side === 0) : null; }
+function vtutOwnGroups() { const w = vtutW(); return w ? [...w.groups.values()].filter(g => g.side === 0 && voyLive(g)) : []; }
+function vtutFoes() { const w = vtutW(); return w ? [...w.units.values()].filter(u => u.side === 1 && R.alive(u)) : []; }
+const VTUT_STEPS = [
+ {title: '3D視点', text: '艦隊戦は<b>3D視点</b>で始まります。ドラッグで視点を回し、ピンチ（ホイール）で寄ったり離れたりできます。画面の艦をタップするとその艦を追い、上の<b>◀ ▶</b>で追う艦を替えられます。', done: () => true},
+ {title: '命令を開く', text: '<b>「命令」</b>を押すと、宙域全体の<b>作戦図</b>と、星系の中の戦闘を指揮する<b>戦術図</b>が3D視点の上に開きます。地図を閉じて3D視点に戻るには<b>「3D視点」</b>を押します。', done: () => voy.orders || !voy3D(), auto: () => voyOrdersOpen('ops')},
+ {title: '合同任務群を選ぶ', text: '作戦図の一覧で<b>「第1合同任務群」</b>を選びます。地図の自軍の印（青い山形）をタップしても選べます。合同任務群に命じると、配下の任務群がそろって動きます。', done: () => !!(voy.sel.ctg || voy.sel.group), auto: () => { if (!voy.orders && voy3D()) voyOrdersOpen('ops'); voyGo('ops'); const c = vtutOwnCtg(); if (c) voySelect({ctg: c.id}); voyRenderSide(); }},
+ {title: '敵の星系へジャンプ', text: '<b>「ジャンプ先を選ぶ」</b>を押し、敵（<b>赤い◆</b>）のいる星系をタップして<b>「合同でジャンプ」</b>。艦隊は航路に沿ってだけ移動し、早く着く任務群は出発を遅らせて全任務群が同時に到着します。', done: () => vtutOwnGroups().some(g => g.spool || g.transit || g.waitJump || g.sys === vtut.foeSys), auto: () => { const c = vtutOwnCtg(); if (c && vtut.foeSys != null) { const r = R.orderCtgJump(vtutW(), c.id, vtut.foeSys, true); toast(r.ok ? '第1合同任務群：敵の星系へジャンプ' : esc(r.why)); } }},
+ {title: '時間を速める', text: '上の<b>「16×」</b>で時間を速めます（自軍が交戦すると16×までに抑えられます）。ハイパースペースを抜けると<b>交戦</b>が始まり、3D視点では艦が次々にハイパースペースから現れます。', done: () => { const w = vtutW(); return !!w && [...w.battles.keys()].some(s => R.systemUnits(w, s).some(u => u.side === 0)); }, auto: () => { voy.speed = 16; voyRenderHud(); }},
+ {title: '戦術図で指揮する', text: '交戦中の星系は<b>戦術図</b>で指揮します。艦をタップすると1回目でその<b>任務群</b>、2回目でその<b>艦</b>を選びます。<b>「攻撃」</b>を押して敵艦をタップすると、その艦を狙います。陣形・出力配分・照準部位も選べます。味方艦が射線上にいると主砲は撃てず、艦どうしがぶつかると損傷します。', done: () => { const w = vtutW(); return vtutOwnGroups().some(g => g.order.type === 'attack') || (!!w && !vtutFoes().some(u => R.fighting(u))); }, auto: () => { const w = vtutW(), foes = vtutFoes().filter(u => R.fighting(u)); for (const g of vtutOwnGroups()) { const f = w.units.get(g.flag) || w.units.get(g.units[0]); const t = foes.slice().sort((a, b) => C.len(C.sub(a.pos, f.pos)) - C.len(C.sub(b.pos, f.pos)))[0]; if (t) R.orderGroup(w, g.id, {type: 'attack', target: t.id}); } const b = [...w.battles.keys()].find(s => R.systemUnits(w, s).some(u => u.side === 0)); if (b != null) { if (!voy.orders && voy3D()) voyOrdersOpen('tac:' + b); else voyGo('tac:' + b); } voyRenderSide(); }},
+ {title: '飛行隊', text: '戦術図の<b>「飛行隊」</b>タブで艦載機に命令します。<b>攻撃</b>（目標と進入方向）・<b>制空</b>・<b>直掩</b>を選べます。母艦がハイパースペースに入るまでに戻れなかった機は失われるので、離脱の前に呼び戻しましょう。', done: () => true, auto: () => { voy.tab = 'wings'; voyRenderSide(); }},
+ {title: '航行不能艦の処置', text: '航行不能になった艦がいると、その<b>任務群はジャンプできません</b>。艦を選んで<b>「後方へ回収」</b>（戦闘のない星系で補給線が届くとき。修理を終えると母港で復帰）・<b>「牽引で回収」</b>（トラクター・ビームを持つ艦で連れて行く）・<b>「自沈」</b>から選びます。放置すると惑星の重力に引かれて落ちていきます。いま「フォルティス」を航行不能にしました。', enter: () => vtutDisable(), done: () => !vtutOwnGroups().some(g => R.groupDisabled(vtutW(), g).length), auto: () => { const w = vtutW(); for (const g of vtutOwnGroups()) for (const u of R.groupDisabled(w, g)) { if (!R.recoverCheck(w, u)) R.orderRecover(w, u.id); else { const tw = voyTowers(u); if (tw.length) voyTractorOrder('tow', u, tw); else R.orderScuttle(w, u.id); } } voyRenderSide(); }},
+ {title: '補給線と回復力', text: '作戦図の<b>緑の線</b>が補給線です。母港（緑の点線の円）から航路沿いに延び、<b>敵艦のいる星系は越えられません</b>。上の<b>「補給」</b>は艦隊全体の回復力（毎分配れる資材）と、修理・補充を待つ艦の需要です。戦闘のない星系で修理・ミサイル・艦載機・乗員が補われます。あちこちで同時に戦うと回復が追いつきません。', done: () => true, auto: () => { if (!voy.orders && voy3D()) voyOrdersOpen('ops'); voyGo('ops'); }},
+ {title: '自分で操艦する', text: '艦を選んで<b>「この艦を3Dで操艦」</b>を押すと、その艦を自分で動かして撃てます（W/S：速力、A/D：転舵、Space：射撃）。ほかの艦は命令どおりに戦い続けます。', done: () => true},
+ {title: '完了', text: '敵艦隊の戦力を<b>4分の1以下</b>に減らせば勝利です。これでチュートリアルは終わりです。上の<b>「終了」</b>から作戦を終えられます。', done: () => true, last: true}
+];
+// For the step on disabled ships: one Dreadnaught loses its reactors.
+function vtutDisable() {
+ const w = vtutW();if (!w || vtut.armed) return;vtut.armed = true;
+ const u = [...w.units.values()].find(x => x.side === 0 && R.alive(x) && x.name === 'フォルティス') || [...w.units.values()].find(x => x.side === 0 && R.alive(x) && x.design === 'dreadnaught' && !x.out);if (!u || u.out) return;
+ (u.p.modules || []).forEach((m, i) => { if (m.k === 'reactor') u.mods[i] = 0; });u.out = '電源喪失';u.order = {...u.order, type: 'hold'};voyNote(`${u.name}：電源喪失で航行不能（チュートリアル）`);
+}
+async function voyTutStart() {
+ hideTitle();if (!voy.designs.size) for (const d of voyExampleDesigns()) voyRegister(d);
+ voy.setup = voy.setup || voyNewSetup();
+ const need = ['venator', 'dreadnaught', 'munificent'];if (need.some(k => !voyDesign(k))) { toast('作例の艦を準備できません'); showTitle('voyage'); return; }
+ const air = R.defaultAir(voyDesign('venator').info, 'republic').slice(0, 4).map(q => ({...q, groupName: '第1合同任務群飛行団'}));
+ const own = {ctgs: [{name: '第1合同任務群', tgs: [{name: '第11任務群', formation: 'abreast', ships: [{design: 'venator', name: 'アクィラ', air, troops: 0}, {design: 'dreadnaught', name: 'インヴィクタ', air: [], troops: 0}]}, {name: '第12任務群', formation: 'abreast', ships: [{design: 'dreadnaught', name: 'フォルティス', air: [], troops: 0}]}]}]};
+ const foe = {ctgs: [{name: '分離主義艦隊', tgs: [{name: '第1小艦隊', formation: 'abreast', ships: [{design: 'munificent', name: 'シナジー', air: [], troops: 0}, {design: 'munificent', name: 'レバレッジ', air: [], troops: 0}]}]}]};
+ const designs = need.map(voyDesign).map(d => ({key: d.key, name: d.name, p: d.p, info: d.info}));
+ const w = R.createWorld({seed: 4242, region: 'corellia', designs, sides: [{faction: 'republic', ai: false}, {faction: 'cis', ai: true}], fleets: [own, foe]});w.onHit = voyOnHit;
+ // The enemy waits one jump from our starting system, already reported.
+ const sd = w.sides[0], start = sd.start, S = w.sector, nb = S.systems[start].links.map(i => S.edges[i]).map(e => e.a === start ? e.b : e.a).sort((a, b) => (sd.home.includes(a) - sd.home.includes(b)) || R.routeCost(S, start, a) - R.routeCost(S, start, b))[0];
+ const fg = [...w.groups.values()].find(g => g.side === 1);
+ if (fg && nb != null) { fg.sys = nb; const a = S.systems[start].pos, b = S.systems[nb].pos, d = Math.hypot(a[0] - b[0], a[1] - b[1]) || 1, dx = (a[0] - b[0]) / d, dz = (a[1] - b[1]) / d; fg.units.forEach((id, i) => { const u = w.units.get(id); u.sys = nb; u.pos = [dx * 30000 - dz * (i - .5) * 4500, i % 2 ? 400 : -400, dz * 30000 + dx * (i - .5) * 4500]; u.yaw = Math.atan2(dz, dx); u.velocity = [0, 0, 0]; }); }
+ w.sides[1].brain = {main: [], det: [], scouts: [], plan: null};vtut.foeSys = nb;
+ if (fg) sd.contacts.set(fg.id, {gid: fg.id, sys: nb, time: 0, ships: fg.units.length, capital: 0, strength: fg.units.reduce((n, id) => n + R.unitStrength(w.units.get(id)), 0), exact: true, transit: false, eta: null, names: fg.units.map(id => w.units.get(id).name)});
+ R.supplyLines(w);
+ voy.w = w;voy.speed = 4;voy.seenEv = 0;voy.notes = [];voy.sel = {group: null, ctg: null, sys: null, dest: null, units: [], wing: null, foe: null};voy.cmd = null;voy.ops.fitted = false;voy.tac = {sys: null, c: [0, 0], mpp: 300, fitted: false};voy.result = null;voy.resultDismissed = false;
+ voyOpen('ops');voyShow('ops');voyNote(`チュートリアル：${S.systems[nb]?.name || ''}に敵の小艦隊がいます。合同任務群でジャンプして撃破しましょう。`);
+ vtut.on = true;vtut.i = 0;vtut.min = false;vtut.armed = false;vtutRender();clearInterval(vtut.timer);vtut.timer = setInterval(vtutTick, 600);
+ if (voyCan3D()) voyEnter3D().then(() => { voyWarm(need); vtutRender(); });else voyWarm(need);
+}
+function vtutStop() { vtut.on = false;clearInterval(vtut.timer);vtut.timer = 0;const box = $('#vtut');if (box) box.hidden = true; }
+function vtutGo(i) { vtut.full = false;vtut.i = C.clamp(i, 0, VTUT_STEPS.length - 1);const s = VTUT_STEPS[vtut.i];try { s.enter?.(); } catch (e) { console.error(e); }vtut.last = '';vtutRender(); }
+function vtutRender() {
+ let box = $('#vtut');if (!box) { box = document.createElement('section'); box.id = 'vtut'; box.className = 'tut vtut'; box.setAttribute('aria-label', '航行のチュートリアル'); document.body.appendChild(box); }
+ if (!vtut.on || !voy.w) { box.hidden = true; return; }
+ const s = VTUT_STEPS[vtut.i], done = !!s.done(), N = VTUT_STEPS.length;box.hidden = false;box.classList.toggle('min', vtut.min);
+ if (vtut.min) { box.innerHTML = `<button type="button" class="tut-pill" data-vtut="max">チュートリアル ${vtut.i + 1}/${N}・${esc(s.title)}${done && s.auto ? ' ✓' : ''}</button>`; return; }
+ box.innerHTML = `<div class="tut-head"><span class="tut-kicker">チュートリアル · 艦隊戦</span><span class="tut-no">${vtut.i + 1}/${N}</span><button type="button" class="tut-ic" data-vtut="min" aria-label="小さくする">－</button><button type="button" class="tut-ic" data-vtut="close" aria-label="チュートリアルを終える">×</button></div>
+ <ol class="tut-dots" aria-hidden="true">${VTUT_STEPS.map((q, j) => `<li class="${j < vtut.i ? 'past' : j === vtut.i ? 'now' : ''}"></li>`).join('')}</ol>
+ <h3>${esc(s.title)}</h3><p class="tut-text${vtut.full ? ' full' : ''}" data-vtut="text" title="タップで全文を表示">${s.text}</p>
+ ${s.auto ? `<p class="tut-state ${done ? 'ok' : ''}">${done ? '✓ できました。「次へ」で進みます。' : '画面で操作してください。'}</p>` : ''}
+ <div class="tut-actions"><button type="button" class="btn sm ghost" data-vtut="prev" ${vtut.i === 0 ? 'disabled' : ''}>戻る</button>${s.auto ? '<button type="button" class="btn sm" data-vtut="auto">おまかせで実行</button>' : ''}<button type="button" class="btn sm primary" data-vtut="${s.last ? 'close' : 'next'}">${s.last ? 'チュートリアルを終える' : '次へ'}</button></div>`;
+}
+function vtutTick() { if (!vtut.on) { clearInterval(vtut.timer); return; } if (!voy.w) { vtutStop(); return; } const s = VTUT_STEPS[vtut.i], key = [vtut.i, !!s.done(), vtut.min].join('|'); if (key !== vtut.last) { vtut.last = key; vtutRender(); } }
+document.addEventListener('click', e => {
+ const b = e.target.closest('[data-vtut]');if (!b) return;const a = b.dataset.vtut;
+ if (a === 'start') { voyTutStart(); return; }
+ if (!vtut.on) return;
+ if (a === 'next') vtutGo(vtut.i + 1);else if (a === 'prev') vtutGo(vtut.i - 1);else if (a === 'close') vtutStop();
+ else if (a === 'min') { vtut.min = true; vtutRender(); } else if (a === 'max') { vtut.min = false; vtutRender(); }
+ else if (a === 'text') { vtut.full = !vtut.full; b.classList.toggle('full', vtut.full); }
+ else if (a === 'auto') { try { VTUT_STEPS[vtut.i].auto?.(); } catch (err) { console.error(err); toast(String(err.message || err)); } vtut.last = ''; vtutRender(); }
+});
+
 // ---------- patrol (one ship, the trial flight) ----------
 async function voyPatrol(source) {
- hideTitle();
- if (source === 'current') { if (!ship) { showTitle('voyage'); return; } await trialStart({returnTo: 'title', system: 'kuat'}); return; }
- if (source.startsWith('save:')) { const ok = await loadSaved(source.slice(5)); if (!ship) { showTitle('voyage'); return; } await waitStats(); await trialStart({returnTo: 'title', system: 'kuat'}); return; }
- showBusyOverlay('艦を準備中…（大型艦は時間がかかります）');
- try { const a = await fleetAsset(source); hideBusyOverlay(); await trialStart({design: a.design, returnTo: 'title', system: 'kuat'}); }
- catch (e) { console.error(e); hideBusyOverlay(); toast('艦を準備できません：' + esc(e.message || e)); showTitle('voyage'); }
+ const opt = {returnTo: 'title', system: SYSTEMS[patrolOpt.sys] ? patrolOpt.sys : 'kuat', escorts: patrolOpt.escorts.slice(0, PATROL_ESCORTS), patrol: true};
+ loadShow('艦を準備中…（大型艦は時間がかかります）', 'パトロール');hideTitle();
+ try {
+  if (source === 'current') { if (!ship) throw new Error('設計中の艦がありません'); await waitStats(); await trialStart(opt); }
+  else if (source.startsWith('save:')) { await loadSaved(source.slice(5)); if (!ship) throw new Error('保存した設計を開けません'); await waitStats(); await trialStart(opt); }
+  else { const a = await fleetAsset(source); await trialStart({...opt, design: a.design}); }
+  if (!trial.on) throw new Error('パトロールを開始できませんでした');
+ } catch (e) { console.error(e); loadHide(); toast('艦を準備できません：' + esc(e.message || e)); showTitle('voyage'); }
 }
 function waitStats() { return new Promise(res => { const t0 = performance.now(), f = () => { if (ship?._geoProxy && S || performance.now() - t0 > 120000) res(); else setTimeout(f, 200); }; f(); }); }
 
@@ -5333,7 +5835,7 @@ async function voyOpenWithCurrent() {
   voyObChanged();toast(`設計中の艦を${esc(t.name)}に加えました`);
  } catch (e) { console.error(e); toast('設計中の艦を準備できません：' + esc(e.message || e)); }
 }
-function bindVoyage() { voyBindSetup(); voyBindMap(); document.addEventListener('click', e => { const hb = e.target.closest('[data-vhit],[data-vhitplay],[data-vhitclose]'); if (hb) { if (hb.dataset.vhit) { const [id, i] = hb.dataset.vhit.split(':'); voyHitReplay(id, +i); } else if ('vhitplay' in hb.dataset && voy.replay) voy.replay.t0 = performance.now(); else { $('#voySheet').hidden = true; voy.replay = null; } return; } if (trial.spectate) { const sb = e.target.closest('[data-spec]'); if (sb) { voySpectateCmd(sb.dataset.spec); return; } const mk = e.target.closest('.th-tmark'); if (mk?.dataset.tmark?.startsWith('u')) { voySpectateCmd('follow:' + mk.dataset.tmark.slice(1)); return; } } const b = e.target.closest('[data-voyopen]'); if (b) { e.preventDefault(); voyOpenWithCurrent(); } }); window.__voy = {voy, R, open: voyOpen, pilot: voyPilot, go: voyGo, spectate: voySpectate, tap: voyMapTap}; }
+function bindVoyage() { voyBindSetup(); voyBindMap(); document.addEventListener('click', e => { const hb = e.target.closest('[data-vhit],[data-vhitplay],[data-vhitclose]'); if (hb) { if (hb.dataset.vhit) { const [id, i] = hb.dataset.vhit.split(':'); voyHitReplay(id, +i); } else if ('vhitplay' in hb.dataset && voy.replay) voy.replay.t0 = performance.now(); else { $('#voySheet').hidden = true; voy.replay = null; } return; } if (trial.spectate) { const sb = e.target.closest('[data-spec]'); if (sb) { voySpectateCmd(sb.dataset.spec); return; } const mk = e.target.closest('.th-tmark'); if (mk?.dataset.tmark?.startsWith('u')) { voySpectateCmd('follow:' + mk.dataset.tmark.slice(1)); return; } } const b = e.target.closest('[data-voyopen]'); if (b) { e.preventDefault(); voyOpenWithCurrent(); } }); window.__voy = {voy, R, open: voyOpen, pilot: voyPilot, go: voyGo, spectate: voySpectate, tap: voyMapTap, follow: voySpectateSwitch, tut: voyTutStart, vtut, vtutGo, load: {show: loadShow, hide: loadHide, shots}, fxStep: (dt, n = 1) => { for (let i = 0; i < n; i++) { trialWrecksStep(dt); trialFxStep(dt); } }}; }
 
 window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
 })();
