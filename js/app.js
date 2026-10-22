@@ -791,6 +791,11 @@ SCENES.battle = {bpm: 144, seed: 4, layers: 3, next(P, s) {
 }};
 
 // ---------- stingers (one-shot, 3-6 s; the scene ducks under them) ----------
+// ---------- result screens (v1.4): the synthesized stand-ins for the recorded result music ----------
+// victory: the title chorale, a little slower; defeat: the yard's slow modal walk, slower still.
+SCENES.victory = {bpm: 66, seed: 5, next: SCENES.title.next};
+SCENES.defeat = {bpm: 52, seed: 6, next: SCENES.yard.next};
+
 STINGERS.victory = {bpm: 100, hold: 4.6, duck: .22, next(P, s) {
  const C = prog('Cb:2 Db:2 Eb:5'), M = mel('Eb5:1 Gb5:1 F5:1 Ab5:1 G5:5'); s.len = 9;
  line(s,0, M, I.tpt,.85,0, {wet: .45}); line(s,0, M, I.horn,.6,0, {},-12);
@@ -826,16 +831,133 @@ STINGERS.jump = {bpm: 100, hold: 3.2, duck: .4, next(P, s) {
  [74,78,81,86].forEach((m, i) => s.n(3 + i*.25,.5, I.cel, m,.4,0, {dec: 1.6}));
 }};
 
+// ---------- recorded tracks: <base>bgm_<id>.js (base64 AAC) -> Blob URL -> <audio> -> MediaElementSource -> music bus ----------
+// Streams from an element (never decodeAudioData: minutes of PCM would not fit a phone). Synth music covers loading and absence.
+const XF = 2, TK = {tracks: {}, stingers: {}, base: 'data/', mime: 'audio/mp4; codecs="mp4a.40.2"'}, trk = {}, sceneIdx = {};
+let els = null, cur = null, pend = null, stT = null, noData = false, noCodec = null, anyLoaded = false, needPrime = false, silent = null, lastEvict = 0;
+const nowS = () => Date.now() / 1000;
+// a browser without AAC (e.g. some Chromium builds) keeps the synthesized score
+const canPlay = () => { if (noCodec === null && hasDoc) try { noCodec = !new Audio().canPlayType(TK.mime); } catch (e) { noCodec = true; } return !noCodec; };
+const trackMode = sc => S.musicSource !== 'synth' && !noData && canPlay() && !!(TK.tracks[sc] && TK.tracks[sc].length);
+const hasTracks = () => !noData && canPlay() && (Object.keys(TK.tracks).some(k => TK.tracks[k] && TK.tracks[k].length) || Object.keys(TK.stingers).length > 0);
+const notify = () => { for (const f of subs) try { f(S); } catch (e) {} };
+function silentUrl() {
+ if (silent) return silent;
+ const n = 800, b = new ArrayBuffer(44 + n), v = new DataView(b), w = (o, s) => { for (let i = 0; i < 4; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+ w(0, 'RIFF'); v.setUint32(4, 36 + n, true); w(8, 'WAVE'); w(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, 8000, true); v.setUint32(28, 8000, true); v.setUint16(32, 1, true); v.setUint16(34, 8, true); w(36, 'data'); v.setUint32(40, n, true);
+ for (let i = 0; i < n; i++) v.setUint8(44 + i, 128);
+ return silent = URL.createObjectURL(new Blob([b], {type: 'audio/wav'}));
+}
+// three players: two alternate for crossfades (music bus, ducked by stingers), one for stinger tracks (not ducked)
+function mkEls() {
+ if (els || !eng || !ctx.createMediaElementSource || !hasDoc) return els;
+ els = [0, 1, 2].map(i => { const el = new Audio(), g = ctx.createGain(); el.preload = 'auto'; g.gain.value = 0; el.addEventListener('error', () => trackError(i)); try { ctx.createMediaElementSource(el).connect(g); } catch (e) {} g.connect(i < 2 ? eng.mDry : eng.stDry); return {el, g, id: null, tok: 0, was: 0}; });
+ return els;
+}
+// iOS lets an element play later without a gesture only if it already played inside one: play a silent clip during unlock
+function prime() { if (!mkEls()) return; needPrime = false; for (const s of els) if (!s.id && s.el.paused) { s.el.src = silentUrl(); const p = s.el.play(); if (p && p.then) p.then(() => { if (!s.id) s.el.pause(); }, () => { needPrime = true; }); } resumeEls(); }
+function loadTrack(id) {
+ const r = trk[id] || (trk[id] = {id, st: 'idle', meta: {id}}); r.last = nowS();
+ if (r.st === 'ready') return Promise.resolve(r);
+ if (r.bad) return Promise.reject(new Error('track ' + id + ' unplayable'));
+ if (r.st === 'loading') return r.p;
+ if (noData || !hasDoc) return Promise.reject(new Error('no track data'));
+ r.st = 'loading';
+ return r.p = new Promise((res, rej) => {
+  const fail = () => { r.st = 'error'; rej(new Error('track ' + id)); };
+  const got = () => { const K = (W.KSBGM || {})[id]; if (!K || !K.b64) return fail(); blobify(K, r).then(() => { r.st = 'ready'; anyLoaded = true; r.last = nowS(); res(r); }, fail); };
+  if ((W.KSBGM || {})[id] && W.KSBGM[id].b64) return got();
+  const url = TK.base + 'bgm_' + id + '.js', none = () => { if (!anyLoaded) { noData = true; notify(); } fail(); }; // no data folder (single-file build): stop trying
+  const viaScript = () => { const s = document.createElement('script'); s.src = url; s.async = true; s.onload = () => { s.remove(); got(); }; s.onerror = () => { s.remove(); none(); }; (document.head || document.documentElement).appendChild(s); };
+  // preferred: fetch the bytes and decode the base64 span ourselves, so no multi-MB script source or string stays alive
+  if (!W.fetch || /^file:/.test(W.location && W.location.protocol)) return viaScript();
+  W.fetch(url).then(q => { if (!q.ok) throw {http: q.status}; return q.arrayBuffer(); }).then(b => fromBytes(new Uint8Array(b), r)).then(() => { r.st = 'ready'; anyLoaded = true; r.last = nowS(); res(r); }, e => e && e.http ? none() : e && e.fmt ? fail() : viaScript());
+ });
+}
+const B64 = new Uint8Array(256); 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'.split('').forEach((c, i) => { B64[c.charCodeAt(0)] = i; });
+async function fromBytes(u, r) { // data file bytes: ...Object.assign({meta json},{b64:"..."});
+ const find = (p, from) => { const c = p.charCodeAt(0); for (let i = u.indexOf(c, from); i >= 0; i = u.indexOf(c, i + 1)) { let k = 1; while (k < p.length && u[i + k] === p.charCodeAt(k)) k++; if (k === p.length) return i; } return -1; };
+ const a = find('Object.assign(', 0), m = find(',{b64:"', a); if (a < 0 || m < 0) throw {fmt: 1};
+ const K = JSON.parse(new TextDecoder().decode(u.subarray(a + 14, m))), s = m + 7, e = u.indexOf(34, s); if (e < 0) throw {fmt: 1};
+ let n = e - s; while (n && u[s + n - 1] === 61) n--;
+ const out = new Uint8Array(n * 3 >> 2), full = s + (n & ~3); let o = 0;
+ for (let i = s; i < full;) { const stop = Math.min(full, i + (1 << 20)); for (; i < stop; i += 4) { const v = B64[u[i]] << 18 | B64[u[i + 1]] << 12 | B64[u[i + 2]] << 6 | B64[u[i + 3]]; out[o++] = v >> 16; out[o++] = v >> 8 & 255; out[o++] = v & 255; } await new Promise(f => setTimeout(f, 0)); }
+ if (n & 3) { const x = B64[u[full]], y = B64[u[full + 1]]; out[o++] = x << 2 | y >> 4; if ((n & 3) > 2) out[o++] = (y & 15) << 4 | B64[u[full + 2]] >> 2; }
+ r.url = URL.createObjectURL(new Blob([out.subarray(0, o)], {type: K.mime || 'audio/mp4'}));
+ r.meta = {id: K.id || r.id, title: K.title, credit: K.credit, url: K.url, dur: K.dur};
+}
+async function blobify(K, r) { // base64 -> bytes in 1 MiB slices, yielding to the page between slices
+ const b = K.b64, parts = [], CH = 1 << 20;
+ for (let i = 0; i < b.length; i += CH) { const s = atob(b.slice(i, i + CH)), u = new Uint8Array(s.length); for (let j = 0; j < s.length; j++) u[j] = s.charCodeAt(j); parts.push(u); await new Promise(f => setTimeout(f, 0)); }
+ r.url = URL.createObjectURL(new Blob(parts, {type: K.mime || 'audio/mp4'}));
+ r.meta = {id: K.id || r.id, title: K.title, credit: K.credit, url: K.url, dur: K.dur}; delete K.b64;
+}
+function trackError(i) { // the element could not play this track: drop it and let the synthesized score take over
+ const s = els && els[i]; if (!s || !s.id || s.el.src === silent) return; const r = trk[s.id]; if (r) { r.bad = true; if (r.url) URL.revokeObjectURL(r.url); r.url = null; r.st = 'error'; }
+ s.id = null; if (cur && cur.slot === s) { cur = null; if (curScene) startScene(curScene, want.opts, true); }
+}
+function fadeTo(s, v, t, d) { const g = s.g.gain; g.cancelScheduledValues(t); g.setValueAtTime(g.value, t); g.linearRampToValueAtTime(v, t + d); }
+function playOn(s, r) {
+ r.last = nowS(); s.tok++; if (s.id !== r.id || s.el.src !== r.url) { s.el.src = r.url; s.id = r.id; }
+ try { s.el.currentTime = 0; } catch (e) {}
+ const p = s.el.play(); if (p && p.catch) p.catch(e => { if (e && e.name === 'NotAllowedError') { s.was = 1; needPrime = true; attach(); } });
+}
+function stopLater(s) { const tok = s.tok; setTimeout(() => { if (s.tok === tok && (!cur || cur.slot !== s)) { s.el.pause(); s.was = 0; } }, XF * 1000 + 200); }
+function playTrack(id, scene) {
+ const r = trk[id]; if (!r || r.st !== 'ready' || !mkEls()) return false;
+ const t = ctx.currentTime, a = cur && cur.slot, s = a === els[0] ? els[1] : els[0];
+ if (a) { fadeTo(a, 0, t, XF); stopLater(a); }
+ fadeTo(s, 0, t, .01); playOn(s, r); fadeTo(s, 1, t + .02, XF);
+ cur = {id, scene, slot: s, adv: 0, pre: 0}; pend = null; return true;
+}
+function stopTrack() { if (!cur) return; const s = cur.slot; fadeTo(s, 0, ctx.currentTime, XF); cur = null; stopLater(s); }
+function nextIn(sc) { const L = TK.tracks[sc]; return L[((sceneIdx[sc] || 0) + 1) % L.length]; }
+function trackTick() {
+ if (cur) {
+  const el = cur.slot.el, d = el.duration, left = d - el.currentTime, sc = cur.scene; trk[cur.id].last = nowS();
+  if (d > 0 && !el.paused) {
+   if (left < 45 && !cur.pre) { cur.pre = 1; loadTrack(nextIn(sc)).catch(() => {}); }
+   if (left < XF + .25 && !cur.adv) { cur.adv = 1; const L = TK.tracks[sc], id = L[sceneIdx[sc] = ((sceneIdx[sc] || 0) + 1) % L.length]; loadTrack(id).then(() => { if (cur && cur.scene === sc && curScene === sc && trackMode(sc)) playTrack(id, sc); }, () => {}); }
+  }
+ }
+ const n = nowS(); if (n - lastEvict < 15) return; lastEvict = n;
+ // forget blobs nobody needs soon (kept: the playing/pending track, the next one in the scene, stinger tracks while a track scene runs)
+ const keep = new Set([cur && cur.id, pend && pend.id, stT && n < stT.end ? stT.id : null]);
+ if (curScene && trackMode(curScene)) { keep.add(nextIn(curScene)); for (const k in TK.stingers) keep.add(TK.stingers[k]); }
+ for (const id in trk) { const r = trk[id]; if (r.st !== 'ready' || keep.has(id) || n - r.last < 90) continue;
+  for (const s of els || []) if (s.id === id && s.el.paused) { s.el.removeAttribute('src'); s.el.load(); s.id = null; }
+  URL.revokeObjectURL(r.url); r.url = null; r.st = 'idle'; }
+}
+function trackStinger(name) {
+ const id = S.musicSource !== 'synth' && !noData && TK.stingers[name]; if (!id) return false;
+ const r = trk[id]; if (!r || r.st !== 'ready' || !mkEls()) { loadTrack(id).catch(() => {}); return false; }
+ const s = els[2], t = ctx.currentTime, dur = r.meta.dur || 30;
+ fadeTo(s, 1, t, .02); playOn(s, r); eng.duck(t + .05, Math.max(1, dur - 1.5), .3); stT = {id, end: nowS() + dur}; return true;
+}
+function pauseEls() { for (const s of els || []) if (!s.el.paused) { s.was = 1; s.el.pause(); } }
+function resumeEls() { for (const s of els || []) if (s.was) { s.was = 0; const p = s.el.play(); if (p && p.catch) p.catch(() => {}); } }
+// Start loading tracks ahead of need (e.g. the title music while the title screen waits for a tap): no audio
+// context is needed to fetch and decode the data, only to play it. Returns how many were asked for.
+function preload(ids) {
+ if (S.musicSource === 'synth' || noData || !canPlay()) return 0; let n = 0;
+ for (const id of [].concat(ids || [])) if (typeof id === 'string' && /^[\w-]+$/.test(id)) { loadTrack(id).catch(() => {}); n++; }
+ return n;
+}
+function trackInfo() {
+ const ids = []; for (const k in TK.tracks) for (const id of TK.tracks[k] || []) if (!ids.includes(id)) ids.push(id); for (const k in TK.stingers) if (!ids.includes(TK.stingers[k])) ids.push(TK.stingers[k]);
+ return ids.map(id => { const K = (W.KSBGM || {})[id] || {}, m = trk[id] ? trk[id].meta : {}; return {id, title: m.title || K.title || null, credit: m.credit || K.credit || null, url: m.url || K.url || null, dur: m.dur || K.dur || null}; });
+}
+
 // ---------- realtime wrapper: one AudioContext after the first gesture ----------
-const KEY = 'ks.audio.v1', DEF = {master: .7, music: .55, sfx: .7, muted: false};
+const KEY = 'ks.audio.v1', DEF = {master: .7, music: .55, sfx: .7, muted: false, musicSource: 'classic'};
 const hasDoc = typeof document !== 'undefined';
 const isHidden = () => hasDoc && !!document.hidden;
-function normS(s, base) { const o = Object.assign({}, base || DEF); if (s && typeof s === 'object') { for (const k of ['master', 'music', 'sfx']) { const v = s[k]; if (v !== null && v !== '' && isFinite(+v)) o[k] = clamp(+v,0,1); } if (typeof s.muted === 'boolean') o.muted = s.muted; } return o; }
+function normS(s, base) { const o = Object.assign({}, base || DEF); if (s && typeof s === 'object') { for (const k of ['master', 'music', 'sfx']) { const v = s[k]; if (v !== null && v !== '' && isFinite(+v)) o[k] = clamp(+v,0,1); } if (typeof s.muted === 'boolean') o.muted = s.muted; if (s.musicSource === 'classic' || s.musicSource === 'synth') o.musicSource = s.musicSource; } return o; }
 function loadS() { try { return normS(JSON.parse(W.localStorage.getItem(KEY) || 'null')); } catch (e) { return normS(null); } }
 function saveS() { try { W.localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
 let S = loadS(), ctx = null, eng = null, timer = 0, everRan = false, want = {scene: null, opts: {}}, curScene = null, curFac = 'none', intensity = 0, vtok = 0;
 const subs = new Set(), quiet = () => S.muted || S.master <= 0;
-function tick() { if (eng && ctx.state === 'running') eng.advance(ctx.currentTime + .12); }
+function tick() { if (eng && ctx.state === 'running') { eng.advance(ctx.currentTime + .12); trackTick(); } }
 function ensure() {
  if (ctx) return true; if (!AC) return false;
  try { ctx = new AC({latencyHint: 'interactive'}); } catch (e) { try { ctx = new AC(); } catch (e2) { return false; } }
@@ -849,6 +971,7 @@ function ensure() {
 }
 function unlock() {
  if (!ensure()) return Promise.resolve(false);
+ if (hasTracks() && (!els || needPrime)) prime(); // inside the gesture (iOS)
  const done = () => { if (ctx.state === 'running') { everRan = true; detach(); tick(); if (quiet()) applyS(); } return ctx.state === 'running'; };
  if (ctx.state !== 'running' && !isHidden()) { try { const p = ctx.resume(); if (p && p.then) return p.then(done, () => false); } catch (e) {} }
  return Promise.resolve(done());
@@ -859,20 +982,30 @@ function attach() { if (hasDoc) for (const e of EVTS) document.addEventListener(
 function detach() { if (hasDoc) for (const e of EVTS) document.removeEventListener(e, onGesture, true); }
 function onVis() {
  if (!ctx) return; const tok = ++vtok;
- if (isHidden()) { eng.setHidden(true); setTimeout(() => { if (tok === vtok && isHidden() && ctx.state === 'running') ctx.suspend().catch(() => {}); },320); }
- else { const go = () => { if (tok === vtok) { eng.setHidden(false); tick(); } }; if (ctx.state !== 'running' && everRan && !quiet()) ctx.resume().then(go, go); else go(); }
+ if (isHidden()) { eng.setHidden(true); setTimeout(() => { if (tok === vtok && isHidden()) { pauseEls(); if (ctx.state === 'running') ctx.suspend().catch(() => {}); } },320); }
+ else { const go = () => { if (tok === vtok) { eng.setHidden(false); tick(); if (!quiet()) resumeEls(); } }; if (ctx.state !== 'running' && everRan && !quiet()) ctx.resume().then(go, go); else go(); }
 }
 function applyS() {
  if (!eng) return; eng.apply(S);
- if (quiet()) setTimeout(() => { if (quiet() && ctx.state === 'running') ctx.suspend().catch(() => {}); },260);
- else if (ctx.state !== 'running' && everRan && !isHidden()) ctx.resume().then(tick, () => {});
+ if (quiet()) setTimeout(() => { if (quiet()) { pauseEls(); if (ctx.state === 'running') ctx.suspend().catch(() => {}); } },260);
+ else if (ctx.state !== 'running' && everRan && !isHidden()) ctx.resume().then(() => { tick(); resumeEls(); }, () => {});
+ else if (!isHidden()) resumeEls();
 }
-function startScene(scene, o) {
- const fac = FLAVOR[o && o.faction] ? o.faction : 'none';
- if (!scene) { if (curScene) eng.stopMusic(o && o.fade); curScene = null; return; }
- if (scene === curScene && fac === curFac && eng.scene && !eng.scene.dead) return;
+// a scene plays its recorded track list (classic) or the synthesized score; synth also covers a track that is still loading
+function startScene(scene, o, force) {
+ const fac = FLAVOR[o && o.faction] ? o.faction : 'none', tm = !!scene && trackMode(scene);
+ if (!force && scene && scene === curScene && fac === curFac && (tm ? cur && cur.scene === scene || pend && pend.scene === scene : eng.scene && !eng.scene.dead)) return;
  curScene = scene; curFac = fac;
- eng.playScene(scene, {faction: fac, fade: o && o.fade, seed: Math.random()*1e6 | 0}); tick();
+ if (!scene) { stopTrack(); pend = null; eng.stopMusic(o && o.fade); return; }
+ const synth = () => { const p = eng.scene; if (!p || p.dead || p.def !== SCENES[scene] || p.fac !== fac) eng.playScene(scene, {faction: fac, fade: o && o.fade, seed: Math.random()*1e6 | 0}); };
+ if (!tm) { stopTrack(); pend = null; synth(); tick(); return; }
+ const L = TK.tracks[scene]; let i = sceneIdx[scene];
+ if (!force || i == null) i = sceneIdx[scene] = i == null ? 0 : (i + 1) % L.length;
+ const id = L[i], r = trk[id];
+ for (const k in TK.stingers) loadTrack(TK.stingers[k]).catch(() => {});
+ if (r && r.st === 'ready') { eng.stopMusic(XF); playTrack(id, scene); }
+ else { stopTrack(); synth(); pend = {scene, id}; loadTrack(id).then(() => { if (pend && pend.id === id && curScene === scene && trackMode(scene)) { eng.stopMusic(XF); playTrack(id, scene); } }, () => { if (pend && pend.id === id) pend = null; }); }
+ tick();
 }
 function setMusic(scene, o) {
  if (scene != null && scene !== '' && !SCENES[scene]) return false;
@@ -882,9 +1015,17 @@ function setMusic(scene, o) {
 }
 const audible = () => eng && ctx.state === 'running' && !isHidden() && !quiet();
 function sfx(name, o) { return audible() && S.sfx > 0 ? eng.sfx(name, o) : false; }
-function stinger(name, o) { if (!audible() || !STINGERS[name]) return false; eng.stinger(name, {faction: o && FLAVOR[o.faction] ? o.faction : curFac, delay: o && o.delay}); tick(); return true; }
+function stinger(name, o) { if (!audible() || !STINGERS[name]) return false; if (trackStinger(name)) { tick(); return true; } eng.stinger(name, {faction: o && FLAVOR[o.faction] ? o.faction : curFac, delay: o && o.delay}); tick(); return true; }
 let cfg = {};
-function configure(o) { cfg = Object.assign(cfg, o || {}); if (eng) { if (cfg.voiceCap) eng.VOICE_CAP = clamp(cfg.voiceCap | 0,4,64); if (cfg.rate) eng.RATE = clamp(+cfg.rate,5,400); if (cfg.nodeBudget) eng.BUDGET = clamp(cfg.nodeBudget | 0,40,2000); } return {voiceCap: eng ? eng.VOICE_CAP : cfg.voiceCap || 24, rate: eng ? eng.RATE : cfg.rate || 60, nodeBudget: eng ? eng.BUDGET : cfg.nodeBudget || 320}; }
+function configure(o) { cfg = Object.assign(cfg, o || {}); if (o && (o.tracks || o.trackStingers || o.trackBase != null || o.trackMime)) setTracks(o); if (eng) { if (cfg.voiceCap) eng.VOICE_CAP = clamp(cfg.voiceCap | 0,4,64); if (cfg.rate) eng.RATE = clamp(+cfg.rate,5,400); if (cfg.nodeBudget) eng.BUDGET = clamp(cfg.nodeBudget | 0,40,2000); } return {voiceCap: eng ? eng.VOICE_CAP : cfg.voiceCap || 24, rate: eng ? eng.RATE : cfg.rate || 60, nodeBudget: eng ? eng.BUDGET : cfg.nodeBudget || 320, tracks: TK.tracks, trackStingers: TK.stingers, trackBase: TK.base}; }
+function setTracks(o) {
+ const ok = id => typeof id === 'string' && /^[\w-]+$/.test(id);
+ if (o.tracks && typeof o.tracks === 'object') { TK.tracks = {}; for (const k in o.tracks) if (SCENES[k]) TK.tracks[k] = [].concat(o.tracks[k] || []).filter(ok); }
+ if (o.trackStingers && typeof o.trackStingers === 'object') { TK.stingers = {}; for (const k in o.trackStingers) if (STINGERS[k] && ok(o.trackStingers[k])) TK.stingers[k] = o.trackStingers[k]; }
+ if (o.trackBase != null) { TK.base = String(o.trackBase); noData = false; anyLoaded = false; }
+ if (o.trackMime) { TK.mime = String(o.trackMime); noCodec = null; }
+ notify(); if (eng && curScene) startScene(curScene, want.opts, true);
+}
 const loops = new Set();
 function loop(name, o) {
  if (!LOOPS[name]) return null;
@@ -897,7 +1038,7 @@ function loop(name, o) {
 function setIntensity(x) { intensity = clamp(+x || 0,0,1); if (eng) eng.setIntensity(intensity); }
 const settings = {
  get: () => Object.assign({}, S),
- set(p) { S = normS(p, S); saveS(); applyS(); for (const f of subs) try { f(S); } catch (e) {} return Object.assign({}, S); }
+ set(p) { const was = S.musicSource; S = normS(p, S); saveS(); applyS(); if (S.musicSource !== was && eng && curScene) startScene(curScene, want.opts, true); notify(); return Object.assign({}, S); }
 };
 
 // ---------- the settings control (scoped .ksa-* styles, app tokens with fallbacks) ----------
@@ -906,16 +1047,20 @@ const CSS = '.ksa{display:grid;gap:8px;font:13px/1.4 var(--font-ui,system-ui,san
  '.ksa-mute svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.ksa-x,.ksa-mute[aria-pressed=true] .ksa-w{display:none}' +
  '.ksa-mute[aria-pressed=true]{color:var(--accent,#f0a03a);border-color:var(--accent,#f0a03a);background:var(--accent-soft,rgba(240,160,58,.15))}.ksa-mute[aria-pressed=true] .ksa-x{display:inline}' +
  '.ksa-row{display:grid;grid-template-columns:4.4em minmax(0,1fr) 2.4em;align-items:center;gap:10px}.ksa-l{font-size:12.5px;color:var(--muted,#8fa2ab)}' +
- '.ksa-row input{width:100%;min-width:0;margin:0;accent-color:var(--accent,#f0a03a)}.ksa-v{font:600 14px/1 var(--font-display,system-ui,sans-serif);font-variant-numeric:tabular-nums;text-align:right}.ksa-muted .ksa-row{opacity:.5}';
+ '.ksa-row input{width:100%;min-width:0;margin:0;accent-color:var(--accent,#f0a03a)}.ksa-v{font:600 14px/1 var(--font-display,system-ui,sans-serif);font-variant-numeric:tabular-nums;text-align:right}.ksa-muted .ksa-row{opacity:.5}' +
+ '.ksa-seg{grid-column:2/4;justify-self:start;display:inline-flex;border:1px solid var(--line-2,#2e404b);border-radius:8px;overflow:hidden}.ksa-seg button{border:0;background:none;color:inherit;font:inherit;font-weight:700;padding:4px 12px;min-height:30px;cursor:pointer}.ksa-seg button+button{border-left:1px solid var(--line-2,#2e404b)}.ksa-seg button[aria-pressed=true]{background:var(--accent,#f0a03a);color:var(--accent-ink,#1c1306)}.ksa-row[hidden]{display:none}';
 function mountSettings(el) {
  if (!hasDoc || !el || !el.appendChild) return null;
  if (!document.getElementById('ksa-style')) { const st = document.createElement('style'); st.id = 'ksa-style'; st.textContent = CSS; (document.head || document.documentElement).appendChild(st); }
  const root = document.createElement('div'); root.className = 'ksa'; root.setAttribute('role', 'group'); root.setAttribute('aria-label', 'サウンド設定');
  root.innerHTML = '<button type="button" class="ksa-mute" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="ksa-w" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/><path class="ksa-x" d="M16 9l6 6M22 9l-6 6"/></svg><span>ミュート</span></button>' +
-  [['master', '音量'], ['music', '音楽'], ['sfx', '効果音']].map(([k, l]) => '<label class="ksa-row"><span class="ksa-l">' + l + '</span><input type="range" min="0" max="100" step="1" data-k="' + k + '" aria-label="' + l + '"><output class="ksa-v" data-o="' + k + '"></output></label>').join('');
+  [['master', '音量'], ['music', '音楽'], ['sfx', '効果音']].map(([k, l]) => '<label class="ksa-row"><span class="ksa-l">' + l + '</span><input type="range" min="0" max="100" step="1" data-k="' + k + '" aria-label="' + l + '"><output class="ksa-v" data-o="' + k + '"></output></label>').join('') +
+  '<div class="ksa-row ksa-src" hidden><span class="ksa-l">BGM</span><span class="ksa-seg" role="group" aria-label="BGM"><button type="button" data-src="classic">クラシック</button><button type="button" data-src="synth">合成</button></span></div>';
  const btn = root.querySelector('.ksa-mute'), lab = btn.querySelector('span');
- const sync = s => { btn.setAttribute('aria-pressed', s.muted ? 'true' : 'false'); lab.textContent = s.muted ? 'ミュート中' : 'ミュート'; root.classList.toggle('ksa-muted', s.muted);
+ const src = root.querySelector('.ksa-src');
+ const sync = s => { src.hidden = !hasTracks(); for (const b of src.querySelectorAll('button')) b.setAttribute('aria-pressed', s.musicSource === b.dataset.src ? 'true' : 'false'); btn.setAttribute('aria-pressed', s.muted ? 'true' : 'false'); lab.textContent = s.muted ? 'ミュート中' : 'ミュート'; root.classList.toggle('ksa-muted', s.muted);
   for (const inp of root.querySelectorAll('input[data-k]')) { const v = Math.round(s[inp.dataset.k]*100); if (+inp.value !== v) inp.value = v; root.querySelector('[data-o="' + inp.dataset.k + '"]').textContent = v; } };
+ src.addEventListener('click', e => { const v = e.target && e.target.dataset && e.target.dataset.src; if (v && v !== S.musicSource) settings.set({musicSource: v}); });
  btn.addEventListener('click', () => { const m = !S.muted; settings.set({muted: m}); if (!m) setTimeout(() => sfx('ui_toggle'),120); });
  root.addEventListener('input', e => { const k = e.target && e.target.dataset && e.target.dataset.k; if (!k) return; const p = {}; p[k] = +e.target.value / 100; if (k === 'master' && S.muted && p[k] > 0) p.muted = false; settings.set(p); });
  root.addEventListener('change', e => { if (e.target && e.target.dataset && e.target.dataset.k === 'sfx') sfx('ui_click'); });
@@ -936,8 +1081,8 @@ function renderOffline(seconds, setup, o) {
 const atten = (d, near, far) => { near = near || 1; far = far || near*12; d = +d || 0; return d <= near ? 1 : d >= far ? 0 : near / d*smooth((far - d) / (far - near)); };
 const panX = (x, w) => clamp((x / (w || 1))*2 - 1,-1,1)*.85;
 
-const API = {__ks: 1, version: '1.2.0', unlock, configure, loop, setMusic, setIntensity, stinger, sfx, settings, mountSettings, state() {
- return {unlocked: everRan, ctxState: ctx ? ctx.state : 'none', scene: curScene, faction: curFac, requested: want.scene, intensity, voices: eng ? eng.voices() : 0, players: eng ? eng.players.length : 0, loops: loops.size, pendingNodes: eng ? eng.graves() : 0, hidden: isHidden(), settings: Object.assign({}, S), stats: eng ? JSON.parse(JSON.stringify(eng.stats)) : null, time: ctx ? +ctx.currentTime.toFixed(3) : 0};
+const API = {__ks: 1, version: '1.4.0', unlock, configure, preload, trackInfo, loop, setMusic, setIntensity, stinger, sfx, settings, mountSettings, state() {
+ return {unlocked: everRan, ctxState: ctx ? ctx.state : 'none', scene: curScene, faction: curFac, requested: want.scene, intensity, voices: eng ? eng.voices() : 0, players: eng ? eng.players.length : 0, loops: loops.size, pendingNodes: eng ? eng.graves() : 0, hidden: isHidden(), musicSource: S.musicSource, track: cur ? {id: cur.id, scene: cur.scene, time: +cur.slot.el.currentTime.toFixed(2), playing: !cur.slot.el.paused} : null, trackPending: pend ? pend.id : null, stingerTrack: stT && nowS() < stT.end ? stT.id : null, tracksAvailable: hasTracks(), tracksReady: Object.keys(trk).filter(k => trk[k].st === 'ready'), settings: Object.assign({}, S), stats: eng ? JSON.parse(JSON.stringify(eng.stats)) : null, time: ctx ? +ctx.currentTime.toFixed(3) : 0};
 }, renderOffline, createEngine, atten, panX, names: {scenes: Object.keys(SCENES), stingers: Object.keys(STINGERS), sfx: Object.keys(SFX), loops: Object.keys(LOOPS), factions: Object.keys(FLAVOR).filter(k => k !== 'none')}};
 W.KSAudio = API;
 attach();
@@ -969,7 +1114,7 @@ function sci(v) {
   const e = Math.floor(Math.log10(Math.abs(v))), m = v / Math.pow(10, e);
   return m.toFixed(1) + '×10' + String(e).split('').map(c => SUP[c]).join('');
 }
-const fLen = (m) => Math.abs(m) >= 10000 ? (m / 1000).toFixed(1) + ' km' : num(Math.round(m)) + ' m';
+const fLen = (m) => Math.abs(m) >= 10000 ? (m / 1000).toFixed(1) + ' km' : Math.abs(m) < 100 && Math.abs(m - Math.round(m)) > .04 ? (Math.round(m * 10) / 10).toFixed(1) + ' m' : num(Math.round(m)) + ' m';
 const fMass = (t) => ja(t) + ' t';
 const fW = (w) => sci(w) + ' W';
 const reactorOutputText = (p) => { const power = C.reactorPower(p); return `${fW(power)} · ${num(power / C.ISD_W, 6)} ISD`; };
@@ -986,13 +1131,22 @@ const rgb = (c) => `rgb(${c[0]},${c[1]},${c[2]})`;
 const PART_KEYS = Object.keys(C.PARTS).filter(k=>!['machinery','capacitor'].includes(k));
 const WEAPONS = ['refVen','refISD','refIon','refSide','oct40','casemate40','casemateMid','casemateLight','triple40','quad200','pd', 'ltl', 'mtl', 'htl', 'stl', 'utl', 'ionL', 'ion', 'msl', 'trc'];
 const BRIDGES = ['podBridge','podAir','podHangar','podCombat'];
+// v21 Craft weapons (starfighters, shuttles); capital turrets stay off a craft's palette and the reverse.
+const CRAFT_WEAPONS = ['claser', 'claserH', 'cion', 'cturret', 'ctorp', 'cmsl', 'cbomb'];
+const craftDesign = () => !!ship && C.isCraft(ship);
+const weaponKeys = () => craftDesign() ? CRAFT_WEAPONS : WEAPONS;
+// Parts offered: a craft takes its own kit; a capital ship everything but the craft-only parts.
+const partOffered = k => craftDesign() ? C.craftPart(k) : C.PARTS[k].group !== 'craft';
+// Part sizes are kept apart for craft and capital ships (metres vs tens of metres).
+const pSize = k => craftDesign() ? (st.sizeCraft[k] ?? C.partLimits(ship, k).def) : st.size[k];
+const setPSize = (k, v) => { if (craftDesign()) st.sizeCraft[k] = v; else st.size[k] = v; };
 const TABS = [['hull', '船体'], ['mod', '区画および艤装'], ['systems','系統'], ['launch', '航空隊'], ['ground', '地上部隊'], ['spec', '性能']];
 // 削る・装甲 live inside 船体; their editors keep their own tab keys.
 const HULL_SUB = [['hull', '船体の形'], ['carve', '削る'], ['armor', '装甲']];
 const TAB_NAMES = {...Object.fromEntries(TABS), carve: '削る', armor: '装甲', bridge: '艦橋'};
 // Weapons and the bridge live inside 区画および艤装 as groups of their own.
 const armMode = () => st.tab === 'arm' || st.tab === 'mod' && st.group === 'weapons';
-function layoutGroups() { const out = []; for (const e of Object.entries(C.GROUPS)) { out.push(e); if (e[0] === 'command') out.push(['bridge', '艦橋']); } return out; }
+function layoutGroups() { const cr = craftDesign(), out = []; for (const e of Object.entries(C.GROUPS)) { if (e[0] !== 'weapons' && !PART_KEYS.some(k => C.PARTS[k].group === e[0] && partOffered(k))) continue; out.push(e); if (e[0] === 'command' && !cr) out.push(['bridge', '艦橋']); } return out; }
 const BRIDGE_SUB = [['body', '艦橋本体'], ['windows', '艦橋ポッド']];
 function bridgeSubHTML() { return `<div class="pgroup command-sub"><h4>艦橋</h4>${seg('cmdsub', BRIDGE_SUB, st.bridgeMode === 'windows' ? 'windows' : 'body')}</div>`; }
 // The bridge editor lives inside 区画 → 指揮; its state keeps the 'bridge' key.
@@ -1003,7 +1157,7 @@ const st = {
   tab: 'hull', part: 'gen', partTool: 'place',
   placeBy: {gen: 'inside', shield: 'partial', hyper: 'inside', engine: 'partial', hangar: 'inside'},
   size: {gen: 110, shield: 34, hyper: 50, engine: 60, hangar: 45},
-  structSize: [180, 110, 60], structTaper: 0.2, fill: [0.3, 0.8],
+  structSize: [180, 110, 60], structTaper: 0.2, fill: [0.3, 0.8], sizeCraft: {},
   sel: null, hatchA: null,
   fit: 'htl', fitTool: 'place', bridge: 'podBridge', bridgeTool: 'place', ped: 2, pedShape: 'round', pedSize: 1,
   carveTool: 'solid', razee: {side: 'both', edge: 'top', inset: 60, slope: 50, from: 0.1, to: 1, prop: true}, notch: {l: 120, w: 80, d: 40}, notchStructures: false,
@@ -1516,7 +1670,7 @@ function hintText() {
       const spec=activeEquipment();if(spec)return `面をタップして${spec.name}を配置${spec.k==='engine'?'（寸法で推力が変化）':''}`;
       const k = st.part, nm = C.PARTS[k].name;
       if (k === 'struct') return `面をタップして${st.structPlate ? '装甲外板' : st.structLight ? '軽構造' : '構造物'}（${st.structSize.map(v => Math.round(v)).join('×')} m${st.structPlate ? `・装甲 ${num(st.structPlateT, 1)} m` : ''}）を据える`;
-      return `面をタップして${nm}（${st.size[k]} m・${PLACE.find(p => p[0] === st.placeBy[k])[1]}）を置く`;
+      return `面をタップして${nm}（${fmtM(pSize(k))}・${PLACE.find(p => p[0] === st.placeBy[k])[1]}）を置く`;
     }
     case 'select': return st.tab==='launch'?'航空区画を選んで出口を設定。航空隊の機種と機数は下の欄で編集できます':st.sel?.list === 'parts' ? '選択中の区画は枠ごとドラッグで移動・別の区画はタップで選択' : st.view === 'normal' ? '区画をタップで選択（内部は透視で）・選ぶとドラッグで移動' : '区画をタップで選択・選ぶとドラッグで移動';
     case 'fit': return (C.FITS[curFit()].pod?`構造物・艦橋本体の壁をタップして${C.FITS[curFit()].name}を設置`:`面をタップして${C.FITS[curFit()].short}を設置（${weaponTiltMode(curFit())?'斜面では面に沿って傾ける':'傾斜には支持台'}）`)+(ship?.parts.some(p=>p.plate)?'・装甲外板には付けられません':'');
@@ -1544,15 +1698,15 @@ function unalignedPartPreview(hit) {
     if (hit.kind !== 'section') c[ax] += Math.sign(n[ax] || 1) * ext * 0.6;
     return C.alignStructure({id:-1,k,c,s:[l,w,hh],pitch:st.structPitch||0,roll:st.structRoll||0,taper:st.structTaper,form:st.structForm,skinAsset:st.structForm==='reference'?st.skinAsset:undefined,angles:st.structAngles.slice(),yaw:st.structYaw,offsetX:st.structOffsetX,offsetZ:st.structOffsetZ,...(st.structForm==='shell'?{shellCurve:st.shellCurve??1,shellThick:st.shellThick??3,shellFlip:!!st.shellFlip}:{}),...(st.structPlate?{plate:true,plateT:st.structPlateT}:st.structLight?{light:true}:{})},hit,st.surfaceMode);
   }
-  const size = st.size[k];
+  const size = pSize(k);
   let c;
   if (hit.kind === 'section') c = hit.p.slice();
   else {
     const e = C.PARTS[k].shape==='cube'?(Math.abs(hit.n[0])*st.roomSize[0]+Math.abs(hit.n[1])*st.roomSize[2]+Math.abs(hit.n[2])*st.roomSize[1])/2:extentAlong(k, size, hit.n), mode = st.placeBy[k];
-    const off = mode === 'inside' ? -(e + 1) : mode === 'partial' ? -e * 0.4 : e * 0.92;
+    const mg = craftDesign() ? .03 : 1, off = mode === 'inside' ? -(e + mg) : mode === 'partial' ? -e * 0.4 : e * 0.92;
     c = C.add(hit.p, C.mul(hit.n, off));
   }
-  return {id:-1,k,c,d:size,...(C.PARTS[k].shape==='cube'?{room:(st.roomSize||[120,60,24]).slice()}:{}),...(k==='engine'?{dir:st.engineDir.slice(),reactor:st.reactor}:{})};
+  return {id:-1,k,c,d:size,...(C.PARTS[k].shape==='cube'?{room:craftDesign()?[size*1.4,size,size*.8].map(v=>+v.toFixed(2)):(st.roomSize||[120,60,24]).slice()}:{}),...(k==='engine'?{dir:st.engineDir.slice(),reactor:st.reactor}:{}),...(k==='astromech'?{dir:[0,1,0]}:{}),...(k==='cockpit'?{seats:1}:{})};
 }
 function notchBox(hit) {
   const n = hit.n, a = Math.abs(n[0]) > Math.abs(n[1]) && Math.abs(n[0]) > Math.abs(n[2]) ? 0 : Math.abs(n[1]) >= Math.abs(n[2]) ? 1 : 2;
@@ -1871,7 +2025,7 @@ function fitBtn(k, sel, data) {
   const spec = d.tt ? fTT(d.tt) : d.ion ? `対シールド ${d.ion}TT` : d.msl ? `${d.msl}TT／20秒` : d.sensor ? `視界係数 ${d.sensor}` : '牽引';
   return `<button type="button" class="fitb${sel ? ' on' : ''}" data-${data}="${k}" aria-pressed="${sel}"><span class="fn">${esc(d.name)}</span><span class="fs">${spec}・${d.pod?`直径 ${Math.round(d.fm)} m・高さ ${d.wm} m`:`${Math.round(d.fm)}×${Math.round(d.wm)}×${Math.round(d.hm)} m`}</span><span class="fd">${esc(d.desc)}${d.cycle?' 連射間隔 '+d.cycle+'秒。':''}</span></button>`;
 }
-const fmtM = (v) => `${Math.round(v)} m`;
+const fmtM = (v) => Math.abs(v) < 20 && Math.abs(v - Math.round(v)) > .004 ? `${(Math.round(v * 100) / 100).toFixed(Math.abs(v) < 2 ? 2 : 1)} m` : `${Math.round(v)} m`;
 function basePartEditor() {
   const it = selItem(); if (!it || st.sel.list !== 'parts') return '';
   const d = C.PARTS[it.k], hp = ship.hull, tw = twinOfItem('parts', it);
@@ -1937,17 +2091,17 @@ function baseRenderPanel() {
       const k = st.part;
       h = `<div class="pgroup">${seg('parttool', [['place', '配置'], ['select', '選択・調整'], ['multi', '複数選択'], ['remove', '撤去']], st.partTool)}</div>`;
       if (st.partTool === 'place') {
-        h += `<div class="parts">${PART_KEYS.filter(t=>C.PARTS[t].group===st.group).map(t => partCard(t, k === t&&!activeEquipment())).join('')}${Object.values(C.EQUIPMENT).filter(d=>d.group===st.group).map(d=>equipmentCard(d.id)).join('')}</div>`;
+        h += `<div class="parts">${PART_KEYS.filter(t=>C.PARTS[t].group===st.group&&partOffered(t)).map(t => partCard(t, k === t&&!activeEquipment())).join('')}${craftDesign()?'':Object.values(C.EQUIPMENT).filter(d=>d.group===st.group).map(d=>equipmentCard(d.id)).join('')}</div>`;
         if (k === 'struct') {
           h += `<div class="pgroup sliders"><h4>構造物の大きさ</h4>
-            ${slider('sl', '長さ', st.structSize[0], 10, Math.round(hp.L), 1, fmtM(st.structSize[0]))}
+            ${craftDesign() ? slider('sl', '長さ', Math.min(st.structSize[0], hp.L), .05, Math.max(1, hp.L), .05, fmtM(st.structSize[0])) + slider('sw', '幅', Math.min(st.structSize[1], hp.W * 1.6), .05, Math.max(1, hp.W * 1.6), .05, fmtM(st.structSize[1])) + slider('sh', '高さ', Math.min(st.structSize[2], hp.H * 1.5), .02, Math.max(1, hp.H * 1.5), .02, fmtM(st.structSize[2])) : `${slider('sl', '長さ', st.structSize[0], 10, Math.round(hp.L), 1, fmtM(st.structSize[0]))}
             ${slider('sw', '幅', st.structSize[1], 5, Math.round(hp.W * 1.2), 1, fmtM(st.structSize[1]))}
-            ${slider('sh', '高さ', st.structSize[2], 5, Math.round(Math.max(60, hp.H * 1.5)), 1, fmtM(st.structSize[2]))}
+            ${slider('sh', '高さ', st.structSize[2], 5, Math.round(Math.max(60, hp.H * 1.5)), 1, fmtM(st.structSize[2]))}`}
             ${['loft', 'roundloft', 'shell', 'arc', 'ellipsoid', 'outline', 'reference'].includes(st.structForm) ? '' : slider('st', '上すぼまり', Math.round(st.structTaper * 100), 0, 80, 1, Math.round(st.structTaper * 100) + '%')}</div>
             <p class="note">構造物は面の上に3割ほど沈めて据えます。船台構造物で反応炉の張り出しを覆うと露出が減り、縦強度も上がります。</p>`;
         } else {
           if (k === 'hangar') h += `<div class="pgroup"><h4>自動充填のセルサイズ</h4><div class="chips">${C.PARTS.hangar.sizes.map(s => `<button type="button" class="chip" data-psize="${s}" aria-pressed="${st.size.hangar === s}">${s} m</button>`).join('')}</div></div>`;
-          else if(!activeEquipment()&&C.PARTS[k].shape!=='cube') h += `<div class="pgroup sliders">${slider('psize', '直径', st.size[k], C.PARTS[k].min, precisePartSize({k}) ? C.DESIGN_LIMITS.diameter : Math.min(C.DESIGN_LIMITS.diameter,Math.max(C.PARTS[k].max,hp.H*1.5)), precisePartSize({k}) ? .1 : 1, sizeOut(k, st.size[k]))}</div>`;
+          else if(!activeEquipment()&&(C.PARTS[k].shape!=='cube'||craftDesign())) h += craftDesign() ? (()=>{const lm=C.partLimits(ship,k);return `<div class="pgroup sliders">${slider('psize', '直径', pSize(k), lm.min, lm.max, .05, sizeOut(k, pSize(k)))}</div>`;})() : `<div class="pgroup sliders">${slider('psize', '直径', st.size[k], C.PARTS[k].min, precisePartSize({k}) ? C.DESIGN_LIMITS.diameter : Math.min(C.DESIGN_LIMITS.diameter,Math.max(C.PARTS[k].max,hp.H*1.5)), precisePartSize({k}) ? .1 : 1, sizeOut(k, st.size[k]))}</div>`;
           h += `<div class="pgroup"><h4>置き方</h4>${seg('place', PLACE, st.placeBy[k])}<p class="note">内蔵：面の内側に収める／一部露出：3割ほど外に出す／外付け：面の外に据える。船内の任意の位置には「座標を指定して配置」を使います。</p></div>`;
           if (k === 'hangar') h += `<div class="pgroup sliders"><h4>自動充填</h4>
             ${slider('ffrom', '範囲（艦尾側）', Math.round(st.fill[0] * 100), 0, 95, 1, Math.round(st.fill[0] * 100) + '%')}
@@ -1972,7 +2126,7 @@ function baseRenderPanel() {
       h = `<div class="pgroup">${seg('fittool', [['place', '設置'], ['adjust', '調整・射界'], ['remove', '撤去'], ['multi', '複数選択']], st.fitTool)}</div>
       ${st.fitTool === 'adjust' ? (fitEditor() || '<p class="note">装備をタップして選んでください。</p>') : ''}${st.fitTool === 'multi' ? multiPanelHTML() : ''}
       ${st.fitTool === 'place' ? `<div class="pgroup sliders"><h4>支持台（新設時）</h4>${seg('pedshape', PED_SHAPES, st.pedShape)}${slider('ped', '追加の高さ', st.ped, 0, 40, 0.5, `${st.ped} m`)}${slider('pedsize', '大きさ', Math.round(st.pedSize * 100), 40, 250, 5, Math.round(st.pedSize * 100) + '%')}</div>` : ''}
-      <div class="fits">${WEAPONS.map(k => fitBtn(k, st.fit === k, 'fit')).join('')}</div>
+      <div class="fits">${weaponKeys().map(k => fitBtn(k, st.fit === k, 'fit')).join('')}</div>
       <p class="note">砲塔は実寸で、新しく置くと砲身は艦首を向きます。傾斜面では接地面の高低差だけ支持台が自動で伸び、砲は水平を保ちます。「調整」で1基ずつ支持台の形・高さ・大きさを変えられます。</p>
       <div class="pinfo" id="pinfo"></div>`;
       break;
@@ -1986,7 +2140,7 @@ function baseRenderPanel() {
       break;
     case 'armor':
       h = `<div class="pgroup sliders">
-        ${slider('arh', '外殻装甲の厚さ', ship.armor.hull, 0, C.ARMOR_MAX.hull, 0.05, `${ship.armor.hull.toFixed(2)} m`)}
+        ${craftDesign() ? slider('arh', '外殻装甲の厚さ', ship.armor.hull, 0, .2, .001, `${(ship.armor.hull * 1000).toFixed(0)} mm`) : slider('arh', '外殻装甲の厚さ', ship.armor.hull, 0, C.ARMOR_MAX.hull, 0.05, `${ship.armor.hull.toFixed(2)} m`)}
         ${slider('arc', '集中防御（重要区画の囲い）', ship.armor.cit, 0, C.ARMOR_MAX.cit, 0.1, `${ship.armor.cit.toFixed(1)} m`)}
       </div>
       <p class="note">外殻装甲の質量は表面積に比例します。削って凹凸を増やすほど同じ厚さでも重くなります。集中防御はジェネレーター・シールド発生器・ハイパードライブの表面だけを囲み、露出した反応炉の弱点を補います。</p>
@@ -2084,7 +2238,8 @@ function scaleContents(fx, fy, fz, mode = 'scale') {
 }
 function setHullDims(L, W, H) {
   const hp = ship.hull, lim = C.DESIGN_LIMITS;
-  L = C.clamp(L, 60, lim.length); W = C.clamp(W, 20, lim.width); H = C.clamp(H, 10, lim.height);
+  const cr = C.isCraft(ship), r = v => cr ? Math.round(v * 100) / 100 : v;
+  L = C.clamp(r(L), cr ? 1.5 : 60, lim.length); W = C.clamp(r(W), cr ? .5 : 20, lim.width); H = C.clamp(r(H), cr ? .3 : 10, lim.height);
   const fx = L / hp.L, fy = H / hp.H, fz = W / hp.W;
   scaleContents(fx, fy, fz, st.hullFollow); hp.L = L; hp.W = W; hp.H = H;
 }
@@ -2096,13 +2251,14 @@ function syncHullInputs(except) {
 }
 function hullDimsHTML() {
   const hp = ship.hull, cls = C.shipClassFor(hp.L, ship.shipClass), lim = C.DESIGN_LIMITS;
-  const lo = Math.max(60, Math.min(cls.min, hp.L)), hi = Math.min(lim.length, Math.max(cls.max, hp.L));
-  const wMax = Math.min(lim.width, Math.max(60, Math.round(hp.L * 1.2), hp.W)), hMax = Math.min(lim.height, Math.max(40, Math.round(hp.L * .6), hp.H));
-  const nudge = (k) => `<div class="nudges" role="group" aria-label="${{L: '全長', W: '全幅', H: '全高'}[k]}の微調整">${[-10, -1, 1, 10].map(d => `<button type="button" class="chip" data-nudge="${k}" data-step="${d}">${d > 0 ? '+' : '−'}${Math.abs(d)} m</button>`).join('')}</div>`;
+  // v21 Craft hulls size in 0.1 m steps from a few metres.
+  const cr = !!cls.craft, stp = cr ? .1 : 1, lo = cr ? Math.min(cls.min, hp.L) : Math.max(60, Math.min(cls.min, hp.L)), hi = Math.min(lim.length, Math.max(cls.max, hp.L));
+  const wMax = Math.min(lim.width, Math.max(cr ? 4 : 60, Math.round(hp.L * 1.2), hp.W)), hMax = Math.min(lim.height, Math.max(cr ? 3 : 40, Math.round(hp.L * .6), hp.H));
+  const nudge = (k) => `<div class="nudges" role="group" aria-label="${{L: '全長', W: '全幅', H: '全高'}[k]}の微調整">${(cr ? [-1, -.1, .1, 1] : [-10, -1, 1, 10]).map(d => `<button type="button" class="chip" data-nudge="${k}" data-step="${d}">${d > 0 ? '+' : '−'}${Math.abs(d)} m</button>`).join('')}</div>`;
   return `<div class="pgroup blueprint-card hull-dims"><h4>艦種と寸法</h4>
-    <label class="field-label">艦種（全長の範囲）<select data-shipclass>${C.SHIP_CLASSES.map(c => `<option value="${c.id}" ${c.id === cls.id ? 'selected' : ''}>${esc(c.name)} · ${fLen(c.min)}〜${fLen(c.max)}</option>`).join('')}</select></label>
+    <label class="field-label">艦種（全長の範囲）<select data-shipclass>${shipClassList(cls.id).map(c => `<option value="${c.id}" ${c.id === cls.id ? 'selected' : ''}>${esc(c.name)} · ${fLen(c.min)}〜${fLen(c.max)}</option>`).join('')}</select></label>
     <p class="note">${esc(cls.note)}</p>
-    <div class="sliders">${slider('L', '全長', Math.round(hp.L * 10) / 10, lo, hi, 1, fLen(hp.L))}${nudge('L')}${slider('W', '全幅', Math.round(hp.W * 10) / 10, 20, wMax, 1, fLen(hp.W) + ` · 全長比 ${(hp.W / hp.L * 100).toFixed(1)}%`)}${nudge('W')}${slider('H', '全高', Math.round(hp.H * 10) / 10, 10, hMax, 1, fLen(hp.H) + ` · 全長比 ${(hp.H / hp.L * 100).toFixed(1)}%`)}${nudge('H')}</div>
+    <div class="sliders">${slider('L', '全長', Math.round(hp.L * 10) / 10, lo, hi, stp, fLen(hp.L))}${nudge('L')}${slider('W', '全幅', Math.round(hp.W * 10) / 10, cr ? .5 : 20, wMax, stp, fLen(hp.W) + ` · 全長比 ${(hp.W / hp.L * 100).toFixed(1)}%`)}${nudge('W')}${slider('H', '全高', Math.round(hp.H * 10) / 10, cr ? .3 : 10, hMax, stp, fLen(hp.H) + ` · 全長比 ${(hp.H / hp.L * 100).toFixed(1)}%`)}${nudge('H')}</div>
     <label class="check"><input type="checkbox" data-hullratio ${st.hullRatio ? 'checked' : ''}> 全長を変えるとき幅と高さも同じ比率で変える</label>
     <h4>寸法を変えたときの搭載物</h4>${seg('hullfollow', HULL_FOLLOW, st.hullFollow)}
     <p class="note">${st.hullFollow === 'surface' ? '格納庫・貨物庫などの内部区画は位置と寸法を保ちます。武装・艦橋ポッド・構造物・露出した機関は外板に合わせて移動します。' : st.hullFollow === 'scale' ? 'すべての区画と装備の位置を船体寸法の比率で移動します。区画の大きさは変わりません。' : '区画も装備も位置を保ちます。外板から離れた装備は浮いた扱いになります。'}</p></div>`;
@@ -2453,7 +2609,7 @@ function carryToPlace() {
     else {
       st.equipmentId = null; st.part = it.k; if (st.tab === 'mod') st.group = C.PARTS[it.k].group;
       if (it.k === 'struct') { st.structSize = it.s.slice(); st.structForm = it.form || 'box'; st.structTaper = it.taper || 0; st.structAngles = (it.angles || [0, 0, 0, 0]).slice(); st.structYaw = it.yaw || 0; st.structOffsetX = it.offsetX || 0; st.structOffsetZ = it.offsetZ || 0; if (it.form === 'reference') st.skinAsset = it.skinAsset; }
-      else if (it.room) st.roomSize = it.room.slice(); else if (it.d) st.size[it.k] = it.d;
+      else if (it.room) st.roomSize = it.room.slice(); else if (it.d) setPSize(it.k, it.d);
       if (it.k === 'engine' && it.dir) st.engineDir = it.dir.slice();
     }
   } else {
@@ -2611,9 +2767,9 @@ function bind() {
       case 'eh': live('大きさ', 'parts', () => editSel(it => { it.s[2] = v; }), fmtM(v)); break;
       case 'et': live('すぼまり', 'parts', () => editSel(it => { it.taper = v / 100; }), v + '%'); break;
       case 'pedsel': live('支持台の高さ', 'fits', () => { editSel(it => { it.ped = v; }); }, `${v.toFixed(1)} m`); { const it = selItem(), pi = $('#pedinfo'); if (it && pi) pi.textContent = `傾斜に合わせた自動の高さ ${it.base.toFixed(1)} m ＋ 追加 ${it.ped.toFixed(1)} m。高くすると射界が開けますが、標的にもなりやすくなります。`; } break;
-      case 'arh': live('外殻装甲', 'none', () => { ship.armor.hull = v; }, `${v.toFixed(2)} m`); break;
+      case 'arh': live('外殻装甲', 'none', () => { ship.armor.hull = v; }, craftDesign() ? `${(v * 1000).toFixed(0)} mm` : `${v.toFixed(2)} m`); break;
       case 'arc': live('集中防御', 'none', () => { ship.armor.cit = v; }, `${v.toFixed(1)} m`); break;
-      case 'psize': st.size[st.part] = v; if (out) out.textContent = sizeOut(st.part, v); updateHint(); break;
+      case 'psize': setPSize(st.part, v); if (out) out.textContent = sizeOut(st.part, v); updateHint(); break;
       case 'sl': st.structSize[0] = v; if (out) out.textContent = fmtM(v); updateHint(); break;
       case 'sw': st.structSize[1] = v; if (out) out.textContent = fmtM(v); updateHint(); break;
       case 'sh': st.structSize[2] = v; if (out) out.textContent = fmtM(v); updateHint(); break;
@@ -2757,7 +2913,7 @@ function start(hot) {
 
 // ---------- title screen ----------
 // The examples are listed by class, size and purpose only.
-const EXAMPLE_PURPOSE = {venator: '艦隊戦・艦載機運用', imperial: '艦隊主力・星系制圧', executor: '艦隊旗艦・指揮', cr90: '護衛・高速輸送', dreadnaught: '艦隊戦・護衛', gozanti: '輸送・護衛', gr75: '物資輸送', heraklon: '貨物・旅客輸送', lucrehulk: 'ドロイド軍の司令・母艦', munificent: '通信中継・艦隊戦', nebulonb: '船団護衛', providence: '艦隊旗艦・艦載機運用', recusant: '艦隊戦', reptransport: '兵員・物資輸送', mc80home: '艦隊旗艦・イオン砲と艦載機', mc80liberty: '主力・イオン砲戦', mc75: '旗艦・イオン砲戦', providenceDn: '艦隊旗艦・強襲揚陸', recusantDn: '重砲撃戦', mc30c: '雷撃・イオン砲でシールド剥ぎ', mandator2: '艦隊旗艦・重砲撃戦', acclamator: '強襲揚陸・兵員輸送'};
+const EXAMPLE_PURPOSE = {venator: '艦隊戦・艦載機運用', imperial: '艦隊主力・星系制圧', executor: '艦隊旗艦・指揮', cr90: '護衛・高速輸送', dreadnaught: '艦隊戦・護衛', gozanti: '輸送・護衛', gr75: '物資輸送', heraklon: '貨物・旅客輸送', lucrehulk: 'ドロイド軍の司令・母艦', munificent: '通信中継・艦隊戦', nebulonb: '船団護衛', providence: '艦隊旗艦・艦載機運用', recusant: '艦隊戦', reptransport: '兵員・物資輸送', mc80home: '艦隊旗艦・イオン砲と艦載機', mc80liberty: '主力・イオン砲戦', mc75: '旗艦・イオン砲戦', providenceDn: '艦隊旗艦・強襲揚陸', recusantDn: '重砲撃戦', mc30c: '雷撃・イオン砲でシールド剥ぎ', mandator2: '艦隊旗艦・重砲撃戦', acclamator: '強襲揚陸・兵員輸送', arquitens: '護衛・哨戒', hammerhead: '護衛・武装輸送・体当たり'};
 const EXAMPLES = [
   {key: 'venator', name: 'ヴェネター級', len: 1137, side: '銀河共和国'},
   {key: 'imperial', name: 'インペリアル級', len: 1600, side: '銀河帝国'},
@@ -2805,9 +2961,11 @@ function draftMeta() { try { return JSON.parse(LS.get('yard.draft3.meta') || 'nu
 function titleStatus() {
   const s = $('#titleStatus'); if (!s) return;
   if (!eng.ready) { s.textContent = '設計エンジンを起動中…'; return; }
+  window.KSBoot?.engineReady?.();
   const draftReady = ship && ship._geoProxy;
   if (ship && !draftReady) { s.textContent = '下書きを先読み中…（すぐに開始できます）'; return; }
   if (ship) window.KSBoot?.step('draft', 'done');
+  window.KSBoot?.ready?.();
   s.textContent = `準備完了 · 計算は${eng.mode === 'worker' ? 'バックグラウンドのワーカー' : 'この画面'}で実行します`;
 }
 function renderTitle() {
@@ -2832,13 +2990,20 @@ function renderTitle() {
   else panel.innerHTML = '';
   titleStatus();
 }
-function titleHullDims(P, L) { return {L, W: Math.round(L * P.W / P.L), H: Math.round(L * P.H / P.L)}; }
+// v21 Craft classes size in 0.1 m steps.
+// v21 Starfighters and small craft are still being finished (the example craft, carrying designed craft, the trial
+// camera at their scale), so the class lists leave them out for now; a craft design loaded from a file keeps its class.
+const CRAFT_OPEN = false;
+const shipClassList = cur => C.SHIP_CLASSES.filter(c => CRAFT_OPEN || !c.craft || c.id === cur);
+const titleCraft = () => !!C.SHIP_CLASSES.find(c => c.id === titleState.cls)?.craft;
+const titleRound = v => titleCraft() ? Math.max(.1, Math.round(v * 10) / 10) : Math.round(v);
+function titleHullDims(P, L) { return {L, W: titleRound(L * P.W / P.L), H: titleRound(L * P.H / P.L)}; }
 function titleNewHTML() {
   const t = titleState, cls = C.SHIP_CLASSES.find(c => c.id === t.cls) || C.SHIP_CLASSES.find(c => c.id === 'destroyer');
   return `<div class="tpanel-head"><h2>新規設計</h2><button type="button" class="btn ghost sm" data-title-back>戻る</button></div>
-  <h3>1 · 艦種</h3><div class="tclass">${C.SHIP_CLASSES.map(c => `<button type="button" class="tcard" data-title-class="${c.id}" aria-pressed="${c.id === t.cls}"><b>${esc(c.name)}</b><span>${fLen(c.min)}〜${fLen(c.max)}</span><small>${esc(c.note)}</small></button>`).join('')}</div>
+  <h3>1 · 艦種</h3><div class="tclass">${shipClassList(t.cls).map(c => `<button type="button" class="tcard" data-title-class="${c.id}" aria-pressed="${c.id === t.cls}"><b>${esc(c.name)}</b><span>${fLen(c.min)}〜${fLen(c.max)}</span><small>${esc(c.note)}</small></button>`).join('')}</div>
   <h3>2 · 船体の型</h3><div class="hulls">${Object.entries(C.HULLS).map(([k, v]) => `<button type="button" class="hullcard" data-title-hull="${k}" aria-pressed="${k === t.hull}">${silhouette(v)}<span>${v.name}</span></button>`).join('')}</div>
-  <h3>3 · 寸法</h3><div class="sliders">${slider('tL', '全長', t.L, cls.min, cls.max, 1, fLen(t.L))}${slider('tW', '全幅', t.W, 20, Math.min(C.DESIGN_LIMITS.width, Math.max(60, Math.round(t.L * 1.2))), 1, fLen(t.W))}${slider('tH', '全高', t.H, 10, Math.min(C.DESIGN_LIMITS.height, Math.max(40, Math.round(t.L * .6))), 1, fLen(t.H))}</div>
+  <h3>3 · 寸法</h3><div class="sliders">${(() => { const cr = !!cls.craft, stp = cr ? .1 : 1; return slider('tL', '全長', t.L, cls.min, cls.max, stp, fLen(t.L)) + slider('tW', '全幅', t.W, cr ? .5 : 20, Math.min(C.DESIGN_LIMITS.width, Math.max(cr ? 4 : 60, Math.round(t.L * 1.2))), stp, fLen(t.W)) + slider('tH', '全高', t.H, cr ? .3 : 10, Math.min(C.DESIGN_LIMITS.height, Math.max(cr ? 3 : 40, Math.round(t.L * .6))), stp, fLen(t.H)); })()}</div>
   <p class="note">全長は艦種の範囲で1 m単位。全幅・全高は船体の型の比率から始まり、個別に調整できます。設計中も「船体」タブで変更できます。</p>
   <label class="field-label">艦名<input type="text" data-title-name value="${esc(t.name)}" maxlength="40"></label>
   <button type="button" class="btn primary tgo" data-title-start>この船体で設計を始める</button>`;
@@ -2889,6 +3054,7 @@ function titleStartNew() {
   const t = titleState, P = C.HULLS[t.hull] || C.HULLS.wedge;
   const s = C.newShip(Object.assign({}, P, {L: t.L, W: t.W, H: t.H}), (t.name || '新設計艦').slice(0, 40));
   s.hullLocked = false; s.shipClass = t.cls;
+  if (C.SHIP_CLASSES.find(c => c.id === t.cls)?.craft) s.armor = {hull: .01, cit: 0};
   st.tab = 'hull'; st.sel = null;
   setShip(s, {keepHistory: true}); hideTitle(); renderPanel();
   toast(`${C.shipClassFor(t.L, t.cls).name}・${P.name}の船体を用意しました`);
@@ -2936,8 +3102,8 @@ function bindTitle() {
     const k = e.target.dataset.sl, x = e.target;
     if ('titleName' in x.dataset) { titleState.name = x.value; return; }
     if (!['tL', 'tW', 'tH'].includes(k) || x.value === '') return;
-    const v = C.clamp(Math.round(Number(x.value) || 0), +x.min, +x.max);
-    if (k === 'tL') { const r = titleState.L > 0 ? v / titleState.L : 1; titleState.L = v; titleState.W = Math.max(20, Math.round(titleState.W * r)); titleState.H = Math.max(10, Math.round(titleState.H * r)); }
+    const v = C.clamp(titleRound(Number(x.value) || 0), +x.min, +x.max), cr = titleCraft();
+    if (k === 'tL') { const r = titleState.L > 0 ? v / titleState.L : 1; titleState.L = v; titleState.W = Math.max(cr ? .5 : 20, titleRound(titleState.W * r)); titleState.H = Math.max(cr ? .3 : 10, titleRound(titleState.H * r)); }
     else titleState[k[1]] = v;
     for (const kk of ['tL', 'tW', 'tH']) { const val = titleState[kk[1]]; t.querySelectorAll(`[data-sl="${kk}"]`).forEach(q => { if (q !== x) q.value = val; }); const o = t.querySelector('#out-' + kk); if (o) o.textContent = fLen(val); }
   });
@@ -3012,7 +3178,7 @@ function v3RenderPanel(){
   if(st.tab==='mod'&&st.partTool==='place'){
     const parts=panel.querySelector('.parts');if(parts)parts.insertAdjacentHTML('beforebegin',`<div class="pgroup">${seg('group',layoutGroups(),st.group)}</div>`);
     if(st.part==='struct')panel.insertAdjacentHTML('beforeend',structureControls({form:st.structForm,skinAsset:st.skinAsset,angles:st.structAngles,yaw:st.structYaw,offsetX:st.structOffsetX,offsetZ:st.structOffsetZ,shellCurve:st.shellCurve,shellThick:st.shellThick,shellFlip:st.shellFlip},false));
-    if(st.part==='engine')panel.insertAdjacentHTML('beforeend',engineControls({k:'engine',c:[0,0,0],d:st.size.engine,dir:st.engineDir,reactor:st.reactor},false));
+    if(st.part==='engine')panel.insertAdjacentHTML('beforeend',engineControls({k:'engine',c:[0,0,0],d:pSize('engine'),dir:st.engineDir,reactor:st.reactor},false));
     panel.insertAdjacentHTML('beforeend',coordinateControls());
   }
   if(st.tab==='bridge'){
@@ -3088,7 +3254,9 @@ function bindEngineering(){
 }
 
 st.roomSize=[120,60,24];
-function renderPanel(){
+// v21 Keep the palette choices valid when the design changes between craft and capital ship.
+function craftPaletteGuard(){if(!ship)return;const gs=layoutGroups();if(st.group!=='weapons'&&st.group!=='bridge'&&!gs.some(g=>g[0]===st.group))st.group=craftDesign()?'craft':'power';if(st.part&&!partOffered(st.part))st.part=PART_KEYS.find(k=>C.PARTS[k].group===st.group&&partOffered(k))||'struct';if(craftDesign()&&st.group==='bridge')st.group='craft';const wk=weaponKeys();if(!wk.includes(st.fit))st.fit=wk[0];if(craftDesign()&&st.structSize[0]>ship.hull.L)st.structSize=[Math.max(.2,+(ship.hull.L*.3).toFixed(2)),Math.max(.2,+(ship.hull.W*.3).toFixed(2)),Math.max(.05,+(ship.hull.H*.1).toFixed(2))];}
+function renderPanel(){craftPaletteGuard();
   if(fleet.mode!=='design'){fleetRender();return;}
   refreshSolidCutterOverlay();
 
@@ -5448,7 +5616,17 @@ function bindTutorial(){
 // the camera, the parts placed and removed, and the buttons.
 const SND = {scene: '', fac: '', fire: 0, t: 0, alerts: new Set(), result: null, evN: 0};
 const snd = () => window.KSAudio || null;
+// v20.5 The last result screen plays the result music (a recorded track when the classical BGM is on):
+// the fleet battle's result sheet, or the result card of a battle fought on its own in the 3D view
+// (a battle that is one system of a fleet battle has its card, but the fleet battle goes on).
+function sndResult() {
+ if (voy.open && voy.result && !voy.resultDismissed && $('#voySheet') && !$('#voySheet').hidden) return voy.result.winner === 0 ? 'victory' : 'defeat';
+ const B = trial.on ? trial.battle : null, el = B && B.result && !B.rts ? $('#trialHud [data-th="result"]') : null;
+ if (el && !el.hidden && B.result.kind !== 'withdrew') return B.result.kind === 'win' ? 'victory' : 'defeat';
+ return null;
+}
 function sndScene() {
+ const res = sndResult(); if (res) return [res];
  if (titleVisible()) return ['title'];
  if (trial.on) {
   if (trial.rts && voy.w) return voy.w.battles.has(trial.rts.sys) ? ['battle', voy.setup?.own] : ['voyage', voy.setup?.own];
@@ -5520,14 +5698,21 @@ function sndTick() {
  if (key !== SND.scene) { SND.scene = key; A.setMusic(scene, fac ? {faction: fac} : undefined); }
  // Battle intensity: guns heard in the last seconds (decaying), on a floor so a battle never sounds idle.
  SND.fire *= .7;if (scene === 'battle') A.setIntensity(Math.min(1, .25 + SND.fire / 10));
- const w = voy.w;if (w?.result && SND.result !== w.result) { SND.result = w.result; A.stinger(w.result.winner === 0 ? 'victory' : 'defeat', {faction: voy.setup?.own}); }
+ const w = voy.w;if (w?.result && SND.result !== w.result) { SND.result = w.result; if (!sndClassic()) A.stinger(w.result.winner === 0 ? 'victory' : 'defeat', {faction: voy.setup?.own}); }
 }
 // Mute from the top bar or the 3D view; the buttons show the state (pressed = sound off).
 function sndToggle() { const A = snd();if (!A) { toast('この端末では音を鳴らせません'); return; } A.settings.set({muted: !A.settings.get().muted}); sndButtons(); }
 function sndButtons() { const A = snd(), m = !A || !!A.settings.get().muted; for (const b of document.querySelectorAll('[data-sound-toggle]')) { b.setAttribute('aria-pressed', String(m)); b.setAttribute('aria-label', m ? '音を出す' : '音を切る'); } document.documentElement.classList.toggle('ks-muted', m); }
-function soundSettingsHTML() { return `<div class="tpanel-head"><h2>音の設定</h2><button type="button" class="btn ghost sm" data-title-back>戻る</button></div><div id="soundSettings"></div><p class="note">音楽と効果音はすべてこの場で合成しています（録音や既存の曲は使っていません）。最初に画面に触れたときに鳴り始めます。</p>`; }
+function soundSettingsHTML() { return `<div class="tpanel-head"><h2>音の設定</h2><button type="button" class="btn ghost sm" data-title-back>戻る</button></div><div id="soundSettings"></div><p class="note">${window.KS_FILES ? 'BGM は「クラシック」でクラシック名曲サウンドライブラリーの録音（ワーグナー、ホルスト、ムソルグスキー、チャイコフスキー）を、「合成」でこの場で合成する音楽を流します。効果音はすべて合成です。' : '音楽と効果音はすべてこの場で合成しています（この単一ファイル版にはクラシックの録音は入っていません）。'}最初に画面に触れたときに鳴り始めます。</p>`; }
+// v20.5 Classical recordings (Classical Music Sound Library; tools/mkbgm.py packs them as data/bgm_<id>.js, published
+// next to the page, never in the single-file build, which keeps the synthesized score): Meistersinger and Jupiter for
+// the title, Lohengrin while designing, Jupiter on the voyage maps, Mars, Night on Bald Mountain and the 1812 in battle,
+// the Great Gate of Kiev on a victory's result screen and the Scene from Swan Lake on a defeat's.
+const SND_TRACKS = {title: ['meister', 'jupiter'], yard: ['lohengrin'], voyage: ['jupiter'], battle: ['mars', 'bald', 'o1812'], victory: ['kiev'], defeat: ['swan']};
+const sndClassic = () => { const st = snd()?.state?.(); return !!st && st.musicSource !== 'synth' && !!st.tracksAvailable; };
 function bindSound() {
  const A = snd();if (!A) return;
+ if (window.KS_FILES && A.configure) { A.configure({tracks: SND_TRACKS, trackBase: 'data/'}); A.preload?.(SND_TRACKS.title[0]); }
  setInterval(() => { try { sndTick(); } catch (e) { console.warn('sound', e); } }, 500);
  // The jump: the roar going in and the burst coming out (watched each frame, the phases are short).
  const frame = () => { try { if (!(SND.ef = (SND.ef || 0) + 1) || SND.ef % 6 === 0) sndEngine(); } catch (e) {} const ph = trial.on ? trial.jump?.phase || null : null; if (ph !== SND.jph) { if (ph === 'enter' || ph === 'tunnel' && SND.jph !== 'enter') sndUI('hyperspace_out', .9); else if (ph === 'exit') sndUI('hyperspace_in', .9); SND.jph = ph; } requestAnimationFrame(frame); };

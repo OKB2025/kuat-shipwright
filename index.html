@@ -388,6 +388,36 @@ body.title-open.title-ship .title { background: linear-gradient(90deg, var(--tit
 body.title-open.title-ship .title-sky, body.title-open.title-ship .title-hull { display: none; }
 @container ks (max-width: 760px) { body.title-open.title-ship .title { background: linear-gradient(180deg, var(--title-sky-b) 0, var(--title-veil) 50%, transparent 82%); } }
 .title-tools .chip { white-space: nowrap; }
+/* v20.5 The title screen before the menu (one dark look: it is space). */
+.splash { position: fixed; inset: 0; z-index: 400; display: grid; place-items: center; overflow: hidden; color: #e3ecef; background: radial-gradient(150% 100% at 50% 118%, #143444 0%, #08131c 44%, #020406 100%); transition: opacity .9s ease, visibility 0s linear .9s; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; }
+.splash.ready { cursor: pointer; }
+.splash.out { opacity: 0; visibility: hidden; pointer-events: none; }
+.splash-stars { position: absolute; inset: 0 -560px 0 0; pointer-events: none; background-repeat: repeat; will-change: transform; }
+.splash-stars-a { background-image: radial-gradient(1px 1px at 8% 14%, #d7e9f0 50%, transparent 51%), radial-gradient(1px 1px at 27% 63%, #9fb6c6 50%, transparent 51%), radial-gradient(1.4px 1.4px at 46% 31%, #ffffff 50%, transparent 51%), radial-gradient(1px 1px at 63% 82%, #cfe3ea 50%, transparent 51%), radial-gradient(1px 1px at 79% 22%, #9fb6c6 50%, transparent 51%), radial-gradient(1.2px 1.2px at 91% 57%, #f3d9b5 50%, transparent 51%), radial-gradient(1px 1px at 15% 91%, #cfe3ea 50%, transparent 51%), radial-gradient(1px 1px at 55% 6%, #9fb6c6 50%, transparent 51%); background-size: 280px 280px; opacity: .85; animation: splashDriftA 150s linear infinite; }
+.splash-stars-b { background-image: radial-gradient(1.6px 1.6px at 18% 38%, #ffffff 50%, transparent 51%), radial-gradient(1.2px 1.2px at 52% 72%, #bfe6f2 50%, transparent 51%), radial-gradient(1.8px 1.8px at 83% 12%, #ffe9c8 50%, transparent 51%), radial-gradient(1.2px 1.2px at 37% 95%, #d7e9f0 50%, transparent 51%); background-size: 560px 560px; opacity: .7; animation: splashDriftB 70s linear infinite; }
+@keyframes splashDriftA { to { transform: translate3d(-280px, 0, 0); } }
+@keyframes splashDriftB { to { transform: translate3d(-560px, 0, 0); } }
+.splash-hull { position: absolute; left: 50%; top: 50%; width: min(1500px, 150vw); max-width: none; height: auto; transform: translate(-46%, -64%); pointer-events: none; opacity: .85; filter: drop-shadow(0 0 28px rgba(104, 194, 219, .22)); animation: splashHull 48s ease-in-out infinite alternate; }
+@keyframes splashHull { to { transform: translate(-54%, -64%); } }
+.splash-inner { position: relative; display: grid; justify-items: center; width: 100%; max-width: 980px; text-align: center; padding-block: max(24px, env(safe-area-inset-top, 0px)) max(24px, env(safe-area-inset-bottom, 0px)); padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+.splash-kicker { margin: 0; font: 600 clamp(10px, 2.6vw, 13px) var(--font-display); letter-spacing: .42em; text-indent: .42em; color: #68c2db; }
+.splash-name { margin: 14px 0 0; white-space: nowrap; font: 700 clamp(40px, 9.5vw, 100px)/1.02 var(--font-ui); letter-spacing: .14em; text-indent: .14em; color: #f2f6f7; text-shadow: 0 0 42px rgba(104, 194, 219, .28), 0 2px 0 rgba(0, 0, 0, .5); }
+.splash-sub { margin: 10px 0 0; font: 600 clamp(14px, 3.4vw, 26px) var(--font-display); letter-spacing: .62em; text-indent: .62em; color: #f0a03a; }
+.splash-load { width: min(420px, 84%); margin-top: clamp(30px, 8vh, 72px); }
+.splash.ready .splash-load { display: none; }
+.splash-bar { height: 3px; border-radius: 2px; background: rgba(104, 194, 219, .16); overflow: hidden; }
+.splash-bar i { display: block; height: 100%; transform-origin: 0 50%; transform: scaleX(var(--p, 0)); background: linear-gradient(90deg, #68c2db, #f0a03a); box-shadow: 0 0 12px rgba(240, 160, 58, .6); transition: transform .35s ease-out; }
+.splash-indet .splash-bar i { width: 28%; transform: none; animation: splashScan 1.5s ease-in-out infinite; }
+@keyframes splashScan { from { margin-left: -28%; } to { margin-left: 100%; } }
+.splash-line { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin: 10px 0 0; font: 12px var(--font-ui); color: #8fa2ab; }
+.splash-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.splash-pct { font: 13px var(--font-mono); color: #cfe3ea; font-variant-numeric: tabular-nums; }
+.splash-start { margin-top: clamp(22px, 7vh, 64px); display: grid; gap: 8px; justify-items: center; padding: 14px 22px; background: none; border: 0; color: #f2f6f7; font: 700 clamp(15px, 3.8vw, 20px) var(--font-ui); letter-spacing: .3em; text-indent: .3em; cursor: pointer; animation: splashPulse 2.4s ease-in-out infinite; }
+.splash-start[hidden] { display: none; }
+.splash-start small { font: 500 11px var(--font-ui); letter-spacing: .12em; text-indent: .12em; color: #8fa2ab; }
+.splash-start:focus-visible { outline: 1px solid #68c2db; outline-offset: 4px; border-radius: 6px; }
+@keyframes splashPulse { 0%, 100% { opacity: .5; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .splash-stars, .splash-hull, .splash-start, .splash-indet .splash-bar i { animation: none !important; } }
 .title { position: fixed; inset: 0; z-index: 60; overflow: auto; background: radial-gradient(120% 90% at 78% 18%, var(--title-sky-a), var(--title-sky-b) 70%); color: var(--fg); }
 .title-sky { position: fixed; inset: 0; pointer-events: none; background-image: radial-gradient(1px 1px at 12% 22%, var(--muted) 50%, transparent 51%), radial-gradient(1px 1px at 64% 12%, var(--muted) 50%, transparent 51%), radial-gradient(1px 1px at 82% 46%, var(--dim) 50%, transparent 51%), radial-gradient(1px 1px at 34% 68%, var(--dim) 50%, transparent 51%), radial-gradient(1.5px 1.5px at 91% 78%, var(--muted) 50%, transparent 51%), radial-gradient(1px 1px at 47% 37%, var(--dim) 50%, transparent 51%); opacity: .55; }
 .title-hull { position: fixed; right: -4%; top: 10%; width: min(1100px, 96cqw); max-width: 100%; height: auto; pointer-events: none; opacity: .9; filter: drop-shadow(0 0 24px var(--title-glow)); }
@@ -960,6 +990,31 @@ body.tut-on .inspect{bottom:calc(70px + var(--sa-bottom,0px))}
 })();
 </script>
 
+<!-- v20.5 The title screen before the menu: the name over a slow star field, the loading bar, then a tap to start
+     (the tap is also what lets a phone play sound). 05_boot.js drives it; automated browsers skip it. -->
+<div id="splash" class="splash splash-indet" aria-labelledby="splashName">
+  <div class="splash-stars splash-stars-a" aria-hidden="true"></div>
+  <div class="splash-stars splash-stars-b" aria-hidden="true"></div>
+  <svg class="splash-hull" viewBox="0 0 1200 420" aria-hidden="true">
+    <defs><linearGradient id="splg" x1="0" x2="1"><stop offset="0" stop-color="#68c2db" stop-opacity=".04"/><stop offset=".62" stop-color="#68c2db" stop-opacity=".26"/><stop offset="1" stop-color="#f0a03a" stop-opacity=".42"/></linearGradient></defs>
+    <g fill="none" stroke="url(#splg)" stroke-width="1.2">
+      <path d="M90 250 L1130 214 L90 150 Z"/><path d="M90 250 L1130 214" stroke-width="2"/>
+      <path d="M150 246 L1010 218 M150 154 L1010 206 M240 243 L240 157 M420 237 L420 168 M600 231 L600 179 M780 225 L780 190 M960 219 L960 201"/>
+      <path d="M300 160 L330 112 L470 112 L500 172 M360 112 L372 84 L432 84 L442 112"/>
+      <path d="M90 168 L50 172 L50 232 L90 236 M60 186 L36 188 L36 216 L60 218"/>
+    </g>
+  </svg>
+  <div class="splash-inner">
+    <p class="splash-kicker">KUAT DRIVE YARDS · DESIGN BUREAU</p>
+    <h1 class="splash-name" id="splashName">航宙艦設計局</h1>
+    <p class="splash-sub">KUAT SHIPWRIGHT</p>
+    <div class="splash-load">
+      <div class="splash-bar" role="progressbar" aria-label="読み込みの進行" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i></i></div>
+      <p class="splash-line"><span class="splash-text" role="status" aria-live="polite">読み込み中…</span><span class="splash-pct">0%</span></p>
+    </div>
+    <button type="button" class="splash-start" hidden>画面をタップしてスタート<small>音楽と効果音が鳴ります</small></button>
+  </div>
+</div>
 <div id="title" class="title" role="dialog" aria-modal="true" aria-labelledby="titleName">
   <div class="title-sky" aria-hidden="true"></div>
   <svg class="title-hull" viewBox="0 0 1200 420" aria-hidden="true">
@@ -1147,6 +1202,7 @@ body.tut-on .inspect{bottom:calc(70px + var(--sa-bottom,0px))}
       <p class="src">使用3D素材（提供モデルを分割・座標変換・量子化し、テクスチャを縮小・再配置、窓の発光を分離）：<a href="https://sketchfab.com/3d-models/venator-class-star-destroyer-5c2d88be90384395a2b4c23c7203e7d6" target="_blank" rel="noopener">Venator-Class Star Destroyer</a> — <a href="https://sketchfab.com/A308" target="_blank" rel="noopener">A308 Digital</a>（<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>。船体断面と指揮塔を実測して通常パーツで再構成し、艦橋・機関などの装備に原型の形状を使用）、<a href="https://sketchfab.com/3d-models/star-wars-imperial-class-star-destroyer-fa18d537db4d4020a443c1802ec0f88e" target="_blank" rel="noopener">Star Wars; Imperial-Class Star Destroyer</a> — <a href="https://sketchfab.com/Heataker" target="_blank" rel="noopener">Heataker</a>（<a href="https://sketchfab.com/licenses" target="_blank" rel="noopener">Sketchfab Standard</a>。船体断面と段状甲板を実測して通常パーツで再構成し、艦橋・標的追跡ドーム・通信アンテナ・八連装砲塔・機関に原型の形状とテクスチャを使用）、<a href="https://sketchfab.com/3d-models/imperial-i-class-star-destroyer-6913bf20402a4eaea3e59109db0fbea4" target="_blank" rel="noopener">Imperial I-class Star Destroyer</a> — LarsH.（<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>。旧設計とチュートリアルの装備に使用）。いずれも作者制作のモデルであり、公式3Dデータではありません。</p>
       <p class="src">作例の艦形の実測に使用した3Dモデル（形状を計測して船体・構造物・区画を組み立て直したもので、モデルのメッシュは含みません）：<a href="https://sketchfab.com/3d-models/star-wars-cr-90-60e26a508ca84126b30f01461f60086e" target="_blank" rel="noopener">Star Wars: CR-90</a> — <a href="https://sketchfab.com/DanielAndersson" target="_blank" rel="noopener">Daniel</a>（<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>）、<a href="https://sketchfab.com/3d-models/star-wars-nebulon-b-frigate-1986f7b0dee647b3b2374eb80dbd1faf" target="_blank" rel="noopener">Star Wars: Nebulon B Frigate</a> — <a href="https://sketchfab.com/DanielAndersson" target="_blank" rel="noopener">Daniel</a>（<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>）、<a href="https://sketchfab.com/3d-models/star-wars-gr-75-medium-transport-071b158d02c044ee9b431aeb28b85b6a" target="_blank" rel="noopener">Star Wars: GR-75 Medium Transport</a> — <a href="https://sketchfab.com/DanielAndersson" target="_blank" rel="noopener">Daniel</a>（<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>）、<a href="https://sketchfab.com/3d-models/star-wars-gozanti-class-cruiser-6a587e545b1c48bea95480b49458ac63" target="_blank" rel="noopener">Star Wars: Gozanti-Class Cruiser</a> — <a href="https://sketchfab.com/DanielAndersson" target="_blank" rel="noopener">Daniel</a>（<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>）、<a href="https://sketchfab.com/3d-models/star-wars-heraklon-class-transport-c1d686a791194ab680524094813cde17" target="_blank" rel="noopener">Star Wars: Heraklon-class Transport</a> — <a href="https://sketchfab.com/DanielAndersson" target="_blank" rel="noopener">Daniel</a>（<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>）、<a href="https://sketchfab.com/3d-models/star-wars-republic-transport-f12eab9e4a7b47e4b3a2fe9c61d8b8e1" target="_blank" rel="noopener">Star Wars: Republic Transport</a> — <a href="https://sketchfab.com/DanielAndersson" target="_blank" rel="noopener">Daniel</a>（<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>）、<a href="https://sketchfab.com/3d-models/star-wars-dreadnaught-class-heavy-cruiser-14e6ad1266104dec96541b17000925f2" target="_blank" rel="noopener">Star Wars Dreadnaught-Class Heavy Cruiser</a> — <a href="https://sketchfab.com/flannelandfilm" target="_blank" rel="noopener">flannelandfilm</a>（<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>）、<a href="https://sketchfab.com/3d-models/star-wars-the-clone-wars-providence-8d27764a7d254fd7948557daf6d7ccdc" target="_blank" rel="noopener">Star Wars: The Clone Wars Providence</a> — <a href="https://sketchfab.com/lolqeeeeeeeeee" target="_blank" rel="noopener">lolqeeeeeeeeee</a>（<a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0（非営利）</a>）、<a href="https://sketchfab.com/3d-models/munificent-class-star-frigate-966265e37e61433b919ba640a12a33f5" target="_blank" rel="noopener">Munificent Class Star Frigate</a> — <a href="https://sketchfab.com/SomeGuyUsingBlender" target="_blank" rel="noopener">SomeGuyUsingBlender</a>（<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>）、<a href="https://sketchfab.com/3d-models/star-wars-the-clone-wars-recusant-s3e2-style-c0abad60cab44d9197589a69e78fb6c5" target="_blank" rel="noopener">Star Wars: The Clone Wars Recusant (S3E2 style)</a> — <a href="https://sketchfab.com/lolqeeeeeeeeee" target="_blank" rel="noopener">lolqeeeeeeeeee</a>（<a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank" rel="noopener">CC BY-NC 4.0（非営利）</a>）、<a href="https://sketchfab.com/3d-models/lucrehulk-8bb11e0ad31e4b23b1783e10242c5115" target="_blank" rel="noopener">Lucrehulk</a> — <a href="https://sketchfab.com/profanity2009" target="_blank" rel="noopener">Professor E12^2</a>（<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>）、<a href="https://sketchfab.com/3d-models/star-wars-mc80-home-one-type-star-cruiser-9b5e5e5192f64a7faad93a3bfd2efaf2" target="_blank" rel="noopener">Star Wars: MC80 Home One Type Star Cruiser</a> — <a href="https://sketchfab.com/DanielAndersson" target="_blank" rel="noopener">Daniel</a>（<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>）、<a href="https://sketchfab.com/3d-models/star-wars-mc80-liberty-7cfe7d5cd8f44db9a0e6095b0f007472" target="_blank" rel="noopener">Star Wars: MC80 Liberty</a> — <a href="https://sketchfab.com/DanielAndersson" target="_blank" rel="noopener">Daniel</a>（<a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>）、<a href="https://www.thingiverse.com/thing:2806900" target="_blank" rel="noopener">MC75 Star Cruiser (Profundity)</a> — Snickett（原作 <a href="http://www.moddb.com/members/warb-null" target="_blank" rel="noopener">Warb Null</a>、Creative Commons - Attribution - Non-Commercial（非営利））。MC30c フリゲートとマンデイター II 級スター・ドレッドノートは、ユーザーから提供された STL ファイル（作者・ライセンスの表記なし）の形状を計測して組み立てました。CC BY-NC（非営利）の作品に基づく作例（プロヴィデンス級・レキューザント級とそのドレッドノート、MC75）は非営利での利用に限ります。</p>
       <p class="src">追加素材：<a href="https://sketchfab.com/3d-models/star-wars-imperial-ii-star-destroyer-b8bd2d35f7604670ab85242c06c6d280" target="_blank" rel="noopener">Star Wars Imperial II Star Destroyer</a> — <a href="https://sketchfab.com/DanielAndersson" target="_blank" rel="noopener">Daniel</a>。八連装砲・砲座を抽出して座標変換・量子化し、ケースメイト用に装甲トレーを分離。艦全体の外観メッシュは使用しません。<a href="https://sketchfab.com/3d-models/star-wars-executor-super-star-destroyer-df018bc2cecc4a5182fde06ddc9b1496" target="_blank" rel="noopener">Star Wars - Executor Super Star Destroyer</a> — <a href="https://sketchfab.com/Admiral_Forever" target="_blank" rel="noopener">Admiral_Forever</a>。船体断面・舷側トレンチ・都市段丘・腹部構造・機関配置を実測して通常パーツで再構成し、艦橋本体と標的追跡ドームに原型の形状を使用。いずれも <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener">CC BY 4.0</a>。微細な外板・配管は近似です。</p>
+      <p class="src">音楽：<a href="http://classical-sound.seesaa.net/" target="_blank" rel="noopener">クラシック名曲サウンドライブラリー</a>の録音を使用（ゲームのデータとして再エンコードし、スマートフォンでも聞こえるよう音量差を縮めています。単体の音楽ファイルとしては配布していません。単一ファイル版には含まれず、合成の音楽になります）。ワーグナー《ニュルンベルクのマイスタージンガー》第1幕への前奏曲・《ローエングリン》第1幕への前奏曲、ホルスト《惑星》から「火星」「木星」、ムソルグスキー《はげ山の一夜》（リムスキー＝コルサコフ編）・《展覧会の絵》から「キエフの大門」（ラヴェル編）、チャイコフスキー《1812年》・《白鳥の湖》第2幕から「情景」。効果音と「合成」の音楽は、この場で合成しています。</p>
     </section>
     <section>
       <h3>操作</h3>
@@ -1174,7 +1230,7 @@ body.tut-on .inspect{bottom:calc(70px + var(--sa-bottom,0px))}
 </div>
 
 
-<script>window.KS_FILES={data:["data/reference.js","data/textures.js","data/imperial2.js","data/fleet.js"],core:"js/core.js",gfx:"js/gfx.js",engine:"js/engine.js",app:"js/app.js",worker:"js/worker.js"};</script>
+<script>window.KS_FILES={data:["data/reference.js","data/textures.js","data/imperial2.js","data/fleet.js"],core:"js/core.js",gfx:"js/gfx.js",engine:"js/engine.js",app:"js/app.js",worker:"js/worker.js",sizes:{"data/reference.js":6270785,"data/textures.js":2338303,"data/imperial2.js":83602,"data/fleet.js":685920,"js/core.js":1210139,"js/gfx.js":181954,"js/engine.js":15892,"js/app.js":851400}};</script>
 <script>
 /* ============================================================
    boot.js — title screen first, then the 3D assets, the engine
@@ -1191,6 +1247,41 @@ const frame = () => new Promise(r => requestAnimationFrame(() => setTimeout(r, 0
 const text = (name) => { const el = document.getElementById('ks-src-' + name); return el ? el.textContent : ''; };
 const clear = (name) => { const el = document.getElementById('ks-src-' + name); if (el) el.textContent = ''; };
 const run = (src) => { const s = document.createElement('script'); s.textContent = src; document.body.appendChild(s); s.textContent = ''; s.remove(); };
+
+// ---------- v20.5 the title screen (#splash) ----------
+// The name over a star field, a bar for the loading, then a tap to start; the tap is also the gesture that lets
+// a phone play sound, so the title music can begin with it. Automated browsers skip it (tests and screenshots see
+// the menu at once) unless the address asks for it with ?splash.
+const splashEl = document.getElementById('splash');
+const SPL = {p: 0, ready: false, gone: false, fb: 0};
+function splashSet(p, text) {
+  if (!splashEl || SPL.gone) return;
+  if (p != null && p > SPL.p) {
+    SPL.p = Math.min(1, p); splashEl.classList.remove('splash-indet'); splashEl.style.setProperty('--p', SPL.p.toFixed(4));
+    const n = Math.floor(SPL.p * 100), pct = splashEl.querySelector('.splash-pct'), bar = splashEl.querySelector('.splash-bar');
+    if (pct) pct.textContent = n + '%'; if (bar) bar.setAttribute('aria-valuenow', String(n));
+  }
+  // Once ready, a late step's label (the app can say it is ready before its own loader's last word) is not shown.
+  if (text && (!SPL.ready || p === 1)) { const t = splashEl.querySelector('.splash-text'); if (t) t.textContent = text; }
+}
+function splashReady() {
+  if (!splashEl || SPL.ready || SPL.gone) return; SPL.ready = true; clearTimeout(SPL.fb); splashSet(1, '準備完了');
+  splashEl.classList.add('ready'); const b = splashEl.querySelector('.splash-start'); if (b) { b.hidden = false; try { b.focus({preventScroll: true}); } catch (e) {} }
+}
+function splashGo() {
+  if (!splashEl || !SPL.ready || SPL.gone) return; SPL.gone = true;
+  try { if (window.KSAudio && window.KSAudio.unlock) window.KSAudio.unlock(); } catch (e) {}
+  splashEl.classList.add('out'); document.body.classList.remove('splash-on');
+  setTimeout(() => splashEl.remove(), 1000);
+}
+if (splashEl) {
+  if (navigator.webdriver && !/[?&]splash\b/.test(location.search)) splashEl.remove();
+  else {
+    document.body.classList.add('splash-on');
+    splashEl.addEventListener('click', splashGo);
+    splashEl.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); splashGo(); } });
+  }
+}
 
 let workerReady;
 function startWorker(src) {
@@ -1232,25 +1323,58 @@ function startFileWorker(F) {
     return startWorker(texts);
   });
 }
+// v20.5 For the loading bar the files are fetched (all at once, counting the bytes as they arrive) and each is
+// then run, in order, from a blob of the fetched bytes; where the page refuses blob scripts, from the file itself
+// (which the browser then has in its cache). Without fetch, or from a file:// page, they load as plain scripts.
+async function fetchBlob(u, onBytes) {
+  const r = await fetch(u); if (!r.ok) throw new Error(u + ' (' + r.status + ')');
+  if (!r.body || !r.body.getReader) { const b = await r.arrayBuffer(); onBytes(b.byteLength); return new Blob([b], {type: 'text/javascript'}); }
+  const rd = r.body.getReader(), parts = [];
+  for (;;) { const {done, value} = await rd.read(); if (done) break; parts.push(value); onBytes(value.byteLength); }
+  return new Blob(parts, {type: 'text/javascript'});
+}
+let blobScripts = true;
+function runBlob(blob, u) {
+  if (!blobScripts || !window.URL || !URL.createObjectURL) return loadScript(u);
+  const url = URL.createObjectURL(blob);
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script'); s.src = url; s.async = false;
+    s.onload = () => { URL.revokeObjectURL(url); resolve(); };
+    s.onerror = () => { URL.revokeObjectURL(url); s.remove(); blobScripts = false; loadScript(u).then(resolve, reject); };
+    document.body.appendChild(s);
+  });
+}
 async function bootFiles(F) {
   try {
-    status('3Dモデル素材を読み込み中…'); step('data', 'run'); step('engine', 'run');
+    status('3Dモデル素材を読み込み中…'); step('data', 'run'); step('engine', 'run'); splashSet(0, '3Dモデル素材を読み込み中…');
     await frame();
-    for (const u of F.data) await loadScript(u);
+    const list = [...F.data, F.core, F.gfx, F.engine, F.app], sz = F.sizes || {}, total = list.reduce((n, u) => n + (sz[u] || 0), 0);
+    let got = 0; const counted = new Set(), add = (n) => { got += n; if (total) splashSet(.88 * Math.min(1, got / total)); };
+    const pre = total && window.fetch && !/^file:/.test(location.protocol) ? list.map((u) => fetchBlob(u, add).catch((e) => { console.warn('progress fetch', u, e && e.message); return null; })) : null;
+    let i = 0;
+    const load = async (u) => { const k = i++, b = pre ? await pre[k] : null; await (b ? runBlob(b, u) : loadScript(u)); if (!b && !counted.has(u)) { counted.add(u); add(sz[u] || 0); } };
+    for (const u of F.data) await load(u);
     workerReady = startFileWorker(F); workerReady.catch(() => {});
-    status('設計計算を準備中…');
-    await loadScript(F.core); await loadScript(F.gfx); await loadScript(F.engine); step('data', 'done');
+    status('設計計算を準備中…'); splashSet(null, '設計計算を準備中…');
+    await load(F.core); await load(F.gfx); await load(F.engine); step('data', 'done');
     await frame();
-    status('設計画面を準備中…'); step('view', 'run');
-    await loadScript(F.app);
+    status('設計画面を準備中…'); step('view', 'run'); splashSet(null, '設計画面を準備中…');
+    await load(F.app);
+    splashSet(.9, '設計エンジンを起動中…'); splashFallback();
   } catch (e) {
     console.error(e);
     status('読み込みに失敗しました：' + (e && e.message || e) + '。ページを再読み込みしてください。');
     const el = $('#titleStatus'); if (el) el.classList.add('bad');
+    splashSet(null, '読み込みに失敗しました。ページを再読み込みしてください。');
   }
 }
+// The app says when the menu is ready (KSBoot.ready); should it never say so, the title screen still lets the player in.
+function splashFallback() { clearTimeout(SPL.fb); SPL.fb = setTimeout(splashReady, 25000); }
 
-window.KSBoot = {status, step, get workerReady() { return workerReady; }};
+window.KSBoot = {status, step, progress: splashSet, ready: splashReady,
+  // The engine is up: the menu can open within moments (the draft's 3D view, if any, comes next).
+  engineReady() { if (SPL.ready) return; splashSet(.96, '下書きを先読み中…'); clearTimeout(SPL.fb); SPL.fb = setTimeout(splashReady, 6000); },
+  get workerReady() { return workerReady; }};
 
 async function boot() {
   try {
@@ -1260,14 +1384,16 @@ async function boot() {
     workerReady = startWorker([data, core, gfx, engine]);
     workerReady.catch(() => {});
     await frame();
-    run(data); clear('data'); await frame();
-    status('設計計算を準備中…');
-    run(core); clear('core'); await frame();
+    splashSet(.3, '3Dモデル素材を準備中…'); await frame();
+    run(data); clear('data'); splashSet(.55); await frame();
+    status('設計計算を準備中…'); splashSet(null, '設計計算を準備中…');
+    run(core); clear('core'); splashSet(.7); await frame();
     run(gfx); clear('gfx');
-    run(engine); clear('engine'); step('data', 'done');
+    run(engine); clear('engine'); step('data', 'done'); splashSet(.78);
     await frame();
-    status('設計画面を準備中…'); step('view', 'run');
+    status('設計画面を準備中…'); step('view', 'run'); splashSet(null, '設計画面を準備中…');
     run(app); clear('app');
+    splashSet(.9, '設計エンジンを起動中…'); splashFallback();
   } catch (e) {
     console.error(e);
     status('読み込みに失敗しました：' + (e && e.message || e) + '。ページを再読み込みしてください。');

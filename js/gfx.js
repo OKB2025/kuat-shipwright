@@ -506,6 +506,15 @@ function subFrame(M, o, at, ang) {
 }
 function frameM(f) { const fr = C.FITS[f.k].window ? C.windowFrame(f) : C.fitFrameOf(f); return [fr.fw[0], fr.fw[1], fr.fw[2], fr.up[0], fr.up[1], fr.up[2], fr.rt[0], fr.rt[1], fr.rt[2]]; }
 let FIT_SKIP_BODY = null, FIT_SKIP_PED = null;
+// v21 Starfighter and small-craft weapons, in the fitting's frame (x to the bow, y up from the mount).
+function craftWeaponMesh(g,f){
+ const d=C.fitSpec(f),M=frameM(f),o=C.fitOrigin(f),L=d.fm,W=d.wm,h=d.hm,k=f.k,B=FC.barrel,D=FC.dark,R=FC.ring,Bd=FC.body;
+ if(k==='claser'||k==='claserH'){box(g,M,o,-L*.22,h*.5,0,L*.36,h*.9,W,Bd);cyl(g,M,o,L*.2,h*.5,0,W*.3,W*.24,L*.62,0,B,8);for(const q of [.02,.24])cyl(g,M,o,L*q,h*.5,0,W*.42,W*.42,L*.05,0,R,8);cyl(g,M,o,L*.5,h*.5,0,W*.34,W*.34,L*.06,0,D,8);return;}
+ if(k==='cion'){box(g,M,o,-L*.18,h*.5,0,L*.5,h,W,Bd);cyl(g,M,o,L*.22,h*.5,0,W*.36,W*.3,L*.5,0,B,10);for(const q of [.08,.2,.32])cyl(g,M,o,L*q,h*.5,0,W*.47,W*.47,L*.04,0,R,10);return;}
+ if(k==='cturret'){cyl(g,M,o,0,h*.15,0,W*.5,W*.46,h*.3,1,D,10);domeL(g,M,o,0,h*.3,0,W*.42,h*.5,Bd,12,3);for(const zz of [-W*.14,W*.14])cyl(g,M,o,L*.38,h*.55,zz,W*.06,W*.05,L*.6,0,B,6);return;}
+ if(k==='ctorp'||k==='cmsl'){box(g,M,o,0,h*.5,0,L,h,W,Bd);for(const zz of (k==='ctorp'?[0]:[-W*.22,W*.22]))cyl(g,M,o,L*.49,h*.5,zz,W*(k==='ctorp'?.32:.18),W*(k==='ctorp'?.32:.18),L*.04,0,D,10);return;}
+ if(k==='cbomb'){box(g,M,o,0,h*.5,0,L,h,W,D);box(g,M,o,0,h*.02,0,L*.92,h*.06,W*.9,R);box(g,M,o,0,h*.03,0,L*.02,h*.07,W*.92,D);}
+}
 function meshFits(ship, filter, ranges) {
   const g = new Geo(8192), body = FC.body;
   const one = (f) => {
@@ -519,6 +528,8 @@ function meshFits(ship, filter, ranges) {
     }
     // Command pods are the bridge drum mesh, drawn with the model fittings.
     if(C.FITS[f.k].window)return;
+    // v21 Craft weapons sit flush on their mount (no pedestal): barrels and launchers along the bow.
+    if(C.FITS[f.k].craft){if(!FIT_SKIP_BODY?.has(f.id))craftWeaponMesh(g,f);return;}
     const d = C.fitSpec(f), M = frameM(f), o = C.fitOrigin(f), L = d.fm, W = d.wm, h = d.hm, k = f.k;
     // pedestal from below the surface up to the mount
     const ph = f.base + f.ped - (f.low || 0);
@@ -1544,6 +1555,7 @@ function axisFrustum(g,a,b,r0,r1,col,caps=true,inward=false,segments=32){
     if(caps)for(const [o,r,sg] of [[a,r0,-1],[b,r1,1]]){g.room(3);const k=g.n,ps2=sg<0?[o,p(o,r,t2),p(o,r,t)]:[o,p(o,r,t),p(o,r,t2)];for(const q of ps2)g.v(...q,...C.mul(f.u,sg),.5,.5,col,255);g.tri(k,k+1,k+2);}
   }
 }
+const CANOPY_GLASS=[46,62,74],ASTRO_DOME=[120,150,196];
 function v3MeshParts(ship,opt){
   C.syncCompartments(ship);
   const out={struct:new Geo(2048),plate:new Geo(1024),gen:new Geo(4096),shield:new Geo(2048),hyper:new Geo(2048),interior:new Geo(2048),engine:new Geo(2048),plant:new Geo(2048),nozzle:new Geo(512),hangar:new Geo(2048)},glow=[];
@@ -1571,6 +1583,9 @@ function meshOnePart(out,p,ship,opt,glow){
     if(p.boxSize){const f=p.boxFrame;box(out.interior,[...f.fw,...f.up,...f.rt],p.c,0,0,0,...p.boxSize,color);return;}
     if(k==='machinery'){const target=ship.parts.find(e=>e.id===p.nozzle)?.skinAsset?out.plant:out.engine;for(const s of p.segments||[p.seg])axisFrustum(target,s.a,s.b,s.r0,s.r1,color,false);const s=p.segments?.at(-1)||p.seg;for(let i=0;i<5;i++){const t=(i+.6)/5,at=C.add(s.a,C.mul(s.u,s.l*t));axisFrustum(target,C.sub(at,C.mul(s.u,1.2)),C.add(at,C.mul(s.u,1.2)),s.r1*1.06,s.r1*1.06,[120,132,142],false);}return;}
     if(k==='sensor'){sensorShell(out.struct,p,color);return;}
+    // v21 A cockpit shows as tinted canopy glass where it stands out of the hull; an astromech as its dome.
+    if(k==='cockpit'){sphere(C.isInternal(p)?out.interior:out.struct,p.c,p.d/2,opt.coded?color:CANOPY_GLASS,10,4);return;}
+    if(k==='astromech'){const r=p.d/2,u=C.norm(p.dir||[0,1,0]),h=p.d*1.05,base=C.sub(p.c,C.mul(u,h/2)),top=C.add(p.c,C.mul(u,h*.18));axisFrustum(C.isInternal(p)?out.interior:out.struct,base,top,r*.82,r*.82,opt.coded?color:[188,196,204],false);if(!C.isInternal(p))sphere(out.struct,top,r*.8,opt.coded?color:ASTRO_DOME,8,3);return;}
     if(d.shape==='sphere'){sphere(C.isInternal(p)?out.interior:k==='gen'?out.gen:out.shield,p.c,p.d/2,color,8,3);return;}
     if(d.shape==='cube'){if(p.room){roomMesh(ship,p,k==='hangar'&&ship.hatches.some(h=>h.bay===p.id)?out.hangar:out.interior,color);}else{const r=p.d/2;boxSolid(k==='hangar'&&ship.hatches.some(h=>h.bay===p.id)?out.hangar:out.interior,C.sub(p.c,[r,r,r]),C.add(p.c,[r,r,r]),color,32);}return;}
     const m=C.partDims(p),u=C.norm(p.dir||(k==='engine'?[-1,0,0]:[1,0,0])),a=C.sub(p.c,C.mul(u,m.l/2)),b=C.add(p.c,C.mul(u,m.l/2));
@@ -1928,13 +1943,14 @@ function mirroredTurretPose(f,fits,poses){
 function turretPose(f){
  const d=C.FITS[f.k],fr=C.fitFrameOf(f);
  if(d.asset&&f.skinAsset&&f.skinAsset!==d.asset){const k=skinTurretPose(f);if(k)return k;return null;}
+ if(d.fixed)return {pivot:C.fitOrigin(f),axis:C.fitUp(f),fw:[1,0,0]};
  if(d.casemate)return {pivot:C.fitOrigin(f),axis:[0,1,0],fw:C.AXES[f.a]};
  if(d.asset){const y=(f.assetYaw||0)*Math.PI/180;return {pivot:C.fitOrigin(f),axis:fr.up,fw:C.norm(C.add(C.mul(fr.fw,Math.cos(y)),C.mul(fr.rt,Math.sin(y))))};}
  return {pivot:C.fitOrigin(f),axis:fr.up,fw:fr.fw};
 }
 const TRIAL_BARRELS={pd:2,ltl:4,mtl:3,htl:2,stl:2,utl:2,ion:2,ionL:2};
 function trialTurrets(model,put){
- const list=model.fits.filter(trialTurretFit),turning=new Set(list.filter(f=>!C.FITS[f.k].casemate).map(f=>f.id)),out=[];
+ const list=model.fits.filter(trialTurretFit),turning=new Set(list.filter(f=>!C.FITS[f.k].casemate&&!C.FITS[f.k].fixed).map(f=>f.id)),out=[];
  FIT_SKIP_BODY=turning;try{put('fits',meshFits(model));}finally{FIT_SKIP_BODY=null;}
  put('refFits',meshReferenceFits(model,null,model.fits.filter(f=>!turning.has(f.id))));
  const all=new Set(model.fits.map(f=>f.id)),poses=new Map();
@@ -1943,7 +1959,7 @@ function trialTurrets(model,put){
  for(const f of list){
   const d=C.fitSpec(f),spec=C.FITS[f.k],pose=poses.get(f.id),axis=C.norm(pose.axis),fw=C.norm(C.sub(pose.fw,C.mul(axis,C.dot(pose.fw,axis)))),rot=turning.has(f.id);
   let mesh=null;if(rot){if(spec.asset){mesh='refTur_'+f.id;put(mesh,meshReferenceFits(model,null,[f]),'reference',null);}else{mesh='tur_'+f.id;FIT_SKIP_PED=all;try{put(mesh,meshFits(model,x=>x===f),'fits',.6);}finally{FIT_SKIP_PED=null;}}}
-  out.push({id:f.id,k:f.k,name:spec.short||spec.name,mesh,pivot:pose.pivot,axis,fw,origin:C.turretOrigin(f),mount:C.fitUp(f),r:d.r,hm:d.hm,casemate:!!spec.casemate,barrels:spec.barrels||TRIAL_BARRELS[f.k]||2,cycle:spec.cycle||2.5,tt:d.tt||0,ion:!!d.ion&&!d.tt,rate:C.turretRate(f),power:d.power||0,cap:C.needsCapacitor(f)});
+  out.push({id:f.id,k:f.k,name:spec.short||spec.name,mesh,pivot:pose.pivot,axis,fw,origin:C.turretOrigin(f),mount:C.fitUp(f),r:d.r,hm:d.hm,casemate:!!(spec.casemate||spec.fixed),barrels:spec.barrels||TRIAL_BARRELS[f.k]||2,cycle:spec.cycle||2.5,tt:d.tt||0,ion:!!d.ion&&!d.tt,rate:C.turretRate(f),power:d.power||0,cap:C.needsCapacitor(f)});
  }
  return out;
 }
