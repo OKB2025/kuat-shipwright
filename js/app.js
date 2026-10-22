@@ -3968,13 +3968,17 @@ const voyShort = n => String(n || '').split('｜')[0];
 // Imperial and Republic ships take Royal Navy-style names or Roman ones (the
 // epithets of the legions); the Empire adds the names of its own destroyers;
 // the Alliance names ships for its cause; Separatist ships carry the jargon of
-// the corporations that built them. Names are drawn at random and can be edited.
+// the corporations that built them (English words in katakana). Names are drawn
+// at random and can be edited.
+// Separatist names given in Japanese before v15.1, and the English jargon in katakana that replaces each.
+const VOY_CIS_RENAME = {'敵対的買収': 'ホスタイル・テイクオーバー', '友好的買収': 'フレンドリー・テイクオーバー', '強制執行': 'エンフォースメント', '強制清算': 'フォースト・リクイデーション', '自主清算': 'ボランタリー・リクイデーション', '臨時配当': 'スペシャル・ディビデンド', '特別配当': 'エクストラ・ディビデンド', '優先配当': 'プリファード・ディビデンド', '中間配当': 'インテリム・ディビデンド', '最終決算': 'ファイナル・アカウンツ', '連結決算': 'コンソリデーション', '四半期決算': 'クォータリー・アーニングス', '特別監査': 'スペシャル・オーディット', '外部監査': 'エクスターナル・オーディット', '緊急融資': 'ブリッジ・ローン', '協調融資': 'シンジケート・ローン', '第三者割当増資': 'プライベート・プレースメント', '株式公開買付': 'テンダー・オファー', '優先償還': 'プライオリティ・リデンプション', '繰上償還': 'アーリー・リデンプション', '債権回収': 'デット・コレクション', '資産凍結': 'アセット・フリーズ', '資産差押': 'ガーニッシュメント', '担保権実行': 'フォークロージャー', '経営統合': 'マージャー', '事業分割': 'スピンオフ', '垂直統合': 'バーティカル・インテグレーション', '水平統合': 'ホリゾンタル・インテグレーション', '戦略的提携': 'ストラテジック・アライアンス', '包括的提携': 'グローバル・パートナーシップ', '損益分岐': 'ブレイクイーブン', '費用対効果': 'コスト・エフィシェンシー', '規模の経済': 'エコノミー・オブ・スケール', '市場占有': 'マーケット・シェア', '独占契約': 'エクスクルーシブ・コントラクト', '違約条項': 'ペナルティ・クローズ', '優先交渉権': 'ファースト・リフューザル', '利益相反': 'コンフリクト・オブ・インタレスト', '株主還元': 'シェアホルダー・リターン', '原価低減': 'コスト・リダクション', '不採算整理': 'リストラクチャリング', '経営合理化': 'ラショナリゼーション', '減価償却': 'デプリシエーション', '一括償却': 'ライトオフ', '信用取引': 'マージン・トレーディング', '手形決済': 'セトルメント', '与信審査': 'デュー・ディリジェンス', '競争入札': 'コンペティティブ・ビッド', '指名入札': 'セレクティブ・テンダー', '価格改定': 'プライス・リビジョン', '納期厳守': 'オンタイム・デリバリー', '契約更新': 'コントラクト・リニューアル', '保険引受': 'アンダーライティング', '債務保証': 'デット・ギャランティー', '連帯保証': 'ジョイント・ギャランティー', '増収増益': 'トップライン・グロース', '過去最高益': 'レコード・プロフィット', '配当性向': 'ペイアウト・レシオ', '自己株式取得': 'シェア・バイバック', '損害賠償請求': 'リティゲーション'};
 const VOY_SHIPNAMES = {
  rn: ['ドーントレス', 'ヴァリアント', 'レゾリュート', 'インドミタブル', 'インプラカブル', 'フォーミダブル', 'イラストリアス', 'インヴィンシブル', 'インディファティガブル', 'インフレキシブル', 'ヴァンガード', 'ヴィクトリアス', 'ヴェネラブル', 'ヴィジラント', 'ウォースパイト', 'リパルス', 'リナウン', 'リヴェンジ', 'レゾリューション', 'ソヴリン', 'スパーブ', 'スウィフトシュア', 'テメレーア', 'サンダラー', 'トライアンフ', 'コンカラー', 'カレイジャス', 'グロリアス', 'フューリアス', 'アーデント', 'オーデイシャス', 'コロッサス', 'イントレピッド', 'マジェスティック', 'マグニフィセント', 'モナーク', 'エンデュランス', 'ディファイアンス', 'アキリーズ', 'エイジャックス', 'オライオン', 'ベレロフォン', 'ハーキュリーズ', 'セントー', 'ブルワーク', 'アルビオン', 'ステッドファスト', 'アンフレンチング', 'インペタス', 'ネメシス'],
  imperial: ['デヴァステイター', 'アヴェンジャー', 'アキューザー', 'ジュディケイター', 'タイラント', 'ストーカー', 'インティミデイター', 'コンクエスト', 'インフリクター', 'アナイアレイター', 'ハービンジャー', 'アドモニター', 'クルセイダー', 'ドミネーター', 'レレントレス', 'ヴェンジェンス', 'インクイジター', 'パニッシャー', 'リトリビューション', 'サブジュゲイター', 'オーバーシーア', 'ウォーデン', 'センチネル', 'エンフォーサー'],
  roman: ['インペラトル', 'センチュリオン', 'プラエトル', 'レガトゥス', 'トリブヌス', 'コンスル', 'ウィクトリクス', 'フォルティス', 'アウグスタ', 'アクィラ', 'グラディウス', 'ピルム', 'インヴィクタ', 'フルミナタ', 'フェッラタ', 'プリミゲニア', 'ゲミナ', 'アポリナリス', 'フレテンシス', 'クラウディア', 'ミネルウィア', 'イタリカ', 'パルティカ', 'スキュティカ', 'ウルピア', 'フラウィア', 'マケドニカ', 'ラパクス', 'フェロクス', 'フィデリス', 'コンコルディア', 'ウァレリア'],
  rebel: ['リバティ', 'インディペンデンス', 'フリーダム', 'ディファイアンス', 'レゾルヴ', 'ホープ', 'コンコード', 'ヴィンディケーション', 'リデンプション', 'ドーン', 'ソリダリティ', 'フォーティチュード', 'パーシヴィアランス', 'ブレイヴリー', 'ヘリテージ', 'ユニティ', 'オナー', 'ヴァラー', 'ルミナリー', 'ニュー・ホープ', 'エマンシペーター', 'リベレーター', 'サンクチュアリ', 'プロミス'],
- cis: ['敵対的買収', '友好的買収', '強制執行', '強制清算', '自主清算', '臨時配当', '特別配当', '優先配当', '中間配当', '最終決算', '連結決算', '四半期決算', '特別監査', '外部監査', '緊急融資', '協調融資', '第三者割当増資', '株式公開買付', '優先償還', '繰上償還', '債権回収', '資産凍結', '資産差押', '担保権実行', '経営統合', '事業分割', '垂直統合', '水平統合', '戦略的提携', '包括的提携', '損益分岐', '費用対効果', '規模の経済', '市場占有', '独占契約', '違約条項', '優先交渉権', '利益相反', '株主還元', '原価低減', '不採算整理', '経営合理化', '減価償却', '一括償却', '信用取引', '手形決済', '与信審査', '競争入札', '指名入札', '価格改定', '納期厳守', '契約更新', '保険引受', '債務保証', '連帯保証', '増収増益', '過去最高益', '配当性向', '自己株式取得', '損害賠償請求']
+ // Separatist ships carry the jargon of the corporations that built them, as the English words in katakana.
+ cis: [...Object.values(VOY_CIS_RENAME), 'シナジー', 'レバレッジ', 'アービトラージ', 'ポートフォリオ', 'ベンチマーク', 'コンプライアンス', 'ガバナンス', 'ソリューション', 'イノベーション', 'スケーラビリティ', 'ディスラプション', 'パラダイム・シフト', 'コア・コンピタンス', 'バリュー・チェーン', 'サプライ・チェーン', 'アウトソーシング', 'ダウンサイジング', 'ライトサイジング', 'ゴールデン・パラシュート', 'ポイズン・ピル', 'ホワイト・ナイト', 'クラウン・ジュエル', 'ベア・ハグ', 'グリーンメール', 'ジャンク・ボンド', 'デリバティブ', 'ショート・セリング', 'マージン・コール', 'キャピタル・ゲイン', 'キャッシュ・フロー', 'ボトムライン', 'ステークホルダー', 'アセット・ストリッピング', 'フォース・マジュール', 'レバレッジド・バイアウト', 'ハイ・イールド', 'タックス・ヘイブン', 'ベイルアウト', 'モノポリー', 'カルテル', 'コングロマリット', 'ゴーイング・コンサーン', 'プライス・ウォー', 'スクイーズアウト', 'ゴールデン・シェア', 'リバース・マージャー', 'プロフィット・センター', 'マーケット・メイカー', 'ディープ・ディスカウント', 'テイク・プライベート']
 };
 function voyNamePool(f) { return f === 'empire' ? [...VOY_SHIPNAMES.imperial, ...VOY_SHIPNAMES.rn, ...VOY_SHIPNAMES.roman] : f === 'republic' ? [...VOY_SHIPNAMES.rn, ...VOY_SHIPNAMES.roman] : f === 'cis' ? VOY_SHIPNAMES.cis : VOY_SHIPNAMES.rebel; }
 function voyNextName(f, used, rand = Math.random) {
@@ -3989,7 +3993,19 @@ function voyNextName(f, used, rand = Math.random) {
 // battle are kept in this browser, one per navy, and the fleet battle sends out
 // the task groups chosen from it.
 const ORBAT_KEY = 'yard.orbat.v1', TG_MIN = 4, TG_MAX = 8;
-function voyOrbatLoad() { try { const d = JSON.parse(LS.get(ORBAT_KEY) || 'null'); if (d && d.version === 1 && d.factions) return d; } catch (e) { /* a broken store starts afresh */ } return {version: 1, factions: {}}; }
+function voyOrbatLoad() {
+ try { const d = JSON.parse(LS.get(ORBAT_KEY) || 'null'); if (d && d.version === 1 && d.factions) { if (voyRenameCis(d)) LS.set(ORBAT_KEY, JSON.stringify(d)); return d; } } catch (e) { /* a broken store starts afresh */ }
+ return {version: 1, factions: {}};
+}
+// Ships named from the old Japanese list take the English name that replaces it (keeping II, III…); names the player chose stay.
+function voyRenameCis(d) {
+ let n = 0;
+ for (const ob of Object.values(d.factions || {})) for (const c of ob.ctgs || []) for (const t of c.tgs || []) for (const sh of t.ships || []) {
+  const m = /^(.*?)( (?:II|III|IV|V|VI|VII|VIII|IX|X))?$/.exec(String(sh.name || '')), to = m && Object.hasOwn(VOY_CIS_RENAME, m[1]) ? VOY_CIS_RENAME[m[1]] : null;
+  if (to) { sh.name = to + (m[2] || ''); n++; }
+ }
+ return n > 0;
+}
 function voyOrbatSave() { if (voy.orbat) LS.set(ORBAT_KEY, JSON.stringify(voy.orbat)); }
 function voyOb(f) {
  voy.orbat = voy.orbat || voyOrbatLoad();let ob = voy.orbat.factions[f];
