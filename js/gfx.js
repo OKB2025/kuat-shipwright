@@ -553,6 +553,13 @@ function meshFits(ship, filter, ranges) {
     // mantlet and sleeved barrels, ion domes with coiled barrels, angled
     // missile boxes, dish projectors and ball-mounted point defence.
     if (k === 'msl') {
+      // v18 VLS: a flush armoured deck plate over the cells, two rows of hatches.
+      if (C.missileMount(f) === 'vls') {
+        box(g, M, o, 0, h * 0.2, 0, L * 0.94, h * 0.4, W * 0.94, FC.body);
+        box(g, M, o, 0, h * 0.42, 0, L * 0.86, h * 0.06, W * 0.86, FC.ring);
+        for (const a of [-0.31, -0.105, 0.105, 0.31]) for (const b of [-0.2, 0.2]) box(g, M, o, L * a, h * 0.5, W * b, L * 0.17, h * 0.1, W * 0.32, FC.dark);
+        return;
+      }
       cyl(g, M, o, 0, h * 0.3, 0, W * 0.34, W * 0.3, h * 0.6, 1, FC.dark, 8);
       const [Mp, op] = subFrame(M, o, [0, h * 0.95, 0], 0.32);
       box(g, Mp, op, 0, 0, 0, L * 0.78, h * 0.9, W * 0.82, FC.body);
@@ -631,7 +638,7 @@ precision highp float;
 precision mediump float;
 #endif
 uniform sampler2D uTex;uniform sampler2D uEmiTex;uniform vec3 uL1;uniform vec3 uL2;uniform vec3 uC1;uniform vec3 uC2;
-uniform vec3 uSky;uniform vec3 uGnd;uniform vec3 uEye;uniform float uAlpha;uniform float uEmi;uniform vec3 uClip;uniform vec3 uClipLo;uniform float uClipOn;uniform vec4 uSeam;uniform float uChar;uniform float uBack;uniform float uReference;uniform float uPaint;uniform float uRefHull;uniform float uHullLength;uniform float uFlash;
+uniform vec3 uSky;uniform vec3 uGnd;uniform vec3 uEye;uniform float uAlpha;uniform float uEmi;uniform vec3 uClip;uniform vec3 uClipLo;uniform float uClipOn;uniform vec4 uSeam;uniform float uChar;uniform float uBack;uniform float uReference;uniform float uPaint;uniform float uRefHull;uniform float uHullLength;uniform float uFlash;uniform vec4 uEmiTint;
 uniform vec3 uLightCol;uniform float uLightK;uniform vec2 uPix;
 varying vec3 vN;varying vec2 vUv;varying vec4 vCol;varying vec3 vW;varying vec3 vS;varying vec3 vNS;
 float hash12(vec2 p){vec3 q=fract(vec3(p.xyx)*0.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
@@ -658,7 +665,7 @@ float ef=1.0;
 if(!gl_FrontFacing){n=-n;ef=0.0;if(uBack<0.5){base=vec3(0.085,0.092,0.10);}else{base*=0.62;}}
 vec3 amb=mix(uGnd,uSky,n.y*0.5+0.5)*ao;float d1=max(dot(n,uL1),0.0);float d2=max(dot(n,uL2),0.0);
 vec3 V=normalize(uEye-vW);vec3 H=normalize(uL1+V);float sp=pow(max(dot(n,H),0.0),40.0)*0.22*ao*ef;
-vec3 c=base*(amb+uC1*d1*(0.6+0.4*ao)+uC2*d2*ao)+uC1*sp;vec3 e=texture2D(uEmiTex,vUv).rgb;c+=e*e*uEmi*ef;
+vec3 c=base*(amb+uC1*d1*(0.6+0.4*ao)+uC2*d2*ao)+uC1*sp;vec3 e=texture2D(uEmiTex,vUv).rgb;if(uEmiTint.w>0.5){float l=dot(e,vec3(0.3,0.5,0.2));e=mix(uEmiTint.rgb*min(1.0,l*1.3),vec3(l),smoothstep(0.86,1.0,l)*0.7);}c+=e*e*uEmi*ef;
 if(uLightK>0.0&&ef>0.5){vec2 pl=shipLights(normalize(vNS));c*=1.0-0.5*pl.y;float lk=uLightK*pl.x;c=mix(c,uLightCol,clamp(lk,0.0,1.0))+uLightCol*(max(0.0,lk-1.0)*0.25);}
 // A wreck: plating scorched in patches, and the edges where it broke glowing hot.
 if(uChar>0.0){float sc=hash12(floor(vS.xz/9.0))*0.5+hash12(floor(vS.xy/23.0+vec2(3.0)))*0.5;c*=1.0-uChar*(0.45+0.4*sc);}
@@ -874,14 +881,16 @@ void main(){vec4 a=uInv*vec4(vP,-1.0,1.0),b=uInv*vec4(vP,1.0,1.0);vec3 rd=normal
 // direction of travel (uS, the angle added at its outer end), a streak that is
 // brightest at its outer end. A great circle projects to a straight line, so
 // the streak is the segment between the two projected ends, clipped in front
-// of the eye.
+// of the eye. A streak only ever grows outward and stops 3.05 rad from the
+// direction of travel, so the stars straight behind stay dots (v18: they used
+// to be pulled out to that ring even at rest, a burst behind every ship).
 const VS_STAR = `attribute vec3 aDir;attribute vec2 aCorner;attribute vec4 aCol;
 uniform mat4 uVP;uniform vec3 uF;uniform float uS;uniform vec2 uRes;uniform float uPx;uniform float uK;
 varying vec3 vC;varying vec3 vQ;varying vec2 vSig;
 void main(){
  float m=aCol.a,c=dot(aDir,uF);vec3 r=aDir-uF*c;float rl=length(r);
  vec3 rh=rl>1e-5?r/rl:normalize(cross(uF,abs(uF.y)<0.9?vec3(0.0,1.0,0.0):vec3(1.0,0.0,0.0)));
- float phi=atan(rl,c),ph2=min(phi+uS*(0.18+phi*0.9),3.05);vec3 hd=uF*cos(ph2)+rh*sin(ph2);
+ float phi=atan(rl,c),ph2=phi+min(uS*(0.18+phi*0.9),max(0.0,3.05-phi));vec3 hd=uF*cos(ph2)+rh*sin(ph2);
  vec4 A=uVP*vec4(aDir,0.0),B=uVP*vec4(hd,0.0);const float E=1e-3;
  if(A.w<E&&B.w<E){gl_Position=vec4(2.0,2.0,2.0,1.0);vC=vec3(0.0);vQ=vec3(0.0);vSig=vec2(1.0);return;}
  if(A.w<E)A=mix(A,B,(E-A.w)/(B.w-A.w));if(B.w<E)B=mix(B,A,(E-B.w)/(A.w-B.w));
@@ -1013,9 +1022,11 @@ class Renderer {
     gl.bindBuffer(gl.ARRAY_BUFFER, p.size); gl.bufferData(gl.ARRAY_BUFFER, size, gl.STATIC_DRAW);
     p.count = pos.length / 3;
   }
-  setGlow(list) {   // flat [x,y,z,size,...]
-    const n = list.length / 4, pos = new Float32Array(n * 3), col = new Uint8Array(n * 4), size = new Float32Array(n);
-    for (let k = 0; k < n; k++) { pos[k * 3] = list[k * 4]; pos[k * 3 + 1] = list[k * 4 + 1]; pos[k * 3 + 2] = list[k * 4 + 2]; size[k] = list[k * 4 + 3]; col[k * 4] = 110; col[k * 4 + 1] = 185; col[k * 4 + 2] = 255; col[k * 4 + 3] = 150; }
+  // v18 The design screen shows the drives lit at cruise in the design's engine
+  // colour, each with a short plume aft (-x), so the colour reads at a glance.
+  setGlow(list, rgb) {   // flat [x,y,z,size,...]; rgb: the design's engine colour
+    const n = list.length / 4, P = 4, pos = new Float32Array(n * P * 3), col = new Uint8Array(n * P * 4), size = new Float32Array(n * P), c = rgb || [110, 185, 255];
+    for (let k = 0; k < n; k++) for (let j = 0; j < P; j++) { const i = k * P + j, s0 = list[k * 4 + 3], d = j ? s0 * j * 1.6 : 0; pos[i * 3] = list[k * 4] - d; pos[i * 3 + 1] = list[k * 4 + 1]; pos[i * 3 + 2] = list[k * 4 + 2]; size[i] = s0 * 2.2 * (j ? 1 - .18 * j : 1); col[i * 4] = c[0]; col[i * 4 + 1] = c[1]; col[i * 4 + 2] = c[2]; col[i * 4 + 3] = j ? Math.round(160 * (1 - .22 * j)) : 210; }
     this.setPoints('glow', pos, col, size);
   }
   makeStars() {
@@ -1138,7 +1149,7 @@ class Renderer {
     // Shields shimmer in the animated fleet and trial views; the editor redraws
     // on demand, so it keeps one still frame of the pattern.
     this.rayTime=opt.fleet?(performance.now()/1000)%600:7.3;
-    this.paint=opt.paint||'neutral';this.setLights(opt.lights);this.hullLength=opt.hullLength||1600;this.sourceRed=opt.reference==='venator';this.meshScale=opt.fleet?null:opt.meshScale||null;this.hidden=opt.fleet?null:opt.hidden||null;
+    this.paint=opt.paint||'neutral';this.setLights(opt.lights);this.engineTint=opt.engineGlow&&opt.engineGlow!=='blue'?C.engineGlowRGB(opt.engineGlow):null;this.engineK=1;this.hullLength=opt.hullLength||1600;this.sourceRed=opt.reference==='venator';this.meshScale=opt.fleet?null:opt.meshScale||null;this.hidden=opt.fleet?null:opt.hidden||null;
     this.clip = opt.mode === 'cut' ? opt.clip : null;
     gl.disable(gl.DEPTH_TEST); gl.depthMask(false); gl.disable(gl.BLEND); gl.disable(gl.CULL_FACE);
     // The space views (opt.sky) have their own sky: the galactic band, then the
@@ -1244,7 +1255,9 @@ class Renderer {
     gl.uniform3fv(p.u.uEye, m.eye); gl.uniform1f(p.u.uAlpha, alpha);
     gl.uniform1f(p.u.uPaint,this.paint==='dark'?2:this.paint==='republic'?1:0);gl.uniform1f(p.u.uRefHull,name==='refHull'&&!this.sourceRed?1:0);gl.uniform1f(p.u.uHullLength,this.hullLength||1600);
     gl.uniform1f(p.u.uReference, REFERENCE_SHADED.has(name)||name.startsWith('refTur_')?1:name==='refEngine'?2:0);
-    gl.uniform1f(p.u.uEmi, (emi == null ? 1 : emi) * (MESH_EMI[name] == null ? 1 : MESH_EMI[name]));
+    // v18 Drive nozzles burn in the design's engine colour, brighter with thrust.
+    const drive=name==='nozzle'||name==='refEngine',tint=drive?this.engineTint:null;gl.uniform4fv(p.u.uEmiTint,tint?[tint[0]/255,tint[1]/255,tint[2]/255,1]:[1,1,1,0]);
+    gl.uniform1f(p.u.uEmi, (emi == null ? 1 : emi) * (MESH_EMI[name] == null ? 1 : MESH_EMI[name]) * (drive ? (this.engineK ?? 1) : 1));
     gl.uniform3fv(p.u.uClip, this.clip || [1e9, 1e9, 1e9]); gl.uniform3fv(p.u.uClipLo, this.clipLo || [-1e9, -1e9, -1e9]); gl.uniform1f(p.u.uClipOn, this.clip || this.clipLo ? 1 : 0); gl.uniform1f(p.u.uBack, BACK_OWN.has(name)||name.startsWith('tur_') ? 1 : 0);
     gl.uniform4fv(p.u.uSeam, this.seam || [0, 0, 1, 0]); gl.uniform1f(p.u.uChar, this.char || 0);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tx.a); gl.uniform1i(p.u.uTex, 0);
@@ -1406,7 +1419,7 @@ function v3MeshParts(ship,opt){
   C.syncCompartments(ship);
   const out={struct:new Geo(2048),plate:new Geo(1024),gen:new Geo(4096),shield:new Geo(2048),hyper:new Geo(2048),interior:new Geo(2048),engine:new Geo(2048),plant:new Geo(2048),nozzle:new Geo(512),hangar:new Geo(2048)},glow=[];
   const ranges={};
-  for(const p of [...ship.parts,...C.enginePaths(ship),...C.weaponCapacitors(ship),...C.commandCompartments(ship)]){
+  for(const p of [...ship.parts,...C.enginePaths(ship),...C.weaponCapacitors(ship),...C.missileCells(ship),...C.commandCompartments(ship)]){
     const before=geoMarks(out);meshOnePart(out,p,ship,opt,glow);markRanges(ranges,p.id,before,out);
   }
   if(opt.habitation&&ship.autoHabitation!==false){const h=C.habitationSpace(ship),d=h.cell.map(v=>v*.46);for(const p of h.points)boxSolid(out.interior,C.sub(p,d),C.add(p,d),[104,159,124],24);}
@@ -1556,7 +1569,7 @@ function engineBell(out,p,a,b,u,color,glow,ship){
  }
  const g=on?out.nozzle:out.engine,N=32;g.room(N+2,N*3);const base=g.n;g.v(...tip,...u,.5,.5,on?WHITE:[33,42,47],255);
  for(let i=0;i<=N;i++){const t=i/N*Math.PI*2,q=C.add(tip,C.add(C.mul(f.v,Math.cos(t)*r*throat),C.mul(f.w,Math.sin(t)*r*throat)));g.v(...q,...u,.5+.5*Math.cos(t),.5+.5*Math.sin(t),on?WHITE:[33,42,47],255);}for(let i=0;i<N;i++)g.tri(base,base+i+1,base+i+2);
- if(on)glow.push(...C.add(b,C.mul(u,r*.12)),r*.8);
+ if(on)glow.push(...C.add(b,C.mul(u,r*(p.skinAsset?.5:.12))),r*.8);
 }
 // Large staggered armor plates; only thin joints are dark, never rows of windows.
 function plateDetail(ship,g){
@@ -1704,7 +1717,7 @@ Renderer.prototype.prepareFleet=function(key,ship){
    if(hatch.skinAsset){for(const side of [-1,1]){const name='refSlideDoor_'+hatch.id+'_'+(side<0?'l':'r');MESH_TEX[name]='reference';MESH_EMI[name]=0;this.upload(name,meshReferenceHatches({...model,_referenceDoorOnly:true,hatches:[{...hatch,open:0,_doorDetached:false,_slideSide:side}]}));doors.push({name,axis:spec.slideAxis,side,travel:spec.travel});}}
    else for(const panel of C.slidingHatchPanels(model,hatch)){const name='slideDoor_'+hatch.id+'_'+(panel.side<0?'l':'r');MESH_EMI[name]=0;this.upload(name,meshSlidingHatchPanel(model,hatch,panel));doors.push({name,axis:panel.axis,side:panel.side,travel:panel.travel});}
   }
-  const asset={meshes,doors,rays,center,glow:parts.glow,bounds:b,paint:ship.paint,lights:ship.lights,reference:ship.reference,length:ship.hull.L};this.fleetCache.set(key,asset);return asset;}catch(e){for(const m of Object.values(meshes))for(const k of ['pos','nor','uv','col','idx'])this.gl.deleteBuffer(m[k]);throw e;}finally{this.meshes=old;}
+  const asset={meshes,doors,rays,center,glow:parts.glow,bounds:b,paint:ship.paint,lights:ship.lights,engine:ship.engineGlow||null,reference:ship.reference,length:ship.hull.L};this.fleetCache.set(key,asset);return asset;}catch(e){for(const m of Object.values(meshes))for(const k of ['pos','nor','uv','col','idx'])this.gl.deleteBuffer(m[k]);throw e;}finally{this.meshes=old;}
 };
 // Fleet geometry is built by the background engine; the renderer only uploads it.
 function fleetGeometry(ship,opts){
@@ -1719,7 +1732,7 @@ function fleetGeometry(ship,opts){
   if(hatch.skinAsset){for(const side of [-1,1]){const name='refSlideDoor_'+hatch.id+'_'+(side<0?'l':'r');put(name,meshReferenceHatches({...model,_referenceDoorOnly:true,hatches:[{...hatch,open:0,_doorDetached:false,_slideSide:side}]}),'reference',0);doors.push({name,axis:spec.slideAxis,side,travel:spec.travel});}}
   else for(const panel of C.slidingHatchPanels(model,hatch)){const name='slideDoor_'+hatch.id+'_'+(panel.side<0?'l':'r');put(name,meshSlidingHatchPanel(model,hatch,panel),null,0);doors.push({name,axis:panel.axis,side:panel.side,travel:panel.travel});}
  }
- return {meshes,doors,rays,center,glow:parts.glow,bounds:b,paint:ship.paint,lights:ship.lights,reference:ship.reference,length:ship.hull.L,turrets,launchers,targetRadius};
+ return {meshes,doors,rays,center,glow:parts.glow,bounds:b,paint:ship.paint,lights:ship.lights,engine:ship.engineGlow||null,reference:ship.reference,length:ship.hull.L,turrets,launchers,targetRadius};
 }
 // ---------- trial turrets ----------
 // Every gun turret becomes its own mesh with a pivot, a traverse axis and the
@@ -1800,7 +1813,7 @@ Renderer.prototype.loadFleet=function(key,data){
  this.fleetCache=this.fleetCache||new Map();if(this.fleetCache.has(key))return this.fleetCache.get(key);
  const old=this.meshes,meshes={};this.meshes=meshes;
  try{for(const [name,m] of Object.entries(data.meshes)){if(m.tex)MESH_TEX[name]=m.tex;if(m.emi!=null)MESH_EMI[name]=m.emi;if(m.geo)this.upload(name,m.geo);}
-  const asset={meshes,doors:data.doors,rays:data.rays,center:data.center,glow:data.glow,bounds:data.bounds,paint:data.paint,lights:data.lights,reference:data.reference,length:data.length};this.fleetCache.set(key,asset);return asset;}
+  const asset={meshes,doors:data.doors,rays:data.rays,center:data.center,glow:data.glow,bounds:data.bounds,paint:data.paint,lights:data.lights,engine:data.engine||null,reference:data.reference,length:data.length};this.fleetCache.set(key,asset);return asset;}
  catch(e){for(const m of Object.values(meshes))for(const k of ['pos','nor','uv','col','idx'])this.gl.deleteBuffer(m[k]);throw e;}finally{this.meshes=old;}
 };
 Renderer.prototype.pruneFleet=function(keys){if(!this.fleetCache)return;for(const [k,a] of this.fleetCache)if(!keys.has(k)){for(const m of Object.values(a.meshes))for(const n of ['pos','nor','uv','col','idx'])this.gl.deleteBuffer(m[n]);this.fleetCache.delete(k);}};
@@ -1812,6 +1825,7 @@ Renderer.prototype.drawFleet=function(m,opt){
   const L=(a.length||300)*(u.stretch||1),rx=u.pos[0]-eye[0],ry=u.pos[1]-eye[1],rz=u.pos[2]-eye[2],dist=Math.hypot(rx,ry,rz),px=L/Math.max(1,dist)*focal,ahead=rx*vd[0]+ry*vd[1]+rz*vd[2];
   if(opt.lod&&(px<2.2||ahead<-L)){this.lodSkipped++;continue;}const lod=opt.lod&&px<44&&!u.turrets;
   this.meshes=a.meshes;this.off=u.pos;this.modelCenter=u.center||a.center;this.modelYaw=u.yaw||0;this.modelRot=u.rot||null;this.paint=a.paint||'neutral';
+  this.engineTint=a.engine&&a.engine!=='blue'?C.engineGlowRGB(a.engine):null;this.engineK=u.wreck?0:.3+.95*C.clamp(u.glow??.6,0,1);
   // A piece of a broken ship: the part of the model inside its box, turned about its own centre, scorched, its torn edges glowing.
   this.clip=u.clip?u.clip.hi:null;this.clipLo=u.clip?u.clip.lo:null;this.seam=u.seam||null;this.char=u.char||0;if(u.clip)gl.disable(gl.CULL_FACE);this.setLights(a.lights);this.sourceRed=a.reference==='venator';this.hullLength=a.length;const R=u.rot||yawMatrix(this.modelYaw),rv=v=>[R[0]*v[0]+R[3]*v[1]+R[6]*v[2],R[1]*v[0]+R[4]*v[1]+R[7]*v[2],R[2]*v[0]+R[5]*v[1]+R[8]*v[2]];
   // A ship dropping out of (or into) hyperspace is drawn stretched along its
@@ -1828,10 +1842,17 @@ Renderer.prototype.drawFleet=function(m,opt){
  }
  // Shields go on after every hull so a translucent field never hides a ship behind it.
  for(const {u,a,names} of shields){if((u.stretch||1)!==1)continue;this.meshes=a.meshes;this.off=u.pos;this.modelCenter=a.center;this.modelYaw=u.yaw||0;this.modelRot=u.rot||null;this.drawRays(m,names,1);}
- }finally{this.meshes=old;this.off=off;this.modelCenter=null;this.modelYaw=0;this.modelRot=null;this.unitScl=null;this.unitFlash=0;this.clip=this.clipLo=this.seam=null;this.char=0;}
+ }finally{this.meshes=old;this.off=off;this.modelCenter=null;this.modelYaw=0;this.modelRot=null;this.unitScl=null;this.unitFlash=0;this.clip=this.clipLo=this.seam=null;this.char=0;this.engineTint=null;this.engineK=1;}
  gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.depthMask(false);gl.disable(gl.CULL_FACE);if(!opt.planet){this.drawLines('fleetGrid',m,.65);gl.disable(gl.DEPTH_TEST);this.drawLines('fleetOrders',m,.8);gl.enable(gl.DEPTH_TEST);this.drawLines('fleetShots',m,1);}
- const glow=[];for(const u of opt.fleet){if(u.dead||u.hidden||u.wreck||(u.stretch||1)>1.05)continue;const a=this.fleetCache?.get(u.key);if(!a)continue;const R=u.rot||yawMatrix(u.yaw||0),k=u.glow??1;for(let i=0;i<a.glow.length;i+=4){const x=a.glow[i]-a.center[0],y=a.glow[i+1]-a.center[1],z=a.glow[i+2]-a.center[2];glow.push(u.pos[0]+R[0]*x+R[3]*y+R[6]*z,u.pos[1]+R[1]*x+R[4]*y+R[7]*z,u.pos[2]+R[2]*x+R[5]*y+R[8]*z,a.glow[i+3]*k);}}
- const pos=new Float32Array(glow.length/4*3),col=new Uint8Array(glow.length),size=new Float32Array(glow.length/4);for(let i=0;i<size.length;i++){pos.set(glow.slice(i*4,i*4+3),i*3);col.set([110,185,255,150],i*4);size[i]=glow[i*4+3];}this.setPoints('fleetGlow',pos,col,size);gl.blendFunc(gl.ONE,gl.ONE);this.drawPoints('fleetGlow',m,[0,0,0],1,2,false);if(opt.planet||opt.hyper||opt.sky){if(!opt.hyper&&!opt.noDust)this.drawPoints('trialDust',m,[0,0,0],1,1,false);this.drawPoints('trialFx',m,[0,0,0],1,2,false);this.drawPoints('trialBolts',m,[0,0,0],1,2,false);if(!opt.hyper)this.drawPoints('trialCraft',m,[0,0,0],1,2,false);}
+ // v18 Drive glow: each nozzle glows in its design's engine colour, sized and
+ // lit by how hard the drives burn (u.glow 0–1); above a third of full thrust a
+ // plume trails aft and lengthens with it.
+ const gp=[],gc=[],gs=[];for(const u of opt.fleet){if(u.dead||u.hidden||u.wreck||(u.stretch||1)>1.05)continue;const a=this.fleetCache?.get(u.key);if(!a)continue;
+  const R=u.rot||yawMatrix(u.yaw||0),t=C.clamp(u.glow??.6,0,1),rgb=C.engineGlowRGB(a.engine),aft=[-R[0],-R[1],-R[2]],al=Math.min(255,70+170*t),sk=.6+4.4*t*t,pl=t>.25?(t-.25)/.75:0;
+  for(let i=0;i<a.glow.length;i+=4){const x=a.glow[i]-a.center[0],y=a.glow[i+1]-a.center[1],z=a.glow[i+2]-a.center[2],px=u.pos[0]+R[0]*x+R[3]*y+R[6]*z,py=u.pos[1]+R[1]*x+R[4]*y+R[7]*z,pz=u.pos[2]+R[2]*x+R[5]*y+R[8]*z,sz=a.glow[i+3];
+   gp.push(px,py,pz);gc.push(rgb[0],rgb[1],rgb[2],al);gs.push(sz*sk);
+   if(pl>0)for(let j=1;j<=4;j++){const d=sz*j*(.8+2.4*pl);gp.push(px+aft[0]*d,py+aft[1]*d,pz+aft[2]*d);gc.push(rgb[0],rgb[1],rgb[2],Math.round(235*pl*(1-.18*j)));gs.push(sz*sk*(1-.17*j));}}}
+ this.setPoints('fleetGlow',new Float32Array(gp),new Uint8Array(gc),new Float32Array(gs));gl.blendFunc(gl.ONE,gl.ONE);this.drawPoints('fleetGlow',m,[0,0,0],1,2,false);if(opt.planet||opt.hyper||opt.sky){if(!opt.hyper&&!opt.noDust)this.drawPoints('trialDust',m,[0,0,0],1,1,false);this.drawPoints('trialFx',m,[0,0,0],1,2,false);this.drawPoints('trialBolts',m,[0,0,0],1,2,false);if(!opt.hyper)this.drawPoints('trialCraft',m,[0,0,0],1,2,false);}
  gl.depthMask(true);
 };
 
@@ -1864,7 +1885,7 @@ class CompatRenderer {
  upload(name,g){this.meshes[name]={geo:g,count:g.ni};}
  setLines(name,data){this.lines[name]=data;}
  setPoints(name,pos,col,size){this.points[name]={pos,col,size};}
- setGlow(list){const pos=[],col=[],size=[];for(let i=0;i<list.length;i+=4){pos.push(...list.slice(i,i+3));col.push(110,185,255,150);size.push(list[i+3]);}this.setPoints('glow',pos,col,size);}
+ setGlow(list,rgb){const c=rgb||[110,185,255],pos=[],col=[],size=[];for(let i=0;i<list.length;i+=4){pos.push(...list.slice(i,i+3));col.push(c[0],c[1],c[2],150);size.push(list[i+3]);}this.setPoints('glow',pos,col,size);}
  resize(){const w=Math.max(1,Math.round(this.canvas.clientWidth)),h=Math.max(1,Math.round(this.canvas.clientHeight)),scale=Math.min(1,Math.sqrt(420000/(w*h)));const rw=Math.max(1,Math.round(w*scale)),rh=Math.max(1,Math.round(h*scale));if(this.canvas.width!==rw||this.canvas.height!==rh){this.canvas.width=rw;this.canvas.height=rh;}}
  eye(){return Renderer.prototype.eye.call(this);}
  matrices(){return Renderer.prototype.matrices.call(this);}

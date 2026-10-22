@@ -67,6 +67,11 @@ const K = {
   cycle: 2.5, deflect: 1.0, bufferS: SHIELD_BUFFER_SECONDS,
 };
 
+// v18 Crew. A weapon's crew doubles its gun crew (feeding, power, upkeep);
+// crew live in 居住区 at 24 m³ a head, or in the hull's free internal volume
+// (passages, stores and the rest included) at 1,000 m³ a head. Only as many
+// as there is room for come aboard.
+const WEAPON_CREW_K=2,FREE_M3_PER_CREW=1000;
 // ---------- parts (compartments) ----------
 const PARTS = {
   gen: {name: 'ジェネレーター', shape: 'sphere', dens: 0.90, hp: 0.7, crew: 0.5, cost: 8, col: [238, 140, 62], min: 10, max: 400, def: 110, crit: true,
@@ -1032,6 +1037,8 @@ function baseComputeStats(ship) {
   for(let i=0;i<occupied.length;i++)for(let j=i+1;j<occupied.length;j++){
     const a=occupied[i],b=occupied[j];
     if((a.k==='machinery'&&(b.id===a.reactor||b.id===a.nozzle||b.k==='machinery'))||(b.k==='machinery'&&(a.id===b.reactor||a.id===b.nozzle)))continue;
+    // Neighbouring launchers' VLS magazines share their bulkheads.
+    if(a.k==='vls'&&b.k==='vls')continue;
     if(overlapParts(a,b)){invalid.add(a.id);invalid.add(b.id);}
   }
   const demands=new Map();for(const e of ship.parts.filter(p=>p.k==='engine'&&!invalid.has(p.id))){const r=reactorFor(ship,e);if(r)demands.set(r.id,(demands.get(r.id)||0)+nozzleDemand(e));}
@@ -1132,16 +1139,17 @@ function baseComputeStats(ship) {
     }
   }
   let Vacc = 0; for (const H of hangars) { info[H.pt.id].acc = H.acc; if (H.acc&&H.pt.k==='hangar') Vacc += partVolume(H.pt); }
-  const aviation=aviationStatus(ship,info),slots=aviation.embarkedCount,chargeInfo=chargingStatus(ship,invalid);
+  const aviation=aviationStatus(ship,info),slots=aviation.embarkedCount,chargeInfo=chargingStatus(ship,invalid),vlsInfo=missileStatus(ship,invalid);
   // fittings
   const alpha = [0, 0, 0, 0, 0, 0], ionS = [0, 0, 0, 0, 0, 0], alphaRate=[0,0,0,0,0,0],ionRate=[0,0,0,0,0,0],aaArc=[0,0,0,0,0,0],bandRate={long:[0,0,0,0,0,0],mid:[0,0,0,0,0,0],close:[0,0,0,0,0,0]};
-  let alphaTot = 0, ionTot = 0, aa = 0, mslSalvo = 0, tractors = 0, wPower = 0, bPower = 0, bridges = 0, sensor = 0, viewSum = 0, floatFits = 0, plateFits = 0, pedVol = 0;
+  let alphaTot = 0, ionTot = 0, aa = 0, mslSalvo = 0, tractors = 0, wPower = 0, bPower = 0, bridges = 0, sensor = 0, viewSum = 0, floatFits = 0, plateFits = 0, pedVol = 0, weaponCrew = 0;
   const commandInfo=commandStatus(ship,invalid),fitInfo = {};
   for (const f of ship.fits) {
     const raw=fitSpec(f),cr=needsCapacitor(f)?(chargeInfo[f.id]?.ratio||0):1,d={...raw,power:raw.power*cr,tt:(raw.tt||0)*cr,ion:(raw.ion||0)*cr};
     if (f.float) { floatFits++; if (f._onPlate) plateFits++; }
     const ph = Math.max(0, f.base + f.ped - (f.low || 0)), pr = d.r * 0.8, pv = Math.PI * pr * pr * ph; pedVol += pv;
-    const m = d.mass + pv * 0.3; crew += d.crew; cost += d.cost;
+    // v18 Each weapon needs its gun crew and as many again to feed, power and maintain it.
+    const m = d.mass + pv * 0.3, fc = d.cat === 'w' ? (d.crew || 0) * WEAPON_CREW_K : (d.crew || 0); crew += fc; if (d.cat === 'w' && !f.float) weaponCrew += fc; cost += d.cost;
     bins[binOf(f.p[0])] += m;
     if (d.cat === 'w') {
       if(f.float)continue;
@@ -1153,7 +1161,7 @@ function baseComputeStats(ship) {
         for (let k = 0; k < 6; k++) { if (d.tt){alpha[k] += d.tt * arc[k];alphaRate[k]+=d.tt*arc[k]/(d.cycle||K.cycle);br[k]+=d.tt*arc[k]/(d.cycle||K.cycle);}if (d.ion){ionS[k] += d.ion * arc[k];ionRate[k]+=d.ion*arc[k]/(d.cycle||K.cycle);}if (d.aa) aaArc[k] += d.aa * arc[k]; }
         if (d.tt) alphaTot += d.tt; if (d.ion) ionTot += d.ion; if (d.aa) aa += d.aa * Math.min(1, mean * 1.6);
       }
-      if (d.msl) mslSalvo += d.msl; if (d.trac) tractors++;
+      if (d.msl&&(missileMount(f)==='ext'||(vlsInfo[f.id]?.ratio||0)>.05)) mslSalvo += d.msl; if (d.trac) tractors++;
     } else if(!f.float && (!d.window || d.role==='bridge'||d.role==='combat')) {
       const effective=d.window?(commandInfo[f.id]?.ratio||0):1;if(effective<=0)continue;
       bridges++; bPower += d.power*effective;
@@ -1216,7 +1224,7 @@ function baseComputeStats(ship) {
     mass: M, armorMass: armHull + armCit + plateM, dims: [xmax - xmin, zmax * 2, ymax - ymin], ybox: [ymin, ymax], hullLen: ship.hull.core ? Math.max(L, xmax - xmin) : L,
     skin: {x0: skin.x0, x1: skin.x1, n: skin.n, a: Array.from(skin.a, v => Math.round(v)), t: Array.from(skin.t, v => Math.round(v * 10) / 10)},
     power: P, xISD: P / ISD_W, draw: {weapons: Dw, shields: Ds, engines: De, hotel: Dh, ray: Dr, jump: Dj},
-    rc, coreRate,weaponBudget,chargeInfo, rm, jumpOK, thrust, aThrust, aStruct, aEff, accelG: aEff / G0, thrustG: aThrust / G0, structG: aStruct / G0,
+    rc, coreRate,weaponBudget,chargeInfo,vlsInfo, rm, jumpOK, thrust, aThrust, aStruct, aEff, accelG: aEff / G0, thrustG: aThrust / G0, structG: aStruct / G0,
     weakAt: worstX, cutSection: cut, structLimited: aStruct < aThrust, MGLT: Math.round(aEff / G0 / 30),
     engN, ventEng, Veng, hyperEffectiveVolume, hyperClass: hyperEffectiveVolume > 0 ? clamp(K.hyperK * M / hyperEffectiveVolume, 0.5, 30) : null,
     shieldP, shieldPct, shieldCapacity:shieldCapacity*coreRate, shieldTarget:ship.shieldTarget||1, armorHull: ship.armor.hull, armorCit: cit, armorAvg: ship.armor.hull + (area > 0 ? plateAT / area : 0), armorPlate: plateA > 0 ? plateAT / plateA : 0, plateArea: plateA, plateShare: area > 0 ? Math.min(1, plateA / area) : 0, plateMass: plateM,
@@ -1224,7 +1232,7 @@ function baseComputeStats(ship) {
     alphaRate,ionRate,aaArc,bandRate,alpha, alphaTot, alphaBest, alphaMean, ionBest: Math.max(...ionS), ionMean: ionS.reduce((a, b) => a + b, 0) / 6, ionTot, aa, mslSalvo, tractors,
     arcEff: alphaTot > 0 ? alphaBest / alphaTot : 0,
     commandInfo, bridges, view, accuracy, sensor, protectedFrac, critExpo: expo, genExpFrac, vuln,
-    hp: hpSum * K.hpPerT + (armHull + armCit + plateM) * 0.2 * K.hpPerT, crew: Math.round(crew), habit, cost,
+    hp: hpSum * K.hpPerT + (armHull + armCit + plateM) * 0.2 * K.hpPerT, crew: Math.round(crew), weaponCrew: Math.round(weaponCrew), habit, cost,
     floating, floatFits, plateFits, overlap, info, fitInfo, hatchInfo, pedVol,
     frac: {gen: Vgen / Math.max(1, ship.hull.assembly?volume:g.volume), engine: Veng / Math.max(1, ship.hull.assembly?volume:g.volume), hyper: Vhyp / Math.max(1, ship.hull.assembly?volume:g.volume), shield: Vsh / Math.max(1, ship.hull.assembly?volume:g.volume), hangar: Vhang / Math.max(1, ship.hull.assembly?volume:g.volume), struct: Vstruct / Math.max(1, ship.hull.assembly?volume:g.volume)},
     Vgen, Vsh, Vhyp,
@@ -1236,11 +1244,16 @@ function baseComputeStats(ship) {
 const CLASSES = [[0, 'コルベット'], [150, 'スター・フリゲート'], [760, '軽スター・デストロイヤー'], [2500, 'スター・デストロイヤー'],
   [5500, '重スター・デストロイヤー'], [12000, '巡洋戦艦'], [40000, 'スター・クルーザー'], [200000, 'スター・ドレッドノート']];
 function classify(S) {
-  let name = CLASSES[0][1]; for (const [th, nm] of CLASSES) if (S.alphaTot >= th) name = nm;
+  // v18 Ion cannons count at a third of their rating toward the firepower class
+  // (they strip shields but do little to the hull), and a ship whose ion rating
+  // exceeds its gun rating fights as an ion gunship.
+  const fire = S.alphaTot + (S.ionTot || 0) / 3;
+  let name = CLASSES[0][1]; for (const [th, nm] of CLASSES) if (fire >= th) name = nm;
   const hf = S.hullVolume > 0 ? S.Vacc / S.hullVolume : 0;
   let role;
-  if (hf >= 0.22) role = '航宙母艦'; else if (hf >= 0.09) role = '打撃空母';
-  else if (S.alphaTot <= 0) role = S.slots > 0 ? '支援艦' : '非武装';
+  if (hf >= 0.22) role = 'キャリア'; else if (hf >= 0.09) role = '打撃キャリア';
+  else if (fire <= 0) role = S.slots > 0 ? '支援艦' : '非武装';
+  else if ((S.ionTot || 0) > S.alphaTot) role = 'イオン砲戦';
   else if (S.accelG >= 3000) role = '高速'; else if ((S.armorAvg ?? S.armorHull) >= 1.2) role = '重装'; else role = '砲戦';
   return {name, role, hangarFrac: hf};
 }
@@ -1337,7 +1350,7 @@ function hyperAft(ship, d, y) {
 }
 function powerTT(ship, frac) {return frac*ship.parts.filter(isReactor).reduce((n,p)=>n+reactorPower(p),0)*K.cycle/TT;}
 const DESIGNS = {
-  sample: {name: '試作駆逐艦 SY-01', hull: {plan: 'arrow', sec: 'roof', L: 880, W: 440, H: 160, bowW: 0, bowH: 0.45, stern: 0.65, keel: 'std'}, build(s) {
+  sample: {name: '試作デストロイヤー SY-01', hull: {plan: 'arrow', sec: 'roof', L: 880, W: 440, H: 160, bowW: 0, bowH: 0.45, stern: 0.65, keel: 'std'}, build(s) {
     s.cuts.push({id: nid(s), side: 'both', edge: 'top', inset: 70, slope: 60, from: 0.05, to: 1, prop: true});
     sternEngines(s, [[0, 0.5, 70], [0.42, 0.5, 52], [0.75, 0.45, 34]]);
     placePart(s, 'gen', [s.hull.L * 0.24, 118, 0], 120, {}, false);
@@ -1366,7 +1379,7 @@ const DESIGNS = {
     gunsDeck(s, 'ltl', [0.45, 0.6, 0.75], [0], powerTT(s, 0.6), false, 1);
     gunsSide(s, 'pd', [0.25, 0.5, 0.75], 0.5);
   }},
-  destroyer: {name: '軽駆逐艦', hull: {plan: 'wedge', sec: 'rect', L: 1050, W: 520, H: 170, bowW: 0.02, bowH: 0.5, stern: 1, keel: 'std'}, build(s) {
+  destroyer: {name: '軽デストロイヤー', hull: {plan: 'wedge', sec: 'rect', L: 1050, W: 520, H: 170, bowW: 0.02, bowH: 0.5, stern: 1, keel: 'std'}, build(s) {
     s.cuts.push({id: nid(s), side: 'both', edge: 'top', inset: 60, slope: 60, from: 0, to: 1, prop: true});
     sternEngines(s, [[0, 0.5, 80], [0.38, 0.5, 64], [0.7, 0.45, 40]]);
     placePart(s, 'gen', [s.hull.L * 0.22, 112, 0], 160, {}, false);
@@ -1382,7 +1395,7 @@ const DESIGNS = {
     gunsDeck(s, 'mtl', [0.46, 0.56, 0.66, 0.76], [0.35], tt - used, false, 3);
     gunsSide(s, 'pd', [0.2, 0.35, 0.5, 0.65], 0.3);
   }},
-  carrier: {name: '打撃空母', hull: {plan: 'wedge', sec: 'trap', L: 1080, W: 520, H: 180, bowW: 0.08, bowH: 0.6, stern: 1, keel: 'std'}, build(s) {
+  carrier: {name: '打撃キャリア', hull: {plan: 'wedge', sec: 'trap', L: 1080, W: 520, H: 180, bowW: 0.08, bowH: 0.6, stern: 1, keel: 'std'}, build(s) {
     sternEngines(s, [[0, 0.5, 80], [0.4, 0.5, 60], [0.7, 0.45, 40]]);
     placePart(s, 'gen', [s.hull.L * 0.2, 100, 0], 140, {}, false);
     const st = superstructure(s, 0.1, 0.26, 0.22, 60, 0.2);
@@ -1398,7 +1411,7 @@ const DESIGNS = {
     gunsDeck(s, 'ltl', [0.36, 0.5, 0.64, 0.78], [0.82], tt - used, false, 3);
     gunsSide(s, 'pd', [0.2, 0.32, 0.44, 0.56, 0.68, 0.8], 0.3);
   }},
-  heavy: {name: '重駆逐艦', hull: {plan: 'wedge', sec: 'roof', L: 1600, W: 860, H: 280, bowW: 0.02, bowH: 0.45, stern: 1, keel: 'heavy'}, build(s) {
+  heavy: {name: '重デストロイヤー', hull: {plan: 'wedge', sec: 'roof', L: 1600, W: 860, H: 280, bowW: 0.02, bowH: 0.45, stern: 1, keel: 'heavy'}, build(s) {
     sternEngines(s, [[0, 0.5, 130], [0.36, 0.5, 100], [0.66, 0.45, 70]]);
     placePart(s, 'gen', [s.hull.L * 0.22, 170, 0], 250, {}, false);
     const st = superstructure(s, 0.1, 0.32, 0.22, 90, 0.25);
@@ -1509,7 +1522,7 @@ addComp('repulsor','リパルサーリフト','cyl',0.35,[112,199,202],'support'
 addComp('service','航空整備・補給区画','cube',0.1,[79,140,162],'air','航空機の整備・補給能力を確保します。格納庫とは別に空間を使います。',{def:60});
 addComp('vehicle','車両格納・整備区画','cube',0.12,[119,147,91],'air','揚陸車両を収容。航空機の搭載数とは別に計上します。',{def:60});
 addComp('cargo','貨物・物資庫','cube',0.18,[157,137,111],'air','貨物搭載量を確保する区画。',{def:45});
-addComp('crew','居住区','cube',0.08,[127,163,132],'command','乗員の居住空間。収容可能人数を独立して計算します。',{def:60});
+addComp('crew','居住区','cube',0.08,[127,163,132],'command','乗員の居住空間。24 m³ に 1 名を収容し、船内の空き容積（1,000 m³ に 1 名）よりずっと多く乗せられます。武装を増やして乗員が足りなくなったら追加します。',{def:60});
 addComp('troops','兵員収容区画','cube',0.09,[163,172,114],'command','揚陸兵員の収容空間。',{def:60});
 addComp('command','無窓式指揮室','cube',0.22,[180,178,213],'command','艦内へ置ける航行・戦闘指揮室。艦橋ポッドや艦橋本体がなくても指揮できます。',{def:24});
 addComp('firecontrol','射撃管制・砲機構区画','cube',0.38,[192,118,113],'support','砲の管制と甲板下機構。武装規模に対して設備量を点検します。',{def:24});
@@ -1557,7 +1570,7 @@ function v3EnginePaths(ship){
 function inRoute(seg,p){const q=sub(p,seg.a),t=dot(q,seg.u)/seg.l;if(t<0||t>1)return false;const r=lerp(seg.r0,seg.r1,t);return dot(q,q)-(t*seg.l)**2<=r*r+1e-7;}
 function windowFrame(f){const up=norm(f.n||AXES[f.a]),vertical=norm(sub(f._wallUp||[0,1,0],mul(up,dot(f._wallUp||[0,1,0],up))));const fw=len(vertical)>.01?norm(cross(vertical,up)):[1,0,0];return {up,fw,rt:cross(fw,up)};}
 function windowBay(f){const fr=windowFrame(f),w=f.width||FITS[f.k].fm,h=f.height||FITS[f.k].wm;const depth=f.commandDepth??12,height=f.commandHeight??Math.max(8,h+3);return {id:-100000-f.id,k:'command',c:sub(f.p,mul(fr.up,1+depth/2)),d:1,boxFrame:fr,boxSize:[w,depth,height],windowId:f.id};}
-function allOccupied(ship){return [...ship.parts.filter(p=>p.k!=='struct'),...enginePaths(ship),...weaponCapacitors(ship),...commandCompartments(ship)];}
+function allOccupied(ship){return [...ship.parts.filter(p=>p.k!=='struct'),...enginePaths(ship),...weaponCapacitors(ship),...missileCells(ship),...commandCompartments(ship)];}
 function localStruct(pt,p){const q=sub(p,pt.c);if(!pt.surfaceNormal&&!pt.pitch&&!pt.roll){const a=(pt.yaw||0)*Math.PI/180;return [q[0]*Math.cos(a)+q[2]*Math.sin(a),q[1],-q[0]*Math.sin(a)+q[2]*Math.cos(a)];}const f=structFrame(pt);return [dot(q,f.fw),dot(q,f.up),dot(q,f.rt)];}
 function worldStruct(pt,p){if(!pt.surfaceNormal&&!pt.pitch&&!pt.roll){const a=(pt.yaw||0)*Math.PI/180;return add(pt.c,[p[0]*Math.cos(a)-p[2]*Math.sin(a),p[1],p[0]*Math.sin(a)+p[2]*Math.cos(a)]);}const f=structFrame(pt);return add(pt.c,add(add(mul(f.fw,p[0]),mul(f.up,p[1])),mul(f.rt,p[2])));}
 function structLimits(pt,t){
@@ -1638,7 +1651,7 @@ function conflicts(ship,pt,ignore=[]){return allOccupied(ship).filter(q=>q.id!==
 function engineVented(ship,e){const m=partDims(e),u=norm(e.dir||[-1,0,0]),p=add(e.c,mul(u,m.l/2+Math.max(1,m.rad*.2)));if(inEnv(ship,p))return false;return !ship.parts.some(q=>q!==e&&q.k!=='struct'&&inPart(q,p));}
 function mirrorPart(p,ship){const q=JSON.parse(JSON.stringify(p,(k,v)=>k.startsWith('_')?undefined:v));q.c=mirrorP(p.c);delete q._geom;if(q.dir)q.dir=mirrorP(q.dir);if(q.yaw)q.yaw=-q.yaw;if(q.surfaceNormal)q.surfaceNormal=mirrorP(q.surfaceNormal);if(q.roll)q.roll=-q.roll;if(q.angles)[q.angles[2],q.angles[3]]=[q.angles[3],q.angles[2]];if(q.offsetZ)q.offsetZ=-q.offsetZ;if(q.form==='arc')q.arcStart=((-(p.arcStart??30)-(p.arcSweep??300)+540)%360)-180;if(q.loft)q.loft=q.loft.map(a=>a.length>4?[...a.slice(0,4),-a[4]]:a);if(q.outline)q.outline=q.outline.map(a=>[a[0],-a[1]]);if(q.reactor){const r=ship.parts.find(x=>x.id===q.reactor);if(r?.tw)q.reactor=r.tw;}if(q.aviationSurfaces){const a=q.aviationSurfaces;[a.port,a.stbd]=[a.stbd||'none',a.port||'none'];}mirrorEquipment(p,q);return q;}
 function v3PlacePart(ship,k,c,size,opts={},mirror=false){
-  if(!Object.hasOwn(PARTS,k)||(k==='machinery'||k==='capacitor'))throw new Error('配置できない部品です');
+  if(!Object.hasOwn(PARTS,k)||(k==='machinery'||k==='capacitor'||k==='vls'))throw new Error('配置できない部品です');
   if(ship.parts.length+(mirror&&Math.abs(c[2])>1?2:1)>DESIGN_LIMITS.parts)throw new Error('区画数の上限は'+DESIGN_LIMITS.parts+'個です');
   const p={id:ship.nextId,k,c:c.slice()};if(k==='struct'){p.s=size.slice();p.taper=opts.taper||0;p.form=opts.form||'trap';p.angles=opts.angles?.slice();p.yaw=opts.yaw||0;p.offsetX=opts.offsetX||0;p.offsetZ=opts.offsetZ||0;}else p.d=size;
   if(k==='engine'){p.dir=(opts.dir||[-1,0,0]).slice();if(opts.reactor!=null)p.reactor=opts.reactor;}
@@ -1749,7 +1762,7 @@ function v3Deserialize(o){
   if(!Array.isArray(o.parts)||o.parts.length>DESIGN_LIMITS.parts||!Array.isArray(o.fits)||o.fits.length>DESIGN_LIMITS.fits)throw new Error('区画数または装備数が上限を超えています');
   const ids=new Set();let mx=0;
   const ident=x=>{if(!Number.isInteger(x)||x<=0||ids.has(x))throw new Error('部品IDが不正または重複しています');ids.add(x);mx=Math.max(mx,x);return x;};
-  s.parts=o.parts.filter(p=>p&&Object.hasOwn(PARTS,p.k)&&!['machinery','capacitor'].includes(p.k)).map(p=>{
+  s.parts=o.parts.filter(p=>p&&Object.hasOwn(PARTS,p.k)&&!['machinery','capacitor','vls'].includes(p.k)).map(p=>{
     const q={id:ident(p.id),k:p.k,c:vec(p.c)};if(p.k==='struct'){q.s=vec(p.s,[100,100,50]).map(v=>clamp(v,2,DESIGN_LIMITS.partSize));q.taper=number(p.taper,0,.95,0);q.form=Object.hasOwn(STRUCT_SHAPES,p.form)?p.form:'trap';if(Array.isArray(p.angles))q.angles=[0,1,2,3].map(i=>number(p.angles[i],-60,70,0));q.yaw=number(p.yaw,-180,180,0);q.offsetX=number(p.offsetX,-2000,2000,0);q.offsetZ=number(p.offsetZ,-2000,2000,0);}else q.d=number(p.d,4,DESIGN_LIMITS.diameter,PARTS[p.k].def||40);
     if(p.dir)q.dir=norm(vec(p.dir,[-1,0,0]));if(p.k==='engine'){if(!q.dir)q.dir=[-1,0,0];if(o.v===2)q.c[0]-=q.d*.64;if(Number.isInteger(p.reactor)&&p.reactor>=0)q.reactor=p.reactor;}if(Number.isInteger(p.tw))q.tw=p.tw;if(Number.isInteger(p.vt))q.vt=p.vt;return q;
   });
@@ -1765,7 +1778,7 @@ function v3Deserialize(o){
   s.nextId=mx+1;return s;
 }
 function buildDesign(key){
-  const finish=s=>{s.hullLocked=true;return initializeAviation(s,key);};
+  const finish=s=>{s.hullLocked=true;const out=initializeAviation(s,key);settleMissileMounts(out);return out;};
   if(Object.hasOwn(SHIP_EXAMPLES,key)){const s=SHIP_EXAMPLES[key].build();s.reference=s.reference||key;return finish(s);}
   if(Object.hasOwn(DREADNOUGHT_EXAMPLES,key))return finish(dreadnoughtDesign(key));
   if(['venator','imperial'].includes(key))return finish(referenceDesign(key));
@@ -2022,12 +2035,18 @@ function hatchGrid(ship,h){
 function computeStats(ship){return withFrozenStructures(()=>{syncCompartments(ship);ship._lockedCache=cache(ship);try{const s=v3ComputeStats(ship);s.sensorVolume=ship.parts.filter(p=>p.k==='sensor'||p.k==='scanner').reduce((n,p)=>n+partVolume(p),0);return hatchMotionStats(ship,layoutStats(ship,groundingStats(ship,outfittingStats(ship,s))));}finally{delete ship._lockedCache;}});}
 // Port-light colours a design may carry (the renderer holds the tints).
 const SHIP_LIGHT_KINDS=['white','blue','warm','off'];
-function serialize(ship){const o=v3Serialize(ship);o.groundForces=normalizeGroundForces(ship.groundForces);for(const k of ['paint','lights','detail','reference','hullSkin','autoHabitation','hullLocked','shipClass'])if(ship[k]!=null)o[k]=JSON.parse(JSON.stringify(ship[k]));return o;}
+// v18 Engine light: the colour of the sublight drives' glow, a named colour or
+// #rrggbb chosen in the design screen (blue-white when unset).
+const ENGINE_GLOWS={blue:{name:'青白',rgb:[110,185,255]},white:{name:'白',rgb:[236,240,255]},red:{name:'赤',rgb:[255,86,60]},orange:{name:'橙',rgb:[255,156,64]},green:{name:'緑',rgb:[110,255,150]},violet:{name:'紫',rgb:[186,132,255]}};
+const engineGlowOK=v=>typeof v==='string'&&(Object.hasOwn(ENGINE_GLOWS,v)||/^#[0-9a-f]{6}$/i.test(v));
+function engineGlowRGB(v){if(engineGlowOK(v)){if(ENGINE_GLOWS[v])return ENGINE_GLOWS[v].rgb.slice();const n=parseInt(v.slice(1),16);return [n>>16&255,n>>8&255,n&255];}return ENGINE_GLOWS.blue.rgb.slice();}
+function serialize(ship){const o=v3Serialize(ship);o.groundForces=normalizeGroundForces(ship.groundForces);for(const k of ['paint','lights','engineGlow','detail','reference','hullSkin','autoHabitation','hullLocked','shipClass'])if(ship[k]!=null)o[k]=JSON.parse(JSON.stringify(ship[k]));return o;}
 function deserialize(o){
   const s=v3Deserialize(o),finite=(v,lo,hi,d)=>Number.isFinite(v)?clamp(v,lo,hi):d;
   if(Array.isArray(o.hull?.stations)&&o.hull.stations.length>=2&&o.hull.stations.length<=32){const a=o.hull.stations.map((p,i)=>{const r=[finite(p?.[0],0,1,i/(o.hull.stations.length-1)),finite(p?.[1],.005,1.5,1),finite(p?.[2],.005,1.5,1)];if(p?.length>3)r.push(finite(p[3],-.5,.8,0));if(p?.length>4)r.push(finite(p[4],0,.98,.52));if(p?.length>5)r.push(finite(p[5],0,.98,0));if(p?.length>6)r.push(finite(p[6],.02,.98,.13));if(p?.length>7)r.push(finite(p[7],.2,.8,.5));return r;}).sort((a,b)=>a[0]-b[0]);if(a.some((p,i)=>i&&p[0]-a[i-1][0]<.001))throw new Error('船体断面の位置が重複しています');a[0][0]=0;a.at(-1)[0]=1;s.hull.stations=a;}
   if(SHIP_CLASSES.some(c=>c.id===o.shipClass))s.shipClass=o.shipClass;
   if(SHIP_LIGHT_KINDS.includes(o.lights))s.lights=o.lights;
+  if(engineGlowOK(o.engineGlow)&&o.engineGlow!=='blue')s.engineGlow=o.engineGlow.toLowerCase();
   s.autoHabitation=o.autoHabitation!==false;s.hullLocked=o.hullLocked!==false;s.hull.assembly=!!o.hull?.assembly;if(o.hull?.core===true)s.hull.core=true;if(o.hull?.bowFree===true)s.hull.bowFree=true;normalizeBow(s.hull);
   s.hull.deckWidth=finite(o.hull?.deckWidth,0,.98,.52);s.hull.belt=finite(o.hull?.belt,.02,.45,.13);
   if(o.hull?.start!=null)s.hull.start=finite(o.hull.start,0,.6,0);
@@ -2053,7 +2072,7 @@ function deserialize(o){
   for(const p of s.parts){const q=o.parts.find(q=>q.id===p.id);if(q.customEquipment===true)p.customEquipment=true;if(typeof q.autoFit==='boolean')p.autoFit=q.autoFit;if(((Object.hasOwn(EQUIPMENT,q.equipmentId)&&EQUIPMENT[q.equipmentId].k===p.k)||(p.k==='engine'&&Object.hasOwn(LEGACY_ENGINES,q.equipmentId))))p.equipmentId=q.equipmentId;}
   adoptEquipment(s);
   for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(h.tw==null)delete h.tw;if(q.portal){h.portal=true;h.face=Object.hasOwn(AVIATION_SURFACE_FACES,q.face)?q.face:'top';if(q.surface)h.surface=true;h.open=finite(q.open,0,1,1);h.aperture=finite(q.aperture,.1,1,.85);if(q.sill!=null)h.sill=finite(q.sill,0,1,.5);if(s.parts.some(p=>p.id===q.bay&&p.k==='hangar'))h.bay=q.bay;else if(Array.isArray(q.cut)&&q.cut.length===6&&q.cut.every(Number.isFinite))h.cut=q.cut.map(v=>clamp(v,-DESIGN_LIMITS.coordinate,DESIGN_LIMITS.coordinate));}}
-  s.paint=['republic','neutral','dark','cis'].includes(o.paint)?o.paint:'neutral';s.detail=finite(o.detail,0,2,1);if(o.reference)s.reference=String(o.reference).slice(0,80);for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.motion==='fixed')h.motion='fixed';else if(q.motion==='slide'||isSlidingHatch(s,h))h.motion='slide';}if(REFERENCE_ASSETS[o.hullSkin?.asset]?.kind==='hull'&&o.hullSkin.base?.hull){const b=o.hullSkin.base,valid=[b.hull.L,b.hull.W,b.hull.H].every(v=>Number.isFinite(v)&&v>0&&v<=4000)&&Array.isArray(b.hull.stations)&&b.hull.stations.length>=2&&b.hull.stations.length<=64&&b.hull.stations.every(a=>Array.isArray(a)&&a.length>=3&&a.every(Number.isFinite))&&Array.isArray(b.trenches)&&b.trenches.length<=30&&Array.isArray(b.cuts)&&b.cuts.length<=50;if(valid){s.hullSkin=JSON.parse(JSON.stringify(o.hullSkin));s.hullSkin.enabled=!!o.hullSkin.enabled;}}for(const f of s.fits){const q=o.fits.find(q=>q.id===f.id);if(q.localMount)f.localMount=true;if(Array.isArray(q.tilt)&&q.tilt.length===3&&q.tilt.every(Number.isFinite)&&len(q.tilt)>.5&&FITS[f.k].cat==='w'&&!FITS[f.k].casemate&&!f.localMount){f.tilt=norm(q.tilt);if(!f.n)f.n=f.tilt.slice();}if(typeof q.batteryZone==='string')f.batteryZone=q.batteryZone.slice(0,40);if(FITS[f.k].window){f.commandEnabled=q.commandEnabled!==false;if(q.commandDepth!=null)f.commandDepth=finite(q.commandDepth,2,200,12);if(q.commandHeight!=null)f.commandHeight=finite(q.commandHeight,2,80,8);}if(Number.isFinite(q.chargeSalvos))f.chargeSalvos=finite(q.chargeSalvos,1,20,1);if(Number.isFinite(q.chargeDepth))f.chargeDepth=finite(q.chargeDepth,1,500,10);if(Number.isFinite(q.chargeScale))f.chargeScale=finite(q.chargeScale,.25,4,1);if(Number.isFinite(q.assetYaw))f.assetYaw=finite(q.assetYaw,-180,180,0);if(Number.isFinite(q.scale))f.scale=finite(q.scale,.25,4,1);if(Number.isInteger(q.mountAxis)&&q.mountAxis>=0&&q.mountAxis<=5)f.mountAxis=q.mountAxis;if(Number.isFinite(q.mountOffset))f.mountOffset=finite(q.mountOffset,-50,50,0);if(REFERENCE_ASSETS[q.skinAsset])f.skinAsset=q.skinAsset;}for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.referenceMouth)h.referenceMouth=true;if(REFERENCE_ASSETS[q.skinAsset]){h.skinAsset=q.skinAsset;if(Array.isArray(q.skinBayAnchor)&&q.skinBayAnchor.length===3&&q.skinBayAnchor.every(Number.isFinite))h.skinBayAnchor=q.skinBayAnchor.slice();}}migrateAviationSurfaces(s,o);migrateAviation(s,o);s.groundForces=normalizeGroundForces(o.groundForces);
+  s.paint=['republic','neutral','dark','cis'].includes(o.paint)?o.paint:'neutral';s.detail=finite(o.detail,0,2,1);if(o.reference)s.reference=String(o.reference).slice(0,80);for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.motion==='fixed')h.motion='fixed';else if(q.motion==='slide'||isSlidingHatch(s,h))h.motion='slide';}if(REFERENCE_ASSETS[o.hullSkin?.asset]?.kind==='hull'&&o.hullSkin.base?.hull){const b=o.hullSkin.base,valid=[b.hull.L,b.hull.W,b.hull.H].every(v=>Number.isFinite(v)&&v>0&&v<=4000)&&Array.isArray(b.hull.stations)&&b.hull.stations.length>=2&&b.hull.stations.length<=64&&b.hull.stations.every(a=>Array.isArray(a)&&a.length>=3&&a.every(Number.isFinite))&&Array.isArray(b.trenches)&&b.trenches.length<=30&&Array.isArray(b.cuts)&&b.cuts.length<=50;if(valid){s.hullSkin=JSON.parse(JSON.stringify(o.hullSkin));s.hullSkin.enabled=!!o.hullSkin.enabled;}}for(const f of s.fits){const q=o.fits.find(q=>q.id===f.id);if(q.localMount)f.localMount=true;if(Array.isArray(q.tilt)&&q.tilt.length===3&&q.tilt.every(Number.isFinite)&&len(q.tilt)>.5&&FITS[f.k].cat==='w'&&!FITS[f.k].casemate&&!f.localMount){f.tilt=norm(q.tilt);if(!f.n)f.n=f.tilt.slice();}if(typeof q.batteryZone==='string')f.batteryZone=q.batteryZone.slice(0,40);if(FITS[f.k].window){f.commandEnabled=q.commandEnabled!==false;if(q.commandDepth!=null)f.commandDepth=finite(q.commandDepth,2,200,12);if(q.commandHeight!=null)f.commandHeight=finite(q.commandHeight,2,80,8);}if(q.mount==='ext'&&FITS[f.k]?.msl)f.mount='ext';if(Number.isFinite(q.chargeSalvos))f.chargeSalvos=finite(q.chargeSalvos,1,20,1);if(Number.isFinite(q.chargeDepth))f.chargeDepth=finite(q.chargeDepth,1,500,10);if(Number.isFinite(q.chargeScale))f.chargeScale=finite(q.chargeScale,.25,4,1);if(Number.isFinite(q.assetYaw))f.assetYaw=finite(q.assetYaw,-180,180,0);if(Number.isFinite(q.scale))f.scale=finite(q.scale,.25,4,1);if(Number.isInteger(q.mountAxis)&&q.mountAxis>=0&&q.mountAxis<=5)f.mountAxis=q.mountAxis;if(Number.isFinite(q.mountOffset))f.mountOffset=finite(q.mountOffset,-50,50,0);if(REFERENCE_ASSETS[q.skinAsset])f.skinAsset=q.skinAsset;}for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.referenceMouth)h.referenceMouth=true;if(REFERENCE_ASSETS[q.skinAsset]){h.skinAsset=q.skinAsset;if(Array.isArray(q.skinBayAnchor)&&q.skinBayAnchor.length===3&&q.skinBayAnchor.every(Number.isFinite))h.skinBayAnchor=q.skinBayAnchor.slice();}}migrateAviationSurfaces(s,o);migrateAviation(s,o);s.groundForces=normalizeGroundForces(o.groundForces);
   // Old window rows on a model bridge repeat the role the body now carries.
   for(const p of s.parts){const q=o.parts.find(q=>q.id===p.id);if(bridgeBodyRole(p)){if(['bridge','air','hangar','combat'].includes(q.commandRole))p.commandRole=q.commandRole;if(q.commandEnabled===false)p.commandEnabled=false;}}
   const dropped=new Set(s.fits.filter(f=>f.legacyWindow&&bridgeBodyRole(s.parts.find(p=>p.id===f.host))===FITS[f.k].role).map(f=>f.id));
@@ -2170,7 +2189,7 @@ function syncCompartments(ship){
  const occupied=allOccupied(ship);for(const p of occupied){delete p._packing;delete p._packingGroup;}
  if(ship._clipEnvelope?.key!==envelopeKey)ship._clipEnvelope={key:envelopeKey,structs:ship.parts.filter(p=>p.k==='struct').map(p=>({p,b:partAABB({...p,_apertures:null})}))};
  const oldLock=ship._lockedCache;ship._lockedCache=cache(ship);
- try{for(const p of [...ship.parts,...weaponCapacitors(ship),...commandCompartments(ship)]){if(!isInternal(p))continue;p._envelope=ship;
+ try{for(const p of [...ship.parts,...weaponCapacitors(ship),...missileCells(ship),...commandCompartments(ship)]){if(!isInternal(p))continue;p._envelope=ship;
    const key=envelopeKey+JSON.stringify(p,(k,v)=>k.startsWith('_')?undefined:v);if(p._clipKey===key)continue;
    delete p._clip;const v=unclippedPartVolume(p),samples=unclippedSurfSamples(p).concat(unclippedVolSamples(p),[p.c]);
    // Also probe long edges to catch a hull shoulder/notch between vertices.
@@ -2290,11 +2309,11 @@ function integrateCompartments(ship,occupied){
  for(const p of occupied){delete p._packing;delete p._packingGroup;}
  const flexible=occupied.filter(p=>flexibleCompartment(ship,p));
  // Preserve existing large rooms before adapting the smaller room or charger.
- flexible.sort((a,b)=>(a.k==='capacitor')-(b.k==='capacitor')||unclippedPartVolume(b)-unclippedPartVolume(a)||a.id-b.id);
+ const gen=p=>p.k==='capacitor'||p.k==='vls';flexible.sort((a,b)=>gen(a)-gen(b)||unclippedPartVolume(b)-unclippedPartVolume(a)||a.id-b.id);
  const fixed=occupied.filter(p=>!flexibleCompartment(ship,p)),accepted=fixed.slice(),parent=new Map(occupied.map(p=>[p.id,p.id]));
  const root=id=>{while(parent.get(id)!==id)id=parent.get(id);return id;},union=(a,b)=>{a=root(a);b=root(b);if(a!==b)parent.set(Math.max(a,b),Math.min(a,b));};
  for(const p of flexible){
-  const clashes=accepted.filter(q=>overlapParts(p,q)),target=unclippedPartVolume(p),clipped=p.k==='capacitor'&&partVolume(p)<target*.999999;
+  const clashes=accepted.filter(q=>overlapParts(p,q)),target=unclippedPartVolume(p),clipped=gen(p)&&partVolume(p)<target*.999999;
   if(clashes.length||clipped){p._packing=packFlexibleVolume(ship,p,target,accepted,clashes);for(const q of clashes)union(p.id,q.id);}
   accepted.push(p);
  }
@@ -2824,6 +2843,30 @@ function aviationConnected(a,b){
  return false;
 }
 function attachedEngine(ship,p){const r=reactorFor(ship,p);return p.k==='engine'&&r&&volSamples(r).some(q=>insideOriginalEnvelope(ship,q));}
+// v18 Missile mounts. A launcher's cells and magazine go below deck (VLS, the
+// default) or stand on the hull in an armoured box (external, mount 'ext').
+// VLS cells take internal volume — room the crew would otherwise have — and
+// only their hatches are exposed, but a hit that reaches the magazine can set
+// it off; an external box takes no internal volume, carries fewer reloads and
+// is easier to hit.
+const MISSILE_MOUNTS={vls:{name:'VLS（船内セル）',short:'VLS',stock:120,expose:.6},ext:{name:'外置き（箱型発射機）',short:'外置き',stock:60,expose:1.6}};
+const VLS_CELL_M3=3600,VLS_DEPTH=24;
+const missileMount=f=>f?.mount==='ext'?'ext':'vls';
+addComp('vls','VLS弾庫','cube',.55,[198,92,70],'power','ミサイルのセルと弾庫。発射機の下に船内容積を確保します。周辺区画と干渉すると、必要容積を保って空き空間に形を組み替えます。',{crew:.05,def:12});
+INTERNAL_PARTS.add('vls');
+function missileCells(ship){
+ const key=JSON.stringify(ship.fits.map(f=>FITS[f.k]?.msl?[f.id,f.p,f.a,f.tilt,f.mountAxis,f.mountOffset,f.float,f.scale,f.mount]:0));
+ if(ship._cells?.key===key)return ship._cells.parts;
+ const parts=ship.fits.filter(f=>FITS[f.k]?.msl&&!f.float&&missileMount(f)==='vls').map(f=>{
+  const scale=f.scale||1,V=VLS_CELL_M3*scale**3,depth=VLS_DEPTH*scale,side=Math.sqrt(V/depth),up=fitUp(f),fr=frameAxis(up),offset=depth/2+2+(f.mountOffset||0);
+  return {id:-300000-f.id,k:'vls',label:'ミサイル #'+f.id+' VLS弾庫',c:sub(f.p,mul(up,offset)),d:Math.cbrt(V),boxFrame:{fw:fr.v,up:fr.u,rt:fr.w},boxSize:[side,depth,side],weaponId:f.id,requiredVolume:V};
+ });
+ ship._cells={key,parts};return parts;
+}
+// Examples only: a launcher whose cells cannot fit below deck stands on the
+// hull in a box instead (a player's own design keeps the mount chosen for it).
+function settleMissileMounts(ship){if(!ship.fits.some(f=>FITS[f.k]?.msl&&missileMount(f)==='vls'))return 0;syncCompartments(ship);const cells=missileCells(ship),others=allOccupied(ship).filter(p=>p.k!=='vls'),clash=new Set(cells.filter(c=>others.some(o=>overlapParts(c,o))).map(c=>c.id)),info=missileStatus(ship,clash);let n=0;for(const f of ship.fits)if(FITS[f.k]?.msl&&missileMount(f)==='vls'&&(info[f.id]?.ratio??1)<.95){f.mount='ext';n++;}if(n)syncCompartments(ship);return n;}
+function missileStatus(ship,invalid=new Set()){const byFit={};for(const p of missileCells(ship)){const V=partVolume(p),ratio=invalid.has(p.id)?0:clamp(V/Math.max(1,p.requiredVolume),0,1);byFit[p.weaponId]={id:p.id,volume:V,required:p.requiredVolume,ratio,blocked:invalid.has(p.id)};}return byFit;}
 function chargingStatus(ship,invalid){const byFit={};for(const p of weaponCapacitors(ship)){const V=partVolume(p),ratio=invalid.has(p.id)?0:clamp(V/Math.max(.0001,p.requiredVolume),0,1),capacityRatio=invalid.has(p.id)?0:clamp(V/Math.max(.0001,p.targetVolume),0,1);byFit[p.weaponId]={id:p.id,volume:V,required:p.targetVolume,ratio,capacityRatio,storedTT:V*CHARGE_TT_M3,blocked:invalid.has(p.id)};}return byFit;}
 function outfittingStats(ship,S){
  S.aviation=S.aviation||aviationStatus(ship,S.info);S.storageCapacity=S.aviation.capacity;
@@ -2831,6 +2874,11 @@ function outfittingStats(ship,S){
  S.flightVolume=ship.parts.filter(p=>p.k==='hangar'&&['flight','dock'].includes(p.airRole)).reduce((n,p)=>n+partVolume(p),0);
  S.chargingVolume=weaponCapacitors(ship).reduce((n,p)=>n+partVolume(p),0);
  S.chargingCount=weaponCapacitors(ship).length;
+ // v18 Missile mounts: cells below deck and boxes on the hull.
+ const msl=ship.fits.filter(f=>FITS[f.k]?.msl&&!f.float);S.vlsCount=msl.filter(f=>missileMount(f)==='vls').length;S.extCount=msl.length-S.vlsCount;
+ S.vlsVolume=missileCells(ship).reduce((n,p)=>n+partVolume(p),0);
+ const shortVls=Object.values(S.vlsInfo||{}).filter(x=>x.ratio<.95);
+ if(shortVls.length)S.warnings.push({lv:'warn',code:'vls',text:`VLS 弾庫 ${shortVls.length} 基の容積が船内に収まりません（搭載弾数が減ります）。発射機の下を空けるか、外置きに切り替えてください。`});
  S.heavyAlpha=ship.fits.filter(f=>Math.max(fitSpec(f).tt||0,fitSpec(f).ion||0)>=10).reduce((n,f)=>n+Math.max(fitSpec(f).tt||0,fitSpec(f).ion||0)*(S.chargeInfo[f.id]?.ratio||0),0);
  const broken=Object.values(S.chargeInfo).filter(x=>x.capacityRatio<.999);
  if(broken.length)S.warnings.push({lv:'warn',code:'charging',text:`主砲充電装置 ${broken.length} 基の必要容積を確保できません。自動統合の範囲内に空間を空けるか、構造を追加してください。`});
@@ -3029,7 +3077,7 @@ function referenceDesign(key){
   const h=ven?{L:1137,W:548,H:110,chineHeight:.60,belt:.28,bowFree:true,stations:[[0,0.071,0.015,0.01,0.5],[0.035,0.076,0.74,0.02,0.65],[0.181,0.106,0.96,0.018,0.6],[0.206,1,0.9745,0.00091,0,0.18,0.249,0.5098],[0.251,1,0.9845,0.0059,0,0.18,0.251,0.5115],[0.378,0.857836,0.814545,-0.012727,0.3],[0.44,0.788433,0.774545,-0.012727,0.32],[0.519,0.7,0.774545,0.007273,0.24],[0.5277,0.69261,0.95075,0.05354,0.0,0.0,0.25566,0.52196],[0.54793,0.66895,0.925,0.06023,0.0,0.0,0.26162,0.51987],[0.55145,0.63513,0.95606,0.0619,0.0,0.0,0.24567,0.51555],[0.56376,0.62263,0.90711,0.06642,0.0,0.0,0.29614,0.51677],[0.56728,0.64632,0.89452,0.07099,0.0,0.0,0.27208,0.51288],[0.58223,0.62883,0.88185,0.07638,0.0,0.0,0.27441,0.51037],[0.58399,0.59774,0.91887,0.07942,0.0,0.0,0.25623,0.50446],[0.60246,0.58214,0.84758,0.08148,0.0,0.0,0.31291,0.50974],[0.60598,0.60239,0.83489,0.08533,0.0,0.0,0.30171,0.50585],[0.635,0.56293,0.79707,0.09509,0.0,0.0,0.30993,0.49856],[0.6394,0.53143,0.82338,0.09085,0.0,0.0,0.293,0.50907],[0.71064,0.45005,0.70866,0.09822,0.0,0.0,0.33809,0.52071],[0.71856,0.46247,0.65647,0.09556,0.0,0.0,0.37165,0.52763],[0.7423,0.43842,0.62945,0.10438,0.0,0.0,0.39466,0.5234],[0.81003,0.36444,0.57773,0.12886,0.0,0.0,0.42308,0.50893],[0.87335,0.28734,0.51039,0.14223,0.0,0.0,0.47782,0.50653],[0.99472,0.14377,0.38028,0.17666,0.0,0.0,0.65777,0.48409],[0.99824,0.12029,0.37209,0.17968,0.0,0.0,0.72458,0.47761],[1.0,0.10855,0.36799,0.18119,0.0,0.0,0.75799,0.47436]]}:acc?{L:752,W:460,H:116,stations:[[0,.15,.45],[.07,.60,.64],[.19,1,1],[.30,.87,.94],[.62,.48,.63],[.92,.12,.24],[1,.018,.14]]}:{L:1600,W:868.4,H:213.4,start:10.6/1600,chineHeight:.493,keelWidth:0,bowFree:true,stations:[[0.0,0.005,0.95178,0.01145,0,0,0.9824],[0.00675,0.005,0.95178,0.01145,0,0,0.9824],[0.01981,0.19198,0.9628,0.01312,0,0,0.8047],[0.02981,0.33754,0.95384,0.01328,0,0,0.6835],[0.04419,0.54678,0.94098,0.0135,0,0,0.5054],[0.07531,1.0,0.91312,0.01399,0,0,0.1052],[0.42681,0.61492,0.59856,0.01943,0,0,0.1565],[0.42981,0.57255,0.59603,0.0194,0,0,0.2034],[0.43569,0.5661,0.59109,0.01933,0,0,0.2039],[0.445,0.59489,0.58326,0.01922,0,0,0.1573],[0.58869,0.43759,0.46407,0.01675,0,0,0.1994],[0.59381,0.39291,0.45984,0.01665,0,0,0.2652],[0.71262,0.26278,0.36186,0.01432,0,0,0.3346],[0.71756,0.29664,0.35779,0.01422,0,0,0.2573],[0.87169,0.1285,0.22816,0.01253,0,0,0.4022],[0.95419,0.03851,0.15871,0.01167,0,0,0.5787],[0.9843,0.0051,0.13277,0.01167,0,0,0.6929],[0.98531,0.005,0.13216,0.01167,0,0,0.8345],[1.0,0.005,0.1282,0.01167,0,0,0.8595]]};
   // Venator: aft stations keep the earlier fit; the forward hull from x≈600 m
   // is measured from A308 Digital's model (taller bow, own side-band height).
-  const s=newShip({...h,plan:'wedge',sec:'warship',bowW:.02,bowH:.2,stern:1,deckWidth:ven?.26:acc?.48:.12,belt:ven?.28:.15},ven?'ヴェネター級｜双塔航空母艦':acc?'アクラメイター級｜強襲揚陸艦':'インペリアルI級｜重砲戦艦');
+  const s=newShip({...h,plan:'wedge',sec:'warship',bowW:.02,bowH:.2,stern:1,deckWidth:ven?.26:acc?.48:.12,belt:ven?.28:.15},ven?'ヴェネター級｜双塔キャリア':acc?'アクラメイター級｜強襲揚陸艦':'インペリアルI級｜重砲戦艦');
   if(!ven&&!acc){s.hull.deckWidth=0;for(const row of s.hull.stations)row[4]=0;}
   s.paint=ven?'republic':'neutral';s.detail=1;s.reference=key;s.armor=ven?{hull:.45,cit:.45}:acc?{hull:.3,cit:.35}:{hull:.6,cit:.45};s.keel='light';s.shieldTarget=1;s._building=true;
   const part=(k,label,c,d,opt={})=>placePart(s,k,c,d,{label,...opt});
@@ -3191,8 +3239,8 @@ Object.assign(DESIGNS,{
 // editable solids; no complete source-ship mesh or baked windows is displayed.
 const SEPARATIST_EXAMPLES={
  munificent:{name:'ミュニフィセント級',role:'通信フリゲート',length:825,width:401.4,height:242.5,author:'SomeGuyUsingBlender',source:'https://sketchfab.com/3d-models/munificent-class-star-frigate-966265e37e61433b919ba640a12a33f5',license:'CC BY 4.0'},
- recusant:{name:'レキュザント級',role:'軽駆逐艦',length:1187,width:170.5,height:187.1,author:'lolqeeeeeeeeee',source:'https://sketchfab.com/3d-models/star-wars-the-clone-wars-recusant-s3e2-style-c0abad60cab44d9197589a69e78fb6c5',license:'CC BY-NC 4.0'},
- providence:{name:'プロヴィデンス級',role:'航空駆逐艦',length:1088,width:202.7,height:373.9,author:'lolqeeeeeeeeee',source:'https://sketchfab.com/3d-models/star-wars-the-clone-wars-providence-8d27764a7d254fd7948557daf6d7ccdc',license:'CC BY-NC 4.0'},
+ recusant:{name:'レキューザント級',role:'軽デストロイヤー',length:1187,width:170.5,height:187.1,author:'lolqeeeeeeeeee',source:'https://sketchfab.com/3d-models/star-wars-the-clone-wars-recusant-s3e2-style-c0abad60cab44d9197589a69e78fb6c5',license:'CC BY-NC 4.0'},
+ providence:{name:'プロヴィデンス級',role:'キャリア／デストロイヤー',length:1088,width:202.7,height:373.9,author:'lolqeeeeeeeeee',source:'https://sketchfab.com/3d-models/star-wars-the-clone-wars-providence-8d27764a7d254fd7948557daf6d7ccdc',license:'CC BY-NC 4.0'},
  lucrehulk:{name:'ルクレハルク級',role:'環状母艦',length:3170,width:2806.7,height:735.1,author:'Professor E12^2',source:'https://sketchfab.com/3d-models/lucrehulk-8bb11e0ad31e4b23b1783e10242c5115',license:'CC BY 4.0'}
 };
 // Separatist, ISD-II and Acclamator builders were withdrawn from the examples.
@@ -3647,6 +3695,9 @@ registerShipExample({
   room('integrity','構造維持装置',[43.9,7.4,0],[4,4,4]);
   part('hyper','ハイパードライブ',[48.2,6.4,0],4,{length:2,dir:[1,0,0]});
   room('command','艦橋',[55.5,5.6,0],[4,4,4]);
+  // v18 Crew quarters: the free volume of so small a hull cannot house the crew.
+  room('crew','乗員居住区',[30,7.4,0],[9,6,4]);
+  room('crew','乗員居住区（三角翼）',[36,3.75,6.5],[8,4,2],{},true);
   // Armament: twin dorsal and ventral laser turrets aft, point defence forward.
   const gun=(kind,x,z,axis,scale,zone)=>{const up=AXES[axis],h=rayEnv(s,[x,axis===3?-100:100,z],mul(up,-1),{structOnly:true});if(!h)throw new Error('ゴザンティ級の砲座がありません: '+x+','+z);const f={id:s.nextId++,k:kind,p:h.p,a:axis,ped:0,base:0,low:0,float:false,scale,chargeDepth:1.5,batteryZone:zone};mountFit(s,f);s.fits.push(f);return f;};
   syncAviationSurfaces(s);s._lockedCache=cache(s);
@@ -3732,6 +3783,8 @@ registerShipExample({
   part('inertial','慣性制御装置',[72.6,3.8,0],5.4,{length:5.2,dir:[1,0,0]});
   room('cargo','貨物区画（貨物架）',[52,3.7,0],[22,13,5]);
   room('command','操縦・指揮区画',[23,9.2,0],[4,4,4]);
+  // v18 Crew quarters under the dorsal superstructure.
+  room('crew','乗員居住区',[27,10.8,0],[8,6,3.2]);
   // Four twin laser cannons for close defence.
   const gun=(kind,x,z,axis,scale,zone)=>{const up=AXES[axis],h=rayEnv(s,[x,axis===3?-200:200,z],mul(up,-1),{structOnly:true});if(!h)throw new Error('GR-75の砲座がありません: '+x+','+z);const f={id:s.nextId++,k:kind,p:h.p,a:axis,ped:0,base:0,low:0,float:false,scale,chargeDepth:2,batteryZone:zone};mountFit(s,f);s.fits.push(f);return f;};
   syncAviationSurfaces(s);s._lockedCache=cache(s);
@@ -3951,6 +4004,409 @@ registerShipExample({
  note:'基本船体は直径 640 m の球形のコアシップ（モデルから実測、公式は約 696 m）で、C 字形の環状船体・艦尾ブロック・前部アームとドッキング・クロー・各種の塔はすべて構造物（全長 3,170 m）。コアシップの中心にドロイド制御コンピューター・コアと配電監視ステーション、下半分にコア中央球反応炉・発電機集合体、底部に着陸用リパルサーリフト、頂部に管制ブリッジ塔。艦尾背部の信号送信プラットフォームに予備制御信号送信塔・送信塔アンテナ・主／補助センサー・レクテナ・高エネルギー送信塔と防衛砲、前部アームにドロイド信号受信ステーション・前部管制塔・予備センサー・レクテナ・主トラクター・ビーム発生器とドッキング用トラクター・ビーム収納部、環状船体上部に偏向シールド発生器ハウジングと投射器。各アームの内側面に外側・中間・内側の 3 区画の主格納庫口、ドロイド・スターファイターのラック、MTT・AAT 格納区画、格納甲板床下の長期保管ガレージ、貨物ベイ、大規模弾薬庫。艦尾ブロックに左右の主反応炉と主推進機関スラスト・チャンバー。兵装は環状船体の赤道に沿った三連四連レーザー砲台 14 群（計 42 基）。ヴァルチャー 1,500 機、C-9979 上陸艇 50 隻、B1 バトル・ドロイド 13 万 9,000 体、MTT 550 両、AAT 6,250 両。ハイパードライブ・クラス 2、加速約 1,300 G はゲーム上の設定値。Sketchfab の 3D モデル（Professor E12^2 作、CC BY 4.0）を実測。',
  airWings:LUC_AIR,groundForces:LUC_GROUND,
  build:lucrehulkBuild
+});
+}
+
+// ---- src/ships/mc75.js ----
+// MC75 star cruiser (Profundity), measured from "MC75 Star Cruiser
+// (Profundity)" by Snickett on Thingiverse (thing:2806900; original model by
+// Warb Null), CC BY-NC. Ship frame: x from the stern (0) to the bow
+// (1,204.44 m), y up from the lowest point (the bridge pod under the ventral
+// outrigger fin), z to starboard. The hull is the long, flat-topped body with
+// its weapon collar, fitted station by station; the ventral outrigger fin, the
+// command bridge pod at its foot and the dorsal communications mast are
+// ordinary structures measured from the model.
+{
+const MC75={"loft":{"fin":[[25.19,-0.07,0.06,618.48,618.48],[26.19,-16.11,16.11,626.6,756.74],[30.19,-14.45,14.44,640.09,729.42],[34.19,-7.62,7.62,671.1,728.3],[49.19,-7.33,7.33,680.75,733.59],[130.19,-12.81,12.8,680.37,740.43],[134.19,-13.08,13.07,680.26,756.2],[140.19,-13.48,13.48,680.11,751.91],[143.19,-13.68,13.68,680.03,739.5],[190.19,-16.86,16.86,678.82,746.76],[194.19,-17.13,17.13,678.72,763.64],[198.19,-17.4,17.4,678.62,761.9],[199.19,-17.47,17.47,607.86,755.03],[207.19,-18.24,18.24,591.01,754.43],[216.19,-27.15,27.14,603.49,771.55],[221.19,-39.77,39.77,603.48,819.9],[224.19,-42.17,42.17,585.64,875.52],[228.19,-50.16,50.16,568.82,875.52],[234.19,-53.96,53.95,562.09,887.79],[237.19,-54.55,54.55,534.28,888.21],[238.19,-53.93,53.93,568.82,888.28],[240.19,-51.54,51.47,568.82,888.32],[240.92,-46.65,46.65,652.53,653.03]],"pod":[[607.49,-1.61,1.6,19.22,21.52],[614.49,-5.84,5.83,14.86,24.41],[632.49,-9.86,9.85,8.74,26.69],[639.49,-13.42,13.41,6.78,30.07],[669.49,-15.84,15.83,1.38,32.92],[675.49,-16.01,16.0,0.8,38.13],[679.49,-16.12,16.11,0.57,45.22],[683.49,-17.16,17.16,0.34,35.52],[695.49,-18.31,18.3,0.02,32.64],[696.49,-18.35,18.33,0.02,44.24],[724.49,-17.25,17.25,0.36,35.62],[725.49,-16.83,16.83,0.4,44.22],[727.49,-13.72,13.72,0.46,37.08],[729.49,-13.65,13.64,0.53,29.94],[749.49,-11.0,10.99,3.15,27.97],[754.49,-7.44,7.43,6.76,27.23],[755.49,-5.29,5.28,8.96,26.92],[756.49,-3.14,3.14,21.76,26.41],[758.37,-0.16,0.15,23.97,24.2]],"mast":[[336.34,-10.49,10.48,660.9,661.19],[336.84,-9.94,9.92,660.83,755.87],[341.34,-10.55,10.54,659.5,734.59],[343.84,-3.95,3.94,657.8,726.06],[348.84,-2.76,2.75,652.05,713.28],[349.84,-5.93,5.93,644.04,714.61],[351.84,-6.85,6.85,643.23,715.72],[352.84,-7.1,7.09,643.01,708.63],[353.34,-7.1,7.09,643.02,708.58],[353.84,-4.06,4.05,666.65,708.52],[373.34,-5.35,5.35,665.62,706.45],[375.34,-5.35,5.35,651.62,724.67],[379.34,-4.6,4.59,647.78,724.67],[381.34,-4.6,4.59,659.05,718.89],[382.84,-4.06,4.05,665.12,705.43],[397.34,-4.06,4.05,664.37,703.81],[397.84,-4.39,4.39,643.89,703.98],[400.34,-5.56,5.55,638.79,706.81],[401.84,-1.02,1.02,626.32,702.96],[402.83,-1.02,1.02,626.32,702.96]]},"W":230.051,"H":240.0,"st":[[0.0,0.5147,0.125,0.7708,0.173,0.1381,0.54,0.59],[0.00498,0.5211,0.125,0.7708,0.2718,0.2167,0.54,0.59],[0.00996,0.5895,0.1458,0.7688,0.3812,0.3805,0.27,0.65],[0.04234,0.6372,0.1542,0.7646,0.7523,0.5509,0.11,0.67],[0.28644,0.8621,0.2792,0.7271,0.4228,0.298,0.21,0.69],[0.38109,0.8845,0.3667,0.7167,0.27,0.3894,0.21,0.65],[0.38607,0.8855,0.3833,0.7208,0.2784,0.3949,0.19,0.63],[0.39354,0.8845,0.3667,0.7083,0.2715,0.4028,0.21,0.68],[0.40849,0.8819,0.375,0.7042,0.3157,0.3576,0.23,0.67],[0.44336,0.9193,0.4375,0.6771,0.3507,0.3101,0.25,0.72],[0.47076,0.9127,0.4542,0.6687,0.3667,0.3279,0.24,0.73],[0.47574,0.9993,0.45,0.6708,0.3138,0.298,0.32,0.72],[0.51559,0.9217,0.4458,0.6646,0.2835,0.4487,0.34,0.71],[0.53801,0.8967,0.4375,0.6687,0.3379,0.2514,0.32,0.72],[0.5405,0.9853,0.4583,0.6708,0.3512,0.3389,0.31,0.73],[0.675,0.9286,0.4583,0.6708,0.3889,0.3301,0.29,0.74],[0.72482,0.8869,0.4667,0.6708,0.2025,0.2568,0.34,0.72],[0.72731,0.8057,0.4458,0.6854,0.2793,0.2754,0.31,0.68],[0.76467,0.7739,0.3625,0.7021,0.3564,0.5668,0.37,0.68],[0.88174,0.6661,0.3375,0.7021,0.629,0.2746,0.48,0.58],[0.96144,0.5171,0.2417,0.7375,0.5043,0.373,0.26,0.7],[0.99133,0.272,0.1292,0.7604,0.5335,0.3094,0.45,0.66],[0.999,0.0829,0.0625,0.7771,0.1315,0.1309,0.5,0.63],[1.0,0.0202,0.0333,0.7833,0.9755,0.1703,0.02,0.71]],"rooms":[["service","航空整備・補給区画",[870.82,286,52],[17.05,43.4,27.4],1],["crew","居住甲板",[650.63,320,-32],[416.67,11.4,15.4]],["crew","居住甲板 2",[448,310,50],[11.4,63.4,19.4]],["troops","兵員区画（艦隊兵）",[708,256,-40],[11.4,19.4,39.4]],["cargo","貨物・物資庫",[494.38,278,-54],[104.17,23.4,11.4]],["cargo","貨物・物資庫 2",[448,272,32],[11.4,27.4,31.4]]]};
+const MC75_AIR=[{id:'air-1',name:'Xウイング中隊',size:1,count:12},{id:'air-2',name:'Uウイング・Yウイング混成隊',size:1,count:12}];
+const MC75_GROUND=[{id:'ground-1',name:'同盟軍艦隊兵',kind:'troops',count:600}];
+const MC75_FIN='#9da3a1',MC75_DARK='#5d656a',MC75_POD='#a8aca8';
+// Shared by the Mon Calamari builders: weapon placement with charging plant checks.
+function mc75MountKit(s,opt={}){
+ // Heavy guns keep their charging plant wholly inside the envelope and clear of
+ // machinery: the plant is pushed deeper until all its corners are enclosed.
+ let solidList=null;
+ const plantFits=f=>{if(!needsCapacitor(f))return true;const q=weaponChargeSpec(f),depth=12*(f.scale||1),side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
+  for(const cd of [8,10,13,16,20,24,28,33,38,44]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
+   for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
+   if(ok){f.chargeDepth=cd;return true;}}return false;};
+ // One fitting cast onto the outermost surface along its axis.
+ const tryMount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:p.slice(),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':(f.base-f.low)>(o.maxStep??FITS[kind].fm*.6)?'steep':!plantFits(f)?'plant':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(Math.round).join(','),why||'ok',f.p.map(Math.round).join(',')]);if(why){s.nextId--;return null;}return f;};
+ const clearOf=(f,list)=>list.every(g=>Math.hypot(f.p[0]-g.p[0],f.p[1]-g.p[1],f.p[2]-g.p[2])>=((FITS[f.k]?.fm||10)*(f.scale||1)+(FITS[g.k]?.fm||10)*(g.scale||1))*.5+3);
+ // n fittings over candidate stations: dorsal ('top') and ventral ('bottom') rows take |z|
+ // offsets and mount as mirrored pairs (0 = centreline); 'beam' rows take heights and
+ // mount one a side. Stations that crowd others are skipped.
+ const spread=(kind,n,mode,zone,xs,offs,o={})=>{let got=0;const far=Math.max(s.hull.H,s.hull.W,200);
+  for(const off of offs)for(const x of xs){if(got>=n)break;
+   const ps=mode==='beam'?[[[x,off,far],4],[[x,off,-far],5]]:(off?[1,-1]:[1]).map(sg=>[[x,0,sg*off],mode==='top'?2:3]);
+   if(got+ps.length>n)continue;const fs=[];
+   for(const [p,a] of ps){const f=tryMount(kind,p,a,zone+(ps.length>1?(p[2]>0?'-stbd':'-port'):''),o);if(!f||!clearOf(f,s.fits.concat(fs)))break;fs.push(f);}
+   if(fs.length<ps.length)continue;s.fits.push(...fs);got+=fs.length;}
+  if(got<n&&!o.soft)throw new Error('作例の砲座が不足しています: '+kind+' '+zone+' '+got+'/'+n);return got;};
+ const range=(a,b,st)=>{const r=[];for(let x=a;x<=b+1e-6;x+=st)r.push(x);return r;};
+ return {tryMount,clearOf,spread,range,plantFits};
+}
+// A loft standing on the y axis (pitch 90): rows [y, zMin, zMax, xMin, xMax].
+function mc75LoftY(s,label,rows,opt={}){
+ rows=rows.slice().sort((a,b)=>a[0]-b[0]);
+ const y0=rows[0][0],y1=rows.at(-1)[0],Z0=Math.min(...rows.map(r=>r[1])),Z1=Math.max(...rows.map(r=>r[2])),X0=Math.min(...rows.map(r=>r[3])),X1=Math.max(...rows.map(r=>r[4]));
+ const L=y1-y0,W=Z1-Z0,H=X1-X0,cz=(Z0+Z1)/2;
+ // pitch 90: local x is world y, local y is world -x, local z is world z.
+ const loft=rows.map(r=>[(r[0]-y0)/L,clamp((r[2]-r[1])/W,.02,2),clamp((X1-r[3])/H,.03,1.5),clamp((X1-r[4])/H,0,.97),((r[1]+r[2])/2-cz)/(W/2)]);
+ for(const r of loft)if(r[3]>=r[2]-.005)r[3]=Math.max(0,r[2]-.01);
+ return placePart(s,'struct',[(X0+X1)/2,(y0+y1)/2,cz],[L,W,H],{label,skin:'armor',form:opt.round?'roundloft':'loft',loft,corner:opt.corner??.1,pitch:90,...opt},false);
+}
+function mc75Build(opt={}){
+ const D=MC75,L=1204.44;
+ const s=newShip({L,W:D.W,H:D.H,sec:'warship',plan:'wedge',deckWidth:0,keelWidth:0,belt:.2,chineHeight:.7,bowFree:true,stations:D.st.map(a=>a.slice()),keel:'std'},'MC75スター・クルーザー');
+ s._building=true;s.paint='neutral';s.lights='white';s.detail=1;s.armor={hull:.6,cit:.45};s.shieldTarget=2;
+ const k=shipKit(s),part=(kind,label,c,d,o={},mirror=false)=>placePart(s,kind,c,d,{label,...o},mirror),room=(kind,label,c,size,o={},mirror=false)=>part(kind,label,c,30,{room:size,...o},mirror);
+ // ---- outer shape: the armoured outrigger fin, the bridge pod and the dorsal mast ----
+ mc75LoftY(s,'腹部装甲アウトリガー翼',D.loft.fin,{round:true,paint:MC75_FIN});
+ k.loftX('艦橋ポッド',D.loft.pod,{round:true,paint:MC75_POD});
+ // Dorsal communications transmission mast and sensor cluster: a pole with four yards.
+ k.box('背部通信マスト',[664,336,-4.2],[707,403,4.2],{corner:.2,skin:'plain',paint:MC75_DARK});
+ for(const [x0,x1,y0,y1,w] of [[660,756,336.8,341.3,10.5],[643,716,349.3,354,7],[648,725,375,381.4,4.6],[626,707,397.3,402.8,5.5]])k.box('マストの桁',[x0,y0,-w],[x1,y1,w],{corner:.15,skin:'plain',paint:MC75_DARK});
+ if(opt.stage==='shape'){delete s._building;return s;}
+ // ---- machinery ----
+ const gen=part('gen','主反応炉',[400,300,0],64);
+ part('aux','第二主反応炉',[480,296,0],60);
+ part('aux','中央補助反応炉',[700,286,0],64);
+ part('aux','前部補助反応炉',[960,304,0],50);
+ // Twelve KDY Gemon-15 sublight ion drives in the stern under the engineering plane:
+ // four large drives in a row with eight smaller ones between and outside them.
+ const eng=(label,front,y,z,d,mirror=true)=>part('engine',label,[(front-.5)/2,y,z],d,{dir:[-1,0,0],nozzleLength:front+.5,bodyLength:2,bodyRadius:.4,reactor:gen.id},mirror);
+ eng('ゲモン15主機関（内側）',330,305,11.5,22);
+ eng('ゲモン15主機関（外側）',330,305,38.2,21);
+ for(const y of [298.4,312.4])eng('ゲモン15補助機関',330,y,25.4,8);
+ for(const y of [301.5,312.5])eng('ゲモン15補助機関（外側）',330,y,52.5,8);
+ // Superior shielding fore and aft, and the generators carried in the weapon collar.
+ part('shield','偏向シールド発生器（後部）',[470,300,52],32,{},true);
+ part('shield','偏向シールド発生器（兵装カラー）',[600,290,70],40,{},true);
+ part('shield','偏向シールド発生器（前部）',[1050,292,40],30,{},true);
+ part('hyper','ハイパードライブ',[810,292,0],44,{length:34,dir:[1,0,0]});
+ part('fuel','反応物サイロ',[520,262,36],22,{length:40,dir:[1,0,0]},true);
+ room('pump','反応物供給設備',[520,318,0],[40,14,14]);
+ part('inertial','慣性補償装置',[880,302,0],46,{length:56,dir:[1,0,0]});
+ room('integrity','構造維持装置',[1120,292,0],[70,26,26]);
+ // The command bridge sits in the pod at the foot of the ventral outrigger fin.
+ room('command','艦橋（艦橋ポッド）',[683,22,0],[60,18,14]);
+ room('command','戦闘情報センター',[640,322,0],[40,24,10]);
+ // Ventral docking bay in the former civic atrium, open below behind a ray shield.
+ const bay=room('hangar','腹部ドッキング・ベイ（旧市民アトリウム）',[960,260,0],[160,58,32],{airRole:'mixed'});
+ openBay(s,bay,'bottom','ray');
+ if(opt.stage==='machinery'){delete s._building;return s;}
+ const {spread,range}=mc75MountKit(s,opt);
+ syncAviationSurfaces(s);s._lockedCache=cache(s);
+ try{withFrozenStructures(()=>{
+  // Twelve broadside turbolasers on the weapon collar.
+  spread('htl',12,'beam','collar-broadside',range(545,650,18),[300,282,318,268],{scale:.65});
+  // Four heavy ion cannons on the collar's back, twelve more along the hull (rebel doctrine).
+  spread('ion',4,'top','collar-heavy-ion',range(548,648,24),[48,80,24],{scale:.75});
+  spread('ion',6,'top','dorsal-ion',range(180,1150,40),[30,60,85,10],{scale:.45});
+  spread('ion',6,'bottom','ventral-ion',range(200,1150,40),[30,55,80,10],{scale:.45});
+  // Twelve proton torpedo launchers on the ordnance fairing at the root of the outrigger fin.
+  spread('msl',12,'bottom','ordnance-pod',range(560,880,24),[18,36,50,0],{});
+  // Six tractor beam projectors in the port forward of the collar.
+  spread('trc',6,'beam','fore-collar-tractor',range(670,800,22),[285,300,270,315],{});
+  // Twenty point-defence laser cannons.
+  spread('pd',10,'top','dorsal-pd',range(120,1180,40),[20,50,80,100,0]);
+  spread('pd',10,'bottom','ventral-pd',range(120,1180,40),[20,50,80,100,0]);
+ });}finally{delete s._lockedCache;}
+ if(opt.stage==='fitted'){delete s._building;return s;}
+ // Compartments packed into free space of the hull: crew decks, troops, cargo and aircraft servicing.
+ for(const [kind,label,c,size,role,mirror] of D.rooms){const o={room:size};if(typeof role==='string')o.airRole=role;placePart(s,kind,c,30,{label,...o},mirror===1||role===1);}
+ s.airWings=MC75_AIR.map(r=>({...r}));s.groundForces=normalizeGroundForces(MC75_GROUND);
+ delete s._building;remount(s);syncCompartments(s);
+ return s;
+}
+registerShipExample({
+ key:'mc75',name:'MC75スター・クルーザー',side:'反乱同盟',role:'旗艦スター・クルーザー',length:1204.44,
+ title:'MC75 Star Cruiser (Profundity)',author:'Snickett（原型 Warb Null）',authorUrl:'https://www.thingiverse.com/thing:2806900',
+ source:'https://www.thingiverse.com/thing:2806900',license:'CC BY-NC',
+ credit:'MC75 Star Cruiser (Profundity) by Snickett on Thingiverse: https://www.thingiverse.com/thing:2806900 (original model by Warb Null, http://www.moddb.com/members/warb-null), licensed under Creative Commons - Attribution - Non-Commercial',
+ note:'1,204.44 m（正史）。Thingiverse の 3D モデル（Snickett 作・原型 Warb Null、CC BY-NC）の実測形状から、平らな上甲板と兵装カラーを持つ主船体、腹部の装甲アウトリガー翼と先端の艦橋ポッド、背部の通信マストを組み直した。艦尾の機関平面の下に KDY ゲモン15 亜光速イオン機関12基、旧市民アトリウムを改装した腹部ドッキング・ベイ（2個中隊）、前後に強化した偏向シールド。兵装カラーに舷側ターボレーザー12基と重イオン砲4基、船体にイオン砲12基を追加（反乱同盟のドクトリン）、アウトリガー翼付け根の兵装ポッドにプロトン魚雷発射管12基、カラー前方の舷側にトラクター・ビーム6基、点防御レーザー砲20基。',
+ airWings:MC75_AIR,groundForces:MC75_GROUND,
+ build:mc75Build
+});
+}
+
+// ---- src/ships/mc80home.js ----
+// MC80 Home One type star cruiser, measured from "Star Wars: MC80 Home One Type
+// Star Cruiser" by Daniel (DanielAndersson) on Sketchfab, CC BY 4.0. Ship frame:
+// x from the stern (0) to the bow (1,300 m), y up from the lowest point, z to
+// starboard. The hull is the elliptical main body fitted station by station;
+// the blisters, side lobes, dorsal ridge and dome, the tower and the engine
+// housings are ordinary structures measured from the model, asymmetric where
+// the original is.
+{
+const HO={"W":254.0,"H":149.0,"st":[[0.0,0.002,0.0019,0.1232],[0.00326,0.1343,0.1389,0.1232],[0.00941,0.2453,0.3316,0.1232],[0.02326,0.371,0.517,0.1232],[0.04787,0.4802,0.6095,0.1232],[0.09864,0.643,0.7297,0.1232],[0.15249,0.7692,0.8416,0.1232],[0.27864,0.9528,0.9467,0.1232],[0.36172,0.9968,0.9807,0.1232],[0.51864,0.9482,0.9882,0.1232],[0.6571,0.8425,0.9344,0.1232],[0.7971,0.6261,0.7935,0.1232],[0.86633,0.5114,0.6398,0.1232],[0.88787,0.4692,0.5273,0.1232],[0.89249,0.4573,0.4303,0.1232],[0.96479,0.241,0.2542,0.1232],[0.98941,0.1276,0.1395,0.1232],[1.0,0.001,0.0011,0.1232]],"loft":{"ridge":[[84.31,-0.05,0.05,138.04,138.13],[96.32,-10.43,10.43,138.62,149.31],[156.38,-24.35,24.35,142.63,167.31],[288.51,-38.32,38.32,151.44,185.86],[388.62,-42.78,42.78,155.77,191.6],[592.83,-40.17,40.17,156.07,189.76],[652.89,-27.08,27.08,156.07,178.81],[676.91,-13.72,13.72,156.07,167.61],[682.92,-4.78,4.78,156.07,160.16],[684.92,-0.12,0.12,156.2,156.31]],"lobe":[[381.38,103.02,116.74,92.52,92.71],[385.56,103.02,123.41,85.89,99.35],[401.23,103.02,130.89,78.51,106.72],[440.94,103.02,138.28,71.23,114.01],[479.61,103.02,139.86,69.67,115.57],[484.83,103.02,136.73,69.67,115.57],[535.0,103.02,137.36,69.67,115.57],[540.22,103.02,139.86,69.67,115.57],[565.3,103.02,138.69,69.67,115.57],[572.62,103.02,136.73,69.67,115.57],[617.55,103.02,137.7,69.67,115.57],[621.73,103.02,139.77,69.76,115.48],[663.53,103.02,135.27,74.19,111.05],[686.53,103.02,126.98,82.37,102.87],[692.8,103.02,121.46,87.81,97.42],[694.89,103.02,116.75,92.5,92.73]],"lobeS2":[[439.14,114.72,128.51,92.47,92.76],[441.25,114.72,134.97,87.45,97.78],[448.28,114.72,141.8,82.22,103.02],[463.74,114.72,148.7,76.95,108.29],[489.04,114.72,151.56,74.76,110.48],[497.48,114.72,151.56,74.76,110.48],[498.88,114.72,148.83,74.76,110.48],[541.75,114.72,148.85,74.76,110.48],[543.86,114.72,151.56,74.76,110.48],[609.93,114.72,150.83,75.32,109.92],[633.12,114.72,145.26,79.57,105.67],[645.07,114.72,137.66,85.39,99.84],[648.58,114.72,132.96,89.04,96.2],[649.99,114.72,128.49,92.49,92.75]],"dome":[[382.13,-0.1,0.1,178.4,178.51],[387.42,-8.48,8.48,178.26,186.74],[408.6,-18.23,18.23,178.26,196.49],[459.27,-27.13,27.13,178.26,205.4],[547.76,-27.81,27.81,178.26,206.08],[583.31,-21.84,21.84,178.26,200.1],[602.22,-11.7,11.7,178.26,189.97],[606.75,-6.86,6.86,178.26,185.14],[609.02,-0.15,0.15,178.35,178.51]],"vP1":[[322.72,-52.34,-52.16,33.22,33.32],[327.34,-59.4,-45.59,26.8,35.19],[344.0,-67.31,-38.71,19.49,36.99],[385.65,-75.63,-32.53,12.09,38.62],[473.56,-78.82,-33.51,10.46,38.42],[552.23,-74.84,-41.04,15.62,36.52],[588.32,-67.36,-49.95,23.42,34.23],[596.65,-63.16,-54.38,27.47,33.02],[600.35,-58.97,-58.86,31.73,31.82]],"vS1":[[202.59,47.75,47.93,35.79,35.91],[207.22,41.02,54.74,29.19,37.92],[224.8,33.5,62.48,21.19,39.73],[266.44,26.57,69.56,13.08,40.68],[352.5,25.4,70.42,9.64,38.6],[430.23,30.64,64.62,12.89,34.77],[467.24,38.42,56.36,19.75,31.33],[476.5,42.96,51.66,23.97,29.65],[480.2,47.12,47.24,28.03,28.11]],"dFore":[[795.16,-0.06,0.06,143.29,143.4],[799.21,-4.66,4.66,143.18,150.9],[814.4,-9.41,9.41,143.18,159.04],[839.71,-13.35,13.35,143.18,165.83],[882.24,-16.45,16.45,143.18,171.15],[1040.19,-16.55,16.55,143.18,171.32],[1068.54,-13.7,13.7,143.18,166.43],[1085.75,-9.65,9.65,143.18,159.48],[1094.87,-5.42,5.42,143.18,152.25],[1096.89,-3.61,3.61,143.18,149.31],[1098.92,-0.09,0.09,143.25,143.41]],"vAft":[[150.9,-0.08,0.08,37.63,37.74],[155.53,-6.75,6.75,30.82,37.56],[174.69,-14.51,14.51,21.94,36.17],[222.27,-21.97,21.97,11.45,32.7],[296.94,-22.83,22.83,5.4,27.27],[329.98,-16.3,16.3,9.65,24.86],[343.85,-8.63,8.63,15.99,23.85],[347.16,-5.19,5.19,19.35,23.61],[349.14,-0.13,0.13,23.25,23.36]],"vFore":[[792.84,-0.13,0.13,23.16,23.28],[796.15,-7.0,7.0,17.05,23.54],[808.72,-14.84,14.84,10.19,24.15],[839.16,-22.12,22.12,4.52,25.63],[905.34,-22.92,22.92,6.8,28.84],[958.94,-16.85,16.85,15.13,31.44],[983.43,-8.46,8.46,24.3,32.63],[988.72,-4.39,4.39,28.27,32.89],[991.37,-0.08,0.08,32.75,32.85]],"vS2":[[527.06,43.0,43.19,23.01,23.12],[530.17,38.46,47.8,18.77,24.67],[541.96,33.41,53.01,13.85,26.35],[569.9,28.74,57.77,9.39,28.06],[628.25,27.95,58.35,9.19,28.82],[680.4,31.52,54.4,13.34,28.16],[704.61,36.67,48.91,18.77,26.76],[710.82,39.77,45.7,21.83,25.82],[713.3,42.63,42.75,24.75,24.83]],"dSide":[[517.26,62.01,62.14,157.66,157.75],[521.05,58.18,65.8,156.16,161.39],[541.89,52.61,70.61,154.21,166.65],[615.16,43.79,76.71,149.38,171.97],[651.16,42.28,76.45,148.09,172.01],[688.43,46.66,70.22,151.17,167.52],[701.69,50.22,64.77,152.57,162.74],[706.12,54.81,59.96,154.06,157.81],[706.75,56.49,56.9,155.09,155.38]],"aftLobe":[[202.65,74.42,112.51,57.63,95.74],[246.65,74.86,111.2,58.94,94.5],[269.15,75.68,107.45,62.83,90.87],[278.65,76.95,103.49,66.44,87.43],[285.85,93.66,97.14,70.74,78.37]],"vP2":[[723.4,-59.34,-59.18,31.73,31.83],[726.44,-62.94,-54.93,28.14,33.45],[741.0,-67.02,-48.69,23.38,35.69],[769.53,-68.44,-43.01,20.44,37.68],[841.77,-62.14,-37.63,22.43,39.19],[887.9,-53.51,-38.48,28.15,38.49],[902.46,-48.09,-41.62,32.6,37.25],[905.5,-44.36,-44.26,35.83,35.91]],"vMid":[[675.43,-5.46,5.46,6.39,7.07],[675.93,-16.65,16.65,6.37,13.25],[676.43,-21.17,21.17,5.89,20.12],[676.93,-22.89,22.89,5.88,26.99],[678.93,-23.47,23.47,5.82,28.31],[716.93,-18.94,18.94,7.65,25.55],[737.93,-10.5,10.5,14.46,24.02],[743.43,-5.38,5.38,19.2,23.62],[745.49,-0.13,0.13,23.25,23.36]],"foreSide":[[885.14,87.05,87.16,118.01,118.12],[888.14,84.53,89.56,115.69,120.75],[902.64,80.46,91.79,112.39,123.81],[930.14,75.45,91.63,108.9,125.19],[965.64,69.12,90.74,103.75,125.5],[985.14,67.78,88.04,103.28,123.74],[1006.14,68.38,82.79,105.52,119.92],[1014.64,69.59,78.31,107.56,116.23],[1017.52,72.36,72.91,110.96,111.43]],"aftSide2":[[214.86,84.67,118.14,76.1,109.61],[251.36,84.67,117.23,77.02,108.69],[278.36,84.67,113.71,80.53,105.18],[289.09,84.67,109.17,85.07,100.64]],"aftSide3":[[246.9,91.97,92.06,109.32,109.42],[250.51,90.48,94.94,107.46,111.98],[273.25,90.67,101.11,105.84,116.43],[334.73,94.6,111.84,104.27,121.75],[368.83,99.32,115.16,106.13,122.16],[391.56,104.21,115.0,109.69,120.63],[399.83,107.07,112.44,112.32,117.76],[401.89,109.41,109.64,114.71,114.95]],"dSide2":[[777.83,49.18,49.31,155.97,156.05],[781.33,45.26,52.67,154.42,159.44],[796.83,39.89,56.1,152.33,163.43],[830.83,34.18,57.35,149.9,165.89],[864.83,31.77,55.05,148.09,164.52],[893.33,30.12,52.99,146.22,162.12],[904.33,33.09,48.56,146.97,157.92],[908.83,36.62,44.11,148.17,153.57],[909.33,37.68,43.41,148.37,152.9],[910.08,39.77,40.19,149.46,149.78]],"vAft2":[[164.92,13.53,20.58,20.13,23.41],[165.42,4.47,24.32,19.85,35.29],[165.92,0.16,24.45,19.8,37.38],[166.92,-1.12,24.51,19.7,37.34],[204.92,0.4,25.42,17.37,34.57],[221.92,4.87,21.97,20.07,33.32],[228.92,9.35,17.97,23.63,32.81],[229.42,9.8,17.59,23.97,32.78],[230.42,11.69,15.63,28.55,32.7],[231.17,13.71,13.98,32.36,32.64]],"towerCap":[[444.43,-0.07,0.07,219.92,221.31],[445.93,-1.67,1.67,217.74,223.49],[453.93,-4.08,4.08,214.46,226.77],[463.43,-5.19,5.19,213.46,228.28],[474.43,-5.66,5.66,212.42,228.92],[481.93,-8.13,8.13,212.29,232.28],[501.93,-7.96,7.96,212.29,232.06],[507.93,-5.82,5.82,212.32,228.92],[512.93,-6.7,6.7,212.64,228.6],[522.93,-3.34,3.34,215.46,225.77],[525.93,-1.67,1.67,217.74,223.5],[526.89,-0.11,0.11,219.87,221.37]],"towerStem":[[481.92,-3.86,3.86,217.38,217.49],[490.92,-3.86,3.86,183.26,217.49],[500.42,-3.86,3.86,182.48,217.49],[509.79,-3.86,3.86,182.48,182.59]],"domeA":[[219.02,0.55,0.79,188.91,189.15],[220.02,-1.32,2.66,187.04,191.02],[224.02,-3.26,4.6,185.1,192.97],[255.02,-4.54,5.88,183.82,194.25],[258.02,-2.99,4.33,185.37,192.7],[259.02,-1.78,3.13,186.58,191.49],[259.81,0.51,0.84,188.87,189.2]],"eng1":[[39.76,45.45,68.26,57.77,80.58],[69.26,44.61,69.1,56.93,81.42],[69.76,42.41,71.3,54.73,83.62],[82.76,42.41,71.3,54.73,83.62],[84.26,41.26,72.45,53.58,84.77],[90.26,41.26,72.45,53.58,84.77],[91.76,42.41,71.3,54.73,83.62],[112.25,42.41,71.3,54.73,83.62]],"eng2":[[69.91,46.56,67.15,106.24,126.83],[70.41,42.41,71.3,102.09,130.98],[112.25,42.41,71.6,102.09,131.28]],"eng3":[[74.62,0.48,19.87,23.44,42.83],[104.12,1.75,18.59,24.72,41.55],[104.62,-1.36,21.7,21.6,44.67],[117.12,-1.36,21.7,21.6,44.67],[117.62,1.0,19.34,23.97,42.31],[170.5,1.0,19.34,23.97,42.31]],"eng4":[[137.76,90.35,105.5,63.51,78.66],[167.26,89.8,106.05,62.96,79.21],[167.76,88.34,107.52,61.5,80.68],[210.26,88.34,107.52,61.5,80.68]],"eng5":[[149.86,98.64,113.78,86.63,101.78],[179.36,98.08,114.34,86.08,102.33],[179.86,96.62,115.8,84.62,103.8],[222.35,96.62,115.8,84.62,103.8]],"engBr":[[186.27,89.52,104.6,92.26,92.98],[186.77,89.35,104.6,92.23,100.81],[187.27,89.18,104.6,92.2,105.46],[188.77,89.18,104.6,92.12,105.37],[189.27,89.18,109.88,75.0,105.34],[203.77,89.18,109.88,75.0,104.52],[204.27,89.22,116.69,80.82,104.69],[228.43,92.99,116.69,80.82,104.69]]},"rooms":[["service","航空整備・補給区画",[472,60,72],[79.4,35.4,31.4],1],["service","航空整備・補給区画 2",[438,56,40],[11.4,27.4,39.4],1],["crew","居住甲板",[803.97,126,0],[183.33,59.4,11.4]],["crew","居住甲板 2",[626,122,0],[11.4,59.4,19.4]],["troops","兵員区画（艦隊兵・特殊部隊）",[718,54,-26],[35.4,15.4,27.4]],["cargo","貨物・物資庫",[715.93,60,54],[31.25,47.4,39.4]]]};
+const HO_AIR=[{id:'air-1',name:'Xウイング中隊（第1〜4）',size:1,count:48},{id:'air-2',name:'Aウイング中隊（第5・6）',size:1,count:24},{id:'air-3',name:'Yウイング中隊（第7・8）',size:1,count:24},{id:'air-4',name:'Bウイング中隊（第9・10）',size:1,count:24}];
+const HO_GROUND=[{id:'ground-1',name:'同盟軍特殊部隊・艦隊兵',kind:'troops',count:1200}];
+const HO_HULL='#a3a9a6',HO_BLIS='#979e9c',HO_DARK='#626a6e',HO_ENG='#4f575c',HO_TOWER='#8b9294';
+// Shared by the Mon Calamari builders: weapon placement with charging plant checks.
+function hoMountKit(s,opt={}){
+ // Heavy guns keep their charging plant wholly inside the envelope and clear of
+ // machinery: the plant is pushed deeper until all its corners are enclosed.
+ let solidList=null;
+ const plantFits=f=>{if(!needsCapacitor(f))return true;const q=weaponChargeSpec(f),depth=12*(f.scale||1),side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
+  for(const cd of [8,10,13,16,20,24,28,33,38,44]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
+   for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
+   if(ok){f.chargeDepth=cd;return true;}}return false;};
+ // One fitting cast onto the outermost surface along its axis.
+ const tryMount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:p.slice(),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':(f.base-f.low)>(o.maxStep??FITS[kind].fm*.6)?'steep':!plantFits(f)?'plant':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(Math.round).join(','),why||'ok',f.p.map(Math.round).join(',')]);if(why){s.nextId--;return null;}return f;};
+ const clearOf=(f,list)=>list.every(g=>Math.hypot(f.p[0]-g.p[0],f.p[1]-g.p[1],f.p[2]-g.p[2])>=((FITS[f.k]?.fm||10)*(f.scale||1)+(FITS[g.k]?.fm||10)*(g.scale||1))*.5+3);
+ // n fittings over candidate stations: dorsal ('top') and ventral ('bottom') rows take |z|
+ // offsets and mount as mirrored pairs (0 = centreline); 'beam' rows take heights and
+ // mount one a side. Stations that crowd others are skipped.
+ const spread=(kind,n,mode,zone,xs,offs,o={})=>{let got=0;const far=Math.max(s.hull.H,s.hull.W,200);
+  for(const off of offs)for(const x of xs){if(got>=n)break;
+   const ps=mode==='beam'?[[[x,off,far],4],[[x,off,-far],5]]:(off?[1,-1]:[1]).map(sg=>[[x,0,sg*off],mode==='top'?2:3]);
+   if(got+ps.length>n)continue;const fs=[];
+   for(const [p,a] of ps){const f=tryMount(kind,p,a,zone+(ps.length>1?(p[2]>0?'-stbd':'-port'):''),o);if(!f||!clearOf(f,s.fits.concat(fs)))break;fs.push(f);}
+   if(fs.length<ps.length)continue;s.fits.push(...fs);got+=fs.length;}
+  if(got<n&&!o.soft)throw new Error('作例の砲座が不足しています: '+kind+' '+zone+' '+got+'/'+n);return got;};
+ const range=(a,b,st)=>{const r=[];for(let x=a;x<=b+1e-6;x+=st)r.push(x);return r;};
+ return {tryMount,clearOf,spread,range,plantFits};
+}
+function mc80HomeBuild(opt={}){
+ const D=HO,L=1300;
+ const s=newShip({L,W:D.W,H:D.H,sec:'ellipse',plan:'rect',bowW:1,bowH:1,stern:1,keel:'std',bowFree:true,stations:D.st.map(a=>a.slice())},'MC80ホーム・ワン型スター・クルーザー');
+ s._building=true;s.paint='neutral';s.lights='white';s.detail=1;s.armor={hull:.45,cit:.35};s.shieldTarget=3;
+ const k=shipKit(s),part=(kind,label,c,d,o={},mirror=false)=>placePart(s,kind,c,d,{label,...o},mirror),room=(kind,label,c,size,o={},mirror=false)=>part(kind,label,c,30,{room:size,...o},mirror);
+ const lo=(name,label,paint,o={},mirror=false)=>k.loftX(label,D.loft[name],{round:true,paint,...o},mirror);
+ // ---- outer shape: lobes and blisters (the model's own asymmetry is kept) ----
+ lo('ridge','背部稜線ブリスター',HO_BLIS);
+ lo('dome','背部ドーム',HO_BLIS);
+ lo('dFore','前部背面ブリスター',HO_BLIS);
+ lo('lobe','舷側格納ローブ',HO_BLIS,{},true);
+ lo('lobeS2','右舷外側ローブ',HO_BLIS);
+ lo('dSide','背部舷側ブリスター',HO_BLIS,{},true);
+ lo('dSide2','前部背部舷側ブリスター',HO_BLIS,{},true);
+ lo('aftLobe','後部舷側ローブ',HO_BLIS,{},true);
+ lo('aftSide2','後部舷側ブリスター（下）',HO_BLIS,{},true);
+ lo('aftSide3','後部舷側ブリスター（上）',HO_BLIS,{},true);
+ lo('foreSide','前部舷側ブリスター',HO_BLIS,{},true);
+ lo('vAft','後部腹部ブリスター',HO_BLIS);
+ lo('vAft2','後部腹部の小ブリスター',HO_BLIS,{},true);
+ lo('vS1','腹部右舷ブリスター',HO_BLIS);
+ lo('vP1','腹部左舷ブリスター',HO_BLIS);
+ lo('vS2','腹部右舷ブリスター（中央）',HO_BLIS);
+ lo('vP2','腹部左舷ブリスター（前部）',HO_BLIS);
+ lo('vMid','腹部中央ブリスター',HO_BLIS);
+ lo('vFore','前部腹部ブリスター',HO_BLIS);
+ lo('towerStem','背部センサー塔の支柱',HO_TOWER);
+ lo('towerCap','背部センサー塔',HO_TOWER);
+ lo('domeA','後部背面センサードーム',HO_TOWER);
+ // Engine housings around the ten stern drives.
+ for(const n of ['eng1','eng2','eng3','eng4','eng5'])lo(n,'機関ハウジング',HO_ENG,{},true);
+ lo('engBr','舷側機関の支持架',HO_ENG,{},true);
+ if(opt.stage==='shape'){delete s._building;return s;}
+ // ---- machinery ----
+ const gen=part('gen','主反応炉',[385,93,0],110);
+ part('aux','前部補助反応炉',[960,93,0],56);
+ part('aux','中央補助反応炉',[700,93,0],60);
+ // Ten sublight drives in three sizes in the rounded stern (exits at the housing
+ // mouths measured from the model's glow discs); the main drives run deep into the hull.
+ // The beam drives draw on small reactors in the aft side lobes.
+ const auxS=part('aux','舷側機関用補助炉',[248,79,92],16,{},true);
+ const eng=(label,exit,front,y,z,d,r=gen)=>part('engine',label,[(exit+front)/2,y,z],d,{dir:[-1,0,0],nozzleLength:front-exit,bodyLength:2,bodyRadius:.4,reactor:r.id},true);
+ eng('主機関（下段）',40.7,332,69.2,56.9,30);
+ eng('主機関（上段）',70,332,116.5,56.9,30);
+ eng('下部機関',73.6,170,33.1,10.2,19.4);
+ eng('舷側機関（下）',136.8,210,71.1,97.9,17,auxS);
+ eng('舷側機関（上）',148.9,222,94.2,106.2,17,auxS);
+ // Triple-strength deflector shields: three pairs of generators along the main body.
+ part('shield','偏向シールド発生器（後部）',[520,135,30],40,{},true);
+ part('shield','偏向シールド発生器（中央）',[820,93,58],44,{},true);
+ part('shield','偏向シールド発生器（前部）',[1080,93,32],30,{},true);
+ part('hyper','ハイパードライブ',[580,93,0],44,{length:50,dir:[1,0,0]});
+ part('fuel','反応物サイロ',[470,60,40],26,{length:44,dir:[1,0,0]},true);
+ room('pump','反応物供給設備',[470,52,0],[40,20,20]);
+ part('inertial','慣性補償装置',[870,93,0],52,{length:60,dir:[1,0,0]});
+ room('integrity','構造維持装置',[1080,93,0],[84,32,30]);
+ room('command','艦橋（司令部）',[1185,104,0],[36,20,14]);
+ room('command','戦闘情報センター',[640,140,0],[40,24,12]);
+ // Hangars: launch bays in the beam lobes behind ray-shielded mouths (as on the
+ // model), with storage decks inboard of them.
+ for(const sg of [1,-1]){
+  const bay=room('hangar',(sg>0?'右舷':'左舷')+'発着格納庫',[552,93,sg*121],[215,42,22],{airRole:'mixed'});
+  openBay(s,bay,sg>0?'stbd':'port','ray');
+  room('hangar',(sg>0?'右舷':'左舷')+'艦載機格納甲板',[552,93,sg*80],[215,40,30],{airRole:'storage'});
+ }
+ if(opt.stage==='machinery'){delete s._building;return s;}
+ const {spread,range}=hoMountKit(s,opt);
+ // Fighter control post in the dorsal dome's flank (a window pod on a structure wall).
+ const dome=s.parts.find(p=>p.label==='背部ドーム');
+ const pod=(kind,host,o,dir,w,h)=>{let err='取付面がありません';for(const dy of [0,-4,4,-8,8])for(const dx of [0,-10,10,-20,20]){const q0=[o[0]+dx,o[1]+dy,o[2]];const hit=rayPart(q0,dir,host);if(!hit)continue;const r=placeFit(s,kind,hit.p,hit.n,0,false);if(r.fit){r.fit.width=w;r.fit.height=h;r.fit.commandDepth=7;r.fit.commandHeight=5;return r.fit;}err=r.err;}throw new Error('指揮ポッド '+kind+': '+err);};
+ pod('podAir',dome,[495,192,90],[0,0,-1],14,5);
+ syncAviationSurfaces(s);s._lockedCache=cache(s);
+ try{withFrozenStructures(()=>{
+  // Rebel doctrine: ion batteries strip the shields, so they outnumber the turbolasers.
+  // Heavy turbolasers on the dorsal ridge and the upper hull.
+  spread('htl',12,'top','dorsal-heavy',range(160,1160,36),[58,78,40,96,22],{scale:.7});
+  // Ion cannons: dorsal, ventral and in the beam blisters.
+  spread('ion',12,'top','dorsal-ion',range(140,1220,30),[30,50,70,88,10,104],{scale:.55});
+  spread('ion',12,'bottom','ventral-ion',range(200,1220,30),[30,50,70,88,10,100],{scale:.55});
+  spread('ion',12,'beam','beam-ion',range(180,1180,40),[93,112,76,128,60],{scale:.55});
+  // Medium turbolasers along the flanks and the ventral blisters.
+  spread('mtl',12,'bottom','ventral-tl',range(200,1200,34),[60,80,40,96,20],{scale:.7});
+  // Tractor beam projectors forward, ventral.
+  spread('trc',6,'bottom','bow-tractor',range(900,1250,24),[24,40,10,52]);
+  // Point defence screen.
+  spread('pd',12,'top','dorsal-pd',range(120,1260,28),[12,46,66,84,100,30]);
+  spread('pd',12,'bottom','ventral-pd',range(200,1260,28),[12,46,66,84,100,30]);
+ });}finally{delete s._lockedCache;}
+ if(opt.stage==='fitted'){delete s._building;return s;}
+ // Compartments packed into free space of the hull: crew decks, troops, cargo and aircraft servicing.
+ for(const [kind,label,c,size,role,mirror] of D.rooms){const o={room:size};if(typeof role==='string')o.airRole=role;placePart(s,kind,c,30,{label,...o},mirror===1||role===1);}
+ s.airWings=HO_AIR.map(r=>({...r}));s.groundForces=normalizeGroundForces(HO_GROUND);
+ delete s._building;remount(s);syncCompartments(s);
+ return s;
+}
+registerShipExample({
+ key:'mc80home',name:'MC80ホーム・ワン型スター・クルーザー',side:'反乱同盟',role:'艦隊旗艦・キャリア',length:1300,
+ title:'Star Wars: MC80 Home One Type Star Cruiser',author:'Daniel',authorUrl:'https://sketchfab.com/DanielAndersson',
+ source:'https://sketchfab.com/3d-models/star-wars-mc80-home-one-type-star-cruiser-9b5e5e5192f64a7faad93a3bfd2efaf2',license:'CC-BY-4.0',
+ credit:'This work is based on "Star Wars: MC80 Home One Type Star Cruiser" (https://sketchfab.com/3d-models/star-wars-mc80-home-one-type-star-cruiser-9b5e5e5192f64a7faad93a3bfd2efaf2) by Daniel (https://sketchfab.com/DanielAndersson) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',
+ note:'1,300 m（正史の MC80A ホーム・ワン型重スター・クルーザー）。Sketchfab の 3D モデル（Daniel 作、CC BY 4.0）の実測形状から、楕円断面の主船体と、舷側ローブ・背部稜線・背部ドーム・腹部ブリスターなどの構造物を組み直した（原型どおり左右非対称）。艦尾に3種10基の亜光速機関、両舷ローブに力場で閉じる発着格納庫と内側の格納甲板（120機・10個中隊）、三重強度の偏向シールド。反乱同盟のドクトリン（艦のイオン砲でシールドを剥ぎ、航空攻撃で仕留める）に合わせ、イオン砲36基をターボレーザー24基（重12・中12）より多く積む。トラクター・ビーム6基、点防御24基、背部ドームの航空指揮ポッド。乗員5,402名・兵員1,200名分の居住区を持つ。',
+ airWings:HO_AIR,groundForces:HO_GROUND,
+ build:mc80HomeBuild
+});
+}
+
+// ---- src/ships/mc80liberty.js ----
+// MC80 Liberty type star cruiser, measured from "Star Wars: MC80 Liberty" by
+// Daniel (DanielAndersson) on Sketchfab, CC BY 4.0. Ship frame: x from the
+// stern (0) to the bow (1,200 m), y up from the lowest point, z to starboard.
+// The hull is the elliptical main body fitted station by station (a slender
+// spine runs aft over the open engine bay); the upper deck shell, the two
+// swept wings with their trailing claws, the blisters (asymmetric as on the
+// model) and the engine housings are ordinary structures.
+{
+const LIB={"W":291.0,"H":77.0,"st":[[0.0,0.0962,0.1688,0.7013],[0.1,0.1649,0.2208,0.7013],[0.20833,0.2474,0.2597,0.6948],[0.22696,0.6762,0.8255,0.3323],[0.28196,0.8224,0.8936,0.3323],[0.34029,0.9278,0.9423,0.3323],[0.40529,0.9963,0.9786,0.3323],[0.48529,1.0,0.9963,0.3323],[0.56529,0.9497,0.9894,0.3323],[0.69863,0.7591,0.9178,0.3323],[0.87863,0.4269,0.6555,0.3323],[0.94363,0.3012,0.4655,0.3323],[0.97863,0.1896,0.2951,0.3323],[0.99363,0.0996,0.1573,0.3323],[0.99696,0.0703,0.1125,0.3323],[1.0,0.0011,0.0017,0.3323]],"loft":{"cap":[[0.0,-0.21,0.21,75.25,80.8],[3.5,-12.15,12.15,75.21,84.75],[17.51,-27.57,27.57,75.21,91.76],[56.02,-49.02,49.02,75.21,99.81],[136.54,-73.44,73.44,75.21,105.98],[269.58,-102.85,102.85,75.21,111.55],[273.08,-103.62,103.62,85.9,111.66],[378.11,-119.6,119.6,89.55,113.94],[560.17,-124.23,124.23,92.28,114.96],[675.7,-117.12,117.12,92.18,113.89],[840.25,-84.07,84.07,89.33,111.19],[994.3,-43.61,43.61,82.13,105.55],[1036.31,-21.99,21.99,80.16,98.02],[1046.81,-10.84,10.84,79.67,93.69],[1050.31,-0.19,0.19,79.51,87.26]],"aftDeck":[[46.85,-31.62,31.62,86.99,87.17],[47.66,-40.08,40.08,75.45,88.45],[59.92,-54.68,54.68,75.45,93.81],[94.24,-74.01,74.01,75.45,98.35],[205.35,-103.5,103.5,75.45,99.69],[256.83,-108.59,108.59,75.45,97.09],[265.82,-107.46,107.46,75.45,96.01],[273.17,-106.0,106.0,79.05,94.76],[288.69,-97.2,97.2,83.32,90.49],[291.96,-92.44,92.44,86.85,86.96]],"wing":[[66.79,228.72,230.47,55.03,71.82],[68.79,229.97,334.41,48.17,78.68],[78.79,236.39,903.02,47.17,79.68],[80.79,237.68,911.38,47.27,79.58],[94.79,246.67,912.48,48.12,78.73],[130.79,269.8,811.76,50.3,76.54],[158.79,287.78,758.56,52.0,74.84],[222.79,316.86,662.81,56.35,70.5],[258.79,320.93,588.34,58.02,68.82],[274.79,323.54,542.45,59.13,67.71],[276.79,325.64,428.9,60.82,66.02],[277.73,327.29,332.78,63.12,63.73]],"wingRoot":[[63.22,227.76,230.4,54.34,72.51],[65.22,228.61,283.4,46.73,80.12],[69.22,231.19,377.66,46.72,80.12],[71.22,232.47,384.34,46.82,80.02],[144.22,279.45,384.34,50.94,75.91],[145.22,280.07,283.65,54.92,71.93]],"wingTip":[[281.43,147.17,147.28,63.03,63.82],[287.93,146.97,156.91,52.81,74.04],[303.93,146.97,185.7,51.1,75.74],[317.43,146.97,219.83,51.12,75.73],[323.43,146.97,271.63,51.13,75.72],[338.93,146.97,276.24,51.15,75.7],[384.35,146.97,275.83,51.2,75.64]],"dCentre":[[598.39,-5.79,57.19,82.65,126.45],[849.58,1.23,50.17,82.65,124.67],[904.91,9.88,41.53,82.65,115.2],[925.94,18.63,32.77,82.65,105.47],[930.36,25.62,25.78,82.65,97.81]],"dPort":[[399.86,-40.49,-39.77,93.66,93.87],[402.7,-55.54,-24.72,93.6,102.34],[414.98,-75.23,-5.04,93.6,113.45],[443.34,-89.39,9.12,93.6,121.45],[546.38,-97.85,17.58,93.6,122.13],[653.19,-84.71,4.44,93.6,118.81],[675.88,-65.47,-14.8,93.6,107.96],[681.55,-53.13,-27.14,93.6,100.91],[683.44,-40.48,-39.79,93.67,93.87]],"dStbd":[[395.57,26.05,26.37,108.88,109.03],[398.92,17.04,35.38,108.8,117.01],[415.67,4.64,47.77,108.8,128.09],[453.64,-4.98,57.4,108.8,136.69],[570.88,-10.58,63.0,108.8,137.58],[682.55,-3.15,55.57,108.8,135.05],[716.05,7.94,44.47,108.8,125.14],[728.33,19.29,33.13,108.8,115.0],[730.57,26.05,26.36,108.88,109.03]],"vStbd":[[395.6,96.85,97.1,45.38,45.5],[399.2,89.21,104.75,40.08,47.51],[417.23,78.88,115.18,32.79,50.06],[456.88,70.8,123.34,27.1,52.07],[595.05,65.36,127.25,24.74,54.56],[711.6,72.21,120.1,28.66,51.28],[744.04,82.14,110.08,35.58,48.81],[753.66,90.32,101.84,41.32,46.76],[756.06,95.96,96.2,45.15,45.27]],"vAft":[[131.49,-0.16,0.16,32.14,32.29],[135.12,-8.47,8.47,24.78,32.38],[146.92,-17.14,17.14,17.03,32.38],[175.98,-25.5,25.5,9.57,32.38],[219.57,-26.25,26.38,8.01,32.38],[362.13,-18.73,19.42,9.15,32.38],[395.73,-10.26,10.95,8.96,32.38],[402.99,-6.04,6.74,9.18,32.38],[403.9,-5.54,6.24,11.7,32.37]],"vFore":[[799.05,-0.16,0.16,38.08,38.23],[802.82,-8.6,8.6,30.61,38.32],[818.85,-19.41,19.41,20.95,38.32],[855.62,-26.7,26.7,14.43,38.32],[952.73,-31.11,31.11,12.02,40.26],[1048.9,-23.75,23.75,17.07,38.32],[1073.42,-13.49,13.49,26.24,38.32],[1080.02,-6.04,6.04,32.9,38.32],[1081.9,-0.16,0.16,38.08,38.23]],"dAft":[[54.96,-0.16,0.16,96.51,96.66],[57.79,-7.77,7.77,96.42,103.39],[71.93,-18.24,18.24,96.42,112.75],[103.99,-26.39,26.39,96.42,120.03],[202.99,-31.11,31.11,94.48,122.73],[303.87,-23.73,23.73,96.42,117.65],[329.33,-13.22,13.22,96.42,108.26],[335.93,-5.85,5.85,96.42,101.68],[337.82,-0.16,0.16,96.51,96.66]],"vPort":[[498.65,-29.87,-29.68,32.7,32.8],[503.67,-37.18,-22.36,26.28,32.94],[526.25,-46.65,-12.89,17.82,32.94],[577.68,-53.29,-6.26,11.9,32.94],[699.36,-57.27,-2.27,9.68,34.65],[829.83,-50.83,-8.71,14.09,32.94],[863.7,-41.6,-17.94,22.33,32.94],[872.48,-35.04,-24.5,28.19,32.94],[874.99,-29.88,-29.67,32.7,32.81]],"dPort2":[[293.08,-49.38,-48.91,104.48,104.7],[295.9,-59.05,-39.23,104.42,113.29],[307.16,-70.95,-27.34,104.42,123.93],[331.79,-80.06,-18.23,104.42,132.07],[404.28,-85.52,-12.76,104.42,133.21],[471.14,-78.43,-19.86,104.42,130.61],[494.36,-67.2,-31.08,104.42,120.59],[502.81,-55.42,-42.87,104.42,110.05],[504.22,-49.37,-48.92,104.49,104.69]],"vPort2":[[360.55,-86.19,-86.0,43.1,43.2],[364.88,-92.52,-79.68,37.57,43.34],[384.36,-100.7,-71.5,30.26,43.34],[428.72,-106.43,-65.76,25.14,43.34],[533.67,-109.87,-62.33,23.23,44.82],[646.2,-104.31,-67.89,27.04,43.34],[675.41,-96.34,-75.86,34.16,43.34],[682.99,-90.66,-81.54,39.22,43.34],[685.15,-86.2,-85.99,43.1,43.21]],"vStbd2":[[715.57,30.17,30.36,38.24,38.4],[718.61,25.21,35.33,30.56,38.47],[728.95,20.1,40.43,22.41,38.47],[751.45,14.96,45.58,14.18,38.47],[784.89,12.76,47.77,10.65,38.47],[856.65,8.99,51.29,11.32,38.47],[879.15,13.51,46.77,17.15,38.47],[892.53,20.68,39.6,26.35,38.47],[896.18,24.38,35.91,31.11,38.47],[898.0,29.98,30.3,38.21,38.42]],"wBlis1":[[386.03,202.17,275.82,54.7,72.15],[498.24,202.17,274.78,54.74,72.1]],"dStbd2":[[213.24,52.3,52.49,102.05,102.17],[216.78,47.38,58.84,100.33,107.18],[235.34,41.63,68.73,98.18,114.34],[280.41,40.14,78.71,96.7,119.61],[443.01,61.65,90.06,99.58,116.42],[471.29,71.32,85.37,101.57,109.81],[476.59,75.31,81.93,102.68,106.42],[478.36,79.26,79.45,103.47,103.57]],"wBlis2":[[499.8,212.91,274.76,55.47,71.37],[547.8,212.91,272.43,55.52,71.33],[613.8,212.91,246.72,55.58,71.26],[626.8,212.91,240.24,55.6,71.25],[627.27,238.33,240.03,59.45,67.4]],"dFore":[[835.83,74.42,75.18,78.18,78.41],[836.42,69.85,76.1,78.09,80.71],[844.07,60.91,82.71,78.09,87.47],[869.96,49.29,84.66,78.09,93.52],[933.53,32.35,73.08,76.85,95.07],[991.2,24.45,55.5,78.09,91.61],[1008.86,29.41,44.03,78.09,84.31],[1011.8,33.26,39.42,78.09,80.55],[1012.39,34.16,34.85,78.18,78.39]],"wBlis3":[[628.25,195.25,239.13,54.48,72.37],[703.96,159.37,195.46,52.66,74.19],[790.08,118.51,140.8,50.58,76.26],[792.27,117.47,139.71,50.53,76.32],[792.82,136.39,139.46,55.99,70.86]],"wBlis4":[[305.65,163.58,163.78,58.09,58.19],[309.42,157.8,169.56,53.04,58.33],[323.77,151.24,176.11,47.18,58.33],[357.01,145.49,181.87,42.04,58.33],[478.62,145.01,182.35,41.62,58.33],[512.61,150.34,177.01,46.38,58.33],[526.96,156.67,170.68,52.04,58.33],[530.74,160.52,166.84,55.44,58.33],[532.25,163.57,163.78,58.09,58.2]],"dSide":[[445.28,111.21,111.36,89.69,89.83],[448.36,107.73,115.51,86.69,93.93],[459.12,104.19,119.94,83.65,98.32],[486.04,100.57,124.46,80.55,102.8],[521.41,99.86,125.71,79.7,103.6],[622.91,100.16,124.98,80.2,103.31],[655.98,103.36,120.98,82.94,99.35],[669.82,106.76,116.72,85.86,95.13],[673.67,108.47,114.61,87.33,93.04],[675.97,111.23,111.36,89.71,89.83]],"vKeel":[[210.45,-0.44,-0.3,16.73,16.93],[212.32,-3.14,2.13,9.61,16.98],[221.63,-6.72,5.71,5.19,16.98],[250.2,-10.49,9.48,0.93,16.98],[299.27,-13.41,14.07,0.7,16.98],[360.14,-13.0,13.69,0.95,16.98],[383.74,-8.8,9.5,4.44,16.98],[393.67,-4.23,4.92,8.28,16.98],[394.92,-3.41,4.07,9.07,16.98],[396.78,0.32,0.52,16.71,16.93]],"wBlis5":[[334.45,-184.16,-184.02,56.58,56.67],[338.08,-188.32,-179.87,53.04,56.86],[353.25,-193.07,-175.11,48.8,56.86],[390.24,-197.53,-170.65,44.81,56.86],[473.32,-198.14,-170.04,44.26,56.86],[500.0,-194.56,-173.62,47.47,56.86],[512.13,-189.55,-178.63,51.94,56.86],[515.17,-186.64,-181.54,54.51,56.86],[516.38,-184.2,-183.99,56.62,56.73]],"vRoot":[[267.76,43.56,80.57,27.68,47.59],[307.26,46.77,77.37,31.06,47.58],[329.76,52.86,71.27,37.49,47.58],[337.26,58.26,65.87,43.2,47.56],[339.22,61.97,62.16,47.41,47.52]],"wBlis6":[[298.36,259.31,259.52,63.08,63.27],[299.69,256.66,262.17,60.68,65.67],[306.33,253.23,265.61,57.61,68.75],[321.61,250.2,268.64,54.9,71.45],[338.21,249.97,268.87,54.74,71.61],[476.33,249.98,268.86,54.7,71.65],[489.61,252.71,266.12,57.15,69.21],[495.59,256.0,262.83,60.09,66.26],[496.92,257.77,261.07,61.69,64.66],[497.58,259.29,259.54,63.06,63.29]],"wBlis7":[[793.81,75.41,138.56,46.72,80.12],[840.81,76.09,118.67,46.72,80.12],[866.95,105.06,109.63,52.8,74.04]],"wBl8":[[310.44,-180.41,-180.23,70.37,70.47],[312.98,-184.02,-176.62,70.22,73.57],[322.62,-188.03,-172.62,70.22,77.15],[345.95,-191.73,-168.92,70.22,80.45],[400.72,-192.43,-168.22,70.22,81.08],[431.65,-190.95,-169.7,70.22,79.76],[453.97,-186.69,-173.96,70.22,75.95],[461.07,-182.72,-177.93,70.22,72.44],[462.59,-180.4,-180.25,70.39,70.48]],"vAftS":[[165.23,7.21,37.79,33.84,64.42],[280.46,7.21,37.79,33.84,64.42]],"wBl9":[[559.78,157.74,157.94,56.2,56.3],[562.28,153.85,161.82,52.84,56.44],[571.28,149.64,166.03,49.07,56.44],[593.28,145.67,170.01,45.53,56.44],[652.78,145.11,170.57,45.02,56.44],[677.28,148.19,167.48,47.78,56.44],[688.78,152.66,163.01,51.77,56.44],[691.78,155.34,160.34,54.14,56.44],[692.96,157.73,157.94,56.2,56.31]],"dAftS":[[287.96,102.2,102.38,80.15,80.3],[289.96,100.1,105.89,78.01,83.12],[301.96,98.14,112.24,75.19,87.52],[333.96,100.32,119.97,73.44,90.55],[395.96,110.57,128.14,74.37,89.64],[418.96,117.44,127.17,77.2,85.67],[424.46,120.48,124.94,79.19,82.86],[426.0,123.18,123.33,80.5,80.62]],"wBl10":[[351.58,204.53,204.78,69.64,69.76],[353.58,200.4,208.9,69.53,73.36],[361.58,195.57,213.73,69.53,77.68],[381.08,191.07,218.23,69.53,81.7],[420.08,190.67,218.64,69.53,82.06],[443.58,194.72,214.59,69.53,78.44],[453.58,199.43,209.87,69.53,74.23],[456.08,202.06,207.24,69.53,71.9],[457.24,204.54,204.76,69.65,69.76]],"wBl11":[[516.58,217.09,217.27,70.95,71.05],[518.58,214.11,220.25,70.8,73.58],[528.08,210.3,224.06,70.8,76.99],[551.08,207.28,227.08,70.8,79.68],[568.58,206.43,227.69,70.8,79.93],[601.58,204.91,228.49,70.8,79.75],[627.08,207.75,225.64,70.8,77.62],[639.08,211.81,221.59,70.8,74.57],[642.08,213.81,219.59,70.8,73.05],[643.62,216.61,216.79,70.97,71.06]],"wBl12":[[474.8,219.55,219.65,58.78,58.88],[476.8,217.72,221.49,55.67,58.99],[483.8,216.02,223.18,52.37,58.99],[497.3,214.47,224.74,49.32,58.99],[500.8,214.63,224.58,49.22,58.99],[507.3,213.88,225.32,48.18,58.99],[524.3,213.48,225.73,47.38,58.99],[532.8,213.9,225.73,47.8,58.99],[549.8,213.9,225.73,47.8,58.99],[550.3,213.9,225.3,47.8,58.99],[556.8,213.47,225.73,47.37,58.99],[588.3,213.65,225.55,47.72,58.99],[588.8,214.09,225.12,48.17,58.99],[592.3,213.83,225.38,48.06,58.99],[610.3,215.18,224.02,50.71,58.99],[619.3,216.87,222.34,54.0,58.99],[622.3,217.78,221.42,55.75,58.99],[624.06,219.55,219.65,58.78,58.88]],"vAftC":[[109.52,-10.42,10.42,50.62,71.47],[126.02,-10.42,10.42,50.62,71.47],[126.52,-9.05,9.05,51.99,70.1],[137.52,-9.05,9.05,51.99,70.1],[138.02,-10.42,10.42,50.62,71.47],[240.54,-10.42,10.42,50.62,71.47]],"wBl13":[[397.83,151.88,152.06,70.95,71.05],[399.83,148.9,155.03,70.8,73.58],[407.83,145.53,158.4,70.8,76.59],[427.33,142.4,161.53,70.8,79.39],[483.83,142.02,161.91,70.8,79.73],[509.33,144.54,159.4,70.8,77.48],[520.83,148.04,155.9,70.8,74.35],[523.33,149.51,154.42,70.8,73.04],[524.87,151.89,152.05,70.97,71.06]],"wBl14":[[543.81,-174.22,-174.04,70.98,71.07],[545.81,-177.18,-171.07,70.83,73.59],[553.81,-180.53,-167.72,70.83,76.59],[572.81,-183.59,-164.67,70.83,79.32],[619.31,-184.21,-164.05,70.83,79.87],[647.31,-182.55,-165.7,70.83,78.39],[663.31,-179.15,-169.1,70.83,75.36],[668.31,-176.3,-171.96,70.83,72.83],[669.68,-174.2,-174.05,70.99,71.08]],"wBl15":[[307.27,-144.76,-144.66,55.16,55.26],[309.27,-146.6,-142.83,52.05,55.38],[316.27,-148.29,-141.13,48.75,55.38],[329.77,-149.85,-139.58,45.7,55.38],[342.77,-150.57,-138.85,44.28,55.38],[344.27,-150.21,-139.21,44.57,55.38],[350.27,-150.74,-138.69,43.95,55.38],[402.27,-150.65,-138.77,44.13,55.38],[403.27,-150.18,-139.25,44.64,55.38],[409.77,-150.28,-139.15,44.86,55.38],[426.27,-148.71,-140.72,47.94,55.38],[432.77,-147.4,-142.03,50.49,55.38],[435.77,-146.35,-143.07,52.38,55.38],[437.36,-144.76,-144.66,55.16,55.27]],"wBl16":[[429.19,-221.08,-220.94,57.55,57.63],[431.69,-223.99,-218.04,55.12,57.82],[442.19,-227.27,-214.75,52.18,57.82],[467.69,-230.31,-211.71,49.47,57.82],[525.19,-230.63,-211.39,49.18,57.82],[542.69,-228.01,-214.02,51.53,57.82],[550.19,-224.71,-217.31,54.48,57.82],[551.69,-223.68,-218.34,55.41,57.82],[552.94,-221.12,-220.91,57.58,57.69]],"wBl17":[[471.35,181.38,181.5,71.96,72.04],[473.87,179.05,183.82,71.76,73.93],[484.6,176.37,186.51,71.76,76.33],[492.8,175.42,187.46,71.76,77.18],[494.06,175.74,187.14,71.76,76.84],[502.26,174.8,188.08,71.76,77.73],[514.88,174.49,188.39,71.76,78.01],[523.71,174.91,187.97,71.76,77.58],[548.95,174.91,187.97,71.76,77.58],[559.04,174.48,187.97,71.76,77.58],[610.78,174.48,188.39,71.76,78.02],[611.41,174.92,187.96,71.76,77.58],[619.61,174.64,188.24,71.76,77.88],[646.11,176.44,186.44,71.76,76.27],[657.46,178.95,183.93,71.76,74.03],[659.35,180.0,182.87,71.76,73.14],[660.62,181.38,181.5,71.98,72.06]],"wBl18":[[413.69,197.84,198.06,58.77,58.91],[415.19,195.13,200.77,55.58,58.99],[420.19,192.35,203.55,52.17,58.99],[431.19,189.59,206.31,48.76,58.99],[449.69,188.46,207.44,47.37,58.99],[480.69,188.73,207.17,47.7,58.99],[494.69,190.94,204.96,50.42,58.99],[501.69,193.87,202.03,54.02,58.99],[503.69,195.29,200.61,55.78,58.99],[504.88,197.83,198.06,58.76,58.91]],"vMidC":[[429.78,-1.25,-0.93,28.99,29.14],[430.78,-4.21,2.03,26.41,29.23],[435.78,-8.15,5.97,22.88,29.23],[447.78,-11.82,9.64,19.6,29.23],[463.78,-12.24,10.06,19.27,29.23],[528.78,-12.12,9.94,19.33,29.23],[540.78,-8.87,6.69,22.23,29.23],[545.78,-5.4,3.22,25.34,29.23],[547.28,-3.17,0.99,27.33,29.23],[547.93,-1.25,-0.93,28.99,29.14]],"dAftC":[[278.66,1.06,1.38,115.97,116.1],[279.66,-1.65,4.09,115.8,118.4],[280.66,-2.67,5.11,115.71,120.03],[286.66,-6.29,8.73,115.16,123.09],[296.16,-8.46,10.91,114.29,124.31],[363.16,-8.25,10.69,108.18,118.36],[374.16,-5.22,7.66,107.17,114.85],[378.66,-2.13,4.57,106.72,111.56],[379.16,-1.64,4.08,106.69,111.03],[379.75,0.79,1.65,106.67,107.85]],"wBl19":[[586.18,187.33,187.48,55.53,55.64],[588.18,184.9,189.91,52.79,55.76],[597.18,181.94,192.87,49.2,55.76],[618.18,179.64,195.17,46.41,55.76],[635.68,179.29,195.85,46.56,55.76],[663.18,177.43,198.64,46.25,55.76],[684.18,179.82,196.24,48.39,55.76],[694.68,183.73,192.34,51.88,55.76],[697.18,186.02,190.05,53.9,55.76],[698.13,187.93,188.14,55.53,55.63]],"wBl20":[[457.28,-223.7,-223.51,69.13,69.22],[458.78,-225.8,-221.41,68.98,70.98],[465.28,-228.35,-218.86,68.98,73.26],[480.78,-230.23,-216.98,68.98,74.94],[485.78,-229.95,-217.26,68.98,74.64],[492.78,-230.38,-216.83,68.98,75.07],[533.28,-230.38,-216.83,68.98,75.07],[534.28,-229.95,-217.26,68.98,74.64],[540.78,-230.38,-216.83,68.98,75.07],[562.28,-229.6,-217.61,68.98,74.37],[562.78,-229.13,-218.08,68.98,73.91],[566.78,-228.97,-218.23,68.98,73.82],[576.78,-226.32,-220.88,68.98,71.45],[578.78,-224.85,-222.36,68.98,70.18],[579.55,-223.69,-223.52,69.14,69.23]],"wFore":[[867.63,76.48,109.05,46.72,80.12],[912.13,77.12,93.95,46.73,80.12],[913.63,84.44,93.43,48.64,78.2],[914.63,89.29,93.08,52.83,74.02],[915.13,91.71,92.91,57.17,69.68],[915.36,92.6,92.84,61.35,65.5]],"wBl21":[[578.18,-190.19,-190.06,57.5,57.6],[580.18,-192.21,-188.04,54.98,57.73],[586.18,-194.03,-186.22,52.46,57.73],[595.68,-195.44,-184.81,50.49,57.73],[596.68,-195.1,-185.15,50.8,57.73],[603.18,-195.97,-184.28,49.76,57.73],[631.68,-196.25,-184.0,49.36,57.73],[632.18,-196.25,-184.42,49.79,57.73],[638.68,-196.25,-184.0,49.36,57.73],[665.18,-195.65,-184.61,50.21,57.73],[667.18,-195.07,-185.18,50.84,57.73],[671.18,-194.98,-185.27,51.13,57.73],[680.68,-192.9,-187.35,54.02,57.73],[683.18,-191.61,-188.64,55.71,57.73],[684.22,-190.2,-190.05,57.5,57.61]],"engC":[[109.52,-10.42,10.42,50.62,71.47],[126.02,-10.42,10.42,50.62,71.47],[126.52,-9.05,9.05,51.99,70.1],[137.52,-9.05,9.05,51.99,70.1],[138.02,-10.42,10.42,50.62,71.47],[240.54,-10.42,10.42,50.62,71.47]],"eng3":[[206.23,53.38,70.6,29.73,46.95],[236.73,52.81,71.16,29.16,47.52],[240.23,53.92,70.05,30.28,46.41],[260.73,53.38,70.6,29.73,46.95],[261.23,50.71,73.26,27.06,49.62],[268.73,52.12,71.85,28.48,48.2]],"eng4":[[213.25,38.45,55.67,38.67,55.89],[243.25,38.45,55.67,38.67,55.89],[244.25,37.51,56.61,37.72,56.83],[248.75,37.51,56.61,37.72,56.83],[249.75,38.45,55.67,38.67,55.89],[287.44,38.45,55.67,38.67,55.89]],"eng5":[[220.82,63.35,88.24,49.17,74.06],[267.56,65.29,90.18,49.17,74.06]]},"rooms":[["service","航空整備・補給区画",[610,44,68],[19.4,63.4,23.4],1],["service","航空整備・補給区画 2",[626,44,68],[11.4,63.4,23.4],1],["crew","居住甲板",[698.51,92,-34],[196.43,27.4,23.4]],["crew","居住甲板 2",[606,92,14],[11.4,67.4,23.4]],["troops","兵員区画（艦隊兵）",[877.78,44,-36],[42.97,23.4,15.4]],["cargo","貨物・物資庫",[536.58,48,96],[32.55,47.4,31.4]]]};
+const LIB_AIR=[{id:'air-1',name:'Xウイング中隊',size:1,count:12},{id:'air-2',name:'Yウイング中隊',size:1,count:12},{id:'air-3',name:'Aウイング中隊',size:1,count:12}];
+const LIB_GROUND=[{id:'ground-1',name:'同盟軍艦隊兵',kind:'troops',count:1200}];
+const LIB_BLIS='#9aa19f',LIB_WING='#a7aca8',LIB_DECK='#b0b4af',LIB_ENG='#565e63';
+// Shared by the Mon Calamari builders: weapon placement with charging plant checks.
+function libMountKit(s,opt={}){
+ // Heavy guns keep their charging plant wholly inside the envelope and clear of
+ // machinery: the plant is pushed deeper until all its corners are enclosed.
+ let solidList=null;
+ const plantFits=f=>{if(!needsCapacitor(f))return true;const q=weaponChargeSpec(f),depth=12*(f.scale||1),side=Math.sqrt(q.targetVolume/depth),up=fitUp(f),fr=frameAxis(up);solidList=solidList||allOccupied(s).map(p=>({p,b:partAABB(p)}));
+  for(const cd of [8,10,13,16,20,24,28,33,38,44]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
+   for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
+   if(ok){f.chargeDepth=cd;return true;}}return false;};
+ // One fitting cast onto the outermost surface along its axis.
+ const tryMount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:p.slice(),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':(f.base-f.low)>(o.maxStep??FITS[kind].fm*.6)?'steep':!plantFits(f)?'plant':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(Math.round).join(','),why||'ok',f.p.map(Math.round).join(',')]);if(why){s.nextId--;return null;}return f;};
+ const clearOf=(f,list)=>list.every(g=>Math.hypot(f.p[0]-g.p[0],f.p[1]-g.p[1],f.p[2]-g.p[2])>=((FITS[f.k]?.fm||10)*(f.scale||1)+(FITS[g.k]?.fm||10)*(g.scale||1))*.5+3);
+ // n fittings over candidate stations: dorsal ('top') and ventral ('bottom') rows take |z|
+ // offsets and mount as mirrored pairs (0 = centreline); 'beam' rows take heights and
+ // mount one a side. Stations that crowd others are skipped.
+ const spread=(kind,n,mode,zone,xs,offs,o={})=>{let got=0;const far=Math.max(s.hull.H,s.hull.W,200);
+  for(const off of offs)for(const x of xs){if(got>=n)break;
+   const ps=mode==='beam'?[[[x,off,far],4],[[x,off,-far],5]]:(off?[1,-1]:[1]).map(sg=>[[x,0,sg*off],mode==='top'?2:3]);
+   if(got+ps.length>n)continue;const fs=[];
+   for(const [p,a] of ps){const f=tryMount(kind,p,a,zone+(ps.length>1?(p[2]>0?'-stbd':'-port'):''),o);if(!f||!clearOf(f,s.fits.concat(fs)))break;fs.push(f);}
+   if(fs.length<ps.length)continue;s.fits.push(...fs);got+=fs.length;}
+  if(got<n&&!o.soft)throw new Error('作例の砲座が不足しています: '+kind+' '+zone+' '+got+'/'+n);return got;};
+ const range=(a,b,st)=>{const r=[];for(let x=a;x<=b+1e-6;x+=st)r.push(x);return r;};
+ return {tryMount,clearOf,spread,range,plantFits};
+}
+// A round-section loft along z (yaw 90): rows [z, xMin, xMax, yMin, yMax].
+function libRoundZ(s,label,rows,opt={}){
+ rows=rows.slice().sort((a,b)=>a[0]-b[0]);
+ const z0=rows[0][0],z1=rows.at(-1)[0],X0=Math.min(...rows.map(r=>r[1])),X1=Math.max(...rows.map(r=>r[2])),Y0=Math.min(...rows.map(r=>r[3])),Y1=Math.max(...rows.map(r=>r[4]));
+ const L=Math.max(2,z1-z0),W=Math.max(2,X1-X0),H=Math.max(2,Y1-Y0),cx=(X0+X1)/2;
+ const loft=rows.map(r=>[clamp((r[0]-z0)/L,0,1),clamp((r[2]-r[1])/W,.02,2),clamp((r[4]-Y0)/H,.03,1.5),clamp((r[3]-Y0)/H,0,.97),clamp(-((r[1]+r[2])/2-cx)/(W/2),-2,2)]);
+ for(const r of loft)if(r[3]>=r[2]-.005)r[3]=Math.max(0,r[2]-.01);
+ return placePart(s,'struct',[cx,(Y0+Y1)/2,(z0+z1)/2],[L,W,H],{label,skin:'armor',form:'roundloft',yaw:90,loft,...opt},false);
+}
+function mc80LibertyBuild(opt={}){
+ const D=LIB,L=1200;
+ const s=newShip({L,W:D.W,H:D.H,sec:'ellipse',plan:'rect',bowW:1,bowH:1,stern:1,keel:'std',bowFree:true,stations:D.st.map(a=>a.slice())},'MC80リバティ型スター・クルーザー');
+ s._building=true;s.paint='neutral';s.lights='white';s.detail=1;s.armor={hull:.4,cit:.3};s.shieldTarget=2;
+ const k=shipKit(s),part=(kind,label,c,d,o={},mirror=false)=>placePart(s,kind,c,d,{label,...o},mirror),room=(kind,label,c,size,o={},mirror=false)=>part(kind,label,c,30,{room:size,...o},mirror);
+ const lo=(name,label,paint,o={},mirror=false)=>k.loftX(label,D.loft[name],{round:true,paint,...o},mirror);
+ // ---- outer shape ----
+ lo('cap','上甲板殻',LIB_DECK);
+ lo('aftDeck','後部上甲板',LIB_DECK);
+ // Swept wings: measured span-wise on the starboard side, mirrored row by row for port.
+ const port=rows=>rows.map(r=>[-r[0],r[1],r[2],r[3],r[4]]);
+ libRoundZ(s,'右舷翼',D.loft.wing,{paint:LIB_WING});libRoundZ(s,'左舷翼',port(D.loft.wing),{paint:LIB_WING});
+ libRoundZ(s,'右舷翼の付け根',D.loft.wingRoot,{paint:LIB_WING});libRoundZ(s,'左舷翼の付け根',port(D.loft.wingRoot),{paint:LIB_WING});
+ lo('wingTip','翼後端の爪',LIB_WING,{},true);
+ for(const [n,label] of [['wBlis1','翼外側の装甲板'],['wBlis2','翼外側の装甲板'],['wBlis3','翼前縁の装甲板'],['wBlis7','翼前縁の付け根']])lo(n,label,LIB_WING,{},true);
+ // Blisters (as on the model, not mirrored unless the model pairs them).
+ for(const n of ['dCentre','dPort','dStbd','dPort2','dStbd2','dFore','dSide','dAft','dAftC'])lo(n,'背部ブリスター',LIB_BLIS,{},n==='dFore'||n==='dSide');
+ lo('dAftS','後部背部ブリスター',LIB_BLIS,{},true);
+ for(const n of ['vStbd','vAft','vFore','vPort','vPort2','vStbd2','vKeel','vMidC','vAftC'])lo(n,'腹部ブリスター',LIB_BLIS);
+ lo('vRoot','翼付け根下部のブリスター',LIB_BLIS,{},true);
+ for(const n of ['wBlis4','wBlis5','wBlis6','wBl8','wBl9','wBl10','wBl11','wBl12','wBl13','wBl14','wBl15','wBl16','wBl17','wBl18','wBl19','wBl20','wBl21'])lo(n,'翼上のブリスター',LIB_BLIS);
+ lo('wFore','翼前縁のブリスター',LIB_BLIS,{},true);
+ // Engine housings in the open engine bay under the deck shell.
+ lo('vAftS','機関ハウジング',LIB_ENG,{},true);
+ for(const n of ['engC','eng3','eng4','eng5'])lo(n,'機関ハウジング',LIB_ENG,{},n!=='engC');
+ if(opt.stage==='shape'){delete s._building;return s;}
+ // ---- machinery ----
+ // Two main reactors side by side amidships, two auxiliaries further forward and one at the bow.
+ const genP=part('gen','主反応炉（左舷）',[560,64,-40],64),genS=part('gen','主反応炉（右舷）',[560,64,40],64);
+ part('aux','中央補助反応炉',[830,64,-40],54,{},true);
+ part('aux','前部補助反応炉',[1000,64,0],46);
+ // Nine sublight drives in three sizes in the open engine bay (exits at the housing
+ // mouths measured from the glow discs); the drives run forward deep into the main body.
+ const eng=(label,exit,front,y,z,d)=>{for(const sg of z?[1,-1]:[1])part('engine',label,[(exit+front)/2,y,sg*z],d,{dir:[-1,0,0],nozzleLength:front-exit,bodyLength:2,bodyRadius:.4,reactor:(sg>0?genS:genP).id});};
+ eng('中央主機関',108.5,500,61,0,19);
+ eng('主機関',164,510,49.1,22.5,30);
+ eng('外側機関（下）',205,470,38.3,62,15);
+ eng('外側機関（中）',212,480,47.3,47.1,15);
+ eng('外側機関（上）',219.5,490,61.6,75.8,20);
+ // Multiple shield generators: aft, amidships and forward pairs.
+ part('shield','偏向シールド発生器（後部）',[430,86,50],30,{},true);
+ part('shield','偏向シールド発生器（中央）',[880,64,64],38,{},true);
+ part('shield','偏向シールド発生器（前部）',[1090,64,30],26,{},true);
+ part('hyper','ハイパードライブ',[680,76,0],40,{length:56,dir:[1,0,0]});
+ part('fuel','反応物サイロ',[620,86,58],20,{length:40,dir:[1,0,0]},true);
+ room('pump','反応物供給設備',[760,86,0],[40,16,14]);
+ part('inertial','慣性補償装置',[940,64,0],48,{length:60,dir:[1,0,0]});
+ room('integrity','構造維持装置',[1080,64,0],[80,30,30]);
+ room('command','艦橋（司令部）',[1150,70,0],[30,16,12]);
+ room('command','戦闘情報センター',[640,95,0],[40,24,10]);
+ // Ventral hangar bay amidships, opening below behind a ray shield.
+ const bay=room('hangar','腹部発着格納庫',[700,37,0],[190,64,26],{airRole:'mixed'});
+ openBay(s,bay,'bottom','ray');
+ if(opt.stage==='machinery'){delete s._building;return s;}
+ const {spread,range}=libMountKit(s,opt);
+ syncAviationSurfaces(s);s._lockedCache=cache(s);
+ try{withFrozenStructures(()=>{
+  // Rebel doctrine: ion batteries strip the shields, so they nearly match the turbolasers.
+  // Turbolasers on the dorsal blisters and the main body.
+  spread('htl',18,'top','dorsal-heavy',range(300,1100,30),[40,70,100,20,130,160,190],{scale:.55});
+  spread('mtl',18,'bottom','ventral-tl',range(300,1100,30),[45,75,105,15,140,190,230],{scale:.55});
+  // Ion cannons in the wing blisters (top and bottom) and along the keel.
+  spread('ion',16,'top','wing-ion',range(320,840,26),[170,200,230,150,250,120],{scale:.42});
+  spread('ion',14,'bottom','ventral-ion',range(300,1100,30),[30,60,90,120,170,210,250],{scale:.42});
+  // Tractor beam projectors forward, ventral.
+  spread('trc',6,'bottom','bow-tractor',range(900,1150,22),[20,36,50,8]);
+  // Point defence screen.
+  spread('pd',12,'top','dorsal-pd',range(260,1160,26),[10,50,90,140,180,220,255]);
+  spread('pd',12,'bottom','ventral-pd',range(260,1160,26),[10,50,90,140,180,220,255]);
+ });}finally{delete s._lockedCache;}
+ if(opt.stage==='fitted'){delete s._building;return s;}
+ // Compartments packed into free space of the hull: crew decks, troops, cargo and aircraft servicing.
+ for(const [kind,label,c,size,role,mirror] of D.rooms){const o={room:size};if(typeof role==='string')o.airRole=role;placePart(s,kind,c,30,{label,...o},mirror===1||role===1);}
+ s.airWings=LIB_AIR.map(r=>({...r}));s.groundForces=normalizeGroundForces(LIB_GROUND);
+ delete s._building;remount(s);syncCompartments(s);
+ return s;
+}
+registerShipExample({
+ key:'mc80liberty',name:'MC80リバティ型スター・クルーザー',side:'反乱同盟',role:'主力スター・クルーザー',length:1200,
+ title:'Star Wars: MC80 Liberty',author:'Daniel',authorUrl:'https://sketchfab.com/DanielAndersson',
+ source:'https://sketchfab.com/3d-models/star-wars-mc80-liberty-7cfe7d5cd8f44db9a0e6095b0f007472',license:'CC-BY-4.0',
+ credit:'This work is based on "Star Wars: MC80 Liberty" (https://sketchfab.com/3d-models/star-wars-mc80-liberty-7cfe7d5cd8f44db9a0e6095b0f007472) by Daniel (https://sketchfab.com/DanielAndersson) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',
+ note:'1,200 m。Sketchfab の 3D モデル（Daniel 作、CC BY 4.0）の実測形状から、楕円断面の主船体（開放式の機関区画の上を細い背骨が通る）、上甲板殻、後退翼と翼後端の爪、多数のブリスター（原型どおり左右非対称）を組み直した。艦尾の機関区画に3種9基の亜光速機関、主船体中央の腹部発着格納庫（3個中隊）、前後と中央の複数のシールド発生器。武装はターボレーザー36基（重18・中18）、イオン砲30基（多くは翼上のブリスター）、トラクター・ビーム6基、点防御24基。乗員5,402名・兵員1,200名分の居住区を持つ。',
+ airWings:LIB_AIR,groundForces:LIB_GROUND,
+ build:mc80LibertyBuild
 });
 }
 
@@ -4222,17 +4678,30 @@ registerShipExample({
 // starboard. The hull is fitted to the main body (aft hangar section and the
 // forward prow); the dorsal shell, spine, command tower, bridge, ventral fin,
 // forward ventral pod and the three engine housings are ordinary structures.
+// v18: the same builder makes the Providence-class dreadnought, every length
+// scaled to its 2,177.35 m (Legends: twice the carrier/destroyer).
 {
 const PROV={"W":202.635,"H":111.36,"st":[[0.0,0.079,0.0083,0.6358,0.8,0.8,0.5,0.5],[0.00956,0.0987,0.0083,0.6492,0.8,0.8,0.5,0.5],[0.12813,0.0987,0.0083,0.6492,0.8,0.8,0.5,0.5],[0.12923,0.7067,0.6333,0.3667,0.9186,0.552,0.65,0.61],[0.16912,0.7852,0.6917,0.3875,0.9405,0.5223,0.52,0.46],[0.19118,0.883,0.725,0.3958,0.8551,0.5163,0.38,0.48],[0.21048,0.9192,0.7333,0.4083,0.8374,0.6317,0.27,0.56],[0.21875,0.9298,0.75,0.4083,0.8298,0.5937,0.3,0.55],[0.28217,0.9824,0.7833,0.4167,0.8206,0.6001,0.34,0.56],[0.33456,0.9763,0.7833,0.4167,0.8338,0.5915,0.39,0.55],[0.3704,0.9734,0.7667,0.4167,0.8287,0.6207,0.33,0.56],[0.39246,0.9545,0.75,0.4167,0.8333,0.6226,0.34,0.55],[0.41176,0.9041,0.7333,0.4083,0.8645,0.4664,0.56,0.49],[0.43658,0.8513,0.6833,0.4,0.882,0.4757,0.55,0.5],[0.45588,0.7484,0.6333,0.3917,0.8317,0.4661,0.68,0.57],[0.45864,0.7192,0.575,0.4125,0.8256,0.6262,0.73,0.55],[0.4614,0.7012,0.6917,0.4792,0.4669,0.6304,0.59,0.44],[0.47518,0.5748,0.675,0.4875,0.5771,0.4686,0.5,0.44],[0.48621,0.6543,0.6917,0.4792,0.5184,0.3364,0.21,0.28],[0.6682,0.7396,0.7083,0.4875,0.5904,0.3186,0.29,0.28],[0.78952,0.6907,0.7,0.4833,0.6297,0.3193,0.26,0.27],[0.85846,0.5813,0.65,0.475,0.5627,0.3635,0.22,0.26],[0.92463,0.2311,0.4167,0.425,0.6844,0.4825,0.27,0.27],[0.96048,0.0932,0.2333,0.3917,0.3833,0.1111,0.02,0.51],[0.96324,0.0857,0.1,0.45,0.3569,0.9702,0.02,0.2],[0.99632,0.0403,0.1167,0.4167,0.6298,0.8266,0.46,0.31],[1.0,0.0204,0.15,0.4,0.9518,0.9747,0.93,0.48]],"loft":{"deck":[[0.0,-21.64,21.64,125.18,127.72],[10.43,-41.26,41.26,127.14,133.48],[76.89,-53.75,53.75,126.71,145.34],[121.19,-63.12,63.12,122.5,153.18],[139.44,-64.74,64.74,116.79,155.93],[260.63,-77.97,77.97,144.08,167.49],[269.76,-77.97,77.97,144.43,167.78],[277.57,-74.57,74.57,144.75,168.03],[427.44,-74.76,74.76,143.44,162.41],[489.99,-59.38,59.38,135.14,149.14],[521.27,-41.57,41.57,126.94,136.58]],"spine":[[121.3,-12.72,12.72,171.49,178.63],[127.79,-17.6,17.6,171.49,178.63],[148.19,-17.95,17.95,171.49,178.63],[150.04,-23.2,23.2,160.09,178.63],[404.97,-27.89,27.89,163.88,178.63],[430.0,-28.35,28.35,160.88,178.63],[446.69,-23.71,23.71,158.87,178.63],[455.96,-29.75,29.75,157.24,178.63],[482.84,-28.96,28.96,148.71,178.63],[490.26,-18.47,18.47,146.24,178.63],[492.11,-16.41,16.41,145.64,145.78]],"aftKeel":[[62.43,-0.24,0.24,67.84,67.89],[70.93,-38.12,38.12,63.17,68.01],[115.93,-40.98,40.98,61.63,69.96],[116.18,-60.8,60.8,61.62,127.02],[125.68,-68.73,68.73,61.3,129.07],[135.93,-70.8,70.8,62.43,131.33],[136.93,-71.0,71.0,69.31,131.54],[137.18,-68.18,68.18,72.75,124.98],[139.35,-68.18,68.18,72.75,124.98]],"tower":[[109.68,-8.16,8.16,306.39,306.5],[120.33,-11.3,11.3,283.43,306.58],[140.35,-13.77,13.77,240.3,303.63],[155.26,-13.77,13.77,208.34,282.07],[193.59,-10.77,10.77,177.94,227.02],[215.32,-8.16,8.16,178.03,196.27],[280.06,-8.16,8.16,178.03,178.04]],"bridge":[[81.9,-18.18,18.18,305.99,309.15],[84.15,-18.18,18.18,305.99,310.24],[88.9,-18.18,18.18,305.99,317.9],[93.9,-18.18,18.18,305.99,318.37],[96.65,-18.18,18.18,305.99,321.95],[164.9,-17.51,17.51,305.99,321.95],[169.65,-15.54,15.54,305.99,321.21],[174.15,-11.45,11.45,305.99,317.9],[177.08,-4.49,4.49,305.99,317.9]],"mast":[[90.45,-4.25,4.25,317.41,317.5],[95.2,-4.25,4.25,317.41,324.03],[106.45,-4.25,4.25,317.41,324.03],[106.7,-1.38,1.38,289.0,295.21],[106.95,-1.38,1.38,288.99,347.02],[111.7,-1.38,1.38,288.91,337.61],[118.45,-1.38,1.38,288.8,322.28],[118.7,-1.38,1.38,288.8,290.53],[118.95,-1.38,1.38,288.79,289.39],[129.7,-2.98,2.98,321.7,324.08],[157.2,-2.98,2.98,321.7,325.09],[160.45,-2.98,2.98,321.7,332.48],[162.45,-2.98,2.98,321.7,331.17],[163.2,-2.98,2.98,321.7,324.08],[165.79,-2.98,2.98,321.7,321.78]],"vfin":[[214.29,-4.17,4.17,60.23,60.26],[246.99,-5.3,5.3,38.85,59.84],[253.58,-6.93,6.93,34.53,59.79],[270.07,-6.93,6.93,23.73,59.64],[299.47,-10.71,10.71,0.42,59.27],[315.13,-10.71,10.71,1.32,14.78],[324.2,-10.71,10.71,5.75,11.73]],"vpod":[[662.63,-0.07,0.07,67.33,67.39],[669.46,-9.15,9.15,62.21,68.66],[678.33,-18.19,18.19,57.14,75.86],[722.0,-33.27,33.27,48.66,75.86],[786.15,-42.09,42.09,43.69,75.86],[840.74,-42.88,42.88,43.24,75.86],[881.0,-36.89,36.89,46.61,75.86],[909.66,-27.04,27.04,52.15,75.86],[928.08,-14.7,14.7,59.1,75.86],[935.59,-0.1,0.1,67.31,67.39]],"ridge":[[708.45,-2.4,2.4,148.71,150.82],[710.94,-2.4,2.4,148.71,152.99],[740.83,-2.4,2.4,148.71,152.99],[744.56,-4.37,4.37,148.71,154.5],[759.5,-3.83,3.83,148.71,152.99],[762.62,-4.37,4.37,148.71,154.5],[780.05,-3.83,3.83,148.66,152.93],[781.92,-7.96,7.96,148.66,154.3],[786.9,-7.96,7.96,148.66,154.3],[788.77,-3.85,3.85,148.66,152.93],[857.26,-3.83,3.83,147.38,152.68],[865.35,-8.25,8.25,146.87,154.43],[885.27,-8.34,8.34,145.98,158.35],[921.38,-7.0,7.0,143.73,156.76],[923.88,-7.38,7.38,143.7,156.0],[935.08,-9.65,9.65,141.45,158.26],[938.2,-15.4,15.4,141.41,158.26],[948.78,-15.05,15.05,149.36,158.26],[953.14,-11.23,11.23,150.34,155.78],[957.5,-7.46,7.46,151.81,154.31]],"plate":[[488.2,-14.99,14.99,143.83,152.8],[488.97,-15.0,15.0,143.85,154.37],[633.88,-17.21,17.21,146.58,154.37],[639.26,-13.16,13.16,146.58,152.8],[641.95,-10.66,10.66,149.96,152.8]],"box83":[[453.71,-11.29,11.29,174.11,180.5],[484.46,-16.49,16.49,167.42,182.06],[491.46,-14.15,14.15,145.88,179.42],[501.71,-10.72,10.72,145.88,175.55],[501.96,-10.64,10.64,167.93,175.45],[505.28,-9.55,9.55,167.93,174.21]],"rail":[[270.15,-6.64,6.64,178.5,180.39],[292.77,-6.64,6.64,178.5,180.39],[295.33,-8.07,8.07,178.45,181.72],[302.99,-6.64,6.64,178.5,180.39],[305.55,-8.07,8.07,178.45,181.72],[308.1,-8.07,8.07,178.45,181.72],[310.66,-6.64,6.64,178.5,180.39],[316.86,-6.64,6.64,178.5,180.39],[319.41,-8.07,8.07,178.45,181.72],[327.81,-6.64,6.64,178.5,180.39],[330.36,-8.07,8.07,178.45,181.72],[341.67,-6.64,6.64,178.5,180.39],[344.23,-8.07,8.07,178.45,181.72],[357.0,-6.64,6.64,178.5,180.39],[363.93,-8.07,8.07,178.45,181.72],[366.49,-6.64,6.64,178.5,180.39],[375.61,-6.64,6.64,178.5,180.39],[378.17,-8.07,8.07,178.45,181.72],[380.72,-8.07,8.07,178.45,181.72],[383.28,-6.64,6.64,178.5,180.39],[387.29,-6.64,6.64,178.5,180.39],[389.84,-8.07,8.07,178.45,181.72],[392.4,-8.07,8.07,178.45,181.72],[394.95,-6.64,6.64,178.5,180.39],[416.12,-6.64,6.64,178.5,180.39]],"towerBase":[[102.91,-6.37,6.37,149.23,149.27],[116.91,-6.37,6.37,150.98,161.18],[121.41,-19.1,19.1,151.49,164.2],[194.41,-19.1,19.1,159.63,162.89]],"aftFin":[[27.14,-2.03,2.03,161.51,161.91],[27.64,-2.03,2.03,158.82,161.91],[38.14,-2.03,2.03,156.76,161.89],[38.39,-8.52,8.52,156.71,161.89],[39.64,-8.52,8.52,156.47,161.89],[46.14,-8.52,8.52,138.49,161.88],[68.89,-8.52,8.52,141.94,161.53],[71.64,-8.52,8.52,142.36,159.3],[71.89,-2.03,2.03,142.39,159.11],[88.31,-2.03,2.03,145.82,145.87]],"engC":[[41.4,-12.99,12.99,101.53,125.39],[53.81,-12.99,12.99,101.53,125.39],[58.87,-13.64,13.64,101.53,128.81],[63.17,-16.64,16.64,101.53,128.81],[69.25,-16.64,16.64,100.97,128.81],[71.02,-16.64,16.64,98.12,128.81],[142.67,-16.67,16.67,98.12,128.81]],"engS":[[60.82,25.92,60.78,87.93,120.28],[73.32,25.92,60.78,87.93,120.28],[80.32,20.92,60.78,86.97,121.23],[86.07,20.92,60.78,83.33,124.87],[94.07,20.92,61.3,83.33,124.87],[96.82,20.92,65.78,83.33,124.88],[148.27,20.92,65.78,83.29,124.92]],"engLow":[[82.04,-8.86,8.86,97.81,98.74],[88.54,-12.38,12.38,92.22,98.74],[116.79,-14.87,14.87,87.81,98.74],[117.04,-27.85,27.85,87.69,98.74],[128.54,-36.26,36.26,79.45,98.74],[140.61,-36.24,36.24,79.49,98.74]],"engKeel":[[105.41,-3.18,3.18,85.4,97.37],[110.16,-4.0,4.0,83.97,97.37],[110.41,-6.92,6.92,76.91,97.37],[139.79,-6.92,6.92,72.4,97.37]],"pipeS":[[28.05,20.62,27.31,84.23,90.44],[30.31,20.62,27.31,84.23,90.44],[30.87,19.91,28.03,83.58,91.11],[46.1,19.91,28.03,83.58,91.11],[60.76,21.42,26.27,85.36,89.95],[65.27,19.92,25.25,87.44,93.78],[77.96,15.33,20.61,98.41,104.36],[81.62,14.82,19.67,101.0,105.5],[140.84,14.82,19.67,100.99,105.5]],"nozC":[[10.27,-10.2,10.2,104.12,122.79],[36.52,-11.91,11.91,102.55,124.37],[41.91,-10.21,10.21,104.12,122.79]],"nozS":[[18.61,29.72,57.0,91.46,116.78],[54.36,27.46,59.25,89.38,118.87],[61.5,29.71,57.01,91.45,116.79]],"nozSrim":[[15.31,36.2,50.9,87.54,120.22],[16.81,34.46,52.64,87.45,120.32],[17.06,28.12,58.98,87.45,120.33],[24.06,28.29,58.82,87.06,120.78],[26.06,34.19,52.91,86.96,120.91],[41.31,36.18,50.92,86.15,121.88],[41.5,36.2,50.9,86.14,119.95]]},"rooms":[["hangar","上部格納甲板（天井ラックの艦載機）",[353,139.71,0.5],[155.4,128.4,41.7],"storage"],["hangar","上部格納甲板（天井ラックの艦載機） 2",[353,129.21,-73],[155.4,17.4,20.7],"storage"],["hangar","上部格納甲板（天井ラックの艦載機） 3",[351.5,129.21,74],[152.4,17.4,20.7],"storage"],["hangar","上部格納甲板（天井ラックの艦載機） 4",[350,124.71,-86.5],[119.4,8.4,11.7],"storage"],["hangar","下部格納甲板（艦載機ラック）",[353,95.01,0.5],[155.4,176.4,17.7],"storage"],["hangar","下部格納甲板（艦載機ラック） 2",[348.5,98.01,-92.5],[122.4,8.4,11.7],"storage"],["hangar","下部格納甲板（艦載機ラック） 3",[347,98.01,93.5],[95.4,8.4,11.7],"storage"],["service","艦載機整備・ドロイド整備甲板",[462.5,117.36,-1],[62.4,101.4,56.4]],["service","艦載機整備・ドロイド整備甲板 2",[308.46,73.86,-31],[102.32,41.4,23.4]],["service","艦載機整備・ドロイド整備甲板 3",[261.5,117.36,48.5],[8.4,38.4,92.4]],["vehicle","MTT・装甲車両格納区画（重量物昇降台）",[621.5,136.86,0.5],[236.4,68.4,17.4]],["vehicle","MTT・装甲車両格納区画（重量物昇降台） 2",[581,105.36,32],[173.4,29.4,44.4]],["vehicle","MTT・装甲車両格納区画（重量物昇降台） 3",[581,103.86,-34],[173.4,29.4,41.4]],["vehicle","MTT・装甲車両格納区画（重量物昇降台） 4",[827,133.86,-1],[83.4,83.4,23.4]],["vehicle","MTT・装甲車両格納区画（重量物昇降台） 5",[365.59,73.86,30.5],[126.58,38.4,23.4]],["vehicle","MTT・装甲車両格納区画（重量物昇降台） 6",[306.5,168.36,-1],[8.4,47.4,14.4]],["cargo","貨物・物資庫",[148.24,139.86,0.5],[15.87,104.4,29.4]],["integrity","構造維持装置",[203.49,103.86,-65.5],[120.37,8.4,47.4]],["integrity","構造維持装置 2",[143,94.86,0.5],[5.4,50.4,17.4]],["pump","反応物供給設備",[177.34,136.86,57.5],[74.07,8.4,17.4]],["troops","停止保管バトル・ドロイド収容区画",[749,97.86,-46],[113.4,35.4,35.4]],["troops","停止保管バトル・ドロイド収容区画 2",[749,99.36,45.5],[113.4,32.4,38.4]],["troops","停止保管バトル・ドロイド収容区画 3",[932,117.36,0.5],[59.4,56.4,32.4]],["troops","停止保管バトル・ドロイド収容区画 4",[683,112.86,-1],[95.4,35.4,29.4]],["troops","停止保管バトル・ドロイド収容区画 5",[807.5,63.36,0.5],[176.4,56.4,8.4]],["troops","停止保管バトル・ドロイド収容区画 6",[422,76.86,-31],[119.4,41.4,17.4]],["troops","停止保管バトル・ドロイド収容区画 7",[869,99.36,36.5],[65.4,32.4,38.4]],["troops","停止保管バトル・ドロイド収容区画 8",[270.5,126.36,9.5],[8.4,110.4,80.4]],["troops","停止保管バトル・ドロイド収容区画 9",[869,99.36,-37],[65.4,29.4,38.4]],["troops","停止保管バトル・ドロイド収容区画 10",[528.5,112.86,-1],[68.4,35.4,29.4]],["troops","停止保管バトル・ドロイド収容区画 11",[398,171.36,0.5],[173.4,44.4,8.4]],["troops","停止保管バトル・ドロイド収容区画 12",[453.5,109.86,63.5],[44.4,26.4,47.4]],["troops","停止保管バトル・ドロイド収容区画 13",[209,169.86,-1],[113.4,41.4,11.4]],["troops","停止保管バトル・ドロイド収容区画 14",[612.5,94.86,54.5],[158.4,14.4,23.4]],["troops","停止保管バトル・ドロイド収容区画 15",[453.5,111.36,-64],[44.4,23.4,50.4]],["troops","停止保管バトル・ドロイド収容区画 16",[633.5,78.36,21.5],[404.4,14.4,8.4]],["troops","停止保管バトル・ドロイド収容区画 17",[219.5,106.86,68],[74.4,11.4,59.4]],["troops","停止保管バトル・ドロイド収容区画 18",[824,109.86,-1],[71.4,29.4,23.4]],["troops","停止保管バトル・ドロイド収容区画 19",[659,78.36,-20.5],[353.4,14.4,8.4]],["troops","停止保管バトル・ドロイド収容区画 20",[762.5,142.86,0.5],[44.4,86.4,11.4]],["troops","停止保管バトル・ドロイド収容区画 21",[611,94.86,-55],[161.4,11.4,23.4]],["troops","停止保管バトル・ドロイド収容区画 22",[885.5,136.86,-1],[32.4,71.4,17.4]],["troops","停止保管バトル・ドロイド収容区画 23",[284,73.86,35],[35.4,47.4,23.4]],["troops","停止保管バトル・ドロイド収容区画 24",[240.5,106.86,-76],[68.4,11.4,41.4]],["troops","停止保管バトル・ドロイド収容区画 25",[534.5,148.86,0.5],[206.4,26.4,5.4]],["troops","停止保管バトル・ドロイド収容区画 26",[927.5,91.86,-28],[50.4,35.4,17.4]],["troops","停止保管バトル・ドロイド収容区画 27",[734,93.36,65],[257.4,5.4,20.4]],["troops","停止保管バトル・ドロイド収容区画 28",[929,91.86,27.5],[53.4,32.4,17.4]],["troops","停止保管バトル・ドロイド収容区画 29",[164,142.86,-2.5],[11.4,110.4,23.4]],["troops","停止保管バトル・ドロイド収容区画 30",[738.5,121.86,-41.5],[92.4,26.4,11.4]],["troops","停止保管バトル・ドロイド収容区画 31",[348.5,82.86,-67],[152.4,29.4,5.4]],["troops","停止保管バトル・ドロイド収容区画 32",[776,127.86,45.5],[167.4,8.4,17.4]],["troops","停止保管バトル・ドロイド収容区画 33",[615.5,88.86,-14.5],[242.4,8.4,11.4]],["troops","停止保管バトル・ドロイド収容区画 34",[737,91.86,-67],[239.4,5.4,17.4]],["troops","停止保管バトル・ドロイド収容区画 35",[713,105.36,23],[47.4,11.4,44.4]],["troops","停止保管バトル・ドロイド収容区画 36",[243.5,105.36,80],[62.4,11.4,32.4]]]};
 const PROV_AIR=[{id:'air-1',name:'ヴァルチャー級ドロイド・スターファイター',size:1,count:120},{id:'air-2',name:'ドロイド・トライファイター',size:1,count:120}];
 const PROV_GROUND=[{id:'ground-1',name:'B1バトル・ドロイド（停止保管）',kind:'troops',count:162000},{id:'ground-2',name:'MTT 大型兵員輸送車',kind:'vehicle',size:8,count:160},{id:'ground-3',name:'AAT 装甲強襲戦車',kind:'vehicle',size:1,count:100},{id:'ground-4',name:'IG-227 ヘイルファイア級ドロイド戦車',kind:'vehicle',size:1,count:60},{id:'ground-5',name:'OG-9 ホームワールド・スパイダー・ドロイド',kind:'vehicle',size:2,count:60},{id:'ground-6',name:'LM-432 クラブ・ドロイド',kind:'vehicle',size:.5,count:60}];
+// The dreadnought's canon complement: 120 Vulture droids, 120 droid tri-fighters
+// and 10 Hyena bombers; 1.5 million deactivated battle droids (as many as the
+// troop decks hold) and the vehicles of a droid army.
+const PROV_DN_AIR=[{id:'air-1',name:'ヴァルチャー級ドロイド・スターファイター',size:1,count:120},{id:'air-2',name:'ドロイド・トライファイター',size:1,count:120},{id:'air-3',name:'ハイエナ級ボマー',size:1,count:10}];
+const PROV_DN_GROUND=[{id:'ground-1',name:'B1バトル・ドロイド（停止保管）',kind:'troops',count:1200000},{id:'ground-2',name:'MTT 大型兵員輸送車',kind:'vehicle',size:8,count:640},{id:'ground-3',name:'AAT 装甲強襲戦車',kind:'vehicle',size:1,count:400},{id:'ground-4',name:'IG-227 ヘイルファイア級ドロイド戦車',kind:'vehicle',size:1,count:240},{id:'ground-5',name:'OG-9 ホームワールド・スパイダー・ドロイド',kind:'vehicle',size:2,count:240},{id:'ground-6',name:'LM-432 クラブ・ドロイド',kind:'vehicle',size:.5,count:240}];
+// Crew quarters (v18, [label, centre, [length, width, height]] in metres of the
+// carrier/destroyer; the dreadnought's own list is in its metres).
+const PROV_CREW=[['乗員居住区',[813,54,1],[137.4,47.4,5.4]],['乗員居住区 2',[978,118.5,1],[29.4,35.4,20.4]],['乗員居住区 3',[487.5,103.5,62.5],[20.4,20.4,44.4]]];
+const PROV_DN_CREW=[['乗員居住区',[1613.19,110,-0.5],[315.79,94.4,9.4]]];
 const PROV_TAN='#a89a7c',PROV_BROWN='#8f8268',PROV_STEEL='#6f7a86',PROV_DARK='#5f646b',PROV_PLATE='#aaa28e',PROV_RED='#6f4637';
+// opt.scale 1 builds the carrier/destroyer, PROV_DN_K the dreadnought.
+const PROV_DN_K=2177.35/1088;
 function providenceBuild(opt={}){
- const D=PROV,L=1088,SY=.928,Y=v=>v*SY;
- const s=newShip({L,W:D.W,H:D.H,sec:'warship',plan:'wedge',deckWidth:0,keelWidth:0,belt:.13,chineHeight:.5,bowFree:true,stations:D.st.map(a=>a.slice()),keel:'light'},'プロヴィデンス級空母／駆逐艦');
- s._building=true;s.reference='providence';s.paint='cis';s.lights='warm';s.detail=1;s.armor={hull:.65,cit:.35};s.shieldTarget=1;
+ const K=opt.scale||1,dn=K!==1,D=PROV,L=1088*K,SY=.928,Y=v=>v*SY*K,M=v=>v*K;
+ const s=newShip({L,W:D.W*K,H:D.H*K,sec:'warship',plan:'wedge',deckWidth:0,keelWidth:0,belt:.13,chineHeight:.5,bowFree:true,stations:D.st.map(a=>a.slice()),keel:'light'},dn?'プロヴィデンス級ドレッドノート':'プロヴィデンス級キャリア／デストロイヤー');
+ s._building=true;s.reference=dn?'providenceDn':'providence';s.paint='cis';s.lights='warm';s.detail=1;s.armor=dn?{hull:.65*3,cit:.35*3}:{hull:.65,cit:.35};/* v18 a dreadnought carries three times the plating: slower than the base ship, far tougher */s.shieldTarget=1;
  const k=shipKit(s),part=(kind,label,c,d,o={})=>placePart(s,kind,c,d,{label,...o});
- const loft=(name,label,paint,o={},mirror=false)=>k.loftX(label,D.loft[name],{paint,corner:.12,...o},mirror);
+ const loft=(name,label,paint,o={},mirror=false)=>k.loftX(label,dn?D.loft[name].map(r=>r.map(M)):D.loft[name],{paint,corner:.12,...o},mirror);
  // ---- structures (measured loft sections) ----
  // The flowing curved panelling is armour plate: the dorsal shell over the hangar
  // decks, the central dorsal plate and the forward ventral bulge. Nothing mounts on it.
@@ -4256,23 +4725,23 @@ function providenceBuild(opt={}){
  loft('engKeel','機関下部の竜骨',PROV_BROWN,{corner:.1});
  loft('pipeS','機関間の導管',PROV_DARK,{round:true},true);
  // ---- aft half: the expansive hangar decks in the measured through-slot (open on both beams) ----
- const dock=part('hangar','後部格納甲板（舷側貫通発着口）',[353,Y(120),0],30,{room:[156,206,15],airRole:'mixed'});
+ const dock=part('hangar','後部格納甲板（舷側貫通発着口）',[M(353),Y(120),0],M(30),{room:[M(156),M(206),M(15)],airRole:'mixed'});
  openBay(s,dock,'port','open');openBay(s,dock,'stbd','open');
  if(opt.stage==='dock'){delete s._building;return s;}
  // ---- stern: auxiliary reactor for the radial ion drives; port-side hyperdrive module ----
- const ra=part('aux','艦尾補助炉',[216,Y(120),0],100);
+ const ra=part('aux','艦尾補助炉',[M(216),Y(120),0],M(100));
  const eo=equipmentOptions('exposedTurbine');
  const engine=(label,mouth,y,z,d,body,mirror)=>{const nl=engineBaseline('exposed',d,'nozzleLength'),len=engineBaseline('exposed',d,'length')*body/engineBaseline('exposed',d,'body');const p=placePart(s,'engine',[mouth+nl/2,y,z],d,{...eo,label,d,reactor:ra.id,dir:[-1,0,0],engineLength:len},mirror);resizeEngine(p,d,len);return p;};
- engine('中央主機（ヌビアン・クレヴェルド4放射状イオン機関）',10.3,Y(122.3),0,34,engineBaseline('exposed',34,'body'),false);
- engine('舷側主機（ヌビアン・クレヴェルド4放射状イオン機関）',18.6,Y(112.2),43.35,54,engineBaseline('exposed',54,'body'),true);
- part('hyper','左舷ハイパードライブ・モジュール',[240,Y(160),-60],24,{length:70});
+ engine('中央主機（ヌビアン・クレヴェルド4放射状イオン機関）',M(10.3),Y(122.3),0,M(34),engineBaseline('exposed',M(34),'body'),false);
+ engine('舷側主機（ヌビアン・クレヴェルド4放射状イオン機関）',M(18.6),Y(112.2),M(43.35),M(54),engineBaseline('exposed',M(54),'body'),true);
+ part('hyper','左舷ハイパードライブ・モジュール',[M(240),Y(160),M(-60)],M(24),{length:M(70)});
  // ---- bow: main and subsidiary reactors, the deflector shield generator network,
  //      the hyperdrive reactant silo and compressed reactant tank; mid: inertial compensator ----
- part('gen','主反応炉（艦首）',[760,Y(116),0],56);
- part('aux','副反応炉（艦首）',[880,Y(114),0],40);
- for(const sg of [-1,1])part('shield','偏向シールド発生器網',[820,Y(114),sg*30],28);
- for(const sg of [-1,1])part('fuel','ハイパードライブ反応物サイロ／圧縮反応物タンク',[680,Y(114),sg*36],22,{length:30,dir:[0,1,0]});
- part('inertial','慣性補償装置',[600,Y(118),0],34,{length:70});
+ part('gen','主反応炉（艦首）',[M(760),Y(116),0],M(56));
+ part('aux','副反応炉（艦首）',[M(880),Y(114),0],M(40));
+ for(const sg of [-1,1])part('shield','偏向シールド発生器網',[M(820),Y(114),M(sg*30)],M(28));
+ for(const sg of [-1,1])part('fuel','ハイパードライブ反応物サイロ／圧縮反応物タンク',[M(680),Y(114),M(sg*36)],M(22),{length:M(30),dir:[0,1,0]});
+ part('inertial','慣性補償装置',[M(600),Y(118),0],M(34),{length:M(70)});
  if(opt.stage==='machinery'){delete s._building;return s;}
  // Heavy guns keep their charging plant wholly inside the envelope and clear of
  // machinery: the plant is pushed deeper until all its corners are enclosed.
@@ -4294,17 +4763,19 @@ function providenceBuild(opt={}){
    if(got+ps.length>n)continue;const fs=[];
    for(const [p,a] of ps){const f=tryMount(kind,p,a,zone+(ps.length>1?(p[2]>0?'-stbd':'-port'):''),o);if(!f||!clearOf(f,s.fits.concat(fs)))break;fs.push(f);}
    if(fs.length<ps.length)continue;s.fits.push(...fs);got+=fs.length;}
-  if(got<n)throw new Error('作例の砲座が不足しています: '+kind+' '+zone+' '+got+'/'+n);};
+  if(got<n){if(opt.dbg){opt.dbg.push(['SHORT',kind,zone,got,n]);return;}throw new Error('作例の砲座が不足しています: '+kind+' '+zone+' '+got+'/'+n);}};
  const range=(a,b,st)=>{const r=[];for(let x=a;x<=b+1e-6;x+=st)r.push(x);return r;};
+ const mr=(a,b,st)=>range(M(a),M(b),st);
  // Pods seat on the first wall hit among a few probe heights.
  const pod=(kind,host,o,dir,w,h)=>{let err='取付面がありません';for(const dy of [0,-4,4,-8,8,-12,12,-16,16])for(const dz of [0,-6,6,-12,12]){const q0=[o[0],o[1]+dy,o[2]+(dir[2]?0:dz)];const hit=rayPart(q0,dir,host);if(!hit)continue;const r=placeFit(s,kind,hit.p,hit.n,0,false);if(r.fit){r.fit.width=w;r.fit.height=h;r.fit.commandDepth=7;r.fit.commandHeight=5;return r.fit;}err=r.err;}throw new Error('艦橋ポッド '+kind+': '+err);};
 
  const ridge=s.parts.find(p=>p.label==='艦首上部の艦橋稜線'),obs=s.parts.find(p=>p.label==='改装通信・センサー・ポッド（展望甲板）'),box83=s.parts.find(p=>p.label==='背面の機器区画');
- pod('podBridge',ridge,[930,Y(162),40],[0,0,-1],12,5);
- pod('podCombat',obs,[130,Y(338),60],[0,0,-1],14,5);
- pod('podAir',box83,[560,Y(180),0],[-1,0,0],14,5);
+ pod('podBridge',ridge,[M(930),Y(162),M(40)],[0,0,-1],12,5);
+ pod('podCombat',obs,[M(130),Y(338),M(60)],[0,0,-1],14,5);
+ pod('podAir',box83,[M(560),Y(180),0],[-1,0,0],14,5);
  syncAviationSurfaces(s);s._lockedCache=cache(s);
  try{withFrozenStructures(()=>{
+  if(!dn){
   // Quad turbolaser turrets (heavy), ventral: the main battery. (Canon lists 14; v15 keeps the
   // visible batteries to a readable number and the firepower in line with ships of its size.)
   spread('htl',10,'bottom','ventral-quad',range(330,1040,26),[60,45,75,30,88]);
@@ -4320,29 +4791,57 @@ function providenceBuild(opt={}){
   spread('pd',2,'top','dorsal-aft-pd',range(280,500,24),[0,20]);
   // tractor beam projectors, ventral
   spread('trc',4,'bottom','tractor',range(500,960,25),[55,70,40,85]);
+  }else{
+  // The canon dreadnought list. 14 heavy quad turbolasers: the ventral main battery.
+  spread('stl',14,'bottom','ventral-quad',mr(330,1040,22),[M(60),M(45),M(75),M(30),M(88)]);
+  // 2 battleship heavy ion cannons at the bow
+  spread('ion',2,'top','bow-ion',mr(950,1050,8).reverse(),[M(18),M(24),M(12),M(30)]);
+  // 34 dual heavy laser cannons, dorsal and ventral
+  spread('htl',16,'top','dorsal-laser',mr(540,1040,16),[M(20),M(34),M(48),M(8),M(60)]);
+  spread('htl',18,'bottom','ventral-laser',mr(300,1040,16),[M(15),M(98),M(22),M(105),M(8)]);
+  // 102 proton torpedo launchers in 34 banks of three: bow sides and dorsal
+  spread('msl',20,'beam','side-torpedo',mr(545,1020,14),[Y(124),Y(110),Y(136),Y(98)]);
+  spread('msl',14,'top','dorsal-torpedo',mr(545,1010,20),[M(14),M(28),M(42),M(56),0]);
+  // 12 heavy flak guns along the sides of the bow
+  spread('ltl',12,'beam','flak',mr(540,1020,15),[Y(130),Y(116),Y(104),Y(142)]);
+  // 12 twin point-defence ion cannons: ventral and dorsal-aft
+  spread('pd',8,'bottom','ventral-pd',mr(300,980,30),[M(70),M(85),M(55)]);
+  spread('pd',4,'top','dorsal-aft-pd',mr(280,500,12),[0,M(20)]);
+  // 10 heavy tractor beam emitters, ventral
+  spread('trc',10,'bottom','tractor',mr(500,960,12),[M(55),M(70),M(40),M(85)]);
+  }
  });}finally{delete s._lockedCache;}
  if(opt.stage==='fitted'){delete s._building;return s;}
 
  if(opt.stage==='shape'){delete s._building;return s;}
  // ---- compartments packed into the measured hull and structures ----
- for(const [kind,label,c,size,role,mirror] of D.rooms){const o={room:size};if(typeof role==='string')o.airRole=role;placePart(s,kind,c,30,{label,...o},mirror===1||role===1);}
+ for(const [kind,label,c,size,role,mirror] of D.rooms){const o={room:dn?size.map(M):size};if(typeof role==='string')o.airRole=role;placePart(s,kind,dn?c.map(M):c,dn?M(30):30,{label,...o},mirror===1||role===1);}
+ if(opt.stage==='rooms'){delete s._building;return s;}
+ // Crew quarters (v18): enough berths for the crew the ship needs.
+ for(const [label,c,size,mirror] of dn?PROV_DN_CREW:PROV_CREW)placePart(s,'crew',c,30,{label,room:size},!!mirror);
  // Canon complement: 120 Vulture droids, 120 droid tri-fighters, 10 Hyena bombers;
  // HMP gunships and Sheathipede shuttles are a game setting. 48,247 troops.
- s.airWings=PROV_AIR.map(r=>({...r}));s.groundForces=normalizeGroundForces(PROV_GROUND);
+ s.airWings=(dn?PROV_DN_AIR:PROV_AIR).map(r=>({...r}));s.groundForces=normalizeGroundForces(dn?PROV_DN_GROUND:PROV_GROUND);
  delete s._building;adoptEquipment(s,true);remount(s);
  // Broadside batteries along the flanks (v14): short-ranged, the most fire for the power.
- sideBattery(s,[420,520,620,720,820,920],null,'casemateMid',{level:.45});remount(s);syncCompartments(s);
+ sideBattery(s,dn?[420,470,520,570,620,670,720,770,820,870,920,970].map(M):[420,520,620,720,820,920],null,'casemateMid',{level:.45});remount(s);syncCompartments(s);
  return s;
 
 }
-registerShipExample({
- key:'providence',name:'プロヴィデンス級空母／駆逐艦',side:'独立星系連合',role:'空母／駆逐艦',length:1088,
- title:'Star Wars: The Clone Wars Providence',author:'lolqeeeeeeeeee',authorUrl:'https://sketchfab.com/lolqeeeeeeeeee',
+const PROV_CREDIT={title:'Star Wars: The Clone Wars Providence',author:'lolqeeeeeeeeee',authorUrl:'https://sketchfab.com/lolqeeeeeeeeee',
  source:'https://sketchfab.com/3d-models/star-wars-the-clone-wars-providence-8d27764a7d254fd7948557daf6d7ccdc',license:'CC BY-NC 4.0',
- credit:'This work is based on "Star Wars: The Clone Wars Providence" (https://sketchfab.com/3d-models/star-wars-the-clone-wars-providence-8d27764a7d254fd7948557daf6d7ccdc) by lolqeeeeeeeeee (https://sketchfab.com/lolqeeeeeeeeee) licensed under CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)',
- note:'DK の断面図（インヴィジブル・ハンド）の配置と寸法（全長 1,088 m・幅 198 m・塔を含む高さ 347 m）に合わせ、Sketchfab の 3D モデル（lolqeeeeeeeeee 作、CC BY-NC 4.0）の実測形状を高さ方向に 0.928 倍して組み直した独立星系連合の空母／駆逐艦。格納甲板上部の背部湾曲装甲殻、中央背面の装甲板、前部腹部の湾曲装甲は装甲外板（厚さ 0.6〜0.8 m）で、武装は載せない。艦首上部に艦橋、艦首に主反応炉・副反応炉・偏向シールド発生器網・ハイパードライブ反応物サイロ、中央に慣性補償装置、後半部に格納甲板（艦載機ラック、MTT と装甲車両の格納区画、整備甲板）、艦尾上部にウィザーズ・タワー（改装通信・センサー・ポッド）、艦尾に補助炉・放射状イオン機関・左舷ハイパードライブ・モジュール。兵装は主砲の重ターボレーザー砲塔 10 基、二連レーザー砲 12 基、イオン砲 2 基、点防御イオン砲 8 基、プロトン魚雷発射機 14 基（発射管の列を1基で代表）、トラクター・ビーム投射機 4 基、舷側の連装ケースメイト砲 12 基（原典の砲塔数から、見た目と火力を同級の艦に揃えて減らしています）。艦載機はトライファイター 120 機とヴァルチャー 120 機、MTT 160 両と装甲ドロイド車両 280 両（AAT・ヘイルファイア・OG-9・LM-432）。停止保管ドロイドは DK では最大 150 万体だが、船内に収まる 16 万 2,000 体とした。加速約 2,560 G、ハイパードライブ・クラス 1.5。公式の乗員は 600 体のドロイド。',
+ credit:'This work is based on "Star Wars: The Clone Wars Providence" (https://sketchfab.com/3d-models/star-wars-the-clone-wars-providence-8d27764a7d254fd7948557daf6d7ccdc) by lolqeeeeeeeeee (https://sketchfab.com/lolqeeeeeeeeee) licensed under CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)'};
+registerShipExample({
+ key:'providence',name:'プロヴィデンス級キャリア／デストロイヤー',side:'独立星系連合',role:'キャリア／デストロイヤー',length:1088,...PROV_CREDIT,
+ note:'DK の断面図（インヴィジブル・ハンド）の配置と寸法（全長 1,088 m・幅 198 m・塔を含む高さ 347 m）に合わせ、Sketchfab の 3D モデル（lolqeeeeeeeeee 作、CC BY-NC 4.0）の実測形状を高さ方向に 0.928 倍して組み直した独立星系連合のキャリア／デストロイヤー。格納甲板上部の背部湾曲装甲殻、中央背面の装甲板、前部腹部の湾曲装甲は装甲外板（厚さ 0.6〜0.8 m）で、武装は載せない。艦首上部に艦橋、艦首に主反応炉・副反応炉・偏向シールド発生器網・ハイパードライブ反応物サイロ、中央に慣性補償装置、後半部に格納甲板（艦載機ラック、MTT と装甲車両の格納区画、整備甲板）、艦尾上部にウィザーズ・タワー（改装通信・センサー・ポッド）、艦尾に補助炉・放射状イオン機関・左舷ハイパードライブ・モジュール。兵装は主砲の重ターボレーザー砲塔 10 基、二連レーザー砲 12 基、イオン砲 2 基、点防御イオン砲 8 基、プロトン魚雷発射機 14 基（発射管の列を1基で代表）、トラクター・ビーム投射機 4 基、舷側の連装ケースメイト砲 12 基（原典の砲塔数から、見た目と火力を同級の艦に揃えて減らしています）。艦載機はトライファイター 120 機とヴァルチャー 120 機、MTT 160 両と装甲ドロイド車両 280 両（AAT・ヘイルファイア・OG-9・LM-432）。停止保管ドロイドは DK では最大 150 万体だが、船内に収まる 16 万 2,000 体とした。船内の空き区画に乗員居住区 3 区画（約 7 万 5,000 m³）。加速約 2,560 G、ハイパードライブ・クラス 1.5。公式の乗員は 600 体のドロイド。',
  airWings:PROV_AIR,groundForces:PROV_GROUND,
  build:providenceBuild
+});
+registerShipExample({
+ key:'providenceDn',name:'プロヴィデンス級ドレッドノート',side:'独立星系連合',role:'ドレッドノート',length:2177.35,...PROV_CREDIT,
+ note:'プロヴィデンス級キャリア／デストロイヤーと同じ Sketchfab の 3D モデル（lolqeeeeeeeeee 作、CC BY-NC 4.0）から組み直した船体・構造物・区画を、レジェンズの全長 2,177.35 m に合わせて全寸法 2.001 倍（ほぼ 2 倍、容積は約 8 倍）にした独立星系連合のドレッドノート。区画の配置はキャリア／デストロイヤーと同じ。兵装は正史のプロヴィデンス級ドレッドノートの一覧に合わせ、重四連ターボレーザー砲を大型重ターボレーザー砲塔 14 基、背部・腹部の二連重レーザー砲を重ターボレーザー連装砲塔 34 基、艦首の戦艦級重イオン砲 2 基、プロトン魚雷発射機 102 門を 3 門ずつまとめた発射機 34 基、重対空砲を軽ターボレーザー四連砲塔 12 基、点防御イオン砲 12 基、トラクター・ビーム投射機 10 基とし、舷側に連装ケースメイト砲 24 基。艦載機はヴァルチャー 120 機、トライファイター 120 機、ハイエナ級ボマー 10 機。停止保管バトル・ドロイドは正史の 150 万体のうち船内に収まる 120 万体、MTT 640 両と装甲ドロイド車両 1,120 両。艦首寄りの下部に乗員居住甲板（約 28 万 m³）。加速約 3,130 G（装甲外板の厚さは拡大しないため質量が 8 倍より軽い）、ハイパードライブ・クラス 1.2。正史の乗員は士官 900 名とドロイド。',
+ airWings:PROV_DN_AIR,groundForces:PROV_DN_GROUND,
+ build:(opt={})=>providenceBuild({...opt,scale:PROV_DN_K})
 });
 }
 
@@ -4354,17 +4853,25 @@ registerShipExample({
 // prow); a thin keel line runs aft inside the spine and the core. The central
 // core under the domes, the aft spine, the aft command block, the two stern pods, the dorsal
 // ridges, the ventral shell, the nose keel and the ventral fins are structures.
+// v18: the same builder makes the Recusant-class dreadnought at twice the scale
+// (2,374 m), its fit list about three times the light destroyer's.
 {
 const RECU={"W":122.751,"H":140.0,"st":[[0.0,0.015,0.0107,0.0518,0.8,0.8,0.5,0.5],[0.05223,0.015,0.0107,-0.0696,0.8,0.8,0.5,0.5],[0.45358,0.015,0.0107,-0.0696,0.8,0.8,0.5,0.5],[0.45746,0.4342,0.05,0.2393,0.9384,0.98,0.02,0.2],[0.46757,0.4546,0.1786,0.325,0.4418,0.9771,0.02,0.29],[0.49284,0.5334,0.2143,0.3357,0.3949,0.9698,0.02,0.27],[0.53075,0.6949,0.2714,0.3571,0.3839,0.9754,0.02,0.2],[0.55602,0.7845,0.3,0.3786,0.3647,0.9745,0.02,0.2],[0.56613,0.8404,0.3429,0.3714,0.3616,0.9763,0.02,0.2],[0.5813,0.8435,0.3143,0.4071,0.3253,0.9778,0.02,0.2],[0.58888,0.8634,0.3214,0.4107,0.3301,0.9779,0.02,0.2],[0.59393,0.9276,0.3714,0.3857,0.3409,0.9709,0.02,0.2],[0.62426,0.9948,0.3857,0.3857,0.3124,0.9712,0.02,0.2],[0.63184,0.9602,0.3429,0.4071,0.3054,0.9735,0.02,0.2],[0.63943,0.9979,0.3786,0.3893,0.3087,0.974,0.02,0.2],[0.64448,0.9949,0.3857,0.3857,0.3124,0.9793,0.02,0.21],[0.65965,0.996,0.5429,0.2857,0.3762,0.98,0.52,0.2],[0.67734,0.9617,0.5357,0.2607,0.3704,0.98,0.65,0.2],[0.68745,0.934,0.4786,0.275,0.3595,0.98,0.56,0.2],[0.68997,0.9254,0.4214,0.2964,0.3803,0.98,0.44,0.2],[0.70008,0.883,0.5286,0.2214,0.4048,0.9288,0.11,0.51],[0.72536,0.7924,0.4214,0.1821,0.5658,0.98,0.02,0.22],[0.74052,0.7645,0.3286,0.1857,0.3499,0.9753,0.02,0.26],[0.78349,0.6951,0.2929,0.1893,0.3878,0.9771,0.02,0.24],[0.80118,0.599,0.2071,0.225,0.4094,0.9778,0.02,0.2],[0.82393,0.5647,0.2214,0.2107,0.4298,0.98,0.02,0.2],[0.8492,0.5531,0.2429,0.1857,0.3933,0.9722,0.02,0.24],[0.87447,0.5442,0.3,0.1429,0.3794,0.9752,0.02,0.24],[0.96546,0.2234,0.0857,0.0643,0.2833,0.9784,0.02,0.2],[1.0,0.0468,0.0143,0.0071,0.301,0.98,0.19,0.2]],"loft":{"domeRidge":[[585.67,-3.01,3.01,142.84,142.94],[589.71,-5.22,5.22,140.67,147.87],[601.16,-8.97,8.97,140.87,152.13],[601.83,-9.76,9.76,132.69,152.38],[604.52,-11.83,11.83,133.14,152.78],[615.3,-12.45,12.45,134.93,153.57],[617.32,-12.57,12.57,135.27,152.14],[624.05,-12.96,12.96,136.39,152.23],[625.4,-13.03,13.03,136.61,151.18],[626.07,-9.21,9.21,136.72,151.14],[707.57,-10.41,10.41,149.0,160.99],[708.91,-13.77,13.77,148.04,161.0],[769.53,-13.65,13.65,148.44,161.0],[770.2,-13.35,13.35,148.58,161.0],[770.87,-13.05,13.05,155.56,161.0],[785.69,-6.47,6.47,155.56,161.0],[787.04,-5.82,5.82,158.84,161.0],[787.71,-5.53,5.53,160.84,161.0]],"bowRidge":[[845.0,-16.19,16.19,121.31,130.33],[845.82,-16.18,16.18,111.17,130.33],[855.66,-16.02,16.02,111.17,130.61],[859.76,-15.94,15.94,111.17,133.1],[898.3,-15.28,15.28,111.17,131.53],[901.58,-15.22,15.22,111.17,130.33],[940.94,-14.14,14.14,111.17,130.33],[943.4,-11.7,11.7,111.17,130.33],[946.68,-11.7,11.7,111.17,125.79],[947.5,-11.7,11.7,111.17,121.4],[950.78,-11.7,11.7,111.17,121.4],[953.24,-11.7,11.7,111.17,117.41],[1016.38,-11.7,11.7,111.17,117.41],[1017.2,-11.7,11.7,104.94,117.41],[1040.98,-11.45,11.45,104.94,117.41],[1041.8,-11.44,11.44,104.94,121.35],[1057.38,-11.96,11.96,104.94,121.34],[1058.2,-12.18,12.18,113.46,121.34],[1060.66,-14.04,14.04,113.56,121.34],[1067.22,-14.01,14.01,113.82,121.34],[1068.04,-11.72,11.72,113.85,121.34],[1079.52,-11.56,11.56,113.86,120.79],[1083.62,-10.99,10.99,113.86,119.64],[1089.36,-7.6,7.6,114.62,117.93],[1091.0,-4.66,4.66,115.15,117.35]],"lowerShell":[[825.08,-17.96,17.96,35.62,52.8],[827.22,-17.95,17.95,35.62,52.77],[827.93,-55.67,55.67,33.03,52.76],[834.35,-55.7,55.7,29.29,52.69],[835.77,-55.7,55.7,23.38,52.67],[863.57,-55.81,55.81,17.88,53.52],[867.13,-55.82,55.82,17.88,59.43],[891.36,-55.92,55.92,15.22,59.57],[934.12,-55.94,55.94,13.26,59.81],[934.83,-47.92,47.92,17.88,59.82],[956.21,-22.72,22.72,17.88,59.94],[959.78,-20.17,20.17,23.42,59.96],[960.49,-20.17,20.17,34.27,59.96],[1016.08,-20.17,20.17,36.37,60.29],[1017.5,-20.17,20.17,41.07,60.29],[1033.9,-20.17,20.17,53.35,60.39],[1038.89,-20.17,20.17,60.35,60.42]],"noseKeel":[[1027.68,-11.3,11.3,52.86,70.56],[1047.6,-11.69,11.69,52.86,71.96],[1048.1,-11.71,11.71,43.01,72.0],[1050.09,-11.74,11.74,37.48,72.14],[1083.96,-11.91,11.91,39.31,72.74],[1087.95,-11.91,11.91,45.15,72.74],[1089.44,-11.91,11.91,48.71,72.74],[1089.94,-11.91,11.91,54.03,72.74],[1095.42,-11.83,11.83,54.56,72.47],[1100.9,-11.35,11.35,61.95,70.74],[1118.83,-9.35,9.35,62.25,70.55],[1121.32,-9.05,9.05,64.78,70.82],[1145.73,-5.94,5.94,66.29,73.33],[1173.12,-1.43,1.43,68.07,71.04],[1177.11,-0.75,0.75,70.52,70.56]],"vfinC":[[848.77,-7.74,7.74,10.98,11.03],[856.15,-7.74,7.74,4.87,11.03],[869.36,-7.74,7.74,4.45,11.03],[878.29,-7.81,7.81,1.79,11.22],[883.73,-9.05,9.05,1.78,14.29],[952.49,-8.97,8.97,1.64,13.91],[965.31,-5.26,5.26,1.62,4.74]],"vfinS":[[920.02,4.01,7.66,4.02,11.21],[920.28,3.94,10.52,3.05,11.35],[920.54,3.88,14.04,1.84,11.52],[921.07,3.73,14.83,1.37,11.86],[923.17,3.53,15.51,0.55,12.31],[928.68,3.53,15.36,0.71,12.31],[929.47,3.91,14.77,1.38,11.87],[930.78,5.45,14.13,2.12,10.08],[937.6,5.43,14.13,2.12,10.1],[939.7,3.53,14.99,1.13,12.31],[941.54,3.53,15.51,0.55,12.31],[943.64,3.53,15.51,0.0,12.31],[946.52,3.53,15.51,0.27,12.31],[948.62,3.53,15.22,0.87,12.31],[949.67,3.97,14.59,1.6,11.8],[951.51,5.6,14.13,2.12,9.92],[956.76,5.47,14.21,2.04,10.19],[957.81,5.14,15.01,1.22,10.8],[960.69,5.2,14.98,1.26,10.8],[962.27,5.65,13.6,2.42,9.8],[966.73,6.0,10.97,3.91,9.04],[987.2,5.94,11.16,3.72,9.23],[988.77,5.72,12.35,2.5,9.92],[990.08,5.72,12.94,1.89,9.92],[993.23,5.79,12.94,2.08,9.92],[996.38,6.94,12.58,5.11,9.92],[998.74,7.78,11.77,7.34,9.92]],"aftSpine":[[62.4,-11.47,11.47,76.54,76.65],[86.85,-11.47,11.47,59.23,79.42],[95.0,-11.47,11.47,58.73,79.42],[97.71,-11.47,11.47,58.56,89.63],[143.89,-11.59,11.59,61.78,87.19],[160.19,-7.41,7.41,61.78,87.17],[162.9,-19.07,19.07,61.78,87.17],[175.13,-21.36,21.36,61.78,87.16],[179.2,-21.34,21.34,48.47,87.15],[198.22,-21.26,21.26,36.41,87.13],[241.68,-16.92,16.92,37.05,87.06],[243.04,-22.54,22.54,37.07,101.53],[286.5,-24.87,24.87,37.07,112.54],[289.21,-18.02,18.02,37.07,108.73],[290.57,-18.0,18.0,53.93,108.73],[309.58,-21.21,21.21,53.93,101.44],[319.09,-21.2,21.2,53.93,101.2],[321.81,-21.19,21.19,53.93,90.5],[370.7,-20.15,20.15,37.96,83.05],[382.93,-23.07,23.07,37.96,82.63],[416.88,-24.86,24.86,48.1,80.66],[450.83,-24.86,24.86,45.73,87.16],[465.77,-24.86,24.86,48.1,92.77],[467.13,-24.86,24.86,48.1,68.3],[469.85,-14.64,14.64,48.1,57.73]],"aftUpper":[[172.04,-5.97,5.97,134.07,134.13],[174.86,-5.97,5.97,132.66,136.34],[175.56,-12.49,12.49,132.3,136.9],[194.58,-13.87,13.87,128.59,146.81],[212.19,-13.87,13.87,125.97,153.99],[225.57,-13.87,13.87,119.12,153.85],[248.11,-13.87,13.87,117.38,155.35],[248.81,-22.17,22.17,116.83,153.72],[252.34,-22.17,22.17,114.06,146.25],[258.67,-22.17,22.17,112.44,148.39],[262.2,-24.66,24.66,112.44,148.11],[263.6,-24.66,24.66,111.38,147.7],[264.31,-24.66,24.66,100.95,146.25],[278.4,-24.66,24.66,100.95,147.78],[286.14,-24.66,24.66,100.95,148.81],[296.71,-24.66,24.66,100.95,154.26],[303.75,-24.66,24.66,100.95,154.26],[305.16,-25.53,25.53,100.95,157.94],[323.47,-25.53,25.53,100.95,156.4],[327.7,-25.53,25.53,103.39,156.4],[328.4,-25.53,25.53,108.12,156.4],[347.42,-25.53,25.53,108.12,151.64],[349.53,-25.53,25.53,108.12,149.2],[350.94,-22.17,22.17,108.12,147.56],[355.17,-20.06,20.06,110.11,141.78],[357.28,-20.06,20.06,110.11,141.78],[359.39,-22.17,22.17,108.12,145.01],[375.59,-17.66,17.66,109.53,140.44],[382.63,-14.04,14.04,110.67,136.77],[383.34,-13.7,13.7,126.17,136.43]],"aftPod":[[104.63,52.87,57.88,28.95,40.77],[108.89,51.08,60.62,27.59,41.65],[109.6,49.98,61.09,22.52,47.3],[122.38,46.61,67.09,19.74,48.97],[148.66,45.08,75.53,17.9,49.09],[158.6,40.69,75.45,17.9,49.09],[174.94,40.69,78.53,15.95,49.09],[182.04,39.51,78.53,15.95,49.26],[182.75,39.04,77.6,11.72,55.63],[187.01,36.23,70.9,11.72,57.45],[192.69,35.09,70.9,11.72,59.88],[194.12,35.09,70.9,9.12,60.48],[196.96,35.09,70.9,9.12,60.52],[197.67,30.74,70.9,9.12,60.66],[198.38,22.07,70.9,9.12,64.7],[222.52,22.07,72.27,9.17,64.7],[230.34,22.07,75.37,9.18,64.7],[238.15,22.07,75.37,9.19,64.7],[239.57,22.07,77.79,9.19,64.7],[258.04,22.07,76.82,10.38,64.7],[258.75,25.86,76.82,10.38,64.7],[280.05,26.93,74.84,10.38,64.7],[286.45,26.93,70.71,11.72,64.7],[289.29,29.21,67.97,14.36,62.2],[291.42,29.21,67.97,14.36,62.2],[292.84,26.93,70.72,11.72,64.7],[304.2,27.93,68.84,13.86,63.04],[316.99,32.15,60.9,22.83,56.05],[317.7,44.09,60.48,23.29,51.16]],"core":[[449.23,-18.18,18.18,67.69,83.39],[468.4,-29.01,29.01,63.43,91.82],[472.66,-29.79,29.79,48.89,91.8],[500.34,-26.81,26.81,39.73,91.69],[508.85,-27.97,27.97,36.27,112.99],[570.6,-26.81,26.81,29.42,123.94],[591.89,-26.81,26.81,29.42,123.94],[604.67,-25.51,25.51,39.73,123.94],[608.93,-25.51,25.51,26.85,123.94],[664.29,-24.83,24.83,26.95,113.42],[668.55,-37.03,37.03,26.95,113.42],[683.45,-32.15,32.15,30.21,113.42],[711.13,-34.65,34.65,38.39,113.42],[743.07,-34.96,34.96,38.39,113.42],[764.36,-36.24,36.24,29.34,113.42],[785.65,-35.77,35.77,30.44,113.42],[804.82,-35.5,35.5,31.08,113.42],[834.63,-31.07,31.07,28.89,114.09],[836.76,-31.07,31.07,28.89,82.06],[951.73,-36.93,36.93,30.81,88.29],[953.86,-31.07,31.07,12.09,88.25],[968.77,-31.07,31.07,7.29,88.03],[973.03,-18.89,18.89,7.33,87.97],[975.16,-18.89,18.89,7.35,87.93],[977.28,-18.89,18.89,7.37,126.32],[981.54,-18.89,18.89,8.42,125.56],[983.67,-18.89,18.89,54.28,122.95],[1024.13,-18.88,18.88,54.28,131.93],[1026.26,-17.63,17.63,54.28,82.77],[1032.64,-17.63,17.63,58.98,70.32],[1062.45,-6.94,6.94,111.76,114.91],[1088.0,-5.73,5.73,113.17,113.51]]},"rooms":[["hangar","艦載機待機区画（中空構造内のラック）",[637.5,72.85,0],[104.4,47.4,45.7],"storage"],["hangar","艦載機待機区画（中空構造内のラック） 2",[823.5,84.85,-18],[56.4,23.4,69.7],"storage"],["hangar","艦載機待機区画（中空構造内のラック） 3",[823.5,84.85,18],[56.4,23.4,69.7],"storage"],["hangar","艦載機待機区画（中空構造内のラック） 4",[715.5,72.85,0],[14.4,59.4,45.7],"storage"],["hangar","艦載機待機区画（中空構造内のラック） 5",[876,83.35,-12],[47.4,11.4,66.7],"storage"],["hangar","艦載機待機区画（中空構造内のラック） 6",[876,83.35,12],[47.4,11.4,66.7],"storage"],["hangar","艦載機待機区画（中空構造内のラック） 7",[843,56.35,0],[113.4,11.4,12.7],"storage"],["hangar","艦載機待機区画（中空構造内のラック） 8",[699,57.85,0],[17.4,59.4,15.7],"storage"],["hangar","艦載機待機区画（中空構造内のラック） 9",[727.5,57.85,0],[8.4,59.4,15.7],"storage"],["service","航空整備・補給区画",[934.5,51,0],[68.4,53.4,35.4]],["service","航空整備・補給区画 2",[494.37,73.5,0],[46.14,41.4,20.4]],["service","航空整備・補給区画 3",[483,52.5,0],[11.4,29.4,8.4]],["cargo","貨物・物資庫",[269.17,78,0],[93.75,23.4,11.4]],["cargo","貨物・物資庫 2",[195,135,0],[29.4,17.4,5.4]],["integrity","構造維持装置",[280.86,67.5,0],[111.11,29.4,8.4]],["integrity","構造維持装置 2",[213,141,0],[41.4,11.4,5.4]],["pump","反応物供給設備",[242.71,133.5,0],[64.81,17.4,8.4]],["troops","居住甲板・兵員収容区画（停止保管ドロイド）",[564,70.5,0],[41.4,47.4,56.4]],["troops","居住甲板・兵員収容区画（停止保管ドロイド） 2",[405,70.5,0],[131.4,29.4,14.4]],["troops","居住甲板・兵員収容区画（停止保管ドロイド） 3",[291,100.5,0],[53.4,29.4,32.4]],["troops","居住甲板・兵員収容区画（停止保管ドロイド） 4",[660,112.5,-12],[125.4,11.4,32.4]],["troops","居住甲板・兵員収容区画（停止保管ドロイド） 5",[660,112.5,12],[125.4,11.4,32.4]],["troops","居住甲板・兵員収容区画（停止保管ドロイド） 6",[529.5,82.5,0],[20.4,53.4,38.4]],["troops","居住甲板・兵員収容区画（停止保管ドロイド） 7",[744,141,0],[83.4,41.4,11.4]],["troops","居住甲板・兵員収容区画（停止保管ドロイド） 8",[891,37.5,0],[17.4,83.4,26.4]],["troops","居住甲板・兵員収容区画（停止保管ドロイド） 9",[807,127.5,0],[53.4,47.4,14.4]],["troops","居住甲板・兵員収容区画（停止保管ドロイド） 10",[334.5,130.5,0],[26.4,35.4,38.4]],["troops","居住甲板・兵員収容区画（停止保管ドロイド） 11",[203.47,36,-37.5],[10.35,8.4,35.4]]]};
 const REC_AIR=[{id:'air-1',name:'ヴァルチャー級ドロイド・スターファイター',size:1,count:66},{id:'air-2',name:'ドロイド・トライファイター',size:1,count:32}];
 const REC_GROUND=[{id:'ground-1',name:'B1バトル・ドロイド（停止保管）',kind:'troops',count:40000}];
+const REC_DN_AIR=[{id:'air-1',name:'ヴァルチャー級ドロイド・スターファイター',size:1,count:264},{id:'air-2',name:'ドロイド・トライファイター',size:1,count:128}];
+const REC_DN_GROUND=[{id:'ground-1',name:'B1バトル・ドロイド（停止保管）',kind:'troops',count:320000}];
+// Crew quarters (v18, [label, centre, [length, width, height], mirrored]).
+const REC_CREW=[];
+const REC_DN_CREW=[['乗員居住区',[1025.3,100,0],[50,59.4,31.4]]];
 const REC_TAN='#a89a7c',REC_BROWN='#8f8268',REC_STEEL='#6f7a86',REC_DARK='#5f646b',REC_PLATE='#c9d0d8';
+// opt.scale 1 builds the light destroyer, 2 the dreadnought.
 function recusantBuild(opt={}){
- const D=RECU,L=1187,SZ=.921,Z=v=>v*SZ;
- const s=newShip({L,W:D.W,H:D.H,sec:'warship',plan:'wedge',deckWidth:0,keelWidth:0,belt:.13,chineHeight:.5,bowFree:true,stations:D.st.map(a=>a.slice()),keel:'light'},'レキュザント級軽駆逐艦');
- s._building=true;s.reference='recusant';s.paint='cis';s.lights='warm';s.detail=1;s.armor={hull:.38,cit:.35};s.shieldTarget=1;
+ const K=opt.scale||1,dn=K!==1,D=RECU,L=1187*K,SZ=.921,Z=v=>v*SZ*K,M=v=>v*K;
+ const s=newShip({L,W:D.W*K,H:D.H*K,sec:'warship',plan:'wedge',deckWidth:0,keelWidth:0,belt:.13,chineHeight:.5,bowFree:true,stations:D.st.map(a=>a.slice()),keel:'light'},dn?'レキューザント級ドレッドノート':'レキューザント級軽デストロイヤー');
+ s._building=true;s.reference=dn?'recusantDn':'recusant';s.paint='cis';s.lights='warm';s.detail=1;s.armor=dn?{hull:.38*3,cit:.35*3}:{hull:.38,cit:.35};/* v18 a dreadnought carries three times the plating: slower than the base ship, far tougher */s.shieldTarget=1;
  const k=shipKit(s),part=(kind,label,c,d,o={})=>placePart(s,kind,c,d,{label,...o});
- const loft=(name,label,paint,o={},mirror=false)=>k.loftX(label,D.loft[name],{paint,corner:.12,...o},mirror);
+ const loft=(name,label,paint,o={},mirror=false)=>k.loftX(label,dn?D.loft[name].map(r=>r.map(M)):D.loft[name],{paint,corner:.12,...o},mirror);
  loft('core','中央船体の竜骨区画',REC_BROWN,{corner:.3});
  loft('aftSpine','艦尾脊柱',REC_TAN,{corner:.16});
  loft('aftUpper','艦尾ハイパードライブ・ブロック',REC_TAN,{corner:.16});
@@ -4373,28 +4880,28 @@ function recusantBuild(opt={}){
  loft('bowRidge','艦首背面稜線',REC_BROWN,{corner:.1});
  // Smooth armoured hull segments (they guide the circulating shields): plates, no guns.
  loft('lowerShell','前部腹部の平滑装甲セグメント',REC_PLATE,{round:true,plate:true,plateT:.72});
- {const rows=[];for(let x=885;x<=1140;x+=15){const b=sectionBase(s.hull,x);rows.push([x,-(b.hw+.8),b.hw+.8,b.ybot+b.h*.62,b.ybot+b.h+.8]);}
+ {const rows=[];for(let x=M(885);x<=M(1140);x+=M(15)){const b=sectionBase(s.hull,x);rows.push([x,-(b.hw+.8),b.hw+.8,b.ybot+b.h*.62,b.ybot+b.h+.8]);}
   k.loftX('艦首上部の平滑装甲セグメント',rows,{paint:REC_PLATE,corner:.35,plate:true,plateT:.72});}
  loft('noseKeel','艦首下部竜骨',REC_BROWN,{corner:.12});
  loft('vfinC','腹部中央安定翼',REC_STEEL,{corner:.08});
  loft('vfinS','腹部舷側安定翼',REC_STEEL,{corner:.08},true);
  // ---- mid-ship: the hollow ribbed interior that shelters fighters (open through the keel) ----
- const dock=part('hangar','艦載機待機空洞（中央部の中空構造）',[735,41,0],30,{room:[290,Z(32),18],airRole:'mixed'});
+ const dock=part('hangar','艦載機待機空洞（中央部の中空構造）',[M(735),M(41),0],M(30),{room:[M(290),Z(32),M(18)],airRole:'mixed'});
  openBay(s,dock,'bottom','open');
  if(opt.stage==='dock'){delete s._building;return s;}
  // ---- power: main reactor at the aft end of the main hull; stern plants feed the drives ----
- const r=part('gen','主反応炉（主船体後半部）',[760,89,0],72);
- const ra=part('aux','艦尾脊柱補助炉',[200,65,0],46);
- const rpS=part('aux','右舷イオン化室補助炉',[243,38,Z(55)],52),rpP=part('aux','左舷イオン化室補助炉',[243,38,Z(-55)],52);
+ const r=part('gen','主反応炉（主船体後半部）',[M(760),M(89),0],M(72));
+ const ra=part('aux','艦尾脊柱補助炉',[M(200),M(65),0],M(46));
+ const rpS=part('aux','右舷イオン化室補助炉',[M(243),M(38),Z(55)],M(52)),rpP=part('aux','左舷イオン化室補助炉',[M(243),M(38),Z(-55)],M(52));
  const eo=equipmentOptions('exposedTurbine');
  const engine=(label,mouth,y,z,d,body,reactor,mirror)=>{const nl=engineBaseline('exposed',d,'nozzleLength'),len=engineBaseline('exposed',d,'length')*body/engineBaseline('exposed',d,'body');const p=placePart(s,'engine',[mouth+nl/2,y,z],d,{...eo,label,d,reactor:reactor.id,dir:[-1,0,0],engineLength:len},mirror);resizeEngine(p,d,len);return p;};
- engine('艦尾中央スラスター',58,69,0,38,140,ra,false);
- engine('右舷ポッド・スラスター',100,35,Z(61),44,150,rpS,false);engine('左舷ポッド・スラスター',100,35,Z(-61),44,150,rpP,false);
+ engine('艦尾中央スラスター',M(58),M(69),0,M(38),M(140),ra,false);
+ engine('右舷ポッド・スラスター',M(100),M(35),Z(61),M(44),M(150),rpS,false);engine('左舷ポッド・スラスター',M(100),M(35),Z(-61),M(44),M(150),rpP,false);
  // ---- stern block: hyperdrive; forward: shield generators under the smooth segments ----
- part('hyper','ハイパードライブ（艦尾ブロック）',[300,130,0],21,{length:42.5});
- for(const sg of [-1,1])part('shield','偏向シールド発生器（平滑装甲セグメント内）',[930,86,Z(sg*20)],30);
- for(const sg of [-1,1])part('fuel','反応物サイロ',[700,82,Z(sg*14)],16,{length:28,dir:[0,1,0]});
- part('inertial','慣性補償装置',[1005,56,0],28,{length:60});
+ part('hyper','ハイパードライブ（艦尾ブロック）',[M(300),M(130),0],M(21),{length:M(42.5)});
+ for(const sg of [-1,1])part('shield','偏向シールド発生器（平滑装甲セグメント内）',[M(930),M(86),Z(sg*20)],M(30));
+ for(const sg of [-1,1])part('fuel','反応物サイロ',[M(700),M(82),Z(sg*14)],M(16),{length:M(28),dir:[0,1,0]});
+ part('inertial','慣性補償装置',[M(1005),M(56),0],M(28),{length:M(60)});
  if(opt.stage==='machinery'){delete s._building;return s;}
  // Heavy guns keep their charging plant wholly inside the envelope and clear of
  // machinery: the plant is pushed deeper until all its corners are enclosed.
@@ -4416,17 +4923,19 @@ function recusantBuild(opt={}){
    if(got+ps.length>n)continue;const fs=[];
    for(const [p,a] of ps){const f=tryMount(kind,p,a,zone+(ps.length>1?(p[2]>0?'-stbd':'-port'):''),o);if(!f||!clearOf(f,s.fits.concat(fs)))break;fs.push(f);}
    if(fs.length<ps.length)continue;s.fits.push(...fs);got+=fs.length;}
-  if(got<n)throw new Error('作例の砲座が不足しています: '+kind+' '+zone+' '+got+'/'+n);};
+  if(got<n){if(opt.dbg){opt.dbg.push(['SHORT',kind,zone,got,n]);return;}throw new Error('作例の砲座が不足しています: '+kind+' '+zone+' '+got+'/'+n);}};
  const range=(a,b,st)=>{const r=[];for(let x=a;x<=b+1e-6;x+=st)r.push(x);return r;};
+ const mr=(a,b,st)=>range(M(a),M(b),st);
  // Pods seat on the first wall hit among a few probe heights.
  const pod=(kind,host,o,dir,w,h)=>{let err='取付面がありません';for(const dy of [0,-4,4,-8,8,-12,12,-16,16])for(const dz of [0,-6,6,-12,12]){const q0=[o[0],o[1]+dy,o[2]+(dir[2]?0:dz)];const hit=rayPart(q0,dir,host);if(!hit)continue;const r=placeFit(s,kind,hit.p,hit.n,0,false);if(r.fit){r.fit.width=w;r.fit.height=h;r.fit.commandDepth=7;r.fit.commandHeight=5;return r.fit;}err=r.err;}throw new Error('艦橋ポッド '+kind+': '+err);};
 
  const bow=s.parts.find(p=>p.label==='艦首背面稜線'),dome=s.parts.find(p=>p.label==='背部ドーム稜線');
- pod('podBridge',bow,[1010,122,Z(60)],[0,0,-1],12,5);
- pod('podCombat',bow,[1010,122,Z(-60)],[0,0,1],12,5);
- pod('podAir',dome,[700,150,Z(60)],[0,0,-1],12,5);
+ pod('podBridge',bow,[M(1010),M(122),Z(60)],[0,0,-1],12,5);
+ pod('podCombat',bow,[M(1010),M(122),Z(-60)],[0,0,1],12,5);
+ pod('podAir',dome,[M(700),M(150),Z(60)],[0,0,-1],12,5);
  syncAviationSurfaces(s);s._lockedCache=cache(s);
  try{withFrozenStructures(()=>{
+  if(!dn){
   // 1 prow heavy turbolaser cannon at the very front
   spread('stl',1,'bottom','prow',range(1080,1170,6).reverse(),[0]);
   // 4 heavy turbolaser cannons on the forward flanks, below the smooth segments
@@ -4442,26 +4951,51 @@ function recusantBuild(opt={}){
   spread('pd',8,'top','dorsal-pd',range(470,1080,64),[Z(40),Z(48),Z(30),Z(56)]);
   spread('pd',4,'top','aft-pd',range(150,460,60),[Z(8),Z(20)]);
   // (the pod point-defence row of earlier versions is left off)
+  }else{
+  // The dreadnought: about three times the light destroyer's guns, the main
+  // battery a size heavier. A super-heavy turbolaser in the prow.
+  spread('utl',1,'bottom','prow',mr(1080,1170,4).reverse(),[0]);
+  // 12 heavy turbolaser cannons on the forward flanks, below the smooth segments
+  spread('stl',12,'beam','fwd-flank-heavy',mr(860,1060,40),[M(66),M(72),M(60),M(78),M(54)]);
+  // 12 heavy turbolaser turrets on the dorsal hump, 9 on the bow ridge
+  spread('htl',12,'top','dorsal-heavy',mr(590,800,12),[Z(28),Z(20),Z(36),0,Z(44)]);
+  spread('htl',9,'top','bow-ridge',mr(850,1090,12),[0]);
+  // 30 dual laser cannons along the mid-ship flanks
+  spread('ltl',30,'beam','laser',mr(470,880,14),[M(34),M(48),M(80),M(92),M(62)]);
+  // 60 point-defence laser cannons
+  spread('pd',24,'bottom','ventral-pd',mr(470,1010,24),[Z(14),Z(30),Z(44)]);
+  spread('pd',24,'top','dorsal-pd',mr(470,1080,24),[Z(40),Z(48),Z(30),Z(56)]);
+  spread('pd',12,'top','aft-pd',mr(150,460,24),[Z(8),Z(20)]);
+  }
  });}finally{delete s._lockedCache;}
  if(opt.stage==='fitted'){delete s._building;return s;}
 
  if(opt.stage==='shape'){delete s._building;return s;}
- for(const [kind,label,c,size,role,mirror] of D.rooms||[]){const o={room:size};if(typeof role==='string')o.airRole=role;placePart(s,kind,c,30,{label,...o},mirror===1||role===1);}
- s.airWings=REC_AIR.map(r=>({...r}));s.groundForces=normalizeGroundForces(REC_GROUND);
+ for(const [kind,label,c,size,role,mirror] of D.rooms||[]){const o={room:dn?size.map(M):size};if(typeof role==='string')o.airRole=role;placePart(s,kind,dn?c.map(M):c,dn?M(30):30,{label,...o},mirror===1||role===1);}
+ if(opt.stage==='rooms'){delete s._building;return s;}
+ // Crew quarters (v18): enough berths for the crew the ship needs.
+ for(const [label,c,size,mirror] of dn?REC_DN_CREW:REC_CREW)placePart(s,'crew',c,30,{label,room:size},!!mirror);
+ s.airWings=(dn?REC_DN_AIR:REC_AIR).map(r=>({...r}));s.groundForces=normalizeGroundForces(dn?REC_DN_GROUND:REC_GROUND);
  delete s._building;adoptEquipment(s,true);remount(s);
  // Broadside batteries along the flanks (v14): short-ranged, the most fire for the power.
- sideBattery(s,[300,420,540,660,780,900],null,'casemateMid',{level:.5});remount(s);syncCompartments(s);
+ sideBattery(s,dn?[240,300,360,420,480,540,600,690,750,810,870,930].map(M):[300,420,540,660,780,900],null,'casemateMid',{level:.5});remount(s);syncCompartments(s);
  return s;
 
 }
-registerShipExample({
- key:'recusant',name:'レキュザント級軽駆逐艦',side:'独立星系連合',role:'軽駆逐艦',length:1187,
- title:'Star Wars: The Clone Wars Recusant (S3E2 style)',author:'lolqeeeeeeeeee',authorUrl:'https://sketchfab.com/lolqeeeeeeeeee',
+const REC_CREDIT={title:'Star Wars: The Clone Wars Recusant (S3E2 style)',author:'lolqeeeeeeeeee',authorUrl:'https://sketchfab.com/lolqeeeeeeeeee',
  source:'https://sketchfab.com/3d-models/star-wars-the-clone-wars-recusant-s3e2-style-c0abad60cab44d9197589a69e78fb6c5',license:'CC BY-NC 4.0',
- credit:'This work is based on "Star Wars: The Clone Wars Recusant (S3E2 style)" (https://sketchfab.com/3d-models/star-wars-the-clone-wars-recusant-s3e2-style-c0abad60cab44d9197589a69e78fb6c5) by lolqeeeeeeeeee (https://sketchfab.com/lolqeeeeeeeeee) licensed under CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)',
- note:'DK の断面図の配置と寸法（全長 1,187 m・幅 157 m・高さ 163 m）に合わせ、Sketchfab の 3D モデル（lolqeeeeeeeeee 作、S3E2 版、CC BY-NC 4.0）の実測形状を幅方向に 0.921 倍して組み直した軽駆逐艦。艦首上部と前部腹部の平滑装甲セグメントは装甲外板（厚さ 0.6 m）で、武装は載せない。艦尾ブロックにハイパードライブとイオン化室（舷側ポッド）、主船体後端に主反応炉、中央部の中空構造に艦載機の待機空洞（腹部に開口、格納庫ではない）、下部に居住甲板、艦首側に偏向シールド発生器と慣性補償装置、艦首上部の稜線に艦橋。兵装は艦首重ターボレーザー砲 1 基、艦首側面の重ターボレーザー砲 4 基、背部の中ターボレーザー砲塔 4 基、艦首稜線のターボレーザー砲 3 基、二連レーザー砲 10 基、点防御砲 20 基、舷側の連装ケースメイト砲 12 基（原典の砲塔数から、見た目と火力を同級の艦に揃えて減らしています）。停止保管バトル・ドロイド 4 万体、空洞にヴァルチャー 66 機とトライファイター 32 機（機数はゲーム上の設定）。加速約 2,840 G、ハイパードライブ・クラス 2。公式の乗員は 300。',
+ credit:'This work is based on "Star Wars: The Clone Wars Recusant (S3E2 style)" (https://sketchfab.com/3d-models/star-wars-the-clone-wars-recusant-s3e2-style-c0abad60cab44d9197589a69e78fb6c5) by lolqeeeeeeeeee (https://sketchfab.com/lolqeeeeeeeeee) licensed under CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)'};
+registerShipExample({
+ key:'recusant',name:'レキューザント級軽デストロイヤー',side:'独立星系連合',role:'軽デストロイヤー',length:1187,...REC_CREDIT,
+ note:'DK の断面図の配置と寸法（全長 1,187 m・幅 157 m・高さ 163 m）に合わせ、Sketchfab の 3D モデル（lolqeeeeeeeeee 作、S3E2 版、CC BY-NC 4.0）の実測形状を幅方向に 0.921 倍して組み直した軽デストロイヤー。艦首上部と前部腹部の平滑装甲セグメントは装甲外板（厚さ 0.6 m）で、武装は載せない。艦尾ブロックにハイパードライブとイオン化室（舷側ポッド）、主船体後端に主反応炉、中央部の中空構造に艦載機の待機空洞（腹部に開口、格納庫ではない）、下部に居住甲板、艦首側に偏向シールド発生器と慣性補償装置、艦首上部の稜線に艦橋。兵装は艦首重ターボレーザー砲 1 基、艦首側面の重ターボレーザー砲 4 基、背部の中ターボレーザー砲塔 4 基、艦首稜線のターボレーザー砲 3 基、二連レーザー砲 10 基、点防御砲 20 基、舷側の連装ケースメイト砲 12 基（原典の砲塔数から、見た目と火力を同級の艦に揃えて減らしています）。停止保管バトル・ドロイド 4 万体、空洞にヴァルチャー 66 機とトライファイター 32 機（機数はゲーム上の設定）。加速約 2,840 G、ハイパードライブ・クラス 2。公式の乗員は 300。',
  airWings:REC_AIR,groundForces:REC_GROUND,
  build:recusantBuild
+});
+registerShipExample({
+ key:'recusantDn',name:'レキューザント級ドレッドノート',side:'独立星系連合',role:'ドレッドノート',length:2374,...REC_CREDIT,
+ note:'レキューザント級軽デストロイヤーと同じ Sketchfab の 3D モデル（lolqeeeeeeeeee 作、S3E2 版、CC BY-NC 4.0）から組み直した船体・構造物・区画を全寸法 2 倍（全長 2,374 m、容積は約 8 倍）にした独立星系連合のドレッドノート。正史の諸元はなく、ゲーム上の設定。区画の配置は軽デストロイヤーと同じ。兵装は軽デストロイヤーの約 3 倍で主砲を一段重くし、艦首の超重ターボレーザー砲 1 基、艦首側面の大型重ターボレーザー砲 12 基、背部の重ターボレーザー砲塔 12 基、艦首稜線の重ターボレーザー砲 9 基、二連レーザー砲 30 基、点防御砲 60 基、舷側の連装ケースメイト砲 24 基。停止保管バトル・ドロイド 32 万体、中央の空洞にヴァルチャー 264 機とトライファイター 128 機（機数はゲーム上の設定）。主船体中央部に乗員居住区（約 9 万 m³）。加速約 2,960 G（装甲外板の厚さは拡大しないため質量が 8 倍より軽い）、ハイパードライブ・クラス 1.7。',
+ airWings:REC_DN_AIR,groundForces:REC_DN_GROUND,
+ build:(opt={})=>recusantBuild({...opt,scale:2})
 });
 }
 
@@ -4616,8 +5150,8 @@ const COMBAT={
  fireGrow:.03, fireDC:.04, fireDmg:.5, fireCrew:.001, fireFrame:.08, fireSpread:.04,
  bandCost:{long:1,mid:.8,close:.55}   // stored energy per TT fired, by range band
 };
-const IGNITE={reactor:.22,fuel:.38,battery:.18,launcher:.3,hangar:.28,quarters:.14,weapon:.07,engine:.18,capacitor:.18,shield:.12,bridge:.12,hyper:.15,fire:.09,other:.1};
-const FLAMMABLE={fuel:1,launcher:.9,hangar:.7,battery:.5,reactor:.4,capacitor:.3};
+const IGNITE={magazine:.32,reactor:.22,fuel:.38,battery:.18,launcher:.3,hangar:.28,quarters:.14,weapon:.07,engine:.18,capacitor:.18,shield:.12,bridge:.12,hyper:.15,fire:.09,other:.1};
+const FLAMMABLE={magazine:.95,fuel:1,launcher:.9,hangar:.7,battery:.5,reactor:.4,capacitor:.3};
 
 // ---------- combat power ----------
 // Reactor output feeds the hotel load and ray shields first, then shields,
@@ -4649,8 +5183,8 @@ function coreDetonation(load){return clamp(.02+.25*Math.max(0,load-.55)**2+1.2*M
 // carries. Weight is the area a module presents (exposed ones count more,
 // critical ones less behind a citadel); hits is how many penetrating hits wreck
 // it. The hull itself takes a share of hits that only damage structure.
-const MODULE_LABEL={hull:'船体構造',reactor:'反応炉',shield:'シールド発生器',engine:'推進機関',hyper:'ハイパードライブ',hangar:'格納庫',battery:'パワーセル',fuel:'反応物サイロ',quarters:'居住区',bridge:'艦橋・指揮所',fire:'射撃管制',capacitor:'主砲充電装置',weapon:'砲塔',launcher:'ミサイル発射管',other:'その他区画'};
-const MODULE_PART_KIND={gen:'reactor',aux:'reactor',shield:'shield',localShield:'shield',engine:'engine',machinery:'engine',hyper:'hyper',hangar:'hangar',service:'hangar',battery:'battery',fuel:'fuel',crew:'quarters',troops:'quarters',command:'bridge',firecontrol:'fire',capacitor:'capacitor'};
+const MODULE_LABEL={magazine:'VLS弾庫',hull:'船体構造',reactor:'反応炉',shield:'シールド発生器',engine:'推進機関',hyper:'ハイパードライブ',hangar:'格納庫',battery:'パワーセル',fuel:'反応物サイロ',quarters:'居住区',bridge:'艦橋・指揮所',fire:'射撃管制',capacitor:'主砲充電装置',weapon:'砲塔',launcher:'ミサイル発射管',other:'その他区画'};
+const MODULE_PART_KIND={vls:'magazine',gen:'reactor',aux:'reactor',shield:'shield',localShield:'shield',engine:'engine',machinery:'engine',hyper:'hyper',hangar:'hangar',service:'hangar',battery:'battery',fuel:'fuel',crew:'quarters',troops:'quarters',command:'bridge',firecontrol:'fire',capacitor:'capacitor'};
 const CRIT_MODULES=new Set(['reactor','shield','hyper','fuel','battery']);
 const AIM_KINDS={auto:'艦全体',reactor:'反応炉',bridge:'艦橋',weapon:'砲塔',engine:'推進機関',shield:'シールド発生器'};
 const MAGAZINE_MISSILES=120,FLEET_MIN_CREW=.35;
@@ -4661,13 +5195,14 @@ function fleetModules(ship,S){
  for(const f of ship.fits){const d=FITS[f.k];if(!d||f.float)continue;let k=null;
   if(d.cat==='w')k=d.msl?'launcher':'weapon';else if(d.cat==='b'&&(!d.role||d.role==='bridge'||d.role==='combat')&&(S.commandInfo?.[f.id]?.ratio??1)>0)k='bridge';if(!k)continue;
   const s=fitSpec(f);byFit.set(f.id,mods.length);
-  mods.push(place({k,fit:f.id,name:d.short||d.name,w:s.fm*s.wm*1.2,hits:clamp(Math.round(Math.max(s.fm,s.wm)/24),1,4),crew:s.crew||0,size:k==='weapon'?(s.tt||0)+(s.ion||0)+(s.aa||0)*.5:1,stock:k==='launcher'?MAGAZINE_MISSILES:0,at:+clamp((f.p[0]-X0)/L,0,1).toFixed(3),pd:k==='weapon'&&(d.aa||0)>0&&!((d.tt||0)>.01)&&!d.ion,band:k==='weapon'?fitBand(d):undefined},f.p,Math.max(s.fm,s.wm)/2));}
+  const mm=k==='launcher'?MISSILE_MOUNTS[missileMount(f)]:null,cellK=mm&&missileMount(f)==='vls'?clamp(S.vlsInfo?.[f.id]?.ratio??1,0,1):1;
+  mods.push(place({k,fit:f.id,name:d.short||d.name,w:s.fm*s.wm*1.2*(mm?mm.expose:1),hits:clamp(Math.round(Math.max(s.fm,s.wm)/24),1,4),crew:s.crew||0,size:k==='weapon'?(s.tt||0)+(s.ion||0)+(s.aa||0)*.5:1,stock:k==='launcher'?Math.round(mm.stock*MAGAZINE_MISSILES/120*cellK):0,mount:mm?missileMount(f):undefined,at:+clamp((f.p[0]-X0)/L,0,1).toFixed(3),pd:k==='weapon'&&(d.aa||0)>0&&!((d.tt||0)>.01)&&!d.ion,band:k==='weapon'?fitBand(d):undefined},f.p,Math.max(s.fm,s.wm)/2));}
  for(const f of intrinsicCommandFits(ship)){const d=FITS[f.k];if(!d||(d.role!=='bridge'&&d.role!=='combat')||(S.commandInfo?.[f.id]?.ratio??0)<=0)continue;mods.push(place({k:'bridge',name:d.short||d.name,w:(f.width||15)*(f.height||6)*1.2,hits:1,crew:d.crew||16,size:1,at:+clamp((f.p[0]-X0)/L,0,1).toFixed(3)},f.p,(f.width||15)/2));}
  for(const p of allOccupied(ship)){
   if(p.windowId!=null)continue;const V=partVolume(p);if(!(V>1))continue;const k=MODULE_PART_KIND[p.k]||'other';
   let w=Math.pow(V,2/3)*((p._packing?.retained??p._clip?.retained??1)<.97?1.5:1);if(CRIT_MODULES.has(k))w*=protect;
   const m={k,name:partLabel(p),w,hits:clamp(Math.round(Math.cbrt(V)/22),1,5),crew:V*(PARTS[p.k]?.crew||0)/1000,size:V,at:+clamp(((p.c?.[0]??X0+L/2)-X0)/L,0,1).toFixed(3)};
-  if(k==='capacitor'&&byFit.has(p.weaponId))m.link=byFit.get(p.weaponId);mods.push(place(m,p.c,Math.cbrt(V)/2));}
+  if((k==='capacitor'||k==='magazine')&&byFit.has(p.weaponId))m.link=byFit.get(p.weaponId);mods.push(place(m,p.c,Math.cbrt(V)/2));}
  const total={};for(const m of mods)total[m.k]=(total[m.k]||0)+m.size;for(const m of mods)m.share=total[m.k]>0?m.size/total[m.k]:0;
  const rest=mods.reduce((n,m)=>n+m.w,0);mods.push({k:'hull',name:MODULE_LABEL.hull,w:Math.max(1,rest*.6),hits:Infinity,crew:0,size:1,share:1});
  return mods;
@@ -4677,7 +5212,7 @@ function fleetProfile(S,name,ship){
  const out={...p,embarkedSlots:Math.floor(S.slots||0),aviationSize:S.aviation?.usedSize||0,launch:S.launchPotential??p.launch,slidingHatches:S.slidingHatches||0,hatchOpenSeconds:S.slidingHatches?S.hatchOpenSeconds||4:0,hatchCloseSeconds:S.slidingHatches?S.hatchCloseSeconds||4:0,gunArcs:[...S.alphaRate],ionArcs:[...S.ionRate],aaArcs:[...(S.aaArc||[0,0,0,0,0,0])],accel,maxSpeed:accel>0?Math.min(FLEET_RULES.maxSpeed,Math.sqrt(accel*Math.max(200,p.len)*24)):0,turnRate:accel>0?clamp(.11*Math.sqrt(Math.max(1,S.accelG)/3000)*Math.sqrt(1600/Math.max(100,p.len)),.015,.24):0,width:S.dims[1],height:S.dims[2],power:S.xISD};
  // Power figures in watts; weapon energy in TT (one TT fired costs one TT stored).
  out.grid={P:S.power||0,fixed:(dr.hotel||0)+(dr.ray||0),De:dr.engines||0,Ds:dr.shields||0,Dw:dr.weapons||0};
- out.armorHull=S.armorAvg??S.armorHull??0;out.armorPlate=S.armorPlate||0;out.plateShare=S.plateShare||0;out.crewNeed=S.crew||0;
+ out.armorHull=S.armorAvg??S.armorHull??0;out.armorPlate=S.armorPlate||0;out.plateShare=S.plateShare||0;out.crewNeed=S.crew||0;out.crewMax=Math.min(S.crew||0,S.crewAboard??S.crew??0);
  out.wCap=ship?ship.fits.filter(f=>FITS[f.k]?.cat==='w'&&!f.float).reduce((n,f)=>{const s=fitSpec(f);return n+(needsCapacitor(f)?S.chargeInfo?.[f.id]?.storedTT||0:(s.tt||0)+(s.ion||0));},0):(S.alphaTot||0)+(S.ionTot||0);
  if(S.bandRate)out.gunBands={long:[...S.bandRate.long],mid:[...S.bandRate.mid],close:[...S.bandRate.close]};
  if(ship){out.modules=fleetModules(ship,S);const hs=hullSectionShares(ship);out.sections=hs.shares;out.sectionCuts=hs.cuts;
@@ -4725,7 +5260,7 @@ function hullSectionShares(ship){
 
 function fleetUnit(id,key,p,team=0){
  const shield=Math.max(0,p.shieldBuffer??p.D*K.bufferS),bank=Math.max(0,p.reserve||0),mods=p.modules||[];
- return combatInit({id,key,name:p.name,team,p,pos:[0,0,0],yaw:0,velocity:[0,0,0],hp:p.hp,shield,shieldMax:shield,bank,bankMax:bank,armor:1,energy:p.wCap||0,load:0,engF:1,crew:p.crewNeed||0,mods:mods.map(()=>1),ammo:mods.map(m=>m.stock||0),hitAcc:0,out:null,fate:null,air:0,launched:0,lost:0,hatchOpen:0,hatchTarget:0,queue:[],order:{type:'hold',fire:true,launch:false,power:'auto',aim:'auto'},dead:false});
+ return combatInit({id,key,name:p.name,team,p,pos:[0,0,0],yaw:0,velocity:[0,0,0],hp:p.hp,shield,shieldMax:shield,bank,bankMax:bank,armor:1,energy:p.wCap||0,load:0,engF:1,crew:p.crewMax??p.crewNeed??0,mods:mods.map(()=>1),ammo:mods.map(m=>m.stock||0),hitAcc:0,out:null,fate:null,air:0,launched:0,lost:0,hatchOpen:0,hatchTarget:0,queue:[],order:{type:'hold',fire:true,launch:false,power:'auto',aim:'auto'},dead:false});
 }
 function fleetFormation(units,form='line',gap=600){
  if(!units.length)return units;gap=clamp(Number(gap)||0,0,10000);
@@ -4832,6 +5367,7 @@ function combatModuleDamage(ctx,u,i,dmg,Q,why){
  let fire=false;if(why!=='fire'&&!u.secLost.includes(si)&&ctx.rand()<(IGNITE[m.k]??.1)*Math.min(1,q*1.5)){fire=!(u.fire[si]>0);u.fire[si]=Math.max(u.fire[si]||0,.3);if(fire)ev(`${SECTION_NAMES[si]||'区画'}で火災発生（${m.name}）`);}
  if(!boom&&before>0&&u.mods[i]<=0){
   if(m.k==='capacitor'&&m.link!=null&&u.mods[m.link]>0){u.mods[m.link]=0;ev(`${m.name} 破壊（${p.modules[m.link].name} 射撃不能）`);}
+  else if(m.k==='magazine'&&m.link!=null&&u.mods[m.link]>0){u.mods[m.link]=0;if(u.ammo)u.ammo[m.link]=0;ev(`${m.name} 破壊（${p.modules[m.link].name} 発射不能）`);}
   else if(m.k==='reactor')ev(`${m.name} 停止（出力 −${Math.round(m.share*100)}%）`);
   else if(m.k!=='other'&&m.k!=='quarters')ev(`${m.name} 破壊`);}
  return {after:u.mods[i],fire,boom};
@@ -5033,6 +5569,9 @@ function hullAvoid(u,list,want){
 // outside the model (a piloted ship's bolts). A unit with manual set is flown
 // and fought by the player: the model only resolves the damage it takes. An
 // absent unit (still in hyperspace) takes no part at all.
+// v18 How hard a ship's drives burn, for the engine glow (0–1): the share of
+// full acceleration it is using, over a cruise floor that rises with speed.
+function engineLevel(u){if(!u||u.out||u.dead)return 0;const v=u.velocity?len(u.velocity):0,vm=u.p?.maxSpeed||FLEET_RULES.maxSpeed;return clamp(Math.max(clamp(u.maneuver||0,0,1),.16+.3*clamp(v/Math.max(1,vm),0,1)),0,1);}
 function fleetTick(b,dt,opts={}){
  const RULES=opts.rules||FLEET_RULES,DMG=RULES.damage??1;
  const alive=b.units.filter(u=>!u.dead&&!u.absent).sort((a,b)=>String(a.id).localeCompare(String(b.id))),before=alive.map(u=>({...u,pos:[...u.pos],velocity:[...u.velocity]})),byId=new Map(before.map(u=>[u.id,u])),sys=new Map(alive.map(u=>[u.id,fleetSystems(u)]));
@@ -5142,12 +5681,12 @@ function alignPart(ship,p,mode,mirror=true){
  return p;
 }
 function replacementShape(p){
- if(!p||['machinery','capacitor','engine'].includes(p.k))return null;
+ if(!p||['machinery','capacitor','vls','engine'].includes(p.k))return null;
  if(p.k==='struct')return p.form==='box'?'cube':p.form==='ellipsoid'&&Math.max(...p.s)-Math.min(...p.s)<.01?'sphere':null;
  if(p.skinAsset&&!(p.k==='sensor'&&(equipmentSpec(p)?.id==='isdSensor'||p.skinAsset.startsWith('isd_sensor_'))))return null;
  return ['sphere','cube','cyl'].includes(PARTS[p.k]?.shape)?PARTS[p.k].shape:null;
 }
-function replacementOptions(p){const shape=replacementShape(p);return shape?Object.keys(PARTS).filter(k=>!['machinery','capacitor','engine'].includes(k)&&(k==='struct'?['sphere','cube'].includes(shape):PARTS[k].shape===shape)):[];}
+function replacementOptions(p){const shape=replacementShape(p);return shape?Object.keys(PARTS).filter(k=>!['machinery','capacitor','vls','engine'].includes(k)&&(k==='struct'?['sphere','cube'].includes(shape):PARTS[k].shape===shape)):[];}
 function replacePart(ship,p,k,mirror=true){
  if(!replacementOptions(p).includes(k))throw new Error('同じ基本形状の設備を選んでください');
  if(k===p.k)return p;
@@ -5219,10 +5758,10 @@ function habitationSpace(ship){
 }
 function layoutStats(ship,S){
  const h=habitationSpace(ship);S.autoHabitationVolume=ship.autoHabitation===false?0:h.volume;S.unassignedVolume=h.volume;
- S.explicitCrewCapacity=S.crewCapacity;S.autoCrewCapacity=Math.floor(S.autoHabitationVolume/24);S.crewCapacity+=S.autoCrewCapacity;S.habit=S.crew?S.crewCapacity/S.crew:1;
+ S.envelopeVolume=h.envelopeVolume;S.explicitCrewCapacity=S.crewCapacity;S.autoCrewCapacity=Math.floor(S.autoHabitationVolume/FREE_M3_PER_CREW);S.crewCapacity+=S.autoCrewCapacity;S.habit=S.crew?S.crewCapacity/S.crew:1;S.crewAboard=Math.min(S.crew||0,S.crewCapacity);
  S.commandVolume=[...commandCompartments(ship),...ship.parts.filter(p=>p.k==='command')].reduce((n,p)=>n+partVolume(p),0);
  S.warnings=S.warnings.filter(w=>!w.text.startsWith('居住区'));
- if(S.habit<1)S.warnings.push({lv:'warn',code:'habitation',text:`居住区の収容 ${S.crewCapacity.toLocaleString()} 名／必要乗員 ${S.crew.toLocaleString()} 名。`});
+ if(S.habit<1){const low=S.habit<FLEET_MIN_CREW;S.warnings.push({lv:low?'bad':'warn',code:'habitation',text:`居住区と船内の空き容積に乗れる乗員は ${S.crewCapacity.toLocaleString()} 名で、必要な ${S.crew.toLocaleString()} 名（うち武装 ${(S.weaponCrew||0).toLocaleString()} 名）に ${(S.crew-S.crewCapacity).toLocaleString()} 名足りません（${Math.round(S.habit*100)}%）。${low?'最低限の乗員にも届かず、戦闘では動けません。':'戦闘では射撃と応急が遅れます。'}武装を減らすか、居住区を追加してください。`});}
  for(const [id,c] of Object.entries(S.commandInfo))if(c.ratio<.95)S.warnings.push({lv:'warn',code:'command-room',fitId:+id,text:`${COMMAND_ROLES[c.role]}区画 #${id} は${c.blocked?'他区画と干渉':'外殻内の容積が不足'}しています（有効 ${Math.round(c.ratio*100)}%）。`});
  for(const p of ship.parts.filter(p=>p.k==='command')){const ratio=clamp(partVolume(p)/Math.max(1,unclippedPartVolume(p)),0,1);if(ratio<.95)S.warnings.push({lv:'warn',code:'command-room',partId:p.id,text:`無窓式指揮室 #${p.id} は外殻内の容積が不足しています（有効 ${Math.round(ratio*100)}%）。`});}
  for(const p of ship.parts)if(p._packing?.limited)S.warnings.push({lv:'warn',code:'packing-space',partId:p.id,text:`${partLabel(p)} #${p.id} の自動統合後の容積が不足しています（${Math.round(p._packing.retained*100)}%）。近くの空間を空けるか構造を追加してください。`});
@@ -5577,7 +6116,7 @@ function syncAviationSurfaces(ship){
 }
 
 
-return {PLATE,plateThickness,shipSpan,HULL_SECTIONS,SECTION_NAMES,hullSectionShares,SHIP_LIGHT_KINDS,SHIP_EXAMPLES,registerShipExample,shipKit,fitTilt,fitUp,fitFrameOf,openingRimPoint,surfSamples,groundingStats,turretRayContext,turretClear,turretOrigin,turretRate,GROUND_LIMITS,GROUND_PRESETS,GROUND_VEHICLE_VOLUME,normalizeGroundForces,groundStatus,planStations,bridgeBodyRole,podPoint,podDepth,intrinsicCommandFits,POD_ASSET,BRIDGE_BODY_COMMAND,REFERENCE_TONE,engineSkinMesh,referenceFitYaw,rayTris,vmirrorPlane,vmirrorPoint,vmirrorPart,SHIP_CLASSES,shipClassFor,PUBLIC_LISTS,publicJSON,patchShip,patchItem,cache,AIRCRAFT_CLEARANCE,aircraftFitsBay,AVIATION_SIZE_VOLUME,AIR_WING_LIMITS,hangarCapacity,normalizeAirWings,aviationStatus,AVIATION_SURFACE_FACES,hatchAxes,aviationSurfaceContacts,setAviationSurfaceMode,syncAviationSurfaces,aviationHatchActive,isSlidingHatch,slidingHatchSpec,slidingHatchPanels,hatchOpenArea,ISD_HYPER_BASELINE,HYPER_CLASS_COEFFICIENT,HYPER_POWER_DENSITY,ISD_SHIELD_VOLUME,SHIELD_BUFFER_SECONDS,SHIELD_ENERGY_DENSITY,SHIELD_POWER_DENSITY,REACTOR_POWER_DENSITY,SOLID_CUT_SHAPES,normalizeSolidCut,mirrorSolidCut,solidCutTriangles,solidCutBounds,solidCutContains,solidCutsContain,applySolidCuts,solidPartCutContains,solidStructVolume,solidCutIntersectsShip,flexibleCompartment,hardConflicts,weaponChargeSpec,DREADNOUGHT_EXAMPLES,DESIGN_LIMITS,ALIGNMENTS,alignedPosition,alignPart,replacementShape,replacementOptions,replacePart,COMMAND_ROLES,commandCompartments,commandStatus,habitationSpace,inspectionTargets,planCutEdge,normalizePlanCut,structFrame,alignStructure,FLEET_RULES,POWER_MODES,POWER_AUTO_NOTE,fleetAutoPower,AIM_KINDS,MODULE_LABEL,FLEET_MIN_CREW,powerSplit,coreDetonation,fleetModules,fleetSystems,fleetCrewEff,fleetEffective,fleetProfile,fleetUnit,fleetIntegrity,trenchBattery,sideBattery,fleetFire,fleetReach,fleetStandoff,fleetHeading,fleetBroadside,fleetPowerStep,bandFireAt,fitBand,GUN_BANDS,COMBAT,combatInit,combatIncoming,combatAdd,combatMerge,combatResolve,combatZones,combatClone,combatZoneAt,COMBAT_FACE,unpackBits,fleetFormation,fleetBattle,fleetOrder,fleetArc,fleetTick,hullHalf,hullMass,hullLocal,hullOverlap,hullSegment,fireBlocker,fireStray,hullCollide,hullImpact,HULL_HIT,HULL_FALL,hullFall,hullCarve,hullAvoid,fleetCommit,fleetFinish,fleetSample,fleetFrame,normalizeBow,bowStation,engineHullEntry,ENGINE_BASELINES,engineBaseline,resizeEngine,parametricEngine,engineRating,sourceEngine,EQUIPMENT,equipmentSpec,equipmentOptions,enforceEquipment,customizeEquipment,adoptEquipment,HYPERDRIVE_REFERENCE,hyperCapacity,arcParameters,arcPoint,arcTriangles,inArc,SEPARATIST_EXAMPLES,STATS_SOURCE,SHIP_REFERENCE,PART_RATINGS,reactorPower,nozzleThrust,nozzleDemand,shieldLoad,partRatingKeys,validOutline,outlinePoints,outlineArea,outlineTriangles,AVIATION_ROLES,CHARGE_TT_M3,aircraftCapacity,aviationConnected,needsCapacitor,weaponCapacitors,refitReferenceInterior,clipReferenceBox, referenceEnginePoint, fitSpec, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface,
+return {ENGINE_GLOWS,engineGlowOK,engineGlowRGB,engineLevel,MISSILE_MOUNTS,missileMount,missileCells,missileStatus,PLATE,plateThickness,shipSpan,HULL_SECTIONS,SECTION_NAMES,hullSectionShares,SHIP_LIGHT_KINDS,SHIP_EXAMPLES,registerShipExample,shipKit,fitTilt,fitUp,fitFrameOf,openingRimPoint,surfSamples,groundingStats,turretRayContext,turretClear,turretOrigin,turretRate,GROUND_LIMITS,GROUND_PRESETS,GROUND_VEHICLE_VOLUME,normalizeGroundForces,groundStatus,planStations,bridgeBodyRole,podPoint,podDepth,intrinsicCommandFits,POD_ASSET,BRIDGE_BODY_COMMAND,REFERENCE_TONE,engineSkinMesh,referenceFitYaw,rayTris,vmirrorPlane,vmirrorPoint,vmirrorPart,SHIP_CLASSES,shipClassFor,PUBLIC_LISTS,publicJSON,patchShip,patchItem,cache,AIRCRAFT_CLEARANCE,aircraftFitsBay,AVIATION_SIZE_VOLUME,AIR_WING_LIMITS,hangarCapacity,normalizeAirWings,aviationStatus,AVIATION_SURFACE_FACES,hatchAxes,aviationSurfaceContacts,setAviationSurfaceMode,syncAviationSurfaces,aviationHatchActive,isSlidingHatch,slidingHatchSpec,slidingHatchPanels,hatchOpenArea,ISD_HYPER_BASELINE,HYPER_CLASS_COEFFICIENT,HYPER_POWER_DENSITY,ISD_SHIELD_VOLUME,SHIELD_BUFFER_SECONDS,SHIELD_ENERGY_DENSITY,SHIELD_POWER_DENSITY,REACTOR_POWER_DENSITY,SOLID_CUT_SHAPES,normalizeSolidCut,mirrorSolidCut,solidCutTriangles,solidCutBounds,solidCutContains,solidCutsContain,applySolidCuts,solidPartCutContains,solidStructVolume,solidCutIntersectsShip,flexibleCompartment,hardConflicts,weaponChargeSpec,DREADNOUGHT_EXAMPLES,DESIGN_LIMITS,ALIGNMENTS,alignedPosition,alignPart,replacementShape,replacementOptions,replacePart,COMMAND_ROLES,commandCompartments,commandStatus,habitationSpace,inspectionTargets,planCutEdge,normalizePlanCut,structFrame,alignStructure,FLEET_RULES,POWER_MODES,POWER_AUTO_NOTE,fleetAutoPower,AIM_KINDS,MODULE_LABEL,FLEET_MIN_CREW,powerSplit,coreDetonation,fleetModules,fleetSystems,fleetCrewEff,fleetEffective,fleetProfile,fleetUnit,fleetIntegrity,trenchBattery,sideBattery,fleetFire,fleetReach,fleetStandoff,fleetHeading,fleetBroadside,fleetPowerStep,bandFireAt,fitBand,GUN_BANDS,COMBAT,combatInit,combatIncoming,combatAdd,combatMerge,combatResolve,combatZones,combatClone,combatZoneAt,COMBAT_FACE,unpackBits,fleetFormation,fleetBattle,fleetOrder,fleetArc,fleetTick,hullHalf,hullMass,hullLocal,hullOverlap,hullSegment,fireBlocker,fireStray,hullCollide,hullImpact,HULL_HIT,HULL_FALL,hullFall,hullCarve,hullAvoid,fleetCommit,fleetFinish,fleetSample,fleetFrame,normalizeBow,bowStation,engineHullEntry,ENGINE_BASELINES,engineBaseline,resizeEngine,parametricEngine,engineRating,sourceEngine,EQUIPMENT,equipmentSpec,equipmentOptions,enforceEquipment,customizeEquipment,adoptEquipment,HYPERDRIVE_REFERENCE,hyperCapacity,arcParameters,arcPoint,arcTriangles,inArc,SEPARATIST_EXAMPLES,STATS_SOURCE,SHIP_REFERENCE,PART_RATINGS,reactorPower,nozzleThrust,nozzleDemand,shieldLoad,partRatingKeys,validOutline,outlinePoints,outlineArea,outlineTriangles,AVIATION_ROLES,CHARGE_TT_M3,aircraftCapacity,aviationConnected,needsCapacitor,weaponCapacitors,refitReferenceInterior,clipReferenceBox, referenceEnginePoint, fitSpec, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface,
   TT, G0, ISD_W, K, PARTS, FITS, HULLS, SECTIONS, KEELS, SECTORS, CLASSES, DESIGNS, AXES, AXNAME, ARMOR_MAX,
   newShip, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
@@ -5663,6 +6202,14 @@ const FACTIONS = {
  cis: {name: '独立星系連合', short: '分離主義', color: '#c7a76a'}
 };
 const SIDE_OF = {'銀河帝国': 'empire', '反乱同盟': 'rebel', '銀河共和国': 'republic', '独立星系連合': 'cis'};
+// v18 Doctrine, by faction. The Rebel Alliance fights its capital ships for its
+// bombers: on 自動交戦 its ships pour their (mostly ion) fire into an enemy
+// whose shields still stand, finishing one before starting the next, and its
+// bomber wings hold back until a target's shields are down to strike before
+// they recover. Other factions fight as before.
+const DOCTRINE = {rebel: {name: 'イオン砲でシールドを剥ぎ、航空攻撃で撃沈', strip: .15, strike: .3, abort: .6}};
+const doctrineOf = (w, side) => DOCTRINE[w.sides[side]?.faction] || null;
+const shieldFrac = t => t && t.shieldMax > 0 ? Math.max(0, t.shield) / t.shieldMax : 0;
 
 // ---------- ground forces ----------
 // Companies of 144 (four platoons of 36), four to a battalion, four battalions
@@ -5799,7 +6346,7 @@ const KIND_NAME = {capital: '首都星系', shipyard: '造船星系', habitable:
 // ---------- designs and units ----------
 // info: what the operational layer needs beyond the fleet profile.
 function designInfo(S, p, extra = {}) {
- return {len: p.len, hyper: S.jumpOK ? S.hyperClass : null, sensor: S.sensor || 0, crew: S.crew || 0, troopCap: S.troopCapacity || 0,
+ return {len: p.len, hyper: S.jumpOK ? S.hyperClass : null, sensor: S.sensor || 0, crew: Math.min(S.crew || 0, S.crewAboard ?? S.crew ?? 0), crewNeed: S.crew || 0, troopCap: S.troopCapacity || 0,
   vehicleCap: (S.vehicleSizeCapacity || 0) + Math.floor((S.cargoCapacity || 0) / 600), slotCap: S.slots || 0, mass: S.mass || 0, cost: S.cost || 0,
   capital: p.len >= CAPITAL_LENGTH, ...extra};
 }
@@ -6051,6 +6598,16 @@ function bestTarget(w, us, from, side, worth, keep) {
  for (const a of foes) { const out = !!a.out; if (out && !bestOut) continue; const dx = a.pos[0] - from.pos[0], dy = a.pos[1] - from.pos[1], dz = a.pos[2] - from.pos[2], sc = Math.sqrt(dx * dx + dy * dy + dz * dz) * (a.info?.capital === from.info?.capital ? 1 : 1.6) * worth.get(a.id) * (keep === a.id ? .75 : 1); if ((bestOut && !out) || sc < best) { tgt = a; best = sc; bestOut = out; } }
  return tgt;
 }
+// Rebel doctrine: the enemy whose shields still stand, the nearest and most
+// dangerous first, favouring one already stripped part way (fire stays on it
+// until its shields are down); with every enemy's shields down, as usual.
+function doctrineTarget(w, us, from, side, worth, keep) {
+ const D = doctrineOf(w, side), up = us.filter(t => t.side !== side && alive(t) && !t.out && shieldFrac(t) > D.strip);
+ if (!up.length) return bestTarget(w, us, from, side, worth, keep);
+ let tgt = null, best = Infinity;
+ for (const a of up) { const dx = a.pos[0] - from.pos[0], dy = a.pos[1] - from.pos[1], dz = a.pos[2] - from.pos[2], sc = Math.sqrt(dx * dx + dy * dy + dz * dz) * (a.info?.capital === from.info?.capital ? 1 : 1.6) * worth.get(a.id) * (keep === a.id ? .7 : 1) * (.45 + shieldFrac(a)); if (sc < best) { tgt = a; best = sc; } }
+ return tgt;
+}
 function tacticalOrders(w, sys, us) {
  const worth = new Map(us.map(a => [a.id, Math.pow(1 / Math.max(1e-12, targetValue(a)), .35)]));
  const groups = new Map();for (const u of us) { const g = w.groups.get(u.group); if (g) groups.set(g.id, g); }
@@ -6059,7 +6616,7 @@ function tacticalOrders(w, sys, us) {
   if (g.order.type === 'attack') { const t = w.units.get(g.order.target); if (!t || !fighting(t) || t.side === g.side) g.order = {type: 'auto'}; }
   const ai = w.sides[g.side].ai || g.order.type === 'auto';if (!ai) continue;
   const members = g.units.map(id => w.units.get(id)).filter(u => u && u.sys === sys && fighting(u) && !u.manual && !u.jump);if (!members.length) continue;
-  const guide = members.find(u => u.id === g.flag) || members[0], tgt = bestTarget(w, us, guide, g.side, worth, g.auto?.target);
+  const guide = members.find(u => u.id === g.flag) || members[0], tgt = (doctrineOf(w, g.side) ? doctrineTarget : bestTarget)(w, us, guide, g.side, worth, g.auto?.target);
   g.auto = tgt ? {type: 'attack', target: tgt.id} : {type: 'hold'};
  }
  for (const u of us) {
@@ -6067,7 +6624,7 @@ function tacticalOrders(w, sys, us) {
   // Badly damaged AI ships with a hyperdrive leave.
   if (side.ai && unitStruct(u) < .28 && unitHyper(u) != null && !u.leaving) { u.leaving = true; aiWithdrawUnit(w, u); continue; }
   if (u.order.type !== 'auto') continue;
-  const tgt = bestTarget(w, us, u, u.side, worth, u.auto?.target);u.auto = tgt ? {type: 'attack', target: tgt.id} : {type: 'hold'};
+  const tgt = (doctrineOf(w, u.side) ? doctrineTarget : bestTarget)(w, us, u, u.side, worth, u.auto?.target);u.auto = tgt ? {type: 'attack', target: tgt.id} : {type: 'hold'};
  }
 }
 function groupOrder(w, g) { if (!g) return {type: 'hold'}; return g.order.type === 'auto' ? (g.auto || {type: 'hold'}) : g.order; }
@@ -6428,7 +6985,7 @@ function rearTick(w) {
  for (const u of w.units.values()) {
   if (u.status !== 'rear' || u.dead || w.time < u.rear.back) continue;
   const p = u.p, sd = w.sides[u.side], home = sd.start;C.combatInit(u);
-  u.mods = u.mods.map(() => 1);u.ammo = (p.modules || []).map(m => m.stock || 0);u.crew = p.crewNeed || 0;u.out = null;u.fate = null;u.fateHint = null;u.fall = null;u.load = 0;u.energy = p.wCap || 0;
+  u.mods = u.mods.map(() => 1);u.ammo = (p.modules || []).map(m => m.stock || 0);u.crew = p.crewMax ?? p.crewNeed ?? 0;u.out = null;u.fate = null;u.fateHint = null;u.fall = null;u.load = 0;u.energy = p.wCap || 0;
   u.shield = u.shieldMax = Math.max(0, p.shieldBuffer ?? p.D * C.K.bufferS);u.bank = u.bankMax = Math.max(0, p.reserve || 0);u.status = 'ready';
   const g = makeGroup(w, u.side, `${u.name}（修理完了）`, home);g.units = [u.id];g.flag = u.id;u.group = g.id;u.sys = home;u.order = {type: 'group', fire: true, power: 'auto', aim: 'auto'};deployGroup(w, g, null);
   for (const sid of u.squads) { const q = w.squads.get(sid); if (q && q.state === 'docked') { q.sys = home; q.pos = [...u.pos]; } }
@@ -6484,7 +7041,7 @@ function supplyNeeds(w, u, ln) {
  for (let i = 0; i < mods.length; i++) { const m = mods[i]; if (m.k === 'hull' || u.secLost.includes(u.secOf[i])) continue; const v = u.mods[i]; if (v > 0 && v < 1) dm += (1 - v) * (m.w || 0); else if (v <= 0 && yard) dd += m.w || 0; }
  out.mods = dm / W * base * SUPPLY.repair * .5;out.parts = dd / W * base * SUPPLY.repair;
  const Z = C.combatZones(p, u.sec.length);let pl = 0;for (let z = 0; z < Z.n; z++) if (u.zi[z] < 1) pl += (1 - u.zi[z]) * Z.A[z];out.plate = pl / Math.max(1, Z.area) * base * SUPPLY.repair * .3;
- if (yard) out.crew = Math.max(0, (p.crewNeed || 0) - u.crew) * SUPPLY.crew;
+ if (yard) out.crew = Math.max(0, (p.crewMax ?? p.crewNeed ?? 0) - u.crew) * SUPPLY.crew;
  out.total = out.ammo + out.craft + out.hull + out.mods + out.parts + out.plate + out.crew;if (out.total < .5) out.total = 0;
  return out;
 }
@@ -6492,7 +7049,7 @@ function supplyNeeds(w, u, ln) {
 function supplyGive(w, u, nd, t) {
  if (!(t > 0)) return;const p = u.p, mods = p.modules || [];
  const use = (want, f) => { if (!(want > 0) || !(t > 0)) return; const k = Math.min(1, t / want); t -= want * k; f(k); };
- use(nd.crew, k => { u.crew = Math.min(p.crewNeed || 0, u.crew + Math.max(0, (p.crewNeed || 0) - u.crew) * k); });
+ use(nd.crew, k => { const cm = p.crewMax ?? p.crewNeed ?? 0; u.crew = Math.min(cm, u.crew + Math.max(0, cm - u.crew) * k); });
  use(nd.ammo, k => { for (let i = 0; i < mods.length; i++) if (mods[i].k === 'launcher' && u.mods[i] > 0) u.ammo[i] = Math.min(mods[i].stock || 0, u.ammo[i] + Math.max(0, (mods[i].stock || 0) - u.ammo[i]) * k); });
  use(nd.craft, k => { for (const sid of u.squads) { const q = w.squads.get(sid); if (!q || !(q.n0 > 0) || (q.state !== 'docked' && q.state !== 'lost')) continue; q.n = Math.min(q.n0, q.n + (q.n0 - q.n) * k); if (q.state === 'lost' && q.n >= 1) { q.state = 'docked'; q.sys = u.sys; q.pos = [...u.pos]; q.t = RULES.craftRearm; } } });
  use(nd.mods, k => { for (let i = 0; i < mods.length; i++) { const v = u.mods[i]; if (v > 0 && v < 1 && !u.secLost.includes(u.secOf[i])) u.mods[i] = Math.min(1, v + (1 - v) * k); } });
@@ -6590,10 +7147,25 @@ function aiStrategic(w, side) {
 function aiWing(w, wing, home) {
  const sqs = wing.squads.map(id => w.squads.get(id)).filter(s => s && s.state !== 'lost'), bombers = sqs.filter(s => CRAFT[s.craft].role === 'bomber').length;
  const foes = systemUnits(w, home.sys).filter(u => u.side !== home.side && fighting(u)).sort((a, b) => b.p.len - a.p.len);if (!foes.length) return;
- const cur = wing.auto;if (cur && (cur.type !== 'strike' || fighting(w.units.get(cur.target)))) return;
+ const cur = wing.auto, D = doctrineOf(w, home.side);
+ // Rebel doctrine: bombers wait over the fleet for a target whose shields are
+ // down (the largest such), then go in; the even-numbered fighter wings with them.
+ if (D) {
+  // A strike already flying goes on, unless the target's shields came back up
+  // before the bombers got there; then they pick again or fall back.
+  const ct = cur?.type === 'strike' ? w.units.get(cur.target) : null;
+  if (ct && fighting(ct) && !(cur.doctrine && shieldFrac(ct) > D.abort)) return;
+  const bare = foes.filter(t => shieldFrac(t) <= D.strike);
+  wing.auto = bare.length && (bombers > 0 || (wing.no || 1) % 2 === 0) ? {type: 'strike', target: bare[0].id, approach: weakestApproach(bare[0]), doctrine: true} : {type: 'escort', target: home.id, waiting: bombers > 0 && !bare.length};
+  return;
+ }
+ if (cur && (cur.type !== 'strike' || fighting(w.units.get(cur.target)))) return;
  if (bombers > 0 || (wing.no || 1) % 2 === 0) wing.auto = {type: 'strike', target: foes[0].id, approach: weakestApproach(foes[0])};
  else wing.auto = {type: 'escort', target: home.id};
 }
+// Wings the player leaves on 自動 follow their faction's doctrine too (the
+// Alliance's bombers go in only against ships whose shields are down).
+function doctrineWings(w, sys) { for (const wing of w.wings.values()) { if (w.sides[wing.side]?.ai || wing.order?.type !== 'auto' || !doctrineOf(w, wing.side)) continue; const home = w.units.get(wing.home); if (!home || !alive(home) || home.sys !== sys) continue; aiWing(w, wing, home); } }
 function weakestApproach(t) { return Object.keys(APPROACH).sort((a, b) => pdToward(t, add(t.pos, shipToWorld(t, scale(APPROACH[a], 9000)))) - pdToward(t, add(t.pos, shipToWorld(t, scale(APPROACH[b], 9000)))))[0]; }
 
 // ---------- the clock ----------
@@ -6614,7 +7186,7 @@ function tick(w, dt) {
  }
  updateBattles(w);
  if ((w.timers.det -= dt) <= 0) { w.timers.det = RULES.detectEvery; detect(w); }
- if ((w.timers.tac -= dt) <= 0) { w.timers.tac = RULES.aiTactical; for (const [sys] of w.battles) tacticalOrders(w, sys, systemUnits(w, sys)); }
+ if ((w.timers.tac -= dt) <= 0) { w.timers.tac = RULES.aiTactical; for (const [sys] of w.battles) { tacticalOrders(w, sys, systemUnits(w, sys)); doctrineWings(w, sys); } }
  if ((w.timers.ai -= dt) <= 0) { w.timers.ai = RULES.aiStrategic; for (const sd of w.sides) if (sd.ai) aiStrategic(w, sd.id); }
  for (const [sys] of w.battles) battleTick(w, sys, dt);
  for (const u of w.units.values()) if (u.tractor && alive(u) && u.sys != null && !w.battles.has(u.sys)) tractorTick(w, u, dt);
@@ -6725,7 +7297,7 @@ function makeRegiment(faction, name) {
 function regimentTotals(r) { const t = {troops: 0, vehicles: {}, size: 0}; for (const b of r.battalions || []) for (const c of b.companies || []) { t.troops += c.troops || 0; for (const [k, n] of Object.entries(c.vehicles || {})) { if (!VEHICLES[k]) continue; t.vehicles[k] = (t.vehicles[k] || 0) + n; t.size += VEHICLES[k].size * n; } } return t; }
 function airTotals(list) { let n = 0, size = 0, crew = 0; for (const q of list || []) { const c = CRAFT[q.craft]; if (!c) continue; n += q.n; size += q.n * c.size; crew += q.n * c.crew; } return {n, size, crew}; }
 
-return {RULES, TICK, CRAFT, CRAFT_MIX, ROLE_NAME, FACTIONS, SIDE_OF, VEHICLES, COMPANY_TYPES, REGIMENT_TEMPLATES, COMPANY_TROOPS, CAPITAL_LENGTH, MAP_LY, GRID_COLS, SECTOR_DEFS, REGIONS, LANE, KIND_NAME, APPROACH, APPROACH_NAME, FORMATIONS, WING_PHASE,
+return {DOCTRINE, doctrineOf, shieldFrac, doctrineTarget, aiWing, RULES, TICK, CRAFT, CRAFT_MIX, ROLE_NAME, FACTIONS, SIDE_OF, VEHICLES, COMPANY_TYPES, REGIMENT_TEMPLATES, COMPANY_TROOPS, CAPITAL_LENGTH, MAP_LY, GRID_COLS, SECTOR_DEFS, REGIONS, LANE, KIND_NAME, APPROACH, APPROACH_NAME, FORMATIONS, WING_PHASE,
  rng, makeSector, sysDistance, routePath, routeCost, pathSeconds, tripSeconds, designInfo, unitDemand, createWorld, normalizeOrbat, makeUnit, makeGroup, makeCtg, ctgOf, addSquad, step, tick, detect, orderJump, cancelJump, etaTo, groupMapPos, orderUnit, orderGroup, orderCtg, orderCtgJump, orderTractor, orderWing, splitGroup, mergeGroups,
  systemUnits, unitStruct, unitStrength, unitHyper, groupHyper, groupDisabled, groupStay, orderScuttle, orderRecover, recoverCheck, rearSeconds, SUPPLY, supplyAt, supplyLines, supplyNeeds, unitSupplyOf, alive, fighting, pdToward, effectiveOrder, groupOrder, formationOffsets, tractorReach, tractorOk, defaultAir, defaultGround, makeRegiment, regimentTotals, airTotals, battleTick};
 })();
