@@ -843,7 +843,8 @@ body.shot-mode .main{display:flex!important;flex-direction:column}body.shot-mode
 .vh-speed button{min-height:30px;padding:2px 9px;font:700 12px var(--font-mono)}
 .vh-str{display:grid;grid-template-columns:auto 86px auto;gap:2px 6px;align-items:center;font-size:11px;color:var(--muted)}.vh-str i{height:6px;border-radius:3px;background:rgba(255,255,255,.12);overflow:hidden}.vh-str em{display:block;height:100%;background:var(--cyan)}.vh-str small.foe{grid-column:1/-1;color:#ffb29e}
 .vh-r{margin-left:auto;display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}.btn.warn{border-color:rgba(255,184,90,.7);color:#ffd59a;background:rgba(255,160,60,.12)}
-.voy-side{position:absolute;right:var(--gr);top:74px;bottom:12px;width:min(350px,40cqw);overflow:auto;display:grid;align-content:start;gap:8px;padding-bottom:10px;z-index:2;scrollbar-width:thin}
+/* v22.3 rows keep their content height (grid-auto-rows): the tab bar clips, so once the panel overflowed it shrank to its border and 部隊／飛行隊／増援／記録 could not be pressed */
+.voy-side{position:absolute;right:var(--gr);top:74px;bottom:12px;width:min(350px,40cqw);overflow:auto;display:grid;align-content:start;grid-auto-rows:max-content;gap:8px;padding-bottom:10px;z-index:2;scrollbar-width:thin}
 .voy-side[hidden]{display:none}
 .vs-card{background:var(--hud-bg);border:1px solid var(--hud-line);border-radius:12px;padding:10px 12px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);display:grid;gap:6px;min-width:0}
 .vs-card h3{margin:0;font:600 15px var(--font-display);letter-spacing:.06em}.vs-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.vs-head span{font-size:11px;color:var(--muted)}
@@ -859,6 +860,9 @@ body.shot-mode .main{display:flex!important;flex-direction:column}body.shot-mode
 .vs-log li{display:block;font-size:11.5px;color:var(--fg);padding:2px 0;border-bottom:1px solid rgba(255,255,255,.05)}.vs-log li span{font-family:var(--font-mono);color:var(--hud-dim);margin-right:6px}.vs-log li.foe{color:#ffcabd}.vs-log li.own{color:#cdeeff}
 .vs-tabs{position:sticky;top:0;z-index:1}.vs-tabs button{flex:1}.vs-pilot{margin-top:4px}.vs-jump{display:grid;gap:5px;padding:6px 8px;border:1px solid var(--hud-line);border-radius:8px}.vs-jump p{font-size:12.5px}
 .vsec{display:inline-grid;grid-template-columns:repeat(5,1fr);gap:2px;width:84px;vertical-align:middle}.vsec i{display:block;height:5px;background:rgba(255,255,255,.12);border-radius:2px;overflow:hidden}.vsec em{display:block;height:100%;background:#9be7a6}.vsec i.mid em{background:#ffd27a}.vsec i.bad em{background:#ff8a70}.vsec i.gone{background:#5a2a24}.ts-row .vsec{width:100%;min-width:0}
+/* v22.3 crew still aboard (乗員 %) in place of hull bars: green, amber below 70%, red below 35% (乗員不足) */
+.vcrew{font:600 10.5px/1.4 var(--font-mono);font-style:normal;color:#9be7a6;white-space:nowrap}.vcrew.mid{color:#ffd27a}.vcrew.bad{color:#ff9f8a}
+.vs-sub .vcrew{font-size:inherit}.ts-row i.crew em{background:#9be7a6}.ts-row i.crew.mid em{background:#ffd27a}.ts-row i.crew.bad em{background:#ff8a70}
 .voy-log{position:absolute;left:var(--gl);bottom:max(10px,var(--sa-bottom,0px));max-width:min(560px,calc(100% - 420px));display:grid;gap:2px;pointer-events:none;z-index:1}
 .voy-log p{margin:0;font-size:11.5px;line-height:1.35;background:rgba(5,8,11,.72);padding:3px 8px;border-radius:6px}.voy-log span{color:var(--muted);margin-right:6px;font-family:var(--font-mono)}
 .voy-busy{position:absolute;inset:0;z-index:8;display:grid;place-items:center;background:rgba(2,6,10,.55)}
@@ -911,7 +915,31 @@ body.shot-mode .main{display:flex!important;flex-direction:column}body.shot-mode
 .vtut{position:fixed;z-index:58;left:max(12px,var(--sa-left,0px));top:max(58px,calc(var(--sa-top,0px) + 50px));width:min(340px,calc(100% - 24px));max-height:calc(100% - 150px)}
 .vtut.min{width:auto}
 .vtut .tut-text.full{display:block!important;-webkit-line-clamp:unset;overflow:visible}
-body.trial-on .tut.vtut{display:grid!important;top:max(96px,calc(var(--sa-top,0px) + 88px))}.tut.vtut[hidden]{display:none!important}
+/* v22.3 where to press: a ring and an arrow with a label over the control (or map mark) the step wants, the rest
+   dimmed a little; info marks in cyan and undimmed. The box moves to a free corner when it would cover the mark. */
+.vth{position:fixed;left:0;top:0;width:100%;height:100%;z-index:57;pointer-events:none;overflow:hidden;--vth:#ffb54a;--vth-ink:#1d1306;--vth-soft:rgba(255,181,74,.3)}
+.vth[hidden],.vth [hidden]{display:none!important}
+.vth.info{--vth:#7fd3ff;--vth-ink:#04202c;--vth-soft:rgba(127,211,255,.3)}
+.vth-ring{position:absolute;left:0;top:0;box-sizing:border-box;border:2.5px solid var(--vth);border-radius:10px;box-shadow:0 0 0 3px var(--vth-soft),0 0 0 200vmax rgba(2,8,14,.42)}
+.vth.map .vth-ring{box-shadow:0 0 0 3px var(--vth-soft),0 0 0 200vmax rgba(2,8,14,.2)}
+.vth.soft .vth-ring{box-shadow:0 0 0 3px var(--vth-soft)}
+.vth-ring::after{content:"";position:absolute;inset:-3px;border-radius:inherit;border:2px solid var(--vth);animation:vthPulse 1.3s ease-out infinite}
+@keyframes vthPulse{from{inset:-3px;opacity:.95}to{inset:-15px;opacity:0}}
+.vth-ptr{position:absolute;left:0;top:0;width:44px;height:26px;transform-origin:44px 13px}
+.vth-ptr svg{display:block;width:44px;height:26px;fill:var(--vth);stroke:rgba(0,0,0,.55);stroke-width:1.2px;filter:drop-shadow(0 1px 3px rgba(0,0,0,.6));animation:vthBob .9s ease-in-out infinite}
+@keyframes vthBob{50%{transform:translateX(-8px)}}
+.vth-tag{position:absolute;left:0;top:0;max-width:min(230px,46vw);box-sizing:border-box;padding:4px 9px;border-radius:8px;background:var(--vth);color:var(--vth-ink);font:700 12px/1.35 var(--font-ui);box-shadow:0 2px 10px rgba(0,0,0,.55)}
+@container ks (max-height:480px){.vth-tag{font-size:11px;padding:3px 8px}}
+@media (prefers-reduced-motion: reduce){.vth-ptr svg,.vth-ring::after{animation:none}}
+.tut.vtut.vt-b{top:auto!important;bottom:max(10px,calc(var(--sa-bottom,0px) + 8px))!important}
+.tut.vtut.vt-r{left:auto!important;right:max(12px,calc(var(--sa-right,0px) + 8px))!important}
+.vtut .tut-state.go{color:var(--hud-fg)}.vtut .tut-state.go b{color:#ffb54a}.vtut .tut-state.go b::before{content:"➜ "}.vtut .tut-state.go.info b{color:#7fd3ff}
+.vtut .vtut-next{box-shadow:0 0 0 0 rgba(255,181,74,.7);animation:vtutNext 1.4s ease-out infinite}
+@keyframes vtutNext{to{box-shadow:0 0 0 9px rgba(255,181,74,0)}}
+@media (prefers-reduced-motion: reduce){.vtut .vtut-next{animation:none}}
+body.trial-on .tut.vtut{display:grid!important;top:max(96px,calc(var(--sa-top,0px) + 88px))}
+/* v22.3 a closed tutorial stays closed over the 3D view too (the rule above outranked a bare [hidden]) */
+.tut.vtut[hidden],body.trial-on .tut.vtut[hidden]{display:none!important}
 @container ks (orientation:landscape) and (max-height:500px){body.trial-on .tut.vtut{top:64px;max-height:calc(100% - 140px)}.vtut{top:40px;width:min(290px,40cqw);max-height:calc(100% - 60px);padding:7px 9px 9px}.vtut h3{font-size:14px}.vtut .tut-text{font-size:11px;line-height:1.5}.vtut .tut-actions .btn{min-height:26px;padding:2px 8px;font-size:11px}}
 
 /* v15 order of battle (艦隊編成) and sortie (出撃準備) */
@@ -965,6 +993,7 @@ body.trial-on .tut.vtut{display:grid!important;top:max(96px,calc(var(--sa-top,0p
  .vh-speed button{min-height:24px;padding:0 6px;font-size:10.5px}
  .vh-r{gap:4px}.vh-r .btn{min-height:26px;padding:2px 8px;font-size:11px}
  .voy-side{top:36px;bottom:4px;width:min(244px,34cqw);gap:5px}
+ .vs-tabs button{min-height:28px;padding:2px 4px;font-size:11px;white-space:nowrap}
  .vs-card{padding:6px 8px;gap:3px;border-radius:9px}.vs-card h3{font-size:12px}
  .vs-where{font-size:11px}.vs-sub,.vs-head span{font-size:9.5px}.vs-card .foe{font-size:10.5px}.vs-hint{font-size:10.5px;padding:3px 6px}
  .vs-ships li,.vs-send li,.vs-list li,.vs-log li{font-size:10.5px}
@@ -1315,7 +1344,7 @@ body.tut-on .inspect{bottom:calc(70px + var(--sa-bottom,0px))}
 </div>
 
 
-<script>window.KS_FILES={data:["data/reference.js","data/textures.js","data/imperial2.js","data/fleet.js"],core:"js/core.js",gfx:"js/gfx.js",engine:"js/engine.js",app:"js/app.js",worker:"js/worker.js",sizes:{"data/reference.js":6270785,"data/textures.js":2338303,"data/imperial2.js":83602,"data/fleet.js":1032326,"js/core.js":1563662,"js/gfx.js":192190,"js/engine.js":15892,"js/app.js":1081003}};</script>
+<script>window.KS_FILES={data:["data/reference.js","data/textures.js","data/imperial2.js","data/fleet.js"],core:"js/core.js",gfx:"js/gfx.js",engine:"js/engine.js",app:"js/app.js",worker:"js/worker.js",sizes:{"data/reference.js":6270785,"data/textures.js":2338303,"data/imperial2.js":83602,"data/fleet.js":1032326,"js/core.js":1577867,"js/gfx.js":192190,"js/engine.js":15964,"js/app.js":1108757}};</script>
 <script>
 /* ============================================================
    boot.js — title screen first, then the 3D assets, the engine
