@@ -582,6 +582,86 @@ body.tut-on .inspect{top:auto;bottom:70px;left:auto;right:var(--gr)}
 .panel .compartment-rule.clamp{-webkit-line-clamp:1}
 .sw.sh-fit{border-radius:3px;transform:rotate(45deg) scale(.8)}.sw.sh-pod{border-radius:50%/35%}
 @media (pointer:coarse){.pal-search input{font-size:16px}}
+/* ---- v22.3 compact editor panel: sideways rows, an accordion of sections, the selection strip ---- */
+.panel .hscroll{scrollbar-width:none;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+.panel .hscroll::-webkit-scrollbar{display:none}
+@media (pointer:fine){.panel .hscroll{scrollbar-width:thin}.panel .hscroll::-webkit-scrollbar{display:block;height:5px}.panel .hscroll::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:3px}}
+.panel .seg{display:flex;flex-wrap:nowrap;width:max-content;max-width:100%;overflow-x:auto}
+.panel .seg button{flex:0 0 auto;white-space:nowrap}
+.panel .pgroup .seg + .seg{margin:6px 0 0}
+.panel .panel-nav{margin-bottom:8px}
+.panel .panel-nav + .panel-nav{margin-top:-2px}
+.panel .command-sub .seg{background:transparent}.panel .command-sub .seg button{min-height:30px;padding:4px 11px;font-size:12.5px}
+.panel .plist{flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px}
+.panel .plist .chip{flex:0 0 auto;white-space:nowrap}
+.panel .plist .chip.on{color:var(--accent)}
+/* palette: a sideways strip, two rows when long */
+.panel .pal-strip{display:grid;grid-auto-flow:column;grid-template-rows:auto;grid-template-columns:none;grid-auto-columns:minmax(132px,46%);gap:6px;overflow-x:auto;overflow-y:hidden;position:relative;margin-bottom:4px;padding-bottom:2px}
+.panel .pal-strip.two{grid-template-rows:repeat(2,auto)}
+.panel .pal-strip .part,.panel .pal-strip .fitb{min-width:0;padding:6px 8px}
+.panel .pal-strip .fitb .fd,.panel .pal-strip .fitb.on .fd{display:none}
+.panel .pal-strip .fitb .fn{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:1;overflow:hidden;font-size:12.5px;line-height:1.3}
+.panel .pal-strip .fitb .fs{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px}
+.panel .pal-strip .part .pn{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.panel .pal-strip .part .pd{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;font-size:11px}
+.panel .note.clamp.pal-pick{margin:2px 0 8px;font-size:11.5px;-webkit-line-clamp:1}.panel .note.clamp.pal-pick.full{display:block}.panel .pal-pick b{color:var(--fg)}.panel .pal-pick .pp-s{color:var(--accent);font-variant-numeric:tabular-nums}
+.panel .pal-head{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:6px}
+.panel .pal-head .pal-search{flex:0 1 46%;min-width:7.5em}
+.panel .pal-head .pal-search input{padding:6px 0}
+.panel .pal-head .pal-recent{flex:1 1 0;min-width:0;flex-wrap:nowrap;overflow-x:auto}
+.panel .pal-head .pal-recent .pal-chip{flex:0 0 auto}
+.panel .pal-head .pal-results:not([hidden]){flex:1 1 100%;display:grid;grid-auto-flow:column;grid-template-rows:repeat(2,auto);grid-template-columns:none;grid-auto-columns:minmax(132px,46%);overflow-x:auto}
+/* sections: one row each, tap to open; one open at a time */
+.panel details.fold{border:1px solid var(--line);border-radius:8px;padding:0 10px;margin:0 0 6px;background:var(--panel-2)}
+.panel details.fold>summary{display:flex;align-items:baseline;gap:8px;min-height:34px;padding:8px 0;box-sizing:border-box;font-size:12.5px;font-weight:700;color:var(--fg);letter-spacing:.03em;list-style:none;cursor:pointer}
+.panel details.fold>summary>span{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.panel details.fold>summary>small{margin-left:auto;flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600;font-size:11.5px;color:var(--accent)}
+.panel details.fold[open]{padding-bottom:8px;border-color:var(--line-2)}
+.panel details.fold[open]>summary{color:var(--cyan)}
+.panel details.fold.blueprint-card,.panel details.fold.route-card{padding:0 10px}
+.panel .editor details.fold{background:transparent;border:0;border-top:1px solid color-mix(in srgb,var(--accent) 35%,transparent);border-radius:0;padding:0 2px;margin:0}
+.panel .editor details.fold[open]{padding-bottom:6px}
+.panel .editor{padding:2px 9px 2px}.panel .editor>.pair-edit{margin:6px 0}
+.panel .editor>details.fold:first-child{border-top:0}
+.panel .sl.sl-plain output{display:none}
+/* the selection: one line under the menus, details on ⓘ inside the panel */
+.panel .sel-strip{position:sticky;top:0;z-index:3;display:grid;grid-template-columns:minmax(0,1fr) auto auto auto;grid-template-rows:auto auto;align-items:center;column-gap:5px;min-height:38px;margin:0 0 6px;padding:3px 4px 3px 9px;border:1px solid var(--accent);border-radius:8px;background:color-mix(in srgb,var(--accent) 14%,var(--panel));font-size:12px;font-variant-numeric:tabular-nums}
+.panel .sel-strip[data-kind="hull"]{border-color:var(--cyan);background:color-mix(in srgb,var(--cyan) 12%,var(--panel))}
+.sel-strip .ss-t{grid-column:1;grid-row:1;min-width:0;display:flex;align-items:baseline;gap:4px;overflow:hidden;white-space:nowrap;line-height:1.25}
+.sel-strip .ss-t b{overflow:hidden;text-overflow:ellipsis;font-size:12.5px}.sel-strip .ss-t small{color:var(--muted);font-size:10.5px}.sel-strip .tag{font-size:10px;padding:0 5px}
+.sel-strip .ss-l{grid-column:1;grid-row:2;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-size:11.5px;line-height:1.25}
+.sel-strip .ss-b{grid-row:1/3;min-width:30px;height:30px;padding:0 7px;border-radius:6px;border:1px solid var(--line-2);background:var(--raise);font-size:11.5px;font-weight:700}
+.sel-strip .ss-i{width:28px;padding:0;border-radius:50%;font:italic 700 13px/1 Georgia,serif;color:var(--cyan)}.sel-strip .ss-i[aria-pressed="true"]{background:var(--cyan);color:var(--panel);border-color:var(--cyan)}
+.sel-strip .ss-b.danger{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 55%,transparent);background:transparent}
+.panel .sel-info{margin:-2px 0 8px;padding:7px 10px;border:1px solid var(--line-2);border-radius:8px;background:var(--panel-2);font-size:12px;color:var(--fg)}
+.panel .sel-info .ins-row{color:var(--fg)}.panel .sel-info .ins-note{color:var(--muted)}
+.panel .sel-info .arcs em{background:linear-gradient(90deg,var(--accent) var(--w),var(--line) var(--w))}.panel .sel-info .arcs i{color:var(--muted)}
+.inspect{display:none!important}
+/* the hull's sections: pick one, edit its eight figures */
+.station-pick{display:flex;gap:5px;overflow-x:auto;margin:6px 0 8px;padding-bottom:2px}
+.station-pick .chip{flex:0 0 auto;display:grid;justify-items:center;line-height:1.15;padding:3px 10px;white-space:nowrap}.station-pick .chip small{font-size:10px;font-weight:600;color:var(--muted)}
+.station-fields{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px 6px;margin-bottom:8px}
+.station-fields label{display:grid;gap:2px;font-size:10.5px;color:var(--muted);min-width:0}
+.station-fields input{width:100%;min-width:0;box-sizing:border-box;padding:6px 4px;font-size:13px;font-variant-numeric:tabular-nums;background:var(--bg);color:var(--fg);border:1px solid var(--line-2);border-radius:5px}
+.station-fields input:disabled{opacity:.5}
+.station-acts{margin-bottom:6px}
+/* systems intro: a single line */
+.panel .flow-intro{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;padding:7px 10px;margin-bottom:6px}
+.panel .flow-intro .eyebrow{display:none}.panel .flow-intro h3{flex:1 1 auto;margin:0;font-size:13px}
+.panel .flow-intro p{flex:1 1 100%;order:3;margin:0;font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.panel .flow-intro .btn{min-height:30px;padding:3px 10px;font-size:12px}
+.panel .cutter-shapes{display:flex;gap:5px;margin:6px 0 8px;overflow-x:auto}.panel .cutter-shapes .btn{flex:0 0 auto;min-height:32px;padding:4px 12px}
+.panel .cutter-options{margin:8px 0;gap:4px}.panel .cutter-options .check{margin:2px 0}
+/* the figures under the panel: one sideways line */
+.panel #pinfo .mini{flex-wrap:nowrap;overflow-x:auto;white-space:nowrap;gap:4px 14px}
+.panel #pinfo .mini span{flex:0 0 auto}
+/* 公試 in the 性能 tab: title, figures and the button in three short lines */
+.panel .trial-card{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:4px 10px;padding:8px 10px}
+.panel .trial-card>.trial-head{grid-column:1;grid-row:1;margin:0}.panel .trial-card>.trial-go{grid-column:2;grid-row:1;min-height:32px;padding:4px 12px;margin:0}
+.panel .trial-card>.note{display:none}.panel .trial-card>.trial-kv,.panel .trial-card>.neg{grid-column:1/-1;margin:0}
+.panel .trial-card .trial-kv{display:grid;grid-template-columns:auto minmax(0,1fr) auto minmax(0,1fr);gap:1px 8px;font-size:11.5px}
+.panel .trial-card .trial-kv dt{color:var(--muted);font-size:11px}.panel .trial-card .trial-kv dd{margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:13px;text-align:left}
+.panel .trial-card .trial-head h4{font-size:16px}.panel .trial-card>.trial-go{width:auto}
 /* ---- multiple selection ---- */
 .multi-count{display:flex;gap:16px;margin:8px 0 4px}.multi-count span{color:var(--muted);font-size:12px}.multi-count b{font:600 26px/1 var(--font-display);color:var(--accent);margin-right:4px;font-variant-numeric:tabular-nums}
 .multi-kinds{margin:0 0 8px}.multi-actions{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.multi-move{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
@@ -1344,7 +1424,7 @@ body.tut-on .inspect{bottom:calc(70px + var(--sa-bottom,0px))}
 </div>
 
 
-<script>window.KS_FILES={data:["data/reference.js","data/textures.js","data/imperial2.js","data/fleet.js"],core:"js/core.js",gfx:"js/gfx.js",engine:"js/engine.js",app:"js/app.js",worker:"js/worker.js",sizes:{"data/reference.js":6270785,"data/textures.js":2338303,"data/imperial2.js":83602,"data/fleet.js":1032326,"js/core.js":1577867,"js/gfx.js":192190,"js/engine.js":15964,"js/app.js":1108757}};</script>
+<script>window.KS_FILES={data:["data/reference.js","data/textures.js","data/imperial2.js","data/fleet.js"],core:"js/core.js",gfx:"js/gfx.js",engine:"js/engine.js",app:"js/app.js",worker:"js/worker.js",sizes:{"data/reference.js":6270785,"data/textures.js":2338303,"data/imperial2.js":83602,"data/fleet.js":1032326,"js/core.js":1577867,"js/gfx.js":192190,"js/engine.js":15964,"js/app.js":1126575}};</script>
 <script>
 /* ============================================================
    boot.js — title screen first, then the 3D assets, the engine

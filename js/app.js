@@ -1368,13 +1368,23 @@ const setPSize = (k, v) => { if (craftDesign()) st.sizeCraft[k] = v; else st.siz
 const TABS = [['hull', '船体'], ['mod', '区画および艤装'], ['systems','系統'], ['launch', '搭載'], ['ground', '地上部隊'], ['spec', '性能']];
 // 削る・装甲 live inside 船体; their editors keep their own tab keys.
 const HULL_SUB = [['hull', '船体の形'], ['carve', '削る'], ['armor', '装甲']];
-const TAB_NAMES = {...Object.fromEntries(TABS), carve: '削る', armor: '装甲', bridge: '艦橋'};
-// Weapons and the bridge live inside 区画および艤装 as groups of their own.
+const TAB_NAMES = {...Object.fromEntries(TABS), carve: '削る', armor: '装甲', bridge: '指揮・艦橋'};
+// Weapons live inside 区画および艤装 as a group of their own.
 const armMode = () => st.tab === 'arm' || st.tab === 'mod' && st.group === 'weapons';
-function layoutGroups() { const cr = craftDesign(), out = []; for (const e of Object.entries(C.GROUPS)) { if (e[0] !== 'weapons' && !PART_KEYS.some(k => C.PARTS[k].group === e[0] && partOffered(k))) continue; out.push(e); if (e[0] === 'command' && !cr) out.push(['bridge', '艦橋']); } return out; }
-const BRIDGE_SUB = [['body', '艦橋本体'], ['windows', '艦橋ポッド']];
-function bridgeSubHTML() { return `<div class="pgroup command-sub"><h4>艦橋</h4>${seg('cmdsub', BRIDGE_SUB, st.bridgeMode === 'windows' ? 'windows' : 'body')}</div>`; }
-// The bridge editor lives inside 区画 → 指揮; its state keeps the 'bridge' key.
+// v22.3 One menu 「指揮・艦橋」 holds the command rooms (指揮 parts), the bridge bodies and the bridge pods; a
+// second row picks which. Its group key stays 'command' (a craft keeps 「指揮」 alone: it has no bridge).
+const CMD_LABEL = '指揮・艦橋';
+function layoutGroups() { const cr = craftDesign(), out = []; for (const e of Object.entries(C.GROUPS)) { if (e[0] !== 'weapons' && !PART_KEYS.some(k => C.PARTS[k].group === e[0] && partOffered(k))) continue; out.push(e[0] === 'command' && !cr ? ['command', CMD_LABEL] : e); } return out; }
+const CMD_SUB = [['rooms', '指揮区画'], ['body', '艦橋本体'], ['windows', '艦橋ポッド']];
+const cmdSubNow = () => st.tab === 'bridge' ? (st.bridgeMode === 'windows' ? 'windows' : 'body') : 'rooms';
+function bridgeSubHTML() { return `<div class="pgroup command-sub panel-nav">${seg('cmdsub', CMD_SUB, cmdSubNow())}</div>`; }
+// The menu opens on the part last used: rooms (区画 → 指揮), a bridge body or a pod (the 'bridge' editor).
+function openCommandMenu(sub) {
+  sub = CMD_SUB.some(s => s[0] === sub) ? sub : st.cmdSub || 'body'; st.cmdSub = sub; st.equipmentId = null; st.sel = null; st.partTool = 'place';
+  if (sub === 'rooms' || craftDesign()) { st.tab = 'mod'; st.group = 'command'; st.part = PART_KEYS.find(k => C.PARTS[k].group === 'command' && partOffered(k)) || st.part; }
+  else { st.tab = 'bridge'; st.bridgeMode = sub; st.bridgeTool = 'place'; }
+}
+// The bridge editor lives inside 区画 → 指揮・艦橋; its state keeps the 'bridge' key.
 const tabKey = () => st.tab === 'bridge' ? 'mod' : st.tab === 'carve' || st.tab === 'armor' ? 'hull' : st.tab;
 function markTabs() { $$('#tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === tabKey()))); }
 const PLACE = [['inside', '内蔵'], ['partial', '一部露出'], ['outside', '外付け']];
@@ -2050,7 +2060,7 @@ function tapHit(t, hit) {
       else toast('撤去する装備をタップしてください');
       break;
     case 'adjust':
-      if (hit && hit.fit) { st.sel = {list: 'fits', id: hit.fit.id}; showInspect(hit); renderPanel(); }
+      if (hit && hit.fit) { st.sel = {list: 'fits', id: hit.fit.id}; st.inspect = null; renderPanel(); }   // v22.3 its facts go to the panel's strip
       else { st.sel = null; renderPanel(); }
       break;
     case 'notch':
@@ -2067,36 +2077,78 @@ function tapHit(t, hit) {
 }
 
 // ---------- inspect ----------
+// v22.3 A tapped weapon, pod, part or the hull is shown in one line at the top of the editor panel (the
+// selection strip); ⓘ there opens the details inside the panel. Nothing opens over the 3D view any more.
+st.inspect = null; st.selInfo = false;
 function showInspect(hit) {
-  const box = $('#inspect');
   if (!hit) { hideInspect(); return; }
-  let html = '';
-  if (hit.fit) {
-    const f = hit.fit, d = C.FITS[f.k];
-    html = `<b>${esc(d.name)}</b>`;
-    const ped = f.base + f.ped;
-    html += `<div class="ins-row">支持台 ${ped.toFixed(1)} m（自動 ${f.base.toFixed(1)}＋追加 ${f.ped.toFixed(1)}）・${esc(C.AXNAME[f.a])}${f.tilt?` · 面に沿って ${Math.round(Math.acos(C.clamp(C.dot(f.tilt,C.AXES[f.a]),-1,1))*180/Math.PI)}° 傾斜`:''}</div>`;
-    if (d.cat === 'w') {
-      const arc = (S && S.fitInfo[f.id]) || C.fireArcs(ship, f);
-      if (d.tt) html += `<div class="ins-row">一斉射 ${fTT(d.tt)}・電力 ${fW(d.power)}</div>`;
-      const fd = S && S.feedInfo && S.feedInfo[f.id]; if (fd) html += `<div class="ins-row">配電路 ${ja(fd[0])} m³（${feedSrc(fd)} ${num(fd[1])} m）</div>`;
-      if (Array.isArray(arc)) html += `<div class="arcs">${C.SECTORS.map((s, k) => `<span><i>${s.name}</i><em style="--w:${Math.round(arc[k] * 100)}%"></em><b>${Math.round(arc[k] * 100)}</b></span>`).join('')}</div><div class="ins-note">射界（%）：各方向へ撃てる割合</div>`;
-    } else {
-      const vw = S && S.fitInfo[f.id];
-      html += `<div class="ins-row">視界 ${vw != null ? fPct(vw) : '—'}・乗員 ${d.crew}名</div>`;
-    }
-  } else if (hit.part) {
-    html = partInfoHTML(hit.part);
-  } else if (hit.p) {
-    const x = hit.p[0], sb = C.sectionBase(ship.hull, Math.max(0, Math.min(ship.hull.L, x))), kb = C.keelAt(ship, x);
-    html = `<b>船体</b><div class="ins-row">艦尾から ${fLen(x)}・この断面 幅 ${fLen(sb.hw * 2)} × 高さ ${fLen(sb.h)}</div>`;
-    if (kb) html += `<div class="ins-row">竜骨 幅 ${fLen(kb.w)} × 高さ ${fLen(kb.h)}</div>`;
-    html += `<div class="ins-row">外殻装甲 ${ship.armor.hull.toFixed(2)} m</div>`;
-  }
-  box.innerHTML = html + '<button type="button" class="ins-x" aria-label="閉じる">×</button>';
-  box.hidden = false;
+  st.inspect = hit.fit ? {list: 'fits', id: hit.fit.id} : hit.part && hit.part.id > 0 && ship.parts.some(p => p.id === hit.part.id) ? {list: 'parts', id: hit.part.id} : hit.part ? {part: hit.part} : hit.p ? {p: hit.p.slice()} : null;
+  const b = $('#inspect'); if (b) b.hidden = true;
+  renderSelStrip();
 }
-function hideInspect() { const b = $('#inspect'); if (b) b.hidden = true; }
+function hideInspect() { const had = !!st.inspect; st.inspect = null; const b = $('#inspect'); if (b) b.hidden = true; if (had) renderSelStrip(); }
+function fitDetailHTML(f) {
+  const d = C.FITS[f.k], sp = C.fitSpec(f) || d, ped = f.base + f.ped;
+  let html = `<div class="ins-row">支持台 ${ped.toFixed(1)} m（自動 ${f.base.toFixed(1)}＋追加 ${f.ped.toFixed(1)}）・${esc(C.AXNAME[f.a])}${f.tilt?` · 面に沿って ${Math.round(Math.acos(C.clamp(C.dot(f.tilt,C.AXES[f.a]),-1,1))*180/Math.PI)}° 傾斜`:''}</div>`;
+  if (d.cat === 'w') {
+    const arc = (S && S.fitInfo[f.id]) || C.fireArcs(ship, f);
+    if (sp.tt) html += `<div class="ins-row">一斉射 ${fTT(sp.tt)}・電力 ${fW(sp.power)}</div>`;
+    const fd = S && S.feedInfo && S.feedInfo[f.id]; if (fd) html += `<div class="ins-row">配電路 ${ja(fd[0])} m³（${feedSrc(fd)} ${num(fd[1])} m）</div>`;
+    if (Array.isArray(arc)) html += `<div class="arcs">${C.SECTORS.map((s, k) => `<span><i>${s.name}</i><em style="--w:${Math.round(arc[k] * 100)}%"></em><b>${Math.round(arc[k] * 100)}</b></span>`).join('')}</div><div class="ins-note">射界（%）：各方向へ撃てる割合</div>`;
+  } else {
+    const vw = S && S.fitInfo[f.id];
+    html += `<div class="ins-row">視界 ${vw != null ? fPct(vw) : '—'}・乗員 ${d.crew}名</div>`;
+  }
+  return html;
+}
+function hullDetailHTML(p) {
+  const x = p[0], kb = C.keelAt(ship, x);
+  return (kb ? `<div class="ins-row">竜骨 幅 ${fLen(kb.w)} × 高さ ${fLen(kb.h)}</div>` : '') + `<div class="ins-row">外殻装甲 ${ship.armor.hull.toFixed(2)} m</div>`;
+}
+// What the strip shows: the selection being edited, else the last thing tapped with the inspect tool.
+function selTarget() {
+  if (!ship) return null;
+  const it = selItem(), here = l => l === 'fits' ? armMode() || st.tab === 'bridge' && st.bridgeMode === 'windows' : l === 'parts' && ['mod', 'launch', 'bridge'].includes(st.tab);
+  if (it && st.sel && ['fits', 'parts'].includes(st.sel.list) && here(st.sel.list)) return {list: st.sel.list, it, sel: true};
+  const q = st.inspect; if (!q) return null;
+  if (q.list) { const x = ship[q.list]?.find(o => o.id === q.id); return x ? {list: q.list, it: x, sel: false} : null; }
+  if (q.part) return {list: 'parts', it: q.part, sel: false};
+  if (q.p) return {list: 'hull', p: q.p, sel: false};
+  return null;
+}
+function stripFacts(t) {
+  if (t.list === 'fits') {
+    const f = t.it, d = C.FITS[f.k], sp = C.fitSpec(f) || d, bits = [];
+    if (d.cat === 'w') {
+      const arc = S?.fitInfo?.[f.id];
+      if (sp.store) bits.push(storeCapText(sp.store)); else if (sp.msl) bits.push(`${sp.msl}TT${sp.ionMsl ? '（イオン）' : ''}／20秒`); else if (sp.tt) bits.push(`一斉射 ${fTT(sp.tt)}`); else if (sp.ion) bits.push(`対シールド ${sp.ion}TT`);
+      if (sp.power) bits.push(`電力 ${fW(sp.power)}`);
+      if (Array.isArray(arc)) bits.push(`射界 最大 ${Math.round(Math.max(...arc) * 100)}%`);
+    } else { const vw = S?.fitInfo?.[f.id]; bits.push(`視界 ${vw != null ? fPct(vw) : '—'}`); if (d.crew) bits.push(`乗員 ${d.crew}名`); }
+    return {title: d.name, id: f.id, tw: f.tw != null || f.vt != null, line: bits.join(' · '), detail: () => fitDetailHTML(f)};
+  }
+  if (t.list === 'parts') {
+    const p = t.it, V = C.partVolume(p), size = p.k === 'struct' || p.room ? (p.room || p.s).map(v => Math.round(v)).join('×') + ' m' : `${p.k === 'hangar' ? '一辺' : '⌀'} ${precisePartSize(p) ? num(p.d, 2) + ' m' : fLen(p.d)}`;
+    const key = C.isReactor(p) ? reactorOutputText(p) : ['shield', 'localShield'].includes(p.k) ? `出力 ${fW(V * C.K.shieldW)}` : p.k === 'hyper' ? `有効容量 ${ja(C.hyperCapacity(p))} m³` : p.k === 'engine' ? `推力 ${sci(C.nozzleThrust(p))} N` : p.k === 'hangar' ? `容量 ${C.hangarCapacity(p).toFixed(2)} サイズ` : `体積 ${ja(V)} m³`;
+    return {title: C.partLabel(p), id: p.id > 0 ? p.id : null, tw: p.tw != null || p.vt != null, line: size + ' · ' + key, detail: () => partInfoHTML(p).replace(/^<b>[^<]*<\/b>/, '')};
+  }
+  const x = t.p[0], sb = C.sectionBase(ship.hull, Math.max(0, Math.min(ship.hull.L, x)));
+  return {title: '船体', id: null, line: `艦尾から ${fLen(x)} · 断面 ${fLen(sb.hw * 2)} × ${fLen(sb.h)}`, detail: () => hullDetailHTML(t.p)};
+}
+function renderSelStrip() {
+  const panel = $('#panel'); if (!panel || fleet.mode !== 'design') return;
+  let strip = panel.querySelector(':scope > .sel-strip'), info = panel.querySelector(':scope > .sel-info');
+  const t = ship ? selTarget() : null;
+  if (!t) { strip?.remove(); info?.remove(); return; }
+  const f = stripFacts(t);
+  const html = `<span class="ss-t"><b>${esc(f.title)}</b>${f.id != null ? `<small>#${f.id}</small>` : ''}${f.tw ? '<small class="ss-tw">· 対</small>' : ''}</span><span class="ss-l">${esc(f.line)}</span><button type="button" class="ss-b ss-i" data-selinfo aria-pressed="${!!st.selInfo}" aria-label="詳しい情報" title="詳しい情報">i</button>${t.sel ? '<button type="button" class="ss-b" data-desel title="選択解除" aria-label="選択解除">解除</button><button type="button" class="ss-b danger" data-delsel title="撤去" aria-label="撤去">撤去</button>' : '<button type="button" class="ss-b" data-inspectx title="閉じる" aria-label="閉じる">×</button>'}`;
+  if (!strip) { strip = document.createElement('div'); strip.className = 'sel-strip'; strip.setAttribute('role', 'status'); }
+  const nav = [...panel.querySelectorAll(':scope > .panel-nav')].pop(); if (nav ? nav.nextElementSibling !== strip : panel.firstElementChild !== strip) { if (nav) nav.after(strip); else panel.prepend(strip); }
+  if (strip.innerHTML !== html) strip.innerHTML = html;
+  strip.dataset.kind = t.list;
+  if (st.selInfo) { if (!info) { info = document.createElement('div'); info.className = 'sel-info'; } if (strip.nextElementSibling !== info) strip.after(info); info.innerHTML = f.detail(); }
+  else info?.remove();
+}
 function partInfoHTML(pt) {
   const d = C.PARTS[pt.k], V = C.partVolume(pt), inf = S && S.info[pt.id];
   let h = `<b>${esc(C.partLabel(pt))}</b><div class="ins-row">${pt.k === 'struct'||pt.room ? `${(pt.room||pt.s).map(v => Math.round(v)).join('×')} m` : `${pt.k === 'hangar' ? '一辺' : '直径'} ${precisePartSize(pt) ? num(pt.d, 2) + ' m' : fLen(pt.d)}`}・体積 ${ja(V)} m³</div>`;
@@ -2236,7 +2288,7 @@ function renderSpecTargets() {
   if(fleet.mode!=='design'){fleetRender();return;}
   const side = $('#specSide');
   if (isWide()) side.innerHTML = `<div class="spec-title"><h3>性能諸元</h3></div>` + trialCardHTML(true) + specHTML(S);
-  if (st.tab === 'spec') { const p = $('#panel .spec-wrap'); if (p) p.innerHTML = specHTML(S); }
+  if (st.tab === 'spec') { const p = $('#panel .spec-wrap'); if (p) { p.innerHTML = specHTML(S); compactSpec(p); } }
 }
 const isWide = () => window.matchMedia('(min-width: 1000px)').matches;
 
@@ -2270,31 +2322,34 @@ function basePartEditor() {
   const it = selItem(); if (!it || st.sel.list !== 'parts') return '';
   const d = C.PARTS[it.k], hp = ship.hull, tw = twinOfItem('parts', it);
   let h = `<div class="editor"><div class="ed-head"><b>${esc(C.partLabel(it))}</b>${tw ? '<span class="tag">左右対</span>' : ''}<button type="button" class="btn sm ghost" data-desel>選択解除</button><button type="button" class="btn sm danger" data-delsel>撤去</button></div>
-    <p class="note tight">位置は艦尾・船底・中心線からの距離です。</p>
+    <h4>位置</h4><p class="note tight">艦尾・船底・中心線からの距離です。</p>
     <div class="sliders">
     ${slider('ex', '前後 X', Math.round(it.c[0]), Math.round(-hp.L * 0.1), Math.round(hp.L * 1.1), 1, fmtM(it.c[0]))}
     ${slider('ey', '高さ Y', Math.round(it.c[1]), Math.round(-hp.H * 0.8), Math.round(hp.H * 3.5), 1, fmtM(it.c[1]))}
-    ${slider('ez', '左右 Z', Math.round(it.c[2]), Math.round(-hp.W * 0.75), Math.round(hp.W * 0.75), 1, fmtM(it.c[2]))}`;
+    ${slider('ez', '左右 Z', Math.round(it.c[2]), Math.round(-hp.W * 0.75), Math.round(hp.W * 0.75), 1, fmtM(it.c[2]))}</div>`;
+  // v22.3 Position and size are two sections of the editor (folded on a phone).
+  let size = '';
   if (it.k === 'struct' && it.form === 'reference' && C.equipmentSpec(it)) {
-    h += `</div><p class="note tight">${esc(C.equipmentSpec(it).name)}は実寸の機器で、大きさは変えられません（${fmtM(it.s[0])} × ${fmtM(it.s[1])} × ${fmtM(it.s[2])}）。</p><div class="sliders">`;
+    size = `<p class="note tight">${esc(C.equipmentSpec(it).name)}は実寸の機器で、大きさは変えられません（${fmtM(it.s[0])} × ${fmtM(it.s[1])} × ${fmtM(it.s[2])}）。</p>`;
   } else if (it.k === 'struct') {
-    h += slider('el', '長さ', Math.round(it.s[0]), 10, Math.round(hp.L), 1, fmtM(it.s[0]))
+    size = '<div class="sliders">' + slider('el', '長さ', Math.round(it.s[0]), 10, Math.round(hp.L), 1, fmtM(it.s[0]))
       + slider('ew', '幅', Math.round(it.s[1]), 5, Math.round(hp.W * 1.2), 1, fmtM(it.s[1]))
       + slider('eh', '高さ', Math.round(it.s[2]), 5, Math.round(Math.max(60, hp.H * 1.5)), 1, fmtM(it.s[2]))
-      + (['loft', 'roundloft', 'shell', 'arc', 'ellipsoid', 'outline', 'reference'].includes(it.form) ? '' : slider('et', '上すぼまり', Math.round((it.taper || 0) * 100), 0, 80, 1, Math.round((it.taper || 0) * 100) + '%'));
+      + (['loft', 'roundloft', 'shell', 'arc', 'ellipsoid', 'outline', 'reference'].includes(it.form) ? '' : slider('et', '上すぼまり', Math.round((it.taper || 0) * 100), 0, 80, 1, Math.round((it.taper || 0) * 100) + '%')) + '</div>';
   } else if (it.room) {
-    h += it.room.map((v,i)=>slider('room'+i,['長さ','幅','高さ'][i],v,4,[hp.L,hp.W,hp.H][i],1,fmtM(v))).join('');
+    size = '<div class="sliders">' + it.room.map((v,i)=>slider('room'+i,['長さ','幅','高さ'][i],v,4,[hp.L,hp.W,hp.H][i],1,fmtM(v))).join('') + '</div>';
   } else if (it.k === 'hangar') {
-    h += `</div><div class="pgroup chips">${C.PARTS.hangar.sizes.map(s => `<button type="button" class="chip" data-hsize="${s}" aria-pressed="${it.d === s}">${s} m</button>`).join('')}</div><div class="sliders">`;
+    size = `<div class="chips">${C.PARTS.hangar.sizes.map(s => `<button type="button" class="chip" data-hsize="${s}" aria-pressed="${it.d === s}">${s} m</button>`).join('')}</div>`;
   } else if (d.fixed) {
-    h += `</div><p class="note tight">固定寸法：直径 ${fmtM(it.d)}・長さ ${fmtM(it.length || C.partDims(it).l)}（この兵器の大きさは変えられません）</p><div class="sliders">`;
+    size = `<p class="note tight">固定寸法：直径 ${fmtM(it.d)}・長さ ${fmtM(it.length || C.partDims(it).l)}（この兵器の大きさは変えられません）</p>`;
   } else if (C.equipmentSpec(it) && !C.parametricEngine(it) && it.k !== 'engine') {
-    h += `</div><p class="note tight">${esc(C.equipmentSpec(it).name)}は実寸の機器で、大きさは変えられません。</p><div class="sliders">`;
+    size = `<p class="note tight">${esc(C.equipmentSpec(it).name)}は実寸の機器で、大きさは変えられません。</p>`;
   } else if (!C.parametricEngine(it)) {
     const precise = precisePartSize(it);
-    h += slider('ed', '直径', precise ? it.d : Math.round(it.d), d.min, precise ? C.DESIGN_LIMITS.diameter : Math.max(it.d,Math.min(C.DESIGN_LIMITS.diameter,Math.max(d.max,hp.H*1.5))), precise ? .1 : 1, precise ? num(it.d, 2) + ' m' : fmtM(it.d));
+    size = '<div class="sliders">' + slider('ed', '直径', precise ? it.d : Math.round(it.d), d.min, precise ? C.DESIGN_LIMITS.diameter : Math.max(it.d,Math.min(C.DESIGN_LIMITS.diameter,Math.max(d.max,hp.H*1.5))), precise ? .1 : 1, precise ? num(it.d, 2) + ' m' : fmtM(it.d)) + '</div>';
   }
-  h += `</div><div class="ed-info" id="edinfo">${partInfoHTML(it).replace(/^<b>[^<]*<\/b>/, '')}</div></div>`;
+  if (size) h += `<h4>大きさ</h4>${size}`;
+  h += `<div class="ed-info" id="edinfo">${partInfoHTML(it).replace(/^<b>[^<]*<\/b>/, '')}</div></div>`;
   return h;
 }
 function baseFitEditor() {
@@ -2322,7 +2377,7 @@ function baseRenderPanel() {
   switch (st.tab) {
     case 'hull': {
       // The hull type is chosen when a design starts; editing keeps its outline controls.
-      h = `<div class="pgroup sliders">
+      h = `<div class="pgroup sliders"><h4>艦首・艦尾の絞り</h4>
         ${slider('bowW', '艦首先端の絞り率（幅・厚み）', hp.bowW * 100, .5, 100, .1, `${num(hp.bowW * 100,1)}%`)}
         ${hp.plan === 'arrow' ? slider('stern', '艦尾幅', Math.round(hp.stern * 100), 20, 100, 1, `${Math.round(hp.stern * 100)}%`) : ''}
         ${hp.plan === 'arrow' && !hp.stations?.length ? slider('maxAt', '最大幅の位置（艦尾から）', Math.round((hp.maxAt ?? .3) * 100), 5, 90, 1, `${Math.round((hp.maxAt ?? .3) * 100)}% · ${fLen((hp.maxAt ?? .3) * hp.L)}`) : ''}
@@ -2404,14 +2459,14 @@ function baseRenderPanel() {
           <p class="note">断面の角を斜めに削ぎ、台形にします。竜骨は残るので質量だけが減り、加速と縦強度の余裕が上がります。表面積は変わり、装甲とシールドの負担に響きます。</p>
           ${seg('rzside', [['both', '両舷'], ['port', '左舷'], ['stbd', '右舷']], r.side)}
           ${seg('rzedge', [['top', '上縁'], ['bottom', '下縁'], ['both', '上下']], r.edge)}
-          <div class="sliders">
+          </div><div class="pgroup"><h4>削り幅と範囲</h4><div class="sliders">
             ${slider('rzinset', '削り幅', r.inset, 2, Math.round(hp.W / 2), 1, fmtM(r.inset))}
             ${slider('rzslope', '傾斜の高さ', r.slope, 2, Math.round(hp.H), 1, fmtM(r.slope))}
             ${slider('rzfrom', '範囲（艦尾側）', Math.round(r.from * 100), 0, 95, 1, `${Math.round(r.from * 100)}%`)}
             ${slider('rzto', '範囲（艦首側）', Math.round(r.to * 100), 5, 100, 1, `${Math.round(r.to * 100)}%`)}
           </div>
-          <label class="check"><input type="checkbox" id="rzprop" ${r.prop ? 'checked' : ''}> 船幅のすぼまりに合わせる</label>
-          <button type="button" class="btn primary" id="btnRazee">ラザー化を加える</button>
+          <label class="check"><input type="checkbox" id="rzprop" ${r.prop ? 'checked' : ''}> 船幅のすぼまりに合わせる</label></div>
+          <div class="pgroup"><button type="button" class="btn primary" id="btnRazee">ラザー化を加える</button>
         </div>`;
       } else {
         const n = st.notch;
@@ -2465,6 +2520,7 @@ function renderPanelInfo() {
   box.innerHTML = h;
   const ei = $('#edinfo'), it = selItem();
   if (ei && it && st.sel.list === 'parts') ei.innerHTML = partInfoHTML(it).replace(/^<b>[^<]*<\/b>/, '');
+  renderSelStrip();
 }
 
 // ---------- hull edits ----------
@@ -2509,6 +2565,19 @@ function hullDimsHTML() {
     <label class="check"><input type="checkbox" data-hullratio ${st.hullRatio ? 'checked' : ''}> 全長を変えるとき幅と高さも同じ比率で変える</label>
     <h4>寸法を変えたときの搭載物</h4>${seg('hullfollow', HULL_FOLLOW, st.hullFollow)}
     <p class="note">${st.hullFollow === 'surface' ? '格納庫・貨物庫などの内部区画は位置と寸法を保ちます。武装・艦橋ポッド・構造物・露出した機関は外板に合わせて移動します。' : st.hullFollow === 'scale' ? 'すべての区画と装備の位置を船体寸法の比率で移動します。区画の大きさは変わりません。' : '区画も装備も位置を保ちます。外板から離れた装備は浮いた扱いになります。'}</p></div>`;
+}
+
+// v22.3 The hull's sections: a row of chips picks one, and only that section's eight figures are shown
+// (the full table grew a screen per section on a phone).
+const STATION_FIELDS = ['前後', '幅', '厚さ', '上下', '甲板', '船底', '舷側帯', '帯位置'];
+const STATION_LABELS = ['前後位置', '幅', '厚さ', '上下位置', '甲板幅', '船底幅', '舷側帯の厚さ', '舷側帯の上下位置'];
+function stationEditorHTML(rows, deckOK) {
+  const n = rows.length, i = C.clamp(st.stationSel | 0, 0, n - 1), a = rows[i], hp = ship.hull, bow = C.bowStation({...hp, stations: rows}, i); st.stationSel = i;
+  const vals = [a[0], a[1], a[2], a[3] ?? 0, a[4] ?? hp.deckWidth ?? .52, a[5] ?? hp.keelWidth ?? 0, a[6] ?? hp.belt ?? .13, a[7] ?? hp.chineHeight ?? .5];
+  const mins = [0, .5, .5, -50, 0, 0, 2, 20], maxs = [100, 150, 150, 80, 98, 98, 98, 80];
+  return `<div class="station-pick" role="group" aria-label="編集する断面">${rows.map((r, j) => `<button type="button" class="chip" data-stationpick="${j}" aria-pressed="${j === i}">${j === 0 ? '艦尾' : j === n - 1 ? '艦首' : '断面 ' + (j + 1)}<small>${num(r[0] * 100, 1)}%</small></button>`).join('')}</div>
+    <div class="station-fields">${vals.map((v, j) => `<label><span>${STATION_FIELDS[j]} %</span><input aria-label="断面${i + 1} ${STATION_LABELS[j]}" type="number" inputmode="decimal" data-station="${i}" data-axis="${j}" value="${Math.round(v * 1000) / 10}" min="${mins[j]}" max="${maxs[j]}" step=".1" ${(j === 0 && (i === 0 || i === n - 1)) || (j === 2 && bow) || (j >= 4 && !deckOK) ? 'disabled' : ''} ${j === 2 && bow ? 'title="艦首は幅と厚さが連動しています。下のチェックを外すと個別に変更できます"' : ''}></label>`).join('')}</div>
+    <div class="row2 station-acts"><button type="button" class="btn sm" data-insertstation="${Math.min(i, n - 2)}" ${n >= 32 ? 'disabled' : ''}>＋ ${i < n - 1 ? '次の断面との間' : '手前の断面との間'}に追加</button>${i && i < n - 1 ? `<button type="button" class="btn sm ghost" data-dropstation="${i}">この断面を削除</button>` : ''}</div>`;
 }
 
 // ---------- exercise ----------
@@ -3464,13 +3533,13 @@ function v3RenderPanel(){
   baseRenderPanel();
   const panel=$('#panel');
   if(st.tab==='mod'&&st.partTool==='place'){
-    const parts=panel.querySelector('.parts');if(parts)parts.insertAdjacentHTML('beforebegin',`<div class="pgroup">${seg('group',layoutGroups(),st.group)}</div>`);
+    const parts=panel.querySelector('.parts');if(parts)parts.insertAdjacentHTML('beforebegin',`<div class="pgroup panel-nav">${seg('group',layoutGroups(),st.group)}</div>${st.group==='command'&&!craftDesign()?bridgeSubHTML():''}`);
     if(st.part==='struct')panel.insertAdjacentHTML('beforeend',structureControls({form:st.structForm,skinAsset:st.skinAsset,angles:st.structAngles,yaw:st.structYaw,offsetX:st.structOffsetX,offsetZ:st.structOffsetZ,shellCurve:st.shellCurve,shellThick:st.shellThick,shellFlip:st.shellFlip},false));
     if(st.part==='engine')panel.insertAdjacentHTML('beforeend',engineControls({k:'engine',c:[0,0,0],d:pSize('engine'),dir:st.engineDir,reactor:st.reactor},false));
     panel.insertAdjacentHTML('beforeend',coordinateControls());
   }
   if(st.tab==='bridge'){
-    panel.innerHTML=`<div class="pgroup">${seg('group',layoutGroups(),'bridge')}</div>`+bridgeSubHTML()+bridgePanel();
+    panel.innerHTML=`<div class="pgroup panel-nav">${seg('group',layoutGroups(),'command')}</div>`+bridgeSubHTML()+bridgePanel();
   }
   if(st.tab==='armor')panel.insertAdjacentHTML('beforeend',`<div class="pgroup sliders"><h4>シールドの目標強度</h4>${slider('shieldTarget','標準に対して',(ship.shieldTarget||1)*100,10,300,5,Math.round((ship.shieldTarget||1)*100)+'%')}<p class="note">目標強度 × 外表面積で必要電力が決まります。発生器の容量と給電が不足すると実効強度が下がります。</p></div>`);
 }
@@ -3495,9 +3564,10 @@ function systemsHTML(){
 function bindEngineering(){
   $('#panel').addEventListener('click',e=>{
     const b=e.target.closest('button');if(!b)return;const d=b.dataset;
-    if(d.group==='bridge'){st.equipmentId=null;st.tab='bridge';st.bridgeMode=st.bridgeMode==='windows'?'windows':'body';st.sel=null;st.partTool='place';renderPanel();return;}
+    // 指揮・艦橋 (and the old 艦橋 key) open on the part of the menu last used.
+    if(d.group==='command'||d.group==='bridge'){if(st.structForm==='reference'){st.structForm='trap';delete st.skinAsset;}openCommandMenu(d.group==='bridge'?(st.cmdSub==='rooms'?'body':st.cmdSub):(st.tab==='bridge'||st.tab==='mod'&&st.group==='command'?cmdSubNow():st.cmdSub));renderPanel();return;}
     if(d.group){st.equipmentId=null;if(st.structForm==='reference'){st.structForm='trap';delete st.skinAsset;}st.tab='mod';st.group=d.group;if(st.group!=='weapons')st.part=PART_KEYS.find(k=>C.PARTS[k].group===st.group);st.partTool='place';renderPanel();}
-    if(d.cmdsub){if(d.cmdsub==='rooms'){st.tab='mod';st.group='command';st.part=PART_KEYS.find(k=>C.PARTS[k].group==='command')||st.part;st.partTool='place';st.equipmentId=null;}else{st.tab='bridge';st.bridgeMode=d.cmdsub;st.sel=null;st.partTool='place';}renderPanel();return;}
+    if(d.cmdsub){openCommandMenu(d.cmdsub);renderPanel();return;}
     if(d.structform){st.structForm=d.structform;renderPanel();}
     if(d.structplate){st.structPlate=d.structplate==='plate';st.structLight=d.structplate==='light';renderPanel();updateHint();}
     if('plateflat'in d){st.structSize=[120,60,4];renderPanel();updateHint();}
@@ -3544,20 +3614,20 @@ function bindEngineering(){
 
 st.roomSize=[120,60,24];
 // v21 Keep the palette choices valid when the design changes between craft and capital ship.
-function craftPaletteGuard(){if(!ship)return;const gs=layoutGroups();if(st.group!=='weapons'&&st.group!=='bridge'&&!gs.some(g=>g[0]===st.group))st.group=craftDesign()?'craft':'power';if(st.part&&!partOffered(st.part))st.part=PART_KEYS.find(k=>C.PARTS[k].group===st.group&&partOffered(k))||'struct';if(craftDesign()&&st.group==='bridge')st.group='craft';const wk=weaponKeys();if(!wk.includes(st.fit))st.fit=wk[0];if(craftDesign()&&st.structSize[0]>ship.hull.L)st.structSize=[Math.max(.2,+(ship.hull.L*.3).toFixed(2)),Math.max(.2,+(ship.hull.W*.3).toFixed(2)),Math.max(.05,+(ship.hull.H*.1).toFixed(2))];}
-function renderPanel(){craftPaletteGuard();
+function craftPaletteGuard(){if(!ship)return;const gs=layoutGroups();if(craftDesign()&&st.tab==='bridge'){st.tab='mod';st.group=gs.some(g=>g[0]==='command')?'command':'craft';}if(st.group!=='weapons'&&st.group!=='bridge'&&!gs.some(g=>g[0]===st.group))st.group=craftDesign()?'craft':'power';if(st.part&&!partOffered(st.part))st.part=PART_KEYS.find(k=>C.PARTS[k].group===st.group&&partOffered(k))||'struct';if(craftDesign()&&st.group==='bridge')st.group='craft';const wk=weaponKeys();if(!wk.includes(st.fit))st.fit=wk[0];if(craftDesign()&&st.structSize[0]>ship.hull.L)st.structSize=[Math.max(.2,+(ship.hull.L*.3).toFixed(2)),Math.max(.2,+(ship.hull.W*.3).toFixed(2)),Math.max(.05,+(ship.hull.H*.1).toFixed(2))];}
+function renderPanel(){craftPaletteGuard();if(st.tab==='bridge')st.cmdSub=st.bridgeMode==='windows'?'windows':'body';else if(st.tab==='mod'&&st.group==='command')st.cmdSub='rooms';
   if(fleet.mode!=='design'){fleetRender();return;}
   refreshSolidCutterOverlay();
 
   if(ship&&st.tab==='mod'&&st.group==='weapons'){compartmentWeaponsPanel();organizePanel();return;}
-  if(ship&&st.tab==='ground'){markTabs();$('#panel').innerHTML=groundPanelHTML();updateHint();refreshOverlay();return;}
+  if(ship&&st.tab==='ground'){markTabs();$('#panel').innerHTML=groundPanelHTML();updateHint();refreshOverlay();organizePanel();return;}
   v3RenderPanel();if(!ship)return;const panel=$('#panel');
   if(st.tab==='hull'){
-    panel.insertAdjacentHTML('afterbegin',`<div class="pgroup"><label><input type="checkbox" data-assembly ${ship.hull.assembly?'checked':''}> 船体を独立した構造パーツで組み立てる</label><p class="note">有効時は一体船体を表示せず、配置した船殻だけを容積・質量・内部区画の境界に使います。環状船体や分離したポッドを作れます。長さ・幅・高さは設計範囲です。</p><label><input type="checkbox" data-corehull ${ship.hull.core?'checked':''}> 船体をコア船体にする</label><p class="note">ルクレハルク級の中央球体（コアシップ）のように、小さな船体の周りを構造物で大きく組む艦に使います。全長・艦種・損傷区画・艦隊戦での大きさを、構造物を含めた全体で計算します。</p></div>`);
+    panel.insertAdjacentHTML('afterbegin',`<div class="pgroup"><h4>船体の組立</h4><label><input type="checkbox" data-assembly ${ship.hull.assembly?'checked':''}> 船体を独立した構造パーツで組み立てる</label><p class="note">有効時は一体船体を表示せず、配置した船殻だけを容積・質量・内部区画の境界に使います。環状船体や分離したポッドを作れます。長さ・幅・高さは設計範囲です。</p><label><input type="checkbox" data-corehull ${ship.hull.core?'checked':''}> 船体をコア船体にする</label><p class="note">ルクレハルク級の中央球体（コアシップ）のように、小さな船体の周りを構造物で大きく組む艦に使います。全長・艦種・損傷区画・艦隊戦での大きさを、構造物を含めた全体で計算します。</p></div>`);
     const rows=ship.hull.stations||C.planStations(ship.hull).map(t=>C.profileAt(ship.hull,t)),deckOK=ship.hull.sec!=='ellipse';
-    panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>船体断面・艦尾を設計</h4><p class="note">艦尾から艦首へ。肩の張り出し・舷側の切り込み・艦首の薄さを個別に作れます。幅・厚さ・上下位置は船体寸法に対する割合。甲板（上面）・船底（下面）の平らな幅は各断面の幅に対する割合です。舷側帯・帯位置は装甲楔形の舷側にある垂直帯の厚さと高さ位置（各断面の厚さに対する割合）で、断面ごとに変えられます。艦首の末端2断面は幅・厚さが同率で連動し、船体の幅：高さを保ちます（表の下のチェックで解除できます）。断面と断面の間の「＋」で、その位置に断面を追加します。菱形は上下が頂点です。装甲楔形も甲板・船底幅を0%にすれば尖ります。</p><div class="station-scroll"><table class="station-table"><thead><tr><th>前後 %</th><th>幅 %</th><th>厚さ %</th><th>上下 %</th><th>甲板 %</th><th>船底 %</th><th>舷側帯 %</th><th>帯位置 %</th><th></th></tr></thead><tbody>${rows.map((a,i)=>`<tr>${[a[0],a[1],a[2],a[3]??0,a[4]??ship.hull.deckWidth??.52,a[5]??ship.hull.keelWidth??0,a[6]??ship.hull.belt??.13,a[7]??ship.hull.chineHeight??.5].map((v,j)=>`<td><input aria-label="断面${i+1} ${['前後位置','幅','厚さ','上下位置','甲板幅','船底幅','舷側帯の厚さ','舷側帯の上下位置'][j]}" type="number" inputmode="decimal" data-station="${i}" data-axis="${j}" value="${Math.round(v*1000)/10}" min="${[0,.5,.5,-50,0,0,2,20][j]}" max="${[100,150,150,80,98,98,98,80][j]}" step=".1" ${(j===0&&(i===0||i===rows.length-1))||(j===2&&C.bowStation({...ship.hull,stations:rows},i))||(j>=4&&!deckOK)?'disabled':''} ${j===2&&C.bowStation({...ship.hull,stations:rows},i)?'title="艦首は幅と厚さが連動しています。表の下のチェックを外すと個別に変更できます"':''}></td>`).join('')}<td>${i&&i<rows.length-1?`<button class="btn sm ghost" data-dropstation="${i}" aria-label="断面${i+1}を削除">×</button>`:''}</td></tr>${i<rows.length-1?`<tr class="station-gap"><td colspan="9"><button type="button" class="station-add" data-insertstation="${i}" ${rows.length>=32?'disabled':''} aria-label="断面${i+1}と断面${i+2}の間に断面を追加"><b aria-hidden="true">＋</b>${num((a[0]+rows[i+1][0])*50,1)}% に断面を追加</button></td></tr>`:''}`).join('')}</tbody></table></div><label class="check"><input type="checkbox" data-bowlink ${ship.hull.bowFree?'':'checked'}> 艦首の末端2断面は幅と厚さを連動する（船体の幅：高さの比を保つ）</label>${ship.hull.sec!=='warship'?`<p class="note">${deckOK?'甲板・船底の幅を変えると、断面は今の形に近い「装甲楔形」へ切り替わります。':'楕円断面では甲板・船底の幅は使いません。'}</p>`:''}<div class="sliders">${slider('deckWidth','上甲板の幅',Math.round((ship.hull.deckWidth??.52)*100),0,98,1,Math.round((ship.hull.deckWidth??.52)*100)+'%')}${slider('keelWidth','船底の平坦幅',Math.round((ship.hull.keelWidth??0)*100),0,95,1,Math.round((ship.hull.keelWidth??0)*100)+'%')}${slider('hullStart','本体船殻の艦尾位置',Math.round((ship.hull.start||0)*1000)/10,0,60,.1,Math.round((ship.hull.start||0)*ship.hull.L)+' m')}${slider('chineHeight','舷側帯の上下位置',Math.round((ship.hull.chineHeight??.5)*100),20,80,1,Math.round((ship.hull.chineHeight??.5)*100)+'%')}${slider('belt','舷側帯の厚さ',Math.round((ship.hull.belt??.13)*100),2,45,1,Math.round((ship.hull.belt??.13)*100)+'%')}</div></div>`);
+    panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>船体断面・艦尾を設計</h4><p class="note">艦尾から艦首へ。肩の張り出し・舷側の切り込み・艦首の薄さを個別に作れます。幅・厚さ・上下位置は船体寸法に対する割合。甲板（上面）・船底（下面）の平らな幅は各断面の幅に対する割合です。舷側帯・帯位置は装甲楔形の舷側にある垂直帯の厚さと高さ位置（各断面の厚さに対する割合）で、断面ごとに変えられます。艦首の末端2断面は幅・厚さが同率で連動し、船体の幅：高さを保ちます（下のチェックで解除できます）。上の列で断面を選び、「＋」で次の断面との間に断面を追加します。菱形は上下が頂点です。装甲楔形も甲板・船底幅を0%にすれば尖ります。</p>${stationEditorHTML(rows,deckOK)}<label class="check"><input type="checkbox" data-bowlink ${ship.hull.bowFree?'':'checked'}> 艦首の末端2断面は幅と厚さを連動する（船体の幅：高さの比を保つ）</label>${ship.hull.sec!=='warship'?`<p class="note">${deckOK?'甲板・船底の幅を変えると、断面は今の形に近い「装甲楔形」へ切り替わります。':'楕円断面では甲板・船底の幅は使いません。'}</p>`:''}</div><div class="pgroup"><h4>甲板・舷側帯・艦尾位置</h4><div class="sliders">${slider('deckWidth','上甲板の幅',Math.round((ship.hull.deckWidth??.52)*100),0,98,1,Math.round((ship.hull.deckWidth??.52)*100)+'%')}${slider('keelWidth','船底の平坦幅',Math.round((ship.hull.keelWidth??0)*100),0,95,1,Math.round((ship.hull.keelWidth??0)*100)+'%')}${slider('hullStart','本体船殻の艦尾位置',Math.round((ship.hull.start||0)*1000)/10,0,60,.1,Math.round((ship.hull.start||0)*ship.hull.L)+' m')}${slider('chineHeight','舷側帯の上下位置',Math.round((ship.hull.chineHeight??.5)*100),20,80,1,Math.round((ship.hull.chineHeight??.5)*100)+'%')}${slider('belt','舷側帯の厚さ',Math.round((ship.hull.belt??.13)*100),2,45,1,Math.round((ship.hull.belt??.13)*100)+'%')}</div></div>`);
     panel.insertAdjacentHTML('beforeend',`<div class="pgroup"><h4>所属陣営</h4>${seg('yardfaction',Object.entries(C.DESIGN_FACTIONS),ship.faction||'any')}<p class="note">編成画面の艦の一覧と、任務で使える陣営を決めます（全陣営ならどの艦隊にも加えられます）。</p></div>`);
-    panel.insertAdjacentHTML('beforeend',`<div class="pgroup"><h4>外板スキン</h4>${seg('yardpaint',[['neutral','無塗装'],['republic','共和国の赤帯'],['dark','暗色'],['cis','分離主義の青灰色']],ship.paint||'neutral')}<p class="field-label">窓明かり（トレンチ・構造物の壁）</p>${seg('yardlights',[['white','白'],['blue','青'],['warm','暖色'],['off','消灯']],ship.lights||'white')}<p class="field-label">バーニア光（エンジン噴射の色）</p>${seg('yardengine',Object.entries(C.ENGINE_GLOWS).map(([k,v])=>[k,`<i class="swatch" style="background:rgb(${v.rgb.join(',')})"></i>${v.name}`]),C.ENGINE_GLOWS[ship.engineGlow||'blue']?ship.engineGlow||'blue':'')}<label class="engine-pick"><input type="color" data-yardenginecolor value="${engineHex(ship.engineGlow)}"><span>任意の色${ship.engineGlow&&!C.ENGINE_GLOWS[ship.engineGlow]?`（${ship.engineGlow}）`:''}</span></label><div class="sliders">${slider('yardDetail','トレンチ内の設備密度',ship.detail??1,0,2,.5,String(ship.detail??1))}</div><p class="note">スキンは塗装・装甲継ぎ目のみで、指揮能力は追加されません。指揮所は「艦橋」から艦橋本体やポッドを配置します。</p></div>`);
+    panel.insertAdjacentHTML('beforeend',`<div class="pgroup"><h4>外板スキン</h4>${seg('yardpaint',[['neutral','無塗装'],['republic','共和国の赤帯'],['dark','暗色'],['cis','分離主義の青灰色']],ship.paint||'neutral')}<p class="field-label">窓明かり（トレンチ・構造物の壁）</p>${seg('yardlights',[['white','白'],['blue','青'],['warm','暖色'],['off','消灯']],ship.lights||'white')}<p class="field-label">バーニア光（エンジン噴射の色）</p>${seg('yardengine',Object.entries(C.ENGINE_GLOWS).map(([k,v])=>[k,`<i class="swatch" style="background:rgb(${v.rgb.join(',')})"></i>${v.name}`]),C.ENGINE_GLOWS[ship.engineGlow||'blue']?ship.engineGlow||'blue':'')}<label class="engine-pick"><input type="color" data-yardenginecolor value="${engineHex(ship.engineGlow)}"><span>任意の色${ship.engineGlow&&!C.ENGINE_GLOWS[ship.engineGlow]?`（${ship.engineGlow}）`:''}</span></label><div class="sliders">${slider('yardDetail','トレンチ内の設備密度',ship.detail??1,0,2,.5,String(ship.detail??1))}</div><p class="note">スキンは塗装・装甲継ぎ目のみで、指揮能力は追加されません。指揮所は「区画および艤装 → 指揮・艦橋」から艦橋本体やポッドを配置します。</p></div>`);
   }
   if(st.tab==='mod'&&st.partTool==='place'&&C.PARTS[st.part].shape==='cube')panel.insertAdjacentHTML('beforeend',`<div class="pgroup"><h4>区画の寸法</h4><div class="sliders">${st.roomSize.map((v,i)=>slider('newRoom'+i,['長さ','幅','高さ'][i],v,4,[ship.hull.L,ship.hull.W,ship.hull.H][i],1,fmtM(v))).join('')}</div><p class="note">立方体に限らず、飛行甲板・貨物甲板のような薄く長い区画を配置できます。</p></div>`);
   if(st.tab==='mod')panel.insertAdjacentHTML('afterbegin','<div class="note compartment-rule">内部区画は外殻内に収容。箱形区画の干渉は必要容積を保って自動統合します。主炉・シールド・エンジンと外装機器は張出し可能。</div>');
@@ -3570,7 +3640,7 @@ function renderPanel(){craftPaletteGuard();
 }
 function partEditor(){
   let html=v3PartEditor(),p=selItem();if(!p||st.sel.list!=='parts')return html;
-  html+=`<div class="pgroup"><label class="field-label">区画名<input type="text" data-partlabel value="${esc(p.label||C.PARTS[p.k].name)}" maxlength="80"></label></div>`;
+  html+=`<div class="pgroup"><h4>区画名</h4><label class="field-label"><input type="text" data-partlabel aria-label="区画名" value="${esc(p.label||C.PARTS[p.k].name)}" maxlength="80"></label></div>`;
   if((p.k==='struct'&&!['reference','outline','loft','roundloft','arc','ellipsoid','dome','cylinder','cone','shell'].includes(p.form))||(p.room&&!p.outline)){html+=`<div class="pgroup"><h4>平面の輪郭</h4>${p.k==='struct'&&p.form!=='chamfer'?'<button class="btn sm" data-chamfer>切隅・平面台形にする</button>':''}<div class="sliders">${slider('aftWidth','艦尾側の幅',Math.round((p.aftWidth??1)*100),3,150,1,Math.round((p.aftWidth??1)*100)+'%')}${slider('foreWidth','艦首側の幅',Math.round((p.foreWidth??1)*100),3,150,1,Math.round((p.foreWidth??1)*100)+'%')}${slider('corner','隅を落とす',Math.round((p.corner??.12)*100),0,45,1,Math.round((p.corner??.12)*100)+'%')}</div><p class="note">甲板・艦橋の角や、船首へ細くなる区画を再現できます。</p></div>`;}
   if(C.PARTS[p.k].shape==='cube'&&!p.room)html+='<button class="btn" data-roomconvert>長さ・幅・高さを個別に編集</button>';
   if(p.room&&!p.outline)html+='<button class="btn" data-roomoutline>区画の輪郭を頂点で編集する</button>';
@@ -3665,7 +3735,7 @@ function referencePanel(panel){
   // v18 Missile launchers: cells below deck (VLS) or a box on the hull.
   if(selected&&st.sel.list==='fits'&&C.FITS[selected.k]?.msl){const mm=C.missileMount(selected),q=S?.vlsInfo?.[selected.id],M=C.MISSILE_MOUNTS;panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>ミサイル発射機の搭載方式</h4>${seg('mslmount',Object.entries(M).map(([k,v])=>[k,v.name]),mm)}<p>${mm==='vls'?`船内のセル・弾庫 ${q?num(q.volume,0):'—'} / ${q?num(q.required,0):'—'} m³（${q?fPct(q.ratio):'—'}）· 搭載弾数 ${Math.round(M.vls.stock*(q?.ratio??1))} 発`:`船内容積を使いません · 搭載弾数 ${M.ext.stock} 発`}</p><p class="note">VLS は発射機の下に船内容積を確保します（その分、乗員の居住に回せる空き容積が減ります）。露出はハッチだけで被弾しにくい反面、弾庫まで撃ち抜かれると誘爆します。外置きは船内容積を使わず、搭載弾数が半分、箱型発射機がむき出しで被弾しやすくなります。</p></div>`);}
   if(selected&&st.sel.list==='fits'&&C.FITS[selected.k]?.store){const sd=C.FITS[selected.k].store;panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>${esc(C.STORE_MOUNTS[sd.mount].name)}の容量</h4><p>${esc(storeCapText(sd))}${sd.mount==='wing'?' · 機外に吊るので機内の容積を使いません':''}</p>${storeCapHTML(sd)}<p class="note">設計で決まるのは入る数だけです。積む弾と数は編成画面の中隊ごとに選び（お任せは正史の搭載）、撃つと減り、母艦で再装填します。弾の質量だけ機体が重くなります。</p></div>`);}
-  const f=selItem();if(f&&st.sel.list==='fits'&&!C.FITS[f.k].window){const d=C.fitSpec(f);panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>選択中の兵装</h4><label>${d.craft?'装備を交換':'砲塔を交換'}<select data-refweapon>${weaponKeys().map(k=>`<option value="${k}" ${f.k===k?'selected':''}>${esc(C.FITS[k].name)}</option>`).join('')}</select></label>${C.FITS[f.k].asset?`${d.casemate?'':`<div class="sliders">${slider('gunYaw','砲塔の向き',f.assetYaw||0,-180,180,1,deg(f.assetYaw||0))}</div>`}<p class="note">兵装の大きさは規格どおりで変えられません${(f.scale||1)!==1?`（この砲塔は作例の規格 ${Math.round((f.scale||1)*100)}%）`:''}。</p>`:''}<p>${d.store?esc(storeCapText(d.store)):`${fTT(d.tt||d.ion||0)} / 一斉射`} · ${fW(d.power)} / 連射時${S?.feedInfo?.[f.id]?`<br>配電路 ${ja(S.feedInfo[f.id][0])} m³（${feedSrc(S.feedInfo[f.id])} ${num(S.feedInfo[f.id][1])} m）`:''}</p></div>`);}
+  const f=selItem();if(f&&st.sel.list==='fits'&&!C.FITS[f.k].window){const d=C.fitSpec(f);panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>${d.craft?'装備の交換':'砲塔の交換・向き'}</h4><label>${d.craft?'装備を交換':'砲塔を交換'}<select data-refweapon>${weaponKeys().map(k=>`<option value="${k}" ${f.k===k?'selected':''}>${esc(C.FITS[k].name)}</option>`).join('')}</select></label>${C.FITS[f.k].asset?`${d.casemate?'':`<div class="sliders">${slider('gunYaw','砲塔の向き',f.assetYaw||0,-180,180,1,deg(f.assetYaw||0))}</div>`}<p class="note">兵装の大きさは規格どおりで変えられません${(f.scale||1)!==1?`（この砲塔は作例の規格 ${Math.round((f.scale||1)*100)}%）`:''}。</p>`:''}<p>${d.store?esc(storeCapText(d.store)):`${fTT(d.tt||d.ion||0)} / 一斉射`} · ${fW(d.power)} / 連射時${S?.feedInfo?.[f.id]?`<br>配電路 ${ja(S.feedInfo[f.id][0])} m³（${feedSrc(S.feedInfo[f.id])} ${num(S.feedInfo[f.id][1])} m）`:''}</p></div>`);}
   panel.insertAdjacentHTML('beforeend',weaponSourcesHTML());
  }
 }
@@ -4037,23 +4107,138 @@ function organizePanel(){
   if(/^配置済みの/.test(t)){const n=g.querySelectorAll('button').length;foldGroup(g,h,`${t}（${n}）`,false);}
   else if(/^配置位置を揃える$/.test(t)){const cur=g.querySelector('[aria-pressed="true"]')?.textContent||'';foldGroup(g,h,`${t}：${cur}`,false);}}
  const pal=placeMode()?panel.querySelector('.parts, .fits'):null;
- if(pal){const anchor=panel.querySelector('[data-group]')?.closest('.pgroup')||panel.querySelector('.command-sub')||panel.querySelector('.rail-dup');
+ if(pal){const anchor=panel.querySelector('.command-sub')||panel.querySelector('[data-group]')?.closest('.pgroup')||panel.querySelector('.rail-dup');
   const tools=document.createElement('div');tools.className='pgroup pal-head';tools.innerHTML=paletteHeadHTML();
   if(anchor){anchor.after(tools);tools.after(pal);}else{panel.prepend(pal);panel.prepend(tools);}
   pal.classList.add('palette');
   if(st.palQuery)paletteSearch(st.palQuery);}
+ compactPanel(panel);
  renderRail();
 }
 function foldGroup(g,h,label,open){const d=document.createElement('details');d.className=g.className+' fold';d.open=!!open;const sm=document.createElement('summary');sm.textContent=label;d.append(sm);h.remove();while(g.firstChild)d.append(g.firstChild);g.replaceWith(d);}
+
+// ---------- compact panel ----------
+// v22.3 On a phone the editor is a column about 280 px tall beside the 3D view, so nothing in it may grow into
+// a long list. Every titled section folds into an accordion row (one open at a time, remembered per menu; closed
+// at first, except the first section of the item being edited or a panel's only section), the palette and the
+// lists of placed items become sideways strips, the menus are rows of chips that scroll sideways, and the
+// selection is one line at the top of the panel (ⓘ for the rest).
+st.folds={};st.cmdSub='body';st.stationSel=0;
+const FOLD_SKIP='.pal-head,.palette,.pal-results,.pal-pick,.rail-dup,.sel-strip,.sel-info,.panel-nav,.editor,.cutter-editor,.cutter-heading,.cutter-apply,.compartment-rule,.trial-card,.spec-wrap,.mini,#pinfo';
+// Sections looked up now and then go below the ones that edit the item in hand.
+const FOLD_LATER=['配置位置を揃える','座標を指定して配置','配置済みの区画','配置済みの武装','配置済みの艦橋本体','武装の威力と出典','中心線・中心面へ整列','同じ形状の設備へ交換','艦橋に付随する指揮区画','ほかの加工の一覧'];
+const foldScope=()=>st.tab==='bridge'?'bridge-'+(st.bridgeMode==='windows'?'windows':'body'):st.tab==='mod'?'mod-'+st.group:st.tab;
+const foldKey=t=>String(t||'').replace(/[（(：:·].*$/,'').trim();
+// A heading sitting loose in a container starts a section that runs to the next heading or section.
+function wrapBareHeadings(root){
+ for(const h of [...root.children].filter(e=>e.tagName==='H4')){
+  const g=document.createElement('div');g.className='pgroup';h.before(g);g.append(h);
+  for(let n=g.nextSibling;n&&!(n.nodeType===1&&(n.tagName==='H4'||n.matches('.pgroup,details,.blueprint-card,.editor,.flow-intro,.sel-strip,.panel-nav,#pinfo')));n=g.nextSibling)g.append(n);
+ }
+}
+function isFoldable(el){
+ if(!(el instanceof HTMLElement)||el.matches(FOLD_SKIP))return false;
+ if(el.tagName==='DETAILS')return !!el.querySelector(':scope > summary');
+ const h=el.firstElementChild;return !!h&&(h.tagName==='H4'||h.tagName==='H3'||h.matches('.cutter-heading')&&!!h.querySelector(':scope > h4'));
+}
+// The summary keeps the section's title and, for a section that is one choice, the current choice.
+function foldSection(el){
+ if(el.tagName==='DETAILS'){el.classList.add('fold');el.dataset.fold=foldKey(el.querySelector(':scope > summary').textContent);el.open=false;return el;}
+ const h0=el.firstElementChild,h=h0.matches('.cutter-heading')?h0.querySelector(':scope > h4'):h0,title=h.textContent.trim(),d=document.createElement('details');
+ d.className=el.className+' fold';if(el.id)d.id=el.id;d.dataset.fold=foldKey(title);
+ h.remove();const sm=document.createElement('summary');d.append(sm);while(el.firstChild)d.append(el.firstChild);el.replaceWith(d);
+ sm.innerHTML=`<span>${esc(title)}</span>${foldValue(d,title)}`;
+ return d;
+}
+function foldValue(d,title){
+ const one=s=>s?`<small>${esc(s.replace(/\s+/g,' ').trim())}</small>`:'';
+ const n=d.querySelectorAll(':scope > .plist > button').length;if(n&&!/（\d+）$/.test(title))return one(String(n));
+ const sel=d.querySelector('select');if(sel&&sel.selectedOptions[0])return one(sel.selectedOptions[0].textContent.split(' · ')[0]);
+ const outs=[...d.querySelectorAll('.sliders output')].slice(0,3).map(o=>o.textContent.split(' · ')[0].trim()).filter(t=>/[^\d.,\s−-]/.test(t));if(outs.length)return one(outs.join(' · '));
+ const segs=d.querySelectorAll('.seg');if(segs.length===1)return one(segs[0].querySelector('[aria-pressed="true"]')?.textContent);
+ return '';
+}
+function foldAll(root,scope){
+ const folds=[];
+ for(const box of [root,...root.querySelectorAll(':scope > .editor, :scope > .cutter-editor')]){wrapBareHeadings(box);for(const el of [...box.children])if(isFoldable(el))folds.push(foldSection(el));}
+ if(!folds.length)return folds;
+ const want=st.folds[scope];
+ let open=st.foldWant?folds.find(d=>d.id===st.foldWant||d.querySelector('#'+CSS.escape(st.foldWant))):null;
+ if(!open&&want)open=folds.find(d=>d.dataset.fold===want);
+ if(!open&&want===undefined)open=folds.find(d=>d.parentElement?.matches('.editor'))||null;
+ if(!open&&want===undefined&&folds.length===1&&![...root.children].some(e=>e!==folds[0]&&!e.matches('.panel-nav,.sel-strip,.sel-info,.rail-dup,.note,#pinfo,.mini')))open=folds[0];
+ st.foldWant=null;
+ if(open){open.dataset.auto='1';open.open=true;st.folds[scope]=open.dataset.fold;}
+ return folds;
+}
+function compactPanel(panel){
+ if(!panel||!ship||fleet.mode!=='design')return;
+ for(const g of panel.querySelectorAll(':scope > .hull-sub, :scope > .carve-tools'))g.classList.add('panel-nav');
+ panel.querySelector(':scope > .pgroup [data-group]')?.closest('.pgroup')?.classList.add('panel-nav');
+ // The editor's own heading line becomes the selection strip; its figures move behind ⓘ.
+ for(const ed of panel.querySelectorAll(':scope > .editor')){ed.querySelector(':scope > .ed-head')?.remove();ed.querySelector(':scope > .ed-info')?.remove();}
+ const wrap=panel.querySelector(':scope > .spec-wrap');if(wrap)compactSpec(wrap);
+ for(const g of panel.querySelectorAll(':scope > .parts:not(.palette), :scope > .fits:not(.palette)')){const w=document.createElement('div');w.className='pgroup';w.innerHTML=`<h4>${g.querySelector('[data-bridge]')?'ポッドを選んで設置':g.querySelector('[data-fit]')?'武装を選んで設置':g.querySelector('[data-equipment]')?'艦橋本体を選んで配置':'選んで配置'}</h4>`;g.before(w);w.append(g);g.classList.add('pal-strip','hscroll');g.classList.toggle('two',g.children.length>4);}
+ const folds=foldAll(panel,foldScope());
+ for(const k of FOLD_LATER)for(const d of folds)if(d.dataset.fold===k&&d.parentElement===panel)panel.append(d);
+ for(const e of panel.querySelectorAll(':scope > .compartment-rule, :scope > #pinfo'))panel.append(e);
+ for(const m of panel.querySelectorAll('#pinfo .mini'))m.classList.add('hscroll');
+ // The palette is a sideways strip (two rows when long); the chosen item's line sits under it.
+ const pal=panel.querySelector('.palette');
+ if(pal){pal.classList.add('pal-strip','hscroll');pal.classList.toggle('two',pal.children.length>4);const on=pal.querySelector('.on');
+  if(on){const nm=on.querySelector('.pn,.fn')?.textContent||'',sp=on.querySelector('.fs')?.textContent||'',ds=(on.querySelector('.fd')||on.querySelector('.pd'))?.textContent||'';
+   pal.insertAdjacentHTML('afterend',`<p class="note clamp pal-pick"><b>${esc(nm)}</b>${sp?` <span class="pp-s">${esc(sp)}</span>`:''}${ds?` — ${esc(ds)}`:''}</p>`);
+   requestAnimationFrame(()=>{if(on.isConnected&&pal.scrollWidth>pal.clientWidth)pal.scrollLeft=Math.max(0,on.offsetLeft-(pal.clientWidth-on.offsetWidth)/2);});}}
+ for(const r of panel.querySelectorAll('.plist, .seg, .pal-recent, .station-pick'))r.classList.add('hscroll');
+ markPlainSliders(panel);
+ requestAnimationFrame(()=>{for(const r of panel.querySelectorAll('.seg.hscroll, .station-pick.hscroll')){const on=r.querySelector('[aria-pressed="true"]');if(on&&r.scrollWidth>r.clientWidth&&(on.offsetLeft<r.scrollLeft||on.offsetLeft+on.offsetWidth>r.scrollLeft+r.clientWidth))r.scrollLeft=Math.max(0,on.offsetLeft-(r.clientWidth-on.offsetWidth)/2);}});
+ renderSelStrip();
+ const strip=panel.querySelector(':scope > .sel-strip'),ed=panel.querySelector(':scope > .editor');if(strip&&ed)(panel.querySelector(':scope > .sel-info')||strip).after(ed);
+ // With room to spare (a short panel, or a tall screen) the first section opens as long as nothing then scrolls.
+ const sc=foldScope(),first=panel.querySelector(':scope > details.fold');
+ if(st.folds[sc]===undefined&&first&&!folds.some(d=>d.open)&&panel.clientHeight>0){first.open=true;if(panel.scrollHeight>panel.clientHeight+1)first.open=false;else{first.dataset.auto='1';st.folds[sc]=first.dataset.fold;}}
+}
+// A slider whose readout only repeats its number box ("516 m" beside 516) keeps to one line.
+function markPlainSliders(root){
+ for(const l of root.querySelectorAll('.sl')){const o=l.querySelector('output'),n=l.querySelector('.sl-num');if(!o||!n)continue;
+  const t=o.textContent.replace(/[,\s]/g,'').replace(/[−–]/g,'-').replace(/(m|%|°)$/,''),v=parseFloat(n.value);
+  l.classList.toggle('sl-plain',/^-?[\d.]+$/.test(t)&&Number.isFinite(v)&&Math.abs(parseFloat(t)-v)<=Math.max(.051,Math.abs(v)*1e-6));}
+}
+// The 性能 tab: the headline figures first, every block after them a fold.
+function compactSpec(wrap){
+ if(!wrap.firstElementChild||wrap.firstElementChild.tagName==='H4'||wrap.querySelector(':scope > details.fold'))return;
+ const lead=document.createElement('div');lead.className='pgroup';lead.innerHTML='<h4>主要諸元</h4>';wrap.prepend(lead);
+ for(let n=lead.nextSibling;n&&!(n.nodeType===1&&n.tagName==='H4');n=lead.nextSibling)lead.append(n);
+ for(const n of wrap.querySelectorAll('.note'))n.classList.add('clamp');
+ foldAll(wrap,'spec');
+}
+function bindCompact(){
+ const panel=$('#panel');
+ panel.addEventListener('toggle',e=>{const d=e.target;if(!(d instanceof HTMLDetailsElement)||!d.classList.contains('fold')||!d.dataset.fold)return;
+  const sc=d.closest('.spec-wrap')?'spec':foldScope(),auto=d.dataset.auto;delete d.dataset.auto;
+  if(d.open){st.folds[sc]=d.dataset.fold;for(const o of panel.querySelectorAll('details.fold[open]'))if(o!==d&&!o.contains(d)&&!d.contains(o))o.open=false;
+   if(!auto){const pr=panel.getBoundingClientRect(),r=d.getBoundingClientRect(),top=(panel.querySelector(':scope > .sel-strip')?.offsetHeight||0)+4;if(r.bottom>pr.bottom||r.top<pr.top+top)panel.scrollTop+=r.top-pr.top-top;}}
+  else if(st.folds[sc]===d.dataset.fold&&!auto)st.folds[sc]='';},true);
+ panel.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+  if('selinfo' in d){e.stopPropagation();st.selInfo=!st.selInfo;renderSelStrip();return;}
+  if('inspectx' in d){e.stopPropagation();hideInspect();return;}
+  if(d.stationpick!=null){e.stopPropagation();st.stationSel=+d.stationpick;renderPanel();return;}
+  if(d.insertstation!=null)st.stationSel=+d.insertstation+1;
+  if(d.dropstation!=null)st.stationSel=Math.max(0,+d.dropstation-1);
+ },true);
+ // A mouse wheel scrolls a sideways strip sideways.
+ panel.addEventListener('wheel',e=>{if(e.ctrlKey||Math.abs(e.deltaX)>Math.abs(e.deltaY))return;const r=e.target.closest?.('.hscroll');if(!r||r.scrollWidth<=r.clientWidth+1)return;const before=r.scrollLeft;r.scrollLeft+=e.deltaY;if(r.scrollLeft!==before)e.preventDefault();},{passive:false});
+}
 
 // ---------- palette search and recent picks ----------
 st.recent=(()=>{try{const r=JSON.parse(LS.get('yard.recent1')||'[]');return Array.isArray(r)?r.slice(0,8):[];}catch(e){return [];}})();
 function paletteItems(){
  const out=[];
- for(const k of PART_KEYS){const d=C.PARTS[k];out.push({type:'part',key:k,name:d.name,sub:d.desc||'',col:d.col,shape:d.shape,group:C.GROUPS[d.group]||''});}
- for(const d of Object.values(C.EQUIPMENT))out.push({type:'equipment',key:d.id,name:d.name,sub:d.group==='bridge'?'艦橋本体':C.GROUPS[d.group]||'',col:C.PARTS[d.k]?.col,shape:C.PARTS[d.k]?.shape,group:d.group==='bridge'?'艦橋':C.GROUPS[d.group]||''});
+ const gname=g=>g==='command'||g==='bridge'?CMD_LABEL:C.GROUPS[g]||'';
+ for(const k of PART_KEYS){const d=C.PARTS[k];out.push({type:'part',key:k,name:d.name,sub:d.desc||'',col:d.col,shape:d.shape,group:gname(d.group)});}
+ for(const d of Object.values(C.EQUIPMENT))out.push({type:'equipment',key:d.id,name:d.name,sub:d.group==='bridge'?'艦橋本体':C.GROUPS[d.group]||'',col:C.PARTS[d.k]?.col,shape:C.PARTS[d.k]?.shape,group:gname(d.group)});
  for(const k of WEAPONS)if(C.FITS[k])out.push({type:'fit',key:k,name:C.FITS[k].name,sub:C.FITS[k].short||'',col:[214,120,90],shape:'fit',group:'武装'});
- for(const k of BRIDGES)if(C.FITS[k])out.push({type:'bridge',key:k,name:C.FITS[k].name,sub:'艦橋ポッド',col:[150,200,230],shape:'pod',group:'艦橋'});
+ for(const k of BRIDGES)if(C.FITS[k])out.push({type:'bridge',key:k,name:C.FITS[k].name,sub:'艦橋ポッド',col:[150,200,230],shape:'pod',group:CMD_LABEL});
  return out;
 }
 const palIcon=it=>`<i class="sw sh-${it.shape||'cube'}" style="background:${rgb(it.col||[160,170,180])}"></i>`;
@@ -4083,7 +4268,7 @@ function palettePick(type,key){
  if(st.dockCollapsed){st.dockCollapsed=false;$('#dock').classList.remove('collapsed');}
 }
 function bindPalette(){
- const panel=$('#panel');
+ const panel=$('#panel');bindCompact();
  panel.addEventListener('input',e=>{if(e.target.dataset.palsearch!=null)paletteSearch(e.target.value);});
  panel.addEventListener('click',e=>{
   const pk=e.target.closest('[data-palpick]');if(pk){e.stopPropagation();const i=pk.dataset.palpick.indexOf(':');palettePick(pk.dataset.palpick.slice(0,i),pk.dataset.palpick.slice(i+1));return;}
@@ -6184,7 +6369,7 @@ st.alignment='none';st.showHabitation=false;
 function alignmentControls(selected=false){return `<div class="pgroup"><h4>${selected?'中心線・中心面へ整列':'配置位置を揃える'}</h4>${seg(selected?'alignselected':'placementalign',Object.entries(C.ALIGNMENTS).filter(([k])=>!selected||k!=='none'),selected?'':st.alignment)}<p class="note">基準は基本船体の寸法。中心線は上下中心面と左右中心面の交線です。${selected?'左右対を中心線へ移すと1個にまとめます。':'選択した座標だけ固定し、残りはタップした位置に合わせます。'}</p></div>`;}
 function replacementControls(p){const keys=C.replacementOptions(p);return keys.length?`<div class="pgroup"><h4>同じ形状の設備へ交換</h4><label>交換先<select data-replacement>${keys.map(k=>`<option value="${k}" ${k===p.k?'selected':''}>${esc(C.PARTS[k].name)}</option>`).join('')}</select></label><p class="note">位置・寸法・輪郭を維持して用途を交換します。${C.isReactor(p)?'主炉と補助炉は、同じ実体積なら同じ発電出力です。補助炉は船体外の部分を除いて計算します。':'性能は交換先の設備と寸法に従います。'}航空区画を別用途にすると、付随する開口も撤去します。元に戻す操作に対応。</p></div>`:'';}
 function commandControls(f){const p=C.commandCompartments(ship).find(p=>p.windowId===f.id),inf=S?.commandInfo?.[f.id];return `<div class="pgroup blueprint-card" id="command-editor"><h4>${esc(C.COMMAND_ROLES[C.FITS[f.k].role])}区画</h4><label><input type="checkbox" data-command-enabled ${f.commandEnabled!==false?'checked':''}> ポッドの背後に指揮区画を確保</label><div class="sliders">${slider('commandDepth','壁から船内への奥行き',f.commandDepth??12,2,200,1,fmtM(f.commandDepth??12))}${slider('commandHeight','指揮室の高さ',f.commandHeight??Math.max(8,(f.height||4)+3),2,80,1,fmtM(f.commandHeight??Math.max(8,(f.height||4)+3)))}</div><p>占有 ${ja(p?C.partVolume(p):0)} m³ · 稼働 ${fPct(inf?.ratio||0)}</p><p class="note">幅はポッドの直径に連動。外殻内に切取り、機関・主砲充電装置との干渉も点検します。指揮能力はこの区画の有効容積に応じます。</p><button class="btn" data-command-view="${f.id}">指揮区画を透視</button>${f.host?`<button class="btn" data-layout-part="${f.host}">艦橋の構造を編集</button>`:''}</div>`;}
-function derivedRoomsHTML(host){const commands=C.commandCompartments(ship).filter(p=>host==null||p.host===host);return `<div class="pgroup"><h4>艦橋に付随する指揮区画</h4>${commands.map(p=>`<button class="engine-row" data-command-view="${p.windowId}"><span>${esc(p.label)} #${p.windowId}</span><b>${ja(C.partVolume(p))} m³</b></button>`).join('')||'<p class="note">艦橋ポッド・航空指揮所窓を構造の壁面に配置すると、背後に指揮区画を確保します。無窓式指揮室は区画メニューから配置できます。</p>'}</div>`;}
+function derivedRoomsHTML(host){const commands=C.commandCompartments(ship).filter(p=>host==null||p.host===host);return `<div class="pgroup"><h4>艦橋に付随する指揮区画</h4>${commands.map(p=>`<button class="engine-row" data-command-view="${p.windowId}"><span>${esc(p.label)} #${p.windowId}</span><b>${ja(C.partVolume(p))} m³</b></button>`).join('')||'<p class="note">艦橋ポッド・航空指揮所窓を構造の壁面に配置すると、背後に指揮区画を確保します。無窓式指揮室は「指揮・艦橋 → 指揮区画」から配置できます。</p>'}</div>`;}
 function feedSrc(fd,short=false){const c=fd?.[2]||0;return c>.999?(short?'セル':'パワーセルから'):c<.001?(short?'炉':'炉から'):(short?'セル+炉':`セル ${Math.round(c*100)}%・炉 ${Math.round((1-c)*100)}% · 平均`);}
 function feedTop(n=5){const info=S?.feedInfo||{};return Object.entries(info).map(([id,fd])=>({f:ship.fits.find(f=>f.id===+id),fd,v:fd[0],l:fd[1]})).filter(r=>r.f&&r.v>0).sort((a,b)=>b.v-a.v).slice(0,n);}
 function habitationHTML(){const K=S?.personVolume||0,F=S?.autoHabitationVolume||0,V=S?.feedVolume||0,H=S?.habitableVolume??F,top=feedTop(5),short=(S?.habit??1)<1,cells=S?.feedCellCount||0;
@@ -6195,7 +6380,7 @@ function compartmentWeaponsPanel(){
  const tab=st.tab;st.tab='arm';baseRenderPanel();referencePanel($('#panel'));st.tab=tab;
  $('#panel').insertAdjacentHTML('afterbegin',`<div class="pgroup">${seg('group',layoutGroups(),st.group)}</div>`);
  {const panel=$('#panel'),it=selItem();if(st.fitTool==='place'){const anchor=panel.querySelector('[data-group]')?.closest('.pgroup');if(anchor)anchor.insertAdjacentHTML('afterend',alignmentControls());}else if(it&&st.sel?.list==='fits')panel.insertAdjacentHTML('beforeend',alignmentControls(true));}
- $('#panel').insertAdjacentHTML('beforeend',`<div class="pgroup"><h4>配置済みの武装</h4>${ship.fits.filter(f=>C.FITS[f.k].cat==='w').map(f=>`<button class="engine-row" data-layout-fit="${f.id}">${esc(C.FITS[f.k].name)} #${f.id}</button>`).join('')}</div>`);
+ $('#panel').insertAdjacentHTML('beforeend',`<div class="pgroup"><h4>配置済みの武装</h4><div class="plist">${ship.fits.filter(f=>C.FITS[f.k].cat==='w').map(f=>`<button type="button" class="chip${st.sel?.list==='fits'&&st.sel.id===f.id?' on':''}" data-layout-fit="${f.id}">${esc(C.FITS[f.k].short||C.FITS[f.k].name)} #${f.id}</button>`).join('')||'<p class="note">まだありません。</p>'}</div></div>`);
  markTabs();updateHint();refreshOverlay();
 }
 function layoutPanel(panel){
@@ -6221,8 +6406,8 @@ function openLayoutTarget(t){
  else{st.tab=t.tab||'systems';if(st.tab==='bridge'){st.bridgeMode='windows';st.bridgeTool='place';st.bridge=t.window||'podBridge';}if(st.tab==='arm'){st.tab='mod';st.group='weapons';st.fitTool='adjust';}}
  syncHud();renderPanel();
  if(p&&view){const c=p.c||p.p||C.mul(C.add(p.a,p.b),.5);view.cam.target=C.add(c,view.off);view.cam.r=Math.max(180,p.c?C.partDims(p).r*6:250);}
- if(t.list==='hatches'&&p){const el=$(`#panel [data-door="${p.id}"]`);el?.closest('.bay-control')?.scrollIntoView?.({block:'center'});el?.focus?.();}
- else if(t.section)$('#'+t.section+'-editor')?.scrollIntoView?.({block:'start'});
+ if(t.list==='hatches'&&p){const el=$(`#panel [data-door="${p.id}"]`),d=el?.closest('details.fold');if(d&&!d.open)d.open=true;el?.closest('.bay-control')?.scrollIntoView?.({block:'center'});el?.focus?.();}
+ else if(t.section){const el=$('#'+t.section+'-editor'),d=el?.closest('details.fold');if(d&&!d.open)d.open=true;el?.scrollIntoView?.({block:'start'});}
  refreshOverlay();requestDraw();
 }
 // Deck and bottom widths are part of the armoured-wedge section. Other polygon
@@ -6312,7 +6497,7 @@ function solidCutPanelHTML(){
       <div class="row2"><button class="btn sm" data-cutter-center>左右中央へ</button><button class="btn sm" data-cutter-through>上下に貫通</button></div>
     </details>
     <details class="cutter-rotation"><summary>角度を変える</summary>${cutterInputs('rotation',['X軸回転','Y軸回転','Z軸回転'],'°')}<div class="cutter-nudge">${[0,1,2].map(a=>`<button class="btn sm" data-cutter-turn="${a}">${['X','Y','Z'][a]} +90°</button>`).join('')}</div><button class="btn sm ghost" data-cutter-zero>回転を戻す</button></details>
-    <div class="cutter-options"><label class="check"><input type="checkbox" data-cutter-visible ${st.cutterVisible!==false?'checked':''}> カッターを表示</label><label class="check"><input type="checkbox" data-cutter-mirror ${q.mirror?'checked':''}> 左右対称に切る</label><label class="check"><input type="checkbox" data-cutter-structures ${q.structures?'checked':''}> 上部構造・船殻パーツも切る</label></div>
+    <div class="pgroup"><h4>表示と切る対象</h4><div class="cutter-options"><label class="check"><input type="checkbox" data-cutter-visible ${st.cutterVisible!==false?'checked':''}> カッターを表示</label><label class="check"><input type="checkbox" data-cutter-mirror ${q.mirror?'checked':''}> 左右対称に切る</label><label class="check"><input type="checkbox" data-cutter-structures ${q.structures?'checked':''}> 上部構造・船殻パーツも切る</label></div></div>
     <p class="note">${editing?'変更は実行するまで確定しません。':q.shape==='cylinder'?'円柱の軸は初期状態で上下方向です。':q.shape==='ellipsoid'?'長さ・幅・高さを同じ値にすると球になります。':'表示中の立体の内側が切り取られる範囲です。'}</p>
     <div class="cutter-apply"><button type="button" class="btn primary" data-cutter-apply>${editing?'この形で切削を更新':'重なりを切り取る'}</button>${editing?'<button class="btn ghost" data-cutter-cancel>調整をやめる</button>':''}</div>
   </div><div class="pgroup"><div class="cutter-heading"><h4>立体で切った箇所</h4><button class="btn sm ghost" data-cutter-new>新しいカッター</button></div>
@@ -6510,8 +6695,8 @@ function tutPartStep(o){
 const TUT_STEPS=[
  {title:'船体を用意する',text:'全長 1,600 m・全幅 1,000 m のくさび形船体（艦種：デストロイヤー）を用意しました。インペリアル級の要点は<b>平たい三角形の船体</b>・<b>艦尾寄りの艦橋</b>・<b>艦尾の大型エンジン</b>の3つです。寸法は「船体」タブでいつでも変えられます。',
   focus:['#tabs [data-tab="hull"]'],setup(){st.tab='hull';st.view='normal';tutCam('iso');},done:()=>true},
- {title:'艦橋本体を置く',text:'「区画および艤装 → 艦橋 → 艦橋本体」で<b>インペリアル級 艦橋本体</b>を選んであります。甲板の<b>艦尾寄り（後ろから約1/5）の中心線</b>をタップしてください。前面の円筒ポッドが指揮所なので、置くだけで艦橋として働きます。',
-  focus:['#tabs [data-tab="mod"]','[data-group="bridge"]','[data-equipment="isdBridge"]'],
+ {title:'艦橋本体を置く',text:'「区画および艤装 → 指揮・艦橋 → 艦橋本体」で<b>インペリアル級 艦橋本体</b>を選んであります。甲板の<b>艦尾寄り（後ろから約1/5）の中心線</b>をタップしてください。前面の円筒ポッドが指揮所なので、置くだけで艦橋として働きます。',
+  focus:['#tabs [data-tab="mod"]','[data-group="command"]','[data-cmdsub="body"]','[data-equipment="isdBridge"]'],
   setup(){st.tab='bridge';st.bridgeMode='body';st.bridgeEquipment='isdBridge';st.equipmentId=null;st.partTool='place';st.sel=null;st.view='normal';tutCam('iso');},
   done:()=>!!tutBridge(),auto:()=>tutTap(...tutDeck(TUT_HULL.L*.2,0))},
  tutPartStep({title:'主反応炉を積む',group:'power',text:'<b>主反応炉</b>（球）が艦のすべての電力をまかないます。艦橋の少し前、<b>甲板の中心線</b>をタップすると、面の内側に収まるよう置かれます。透視表示で船内が見えます。',
