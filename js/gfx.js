@@ -506,6 +506,14 @@ function subFrame(M, o, at, ang) {
 }
 function frameM(f) { const fr = C.FITS[f.k].window ? C.windowFrame(f) : C.fitFrameOf(f); return [fr.fw[0], fr.fw[1], fr.fw[2], fr.up[0], fr.up[1], fr.up[2], fr.rt[0], fr.rt[1], fr.rt[2]]; }
 let FIT_SKIP_BODY = null, FIT_SKIP_PED = null;
+// v22 A craft's launch tubes and pylons fly in the trial with their default stores (the お任せ loadout): each
+// press of the missile button fires one round from every station still loaded, along the bow.
+function craftLaunchers(model){
+ if(!C.craftLoadout||!C.isCraft(model))return [];const L=C.craftLoadout(model);if(!L?.stations?.length)return [];const ld=C.normalizeLoad(L.stations,L.load,L.load),out=[];
+ for(const f of model.fits){const d=C.FITS[f.k];if(!d?.store||f.float)continue;const i=L.stations.findIndex(st=>st.fit===f.k),q=ld[i],o=C.ORDNANCE[q?.k];if(!o?.guided||!(q.n>0))continue;
+  const fr=C.fitFrameOf(f);out.push({id:f.id,origin:C.add(C.fitOrigin(f),C.mul(fr.up,d.hm*.5)),axis:fr.fw,salvo:1,cycle:1.2,tt:o.tt,ion:!!o.ion,kind:q.k,ammo:q.n,ammo0:q.n});}
+ return out;
+}
 // v21 Starfighter and small-craft weapons, in the fitting's frame (x to the bow, y up from the mount).
 function craftWeaponMesh(g,f){
  const d=C.fitSpec(f),M=frameM(f),o=C.fitOrigin(f),L=d.fm,W=d.wm,h=d.hm,k=f.k,B=FC.barrel,D=FC.dark,R=FC.ring,Bd=FC.body;
@@ -513,7 +521,12 @@ function craftWeaponMesh(g,f){
  if(k==='cion'){box(g,M,o,-L*.18,h*.5,0,L*.5,h,W,Bd);cyl(g,M,o,L*.22,h*.5,0,W*.36,W*.3,L*.5,0,B,10);for(const q of [.08,.2,.32])cyl(g,M,o,L*q,h*.5,0,W*.47,W*.47,L*.04,0,R,10);return;}
  if(k==='cturret'){cyl(g,M,o,0,h*.15,0,W*.5,W*.46,h*.3,1,D,10);domeL(g,M,o,0,h*.3,0,W*.42,h*.5,Bd,12,3);for(const zz of [-W*.14,W*.14])cyl(g,M,o,L*.38,h*.55,zz,W*.06,W*.05,L*.6,0,B,6);return;}
  if(k==='ctorp'||k==='cmsl'){box(g,M,o,0,h*.5,0,L,h,W,Bd);for(const zz of (k==='ctorp'?[0]:[-W*.22,W*.22]))cyl(g,M,o,L*.49,h*.5,zz,W*(k==='ctorp'?.32:.18),W*(k==='ctorp'?.32:.18),L*.04,0,D,10);return;}
- if(k==='cbomb'){box(g,M,o,0,h*.5,0,L,h,W,D);box(g,M,o,0,h*.02,0,L*.92,h*.06,W*.9,R);box(g,M,o,0,h*.03,0,L*.02,h*.07,W*.92,D);}
+ if(k==='cbomb'){box(g,M,o,0,h*.5,0,L,h,W,D);box(g,M,o,0,h*.02,0,L*.92,h*.06,W*.9,R);box(g,M,o,0,h*.03,0,L*.02,h*.07,W*.92,D);return;}
+ // v22 A wing pylon: the streamlined pylon and its ejector rack, with the stores it carries by default (two thin
+ // missiles side by side, or one torpedo or bomb) hanging under it at their true size (C.ORDNANCE).
+ if(k==='cpylon'){box(g,M,o,0,h*.5,0,L,h,W,Bd);box(g,M,o,0,h*.98,0,L*.7,h*.08,W*1.6,D);
+  const q=f._store||(C.STORE_DEFAULT?.cpylon?{k:C.STORE_DEFAULT.cpylon[0],n:C.STORE_DEFAULT.cpylon[1]}:null),od=q&&C.ORDNANCE?.[q.k];if(!od)return;const n=Math.min(q.n,C.storeCapacity(d.store,q.k)),[rl,rd]=od.dims,zs=n>1?[-rd*.6,rd*.6]:[0];
+  for(let i=0;i<n;i++){const z=zs[i]??0,y=h+rd*.55;cyl(g,M,o,-rl*.07,y,z,rd*.5,rd*.5,rl*.86,0,od.ion?R:FC.glass,10);cyl(g,M,o,rl*.43,y,z,rd*.5,rd*.08,rl*.14,0,od.ion?FC.glass:R,10);}}
 }
 function meshFits(ship, filter, ranges) {
   const g = new Geo(8192), body = FC.body;
@@ -566,7 +579,7 @@ function meshFits(ship, filter, ranges) {
     // Weapons after the turret kit: hexagonal bases, wedge housings with a
     // mantlet and sleeved barrels, ion domes with coiled barrels, angled
     // missile boxes, dish projectors and ball-mounted point defence.
-    if (k === 'msl') {
+    if (k === 'msl' || k === 'itl') {
       // v18 VLS: a flush armoured deck plate over the cells, two rows of hatches.
       if (C.missileMount(f) === 'vls') {
         box(g, M, o, 0, h * 0.2, 0, L * 0.94, h * 0.4, W * 0.94, FC.body);
@@ -1957,7 +1970,7 @@ function fleetGeometry(ship,opts){
  const meshes={},b=shipBounds(ship),center=[(b[0]+b[3])/2,(b[1]+b[4])/2,(b[2]+b[5])/2],doors=[],rays=[],put=(name,geo,tex,emi)=>{meshes[name]={geo,tex,emi};};
  put('hull',meshHull(model));const parts=meshParts(model,{coded:false});for(const name of ['struct','plate','refStruct','gen','shield','hyper','engine','refEngine','nozzle','hangar'])if(parts.g[name])put(name,parts.g[name]);
  const h=meshHatches(model);put('hatchOpen',h.open);put('hatchRay',h.ray);put('refHatches',meshReferenceHatches(model));put('refHull',meshReferenceHull(model));
- const turrets=opts?.trial?trialTurrets(model,put):null,launchers=opts?.trial?model.fits.filter(f=>C.FITS[f.k].msl&&!f.float).map(f=>{const d=C.fitSpec(f),up=C.fitUp(f);return {id:f.id,origin:C.add(C.fitOrigin(f),C.mul(up,d.hm)),axis:up,salvo:8,cycle:20,tt:(d.msl||80)/8};}):null,targetRadius=C.clamp(ship.hull.L*.05,40,500);if(!turrets){put('fits',meshFits(model));put('refFits',meshReferenceFits(model));}else put('trialTarget',trialTargetMesh(targetRadius),'fits',.6);
+ const turrets=opts?.trial?trialTurrets(model,put):null,launchers=opts?.trial?[...model.fits.filter(f=>C.FITS[f.k].msl&&!f.float).map(f=>{const d=C.fitSpec(f),up=C.fitUp(f);return {id:f.id,origin:C.add(C.fitOrigin(f),C.mul(up,d.hm)),axis:up,salvo:8,cycle:20,tt:(d.msl||80)/8,ion:!!C.FITS[f.k].ionMsl};}),...craftLaunchers(model)]:null,targetRadius=C.clamp(ship.hull.L*.05,40,500);if(!turrets){put('fits',meshFits(model));put('refFits',meshReferenceFits(model));}else put('trialTarget',trialTargetMesh(targetRadius),'fits',.6);
  for(const hatch of model.hatches){const spec=C.slidingHatchSpec(model,hatch);if(!spec)continue;
   if(hatch.k==='ray'){const name='slideRay_'+hatch.id;put(name,meshHatches({...model,hatches:[{...hatch,_rayOnly:true,_rayInset:5}]}).ray,'ray',1);rays.push({name});}
   if(hatch.skinAsset){for(const side of [-1,1]){const name='refSlideDoor_'+hatch.id+'_'+(side<0?'l':'r');put(name,meshReferenceHatches({...model,_referenceDoorOnly:true,hatches:[{...hatch,open:0,_doorDetached:false,_slideSide:side}]}),'reference',0);doors.push({name,axis:spec.slideAxis,side,travel:spec.travel});}}

@@ -386,23 +386,35 @@ const SFX = {};
 const def = (name, gap, cap, pri, vol, wet, f) => { SFX[name] = {gap, cap, pri, vol, wet, f}; };
 
 // --- weapons (turbolaser family: light / medium / heavy share one voice: comb-ringing discharge + zap + mid body)
-def('turbolaser_light', .04, 5, 2, 1.1, .12, (E, t, o, p) => {
- p *= jit(.08);
+// v22 …and by the faction that fires them (x.fac), after the films: the Empire's turbolasers are slowed explosions
+// with a deep metallic ring (A New Hope, The Empire Strikes Back), the Republic's a crisp bright chirp over the boom
+// (Revenge of the Sith's opening battle), the Separatists' a raspy, buzzing discharge, the Rebellion's a higher zing
+// before the boom (the A280 family of its blasters). The voice under it is the one measured on the user's references.
+const TL_FAC_P = {empire: .9, republic: 1.04, cis: .97, rebel: 1.12};
+function tlFac(E, o, t, p, x, s) {
+ const f = x && x.fac, k = [.6, 1, 1.4][s] || 1;if (!f) return;
+ if (f === 'empire') { metalHit(E, o, t + .01, (210 - 40 * s) * p, .2 * k, .3 + .12 * s); boom(E, o, t, (82 - 10 * s) * p, 40 * p, .22, .1 * k, .2 + .08 * s); body(E, o, t, .8, 330, 240, .8, .004, .5 * k, .22 + .08 * s, .08); }
+ else if (f === 'republic') { tone(E, o, t, .2, 'sine', 3600 * p, 900 * p, .001, .22 * k, .05, .09); zap(E, o, t, 'sawtooth', 2300 * p, 620 * p, .1, 1800 * p, .2 * k, .06); }
+ else if (f === 'cis') { const b = E.flt('bandpass', 700 * p, 1.2), sh = E.sat(), g = E.G(.5 * k); b.connect(sh); sh.connect(g); g.connect(o); tone(E, b, t, .5, 'sawtooth', 260 * p, 85 * p, .002, .6, .12 + .05 * s, .25); tone(E, b, t, .5, 'square', 175 * p, 60 * p, .002, .35, .1 + .05 * s, .22); nzf(E, o, t, .3, 'bandpass', 1800 * p, 900 * p, .9, .002, .4 * k, .1, 0, E.grit); }
+ else if (f === 'rebel') { tone(E, o, t, .15, 'sine', 5200 * p, 2100 * p, .001, .2 * k, .04, .07); tone(E, o, t, .25, 'triangle', 1500 * p, 600 * p, .001, .15 * k, .06, .12); }
+}
+def('turbolaser_light', .04, 5, 2, 1.1, .12, (E, t, o, p, x) => {
+ p *= jit(.08) * (TL_FAC_P[x && x.fac] || 1);tlFac(E, o, t, p, x, 0);
  bolt(E, o, t, {d0: .00098 / p, d1: .00108 / p, sd: 1.2, f0: 6000, f1: 2300, fs: .12, f2: 1100, fl: .9, a: .003, pk: .7, tau: .28, hold: .15, hp: 150});
  const ring = E.flt('lowpass', 3000, .7); ring.connect(o);
  for (const [ty, k, a] of [['sawtooth', 1, .12], ['square', 2, .03]]) tone(E, ring, t, 1, ty, 1020 * p * k, 950 * p * k, .02, a, .2, .9, .06);
  zap(E, o, t, 'sawtooth', 1900 * p, 700 * p, .1, 1500 * p, .2, .07);
  body(E, o, t, .8, 420, 300, .7, .005, 1.5, .24, .15); tone(E, o, t, .5, 'sine', 140 * p, 80 * p, .003, .3, .1, .08); nzf(E, o, t, .8, 'lowpass', 150, 0, .7, .005, .35, .25, 0, E.brown); return 1.5;
 });
-def('turbolaser', .04, 5, 2, 1.4, .12, (E, t, o, p) => {
- p *= jit(.08);
+def('turbolaser', .04, 5, 2, 1.4, .12, (E, t, o, p, x) => {
+ p *= jit(.08) * (TL_FAC_P[x && x.fac] || 1);tlFac(E, o, t, p, x, 1);
  bolt(E, o, t, {d0: .00085 / p, d1: .00125 / p, sd: 1.4, f0: 6500, f1: 2200, fs: .18, f2: 950, fl: 1.1, a: .004, pk: .85, tau: .3, hold: .22});
  zap(E, o, t, 'sawtooth', 1150 * p, 260 * p, .14, 1300 * p, .35, .1);
  body(E, o, t, 1.6, 400, 280, .6, .006, 1.7, .3, .22);
  tone(E, o, t, .6, 'sine', 150 * p, 75 * p, .003, .3, .1, .08); nzf(E, o, t, 1, 'lowpass', 150, 0, .7, .005, .4, .3, 0, E.brown); return 2;
 });
-def('turbolaser_heavy', .05, 4, 3, 1.25, .15, (E, t, o, p) => {
- p *= jit(.06);
+def('turbolaser_heavy', .05, 4, 3, 1.25, .15, (E, t, o, p, x) => {
+ p *= jit(.06) * (TL_FAC_P[x && x.fac] || 1);tlFac(E, o, t, p, x, 2);
  bolt(E, o, t, {d0: .0013 / p, d1: .002 / p, sd: 1.8, f0: 6500, f1: 1500, fs: .2, f2: 750, fl: 1.3, a: .006, pk: .9, tau: .38, hold: .3});
  zap(E, o, t, 'sawtooth', 900 * p, 170 * p, .2, 900 * p, .55, .14);
  body(E, o, t, 2, 340, 230, .6, .008, 1.7, .36, .3); nzf(E, o, t, 1.6, 'lowpass', 200, 0, .7, .008, .75, .42, .04, E.brown);
@@ -415,11 +427,12 @@ def('laser_light', .04, 6, 1, 6, .05, (E, t, o, p) => {
  zap(E, o, t, 'sawtooth', 2200 * p, 1100 * p, .08, 1600 * p, .6, .065, .9); zap(E, o, t, 'square', 3000 * p, 1400 * p, .07, 2200 * p, .14, .05);
  body(E, o, t, .2, 520, 420, .8, .002, 1.2, .07); return .4;
 });
+// v22 point defence fires like the films' quad laser batteries: a rapid burst, the barrels in pairs (pew-pew pew-pew).
 def('point_defense', .04, 4, 1, 1.6, .12, (E, t, o, p) => {
- [[0, 1], [.09 + Math.random() * .02, .7]].forEach(([d, k]) => { const q = p * jit(.1);
+ [[0, 1], [.065 + Math.random() * .01, .75], [.15 + Math.random() * .02, .9], [.215 + Math.random() * .02, .65]].forEach(([d, k], i) => { const q = p * jit(.1) * (i & 1 ? .95 : 1.03);
   zap(E, o, t + d, 'sawtooth', 2800 * q, 1100 * q, .06, 2000 * q, .4 * k, .07, .7); nzf(E, o, t + d, .1, 'highpass', 2400, 0, .7, .001, .45 * k, .07);
   body(E, o, t + d, .5, 380, 300, .7, .002, .8 * k, .16); tone(E, o, t + d, .2, 'sine', 160 * q, 90 * q, .002, .3 * k, .07, .05); });
- return 1;
+ return 1.2;
 });
 // ion: bright crack, then a crackling low-mid electric body that swells and sags
 function ionBody(E, o, t, p, hold, tau, lo) {
@@ -430,7 +443,9 @@ function ionBody(E, o, t, p, hold, tau, lo) {
  body(E, o, t, .5, 420, 320, .7, .08, lo * 1.4, tau * 1.1, hold); nzf(E, o, t, .5, 'lowpass', 130, 0, .7, .08, lo * .4, tau, hold, E.brown);
 }
 def('ion', .05, 4, 2, 1.75, .16, (E, t, o, p) => { ionBody(E, o, t, p, .3, .15, .6); zap(E, o, t, 'square', 3200 * p, 900 * p, .1, 2500 * p, .3, .05); return 1.2; });
+// v22 …with the deep electric whoom of the films' heavy ion guns (the Hoth ion cannon) under the measured voice.
 def('ion_heavy', .06, 3, 3, .9, .2, (E, t, o, p) => {
+ boom(E, o, t + .04, 64 * p, 30 * p, .6, .3, .5); { const h = E.osc('sawtooth', 96 * p, t, t + 2.4), lp = E.flt('lowpass', 500, 1.5), g = ENV(E, t, .15, .16, .5, .5); h.frequency.setValueAtTime(96 * p, t); h.frequency.linearRampToValueAtTime(128 * p, t + .35); h.frequency.exponentialRampToValueAtTime(60 * p, t + 1.8); h.connect(lp); lp.connect(g); g.connect(o); }
  ionBody(E, o, t, p * .85, .85, .55, .8);
  bolt(E, o, t + .15, {d0: .0012, d1: .0021, sd: 2.6, f0: 4200, f1: 2600, fs: .4, f2: 1000, fl: 2, a: .3, pk: .7, tau: .7, hold: .4, hp: 250});
  zap(E, o, t, 'square', 2600 * p, 600 * p, .16, 2000 * p, .1, .08); nzf(E, o, t, 2, 'lowpass', 160, 0, .7, .05, .3, .6, .6, E.brown); return 3.6;
@@ -475,6 +490,12 @@ def('missile', .06, 3, 2, 1, .2, (E, t, o, p) => {
  rumble(E, o, t, 1.2, 240, 150, 1.05, .1, .35, .55, .3, 11);
  nzf(E, o, t + .05, 1.2, 'bandpass', 1500, 900, .8, .05, .35, .3, .6, E.crackle); return 2.1;
 });
+// v22 A ship's salvo: the tubes ripple off one after another (each a pop and a hiss), then the whole salvo's rush.
+def('missile_salvo', .15, 2, 2, .95, .25, (E, t, o, p) => {
+ const n = 5;for (let i = 0; i < n; i++) { const d = i * (.08 + Math.random() * .05), q = p * jit(.1); snapT(E, o, t + d, .3, 1900); boom(E, o, t + d, 110 * q, 55 * q, .08, .14, .08); nzf(E, o, t + d, .5, 'bandpass', 2800 * q, 2200 * q, .7, .01, .35, .14, .12); }
+ nzf(E, o, t + .1, 1.6, 'bandpass', 2800 * p, 2100 * p, .6, .25, .55, .45, .55); rumble(E, o, t + .05, 1.8, 240, 140, .8, .2, .45, .6, .3, 9); body(E, o, t + .08, 1.4, 380, 300, .7, .15, .6, .35, .5);
+ nzf(E, o, t + .15, 1.6, 'bandpass', 1500, 900, .8, .2, .3, .4, .5, E.crackle); return 2.6;
+});
 def('torpedo', .08, 3, 2, 1, .3, (E, t, o, p) => {
  boom(E, o, t, 72 * p, 32 * p, .18, .45, .2); nzf(E, o, t, 1.6, 'bandpass', 1900 * p, 1500 * p, .6, .03, .8, .4, 1);
  rumble(E, o, t, 1.8, 200, 120, 1.1, .05, .5, 1, .3, 7);
@@ -484,13 +505,18 @@ def('torpedo', .08, 3, 2, 1, .3, (E, t, o, p) => {
 });
 
 // --- impacts: mostly low-mid, short plateau, ~1-1.5 s
+// v22 A bolt on the deflectors: the measured low splash, with the electric sizzle and the brief flare of the shield's hum
+// that the films give it (the field crackling where it takes the hit).
 def('hit_shield', .04, 5, 1, 1.8, .15, (E, t, o, p) => {
+ nzf(E, o, t, .45, 'bandpass', 3300 * p, 2200 * p, .8, .002, 1.6, .09, .03, E.crackle, 1.2); zap(E, o, t, 'square', 1900 * p, 520 * p, .16, 1200 * p, .1, .07);
+ { const h = E.osc('sawtooth', 182 * p, t, t + .9), am = E.G(.6), lf = E.osc('square', 31, t, t + .9), lg = E.G(.4), lp = E.flt('lowpass', 900, .8), g = ENV(E, t, .004, .12, .14, .05); lf.connect(lg); lg.connect(am.gain); h.connect(lp); lp.connect(am); am.connect(g); g.connect(o); }
  nzf(E, o, t, .2, 'lowpass', 900, 0, .7, .003, .4, .05, 0, E.pink);
  rumble(E, o, t, 1, 950 * p, 520 * p, 1.3, .07, .14, .55, .45, 4.3, E.pink); rumble(E, o, t, 1, 220, 160, .55, .07, .14, .52);
  tone(E, o, t, 1.2, 'sine', 78 * p, 56 * p, .05, .25, .2, .5, .33); nzf(E, o, t, .4, 'bandpass', 900 * p, 500 * p, 1.5, .01, .15, .12); return 1.2;
 });
+// v22 …and on bare hull: the measured strike, with the clatter of debris after it.
 def('hit_hull', .04, 4, 1, 1.05, .14, (E, t, o, p) => {
- p *= jit(.1); snapT(E, o, t, .25, 1500);
+ p *= jit(.1); snapT(E, o, t, .25, 1500); nzf(E, o, t + .06, .7, 'highpass', 3200, 0, .7, .03, .28, .18, .08, E.crackle, 1.1);
  nzf(E, o, t, .8, 'lowpass', 1800 * p, 420 * p, .8, .002, .85, .18, .03); nzf(E, o, t, 1, 'lowpass', 1100 * p, 380 * p, .7, .004, .9, .22, .04, E.pink);
  metalHit(E, o, t, 150 * p, .34, .3); boom(E, o, t, 110 * p, 55 * p, .12, .3, .14); crunch(E, o, t, 1000, 480, .3, .55, .1);
  nzf(E, o, t, .8, 'lowpass', 220, 0, .7, .01, .3, .24, .05, E.brown); return 1.3;
@@ -520,7 +546,15 @@ def('explosion_large', .09, 2, 4, .7, .25, (E, t, o, p) => {
  nzf(E, o, t + .15, 3, 'bandpass', 3000, 2000, .8, .15, .7, .8, .5, E.crackle, .9); return 3.6;
 });
 // capital ship death: a chain of blasts over a held body, then the fall-off (~6 s)
+// v22 Over it (after the films' capital-ship deaths — the Executor's fall, the Malevolence breaking up): a sub-bass
+// shock at the moment it goes, and the long groan of the structure failing under the chain of blasts.
+function groan(E, o, t, dur, f0, pk) {
+ const end = t + dur + 1, bp = E.flt('bandpass', f0 * 4.6, 3), lp = E.flt('lowpass', 700, .7), g = ENV(E, t, dur * .25, pk, dur * .3, dur * .4), sh = E.sat();
+ for (const [k, a] of [[1, .6], [1.06, .45], [1.5, .25]]) { const s = E.osc('sawtooth', f0 * k, t, end); s.frequency.setValueAtTime(f0 * k, t); s.frequency.linearRampToValueAtTime(f0 * k * .78, t + dur * .6); s.frequency.linearRampToValueAtTime(f0 * k * .86, t + dur); const lf = E.osc('sine', .7 + Math.random() * .6, t, end), lg = E.G(f0 * k * .05); lf.connect(lg); lg.connect(s.frequency); const gg = E.G(a); s.connect(gg); gg.connect(bp); }
+ bp.connect(sh); sh.connect(lp); lp.connect(g); g.connect(o);
+}
 def('ship_destroyed', .2, 2, 5, .65, .28, (E, t, o, p) => {
+ boom(E, o, t, 52 * p, 24 * p, .8, .2, .7); groan(E, o, t + .6, 3.6, 46 * p, .3);
  blast(E, o, t, .9, p, 1);
  rumble(E, o, t, 4.5, 420 * p, 300, .6, .05, .8, 2.6, .3, .9, E.pink); body(E, o, t, 4.5, 320, 240, .6, .05, 2.1, .8, 2.6); rumble(E, o, t, 4.5, 200, 120, .25, .05, .8, 2.6);
  let d = .4; for (let i = 0; i < 6; i++) { blast(E, o, t + d, (.3 + .4 * Math.random()) * (i === 3 ? 1.4 : 1), p * jit(.2), 1); d += .35 + Math.random() * .35; }
@@ -528,7 +562,26 @@ def('ship_destroyed', .2, 2, 5, .65, .28, (E, t, o, p) => {
  return 6;
 });
 // --- hyperspace: arrival = sudden whoosh-burst that settles into a falling rumble; departure = its counterpart (rise, then a short burst)
+// v22 A capital ship breaking in two: tearing plating, the groan of the keel giving way, creaks and a falling rumble.
+def('ship_breakup', .4, 2, 4, .8, .3, (E, t, o, p) => {
+ p *= jit(.08); groan(E, o, t, 4.2, 41 * p, .5); groan(E, o, t + 1.1, 3.4, 58 * p, .3);
+ nzf(E, o, t, 3.2, 'bandpass', 700 * p, 300 * p, 3, .3, 2.8, .7, 1.4, E.grit); nzf(E, o, t + .4, 2.6, 'bandpass', 1400 * p, 600 * p, 2.5, .2, 1.4, .5, 1, E.grit);
+ for (const d of [.3, 1.2, 1.9, 2.8, 3.6]) metalHit(E, o, t + d + Math.random() * .2, (150 + Math.random() * 80) * p, .22, .45);
+ body(E, o, t + .2, 4.5, 380, 250, .6, .3, 1.2, .9, 2.2); rumble(E, o, t, 5, 260, 110, .35, .4, 1.2, 2, .3, .8); blast(E, o, t + 1.5, .4, p * .85, 1); return 6.5;
+});
+// Secondary blasts in a wreck: a muffled boom (the fires reaching a magazine or a fuel cell) and its debris.
+def('wreck_boom', .25, 3, 2, .7, .3, (E, t, o, p) => { p *= jit(.15); blast(E, o, t, .45, p * .85, 1); nzf(E, o, t + .1, 1.6, 'bandpass', 2400, 1400, .8, .15, .5, .4, .4, E.crackle, .9); return 2.6; });
+// A capital ship passing close: the films' flyover (A New Hope's opening Star Destroyer) — a deep machinery roar that
+// swells and fades on a slow Doppler curve: a rumble under 200 Hz, a throbbing low drone, a roaring band near 400 Hz
+// and a faint whine of the drive.
+def('pass_capital', 1.2, 2, 3, 1.25, .3, (E, t, o, p, x) => dopPass(E, o, t, Object.assign({beta: .07, stretch: 4.5}, x), (out, cv) => {
+ const r = E.nz(t, cv.end, 1, E.brown), rl = E.flt('lowpass', 170, .7), rg = E.G(1.3); cv.am(rg.gain, 1.3); r.connect(rl); rl.connect(rg); rg.connect(out);
+ const lp = E.flt('lowpass', 320, .8), th = E.G(.8), lf = E.osc('sine', 6.5, t, cv.end), lg = E.G(.3); lf.connect(lg); lg.connect(th.gain); lp.connect(th); th.connect(out);
+ dopOsc(E, cv, t, lp, [['sawtooth', 37 * p, .8], ['sawtooth', 55.5 * p, .45], ['sawtooth', 74.3 * p, .3]]);
+ dopNoise(E, cv, t, out, 'bandpass', 360 * p, .7, .45, E.pink); dopOsc(E, cv, t, out, [['sine', 880 * p, .012], ['sine', 1320 * p, .005]]);
+}));
 def('hyperspace_in', .15, 2, 4, 1.45, .22, (E, t, o, p) => {
+ snapT(E, o, t, .18, 1300); nzf(E, o, t, .3, 'bandpass', 1800 * p, 500 * p, .6, .003, .25, .07);
  nzf(E, o, t, 1, 'bandpass', 1100 * p, 240 * p, .5, .02, .9, .28);
  nzf(E, o, t, 1.2, 'lowpass', 800 * p, 200 * p, .7, .02, 1, .36, .05, E.pink);
  rumble(E, o, t, 1.4, 360 * p, 110, 1, .03, .38, .2); boom(E, o, t, 80 * p, 36 * p, .3, .3, .28);
@@ -539,7 +592,9 @@ def('hyperspace_out', .15, 2, 4, 1.35, .3, (E, t, o, p) => {
  sweep(b.frequency, 200 * p, 2200 * p, t, T); q.setValueAtTime(.001, t); q.exponentialRampToValueAtTime(.8, t + T); q.setTargetAtTime(0, t + T, .05); n.connect(b); b.connect(g); g.connect(o);
  const r = E.flt('lowpass', 180, .8), bn = E.nz(t, t + T + .3, 1, E.pink), rg = E.G(0); sweep(r.frequency, 180, 900, t, T); rg.gain.setValueAtTime(.001, t); rg.gain.exponentialRampToValueAtTime(1.1, t + T); rg.gain.setTargetAtTime(0, t + T, .06); bn.connect(r); r.connect(rg); rg.connect(o);
  const w = E.osc('sawtooth', 70 * p, t, t + T + .2), wl = E.flt('lowpass', 900, 1), wg = E.G(0); sweep(w.frequency, 70 * p, 330 * p, t, T); wg.gain.setValueAtTime(0, t); wg.gain.linearRampToValueAtTime(.16, t + T); wg.gain.setTargetAtTime(0, t + T, .04); w.connect(wl); wl.connect(wg); wg.connect(o);
- boom(E, o, t + T, 90 * p, 38 * p, .25, .3, .2); nzf(E, o, t + T, .7, 'lowpass', 900, 250, .7, .005, .9, .22, 0, E.pink); rumble(E, o, t + T, .9, 300, 110, .6, .01, .3, .05); return T + 1.1;
+ boom(E, o, t + T, 90 * p, 38 * p, .25, .3, .2); nzf(E, o, t + T, .7, 'lowpass', 900, 250, .7, .005, .9, .22, 0, E.pink); rumble(E, o, t + T, .9, 300, 110, .6, .01, .3, .05);
+ // v22 the jump itself snaps, as in the films: a hard crack and a bright whip of air at the top of the rise
+ snapT(E, o, t + T, .55, 1600); nzf(E, o, t + T - .03, .3, 'bandpass', 1800 * p, 5200 * p, .7, .02, .55, .07); return T + 1.1;
 });
 // --- alerts: one long klaxon blare (rises into pitch), harmonics kept low
 def('alarm', 1.2, 1, 5, 1.75, .2, (E, t, o, p) => {
@@ -569,6 +624,138 @@ function shuttleTone(E, t, sw, dop, p, end, hum, whine, wl, low, lpf) {
 def('shuttle_light', .3, 2, 2, 1.2, .25, (E, t, o, p, x) => pass(E, o, t, x, 3.6, (sw, dop) => shuttleTone(E, t, sw, dop, p, t + 4.6, 86, 3600, .18, 240, 300)));
 def('shuttle_heavy', .3, 2, 2, 1.65, .25, (E, t, o, p, x) => pass(E, o, t, x, 4.4, (sw, dop) => shuttleTone(E, t, sw, dop, p, t + 5.6, 86, 4400, .03, 520, 650)));
 
+// ---------- v22 starfighters as in the films (synthesized; voiced from how the sounds were made) ----------
+// A pass is laid out on its real geometry: the craft comes closest x.tca s from now, x.dmin m off, at x.v m/s, on the
+// x.side (-1 left, 1 right) — so pitch (Doppler, exaggerated as the films do), loudness (distance), brightness (air)
+// and pan follow it through the pass. build(out, cv, T) makes the voice: cv.f(param, f0) lays the Doppler curve on a
+// frequency, cv.r(param, r0) on a playback rate, cv.d(param, d0) on a delay time, cv.lp(param, f0) on a low-pass
+// (brighter when near), cv.am(param, a) a gain that swells into the pass.
+function dopPass(E, o, t, x, build) {
+ x = x || {}; const tca = clamp(+x.tca || .45, .03, 2.2), dmin = Math.max(15, +x.dmin || 120), v = clamp(+x.v || 1200, 60, 6000), side = x.side < 0 ? -1 : 1;
+ // The films' flybys sweep through their closest point in a few tenths of a second whatever the craft's speed.
+ const w = clamp(dmin / v, .07, .5) * (x.stretch || 1.7), beta = (x.beta || .2) * clamp(v / 1600, .55, 1.15), tail = Math.max(1.2, w * 7), T = tca + tail, N = Math.max(16, Math.ceil(T / .025));
+ const tau = new Float32Array(N), g = new Float32Array(N);
+ for (let i = 0; i < N; i++) { const s = (i / (N - 1) * T - tca) / w; tau[i] = s / Math.sqrt(1 + s * s); g[i] = 1 / Math.sqrt(1 + s * s) * Math.min(1, i / (N * .06 + 1), (N - 1 - i) / (N * .22)); }
+ const curve = f => { const c = new Float32Array(N); for (let i = 0; i < N; i++) c[i] = f(i); return c; };
+ const span = clamp(x.span == null ? 1 : +x.span || 0, .3, 1), pn = E.pan(-side * .8 * span), out = E.G(1); out.connect(pn); pn.connect(o);
+ if (pn.pan) pn.pan.setValueCurveAtTime(curve(i => clamp(side * tau[i] * .85 * span, -1, 1)), t, T);
+ out.gain.setValueCurveAtTime(curve(i => g[i]), t, T);
+ const dop = i => 1 - beta * tau[i];
+ const cv = {T, end: t + T + .05,
+  f: (q, f0) => q.setValueCurveAtTime(curve(i => f0 * dop(i)), t, T),
+  r: (q, r0) => q.setValueCurveAtTime(curve(i => (r0 || 1) * dop(i)), t, T),
+  d: (q, d0) => q.setValueCurveAtTime(curve(i => d0 / dop(i)), t, T),
+  lp: (q, f0, lo) => q.setValueCurveAtTime(curve(i => f0 * dop(i) * ((lo == null ? .3 : lo) + (1 - (lo == null ? .3 : lo)) * g[i] * g[i])), t, T),
+  am: (q, a) => q.setValueCurveAtTime(curve(i => a * Math.pow(g[i], 1.6)), t, T)};
+ build(out, cv, T);
+ return T + .1;
+}
+// a few oscillators on one Doppler curve, mixed into dst
+function dopOsc(E, cv, t, dst, list) { const os = []; for (const [type, f, a] of list) { const s = E.osc(type, f, t, cv.end), gg = E.G(a); cv.f(s.frequency, f); s.connect(gg); gg.connect(dst); os.push(s); } return os; }
+// noise through a band (its playback rate on the Doppler curve, so the hiss shifts too)
+function dopNoise(E, cv, t, dst, type, f, q, a, buf) { const n = E.nz(t, cv.end, 1, buf), b = E.flt(type, f, q), gg = E.G(a); cv.r(n.playbackRate, 1); cv.f(b.frequency, f); n.connect(b); b.connect(gg); gg.connect(dst); return b; }
+// TIE/ln and TIE/IN: Ben Burtt's scream — a slowed elephant trumpet (a brassy, saturated call near 400 Hz whose pitch
+// jitters in fast steps, with a subharmonic under it, as an elephant's has) over a car tearing through a wet road
+// (a hiss whose comb teeth slide with the pass, fluttering); after the SuperCollider study «Bye Fighter» (sccode.org/1-p).
+def('pass_tie', .07, 3, 2, 1.35, .2, (E, t, o, p, x) => dopPass(E, o, t, Object.assign({beta: .18}, x), (out, cv) => {
+ const f0 = 405 * p, brass = E.flt('bandpass', 1250 * p, .5), hp = E.flt('highpass', 170, .7), sat = E.sat(), tg = E.G(.55), lp = E.flt('lowpass', 5200, .6);
+ brass.connect(hp); hp.connect(sat); sat.connect(lp); lp.connect(tg); tg.connect(out); cv.lp(lp.frequency, 5200, .35);
+ const os = dopOsc(E, cv, t, brass, [['sawtooth', f0, .5], ['sawtooth', f0 * 1.007, .38], ['sawtooth', f0 * .994, .38], ['square', f0 * .5, .16], ['sawtooth', f0 * 2.01, .14]]);
+ const j1 = E.osc('square', 27.5, t, cv.end), j2 = E.osc('sawtooth', 16.3, t, cv.end), jg = E.G(f0 * .022); j1.connect(jg); j2.connect(jg); for (const s of os) jg.connect(s.frequency);
+ const n = E.nz(t, cv.end), c = comb(E, n, t, .00098 / p, .00098 / p, 1, .85), hs = E.flt('bandpass', 3600 * p, .55), fl = E.G(.7), fo = E.osc('sawtooth', 37.2, t, cv.end), fg = E.G(.3), ng = E.G(.6);
+ cv.r(n.playbackRate, 1); cv.f(hs.frequency, 3600 * p); c.connect(hs); hs.connect(fl); fo.connect(fg); fg.connect(fl.gain); fl.connect(ng); ng.connect(out);
+ dopNoise(E, cv, t, out, 'highpass', 6000, .7, .18);
+}));
+// The TIE/sa bomber: the same scream, lower and heavier.
+def('pass_tieb', .07, 3, 2, 1.3, .2, (E, t, o, p, x) => SFX.pass_tie.f(E, t, o, p * .78, Object.assign({stretch: 2.1, beta: .15}, x)));
+// T-65 X-wing (and the other Incom-style fighters): jet engines pitched up into a shriek, with the throb of a P-51
+// Mustang under it — a vowel-like roar (formants near 1.1 and 2.4 kHz), the piston throb, a turbine whine on top.
+def('pass_xwing', .07, 3, 2, 1.25, .2, (E, t, o, p, x) => dopPass(E, o, t, Object.assign({beta: .17}, x), (out, cv) => {
+ const f0 = 182 * p, f1 = E.flt('bandpass', 1100 * p, 1.6), f2 = E.flt('bandpass', 2400 * p, 2.2), lp = E.flt('lowpass', 3800, .7), mix = E.G(.9), thr = E.G(.78), lf = E.osc('square', 31, t, cv.end), lg = E.G(.22);
+ f1.connect(mix); f2.connect(mix); mix.connect(lp); lp.connect(thr); thr.connect(out); lf.connect(lg); lg.connect(thr.gain); cv.lp(lp.frequency, 3800, .35); cv.f(f1.frequency, 1100 * p); cv.f(f2.frequency, 2400 * p);
+ dopOsc(E, cv, t, f1, [['sawtooth', f0, .9], ['sawtooth', f0 * 1.5, .4], ['sawtooth', f0 * 2.003, .35]]); dopOsc(E, cv, t, f2, [['sawtooth', f0 * 2.003, .3], ['square', f0 * 3, .12]]);
+ dopNoise(E, cv, t, out, 'bandpass', 900 * p, .45, .9, E.pink); dopNoise(E, cv, t, out, 'bandpass', 3000 * p, .8, .3);
+ dopOsc(E, cv, t, out, [['sine', 3050 * p, .05], ['sine', 4580 * p, .025]]);
+ const r = E.nz(t, cv.end, 1, E.brown), rl = E.flt('lowpass', 260, .7), rg = E.G(.8); cv.am(rg.gain, .8); r.connect(rl); rl.connect(rg); rg.connect(out);
+}));
+// Y-wing, BTL-B, B-wing, Hyena: a heavy craft — a gravelly low roar that rattles (choppy at about 19 Hz), a growl and a
+// little whine, slower through the pass.
+def('pass_ywing', .1, 3, 2, 1.35, .22, (E, t, o, p, x) => dopPass(E, o, t, Object.assign({beta: .14, stretch: 2.3}, x), (out, cv) => {
+ const f0 = 74 * p, lp = E.flt('lowpass', 900 * p, .8), ch = E.G(.65), lf = E.osc('square', 19, t, cv.end), lg = E.G(.35), sat = E.sat();
+ lp.connect(sat); sat.connect(ch); ch.connect(out); lf.connect(lg); lg.connect(ch.gain); cv.lp(lp.frequency, 900 * p, .45);
+ dopOsc(E, cv, t, lp, [['sawtooth', f0, .9], ['sawtooth', f0 * 1.5, .5], ['sawtooth', f0 * 2.02, .4], ['square', f0 * 3.01, .15]]);
+ dopNoise(E, cv, t, out, 'bandpass', 520 * p, .6, 1.1, E.pink); dopNoise(E, cv, t, out, 'bandpass', 1900 * p, .7, .22);
+ dopOsc(E, cv, t, out, [['sine', 1240 * p, .04]]);
+ const r = E.nz(t, cv.end, 1, E.brown), rl = E.flt('lowpass', 200, .7), rg = E.G(1); cv.am(rg.gain, 1.1); r.connect(rl); rl.connect(rg); rg.connect(out);
+}));
+// A-wing, V-wing, Eta-2, V-19: a light, fast interceptor — a high roar with a strong turbine whine, quick through.
+def('pass_awing', .07, 3, 2, 1.2, .2, (E, t, o, p, x) => dopPass(E, o, t, Object.assign({beta: .2, stretch: 1.3}, x), (out, cv) => {
+ const f0 = 265 * p, b = E.flt('bandpass', 1650 * p, 1.1), lp = E.flt('lowpass', 6000, .7), g = E.G(.7); b.connect(lp); lp.connect(g); g.connect(out); cv.f(b.frequency, 1650 * p); cv.lp(lp.frequency, 6000, .3);
+ dopOsc(E, cv, t, b, [['sawtooth', f0, .8], ['sawtooth', f0 * 2.004, .5], ['square', f0 * 3, .2]]);
+ dopOsc(E, cv, t, out, [['sine', 3700 * p, .09], ['triangle', 2470 * p, .05]]);
+ dopNoise(E, cv, t, out, 'bandpass', 1500 * p, .5, .6, E.pink); dopNoise(E, cv, t, out, 'highpass', 4500, .7, .25);
+}));
+// Vulture droids and tri-fighters: the buzzing drone of the user's droid-starfighter reference (380 Hz with its octave,
+// all of it between 250 Hz and 1 kHz, swelling at 9.7 Hz).
+def('pass_droid', .07, 3, 2, 1.6, .18, (E, t, o, p, x) => dopPass(E, o, t, Object.assign({beta: .17, stretch: 1.5}, x), (out, cv) => {
+ const b = E.flt('bandpass', 760 * p, .6), am = E.G(.75), lf = E.osc('sine', 9.7, t, cv.end), lg = E.G(.25); b.connect(am); am.connect(out); lf.connect(lg); lg.connect(am.gain); cv.f(b.frequency, 760 * p);
+ dopOsc(E, cv, t, b, [['sawtooth', 380 * p, .55], ['square', 762 * p, .16], ['sawtooth', 381.5 * p, .3]]);
+ dopNoise(E, cv, t, out, 'bandpass', 1100 * p, .8, .2);
+}));
+// A torpedo or missile passing close: a rushing hiss and a whistle on the Doppler curve.
+def('pass_ord', .1, 3, 2, 1.1, .2, (E, t, o, p, x) => dopPass(E, o, t, Object.assign({beta: .22, stretch: 1.2}, x), (out, cv) => {
+ dopNoise(E, cv, t, out, 'bandpass', 1500 * p, .6, .9); dopNoise(E, cv, t, out, 'highpass', 4200, .7, .3); dopOsc(E, cv, t, out, [['sine', 2100 * p, .1], ['sine', 3150 * p, .04]]);
+}));
+// --- the craft's guns, by faction. The blaster family began as a guy-wire struck with a hammer: a dispersive chirp
+// whose highs arrive first and slide down, ringing. Rebel and Republic laser cannons: that bright "pew"; TIE cannons: a
+// lower, raspier, buzzing shot; droid guns: thin and quick.
+def('gun_rebel', .035, 6, 1, 4.2, .06, (E, t, o, p) => {
+ p *= jit(.1);
+ tone(E, o, t, .22, 'sine', 3900 * p, 520 * p, .001, .5, .06, .13); tone(E, o, t, .2, 'triangle', 2600 * p, 380 * p, .001, .22, .05, .12);
+ bolt(E, o, t, {d0: .00062 / p, d1: .0009 / p, sd: .2, f0: 6500, f1: 2400, fs: .04, f2: 1300, fl: .2, a: .001, pk: .42, tau: .055, hp: 500});
+ body(E, o, t, .15, 470, 360, .9, .002, .9, .05); tone(E, o, t, .12, 'sine', 210 * p, 120 * p, .001, .25, .035, .05); return .38;
+});
+def('gun_tie', .035, 6, 1, 4.4, .06, (E, t, o, p) => {
+ p *= jit(.1); tone(E, o, t, .06, 'sine', 4600 * p, 1500 * p, .0008, .16, .018, .03); const b = E.flt('bandpass', 900 * p, .9), sh = E.sat(), g = E.G(1); b.connect(sh); sh.connect(g); g.connect(o);
+ tone(E, b, t, .3, 'sawtooth', 1450 * p, 190 * p, .001, .7, .075, .17); tone(E, b, t, .3, 'square', 980 * p, 140 * p, .001, .25, .07, .16);
+ nzf(E, o, t, .16, 'bandpass', 2300 * p, 900 * p, .9, .001, .55, .055, 0, E.grit); bolt(E, o, t, {d0: .0011 / p, d1: .0016 / p, sd: .25, f0: 4200, f1: 1600, fs: .05, f2: 800, fl: .25, a: .001, pk: .3, tau: .07, hp: 260});
+ tone(E, o, t, .14, 'sine', 160 * p, 85 * p, .001, .3, .045, .06); return .45;
+});
+def('gun_droid', .03, 6, 1, 3.6, .05, (E, t, o, p) => {
+ p *= jit(.12); zap(E, o, t, 'square', 2700 * p, 950 * p, .08, 1900 * p, .45, .05, .8); tone(E, o, t, .12, 'sine', 3300 * p, 1200 * p, .001, .22, .035, .08);
+ nzf(E, o, t, .06, 'highpass', 3000, 0, .7, .0008, .25, .02); return .26;
+});
+// --- ordnance. Proton torpedo: a deep launch thump and a rising, sizzling rush; concussion missile: a sharp pop and a
+// hiss; ion torpedo: an electric crack over the thump; bombs: the rack's clunk and the whistle of the drop.
+def('ptorp_launch', .08, 3, 2, 1.15, .25, (E, t, o, p) => {
+ p *= jit(.06); boom(E, o, t, 95 * p, 42 * p, .22, .55, .2); snapT(E, o, t, .3, 1600);
+ nzf(E, o, t + .03, 1.3, 'bandpass', 1300 * p, 2900 * p, .7, .03, .75, .32, .45); nzf(E, o, t + .05, 1.2, 'highpass', 3500, 0, .7, .05, .25, .3, .35, E.crackle);
+ tone(E, o, t + .05, 1.2, 'sine', 1650 * p, 2350 * p, .08, .09, .35, .9, .3); rumble(E, o, t, 1, 240, 140, .7, .02, .3, .25); return 2;
+});
+def('cmsl_launch', .06, 3, 2, 1.05, .2, (E, t, o, p) => {
+ p *= jit(.08); snapT(E, o, t, .5, 2200); boom(E, o, t, 120 * p, 60 * p, .1, .3, .1);
+ nzf(E, o, t, .8, 'bandpass', 2800 * p, 1300 * p, .8, .006, .8, .2, .25); tone(E, o, t + .02, .7, 'sine', 2600 * p, 1900 * p, .02, .06, .2, .6, .1); return 1.3;
+});
+def('itorp_launch', .08, 3, 2, 1.1, .25, (E, t, o, p) => {
+ p *= jit(.06); boom(E, o, t, 90 * p, 45 * p, .2, .45, .18); nzf(E, o, t, .7, 'bandpass', 3400 * p, 2200 * p, .8, .01, 2.4, .2, .25, E.crackle, 1.1);
+ zap(E, o, t, 'square', 2400 * p, 500 * p, .3, 1500 * p, .3, .12); nzf(E, o, t + .05, 1.1, 'bandpass', 1500 * p, 2600 * p, .7, .05, .45, .3, .35); return 1.8;
+});
+// a droid craft's energy torpedo: a thin electric zap over a light thump
+def('etorp_launch', .06, 3, 2, 1, .2, (E, t, o, p) => {
+ p *= jit(.08); boom(E, o, t, 130 * p, 70 * p, .1, .28, .1); zap(E, o, t, 'square', 3000 * p, 1100 * p, .18, 2200 * p, .4, .09); nzf(E, o, t + .02, .6, 'bandpass', 2600 * p, 1700 * p, .8, .01, .5, .16, .2); return 1;
+});
+def('bomb_drop', .1, 3, 2, 1.1, .2, (E, t, o, p) => {
+ p *= jit(.06); metalHit(E, o, t, 170 * p, .32, .18); thock(E, o, t, 140 * p, .5, .05); nzf(E, o, t + .02, .3, 'bandpass', 2200, 0, 1.2, .002, .25, .06);
+ tone(E, o, t + .1, 1.3, 'sine', 1750 * p, 820 * p, .15, .08, .4, 1.2, .4); nzf(E, o, t + .1, 1.3, 'bandpass', 1600 * p, 700 * p, .9, .15, .3, .4, .4); return 1.9;
+});
+// A proton torpedo or bomb going off: a hard, bright crack, a fireball and its debris.
+def('ptorp_hit', .06, 3, 3, 1.1, .22, (E, t, o, p) => { p *= jit(.1); snapT(E, o, t, .8, 1800); blast(E, o, t, .4, p); nzf(E, o, t + .05, 1.4, 'bandpass', 3200, 2000, .8, .08, .9, .35, .3, E.crackle, 1); return 2.4; });
+// A starfighter blown apart: the fighter blast, with a sharper crack and the tinkle of debris close up.
+def('explosion_craft', .07, 4, 3, 1.15, .2, (E, t, o, p) => {
+ p *= jit(.1); snapT(E, o, t, .7, 2400); nzf(E, o, t, .25, 'bandpass', 2600 * p, 1200 * p, .7, .001, 1.2, .07);
+ SFX.explosion_fighter.f(E, t, o, p); nzf(E, o, t + .12, 1.2, 'highpass', 4200, 0, .7, .05, .4, .3, .2, E.crackle, 1.3); metalHit(E, o, t + .05, 520 * p, .06, .15); return 2.3;
+});
+
 // ---------- loops: f(E, t, out, L) builds a continuous voice; L.det collects detune params for pitch control ----------
 const LOOPS = {};
 const ldef = (name, vol, wet, f) => { LOOPS[name] = {vol, wet, f}; };
@@ -586,6 +773,11 @@ ldef('engine_small', .42, .18, (E, out, L) => engine(E, out, L, 90, 420, 1600, .
 ldef('fighter', 1, .15, (E, out, L) => { const a = lam(E, out, 9.9, .2), b = E.flt('bandpass', 760, .6); b.connect(a); lsrc(E, L, 'sawtooth', 390, .5, b); lsrc(E, L, 'square', 784, .16, b); lsrc(E, L, 'white', 0, .25, a, E.flt('bandpass', 1400, .8)); });
 ldef('shuttle_light', .28, .2, (E, out, L) => { const a = lam(E, out, 19, .1), lp = E.flt('lowpass', 290, .8); lsrc(E, L, 'sawtooth', 86, .5, a, lp); lsrc(E, L, 'sine', 3600, .16, a); lsrc(E, L, 'brown', 0, .9, a, E.flt('lowpass', 260, .7)); });
 ldef('shuttle_heavy', .34, .2, (E, out, L) => { const a = lam(E, out, 12, .14), lp = E.flt('lowpass', 650, .8); lsrc(E, L, 'sawtooth', 86, .5, a, lp); lsrc(E, L, 'sawtooth', 129, .25, a, lp); lsrc(E, L, 'sine', 4400, .03, a); lsrc(E, L, 'brown', 0, .9, a, E.flt('lowpass', 520, .7)); });
+// v22 Riding with a squadron: its engines as heard from just behind (the pass voices held steady).
+ldef('eng_tie', .3, .15, (E, out, L) => { const a = lam(E, out, 37, .2), b = E.flt('bandpass', 1250, .5), s = E.sat(); b.connect(s); s.connect(a); lsrc(E, L, 'sawtooth', 405, .45, b); lsrc(E, L, 'sawtooth', 408, .32, b); lsrc(E, L, 'square', 202, .14, b); lsrc(E, L, 'white', 0, .2, a, E.flt('bandpass', 3600, .6)); });
+ldef('eng_xwing', .32, .15, (E, out, L) => { const a = lam(E, out, 31, .18), b = E.flt('bandpass', 1100, 1.4); b.connect(a); lsrc(E, L, 'sawtooth', 182, .8, b); lsrc(E, L, 'sawtooth', 273, .35, b); lsrc(E, L, 'sine', 3050, .03, a); lsrc(E, L, 'brown', 0, .7, a, E.flt('lowpass', 300, .7)); lsrc(E, L, 'white', 0, .12, a, E.flt('bandpass', 900, .5)); });
+ldef('eng_ywing', .36, .15, (E, out, L) => { const a = lam(E, out, 19, .3), lp = E.flt('lowpass', 800, .8); lp.connect(a); lsrc(E, L, 'sawtooth', 74, .8, lp); lsrc(E, L, 'sawtooth', 111, .45, lp); lsrc(E, L, 'brown', 0, 1, a, E.flt('lowpass', 240, .7)); lsrc(E, L, 'sine', 1240, .02, a); });
+ldef('eng_awing', .3, .15, (E, out, L) => { const a = lam(E, out, 23, .14), b = E.flt('bandpass', 1650, 1); b.connect(a); lsrc(E, L, 'sawtooth', 265, .7, b); lsrc(E, L, 'sawtooth', 531, .4, b); lsrc(E, L, 'sine', 3700, .05, a); lsrc(E, L, 'white', 0, .15, a, E.flt('bandpass', 1500, .5)); });
 
 // --- unchanged from v1.1: interface, designer, generic flyby, hangar, comms
 def('ui_click',.03,3,3,.6,.05, (E, t, o, p) => { thock(E, o, t,190*p,.5,.022); nzf(E, o, t,.03, 'bandpass',1900*p,0,2,.0008,.26,.008); snapT(E, o, t,.09,4000); return .12; });
@@ -1162,10 +1354,10 @@ const rgb = (c) => `rgb(${c[0]},${c[1]},${c[2]})`;
 
 // ---------- state ----------
 const PART_KEYS = Object.keys(C.PARTS).filter(k=>!['machinery','capacitor'].includes(k));
-const WEAPONS = ['refVen','refISD','refIon','refSide','oct40','casemate40','casemateMid','casemateLight','triple40','quad200','pd', 'ltl', 'mtl', 'htl', 'stl', 'utl', 'ionL', 'ion', 'msl', 'trc'];
+const WEAPONS = ['refVen','refISD','refIon','refSide','oct40','casemate40','casemateMid','casemateLight','triple40','quad200','pd', 'ltl', 'mtl', 'htl', 'stl', 'utl', 'ionL', 'ion', 'msl', 'itl', 'trc'];
 const BRIDGES = ['podBridge','podAir','podHangar','podCombat'];
 // v21 Craft weapons (starfighters, shuttles); capital turrets stay off a craft's palette and the reverse.
-const CRAFT_WEAPONS = ['claser', 'claserH', 'cion', 'cturret', 'ctorp', 'cmsl', 'cbomb'];
+const CRAFT_WEAPONS = ['claser', 'claserH', 'cion', 'cturret', 'ctorp', 'cmsl', 'cbomb', 'cpylon'];
 const craftDesign = () => !!ship && C.isCraft(ship);
 const weaponKeys = () => craftDesign() ? CRAFT_WEAPONS : WEAPONS;
 // Parts offered: a craft takes its own kit; a capital ship everything but the craft-only parts.
@@ -2000,7 +2192,7 @@ function specHTML(S) {
     <div><dt>ハイパードライブ</dt><dd>${S.hyperClass ? 'クラス ' + S.hyperClass.toFixed(1) : 'なし'}<small>${S.hyperClass ? (S.jumpOK ? '跳躍電力 可' : '跳躍電力 不足') : ''}</small></dd></div>
     <div><dt>シールド強度</dt><dd>${fPct(S.shieldPct)}<small>${fW(S.shieldP)}</small></dd></div>
     <div><dt>装甲</dt><dd>外殻 ${S.armorHull.toFixed(2)} m<small>集中防御 ${S.armorCit.toFixed(1)} m${S.plateArea>0?` · 装甲外板 ${S.armorPlate.toFixed(1)} m（表面の ${fPct(S.plateShare||0)}）`:''}</small></dd></div>
-    <div><dt>搭載機</dt><dd>${num(Math.floor(S.slots))} 機<small>容量 ${(S.aviation?.capacity||0).toFixed(2)} サイズ · 発艦可能 ${num(S.deployableSlots??S.slots)} 機</small></dd></div>
+    <div><dt>格納容量</dt><dd>${(S.aviation?.capacity||0).toFixed(2)} サイズ<small>TIE/LN 約 ${num(Math.floor((S.aviation?.capacity||0)/Math.max(.05,C.stowSize(C.craftDims('tie_ln')))))} 機分 · 搭載は編成画面で</small></dd></div>
     <div><dt>格納サイズ</dt><dd>${num(C.shipStowSize(S.dims), 1)}<small>この艦を他の艦の格納庫に積むときの大きさ（艦載機1機分 = 1）${S.aviation?.shipEmbarked ? ` · 搭載艦 ${num(S.aviation.shipEmbarked)} 隻` : ''}</small></dd></div>
     <div><dt>乗員</dt><dd${S.habit < 1 ? ' class="neg"' : ''}>${num(S.crewAboard ?? S.crew)} / ${num(S.crew)} 名<small>${S.habit >= 1 ? '全員乗艦' : '不足 ' + num(S.crew - (S.crewAboard ?? 0)) + ' 名'} · うち武装 ${num(S.weaponCrew || 0)} 名 · 乗艦可能 ${num(S.personCapacity ?? S.crewCapacity ?? 0)} 名（配電路 ${ja(S.feedVolume || 0)} m³ を除く）${(S.autoCrew || 0) > 0 ? ` · 自動化 ${num(S.autoCrew)} 名分` : ''}</small></dd></div>
     <div><dt>兵員枠</dt><dd>${num(S.troopCapacity || 0)} 名<small>乗艦可能から定員を除いた人数${S.ground?.troops?.used || S.ground?.droids?.used ? ` · 搭載 ${[S.ground.troops.used ? num(S.ground.troops.embarked) + ' 名' : '', S.ground.droids.used ? '停止保管ドロイド ' + num(S.ground.droids.embarked) + ' 体' : ''].filter(Boolean).join('・')}` : ''}</small></dd></div>
@@ -2018,7 +2210,7 @@ function specHTML(S) {
   ${S.weakAt != null ? `<p class="note">最弱断面：艦尾から ${fLen(S.weakAt)}。質量を削るか、構造物や竜骨を太くすると上がります。</p>` : ''}
   <h4>射界別の一斉射</h4>
   <div class="sect">${C.SECTORS.map((s, k) => `<div class="lim"><span>${s.name}</span>${bar(S.alpha[k] / maxSec, 'b-w')}<b>${fTT(S.alpha[k])}</b></div>`).join('')}</div>
-  <p class="note">主射界効率 ${fPct(S.arcEff)}・点防御 ${S.aa.toFixed(0)}・ミサイル ${fTT(S.mslSalvo)}／20秒・命中補正 ${fPct(S.accuracy)}</p>
+  <p class="note">主射界効率 ${fPct(S.arcEff)}・点防御 ${S.aa.toFixed(0)}・ミサイル ${fTT(S.mslSalvo)}${S.imslSalvo?`・イオン魚雷 ${fTT(S.imslSalvo)}`:''}／20秒・命中補正 ${fPct(S.accuracy)}</p>
   ${bandRatesHTML(S)}${skinFacesHTML(S)}
   <h4>船体容積の内訳</h4>
   <div class="cbar">${comp.map(([k, f]) => `<em style="width:${(f * 100).toFixed(2)}%;background:${rgb(C.PARTS[k].col)}" title="${C.PARTS[k].name}"></em>`).join('')}<em style="width:${(rest * 100).toFixed(2)}%;background:var(--line-2)" title="その他"></em></div>
@@ -2027,10 +2219,18 @@ function specHTML(S) {
   <h4>点検</h4>
   <ul class="warns">${warnHTML}</ul>`;
 }
+// v22 Store stations show their capacity only: what each kind of round they take, at most (the rounds a
+// squadron carries are chosen in the order of battle; お任せ is the craft's canon loadout).
+function storeCapText(st){const ks=Object.keys(C.ORDNANCE).filter(k=>C.storeCapacity(st,k)>0);return st.mount==='bay'?`内寸 ${st.box.join('×')} m`:st.mount==='wing'?`懸架 ${st.slots} 発まで・${num(st.maxMass*1000)} kg まで`:`弾倉 ${st.slots} 発・口径 ${num(st.bore,2)} m`;}
+function storeCapHTML(st){const rows=Object.entries(C.ORDNANCE).map(([k,o])=>[o,C.storeCapacity(st,k)]);return `<table class="station-table"><thead><tr><th>弾</th><th>寸法</th><th>入る数</th></tr></thead><tbody>${rows.map(([o,n])=>`<tr><td>${esc(o.name)}</td><td>${num(o.dims[0],1)} × ${num(o.dims[1],2)} m・${num(o.mass*1000)} kg</td><td>${n?`<b>${n}</b> 発`:'入らない'}</td></tr>`).join('')}</tbody></table>`;}
+function craftStoresHTML(c){
+ if(!c?.stations?.length)return '';const L=c.ord||[];
+ return `<h4>兵装の搭載容量</h4><table class="station-table"><thead><tr><th>装備</th><th>数</th><th>容量（1基）</th></tr></thead><tbody>${c.stations.map(st=>`<tr><td>${esc(C.FITS[st.fit].short)}（${esc(C.STORE_MOUNTS[st.mount].name)}）</td><td>${st.count}</td><td>${esc(storeCapText(C.FITS[st.fit].store))}</td></tr>`).join('')}</tbody></table><p class="note">積む弾は編成画面の中隊ごとに選びます。お任せ${c.canonLoad?'（正史の搭載）':'（標準の搭載）'}：${esc(C.ordnanceSummary(L))}・計 ${num(Math.round((c.ordMass||0)*1000))} kg（満載時の加速 ${fG(c.accelLoaded)}・速度 ${num(c.speedLoaded)} m/s）。撃てば弾が減り、母艦の格納庫で再装填します。${esc(C.ORDNANCE_EVIDENCE)}</p>`;
+}
 // v21 A craft's figures as a carrier's complement in the voyage (the same scale as the craft types there).
 function craftCombatHTML(S){
  const c=C.craftCombat(ship,S);if(!c)return '';const row=(k,v,n)=>`<div><dt>${k}</dt><dd>${v}<small>${n}</small></dd></div>`;
- return `<h4>艦載機としての性能（航行）</h4><dl class="kv">${row('速度',`${num(c.speed)} m/s`,`約 ${num(Math.round(c.speed/20))} MGLT・加速 ${fG(c.accelG)} から`)}${row('空戦',c.aa,`機首の砲と機動性${c.shield?'・シールド':''}${c.role==='bomber'?'（爆撃機は空戦が苦手）':''}`)}${row('対艦',num(c.strike),'魚雷・ミサイル・爆弾と砲')}${row('耐久',c.armor,`質量 ${fMass(S.mass)}${c.shield?'・シールドあり':''}`)}${row('役割',esc(S.cls.role),`格納サイズ ${num(c.size,1)}`)}</dl><p class="note">速度は MGLT（公式の亜光速性能）1 につき 20 m/s（インペリアル級 60 MGLT＝1,200 m/s）。比較：Xウイング（100 MGLT）速度 2,000・空戦 1.25・対艦 160・耐久 1.2、TIE/ln（100 MGLT）2,000・1.0・10・0.6、Aウイング（120 MGLT）2,400。空母の「航空隊」で機種に「設計した機体」としてこの設計（保存したもの）を選ぶと、航行ではこの性能で出撃します。</p>`;
+ return `<h4>艦載機としての性能（航行）</h4><dl class="kv">${row('速度',`${num(c.speed)} m/s`,`約 ${num(Math.round(c.speed/20))} MGLT・加速 ${fG(c.accelG)} から`)}${row('空戦',c.aa,`機首の砲と機動性${c.shield?'・シールド':''}${c.role==='bomber'?'（爆撃機は空戦が苦手）':''}`)}${row('対艦',num(c.strike),`1回目の攻撃航過（砲 ${num(c.gun)}・お任せの搭載）`)}${row('耐久',c.armor,`質量 ${fMass(S.mass)}${c.shield?'・シールドあり':''}`)}${row('役割',esc(S.cls.role),`格納サイズ ${num(c.size,1)}`)}</dl><p class="note">速度は MGLT（公式の亜光速性能）1 につき 20 m/s（インペリアル級 60 MGLT＝1,200 m/s）。比較：Xウイング（100 MGLT）速度 2,000・空戦 1.25・対艦 160・耐久 1.2、TIE/ln（100 MGLT）2,000・1.0・10・0.6、Aウイング（120 MGLT）2,400。空母の「航空隊」で機種に「設計した機体」としてこの設計（保存したもの）を選ぶと、航行ではこの性能で出撃します。</p>${craftStoresHTML(c)}`;
 }
 function renderSpecTargets() {
   if(fleet.mode!=='design'){fleetRender();return;}
@@ -2062,7 +2262,7 @@ function partCard(k, sel) {
 }
 function fitBtn(k, sel, data) {
   const d = C.FITS[k];
-  const spec = d.tt ? fTT(d.tt) : d.ion ? `対シールド ${d.ion}TT` : d.msl ? `${d.msl}TT／20秒` : d.sensor ? `視界係数 ${d.sensor}` : '牽引';
+  const spec = d.tt ? fTT(d.tt) : d.ion ? `対シールド ${d.ion}TT` : d.msl ? `${d.msl}TT${d.ionMsl ? '（イオン）' : ''}／20秒` : d.store ? storeCapText(d.store) : d.sensor ? `視界係数 ${d.sensor}` : '牽引';
   return `<button type="button" class="fitb${sel ? ' on' : ''}" data-${data}="${k}" aria-pressed="${sel}"><span class="fn">${esc(d.name)}</span><span class="fs">${spec}・${d.pod?`直径 ${Math.round(d.fm)} m・高さ ${d.wm} m`:`${Math.round(d.fm)}×${Math.round(d.wm)}×${Math.round(d.hm)} m`}</span><span class="fd">${esc(d.desc)}${d.cycle?' 連射間隔 '+d.cycle+'秒。':''}</span></button>`;
 }
 const fmtM = (v) => Math.abs(v) < 20 && Math.abs(v - Math.round(v)) > .004 ? `${(Math.round(v * 100) / 100).toFixed(Math.abs(v) < 2 ? 2 : 1)} m` : `${Math.round(v)} m`;
@@ -2256,7 +2456,7 @@ function renderPanelInfo() {
   let h = '';
   switch (armMode() ? 'arm' : st.tab) {
     case 'mod': h = `<div class="mini"><span>出力 ${fW(S.power)}（ISD比 ×${S.xISD.toFixed(2)}）</span><span>推力 ${fG(S.thrustG)}</span><span>シールド ${fPct(S.shieldPct)}</span><span>ハイパー ${S.hyperClass ? 'クラス' + S.hyperClass.toFixed(1) : 'なし'}</span><span>搭載機 ${num(Math.floor(S.slots))}</span><span>反応炉の露出 ${fPct(S.genExpFrac)}</span></div>`; break;
-    case 'launch': { const a=S.aviation||C.aviationStatus(ship,S.info),closed=S.slidingHatches>0&&S.launch===0; h=`<div class="mini"><span>搭載 ${num(a.embarkedCount)} 機</span><span>${a.usedSize.toFixed(2)} / ${a.capacity.toFixed(2)} サイズ</span><span>発艦可能 ${num(a.deployableCount)} 機</span><span>${closed?'ハッチ閉鎖中':'発艦 '+S.launch.toFixed(2)+' 機/秒'}</span>${a.overflowSize>0?`<span class="neg">容量超過 ${a.overflowSize.toFixed(2)} サイズ</span>`:''}</div>`; break; }
+    case 'launch': { const a=S.aviation||C.aviationStatus(ship,S.info),closed=S.slidingHatches>0&&S.launch===0; h=`<div class="mini"><span>格納容量 ${a.capacity.toFixed(2)} サイズ</span><span>格納区画 ${num(ship.parts.filter(p=>p.k==='hangar').length)}</span><span>${closed?'ハッチ閉鎖中':'発艦口あり'}</span><span>搭載は編成画面で</span></div>`; break; }
     case 'arm': h = `<div class="mini"><span>一斉射 ${fTT(S.alphaTot)}</span><span>主射界 ${fTT(S.alphaBest)}（${fPct(S.arcEff)}）</span><span>兵装電力 ${Math.round(S.draw.weapons / Math.max(1, S.power) * 100)}%</span><span>配電路 ${fPct(S.feedShare || 0)}</span><span>兵装充電 ${fPct(S.rc)}</span></div>`; break;
     case 'bridge': h = `<div class="mini"><span>艦橋 ${S.bridges} 基</span><span>平均視界 ${fPct(S.view)}</span><span>命中補正 ${fPct(S.accuracy)}</span></div>`; break;
     case 'armor': h = `<div class="mini"><span>装甲質量 ${fMass(S.armorMass)}</span><span>表面積 ${ja(S.area)} m²</span><span>重要区画の防護 ${fPct(S.protectedFrac)}</span><span>脆弱性 ${fPct(S.vuln)}</span><span>加速 ${fG(S.accelG)}</span></div>`; break;
@@ -3194,7 +3394,7 @@ function superweaponControls(p){
 // v21 What the weapon does with this ship's reactors: charge time, one shot's energy, the overload, and
 // for the ion cannon the share of power left when the main reactor is knocked out.
 function superweaponFigures(w){
- const K=C.SW_COMBAT[w.k];if(!K)return '';const sec=t=>t>=90?`${(t/60).toFixed(1)} 分`:`${Math.round(t)} 秒`,row=(k,v)=>`<div><dt>${k}</dt><dd>${v}</dd></div>`;
+ const K=C.SW_COMBAT[w.k]?{...C.SW_COMBAT[w.k],range:swDesignReach(w)}:null;if(!K)return '';const sec=t=>t>=90?`${(t/60).toFixed(1)} 分`:`${Math.round(t)} 秒`,row=(k,v)=>`<div><dt>${k}</dt><dd>${v}</dd></div>`;
  // v21.2 range and arc as figures, with a top view of the envelope (superweaponArcSVG)
  const dg=(K.cone*180/Math.PI).toFixed(1),side=w.aim==='port'?'左舷':'右舷',wide=2*K.range*Math.tan(K.cone)/1000;
  return `<dl class="engineering-stats">${row('充電',`${sec(w.chargeT)}（炉出力の ${Math.round(K.share*100)}% を充電に回す）`)}${row('一撃のエネルギー',`${ja(K.E)} TT`+(w.k==='sbeam'?`（ビームは ${K.beamT} 秒かけて照射）`:''))}${row('射程',`${Math.round(K.range/1000)} km（砲口から）`)}${row('射界',w.aim==='bow'?`艦首方向 ±${dg}° の細い円錐（射程端で幅 ${wide.toFixed(1)} km）。砲身の延長線上に船体がかかる艦にも当たる`:`${side}方向 ±${dg}° の円錐（射程端で幅 ${Math.round(wide)} km）。範囲内の全艦に波及`)}${row('過負荷',`給電炉の出力が ${Math.round(K.over.floor*100)}% に落ち、${K.over.T} 秒かけて戻る`)}${w.k==='hion'?row('命中した敵艦',`主炉が ${K.down} 秒停止。副炉が全出力の ${Math.round(K.auxMin*100)}% に満たない艦は全電源を失う`):''}</dl>${superweaponArcSVG(w)}`;
@@ -3202,9 +3402,11 @@ function superweaponFigures(w){
 // v21.2 A top view of the envelope to scale (bow to the right, starboard down): the selected weapon's cone out to
 // its range with 10 km marks, the ship's other superweapons faintly, and the ship at the same scale (drawn no
 // smaller than a mark) at their apex.
+// v21.2 The hyper-ion cannon's reach is what a full charge carries before the pulse thins out (C.ionReach).
+const swDesignReach=w=>w.k==='hion'&&w.Emax?C.ionReach(w.Emax,w.d||C.SUPERWEAPONS.hion.d):C.SW_COMBAT[w.k].range;
 function superweaponArcSVG(w){
  if(!ship)return '';const L=ship.hull.L||1000,B=ship.hull.W||L*.4,list=(S?.superweapons||[]).filter(x=>x.ok||x.id===w.id),col=k=>k==='hion'?'#a58cff':'#ff8a5c';
- const geo=x=>{const p=ship.parts.find(q=>q.id===x.id),K=C.SW_COMBAT[x.k],d=p?.dir||[1,0,0],h=(p?.length||0)/2,m=p?[p.c[0]-L/2+d[0]*h,p.c[2]+d[2]*h]:[0,0];return {x,K,m,ang:x.aim==='bow'?0:x.aim==='port'?-Math.PI/2:Math.PI/2};};
+ const geo=x=>{const p=ship.parts.find(q=>q.id===x.id),K={...C.SW_COMBAT[x.k],range:swDesignReach(x)},d=p?.dir||[1,0,0],h=(p?.length||0)/2,m=p?[p.c[0]-L/2+d[0]*h,p.c[2]+d[2]*h]:[0,0];return {x,K,m,ang:x.aim==='bow'?0:x.aim==='port'?-Math.PI/2:Math.PI/2};};
  const gs=list.map(geo);let x0=-L/2,x1=L/2,z0=-B/2,z1=B/2;
  for(const g of gs)for(const a of [g.ang-g.K.cone,g.ang,g.ang+g.K.cone]){const px=g.m[0]+Math.cos(a)*g.K.range,pz=g.m[1]+Math.sin(a)*g.K.range;x0=Math.min(x0,px,g.m[0]);x1=Math.max(x1,px,g.m[0]);z0=Math.min(z0,pz,g.m[1]);z1=Math.max(z1,pz,g.m[1]);}
  const pad=16,W0=300,s=Math.min((W0-pad*2)/(x1-x0),(230-pad*2)/(z1-z0)),H0=Math.round((z1-z0)*s+pad*2+12),ox=pad+((W0-pad*2)-(x1-x0)*s)/2-x0*s,oy=pad-z0*s,P=(x,z)=>[ox+x*s,oy+z*s],f=v=>v.toFixed(1);
@@ -3460,7 +3662,8 @@ function referencePanel(panel){
   const selected=selItem();if(selected&&st.sel.list==='fits'&&C.needsCapacitor(selected)){const q=S?.chargeInfo?.[selected.id],depth=selected.chargeDepth??(6*(selected.scale||1)+4),d=C.fitSpec(selected),c=C.weaponChargeSpec(selected),cap=C.weaponCapacitors(ship).find(p=>p.weaponId===selected.id);panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>この砲の充電装置</h4><p>${fTT(c.boltTT)} × ${c.barrels} 門 × ${c.salvos} 斉射分 = ${fTT(c.volleyTT*c.salvos)}</p><p>必要容積 ${num(c.targetVolume,1)} m³${cap?' · 基準形状 '+cap.boxSize.map(v=>num(v,1)).join(' × ')+' m':''}</p><p>${q?num(q.volume,1):'—'} m³ / 必要 ${q?num(q.required,1):'—'} m³ · ${q?fPct(q.capacityRatio):'—'}</p><div class="sliders">${slider('chargeSalvos','蓄える斉射回数',c.salvos,1,20,1,c.salvos+' 回分')}${slider('chargeDepth','装備面から内側への深さ',depth,1,180,1,fmtM(depth))}${slider('chargeScale','充電区画の容積',(selected.chargeScale??1)*100,25,400,5,Math.round((selected.chargeScale??1)*100)+'%')}</div>${cap?packingInfoHTML(cap):''}<p class="note">周辺区画との干渉は容積を保って自動統合。1門の威力と連装数に比例して容積が変わります。容量密度 0.08 TT/m³。再充電の目安 ${S?.rc?((d.cycle||1)/S.rc).toFixed(2)+' 秒':'給電なし'}。砲塔の寸法を変えると必要容積も変わります。</p></div>`);}
   // v18 Missile launchers: cells below deck (VLS) or a box on the hull.
   if(selected&&st.sel.list==='fits'&&C.FITS[selected.k]?.msl){const mm=C.missileMount(selected),q=S?.vlsInfo?.[selected.id],M=C.MISSILE_MOUNTS;panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>ミサイル発射機の搭載方式</h4>${seg('mslmount',Object.entries(M).map(([k,v])=>[k,v.name]),mm)}<p>${mm==='vls'?`船内のセル・弾庫 ${q?num(q.volume,0):'—'} / ${q?num(q.required,0):'—'} m³（${q?fPct(q.ratio):'—'}）· 搭載弾数 ${Math.round(M.vls.stock*(q?.ratio??1))} 発`:`船内容積を使いません · 搭載弾数 ${M.ext.stock} 発`}</p><p class="note">VLS は発射機の下に船内容積を確保します（その分、乗員の居住に回せる空き容積が減ります）。露出はハッチだけで被弾しにくい反面、弾庫まで撃ち抜かれると誘爆します。外置きは船内容積を使わず、搭載弾数が半分、箱型発射機がむき出しで被弾しやすくなります。</p></div>`);}
-  const f=selItem();if(f&&st.sel.list==='fits'&&!C.FITS[f.k].window){const d=C.fitSpec(f);panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>選択中の兵装</h4><label>砲塔を交換<select data-refweapon>${WEAPONS.map(k=>`<option value="${k}" ${f.k===k?'selected':''}>${esc(C.FITS[k].name)}</option>`).join('')}</select></label>${C.FITS[f.k].asset?`${d.casemate?'':`<div class="sliders">${slider('gunYaw','砲塔の向き',f.assetYaw||0,-180,180,1,deg(f.assetYaw||0))}</div>`}<p class="note">兵装の大きさは規格どおりで変えられません${(f.scale||1)!==1?`（この砲塔は作例の規格 ${Math.round((f.scale||1)*100)}%）`:''}。</p>`:''}<p>${fTT(d.tt||d.ion||0)} / 一斉射 · ${fW(d.power)} / 連射時${S?.feedInfo?.[f.id]?`<br>配電路 ${ja(S.feedInfo[f.id][0])} m³（${feedSrc(S.feedInfo[f.id])} ${num(S.feedInfo[f.id][1])} m）`:''}</p></div>`);}
+  if(selected&&st.sel.list==='fits'&&C.FITS[selected.k]?.store){const sd=C.FITS[selected.k].store;panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>${esc(C.STORE_MOUNTS[sd.mount].name)}の容量</h4><p>${esc(storeCapText(sd))}${sd.mount==='wing'?' · 機外に吊るので機内の容積を使いません':''}</p>${storeCapHTML(sd)}<p class="note">設計で決まるのは入る数だけです。積む弾と数は編成画面の中隊ごとに選び（お任せは正史の搭載）、撃つと減り、母艦で再装填します。弾の質量だけ機体が重くなります。</p></div>`);}
+  const f=selItem();if(f&&st.sel.list==='fits'&&!C.FITS[f.k].window){const d=C.fitSpec(f);panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>選択中の兵装</h4><label>${d.craft?'装備を交換':'砲塔を交換'}<select data-refweapon>${weaponKeys().map(k=>`<option value="${k}" ${f.k===k?'selected':''}>${esc(C.FITS[k].name)}</option>`).join('')}</select></label>${C.FITS[f.k].asset?`${d.casemate?'':`<div class="sliders">${slider('gunYaw','砲塔の向き',f.assetYaw||0,-180,180,1,deg(f.assetYaw||0))}</div>`}<p class="note">兵装の大きさは規格どおりで変えられません${(f.scale||1)!==1?`（この砲塔は作例の規格 ${Math.round((f.scale||1)*100)}%）`:''}。</p>`:''}<p>${d.store?esc(storeCapText(d.store)):`${fTT(d.tt||d.ion||0)} / 一斉射`} · ${fW(d.power)} / 連射時${S?.feedInfo?.[f.id]?`<br>配電路 ${ja(S.feedInfo[f.id][0])} m³（${feedSrc(S.feedInfo[f.id])} ${num(S.feedInfo[f.id][1])} m）`:''}</p></div>`);}
   panel.insertAdjacentHTML('beforeend',weaponSourcesHTML());
  }
 }
@@ -3582,6 +3785,13 @@ function chooseWeaponMount(face){
 
 function aviationNumbers(){return C.aviationStatus(ship,S?.info);}
 function aviationSize(v){return num(Number.isFinite(v)?v:0,2);}
+// v21.2 The designer shows only room: what the ship's hangars and troop space can take. What it carries — craft,
+// small ships, troops and vehicles — is chosen in the fleet's 編成 screen (お任せ gives the class's canon complement).
+const ROOM_REF_CRAFT=[['tie_ln','TIE/LN'],['xwing','Xウイング'],['vwing','Vウイング'],['laat','LAAT/i']];
+function aviationRoomHTML(a){
+ const bays=ship.parts.filter(p=>p.k==='hangar'),flight=bays.filter(p=>['flight','dock'].includes(p.airRole)).length,eq=ROOM_REF_CRAFT.filter(([k])=>C.CRAFT_TYPES[k]).map(([k,n])=>`${n} 約 ${num(Math.floor(a.capacity/Math.max(.05,C.stowSize(C.craftDims(k)))))} 機`).join('・');
+ return `<div class="aviation-budget"><span>格納容量（航空機・搭載艦・車両で共用）</span><strong>${aviationSize(a.capacity)} <small>サイズ</small></strong><p>格納・兼用区画 ${num(bays.length-flight)} · 発着・ドック区画 ${num(flight)}</p>${a.capacity>0?`<p class="note">目安：${eq}（機種ごとの格納サイズで割った数。実際の搭載は区画の内寸と出入口で決まります）</p>`:''}</div>`;
+}
 function aviationCapacityHTML(a){
  const used=a.embarkedSize+(a.vehicleSize||0),unloaded=Math.max(0,a.requestedCount-a.embarkedCount),ships=Math.max(0,a.shipCount-a.shipEmbarked);
  return `<div class="aviation-budget"><span>格納容量（航空機・搭載艦・車両で共用）</span><strong>${aviationSize(a.capacity)} <small>サイズ</small></strong><p>使用 <b>${aviationSize(used)}</b> / ${aviationSize(a.capacity)}${a.vehicleSize>0?`（うち車両 ${aviationSize(a.vehicleSize)}）`:''}</p><meter min="0" max="${Math.max(1,a.capacity)}" value="${Math.min(used,Math.max(1,a.capacity))}" aria-label="格納庫の使用サイズ"></meter><p class="${unloaded||ships?'neg':'ok'}">${unloaded||ships?`未搭載 ${unloaded?num(unloaded)+' 機':''}${unloaded&&ships?'・':''}${ships?num(ships)+' 隻':''}`:`残り ${aviationSize(a.freeSize)} サイズ`}</p></div><dl class="engineering-stats aviation-counts"><div><dt>指定した機数</dt><dd>${num(a.requestedCount)} 機</dd></div><div><dt>実際に搭載</dt><dd>${num(a.embarkedCount)} 機</dd></div><div><dt>発艦できる（うち戦闘用）</dt><dd>${num(a.deployableCount)} 機（${num(a.combatDeployable??a.deployableCount)}）</dd></div>${a.shipCount?`<div><dt>搭載艦</dt><dd>${num(a.shipEmbarked)} / ${num(a.shipCount)} 隻</dd></div>`:''}${a.lift&&(a.lift.troops>0||a.lift.vehicleSize>0)?`<div><dt>1回の降下（輸送機）</dt><dd>兵員 ${num(a.lift.troops)} 名${a.lift.vehicleSize>0?` · 車両 ${aviationSize(a.lift.vehicleSize)} サイズ`:''}</dd></div>`:''}</dl>`;
@@ -3713,7 +3923,7 @@ function carryPickHTML(a){
 function bayText(p,a){const b=a.bays.find(x=>x.id===p.id),info=S?.info?.[p.id],doors=info?.doors||[];return `${C.AVIATION_ROLES[p.airRole||'mixed']||''} · 内寸 ${dimsText(C.roomShape(p).s)} · ${b?`容量 ${aviationSize(b.capacity)}・空き ${aviationSize(Math.max(0,b.sizeLeft))} サイズ`:'格納容量なし'} · ${info?.acc?`出入口 ${doors.length?doors.map(o=>dimsText(o)).join('・'):'—'}`:'ハッチにつながっていません'}`;}
 function aviationPanelHTML(){
  const a=aviationNumbers(),wings=a.wings,bays=ship.parts.filter(p=>p.k==='hangar'),selected=st.sel?.list==='parts'?selItem():null,slides=ship.hatches.filter(h=>h.bay&&C.isSlidingHatch(ship,h));
- return `<div class="pgroup blueprint-card aviation-editor"><h4>航空隊編集</h4><p class="note">航空隊ごとに機種と機数を選びます。機体は公式の寸法（全長・全幅・全高）で、格納区画の内寸に ${C.STOW_GAP} m の余裕をもって入るか、出入口のハッチを通れるかで搭載・発艦が決まります。格納容量は航空機・搭載艦・地上部隊の車両で共用です。残り <b>${aviationSize(a.freeSize)} サイズ</b>。</p><div id="aviationSummary" aria-live="polite">${aviationCapacityHTML(a)}</div></div><div class="pgroup"><h4>搭載（航空機・艦艇）</h4><p class="note">航空機も小型の艦も、この一覧で積みます。上の行から順に、内寸の合う小さい区画から収容します。艦は外形（全長×全幅×全高に ${C.SHIP_STOW_CLEAR} m ずつ足した容積 × ${C.SHIP_STOW_FACTOR}）を艦載機と同じ「サイズ」に換算し、格納・兼用区画のどれか一つに丸ごと入る艦だけを選べます（保存した設計も選べます）。シャトル・揚陸艇は地上部隊を降ろす輸送機です（「地上部隊」タブで降下量を確認できます）。</p><div class="aviation-wings">${wings.map(aviationWingHTML).join('')||'<p class="note">まだ何も搭載していません。機種・艦種を選んで追加してください。</p>'}</div>${embarkAddHTML(a)}</div>${selected?.k==='hangar'?`<div class="pgroup"><h4>選択中 · ${esc(C.partLabel(selected))}</h4>${aviationPartHTML(selected)}</div>`:''}<details class="trench-editor aviation-bays" open><summary>航空区画と出入口 · ${num(bays.length)} 区画</summary><p class="note">内寸は区画の外形（全長 × 全幅 × 高さ）、出入口はハッチの開口（長辺 × 短辺）です。機体は小さい方の2辺が開口を通れば発艦できます。区画を選んで、位置・寸法・用途・接触面の開口を編集できます。</p><ul class="ilist">${bays.map(p=>`<li><button type="button" class="btn sm ghost" data-layout-part="${p.id}">${esc(C.partLabel(p))}</button><span data-aviation-capacity="${p.id}">${esc(bayText(p,a))}</span></li>`).join('')||'<li><span>「区画」から航空区画を配置してください。</span></li>'}</ul></details>${slides.length?`<details class="trench-editor"><summary>スライド扉の開閉を確認</summary><p class="note">上甲板・腹部の扉は左右へ、舷側の扉は上下へ移動します。観閲式と戦闘開始時は閉じ、発艦指示で4秒かけて開き、発艦完了・中止後に閉じます。</p>${slides.map(aviationDoorHTML).join('')}</details>`:''}`;
+ return `<div class="pgroup blueprint-card aviation-editor"><h4>格納区画の容積</h4><p class="note">設計で決めるのは格納区画の大きさと出入口だけです。航空機・搭載艦・地上部隊の車両を積むのは「編成」画面です（<b>お任せ</b>にすると史実に近い搭載になります）。機体は公式の寸法で、格納区画の内寸に ${C.STOW_GAP} m の余裕をもって入るか、出入口のハッチを通れるかで搭載・発艦が決まります。</p><div id="aviationSummary" aria-live="polite">${aviationRoomHTML(a)}</div></div>${selected?.k==='hangar'?`<div class="pgroup"><h4>選択中 · ${esc(C.partLabel(selected))}</h4>${aviationPartHTML(selected)}</div>`:''}<details class="trench-editor aviation-bays" open><summary>航空区画と出入口 · ${num(bays.length)} 区画</summary><p class="note">内寸は区画の外形（全長 × 全幅 × 高さ）、出入口はハッチの開口（長辺 × 短辺）です。機体は小さい方の2辺が開口を通れば発艦できます。区画を選んで、位置・寸法・用途・接触面の開口を編集できます。</p><ul class="ilist">${bays.map(p=>`<li><button type="button" class="btn sm ghost" data-layout-part="${p.id}">${esc(C.partLabel(p))}</button><span data-aviation-capacity="${p.id}">${esc(bayText(p,a))}</span></li>`).join('')||'<li><span>「区画」から航空区画を配置してください。</span></li>'}</ul></details>${slides.length?`<details class="trench-editor"><summary>スライド扉の開閉を確認</summary><p class="note">上甲板・腹部の扉は左右へ、舷側の扉は上下へ移動します。観閲式と戦闘開始時は閉じ、発艦指示で4秒かけて開き、発艦完了・中止後に閉じます。</p>${slides.map(aviationDoorHTML).join('')}</details>`:''}`;
 }
 // ---------- ground forces ----------
 function groundNumbers(){return S?.ground||C.groundStatus(ship,S);}
@@ -3746,13 +3956,11 @@ function groundLiftHTML(g){
 }
 function groundPanelHTML(){
  const g=groundNumbers(),K=Math.round(g.personVolume||0),vp=C.GROUND_PRESETS.findIndex(p=>p.kind==='vehicle');
- return `<div class="pgroup blueprint-card ground-editor"><h4>地上部隊編成</h4><p class="note">歩兵は、船内の空き容積に乗れる人数から定員（必要乗員）を除いた「兵員枠」に乗ります（1名あたり ${ja(K)} m³）。停止保管ドロイドは同じ枠を 1 体 ${C.DROID_STORE_M3} m³ で使います（兵員 1 名分に ${num(Math.floor(K/C.DROID_STORE_M3))} 体）。車両は公式の寸法で、輸送機の積載区画か格納庫（航空機と共用）に寸法で入ります。容量が足りないときは上の部隊から順に収容します。</p><div class="ground-budgets" id="groundSummary">${groundBudgetsHTML(g)}</div><p class="note">兵員枠 ${num(g.troops.capacity)} 名（停止保管ドロイドだけなら ${num(g.droids.capacity)} 体）。</p><div class="chips"><button type="button" class="btn sm" data-habitation-menu>空き容積と乗員を確認</button><button type="button" class="btn sm" data-groundroom="hangar">格納区画を配置</button></div></div>
- <div id="groundLift">${groundLiftHTML(g)}</div>
- <div class="pgroup"><h4>搭載する部隊</h4>${g.rows.map((r,i)=>groundRowHTML(r,i,g.rows.length)).join('')||'<p class="note">まだ部隊がありません。下のボタンから追加します。</p>'}<h4>部隊を追加</h4><div class="chips ground-add">${C.GROUND_PRESETS.map((p,i)=>p.kind==='vehicle'?'':`<button type="button" class="btn sm" data-addground="${i}">＋ ${esc(p.name)}</button>`).join('')}</div>${vp>=0?`<div class="airwing-fields ground-add-vehicle"><label>車種<select data-addvehicletype aria-label="追加する車両の車種">${typeOptionsHTML(C.VEHICLE_TYPES,st.addVehicleType||'atat',[])}</select></label><button type="button" class="btn sm" data-addground="${vp}">＋ 車両を追加</button></div>`:''}<p class="note">車両の寸法は公式の数値です（「推定」は資料に寸法がない車種）。「寸法を指定する」で自作の車両も載せられます。</p></div>`;
+ return `<div class="pgroup blueprint-card ground-editor"><h4>兵員と車両の容積</h4><p class="note">設計で決めるのは乗せられる量だけです。陸戦隊（歩兵・ドロイド・車両）を乗せるのは「編成」画面です（<b>お任せ</b>にすると史実に近い陸戦隊になります）。歩兵は、船内の空き容積に乗れる人数から定員（必要乗員）を除いた「兵員枠」に乗ります（1名あたり ${ja(K)} m³）。停止保管ドロイドは同じ枠を 1 体 ${C.DROID_STORE_M3} m³ で使います。車両は公式の寸法で、輸送機の積載区画か格納庫（航空機と共用）に入ります。</p><dl class="engineering-stats"><div><dt>兵員枠</dt><dd>${num(g.troops.capacity)} 名</dd></div><div><dt>停止保管ドロイド</dt><dd>${num(g.droids.capacity)} 体</dd></div><div><dt>車両（格納庫と共用）</dt><dd>${aviationSize(S?.aviation?.capacity||0)} サイズ</dd></div><div><dt>着陸</dt><dd>${S?.canLand?'できる（車両を直接降ろせる）':'できない'}</dd></div></dl><div class="chips"><button type="button" class="btn sm" data-habitation-menu>空き容積と乗員を確認</button><button type="button" class="btn sm" data-groundroom="hangar">格納区画を配置</button></div></div>`;
 }
 function updateGroundUI(){
  if(!ship||fleet.mode!=='design'||st.tab!=='ground')return;
- const g=groundNumbers(),sum=$('#groundSummary');if(sum)sum.innerHTML=groundBudgetsHTML(g);const lift=$('#groundLift');if(lift)lift.innerHTML=groundLiftHTML(g);
+ const g=groundNumbers(),sum=$('#groundSummary');if(sum)sum.innerHTML=groundBudgetsHTML(g);const lift=$('#groundLift');if(lift)lift.innerHTML=groundLiftHTML(g);if(!sum&&!lift)return;
  for(const r of g.rows){const a=document.querySelector(`[data-ground-status="${r.id}"]`),b=document.querySelector(`[data-ground-summary="${r.id}"]`);if(a)a.innerHTML=groundStatusHTML(r);if(b)b.textContent=`${groundSummary(r)}${r.unembarked>0?` · ${num(r.unembarked)} 未搭載`:''}`;}
 }
 function editGroundInput(t,finish=false){
@@ -4027,7 +4235,7 @@ const trialCamPad=L=>C.clamp(L/200,.02,1);
 const trialCamRange=r=>{const L=trial.spectate&&trial.camLen?trial.camLen:trial.p.len,k=trialCamPad(L);return C.clamp(r,L*.45+60*k,trial.spectate?Math.max(L*12+6000*k,60000*k):L*10+4000*k);};
 function trialReset(){
  if(trial.cine)spaceCineEnd();const sy=trialSys(),R=sy.planet.radius;Object.assign(trial,{P:[0,R+sy.altitude,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],w:[0,0,0],tele:1,rudder:0,level:false,t:0,last:0,vf:0,thrust:0,camF:null,warn:'',bolts:[],missiles:[],fx:[],wrecks:[],vbolts:[],fireTap:0,aim:null,lead:null,mslOrder:false,jump:null,flash:0,hitFlash:0,camSave:null,drones:[],gunTarget:null,heldLock:null});
- trial.rec={top:0,accel:null,run:null,turn:null,turnSpeed:0};trial.gun={shots:0,hits:0,kills:0,missiles:0};for(const l of trial.launchers){l.reload=0;l.queue=0;l.next=0;}
+ trial.rec={top:0,accel:null,run:null,turn:null,turnSpeed:0};trial.gun={shots:0,hits:0,kills:0,missiles:0};for(const l of trial.launchers){l.reload=0;l.queue=0;l.next=0;if(l.ammo0!=null)l.ammo=l.ammo0;}
  // The charging banks start full; their size is one volley per gun (more where a gun stores extra salvos).
  const bank=trial.p.wCap||trial.turrets.reduce((n,t)=>n+t.power*t.cycle*t.charge/TT_J,0);trial.energy={E:bank,cap:bank};trial.engF=1;trial.thrustWant=0;trial.power=null;
  const L=trial.p.len;trialDust();
@@ -4046,7 +4254,10 @@ function trialSpawnTarget(i,first){
  return {id:i,pos:tv.add(trial.P,off),vel:tv.add(tv.scale(fh,Math.cos(hd)*sp),rt,Math.sin(hd)*sp),hits:0,alive:true,respawn:0,spin:Math.random()*6.28,rot:[1,0,0,0,1,0,0,0,1]};
 }
 // Each gun keeps its range band: how far its bolts carry and what its fire costs in stored energy.
-function trialTurretState(t){const fw=tv.norm(t.fw),axis=tv.norm(t.axis),spec=C.FITS[t.k]||{},band=C.fitBand(spec);return {...t,band,reach:C.GUN_BANDS[band]?.range||TRIAL_GUN.range,costK:spec.ion?1:C.COMBAT.bandCost[band]??1,pd:(spec.aa||0)>0&&!((spec.tt||0)>.01)&&!spec.ion,fw,axis,e2:tv.cross(axis,fw),rateRad:t.rate*Math.PI/180,yaw:0,el:0,reload:0,clear:false,clearDir:null,aimed:false,arc:true,rot:trialAxisMatrix(axis,0)};}
+// v21.3 A flown craft's fixed guns are the pilot's: they fire on the trigger at the reticle, a few shots a
+// second each (the same power, so the same weight of fire), and only its real turrets defend it on their own.
+const TRIAL_PILOT_CYCLE={claser:.5,claserH:.7,cion:.8};
+function trialTurretState(t){const fw=tv.norm(t.fw),axis=tv.norm(t.axis),spec=C.FITS[t.k]||{},band=C.fitBand(spec),pilot=!!(trial.craft&&spec.craft&&spec.fixed);return {...t,band,reach:C.GUN_BANDS[band]?.range||TRIAL_GUN.range,costK:spec.ion?1:C.COMBAT.bandCost[band]??1,pd:(spec.aa||0)>0&&!((spec.tt||0)>.01)&&!spec.ion&&!pilot,pilot,cycle:pilot?TRIAL_PILOT_CYCLE[t.k]||.6:t.cycle,fw,axis,e2:tv.cross(axis,fw),rateRad:t.rate*Math.PI/180,yaw:0,el:0,reload:0,clear:false,clearDir:null,aimed:false,arc:true,rot:trialAxisMatrix(axis,0)};}
 // opts.design flies another design than the one on the drawing board;
 // opts.battle starts a space battle with that plan; opts.system picks the system.
 async function trialStart(opts={}){
@@ -4072,7 +4283,7 @@ function trialStop(){
  if(view){if(trial.designCamera){view.cam=trial.designCamera.cam;view.off=trial.designCamera.off;}delete view.cam.frame;delete view.cam.far;delete view.cam.near;}
  try{YardEngineClient.post({type:'trialEnd'});}catch(e){}
  trial.asset=null;trial.turrets=[];trial.launchers=[];trial.bolts=[];trial.missiles=[];trial.fx=[];trial.wrecks=[];trial.vbolts=[];trial.targets=[];trial.battle=null;trial.jump=null;trial.cine=null;trial.pat=null;
- const back=trial.returnTo,wasRts=!!trial.rts;trial.spectate=false;trial.returnTo=null;trial.battlePlan=null;trial.rts=null;trial.mode='trial';trial.foeCraft=[];trial.ownCraft=[];trial.foeMissiles=[];trial.cbolts=[];trial.craftGhosts=[];fleetPrune();renderPanel();renderSpecTargets();syncHud();requestDraw();if(back==='tactical')fleetSetMode('tactical');if(back==='voyage'||wasRts)voyPilotEnd();else if(back==='title')showTitle('missions');
+ const back=trial.returnTo,wasRts=!!trial.rts;trial.spectate=false;trial.returnTo=null;trial.battlePlan=null;trial.rts=null;trial.mode='trial';trial.foeCraft=[];trial.ownCraft=[];trial.foeMissiles=[];trial.cbolts=[];trial.craftGhosts=[];trial.cord=[];fleetPrune();renderPanel();renderSpecTargets();syncHud();requestDraw();if(back==='tactical')fleetSetMode('tactical');if(back==='voyage'||wasRts)voyPilotEnd();else if(back==='title')showTitle('missions');
 }
 function trialAttitude(){
  // Coming out of hyperspace the ship is still far out on its line to the
@@ -4124,10 +4335,12 @@ function trialStep(dt){
 }
 // ---- gunnery ----
 const trialBarrel=(t,yaw,el)=>{const c=Math.cos(el),h=tv.add(tv.scale(t.fw,Math.cos(yaw)),t.e2,Math.sin(yaw));return tv.norm(tv.add(tv.scale(h,c),t.axis,Math.sin(el)));};
-const trialLimits=t=>t.casemate?{yaw:65*Math.PI/180,lo:-20*Math.PI/180,hi:20*Math.PI/180}:{yaw:null,lo:-10*Math.PI/180,hi:85*Math.PI/180};
+const trialLimits=t=>t.pilot?{yaw:15*Math.PI/180,lo:-15*Math.PI/180,hi:15*Math.PI/180}:t.casemate?{yaw:65*Math.PI/180,lo:-20*Math.PI/180,hi:20*Math.PI/180}:{yaw:null,lo:-10*Math.PI/180,hi:85*Math.PI/180};
 function trialAim(){
  if(!view)return null;const eye=view.eye(),dir=tv.norm(tv.sub(view.cam.target,eye));let dist=Math.max(TRIAL_GUN.aim,trial.p.len*1.5),lock=null,best=Infinity;
  for(const t of trial.targets){if(!t.alive||t.ally)continue;const v=tv.sub(tv.sub(t.pos,trial.P),eye),d=tv.len(v),ang=Math.acos(C.clamp(tv.dot(v,dir)/d,-1,1)),cone=Math.atan((t.radius||trial.asset.geometry.targetRadius*1.6)/d)+.006;if(ang<cone&&ang<best){best=ang;lock=t;dist=d;}}
+ // (a flown craft's reticle also takes enemy craft and the trial's target drones)
+ if(trial.craft)for(const t of trialThreats()){if(t.kind!=='craft')continue;const v=tv.sub(tv.sub(t.pos,trial.P),eye),d=tv.len(v),ang=Math.acos(C.clamp(tv.dot(v,dir)/d,-1,1)),cone=Math.atan(TRIAL_PILOT_HIT.lock/d)+.006;if(ang<cone&&ang<best){best=ang;lock=t;dist=d;}}
  return {eye,dir,dist,lock,point:tv.add(eye,dir,dist)};
 }
 // One of our own ships across a gun's line of fire (from p along unit d, for r metres), or null.
@@ -4158,6 +4371,8 @@ function trialGunTarget(lk){
 // missile or small craft inside its range and arc (missiles first) and fires on
 // its own. On a trial flight, target drones make passes at the ship.
 const TRIAL_PD={range:6000,drones:4,speed:260,turn:1.15,pKill:{missile:.5,craft:.3},radius:{missile:30,craft:70}};
+// A pilot's bolts and missiles against small craft: how close counts, the chance a hit downs it, the lock cone.
+const TRIAL_PILOT_HIT={radius:{craft:22,missile:12},pKill:{craft:.5,missile:.7},lock:40,range:10000};
 const trialPdColor=()=>trial.asset?.geometry?.paint==='republic'||trial.asset?.geometry?.reference==='venator'?[150,200,255]:[160,255,160];
 // Only threats near enough to matter: a battle can put thousands of craft in the system.
 function trialThreats(all){const out=[],P=trial.P,R=TRIAL_PD.range+(trial.p?.len||0),R2=all?Infinity:R*R;for(const l of [trial.drones,trial.foeCraft,trial.foeMissiles])for(const q of l||[]){if(!q.alive)continue;const x=q.pos[0]-P[0],y=q.pos[1]-P[1],z=q.pos[2]-P[2];if(x*x+y*y+z*z<R2)out.push(q);}return out;}
@@ -4173,8 +4388,17 @@ function trialPdBoltHit(b){
  if(tv.len(tv.sub(p,q.pos))>(TRIAL_PD.radius[q.kind]||40))return;b.life=0;
  if(Math.random()<(TRIAL_PD.pKill[q.kind]||.2))trialThreatDown(q,p);else trial.fx.push({pos:p,vel:q.vel,life:.15,max:.15,size:12,col:[255,220,160]});
 }
-function trialThreatDown(q,p){
- q.alive=false;q.respawn=6;trial.gun.pdKills=(trial.gun.pdKills||0)+1;if(q.onDown)q.onDown(q);const L=q.kind==='missile'?14:30;
+// Small craft and missiles a pilot's guns can reach.
+function trialPilotThreats(){const out=[],P=trial.P,R2=TRIAL_PILOT_HIT.range**2;for(const l of [trial.drones,trial.foeCraft,trial.foeMissiles])for(const q of l||[]){if(!q.alive)continue;const x=q.pos[0]-P[0],y=q.pos[1]-P[1],z=q.pos[2]-P[2];if(x*x+y*y+z*z<R2)out.push(q);}return out;}
+// A pilot's bolt (or missile, k scaling the reach) passing a small craft or missile: true when it struck.
+function trialPilotHit(a0,a1,qs,w,k=1){
+ const seg=tv.sub(a1,a0),l2=tv.dot(seg,seg)||1;
+ for(const q of qs){if(!q.alive)continue;const t=C.clamp(tv.dot(tv.sub(q.pos,a0),seg)/l2,0,1),p=tv.add(a0,seg,t);if(tv.len(tv.sub(p,q.pos))>(TRIAL_PILOT_HIT.radius[q.kind]||20)*k)continue;
+  trial.gun.hits+=w;if(k>1||Math.random()<(TRIAL_PILOT_HIT.pKill[q.kind]||.4))trialThreatDown(q,p,true);else trial.fx.push({pos:p,vel:q.vel,life:.2,max:.2,size:6,col:[255,220,160]});return true;}
+ return false;
+}
+function trialThreatDown(q,p,gun){
+ q.alive=false;q.respawn=6;if(gun)trial.gun.kills++;else trial.gun.pdKills=(trial.gun.pdKills||0)+1;if(q.onDown)q.onDown(q);const L=q.kind==='missile'?14:30;
  trial.fx.push({pos:p,vel:q.vel,life:.4,max:.4,size:L*2.4,col:[255,240,210]});sndAt(q.kind==='missile'?'explosion_small':sndPick('explosion_fighter','explosion_small'),p,{gain:.6});
  for(let k=0;k<(q.kind==='missile'?6:14);k++)trial.fx.push({pos:p,vel:tv.add(q.vel,tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),40+Math.random()*120),life:.7,max:.7,size:L*.5,col:[255,170+(Math.random()*60|0),80]});
 }
@@ -4251,7 +4475,7 @@ function trialGunnery(dt){
   if(t.pd&&!t.pdTarget)t.arc=false;
   const sy=t.rateRad*dt,dy=trialWrap(ty-t.yaw);t.yaw=trialWrap(t.yaw+C.clamp(dy,-sy,sy));const se=t.rateRad*1.5*dt;t.el+=C.clamp(te-t.el,-se,se);
   if(t.mesh)trialAxisMatrix(t.axis,t.yaw,t.rot);
-  const err=Math.max(Math.abs(trialWrap(ty-t.yaw)),Math.abs(te-t.el));t.aimed=t.arc&&err<.018;t.laid=t.arc&&err<.005;
+  const err=Math.max(Math.abs(trialWrap(ty-t.yaw)),Math.abs(te-t.el));t.aimed=t.arc&&err<.018;t.laid=t.arc&&err<(t.pilot?.02:.005);
   // Point defence slews fast after small targets, so it accepts an older line-of-fire check.
   const bd=trialBarrel(t,t.yaw,t.el),ok=t.clear&&t.clearDir&&tv.dot(bd,t.clearDir)>(t.pd?.995:.9986);t.ready=(t.pd?t.arc&&Math.max(Math.abs(trialWrap(ty-t.yaw)),Math.abs(te-t.el))<.03:t.aimed)&&ok&&t.charge>0&&!t.dead;
   // Point defence fires on its own at the threat it is tracking.
@@ -4271,9 +4495,10 @@ function trialGunnery(dt){
    t.reload=t.cycle*(1+Math.random()*(salvo&&!t.pd?.01:.08));const bd=t.bd,n=Math.min(t.barrels,t.r>12?2:t.barrels>2?2:1),sc=t.pd?.009:.0012,g=()=>(Math.random()+Math.random()+Math.random()-1.5)*sc,bw=trialApply(R,tv.norm(tv.add(tv.add(bd,t.e2,g()),t.axis,g()))),side=trialApply(R,tv.norm(tv.cross(t.axis,bd))),base=tv.add(tv.add(trial.P,t.oW),bw,t.r*1.2),spread=t.r*.35;
    if(t.pd){sndAt('point_defense',base,{gain:.45});trial.gun.pd=(trial.gun.pd||0)+t.barrels;for(let i=0;i<n;i++){const off=n>1?(i/(n-1)-.5)*spread:0,pos=tv.add(base,side,off);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(bw,spd),trial.V),life:TRIAL_PD.range*1.15/spd,len:Math.max(40,t.r*6),size:Math.max(3,t.r*.45),col:trialPdColor(),weight:0,tt:0,pd:true,target:t.pdTarget});}continue;}
    trial.gun.shots+=t.barrels;
-   sndAt(sndGun(t),base,{gain:.85,near:2500});
-   for(let i=0;i<n;i++){const off=n>1?(i/(n-1)-.5)*spread:0,pos=tv.add(base,side,off);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(bw,spd),trial.V),life:Math.max(t.reach||TRIAL_GUN.range,trial.p.len*(t.band==='close'?1.2:3))/spd,len:Math.max(70,t.r*9),size:Math.max(5,t.r*.9),col:t.ion?[170,215,255]:color,weight:t.barrels/n,tt:shotTT/n,ion:!!t.ion});}
-   trial.fx.push({pos:base,vel:trial.V,life:.12,max:.12,size:Math.max(6,t.r*1.6),col:[255,240,210]});
+   // (a pilot's guns: a fighter's laser, its bolts and flash sized like the other craft's)
+   const pl=t.pilot,hv=t.k==='claserH';sndAt(pl?sndPilotGun():sndGun(t),base,pl?{gain:.7,near:400,far:8000}:{gain:.85,near:2500,fac:sndFac(trial.battle?.me||{manual:true,side:0})});
+   for(let i=0;i<n;i++){const off=n>1?(i/(n-1)-.5)*spread:0,pos=tv.add(base,side,off);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(bw,spd),trial.V),life:Math.max(t.reach||TRIAL_GUN.range,trial.p.len*(t.band==='close'?1.2:3))/spd,len:pl?(hv?18:14):Math.max(70,t.r*9),size:pl?(hv?2.4:2):Math.max(5,t.r*.9),col:t.ion?[170,215,255]:color,weight:t.barrels/n,tt:shotTT/n,ion:!!t.ion,pilot:pl});}
+   trial.fx.push({pos:base,vel:trial.V,life:.12,max:.12,size:pl?2.5:Math.max(6,t.r*1.6),col:[255,240,210]});
   }
  }
  escortsFire(dt,lock||a.lock,wantFire);
@@ -4287,11 +4512,15 @@ function trialGunnery(dt){
  // Ships are ellipsoids of their own length, height and width.
  const segShip=(t,a0,a1)=>{const s=t.semi,la=trialApplyT(t.rot,tv.sub(a0,t.pos)),lb=trialApplyT(t.rot,tv.sub(a1,t.pos)),pa=[la[0]/s[0],la[1]/s[1],la[2]/s[2]],pb=[lb[0]/s[0],lb[1]/s[1],lb[2]/s[2]],d=tv.sub(pb,pa),l2=tv.dot(d,d)||1,k=C.clamp(-tv.dot(pa,d)/l2,0,1);return tv.len(tv.add(pa,d,k))<1?tv.add(a0,tv.sub(a1,a0),k):null;};
  const shipHit=(t,q,tt,kind,w)=>{if(t.ally){trial.gun.ff=(trial.gun.ff||0)+w;if(performance.now()-(trial.ffToast||0)>4000){trial.ffToast=performance.now();toast(`誤射：味方艦 ${esc(shipShort(t.unit.name))} に命中`);}}else{trial.gun.hits+=w;t.hits+=w;}spaceDamage(t.unit,tt,kind,q,t);spaceImpact(q,t.vel,t.unit,Math.max(8,t.radius*.05));};
+ const pq=trial.craft?trialPilotThreats():null;
  for(const b of trial.bolts){b.prev=b.pos;b.pos=tv.add(b.pos,b.vel,dt);b.life-=dt;
   if(b.pd){trialPdBoltHit(b);continue;}
+  if(b.pilot&&pq.length&&trialPilotHit(b.prev,b.pos,pq,b.weight)){b.life=0;continue;}
   if(!b.esc&&trial.escorts?.length){let hitE=null;for(const e of trial.escorts){const sd=tv.sub(b.pos,b.prev),l=tv.len(sd);if(l>0&&trialBoxOnLine({pos:e.pos,rot:e.R,radius:e.p.len*.5,semi:[e.p.len*.5,(e.p.height||e.p.len*.2)*.5,(e.p.width||e.p.len*.5)*.5]},b.prev,tv.scale(sd,1/l),l,1)){hitE=e;break;}}if(hitE){b.life=0;spaceImpact(b.pos,hitE.V,{shield:1},10);if(performance.now()-(trial.ffToast||0)>4000){trial.ffToast=performance.now();toast(`誤射：随伴艦 ${esc(hitE.name)} に命中`);}continue;}}
   for(const t of trial.targets){if(!t.alive||b.life<=0)continue;if(t.ship){const q=segShip(t,b.prev,b.pos);if(q){b.life=0;shipHit(t,q,b.tt||0,b.ion?'ion':'bolt',b.weight);}continue;}const q=segHit(t,b.prev,b.pos);if(q){b.life=0;hitTarget(t,q,b.weight,b.esc);}}}
- for(const m of trial.missiles)for(const t of trial.targets){if(!t.alive||m.life<=0)continue;if(t.ship){const q=segShip(t,m.prev,m.pos);if(q){m.life=0;shipHit(t,q,10,'missile',m.weight);}continue;}const q=segHit(t,m.prev,m.pos);if(q){m.life=0;hitTarget(t,q,m.weight);for(let k=0;k<10;k++)trial.fx.push({pos:q,vel:tv.add(t.vel,tv.scale(tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),60+Math.random()*200)),life:.8,max:.8,size:Rt*.3,col:[255,150,70]});}}
+ // (a missile homing on a small craft bursts on it)
+ for(const m of trial.missiles){const q=m.target;if(pq&&q?.kind&&q.alive&&m.life>0&&trialPilotHit(m.prev,m.pos,[q],1,1.5))m.life=0;}
+ for(const m of trial.missiles)for(const t of trial.targets){if(!t.alive||m.life<=0)continue;if(t.ship){const q=segShip(t,m.prev,m.pos);if(q){m.life=0;shipHit(t,q,m.tt??10,m.ion?'ion':'missile',m.weight);}continue;}const q=segHit(t,m.prev,m.pos);if(q){m.life=0;hitTarget(t,q,m.weight);for(let k=0;k<10;k++)trial.fx.push({pos:q,vel:tv.add(t.vel,tv.scale(tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),60+Math.random()*200)),life:.8,max:.8,size:Rt*.3,col:[255,150,70]});}}
  trial.bolts=trial.bolts.filter(b=>b.life>0);trial.missiles=trial.missiles.filter(m=>{if(m.life<=0&&!m.burst){m.burst=true;}return m.life>0;});
  for(const t of trial.targets){if(t.ship)continue;if(t.alive){t.pos=tv.add(t.pos,t.vel,dt);t.spin+=dt*(t.ionT>0?0:.3);const up=tv.norm(t.pos);t.rot=trialAxisMatrix(up,t.spin,t.rot);t.rot=trialFrame(trialApply(t.rot,[1,0,0]),up);}else if((t.respawn-=dt)<=0)Object.assign(t,trialSpawnTarget(t.id,false));}
  const due=performance.now();if(!trial.rays.busy&&due-trial.rays.last>140&&trial.turrets.length)trialRays(due);
@@ -4304,14 +4533,14 @@ function trialMissiles(dt,lock){
  if(trial.mslOrder){trial.mslOrder=false;let n=0;for(const l of trial.launchers)if(l.reload<=0&&!l.dead&&spaceAmmo(l)){l.queue=l.salvo;l.reload=l.cycle;n++;}if(!n&&trial.launchers.length)toast(trial.launchers.every(l=>l.dead)?'ミサイル発射管はすべて破壊されています':'ミサイルは装填中か残弾がありません');}
  for(const l of trial.launchers){l.reload=Math.max(0,l.reload-dt);if(l.queue>0&&(l.next-=dt)<=0){l.queue--;l.next=TRIAL_MSL.ripple;
   const ax=trialApply(R,l.axis),pos=tv.add(trial.P,trialApply(R,tv.sub(l.origin,center))),jit=tv.norm(tv.add(ax,tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),.12));
-  trial.missiles.push({pos,prev:pos,base:[...trial.V],h:jit,s:TRIAL_MSL.launch,life:TRIAL_MSL.life,target:lock||null,dir:trial.aim?trial.aim.dir:ax,weight:1,trail:0,boost:.6});
-  trial.fx.push({pos,vel:trial.V,life:.25,max:.25,size:14,col:[255,210,150]});trial.gun.missiles=(trial.gun.missiles||0)+1;sndAt('missile',pos,{gain:.8});}}
+  trial.missiles.push({pos,prev:pos,base:[...trial.V],h:jit,s:TRIAL_MSL.launch,life:TRIAL_MSL.life,target:lock||null,dir:trial.aim?trial.aim.dir:ax,weight:1,trail:0,boost:.6,tt:l.tt,ion:!!l.ion});
+  trial.fx.push({pos,vel:trial.V,life:.25,max:.25,size:14,col:l.ion?[190,220,255]:[255,210,150]});trial.gun.missiles=(trial.gun.missiles||0)+1;sndAt('missile',pos,{gain:.8});}}
  for(const m of trial.missiles){
   m.prev=m.pos;m.boost-=dt;
   let want=m.dir;if(m.target&&m.target.alive&&m.boost<=0){const t=m.target,rel=tv.sub(t.pos,m.pos),vrel=tv.sub(t.vel,m.base),tgo=tv.len(rel)/Math.max(300,m.s);want=tv.norm(tv.add(rel,vrel,tgo));}
   if(m.boost<=0){const c=C.clamp(tv.dot(m.h,want),-1,1),ang=Math.acos(c),maxA=TRIAL_MSL.turn*dt;if(ang>1e-5){const ax=tv.cross(m.h,want),l=tv.len(ax);if(l>1e-9)m.h=tv.norm(trialRot(m.h,tv.scale(ax,1/l),Math.min(ang,maxA)));}}
   m.s=Math.min(TRIAL_MSL.speed,m.s+TRIAL_MSL.accel*dt);m.pos=tv.add(m.pos,tv.add(m.base,m.h,m.s),dt);m.life-=dt;
-  if((m.trail-=dt)<=0){m.trail=.05;trial.fx.push({pos:m.pos,vel:m.base,life:.9,max:.9,size:9,col:[150,160,175]});}
+  if((m.trail-=dt)<=0){m.trail=.05;trial.fx.push({pos:m.pos,vel:m.base,life:.9,max:.9,size:9,col:m.ion?[150,185,235]:[150,160,175]});}
  }
  trial.missiles=trial.missiles.filter(m=>m.life>0);
 }
@@ -4328,15 +4557,15 @@ function trialRenderSets(){
  b.forEach((q,i)=>{const d=tv.norm(q.vel);for(let k=0;k<K;k++){const j=i*K+k,s=k/(K-1),p=tv.add(tv.sub(q.pos,P),d,-q.len*s);pos.set(p,j*3);col.set([q.col[0],q.col[1],q.col[2],Math.round(235*(1-s*.7))],j*4);size[j]=q.size*(1-s*.55);}});
  view.setPoints('trialBolts',pos,col,size);
  const now=performance.now()/1000,swDt=trial.swAt?Math.min(.1,now-trial.swAt):0;trial.swAt=now;
- const fires=[...(trial.battle?spaceFires(now):[]),...swFxPoints(trial.paused?0:swDt),...trialSwArcPoints()],f=trial.fx,ms0=trial.missiles,nf=f.length+ms0.length*2+fires.length,fp=new Float32Array(nf*3),fc=new Uint8Array(nf*4),fs=new Float32Array(nf);
+ const fires=[...(trial.battle?spaceFires(now):[]),...swFxPoints(trial.paused?0:swDt),...trialSwArcPoints(),...(trial.cord?.length?craftOrdPoints(P):[])],f=trial.fx,ms0=trial.missiles,nf=f.length+ms0.length*2+fires.length,fp=new Float32Array(nf*3),fc=new Uint8Array(nf*4),fs=new Float32Array(nf);
  fires.forEach((q,j)=>{const i=f.length+ms0.length*2+j;fp.set(q[0],i*3);fc.set(q[1],i*4);fs[i]=q[2];});
  f.forEach((e,i)=>{const k=e.life/e.max;fp.set(tv.sub(e.pos,P),i*3);fc.set([e.col[0],e.col[1],e.col[2],Math.round(255*Math.min(1,k*1.4)*(e.col[0]===150?.45:1))],i*4);fs[i]=e.size*(e.max>1?1.4-k*.6:e.col[0]===150?1.6-k*.8:1);});
- ms0.forEach((m,j)=>{const i=f.length+j*2;fp.set(tv.sub(m.pos,P),i*3);fc.set([255,235,190,255],i*4);fs[i]=7;fp.set(tv.add(tv.sub(m.pos,P),m.h,-14),i*3+3);fc.set([255,140,60,220],i*4+4);fs[i+1]=12;});
+ ms0.forEach((m,j)=>{const i=f.length+j*2,ion=m.ion,fl=ion?.75+Math.random()*.5:1;fp.set(tv.sub(m.pos,P),i*3);fc.set(ion?[225,240,255,255]:[255,235,190,255],i*4);fs[i]=7*fl;fp.set(tv.add(tv.sub(m.pos,P),m.h,-14),i*3+3);fc.set(ion?[120,175,255,220]:[255,140,60,220],i*4+4);fs[i+1]=12*fl;});
  view.setPoints('trialFx',fp,fc,fs);
  // Small craft and incoming missiles: a hull point and an engine glow behind it.
  // (v21.2 craft drawn as their 3D models have no point; craft shot down fly on until the bolt that got them arrives)
- const all=[...trialThreats(true),...(trial.ownCraft||[])],crafts=[...all.filter(q=>!q.model),...(trial.craftGhosts||[])],cp=new Float32Array(crafts.length*6),cc=new Uint8Array(crafts.length*8),cs=new Float32Array(crafts.length*2);
- sndFlyby(all,P);crafts.forEach((q,i)=>{const h=q.h||tv.norm(q.vel),m=q.kind==='missile',body=tv.sub(q.pos,P);cp.set(body,i*6);cp.set(tv.add(body,h,m?-9:-7),i*6+3);cc.set(m?[255,225,190,255]:q.team===0?[205,230,255,255]:[225,228,232,255],i*8);cc.set(m?[255,120,60,230]:q.glow||[255,110,80,230],i*8+4);cs[i*2]=m?6:q.size||10;cs[i*2+1]=m?11:(q.size||10)*.8;});
+ const all=[...trialThreats(true),...(trial.ownCraft||[])],crafts=[...all.filter(q=>!q.model&&!q.ordK),...(trial.craftGhosts||[])],cp=new Float32Array(crafts.length*6),cc=new Uint8Array(crafts.length*8),cs=new Float32Array(crafts.length*2);
+ sndFlyby(all,P);crafts.forEach((q,i)=>{const h=q.h||tv.norm(q.vel),m=q.kind==='missile',body=tv.sub(q.pos,P);cp.set(body,i*6);cp.set(tv.add(body,h,m?-9:-7),i*6+3);const io=m&&q.ion,fl=io?.7+Math.random()*.6:1;cc.set(m?io?[225,240,255,255]:[255,225,190,255]:q.team===0?[205,230,255,255]:[225,228,232,255],i*8);cc.set(m?io?[110,170,255,235]:[255,120,60,230]:q.glow||[255,110,80,230],i*8+4);cs[i*2]=m?6*fl:q.size||10;cs[i*2+1]=m?11*fl:(q.size||10)*.8;});
  view.setPoints('trialCraft',cp,cc,cs);
 }
 // The turret status runs along the bottom edge between the throttle pad and the
@@ -4439,7 +4668,9 @@ function trialMarkers(){
  const hud=$('#trialHud'),box=hud?.querySelector('.th-tmarks');if(!box||!view)return;const rect=view.canvas.getBoundingClientRect(),hr=hud.getBoundingClientRect(),eye=view.eye(),B=trial.battle,items=[],seen=new Set();
  if(trial.jump?.phase!=='tunnel'&&!trial.jump?.follow){
   for(const t of trial.targets)if(t.alive&&!t.ship)items.push({id:'d'+t.id,pos:t.pos,cls:'',t});
-  if(B&&!B.left)for(const u of B.b.units){if(u.manual||u.dead||u.absent||u.hidden||B.spectate&&u.id===B.follow)continue;items.push({id:'u'+u.id,pos:spaceWorld(u),cls:u.team?'foe':'ally',u,t:trial.targets.find(x=>x.unit===u)});}}
+  if(B&&!B.left)for(const u of B.b.units){if(u.manual||u.dead||u.absent||u.hidden||B.spectate&&u.id===B.follow&&B.followSq==null)continue;items.push({id:'u'+u.id,pos:spaceWorld(u),cls:u.team?'foe':'ally',u,t:trial.targets.find(x=>x.unit===u)});}
+  // v22 the squadrons in the air, a chevron each: tap one to ride with it (its wing is then drawn craft by craft)
+  if(B?.spectate&&!B.left&&B.cf?.sqPos)for(const [id,x] of B.cf.sqPos){const s=x.s;if(!s||s.n<=0||B.followSq===id)continue;if(tv.len(tv.sub(x.pos,trial.P))>60000)continue;items.push({id:'q'+id,pos:x.pos,cls:'sq '+(x.team?'foe':'ally'),sq:true,lab:dist=>`${x.team?'敵':'友'} ${s.name} ${s.n}機 · ${dist} km`});}}
  if(trial.pat&&trial.jump?.phase!=='tunnel')patrolMarks(items);
  // Every bracket is drawn; the names go to the nearest and the marked ones
  // first, each on the right or else the left of its bracket, and a name that
@@ -4449,7 +4680,7 @@ function trialMarkers(){
   seen.add(it.id);const rel=tv.sub(it.pos,trial.P),q=view.project(rel),on=q[2]>-1&&q[2]<1&&q[0]>rect.left&&q[0]<rect.right&&q[1]>rect.top&&q[1]<rect.bottom;el.hidden=!on;if(!on)continue;
   const x=q[0]-hr.left,y=q[1]-hr.top,d=tv.len(tv.sub(rel,eye)),u=it.u,km=d/1000,dist=km<10?km.toFixed(1):Math.round(km)+'',lock=!!(it.t&&(trial.aim?.lock===it.t||trial.heldLock===it.t));
   const lab=it.lab?it.lab(dist):u?`${u.team?'敵':'友'} ${shipTag(u.name)} · ${dist} km${u.out?' · 戦闘不能':''}`:`標的 ${dist} km${it.t.hits?' · '+Math.round(it.t.hits/TRIAL_GUN.hitsToKill*100)+'%':''}`;
-  vis.push({el,it,x,y,lab,lock,pri:lock||(u&&u.id===follow)?-1:d});}
+  vis.push({el,it,x,y,lab,lock,pri:lock||(u&&u.id===follow&&B?.followSq==null)?-1:it.sq?d*2+1:d});}
  vis.sort((a,b)=>a.pri-b.pri);const placed=[],hit=r=>placed.some(p=>r[0]<p[2]&&r[2]>p[0]&&r[1]<p[3]&&r[3]>p[1]);let nLab=0;
  for(const v of vis){const {el,it,x,y,lab,lock}=v,u=it.u;el.style.transform=`translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`;
   let side='';if(!lock){const w=Math.max(textWidthEst(lab,fs)+4,u?(small?48:64):0),top=y-7,bot=y+(u?12:7);const R=[x+15,top,x+15+w,bot],L=[x-15-w,top,x-15,bot];if(nLab>=maxLab)side=' nl';else if(!hit(R)){placed.push(R);nLab++;}else if(x-15-w>0&&!hit(L)){placed.push(L);nLab++;side=' lf';}else side=' nl';}
@@ -4605,7 +4836,7 @@ function trialHudUpdate(full){
  const bar=q('speedbar');if(bar){const lo=-.25,frac=C.clamp((v/Math.max(1,p.maxSpeed)-lo)/(1-lo),0,1);bar.style.height=(frac*100).toFixed(1)+'%';}
  hud.querySelectorAll('[data-tele]').forEach(e=>e.classList.toggle('on',+e.dataset.tele===trial.tele));set('tele',TRIAL_TELEGRAPH[trial.tele][0]);
  const row=hud.querySelector('[data-th-row="rudder"]');if(row){row.querySelector('.ord').style.left=((trial.rudder+2)/4*100)+'%';row.querySelector('.act').style.left=(C.clamp(trial.w[1]/(max[1]||1),-1,1)*50+50).toFixed(1)+'%';}set('rudder',TRIAL_RUDDER[trial.rudder+2]);
- const aim=trial.aim,held=trial.heldLock;if(held&&held!==aim?.lock)set('range',`${GUN_MODES.enemy.name} · ${held.ship?'敵艦':'標的'} ${(tv.len(tv.sub(held.pos,trial.P))/1000).toFixed(1)} km`);else set('range',aim?(aim.lock?(aim.lock.ship?'敵艦 ':'標的 '):'')+(aim.dist/1000).toFixed(1)+' km':'—');hud.querySelector('.th-reticle')?.classList.toggle('lock',!!aim?.lock);
+ const aim=trial.aim,held=trial.heldLock;if(held&&held!==aim?.lock)set('range',`${GUN_MODES.enemy.name} · ${held.ship?'敵艦':'標的'} ${(tv.len(tv.sub(held.pos,trial.P))/1000).toFixed(1)} km`);else set('range',aim?(aim.lock?(aim.lock.ship?'敵艦 ':aim.lock.kind==='craft'?(trial.battle?'敵機 ':'標的機 '):'標的 '):'')+(aim.dist/1000).toFixed(1)+' km':'—');hud.querySelector('.th-reticle')?.classList.toggle('lock',!!aim?.lock);
  const all=trial.turrets,ts=all.filter(t=>!t.pd),pdl=all.filter(t=>t.pd&&!t.dead),pdOn=pdl.filter(t=>t.pdTarget).length,pdFire=pdl.filter(t=>t.firing).length,ready=ts.filter(t=>t.ready).length,loaded=ts.filter(t=>t.ready&&t.reload<=0).length,blocked=ts.filter(t=>t.arc&&t.clearDir&&!t.clear).length,out=ts.filter(t=>!t.arc).length,turning=ts.length-ready-blocked-out;
  const pw=trial.power,en=trial.energy,ef=en&&en.cap>0?en.E/en.cap:0,load=pw?.load||0,nochg=ts.filter(t=>t.charge<=0).length,starved=ts.filter(t=>t.ready&&t.reload<=0&&en&&en.E<t.power*t.cycle*t.charge/TT_J).length,fireable=Math.max(0,loaded-starved),thrust=pw?.engF??1;
  const gn=q('guns'),gs=q('gunstat');if(gn&&gs){
@@ -4624,7 +4855,7 @@ function trialHudUpdate(full){
 // In a battle, a locked enemy that most guns cannot reach gets a hint: the
 // batteries bear when the target is above the deck, so pitch or roll toward it.
 function trialArcHint(){const B=trial.battle,ts=trial.turrets,lk=trial.aim?.lock;if(!B||B.result||!lk?.ship||!ts.length||trial.jump)return '';const live=ts.filter(t=>!t.dead),bad=live.filter(t=>!t.arc||t.arc&&t.clearDir&&!t.clear).length;return live.length&&bad>=live.length*.7?'主砲の射界外 — 機首を下げるかロールして、甲板を敵艦に向けてください':'';}
-function trialWhere(){const s=trialSys();if(trial.jump?.phase==='tunnel')return 'ハイパースペース';return (trial.mode==='battle'?'艦隊戦':trial.returnTo==='title'?'パトロール':'公試')+' · '+s.name+(s.planet.ring?'軌道 · 造船リング':trial.rts?'星系':'低軌道');}
+function trialWhere(){const s=trialSys();if(trial.jump?.phase==='tunnel')return 'ハイパースペース';return (trial.mode==='battle'?'艦隊戦':trial.returnTo==='title'?'パトロール':'公試')+' · '+s.name+(s.planet.ring?'軌道 · '+(s.planet.ringName||'造船リング'):trial.rts?'星系':'低軌道');}
 // Flagship status in a battle: shield, hull and armour bars, crew and losses,
 // and the last few lines of the battle log.
 // Armour by face (bow, stern, starboard, port, dorsal, ventral): what is left
@@ -4711,7 +4942,7 @@ function trialCommand(cmd){
 // systems keep their planets and suns; the others take their sun from their name.
 const SYSTEMS={};
 for(const g of Galaxy.SYSTEMS){const v=g.v,ring=v.ring||null,alt=v.alt||Math.round(C.clamp(v.r*.027,120000,190000)),h=Galaxy.hash(g.key),az=(h%3600)/3600*Math.PI*2,el=.36+((h>>>12)%100)/100*.18;
- SYSTEMS[g.key]={key:g.key,name:g.name,note:g.note,short:g.short,region:g.region,planet:{radius:v.r,kind:v.k,axis:(v.axis||(ring?[-Math.cos(20*Math.PI/180),Math.sin(20*Math.PI/180),0]:[0,0,1])).slice(),ring,look:v.look||null},altitude:alt,floor:v.fl||Math.round(alt*.28),sun:(v.sun||[Math.cos(az),el,Math.sin(az)]).slice(),map:g.at};}
+ SYSTEMS[g.key]={key:g.key,name:g.name,note:g.note,short:g.short,region:g.region,planet:{radius:v.r,kind:v.k,axis:(v.axis||(ring?[-Math.cos(20*Math.PI/180),Math.sin(20*Math.PI/180),0]:[0,0,1])).slice(),ring,ringName:v.ringName||null,look:v.look||null},altitude:alt,floor:v.fl||Math.round(alt*.28),sun:(v.sun||[Math.cos(az),el,Math.sin(az)]).slice(),map:g.at};}
 for(const s of Object.values(SYSTEMS))if(s.planet?.axis){const l=Math.hypot(...s.planet.axis)||1;s.planet.axis=s.planet.axis.map(x=>x/l);}
 for(const s of Object.values(SYSTEMS)){const l=Math.hypot(...s.sun);s.sun=s.sun.map(x=>x/l);}
 const trialSys=()=>SYSTEMS[trial.sysKey]||SYSTEMS.coruscant;
@@ -4752,12 +4983,28 @@ function escortsInit(){
   trial.escorts.push({key:k,p:a.p,name:String(a.design?.name||a.p.name||'随伴艦').split('｜')[0],slot,pos:tv.add(trial.P,trialApply(trial.R,slot)),V:[...trial.V],R:[...trial.R],f:trialCol(trial.R,0),gun:Math.random()*2});});
 }
 function escortsPlace(){for(const e of trial.escorts||[]){e.pos=tv.add(trial.P,trialApply(trial.R,e.slot));e.V=[...trial.V];e.R=[...trial.R];e.f=trialCol(trial.R,0);}}
+// v21.2 The escorts jump one after another, the smallest first and the flagship last, ESC_JUMP.gap apart (the order the
+// tunnel strings them out in): each in its turn makes its own sublight burst along the hyperspace vector and is gone;
+// coming out, they revert in the same order once the flagship is out, and take their places.
+const ESC_JUMP={burst:1.3,gap:n=>n>1?Math.min(.6,2.4/(n-1)):.6};
+const escOrder=es=>es.slice().sort((a,b)=>(a.p.len||0)-(b.p.len||0));
+function escortHyperFx(e,out){trial.fx.push({pos:[...e.pos],vel:[0,0,0],life:.4,max:.4,size:Math.max(60,e.p.len*.7),col:[205,225,255]});sndAt(out?sndPick('hyperspace_out','hyperspace_in'):sndPick('hyperspace_in','hyperspace_out'),e.pos,{gain:.75,near:Math.max(2000,e.p.len*2),far:60000});}
 function escortsStep(dt){
  const es=trial.escorts;if(!es?.length||!(dt>0))return;const j=trial.jump;
- // In a jump they keep their places exactly: the whole formation goes to lightspeed together.
- if(j&&j.phase!=='spool'){escortsPlace();return;}
- const up0=tv.norm(trial.P);
+ if(!j)for(const e of es){e.gone=false;e.stretch=1;e.burstV0=null;}
+ if(j){const order=escOrder(es),n=es.length,gap=ESC_JUMP.gap(n);
+  if(j.phase==='tunnel'){escortsPlace();return;}
+  // Coming out: hidden until their turn after the flagship's own reversion begins, then in their places.
+  if(j.phase==='exit'||j.phase==='brake'||j.phase==='arrive'){escortsPlace();const t=j.age-(j.exit0??j.age);for(const e of es){e.stretch=1;if(e.gone&&t>=order.indexOf(e)*gap+.15){e.gone=false;escortHyperFx(e,false);}}return;}
+ }
+ const up0=tv.norm(trial.P),pre=JUMP.spool+JUMP.accel+JUMP.enter,order=j?escOrder(es):null,gap=j?ESC_JUMP.gap(es.length):0;
  for(const e of es){
+  // Going in: its turn comes (n-k)·gap before the flagship's; its burst runs ESC_JUMP.burst before that.
+  if(j){if(e.gone)continue;const te=pre-(es.length-order.indexOf(e))*gap,ts=te-ESC_JUMP.burst;
+   if(j.age>=te){e.gone=true;e.stretch=1;escortHyperFx(e,true);continue;}
+   // (once the flagship is accelerating, the ones still waiting ride in their places with it)
+   if(j.age<ts&&j.phase!=='spool'){e.pos=tv.add(trial.P,trialApply(trial.R,e.slot));e.V=[...trial.V];e.R=[...trial.R];e.f=trialCol(trial.R,0);continue;}
+   if(j.age>=ts){if(e.burstV0==null)e.burstV0=Math.max(300,e.p.maxSpeed||0,trial.vf||0);const t=j.age-ts,v0=e.burstV0,v=Math.min(SUBLIGHT,v0*Math.exp(t*Math.log(SUBLIGHT/v0)/ESC_JUMP.burst));e.V=tv.scale(j.dir,v);e.pos=tv.add(e.pos,e.V,dt);e.f=tv.norm(tv.add(e.f,tv.sub(j.dir,e.f),Math.min(1,dt*4)));e.R=trialFrame(e.f,tv.add(tv.scale(up0,.85),trialCol(trial.R,1),.15));e.lvl=1;e.stretch=1+5*(t/ESC_JUMP.burst)**3;continue;}}
   const want=tv.add(trial.P,trialApply(trial.R,e.slot)),err=tv.sub(want,e.pos),d=tv.len(err),vmax=Math.max(e.p.maxSpeed||200,tv.len(trial.V)*1.2+60),acc=Math.max(8,(e.p.accel||10)*2);
   let goal=tv.add(trial.V,err,Math.min(.35,1/(1+d/4000)));const gl=tv.len(goal);if(gl>vmax)goal=tv.scale(goal,vmax/gl);
   // Clear of the flagship and of each other.
@@ -4770,8 +5017,8 @@ function escortsStep(dt){
 }
 // v21.2 In the tunnel the escorts are strung out ahead in the order they went in (the smallest first, the flagship
 // last, a fraction of a second apart): at hyperspace pace that puts them far beyond sight.
-function escortsDraw(){const es=trial.escorts||[],tun=trial.jump?.phase==='tunnel',dir=tun?(trial.jump.dir||trialCol(trial.R,0)):null,order=tun?es.slice().sort((a,b)=>(a.p.len||0)-(b.p.len||0)):null,gap=es.length>1?Math.min(.6,2.4/(es.length-1)):.6;
- return es.map((e,i)=>{let pos=tv.sub(e.pos,trial.P);if(tun){const k=es.length-order.indexOf(e);pos=tv.add(pos,dir,k*gap*VOY_HYPER_SEP);}return {key:e.key,pos,rot:e.R,glow:glowOf('esc'+i,e.lvl??.5),hatchOpen:0,dead:false,stretch:1,flash:0};});}
+function escortsDraw(){const es=trial.escorts||[],tun=trial.jump?.phase==='tunnel',dir=tun?(trial.jump.dir||trialCol(trial.R,0)):null,order=tun?escOrder(es):null,gap=ESC_JUMP.gap(es.length);
+ return es.map((e,i)=>{if(e.gone&&!tun)return null;let pos=tv.sub(e.pos,trial.P);if(tun){const k=es.length-order.indexOf(e);pos=tv.add(pos,dir,k*gap*VOY_HYPER_SEP);}return {key:e.key,pos,rot:e.R,glow:glowOf('esc'+i,e.lvl??.5),hatchOpen:0,dead:false,stretch:tun?1:(e.stretch||1),flash:0};}).filter(Boolean);}
 // Supporting fire: while the flagship fires at a target, each escort in range sends a burst at it.
 function escortsFire(dt,lock,firing){
  const es=trial.escorts;if(!es?.length)return;
@@ -4827,7 +5074,7 @@ function trialReversion(){
  trial.P=tv.add(j.to,j.dir,-trialRevDist(j));trial.V=tv.scale(j.dir,v);trial.vf=v;trial.w=[0,0,0];
 }
 function trialJumpStep(dt){
- const j=trial.jump;if(!j)return;j.t+=dt;const next=p=>{j.phase=p;j.t=0;};
+ const j=trial.jump;if(!j)return;j.t+=dt;j.age=(j.age||0)+dt;const next=p=>{j.phase=p;j.t=0;if(p==='exit')j.exit0=j.age;};
  if(j.phase==='spool'){j.dir=trialCol(trial.R,0);if(j.t>=JUMP.spool){j.v0=Math.max(300,trial.vf,trial.p.maxSpeed||0);next('accel');}}
  else if(j.phase==='accel'){if(j.t>=JUMP.accel)next('enter');}
  else if(j.phase==='enter'){if(j.t>=JUMP.enter){next('tunnel');shotSoon('hyper',1.1);trial.flash=Math.max(trial.flash||0,.8);trial.bolts=[];trial.missiles=[];trial.fx=[];trial.wrecks=[];trial.vbolts=[];if(j.follow)j.end=null;else{j.end=j.tunnel;if(trial.battle&&!trial.battle.result)spaceWithdraw();}}}
@@ -4870,6 +5117,8 @@ function gmStatic(){
  if(gmStaticSVG)return gmStaticSVG;const G=Galaxy,c=G.BANDS.c;let h='<rect class="gm-bg" x="-20" y="-20" width="260" height="260"/>';
  for(let k=6;k>=0;k--){const pts=G.BANDS.r[k].map((r,i)=>{const a=i*Math.PI/18;return gmP([c[0]+Math.cos(a)*r,c[1]+Math.sin(a)*r]);});h+=`<path class="gm-band b${k}" fill="${GM_BAND_FILL[k]}" d="${gmCR(pts,true)}"/>`;}
  for(const z of G.ZONES){if(z.poly)h+=`<path class="gm-zone" d="${gmCR(z.poly.map(gmP),true)}"/>`;else{const [x,y,rx,ry]=z.ell;h+=`<ellipse class="gm-zone" cx="${x*GM_U}" cy="${y*GM_U}" rx="${rx*GM_U}" ry="${ry*GM_U}"/>`;}}
+ // v23 The Clone Wars territories (shown in that era): each power's space, traced from Galaxy's raster.
+ h+='<g class="gm-era-cw">';for(const p of G.territoryLoops('cw')){const col=G.POWERS[p.power]?.col||'#888';h+=`<path class="gm-terr t-${p.power}" fill="${col}" stroke="${col}" fill-rule="evenodd" d="${p.loops.map(l=>'M'+l.map(q=>gmP(q).map(v=>v.toFixed(1)).join(' ')).join('L')+'Z').join('')}"/>`;}h+='</g>';
  let g='';for(let x=0;x<=19;x++)g+=`M${x*GM_U} 0V${21*GM_U}`;for(let y=0;y<=21;y++)g+=`M0 ${y*GM_U}H${19*GM_U}`;h+=`<path class="gm-grid" d="${g}"/>`;
  for(let i=0;i<19;i++)h+=`<g class="gm-k gm-gl" data-x="${(i+.5)*GM_U}" data-y="${.9*GM_U}"><text>${G.COLS[i]}</text></g>`;
  for(let j=0;j<21;j++)h+=`<g class="gm-k gm-gl" data-x="${.35*GM_U}" data-y="${(j+.6)*GM_U}"><text>${j+1}</text></g>`;
@@ -4878,12 +5127,20 @@ function gmStatic(){
  h+='<g class="gm-links">';for(const e of G.EDGES)if(!e.route){const a=gmP(G.BY[e.a].at),b=gmP(G.BY[e.b].at);h+=`<line x1="${a[0].toFixed(1)}" y1="${a[1].toFixed(1)}" x2="${b[0].toFixed(1)}" y2="${b[1].toFixed(1)}"/>`;}h+='</g>';
  for(const r of G.ROUTES)h+=`<path class="gm-route r${r.n}" d="${gmCR(r.pts.map(gmP),false)}"/>`;
  for(const r of G.ROUTES){const m=gmP(r.mark);h+=`<g class="gm-k gm-badge" data-x="${m[0]}" data-y="${m[1]}"><title>${esc(r.name)}</title><circle r="7.5"/><text y="3.6">${r.n}</text></g>`;}
+ // v23 The theatres (戦域) of the era shown: their squares, named at the top left corner.
+ for(const t of G.THEATERS){const b=G.theaterBox(t),[x,y]=gmP([b.x0,b.y0]),w=b.span*GM_U;h+=`<rect class="gm-th e-${t.era}" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${w.toFixed(1)}" height="${w.toFixed(1)}" rx="3"/><g class="gm-k gm-thl e-${t.era}" data-th="${t.key}" data-x="${x.toFixed(1)}" data-y="${y.toFixed(1)}"><text x="4" y="-4">${esc(t.name)}</text></g>`;}
  return gmStaticSVG=h;}
+// v23 The era the map shows (銀河内戦 as drawn, or クローン戦争 with its territories), per map; st.onEra is told of a change.
+const GM_ERA_LEGEND=()=>`<div class="gm-era-key" aria-hidden="true"><b>クローン戦争の勢力</b>${['republic','cis','hutt','contested'].map(k=>`<span><i style="background:${Galaxy.POWERS[k].col}"></i>${esc(Galaxy.POWERS[k].short)}</span>`).join('')}</div>`;
+function gmSetEra(ctx,era){
+ const st=GMAP[ctx]||(GMAP[ctx]={cx:90,cy:100,z:1});if(!Galaxy.ERAS[era])era='gcw';st.era=era;const root=st.root;
+ if(root){root.dataset.era=era;const b=root.querySelector('[data-gm-era]');if(b){b.textContent=Galaxy.ERAS[era].name;b.setAttribute('aria-label',`時代：${Galaxy.ERAS[era].name}（切り替え）`);}if(st.vb)gmLayout(ctx);}
+ st.onEra?.(era);}
 function galMapHTML(ctx){
- const st=GMAP[ctx]||(GMAP[ctx]={cx:90,cy:100,z:1}),bt=Galaxy.BATTLES;
- const sys=Galaxy.SYSTEMS.map(s=>{const [x,y]=gmP(s.at),t=s.tier||3;return `<g class="gm-k gs t${t}${s.approx?' approx':''}" data-k="${s.key}" data-x="${x}" data-y="${y}">${bt[s.key]?'<path class="gs-bt" d="M6.5 -11.5l3.6 3.6-3.6 3.6-3.6-3.6z"/>':''}<circle class="gs-sel" r="11"/><circle class="gs-here" r="7.5"/><circle class="gs-dot" r="${t===1?4.3:3.5}" fill="${GM_REG_COL[s.region]||'#cfd8e0'}"/><text class="gs-n">${esc(s.name)}</text><text class="gs-sub"></text></g>`;}).join('');
- return `<div class="gm" data-gm="${ctx}"><svg class="gm-svg" viewBox="${GM_BOX[0]} ${GM_BOX[1]} ${GM_BOX[2]-GM_BOX[0]} ${GM_BOX[3]-GM_BOX[1]}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="銀河図。地域の帯、五つの主要交易路と支線、主要な星系。ドラッグで移動、ピンチやボタンで拡大縮小、星系をタップで選択"><g class="gm-static">${gmStatic()}</g><path class="gm-path" d=""/><g class="gm-sys">${sys}</g></svg>
- <div class="gm-ctl"><button type="button" data-gm-zoom="in" aria-label="拡大">＋</button><button type="button" data-gm-zoom="out" aria-label="縮小">－</button><button type="button" data-gm-zoom="fit" aria-label="銀河全体">全体</button><button type="button" data-gm-zoom="sel" aria-label="選んだ星系へ">◎</button></div></div>`;}
+ const st=GMAP[ctx]||(GMAP[ctx]={cx:90,cy:100,z:1}),bt=Galaxy.BATTLES,era=Galaxy.ERAS[st.era]?st.era:(st.era='gcw');
+ const sys=Galaxy.SYSTEMS.map(s=>{const [x,y]=gmP(s.at),t=s.tier||3,al=Galaxy.allegiance('cw',s.key),ac=al&&al!=='neutral'?Galaxy.POWERS[al]?.col:null;return `<g class="gm-k gs t${t}${s.approx?' approx':''}" data-k="${s.key}" data-x="${x}" data-y="${y}">${bt[s.key]?`<path class="gs-bt e-${bt[s.key].ek}" d="M6.5 -11.5l3.6 3.6-3.6 3.6-3.6-3.6z"/>`:''}<circle class="gs-sel" r="11"/><circle class="gs-here" r="7.5"/>${ac?`<circle class="gs-al" r="${t===1?6.6:5.8}" stroke="${ac}"/>`:''}<circle class="gs-dot" r="${t===1?4.3:3.5}" fill="${GM_REG_COL[s.region]||'#cfd8e0'}"/><text class="gs-n">${esc(s.name)}</text><text class="gs-sub"></text></g>`;}).join('');
+ return `<div class="gm" data-gm="${ctx}" data-era="${era}"><svg class="gm-svg" viewBox="${GM_BOX[0]} ${GM_BOX[1]} ${GM_BOX[2]-GM_BOX[0]} ${GM_BOX[3]-GM_BOX[1]}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="銀河図。地域の帯、五つの主要交易路と支線、主要な星系。ドラッグで移動、ピンチやボタンで拡大縮小、星系をタップで選択"><g class="gm-static">${gmStatic()}</g><path class="gm-path" d=""/><g class="gm-sys">${sys}</g></svg>
+ <div class="gm-ctl"><button type="button" data-gm-zoom="in" aria-label="拡大">＋</button><button type="button" data-gm-zoom="out" aria-label="縮小">－</button><button type="button" data-gm-zoom="fit" aria-label="銀河全体">全体</button><button type="button" data-gm-zoom="sel" aria-label="選んだ星系へ">◎</button></div><button type="button" class="gm-era-btn" data-gm-era aria-label="時代：${Galaxy.ERAS[era].name}（切り替え）">${Galaxy.ERAS[era].name}</button>${GM_ERA_LEGEND()}</div>`;}
 // The view: centre (map units) and zoom (1 = the whole galaxy); s map units per screen pixel.
 function gmApply(ctx){
  const st=GMAP[ctx],svg=st?.root?.querySelector('.gm-svg');if(!svg)return;const r=svg.getBoundingClientRect();if(r.width<20||r.height<20)return;
@@ -4899,8 +5156,9 @@ function gmLayout(ctx){
  const st=GMAP[ctx],svg=st.root.querySelector('.gm-svg'),[x0,y0]=st.vb,s=st.s,W=st.cw,H=st.ch,ppu=GM_U/s,maxTier=ppu<24?1:ppu<42?2:3,fs=ppu<24?10:11,boxes=[],labels=[],over=(b,list)=>list.some(q=>b[0]<q[2]&&b[2]>q[0]&&b[1]<q[3]&&b[3]>q[1]),out=b=>b[0]<2||b[1]<2||b[2]>W-2||b[3]>H-2;
  const items=[];for(const g of svg.querySelectorAll('.gs')){const sx=(+g.dataset.x-x0)/s,sy=(+g.dataset.y-y0)/s,s0=Galaxy.BY[g.dataset.k];items.push({g,s0,sx,sy});boxes.push([sx-4.5,sy-4.5,sx+4.5,sy+4.5]);}
  for(const g of svg.querySelectorAll('.gm-badge')){const sx=(+g.dataset.x-x0)/s,sy=(+g.dataset.y-y0)/s;boxes.push([sx-8,sy-8,sx+8,sy+8]);}
+ for(const g of svg.querySelectorAll('.gm-thl.e-'+(st.era||'gcw'))){const t=Galaxy.THEATER_BY[g.dataset.th],sx=(+g.dataset.x-x0)/s,sy=(+g.dataset.y-y0)/s;if(t&&sx>-200&&sx<W&&sy>0&&sy<H+20)labels.push([sx+2,sy-16,sx+6+t.name.length*10.5,sy-1]);}
  // (and clear of the zoom buttons)
- const ctl=st.root.querySelector('.gm-ctl')?.getBoundingClientRect(),sr=svg.getBoundingClientRect();if(ctl&&ctl.width)labels.push([ctl.left-sr.left-4,ctl.top-sr.top-4,ctl.right-sr.left+4,ctl.bottom-sr.top+4]);
+ const ctl=st.root.querySelector('.gm-ctl')?.getBoundingClientRect(),sr=svg.getBoundingClientRect();if(ctl&&ctl.width)labels.push([ctl.left-sr.left-4,ctl.top-sr.top-4,ctl.right-sr.left+4,ctl.bottom-sr.top+4]);for(const q of [st.era==='cw'&&st.root.querySelector('.gm-era-key'),st.root.querySelector('.gm-era-btn')]){const ek=q&&q.getBoundingClientRect();if(ek&&ek.width)labels.push([ek.left-sr.left-2,ek.top-sr.top-2,ek.right-sr.left+2,ek.bottom-sr.top+2]);}
  const pri=it=>it.s0.key===st.sel?0:it.s0.key===st.cur?1:(it.s0.tier||3)+1;items.sort((a,b)=>pri(a)-pri(b));
  const order=['r','l','t','b'];
  for(const it of items){
@@ -4944,14 +5202,17 @@ function gmBind(ctx,root){
   if(pts.size<2)pinch=null;if(pts.size===1){const [p]=[...pts.values()];start={x:p[0],y:p[1],cx:st.cx,cy:st.cy};}else if(!pts.size)start=null;};
  svg.addEventListener('pointerup',up);svg.addEventListener('pointercancel',up);
  svg.addEventListener('wheel',e=>{e.preventDefault();const [px,py]=local(e.clientX,e.clientY),mx=st.vb[0]+px*st.s,my=st.vb[1]+py*st.s;st.z=C.clamp(st.z*Math.exp(-e.deltaY*.0015),.9,9);const bw=GM_BOX[2]-GM_BOX[0],bh=GM_BOX[3]-GM_BOX[1],s=Math.max(bw/st.cw,bh/st.ch)/st.z;st.cx=mx-(px-st.cw/2)*s;st.cy=my-(py-st.ch/2)*s;kick();},{passive:false});
- root.addEventListener('click',e=>{const z=e.target.closest('[data-gm-zoom]');if(z){e.preventDefault();gmZoom(ctx,z.dataset.gmZoom);}});
+ root.addEventListener('click',e=>{const z=e.target.closest('[data-gm-zoom]');if(z){e.preventDefault();gmZoom(ctx,z.dataset.gmZoom);}const er=e.target.closest('[data-gm-era]');if(er){e.preventDefault();e.stopPropagation();gmSetEra(ctx,st.era==='cw'?'gcw':'cw');}});
+ if(st.era)root.dataset.era=st.era;
 }
 window.addEventListener('resize',()=>{for(const k of Object.keys(GMAP))if(GMAP[k].root?.isConnected)setTimeout(()=>gmApply(k),60);});
 // A system's card: its name and square, region, what it is, the routes through it or its hyperlanes.
 function gmRoutesHTML(g){const rs=g.routes.map(k=>Galaxy.ROUTE_BY[k]);return rs.length?rs.map(r=>`<span class="gm-rt r${r.n}">${GM_ROUTE_SIGN[r.n]} ${esc(r.name)}</span>`).join(''):`<span class="gm-rt lane">支線：${g.links.map(k=>esc(Galaxy.BY[k].name)).join('・')}</span>`;}
 function gmSysCardHTML(key,extra=''){
  const g=Galaxy.BY[key];if(!g)return '';const reg=Galaxy.REGIONS[g.region],bt=Galaxy.BATTLES[key];
- return `<div class="gm-card"><div class="gm-card-h"><b>${esc(g.name)}</b><small>${esc(reg?.name||'')} · グリッド ${Galaxy.grid(g.at)}${g.approx?'（推定）':''}</small></div><p>${esc(g.note)}</p><div class="gm-rts">${gmRoutesHTML(g)}</div>${bt?`<p class="gm-bt-line">戦史：${esc(bt.name)}（${esc(bt.era)}）</p>`:''}${extra}</div>`;}
+ const side=e=>{const a=Galaxy.allegiance(e,key),p=a&&Galaxy.POWERS[a];return p?`<span class="gm-al-k" style="--c:${p.col}">${esc(p.short)}</span>`:'<span class="gm-al-k">—</span>';};
+ const th=Galaxy.THEATERS.filter(t=>Galaxy.theaterBox(t).keys.includes(key));
+ return `<div class="gm-card"><div class="gm-card-h"><b>${esc(g.name)}</b><small>${esc(reg?.name||'')} · グリッド ${Galaxy.grid(g.at)}${g.approx?'（推定）':''}</small></div><p>${esc(g.note)}</p><div class="gm-rts">${gmRoutesHTML(g)}</div><p class="gm-al">クローン戦争 ${side('cw')}　銀河内戦 ${side('gcw')}</p>${bt?`<p class="gm-bt-line">戦史：${esc(bt.name)}（${esc(bt.era)}）</p>`:''}${th.length?`<p class="gm-th-line">戦域：${th.map(t=>`${esc(t.name)}（${esc(Galaxy.ERAS[t.era].short)}）`).join('・')}</p>`:''}${extra}</div>`;}
 function gmPathText(p){if(!p||p.path.length<2)return '';const names=p.path.map(k=>Galaxy.BY[k].name),main=p.legs.filter(e=>e.route).length,lane=p.legs.length-main;return `${names.length>6?[...names.slice(0,3),'…',...names.slice(-2)].join(' → '):names.join(' → ')}（${p.legs.length} 区間${lane?`・支線 ${lane}`:''}）`;}
 function gmLegendHTML(){return `<div class="gm-legend">${Galaxy.ROUTES.map(r=>`<span class="gm-rt r${r.n}">${GM_ROUTE_SIGN[r.n]} ${esc(r.name)}</span>`).join('')}<span class="gm-rt lane">— 支線（ハイパーレーン）は主要交易路の半分の速さ</span></div>`;}
 function gmListHTML(attr){
@@ -5133,7 +5394,7 @@ function spaceWreck(u){
  const pos=u.manual?[...trial.P]:spaceWorld(u),att=spaceAtt.get(u),vel=u.manual?[...trial.V]:trialApply(B.E,att?.v||u.velocity||[0,0,0]),R=u.manual?[...trial.R]:spaceRotU(B.E,u),L=u.p.len;
  const fate=u.fate||'hull',boom=['reactor','fuel','magazine','scuttle'].includes(fate);
  if(fate==='fall'){trialExplosion(pos,vel,L*.6,false);trial.flash=Math.max(trial.flash||0,.15);return;}
- trialExplosion(pos,vel,L,boom&&fate!=='scuttle');if(!a?.bounds)return;
+ trialExplosion(pos,vel,L,boom&&fate!=='scuttle');if(!boom&&L>150)sndAt(sndPick('ship_breakup','explosion_large'),pos,{near:Math.max(1500,L*2),far:Math.max(50000,L*35),gain:.9});if(!a?.bounds)return;
  const b=a.bounds,c=a.center,X0=b[0],X1=b[3],span=Math.max(1,X1-X0),cuts=(u.p.sectionCuts||[.2,.4,.6,.8]).map(k=>X0+k*span),N=cuts.length+1,secX=i=>[i?cuts[i-1]:X0-1,i<cuts.length?cuts[i]:X1+1],lost=new Set(u.secLost||[]);
  const down=tv.norm(tv.scale(pos,-1)),fwd=trialCol(R,0),side=trialCol(R,2),up=trialCol(R,1),seed=Math.random()*1000,pieces=[];
  const piece=(lo,hi,o)=>{const cm=[(Math.max(lo[0],X0)+Math.min(hi[0],X1))/2,(Math.max(lo[1],b[1])+Math.min(hi[1],b[4]))/2,(Math.max(lo[2],b[2])+Math.min(hi[2],b[5]))/2],w=tv.add(pos,trialApply(R,tv.sub(cm,c)));
@@ -5165,7 +5426,7 @@ function trialWrecksStep(dt){
  for(const q of ws){q.t+=dt;q.pos=tv.add(q.pos,q.vel,dt);q.vel=tv.add(q.vel,tv.norm(tv.scale(q.pos,-1)),q.g*dt);if(q.rate){const R=trialAxisMatrix(q.axis,q.rate*dt);q.rot=m3Mul(R,q.rot);}
   q.seam[3]=Math.max(0,1-q.t/q.seamT);
   // Secondary explosions while the fires still reach something.
-  if(q.t<20&&(q.boomT-=dt)<=0){q.boomT=1.5+Math.random()*5;const an=q.fl?.length?q.fl[Math.floor(Math.random()*q.fl.length)]:null,a=view?.fleetCache?.get(q.key);if(an&&a){const w=tv.add(q.pos,trialApply(q.rot,tv.sub(tv.add(an,a.center),q.c))),L=Math.max(30,q.L*.15);trial.fx.push({pos:w,vel:q.vel,life:.5,max:.5,size:L*1.4,col:[255,236,200]});for(let k=0;k<14;k++)trial.fx.push({pos:w,vel:tv.add(q.vel,tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),L*(.4+Math.random()*1.2)),life:.8+Math.random()*.8,max:1.6,size:L*(.08+Math.random()*.1),col:[255,150+(Math.random()*80|0),60]});}}}
+  if(q.t<20&&(q.boomT-=dt)<=0){q.boomT=1.5+Math.random()*5;const an=q.fl?.length?q.fl[Math.floor(Math.random()*q.fl.length)]:null,a=view?.fleetCache?.get(q.key);if(an&&a){const w=tv.add(q.pos,trialApply(q.rot,tv.sub(tv.add(an,a.center),q.c))),L=Math.max(30,q.L*.15);trial.fx.push({pos:w,vel:q.vel,life:.5,max:.5,size:L*1.4,col:[255,236,200]});sndAt(sndPick('wreck_boom','explosion_small'),w,{near:Math.max(800,L*4),far:Math.max(25000,L*120),gain:.55});for(let k=0;k<14;k++)trial.fx.push({pos:w,vel:tv.add(q.vel,tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),L*(.4+Math.random()*1.2)),life:.8+Math.random()*.8,max:1.6,size:L*(.08+Math.random()*.1),col:[255,150+(Math.random()*80|0),60]});}}}
  trial.wrecks=ws.filter(q=>q.t<q.life&&tv.len(tv.sub(q.pos,trial.P))<4e5);
 }
 // Wreck pieces as the renderer draws them (relative to the camera's ship).
@@ -5230,7 +5491,7 @@ function trialSwHud(q,set){
 function trialSwMode(){const me=trial.battle?trial.battle.me:trialSwSolo();if(!me?.sw)return;const sw=me.p.sw,cur=me.sw.find((x,i)=>sw[i].k==='sbeam');if(!cur){toast('切り替えられる超兵器がありません');return;}const next=cur.mode==='pulse'?'beam':'pulse';me.sw.forEach((x,i)=>{if(sw[i].k==='sbeam')x.mode=next;});sndUI('ui_toggle',.5);toast(`超重合成ビーム：${next==='pulse'?'パルス一撃':'ビーム照射'}`);}
 // In the flown ship's frame: the bearing of a ship from the muzzle, against the weapon's axis.
 function trialSwTargets(w){
- const B=trial.battle,me=B.me,C0=C.SW_COMBAT[w.k],m=tv.add(trial.P,trialApply(trial.R,w.mz||[0,0,0])),ax=trialApply(trial.R,w.aim==='bow'?[1,0,0]:[0,0,w.aim==='port'?-1:1]),out=[];
+ const B=trial.battle,me=B.me,C0={...C.SW_COMBAT[w.k],range:C.swRange(me,w)},m=tv.add(trial.P,trialApply(trial.R,w.mz||[0,0,0])),ax=trialApply(trial.R,w.aim==='bow'?[1,0,0]:[0,0,w.aim==='port'?-1:1]),out=[];
  for(const u of B.b.units){if(u.team===me.team||u.dead||u.absent||u.warp)continue;const d=tv.sub(spaceWorld(u),m),r=tv.len(d);if(!(r>0)||r>C0.range+(u.p.len||0)*.5)continue;const c=tv.dot(d,ax)/r;if(c<=0)continue;const off=Math.acos(C.clamp(c,-1,1)),miss=r*Math.sin(off);
   if(off<=C0.cone||(w.aim==='bow'&&miss<=Math.max(u.p.width||u.p.len*.3,u.p.height||0)*.5))out.push({u,r,off});}
  return out.sort((a,b)=>a.off-b.off||a.r-b.r);
@@ -5262,7 +5523,7 @@ function spaceWorldPos(p){const B=trial.battle;return tv.add(B.O,trialApply(B.E,
 // as the hits reckon it — seen from the side it is an edge), faint violet through its middle and thicker toward its edge,
 // ringed by a bright magenta rim broken into glowing dashes, filled with forked white-violet lightning re-struck a dozen
 // times a second from a white-hot core.
-function ionBoltPoints(o,dir,x,D,k,age){const out=[],P=trial.P,c=tv.add(o,dir,x),cr=tv.sub(c,P),vd=tv.norm(dir),eye=view?.eye?view.eye():null,face=eye?Math.abs(tv.dot(tv.norm(tv.sub(cr,eye)),vd)):1,fs=.22+.78*face,v=tv.norm(Math.abs(vd[1])<.9?tv.cross(vd,[0,1,0]):tv.cross(vd,[1,0,0])),v2=tv.cross(vd,v),R=D/2,a=255*clamp01(.45+.55*k),fl=.85+.15*Math.sin(age*37),fr=Math.floor(age*12);
+function ionBoltPoints(o,dir,x,D,k,age){const out=[],P=trial.P,c=tv.add(o,dir,x),cr=tv.sub(c,P),vd=tv.norm(dir),eye=view?.eye?view.eye():null,face=eye?Math.abs(tv.dot(tv.norm(tv.sub(cr,eye)),vd)):1,fs=.22+.78*face,v=tv.norm(Math.abs(vd[1])<.9?tv.cross(vd,[0,1,0]):tv.cross(vd,[1,0,0])),v2=tv.cross(vd,v),R=D/2,a=255*clamp01(.08+.92*Math.pow(clamp01(k),.5)),fl=.85+.15*Math.sin(age*37),fr=Math.floor(age*12);
  const at=(an,r)=>tv.add(cr,tv.add(tv.scale(v,Math.cos(an)*r),tv.scale(v2,Math.sin(an)*r))),h=(j,f)=>{const q=Math.sin(j*12.9898+f*78.233)*43758.5453;return q-Math.floor(q);},seed=j=>h(j,fr),fix=j=>h(j,0),A=f=>Math.round(clamp01(f)*a);
  // the body of the bubble: soft violet glow, faint in the middle and denser toward the rim
  for(let j=0;j<120;j++){const rr=R*Math.sqrt(.1+.9*fix(j+900)),an=fix(j+1200)*Math.PI*2+age*.15;out.push([at(an,rr),[140,50,235,A(.08+.1*rr/R)],D*(.14+.1*fix(j+1500))]);}
@@ -5318,7 +5579,7 @@ function trialSwObjects(){
 // Each object as weapon w sees it from its muzzle: range r, angle off its axis, in range (rng), in its cone or
 // across the beam's line (arc); ok = both (the battle's own test, trialSwTargets, asks the same).
 function trialSwScan(w,objs=trialSwObjects()){
- const K=C.SW_COMBAT[w.k],m=tv.add(trial.P,trialApply(trial.R,w.mz||[0,0,0])),ax=trialApply(trial.R,w.aim==='bow'?[1,0,0]:[0,0,w.aim==='port'?-1:1]);
+ const K={...C.SW_COMBAT[w.k],range:C.swRange(trial.battle?trial.battle.me:trial.swSolo,w)},m=tv.add(trial.P,trialApply(trial.R,w.mz||[0,0,0])),ax=trialApply(trial.R,w.aim==='bow'?[1,0,0]:[0,0,w.aim==='port'?-1:1]);
  return objs.map(o=>{const d=tv.sub(o.pos,m),r=tv.len(d)||1e-6,c=tv.dot(d,ax)/r,off=Math.acos(C.clamp(c,-1,1)),rng=r<=K.range+o.reach,arc=c>0&&(off<=K.cone||w.aim==='bow'&&r*Math.sin(off)<=o.line);return {o,w,r,off,rng,arc,ok:rng&&arc,d};});
 }
 function trialSwSoloFire(u){
@@ -5372,7 +5633,7 @@ function trialSwSoloStep(dt){
  }
  if(trial.swPend?.length){for(const p of trial.swPend){p.t-=dt;if(p.t<=0)trialSwStrike(p.o,p.k);}trial.swPend=trial.swPend.filter(p=>p.t>0);}
  // v21.2 Solo ion bolts fly on, striking every buoy and drone the widening disc passes.
- if(trial.soloBolts?.length){const os=objs||trialSwObjects();for(const b of trial.soloBolts){const x0=b.x;b.x+=C.ION_BOLT.v*dt;for(const o of os){const t=o.ref;if(!t?.pos||t.alive===false||b.hit.has(t))continue;const v=tv.sub(t.pos,b.o),sa=tv.dot(v,b.dir);if(sa<=x0||sa>b.x)continue;const r=tv.len(tv.sub(v,tv.scale(b.dir,sa)));if(r>C.ionDiam(b.d,sa)/2+(o.reach||60))continue;b.hit.add(t);trialSwStrike(o,'ion');}if(b.x>C.ION_BOLT.maxRange)b.done=true;}trial.soloBolts=trial.soloBolts.filter(b=>!b.done);}
+ if(trial.soloBolts?.length){const os=objs||trialSwObjects();for(const b of trial.soloBolts){const x0=b.x;b.x+=C.ION_BOLT.v*dt;for(const o of os){const t=o.ref;if(!t?.pos||t.alive===false||b.hit.has(t))continue;const v=tv.sub(t.pos,b.o),sa=tv.dot(v,b.dir);if(sa<=x0||sa>b.x)continue;const r=tv.len(tv.sub(v,tv.scale(b.dir,sa)));if(r>C.ionDiam(b.d,sa)/2+(o.reach||60))continue;b.hit.add(t);trialSwStrike(o,'ion');}if(C.ionDensity(b.E,b.d,b.x)<C.ION_BOLT.fade||b.x>C.ION_BOLT.maxRange)b.done=true;}trial.soloBolts=trial.soloBolts.filter(b=>!b.done);}
  // A buoy the ion wave has stopped sparks now and then until it comes back.
  for(const t of trial.targets)if(t.ionT>0){t.ionT=Math.max(0,t.ionT-dt);if(t.alive&&Math.random()<dt*2.5){const Rt=trial.asset?.geometry?.targetRadius||60;trial.fx.push({pos:tv.add(t.pos,tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),Rt*.8),vel:t.vel,life:.5,max:.5,size:Rt*.35,col:[185,160,255]});}}
 }
@@ -5387,7 +5648,7 @@ function trialSwArcPoints(){
  const eye=view.eye(),R=trial.R,up=trialCol(R,1),groups=new Map(),now=performance.now()/1000;
  sw.forEach((w,i)=>{const key=w.k+w.aim;let g=groups.get(key);if(!g)groups.set(key,g={w,mz:[0,0,0],n:0,xs:[]});g.mz=tv.add(g.mz,w.mz||[0,0,0]);g.n++;g.xs.push(u.sw[i]);});
  for(const g of groups.values()){
-  const w=g.w,K=C.SW_COMBAT[w.k],m=trialApply(R,tv.scale(g.mz,1/g.n)),ax=trialApply(R,w.aim==='bow'?[1,0,0]:[0,0,w.aim==='port'?-1:1]),across=w.aim==='bow'?trialCol(R,2):trialCol(R,0);
+  const w=g.w,K={...C.SW_COMBAT[w.k],range:C.swRange(u,w)},m=trialApply(R,tv.scale(g.mz,1/g.n)),ax=trialApply(R,w.aim==='bow'?[1,0,0]:[0,0,w.aim==='port'?-1:1]),across=w.aim==='bow'?trialCol(R,2):trialCol(R,0);
   const hot=g.xs.some(x=>x&&(x.st==='ready'||x.st==='beam')),cold=g.xs.every(x=>!x||x.st==='cool'||x.st==='down'),A=hot?.8+.2*Math.sin(now*3):cold?.22:.45,col=w.k==='hion'?[165,140,255]:[255,125,80];
   const dot=(p,a)=>{out.push([p,[col[0],col[1],col[2],Math.round(C.clamp(a*A,0,1)*255)],Math.max(6,tv.len(tv.sub(p,eye))*.0042)]);};
   const line=(p0,p1,a)=>{const d=tv.sub(p1,p0),L=tv.len(d);if(!(L>1))return;const v=tv.scale(d,1/L);for(let s=0;s<=L;){const p=tv.add(p0,v,s);dot(p,a);s+=Math.max(12,tv.len(tv.sub(p,eye))*.013);}};
@@ -5417,7 +5678,7 @@ function trialSwInfo(q,me){
  const el=q('swinfo');if(!el)return;const sw=me?.p?.sw;trial.swInArc=null;
  if(!sw?.length||me.dead||me.out||trial.jump){if(!el.hidden)el.hidden=true;return;}
  const objs=trialSwObjects(),lk=trial.heldLock||trial.aim?.lock,lref=lk?(lk.unit||lk):null,inArc=new Set(),lines=[];
- for(const k of ['sbeam','hion']){const ws=sw.filter(w=>w.k===k);if(!ws.length)continue;const K=C.SW_COMBAT[k],scans=ws.map(w=>trialSwScan(w,objs)),lab=`<em>${SW_SHORT[k]}</em>`;
+ for(const k of ['sbeam','hion']){const ws=sw.filter(w=>w.k===k);if(!ws.length)continue;const K={...C.SW_COMBAT[k],range:Math.max(...ws.map(w=>C.swRange(me,w)))},scans=ws.map(w=>trialSwScan(w,objs)),lab=`<em>${SW_SHORT[k]}</em>`;
   for(const s of scans)for(const x of s)if(x.ok)inArc.add(x.o.ref);
   // Each object with the weapon of this kind that has it best (in reach first, then nearest its axis); the drones,
   // darting about, are named only when nothing steadier is there.
@@ -5438,6 +5699,7 @@ function trialSwInfo(q,me){
 function trialSwMenu(){const m=document.getElementById('thMenu');if(!m||m.querySelector('[data-th="swarcbtn"]'))return;const b=document.createElement('button');b.type='button';b.className='th-btn';b.dataset.trialCmd='swarc';b.dataset.th='swarcbtn';b.textContent=trial.swArc===false?'超兵器の射界を表示':'超兵器の射界を隠す';const r=m.querySelector('[data-trial-cmd="reset"]');if(r)m.insertBefore(b,r);else m.append(b);}
 // The line on the trial record.
 function trialSwRecord(){const g=trial.gun;return g?.sw?` · 超兵器 ${g.sw} 射${g.swKills?` / 撃破 ${g.swKills}`:''}${g.swDown?` / 無力化 ${g.swDown}`:''}`:'';}
+window.__trialJump={step:dt=>{trialJumpStep(dt);escortsStep(dt);if(trialCoasting())trialSublight(dt);}};   // (for tests)
 window.__trialSw={step:dt=>trialSwSoloStep(dt),solo:()=>trialSwSolo(),scan:w=>trialSwScan(w),arc:()=>trialSwArcPoints().length};   // (for tests)
 // Point sprites for the superweapon shots, relative to P (appended to the trial's effects set).
 // v21.2 A hyper-ion cannon nearly charged or holding its shot: violet arcs crawl over its dish, brighter as it fills
@@ -5463,7 +5725,7 @@ function swFxPoints(dt){
   else{const a=byId?.get(e.from);w=a?.p?.sw?.[e.i];if(!a||!w)continue;m=swMuzzleWorld(a,w);ax=swAxisWorld(a,w);}
   // v21.2 A hyper-ion bolt: a crackling violet disc across its flight, as wide as it has spread, a white core.
   if(e.mode==='bolt'){const b=e.solo?trial.soloBolts?.find(q=>q.id===e.bolt):B?.b.ionBolts?.find(q=>q.id===e.bolt);if(!b){e.life=0;continue;}
-   const o=e.solo?b.o:spaceWorldPos(b.o),dir=e.solo?b.dir:trialApply(B.E,b.dir);out.push(...ionBoltPoints(o,dir,b.x,C.ionDiam(b.d,b.x),b.E/b.E0,e.age));if(e.age<1.1)out.push(...ionMuzzlePoints(m,ax,w.d||310,e.age));
+   const o=e.solo?b.o:spaceWorldPos(b.o),dir=e.solo?b.dir:trialApply(B.E,b.dir);out.push(...ionBoltPoints(o,dir,b.x,C.ionDiam(b.d,b.x),C.ionGlow(b),e.age));if(e.age<1.1)out.push(...ionMuzzlePoints(m,ax,w.d||310,e.age));
    // each ship the pulse washes over crackles with it (the battle's log of the bolt; the solo flight's strikes sound on their own)
    if(!e.solo&&b.log&&b.log.length>(e.heard||0)){for(const h of b.log.slice(e.heard||0)){const t=byId?.get(h.id);if(t)sndAt(sndPick('ion_wash','ion'),t.manual?trial.P:spaceWorld(t),{gain:1.2,near:Math.max(2500,(t.p.len||300)*2),far:80000});}e.heard=b.log.length;}
    continue;}
@@ -5482,10 +5744,12 @@ function spaceShots(shots){
  for(const s of shots)if(s.sw)swShotFx(s,byId);
  for(const s of shots){if(s.sw)continue;const a=byId.get(s.from),t=byId.get(s.to);if(!a||!t||a.manual)continue;
   // v20.6 A salvo: the whole broadside leaves the ship at once (many bolts within a moment, and a heavier report).
-  const sv=!!s.salvo&&!s.ff,n=sv?C.clamp(Math.round((s.gun||0)/30),6,48):C.clamp(Math.round((s.gun||0)/30),s.gun>0?1:0,6);if(n){const at=spaceWorld(a),o={gain:sv?.95:.7,near:Math.max(2000,a.p.len*1.5),far:Math.max(40000,a.p.len*25)};sndAt(sndSalvo(s,a.p.len),at,o);if(sv&&a.p.len>250)sndAt(sndPick('turbolaser_heavy','turbolaser'),at,{...o,pitch:.85});}
+  const sv=!!s.salvo&&!s.ff,n=sv?C.clamp(Math.round((s.gun||0)/30),6,48):C.clamp(Math.round((s.gun||0)/30),s.gun>0?1:0,6);if(n){const at=spaceWorld(a),o={gain:sv?.95:.7,near:Math.max(2000,a.p.len*1.5),far:Math.max(40000,a.p.len*25)};o.fac=sndFac(a);sndAt(sndSalvo(s,a.p.len),at,o);if(sv&&a.p.len>250)sndAt(sndPick('turbolaser_heavy','turbolaser'),at,{...o,pitch:.85});}
   for(let i=0;i<n;i++){const from=spaceHullPoint(a,.4),tw=spaceWorld(t),tof=C.len(C.sub(tw,from))/TRIAL_GUN.boltSpeed,to=tv.add(spaceHullPoint(t,.3),spaceVel(t),tof),d=tv.sub(to,from),dist=tv.len(d);if(dist<1)continue;
    trial.vbolts.push({pos:from,vel:tv.scale(d,TRIAL_GUN.boltSpeed/dist),life:dist/TRIAL_GUN.boltSpeed,delay:sv?Math.random()*.12:Math.random()*SPACE_RULES.step,len:Math.max(80,a.p.len*.06),size:Math.max(6,a.p.len*.007),col:s.ion?[170,215,255]:a.team?[255,95,70]:[110,255,140],target:t});}
-  if(s.msl>0&&Math.random()<.5&&(sndAt('missile',spaceWorld(a),{gain:.6}),true))for(let k=0;k<2;k++){const from=spaceHullPoint(a,.3);trial.fx.push({pos:from,vel:tv.add(spaceVel(a),tv.norm(tv.sub(spaceWorld(t),from)),2600),life:2.5,max:2.5,size:9,col:[255,210,150]});}}
+  if(s.msl>0&&Math.random()<.5&&(sndAt(sndPick('missile_salvo','missile'),spaceWorld(a),{gain:.6,near:Math.max(1500,a.p.len*1.5),far:Math.max(30000,a.p.len*20)}),true))for(let k=0;k<2;k++){const from=spaceHullPoint(a,.3);trial.fx.push({pos:from,vel:tv.add(spaceVel(a),tv.norm(tv.sub(spaceWorld(t),from)),2600),life:2.5,max:2.5,size:9,col:[255,210,150]});}
+  // v22 ion torpedoes: blue-white, flickering as they go
+  if(s.imsl>0&&Math.random()<.5&&(sndAt('missile',spaceWorld(a),{gain:.6}),true))for(let k=0;k<2;k++){const from=spaceHullPoint(a,.3),v=tv.add(spaceVel(a),tv.norm(tv.sub(spaceWorld(t),from)),2600);trial.fx.push({pos:from,vel:v,life:2.5,max:2.5,size:10,col:[205,230,255]});for(let j=0;j<3;j++)trial.fx.push({pos:tv.add(from,v,.2+j*.25),vel:tv.add(v,tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]),60),life:.5+j*.3,max:.5+j*.3,size:5,col:[150,195,255]});}}
  if(trial.vbolts.length>1600)trial.vbolts.splice(0,trial.vbolts.length-1600);
 }
 function spaceBolts(dt){
@@ -5504,46 +5768,59 @@ function spaceAirType(u){
  const t=best||'tie_ln';spaceAirTypes.set(u.key,t);return t;
 }
 function spaceAirStep(dt){
- const B=trial.battle;if(!B||B.rts||!B.b)return;const b=B.b,A=B.air||(B.air=new Map()),me=B.me,cf=B.cf||(B.cf={sq:new Map(),done:new Set(),ghosts:[],runs:[],runT:0,t:performance.now(),f:0,snd:0});
- const F0=++cf.f,fdt=Math.max(0,Math.min(.1,dt)),up=[0,1,0],P=trial.P,eye=view?tv.add(P,view.eye()):P,focal=(view?.canvas?.height||800)/(2*Math.tan((view?.cam?.fov||.72)/2)),cand=[],own=[],foe=[],tt=performance.now()/1000,k1=1-Math.exp(-fdt*1.1),jobs={df:[],runs:[],pd:[]};
+ const B=trial.battle;if(!B||B.rts||!B.b)return;const b=B.b,A=B.air||(B.air=new Map()),me=B.me,cf=voyCf(B,null);
+ const F0=++cf.f,fdt=Math.max(0,Math.min(.1,dt)),cdt=trial.paused?0:fdt,ct=cf.ct+=cdt,up=[0,1,0],upW=trialApply(B.E,up),altW=trialApply(B.E,[1,0,0]),P=trial.P,eye=view?tv.add(P,view.eye()):P,focal=(view?.canvas?.height||800)/(2*Math.tan((view?.cam?.fov||.72)/2)),cand=[],own=[],foe=[],k1=1-Math.exp(-fdt*1.1),jobs={df:[],runs:[],pd:[]};
  const byId=new Map(b.units.map(u=>[u.id,u])),live=u=>u&&!u.dead&&!u.absent&&!u.warp,groups=[];
  for(const u of b.units){
   // Whole craft, counted from the model's running totals: each one that reaches the air joins the formation
   // (up to 36 shown; the rest wait behind and fill the places of those lost), each one lost leaves it.
   let g=A.get(u.id);const arr=Math.floor((u.air||0)+(u.lost||0)+1e-6),lost=Math.floor((u.lost||0)+1e-6);if(!g&&arr<=lost)continue;
-  if(!g){const type=spaceAirType(u),c=Rts.CRAFT[type],f=[Math.cos(u.yaw),0,Math.sin(u.yaw)];A.set(u.id,g={id:'air-'+u.id,u,type,c,pos:tv.add(u.pos,[0,-(u.p.height||u.p.len*.2)*.6,0]),h:f,vel:[0,0,0],slots:[],next:0,arr:0,dead:lost,extra:0,qs:new Map(),list:[],ph:Math.random()*6.28});g.arr=g.dead;}
+  if(!g){const type=spaceAirType(u),c=Rts.CRAFT[type],f=[Math.cos(u.yaw),0,Math.sin(u.yaw)];A.set(u.id,g={id:'air-'+u.id,u,type,c,pos:tv.add(u.pos,[0,-(u.p.height||u.p.len*.2)*.6,0]),h:f,vel:[0,0,0],slots:[],next:0,arr:0,dead:lost,extra:0,qs:new Map(),list:[],ph:Math.random()*6.28});g.arr=g.dead;g.seed=g.ph;}
   while(g.arr<arr){g.arr++;if(g.slots.length<36)g.slots.push(g.next++);else g.extra++;}
   while(g.dead<lost){g.dead++;if(!g.slots.length){g.extra=Math.max(0,g.extra-1);continue;}const i=Math.floor(Math.random()*g.slots.length),id=g.slots.splice(i,1)[0],q=g.qs.get(id);g.qs.delete(id);if(q)(g.lost||(g.lost=[])).push(q);if(g.extra>0){g.extra--;g.slots.push(g.next++);}}
   if(!g.slots.length&&!g.lost?.length){if(u.dead||arr<=lost)A.delete(u.id);continue;}
-  // where the squadron goes: round its carrier's target (or over its carrier), at the craft's own speed
-  const t=byId.get(u.order?.target),tgt=live(t)&&t.team!==u.team?t:null,home=live(u)?u:null,R0=tgt?1400+tgt.p.len*.6:1200+u.p.len*.5,a=tt*.22+g.ph,ctr=(tgt||home||g).pos;
-  const goal=tv.add(ctr,[Math.cos(a)*R0,(tgt?260:700)+Math.sin(a*.7)*200,Math.sin(a)*R0]),d=tv.sub(goal,g.pos),l=tv.len(d);
+  // Where the squadron goes. v22 Over its carrier's target it flies strafing passes, as the films show them: in low
+  // along the hull from one end to the other, then up and round over the beam for the next; with no target it
+  // circles its carrier.
+  const t=byId.get(u.order?.target),tgt=live(t)&&t.team!==u.team?t:null,home=live(u)?u:null;let goal;
+  if(tgt){const L=tgt.p.len,H=tgt.p.height||L*.2,Wd=tgt.p.width||L*.5,Xr=L*.5+1500,yL=H*.5+40,Yh=900+H*.4,Zr=Wd*.5+1100,om=Math.min(g.c.speed*.5,1000)/(Xr*1.35),a=ct*om+g.ph,sn=Math.sin(a),cy=Math.cos(tgt.yaw),sy=Math.sin(tgt.yaw),lx=Xr*Math.cos(a),ly=yL+Yh*Math.max(0,sn),lz=Zr*sn*(sn>0?1:.15);
+   goal=[tgt.pos[0]+lx*cy-lz*sy,tgt.pos[1]+ly,tgt.pos[2]+lx*sy+lz*cy];}
+  else{const R0=1200+(home||u).p.len*.5,a=ct*.22+g.ph,ctr=(home||g).pos;goal=tv.add(ctr,[Math.cos(a)*R0,700+Math.sin(a*.7)*200,Math.sin(a)*R0]);}
+  const d=tv.sub(goal,g.pos),l=tv.len(d);
   if(l>1){const want=tv.scale(d,1/l),c=C.clamp(tv.dot(g.h,want),-1,1),ang=Math.acos(c),k=Math.min(1,1.2*fdt/Math.max(1e-4,ang));g.h=tv.norm(tv.add(tv.scale(g.h,1-k),want,k));const sp=Math.min(g.c.speed*.5,Math.max(250,l*.8));g.vel=tv.scale(g.h,sp);g.pos=tv.add(g.pos,g.vel,fdt);}
+  // the attack run: from where it comes in low over the hull to where it leaves it (then it peels off)
+  if(tgt){const dx=tv.sub(g.pos,tgt.pos),cy=Math.cos(tgt.yaw),sy=Math.sin(tgt.yaw),lx=dx[0]*cy+dx[2]*sy,lz=-dx[0]*sy+dx[2]*cy,H=tgt.p.height||tgt.p.len*.2,over=Math.abs(lx)<tgt.p.len*.5+250&&Math.abs(lz)<(tgt.p.width||tgt.p.len*.5)*.5+350&&dx[1]<H*.5+600&&dx[1]>-H*.5-200;
+   if(over&&!g.over)g.run={first:true,left:1e9};else if(!over&&g.over){g.run=null;g.brk=ct;}g.over=over;}else{g.run=null;g.over=false;}
   g.tgt=tgt;groups.push(g);
  }
  for(const g of groups){
-  const u=g.u,c=g.c,team=me&&u.team!==me.team?1:0,glow=team?[255,110,80,230]:[120,200,255,230],h=trialApply(B.E,g.h),v=trialApply(B.E,g.vel),c0=tv.add(B.O,trialApply(B.E,g.pos)),Fm=trialFrame(h,Math.abs(tv.dot(h,trialApply(B.E,up)))>.97?trialApply(B.E,[1,0,0]):trialApply(B.E,up)),fw=trialCol(Fm,0),uv=trialCol(Fm,1),rt=trialCol(Fm,2),list=[];
-  const L=c.dims?.[0]||10,mk=voyCraftModel(g.type),dS=tv.len(tv.sub(c0,eye)),models=mk&&dS<L*focal/5+600,enemy=groups.find(x=>x.u.team!==u.team&&x.list.length&&tv.len(tv.sub(x.pos,g.pos))<3000),fight=!!enemy,A2=Math.max(30,(c.dims?.[1]||10)*5);
-  g.slots.forEach((id,i)=>{let q=g.qs.get(id);const key=g.id+':'+id;
-   if(!q)g.qs.set(id,q={id:key,kind:'craft',craft:g.type,cid:id,k:-1,off:null,pos:[0,0,0],size:c.role==='bomber'?12:10,onDown:()=>{cf.done.add(key);const j=g.slots.indexOf(id);if(j>=0&&(u.air||0)>=1){g.slots.splice(j,1);g.qs.delete(id);u.air-=1;u.lost=(u.lost||0)+1;g.dead=Math.floor(u.lost+1e-6);}}});
-   if(q.k!==i){q.k=i;q.want=Rts.craftFormation(i,c.role,c.dims);q.set=false;if(!q.off){q.off=q.want.slice();q.set=true;}}
-   const o=q.off,wt=q.want;if(!q.set){let dd=0;for(let j=0;j<3;j++){o[j]+=(wt[j]-o[j])*k1;dd+=Math.abs(wt[j]-o[j]);}if(dd<.3){o[0]=wt[0];o[1]=wt[1];o[2]=wt[2];q.set=true;}}
-   let ox=o[0],oy=o[1],oz=o[2];if(fight){const ph=id*2.399+(i&1)*.3;ox+=Math.sin(tt*.9+ph)*A2;oy+=Math.sin(tt*1.3+ph*2)*A2*.7;oz+=Math.cos(tt*.7+ph)*A2*1.2;}
-   const p=q.pos;p[0]=c0[0]+fw[0]*ox+uv[0]*oy+rt[0]*oz;p[1]=c0[1]+fw[1]*ox+uv[1]*oy+rt[1]*oz;p[2]=c0[2]+fw[2]*ox+uv[2]*oy+rt[2]*oz;
-   Object.assign(q,{vel:v,h:fw,up:uv,alive:true,team,glow,model:null});(team?foe:own).push(q);list.push(q);
-   if(models){const dq=tv.len(tv.sub(p,eye));if(L*focal/Math.max(1,dq)>=5)cand.push({q,mk,d:dq});}});
-  g.list=list;g.col=VOY_BOLT[c.side]||VOY_BOLT[u.team?'cis':'republic']||VOY_BOLT.neutral;
+  const u=g.u,c=g.c,team=me&&u.team!==me.team?1:0,glow=team?[255,110,80,230]:[120,200,255,230],h=trialApply(B.E,g.h),v=trialApply(B.E,g.vel),c0=tv.add(B.O,trialApply(B.E,g.pos)),out=team?foe:own;
+  const L=c.dims?.[0]||10,mk=voyCraftModel(g.type),dS=tv.len(tv.sub(c0,eye)),enemy=groups.find(x=>x.u.team!==u.team&&x.list.length&&tv.len(tv.sub(x.pos,g.pos))<3000),fight=!!enemy,S=craftFly(g.type),dd=Math.max(16,2.4*Math.max(c.dims?.[1]||0,L,6));
+  g.col=VOY_BOLT[c.side]||VOY_BOLT[u.team?'cis':'republic']||VOY_BOLT.neutral;
+  if(dS>VOY_NEAR){
+   // far: the squadron is its lead (one model) and the point that marks it
+   let q=cf.leads.get(g.id);if(!q)cf.leads.set(g.id,q={id:g.id,kind:'craft',craft:g.type,far:true,pos:c0,alive:true});
+   Object.assign(q,{pos:c0,vel:v,h,up:upW,alive:true,team,glow,size:Math.min(46,12+Math.sqrt(g.slots.length)*3.2),model:null,f:F0});out.push(q);
+   if(mk){const px=L*focal/Math.max(1,dS);if(px>=2.2)cand.push({q,mk,d:dS,pri:1,px});voyCraftWant(mk,dS);}
+   for(const q of g.lost||[])q.alive=false;g.lost=null;g.list=[];continue;}
+  const pdNear=!!g.tgt&&tv.len(tv.sub(g.pos,g.tgt.pos))<2600+g.tgt.p.len*.6;if(!g.runO||g.runO.u!==g.tgt)g.runO=g.tgt?{u:g.tgt,side:1}:null;
+  craftSqMood(g,{fight,fire:fight||pdNear,run:!!g.run,hold:false},cdt);
+  const fr=craftSqFrame(g,c0,v,h,upW,S,dd,ct,cdt,altW),models=!!mk&&dS<L*focal/2.2+600;if(mk)voyCraftWant(mk,dS);
+  g.list=craftLayout(cf,g,{c,S,d:dd,fr,ct,cdt,slots:g.slots,mk,models,eye,focal,cand,out,team,glow,pri:1,wingLead:true,run:g.runO,vel:v,
+   make:id=>{const key=g.id+':'+id;return craftQ(cf,key,{craft:g.type,id:g.id},id,c,()=>{cf.done.add(key);const j=g.slots.indexOf(id);if(j>=0&&(u.air||0)>=1){g.slots.splice(j,1);g.qs.delete(id);u.air-=1;u.lost=(u.lost||0)+1;g.dead=Math.floor(u.lost+1e-6);}});}});
+  g.st=g;
   // craft lost this step: hit by the target's point defence when over it, else by the enemy's craft
   for(const q of g.lost||[]){q.alive=false;if(cf.done.delete(q.id))continue;const pdShip=g.tgt&&tv.len(tv.sub(g.pos,g.tgt.pos))<6000+g.tgt.p.len?g.tgt:null,e=!pdShip&&enemy?.list.length?enemy.list[Math.floor(Math.random()*enemy.list.length)]:null;craftKill(cf,q,pdShip?spaceHullPoint(pdShip,.35):e?tv.add(e.pos,e.h,6):null,pdShip?[255,200,140]:e?enemy.col:[255,200,140],!!pdShip);}
   g.lost=null;
  }
- for(const g of groups){if(!g.list.length)continue;const enemy=groups.find(x=>x.u.team!==g.u.team&&x.list.length&&tv.len(tv.sub(x.pos,g.pos))<3000);if(enemy)jobs.df.push({m:g.list,fm:enemy.list,c:g.c,col:g.col});
-  const t=g.tgt;if(t&&tv.len(tv.sub(g.pos,t.pos))<2600+t.p.len*.6){g.run=g.run||{first:true,left:1e9};jobs.runs.push({r:g.run,m:g.list,u:t,c:g.c,col:g.col});if(!t.manual)jobs.pd.push({u:t,m:g.list,col:t.team?[255,120,90]:[130,255,150]});}else g.run=null;}
+ for(const [id,q] of cf.leads)if(q.f!==F0)cf.leads.delete(id);
+ for(const g of groups){if(!g.list.length)continue;const gun=craftGun(null,{side:g.u.team,craft:g.type}),enemy=groups.find(x=>x.u.team!==g.u.team&&x.list.length&&tv.len(tv.sub(x.pos,g.pos))<3000);if(enemy)jobs.df.push({m:g.list,fm:enemy.list,c:g.c,col:g.col,gun});
+  const t=g.tgt;if(t&&g.run)jobs.runs.push({r:g.run,m:g.list,u:t,c:g.c,key:g.type,col:g.col,gun});if(t&&tv.len(tv.sub(g.pos,t.pos))<2600+t.p.len*.6&&!t.manual)jobs.pd.push({u:t,m:g.list,col:t.team?[255,120,90]:[130,255,150]});}
  trial.foeCraft=foe;trial.ownCraft=own;
  voyCraftDraw(B,cand);craftFx(B,cf,fdt,eye,jobs);
 }
 // In a battle each tube draws its salvo from its own magazine.
-function spaceAmmo(l){const B=trial.battle;if(!B)return true;const i=B.modIndex.get(l.id);if(i==null)return true;if((B.me.ammo[i]||0)<l.salvo)return false;B.me.ammo[i]-=l.salvo;return true;}
+function spaceAmmo(l){if(l.ammo!=null){if(l.ammo<l.salvo)return false;l.ammo-=l.salvo;return true;}const B=trial.battle;if(!B)return true;const i=B.modIndex.get(l.id);if(i==null)return true;if((B.me.ammo[i]||0)<l.salvo)return false;B.me.ammo[i]-=l.salvo;return true;}
 // The enemy's arrival is shown as a short cut-away: the camera stands off the
 // bow quarter of the arriving formation, so the ships come out of hyperspace
 // toward it one after another, stretched, then snap to their true length.
@@ -5643,7 +5920,7 @@ function bindTrial(){
 }
 function updateAviationUI(){
  if(!ship||fleet.mode!=='design'||!['launch','mod'].includes(st.tab))return;
- const a=aviationNumbers(),summary=$('#aviationSummary');if(summary)summary.innerHTML=aviationCapacityHTML(a);
+ const a=aviationNumbers(),summary=$('#aviationSummary');if(summary)summary.innerHTML=aviationRoomHTML(a);
  const byId=new Map(a.wings.map(w=>[w.id,w]));
  for(const node of document.querySelectorAll('[data-airwing-status]')){const w=byId.get(node.dataset.airwingStatus);if(w)node.innerHTML=aviationWingStatusHTML(w);}
  for(const node of document.querySelectorAll('[data-airwing-title]')){const w=byId.get(node.dataset.airwingTitle);if(w)node.textContent=w.name;}
@@ -6347,7 +6624,16 @@ function sndAt(name, pos, o = {}) {
  const A = snd();if (!A || !pos) return false;const L = sndListener(), d = Math.hypot(pos[0] - L[0], pos[1] - L[1], pos[2] - L[2]), near = o.near || 1500, far = o.far || 40000;
  const g = (A.atten ? A.atten(d, near, far) : Math.max(0, 1 - d / far)) * (o.gain ?? 1);if (g < .02) return false;
  if (/laser|turbolaser|ion|point_defense|missile|torpedo/.test(name)) SND.fire += 1;
- return A.sfx(name, {gain: g, pitch: o.pitch});
+ return A.sfx(name, {gain: g, pitch: o.pitch, fac: o.fac});
+}
+// v22 A flown craft's guns: its type's voice (TIE cannons, droid guns, the Rebels' and Republic's lasers).
+function sndPilotGun() { const k = String(trial.asset?.key || '').replace(/^craft_/, ''), f = R.CRAFT[k] ? null : sndFac(trial.battle?.me || {manual: true, side: 0}); return sndPick(R.CRAFT[k] ? craftFly(k).gun : f === 'empire' ? 'gun_tie' : f === 'cis' ? 'gun_droid' : 'gun_rebel', 'laser_light', 'turbolaser_light'); }
+// v22 The faction whose guns are heard (their batteries sound as the films give them): the fleet battle's side, else
+// the design's own (the examples carry theirs).
+function sndFac(u) {
+ if (!u) return null; if (trial.rts && voy.w) return voy.w.sides[u.side]?.faction || null;
+ const key = u.manual ? trial.asset?.key : u.key, d = key && typeof YardFleetData !== 'undefined' ? YardFleetData.designs?.[key] : null;
+ return d ? d.faction || R.SIDE_OF[d.side] || null : null;
 }
 function sndUI(name, gain = .5) { const A = snd();if (A) A.sfx(name, {gain}); }
 // v20.4 Names the sound module has (newer modules add classes of guns, blasts, engines and passes).
@@ -6366,22 +6652,45 @@ function sndSalvo(s, len) {
  return len > 900 || s.gun > 600 ? sndPick('turbolaser_heavy', 'turbolaser') : len < 250 && s.gun < 30 ? sndPick('turbolaser_light', 'laser_light') : 'turbolaser';
 }
 // Craft passing close by the camera: one pass each (fighters, light or heavy shuttles), a few a second at most.
+// v22 Each in its own voice — the TIE's scream, the X-wing's roar, the Y-wing's rattle, the A-wing's whine, the droids'
+// buzz — and laid on the pass's real geometry: when the craft will come closest, how near and how fast relative to
+// the camera, and which way across, so the Doppler, the loudness and the pan follow it through. Torpedoes and
+// missiles passing close hiss by.
 const SND_PASS = new Map();
+function sndPassName(q) {
+ if (q.kind === 'missile' || q.kind === 'ord') return 'pass_ord';
+ const c = q.craft ? R.CRAFT[q.craft] : null, role = c?.role, heavy = q.craft && /sentinel|barge|c9979|laatc/.test(q.craft);
+ if (role === 'shuttle' || role === 'lander' || role === 'gunship' || role === 'transport') return sndPick(heavy ? 'shuttle_heavy' : 'shuttle_light', 'flyby');
+ return sndPick(q.craft ? craftFly(q.craft).pass || 'flyby_fighter' : 'flyby_fighter', 'flyby_fighter', 'flyby');
+}
 function sndFlyby(list, P) {
- const A = snd(); if (!A || !view || trial.paused) return; const now = performance.now(); if (now - (SND.pass || 0) < 350) return;
- const e = view.eye(), E = [e[0] + P[0], e[1] + P[1], e[2] + P[2]];
- for (const q of list) { if (!q.alive || q.far || q.kind === 'missile') continue; const d = Math.hypot(q.pos[0] - E[0], q.pos[1] - E[1], q.pos[2] - E[2]); if (d > 520) continue;
-  const k = q.id ?? q, last = SND_PASS.get(k) || 0; if (now - last < 6000) continue; SND_PASS.set(k, now); if (SND_PASS.size > 600) SND_PASS.clear();
-  const role = q.craft ? R.CRAFT[q.craft]?.role : null, heavy = q.craft && /sentinel|barge|c9979|laatc/.test(q.craft), name = role === 'shuttle' || role === 'lander' || role === 'gunship' ? sndPick(heavy ? 'shuttle_heavy' : 'shuttle_light', 'flyby') : sndPick('flyby_fighter', 'flyby');
-  const v = view.cam, rx = Math.cos(v.th + Math.PI / 2), rz = Math.sin(v.th + Math.PI / 2), pan = C.clamp(((q.pos[0] - E[0]) * rx + (q.pos[2] - E[2]) * rz) / 300, -1, 1) * .7;
-  A.sfx(name, {gain: C.clamp(1.15 - d / 520, .2, .9), pan}); SND.pass = now; break; }
+ const A = snd(); if (!A || !view || trial.paused) return; const now = performance.now(); if (now - (SND.pass || 0) < 110) return;
+ const e = view.eye(), E = [e[0] + P[0], e[1] + P[1], e[2] + P[2]], cv = trial.V || [0, 0, 0], tg = view.cam.target || [0, 0, 0], fwd = tv.norm(tv.sub(tg, e)), cup = trial.camF ? trialCol(trial.camF, 1) : [0, 1, 0], right = tv.norm(tv.cross(fwd, cup));
+ let best = null, bs = Infinity;
+ const test = (q, L) => { if (!q.alive || q.far || !q.vel) return; const rx = q.pos[0] - E[0], ry = q.pos[1] - E[1], rz = q.pos[2] - E[2]; if (rx * rx + ry * ry + rz * rz > 9e6) return;
+  const vr = [q.vel[0] - cv[0], q.vel[1] - cv[1], q.vel[2] - cv[2]], vv = vr[0] * vr[0] + vr[1] * vr[1] + vr[2] * vr[2]; if (vv < 900) return;
+  const tca = -(rx * vr[0] + ry * vr[1] + rz * vr[2]) / vv; if (tca < .04 || tca > .9) return;
+  const cx = rx + vr[0] * tca, cy = ry + vr[1] * tca, cz = rz + vr[2] * tca, dmin = Math.hypot(cx, cy, cz), Rp = Math.max(110, 22 * L); if (dmin > Rp) return;
+  const k = q.id ?? q; if (now - (SND_PASS.get(k) || 0) < 5000) return; const sc = dmin / Rp + tca; if (sc < bs) { bs = sc; best = {q, k, tca, dmin, v: Math.sqrt(vv), Rp, pan: C.clamp(tv.dot(vr, right) / Math.sqrt(vv), -1, 1)}; } };
+ for (const q of list) if (q.kind !== 'missile') test(q, q.craft ? R.CRAFT[q.craft]?.dims?.[0] || 10 : 10);
+ for (const q of trial.foeMissiles || []) test(q, 4);
+ for (const o of trial.cord || []) if (o.live) test({alive: true, id: o.id || o, pos: o.pos, vel: o.vel, kind: 'ord'}, 4);
+ // v22 a capital ship passing close: its flyover roar (once a pass), on the same geometry
+ const Bt = trial.battle;if (Bt && !Bt.left && now - (SND.cap || 0) > 2500) { let bc = null, bcs = Infinity; for (const u of Bt.b.units || []) { if (u.manual || u.dead || u.absent || u.hidden || (Bt.spectate && u.id === Bt.follow && Bt.followSq == null) || !(u.p.len > 120)) continue; const p = spaceWorld(u), vr = tv.sub(spaceVel(u), cv), rx = p[0] - E[0], ry = p[1] - E[1], rz = p[2] - E[2], vv = tv.dot(vr, vr); if (vv < 400) continue; const tca = -(rx * vr[0] + ry * vr[1] + rz * vr[2]) / vv; if (tca < .2 || tca > 3) continue; const dmin = Math.hypot(rx + vr[0] * tca, ry + vr[1] * tca, rz + vr[2] * tca), Rp = u.p.len * .9 + 250; if (dmin > Rp) continue; if (now - (SND_PASS.get('u' + u.id) || 0) < 20000) continue; const sc = dmin / Rp + tca * .2; if (sc < bcs) { bcs = sc; bc = {u, tca, dmin, v: Math.sqrt(vv), Rp, pan: C.clamp(tv.dot(vr, right) / Math.sqrt(vv), -1, 1)}; } }
+  if (bc && sndHas('pass_capital')) { SND_PASS.set('u' + bc.u.id, now); SND.cap = now; const L = bc.u.p.len; A.sfx('pass_capital', {gain: C.clamp(1.2 - bc.dmin / bc.Rp * .6, .35, 1), tca: bc.tca, dmin: Math.max(bc.dmin, L * .25), v: bc.v, side: bc.pan, span: Math.abs(bc.pan), pitch: C.clamp(Math.pow(1600 / Math.max(150, L), .25), .7, 1.4)}); } }
+ if (!best) return; SND_PASS.set(best.k, now); if (SND_PASS.size > 600) SND_PASS.clear();
+ const name = sndPassName(best.q), shuttle = /^shuttle|^flyby$/.test(name);
+ A.sfx(name, shuttle ? {gain: C.clamp(1.15 - best.dmin / best.Rp, .2, .9), pan: best.pan} : {gain: C.clamp(1.3 - best.dmin / best.Rp * .8, .3, 1), tca: best.tca, dmin: best.dmin, v: best.v, side: best.pan, span: Math.abs(best.pan)}); SND.pass = now;
 }
 // The engines of the piloted (or watched) ship: a steady hum whose loudness and pitch follow the thrust.
 function sndEngine() {
  const A = snd(); if (!A?.loop) return; let want = null;
  if (trial.on && !trial.paused && trial.jump?.phase !== 'tunnel') {
   const B = trial.battle; let len = 0, lvl = 0;
-  if (trial.spectate && B) { const u = B.b.units.find(x => x.id === B.follow); if (u && !u.dead) { len = u.p.len; lvl = C.clamp(C.engineLevel(u), 0, 1); } }
+  // v22 riding with a squadron: its engines from just behind
+  const fq = trial.spectate && B?.followSq != null ? voy.w?.squads.get(B.followSq) : null, en = fq ? craftFly(fq.craft).eng : null;
+  if (fq) { if (en && (A.names?.loops || []).includes(en)) want = {name: en, gain: .34, pitch: 1}; }
+  else if (trial.spectate && B) { const u = B.b.units.find(x => x.id === B.follow); if (u && !u.dead) { len = u.p.len; lvl = C.clamp(C.engineLevel(u), 0, 1); } }
   else if (trial.p && !B?.me?.dead) { len = trial.p.len; lvl = C.clamp(Math.max(trial.thrust || 0, Math.abs(TRIAL_TELEGRAPH[trial.tele]?.[1] || 0) * .8), 0, 1); }
   if (len > 0) { const name = len < 300 ? 'engine_small' : len < 1200 ? 'engine_medium' : 'engine_large'; if ((A.names?.loops || []).includes(name)) want = {name, gain: .18 + .42 * lvl, pitch: .92 + .2 * lvl}; }
  }
@@ -6533,6 +6842,11 @@ function voyStow(sh, d) { return R.shipStow(d.info, sh.air || [], voyCarriedDims
 function voyCarriedSize(sh) { return (sh.carried || []).reduce((n, c) => { const d2 = voyShipDesign(c); return n + (d2 ? C.shipStowSize(voyDims(d2)) : 0); }, 0); }
 function voyCarryRoom(sh, d) { if (!voyHasStow(d)) return Math.max(0, (d.info?.hangarCap || d.info?.slotCap || 0) - R.airTotals(sh.air).size); const st = voyStow({...sh, carried: []}, d);return st.free; }
 // A design's own carried-ship rows (kind 'ship') become its default complement.
+// v21.2 お任せ: what a ship of this class carries in the films and sourcebooks (its design's complement) — the air wing,
+// the small ships aboard and the embarked troops with their vehicles (up to its troop room). A design without a
+// complement of its own fills its hangars with the faction's usual craft.
+function voyAutoGround(d, faction) { return R.canonGround(d.ground, faction, R.troopRoom(d.info, faction)); }
+function voyAutoLoad(d, faction) { return {air: R.defaultAir(d.info, faction, d.air), carried: voyDefaultCarried(d), ground: voyAutoGround(d, faction)}; }
 function voyDefaultCarried(d) { const out = []; for (const r of d.air || []) { if (r.kind !== 'ship') continue; const d2 = voyDesign(r.ref); if (!d2 || !voyCarryFit(d, d2).ok) continue; for (let i = 0; i < Math.min(12, r.count || 0); i++) out.push({src: d2.key, key: d2.key, name: `${voyShort(d2.name)} ${out.length + 1}`}); } return out; }
 async function voyEnsureDesigns(ob) {
  const miss = voyObShips(ob).filter(sh => !voyShipDesign(sh));if (!miss.length) return;
@@ -6568,17 +6882,32 @@ const VOY_RIVAL = {empire: 'rebel', rebel: 'empire', republic: 'cis', cis: 'repu
 // Task groups are added while the allowance (crew and materials) lasts — or, with a
 // target, until the fleet's estimated strength reaches it — three to a combined task
 // group. Super-heavy ships sail only in the decisive allowance, at the head of the first group.
+// Line ships (in the order the task groups take them) and escorts of each faction's fleets as the films, series and
+// sourcebooks show them: the Empire's Star Destroyers with Arquitens cruisers and Gozanti carriers; the Republic's
+// Venators and Acclamators with Arquitens and transports; the Separatists' Providence and Recusant destroyers with
+// Munificent frigates; the Alliance's Mon Calamari cruisers with Nebulon-B escort frigates, CR90 corvettes, Hammerheads
+// and GR-75 transports.
+const VOY_FLEET_DOCTRINE = {
+ empire: {caps: ['imperial', 'imperial', 'onager', 'imperial'], escorts: ['arquitens', 'gozanti', 'arquitens', 'gozanti']},
+ republic: {caps: ['venator', 'venator', 'acclamator', 'venator'], escorts: ['arquitens', 'reptransport', 'arquitens', 'dreadnaught']},
+ cis: {caps: ['providence', 'recusant', 'providence', 'lucrehulk'], escorts: ['munificent', 'munificent', 'recusant', 'munificent']},
+ rebel: {caps: ['mc80home', 'mc75', 'mc80liberty'], escorts: ['nebulonb', 'cr90', 'hammerhead', 'cr90', 'gr75', 'mc30c']}
+};
 function voyAutoOrbat(faction, scale, rand = Math.random, opt = {}) {
  const cap = VOY_SCALES[scale] || VOY_SCALES.standard, pool = voyExampleDesigns(), mine = pool.filter(d => voyServes(d, faction)), use = mine.length ? mine : pool;
  const memo = new Map(), str = d => { if (!memo.has(d.key)) memo.set(d.key, R.unitStrength(C.fleetUnit('x', d.key, d.p, 0))); return memo.get(d.key); };
- const air = d => R.defaultAir(d.info, faction, d.air), people = d => voyShipDemand({key: d.key, air: air(d), ground: []}).people;
+ const load = d => voyAutoLoad(d, faction), people = d => voyShipDemand({key: d.key, ...load(d)}).people;
  const normal = use.filter(d => d.info.len < 5000), best = Math.max(0, ...normal.map(str)), supers = cap.dread ? use.filter(d => d.info.len >= 5000).sort((a, b) => b.info.len - a.info.len) : [];
  // Capital ships whose crew would take more than three tenths of the allowance stay home.
  const caps = normal.filter(d => d.info.capital && people(d) <= cap.people * .3).sort((a, b) => b.info.len - a.info.len);
- const esc0 = normal.filter(d => !d.info.capital).sort((a, b) => b.info.len - a.info.len), escs = esc0.filter(d => str(d) >= best * .01).length ? esc0.filter(d => str(d) >= best * .01) : esc0;
+ const esc0 = normal.filter(d => !d.info.capital).sort((a, b) => b.info.len - a.info.len);let escs = esc0.filter(d => str(d) >= best * .01).length ? esc0.filter(d => str(d) >= best * .01) : esc0;
+ // v21.2 As the faction's fleets were made up on screen and in the sourcebooks (VOY_FLEET_DOCTRINE): its line ships two
+ // to a task group, its escorts and auxiliaries round them; one-off ships (the Malevolence) stay out.
+ { const doc = VOY_FLEET_DOCTRINE[faction], pick = ks => (ks || []).map(k => use.find(d => d.key === k)).filter(Boolean);
+  if (doc) { const c2 = pick(doc.caps).filter(d => d.info.len < 5000 && people(d) <= cap.people * .3), e2 = pick(doc.escorts); if (c2.length) caps.splice(0, caps.length, ...c2); if (e2.length) escs = e2; } }
  const limit = opt.target ? VOY_SHIP_CAP : Math.min(VOY_SHIP_CAP, opt.cap || 72);
  const ships = [], tgs = [], used = new Set(), tot = {people: 0, supply: 0, str: 0};let ci = 0, ei = 0, done = false;
- const take = d => { const sh = {id: '', src: d.key, key: d.key, name: '', air: air(d), ground: []}, x = voyShipDemand(sh);
+ const take = d => { const sh = {id: '', src: d.key, key: d.key, name: '', ...load(d)}, x = voyShipDemand(sh);
   if (ships.length >= limit) return null;
   if (!opt.target && (tot.people + x.people > cap.people || tot.supply + x.supply > cap.supply)) return null;
   sh.name = voyNextName(faction, used, rand);used.add(sh.name);ships.push(sh);tot.people += x.people;tot.supply += x.supply;tot.str += str(d) + R.airTotals(sh.air).fight * 4;return sh; };
@@ -6589,7 +6918,7 @@ function voyAutoOrbat(faction, scale, rand = Math.random, opt = {}) {
   const tg = [];for (const d of plan) { if (opt.target && tot.str >= opt.target) { done = true; break; } const sh = take(d); if (sh) tg.push(sh); }
   if (!tg.length) break;tgs.push(tg);if (opt.target && tot.str >= opt.target) done = true;
  }
- if (!ships.length && use.length) { const d = use.slice().sort((a, b) => people(a) - people(b))[0], sh = {id: '', src: d.key, key: d.key, name: voyNextName(faction, used, rand), air: air(d), ground: []}; ships.push(sh); tgs.push([sh]); }
+ if (!ships.length && use.length) { const d = use.slice().sort((a, b) => people(a) - people(b))[0], sh = {id: '', src: d.key, key: d.key, name: voyNextName(faction, used, rand), ...load(d)}; ships.push(sh); tgs.push([sh]); }
  // A last group of fewer than four ships joins the one before it where there is room.
  if (tgs.length > 1 && tgs[tgs.length - 1].length < TG_MIN) { const last = tgs[tgs.length - 1], prev = tgs[tgs.length - 2]; if (prev.length + last.length <= TG_MAX) prev.push(...tgs.pop()); else while (last.length < TG_MIN && prev.length > TG_MIN) last.unshift(prev.pop()); }
  const ob = {ctgs: [], next: 1};
@@ -6649,10 +6978,17 @@ function voyDesignOptions(faction) {
  return `${groups}${saves ? `<optgroup label="保存した設計">${saves}</optgroup>` : ''}${ship ? `<optgroup label="設計中の艦"><option value="current">${esc(ship.name)}（${fLen(ship.hull.L)}）</option></optgroup>` : ''}`;
 }
 // v22 The battle areas, by region of the galaxy map (the two first ones under their own names).
+// v23 The theatres (戦域) of several systems first, by era, each opening with the two sides that fought there.
 function voyRegionOptions(cur) {
- const by = {};for (const [k, v] of Object.entries(R.REGIONS)) { const g = Galaxy.BY[v.gal || k], reg = g ? g.region : 'core'; (by[reg] || (by[reg] = [])).push([k, v, g]); }
- return Object.keys(Galaxy.REGIONS).filter(r => by[r]).map(r => `<optgroup label="${esc(Galaxy.REGIONS[r].name)}">${by[r].map(([k, v, g]) => `<option value="${k}" ${k === cur ? 'selected' : ''}>${esc(v.name)}${Galaxy.BATTLES[k] ? ' ◆' : ''}${g ? `（${Galaxy.grid(g.at)}）` : ''}</option>`).join('')}</optgroup>`).join('');
+ const by = {};for (const [k, v] of Object.entries(R.REGIONS)) { if (v.theater) continue; const g = Galaxy.BY[v.gal || k], reg = g ? g.region : 'core'; (by[reg] || (by[reg] = [])).push([k, v, g]); }
+ const th = Object.keys(Galaxy.ERAS).reverse().map(e => { const list = Galaxy.THEATERS.filter(t => t.era === e && R.REGIONS[t.key]); return list.length ? `<optgroup label="戦域 · ${esc(Galaxy.ERAS[e].name)}">${list.map(t => `<option value="${t.key}" ${t.key === cur ? 'selected' : ''}>${esc(t.name)}（${esc(R.FACTIONS[t.own].short)}対${esc(R.FACTIONS[t.foe].short)}）</option>`).join('')}</optgroup>` : ''; }).join('');
+ return th + Object.keys(Galaxy.REGIONS).filter(r => by[r]).map(r => `<optgroup label="${esc(Galaxy.REGIONS[r].name)}">${by[r].map(([k, v, g]) => `<option value="${k}" ${k === cur ? 'selected' : ''}>${esc(v.name)}${Galaxy.BATTLES[k] ? ' ◆' : ''}${g ? `（${Galaxy.grid(g.at)}）` : ''}</option>`).join('')}</optgroup>`).join('');
 }
+// The battle fought in the area (a system's of the films and series, or a theatre's campaign), with its era and sides.
+function voyHistHTML(key) { const b = Galaxy.BATTLES[key], t = !b && R.REGIONS[key]?.theater ? R.REGIONS[key] : null, h = b ? {name: b.name, era: b.era, own: b.own, foe: b.foe} : t ? {name: t.battle, era: Galaxy.ERAS[t.era]?.name || '', own: t.own, foe: t.foe} : null;
+ if (!h || !R.FACTIONS[h.own] || !R.FACTIONS[h.foe]) return '';return `<b>${h.name ? `戦史：${esc(h.name)}` : `${esc(h.era)}の戦域`}</b>（${h.name ? `${esc(h.era)}・` : ''}${esc(R.FACTIONS[h.own].name)}と${esc(R.FACTIONS[h.foe].name)}${t ? '。戦域を選ぶとこの陣営になります' : ''}）。`; }
+// Choosing a theatre puts the two sides that fought there on either side (they can be changed after).
+function voyRegionSides(s) { const d = R.REGIONS[s.region], h = d?.theater ? d : null; if (!h || !R.FACTIONS[h.own] || !R.FACTIONS[h.foe]) return; if (s.own !== h.own) { s.own = h.own; s.sel = {}; voyEnsureDesigns(voyOb(s.own)); } s.foe = h.foe; }
 function voyRenderSetup() {
  const s = voy.setup, ob = voyOb(s.own), tab = s.tab === 'sortie' ? 'sortie' : 'orbat', sortie = voySortieShips(s), cap = VOY_SCALES[s.scale], t = voyShipsTotals(sortie);
  // Ships whose design cannot be prepared (a saved design since deleted, say) stay behind.
@@ -6664,7 +7000,7 @@ function voyRenderSetup() {
 }
 function voyOrbatHTML(s, ob) {
  const all = voyObShips(ob), t = voyShipsTotals(all);
- return `<section class="voy-card voy-wide"><div class="voy-card-head"><h3>${esc(R.FACTIONS[s.own].name)}の艦隊</h3><div class="voy-row"><label>陣営<select data-voyset="own">${voyFactionOptions(s.own)}</select></label><button type="button" class="btn sm ghost" data-voy="auto">標準編成で作り直す</button><button type="button" class="btn sm" data-voy="ctgadd">合同任務群を追加</button></div></div>
+ return `<section class="voy-card voy-wide"><div class="voy-card-head"><h3>${esc(R.FACTIONS[s.own].name)}の艦隊</h3><div class="voy-row"><label>陣営<select data-voyset="own">${voyFactionOptions(s.own)}</select></label><button type="button" class="btn sm ghost" data-voy="auto">お任せ編成で作り直す</button><button type="button" class="btn sm" data-voy="ctgadd">合同任務群を追加</button></div></div>
   <p class="note">合同任務群は任務群の集まり、任務群は${TG_MIN}〜${TG_MAX}隻（最大${TG_MAX}隻）。作戦図では任務群か合同任務群ごとにジャンプし、戦術図では任務群ごとに陣形と目標を指示します。艦名は自由に変えられます。編成はこの端末に陣営ごとに保存されます。</p>
   <p class="vs-sub">${all.length} 隻 · 乗員 ${num(t.people)} 名 · 資材 ${num(Math.round(t.supply))} t</p></section>
   ${ob.ctgs.map(c => voyCtgHTML(s, ob, c)).join('') || '<p class="muted">合同任務群がありません。</p>'}`;
@@ -6689,7 +7025,7 @@ function voySortieHTML(s, ob) {
  const word = !a ? '' : r > 1.4 ? '敵が優勢' : r > 1.15 ? '敵がやや優勢' : r < .7 ? '自軍が優勢' : r < .87 ? '自軍がやや優勢' : 'ほぼ互角', reg = R.REGIONS[s.region] || R.REGIONS.kuat;
  return `<section class="voy-card"><h3>陣営と戦域</h3>
    <div class="voy-row"><label>自軍<select data-voyset="own">${voyFactionOptions(s.own)}</select></label><label>敵軍<select data-voyset="foe">${voyFactionOptions(s.foe)}</select></label><label>戦域<select data-voyset="region">${voyRegionOptions(s.region)}</select></label><button type="button" class="btn sm ghost voy-mapbtn" data-voy="map">任務マップで選ぶ</button><label>編成枠<select data-voyset="scale">${Object.entries(VOY_SCALES).map(([k, v]) => `<option value="${k}" ${k === s.scale ? 'selected' : ''}>${v.name}</option>`).join('')}</select></label><label>敵の戦力<select data-voyset="foeMode"><option value="match" ${s.foeMode !== 'same' ? 'selected' : ''}>自軍と同等</option><option value="same" ${s.foeMode === 'same' ? 'selected' : ''}>同じ編成枠</option></select></label></div>
-   <p class="note">${esc(reg.note)}（${esc(reg.routes.map(x => x.name).join('／'))}）。${Galaxy.BATTLES[s.region] ? `<b>戦史：${esc(Galaxy.BATTLES[s.region].name)}</b>（${esc(Galaxy.BATTLES[s.region].era)}・${esc(R.FACTIONS[Galaxy.BATTLES[s.region].own].name)}と${esc(R.FACTIONS[Galaxy.BATTLES[s.region].foe].name)}）。` : ''}航路は主要幹線と、そこから分かれる支線だけ。艦隊は航路に沿ってジャンプし、幹線は速く、支線は遅く進みます。敵（AI）は${s.foeMode === 'same' ? '同じ編成枠（乗員数・資材）で' : '自軍とほぼ同じ推定戦力になるよう'}編成されます。</p>${[...new Set([s.own, s.foe])].map(f => R.DOCTRINE[f] ? `<p class="note"><b>${esc(R.FACTIONS[f].name)}のドクトリン：${esc(R.DOCTRINE[f].name)}</b>。自動交戦の艦はシールドの残る敵にイオン砲を集中し、爆撃機の飛行隊はシールドが落ちた艦だけを攻撃します。</p>` : '').join('')}</section>
+   <p class="note">${esc(reg.note)}（${esc(reg.routes.map(x => x.name).join('／'))}）。${voyHistHTML(s.region)}航路は主要幹線と、そこから分かれる支線だけ。艦隊は航路に沿ってジャンプし、幹線は速く、支線は遅く進みます。敵（AI）は${s.foeMode === 'same' ? '同じ編成枠（乗員数・資材）で' : '自軍とほぼ同じ推定戦力になるよう'}編成されます。</p>${[...new Set([s.own, s.foe])].map(f => R.DOCTRINE[f] ? `<p class="note"><b>${esc(R.FACTIONS[f].name)}のドクトリン：${esc(R.DOCTRINE[f].name)}</b>。自動交戦の艦はシールドの残る敵にイオン砲を集中し、爆撃機の飛行隊はシールドが落ちた艦だけを攻撃します。</p>` : '').join('')}</section>
   <section class="voy-card"><h3>編成枠</h3>
    <div class="vbal"><span>推定戦力比</span><b>自軍 1 : 敵 ${a ? (r > 0 && r < .01 ? '0.01未満' : r.toFixed(2)) : '—'}</b><small>${esc(word)}（敵は${esc(R.FACTIONS[s.foe].name)}の艦 ${foe.length} 隻）${s.foeMode !== 'same' && a && r < .85 ? `。${esc(R.FACTIONS[s.foe].name)}は出せる限りの艦（片軍 ${VOY_SHIP_CAP} 隻まで）でも自軍に届きません` : ''}</small></div>
    ${voyBar('総乗員数（乗組員・操縦士・陸戦隊）', t.people, cap.people)}${voyBar('資材（補給品・予備品）', t.supply, cap.supply, x => num(Math.round(x)) + ' t')}
@@ -6708,9 +7044,9 @@ function voyOrbatSheet() {
   const air = R.airTotals(e.air), cap = d.info.slotCap || 0, wings = [...new Set(e.air.map(q => q.wingNo || 1))].sort((a, b) => a - b);
   const sqStatus = i => { const r = stow?.wings[i];if (!r) return '';const c = R.CRAFT[e.air[i].craft];return `<small class="vo-fit${r.unembarked || r.undeployable ? ' bad' : ''}">${r.tooLarge ? '入る格納区画なし' : r.unembarked ? `${num(r.embarked)} 機だけ搭載（${num(r.unembarked)} 機入らず）` : r.undeployable ? `${num(r.undeployable)} 機はハッチを通れず発艦不可` : c?.stay ? '輸送機（艦隊戦では艦内に待機）' : '搭載・発艦可'}</small>`; };
   body = `${stow ? voyBar('格納庫（機体・搭載艦・車両で共用）', stow.used, stow.capacity, x => num(x, 1)) : voyBar('格納庫（機体の大きさの合計）', air.size, Math.max(0, (d.info.hangarCap || cap) - voyCarriedSize(e)), x => num(x, 1))}
-  ${wings.map(wn => `<div class="vo-wing"><h4>第${wn}飛行隊</h4>${e.air.map((q, i) => (q.wingNo || 1) !== wn ? '' : `<div class="vo-sq"><select data-sq="${i}" data-sqk="craft">${Object.entries(R.CRAFT).map(([k, c]) => `<option value="${k}" ${k === q.craft ? 'selected' : ''}>${esc(c.name)}（${R.ROLE_NAME[c.role]}）</option>`).join('')}</select><label>機数<input type="number" data-sq="${i}" data-sqk="n" value="${q.n}" min="1" max="${R.RULES.maxSquadSize}"></label><label>飛行隊<input type="number" data-sq="${i}" data-sqk="wingNo" value="${q.wingNo || 1}" min="1" max="99"></label><button type="button" class="btn sm ghost" data-sqdel="${i}" aria-label="中隊を外す">×</button>${sqStatus(i)}</div>`).join('')}</div>`).join('') || '<p class="muted">中隊がありません。</p>'}
+  ${wings.map(wn => `<div class="vo-wing"><h4>第${wn}飛行隊</h4>${e.air.map((q, i) => (q.wingNo || 1) !== wn ? '' : `<div class="vo-sq"><select data-sq="${i}" data-sqk="craft">${Object.entries(R.CRAFT).map(([k, c]) => `<option value="${k}" ${k === q.craft ? 'selected' : ''}>${esc(c.name)}（${R.ROLE_NAME[c.role]}）</option>`).join('')}</select><label>機数<input type="number" data-sq="${i}" data-sqk="n" value="${q.n}" min="1" max="${R.RULES.maxSquadSize}"></label><label>飛行隊<input type="number" data-sq="${i}" data-sqk="wingNo" value="${q.wingNo || 1}" min="1" max="99"></label><button type="button" class="btn sm ghost" data-sqdel="${i}" aria-label="中隊を外す">×</button>${sqStatus(i)}${voySqLoadHTML(q, i)}</div>`).join('')}</div>`).join('') || '<p class="muted">中隊がありません。</p>'}
   ${voyCarriedRowsHTML(e, d)}
-  <div class="voy-row">${voyEmbarkAddHTML(e, d)}<button type="button" class="btn sm ghost" data-vo="airdefault">標準の搭載に戻す</button><button type="button" class="btn sm ghost" data-vo="airclear">すべて降ろす</button></div>
+  <div class="voy-row">${voyEmbarkAddHTML(e, d)}<button type="button" class="btn sm ghost" data-vo="airdefault">お任せ（史実の搭載）</button><button type="button" class="btn sm ghost" data-vo="airclear">すべて降ろす</button></div>
   <p class="note">中隊は同じ機種12機が基本（大型キャリアは最大${R.RULES.maxSquadSize}機）。飛行隊の番号で中隊をまとめ、戦闘では飛行隊ごとに発艦・移動・攻撃・帰還します。機体は公式の寸法で、格納区画の内寸に入るか、ハッチを通れるかで搭載・発艦が決まります（設計画面と同じ判定）。シャトル・揚陸艇は地上部隊を降ろす輸送機で、艦隊戦では艦内に待機します。小型の艦も同じ一覧で積めます：格納区画に全長・全幅・全高とも ${C.SHIP_STOW_CLEAR} m の余裕をもって入る艦を、艦載機と同じ「サイズ」で積みます（艦の外形の容積 × ${C.SHIP_STOW_FACTOR} ÷ 艦載機1機分の格納容積）。戦闘が始まると発進して任務群に加わり、ジャンプの前に近くにいれば収容されます。</p>`;
  } else {
   const gs = (e.ground || []).map(r => R.regimentTotals(r)), troops = gs.reduce((n, x) => n + x.troops, 0), veh = gs.reduce((n, x) => n + x.size, 0), L = stow?.lift;
@@ -6718,10 +7054,31 @@ function voyOrbatSheet() {
   body = `${voy.setup.own === 'cis' ? voyBar('ドロイド格納（空き容積）', troops, R.troopRoom(d.info, 'cis'), x => num(Math.round(x)) + ' 体') : voyBar('兵員枠（空き容積から定員を除く）', troops, R.troopRoom(d.info, voy.setup.own), x => num(Math.round(x)) + ' 名')}${stow ? `<div class="vo-wing"><h4>車両と降下</h4>${vehRows ? `<ul class="vo-veh-fit">${vehRows}</ul>` : '<p class="muted">車両はありません。</p>'}<p class="note">${L && L.transports.length ? `1回の降下：兵員 ${num(L.troops)} 名${L.vehicleSize > 0 ? `・車両 ${num(L.vehicleSize, 1)} サイズ` : ''}（${Object.entries(L.transports.reduce((m, x) => { const k = R.CRAFT[x.type]?.name || x.name || x.type; m[k] = (m[k] || 0) + x.n; return m; }, {})).map(([k, n]) => `${esc(k)} ${num(n)} 機`).join('・')}）` : '輸送機（シャトル・揚陸艇）が搭載されていません。地上部隊は輸送機で降ろします（「航空隊」で輸送機の中隊を加えてください）。'}</p></div>` : voyBar('車両（車両区画・貨物区画）', veh, d.info.vehicleCap || 0, x => num(x, 1))}
   ${(e.ground || []).map((r, ri) => { const t = R.regimentTotals(r); return `<details class="vo-reg"><summary><b>${esc(r.name)}</b><span>${num(t.troops)} 名${Object.keys(t.vehicles).length ? ' · ' + Object.entries(t.vehicles).map(([k, n]) => `${R.VEHICLES[k]?.name || k} ${n}`).join('・') : ''}</span><button type="button" class="btn sm ghost" data-regdel="${ri}" aria-label="連隊を外す">×</button></summary>
    ${r.battalions.map((b, bi) => `<div class="vo-bat"><h5>${esc(b.name)}</h5>${b.companies.map((c, ci) => `<div class="vo-co"><span>${esc(c.name)}</span><label>兵員<input type="number" data-co="${ri}.${bi}.${ci}" data-cok="troops" value="${c.troops}" min="0" max="600"></label>${voyVehicleSelect(ri, bi, ci, c, voy.setup.own)}</div>`).join('')}</div>`).join('')}</details>`; }).join('') || '<p class="muted">連隊がありません。</p>'}
-  <div class="voy-row"><button type="button" class="btn sm" data-vo="regadd">連隊を追加（${esc(R.REGIMENT_TEMPLATES[voy.setup.own]?.name || '連隊')}）</button><button type="button" class="btn sm ghost" data-vo="grclear">すべて降ろす</button></div>
+  <div class="voy-row"><button type="button" class="btn sm" data-vo="regadd">連隊を追加（${esc(R.REGIMENT_TEMPLATES[voy.setup.own]?.name || '連隊')}）</button><button type="button" class="btn sm ghost" data-vo="grdefault">お任せ（史実の陸戦隊）</button><button type="button" class="btn sm ghost" data-vo="grclear">すべて降ろす</button></div>
   <p class="note">連隊は4個大隊、大隊は4個中隊（144名）。乗艦した陸戦隊は拿捕のときに移乗攻撃の兵力になります。車両は輸送機の積載区画か格納庫（航空機と共用）に寸法で入ります。</p>`;
  }
  el.innerHTML = `<div class="voy-sheet-card" role="dialog" aria-label="編成の詳細"><div class="voy-sheet-head"><div><span class="eyebrow">${esc(e.name)} · ${esc(voyShort(d.name))}</span><h3>${tab === 'air' ? '航空隊・搭載艦' : '陸戦隊'}の編成</h3></div><div class="seg" role="group"><button type="button" data-vo="tab:air" aria-pressed="${tab === 'air'}">航空隊</button><button type="button" data-vo="tab:ground" aria-pressed="${tab === 'ground'}">陸戦隊</button></div><button type="button" class="btn sm" data-vo="close">閉じる</button></div><div class="voy-sheet-body">${body}</div></div>`;
+}
+// v22 A squadron's stores (搭載): お任せ is the craft's canon loadout (R.CRAFT[k].load, C.CRAFT_LOADOUT); the presets fill
+// every station that takes one kind, or carry another canon load (a Y-wing's ion torpedoes at Scarif); each station's
+// kind and count can be set by hand (held to what the station takes). Saved on the row as q.load ([{k, n}] per
+// station group); no q.load means お任せ.
+function voyLoadPresets(c) {
+ const st = c.stations || [], base = c.load || [], out = [];
+ (c.alt || []).forEach((a, j) => out.push({id: 'alt:' + j, name: a.name, load: C.normalizeLoad(st, a.load, base)}));
+ const own = new Set([...base.map(q => q.k), ...(c.alt || []).flatMap(a => a.load.map(q => q.k))]);
+ for (const k of Object.keys(C.ORDNANCE)) { if (!st.some(x => C.storeCapacity(C.FITS[x.fit].store, k) > 0) || (k === 'etorp' && !own.has(k))) continue; out.push({id: 'full:' + k, name: `${C.ORDNANCE[k].name}を満載`, load: st.map((x, i) => { const cap = C.storeCapacity(C.FITS[x.fit].store, k); return cap > 0 ? {k, n: cap} : {...C.normalizeLoad(st, base, base)[i]}; })}); }
+ out.push({id: 'none', name: '搭載なし', load: st.map((x, i) => ({k: C.normalizeLoad(st, base, base)[i]?.k, n: 0}))});
+ return out;
+}
+function voySqLoadHTML(q, i) {
+ const c = R.CRAFT[q.craft];if (!c?.stations?.length) return '';
+ const sum = L => C.ordnanceSummary(C.craftOrdnance(c, L)), cur = Array.isArray(q.load) ? C.normalizeLoad(c.stations, q.load, c.load) : null, pre = voyLoadPresets(c), same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+ const sel = !cur ? 'auto' : pre.find(p => same(p.load, cur))?.id || 'custom', L = cur || C.normalizeLoad(c.stations, c.load, c.load);
+ const opts = [['auto', `お任せ（${sum(undefined)}）`], ...pre.map(p => [p.id, `${p.name}（${sum(p.load)}）`]), ...(sel === 'custom' ? [['custom', `指定（${sum(cur)}）`]] : [])];
+ const rows = c.stations.map((st, j) => { const sd = C.FITS[st.fit].store, ks = Object.keys(C.ORDNANCE).filter(k => C.storeCapacity(sd, k) > 0), cap = C.storeCapacity(sd, L[j].k);
+  return `<div class="vo-sq-st"><span>${esc(C.FITS[st.fit].short)} ×${st.count}</span><select data-sql="${i}.${j}" data-sqlk="k" aria-label="${esc(C.FITS[st.fit].short)}に積む弾">${ks.map(k => `<option value="${k}" ${k === L[j].k ? 'selected' : ''}>${esc(C.ORDNANCE[k].name)}（${C.storeCapacity(sd, k)} 発まで）</option>`).join('')}</select><label>1基に<input type="number" data-sql="${i}.${j}" data-sqlk="n" value="${L[j].n}" min="0" max="${cap}">発</label></div>`; }).join('');
+ return `<div class="vo-sq-load"><label>搭載<select data-sqload="${i}" aria-label="中隊の搭載">${opts.map(([v, t]) => `<option value="${v}" ${v === sel ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select></label><details><summary>発射管・爆弾倉・パイロンごとに指定</summary>${rows}<p class="note">1機あたりの数です。入る数は機体の設計で決まり、積んだ弾の質量だけ重くなります。撃つと減り、母艦で再装填します。</p></details></div>`;
 }
 // v21.2 Ships and aircraft are embarked in one list: the carried ships after the squadrons, and one add control
 // offering the craft (a new squadron) and the ships that fit a bay (greyed when there is no room left).
@@ -6751,19 +7108,21 @@ function voyObChanged(render = true) { voyOrbatSave(); if (render) voyRenderSetu
 async function voyObAddShip(t, src) {
  const s = voy.setup, ob = voyOb(s.own);if (t.ships.length >= TG_MAX) { toast(`任務群は${TG_MAX}隻までです`); return; }
  const d = await voyPrepare(src), used = new Set(voyObShips(ob).map(x => x.name));
- t.ships.push({id: voyUid(ob), src, key: d.key, name: voyNextName(s.own, used), air: R.defaultAir(d.info, s.own, d.air), ground: [], carried: voyDefaultCarried(d)});voyObChanged();
+ t.ships.push({id: voyUid(ob), src, key: d.key, name: voyNextName(s.own, used), ...voyAutoLoad(d, s.own)});voyObChanged();
 }
 function voyBindSetup() {
  const root = $('#voyage');
  root.addEventListener('change', e => {
   const t = e.target, s = voy.setup;if (!s || voy.screen !== 'setup' && !t.closest('#voySheet')) return;const ob = voyOb(s.own);
-  if (t.dataset.voyset) { const k = t.dataset.voyset; s[k] = t.value; if (k === 'own') { s.sel = {}; voyEnsureDesigns(voyOb(s.own)); s.foe = voyDefaultFoe(s); } voyRenderSetup(); return; }
+  if (t.dataset.voyset) { const k = t.dataset.voyset; s[k] = t.value; if (k === 'own') { s.sel = {}; voyEnsureDesigns(voyOb(s.own)); s.foe = voyDefaultFoe(s); } if (k === 'region') voyRegionSides(s); voyRenderSetup(); return; }
   if (t.dataset.obname != null) { const v = t.value.trim().slice(0, 28); if (!v) { voyRenderSetup(); return; } const kind = t.dataset.obname, el = t.closest(kind === 'ctg' ? '[data-ctg]' : kind === 'tg' ? '[data-tg]' : '[data-ship]'); if (kind === 'ctg') { const c = ob.ctgs.find(x => x.id === el.dataset.ctg); if (c) c.name = v; } else if (kind === 'tg') { const x = voyObTgs(ob).find(q => q.id === el.dataset.tg); if (x) x.name = v; } else { const f = voyFindShip(el.dataset.ship); if (f) f.sh.name = v; } voyObChanged(false); return; }
   if ('obform' in t.dataset) { const x = voyObTgs(ob).find(q => q.id === t.closest('[data-tg]').dataset.tg); if (x && R.FORMATIONS[t.value]) x.formation = t.value; voyObChanged(false); return; }
   if ('obmove' in t.dataset) { const f = voyFindShip(t.closest('[data-ship]').dataset.ship), to = voyObTgs(ob).find(q => q.id === t.value); if (f && to && to !== f.t && to.ships.length < TG_MAX) { f.t.ships.splice(f.t.ships.indexOf(f.sh), 1); to.ships.push(f.sh); } voyObChanged(); return; }
   if (t.dataset.pickctg) { const c = ob.ctgs.find(x => x.id === t.dataset.pickctg); if (c) for (const x of c.tgs) s.sel[x.id] = t.checked; voyRenderSetup(); return; }
   if (t.dataset.picktg) { s.sel[t.dataset.picktg] = t.checked; voyRenderSetup(); return; }
-  if (t.dataset.sq != null) { const f = voyFindShip(s.editing), q = f?.sh.air[+t.dataset.sq]; if (!q) return; const k = t.dataset.sqk; if (k === 'craft') q.craft = t.value; else q[k] = C.clamp(Math.round(+t.value || 1), 1, k === 'n' ? R.RULES.maxSquadSize : 99); if (k === 'craft') { const c = R.CRAFT[q.craft]; q.name = `${R.ROLE_NAME[c.role]}中隊`; } voyOrbatSheet(); voyObChanged(); return; }
+  if (t.dataset.sqload != null) { const f = voyFindShip(s.editing), q = f?.sh.air[+t.dataset.sqload], c = q && R.CRAFT[q.craft]; if (!c) return; const v = t.value; if (v === 'auto') delete q.load; else { const p = voyLoadPresets(c).find(x => x.id === v); if (p) q.load = p.load; } voyOrbatSheet(); voyObChanged(); return; }
+  if (t.dataset.sql != null) { const f = voyFindShip(s.editing), [i, j] = t.dataset.sql.split('.').map(Number), q = f?.sh.air[i], c = q && R.CRAFT[q.craft]; if (!c?.stations?.[j]) return; const L = C.normalizeLoad(c.stations, Array.isArray(q.load) ? q.load : c.load, c.load); if (t.dataset.sqlk === 'k' && C.ORDNANCE[t.value]) { L[j] = {k: t.value, n: C.storeCapacity(C.FITS[c.stations[j].fit].store, t.value)}; } else L[j] = {...L[j], n: +t.value || 0}; q.load = C.normalizeLoad(c.stations, L, c.load); voyOrbatSheet(); voyObChanged(); return; }
+  if (t.dataset.sq != null) { const f = voyFindShip(s.editing), q = f?.sh.air[+t.dataset.sq]; if (!q) return; const k = t.dataset.sqk; if (k === 'craft') { q.craft = t.value; delete q.load; } else q[k] = C.clamp(Math.round(+t.value || 1), 1, k === 'n' ? R.RULES.maxSquadSize : 99); if (k === 'craft') { const c = R.CRAFT[q.craft]; q.name = `${R.ROLE_NAME[c.role]}中隊`; } voyOrbatSheet(); voyObChanged(); return; }
   if (t.dataset.co) { const f = voyFindShip(s.editing), [ri, bi, ci] = t.dataset.co.split('.').map(Number), c = f?.sh.ground?.[ri]?.battalions?.[bi]?.companies?.[ci]; if (!c) return; if (t.dataset.cok) c.troops = C.clamp(Math.round(+t.value || 0), 0, 600); else { c.vehicles = c.vehicles || {}; c.vehicles[t.dataset.cov] = C.clamp(Math.round(+t.value || 0), 0, 40); } voyOrbatSheet(); voyObChanged(); return; }
  });
  root.addEventListener('click', async e => {
@@ -6791,7 +7150,8 @@ function voyBindSetup() {
    if (d.vo.startsWith('tab:')) { s.sheetTab = d.vo.slice(4); voyOrbatSheet(); return; }
    if (!x || !des) return;
    if (d.vo === 'sqadd') { const mix = R.CRAFT_MIX[s.own] || R.CRAFT_MIX.empire, last = x.air[x.air.length - 1], wn = last ? (x.air.filter(q => (q.wingNo || 1) === (last.wingNo || 1)).length >= 6 ? (last.wingNo || 1) + 1 : last.wingNo || 1) : 1, craft = mix[x.air.length % mix.length]; x.air.push({craft, n: 12, name: `${R.ROLE_NAME[R.CRAFT[craft].role]}中隊`, wingNo: wn}); }
-   if (d.vo === 'airdefault') x.air = R.defaultAir(des.info, s.own, des.air);
+   if (d.vo === 'airdefault') { x.air = R.defaultAir(des.info, s.own, des.air); x.carried = voyDefaultCarried(des); }
+   if (d.vo === 'grdefault') x.ground = voyAutoGround(des, s.own);
    if (d.vo === 'airclear') x.air = [];
    if (d.vo === 'regadd') { const tpl = R.REGIMENT_TEMPLATES[s.own] || R.REGIMENT_TEMPLATES.empire; x.ground = x.ground || []; x.ground.push(R.makeRegiment(s.own, `第${x.ground.length + 1}${tpl.name}`)); }
    if (d.vo === 'grclear') x.ground = [];
@@ -6922,9 +7282,9 @@ function voyDrawOps(ctx, W, H) {
  // Grid: the square of the galaxy map (500 light years a side) with 50-ly lines.
  const a = P([0, 0]), b = P([S.size, S.size]);ctx.lineWidth = 1;
  for (let i = 0; i <= 10; i++) { const x = a[0] + (b[0] - a[0]) * i / 10, y = a[1] + (b[1] - a[1]) * i / 10; ctx.strokeStyle = i % 10 ? VC.grid : VC.grid2; ctx.beginPath(); ctx.moveTo(x, a[1]); ctx.lineTo(x, b[1]); ctx.moveTo(a[0], y); ctx.lineTo(b[0], y); ctx.stroke(); }
- ctx.fillStyle = 'rgba(160,200,220,.45)';ctx.font = `600 ${(11 * fz).toFixed(1)}px ${font}`;if (a[1] - 6 > fr.y0 + 10) ctx.fillText(`グリッド ${S.grid} · ${S.name}　一辺 ${S.size} 光年 · 1目盛 ${S.size / 10} 光年`, a[0] + 6, a[1] - 6);
+ ctx.fillStyle = 'rgba(160,200,220,.45)';ctx.font = `600 ${(11 * fz).toFixed(1)}px ${font}`;if (a[1] - 6 > fr.y0 + 10) ctx.fillText(`グリッド ${S.gridSpan || S.grid} · ${S.name}　一辺 ${S.size} 光年 · 1目盛 ${S.size / 10} 光年${S.theater ? '（星系の位置関係は銀河図を縮めたもの）' : ''}`, a[0] + 6, a[1] - 6);
  // Neighbouring squares, named as on the galaxy map.
- ctx.fillStyle = 'rgba(160,200,220,.22)';for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) { const col = R.GRID_COLS[S.col + dx], row = S.row + dy; if (!col || row < 1) continue; const q = P([S.size * (.5 + dx * .62), S.size * (.5 + dy * .62)]); ctx.fillText(`${col}-${row}`, C.clamp(q[0] - 14, 4, W - 40), C.clamp(q[1], 14, H - 4)); }
+ ctx.fillStyle = 'rgba(160,200,220,.22)';if (!S.theater) for (const [dx, dy] of [[-1, 0], [1, 0], [0, -1], [0, 1]]) { const col = R.GRID_COLS[S.col + dx], row = S.row + dy; if (!col || row < 1) continue; const q = P([S.size * (.5 + dx * .62), S.size * (.5 + dy * .62)]); ctx.fillText(`${col}-${row}`, C.clamp(q[0] - 14, 4, W - 40), C.clamp(q[1], 14, H - 4)); }
  // Lanes: the branch lines, then the main trunk (the white line of the galaxy map), which runs
  // on past the square toward the regions it leads to.
  ctx.lineCap = 'round';ctx.lineJoin = 'round';ctx.strokeStyle = 'rgba(140,175,195,.34)';ctx.lineWidth = 1.2;ctx.beginPath();
@@ -7062,7 +7422,7 @@ function voyTacSwArcs(ctx, P, us, sel, shipSel, label, font) {
   u.p.sw.forEach(w => {
    const key = w.k + w.aim;if (seen.has(key)) return;seen.add(key);
    const K = C.SW_COMBAT[w.k], xs = u.p.sw.map((v, j) => v.k + v.aim === key ? u.sw[j] : null).filter(Boolean), hot = xs.some(x => x.st === 'ready' || x.st === 'beam'), cold = xs.every(x => x.st === 'cool' || x.st === 'down');
-   const mz = w.mz || [0, 0, 0], a = P([u.pos[0] + c * mz[0] - s * mz[2], 0, u.pos[2] + s * mz[0] + c * mz[2]]), ang = u.yaw + (w.aim === 'bow' ? 0 : w.aim === 'port' ? -Math.PI / 2 : Math.PI / 2), r = K.range / t.mpp;
+   const mz = w.mz || [0, 0, 0], a = P([u.pos[0] + c * mz[0] - s * mz[2], 0, u.pos[2] + s * mz[0] + c * mz[2]]), ang = u.yaw + (w.aim === 'bow' ? 0 : w.aim === 'port' ? -Math.PI / 2 : Math.PI / 2), r = C.swRange(u, w) / t.mpp;
    const rgb = u.side !== 0 ? '255,92,80' : w.k === 'hion' ? '175,150,255' : '255,184,84', al = (hot ? .85 : cold ? .35 : .55) * (on ? 1 : u.side === 0 ? .75 : .55);
    ctx.beginPath();ctx.moveTo(a[0], a[1]);ctx.arc(a[0], a[1], r, ang - K.cone, ang + K.cone);ctx.closePath();
    ctx.fillStyle = `rgba(${rgb},${((hot ? .1 : .05) * (on ? 1.6 : 1)).toFixed(3)})`;ctx.fill();
@@ -7097,7 +7457,7 @@ function voyDrawTac(ctx, W, H) {
  // v21 Superweapon shots: the composite beam (held, or one pulse) as a broad line to its target, the
  // hyper-ion wave as a ring spreading from the ship's side.
  // v21.2 Hyper-ion bolts in flight: the disc seen edge-on (its width to scale) with its path behind it.
- for (const b of w.ionBolts || []) { if (b.sys !== sys) continue; const c = [b.o[0] + b.dir[0] * b.x, b.o[1] + b.dir[1] * b.x, b.o[2] + b.dir[2] * b.x], pc = P(c), po = P(b.o), D = C.ionDiam(b.d, b.x) / t.mpp, h = Math.hypot(b.dir[0], b.dir[2]) || 1, nx = -b.dir[2] / h, nz = b.dir[0] / h, k = Math.max(.25, b.E / b.E0);
+ for (const b of w.ionBolts || []) { if (b.sys !== sys) continue; const c = [b.o[0] + b.dir[0] * b.x, b.o[1] + b.dir[1] * b.x, b.o[2] + b.dir[2] * b.x], pc = P(c), po = P(b.o), D = C.ionDiam(b.d, b.x) / t.mpp, h = Math.hypot(b.dir[0], b.dir[2]) || 1, nx = -b.dir[2] / h, nz = b.dir[0] / h, k = Math.max(.08, Math.sqrt(C.ionGlow(b)));
   ctx.strokeStyle = `rgba(170,150,255,${(.25 * k).toFixed(2)})`; ctx.lineWidth = Math.max(1, D * .3); ctx.beginPath(); ctx.moveTo(po[0], po[1]); ctx.lineTo(pc[0], pc[1]); ctx.stroke();
   ctx.strokeStyle = `rgba(205,185,255,${(.95 * k).toFixed(2)})`; ctx.lineWidth = 3.5; ctx.beginPath(); ctx.moveTo(pc[0] - nx * D / 2, pc[1] - nz * D / 2); ctx.lineTo(pc[0] + nx * D / 2, pc[1] + nz * D / 2); ctx.stroke(); ctx.lineWidth = 1;
   ctx.fillStyle = `rgba(235,225,255,${(.9 * k).toFixed(2)})`; ctx.beginPath(); ctx.arc(pc[0], pc[1], Math.max(3, Math.min(10, D * .06)), 0, Math.PI * 2); ctx.fill(); }
@@ -7108,7 +7468,7 @@ function voyDrawTac(ctx, W, H) {
   for (const id of x.to || []) { const b = byId.get(id); if (!b) continue; const pb = P(b.pos); ctx.strokeStyle = ion ? `rgba(170,150,255,${al.toFixed(2)})` : `rgba(255,${x.mode === 'pulse' ? 230 : 120},90,${al.toFixed(2)})`; ctx.lineWidth = x.mode === 'pulse' ? 6 : 4; ctx.beginPath(); ctx.moveTo(pa[0], pa[1]); ctx.lineTo(pb[0], pb[1]); ctx.stroke(); ctx.lineWidth = 1; }
  }
  // Missiles.
- for (const m of w.missiles) { if (m.sys !== sys || m.n <= 0) continue; const p = P(m.pos); ctx.fillStyle = m.side === 0 ? '#bdf3ff' : '#ffd2a8'; ctx.beginPath(); ctx.arc(p[0], p[1], 1.6 + Math.min(2, m.n / 6), 0, Math.PI * 2); ctx.fill(); }
+ for (const m of w.missiles) { if (m.sys !== sys || m.n <= 0) continue; const p = P(m.pos); ctx.fillStyle = m.ion ? '#d8ecff' : m.side === 0 ? '#bdf3ff' : '#ffd2a8'; ctx.beginPath(); ctx.arc(p[0], p[1], 1.6 + Math.min(2, m.n / 6), 0, Math.PI * 2); ctx.fill(); }
  // Ships: a wedge along the heading, sized by length (never smaller than a mark).
  for (const u of us) {
   const [x, y] = P(u.pos), L = Math.max(9, u.p.len / t.mpp), Wd = Math.max(5, (u.p.width || u.p.len * .5) / t.mpp * .9), c = Math.cos(u.yaw), s = Math.sin(u.yaw), own = u.side === 0, col = u.out ? '#8d969c' : own ? VC.own : VC.foe;
@@ -7674,11 +8034,18 @@ function voyPilotInit() {
  trial.lookAt = near;
 }
 // Craft and missiles in 3D. v21.2 Near the camera each squadron flies in its formation (R.craftFormation, along
-// its heading), one point per craft still flying — the nearest drawn with their 3D models — and fights as the
-// battle says: its guns fire at the squadron it is dogfighting, it strafes or bombs the ship of its attack run,
-// and point defence fires back. A craft the battle loses is hit by the bolt that got it and blows up where it
-// flew, and the rest close up into their new places; point defence shooting one down takes that craft off the
-// battle. Far, a squadron or a salvo is one larger point (a battle may carry thousands of craft).
+// its heading), one point per craft still flying, and fights as the battle says: its guns fire at the squadron it is
+// dogfighting, it strafes or bombs the ship of its attack run, and point defence fires back. A craft the battle loses
+// is hit by the bolt that got it and blows up where it flew, and the rest close up into their new places; point
+// defence shooting one down takes that craft off the battle. Far, a squadron or a salvo is one larger point.
+// v22 The craft are drawn with their 3D models: far off one model for each wing (飛行隊: the lead of its leading
+// squadron; every squadron keeps the point that marks it while a model is too small to see), nearer the lead of each
+// squadron (中隊) and the nearest craft, and the wing selected in the view — the one whose squadron the camera
+// follows, or the one last tapped — every craft of it in its formation. The craft fly as the films show them (craftPose): banking
+// into their turns, rolling, weaving in loose pairs in a dogfight and jinking under fire, holding a patrol orbit,
+// strafing low along the hull of the ship they attack and peeling off after the run; TIEs slash through in fast
+// passes, droids swarm, bombers hold steady. All of it is drawing: where each squadron is, whom it fights, what it
+// hits and what it loses stay the battle's.
 const VOY_NEAR = 26000;
 const VOY_CRAFT_MODEL = {tie_ln: 'craft_tie_ln', tie_in: 'craft_tie_in', tie_sa: 'craft_tie_sa', xwing: 'craft_xwing', awing: 'craft_awing', ywing: 'craft_btlb', btlb: 'craft_btlb', z95: 'craft_z95', vulture: 'craft_vulture', hyena: 'craft_hyena', vwing: 'craft_vwing', arc170: 'craft_arc170', v19: 'craft_v19'};
 // Bolt colours by faction: the Empire's green (its costlier blaster gas), the Rebellion's red, the clone-era
@@ -7686,52 +8053,254 @@ const VOY_CRAFT_MODEL = {tie_ln: 'craft_tie_ln', tie_in: 'craft_tie_in', tie_sa:
 const VOY_BOLT = {empire: [120, 255, 130], rebel: [255, 85, 65], republic: [120, 175, 255], cis: [255, 125, 70], neutral: [255, 200, 120]};
 const voyBoltCol = (w, side) => VOY_BOLT[w.sides[side]?.faction] || VOY_BOLT.neutral;
 const voyCraftModel = c => c ? VOY_CRAFT_MODEL[c] || (R.CRAFT[c]?.ref ? R.CRAFT[c].ref : null) : null;
-// How many craft get their 3D model (the nearest ones, a few pixels or more on screen).
-const voyCraftModels = () => document.body.classList.contains('touch') || Math.min(innerWidth, innerHeight) < 600 ? 8 : 24;
+// v22 How many craft are drawn with their models each frame: the selected wing's (all of them, up to sel), the lead
+// of every wing (lead), then the nearest other craft (near). A phone draws fewer (each model costs about as much as
+// a small ship: measured in software rendering, 36 more models ≈ +3 ms a frame, 72 ≈ +11 ms).
+const voyCraftBudget = () => window.__ksCraftBudget || (document.body.classList.contains('touch') || Math.min(innerWidth, innerHeight) < 600 ? {sel: 36, lead: 14, near: 8} : {sel: 72, lead: 40, near: 24});
+const voyCraftModels = () => voyCraftBudget().near;
+// How each kind of craft flies on screen: weave (size of its dogfight manoeuvres), wf (their pace), jink (under fire),
+// bank (how far it leans into a turn), roll (seconds between rolls), its dogfight pattern, its pass and gun voices.
+const CRAFT_FLY = {
+ tie:    {weave: 1.25, wf: 1.15, jink: 1.15, bank: .6, roll: [6, 14], rollT: .55, dog: 'slash', pass: 'pass_tie', gun: 'gun_tie', eng: 'eng_tie'},
+ tieb:   {weave: .35, wf: .55, jink: .45, bank: .4, roll: null, dog: 'steady', pass: 'pass_tieb', gun: 'gun_tie', eng: 'eng_tie'},
+ xw:     {weave: 1, wf: .8, jink: .9, bank: 1, roll: [6, 13], rollT: .8, dog: 'scissors', pass: 'pass_xwing', gun: 'gun_rebel', eng: 'eng_xwing'},
+ aw:     {weave: 1.3, wf: 1.15, jink: 1.3, bank: 1.1, roll: [3.5, 8], rollT: .55, dog: 'scissors', pass: 'pass_awing', gun: 'gun_rebel', eng: 'eng_awing'},
+ yw:     {weave: .4, wf: .5, jink: .35, bank: .75, roll: null, dog: 'steady', pass: 'pass_ywing', gun: 'gun_rebel', eng: 'eng_ywing'},
+ droid:  {weave: 1.1, wf: 1.7, jink: 1.4, bank: .15, roll: [2.5, 6], rollT: .45, dog: 'swarm', pass: 'pass_droid', gun: 'gun_droid', eng: 'fighter'},
+ droidb: {weave: .4, wf: .6, jink: .4, bank: .3, roll: null, dog: 'steady', pass: 'pass_droid', gun: 'gun_droid', eng: 'fighter'},
+ ship:   {weave: .2, wf: .4, jink: .2, bank: .5, roll: null, dog: 'steady', pass: null, gun: 'gun_rebel', eng: null}
+};
+const CRAFT_FLY_OF = {tie_ln: 'tie', tie_in: 'tie', tie_sa: 'tieb', xwing: 'xw', z95: 'xw', arc170: 'xw', awing: 'aw', vwing: 'aw', eta2: 'aw', v19: 'aw', ywing: 'yw', btlb: 'yw', bwing: 'yw', hyena: 'droidb', vulture: 'droid', tri: 'droid'};
+function craftFly(key) {
+ const c = R.CRAFT[key];let k = CRAFT_FLY_OF[key];
+ if (!k) k = !c ? 'xw' : c.role === 'transport' ? 'ship' : c.role === 'bomber' ? (c.side === 'cis' ? 'droidb' : c.side === 'empire' ? 'tieb' : 'yw') : c.side === 'empire' ? 'tie' : c.side === 'cis' ? 'droid' : c.role === 'interceptor' ? 'aw' : 'xw';
+ return CRAFT_FLY[k];
+}
+// The gun voice of a squadron: by its faction (TIE cannons, droid guns, the Rebels' and the Republic's lasers).
+const craftGunPitch = k => { const f = craftFly(k); return f === CRAFT_FLY.aw ? 1.15 : f === CRAFT_FLY.yw || f === CRAFT_FLY.tieb ? .9 : 1; };
+const craftGun = (w, s) => { const f = w?.sides?.[s.side]?.faction || R.CRAFT[s.craft]?.side; return f === 'empire' ? 'gun_tie' : f === 'cis' ? 'gun_droid' : craftFly(s.craft).gun; };
+// v22 What a craft releases on its attack run: the core's stores when it has them (Core.craftOrdnance → [{kind, n,
+// mount}]), else by type — proton torpedoes (ptorp), concussion missiles (cmsl), ion torpedoes (itorp), bombs.
+const CRAFT_ORD = {xwing: [{kind: 'ptorp', n: 6, mount: 'tube'}], ywing: [{kind: 'ptorp', n: 6, mount: 'tube'}, {kind: 'itorp', n: 2, mount: 'tube'}], btlb: [{kind: 'bomb', n: 12, mount: 'bay'}, {kind: 'ptorp', n: 4, mount: 'tube'}],
+ bwing: [{kind: 'ptorp', n: 8, mount: 'tube'}], tie_sa: [{kind: 'bomb', n: 16, mount: 'bay'}, {kind: 'cmsl', n: 8, mount: 'tube'}], hyena: [{kind: 'bomb', n: 6, mount: 'bay'}, {kind: 'cmsl', n: 6, mount: 'wing'}],
+ arc170: [{kind: 'ptorp', n: 6, mount: 'tube'}], z95: [{kind: 'cmsl', n: 4, mount: 'wing'}], awing: [{kind: 'cmsl', n: 12, mount: 'tube'}], v19: [{kind: 'cmsl', n: 2, mount: 'wing'}]};
+function craftOrd(key) {
+ let a = null;try { a = C.craftOrdnance?.(key); } catch (e) { a = null; }
+ if (Array.isArray(a)) return a.filter(x => x && ORD_FLY[x.kind] && x.n > 0);
+ if (CRAFT_ORD[key]) return CRAFT_ORD[key];
+ const c = R.CRAFT[key];return c && (c.role === 'bomber' || (c.strike || 0) > 60) && c.role !== 'transport' ? [{kind: c.role === 'bomber' ? 'bomb' : 'ptorp', n: 4, mount: c.role === 'bomber' ? 'bay' : 'tube'}] : [];
+}
+const smoothstep = x => x <= 0 ? 0 : x >= 1 ? 1 : x * x * (3 - 2 * x);
+const craftEase = (a, b, dt, tau) => a + (b - a) * (1 - Math.exp(-dt / tau));
+// The cosmetic clock the manoeuvres run on: the battle's pace on screen (still while it is paused).
+const voyCraftRate = () => trial.paused ? 0 : trial.rts ? (trial.rts.spectate ? Math.min(1.5, voy.speed || 0) : 1) : 1;
+// A squadron's centre between the battle's ticks (it moves a tick at a time): its last two positions, blended.
+function voySqView(cf, s, w) {
+ let iv = cf.iv.get(s.id);const T = R.TICK || .25;
+ if (!iv) cf.iv.set(s.id, iv = {t: w.time, p0: s.pos.slice(), p1: s.pos.slice(), h0: s.h.slice(), h1: s.h.slice()});
+ else if (w.time !== iv.t) { const one = w.time - iv.t < T * 1.5 && w.time > iv.t; iv.p0 = one ? iv.p1 : [s.pos[0] - (s.vel?.[0] || 0) * T, s.pos[1] - (s.vel?.[1] || 0) * T, s.pos[2] - (s.vel?.[2] || 0) * T]; iv.h0 = one ? iv.h1 : s.h.slice(); iv.p1 = s.pos.slice(); iv.h1 = s.h.slice(); iv.t = w.time; }
+ iv.f = cf.f;const k = C.clamp((w.acc || 0) / T, 0, 1), p = [iv.p0[0] + (iv.p1[0] - iv.p0[0]) * k, iv.p0[1] + (iv.p1[1] - iv.p0[1]) * k, iv.p0[2] + (iv.p1[2] - iv.p0[2]) * k];
+ return {pos: p, h: tv.norm(tv.add(tv.scale(iv.h0, 1 - k), iv.h1, k)), vel: tv.scale(tv.sub(iv.p1, iv.p0), 1 / T)};
+}
+// The squadron's own state as drawn (eased in and out): fighting, under fire, on an attack run, holding a point.
+function craftSqMood(st, o, cdt) {
+ st.fightK = craftEase(st.fightK || 0, o.fight ? 1 : 0, cdt, .7);st.fireK = craftEase(st.fireK || 0, o.fire ? 1 : 0, cdt, .4);
+ st.runK = craftEase(st.runK || 0, o.run ? 1 : 0, cdt, .5);st.holdK = craftEase(st.holdK || 0, o.hold ? 1 : 0, cdt, 1.5);
+}
+// The squadron frame this frame: its centre (with the patrol orbit of a squadron holding a point), its heading in
+// "screen speed" (the battle's 2 km/s brought down to the films' pace, so manoeuvres turn the noses), its frame.
+function craftSqFrame(st, c0, v, h, up, S, d, ct, cdt, alt) {
+ let c = c0, hv = h;const sp = tv.len(v), vis = Math.min(sp, 320), vs = sp > 1 ? tv.scale(v, vis / sp) : [0, 0, 0];let vo = [0, 0, 0];
+ if (st.holdK > .01) {
+  // a squadron with nowhere to go flies a wide circle about its point, banked, as a combat air patrol
+  const R0 = d * 16 + 220, om = .32 * (S.wf || 1), th = ct * om + (st.seed || 0), k = st.holdK, rt0 = tv.norm(tv.cross(h, up)), fw0 = tv.norm(tv.cross(up, rt0));
+  c = tv.add(tv.add(c0, fw0, Math.cos(th) * R0 * k), rt0, Math.sin(th) * R0 * k);vo = tv.add(tv.scale(fw0, -Math.sin(th) * R0 * om * k), rt0, Math.cos(th) * R0 * om * k);
+  hv = tv.norm(tv.add(tv.scale(h, Math.max(1, sp) * (1 - k) + 1e-3), vo, 1));
+ }
+ // the battle turns a squadron a tick at a time: its heading is eased so the formation and the noses swing smoothly
+ const raw = tv.add(vs, vo);
+ if (!st.vC || cdt > 1.5 || tv.len(tv.sub(raw, st.vC)) > 2000) { st.vC = raw; st.aC = [0, 0, 0]; }
+ else if (cdt > 1e-5) { const vN = tv.add(st.vC, tv.sub(raw, st.vC), 1 - Math.exp(-cdt / .2)), ai = tv.scale(tv.sub(vN, st.vC), 1 / cdt); st.aC = tv.add(st.aC || [0, 0, 0], tv.sub(ai, st.aC || [0, 0, 0]), 1 - Math.exp(-cdt / .12)); st.vC = vN; }
+ const vC = st.vC, fh = tv.len(vC) > 20 ? vC : hv, F = trialFrame(fh, Math.abs(tv.dot(tv.norm(fh), up)) > .97 ? alt : up);
+ return {c, vC, aC: st.aC || [0, 0, 0], F, fw: trialCol(F, 0), uv: trialCol(F, 1), rt: trialCol(F, 2)};
+}
+// One craft's manoeuvre about its formation place [ahead, up, starboard] (m), on the cosmetic clock ct.
+function craftMan(q, S, k, id, d, st, ct, cdt) {
+ const out = [0, 0, 0], seed = (id * 2.399 + (st.seed || 0)) % 6.283, pair = k >> 1, pseed = (pair * 2.399 + (st.seed || 0)) % 6.283;
+ // station keeping: a slow drift in its place
+ out[0] += Math.sin(ct * .37 + seed) * d * .08;out[1] += Math.sin(ct * .51 + seed * 1.7) * d * .07;out[2] += Math.sin(ct * .29 + seed * 2.3) * d * .08;
+ const fk = st.fightK * (1 - .7 * st.runK);
+ if (fk > .01) {
+  // the dogfight: loose pairs weaving together (the wingman a beat behind its leader); TIEs slash through in fast
+  // figure-eight passes, droids swarm erratically, bombers hold a lazy weave
+  const A = C.clamp(d * 2.4 * S.weave, 30, 260) * fk, om = (S.wf || 1) * 1.05, t = ct - (k & 1) * .35, mir = pair & 1 ? -1 : 1;
+  if (S.dog === 'slash') { out[2] += mir * 1.7 * A * Math.sin(om * t + pseed); out[1] += .85 * A * Math.sin(2 * om * t + pseed); out[0] += 1.1 * A * Math.cos(om * t + pseed); }
+  else if (S.dog === 'swarm') { for (let j = 0; j < 3; j++) { const f = om * [1, 1.73, 2.91][j], a = A * [.6, .35, .22][j]; out[0] += a * Math.sin(f * ct + seed * (j + 1)); out[1] += a * Math.sin(f * 1.13 * ct + seed * (j + 2)); out[2] += a * Math.cos(f * .91 * ct + seed * (j + 3)); } }
+  else if (S.dog === 'scissors') { out[2] += mir * A * Math.sin(om * t + pseed); out[1] += .55 * A * Math.sin(.62 * om * t + 2 * pseed); out[0] += .4 * A * Math.sin(.4 * om * t + pseed); }
+  else { out[2] += .35 * A * Math.sin(.6 * om * t + pseed); out[1] += .2 * A * Math.sin(.4 * om * t + 2 * pseed); }
+ }
+ // jinking under fire: sudden breaks to a new offset every half second or so (a stiff spring toward it)
+ const jk = st.fireK * (1 - .5 * st.runK) * (S.jink || 0);
+ if (jk > .01 || q.jk) {
+  const J = q.jk || (q.jk = {p: [0, 0], v: [0, 0], t: [0, 0], next: 0});
+  if (ct >= J.next) { const a = d * 1.9 * (S.jink || 0); J.t = [(Math.random() * 2 - 1) * a, (Math.random() * 2 - 1) * a * .7]; J.next = ct + (.35 + Math.random() * .6) / Math.max(.4, S.jink || 1); if (Math.random() < .25) craftRollStart(q, S, ct, J.t[0] > J.p[0] ? 1 : -1); }
+  if (cdt > 0) { const w0 = 6.5, dtt = Math.min(cdt, .05); for (let j = 0; j < 2; j++) { const acc = w0 * w0 * (J.t[j] * jk - J.p[j]) - 2 * w0 * J.v[j]; J.v[j] += acc * dtt; J.p[j] += J.v[j] * dtt; } }
+  out[2] += J.p[0];out[1] += J.p[1];if (jk <= .01 && Math.abs(J.p[0]) + Math.abs(J.p[1]) < .5) q.jk = null;
+ }
+ // peeling off after the attack run: one after another, each craft rolls and breaks away from the hull in a fan,
+ // then closes up again
+ if (st.brk != null) {
+  const tb = st.brk + .16 * k, u = smoothstep((ct - tb) / 1.2) * (1 - smoothstep((ct - tb - 3.4) / 2.6));
+  if (u > 0) { const dir = tv.norm([.25, k % 3 === 1 ? -.55 : .85, (k % 2 ? 1 : -1) * 1.15]), D = d * 3.6 * u; out[0] += dir[0] * D; out[1] += dir[1] * D * (st.run?.side || 1); out[2] += dir[2] * D; if (!q.brkRolled && ct >= tb) { q.brkRolled = st.brk; craftRollStart(q, S, ct, k % 2 ? 1 : -1, .25 + .25 * (k % 2)); } }
+  if (q.brkRolled !== st.brk && ct < tb) q.brkRolled = null;
+ }
+ return out;
+}
+// A roll about the craft's own axis: a full aileron roll (frac 1), or a part of one into a break.
+function craftRollStart(q, S, ct, dir, frac = 1) { if (!S.roll && frac >= 1) return; if (q.roll && ct < q.roll.t0 + q.roll.T) return; q.roll = {t0: ct, T: (S.rollT || .7) * (frac < 1 ? .6 : 1), a: dir * 2 * Math.PI * frac, keep: frac < 1}; }
+function craftRollAngle(q, S, ct, fk) {
+ // the occasional roll of a fighter (oftener in a fight)
+ if (S.roll && fk != null) { if (q.nextRoll == null) q.nextRoll = ct + S.roll[0] + Math.random() * (S.roll[1] - S.roll[0]); else if (ct >= q.nextRoll) { craftRollStart(q, S, ct, Math.random() < .5 ? -1 : 1); q.nextRoll = ct + (S.roll[0] + Math.random() * (S.roll[1] - S.roll[0])) * (fk > .5 ? 1 : 2.5); } }
+ const r = q.roll;if (!r) return 0;const u = (ct - r.t0) / r.T;if (u >= 1) { if (!r.keep) { q.roll = null; return 0; } return r.a * Math.max(0, 1 - (ct - r.t0 - r.T) / 1.2); }
+ return r.a * smoothstep(u);
+}
+// A ship's centre and frame in the 3D view (the flown ship is the camera's own).
+const craftShip = u => ({c: spaceWorld(u), R: u.manual ? trial.R : spaceRotU(trial.battle.E, u)});
+// Over the ship it attacks a craft flies low along the hull: kept above (or below) the hull's ellipsoid by a few
+// craft heights wherever its path would take it into the ship.
+function craftSkim(p, run, span, k) {
+ const u = run.u;if (!u || !R.alive(u)) return p;const sh = craftShip(u), Cs = sh.c, Rs = sh.R, l = trialApplyT(Rs, tv.sub(p, Cs)), a = u.p.len * .5, b = (u.p.height || u.p.len * .2) * .5, c = (u.p.width || u.p.len * .5) * .5;
+ const e = 1 - (l[0] / a) ** 2 - (l[2] / c) ** 2;if (e <= 0) return p;const ys = b * Math.sqrt(e), alt = 10 + span * 1.6 + (k % 4) * span * .5;
+ if (run.side >= 0) { if (l[1] >= ys + alt) return p; l[1] = ys + alt; } else { if (l[1] <= -ys - alt) return p; l[1] = -ys - alt; }
+ return tv.add(Cs, trialApply(Rs, l));
+}
+// The craft's attitude from how it moves on screen: nose along its path (the squadron's heading at screen pace plus
+// its own manoeuvre), banked into the turn (the sideways pull against a little "lift"), then any roll.
+function craftAttitude(q, p, fr, S, cdt, ct, fk) {
+ const dW = tv.sub(p, fr.c);
+ if (cdt > 1e-5) {
+  if (q.dW && tv.len(tv.sub(dW, q.dW)) < 900) { const vm = tv.scale(tv.sub(dW, q.dW), 1 / cdt), k1 = 1 - Math.exp(-cdt / .08), vN = q.vm ? tv.add(q.vm, tv.sub(vm, q.vm), k1) : vm, am = q.vm ? tv.scale(tv.sub(vN, q.vm), 1 / cdt) : [0, 0, 0]; q.am = q.am ? tv.add(q.am, tv.sub(am, q.am), 1 - Math.exp(-cdt / .1)) : am; q.vm = vN; }
+  else { q.vm = [0, 0, 0]; q.am = [0, 0, 0]; }
+  q.dW = dW;
+  const vv = tv.add(fr.vC, q.vm), sp = tv.len(vv), h = sp > 15 ? tv.scale(vv, 1 / sp) : fr.fw, aa = tv.add(fr.aC, q.am), aL = tv.add(aa, h, -tv.dot(aa, h)), G = 170 / Math.max(.12, S.bank || .5);
+  let up = tv.add(tv.scale(fr.uv, G), aL);up = tv.add(up, h, -tv.dot(up, h));if (tv.len(up) < 1e-3) up = fr.uv;up = tv.norm(up);
+  // no more than 80° of bank against the squadron's up
+  const cu = tv.dot(up, fr.uv);if (cu < .17) { const side = tv.norm(tv.add(up, fr.uv, -cu)); up = tv.norm(tv.add(tv.scale(fr.uv, .17), side, .985)); up = tv.norm(tv.add(up, h, -tv.dot(up, h))); }
+  q.upS = q.upS ? tv.norm(tv.add(q.upS, tv.sub(up, q.upS), 1 - Math.exp(-cdt / .09))) : up;q.upS = tv.norm(tv.add(q.upS, h, -tv.dot(q.upS, h)));q.hd = h;
+ }
+ const h = q.hd || fr.fw;let up = q.upS || fr.uv;const ra = craftRollAngle(q, S, ct, cdt > 1e-5 ? fk : null);if (ra) up = trialRot(up, h, ra);
+ q.h = h;q.up = up;
+}
+// A craft of a squadron as drawn (made once, kept while it flies).
+function craftQ(cf, key, s, id, c, onDown) { return {id: key, kind: 'craft', craft: s.craft, sq: s.id, cid: id, k: -1, off: null, pos: [0, 0, 0], size: c.role === 'bomber' ? 12 : 10, onDown}; }
+// The craft of one squadron for this frame: each in its formation place (closing up as craft are lost), loosened or
+// tightened by what it is doing, with its manoeuvre, kept off the hull it strafes, and its attitude.
+function craftLayout(cf, st, a) {
+ const {c, S, d, fr, ct, cdt, slots, mk, models, eye, focal, cand, out, team, glow, pri, run, vel} = a, L = c.dims?.[0] || 10, span = c.dims?.[1] || 10, list = [];
+ const spread = 1 + .85 * st.fightK - .25 * st.runK, k1 = 1 - Math.exp(-Math.max(cdt, 0) * 1.1), fk = st.fightK;
+ for (let i = 0; i < slots.length; i++) {
+  const id = slots[i];let q = st.qs.get(id);if (!q) st.qs.set(id, q = a.make(id));
+  if (q.k !== i) { q.k = i; q.want = R.craftFormation(i, c.role, c.dims); q.set = false; if (!q.off) { q.off = q.want.slice(); q.set = true; } }
+  const o = q.off, wt = q.want;if (!q.set) { let dd = 0; for (let j = 0; j < 3; j++) { o[j] += (wt[j] - o[j]) * k1; dd += Math.abs(wt[j] - o[j]); } if (dd < .3) { o[0] = wt[0]; o[1] = wt[1]; o[2] = wt[2]; q.set = true; } }
+  const m = craftMan(q, S, i, id, d, st, ct, cdt), ox = o[0] * spread + m[0], oy = o[1] * spread + m[1], oz = o[2] * spread + m[2];
+  let p = [fr.c[0] + fr.fw[0] * ox + fr.uv[0] * oy + fr.rt[0] * oz, fr.c[1] + fr.fw[1] * ox + fr.uv[1] * oy + fr.rt[1] * oz, fr.c[2] + fr.fw[2] * ox + fr.uv[2] * oy + fr.rt[2] * oz];
+  if (run && st.runK > .02) p = craftSkim(p, run, span, i);
+  craftAttitude(q, p, fr, S, cdt, ct, fk);
+  q.pos = p;q.vel = q.vm && cdt > 1e-5 ? tv.add(vel, q.vm) : vel;q.alive = true;q.team = team;q.glow = glow;q.model = null;q.f = cf.f;q.far = false;out.push(q);list.push(q);
+  // models: the selected wing's craft; else the wing's lead as soon as it shows, its squadrons' leads and the other
+  // craft only close (a few pixels more), so a wing off in the distance is one model
+  if (models) { const dd = Math.hypot(p[0] - eye[0], p[1] - eye[1], p[2] - eye[2]), px = L * focal / Math.max(1, dd); if (px >= 2.2 && (pri === 0 || (i === 0 && a.wingLead) || px >= (i === 0 ? 4 : 8))) cand.push({q, mk, d: dd, pri: pri === 0 ? 0 : i === 0 && a.wingLead ? 1 : 2, px}); }
+ }
+ return list;
+}
 function voyPilotThreats() {
  const B = trial.battle, {w, sys} = trial.rts, me = B.me || w.units.get(B.follow), world = p => tv.add(B.O, trialApply(B.E, p)), foe = [], own = [], mis = [], P = trial.P;if (!me) return;
  // Watching, the colours are the sides' own (ours blue); flying, they are the pilot's.
- const mine = B.spectate ? 0 : me.side, cf = voyCf(B, w), now = performance.now(), fdt = Math.min(.1, Math.max(0, (now - cf.t) / 1000)), up = trialApply(B.E, [0, 1, 0]), F0 = ++cf.f, tt = now / 1000, k1 = 1 - Math.exp(-fdt * 1.1);cf.t = now;
- // the 3D models: the nearest craft a few pixels or more across on screen
- const eye = view ? tv.add(P, view.eye()) : P, focal = (view?.canvas?.height || 800) / (2 * Math.tan((view?.cam?.fov || .72) / 2)), cand = [];
+ const mine = B.spectate ? 0 : me.side, cf = voyCf(B, w), now = performance.now(), fdt = Math.min(.1, Math.max(0, (now - cf.t) / 1000)), up = trialApply(B.E, [0, 1, 0]), F0 = ++cf.f, cdt = fdt * voyCraftRate(), ct = cf.ct += cdt;cf.t = now;
+ const eye = view ? tv.add(P, view.eye()) : P, focal = (view?.canvas?.height || 800) / (2 * Math.tan((view?.cam?.fov || .72) / 2)), cand = [], sel = voySelSq(B, w), selWing = sel != null ? w.squads.get(sel)?.wing : null;
+ // each wing's leading squadron here (the one that carries the wing's model when it is far off)
+ const wingLead = new Map();for (const s of w.squads.values()) { if (s.sys !== sys || (s.state !== 'out' && s.state !== 'return') || s.n <= 0) continue; const o = wingLead.get(s.wing); if (!o || (s.slot ?? 0) < (o.slot ?? 0)) wingLead.set(s.wing, s); }
+ // squadrons under point-defence fire this moment, and the attack runs being flown
+ const pdOn = new Set();for (const u of R.systemUnits(w, sys)) if (u.pdOn != null && w.time - (u.pdAt ?? -99) < 1.2) pdOn.add(u.pdOn);
+ cf.sqPos = new Map();
  for (const s of w.squads.values()) {
-  if (s.sys !== sys || (s.state !== 'out' && s.state !== 'return') || s.n <= 0) continue;const n = s.n, c = R.CRAFT[s.craft], h = trialApply(B.E, s.h), v = trialApply(B.E, s.vel), c0 = world(s.pos), team = s.side === mine ? 0 : 1, glow = team ? [255, 110, 80, 230] : [120, 200, 255, 230];
-  if (tv.len(tv.sub(c0, P)) > VOY_NEAR) { (team ? foe : own).push({id: s.id, kind: 'craft', pos: c0, vel: v, h, alive: true, team, size: Math.min(46, 12 + Math.sqrt(n) * 3.2), glow, far: true}); continue; }
-  let st = cf.sq.get(s.id);if (!st) cf.sq.set(s.id, st = {qs: new Map(), list: [], f: 0});
-  const F = trialFrame(h, Math.abs(tv.dot(h, up)) > .97 ? trialApply(B.E, [1, 0, 0]) : up), fw = trialCol(F, 0), uv = trialCol(F, 1), rt = trialCol(F, 2), sl = R.squadSlots(s), fight = w.time - (s.dogfight ?? -99) < 2, A = Math.max(30, (c.dims?.[1] || 10) * 5), list = [], out = team ? foe : own;
-  const L = c.dims?.[0] || 10, mk = voyCraftModel(s.craft), dS = Math.hypot(c0[0] - eye[0], c0[1] - eye[1], c0[2] - eye[2]), models = mk && dS < L * focal / 5 + 600;
-  for (let i = 0; i < sl.length; i++) {
-   const id = sl[i];let q = st.qs.get(id);
-   if (!q) { const key = s.id + ':' + id; st.qs.set(id, q = {id: key, kind: 'craft', craft: s.craft, sq: s.id, cid: id, k: -1, off: null, pos: [0, 0, 0], size: c.role === 'bomber' ? 12 : 10, onDown: () => { cf.done.add(key); R.craftDown(w, sys, s, id, 'pd', me.id); }}); }
-   // Each craft eases into its place, so the formation closes up when one is lost.
-   if (q.k !== i) { q.k = i; q.want = R.craftFormation(i, c.role, c.dims); q.set = false; if (!q.off) { q.off = q.want.slice(); q.set = true; } }
-   const o = q.off, wt = q.want;if (!q.set) { let dd = 0; for (let j = 0; j < 3; j++) { o[j] += (wt[j] - o[j]) * k1; dd += Math.abs(wt[j] - o[j]); } if (dd < .3) { o[0] = wt[0]; o[1] = wt[1]; o[2] = wt[2]; q.set = true; } }
-   // In a dogfight the formation loosens into weaving pairs.
-   let ox = o[0], oy = o[1], oz = o[2];if (fight) { const ph = id * 2.399 + (i & 1) * .3; ox += Math.sin(tt * .9 + ph) * A; oy += Math.sin(tt * 1.3 + ph * 2) * A * .7; oz += Math.cos(tt * .7 + ph) * A * 1.2; }
-   const p = q.pos;p[0] = c0[0] + fw[0] * ox + uv[0] * oy + rt[0] * oz;p[1] = c0[1] + fw[1] * ox + uv[1] * oy + rt[1] * oz;p[2] = c0[2] + fw[2] * ox + uv[2] * oy + rt[2] * oz;
-   q.vel = v;q.h = fw;q.up = uv;q.alive = true;q.team = team;q.glow = glow;q.model = null;q.f = F0;out.push(q);list.push(q);
-   if (models) { const d = Math.hypot(p[0] - eye[0], p[1] - eye[1], p[2] - eye[2]); if (L * focal / Math.max(1, d) >= 5) cand.push({q, mk, d}); }
+  if (s.sys !== sys || (s.state !== 'out' && s.state !== 'return') || s.n <= 0) continue;const n = s.n, c = R.CRAFT[s.craft], team = s.side === mine ? 0 : 1, glow = team ? [255, 110, 80, 230] : [120, 200, 255, 230];
+  const iv = voySqView(cf, s, w), c0 = world(iv.pos), h = trialApply(B.E, iv.h), v = trialApply(B.E, iv.vel), dS = Math.hypot(c0[0] - eye[0], c0[1] - eye[1], c0[2] - eye[2]), isSel = sel === s.id || (selWing != null && s.wing === selWing), mk = voyCraftModel(s.craft), L = c.dims?.[0] || 10, out = team ? foe : own;
+  cf.sqPos.set(s.id, {pos: c0, team, s});
+  if (dS > VOY_NEAR && !isSel) {
+   // far: the squadron is its lead — one model, and the point that marks it
+   let q = cf.leads.get(s.id);if (!q) cf.leads.set(s.id, q = {id: s.id, kind: 'craft', craft: s.craft, sq: s.id, far: true, pos: c0, alive: true});
+   q.pos = c0;q.vel = v;q.h = h;q.up = trialFrame(h, Math.abs(tv.dot(h, up)) > .97 ? trialApply(B.E, [1, 0, 0]) : up).slice(3, 6);q.alive = true;q.team = team;q.glow = glow;q.size = Math.min(46, 12 + Math.sqrt(n) * 3.2);q.model = null;q.f = F0;out.push(q);
+   if (mk && wingLead.get(s.wing) === s) { const px = L * focal / Math.max(1, dS); if (px >= 2.2) cand.push({q, mk, d: dS, pri: 1, px}); voyCraftWant(mk, dS); }
+   continue;
   }
+  let st = cf.sq.get(s.id);if (!st) cf.sq.set(s.id, st = {qs: new Map(), list: [], f: 0, seed: (cf.sq.size * 1.7 + 3.1) % 6.283});
+  const S = craftFly(s.craft), d = Math.max(16, 2.4 * Math.max(c.dims?.[1] || 0, c.dims?.[0] || 0, 6)), fight = w.time - (s.dogfight ?? -99) < 2;
+  // on an attack run: the wing's strike target, over whose hull it strafes (from above unless it came from below)
+  const wg = w.wings.get(s.wing), wo = wg ? (wg.order?.type === 'auto' ? wg.auto : wg.order) : null, tgt = wo?.type === 'strike' && (wg.phase === 'run' || (st.run && wg.phase === 'egress')) ? w.units.get(wo.target) : null;
+  if (tgt && R.alive(tgt)) { if (!st.run || st.run.u !== tgt) { const l = trialApplyT(spaceRotU(B.E, tgt), tv.sub(c0, spaceWorld(tgt))); st.run = {u: tgt, side: wo.approach === 'below' || l[1] < -(tgt.p.height || 200) * .8 ? -1 : 1}; } } else if (st.run && st.runK < .03) st.run = null;
+  craftSqMood(st, {fight, fire: pdOn.has(s.id) || fight, run: !!(tgt && wg.phase === 'run'), hold: !fight && !tgt && tv.len(iv.vel) < c.speed * .15}, cdt);
+  const fr = craftSqFrame(st, c0, v, h, up, S, d, ct, cdt, trialApply(B.E, [1, 0, 0])), models = !!mk && (isSel || dS < L * focal / 2.2 + 600);
+  if (mk) voyCraftWant(mk, dS);
+  const list = craftLayout(cf, st, {c, S, d, fr, ct, cdt, slots: R.squadSlots(s), mk, models, eye, focal, cand, out, team, glow, pri: isSel ? 0 : 1, wingLead: wingLead.get(s.wing) === s, run: st.run, vel: v,
+   make: id => craftQ(cf, s.id + ':' + id, s, id, c, () => { cf.done.add(s.id + ':' + id); R.craftDown(w, sys, s, id, 'pd', me.id); })});
+  st.fr = fr;
   // Craft gone since the last frame: shot down where they flew (or landed, or out of sight).
   if (st.f === F0 - 1) for (const q of st.list) if (q.f !== F0) voyCraftLost(B, w, s, q.cid, q);
   st.list = list;st.f = F0;
  }
  // Squadrons not drawn this frame: wiped out (their last craft shot down), landed or out of sight.
  for (const [sid, st] of cf.sq) if (st.f !== F0) { const s = w.squads.get(sid); if (st.f === F0 - 1 && s?.state === 'lost') for (const q of st.list) voyCraftLost(B, w, s, q.cid, q); else for (const q of st.list) q.alive = false; st.list = []; if (!s || s.state === 'lost' || F0 - st.f > 600) cf.sq.delete(sid); }
+ for (const [sid, q] of cf.leads) if (q.f !== F0) cf.leads.delete(sid);
+ for (const [sid, iv] of cf.iv) if (iv.f !== F0) cf.iv.delete(sid);
+ // v22 A squadron's rounds (the core's stores: torpedoes and missiles loosed at stand-off range, bombs on the pass)
+ // fly as their kind looks on screen, a stream across the squadron's front, heard as they leave and bursting where
+ // they strike; the ships' missile salvos stay points.
+ const seenM = cf.mSeen || (cf.mSeen = new Map()), mOrd = [], acc = w.acc || 0;
  for (const m of w.missiles) {
-  if (m.sys !== sys || m.n <= 0 || (!B.spectate && m.side === me.side)) continue;const n = Math.ceil(m.n), v = trialApply(B.E, m.vel), h = tv.norm(v), c0 = world(m.pos);
-  if (tv.len(tv.sub(c0, P)) > VOY_NEAR) { mis.push({id: m.id, kind: 'missile', pos: c0, vel: v, h, alive: true, far: true}); continue; }
-  for (let i = 0; i < n; i++) mis.push({id: m.id + ':' + i, kind: 'missile', pos: world(tv.add(m.pos, [((i * 7) % 5 - 2) * 14, ((i * 3) % 4 - 1.5) * 12, ((i * 11) % 5 - 2) * 14])), vel: v, h, alive: true, onDown: () => { m.n = Math.max(0, m.n - 1); m.downed = (m.downed || 0) + 1; }});
+  if (m.sys !== sys || m.n <= 0) continue;const n = Math.ceil(m.n), v = trialApply(B.E, m.vel), h = tv.norm(v), base = tv.add(m.pos, m.vel, acc), c0 = world(base), far = Math.hypot(c0[0] - eye[0], c0[1] - eye[1], c0[2] - eye[2]) > VOY_NEAR;
+  let ok = null;
+  // a ship's salvo leaving its tubes: heard once, as it goes
+  if (!m.craft) { let o = seenM.get(m.id); if (!o) { seenM.set(m.id, o = {ship: true}); if (!far) sndAt(sndPick('missile_salvo', 'missile'), c0, {gain: .6, near: 1500, far: 30000}); } o.f = F0; }
+  else {
+   let o = seenM.get(m.id);if (!o) { seenM.set(m.id, o = {t0: ct, kind: ORD_FLY[m.kind] ? m.kind : m.bomb ? 'bomb' : m.ion ? 'itorp' : 'ptorp', to: m.target, n: m.n, heard: false}); const fr = m.sq != null && cf.sq.get(m.sq)?.fr; if (fr) o.off = tv.sub(fr.c, c0); }
+   // (the squadron is drawn a tick behind the battle: a salvo leaves from where its craft are seen, then joins its true path)
+   const ko = o.off ? Math.max(0, 1 - (ct - o.t0) / .7) : 0, dO = ko > 0 ? tv.scale(o.off, ko) : null;
+   o.f = F0;o.last = dO ? tv.add(c0, dO) : c0;o.n = m.n;ok = o.kind;
+   if (!o.heard) { o.heard = true; if (!far) sndAt(sndPick(ORD_FLY[o.kind].snd, 'torpedo'), c0, {gain: .7, near: 500, far: 9000}); }
+   if (!far) for (let i = 0; i < Math.min(n, 24); i++) { let p = world(tv.add(base, [((i * 7) % 5 - 2) * 9, ((i * 3) % 4 - 1.5) * 7, ((i * 11) % 5 - 2) * 9])); if (dO) p = tv.add(p, dO); mOrd.push({id: m.id + ':' + i, kind: o.kind, live: true, pos: p, vel: v, t: ct - o.t0}); if (o.kind === 'itorp' && Math.random() < .25) trial.fx.push({pos: tv.add(p, tv.norm([Math.random() - .5, Math.random() - .5, Math.random() - .5]), 3 + Math.random() * 5), vel: v, life: .1, max: .1, size: 2.4, col: [190, 225, 255]}); }
+  }
+  if (!B.spectate && m.side === me.side) continue;
+  if (far) { mis.push({id: m.id, kind: 'missile', ion: !!m.ion, pos: c0, vel: v, h, alive: true, far: true}); continue; }
+  for (let i = 0; i < n; i++) mis.push({id: m.id + ':' + i, kind: 'missile', ion: !!m.ion, ordK: ok, pos: world(tv.add(base, ok ? [((i * 7) % 5 - 2) * 9, ((i * 3) % 4 - 1.5) * 7, ((i * 11) % 5 - 2) * 9] : [((i * 7) % 5 - 2) * 14, ((i * 3) % 4 - 1.5) * 12, ((i * 11) % 5 - 2) * 14])), vel: v, h, alive: true, onDown: () => { m.n = Math.max(0, m.n - 1); m.downed = (m.downed || 0) + 1; }});
  }
+ // rounds gone since the last frame: those that reached their ship burst on it
+ for (const [id, o] of seenM) if (o.f !== F0) { seenM.delete(id); if (o.ship) continue; const u = w.units.get(o.to); if (!u || !o.last || tv.len(tv.sub(o.last, eye)) > 15000) continue; const c = spaceWorld(u); if (tv.len(tv.sub(o.last, c)) > u.p.len * .7 + 600) continue; for (let k = 0; k < Math.min(3, Math.ceil((o.n || 1) / 4)); k++) craftOrdBurst({kind: o.kind, pos: k ? tv.add(o.last, tv.norm([Math.random() - .5, Math.random() - .5, Math.random() - .5]), 15 + Math.random() * 25) : o.last}, R.alive(u) ? u : null, k > 0); }
+ cf.mOrd = mOrd;
  trial.foeCraft = foe;trial.ownCraft = own;trial.foeMissiles = mis;
+ // the camera riding with the squadron it follows (set before the models are placed relative to it)
+ if (B.spectate && B.followSq != null && !trial.jump) voySqCamera(B, w, cf);
  voyCraftDraw(B, cand);
  voyCraftFire(B, w, sys, cf, fdt, eye);
 }
 // The craft view's state for this battle view: each squadron's craft (formation place, position) and those drawn
-// last frame, kills already drawn (the gunnery's own), attack runs being flown, the craft still falling.
+// last frame, kills already drawn (the gunnery's own), attack runs being flown, the craft still falling, ordnance.
 function voyCf(B, w) {
- if (!B.cf) B.cf = {sq: new Map(), done: new Set(), ghosts: [], runs: [], runT: w.time, t: performance.now(), f: 0, snd: 0};
- trial.cbolts = trial.cbolts || [];return B.cf;
+ if (!B.cf) B.cf = {sq: new Map(), leads: new Map(), iv: new Map(), done: new Set(), ghosts: [], runs: [], ord: [], runT: w?.time ?? 0, t: performance.now(), f: 0, snd: 0, ct: 0};
+ trial.cbolts = trial.cbolts || [];trial.cord = B.cf.ord;return B.cf;
+}
+// v22 The squadron selected in the view: the one the camera follows, else the one last tapped (for a while).
+function voySelSq(B, w) {
+ if (B.followSq != null) { const s = w.squads.get(B.followSq); if (s && s.sys === trial.rts?.sys && s.n > 0 && s.state !== 'lost' && s.state !== 'docked') return s.id; }
+ if (B.tapSq != null && performance.now() - (B.tapT || 0) < 20000) return B.tapSq;
+ return null;
+}
+// The craft models: each type is loaded once, in the background, the nearest wanted first, one at a time.
+function voyCraftWant(mk, d) { if (fleet.assets.has(mk)) return; const q = voy.cfWant || (voy.cfWant = new Map()); const o = q.get(mk); if (o == null || d < o) q.set(mk, d); }
+function voyCraftLoad() {
+ const q = voy.cfWant;if (!q?.size || voy.cfBusy) return;voy.cfLoad = voy.cfLoad || new Set();
+ let best = null, bd = Infinity;for (const [mk, d] of q) { if (fleet.assets.has(mk) || voy.cfLoad.has(mk)) { q.delete(mk); continue; } if (d < bd) { bd = d; best = mk; } }
+ if (!best) return;voy.cfLoad.add(best);q.delete(best);voy.cfBusy = true;fleetAsset(best).catch(e => console.warn('craft model', best, e)).finally(() => { voy.cfBusy = false; });
 }
 // A craft that dropped out of its squadron: if the battle shot it down, the bolt that got it comes in from the
 // squadron or ship that did, and it blows up when the bolt arrives; one landed or flown out of sight just goes.
@@ -7752,50 +8321,113 @@ function craftKill(cf, q, from, col, pd) {
 function voyCraftBoom(p, vel, L) {
  trial.fx.push({pos: p, vel, life: .45, max: .45, size: L * 2.6, col: [255, 240, 210]});
  for (let k = 0; k < 12; k++) trial.fx.push({pos: p, vel: tv.add(vel, tv.norm([Math.random() - .5, Math.random() - .5, Math.random() - .5]), 40 + Math.random() * 120), life: .8, max: .8, size: L * .5, col: [255, 170 + (Math.random() * 60 | 0), 80]});
- sndAt(sndPick('explosion_fighter', 'explosion_small'), p, {gain: .55, near: 400, far: 9000});
+ sndAt(sndPick('explosion_craft', 'explosion_fighter', 'explosion_small'), p, {gain: .6, near: 400, far: 9000});
 }
-// The nearest craft are drawn as their 3D models (each type loaded in the background the first time it comes
-// near); the rest stay points. The models go into the battle's ship list (spaceDrawUnits).
+// The selected wing's craft all get their models, then the lead of every wing (nearest first), then the nearest
+// other craft, within the budget; a model only a few pixels across keeps its point (q.model unset).
 function voyCraftDraw(B, cand) {
- B.cfDraw = [];if (!view || !cand.length) return;const P = trial.P;voy.cfLoad = voy.cfLoad || new Set();
- cand.sort((a, b) => a.d - b.d);let n = voyCraftModels();
- for (const {q, mk, d} of cand) { if (n <= 0) break; if (!fleet.assets.has(mk)) { if (!voy.cfLoad.has(mk) && d < 8000) { voy.cfLoad.add(mk); fleetAsset(mk).catch(e => console.warn('craft model', mk, e)); } continue; }
-  n--;q.model = mk;B.cfDraw.push({key: mk, pos: tv.sub(q.pos, P), rot: trialFrame(q.h, q.up), glow: .85, hatchOpen: 0, dead: false}); }
+ B.cfDraw = [];voyCraftLoad();if (!view || !cand.length) return;const P = trial.P, bud = voyCraftBudget(), left = [bud.sel, bud.lead, bud.near];
+ cand.sort((a, b) => a.pri - b.pri || a.d - b.d);
+ for (const {q, mk, pri, px} of cand) { if (left[pri] <= 0 || !fleet.assets.has(mk)) continue;
+  left[pri]--;if (px >= 7) q.model = mk;B.cfDraw.push({key: mk, pos: tv.sub(q.pos, P), rot: trialFrame(q.h, q.up || [0, 1, 0]), glow: .85, hatchOpen: 0, dead: false}); }
+ B.cfN = B.cfDraw.length;
+}
+// The camera on the squadron it follows: at the squadron's lead place, along its heading (the craft weave about it).
+function voySqCamera(B, w, cf) {
+ const st = cf.sq.get(B.followSq), s = w.squads.get(B.followSq), fr = st?.fr;if (!fr || !s) return;
+ trial.P = fr.c.slice();trial.V = tv.add(trialApply(B.E, s.vel || [0, 0, 0]), [0, 0, 0]);trial.vf = tv.len(trial.V);trial.R = trialFrame(fr.fw, fr.uv);
 }
 // Fire as the battle has it: squadrons in a dogfight shoot at the squadron they fight, squadrons on an attack run
 // strafe (and bombers drop their torpedoes and bombs on) the ship they attack as the battle lands it, and ships
 // whose point defence is on craft fire at them.
 function voyCraftFire(B, w, sys, cf, fdt, eye) {
  const jobs = {df: [], runs: [], pd: []};
- for (const [sid, st] of cf.sq) { const m = st.list;if (!m.length || st.f !== cf.f) continue;const s = w.squads.get(sid);if (!s || s.state !== 'out' || w.time - (s.dogfight ?? -99) > 1.5 || !s.dfFoe) continue;const fm = cf.sq.get(s.dfFoe)?.list;if (fm?.length) jobs.df.push({m, fm, c: R.CRAFT[s.craft], col: voyBoltCol(w, s.side)}); }
- // attack runs, as the battle records them (w.craftRuns): a burst of a second and a half from every craft
- for (const x of w.craftRuns || []) if (x.sys === sys && x.t > cf.runT) { cf.runs.push({sq: x.sq, to: x.to, left: 1.6, first: true}); cf.runT = Math.max(cf.runT, x.t); }
- for (const r of cf.runs) { r.left -= fdt;const s = w.squads.get(r.sq), u = w.units.get(r.to), m = cf.sq.get(r.sq)?.list;if (!s || !u || !m?.length || r.left <= 0) { r.left = 0; continue; } jobs.runs.push({r, m, u, c: R.CRAFT[s.craft], col: voyBoltCol(w, s.side)}); }
+ for (const [sid, st] of cf.sq) { const m = st.list;if (!m.length || st.f !== cf.f) continue;const s = w.squads.get(sid);if (!s || s.state !== 'out' || w.time - (s.dogfight ?? -99) > 1.5 || !s.dfFoe) continue;const fm = cf.sq.get(s.dfFoe)?.list;if (fm?.length) jobs.df.push({m, fm, c: R.CRAFT[s.craft], col: voyBoltCol(w, s.side), gun: craftGun(w, s)}); }
+ // attack runs, as the battle records them (w.craftRuns): a burst of a second and a half from every craft; then the
+ // squadron peels off
+ for (const x of w.craftRuns || []) if (x.sys === sys && x.t > cf.runT) { cf.runs.push({sq: x.sq, to: x.to, left: 1.6, first: true, noOrd: Array.isArray(x.ord) || 'ord' in x}); cf.runT = Math.max(cf.runT, x.t); const st = cf.sq.get(x.sq); if (st) st.brk = cf.ct + 1; }
+ for (const r of cf.runs) { r.left -= fdt;const s = w.squads.get(r.sq), u = w.units.get(r.to), m = cf.sq.get(r.sq)?.list;if (!s || !u || !m?.length || r.left <= 0) { r.left = 0; continue; } jobs.runs.push({r, m, u, c: R.CRAFT[s.craft], key: s.craft, col: voyBoltCol(w, s.side), gun: craftGun(w, s)}); }
  cf.runs = cf.runs.filter(r => r.left > 0);
  // point defence at craft from every ship firing it (the flown ship's own batteries are its turrets)
  for (const u of R.systemUnits(w, sys)) { if (u.manual || !R.alive(u) || u.out || w.time - (u.pdAt ?? -99) > 1 || !u.pdOn) continue; const m = cf.sq.get(u.pdOn)?.list;if (m?.length) jobs.pd.push({u, m, col: voyBoltCol(w, u.side)}); }
  craftFx(B, cf, fdt, eye, jobs);
 }
+// v22 Ordnance on its way: launched along the craft's nose (or dropped below it), then homing on its point of the
+// ship — proton torpedoes a bright red-orange glow with a short trail, concussion missiles a smaller smokeless glow,
+// ion torpedoes blue-white and crackling, bombs falling away and speeding up at the target. They burst where they
+// strike (the damage is the battle's, landed with the run).
+const ORD_FLY = {ptorp: {v0: 160, vmax: 1300, acc: 1900, turn: 3.2, boost: .18, life: 7, snd: 'ptorp_launch'}, cmsl: {v0: 220, vmax: 1700, acc: 2600, turn: 4.2, boost: .12, life: 6, snd: 'cmsl_launch'}, itorp: {v0: 140, vmax: 1100, acc: 1600, turn: 3, boost: .2, life: 7, snd: 'itorp_launch'}, bomb: {v0: -45, vmax: 1100, acc: 950, turn: 1.6, boost: .38, life: 8, snd: 'bomb_drop'}, etorp: {v0: 200, vmax: 1800, acc: 2400, turn: 3.6, boost: .12, life: 6, snd: 'etorp_launch'}};
+function craftOrdLaunch(cf, a, u, kind, delay) { if (ORD_FLY[kind] && cf.ord.length < 140) cf.ord.push({kind, a, u, wait: delay || 0, t: 0, life: ORD_FLY[kind].life, n: cf.ord.length, live: false}); }
+// The moment it leaves the craft: from the tubes either side of the nose (bombs from below), with the craft's way on.
+function craftOrdFire(o) {
+ const f = ORD_FLY[o.kind], a = o.a, u = o.u, c = R.CRAFT[a.craft], h = a.h || tv.norm(a.vel || [1, 0, 0]), upv = a.up || [0, 1, 0], rt = tv.norm(tv.cross(h, upv)), side = (o.n & 1 ? 1 : -1) * (c?.dims?.[1] || 8) * .3;
+ o.pos = o.kind === 'bomb' ? tv.add(a.pos, upv, -2) : tv.add(tv.add(a.pos, h, (c?.dims?.[0] || 8) * .5), rt, side);
+ o.vel = o.kind === 'bomb' ? tv.add(tv.scale(a.vel || [0, 0, 0], .97), upv, f.v0) : tv.add(a.vel || [0, 0, 0], h, f.v0);
+ if (u && R.alive(u)) { const sh = craftShip(u); o.aim = trialApplyT(sh.R, tv.sub(spaceHullPoint(u, .3), sh.c)); }
+ o.live = true;o.a = null;o.team = a.team;sndAt(sndPick(f.snd, 'torpedo'), o.pos, {gain: .7, near: 500, far: 9000});
+}
+function craftOrdStep(cf, fdt, eye) {
+ for (const o of cf.ord) {
+  if (!o.live) { o.wait -= fdt; if (o.wait > 0) continue; if (!o.a || !o.a.alive) { o.life = 0; continue; } craftOrdFire(o); }
+  const f = ORD_FLY[o.kind], u = o.u, alive = !!u && R.alive(u) && !!o.aim;o.t += fdt;o.life -= fdt;
+  let tgt = null;if (alive) { const sh = craftShip(u); tgt = tv.add(sh.c, trialApply(sh.R, o.aim)); }
+  const rel = tgt ? tv.sub(tgt, o.pos) : null, dist = rel ? tv.len(rel) : Infinity;let sp = tv.len(o.vel), dir = sp > 1 ? tv.scale(o.vel, 1 / sp) : rel ? tv.norm(rel) : [1, 0, 0];
+  if (o.t > f.boost && rel && dist > 1) {
+   // home on the point (leading the ship's own motion), turning harder the closer it gets, and speed up
+   const uv = spaceVel(u), want = tv.norm(tv.add(rel, uv, dist / Math.max(300, sp))), c = C.clamp(tv.dot(dir, want), -1, 1), ang = Math.acos(c), mx = Math.max(f.turn, 1.6 * sp / Math.max(150, dist)) * fdt;
+   if (ang > 1e-4) { const ax = tv.cross(dir, want), l = tv.len(ax); dir = l > 1e-9 ? tv.norm(trialRot(dir, tv.scale(ax, 1 / l), Math.min(ang, mx))) : want; }
+   sp = Math.min(f.vmax + tv.len(uv), sp + f.acc * fdt);o.vel = tv.scale(dir, sp);
+  }
+  o.pos = tv.add(o.pos, o.vel, fdt);
+  if (o.kind === 'itorp' && Math.random() < .6) trial.fx.push({pos: tv.add(o.pos, tv.norm([Math.random() - .5, Math.random() - .5, Math.random() - .5]), 3 + Math.random() * 5), vel: [0, 0, 0], life: .1, max: .1, size: 2.4, col: [190, 225, 255]});
+  if (dist < Math.max(8, sp * fdt * 1.2) || o.life <= 0) { o.life = 0; if (tgt || o.t > .5) craftOrdBurst(o, alive ? u : null); }
+ }
+ const keep = cf.ord.filter(o => o.life > 0);cf.ord.length = 0;cf.ord.push(...keep);trial.cord = cf.mOrd?.length ? cf.ord.concat(cf.mOrd) : cf.ord;
+}
+function craftOrdBurst(o, u, quiet) {
+ const hv = u ? spaceVel(u) : [0, 0, 0], sh = u && u.shield > 0, ion = o.kind === 'itorp', L = o.kind === 'cmsl' ? 16 : 26;
+ trial.fx.push({pos: o.pos, vel: hv, life: .7, max: .7, size: L * 2.2, col: ion ? [160, 200, 255] : sh ? [140, 200, 255] : [255, 225, 170]});
+ for (let j = 0; j < (ion ? 10 : 7); j++) trial.fx.push({pos: o.pos, vel: tv.add(hv, tv.norm([Math.random() - .5, Math.random() - .5, Math.random() - .5]), 30 + Math.random() * (ion ? 160 : 90)), life: ion ? .45 : .6, max: ion ? .45 : .6, size: ion ? 4 : 8, col: ion ? [170, 210, 255] : [255, 160 + (Math.random() * 70 | 0), 80]});
+ if (!quiet) sndAt(ion ? sndPick('ion_wash', 'ion') : o.kind === 'cmsl' || o.kind === 'etorp' ? 'explosion_small' : sndPick('ptorp_hit', 'explosion_small'), o.pos, {gain: ion ? .35 : .55, near: 600, far: 12000});
+}
+// The ordnance drawn as glowing points (craftOrdPoints → trialRenderSets): [pos, rgba, size] relative to P.
+function craftOrdPoints(P) {
+ const out = [], tt = performance.now() / 1000;
+ for (const o of trial.cord || []) { if (!o.live) continue; const p = tv.sub(o.pos, P), d = tv.norm(o.vel), fl = .85 + .15 * Math.sin(tt * 41 + o.pos[0]);
+  if (o.kind === 'ptorp') { out.push([p, [255, 236, 205, 255], 6.5 * fl], [p, [255, 120, 55, 210], 17 * fl]); for (let k = 1; k <= 3; k++) out.push([tv.add(p, d, -k * 9), [255, 110, 50, 170 - k * 40], 11 - k * 2.4]); }
+  else if (o.kind === 'cmsl') out.push([p, [255, 245, 225, 255], 4], [p, [255, 175, 110, 190], 9 * fl]);
+  else if (o.kind === 'etorp') out.push([p, [255, 235, 240, 255], 5 * fl], [p, [255, 80, 120, 200], 13 * fl], [tv.add(p, d, -8), [255, 90, 130, 120], 8]);
+  else if (o.kind === 'itorp') out.push([p, [235, 245, 255, 255], 6 * fl], [p, [120, 170, 255, 200], 16 * (.7 + .6 * Math.random())], [tv.add(p, d, -10), [150, 190, 255, 120], 9]);
+  else out.push([p, [255, 205, 150, 255], 4.2], [p, [255, 120, 60, 170], 10 * fl]); }
+ return out;
+}
 // The craft's guns and the point defence firing at them, for the 3D view: only near the camera, and only so many
 // bolts a frame. jobs.df: a squadron's craft (m) shooting at another's (fm); jobs.runs: craft strafing (bombers:
 // torpedoes and bombs first) ship u; jobs.pd: ship u firing at craft m. Then the bolts fly and the craft hit blow up.
+// v22 Fighters fire from their guns (paired, from the nose and the wings), each in its faction's voice; the run opens
+// with the ordnance the craft carries.
 function craftFx(B, cf, fdt, eye, jobs) {
- const NEAR2 = 9000 * 9000, near = p => (p[0] - eye[0]) ** 2 + (p[1] - eye[1]) ** 2 + (p[2] - eye[2]) ** 2 < NEAR2, bolts = trial.cbolts || (trial.cbolts = []);let budget = 70;
+ const NEAR2 = 9000 * 9000, near = p => (p[0] - eye[0]) ** 2 + (p[1] - eye[1]) ** 2 + (p[2] - eye[2]) ** 2 < NEAR2, bolts = trial.cbolts || (trial.cbolts = []);let budget = 70;cf.ord = cf.ord || [];
  const shoot = (from, to, tvel, col, o) => { if (budget <= 0 || bolts.length > 1100) return; budget--; const sp = o.sp || 3400, d0 = tv.sub(to, from), tof = Math.min(2, tv.len(d0) / sp), m = o.miss, aim = tv.add(tv.add(to, tvel || [0, 0, 0], tof), [(Math.random() - .5) * m, (Math.random() - .5) * m, (Math.random() - .5) * m]), d = tv.sub(aim, from), L = tv.len(d); if (L < 1) return; bolts.push({pos: from, vel: tv.add(o.base || [0, 0, 0], tv.scale(d, sp / L)), life: Math.min(2.2, L / sp + (o.over || 0)), len: o.len || 14, size: o.size || 2, col, hit: o.hit || null, torp: o.torp || false}); };
  const pick = a => a?.length ? a[Math.floor(Math.random() * a.length)] : null;
  const noise = (n, k) => { if (!(fdt > 0) || B.result) return 0; const e = n * k * fdt; return Math.floor(e) + (Math.random() < e % 1 ? 1 : 0); };
- let sndN = 0;const pew = (p, name, g) => { if (sndN++ > 1 || performance.now() - cf.snd < 90) return; cf.snd = performance.now(); sndAt(name, p, {gain: g ?? .45, near: 300, far: 6000}); };
- for (const {m, fm, c, col} of jobs.df) { if (!near(m[0].pos)) continue; const heavy = (c.strike || 0) > 150, k = noise(m.length, .9 * Math.min(1.6, c.aa || .5)), o = {sp: 5200, miss: 60, len: heavy ? 18 : 14, size: heavy ? 2.4 : 1.9};
-  for (let i = 0; i < k; i++) { const a = pick(m), t = pick(fm); o.base = a.vel; const from = tv.add(a.pos, tv.norm(tv.sub(t.pos, a.pos)), 8); shoot(from, t.pos, t.vel, col, o); if (Math.random() < .5) shoot(tv.add(from, a.up || [0, 1, 0], 3), t.pos, t.vel, col, o); pew(a.pos, 'laser_light'); } }
- for (const {r, m, u, c, col} of jobs.runs) { if (!near(m[0].pos)) continue; const bomber = c.role === 'bomber', uv = spaceVel(u);
-  if (r.first) { r.first = false; if (bomber || (c.strike || 0) > 60) for (const a of m) shoot(a.pos, spaceHullPoint(u, .3), uv, [255, 190, 130], {sp: bomber ? 900 : 1400, miss: 4, len: 10, size: 4.2, base: a.vel, hit: u, torp: true}); pew(m[0].pos, bomber ? 'torpedo' : 'laser_light', .6); }
-  const k = noise(m.length, bomber ? 2.5 : 6);for (let i = 0; i < k; i++) { const a = pick(m); shoot(tv.add(a.pos, a.h, 6), spaceHullPoint(u, .35), uv, col, {sp: 4800, miss: 6, len: 14, size: 2, base: a.vel, hit: u}); pew(a.pos, 'laser_light'); } }
+ let sndN = 0;const pew = (p, name, g, pitch) => { if (sndN++ > 1 || performance.now() - cf.snd < 90) return; cf.snd = performance.now(); sndAt(sndPick(name, 'laser_light'), p, {gain: g ?? .45, near: 300, far: 6000, pitch}); };
+ // the guns of craft a: a linked pair from either side of the nose (wingtips for the wide-winged)
+ const guns = (a, c, at, tvel, col, o, gun) => { const h = a.h || [1, 0, 0], upv = a.up || [0, 1, 0], rt = tv.cross(h, upv), sp = (c.dims?.[1] || 8) * (c.dims?.[1] > 9 ? .45 : .18), nose = tv.add(a.pos, h, (c.dims?.[0] || 8) * .45), fl = (a.gunF = (a.gunF || 0) + 1) & 1 ? 1 : -1;
+  o.base = a.vel; shoot(tv.add(nose, rt, sp * fl), at, tvel, col, o); if (Math.random() < .6) shoot(tv.add(nose, rt, -sp * fl), at, tvel, col, o); pew(a.pos, gun, undefined, craftGunPitch(a.craft)); };
+ for (const {m, fm, c, col, gun} of jobs.df) { if (!near(m[0].pos)) continue; const heavy = (c.strike || 0) > 150, k = noise(m.length, .9 * Math.min(1.6, c.aa || .5)), o = {sp: 5200, miss: 60, len: heavy ? 18 : 14, size: heavy ? 2.4 : 1.9};
+  for (let i = 0; i < k; i++) { const a = pick(m), t = pick(fm); guns(a, c, t.pos, t.vel, col, o, gun); } }
+ for (const {r, m, u, c, key, col, gun} of jobs.runs) { if (!near(m[0].pos)) continue; const uv = spaceVel(u);
+  if (r.first) { r.first = false; const ord = r.noOrd ? [] : craftOrd(key || m[0].craft);
+   if (ord.length) { let n = 0; for (const a of m) { if (n > 24) break; const x = ord[(a.k || 0) % ord.length], per = x.mount === 'bay' ? Math.min(4, x.n) : Math.min(2, x.n); for (let j = 0; j < per; j++) { craftOrdLaunch(cf, a, u, x.kind, j * (x.mount === 'bay' ? .13 : .09) + (a.k || 0) * .05); n++; } } } }
+  const k = noise(m.length, c.role === 'bomber' ? 2.5 : 6);for (let i = 0; i < k; i++) { const a = pick(m); guns(a, c, spaceHullPoint(u, .35), uv, col, {sp: 4800, miss: 6, len: 14, size: 2, hit: u}, gun); } }
  for (const {u, m, col} of jobs.pd) { const at = spaceWorld(u);if (!near(at)) continue; const k = noise(1, Math.min(14, 1 + Math.sqrt(Math.max(0, u.p.aa || 0)) * .9)), o = {sp: 3600, miss: 90, len: 34, size: 3, base: spaceVel(u), over: .25};
   for (let i = 0; i < k; i++) { const t = pick(m); shoot(spaceHullPoint(u, .4), t.pos, t.vel, col, o); pew(t.pos, 'point_defense', .35); } }
  // the bolts: lasers flash where they strike a ship; torpedoes and bombs burst on it
- for (const b of bolts) { b.pos = tv.add(b.pos, b.vel, fdt); b.life -= fdt; if (b.torp && Math.random() < .5) trial.fx.push({pos: b.pos, vel: [0, 0, 0], life: .5, max: .5, size: 5, col: [150, 160, 175]});
-  if (b.life <= 0 && b.hit) { const sh = b.hit.shield > 0, L = b.torp ? 26 : 7, hv = spaceVel(b.hit); trial.fx.push({pos: b.pos, vel: hv, life: b.torp ? .7 : .25, max: b.torp ? .7 : .25, size: L * (b.torp ? 2 : 1.4), col: sh ? [130, 195, 255] : [255, 190, 110]}); if (b.torp) for (let j = 0; j < 6; j++) trial.fx.push({pos: b.pos, vel: tv.add(hv, tv.norm([Math.random() - .5, Math.random() - .5, Math.random() - .5]), 30 + Math.random() * 80), life: .6, max: .6, size: 8, col: [255, 160 + (Math.random() * 70 | 0), 80]}); } }
+ for (const b of bolts) { b.pos = tv.add(b.pos, b.vel, fdt); b.life -= fdt;
+  if (b.life <= 0 && b.hit) { const sh = b.hit.shield > 0, L = b.torp ? 26 : 7, hv = spaceVel(b.hit); trial.fx.push({pos: b.pos, vel: hv, life: b.torp ? .7 : .25, max: b.torp ? .7 : .25, size: L * (b.torp ? 2 : 1.4), col: sh ? [130, 195, 255] : [255, 190, 110]}); } }
  trial.cbolts = bolts.filter(b => b.life > 0);
+ craftOrdStep(cf, fdt, eye);
  // craft hit by the bolt that got them: they blow up as it arrives
  for (const g of cf.ghosts) { g.t -= fdt; g.pos = tv.add(g.pos, g.vel, fdt); if (g.t <= 0) { g.alive = false; voyCraftBoom(g.pos, g.vel, 14); } }
  cf.ghosts = cf.ghosts.filter(g => g.alive);trial.craftGhosts = cf.ghosts;
@@ -7830,7 +8462,7 @@ function voyPilotStep(dt) {
 // there is no 3D view to go back to.
 function voyPilotEnd() {
  const p = voy.pilot;voy.pilot = null;if (voy.w && p && p.uid != null) { const u = voy.w.units.get(p.uid); if (u) { u.manual = false; u.extra = null; } }
- trial.foeCraft = [];trial.ownCraft = [];trial.foeMissiles = [];trial.cbolts = [];trial.craftGhosts = [];voy.orders = false;
+ trial.foeCraft = [];trial.ownCraft = [];trial.foeMissiles = [];trial.cbolts = [];trial.craftGhosts = [];trial.cord = [];voy.orders = false;
  if (!voy.w || voy.quiet) return;
  if (p && !p.spectate && voyCan3D()) { const u = voy.w.units.get(p.uid), ok = u && R.alive(u) && u.sys != null; voyEnter3D(ok ? u.sys : null, ok ? u.id : null).then(r => { if (!r && !trial.on) voyShowMaps(p); }); return; }
  voyShowMaps(p);
@@ -7901,7 +8533,7 @@ function voySpectateRebase(u) {
 }
 // Follow u wherever it is: in this system, another one, or in hyperspace.
 function voySpectateSwitch(u) {
- const B = trial.battle;if (!B?.spectate || !u || !R.alive(u)) return;
+ const B = trial.battle;if (!B?.spectate || !u || !R.alive(u)) return;B.followSq = null;
  if (trial.jump?.follow) trial.jump = null;
  if (u.sys == null) { if (u.side === 0) voyFollowTransit(u); return; }
  if (u.sys !== trial.rts.sys) voySpectateRebase(u);
@@ -7911,6 +8543,25 @@ function voySpectateNext(dir) {
  const {w, sys} = trial.rts, B = trial.battle, side = voy.specSide || 'all';
  const us = R.systemUnits(w, sys).filter(u => R.alive(u) && !u.warp && (side === 'all' || (side === 'own') === (u.side === 0))).sort((a, b) => a.side - b.side || b.p.len - a.p.len || (a.id > b.id ? 1 : -1));
  if (!us.length) return null;const i = us.findIndex(u => u.id === B.follow);return us[(((i < 0 ? 0 : i + dir) % us.length) + us.length) % us.length];
+}
+// v22 Following a squadron (中隊) in the view: its wing (飛行隊) is drawn craft by craft, the camera rides at its lead's
+// place behind it. ◀ ▶ then step through the squadrons in the air here; tapping a ship's bracket goes back to ships.
+const voySqUp = q => q && q.n > 0 && (q.state === 'out' || q.state === 'return');
+function voySqFollow(B, w, id) {
+ const q = w.squads.get(id);if (!voySqUp(q) || q.sys !== trial.rts.sys) { toast('この中隊は飛行していません'); return; }
+ const c = R.CRAFT[q.craft], L = c?.dims?.[0] || 10, wasSq = B.followSq != null;B.followSq = q.id;B.tapSq = q.id;B.tapT = performance.now();trial.camLen = Math.max(L, 30);trial.camF = null;
+ if (view) { const d = Math.max(16, 2.4 * Math.max(c?.dims?.[1] || 0, L, 6)); view.cam.r = trialCamRange(d * 5 + 60); view.cam.ph = TRIAL_CAM_PH; if (!wasSq) view.cam.th = Math.PI; }
+ voySpectateHudUpdate(true);
+}
+function voySqUnfollow(B, w, q) {
+ B.followSq = null;if (q) toast(`${esc(q.name)}は${q.state === 'lost' || q.n <= 0 ? '全滅しました' : q.state === 'docked' ? '母艦に戻りました' : q.sys !== trial.rts.sys ? 'この星系を離れました' : '帰還しました'}`);
+ const u = w.units.get(B.follow);if (u && R.alive(u) && u.sys === trial.rts.sys) voySpectateFollow(u, true);else { trial.camLen = 300; }
+ voySpectateHudUpdate(true);
+}
+function voySqNext(dir) {
+ const {w, sys} = trial.rts, B = trial.battle, side = voy.specSide || 'all';
+ const qs = [...w.squads.values()].filter(q => q.sys === sys && voySqUp(q) && (side === 'all' || (side === 'own') === (q.side === 0))).sort((a, b) => a.side - b.side || (a.wing > b.wing ? 1 : a.wing < b.wing ? -1 : (a.slot ?? 0) - (b.slot ?? 0)));
+ if (!qs.length) return null;const i = qs.findIndex(q => q.id === B.followSq);return qs[(((i < 0 ? 0 : i + dir) % qs.length) + qs.length) % qs.length];
 }
 // ---------- through hyperspace with the followed group ----------
 // The group has just left: the camera rides with the ship up to sublight and
@@ -8001,6 +8652,10 @@ function voySpectateStep(dt) {
  if (j?.follow) voyFollowStep(j, dt);
  else {
   let f = w.units.get(B.follow);
+  // v22 Riding with a squadron: the camera is set where its craft are drawn (voySqCamera); when it lands, is lost
+  // or leaves, the view goes back to the ship it followed before.
+  if (B.followSq != null) { const q = w.squads.get(B.followSq); if (q && q.sys === sys && q.n > 0 && (q.state === 'out' || q.state === 'return')) f = null; else voySqUnfollow(B, w, q); }
+  if (B.followSq == null) {
   // Ours elsewhere (gone while the maps were up): follow it there; anyone else is let go.
   if (f && R.alive(f) && f.side === 0 && f.sys !== sys) { voySpectateSwitch(f); f = null; }
   else if (!f || f.dead || f.sys !== sys) {
@@ -8009,6 +8664,7 @@ function voySpectateStep(dt) {
    if (B.hold && f && B.hold.id === f.id && (B.hold.t += dt) < 6) { trial.P = tv.add(trial.P, trial.V, dt); f = null; }
    else { B.hold = null; const next = voySpectateNext(1); if (next && next !== f) { if (f && !f.dead) toast(`${esc(f.name)}は星系を離れました — ${esc(next.name)}を追います`); f = next; voySpectateFollow(f, true); } } }
   if (f && !f.dead && f.sys === trial.rts.sys && !trial.jump) voySpectateFollow(f, false);
+  }
  }
  if (trial.jump?.follow && !trial.jump.arrived) { trial.foeCraft = []; trial.ownCraft = []; trial.foeMissiles = []; } else voyPilotThreats();
  spaceRefresh();
@@ -8019,12 +8675,13 @@ function voySpectateStep(dt) {
 function voySpectateCmd(c) {
  const B = trial.battle;if (!B?.spectate) return;const {w} = trial.rts;
  if (c === 'orders') { voyOrdersOpen(); return; }
- if (c === 'alert') { const s = voy.battleAlert, u = s != null && R.systemUnits(w, s).find(x => x.side === 0 && !x.out); if (u) voySpectateSwitch(u); voy.battleAlert = null; voySpectateHudUpdate(true); return; }
- if (c === 'next' || c === 'prev') { if (trial.jump?.follow) return; const u = voySpectateNext(c === 'next' ? 1 : -1); if (u) voySpectateFollow(u, true); }
- else if (c === 'side') { if (trial.jump?.follow) return; voy.specSide = {all: 'own', own: 'foe', foe: 'all'}[voy.specSide || 'all']; const u = voySpectateNext(0); if (u && (voy.specSide === 'all' || (voy.specSide === 'own') === (u.side === 0))) voySpectateFollow(u, true); }
+ if (c === 'alert') { const s = voy.battleAlert, u = s != null && R.systemUnits(w, s).find(x => x.side === 0 && !x.out); if (u) { B.followSq = null; voySpectateSwitch(u); } voy.battleAlert = null; voySpectateHudUpdate(true); return; }
+ if (c === 'next' || c === 'prev') { if (trial.jump?.follow) return; if (B.followSq != null) { const q = voySqNext(c === 'next' ? 1 : -1); if (q) voySqFollow(B, w, q.id); } else { const u = voySpectateNext(c === 'next' ? 1 : -1); if (u) voySpectateFollow(u, true); } }
+ else if (c === 'side') { if (trial.jump?.follow) return; voy.specSide = {all: 'own', own: 'foe', foe: 'all'}[voy.specSide || 'all']; if (B.followSq != null) { const q = voySqNext(0); if (q) voySqFollow(B, w, q.id); } else { const u = voySpectateNext(0); if (u && (voy.specSide === 'all' || (voy.specSide === 'own') === (u.side === 0))) voySpectateFollow(u, true); } }
+ else if (c.startsWith('sq:')) { if (trial.jump?.follow) return; voySqFollow(B, w, c.slice(3)); }
  else if (c === 'cam') { trial.specCam = trial.specCam === 'free' ? 'chase' : 'free'; }
  else if (c.startsWith('speed:')) { voy.speed = +c.slice(6) || 0; if (voy.speed) voy.lastSpeed = voy.speed; }
- else if (c.startsWith('follow:')) { if (trial.jump?.follow) return; const u = w.units.get(c.slice(7)); if (u && R.alive(u)) voySpectateFollow(u, true); }
+ else if (c.startsWith('follow:')) { if (trial.jump?.follow) return; const u = w.units.get(c.slice(7)); if (u && R.alive(u)) { B.followSq = null; voySpectateFollow(u, true); } }
  voySpectateHudUpdate(true);
 }
 // Keys in the 3D view: Space pauses, 1–5 set the clock, M (or Esc) opens the
@@ -8063,7 +8720,9 @@ function voySpectateHyperText(f) {
 function voySpectateHudUpdate(full) {
  const hud = $('#trialHud'), B = trial.battle;if (!hud || !B?.spectate) return;const {w, sys} = trial.rts, q = k => hud.querySelector(`[data-sp="${k}"]`), set = (k, v) => { const e = q(k); if (e && e.textContent !== v) e.textContent = v; };
  const f = w.units.get(B.follow), us = R.systemUnits(w, sys), own = us.filter(u => u.side === 0), foe = us.filter(u => u.side !== 0), up = l => l.filter(R.fighting).length, bt = w.battles.get(sys), ride = trial.jump?.follow && !trial.jump.arrived;
- if (f) { set('name', `${f.side === 0 ? '' : '敵 '}${f.name}`); set('where', `${R.FACTIONS[w.sides[f.side].faction]?.short || ''} · ${voyUnitState(f)} · シールド ${Math.round(f.shield / Math.max(1, f.shieldMax) * 100)}% · 構造 ${Math.round(R.unitStruct(f) * 100)}%${voySwBrief(f)}`); }
+ const fq = B.followSq != null ? w.squads.get(B.followSq) : null;
+ if (fq) { const wg = w.wings.get(fq.wing), c = R.CRAFT[fq.craft]; set('name', `${fq.side === 0 ? '' : '敵 '}${fq.name}`); set('where', `${wg?.name || ''} · ${c?.short || ''} ${fq.n}/${fq.n0 || fq.n} 機 · ${R.WING_PHASE[wg?.phase] || ''}${fq.kills ? ` · 撃墜 ${fq.kills}` : ''}`); }
+ else if (f) { set('name', `${f.side === 0 ? '' : '敵 '}${f.name}`); set('where', `${R.FACTIONS[w.sides[f.side].faction]?.short || ''} · ${voyUnitState(f)} · シールド ${Math.round(f.shield / Math.max(1, f.shieldMax) * 100)}% · 構造 ${Math.round(R.unitStruct(f) * 100)}%${voySwBrief(f)}`); }
  set('records', ride ? `${w.groups.get(f?.group)?.name || ''} · ハイパースペース · 経過 ${voyClock(w.time)}` : `${w.sector.systems[sys].name}　自軍 ${up(own)}/${own.length} 隻 · 敵 ${up(foe)}/${foe.length} 隻${bt ? ` · 交戦 ${voyClock(w.time - bt.t0)}` : B.hadBattle ? ' · 戦闘終了' : ' · 交戦なし'} · 経過 ${voyClock(w.time)}`);
  set('side', {all: '全艦', own: '自軍', foe: '敵艦'}[voy.specSide || 'all']);set('cam', trial.specCam === 'free' ? '視点 自由' : '視点 追尾');
  for (const b of hud.querySelectorAll('[data-spec^="speed:"]')) b.setAttribute('aria-pressed', String(+b.dataset.spec.slice(6) === voy.speed));
@@ -8131,7 +8790,7 @@ async function voyTutStart() {
  const own = {ctgs: [{name: '第1合同任務群', tgs: [{name: '第11任務群', formation: 'abreast', ships: [{design: 'venator', name: 'アクィラ', air, troops: 0}, {design: 'dreadnaught', name: 'インヴィクタ', air: [], troops: 0}]}, {name: '第12任務群', formation: 'abreast', ships: [{design: 'dreadnaught', name: 'フォルティス', air: [], troops: 0}]}]}]};
  const foe = {ctgs: [{name: '分離主義艦隊', tgs: [{name: '第1小艦隊', formation: 'abreast', ships: [{design: 'munificent', name: 'シナジー', air: [], troops: 0}, {design: 'munificent', name: 'レバレッジ', air: [], troops: 0}]}]}]};
  const designs = need.map(voyDesign).map(d => ({key: d.key, name: d.name, p: d.p, info: d.info}));
- const w = R.createWorld({seed: 4242, region: 'corellia', designs, sides: [{faction: 'republic', ai: false}, {faction: 'cis', ai: true}], fleets: [own, foe]});w.onHit = voyOnHit;
+ const w = R.createWorld({seed: 4242, region: 'corellia', keepEnds: true, designs, sides: [{faction: 'republic', ai: false}, {faction: 'cis', ai: true}], fleets: [own, foe]});w.onHit = voyOnHit;
  // The enemy waits one jump from our starting system, already reported.
  const sd = w.sides[0], start = sd.start, S = w.sector, nb = S.systems[start].links.map(i => S.edges[i]).map(e => e.a === start ? e.b : e.a).sort((a, b) => (sd.home.includes(a) - sd.home.includes(b)) || R.routeCost(S, start, a) - R.routeCost(S, start, b))[0];
  const fg = [...w.groups.values()].find(g => g.side === 1);
@@ -8450,11 +9109,11 @@ async function voyOpenWithCurrent() {
   if (voyObShips(ob).some(sh => sh.key === d.key)) return;
   let t = voyObTgs(ob).find(x => x.ships.length < TG_MAX);
   if (!t) { if (!ob.ctgs.length) ob.ctgs.push({id: voyUid(ob), name: '第1合同任務群', tgs: []}); const c = ob.ctgs[ob.ctgs.length - 1], n = ob.ctgs.indexOf(c) + 1; t = {id: voyUid(ob), name: `第${n}${c.tgs.length + 1}任務群`, formation: 'abreast', ships: []}; c.tgs.push(t); }
-  t.ships.push({id: voyUid(ob), src: 'current', key: d.key, name: voyNextName(s.own, new Set(voyObShips(ob).map(x => x.name))), air: R.defaultAir(d.info, s.own, d.air), ground: [], carried: voyDefaultCarried(d)});
+  t.ships.push({id: voyUid(ob), src: 'current', key: d.key, name: voyNextName(s.own, new Set(voyObShips(ob).map(x => x.name))), ...voyAutoLoad(d, s.own)});
   voyObChanged();toast(`設計中の艦を${esc(t.name)}に加えました`);
  } catch (e) { console.error(e); toast('設計中の艦を準備できません：' + esc(e.message || e)); }
 }
-function bindVoyage() { voyBindSetup(); voyBindMap(); document.addEventListener('click', e => { const hb = e.target.closest('[data-vhit],[data-vhitplay],[data-vhitclose]'); if (hb) { if (hb.dataset.vhit) { const [id, i] = hb.dataset.vhit.split(':'); voyHitReplay(id, +i); } else if ('vhitplay' in hb.dataset && voy.replay) voy.replay.t0 = performance.now(); else { $('#voySheet').hidden = true; voy.replay = null; } return; } if (trial.spectate) { const sb = e.target.closest('[data-spec]'); if (sb) { voySpectateCmd(sb.dataset.spec); return; } const mk = e.target.closest('.th-tmark'); if (mk?.dataset.tmark?.startsWith('u')) { voySpectateCmd('follow:' + mk.dataset.tmark.slice(1)); return; } } const b = e.target.closest('[data-voyopen]'); if (b) { e.preventDefault(); voyOpenWithCurrent(); } }); window.__voy = {voy, R, open: voyOpen, pilot: voyPilot, go: voyGo, spectate: voySpectate, step: voySpectateStep, pilotStep: voyPilotStep, tap: voyMapTap, follow: voySpectateSwitch, tut: voyTutStart, vtut, vtutGo, load: {show: loadShow, hide: loadHide, shots}, fxStep: (dt, n = 1) => { for (let i = 0; i < n; i++) { trialWrecksStep(dt); trialFxStep(dt); } }}; }
+function bindVoyage() { voyBindSetup(); voyBindMap(); document.addEventListener('click', e => { const hb = e.target.closest('[data-vhit],[data-vhitplay],[data-vhitclose]'); if (hb) { if (hb.dataset.vhit) { const [id, i] = hb.dataset.vhit.split(':'); voyHitReplay(id, +i); } else if ('vhitplay' in hb.dataset && voy.replay) voy.replay.t0 = performance.now(); else { $('#voySheet').hidden = true; voy.replay = null; } return; } if (trial.spectate) { const sb = e.target.closest('[data-spec]'); if (sb) { voySpectateCmd(sb.dataset.spec); return; } const mk = e.target.closest('.th-tmark'); if (mk?.dataset.tmark?.startsWith('u')) { voySpectateCmd('follow:' + mk.dataset.tmark.slice(1)); return; } if (mk?.dataset.tmark?.startsWith('q')) { voySpectateCmd('sq:' + mk.dataset.tmark.slice(1)); return; } } const b = e.target.closest('[data-voyopen]'); if (b) { e.preventDefault(); voyOpenWithCurrent(); } }); window.__voy = {voy, R, open: voyOpen, pilot: voyPilot, go: voyGo, spectate: voySpectate, step: voySpectateStep, pilotStep: voyPilotStep, tap: voyMapTap, follow: voySpectateSwitch, tut: voyTutStart, vtut, vtutGo, load: {show: loadShow, hide: loadHide, shots}, fxStep: (dt, n = 1) => { for (let i = 0; i < n; i++) { trialWrecksStep(dt); trialFxStep(dt); } }}; }
 
 window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
 })();

@@ -116,6 +116,10 @@ const FITS = {
   utl: {cat: 'w', name: '超重ターボレーザー連装砲塔', short: '超重TL', fm: 56, wm: 56, hm: 26, tt: 1440, aa: .05, mass: 52000, crew: 60, cost: 6e6, desc: '2門×720TT。弩級艦向け。'},
   ion: {cat: 'w', name: 'イオン砲（連装）', short: 'イオン砲', fm: 22, wm: 22, hm: 14, ion: 120, aa: .4, mass: 5500, crew: 18, cost: 600e3, desc: '対シールド120TT相当。船体への損害は小さい。'},
   msl: {cat: 'w', name: 'ミサイル発射管', short: 'ミサイル', fm: 12, wm: 12, hm: 3, msl: 80, pw: 1e21, mass: 600, crew: 8, cost: 150e3, desc: '20秒ごとに8発×10TT。半分はシールドを抜ける。射界の制約なし。'},
+  // v22 The ion torpedo launcher: the missile launcher's box and magazine, firing ion torpedoes. Its hits go to the
+  // ion channel (three times as hard on shields; what gets through drains the stored charge and chokes the reactor),
+  // and point defence engages its salvos like missiles. The same mounts as the missile launcher (VLS or external box).
+  itl: {cat: 'w', name: 'イオン魚雷発射管', short: 'イオン魚雷', fm: 12, wm: 12, hm: 3, msl: 80, ionMsl: true, pw: 1e21, mass: 600, crew: 8, cost: 180e3, desc: '20秒ごとに8発のイオン魚雷（1発 10 TT 相当のイオン）。シールドに3倍で効き、抜けた分は蓄電を奪い反応炉を麻痺させる（船体への損害は小さい）。点防御に迎撃される。射界の制約なし。'},
   trc: {cat: 'w', name: 'トラクター・ビーム投射機', short: '牽引', fm: 16, wm: 16, hm: 8, trac: 1, pw: 2e22, mass: 800, crew: 6, cost: 300e3, desc: '敵艦の機動を拘束する。'},
   brS: {cat: 'b', name: '小型艦橋', short: '小型', fm: 34, wm: 26, hm: 22, sensor: 0.6, pw: 1e21, mass: 4000, crew: 30, cost: 200e3, desc: '被弾しにくいが視界が狭い。'},
   brT: {cat: 'b', name: '塔型艦橋', short: '塔型', fm: 50, wm: 44, hm: 110, sensor: 1.0, pw: 3e21, mass: 45000, crew: 120, cost: 1.5e6, desc: '高さ110m級。視界が広いが標的になりやすい。'},
@@ -125,9 +129,13 @@ const FITS = {
   claserH: {cat: 'w', craft: true, fixed: true, name: '重レーザー砲', short: '重レーザー', fm: 3.6, wm: .5, hm: .5, tt: .0015, aa: 1, mass: 3, crew: 0, cost: 1200, desc: '重戦闘機・ガンシップ用の大口径レーザー砲（ARC-170 の主砲級）。'},
   cion: {cat: 'w', craft: true, fixed: true, name: '固定式イオン砲', short: 'イオン砲', fm: 1.8, wm: .55, hm: .55, ion: .0008, mass: 1.6, crew: 0, cost: 900, desc: '機首方向に固定したイオン砲。シールドと電装を麻痺させる。'},
   cturret: {cat: 'w', craft: true, name: '小型旋回砲塔', short: '旋回砲塔', fm: 1.3, wm: 1.3, hm: .7, tt: .0008, aa: 1.5, mass: 2, crew: 0, cost: 900, desc: '後部銃座・上部砲塔などの小型レーザー砲塔（連装）。'},
-  ctorp: {cat: 'w', craft: true, fixed: true, name: 'プロトン魚雷発射管', short: 'プロトン魚雷', fm: 1.4, wm: .5, hm: .5, msl: .02, pw: 1e15, mass: 1, crew: 0, cost: 1500, desc: '前方へ撃つ誘導魚雷。半分はシールドを抜ける。'},
-  cmsl: {cat: 'w', craft: true, fixed: true, name: '震盪ミサイル発射管', short: '震盪ミサイル', fm: 1.2, wm: .45, hm: .45, msl: .012, pw: 1e15, mass: .8, crew: 0, cost: 1000, desc: '前方へ撃つ震盪ミサイル。'},
-  cbomb: {cat: 'w', craft: true, fixed: true, name: '爆弾倉', short: '爆弾', fm: 2.4, wm: 1.2, hm: .7, msl: .05, pw: 1e15, mass: 3, crew: 0, cost: 2000, desc: '真下へ落とすプロトン爆弾・震盪爆弾の倉。艦船と地上目標向け。'},
+  // v22 Ordnance is carried as stores (ORDNANCE): these fittings are the stations that hold it — launch tubes with
+  // their magazines, the bomb bay, wing pylons. The designer gives their capacity; the rounds each squadron carries
+  // are chosen in the order of battle (the default is the craft's canon loadout).
+  ctorp: {cat: 'w', craft: true, fixed: true, name: '魚雷発射管（弾倉付き）', short: '魚雷発射管', fm: 1.4, wm: .5, hm: .5, pw: 1e15, mass: 1, crew: 0, cost: 1500, store: {mount: 'tube', slots: 6, bore: .32, len: 1.4}, desc: '機首方向へ撃つ発射管と6発の弾倉（Y ウイングの MG7 と同じ6発弾倉）。口径 0.32 m：プロトン魚雷・イオン魚雷・震盪ミサイル・爆弾を装填できる。'},
+  cmsl: {cat: 'w', craft: true, fixed: true, name: '震盪ミサイル発射管', short: 'ミサイル発射管', fm: 1.2, wm: .45, hm: .45, pw: 1e15, mass: .8, crew: 0, cost: 1000, store: {mount: 'tube', slots: 6, bore: .22, len: 1.1}, desc: '機首方向へ撃つミサイル発射管と6発の弾倉（A ウイングの HM-6 と同じ6発）。口径 0.22 m：震盪ミサイルだけを装填できる。'},
+  cbomb: {cat: 'w', craft: true, fixed: true, name: '爆弾倉', short: '爆弾倉', fm: 2.4, wm: 1.2, hm: .7, pw: 1e15, mass: 3, crew: 0, cost: 2000, store: {mount: 'bay', box: [2.4, 1.2, .7]}, desc: '機内の爆弾倉（内寸 2.4×1.2×0.7 m）。爆弾は真下へ落とし、魚雷・ミサイルは倉から発射する。入る数は弾の寸法で決まる。'},
+  cpylon: {cat: 'w', craft: true, fixed: true, name: '翼下パイロン（ハードポイント）', short: 'パイロン', fm: 1.2, wm: .16, hm: .2, pw: 1e15, mass: .05, crew: 0, cost: 300, store: {mount: 'wing', slots: 2, maxMass: .3}, desc: '翼の下面などに付ける外部懸架1か所。魚雷・爆弾なら1発、細いミサイルなら2発を機外に吊る（1か所 0.3 t まで）。機内の容積を使わない。'},
 };
 for (const k in FITS) { const d = FITS[k]; d.key = k; d.power = d.tt ? d.tt * TT / K.cycle : d.ion ? d.ion * TT / K.cycle : (d.pw || 0); d.r = Math.max(d.fm, d.wm) / 2; }
 const AXES = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]];
@@ -1192,7 +1200,7 @@ function baseComputeStats(ship) {
   const aviation=aviationStatus(ship,info),slots=aviation.embarkedCount,chargeInfo=chargingStatus(ship,invalid),vlsInfo=missileStatus(ship,invalid);
   // fittings
   const alpha = [0, 0, 0, 0, 0, 0], ionS = [0, 0, 0, 0, 0, 0], alphaRate=[0,0,0,0,0,0],ionRate=[0,0,0,0,0,0],aaArc=[0,0,0,0,0,0],bandRate={long:[0,0,0,0,0,0],mid:[0,0,0,0,0,0],close:[0,0,0,0,0,0]};
-  let alphaTot = 0, ionTot = 0, aa = 0, mslSalvo = 0, tractors = 0, wPower = 0, bPower = 0, bridges = 0, sensor = 0, viewSum = 0, floatFits = 0, plateFits = 0, pedVol = 0, weaponCrew = 0;
+  let alphaTot = 0, ionTot = 0, aa = 0, mslSalvo = 0, imslSalvo = 0, tractors = 0, wPower = 0, bPower = 0, bridges = 0, sensor = 0, viewSum = 0, floatFits = 0, plateFits = 0, pedVol = 0, weaponCrew = 0;
   const commandInfo=commandStatus(ship,invalid),fitInfo = {};let aaCh=AA_CHANNELS.base;
   for (const f of ship.fits) {
     const raw=fitSpec(f),cr=needsCapacitor(f)?(chargeInfo[f.id]?.ratio||0):1,d={...raw,power:raw.power*cr,tt:(raw.tt||0)*cr,ion:(raw.ion||0)*cr};
@@ -1212,7 +1220,7 @@ function baseComputeStats(ship) {
         for (let k = 0; k < 6; k++) { if (d.tt){alpha[k] += d.tt * arc[k];alphaRate[k]+=d.tt*arc[k]/(d.cycle||K.cycle);br[k]+=d.tt*arc[k]/(d.cycle||K.cycle);}if (d.ion){ionS[k] += d.ion * arc[k];ionRate[k]+=d.ion*arc[k]/(d.cycle||K.cycle);}if (d.aa) aaArc[k] += d.aa * arc[k]; }
         if (d.tt) alphaTot += d.tt; if (d.ion) ionTot += d.ion; if (d.aa) aa += d.aa * Math.min(1, mean * 1.6);
       }
-      if (d.msl&&(missileMount(f)==='ext'||(vlsInfo[f.id]?.ratio||0)>.05)) mslSalvo += d.msl; if (d.trac) tractors++;
+      if (d.msl&&(missileMount(f)==='ext'||(vlsInfo[f.id]?.ratio||0)>.05)) { if (d.ionMsl) imslSalvo += d.msl; else mslSalvo += d.msl; } if (d.trac) tractors++;
     } else if(!f.float && (!d.window || d.role==='bridge'||d.role==='combat')) {
       const effective=d.window?(commandInfo[f.id]?.ratio||0):1;if(effective<=0)continue;
       bridges++; bPower += d.power*effective;
@@ -1288,7 +1296,7 @@ function baseComputeStats(ship) {
     engN, ventEng, Veng, hyperEffectiveVolume, hyperClass: hyperEffectiveVolume > 0 ? clamp(K.hyperK * M / hyperEffectiveVolume, 0.5, 30) : null,
     shieldP, shieldPct, shieldCapacity:shieldCapacity*coreRate, shieldTarget:ship.shieldTarget||1, armorHull: ship.armor.hull, armorCit: cit, armorAvg: ship.armor.hull + (area > 0 ? plateAT / area : 0), armorPlate: plateA > 0 ? plateAT / plateA : 0, plateArea: plateA, plateShare: area > 0 ? Math.min(1, plateA / area) : 0, plateMass: plateM,
     slots, aviation, deployableSlots:aviation.combatDeployable, launch, launchTime: launch > 0 && aviation.deployableCount > 0 ? aviation.deployableCount / launch : null, Vhang, Vacc, openA, rayA, deadHatch,
-    alphaRate,ionRate,aaArc,bandRate,alpha, alphaTot, alphaBest, alphaMean, ionBest: Math.max(...ionS), ionMean: ionS.reduce((a, b) => a + b, 0) / 6, ionTot, aa, mslSalvo, tractors,
+    alphaRate,ionRate,aaArc,bandRate,alpha, alphaTot, alphaBest, alphaMean, ionBest: Math.max(...ionS), ionMean: ionS.reduce((a, b) => a + b, 0) / 6, ionTot, aa, mslSalvo, imslSalvo, tractors,
     arcEff: alphaTot > 0 ? alphaBest / alphaTot : 0,
     commandInfo, bridges, view, accuracy, sensor, aaChannels: Math.max(1, Math.round(aaCh)), protectedFrac, critExpo: expo, genExpFrac, vuln,
     hp: hpSum * K.hpPerT + (armHull + armCit + plateM) * 0.2 * K.hpPerT, crew: Math.round(crew), crewBase: Math.round(crewBase), autoCrew, autoVolume: autoV, autoPower: autoW, weaponCrew: Math.round(weaponCrew), habit, cost,
@@ -1507,7 +1515,7 @@ function baseBuildDesign(key) { const d = DESIGNS[key], s = newShip(d.hull, d.na
 function baseProfile(S, name) {
   return {name, hp: Math.max(1, S.hp), dr: 1 / (1 + (S.armorAvg ?? S.armorHull)), crit: 1 + 0.7 * S.vuln,
     D: S.shieldP / TT * K.deflect, gunBest: S.alphaBest, gunMean: S.alphaMean, ionBest: S.ionBest, ionMean: S.ionMean,
-    msl: S.mslSalvo, aa: S.aa, rc: S.rc, acc: S.accuracy, agility: clamp(S.accelG / 3000, 0.08, 0.9),
+    msl: S.mslSalvo, imsl: S.imslSalvo || 0, aa: S.aa, rc: S.rc, acc: S.accuracy, agility: clamp(S.accelG / 3000, 0.08, 0.9),
     trac: S.tractors, slots: Math.floor(S.deployableSlots??S.aviation?.deployableCount??S.slots), launch: S.launch, len: S.hullLen, cls: S.cls};
 }
 function simulate(A, B, tmax) {
@@ -1522,10 +1530,11 @@ function simulate(A, B, tmax) {
       const w = clamp(p.agility - 0.06 * Y.p.trac, 0.06, 0.9);
       const gun = (w * (p.gunRateBest??p.gunBest/K.cycle) + (1 - w) * (p.gunRateMean??p.gunMean/K.cycle)) * p.rc * p.acc * health;
       const ion = (w * (p.ionRateBest??p.ionBest/K.cycle) + (1 - w) * (p.ionRateMean??p.ionMean/K.cycle)) * p.rc * p.acc * health;
-      let msl = 0; if (p.msl > 0 && t % 20 === 8) { const icpt = 0.7 * Y.p.aa / (Y.p.aa + p.msl * 0.5 + 1e-9); msl = p.msl * (1 - icpt) * health; }
+      // v22 Ion torpedoes fly with the missiles (and are intercepted with them); they work on the ion channel.
+      let msl = 0, imsl = 0; const mt = (p.msl || 0) + (p.imsl || 0); if (mt > 0 && t % 20 === 8) { const icpt = 0.7 * Y.p.aa / (Y.p.aa + mt * 0.5 + 1e-9); msl = (p.msl || 0) * (1 - icpt) * health; imsl = (p.imsl || 0) * (1 - icpt) * health; }
       if (p.slots > 0 && X.launched < p.slots) { const n = Math.min(p.slots - X.launched, p.launch * health); X.launched += n; X.queue.push([t + 25, n]); if (!X.allOut && X.launched >= p.slots - 1e-6) { X.allOut = true; ev(t, k, '全機発艦完了'); } }
       while (X.queue.length && X.queue[0][0] <= t) X.air += X.queue.shift()[1];
-      out[k] = {gun, ion, msl};
+      out[k] = {gun, ion: ion + imsl, msl};
     }
     const air0 = [sd[0].air, sd[1].air], hpf = sd.map(X => 0.35 + 0.65 * Math.max(0, X.hp) / X.p.hp), loss = [0, 0];
     for (let k = 0; k < 2; k++) {
@@ -2585,7 +2594,7 @@ FITS.ionL={...FITS.ion,key:'ionL',aa:.8,name:'軽イオン砲（連装）',short
 FITS.oct40={...FITS.stl,key:'oct40',name:'8連装重ターボレーザー',short:'8連装重TL',barrels:8,boltTT:40,tt:320,cycle:1,power:320*TT,evidence:'作者明記（口径）',source:WEAPON_NOTES.secutor,desc:'8門×40 TT。八連装の重ターボレーザー。',fm:30,wm:30,hm:13,r:15};
 FITS.triple40={...FITS.htl,key:'triple40',name:'三連40 TTターボレーザー',short:'三連40 TT',barrels:3,boltTT:40,tt:120,power:120*TT,source:STATS_SOURCE,evidence:'指定表 Ships!S34–S35',desc:'3門×40 TT。ISDの9基27門の補助重砲を構成します。',fm:20,wm:20,hm:9,r:10};
 FITS.quad200={...FITS.ltl,key:'quad200',name:'四連200 GTターボレーザー',short:'四連200 GT',barrels:4,boltTT:.2,tt:.8,cycle:.2,power:.8*TT/.2,source:STATS_SOURCE,evidence:'指定表 Ships!S51',desc:'4門×200 GT。アクラメイターIの12基48門の中型砲。'};
-for(const k of ['msl','trc']){FITS[k].evidence='ゲーム用仮定';/* assumption noted in evidence only */}
+for(const k of ['msl','itl','trc']){FITS[k].evidence='ゲーム用仮定';/* assumption noted in evidence only */}
 function fitSpec(f){const d=FITS[f.k],s=f.scale||1;if(s===1)return d;const k=s*s*s;return {...d,fm:d.fm*s,wm:d.wm*s,hm:d.hm*s,r:d.r*s,mass:d.mass*k,crew:Math.ceil(d.crew*k),cost:d.cost*k,tt:d.tt?d.tt*k:undefined,ion:d.ion?d.ion*k:undefined,power:d.power*k,aa:d.aa?d.aa*s*s:undefined};}
 
 // Licensed mesh skins and reusable modules. Internal systems remain independent.
@@ -4226,7 +4235,7 @@ function arcBuild(){
 }
 registerShipExample({key:'craft_arc170',name:'ARC-170',side:'銀河共和国',role:'重戦闘機',length:12.71,craft:true,craftType:'arc170',
  title:'ARC-170 Starfighter',credit:'"ARC-170 Starfighter" by DrEgguin (https://sketchfab.com/DrEgguin), CC BY 4.0',author:'DrEgguin',source:'https://sketchfab.com/3d-models/arc-170-starfighter-b9407262cdf34d37b0720ca6b70469be',license:'CC BY 4.0',
- note:'12.71 m（正史）。Sketchfab の 3D モデル（DrEgguin 作、CC BY 4.0）の実測形状を正史の全長に合わせた共和国の重戦闘機（モデルの翼幅は 20.5 m、正史は 19.85〜20 m）。尾部板・操縦室の背骨と竜骨・機首を断面表の船体とし、胴体の肩部と小翼、腹部の脚、機関ナセル、主翼（赤い翼端を分けた）、上下の S フォイル、翼端の砲ハウジングと砲身、尾部の銃座と魚雷発射管のハウジングを実測した構造物で組んだ。正史どおり操縦士・副操縦士兼前方射手・後部射手の3座（1人用操縦室3つ）とアストロメク、翼内の IGP-440a イオン・タービン2基、偏向シールド（10%）、ハイパードライブ（レジェンズのクラス 1.5）。兵装は外翼下面の中口径レーザー砲を重レーザー砲2門、後部の連装ブラスター砲を尾部上下の小型旋回砲塔2基、プロトン魚雷発射管を機首下面に1基。加速の数値は正史にもレジェンズにもなく、最大加速は 3,551 G（118 MGLT）。外殻装甲 3 mm。',
+ note:'12.71 m（正史）。Sketchfab の 3D モデル（DrEgguin 作、CC BY 4.0）の実測形状を正史の全長に合わせた共和国の重戦闘機（モデルの翼幅は 20.5 m、正史は 19.85〜20 m）。尾部板・操縦室の背骨と竜骨・機首を断面表の船体とし、胴体の肩部と小翼、腹部の脚、機関ナセル、主翼（赤い翼端を分けた）、上下の S フォイル、翼端の砲ハウジングと砲身、尾部の銃座と魚雷発射管のハウジングを実測した構造物で組んだ。正史どおり操縦士・副操縦士兼前方射手・後部射手の3座（1人用操縦室3つ）とアストロメク、翼内の IGP-440a イオン・タービン2基、偏向シールド（10%）、ハイパードライブ（レジェンズのクラス 1.5）。兵装は外翼下面の中口径レーザー砲を重レーザー砲2門、後部の連装ブラスター砲を尾部上下の小型旋回砲塔2基、プロトン魚雷発射管を機首下面に1基（お任せの搭載は正史のプロトン魚雷6発）。加速の数値は正史にもレジェンズにもなく、最大加速は 3,551 G（118 MGLT）。外殻装甲 3 mm。',
  build:arcBuild});
 }
 
@@ -4329,7 +4338,7 @@ function awingBuild(opt={}){
 }
 registerShipExample({key:'craft_awing',name:'RZ-1 Aウイング',side:'反乱同盟',role:'迎撃機',length:6.9,craft:true,craftType:'awing',
  title:'RZ1AWing',credit:'RZ1AWing.STL（ユーザー提供。作者・ライセンスの表記なし）',author:'不明（ユーザー提供の STL）',source:'ユーザー提供の STL ファイル（RZ1AWing.STL）',license:'不明（出典未記載）',
- note:'6.9 m。全長は資料により 9.6 m（Wookieepedia の正史の記事）と 6.9 m（RZ-1 の諸元。幅 4.47 m・高さ 2.47 m）に分かれる。ユーザー提供の STL ファイル（RZ1AWing.STL、作者・ライセンス表記なし）は 6.9 m に合わせると幅 4.58 m・高さ 2.40 m で後者の諸元とほぼ合うため、6.9 m とした。楔形の機体を船体として 24 断面で実測に合わせ、キャノピー後部のフェアリング、上下 4 枚の安定翼、尾部中央板、翼端のレーザー砲旋回基部と砲架、胴体内へ延びる機関を覆うフェアリングを構造物で組んだ。STL にはキャノピーのガラスがないので、操縦席の開口に着色キャノピーを加えた。艦尾の主推進機関 2 基（噴射口径 0.87 m、モデルの実測）は胴体の中ほど（艦尾から 3.15 m）まで延び、操縦席の後ろの核融合炉から給電する。操縦席 1 名（アストロメクなしで飛ぶ機体なのでソケットはない）、両舷の偏向シールド発生器（標準型の装備。反乱同盟は一部の機体から外した）、ハイパードライブ（クラス 1.0、RZ-1 の諸元どおり）、慣性補償装置 2 基、反応物タンク（約 1 週間分）、機首にパワーセル。兵装はレーザー砲 2 門（旋回基部の上外側。設計局の艦載機用レーザー砲は機首方向に固定で、正史の上下 60° の俯仰は表さない）と、機体下面の 2 つの扉の位置に震盪ミサイル発射管 2 基（正史の装弾数 12 発は表さない）。最大加速度は約 5,100 G（RZ-1 の諸元どおり）、MGLT は設計局の換算で 170（諸元は 120）。シールドは目標強度 10%（設定の下限）、兵装の再充電は最大連射の 45%、外殻装甲 1.5 mm。STL に色がないため塗装は標準色、機関光は橙。',
+ note:'6.9 m。全長は資料により 9.6 m（Wookieepedia の正史の記事）と 6.9 m（RZ-1 の諸元。幅 4.47 m・高さ 2.47 m）に分かれる。ユーザー提供の STL ファイル（RZ1AWing.STL、作者・ライセンス表記なし）は 6.9 m に合わせると幅 4.58 m・高さ 2.40 m で後者の諸元とほぼ合うため、6.9 m とした。楔形の機体を船体として 24 断面で実測に合わせ、キャノピー後部のフェアリング、上下 4 枚の安定翼、尾部中央板、翼端のレーザー砲旋回基部と砲架、胴体内へ延びる機関を覆うフェアリングを構造物で組んだ。STL にはキャノピーのガラスがないので、操縦席の開口に着色キャノピーを加えた。艦尾の主推進機関 2 基（噴射口径 0.87 m、モデルの実測）は胴体の中ほど（艦尾から 3.15 m）まで延び、操縦席の後ろの核融合炉から給電する。操縦席 1 名（アストロメクなしで飛ぶ機体なのでソケットはない）、両舷の偏向シールド発生器（標準型の装備。反乱同盟は一部の機体から外した）、ハイパードライブ（クラス 1.0、RZ-1 の諸元どおり）、慣性補償装置 2 基、反応物タンク（約 1 週間分）、機首にパワーセル。兵装はレーザー砲 2 門（旋回基部の上外側。設計局の艦載機用レーザー砲は機首方向に固定で、正史の上下 60° の俯仰は表さない）と、機体下面の 2 つの扉の位置に震盪ミサイル発射管 2 基（お任せの搭載は正史どおり各6発・計12発）。最大加速度は約 5,100 G（RZ-1 の諸元どおり）、MGLT は設計局の換算で 170（諸元は 120）。シールドは目標強度 10%（設定の下限）、兵装の再充電は最大連射の 45%、外殻装甲 1.5 mm。STL に色がないため塗装は標準色、機関光は橙。',
  build:awingBuild});
 }
 
@@ -4394,7 +4403,7 @@ const btlKit=s=>{
 };
 registerShipExample({key:'craft_btlb',name:'BTL-B Yウイング・スターファイター',side:'銀河共和国',role:'爆撃機',length:23.4,craft:true,craftType:'btlb',
  title:'BTL-B Y-Wing',credit:'"BTL-B Y-Wing" by A308 Digital (https://sketchfab.com/A308), CC BY 4.0',author:'A308 Digital',source:'https://sketchfab.com/3d-models/btl-b-y-wing-102aab8967174476b264d69e979f9d70',license:'CC BY 4.0',
- note:'A308 Digital 氏のモデルを計測（公式の全長 23.4 m に合わせて 0.776 倍。全幅 10.0 m・全高 2.6 m）。胴体と操縦モジュールを装甲楔形断面のコア船体、エンジン・ナセルを円形断面のロフト（エンジンを包む軽構造のカウル）、ナセルを支える主翼を平面形どおりの板、キャノピー・腹部キール・機首の砲身基部を構造物で再現。ナセル外面の細いL形レール（各4本）は省略。各ナセルにイオン・ジェット・エンジン（直径はモデルの排気口に合わせて 1.6 m）と専用の反応炉、胴体に主反応炉・チェンパット偏向シールド発生器・ハイパードライブ（クラス 1.0）・燃料・パワーセル・慣性補償装置。操縦席に操縦士と後部銃手の2席、旋回砲塔のすぐ後ろにアストロメク・ソケット。武装は公式どおりレーザー砲2門（機首）、プロトン魚雷発射管2基（腹部キール下）、プロトン爆弾倉（胴体下面）。銃手のSW-4 イオン砲塔は、小型艇用のイオン砲塔がないため連装旋回砲塔（レーザー）で代用しています。シールドは機体の大きさに対して最小の目標強度 10%（主反応炉の大半を使います）。加速度は約 3,000 G（公式の MGLT 100 どおり）。',
+ note:'A308 Digital 氏のモデルを計測（公式の全長 23.4 m に合わせて 0.776 倍。全幅 10.0 m・全高 2.6 m）。胴体と操縦モジュールを装甲楔形断面のコア船体、エンジン・ナセルを円形断面のロフト（エンジンを包む軽構造のカウル）、ナセルを支える主翼を平面形どおりの板、キャノピー・腹部キール・機首の砲身基部を構造物で再現。ナセル外面の細いL形レール（各4本）は省略。各ナセルにイオン・ジェット・エンジン（直径はモデルの排気口に合わせて 1.6 m）と専用の反応炉、胴体に主反応炉・チェンパット偏向シールド発生器・ハイパードライブ（クラス 1.0）・燃料・パワーセル・慣性補償装置。操縦席に操縦士と後部銃手の2席、旋回砲塔のすぐ後ろにアストロメク・ソケット。武装は公式どおりレーザー砲2門（機首）、プロトン魚雷発射管2基（腹部キール下。お任せの搭載は初期型の6発弾倉で計12発）、プロトン爆弾倉（胴体下面。お任せはプロトン爆弾8発、数は正史に記載なし）。銃手のSW-4 イオン砲塔は、小型艇用のイオン砲塔がないため連装旋回砲塔（レーザー）で代用しています。シールドは機体の大きさに対して最小の目標強度 10%（主反応炉の大半を使います）。加速度は約 3,000 G（公式の MGLT 100 どおり）。',
  build(){
   const D=BTLB,L=21.69,W=4.2,H=2.6,x0=8.2,r=(v,n=5)=>+v.toFixed(n);
   const st=D.hull.map(([x,hw,y0,y1,dw,kw,bw,cw])=>[r(x/L),r(2*hw/W,4),r((y1-y0)/H,4),r(((y0+y1)/2)/H-.5,4),dw,kw,bw,cw]);st[0][0]=0;
@@ -4496,7 +4505,7 @@ const hyeKit=s=>{
 };
 registerShipExample({key:'craft_hyena',name:'ハイエナ級ボマー',side:'独立星系連合',role:'ドロイド爆撃機',length:12.48,craft:true,craftType:'hyena',
  title:'Hyena Bomber',credit:'"Hyena Bomber" by Dakata_123 (https://sketchfab.com/Dakata_123), CC BY 4.0',author:'Dakata_123',source:'https://sketchfab.com/3d-models/hyena-bomber-738ab8a1279740b48d88b960459c41a8',license:'CC BY 4.0',
- note:'Dakata_123 氏のモデルの飛行形態を計測（公式の飛行時全長 12.48 m に合わせて 0.726 倍。全幅 8.81 m・全高 3.34 m、公式の全高 3.1 m）。中央の板状の胴体（縁を面取りした平板、前縁はレンズ断面）を装甲楔形断面のコア船体、左右2つの船体ユニット（右舷は中央処理装置と赤い光学センサー、左舷は兵装庫）を楕円体、上下に割れた主翼（上翼は前へ、下翼は後ろへ長い）を左右上下4枚の曲面板、翼の付け根の関節と翼前端の砲架を箱形構造で再現。翼の付け根の関節内の推進機関2基（反応炉付き）はモデルの紫色の噴射光と同じ位置から噴射。関節にはこれより大きな機関が入らず、これだけでは約 860 G（MGLT 29）と造船所の独立星系連合の主力艦（母艦を含む）より遅く、公式の爆撃機（MGLT 70〜100）を大きく下回るため、左右の船体ユニット後部に主推進機関2基（それぞれ直前に反応炉、噴射口はユニット後端の内側）を収めています。モデルにはここの噴射口はなく、公式にも機関の数の記載はありません。ドロイド・ブレインは右舷ユニット前部の光学センサーの後ろ、パワーセルは右舷の主推進機関の上、燃料は左舷ユニット前部。武装は公式どおり4連装軽レーザー砲4基（各翼の上下に1基ずつ。1基を標準のレーザー砲1門分として計上）、プロトン魚雷発射管2基、震盪ミサイル発射管2基、左舷ユニット下面のプロトン爆弾投下口1基。シールドとハイパードライブは公式に記載がないため搭載せず。最大加速度の公式値はありませんが、約 2,250 G（MGLT 75）で公式の爆撃機の範囲に入ります。',
+ note:'Dakata_123 氏のモデルの飛行形態を計測（公式の飛行時全長 12.48 m に合わせて 0.726 倍。全幅 8.81 m・全高 3.34 m、公式の全高 3.1 m）。中央の板状の胴体（縁を面取りした平板、前縁はレンズ断面）を装甲楔形断面のコア船体、左右2つの船体ユニット（右舷は中央処理装置と赤い光学センサー、左舷は兵装庫）を楕円体、上下に割れた主翼（上翼は前へ、下翼は後ろへ長い）を左右上下4枚の曲面板、翼の付け根の関節と翼前端の砲架を箱形構造で再現。翼の付け根の関節内の推進機関2基（反応炉付き）はモデルの紫色の噴射光と同じ位置から噴射。関節にはこれより大きな機関が入らず、これだけでは約 860 G（MGLT 29）と造船所の独立星系連合の主力艦（母艦を含む）より遅く、公式の爆撃機（MGLT 70〜100）を大きく下回るため、左右の船体ユニット後部に主推進機関2基（それぞれ直前に反応炉、噴射口はユニット後端の内側）を収めています。モデルにはここの噴射口はなく、公式にも機関の数の記載はありません。ドロイド・ブレインは右舷ユニット前部の光学センサーの後ろ、パワーセルは右舷の主推進機関の上、燃料は左舷ユニット前部。武装は公式どおり4連装軽レーザー砲4基（各翼の上下に1基ずつ。1基を標準のレーザー砲1門分として計上）、プロトン魚雷発射管2基、震盪ミサイル発射管2基、左舷ユニット下面のプロトン爆弾投下口1基（数は正史に記載がなく、お任せの搭載は魚雷各3発・ミサイル各6発・爆弾8発）。シールドとハイパードライブは公式に記載がないため搭載せず。最大加速度の公式値はありませんが、約 2,250 G（MGLT 75）で公式の爆撃機の範囲に入ります。',
  build(){
   const D=HYE,L=10.81,W=7.2,H=3.343,r=(v,n=5)=>+v.toFixed(n);
   const st=D.hull.map(([x,hw,y0,y1,dw,kw,bw,cw])=>[r(x/L),r(2*hw/W,4),r((y1-y0)/H,4),r(((y0+y1)/2)/H-.5,4),dw,kw,bw,cw]);st[0][0]=0;
@@ -4694,9 +4703,11 @@ registerShipExample({key:'craft_tie_ln',name:'TIE/ln 制宙戦闘機',side:'銀�
 // plane fitted to the model (39.2 degrees from vertical), with the rim and the vertical beam. Inside:
 // one pilot's seat forward in the cockpit pod, and in the rear of each pod a reactor and an ion engine;
 // the fuel tank and the inertial compensator between them. Armament after the canon load-out: two laser
-// cannons under the cockpit pod's nose, a proton torpedo and a concussion missile launcher (forward
-// ordnance bay, firing through the missile port) under the ordnance pod's nose, and the bomb chute
-// (main ordnance bay) under the ordnance pod; the launchers carry their rounds (external mounts).
+// cannons under the cockpit pod's nose, one launch tube (the forward ordnance bay, firing through the
+// missile port: canon eight concussion missiles or four proton torpedoes) under the ordnance pod's nose,
+// and the bomb bay (the main ordnance bay and its chute: canon eight proton bombs among other loads)
+// under the ordnance pod (v22: the rounds are stores chosen in the order of battle; TIE Fighter Deluxe
+// Book and Model Set).
 // No shield generator and no hyperdrive.
 {
 const TSA={OX:-3.77,OY:1.14,podZ:1.6,
@@ -4758,13 +4769,13 @@ function tieSaBuild(){
  // launcher under the ordnance pod's nose; the bomb chute under the ordnance pod.
  const fit=(k,p,a,x={})=>{const f={id:s.nextId++,k,p,a,ped:0,base:0,low:0,float:false,...x};mountFit(s,f);s.fits.push(f);return f;};
  for(const z of [1.62,1.02])fit('claser',[gx(5.87),gy(-1),z],3);
- fit('ctorp',[gx(6.3),gy(-1),-TSA.podZ+.36],3,{mount:'ext'});fit('cmsl',[gx(6.3),gy(-1),-TSA.podZ-.36],3,{mount:'ext'});
- fit('cbomb',[gx(4.5),gy(-1),-.95],3,{mount:'ext'});
+ fit('ctorp',[gx(6.3),gy(-1),-TSA.podZ+.36],3);
+ fit('cbomb',[gx(4.5),gy(-1),-.95],3);
  delete s._building;syncCompartments(s);remount(s);return s;
 }
 registerShipExample({key:'craft_tie_sa',name:'TIE/sa ボマー',side:'銀河帝国',role:'爆撃機',length:7.9,craft:true,craftType:'tie_sa',
  title:'Star Wars: TIE/sa Bomber',credit:'"Star Wars: TIE/sa Bomber" by Daniel (https://sketchfab.com/DanielAndersson), CC BY 4.0',author:'Daniel',source:'https://sketchfab.com/3d-models/star-wars-tiesa-bomber-03c30934651e4f5798b67e74049ec6bc',license:'CC BY 4.0',
- note:'7.9 m（正史：全長 7.9 m・全幅 10.6 m・全高 5.4 m）。Daniel 氏のモデル「Star Wars: TIE/sa Bomber」（CC BY 4.0）の実測形状を、正史の全長（翼の前後長）に等倍で合わせた（全高は翼板の厚みを含めて 5.6 m でほぼ正史どおり、全幅はモデルに従い 9.5 m で正史より約 1 m 狭い）。船体は中心線上にしか置けないため、2つのポッドをつなぐ中央部を船体とし、右舷の操縦席ポッドと左舷の兵装ポッド（実測した半径のロフト）、操縦席ポッドの背部・腹部の隆起とドーム状の窓、兵装ポッドのミサイル発射口、両ポッド後端の機関部外殻、ガセット付きの翼支持腕、折れ曲がった翼（垂直の中央部と内側へ 39.2° 傾けた上下の翼板、外枠と縦梁）を構造物として組み直した。ポッドは通常の構造物、翼と支持腕は軽構造。操縦席ポッドの前部に操縦席1席（乗員1名）、両ポッドの後部に反応炉とイオン・エンジンを1組ずつ、燃料タンクと慣性補償器を収めた。兵装は正史の搭載に合わせ、操縦席ポッド機首下のレーザー砲 2門、兵装ポッド機首下のプロトン魚雷発射管と震盪ミサイル発射管各1基（前部兵装庫からミサイル発射口を通して前方へ撃つ）、兵装ポッド下の爆弾倉（主兵装庫と爆弾シュート）。発射機は弾を抱える外置き。主兵装庫の積み替え（プロトン爆弾・熱爆弾・機雷・兵員6名）は爆弾倉1基で代表させた。シールド発生器とハイパードライブは持たない。外殻装甲は 2.8 mm（戦闘機より厚い）。最大加速度は約 2,360 G（正史 2,380 G）。出力 7.3×10¹⁸ W。',
+ note:'7.9 m（正史：全長 7.9 m・全幅 10.6 m・全高 5.4 m）。Daniel 氏のモデル「Star Wars: TIE/sa Bomber」（CC BY 4.0）の実測形状を、正史の全長（翼の前後長）に等倍で合わせた（全高は翼板の厚みを含めて 5.6 m でほぼ正史どおり、全幅はモデルに従い 9.5 m で正史より約 1 m 狭い）。船体は中心線上にしか置けないため、2つのポッドをつなぐ中央部を船体とし、右舷の操縦席ポッドと左舷の兵装ポッド（実測した半径のロフト）、操縦席ポッドの背部・腹部の隆起とドーム状の窓、兵装ポッドのミサイル発射口、両ポッド後端の機関部外殻、ガセット付きの翼支持腕、折れ曲がった翼（垂直の中央部と内側へ 39.2° 傾けた上下の翼板、外枠と縦梁）を構造物として組み直した。ポッドは通常の構造物、翼と支持腕は軽構造。操縦席ポッドの前部に操縦席1席（乗員1名）、両ポッドの後部に反応炉とイオン・エンジンを1組ずつ、燃料タンクと慣性補償器を収めた。兵装は正史の搭載に合わせ、操縦席ポッド機首下のレーザー砲 2門、兵装ポッド機首下の魚雷発射管1基（前部兵装庫からミサイル発射口を通して前方へ撃つ。正史は震盪ミサイル8発かプロトン魚雷4発で、弾倉は6発分）、兵装ポッド下の爆弾倉（主兵装庫と爆弾シュート）。搭載する弾は編成画面で選び、お任せでは正史の一例どおりプロトン魚雷4発とプロトン爆弾8発（TIE Fighter Deluxe Book and Model Set）。発射機は弾を抱える外置き。主兵装庫の積み替え（プロトン爆弾・熱爆弾・機雷・兵員6名）は爆弾倉1基で代表させた。シールド発生器とハイパードライブは持たない。外殻装甲は 2.8 mm（戦闘機より厚い）。最大加速度は約 2,390 G（正史 2,380 G。お任せの搭載 1.6 t を積むと約 2,320 G）。出力 7.3×10¹⁸ W。',
  build(){return tieSaBuild();}});
 }
 
@@ -4842,7 +4853,7 @@ function v19Build(){
 }
 registerShipExample({key:'craft_v19',name:'V-19 トレント',side:'銀河共和国',role:'迎撃戦闘機',length:6,craft:true,craftType:null,
  title:'V-19 Torrent Starfighter',credit:'"V-19 Torrent Starfighter" by A308 Digital (https://sketchfab.com/A308), CC BY 4.0',author:'A308 Digital',source:'https://sketchfab.com/3d-models/v-19-torrent-starfighter-67804739c036405faea16120d31bc65a',license:'CC BY 4.0',
- note:'6 m（正史）。Sketchfab の 3D モデル（A308 Digital 作、CC BY 4.0）の実測形状を正史の全長に合わせた共和国の迎撃戦闘機（Sフォイルを飛行位置に下げた形で、翼幅 13.5 m・高さ 5.9 m はモデルから）。胴体主板の下の竜骨と機首の背骨を断面表の船体とし、胴体主板、風防後部のフェアリング、2基のタービン・ナセル、主翼（赤い付け根と外翼を分けた）、腹部 S フォイル（垂直安定板）と腹部タービン・ポッド、翼端の砲身、ミサイル発射管の基部を構造物で組んだ。正史どおり操縦士1名、シールド発生器なし（厚い装甲と頑丈な船体で補う設定に合わせて外殻装甲 4 mm）、ナセルの2基と安定板の1基のイオン機関。ハイパードライブはレジェンズで後に一部の機体へ追加されたもので、ここでは載せない初期型とし、言及のないアストロメクも載せない。兵装は翼端のレーザー砲2門と胴体の震盪ミサイル発射管2基。最大加速 4,696 G（正史に数値なし）。',
+ note:'6 m（正史）。Sketchfab の 3D モデル（A308 Digital 作、CC BY 4.0）の実測形状を正史の全長に合わせた共和国の迎撃戦闘機（Sフォイルを飛行位置に下げた形で、翼幅 13.5 m・高さ 5.9 m はモデルから）。胴体主板の下の竜骨と機首の背骨を断面表の船体とし、胴体主板、風防後部のフェアリング、2基のタービン・ナセル、主翼（赤い付け根と外翼を分けた）、腹部 S フォイル（垂直安定板）と腹部タービン・ポッド、翼端の砲身、ミサイル発射管の基部を構造物で組んだ。正史どおり操縦士1名、シールド発生器なし（厚い装甲と頑丈な船体で補う設定に合わせて外殻装甲 4 mm）、ナセルの2基と安定板の1基のイオン機関。ハイパードライブはレジェンズで後に一部の機体へ追加されたもので、ここでは載せない初期型とし、言及のないアストロメクも載せない。兵装は翼端のレーザー砲2門と胴体の震盪ミサイル発射管2基（お任せの搭載は各6発、弾数は正史に記載なし）。最大加速 4,696 G（正史に数値なし）。',
  build:v19Build});
 }
 
@@ -4910,7 +4921,7 @@ const vulKit=s=>{
 };
 registerShipExample({key:'craft_vulture',name:'ヴァルチャー級ドロイド・スターファイター',side:'独立星系連合',role:'ドロイド戦闘機',length:6.96,craft:true,craftType:'vulture',
  title:'Vulture Droid',credit:'"Vulture Droid" by DrEgguin (https://sketchfab.com/DrEgguin), CC BY 4.0',author:'DrEgguin',source:'https://sketchfab.com/3d-models/vulture-droid-5542f951834e4032b229ebdee12d3310',license:'CC BY 4.0',
- note:'DrEgguin 氏のモデルの飛行形態を計測（公式の飛行時全長 6.96 m に合わせて 0.658 倍。全幅 3.95 m・全高 1.78 m で、公式の全幅 4.90 m より細身）。円盤状の胴体（後部は腹部キール、前縁はレンズ断面）を装甲楔形断面のコア船体、頭部ポッドをドーム、上下に割れた主翼を左右上下4枚の曲面板、翼の付け根の関節と翼端の砲架を箱形構造で再現。主翼はモデルでは厚さ数 cm の板ですが、曲面板の最小厚 0.2 m で作るため、公式の「軽量アルクラッド合金外板」に合わせて軽構造にしています。装甲もこの外板で、厚さ約 1 mm のアルクラッド（アルミ合金）を造船所の鋼の装甲の重さに換算した 0.35 mm。推進機関2基（公式）は翼の付け根の関節内に小型反応炉とともに収め、胴体後縁の排気口の脇から噴射。ドロイド・ブレイン、パワーセル、燃料スラグ、慣性補償装置は頭部ポッド内。武装は公式どおり連装ブラスター砲2基（各翼の上下に1門ずつ、計4門）とエネルギー魚雷発射管2基で、いずれも設計局の標準寸法（モデルの砲身より大きい）。公式のバズ・ドロイド・ミサイル発射機はモデルに形がなく、バズ・ドロイドを積む装備もないため、最も近い震盪ミサイル発射管1基（標準寸法）を胴体下面の中心線に付けています。シールドとハイパードライブは公式に記載がないため搭載せず、母艦運用。標準寸法の武装は合わせて約 7.6 t で軽い機体の質量の大半を占めるため、慣性補償装置はそれに見合う大きさ（直径 0.24 m・長さ 0.5 m）にしています。最大加速度の公式値はありませんが、この武装の重さで約 800 G（MGLT 27）となり、同時代の公式の戦闘機（MGLT 90〜118）より遅くなります。',
+ note:'DrEgguin 氏のモデルの飛行形態を計測（公式の飛行時全長 6.96 m に合わせて 0.658 倍。全幅 3.95 m・全高 1.78 m で、公式の全幅 4.90 m より細身）。円盤状の胴体（後部は腹部キール、前縁はレンズ断面）を装甲楔形断面のコア船体、頭部ポッドをドーム、上下に割れた主翼を左右上下4枚の曲面板、翼の付け根の関節と翼端の砲架を箱形構造で再現。主翼はモデルでは厚さ数 cm の板ですが、曲面板の最小厚 0.2 m で作るため、公式の「軽量アルクラッド合金外板」に合わせて軽構造にしています。装甲もこの外板で、厚さ約 1 mm のアルクラッド（アルミ合金）を造船所の鋼の装甲の重さに換算した 0.35 mm。推進機関2基（公式）は翼の付け根の関節内に小型反応炉とともに収め、胴体後縁の排気口の脇から噴射。ドロイド・ブレイン、パワーセル、燃料スラグ、慣性補償装置は頭部ポッド内。武装は公式どおり連装ブラスター砲2基（各翼の上下に1門ずつ、計4門）とエネルギー魚雷発射管2基で、いずれも設計局の標準寸法（モデルの砲身より大きい）。公式のバズ・ドロイド・ミサイル発射機はモデルに形がなく、バズ・ドロイドを積む装備もないため、最も近い震盪ミサイル発射管1基（標準寸法）を胴体下面の中心線に付けています。お任せの搭載はエネルギー魚雷各2発と震盪ミサイル2発（数は正史に記載なし）。シールドとハイパードライブは公式に記載がないため搭載せず、母艦運用。標準寸法の武装は合わせて約 7.6 t で軽い機体の質量の大半を占めるため、慣性補償装置はそれに見合う大きさ（直径 0.24 m・長さ 0.5 m）にしています。最大加速度の公式値はありませんが、この武装の重さで約 800 G（MGLT 27）となり、同時代の公式の戦闘機（MGLT 90〜118）より遅くなります。',
  build(){
   const D=VUL,L=4.43,W=3.1,H=1.775,r=(v,n=5)=>+v.toFixed(n);
   const st=D.hull.map(([x,hw,y0,y1,dw,kw,bw,cw])=>[r(x/L),r(2*hw/W,4),r((y1-y0)/H,4),r(((y0+y1)/2)/H-.5,4),dw,kw,bw,cw]);st[0][0]=0;
@@ -5133,7 +5144,7 @@ function xwingBuild(opt={}){
 }
 registerShipExample({key:'craft_xwing',name:'T-65B Xウイング',side:'反乱同盟',role:'多用途戦闘機',length:13.4,craft:true,craftType:'xwing',
  title:'Star Wars: X-Wing',credit:'This work is based on "Star Wars: X-Wing" (https://sketchfab.com/3d-models/star-wars-x-wing-a93f607a94d747568371b8910a81fb12) by Daniel (https://sketchfab.com/DanielAndersson) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',author:'Daniel',source:'https://sketchfab.com/3d-models/star-wars-x-wing-a93f607a94d747568371b8910a81fb12',license:'CC-BY-4.0',
- note:'13.4 m（正史）。Sketchfab の 3D モデル（Daniel 作、CC BY 4.0）の実測形状を正史の全長に等倍で合わせた。モデルは S フォイルを閉じた状態（左右とも上下の翼板が重なる）なので、各 S フォイル（翼板・機関ナセル・レーザー砲）を胴体側面のヒンジ線のまわりに 13° ずつ開いた攻撃位置で組んだ（全幅 11.8 m、正史 11.76 m）。胴体を船体として 23 断面で実測に合わせ、着色キャノピー、翼板 4 枚、機関ナセル、S フォイル駆動部のフェアリング、翼端のレーザー砲基部と砲身を構造物で組んだ。機関は各ナセルの全長にわたる Incom 4L4 核融合推進機関 4 基（噴射口径 0.6 m、モデルの排気管どおり）で、後部胴体の核融合炉から給電する。R2 ユニットの位置にアストロメク・ソケット、操縦席 1 名、偏向シールド発生器、ハイパードライブ（クラス 1.0、正史どおり）、慣性補償装置、反応物タンク（約 1 週間分）、機首にパワーセル。兵装は正史どおりレーザー砲 4 門（翼端の砲身の外側）とプロトン魚雷発射管 2 基（機首下部の両側面。艦載機の発射管は外付けの箱型）。最大加速度は約 3,700 G（正史どおり）、MGLT は設計局の換算で 123（正史 100）。シールドは目標強度 10%（設定の下限）、兵装の再充電は最大連射の 69%、外殻装甲 1.5 mm。塗装はモデルに従い、灰色の機体に暗灰色のナセル、翼端寄りの赤い部隊識別帯と砲身の黄帯（薄い外板と帯の構造物）、黄色の機関光。',
+ note:'13.4 m（正史）。Sketchfab の 3D モデル（Daniel 作、CC BY 4.0）の実測形状を正史の全長に等倍で合わせた。モデルは S フォイルを閉じた状態（左右とも上下の翼板が重なる）なので、各 S フォイル（翼板・機関ナセル・レーザー砲）を胴体側面のヒンジ線のまわりに 13° ずつ開いた攻撃位置で組んだ（全幅 11.8 m、正史 11.76 m）。胴体を船体として 23 断面で実測に合わせ、着色キャノピー、翼板 4 枚、機関ナセル、S フォイル駆動部のフェアリング、翼端のレーザー砲基部と砲身を構造物で組んだ。機関は各ナセルの全長にわたる Incom 4L4 核融合推進機関 4 基（噴射口径 0.6 m、モデルの排気管どおり）で、後部胴体の核融合炉から給電する。R2 ユニットの位置にアストロメク・ソケット、操縦席 1 名、偏向シールド発生器、ハイパードライブ（クラス 1.0、正史どおり）、慣性補償装置、反応物タンク（約 1 週間分）、機首にパワーセル。兵装は正史どおりレーザー砲 4 門（翼端の砲身の外側）とプロトン魚雷発射管 2 基（お任せの搭載は正史どおり各3発・計6発。機首下部の両側面。艦載機の発射管は外付けの箱型）。最大加速度は約 3,700 G（正史どおり）、MGLT は設計局の換算で 123（正史 100）。シールドは目標強度 10%（設定の下限）、兵装の再充電は最大連射の 69%、外殻装甲 1.5 mm。塗装はモデルに従い、灰色の機体に暗灰色のナセル、翼端寄りの赤い部隊識別帯と砲身の黄帯（薄い外板と帯の構造物）、黄色の機関光。',
  build:xwingBuild});
 }
 
@@ -5237,7 +5248,7 @@ function z95Build(opt={}){
 }
 registerShipExample({key:'craft_z95',name:'Z-95 ヘッドハンター',side:'銀河共和国',role:'多用途戦闘機',length:16.74,craft:true,craftType:null,
  title:'Z-95 Headhunter',credit:'This work is based on "Z-95 Headhunter" (https://sketchfab.com/3d-models/z-95-headhunter-9b1fe5c56ca44d3da632235f7599abc5) by A308 Digital (https://sketchfab.com/A308) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',author:'A308 Digital',source:'https://sketchfab.com/3d-models/z-95-headhunter-9b1fe5c56ca44d3da632235f7599abc5',license:'CC-BY-4.0',
- note:'16.74 m（正史。別の資料では 11.8 m）。Sketchfab の 3D モデル（A308 Digital 作、CC BY 4.0。クローン戦争期の共和国仕様）の実測形状を正史の全長に等倍で合わせた（全幅 16.6 m）。胴体を船体として 23 断面で実測に合わせ、背部フェアリング、バブル・キャノピー、側面インテーク、カナード、主翼、2 基のナセル（排気コーン・頸部・本体・吸気口）、翼端のブラスター砲ポッドと砲身を構造物で組んだ。機関はモデルの排気口に合わせて各ナセルに 1 基（正史は「2 対」）で、ナセル前部の核融合炉から給電する。操縦席 1 名、慣性補償装置、反応物タンク、パワーセル。アストロメク・ソケットとハイパードライブは正史どおり持たず（ハイパードライブは後の改装で載せることがある）、シールドも正史に記載がないため積まない。兵装は正史どおり翼端のブラスター砲 2 門、機首下面中央のイオン砲 1 門、胴体下面の震盪ミサイル発射管 2 基（基数は正史に記載がなく想定）。正史に加速度の値はないため、Incom 社の X ウイングの先代機として X ウイング（3,700 G）の約 9 割を目安に機関を決め、最大加速度は約 3,300 G、MGLT は設計局の換算で 110。外殻装甲 1.5 mm。陣営はクローン戦争期の塗装に合わせて銀河共和国。塗装はモデルに従い、白い機体に共和国の赤（機首の帯・吸気口・砲ポッド・カナード）、紺の側面インテーク、暗色の排気コーン、紫の機関光。',
+ note:'16.74 m（正史。別の資料では 11.8 m）。Sketchfab の 3D モデル（A308 Digital 作、CC BY 4.0。クローン戦争期の共和国仕様）の実測形状を正史の全長に等倍で合わせた（全幅 16.6 m）。胴体を船体として 23 断面で実測に合わせ、背部フェアリング、バブル・キャノピー、側面インテーク、カナード、主翼、2 基のナセル（排気コーン・頸部・本体・吸気口）、翼端のブラスター砲ポッドと砲身を構造物で組んだ。機関はモデルの排気口に合わせて各ナセルに 1 基（正史は「2 対」）で、ナセル前部の核融合炉から給電する。操縦席 1 名、慣性補償装置、反応物タンク、パワーセル。アストロメク・ソケットとハイパードライブは正史どおり持たず（ハイパードライブは後の改装で載せることがある）、シールドも正史に記載がないため積まない。兵装は正史どおり翼端のブラスター砲 2 門、機首下面中央のイオン砲 1 門、胴体下面の震盪ミサイル発射管 2 基（基数は正史に記載がなく想定。お任せの搭載は各6発）。正史に加速度の値はないため、Incom 社の X ウイングの先代機として X ウイング（3,700 G）の約 9 割を目安に機関を決め、最大加速度は約 3,300 G、MGLT は設計局の換算で 110。外殻装甲 1.5 mm。陣営はクローン戦争期の塗装に合わせて銀河共和国。塗装はモデルに従い、白い機体に共和国の赤（機首の帯・吸気口・砲ポッド・カナード）、紺の側面インテーク、暗色の排気コーン、紫の機関光。',
  build:z95Build});
 }
 
@@ -7696,7 +7707,7 @@ function fleetModules(ship,S){
   if(d.cat==='w')k=d.msl?'launcher':'weapon';else if(d.cat==='b'&&(!d.role||d.role==='bridge'||d.role==='combat')&&(S.commandInfo?.[f.id]?.ratio??1)>0)k='bridge';if(!k)continue;
   const s=fitSpec(f);byFit.set(f.id,mods.length);
   const mm=k==='launcher'?MISSILE_MOUNTS[missileMount(f)]:null,cellK=mm&&missileMount(f)==='vls'?clamp(S.vlsInfo?.[f.id]?.ratio??1,0,1):1;
-  mods.push(place({k,fit:f.id,name:d.short||d.name,w:s.fm*s.wm*1.2*(mm?mm.expose:1),hits:clamp(Math.round(Math.max(s.fm,s.wm)/24),1,4),crew:s.crew||0,size:k==='weapon'?(s.tt||0)+(s.ion||0)+(s.aa||0)*.5:1,stock:k==='launcher'?Math.round(mm.stock*MAGAZINE_MISSILES/120*cellK):0,mount:mm?missileMount(f):undefined,at:+clamp((f.p[0]-X0)/L,0,1).toFixed(3),pd:k==='weapon'&&(d.aa||0)>0&&!((d.tt||0)>.01)&&!d.ion,band:k==='weapon'?fitBand(d):undefined},f.p,Math.max(s.fm,s.wm)/2));}
+  mods.push(place({k,fit:f.id,name:d.short||d.name,w:s.fm*s.wm*1.2*(mm?mm.expose:1),hits:clamp(Math.round(Math.max(s.fm,s.wm)/24),1,4),crew:s.crew||0,size:k==='weapon'?(s.tt||0)+(s.ion||0)+(s.aa||0)*.5:1,stock:k==='launcher'?Math.round(mm.stock*MAGAZINE_MISSILES/120*cellK):0,mount:mm?missileMount(f):undefined,ion:k==='launcher'&&d.ionMsl?1:undefined,at:+clamp((f.p[0]-X0)/L,0,1).toFixed(3),pd:k==='weapon'&&(d.aa||0)>0&&!((d.tt||0)>.01)&&!d.ion,band:k==='weapon'?fitBand(d):undefined},f.p,Math.max(s.fm,s.wm)/2));}
  for(const f of intrinsicCommandFits(ship)){const d=FITS[f.k];if(!d||(d.role!=='bridge'&&d.role!=='combat')||(S.commandInfo?.[f.id]?.ratio??0)<=0)continue;mods.push(place({k:'bridge',name:d.short||d.name,w:(f.width||15)*(f.height||6)*1.2,hits:1,crew:d.crew||16,size:1,at:+clamp((f.p[0]-X0)/L,0,1).toFixed(3)},f.p,(f.width||15)/2));}
  for(const p of allOccupied(ship)){
   if(p.windowId!=null)continue;const V=partVolume(p);if(!(V>1))continue;const k=MODULE_PART_KIND[p.k]||'other';
@@ -7724,6 +7735,9 @@ function fleetProfile(S,name,ship){
  const out={...p,embarkedSlots:Math.floor(S.slots||0),aviationSize:S.aviation?.usedSize||0,launch:S.launchPotential??p.launch,slidingHatches:S.slidingHatches||0,hatchOpenSeconds:S.slidingHatches?S.hatchOpenSeconds||4:0,hatchCloseSeconds:S.slidingHatches?S.hatchCloseSeconds||4:0,gunArcs:[...S.alphaRate],ionArcs:[...S.ionRate],aaArcs:[...(S.aaArc||[0,0,0,0,0,0])],accel,mglt:Math.round(mglt*10)/10,maxSpeed:accel>0?mglt*MGLT.ms:0,turnRate:accel>0?clamp(.11*Math.sqrt(Math.max(1,S.accelG)/3000)*Math.sqrt(1600/Math.max(100,p.len)),.015,.24):0,width:S.dims[1],height:S.dims[2],power:S.xISD};
  // Power figures in watts; weapon energy in TT (one TT fired costs one TT stored).
  out.grid={P:S.power||0,fixed:(dr.hotel||0)+(dr.ray||0),De:dr.engines||0,Ds:dr.shields||0,Dw:dr.weapons||0,Pgen:S.reactorSplit?.gen??S.power??0,Paux:S.reactorSplit?.aux??0};
+ // v22 The embarked combat craft's stores at their canon load (C.CRAFT_LOADOUT): the TT one craft brings to the
+ // fight in torpedoes, missiles and bombs, and the share of it that is ion. The fleet model spends it as they attack.
+ {let n=0,T=0,I=0;for(const r of S.aviation?.wings||[]){if(r.kind==='ship'||!isCombatRow(r)||!(r.deployable>0)||!r.type)continue;const o=craftOrdnance(r.type),t=o.reduce((a,x)=>a+x.n*x.tt,0);n+=r.deployable;T+=r.deployable*t;I+=r.deployable*o.filter(x=>x.ion).reduce((a,x)=>a+x.n*x.tt,0);}if(n>0&&T>0){out.airOrd=Math.round(T/n*10)/10;out.airIon=Math.round(I/T*1000)/1000;}}
  out.aaCh=S.aaChannels||AA_CHANNELS.base;out.armorHull=S.armorAvg??S.armorHull??0;out.armorPlate=S.armorPlate||0;out.plateShare=S.plateShare||0;out.crewNeed=S.crew||0;out.crewMax=Math.min(S.crew||0,S.crewAboard??S.crew??0);out.autoCrew=S.autoCrew||0;
  out.wCap=ship?ship.fits.filter(f=>FITS[f.k]?.cat==='w'&&!f.float).reduce((n,f)=>{const s=fitSpec(f);return n+(needsCapacitor(f)?S.chargeInfo?.[f.id]?.storedTT||0:(s.tt||0)+(s.ion||0));},0):(S.alphaTot||0)+(S.ionTot||0);
  if(S.bandRate)out.gunBands={long:[...S.bandRate.long],mid:[...S.bandRate.mid],close:[...S.bandRate.close]};
@@ -7816,7 +7830,7 @@ const fleetCrewEff=u=>{const need=(u.p.crewNeed||0)+(u.p.autoCrew||0);return nee
 function fleetOutReason(u,sys){const p=u.p,s=sys||fleetSystems(u);if(s.hasReactor&&p.grid?.P>0&&s.reactor<=0)return '電源喪失';if(s.hasBridge&&!s.bridge)return '艦橋喪失';
  if((p.crewNeed||0)+(p.autoCrew||0)>0&&fleetCrewRatio(u,s)<FLEET_MIN_CREW)return (p.autoCrew||0)>0&&fleetAutoAvail(u,s)<.999?'操艦不能（自動化装置の停止）':'乗員不足';return null;}
 const fleetEffective=u=>!u.dead&&!u.out;
-function fleetFrame(b,shots=[]){return {time:b.time,units:b.units.map(u=>({id:u.id,pos:[...u.pos],yaw:u.yaw,hp:u.hp,shield:u.shield,shieldMax:u.shieldMax,bank:u.bank||0,bankMax:u.bankMax||0,armor:u.armor,energy:u.energy,load:u.load,mode:u.mode,crew:u.crew,air:u.air,launched:u.launched,hatchOpen:u.hatchOpen||0,hatchTarget:u.hatchTarget||0,dead:u.dead,out:u.out,fate:u.fate,mods:u.mods?u.mods.slice():[],ammo:u.ammo?u.ammo.slice():[],fire:u.fire?u.fire.slice():[],sec:u.sec?u.sec.map(x=>x.s/x.max):[],velocity:[...u.velocity]})),shots};}
+function fleetFrame(b,shots=[]){return {time:b.time,units:b.units.map(u=>({id:u.id,pos:[...u.pos],yaw:u.yaw,hp:u.hp,shield:u.shield,shieldMax:u.shieldMax,bank:u.bank||0,bankMax:u.bankMax||0,armor:u.armor,energy:u.energy,load:u.load,mode:u.mode,crew:u.crew,air:u.air,ordPool:u.ordPool||0,launched:u.launched,hatchOpen:u.hatchOpen||0,hatchTarget:u.hatchTarget||0,dead:u.dead,out:u.out,fate:u.fate,mods:u.mods?u.mods.slice():[],ammo:u.ammo?u.ammo.slice():[],fire:u.fire?u.fire.slice():[],sec:u.sec?u.sec.map(x=>x.s/x.max):[],velocity:[...u.velocity]})),shots};}
 function fleetRandom(b){let t=(b.seed=(b.seed+0x6D2B79F5)|0);t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return ((t^t>>>14)>>>0)/4294967296;}
 // ---------- combat damage (v14) ----------
 // A ship has no hit-point pool. Fire that gets past the shields loads the
@@ -8066,10 +8080,10 @@ function combatClone(u){return {vol:u.vol?{...u.vol}:null,sw:(u.sw||[]).map(x=>(
 // not left out of the fight for good by a temporary blackout).
 const SW_COMBAT={
  sbeam:{name:'超重合成ビーム',E:50000,share:.6,tMin:45,range:200000,cone:.07,beamT:8,over:{floor:.3,T:60},pulseShield:2.5,secRef:29000,pulseK:1.5,pulseFall:.3},
- hion:{name:'ハイパーイオン砲',E:40000,share:.6,tMin:60,range:30000,cone:.44,over:{floor:.3,T:90},down:45,auxMin:.15,shieldCut:.5,holdS:300}
+ hion:{name:'ハイパーイオン砲',E:40000,share:.6,tMin:60,range:30000,cone:.44,over:{floor:.3,T:90},down:45,auxMin:.15,shieldCut:.5,holdS:600}
 };
 // v21.2 The hyper-ion cannon's bolt (the designer's rules):
-//  · a cannon holds at most five minutes (holdS) of its reactor's full output (shared between the cannons on that
+//  · a cannon holds at most ten minutes (holdS) of its reactor's full output (shared between the cannons on that
 //    reactor) and fires what it has charged: the shot's power is its charge;
 //  · the bolt is a disc across its line of flight that widens as it goes: its diameter is the cannon's radius times
 //    the distance factor k(x) = 2(1 + x/X0), the cannon's own diameter at the muzzle;
@@ -8077,15 +8091,27 @@ const SW_COMBAT={
 //    over the disc's area; what it takes is gone from the bolt, which flies on with the rest;
 //  · what a ship takes drains it: its shields first (ion works ionShield times on them), its stored charge, then
 //    its reactors stop for as long as it would take them to make that energy (at most maxDown seconds).
-const ION_BOLT={v:2500,X0:500,maxRange:45000,fill:.55,minE:.005,maxDown:900,fireMin:.1};
+// v21.2 The pulse thins as it spreads: its energy over the disc it has grown to (TT per m²). Spread thinner than `fade`
+// it is gone, so its reach is set by what it was charged with — about 64 km for a Subjugator's full ten-minute charge,
+// 45 km at half, 20 km at a tenth — and by what the ships it passed took from it. It glows less the thinner it is
+// (fadeRef: a full charge leaving a 310.8 m cannon). maxRange is only a safety cap.
+const ION_BOLT={v:2500,X0:500,maxRange:400000,fill:.55,minE:.005,maxDown:900,fireMin:.1,fade:.0053,fadeRef:88};
 const ionDiam=(d,x)=>(d/2)*2*(1+Math.max(0,x)/ION_BOLT.X0);
+const ionDensity=(E,d,x)=>Math.max(0,E)/(Math.PI/4*ionDiam(d,x)**2);
+// How far a pulse of energy E from a cannon d across gets before it has thinned out.
+function ionReach(E,d){const r=Math.sqrt(Math.max(0,E)/(ION_BOLT.fade*Math.PI/4*d*d));return r>1?ION_BOLT.X0*(r-1):0;}
+// How brightly a bolt in flight glows: 1 at a full charge leaving the cannon, 0 as it thins out.
+function ionGlow(b){const rho=ionDensity(b.E,b.d,b.x);return rho>ION_BOLT.fade?clamp(Math.log(rho/ION_BOLT.fade)/Math.log(ION_BOLT.fadeRef/ION_BOLT.fade),0,1):0;}
+// A superweapon's reach now: the composite beam's is fixed; the hyper-ion cannon's is what its charge carries
+// (held ready = full; charging = what it holds so far).
+function swRange(u,w,i){const C=SW_COMBAT[w.k];if(w.k!=='hion'||!w.Emax)return C.range;const x=u?.sw?.[i??(u.p?.sw||[]).indexOf(w)],c=x?(x.st==='charge'?clamp(x.c,0,1):1):1;return ionReach(w.Emax*c,w.d||SUPERWEAPONS.hion.d);}
 // A ship's area seen along a direction (its box, filled to `fill`).
 function ionArea(t,dir){const c=Math.cos(t.yaw||0),sn=Math.sin(t.yaw||0),nx=Math.abs(dir[0]*c+dir[2]*sn),ny=Math.abs(dir[1]),nz=Math.abs(-dir[0]*sn+dir[2]*c),L=t.p.len||100,H=t.p.height||L*.2,W=t.p.width||L*.35;return ION_BOLT.fill*(H*W*nx+L*W*ny+L*H*nz);}
 // The share of a bolt's energy a ship takes as the disc passes it at distance s along the line, off it by r.
 function ionShare(t,dir,s,r,d){const D=ionDiam(d,s),Rb=D/2,A=ionArea(t,dir),rs=Math.sqrt(A/Math.PI);if(r>=Rb+rs)return 0;const fin=r+rs<=Rb?1:clamp((Rb+rs-r)/(2*rs),0,1);return Math.min(1,A*fin/(Math.PI*Rb*Rb));}
 // What a bolt from o along dir with energy E would do to the ships in its way, in the order it meets them.
 function ionPlan(o,dir,E,d,units,skip){const hits=[];for(const t of units){if(t===skip||t.dead||t.absent||t.warp)continue;const v=sub(t.pos,o),sAl=dot(v,dir);if(sAl<=0||sAl>ION_BOLT.maxRange)continue;const r=len(sub(v,mul(dir,sAl)));hits.push({t,s:sAl,r});}
- hits.sort((a,b)=>a.s-b.s);let e=E;const out=[];for(const h of hits){const k=ionShare(h.t,dir,h.s,h.r,d);if(!(k>0))continue;const take=e*k;e-=take;out.push({t:h.t,E:take});if(e<E*ION_BOLT.minE)break;}return out;}
+ hits.sort((a,b)=>a.s-b.s);let e=E;const out=[];for(const h of hits){if(ionDensity(e,d,h.s)<ION_BOLT.fade)break;const k=ionShare(h.t,dir,h.s,h.r,d);if(!(k>0))continue;const take=e*k;e-=take;out.push({t:h.t,E:take});if(e<E*ION_BOLT.minE)break;}return out;}
 // The muzzle of superweapon w in the battle's world frame.
 function swMuzzle(u,w){const m=w.mz||[0,0,0],c=Math.cos(u.yaw||0),sn=Math.sin(u.yaw||0);return [u.pos[0]+m[0]*c-m[2]*sn,u.pos[1]+m[1],u.pos[2]+m[0]*sn+m[2]*c];}
 // The ion bolt drains a ship (E in TT).
@@ -8105,7 +8131,7 @@ function ionBoltsStep(bolts,units,dt,ctx,byId){
   for(const t of units){if(t.id===b.from||t.dead||t.absent||t.warp||b.hit.includes(t.id))continue;const v=sub(t.pos,b.o),sAl=dot(v,b.dir);if(sAl<=x0||sAl>b.x)continue;
    const r=len(sub(v,mul(b.dir,sAl))),k=ionShare(t,b.dir,sAl,r,b.d);if(!(k>0))continue;const take=b.E*k;b.E-=take;b.hit.push(t.id);b.log=b.log||[];b.log.push({id:t.id,E:take,s:sAl});
    ionStrike(ctx,t,take,byId?.get(b.from));}
-  if(b.E<b.E0*ION_BOLT.minE||b.x>ION_BOLT.maxRange)b.done=true;}
+  if(b.E<b.E0*ION_BOLT.minE||ionDensity(b.E,b.d,b.x)<ION_BOLT.fade||b.x>ION_BOLT.maxRange)b.done=true;}
  for(let i=bolts.length-1;i>=0;i--)if(bolts[i].done)bolts.splice(i,1);
 }
 let ionBoltSeq=0;
@@ -8124,7 +8150,7 @@ function swChargeRate(u,i){const w=u.p.sw[i];if(u.down&&(u.down.black||w.rk!=='a
 const swLocal=(u,t)=>{const dx=t.pos[0]-u.pos[0],dy=t.pos[1]-u.pos[1],dz=t.pos[2]-u.pos[2],c=Math.cos(u.yaw||0),s=Math.sin(u.yaw||0);return [dx*c+dz*s,dy,-dx*s+dz*c];};
 // Whether a target is in a superweapon's line or cone of fire, and in range.
 function swInArc(u,w,t){
- const C=SW_COMBAT[w.k],v=swLocal(u,t),d=Math.hypot(v[0],v[1],v[2]);if(!(d>0)||d>C.range+(t.p.len||0)*.5)return false;
+ const C=SW_COMBAT[w.k],v=swLocal(u,t),d=Math.hypot(v[0],v[1],v[2]);if(!(d>0)||d>swRange(u,w)+(t.p.len||0)*.5)return false;
  if(w.aim==='bow'){if(v[0]<=0)return false;const off=Math.hypot(v[1],v[2]);return Math.atan2(off,v[0])<=C.cone||off<=Math.max(t.p.width||t.p.len*.3,t.p.height||0)*.5;}
  const side=w.aim==='port'?-v[2]:v[2];return side>0&&Math.atan2(Math.hypot(v[0],v[1]),side)<=C.cone;
 }
@@ -8376,24 +8402,29 @@ function fleetTick(b,dt,opts={}){
   const hatchSeconds=u.hatchTarget?(p.hatchOpenSeconds||4):(p.hatchCloseSeconds||4);u.hatchOpen=sliding?clamp(oldOpen+(u.hatchTarget?1:-1)*dt/hatchSeconds,0,1):0;
   const launchDt=requested?(sliding?Math.max(0,dt-(1-oldOpen)*(p.hatchOpenSeconds||4)):dt):0;
   if(launchDt>0){const n=Math.min(p.slots-u.launched,p.launch*s.hangar*crewEff*launchDt);if(n>0){u.launched+=n;u.queue.push([b.time+dt-launchDt+25,n]);}if(u.launched>=p.slots-1e-9){u.launched=p.slots;u.hatchTarget=0;}}
-  while(u.queue.length&&u.queue[0][0]<=b.time)u.air+=u.queue.shift()[1];
+  // v22 Each craft that arrives brings its stores (p.airOrd TT); they are spent as the craft attack, and lost with them.
+  while(u.queue.length&&u.queue[0][0]<=b.time){const n=u.queue.shift()[1];u.air+=n;if(p.airOrd>0)u.ordPool=(u.ordPool||0)+n*p.airOrd;}
   if(!t){volleyStep(u,dt,false);continue;}const aim=fleetAim(u,t,true);
   const hit=p.acc*F.fall*crewEff*(.6+.4*s.fire)*(aim?.8:1),vk=volleyStep(u,dt,F.gun+F.ion>0),gun=F.gun*s.weapon*fire*hit*vk,ion=F.ion*s.weapon*fire*hit*vk;
   // Missiles draw on each intact launcher's magazine.
-  let msl=0;if(p.msl>0&&distance<=GUN_BANDS.long.range*1.5){const tubes=(p.modules||[]).map((m,i)=>m.k==='launcher'&&u.mods[i]>0&&u.ammo[i]>0?i:-1).filter(i=>i>=0),total=(p.modules||[]).filter(m=>m.k==='launcher').length;
-   if(!total)msl=p.msl/20*crewEff;else if(tubes.length){let fired=0;for(const i of tubes){const n=Math.min(u.ammo[i],8/20*dt);u.ammo[i]-=n;fired+=n;}msl=p.msl/(total*8)*fired/dt*crewEff;}
-   msl*=1-.7*t.p.aa/(t.p.aa+p.msl*.5+1e-9);}
+  // v22 Ion torpedo launchers draw on their magazines the same way; their share goes to the ion channel.
+  let msl=0,imsl=0;const mt=(p.msl||0)+(p.imsl||0);if(mt>0&&distance<=GUN_BANDS.long.range*1.5){const mods=p.modules||[],tubes=mods.map((m,i)=>m.k==='launcher'&&u.mods[i]>0&&u.ammo[i]>0?i:-1).filter(i=>i>=0),total=mods.filter(m=>m.k==='launcher').length;
+   if(!total){msl=(p.msl||0)/20*crewEff;imsl=(p.imsl||0)/20*crewEff;}else if(tubes.length){let fired=0,firedI=0;for(const i of tubes){const n=Math.min(u.ammo[i],8/20*dt);u.ammo[i]-=n;if(mods[i].ion)firedI+=n;else fired+=n;}msl=mt/(total*8)*fired/dt*crewEff;imsl=mt/(total*8)*firedI/dt*crewEff;}
+   const icpt=1-.7*t.p.aa/(t.p.aa+mt*.5+1e-9);msl*=icpt;imsl*=icpt;}
   // Aircraft attrition also reads the common pre-damage snapshot.
   const airEnemy=enemies.reduce((v,e)=>v+byId.get(e.id).air,0),fd=u.air*.6*(1-.5*airEnemy/(u.air+airEnemy+1));
-  const chK=Math.min(1,(t.p.aaCh??AA_CHANNELS.base*4)/Math.max(1,Math.ceil(u.air/AA_CHANNELS.flight))),loss=Math.min(u.air,(t.p.aa*.012*chK+airEnemy*.012/enemies.length)*dt);u.air-=loss;u.lost+=loss;
-  const hd=dt*DMG,amt={sf:(gun+COMBAT.ionShield*ion+.5*msl+.3*fd)*hd,hull:(gun+COMBAT.ionHull*ion+.5*msl+.3*fd)*hd,direct:(.5*msl+.7*fd)*hd,ion:ion*hd};
+  const chK=Math.min(1,(t.p.aaCh??AA_CHANNELS.base*4)/Math.max(1,Math.ceil(u.air/AA_CHANNELS.flight))),loss=Math.min(u.air,(t.p.aa*.012*chK+airEnemy*.012/enemies.length)*dt);
+  // The craft aloft release their stores over about a minute of attacks; point defence takes its share as it does missiles'.
+  let ord=0,iord=0;if(u.ordPool>0&&u.air>0){const rel=Math.min(u.ordPool,u.air*p.airOrd/60*dt*(1-.5*airEnemy/(u.air+airEnemy+1)));u.ordPool-=rel;const r=rel/dt*(1-.7*t.p.aa/(t.p.aa+rel/dt*.5+1e-9)),ik=clamp(p.airIon||0,0,1);ord=r*(1-ik);iord=r*ik;}
+  if(u.ordPool>0&&u.air>0)u.ordPool*=Math.max(0,(u.air-loss)/u.air);u.air-=loss;u.lost+=loss;
+  const hd=dt*DMG,amt={sf:(gun+COMBAT.ionShield*(ion+imsl+iord)+.5*(msl+ord)+.3*fd)*hd,hull:(gun+COMBAT.ionHull*(ion+imsl+iord)+.5*(msl+ord)+.3*fd)*hd,direct:(.5*(msl+ord)+.7*fd)*hd,ion:(ion+imsl+iord)*hd};
   // v21.1 A ship of the target's side across the line of fire takes its share (escorts screening their charge).
   const scr=gun+ion>0?fireScreen(alive,u,t,aimPoint(t,aim)):null;
   if(scr){const k=screenShare(scr,t,aim),part=f=>({sf:amt.sf*f,hull:amt.hull*f,direct:amt.direct*f,ion:amt.ion*f});combatAdd(incoming.get(scr.id),scr,u.pos,part(k),null,u.id);combatAdd(incoming.get(t.id),t,u.pos,part(1-k),null,u.id);scr.screened=(scr.screened||0)+(gun+ion)*hd*k;shots.push({from:u.id,to:scr.id,team:u.team,ion:ion>gun,gun:(gun+ion)*k*dt,msl:0,screen:true});}
   else combatAdd(incoming.get(t.id),t,u.pos,amt,aim,u.id);
   // What misses may strike a ship of our own close to the target.
   const miss=Math.max(0,1-hit);if(miss>0&&vk>0&&F.gun+F.ion>0)for(const {x,k} of fireStray(alive,u,t,distance)){const g2=F.gun*s.weapon*fire*miss*k*vk,i2=F.ion*s.weapon*fire*miss*k*vk;if(!(g2+i2>0))continue;combatAdd(incoming.get(x.id),x,u.pos,{sf:(g2+COMBAT.ionShield*i2)*hd,hull:(g2+COMBAT.ionHull*i2)*hd,ion:i2*hd},null,u.id);x.ffTaken=(x.ffTaken||0)+(g2+i2)*hd;shots.push({from:u.id,to:x.id,team:u.team,ion:i2>g2,gun:(g2+i2)*dt,msl:0,ff:true});}
-  if(gun+ion+msl+fd>0)shots.push({from:u.id,to:t.id,team:u.team,ion:ion>gun,gun:(gun+ion)*dt,msl:msl*dt,salvo:vk>1});
+  if(gun+ion+msl+imsl+fd+ord+iord>0)shots.push({from:u.id,to:t.id,team:u.team,ion:ion>gun,gun:(gun+ion)*dt,msl:msl*dt,imsl:imsl*dt,ord:(ord+iord)*dt,salvo:vk>1});
  }
  const time=b.time+dt,ctx={rand:()=>fleetRandom(b),time,damage:DMG,ev:(u,text)=>b.events.push({time,text:u.name+'：'+text,id:u.id}),sunk:(u,why)=>b.events.push({time,text:`${u.name}：撃沈（${why}）`,id:u.id,sunk:true}),out:(u,why)=>b.events.push({time,text:`${u.name}：戦闘不能（${why}）`,id:u.id}),hit:opts.onHit};
  // v21 Superweapons (a piloted ship's fire on command); stopped and overloaded reactors recover.
@@ -8699,6 +8730,91 @@ function craftCrew(ship,S){
  for(const w of S.warnings){if(w.text.startsWith('構造維持装置の対応質量')&&!S.integritySupport){w.lv='info';w.text='構造維持装置がありません（小型の機体は船体の強度だけで飛べます）。';}if(w.text.startsWith('シールド発生器がありません')){w.lv='info';w.text='シールド発生器がありません（TIE のように機動と数で補う機体もあります）。';}if(w.text.startsWith('艦橋がありません'))w.text='操縦席（またはドロイド制御中枢）がありません。命中率が大きく落ちます。';}
  if(!seats&&!droid&&!S.warnings.some(w=>w.text.startsWith('操縦席')))S.warnings.push({lv:'bad',text:'操縦席（またはドロイド制御中枢）がありません。'});
 }
+// ---------- v22 ordnance as stores ----------
+// Each round is a physical object: a length and diameter (m), a mass (t) and what its hit delivers (TT; an ion
+// round's TT go to the ion channel, three times as hard on shields). Rounds ride in the craft's store stations —
+// a launch tube's magazine, the bomb bay, a wing pylon — and are used up as they are fired; the craft rearms in
+// its carrier's hangar. The designer shows only what the stations can take; the order of battle chooses what
+// each squadron carries (お任せ: the craft's canon loadout, CRAFT_LOADOUT).
+// Sizes and masses: neither canon nor Legends gives figures for the rounds, so they are the game's, sized to the
+// launchers measured on the examples (a proton torpedo fills the 1.4 m × 0.5 m tube box of the X-wing's MG7).
+// Hits: the game's, set so a canon loadout's first attack run comes out near the voyage craft table's strike
+// (an X-wing's two torpedoes and guns about 160, a TIE/sa's torpedoes and bombs about 380, a Y-wing's about 300).
+const ORDNANCE=Object.freeze({
+ ptorp:{name:'プロトン魚雷',short:'プロトン魚雷',dims:[1.3,.3],mass:.12,tt:70,guided:true,speed:1600,desc:'誘導式の対艦魚雷。半分はシールドを抜ける。'},
+ itorp:{name:'イオン魚雷',short:'イオン魚雷',dims:[1.3,.3],mass:.12,tt:40,ion:true,guided:true,speed:1600,desc:'プロトン魚雷と同じ弾体のイオン弾頭。シールドに3倍で効き、抜けた分は蓄電を奪い反応炉を麻痺させる（船体への損害は小さい）。'},
+ etorp:{name:'エネルギー魚雷',short:'エネルギー魚雷',dims:[1.3,.3],mass:.1,tt:25,guided:true,speed:1800,desc:'ドロイド戦闘機の軽い魚雷（ヴァルチャー級）。'},
+ cmsl:{name:'震盪ミサイル',short:'震盪ミサイル',dims:[1.0,.2],mass:.045,tt:25,guided:true,speed:2000,desc:'細く速い誘導ミサイル。弾頭は魚雷より小さい。'},
+ bomb:{name:'プロトン爆弾',short:'プロトン爆弾',dims:[1.0,.3],mass:.14,tt:60,bomb:true,speed:600,desc:'誘導のない爆弾。目標の真上で落とすので、攻撃航過の最も近い所で放つ。'}
+});
+const ORDNANCE_EVIDENCE='弾の寸法・質量は正史・レジェンズに数値がないため、作例の発射管（実測）に収まる大きさとしたゲーム用仮定。威力はゲーム用仮定（正史の搭載で1回目の攻撃航過が航行の機種表の対艦値に近くなる値）。';
+const STORE_MOUNTS=Object.freeze({tube:{name:'発射管の弾倉',short:'弾倉'},bay:{name:'爆弾倉',short:'爆弾倉'},wing:{name:'翼下パイロン',short:'パイロン'}});
+const STORE_FITS=['ctorp','cmsl','cbomb','cpylon'];
+// The rounds a station holds of one kind (0: it does not take that kind). A tube takes rounds no wider than its bore
+// and no longer than it, as many as its magazine has slots; a bay packs them along its length in rows and layers;
+// a pylon hangs one round, or two thin missiles side by side, within its load limit.
+function storeCapacity(store,kind){
+ const o=ORDNANCE[kind];if(!store||!o)return 0;const [L,D]=o.dims,e=1e-9;
+ if(store.mount==='tube')return D<=store.bore+e&&L<=store.len+e?store.slots:0;
+ if(store.mount==='bay'){const b=store.box;return Math.floor(b[0]/L+e)*Math.floor(b[1]/D+e)*Math.floor(b[2]/D+e);}
+ if(store.mount==='wing')return Math.max(0,Math.min(D<=.22+e?store.slots:1,Math.floor(store.maxMass/o.mass+e)));
+ return 0;
+}
+// What a station takes by default when nothing else is known (a design of the player's own).
+const STORE_DEFAULT={ctorp:['ptorp',3],cmsl:['cmsl',6],cbomb:['bomb',8],cpylon:['cmsl',2]};
+// A craft's store stations: identical fittings in one group, in a fixed order (tubes, missile tubes, bay, pylons).
+function craftStations(ship,S){
+ const by=new Map();for(const f of ship?.fits||[]){const d=FITS[f.k];if(!d?.store||f.float||S?.info?.[f.id]?.overlap)continue;by.set(f.k,(by.get(f.k)||0)+1);}
+ return STORE_FITS.filter(k=>by.has(k)).map(k=>({fit:k,mount:FITS[k].store.mount,count:by.get(k)}));
+}
+const stationStore=st=>FITS[st?.fit]?.store||null;
+// Canon loadouts by craft type (the voyage's craft keys): the stations the type has and what each carries.
+// st: [fitting, count]; load: [kind, rounds per station]; mass: the measured example's mass (t), for handling.
+const CRAFT_LOADOUT=Object.freeze({
+ xwing:{st:[['ctorp',2]],load:[['ptorp',3]],mass:22.5,src:'プロトン魚雷発射管2基・各3発（Star Wars: Rebel Starfighters Owners\' Workshop Manual, 2019。Wikipedia「X-wing fighter」）'},
+ awing:{st:[['cmsl',2]],load:[['cmsl',6]],mass:10.2,src:'震盪ミサイル発射管2基・計12発（Wikipedia「A-wing」諸元。Wookieepedia：Dymek HM-6 各6発）'},
+ ywing:{st:[['ctorp',2]],load:[['ptorp',4]],src:'MG7 プロトン魚雷発射管2基。弾倉は当初6発、のちに4発（Wookieepedia「BTL Y-wing starfighter」）。同盟軍の改装機は計8発（Rebel Starfighters Owners\' Workshop Manual。Wikipedia「Y-wing」）',
+  // canon alternative: ion torpedoes, as Gold Squadron at Scarif
+  alt:[{name:'イオン魚雷（スカリフの戦い）',load:[['itorp',4]],src:'スカリフの戦いでゴールド中隊の Y ウイングがイオン魚雷でインペリアル級スター・デストロイヤー「パーセキューター」を無力化（ローグ・ワン、2016。Wookieepedia「Ion torpedo」）'}]},
+ btlb:{st:[['ctorp',2],['cbomb',1]],load:[['ptorp',6],['bomb',8]],mass:52.3,src:'MG7 発射管2基・6発弾倉（初期型：計12発。Wookieepedia「BTL Y-wing starfighter」・Wikipedia「Y-wing」）、プロトン爆弾（クローン・ウォーズ「マレボランスの影」）。爆弾の数は記載がなく、TIE/sa の主兵装庫と同じ8発'},
+ bwing:{st:[['ctorp',2]],load:[['ptorp',3]],src:'プロトン魚雷発射管2基（Wikipedia「List of Star Wars starfighters」の諸元）。弾数は記載がなく、各3発（X ウイングの MG7 と同じ）'},
+ tie_sa:{st:[['ctorp',1],['cbomb',1]],load:[['ptorp',4],['bomb',8]],mass:51.3,src:'前部兵装庫：震盪ミサイル8発かプロトン魚雷4発、主兵装庫：プロトン爆弾8発など（Star Wars: TIE Fighter Deluxe Book and Model Set。Wookieepedia「TIE/sa tactical bomber」）'},
+ arc170:{st:[['ctorp',1]],load:[['ptorp',6]],mass:34.5,src:'プロトン魚雷6発（Dougherty ほか 2020, pp. 82–83。Wikipedia「List of Star Wars starfighters」）'},
+ z95:{st:[['cmsl',2]],load:[['cmsl',6]],mass:19.2,src:'震盪ミサイル発射管（Before the Awakening。Wookieepedia「Z-95 Headhunter」）。弾数は記載がなく、各6発（A ウイングの HM-6 と同じ）'},
+ v19:{st:[['cmsl',2]],load:[['cmsl',6]],mass:12.9,src:'震盪ミサイル発射管2基（Star Wars: On the Front Lines, 2017・StarWars.com Databank）。弾数は記載がなく、各6発'},
+ hyena:{st:[['ctorp',2],['cmsl',2],['cbomb',1]],load:[['ptorp',3],['cmsl',6],['bomb',8]],mass:29.1,src:'プロトン魚雷・震盪ミサイル・爆弾（精密爆撃用の下向き光学センサー。StarWars.com Databank）。数は記載がなく、標準の弾倉（魚雷各3・ミサイル各6・爆弾8）'},
+ vulture:{st:[['ctorp',2],['cmsl',1]],load:[['etorp',2],['cmsl',2]],mass:8.9,src:'胴体にエネルギー魚雷発射管2基（StarWars.com Databank「Vulture Droid」）。弾数は記載がなく各2発。バズ・ドロイド・ミサイルは震盪ミサイル2発で代用'}
+});
+// The craft type an example stands for (its own craftType, else its key without the craft_ prefix).
+const craftTypeOf=key=>{if(typeof key!=='string')return null;if(CRAFT_LOADOUT[key]||CRAFT_TYPES[key])return key;const t=SHIP_EXAMPLES[key]?.craftType||key.replace(/^craft_/,'');return CRAFT_LOADOUT[t]||CRAFT_TYPES[t]?t:null;};
+const loadPairs=a=>(a||[]).map(([k,n])=>({k,n}));
+// A loadout: the stations and what each carries by default (canon for a known type, else STORE_DEFAULT).
+function craftLoadout(x){
+ if(x==null)return null;
+ if(typeof x==='string'){const t=craftTypeOf(x),c=t&&CRAFT_LOADOUT[t];if(c)return {stations:c.st.map(([fit,count])=>({fit,mount:FITS[fit].store.mount,count})),load:loadPairs(c.load),canon:true,type:t,src:c.src,mass:c.mass,alt:(c.alt||[]).map(a=>({name:a.name,load:loadPairs(a.load),src:a.src}))};return t?{stations:[],load:[],canon:true,type:t,src:'',mass:null}:null;}
+ if(Array.isArray(x.fits)){const stations=craftStations(x),t=craftTypeOf(x.reference),c=t&&CRAFT_LOADOUT[t],same=c&&c.st.length===stations.length&&c.st.every(([fit,n],i)=>stations[i].fit===fit&&stations[i].count===n);
+  return {stations,load:same?loadPairs(c.load):stations.map(st=>({k:STORE_DEFAULT[st.fit][0],n:STORE_DEFAULT[st.fit][1]})),canon:!!same,type:t,src:same?c.src:'',mass:null};}
+ if(Array.isArray(x.stations))return {stations:x.stations,load:Array.isArray(x.load)?x.load:x.stations.map(st=>({k:STORE_DEFAULT[st.fit]?.[0],n:STORE_DEFAULT[st.fit]?.[1]||0})),canon:!!x.canonLoad,type:null,src:'',mass:x.mass??null};
+ return null;
+}
+// A chosen loadout checked against the stations: each station's kind must fit it and its count is held to what it
+// takes (a station left out falls back to the default; 'auto' or nothing is the default throughout).
+function normalizeLoad(stations,load,base){
+ const L=Array.isArray(load)?load:null;
+ return (stations||[]).map((st,i)=>{const s=stationStore(st),b=base?.[i]||{k:STORE_DEFAULT[st.fit]?.[0],n:STORE_DEFAULT[st.fit]?.[1]||0},q=L?.[i]&&typeof L[i]==='object'?L[i]:b,k=ORDNANCE[q.k]?q.k:b.k,cap=storeCapacity(s,k);return {k,n:cap>0?clamp(Math.round(+q.n||0),0,cap):0};});
+}
+// v22 What a craft carries, round by round: [{kind, n (per craft), mount, dims: [length, diameter], …}].
+// craftKeyOrDesign: a craft type key ('xwing'), an example key ('craft_xwing'), a design (ship), or a loadout
+// holder (a design craft's snapshot, a voyage craft entry); load: a squadron's chosen loadout (stations' [{k, n}]).
+function craftOrdnance(x,load){
+ const L=craftLoadout(x);if(!L)return [];const ld=normalizeLoad(L.stations,load==null||load==='auto'?L.load:load,L.load);
+ return L.stations.map((st,i)=>{const q=ld[i],o=ORDNANCE[q?.k];if(!o||!(q.n>0))return null;return {kind:q.k,n:q.n*st.count,per:q.n,stations:st.count,mount:st.mount,fit:st.fit,dims:o.dims.slice(),name:o.name,mass:o.mass,tt:o.tt,ion:!!o.ion,guided:!!o.guided,bomb:!!o.bomb};}).filter(Boolean);
+}
+// Attack runs a full load lasts (bombers release in two sticks, the rest fire over three runs), and the rounds
+// one craft releases on a run.
+const ordnanceRuns=role=>role==='bomber'?2:3;
+const ordnanceSalvo=(x,role)=>Math.max(1,Math.ceil(x.n/ordnanceRuns(role)));
+function ordnanceSummary(list){return (list||[]).map(x=>`${x.name} ${x.n}`).join('・')||'なし';}
 // v21 A craft as a carrier's complement in the voyage: its squadrons' speed (m/s), dogfighting (air),
 // anti-ship strike and toughness, from the design itself. The scale is the voyage's own craft table's:
 // the measured examples come out near the figures it gives their types (an X-wing about speed 2,000,
@@ -8709,24 +8825,33 @@ function craftCrew(ship,S){
 //   within 500-3,200 (was 600 + 0.4 × G, which put an A-wing at 2,640).
 // air: the guns' air-to-air ratings (aa, by scale²) and agility (acceleration against an X-wing's 3,700 G),
 //   ×1.1 with shields, ×0.55 for a bomber.
-// strike: 6 + the guns' air ratings + 3,500 × the ordnance (torpedoes, missiles, bombs; msl by scale³).
+// strike (v22): the guns, 6 + their air ratings (gun, every run), and the first run's ordnance at the default
+//   loadout (strike = gun + that salvo's TT); the stations and the default load go with the snapshot.
 // toughness: 0.35 + 0.17 ln(mass in t), ×1.3 with shields.
 const craftSpeed=G=>Math.round(clamp(2070*Math.pow(Math.max(0,G)/3700,.34),500,3200));
 const CRAFT_ROLE_RTS={'爆撃機':'bomber','迎撃機':'interceptor','戦闘機':'fighter','重戦闘機':'fighter','ドロイド戦闘機':'fighter','ガンシップ':'transport','揚陸艇':'transport','シャトル':'transport','非武装艇':'transport'};
 function craftCombat(ship,S){
- if(!ship||!S?.craft)return null;let A=0,M=0;
- for(const f of ship.fits){const d=FITS[f.k];if(!d?.craft||S.info?.[f.id]?.overlap)continue;const k=f.scale||1;A+=(d.aa||0)*k*k;M+=(d.msl||0)*k*k*k;}
+ if(!ship||!S?.craft)return null;let A=0;
+ for(const f of ship.fits){const d=FITS[f.k];if(!d?.craft||S.info?.[f.id]?.overlap)continue;const k=f.scale||1;A+=(d.aa||0)*k*k;}
  const G=Math.max(0,S.accelG||0),role=CRAFT_ROLE_RTS[S.cls?.role]||'fighter',sh=(S.Vsh||0)>0&&(S.shieldPct||0)>0;
  const speed=craftSpeed(G),air=clamp(1.2*(.55+.05*Math.min(A,12))*Math.pow(Math.max(1,G)/3700,.8)*(sh?1.1:1)*(role==='bomber'?.55:1),.05,1.8);
- const strike=Math.round(6+A+3500*M),armor=clamp((.35+.17*Math.log(Math.max(.5,S.mass||0)))*(sh?1.3:1),.3,3),dims=(S.dims||[ship.hull.L,ship.hull.W,ship.hull.H]).map(v=>Math.round(v*100)/100);
- return {name:ship.name||'設計機',role,roleName:S.cls?.role||'',speed,aa:Math.round(air*100)/100,strike,armor:Math.round(armor*100)/100,crew:Math.round(S.seats??S.crew??0),dims,size:stowSize(dims),accelG:Math.round(G),shield:sh};
+ const stations=craftStations(ship,S),Lo=craftLoadout(ship),load=Lo.stations.length===stations.length?Lo.load:stations.map(st=>({k:STORE_DEFAULT[st.fit][0],n:STORE_DEFAULT[st.fit][1]})),ord=craftOrdnance({stations,load},load);
+ const gun=Math.round(6+A),salvo=ord.reduce((n,x)=>n+ordnanceSalvo(x,role)*x.tt,0),ordMass=ord.reduce((n,x)=>n+x.n*x.mass,0);
+ const strike=Math.round(gun+salvo),armor=clamp((.35+.17*Math.log(Math.max(.5,S.mass||0)))*(sh?1.3:1),.3,3),dims=(S.dims||[ship.hull.L,ship.hull.W,ship.hull.H]).map(v=>Math.round(v*100)/100);
+ // Loaded with the default stores the craft is heavier: its acceleration falls by mass/(mass + stores).
+ const Gl=G*(S.mass>0?S.mass/(S.mass+ordMass):1);
+ return {name:ship.name||'設計機',role,roleName:S.cls?.role||'',speed,aa:Math.round(air*100)/100,strike,gun,armor:Math.round(armor*100)/100,crew:Math.round(S.seats??S.crew??0),dims,size:stowSize(dims),accelG:Math.round(G),shield:sh,
+  stations,load,canonLoad:!!Lo.canon&&Lo.stations.length===stations.length,ord,ordMass:Math.round(ordMass*1000)/1000,mass:Math.round((S.mass||0)*100)/100,speedLoaded:craftSpeed(Gl),accelLoaded:Math.round(Gl)};
 }
 // A design craft carried in an air wing row keeps this snapshot (so the carrier stays whole when the
 // craft's own design changes or is deleted); a row's snapshot is checked on load.
 function cleanDesignCraft(d){
  if(!d||typeof d!=='object')return null;const c=d.craft;if(!c||typeof c!=='object'||!Object.values(CRAFT_ROLE_RTS).includes(c.role))return null;
  const str=(v,n)=>(typeof v==='string'?v:'').replace(/[\u0000-\u001f\u007f]/g,'').trim().slice(0,n),num=(v,lo,hi,def)=>Number.isFinite(v)?clamp(v,lo,hi):def;
- return {ref:str(d.ref,80),name:str(d.name,40)||'設計機',craft:{role:c.role,roleName:str(c.roleName,20),speed:c.accelG>0&&Number.isFinite(c.accelG)?craftSpeed(c.accelG):Math.round(num(c.speed,500,3200,1500)),aa:Math.round(num(c.aa,0,2,1)*100)/100,strike:Math.round(num(c.strike,0,5000,10)),armor:Math.round(num(c.armor,.1,4,1)*100)/100,crew:Math.round(num(c.crew,0,200,1)),accelG:Math.round(num(c.accelG,0,20000,0)),shield:!!c.shield}};
+ // v22 the store stations and their default load (older snapshots have none: guns only)
+ const stations=(Array.isArray(c.stations)?c.stations:[]).filter(st=>st&&FITS[st.fit]?.store&&Number.isInteger(st.count)&&st.count>=1&&st.count<=64).slice(0,8).map(st=>({fit:st.fit,mount:FITS[st.fit].store.mount,count:st.count}));
+ const load=normalizeLoad(stations,Array.isArray(c.load)?c.load:null);
+ return {ref:str(d.ref,80),name:str(d.name,40)||'設計機',craft:{role:c.role,roleName:str(c.roleName,20),speed:c.accelG>0&&Number.isFinite(c.accelG)?craftSpeed(c.accelG):Math.round(num(c.speed,500,3200,1500)),aa:Math.round(num(c.aa,0,2,1)*100)/100,strike:Math.round(num(c.strike,0,5000,10)),gun:Math.round(num(c.gun,0,5000,num(c.strike,0,5000,10))),armor:Math.round(num(c.armor,.1,4,1)*100)/100,crew:Math.round(num(c.crew,0,200,1)),accelG:Math.round(num(c.accelG,0,20000,0)),shield:!!c.shield,stations,load,mass:num(c.mass,0,1e6,0)||null}};
 }
 function layoutStats(ship,S){
  const h=habitationSpace(ship);S.autoHabitationVolume=h.volume;S.unassignedVolume=h.volume;S.envelopeVolume=h.envelopeVolume;
@@ -9110,7 +9235,7 @@ function syncAviationSurfaces(ship){
 }
 
 
-return {swFree,swAxis,MGLT,engineDepthRatio,sublightMGLT,AA_CHANNELS,ION_BOLT,ionDiam,ionArea,ionShare,ionPlan,ionStrike,ionBoltsStep,swMuzzle,fleetAim,modWorld,aimPoint,fireScreen,screenShare,escortThreat,escortStation,escortPick,SCREEN,aimHold,aimMark,modQ,exposedMod,standardFit,craftCombat,cleanDesignCraft,CRAFT_ROLE_RTS,VOLLEY,volleyMode,volleyStep,SUPERWEAPONS,SW_COMBAT,swPower,swChargeRate,swInArc,swHeading,swDecay,swOverload,swPulse,swIonWave,superweaponStep,isSuperweapon,superweaponAim,superweaponOpen,normalizeSuperweapon,superweaponStats,isCraft,partLimits,CRAFT_PART_SIZE,craftPart,craftFieldGain,TROOP_SEAT_M3,ENGINE_GLOWS,engineGlowOK,engineGlowRGB,engineLevel,MISSILE_MOUNTS,missileMount,missileCells,missileStatus,PLATE,plateThickness,shipSpan,HULL_SECTIONS,SECTION_NAMES,hullSectionShares,SHIP_LIGHT_KINDS,SHIP_EXAMPLES,registerShipExample,shipKit,SHELL_ROWS,structRows,shellSection,shellPoint,CIS_PAINT,fitTilt,fitUp,fitFrameOf,openingRimPoint,surfSamples,groundingStats,turretRayContext,turretClear,turretOrigin,turretRate,GROUND_LIMITS,GROUND_PRESETS,GROUND_KINDS,GROUND_VEHICLE_VOLUME,DROID_STORE_M3,CREW_M3_K,CREW_LIVING_M3,personVolume,RETIRED_PARTS,FEED_FLUX,CELL_ENERGY_DENSITY,CELL_DISCHARGE_S,feedConduits,normalizeGroundForces,groundStatus,planStations,bridgeBodyRole,podPoint,podDepth,intrinsicCommandFits,POD_ASSET,BRIDGE_BODY_COMMAND,REFERENCE_TONE,engineSkinMesh,referenceFitYaw,rayTris,vmirrorPlane,vmirrorPoint,vmirrorPart,SHIP_CLASSES,shipClassFor,PUBLIC_LISTS,publicJSON,patchShip,patchItem,cache,AIRCRAFT_CLEARANCE,aircraftFitsBay,shipFitsBay,shipStowSize,CRAFT_TYPES,VEHICLE_TYPES,CRAFT_HINTS,VEHICLE_HINTS,craftDims,airWingDims,groundDims,stowSize,vehicleStowSize,VEHICLE_STOW_FACTOR,craftLift,boxFits,stowLoad,stowInit,stowRows,isCombatRow,COMBAT_ROLES,stowPack,stowPasses,stowStatus,aviationBays,hatchOpening,STOW_GAP,STOW_PASS,STOW_ANY_LENGTH,BUILTIN_COMPLEMENTS,builtinComplement,SHIP_STOW_CLEAR,SHIP_STOW_FACTOR,AVIATION_SIZE_VOLUME,AIR_WING_LIMITS,hangarCapacity,normalizeAirWings,aviationStatus,AVIATION_SURFACE_FACES,hatchAxes,aviationSurfaceContacts,setAviationSurfaceMode,syncAviationSurfaces,aviationHatchActive,isSlidingHatch,slidingHatchSpec,slidingHatchPanels,hatchOpenArea,ISD_HYPER_BASELINE,HYPER_CLASS_COEFFICIENT,HYPER_POWER_DENSITY,ISD_SHIELD_VOLUME,SHIELD_BUFFER_SECONDS,SHIELD_ENERGY_DENSITY,SHIELD_POWER_DENSITY,REACTOR_POWER_DENSITY,SOLID_CUT_SHAPES,normalizeSolidCut,mirrorSolidCut,solidCutTriangles,solidCutBounds,solidCutContains,solidCutsContain,applySolidCuts,solidPartCutContains,solidStructVolume,solidCutIntersectsShip,flexibleCompartment,hardConflicts,weaponChargeSpec,DREADNOUGHT_EXAMPLES,DESIGN_LIMITS,ALIGNMENTS,alignedPosition,alignPart,replacementShape,replacementOptions,replacePart,COMMAND_ROLES,commandCompartments,commandStatus,habitationSpace,inspectionTargets,planCutEdge,normalizePlanCut,structFrame,alignStructure,FLEET_RULES,POWER_MODES,POWER_AUTO_NOTE,fleetAutoPower,AIM_KINDS,MODULE_LABEL,FLEET_MIN_CREW,powerSplit,coreDetonation,fleetModules,fleetSystems,fleetCrewEff,fleetCrewRatio,fleetAutoAvail,fleetOutReason,AUTO_M3_PER_CREW,AUTO_W_PER_CREW,AUTO_MIN_HUMAN,fleetEffective,fleetProfile,fleetUnit,fleetIntegrity,trenchBattery,sideBattery,fleetFire,fleetReach,fleetStandoff,fleetHeading,fleetBroadside,fleetPowerStep,bandFireAt,fitBand,GUN_BANDS,COMBAT,combatInit,combatIncoming,combatAdd,combatMerge,combatResolve,combatZones,combatClone,combatZoneAt,COMBAT_FACE,unpackBits,fleetFormation,fleetBattle,fleetOrder,fleetArc,fleetTick,hullHalf,hullMass,hullLocal,hullOverlap,hullSegment,fireBlocker,fireStray,hullCollide,hullImpact,HULL_HIT,HULL_FALL,hullFall,hullCarve,hullAvoid,fleetCommit,fleetFinish,fleetSample,fleetFrame,normalizeBow,bowStation,engineHullEntry,ENGINE_BASELINES,engineBaseline,resizeEngine,parametricEngine,engineRating,sourceEngine,EQUIPMENT,equipmentSpec,equipmentOptions,enforceEquipment,customizeEquipment,adoptEquipment,HYPERDRIVE_REFERENCE,hyperCapacity,arcParameters,arcPoint,arcTriangles,inArc,SEPARATIST_EXAMPLES,STATS_SOURCE,SHIP_REFERENCE,PART_RATINGS,reactorPower,nozzleThrust,nozzleDemand,shieldLoad,partRatingKeys,validOutline,outlinePoints,outlineArea,outlineTriangles,AVIATION_ROLES,CHARGE_TT_M3,aircraftCapacity,aviationConnected,needsCapacitor,weaponCapacitors,refitReferenceInterior,clipReferenceBox, referenceEnginePoint, fitSpec, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface,
+return {ionDensity,ionReach,ionGlow,swRange,swFree,swAxis,MGLT,engineDepthRatio,sublightMGLT,AA_CHANNELS,ION_BOLT,ionDiam,ionArea,ionShare,ionPlan,ionStrike,ionBoltsStep,swMuzzle,fleetAim,modWorld,aimPoint,fireScreen,screenShare,escortThreat,escortStation,escortPick,SCREEN,aimHold,aimMark,modQ,exposedMod,standardFit,craftCombat,cleanDesignCraft,CRAFT_ROLE_RTS,ORDNANCE,ORDNANCE_EVIDENCE,STORE_MOUNTS,STORE_FITS,STORE_DEFAULT,storeCapacity,craftStations,CRAFT_LOADOUT,craftTypeOf,craftLoadout,normalizeLoad,craftOrdnance,ordnanceRuns,ordnanceSalvo,ordnanceSummary,VOLLEY,volleyMode,volleyStep,SUPERWEAPONS,SW_COMBAT,swPower,swChargeRate,swInArc,swHeading,swDecay,swOverload,swPulse,swIonWave,superweaponStep,isSuperweapon,superweaponAim,superweaponOpen,normalizeSuperweapon,superweaponStats,isCraft,partLimits,CRAFT_PART_SIZE,craftPart,craftFieldGain,TROOP_SEAT_M3,ENGINE_GLOWS,engineGlowOK,engineGlowRGB,engineLevel,MISSILE_MOUNTS,missileMount,missileCells,missileStatus,PLATE,plateThickness,shipSpan,HULL_SECTIONS,SECTION_NAMES,hullSectionShares,SHIP_LIGHT_KINDS,SHIP_EXAMPLES,registerShipExample,shipKit,SHELL_ROWS,structRows,shellSection,shellPoint,CIS_PAINT,fitTilt,fitUp,fitFrameOf,openingRimPoint,surfSamples,groundingStats,turretRayContext,turretClear,turretOrigin,turretRate,GROUND_LIMITS,GROUND_PRESETS,GROUND_KINDS,GROUND_VEHICLE_VOLUME,DROID_STORE_M3,CREW_M3_K,CREW_LIVING_M3,personVolume,RETIRED_PARTS,FEED_FLUX,CELL_ENERGY_DENSITY,CELL_DISCHARGE_S,feedConduits,normalizeGroundForces,groundStatus,planStations,bridgeBodyRole,podPoint,podDepth,intrinsicCommandFits,POD_ASSET,BRIDGE_BODY_COMMAND,REFERENCE_TONE,engineSkinMesh,referenceFitYaw,rayTris,vmirrorPlane,vmirrorPoint,vmirrorPart,SHIP_CLASSES,shipClassFor,PUBLIC_LISTS,publicJSON,patchShip,patchItem,cache,AIRCRAFT_CLEARANCE,aircraftFitsBay,shipFitsBay,shipStowSize,CRAFT_TYPES,VEHICLE_TYPES,CRAFT_HINTS,VEHICLE_HINTS,craftDims,airWingDims,groundDims,stowSize,vehicleStowSize,VEHICLE_STOW_FACTOR,craftLift,boxFits,stowLoad,stowInit,stowRows,isCombatRow,COMBAT_ROLES,stowPack,stowPasses,stowStatus,aviationBays,hatchOpening,STOW_GAP,STOW_PASS,STOW_ANY_LENGTH,BUILTIN_COMPLEMENTS,builtinComplement,SHIP_STOW_CLEAR,SHIP_STOW_FACTOR,AVIATION_SIZE_VOLUME,AIR_WING_LIMITS,hangarCapacity,normalizeAirWings,aviationStatus,AVIATION_SURFACE_FACES,hatchAxes,aviationSurfaceContacts,setAviationSurfaceMode,syncAviationSurfaces,aviationHatchActive,isSlidingHatch,slidingHatchSpec,slidingHatchPanels,hatchOpenArea,ISD_HYPER_BASELINE,HYPER_CLASS_COEFFICIENT,HYPER_POWER_DENSITY,ISD_SHIELD_VOLUME,SHIELD_BUFFER_SECONDS,SHIELD_ENERGY_DENSITY,SHIELD_POWER_DENSITY,REACTOR_POWER_DENSITY,SOLID_CUT_SHAPES,normalizeSolidCut,mirrorSolidCut,solidCutTriangles,solidCutBounds,solidCutContains,solidCutsContain,applySolidCuts,solidPartCutContains,solidStructVolume,solidCutIntersectsShip,flexibleCompartment,hardConflicts,weaponChargeSpec,DREADNOUGHT_EXAMPLES,DESIGN_LIMITS,ALIGNMENTS,alignedPosition,alignPart,replacementShape,replacementOptions,replacePart,COMMAND_ROLES,commandCompartments,commandStatus,habitationSpace,inspectionTargets,planCutEdge,normalizePlanCut,structFrame,alignStructure,FLEET_RULES,POWER_MODES,POWER_AUTO_NOTE,fleetAutoPower,AIM_KINDS,MODULE_LABEL,FLEET_MIN_CREW,powerSplit,coreDetonation,fleetModules,fleetSystems,fleetCrewEff,fleetCrewRatio,fleetAutoAvail,fleetOutReason,AUTO_M3_PER_CREW,AUTO_W_PER_CREW,AUTO_MIN_HUMAN,fleetEffective,fleetProfile,fleetUnit,fleetIntegrity,trenchBattery,sideBattery,fleetFire,fleetReach,fleetStandoff,fleetHeading,fleetBroadside,fleetPowerStep,bandFireAt,fitBand,GUN_BANDS,COMBAT,combatInit,combatIncoming,combatAdd,combatMerge,combatResolve,combatZones,combatClone,combatZoneAt,COMBAT_FACE,unpackBits,fleetFormation,fleetBattle,fleetOrder,fleetArc,fleetTick,hullHalf,hullMass,hullLocal,hullOverlap,hullSegment,fireBlocker,fireStray,hullCollide,hullImpact,HULL_HIT,HULL_FALL,hullFall,hullCarve,hullAvoid,fleetCommit,fleetFinish,fleetSample,fleetFrame,normalizeBow,bowStation,engineHullEntry,ENGINE_BASELINES,engineBaseline,resizeEngine,parametricEngine,engineRating,sourceEngine,EQUIPMENT,equipmentSpec,equipmentOptions,enforceEquipment,customizeEquipment,adoptEquipment,HYPERDRIVE_REFERENCE,hyperCapacity,arcParameters,arcPoint,arcTriangles,inArc,SEPARATIST_EXAMPLES,STATS_SOURCE,SHIP_REFERENCE,PART_RATINGS,reactorPower,nozzleThrust,nozzleDemand,shieldLoad,partRatingKeys,validOutline,outlinePoints,outlineArea,outlineTriangles,AVIATION_ROLES,CHARGE_TT_M3,aircraftCapacity,aviationConnected,needsCapacitor,weaponCapacitors,refitReferenceInterior,clipReferenceBox, referenceEnginePoint, fitSpec, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface,
   TT, G0, ISD_W, K, PARTS, FITS, HULLS, SECTIONS, KEELS, SECTORS, CLASSES, DESIGNS, AXES, AXNAME, ARMOR_MAX,
   newShip, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
@@ -9129,6 +9254,10 @@ if (typeof module !== 'undefined') module.exports = Core;
    Coruscant at (9.01, 8.97) is in square L-9. They were read off a
    reference galaxy map as data only (grid positions, regions, which route
    passes where); the map is drawn here in the game's own style.
+   v23 Two eras on the one map (ERAS: 銀河内戦, クローン戦争 with its
+   territories), the systems of the Clone Wars, the Japanese names as
+   on the Japanese Wookieepedia, and the theatres (THEATERS): fleet-battle
+   areas of several systems tied to an era and its two sides.
    ============================================================ */
 const Galaxy = (() => {
 'use strict';
@@ -9172,27 +9301,27 @@ const REGION_LABELS = [['deep', 8.95, 10.45], ['core', 7.4, 9.95], ['colonies', 
 // v (the planet the flight orbits): k kind (0 city · 1 Kuat · 2 temperate · 3 gas giant · 4 ice · 5 barren · 6 desert ·
 // 7 ocean · 8 forest/jungle/swamp · 9 volcanic), r radius (m), look [seed, a, b, 1] (per kind: temperate wet/city lights,
 // ice crystal/city, barren palette, desert palette/cloud, ocean land/storm, forest variant/cloud, volcanic lava), ring
-// (an orbital shipyard ring, planet radii), alt/fl arrival altitude and floor (m), sun. sk/pop: the system in a fleet battle.
+// (an orbital shipyard ring, planet radii; ringName if it is something else), alt/fl arrival altitude and floor (m), sun. sk/pop: the system in a fleet battle.
 // tier: label priority on the map (1 shown first). lab: preferred label side.
 const SYS = [
  {key: 'coruscant', name: 'コルサント', at: [9.01, 8.97], region: 'core', short: '銀河の首都', note: '銀河の首都。全球を覆う都市惑星', sk: 'capital', pop: 5, tier: 1, lab: 'l', v: {k: 0, r: 6.12e6, alt: 160000, fl: 40000, sun: [.787, .407, .463]}},
  {key: 'chandrila', name: 'シャンドリラ', at: [9.545, 8.64], region: 'core', short: 'モン・モスマの故郷', note: 'なだらかな丘と海の惑星。モン・モスマの故郷で、のちに新共和国の首都が置かれた', sk: 'habitable', pop: 4, tier: 3, lab: 't', v: {k: 2, r: 6.0e6, look: [1.3, .05, .6, 1]}},
- {key: 'brentaal', name: 'ブレンタル', at: [9.6, 8.6], region: 'core', short: '二大交易路の交点', note: 'ペルレミアン交易ルートとハイディアン・ウェイが交わる交易の要衝', sk: 'industrial', pop: 4, tier: 2, lab: 'r', v: {k: 2, r: 5.8e6, look: [2.1, -.03, 1.6, 1]}},
+ {key: 'brentaal', name: 'ブレンタル', at: [9.6, 8.6], region: 'core', short: '二大交易路の交点', note: 'パーレミアン交易ルートとハイディアン・ウェイが交わる交易の要衝', sk: 'industrial', pop: 4, tier: 2, lab: 'r', v: {k: 2, r: 5.8e6, look: [2.1, -.03, 1.6, 1]}},
  {key: 'alderaan', name: 'オルデラン', at: [10.32, 9.07], region: 'core', short: '平和の惑星', note: 'オーガナ家が治める山と草原の平和な惑星。のちにデス・スターの最初の標的となった', sk: 'habitable', pop: 4, tier: 1, lab: 'r', v: {k: 2, r: 6.2e6, look: [3.7, 0, .5, 1]}},
  {key: 'kuat', name: 'クワット', at: [10.895, 9.58], region: 'core', short: 'KDY 造船所', note: 'クワット・ドライブ・ヤードの軌道造船リングが惑星を取り巻く造船星系', sk: 'shipyard', pop: 4, tier: 1, lab: 'r', v: {k: 1, r: 5.2e6, ring: [1.16, 1.25], alt: 180000, fl: 60000, sun: [-.384, .5, .776]}},
  {key: 'corellia', name: 'コレリア', at: [10.575, 10.87], region: 'core', short: '交易と造船', note: '造船と交易で栄えるコア・ワールド。コレリアン・ランとコレリアン交易スパインの分岐点', sk: 'capital', pop: 5, tier: 1, lab: 'l', v: {k: 2, r: 6.1e6, alt: 170000, fl: 50000, sun: [.561, .5, -.66]}},
  {key: 'duro', name: 'デュロ', at: [10.585, 10.95], region: 'core', short: '軌道都市', note: 'デュロス人の故郷。荒れた地表の上を軌道都市と造船所が巡る', sk: 'industrial', pop: 3, tier: 3, lab: 'r', v: {k: 5, r: 5.5e6, look: [4.2, 1, 0, 1]}},
  {key: 'hosnianprime', name: 'ホズニアン・プライム', at: [10.38, 11.73], region: 'core', short: '都市化した惑星', note: '都市に覆われたコア・ワールド。のちに新共和国の首都となり、スターキラー基地に破壊された', sk: 'capital', pop: 5, tier: 2, lab: 'l', v: {k: 2, r: 6.3e6, look: [5.1, -.06, 2, 1]}},
  {key: 'abregado', name: 'アブレガド', at: [8.97, 12.17], region: 'core', short: 'リマ交易ルートの起点', note: 'リマ交易ルートが始まるコア・ワールドの工業惑星', sk: 'industrial', pop: 3, tier: 3, lab: 'l', v: {k: 2, r: 5.0e6, look: [7.7, -.05, 1.2, 1]}},
- {key: 'byss', name: 'ビス', at: [8.53, 10.8], region: 'deep', short: 'ディープ・コアの惑星', note: 'ディープ・コアの奥にある惑星。航路は危険で、帝国の秘密施設が置かれた', sk: 'outpost', pop: 2, tier: 3, lab: 'l', v: {k: 5, r: 4.8e6, look: [6.3, 2, 0, 1]}},
- {key: 'catoneimoidia', name: 'カトー・ニモイディア', at: [11.18, 10.36], region: 'colonies', short: '通商連合の拠点', note: '通商連合の拠点。岩の橋に吊られた都市が霧の上に連なる', sk: 'industrial', pop: 4, tier: 2, lab: 'r', v: {k: 8, r: 5.6e6, look: [8.1, 0, .9, 1]}},
+ {key: 'byss', name: 'ビィス', at: [8.53, 10.8], region: 'deep', short: 'ディープ・コアの惑星', note: 'ディープ・コアの奥にある惑星。航路は危険で、帝国の秘密施設が置かれた', sk: 'outpost', pop: 2, tier: 3, lab: 'l', v: {k: 5, r: 4.8e6, look: [6.3, 2, 0, 1]}},
+ {key: 'catoneimoidia', name: 'ケイト・ニモイディア', at: [11.18, 10.36], region: 'colonies', short: '通商連合の拠点', note: '通商連合の拠点。岩の橋に吊られた都市が霧の上に連なる', sk: 'industrial', pop: 4, tier: 2, lab: 'r', v: {k: 8, r: 5.6e6, look: [8.1, 0, .9, 1]}},
  {key: 'quellor', name: 'クエラー', at: [11.405, 11.07], region: 'colonies', short: 'コロニーズの星系', note: 'コロニーズの星系。ハイディアン・ウェイの近くにある', sk: 'habitable', pop: 3, tier: 3, lab: 'r', v: {k: 2, r: 5.4e6, look: [9.3, .03, .7, 1]}},
  {key: 'fondor', name: 'フォンドア', at: [9.29, 12.71], region: 'colonies', short: '造船所', note: 'フォンドア造船所の星系。軌道上に巨大な造船施設が並ぶ', sk: 'shipyard', pop: 4, tier: 2, lab: 'r', v: {k: 2, r: 5.7e6, ring: [1.13, 1.21], look: [10.1, -.07, 1.3, 1]}},
- {key: 'thyferra', name: 'サイフェラ', at: [9.67, 13.45], region: 'inner', short: 'バクタの産地', note: 'バクタを産する熱帯の惑星。リマ交易ルート沿い', sk: 'habitable', pop: 3, tier: 3, lab: 'r', v: {k: 8, r: 5.9e6, look: [11.2, 1, .7, 1]}},
- {key: 'yagdhul', name: 'ヤグドゥール', at: [9.85, 13.88], region: 'inner', short: '交易路の交点', note: 'リマ交易ルートとコレリアン交易スパインが交わる星系。ギヴィン人の故郷', sk: 'outpost', pop: 3, tier: 3, lab: 'r', v: {k: 7, r: 5.1e6, look: [12.9, .3, .4, 1]}},
+ {key: 'thyferra', name: 'タイフェラ', at: [9.67, 13.45], region: 'inner', short: 'バクタの産地', note: 'バクタを産する熱帯の惑星。リマ交易ルート沿い', sk: 'habitable', pop: 3, tier: 3, lab: 'r', v: {k: 8, r: 5.9e6, look: [11.2, 1, .7, 1]}},
+ {key: 'yagdhul', name: 'ヤグダル', at: [9.85, 13.88], region: 'inner', short: '交易路の交点', note: 'リマ交易ルートとコレリアン交易スパインが交わる星系。ギヴィン人の故郷', sk: 'outpost', pop: 3, tier: 3, lab: 'r', v: {k: 7, r: 5.1e6, look: [12.9, .3, .4, 1]}},
  {key: 'bilbringi', name: 'ビルブリンギ', at: [7.82, 7.36], region: 'inner', short: '造船所', note: 'インナー・リムの造船星系。小惑星帯に帝国の造船所が置かれた', sk: 'shipyard', pop: 3, tier: 3, lab: 'l', v: {k: 5, r: 4.5e6, look: [12.4, 0, 0, 1]}},
  {key: 'jakku', name: 'ジャクー', at: [6.15, 12.08], region: 'inner', short: '砂漠の惑星', note: '辺鄙な砂漠の惑星。帝国最後の大会戦の残骸が砂に埋もれる', sk: 'outpost', pop: 1, tier: 1, lab: 'r', v: {k: 6, r: 6.2e6, look: [13.1, 0, .2, 1]}},
- {key: 'onderon', name: 'オンデロン', at: [12.75, 8.83], region: 'inner', short: 'ジャングルの惑星', note: 'ジャングルに覆われたインナー・リムの惑星。城壁都市イジズがある', sk: 'habitable', pop: 3, tier: 3, lab: 'l', v: {k: 8, r: 5.8e6, look: [15.2, 1, .6, 1]}},
+ {key: 'onderon', name: 'オンダロン', at: [12.75, 8.83], region: 'inner', short: 'ジャングルの惑星', note: 'ジャングルに覆われたインナー・リムの惑星。城壁都市イジズがある', sk: 'habitable', pop: 3, tier: 3, lab: 'l', v: {k: 8, r: 5.8e6, look: [15.2, 1, .6, 1]}},
  {key: 'denon', name: 'デノン', at: [11.28, 12.15], region: 'inner', short: '交易路の交点', note: 'ハイディアン・ウェイとコレリアン・ランが交わる都市惑星', sk: 'capital', pop: 5, tier: 2, lab: 'r', v: {k: 0, r: 6.0e6}},
  {key: 'umbara', name: 'アンバラ', at: [13.11, 9.18], region: 'expansion', short: '影の惑星', note: '陽の差さない暗い惑星。発光する植物が森を照らす', sk: 'habitable', pop: 3, tier: 2, lab: 'r', v: {k: 8, r: 5.5e6, look: [16.4, 3, .9, 1]}},
  {key: 'mimban', name: 'ミンバン', at: [12.75, 11.01], region: 'expansion', short: '泥の惑星', note: '雲と泥に覆われた湿地の惑星。帝国軍が鉱物を求めて戦った', sk: 'mining', pop: 2, tier: 3, lab: 'r', v: {k: 8, r: 5.2e6, look: [17.2, 2, 1, 1]}},
@@ -9205,12 +9334,12 @@ const SYS = [
  {key: 'dathomir', name: 'ダソミア', at: [12.16, 5.36], region: 'outer', short: 'ナイトシスターの惑星', note: '赤い霧と岩の惑星。ナイトシスターが住む', sk: 'outpost', pop: 1, tier: 2, lab: 'l', v: {k: 5, r: 5.3e6, look: [24.7, 3, 0, 1]}},
  {key: 'bothawui', name: 'ボサウイ', at: [15.26, 13.35], region: 'bothan', short: 'ボサン人の故郷', note: 'ボサン・スペースの中心。ボサン人の情報網の拠点', sk: 'habitable', pop: 4, tier: 2, lab: 'r', v: {k: 2, r: 5.9e6, look: [25.8, .01, .7, 1]}},
  {key: 'takodana', name: 'タコダナ', at: [7.14, 15.31], region: 'mid', short: '森と湖の惑星', note: '森と湖の惑星。マズ・カナタの城がある', sk: 'habitable', pop: 2, tier: 2, lab: 'l', v: {k: 8, r: 5.4e6, look: [26.9, 0, .4, 1]}},
- {key: 'kijimi', name: 'キジミ', at: [15.32, 7.32], region: 'mid', short: '雪山の惑星', note: '雪に覆われた山岳の惑星。盗賊の街がある', sk: 'outpost', pop: 2, tier: 3, lab: 'b', v: {k: 4, r: 5.0e6, look: [27.1, 0, .4, 1]}},
- {key: 'anaxes', name: 'アナクセス', at: [15.45, 6.235], region: 'outer', short: '共和国の造船所', note: 'ペルレミアン交易ルート沿いの星系。共和国の造船所と艦隊拠点がある', sk: 'shipyard', pop: 4, tier: 2, lab: 'l', v: {k: 2, r: 6.1e6, ring: [1.13, 1.2], look: [28.2, -.02, 1, 1]}},
+ {key: 'kijimi', name: 'キジーミ', at: [15.32, 7.32], region: 'mid', short: '雪山の惑星', note: '雪に覆われた山岳の惑星。盗賊の街がある', sk: 'outpost', pop: 2, tier: 3, lab: 'b', v: {k: 4, r: 5.0e6, look: [27.1, 0, .4, 1]}},
+ {key: 'anaxes', name: 'アナクセス', at: [15.45, 6.235], region: 'outer', short: '共和国の造船所', note: 'パーレミアン交易ルート沿いの星系。共和国の造船所と艦隊拠点がある', sk: 'shipyard', pop: 4, tier: 2, lab: 'l', v: {k: 2, r: 6.1e6, ring: [1.13, 1.2], look: [28.2, -.02, 1, 1]}},
  {key: 'tatooine', name: 'タトゥイーン', at: [15.37, 15.75], region: 'outer', short: '砂漠の惑星', note: '二つの太陽が照らす砂漠の惑星。ハットの縄張り', sk: 'outpost', pop: 2, tier: 1, lab: 't', v: {k: 6, r: 5.2e6, look: [29.3, 0, 0, 1]}},
  {key: 'geonosis', name: 'ジオノーシス', at: [15.45, 15.81], region: 'outer', short: '岩石の惑星', note: 'アウター・リムの赤い岩石惑星。荒野にドロイド工場が並ぶ', sk: 'industrial', pop: 3, tier: 2, lab: 'r', v: {k: 5, r: 5.3e6, alt: 160000, fl: 45000, sun: [-.279, .53, .801]}},
  {key: 'ryloth', name: 'ライロス', at: [15.74, 16.63], region: 'outer', short: 'トワイレックの故郷', note: 'トワイレックの故郷。岩の砂漠と峡谷の惑星', sk: 'habitable', pop: 3, tier: 1, lab: 'r', v: {k: 6, r: 5.4e6, look: [30.4, 2, .1, 1]}},
- {key: 'rodia', name: 'ロディア', at: [15.09, 15.67], region: 'outer', short: 'ロディアンの故郷', note: 'ロディアンの故郷。湿った熱帯の惑星', sk: 'habitable', pop: 3, tier: 3, lab: 't', v: {k: 8, r: 5.5e6, look: [31.5, 1, .7, 1]}},
+ {key: 'rodia', name: 'ローディア', at: [15.09, 15.67], region: 'outer', short: 'ローディアンの故郷', note: 'ローディアンの故郷。湿った熱帯の惑星', sk: 'habitable', pop: 3, tier: 3, lab: 't', v: {k: 8, r: 5.5e6, look: [31.5, 1, .7, 1]}},
  {key: 'christophsis', name: 'クリストフシス', at: [14.82, 15.82], region: 'outer', short: '結晶の惑星', note: '結晶が林立する惑星。コレリアン・ラン沿い', sk: 'habitable', pop: 3, tier: 2, lab: 'l', v: {k: 4, r: 5.8e6, look: [32.6, 1, .3, 1]}},
  {key: 'kessel', name: 'ケッセル', at: [17.45, 9.1], region: 'outer', short: 'スパイス鉱山', note: 'スパイスの鉱山がある荒れた惑星', sk: 'mining', pop: 2, tier: 1, lab: 'r', v: {k: 5, r: 3.8e6, look: [33.7, 1, 0, 1]}},
  {key: 'teth', name: 'テス', at: [18.17, 11.11], region: 'outer', short: 'ジャングルの惑星', note: 'ジャングルの台地に古い修道院が建つ惑星', sk: 'outpost', pop: 1, tier: 3, lab: 'r', v: {k: 8, r: 5.1e6, look: [34.8, 1, .5, 1]}},
@@ -9230,7 +9359,7 @@ const SYS = [
  {key: 'mygeeto', name: 'マイギートー', at: [8.49, 4.02], region: 'outer', short: '結晶都市', note: '結晶の都市が建つ氷の惑星。ムーニリンスト金融連合の拠点', sk: 'industrial', pop: 3, tier: 2, lab: 'l', v: {k: 4, r: 5.3e6, look: [46.2, .6, 1, 1]}},
  {key: 'dantooine', name: 'ダントゥイーン', at: [9.01, 3.32], region: 'outer', short: '草原の惑星', note: '草原の広がる辺境の惑星。かつて反乱同盟の基地が置かれた', sk: 'outpost', pop: 1, tier: 2, lab: 'r', v: {k: 2, r: 4.9e6, look: [47.3, -.04, .1, 1]}},
  {key: 'malachor', name: 'マラコア', at: [16.13, 3.78], region: 'outer', short: 'シスの遺跡', note: 'シスの古い神殿が残る暗い惑星', sk: 'barren', pop: 0, tier: 3, lab: 'l', v: {k: 5, r: 4.6e6, look: [48.4, 2, 0, 1]}},
- {key: 'lianna', name: 'リアンナ', at: [16.06, 5.2], region: 'outer', short: 'シーナーの本拠', note: 'ペルレミアン交易ルート沿いの工業惑星。シーナー・フリート・システムズの本拠', sk: 'industrial', pop: 4, tier: 3, lab: 'r', v: {k: 2, r: 5.9e6, look: [49.5, 0, 1.1, 1]}},
+ {key: 'lianna', name: 'リアナ', at: [16.06, 5.2], region: 'outer', short: 'シーナーの本拠', note: 'パーレミアン交易ルート沿いの工業惑星。シーナー・フリート・システムズの本拠', sk: 'industrial', pop: 4, tier: 3, lab: 'r', v: {k: 2, r: 5.9e6, look: [49.5, 0, 1.1, 1]}},
  {key: 'moncala', name: 'モン・カラ', at: [18.1, 5.67], region: 'outer', short: '海の惑星', note: '全球が海の惑星。モン・カラマリとクオレンの故郷で、造船の伝統がある', sk: 'shipyard', pop: 4, tier: 1, lab: 'l', v: {k: 7, r: 5.6e6, look: [50.6, 0, .5, 1]}},
  {key: 'eriadu', name: 'エリアドゥ', at: [10.56, 17.32], region: 'outer', short: '交易路の交点', note: 'ハイディアン・ウェイとリマ交易ルートが交わる工業惑星。ターキン家の故郷', sk: 'industrial', pop: 4, tier: 2, lab: 'r', v: {k: 2, r: 6.2e6, look: [51.7, -.04, 1.4, 1]}},
  {key: 'sullust', name: 'サラスト', at: [10.55, 16.84], region: 'outer', short: '火山の惑星', note: '火山と溶岩原の惑星。サラスタンは地下の洞窟都市に住む', sk: 'industrial', pop: 3, tier: 2, lab: 'l', v: {k: 9, r: 6.4e6, look: [52.8, 0, 0, 1]}},
@@ -9241,16 +9370,28 @@ const SYS = [
  {key: 'ferrix', name: 'フェリックス', at: [14.47, 2.98], region: 'outer', short: '廃品回収の惑星', note: 'ハイディアン・ウェイ沿いの廃品回収と造船の惑星', sk: 'industrial', pop: 2, tier: 3, lab: 'b', v: {k: 6, r: 5.3e6, look: [57.4, 1, .3, 1]}},
  {key: 'ajankloss', name: 'エイジャン・クロス', at: [9.71, 4.86], region: 'outer', short: 'ジャングルの月', note: 'ジャングルに覆われた月。レジスタンスの秘密基地が置かれた', sk: 'outpost', pop: 0, tier: 3, lab: 'r', v: {k: 8, r: 4.6e6, look: [58.5, 1, .6, 1]}},
  {key: 'exegol', name: 'エクセゴル', at: [3.2, 6.71], region: 'unknown', short: 'シスの隠れた世界', note: '未知領域の奥の嵐の惑星。シス・エターナルの本拠', sk: 'barren', pop: 1, tier: 1, lab: 'r', v: {k: 5, r: 5.9e6, look: [59.6, 2, 0, 1]}},
- {key: 'csilla', name: 'シーラ', at: [3.01, 7.8], region: 'unknown', short: 'チスの故郷', note: '未知領域にあるチスの故郷。氷に覆われた惑星', sk: 'capital', pop: 3, tier: 2, lab: 'r', v: {k: 4, r: 5.8e6, look: [60.7, 0, .8, 1]}},
+ {key: 'csilla', name: 'シラ', at: [3.01, 7.8], region: 'unknown', short: 'チスの故郷', note: '未知領域にあるチスの故郷。氷に覆われた惑星', sk: 'capital', pop: 3, tier: 2, lab: 'r', v: {k: 4, r: 5.8e6, look: [60.7, 0, .8, 1]}},
  {key: 'ilum', name: 'イラム', at: [4.85, 6.52], region: 'unknown', short: '氷の惑星', note: 'カイバー・クリスタルを産する氷の惑星。のちにスターキラー基地となった', sk: 'ice', pop: 0, tier: 2, lab: 'r', v: {k: 4, r: 3.3e6, look: [61.8, 0, 0, 1]}},
  {key: 'ahchto', name: 'オク＝トー', at: [3.7, 12.29], region: 'unknown', short: '海の惑星', note: '海に島々が点在する惑星。最初のジェダイ寺院がある', sk: 'outpost', pop: 0, tier: 2, lab: 'r', v: {k: 7, r: 5.2e6, look: [62.9, .5, .4, 1]}},
  {key: 'batuu', name: 'バトゥー', at: [4.92, 14.7], region: 'outer', short: '辺境の森', note: '未知領域の手前にある辺境の森の惑星。ブラック・スパイア・アウトポストがある', sk: 'outpost', pop: 1, tier: 3, lab: 'r', v: {k: 8, r: 5.0e6, look: [63.1, 0, .4, 1]}},
  {key: 'bakura', name: 'バクラ', at: [4.48, 15.73], region: 'outer', short: '辺縁の惑星', note: '銀河の辺縁にある温和な惑星', sk: 'habitable', pop: 2, tier: 3, lab: 'l', v: {k: 2, r: 5.5e6, look: [64.2, .06, .4, 1]}},
+ {key: 'muunilinst', name: 'ムーニリンスト', at: [8.18, 3.46], region: 'outer', short: '銀行グループの本拠', note: 'インターギャラクティック銀行グループの本拠。分離主義勢力に資金を出した金融の惑星', sk: 'capital', pop: 4, tier: 2, lab: 'l', v: {k: 2, r: 5.6e6, look: [66.4, -.05, 1.5, 1]}},
+ {key: 'serenno', name: 'セレノー', at: [13.06, 4.35], region: 'outer', short: 'ドゥークー伯爵の故郷', note: '森と貴族の館の惑星。ドゥークー伯爵の故郷で、分離主義勢力の拠点のひとつ', sk: 'capital', pop: 3, tier: 2, lab: 'l', v: {k: 8, r: 5.7e6, look: [67.5, 0, .5, 1]}},
+ {key: 'quell', name: 'クェル', at: [14.87, 5.63], region: 'outer', short: '艦隊戦の星系', note: 'アウター・リムの星系。クローン戦争でスカイウォーカーの艦隊が分離主義艦隊の待ち伏せを受けた', sk: 'habitable', pop: 2, tier: 3, lab: 'l', v: {k: 2, r: 5.4e6, look: [68.6, .04, .5, 1]}},
+ {key: 'ringovinda', name: 'リンゴ・ヴィンダ', at: [15.04, 6.79], region: 'mid', short: '軌道ステーション', note: 'パーレミアン交易ルート沿いの星系。巨大な軌道ステーションをめぐって長い攻防戦が続いた', sk: 'industrial', pop: 3, tier: 3, lab: 'l', v: {k: 5, r: 4.4e6, ring: [1.14, 1.22], ringName: '軌道ステーション', look: [69.7, 1, 0, 1]}},
+ {key: 'jabiim', name: 'ジャビイム', at: [16.59, 6.73], region: 'outer', short: '雨の惑星', note: '雨と泥の降りやまない惑星。クローン戦争で長い包囲戦が続いた', sk: 'mining', pop: 2, tier: 3, lab: 'r', v: {k: 8, r: 5.3e6, look: [70.8, 2, 1, 1]}},
+ {key: 'florrum', name: 'フローラム', at: [15.95, 4.36], region: 'outer', short: '海賊の根城', note: '硫黄の間欠泉が噴く乾いた惑星。ホンドー・オナカーの海賊団が根城にした', sk: 'outpost', pop: 1, tier: 3, lab: 'l', v: {k: 6, r: 5.0e6, look: [71.9, 2, .3, 1]}},
+ {key: 'zygerria', name: 'ザイゲリア', at: [16.09, 3.475], region: 'outer', short: '奴隷商人の惑星', note: 'ザイゲリア人の奴隷帝国の本拠。宮殿都市で奴隷の競りが開かれた', sk: 'capital', pop: 3, tier: 3, lab: 'l', v: {k: 6, r: 5.6e6, look: [72.1, 1, .2, 1]}},
+ {key: 'raxus', name: 'ラクサス', at: [16.75, 4.55], region: 'outer', approx: true, short: '分離主義勢力の首都', note: '独立星系連合の首都。分離主義議会が置かれた（参考の銀河図には載っていない。位置はグリッド S-5 からの推定）', sk: 'capital', pop: 4, tier: 1, lab: 'r', v: {k: 2, r: 5.9e6, look: [73.2, -.06, 1.8, 1]}},
+ {key: 'ruusan', name: 'ルーサン', at: [13.96, 10.03], region: 'mid', short: '古戦場の惑星', note: '草原と森の惑星。かつてジェダイとシスが長い戦争の最後の戦いを繰り広げた', sk: 'habitable', pop: 2, tier: 3, lab: 'r', v: {k: 2, r: 5.5e6, look: [74.3, -.02, .3, 1]}},
+ {key: 'kaliida', name: 'カリーダ星雲', at: [12.91, 16.42], region: 'mid', short: '星雲と医療施設', note: 'ニーブレイ・マンタが棲む星雲。近くの浅瀬に共和国のカリーダ浅瀬医療センターがある', sk: 'nebula', pop: 1, tier: 2, lab: 'r', v: {k: 5, r: 3.1e6, look: [75.4, 3, 0, 1]}},
+ {key: 'rishi', name: 'リシ', at: [16.23, 14.23], region: 'outer', short: '監視基地の月', note: 'リシの月に共和国のクローン監視基地が置かれ、カミーノへの道を見張った', sk: 'outpost', pop: 1, tier: 2, lab: 'l', v: {k: 5, r: 3.4e6, look: [76.5, 1, 0, 1]}},
+ {key: 'hypori', name: 'ハイポリ', at: [16.26, 15.43], region: 'outer', short: 'ドロイド工場の惑星', note: 'バクトイド社のドロイド工場がある荒れた惑星。グリーヴァス将軍がジェダイを破った', sk: 'industrial', pop: 2, tier: 3, lab: 'r', v: {k: 5, r: 5.0e6, look: [77.6, 0, 0, 1]}},
  {key: 'kamino', name: 'カミーノ', at: [18.55, 14.95], region: 'wild', approx: true, short: 'クローンの故郷', note: '嵐の海に覆われた惑星。クローン兵が造られた（銀河図の外。位置は推定）', sk: 'industrial', pop: 2, tier: 1, lab: 'l', v: {k: 7, r: 9.8e6, look: [65.3, 0, 1, 1]}}];
 const BY = {};for (const s of SYS) BY[s.key] = s;
 // The five major trade routes: the path (systems on it, and the turns between them) from one end to the other.
 const ROUTES = [
- {key: 'perlemian', n: 1, name: 'ペルレミアン交易ルート', mark: [14.85, 6.96], path: ['coruscant', [9.25, 8.82], 'chandrila', 'brentaal', [10.14, 8.27], [10.49, 8.13], [10.84, 7.88], [11.58, 7.81], [12.57, 7.86], [13.39, 7.77], [14.31, 7.42], [14.55, 7.24], [14.85, 6.96], [15.04, 6.79], [15.28, 6.47], [15.39, 6.34], 'anaxes', [15.66, 5.85], 'lianna', [16.45, 4.6], [16.79, 4.05]]},
+ {key: 'perlemian', n: 1, name: 'パーレミアン交易ルート', mark: [14.85, 6.96], path: ['coruscant', [9.25, 8.82], 'chandrila', 'brentaal', [10.14, 8.27], [10.49, 8.13], [10.84, 7.88], [11.58, 7.81], [12.57, 7.86], [13.39, 7.77], [14.31, 7.42], [14.55, 7.24], [14.85, 6.96], 'ringovinda', [15.28, 6.47], [15.39, 6.34], 'anaxes', [15.66, 5.85], 'lianna', [16.45, 4.6], [16.79, 4.05]]},
  {key: 'corellianrun', n: 2, name: 'コレリアン・ラン', mark: [12.43, 13.32], path: ['coruscant', [9.51, 9.09], [9.81, 9.23], [10.03, 9.41], [10.15, 9.61], [10.25, 9.82], [10.45, 10.27], [10.5, 10.56], 'corellia', 'duro', [10.7, 11.14], [10.86, 11.49], [10.93, 11.65], [11.12, 11.94], 'denon', [12.23, 13.1], [12.63, 13.52], [13.07, 14.0], [13.41, 14.35], [14.0, 14.9], [14.26, 15.24], 'christophsis', [15.11, 16.1], 'ryloth', [16.78, 17.3]]},
  {key: 'spine', n: 3, name: 'コレリアン交易スパイン', mark: [10.35, 12.04], path: ['corellia', [10.54, 11.31], 'hosnianprime', [10.35, 12.04], [10.2, 12.52], [10.06, 13.13], 'yagdhul', [9.56, 14.49], [9.1, 14.98], [8.69, 15.47], [8.38, 16.0], [8.24, 16.6], [8.17, 17.1], [8.07, 17.38], 'bespin', 'hoth', [8.13, 17.92], [8.17, 18.32], [8.19, 19.12], [8.22, 19.69], 'terminus', [8.32, 20.25]]},
  {key: 'rimma', n: 4, name: 'リマ交易ルート', mark: [10.35, 15.46], path: ['abregado', [9.04, 12.55], [9.3, 12.98], 'thyferra', 'yagdhul', [10.0, 14.14], [10.17, 14.55], [10.29, 15.01], [10.32, 15.3], [10.35, 15.46], [10.48, 15.93], [10.54, 16.67], 'sullust', 'eriadu', [10.59, 18.16], 'dagobah', [10.61, 18.85], [10.63, 19.95], [10.63, 20.27]]},
@@ -9261,7 +9402,10 @@ const LINKS = [['tatooine', 'geonosis'], ['felucia', 'lianna'], ['tatooine', 'ro
  ['mygeeto', 'dantooine'], ['malachor', 'bonadan'], ['mandalore', 'dathomir'], ['endor', 'bakura'], ['kijimi', 'saleucami'], ['kijimi', 'anaxes'], ['quellor', 'denon'], ['exegol', 'csilla'], ['batuu', 'bakura'], ['mimban', 'pasaana'], ['quellor', 'mimban'],
  ['malachor', 'lianna'], ['dathomir', 'yavin'], ['mygeeto', 'ajankloss'], ['bilbringi', 'ordmantell'], ['bothawui', 'scarif'], ['denon', 'pasaana'], ['exegol', 'ilum'], ['ordmantell', 'ajankloss'], ['takodana', 'endor'], ['geonosis', 'scarif'], ['coruscant', 'byss'],
  ['coruscant', 'bilbringi'], ['kuat', 'onderon'], ['onderon', 'mandalore'], ['teth', 'nalhutta'], ['kessel', 'saleucami'], ['lianna', 'moncala'], ['kessel', 'teth'], ['scarif', 'kamino'], ['yavin', 'ferrix'], ['anaxes', 'yavin'], ['lothal', 'saleucami'],
- ['takodana', 'bespin'], ['bothawui', 'nalhutta'], ['jakku', 'ahchto'], ['pasaana', 'bothawui'], ['kashyyyk', 'toydaria'], ['ahchto', 'batuu'], ['jakku', 'jedha'], ['jedha', 'csilla'], ['bilbringi', 'ilum'], ['jakku', 'abregado'], ['jedha', 'bilbringi']];
+ ['takodana', 'bespin'], ['bothawui', 'nalhutta'], ['jakku', 'ahchto'], ['pasaana', 'bothawui'], ['kashyyyk', 'toydaria'], ['ahchto', 'batuu'], ['jakku', 'jedha'], ['jedha', 'csilla'], ['bilbringi', 'ilum'], ['jakku', 'abregado'], ['jedha', 'bilbringi'],
+ ['muunilinst', 'mygeeto'], ['muunilinst', 'dantooine'], ['serenno', 'yavin'], ['serenno', 'ferrix'], ['quell', 'anaxes'], ['quell', 'yavin'], ['jabiim', 'saleucami'], ['jabiim', 'ringovinda'],
+ ['florrum', 'lianna'], ['florrum', 'malachor'], ['zygerria', 'malachor'], ['zygerria', 'bonadan'], ['raxus', 'lianna'], ['raxus', 'florrum'], ['ruusan', 'kashyyyk'], ['ruusan', 'mimban'],
+ ['kaliida', 'naboo'], ['kaliida', 'dqar'], ['rishi', 'scarif'], ['rishi', 'kamino'], ['hypori', 'scarif'], ['hypori', 'ryloth']];
 const LINK_SLOW = 2;   // a light year on a hyperlane takes this long against one on a major route
 // Battles of the films and series fought at these systems: a fleet battle there opens with the two sides.
 const BATTLES = {
@@ -9272,7 +9416,10 @@ const BATTLES = {
  umbara: {name: 'アンバラの戦い', era: 'クローン戦争', own: 'republic', foe: 'cis'}, anaxes: {name: 'アナクセスの戦い', era: 'クローン戦争', own: 'republic', foe: 'cis'},
  kashyyyk: {name: 'キャッシークの戦い', era: 'クローン戦争', own: 'republic', foe: 'cis'}, felucia: {name: 'フェルーシアの戦い', era: 'クローン戦争', own: 'republic', foe: 'cis'},
  saleucami: {name: 'サルーカマイの戦い', era: 'クローン戦争', own: 'republic', foe: 'cis'}, mygeeto: {name: 'マイギートーの戦い', era: 'クローン戦争', own: 'republic', foe: 'cis'},
- utapau: {name: 'ウータパウの戦い', era: 'クローン戦争', own: 'republic', foe: 'cis'},
+ utapau: {name: 'ウータパウの戦い', era: 'クローン戦争', own: 'republic', foe: 'cis'}, rishi: {name: 'リシの月の戦い', era: 'クローン戦争', own: 'republic', foe: 'cis'},
+ quell: {name: 'クェルの戦い', era: 'クローン戦争', own: 'republic', foe: 'cis'}, kaliida: {name: 'カリーダ星雲の戦い', era: 'クローン戦争', own: 'republic', foe: 'cis'},
+ ringovinda: {name: 'リンゴ・ヴィンダの戦い', era: 'クローン戦争', own: 'republic', foe: 'cis'}, muunilinst: {name: 'ムーニリンストの戦い', era: 'クローン戦争', own: 'republic', foe: 'cis'},
+ hypori: {name: 'ハイポリの戦い', era: 'クローン戦争', own: 'cis', foe: 'republic'}, jabiim: {name: 'ジャビイムの戦い', era: 'クローン戦争', own: 'republic', foe: 'cis'},
  lothal: {name: 'ロザルの戦い', era: '銀河内戦', own: 'rebel', foe: 'empire'}, scarif: {name: 'スカリフの戦い', era: '銀河内戦', own: 'rebel', foe: 'empire'},
  yavin: {name: 'ヤヴィンの戦い', era: '銀河内戦', own: 'rebel', foe: 'empire'}, hoth: {name: 'ホスの戦い', era: '銀河内戦', own: 'empire', foe: 'rebel'},
  endor: {name: 'エンドアの戦い', era: '銀河内戦', own: 'rebel', foe: 'empire'}, jakku: {name: 'ジャクーの戦い', era: '銀河内戦', own: 'rebel', foe: 'empire'}};
@@ -9311,6 +9458,107 @@ function bandAt(at) {
  return 7;
 }
 
+// ---- the eras ----
+// v23 Two eras share the map. 銀河内戦 (the Galactic Civil War) is the map as drawn: the Empire holds the regions
+// from the Core, the Rebellion comes in from the frontier. クローン戦争 (the Clone Wars) adds the territories of the
+// war — the Republic, the Separatists, Hutt Space and the contested fronts — read off a reference map of the war as
+// data only: which power held each cell of a raster a quarter of a grid square on a side, x from 0 and y from 0 as on
+// the grid, run-length coded by rows ('.' outside the galaxy, n neutral or unclaimed, r Republic, s Separatist,
+// h Hutt, c contested). The outlines drawn on our map are traced from these cells.
+const ERAS = {
+ gcw: {key: 'gcw', name: '銀河内戦', short: '内戦', factions: ['empire', 'rebel'], note: '帝国がコアから銀河を治め、反乱同盟は辺境から現れる'},
+ cw: {key: 'cw', name: 'クローン戦争', short: 'クローン戦争', factions: ['republic', 'cis'], note: '銀河共和国と独立星系連合が戦線を挟んで向き合う'}};
+const ERA_OF = {republic: 'cw', cis: 'cw', empire: 'gcw', rebel: 'gcw'};
+// The era a battle or mission between these factions belongs to (the first faction that has one decides).
+function eraOf(...fs) { for (const f of fs.flat()) if (ERA_OF[f]) return ERA_OF[f]; return 'gcw'; }
+const POWERS = {
+ republic: {name: '銀河共和国', short: '共和国', col: '#5b8fe8'}, cis: {name: '独立星系連合', short: '分離主義勢力', col: '#d8505e'},
+ hutt: {name: 'ハット・スペース', short: 'ハット', col: '#4fb565'}, contested: {name: '係争宙域', short: '係争', col: '#e8a23a'},
+ neutral: {name: '中立・未加盟', short: '中立', col: '#8a96a8'}, empire: {name: '銀河帝国', short: '帝国', col: '#9fb6c6'},
+ rebel: {name: '反乱同盟', short: '反乱同盟', col: '#e48a6a'}};
+const TERR_CW = {cell: .25, rle: '.78|.78|.39n4.35|.35n10.33|.34n13.31|.33n16.29|.32n19.27|.32n21.25|.31n31.16|.30n3sn31.13|.30ns4n31.12|.29n2s5n32.10|.29ns6n20s2n11.9|.28ns8n18s3rn11.8|.28nr2s6n7s3n7s4n12.8|.28nr3s8n2s15n14.7|.27n2r4s23n16.6|.27n3r4s21n11s2n4.6|.27n4r3s9r2s10n10s4n4.5|.26n4r9s2r6s8n10s5n3.5|.26n3r7n6r6s7n7sns7n3.4|.25n3r9nrn7r3s5n5s13n2.4|.25n2r17n4r2s3n6s6c2s3n4.4|.25n2r19n3r5n4s5c4s3n4.4|.24n2r22n2r4s8c5s3n4.4|.23n4r27s8c5s3n5.3|.23n4r27s8c4s4n5.3|.22n5r30srs3c2s5n6.3|.21n7r27nr3s9n7.3|.21n8r26n2r3s6h4n5.3|.21n8r27n2r2s3c3h5n4.3|.21n8r27n3rs2c3h10.3|.21n7r29n2s3c3h10.3|.21n7r27s7c3h10.3|.21n8rn3r23s4c3h12.3|.21n12r23s3c4h12.3|.20n13r23s2c5h12.3|.20n12r22s4c2h14n.3|.20n12r22sc4h15n.3|.20n12r21s2cs2h16n.3|.20n11r21s2c2s2h16n.3|.20n10r21s3c2s2h16n.3|.20n9r21s3c3s2h16n.3|.20n8r21s3c4s2h16n.3|.20n8r21c7sch17.3|.20n8r20c7r3h17.3|.20n9r20c7r2c2h15.3|.20n10r19c7hr3c2h13.3|.20n6r3nr22c4hr4ch13.3|.20n6r35ch13.3|.20n6r35c2h11.4|.20n6r35c3h10.4|.19n8r35c3h9.4|.19n9r11s4r5s3r11c3h9.4|.19n10r9s5r6s2r6s2n2rc3h9.4|.19n6rn3r10s3r7s4r3s3n2r3c2h8.4|.18n5r6nr8s4r9s3r2s4nr5ch7.4|.18n4r5n2rn2r6s4r9s9r5sch6.5|.18n4r6n3r6s6r9s7nr5ch7.5|.18n4r15s7r2sr7s4n2r3c2h8.5|.18n4r18s7r8s3nr4h9n.5|.17n6r18s4r10n3r4ch9.6|.17rn6r17s3r11n2r5ch8n.6|.17rn6r17s2r16nc3h8n.6|.18n7r16s2r2n2r10n3c2h8n.7|.19n7r15s8r2nrn8h8n2.7|.20n7r15s6n3rn10h6n2.8|.21n7rn2r10ns6n16h3n3.8|.21n10r11s6n17hn3.9|.21n9r12s6n20.10|.22n8r2n8rs6n20.11|.23n17s7n18.13|.23n16s7n18.14|.24n14s6n18.16|.24n13s6n16.19|.25n11s7n12.23|.26n14s3n10.25|.27n24.27|.27n22.29|.28n19.31|.29n17.32|.31n13.34|.33n9.36|.36n.41'};
+const TERR_CODE = {n: 'neutral', r: 'republic', s: 'cis', h: 'hutt', c: 'contested'}, CODE_OF = {republic: 'r', cis: 's', hutt: 'h', contested: 'c', neutral: 'n'};
+let terrRows = null;
+const terrGrid = () => terrRows || (terrRows = TERR_CW.rle.split('|').map(r => { let o = ''; r.replace(/([.nrshc])(\d*)/g, (m, c, n) => { o += c.repeat(+n || 1); return ''; }); return o; }));
+const terrCell = (i, j) => terrGrid()[j]?.[i] || '.';
+const inPoly = (p, poly) => { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const a = poly[i], b = poly[j]; if ((a[1] > p[1]) !== (b[1] > p[1]) && p[0] < (b[0] - a[0]) * (p[1] - a[1]) / (b[1] - a[1]) + a[0]) c = !c; } return c; };
+// Who held a point of the galaxy in an era: 'republic' / 'cis' / 'hutt' / 'contested' / 'neutral' in the Clone Wars,
+// 'empire' / 'hutt' in the Civil War; null beyond the mapped galaxy.
+function territoryAt(era, at) {
+ if (!at) return null;
+ if (era === 'cw') { const c = terrCell(Math.floor(at[0] / TERR_CW.cell), Math.floor(at[1] / TERR_CW.cell)); return TERR_CODE[c] || null; }
+ if (inPoly(at, ZONES[0].poly)) return 'hutt';
+ return bandAt(at) >= 7 ? null : 'empire';
+}
+// Systems whose side the raster cannot tell (off it, on a front a cell wide, or held against the map's colour).
+const ALLEGIANCE = {
+ cw: {coruscant: 'republic', kamino: 'republic', rishi: 'republic', kaliida: 'republic', naboo: 'republic', anaxes: 'republic', kashyyyk: 'republic',
+  geonosis: 'cis', raxus: 'cis', serenno: 'cis', catoneimoidia: 'cis', muunilinst: 'cis', mygeeto: 'cis', hypori: 'cis', umbara: 'cis', utapau: 'cis', mustafar: 'cis', felucia: 'cis', saleucami: 'cis', zygerria: 'cis',
+  christophsis: 'contested', ryloth: 'contested', quell: 'contested', ringovinda: 'contested', jabiim: 'contested',
+  mandalore: 'neutral', toydaria: 'neutral', florrum: 'neutral', dathomir: 'neutral', nalhutta: 'hutt', teth: 'hutt', tatooine: 'hutt'},
+ gcw: {kamino: 'empire', exegol: null, csilla: null}};
+function allegiance(era, key) { const s = BY[key];if (!s) return null; const o = ALLEGIANCE[era] || {}; return key in o ? o[key] : territoryAt(era, s.at); }
+// The direction (a unit vector in grid coordinates, y down) from a point toward a faction's own space in an era: where
+// its ships come from when nothing else says (a fleet at the start of a battle, ships back from the yards). In the
+// Clone Wars, toward the bulk of its territory near the point, or, deep inside it, from its capital; in the Civil War
+// the Empire comes from the Core (Coruscant) and the Rebellion from the frontier.
+const CAPITAL = {republic: 'coruscant', cis: 'raxus', empire: 'coruscant'};
+const bearCache = new Map();
+function factionBearing(era, faction, at) {
+ if (!at || !faction) return null;if (!ERAS[era]) era = eraOf(faction);
+ const key = era + '|' + faction + '|' + at[0].toFixed(3) + ',' + at[1].toFixed(3);if (bearCache.has(key)) return bearCache.get(key);
+ const unit = (x, y) => { const l = Math.hypot(x, y); return l > 1e-6 ? [x / l, y / l] : null; };
+ const cap = BY[CAPITAL[faction]], toCap = cap ? [cap.at[0] - at[0], cap.at[1] - at[1]] : null, dc = toCap ? Math.hypot(toCap[0], toCap[1]) : 0;
+ let out = null;
+ if (era === 'cw' && CODE_OF[faction]) {
+  const want = CODE_OF[faction], g = terrGrid(), C = TERR_CW.cell;let vx = 0, vy = 0, ws = 0;
+  for (let j = 0; j < g.length; j++) for (let i = 0; i < g[j].length; i++) { if (g[j][i] !== want) continue; const x = (i + .5) * C - at[0], y = (j + .5) * C - at[1], d = Math.hypot(x, y); if (d < .2) continue; const w = Math.exp(-d / 1.6); vx += w * x / d; vy += w * y / d; ws += w; }
+  const m = Math.hypot(vx, vy);
+  out = (m > .3 * ws || !toCap || dc < .3) ? unit(vx, vy) || (toCap && unit(toCap[0], toCap[1])) : unit(toCap[0], toCap[1]);
+ } else if (faction === 'empire' || faction === 'republic') {
+  out = toCap && dc > .3 ? unit(toCap[0], toCap[1]) : unit(BANDS.c[0] - at[0], BANDS.c[1] - at[1]) || [1, 0];
+ } else if (faction === 'rebel' || faction === 'cis') out = unit(at[0] - BANDS.c[0], at[1] - BANDS.c[1]) || [1, 0];
+ bearCache.set(key, out);return out;
+}
+// The same, with a name for it: the best known system of that side lying that way ('コルサント方面'), else its space.
+function factionSide(era, faction, at) {
+ const dir = factionBearing(era, faction, at);if (!dir) return null;
+ let best = null;
+ for (const s of SYS) { const dx = s.at[0] - at[0], dy = s.at[1] - at[1], d = Math.hypot(dx, dy); if (d < .35 || d > 7) continue; if ((dx * dir[0] + dy * dir[1]) / d < .8) continue;
+  const al = allegiance(era, s.key);if (era === 'cw' ? al !== faction : faction === 'empire' ? al !== 'empire' : false) continue;
+  const v = (4 - (s.tier || 3)) / (1 + d * .6);if (!best || v > best.v) best = {v, s}; }
+ return {dir, name: best ? `${best.s.name}方面` : `${POWERS[faction]?.short || ''}${era === 'gcw' && faction === 'rebel' ? 'の辺境方面' : '領方面'}`};
+}
+// The outlines of each power's space in an era (closed loops in grid coordinates, smoothed), for the map.
+const loopCache = {};
+function territoryLoops(era) {
+ if (loopCache[era]) return loopCache[era];
+ const out = [];
+ if (era === 'cw') {
+  const g = terrGrid(), C = TERR_CW.cell, H = g.length, W = g[0].length;
+  for (const code of ['r', 's', 'h', 'c']) {
+   // boundary edges of the power's cells, each with the cells on its left, chained into loops
+   const next = new Map(), K = (x, y) => x * 1000 + y;
+   const edge = (x0, y0, x1, y1) => { const k = K(x0, y0); (next.get(k) || next.set(k, []).get(k)).push([x1, y1]); };
+   for (let j = 0; j < H; j++) for (let i = 0; i < W; i++) { if (g[j][i] !== code) continue;
+    if (terrCell(i, j - 1) !== code) edge(i + 1, j, i, j); if (terrCell(i - 1, j) !== code) edge(i, j, i, j + 1);
+    if (terrCell(i, j + 1) !== code) edge(i, j + 1, i + 1, j + 1); if (terrCell(i + 1, j) !== code) edge(i + 1, j + 1, i + 1, j); }
+   const loops = [];
+   for (const [k0, list] of next) while (list.length) {
+    const pts = [[Math.floor(k0 / 1000), k0 % 1000]];let cur = list.pop();
+    for (let guard = 0; guard < 20000; guard++) { pts.push(cur); const k = K(cur[0], cur[1]), l = next.get(k); if (!l || !l.length) break; cur = l.pop(); }
+    pts.pop();
+    // drop the points that only continue a straight edge, then round the corners off (Chaikin, twice)
+    let q = pts.filter((p, i) => { const a = pts[(i + pts.length - 1) % pts.length], b = pts[(i + 1) % pts.length]; return (p[0] - a[0]) * (b[1] - p[1]) - (p[1] - a[1]) * (b[0] - p[0]) !== 0; });
+    for (let it = 0; it < 2; it++) { const r = []; for (let i = 0; i < q.length; i++) { const a = q[i], b = q[(i + 1) % q.length]; r.push([a[0] * .75 + b[0] * .25, a[1] * .75 + b[1] * .25], [a[0] * .25 + b[0] * .75, a[1] * .25 + b[1] * .75]); } q = r; }
+    if (q.length >= 3) loops.push(q.map(p => [Math.round(p[0] * C * 1000) / 1000, Math.round(p[1] * C * 1000) / 1000]));
+   }
+   out.push({power: TERR_CODE[code], loops});
+  }
+ }
+ return loopCache[era] = out;
+}
+
 // ---- a fleet battle's area ----
 // The 500-ly square (local coordinates 0–1, y down as on the map) around a system: each major route through it as a
 // trunk running on past the square toward the next system on it; for a system off the routes, its hyperlanes.
@@ -9347,9 +9595,86 @@ function sectorDef(key) {
  for (const o of ones) mk(o.name, null, o.side);
  const via = recs.length ? recs.map(x => x.name).join('と') + '沿い' : `${s.links.map(k => BY[k].name).slice(0, 3).join('、')}と結ばれた航路沿い`;
  return {name: `${s.name}宙域`, grid: grid(s.at), note: `${via}、${s.name}星系を中心とする一辺500光年の宙域`, gal: key,
-  routes, named: [{name: s.name, at: c, kind: s.sk || 'habitable', pop: s.pop ?? 2, note: s.note, planet: {kind: s.v.k, ring: s.v.ring || null, radius: s.v.r, look: s.v.look || null, gal: key}}]};
+  gat: s.at, gc: c, span: .08, routes, named: [{name: s.name, at: c, kind: s.sk || 'habitable', pop: s.pop ?? 2, note: s.note, gal: key, planet: {kind: s.v.k, ring: s.v.ring || null, radius: s.v.r, look: s.v.look || null, gal: key}}]};
 }
-return {COLS, ROWS, REGIONS, BANDS, ZONES, REGION_LABELS, SYSTEMS: SYS, BY, ROUTES, ROUTE_BY, LINKS, EDGES, ADJ, BATTLES, LINK_SLOW, grid, hash, path, legPts, pathPts, bandAt, sectorDef};
+
+// ---- the theatres (戦域) ----
+// v23 Fleet-battle areas spanning several systems of the map, one for each famous campaign of the two eras: the systems
+// keep their places relative to each other as on the galaxy map, drawn small enough (a square `size` light years on a
+// side) for a fleet to cross in one battle. The major routes through the square are its trunk lines (for a theatre
+// off the routes, `chain`: the hyperlanes joining its systems); the hyperlanes between its systems are branch lines;
+// every other system of the map inside the square is in it too. `starts`: where a side's fleet comes in — a system of
+// the theatre, or '>key', the end of a trunk line that leads toward that system; a side not given comes in at the end
+// toward its own space (factionBearing).
+const THEATERS = [
+ {key: 'th_coruscant', era: 'cw', name: 'コルサント戦域', battle: 'コルサントの戦い', own: 'republic', foe: 'cis', sys: ['coruscant', 'brentaal', 'alderaan', 'kuat', 'byss'], starts: {republic: 'kuat', cis: 'byss'},
+  note: '銀河の首都コルサントと、そのまわりのコア・ワールド。分離主義艦隊はディープ・コアの隠れた航路から首都を突く'},
+ {key: 'th_ryloth', era: 'cw', name: 'ライロス・クリストフシス戦域', battle: 'クリストフシスの戦い・ライロスの戦い', own: 'republic', foe: 'cis', sys: ['christophsis', 'ryloth', 'tatooine', 'geonosis', 'rodia'], starts: {republic: 'christophsis', cis: 'ryloth'},
+  note: 'コレリアン・ランの外れ、クリストフシスからライロスまでのアウター・リム。分離主義勢力に封鎖された星系を共和国艦隊が解放に向かう'},
+ {key: 'th_kaliida', era: 'cw', name: 'カリーダ・ボサウイ戦域', battle: 'カリーダ星雲の戦い', own: 'republic', foe: 'cis', sys: ['kaliida', 'naboo', 'bothawui', 'christophsis'], size: 900, starts: {republic: 'bothawui', cis: '>ryloth'},
+  note: 'ボサウイの共和国艦隊と、カリーダ浅瀬の医療センターを狙う分離主義の戦艦。星雲を抜ける近道がある'},
+ {key: 'th_umbara', era: 'cw', name: 'アンバラ戦域', battle: 'アンバラの戦い', own: 'republic', foe: 'cis', sys: ['umbara', 'onderon', 'kashyyyk', 'ruusan'], chain: {name: 'オンダロン–キャッシーク航路', path: ['kuat', 'onderon', 'umbara', 'kashyyyk', 'toydaria']}, starts: {republic: '>kuat', cis: 'umbara'},
+  note: 'エクスパンション・リージョンの影の惑星アンバラと、その両隣のオンダロン、キャッシーク。共和国艦隊がアンバラの封鎖線を破りに向かう'},
+ {key: 'th_anaxes', era: 'cw', name: 'アナクセス戦域', battle: 'アナクセスの戦い', own: 'republic', foe: 'cis', sys: ['anaxes', 'ringovinda', 'quell', 'kijimi', 'felucia'], starts: {republic: 'anaxes'},
+  note: 'パーレミアン交易ルートの外側、共和国の造船所アナクセスとリンゴ・ヴィンダの軌道ステーション。分離主義艦隊がルートの外から押し寄せる'},
+ {key: 'th_outerrim', era: 'cw', name: 'ウータパウ・ムスタファー戦域', battle: 'アウター・リム包囲戦（ウータパウの戦い）', own: 'republic', foe: 'cis', sys: ['utapau', 'mustafar', 'dagobah', 'eriadu', 'sullust'], starts: {cis: 'utapau'},
+  note: '戦争の最後、アウター・リム包囲戦。分離主義評議会が逃れたウータパウとムスタファーを、リマ交易ルートとハイディアン・ウェイ沿いに共和国艦隊が追う'},
+ {key: 'th_scarif', era: 'gcw', name: 'スカリフ戦域', battle: 'スカリフの戦い', own: 'rebel', foe: 'empire', sys: ['scarif', 'rishi', 'hypori'], chain: {name: 'ボサウイ–カミーノ航路', path: ['bothawui', 'scarif', 'kamino']}, starts: {empire: 'scarif', rebel: '>bothawui'},
+  note: '帝国の機密保管施設がある熱帯の惑星スカリフ。惑星を覆うシールド・ゲートの外で反乱同盟艦隊が帝国艦隊と戦う'},
+ {key: 'th_yavin', era: 'gcw', name: 'ヤヴィン戦域', battle: 'ヤヴィンの戦い', own: 'rebel', foe: 'empire', sys: ['yavin', 'serenno'], starts: {rebel: 'yavin'},
+  note: 'ハイディアン・ウェイの近く、反乱同盟の基地があるヤヴィン第4衛星。帝国艦隊がコアの側から迫る'},
+ {key: 'th_hoth', era: 'gcw', name: 'ホス戦域', battle: 'ホスの戦い', own: 'empire', foe: 'rebel', sys: ['hoth', 'bespin'], starts: {rebel: 'hoth'},
+  note: 'コレリアン交易スパインの外れ、氷の惑星ホスと隣のガス巨星ベスピン。反乱同盟の基地を帝国艦隊が突き止めた'},
+ {key: 'th_endor', era: 'gcw', name: 'エンドア戦域', battle: 'エンドアの戦い', own: 'rebel', foe: 'empire', sys: ['endor', 'bakura', 'batuu'], chain: {name: 'タコダナ–バクラ航路', path: ['takodana', 'endor', 'bakura']}, starts: {empire: 'endor', rebel: '>takodana'},
+  note: '森の月エンドアの軌道に第2デス・スター。サラストに集まった反乱同盟艦隊が東から跳ぶ'},
+ {key: 'th_jakku', era: 'gcw', name: 'ジャクー戦域', battle: 'ジャクーの戦い', own: 'rebel', foe: 'empire', sys: ['jakku'], chain: {name: 'アブレガド–オク＝トー航路', path: ['abregado', 'jakku', 'ahchto']}, starts: {empire: 'jakku', rebel: '>abregado'},
+  note: '帝国最後の大艦隊が集まった砂漠の惑星ジャクー。新共和国の艦隊がコアの側から迫る'},
+ {key: 'th_moncala', era: 'gcw', name: 'モン・カラ戦域', battle: null, own: 'rebel', foe: 'empire', sys: ['moncala', 'lothal'], chain: {name: 'リアナ–サルーカマイ航路', path: ['lianna', 'moncala', 'lothal', 'saleucami']}, starts: {rebel: 'moncala', empire: '>lianna'},
+  note: '造船の伝統をもつ海の惑星モン・カラと、隣の草原の惑星ロザル。反乱同盟に加わったモン・カラマリの艦隊を、シーナーの本拠リアナの側から帝国艦隊が攻める（想定）'}];
+const THEATER_BY = {};for (const t of THEATERS) THEATER_BY[t.key] = t;
+const THEATER_PAD = .35, THEATER_MIN = 1.2;
+// The square of a theatre on the galaxy map: centre and side (grid squares), and every system of the map inside it.
+function theaterBox(t) {
+ if (t.box) return t.box;
+ const at = t.sys.map(k => BY[k].at), xs = at.map(p => p[0]), ys = at.map(p => p[1]);
+ const c = [(Math.min(...xs) + Math.max(...xs)) / 2, (Math.min(...ys) + Math.max(...ys)) / 2], span = Math.max(THEATER_MIN, Math.max(...xs) - Math.min(...xs) + 2 * THEATER_PAD, Math.max(...ys) - Math.min(...ys) + 2 * THEATER_PAD);
+ const size = t.size || 800, inside = p => Math.abs(p[0] - c[0]) <= span / 2 && Math.abs(p[1] - c[1]) <= span / 2;
+ // the theatre's own systems first, then the others inside, the better known first; none closer than 30 ly to one already in
+ const order = [...t.sys, ...SYS.filter(s => !t.sys.includes(s.key) && inside(s.at)).sort((a, b) => (a.tier || 3) - (b.tier || 3)).map(s => s.key)], keys = [];
+ for (const k of order) { const p = BY[k].at; if (keys.every(q => dist(BY[q].at, p) / span * size >= 30)) keys.push(k); }
+ return t.box = {c, span, size, keys, x0: c[0] - span / 2, y0: c[1] - span / 2};
+}
+function theaterDef(key) {
+ const t = THEATER_BY[key];if (!t) return null;
+ const B = theaterBox(t), loc = p => [.5 + (p[0] - B.c[0]) / B.span, .5 + (p[1] - B.c[1]) / B.span], inSq = q => q[0] > -.01 && q[0] < 1.01 && q[1] > -.01 && q[1] < 1.01;
+ const set = new Set(B.keys), endName = k => k ? `${BY[k].name}方面` : '';
+ // a line leaving the square ends a little past its edge, on the way to its next point
+ const clipOut = (a, b) => { let s = 1;for (const i of [0, 1]) { const d = b[i] - a[i]; if (b[i] > 1.04) s = Math.min(s, (1.04 - a[i]) / d); if (b[i] < -.04) s = Math.min(s, (-.04 - a[i]) / d); } return [a[0] + (b[0] - a[0]) * s, a[1] + (b[1] - a[1]) * s]; };
+ const routes = [];
+ const fromPath = (name, path, pts) => {
+  const q = pts.map(loc), ins = q.map(inSq), i0 = ins.indexOf(true), i1 = ins.lastIndexOf(true);if (i0 < 0) return;
+  const out = q.slice(i0, i1 + 1);
+  const before = path.slice(0, i0).reverse().find(p => typeof p === 'string' && !set.has(p)), after = path.slice(i1 + 1).find(p => typeof p === 'string' && !set.has(p));
+  if (i0 > 0) out.unshift(clipOut(q[i0], q[i0 - 1]));if (i1 < q.length - 1) out.push(clipOut(q[i1], q[i1 + 1]));if (out.length < 2) return;
+  const band = p => `${REGIONS[BAND_KEYS[bandAt(p)]]?.name || '辺境'}方面`;
+  routes.push({name, pts: out.map(p => [Math.round(p[0] * 1000) / 1000, Math.round(p[1] * 1000) / 1000]), ends: [i0 > 0 ? before ? endName(before) : band(pts[0]) : '', i1 < q.length - 1 ? after ? endName(after) : band(pts[pts.length - 1]) : ''], keys: path.filter(p => typeof p === 'string' && set.has(p))});
+ };
+ if (t.chain) fromPath(t.chain.name, t.chain.path, t.chain.path.map(k => BY[k].at));
+ // the major routes through the square, those through more of its systems first
+ const rs = ROUTES.map(r => ({r, n: r.stops.filter(k => set.has(k)).length, m: r.pts.filter(p => inSq(loc(p))).length})).filter(x => x.m >= 1 && (x.n || x.m >= 2)).sort((a, b) => b.n - a.n || b.m - a.m);
+ for (const {r} of rs) fromPath(r.name, r.path, r.pts);
+ const onTrunk = new Set(routes.flatMap(r => r.keys)), named = B.keys.map(k => { const s = BY[k]; return {name: s.name, at: loc(s.at).map(v => Math.round(v * 1000) / 1000), kind: s.sk || 'habitable', pop: s.pop ?? 2, note: s.note, trunk: onTrunk.has(k), gal: k, planet: {kind: s.v.k, ring: s.v.ring || null, radius: s.v.r, look: s.v.look || null, gal: k}}; });
+ // hyperlanes between its systems (not already joined along a trunk line)
+ const links = LINKS.filter(([a, b]) => set.has(a) && set.has(b) && !routes.some(r => { const i = r.keys.indexOf(a), j = r.keys.indexOf(b); return i >= 0 && j >= 0 && Math.abs(i - j) === 1; })).map(([a, b]) => [BY[a].name, BY[b].name]);
+ const g0 = grid([B.x0 + .01, B.y0 + .01]), g1 = grid([B.x0 + B.span - .01, B.y0 + B.span - .01]);
+ const starts = {};for (const [f, v] of Object.entries(t.starts || {})) starts[f] = v[0] === '>' ? {toward: loc(BY[v.slice(1)].at)} : {name: BY[v].name};
+ return {name: t.name, grid: grid(B.c), gridSpan: g0 === g1 ? g0 : `${g0}〜${g1}`, theater: key, era: t.era, own: t.own, foe: t.foe, battle: t.battle || null, gal: t.sys[0],
+  note: `${t.note}。${B.keys.map(k => BY[k].name).join('・')}を含む、一辺${B.size}光年の戦域`,
+  size: B.size, extra: t.extra || 44, gat: B.c, gc: [.5, .5], span: B.span, routes: routes.map(({name, pts, ends}) => ({name, pts, ends})), named, links, starts};
+}
+for (const b of Object.values(BATTLES)) b.ek = b.era === ERAS.cw.name ? 'cw' : 'gcw';
+return {COLS, ROWS, REGIONS, BANDS, ZONES, REGION_LABELS, SYSTEMS: SYS, BY, ROUTES, ROUTE_BY, LINKS, EDGES, ADJ, BATTLES, LINK_SLOW, grid, hash, path, legPts, pathPts, bandAt, sectorDef,
+ ERAS, POWERS, eraOf, territoryAt, allegiance, factionBearing, factionSide, territoryLoops, THEATERS, THEATER_BY, theaterBox, theaterDef};
 })();
 
 /* ============================================================
@@ -9437,9 +9762,27 @@ const CRAFT = {
  c9979:    {name: 'C-9979 上陸艇', short: 'C-9979', side: 'cis', role: 'transport', speed: 780, aa: .4, strike: 30, armor: 6, size: 476, crew: 0, stay: true}   // droid-crewed, like the other Separatist craft
 };
 // v20 Sizes and shapes come from the craft types: official dimensions, the hangar size they take.
-for (const [k, c] of Object.entries(CRAFT)) { const d = C.craftDims(k); if (d) { c.dims = d; c.size = C.stowSize(d); } }
+for (const [k, c] of Object.entries(CRAFT)) { const d = C.craftDims(k); if (d) { c.dims = d; c.size = C.stowSize(d); } craftStores(c, C.craftLoadout(k)); }
 CRAFT.lambda.stay = true;
 const ROLE_NAME = {fighter: '戦闘', interceptor: '迎撃', bomber: '爆撃', transport: '輸送'};
+// v22 Ordnance as stores (C.ORDNANCE): a craft type's store stations and its canon loadout (C.CRAFT_LOADOUT), its
+// guns' share of an attack run (gun: the table's strike when it carries nothing, else 6 + 8 × its air rating, so the
+// canon load's first run comes out near the table's strike) and the stores' mass at the canon load.
+function craftStores(c, L) {
+ c.stations = L?.stations || c.stations || [];c.load = L?.load || c.load || [];if (L?.alt) c.alt = L.alt;if (L?.mass != null) c.mass = L.mass;
+ const ord = C.craftOrdnance(c);c.gun = c.gun ?? (ord.length ? Math.min(c.strike, Math.round(6 + 8 * c.aa)) : c.strike);c.ordMass = ord.reduce((n, x) => n + x.n * x.mass, 0);return c;
+}
+// A squadron's stores: what each craft carries (its chosen loadout, else the canon one), the rounds left per craft,
+// and what each craft releases on a run. Rearmed in the hangar (at launch, once the rearm time is done).
+function squadStores(s, load) {
+ const c = CRAFT[s.craft];if (!c) return s;if (load !== undefined) s.load = Array.isArray(load) ? C.normalizeLoad(c.stations, load, c.load) : undefined;
+ s.ldg = C.craftOrdnance(c, s.load).map(x => ({...x, salvo: C.ordnanceSalvo(x, c.role)}));s.ord0 = s.ldg.reduce((n, x) => n + x.n, 0);rearmSquad(s);return s;
+}
+function rearmSquad(s) { s.ammo = (s.ldg || []).map(x => x.n); s.fired = false; squadMassK(s); }
+const squadArmed = s => (s.ammo || []).some(n => n > 1e-9);
+// Handling: a craft sheds its stores' mass as it fires them, and its speed rises by (mass at the canon load / mass now)^0.34.
+function squadMassK(s) { const c = CRAFT[s.craft], M = c?.mass;if (!(M > 0)) { s.spK = 1; return; } const left = (s.ldg || []).reduce((n, x, i) => n + (s.ammo?.[i] || 0) * x.mass, 0);s.spK = Math.pow((M + (c.ordMass || 0)) / (M + left), .34); }
+const sqSpeed = s => CRAFT[s.craft].speed * (s.spK || 1);
 // v21 Craft of the player's own design fly beside the types above: a carrier's air wing row carries the
 // design's snapshot (C.craftCombat), and the craft is entered here under its own key when the carrier
 // joins a fleet. The same design always gets the same key.
@@ -9447,7 +9790,7 @@ function registerDesignCraft(d) {
  const c = d?.craft;if (!c) return null;
  let h = 0;const sig = (d.ref || '') + '|' + d.name + '|' + [c.role, c.speed, c.aa, c.strike, c.armor, c.crew].join(',') + '|' + (d.dims || []).join(',');for (let i = 0; i < sig.length; i++) h = (h * 31 + sig.charCodeAt(i)) | 0;
  const key = 'dsn' + (h >>> 0).toString(36);
- if (!CRAFT[key]) { const dims = Array.isArray(d.dims) && d.dims.length === 3 ? d.dims.slice() : [10, 8, 3]; CRAFT[key] = {name: d.name + '（設計機）', short: d.name.slice(0, 10), side: 'design', ref: typeof d.ref === 'string' ? d.ref : '', role: c.role, speed: c.speed, aa: c.aa, strike: c.strike, armor: c.armor, size: C.stowSize(dims), crew: c.crew, dims, design: true, stay: c.role === 'transport' && !(c.strike > 30)}; }
+ if (!CRAFT[key]) { const dims = Array.isArray(d.dims) && d.dims.length === 3 ? d.dims.slice() : [10, 8, 3]; CRAFT[key] = craftStores({name: d.name + '（設計機）', short: d.name.slice(0, 10), side: 'design', ref: typeof d.ref === 'string' ? d.ref : '', role: c.role, speed: c.speed, aa: c.aa, strike: c.strike, gun: c.gun ?? (c.stations?.length ? undefined : c.strike), armor: c.armor, size: C.stowSize(dims), crew: c.crew, dims, design: true, stay: c.role === 'transport' && !(c.strike > 30), mass: c.mass || undefined}, {stations: c.stations || [], load: c.load || []}); }
  return key;
 }
 // A carrier's default complement, by faction: one wing of six squadrons per 72 units.
@@ -9491,6 +9834,8 @@ const VEHICLES = {
  speeder: {name: '74-Z スピーダーバイク', side: 'any', size: .1, crew: 1, note: '偵察用'},
  apc: {name: '装甲兵員輸送車', side: 'any', size: 1, crew: 2, note: '汎用'}
 };
+// v21.2 Every vehicle type the designs carry in the films can be embarked (the classes' own complements use them).
+for (const [k, t] of Object.entries(C.VEHICLE_TYPES)) if (!VEHICLES[k]) VEHICLES[k] = {name: t.name, side: t.side === 'neutral' ? 'any' : t.side, size: 1, crew: t.crew || 0, note: t.approx ? '寸法は推定' : ''};
 for (const [k, v] of Object.entries(VEHICLES)) { const t = C.VEHICLE_TYPES[k]; if (t) { v.dims = t.dims.slice(); v.size = C.vehicleStowSize(t.dims); } }
 const COMPANY_TROOPS = 144, BATTALION_COMPANIES = 4, REGIMENT_BATTALIONS = 4;
 const COMPANY_TYPES = {infantry: '歩兵中隊', armor: '機甲中隊', walker: '歩行機中隊', recon: '偵察中隊', support: '支援中隊'};
@@ -9518,15 +9863,19 @@ const LANE = {trunk: {name: '主要幹線', f: 1}, branch: {name: '支線', f: .
 // routes, on the hyperlanes to Alderaan and Cato Neimoidia). Every other system of the galaxy map gets its area
 // from Galaxy.sectorDef: its routes (or hyperlanes) through a 500-ly square around it.
 const REGIONS = {
- kuat: {name: 'クワット宙域', grid: 'M-10', gal: 'kuat', note: 'オルデランとカトー・ニモイディアを結ぶ航路沿い、クワット星系を中心とする一辺500光年の宙域',
-  routes: [{name: 'オルデラン–カトー・ニモイディア航路', pts: [[-.03, .3], [.2, .36], [.4, .44], [.52, .48], [.58, .6], [.57, .8], [.6, 1.03]], ends: ['オルデラン・コルサント方面', 'カトー・ニモイディア方面']}],
+ kuat: {name: 'クワット宙域', grid: 'M-10', gal: 'kuat', gc: [.52, .48], note: 'オルデランとケイト・ニモイディアを結ぶ航路沿い、クワット星系を中心とする一辺500光年の宙域',
+  routes: [{name: 'オルデラン–ケイト・ニモイディア航路', pts: [[-.03, .3], [.2, .36], [.4, .44], [.52, .48], [.58, .6], [.57, .8], [.6, 1.03]], ends: ['オルデラン・コルサント方面', 'ケイト・ニモイディア方面']}],
   named: [{name: 'クワット', at: [.52, .48], kind: 'shipyard', pop: 4, note: 'クワット・ドライブ・ヤードの造船星系。惑星を軌道造船リングが取り巻く', planet: {kind: 1, ring: [1.16, 1.25], radius: 5.2e6, gal: 'kuat'}}]},
- corellia: {name: 'コレリア宙域', grid: 'M-11', gal: 'corellia', note: 'コレリアン・ランとコレリアン交易スパインが分かれるコレリア星系の周辺',
+ corellia: {name: 'コレリア宙域', grid: 'M-11', gal: 'corellia', gc: [.52, .5], note: 'コレリアン・ランとコレリアン交易スパインが分かれるコレリア星系の周辺',
   routes: [{name: 'コレリアン・ラン', pts: [[.46, -.03], [.47, .2], [.5, .4], [.52, .5], [.66, .64], [.82, .8], [1.03, .96]], ends: ['コルサント方面', 'デノン・ライロス方面']},
    {name: 'コレリアン交易スパイン', pts: [[.52, .5], [.5, .68], [.46, .85], [.44, 1.03]], ends: ['', 'ホズニアン・プライム方面']}],
   named: [{name: 'コレリア', at: [.52, .5], kind: 'capital', pop: 5, note: 'コレリア星系。造船と交易の中心で、コレリアン・ランと交易スパインの起点', planet: {kind: 2, radius: 6.1e6, gal: 'corellia'}}]}
 };
 for (const s of Galaxy.SYSTEMS) if (!REGIONS[s.key]) REGIONS[s.key] = Galaxy.sectorDef(s.key);
+// v23 The theatres (戦域): areas of several systems of the map, each tied to an era and its two sides (Galaxy.theaterDef).
+for (const t of Galaxy.THEATERS) REGIONS[t.key] = Galaxy.theaterDef(t.key);
+// Where a point of an area (light years) lies on the galaxy map (grid squares): the area's centre is def.gat there.
+function sectorGal(S, pos) { const m = S?.gmap; if (!m || !pos) return null; return [m.at[0] + (pos[0] / S.size - m.c[0]) * m.span, m.at[1] + (pos[1] / S.size - m.c[1]) * m.span]; }
 const SECTOR_DEFS = REGIONS;
 const NAME_A = ['ヴェ', 'ドル', 'ケー', 'サル', 'ミラ', 'トー', 'ネム', 'アル', 'ゼン', 'フィ', 'ロウ', 'カ', 'イス', 'ベル', 'オル', 'ヤン', 'テシ', 'グラ', 'ハル', 'ルーメ', 'シャ', 'コル', 'ナー', 'ジェ', 'タル', 'ウラ'];
 const NAME_B = ['ラス', 'ミン', 'リス', 'ドア', 'ナイ', 'セル', 'カント', 'ヴィア', 'ロン', 'ティス', 'マール', 'ガ', 'ゼア', 'ニス', 'オス', 'ル', 'ダン', 'リム', 'デン', 'ノール', 'ザ', 'ヘイム'];
@@ -9534,7 +9883,7 @@ const segDist = (p, a, b) => { const dx = b[0] - a[0], dy = b[1] - a[1], l2 = dx
 const segCross = (a, b, c, d) => { const o = (p, q, r) => (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]); return o(a, b, c) * o(a, b, d) < 0 && o(c, d, a) * o(c, d, b) < 0; };
 function makeSector(key = 'kuat', seed = 13) {
  if (!REGIONS[key]) key = 'kuat';
- const def = REGIONS[key], R = rng(seed), size = MAP_LY, systems = [], edges = [], used = new Set(), code = def.grid.replace('-', '');
+ const def = REGIONS[key], R = rng(seed), size = def.size || MAP_LY, systems = [], edges = [], used = new Set(), code = def.grid.replace('-', '');
  const col = GRID_COLS.indexOf(def.grid.split('-')[0]), row = +def.grid.split('-')[1];
  const nameOf = () => { for (let k = 0; k < 80; k++) { const n = NAME_A[Math.floor(R() * NAME_A.length)] + NAME_B[Math.floor(R() * NAME_B.length)]; if (!used.has(n)) { used.add(n); return n; } } return '無名'; };
  const kinds = ['habitable', 'habitable', 'industrial', 'outpost', 'mining', 'barren', 'barren', 'barren', 'gas', 'gas', 'ice', 'ice', 'nebula'];
@@ -9543,7 +9892,7 @@ function makeSector(key = 'kuat', seed = 13) {
  const near = (p, d) => systems.find(s => hyp(s.pos[0] - p[0], s.pos[1] - p[1]) < d);
  const inMap = p => p[0] >= 6 && p[0] <= size - 6 && p[1] >= 6 && p[1] <= size - 6;
  // Named worlds of the galaxy map first.
- for (const m of def.named) { used.add(m.name); add([m.at[0] * size, m.at[1] * size], {name: m.name, kind: m.kind, pop: m.pop, major: true, trunk: true, note: m.note, planet: m.planet}); }
+ for (const m of def.named) { used.add(m.name); add([m.at[0] * size, m.at[1] * size], {name: m.name, kind: m.kind, pop: m.pop, major: true, trunk: m.trunk !== false, note: m.note, planet: m.planet, gal: m.gal || m.planet?.gal || null}); }
  // The trunk: stations along each route every 45-75 ly, the named worlds among them.
  const routes = def.routes.map(r => ({name: r.name, ends: r.ends, pts: r.pts.map(p => [p[0] * size, p[1] * size]), nodes: []}));
  for (const r of routes) {
@@ -9558,6 +9907,8 @@ function makeSector(key = 'kuat', seed = 13) {
   for (let i = 1; i < r.nodes.length; i++) edges.push({a: r.nodes[i - 1], b: r.nodes[i], kind: 'trunk', route: r.name});
   r.len = L;
  }
+ // v23 Hyperlanes of the galaxy map between two named systems of the area (a theatre's) are branch lines from the start.
+ for (const [na, nb] of def.links || []) { const a = systems.findIndex(x => x.name === na), b = systems.findIndex(x => x.name === nb); if (a < 0 || b < 0 || a === b || edges.some(e => (e.a === a && e.b === b) || (e.a === b && e.b === a))) continue; edges.push({a, b, kind: 'branch', fixed: true}); }
  const trunkSegs = edges.map(e => [systems[e.a].pos, systems[e.b].pos]);
  // Systems off the route: inhabited and empty worlds no galaxy map names.
  const want = systems.length + (def.extra || 34);let tries = 0;
@@ -9586,12 +9937,16 @@ function makeSector(key = 'kuat', seed = 13) {
   let best = null;for (let i = 0; i < n; i++) if (!seen.has(i)) for (const j of seen) { if (systems[i].trunk && systems[j].trunk) continue; const d = D(i, j); if (!best || d < best.d) best = {a: i, b: j, d}; }
   if (!best) break;all.push({a: best.a, b: best.b, kind: 'branch'});
  }
- const order = all.filter(e => e.kind === 'branch').map(e => [e, R()]).sort((x, y) => x[1] - y[1]).map(x => x[0]);
+ const order = all.filter(e => e.kind === 'branch' && !e.fixed).map(e => [e, R()]).sort((x, y) => x[1] - y[1]).map(x => x[0]);
  for (const e of order) { if (R() > .34) continue; const rest = all.filter(x => x !== e); const deg = id => rest.filter(x => x.a === id || x.b === id).length; if (deg(e.a) && deg(e.b) && conn(rest)) all.splice(all.indexOf(e), 1); }
  for (const e of all) e.len = D(e.a, e.b);
  for (const s of systems) { s.star = s.star || ['黄色矮星', '橙色矮星', '赤色矮星', '白色星', '青色巨星'][Math.floor(R() * 5)]; s.inhabited = s.pop > 0; s.links = []; }
  all.forEach((e, i) => { e.id = i; systems[e.a].links.push(i); systems[e.b].links.push(i); });
- return {key, gal: def.gal || null, name: def.name, grid: def.grid, note: def.note, col, row, size, systems, edges: all, routes: routes.map(r => ({name: r.name, ends: r.ends, pts: r.pts, nodes: r.nodes})), paths: new Map()};
+ // v23 Where the area lies on the galaxy map (for the sides' bearings) and, for a theatre, its era, sides and starts.
+ const gal0 = Galaxy.BY[def.gal], gmap = def.gat ? {at: def.gat, c: def.gc || [.5, .5], span: def.span || .08} : gal0 ? {at: gal0.at, c: def.gc || def.named[0]?.at || [.5, .5], span: .08} : null;
+ const starts = {};for (const [f, v] of Object.entries(def.starts || {})) { const id = v.name ? systems.findIndex(x => x.name === v.name) : -1; if (id >= 0) starts[f] = id; else if (v.toward) { const t = [v.toward[0] * size, v.toward[1] * size], ends = [...new Set(routes.flatMap(r => r.nodes.length ? [r.nodes[0], r.nodes[r.nodes.length - 1]] : []))]; ends.sort((p, q) => hyp(systems[p].pos[0] - t[0], systems[p].pos[1] - t[1]) - hyp(systems[q].pos[0] - t[0], systems[q].pos[1] - t[1])); if (ends.length) starts[f] = ends[0]; } }
+ return {key, gal: def.gal || null, name: def.name, grid: def.grid, gridSpan: def.gridSpan || def.grid, note: def.note, col, row, size, systems, edges: all, routes: routes.map(r => ({name: r.name, ends: r.ends, pts: r.pts, nodes: r.nodes})), paths: new Map(),
+  gmap, theater: def.theater || null, era: def.era || null, own: def.own || null, foe: def.foe || null, battle: def.battle || null, starts};
 }
 const sysDistance = (S, a, b) => { const p = S.systems[a].pos, q = S.systems[b].pos; return hyp(p[0] - q[0], p[1] - q[1]); };
 // The quickest way along the lanes from a to b (Dijkstra on the time a light
@@ -9639,7 +9994,7 @@ const fighting = u => alive(u) && !u.out;
 // A rough fighting value used by the AI and the strength readouts.
 function unitStrength(u) {
  const p = u.p, sx = C.fleetSystems(u), health = unitStruct(u) * (u.out ? .15 : 1);
- const fire = (p.gunBest || 0) + .5 * (p.ionBest || 0) + .2 * (p.aa || 0) + 2 * (p.msl || 0);
+ const fire = (p.gunBest || 0) + .5 * (p.ionBest || 0) + .2 * (p.aa || 0) + 2 * (p.msl || 0) + 1.5 * (p.imsl || 0);
  const tough = Math.sqrt(Math.max(1, p.hp) * Math.max(1, (p.shieldBuffer ?? p.D * 10) + 1)) * .02;
  return Math.sqrt(Math.max(1, fire * sx.weapon) * tough) * health + (p.slots || 0) * 4 * (sx.hangar ?? 1);
 }
@@ -9660,8 +10015,11 @@ function createWorld(opts) {
   units: new Map(), groups: new Map(), ctgs: new Map(), squads: new Map(), wings: new Map(), missiles: [], battles: new Map(), events: [], designs: new Map(), timers: {ai: 0, det: 0, tac: 0}, result: null};
  for (const d of opts.designs || []) w.designs.set(d.key, d);
  // The sides start at the two ends of the main route; home is the stations nearest by lane.
- const r0 = sector.routes[0], ends = [r0.nodes[r0.nodes.length - 1], r0.nodes[0]];
- w.sides.forEach((sd, i) => { const st = ends[i % 2]; sd.start = st; sd.home = sector.systems.map(x => x.id).sort((a, b) => routeCost(sector, st, a) - routeCost(sector, st, b)).slice(0, 4); });
+ // v23 ...the ends of the trunk lines toward each side's own space in the era of the battle (a theatre may name them).
+ // (the era: as asked, else that of the two factions — Republic and Separatists the Clone Wars, Empire and Rebellion the Civil War —, else the theatre's)
+ w.era = Galaxy.ERAS[opts.era] ? opts.era : w.sides.some(s => FACTIONS[s.faction]) ? Galaxy.eraOf(w.sides.map(s => s.faction)) : sector.era || 'gcw';
+ const r0 = sector.routes[0], ends = [r0.nodes[r0.nodes.length - 1], r0.nodes[0]], starts = opts.keepEnds ? w.sides.map((sd, i) => ends[i % 2]) : sideStarts(w, sector, w.sides.map((sd, i) => ends[i % 2]));
+ w.sides.forEach((sd, i) => { const st = starts[i]; sd.start = st; sd.home = sector.systems.map(x => x.id).sort((a, b) => routeCost(sector, st, a) - routeCost(sector, st, b)).slice(0, 4); });
  for (const [i, raw] of (opts.fleets || []).entries()) {
   const sd = w.sides[i];if (!sd) continue;const ob = normalizeOrbat(raw);
   ob.ctgs.forEach((c, ci) => {
@@ -9684,6 +10042,17 @@ function createWorld(opts) {
  supplyInit(w);
  return w;
 }
+// v23 The direction (sector x, y) from a point of the area toward a side's own space: Galaxy.factionBearing at the
+// point's place on the galaxy map, in the era of the battle. null when the area is not on the map or the faction has none.
+function sideBearing(w, side, pos) { const f = w.sides[side]?.faction, at = sectorGal(w.sector, pos); return at && f ? Galaxy.factionBearing(w.era, f, at) : null; }
+function sideStarts(w, S, dflt) {
+ const n = w.sides.length, fixed = w.sides.map(sd => S.starts?.[sd.faction] ?? null);if (n !== 2) return dflt;
+ const ends = [...new Set(S.routes.flatMap(r => r.nodes.length ? [r.nodes[0], r.nodes[r.nodes.length - 1]] : []))], mid = [S.size / 2, S.size / 2];
+ const bear = [0, 1].map(i => sideBearing(w, i, mid)), score = (i, id) => { const b = bear[i]; if (!b) return 0; const p = S.systems[id].pos, dx = p[0] - mid[0], dy = p[1] - mid[1], d = hyp(dx, dy) || 1; return (dx * b[0] + dy * b[1]) / d; };
+ let best = null;
+ for (const a of fixed[0] != null ? [fixed[0]] : ends) for (const b of fixed[1] != null ? [fixed[1]] : ends) { if (a === b) continue; const v = score(0, a) + score(1, b) + (a === dflt[0] && b === dflt[1] ? 1e-6 : 0); if (!best || v > best.v) best = {v, a, b}; }
+ return best ? [best.a, best.b] : dflt;
+}
 function makeCtg(w, side, name) { const c = {id: 'c' + (w.nextId++), side, name, tgs: []}; w.ctgs.set(c.id, c); return c; }
 function makeGroup(w, side, name, sys) {
  const g = {id: 'g' + (w.nextId++), side, name, units: [], sys, transit: null, spool: null, flag: null, formation: 'abreast', ctg: null, order: {type: 'auto'}, created: w.time};
@@ -9698,6 +10067,7 @@ function addSquad(w, u, q) {
  let wing = q.wing && w.wings.get(q.wing);
  if (!wing) {const no = q.wingNo || 1, id = q.wing || ('w-' + u.id + '-' + no);wing = w.wings.get(id);if (!wing) {wing = {id, side: u.side, no, name: q.wingName || `${u.name} 第${no}飛行隊`, group: q.groupName || '', squads: [], order: {type: 'auto'}, home: u.id, phase: 'docked'};w.wings.set(id, wing);}}
  const s = {id: 's' + (w.nextId++), side: u.side, name: q.name || `${c.short}中隊`, craft: q.craft, n, n0: n, home: u.id, wing: wing.id, slot: wing.squads.length, state: 'docked', sys: u.sys, pos: [...u.pos], vel: [0, 0, 0], h: [1, 0, 0], t: 0, runs: 0, kills: 0, target: null, slots: Array.from({length: n}, (_, i) => i), hurt: 0};
+ squadStores(s, q.load);
  w.squads.set(s.id, s);wing.squads.push(s.id);u.squads.push(s.id);return s;
 }
 // ---- formations ----
@@ -9732,11 +10102,14 @@ function formationOffsets(kind, members, open = false) {
 }
 const frameVec = (fw, o) => { const f = norm([fw[0], 0, fw[2]]), r = [-f[2], 0, f[0]]; return [f[0] * o[0] + r[0] * o[2], o[1], f[2] * o[0] + r[2] * o[2]]; };
 // Ships take station in the system in their group's formation, facing along the
-// lane they came in by (or toward the system from the edge of the map); groups
-// arriving together stand side by side.
+// lane they came in by; groups arriving together stand side by side. v23 With no lane
+// to come in by (the start of the battle, ships back from the yards) they come from
+// the side of the system toward their own space (sideBearing), else toward the system
+// from the edge of the map.
 function deployGroup(w, g, fromSys, slot = null) {
  const S = w.sector.systems, sys = S[g.sys];let dir;
  if (fromSys != null) { const a = S[fromSys].pos, b = sys.pos, d = norm([a[0] - b[0], 0, a[1] - b[1]]); dir = d; }
+ else if (sideBearing(w, g.side, sys.pos)) { const b = sideBearing(w, g.side, sys.pos); dir = norm([b[0], 0, b[1]]); }
  else { const nb = sys.links.map(ei => w.sector.edges[ei]).map(e => S[e.a === sys.id ? e.b : e.a]).sort((p, q) => routeCost(w.sector, q.id, w.sides[g.side === 0 ? 1 : 0].start) - routeCost(w.sector, p.id, w.sides[g.side === 0 ? 1 : 0].start))[0], c = nb ? nb.pos : [w.sector.size / 2, w.sector.size / 2], d = norm([c[0] - sys.pos[0], 0, c[1] - sys.pos[1]]); dir = len(d) > 0 ? d : [1, 0, 0]; }
  const us = g.units.map(id => w.units.get(id)).filter(alive), fw = scale(dir, -1), side = [-dir[2], 0, dir[0]], dist = fromSys != null ? RULES.arrive : 30000;
  if (slot == null) { slot = 0; for (const h of w.groups.values()) if (h !== g && h.side === g.side && h.sys === g.sys && !h.transit) slot++; }
@@ -9918,7 +10291,7 @@ function updateBattles(w) {
 const blog = (w, sys, text, u) => { const b = w.battles.get(sys); const e = {n: w.evN = (w.evN || 0) + 1, t: w.time, text, side: u?.side, id: u?.id}; if (b) { b.log.push(e); if (b.log.length > 120) b.log.shift(); } w.events.push({...e, sys, combat: true}); if (w.events.length > 400) w.events.shift(); };
 
 // Firepower (guns, missiles, carried craft) against what is left to destroy.
-function targetValue(a) { const p = a.p, fire = (p.gunBest || 0) + .5 * (p.ionBest || 0) + .2 * (p.aa || 0) + 2 * (p.msl || 0) + (p.slots || 0) * 4 + 1; return fire / (Math.max(1, p.hp || 0) * Math.max(.05, unitStruct(a)) + Math.max(0, a.shield || 0) + 1); }
+function targetValue(a) { const p = a.p, fire = (p.gunBest || 0) + .5 * (p.ionBest || 0) + .2 * (p.aa || 0) + 2 * (p.msl || 0) + 1.5 * (p.imsl || 0) + (p.slots || 0) * 4 + 1; return fire / (Math.max(1, p.hp || 0) * Math.max(.05, unitStruct(a)) + Math.max(0, a.shield || 0) + 1); }
 // Orders inside a battle. Ships follow their task group ('group'): the group's
 // order, or on 自動交戦 the target its guide picks. A ship may also be given an
 // order of its own (hold, move, attack, or 'auto' to pick its own target).
@@ -10158,23 +10531,29 @@ function battleTick(w, sys, dt) {
  }
  // --- missiles: launch, flight, point defence, impact
  for (const u of us) {
-  if (u.manual || u.out || u.warp || u.jump || !(u.p.msl > 0)) continue;const o = effectiveOrder(u, w), want = byId.get(o.target);
+  if (u.manual || u.out || u.warp || u.jump || !(u.p.msl > 0 || u.p.imsl > 0)) continue;const o = effectiveOrder(u, w), want = byId.get(o.target);
   let t = want && want.side !== u.side && !want.warp ? want : null;if (!t) { let bd = Infinity; for (const x of us) { if (x.side === u.side || x.warp || x.out) continue; const d = len(sub(x.pos, u.pos)); if (d < bd) { bd = d; t = x; } } }
   if (!t || len(sub(t.pos, u.pos)) > RULES.missileRange) continue;
   const mods = u.p.modules || [];u.mslT = (u.mslT || 0) - dt;if (u.mslT > 0) continue;u.mslT = 20;
   const tubes = mods.map((m, i) => m.k === 'launcher' && u.mods[i] > 0 && u.ammo[i] >= 8 ? i : -1).filter(i => i >= 0), total = mods.filter(m => m.k === 'launcher').length;
-  let n = 0;if (!total) n = Math.round(u.p.msl / 10);else for (const i of tubes) { u.ammo[i] -= 8; n += 8; }
-  if (n > 0) w.missiles.push({id: 'm' + (w.nextId++), side: u.side, sys, from: u.id, target: t.id, n, pos: add(u.pos, [0, u.p.height ? u.p.height * .3 : 50, 0]), vel: scale(norm(sub(t.pos, u.pos)), 220), s: 220, life: 45});
+  // v22 Ion torpedo launchers fire their own salvos (ion: the hits go to the ion channel).
+  let n = 0, ni = 0;if (!total) { n = Math.round((u.p.msl || 0) / 10); ni = Math.round((u.p.imsl || 0) / 10); } else for (const i of tubes) { u.ammo[i] -= 8; if (mods[i].ion) ni += 8; else n += 8; }
+  const at = add(u.pos, [0, u.p.height ? u.p.height * .3 : 50, 0]), dir = norm(sub(t.pos, u.pos));
+  if (n > 0) w.missiles.push({id: 'm' + (w.nextId++), side: u.side, sys, from: u.id, target: t.id, n, pos: at, vel: scale(dir, 220), s: 220, life: 45});
+  if (ni > 0) w.missiles.push({id: 'm' + (w.nextId++), side: u.side, sys, from: u.id, target: t.id, n: ni, kind: 'itorp', ion: true, pos: [...at], vel: scale(dir, 220), s: 220, life: 45});
  }
  for (const m of w.missiles) {
   if (m.sys !== sys || m.n <= 0) continue;const t = byId.get(m.target);if (!t) { m.life = 0; continue; }
-  const rel = sub(t.pos, m.pos), d = len(rel);m.s = Math.min(2600, m.s + 650 * dt);m.vel = scale(norm(add(rel, t.velocity || [0, 0, 0], d / Math.max(300, m.s))), m.s);m.pos = add(m.pos, m.vel, dt);m.life -= dt;
+  const rel = sub(t.pos, m.pos), d = len(rel);m.s = m.top ? m.top : Math.min(2600, m.s + 650 * dt);m.vel = scale(norm(add(rel, t.velocity || [0, 0, 0], d / Math.max(300, m.s))), m.s);m.pos = add(m.pos, m.vel, dt);m.life -= dt;
   // Every enemy ship within reach adds its point defence, weighted by the arc facing the salvo.
   // v21.2 …as far as its fire control has targets to spare (C.AA_CHANNELS: a salvo of eight is one target).
   let kill = 0;for (const x of us) { if (x.side === m.side || x.warp || x.manual) continue; const r = len(sub(m.pos, x.pos)); if (r > RULES.pdRange + x.p.len * .5) continue; if (x.aaLeft == null || x.aaT !== w.time) { x.aaLeft = x.p.aaCh ?? 4; x.aaT = w.time; } if (!(x.aaLeft > 0)) continue; const need = Math.max(1, Math.ceil(m.n / C.AA_CHANNELS.salvo)), got = Math.min(need, x.aaLeft); x.aaLeft -= got; kill += RULES.pdMissile * pdToward(x, m.pos) * sysOf.get(x.id).weapon * C.fleetCrewEff(x) * dt * got / need; }
   if (kill > 0) { const k = Math.min(m.n, kill * (1 + (w.rand() - .5) * .4)); m.n -= k; m.downed = (m.downed || 0) + k; }
   if (m.n < .5) { m.n = 0; continue; }
-  if (d < Math.max(300, t.p.len * .4)) { const tt = m.n * RULES.missileTT * DMG; C.combatAdd(inc.get(t.id), t, m.pos, {sf: .5 * tt, hull: .5 * tt, direct: .5 * tt}, null, m.from); m.hit = m.n; m.n = 0; const src = byId.get(m.from); if (src) src.dmgDone += tt; }
+  if (d < Math.max(300, t.p.len * .4)) {
+   // v22 a round's own hit (craft stores) or the ship missile's; ion rounds work on the ion channel
+   const tt = m.n * (m.tt ?? RULES.missileTT) * DMG, amt = m.ion ? {sf: C.COMBAT.ionShield * tt, hull: C.COMBAT.ionHull * tt, ion: tt} : {sf: .5 * tt, hull: .5 * tt, direct: .5 * tt};
+   C.combatAdd(inc.get(t.id), t, m.pos, amt, m.aim || null, m.from); m.hit = m.n; m.n = 0; if (m.sq) { const q = w.squads.get(m.sq); if (q) q.dmg = (q.dmg || 0) + tt; } else { const src = byId.get(m.from); if (src) src.dmgDone += tt; } }
   else if (m.life <= 0) m.n = 0;
  }
  w.missiles = w.missiles.filter(m => m.n > 0 && m.life > 0 || m.sys !== sys);
@@ -10244,7 +10623,7 @@ function craftTick(w, sys, us, byId, sysOf, inc, dt) {
   if (ready.length && wing.phase === 'form') {
    const rate = Math.max(.05, (home.p.launch || 1) * (sysOf.get(home.id)?.hangar ?? 1));home.launchQ = home.launchQ || 0;
    if (home.launchQ > 0) home.launchQ -= dt;
-   else { const s = ready[0], c = CRAFT[s.craft]; home.launchQ = s.n * c.size / rate; s.state = 'out'; s.pos = add(home.pos, [0, -home.p.height * .3 || -60, 0]); s.h = [Math.cos(home.yaw), 0, Math.sin(home.yaw)]; s.runs = 0; s.ran = false; s.launched = w.time; }
+   else { const s = ready[0], c = CRAFT[s.craft]; home.launchQ = s.n * c.size / rate; s.state = 'out'; s.pos = add(home.pos, [0, -home.p.height * .3 || -60, 0]); s.h = [Math.cos(home.yaw), 0, Math.sin(home.yaw)]; s.runs = 0; s.ran = false; s.launched = w.time; if (!s.ldg) squadStores(s); rearmSquad(s); }
   }
   if (!out.length) continue;
   // Form up off the carrier's beam until the wing is out (or a minute and a half has passed).
@@ -10256,12 +10635,19 @@ function craftTick(w, sys, us, byId, sysOf, inc, dt) {
    const t = byId.get(o.target);if (!t || t.dead || t.side === wing.side) { for (const s of out) s.state = 'return'; wing.phase = 'return'; continue; }
    if (wing.phase === 'on') wing.phase = 'go';
    const ap = APPROACH[o.approach] || APPROACH.bow, ip = add(t.pos, shipToWorld(t, scale(ap, 12000 + t.p.len * .6))), c = wing.c || lead.pos;
-   if (wing.phase === 'go') { goal = ip; if (len(sub(ip, c)) < 2500) { wing.phase = 'run'; for (const s of out) s.ran = false; } }
+   if (wing.phase === 'go') { goal = ip; if (len(sub(ip, c)) < 2500) { wing.phase = 'run'; for (const s of out) { s.ran = false; s.fired = false; } } }
    else if (wing.phase === 'run') { goal = t.pos; tight = .45;
-    // Attack run: each squadron releases (bombers) or strafes (fighters) as it passes the target.
-    for (const s of out) if (!s.ran && len(sub(t.pos, s.pos)) < Math.max(900, t.p.len * .45)) { const c2 = CRAFT[s.craft], tt = s.n * c2.strike * RULES.damage, x = inc.get(t.id); if (x) C.combatAdd(x, t, s.pos, {sf: .7 * tt, hull: .7 * tt, direct: .3 * tt}, o.aim && o.aim !== 'auto' ? o.aim : C.fleetAim({p: {len: 20}, order: {aim: 'auto'}}, t, true), s.home); s.ran = true; s.runs++; s.dmg = (s.dmg || 0) + tt; (w.craftRuns || (w.craftRuns = [])).push({sys, t: w.time, sq: s.id, to: t.id, n: s.n}); }
+    // Attack run: torpedoes and missiles leave at stand-off range (v22: stores, as missiles the target's point
+    // defence can engage), then each squadron strafes with its guns and bombers drop their bombs as it passes.
+    const aimK = o.aim && o.aim !== 'auto' ? o.aim : C.fleetAim({p: {len: 20}, order: {aim: 'auto'}}, t, true);
+    for (const s of out) { const dd = len(sub(t.pos, s.pos));
+     if (!s.fired && dd < Math.max(3000, t.p.len * .6)) { s.fired = true; squadRelease(w, sys, s, t, false, aimK); }
+     if (!s.ran && dd < Math.max(900, t.p.len * .45)) { const c2 = CRAFT[s.craft], tt = s.n * (c2.gun ?? c2.strike) * RULES.damage, x = inc.get(t.id); if (x && tt > 0) C.combatAdd(x, t, s.pos, {sf: .7 * tt, hull: .7 * tt, direct: .3 * tt}, aimK, s.home); const rel = squadRelease(w, sys, s, t, true, aimK); s.ran = true; s.runs++; s.dmg = (s.dmg || 0) + tt; (w.craftRuns || (w.craftRuns = [])).push({sys, t: w.time, sq: s.id, to: t.id, n: s.n, ord: [...(s.relG || []), ...rel]}); s.relG = null; } }
     if (out.every(s => s.ran) || len(sub(t.pos, c)) < Math.max(700, t.p.len * .3)) { wing.phase = 'egress'; wing.egress = add(t.pos, shipToWorld(t, scale(ap, -9000 - t.p.len * .5))); } }
-   else { goal = wing.egress || ip; if (len(sub(goal, c)) < 2500) { if (out.some(s => CRAFT[s.craft].role === 'bomber')) { for (const s of out) s.state = 'return'; wing.phase = 'return'; continue; } wing.phase = 'go'; } }
+   else { goal = wing.egress || ip; if (len(sub(goal, c)) < 2500) {
+     // Bombers go home when their stores are spent, and so do fighters that carried ordnance; gun-only fighters go round again.
+     const bomb = out.some(s => CRAFT[s.craft].role === 'bomber'), had = out.some(s => s.ord0 > 0), left = out.some(squadArmed);
+     if ((bomb || had) && !left) { for (const s of out) s.state = 'return'; wing.phase = 'return'; continue; } wing.phase = 'go'; } }
    engageR = out.every(s => CRAFT[s.craft].role === 'bomber') ? 0 : 3000;
   } else if (o.type === 'cap') { goal = o.point || home.pos; engageR = (o.radius || 15000) + 4000; }
   else { const e = byId.get(o.target) || home; goal = add(e.pos, [0, e.p.height * .8 || 300, 0]); engageR = 9000; }
@@ -10302,6 +10688,18 @@ function craftTick(w, sys, us, byId, sysOf, inc, dt) {
   while (s.hurt >= 1 && s.n > 0) { s.hurt -= 1; const pd = pdL[n] > w.rand() * loss[n]; craftDown(w, sys, s, null, pd ? 'pd' : 'air', pd ? pdBy[n] : s.dfFoe); } }
  for (const {wing} of wings.values()) if (wing.logK && wing.logK.air + wing.logK.pd > 0 && w.time - (wing.logT ?? -1e9) >= 30) craftLossLog(w, sys, wing);
 }
+// v22 A squadron releases its stores at a ship: guided rounds (bombs false) at stand-off range, bombs (true) as it
+// passes. Each craft lets go of its salvo from every station that still has rounds; they fly as one missile salvo
+// per kind (w.missiles: the target's point defence engages them, a salvo of eight taking one fire-control channel).
+// Returns what was released, [{kind, n}].
+function squadRelease(w, sys, s, t, bombs, aim) {
+ const out = [];if (!s.ldg?.length || !(s.n > 0)) return out;
+ s.ldg.forEach((x, i) => { if (!!x.bomb !== bombs) return; const k = Math.min(s.ammo[i] || 0, x.salvo);if (!(k > 0)) return; s.ammo[i] -= k;
+  const n = k * s.n, o = C.ORDNANCE[x.kind], sp = Math.max(o.speed, bombs ? 0 : sqSpeed(s)), dir = norm(sub(t.pos, s.pos));
+  w.missiles.push({id: 'm' + (w.nextId++), side: s.side, sys, from: s.home, sq: s.id, target: t.id, n, kind: x.kind, tt: x.tt, ion: x.ion, bomb: x.bomb, craft: true, aim: aim || null, pos: [...s.pos], vel: scale(dir, sp), s: sp, top: sp, life: bombs ? 8 : 20});
+  out.push({kind: x.kind, n}); });
+ if (out.length) squadMassK(s);if (!bombs && out.length) s.relG = out;return out;
+}
 // v21.2 A squadron's craft by formation place: s.slots lists the ids (0 … n0-1) of the craft still flying, in
 // order; s.n is always a whole number of craft (an older fractional count becomes damage carried).
 function squadSlots(s) {
@@ -10339,8 +10737,8 @@ function craftFormation(k, role, dims) {
 }
 // A wing's squadrons in a loose vee behind the leader, each heading for its place.
 function steerWing(out, goal, hd, dt, tight = 1) {
- const right = [-hd[2], 0, hd[0]], vmin = Math.min(...out.map(s => CRAFT[s.craft].speed));
- for (const s of out) { const k = s.slot ?? 0, row = Math.ceil(k / 2), sg = k % 2 ? 1 : -1, off = add(scale(hd, -row * 420 * tight), right, sg * row * 520 * tight), g = add(goal, off), lag = len(sub(g, s.pos)); steer(s, g, Math.min(CRAFT[s.craft].speed, vmin * (lag > 1500 ? 1.15 : 1)), dt); }
+ const right = [-hd[2], 0, hd[0]], vmin = Math.min(...out.map(sqSpeed));
+ for (const s of out) { const k = s.slot ?? 0, row = Math.ceil(k / 2), sg = k % 2 ? 1 : -1, off = add(scale(hd, -row * 420 * tight), right, sg * row * 520 * tight), g = add(goal, off), lag = len(sub(g, s.pos)); steer(s, g, Math.min(sqSpeed(s), vmin * (lag > 1500 ? 1.15 : 1)), dt); }
 }
 function steer(s, goal, speed, dt) {
  const d = sub(goal, s.pos), l = len(d);if (l < 1) return;const want = scale(d, 1 / l), c = clamp(dot(s.h, want), -1, 1), ang = Math.acos(c), maxA = 1.3 * dt;
@@ -10596,6 +10994,9 @@ function aiWing(w, wing, home) {
   // A strike already flying goes on, unless the target's shields came back up
   // before the bombers got there; then they pick again or fall back.
   const ct = cur?.type === 'strike' ? w.units.get(cur.target) : null;
+  // v22 Wings armed with ion torpedoes are the ones that strip the shields: they go in against the largest
+  // enemy whose field still stands (as Gold Squadron's Y-wings did at Scarif).
+  if (sqs.some(s => s.ldg?.some(x => x.ion && x.n > 0))) { if (ct && cur.ionStrip && fighting(ct) && shieldFrac(ct) > D.strip) return; const up = foes.filter(t => shieldFrac(t) > D.strip), tg = up[0] || foes[0]; wing.auto = {type: 'strike', target: tg.id, approach: weakestApproach(tg), ionStrip: true}; return; }
   if (ct && fighting(ct) && !(cur.doctrine && shieldFrac(ct) > D.abort)) return;
   const bare = foes.filter(t => shieldFrac(t) <= D.strike);
   wing.auto = bare.length && (bombers > 0 || (wing.no || 1) % 2 === 0) ? {type: 'strike', target: bare[0].id, approach: weakestApproach(bare[0]), doctrine: true} : {type: 'escort', target: home.id, waiting: bombers > 0 && !bare.length};
@@ -10808,6 +11209,25 @@ function defaultGround(info, faction) {
  const tpl = REGIMENT_TEMPLATES[faction] || REGIMENT_TEMPLATES.empire, per = COMPANY_TROOPS * BATTALION_COMPANIES * REGIMENT_BATTALIONS, n = Math.floor(troopRoom(info, faction) / per);
  return Array.from({length: n}, (_, i) => makeRegiment(faction, `第${i + 1}${tpl.name}`));
 }
+// v21.2 お任せ: the troops and vehicles a class carries in the films and sourcebooks (its design's ground forces), as
+// the faction's companies of COMPANY_TROOPS, four to a battalion and four battalions to a regiment (the last ones
+// smaller), up to the troop room the ship has; the vehicles of the faction (or any side) go to its walker, armour and
+// recon companies (to the infantry when it has none).
+function canonGround(rows, faction, room = Infinity) {
+ const want = (rows || []).filter(r => r.kind === 'troops' || r.kind === 'droids').reduce((n, r) => n + Math.max(0, Math.floor(r.count || 0)), 0), troops = Math.min(want, Math.floor(room));
+ const veh = {};for (const r of rows || []) { const v = VEHICLES[r.type]; if (r.kind === 'vehicle' && v && (v.side === 'any' || v.side === faction) && r.count > 0) veh[r.type] = (veh[r.type] || 0) + Math.floor(r.count); }
+ if (!(troops > 0) && !Object.keys(veh).length) return [];
+ const tpl = REGIMENT_TEMPLATES[faction] || REGIMENT_TEMPLATES.empire, nc = Math.max(1, Math.ceil(troops / COMPANY_TROOPS)), out = [], all = [];
+ for (let c = 0; c < nc; c++) {
+  const ri = Math.floor(c / (BATTALION_COMPANIES * REGIMENT_BATTALIONS)), bi = Math.floor(c / BATTALION_COMPANIES) % REGIMENT_BATTALIONS, ci = c % BATTALION_COMPANIES, type = tpl.companies[ci];
+  if (!out[ri]) out[ri] = {name: `第${ri + 1}${tpl.name}`, faction, battalions: []};
+  const R0 = out[ri];if (!R0.battalions[bi]) R0.battalions[bi] = {name: `第${bi + 1}大隊`, companies: []};
+  const co = {name: `${'ABCD'[ci]}中隊（${COMPANY_TYPES[type]}）`, type, troops: Math.min(COMPANY_TROOPS, troops - c * COMPANY_TROOPS), vehicles: {}};R0.battalions[bi].companies.push(co);all.push(co);
+ }
+ const pref = all.filter(c => c.type !== 'infantry'), slots = pref.length ? pref : all;let j = 0;
+ for (const [k, n] of Object.entries(veh)) for (let i = 0; i < n; i++, j++) { const c = slots[j % slots.length]; c.vehicles[k] = (c.vehicles[k] || 0) + 1; }
+ return out;
+}
 function makeRegiment(faction, name) {
  const tpl = REGIMENT_TEMPLATES[faction] || REGIMENT_TEMPLATES.empire;
  return {name, faction, battalions: Array.from({length: REGIMENT_BATTALIONS}, (_, b) => ({name: `第${b + 1}大隊`, companies: tpl.companies.map((type, c) => ({name: `${'ABCD'[c]}中隊（${COMPANY_TYPES[type]}）`, type, troops: COMPANY_TROOPS, vehicles: {...(tpl.vehicles[type] || {})}}))}))};
@@ -10815,7 +11235,9 @@ function makeRegiment(faction, name) {
 function regimentTotals(r) { const t = {troops: 0, vehicles: {}, size: 0}; for (const b of r.battalions || []) for (const c of b.companies || []) { t.troops += c.troops || 0; for (const [k, n] of Object.entries(c.vehicles || {})) { if (!VEHICLES[k]) continue; t.vehicles[k] = (t.vehicles[k] || 0) + n; t.size += VEHICLES[k].size * n; } } return t; }
 function airTotals(list) { let n = 0, size = 0, crew = 0, fight = 0; for (const q of list || []) { const c = CRAFT[q.craft]; if (!c) continue; n += q.n; size += q.n * c.size; crew += q.n * c.crew; if (!c.stay) fight += q.n; } return {n, size, crew, fight}; }
 
-return {DOCTRINE, doctrineOf, shieldFrac, doctrineTarget, aiWing, RULES, TICK, CRAFT, CRAFT_MIX, ROLE_NAME, FACTIONS, SIDE_OF, VEHICLES, COMPANY_TYPES, REGIMENT_TEMPLATES, COMPANY_TROOPS, CAPITAL_LENGTH, MAP_LY, GRID_COLS, SECTOR_DEFS, REGIONS, LANE, KIND_NAME, APPROACH, APPROACH_NAME, FORMATIONS, WING_PHASE,
- stowBays, shipStow, stir, peaceTick, formationOffsets, formationGaps, pendingWarp, jumpSequence, JUMP_STAGGER, rng, makeSector, sysDistance, routePath, routeCost, pathSeconds, tripSeconds, designInfo, unitDemand, createWorld, normalizeOrbat, makeUnit, makeGroup, makeCtg, ctgOf, addSquad, step, tick, detect, orderJump, cancelJump, etaTo, groupMapPos, orderUnit, orderGroup, orderCtg, orderCtgJump, orderTractor, orderWing, splitGroup, mergeGroups,
- systemUnits, unitStruct, unitStrength, unitHyper, carriedOf, launchCarried, recoverCarried, orderCarried, groupHyper, groupDisabled, groupStay, orderScuttle, orderRecover, recoverCheck, rearSeconds, SUPPLY, supplyAt, supplyLines, supplyNeeds, unitSupplyOf, alive, fighting, pdToward, effectiveOrder, groupOrder, formationOffsets, tractorReach, tractorOk, registerDesignCraft, squadSlots, craftDown, craftFormation, defaultAir, troopRoom, defaultGround, makeRegiment, regimentTotals, airTotals, battleTick};
+return {canonGround, DOCTRINE, doctrineOf, shieldFrac, doctrineTarget, aiWing, RULES, TICK, CRAFT, CRAFT_MIX, ROLE_NAME, FACTIONS, SIDE_OF, VEHICLES, COMPANY_TYPES, REGIMENT_TEMPLATES, COMPANY_TROOPS, CAPITAL_LENGTH, MAP_LY, GRID_COLS, SECTOR_DEFS, REGIONS, LANE, KIND_NAME, APPROACH, APPROACH_NAME, FORMATIONS, WING_PHASE,
+ stowBays, shipStow, stir, peaceTick, formationOffsets, formationGaps, pendingWarp, jumpSequence, JUMP_STAGGER, rng, makeSector, sysDistance, routePath, routeCost, pathSeconds, tripSeconds, designInfo, unitDemand, createWorld, normalizeOrbat, makeUnit, makeGroup, makeCtg, ctgOf, addSquad, step, tick,
+ detect, orderJump, cancelJump, etaTo, groupMapPos, orderUnit, orderGroup, orderCtg, orderCtgJump, orderTractor, orderWing, splitGroup, mergeGroups, systemUnits, unitStruct, unitStrength, unitHyper, carriedOf, launchCarried, recoverCarried, orderCarried, groupHyper, groupDisabled, groupStay,
+ orderScuttle, orderRecover, recoverCheck, rearSeconds, SUPPLY, supplyAt, supplyLines, supplyNeeds, unitSupplyOf, alive, fighting, pdToward, effectiveOrder, groupOrder, tractorReach, tractorOk, registerDesignCraft, craftStores, squadStores, squadRelease, rearmSquad, squadArmed, squadSlots, craftDown,
+ craftFormation, defaultAir, troopRoom, defaultGround, makeRegiment, regimentTotals, airTotals, battleTick, sectorGal, sideBearing, sideStarts};
 })();

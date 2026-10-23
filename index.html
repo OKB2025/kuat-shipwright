@@ -699,6 +699,12 @@ body.shot-mode .main{display:flex!important;flex-direction:column}body.shot-mode
 /* v21.2 patrol traffic: civilians a small pale diamond (民間), hulks left by a fight a dashed grey square */
 .th-tmark.civ i{left:-8px;top:-8px;width:16px;height:16px;border-radius:2px;clip-path:none;transform:rotate(45deg);border-color:rgba(205,230,180,.8)}.th-tmark.civ b{color:#d9ebc8;font-weight:500;font-size:10px}.th-tmark.civ.hit i{border-color:rgba(255,205,90,.95)}.th-tmark.civ.hit b{color:#ffd77a}
 .th-tmark.hulk i{left:-10px;top:-10px;width:20px;height:20px;clip-path:none;border-style:dashed;border-color:rgba(160,170,180,.6)}.th-tmark.hulk b{color:#a9b3bb;font-weight:500;font-size:10px}
+/* v22 squadrons in the air: a small chevron each (tap to ride with it) */
+.th-tmark.sq i{left:-6px;top:-9px;width:10px;height:10px;border:0;border-right:2px solid rgba(120,215,255,.85);border-bottom:2px solid rgba(120,215,255,.85);border-radius:0;clip-path:none;transform:rotate(45deg);box-shadow:none}
+.th-tmark.sq.foe i{border-color:rgba(255,128,100,.9)}
+.th-tmark.sq b{left:11px;top:-5px;font-size:9px;font-weight:500;color:#a8e4ff}.th-tmark.sq.foe b{color:#ffb2a0}.th-tmark.sq.lf b{left:auto;right:11px}
+.th-tmark.sq s{display:none}
+.th-tmark.sq::after{content:"";position:absolute;left:-16px;top:-16px;width:32px;height:32px}
 @container ks (max-width:720px) or (max-height:480px) {.th-tmark b{font-size:9.5px}.th-tmark.ally b{font-size:9px}.th-tmark s{width:48px}}
 .th-mapbtn{color:#a9cbff}
 .th-card.th-map{width:min(430px,92cqw);min-width:0;max-height:min(78cqh,560px);overflow:auto;padding:10px;gap:8px}
@@ -726,6 +732,18 @@ body.shot-mode .main{display:flex!important;flex-direction:column}body.shot-mode
 .gs-sel,.gs-here{fill:none;display:none}.gs.sel .gs-sel{display:inline;stroke:#62d6ff;stroke-width:1.8;stroke-dasharray:3 2.5}.gs.here .gs-here{display:inline;stroke:#ffd391;stroke-width:1.8}
 .gs.sel .gs-n{fill:#c4f1ff;font-size:12px;font-weight:700}.gs.sel .gs-sub{fill:#8fe3ff}.gs.here .gs-n{fill:#ffe2b0;font-size:12px;font-weight:700}
 .gs-bt{fill:#f0a03a;stroke:#05070c;stroke-width:1}.gm[data-gm="trial"] .gs-bt{display:none}
+.gm-era-cw,.gm-th,.gm-thl,.gs-al,.gm-era-key{display:none}.gm[data-era="cw"] .gm-era-cw,.gm[data-era="cw"] .gs-al{display:inline}.gm[data-era="cw"] .gm-era-key{display:flex}
+.gm[data-era="cw"] .gm-th.e-cw,.gm[data-era="cw"] .gm-thl.e-cw,.gm:not([data-era="cw"]) .gm-th.e-gcw,.gm:not([data-era="cw"]) .gm-thl.e-gcw{display:inline}
+.gm-terr{fill-opacity:.24;stroke-opacity:.62;stroke-width:1;vector-effect:non-scaling-stroke;stroke-linejoin:round}.gm-terr.t-contested{fill-opacity:.3;stroke-dasharray:3 2}.gm-terr.t-hutt{fill-opacity:.2}
+.gs-al{fill:none;stroke-width:1.6}
+.gm[data-era="cw"] .gs-bt.e-gcw,.gm:not([data-era="cw"]) .gs-bt.e-cw{opacity:.32}
+.gm-th{fill:rgba(98,214,255,.035);stroke:rgba(140,220,255,.55);stroke-width:1;stroke-dasharray:5 4;vector-effect:non-scaling-stroke}
+.gm-thl text{fill:#9fe2ff;font:700 10px var(--font-ui);paint-order:stroke;stroke:#05070c;stroke-width:3px;stroke-linejoin:round}
+.gm-era-btn{position:absolute;right:6px;top:6px;min-height:28px;padding:0 10px 0 9px;border-radius:999px;border:1px solid var(--hud-line);background:rgba(8,13,17,.84);color:#ffd391;font:700 11px/1 var(--font-ui);touch-action:manipulation;cursor:pointer}.gm-era-btn::after{content:' ⇄';color:var(--hud-dim);font-weight:600}.gm-era-btn:hover{border-color:#62d6ff}.gm[data-era="cw"] .gm-era-btn{color:#9fc3ff}
+.gm-era-key{position:absolute;left:6px;top:6px;flex-wrap:wrap;align-items:center;gap:3px 8px;max-width:calc(100% - 130px);padding:4px 7px;border-radius:7px;background:rgba(5,8,17,.78);border:1px solid var(--hud-line);font:600 10px/1.3 var(--font-ui);color:var(--hud-dim);pointer-events:none}
+.gm-era-key b{color:var(--hud-fg);font-size:10px}.gm-era-key span{display:inline-flex;align-items:center;gap:3px}.gm-era-key i{display:inline-block;width:9px;height:9px;border-radius:2px;opacity:.8}
+.gm-card .gm-al{color:var(--hud-dim)}.gm-al-k{display:inline-block;padding:0 6px;border-radius:999px;border:1px solid var(--c,rgba(236,244,255,.3));color:var(--c,var(--hud-dim));font-weight:700;font-size:10.5px}
+.gm-card .gm-th-line{color:#9fe2ff}
 .gm-ctl{position:absolute;right:6px;bottom:6px;display:flex;flex-direction:column;gap:4px}
 .gm-ctl button{min-width:36px;min-height:32px;padding:0 6px;border-radius:8px;border:1px solid var(--hud-line);background:rgba(8,13,17,.84);color:var(--hud-fg);font:700 13px/1 var(--font-ui);touch-action:manipulation;cursor:pointer}.gm-ctl button:hover{border-color:#62d6ff}
 .gm-card{display:grid;gap:5px;padding:8px 10px;border:1px solid var(--hud-line);border-radius:8px;background:rgba(255,255,255,.035)}
@@ -811,6 +829,8 @@ body.shot-mode .main{display:flex!important;flex-direction:column}body.shot-mode
 .voy-sheet-body{display:grid;gap:10px}
 .vo-wing{display:grid;gap:5px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--panel-2)}.vo-wing h4{margin:0;font-size:12px;color:var(--cyan);letter-spacing:.06em}
 .vo-sq{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:flex-end}.vo-sq select{flex:1 1 200px;min-width:0}.vo-sq label{display:grid;gap:2px;font-size:10.5px;color:var(--muted)}
+/* v22 a squadron's stores (搭載) */
+.vo-sq-load{flex:1 1 100%;min-width:0;max-width:100%;display:grid;grid-template-columns:minmax(0,1fr);gap:4px}.vo-sq-load>label{display:grid;grid-template-columns:minmax(0,1fr);gap:2px;min-width:0}.vo-sq-load select{width:100%;max-width:100%;min-width:0}.vo-sq-load details{min-width:0}.vo-sq-load details summary{font-size:11px;color:var(--muted);cursor:pointer}.vo-sq-st{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:flex-end;margin:4px 0}.vo-sq-st>span{flex:1 1 100%;font-size:11px}.vo-sq-st select{flex:1 1 160px;min-width:0}.vo-sq-st input{width:4.5em}
 .vo-reg{border:1px solid var(--line);border-radius:10px;background:var(--panel-2);padding:6px 10px}.vo-reg summary{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;cursor:pointer}.vo-reg summary span{font-size:11.5px;color:var(--muted);flex:1 1 auto}
 .vo-bat{display:grid;gap:4px;margin:6px 0 2px}.vo-bat h5{margin:0;font-size:11.5px;color:var(--cyan)}
 .vo-co{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:flex-end;font-size:11.5px;padding:4px 0;border-top:1px dashed var(--line)}.vo-co>span{flex:1 1 150px}.vo-co label{display:grid;gap:2px;font-size:10px;color:var(--muted)}.vo-veh{display:flex;flex-wrap:wrap;gap:4px 8px}.vo-veh input{width:3.8em}
@@ -1295,7 +1315,7 @@ body.tut-on .inspect{bottom:calc(70px + var(--sa-bottom,0px))}
 </div>
 
 
-<script>window.KS_FILES={data:["data/reference.js","data/textures.js","data/imperial2.js","data/fleet.js"],core:"js/core.js",gfx:"js/gfx.js",engine:"js/engine.js",app:"js/app.js",worker:"js/worker.js",sizes:{"data/reference.js":6270785,"data/textures.js":2338303,"data/imperial2.js":83602,"data/fleet.js":1031918,"js/core.js":1506405,"js/gfx.js":190594,"js/engine.js":15892,"js/app.js":1000715}};</script>
+<script>window.KS_FILES={data:["data/reference.js","data/textures.js","data/imperial2.js","data/fleet.js"],core:"js/core.js",gfx:"js/gfx.js",engine:"js/engine.js",app:"js/app.js",worker:"js/worker.js",sizes:{"data/reference.js":6270785,"data/textures.js":2338303,"data/imperial2.js":83602,"data/fleet.js":1032326,"js/core.js":1563662,"js/gfx.js":192190,"js/engine.js":15892,"js/app.js":1081003}};</script>
 <script>
 /* ============================================================
    boot.js — title screen first, then the 3D assets, the engine
