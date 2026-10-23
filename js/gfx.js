@@ -757,7 +757,7 @@ precision highp float;
 #else
 precision mediump float;
 #endif
-uniform mat4 uInv;uniform vec3 uEye;uniform vec3 uPC;uniform float uR;uniform vec3 uSun;uniform float uPix;uniform float uKind;uniform vec3 uAxis;uniform vec2 uRing;varying vec2 vP;
+uniform mat4 uInv;uniform vec3 uEye;uniform vec3 uPC;uniform float uR;uniform vec3 uSun;uniform float uPix;uniform float uKind;uniform vec3 uAxis;uniform vec2 uRing;uniform vec4 uLook;varying vec2 vP;
 float h3(vec3 p){p=fract(p*0.1031);p+=dot(p,p.yzx+33.33);return fract((p.x+p.y)*p.z);}
 float vn(vec3 x){vec3 i=floor(x),f=fract(x);f=f*f*(3.0-2.0*f);
  return mix(mix(mix(h3(i),h3(i+vec3(1,0,0)),f.x),mix(h3(i+vec3(0,1,0)),h3(i+vec3(1,1,0)),f.x),f.y),mix(mix(h3(i+vec3(0,0,1)),h3(i+vec3(1,0,1)),f.x),mix(h3(i+vec3(0,1,1)),h3(i+vec3(1,1,1)),f.x),f.y),f.z);}
@@ -787,7 +787,7 @@ vec3 coruscant(vec3 n,float view,float foot,float sun,float day,float night){
  return dayc*(0.05+1.05*max(0.0,sun))*day+lightc*night*0.95+lightc*0.08*day;}
 // Kuat: oceans, green and ochre continents, ice caps and cloud bands; the
 // shipyard cities light the coasts at night.
-vec3 kuat(vec3 n,float view,float foot,float sun,float day,float night,vec3 rd,vec3 sd,float wet){
+vec3 kuat(vec3 n,float view,float foot,float sun,float day,float night,vec3 rd,vec3 sd,float wet,float cityK){
  float lat=abs(dot(n,uAxis)),cont=fbm(n*2.6+vec3(1.7)+sd)+0.32*fbm(n*8.0+vec3(4.0)+sd),land=smoothstep(0.5+wet,0.53+wet,cont),coast=smoothstep(0.47+wet,0.5+wet,cont)*(1.0-land);
  float ice=smoothstep(0.80,0.88,lat+0.06*fbm(n*11.0));
  vec3 ocean=mix(vec3(0.015,0.05,0.13),vec3(0.03,0.11,0.22),fbm(n*18.0)+coast*0.6);
@@ -797,7 +797,7 @@ vec3 kuat(vec3 n,float view,float foot,float sun,float day,float night,vec3 rd,v
  vec3 refl=reflect(rd,n);float spec=pow(max(0.0,dot(refl,uSun)),40.0)*(1.0-land)*(1.0-cl)*0.8;
  vec3 dayc=mix(g,vec3(0.92,0.94,0.97),cl*0.85)*(0.04+1.1*max(0.0,sun))+vec3(1.0,0.95,0.85)*spec*day;
  float city=(land+coast*1.5)*(1.0-ice)*smoothstep(0.55,0.9,vn(n*140.0))*mix(0.35,1.0,smoothstep(0.6,0.9,vn(n*420.0)))*(1.0-cl*0.7);
- return dayc*day+vec3(1.0,0.72,0.42)*city*night*0.9;}
+ return dayc*day+vec3(1.0,0.72,0.42)*city*night*0.9*cityK;}
 // A gas giant: cloud bands by latitude, sheared into eddies, with pale storms.
 vec3 gasGiant(vec3 n,float sun){
  float lat=dot(n,uAxis),warp=fbm(n*3.0+vec3(2.0))-0.5;
@@ -811,17 +811,63 @@ vec3 iceWorld(vec3 n,float sun,float day,vec3 rd){
  float f=fbm(n*5.0+vec3(3.0)),cr=1.0-smoothstep(0.0,0.03,abs(fbm(n*14.0+vec3(2.0))-0.5));
  vec3 g=mix(vec3(0.70,0.78,0.86),vec3(0.93,0.96,1.0),smoothstep(0.35,0.7,f));g=mix(g,vec3(0.34,0.46,0.6),cr*0.65);
  float cl=smoothstep(0.62,0.86,fbm(n*7.0+vec3(5.0,1.0,2.0)));g=mix(g,vec3(0.97),cl*0.55);
- vec3 refl=reflect(rd,n);float spec=pow(max(0.0,dot(refl,uSun)),30.0)*0.3*(1.0-cl);
- return g*(0.03+1.0*max(0.0,sun))+vec3(1.0)*spec*day;}
+ vec3 refl=reflect(rd,n);float spec=pow(max(0.0,dot(refl,uSun)),30.0)*(0.3+0.5*uLook.y)*(1.0-cl);
+ g=mix(g,g*vec3(0.78,0.95,1.18)+vec3(0.0,0.03,0.06),uLook.y);
+ float city=uLook.z*smoothstep(0.6,0.9,vn(n*150.0))*mix(0.3,1.0,smoothstep(0.6,0.9,vn(n*430.0)))*(1.0-cl*0.6);
+ return g*(0.03+1.0*max(0.0,sun))+vec3(1.0)*spec*day+vec3(0.75,0.85,1.0)*city*(1.0-day)*0.8;}
 // A barren world: dust plains, dark basalt and the rims of craters.
 vec3 barren(vec3 n,float sun){
  float f=fbm(n*4.0+vec3(7.0)),m=fbm(n*11.0+vec3(1.0,9.0,3.0));
  vec3 g=mix(vec3(0.40,0.28,0.19),vec3(0.70,0.55,0.38),smoothstep(0.3,0.75,f));g=mix(g,vec3(0.20,0.17,0.15),smoothstep(0.6,0.74,m));
  vec3 q=n*16.0,fr=fract(q)-0.5;float h=h3(floor(q)),r=length(fr)*2.0,ring=step(0.62,h)*smoothstep(0.5,0.68,r)*(1.0-smoothstep(0.68,0.86,r));g*=1.0+0.4*ring-0.25*step(0.62,h)*(1.0-smoothstep(0.0,0.5,r));
+ float gy=dot(g,vec3(0.33));g=uLook.y<0.5?g:uLook.y<1.5?vec3(gy)*vec3(0.95,0.97,1.02):uLook.y<2.5?vec3(gy)*vec3(0.5,0.5,0.56):g*vec3(1.25,0.62,0.55);
  return g*(0.03+1.05*max(0.0,sun));}
+// v22 A desert: dune fields and mesas (palette in uLook.y: tan, pale, red, white salt over red soil).
+vec3 desert(vec3 n,float sun,float day){
+ vec3 sd=vec3(uLook.x*1.7,uLook.x*2.3,uLook.x*0.9);float p=uLook.y;
+ float f=fbm(n*3.5+sd),d2=fbm(n*16.0+sd*2.0),dune=0.5+0.5*sin(dot(n,vec3(37.0,11.0,23.0))+d2*9.0);
+ vec3 a=p<0.5?vec3(0.80,0.64,0.42):p<1.5?vec3(0.72,0.68,0.60):p<2.5?vec3(0.74,0.42,0.25):vec3(0.94,0.94,0.96);
+ vec3 b=p<0.5?vec3(0.56,0.41,0.25):p<1.5?vec3(0.48,0.45,0.40):p<2.5?vec3(0.46,0.22,0.14):vec3(0.66,0.20,0.14);
+ vec3 g=mix(b,a,p>2.5?smoothstep(0.27,0.34,f):smoothstep(0.3,0.7,f));g*=0.88+0.12*dune;
+ float mesa=smoothstep(0.62,0.7,fbm(n*7.0+sd+vec3(3.0)));g=mix(g,b*0.72,mesa*0.6);
+ float cl=smoothstep(0.72,0.9,fbm(n*6.0+vec3(1.0,4.0,2.0)+sd))*uLook.z;g=mix(g,vec3(0.95),cl);
+ return g*(0.03+1.05*max(0.0,sun));}
+// v22 An ocean world: open sea with shallow shelves, islands (uLook.y) and storm cloud (uLook.z).
+vec3 oceanWorld(vec3 n,float sun,float day,vec3 rd){
+ vec3 sd=vec3(uLook.x*1.3,uLook.x*0.7,uLook.x*2.1);
+ float cont=fbm(n*3.0+sd)+0.35*fbm(n*11.0+sd),th=0.8-0.28*uLook.y,land=smoothstep(th,th+0.02,cont),shelf=smoothstep(th-0.08,th,cont)*(1.0-land);
+ vec3 sea=mix(vec3(0.01,0.05,0.14),vec3(0.03,0.13,0.26),fbm(n*14.0+sd));sea=mix(sea,vec3(0.10,0.42,0.48),shelf*0.8);
+ vec3 g=mix(sea,mix(vec3(0.16,0.30,0.10),vec3(0.70,0.66,0.50),smoothstep(0.0,0.02,th+0.02-cont)),land);
+ float cl=smoothstep(0.6-0.22*uLook.z,0.82-0.2*uLook.z,fbm(n*5.0+vec3(2.0,0.0,5.0)+sd)+0.25*fbm(n*19.0));
+ vec3 refl=reflect(rd,n);float spec=pow(max(0.0,dot(refl,uSun)),50.0)*(1.0-land)*(1.0-cl)*0.9;
+ return mix(g,vec3(0.90,0.92,0.95),cl*0.9)*(0.04+1.1*max(0.0,sun))+vec3(1.0,0.95,0.85)*spec*day;}
+// v22 Forest, jungle, swamp or a dark world (uLook.y), with lakes and cloud (uLook.z).
+vec3 forest(vec3 n,float sun,float day,vec3 rd){
+ vec3 sd=vec3(uLook.x*1.1,uLook.x*2.7,uLook.x*1.9);float v=uLook.y;
+ float f=fbm(n*4.0+sd),m=fbm(n*13.0+sd*1.3),cont=fbm(n*2.2+sd)+0.3*fbm(n*7.0+sd);
+ vec3 c1=v<0.5?vec3(0.05,0.17,0.06):v<1.5?vec3(0.09,0.24,0.05):v<2.5?vec3(0.11,0.14,0.07):vec3(0.04,0.05,0.10);
+ vec3 c2=v<0.5?vec3(0.17,0.28,0.11):v<1.5?vec3(0.30,0.40,0.10):v<2.5?vec3(0.24,0.23,0.12):vec3(0.10,0.10,0.18);
+ vec3 g=mix(c1,c2,smoothstep(0.35,0.75,f));
+ if(v>0.5&&v<1.5)g=mix(g,vec3(0.45,0.26,0.34),smoothstep(0.7,0.8,m)*0.45);
+ float water=1.0-smoothstep(0.3,0.33,cont);vec3 wc=v>1.5&&v<2.5?vec3(0.06,0.08,0.05):vec3(0.02,0.07,0.14);g=mix(g,wc,water);
+ float swamp=v>1.5&&v<2.5?1.0:0.0;
+ float cl=smoothstep(0.58-0.16*swamp-0.12*uLook.z,0.82,fbm(n*6.0+vec3(0.0,3.0,1.0)+sd)+0.2*fbm(n*20.0));
+ vec3 refl=reflect(rd,n);float spec=pow(max(0.0,dot(refl,uSun)),40.0)*water*(1.0-cl)*0.6;
+ vec3 cloud=swamp>0.5?vec3(0.68,0.72,0.64):vec3(0.92,0.94,0.96);
+ vec3 dayc=mix(g,cloud,cl*0.85)*(0.04+1.1*max(0.0,sun))+vec3(1.0,0.95,0.85)*spec*day;
+ float glow=v>2.5?smoothstep(0.62,0.9,vn(n*300.0))*(1.0-cl):0.0;
+ return dayc*day+vec3(0.25,0.55,0.95)*glow*(1.0-day)*0.6;}
+// v22 A volcanic world: dark crust and ash, rivers of lava glowing by day and night (uLook.y: how much).
+vec3 lava(vec3 n,float sun,float day){
+ vec3 sd=vec3(uLook.x*1.9,uLook.x*1.1,uLook.x*2.3);
+ float f=fbm(n*5.0+sd),r=abs(fbm(n*9.0+sd*1.5)-0.5),w=0.03+0.03*uLook.y,flow=(1.0-smoothstep(0.0,w,r))*smoothstep(0.35,0.55,f);
+ vec3 rock=mix(vec3(0.07,0.06,0.06),vec3(0.20,0.17,0.15),fbm(n*14.0+sd));
+ float ash=smoothstep(0.7,0.88,fbm(n*6.0+vec3(4.0,1.0,2.0)+sd));vec3 g=mix(rock,vec3(0.35,0.32,0.30),ash*0.6);
+ vec3 hot=mix(vec3(1.0,0.22,0.03),vec3(1.0,0.72,0.2),1.0-smoothstep(0.0,w*0.5,r))*flow;
+ return g*(0.03+1.0*max(0.0,sun))+hot*(0.55+0.45*(1.0-day));}
 // The colour of each kind of world's air, and how much of it there is.
-vec3 airCol(){return uKind<0.5?vec3(0.30,0.52,1.0):uKind<2.5?vec3(0.35,0.62,1.0):uKind<3.5?vec3(0.86,0.66,0.42):uKind<4.5?vec3(0.62,0.80,1.0):vec3(0.82,0.52,0.30);}
-float airK(){return uKind>4.5?0.35:uKind>3.5?0.75:1.0;}
+vec3 airCol(){return uKind<0.5?vec3(0.30,0.52,1.0):uKind<2.5?vec3(0.35,0.62,1.0):uKind<3.5?vec3(0.86,0.66,0.42):uKind<4.5?vec3(0.62,0.80,1.0):uKind<5.5?vec3(0.82,0.52,0.30):uKind<6.5?vec3(0.88,0.72,0.52):uKind<7.5?vec3(0.34,0.60,1.0):uKind<8.5?(uLook.y>1.5&&uLook.y<2.5?vec3(0.55,0.68,0.52):vec3(0.40,0.66,0.98)):vec3(0.95,0.45,0.22);}
+float airK(){return uKind>8.5?0.55:uKind>7.5?1.0:uKind>6.5?1.0:uKind>5.5?0.65:uKind>4.5?0.35:uKind>3.5?0.75:1.0;}
 // The orbital shipyard ring lies in the equatorial plane: three tracks of
 // docks and trusswork, ribbed by segment joints, lit by the sun and by dock lights.
 vec4 ring(vec3 rp,float dist){
@@ -850,7 +896,29 @@ void main(){
   vec3 n=normalize(o+rd*tp);float dist=tp*uR,view=clamp(-dot(rd,n),0.0,1.0);
   float foot=dist*uPix/max(0.12,view);
   float sun=dot(n,uSun),day=smoothstep(-0.08,0.18,sun),night=1.0-smoothstep(-0.12,0.06,sun);
-  vec3 col=uKind<0.5?coruscant(n,view,foot,sun,day,night):uKind<1.5?kuat(n,view,foot,sun,day,night,rd,vec3(0.0),0.0):uKind<2.5?kuat(n,view,foot,sun,day,night,rd,vec3(5.3,2.1,7.7),0.03):uKind<3.5?gasGiant(n,sun):uKind<4.5?iceWorld(n,sun,day,rd):barren(n,sun);
+  bool own=uLook.w>0.5;
+  // v22 one program per kind of world (PK), so a pixel only ever runs its own world's noise
+#if PK==0
+  vec3 col=coruscant(n,view,foot,sun,day,night);
+#elif PK==1
+  vec3 col=kuat(n,view,foot,sun,day,night,rd,vec3(0.0),0.0,1.0);
+#elif PK==2
+  vec3 col=kuat(n,view,foot,sun,day,night,rd,own?vec3(1.0+uLook.x*5.3,3.0+uLook.x*2.1,2.0+uLook.x*7.7):vec3(5.3,2.1,7.7),own?uLook.y:0.03,own?uLook.z:1.0);
+#elif PK==3
+  vec3 col=gasGiant(n,sun);
+#elif PK==4
+  vec3 col=iceWorld(n,sun,day,rd);
+#elif PK==6
+  vec3 col=desert(n,sun,day);
+#elif PK==7
+  vec3 col=oceanWorld(n,sun,day,rd);
+#elif PK==8
+  vec3 col=forest(n,sun,day,rd);
+#elif PK==9
+  vec3 col=lava(n,sun,day);
+#else
+  vec3 col=barren(n,sun);
+#endif
   float haze=pow(1.0-view,3.0);
   vec3 air=mix(vec3(0.05,0.07,0.13),airCol()*0.95,day);col=mix(col,air,haze*0.75*airK());
   col=1.0-exp(-col*1.25);
@@ -1016,7 +1084,7 @@ class Renderer {
     this.disposed=true;const gl=this.gl;if(!gl||gl.isContextLost())return;
     const sets=[this.meshes,this.lines,this.points,...Array.from(this.fleetCache?.values()||[],a=>a.meshes)];
     for(const set of sets)for(const item of Object.values(set||{}))for(const k of ['pos','nor','uv','col','idx','size'])if(item[k])gl.deleteBuffer(item[k]);
-    for(const p of [this.pm,this.pl,this.pp,this.pb,this.pray,this.pplanet,this.phyper,this.psky,this.pskyt,this.pstar])if(p?.p)gl.deleteProgram(p.p);
+    for(const p of [this.pm,this.pl,this.pp,this.pb,this.pray,...Object.values(this.pplanets||{}),this.phyper,this.psky,this.pskyt,this.pstar])if(p?.p)gl.deleteProgram(p.p);
     for(const t of this.ownedTextures||[])gl.deleteTexture(t);if(this.bgBuf)gl.deleteBuffer(this.bgBuf);
     if(this.sky)for(const k of ['dir','cor','col','idx'])gl.deleteBuffer(this.sky[k]);
     if(this.sh){gl.deleteFramebuffer(this.sh.fb);gl.deleteRenderbuffer(this.sh.rb);if(this.sh.prog?.p)gl.deleteProgram(this.sh.prog.p);}
@@ -1328,14 +1396,16 @@ class Renderer {
   }
   drawPlanet(m, planet) {
     const gl = this.gl;
-    if (this.pplanet === undefined) { try { this.pplanet = compile(gl, VS_BG, FS_PLANET); } catch (e) { console.error(e); this.pplanet = null; } }
-    const p = this.pplanet; if (!p) return;
+    // v22 a program per kind of world, compiled the first time that kind is drawn
+    const pk = Math.max(0, Math.min(9, Math.round(planet.kind || 0)));this.pplanets = this.pplanets || {};
+    if (this.pplanets[pk] === undefined) { try { this.pplanets[pk] = compile(gl, VS_BG, '#define PK ' + pk + '\n' + FS_PLANET); } catch (e) { console.error(e); this.pplanets[pk] = null; } }
+    const p = this.pplanets[pk]; if (!p) return;
     const inv = M4.inv(m.VP); if (!inv) return;
     gl.disable(gl.DEPTH_TEST); gl.depthMask(false); gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
     gl.useProgram(p.p);
     gl.uniformMatrix4fv(p.u.uInv, false, inv); gl.uniform3fv(p.u.uEye, m.eye); gl.uniform3fv(p.u.uPC, planet.center); gl.uniform1f(p.u.uR, planet.radius);
     gl.uniform3fv(p.u.uSun, planet.sun); gl.uniform1f(p.u.uPix, 2 * Math.tan(this.cam.fov / 2) / Math.max(1, this.canvas.height));
-    gl.uniform1f(p.u.uKind, planet.kind || 0); gl.uniform3fv(p.u.uAxis, planet.axis || [0, 1, 0]); gl.uniform2fv(p.u.uRing, planet.ring || [0, 0]);
+    gl.uniform1f(p.u.uKind, planet.kind || 0); gl.uniform3fv(p.u.uAxis, planet.axis || [0, 1, 0]); gl.uniform2fv(p.u.uRing, planet.ring || [0, 0]); if (p.u.uLook) gl.uniform4fv(p.u.uLook, planet.look || [0, 0, 0, 0]);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.bgBuf); gl.enableVertexAttribArray(p.a.aP); gl.vertexAttribPointer(p.a.aP, 2, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.TRIANGLES, 0, 3); gl.disableVertexAttribArray(p.a.aP);
   }

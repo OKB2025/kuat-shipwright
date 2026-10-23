@@ -1223,6 +1223,10 @@ function baseComputeStats(ship) {
   for(const f of intrinsicCommandFits(ship)){const d=FITS[f.k];if(d.role!=='bridge'&&d.role!=='combat')continue;const effective=commandInfo[f.id]?.ratio||0;if(effective<=0)continue;bridges++;bPower+=d.power*effective;const vw=bridgeView(ship,f,hf,obst)*effective;fitInfo[f.id]=vw;viewSum+=vw;sensor+=d.sensor*(0.5+0.5*vw)*effective;aaCh+=AA_CHANNELS.w[d.role==='combat'?'combat':'bridge']*d.sensor*effective*AA_CHANNELS.k;}
   for(const p of ship.parts)if((p.k==='cockpit'||p.k==='droidbrain')&&!invalid.has(p.id)){const ratio=clamp(partVolume(p)/Math.max(1e-9,unclippedPartVolume(p)),0,1);if(ratio<=0)continue;const ck=p.k==='cockpit';bridges++;sensor+=(ck?.75:.55)*ratio;viewSum+=(ck?.85:.5)*ratio;bPower+=partVolume(p)*2e15;aaCh+=AA_CHANNELS.w.cockpit*ratio*AA_CHANNELS.k;}
   for(const p of ship.parts)if(p.k==='command'&&!invalid.has(p.id)){const ratio=clamp(partVolume(p)/Math.max(1,unclippedPartVolume(p)),0,1);if(ratio<=0)continue;bridges++;sensor+=.7*ratio;viewSum+=.7*ratio;bPower+=4e20*ratio;aaCh+=AA_CHANNELS.w.combat*.7*ratio*AA_CHANNELS.k;}
+  // v21.2 Target-tracking domes and sensor arrays (the ISD's globes over its bridge) work like a modern warship's
+  // fire-control radar: each one lets the ship engage more targets at once, by its size against the ISD's globe
+  // (a communications antenna alone does not count).
+  for(const p of ship.parts)if(p.k==='sensor'&&!invalid.has(p.id)){const lb=p.label||'';if(/通信/.test(lb)&&!/センサー|標的|追跡|走査|索敵/.test(lb))continue;const V=partVolume(p);if(!(V>0))continue;aaCh+=AA_CHANNELS.pod*clamp(Math.cbrt(V/AA_CHANNELS.podRef),.3,2);}
   // armour
   // The exposed skin is also binned along the length and by facing (bow, stern,
   // starboard, port, dorsal, ventral) with the plate thickness over it: the
@@ -7681,7 +7685,7 @@ const CRIT_MODULES=new Set(['reactor','shield','hyper','fuel','battery']);
 // v21.2 Anti-craft fire control: how many targets (a flight of four craft, or a salvo of eight missiles, is one)
 // a ship's point defence and guns can engage at once, from its command posts — combat information centres count
 // most, bridges less, a fighter's cockpit one — by their sensor rating.
-const AA_CHANNELS={base:1,k:2,w:{combat:3,bridge:1.5,cockpit:.5},flight:4,salvo:8};
+const AA_CHANNELS={base:1,k:2,w:{combat:3,bridge:1.5,cockpit:.5},flight:4,salvo:8,pod:4,podRef:66000};
 const AIM_KINDS={auto:'自動（艦全体）',reactor:'反応炉',bridge:'艦橋',weapon:'砲塔',engine:'推進機関',shield:'シールド発生器'};
 const MAGAZINE_MISSILES=120,FLEET_MIN_CREW=.35,QUARTERS_WEIGHT=.15;
 function fleetModules(ship,S){
@@ -9116,6 +9120,239 @@ return {swFree,swAxis,MGLT,engineDepthRatio,sublightMGLT,AA_CHANNELS,ION_BOLT,io
 if (typeof module !== 'undefined') module.exports = Core;
 
 /* ============================================================
+   galaxy — v22 the shared map of the galaxy: the major star systems, the
+   regions and the five major trade routes, read by the patrol (the flight
+   and its star map) and by the fleet battle (each battle area is a 500-ly
+   square of this map), so that both are entered from one 任務マップ.
+   Positions are on the standard galactic grid: x across the columns C–U
+   (C spans 0–1, D 1–2 … U 18–19), y down the rows 1–21 (row 1 spans 0–1);
+   Coruscant at (9.01, 8.97) is in square L-9. They were read off a
+   reference galaxy map as data only (grid positions, regions, which route
+   passes where); the map is drawn here in the game's own style.
+   ============================================================ */
+const Galaxy = (() => {
+'use strict';
+const COLS = 'CDEFGHIJKLMNOPQRSTU', ROWS = 21;
+const grid = at => `${COLS[Math.max(0, Math.min(COLS.length - 1, Math.floor(at[0])))]}-${Math.max(1, Math.min(ROWS, Math.floor(at[1]) + 1))}`;
+const hash = s => { let h = 2166136261; for (const ch of String(s)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
+const dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+// Regions, from the galactic core outward, then the named spaces within them.
+const REGIONS = {
+ deep: {name: 'ディープ・コア', short: 'ディープ・コア', band: 0, traffic: .6, threat: .9},
+ core: {name: 'コア・ワールド', short: 'コア', band: 1, traffic: 1.3, threat: .55},
+ colonies: {name: 'コロニーズ', short: 'コロニーズ', band: 2, traffic: 1.15, threat: .7},
+ inner: {name: 'インナー・リム', short: 'インナー・リム', band: 3, traffic: 1, threat: .85},
+ expansion: {name: 'エクスパンション・リージョン', short: '拡張領域', band: 4, traffic: .9, threat: 1},
+ mid: {name: 'ミッド・リム', short: 'ミッド・リム', band: 5, traffic: .85, threat: 1.1},
+ outer: {name: 'アウター・リム', short: 'アウター・リム', band: 6, traffic: .7, threat: 1.3},
+ hutt: {name: 'ハット・スペース', short: 'ハット・スペース', band: 5, traffic: .8, threat: 1.45},
+ bothan: {name: 'ボサン・スペース', short: 'ボサン・スペース', band: 5, traffic: .9, threat: .9},
+ corporate: {name: 'コーポレート・セクター', short: '企業宙域', band: 6, traffic: 1.1, threat: .8},
+ unknown: {name: '未知領域', short: '未知領域', band: 7, traffic: .25, threat: 1.2},
+ wild: {name: 'ワイルド・スペース', short: 'ワイルド・スペース', band: 7, traffic: .35, threat: 1}
+};
+// The boundaries between the bands (deep|core, core|colonies, colonies|inner, inner|expansion,
+// expansion|mid, mid|outer, outer|beyond), as radii from the centre of the Deep Core every 10°
+// (0° toward +x, 90° toward +y).
+const BANDS = {c: [8.95, 10.35], r: [
+ [1.27, 1.28, 1.29, 1.29, 1.3, 1.29, 1.28, 1.27, 1.27, 1.26, 1.26, 1.26, 1.26, 1.25, 1.23, 1.2, 1.17, 1.15, 1.13, 1.13, 1.13, 1.14, 1.15, 1.16, 1.16, 1.15, 1.15, 1.15, 1.16, 1.18, 1.2, 1.22, 1.24, 1.25, 1.26, 1.26],
+ [2.12, 2.14, 2.15, 2.17, 2.18, 2.18, 2.18, 2.18, 2.17, 2.16, 2.15, 2.13, 2.11, 2.08, 2.06, 2.03, 2.01, 1.99, 1.98, 1.98, 1.98, 1.98, 1.99, 2.0, 2.0, 2.0, 2.0, 2.01, 2.01, 2.03, 2.04, 2.06, 2.07, 2.09, 2.1, 2.11],
+ [2.85, 2.86, 2.86, 2.86, 2.85, 2.85, 2.85, 2.85, 2.86, 2.86, 2.85, 2.83, 2.78, 2.72, 2.66, 2.61, 2.57, 2.55, 2.55, 2.57, 2.6, 2.63, 2.67, 2.69, 2.71, 2.72, 2.74, 2.75, 2.76, 2.77, 2.78, 2.79, 2.8, 2.81, 2.82, 2.84],
+ [3.61, 3.36, 3.28, 3.4, 3.63, 3.89, 4.08, 4.16, 4.14, 4.06, 3.99, 3.94, 3.91, 3.86, 3.76, 3.57, 3.33, 3.1, 2.94, 2.91, 3.0, 3.18, 3.35, 3.44, 3.42, 3.31, 3.19, 3.16, 3.29, 3.58, 3.96, 4.32, 4.54, 4.54, 4.33, 3.98],
+ [4.92, 5.1, 5.3, 5.43, 5.49, 5.49, 5.5, 5.53, 5.54, 5.47, 5.29, 5.01, 4.7, 4.41, 4.18, 3.99, 3.8, 3.6, 3.43, 3.37, 3.46, 3.69, 3.94, 4.08, 4.03, 3.82, 3.57, 3.47, 3.6, 3.95, 4.39, 4.74, 4.91, 4.91, 4.84, 4.82],
+ [8.3, 8.13, 8.1, 8.16, 8.06, 7.68, 6.85, 6.4, 6.63, 6.8, 6.96, 6.81, 6.29, 5.57, 4.89, 4.42, 4.13, 3.95, 3.85, 3.85, 3.99, 4.24, 4.52, 4.77, 4.97, 5.12, 5.19, 5.12, 4.92, 4.77, 4.91, 5.3, 6.1, 7.3, 7.9, 8.44],
+ [9.79, 9.86, 10.1, 10.51, 10.74, 10.4, 9.83, 9.79, 10.33, 10.55, 9.85, 8.64, 7.56, 7.2, 5.57, 4.5, 4.21, 4.02, 4.05, 3.94, 4.05, 4.35, 4.82, 5.02, 5.33, 6.39, 8.14, 9.59, 9.94, 9.54, 9.48, 10.7, 11.0, 10.86, 10.34, 9.9]]};
+// Named spaces drawn over the bands.
+const ZONES = [
+ {key: 'hutt', name: 'ハット・スペース', label: [16.85, 10.55], poly: [[16.63, 7.92], [16.92, 7.99], [16.95, 9.12], [17.42, 9.69], [17.83, 10.09], [17.87, 10.9], [17.95, 11.31], [17.59, 11.88], [17.18, 12.28], [16.94, 12.85], [16.69, 13.11], [16.37, 12.77], [15.88, 12.36], [15.48, 11.88], [15.32, 11.15], [15.4, 10.34], [15.64, 9.61], [15.97, 8.72], [16.41, 8.31]]},
+ {key: 'bothan', name: 'ボサン・スペース', label: [14.55, 13.55], ell: [15.22, 13.23, .3, .36]},
+ {key: 'corporate', name: 'コーポレート・セクター', label: [16.95, 2.45], ell: [16.17, 2.95, .49, .32]}];
+// Where the regions' names stand on the map.
+const REGION_LABELS = [['deep', 8.95, 10.45], ['core', 7.4, 9.95], ['colonies', 6.95, 9.35], ['inner', 6.3, 8.8], ['expansion', 5.9, 8.2], ['mid', 5.6, 7.55], ['outer', 10.1, 1.75], ['unknown', 2.9, 9.4]];
+// v (the planet the flight orbits): k kind (0 city · 1 Kuat · 2 temperate · 3 gas giant · 4 ice · 5 barren · 6 desert ·
+// 7 ocean · 8 forest/jungle/swamp · 9 volcanic), r radius (m), look [seed, a, b, 1] (per kind: temperate wet/city lights,
+// ice crystal/city, barren palette, desert palette/cloud, ocean land/storm, forest variant/cloud, volcanic lava), ring
+// (an orbital shipyard ring, planet radii), alt/fl arrival altitude and floor (m), sun. sk/pop: the system in a fleet battle.
+// tier: label priority on the map (1 shown first). lab: preferred label side.
+const SYS = [
+ {key: 'coruscant', name: 'コルサント', at: [9.01, 8.97], region: 'core', short: '銀河の首都', note: '銀河の首都。全球を覆う都市惑星', sk: 'capital', pop: 5, tier: 1, lab: 'l', v: {k: 0, r: 6.12e6, alt: 160000, fl: 40000, sun: [.787, .407, .463]}},
+ {key: 'chandrila', name: 'シャンドリラ', at: [9.545, 8.64], region: 'core', short: 'モン・モスマの故郷', note: 'なだらかな丘と海の惑星。モン・モスマの故郷で、のちに新共和国の首都が置かれた', sk: 'habitable', pop: 4, tier: 3, lab: 't', v: {k: 2, r: 6.0e6, look: [1.3, .05, .6, 1]}},
+ {key: 'brentaal', name: 'ブレンタル', at: [9.6, 8.6], region: 'core', short: '二大交易路の交点', note: 'ペルレミアン交易ルートとハイディアン・ウェイが交わる交易の要衝', sk: 'industrial', pop: 4, tier: 2, lab: 'r', v: {k: 2, r: 5.8e6, look: [2.1, -.03, 1.6, 1]}},
+ {key: 'alderaan', name: 'オルデラン', at: [10.32, 9.07], region: 'core', short: '平和の惑星', note: 'オーガナ家が治める山と草原の平和な惑星。のちにデス・スターの最初の標的となった', sk: 'habitable', pop: 4, tier: 1, lab: 'r', v: {k: 2, r: 6.2e6, look: [3.7, 0, .5, 1]}},
+ {key: 'kuat', name: 'クワット', at: [10.895, 9.58], region: 'core', short: 'KDY 造船所', note: 'クワット・ドライブ・ヤードの軌道造船リングが惑星を取り巻く造船星系', sk: 'shipyard', pop: 4, tier: 1, lab: 'r', v: {k: 1, r: 5.2e6, ring: [1.16, 1.25], alt: 180000, fl: 60000, sun: [-.384, .5, .776]}},
+ {key: 'corellia', name: 'コレリア', at: [10.575, 10.87], region: 'core', short: '交易と造船', note: '造船と交易で栄えるコア・ワールド。コレリアン・ランとコレリアン交易スパインの分岐点', sk: 'capital', pop: 5, tier: 1, lab: 'l', v: {k: 2, r: 6.1e6, alt: 170000, fl: 50000, sun: [.561, .5, -.66]}},
+ {key: 'duro', name: 'デュロ', at: [10.585, 10.95], region: 'core', short: '軌道都市', note: 'デュロス人の故郷。荒れた地表の上を軌道都市と造船所が巡る', sk: 'industrial', pop: 3, tier: 3, lab: 'r', v: {k: 5, r: 5.5e6, look: [4.2, 1, 0, 1]}},
+ {key: 'hosnianprime', name: 'ホズニアン・プライム', at: [10.38, 11.73], region: 'core', short: '都市化した惑星', note: '都市に覆われたコア・ワールド。のちに新共和国の首都となり、スターキラー基地に破壊された', sk: 'capital', pop: 5, tier: 2, lab: 'l', v: {k: 2, r: 6.3e6, look: [5.1, -.06, 2, 1]}},
+ {key: 'abregado', name: 'アブレガド', at: [8.97, 12.17], region: 'core', short: 'リマ交易ルートの起点', note: 'リマ交易ルートが始まるコア・ワールドの工業惑星', sk: 'industrial', pop: 3, tier: 3, lab: 'l', v: {k: 2, r: 5.0e6, look: [7.7, -.05, 1.2, 1]}},
+ {key: 'byss', name: 'ビス', at: [8.53, 10.8], region: 'deep', short: 'ディープ・コアの惑星', note: 'ディープ・コアの奥にある惑星。航路は危険で、帝国の秘密施設が置かれた', sk: 'outpost', pop: 2, tier: 3, lab: 'l', v: {k: 5, r: 4.8e6, look: [6.3, 2, 0, 1]}},
+ {key: 'catoneimoidia', name: 'カトー・ニモイディア', at: [11.18, 10.36], region: 'colonies', short: '通商連合の拠点', note: '通商連合の拠点。岩の橋に吊られた都市が霧の上に連なる', sk: 'industrial', pop: 4, tier: 2, lab: 'r', v: {k: 8, r: 5.6e6, look: [8.1, 0, .9, 1]}},
+ {key: 'quellor', name: 'クエラー', at: [11.405, 11.07], region: 'colonies', short: 'コロニーズの星系', note: 'コロニーズの星系。ハイディアン・ウェイの近くにある', sk: 'habitable', pop: 3, tier: 3, lab: 'r', v: {k: 2, r: 5.4e6, look: [9.3, .03, .7, 1]}},
+ {key: 'fondor', name: 'フォンドア', at: [9.29, 12.71], region: 'colonies', short: '造船所', note: 'フォンドア造船所の星系。軌道上に巨大な造船施設が並ぶ', sk: 'shipyard', pop: 4, tier: 2, lab: 'r', v: {k: 2, r: 5.7e6, ring: [1.13, 1.21], look: [10.1, -.07, 1.3, 1]}},
+ {key: 'thyferra', name: 'サイフェラ', at: [9.67, 13.45], region: 'inner', short: 'バクタの産地', note: 'バクタを産する熱帯の惑星。リマ交易ルート沿い', sk: 'habitable', pop: 3, tier: 3, lab: 'r', v: {k: 8, r: 5.9e6, look: [11.2, 1, .7, 1]}},
+ {key: 'yagdhul', name: 'ヤグドゥール', at: [9.85, 13.88], region: 'inner', short: '交易路の交点', note: 'リマ交易ルートとコレリアン交易スパインが交わる星系。ギヴィン人の故郷', sk: 'outpost', pop: 3, tier: 3, lab: 'r', v: {k: 7, r: 5.1e6, look: [12.9, .3, .4, 1]}},
+ {key: 'bilbringi', name: 'ビルブリンギ', at: [7.82, 7.36], region: 'inner', short: '造船所', note: 'インナー・リムの造船星系。小惑星帯に帝国の造船所が置かれた', sk: 'shipyard', pop: 3, tier: 3, lab: 'l', v: {k: 5, r: 4.5e6, look: [12.4, 0, 0, 1]}},
+ {key: 'jakku', name: 'ジャクー', at: [6.15, 12.08], region: 'inner', short: '砂漠の惑星', note: '辺鄙な砂漠の惑星。帝国最後の大会戦の残骸が砂に埋もれる', sk: 'outpost', pop: 1, tier: 1, lab: 'r', v: {k: 6, r: 6.2e6, look: [13.1, 0, .2, 1]}},
+ {key: 'onderon', name: 'オンデロン', at: [12.75, 8.83], region: 'inner', short: 'ジャングルの惑星', note: 'ジャングルに覆われたインナー・リムの惑星。城壁都市イジズがある', sk: 'habitable', pop: 3, tier: 3, lab: 'l', v: {k: 8, r: 5.8e6, look: [15.2, 1, .6, 1]}},
+ {key: 'denon', name: 'デノン', at: [11.28, 12.15], region: 'inner', short: '交易路の交点', note: 'ハイディアン・ウェイとコレリアン・ランが交わる都市惑星', sk: 'capital', pop: 5, tier: 2, lab: 'r', v: {k: 0, r: 6.0e6}},
+ {key: 'umbara', name: 'アンバラ', at: [13.11, 9.18], region: 'expansion', short: '影の惑星', note: '陽の差さない暗い惑星。発光する植物が森を照らす', sk: 'habitable', pop: 3, tier: 2, lab: 'r', v: {k: 8, r: 5.5e6, look: [16.4, 3, .9, 1]}},
+ {key: 'mimban', name: 'ミンバン', at: [12.75, 11.01], region: 'expansion', short: '泥の惑星', note: '雲と泥に覆われた湿地の惑星。帝国軍が鉱物を求めて戦った', sk: 'mining', pop: 2, tier: 3, lab: 'r', v: {k: 8, r: 5.2e6, look: [17.2, 2, 1, 1]}},
+ {key: 'pasaana', name: 'パサーナ', at: [12.89, 12.13], region: 'expansion', short: '砂漠の惑星', note: '拡張領域の砂漠の惑星。アキ＝アキ人の祭りで知られる', sk: 'outpost', pop: 2, tier: 3, lab: 'r', v: {k: 6, r: 5.6e6, look: [18.6, 0, .1, 1]}},
+ {key: 'kashyyyk', name: 'キャッシーク', at: [13.75, 8.9], region: 'mid', short: 'ウーキーの故郷', note: '巨木の森に覆われたウーキーの故郷', sk: 'habitable', pop: 3, tier: 1, lab: 'r', v: {k: 8, r: 6.3e6, look: [19.2, 0, .6, 1]}},
+ {key: 'naboo', name: 'ナブー', at: [12.355, 16.08], region: 'mid', short: '美しい惑星', note: '湖と草原と海の美しい惑星。水中都市にグンガンが住む', sk: 'habitable', pop: 3, tier: 1, lab: 'r', v: {k: 2, r: 6.0e6, look: [20.3, .02, .3, 1]}},
+ {key: 'malastare', name: 'マラステア', at: [11.08, 15.86], region: 'mid', short: 'ポッドレース', note: 'ハイディアン・ウェイ沿いの惑星。ポッドレースで知られる', sk: 'habitable', pop: 3, tier: 2, lab: 'r', v: {k: 2, r: 6.5e6, look: [21.4, -.06, .5, 1]}},
+ {key: 'mandalore', name: 'マンダロア', at: [12.65, 6.26], region: 'outer', short: 'マンダロリアンの故郷', note: 'マンダロリアンの故郷。荒れた砂漠にドーム都市が建つ', sk: 'capital', pop: 3, tier: 1, lab: 'r', v: {k: 6, r: 5.9e6, look: [22.5, 1, .1, 1]}},
+ {key: 'ordmantell', name: 'オード・マンテル', at: [9.05, 6.42], region: 'mid', short: '密輸の拠点', note: 'ミッド・リムの交易と密輸の拠点', sk: 'habitable', pop: 3, tier: 2, lab: 'r', v: {k: 2, r: 5.6e6, look: [23.6, .06, .6, 1]}},
+ {key: 'dathomir', name: 'ダソミア', at: [12.16, 5.36], region: 'outer', short: 'ナイトシスターの惑星', note: '赤い霧と岩の惑星。ナイトシスターが住む', sk: 'outpost', pop: 1, tier: 2, lab: 'l', v: {k: 5, r: 5.3e6, look: [24.7, 3, 0, 1]}},
+ {key: 'bothawui', name: 'ボサウイ', at: [15.26, 13.35], region: 'bothan', short: 'ボサン人の故郷', note: 'ボサン・スペースの中心。ボサン人の情報網の拠点', sk: 'habitable', pop: 4, tier: 2, lab: 'r', v: {k: 2, r: 5.9e6, look: [25.8, .01, .7, 1]}},
+ {key: 'takodana', name: 'タコダナ', at: [7.14, 15.31], region: 'mid', short: '森と湖の惑星', note: '森と湖の惑星。マズ・カナタの城がある', sk: 'habitable', pop: 2, tier: 2, lab: 'l', v: {k: 8, r: 5.4e6, look: [26.9, 0, .4, 1]}},
+ {key: 'kijimi', name: 'キジミ', at: [15.32, 7.32], region: 'mid', short: '雪山の惑星', note: '雪に覆われた山岳の惑星。盗賊の街がある', sk: 'outpost', pop: 2, tier: 3, lab: 'b', v: {k: 4, r: 5.0e6, look: [27.1, 0, .4, 1]}},
+ {key: 'anaxes', name: 'アナクセス', at: [15.45, 6.235], region: 'outer', short: '共和国の造船所', note: 'ペルレミアン交易ルート沿いの星系。共和国の造船所と艦隊拠点がある', sk: 'shipyard', pop: 4, tier: 2, lab: 'l', v: {k: 2, r: 6.1e6, ring: [1.13, 1.2], look: [28.2, -.02, 1, 1]}},
+ {key: 'tatooine', name: 'タトゥイーン', at: [15.37, 15.75], region: 'outer', short: '砂漠の惑星', note: '二つの太陽が照らす砂漠の惑星。ハットの縄張り', sk: 'outpost', pop: 2, tier: 1, lab: 't', v: {k: 6, r: 5.2e6, look: [29.3, 0, 0, 1]}},
+ {key: 'geonosis', name: 'ジオノーシス', at: [15.45, 15.81], region: 'outer', short: '岩石の惑星', note: 'アウター・リムの赤い岩石惑星。荒野にドロイド工場が並ぶ', sk: 'industrial', pop: 3, tier: 2, lab: 'r', v: {k: 5, r: 5.3e6, alt: 160000, fl: 45000, sun: [-.279, .53, .801]}},
+ {key: 'ryloth', name: 'ライロス', at: [15.74, 16.63], region: 'outer', short: 'トワイレックの故郷', note: 'トワイレックの故郷。岩の砂漠と峡谷の惑星', sk: 'habitable', pop: 3, tier: 1, lab: 'r', v: {k: 6, r: 5.4e6, look: [30.4, 2, .1, 1]}},
+ {key: 'rodia', name: 'ロディア', at: [15.09, 15.67], region: 'outer', short: 'ロディアンの故郷', note: 'ロディアンの故郷。湿った熱帯の惑星', sk: 'habitable', pop: 3, tier: 3, lab: 't', v: {k: 8, r: 5.5e6, look: [31.5, 1, .7, 1]}},
+ {key: 'christophsis', name: 'クリストフシス', at: [14.82, 15.82], region: 'outer', short: '結晶の惑星', note: '結晶が林立する惑星。コレリアン・ラン沿い', sk: 'habitable', pop: 3, tier: 2, lab: 'l', v: {k: 4, r: 5.8e6, look: [32.6, 1, .3, 1]}},
+ {key: 'kessel', name: 'ケッセル', at: [17.45, 9.1], region: 'outer', short: 'スパイス鉱山', note: 'スパイスの鉱山がある荒れた惑星', sk: 'mining', pop: 2, tier: 1, lab: 'r', v: {k: 5, r: 3.8e6, look: [33.7, 1, 0, 1]}},
+ {key: 'teth', name: 'テス', at: [18.17, 11.11], region: 'outer', short: 'ジャングルの惑星', note: 'ジャングルの台地に古い修道院が建つ惑星', sk: 'outpost', pop: 1, tier: 3, lab: 'r', v: {k: 8, r: 5.1e6, look: [34.8, 1, .5, 1]}},
+ {key: 'nalhutta', name: 'ナル・ハッタ', at: [16.13, 11.06], region: 'hutt', short: 'ハットの本拠', note: 'ハット族の本拠。汚れた沼地の惑星', sk: 'capital', pop: 4, tier: 1, lab: 'r', v: {k: 8, r: 6.4e6, look: [35.9, 2, .7, 1]}},
+ {key: 'toydaria', name: 'トイダリア', at: [15.73, 10.72], region: 'hutt', short: '沼地の惑星', note: 'トイダリア人の故郷。沼地と泥の惑星', sk: 'habitable', pop: 3, tier: 3, lab: 'l', v: {k: 8, r: 5.7e6, look: [36.1, 2, .5, 1]}},
+ {key: 'hoth', name: 'ホス', at: [8.04, 17.65], region: 'outer', short: '氷の惑星', note: 'アウター・リムの氷の惑星。吹雪と氷原に覆われている', sk: 'ice', pop: 1, tier: 1, lab: 'r', v: {k: 4, r: 3.6e6, alt: 150000, fl: 40000, sun: [.387, .438, .811]}},
+ {key: 'bespin', name: 'ベスピン', at: [8.04, 17.55], region: 'outer', short: 'ガス巨星', note: 'アウター・リムのガス巨星。雲の層にタイバナガスの採掘都市が浮かぶ', sk: 'gas', pop: 2, tier: 1, lab: 'l', v: {k: 3, r: 5.9e7, axis: [.2, 0, .98], alt: 1.2e6, fl: 3e5, sun: [-.648, .5, .574]}},
+ {key: 'dagobah', name: 'ダゴバ', at: [10.65, 18.55], region: 'outer', short: '沼の惑星', note: '霧と沼に覆われた惑星。ヨーダが隠れ住んだ', sk: 'barren', pop: 0, tier: 1, lab: 'r', v: {k: 8, r: 4.4e6, look: [37.2, 2, 1.1, 1]}},
+ {key: 'mustafar', name: 'ムスタファー', at: [9.19, 18.9], region: 'outer', short: '火山の惑星', note: '溶岩の川が流れる火山の惑星', sk: 'mining', pop: 1, tier: 1, lab: 'l', v: {k: 9, r: 2.2e6, look: [38.3, 1, 0, 1]}},
+ {key: 'utapau', name: 'ウータパウ', at: [11.07, 18.91], region: 'outer', short: '縦穴の惑星', note: '大地に巨大な縦穴が穿たれた乾いた惑星', sk: 'habitable', pop: 2, tier: 2, lab: 'r', v: {k: 6, r: 5.0e6, look: [39.4, 1, .2, 1]}},
+ {key: 'endor', name: 'エンドア', at: [5.53, 15.83], region: 'outer', short: '森の月', note: '巨木の森に覆われた月。イウォークが住む', sk: 'outpost', pop: 1, tier: 1, lab: 'r', v: {k: 8, r: 2.45e6, look: [40.5, 0, .5, 1]}},
+ {key: 'yavin', name: 'ヤヴィン', at: [13.6, 5.01], region: 'outer', short: 'ジャングルの衛星', note: 'ガス巨星ヤヴィンを巡るジャングルの第4衛星。古代の神殿が残る', sk: 'outpost', pop: 1, tier: 1, lab: 'r', v: {k: 8, r: 5.1e6, look: [41.6, 1, .5, 1]}},
+ {key: 'lothal', name: 'ロザル', at: [18.42, 6.2], region: 'outer', short: '草原の惑星', note: '草原の広がるアウター・リムの惑星。帝国の工業化が進んだ', sk: 'habitable', pop: 3, tier: 1, lab: 'l', v: {k: 2, r: 5.7e6, look: [42.7, -.08, .4, 1]}},
+ {key: 'scarif', name: 'スカリフ', at: [16.44, 14.43], region: 'outer', short: '熱帯の海の惑星', note: '熱帯の島々が連なる海の惑星。帝国の機密保管施設がある', sk: 'outpost', pop: 2, tier: 1, lab: 'r', v: {k: 7, r: 5.6e6, look: [43.8, .55, .3, 1]}},
+ {key: 'felucia', name: 'フェルーシア', at: [15.83, 5.17], region: 'outer', short: '菌類の森', note: '巨大な菌類の森に覆われた湿った惑星', sk: 'habitable', pop: 2, tier: 2, lab: 'l', v: {k: 8, r: 5.4e6, look: [44.9, 1, .6, 1]}},
+ {key: 'saleucami', name: 'サルーカマイ', at: [16.37, 7.31], region: 'outer', short: '荒れ地の惑星', note: 'アウター・リムの湿った荒れ地の惑星', sk: 'habitable', pop: 2, tier: 3, lab: 'r', v: {k: 2, r: 6.0e6, look: [45.1, -.05, .2, 1]}},
+ {key: 'mygeeto', name: 'マイギートー', at: [8.49, 4.02], region: 'outer', short: '結晶都市', note: '結晶の都市が建つ氷の惑星。ムーニリンスト金融連合の拠点', sk: 'industrial', pop: 3, tier: 2, lab: 'l', v: {k: 4, r: 5.3e6, look: [46.2, .6, 1, 1]}},
+ {key: 'dantooine', name: 'ダントゥイーン', at: [9.01, 3.32], region: 'outer', short: '草原の惑星', note: '草原の広がる辺境の惑星。かつて反乱同盟の基地が置かれた', sk: 'outpost', pop: 1, tier: 2, lab: 'r', v: {k: 2, r: 4.9e6, look: [47.3, -.04, .1, 1]}},
+ {key: 'malachor', name: 'マラコア', at: [16.13, 3.78], region: 'outer', short: 'シスの遺跡', note: 'シスの古い神殿が残る暗い惑星', sk: 'barren', pop: 0, tier: 3, lab: 'l', v: {k: 5, r: 4.6e6, look: [48.4, 2, 0, 1]}},
+ {key: 'lianna', name: 'リアンナ', at: [16.06, 5.2], region: 'outer', short: 'シーナーの本拠', note: 'ペルレミアン交易ルート沿いの工業惑星。シーナー・フリート・システムズの本拠', sk: 'industrial', pop: 4, tier: 3, lab: 'r', v: {k: 2, r: 5.9e6, look: [49.5, 0, 1.1, 1]}},
+ {key: 'moncala', name: 'モン・カラ', at: [18.1, 5.67], region: 'outer', short: '海の惑星', note: '全球が海の惑星。モン・カラマリとクオレンの故郷で、造船の伝統がある', sk: 'shipyard', pop: 4, tier: 1, lab: 'l', v: {k: 7, r: 5.6e6, look: [50.6, 0, .5, 1]}},
+ {key: 'eriadu', name: 'エリアドゥ', at: [10.56, 17.32], region: 'outer', short: '交易路の交点', note: 'ハイディアン・ウェイとリマ交易ルートが交わる工業惑星。ターキン家の故郷', sk: 'industrial', pop: 4, tier: 2, lab: 'r', v: {k: 2, r: 6.2e6, look: [51.7, -.04, 1.4, 1]}},
+ {key: 'sullust', name: 'サラスト', at: [10.55, 16.84], region: 'outer', short: '火山の惑星', note: '火山と溶岩原の惑星。サラスタンは地下の洞窟都市に住む', sk: 'industrial', pop: 3, tier: 2, lab: 'l', v: {k: 9, r: 6.4e6, look: [52.8, 0, 0, 1]}},
+ {key: 'crait', name: 'クレイト', at: [11.5, 16.48], region: 'outer', short: '塩の惑星', note: '赤い土を白い塩の地殻が覆う惑星。反乱同盟の古い基地がある', sk: 'barren', pop: 0, tier: 3, lab: 'r', v: {k: 6, r: 5.0e6, look: [53.9, 3, 0, 1]}},
+ {key: 'dqar', name: 'ディカー', at: [12.28, 16.83], region: 'outer', short: 'レジスタンスの基地', note: '緑に覆われた惑星。レジスタンスの基地が置かれた', sk: 'outpost', pop: 1, tier: 3, lab: 'r', v: {k: 8, r: 5.5e6, look: [54.1, 0, .5, 1]}},
+ {key: 'terminus', name: 'ターミナス', at: [8.25, 19.96], region: 'outer', short: '交易路の終点', note: 'ハイディアン・ウェイとコレリアン交易スパインの終点', sk: 'outpost', pop: 2, tier: 2, lab: 'r', v: {k: 2, r: 5.2e6, look: [55.2, .02, .6, 1]}},
+ {key: 'bonadan', name: 'ボナダン', at: [16.46, 2.92], region: 'corporate', short: '企業宙域の工業惑星', note: 'コーポレート・セクターの工業惑星。ハイディアン・ウェイの起点', sk: 'industrial', pop: 4, tier: 2, lab: 'r', v: {k: 6, r: 5.9e6, look: [56.3, 2, .2, 1]}},
+ {key: 'ferrix', name: 'フェリックス', at: [14.47, 2.98], region: 'outer', short: '廃品回収の惑星', note: 'ハイディアン・ウェイ沿いの廃品回収と造船の惑星', sk: 'industrial', pop: 2, tier: 3, lab: 'b', v: {k: 6, r: 5.3e6, look: [57.4, 1, .3, 1]}},
+ {key: 'ajankloss', name: 'エイジャン・クロス', at: [9.71, 4.86], region: 'outer', short: 'ジャングルの月', note: 'ジャングルに覆われた月。レジスタンスの秘密基地が置かれた', sk: 'outpost', pop: 0, tier: 3, lab: 'r', v: {k: 8, r: 4.6e6, look: [58.5, 1, .6, 1]}},
+ {key: 'exegol', name: 'エクセゴル', at: [3.2, 6.71], region: 'unknown', short: 'シスの隠れた世界', note: '未知領域の奥の嵐の惑星。シス・エターナルの本拠', sk: 'barren', pop: 1, tier: 1, lab: 'r', v: {k: 5, r: 5.9e6, look: [59.6, 2, 0, 1]}},
+ {key: 'csilla', name: 'シーラ', at: [3.01, 7.8], region: 'unknown', short: 'チスの故郷', note: '未知領域にあるチスの故郷。氷に覆われた惑星', sk: 'capital', pop: 3, tier: 2, lab: 'r', v: {k: 4, r: 5.8e6, look: [60.7, 0, .8, 1]}},
+ {key: 'ilum', name: 'イラム', at: [4.85, 6.52], region: 'unknown', short: '氷の惑星', note: 'カイバー・クリスタルを産する氷の惑星。のちにスターキラー基地となった', sk: 'ice', pop: 0, tier: 2, lab: 'r', v: {k: 4, r: 3.3e6, look: [61.8, 0, 0, 1]}},
+ {key: 'ahchto', name: 'オク＝トー', at: [3.7, 12.29], region: 'unknown', short: '海の惑星', note: '海に島々が点在する惑星。最初のジェダイ寺院がある', sk: 'outpost', pop: 0, tier: 2, lab: 'r', v: {k: 7, r: 5.2e6, look: [62.9, .5, .4, 1]}},
+ {key: 'batuu', name: 'バトゥー', at: [4.92, 14.7], region: 'outer', short: '辺境の森', note: '未知領域の手前にある辺境の森の惑星。ブラック・スパイア・アウトポストがある', sk: 'outpost', pop: 1, tier: 3, lab: 'r', v: {k: 8, r: 5.0e6, look: [63.1, 0, .4, 1]}},
+ {key: 'bakura', name: 'バクラ', at: [4.48, 15.73], region: 'outer', short: '辺縁の惑星', note: '銀河の辺縁にある温和な惑星', sk: 'habitable', pop: 2, tier: 3, lab: 'l', v: {k: 2, r: 5.5e6, look: [64.2, .06, .4, 1]}},
+ {key: 'kamino', name: 'カミーノ', at: [18.55, 14.95], region: 'wild', approx: true, short: 'クローンの故郷', note: '嵐の海に覆われた惑星。クローン兵が造られた（銀河図の外。位置は推定）', sk: 'industrial', pop: 2, tier: 1, lab: 'l', v: {k: 7, r: 9.8e6, look: [65.3, 0, 1, 1]}}];
+const BY = {};for (const s of SYS) BY[s.key] = s;
+// The five major trade routes: the path (systems on it, and the turns between them) from one end to the other.
+const ROUTES = [
+ {key: 'perlemian', n: 1, name: 'ペルレミアン交易ルート', mark: [14.85, 6.96], path: ['coruscant', [9.25, 8.82], 'chandrila', 'brentaal', [10.14, 8.27], [10.49, 8.13], [10.84, 7.88], [11.58, 7.81], [12.57, 7.86], [13.39, 7.77], [14.31, 7.42], [14.55, 7.24], [14.85, 6.96], [15.04, 6.79], [15.28, 6.47], [15.39, 6.34], 'anaxes', [15.66, 5.85], 'lianna', [16.45, 4.6], [16.79, 4.05]]},
+ {key: 'corellianrun', n: 2, name: 'コレリアン・ラン', mark: [12.43, 13.32], path: ['coruscant', [9.51, 9.09], [9.81, 9.23], [10.03, 9.41], [10.15, 9.61], [10.25, 9.82], [10.45, 10.27], [10.5, 10.56], 'corellia', 'duro', [10.7, 11.14], [10.86, 11.49], [10.93, 11.65], [11.12, 11.94], 'denon', [12.23, 13.1], [12.63, 13.52], [13.07, 14.0], [13.41, 14.35], [14.0, 14.9], [14.26, 15.24], 'christophsis', [15.11, 16.1], 'ryloth', [16.78, 17.3]]},
+ {key: 'spine', n: 3, name: 'コレリアン交易スパイン', mark: [10.35, 12.04], path: ['corellia', [10.54, 11.31], 'hosnianprime', [10.35, 12.04], [10.2, 12.52], [10.06, 13.13], 'yagdhul', [9.56, 14.49], [9.1, 14.98], [8.69, 15.47], [8.38, 16.0], [8.24, 16.6], [8.17, 17.1], [8.07, 17.38], 'bespin', 'hoth', [8.13, 17.92], [8.17, 18.32], [8.19, 19.12], [8.22, 19.69], 'terminus', [8.32, 20.25]]},
+ {key: 'rimma', n: 4, name: 'リマ交易ルート', mark: [10.35, 15.46], path: ['abregado', [9.04, 12.55], [9.3, 12.98], 'thyferra', 'yagdhul', [10.0, 14.14], [10.17, 14.55], [10.29, 15.01], [10.32, 15.3], [10.35, 15.46], [10.48, 15.93], [10.54, 16.67], 'sullust', 'eriadu', [10.59, 18.16], 'dagobah', [10.61, 18.85], [10.63, 19.95], [10.63, 20.27]]},
+ {key: 'hydian', n: 5, name: 'ハイディアン・ウェイ', mark: [13.55, 3.83], path: ['bonadan', [15.74, 2.78], [15.51, 2.8], [14.81, 2.87], 'ferrix', [14.0, 3.3], [13.55, 3.83], [13.41, 4.02], [12.69, 5.1], [12.45, 5.44], [12.0, 6.0], [11.53, 6.17], [11.07, 6.46], [10.84, 6.67], [10.58, 6.81], [10.29, 6.98], [9.97, 7.24], [9.68, 7.65], [9.59, 8.08], 'brentaal', [9.65, 8.7], [9.77, 8.91], [9.97, 9.13], [10.19, 9.33], [10.35, 9.51], [10.48, 9.69], [10.6, 9.98], [10.87, 10.74], [10.99, 11.08], [11.13, 11.45], [11.19, 11.69], [11.25, 11.94], 'denon', [11.24, 13.74], [11.18, 15.18], 'malastare', [10.96, 16.43], [10.77, 16.83], 'eriadu', [10.18, 17.885], [9.88, 18.25], [9.6, 18.58], 'mustafar', [8.75, 19.47], 'terminus']}];
+// Hyperlanes off the major routes (slower), so that every system can be reached.
+const LINKS = [['tatooine', 'geonosis'], ['felucia', 'lianna'], ['tatooine', 'rodia'], ['rodia', 'christophsis'], ['onderon', 'umbara'], ['nalhutta', 'toydaria'], ['dagobah', 'utapau'], ['lothal', 'moncala'], ['abregado', 'fondor'], ['umbara', 'kashyyyk'],
+ ['catoneimoidia', 'quellor'], ['malastare', 'crait'], ['naboo', 'dqar'], ['naboo', 'malastare'], ['alderaan', 'kuat'], ['corellia', 'catoneimoidia'], ['fondor', 'thyferra'], ['kuat', 'catoneimoidia'], ['crait', 'dqar'], ['brentaal', 'alderaan'], ['geonosis', 'ryloth'],
+ ['mygeeto', 'dantooine'], ['malachor', 'bonadan'], ['mandalore', 'dathomir'], ['endor', 'bakura'], ['kijimi', 'saleucami'], ['kijimi', 'anaxes'], ['quellor', 'denon'], ['exegol', 'csilla'], ['batuu', 'bakura'], ['mimban', 'pasaana'], ['quellor', 'mimban'],
+ ['malachor', 'lianna'], ['dathomir', 'yavin'], ['mygeeto', 'ajankloss'], ['bilbringi', 'ordmantell'], ['bothawui', 'scarif'], ['denon', 'pasaana'], ['exegol', 'ilum'], ['ordmantell', 'ajankloss'], ['takodana', 'endor'], ['geonosis', 'scarif'], ['coruscant', 'byss'],
+ ['coruscant', 'bilbringi'], ['kuat', 'onderon'], ['onderon', 'mandalore'], ['teth', 'nalhutta'], ['kessel', 'saleucami'], ['lianna', 'moncala'], ['kessel', 'teth'], ['scarif', 'kamino'], ['yavin', 'ferrix'], ['anaxes', 'yavin'], ['lothal', 'saleucami'],
+ ['takodana', 'bespin'], ['bothawui', 'nalhutta'], ['jakku', 'ahchto'], ['pasaana', 'bothawui'], ['kashyyyk', 'toydaria'], ['ahchto', 'batuu'], ['jakku', 'jedha'], ['jedha', 'csilla'], ['bilbringi', 'ilum'], ['jakku', 'abregado'], ['jedha', 'bilbringi']];
+const LINK_SLOW = 2;   // a light year on a hyperlane takes this long against one on a major route
+// Battles of the films and series fought at these systems: a fleet battle there opens with the two sides.
+const BATTLES = {
+ coruscant: {name: 'コルサントの戦い', era: 'クローン戦争', own: 'republic', foe: 'cis'}, geonosis: {name: 'ジオノーシスの戦い', era: 'クローン戦争', own: 'republic', foe: 'cis'},
+ christophsis: {name: 'クリストフシスの戦い', era: 'クローン戦争', own: 'republic', foe: 'cis'}, ryloth: {name: 'ライロスの戦い', era: 'クローン戦争', own: 'republic', foe: 'cis'},
+ bothawui: {name: 'ボサウイの戦い', era: 'クローン戦争', own: 'republic', foe: 'cis'}, teth: {name: 'テスの戦い', era: 'クローン戦争', own: 'republic', foe: 'cis'},
+ malastare: {name: 'マラステアの戦い', era: 'クローン戦争', own: 'republic', foe: 'cis'}, kamino: {name: 'カミーノの戦い', era: 'クローン戦争', own: 'republic', foe: 'cis'},
+ umbara: {name: 'アンバラの戦い', era: 'クローン戦争', own: 'republic', foe: 'cis'}, anaxes: {name: 'アナクセスの戦い', era: 'クローン戦争', own: 'republic', foe: 'cis'},
+ kashyyyk: {name: 'キャッシークの戦い', era: 'クローン戦争', own: 'republic', foe: 'cis'}, felucia: {name: 'フェルーシアの戦い', era: 'クローン戦争', own: 'republic', foe: 'cis'},
+ saleucami: {name: 'サルーカマイの戦い', era: 'クローン戦争', own: 'republic', foe: 'cis'}, mygeeto: {name: 'マイギートーの戦い', era: 'クローン戦争', own: 'republic', foe: 'cis'},
+ utapau: {name: 'ウータパウの戦い', era: 'クローン戦争', own: 'republic', foe: 'cis'},
+ lothal: {name: 'ロザルの戦い', era: '銀河内戦', own: 'rebel', foe: 'empire'}, scarif: {name: 'スカリフの戦い', era: '銀河内戦', own: 'rebel', foe: 'empire'},
+ yavin: {name: 'ヤヴィンの戦い', era: '銀河内戦', own: 'rebel', foe: 'empire'}, hoth: {name: 'ホスの戦い', era: '銀河内戦', own: 'empire', foe: 'rebel'},
+ endor: {name: 'エンドアの戦い', era: '銀河内戦', own: 'rebel', foe: 'empire'}, jakku: {name: 'ジャクーの戦い', era: '銀河内戦', own: 'rebel', foe: 'empire'}};
+
+// ---- the network ----
+for (const r of ROUTES) { r.pts = r.path.map(p => typeof p === 'string' ? BY[p].at : p); r.stops = []; r.idx = {}; r.path.forEach((p, i) => { if (typeof p === 'string') { r.stops.push(p); r.idx[p] = i; } }); }
+const along = (r, i, j) => { let L = 0; for (let k = Math.min(i, j); k < Math.max(i, j); k++) L += dist(r.pts[k], r.pts[k + 1]); return L; };
+const EDGES = [], ADJ = {};for (const s of SYS) { ADJ[s.key] = []; s.routes = []; s.links = []; }
+const addEdge = e => { e.id = EDGES.length; EDGES.push(e); ADJ[e.a].push(e); ADJ[e.b].push(e); };
+for (const r of ROUTES) { for (let i = 1; i < r.stops.length; i++) { const a = r.stops[i - 1], b = r.stops[i]; addEdge({a, b, route: r.key, len: along(r, r.idx[a], r.idx[b])}); } for (const k of r.stops) BY[k].routes.push(r.key); }
+for (const [a, b] of LINKS) { if (!BY[a] || !BY[b]) continue; addEdge({a, b, route: null, len: dist(BY[a].at, BY[b].at)}); BY[a].links.push(b); BY[b].links.push(a); }
+const ROUTE_BY = {};for (const r of ROUTES) ROUTE_BY[r.key] = r;
+// The quickest way between two systems (a major route at full pace, a hyperlane at 1/LINK_SLOW): the systems passed,
+// the legs, the light-year-equivalent cost and the distance flown (in grid squares).
+const paths = new Map();
+function path(a, b) {
+ if (!BY[a] || !BY[b]) return null;if (a === b) return {path: [a], legs: [], cost: 0, len: 0};
+ const key = a + '>' + b;if (paths.has(key)) return paths.get(key);
+ const d = {}, prev = {}, via = {}, done = new Set();for (const s of SYS) d[s.key] = Infinity;d[a] = 0;
+ for (;;) { let u = null, du = Infinity; for (const s of SYS) if (!done.has(s.key) && d[s.key] < du) { du = d[s.key]; u = s.key; } if (u == null || u === b) break; done.add(u);
+  for (const e of ADJ[u]) { const v = e.a === u ? e.b : e.a, c = du + e.len * (e.route ? 1 : LINK_SLOW) + .05; if (c < d[v]) { d[v] = c; prev[v] = u; via[v] = e; } } }
+ let out = null;if (d[b] < Infinity) { const p = [b], legs = [];for (let x = b; x !== a; x = prev[x]) { p.unshift(prev[x]); legs.unshift(via[x]); } out = {path: p, legs, cost: d[b], len: legs.reduce((n, e) => n + e.len, 0)}; }
+ paths.set(key, out);return out;
+}
+// The polyline of a leg, along its route's turns or straight for a hyperlane.
+function legPts(e, from) {
+ if (!e.route) { const p = [BY[e.a].at, BY[e.b].at]; return from === e.b ? p.reverse() : p; }
+ const r = ROUTE_BY[e.route], i = r.idx[e.a], j = r.idx[e.b], p = r.pts.slice(Math.min(i, j), Math.max(i, j) + 1);
+ return (from === e.a) === (i < j) ? p : p.reverse();
+}
+function pathPts(p) { if (!p) return []; const out = [BY[p.path[0]].at];p.legs.forEach((e, i) => { const q = legPts(e, p.path[i]); out.push(...q.slice(1)); }); return out; }
+// Which band a point lies in (0 deep … 6 outer, 7 beyond), from the boundary radii.
+function bandAt(at) {
+ const dx = at[0] - BANDS.c[0], dy = at[1] - BANDS.c[1], r = Math.hypot(dx, dy), a = ((Math.atan2(dy, dx) * 180 / Math.PI) % 360 + 360) % 360 / 10, i = Math.floor(a) % 36, f = a - Math.floor(a), j = (i + 1) % 36;
+ for (let k = 0; k < 7; k++) if (r < BANDS.r[k][i] * (1 - f) + BANDS.r[k][j] * f) return k;
+ return 7;
+}
+
+// ---- a fleet battle's area ----
+// The 500-ly square (local coordinates 0–1, y down as on the map) around a system: each major route through it as a
+// trunk running on past the square toward the next system on it; for a system off the routes, its hyperlanes.
+function towards(r, i, step) {
+ // From path index i, the direction to the point about half a square along the route, and the next system that way.
+ let L = 0, k = i, next = null;const p0 = r.pts[i];
+ while (k + step >= 0 && k + step < r.pts.length) { L += dist(r.pts[k], r.pts[k + step]); k += step; if (!next && typeof r.path[k] === 'string') next = r.path[k]; if (L >= .45) break; }
+ if (k === i) return null;
+ for (let m = k; !next && m >= 0 && m < r.path.length; m += step) if (typeof r.path[m] === 'string' && m !== i) next = r.path[m];
+ const q = r.pts[k], l = dist(p0, q) || 1;return {dir: [(q[0] - p0[0]) / l, (q[1] - p0[1]) / l], next, end: r.pts[step > 0 ? r.pts.length - 1 : 0]};
+}
+const BAND_KEYS = ['deep', 'core', 'colonies', 'inner', 'expansion', 'mid', 'outer', 'unknown'];
+function sideName(side) { return side.next ? `${BY[side.next].name}方面` : `${REGIONS[BAND_KEYS[bandAt(side.end)]].name}方面`; }
+function sectorDef(key) {
+ const s = BY[key];if (!s) return null;
+ const h = hash(key), c = [.5 + ((h % 97) / 97 - .5) * .08, .5 + (((h >>> 8) % 89) / 89 - .5) * .08], sg = (h >>> 16) & 1 ? 1 : -1;
+ const local = (dir, L, bend) => [c[0] + dir[0] * L - dir[1] * bend, c[1] + dir[1] * L + dir[0] * bend];
+ const leg = dir => [local(dir, .82, 0), local(dir, .4, .03 * sg)];
+ const recs = [];
+ for (const r of ROUTES) { const i = r.idx[key];if (i == null) continue; const a = towards(r, i, -1), b = towards(r, i, 1); recs.push({name: r.name, a, b}); }
+ const through = recs.filter(x => x.a && x.b), ones = recs.filter(x => !(x.a && x.b)).map(x => ({name: x.name, side: x.a || x.b}));
+ const linkSides = s.links.map(k => { const q = BY[k].at, l = dist(s.at, q) || 1; return {dir: [(q[0] - s.at[0]) / l, (q[1] - s.at[1]) / l], next: k, end: q}; });
+ const opposite = (d, list) => list.slice().sort((x, y) => (x.dir[0] * d[0] + x.dir[1] * d[1]) - (y.dir[0] * d[0] + y.dir[1] * d[1]))[0];
+ const frontier = d => ({dir: [-d[0], -d[1]], next: null, end: [s.at[0] - d[0] * 3, s.at[1] - d[1] * 3], frontier: true});
+ const routes = [], mk = (name, A, B) => { const pts = [...(A ? leg(A.dir) : []), c, ...(B ? leg(B.dir).reverse() : [])]; routes.push({name, pts, ends: [A ? (A.frontier ? '辺境方面' : sideName(A)) : '', B ? (B.frontier ? '辺境方面' : sideName(B)) : '']}); };
+ for (const x of through) mk(x.name, x.a, x.b);
+ if (!through.length) {
+  if (ones.length >= 2) { mk(`${ones[0].name}／${ones[1].name}`, ones[0].side, ones[1].side); ones.splice(0, 2); }
+  else if (ones.length === 1) { const o = ones.shift(), B = linkSides.length ? opposite(o.side.dir, linkSides) : frontier(o.side.dir); mk(B.next && !B.frontier ? `${o.name}／${BY[B.next].name}方面航路` : o.name, o.side, B); }
+  else if (linkSides.length >= 2) { let best = null;for (let i = 0; i < linkSides.length; i++) for (let j = i + 1; j < linkSides.length; j++) { const d = linkSides[i].dir[0] * linkSides[j].dir[0] + linkSides[i].dir[1] * linkSides[j].dir[1]; if (!best || d < best.d) best = {d, A: linkSides[i], B: linkSides[j]}; } mk(`${BY[best.A.next].name}–${BY[best.B.next].name}航路`, best.A, best.B); }
+  else if (linkSides.length === 1) { const A = linkSides[0]; mk(`${BY[A.next].name}方面航路`, A, frontier(A.dir)); }
+  else mk('辺境航路', {dir: [-1, 0], next: null, end: [s.at[0] - 3, s.at[1]], frontier: true}, {dir: [1, 0], next: null, end: [s.at[0] + 3, s.at[1]], frontier: true});
+ }
+ for (const o of ones) mk(o.name, null, o.side);
+ const via = recs.length ? recs.map(x => x.name).join('と') + '沿い' : `${s.links.map(k => BY[k].name).slice(0, 3).join('、')}と結ばれた航路沿い`;
+ return {name: `${s.name}宙域`, grid: grid(s.at), note: `${via}、${s.name}星系を中心とする一辺500光年の宙域`, gal: key,
+  routes, named: [{name: s.name, at: c, kind: s.sk || 'habitable', pop: s.pop ?? 2, note: s.note, planet: {kind: s.v.k, ring: s.v.ring || null, radius: s.v.r, look: s.v.look || null, gal: key}}]};
+}
+return {COLS, ROWS, REGIONS, BANDS, ZONES, REGION_LABELS, SYSTEMS: SYS, BY, ROUTES, ROUTE_BY, LINKS, EDGES, ADJ, BATTLES, LINK_SLOW, grid, hash, path, legPts, pathPts, bandAt, sectorDef};
+})();
+
+/* ============================================================
    rts.js — fleet operations in real time (v13).
    A sector of star systems; task groups that jump between them at
    the pace of their slowest hyperdrive; battles fought in each
@@ -9277,15 +9514,19 @@ function rng(seed) { let t = seed >>> 0; return () => { t = (t + 0x6D2B79F5) | 0
 // on the branches.
 const MAP_LY = 500, GRID_COLS = 'ABCDEFGHIJKLMNOPQRSTUVW';
 const LANE = {trunk: {name: '主要幹線', f: 1}, branch: {name: '支線', f: .5}};
+// v22 The two first areas keep their layout; their lane is named as on the galaxy map (Kuat lies off the major
+// routes, on the hyperlanes to Alderaan and Cato Neimoidia). Every other system of the galaxy map gets its area
+// from Galaxy.sectorDef: its routes (or hyperlanes) through a 500-ly square around it.
 const REGIONS = {
- kuat: {name: 'クワット宙域', grid: 'M-10', note: 'コレリアン・ラン沿い、クワット星系を中心とする一辺500光年の宙域',
-  routes: [{name: 'コレリアン・ラン', pts: [[-.03, .3], [.2, .36], [.4, .44], [.52, .48], [.58, .6], [.57, .8], [.6, 1.03]], ends: ['コルサント方面', 'コレリア方面']}],
-  named: [{name: 'クワット', at: [.52, .48], kind: 'shipyard', pop: 4, note: 'クワット・ドライブ・ヤードの造船星系。惑星を軌道造船リングが取り巻く', planet: {kind: 1, ring: [1.16, 1.25], radius: 5.2e6}}]},
- corellia: {name: 'コレリア宙域', grid: 'M-11', note: 'コレリアン・ランとコレリアン交易スパインが分かれるコレリア星系の周辺',
-  routes: [{name: 'コレリアン・ラン', pts: [[.46, -.03], [.47, .2], [.5, .4], [.52, .5], [.66, .64], [.82, .8], [1.03, .96]], ends: ['クワット・コルサント方面', 'ライロス方面']},
-   {name: 'コレリアン交易スパイン', pts: [[.52, .5], [.5, .68], [.46, .85], [.44, 1.03]], ends: ['', 'ナントゥーン方面']}],
-  named: [{name: 'コレリア', at: [.52, .5], kind: 'capital', pop: 5, note: 'コレリア星系。造船と交易の中心で、コレリアン・ランと交易スパインの起点', planet: {kind: 2, radius: 6.1e6}}]}
+ kuat: {name: 'クワット宙域', grid: 'M-10', gal: 'kuat', note: 'オルデランとカトー・ニモイディアを結ぶ航路沿い、クワット星系を中心とする一辺500光年の宙域',
+  routes: [{name: 'オルデラン–カトー・ニモイディア航路', pts: [[-.03, .3], [.2, .36], [.4, .44], [.52, .48], [.58, .6], [.57, .8], [.6, 1.03]], ends: ['オルデラン・コルサント方面', 'カトー・ニモイディア方面']}],
+  named: [{name: 'クワット', at: [.52, .48], kind: 'shipyard', pop: 4, note: 'クワット・ドライブ・ヤードの造船星系。惑星を軌道造船リングが取り巻く', planet: {kind: 1, ring: [1.16, 1.25], radius: 5.2e6, gal: 'kuat'}}]},
+ corellia: {name: 'コレリア宙域', grid: 'M-11', gal: 'corellia', note: 'コレリアン・ランとコレリアン交易スパインが分かれるコレリア星系の周辺',
+  routes: [{name: 'コレリアン・ラン', pts: [[.46, -.03], [.47, .2], [.5, .4], [.52, .5], [.66, .64], [.82, .8], [1.03, .96]], ends: ['コルサント方面', 'デノン・ライロス方面']},
+   {name: 'コレリアン交易スパイン', pts: [[.52, .5], [.5, .68], [.46, .85], [.44, 1.03]], ends: ['', 'ホズニアン・プライム方面']}],
+  named: [{name: 'コレリア', at: [.52, .5], kind: 'capital', pop: 5, note: 'コレリア星系。造船と交易の中心で、コレリアン・ランと交易スパインの起点', planet: {kind: 2, radius: 6.1e6, gal: 'corellia'}}]}
 };
+for (const s of Galaxy.SYSTEMS) if (!REGIONS[s.key]) REGIONS[s.key] = Galaxy.sectorDef(s.key);
 const SECTOR_DEFS = REGIONS;
 const NAME_A = ['ヴェ', 'ドル', 'ケー', 'サル', 'ミラ', 'トー', 'ネム', 'アル', 'ゼン', 'フィ', 'ロウ', 'カ', 'イス', 'ベル', 'オル', 'ヤン', 'テシ', 'グラ', 'ハル', 'ルーメ', 'シャ', 'コル', 'ナー', 'ジェ', 'タル', 'ウラ'];
 const NAME_B = ['ラス', 'ミン', 'リス', 'ドア', 'ナイ', 'セル', 'カント', 'ヴィア', 'ロン', 'ティス', 'マール', 'ガ', 'ゼア', 'ニス', 'オス', 'ル', 'ダン', 'リム', 'デン', 'ノール', 'ザ', 'ヘイム'];
@@ -9350,7 +9591,7 @@ function makeSector(key = 'kuat', seed = 13) {
  for (const e of all) e.len = D(e.a, e.b);
  for (const s of systems) { s.star = s.star || ['黄色矮星', '橙色矮星', '赤色矮星', '白色星', '青色巨星'][Math.floor(R() * 5)]; s.inhabited = s.pop > 0; s.links = []; }
  all.forEach((e, i) => { e.id = i; systems[e.a].links.push(i); systems[e.b].links.push(i); });
- return {key, name: def.name, grid: def.grid, note: def.note, col, row, size, systems, edges: all, routes: routes.map(r => ({name: r.name, ends: r.ends, pts: r.pts, nodes: r.nodes})), paths: new Map()};
+ return {key, gal: def.gal || null, name: def.name, grid: def.grid, note: def.note, col, row, size, systems, edges: all, routes: routes.map(r => ({name: r.name, ends: r.ends, pts: r.pts, nodes: r.nodes})), paths: new Map()};
 }
 const sysDistance = (S, a, b) => { const p = S.systems[a].pos, q = S.systems[b].pos; return hyp(p[0] - q[0], p[1] - q[1]); };
 // The quickest way along the lanes from a to b (Dijkstra on the time a light

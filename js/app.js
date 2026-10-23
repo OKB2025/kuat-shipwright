@@ -1173,7 +1173,7 @@ const partOffered = k => craftDesign() ? C.craftPart(k) : C.PARTS[k].group !== '
 // Part sizes are kept apart for craft and capital ships (metres vs tens of metres).
 const pSize = k => craftDesign() ? (st.sizeCraft[k] ?? C.partLimits(ship, k).def) : st.size[k];
 const setPSize = (k, v) => { if (craftDesign()) st.sizeCraft[k] = v; else st.size[k] = v; };
-const TABS = [['hull', '船体'], ['mod', '区画および艤装'], ['systems','系統'], ['launch', '航空隊'], ['ground', '地上部隊'], ['spec', '性能']];
+const TABS = [['hull', '船体'], ['mod', '区画および艤装'], ['systems','系統'], ['launch', '搭載'], ['ground', '地上部隊'], ['spec', '性能']];
 // 削る・装甲 live inside 船体; their editors keep their own tab keys.
 const HULL_SUB = [['hull', '船体の形'], ['carve', '削る'], ['armor', '装甲']];
 const TAB_NAMES = {...Object.fromEntries(TABS), carve: '削る', armor: '装甲', bridge: '艦橋'};
@@ -2997,7 +2997,7 @@ function titleOrbit(now) {
 function showTitle(panel) {
   const t = $('#title'); if (!t) return;
   t.hidden = false; document.body.classList.add('title-open'); titleCam.base = null; titleCam.last = 0; titleShipView();
-  hideBusyOverlay(); if (panel === 'voyage' || panel === 'design') { titleState.mode = panel; titleState.panel = null; } else { titleState.panel = panel || null; if (panel) titleState.mode = 'design'; } renderTitle();
+  hideBusyOverlay(); if (panel === 'voyage' || panel === 'design') { titleState.mode = panel; titleState.panel = null; } else if (panel === 'missions') { titleState.mode = 'voyage'; titleState.panel = 'missions'; } else { titleState.panel = panel || null; if (panel) titleState.mode = 'design'; } renderTitle();
   setTimeout(() => t.querySelector('.tmenu:not([disabled])')?.focus?.({preventScroll: true}), 30);
 }
 function hideTitle() {
@@ -3022,7 +3022,6 @@ function renderTitle() {
   const menu = $('#titleMenu'); if (!menu) return;
   const meta = draftMeta();
   for (const b of $$('#titleMenu .tmenu')) b.disabled = false;
-  const mission = $('#titleMenu [data-title="mission"]'); if (mission) mission.disabled = true;
   for (const g of $$('#titleMenu [data-tgroup]')) g.hidden = g.dataset.tgroup !== (titleState.mode || 'top');
   const cont = $('#titleMenu [data-title="continue"]');
   if (cont) {
@@ -3031,10 +3030,10 @@ function renderTitle() {
   }
   for (const b of $$('#titleMenu .tmenu')) b.setAttribute('aria-pressed', String(b.dataset.title === titleState.panel));
   const panel = $('#titlePanel');
-  panel.hidden = !titleState.panel;
+  if (titleState.panel === 'patrol') { titleState.panel = 'missions'; mm.mode = 'patrol'; }
+  panel.hidden = !titleState.panel || titleState.panel === 'missions'; missionMapRender();
   if (titleState.panel === 'new') panel.innerHTML = titleNewHTML();
   else if (titleState.panel === 'load') { panel.innerHTML = titleLoadHTML(); renderTitleSaves(); }
-  else if (titleState.panel === 'patrol') { panel.innerHTML = titlePatrolHTML(); renderTitlePatrolSaves(); }
   else if (titleState.panel === 'sound') { panel.innerHTML = soundSettingsHTML(); const el = $('#soundSettings'); if (el && window.KSAudio) window.KSAudio.mountSettings(el); else if (el) el.innerHTML = '<p class="note">この端末では音を鳴らせません（Web Audio に対応していません）。</p>'; }
   else if (titleState.panel === 'credits') panel.innerHTML = `<div class="tpanel-head"><h2>使用素材とライセンス</h2><button type="button" class="btn ghost sm" data-title-back>戻る</button></div>${$$('#sheet .src').map(e => `<p class="src">${e.innerHTML}</p>`).join('')}`;
   else panel.innerHTML = '';
@@ -3073,17 +3072,15 @@ function titleLoadHTML() {
 const patrolOpt = (() => { try { const o = JSON.parse(LS.get('yard.patrol1') || 'null'); if (o && typeof o === 'object') return {sys: typeof o.sys === 'string' ? o.sys : 'kuat', escorts: Array.isArray(o.escorts) ? o.escorts.filter(k => typeof k === 'string').slice(0, 4) : []}; } catch (e) {} return {sys: 'kuat', escorts: []}; })();
 function patrolSave() { LS.set('yard.patrol1', JSON.stringify(patrolOpt)); }
 const PATROL_ESCORTS = 4;
-function titlePatrolHTML() {
-  const ex = Object.values(YardFleetData?.designs || {}), sides = [...new Set(ex.map(d => d.side))], sysList = Object.values(SYSTEMS).filter(x => x.key !== 'rts');
+// v22 The patrol's system is picked on the 任務マップ; below the map: the escorts, then the flagship (which starts it).
+function titlePatrolBody() {
+  const ex = Object.values(YardFleetData?.designs || {}), sides = [...new Set(ex.map(d => d.side))];
   if (!SYSTEMS[patrolOpt.sys] || patrolOpt.sys === 'rts') patrolOpt.sys = 'kuat';patrolOpt.escorts = patrolOpt.escorts.filter(k => YardFleetData?.designs?.[k]);
   const esc1 = patrolOpt.escorts, count = k => esc1.filter(x => x === k).length;
-  return `<div class="tpanel-head"><h2>パトロール</h2><button type="button" class="btn ghost sm" data-title-back>戻る</button></div>
-  <p class="note">選んだ星系を旗艦で航行します。輸送船や貨物船などの民間船がハイパースペースから出入りし、惑星との間を行き来します（民間船は照準の対象外です）。ときおり敵対勢力の艦艇が出現して交戦になり、撃退すればパトロールを続けます。星図からほかの星系へジャンプもできます。</p>
-  <h3>1 · 星系</h3><div class="tclass">${sysList.map(x => `<button type="button" class="tcard" data-patrol-sys="${x.key}" aria-pressed="${x.key === patrolOpt.sys}"><b>${esc(x.name)}</b><small>${esc(x.short)}${x.planet.ring ? '' : ''}</small></button>`).join('')}</div>
-  <h3>2 · 随伴艦（AI）<small class="tp-count">${esc1.length} / ${PATROL_ESCORTS} 隻</small></h3><p class="note">旗艦の後方で隊形を組んで続き、ハイパースペースにも同行し、旗艦が狙う目標に援護射撃します。タップで追加、もう一度で外します（同じ艦を複数も可：右上の＋）。</p>
+  return `<h3>随伴艦（AI）<small class="tp-count">${esc1.length} / ${PATROL_ESCORTS} 隻</small></h3><p class="note">旗艦の後方で隊形を組んで続き、ハイパースペースにも同行し、旗艦が狙う目標に援護射撃します。タップで追加、もう一度で外します（同じ艦を複数も可：右上の＋）。</p>
   <div class="ref-grid tp-escorts">${sides.map(side => ex.filter(d => d.side === side).sort((a, b) => b.info.len - a.info.len).map(d => { const n = count(d.key); return `<button type="button" class="btn${n ? ' on' : ''}" data-patrol-esc="${esc(d.key)}" aria-pressed="${n > 0}">${esc(String(d.name).split('｜')[0])}${n > 1 ? ` ×${n}` : ''}<small>${fLen(d.info.len)}</small>${n ? `<i class="tp-plus" data-patrol-more="${esc(d.key)}" role="button" aria-label="もう1隻">＋</i>` : ''}</button>`; }).join('')).join('')}</div>
   ${esc1.length ? '<button type="button" class="btn sm ghost" data-patrol-esc-clear>随伴艦をすべて外す</button>' : ''}
-  <h3>3 · 旗艦を選んで出発</h3>
+  <h3>旗艦を選んで出発</h3><p class="note">輸送船や貨物船などの民間船がハイパースペースから出入りし、惑星との間を行き来します（民間船は照準の対象外です）。ときおり敵対勢力の艦艇が出現して交戦になり、撃退すればパトロールを続けます。</p>
   ${ship ? `<h4>設計中の艦</h4><div class="ref-grid"><button type="button" class="btn" data-title-patrol="current">${esc(ship.name)}<small>${fLen(ship.hull.L)} · ${esc(C.shipClassFor(ship.hull.L, ship.shipClass).name)}</small></button></div>` : ''}
   <h4>保存した設計</h4><div class="ref-grid" id="titlePatrolSaves"><p class="muted">一覧を確認中…</p></div>
   <h4>作例</h4>${sides.map(side => `<p class="eyebrow">${esc(side)}</p><div class="ref-grid">${ex.filter(d => d.side === side).sort((a, b) => b.info.len - a.info.len).map(d => `<button type="button" class="btn" data-title-patrol="${esc(d.key)}">${esc(String(d.name).split('｜')[0])}<small>${fLen(d.info.len)} · ${esc(examplePurpose(d.key, d.cls || ''))}</small></button>`).join('')}</div>`).join('')}
@@ -3132,8 +3129,10 @@ function bindTitle() {
     if ('titleSound' in d) { titleState.panel = 'sound'; renderTitle(); return; }
     if ('titleBack' in d) { titleState.panel = null; renderTitle(); return; }
     if (d.titleMode) { titleState.mode = d.titleMode; titleState.panel = null; renderTitle(); setTimeout(() => t.querySelector(`[data-tgroup="${d.titleMode}"] .tmenu:not([disabled]):not(.tback)`)?.focus?.({preventScroll: true}), 20); return; }
-    if (d.title === 'patrol') { titleState.panel = titleState.panel === 'patrol' ? null : 'patrol'; renderTitle(); return; }
-    if (d.title === 'fleetbattle' || d.title === 'orbat') { hideTitle(); voy.saves = await Store.list().catch(() => []); voyOpen('setup', d.title === 'orbat' ? 'orbat' : 'sortie'); return; }
+    if (d.title === 'patrol' || d.title === 'mission' || d.title === 'fleetbattle') { missionMapOpen(d.title === 'patrol' ? 'patrol' : d.title === 'fleetbattle' ? 'fleet' : null); return; }
+    if (d.mmMode) { mm.mode = d.mmMode === 'fleet' ? 'fleet' : 'patrol'; mmSave(); missionMapRender(); gmCenter('mission', mmSel()); return; }
+    if (d.mmFleet === 'go') { missionFleetGo(); return; }
+    if (d.title === 'orbat') { hideTitle(); voy.saves = await Store.list().catch(() => []); voyOpen('setup', d.title === 'orbat' ? 'orbat' : 'sortie'); return; }
     if (d.titlePatrol) { voyPatrol(d.titlePatrol); return; }
     if (d.patrolSys) { if (SYSTEMS[d.patrolSys]) { patrolOpt.sys = d.patrolSys; patrolSave(); renderTitle(); } return; }
     if ('patrolEscClear' in d) { patrolOpt.escorts = []; patrolSave(); renderTitle(); return; }
@@ -3659,9 +3658,9 @@ function aviationWingHTML(w,i){
  const limits=C.AIR_WING_LIMITS,id=esc(w.id),expanded=st.aviationExpanded?.has(w.id)??i===0,r=rawWing(w),m=wingMode(r);
  const head=`<details class="airwing-row${m==='ship'?' ship-row':''}" data-airwing-card="${id}" ${expanded?'open':''}><summary><b data-airwing-title="${id}">${esc(w.name)}</b><span data-airwing-summary="${id}">${esc(wingSummary(w))}</span></summary>`;
  const status=`<div data-airwing-status="${id}" class="airwing-status" aria-live="polite">${aviationWingStatusHTML(w)}</div>`;
- if(m==='ship')return `${head}<label class="field-label">表示名<input type="text" data-airwing="${id}" data-wingfield="name" value="${esc(w.name)}" maxlength="${limits.nameLength}" aria-label="搭載艦 ${i+1} の名前"></label><div class="airwing-fields"><label>1隻のサイズ<input type="number" value="${w.size}" disabled aria-label="搭載艦 ${i+1} のサイズ（外形から計算）"></label><label>搭載する隻数<input type="number" data-airwing="${id}" data-wingfield="count" value="${w.count}" min="0" max="${limits.maxCount}" step="1" inputmode="numeric" aria-label="搭載艦 ${i+1} の隻数"></label></div>${status}${wingButtonsHTML(id,w,i)}</details>`;
+ if(m==='ship')return `${head}<label class="field-label">表示名<input type="text" data-airwing="${id}" data-wingfield="name" value="${esc(w.name)}" maxlength="${limits.nameLength}" aria-label="搭載艦 ${i+1} の名前"></label><label class="field-label">機種・艦種<select data-airwing="${id}" data-wingfield="type" aria-label="搭載 ${i+1} の機種・艦種">${typeOptionsHTML(C.CRAFT_TYPES,'',[['custom','寸法を指定する']])}${carryOptionsHTML(r.ref)}</select></label><div class="airwing-fields"><label>1隻のサイズ<input type="number" value="${w.size}" disabled aria-label="搭載艦 ${i+1} のサイズ（外形から計算）"></label><label>搭載する隻数<input type="number" data-airwing="${id}" data-wingfield="count" value="${w.count}" min="0" max="${limits.maxCount}" step="1" inputmode="numeric" aria-label="搭載艦 ${i+1} の隻数"></label></div>${status}${wingButtonsHTML(id,w,i)}</details>`;
  return `${head}<label class="field-label">航空隊名<input type="text" data-airwing="${id}" data-wingfield="name" value="${esc(w.name)}" maxlength="${limits.nameLength}" aria-label="航空隊 ${i+1} の名前"></label>
- <label class="field-label">機種<select data-airwing="${id}" data-wingfield="type" aria-label="航空隊 ${i+1} の機種">${typeOptionsHTML(C.CRAFT_TYPES,m==='type'?r.type:m==='design'?'':m,[['custom','寸法を指定する'],['legacy','サイズで指定する（旧形式）']])}${designCraftOptionsHTML(r)}</select></label>${m==='custom'?dimsInputsHTML('data-airwing',id,r.dims,'航空隊 '+(i+1)):''}${m==='design'?`<p class="note">設計機：${esc(designCraftFigures(r.design.craft))}（${esc(r.design.craft.roleName||C.CRAFT_ROLE_RTS[r.design.craft.role]||'')}）。航行では空母からこの性能で出撃します。</p>`:''}
+ <label class="field-label">機種・艦種<select data-airwing="${id}" data-wingfield="type" aria-label="航空隊 ${i+1} の機種・艦種">${typeOptionsHTML(C.CRAFT_TYPES,m==='type'?r.type:m==='design'?'':m,[['custom','寸法を指定する'],['legacy','サイズで指定する（旧形式）']])}${designCraftOptionsHTML(r)}${carryOptionsHTML(null)}</select></label>${m==='custom'?dimsInputsHTML('data-airwing',id,r.dims,'航空隊 '+(i+1)):''}${m==='design'?`<p class="note">設計機：${esc(designCraftFigures(r.design.craft))}（${esc(r.design.craft.roleName||C.CRAFT_ROLE_RTS[r.design.craft.role]||'')}）。航行では空母からこの性能で出撃します。</p>`:''}
  <div class="airwing-fields">${m==='legacy'?`<label>1機のサイズ<input type="number" data-airwing="${id}" data-wingfield="size" value="${w.size}" min="${limits.minSize}" max="${limits.maxSize}" step=".01" inputmode="decimal" aria-label="航空隊 ${i+1} の機体サイズ"></label>`:''}<label>搭載する機数<input type="number" data-airwing="${id}" data-wingfield="count" value="${w.count}" min="0" max="${limits.maxCount}" step="1" inputmode="numeric" aria-label="航空隊 ${i+1} の機数"></label></div>${status}${wingButtonsHTML(id,w,i)}</details>`;
 }
 function aviationSurfacesHTML(p){
@@ -3696,6 +3695,16 @@ async function loadCarrySaves(){
  }finally{st.carrySaves=out;st.carryLoading=false;}
  if(fleet.mode==='design'&&st.tab==='launch')renderPanel();
 }
+// v21.2 Ships and aircraft are embarked in one list: every row's type list (and the add control) offers the craft
+// types, the craft of the player's design and the ships that fit a storage bay whole.
+function carryOptionsHTML(cur,free){
+ if(!st.carrySaves)loadCarrySaves();const cs=carryCandidates();if(!cs.length)return '';
+ return `<optgroup label="艦艇（格納庫に丸ごと入る艦）">${cs.map(c=>`<option value="ship:${esc(c.ref)}" ${cur===c.ref?'selected':''} ${!c.fits||(free!=null&&c.size>free+1e-6&&cur!==c.ref)?'disabled':''}>${esc(c.name)}${c.saved?'（保存）':''} · ${c.dims.map(v=>num(Math.round(v))).join('×')} m · サイズ ${aviationSize(c.size)}${c.fits?'':'（入らない）'}</option>`).join('')}</optgroup>`;
+}
+function embarkAddHTML(a){
+ const full=(ship.airWings?.length||0)>=C.AIR_WING_LIMITS.rows,free=Math.max(0,a.capacity-a.usedSize);
+ return `<div class="chips embark-add"><select data-addembark aria-label="搭載する機種・艦種">${typeOptionsHTML(C.CRAFT_TYPES,defaultCraftType(),[['custom','寸法を指定する']])}${designCraftOptionsHTML({})}${carryOptionsHTML(null,free)}</select><button type="button" class="btn primary" data-addembarkgo ${full?'disabled':''}>搭載を追加</button></div>`;
+}
 function carryPickHTML(a){
  if(!st.carrySaves)loadCarrySaves();
  const cs=carryCandidates(),ok=cs.filter(c=>c.fits),free=Math.max(0,a.capacity-a.usedSize);
@@ -3704,7 +3713,7 @@ function carryPickHTML(a){
 function bayText(p,a){const b=a.bays.find(x=>x.id===p.id),info=S?.info?.[p.id],doors=info?.doors||[];return `${C.AVIATION_ROLES[p.airRole||'mixed']||''} · 内寸 ${dimsText(C.roomShape(p).s)} · ${b?`容量 ${aviationSize(b.capacity)}・空き ${aviationSize(Math.max(0,b.sizeLeft))} サイズ`:'格納容量なし'} · ${info?.acc?`出入口 ${doors.length?doors.map(o=>dimsText(o)).join('・'):'—'}`:'ハッチにつながっていません'}`;}
 function aviationPanelHTML(){
  const a=aviationNumbers(),wings=a.wings,bays=ship.parts.filter(p=>p.k==='hangar'),selected=st.sel?.list==='parts'?selItem():null,slides=ship.hatches.filter(h=>h.bay&&C.isSlidingHatch(ship,h));
- return `<div class="pgroup blueprint-card aviation-editor"><h4>航空隊編集</h4><p class="note">航空隊ごとに機種と機数を選びます。機体は公式の寸法（全長・全幅・全高）で、格納区画の内寸に ${C.STOW_GAP} m の余裕をもって入るか、出入口のハッチを通れるかで搭載・発艦が決まります。格納容量は航空機・搭載艦・地上部隊の車両で共用です。残り <b>${aviationSize(a.freeSize)} サイズ</b>。</p><div id="aviationSummary" aria-live="polite">${aviationCapacityHTML(a)}</div></div><div class="pgroup"><h4>搭載する航空隊</h4><p class="note">上の航空隊から順に、内寸の合う小さい区画から収容します。シャトル・揚陸艇は地上部隊を降ろす輸送機です（「地上部隊」タブで降下量を確認できます）。</p><div class="aviation-wings">${wings.map(aviationWingHTML).join('')||'<p class="note">航空隊がありません。追加して機種と機数を指定してください。</p>'}</div><button type="button" class="btn primary" data-addairwing ${wings.length>=C.AIR_WING_LIMITS.rows?'disabled':''}>航空隊を追加</button></div>${carryPickHTML(a)}${selected?.k==='hangar'?`<div class="pgroup"><h4>選択中 · ${esc(C.partLabel(selected))}</h4>${aviationPartHTML(selected)}</div>`:''}<details class="trench-editor aviation-bays" open><summary>航空区画と出入口 · ${num(bays.length)} 区画</summary><p class="note">内寸は区画の外形（全長 × 全幅 × 高さ）、出入口はハッチの開口（長辺 × 短辺）です。機体は小さい方の2辺が開口を通れば発艦できます。区画を選んで、位置・寸法・用途・接触面の開口を編集できます。</p><ul class="ilist">${bays.map(p=>`<li><button type="button" class="btn sm ghost" data-layout-part="${p.id}">${esc(C.partLabel(p))}</button><span data-aviation-capacity="${p.id}">${esc(bayText(p,a))}</span></li>`).join('')||'<li><span>「区画」から航空区画を配置してください。</span></li>'}</ul></details>${slides.length?`<details class="trench-editor"><summary>スライド扉の開閉を確認</summary><p class="note">上甲板・腹部の扉は左右へ、舷側の扉は上下へ移動します。観閲式と戦闘開始時は閉じ、発艦指示で4秒かけて開き、発艦完了・中止後に閉じます。</p>${slides.map(aviationDoorHTML).join('')}</details>`:''}`;
+ return `<div class="pgroup blueprint-card aviation-editor"><h4>航空隊編集</h4><p class="note">航空隊ごとに機種と機数を選びます。機体は公式の寸法（全長・全幅・全高）で、格納区画の内寸に ${C.STOW_GAP} m の余裕をもって入るか、出入口のハッチを通れるかで搭載・発艦が決まります。格納容量は航空機・搭載艦・地上部隊の車両で共用です。残り <b>${aviationSize(a.freeSize)} サイズ</b>。</p><div id="aviationSummary" aria-live="polite">${aviationCapacityHTML(a)}</div></div><div class="pgroup"><h4>搭載（航空機・艦艇）</h4><p class="note">航空機も小型の艦も、この一覧で積みます。上の行から順に、内寸の合う小さい区画から収容します。艦は外形（全長×全幅×全高に ${C.SHIP_STOW_CLEAR} m ずつ足した容積 × ${C.SHIP_STOW_FACTOR}）を艦載機と同じ「サイズ」に換算し、格納・兼用区画のどれか一つに丸ごと入る艦だけを選べます（保存した設計も選べます）。シャトル・揚陸艇は地上部隊を降ろす輸送機です（「地上部隊」タブで降下量を確認できます）。</p><div class="aviation-wings">${wings.map(aviationWingHTML).join('')||'<p class="note">まだ何も搭載していません。機種・艦種を選んで追加してください。</p>'}</div>${embarkAddHTML(a)}</div>${selected?.k==='hangar'?`<div class="pgroup"><h4>選択中 · ${esc(C.partLabel(selected))}</h4>${aviationPartHTML(selected)}</div>`:''}<details class="trench-editor aviation-bays" open><summary>航空区画と出入口 · ${num(bays.length)} 区画</summary><p class="note">内寸は区画の外形（全長 × 全幅 × 高さ）、出入口はハッチの開口（長辺 × 短辺）です。機体は小さい方の2辺が開口を通れば発艦できます。区画を選んで、位置・寸法・用途・接触面の開口を編集できます。</p><ul class="ilist">${bays.map(p=>`<li><button type="button" class="btn sm ghost" data-layout-part="${p.id}">${esc(C.partLabel(p))}</button><span data-aviation-capacity="${p.id}">${esc(bayText(p,a))}</span></li>`).join('')||'<li><span>「区画」から航空区画を配置してください。</span></li>'}</ul></details>${slides.length?`<details class="trench-editor"><summary>スライド扉の開閉を確認</summary><p class="note">上甲板・腹部の扉は左右へ、舷側の扉は上下へ移動します。観閲式と戦闘開始時は閉じ、発艦指示で4秒かけて開き、発艦完了・中止後に閉じます。</p>${slides.map(aviationDoorHTML).join('')}</details>`:''}`;
 }
 // ---------- ground forces ----------
 function groundNumbers(){return S?.ground||C.groundStatus(ship,S);}
@@ -4063,7 +4072,7 @@ function trialStop(){
  if(view){if(trial.designCamera){view.cam=trial.designCamera.cam;view.off=trial.designCamera.off;}delete view.cam.frame;delete view.cam.far;delete view.cam.near;}
  try{YardEngineClient.post({type:'trialEnd'});}catch(e){}
  trial.asset=null;trial.turrets=[];trial.launchers=[];trial.bolts=[];trial.missiles=[];trial.fx=[];trial.wrecks=[];trial.vbolts=[];trial.targets=[];trial.battle=null;trial.jump=null;trial.cine=null;trial.pat=null;
- const back=trial.returnTo,wasRts=!!trial.rts;trial.spectate=false;trial.returnTo=null;trial.battlePlan=null;trial.rts=null;trial.mode='trial';trial.foeCraft=[];trial.ownCraft=[];trial.foeMissiles=[];trial.cbolts=[];trial.craftGhosts=[];fleetPrune();renderPanel();renderSpecTargets();syncHud();requestDraw();if(back==='tactical')fleetSetMode('tactical');if(back==='voyage'||wasRts)voyPilotEnd();else if(back==='title')showTitle('voyage');
+ const back=trial.returnTo,wasRts=!!trial.rts;trial.spectate=false;trial.returnTo=null;trial.battlePlan=null;trial.rts=null;trial.mode='trial';trial.foeCraft=[];trial.ownCraft=[];trial.foeMissiles=[];trial.cbolts=[];trial.craftGhosts=[];fleetPrune();renderPanel();renderSpecTargets();syncHud();requestDraw();if(back==='tactical')fleetSetMode('tactical');if(back==='voyage'||wasRts)voyPilotEnd();else if(back==='title')showTitle('missions');
 }
 function trialAttitude(){
  // Coming out of hyperspace the ship is still far out on its line to the
@@ -4696,23 +4705,17 @@ function trialCommand(cmd){
  trialHudUpdate(true);
 }
 // ---------- star systems ----------
-// Two Core Worlds systems to fly between. Each sets its planet (drawn per pixel
-// in planet radii, with Kuat's shipyard ring in its equatorial plane) and the
-// orbit a ship arrives in. A ship arrives at 20° latitude heading toward the
-// equator, so the ring stands as an arch across the sky ahead, 8–18° up.
-const SYSTEMS={
- coruscant:{key:'coruscant',name:'コルサント',note:'銀河の首都。全球を覆う都市惑星',short:'銀河の首都',planet:{radius:6.12e6,kind:0,axis:[0,0,1],ring:null},altitude:160000,floor:40000,sun:[.787,.407,.463],map:[150,146]},
- kuat:{key:'kuat',name:'クワット',note:'クワット・ドライブ・ヤードの軌道造船リングが惑星を取り巻く造船星系',short:'KDY 造船所',planet:{radius:5.2e6,kind:1,axis:[-Math.cos(20*Math.PI/180),Math.sin(20*Math.PI/180),0],ring:[1.16,1.25]},altitude:180000,floor:60000,sun:[-.384,.5,.776],map:[262,86]},
- corellia:{key:'corellia',name:'コレリア',note:'造船と交易で栄えるコア・ワールド。コレリアン・ランの起点',short:'交易と造船',planet:{radius:6.1e6,kind:2,axis:[0,0,1],ring:null},altitude:170000,floor:50000,sun:[.561,.5,-.66],map:[312,130]},
- geonosis:{key:'geonosis',name:'ジオノーシス',note:'アウター・リムの赤い岩石惑星。荒野にドロイド工場が並ぶ',short:'岩石の惑星',planet:{radius:5.3e6,kind:5,axis:[0,0,1],ring:null},altitude:160000,floor:45000,sun:[-.279,.53,.801],map:[356,42]},
- bespin:{key:'bespin',name:'ベスピン',note:'アウター・リムのガス巨星。雲の層にタイバナガスの採掘都市が浮かぶ',short:'ガス巨星',planet:{radius:5.9e7,kind:3,axis:[.2,0,.98],ring:null},altitude:1.2e6,floor:3e5,sun:[-.648,.5,.574],map:[378,198]},
- hoth:{key:'hoth',name:'ホス',note:'アウター・リムの氷の惑星。吹雪と氷原に覆われている',short:'氷の惑星',planet:{radius:3.6e6,kind:4,axis:[0,0,1],ring:null},altitude:150000,floor:40000,sun:[.387,.438,.811],map:[340,222]}};
-// The lanes drawn on the star map (any system can be jumped to directly).
-const STAR_LANES=[['coruscant','kuat'],['kuat','corellia'],['coruscant','corellia'],['corellia','geonosis'],['corellia','bespin'],['bespin','hoth']];
+// v22 The systems of the galaxy map (Galaxy, shared with the fleet battle), each with the planet the flight orbits:
+// drawn per pixel in planet radii, a shipyard ring in its equatorial plane where there is one. A ship arrives at 20°
+// latitude heading toward the equator, so a ring stands as an arch across the sky ahead, 8–18° up. The six first
+// systems keep their planets and suns; the others take their sun from their name.
+const SYSTEMS={};
+for(const g of Galaxy.SYSTEMS){const v=g.v,ring=v.ring||null,alt=v.alt||Math.round(C.clamp(v.r*.027,120000,190000)),h=Galaxy.hash(g.key),az=(h%3600)/3600*Math.PI*2,el=.36+((h>>>12)%100)/100*.18;
+ SYSTEMS[g.key]={key:g.key,name:g.name,note:g.note,short:g.short,region:g.region,planet:{radius:v.r,kind:v.k,axis:(v.axis||(ring?[-Math.cos(20*Math.PI/180),Math.sin(20*Math.PI/180),0]:[0,0,1])).slice(),ring,look:v.look||null},altitude:alt,floor:v.fl||Math.round(alt*.28),sun:(v.sun||[Math.cos(az),el,Math.sin(az)]).slice(),map:g.at};}
 for(const s of Object.values(SYSTEMS))if(s.planet?.axis){const l=Math.hypot(...s.planet.axis)||1;s.planet.axis=s.planet.axis.map(x=>x/l);}
 for(const s of Object.values(SYSTEMS)){const l=Math.hypot(...s.sun);s.sun=s.sun.map(x=>x/l);}
 const trialSys=()=>SYSTEMS[trial.sysKey]||SYSTEMS.coruscant;
-const trialPlanet=()=>{const s=trialSys();return {center:tv.scale(trial.P,-1),radius:s.planet.radius,sun:s.sun,kind:s.planet.kind,axis:s.planet.axis,ring:s.planet.ring};};
+const trialPlanet=()=>{const s=trialSys();return {center:tv.scale(trial.P,-1),radius:s.planet.radius,sun:s.sun,kind:s.planet.kind,axis:s.planet.axis,ring:s.planet.ring,look:s.planet.look||null};};
 function trialDust(){const L=trial.p.len,H=C.clamp(L*2,1400,30000),n=280,pos=new Float32Array(n*3);for(let i=0;i<pos.length;i++)pos[i]=(Math.random()*2-1)*H;trial.dust={H,pos,col:new Uint8Array(n*4).map((_,i)=>i%4===3?120:170+(i%4)*14),size:new Float32Array(n).fill(Math.max(2,L*.0035))};}
 
 // ---------- hyperspace ----------
@@ -4726,8 +4729,14 @@ function trialDust(){const L=trial.p.len,H=C.clamp(L*2,1400,30000),n=280,pos=new
 // dropping out is seen from outside as a long streak that snaps back to the
 // ship's true length.
 const JUMP={spool:1.8,accel:1.4,enter:1.25,close:.45,exit:1.1,brake:1.3,arrive:.4},SUBLIGHT=3e7,LIGHT=2.998e8,STREAK=1.9;
-const jumpSeconds=(hc,from,to)=>{const a=SYSTEMS[from]?.map,b=SYSTEMS[to]?.map,d=a&&b?Math.hypot(a[0]-b[0],a[1]-b[1])/127:1;return C.clamp((3+2.2*hc)*(.6+.4*d),3.5,24);};
+// v22 Along the lanes of the galaxy map: the quickest way's cost (a grid square on a major route counts 1, on a
+// hyperlane 2), so neighbouring systems are a few seconds apart and the far side of the galaxy under half a minute.
+const jumpSeconds=(hc,from,to)=>{const p=Galaxy.path(from,to),d=p?p.cost:3;return C.clamp((3+2.2*hc)*(.45+.2*Math.pow(d,.8)),3.5,40);};
 const trialHyperClass=()=>trial.asset?.stats?.hyperClass??null;
+// v22 A ship drops out of hyperspace heading the way it came along the lanes: the bearing of the last leg into the
+// system on the galaxy map (north up, east +x on the local horizon; 090° is east as on the heading readout).
+function galBearing(from,to){const p=Galaxy.path(from,to),q=p?Galaxy.pathPts(p):null;if(!q||q.length<2)return null;const a=q[q.length-2],b=q[q.length-1];return Math.atan2(b[0]-a[0],-(b[1]-a[1]));}
+function galArrivalDir(from,to){const b=galBearing(from,to);return b==null?[1,0,0]:[Math.sin(b),0,-Math.cos(b)];}
 // A ship dropping out covers D(t)=D0·e^(−kt) in its last instants; it is drawn
 // stretched by that speed, bow in place, and washed blue-white.
 const WARP={D0:160,k:22,cap:36};
@@ -4777,8 +4786,8 @@ function trialJump(dest){
  if(!trial.on||trial.jump||!SYSTEMS[dest])return;if(dest===trial.sysKey){toast('すでにこの星系にいます');return;}
  const hc=trialHyperClass();if(hc==null){toast('この艦にはハイパードライブがありません');return;}
  if(trial.battle?.me?.out||trial.battle?.me?.dead){toast('戦闘不能のためジャンプできません');return;}
- spaceCineEnd();trial.jump={phase:'spool',t:0,dest,tunnel:jumpSeconds(hc,trial.sysKey,dest),dir:trialCol(trial.R,0)};trial.tele=5;trial.fire=trial.fireKey=false;trial.fireTap=0;
- trialMapShow(false);toast(`ハイパードライブ起動 — ${SYSTEMS[dest].name}へ（超空間 ${Math.round(trial.jump.tunnel)} 秒）`);
+ spaceCineEnd();trial.jump={phase:'spool',t:0,dest,from:trial.sysKey,tunnel:jumpSeconds(hc,trial.sysKey,dest),dir:trialCol(trial.R,0)};trial.tele=5;trial.fire=trial.fireKey=false;trial.fireTap=0;
+ trialMapShow(false);const way=Galaxy.path(trial.sysKey,dest);toast(`ハイパードライブ起動 — ${SYSTEMS[dest].name}へ（超空間 ${Math.round(trial.jump.tunnel)} 秒${way&&way.legs.length>1?`・${way.legs.length - 1} 星系経由`:''}）`);
  if(trial.battle&&!trial.battle.result)spaceDepartEscorts();
 }
 // Seconds left in the tunnel (known for a flight; for a ship followed in a
@@ -4832,31 +4841,182 @@ function trialJumpStep(dt){
  trialReversion();
 }
 function trialArrive(dest){
- trial.sysKey=dest;const s=trialSys(),R=s.planet.radius;
- Object.assign(trial,{P:[0,R+s.altitude,0],R:[1,0,0,0,1,0,0,0,1],w:[0,0,0],V:[trial.p.maxSpeed*.3,0,0],tele:2,rudder:0,level:false,camF:null,warn:''});trial.vf=trial.V[0];trialDust();
+ trial.sysKey=dest;const s=trialSys(),R=s.planet.radius,f=galArrivalDir(trial.jump?.from,dest);
+ Object.assign(trial,{P:[0,R+s.altitude,0],R:trialFrame(f,[0,1,0]),w:[0,0,0],V:tv.scale(f,trial.p.maxSpeed*.3),tele:2,rudder:0,level:false,camF:null,warn:''});trial.vf=trial.p.maxSpeed*.3;trialDust();
  if(trial.pat){trial.targets=[];patrolArrive();}else if(trial.mode==='trial'){trial.targets=[];for(let i=0;i<TRIAL_GUN.targets;i++)trial.targets.push(trialSpawnTarget(i,true));}else trial.targets=[];
  // The arrival point; reversion brings the ship in along its heading to it.
  if(trial.jump){trial.jump.dir=trialCol(trial.R,0);trial.jump.to=trial.P.slice();trial.jump.v1=trial.vf;trial.camF=trialFrame(trial.jump.dir,tv.norm(trial.P));}escortsPlace();toast(`${s.name}に到着 — ${s.note}`);
 }
-// Star map of the Core Worlds: the current system, the other system and the
-// hyperlane between them. Jumping from a battle withdraws from it.
-function trialMapHTML(){
- const cur=trialSys(),hc=trialHyperClass(),inBattle=trial.battle&&!trial.battle.result;
- const sys=Object.values(SYSTEMS).filter(s=>s.key!=='rts'),core=[64,196];
- const lanes=STAR_LANES.map(([a,b])=>{const p=SYSTEMS[a].map,q=SYSTEMS[b].map,m=[(p[0]+q[0])/2+(q[1]-p[1])*.08,(p[1]+q[1])/2-(q[0]-p[0])*.08];return `<path class="tm-lane" d="M${p.join(' ')} Q ${m.join(' ')} ${q.join(' ')}"/>`;}).join('');
- const marks=sys.map(s=>{const here=s.key===cur.key,left=s.key==='coruscant'||s.map[0]>330,tx=left?s.map[0]-14:s.map[0]+14,anc=left?'end':'start';return `<g class="tm-sys ${here?'here':''}" ${here||hc==null?'':`data-trial-cmd="jump:${s.key}"`}>${here?`<circle class="tm-ring" cx="${s.map[0]}" cy="${s.map[1]}" r="12"/>`:''}<circle cx="${s.map[0]}" cy="${s.map[1]}" r="${here?6:5}"/><text x="${tx}" y="${s.map[1]-2}" text-anchor="${anc}">${esc(s.name)}</text><text class="tm-sub" x="${tx}" y="${s.map[1]+12}" text-anchor="${anc}">${here?'現在地 · ':''}${esc(s.short)}</text></g>`;}).join('');
- const dests=sys.filter(s=>s.key!==cur.key);
- return `<div class="th-map-head"><b>星図 · コア・ワールドとアウター・リム</b><button type="button" class="th-btn" data-trial-cmd="map">閉じる</button></div>
- <svg class="tm-svg" viewBox="0 0 400 240" role="img" aria-label="星図。コア・ワールドのコルサント・クワット・コレリアと、アウター・リムのジオノーシス・ベスピン・ホスがハイパーレーンで結ばれている"><defs><radialGradient id="tmCore" cx="${core[0]/4}%" cy="${core[1]/2.4}%" r="62%"><stop offset="0" stop-color="#fff3cf" stop-opacity=".9"/><stop offset=".1" stop-color="#ffcd7d" stop-opacity=".5"/><stop offset=".34" stop-color="#5d72ad" stop-opacity=".2"/><stop offset="1" stop-color="#060a14" stop-opacity="0"/></radialGradient></defs>
- <rect width="400" height="240" fill="#060a14"/><rect width="400" height="240" fill="url(#tmCore)"/>
- ${[80,150,225,300].map(r=>`<circle class="tm-grid" cx="${core[0]}" cy="${core[1]}" r="${r}"/>`).join('')}
- <path class="tm-arm" d="M-10 64 C 90 20, 250 10, 410 60"/><path class="tm-arm" d="M120 250 C 200 200, 320 180, 410 196"/>
- <text class="tm-region" x="${core[0]-30}" y="${core[1]+26}">ディープ・コア</text><text class="tm-region" x="184" y="186">コア・ワールド</text><text class="tm-region" x="392" y="132" text-anchor="end">アウター・リム</text>
- ${lanes}${marks}</svg>
- <p class="th-map-note">${hc==null?'この艦にはハイパードライブがありません。':`ハイパードライブ クラス ${num(hc,1)} · 超空間 約 ${Math.round(jumpSeconds(hc,'coruscant','kuat'))}〜${Math.round(jumpSeconds(hc,'coruscant','hoth'))} 秒（演習時間・遠い星系ほど長い）。全速から亜光速まで加速し、星空が放射状に引き伸ばされてハイパースペースへ。ジャンプ中は射撃できません。${inBattle?'戦闘中にジャンプすると戦域から離脱し、僚艦も続きます。':''}`}</p>
- <div class="th-map-go">${dests.map(s=>`<button type="button" class="th-btn th-jumpbtn" data-trial-cmd="jump:${s.key}" ${hc==null?'disabled':''}>${inBattle?'離脱して':''}${esc(s.name)}へ${hc==null?'':`（${Math.round(jumpSeconds(hc,cur.key,s.key))} 秒）`}</button>`).join('')}</div>`;
+// ---------- v22 the galaxy map ----------
+// One schematic map of the galaxy (Galaxy, shared with the fleet battle) for the star map in flight (星図) and the
+// title's 任務マップ: the region bands, the five major trade routes (①–⑤) and the hyperlanes, the systems as dots
+// with their names. It is an SVG in map units (a tenth of a grid square); dots, names and badges keep one screen size
+// at every zoom, and the names are laid out where they fit, the selected and current systems and the better known
+// ones first. Drag to move, pinch, the wheel or the buttons to zoom; tap a system to select it.
+const GM_U=10,GM_BOX=[22,4,196,212];   // map units per grid square; the extent shown whole at zoom 1
+const GM_REG_COL={deep:'#ff7d8a',core:'#ffd27a',colonies:'#c7b5ff',inner:'#ffad6e',expansion:'#8fdcff',mid:'#ff9fcf',outer:'#a9c2ff',hutt:'#ff7a72',bothan:'#ff9a8a',corporate:'#ff9a8a',unknown:'#f2f4f8',wild:'#dfe6ee'};
+const GM_BAND_FILL=['#43404f','#3b3118','#2b2339','#35241a','#13303a','#2e1b2f','#132437'];
+const GM_ROUTE_SIGN=['','①','②','③','④','⑤'];
+const GMAP={};
+const gmP=at=>[at[0]*GM_U,at[1]*GM_U];
+function gmCR(pts,closed){
+ const n=pts.length;if(n<2)return '';const P=i=>closed?pts[((i%n)+n)%n]:pts[Math.max(0,Math.min(n-1,i))],f=v=>v.toFixed(1);
+ let d=`M${f(P(0)[0])} ${f(P(0)[1])}`;
+ for(let i=0;i<(closed?n:n-1);i++){const p0=P(i-1),p1=P(i),p2=P(i+1),p3=P(i+2);d+=`C${f(p1[0]+(p2[0]-p0[0])/6)} ${f(p1[1]+(p2[1]-p0[1])/6)} ${f(p2[0]-(p3[0]-p1[0])/6)} ${f(p2[1]-(p3[1]-p1[1])/6)} ${f(p2[0])} ${f(p2[1])}`;}
+ return d+(closed?'Z':'');}
+// The layers that never change: bands, named spaces, the grid, region names, hyperlanes, routes and their badges.
+let gmStaticSVG=null;
+function gmStatic(){
+ if(gmStaticSVG)return gmStaticSVG;const G=Galaxy,c=G.BANDS.c;let h='<rect class="gm-bg" x="-20" y="-20" width="260" height="260"/>';
+ for(let k=6;k>=0;k--){const pts=G.BANDS.r[k].map((r,i)=>{const a=i*Math.PI/18;return gmP([c[0]+Math.cos(a)*r,c[1]+Math.sin(a)*r]);});h+=`<path class="gm-band b${k}" fill="${GM_BAND_FILL[k]}" d="${gmCR(pts,true)}"/>`;}
+ for(const z of G.ZONES){if(z.poly)h+=`<path class="gm-zone" d="${gmCR(z.poly.map(gmP),true)}"/>`;else{const [x,y,rx,ry]=z.ell;h+=`<ellipse class="gm-zone" cx="${x*GM_U}" cy="${y*GM_U}" rx="${rx*GM_U}" ry="${ry*GM_U}"/>`;}}
+ let g='';for(let x=0;x<=19;x++)g+=`M${x*GM_U} 0V${21*GM_U}`;for(let y=0;y<=21;y++)g+=`M0 ${y*GM_U}H${19*GM_U}`;h+=`<path class="gm-grid" d="${g}"/>`;
+ for(let i=0;i<19;i++)h+=`<g class="gm-k gm-gl" data-x="${(i+.5)*GM_U}" data-y="${.9*GM_U}"><text>${G.COLS[i]}</text></g>`;
+ for(let j=0;j<21;j++)h+=`<g class="gm-k gm-gl" data-x="${.35*GM_U}" data-y="${(j+.6)*GM_U}"><text>${j+1}</text></g>`;
+ for(const [k,x,y] of G.REGION_LABELS)h+=`<g class="gm-k gm-rl" data-x="${x*GM_U}" data-y="${y*GM_U}"><text>${esc(G.REGIONS[k].name)}</text></g>`;
+ for(const z of G.ZONES)h+=`<g class="gm-k gm-rl gm-zl" data-x="${z.label[0]*GM_U}" data-y="${z.label[1]*GM_U}"><text>${esc(z.name)}</text></g>`;
+ h+='<g class="gm-links">';for(const e of G.EDGES)if(!e.route){const a=gmP(G.BY[e.a].at),b=gmP(G.BY[e.b].at);h+=`<line x1="${a[0].toFixed(1)}" y1="${a[1].toFixed(1)}" x2="${b[0].toFixed(1)}" y2="${b[1].toFixed(1)}"/>`;}h+='</g>';
+ for(const r of G.ROUTES)h+=`<path class="gm-route r${r.n}" d="${gmCR(r.pts.map(gmP),false)}"/>`;
+ for(const r of G.ROUTES){const m=gmP(r.mark);h+=`<g class="gm-k gm-badge" data-x="${m[0]}" data-y="${m[1]}"><title>${esc(r.name)}</title><circle r="7.5"/><text y="3.6">${r.n}</text></g>`;}
+ return gmStaticSVG=h;}
+function galMapHTML(ctx){
+ const st=GMAP[ctx]||(GMAP[ctx]={cx:90,cy:100,z:1}),bt=Galaxy.BATTLES;
+ const sys=Galaxy.SYSTEMS.map(s=>{const [x,y]=gmP(s.at),t=s.tier||3;return `<g class="gm-k gs t${t}${s.approx?' approx':''}" data-k="${s.key}" data-x="${x}" data-y="${y}">${bt[s.key]?'<path class="gs-bt" d="M6.5 -11.5l3.6 3.6-3.6 3.6-3.6-3.6z"/>':''}<circle class="gs-sel" r="11"/><circle class="gs-here" r="7.5"/><circle class="gs-dot" r="${t===1?4.3:3.5}" fill="${GM_REG_COL[s.region]||'#cfd8e0'}"/><text class="gs-n">${esc(s.name)}</text><text class="gs-sub"></text></g>`;}).join('');
+ return `<div class="gm" data-gm="${ctx}"><svg class="gm-svg" viewBox="${GM_BOX[0]} ${GM_BOX[1]} ${GM_BOX[2]-GM_BOX[0]} ${GM_BOX[3]-GM_BOX[1]}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="銀河図。地域の帯、五つの主要交易路と支線、主要な星系。ドラッグで移動、ピンチやボタンで拡大縮小、星系をタップで選択"><g class="gm-static">${gmStatic()}</g><path class="gm-path" d=""/><g class="gm-sys">${sys}</g></svg>
+ <div class="gm-ctl"><button type="button" data-gm-zoom="in" aria-label="拡大">＋</button><button type="button" data-gm-zoom="out" aria-label="縮小">－</button><button type="button" data-gm-zoom="fit" aria-label="銀河全体">全体</button><button type="button" data-gm-zoom="sel" aria-label="選んだ星系へ">◎</button></div></div>`;}
+// The view: centre (map units) and zoom (1 = the whole galaxy); s map units per screen pixel.
+function gmApply(ctx){
+ const st=GMAP[ctx],svg=st?.root?.querySelector('.gm-svg');if(!svg)return;const r=svg.getBoundingClientRect();if(r.width<20||r.height<20)return;
+ const bw=GM_BOX[2]-GM_BOX[0],bh=GM_BOX[3]-GM_BOX[1];st.z=C.clamp(st.z,.9,9);const s=Math.max(bw/r.width,bh/r.height)/st.z,w=r.width*s,h=r.height*s;
+ st.cx=C.clamp(st.cx,GM_BOX[0]+Math.min(w/2,bw/2)*.2,GM_BOX[2]-Math.min(w/2,bw/2)*.2);st.cy=C.clamp(st.cy,GM_BOX[1]+Math.min(h/2,bh/2)*.2,GM_BOX[3]-Math.min(h/2,bh/2)*.2);
+ st.vb=[st.cx-w/2,st.cy-h/2,w,h];st.s=s;st.cw=r.width;st.ch=r.height;svg.setAttribute('viewBox',st.vb.map(v=>v.toFixed(2)).join(' '));
+ if(st.ks!==s){st.ks=s;const k=s.toFixed(4);for(const g of svg.querySelectorAll('.gm-k'))g.setAttribute('transform',`translate(${g.dataset.x} ${g.dataset.y}) scale(${k})`);}
+ gmLayout(ctx);}
+// Names where they fit, on the side the system prefers or another; the rest hidden until zoomed in.
+const GM_SIDES={r:[7,4,'start'],l:[-7,4,'end'],t:[0,-8,'middle'],b:[0,16,'middle']};
+function gmLayout(ctx){
+ // How far in: the whole galaxy shows the best known names only, a region the better known, a sector all.
+ const st=GMAP[ctx],svg=st.root.querySelector('.gm-svg'),[x0,y0]=st.vb,s=st.s,W=st.cw,H=st.ch,ppu=GM_U/s,maxTier=ppu<24?1:ppu<42?2:3,fs=ppu<24?10:11,boxes=[],labels=[],over=(b,list)=>list.some(q=>b[0]<q[2]&&b[2]>q[0]&&b[1]<q[3]&&b[3]>q[1]),out=b=>b[0]<2||b[1]<2||b[2]>W-2||b[3]>H-2;
+ const items=[];for(const g of svg.querySelectorAll('.gs')){const sx=(+g.dataset.x-x0)/s,sy=(+g.dataset.y-y0)/s,s0=Galaxy.BY[g.dataset.k];items.push({g,s0,sx,sy});boxes.push([sx-4.5,sy-4.5,sx+4.5,sy+4.5]);}
+ for(const g of svg.querySelectorAll('.gm-badge')){const sx=(+g.dataset.x-x0)/s,sy=(+g.dataset.y-y0)/s;boxes.push([sx-8,sy-8,sx+8,sy+8]);}
+ // (and clear of the zoom buttons)
+ const ctl=st.root.querySelector('.gm-ctl')?.getBoundingClientRect(),sr=svg.getBoundingClientRect();if(ctl&&ctl.width)labels.push([ctl.left-sr.left-4,ctl.top-sr.top-4,ctl.right-sr.left+4,ctl.bottom-sr.top+4]);
+ const pri=it=>it.s0.key===st.sel?0:it.s0.key===st.cur?1:(it.s0.tier||3)+1;items.sort((a,b)=>pri(a)-pri(b));
+ const order=['r','l','t','b'];
+ for(const it of items){
+  const n=it.g.querySelector('.gs-n'),sub=it.g.querySelector('.gs-sub'),big=pri(it)<=1,on=it.sx>-40&&it.sy>-20&&it.sx<W+40&&it.sy<H+20&&(big||(it.s0.tier||3)<=maxTier),f=big?12:fs;
+  const subTxt=it.s0.key===st.cur?st.curTag||'現在地':it.s0.key===st.sel?st.selTag||'':'';
+  let placed=false;const sides=[it.s0.lab||'r',...order.filter(o=>o!==(it.s0.lab||'r'))];
+  // A name goes clear of every dot and name (the selected and current systems' first, wherever is clearest).
+  const box=side=>{const [dx,dy,anc]=GM_SIDES[side],w=it.s0.name.length*f*.98+2,x=anc==='start'?it.sx+dx:anc==='end'?it.sx+dx-w:it.sx-w/2;return [x-3,it.sy+dy-f-1,x+w+3,it.sy+dy+3+(subTxt?11:0)];};
+  const own=[it.sx-4.5,it.sy-4.5,it.sx+4.5,it.sy+4.5],dots=b=>boxes.filter(q=>q[0]!==own[0]||q[1]!==own[1]).filter(q=>b[0]<q[2]&&b[2]>q[0]&&b[1]<q[3]&&b[3]>q[1]).length;
+  let pick=null;
+  if(on&&big)pick=sides.map(sd=>({sd,b:box(sd)})).sort((p,q)=>(over(p.b,labels)-over(q.b,labels))||(dots(p.b)-dots(q.b)))[0];
+  else if(on){for(const sd of sides){const b=box(sd);if(!out(b)&&!over(b,labels)&&!dots(b)){pick={sd,b};break;}}
+   // The better known systems may sit over another dot (the fewest), never over a name.
+   if(!pick&&(it.s0.tier||3)<=Math.min(2,maxTier-(maxTier>1?1:0)))pick=sides.map(sd=>({sd,b:box(sd)})).filter(p=>!out(p.b)&&!over(p.b,labels)).sort((p,q)=>dots(p.b)-dots(q.b))[0]||null;}
+  if(pick){const [dx,dy,anc]=GM_SIDES[pick.sd];n.style.fontSize=big?'':f+'px';n.setAttribute('x',dx);n.setAttribute('y',dy);n.setAttribute('text-anchor',anc);sub.setAttribute('x',dx);sub.setAttribute('y',dy+11);sub.setAttribute('text-anchor',anc);labels.push(pick.b);placed=true;}
+  n.style.display=placed?'':'none';sub.textContent=placed?subTxt:'';
+ }}
+function gmMark(ctx){
+ const st=GMAP[ctx],svg=st?.root?.querySelector('.gm-svg');if(!svg)return;
+ for(const g of svg.querySelectorAll('.gs')){g.classList.toggle('sel',g.dataset.k===st.sel);g.classList.toggle('here',g.dataset.k===st.cur);}
+ const p=st.cur&&st.sel&&st.cur!==st.sel?Galaxy.path(st.cur,st.sel):null;svg.querySelector('.gm-path').setAttribute('d',p?'M'+Galaxy.pathPts(p).map(q=>gmP(q).map(v=>v.toFixed(1)).join(' ')).join('L'):'');}
+function gmCenter(ctx,key,z){const st=GMAP[ctx],s=Galaxy.BY[key];if(!st||!s)return;[st.cx,st.cy]=gmP(s.at);if(z)st.z=Math.max(st.z,z);gmApply(ctx);}
+function gmZoom(ctx,how){
+ const st=GMAP[ctx];if(!st)return;
+ if(how==='in')st.z*=1.6;else if(how==='out')st.z/=1.6;else if(how==='fit'){st.z=1;st.cx=(GM_BOX[0]+GM_BOX[2])/2;st.cy=(GM_BOX[1]+GM_BOX[3])/2;}else if(how==='sel'){const k=st.sel||st.cur;if(k){gmCenter(ctx,k,2.4);return;}}
+ gmApply(ctx);}
+// Pointer handling on the map: one finger (or the mouse) moves it, two pinch; a touch that hardly moved is a tap.
+function gmBind(ctx,root){
+ const st=GMAP[ctx];st.root=root;const svg=root.querySelector('.gm-svg');if(!svg||svg._gm)return;svg._gm=true;
+ const pts=new Map();let start=null,pinch=null,moved=false,raf=0;const kick=()=>{if(!raf)raf=requestAnimationFrame(()=>{raf=0;gmApply(ctx);});};
+ const local=(x,y)=>{const r=svg.getBoundingClientRect();return [x-r.left,y-r.top];};
+ svg.addEventListener('pointerdown',e=>{try{svg.setPointerCapture(e.pointerId);}catch(x){}pts.set(e.pointerId,[e.clientX,e.clientY]);
+  if(pts.size===1){start={x:e.clientX,y:e.clientY,cx:st.cx,cy:st.cy};moved=false;}
+  else if(pts.size===2){const [a,b]=[...pts.values()],m=local((a[0]+b[0])/2,(a[1]+b[1])/2);pinch={d:Math.hypot(a[0]-b[0],a[1]-b[1])||1,z:st.z,mx:st.vb[0]+m[0]*st.s,my:st.vb[1]+m[1]*st.s,px:m[0],py:m[1]};moved=true;}
+  e.preventDefault();});
+ svg.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;pts.set(e.pointerId,[e.clientX,e.clientY]);
+  if(pinch&&pts.size>=2){const [a,b]=[...pts.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1])||1;st.z=C.clamp(pinch.z*d/pinch.d,.9,9);const bw=GM_BOX[2]-GM_BOX[0],bh=GM_BOX[3]-GM_BOX[1],s=Math.max(bw/st.cw,bh/st.ch)/st.z;st.cx=pinch.mx-(pinch.px-st.cw/2)*s;st.cy=pinch.my-(pinch.py-st.ch/2)*s;kick();return;}
+  if(!start)return;const dx=e.clientX-start.x,dy=e.clientY-start.y;if(!moved&&Math.hypot(dx,dy)<7)return;moved=true;st.cx=start.cx-dx*st.s;st.cy=start.cy-dy*st.s;kick();});
+ const up=e=>{if(!pts.has(e.pointerId))return;pts.delete(e.pointerId);
+  if(!moved&&start&&pts.size===0&&e.type==='pointerup'){const [x,y]=local(e.clientX,e.clientY);let best=null,bd=24;for(const s of Galaxy.SYSTEMS){const q=gmP(s.at),sx=(q[0]-st.vb[0])/st.s,sy=(q[1]-st.vb[1])/st.s,d=Math.hypot(sx-x,sy-y);if(d<bd){bd=d;best=s.key;}}if(best)st.onPick?.(best);}
+  if(pts.size<2)pinch=null;if(pts.size===1){const [p]=[...pts.values()];start={x:p[0],y:p[1],cx:st.cx,cy:st.cy};}else if(!pts.size)start=null;};
+ svg.addEventListener('pointerup',up);svg.addEventListener('pointercancel',up);
+ svg.addEventListener('wheel',e=>{e.preventDefault();const [px,py]=local(e.clientX,e.clientY),mx=st.vb[0]+px*st.s,my=st.vb[1]+py*st.s;st.z=C.clamp(st.z*Math.exp(-e.deltaY*.0015),.9,9);const bw=GM_BOX[2]-GM_BOX[0],bh=GM_BOX[3]-GM_BOX[1],s=Math.max(bw/st.cw,bh/st.ch)/st.z;st.cx=mx-(px-st.cw/2)*s;st.cy=my-(py-st.ch/2)*s;kick();},{passive:false});
+ root.addEventListener('click',e=>{const z=e.target.closest('[data-gm-zoom]');if(z){e.preventDefault();gmZoom(ctx,z.dataset.gmZoom);}});
 }
-function trialMapShow(on){const m=$('#thMap');if(!m)return;if(on==null)on=m.hidden;if(on)m.innerHTML=trialMapHTML();m.hidden=!on;document.querySelector('[data-trial-cmd="map"].th-mapbtn')?.setAttribute('aria-expanded',String(on));}
+window.addEventListener('resize',()=>{for(const k of Object.keys(GMAP))if(GMAP[k].root?.isConnected)setTimeout(()=>gmApply(k),60);});
+// A system's card: its name and square, region, what it is, the routes through it or its hyperlanes.
+function gmRoutesHTML(g){const rs=g.routes.map(k=>Galaxy.ROUTE_BY[k]);return rs.length?rs.map(r=>`<span class="gm-rt r${r.n}">${GM_ROUTE_SIGN[r.n]} ${esc(r.name)}</span>`).join(''):`<span class="gm-rt lane">支線：${g.links.map(k=>esc(Galaxy.BY[k].name)).join('・')}</span>`;}
+function gmSysCardHTML(key,extra=''){
+ const g=Galaxy.BY[key];if(!g)return '';const reg=Galaxy.REGIONS[g.region],bt=Galaxy.BATTLES[key];
+ return `<div class="gm-card"><div class="gm-card-h"><b>${esc(g.name)}</b><small>${esc(reg?.name||'')} · グリッド ${Galaxy.grid(g.at)}${g.approx?'（推定）':''}</small></div><p>${esc(g.note)}</p><div class="gm-rts">${gmRoutesHTML(g)}</div>${bt?`<p class="gm-bt-line">戦史：${esc(bt.name)}（${esc(bt.era)}）</p>`:''}${extra}</div>`;}
+function gmPathText(p){if(!p||p.path.length<2)return '';const names=p.path.map(k=>Galaxy.BY[k].name),main=p.legs.filter(e=>e.route).length,lane=p.legs.length-main;return `${names.length>6?[...names.slice(0,3),'…',...names.slice(-2)].join(' → '):names.join(' → ')}（${p.legs.length} 区間${lane?`・支線 ${lane}`:''}）`;}
+function gmLegendHTML(){return `<div class="gm-legend">${Galaxy.ROUTES.map(r=>`<span class="gm-rt r${r.n}">${GM_ROUTE_SIGN[r.n]} ${esc(r.name)}</span>`).join('')}<span class="gm-rt lane">— 支線（ハイパーレーン）は主要交易路の半分の速さ</span></div>`;}
+function gmListHTML(attr){
+ const by={};for(const s of Galaxy.SYSTEMS)(by[s.region]||(by[s.region]=[])).push(s);
+ return `<details class="gm-list"><summary>星系の一覧（地域別・${Galaxy.SYSTEMS.length}）</summary>${Object.keys(Galaxy.REGIONS).filter(k=>by[k]).map(k=>`<p class="gm-list-h">${esc(Galaxy.REGIONS[k].name)}</p><div class="gm-list-b">${by[k].map(s=>`<button type="button" ${attr}="${s.key}">${esc(s.name)}</button>`).join('')}</div>`).join('')}</details>`;}
+
+// ---- the star map in flight ----
+// The galaxy map over the flight: tap a system to see the way there along the lanes and jump. Jumping from a
+// battle withdraws from it.
+function trialMapHTML(){
+ const cur=trialSys(),st=GMAP.trial||(GMAP.trial={cx:90,cy:100,z:2.2});st.cur=cur.key;if(st.sel===cur.key||!Galaxy.BY[st.sel])st.sel=null;st.curTag='現在地';st.selTag='行き先';
+ return `<div class="th-map-head"><b>星図 · 銀河</b><span class="th-map-where">${esc(cur.name)}（${esc(Galaxy.REGIONS[cur.region]?.short||'')}）</span><button type="button" class="th-btn" data-trial-cmd="map">閉じる</button></div>
+ <div class="gm-wrap"><div class="gm-box">${galMapHTML('trial')}</div><div class="gm-side" id="thMapSide">${trialMapSide()}</div></div>`;}
+function trialMapSide(){
+ const cur=trialSys(),st=GMAP.trial,hc=trialHyperClass(),inBattle=trial.battle&&!trial.battle.result,sel=st?.sel&&SYSTEMS[st.sel]?st.sel:null;
+ let h='';
+ if(sel){const p=Galaxy.path(cur.key,sel),t=hc==null?null:Math.round(jumpSeconds(hc,cur.key,sel));
+  h+=gmSysCardHTML(sel,`<p class="gm-way">${esc(gmPathText(p))}</p><button type="button" class="th-btn th-jumpbtn" data-trial-cmd="jump:${sel}" ${hc==null?'disabled':''}>${inBattle?'離脱して':''}${esc(SYSTEMS[sel].name)}へジャンプ${t==null?'':`（${t} 秒）`}</button>`);}
+ else h+=gmSysCardHTML(cur.key,`<p class="gm-hint">行き先の星系をタップしてください（ドラッグで移動・ピンチで拡大）。</p>`);
+ h+=`<p class="th-map-note">${hc==null?'この艦にはハイパードライブがありません。':`ハイパードライブ クラス ${num(hc,1)} · 主要交易路は速く、支線は遅い（演習時間）。全速から亜光速まで加速し、星空が放射状に引き伸ばされてハイパースペースへ。ジャンプ中は射撃できません。${inBattle?'戦闘中にジャンプすると戦域から離脱し、僚艦も続きます。':''}`}</p>`;
+ return h+gmLegendHTML()+gmListHTML('data-gm-pick');}
+function trialMapPick(key){const st=GMAP.trial;if(!st||!SYSTEMS[key])return;st.sel=key===st.cur?null:key;gmMark('trial');gmLayout('trial');const side=$('#thMapSide');if(side)side.innerHTML=trialMapSide();}
+function trialMapShow(on){
+ const m=$('#thMap');if(!m)return;if(on==null)on=m.hidden;
+ // (the card sits over the whole flight view, outside the bar it is declared in)
+ const hud=$('#trialHud');if(hud&&m.parentElement!==hud)hud.appendChild(m);
+ if(on){m.innerHTML=trialMapHTML();m.hidden=false;const st=GMAP.trial;st.onPick=trialMapPick;
+  if(!m._gm){m._gm=true;m.addEventListener('click',e=>{const b=e.target.closest('[data-gm-pick]');if(b){e.preventDefault();e.stopPropagation();trialMapPick(b.dataset.gmPick);gmCenter('trial',b.dataset.gmPick,2);b.closest('details')?.removeAttribute('open');}});}
+  gmBind('trial',m.querySelector('.gm'));if(!st.placed){st.placed=true;[st.cx,st.cy]=gmP(Galaxy.BY[st.cur]?.at||[9,9]);}else if(st.lastCur!==st.cur)[st.cx,st.cy]=gmP(Galaxy.BY[st.cur]?.at||[9,9]);st.lastCur=st.cur;
+  gmMark('trial');requestAnimationFrame(()=>gmApply('trial'));}
+ else m.hidden=true;
+ document.querySelector('[data-trial-cmd="map"].th-mapbtn')?.setAttribute('aria-expanded',String(on));}
+
+// ---- the 任務マップ (title) ----
+// One map for the missions: pick a system and a mission there — a patrol from that system (the flagship and its
+// escorts below the map) or a fleet battle in the 500-ly area around it (the order of battle and the sortie are set
+// on the fleet-battle screen). Battles of the films and series are marked; a fleet battle there opens with the two
+// sides that fought it.
+const MM_KEY='yard.mission1';
+const mm=(()=>{try{const o=JSON.parse(LS.get(MM_KEY)||'null');if(o&&typeof o==='object')return {mode:o.mode==='fleet'?'fleet':'patrol',fleetSys:Galaxy.BY[o.fleetSys]?o.fleetSys:'kuat'};}catch(e){}return {mode:'patrol',fleetSys:'kuat'};})();
+function mmSave(){LS.set(MM_KEY,JSON.stringify(mm));}
+function missionMapOpen(mode){if(mode==='patrol'||mode==='fleet'){mm.mode=mode;mmSave();}titleState.mode='voyage';titleState.panel='missions';renderTitle();}
+function mmSel(){return mm.mode==='fleet'?mm.fleetSys:(SYSTEMS[patrolOpt.sys]&&patrolOpt.sys!=='rts'?patrolOpt.sys:'kuat');}
+function mmPick(key){if(!Galaxy.BY[key])return;if(mm.mode==='fleet')mm.fleetSys=key;else{patrolOpt.sys=key;patrolSave();}mmSave();const st=GMAP.mission;if(st){st.sel=key;gmMark('mission');gmLayout('mission');}missionSideRender();}
+function missionMapRender(){
+ const t=$('#title');if(!t)return;let el=$('#missionMap');
+ if(titleState.panel!=='missions'){if(el)el.hidden=true;return;}
+ if(!el){el=document.createElement('div');el.id='missionMap';el.className='mmap';el.setAttribute('role','region');el.setAttribute('aria-label','任務マップ');t.appendChild(el);}
+ const st=GMAP.mission||(GMAP.mission={cx:90,cy:100,z:1.7}),sel=mmSel();st.sel=sel;st.cur=null;st.selTag=mm.mode==='fleet'?'戦域':'出発地';st.onPick=mmPick;
+ if(!el.dataset.ready){el.innerHTML=`<header class="mm-head"><div class="mm-title"><span class="eyebrow">航行</span><h2>任務マップ</h2></div><div class="seg mm-tabs" role="tablist"><button type="button" role="tab" data-mm-mode="patrol">パトロール</button><button type="button" role="tab" data-mm-mode="fleet">艦隊戦</button></div><button type="button" class="btn ghost sm" data-title-back>戻る</button></header><div class="mm-body"><div class="mm-map">${galMapHTML('mission')}</div><aside class="mm-side" id="mmSide"></aside></div>`;el.dataset.ready='1';
+  el.addEventListener('click',e=>{const b=e.target.closest('[data-mm-pick]');if(b){e.preventDefault();e.stopPropagation();mmPick(b.dataset.mmPick);gmCenter('mission',b.dataset.mmPick,2);b.closest('details')?.removeAttribute('open');}});
+  gmBind('mission',el.querySelector('.gm'));[st.cx,st.cy]=gmP(Galaxy.BY[sel].at);}
+ el.hidden=false;el.dataset.mode=mm.mode;for(const b of el.querySelectorAll('[data-mm-mode]'))b.setAttribute('aria-pressed',String(b.dataset.mmMode===mm.mode));
+ missionSideRender();gmMark('mission');requestAnimationFrame(()=>gmApply('mission'));}
+function missionSideRender(){
+ const side=$('#mmSide');if(!side)return;const top=side.scrollTop,sel=mmSel(),g=Galaxy.BY[sel];
+ const reg=Galaxy.REGIONS[g.region]||{},lvl=(v,a,b)=>v>=b?'高':v>=a?'中':'低';
+ if(mm.mode==='fleet'){const def=Rts.REGIONS[sel]||Rts.REGIONS.kuat,bt=Galaxy.BATTLES[sel];
+  side.innerHTML=gmSysCardHTML(sel,`<p class="gm-mission"><b>艦隊戦 · ${esc(def.name)}</b>${esc(def.note)}。主要幹線：${esc(def.routes.map(r=>r.name).join('／'))}${def.routes[0]?.ends?.filter(Boolean).length?`（${esc(def.routes[0].ends.filter(Boolean).join('〜'))}）`:''}。</p>${bt?`<p class="gm-mission">${esc(bt.name)}の陣営で始まります：自軍 ${esc(Rts.FACTIONS[bt.own].name)} · 敵軍 ${esc(Rts.FACTIONS[bt.foe].name)}（出撃準備で変えられます）。</p>`:''}`)+
+  `<div class="mm-go"><button type="button" class="btn primary" data-mm-fleet="go">この宙域で出撃準備へ</button><button type="button" class="btn" data-title="orbat">艦隊編成</button></div><p class="note">編成した任務群で出撃し、この星系を中心とする一辺500光年の宙域で同規模の敵艦隊とリアルタイムで戦います。◆ は映画・シリーズの戦いがあった星系です。</p>`+gmLegendHTML()+gmListHTML('data-mm-pick');}
+ else side.innerHTML=gmSysCardHTML(sel,`<p class="gm-mission"><b>パトロール · ${esc(g.name)}から出発</b>民間船の往来 ${lvl(reg.traffic||1,.8,1.15)} · 敵の出現 ${lvl(reg.threat||1,.8,1.15)}（${esc(reg.name||'')}）。星図からほかの星系へジャンプできます。</p>`)+titlePatrolBody()+gmLegendHTML()+gmListHTML('data-mm-pick');
+ side.scrollTop=top;if(mm.mode!=='fleet')renderTitlePatrolSaves();}
+async function missionFleetGo(){
+ const key=mm.fleetSys;hideTitle();voy.saves=await Store.list().catch(()=>[]);voyOpen('setup','sortie');const s=voy.setup;if(!s)return;
+ if(Rts.REGIONS[key])s.region=key;const bt=Galaxy.BATTLES[key];if(bt){if(s.own!==bt.own){s.own=bt.own;s.sel={};voyEnsureDesigns(voyOb(s.own));}s.foe=bt.foe;}voyRenderSetup();}
 
 // ---------- space battle ----------
 // The flagship is flown with the trial controls; escorts and the enemy fight on
@@ -5098,10 +5258,11 @@ function swShotFx(s,byId){
 // v21.2 A point of the battle frame in the trial's world, and the sprites of an ion bolt's disc (relative to P).
 function spaceWorldPos(p){const B=trial.battle;return tv.add(B.O,trialApply(B.E,p));}
 // Drawn facing the camera (it reads as the glowing ball of the films from any side; the hits use the disc).
-// v21.2 Drawn as the films show the Malevolence's pulse (and facing the camera, so it reads from any side; the hits use
-// the disc): a violet bubble, faint through its middle and thicker toward its edge, ringed by a bright magenta rim broken
-// into glowing dashes, filled with forked white-violet lightning re-struck a dozen times a second from a white-hot core.
-function ionBoltPoints(o,dir,x,D,k,age){const out=[],P=trial.P,c=tv.add(o,dir,x),eye=view?.eye?view.eye():[0,0,0],cr=tv.sub(c,P),vd=tv.norm(tv.sub(cr,eye)),v=tv.norm(Math.abs(vd[1])<.9?tv.cross(vd,[0,1,0]):tv.cross(vd,[1,0,0])),v2=tv.cross(vd,v),R=D/2,a=255*clamp01(.45+.55*k),fl=.85+.15*Math.sin(age*37),fr=Math.floor(age*12);
+// v21.2 Drawn as the films show the Malevolence's pulse: a flat disc square to its flight (parallel to the cannon's dish,
+// as the hits reckon it — seen from the side it is an edge), faint violet through its middle and thicker toward its edge,
+// ringed by a bright magenta rim broken into glowing dashes, filled with forked white-violet lightning re-struck a dozen
+// times a second from a white-hot core.
+function ionBoltPoints(o,dir,x,D,k,age){const out=[],P=trial.P,c=tv.add(o,dir,x),cr=tv.sub(c,P),vd=tv.norm(dir),eye=view?.eye?view.eye():null,face=eye?Math.abs(tv.dot(tv.norm(tv.sub(cr,eye)),vd)):1,fs=.22+.78*face,v=tv.norm(Math.abs(vd[1])<.9?tv.cross(vd,[0,1,0]):tv.cross(vd,[1,0,0])),v2=tv.cross(vd,v),R=D/2,a=255*clamp01(.45+.55*k),fl=.85+.15*Math.sin(age*37),fr=Math.floor(age*12);
  const at=(an,r)=>tv.add(cr,tv.add(tv.scale(v,Math.cos(an)*r),tv.scale(v2,Math.sin(an)*r))),h=(j,f)=>{const q=Math.sin(j*12.9898+f*78.233)*43758.5453;return q-Math.floor(q);},seed=j=>h(j,fr),fix=j=>h(j,0),A=f=>Math.round(clamp01(f)*a);
  // the body of the bubble: soft violet glow, faint in the middle and denser toward the rim
  for(let j=0;j<120;j++){const rr=R*Math.sqrt(.1+.9*fix(j+900)),an=fix(j+1200)*Math.PI*2+age*.15;out.push([at(an,rr),[140,50,235,A(.08+.1*rr/R)],D*(.14+.1*fix(j+1500))]);}
@@ -5117,8 +5278,9 @@ function ionBoltPoints(o,dir,x,D,k,age){const out=[],P=trial.P,c=tv.add(o,dir,x)
  // sparks drifting inside
  for(let j=0;j<50;j++)out.push([at(seed(j+300)*Math.PI*2,R*Math.sqrt(seed(j+600))),[235,215,255,A(.65)],Math.max(14,D*.014)]);
  // the white-hot core, its flare and the violet haze round it
- out.push([cr,[255,255,255,A(1)],Math.max(180,D*.42)*fl]);out.push([cr,[255,240,255,A(.85)],Math.max(300,D*.24)]);
- out.push([cr,[205,130,255,A(.5)],Math.max(300,D*.75)]);out.push([cr,[150,60,255,A(.3)],Math.max(420,D*1.3)]);
+ // (the round glows shrink as the disc turns edge-on, so from the side it reads as a disc, not a ball)
+ out.push([cr,[255,255,255,A(1)],Math.max(160,D*.42*fs)*fl]);out.push([cr,[255,240,255,A(.85)],Math.max(220,D*.24*fs)]);
+ out.push([cr,[205,130,255,A(.5*fs)],Math.max(260,D*.75*fs)]);out.push([cr,[150,60,255,A(.3*fs)],Math.max(300,D*1.3*fs)]);
  return out;}
 // v21.2 The flash at the cannon's mouth as it fires: a ring the cannon's width round a white burst, fading in a second.
 function ionMuzzlePoints(m,ax,d,age){const out=[],P=trial.P,f=clamp01(1-age/1.1);if(!(f>0))return out;const c=tv.sub(m,P),v=tv.norm(Math.abs(ax[1])<.9?tv.cross(ax,[0,1,0]):tv.cross(ax,[1,0,0])),v2=tv.cross(ax,v),R=d*.5*(1+.25*age),n=64;
@@ -5492,9 +5654,10 @@ function editAirWingInput(t,finish=false){
  const id=t.dataset.airwing,k=t.dataset.wingfield,row=ship.airWings?.find(w=>w.id===id);if(!row||!['name','size','count','type','d0','d1','d2'].includes(k))return;
  let next;
  if(k==='type'){const old=C.CRAFT_TYPES[row.type],cur=C.aviationStatus(ship,S?.info).wings.find(w=>w.id===id);
-  if(t.value==='custom'){next={...row,type:null,dims:(cur?.dims||C.airWingDims(row)).map(v=>Math.round(v*100)/100)};delete next.design;}
-  else if(t.value==='legacy'){next={...row,type:null,size:Math.max(C.AIR_WING_LIMITS.minSize,Math.round((cur?.size||row.size||1)*100)/100)};delete next.dims;delete next.design;}
-  else if(C.CRAFT_TYPES[t.value]){next={...row,type:t.value};delete next.dims;delete next.design;if(!row.name||row.name===old?.name||row.name===row.design?.name||/^航空隊 \d+$/.test(row.name))next.name=C.CRAFT_TYPES[t.value].name;}
+  if(t.value.startsWith('ship:')){const c=carryCandidates().find(x=>'ship:'+x.ref===t.value);if(!c||!c.fits){if(finish){toast('格納区画に入りません');renderPanel();}return;}next={id:row.id,name:c.name,kind:'ship',ref:c.ref,dims:c.dims,count:row.kind==='ship'?row.count:1};}
+  else if(t.value==='custom'){next={...row,type:null,dims:(cur?.dims||C.airWingDims(row)).map(v=>Math.round(v*100)/100)};delete next.design;delete next.kind;delete next.ref;}
+  else if(t.value==='legacy'){next={...row,type:null,size:Math.max(C.AIR_WING_LIMITS.minSize,Math.round((cur?.size||row.size||1)*100)/100)};delete next.dims;delete next.design;delete next.kind;delete next.ref;}
+  else if(C.CRAFT_TYPES[t.value]){next={...row,type:t.value};delete next.dims;delete next.design;if(!row.name||row.kind==='ship'||row.name===old?.name||row.name===row.design?.name||/^航空隊 \d+$/.test(row.name))next.name=C.CRAFT_TYPES[t.value].name;if(row.kind==='ship'){delete next.kind;delete next.ref;next.count=0;}}
   else if(t.value.startsWith('dsn:')){if(finish)pickDesignCraft(id,t.value.slice(4));return;}else return;}
  else if(k[0]==='d'){const v=Number(t.value);if(t.value===''||!Number.isFinite(v)||v<=0){if(finish){if(dragSnap)endDrag();renderPanel();}return;}const d=(Array.isArray(row.dims)?row.dims:C.airWingDims(row)).slice();d[+k[1]]=v;next={...row,type:null,dims:d};}
  else{const value=k==='name'?t.value:Number(t.value);if(k!=='name'&&(t.value===''||!Number.isFinite(value))){if(finish){if(dragSnap)endDrag();t.value=String(row[k]);updateAviationUI();}return;}next={...row,[k]:value};}
@@ -5517,6 +5680,12 @@ function bindAviation(){
  });
  panel.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
   if('addairwing'in d){if((ship.airWings?.length||0)>=C.AIR_WING_LIMITS.rows)return;if(dragSnap)endDrag();const ids=new Set((ship.airWings||[]).map(w=>w.id));let n=1;while(ids.has('wing-'+n))n++;const id='wing-'+n;const type=defaultCraftType();mutate('航空隊を追加',()=>ship.airWings=C.normalizeAirWings([...(ship.airWings||[]),{id,name:C.CRAFT_TYPES[type].name,type,count:0}]),'none');st.aviationExpanded||=new Set();st.aviationExpanded.add(id);renderPanel();return;}
+  if('addembarkgo'in d){const v=$('#panel [data-addembark]')?.value||'';if((ship.airWings?.length||0)>=C.AIR_WING_LIMITS.rows)return;
+   if(v.startsWith('ship:')){const c=carryCandidates().find(x=>'ship:'+x.ref===v);if(!c||!c.fits){toast('格納区画に入りません');return;}if(dragSnap)endDrag();const ids=new Set((ship.airWings||[]).map(w=>w.id));let n=1;while(ids.has('ship-'+n))n++;const id='ship-'+n;mutate('艦艇を搭載',()=>ship.airWings=C.normalizeAirWings([...(ship.airWings||[]),{id,name:c.name,kind:'ship',ref:c.ref,dims:c.dims,count:1}]),'none');st.aviationExpanded||=new Set();st.aviationExpanded.add(id);renderPanel();return;}
+   if(dragSnap)endDrag();const ids=new Set((ship.airWings||[]).map(w=>w.id));let n=1;while(ids.has('wing-'+n))n++;const id='wing-'+n,type=C.CRAFT_TYPES[v]?v:defaultCraftType();
+   const row=v==='custom'?{id,name:'航空隊 '+n,type:null,dims:C.airWingDims({type}).map(x=>Math.round(x*100)/100),count:0}:{id,name:C.CRAFT_TYPES[type].name,type,count:0};
+   mutate('航空隊を追加',()=>ship.airWings=C.normalizeAirWings([...(ship.airWings||[]),row]),'none');st.aviationExpanded||=new Set();st.aviationExpanded.add(id);
+   if(v.startsWith('dsn:'))pickDesignCraft(id,v.slice(4));renderPanel();return;}
   if('addshipwing'in d){const ref=$('#panel [data-shipcarry]')?.value,c=carryCandidates().find(x=>x.ref===ref);if(!c||!c.fits){toast('格納区画に入りません');return;}if((ship.airWings?.length||0)>=C.AIR_WING_LIMITS.rows)return;if(dragSnap)endDrag();const ids=new Set((ship.airWings||[]).map(w=>w.id));let n=1;while(ids.has('ship-'+n))n++;const id='ship-'+n;mutate('艦艇を搭載',()=>ship.airWings=C.normalizeAirWings([...(ship.airWings||[]),{id,name:c.name,kind:'ship',ref:c.ref,dims:c.dims,count:1}]),'none');st.aviationExpanded||=new Set();st.aviationExpanded.add(id);renderPanel();return;}
   if(d.fillairwing){const row=ship.airWings?.find(w=>w.id===d.fillairwing);if(!row)return;if(dragSnap)endDrag();const n=maxEmbark('airWings',row.id);mutate('空き容量まで搭載',()=>{row.count=n;},'none');renderPanel();return;}
   if(d.delairwing){if(dragSnap)endDrag();mutate('航空隊を削除',()=>ship.airWings=(ship.airWings||[]).filter(w=>w.id!==d.delairwing),'none');st.aviationExpanded?.delete(d.delairwing);renderPanel();return;}
@@ -5654,7 +5823,7 @@ function fleetRoster(){return `<div class="fleet-roster">${fleetDisplay().map(u=
 function fleetControlsHTML(){
  const review=fleet.mode==='review',b=fleet.battle,u=fleetSelected(),editable=fleetEditable()&&u&&!u.dead&&!u.out&&(review||u.team===0),lock=!fleetCanRefit(),busy=fleet.busy;
  let h=`<div class="fleet-heading"><span>${review?'FLEET REVIEW':'FLEET ACTION'}</span><h2>${review?'観閲式':'艦隊戦'}</h2><p>${review?'設計した艦を、同じ縮尺の宇宙に。':'旗艦を自ら操艦し、僚艦と敵艦隊は実空間で戦う。'}</p></div>`;
- if(!review){const flag=fleetFlag(),foes=fleetUnits().filter(x=>x.team===1).length,ready=!!flag&&foes>0&&!busy;h+=`<div class="fleet-space"><label>戦場<select data-fleet-setting="system">${Object.values(SYSTEMS).filter(x=>x.key!=='rts').map(x=>`<option value="${x.key}" ${fleet.system===x.key?'selected':''}>${esc(x.name)}${x.planet.ring?' · 造船リング':' · '+esc(x.short)}</option>`).join('')}</select></label><p class="fleet-flag"><span>旗艦</span><b>${flag?esc(flag.name):'友軍の艦を追加してください'}</b></p><button class="btn primary" data-fleet-action="space" ${ready?'':'disabled'}>旗艦で出撃</button><p class="note keep">${!flag?'友軍の艦を追加すると出撃できます。':!foes?'敵艦を1隻以上追加してください。':`旗艦を公試と同じ操作で操艦します。僚艦 ${fleetUnits().filter(x=>x.team===0).length-1} 隻と敵 ${foes} 隻はAIが戦い、敵は数秒後にハイパースペースから出現します。`}</p></div>`;}
+ if(!review){const flag=fleetFlag(),foes=fleetUnits().filter(x=>x.team===1).length,ready=!!flag&&foes>0&&!busy;h+=`<div class="fleet-space"><label>戦場<select data-fleet-setting="system">${Object.keys(Galaxy.REGIONS).map(r=>{const xs=Object.values(SYSTEMS).filter(x=>x.key!=='rts'&&x.region===r);return xs.length?`<optgroup label="${esc(Galaxy.REGIONS[r].name)}">${xs.map(x=>`<option value="${x.key}" ${fleet.system===x.key?'selected':''}>${esc(x.name)}${x.planet.ring?' · 造船リング':' · '+esc(x.short)}</option>`).join('')}</optgroup>`:'';}).join('')}</select></label><p class="fleet-flag"><span>旗艦</span><b>${flag?esc(flag.name):'友軍の艦を追加してください'}</b></p><button class="btn primary" data-fleet-action="space" ${ready?'':'disabled'}>旗艦で出撃</button><p class="note keep">${!flag?'友軍の艦を追加すると出撃できます。':!foes?'敵艦を1隻以上追加してください。':`旗艦を公試と同じ操作で操艦します。僚艦 ${fleetUnits().filter(x=>x.team===0).length-1} 隻と敵 ${foes} 隻はAIが戦い、敵は数秒後にハイパースペースから出現します。`}</p></div>`;}
  h+=`<details class="fleet-add" ${lock?'':'open'}><summary>艦隊編成 · ${fleetUnits().length} / 12 隻</summary><label>追加する設計<select id="fleetSource" ${lock||busy?'disabled':''}>${fleetOptions()}</select></label>${!review?`<div class="seg"><button type="button" data-fleet-team="0" aria-pressed="${fleet.team===0}">友軍</button><button type="button" data-fleet-team="1" aria-pressed="${fleet.team===1}">敵軍（AI）</button></div>`:''}<button class="btn" data-fleet-action="add" ${lock||busy?'disabled':''}>${busy?'艦を準備中…':'艦を追加'}</button>${lock?'<p class="note">編成を変えるときは「開始位置に戻す」を押してください。</p>':''}</details>`;
  h+=fleetRoster();
  if(review)h+=`<div class="pgroup"><h4>隊列</h4><div class="chips">${[['line','横列'],['column','縦列'],['wedge','楔形'],['grid','整列']].map(([k,l])=>`<button class="chip" data-fleet-form="${k}" aria-pressed="${fleet.form===k}">${l}</button>`).join('')}</div><label class="fleet-range">艦間隔 <b>${fLen(fleet.gap)}</b><input aria-label="隊列の艦間隔" type="range" min="0" max="5000" step="100" value="${fleet.gap}" data-fleet-setting="gap"></label><p class="note">間隔は最大艦の長さ・幅に加算します。隊列を選び直すと個別配置を整列します。</p></div>`;
@@ -6479,13 +6648,18 @@ function voyDesignOptions(faction) {
  const saves = (voy.saves || []).map(r => `<option value="save:${esc(r.id)}">${esc(r.name)}（${fLen(r.len || 0)}）</option>`).join('');
  return `${groups}${saves ? `<optgroup label="保存した設計">${saves}</optgroup>` : ''}${ship ? `<optgroup label="設計中の艦"><option value="current">${esc(ship.name)}（${fLen(ship.hull.L)}）</option></optgroup>` : ''}`;
 }
+// v22 The battle areas, by region of the galaxy map (the two first ones under their own names).
+function voyRegionOptions(cur) {
+ const by = {};for (const [k, v] of Object.entries(R.REGIONS)) { const g = Galaxy.BY[v.gal || k], reg = g ? g.region : 'core'; (by[reg] || (by[reg] = [])).push([k, v, g]); }
+ return Object.keys(Galaxy.REGIONS).filter(r => by[r]).map(r => `<optgroup label="${esc(Galaxy.REGIONS[r].name)}">${by[r].map(([k, v, g]) => `<option value="${k}" ${k === cur ? 'selected' : ''}>${esc(v.name)}${Galaxy.BATTLES[k] ? ' ◆' : ''}${g ? `（${Galaxy.grid(g.at)}）` : ''}</option>`).join('')}</optgroup>`).join('');
+}
 function voyRenderSetup() {
  const s = voy.setup, ob = voyOb(s.own), tab = s.tab === 'sortie' ? 'sortie' : 'orbat', sortie = voySortieShips(s), cap = VOY_SCALES[s.scale], t = voyShipsTotals(sortie);
  // Ships whose design cannot be prepared (a saved design since deleted, say) stay behind.
  const ready = sortie.some(voyShipDesign) && !voy.pending.size, ok = ready && t.people <= cap.people && t.supply <= cap.supply && sortie.length <= VOY_SHIP_CAP;
  $('#voySetup').innerHTML = `<header class="voy-head"><div><span class="eyebrow">航行 · 艦隊戦</span><h2>${tab === 'orbat' ? '艦隊編成' : '出撃準備'}</h2></div>
  <div class="seg voy-tabs" role="tablist"><button type="button" role="tab" data-voy="tab:orbat" aria-pressed="${tab === 'orbat'}">艦隊編成</button><button type="button" role="tab" data-voy="tab:sortie" aria-pressed="${tab === 'sortie'}">出撃準備</button></div>
- <div class="voy-head-go"><button type="button" class="btn ghost" data-voy="back">タイトルへ</button><button type="button" class="btn primary" data-voy="start" ${ok ? '' : 'disabled'}>出撃</button></div></header>
+ <div class="voy-head-go"><button type="button" class="btn ghost" data-voy="back">任務マップへ</button><button type="button" class="btn primary" data-voy="start" ${ok ? '' : 'disabled'}>出撃</button></div></header>
  <div class="voy-setup ${tab}">${tab === 'orbat' ? voyOrbatHTML(s, ob) : voySortieHTML(s, ob)}</div>`;
 }
 function voyOrbatHTML(s, ob) {
@@ -6514,8 +6688,8 @@ function voySortieHTML(s, ob) {
  const cap = VOY_SCALES[s.scale], ships = voySortieShips(s), t = voyShipsTotals(ships), foe = voyObShips(voyFoeOrbat(s)), a = voyShipsStrength(ships), b = voyShipsStrength(foe), r = a > 0 ? b / a : 0;
  const word = !a ? '' : r > 1.4 ? '敵が優勢' : r > 1.15 ? '敵がやや優勢' : r < .7 ? '自軍が優勢' : r < .87 ? '自軍がやや優勢' : 'ほぼ互角', reg = R.REGIONS[s.region] || R.REGIONS.kuat;
  return `<section class="voy-card"><h3>陣営と戦域</h3>
-   <div class="voy-row"><label>自軍<select data-voyset="own">${voyFactionOptions(s.own)}</select></label><label>敵軍<select data-voyset="foe">${voyFactionOptions(s.foe)}</select></label><label>戦域<select data-voyset="region">${Object.entries(R.REGIONS).map(([k, v]) => `<option value="${k}" ${k === s.region ? 'selected' : ''}>${esc(v.name)}</option>`).join('')}</select></label><label>編成枠<select data-voyset="scale">${Object.entries(VOY_SCALES).map(([k, v]) => `<option value="${k}" ${k === s.scale ? 'selected' : ''}>${v.name}</option>`).join('')}</select></label><label>敵の戦力<select data-voyset="foeMode"><option value="match" ${s.foeMode !== 'same' ? 'selected' : ''}>自軍と同等</option><option value="same" ${s.foeMode === 'same' ? 'selected' : ''}>同じ編成枠</option></select></label></div>
-   <p class="note">${esc(reg.note)}（${esc(reg.routes.map(x => x.name).join('・'))}）。航路は主要幹線と、そこから分かれる支線だけ。艦隊は航路に沿ってジャンプし、幹線は速く、支線は遅く進みます。敵（AI）は${s.foeMode === 'same' ? '同じ編成枠（乗員数・資材）で' : '自軍とほぼ同じ推定戦力になるよう'}編成されます。</p>${[...new Set([s.own, s.foe])].map(f => R.DOCTRINE[f] ? `<p class="note"><b>${esc(R.FACTIONS[f].name)}のドクトリン：${esc(R.DOCTRINE[f].name)}</b>。自動交戦の艦はシールドの残る敵にイオン砲を集中し、爆撃機の飛行隊はシールドが落ちた艦だけを攻撃します。</p>` : '').join('')}</section>
+   <div class="voy-row"><label>自軍<select data-voyset="own">${voyFactionOptions(s.own)}</select></label><label>敵軍<select data-voyset="foe">${voyFactionOptions(s.foe)}</select></label><label>戦域<select data-voyset="region">${voyRegionOptions(s.region)}</select></label><button type="button" class="btn sm ghost voy-mapbtn" data-voy="map">任務マップで選ぶ</button><label>編成枠<select data-voyset="scale">${Object.entries(VOY_SCALES).map(([k, v]) => `<option value="${k}" ${k === s.scale ? 'selected' : ''}>${v.name}</option>`).join('')}</select></label><label>敵の戦力<select data-voyset="foeMode"><option value="match" ${s.foeMode !== 'same' ? 'selected' : ''}>自軍と同等</option><option value="same" ${s.foeMode === 'same' ? 'selected' : ''}>同じ編成枠</option></select></label></div>
+   <p class="note">${esc(reg.note)}（${esc(reg.routes.map(x => x.name).join('／'))}）。${Galaxy.BATTLES[s.region] ? `<b>戦史：${esc(Galaxy.BATTLES[s.region].name)}</b>（${esc(Galaxy.BATTLES[s.region].era)}・${esc(R.FACTIONS[Galaxy.BATTLES[s.region].own].name)}と${esc(R.FACTIONS[Galaxy.BATTLES[s.region].foe].name)}）。` : ''}航路は主要幹線と、そこから分かれる支線だけ。艦隊は航路に沿ってジャンプし、幹線は速く、支線は遅く進みます。敵（AI）は${s.foeMode === 'same' ? '同じ編成枠（乗員数・資材）で' : '自軍とほぼ同じ推定戦力になるよう'}編成されます。</p>${[...new Set([s.own, s.foe])].map(f => R.DOCTRINE[f] ? `<p class="note"><b>${esc(R.FACTIONS[f].name)}のドクトリン：${esc(R.DOCTRINE[f].name)}</b>。自動交戦の艦はシールドの残る敵にイオン砲を集中し、爆撃機の飛行隊はシールドが落ちた艦だけを攻撃します。</p>` : '').join('')}</section>
   <section class="voy-card"><h3>編成枠</h3>
    <div class="vbal"><span>推定戦力比</span><b>自軍 1 : 敵 ${a ? (r > 0 && r < .01 ? '0.01未満' : r.toFixed(2)) : '—'}</b><small>${esc(word)}（敵は${esc(R.FACTIONS[s.foe].name)}の艦 ${foe.length} 隻）${s.foeMode !== 'same' && a && r < .85 ? `。${esc(R.FACTIONS[s.foe].name)}は出せる限りの艦（片軍 ${VOY_SHIP_CAP} 隻まで）でも自軍に届きません` : ''}</small></div>
    ${voyBar('総乗員数（乗組員・操縦士・陸戦隊）', t.people, cap.people)}${voyBar('資材（補給品・予備品）', t.supply, cap.supply, x => num(Math.round(x)) + ' t')}
@@ -6535,8 +6709,9 @@ function voyOrbatSheet() {
   const sqStatus = i => { const r = stow?.wings[i];if (!r) return '';const c = R.CRAFT[e.air[i].craft];return `<small class="vo-fit${r.unembarked || r.undeployable ? ' bad' : ''}">${r.tooLarge ? '入る格納区画なし' : r.unembarked ? `${num(r.embarked)} 機だけ搭載（${num(r.unembarked)} 機入らず）` : r.undeployable ? `${num(r.undeployable)} 機はハッチを通れず発艦不可` : c?.stay ? '輸送機（艦隊戦では艦内に待機）' : '搭載・発艦可'}</small>`; };
   body = `${stow ? voyBar('格納庫（機体・搭載艦・車両で共用）', stow.used, stow.capacity, x => num(x, 1)) : voyBar('格納庫（機体の大きさの合計）', air.size, Math.max(0, (d.info.hangarCap || cap) - voyCarriedSize(e)), x => num(x, 1))}
   ${wings.map(wn => `<div class="vo-wing"><h4>第${wn}飛行隊</h4>${e.air.map((q, i) => (q.wingNo || 1) !== wn ? '' : `<div class="vo-sq"><select data-sq="${i}" data-sqk="craft">${Object.entries(R.CRAFT).map(([k, c]) => `<option value="${k}" ${k === q.craft ? 'selected' : ''}>${esc(c.name)}（${R.ROLE_NAME[c.role]}）</option>`).join('')}</select><label>機数<input type="number" data-sq="${i}" data-sqk="n" value="${q.n}" min="1" max="${R.RULES.maxSquadSize}"></label><label>飛行隊<input type="number" data-sq="${i}" data-sqk="wingNo" value="${q.wingNo || 1}" min="1" max="99"></label><button type="button" class="btn sm ghost" data-sqdel="${i}" aria-label="中隊を外す">×</button>${sqStatus(i)}</div>`).join('')}</div>`).join('') || '<p class="muted">中隊がありません。</p>'}
-  <div class="voy-row"><button type="button" class="btn sm" data-vo="sqadd">中隊を追加</button><button type="button" class="btn sm ghost" data-vo="airdefault">標準の搭載に戻す</button><button type="button" class="btn sm ghost" data-vo="airclear">すべて降ろす</button></div>
-  <p class="note">中隊は同じ機種12機が基本（大型キャリアは最大${R.RULES.maxSquadSize}機）。飛行隊の番号で中隊をまとめ、戦闘では飛行隊ごとに発艦・移動・攻撃・帰還します。機体は公式の寸法で、格納区画の内寸に入るか、ハッチを通れるかで搭載・発艦が決まります（設計画面と同じ判定）。シャトル・揚陸艇は地上部隊を降ろす輸送機で、艦隊戦では艦内に待機します。</p>${voyCarriedEditHTML(e, d)}`;
+  ${voyCarriedRowsHTML(e, d)}
+  <div class="voy-row">${voyEmbarkAddHTML(e, d)}<button type="button" class="btn sm ghost" data-vo="airdefault">標準の搭載に戻す</button><button type="button" class="btn sm ghost" data-vo="airclear">すべて降ろす</button></div>
+  <p class="note">中隊は同じ機種12機が基本（大型キャリアは最大${R.RULES.maxSquadSize}機）。飛行隊の番号で中隊をまとめ、戦闘では飛行隊ごとに発艦・移動・攻撃・帰還します。機体は公式の寸法で、格納区画の内寸に入るか、ハッチを通れるかで搭載・発艦が決まります（設計画面と同じ判定）。シャトル・揚陸艇は地上部隊を降ろす輸送機で、艦隊戦では艦内に待機します。小型の艦も同じ一覧で積めます：格納区画に全長・全幅・全高とも ${C.SHIP_STOW_CLEAR} m の余裕をもって入る艦を、艦載機と同じ「サイズ」で積みます（艦の外形の容積 × ${C.SHIP_STOW_FACTOR} ÷ 艦載機1機分の格納容積）。戦闘が始まると発進して任務群に加わり、ジャンプの前に近くにいれば収容されます。</p>`;
  } else {
   const gs = (e.ground || []).map(r => R.regimentTotals(r)), troops = gs.reduce((n, x) => n + x.troops, 0), veh = gs.reduce((n, x) => n + x.size, 0), L = stow?.lift;
   const vehRows = stow ? stow.vehicles.map(v => `<li class="${v.unembarked || !v.landable ? 'bad' : ''}"><b>${esc(v.name)}</b> ${num(v.embarked)} / ${num(v.count)} 両${v.loaded ? `（輸送機に ${num(v.loaded)}）` : ''}${v.unembarked ? ` · ${num(v.unembarked)} 両入らず` : ''}${v.embarked && !v.landable ? ' · 積める輸送機なし' : ''}</li>`).join('') : '';
@@ -6547,6 +6722,18 @@ function voyOrbatSheet() {
   <p class="note">連隊は4個大隊、大隊は4個中隊（144名）。乗艦した陸戦隊は拿捕のときに移乗攻撃の兵力になります。車両は輸送機の積載区画か格納庫（航空機と共用）に寸法で入ります。</p>`;
  }
  el.innerHTML = `<div class="voy-sheet-card" role="dialog" aria-label="編成の詳細"><div class="voy-sheet-head"><div><span class="eyebrow">${esc(e.name)} · ${esc(voyShort(d.name))}</span><h3>${tab === 'air' ? '航空隊・搭載艦' : '陸戦隊'}の編成</h3></div><div class="seg" role="group"><button type="button" data-vo="tab:air" aria-pressed="${tab === 'air'}">航空隊</button><button type="button" data-vo="tab:ground" aria-pressed="${tab === 'ground'}">陸戦隊</button></div><button type="button" class="btn sm" data-vo="close">閉じる</button></div><div class="voy-sheet-body">${body}</div></div>`;
+}
+// v21.2 Ships and aircraft are embarked in one list: the carried ships after the squadrons, and one add control
+// offering the craft (a new squadron) and the ships that fit a bay (greyed when there is no room left).
+function voyCarryCands(e, d) { return voyExampleDesigns().filter(x => voyServes(x, voy.setup.own)).map(x => ({x, fit: voyCarryFit(d, x)})).filter(o => o.fit.ok).sort((a, b) => a.fit.size - b.fit.size); }
+function voyCarriedRowsHTML(e, d) {
+ const rows = (e.carried || []).map((c, i) => { const d2 = voyShipDesign(c), f = d2 ? voyCarryFit(d, d2) : null; return `<div class="vo-sq"><span><b>${esc(c.name)}</b> <small>${d2 ? `${num(Math.round(f.dims[0]))} × ${num(Math.round(f.dims[1]))} × ${num(Math.round(f.dims[2]))} m · サイズ ${num(f.size, 1)}` : '設計なし'}</small></span><button type="button" class="btn sm ghost" data-cardel="${i}" aria-label="搭載艦を降ろす">×</button></div>`; }).join('');
+ return rows ? `<div class="vo-wing vo-carried"><h4>搭載艦艇</h4>${rows}</div>` : '';
+}
+function voyEmbarkAddHTML(e, d) {
+ const mix = R.CRAFT_MIX[voy.setup.own] || R.CRAFT_MIX.empire, room = voyCarryRoom(e, d), used = voyCarriedSize(e), cand = voyCarryCands(e, d);
+ const crafts = Object.entries(R.CRAFT).sort(([a], [b]) => (mix.includes(b) - mix.includes(a)));
+ return `<select id="voyEmbarkSel" aria-label="搭載する機種・艦種"><optgroup label="航空機（中隊を追加）">${crafts.map(([k, c]) => `<option value="craft:${k}" ${k === mix[e.air.length % mix.length] ? 'selected' : ''}>${esc(c.name)}（${R.ROLE_NAME[c.role]}）</option>`).join('')}</optgroup>${cand.length ? `<optgroup label="艦艇">${cand.map(o => `<option value="ship:${esc(o.x.key)}" ${used + o.fit.size > room + 1e-6 ? 'disabled' : ''}>${esc(voyShort(o.x.name))}（サイズ ${num(o.fit.size, 1)}）</option>`).join('')}</optgroup>` : ''}</select><button type="button" class="btn sm" data-vo="embadd">搭載を追加</button>`;
 }
 // The small ships this carrier takes into battle: any design whose hull fits one of its bays.
 function voyCarriedEditHTML(e, d) {
@@ -6581,7 +6768,8 @@ function voyBindSetup() {
  });
  root.addEventListener('click', async e => {
   const b = e.target.closest('button');if (!b || b.disabled) return;const s = voy.setup, d = b.dataset;if (!s) return;
-  if (d.voy === 'back') { voyClose(); showTitle('voyage'); return; }
+  if (d.voy === 'back') { voyClose(); showTitle('missions'); return; }
+  if (d.voy === 'map') { if (Galaxy.BY[s.region]) { mm.fleetSys = s.region; } mm.mode = 'fleet'; mmSave(); voyClose(); showTitle('missions'); return; }
   if (d.voy?.startsWith('tab:')) { s.tab = d.voy.slice(4); voyRenderSetup(); return; }
   if (d.voy === 'auto') { voy.orbat.factions[s.own] = voyAutoOrbat(s.own, s.scale, Math.random, {cap: 48}); s.sel = {}; voyObChanged(); return; }
   if (d.voy === 'ctgadd') { const ob = voyOb(s.own), n = ob.ctgs.length + 1; ob.ctgs.push({id: voyUid(ob), name: `第${n}合同任務群`, tgs: [{id: voyUid(ob), name: `第${n}1任務群`, formation: 'abreast', ships: []}]}); voyObChanged(); return; }
@@ -6607,6 +6795,10 @@ function voyBindSetup() {
    if (d.vo === 'airclear') x.air = [];
    if (d.vo === 'regadd') { const tpl = R.REGIMENT_TEMPLATES[s.own] || R.REGIMENT_TEMPLATES.empire; x.ground = x.ground || []; x.ground.push(R.makeRegiment(s.own, `第${x.ground.length + 1}${tpl.name}`)); }
    if (d.vo === 'grclear') x.ground = [];
+   if (d.vo === 'embadd') { const v = $('#voyEmbarkSel')?.value || '';
+    if (v.startsWith('craft:')) { const craft = v.slice(6); if (!R.CRAFT[craft]) return; const last = x.air[x.air.length - 1], wn = last ? (x.air.filter(q => (q.wingNo || 1) === (last.wingNo || 1)).length >= 6 ? (last.wingNo || 1) + 1 : last.wingNo || 1) : 1; x.air.push({craft, n: 12, name: `${R.ROLE_NAME[R.CRAFT[craft].role]}中隊`, wingNo: wn}); }
+    else if (v.startsWith('ship:')) { const d2 = voyDesign(v.slice(5)); if (!d2) return; const f = voyCarryFit(des, d2); if (!f.ok) { toast('格納区画に入りません'); return; } if (voyCarriedSize(x) + f.size > voyCarryRoom(x, des) + 1e-6) { toast('格納庫の空きが足りません'); return; } x.carried = x.carried || []; x.carried.push({src: d2.key, key: d2.key, name: `${voyShort(d2.name)} ${x.carried.length + 1}`}); }
+    else return; }
    if (d.vo === 'caradd') { const d2 = voyDesign($('#voyCarrySel')?.value); if (!d2) return; const f = voyCarryFit(des, d2); if (!f.ok) { toast('格納区画に入りません'); return; } if (voyCarriedSize(x) + f.size > voyCarryRoom(x, des) + 1e-6) { toast('格納庫の空きが足りません'); return; } x.carried = x.carried || []; x.carried.push({src: d2.key, key: d2.key, name: `${voyShort(d2.name)} ${x.carried.length + 1}`}); }
    voyOrbatSheet(); voyObChanged(); return; }
   if (d.sqdel != null) { const f = voyFindShip(s.editing); if (f) f.sh.air.splice(+d.sqdel, 1); voyOrbatSheet(); voyObChanged(); return; }
@@ -7228,7 +7420,7 @@ function voyGo(where) {
 }
 function voyConfirmQuit() {
  const el = $('#voySheet');el.hidden = false;
- el.innerHTML = `<div class="voy-sheet-card small" role="dialog" aria-label="艦隊戦を終える"><h3>艦隊戦を終えますか？</h3><p class="note">戦況は保存されません。</p><div class="vs-acts"><button type="button" class="btn" data-vq="setup">編成画面へ</button><button type="button" class="btn" data-vq="title">タイトルへ</button><button type="button" class="btn ghost" data-vq="no">続ける</button></div></div>`;
+ el.innerHTML = `<div class="voy-sheet-card small" role="dialog" aria-label="艦隊戦を終える"><h3>艦隊戦を終えますか？</h3><p class="note">戦況は保存されません。</p><div class="vs-acts"><button type="button" class="btn" data-vq="setup">編成画面へ</button><button type="button" class="btn" data-vq="title">任務マップへ</button><button type="button" class="btn ghost" data-vq="no">続ける</button></div></div>`;
 }
 // Orders to whatever is selected on the tactical map: ships, a task group or a combined task group.
 function voyApply(o) {
@@ -7276,8 +7468,8 @@ function voySidebarClick(e) {
  const b = e.target.closest('button,input[type=checkbox]');if (!b) return;const d = b.dataset, w = voy.w;if (!w) return;
  if (d.vspeed != null) { voy.speed = +d.vspeed; if (voy.speed) voy.lastSpeed = voy.speed; voyRenderHud(); return; }
  if (d.vgo) { voyGo(d.vgo); return; }
- if (d.vq) { $('#voySheet').hidden = true; if (d.vq === 'setup' || d.vq === 'title') { voyStop3D(); voy.orders = false; voy.w = null; } if (d.vq === 'setup') voyShow('setup'); else if (d.vq === 'title') { voyClose(); showTitle('voyage'); } return; }
- if (d.vresult) { $('#voySheet').hidden = true; if (d.vresult === 'setup' || d.vresult === 'title') { voyStop3D(); voy.orders = false; voy.w = null; voy.result = null; } if (d.vresult === 'setup') voyShow('setup'); else if (d.vresult === 'title') { voyClose(); showTitle('voyage'); } else { voy.resultDismissed = true; if (voy3D()) voyOrdersClose(); } return; }
+ if (d.vq) { $('#voySheet').hidden = true; if (d.vq === 'setup' || d.vq === 'title') { voyStop3D(); voy.orders = false; voy.w = null; } if (d.vq === 'setup') voyShow('setup'); else if (d.vq === 'title') { voyClose(); showTitle('missions'); } return; }
+ if (d.vresult) { $('#voySheet').hidden = true; if (d.vresult === 'setup' || d.vresult === 'title') { voyStop3D(); voy.orders = false; voy.w = null; voy.result = null; } if (d.vresult === 'setup') voyShow('setup'); else if (d.vresult === 'title') { voyClose(); showTitle('missions'); } else { voy.resultDismissed = true; if (voy3D()) voyOrdersClose(); } return; }
  if (d.vctg) { voySelect({ctg: d.vctg}); const g = voyCtgGroups(w.ctgs.get(d.vctg))[0]; if (g && voy.screen === 'ops') voyCenterOps(R.groupMapPos(w, g)); voyRenderSide(); return; }
  if (d.vgroup) { voySelect({group: d.vgroup}); const g = w.groups.get(d.vgroup); if (g && voy.screen === 'ops') voyCenterOps(R.groupMapPos(w, g)); else if (g) { const gd = w.units.get(g.flag); if (gd && gd.sys === voy.tac.sys) voyCenterTac(gd.pos, false); } voyRenderSide(); return; }
  if (d.vsplit) { voy.splitSel = voy.splitSel || new Set(); if (b.checked) voy.splitSel.add(d.vsplit); else voy.splitSel.delete(d.vsplit); return; }
@@ -7395,7 +7587,7 @@ function voyShowResult() {
  // Over the 3D view the result comes with the maps.
  if (voy3D() && !voy.orders) voyOrdersOpen('ops');el.hidden = false;
  const side = i => { const us = [...w.units.values()].filter(u => (u.origSide ?? u.side) === i), sq = [...w.squads.values()].filter(s => s.side === i), taken = us.filter(u => u.captured).length; return `<dt>${esc(w.sides[i].name)}</dt><dd>${us.length} 隻中 撃沈 ${us.filter(u => u.dead).length} · 戦闘不能 ${us.filter(u => !u.dead && u.out && !u.captured).length}${taken ? ` · 拿捕された ${taken}` : ''}${w.sides[i].captured ? ` · 敵艦を拿捕 ${w.sides[i].captured}` : ''} · 艦載機 ${Math.round(sq.reduce((n, s) => n + s.n, 0))} / ${sq.reduce((n, s) => n + s.n0, 0)} 機${voyCraftTally(w, i, us, sq)}</dd>`; };
- el.innerHTML = `<div class="voy-sheet-card small" role="dialog" aria-label="艦隊戦の結果"><b class="vr-big ${win ? 'win' : 'lose'}">${r.winner < 0 ? '痛み分け' : win ? '勝利' : '敗北'}</b><p class="note">${win ? '敵艦隊の戦闘力の4分の3以上を失わせました。' : r.winner < 0 ? '両軍とも戦闘力を失いました。' : '自軍が戦闘力の4分の3以上を失いました。'} 経過 ${voyClock(r.time)}</p><dl class="vr-dl">${side(0)}${side(1)}</dl><div class="vs-acts"><button type="button" class="btn primary" data-vresult="setup">編成画面へ</button><button type="button" class="btn" data-vresult="title">タイトルへ</button><button type="button" class="btn ghost" data-vresult="stay">${voy3D() ? '3D視点で戦場を見る' : '戦場を見る'}</button></div></div>`;
+ el.innerHTML = `<div class="voy-sheet-card small" role="dialog" aria-label="艦隊戦の結果"><b class="vr-big ${win ? 'win' : 'lose'}">${r.winner < 0 ? '痛み分け' : win ? '勝利' : '敗北'}</b><p class="note">${win ? '敵艦隊の戦闘力の4分の3以上を失わせました。' : r.winner < 0 ? '両軍とも戦闘力を失いました。' : '自軍が戦闘力の4分の3以上を失いました。'} 経過 ${voyClock(r.time)}</p><dl class="vr-dl">${side(0)}${side(1)}</dl><div class="vs-acts"><button type="button" class="btn primary" data-vresult="setup">編成画面へ</button><button type="button" class="btn" data-vresult="title">任務マップへ</button><button type="button" class="btn ghost" data-vresult="stay">${voy3D() ? '3D視点で戦場を見る' : '戦場を見る'}</button></div></div>`;
 }
 
 // v21.2 Craft shot down by the side (its squadrons in dogfights, its ships' point defence) and lost by it.
@@ -7671,9 +7863,18 @@ async function voySpectate(sys, followId) {
 // The planet and sun of a system of the sector, as the 3D views draw them.
 // Ships hold above the haze of the planet's limb: higher over a gas giant, so
 // that its glow does not wash over the sky.
+// v22 A named world of the galaxy map is the planet the patrol orbits there (its look and sun); the area's other
+// worlds take a look of their kind from their name.
 function voySysDesc(w, id) {
- const sy = w.sector.systems[id], radius = sy.planet?.radius || 6e6;
- return {key: 'rts', name: sy.name, note: sy.note || '', short: sy.name, planet: {radius, kind: sy.planet?.kind ?? 1, axis: sy.planet?.ring ? [-Math.cos(20 * Math.PI / 180), Math.sin(20 * Math.PI / 180), 0] : [0, 0, 1], ring: sy.planet?.ring || null}, altitude: Math.max(200000, radius * .04), floor: 60000, sun: [-0.384, 0.5, 0.776], map: [0, 0]};
+ const sy = w.sector.systems[id], radius = sy.planet?.radius || 6e6, gal = SYSTEMS[sy.planet?.gal], look = sy.planet?.look || voyWorldLook(sy);
+ return {key: 'rts', name: sy.name, note: sy.note || '', short: sy.name, planet: {radius, kind: look?.kind ?? sy.planet?.kind ?? 1, axis: sy.planet?.ring ? [-Math.cos(20 * Math.PI / 180), Math.sin(20 * Math.PI / 180), 0] : gal?.planet.axis || [0, 0, 1], ring: sy.planet?.ring || null, look: look?.look || look || null}, altitude: Math.max(200000, radius * .04), floor: 60000, sun: gal ? gal.sun.slice() : [-0.384, 0.5, 0.776], map: [0, 0]};
+}
+function voyWorldLook(sy) {
+ if (sy.planet?.gal || !sy.planet) return null;const h = Galaxy.hash(sy.name), seed = (h % 997) / 13, k = sy.planet.kind;
+ if (k === 2) { const pick = [[2, [seed, .02, .5, 1]], [2, [seed, -.06, .3, 1]], [8, [seed, 0, .5, 1]], [7, [seed, .45, .4, 1]], [6, [seed, 0, .1, 1]], [8, [seed, 1, .6, 1]]][h % 6]; return {kind: pick[0], look: pick[1]}; }
+ if (k === 5) { const pick = [[5, [seed, 0, 0, 1]], [5, [seed, 1, 0, 1]], [6, [seed, 1, .1, 1]], [9, [seed, 0, 0, 1]], [5, [seed, 2, 0, 1]]][h % 5]; return {kind: pick[0], look: pick[1]}; }
+ if (k === 4) return {kind: 4, look: [seed, (h >>> 5) % 3 === 0 ? .5 : 0, 0, 1]};
+ return null;
 }
 function voySpectateInit(snap = true) {
  const {w, sys, uid} = trial.rts, f = w.units.get(uid) && w.units.get(uid).sys === sys ? w.units.get(uid) : R.systemUnits(w, sys).find(R.alive);
@@ -7976,7 +8177,7 @@ async function voyPatrol(source) {
   else if (source.startsWith('save:')) { await loadSaved(source.slice(5)); if (!ship) throw new Error('保存した設計を開けません'); await waitStats(); await trialStart(opt); }
   else { const a = await fleetAsset(source); await trialStart({...opt, design: a.design}); }
   if (!trial.on) throw new Error('パトロールを開始できませんでした');
- } catch (e) { console.error(e); loadHide(); toast('艦を準備できません：' + esc(e.message || e)); showTitle('voyage'); }
+ } catch (e) { console.error(e); loadHide(); toast('艦を準備できません：' + esc(e.message || e)); showTitle('missions'); }
 }
 function waitStats() { return new Promise(res => { const t0 = performance.now(), f = () => { if (ship?._geoProxy && S || performance.now() - t0 > 120000) res(); else setTimeout(f, 200); }; f(); }); }
 
@@ -8005,9 +8206,12 @@ const PATROL = {want: 4, first: 150, again: 120, mean: 150, range: 9e4, keep: 60
 const patrolExp = mean => -Math.log(1 - Math.random()) * mean;
 // The flagship's side: an example's own, else the paint (a design of one's own is the Empire's).
 function patrolFaction() { const d = trial.asset?.design || {}, ref = YardFleetData?.designs?.[d.reference]; return ref?.faction || (d.paint === 'republic' ? 'republic' : d.paint === 'cis' ? 'cis' : 'empire'); }
+// v22 The system's region sets how busy it is and how often the enemy comes (Galaxy.REGIONS traffic and threat:
+// the Core Worlds crowded and safe, the Outer Rim and Hutt Space thin and dangerous, the Unknown Regions all but empty).
+function patrolRegion() { const r = Galaxy.REGIONS[SYSTEMS[trial.sysKey]?.region] || {}; return {want: Math.max(1, Math.round(PATROL.want * (r.traffic ?? 1))), encK: 1 / Math.max(.3, r.threat ?? 1)}; }
 function patrolReset() {
- const fac = patrolFaction(), civ = PATROL_TRAFFIC[fac === 'republic' || fac === 'cis' ? 'old' : 'new'];
- trial.pat = {fac, foe: PATROL_ENEMY[fac] || 'rebel', civKeys: civ, queue: civ.filter(k => !fleet.assets.has(k)), loading: null, civ: [], uid: 1, names: new Set(), civNames: new Set(), failed: new Set(), seeded: false, nextCiv: 0, seen: 0, enc: 0, won: 0, sunk: 0, civHits: 0, civLost: 0, me: null, group: null, encAt: trial.t + PATROL.first + patrolExp(PATROL.mean), alert: 0, alertText: ''};
+ const fac = patrolFaction(), civ = PATROL_TRAFFIC[fac === 'republic' || fac === 'cis' ? 'old' : 'new'], rg = patrolRegion();
+ trial.pat = {fac, foe: PATROL_ENEMY[fac] || 'rebel', civKeys: civ, queue: civ.filter(k => !fleet.assets.has(k)), loading: null, civ: [], uid: 1, names: new Set(), civNames: new Set(), failed: new Set(), seeded: false, nextCiv: 0, seen: 0, enc: 0, won: 0, sunk: 0, civHits: 0, civLost: 0, me: null, group: null, want: rg.want, encK: rg.encK, encAt: trial.t + (PATROL.first + patrolExp(PATROL.mean)) * rg.encK, alert: 0, alertText: ''};
 }
 // The ships' 3D models are prepared one at a time in the background (never while the guns are firing or
 // in a fight, when the engine is wanted for the line-of-fire checks).
@@ -8024,9 +8228,13 @@ function patrolStep(dt, tunnel) {
  if (P.alert > 0) { P.alert -= dt; if (!trial.warn) trial.warn = P.alertText; }
 }
 // ---- traffic ----
-// The lanes of a system: two fixed bearings in the local horizon (from its name), each run both ways.
+// The lanes of a system: v22 for a system of the galaxy map, the bearings (on the local horizon, north up) of its
+// routes and hyperlanes toward the next systems, a major route twice as busy as a hyperlane; otherwise two fixed
+// bearings from its name. The direction returned points out along the lane, toward the next system.
 function patrolLane(up) {
- const h = [...String(trial.sysKey || '')].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) >>> 0, 7), b = (h % 360) * Math.PI / 180 + (Math.random() < .5 ? 0 : 1.15);
+ const key = String(trial.sysKey || ''), g = Galaxy.BY[key];let b;
+ if (g && Galaxy.ADJ[key]?.length) { const es = Galaxy.ADJ[key], w = es.map(e => e.route ? 2 : 1), tot = w.reduce((a, x) => a + x, 0);let r = Math.random() * tot, e = es[0];for (let i = 0; i < es.length; i++) { r -= w[i]; if (r <= 0) { e = es[i]; break; } } const q = Galaxy.legPts(e, key), a = q[0], c = q[Math.min(q.length - 1, 1)];b = Math.atan2(c[0] - a[0], -(c[1] - a[1])); }
+ else { const h = [...key].reduce((a, ch) => (a * 31 + ch.charCodeAt(0)) >>> 0, 7);b = (h % 360) * Math.PI / 180 + (Math.random() < .5 ? 0 : 1.15); }
  let nt = tv.add([0, 0, -1], up, -tv.dot([0, 0, -1], up));nt = tv.len(nt) > 1e-6 ? tv.norm(nt) : [1, 0, 0];const et = tv.cross(nt, up);
  return tv.norm(tv.add(tv.scale(nt, Math.cos(b)), et, Math.sin(b)));
 }
@@ -8042,7 +8250,8 @@ function patrolCivSpawn(keys, route, present) {
  const up = tv.norm(trial.P), look = patrolLook(up), side = tv.norm(tv.cross(look, up));
  // Where it will be seen: ahead of the view, 6–18 km out, to one side or the other, not far above or below.
  const brg = (Math.random() * 2 - 1) * .75, dist = 6000 + Math.random() * 12000 + L * 8, X = tv.add(tv.add(trial.P, look, Math.cos(brg) * dist), side, Math.sin(brg) * dist);
- const lane = patrolLane(up), d = Math.random() < .5 ? lane : tv.scale(lane, -1);
+ // Arrivals come in from the next system along the lane, departures head out toward it; crossers run either way.
+ const lane = patrolLane(up), d = route === 'in' ? tv.scale(lane, -1) : route === 'out' ? lane : Math.random() < .5 ? lane : tv.scale(lane, -1);
  let pos, h, life = Infinity;
  if (route === 'lane') { pos = tv.add(tv.add(X, d, -(present ? Math.random() * 4000 : 3000 + Math.random() * 6000)), up, (Math.random() - .5) * 3000);h = d;life = 70 + Math.random() * 70; }
  else if (route === 'in') { const th = (18 + Math.random() * 14) * Math.PI / 180;pos = tv.add(X, up, 1500 + Math.random() * 3000);h = tv.norm(tv.add(tv.scale(d, Math.cos(th)), up, -Math.sin(th))); }
@@ -8077,7 +8286,7 @@ function patrolTraffic(dt) {
  const keys = P.civKeys.filter(k => fleet.assets.has(k));if (!keys.length) return;
  const n = P.civ.filter(c => c.kind === 'civ').length;
  if (!P.seeded) { P.seeded = true;patrolCivSpawn(keys, 'lane', true);P.nextCiv = trial.t + 4 + Math.random() * 5;return; }
- if (n < PATROL.want && trial.t >= P.nextCiv) { patrolCivSpawn(keys);P.nextCiv = trial.t + (n < 2 ? 5 : 14) + Math.random() * (n < 2 ? 8 : 20); }
+ if (n < (P.want || PATROL.want) && trial.t >= P.nextCiv) { patrolCivSpawn(keys);P.nextCiv = trial.t + (n < 2 ? 5 : 14) + Math.random() * (n < 2 ? 8 : 20); }
 }
 // A bolt or missile of ours that strikes a civilian (it is an ellipsoid of its own size).
 function patrolSegHit(c, a0, a1) {
@@ -8215,11 +8424,13 @@ function patrolBattleDissolve() {
 function patrolBattleClose(B) {
  const P = trial.pat;P.me = B.me;trial.battle = null;trial.targets = [];trial.vbolts = [];trial.swfx = [];trial.gunTarget = null;trial.heldLock = null;trial.hitcam = null;
  const hud = $('#trialHud'), hc = hud?.querySelector('[data-th="hitcam"]');if (hc) hc.hidden = true;hud?.classList.remove('hc-on', 'cine');
- P.encAt = trial.t + PATROL.again + patrolExp(PATROL.mean);P.nextCiv = trial.t + 6 + Math.random() * 6;
+ P.encAt = trial.t + (PATROL.again + patrolExp(PATROL.mean)) * (P.encK || 1);P.nextCiv = trial.t + 6 + Math.random() * 6;
 }
 // In a new system: fresh traffic; out of a fight by hyperspace, the escorts that jumped with the flagship rejoin.
 function patrolArrive() {
- const P = trial.pat, B = trial.battle;P.civ = [];P.seeded = false;P.nextCiv = trial.t + 2;
+ const P = trial.pat, B = trial.battle, rg = patrolRegion();P.civ = [];P.seeded = false;P.nextCiv = trial.t + 2;
+ // The new system's traffic and danger; an enemy not yet due comes as soon (or as late) as the new region has it.
+ if (P.encAt != null && P.encK) P.encAt = trial.t + Math.max(20, P.encAt - trial.t) * rg.encK / P.encK;P.want = rg.want;P.encK = rg.encK;
  if (B?.patrol) {
   const es = [], left = [];
   for (const u of B.b.units) { if (u.manual || u.team !== 0 || u.dead) continue; if (u.out || !u.esc) { left.push(shipShort(u.name)); continue; } u.esc.unit = u;es.push(u.esc); }
