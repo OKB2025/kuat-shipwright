@@ -1974,6 +1974,7 @@ function specHTML(S) {
     <div><dt>建造費</dt><dd>${fCr(S.cost)}</dd></div>
     <div><dt>体積／表面積</dt><dd>${S.VS.toFixed(1)} m<small>${ja(S.volume)} m³ ／ ${ja(S.area)} m²</small></dd></div>
   </dl>
+  ${S.craft?craftCombatHTML(S):''}
   <h4>電力配分（戦闘時）</h4>
   <div class="pbar" role="img" aria-label="戦闘時の電力配分">${segs.map(([n, v, c]) => `<em class="p-${c}" style="width:${(v / scale * 100).toFixed(2)}%" title="${n}"></em>`).join('')}${cmb > P ? `<i class="pmark" style="left:${(P / scale * 100).toFixed(2)}%"></i>` : ''}</div>
   <div class="plegend">${segs.map(([n, v, c]) => `<span><i class="p-${c}"></i>${n} ${S.power > 0 ? Math.round(v / P * 100) + '%' : '—'}</span>`).join('')}<span class="${S.rc === 0 ? 'neg' : ''}">兵装充電 ${fPct(S.rc)}</span></div>
@@ -1991,6 +1992,11 @@ function specHTML(S) {
   <p class="note">重要区画の防護 ${fPct(S.protectedFrac)}・ジェネレーター露出 ${fPct(S.genExpFrac)}・開放容積（格納庫）${fPct(S.cls.hangarFrac || 0)}${S.frac.struct > 0 ? `・構造物 ${ja(S.frac.struct * S.hullVolume)} m³` : ''}${S.plateArea > 0 ? `・装甲外板 ${ja(S.plateArea)} m²（装甲 ${fMass(S.plateMass || 0)}）` : ''}</p>
   <h4>点検</h4>
   <ul class="warns">${warnHTML}</ul>`;
+}
+// v21 A craft's figures as a carrier's complement in the voyage (the same scale as the craft types there).
+function craftCombatHTML(S){
+ const c=C.craftCombat(ship,S);if(!c)return '';const row=(k,v,n)=>`<div><dt>${k}</dt><dd>${v}<small>${n}</small></dd></div>`;
+ return `<h4>艦載機としての性能（航行）</h4><dl class="kv">${row('速度',`${num(c.speed)} m/s`,`加速 ${fG(c.accelG)} から`)}${row('空戦',c.aa,`機首の砲と機動性${c.shield?'・シールド':''}${c.role==='bomber'?'（爆撃機は空戦が苦手）':''}`)}${row('対艦',num(c.strike),'魚雷・ミサイル・爆弾と砲')}${row('耐久',c.armor,`質量 ${fMass(S.mass)}${c.shield?'・シールドあり':''}`)}${row('役割',esc(S.cls.role),`格納サイズ ${num(c.size,1)}`)}</dl><p class="note">比較：Xウイング 速度 2,000・空戦 1.25・対艦 160・耐久 1.2、TIE/ln 2,100・1.0・10・0.6。空母の「航空隊」で機種に「設計した機体」としてこの設計（保存したもの）を選ぶと、航行ではこの性能で出撃します。</p>`;
 }
 function renderSpecTargets() {
   if(fleet.mode!=='design'){fleetRender();return;}
@@ -2035,7 +2041,9 @@ function basePartEditor() {
     ${slider('ex', '前後 X', Math.round(it.c[0]), Math.round(-hp.L * 0.1), Math.round(hp.L * 1.1), 1, fmtM(it.c[0]))}
     ${slider('ey', '高さ Y', Math.round(it.c[1]), Math.round(-hp.H * 0.8), Math.round(hp.H * 3.5), 1, fmtM(it.c[1]))}
     ${slider('ez', '左右 Z', Math.round(it.c[2]), Math.round(-hp.W * 0.75), Math.round(hp.W * 0.75), 1, fmtM(it.c[2]))}`;
-  if (it.k === 'struct') {
+  if (it.k === 'struct' && it.form === 'reference' && C.equipmentSpec(it)) {
+    h += `</div><p class="note tight">${esc(C.equipmentSpec(it).name)}は実寸の機器で、大きさは変えられません（${fmtM(it.s[0])} × ${fmtM(it.s[1])} × ${fmtM(it.s[2])}）。</p><div class="sliders">`;
+  } else if (it.k === 'struct') {
     h += slider('el', '長さ', Math.round(it.s[0]), 10, Math.round(hp.L), 1, fmtM(it.s[0]))
       + slider('ew', '幅', Math.round(it.s[1]), 5, Math.round(hp.W * 1.2), 1, fmtM(it.s[1]))
       + slider('eh', '高さ', Math.round(it.s[2]), 5, Math.round(Math.max(60, hp.H * 1.5)), 1, fmtM(it.s[2]))
@@ -2044,6 +2052,10 @@ function basePartEditor() {
     h += it.room.map((v,i)=>slider('room'+i,['長さ','幅','高さ'][i],v,4,[hp.L,hp.W,hp.H][i],1,fmtM(v))).join('');
   } else if (it.k === 'hangar') {
     h += `</div><div class="pgroup chips">${C.PARTS.hangar.sizes.map(s => `<button type="button" class="chip" data-hsize="${s}" aria-pressed="${it.d === s}">${s} m</button>`).join('')}</div><div class="sliders">`;
+  } else if (d.fixed) {
+    h += `</div><p class="note tight">固定寸法：直径 ${fmtM(it.d)}・長さ ${fmtM(it.length || C.partDims(it).l)}（この兵器の大きさは変えられません）</p><div class="sliders">`;
+  } else if (C.equipmentSpec(it) && !C.parametricEngine(it) && it.k !== 'engine') {
+    h += `</div><p class="note tight">${esc(C.equipmentSpec(it).name)}は実寸の機器で、大きさは変えられません。</p><div class="sliders">`;
   } else if (!C.parametricEngine(it)) {
     const precise = precisePartSize(it);
     h += slider('ed', '直径', precise ? it.d : Math.round(it.d), d.min, precise ? C.DESIGN_LIMITS.diameter : Math.max(it.d,Math.min(C.DESIGN_LIMITS.diameter,Math.max(d.max,hp.H*1.5))), precise ? .1 : 1, precise ? num(it.d, 2) + ' m' : fmtM(it.d));
@@ -2101,6 +2113,7 @@ function baseRenderPanel() {
             <p class="note">構造物は面の上に3割ほど沈めて据えます。船台構造物で反応炉の張り出しを覆うと露出が減り、縦強度も上がります。</p>`;
         } else {
           if (k === 'hangar') h += `<div class="pgroup"><h4>自動充填のセルサイズ</h4><div class="chips">${C.PARTS.hangar.sizes.map(s => `<button type="button" class="chip" data-psize="${s}" aria-pressed="${st.size.hangar === s}">${s} m</button>`).join('')}</div></div>`;
+          else if(C.PARTS[k].fixed) h += `<div class="pgroup"><h4>固定寸法</h4><p class="note">直径 ${fmtM(C.PARTS[k].def)}・長さ ${fmtM(C.PARTS[k].def * C.PARTS[k].ratio)}。${C.SUPERWEAPONS[k]?.aim === 'bow' ? '艦首方向に固定して置きます。' : '置いた側の舷側方向に固定して置きます（左右対称で一対）。'}給電する炉は最寄りの炉に自動で接続し、選択して変えられます。</p></div>`;
           else if(!activeEquipment()&&(C.PARTS[k].shape!=='cube'||craftDesign())) h += craftDesign() ? (()=>{const lm=C.partLimits(ship,k);return `<div class="pgroup sliders">${slider('psize', '直径', pSize(k), lm.min, lm.max, .05, sizeOut(k, pSize(k)))}</div>`;})() : `<div class="pgroup sliders">${slider('psize', '直径', st.size[k], C.PARTS[k].min, precisePartSize({k}) ? C.DESIGN_LIMITS.diameter : Math.min(C.DESIGN_LIMITS.diameter,Math.max(C.PARTS[k].max,hp.H*1.5)), precisePartSize({k}) ? .1 : 1, sizeOut(k, st.size[k]))}</div>`;
           h += `<div class="pgroup"><h4>置き方</h4>${seg('place', PLACE, st.placeBy[k])}<p class="note">内蔵：面の内側に収める／一部露出：3割ほど外に出す／外付け：面の外に据える。船内の任意の位置には「座標を指定して配置」を使います。</p></div>`;
           if (k === 'hangar') h += `<div class="pgroup sliders"><h4>自動充填</h4>
@@ -2595,7 +2608,8 @@ const PED_SHAPES = [['round', '円形'], ['trap', '台形']];
 // Switching from 編集 to 設置 keeps what was just being edited ready to place:
 // the same kind, size and settings, apart from where it sits.
 const TEMPLATE_SKIP = ['id', 'tw', 'vt', 'c', 'p', 'n', 'a', 'tilt', 'host', 'local', 'localNormal', 'base', 'low', 'slope', 'float', 'surfaceNormal', 'pitch', 'roll', 'mountAxis', 'mountOffset', 'localMount', 'batteryZone', 'assetYaw'];
-const FIT_TEMPLATE_KEYS = ['width', 'height', 'scale', 'chargeSalvos', 'chargeDepth', 'chargeScale', 'commandDepth', 'commandHeight', 'commandEnabled', 'pedShape', 'pedSize', 'skinAsset'];
+// v21 'scale' is not carried: the player cannot make a turret larger or smaller than its standard.
+const FIT_TEMPLATE_KEYS = ['width', 'height', 'chargeSalvos', 'chargeDepth', 'chargeScale', 'commandDepth', 'commandHeight', 'commandEnabled', 'pedShape', 'pedSize', 'skinAsset'];
 function templateFor(it, list) { const data = JSON.parse(JSON.stringify(it, (k, v) => k.startsWith('_') ? undefined : v)); for (const k of TEMPLATE_SKIP) delete data[k]; return {list, k: it.k, equipmentId: list === 'parts' ? (C.equipmentSpec(it)?.id || null) : null, data}; }
 function activeTemplate(list, k) { const t = st.template; if (!t || t.list !== list || t.k !== k) return null; if (list === 'parts' && (t.equipmentId || null) !== (activeEquipment()?.id || null)) return null; return t; }
 function carryToPlace() {
@@ -2761,10 +2775,10 @@ function bind() {
       case 'ex': live('移動', 'parts', () => editSel(it => { it.c[0] = v; }), fmtM(v)); break;
       case 'ey': live('移動', 'parts', () => editSel(it => { it.c[1] = v; }), fmtM(v)); break;
       case 'ez': live('移動', 'parts', () => editSel(it => { it.c[2] = v; }), fmtM(v)); break;
-      case 'ed': live('大きさ', 'parts', () => editSel(it => { it.d = v; }), precisePartSize(selItem() || {}) ? num(v, 2) + ' m' : fmtM(v)); break;
-      case 'el': live('大きさ', 'parts', () => editSel(it => { it.s[0] = v; }), fmtM(v)); break;
-      case 'ew': live('大きさ', 'parts', () => editSel(it => { it.s[1] = v; }), fmtM(v)); break;
-      case 'eh': live('大きさ', 'parts', () => editSel(it => { it.s[2] = v; }), fmtM(v)); break;
+      case 'ed': live('大きさ', 'parts', () => editSel(it => { if (C.PARTS[it.k]?.fixed || (C.equipmentSpec(it) && it.k !== 'engine')) return; it.d = v; }), precisePartSize(selItem() || {}) ? num(v, 2) + ' m' : fmtM(v)); break;
+      case 'el': live('大きさ', 'parts', () => editSel(it => { if (it.form === 'reference' && C.equipmentSpec(it)) return; it.s[0] = v; }), fmtM(v)); break;
+      case 'ew': live('大きさ', 'parts', () => editSel(it => { if (it.form === 'reference' && C.equipmentSpec(it)) return; it.s[1] = v; }), fmtM(v)); break;
+      case 'eh': live('大きさ', 'parts', () => editSel(it => { if (it.form === 'reference' && C.equipmentSpec(it)) return; it.s[2] = v; }), fmtM(v)); break;
       case 'et': live('すぼまり', 'parts', () => editSel(it => { it.taper = v / 100; }), v + '%'); break;
       case 'pedsel': live('支持台の高さ', 'fits', () => { editSel(it => { it.ped = v; }); }, `${v.toFixed(1)} m`); { const it = selItem(), pi = $('#pedinfo'); if (it && pi) pi.textContent = `傾斜に合わせた自動の高さ ${it.base.toFixed(1)} m ＋ 追加 ${it.ped.toFixed(1)} m。高くすると射界が開けますが、標的にもなりやすくなります。`; } break;
       case 'arh': live('外殻装甲', 'none', () => { ship.armor.hull = v; }, craftDesign() ? `${(v * 1000).toFixed(0)} mm` : `${v.toFixed(2)} m`); break;
@@ -2883,7 +2897,7 @@ function collectSources() {
 function start(hot) {
   $('#tabs').innerHTML = TABS.map(([k, l]) => `<button type="button" role="tab" data-tab="${k}" aria-selected="false" class="tab-${k}">${l}</button>`).join('');
   $('#newHulls').innerHTML = Object.entries(C.HULLS).map(([k, v]) => `<button type="button" class="hullcard" data-newhull="${k}">${silhouette(v)}<span>${v.name}</span></button>`).join('');
-  $('#refGrid').innerHTML = EXAMPLES.map(e => `<button class="btn" data-reference="${e.key}">${esc(e.name)}<small>${esc(e.side)} · ${esc(exampleLine(e))}</small></button>`).join('');
+  $('#refGrid').innerHTML = [...exampleList(false), ...exampleList(true)].map(e => `<button class="btn" data-reference="${e.key}">${esc(e.name)}<small>${esc(e.side)} · ${esc(exampleLine(e))}</small></button>`).join('');
   restoreRenderer(false,false);bindRendering();
   bind();bindEngineering();bindRealism();bindReference();bindAviation();bindFleet();bindSurface();bindPlanCuts();bindLayout();bindSolidCuts();bindTitle();bindTutorial();bindGround();bindTrial();bindMulti();bindDockToggle();bindShot();bindVoyage();bindRail();bindPalette();bindSound();
   if (hot && hot.ui) { for (const k of ['tab', 'part', 'partTool', 'mirror', 'view', 'coded', 'fit', 'bridge', 'bridgeMode', 'bridgeEquipment', 'equipmentId', 'group', 'ped']) if (hot.ui[k] != null) st[k] = hot.ui[k]; }
@@ -2900,7 +2914,7 @@ function start(hot) {
     window.claude.hot.snapshot(() => ({design: ship ? C.serialize(ship) : null, ui: {tab: st.tab, part: st.part, partTool: st.partTool, mirror: st.mirror, view: st.view, coded: st.coded, fit: st.fit, bridge: st.bridge, bridgeMode:st.bridgeMode,bridgeEquipment:st.bridgeEquipment,equipmentId:st.equipmentId,group:st.group,ped: st.ped}}));
   }
   Store.init();
-  window.__yard = {get ship() { return ship; }, get stats() { return S; }, st, draw: requestDraw, renderPanel: () => renderPanel(), fleet, fleetSetMode, renderHealth, restoreRenderer, view: () => view, setShip, C, pick, onTap, touch, eng, openExample, title: titleApi, meshStore, trial, trialCommand, trialStep: dt => trialStep(dt), trialCamera: dt => trialCamera(dt), trialStart: o => trialStart(o), trialJump: k => trialJump(k), spaceBattleLaunch: () => spaceBattleLaunch(), spaceStep: dt => spaceStep(dt), SYSTEMS, JUMP};
+  window.__yard = {get ship() { return ship; }, get stats() { return S; }, st, draw: requestDraw, renderPanel: () => renderPanel(), fleet, fleetSetMode, renderHealth, restoreRenderer, view: () => view, setShip, C, pick, onTap, touch, eng, openExample, title: titleApi, meshStore, trial, trialCommand, trialStep: dt => trialStep(dt), trialCamera: dt => trialCamera(dt), trialStart: o => trialStart(o), trialJump: k => trialJump(k), spaceBattleLaunch: () => spaceBattleLaunch(), spaceStep: dt => spaceStep(dt), fleetAsset: k => fleetAsset(k), SYSTEMS, JUMP};
   const boot = window.KSBoot, draft = readDraft(hot);
   const engineStart = YardEngineClient.start(boot ? null : collectSources(), boot ? {workerReady: boot.workerReady} : {});
   engineStart.then(mode => { engineHello(mode); boot?.step('engine', 'done'); titleStatus(); }).catch(e => { console.error(e); toast('設計エンジンを起動できませんでした'); });
@@ -2913,14 +2927,16 @@ function start(hot) {
 
 // ---------- title screen ----------
 // The examples are listed by class, size and purpose only.
-const EXAMPLE_PURPOSE = {venator: '艦隊戦・艦載機運用', imperial: '艦隊主力・星系制圧', executor: '艦隊旗艦・指揮', cr90: '護衛・高速輸送', dreadnaught: '艦隊戦・護衛', gozanti: '輸送・護衛', gr75: '物資輸送', heraklon: '貨物・旅客輸送', lucrehulk: 'ドロイド軍の司令・母艦', munificent: '通信中継・艦隊戦', nebulonb: '船団護衛', providence: '艦隊旗艦・艦載機運用', recusant: '艦隊戦', reptransport: '兵員・物資輸送', mc80home: '艦隊旗艦・イオン砲と艦載機', mc80liberty: '主力・イオン砲戦', mc75: '旗艦・イオン砲戦', providenceDn: '艦隊旗艦・強襲揚陸', recusantDn: '重砲撃戦', mc30c: '雷撃・イオン砲でシールド剥ぎ', mandator2: '艦隊旗艦・重砲撃戦', acclamator: '強襲揚陸・兵員輸送', arquitens: '護衛・哨戒', hammerhead: '護衛・武装輸送・体当たり'};
+const EXAMPLE_PURPOSE = {venator: '艦隊戦・艦載機運用', imperial: '艦隊主力・星系制圧', executor: '艦隊旗艦・指揮', cr90: '護衛・高速輸送', dreadnaught: '艦隊戦・護衛', gozanti: '輸送・護衛', gr75: '物資輸送', heraklon: '貨物・旅客輸送', lucrehulk: 'ドロイド軍の司令・母艦', munificent: '通信中継・艦隊戦', nebulonb: '船団護衛', providence: '艦隊旗艦・艦載機運用', recusant: '艦隊戦', reptransport: '兵員・物資輸送', mc80home: '艦隊旗艦・イオン砲と艦載機', mc80liberty: '主力・イオン砲戦', mc75: '旗艦・イオン砲戦', providenceDn: '艦隊旗艦・強襲揚陸', recusantDn: '重砲撃戦', mc30c: '雷撃・イオン砲でシールド剥ぎ', mandator2: '艦隊旗艦・重砲撃戦', acclamator: '強襲揚陸・兵員輸送', arquitens: '護衛・哨戒', hammerhead: '護衛・武装輸送・体当たり', onager: '長距離砲撃・攻城（超兵器）', subjugator: 'ハイパーイオン砲で艦隊を無力化・撃滅'};
 const EXAMPLES = [
   {key: 'venator', name: 'ヴェネター級', len: 1137, side: '銀河共和国'},
   {key: 'imperial', name: 'インペリアル級', len: 1600, side: '銀河帝国'},
   {key: 'executor', name: 'エグゼクター級', len: 19000, side: '銀河帝国'},
   // Ships measured from attached models (src/ships/*.js).
-  ...Object.values(C.SHIP_EXAMPLES).map(d => ({key: d.key, name: d.name, len: d.length, role: d.role, side: d.side})),
+  ...Object.values(C.SHIP_EXAMPLES).map(d => ({key: d.key, name: d.name, len: d.length, role: d.role, side: d.side, craft: !!d.craft})),
 ].map(e => ({...e, purpose: EXAMPLE_PURPOSE[e.key] || e.role || ''}));
+// v21 Example craft (starfighters, small craft) are listed apart from the ships, once craft are open in the designer.
+const exampleList = craft => EXAMPLES.filter(e => !!e.craft === craft && (!craft || CRAFT_OPEN));
 const examplePurpose = (key, fallback = '') => EXAMPLE_PURPOSE[key] || C.SHIP_EXAMPLES[key]?.role || fallback;
 const exampleLine = e => `${fLen(e.len)} · ${e.purpose}`;
 const titleState = {mode: 'top', panel: null, cls: 'destroyer', hull: 'wedge', L: 1600, W: 785, H: 262, name: '新設計艦'};
@@ -2991,9 +3007,9 @@ function renderTitle() {
   titleStatus();
 }
 // v21 Craft classes size in 0.1 m steps.
-// v21 Starfighters and small craft are still being finished (the example craft, carrying designed craft, the trial
-// camera at their scale), so the class lists leave them out for now; a craft design loaded from a file keeps its class.
-const CRAFT_OPEN = false;
+// v21 Starfighters and small craft: the craft classes, the twelve measured craft examples, carrying a designed
+// craft in a carrier's air wing and the trial camera at their scale are all in, so the lists offer them.
+const CRAFT_OPEN = true;
 const shipClassList = cur => C.SHIP_CLASSES.filter(c => CRAFT_OPEN || !c.craft || c.id === cur);
 const titleCraft = () => !!C.SHIP_CLASSES.find(c => c.id === titleState.cls)?.craft;
 const titleRound = v => titleCraft() ? Math.max(.1, Math.round(v * 10) / 10) : Math.round(v);
@@ -3009,12 +3025,12 @@ function titleNewHTML() {
   <button type="button" class="btn primary tgo" data-title-start>この船体で設計を始める</button>`;
 }
 function titleLoadHTML() {
-  const sides = [...new Set(EXAMPLES.map(e => e.side))];
+  const grid = list => [...new Set(list.map(e => e.side))].map(side => `<p class="eyebrow">${esc(side)}</p><div class="ref-grid">${list.filter(e => e.side === side).map(e => `<button type="button" class="btn" data-title-example="${e.key}">${esc(e.name)}<small>${esc(exampleLine(e))}</small></button>`).join('')}</div>`).join(''), crafts = exampleList(true);
   return `<div class="tpanel-head"><h2>設計図を読み込む</h2><button type="button" class="btn ghost sm" data-title-back>戻る</button></div>
   <h3>保存した設計</h3><ul class="saves" id="titleSaves"><li class="muted">一覧を確認中…</li></ul>
   <h3>ファイル・文字列</h3><div class="iorow"><label class="btn file-btn">設計図ファイル（.json）を選ぶ<input type="file" data-title-file accept=".json,application/json"></label></div>
   <details class="trench-editor"><summary>設計図の文字列を貼り付ける</summary><textarea data-title-text spellcheck="false" aria-label="設計図の文字列"></textarea><button type="button" class="btn sm primary" data-title-import>この文字列を読み込む</button></details>
-  <h3>配置見本</h3>${sides.map(side => `<p class="eyebrow">${esc(side)}</p><div class="ref-grid">${EXAMPLES.filter(e => e.side === side).map(e => `<button type="button" class="btn" data-title-example="${e.key}">${esc(e.name)}<small>${esc(exampleLine(e))}</small></button>`).join('')}</div>`).join('')}
+  <h3>配置見本</h3>${grid(exampleList(false))}${crafts.length ? `<h3>小型機の見本（スターファイター・小型艇）</h3>${grid(crafts)}` : ''}
   <p class="note">見本は全区画を編集できます。大型艦は準備に時間がかかります。</p>`;
 }
 // Patrol: one ship flown through a system — the design on the board, a saved
@@ -3133,6 +3149,21 @@ function plateControls(p,selected){
     ${on?`<div class="sliders">${slider(selected?'plateT':'newPlateT','装甲の厚さ',t,C.PLATE.min,C.PLATE.max,.1,num(t,1)+' m')}</div>${selected?'':'<button type="button" class="btn sm" data-plateflat>板状の寸法にする（120×60×4 m）</button>'}`:''}
     <p class="note">${kind==='plate'?'装甲外板は、露出した表面が指定の厚さの装甲板になる構造物です。内側は船内として区画を置けますが、外板の上には武装・艦橋ポッドなどの装備を取り付けられません。分離主義艦の曲面外殻のように、骨組みや船体を覆う外装に使います。':kind==='light'?'軽構造は、アンテナ・塔・骨組みのような細い構造物です。質量と強度が通常の構造物の ¼ になり、大きく張り出しても加速を損ないにくい代わりに、被弾で失われやすくなります。':'構造物は船体と同じ密度・強度の張り出しです。外側には武装や艦橋ポッドを取り付けられます。'}</p></div>`;
 }
+// v21 A superweapon's controls: the reactor feeding it (the same choice as a nozzle's) and, for the beam, the default fire mode.
+function superweaponControls(p){
+  const w=(S?.superweapons||[]).find(x=>x.id===p.id),r=C.reactorFor(ship,p),source=p.reactor==null?'auto':String(p.reactor),aim=C.SUPERWEAPONS[p.k].aim==='bow'?'艦首方向（固定）':p.dir?.[2]<0?'左舷方向（固定）':'右舷方向（固定）';
+  return `<div class="pgroup route-card"><h4>超兵器</h4><p class="note tight">射界：${aim}${w&&!w.open?' · <span class="neg">砲口が船外に出ていません</span>':''}</p>
+    <label class="field-label">給電する炉（直結）<select data-reactor="selected"><option value="auto" ${source==='auto'?'selected':''}>最寄りの炉へ自動接続</option>${ship.parts.filter(C.isReactor).map(q=>`<option value="${q.id}" ${source===String(q.id)?'selected':''}>${esc(C.PARTS[q.k].name)} #${q.id} · ${reactorOutputText(q)}</option>`).join('')}</select></label>
+    ${p.k==='sbeam'?`<h4>射撃の型（既定）</h4>${seg('swmode',[['beam','ビーム照射'],['pulse','パルス一撃']],p.fireMode||'beam')}<p class="note">ビームは一定時間照射してシールドを破りやすく、貫通力に優れます。パルスは一撃の大威力で、シールドの無い艦なら破断させます。戦闘中にも切り替えられます。</p>`:''}
+    ${w&&w.ok?superweaponFigures(w):''}
+    <p class="note">${r?`給電：${C.PARTS[r.k].name} #${r.id}`:'<span class="neg">給電する炉がありません</span>'}。撃つとこの炉が過負荷になり、しばらく出力が落ちます。</p></div>`;
+}
+// v21 What the weapon does with this ship's reactors: charge time, one shot's energy, the overload, and
+// for the ion cannon the share of power left when the main reactor is knocked out.
+function superweaponFigures(w){
+ const K=C.SW_COMBAT[w.k];if(!K)return '';const sec=t=>t>=90?`${(t/60).toFixed(1)} 分`:`${Math.round(t)} 秒`,row=(k,v)=>`<div><dt>${k}</dt><dd>${v}</dd></div>`;
+ return `<dl class="engineering-stats">${row('充電',`${sec(w.chargeT)}（炉出力の ${Math.round(K.share*100)}% を充電に回す）`)}${row('一撃のエネルギー',`${ja(K.E)} TT`+(w.k==='sbeam'?`（ビームは ${K.beamT} 秒かけて照射）`:''))}${row('射程',`${Math.round(K.range/1000)} km · ${w.k==='sbeam'?'艦首の狭い射界':'舷側の広い扇形'}`)}${row('過負荷',`給電炉の出力が ${Math.round(K.over.floor*100)}% に落ち、${K.over.T} 秒かけて戻る`)}${w.k==='hion'?row('命中した敵艦',`主炉が ${K.down} 秒停止。副炉が全出力の ${Math.round(K.auxMin*100)}% に満たない艦は全電源を失う`):''}</dl>`;
+}
 function engineControls(p,selected){
   const source=p.reactor==null?'auto':String(p.reactor),dir=p.dir||[-1,0,0],yaw=Math.atan2(dir[2],-dir[0])*180/Math.PI,pitch=Math.asin(Math.max(-1,Math.min(1,dir[1])))*180/Math.PI;
   const r=C.reactorFor(ship,p),path=selected?C.enginePaths(ship).find(x=>x.nozzle===p.id):null;
@@ -3143,7 +3174,8 @@ function engineControls(p,selected){
 function v3PartEditor(){
   let h=basePartEditor(),p=selItem();if(!p||st.sel.list!=='parts')return h;
   let extra=p.k==='struct'?structureControls(p,true):p.k==='engine'?engineControls(p,true):'';
-  if(C.PARTS[p.k].shape==='cyl')extra+=`<div class="pgroup"><h4>円筒の向き</h4>${seg('partaxis',[['x','前後'],['y','上下'],['z','左右']],Math.abs(p.dir?.[1]||0)>.9?'y':Math.abs(p.dir?.[2]||0)>.9?'z':'x')}</div>`;
+  if(C.isSuperweapon(p))extra+=superweaponControls(p);
+  else if(C.PARTS[p.k].shape==='cyl')extra+=`<div class="pgroup"><h4>円筒の向き</h4>${seg('partaxis',[['x','前後'],['y','上下'],['z','左右']],Math.abs(p.dir?.[1]||0)>.9?'y':Math.abs(p.dir?.[2]||0)>.9?'z':'x')}</div>`;
   if(p.k==='struct')extra+=`<button class="btn sm" data-duplicate="${p.id}">構造物を複製</button>`;
   return h+extra;
 }
@@ -3215,6 +3247,7 @@ function bindEngineering(){
     if('plateflat'in d){st.structSize=[120,60,4];renderPanel();updateHint();}
     if(d.editplate){const lbl={plate:'装甲外板にする',light:'軽構造にする',frame:'通常の構造物にする'}[d.editplate]||'構造の種類';mutate(lbl,()=>editSel(p=>{if(p.k!=='struct')return;if(d.editplate==='plate'){p.plate=true;p.plateT=C.plateThickness(p);delete p.light;}else if(d.editplate==='light'){delete p.plate;delete p.plateT;p.light=true;}else{delete p.plate;delete p.plateT;delete p.light;}}),'parts');renderPanel();}
     if(d.editform){mutate('構造物の形状',()=>editSel(p=>{p.form=d.editform;if(d.editform!=='reference'){delete p.skinAsset;delete p.equipmentId;}}),'parts');renderPanel();}
+    if(d.swmode&&['beam','pulse'].includes(d.swmode)){mutate('超兵器の射撃の型',()=>editSel(p=>{if(C.isSuperweapon(p)&&p.k==='sbeam')p.fireMode=d.swmode;}),'parts');renderPanel();}
     if(d.partaxis){mutate('円筒の向き',()=>editSel(p=>p.dir=d.partaxis==='y'?[0,1,0]:d.partaxis==='z'?[0,0,1]:[1,0,0]),'parts');renderPanel();}
     if(d.duplicate){const p=selItem();if(!p)return;let q;mutate('構造物を複製',()=>{q=C.placePart(ship,'struct',[p.c[0],p.c[1]+p.s[2],p.c[2]],p.s,p,false);},'parts');if(q)st.sel={list:'parts',id:q.id};renderPanel();}
     if(d.trside){st.trench.side=d.trside;st.showTrench=true;renderPanel();}
@@ -3287,7 +3320,7 @@ function partEditor(){
   if(p.room&&p.outline)html+='<p class="note">輪郭区画の発着には、矩形の飛行・ドッキング区画を隣接させて接続します。</p>';
   if(p.room)html+='<div class="pgroup"><button class="btn" data-fitroom>区画を外殻内に収める</button><p class="note">位置を保ち、前後・幅・高さを同じ比率で縮小します。実際の占有・容量にも反映されます。</p></div>';
   if(p.k==='struct')html+=`<div class="pgroup"><h4>構造物のスキン</h4>${seg('partskin',[['armor','装甲板'],['service','整備機器'],['plain','追加模様なし']],p.skin||'armor')}<p class="note">スキンは外板の模様です。指揮所が必要なら艦橋ポッドを壁に取り付けます。</p><label>構造物の塗色 <input type="color" data-partpaint value="${p.paint||'#ced2d6'}"></label></div>`;
-  if(C.PARTS[p.k].shape==='cyl')html+=`<div class="sliders">${slider('cylLength','筒の長さ',p.length||C.partDims(p).l,4,p.k==='hyper'?C.DESIGN_LIMITS.partSize:Math.min(C.DESIGN_LIMITS.partSize,ship.hull.L),p.k==='hyper'?.1:1,p.k==='hyper'?num(p.length||C.partDims(p).l,2)+' m':fmtM(p.length||C.partDims(p).l))}</div>`;
+  if(C.PARTS[p.k].shape==='cyl'&&!C.PARTS[p.k].fixed)html+=`<div class="sliders">${slider('cylLength','筒の長さ',p.length||C.partDims(p).l,4,p.k==='hyper'?C.DESIGN_LIMITS.partSize:Math.min(C.DESIGN_LIMITS.partSize,ship.hull.L),p.k==='hyper'?.1:1,p.k==='hyper'?num(p.length||C.partDims(p).l,2)+' m':fmtM(p.length||C.partDims(p).l))}</div>`;
   if(p.k==='engine'&&!C.parametricEngine(p))html+=`<div class="pgroup"><h4>ノズル前方の機関胴</h4><div class="sliders">${slider('bodyLength','機関胴の長さ',p.bodyLength||p.d*2.2,4,ship.hull.L*.6,1,fmtM(p.bodyLength||p.d*2.2))}${slider('bodyRadius','機関胴の径',Math.round((p.bodyRadius??.52)*200),60,160,1,Math.round((p.bodyRadius??.52)*200)+'%')}</div><p class="note">ノズルと平行な機関胴と、炉へつながる供給部を自動占有します。汎用ノズルの機関胴は炉との間隔の62%以内に収まります。</p></div>`;
   if(C.isInternal(p)&&C.PARTS[p.k].shape==='cube'&&!ship.hatches.some(h=>h.bay===p.id)&&!['flight','dock'].includes(p.airRole))html+=`<div class="pgroup blueprint-card"><label><input type="checkbox" data-autofit ${p.autoFit!==false?'checked':''}> 干渉時に容積を保って自動統合</label><p class="note">近くの区画と用途・必要容積を分けたまま統合し、空き空間に形を組み替えます。指定した位置・寸法は基準形状として保持します。</p></div>`;
   if(p._packingGroup)html+=packingInfoHTML(p);
@@ -3373,7 +3406,7 @@ function referencePanel(panel){
   const selected=selItem();if(selected&&st.sel.list==='fits'&&C.needsCapacitor(selected)){const q=S?.chargeInfo?.[selected.id],depth=selected.chargeDepth??(6*(selected.scale||1)+4),d=C.fitSpec(selected),c=C.weaponChargeSpec(selected),cap=C.weaponCapacitors(ship).find(p=>p.weaponId===selected.id);panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>この砲の充電装置</h4><p>${fTT(c.boltTT)} × ${c.barrels} 門 × ${c.salvos} 斉射分 = ${fTT(c.volleyTT*c.salvos)}</p><p>必要容積 ${num(c.targetVolume,1)} m³${cap?' · 基準形状 '+cap.boxSize.map(v=>num(v,1)).join(' × ')+' m':''}</p><p>${q?num(q.volume,1):'—'} m³ / 必要 ${q?num(q.required,1):'—'} m³ · ${q?fPct(q.capacityRatio):'—'}</p><div class="sliders">${slider('chargeSalvos','蓄える斉射回数',c.salvos,1,20,1,c.salvos+' 回分')}${slider('chargeDepth','装備面から内側への深さ',depth,1,180,1,fmtM(depth))}${slider('chargeScale','充電区画の容積',(selected.chargeScale??1)*100,25,400,5,Math.round((selected.chargeScale??1)*100)+'%')}</div>${cap?packingInfoHTML(cap):''}<p class="note">周辺区画との干渉は容積を保って自動統合。1門の威力と連装数に比例して容積が変わります。容量密度 0.08 TT/m³。再充電の目安 ${S?.rc?((d.cycle||1)/S.rc).toFixed(2)+' 秒':'給電なし'}。砲塔の寸法を変えると必要容積も変わります。</p></div>`);}
   // v18 Missile launchers: cells below deck (VLS) or a box on the hull.
   if(selected&&st.sel.list==='fits'&&C.FITS[selected.k]?.msl){const mm=C.missileMount(selected),q=S?.vlsInfo?.[selected.id],M=C.MISSILE_MOUNTS;panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>ミサイル発射機の搭載方式</h4>${seg('mslmount',Object.entries(M).map(([k,v])=>[k,v.name]),mm)}<p>${mm==='vls'?`船内のセル・弾庫 ${q?num(q.volume,0):'—'} / ${q?num(q.required,0):'—'} m³（${q?fPct(q.ratio):'—'}）· 搭載弾数 ${Math.round(M.vls.stock*(q?.ratio??1))} 発`:`船内容積を使いません · 搭載弾数 ${M.ext.stock} 発`}</p><p class="note">VLS は発射機の下に船内容積を確保します（その分、乗員の居住に回せる空き容積が減ります）。露出はハッチだけで被弾しにくい反面、弾庫まで撃ち抜かれると誘爆します。外置きは船内容積を使わず、搭載弾数が半分、箱型発射機がむき出しで被弾しやすくなります。</p></div>`);}
-  const f=selItem();if(f&&st.sel.list==='fits'&&!C.FITS[f.k].window){const d=C.fitSpec(f);panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>選択中の兵装</h4><label>砲塔を交換<select data-refweapon>${WEAPONS.map(k=>`<option value="${k}" ${f.k===k?'selected':''}>${esc(C.FITS[k].name)}</option>`).join('')}</select></label>${C.FITS[f.k].asset?`<div class="sliders">${slider('gunScale','砲塔の大きさ',(f.scale||1)*100,25,300,5,Math.round((f.scale||1)*100)+'%')}${d.casemate?'':slider('gunYaw','砲塔の向き',f.assetYaw||0,-180,180,1,deg(f.assetYaw||0))}</div><p class="note">拡縮すると威力・質量は大きさの3乗で増減します。</p>`:''}<p>${fTT(d.tt||d.ion||0)} / 一斉射 · ${fW(d.power)} / 連射時${S?.feedInfo?.[f.id]?`<br>配電路 ${ja(S.feedInfo[f.id][0])} m³（${feedSrc(S.feedInfo[f.id])} ${num(S.feedInfo[f.id][1])} m）`:''}</p></div>`);}
+  const f=selItem();if(f&&st.sel.list==='fits'&&!C.FITS[f.k].window){const d=C.fitSpec(f);panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>選択中の兵装</h4><label>砲塔を交換<select data-refweapon>${WEAPONS.map(k=>`<option value="${k}" ${f.k===k?'selected':''}>${esc(C.FITS[k].name)}</option>`).join('')}</select></label>${C.FITS[f.k].asset?`${d.casemate?'':`<div class="sliders">${slider('gunYaw','砲塔の向き',f.assetYaw||0,-180,180,1,deg(f.assetYaw||0))}</div>`}<p class="note">兵装の大きさは規格どおりで変えられません${(f.scale||1)!==1?`（この砲塔は作例の規格 ${Math.round((f.scale||1)*100)}%）`:''}。</p>`:''}<p>${fTT(d.tt||d.ion||0)} / 一斉射 · ${fW(d.power)} / 連射時${S?.feedInfo?.[f.id]?`<br>配電路 ${ja(S.feedInfo[f.id][0])} m³（${feedSrc(S.feedInfo[f.id])} ${num(S.feedInfo[f.id][1])} m）`:''}</p></div>`);}
   panel.insertAdjacentHTML('beforeend',weaponSourcesHTML());
  }
 }
@@ -3415,7 +3448,7 @@ function bindReference(){
   if('custombridge'in d){st.tab='mod';st.group='shape';st.part='struct';st.equipmentId=null;st.partTool='place';st.structForm='trap';delete st.skinAsset;renderPanel();return;}
   if('removeskin'in d){mutate('基本形状へ変更',()=>editSel(p=>{delete p.equipmentId;delete p.customEquipment;delete p.skinAsset;delete p.skinSize;if(p.form==='reference')p.form='box';}),'parts');renderPanel();}
  });
- $('#panel').addEventListener('input',e=>{const k=e.target.dataset.sl,v=+e.target.value;if(!Number.isFinite(v)||!['gunScale','gunYaw'].includes(k))return;beginDrag('砲塔の形状');editSel(f=>{if(k==='gunScale')f.scale=C.clamp(v/100,.25,3);else f.assetYaw=C.clamp(v,-180,180);});touch('fits');scheduleStats(350);const out=$('#out-'+k);if(out)out.textContent=k==='gunScale'?v+'%':deg(v);});
+ $('#panel').addEventListener('input',e=>{const k=e.target.dataset.sl,v=+e.target.value;if(!Number.isFinite(v)||k!=='gunYaw')return;beginDrag('砲塔の形状');editSel(f=>{f.assetYaw=C.clamp(v,-180,180);});touch('fits');scheduleStats(350);const out=$('#out-'+k);if(out)out.textContent=deg(v);});
  $('#panel').addEventListener('input',e=>{const k=e.target.dataset.sl,v=+e.target.value;if(!Number.isFinite(v)||!['chargeDepth','chargeScale','chargeSalvos'].includes(k))return;beginDrag('主砲充電装置を調整');editSel(f=>f[k]=k==='chargeDepth'?C.clamp(v,1,500):k==='chargeSalvos'?Math.round(C.clamp(v,1,20)):C.clamp(v/100,.25,4));touch('fits');scheduleStats(350);const o=$('#out-'+k);if(o)o.textContent=k==='chargeDepth'?fmtM(v):k==='chargeSalvos'?v+' 回分':v+'%';});
 }
 
@@ -3510,7 +3543,40 @@ function typeOptionsHTML(types,cur,extra){
  return Object.entries(CRAFT_SIDE_NAMES).filter(([s])=>by[s]).map(([s,n])=>`<optgroup label="${n}">${by[s].map(([k,t])=>`<option value="${k}" ${cur===k?'selected':''}>${esc(t.name)}（${label(t)}${t.approx?'・推定':''}）</option>`).join('')}</optgroup>`).join('')+`<optgroup label="そのほか">${extra.map(([k,n])=>`<option value="${k}" ${cur===k?'selected':''}>${n}</option>`).join('')}</optgroup>`;
 }
 const rawWing=w=>ship.airWings?.find(x=>x.id===w.id)||w;
-const wingMode=r=>r.kind==='ship'?'ship':C.CRAFT_TYPES[r.type]?'type':Array.isArray(r.dims)?'custom':'legacy';
+const wingMode=r=>r.kind==='ship'?'ship':C.CRAFT_TYPES[r.type]?'type':r.design?.craft?'design':Array.isArray(r.dims)?'custom':'legacy';
+// v21 Craft of the player's own design for an air wing: saved designs that are craft, and (with the craft
+// examples open) the measured craft examples. Each is computed once when chosen; the row keeps its snapshot.
+function designCraftList(){
+ const out=[];for(const r of st.craftSaves||[])out.push(r);
+ if(CRAFT_OPEN)for(const e of exampleList(true))out.push({ref:e.key,name:e.name||C.SHIP_EXAMPLES[e.key]?.name||e.key,example:true});
+ return out;
+}
+async function loadCraftSaves(){
+ if(st.craftSaves||st.craftLoading)return;st.craftLoading=true;const out=[];
+ try{const all=await Store.list().catch(()=>[]);for(const rec of all.slice(0,60)){try{const s=C.deserialize(await unpack(rec.data));if(C.isCraft(s))out.push({ref:'save:'+rec.id,name:rec.name||s.name,saved:true});}catch(e){}}}
+ finally{st.craftSaves=out;st.craftLoading=false;}
+ if(fleet.mode==='design'&&st.tab==='launch')renderPanel();
+}
+function designCraftOptionsHTML(r){
+ if(!st.craftSaves)loadCraftSaves();const list=designCraftList(),cur=r.design?.ref;
+ if(!list.length&&!r.design)return '';
+ const has=list.some(c=>c.ref===cur);
+ return `<optgroup label="設計した機体">${r.design&&!has?`<option value="dsn:${esc(cur||'')}" selected>${esc(r.design.name)}（保存時の性能）</option>`:''}${list.map(c=>`<option value="dsn:${esc(c.ref)}" ${c.ref===cur?'selected':''}>${esc(c.name)}${c.example?'（作例）':''}</option>`).join('')}</optgroup>`;
+}
+// The chosen craft's design is built and measured (stats, then its figures as a complement).
+async function pickDesignCraft(id,ref){
+ try{let s=null;
+  if(ref.startsWith('save:')){const rec=(await Store.list()).find(x=>'save:'+x.id===ref);if(rec)s=C.deserialize(await unpack(rec.data));}
+  else if(C.SHIP_EXAMPLES[ref])s=C.buildDesign(ref);
+  if(!s||!C.isCraft(s)){toast('機体の設計を読み込めません');return;}
+  C.syncCompartments(s);const S2=C.computeStats(s),cc=C.craftCombat(s,S2);if(!cc){toast('機体の性能を計算できません');return;}
+  const row=ship.airWings?.find(w=>w.id===id);if(!row)return;
+  const next={...row,type:null,dims:cc.dims,design:{ref,name:cc.name,craft:cc}};delete next.size;if(!row.name||/^航空隊 \d+$/.test(row.name)||row.name===C.CRAFT_TYPES[row.type]?.name||row.name===row.design?.name)next.name=cc.name;
+  mutate('航空隊の機種を変更',()=>{ship.airWings=C.normalizeAirWings(ship.airWings.map(w=>w.id===id?next:w));},'none');renderPanel();
+  toast(`${esc(cc.name)}：速度 ${cc.speed} · 空戦 ${cc.aa} · 対艦 ${cc.strike} · 耐久 ${cc.armor}`);
+ }catch(e){toast('機体の設計を読み込めません');}
+}
+function designCraftFigures(c){return c?`速度 ${num(c.speed)} m/s · 空戦 ${c.aa} · 対艦 ${num(c.strike)} · 耐久 ${c.armor}${c.crew?` · 乗員 ${c.crew} 名`:''}`:'';}
 const bayName=id=>{const p=ship.parts.find(p=>p.id===id);return p?C.partLabel(p):'#'+id;};
 function placedHTML(w){return w.placed?.length?`<p class="note">格納先：${w.placed.slice(0,4).map(([id,k])=>`${esc(bayName(id))} ${num(k)}`).join('・')}${w.placed.length>4?' ほか':''}</p>`:'';}
 function aviationWingStatusHTML(w){
@@ -3528,6 +3594,7 @@ function wingSummary(w){
  const r=rawWing(w),m=wingMode(r),n=` · ${num(w.count)} ${m==='ship'?'隻':'機'}`;
  if(m==='ship')return `艦艇 ${dimsText(w.dims)} · サイズ ${aviationSize(w.size)}${n}`;
  if(m==='type')return C.CRAFT_TYPES[r.type].name+n;
+ if(m==='design')return `設計機 ${r.design.name}${n}`;
  if(m==='custom')return `寸法指定 ${dimsText(r.dims)}${n}`;
  return `サイズ ${aviationSize(w.size)}${n}`;
 }
@@ -3539,7 +3606,7 @@ function aviationWingHTML(w,i){
  const status=`<div data-airwing-status="${id}" class="airwing-status" aria-live="polite">${aviationWingStatusHTML(w)}</div>`;
  if(m==='ship')return `${head}<label class="field-label">表示名<input type="text" data-airwing="${id}" data-wingfield="name" value="${esc(w.name)}" maxlength="${limits.nameLength}" aria-label="搭載艦 ${i+1} の名前"></label><div class="airwing-fields"><label>1隻のサイズ<input type="number" value="${w.size}" disabled aria-label="搭載艦 ${i+1} のサイズ（外形から計算）"></label><label>搭載する隻数<input type="number" data-airwing="${id}" data-wingfield="count" value="${w.count}" min="0" max="${limits.maxCount}" step="1" inputmode="numeric" aria-label="搭載艦 ${i+1} の隻数"></label></div>${status}${wingButtonsHTML(id,w,i)}</details>`;
  return `${head}<label class="field-label">航空隊名<input type="text" data-airwing="${id}" data-wingfield="name" value="${esc(w.name)}" maxlength="${limits.nameLength}" aria-label="航空隊 ${i+1} の名前"></label>
- <label class="field-label">機種<select data-airwing="${id}" data-wingfield="type" aria-label="航空隊 ${i+1} の機種">${typeOptionsHTML(C.CRAFT_TYPES,m==='type'?r.type:m,[['custom','寸法を指定する'],['legacy','サイズで指定する（旧形式）']])}</select></label>${m==='custom'?dimsInputsHTML('data-airwing',id,r.dims,'航空隊 '+(i+1)):''}
+ <label class="field-label">機種<select data-airwing="${id}" data-wingfield="type" aria-label="航空隊 ${i+1} の機種">${typeOptionsHTML(C.CRAFT_TYPES,m==='type'?r.type:m==='design'?'':m,[['custom','寸法を指定する'],['legacy','サイズで指定する（旧形式）']])}${designCraftOptionsHTML(r)}</select></label>${m==='custom'?dimsInputsHTML('data-airwing',id,r.dims,'航空隊 '+(i+1)):''}${m==='design'?`<p class="note">設計機：${esc(designCraftFigures(r.design.craft))}（${esc(r.design.craft.roleName||C.CRAFT_ROLE_RTS[r.design.craft.role]||'')}）。航行では空母からこの性能で出撃します。</p>`:''}
  <div class="airwing-fields">${m==='legacy'?`<label>1機のサイズ<input type="number" data-airwing="${id}" data-wingfield="size" value="${w.size}" min="${limits.minSize}" max="${limits.maxSize}" step=".01" inputmode="decimal" aria-label="航空隊 ${i+1} の機体サイズ"></label>`:''}<label>搭載する機数<input type="number" data-airwing="${id}" data-wingfield="count" value="${w.count}" min="0" max="${limits.maxCount}" step="1" inputmode="numeric" aria-label="航空隊 ${i+1} の機数"></label></div>${status}${wingButtonsHTML(id,w,i)}</details>`;
 }
 function aviationSurfacesHTML(p){
@@ -3891,7 +3958,9 @@ function trialCardHTML(side){
  return `<div class="pgroup trial-card${side?' side':''}"><div class="trial-head"><h4>公試</h4><span>コルサント低軌道</span></div><p class="note">設計した艦を軌道上で操艦し、速力・加速・旋回と砲塔の射界を確かめます。</p>${f.ok?`<dl class="trial-kv"><dt>最大速力</dt><dd>${num(Math.round(f.v))} m/s</dd><dt>0→全速</dt><dd>${Math.round(f.accelTime)} 秒</dd><dt>全舵旋回率</dt><dd>${f.turn.toFixed(1)}°/秒</dd><dt>全速旋回径</dt><dd>${(f.circle/1000).toFixed(1)} km</dd>${tr?`<dt>砲塔旋回</dt><dd>${tr[0]===tr[1]?tr[0].toFixed(0):tr[0].toFixed(0)+'〜'+tr[1].toFixed(0)}°/秒</dd>`:''}</dl>`:`<p class="note neg">加速度が 0 G のため航行できません。推進・慣性補償・構造の上限を確認してください。</p>`}<button type="button" class="btn primary trial-go" data-trial="start" ${f.ok?'':'disabled'}>公試に出る</button></div>`;
 }
 // Watching a battle, the range follows the ship in view and reaches out to take in the fight.
-const trialCamRange=r=>{const L=trial.spectate&&trial.camLen?trial.camLen:trial.p.len;return C.clamp(r,L*.45+60,trial.spectate?Math.max(L*12+6000,60000):L*10+4000);};
+// v21 The fixed pads (60 m, 4 km) suit ships; under 200 m they shrink with the length, so a starfighter's camera sits a few lengths away.
+const trialCamPad=L=>C.clamp(L/200,.02,1);
+const trialCamRange=r=>{const L=trial.spectate&&trial.camLen?trial.camLen:trial.p.len,k=trialCamPad(L);return C.clamp(r,L*.45+60*k,trial.spectate?Math.max(L*12+6000*k,60000*k):L*10+4000*k);};
 function trialReset(){
  if(trial.cine)spaceCineEnd();const sy=trialSys(),R=sy.planet.radius;Object.assign(trial,{P:[0,R+sy.altitude,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],w:[0,0,0],tele:1,rudder:0,level:false,t:0,last:0,vf:0,thrust:0,camF:null,warn:'',bolts:[],missiles:[],fx:[],wrecks:[],vbolts:[],fireTap:0,aim:null,lead:null,mslOrder:false,jump:null,flash:0,hitFlash:0,camSave:null,drones:[],gunTarget:null,heldLock:null});
  trial.rec={top:0,accel:null,run:null,turn:null,turnSpeed:0};trial.gun={shots:0,hits:0,kills:0,missiles:0};for(const l of trial.launchers){l.reload=0;l.queue=0;l.next=0;}
@@ -3901,7 +3970,7 @@ function trialReset(){
  for(const t of trial.turrets){t.yaw=0;t.el=0;t.reload=Math.random()*t.cycle;t.clear=false;t.clearDir=null;t.aimed=false;t.arc=true;t.dead=false;t.rot=trialAxisMatrix(t.axis,0,t.rot);}for(const l of trial.launchers)l.dead=false;
  trial.targets=[];trial.battle=null;if(trial.rts)voyPilotInit();else if(trial.mode==='battle'&&trial.battlePlan)spaceBattleInit(trial.battlePlan);else for(let i=0;i<TRIAL_GUN.targets;i++)trial.targets.push(trialSpawnTarget(i,true));
  escortsInit();
- if(view){const asp=(view.canvas.clientWidth||900)/(view.canvas.clientHeight||600);view.cam.th=Math.PI;view.cam.ph=TRIAL_CAM_PH;view.cam.r=trialCamRange((L*1.35+260)*Math.max(1,.95/asp));}
+ if(view){const asp=(view.canvas.clientWidth||900)/(view.canvas.clientHeight||600);view.cam.th=Math.PI;view.cam.ph=TRIAL_CAM_PH;view.cam.r=trialCamRange((L*1.35+260*trialCamPad(L))*Math.max(1,.95/asp));}
 }
 // Target buoys sit ahead of the ship in its local horizon, 8–28 km out.
 function trialSpawnTarget(i,first){
@@ -4064,7 +4133,7 @@ function trialPowerStep(dt,want){
  const mode=trial.powerMode||'balanced',M=C.POWER_MODES[mode]||C.POWER_MODES.balanced;
  // In a battle the flagship's surviving reactors, generators, engines and guns set what can be fed.
  const me=trial.battle?.me,sx=me?C.fleetSystems(me):null,k=x=>sx?sx[x]:1,regen=!!me&&(me.shield<me.shieldMax*.999||me.underFire||(me.bank||0)<(me.bankMax||0)*.999),cap=en.cap*k('weapon');
- const Pr=g.P*k('reactor')*(1-C.COMBAT.ionReactor*(me?.ionK||0)),full=Math.min(Pr*C.COMBAT.engineCap,g.De*C.COMBAT.engineDraw)*k('engine');
+ const Pr=g.P*k('reactor')*(1-C.COMBAT.ionReactor*(me?.ionK||0))*(me?C.swPower(me):1),full=Math.min(Pr*C.COMBAT.engineCap,g.De*C.COMBAT.engineDraw)*k('engine');
  const demand={engines:full*(.06+.94*(trial.thrustWant||0)),shields:g.Ds*k('shield')*(regen?M.shields:1),weapons:Math.min(g.Dw*k('weapon')*M.weapons,want+Math.max(0,cap-en.E)*TT_J/Math.max(dt,1e-3))};
  if(me?.ionDrained){en.E=Math.max(0,en.E-me.ionDrained);me.ionDrained=0;}
  const P=Pr,got=C.powerSplit(P,g.fixed,demand,mode);en.E=Math.min(cap,en.E+got.weapons*dt/TT_J);
@@ -4072,6 +4141,19 @@ function trialPowerStep(dt,want){
  trial.engF=demand.engines>0?C.clamp(got.engines/demand.engines,0,1):1;trial.power={load:got.load,engF:trial.engF,got,demand,P:g.P,mode};
 }
 const TT_J=4.184e21;
+// v20.6 How the main batteries fire: continuously (each gun as soon as it is loaded and laid) or in
+// salvos. In a salvo the guns of one kind that bear on the target (a battery) wait until all of them
+// are loaded and laid, then fire together; a gun is not kept waiting more than about half a cycle for
+// one that cannot come on. Returns the guns to fire this frame (null: continuous fire).
+function trialSalvoPlan(dt){
+ if(trial.volley!=='salvo')return null;const bats=new Map(),W=trial.salvoWait||(trial.salvoWait={}),go=new Set();
+ for(const t of trial.turrets){if(t.pd||t.dead||!t.firing||t.held)continue;let b=bats.get(t.k);if(!b)bats.set(t.k,b=[]);b.push(t);}
+ for(const k of Object.keys(W))if(!bats.has(k))delete W[k];
+ for(const [k,b] of bats){const rdy=b.filter(t=>t.laid&&t.reload<=0);if(!rdy.length){W[k]=0;continue;}W[k]=(W[k]||0)+dt;
+  if(rdy.length===b.length||W[k]>Math.max(...b.map(t=>t.cycle))*.6){for(const t of rdy)go.add(t);W[k]=0;}}
+ return go;
+}
+function trialVolley(k){const m=k||(trial.volley==='salvo'?'stream':'salvo');trial.volley=m;const me=trial.battle?.me;if(me)me.order={...me.order,volley:m};toast(m==='salvo'?'射撃：斉射 — 同じ種類の主砲がそろって撃ちます':'射撃：連続射撃 — 各砲が装填しだい撃ちます');}
 function trialGunnery(dt){
  const a=trial.aim=trialAim();if(!a)return;trialDronesStep(dt);const R=trial.R,center=trial.asset.geometry.center,me=trial.battle?.me,wantFire=(trial.fire||trial.fireKey||trial.fireTap>0)&&!trial.jump&&!me?.dead&&!me?.out&&!me?.jump;trial.fireTap=Math.max(0,trial.fireTap-dt);
  const color=trial.asset.geometry.reference==='venator'||trial.asset.geometry.paint==='republic'?[120,175,255]:[95,255,120],spd=TRIAL_GUN.boltSpeed;
@@ -4101,10 +4183,14 @@ function trialGunnery(dt){
  for(const t of trial.turrets){
   t.reload=Math.max(0,t.reload-dt);t.starved=false;
   // A main battery holds its fire while one of our own ships is across its line.
-  if(t.firing&&!t.pd&&trial.battle){t.held=!!trialAllyOnLine(tv.add(trial.P,t.oW),trialApply(R,t.bd),Math.max(t.reach||TRIAL_GUN.range,trial.p.len*2));if(t.held){held++;continue;}}else t.held=false;
+  if(t.firing&&!t.pd&&trial.battle){t.held=!!trialAllyOnLine(tv.add(trial.P,t.oW),trialApply(R,t.bd),Math.max(t.reach||TRIAL_GUN.range,trial.p.len*2));if(t.held)held++;}else t.held=false;}
+ // v20.6 Salvo fire: the guns of each battery wait for one another and fire together.
+ const salvo=trialSalvoPlan(dt);
+ for(const t of trial.turrets){
+  if(t.held||salvo&&!t.pd&&!salvo.has(t))continue;
   if(t.firing&&(t.laid||t.pd)&&t.reload<=0){
    const shotTT=t.power*t.cycle*t.charge/TT_J,cost=shotTT*(t.costK??1);if(en.E<cost){t.starved=true;continue;}en.E-=cost;
-   t.reload=t.cycle*(1+Math.random()*.08);const bd=t.bd,n=Math.min(t.barrels,t.r>12?2:t.barrels>2?2:1),sc=t.pd?.009:.0012,g=()=>(Math.random()+Math.random()+Math.random()-1.5)*sc,bw=trialApply(R,tv.norm(tv.add(tv.add(bd,t.e2,g()),t.axis,g()))),side=trialApply(R,tv.norm(tv.cross(t.axis,bd))),base=tv.add(tv.add(trial.P,t.oW),bw,t.r*1.2),spread=t.r*.35;
+   t.reload=t.cycle*(1+Math.random()*(salvo&&!t.pd?.01:.08));const bd=t.bd,n=Math.min(t.barrels,t.r>12?2:t.barrels>2?2:1),sc=t.pd?.009:.0012,g=()=>(Math.random()+Math.random()+Math.random()-1.5)*sc,bw=trialApply(R,tv.norm(tv.add(tv.add(bd,t.e2,g()),t.axis,g()))),side=trialApply(R,tv.norm(tv.cross(t.axis,bd))),base=tv.add(tv.add(trial.P,t.oW),bw,t.r*1.2),spread=t.r*.35;
    if(t.pd){sndAt('point_defense',base,{gain:.45});trial.gun.pd=(trial.gun.pd||0)+t.barrels;for(let i=0;i<n;i++){const off=n>1?(i/(n-1)-.5)*spread:0,pos=tv.add(base,side,off);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(bw,spd),trial.V),life:TRIAL_PD.range*1.15/spd,len:Math.max(40,t.r*6),size:Math.max(3,t.r*.45),col:trialPdColor(),weight:0,tt:0,pd:true,target:t.pdTarget});}continue;}
    trial.gun.shots+=t.barrels;
    sndAt(sndGun(t),base,{gain:.85,near:2500});
@@ -4162,7 +4248,8 @@ function trialRenderSets(){
  const b=trial.vbolts?.length?[...trial.bolts,...trial.vbolts.filter(x=>!(x.delay>0))]:trial.bolts,P=trial.P,K=7,pos=new Float32Array(b.length*K*3),col=new Uint8Array(b.length*K*4),size=new Float32Array(b.length*K);
  b.forEach((q,i)=>{const d=tv.norm(q.vel);for(let k=0;k<K;k++){const j=i*K+k,s=k/(K-1),p=tv.add(tv.sub(q.pos,P),d,-q.len*s);pos.set(p,j*3);col.set([q.col[0],q.col[1],q.col[2],Math.round(235*(1-s*.7))],j*4);size[j]=q.size*(1-s*.55);}});
  view.setPoints('trialBolts',pos,col,size);
- const fires=trial.battle?spaceFires(performance.now()/1000):[],f=trial.fx,ms0=trial.missiles,nf=f.length+ms0.length*2+fires.length,fp=new Float32Array(nf*3),fc=new Uint8Array(nf*4),fs=new Float32Array(nf);
+ const now=performance.now()/1000,swDt=trial.swAt?Math.min(.1,now-trial.swAt):0;trial.swAt=now;
+ const fires=trial.battle?[...spaceFires(now),...swFxPoints(trial.paused?0:swDt)]:[],f=trial.fx,ms0=trial.missiles,nf=f.length+ms0.length*2+fires.length,fp=new Float32Array(nf*3),fc=new Uint8Array(nf*4),fs=new Float32Array(nf);
  fires.forEach((q,j)=>{const i=f.length+ms0.length*2+j;fp.set(q[0],i*3);fc.set(q[1],i*4);fs[i]=q[2];});
  f.forEach((e,i)=>{const k=e.life/e.max;fp.set(tv.sub(e.pos,P),i*3);fc.set([e.col[0],e.col[1],e.col[2],Math.round(255*Math.min(1,k*1.4)*(e.col[0]===150?.45:1))],i*4);fs[i]=e.size*(e.max>1?1.4-k*.6:e.col[0]===150?1.6-k*.8:1);});
  ms0.forEach((m,j)=>{const i=f.length+j*2;fp.set(tv.sub(m.pos,P),i*3);fc.set([255,235,190,255],i*4);fs[i]=7;fp.set(tv.add(tv.sub(m.pos,P),m.h,-14),i*3+3);fc.set([255,140,60,220],i*4+4);fs[i+1]=12;});
@@ -4181,7 +4268,7 @@ let trialGunsLaidAt=0;
 function trialGunsLayout(hud,gn,force){
  const now=performance.now();if(!force&&now-trialGunsLaidAt<400)return;trialGunsLaidAt=now;
  const hr=hud.getBoundingClientRect(),box=s=>{const e=hud.querySelector(s);if(!e||e.hidden)return null;const r=e.getBoundingClientRect();return r.width?r:null;};
- const pad=box('.th-pad'),right=[box('.th-fire'),box('.th-msl')].filter(Boolean),keys=box('.th-keys'),top=box('.th-top');if(!pad||!hr.width)return;
+ const pad=box('.th-pad'),right=[box('.th-fire'),box('.th-msl'),box('.th-sw'),box('.th-swmode')].filter(Boolean),keys=box('.th-keys'),top=box('.th-top');if(!pad||!hr.width)return;
  const lo=pad.right+10,hi=(right.length?Math.min(...right.map(r=>r.left)):hr.right)-10,gap=hi-lo;
  const fit=(compact,wrap)=>{gn.classList.toggle('compact',compact);Object.assign(gn.style,{width:wrap?Math.floor(wrap)+'px':'auto',maxWidth:'none',whiteSpace:wrap?'normal':'nowrap',flexWrap:wrap?'wrap':'nowrap'});return {w:gn.offsetWidth,h:gn.offsetHeight};};
  let m=fit(false,0),band=m.w<=gap;
@@ -4216,7 +4303,7 @@ function trialLoop(now){
  // tunnel is where the followed group comes out).
  const tunnel=trial.jump?.phase==='tunnel',ph=trial.jump?.phase;
  if(dt>0){escortsStep(dt);if(trial.spectate)voySpectateStep(dt);else if(!tunnel){if(trialCoasting())trialSublight(dt);else if(ph==='exit'||ph==='brake'){}else{const n=dt>.025?2:1;for(let i=0;i<n;i++)trialStep(dt/n);}if(trial.rts)voyPilotStep(dt);else if(trial.battle)spaceStep(dt);}if(!tunnel){spaceBolts(dt);trialFxStep(dt);trialWrecksStep(dt);}}
- if(trial.battle&&!tunnel){spaceAttStep(dt);spaceDeaths();}
+ if(trial.battle&&!tunnel){spaceAttStep(dt);spaceDeaths();trialSwBeamCheck();}
  trial.flash=Math.max(0,(trial.flash||0)-dt*2.2);trial.hitFlash=Math.max(0,(trial.hitFlash||0)-dt*1.6);
  const d=trial.dust;view.setPoints('trialDust',d.pos,d.col,d.size);trialRenderSets();
  const me=trial.battle?.me,unit={key:trial.asset.key,pos:[0,0,0],yaw:0,rot:trial.R,glow:me?.out?0:glowOf('me',C.clamp(Math.max(.16,.8*Math.abs(TRIAL_TELEGRAPH[trial.tele][1]),trial.thrust||0),0,1)),hatchOpen:0,dead:!!me?.dead,
@@ -4371,7 +4458,7 @@ function trialHudHTML(){
  <p class="th-records" data-th="records"></p><p class="th-warn" data-th="warn" hidden></p><p class="th-hyper" data-th="hyper" hidden aria-live="polite"></p>
  ${trial.mode==='battle'?'<div class="th-card th-self" data-th="self"></div><div class="th-hitcam" data-th="hitcam" hidden><canvas></canvas></div>':''}<div class="th-result" data-th="result" hidden></div>
  <div class="th-reticle" aria-hidden="true"><i class="h"></i><i class="v"></i><b data-th="range">20.0 km</b></div>
- <div class="th-guns" data-th="guns" aria-live="off"><button type="button" class="th-gmode" data-trial-cmd="gunmode" data-th="gunmode" title="主砲の照準方式（G で切替）"><em class="l">主砲 ${GUN_MODES[trial.gunMode||'free'].name}</em><em class="s">${GUN_MODES[trial.gunMode||'free'].short}</em></button><span class="th-gstat" data-th="gunstat"></span></div><div class="th-tmarks" aria-hidden="true"></div>
+ <div class="th-guns" data-th="guns" aria-live="off"><button type="button" class="th-gmode" data-trial-cmd="gunmode" data-th="gunmode" title="主砲の照準方式（G で切替）"><em class="l">主砲 ${GUN_MODES[trial.gunMode||'free'].name}</em><em class="s">${GUN_MODES[trial.gunMode||'free'].short}</em></button><button type="button" class="th-gmode th-vol" data-trial-cmd="volley" data-th="volley" title="射撃の型（C で切替）"><em class="l">${C.VOLLEY.name[trial.volley==='salvo'?'salvo':'stream']}</em><em class="s">${trial.volley==='salvo'?'斉射':'連続'}</em></button><span class="th-gstat" data-th="gunstat"></span></div><div class="th-tmarks" aria-hidden="true"></div>
  <div class="th-card th-pad"><div class="th-tele-ladder" aria-label="速力通信機">${TRIAL_TELEGRAPH.map((t,i)=>`<span data-tele="${i}">${t[0]}</span>`).reverse().join('')}</div><div class="th-tele-bar" aria-hidden="true"><i data-th="speedbar"></i></div>
   <div class="th-dpad"><button type="button" class="th-arrow up" data-trial-cmd="tele+" aria-label="増速">▲</button><button type="button" class="th-arrow left" data-trial-cmd="rudder-" aria-label="取舵">◀</button><b class="th-dmid" data-th="tele">停止</b><button type="button" class="th-arrow right" data-trial-cmd="rudder+" aria-label="面舵">▶</button><button type="button" class="th-arrow down" data-trial-cmd="tele-" aria-label="減速">▼</button></div>
   <div class="th-rudder"><div class="th-gauge" data-th-row="rudder" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><i class="ord"></i><i class="act"></i></div><b class="th-order" data-th="rudder">舵中央</b></div></div>
@@ -4379,8 +4466,9 @@ function trialHudHTML(){
  <button type="button" class="th-btn th-level" data-trial-cmd="level">水平</button>
  <button type="button" class="th-fire" data-th-fire aria-label="射撃">射撃<small>Space</small></button>
  <button type="button" class="th-msl" data-trial-cmd="missile" data-th="msl" aria-label="ミサイル発射" ${trial.launchers.length?'':'disabled'}>ミサイル<small data-th="mslstate">${trial.launchers.length?trial.launchers.length*8+' 発':'発射管なし'}</small></button>
+ ${trialSwKinds().length?`<button type="button" class="th-sw" data-trial-cmd="sw" data-th="sw" aria-label="超兵器発射">超兵器<small data-th="swstate">充電</small></button>${trialSwKinds().includes('sbeam')?`<button type="button" class="th-swmode" data-trial-cmd="swmode" data-th="swmode" aria-label="超兵器の射撃の型">ビーム</button>`:''}`:''}
  <i class="th-lead" data-th="lead" hidden aria-hidden="true"></i>
- <p class="th-keys">W/S 速力 · A/D 舵 · R/F 上げ下げ · Q/E ロール · Space 射撃 · M ミサイル · G 主砲照準 · P 出力配分 · J 星図 · H スクリーンショット · Z 水平復帰 · X 舵中央 · V 視点 · ドラッグで照準 · ホイールで距離</p>`;
+ <p class="th-keys">W/S 速力 · A/D 舵 · R/F 上げ下げ · Q/E ロール · Space 射撃 · C 斉射/連続 · M ミサイル · G 主砲照準 · P 出力配分 · J 星図 · H スクリーンショット · Z 水平復帰 · X 舵中央 · V 視点 · ドラッグで照準 · ホイールで距離</p>`;
 }
 function trialBindHud(hud){
  const stick=hud.querySelector('[data-th-stick]'),knob=stick?.querySelector('.knob'),fire=hud.querySelector('[data-th-fire]');
@@ -4413,7 +4501,8 @@ function trialHudUpdate(full){
   // Each figure carries a full and a short label; the layout picks which shows.
   const it=(cls,l,sh,v)=>`<span class="${cls}"><em class="l">${l}</em><em class="s">${sh}</em> ${v}</span>`,eCls=ef<.25?'ng':ef<.6?'wait':'ok',lCls=load>=1.15?'ng':load>=.95?'wait':'ok';
   const html=(ts.length?it('ok','● 射撃可','射撃可',fireable)+it('wait','● 装填・旋回','装填',Math.max(0,ready-loaded+turning-nochg))+(starved?it('wait','● 充電待ち','充電',starved):'')+it('ng','● 遮蔽・射界外','射界外',blocked+out)+(nochg?it('ng','● 充電装置なし','充電なし',nochg):''):'<span class="ng">主砲なし</span>')+(pdl.length?it(pdOn?'wait':'ok','● 点防御','点防御',pdOn?`射撃 ${pdFire}/${pdl.length}`:pdl.length):'')+it(eCls,'⚡ 兵装エネルギー','⚡',Math.round(ef*100)+'%')+it(lCls,'炉心','炉心',Math.round(load*100)+'%')+(thrust<.98?it('wait','推力','推力',Math.round(thrust*100)+'%'):'');
-  const grew=gs.innerHTML.length!==html.length;if(gs.innerHTML!==html)gs.innerHTML=html;const gm=q('gunmode'),M=GUN_MODES[trial.gunMode||'free'],gl=`<em class="l">主砲 ${M.name}</em><em class="s">${M.short}</em>`;if(gm&&gm.innerHTML!==gl){gm.innerHTML=gl;}gm?.classList.toggle('on',(trial.gunMode||'free')!=='free');trialGunsLayout(hud,gn,grew);}
+  const grew=gs.innerHTML.length!==html.length;if(gs.innerHTML!==html)gs.innerHTML=html;const gm=q('gunmode'),M=GUN_MODES[trial.gunMode||'free'],gl=`<em class="l">主砲 ${M.name}</em><em class="s">${M.short}</em>`;if(gm&&gm.innerHTML!==gl){gm.innerHTML=gl;}gm?.classList.toggle('on',(trial.gunMode||'free')!=='free');const vb=q('volley'),vs=trial.volley==='salvo',vl=`<em class="l">${vs?'斉射':'連続射撃'}</em><em class="s">${vs?'斉射':'連続'}</em>`;if(vb&&vb.innerHTML!==vl)vb.innerHTML=vl;vb?.classList.toggle('on',vs);trialGunsLayout(hud,gn,grew);}
+ trialSwHud(q,set);
  const ml=q('msl');if(ml&&trial.launchers.length){const ready=trial.launchers.filter(l=>l.reload<=0).length,rl=Math.min(...trial.launchers.map(l=>l.reload)),f=1-rl/20;ml.style.setProperty('--fill',(ready?1:f).toFixed(3));set('mslstate',ready?`${ready*8} 発`:`${Math.ceil(rl)} 秒`);ml.classList.toggle('ready',ready>0);}
  const ld=q('lead');if(ld){const p=trial.lead&&view?view.project(trial.lead):null,hr=hud.getBoundingClientRect(),ok=p&&p[2]>-1&&p[2]<1;ld.hidden=!ok;if(ok)ld.style.transform=`translate(${(p[0]-hr.left).toFixed(1)}px,${(p[1]-hr.top).toFixed(1)}px) rotate(45deg)`;}
  const st=hud.querySelector('[data-th-stick]'),si=trialStickInput();if(st){const txt=Math.abs(si.x)<.05&&Math.abs(si.y)<.05?'中立':`${si.y>0?'上げ':'下げ'} ${Math.round(Math.abs(si.y)*100)}% · ${si.x>0?'右':'左'}ロール ${Math.round(Math.abs(si.x)*100)}%`;if(st.getAttribute('aria-valuetext')!==txt)st.setAttribute('aria-valuetext',txt);}
@@ -4484,11 +4573,14 @@ function trialCommand(cmd){
  else if(cmd==='pnext'){const ks=Object.keys(C.POWER_MODES);trialSetPower(ks[(ks.indexOf(trial.powerMode||'balanced')+1)%ks.length]);}
  else if(cmd.startsWith('pmode:')){trialSetPower(cmd.slice(6));const m=$('#thPower');if(m)m.hidden=true;document.querySelector('[data-trial-cmd="power"]')?.setAttribute('aria-expanded','false');}
  else if(cmd==='records'){trial.showRecords=!trialRecordsOn();}
+ else if(cmd==='volley'){trialVolley();}
  else if(cmd==='gunmode'||cmd.startsWith('gun:')){const ks=Object.keys(GUN_MODES),k=cmd==='gunmode'?ks[(ks.indexOf(trial.gunMode||'free')+1)%ks.length]:cmd.slice(4);if(!GUN_MODES[k])return;trial.gunMode=k;trial.gunTarget=null;const M=GUN_MODES[k];toast(`主砲：${M.name} — ${M.note}`);const mb=document.querySelector('[data-th="gunmenu"]');if(mb)mb.innerHTML=`主砲 ${M.name} <kbd>G</kbd>`;}
  else if(cmd==='shot'){shotSet(!shot.on);return;}
  else if(cmd==='mute'){sndToggle();return;}
  else if(cmd==='pause'){trialPause();return;}
  else if(cmd==='missile'){if(!trial.launchers.length){toast('ミサイル発射管がありません');return;}trial.mslOrder=true;}
+ else if(cmd==='sw')trialSwFire();
+ else if(cmd==='swmode')trialSwMode();
  else if(cmd==='map'){if(trial.rts){toast('ジャンプは戦術図の「離脱」「増援」で命じます');return;}trialMapShow();return;}
  else if(cmd.startsWith('jump:')){trialJump(cmd.slice(5));}
  else if(cmd==='retry'){if(trial.rts)return;const r=$('#trialHud [data-th="result"]');if(r)r.hidden=true;trialReset();}
@@ -4668,8 +4760,9 @@ function trialMapShow(on){const m=$('#thMap');if(!m)return;if(on==null)on=m.hidd
 const SPACE_RULES={range:TRIAL_GUN.range,engagementDistance:12000,step:.25,damage:.7};
 function spaceBattleInit(plan){
  const O=[...trial.P],E=trialFrame(trialCol(trial.R,0),tv.norm(trial.P)),me=C.fleetUnit('me',trial.asset.key,trial.p,0);
- me.manual=true;me.name=trial.p.name;me.order={...me.order,power:trial.powerMode};const units=[me],L0=trial.p.len,W0=trial.p.width||L0*.5;
- plan.escorts.forEach((x,i)=>{const u=C.fleetUnit('a'+i,x.key,x.p,0),row=Math.floor(i/2)+1,side=i%2?1:-1;u.name=x.name;u.order={...u.order,power:x.order?.power||'auto',aim:x.order?.aim||'auto'};u.pos=[-row*Math.max(x.p.len,L0)*1.4,0,side*(Math.max(x.p.width||x.p.len*.5,W0)*1.3+row*600)];units.push(u);});
+ me.manual=true;me.name=trial.p.name;me.order={...me.order,power:trial.powerMode,volley:trial.volley==='salvo'?'salvo':'stream'};const units=[me],L0=trial.p.len,W0=trial.p.width||L0*.5,H0=trial.p.height||L0*.25;
+ // (v20.6 escorts also stand above and below the flagship's plane by turns, clear of one another)
+ plan.escorts.forEach((x,i)=>{const u=C.fleetUnit('a'+i,x.key,x.p,0),row=Math.floor(i/2)+1,side=i%2?1:-1,gy=Math.max(x.p.height||x.p.len*.25,H0)*1.3+120;u.name=x.name;u.order={...u.order,power:x.order?.power||'auto',aim:x.order?.aim||'auto',volley:x.order?.volley==='salvo'?'salvo':'stream'};u.pos=[-row*Math.max(x.p.len,L0)*1.4,(row%2?1:-1)*gy*.5,side*(Math.max(x.p.width||x.p.len*.5,W0)*1.3+row*600)];units.push(u);});
  // The enemy drops out ahead and to starboard on a slant toward the flagship, so
  // the streaks are seen side-on, in an echelon one ship after another. They
  // arrive a little above the flagship's plane, where dorsal batteries bear.
@@ -4688,7 +4781,7 @@ function spaceHullPoint(u,k){const L=u.p.len,W=u.p.width||L*.5,H=u.p.height||L*.
 // strikes one damages it (friendly fire).
 function spaceRefresh(){
  const B=trial.battle;if(!B)return;const live=new Map(trial.targets.map(t=>[t.id,t]));trial.targets=[];const mine=B.me?.team??0;
- for(const u of B.b.units){if(u.manual||u.dead||u.absent||(u.team!==1&&!B.me))continue;const t=live.get(u.id)||{id:u.id,ship:true,unit:u,hits:0};
+ for(const u of B.b.units){if(u.manual||u.dead||u.absent||(u.team!==1&&!B.me)||B.rts&&u.warp&&u.warp.t<0)continue;const t=live.get(u.id)||{id:u.id,ship:true,unit:u,hits:0};
   Object.assign(t,{alive:true,ally:u.team===mine,pos:spaceWorld(u),vel:spaceVel(u),rot:spaceRotU(B.E,u),radius:u.p.len*.5,semi:[u.p.len*.5,(u.p.height||u.p.len*.2)*.5,(u.p.width||u.p.len*.5)*.5]});trial.targets.push(t);}
 }
 function spaceSync(){const B=trial.battle,me=B.me,loc=w=>trialApplyT(B.E,w);me.pos=loc(tv.sub(trial.P,B.O));me.velocity=loc(trial.V);const f=loc(trialCol(trial.R,0));me.yaw=Math.atan2(f[2],f[0]);me.order={...me.order,power:trial.powerMode};}
@@ -4843,11 +4936,71 @@ function spaceDeaths(){
 }
 // Fire and debris age in every mode (flight, battle or a fleet battle watched in 3D).
 function trialFxStep(dt){for(const e of trial.fx){e.pos=tv.add(e.pos,e.vel,dt);e.life-=dt;}trial.fx=trial.fx.filter(e=>e.life>0);if(trial.fx.length>3000)trial.fx.splice(0,trial.fx.length-3000);}
+// ---------- v21 superweapons in the 3D battle ----------
+// The flown ship's superweapons fire on command (the B key or the 超兵器 button): the composite beam at the enemy
+// nearest the bow line inside its cone, the hyper-ion cannons at everything in their side's cone. The model's
+// superweaponStep does the rest (charging, overload, damage) for every ship; this draws what it fires: the beam
+// as a held line of light from the muzzle, the pulse as one bright streak with a flash, the ion ring as a
+// widening violet ring travelling out from the emitter.
+const trialSwKinds=()=>[...new Set(((trial.battle?.me||trial).p?.sw||[]).map(w=>w.k))];
+const SW_STATE={charge:'充電',ready:'発射可',beam:'照射中',cool:'冷却',down:'損傷'};
+function trialSwHud(q,set){
+ const el=q('sw');if(!el)return;const me=trial.battle?.me,sw=me?.p?.sw||[],st=me?.sw||[];
+ if(!me||!sw.length){el.disabled=true;set('swstate','戦闘でのみ');return;}el.disabled=!!me.out;
+ const ready=st.filter(x=>x.st==='ready').length,beam=st.some(x=>x.st==='beam'),cool=st.filter(x=>x.st==='cool'),chg=st.filter(x=>x.st==='charge');
+ const f=ready||beam?1:chg.length?Math.max(...chg.map(x=>x.c)):cool.length?1-Math.min(...cool.map(x=>x.t))/C.SW_COMBAT[sw[0].k].over.T:0;
+ el.style.setProperty('--fill',C.clamp(f,0,1).toFixed(3));el.classList.toggle('ready',ready>0);el.classList.toggle('firing',beam);
+ set('swstate',beam?'照射中':ready?`発射可 ${ready}`:chg.length?`充電 ${Math.round(f*100)}%`:cool.length?`冷却 ${Math.ceil(Math.min(...cool.map(x=>x.t)))} 秒`:st.some(x=>x.st==='down')?'損傷':'—');
+ const m=q('swmode');if(m){const k=st.find((x,i)=>sw[i].k==='sbeam')?.mode||'beam',t=k==='pulse'?'パルス':'ビーム';if(m.textContent!==t)m.textContent=t;}
+}
+function trialSwMode(){const me=trial.battle?.me;if(!me?.sw)return;const sw=me.p.sw,cur=me.sw.find((x,i)=>sw[i].k==='sbeam');if(!cur){toast('切り替えられる超兵器がありません');return;}const next=cur.mode==='pulse'?'beam':'pulse';me.sw.forEach((x,i)=>{if(sw[i].k==='sbeam')x.mode=next;});sndUI('ui_toggle',.5);toast(`超重合成ビーム：${next==='pulse'?'パルス一撃':'ビーム照射'}`);}
+// In the flown ship's frame: the bearing of a ship from the muzzle, against the weapon's axis.
+function trialSwTargets(w){
+ const B=trial.battle,me=B.me,C0=C.SW_COMBAT[w.k],m=tv.add(trial.P,trialApply(trial.R,w.mz||[0,0,0])),ax=trialApply(trial.R,w.aim==='bow'?[1,0,0]:[0,0,w.aim==='port'?-1:1]),out=[];
+ for(const u of B.b.units){if(u.team===me.team||u.dead||u.absent||u.warp)continue;const d=tv.sub(spaceWorld(u),m),r=tv.len(d);if(!(r>0)||r>C0.range+(u.p.len||0)*.5)continue;const c=tv.dot(d,ax)/r;if(c<=0)continue;const off=Math.acos(C.clamp(c,-1,1)),miss=r*Math.sin(off);
+  if(off<=C0.cone||(w.aim==='bow'&&miss<=Math.max(u.p.width||u.p.len*.3,u.p.height||0)*.5))out.push({u,r,off});}
+ return out.sort((a,b)=>a.off-b.off||a.r-b.r);
+}
+function trialSwFire(){
+ const B=trial.battle,me=B?.me;if(!me){toast('超兵器は戦闘中にだけ撃てます');return;}if(me.out){toast('自艦は戦闘不能です');return;}
+ const sw=me.p.sw||[];let fired=0,waiting=0,none=0;
+ sw.forEach((w,i)=>{const x=me.sw[i];if(!x||x.st!=='ready'){if(x&&x.st!=='down')waiting++;return;}const tg=trialSwTargets(w);if(!tg.length){none++;return;}x.fireNow={to:w.k==='hion'?tg.map(t=>t.u.id):[tg[0].u.id]};fired++;});
+ if(fired){sndUI('ui_click',.4);return;}toast(none?'射線・射界に敵艦がいません':waiting?'充電中です':'超兵器を使えません');
+}
+// While the flown ship holds a beam, it stays on target only while the target stays in the cone.
+function trialSwBeamCheck(){const me=trial.battle?.me;if(!me?.sw)return;me.p.sw.forEach((w,i)=>{const x=me.sw[i];if(x?.st!=='beam')return;x.beamOk=trialSwTargets(w).some(t=>t.u.id===x.tgt);});}
+// The views' record of superweapon shots: a beam is renewed each step it holds; the others fade on their own.
+function swShotFx(s,byId){
+ const a=byId.get(s.from),w=a?.p?.sw?.[s.i];if(!a||!w)return;trial.swfx=trial.swfx||[];
+ if(s.mode==='beam'){const e=trial.swfx.find(e=>e.from===a.id&&e.i===s.i&&e.mode==='beam');if(e){e.life=SPACE_RULES.step*1.6;e.to=s.to[0];return;}}
+ const life=s.mode==='beam'?SPACE_RULES.step*1.6:s.mode==='pulse'?.7:2.2;trial.swfx.push({from:a.id,i:s.i,k:s.k,mode:s.mode,to:s.mode==='ring'?s.to:s.to[0],life,max:life,age:0});
+ const at=a.manual?trial.P:spaceWorld(a);sndAt(s.k==='hion'?sndPick('ion_heavy','ion'):sndPick('turbolaser_heavy','turbolaser'),at,{gain:1.3,pitch:s.k==='hion'?.55:s.mode==='pulse'?.6:.75,near:Math.max(3000,a.p.len*2),far:90000});
+ if(a.manual)trial.flash=Math.min(1,(trial.flash||0)+.5);
+}
+function swMuzzleWorld(u,w){const R=u.manual?trial.R:spaceRotU(trial.battle.E,u),c=u.manual?trial.P:spaceWorld(u);return tv.add(c,trialApply(R,w.mz||[0,0,0]));}
+function swAxisWorld(u,w){const R=u.manual?trial.R:spaceRotU(trial.battle.E,u);return trialApply(R,w.aim==='bow'?[1,0,0]:[0,0,w.aim==='port'?-1:1]);}
+// Point sprites for the superweapon shots, relative to P (appended to the trial's effects set).
+function swFxPoints(dt){
+ const B=trial.battle,out=[];if(!B||!trial.swfx?.length)return out;const byId=new Map(B.b.units.map(u=>[u.id,u])),P=trial.P;
+ for(const e of trial.swfx){e.age+=dt;e.life-=dt;const a=byId.get(e.from),w=a?.p?.sw?.[e.i];if(!a||!w)continue;const m=swMuzzleWorld(a,w);
+  if(e.mode==='beam'||e.mode==='pulse'){const t=byId.get(e.to);if(!t)continue;const to=t.manual?trial.P:spaceWorld(t),d=tv.sub(to,m),L=tv.len(d);if(!(L>1))continue;const u=tv.scale(d,1/L),n=Math.min(420,Math.max(40,Math.round(L/45))),k=e.mode==='pulse'?Math.max(0,e.life/e.max):1,fl=.8+.2*Math.sin(e.age*40);
+   for(let j=0;j<=n;j++){const q=tv.sub(tv.add(m,u,L*j/n),P);out.push([q,[255,226,205,Math.round(255*k)],32*fl*(e.mode==='pulse'?1.6:1)]);if(j%2===0)out.push([q,[255,70,40,Math.round(150*k)],110*fl*(e.mode==='pulse'?1.5:1)]);}
+   out.push([tv.sub(to,P),[255,240,220,Math.round(255*k)],Math.max(300,(t.p.len||300)*.25)*(e.mode==='pulse'?1.6:1)*fl]);out.push([tv.sub(m,P),[255,200,170,230],140]);}
+  else{const ax=swAxisWorld(a,w),v=tv.norm(Math.abs(ax[1])<.9?tv.cross(ax,[0,1,0]):tv.cross(ax,[1,0,0])),v2=tv.cross(ax,v),k=Math.max(0,e.life/e.max),dist=e.age*16000,rad=Math.max(w.d||150,dist*Math.tan(C.SW_COMBAT.hion.cone)),c=tv.add(m,ax,dist),n=72;
+   for(let j=0;j<n;j++){const an=j/n*Math.PI*2,q=tv.add(c,tv.add(tv.scale(v,Math.cos(an)*rad),tv.scale(v2,Math.sin(an)*rad)));out.push([tv.sub(q,P),[175,145,255,Math.round(230*k)],Math.max(60,rad*.06)]);}
+   out.push([tv.sub(m,P),[200,180,255,Math.round(240*k)],220]);
+   for(const id of e.to||[]){const t=byId.get(id);if(!t||dist<tv.len(tv.sub(t.manual?trial.P:spaceWorld(t),m)))continue;for(let j=0;j<6;j++)out.push([tv.sub(spaceHullPoint(t,.45),P),[185,160,255,Math.round(220*k)],Math.max(40,(t.p.len||300)*.04)]);}}
+ }
+ trial.swfx=trial.swfx.filter(e=>e.life>0);return out;
+}
 function spaceShots(shots){
  const B=trial.battle,byId=new Map(B.b.units.map(u=>[u.id,u]));
- for(const s of shots){const a=byId.get(s.from),t=byId.get(s.to);if(!a||!t||a.manual)continue;const n=C.clamp(Math.round((s.gun||0)/30),s.gun>0?1:0,6);if(n)sndAt(sndSalvo(s,a.p.len),spaceWorld(a),{gain:.7,near:Math.max(2000,a.p.len*1.5),far:Math.max(40000,a.p.len*25)});
+ for(const s of shots)if(s.sw)swShotFx(s,byId);
+ for(const s of shots){if(s.sw)continue;const a=byId.get(s.from),t=byId.get(s.to);if(!a||!t||a.manual)continue;
+  // v20.6 A salvo: the whole broadside leaves the ship at once (many bolts within a moment, and a heavier report).
+  const sv=!!s.salvo&&!s.ff,n=sv?C.clamp(Math.round((s.gun||0)/30),6,48):C.clamp(Math.round((s.gun||0)/30),s.gun>0?1:0,6);if(n){const at=spaceWorld(a),o={gain:sv?.95:.7,near:Math.max(2000,a.p.len*1.5),far:Math.max(40000,a.p.len*25)};sndAt(sndSalvo(s,a.p.len),at,o);if(sv&&a.p.len>250)sndAt(sndPick('turbolaser_heavy','turbolaser'),at,{...o,pitch:.85});}
   for(let i=0;i<n;i++){const from=spaceHullPoint(a,.4),tw=spaceWorld(t),tof=C.len(C.sub(tw,from))/TRIAL_GUN.boltSpeed,to=tv.add(spaceHullPoint(t,.3),spaceVel(t),tof),d=tv.sub(to,from),dist=tv.len(d);if(dist<1)continue;
-   trial.vbolts.push({pos:from,vel:tv.scale(d,TRIAL_GUN.boltSpeed/dist),life:dist/TRIAL_GUN.boltSpeed,delay:Math.random()*SPACE_RULES.step,len:Math.max(80,a.p.len*.06),size:Math.max(6,a.p.len*.007),col:s.ion?[170,215,255]:a.team?[255,95,70]:[110,255,140],target:t});}
+   trial.vbolts.push({pos:from,vel:tv.scale(d,TRIAL_GUN.boltSpeed/dist),life:dist/TRIAL_GUN.boltSpeed,delay:sv?Math.random()*.12:Math.random()*SPACE_RULES.step,len:Math.max(80,a.p.len*.06),size:Math.max(6,a.p.len*.007),col:s.ion?[170,215,255]:a.team?[255,95,70]:[110,255,140],target:t});}
   if(s.msl>0&&Math.random()<.5&&(sndAt('missile',spaceWorld(a),{gain:.6}),true))for(let k=0;k<2;k++){const from=spaceHullPoint(a,.3);trial.fx.push({pos:from,vel:tv.add(spaceVel(a),tv.norm(tv.sub(spaceWorld(t),from)),2600),life:2.5,max:2.5,size:9,col:[255,210,150]});}}
  if(trial.vbolts.length>1600)trial.vbolts.splice(0,trial.vbolts.length-1600);
 }
@@ -4868,15 +5021,16 @@ function spaceCineStart(){
  $('#trialHud')?.classList.add('cine');
 }
 function spaceCineEnd(){const k=trial.cine;if(!k)return;trial.cine=null;if(view)Object.assign(view.cam,k.save);$('#trialHud')?.classList.remove('cine');}
-function spaceDepartEscorts(){const B=trial.battle;for(const u of B.b.units)if(u.team===0&&!u.manual&&!u.dead&&!u.absent)u.depart={t:0};}
+// v20.6 The escorts jump one after another (the smallest first), not all at once: each waits its turn (depart.t below 0).
+function spaceDepartEscorts(){const B=trial.battle,us=B.b.units.filter(u=>u.team===0&&!u.manual&&!u.dead&&!u.absent).sort((a,b)=>(a.p.len||0)-(b.p.len||0)),gap=us.length>1?Math.min(.6,2.4/(us.length-1)):0;us.forEach((u,i)=>{u.depart={t:-i*gap};});}
 function spaceWithdraw(){const B=trial.battle;B.result={kind:'withdrew',dest:trial.jump?.dest};B.left=true;trial.targets=[];}
 function spaceEnd(kind){const B=trial.battle;if(B.result)return;B.result={kind,fate:B.me.fate,why:B.me.out};trial.fire=trial.fireKey=false;if(!trial.jump)setTimeout(spaceShowResult,kind==='win'?1500:2600);}
 function spaceLog(text,u){const B=trial.battle;if(!B)return;const who=!u?'':u.manual?'自艦：':(u.team?'敵 ':'友 ')+shipShort(u.name)+'：';B.ticker.push({t:B.b.time,text:who+text});if(B.ticker.length>40)B.ticker.shift();}
 function spaceStep(dt){
  const B=trial.battle;if(!B||B.left)return;const b=B.b;
  if(!B.cined&&b.units.some(u=>u.warp&&u.warp.t+dt>=u.warp.at-.5)){B.cined=true;spaceCineStart();}
- for(const u of b.units){if(u.warp){u.warp.t+=dt;const tt=u.warp.t-u.warp.at;if(tt>=.9){u.absent=false;delete u.warp;spaceLog('ハイパースペースから出現',u);if(b.units.filter(x=>x.team===1).every(x=>!x.warp))toast('敵艦隊がハイパースペースから出現');}}
-  if(u.depart){u.depart.t+=dt;if(u.depart.t>=.8){u.absent=true;u.hidden=true;delete u.depart;}}}
+ for(const u of b.units){if(u.warp){const t0=u.warp.t-u.warp.at;u.warp.t+=dt;const tt=u.warp.t-u.warp.at;if(t0<0&&tt>=0)sndAt('hyperspace_in',spaceWorld(u),{gain:.5,far:90000});if(tt>=.9){u.absent=false;delete u.warp;spaceLog('ハイパースペースから出現',u);if(b.units.filter(x=>x.team===1).every(x=>!x.warp))toast('敵艦隊がハイパースペースから出現');}}
+  if(u.depart){const t0=u.depart.t;u.depart.t+=dt;if(t0<=0&&u.depart.t>0)sndAt('hyperspace_out',spaceWorld(u),{gain:.45,far:90000});if(u.depart.t>=.8){u.absent=true;u.hidden=true;delete u.depart;}}}
  if(B.result){for(const u of b.units)if(!u.manual&&!u.dead)u.pos=tv.add(u.pos,u.velocity||[0,0,0],dt);spaceRefresh();return;}
  B.acc+=dt;B.orderT-=dt;
  while(B.acc>=SPACE_RULES.step){B.acc-=SPACE_RULES.step;if(B.orderT<=0){spaceOrders(b);B.orderT=2;}spaceSync();
@@ -4899,13 +5053,16 @@ function glowOf(id,lvl){const now=performance.now(),g=glowEase.get(id);if(!g){if
 function spaceDrawUnits(){
  const B=trial.battle;if(!B||B.left)return [];const j=trial.jump?.follow?trial.jump:null,out=j?voyFollowDraw(j):[];
  // In the tunnel only the followed group is there; coming out, it is drawn by the ride.
- if(j&&!j.arrived)return out;const skip=j?j.gid:null;
- for(const u of B.b.units){if(u.manual||u.dead||u.hidden||skip!=null&&u.group===skip)continue;let w=spaceWorld(u),stretch=1,flash=0;const R=spaceRotU(B.E,u),f=trialCol(R,0);
+ if(j&&!j.arrived)return out;const skip=j?j.with:null;
+ for(const u of B.b.units){if(u.manual||u.dead||u.hidden||skip?.has(u.id))continue;
+  // (in a fleet battle, a ship whose turn to come out of hyperspace has not yet come is not there)
+  if(B.rts&&u.warp&&u.warp.t<0)continue;
+  let w=spaceWorld(u),stretch=1,flash=0;const R=spaceRotU(B.E,u),f=trialCol(R,0);
   // A ship dropping out of hyperspace, timed on the battle's clock (or, watching a fleet battle, the screen's).
   const aw=B.rts?B.arrive?.get(u.id):null,tt=B.rts?(aw?aw.t:null):u.warp?(u.warp.at!=null?u.warp.t-u.warp.at:u.warp.t):null;
   if(tt!=null&&tt<.9){if(tt<0)continue;const k=warpLook(tt,u.p.len);w=tv.add(w,f,-k.D);stretch=k.stretch;flash=k.tint;}
   else if(u.absent&&!u.depart)continue;
-  if(u.depart){const t=u.depart.t;w=tv.add(w,f,u.p.len*40*(t/.8)**3);stretch=1+25*t*t;flash=C.clamp((stretch-1)/16,0,.45);}
+  if(u.depart&&u.depart.t>0){const t=u.depart.t;w=tv.add(w,f,u.p.len*40*(t/.8)**3);stretch=1+25*t*t;flash=C.clamp((stretch-1)/16,0,.45);}
   out.push({key:u.key,pos:tv.sub(w,trial.P),rot:R,glow:u.depart?1:glowOf(u.id,C.engineLevel(u)),hatchOpen:0,dead:false,stretch,flash});}
  // Ships that jumped out, seen from outside: stretched along their heading and gone.
  for(const g of B.ghosts||[]){const t=g.t,stretch=1+25*t*t;out.push({key:g.key,pos:tv.sub(tv.add(g.w,g.f,g.L*40*(t/.8)**3),trial.P),rot:g.rot,glow:.55,hatchOpen:0,dead:false,stretch,flash:C.clamp((stretch-1)/16,0,.45)});}
@@ -4929,7 +5086,7 @@ async function spaceBattleLaunch(){
  await fleetSetMode('design');await trialStart({design:asset.design,battle:plan,system:fleet.system||'coruscant',returnTo:'tactical'});
 }
 function trialSetPower(k){if(!Object.hasOwn(C.POWER_MODES,k))return;trial.powerMode=k;const b=document.querySelector('[data-th="pwbtn"]');if(b)b.textContent='⚡ '+C.POWER_MODES[k].name;document.querySelectorAll('#thPower [data-trial-cmd^="pmode:"]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.trialCmd==='pmode:'+k)));toast('出力配分：'+C.POWER_MODES[k].name+' — '+C.POWER_MODES[k].note);}
-const TRIAL_KEYS={KeyG:'gunmode',KeyH:'shot',KeyK:'pause',KeyP:'pnext',KeyM:'missile',KeyW:'tele+',ArrowUp:'tele+',KeyS:'tele-',ArrowDown:'tele-',KeyA:'rudder-',ArrowLeft:'rudder-',KeyD:'rudder+',ArrowRight:'rudder+',KeyZ:'level',KeyX:'center',KeyV:'cam',KeyJ:'map',Escape:'exit'};
+const TRIAL_KEYS={KeyB:'sw',KeyN:'swmode',KeyC:'volley',KeyG:'gunmode',KeyH:'shot',KeyK:'pause',KeyP:'pnext',KeyM:'missile',KeyW:'tele+',ArrowUp:'tele+',KeyS:'tele-',ArrowDown:'tele-',KeyA:'rudder-',ArrowLeft:'rudder-',KeyD:'rudder+',ArrowRight:'rudder+',KeyZ:'level',KeyX:'center',KeyV:'cam',KeyJ:'map',Escape:'exit'};
 const TRIAL_HOLD={KeyR:['y',1],KeyF:['y',-1],KeyQ:['x',-1],KeyE:['x',1]};
 function trialKeyStick(){const s={x:0,y:0};for(const k of trial.keys){const h=TRIAL_HOLD[k];if(h)s[h[0]]+=h[1];}trial.keyStick={x:C.clamp(s.x,-1,1),y:C.clamp(s.y,-1,1)};}
 function bindTrial(){
@@ -4959,9 +5116,10 @@ function editAirWingInput(t,finish=false){
  const id=t.dataset.airwing,k=t.dataset.wingfield,row=ship.airWings?.find(w=>w.id===id);if(!row||!['name','size','count','type','d0','d1','d2'].includes(k))return;
  let next;
  if(k==='type'){const old=C.CRAFT_TYPES[row.type],cur=C.aviationStatus(ship,S?.info).wings.find(w=>w.id===id);
-  if(t.value==='custom'){next={...row,type:null,dims:(cur?.dims||C.airWingDims(row)).map(v=>Math.round(v*100)/100)};}
-  else if(t.value==='legacy'){next={...row,type:null,size:Math.max(C.AIR_WING_LIMITS.minSize,Math.round((cur?.size||row.size||1)*100)/100)};delete next.dims;}
-  else if(C.CRAFT_TYPES[t.value]){next={...row,type:t.value};delete next.dims;if(!row.name||row.name===old?.name||/^航空隊 \d+$/.test(row.name))next.name=C.CRAFT_TYPES[t.value].name;}else return;}
+  if(t.value==='custom'){next={...row,type:null,dims:(cur?.dims||C.airWingDims(row)).map(v=>Math.round(v*100)/100)};delete next.design;}
+  else if(t.value==='legacy'){next={...row,type:null,size:Math.max(C.AIR_WING_LIMITS.minSize,Math.round((cur?.size||row.size||1)*100)/100)};delete next.dims;delete next.design;}
+  else if(C.CRAFT_TYPES[t.value]){next={...row,type:t.value};delete next.dims;delete next.design;if(!row.name||row.name===old?.name||row.name===row.design?.name||/^航空隊 \d+$/.test(row.name))next.name=C.CRAFT_TYPES[t.value].name;}
+  else if(t.value.startsWith('dsn:')){if(finish)pickDesignCraft(id,t.value.slice(4));return;}else return;}
  else if(k[0]==='d'){const v=Number(t.value);if(t.value===''||!Number.isFinite(v)||v<=0){if(finish){if(dragSnap)endDrag();renderPanel();}return;}const d=(Array.isArray(row.dims)?row.dims:C.airWingDims(row)).slice();d[+k[1]]=v;next={...row,type:null,dims:d};}
  else{const value=k==='name'?t.value:Number(t.value);if(k!=='name'&&(t.value===''||!Number.isFinite(value))){if(finish){if(dragSnap)endDrag();t.value=String(row[k]);updateAviationUI();}return;}next={...row,[k]:value};}
  const rows=C.normalizeAirWings(ship.airWings.map(w=>w.id===id?next:w));
@@ -5098,7 +5256,7 @@ async function fleetSetMode(mode){
  if(!fleetUnits().length){await fleetAdd('current',0);if(fleetUnits().length){await fleetAdd(mode==='review'?'imperial':'current',mode==='review'?0:1);}fleet.selected=fleetUnits().find(u=>u.team===0)?.id||fleetUnits()[0]?.id||null;}if(mode==='tactical'&&fleet.battle.phase==='execute')fleet.frame=C.fleetSample(fleet.battle.last,fleet.elapsed);fleetRender();fleetFit();
 }
 function fleetArrange(){
- const units=fleetUnits();if(fleet.mode==='review'){C.fleetFormation(units,fleet.form,fleet.gap);return;}
+ const units=fleetUnits();if(fleet.mode==='review'){C.fleetFormation(units,fleet.form,fleet.gap,false);return;}
  const fronts=[0,1].map(team=>Math.max(0,...units.filter(u=>u.team===team).map(u=>u.p.len/2))),distance=Math.max(C.FLEET_RULES.initialDistance,fronts[0]+fronts[1]+90000);
  for(const team of [0,1]){const us=units.filter(u=>u.team===team);C.fleetFormation(us,'line',C.FLEET_RULES.formationGap);for(const u of us){u.pos[0]+=team?distance/2:-distance/2;u.yaw=team?Math.PI:0;}}
 }
@@ -5113,7 +5271,8 @@ function fleetDamageList(u){const mods=u.p.modules||[];if(!mods.length||!u.mods)
  return Object.entries(g).filter(([,x])=>x.lost||x.hit).map(([k,x])=>`${C.MODULE_LABEL[k]} ${[x.lost?`${x.lost}/${x.n} 破壊`:'',x.hit?`${x.hit} 損傷`:''].filter(Boolean).join('・')}`).join('、');}
 function fleetPowerHTML(u,editable){const o=u.order,cur=o.power||'auto',m=C.POWER_MODES[cur],combat=fleet.battle.combat;
  return `<div class="fleet-power"><h5>出力配分</h5><div class="chips">${[['auto','自動'],...Object.entries(C.POWER_MODES).map(([k,x])=>[k,x.name])].map(([k,n])=>`<button type="button" class="chip" data-fleet-power="${k}" aria-pressed="${cur===k}" ${editable?'':'disabled'}>${n}</button>`).join('')}</div><p class="note keep">${m?`${esc(m.note)}炉の上限 ${Math.round(m.max*100)}%、その負荷で炉に被弾したときの誘爆率 ${fPct(C.coreDetonation(m.max))}（1発あたり）。`:esc(C.POWER_AUTO_NOTE)}</p>
- <label class="fleet-aim">照準<select data-fleet-aim ${editable&&combat?'':'disabled'} aria-label="攻撃で狙う部位">${Object.entries(C.AIM_KINDS).map(([k,n])=>`<option value="${k}" ${(o.aim||'auto')===k?'selected':''}>${n}</option>`).join('')}</select></label><p class="note">部位を狙うと命中率が2割落ち、シールドを抜いた弾がその部位に当たりやすくなります。炉の誘爆は相手の炉心負荷しだいです。</p></div>`;}
+ <label class="fleet-aim">照準<select data-fleet-aim ${editable&&combat?'':'disabled'} aria-label="攻撃で狙う部位">${Object.entries(C.AIM_KINDS).map(([k,n])=>`<option value="${k}" ${(o.aim||'auto')===k?'selected':''}>${n}</option>`).join('')}</select></label><p class="note">部位を狙うと命中率が2割落ち、シールドを抜いた弾がその部位に当たりやすくなります。炉の誘爆は相手の炉心負荷しだいです。</p>
+ <h5>射撃</h5><div class="chips">${Object.entries(C.VOLLEY.name).map(([k,n])=>`<button type="button" class="chip" data-fleet-volley="${k}" aria-pressed="${C.volleyMode(u)===k}" ${editable&&combat?'':'disabled'}>${n}</button>`).join('')}</div><p class="note">${C.volleyMode(u)==='salvo'?'斉射：同じ種類の砲がそろって撃ちます。一度に当たるので装甲を破りやすく（大口径の砲ほど効きます）、待つぶん発射数はわずかに減り、合間は敵が射撃を受けません。':'連続射撃：各砲が装填しだい撃ち続けます。発射数がいちばん多く、敵を絶えず射撃下に置きます（ハイパードライブの充填を止めます）。'}</p></div>`;}
 function fleetOptions(){return `<option value="current">現在の設計</option><optgroup label="作例">${Object.entries(C.DESIGNS).map(([k,d])=>`<option value="${k}" ${fleet.source===k?'selected':''}>${esc(d.name)}</option>`).join('')}</optgroup>${fleet.saves.length?`<optgroup label="保存艦">${fleet.saves.map(r=>`<option value="save:${esc(r.id)}" ${fleet.source==='save:'+r.id?'selected':''}>${esc(r.name)}</option>`).join('')}</optgroup>`:''}`;}
 function fleetRoster(){return `<div class="fleet-roster">${fleetDisplay().map(u=>`<button type="button" data-fleet-select="${u.id}" class="fleet-unit ${u.team?'enemy':''} ${fleet.selected===u.id?'selected':''} ${u.dead?'destroyed':''} ${u.out?'disabled':''}" aria-pressed="${u.id===fleet.selected}"><span class="fleet-side">${fleet.mode==='review'?'◆':u.team?'敵':u===fleetFlag()?'旗':'友'}</span><span><b>${esc(u.name)}</b><small>${fleet.mode==='review'?fLen(u.p.len)+' / '+u.p.power.toFixed(3)+' ISD':u.dead||u.out?fleetStatusText(u):u.team?'敵艦 · AI指揮':u===fleetFlag()?'旗艦 · 自ら操艦':'僚艦 · 出力 '+fleetPowerName(u)}</small><span class="fleet-bars"><i style="width:${Math.max(0,u.hp/u.p.hp*100)}%"></i></span></span>${fleet.mode!=='review'?`<em>${Math.round(u.hp/u.p.hp*100)}%</em>`:''}</button>`).join('')||'<p class="note">艦を追加してください。</p>'}</div>`;}
 function fleetControlsHTML(){
@@ -5160,7 +5319,7 @@ async function fleetLoadReview(){if(fleet.busy)return;const raw=LS.get('yard.rev
 function bindFleet(){
  bindFleetMap();
  const click=e=>{const t=e.target.closest('button');if(!t||t.disabled)return;const d=t.dataset;if(d.mode){fleetSetMode(d.mode);return;}if(fleet.mode==='design')return;
- if(d.fleetSelect){fleet.selected=d.fleetSelect;fleetRender();return;}if(d.fleetPower){const u=fleetSelected();if(u&&fleetEditable())fleetSetOrder({type:u.order.type,power:d.fleetPower});return;}if(d.fleetTeam!=null){if(fleetCanRefit()){fleet.team=+d.fleetTeam;fleetRender();}return;}if(d.fleetForm){fleet.form=d.fleetForm;fleetArrange();fleetFit();fleetRender();return;}
+ if(d.fleetSelect){fleet.selected=d.fleetSelect;fleetRender();return;}if(d.fleetPower){const u=fleetSelected();if(u&&fleetEditable())fleetSetOrder({type:u.order.type,power:d.fleetPower});return;}if(d.fleetVolley){const u=fleetSelected();if(u&&fleetEditable())fleetSetOrder({type:u.order.type,volley:d.fleetVolley});return;}if(d.fleetTeam!=null){if(fleetCanRefit()){fleet.team=+d.fleetTeam;fleetRender();}return;}if(d.fleetForm){fleet.form=d.fleetForm;fleetArrange();fleetFit();fleetRender();return;}
  const a=d.fleetAction,u=fleetSelected();if(!a)return;
  if(a==='add')return fleetAdd();if(a==='space')return spaceBattleLaunch();if(a==='flagship'){if(u&&u.team===0){fleet.flagship=u.id;toast(u.name+'を旗艦に指定しました');}fleetRender();return;}if(a==='execute')return fleetExecute();if(a==='pause'){if(fleet.battle.phase==='execute'||fleet.replay){fleet.playing=!fleet.playing;fleet.lastClock=0;fleetRender();}return;}
  if(a==='replay'){if(fleet.battle.last&&fleet.battle.phase!=='execute'){fleet.replay=true;fleet.elapsed=0;fleet.frame=C.fleetSample(fleet.battle.last,0);fleet.playing=true;fleet.lastClock=0;fleetRender();}return;}
@@ -5686,11 +5845,13 @@ function sndEngine() {
 }
 // Designing: placing and removing parts, from the label of the change.
 function sndEdit(label) { const l = String(label || ''); sndUI(/配置|取り付け|追加|貼り付け|複製|搭載/.test(l) ? 'place' : /削除|撤去|外す|降ろす/.test(l) ? 'remove' : 'snap', .45); }
-// Battle events from the voyage: contact, and the end of a fight we were in.
+// Battle events from the voyage: contact sounds the alarm. v20.6 No music marks the start or the end of a
+// fight (the user's call): the music just changes to the battle score and back; only the final result plays
+// its own music.
 function sndVoyEvent(e) {
  const A = snd();if (!A || !voy.w) return;
- if (e.battle && !e.end && R.systemUnits(voy.w, e.sys).some(u => u.side === 0)) { SND.alerts.add(e.sys); A.stinger('alert', {faction: voy.setup?.own}); A.sfx('alarm', {gain: .45}); }
- else if (e.battle && e.end && SND.alerts.has(e.sys)) { SND.alerts.delete(e.sys); A.stinger(e.winner === 0 ? 'victory' : 'defeat', {faction: voy.setup?.own}); }
+ if (e.battle && !e.end && R.systemUnits(voy.w, e.sys).some(u => u.side === 0)) { SND.alerts.add(e.sys); A.sfx('alarm', {gain: .45}); }
+ else if (e.battle && e.end) SND.alerts.delete(e.sys);
 }
 function sndTick() {
  const A = snd();if (!A) return;
@@ -6329,7 +6490,8 @@ function voyDrawTac(ctx, W, H) {
  ctx.strokeStyle = VC.grid;ctx.lineWidth = 1;ctx.beginPath();for (let x = x0; x < t.c[0] + W / 2 * t.mpp; x += step) { const p = P([x, 0, 0]); ctx.moveTo(p[0], 0); ctx.lineTo(p[0], H); } for (let z = z0; z < t.c[1] + H / 2 * t.mpp; z += step) { const p = P([0, 0, z]); ctx.moveTo(0, p[1]); ctx.lineTo(W, p[1]); } ctx.stroke();
  // The scale sits at the top of the free area, clear of the log at the bottom.
  const fr = voyFree(W, H), sc = `1目盛 ${step / 1000} km`;ctx.fillStyle = 'rgba(160,200,220,.55)';ctx.font = `600 ${(11 * voy.fz).toFixed(1)}px ` + font;ctx.fillText(sc, 10, fr.y0 + 16 * voy.fz);label.block(8, fr.y0 + 2, 14 + ctx.measureText(sc).width, fr.y0 + 20 * voy.fz);
- const us = R.systemUnits(w, sys), byId = new Map(us.map(u => [u.id, u]));
+ // (ships whose turn to come out of hyperspace has not yet come are not there to see)
+ const us = R.systemUnits(w, sys).filter(u => !R.pendingWarp(u)), byId = new Map(us.map(u => [u.id, u]));
  // Task groups: a faint line from each ship to its group's guide.
  const tgs = new Map();for (const u of us) { const g = w.groups.get(u.group); if (!g) continue; let a = tgs.get(g.id); if (!a) tgs.set(g.id, a = {g, m: []}); a.m.push(u); }
  for (const {g, m} of tgs.values()) { const guide = m.find(u => u.id === g.flag) || m[0], gp = P(guide.pos), own = g.side === 0, hot = own && m.some(u => sel.has(u.id)); ctx.strokeStyle = own ? (hot ? 'rgba(200,240,255,.42)' : 'rgba(127,211,255,.15)') : 'rgba(255,138,112,.13)'; ctx.lineWidth = 1; ctx.beginPath(); for (const u of m) { if (u === guide || u.towedBy) continue; const p = P(u.pos); ctx.moveTo(gp[0], gp[1]); ctx.lineTo(p[0], p[1]); } ctx.stroke(); }
@@ -6340,6 +6502,14 @@ function voyDrawTac(ctx, W, H) {
  // The selection's orders: ships' own orders with their gun and point-defence reach, or each task group's from its guide.
  if (shipSel) for (const u of ts.units) { const a = P(u.pos); ctx.strokeStyle = 'rgba(127,211,255,.35)'; ctx.setLineDash([5, 5]); ctx.beginPath(); ctx.arc(a[0], a[1], C.fleetReach(u.p) / t.mpp, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); ctx.strokeStyle = 'rgba(160,255,160,.28)'; ctx.beginPath(); ctx.arc(a[0], a[1], R.RULES.pdRange / t.mpp, 0, Math.PI * 2); ctx.stroke(); voyOrderLine(ctx, P, u.pos, R.effectiveOrder(u, w), byId, u.order.type !== 'attack' && u.order.type !== 'move'); }
  else if (ts.kind) for (const g of ts.kind === 'tg' ? [ts.g] : voyCtgGroups(ts.c)) { const guide = byId.get(g.flag) || g.units.map(id => byId.get(id)).find(Boolean); if (guide) voyOrderLine(ctx, P, guide.pos, R.groupOrder(w, g), byId, g.order.type === 'auto'); }
+ // v21 Superweapon shots: the composite beam (held, or one pulse) as a broad line to its target, the
+ // hyper-ion wave as a ring spreading from the ship's side.
+ for (const x of w.swShots || []) {
+  if (x.sys !== sys) continue;const a = byId.get(x.from), age = w.time - x.t;if (!a) continue;const pa = P(a.pos), ion = x.k === 'hion';
+  if (x.mode === 'ring') { if (age > 2.2) continue; const r = Math.max(4, age * 16000 / t.mpp), al = 1 - age / 2.2; ctx.strokeStyle = `rgba(170,150,255,${(.85 * al).toFixed(2)})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(pa[0], pa[1], r, 0, Math.PI * 2); ctx.stroke(); ctx.lineWidth = 1; continue; }
+  const life = x.mode === 'pulse' ? 1.2 : .5;if (age > life) continue;const al = 1 - age / life;
+  for (const id of x.to || []) { const b = byId.get(id); if (!b) continue; const pb = P(b.pos); ctx.strokeStyle = ion ? `rgba(170,150,255,${al.toFixed(2)})` : `rgba(255,${x.mode === 'pulse' ? 230 : 120},90,${al.toFixed(2)})`; ctx.lineWidth = x.mode === 'pulse' ? 6 : 4; ctx.beginPath(); ctx.moveTo(pa[0], pa[1]); ctx.lineTo(pb[0], pb[1]); ctx.stroke(); ctx.lineWidth = 1; }
+ }
  // Missiles.
  for (const m of w.missiles) { if (m.sys !== sys || m.n <= 0) continue; const p = P(m.pos); ctx.fillStyle = m.side === 0 ? '#bdf3ff' : '#ffd2a8'; ctx.beginPath(); ctx.arc(p[0], p[1], 1.6 + Math.min(2, m.n / 6), 0, Math.PI * 2); ctx.fill(); }
  // Ships: a wedge along the heading, sized by length (never smaller than a mark).
@@ -6406,6 +6576,8 @@ function voyRenderLog() { const el = $('#voyLog'); if (!el) return; const html =
 // ---------- side panels ----------
 const VOY_POWER = [['auto', '自動'], ['cruise', '巡航'], ['balanced', '均衡'], ['weapons', '兵装'], ['shields', '防御'], ['overload', '全力']];
 const VOY_AIM = [['auto', '艦全体'], ['reactor', '反応炉'], ['bridge', '艦橋'], ['weapon', '砲塔'], ['engine', '推進'], ['shield', 'シールド']];
+// v20.6 How the guns fire: continuously (each gun as it is ready) or in salvos (all together).
+const VOY_VOLLEY = [['stream', '連続射撃'], ['salvo', '斉射']];
 const VOY_ORDER = {group: '任務群に従う', auto: '自動交戦', hold: '待機', move: '移動', attack: '攻撃'};
 const VOY_CMD_HINT = {move: '移動先を地図でタップ', attack: '攻撃する敵艦をタップ', strike: '攻撃する敵艦をタップ', cap: '制空する地点をタップ', escort: '直掩する味方艦をタップ', tow: '牽引する戦闘不能の味方艦をタップ', capture: '拿捕する戦闘不能の敵艦をタップ', jump: 'ジャンプ先の星系を地図でタップ'};
 const voyCommon = (list, f) => { if (!list.length) return null; const v = f(list[0]); return list.every(x => f(x) === v) ? v : null; };
@@ -6539,7 +6711,24 @@ function voyOrderButtons(kind, cur) {
  return `<div class="vs-acts">${kind === 'ship' ? b('group', '任務群に従う') : ''}${b('auto', '自動交戦')}${b('hold', '待機')}${c('move', '移動')}${c('attack', '攻撃')}<button type="button" class="btn sm ghost" data-vact="withdraw">離脱</button></div>`;
 }
 function voyFormHTML(cur) { return `<p class="vs-sub">陣形</p><div class="vs-acts">${Object.entries(R.FORMATIONS).map(([k, n]) => `<button type="button" class="btn sm${cur === k ? ' on' : ''}" data-vform="${k}">${n}</button>`).join('')}</div>`; }
-function voyPowerAimHTML(list) { const pw = voyCommon(list, u => u.order.power || 'auto'), aim = voyCommon(list, u => u.order.aim || 'auto'); return `<p class="vs-sub">出力配分</p><div class="vs-acts">${VOY_POWER.map(([k, n]) => `<button type="button" class="btn sm${pw === k ? ' on' : ''}" data-vpow="${k}">${n}</button>`).join('')}</div><p class="vs-sub">照準部位</p><div class="vs-acts">${VOY_AIM.map(([k, n]) => `<button type="button" class="btn sm${aim === k ? ' on' : ''}" data-vaim="${k}">${n}</button>`).join('')}</div>`; }
+function voyPowerAimHTML(list) { const pw = voyCommon(list, u => u.order.power || 'auto'), aim = voyCommon(list, u => u.order.aim || 'auto'), vol = voyCommon(list, u => C.volleyMode(u)); return `<p class="vs-sub">射撃</p><div class="vs-acts">${VOY_VOLLEY.map(([k, n]) => `<button type="button" class="btn sm${vol === k ? ' on' : ''}" data-vvol="${k}">${n}</button>`).join('')}</div><p class="note">${vol === 'salvo' ? '斉射：同じ種類の砲がそろって撃ちます。一度に当たるので装甲を破りやすく（大口径の砲ほど効きます）、最初の斉射は目標が射程に入った瞬間に撃てます。待つぶん発射数はわずかに減り、斉射の合間は敵が射撃を受けません（敵のハイパードライブ充填が進みます）。' : vol === 'stream' ? '連続射撃：各砲が装填しだい撃ち続けます。発射数がいちばん多く、敵を絶えず射撃下に置いてハイパードライブの充填を止めます。' : '艦によって射撃の型が違います。'}</p><p class="vs-sub">出力配分</p><div class="vs-acts">${VOY_POWER.map(([k, n]) => `<button type="button" class="btn sm${pw === k ? ' on' : ''}" data-vpow="${k}">${n}</button>`).join('')}</div><p class="vs-sub">照準部位</p><div class="vs-acts">${VOY_AIM.map(([k, n]) => `<button type="button" class="btn sm${aim === k ? ' on' : ''}" data-vaim="${k}">${n}</button>`).join('')}</div>`; }
+// v21 Superweapons of the ships chosen: each one's state, whether they may fire on their own, and for the
+// composite beam a held beam or one pulse.
+const VOY_SW_STATE = {charge: '充電中', ready: '発射可', beam: '照射中', cool: '過負荷・冷却中', down: '使用不能'};
+// One line on a followed ship's superweapons (the readiest of them).
+function voySwBrief(u) {
+ if (!u?.p?.sw?.length || !u.sw?.length) return '';const xs = u.sw;
+ if (xs.some(x => x.st === 'beam')) return ' · 超兵器 照射中';if (xs.some(x => x.st === 'ready')) return ' · 超兵器 発射可';
+ const c = Math.max(...xs.map(x => x.st === 'charge' ? x.c || 0 : 0));if (xs.some(x => x.st === 'charge')) return ` · 超兵器 充電 ${Math.round(c * 100)}%`;
+ return xs.some(x => x.st === 'cool') ? ' · 超兵器 過負荷' : '';
+}
+function voySwShips(list) { return list.filter(u => u.p.sw?.length && u.sw?.length && !u.dead); }
+function voySwHTML(list) {
+ const ships = voySwShips(list);if (!ships.length) return '';
+ const rows = ships.flatMap(u => u.p.sw.map((w, i) => { const x = u.sw[i] || {}, K = C.SW_COMBAT[w.k], st = x.st === 'charge' ? `充電 ${Math.round((x.c || 0) * 100)}%` : x.st === 'cool' ? `過負荷・冷却 ${Math.ceil(Math.max(0, x.t || 0))} 秒` : VOY_SW_STATE[x.st] || ''; return `<p>${ships.length > 1 ? esc(u.name) + '：' : ''}${esc(K?.name || w.k)}（${w.aim === 'bow' ? '艦首' : w.aim === 'port' ? '左舷' : '右舷'}）· ${st}${w.k === 'sbeam' ? ' · ' + (x.mode === 'pulse' ? 'パルス' : 'ビーム') : ''}</p>`; })).join('');
+ const hold = voyCommon(ships, u => u.order.sw === false), beam = ships.some(u => u.p.sw.some(w => w.k === 'sbeam')), md = voyCommon(ships.filter(u => u.p.sw.some(w => w.k === 'sbeam')), u => u.sw[u.p.sw.findIndex(w => w.k === 'sbeam')]?.mode === 'pulse' ? 'pulse' : 'beam');
+ return `<div class="vs-tr"><p class="vs-sub">超兵器</p>${rows}<div class="vs-acts"><button type="button" class="btn sm${hold === false ? ' on' : ''}" data-vsw="free">自由発射</button><button type="button" class="btn sm${hold === true ? ' on' : ''}" data-vsw="hold">発射待機</button>${beam ? `<button type="button" class="btn sm${md === 'beam' ? ' on' : ''}" data-vsw="mode:beam">ビーム</button><button type="button" class="btn sm${md === 'pulse' ? ' on' : ''}" data-vsw="mode:pulse">パルス</button>` : ''}</div><p class="note">自由発射：充電が済んで射界に敵が入ると自動で撃ちます（超重合成ビームは艦首、ハイパーイオン砲は舷側の固定射界）。撃つと給電している炉が過負荷になり、しばらく出力が落ちます。発射待機：充電したまま撃たずに待ちます。</p></div>`;
+}
 function voyShipRow(u) { const g = voy.w.groups.get(u.group); return `<li class="${voy.sel.units.includes(u.id) ? 'on' : ''}"><button type="button" data-vunit="${u.id}"><b>${g?.flag === u.id ? '旗 ' : ''}${esc(u.name)}</b>${voySecHTML(u)}<small>${esc(voyUnitState(u))}</small></button></li>`; }
 // Tractor beams of the ships in a selection: what each holds, and the orders.
 function voyTractorHTML(list) {
@@ -6552,7 +6741,7 @@ function voyTgTacCard(g) {
  return `<div class="vs-card">${voyCrumbs(c, null)}<div class="vs-head"><h3>${esc(g.name)}</h3><span>${ms.length} 隻 · ${esc(R.FORMATIONS[g.formation] || '')}</span></div>
   <p class="vs-state${g.spool?.blocked ? ' bad' : g.spool ? ' warn' : ''}">${esc(g.spool ? voyTgStatus(g) : voyGroupOrderText(g))}</p>
   <div class="vs-list"><ul>${ms.map(voyShipRow).join('')}</ul></div>${voyDisabledHTML(R.groupDisabled(w, g).filter(u => u.sys === sys))}
-  <p class="vs-sub">任務群への命令</p>${voyOrderButtons('tg', g.order.type)}${voyFormHTML(g.formation)}${voyPowerAimHTML(ms)}
+  <p class="vs-sub">任務群への命令</p>${voyOrderButtons('tg', g.order.type)}${voyFormHTML(g.formation)}${voyPowerAimHTML(ms)}${voySwHTML(ms)}
   ${trac.length ? voyTractorHTML(trac) : ''}
   ${indiv.length ? `<div class="vs-acts"><p class="vs-sub">${indiv.length} 隻が個別の命令で行動中</p><button type="button" class="btn sm ghost" data-vact="rejoin">任務群に戻す</button></div>` : ''}
   ${g.spool ? '<p class="note">離脱にはリアクターの全出力が要ります。準備中は砲撃できず、被弾している間は準備が止まります（距離を取りながら準備します）。</p>' : ''}</div>`;
@@ -6570,7 +6759,7 @@ function voyShipCard(sel) {
  const w = voy.w, u = sel[0], one = sel.length === 1, g = w.groups.get(u.group), c = g && R.ctgOf(w, g), sx = C.fleetSystems(u), lost = (u.p.modules || []).map((m, i) => u.mods[i] <= 0 && m.k !== 'hull' ? m.name : null).filter(Boolean), trac = sel.filter(x => x.p.trac > 0 && !x.out);
  return `<div class="vs-card">${voyCrumbs(c, g)}<div class="vs-head"><h3>${one ? esc(u.name) : `${sel.length} 隻を選択`}</h3><span>${esc(voyUnitState(u))}</span></div>
   ${one ? `${voySecHTML(u)}<p class="vs-sub">シールド ${Math.round(u.shield / Math.max(1, u.shieldMax) * 100)}%${u.bankMax > 0 ? ` · 蓄電 ${Math.round(u.bank / u.bankMax * 100)}%` : ''} · 装甲 ${Math.round(u.armor * 100)}% · 乗員 ${num(Math.round(u.crew))} 名 · 炉 ${Math.round(sx.reactor * 100)}% · 推進 ${Math.round(sx.engine * 100)}% · 兵装 ${Math.round(sx.weapon * 100)}%</p><div class="vs-status">${armourFacesHTML(u)}${powerSplitHTML(u)}${statusFlagsHTML(u)}</div>${lost.length ? `<p class="vs-sub bad">損傷：${esc([...new Set(lost)].slice(0, 6).join('・'))}${lost.length > 6 ? ' ほか' : ''}</p>` : ''}<p class="vs-sub">${esc(voyNeedText(u))} · 補給線 ${voySupplyLine(u.sys)}${w.battles.has(u.sys) && u.supplyNeed?.total ? '（戦闘中は補給できません）' : ''}</p>${voyHitLogHTML(u)}` : ''}
-  <p class="vs-sub">${one ? 'この艦' : '選んだ艦'}への命令</p>${voyOrderButtons('ship', voyCommon(sel, x => x.order.type))}${voyPowerAimHTML(sel)}
+  <p class="vs-sub">${one ? 'この艦' : '選んだ艦'}への命令</p>${voyOrderButtons('ship', voyCommon(sel, x => x.order.type))}${voyPowerAimHTML(sel)}${voySwHTML(sel)}
   ${trac.length ? voyTractorHTML(trac) : ''}${one && u.out ? voyDisabledHTML([u], false) : ''}${one ? voyCarriedTacHTML(u) : ''}
   ${one && !u.out ? `<button type="button" class="btn primary vs-pilot" data-vpilot="${u.id}">この艦を3Dで操艦</button>` : ''}${one ? `<button type="button" class="btn sm ghost vs-pilot" data-vspectate="${voy.tac.sys}" data-vfollow="${u.id}">${voy3D() ? '3D視点でこの艦を追う' : 'この艦を追って観戦'}</button>` : ''}</div>`;
 }
@@ -6699,7 +6888,7 @@ function voySidebarClick(e) {
   if (d.vact === 'nodest') { voy.sel.dest = null; voy.cmd = null; voyRenderSide(); return; }
   if (d.vact === 'jump' && g) { const dest = voy.sel.dest, r = R.orderJump(w, g.id, dest); toast(r.ok ? `${esc(g.name)}：${esc(w.sector.systems[dest].name)}へジャンプ（到着まで ${voyClock(r.eta)}）` : esc(r.why)); voy.sel.dest = null; voy.cmd = null; voyRenderSide(); return; }
   if ((d.vact === 'ctgjump' || d.vact === 'ctgjump1') && c) { const dest = voy.sel.dest, r = R.orderCtgJump(w, c.id, dest, d.vact === 'ctgjump'); toast(r.ok ? `${esc(c.name)}：${esc(w.sector.systems[dest].name)}へ（全任務群の到着まで ${voyClock(r.eta)}）` : esc(r.why)); voy.sel.dest = null; voy.cmd = null; voyRenderSide(); return; }
-  if (d.vact === 'cancel') { for (const h of g ? [g] : voyCtgGroups(c)) { R.cancelJump(w, h.id); h.waitJump = null; } voyRenderSide(); return; }
+  if (d.vact === 'cancel') { let late = false; for (const h of g ? [g] : voyCtgGroups(c)) { if (R.cancelJump(w, h.id) === false) late = true; else h.waitJump = null; } if (late) toast('艦が順にジャンプしている最中のため中止できません'); voyRenderSide(); return; }
   if (d.vact === 'split' && g) { if (!voy.split) { voy.split = true; voy.splitSel = new Set(); } else { const h = R.splitGroup(w, g.id, [...voy.splitSel], g.name + '分遣隊'); voy.split = false; if (h) { voySelect({group: h.id}); toast(`${esc(h.name)}を編成しました`); } else toast('分ける艦を選んでください（全艦は選べません）'); } voyRenderSide(); return; }
   if (d.vact === 'nocmd') { voy.cmd = null; voyRenderSide(); return; }
   if (d.vact === 'nofoe') { voy.sel.foe = null; voyRenderSide(); return; }
@@ -6715,6 +6904,11 @@ function voySidebarClick(e) {
  if (d.vord) { voyApply({type: d.vord}); voy.cmd = null; voyRenderSide(); return; }
  if (d.vform) { voyApply({formation: d.vform}); voyRenderSide(); return; }
  if (d.vpow) { voyApply({power: d.vpow}); voyRenderSide(); return; }
+ if (d.vvol) { voyApply({volley: d.vvol}); voyRenderSide(); return; }
+ if (d.vsw) { const s = voyTacSel(), sys = voy.tac.sys, list = voySwShips(s.kind === 'ship' ? s.units : (s.kind === 'tg' ? [s.g] : s.kind === 'ctg' ? voyCtgGroups(s.c) : []).flatMap(g => g.units.map(id => w.units.get(id))).filter(u => u && R.alive(u) && u.sys === sys));
+  if (d.vsw === 'free' || d.vsw === 'hold') { for (const u of list) R.orderUnit(w, u.id, {sw: d.vsw === 'free'}); toast(d.vsw === 'free' ? '超兵器：自由発射' : '超兵器：発射待機'); }
+  else if (d.vsw.startsWith('mode:')) { const m = d.vsw.slice(5); for (const u of list) u.sw.forEach((x, i) => { if (u.p.sw[i]?.k === 'sbeam' && x.st !== 'beam') x.mode = m; }); toast(m === 'pulse' ? '超重合成ビーム：パルス（一撃）' : '超重合成ビーム：ビーム（照射）'); }
+  voyRenderSide(); return; }
  if (d.vaim) { voyApply({aim: d.vaim}); voyRenderSide(); return; }
  if (d.vpilot) { voyPilot(d.vpilot); return; }
  if (d.vspectate != null) { voySpectate(+d.vspectate, d.vfollow || null); return; }
@@ -6759,7 +6953,7 @@ function voyMapTap(x, y) {
   voy.sel.group = null;voy.sel.ctg = null;voy.sel.sys = null;voy.sel.dest = null;voy.cmd = null;voyRenderSide();return;
  }
  // tactical
- const us = R.systemUnits(w, voy.tac.sys);let hit = null, hd = 22;
+ const us = R.systemUnits(w, voy.tac.sys).filter(u => !R.pendingWarp(u));let hit = null, hd = 22;
  for (const u of us) { const p = tacP(u.pos, W, H), L = Math.max(9, u.p.len / voy.tac.mpp), dd = Math.hypot(p[0] - x, p[1] - y) - L * .5; if (dd < hd) { hd = dd; hit = u; } }
  let wing = null, wd = 16;if (!voy.cmd || voy.cmd.type === 'strike' || voy.cmd.type === 'cap' || voy.cmd.type === 'escort') for (const m of voy.tacWings || []) { const dd = Math.hypot(m.x - x, m.y - y); if (dd < wd) { wd = dd; wing = m.id; } }
  if (wing && !voy.cmd && (!hit || wd < 7 || wd < hd)) { voy.sel.wing = wing; voy.tab = 'wings'; voyRenderSide(); return; }
@@ -6865,13 +7059,13 @@ async function voyPilot(id) {
 function voyPilotBusy(on, text) { const el = $('#voyBusy'); if (!el) return; el.hidden = !on; if (on) el.querySelector('span').innerHTML = text || '準備中…'; }
 function voyPilotInit() {
  if (trial.rts?.spectate) { voySpectateInit(); return; }
- const {w, sys, uid} = trial.rts, me = w.units.get(uid);me.manual = true;me.order = {...me.order, power: trial.powerMode};
+ const {w, sys, uid} = trial.rts, me = w.units.get(uid);me.manual = true;me.order = {...me.order, power: trial.powerMode};trial.volley = C.volleyMode(me);
  // The battle's frame (x east, y up, z south) is laid into the flight's world so
  // the ship keeps its position and heading: forward = its bearing in the battle.
  const up = tv.norm(trial.P), f0 = trialCol(trial.R, 0), E = trialFrame(f0, up), fw = trialApply(E, [Math.cos(me.yaw), 0, Math.sin(me.yaw)]);
  trial.R = trialFrame(fw, up);const O = tv.sub(trial.P, trialApply(E, me.pos));
  trial.V = trialApply(E, me.velocity || [0, 0, 0]);trial.vf = tv.dot(trial.V, fw);
- const B = {rts: true, O, E, acc: 0, extra: new Map(), seen: w.battles.get(sys)?.log.at(-1)?.n || 0, result: null, orderT: 0, me, plan: null, ticker: [], kills: 0, disabled: 0, cined: true, hadBattle: w.battles.has(sys),
+ const B = {rts: true, O, E, acc: 0, extra: new Map(), seen: w.battles.get(sys)?.log.at(-1)?.n || 0, result: null, orderT: 0, me, plan: null, ticker: [], kills: 0, disabled: 0, cined: true, hadBattle: w.battles.has(sys), arrive: new Map(), ghosts: [],
   modIndex: new Map((me.p.modules || []).map((m, i) => [m.fit, i]).filter(([f]) => f != null)), b: {get units() { return R.systemUnits(w, sys); }, get time() { return w.time; }}};
  trial.battle = B;trial.targets = [];trial.vbolts = [];trial.foeCraft = [];trial.foeMissiles = [];trial.ownCraft = [];spaceRefresh();
  let near = null, nd = Infinity;for (const u of R.systemUnits(w, sys)) { if (u.side === me.side || !R.fighting(u)) continue; const d = Math.hypot(u.pos[0] - me.pos[0], u.pos[1] - me.pos[1], u.pos[2] - me.pos[2]); if (d < nd) { nd = d; near = u; } }
@@ -6905,10 +7099,13 @@ function voyPilotStep(dt) {
  spaceSync();
  for (const [id, x] of B.extra) { const u = w.units.get(id); if (!u) continue; C.combatMerge(u.extra || (u.extra = C.combatIncoming()), u, x); }
  B.extra = new Map();
- const before = new Map(R.systemUnits(w, sys).map(u => [u.id, {dead: u.dead, out: u.out}])), t0 = w.time;
+ const here = R.systemUnits(w, sys), before = new Map(here.map(u => [u.id, {dead: u.dead, out: u.out}])), t0 = w.time;
  R.step(w, dt);B.acc = w.acc;
+ // Ships that jumped out streak away; ships coming out of hyperspace stream in, each in its turn.
+ for (const u of here) if (u !== me && R.alive(u) && u.sys !== sys) voyGhost(u);
+ voyWarpFx(B, w, sys, dt);
  // Bolts from the other ships, one burst per battle step in which they fired.
- if (w.time > t0) { const shots = []; for (const u of R.systemUnits(w, sys)) if (!u.manual && u.lastShot) shots.push({from: u.id, to: u.lastShot.to, gun: u.lastShot.gun, ion: u.lastShot.ion}); spaceShots(shots); }
+ if (w.time > t0) { const shots = []; for (const u of R.systemUnits(w, sys)) if (!u.manual) { const x = voyShotOf(u, t0); if (x) shots.push(x); } for (const x of w.swShots || []) if (x.sys === sys && x.t > t0) shots.push({...x, sw: true}); spaceShots(shots); }
  for (const [id, was] of before) { const u = w.units.get(id); if (!u) continue; if (u.dead && !was.dead) { if (u.side !== me.side) B.kills++; } else if (u.out && !was.out && u.side !== me.side) B.disabled++; }
  spaceBumps(R.systemUnits(w, sys).map(u => u.lastBump));spaceBump(me);
  for (const t of trial.turrets) { const i = B.modIndex.get(t.id); t.dead = i != null && me.mods[i] <= 0; }
@@ -6968,7 +7165,7 @@ function voySpectateInit(snap = true) {
  const up = tv.norm(trial.P), E = trialFrame(trialCol(trial.R, 0), up), O = tv.sub(trial.P, trialApply(E, f.pos));
  const B = {rts: true, spectate: true, hadBattle: w.battles.has(sys), O, E, acc: 0, extra: new Map(), seen: w.battles.get(sys)?.log.at(-1)?.n || 0, result: null, me: null, follow: f.id, ticker: [], kills: 0, disabled: 0, cined: true, modIndex: new Map(), arrive: new Map(), ghosts: [], b: {get units() { return R.systemUnits(w, sys); }, get time() { return w.time; }}};
  // Ships still coming out of hyperspace as the view opens arrive as seen from outside.
- for (const u of R.systemUnits(w, sys)) if (u.warp) B.arrive.set(u.id, {t: Math.min(.9, u.warp.t)});
+ for (const u of R.systemUnits(w, sys)) if (u.warp && u.warp.t >= 0) B.arrive.set(u.id, {t: Math.min(.9, u.warp.t)});
  trial.battle = B;trial.targets = [];trial.vbolts = [];trial.foeCraft = [];trial.ownCraft = [];trial.foeMissiles = [];
  voySpectateFollow(f, snap);spaceRefresh();
 }
@@ -7002,10 +7199,12 @@ function voySpectateNext(dir) {
 // ---------- through hyperspace with the followed group ----------
 // The group has just left: the camera rides with the ship up to sublight and
 // into the tunnel, its group mates keeping station around it.
-function voyFollowDepart(f, mates) {
+// v20.6 The group jumps one ship after another: mates that went ahead (or go after) are met again
+// in the tunnel, at their places around the ship.
+function voyFollowDepart(f, mates, ahead = []) {
  const B = trial.battle, P = spaceWorld(f), fw = trialApply(B.E, [Math.cos(f.yaw), 0, Math.sin(f.yaw)]), g = voy.w.groups.get(f.group);
  trial.P = P;trial.R = trialFrame(fw, tv.norm(P));trial.V = [0, 0, 0];spaceCineEnd();
- trial.jump = {phase: 'accel', t: 0, follow: true, uid: f.id, gid: f.group, dest: g?.transit?.to ?? null, dir: fw, v0: Math.max(300, f.p.maxSpeed || 0), rot: spaceRot(B.E, f.yaw), mates: mates.map(u => ({u, off: tv.sub(spaceWorld(u), P), rot: spaceRot(B.E, u.yaw)}))};
+ trial.jump = {phase: 'accel', t: 0, follow: true, uid: f.id, gid: f.group, dest: g?.transit?.to ?? g?.spool?.dest ?? null, dir: fw, v0: Math.max(300, f.p.maxSpeed || 0), rot: spaceRot(B.E, f.yaw), P0: P, mates: [...mates.map(u => ({u, off: tv.sub(spaceWorld(u), P), rot: spaceRot(B.E, u.yaw)})), ...ahead.map(u => ({u, off: tv.sub(spaceWorld(u), P), rot: spaceRot(B.E, u.yaw), tunnel: true}))]};
 }
 // Picked up while already in hyperspace: straight into the tunnel.
 function voyFollowTransit(u) {
@@ -7022,7 +7221,9 @@ function voyFollowStep(j, dt) {
  const w = voy.w, f = w.units.get(j.uid);
  if (!f || !R.alive(f)) { trial.jump = null; return; }
  if (j.phase === 'accel' || j.phase === 'enter') trialSublight(dt);
- else if (j.phase === 'tunnel' && !j.arrived && f.sys != null) {
+ else if (j.phase === 'tunnel' && !j.arrived && f.sys != null && !R.pendingWarp(f)) {
+  // Out with it come only the ships of its turn; the rest of the group stream in after, seen from outside.
+  const t0 = f.warp?.t ?? 1;j.with = new Set(R.systemUnits(w, f.sys).filter(u => u === f || u.group === j.gid && u.warp && Math.abs(u.warp.t - t0) < 1e-3).map(u => u.id));
   j.arrived = true;voySpectateRebase(f);const B = trial.battle;
   j.dir = trialApply(B.E, [Math.cos(f.yaw), 0, Math.sin(f.yaw)]);j.v1 = Math.max(150, (f.p.maxSpeed || 0) * .3);j.end = Math.max(j.t, 1.2) + JUMP.close;j.mates = [];
   trial.R = trialFrame(j.dir, tv.norm(spaceWorld(f)));trial.camF = trialFrame(j.dir, tv.norm(spaceWorld(f)));
@@ -7035,31 +7236,47 @@ function voyFollowStep(j, dt) {
 function voyFollowDraw(j) {
  const w = voy.w, f = w.units.get(j.uid);if (!f) return [];
  const row = (u, pos, rot) => ({key: u.key, pos, rot, glow: .9, hatchOpen: 0, dead: false, stretch: 1, flash: 0});
- if (!j.arrived) return [row(f, [0, 0, 0], j.rot), ...j.mates.filter(m => R.alive(m.u)).map(m => row(m.u, m.off, m.rot))];
+ if (!j.arrived) return [row(f, [0, 0, 0], j.rot), ...j.mates.filter(m => R.alive(m.u) && (!m.tunnel || j.phase === 'tunnel')).map(m => row(m.u, m.off, m.rot))];
  const B = trial.battle, back = tv.scale(j.dir, -trialRevDist(j));
- return R.systemUnits(w, trial.rts.sys).filter(u => u.group === j.gid).map(u => row(u, tv.sub(tv.add(spaceWorld(u), back), trial.P), spaceRot(B.E, u.yaw)));
+ return R.systemUnits(w, trial.rts.sys).filter(u => j.with?.has(u.id)).map(u => row(u, tv.sub(tv.add(spaceWorld(u), back), trial.P), spaceRot(B.E, u.yaw)));
 }
 // A ship leaving a system that the camera does not follow: seen from outside,
 // it stretches and is gone.
-function voyGhost(u) { const B = trial.battle; B.ghosts.push({key: u.key, w: spaceWorld(u), rot: spaceRot(B.E, u.yaw), f: trialApply(B.E, [Math.cos(u.yaw), 0, Math.sin(u.yaw)]), L: u.p.len, t: 0}); }
+// What a ship fired in the step just run: its last tick's fire, or a salvo it fired earlier in the step
+// (several ticks run in one frame when time is sped up, and a salvo lands on one of them only).
+function voyShotOf(u, t0) {
+ const v = u.lastSalvo;if (v && v.t > t0) return {from: u.id, to: v.to, gun: v.gun, ion: v.ion, salvo: true};
+ const s = u.lastShot;return s && !s.salvo ? {from: u.id, to: s.to, gun: s.gun, ion: s.ion} : null;
+}
+function voyGhost(u) { const B = trial.battle, p = spaceWorld(u); B.ghosts.push({key: u.key, w: p, rot: spaceRot(B.E, u.yaw), f: trialApply(B.E, [Math.cos(u.yaw), 0, Math.sin(u.yaw)]), L: u.p.len, t: 0}); sndAt('hyperspace_out', p, {gain: .45, far: 90000}); }
+// Ships coming out of hyperspace, each when its turn comes (warp.t from 0), timed on the screen's clock;
+// and the streaks of ships that jumped out, fading.
+function voyWarpFx(B, w, sys, dt, skip) {
+ for (const u of R.systemUnits(w, sys)) if (u.warp && u.warp.t >= 0 && !B.arrive.has(u.id) && !skip?.(u)) { B.arrive.set(u.id, {t: 0}); sndAt('hyperspace_in', spaceWorld(u), {gain: .5, far: 90000}); }
+ for (const [id, a] of B.arrive) { a.t += dt; if (a.t > 1.2 && !w.units.get(id)?.warp) B.arrive.delete(id); }
+ for (const g of B.ghosts) g.t += dt;B.ghosts = B.ghosts.filter(g => g.t < .8);
+}
 function voySpectateStep(dt) {
  const B = trial.battle;if (!B?.spectate) return;const w = trial.rts.w, sys = trial.rts.sys, here = R.systemUnits(w, sys), before = new Map(here.map(u => [u.id, {dead: u.dead}])), t0 = w.time;
  voyTick(dt);if (!trial.on || trial.battle !== B) return;B.acc = w.acc;
  const j0 = trial.jump?.follow ? trial.jump : null, away = j0 && !j0.arrived;
  // Ships that left: a followed ship of ours takes the camera with its task group; the rest streak away.
  const gone = here.filter(u => R.alive(u) && u.sys !== sys);
- if (gone.length) { const f = w.units.get(B.follow), fly = !j0 && f && f.side === 0 && f.sys == null && gone.includes(f) ? gone.filter(u => u.group === f.group) : []; if (fly.length) voyFollowDepart(f, fly.filter(u => u !== f)); for (const u of gone) if (!fly.includes(u)) voyGhost(u); }
+ if (gone.length) {
+  const f = w.units.get(B.follow), fly = !j0 && f && f.side === 0 && f.sys == null && gone.includes(f) ? gone.filter(u => u.group === f.group) : [];
+  if (fly.length) { const ahead = (w.groups.get(f.group)?.units || []).map(id => w.units.get(id)).filter(x => x && R.alive(x) && x.sys == null && !fly.includes(x)); voyFollowDepart(f, fly.filter(u => u !== f), ahead); }
+  for (const u of gone) if (!fly.includes(u)) { voyGhost(u); if (away && u.group === j0.gid && j0.P0) j0.mates.push({u, off: tv.sub(spaceWorld(u), j0.P0), rot: spaceRot(B.E, u.yaw), tunnel: true}); }
+ }
  if (!away) {
-  if (w.time > t0) { const shots = []; for (const u of R.systemUnits(w, sys)) if (u.lastShot) shots.push({from: u.id, to: u.lastShot.to, gun: u.lastShot.gun, ion: u.lastShot.ion}); spaceShots(shots); }
+  if (w.time > t0) { const shots = []; for (const u of R.systemUnits(w, sys)) { const x = voyShotOf(u, t0); if (x) shots.push(x); } for (const x of w.swShots || []) if (x.sys === sys && x.t > t0) shots.push({...x, sw: true}); spaceShots(shots); }
   spaceBumps(R.systemUnits(w, sys).map(u => u.lastBump));
   const log = w.battles.get(sys)?.log || [];let li = log.length;while (li > 0 && log[li - 1].n > B.seen) li--;
   for (; li < log.length; li++) { const e = log[li], u = w.units.get(e.id);B.seen = e.n;spaceLog(e.text.replace(/^[^：]*：/, ''), u ? {...u, manual: false} : null); }
  }
  // Ships coming out of hyperspace, timed on the screen's clock.
- const jg = trial.jump?.follow ? trial.jump.gid : null;
- for (const u of R.systemUnits(w, sys)) if (u.warp && !B.arrive.has(u.id) && u.group !== jg) B.arrive.set(u.id, {t: 0});
- for (const [id, a] of B.arrive) { a.t += dt; if (a.t > 1.2 && !w.units.get(id)?.warp) B.arrive.delete(id); }
- for (const g of B.ghosts) g.t += dt;B.ghosts = B.ghosts.filter(g => g.t < .8);
+ // (while the camera rides with a group through hyperspace, its group's arrivals wait for the ride to come out)
+ const jr = trial.jump?.follow ? trial.jump : null;
+ voyWarpFx(B, w, sys, dt, u => jr && (jr.arrived ? jr.with?.has(u.id) : u.group === jr.gid));
  const j = trial.jump;
  if (j?.follow) voyFollowStep(j, dt);
  else {
@@ -7126,7 +7343,7 @@ function voySpectateHyperText(f) {
 function voySpectateHudUpdate(full) {
  const hud = $('#trialHud'), B = trial.battle;if (!hud || !B?.spectate) return;const {w, sys} = trial.rts, q = k => hud.querySelector(`[data-sp="${k}"]`), set = (k, v) => { const e = q(k); if (e && e.textContent !== v) e.textContent = v; };
  const f = w.units.get(B.follow), us = R.systemUnits(w, sys), own = us.filter(u => u.side === 0), foe = us.filter(u => u.side !== 0), up = l => l.filter(R.fighting).length, bt = w.battles.get(sys), ride = trial.jump?.follow && !trial.jump.arrived;
- if (f) { set('name', `${f.side === 0 ? '' : '敵 '}${f.name}`); set('where', `${R.FACTIONS[w.sides[f.side].faction]?.short || ''} · ${voyUnitState(f)} · シールド ${Math.round(f.shield / Math.max(1, f.shieldMax) * 100)}% · 構造 ${Math.round(R.unitStruct(f) * 100)}%`); }
+ if (f) { set('name', `${f.side === 0 ? '' : '敵 '}${f.name}`); set('where', `${R.FACTIONS[w.sides[f.side].faction]?.short || ''} · ${voyUnitState(f)} · シールド ${Math.round(f.shield / Math.max(1, f.shieldMax) * 100)}% · 構造 ${Math.round(R.unitStruct(f) * 100)}%${voySwBrief(f)}`); }
  set('records', ride ? `${w.groups.get(f?.group)?.name || ''} · ハイパースペース · 経過 ${voyClock(w.time)}` : `${w.sector.systems[sys].name}　自軍 ${up(own)}/${own.length} 隻 · 敵 ${up(foe)}/${foe.length} 隻${bt ? ` · 交戦 ${voyClock(w.time - bt.t0)}` : B.hadBattle ? ' · 戦闘終了' : ' · 交戦なし'} · 経過 ${voyClock(w.time)}`);
  set('side', {all: '全艦', own: '自軍', foe: '敵艦'}[voy.specSide || 'all']);set('cam', trial.specCam === 'free' ? '視点 自由' : '視点 追尾');
  for (const b of hud.querySelectorAll('[data-spec^="speed:"]')) b.setAttribute('aria-pressed', String(+b.dataset.spec.slice(6) === voy.speed));
@@ -7256,7 +7473,7 @@ async function voyOpenWithCurrent() {
   voyObChanged();toast(`設計中の艦を${esc(t.name)}に加えました`);
  } catch (e) { console.error(e); toast('設計中の艦を準備できません：' + esc(e.message || e)); }
 }
-function bindVoyage() { voyBindSetup(); voyBindMap(); document.addEventListener('click', e => { const hb = e.target.closest('[data-vhit],[data-vhitplay],[data-vhitclose]'); if (hb) { if (hb.dataset.vhit) { const [id, i] = hb.dataset.vhit.split(':'); voyHitReplay(id, +i); } else if ('vhitplay' in hb.dataset && voy.replay) voy.replay.t0 = performance.now(); else { $('#voySheet').hidden = true; voy.replay = null; } return; } if (trial.spectate) { const sb = e.target.closest('[data-spec]'); if (sb) { voySpectateCmd(sb.dataset.spec); return; } const mk = e.target.closest('.th-tmark'); if (mk?.dataset.tmark?.startsWith('u')) { voySpectateCmd('follow:' + mk.dataset.tmark.slice(1)); return; } } const b = e.target.closest('[data-voyopen]'); if (b) { e.preventDefault(); voyOpenWithCurrent(); } }); window.__voy = {voy, R, open: voyOpen, pilot: voyPilot, go: voyGo, spectate: voySpectate, tap: voyMapTap, follow: voySpectateSwitch, tut: voyTutStart, vtut, vtutGo, load: {show: loadShow, hide: loadHide, shots}, fxStep: (dt, n = 1) => { for (let i = 0; i < n; i++) { trialWrecksStep(dt); trialFxStep(dt); } }}; }
+function bindVoyage() { voyBindSetup(); voyBindMap(); document.addEventListener('click', e => { const hb = e.target.closest('[data-vhit],[data-vhitplay],[data-vhitclose]'); if (hb) { if (hb.dataset.vhit) { const [id, i] = hb.dataset.vhit.split(':'); voyHitReplay(id, +i); } else if ('vhitplay' in hb.dataset && voy.replay) voy.replay.t0 = performance.now(); else { $('#voySheet').hidden = true; voy.replay = null; } return; } if (trial.spectate) { const sb = e.target.closest('[data-spec]'); if (sb) { voySpectateCmd(sb.dataset.spec); return; } const mk = e.target.closest('.th-tmark'); if (mk?.dataset.tmark?.startsWith('u')) { voySpectateCmd('follow:' + mk.dataset.tmark.slice(1)); return; } } const b = e.target.closest('[data-voyopen]'); if (b) { e.preventDefault(); voyOpenWithCurrent(); } }); window.__voy = {voy, R, open: voyOpen, pilot: voyPilot, go: voyGo, spectate: voySpectate, step: voySpectateStep, pilotStep: voyPilotStep, tap: voyMapTap, follow: voySpectateSwitch, tut: voyTutStart, vtut, vtutGo, load: {show: loadShow, hide: loadHide, shots}, fxStep: (dt, n = 1) => { for (let i = 0; i < n; i++) { trialWrecksStep(dt); trialFxStep(dt); } }}; }
 
 window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
 })();

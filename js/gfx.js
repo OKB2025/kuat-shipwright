@@ -1581,7 +1581,7 @@ function meshOnePart(out,p,ship,opt,glow){
     if(p._packing){triangleMesh(out.interior,p._packing.tris,color,36);return;}
     if(p._clip&&k!=='hangar'){triangleMesh(out.interior,p._clip.tris,color,36);return;}
     if(p.boxSize){const f=p.boxFrame;box(out.interior,[...f.fw,...f.up,...f.rt],p.c,0,0,0,...p.boxSize,color);return;}
-    if(k==='machinery'){const target=ship.parts.find(e=>e.id===p.nozzle)?.skinAsset?out.plant:out.engine;for(const s of p.segments||[p.seg])axisFrustum(target,s.a,s.b,s.r0,s.r1,color,false);const s=p.segments?.at(-1)||p.seg;for(let i=0;i<5;i++){const t=(i+.6)/5,at=C.add(s.a,C.mul(s.u,s.l*t));axisFrustum(target,C.sub(at,C.mul(s.u,1.2)),C.add(at,C.mul(s.u,1.2)),s.r1*1.06,s.r1*1.06,[120,132,142],false);}return;}
+    if(k==='machinery'){const target=ship.parts.find(e=>e.id===p.nozzle)?.skinAsset?out.plant:out.engine;for(const s of p.segments||[p.seg])axisFrustum(target,s.a,s.b,s.r0,s.r1,color,false);const s=p.segments?.at(-1)||p.seg;for(let i=0;i<5;i++){const t=(i+.6)/5,at=C.add(s.a,C.mul(s.u,s.l*t));axisFrustum(target,C.sub(at,C.mul(s.u,Math.min(1.2,s.r1*.3))),C.add(at,C.mul(s.u,Math.min(1.2,s.r1*.3))),s.r1*1.06,s.r1*1.06,[120,132,142],false);}return;}
     if(k==='sensor'){sensorShell(out.struct,p,color);return;}
     // v21 A cockpit shows as tinted canopy glass where it stands out of the hull; an astromech as its dome.
     if(k==='cockpit'){sphere(C.isInternal(p)?out.interior:out.struct,p.c,p.d/2,opt.coded?color:CANOPY_GLASS,10,4);return;}
@@ -1715,8 +1715,9 @@ function engineBell(out,p,a,b,u,color,glow,ship){
  axisFrustum(out.engine,a,b,r*.6,r,color,false);
  // The inside of the bell must face inward; reversing the axis alone is insufficient.
  axisFrustum(out.engine,b,tip,r*.94,r*throat,[53,67,76],false,true);
- for(let i=0;i<20;i++){const angle=i/20*Math.PI*2,radial=C.add(C.mul(f.v,Math.cos(angle)),C.mul(f.w,Math.sin(angle)));axisFrustum(out.engine,C.add(a,C.mul(radial,r*.62)),C.add(b,C.mul(radial,r*1.015)),Math.max(.25,r*.016),Math.max(.25,r*.018),[105,117,125],false);}
- axisFrustum(out.engine,C.sub(b,C.mul(u,.6)),C.add(b,C.mul(u,.6)),r*1.02,r*1.02,[170,180,184],false);
+ // (v21 ribs and collar scale down with a small engine, so they do not stand out of a craft's hull)
+ for(let i=0;i<20;i++){const angle=i/20*Math.PI*2,radial=C.add(C.mul(f.v,Math.cos(angle)),C.mul(f.w,Math.sin(angle)));axisFrustum(out.engine,C.add(a,C.mul(radial,r*.62)),C.add(b,C.mul(radial,r*1.015)),Math.min(Math.max(.25,r*.016),r*.05),Math.min(Math.max(.25,r*.018),r*.05),[105,117,125],false);}
+ axisFrustum(out.engine,C.sub(b,C.mul(u,Math.min(.6,r*.15))),C.add(b,C.mul(u,Math.min(.6,r*.15))),r*1.02,r*1.02,[170,180,184],false);
  }
  const g=on?out.nozzle:out.engine,N=32;g.room(N+2,N*3);const base=g.n;g.v(...tip,...u,.5,.5,on?WHITE:[33,42,47],255);
  for(let i=0;i<=N;i++){const t=i/N*Math.PI*2,q=C.add(tip,C.add(C.mul(f.v,Math.cos(t)*r*throat),C.mul(f.w,Math.sin(t)*r*throat)));g.v(...q,...u,.5+.5*Math.cos(t),.5+.5*Math.sin(t),on?WHITE:[33,42,47],255);}for(let i=0;i<N;i++)g.tri(base,base+i+1,base+i+2);
