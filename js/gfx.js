@@ -1165,7 +1165,7 @@ class Renderer {
     const w = this.canvas.width, h = this.canvas.height, c = this.cam;
     const e = this.eye();
     const up = c.frame ? [c.frame[3], c.frame[4], c.frame[5]] : Math.abs(Math.sin(c.ph)) < 1e-3 ? [Math.cos(c.th + Math.PI), 0, Math.sin(c.th + Math.PI)] : [0, 1, 0];
-    const P = c.ortho?M4.ortho(2*c.r*Math.tan(c.fov/2),w/h,Math.max(.5,c.r*.02),c.r*8+6000):M4.persp(c.fov, w / h, Math.max(0.5, c.r * 0.02), c.far || c.r * 8 + 6000);
+    const P = c.ortho?M4.ortho(2*c.r*Math.tan(c.fov/2),w/h,Math.max(.5,c.r*.02),c.r*8+6000):M4.persp(c.fov, w / h, c.near || Math.max(0.5, c.r * 0.02), c.far || c.r * 8 + 6000);
     const V = M4.lookAt(e, c.target, up);
     return {P, V, VP: M4.mul(P, V), eye: e};
   }
@@ -1893,7 +1893,7 @@ function fleetGeometry(ship,opts){
   if(hatch.skinAsset){for(const side of [-1,1]){const name='refSlideDoor_'+hatch.id+'_'+(side<0?'l':'r');put(name,meshReferenceHatches({...model,_referenceDoorOnly:true,hatches:[{...hatch,open:0,_doorDetached:false,_slideSide:side}]}),'reference',0);doors.push({name,axis:spec.slideAxis,side,travel:spec.travel});}}
   else for(const panel of C.slidingHatchPanels(model,hatch)){const name='slideDoor_'+hatch.id+'_'+(panel.side<0?'l':'r');put(name,meshSlidingHatchPanel(model,hatch,panel),null,0);doors.push({name,axis:panel.axis,side:panel.side,travel:panel.travel});}
  }
- return {meshes,doors,rays,center,glow:parts.glow,bounds:b,paint:ship.paint,lights:ship.lights,engine:ship.engineGlow||null,reference:ship.reference,length:ship.hull.L,turrets,launchers,targetRadius};
+ return {meshes,doors,rays,center,glow:parts.glow,bounds:b,paint:ship.paint,lights:ship.lights,engine:ship.engineGlow||null,reference:ship.reference,length:ship.hull.L,turrets,launchers,targetRadius,eyes:opts?.trial?trialEyes(ship,b,meshes):null};
 }
 // ---------- trial turrets ----------
 // Every gun turret becomes its own mesh with a pivot, a traverse axis and the
@@ -1964,6 +1964,40 @@ function trialTurrets(model,put){
  }
  return out;
 }
+// v21.3 Where the trial's cockpit and bridge views sit (model coordinates):
+// a craft's foremost cockpit seat and a ship's bridge — the highest bridge
+// drum, just clear of its face. A ship without one looks out from the top of
+// its fore half; a craft without a cockpit (a droid) from its nose.
+// The highest point of the named meshes straight above or below each (xs[k], z), in one pass.
+function meshTopsAt(meshes,names,xs,z){
+ const top=xs.map(()=>-Infinity);
+ for(const n of names){const g=meshes[n]?.geo;if(!g?.ni)continue;const P=g.pos,I=g.idx;
+  for(let i=0;i+2<g.ni;i+=3){const a=I[i]*3,b=I[i+1]*3,c=I[i+2]*3,ax=P[a],az=P[a+2],bx=P[b],bz=P[b+2],cx=P[c],cz=P[c+2];
+   if(z<az&&z<bz&&z<cz||z>az&&z>bz&&z>cz)continue;const x0=Math.min(ax,bx,cx),x1=Math.max(ax,bx,cx);
+   const d=(bz-cz)*(ax-cx)+(cx-bx)*(az-cz);if(Math.abs(d)<1e-12)continue;
+   for(let k=0;k<xs.length;k++){const x=xs[k];if(x<x0||x>x1)continue;
+    const u=((bz-cz)*(x-cx)+(cx-bx)*(z-cz))/d,v=((cz-az)*(x-cx)+(ax-cx)*(z-cz))/d,w=1-u-v;if(u<-1e-6||v<-1e-6||w<-1e-6)continue;
+    const y=u*P[a+1]+v*P[b+1]+w*P[c+1];if(y>top[k])top[k]=y;}}}
+ return top;
+}
+function trialEyes(ship,b,meshes){
+ const L=ship.hull.L,seat=ship.parts.filter(p=>p.k==='cockpit').sort((p,q)=>q.c[0]-p.c[0])[0],HULL=['hull','refHull'],SHELL=[...HULL,'struct','refStruct','plate'],z=(b[2]+b[5])/2,craft=C.isCraft(ship),near=C.clamp(L*.004,.1,6);
+ let cockpit=null,bridge=null,top=null;
+ // A canopy standing proud of the hull puts the eye on top of it (clear of the hull and the canopy's own
+ // frame); a cockpit sunk in the hull (a TIE's ball) looks out through it, the hull's inside being unseen.
+ if(seat){const r=C.clamp((seat.d||1.6)/2,.2,4),[sx,sy,sz]=seat.c,hull=meshTopsAt(meshes,HULL,[sx],sz)[0];let y=sy+r*.3;
+  if(sy+r>hull)y=Math.max(y,Math.min(Math.max(hull,meshTopsAt(meshes,SHELL,[sx],sz)[0]),sy+r*2.5)+Math.max(.05,r*.1));
+  cockpit={pos:[sx+r*.15,y,sz],near:C.clamp(r*.4,.1,1),kind:'cockpit'};}
+ try{const pods=[...ship.fits.filter(f=>C.FITS[f.k]?.pod&&!f.float),...C.intrinsicCommandFits(ship)].filter(f=>C.FITS[f.k]?.role==='bridge').sort((f,g)=>g.p[1]-f.p[1]||g.p[0]-f.p[0]);
+  const f=pods[0];if(f){const n=C.windowFrame(f).up,h=f.height||C.FITS[f.k].wm||6,out=(f.intrinsic?0:C.podDepth(f))+1+h*.1;bridge={pos:C.add(f.p,C.mul(n,out)),near:C.clamp(h*.25,.5,6),kind:'bridge'};}}catch(e){}
+ // No bridge: the eye stands on the highest structure of the fore half, above
+ // everything ahead of it on the centreline (fittings and turrets included).
+ if(!craft&&!bridge&&!cockpit){const xs=Array.from({length:16},(_,i)=>b[0]+(b[3]-b[0])*(.5+i*.031)),deck=meshTopsAt(meshes,SHELL,xs,z),all=meshTopsAt(meshes,[...SHELL,...Object.keys(meshes).filter(n=>/^(fits|refFits|tur_|refTur_)/.test(n))],xs,z);
+  const m=Math.max(...deck);let k=0;for(let i=0;i<xs.length;i++)if(deck[i]>=m-L*.002)k=i;
+  const y=Math.max(...all.slice(k)),Y=Number.isFinite(y)?y:b[4];top={pos:[xs[k],Y+Math.max(.3,L*.01),z],near,kind:'top'};}
+ const nose={pos:[b[3]+Math.max(.2,L*.03),(b[1]+b[4])/2,z],near,kind:'nose'};
+ return {cockpit:cockpit||(craft?nose:bridge||top),bridge:bridge||cockpit||top||nose,craft};
+}
 function trialTargetMesh(R){
  const g=new Geo(2048),I=[1,0,0,0,1,0,0,0,1],O=[0,0,0],org=hex('#e0782e'),wht=hex('#e6e9ec'),drk=hex('#30353b');
  cyl(g,I,O,0,0,0,R*.45,R*.45,R*.9,1,wht,24);cyl(g,I,O,0,R*.62,0,R*.45,R*.12,R*.34,1,org,24);cyl(g,I,O,0,-R*.62,0,R*.12,R*.45,R*.34,1,org,24);
@@ -1982,7 +2016,7 @@ Renderer.prototype.pruneFleet=function(keys){if(!this.fleetCache)return;for(cons
 Renderer.prototype.drawFleet=function(m,opt){
  const gl=this.gl,old=this.meshes,off=this.off,shields=[];gl.disable(gl.BLEND);gl.depthMask(true);gl.enable(gl.CULL_FACE);gl.cullFace(gl.BACK);this.clip=null;
  // Distant ships draw only their outer shell, and specks or ships behind the eye are skipped.
- const eye=this.eye(),vd=(()=>{const t=this.cam.target||[0,0,0],d=[t[0]-eye[0],t[1]-eye[1],t[2]-eye[2]],l=Math.hypot(...d)||1;return [d[0]/l,d[1]/l,d[2]/l];})(),focal=this.canvas.height/(2*Math.tan((this.cam.fov||.72)/2)),SHELL=['hull','struct','plate','refHull','refStruct'],FULL=['hull','struct','plate','refHull','refStruct','refHatches','gen','shield','hyper','engine','refEngine','nozzle','hangar'];this.lodSkipped=0;
+ const eye=this.eye(),vd=(()=>{const t=this.cam.target||[0,0,0],d=[t[0]-eye[0],t[1]-eye[1],t[2]-eye[2]],l=Math.hypot(...d)||1;return [d[0]/l,d[1]/l,d[2]/l];})(),focal=this.canvas.height/(2*Math.tan((this.cam.fov||.72)/2)),SHELL=['hull','struct','plate','refHull','refStruct'],FULL=['hull','struct','plate','refHull','refStruct','refHatches','gen','shield','hyper','engine','refEngine','nozzle','hangar'],OUTER=FULL.filter(n=>!['gen','shield','hyper','hangar'].includes(n));this.lodSkipped=0;
  // v20.2 Key-light shadows for the ships largest on screen (not pieces of wrecks or ships in a jump).
  let shadows=null;if(this.look?.shadow&&!this.noShadow){const c=[];for(const u of opt.fleet){if(u.dead||u.hidden||u.clip||Math.abs((u.stretch||1)-1)>.02)continue;const a=this.fleetCache?.get(u.key);if(!a?.bounds)continue;const L=a.length||300,rx=u.pos[0]-eye[0],ry=u.pos[1]-eye[1],rz=u.pos[2]-eye[2],px=L/Math.max(1,Math.hypot(rx,ry,rz))*focal;if(px>=140&&rx*vd[0]+ry*vd[1]+rz*vd[2]>=-L)c.push({u,a,px});}if(c.length)shadows=this.shadowFleet(c);}
  try{for(const u of opt.fleet){if(u.dead||u.hidden)continue;const a=this.fleetCache?.get(u.key);if(!a)continue;this.shTile=shadows?.get(u)||null;
@@ -1995,7 +2029,8 @@ Renderer.prototype.drawFleet=function(m,opt){
   // A ship dropping out of (or into) hyperspace is drawn stretched along its
   // own length with the bow held in place, and washed toward blue-white.
   const sx=u.stretch||1;this.unitScl=sx!==1?[sx,1,1]:null;this.unitFlash=u.flash||0;if(sx!==1&&a.bounds)this.modelCenter=[a.center[0]+a.bounds[3]*(sx-1),a.center[1],a.center[2]];const center=this.modelCenter;
-  for(const n of lod?SHELL:FULL)this.drawMesh(n,m,1);
+  // From its own cockpit a ship hides the compartments inside its hull (u.noInner).
+  for(const n of lod?SHELL:u.noInner?OUTER:FULL)this.drawMesh(n,m,1);
   if(lod||u.wreck){if(u.wreck&&!lod){gl.disable(gl.CULL_FACE);this.drawMesh('fits',m,1);this.drawMesh('refFits',m,1);}this.unitScl=null;this.unitFlash=0;this.clip=this.clipLo=this.seam=null;this.char=0;gl.enable(gl.CULL_FACE);continue;}
   const open=opt.mode==='review'?0:C.clamp(u.hatchOpen??0,0,1);for(const door of a.doors||[]){const delta=[0,0,0];delta[door.axis]=door.side*door.travel*open;const q=rv(delta);this.off=[u.pos[0]+q[0],u.pos[1]+q[1],u.pos[2]+q[2]];this.drawMesh(door.name,m,1,0);}this.off=u.pos;
   gl.enable(gl.POLYGON_OFFSET_FILL);gl.polygonOffset(-1,-2);this.drawMesh('hatchOpen',m,1);gl.disable(gl.POLYGON_OFFSET_FILL);shields.push({u,a,names:['hatchRay',...(open>0?(a.rays||[]).map(r=>r.name):[])]});gl.disable(gl.CULL_FACE);this.drawMesh('fits',m,1);this.drawMesh('refFits',m,1);

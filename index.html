@@ -664,11 +664,14 @@ body.shot-mode .main{display:flex!important;flex-direction:column}body.shot-mode
 .th-msl{isolation:isolate}
 .th-msl{white-space:nowrap;letter-spacing:-.02em}@container ks (max-width:640px) or ((orientation:landscape) and (max-height:560px)) {.th-msl{font-size:10.5px}}
 .th-msl small{font-size:9px;font-weight:500;color:rgba(255,225,200,.8)}.th-msl.ready{color:#fff}.th-msl:active{transform:scale(.95)}.th-msl:disabled{opacity:.4}
+.th-canopy{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .25s;background:radial-gradient(125% 100% at 50% 48%,transparent 60%,rgba(3,7,11,.5) 100%)}#trialHud.th-cockpit .th-canopy{opacity:1}
+.th-nose{position:absolute;left:0;top:0;width:18px;height:18px;margin:-9px 0 0 -9px;pointer-events:none;will-change:transform;background:linear-gradient(rgba(150,226,255,.9),rgba(150,226,255,.9)) 50% 50%/100% 1.5px no-repeat,linear-gradient(rgba(150,226,255,.9),rgba(150,226,255,.9)) 50% 0/1.5px 40% no-repeat;filter:drop-shadow(0 0 2px rgba(0,0,0,.8))}
 .th-lead{position:absolute;left:0;top:0;width:12px;height:12px;margin:-6px 0 0 -6px;border:1.5px solid #ff9a5a;box-shadow:0 0 6px rgba(255,140,70,.8);will-change:transform}
 .th-bar{display:flex;flex-wrap:wrap;align-items:center;gap:4px 16px;min-width:0;max-width:calc(100% - 150px)}
 .th-bar .th-id{display:grid;gap:1px;min-width:0}.th-bar .th-id b{font:600 16px/1.15 var(--font-display);letter-spacing:.04em;max-width:30cqw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.th-bar .th-id small{font-size:10.5px;color:var(--hud-dim);white-space:nowrap}.th-bar .th-id small span:first-child{color:var(--hud-on);letter-spacing:.1em}
 .th-bar .th-read{flex-wrap:nowrap}.th-actions{position:relative;flex-wrap:nowrap;align-items:flex-start}
 .th-more{min-width:40px;font-size:18px;line-height:1}
+.th-btn.th-cambtn{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}.th-cambtn svg{width:17px;height:17px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round}
 .th-menu{position:absolute;right:0;top:calc(100% + 6px);display:grid;gap:4px;min-width:150px;padding:6px;z-index:3}.th-menu[hidden]{display:none}
 .th-power{min-width:min(300px,86cqw);max-height:min(70cqh,420px);overflow:auto}.th-power-head{margin:2px 4px 4px;font-size:11px;color:var(--hud-dim);display:flex;justify-content:space-between}#thPower .th-pmode{display:grid;gap:2px;justify-content:stretch;text-align:left}#thPower .th-pmode b{font-size:12.5px}#thPower .th-pmode small{font-weight:500;font-size:10.5px;color:var(--hud-dim);line-height:1.4}#thPower .th-pmode[aria-pressed="true"]{border-color:rgba(255,190,90,.8);background:rgba(90,60,20,.7)}.th-power kbd{font:500 10px var(--font-ui);border:1px solid var(--hud-line);border-radius:4px;padding:0 4px}
 .th-pw{color:#ffd391}.th-menu .th-btn{text-align:left;display:flex;justify-content:space-between;gap:12px}
@@ -1249,7 +1252,7 @@ body.tut-on .inspect{bottom:calc(70px + var(--sa-bottom,0px))}
 </div>
 
 
-<script>window.KS_FILES={data:["data/reference.js","data/textures.js","data/imperial2.js","data/fleet.js"],core:"js/core.js",gfx:"js/gfx.js",engine:"js/engine.js",app:"js/app.js",worker:"js/worker.js",sizes:{"data/reference.js":6270785,"data/textures.js":2338303,"data/imperial2.js":83602,"data/fleet.js":1029620,"js/core.js":1447370,"js/gfx.js":182155,"js/engine.js":15892,"js/app.js":959274}};</script>
+<script>window.KS_FILES={data:["data/reference.js","data/textures.js","data/imperial2.js","data/fleet.js"],core:"js/core.js",gfx:"js/gfx.js",engine:"js/engine.js",app:"js/app.js",worker:"js/worker.js",sizes:{"data/reference.js":6270785,"data/textures.js":2338303,"data/imperial2.js":83602,"data/fleet.js":1031915,"js/core.js":1464768,"js/gfx.js":185532,"js/engine.js":15892,"js/app.js":971464}};</script>
 <script>
 /* ============================================================
    boot.js — title screen first, then the 3D assets, the engine

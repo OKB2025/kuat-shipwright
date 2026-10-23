@@ -435,6 +435,39 @@ def('ion_heavy', .06, 3, 3, .9, .2, (E, t, o, p) => {
  bolt(E, o, t + .15, {d0: .0012, d1: .0021, sd: 2.6, f0: 4200, f1: 2600, fs: .4, f2: 1000, fl: 2, a: .3, pk: .7, tau: .7, hold: .4, hp: 250});
  zap(E, o, t, 'square', 2600 * p, 600 * p, .16, 2000 * p, .1, .08); nzf(E, o, t, 2, 'lowpass', 160, 0, .7, .05, .3, .6, .6, E.brown); return 3.6;
 });
+// v21.2 The hyper-ion cannon, voiced after the Malevolence's shot in The Clone Wars (measured, not sampled: a bright
+// discharge whose energy sits at 4-8 kHz for the first second, a shimmering electric buzz near 1.26 kHz through it, then
+// the pulse rolling away as a deep roar with most of its energy under 120 Hz, crackling as it goes).
+def('ion_cannon', .4, 2, 4, 1.05, .32, (E, t, o, p) => {
+ // the discharge: crackling sizzle up top and a hiss that darkens
+ nzf(E, o, t, 1.3, 'highpass', 3800 * p, 0, .7, .015, 3.2, .35, .8, E.crackle, 1.1);
+ nzf(E, o, t, 1.2, 'bandpass', 6500 * p, 3200 * p, .7, .01, 2, .32, .6);
+ snapT(E, o, t, .6, 2600);
+ // the cannon's buzz: a sawtooth near 1.26 kHz through a narrow band, shimmering (amplitude swung a few times a second)
+ { const end = t + 3.2, bp = E.flt('bandpass', 1260 * p, 7), c = E.osc('sawtooth', 1260 * p, t, end), c2 = E.osc('sawtooth', 1268 * p, t, end), am = E.G(.6), lf = E.osc('sine', 3.4, t, end), lg = E.G(.4), g = ENV(E, t, .04, 1, .6, .9);
+  lf.connect(lg); lg.connect(am.gain); c.connect(bp); c2.connect(bp); bp.connect(am); am.connect(g); g.connect(o); }
+ // the pulse leaving: a sub boom and a long roar under 120 Hz that swells and rolls on
+ boom(E, o, t + .25, 78 * p, 40 * p, 1.1, .25, .9);
+ rumble(E, o, t + .2, 4, 170, 100, .85, .6, 1.2, 1.3, .55, 3.1);
+ nzf(E, o, t + .4, 3.4, 'bandpass', 3600 * p, 2400 * p, .8, .4, .5, 1, 1.8);
+ nzf(E, o, t + .3, 3, 'lowpass', 110, 0, .7, .4, .3, 1, 1.2, E.brown);
+ // crackle riding on the roar, thinning out
+ nzf(E, o, t + .35, 3.6, 'bandpass', 2600 * p, 1500 * p, .8, .35, 3.6, 1, 2, E.crackle, .8);
+ nzf(E, o, t + .5, 3.4, 'bandpass', 600, 420, .7, .4, .45, 1, 1.8, E.pink);
+ nzf(E, o, t + .6, 3.4, 'bandpass', 4400 * p, 3000 * p, .7, .4, 2.6, 1, 1.8, E.crackle, 1);
+ bolt(E, o, t + .12, {d0: .0011, d1: .0024, sd: 3, f0: 5200, f1: 2800, fs: .5, f2: 900, fl: 2.4, a: .2, pk: .9, tau: .9, hold: .8, hp: 300});
+ return 7;
+});
+// The pulse washing over a ship: a burst of crackling arcs (2-8 kHz) over a low thump, the shields' hum collapsing.
+def('ion_wash', .12, 3, 3, 1.1, .25, (E, t, o, p) => {
+ nzf(E, o, t, 1.4, 'bandpass', 4200 * p, 2400 * p, .8, .02, 4.8, .45, .6, E.crackle, 1.2);
+ nzf(E, o, t, .9, 'bandpass', 3400 * p, 2200 * p, .7, .01, 1.5, .3, .3);
+ body(E, o, t, 1.2, 900, 600, .6, .02, .7, .4, .4); rumble(E, o, t, 1.4, 220, 120, .45, .03, .5, .3);
+ zap(E, o, t, 'square', 2400 * p, 300 * p, .9, 1600 * p, .4, .3);
+ boom(E, o, t, 95 * p, 60 * p, .4, .16, .4); nzf(E, o, t, 1.5, 'lowpass', 140, 0, .7, .03, .12, .6, .4, E.brown);
+ tone(E, o, t, 1.4, 'sawtooth', 240 * p, 60 * p, .01, .12, .4, 1.2);
+ return 3;
+});
 // missiles: launch pop, then a held rocket hiss over a low roar, crackling as it burns out
 def('missile', .06, 3, 2, 1, .2, (E, t, o, p) => {
  nzf(E, o, t, 1.2, 'bandpass', 2800 * p, 2300 * p, .6, .012, .95, .3, .72);
@@ -3961,7 +3994,7 @@ const GUN_MODES={
  free:{name:'自由照準',short:'自由',note:'照準線の先、または照準に捉えた目標を狙います'},
  enemy:{name:'敵方固定',short:'敵固定',note:'視点を動かしても、捉えた目標（なければ最寄りの敵）を追い続けます'},
  home:{name:'初期位置固定',short:'初期位置',note:'砲塔を初期位置に戻して固定します。射撃は砲身の向きへ'}};
-const trial={on:false,gunMode:'free',gunTarget:null,paused:false,busy:false,asset:null,p:null,P:[0,0,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],w:[0,0,0],tele:1,rudder:0,level:false,t:0,last:0,hud:0,vf:0,thrust:0,camMode:'horizon',camF:null,rec:null,dust:null,warn:'',designCamera:null,
+const trial={on:false,gunMode:'free',gunTarget:null,paused:false,busy:false,asset:null,p:null,P:[0,0,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],w:[0,0,0],tele:1,rudder:0,level:false,t:0,last:0,hud:0,vf:0,thrust:0,camMode:'ship',camF:null,rec:null,dust:null,warn:'',designCamera:null,
  stick:{x:0,y:0},keyStick:{x:0,y:0},keys:new Set(),fire:false,fireKey:false,fireTap:0,turrets:[],launchers:[],bolts:[],missiles:[],fx:[],wrecks:[],targets:[],gun:null,rays:{busy:false,last:0},aim:null,lead:null,power:null,mslOrder:false,energy:null,powerMode:'balanced',engF:1,thrustWant:0,sysKey:'coruscant',mode:'trial',vbolts:[],jump:null,flash:0,hitFlash:0,battle:null,battlePlan:null};
 const tv={dot:(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2],cross:(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]],len:a=>Math.hypot(a[0],a[1],a[2]),norm:a=>{const l=Math.hypot(a[0],a[1],a[2])||1;return [a[0]/l,a[1]/l,a[2]/l];},add:(a,b,k=1)=>[a[0]+b[0]*k,a[1]+b[1]*k,a[2]+b[2]*k],scale:(a,k)=>[a[0]*k,a[1]*k,a[2]*k],sub:(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]]};
 function trialRot(v,axis,ang){const c=Math.cos(ang),s=Math.sin(ang),d=tv.dot(axis,v),x=tv.cross(axis,v);return [v[0]*c+x[0]*s+axis[0]*d*(1-c),v[1]*c+x[1]*s+axis[1]*d*(1-c),v[2]*c+x[2]*s+axis[2]*d*(1-c)];}
@@ -3974,10 +4007,10 @@ const trialApplyT=(M,v)=>[M[0]*v[0]+M[1]*v[1]+M[2]*v[2],M[3]*v[0]+M[4]*v[1]+M[5]
 function trialAxisMatrix(a,t,out){const c=Math.cos(t),s=Math.sin(t),k=1-c,[x,y,z]=a;out=out||new Array(9);out[0]=c+x*x*k;out[1]=y*x*k+z*s;out[2]=z*x*k-y*s;out[3]=x*y*k-z*s;out[4]=c+y*y*k;out[5]=z*y*k+x*s;out[6]=x*z*k+y*s;out[7]=y*z*k-x*s;out[8]=c+z*z*k;return out;}
 const trialWrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
 function trialProfile(){if(!ship||!S)return null;try{return C.fleetProfile(S,ship.name);}catch(e){return null;}}
-function trialFigures(p){const v=p?.maxSpeed||0,ok=!!(p&&p.accel>0&&v>0&&p.turnRate>0);const rates=(ship?.fits||[]).filter(f=>{const d=C.FITS[f.k];return d.cat==='w'&&(d.tt||d.ion)&&!f.float&&!d.casemate;}).map(f=>C.turretRate(f));return {ok,v,kmh:v*3.6,accelTime:ok?v/p.accel:0,turn:ok?p.turnRate*180/Math.PI:0,circle:ok?2*v/p.turnRate:0,traverse:rates.length?[Math.min(...rates),Math.max(...rates)]:null};}
+function trialFigures(p){const v=p?.maxSpeed||0,ok=!!(p&&p.accel>0&&v>0&&p.turnRate>0),craft=!!ship&&C.isCraft(ship),b=ok?trialRateBase(p,craft):null,yaw=craft&&b?b.yaw:p?.turnRate||0;const rates=(ship?.fits||[]).filter(f=>{const d=C.FITS[f.k];return d.cat==='w'&&(d.tt||d.ion)&&!f.float&&!d.casemate;}).map(f=>C.turretRate(f));return {ok,v,kmh:v*3.6,accelTime:ok?v/p.accel:0,turn:ok?yaw*180/Math.PI:0,circle:ok?2*v/yaw:0,craft,pitch:b?b.pitch*180/Math.PI:0,roll:b?b.roll*180/Math.PI:0,traverse:rates.length?[Math.min(...rates),Math.max(...rates)]:null};}
 function trialCardHTML(side){
  if(!ship||!S)return '';const f=trialFigures(trialProfile()),tr=f.traverse;
- return `<div class="pgroup trial-card${side?' side':''}"><div class="trial-head"><h4>公試</h4><span>コルサント低軌道</span></div><p class="note">設計した艦を軌道上で操艦し、速力・加速・旋回と砲塔の射界を確かめます。</p>${f.ok?`<dl class="trial-kv"><dt>最大速力</dt><dd>${num(Math.round(f.v))} m/s</dd><dt>0→全速</dt><dd>${Math.round(f.accelTime)} 秒</dd><dt>全舵旋回率</dt><dd>${f.turn.toFixed(1)}°/秒</dd><dt>全速旋回径</dt><dd>${(f.circle/1000).toFixed(1)} km</dd>${tr?`<dt>砲塔旋回</dt><dd>${tr[0]===tr[1]?tr[0].toFixed(0):tr[0].toFixed(0)+'〜'+tr[1].toFixed(0)}°/秒</dd>`:''}</dl>`:`<p class="note neg">加速度が 0 G のため航行できません。推進・慣性補償・構造の上限を確認してください。</p>`}<button type="button" class="btn primary trial-go" data-trial="start" ${f.ok?'':'disabled'}>公試に出る</button></div>`;
+ return `<div class="pgroup trial-card${side?' side':''}"><div class="trial-head"><h4>公試</h4><span>コルサント低軌道</span></div><p class="note">設計した艦を軌道上で操艦し、速力・加速・旋回と砲塔の射界を確かめます。</p>${f.ok?`<dl class="trial-kv"><dt>最大速力</dt><dd>${num(Math.round(f.v))} m/s（約 ${Math.round(f.v/C.MGLT.ms)} MGLT）</dd><dt>0→全速</dt><dd>${Math.round(f.accelTime)} 秒</dd><dt>全舵旋回率</dt><dd>${f.turn.toFixed(1)}°/秒</dd><dt>全速旋回径</dt><dd>${(f.circle/1000).toFixed(1)} km</dd>${f.craft?`<dt>ピッチ／ロール</dt><dd>${f.pitch.toFixed(0)}° · ${f.roll.toFixed(0)}°/秒</dd>`:''}${tr?`<dt>砲塔旋回</dt><dd>${tr[0]===tr[1]?tr[0].toFixed(0):tr[0].toFixed(0)+'〜'+tr[1].toFixed(0)}°/秒</dd>`:''}</dl>`:`<p class="note neg">加速度が 0 G のため航行できません。推進・慣性補償・構造の上限を確認してください。</p>`}<button type="button" class="btn primary trial-go" data-trial="start" ${f.ok?'':'disabled'}>公試に出る</button></div>`;
 }
 // Watching a battle, the range follows the ship in view and reaches out to take in the fight.
 // v21 The fixed pads (60 m, 4 km) suit ships; under 200 m they shrink with the length, so a starfighter's camera sits a few lengths away.
@@ -3993,7 +4026,7 @@ function trialReset(){
  trial.targets=[];trial.battle=null;if(trial.rts)voyPilotInit();else if(trial.mode==='battle'&&trial.battlePlan)spaceBattleInit(trial.battlePlan);else if(trial.returnTo==='title')patrolReset();else for(let i=0;i<TRIAL_GUN.targets;i++)trial.targets.push(trialSpawnTarget(i,true));
  escortsInit();
  trial.swSolo=null;trial.swfx=[];trial.swPend=[];
- if(view){const asp=(view.canvas.clientWidth||900)/(view.canvas.clientHeight||600);view.cam.th=Math.PI;view.cam.ph=TRIAL_CAM_PH;view.cam.r=trialCamRange((L*1.35+260*trialCamPad(L))*Math.max(1,.95/asp));}
+ if(view){const asp=(view.canvas.clientWidth||900)/(view.canvas.clientHeight||600),r=trialCamRange((L*1.35+260*trialCamPad(L))*Math.max(1,.95/asp));view.cam.th=Math.PI;if(trial.camMode==='cockpit'){trial.chaseR=r;view.cam.ph=Math.PI/2;}else{view.cam.ph=TRIAL_CAM_PH;view.cam.r=r;}}
 }
 // Target buoys sit ahead of the ship in its local horizon, 8–28 km out.
 function trialSpawnTarget(i,first){
@@ -4018,7 +4051,7 @@ async function trialStart(opts={}){
  if(!(a.p.accel>0&&a.p.maxSpeed>0)){loadHide();toast('加速度が 0 G のため公試を行えません');return;}
  trial.paused=false;trial.rts=opts.rts||null;trial.spectate=!!opts.rts?.spectate;trial.specCam='chase';trial.frameMs=0;trial.scaleAt=0;if(view)view.renderScale=1;trial.mode=opts.battle||opts.rts?'battle':'trial';trial.battlePlan=opts.battle||null;trial.returnTo=opts.returnTo||null;trial.escortKeys=!opts.battle&&!opts.rts?(opts.escorts||[]).filter(k=>fleet.assets.has(k)):[];if(opts.system&&SYSTEMS[opts.system])trial.sysKey=opts.system;trial.sysKey=trial.sysKey||'coruscant';
  if(trial.rts){SYSTEMS.rts=voySysDesc(trial.rts.w,trial.rts.sys);trial.sysKey='rts';}
- trial.asset=a;trial.p=a.p;trial.turrets=(a.geometry.turrets||[]).map(trialTurretState);for(const t of trial.turrets)t.charge=t.cap?C.clamp(a.stats.chargeInfo?.[t.id]?.ratio??0,0,1):1;trial.launchers=(a.geometry.launchers||[]).map(l=>({...l,reload:0,queue:0,next:0}));trial.designCamera={cam:JSON.parse(JSON.stringify(view.cam)),off:[...view.off]};
+ trial.asset=a;trial.p=a.p;trial.craft=!!a.geometry.eyes?.craft;trial.turrets=(a.geometry.turrets||[]).map(trialTurretState);for(const t of trial.turrets)t.charge=t.cap?C.clamp(a.stats.chargeInfo?.[t.id]?.ratio??0,0,1):1;trial.launchers=(a.geometry.launchers||[]).map(l=>({...l,reload:0,queue:0,next:0}));trial.designCamera={cam:JSON.parse(JSON.stringify(view.cam)),off:[...view.off]};
  closeSheet();hideInspect();clearHover();if(dragSnap)endDrag();
  view.off=[0,0,0];view.cam={...view.cam,target:[0,0,0],ortho:false};trialReset();
  trial.on=true;trial.startedAt=performance.now();trial.shotAt=0;document.body.classList.add('trial-on');const hud=$('#trialHud');hud.hidden=false;hud.classList.toggle('spectate',!!trial.spectate);if(trial.spectate){hud.innerHTML=voySpectateHudHTML();voySpectateHudUpdate(true);}else{hud.innerHTML=trialHudHTML();trialBindHud(hud);trialHudUpdate(true);}
@@ -4027,7 +4060,7 @@ async function trialStart(opts={}){
 function trialStop(){
  if(!trial.on)return;if(shot.on)shotSet(false);trial.paused=false;trial.on=false;trial.hitcam=null;trial.fire=trial.fireKey=false;trial.keys.clear();trial.stick={x:0,y:0};trial.keyStick={x:0,y:0};
  document.body.classList.remove('trial-on');const hud=$('#trialHud');hud.hidden=true;hud.innerHTML='';hud.classList.remove('spectate');if(view)view.renderScale=1;
- if(view){if(trial.designCamera){view.cam=trial.designCamera.cam;view.off=trial.designCamera.off;}delete view.cam.frame;delete view.cam.far;}
+ if(view){if(trial.designCamera){view.cam=trial.designCamera.cam;view.off=trial.designCamera.off;}delete view.cam.frame;delete view.cam.far;delete view.cam.near;}
  try{YardEngineClient.post({type:'trialEnd'});}catch(e){}
  trial.asset=null;trial.turrets=[];trial.launchers=[];trial.bolts=[];trial.missiles=[];trial.fx=[];trial.wrecks=[];trial.vbolts=[];trial.targets=[];trial.battle=null;trial.jump=null;trial.cine=null;trial.pat=null;
  const back=trial.returnTo,wasRts=!!trial.rts;trial.spectate=false;trial.returnTo=null;trial.battlePlan=null;trial.rts=null;trial.mode='trial';trial.foeCraft=[];trial.ownCraft=[];trial.foeMissiles=[];trial.cbolts=[];trial.craftGhosts=[];fleetPrune();renderPanel();renderSpecTargets();syncHud();requestDraw();if(back==='tactical')fleetSetMode('tactical');if(back==='voyage'||wasRts)voyPilotEnd();else if(back==='title')showTitle('voyage');
@@ -4041,15 +4074,28 @@ function trialAttitude(){
  const heading=((Math.atan2(tv.dot(fh,et),tv.dot(fh,nt))*180/Math.PI)%360+360)%360;
  return {f,u,r,up,pitch:Math.asin(C.clamp(tv.dot(f,up),-1,1)),bank:Math.atan2(-tv.dot(r,up),tv.dot(u,up)),heading,alt:tv.len(trial.P)-trialSys().planet.radius};
 }
-function trialMaxRates(){const p=trial.p,tr=p.turnRate||0,sf=.45+.55*Math.min(1,Math.abs(trial.vf)/Math.max(1,p.maxSpeed));return [tr*2.2,tr*sf,tr*.75*sf];}
+// v21.3 Rates of turn (rad/s at full speed) and how fast the controls take (s).
+// A ship turns at its fleet rate. A starfighter or small craft follows the same
+// law, √(acceleration ÷ length), without the floor and cap set for ships: it
+// pitches at fighter rates, rolls about 2.6 times as fast, yaws a little slower
+// and answers within about a tenth of a second.
+function trialRateBase(p,craft){
+ const tr=p?.turnRate||0,tau=C.clamp(1.3*Math.sqrt((p?.len||1600)/1600),craft?.06:.5,5);
+ if(!craft)return {roll:tr*2.2,yaw:tr,pitch:tr*.75,tau};
+ const g=(p.accel||0)/(9.80665*C.FLEET_RULES.accelScale),q=C.clamp(.11*Math.sqrt(Math.max(1,g)/3000)*Math.sqrt(1600/Math.max(4,p.len||4)),Math.max(tr,.35),2.2);
+ return {roll:Math.min(4.6,q*2.6),yaw:q*.7,pitch:q,tau};
+}
+function trialMaxRates(){const p=trial.p,b=trialRateBase(p,trial.craft),k=Math.min(1,Math.abs(trial.vf)/Math.max(1,p.maxSpeed)),sf=trial.craft?.75+.25*k:.45+.55*k;return [b.roll,b.yaw*sf,b.pitch*sf];}
 // Touch stick and held keys: the larger deflection on each axis wins.
 function trialStickInput(){const a=trial.stick,b=trial.keyStick,pick=(x,y)=>Math.abs(x)>=Math.abs(y)?x:y;return {x:C.clamp(pick(a.x,b.x),-1,1),y:C.clamp(pick(a.y,b.y),-1,1)};}
 function trialStep(dt){
- const p=trial.p,a=trialAttitude(),max=trialMaxRates(),stick=trialStickInput();
+ const p=trial.p,a=trialAttitude(),max=trialMaxRates(),stick=trialStickInput(),cr=!!trial.craft;
  if(Math.abs(stick.x)>.05||Math.abs(stick.y)>.05)trial.level=false;
- const want=[stick.x*max[0],trial.rudder/2*max[1],stick.y*max[2]];
- if(trial.level){want[0]=C.clamp(-a.bank*.9,-max[0],max[0]);want[2]=C.clamp(-a.pitch*.9,-max[2]||-.01,max[2]||.01);if(Math.abs(a.bank)<.003&&Math.abs(a.pitch)<.003&&Math.abs(trial.w[0])<.003&&Math.abs(trial.w[2])<.003){trial.level=false;trial.w[0]=trial.w[2]=0;}}
- const k=1-Math.exp(-dt/C.clamp(1.3*Math.sqrt(p.len/1600),.5,5));for(let i=0;i<3;i++)trial.w[i]+=(want[i]-trial.w[i])*k;
+ // A craft's stick is shaped (gentle near the centre) so its fast rates still allow fine aim.
+ const sh=v=>cr?v*(.35+.65*v*v):v,lg=cr?3:.9;
+ const want=[sh(stick.x)*max[0],trial.rudder/2*max[1],sh(stick.y)*max[2]];
+ if(trial.level){want[0]=C.clamp(-a.bank*lg,-max[0],max[0]);want[2]=C.clamp(-a.pitch*lg,-max[2]||-.01,max[2]||.01);if(Math.abs(a.bank)<.003&&Math.abs(a.pitch)<.003&&Math.abs(trial.w[0])<.003&&Math.abs(trial.w[2])<.003){trial.level=false;trial.w[0]=trial.w[2]=0;}}
+ const k=1-Math.exp(-dt/trialRateBase(p,cr).tau);for(let i=0;i<3;i++)trial.w[i]+=(want[i]-trial.w[i])*k;
  // roll about forward, yaw (positive = starboard) about -up, pitch about starboard
  const om=tv.add(tv.add(tv.scale(a.f,trial.w[0]),a.u,-trial.w[1]),a.r,trial.w[2]),mag=tv.len(om);
  if(mag>1e-9){const ax=tv.scale(om,1/mag),ang=mag*dt;trial.R=trialFrame(trialRot(a.f,ax,ang),trialRot(a.u,ax,ang));}
@@ -4306,15 +4352,42 @@ function trialGunsLayout(hud,gn,force){
   if(hr.bottom-bottom-m.h<cy+clear){const y=(top?top.bottom:hr.top+60)+6;bottom=hr.bottom-y-m.h;}}
  Object.assign(gn.style,{top:'auto',left:(x-hr.left).toFixed(0)+'px',bottom:bottom.toFixed(0)+'px'});
 }
+// v21.3 The views of a flight: 追従 (the chase camera turns with the ship),
+// 操縦席／艦橋 (from the cockpit of a craft or the bridge of a ship) and 水平
+// (the chase camera keeps to the local horizon).
+const TRIAL_CAMS=['ship','cockpit','horizon'],TRIAL_EYE_R=1000;
+const trialCamName=m=>m==='cockpit'?(trial.craft?'操縦席':'艦橋'):m==='horizon'?'水平':'追従';
+// The cockpit or bridge in the camera's space (the ship sits at the origin), or null when the view is outside.
+function trialCockpitEye(){
+ if(trial.camMode!=='cockpit'||trial.spectate||trial.cine||!trial.asset||trial.battle?.me?.dead)return null;
+ const g=trial.asset.geometry,e=g.eyes,k=e&&(trial.craft?e.cockpit:e.bridge);if(!k)return null;
+ return {pos:trialApply(trial.R,tv.sub(k.pos,g.center)),near:k.near,kind:k.kind};
+}
+// From the cockpit: the canopy shading, and a mark where the nose points while the head is turned.
+function trialCockpitHud(){
+ const hud=$('#trialHud');if(!hud||!view)return;const e=trialCockpitEye();if(hud.classList.contains('th-cockpit')!==!!e)hud.classList.toggle('th-cockpit',!!e);
+ const n=hud.querySelector('[data-th="nose"]');if(!n)return;if(!e){if(!n.hidden)n.hidden=true;return;}
+ const p=view.project(tv.add(e.pos,trialCol(trial.R,0),5000)),hr=hud.getBoundingClientRect(),x=p[0]-hr.left,y=p[1]-hr.top,ok=p[2]>-1&&p[2]<1&&Math.hypot(x-hr.width/2,y-hr.height/2)>12;
+ if(n.hidden===ok)n.hidden=!ok;if(ok)n.style.transform=`translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`;
+}
+function trialSetCam(mode){
+ const was=trial.camMode;trial.camMode=mode;if(!view)return;const c=view.cam;
+ if(mode==='cockpit'){if(was!=='cockpit')trial.chaseR=c.r;c.th=Math.PI;c.ph=Math.PI/2;}
+ else{if(was==='cockpit'&&trial.chaseR)c.r=trial.chaseR;c.th=Math.PI;c.ph=TRIAL_CAM_PH;delete c.near;}
+}
 function trialCamera(dt){
- const a=trialAttitude();let F;
- if(trial.camMode==='ship')F=trial.R;
+ const a=trialAttitude(),eye=trialCockpitEye();let F;
+ if(trial.camMode==='ship'||eye)F=trial.R;
  else{let fh=tv.add(a.f,a.up,-tv.dot(a.f,a.up));if(tv.len(fh)<.25&&trial.camF){const old=trialCol(trial.camF,0);fh=tv.add(old,a.up,-tv.dot(old,a.up));}F=trialFrame(fh,a.up);}
  // While coasting out of the system and in the tunnel the camera keeps the frame it had.
- if(!trial.camF)trial.camF=[...F];else if(trialFast()||trial.jump?.phase==='tunnel'||(trial.spectate&&trial.specCam==='free')){}else{const k=1-Math.exp(-dt*4),x=tv.add(trialCol(trial.camF,0),tv.add(trialCol(F,0),trialCol(trial.camF,0),-1),k),y=tv.add(trialCol(trial.camF,1),tv.add(trialCol(F,1),trialCol(trial.camF,1),-1),k);trial.camF=trialFrame(x,y);}
+ // The cockpit is fixed to the airframe; the chase camera stays close behind a craft's quick turns.
+ if(!trial.camF||eye)trial.camF=[...F];else if(trialFast()||trial.jump?.phase==='tunnel'||(trial.spectate&&trial.specCam==='free')){}else{const k=1-Math.exp(-dt*(trial.craft&&trial.camMode==='ship'?12:4)),x=tv.add(trialCol(trial.camF,0),tv.add(trialCol(F,0),trialCol(trial.camF,0),-1),k),y=tv.add(trialCol(trial.camF,1),tv.add(trialCol(F,1),trialCol(trial.camF,1),-1),k);trial.camF=trialFrame(x,y);}
  const c=view.cam;c.frame=trial.camF;c.ortho=false;
  // Joining a battle: the view turns once toward the nearest enemy.
  if(trial.lookAt){const t=trial.lookAt;trial.lookAt=null;const d=tv.norm(tv.sub(spaceWorld(t),trial.P)),loc=trialApplyT(trial.camF,d);c.ph=Math.acos(C.clamp(-loc[1],-1,1));c.th=Math.atan2(-loc[2],-loc[0]);}
+ // From the cockpit the eye stays put and a drag turns the head: the orbit centre is put ahead of the eye.
+ if(eye){c.r=TRIAL_EYE_R;c.ph=C.clamp(c.ph,.12,2.9);c.near=eye.near;c.far=Math.max(90000,trial.p.len*30);const s=Math.sin(c.ph);c.target=tv.sub(eye.pos,trialApply(trial.camF,[c.r*s*Math.cos(c.th),c.r*Math.cos(c.ph),c.r*s*Math.sin(c.th)]));return;}
+ if(c.near){delete c.near;if(c.r===TRIAL_EYE_R&&trial.chaseR)c.r=trial.chaseR;}
  c.r=trialCamRange(c.r);c.ph=C.clamp(c.ph,.12,2.9);c.far=Math.max(90000,trial.p.len*30);const up=trialCol(trial.camF,1);c.target=tv.scale(up,c.r*TRIAL_CAM_LIFT);
  const k=trial.cine;if(k){const us=(trial.battle?.b.units||[]).filter(u=>k.ids.includes(u.id)&&!u.dead);if(!us.length)spaceCineEnd();else{const cw=us.reduce((a,u)=>tv.add(a,spaceWorld(u),1/us.length),[0,0,0]),loc=trialApplyT(trial.camF,k.dirW);c.target=tv.add(tv.sub(cw,trial.P),k.lead,-k.L*.6);c.r=k.r;c.ph=Math.acos(C.clamp(loc[1],-1,1));c.th=Math.atan2(loc[2],loc[0]);c.far=Math.max(c.far,k.r*14);}}
 }
@@ -4332,7 +4405,7 @@ function trialLoop(now){
  if(trial.pat)patrolStep(dt,tunnel);
  trial.flash=Math.max(0,(trial.flash||0)-dt*2.2);trial.hitFlash=Math.max(0,(trial.hitFlash||0)-dt*1.6);
  const d=trial.dust;view.setPoints('trialDust',d.pos,d.col,d.size);trialRenderSets();
- const me=trial.battle?.me,unit={key:trial.asset.key,pos:[0,0,0],yaw:0,rot:trial.R,glow:me?.out?0:glowOf('me',C.clamp(Math.max(.16,.8*Math.abs(TRIAL_TELEGRAPH[trial.tele][1]),trial.thrust||0),0,1)),hatchOpen:0,dead:!!me?.dead,
+ const me=trial.battle?.me,unit={key:trial.asset.key,pos:[0,0,0],yaw:0,rot:trial.R,glow:me?.out?0:glowOf('me',C.clamp(Math.max(.16,.8*Math.abs(TRIAL_TELEGRAPH[trial.tele][1]),trial.thrust||0),0,1)),hatchOpen:0,dead:!!me?.dead,noInner:trial.camMode==='cockpit'&&!!trialCockpitEye(),
   turrets:trial.turrets.filter(t=>t.mesh).map(t=>({mesh:t.mesh,pivot:t.pivot,rot:t.rot})),targets:trial.targets.filter(t=>t.alive&&!t.ship).map(t=>({pos:tv.sub(t.pos,trial.P),rot:t.rot}))};
  // The stars stretch around the direction of travel; the tunnel covers them.
  const j=trial.jump,dir=j?.dir||trialCol(trial.R,0),hk=trialTunnelK(j);
@@ -4340,7 +4413,7 @@ function trialLoop(now){
  if(view.draw({fleet:trial.spectate?spaceDrawUnits():[unit,...escortsDraw(),...spaceDrawUnits(),...patrolDraw()],mode:'trial',lod:!!trial.battle,planet:hk>=1?null:trialPlanet(),hyper,sky,noDust:trialFast()||tunnel})!==false){renderHealth.frames++;renderHealth.lastFrame=now;renderHealth.failures=0;}
  trialAdaptScale(real);if(dt>0)shotTick(now);
  const hud=$('#trialHud'),fl=hud?.querySelector('[data-th="flash"]'),hf=hud?.querySelector('[data-th="hit"]');if(fl)fl.style.opacity=trial.flash.toFixed(3);if(hf)hf.style.opacity=(trial.hitFlash*.8).toFixed(3);
- trialMarkers();if(trial.battle)hitcamStep(now);
+ trialMarkers();trialCockpitHud();if(trial.battle)hitcamStep(now);
  if(now-trial.hud>120){trial.hud=now;if(trial.spectate)voySpectateHudUpdate();else trialHudUpdate();}
  if(trial.pat&&trial.hud===now)patrolHud();
 }
@@ -4476,15 +4549,16 @@ function hitcamStep(now){
 }
 // ---- HUD ----
 function trialHudHTML(){
- return `<div class="th-top"><div class="th-card th-bar"><div class="th-id"><b>${esc(trial.p?.name||ship?.name||'設計艦')}</b><small><span data-th="where">${trialWhere()}</span> <span data-th="clock">T+0:00</span></small></div>
+ return `<div class="th-canopy" aria-hidden="true"></div><div class="th-top"><div class="th-card th-bar"><div class="th-id"><b>${esc(trial.p?.name||ship?.name||'設計艦')}</b><small><span data-th="where">${trialWhere()}</span> <span data-th="clock">T+0:00</span></small></div>
  <dl class="th-read"><div><dt>速力</dt><dd data-th="speed">0</dd></div><div><dt>方位</dt><dd data-th="head">090°</dd></div><div><dt>高度</dt><dd data-th="alt">160 km</dd></div><div class="th-att"><dt>仰角</dt><dd data-th="pitch">0.0°</dd></div><div class="th-att"><dt>傾斜</dt><dd data-th="bank">0.0°</dd></div></dl></div>
- <div class="th-actions">${trial.rts?'':'<button type="button" class="th-btn th-mapbtn" data-trial-cmd="map" aria-expanded="false" aria-controls="thMap" aria-label="星図とハイパードライブ">星図</button>'}<button type="button" class="th-btn th-pw" data-trial-cmd="power" data-th="pwbtn" aria-expanded="false" aria-controls="thPower" aria-label="出力配分">⚡ ${(C.POWER_MODES[trial.powerMode]||C.POWER_MODES.balanced).name}</button><button type="button" class="th-btn snd-btn" data-trial-cmd="mute" data-sound-toggle aria-pressed="false" aria-label="音を切る"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="snd-wave" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/><path class="snd-x" d="M16 9l5 6M21 9l-5 6"/></svg></button><button type="button" class="th-btn th-more" data-trial-cmd="menu" aria-expanded="false" aria-controls="thMenu" aria-label="その他の操作">⋯</button>
+ <div class="th-actions">${trial.rts?'':'<button type="button" class="th-btn th-mapbtn" data-trial-cmd="map" aria-expanded="false" aria-controls="thMap" aria-label="星図とハイパードライブ">星図</button>'}<button type="button" class="th-btn th-pw" data-trial-cmd="power" data-th="pwbtn" aria-expanded="false" aria-controls="thPower" aria-label="出力配分">⚡ ${(C.POWER_MODES[trial.powerMode]||C.POWER_MODES.balanced).name}</button><button type="button" class="th-btn th-cambtn" data-trial-cmd="cam" aria-label="視点の切り替え（V）" title="視点の切り替え（V）"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.6"/></svg><span data-th="camq">${trialCamName(trial.camMode)}</span></button><button type="button" class="th-btn snd-btn" data-trial-cmd="mute" data-sound-toggle aria-pressed="false" aria-label="音を切る"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="snd-wave" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/><path class="snd-x" d="M16 9l5 6M21 9l-5 6"/></svg></button><button type="button" class="th-btn th-more" data-trial-cmd="menu" aria-expanded="false" aria-controls="thMenu" aria-label="その他の操作">⋯</button>
  <div class="th-card th-menu th-power" id="thPower" hidden><p class="th-power-head">出力配分 <kbd>P</kbd></p>${Object.entries(C.POWER_MODES).map(([k,m])=>`<button type="button" class="th-btn th-pmode" data-trial-cmd="pmode:${k}" aria-pressed="${(trial.powerMode||'balanced')===k}"><b>${m.name}</b><small>${esc(m.note)}</small></button>`).join('')}</div><button type="button" class="th-btn th-exit" data-trial-cmd="exit">${trial.rts?'操艦終了':trial.mode==='battle'?'戦闘終了':trial.returnTo==='title'?'帰還':'公試終了'}</button>
  <div class="th-card th-menu th-map" id="thMap" hidden></div>
- <div class="th-card th-menu" id="thMenu" hidden><button type="button" class="th-btn" data-trial-cmd="cam" data-th="cam">視点 水平</button><button type="button" class="th-btn" data-trial-cmd="gunmode" data-th="gunmenu">主砲 ${GUN_MODES[trial.gunMode||'free'].name} <kbd>G</kbd></button><button type="button" class="th-btn" data-trial-cmd="shot">スクリーンショット <kbd>H</kbd></button><button type="button" class="th-btn" data-trial-cmd="level">水平復帰 <kbd>Z</kbd></button><button type="button" class="th-btn" data-trial-cmd="center">舵中央 <kbd>X</kbd></button><button type="button" class="th-btn" data-trial-cmd="records" data-th="recbtn">記録を表示</button><button type="button" class="th-btn" data-trial-cmd="reset">再開始</button></div></div></div>
+ <div class="th-card th-menu" id="thMenu" hidden><button type="button" class="th-btn" data-trial-cmd="cam" data-th="cam">視点 ${trialCamName(trial.camMode)}</button><button type="button" class="th-btn" data-trial-cmd="gunmode" data-th="gunmenu">主砲 ${GUN_MODES[trial.gunMode||'free'].name} <kbd>G</kbd></button><button type="button" class="th-btn" data-trial-cmd="shot">スクリーンショット <kbd>H</kbd></button><button type="button" class="th-btn" data-trial-cmd="level">水平復帰 <kbd>Z</kbd></button><button type="button" class="th-btn" data-trial-cmd="center">舵中央 <kbd>X</kbd></button><button type="button" class="th-btn" data-trial-cmd="records" data-th="recbtn">記録を表示</button><button type="button" class="th-btn" data-trial-cmd="reset">再開始</button></div></div></div>
  <div class="th-flash" data-th="flash" aria-hidden="true"></div>${trial.mode==='battle'||trial.pat?'<div class="th-cine" aria-hidden="true"><i class="bar top"></i><i class="bar bot"></i><b>敵艦隊　ハイパースペースより出現</b></div>':''}<div class="th-hit" data-th="hit" aria-hidden="true"></div>
  <p class="th-records" data-th="records"></p><p class="th-warn" data-th="warn" hidden></p><p class="th-hyper" data-th="hyper" hidden aria-live="polite"></p>
  ${trial.mode==='battle'||trial.pat?'<div class="th-card th-self" data-th="self"></div><div class="th-hitcam" data-th="hitcam" hidden><canvas></canvas></div>':''}<div class="th-result" data-th="result" hidden></div>
+ <i class="th-nose" data-th="nose" hidden aria-hidden="true"></i>
  <div class="th-reticle" aria-hidden="true"><i class="h"></i><i class="v"></i><b data-th="range">20.0 km</b></div>
  <div class="th-guns" data-th="guns" aria-live="off"><button type="button" class="th-gmode" data-trial-cmd="gunmode" data-th="gunmode" title="主砲の照準方式（G で切替）"><em class="l">主砲 ${GUN_MODES[trial.gunMode||'free'].name}</em><em class="s">${GUN_MODES[trial.gunMode||'free'].short}</em></button><button type="button" class="th-gmode th-vol" data-trial-cmd="volley" data-th="volley" title="射撃の型（C で切替）"><em class="l">${C.VOLLEY.name[trial.volley==='salvo'?'salvo':'stream']}</em><em class="s">${trial.volley==='salvo'?'斉射':'連続'}</em></button><button type="button" class="th-gmode th-vol" data-trial-cmd="escort" data-th="escort" hidden title="随伴艦の行動（T で切替）"><em class="l">随伴艦 護衛</em><em class="s">護衛</em></button><span class="th-gstat" data-th="gunstat"></span></div><div class="th-tmarks" aria-hidden="true"></div>
  <div class="th-card th-pad"><div class="th-tele-ladder" aria-label="速力通信機">${TRIAL_TELEGRAPH.map((t,i)=>`<span data-tele="${i}">${t[0]}</span>`).reverse().join('')}</div><div class="th-tele-bar" aria-hidden="true"><i data-th="speedbar"></i></div>
@@ -4515,7 +4589,7 @@ function trialHudUpdate(full){
  set('speed',v>=1e5?`${num(Math.round(v/1000))} km/s`:`${num(Math.round(v))} m/s`);set('head',String(Math.round(a.heading)%360).padStart(3,'0')+'°');set('alt',`${(a.alt/1000).toFixed(1)} km`);
  set('pitch',`${deg(a.pitch)>=0?'+':''}${deg(a.pitch).toFixed(1)}°`);const b=deg(a.bank);set('bank',Math.abs(b)<.05?'0.0°':`${b>0?'右':'左'} ${Math.abs(b).toFixed(1)}°`);
  set('where',trialWhere());trialSelfUpdate(hud);trialHyperUpdate(hud);
- const s=Math.floor(trial.t);set('clock',`T+${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`);set('cam',trial.camMode==='ship'?'視点 追従':'視点 水平');
+ const s=Math.floor(trial.t);set('clock',`T+${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`);set('cam','視点 '+trialCamName(trial.camMode));set('camq',trialCamName(trial.camMode));
  const r=trial.rec,g=trial.gun;const B=trial.battle;if(B){const foes=B.b.units.filter(u=>u.team===1),up=foes.filter(u=>!u.dead&&!u.out&&!u.absent).length,last=B.ticker[B.ticker.length-1];set('records',`戦況　敵 ${up}/${foes.length} 隻 · 撃沈 ${foes.filter(u=>u.dead).length} · 戦闘不能 ${foes.filter(u=>!u.dead&&u.out).length} · 射撃 ${num(g.shots)} 発 / 命中 ${num(Math.round(g.hits))}${last?' ｜ '+last.text:''}`);}else set('records',`公試記録　最高速力 ${num(Math.round(r.top))} m/s · 0→全速 ${r.accel==null?(r.run?'計測中…':'—'):Math.round(r.accel)+' 秒'} · 全舵旋回径 ${r.turn==null?'—':(r.turn/1000).toFixed(1)+' km'} · 射撃 ${num(g.shots)} 発${g.missiles?` · ミサイル ${num(g.missiles)} 発`:''} / 命中 ${num(Math.round(g.hits))} / 撃破 ${g.kills}${g.pdKills?` · 点防御 撃墜 ${g.pdKills}`:''}${trialSwRecord()}`);
  const rp=q('records');if(rp)rp.hidden=!trialRecordsOn();set('recbtn',trialRecordsOn()?'記録を隠す':'記録を表示');set('swarcbtn',trial.swArc===false?'超兵器の射界を表示':'超兵器の射界を隠す');
  const w=q('warn');if(w){const hint=trialArcHint(),txt=trial.warn||(trial.level?'姿勢を水平に戻しています…':'')||hint;w.hidden=!txt;if(w.textContent!==txt)w.textContent=txt;}
@@ -4596,7 +4670,7 @@ function trialCommand(cmd){
  else if(cmd==='rudder+'||cmd==='rudder-')trial.rudder=C.clamp(trial.rudder+(cmd.endsWith('+')?1:-1),-2,2);
  else if(cmd==='level')trial.level=true;
  else if(cmd==='center'){trial.rudder=0;trial.level=false;}
- else if(cmd==='cam'){trial.camMode=trial.camMode==='ship'?'horizon':'ship';if(view){view.cam.th=Math.PI;view.cam.ph=TRIAL_CAM_PH;}}
+ else if(cmd==='cam'){trialSetCam(TRIAL_CAMS[(TRIAL_CAMS.indexOf(trial.camMode)+1)%TRIAL_CAMS.length]);toast('視点：'+trialCamName(trial.camMode));}
  else if(cmd==='reset'){if(trial.rts){toast('艦隊戦の途中では再開始できません');return;}trialReset();}
  else if(cmd==='fireTap')trial.fireTap=.25;
  else if(cmd==='menu'){const m=$('#thMenu'),b=document.querySelector('[data-trial-cmd="menu"]');if(m){m.hidden=!m.hidden;b?.setAttribute('aria-expanded',String(!m.hidden));}return;}
@@ -5004,32 +5078,52 @@ function trialSwTargets(w){
 function trialSwFire(){
  const B=trial.battle,me=B?.me;if(!B){const u=trialSwSolo();if(u)trialSwSoloFire(u);else toast('超兵器がありません');return;}if(!me){toast('超兵器を使えません');return;}if(me.out){toast('自艦は戦闘不能です');return;}
  const sw=me.p.sw||[];let fired=0,waiting=0,none=0;
- sw.forEach((w,i)=>{const x=me.sw[i];if(!x||!(x.st==='ready'||w.k==='hion'&&x.st==='charge'&&x.c>=C.ION_BOLT.fireMin)){if(x&&x.st!=='down')waiting++;return;}const tg=trialSwTargets(w);if(!tg.length){none++;return;}x.fireNow={to:w.k==='hion'?tg.map(t=>t.u.id):[tg[0].u.id]};fired++;});
- if(fired){sndUI('ui_click',.4);return;}toast(none?'射線・射界に敵艦がいません':waiting?'充電中です':'超兵器を使えません');
+ sw.forEach((w,i)=>{const x=me.sw[i];if(!x||!(x.st==='ready'||w.k==='hion'&&x.st==='charge'&&x.c>=C.ION_BOLT.fireMin)){if(x&&x.st!=='down')waiting++;return;}const tg=trialSwTargets(w);
+  // v21.2 Nothing in the arc: it fires anyway, along its axis as the ship now points (in the battle's frame).
+  if(!tg.length){x.fireNow={to:[],free:true,dir:trialApplyT(B.E,swAxisWorld(me,w))};none++;fired++;return;}
+  x.fireNow={to:w.k==='hion'?tg.map(t=>t.u.id):[tg[0].u.id]};fired++;});
+ if(fired){sndUI('ui_click',.4);if(none===fired)toast('射界に敵艦なし — 射軸の方向へ発射');return;}toast(waiting?'充電中です':'超兵器を使えません');
 }
 // While the flown ship holds a beam, it stays on target only while the target stays in the cone.
-function trialSwBeamCheck(){const me=trial.battle?.me;if(!me?.sw||!me.p?.sw)return;me.p.sw.forEach((w,i)=>{const x=me.sw[i];if(x?.st!=='beam')return;x.beamOk=trialSwTargets(w).some(t=>t.u.id===x.tgt);});}
+function trialSwBeamCheck(){const me=trial.battle?.me;if(!me?.sw||!me.p?.sw)return;me.p.sw.forEach((w,i)=>{const x=me.sw[i];if(x?.st!=='beam')return;const tg=trialSwTargets(w);
+ if(x.free){if(tg.length){x.free=false;x.tgt=tg[0].u.id;x.beamOk=true;}return;}x.beamOk=tg.some(t=>t.u.id===x.tgt);});}
 // The views' record of superweapon shots: a beam is renewed each step it holds; the others fade on their own.
 function swShotFx(s,byId){
  const a=byId.get(s.from),w=a?.p?.sw?.[s.i];if(!a||!w)return;trial.swfx=trial.swfx||[];
- if(s.mode==='beam'){const e=trial.swfx.find(e=>e.from===a.id&&e.i===s.i&&e.mode==='beam');if(e){e.life=SPACE_RULES.step*1.6;e.to=s.to[0];return;}}
- const life=s.mode==='bolt'?(s.dur||20):s.mode==='beam'?SPACE_RULES.step*1.6:s.mode==='pulse'?.7:2.2;trial.swfx.push({from:a.id,i:s.i,k:s.k,mode:s.mode,bolt:s.bolt,to:s.mode==='ring'?s.to:s.to[0],life,max:life,age:0});
- const at=a.manual?trial.P:spaceWorld(a);sndAt(s.k==='hion'?sndPick('ion_heavy','ion'):sndPick('turbolaser_heavy','turbolaser'),at,{gain:1.3,pitch:s.k==='hion'?.55:s.mode==='pulse'?.6:.75,near:Math.max(3000,a.p.len*2),far:90000});
+ if(s.mode==='beam'){const e=trial.swfx.find(e=>e.from===a.id&&e.i===s.i&&e.mode==='beam');if(e){e.life=SPACE_RULES.step*1.6;e.to=s.to[0];e.free=!s.to.length;return;}}
+ const life=s.mode==='bolt'?(s.dur||20):s.mode==='beam'?SPACE_RULES.step*1.6:s.mode==='pulse'?.7:2.2;trial.swfx.push({from:a.id,i:s.i,k:s.k,mode:s.mode,bolt:s.bolt,to:s.mode==='ring'?s.to:s.to[0],free:!s.to.length,life,max:life,age:0});
+ const at=a.manual?trial.P:spaceWorld(a);sndAt(s.k==='hion'?sndPick('ion_cannon','ion_heavy'):sndPick('turbolaser_heavy','turbolaser'),at,{gain:1.3,pitch:s.k==='hion'?1:s.mode==='pulse'?.6:.75,near:Math.max(3000,a.p.len*2),far:120000});
  if(a.manual)trial.flash=Math.min(1,(trial.flash||0)+.5);
 }
 // v21.2 A point of the battle frame in the trial's world, and the sprites of an ion bolt's disc (relative to P).
 function spaceWorldPos(p){const B=trial.battle;return tv.add(B.O,trialApply(B.E,p));}
 // Drawn facing the camera (it reads as the glowing ball of the films from any side; the hits use the disc).
-function ionBoltPoints(o,dir,x,D,k,age){const out=[],P=trial.P,c=tv.add(o,dir,x),eye=view?.eye?view.eye():[0,0,0],cr=tv.sub(c,P),vd=tv.norm(tv.sub(cr,eye)),v=tv.norm(Math.abs(vd[1])<.9?tv.cross(vd,[0,1,0]):tv.cross(vd,[1,0,0])),v2=tv.cross(vd,v),R=D/2,a=Math.round(240*clamp01(.4+.6*k)),fl=.85+.15*Math.sin(age*37);
- const at=(an,r)=>tv.add(cr,tv.add(tv.scale(v,Math.cos(an)*r),tv.scale(v2,Math.sin(an)*r))),seed=j=>{const q=Math.sin(j*12.9898+Math.floor(age*12)*78.233)*43758.5453;return q-Math.floor(q);};
- // the rim: a dense crackling ring, two layers
- const n=Math.min(260,Math.max(80,Math.round(D/12)));for(let j=0;j<n;j++){const an=j/n*Math.PI*2+age*.6,rr=R*(.94+.06*seed(j));out.push([at(an,rr),[200,160,255,a],Math.max(36,D*.05)*fl]);if(j%3===0)out.push([at(an+.01,rr*.9),[150,110,255,Math.round(a*.6)],Math.max(60,D*.09)]);}
- // lightning: jagged strands from the core out to the rim, re-struck a dozen times a second
- for(let s2=0;s2<16;s2++){let an=s2/16*Math.PI*2+seed(s2+100)*.5,r=0;for(let j=0;j<10;j++){r+=R/10;an+=(seed(s2*17+j)-.5)*.6;out.push([at(an,r),[240,228,255,Math.round(a*(.95-j*.04))],Math.max(22,D*.028)*fl]);}}
- // sparks inside, the white core and the violet haze
- for(let j=0;j<60;j++)out.push([at(seed(j+300)*Math.PI*2,R*Math.sqrt(seed(j+600))),[225,205,255,Math.round(a*.7)],Math.max(16,D*.02)]);
- out.push([cr,[255,252,255,a],Math.max(160,D*.45)*fl]);out.push([cr,[200,150,255,Math.round(a*.55)],Math.max(260,D*.8)]);out.push([cr,[140,90,255,Math.round(a*.3)],Math.max(400,D*1.25)]);
+// v21.2 Drawn as the films show the Malevolence's pulse (and facing the camera, so it reads from any side; the hits use
+// the disc): a violet bubble, faint through its middle and thicker toward its edge, ringed by a bright magenta rim broken
+// into glowing dashes, filled with forked white-violet lightning re-struck a dozen times a second from a white-hot core.
+function ionBoltPoints(o,dir,x,D,k,age){const out=[],P=trial.P,c=tv.add(o,dir,x),eye=view?.eye?view.eye():[0,0,0],cr=tv.sub(c,P),vd=tv.norm(tv.sub(cr,eye)),v=tv.norm(Math.abs(vd[1])<.9?tv.cross(vd,[0,1,0]):tv.cross(vd,[1,0,0])),v2=tv.cross(vd,v),R=D/2,a=255*clamp01(.45+.55*k),fl=.85+.15*Math.sin(age*37),fr=Math.floor(age*12);
+ const at=(an,r)=>tv.add(cr,tv.add(tv.scale(v,Math.cos(an)*r),tv.scale(v2,Math.sin(an)*r))),h=(j,f)=>{const q=Math.sin(j*12.9898+f*78.233)*43758.5453;return q-Math.floor(q);},seed=j=>h(j,fr),fix=j=>h(j,0),A=f=>Math.round(clamp01(f)*a);
+ // the body of the bubble: soft violet glow, faint in the middle and denser toward the rim
+ for(let j=0;j<120;j++){const rr=R*Math.sqrt(.1+.9*fix(j+900)),an=fix(j+1200)*Math.PI*2+age*.15;out.push([at(an,rr),[140,50,235,A(.08+.1*rr/R)],D*(.14+.1*fix(j+1500))]);}
+ // the rim: bright dashes round the edge with a soft halo outside them
+ const n=Math.min(320,Math.max(96,Math.round(D/9)));
+ for(let j=0;j<n;j++){const an=j/n*Math.PI*2+age*.45,dash=Math.pow((Math.sin(an*22+age*5)+1)/2,2),rr=R*(.96+.04*seed(j));out.push([at(an,rr),[215,115,255,A(.5+.5*dash)],Math.max(28,D*.035)*(.75+.6*dash)*fl]);if(j%2===0)out.push([at(an,rr*1.035),[170,60,255,A(.36)],Math.max(60,D*.08)]);}
+ // lightning: jagged strands from the core out to the rim, each with a fork or two, re-struck a dozen times a second
+ const S=Math.min(26,Math.max(14,Math.round(D/60)));
+ for(let s2=0;s2<S;s2++){let an=s2/S*Math.PI*2+seed(s2+100)*.7,r=R*.03;const steps=12,sub=3;
+  for(let j=0;j<steps;j++){const a0=an,r0=r;r+=R*.97/steps;an+=(seed(s2*31+j)-.5)*.6;
+   for(let q=1;q<=sub;q++){const t2=q/sub;out.push([at(a0+(an-a0)*t2,r0+(r-r0)*t2),[245,236,255,A(.95-j*.04)],Math.max(16,D*.017)*fl]);}
+   if(j>1&&j<10&&seed(s2*57+j)<.25){let fa=an,f2=r;const sd=seed(s2+j*3)<.5?-1:1;for(let q=0;q<10&&f2<R*.98;q++){const fa0=fa,f20=f2;f2+=R*.035;fa+=sd*.05+(seed(s2*91+j*7+q)-.5)*.5;for(const t2 of [.5,1])out.push([at(fa0+(fa-fa0)*t2,f20+(f2-f20)*t2),[230,210,255,A(.75-q*.06)],Math.max(12,D*.012)]);}}}}
+ // sparks drifting inside
+ for(let j=0;j<50;j++)out.push([at(seed(j+300)*Math.PI*2,R*Math.sqrt(seed(j+600))),[235,215,255,A(.65)],Math.max(14,D*.014)]);
+ // the white-hot core, its flare and the violet haze round it
+ out.push([cr,[255,255,255,A(1)],Math.max(180,D*.42)*fl]);out.push([cr,[255,240,255,A(.85)],Math.max(300,D*.24)]);
+ out.push([cr,[205,130,255,A(.5)],Math.max(300,D*.75)]);out.push([cr,[150,60,255,A(.3)],Math.max(420,D*1.3)]);
  return out;}
+// v21.2 The flash at the cannon's mouth as it fires: a ring the cannon's width round a white burst, fading in a second.
+function ionMuzzlePoints(m,ax,d,age){const out=[],P=trial.P,f=clamp01(1-age/1.1);if(!(f>0))return out;const c=tv.sub(m,P),v=tv.norm(Math.abs(ax[1])<.9?tv.cross(ax,[0,1,0]):tv.cross(ax,[1,0,0])),v2=tv.cross(ax,v),R=d*.5*(1+.25*age),n=64;
+ for(let j=0;j<n;j++){const an=j/n*Math.PI*2;out.push([tv.add(c,tv.add(tv.scale(v,Math.cos(an)*R),tv.scale(v2,Math.sin(an)*R))),[235,190,255,Math.round(255*f)],Math.max(18,d*.05)]);}
+ out.push([c,[255,255,255,Math.round(255*f)],d*1.6*(.8+.4*f)]);out.push([c,[190,120,255,Math.round(180*f)],d*3]);return out;}
 const clamp01=v=>v<0?0:v>1?1:v;
 function swMuzzleWorld(u,w){const R=u.manual?trial.R:spaceRotU(trial.battle.E,u),c=u.manual?trial.P:spaceWorld(u);return tv.add(c,trialApply(R,w.mz||[0,0,0]));}
 function swAxisWorld(u,w){const R=u.manual?trial.R:spaceRotU(trial.battle.E,u);return trialApply(R,w.aim==='bow'?[1,0,0]:[0,0,w.aim==='port'?-1:1]);}
@@ -5069,24 +5163,26 @@ function trialSwSoloFire(u){
  if(trial.jump){toast('ハイパードライブ中は超兵器を撃てません');return;}if(trial.paused){toast('一時停止中です（K で再開）');return;}
  const sw=u.p.sw,objs=trialSwObjects(),lk=trial.heldLock||trial.aim?.lock;let fired=0,waiting=0,none=0;
  sw.forEach((w,i)=>{const x=u.sw[i],K=C.SW_COMBAT[w.k];if(!(x.st==='ready'||w.k==='hion'&&x.st==='charge'&&x.c>=C.ION_BOLT.fireMin)){waiting++;return;}
-  const tg=trialSwScan(w,objs).filter(s=>s.ok).sort((a,b)=>a.off-b.off||a.r-b.r);if(!tg.length){none++;return;}
-  x.c=0;fired++;trial.gun.sw=(trial.gun.sw||0)+1;
+  const tg=trialSwScan(w,objs).filter(s=>s.ok).sort((a,b)=>a.off-b.off||a.r-b.r);if(!tg.length)none++;
+  const E0=x.c;x.c=0;fired++;trial.gun.sw=(trial.gun.sw||0)+1;
   // v21.2 The hyper-ion cannon fires what it holds as a widening bolt toward the target nearest its axis.
-  if(w.k==='hion'){const E=(w.Emax||K.E)*C.clamp(x.c,0,1),m=tv.add(trial.P,trialApply(trial.R,w.mz||[0,0,0])),dir=tv.norm(tv.sub(tg[0].o.ref.pos,m)),b={id:'sb'+(++trialSoloBoltSeq),o:m,dir,x:0,E,E0:E,d:w.d||310.8,hit:new Set()};
+  if(w.k==='hion'){const E=(w.Emax||K.E)*C.clamp(E0,0,1),m=tv.add(trial.P,trialApply(trial.R,w.mz||[0,0,0])),dir=tg.length?tv.norm(tv.sub(tg[0].o.ref.pos,m)):trialApply(trial.R,[0,0,w.aim==='port'?-1:1]),b={id:'sb'+(++trialSoloBoltSeq),o:m,dir,x:0,E,E0:E,d:w.d||310.8,hit:new Set()};
    x.st='cool';x.t=K.over.T;x.c=0;C.swOverload(u,w);(trial.soloBolts||(trial.soloBolts=[])).push(b);trial.swfx=trial.swfx||[];trial.swfx.push({solo:true,i,k:w.k,mode:'bolt',bolt:b.id,life:C.ION_BOLT.maxRange/C.ION_BOLT.v,max:C.ION_BOLT.maxRange/C.ION_BOLT.v,age:0});
-   sndAt(sndPick('ion_heavy','ion'),trial.P,{gain:1.3,pitch:.55,near:Math.max(3000,trial.p.len*2),far:90000});trial.flash=Math.min(1,(trial.flash||0)+.5);return;}
+   sndAt(sndPick('ion_cannon','ion_heavy'),trial.P,{gain:1.3,pitch:1,near:Math.max(3000,trial.p.len*2),far:120000});trial.flash=Math.min(1,(trial.flash||0)+.5);return;}
   // The locked target when it is in the line of fire, else the one nearest the axis.
+  // With nothing in the arc, the shot goes out along the axis into empty space (a beam picks up the first target that
+  // comes into its line while it lasts).
   const s=tg.find(s=>s.o.ref===lk)||tg[0];
-  if(x.mode==='pulse'){x.st='cool';x.t=K.over.T;C.swOverload(u,w);trialSwSoloFx(i,w,'pulse',s.o.ref);trialSwStrike(s.o,'pulse');}
-  else{x.st='beam';x.t=K.beamT;x.tgt=s.o.ref;x.burn=0;trialSwSoloFx(i,w,'beam',s.o.ref);}
+  if(x.mode==='pulse'){x.st='cool';x.t=K.over.T;C.swOverload(u,w);trialSwSoloFx(i,w,'pulse',s?s.o.ref:null);if(s)trialSwStrike(s.o,'pulse');}
+  else{x.st='beam';x.t=K.beamT;x.tgt=s?s.o.ref:null;x.free=!s;x.burn=0;trialSwSoloFx(i,w,'beam',x.tgt);}
  });
- if(fired){sndUI('ui_click',.4);return;}toast(none?'射界・射程内に目標がありません':waiting?'充電中です':'超兵器を使えません');
+ if(fired){sndUI('ui_click',.4);if(none===fired)toast('射界に目標なし — 射軸の方向へ発射');return;}toast(waiting?'充電中です':'超兵器を使えません');
 }
 // The shot drawn (as swShotFx draws a battle's): a held beam is renewed while it lasts.
 function trialSwSoloFx(i,w,mode,to){
  trial.swfx=trial.swfx||[];
- if(mode==='beam'){const e=trial.swfx.find(e=>e.solo&&e.i===i&&e.mode==='beam');if(e){e.life=.3;e.to=to;return;}}
- const life=mode==='beam'?.3:mode==='pulse'?.7:2.2;trial.swfx.push({solo:true,i,k:w.k,mode,to,at:mode==='pulse'&&to?.pos?[...to.pos]:null,life,max:life,age:0});
+ if(mode==='beam'){const e=trial.swfx.find(e=>e.solo&&e.i===i&&e.mode==='beam');if(e){e.life=.3;e.to=to;e.free=!to;return;}}
+ const life=mode==='beam'?.3:mode==='pulse'?.7:2.2;trial.swfx.push({solo:true,i,k:w.k,mode,to,free:!to,at:mode==='pulse'&&to?.pos?[...to.pos]:null,life,max:life,age:0});
  sndAt(w.k==='hion'?sndPick('ion_heavy','ion'):sndPick('turbolaser_heavy','turbolaser'),trial.P,{gain:1.3,pitch:w.k==='hion'?.55:mode==='pulse'?.6:.75,near:Math.max(3000,trial.p.len*2),far:90000});
  trial.flash=Math.min(1,(trial.flash||0)+.5);
 }
@@ -5096,7 +5192,7 @@ function trialSwStrike(o,kind){
  if(kind==='ion'){
   if(o.kind==='drone'){t.alive=false;t.respawn=TRIAL_SW.droneDown;}else t.ionT=C.SW_COMBAT.hion.down;g.swDown=(g.swDown||0)+1;
   for(let k=0;k<16;k++)trial.fx.push({pos:tv.add(t.pos,rnd(),o.reach*Math.random()),vel:tv.add(vel,rnd(),20+Math.random()*60),life:1,max:1,size:Math.max(14,o.reach*.3),col:[185,160,255]});
-  sndAt('hit_shield',t.pos,{gain:.6});return;}
+  sndAt(sndPick('ion_wash','hit_shield'),t.pos,{gain:.9});return;}
  t.alive=false;t.ionT=0;g.swKills=(g.swKills||0)+1;if(o.kind==='drone')t.respawn=6;else{t.respawn=4;g.kills++;}
  trialExplosion(t.pos,vel,o.kind==='drone'?60:Math.max(80,o.reach*2.2),false);
 }
@@ -5104,6 +5200,9 @@ function trialSwSoloStep(dt){
  const u=trialSwSolo();if(!u||!(dt>0))return;C.swDecay(u,dt);const sw=u.p.sw;let objs=null;
  for(let i=0;i<sw.length;i++){const w=sw[i],x=u.sw[i],K=C.SW_COMBAT[w.k];
   if(x.st==='cool'){x.t-=dt;if(x.t<=0){x.st='charge';x.c=0;}continue;}
+  if(x.st==='beam'&&x.free){if(trial.jump||x.t<=0){x.st='cool';x.t=K.over.T;x.free=false;C.swOverload(u,w);continue;}
+   x.t-=dt;const s=trialSwScan(w,objs||(objs=trialSwObjects())).filter(s=>s.ok).sort((a,b)=>a.off-b.off)[0];
+   if(s){x.free=false;x.tgt=s.o.ref;x.burn=0;}trialSwSoloFx(i,w,'beam',x.tgt);continue;}
   if(x.st==='beam'){const ref=x.tgt,s=ref&&ref.alive!==false&&!trial.jump&&x.t>0?trialSwScan(w,objs||(objs=trialSwObjects())).find(s=>s.o.ref===ref):null;
    if(!s?.ok){x.st='cool';x.t=K.over.T;x.tgt=null;C.swOverload(u,w);continue;}
    x.t-=dt;x.burn+=dt;trialSwSoloFx(i,w,'beam',ref);if(x.burn>=TRIAL_SW.burn)trialSwStrike(s.o,'beam');continue;}
@@ -5179,8 +5278,21 @@ function trialSwMenu(){const m=document.getElementById('thMenu');if(!m||m.queryS
 function trialSwRecord(){const g=trial.gun;return g?.sw?` · 超兵器 ${g.sw} 射${g.swKills?` / 撃破 ${g.swKills}`:''}${g.swDown?` / 無力化 ${g.swDown}`:''}`:'';}
 window.__trialSw={step:dt=>trialSwSoloStep(dt),solo:()=>trialSwSolo(),scan:w=>trialSwScan(w),arc:()=>trialSwArcPoints().length};   // (for tests)
 // Point sprites for the superweapon shots, relative to P (appended to the trial's effects set).
+// v21.2 A hyper-ion cannon nearly charged or holding its shot: violet arcs crawl over its dish, brighter as it fills
+// (the flown ship's own cannons, and those of the ships near the camera in a battle).
+function ionChargePoints(){
+ const out=[],B=trial.battle,P=trial.P,now=performance.now()/1000,eye=view?.eye?view.eye():null,list=[];
+ const me=B?B.me:trial.swSolo;if(me?.sw&&me.p?.sw)list.push(me);
+ if(B&&eye)for(const u of B.b.units){if(u===me||u.dead||u.absent||u.warp||!u.sw||!u.p?.sw?.some(w=>w.k==='hion'))continue;const d=tv.len(tv.sub(tv.sub(spaceWorld(u),P),eye));if(d<60000)list.push(u);}
+ for(const u of list)u.p.sw.forEach((w,i)=>{const x=u.sw[i];if(w.k!=='hion'||!x)return;const f=x.st==='ready'?1:x.st==='charge'?clamp01((x.c-.6)/.4):0;if(!(f>0))return;
+  const m=tv.sub(swMuzzleWorld(u,w),P),ax=swAxisWorld(u,w),v=tv.norm(Math.abs(ax[1])<.9?tv.cross(ax,[0,1,0]):tv.cross(ax,[1,0,0])),v2=tv.cross(ax,v),R=(w.d||310)*.45,fr=Math.floor(now*14),h=j=>{const q=Math.sin(j*12.9898+fr*78.233)*43758.5453;return q-Math.floor(q);};
+  const at=(an,r)=>tv.add(m,tv.add(tv.scale(v,Math.cos(an)*r),tv.scale(v2,Math.sin(an)*r))),A=k=>Math.round(clamp01(k*f)*255);
+  for(let s2=0;s2<8;s2++){let an=h(s2)*Math.PI*2,r=R*(.2+.3*h(s2+20));for(let j=0;j<8;j++){an+=(h(s2*13+j)-.5)*.5;r=Math.min(R,r+R*.09);out.push([at(an,r),[235,215,255,A(.9-j*.08)],Math.max(8,R*.05)]);}}
+  out.push([m,[200,140,255,A(.35+.2*Math.sin(now*9))],R*1.4]);});
+ return out;
+}
 function swFxPoints(dt){
- const B=trial.battle,out=[];if(!trial.swfx?.length)return out;const byId=B?new Map(B.b.units.map(u=>[u.id,u])):null,P=trial.P;
+ const B=trial.battle,out=ionChargePoints();if(!trial.swfx?.length)return out;const byId=B?new Map(B.b.units.map(u=>[u.id,u])):null,P=trial.P;
  // v21.2 A trial flight's shots (e.solo) leave the flown ship and strike buoys and drones, held by reference.
  const rnd=()=>tv.norm([Math.random()-.5,Math.random()-.5,Math.random()-.5]);
  const tgt=(e,id)=>{if(e.solo)return id?.pos?{w:id.pos,L:id.kind==='craft'?40:(trial.asset?.geometry?.targetRadius||60)*2,pt:k=>tv.add(id.pos,rnd(),(trial.asset?.geometry?.targetRadius||60)*k*2*Math.random())}:null;const t=byId?.get(id);return t?{w:t.manual?trial.P:spaceWorld(t),L:t.p.len||300,pt:k=>spaceHullPoint(t,k)}:null;};
@@ -5189,10 +5301,13 @@ function swFxPoints(dt){
   else{const a=byId?.get(e.from);w=a?.p?.sw?.[e.i];if(!a||!w)continue;m=swMuzzleWorld(a,w);ax=swAxisWorld(a,w);}
   // v21.2 A hyper-ion bolt: a crackling violet disc across its flight, as wide as it has spread, a white core.
   if(e.mode==='bolt'){const b=e.solo?trial.soloBolts?.find(q=>q.id===e.bolt):B?.b.ionBolts?.find(q=>q.id===e.bolt);if(!b){e.life=0;continue;}
-   const o=e.solo?b.o:spaceWorldPos(b.o),dir=e.solo?b.dir:trialApply(B.E,b.dir);out.push(...ionBoltPoints(o,dir,b.x,C.ionDiam(b.d,b.x),b.E/b.E0,e.age));continue;}
-  if(e.mode==='beam'||e.mode==='pulse'){const t=tgt(e,e.to);if(!t)continue;const to=e.at||t.w,d=tv.sub(to,m),L=tv.len(d);if(!(L>1))continue;const u=tv.scale(d,1/L),n=Math.min(420,Math.max(40,Math.round(L/45))),k=e.mode==='pulse'?Math.max(0,e.life/e.max):1,fl=.8+.2*Math.sin(e.age*40);
+   const o=e.solo?b.o:spaceWorldPos(b.o),dir=e.solo?b.dir:trialApply(B.E,b.dir);out.push(...ionBoltPoints(o,dir,b.x,C.ionDiam(b.d,b.x),b.E/b.E0,e.age));if(e.age<1.1)out.push(...ionMuzzlePoints(m,ax,w.d||310,e.age));
+   // each ship the pulse washes over crackles with it (the battle's log of the bolt; the solo flight's strikes sound on their own)
+   if(!e.solo&&b.log&&b.log.length>(e.heard||0)){for(const h of b.log.slice(e.heard||0)){const t=byId?.get(h.id);if(t)sndAt(sndPick('ion_wash','ion'),t.manual?trial.P:spaceWorld(t),{gain:1.2,near:Math.max(2500,(t.p.len||300)*2),far:80000});}e.heard=b.log.length;}
+   continue;}
+  if(e.mode==='beam'||e.mode==='pulse'){const t=e.to!=null?tgt(e,e.to):null;if(!t&&!e.free)continue;const to=e.at||(t?t.w:tv.add(m,ax,C.SW_COMBAT[w.k].range)),d=tv.sub(to,m),L=tv.len(d);if(!(L>1))continue;const u=tv.scale(d,1/L),n=Math.min(420,Math.max(40,Math.round(L/45))),k=e.mode==='pulse'?Math.max(0,e.life/e.max):1,fl=.8+.2*Math.sin(e.age*40);
    for(let j=0;j<=n;j++){const q=tv.sub(tv.add(m,u,L*j/n),P);out.push([q,[255,226,205,Math.round(255*k)],32*fl*(e.mode==='pulse'?1.6:1)]);if(j%2===0)out.push([q,[255,70,40,Math.round(150*k)],110*fl*(e.mode==='pulse'?1.5:1)]);}
-   out.push([tv.sub(to,P),[255,240,220,Math.round(255*k)],Math.max(300,t.L*.25)*(e.mode==='pulse'?1.6:1)*fl]);out.push([tv.sub(m,P),[255,200,170,230],140]);}
+   if(t)out.push([tv.sub(to,P),[255,240,220,Math.round(255*k)],Math.max(300,t.L*.25)*(e.mode==='pulse'?1.6:1)*fl]);out.push([tv.sub(m,P),[255,200,170,230],140]);}
   else{const v=tv.norm(Math.abs(ax[1])<.9?tv.cross(ax,[0,1,0]):tv.cross(ax,[1,0,0])),v2=tv.cross(ax,v),k=Math.max(0,e.life/e.max),dist=e.age*16000,rad=Math.max(w.d||150,dist*Math.tan(C.SW_COMBAT.hion.cone)),c=tv.add(m,ax,dist),n=72;
    for(let j=0;j<n;j++){const an=j/n*Math.PI*2,q=tv.add(c,tv.add(tv.scale(v,Math.cos(an)*rad),tv.scale(v2,Math.sin(an)*rad)));out.push([tv.sub(q,P),[175,145,255,Math.round(230*k)],Math.max(60,rad*.06)]);}
    out.push([tv.sub(m,P),[200,180,255,Math.round(240*k)],220]);
@@ -7361,7 +7476,7 @@ function voyPilotInit() {
  trial.R = trialFrame(fw, up);const O = tv.sub(trial.P, trialApply(E, me.pos));
  trial.V = trialApply(E, me.velocity || [0, 0, 0]);trial.vf = tv.dot(trial.V, fw);
  const B = {rts: true, O, E, acc: 0, extra: new Map(), seen: w.battles.get(sys)?.log.at(-1)?.n || 0, result: null, orderT: 0, me, plan: null, ticker: [], kills: 0, disabled: 0, cined: true, hadBattle: w.battles.has(sys), arrive: new Map(), ghosts: [],
-  modIndex: new Map((me.p.modules || []).map((m, i) => [m.fit, i]).filter(([f]) => f != null)), b: {get units() { return R.systemUnits(w, sys); }, get time() { return w.time; }}};
+  modIndex: new Map((me.p.modules || []).map((m, i) => [m.fit, i]).filter(([f]) => f != null)), b: {get units() { return R.systemUnits(w, sys); }, get time() { return w.time; }, get ionBolts() { return (w.ionBolts || []).filter(b => b.sys === sys); }}};
  trial.battle = B;trial.targets = [];trial.vbolts = [];trial.foeCraft = [];trial.foeMissiles = [];trial.ownCraft = [];spaceRefresh();
  let near = null, nd = Infinity;for (const u of R.systemUnits(w, sys)) { if (u.side === me.side || !R.fighting(u)) continue; const d = Math.hypot(u.pos[0] - me.pos[0], u.pos[1] - me.pos[1], u.pos[2] - me.pos[2]); if (d < nd) { nd = d; near = u; } }
  trial.lookAt = near;
@@ -7563,7 +7678,7 @@ function voySysDesc(w, id) {
 function voySpectateInit(snap = true) {
  const {w, sys, uid} = trial.rts, f = w.units.get(uid) && w.units.get(uid).sys === sys ? w.units.get(uid) : R.systemUnits(w, sys).find(R.alive);
  const up = tv.norm(trial.P), E = trialFrame(trialCol(trial.R, 0), up), O = tv.sub(trial.P, trialApply(E, f.pos));
- const B = {rts: true, spectate: true, hadBattle: w.battles.has(sys), O, E, acc: 0, extra: new Map(), seen: w.battles.get(sys)?.log.at(-1)?.n || 0, result: null, me: null, follow: f.id, ticker: [], kills: 0, disabled: 0, cined: true, modIndex: new Map(), arrive: new Map(), ghosts: [], b: {get units() { return R.systemUnits(w, sys); }, get time() { return w.time; }}};
+ const B = {rts: true, spectate: true, hadBattle: w.battles.has(sys), O, E, acc: 0, extra: new Map(), seen: w.battles.get(sys)?.log.at(-1)?.n || 0, result: null, me: null, follow: f.id, ticker: [], kills: 0, disabled: 0, cined: true, modIndex: new Map(), arrive: new Map(), ghosts: [], b: {get units() { return R.systemUnits(w, sys); }, get time() { return w.time; }, get ionBolts() { return (w.ionBolts || []).filter(b => b.sys === sys); }}};
  // Ships still coming out of hyperspace as the view opens arrive as seen from outside.
  for (const u of R.systemUnits(w, sys)) if (u.warp && u.warp.t >= 0) B.arrive.set(u.id, {t: Math.min(.9, u.warp.t)});
  trial.battle = B;trial.targets = [];trial.vbolts = [];trial.foeCraft = [];trial.ownCraft = [];trial.foeMissiles = [];
