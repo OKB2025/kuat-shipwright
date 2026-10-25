@@ -5347,9 +5347,10 @@ const GM_SIDES={r:[7,4,'start'],l:[-7,4,'end'],t:[0,-8,'middle'],b:[0,16,'middle
 function gmLayout(ctx){
  // How far in: the whole galaxy shows the best known names only, a region the better known, a sector all.
  const st=GMAP[ctx],svg=st.root.querySelector('.gm-svg'),[x0,y0]=st.vb,s=st.s,W=st.cw,H=st.ch,ppu=GM_U/s,maxTier=ppu<24?1:ppu<42?2:3,fs=ppu<24?10:11,boxes=[],labels=[],over=(b,list)=>list.some(q=>b[0]<q[2]&&b[2]>q[0]&&b[1]<q[3]&&b[3]>q[1]),out=b=>b[0]<2||b[1]<2||b[2]>W-2||b[3]>H-2;
+ window.KSI18n?.localize(svg);
  const items=[];for(const g of svg.querySelectorAll('.gs')){const sx=(+g.dataset.x-x0)/s,sy=(+g.dataset.y-y0)/s,s0=Galaxy.BY[g.dataset.k];items.push({g,s0,sx,sy});boxes.push([sx-4.5,sy-4.5,sx+4.5,sy+4.5]);}
  for(const g of svg.querySelectorAll('.gm-badge')){const sx=(+g.dataset.x-x0)/s,sy=(+g.dataset.y-y0)/s;boxes.push([sx-8,sy-8,sx+8,sy+8]);}
- for(const g of svg.querySelectorAll('.gm-thl.e-'+(st.era||'gcw'))){const t=Galaxy.THEATER_BY[g.dataset.th],sx=(+g.dataset.x-x0)/s,sy=(+g.dataset.y-y0)/s;if(t&&sx>-200&&sx<W&&sy>0&&sy<H+20)labels.push([sx+2,sy-16,sx+6+t.name.length*10.5,sy-1]);}
+ for(const g of svg.querySelectorAll('.gm-thl.e-'+(st.era||'gcw'))){const t=Galaxy.THEATER_BY[g.dataset.th],sx=(+g.dataset.x-x0)/s,sy=(+g.dataset.y-y0)/s;if(t&&sx>-200&&sx<W&&sy>0&&sy<H+20)labels.push([sx+2,sy-16,sx+6+(g.querySelector('text').getComputedTextLength()||T(t.name).length*7),sy-1]);}
  // (and clear of the zoom buttons)
  const ctl=st.root.querySelector('.gm-ctl')?.getBoundingClientRect(),sr=svg.getBoundingClientRect();if(ctl&&ctl.width)labels.push([ctl.left-sr.left-4,ctl.top-sr.top-4,ctl.right-sr.left+4,ctl.bottom-sr.top+4]);for(const q of [st.era==='cw'&&st.root.querySelector('.gm-era-key'),st.root.querySelector('.gm-era-btn')]){const ek=q&&q.getBoundingClientRect();if(ek&&ek.width)labels.push([ek.left-sr.left-2,ek.top-sr.top-2,ek.right-sr.left+2,ek.bottom-sr.top+2]);}
  const pri=it=>it.s0.key===st.sel?0:it.s0.key===st.cur?1:(it.s0.tier||3)+1;items.sort((a,b)=>pri(a)-pri(b));
@@ -5357,9 +5358,11 @@ function gmLayout(ctx){
  for(const it of items){
   const n=it.g.querySelector('.gs-n'),sub=it.g.querySelector('.gs-sub'),big=pri(it)<=1,on=it.sx>-40&&it.sy>-20&&it.sx<W+40&&it.sy<H+20&&(big||(it.s0.tier||3)<=maxTier),f=big?12:fs;
   const subTxt=it.s0.key===st.cur?st.curTag||'現在地':it.s0.key===st.sel?st.selTag||'':'';
+  n.style.fontSize=big?'':f+'px';n.style.display='';sub.style.display='';sub.textContent=subTxt;window.KSI18n?.localize(sub);
+  const labelWidth=Math.max(n.getComputedTextLength()||T(it.s0.name).length*f,subTxt?sub.getComputedTextLength():0);
   let placed=false;const sides=[it.s0.lab||'r',...order.filter(o=>o!==(it.s0.lab||'r'))];
   // A name goes clear of every dot and name (the selected and current systems' first, wherever is clearest).
-  const box=side=>{const [dx,dy,anc]=GM_SIDES[side],w=it.s0.name.length*f*.98+2,x=anc==='start'?it.sx+dx:anc==='end'?it.sx+dx-w:it.sx-w/2;return [x-3,it.sy+dy-f-1,x+w+3,it.sy+dy+3+(subTxt?11:0)];};
+  const box=side=>{const [dx,dy,anc]=GM_SIDES[side],w=labelWidth+2,x=anc==='start'?it.sx+dx:anc==='end'?it.sx+dx-w:it.sx-w/2;return [x-3,it.sy+dy-f-1,x+w+3,it.sy+dy+3+(subTxt?11:0)];};
   const own=[it.sx-4.5,it.sy-4.5,it.sx+4.5,it.sy+4.5],dots=b=>boxes.filter(q=>q[0]!==own[0]||q[1]!==own[1]).filter(q=>b[0]<q[2]&&b[2]>q[0]&&b[1]<q[3]&&b[3]>q[1]).length;
   let pick=null;
   if(on&&big)pick=sides.map(sd=>({sd,b:box(sd)})).sort((p,q)=>(over(p.b,labels)-over(q.b,labels))||(dots(p.b)-dots(q.b)))[0];
@@ -6986,6 +6989,13 @@ const VOY_SHIPNAMES = {
  cis: [...Object.values(VOY_CIS_RENAME), 'シナジー', 'レバレッジ', 'アービトラージ', 'ポートフォリオ', 'ベンチマーク', 'コンプライアンス', 'ガバナンス', 'ソリューション', 'イノベーション', 'スケーラビリティ', 'ディスラプション', 'パラダイム・シフト', 'コア・コンピタンス', 'バリュー・チェーン', 'サプライ・チェーン', 'アウトソーシング', 'ダウンサイジング', 'ライトサイジング', 'ゴールデン・パラシュート', 'ポイズン・ピル', 'ホワイト・ナイト', 'クラウン・ジュエル', 'ベア・ハグ', 'グリーンメール', 'ジャンク・ボンド', 'デリバティブ', 'ショート・セリング', 'マージン・コール', 'キャピタル・ゲイン', 'キャッシュ・フロー', 'ボトムライン', 'ステークホルダー', 'アセット・ストリッピング', 'フォース・マジュール', 'レバレッジド・バイアウト', 'ハイ・イールド', 'タックス・ヘイブン', 'ベイルアウト', 'モノポリー', 'カルテル', 'コングロマリット', 'ゴーイング・コンサーン', 'プライス・ウォー', 'スクイーズアウト', 'ゴールデン・シェア', 'リバース・マージャー', 'プロフィット・センター', 'マーケット・メイカー', 'ディープ・ディスカウント', 'テイク・プライベート']
 };
 function voyNamePool(f) { return f === 'empire' ? [...VOY_SHIPNAMES.imperial, ...VOY_SHIPNAMES.rn, ...VOY_SHIPNAMES.roman] : f === 'republic' ? [...VOY_SHIPNAMES.rn, ...VOY_SHIPNAMES.roman] : f === 'cis' ? VOY_SHIPNAMES.cis : VOY_SHIPNAMES.rebel; }
+// Localized labels never replace the canonical saved name. A player edit is verbatim.
+function voyDisplayName(row) { return row.customName ? String(row.name || '') : T(row.name || ''); }
+function voyNameHTML(row) { return `<span translate="no">${esc(voyDisplayName(row))}</span>`; }
+function voySetName(row, value) {
+ const name = value.trim().slice(0, 48);if (!name || name === voyDisplayName(row)) return false;
+ row.name = name;row.customName = true;return true;
+}
 function voyNextName(f, used, rand = Math.random) {
  const pool = voyNamePool(f), free = pool.filter(n => !used.has(n));if (free.length) return free[Math.floor(rand() * free.length)];
  for (const suf of ['II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X']) { const left = pool.map(n => `${n} ${suf}`).filter(n => !used.has(n)); if (left.length) return left[Math.floor(rand() * left.length)]; }
@@ -6993,10 +7003,10 @@ function voyNextName(f, used, rand = Math.random) {
 }
 
 // ---------- the order of battle (艦隊編成) ----------
-// Each navy's fleet is organised in combined task groups (合同任務群) of task
-// groups (任務群) of four to eight ships; every ship has a name. The orders of
+// Each navy's fleet is organised in combined task forces (合同任務群) of task
+// forces (任務群) of four to eight ships; every ship has a name. The orders of
 // battle are kept in this browser, one per navy, and the fleet battle sends out
-// the task groups chosen from it.
+// the task forces chosen from it.
 const ORBAT_KEY = 'yard.orbat.v1', TG_MIN = 4, TG_MAX = 8;
 function voyOrbatLoad() {
  try { const d = JSON.parse(LS.get(ORBAT_KEY) || 'null'); if (d && d.version === 1 && d.factions) { if (voyRenameCis(d)) LS.set(ORBAT_KEY, JSON.stringify(d)); return d; } } catch (e) { /* a broken store starts afresh */ }
@@ -7006,6 +7016,7 @@ function voyOrbatLoad() {
 function voyRenameCis(d) {
  let n = 0;
  for (const ob of Object.values(d.factions || {})) for (const c of ob.ctgs || []) for (const t of c.tgs || []) for (const sh of t.ships || []) {
+  if (sh.customName) continue;
   const m = /^(.*?)( (?:II|III|IV|V|VI|VII|VIII|IX|X))?$/.exec(String(sh.name || '')), to = m && Object.hasOwn(VOY_CIS_RENAME, m[1]) ? VOY_CIS_RENAME[m[1]] : null;
   if (to) { sh.name = to + (m[2] || ''); n++; }
  }
@@ -7021,7 +7032,7 @@ const voyObShips = ob => ob.ctgs.flatMap(c => c.tgs.flatMap(t => t.ships));
 const voyObTgs = ob => ob.ctgs.flatMap(c => c.tgs);
 const voyUid = ob => (ob.next = (ob.next || 1) + 1, 'o' + ob.next);
 // A copy of a ship of the order of battle: its class and everything aboard, a new id and name.
-function voyCopyShip(ob, sh, faction) { const used = new Set(voyObShips(ob).map(x => x.name)), x = JSON.parse(JSON.stringify(sh));x.id = voyUid(ob);x.name = voyNextName(faction, used);return x; }
+function voyCopyShip(ob, sh, faction) { const used = new Set(voyObShips(ob).map(x => x.name)), x = JSON.parse(JSON.stringify(sh));x.id = voyUid(ob);x.name = voyNextName(faction, used);delete x.customName;return x; }
 // Designs can be example classes, saved designs ('save:…') or the one on the drawing board ('current').
 function voyShipDesign(sh) { return voyDesign(sh.key) || voyDesign(sh.src) || null; }
 // ---- carried ships (v19): small ships in a carrier's hangar ----
@@ -7219,16 +7230,16 @@ function voyOrbatHTML(s, ob) {
 }
 function voyCtgHTML(s, ob, c) {
  const ships = c.tgs.flatMap(t => t.ships), t = voyShipsTotals(ships);
- return `<section class="voy-card voy-wide ob-ctg" data-ctg="${c.id}"><div class="voy-card-head"><input class="ob-name ob-ctgname" data-obname="ctg" value="${esc(c.name)}" aria-label="合同任務群の名前" maxlength="24"><span class="vs-sub">${c.tgs.length} 個任務群 · ${ships.length} 隻 · 乗員 ${num(t.people)} 名</span><div class="vs-acts"><button type="button" class="btn sm" data-ob="tgadd">任務群を追加</button><button type="button" class="btn sm ghost" data-ob="ctgdel" aria-label="この合同任務群を解散">×</button><button type="button" class="btn sm ghost" data-ob="ctgdup" title="同じ編成・同じ搭載の合同任務群を追加">この合同任務群を複製</button></div></div>
+ return `<section class="voy-card voy-wide ob-ctg" data-ctg="${c.id}"><div class="voy-card-head"><input class="ob-name ob-ctgname" data-obname="ctg" value="${esc(voyDisplayName(c))}" aria-label="合同任務群の名前" maxlength="48"><span class="vs-sub">${c.tgs.length} 個任務群 · ${ships.length} 隻 · 乗員 ${num(t.people)} 名</span><div class="vs-acts"><button type="button" class="btn sm" data-ob="tgadd">任務群を追加</button><button type="button" class="btn sm ghost" data-ob="ctgdel" aria-label="この合同任務群を解散">×</button><button type="button" class="btn sm ghost" data-ob="ctgdup" title="同じ編成・同じ搭載の合同任務群を追加">この合同任務群を複製</button></div></div>
   <div class="ob-tgs">${c.tgs.map(tg => voyTgHTML(s, ob, tg)).join('') || '<p class="muted">任務群がありません。</p>'}</div></section>`;
 }
 function voyTgHTML(s, ob, tg) {
  const n = tg.ships.length, warn = n && n < TG_MIN ? `（${TG_MIN}隻未満）` : '', full = n >= TG_MAX, tgs = voyObTgs(ob);
- return `<div class="ob-tg" data-tg="${tg.id}"><div class="ob-tg-head"><input class="ob-name" data-obname="tg" value="${esc(tg.name)}" aria-label="任務群の名前" maxlength="24"><label class="ob-form">陣形<select data-obform>${Object.entries(R.FORMATIONS).map(([k, v]) => `<option value="${k}" ${tg.formation === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label><b class="ob-count${warn ? ' warn' : ''}">${n} / ${TG_MAX} 隻${warn}</b><button type="button" class="btn sm ghost" data-ob="tgdel" aria-label="この任務群を解散">×</button><button type="button" class="btn sm ghost" data-ob="tgdup" title="同じ艦級・同じ搭載の任務群をこの合同任務群に追加">この任務群を複製</button></div>
+ return `<div class="ob-tg" data-tg="${tg.id}"><div class="ob-tg-head"><input class="ob-name" data-obname="tg" value="${esc(voyDisplayName(tg))}" aria-label="任務群の名前" maxlength="48"><label class="ob-form">陣形<select data-obform>${Object.entries(R.FORMATIONS).map(([k, v]) => `<option value="${k}" ${tg.formation === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label><b class="ob-count${warn ? ' warn' : ''}">${n} / ${TG_MAX} 隻${warn}</b><button type="button" class="btn sm ghost" data-ob="tgdel" aria-label="この任務群を解散">×</button><button type="button" class="btn sm ghost" data-ob="tgdup" title="同じ艦級・同じ搭載の任務群をこの合同任務群に追加">この任務群を複製</button></div>
   <ul class="ob-ships">${tg.ships.map((sh, i) => { const d = voyShipDesign(sh), air = R.airTotals(sh.air), troops = (sh.ground || []).reduce((k, r) => k + R.regimentTotals(r).troops, 0), dem = voyShipDemand(sh), st = d && voyHasStow(d) && (sh.air?.length || sh.carried?.length) ? voyStowShort(sh, d) : null;
-   return `<li class="ob-ship" data-ship="${sh.id}"><span class="ob-flag" title="${i ? '' : '旗艦（任務群の先頭）'}">${i ? '' : '旗'}</span><input class="ob-name" data-obname="ship" value="${esc(sh.name)}" aria-label="艦名" maxlength="28"><small class="ob-cls">${d ? `${esc(voyShort(d.name))} · ${fLen(d.info.len)} · 乗員 ${num(dem.people)}` : '準備中…'}</small>
+   return `<li class="ob-ship" data-ship="${sh.id}"><span class="ob-flag" title="${i ? '' : '旗艦（任務群の先頭）'}">${i ? '' : '旗'}</span><input class="ob-name" data-obname="ship" value="${esc(voyDisplayName(sh))}" aria-label="艦名" maxlength="48"><small class="ob-cls">${d ? `${esc(voyShort(d.name))} · ${fLen(d.info.len)} · 乗員 ${num(dem.people)}` : '準備中…'}</small>
     <button type="button" class="ve-orbat${st && st.short ? ' warn' : ''}" data-ob="air"><span>航空</span><b>${air.n ? `${num(air.n)} 機` : d?.info.slotCap || d?.info.hangarCap ? '未搭載' : '—'}${sh.carried?.length ? ` ＋艦 ${sh.carried.length}` : ''}${st && st.short ? ` · ${num(st.short)} 入らず` : ''}</b></button><button type="button" class="ve-orbat" data-ob="ground"><span>陸戦</span><b>${troops ? `${num(troops)} ${voy.setup.own === 'cis' ? '体' : '名'}` : R.troopRoom(d?.info || {}, voy.setup.own) ? '未乗艦' : '—'}</b></button>
-    <label class="ob-move">所属<select data-obmove>${tgs.map(x => `<option value="${x.id}" ${x.id === tg.id ? 'selected' : ''} ${x.id !== tg.id && x.ships.length >= TG_MAX ? 'disabled' : ''}>${esc(x.name)}</option>`).join('')}</select></label>
+    <label class="ob-move">所属<select data-obmove>${tgs.map(x => `<option value="${x.id}" ${x.id === tg.id ? 'selected' : ''} ${x.id !== tg.id && x.ships.length >= TG_MAX ? 'disabled' : ''} translate="no">${esc(voyDisplayName(x))}</option>`).join('')}</select></label>
     <span class="ob-ord">${i ? `<button type="button" class="btn sm ghost" data-ob="lead" title="任務群の先頭（旗艦）にする">旗艦に</button>` : ''}<button type="button" class="btn sm ghost" data-ob="shipdel" aria-label="艦を外す">×</button><button type="button" class="btn sm ghost" data-ob="shipdup" title="同じ艦級・同じ搭載の艦を、この任務群にもう1隻">この艦級を複製</button></span></li>`; }).join('') || '<li class="muted">艦がありません</li>'}</ul>
   <div class="voy-add"><select data-obadd aria-label="追加する艦">${voyDesignOptions(s.own)}</select><button type="button" class="btn sm" data-ob="shipadd" ${full ? 'disabled' : ''}>${full ? `${TG_MAX}隻まで` : '艦を追加'}</button></div></div>`;
 }
@@ -7243,7 +7254,7 @@ function voySortieHTML(s, ob) {
    ${voyBar('総乗員数（乗組員・操縦士・陸戦隊）', t.people, cap.people)}${voyBar('資材（補給品・予備品）', t.supply, cap.supply, x => num(Math.round(x)) + ' t')}
    <p class="note">艦数の上限はありません。枠は乗員数と資材だけです（計算の都合で一度に出せるのは片軍 ${VOY_SHIP_CAP} 隻まで）。出撃させる任務群を下で選びます。</p>${ships.some(sh => !voyShipDesign(sh)) ? `<p class="note bad">設計を準備できない艦 ${ships.filter(sh => !voyShipDesign(sh)).length} 隻は出撃しません${voy.pending.size ? '（準備中）' : ''}。</p>` : ''}${ships.length > VOY_SHIP_CAP ? `<p class="note bad">${ships.length} 隻は多すぎます。任務群を減らしてください。</p>` : ''}</section>
   <section class="voy-card voy-wide"><div class="voy-card-head"><h3>出撃させる任務群</h3><div class="vs-acts"><button type="button" class="btn sm ghost" data-voy="selall">すべて選ぶ</button><button type="button" class="btn sm ghost" data-voy="tab:orbat">編成を変える</button></div></div>
-   ${ob.ctgs.map(c => `<div class="ob-pick"><label class="ob-pick-ctg"><input type="checkbox" data-pickctg="${c.id}" ${c.tgs.every(x => s.sel[x.id] !== false) ? 'checked' : ''}><b>${esc(c.name)}</b></label><div class="ob-pick-tgs">${c.tgs.map(x => { const tt = voyShipsTotals(x.ships); return `<label class="ob-pick-tg"><input type="checkbox" data-picktg="${x.id}" ${s.sel[x.id] !== false ? 'checked' : ''}><span><b>${esc(x.name)}</b><small>${x.ships.length} 隻 · ${esc(R.FORMATIONS[x.formation] || '')} · 乗員 ${num(tt.people)} · ${esc(x.ships.map(sh => sh.name).slice(0, 4).join('・'))}${x.ships.length > 4 ? ' ほか' : ''}</small></span></label>`; }).join('')}</div></div>`).join('') || '<p class="muted">編成がありません。「艦隊編成」で作ってください。</p>'}</section>`;
+   ${ob.ctgs.map(c => `<div class="ob-pick"><label class="ob-pick-ctg"><input type="checkbox" data-pickctg="${c.id}" ${c.tgs.every(x => s.sel[x.id] !== false) ? 'checked' : ''}><b>${voyNameHTML(c)}</b></label><div class="ob-pick-tgs">${c.tgs.map(x => { const tt = voyShipsTotals(x.ships); return `<label class="ob-pick-tg"><input type="checkbox" data-picktg="${x.id}" ${s.sel[x.id] !== false ? 'checked' : ''}><span><b>${voyNameHTML(x)}</b><small>${x.ships.length} 隻 · ${esc(R.FORMATIONS[x.formation] || '')} · 乗員 ${num(tt.people)} · ${x.ships.slice(0, 4).map(voyNameHTML).join(' · ')}${x.ships.length > 4 ? ' ほか' : ''}</small></span></label>`; }).join('')}</div></div>`).join('') || '<p class="muted">編成がありません。「艦隊編成」で作ってください。</p>'}</section>`;
 }
 // ---- the order of battle of one ship (air wing and embarked troops) ----
 function voyFindShip(id) { const ob = voyOb(voy.setup.own); for (const c of ob.ctgs) for (const t of c.tgs) for (const sh of t.ships) if (sh.id === id) return {ob, c, t, sh}; return null; }
@@ -7269,7 +7280,7 @@ function voyOrbatSheet() {
   <div class="voy-row"><button type="button" class="btn sm" data-vo="regadd">連隊を追加（${esc(R.REGIMENT_TEMPLATES[voy.setup.own]?.name || '連隊')}）</button><button type="button" class="btn sm ghost" data-vo="grdefault">お任せ（史実の陸戦隊）</button><button type="button" class="btn sm ghost" data-vo="grclear">すべて降ろす</button></div>
   <p class="note">連隊は4個大隊、大隊は4個中隊（144名）。乗艦した陸戦隊は拿捕のときに移乗攻撃の兵力になります。車両は輸送機の積載区画か格納庫（航空機と共用）に寸法で入ります。</p>`;
  }
- el.innerHTML = `<div class="voy-sheet-card" role="dialog" aria-label="編成の詳細"><div class="voy-sheet-head"><div><span class="eyebrow">${esc(e.name)} · ${esc(voyShort(d.name))}</span><h3>${tab === 'air' ? '航空隊・搭載艦' : '陸戦隊'}の編成</h3></div><div class="seg" role="group"><button type="button" data-vo="tab:air" aria-pressed="${tab === 'air'}">航空隊</button><button type="button" data-vo="tab:ground" aria-pressed="${tab === 'ground'}">陸戦隊</button></div><button type="button" class="btn sm" data-vo="close">閉じる</button></div><div class="voy-sheet-body">${body}</div></div>`;
+ el.innerHTML = `<div class="voy-sheet-card" role="dialog" aria-label="編成の詳細"><div class="voy-sheet-head"><div><span class="eyebrow">${voyNameHTML(e)} · ${esc(voyShort(d.name))}</span><h3>${tab === 'air' ? '航空隊・搭載艦' : '陸戦隊'}の編成</h3></div><div class="seg" role="group"><button type="button" data-vo="tab:air" aria-pressed="${tab === 'air'}">航空隊</button><button type="button" data-vo="tab:ground" aria-pressed="${tab === 'ground'}">陸戦隊</button></div><button type="button" class="btn sm" data-vo="close">閉じる</button></div><div class="voy-sheet-body">${body}</div></div>`;
 }
 // v22 A squadron's stores (搭載): お任せ is the craft's canon loadout (R.CRAFT[k].load, C.CRAFT_LOADOUT); the presets fill
 // every station that takes one kind, or carry another canon load (a Y-wing's ion torpedoes at Scarif); each station's
@@ -7296,7 +7307,7 @@ function voySqLoadHTML(q, i) {
 // offering the craft (a new squadron) and the ships that fit a bay (greyed when there is no room left).
 function voyCarryCands(e, d) { return voyExampleDesigns().filter(x => voyServes(x, voy.setup.own)).map(x => ({x, fit: voyCarryFit(d, x)})).filter(o => o.fit.ok).sort((a, b) => a.fit.size - b.fit.size); }
 function voyCarriedRowsHTML(e, d) {
- const rows = (e.carried || []).map((c, i) => { const d2 = voyShipDesign(c), f = d2 ? voyCarryFit(d, d2) : null; return `<div class="vo-sq"><span><b>${esc(c.name)}</b> <small>${d2 ? `${num(Math.round(f.dims[0]))} × ${num(Math.round(f.dims[1]))} × ${num(Math.round(f.dims[2]))} m · サイズ ${num(f.size, 1)}` : '設計なし'}</small></span><button type="button" class="btn sm ghost" data-cardel="${i}" aria-label="搭載艦を降ろす">×</button></div>`; }).join('');
+ const rows = (e.carried || []).map((c, i) => { const d2 = voyShipDesign(c), f = d2 ? voyCarryFit(d, d2) : null; return `<div class="vo-sq"><span><b>${voyNameHTML(c)}</b> <small>${d2 ? `${num(Math.round(f.dims[0]))} × ${num(Math.round(f.dims[1]))} × ${num(Math.round(f.dims[2]))} m · サイズ ${num(f.size, 1)}` : '設計なし'}</small></span><button type="button" class="btn sm ghost" data-cardel="${i}" aria-label="搭載艦を降ろす">×</button></div>`; }).join('');
  return rows ? `<div class="vo-wing vo-carried"><h4>搭載艦艇</h4>${rows}</div>` : '';
 }
 function voyEmbarkAddHTML(e, d) {
@@ -7327,7 +7338,9 @@ function voyBindSetup() {
  root.addEventListener('change', e => {
   const t = e.target, s = voy.setup;if (!s || voy.screen !== 'setup' && !t.closest('#voySheet')) return;const ob = voyOb(s.own);
   if (t.dataset.voyset) { const k = t.dataset.voyset; s[k] = t.value; if (k === 'own') { s.sel = {}; voyEnsureDesigns(voyOb(s.own)); s.foe = voyDefaultFoe(s); } if (k === 'region') voyRegionSides(s); voyRenderSetup(); return; }
-  if (t.dataset.obname != null) { const v = t.value.trim().slice(0, 28); if (!v) { voyRenderSetup(); return; } const kind = t.dataset.obname, el = t.closest(kind === 'ctg' ? '[data-ctg]' : kind === 'tg' ? '[data-tg]' : '[data-ship]'); if (kind === 'ctg') { const c = ob.ctgs.find(x => x.id === el.dataset.ctg); if (c) c.name = v; } else if (kind === 'tg') { const x = voyObTgs(ob).find(q => q.id === el.dataset.tg); if (x) x.name = v; } else { const f = voyFindShip(el.dataset.ship); if (f) f.sh.name = v; } voyObChanged(false); return; }
+  if (t.dataset.obname != null) { const kind = t.dataset.obname, el = t.closest(kind === 'ctg' ? '[data-ctg]' : kind === 'tg' ? '[data-tg]' : '[data-ship]');
+   const row = kind === 'ctg' ? ob.ctgs.find(x => x.id === el.dataset.ctg) : kind === 'tg' ? voyObTgs(ob).find(x => x.id === el.dataset.tg) : voyFindShip(el.dataset.ship)?.sh;
+   if (row && voySetName(row, t.value)) voyObChanged(false);if (row) t.value = voyDisplayName(row);return; }
   if ('obform' in t.dataset) { const x = voyObTgs(ob).find(q => q.id === t.closest('[data-tg]').dataset.tg); if (x && R.FORMATIONS[t.value]) x.formation = t.value; voyObChanged(false); return; }
   if ('obmove' in t.dataset) { const f = voyFindShip(t.closest('[data-ship]').dataset.ship), to = voyObTgs(ob).find(q => q.id === t.value); if (f && to && to !== f.t && to.ships.length < TG_MAX) { f.t.ships.splice(f.t.ships.indexOf(f.sh), 1); to.ships.push(f.sh); } voyObChanged(); return; }
   if (t.dataset.pickctg) { const c = ob.ctgs.find(x => x.id === t.dataset.pickctg); if (c) for (const x of c.tgs) s.sel[x.id] = t.checked; voyRenderSetup(); return; }
@@ -7486,7 +7499,7 @@ function voySelUnits(s) {
  const w = voy.w, sys = voy.tac.sys, of = g => g.units.map(id => w.units.get(id)).filter(u => R.alive(u) && u.sys === sys);
  return s.kind === 'ship' ? s.units : s.kind === 'tg' ? of(s.g) : s.kind === 'ctg' ? voyCtgGroups(s.c).flatMap(of) : [];
 }
-const voyTgShort = n => String(n || '').replace(/合同任務群$/, 'CTG').replace(/任務群$/, 'TG').replace(/^第/, '');
+const voyTgShort = n => String(n || '').replace(/^第(\d+)合同任務群$/, 'CTF-$1').replace(/^第(\d+)任務群$/, 'TF-$1');
 function voyGroupPos(g) { return R.groupMapPos(voy.w, g); }
 // Where a lane from p (inside the square) toward q leaves the square.
 function voyEdgeHit(S, p, q) { let t = 1; for (const i of [0, 1]) { const d = q[i] - p[i]; if (!d) continue; if (q[i] > S.size) t = Math.min(t, (S.size - p[i]) / d); if (q[i] < 0) t = Math.min(t, -p[i] / d); } return [p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t]; }
@@ -9535,6 +9548,9 @@ window.addEventListener('ks-language-change',()=>{
  if(S){renderStrip();if(fleet.mode==='design')renderSpecTargets();}
  requestDraw();if(st.palQuery)paletteSearch(st.palQuery);if(voy.w)voy.dirty=true;
  if(tut.on)tutRender();if(vtut.on)vtutRender();
+ // SVG label collision boxes must use the displayed language, including after a switch.
+ for(const k of Object.keys(GMAP))if(GMAP[k].root?.isConnected)gmApply(k);
+ if(voy.screen==='setup' && !document.activeElement?.matches('[data-obname]')){voyRenderSetup();if(voy.setup?.editing)voyOrbatSheet();}
 });
 function bindVoyage() { voyBindSetup(); voyBindMap(); document.addEventListener('click', e => { const hb = e.target.closest('[data-vhit],[data-vhitplay],[data-vhitclose]'); if (hb) { if (hb.dataset.vhit) { const [id, i] = hb.dataset.vhit.split(':'); voyHitReplay(id, +i); } else if ('vhitplay' in hb.dataset && voy.replay) voy.replay.t0 = performance.now(); else { $('#voySheet').hidden = true; voy.replay = null; } return; } if (trial.spectate) { const sb = e.target.closest('[data-spec]'); if (sb) { voySpectateCmd(sb.dataset.spec); return; } const mk = e.target.closest('.th-tmark'); if (mk?.dataset.tmark?.startsWith('u')) { voySpectateCmd('follow:' + mk.dataset.tmark.slice(1)); return; } if (mk?.dataset.tmark?.startsWith('q')) { voySpectateCmd('sq:' + mk.dataset.tmark.slice(1)); return; } } const b = e.target.closest('[data-voyopen]'); if (b) { e.preventDefault(); voyOpenWithCurrent(); } }); window.__voy = {voy, R, open: voyOpen, pilot: voyPilot, go: voyGo, spectate: voySpectate, step: voySpectateStep, pilotStep: voyPilotStep, tap: voyMapTap, follow: voySpectateSwitch, tut: voyTutStart, vtut, vtutGo, load: {show: loadShow, hide: loadHide, shots}, fxStep: (dt, n = 1) => { for (let i = 0; i < n; i++) { trialWrecksStep(dt); trialFxStep(dt); } }}; }
 
