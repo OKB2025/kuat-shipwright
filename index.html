@@ -1,4 +1,4 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html lang="ja"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <title>航宙艦設計局 KUAT SHIPWRIGHT</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=Share+Tech+Mono&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap">
@@ -1249,7 +1249,7 @@ body.tut-on .inspect{bottom:calc(70px + var(--sa-bottom,0px))}
       </nav>
       <section class="title-panel" id="titlePanel" hidden></section>
     </div>
-    <footer class="title-foot">
+    <footer class="title-foot"><label class="ks-language" translate="no">Language / 言語 <select data-language aria-label="Language / 言語"><option value="ja">日本語</option><option value="en">English</option></select></label>
       <ol class="title-steps" id="titleSteps" aria-label="読み込みの進行">
         <li data-step="data">3Dモデル素材</li><li data-step="engine">設計エンジン</li><li data-step="view">3D表示</li><li data-step="draft">下書きの先読み</li>
       </ol>
@@ -1267,7 +1267,7 @@ body.tut-on .inspect{bottom:calc(70px + var(--sa-bottom,0px))}
       <svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><path class="m1" d="M3 22 L29 16 L3 10 Z"/><path class="m2" d="M3 25 H29 M3 7 H29"/></svg>
       <div class="brand-txt">
         <span class="brand-name">航宙艦設計局</span>
-        <button type="button" class="ship-name" id="shipName" aria-label="艦名と設計図">—</button>
+        <button type="button" class="ship-name" id="shipName" data-l10n-skip aria-label="艦名と設計図">—</button>
       </div>
     </div>
     <div class="tb-actions">
@@ -1341,7 +1341,7 @@ body.tut-on .inspect{bottom:calc(70px + var(--sa-bottom,0px))}
     <footer class="ls-foot"><div class="ls-bar" aria-hidden="true"><i></i></div><p class="ls-text" id="lsText">準備中…</p><p class="ls-tip" id="lsTip"></p></footer>
   </div>
   <div class="sheet-backdrop" id="sheetBg" hidden></div>
-  <section class="sheet" id="sheet" hidden aria-label="設計図">
+  <section class="sheet" id="sheet" hidden aria-label="設計図"><label class="ks-language" translate="no">Language / 言語 <select data-language aria-label="Language / 言語"><option value="ja">日本語</option><option value="en">English</option></select></label>
     <div class="sheet-head"><h2>設計図</h2><button type="button" class="btn ghost sm" id="btnTitle">タイトル画面</button><button type="button" class="btn ghost sm" id="btnClose">閉じる</button></div>
     <section>
       <h3>艦名</h3>
@@ -1424,7 +1424,10 @@ body.tut-on .inspect{bottom:calc(70px + var(--sa-bottom,0px))}
 </div>
 
 
-<script>window.KS_FILES={data:["data/reference.js","data/textures.js","data/imperial2.js","data/fleet.js"],core:"js/core.js",gfx:"js/gfx.js",engine:"js/engine.js",app:"js/app.js",worker:"js/worker.js",sizes:{"data/reference.js":6270785,"data/textures.js":2338303,"data/imperial2.js":83602,"data/fleet.js":1032326,"js/core.js":1577867,"js/gfx.js":192190,"js/engine.js":15964,"js/app.js":1126575}};</script>
+<style>.ks-language{display:flex;align-items:center;gap:8px;font-size:12px;padding:6px 0;color:#b7c9d2}.ks-language select{font:inherit;color:#eef4f7;background:#14232c;border:1px solid #34505e;border-radius:6px;padding:6px}.brand,.brand-txt{min-width:0}.brand-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}html[lang=en] #tabs button{font-size:11px}.title-foot{flex-wrap:wrap}</style>
+<script src="js/lang-en.js"></script>
+<script src="js/i18n.js"></script>
+<script>window.KS_FILES={data:["data/reference.js","data/textures.js","data/imperial2.js","data/fleet.js"],core:"js/core.js",gfx:"js/gfx.js",engine:"js/engine.js",app:"js/app.js",worker:"js/worker.js",sizes:{"data/reference.js":6270785,"data/textures.js":2338303,"data/imperial2.js":83602,"data/fleet.js":1032326,"js/core.js":1578471,"js/gfx.js":192190,"js/engine.js":15964,"js/app.js":1127601}};</script>
 <script>
 /* ============================================================
    boot.js — title screen first, then the 3D assets, the engine

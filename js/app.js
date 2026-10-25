@@ -1320,15 +1320,20 @@ if (hasDoc) document.addEventListener('visibilitychange', onVis);
 (() => {
 'use strict';
 const C = Core;
+const I18N=window.KSI18n,T=s=>I18N?I18N.t(s):String(s??'');
+const sourceText=el=>I18N?I18N.sourceText(el):el?.textContent||'';
+const localCanvas=ctx=>I18N?I18N.canvas(ctx):ctx;
+function setHTML(el,html){if(el._sourceHTML!==html){el._sourceHTML=html;el.innerHTML=html;}}
 const $ = (s, r) => (r || document).querySelector(s);
 const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
 const esc = (s) => String(s).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 
 // ---------- formatting ----------
 const SUP = {'0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹', '-': '⁻'};
-const num = (v, d) => v.toLocaleString('ja-JP', {maximumFractionDigits: d || 0, minimumFractionDigits: d || 0});
+const num = (v, d) => v.toLocaleString(I18N?.locale||'ja-JP', {maximumFractionDigits: d || 0, minimumFractionDigits: d || 0});
 function ja(v, d) {
   const a = Math.abs(v);
+  if(I18N?.language==='en'){for(const [limit,suffix]of [[1e12,'T'],[1e9,'B'],[1e6,'M'],[1e3,'K']])if(a>=limit)return num(v/limit,2)+' '+suffix;return num(v,d||0);}
   if (a >= 1e12) return (v / 1e12).toFixed(2) + '兆';
   if (a >= 1e8) return (v / 1e8).toFixed(a >= 1e10 ? 0 : a >= 1e9 ? 1 : 2) + '億';
   if (a >= 1e4) return num(Math.round(v / 1e4)) + '万';
@@ -1344,7 +1349,7 @@ const fMass = (t) => ja(t) + ' t';
 const fW = (w) => sci(w) + ' W';
 const reactorOutputText = (p) => { const power = C.reactorPower(p); return `${fW(power)} · ${num(power / C.ISD_W, 6)} ISD`; };
 const precisePartSize = (p) => C.isReactor(p) || ['engine','hyper','shield','localShield'].includes(p.k);
-const fTT = (v) => v>0&&v<.001?(v*1e6).toLocaleString('ja-JP',{maximumFractionDigits:2})+' MT':v>0&&v<1?(v*1000).toLocaleString('ja-JP',{maximumFractionDigits:2})+' GT':fLargeTT(v);
+const fTT = (v) => v>0&&v<.001?(v*1e6).toLocaleString(I18N?.locale||'ja-JP',{maximumFractionDigits:2})+' MT':v>0&&v<1?(v*1000).toLocaleString(I18N?.locale||'ja-JP',{maximumFractionDigits:2})+' GT':fLargeTT(v);
 const fLargeTT = (tt) => tt >= 1e5 ? (tt / 1000).toFixed(1) + ' PT' : tt > 0 && tt < 10 ? num(tt, 1) + ' TT' : num(Math.round(tt)) + ' TT';
 const fG = (g) => num(Math.round(g)) + ' G';
 const fCr = (c) => ja(c) + ' cr';
@@ -1660,12 +1665,12 @@ function loadAdvance(){
 function shotSoon(kind,delay=0){if(!trial.on||load.on)return;const now=performance.now();if(now-(shots.last||0)<12000)return;const at=now+delay*1000;if(!trial.shotAt||at<trial.shotAt)trial.shotAt=at;}
 function shotCaption(){
  const B=trial.battle,f=B?.rts&&voy.w&&B.follow!=null?voy.w.units.get(B.follow):null,me=B?.me,who=f?.name||me?.name||trial.asset?.design?.name||'',sys=trialSys()?.name||'';
- const t=voy.w&&trial.rts?'T+'+voyClock(voy.w.time):new Date().toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'});
+ const t=voy.w&&trial.rts?'T+'+voyClock(voy.w.time):new Date().toLocaleTimeString(I18N?.locale||'ja-JP',{hour:'2-digit',minute:'2-digit'});
  return [sys&&sys+'星系',shipShort(who),t].filter(Boolean).join(' · ');
 }
 function shotCapture(){
  const src=view?.canvas;if(!src||!src.width||!src.height||load.on)return;
- try{const W=480,H=270,c=shots.cv||(shots.cv=document.createElement('canvas'));c.width=W;c.height=H;const g=c.getContext('2d',{willReadFrequently:true}),sw=src.width,sh=src.height,k=Math.min(sw/16,sh/9);
+ try{const W=480,H=270,c=shots.cv||(shots.cv=document.createElement('canvas'));c.width=W;c.height=H;const g=localCanvas(c.getContext('2d',{willReadFrequently:true})),sw=src.width,sh=src.height,k=Math.min(sw/16,sh/9);
   g.drawImage(src,(sw-k*16)/2,(sh-k*9)/2,k*16,k*9,0,0,W,H);
   // A frame of nearly nothing (black space, a fade) is not worth keeping.
   const px=g.getImageData(0,0,W,H).data;let sum=0,n=0;for(let i=0;i<px.length;i+=4*61){sum+=px[i]+px[i+1]+px[i+2];n++;}if(sum/n<22)return;
@@ -1682,7 +1687,7 @@ function shotTick(now){
 // group, a battle, the sector map and a hull plan, painted once per visit.
 function paintedStills(){
  if(shots.painted)return shots.painted;const out=[];let seed=(Date.now()%100000)+7;const R=()=>{seed=(seed*16807)%2147483647;return seed/2147483647;};
- const mk=(fn,cap)=>{try{const c=document.createElement('canvas');c.width=480;c.height=270;const g=c.getContext('2d');fn(g,480,270,R);out.push({src:c.toDataURL('image/jpeg',.82),cap});}catch(e){}};
+ const mk=(fn,cap)=>{try{const c=document.createElement('canvas');c.width=480;c.height=270;const g=localCanvas(c.getContext('2d'));fn(g,480,270,R);out.push({src:c.toDataURL('image/jpeg',.82),cap});}catch(e){}};
  mk(paintOrbit,'記録 · クワット軌道');mk(paintHyper,'記録 · ハイパースペース');mk(paintFleet,'記録 · 第1合同任務群');mk(paintBattle,'記録 · 交戦');mk(paintMap,'作戦図 · クワット宙域');mk(paintPlan,'設計局 · 船体図');
  shots.painted=out;return out;
 }
@@ -1820,7 +1825,7 @@ function endDrag() {
 function undo() { if (!undoStack.length) return; redoStack.push(snap()); lastOp = '元に戻す'; restore(undoStack.pop()); }
 function redo() { if (!redoStack.length) return; undoStack.push(snap()); lastOp = 'やり直し'; restore(redoStack.pop()); }
 function updateUndo() { $('#btnUndo').disabled = !undoStack.length; $('#btnRedo').disabled = !redoStack.length; }
-function updateName() { $('#shipName').textContent = ship.name; }
+function updateName() { const el = $('#shipName'); el.textContent = ship.name; el.setAttribute('aria-label', T('艦名と設計図')); }
 // Performance figures arrive from the engine after each edit settles.
 function scheduleStats(delay) {
   eng.quiet = delay < 0;
@@ -2144,7 +2149,7 @@ function renderSelStrip() {
   const html = `<span class="ss-t"><b>${esc(f.title)}</b>${f.id != null ? `<small>#${f.id}</small>` : ''}${f.tw ? '<small class="ss-tw">· 対</small>' : ''}</span><span class="ss-l">${esc(f.line)}</span><button type="button" class="ss-b ss-i" data-selinfo aria-pressed="${!!st.selInfo}" aria-label="詳しい情報" title="詳しい情報">i</button>${t.sel ? '<button type="button" class="ss-b" data-desel title="選択解除" aria-label="選択解除">解除</button><button type="button" class="ss-b danger" data-delsel title="撤去" aria-label="撤去">撤去</button>' : '<button type="button" class="ss-b" data-inspectx title="閉じる" aria-label="閉じる">×</button>'}`;
   if (!strip) { strip = document.createElement('div'); strip.className = 'sel-strip'; strip.setAttribute('role', 'status'); }
   const nav = [...panel.querySelectorAll(':scope > .panel-nav')].pop(); if (nav ? nav.nextElementSibling !== strip : panel.firstElementChild !== strip) { if (nav) nav.after(strip); else panel.prepend(strip); }
-  if (strip.innerHTML !== html) strip.innerHTML = html;
+  setHTML(strip,html);
   strip.dataset.kind = t.list;
   if (st.selInfo) { if (!info) { info = document.createElement('div'); info.className = 'sel-info'; } if (strip.nextElementSibling !== info) strip.after(info); info.innerHTML = f.detail(); }
   else info?.remove();
@@ -2699,7 +2704,7 @@ async function renderSaves() {
   $('#saveWhere').textContent = Store.ready ? where : '保存先を確認中…';
   let list = [];
   try { list = await Store.list(); } catch (e) { box.innerHTML = '<li class="muted">一覧を読めませんでした。</li>'; return; }
-  box.innerHTML = list.length ? list.map(r => `<li><div><b>${esc(r.name)}</b><span>${esc(r.cls || '')}・${fLen(r.len || 0)}・${new Date(r.savedAt).toLocaleString('ja-JP', {month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'})}</span></div><button type="button" class="btn sm" data-load="${esc(r.id)}">開く</button><button type="button" class="btn sm ghost" data-del="${esc(r.id)}">${delConfirm === r.id ? '本当に削除' : '削除'}</button></li>`).join('') : '<li class="muted">保存した設計はまだありません。</li>';
+  box.innerHTML = list.length ? list.map(r => `<li><div><b>${esc(r.name)}</b><span>${esc(r.cls || '')}・${fLen(r.len || 0)}・${new Date(r.savedAt).toLocaleString(I18N?.locale||'ja-JP', {month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'})}</span></div><button type="button" class="btn sm" data-load="${esc(r.id)}">開く</button><button type="button" class="btn sm ghost" data-del="${esc(r.id)}">${delConfirm === r.id ? '本当に削除' : '削除'}</button></li>`).join('') : '<li class="muted">保存した設計はまだありません。</li>';
 }
 async function loadSaved(id) {
   try {
@@ -3295,7 +3300,7 @@ function renderTitle() {
   const cont = $('#titleMenu [data-title="continue"]');
   if (cont) {
     cont.disabled = !ship;
-    $('#titleDraft').textContent = ship ? `「${ship.name}」 · ${fLen(ship.hull.L)} · ${C.shipClassFor(ship.hull.L, ship.shipClass).name}${meta?.savedAt ? ' · ' + new Date(meta.savedAt).toLocaleString('ja-JP', {month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'}) : ''}` : '下書きはありません';
+    $('#titleDraft').textContent = ship ? `「${ship.name}」 · ${fLen(ship.hull.L)} · ${C.shipClassFor(ship.hull.L, ship.shipClass).name}${meta?.savedAt ? ' · ' + new Date(meta.savedAt).toLocaleString(I18N?.locale||'ja-JP', {month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'}) : ''}` : '下書きはありません';
   }
   for (const b of $$('#titleMenu .tmenu')) b.setAttribute('aria-pressed', String(b.dataset.title === titleState.panel));
   const panel = $('#titlePanel');
@@ -3304,7 +3309,7 @@ function renderTitle() {
   if (titleState.panel === 'new') panel.innerHTML = titleNewHTML();
   else if (titleState.panel === 'load') { panel.innerHTML = titleLoadHTML(); renderTitleSaves(); }
   else if (titleState.panel === 'sound') { panel.innerHTML = soundSettingsHTML(); const el = $('#soundSettings'); if (el && window.KSAudio) window.KSAudio.mountSettings(el); else if (el) el.innerHTML = '<p class="note">この端末では音を鳴らせません（Web Audio に対応していません）。</p>'; }
-  else if (titleState.panel === 'credits') panel.innerHTML = `<div class="tpanel-head"><h2>使用素材とライセンス</h2><button type="button" class="btn ghost sm" data-title-back>戻る</button></div>${$$('#sheet .src').map(e => `<p class="src">${e.innerHTML}</p>`).join('')}`;
+  else if (titleState.panel === 'credits') panel.innerHTML = `<div class="tpanel-head"><h2>使用素材とライセンス</h2><button type="button" class="btn ghost sm" data-title-back>戻る</button></div>${$$('#sheet .src').map(e => `<p class="src">${I18N?I18N.sourceHTML(e):e.innerHTML}</p>`).join('')}`;
   else panel.innerHTML = '';
   titleStatus();
 }
@@ -3364,7 +3369,7 @@ async function renderTitleSaves() {
   const box = $('#titleSaves'); if (!box) return;
   let list = [];
   try { list = await Store.list(); } catch (e) { box.innerHTML = '<li class="muted">一覧を読めませんでした。</li>'; return; }
-  box.innerHTML = list.length ? list.map(r => `<li><div><b>${esc(r.name)}</b><span>${esc(r.cls || '')}・${fLen(r.len || 0)}・${new Date(r.savedAt).toLocaleString('ja-JP', {month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'})}</span></div><button type="button" class="btn sm" data-title-saved="${esc(r.id)}">開く</button></li>`).join('') : '<li class="muted">保存した設計はまだありません。</li>';
+  box.innerHTML = list.length ? list.map(r => `<li><div><b>${esc(r.name)}</b><span>${esc(r.cls || '')}・${fLen(r.len || 0)}・${new Date(r.savedAt).toLocaleString(I18N?.locale||'ja-JP', {month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit'})}</span></div><button type="button" class="btn sm" data-title-saved="${esc(r.id)}">開く</button></li>`).join('') : '<li class="muted">保存した設計はまだありません。</li>';
 }
 function titleStartNew() {
   const t = titleState, P = C.HULLS[t.hull] || C.HULLS.wedge;
@@ -4083,7 +4088,7 @@ function railContext(){
 function renderRail(){
  const box=$('#railTools');if(!box)return;const c=railContext();
  const html=c?c.tools.map(t=>`<button type="button" class="tr-btn" data-rail="${t}" aria-pressed="${c.cur===t}" title="${RAIL_LABELS[t]}"><svg viewBox="0 0 24 24" aria-hidden="true">${RAIL_ICONS[t]}</svg><span>${RAIL_LABELS[t]}</span></button>`).join('')+'<i class="tr-sep" aria-hidden="true"></i>':'';
- if(box.innerHTML!==html)box.innerHTML=html;
+ setHTML(box,html);
 }
 function railSet(v){
  const c=railContext();if(!c||!c.tools.includes(v))return;
@@ -4103,9 +4108,9 @@ function organizePanel(){
  const panel=$('#panel');if(!panel||!ship||fleet.mode!=='design')return;
  for(const sel of ['[data-parttool]','[data-fittool]','[data-bridgetool]']){const g=panel.querySelector(sel)?.closest('.pgroup');if(g)g.classList.add('rail-dup');}
  for(const n of panel.querySelectorAll('.note'))if(!n.classList.contains('keep')&&!n.closest('.trial-card,.ground-editor .aviation-budget'))n.classList.add('clamp');
- for(const h of panel.querySelectorAll('.pgroup > h4')){const t=h.textContent.trim();const g=h.parentElement;if(g.tagName==='DETAILS')continue;
+ for(const h of panel.querySelectorAll('.pgroup > h4')){const t=sourceText(h).trim();const g=h.parentElement;if(g.tagName==='DETAILS')continue;
   if(/^配置済みの/.test(t)){const n=g.querySelectorAll('button').length;foldGroup(g,h,`${t}（${n}）`,false);}
-  else if(/^配置位置を揃える$/.test(t)){const cur=g.querySelector('[aria-pressed="true"]')?.textContent||'';foldGroup(g,h,`${t}：${cur}`,false);}}
+  else if(/^配置位置を揃える$/.test(t)){const cur=sourceText(g.querySelector('[aria-pressed="true"]'))||'';foldGroup(g,h,`${t}：${cur}`,false);}}
  const pal=placeMode()?panel.querySelector('.parts, .fits'):null;
  if(pal){const anchor=panel.querySelector('.command-sub')||panel.querySelector('[data-group]')?.closest('.pgroup')||panel.querySelector('.rail-dup');
   const tools=document.createElement('div');tools.className='pgroup pal-head';tools.innerHTML=paletteHeadHTML();
@@ -4143,8 +4148,8 @@ function isFoldable(el){
 }
 // The summary keeps the section's title and, for a section that is one choice, the current choice.
 function foldSection(el){
- if(el.tagName==='DETAILS'){el.classList.add('fold');el.dataset.fold=foldKey(el.querySelector(':scope > summary').textContent);el.open=false;return el;}
- const h0=el.firstElementChild,h=h0.matches('.cutter-heading')?h0.querySelector(':scope > h4'):h0,title=h.textContent.trim(),d=document.createElement('details');
+ if(el.tagName==='DETAILS'){el.classList.add('fold');el.dataset.fold=foldKey(sourceText(el.querySelector(':scope > summary')));el.open=false;return el;}
+ const h0=el.firstElementChild,h=h0.matches('.cutter-heading')?h0.querySelector(':scope > h4'):h0,title=sourceText(h).trim(),d=document.createElement('details');
  d.className=el.className+' fold';if(el.id)d.id=el.id;d.dataset.fold=foldKey(title);
  h.remove();const sm=document.createElement('summary');d.append(sm);while(el.firstChild)d.append(el.firstChild);el.replaceWith(d);
  sm.innerHTML=`<span>${esc(title)}</span>${foldValue(d,title)}`;
@@ -4153,9 +4158,9 @@ function foldSection(el){
 function foldValue(d,title){
  const one=s=>s?`<small>${esc(s.replace(/\s+/g,' ').trim())}</small>`:'';
  const n=d.querySelectorAll(':scope > .plist > button').length;if(n&&!/（\d+）$/.test(title))return one(String(n));
- const sel=d.querySelector('select');if(sel&&sel.selectedOptions[0])return one(sel.selectedOptions[0].textContent.split(' · ')[0]);
- const outs=[...d.querySelectorAll('.sliders output')].slice(0,3).map(o=>o.textContent.split(' · ')[0].trim()).filter(t=>/[^\d.,\s−-]/.test(t));if(outs.length)return one(outs.join(' · '));
- const segs=d.querySelectorAll('.seg');if(segs.length===1)return one(segs[0].querySelector('[aria-pressed="true"]')?.textContent);
+ const sel=d.querySelector('select');if(sel&&sel.selectedOptions[0])return one(sourceText(sel.selectedOptions[0]).split(' · ')[0]);
+ const outs=[...d.querySelectorAll('.sliders output')].slice(0,3).map(o=>sourceText(o).split(' · ')[0].trim()).filter(t=>/[^\d.,\s−-]/.test(t));if(outs.length)return one(outs.join(' · '));
+ const segs=d.querySelectorAll('.seg');if(segs.length===1)return one(sourceText(segs[0].querySelector('[aria-pressed="true"]')));
  return '';
 }
 function foldAll(root,scope){
@@ -4186,7 +4191,7 @@ function compactPanel(panel){
  // The palette is a sideways strip (two rows when long); the chosen item's line sits under it.
  const pal=panel.querySelector('.palette');
  if(pal){pal.classList.add('pal-strip','hscroll');pal.classList.toggle('two',pal.children.length>4);const on=pal.querySelector('.on');
-  if(on){const nm=on.querySelector('.pn,.fn')?.textContent||'',sp=on.querySelector('.fs')?.textContent||'',ds=(on.querySelector('.fd')||on.querySelector('.pd'))?.textContent||'';
+  if(on){const nm=sourceText(on.querySelector('.pn,.fn'))||'',sp=sourceText(on.querySelector('.fs'))||'',ds=sourceText(on.querySelector('.fd')||on.querySelector('.pd'))||'';
    pal.insertAdjacentHTML('afterend',`<p class="note clamp pal-pick"><b>${esc(nm)}</b>${sp?` <span class="pp-s">${esc(sp)}</span>`:''}${ds?` — ${esc(ds)}`:''}</p>`);
    requestAnimationFrame(()=>{if(on.isConnected&&pal.scrollWidth>pal.clientWidth)pal.scrollLeft=Math.max(0,on.offsetLeft-(pal.clientWidth-on.offsetWidth)/2);});}}
  for(const r of panel.querySelectorAll('.plist, .seg, .pal-recent, .station-pick'))r.classList.add('hscroll');
@@ -4249,7 +4254,7 @@ function paletteHeadHTML(){
 function paletteSearch(q){
  const box=document.querySelector('[data-palresults]'),pal=document.querySelector('#panel .palette');if(!box)return;q=(q||'').trim();st.palQuery=q;
  if(!q){box.hidden=true;box.innerHTML='';if(pal)pal.hidden=false;return;}
- const terms=q.toLowerCase().split(/\s+/),hits=paletteItems().filter(it=>terms.every(t=>(it.name+' '+it.sub+' '+it.group+' '+it.key).toLowerCase().includes(t))).slice(0,24);
+ const terms=q.toLowerCase().split(/\s+/),hits=paletteItems().filter(it=>terms.every(t=>(it.name+' '+it.sub+' '+it.group+' '+it.key+' '+T(it.name)+' '+T(it.sub)+' '+T(it.group)).toLowerCase().includes(t))).slice(0,24);
  box.hidden=false;if(pal)pal.hidden=true;
  box.innerHTML=hits.length?hits.map(it=>`<button type="button" class="part pal-hit" data-palpick="${it.type}:${esc(it.key)}">${palIcon(it)}<span class="pn">${esc(it.name)}</span><span class="pd">${esc(it.group)}${it.sub?' · '+esc(it.sub):''}</span></button>`).join(''):'<p class="note keep">見つかりません。別の言葉で探してください。</p>';
 }
@@ -4873,14 +4878,14 @@ function trialMarkers(){
   let side='';if(!lock){const w=Math.max(textWidthEst(lab,fs)+4,u?(small?48:64):0),top=y-7,bot=y+(u?12:7);const R=[x+15,top,x+15+w,bot],L=[x-15-w,top,x-15,bot];if(nLab>=maxLab)side=' nl';else if(!hit(R)){placed.push(R);nLab++;}else if(x-15-w>0&&!hit(L)){placed.push(L);nLab++;side=' lf';}else side=' nl';}
   placed.push([x-13,y-13,x+13,y+13]);
   const cls='th-tmark '+it.cls+(lock?' lock':'')+(u?.out?' out':'')+side+(trial.swInArc?.has(u||it.t)?' swin':'')+(!u&&it.t?.ionT>0?' ion':'');if(el.className!==cls)el.className=cls;
-  const lb=el.querySelector('b');if(lb.textContent!==lab)lb.textContent=lab;
+  const lb=el.querySelector('b');if(sourceText(lb) !== String(lab))lb.textContent=lab;
   if(u){const sh=el.querySelector('.sh');sh.style.width=(u.shieldMax>0?C.clamp(u.shield/u.shieldMax,0,1)*100:0).toFixed(0)+'%';}}
  for(const el of box.querySelectorAll('[data-tmark]'))if(!seen.has(el.dataset.tmark))el.hidden=true;
 }
 // A ship's name as a bracket label: the class without its type ("ドレッドノート級 8").
 const shipTag=n=>shipShort(n).replace(/級[^\s\d]+(?=\s*\d)/,'級');
 // Rough width of a line of HUD text (CJK a full em, the rest a little over half).
-function textWidthEst(s,fs){let w=0;for(const ch of s){const c=ch.codePointAt(0);w+=c>0x2e80?fs:c===32?fs*.3:fs*.58;}return w;}
+function textWidthEst(s,fs){let w=0;for(const ch of T(s)){const c=ch.codePointAt(0);w+=c>0x2e80?fs:c===32?fs*.3:fs*.58;}return w;}
 // ---- penetration replay: an X-ray of the struck ship (War Thunder style) ----
 // A record from the combat model (C.combatResolve → u.hitLog) is replayed as a
 // short animation: the shot comes in on the face it struck, meets the armour
@@ -4892,7 +4897,7 @@ const hitcamMasks=new WeakMap();
 function hitcamMask(p,view){
  let m=hitcamMasks.get(p);if(!m)hitcamMasks.set(p,m={});if(view in m)return m[view];
  const o=p.outline;if(!o){m[view]=null;return null;}const w=o.nx,h=view==='top'?o.nz:o.ny,bits=C.unpackBits(view==='top'?o.top:o.side,w*h);
- const cv=document.createElement('canvas');cv.width=w;cv.height=h;const g=cv.getContext('2d'),img=g.createImageData(w,h);
+ const cv=document.createElement('canvas');cv.width=w;cv.height=h;const g=localCanvas(cv.getContext('2d')),img=g.createImageData(w,h);
  const on=(i,j)=>i>=0&&i<w&&j>=0&&j<h&&bits[j*w+i];
  for(let j=0;j<h;j++)for(let i=0;i<w;i++){if(!bits[j*w+i])continue;const row=view==='top'?j:h-1-j,k=(row*w+i)*4,edge=!on(i-1,j)||!on(i+1,j)||!on(i,j-1)||!on(i,j+1);img.data[k]=edge?170:96;img.data[k+1]=edge?220:160;img.data[k+2]=edge?255:205;img.data[k+3]=edge?235:120;}
  g.putImageData(img,0,0);m[view]={cv,w,h,bits};return m[view];
@@ -4970,7 +4975,7 @@ function hitcamStep(now){
  if(!H.cur){H.queue=H.queue.filter(q=>now-q.at<5000);const q=H.queue.shift();if(q){H.cur=q;H.at=now;H.last=now;}}
  if(!H.cur){show(false);return;}
  show(true);const cv=el.querySelector('canvas'),r=cv.getBoundingClientRect(),d=Math.min(2,window.devicePixelRatio||1),W=Math.max(1,Math.round(r.width*d)),Hh=Math.max(1,Math.round(r.height*d));if(cv.width!==W||cv.height!==Hh){cv.width=W;cv.height=Hh;}
- const g=cv.getContext('2d');g.setTransform(d,0,0,d,0,0);const q=H.cur,k=Math.min(1,(now-H.at)/(HITCAM_DUR*1000)),B=trial.battle,src=q.rec.src!=null?B?.b.units.find(x=>String(x.id)===String(q.rec.src)):null;
+ const g=localCanvas(cv.getContext('2d'));g.setTransform(d,0,0,d,0,0);const q=H.cur,k=Math.min(1,(now-H.at)/(HITCAM_DUR*1000)),B=trial.battle,src=q.rec.src!=null?B?.b.units.find(x=>String(x.id)===String(q.rec.src)):null;
  const title=q.role==='taken'?`被弾 · ${shipTag(q.u.name)}`:`命中 · ${shipTag(q.u.name)}`,sub=src?`${src.team!==q.u.team&&src.team?'敵 ':''}${shipTag(src.name)} から`:'';
  hitcamDraw(g,r.width,r.height,q.p,q.rec,k,{title,sub});
 }
@@ -5011,7 +5016,7 @@ function trialBindHud(hud){
  fire?.addEventListener('contextmenu',e=>e.preventDefault());
 }
 function trialHudUpdate(full){
- const hud=$('#trialHud');if(!hud||!trial.on&&!full)return;const a=trialAttitude(),q=k=>hud.querySelector(`[data-th="${k}"]`),set=(k,v)=>{const e=q(k);if(e&&e.textContent!==v)e.textContent=v;};
+ const hud=$('#trialHud');if(!hud||!trial.on&&!full)return;const a=trialAttitude(),q=k=>hud.querySelector(`[data-th="${k}"]`),set=(k,v)=>{const e=q(k);if(e&&sourceText(e) !== String(v))e.textContent=v;};
  const v=trial.vf,p=trial.p,max=trialMaxRates(),deg=x=>x*180/Math.PI;
  set('speed',v>=1e5?`${num(Math.round(v/1000))} km/s`:`${num(Math.round(v))} m/s`);set('head',String(Math.round(a.heading)%360).padStart(3,'0')+'°');set('alt',`${(a.alt/1000).toFixed(1)} km`);
  set('pitch',`${deg(a.pitch)>=0?'+':''}${deg(a.pitch).toFixed(1)}°`);const b=deg(a.bank);set('bank',Math.abs(b)<.05?'0.0°':`${b>0?'右':'左'} ${Math.abs(b).toFixed(1)}°`);
@@ -5019,7 +5024,7 @@ function trialHudUpdate(full){
  const s=Math.floor(trial.t);set('clock',`T+${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`);set('cam','視点 '+trialCamName(trial.camMode));set('camq',trialCamName(trial.camMode));
  const r=trial.rec,g=trial.gun;const B=trial.battle;if(B){const foes=B.b.units.filter(u=>u.team===1),up=foes.filter(u=>!u.dead&&!u.out&&!u.absent).length,last=B.ticker[B.ticker.length-1];set('records',`戦況　敵 ${up}/${foes.length} 隻 · 撃沈 ${foes.filter(u=>u.dead).length} · 戦闘不能 ${foes.filter(u=>!u.dead&&u.out).length} · 射撃 ${num(g.shots)} 発 / 命中 ${num(Math.round(g.hits))}${last?' ｜ '+last.text:''}`);}else set('records',`公試記録　最高速力 ${num(Math.round(r.top))} m/s · 0→全速 ${r.accel==null?(r.run?'計測中…':'—'):Math.round(r.accel)+' 秒'} · 全舵旋回径 ${r.turn==null?'—':(r.turn/1000).toFixed(1)+' km'} · 射撃 ${num(g.shots)} 発${g.missiles?` · ミサイル ${num(g.missiles)} 発`:''} / 命中 ${num(Math.round(g.hits))} / 撃破 ${g.kills}${g.pdKills?` · 点防御 撃墜 ${g.pdKills}`:''}${trialSwRecord()}`);
  const rp=q('records');if(rp)rp.hidden=!trialRecordsOn();set('recbtn',trialRecordsOn()?'記録を隠す':'記録を表示');set('swarcbtn',trial.swArc===false?'超兵器の射界を表示':'超兵器の射界を隠す');
- const w=q('warn');if(w){const hint=trialArcHint(),txt=trial.warn||(trial.level?'姿勢を水平に戻しています…':'')||hint;w.hidden=!txt;if(w.textContent!==txt)w.textContent=txt;}
+ const w=q('warn');if(w){const hint=trialArcHint(),txt=trial.warn||(trial.level?'姿勢を水平に戻しています…':'')||hint;w.hidden=!txt;if(sourceText(w) !== String(txt))w.textContent=txt;}
  const bar=q('speedbar');if(bar){const lo=-.25,frac=C.clamp((v/Math.max(1,p.maxSpeed)-lo)/(1-lo),0,1);bar.style.height=(frac*100).toFixed(1)+'%';}
  hud.querySelectorAll('[data-tele]').forEach(e=>e.classList.toggle('on',+e.dataset.tele===trial.tele));set('tele',TRIAL_TELEGRAPH[trial.tele][0]);
  const row=hud.querySelector('[data-th-row="rudder"]');if(row){row.querySelector('.ord').style.left=((trial.rudder+2)/4*100)+'%';row.querySelector('.act').style.left=(C.clamp(trial.w[1]/(max[1]||1),-1,1)*50+50).toFixed(1)+'%';}set('rudder',TRIAL_RUDDER[trial.rudder+2]);
@@ -5030,7 +5035,7 @@ function trialHudUpdate(full){
   // Each figure carries a full and a short label; the layout picks which shows.
   const it=(cls,l,sh,v)=>`<span class="${cls}"><em class="l">${l}</em><em class="s">${sh}</em> ${v}</span>`,eCls=ef<.25?'ng':ef<.6?'wait':'ok',lCls=load>=1.15?'ng':load>=.95?'wait':'ok';
   const html=(ts.length?it('ok','● 射撃可','射撃可',fireable)+it('wait','● 装填・旋回','装填',Math.max(0,ready-loaded+turning-nochg))+(starved?it('wait','● 充電待ち','充電',starved):'')+it('ng','● 遮蔽・射界外','射界外',blocked+out)+(nochg?it('ng','● 充電装置なし','充電なし',nochg):''):'<span class="ng">主砲なし</span>')+(pdl.length?it(pdOn?'wait':'ok','● 点防御','点防御',pdOn?`射撃 ${pdFire}/${pdl.length}`:pdl.length):'')+it(eCls,'⚡ 兵装エネルギー','⚡',Math.round(ef*100)+'%')+it(lCls,'炉心','炉心',Math.round(load*100)+'%')+(thrust<.98?it('wait','推力','推力',Math.round(thrust*100)+'%'):'');
-  const grew=gs.innerHTML.length!==html.length;if(gs.innerHTML!==html)gs.innerHTML=html;const gm=q('gunmode'),M=GUN_MODES[trial.gunMode||'free'],gl=`<em class="l">主砲 ${M.name}</em><em class="s">${M.short}</em>`;if(gm&&gm.innerHTML!==gl){gm.innerHTML=gl;}gm?.classList.toggle('on',(trial.gunMode||'free')!=='free');const vb=q('volley'),vs=trial.volley==='salvo',vl=`<em class="l">${vs?'斉射':'連続射撃'}</em><em class="s">${vs?'斉射':'連続'}</em>`;if(vb&&vb.innerHTML!==vl)vb.innerHTML=vl;vb?.classList.toggle('on',vs);
+  const grew=gs.innerHTML.length!==html.length;setHTML(gs,html);const gm=q('gunmode'),M=GUN_MODES[trial.gunMode||'free'],gl=`<em class="l">主砲 ${M.name}</em><em class="s">${M.short}</em>`;if(gm)setHTML(gm,gl);gm?.classList.toggle('on',(trial.gunMode||'free')!=='free');const vb=q('volley'),vs=trial.volley==='salvo',vl=`<em class="l">${vs?'斉射':'連続射撃'}</em><em class="s">${vs?'斉射':'連続'}</em>`;if(vb)setHTML(vb,vl);vb?.classList.toggle('on',vs);
   // v21.1 Escorts' behaviour (shown in a battle with escorts of ours).
   const eb=q('escort'),B=trial.battle,hasEsc=!!(B&&!trial.rts&&B.me&&B.b.units.some(u=>!u.manual&&u.team===B.me.team&&!u.dead&&!u.absent));if(eb){if(eb.hidden===hasEsc)eb.hidden=!hasEsc;const ef=!!trial.escortFree,el=`<em class="l">随伴艦 ${ef?'自由攻撃':'護衛'}</em><em class="s">${ef?'攻撃':'護衛'}</em>`;if(eb.innerHTML!==el)eb.innerHTML=el;eb.classList.toggle('on',!ef);}
   trialGunsLayout(hud,gn,grew);}
@@ -5078,7 +5083,7 @@ function trialSelfUpdate(hud){
  // v22.3 Damage is by module: the ship's crew aboard (乗員 %) in place of a hull bar.
  const cr=crewShare(me),secs=cr==null?'':`<div class="ts-row"><span>乗員</span><i class="crew${crewCls(cr)}"><em style="width:${crewPct(cr)}%"></em></i><small>${crewPct(cr)}%</small></div>`;
  const html=`<b class="ts-head">自艦${me.dead?' · 撃沈':me.out?' · 戦闘不能（'+esc(me.out)+'）':''}</b>${bar('シールド',sh,'sh')}${me.bankMax>0?bar('蓄電',me.bank/me.bankMax,'bank'):''}${secs}${armourFacesHTML(me)}${powerSplitHTML(me)}${statusFlagsHTML(me)}<p class="ts-line">乗員 ${num(Math.round(me.crew))}${cr==null?'':' / '+num(Math.round(me.p.crewMax??me.p.crewNeed))} 名 · ${esc(lostTxt)}${allies.length?` · 僚艦 ${allies.filter(u=>!u.dead&&!u.out&&!u.hidden).length}/${allies.length}`:''}</p>${log.length?`<ul class="ts-log">${log.map(l=>`<li>${esc(l.text)}</li>`).join('')}</ul>`:''}`;
- if(el.innerHTML!==html)el.innerHTML=html;
+ setHTML(el,html);
 }
 // The status line of a jump, phase by phase (left: seconds to the far end of the tunnel).
 function trialHyperText(j,d,left){
@@ -5088,7 +5093,7 @@ function trialHyperText(j,d,left){
 function trialHyperUpdate(hud){
  const el=hud.querySelector('[data-th="hyper"]'),j=trial.jump;if(!el)return;el.hidden=!j;if(!j)return;const d=SYSTEMS[j.dest]?.name||'';
  const txt=trialHyperText(j,d,Math.max(0,trialTunnelLeft(j)));
- if(el.textContent!==txt)el.textContent=txt;el.dataset.phase=j.phase;
+ if(sourceText(el) !== String(txt))el.textContent=txt;el.dataset.phase=j.phase;
 }
 // The record line is shown by default on wide screens and folded on phones.
 const trialRecordsOn=()=>trial.showRecords??(window.innerWidth>=900);
@@ -5674,7 +5679,7 @@ function trialSwHud(q,set){
  el.style.setProperty('--fill',C.clamp(f,0,1).toFixed(3));el.classList.toggle('ready',ready>0);el.classList.toggle('firing',beam);
  const early=chg.some(x=>{const i=st.indexOf(x);return sw[i]?.k==='hion'&&x.c>=C.ION_BOLT.fireMin;});el.classList.toggle('ready',ready>0||early);
  set('swstate',beam?'照射中':ready?`発射可 ${ready}`:chg.length?`充電 ${Math.round(f*100)}%${early?'・発射可':''}`:cool.length?`冷却 ${Math.ceil(Math.min(...cool.map(x=>x.t)))} 秒`:st.some(x=>x.st==='down')?'損傷':'—');
- const m=q('swmode');if(m){const k=st.find((x,i)=>sw[i].k==='sbeam')?.mode||'beam',t=k==='pulse'?'パルス':'ビーム';if(m.textContent!==t)m.textContent=t;}
+ const m=q('swmode');if(m){const k=st.find((x,i)=>sw[i].k==='sbeam')?.mode||'beam',t=k==='pulse'?'パルス':'ビーム';if(sourceText(m) !== String(t))m.textContent=t;}
 }
 function trialSwMode(){const me=trial.battle?trial.battle.me:trialSwSolo();if(!me?.sw)return;const sw=me.p.sw,cur=me.sw.find((x,i)=>sw[i].k==='sbeam');if(!cur){toast('切り替えられる超兵器がありません');return;}const next=cur.mode==='pulse'?'beam':'pulse';me.sw.forEach((x,i)=>{if(sw[i].k==='sbeam')x.mode=next;});sndUI('ui_toggle',.5);toast(`超重合成ビーム：${next==='pulse'?'パルス一撃':'ビーム照射'}`);}
 // In the flown ship's frame: the bearing of a ship from the muzzle, against the weapon's axis.
@@ -5881,7 +5886,7 @@ function trialSwInfo(q,me){
  const k0=C.swPower(me,false,false),k1=C.swPower(me,false,true),chg=sw.map((w,i)=>({w,i,x:me.sw?.[i]})).filter(z=>z.x?.st==='charge');let pw='';
  if(k0<.995)pw=`過負荷 · 炉出力 −${Math.round((1-k0)*100)}% · 回復まで ${trialSwTime(Math.max(0,...(me.over||[]).map(o=>o.t)))}`;
  else if(chg.length){const left=Math.max(...chg.map(z=>(1-z.x.c)*Math.max(1,z.w.chargeT)/Math.max(.05,C.swChargeRate(me,z.i))));pw=`充電中 · 炉出力の ${Math.round((k0-k1)*100)}% を使用 · 残り ${trialSwTime(left)}`;}
- const html=lines.join('<br>')+(pw?`<small>${pw}</small>`:'');if(el.innerHTML!==html)el.innerHTML=html;if(el.hidden)el.hidden=false;
+ const html=lines.join('<br>')+(pw?`<small>${pw}</small>`:'');setHTML(el,html);if(el.hidden)el.hidden=false;
 }
 // The overflow menu gets the envelope switch when the ship carries a superweapon.
 function trialSwMenu(){const m=document.getElementById('thMenu');if(!m||m.querySelector('[data-th="swarcbtn"]'))return;const b=document.createElement('button');b.type='button';b.className='th-btn';b.dataset.trialCmd='swarc';b.dataset.th='swarcbtn';b.textContent=trial.swArc===false?'超兵器の射界を表示':'超兵器の射界を隠す';const r=m.querySelector('[data-trial-cmd="reset"]');if(r)m.insertBefore(b,r);else m.append(b);}
@@ -6178,7 +6183,7 @@ function fleetMapRefreshTools(){const el=$('#fleetMapTools');if(el&&fleet.mode==
 function fleetMapNiceStep(raw){const power=10**Math.floor(Math.log10(Math.max(.001,raw))),v=raw/power;return (v<=1?1:v<=2?2:v<=5?5:10)*power;}
 function fleetMapDraw(us){
  const canvas=$('#fleetMap');if(!canvas)return;const fallback=$('#fleetMapFallback');fleetMapSize();let ctx=fleetMap.context;
- if(canvas!==fleetMap.canvas){fleetMap.canvas=canvas;try{ctx=canvas.getContext?.('2d')||null;}catch(e){ctx=null;}fleetMap.context=ctx;}
+ if(canvas!==fleetMap.canvas){fleetMap.canvas=canvas;try{ctx=localCanvas(canvas.getContext?.('2d'))||null;}catch(e){ctx=null;}fleetMap.context=ctx;}
  if(!ctx){if(fallback)fallback.hidden=false;return;}if(fallback)fallback.hidden=true;
  const W=fleetMap.width,H=fleetMap.height,dpr=Math.min(2,window.devicePixelRatio||1),scale=fleetMap.metresPerPixel;
  if(canvas.width!==Math.round(W*dpr)||canvas.height!==Math.round(H*dpr)){canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);}ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);ctx.fillStyle='#08141e';ctx.fillRect(0,0,W,H);ctx.lineWidth=1;ctx.font='10px system-ui,sans-serif';ctx.textBaseline='middle';
@@ -6750,7 +6755,7 @@ function tutRender(){
  if(tut.min){box.innerHTML=`<button type="button" class="tut-pill" data-tut="max">チュートリアル ${tut.i+1}/${TUT_STEPS.length}・${esc(s.title)}${done&&s.auto?' ✓':''}</button>`;return;}
  box.innerHTML=`<div class="tut-head"><span class="tut-kicker">チュートリアル · 簡素なISDを作る</span><span class="tut-no">${tut.i+1}/${TUT_STEPS.length}</span><button type="button" class="tut-ic" data-tut="min" aria-label="小さくする">－</button><button type="button" class="tut-ic" data-tut="close" aria-label="チュートリアルを終える">×</button></div>
  <ol class="tut-dots" aria-hidden="true">${TUT_STEPS.map((q,j)=>`<li class="${j<tut.i?'past':j===tut.i?'now':''}"></li>`).join('')}</ol>
- <h3>${esc(s.title)}</h3><p class="tut-text${tut.full?' full':''}" data-tut="text" title="タップで全文を表示">${s.text}</p>${s.summary?tutSummary():''}
+ <h3>${esc(s.title)}</h3><p class="tut-text${tut.full?' full':''}" data-tut="text" title="タップで全文を表示">${T(s.text)}</p>${s.summary?tutSummary():''}
  ${s.auto?`<p class="tut-state ${done?'ok':''}">${done?'✓ できました。「次へ」で進みます。':ready?'画面をタップして置いてください。':'船体を準備中…'}</p>`:''}
  <div class="tut-actions"><button type="button" class="btn sm ghost" data-tut="prev" ${tut.i===0?'disabled':''}>戻る</button>${s.extra&&s.extra.show()?`<button type="button" class="btn sm" data-tut="extra">${esc(s.extra.label)}</button>`:''}${s.auto?`<button type="button" class="btn sm" data-tut="auto" ${ready?'':'disabled'}>おまかせで実行</button>`:''}<button type="button" class="btn sm primary" data-tut="${last?'close':'next'}">${last?'チュートリアルを終える':'次へ'}</button></div>`;
  tutDecorate();
@@ -7444,7 +7449,7 @@ function voyEvents() {
 function voyMapResize() { const c = $('#voyMap'); if (!c) return; const r = c.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio || 1); c.width = Math.max(1, Math.round(r.width * d)); c.height = Math.max(1, Math.round(r.height * d)); c._d = d; }
 function voyDraw() {
  const c = $('#voyMap');if (!c || !voy.w) return;const r = c.getBoundingClientRect();if (Math.abs(r.width * (c._d || 1) - c.width) > 2 || Math.abs(r.height * (c._d || 1) - c.height) > 2) voyMapResize();
- const ctx = c.getContext('2d'), d = c._d || 1, W = c.width / d, H = c.height / d;ctx.setTransform(d, 0, 0, d, 0, 0);
+ const ctx = localCanvas(c.getContext('2d')), d = c._d || 1, W = c.width / d, H = c.height / d;ctx.setTransform(d, 0, 0, d, 0, 0);
  // Map lettering shrinks on short screens (phones held sideways).
  voy.fz = C.clamp(Math.min(H / 640, W / 900), .7, 1);
  if (voy.screen === 'tac') voyDrawTac(ctx, W, H); else voyDrawOps(ctx, W, H);
@@ -7750,7 +7755,7 @@ function voySupplyHud(own) {
  const cut = [...w.groups.values()].filter(g => g.side === 0 && g.sys != null && voyLive(g) && !sp.lines.has(g.sys)).length, rear = [...w.units.values()].filter(u => u.side === 0 && u.status === 'rear' && !u.dead).length;
  return `<div class="vh-sup${ratio < .5 ? ' bad' : ratio < .95 ? ' warn' : ''}" title="補給の回復力（艦隊全体で毎分配れる資材）と、修理・補充を待つ艦の需要。補給線が切れた星系の艦は補給を受けられません。"><span>補給</span><b>${want > rate * .02 ? Math.round(ratio * 100) + '%' : '充足'}</b><small>回復力 ${num(Math.round(rate))} t/分${want > rate * .02 ? ` · 需要 ${num(Math.round(want))}` : ''}${cut ? ` · 遮断 ${cut}` : ''}${rear ? ` · 後方修理 ${rear} 隻` : ''}</small></div>`;
 }
-function voyRenderLog() { const el = $('#voyLog'); if (!el) return; const html = voy.notes.slice(0, 4).map(n => `<p><span>${voyClock(n.t)}</span>${esc(n.text)}</p>`).join(''); if (el.innerHTML !== html) el.innerHTML = html; }
+function voyRenderLog() { const el = $('#voyLog'); if (!el) return; const html = voy.notes.slice(0, 4).map(n => `<p><span>${voyClock(n.t)}</span>${esc(n.text)}</p>`).join(''); setHTML(el,html); }
 
 // ---------- side panels ----------
 const VOY_POWER = [['auto', '自動'], ['cruise', '巡航'], ['balanced', '均衡'], ['weapons', '兵装'], ['shields', '防御'], ['overload', '全力']];
@@ -8961,7 +8966,7 @@ function voySpectateHyperText(f) {
  return null;
 }
 function voySpectateHudUpdate(full) {
- const hud = $('#trialHud'), B = trial.battle;if (!hud || !B?.spectate) return;const {w, sys} = trial.rts, q = k => hud.querySelector(`[data-sp="${k}"]`), set = (k, v) => { const e = q(k); if (e && e.textContent !== v) e.textContent = v; };
+ const hud = $('#trialHud'), B = trial.battle;if (!hud || !B?.spectate) return;const {w, sys} = trial.rts, q = k => hud.querySelector(`[data-sp="${k}"]`), set = (k, v) => { const e = q(k); if (e && sourceText(e) !== String(v)) e.textContent = v; };
  const f = w.units.get(B.follow), us = R.systemUnits(w, sys), own = us.filter(u => u.side === 0), foe = us.filter(u => u.side !== 0), up = l => l.filter(R.fighting).length, bt = w.battles.get(sys), ride = trial.jump?.follow && !trial.jump.arrived;
  const fq = B.followSq != null ? w.squads.get(B.followSq) : null;
  if (fq) { const wg = w.wings.get(fq.wing), c = R.CRAFT[fq.craft]; set('name', `${fq.side === 0 ? '' : '敵 '}${fq.name}`); set('where', `${wg?.name || ''} · ${c?.short || ''} ${fq.n}/${fq.n0 || fq.n} 機 · ${R.WING_PHASE[wg?.phase] || ''}${fq.kills ? ` · 撃墜 ${fq.kills}` : ''}`); }
@@ -8970,9 +8975,9 @@ function voySpectateHudUpdate(full) {
  set('side', {all: '全艦', own: '自軍', foe: '敵艦'}[voy.specSide || 'all']);set('cam', trial.specCam === 'free' ? '視点 自由' : '視点 追尾');
  for (const b of hud.querySelectorAll('[data-spec^="speed:"]')) b.setAttribute('aria-pressed', String(+b.dataset.spec.slice(6) === voy.speed));
  for (const b of hud.querySelectorAll('[data-spec="prev"],[data-spec="next"],[data-spec="side"]')) b.disabled = !!trial.jump?.follow;
- const hy = q('hyper'), ht = voySpectateHyperText(f);if (hy) { hy.hidden = !ht; if (ht) { if (hy.textContent !== ht.text) hy.textContent = ht.text; hy.dataset.phase = ht.phase; } }
- const al = q('alert'), as = voy.battleAlert, show = as != null && w.battles.has(as) && as !== sys && !ride;if (al) { al.hidden = !show; if (show) { const t = `交戦中：${w.sector.systems[as].name} ▸`; if (al.textContent !== t) al.textContent = t; } }
- const lg = q('log');if (lg) { const html = B.ticker.slice(-4).reverse().map(t => `<li><span>${voyClock(t.t)}</span>${esc(t.text)}</li>`).join(''); if (full || lg.innerHTML !== html) lg.innerHTML = html; }
+ const hy = q('hyper'), ht = voySpectateHyperText(f);if (hy) { hy.hidden = !ht; if (ht) { if (sourceText(hy) !== String(ht.text)) hy.textContent = ht.text; hy.dataset.phase = ht.phase; } }
+ const al = q('alert'), as = voy.battleAlert, show = as != null && w.battles.has(as) && as !== sys && !ride;if (al) { al.hidden = !show; if (show) { const t = `交戦中：${w.sector.systems[as].name} ▸`; if (sourceText(al) !== String(t)) al.textContent = t; } }
+ const lg = q('log');if (lg) { const html = B.ticker.slice(-4).reverse().map(t => `<li><span>${voyClock(t.t)}</span>${esc(t.text)}</li>`).join(''); if(full)lg._sourceHTML=null;setHTML(lg,html); }
 }
 
 // ---------- penetration records and their replay ----------
@@ -8992,7 +8997,7 @@ function voyHitReplay(uid, idx) {
  const w = voy.w, u = w?.units.get(uid), rec = u?.hitLog?.[idx];if (!rec) return;const el = $('#voySheet'), src = rec.src != null ? w.units.get(String(rec.src)) : null;
  el.hidden = false;el.innerHTML = `<div class="voy-sheet-card hitcam-card" role="dialog" aria-label="被弾リプレイ"><canvas class="hitcam-cv"></canvas><div class="vs-acts"><button type="button" class="btn sm" data-vhitplay>もう一度</button><button type="button" class="btn sm ghost" data-vhitclose>閉じる</button></div></div>`;
  voy.replay = {cv: el.querySelector('canvas'), u, rec, t0: performance.now(), title: `${u.side === 0 ? '' : '敵 '}${shipTag(u.name)} · 被弾 ${voyClock(rec.t)}`, sub: src ? `${src.side !== 0 ? '敵 ' : ''}${shipTag(src.name)} から` : ''};
- const loop = now => { const q = voy.replay; if (!q || el.hidden || !q.cv.isConnected) { voy.replay = null; return; } const r = q.cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio || 1), W = Math.max(1, Math.round(r.width * d)), H = Math.max(1, Math.round(r.height * d)); if (q.cv.width !== W || q.cv.height !== H) { q.cv.width = W; q.cv.height = H; } const g = q.cv.getContext('2d'); g.setTransform(d, 0, 0, d, 0, 0); hitcamDraw(g, r.width, r.height, q.u.p, q.rec, Math.min(1, (now - q.t0) / (HITCAM_DUR * 1000)), {title: q.title, sub: q.sub}); requestAnimationFrame(loop); };
+ const loop = now => { const q = voy.replay; if (!q || el.hidden || !q.cv.isConnected) { voy.replay = null; return; } const r = q.cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio || 1), W = Math.max(1, Math.round(r.width * d)), H = Math.max(1, Math.round(r.height * d)); if (q.cv.width !== W || q.cv.height !== H) { q.cv.width = W; q.cv.height = H; } const g = localCanvas(q.cv.getContext('2d')); g.setTransform(d, 0, 0, d, 0, 0); hitcamDraw(g, r.width, r.height, q.u.p, q.rec, Math.min(1, (now - q.t0) / (HITCAM_DUR * 1000)), {title: q.title, sub: q.sub}); requestAnimationFrame(loop); };
  requestAnimationFrame(loop);
 }
 
@@ -9132,7 +9137,7 @@ function vtutRender() {
  const nextOn = !action || done;
  box.innerHTML = `<div class="tut-head"><span class="tut-kicker">チュートリアル · 艦隊戦</span><span class="tut-no">${vtut.i + 1}/${N}</span><button type="button" class="tut-ic" data-vtut="min" aria-label="小さくする">－</button><button type="button" class="tut-ic" data-vtut="close" aria-label="チュートリアルを終える">×</button></div>
  <ol class="tut-dots" aria-hidden="true">${VTUT_STEPS.map((q, j) => `<li class="${j < vtut.i ? 'past' : j === vtut.i ? 'now' : ''}"></li>`).join('')}</ol>
- <h3>${esc(s.title)}</h3><p class="tut-text${vtut.full ? ' full' : ''}" data-vtut="text" title="タップで全文を表示">${s.text}</p>
+ <h3>${esc(s.title)}</h3><p class="tut-text${vtut.full ? ' full' : ''}" data-vtut="text" title="タップで全文を表示">${T(s.text)}</p>
  ${state}
  <div class="tut-actions"><button type="button" class="btn sm ghost" data-vtut="prev" ${vtut.i === 0 ? 'disabled' : ''}>戻る</button>${s.auto && !(action && done) ? '<button type="button" class="btn sm" data-vtut="auto">おまかせで実行</button>' : ''}<button type="button" class="btn sm primary${nextOn && !going ? ' vtut-next' : ''}" data-vtut="${s.last ? 'close' : 'next'}">${s.last ? 'チュートリアルを終える' : '次へ'}</button></div>`;
 }
@@ -9211,7 +9216,7 @@ function vtutHiFrame() {
  const ring = el.children[0], ptr = el.children[1], tag = el.children[2];
  ring.hidden = !!edge;
  const rs = ring.style, w = tr.right - tr.left, h = tr.bottom - tr.top;rs.transform = `translate(${tr.left.toFixed(1)}px,${tr.top.toFixed(1)}px)`;rs.width = w.toFixed(1) + 'px';rs.height = h.toFixed(1) + 'px';rs.borderRadius = round ? '50%' : '10px';
- if (tag.textContent !== hint) tag.textContent = hint;
+ if (sourceText(tag) !== String(hint)) tag.textContent = hint;
  // The arrow comes in from the side with room for it and its label, clear of the tutorial box.
  const tw = tag.offsetWidth || 120, th = tag.offsetHeight || 24, cx = (tr.left + tr.right) / 2, cy = (tr.top + tr.bottom) / 2, gap = 6, L = 44;
  const pref = [];if (edge) pref.push(edge < 0 ? 'below' : 'above');if (cy < H * .15) pref.push('below');if (cy > H * .85) pref.push('above');if (cx > W * .6) pref.push('left');else if (cx < W * .4) pref.push('right');pref.push(cy < H / 2 ? 'below' : 'above');for (const d of ['below', 'left', 'above', 'right']) if (!pref.includes(d)) pref.push(d);
@@ -9401,7 +9406,7 @@ function patrolMarks(items) {
 function patrolHud() {
  const P = trial.pat, el = $('#trialHud [data-th="records"]');if (!P || !el || trial.battle) return;const g = trial.gun, n = P.civ.filter(c => c.kind === 'civ' && c.vis).length;
  const txt = `パトロール記録　民間船 ${P.seen} 隻（現在 ${n} 隻） · 交戦 ${P.enc} 回 · 撃退 ${P.won} · 敵艦撃沈 ${P.sunk} · 射撃 ${num(g.shots)} 発 / 命中 ${num(Math.round(g.hits))}${P.civHits ? ` · 民間船への命中 ${num(Math.round(P.civHits))}${P.civLost ? ` · 民間船喪失 ${P.civLost}` : ''}` : ''}`;
- if (el.textContent !== txt) el.textContent = txt;
+ if (sourceText(el) !== String(txt)) el.textContent = txt;
 }
 // ---- the enemy ----
 function patrolUnitStr(u) { try { return R.unitStrength(u); } catch (e) { return 1; } }
@@ -9524,6 +9529,13 @@ async function voyOpenWithCurrent() {
   voyObChanged();toast(`設計中の艦を${esc(t.name)}に加えました`);
  } catch (e) { console.error(e); toast('設計中の艦を準備できません：' + esc(e.message || e)); }
 }
+window.addEventListener('ks-language-change',()=>{
+ // Rebuild formatted figures too: their units and number separators depend on the locale.
+ if(ship){updateName();renderPanel();}
+ if(S){renderStrip();if(fleet.mode==='design')renderSpecTargets();}
+ requestDraw();if(st.palQuery)paletteSearch(st.palQuery);if(voy.w)voy.dirty=true;
+ if(tut.on)tutRender();if(vtut.on)vtutRender();
+});
 function bindVoyage() { voyBindSetup(); voyBindMap(); document.addEventListener('click', e => { const hb = e.target.closest('[data-vhit],[data-vhitplay],[data-vhitclose]'); if (hb) { if (hb.dataset.vhit) { const [id, i] = hb.dataset.vhit.split(':'); voyHitReplay(id, +i); } else if ('vhitplay' in hb.dataset && voy.replay) voy.replay.t0 = performance.now(); else { $('#voySheet').hidden = true; voy.replay = null; } return; } if (trial.spectate) { const sb = e.target.closest('[data-spec]'); if (sb) { voySpectateCmd(sb.dataset.spec); return; } const mk = e.target.closest('.th-tmark'); if (mk?.dataset.tmark?.startsWith('u')) { voySpectateCmd('follow:' + mk.dataset.tmark.slice(1)); return; } if (mk?.dataset.tmark?.startsWith('q')) { voySpectateCmd('sq:' + mk.dataset.tmark.slice(1)); return; } } const b = e.target.closest('[data-voyopen]'); if (b) { e.preventDefault(); voyOpenWithCurrent(); } }); window.__voy = {voy, R, open: voyOpen, pilot: voyPilot, go: voyGo, spectate: voySpectate, step: voySpectateStep, pilotStep: voyPilotStep, tap: voyMapTap, follow: voySpectateSwitch, tut: voyTutStart, vtut, vtutGo, load: {show: loadShow, hide: loadHide, shots}, fxStep: (dt, n = 1) => { for (let i = 0; i < n; i++) { trialWrecksStep(dt); trialFxStep(dt); } }}; }
 
 window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});

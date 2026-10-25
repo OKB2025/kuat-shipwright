@@ -8842,7 +8842,7 @@ function craftCombat(ship,S){
  const strike=Math.round(gun+salvo),armor=clamp((.35+.17*Math.log(Math.max(.5,S.mass||0)))*(sh?1.3:1),.3,3),dims=(S.dims||[ship.hull.L,ship.hull.W,ship.hull.H]).map(v=>Math.round(v*100)/100);
  // Loaded with the default stores the craft is heavier: its acceleration falls by mass/(mass + stores).
  const Gl=G*(S.mass>0?S.mass/(S.mass+ordMass):1);
- return {name:ship.name||'設計機',role,roleName:S.cls?.role||'',speed,aa:Math.round(air*100)/100,strike,gun,armor:Math.round(armor*100)/100,crew:Math.round(S.seats??S.crew??0),dims,size:stowSize(dims),accelG:Math.round(G),shield:sh,
+ return {name:ship.name||'設計機',role,roleName:S.cls?.role||'',speed,aa:Math.round(air*100)/100,strike,gun,armor:Math.round(armor*100)/100,crew:Math.round(S.seats??S.crew??0),dims,size:stowSize(dims),accelG:Math.round(G),shield:sh,hyper:S.jumpOK&&Number.isFinite(S.hyperClass)&&S.hyperClass>0?S.hyperClass:null,
   stations,load,canonLoad:!!Lo.canon&&Lo.stations.length===stations.length,ord,ordMass:Math.round(ordMass*1000)/1000,mass:Math.round((S.mass||0)*100)/100,speedLoaded:craftSpeed(Gl),accelLoaded:Math.round(Gl)};
 }
 // A design craft carried in an air wing row keeps this snapshot (so the carrier stays whole when the
@@ -8853,7 +8853,7 @@ function cleanDesignCraft(d){
  // v22 the store stations and their default load (older snapshots have none: guns only)
  const stations=(Array.isArray(c.stations)?c.stations:[]).filter(st=>st&&FITS[st.fit]?.store&&Number.isInteger(st.count)&&st.count>=1&&st.count<=64).slice(0,8).map(st=>({fit:st.fit,mount:FITS[st.fit].store.mount,count:st.count}));
  const load=normalizeLoad(stations,Array.isArray(c.load)?c.load:null);
- return {ref:str(d.ref,80),name:str(d.name,40)||'設計機',craft:{role:c.role,roleName:str(c.roleName,20),speed:c.accelG>0&&Number.isFinite(c.accelG)?craftSpeed(c.accelG):Math.round(num(c.speed,500,3200,1500)),aa:Math.round(num(c.aa,0,2,1)*100)/100,strike:Math.round(num(c.strike,0,5000,10)),gun:Math.round(num(c.gun,0,5000,num(c.strike,0,5000,10))),armor:Math.round(num(c.armor,.1,4,1)*100)/100,crew:Math.round(num(c.crew,0,200,1)),accelG:Math.round(num(c.accelG,0,20000,0)),shield:!!c.shield,stations,load,mass:num(c.mass,0,1e6,0)||null}};
+ return {ref:str(d.ref,80),name:str(d.name,40)||'設計機',craft:{role:c.role,roleName:str(c.roleName,20),speed:c.accelG>0&&Number.isFinite(c.accelG)?craftSpeed(c.accelG):Math.round(num(c.speed,500,3200,1500)),aa:Math.round(num(c.aa,0,2,1)*100)/100,strike:Math.round(num(c.strike,0,5000,10)),gun:Math.round(num(c.gun,0,5000,num(c.strike,0,5000,10))),armor:Math.round(num(c.armor,.1,4,1)*100)/100,crew:Math.round(num(c.crew,0,200,1)),accelG:Math.round(num(c.accelG,0,20000,0)),shield:!!c.shield,hyper:Number.isFinite(c.hyper)&&c.hyper>0?c.hyper:null,stations,load,mass:num(c.mass,0,1e6,0)||null}};
 }
 function layoutStats(ship,S){
  const h=habitationSpace(ship);S.autoHabitationVolume=h.volume;S.unassignedVolume=h.volume;S.envelopeVolume=h.envelopeVolume;
@@ -10295,7 +10295,15 @@ function updateBattles(w) {
  const bySys = new Map();
  for (const u of w.units.values()) { if (!alive(u) || u.sys == null) continue; let a = bySys.get(u.sys); if (!a) bySys.set(u.sys, a = new Set()); a.add(u.side); }
  // v22 A raiding wing's craft hold their side's place in the system they strike (until they jump out).
- for (const s of w.squads.values()) { if (!s.raid || s.sys == null || s.state !== 'out' || !(s.n > 0)) continue; let a = bySys.get(s.sys); if (!a) bySys.set(s.sys, a = new Set()); a.add(s.side); }
+ for (const s of w.squads.values()) { if (!s.raid || s.sys == null || !['out', 'return'].includes(s.state) || !(s.n > 0)) continue; let a = bySys.get(s.sys); if (!a) bySys.set(s.sys, a = new Set()); a.add(s.side); }
+ // Salvos already in flight must resolve after raiding craft withdraw.
+ for (const m of w.missiles) {
+  const target = w.units.get(m.target);
+  if (!alive(target) || target.sys !== m.sys) { m.n = 0; m.life = 0; continue; }
+  if (m.sys == null || !(m.n > 0) || !(m.life > 0)) continue;
+  let sides = bySys.get(m.sys); if (!sides) bySys.set(m.sys, sides = new Set()); sides.add(m.side);
+ }
+ w.missiles = w.missiles.filter(m => m.n > 0 && m.life > 0);
  for (const [sys, sides] of bySys) if (sides.size > 1 && !w.battles.has(sys)) { w.battles.set(sys, {sys, t0: w.time, log: [], sides: [...sides]}); event(w, `${w.sector.systems[sys].name}で交戦開始`, {sys, battle: true}); }
  for (const [sys, b] of w.battles) { const sides = bySys.get(sys); if (!sides || sides.size < 2) { w.battles.delete(sys);stir(w, sys); const win = sides ? [...sides][0] : null; event(w, `${w.sector.systems[sys].name}の戦闘終結${win != null ? '：' + w.sides[win].name + 'が宙域を確保' : ''}`, {sys, battle: true, end: true, winner: win}); for (const s of w.squads.values()) if (s.sys === sys && s.state === 'out') s.state = 'return'; } }
 }
