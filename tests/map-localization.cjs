@@ -51,7 +51,12 @@ test('mission cards and navigation translate composed labels', () => {
 const app = fs.readFileSync(path.join(root, 'js/app.js'), 'utf8');
 vm.runInContext('const T = s => KSI18n.t(s); const esc = s => String(s);\n' + app.slice(app.indexOf('const VOY_CIS_RENAME ='), app.indexOf('// ---------- the order of battle')), c);
 test('all generated ship names and Roman-numeral suffixes translate without changing saved names', () => {
-  for (const design of Object.values(vm.runInContext('YardFleetData.designs', c))) translated(design.name.split('｜')[0]);
+  vm.runInContext(app.match(/const EXAMPLE_PURPOSE = .*?;/)[0], c);
+  const purposes = vm.runInContext('EXAMPLE_PURPOSE', c);
+  for (const design of Object.values(vm.runInContext('YardFleetData.designs', c))) {
+    const name = design.name.split('｜')[0];translated(name);
+    translated(`${name}（1,000 m・${purposes[design.key] || design.cls}）`);
+  }
   const names = vm.runInContext('Object.values(VOY_SHIPNAMES).flat()', c);
   for (const name of names) {
     c.nameRow = {name};
@@ -105,6 +110,7 @@ test('military hierarchy uses TF / CTF, with consistent air and formation termin
     }
   }
   for (const vehicle of Object.values(R.VEHICLES)) translated(vehicle.name);
+  for (const craft of Object.values(R.CRAFT)) translated(`${craft.name}（${R.ROLE_NAME[craft.role]}）`);
   assert.equal(c.KSI18n.t('単縦陣'), 'Line Ahead');
   assert.equal(c.KSI18n.t('横陣'), 'Line Abreast');
   for (const section of [c.KS_EN.terms, c.KS_EN.messages]) for (const value of Object.values(section)) assert.doesNotMatch(value, /\btask groups?\b/i);
