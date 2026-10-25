@@ -1176,6 +1176,8 @@ root.KS_EN={
   "この宙域で出撃準備へ": "Prepare Mission in This Sector",
   "未搭載": "Not Embarked",
   "ほか": "and others",
+  "拡大": "Zoom In",
+  "縮小": "Zoom Out",
   "レキューザント級軽デストロイヤー": "Recusant-class Light Destroyer",
   "TX-130 ホバータンク": "TX-130 Hover Tank",
   "A6 ジャガーノート": "A6 Juggernaut",
