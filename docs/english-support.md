@@ -6,15 +6,36 @@ visit uses Japanese for a Japanese browser language and English otherwise.
 If browser storage is unavailable, switching still works for the current page.
 
 The English interface covers the main design tools, component search, fleet
-organization, operations controls, combat messages, and both tutorials. In English mode, search
+organization, operations controls, combat messages, and both tutorials. The
+mission map includes English names and descriptions for all 84 systems, regions,
+trade routes, eras and theaters, including patrol and fleet-battle mission cards.
+Map label placement measures the displayed text when switching languages or zooming.
+In English mode, search
 accepts English component names as well as Japanese names. Numbers use English
 thousands/millions/billions/trillions abbreviations in English mode.
 
-Saved designs, identifiers, ship names entered by the user, input values, and
-simulation rules retain their original values. Unknown text falls back to its
+Default ship names and numbered formations display in English in the order of
+battle without rewriting their saved Japanese names. New manual name edits are
+marked as custom and retained verbatim, including after reloading. Existing names
+that exactly match a default name are displayed using that name's translation;
+older saves do not record whether those names were manually entered.
+
+Saved designs, identifiers and simulation rules retain their original values.
+Unknown text falls back to its
 Japanese source; some detailed example descriptions and historical source notes
 are not translated yet. This is an English interface, not a complete translation
 of every reference document in the application.
+
+## Military terminology
+
+The game's formation hierarchy uses **Combined Task Force (CTF-1)** containing
+**Task Forces (TF-11, TF-12, …)**. These terms also apply to orders, tutorials,
+mission preparation and map abbreviations. Internal save keys remain unchanged.
+
+Air formations containing several squadrons use **Air Wing**; their component
+units use **Squadron**. Ground units use **Company**, **Battalion** and **Regiment**.
+Other corrected terms include **Combat Air Patrol**, **Full Salvo**, **Line Ahead**,
+**Line Abreast**, **Echelon**, **Wedge** and **Circular Formation**.
 
 ## Raid fixes
 
@@ -38,10 +59,12 @@ From the repository root, run with a recent Node.js release (tested with 24.22.1
 node --test tests/*.cjs
 ```
 
-The 11 automated tests cover the real custom-craft save/load/registration path,
+The 16 automated tests cover the real custom-craft save/load/registration path,
 raid recall and missile progression, invalid hyperdrive values, language
 defaults and persistence, blocked storage, dynamic translations, canvas text
-measurement, and translation-template arguments. All five raid regression
+measurement, translation-template arguments, all map data and composed mission
+labels, generated ship names, custom-name preservation and TF/CTF terminology.
+All five raid regression
 tests reproduce failures against the unmodified base and pass after the fix.
 
 Browser checks cover desktop and mobile layouts, both language selectors,
@@ -49,6 +72,11 @@ language persistence after reload, English component search, fleet setup,
 the 3D fleet tutorial, operations controls, and unchanged design data across
 language switches. Recorded music assets were not downloaded for these checks;
 audio playback is outside their coverage.
+
+The map/fleet follow-up checks all 84 systems in both mission modes, both eras,
+desktop and mobile map layouts, all four factions' default names, language
+switches without saved-name changes, and a custom ship name across loadout,
+mission preparation and page reload.
 
 ## Maintaining translations
 
