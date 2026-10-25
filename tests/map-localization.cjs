@@ -45,7 +45,7 @@ test('mission cards and navigation translate composed labels', () => {
     if (theaters.length) translated('戦域：' + theaters.map(t => `${t.name}（${G.ERAS[t.era].short}）`).join('・'));
     translated(`離脱して${s.name}へジャンプ（12 秒）`);
   }
-  for (const text of ['この宙域で出撃準備へ', '銀河内戦', 'クローン戦争の勢力', '全体']) translated(text);
+  for (const text of ['この宙域で出撃準備へ', '銀河内戦', 'クローン戦争の勢力', '全体', '拡大', '縮小']) translated(text);
 });
 
 const app = fs.readFileSync(path.join(root, 'js/app.js'), 'utf8');
