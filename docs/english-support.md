@@ -10,6 +10,12 @@ organization, operations controls, combat messages, and both tutorials. The
 mission map includes English names and descriptions for all 84 systems, regions,
 trade routes, eras and theaters, including patrol and fleet-battle mission cards.
 Map label placement measures the displayed text when switching languages or zooming.
+The piloting HUD includes full ship-class descriptions, helm orders, heading,
+pitch and roll, gunnery readiness, reactor load, power-allocation menus, civilian
+traffic brackets, hyperspace phases, damage reports, superweapon states and
+battle results. Dynamic slider descriptions are localized for screen readers.
+HUD layout measures translated labels; long damage reports scroll within the
+space between the top controls and the helm pad.
 In English mode, search
 accepts English component names as well as Japanese names. Numbers use English
 thousands/millions/billions/trillions abbreviations in English mode.
@@ -36,6 +42,10 @@ Air formations containing several squadrons use **Air Wing**; their component
 units use **Squadron**. Ground units use **Company**, **Battalion** and **Regiment**.
 Other corrected terms include **Combat Air Patrol**, **Full Salvo**, **Line Ahead**,
 **Line Abreast**, **Echelon**, **Wedge** and **Circular Formation**.
+Helm orders use **Full Ahead**, **Astern**, **Hard to Port**, **Midships** and
+**Hard to Starboard**. Flight attitude uses **Pitch** and **Roll**, while hull
+geometry retains **Slope**. Compact armor indicators use B/A/S/P/D/V for
+bow, aft, starboard, port, dorsal and ventral; tooltips spell out each face.
 
 ## Raid fixes
 
@@ -59,11 +69,15 @@ From the repository root, run with a recent Node.js release (tested with 24.22.1
 node --test tests/*.cjs
 ```
 
-The 16 automated tests cover the real custom-craft save/load/registration path,
+The 22 automated tests cover the real custom-craft save/load/registration path,
 raid recall and missile progression, invalid hyperdrive values, language
 defaults and persistence, blocked storage, dynamic translations, canvas text
 measurement, translation-template arguments, all map data and composed mission
 labels, generated ship names, custom-name preservation and TF/CTF terminology.
+HUD regressions exercise the actual generated interface for all built-in ship
+designs, every civilian class/name combination with intact and damaged markers,
+all hyperspace phases, damage flags, power modes, battle-result variants and
+slider descriptions across language switches.
 All five raid regression
 tests reproduce failures against the unmodified base and pass after the fix.
 
@@ -77,6 +91,12 @@ The map/fleet follow-up checks all 84 systems in both mission modes, both eras,
 desktop and mobile map layouts, all four factions' default names, language
 switches without saved-name changes, and a custom ship name across loadout,
 mission preparation and page reload.
+
+The piloting follow-up checks patrol and battle HUDs at 1536×706, 844×390 and
+390×844, helm/camera/gunnery/power commands, damage states and result panels,
+and Onager/Subjugator superweapon charging, ready, firing, cooling and damaged
+states. The checks inspect text and accessible attributes for untranslated
+Japanese, and verify that damage cards fit between the controls and helm pad.
 
 ## Maintaining translations
 
