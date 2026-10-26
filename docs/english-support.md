@@ -69,7 +69,7 @@ From the repository root, run with a recent Node.js release (tested with 24.22.1
 node --test tests/*.cjs
 ```
 
-The 22 automated tests cover the real custom-craft save/load/registration path,
+The 25 automated tests cover the real custom-craft save/load/registration path,
 raid recall and missile progression, invalid hyperdrive values, language
 defaults and persistence, blocked storage, dynamic translations, canvas text
 measurement, translation-template arguments, all map data and composed mission
@@ -77,7 +77,13 @@ labels, generated ship names, custom-name preservation and TF/CTF terminology.
 HUD regressions exercise the actual generated interface for all built-in ship
 designs, every civilian class/name combination with intact and damaged markers,
 all hyperspace phases, damage flags, power modes, battle-result variants and
-slider descriptions across language switches.
+slider descriptions across language switches. Orbit labels cover every system,
+including shipyard rings, and all twelve loading tips are translated.
+
+The Canvas2D fallback also has regression coverage for mesh drawing and fleet
+lighting under full ship rotation. These tests reproduce the undefined `cs`
+variable crash in the previous renderer; normals now use the same rotation
+matrix as vertices, including pitch and roll.
 All five raid regression
 tests reproduce failures against the unmodified base and pass after the fix.
 
