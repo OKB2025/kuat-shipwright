@@ -18,7 +18,7 @@ vm.runInContext(`const C=Core, T=s=>KSI18n.t(s), esc=s=>String(s), num=s=>String
  const trial={p:{name:'インペリアルI級｜重砲戦艦'},launchers:[],powerMode:'balanced',camMode:'ship',gunMode:'free',gun:{},pat:{civ:[]},vf:20000000};
  const ship=null, JUMP={spool:5};
  const trialCamName=()=> '追従', trialSwKinds=()=>['sbeam','hion'];
- const trialSys=()=>({name:'コルサント',planet:{ring:false}});
+ const trialSys=()=>trial.sys||({name:'コルサント',planet:{ring:false}});
  const window=globalThis;
 `, c);
 vm.runInContext(app.match(/const TRIAL_TELEGRAPH=.*?;/)[0],c);
@@ -78,6 +78,21 @@ test('every hyperspace phase translates its composed destination, speed and coun
     }
   }
   assert.equal(c.KSI18n.t('ハイパースペース航行中 · コルサントまで 12 秒'), 'In Hyperspace · To Coruscant · 12 s');
+});
+
+test('orbit labels cover ring systems and all loading tips retain English military terminology', () => {
+  for(const system of vm.runInContext('Galaxy.SYSTEMS',c)){
+    c.system={name:system.name,planet:{ring:system.v.ring,ringName:system.v.ringName}};
+    for(const mode of ['trial','battle'])for(const returnTo of [null,'title']){
+      c.mode=mode;c.returnTo=returnTo;
+      vm.runInContext('trial.sys=system;trial.mode=mode;trial.returnTo=returnTo',c);
+      translated(vm.runInContext('trialWhere()',c));
+    }
+  }
+  vm.runInContext(app.match(/const LOAD_TIPS=\[[\s\S]*?\];/)[0],c);
+  for(const tip of vm.runInContext('LOAD_TIPS',c)) assert.doesNotMatch(translated('ヒント：'+tip),/task group/i);
+  assert.equal(c.KSI18n.t('パトロール · クワット軌道 · 造船リング'),'Patrol · Kuat Orbit · Shipyard Ring');
+  assert.equal(c.KSI18n.t('速力通信機'),'Engine Telegraph');
 });
 
 test('live damage flags, reactor modes and superweapon records are translated', () => {
