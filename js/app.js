@@ -4768,8 +4768,12 @@ function trialRenderSets(){
 let trialGunsLaidAt=0;
 function trialGunsLayout(hud,gn,force){
  const now=performance.now();if(!force&&now-trialGunsLaidAt<400)return;trialGunsLaidAt=now;
+ // Measure translated labels before the observer's asynchronous update.
+ window.KSI18n?.localize(hud);
  const hr=hud.getBoundingClientRect(),box=s=>{const e=hud.querySelector(s);if(!e||e.hidden)return null;const r=e.getBoundingClientRect();return r.width?r:null;};
  const pad=box('.th-pad'),right=[box('.th-fire'),box('.th-msl'),box('.th-sw'),box('.th-swmode')].filter(Boolean),keys=box('.th-keys'),top=box('.th-top');if(!pad||!hr.width)return;
+ // Longer damage reports stay between the top controls and the helm pad.
+ const self=hud.querySelector('.th-self');if(self&&!self.hidden&&!trial.spectate){const y=(top?top.bottom:hr.top+60)+6;Object.assign(self.style,{top:(y-hr.top)+'px',transform:'none',maxHeight:Math.max(48,pad.top-y-8)+'px'});}
  const lo=pad.right+10,hi=(right.length?Math.min(...right.map(r=>r.left)):hr.right)-10,gap=hi-lo;
  const fit=(compact,wrap)=>{gn.classList.toggle('compact',compact);Object.assign(gn.style,{width:wrap?Math.floor(wrap)+'px':'auto',maxWidth:'none',whiteSpace:wrap?'normal':'nowrap',flexWrap:wrap?'wrap':'nowrap'});return {w:gn.offsetWidth,h:gn.offsetHeight};};
  let m=fit(false,0),band=m.w<=gap;
@@ -4982,7 +4986,7 @@ function hitcamStep(now){
 // ---- HUD ----
 function trialHudHTML(){
  return `<div class="th-canopy" aria-hidden="true"></div><div class="th-top"><div class="th-card th-bar"><div class="th-id"><b>${esc(trial.p?.name||ship?.name||'設計艦')}</b><small><span data-th="where">${trialWhere()}</span> <span data-th="clock">T+0:00</span></small></div>
- <dl class="th-read"><div><dt>速力</dt><dd data-th="speed">0</dd></div><div><dt>方位</dt><dd data-th="head">090°</dd></div><div><dt>高度</dt><dd data-th="alt">160 km</dd></div><div class="th-att"><dt>仰角</dt><dd data-th="pitch">0.0°</dd></div><div class="th-att"><dt>傾斜</dt><dd data-th="bank">0.0°</dd></div></dl></div>
+ <dl class="th-read"><div><dt>速力</dt><dd data-th="speed">0</dd></div><div><dt>方位</dt><dd data-th="head">090°</dd></div><div><dt>高度</dt><dd data-th="alt">160 km</dd></div><div class="th-att"><dt>ピッチ</dt><dd data-th="pitch">0.0°</dd></div><div class="th-att"><dt>ロール</dt><dd data-th="bank">0.0°</dd></div></dl></div>
  <div class="th-actions">${trial.rts?'':'<button type="button" class="th-btn th-mapbtn" data-trial-cmd="map" aria-expanded="false" aria-controls="thMap" aria-label="星図とハイパードライブ">星図</button>'}<button type="button" class="th-btn th-pw" data-trial-cmd="power" data-th="pwbtn" aria-expanded="false" aria-controls="thPower" aria-label="出力配分">⚡ ${(C.POWER_MODES[trial.powerMode]||C.POWER_MODES.balanced).name}</button><button type="button" class="th-btn th-cambtn" data-trial-cmd="cam" aria-label="視点の切り替え（V）" title="視点の切り替え（V）"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.6"/></svg><span data-th="camq">${trialCamName(trial.camMode)}</span></button><button type="button" class="th-btn snd-btn" data-trial-cmd="mute" data-sound-toggle aria-pressed="false" aria-label="音を切る"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="snd-wave" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/><path class="snd-x" d="M16 9l5 6M21 9l-5 6"/></svg></button><button type="button" class="th-btn th-more" data-trial-cmd="menu" aria-expanded="false" aria-controls="thMenu" aria-label="その他の操作">⋯</button>
  <div class="th-card th-menu th-power" id="thPower" hidden><p class="th-power-head">出力配分 <kbd>P</kbd></p>${Object.entries(C.POWER_MODES).map(([k,m])=>`<button type="button" class="th-btn th-pmode" data-trial-cmd="pmode:${k}" aria-pressed="${(trial.powerMode||'balanced')===k}"><b>${m.name}</b><small>${esc(m.note)}</small></button>`).join('')}</div><button type="button" class="th-btn th-exit" data-trial-cmd="exit">${trial.rts?'操艦終了':trial.mode==='battle'?'戦闘終了':trial.returnTo==='title'?'帰還':'公試終了'}</button>
  <div class="th-card th-menu th-map" id="thMap" hidden></div>
@@ -5034,10 +5038,10 @@ function trialHudUpdate(full){
  const gn=q('guns'),gs=q('gunstat');if(gn&&gs){
   // Each figure carries a full and a short label; the layout picks which shows.
   const it=(cls,l,sh,v)=>`<span class="${cls}"><em class="l">${l}</em><em class="s">${sh}</em> ${v}</span>`,eCls=ef<.25?'ng':ef<.6?'wait':'ok',lCls=load>=1.15?'ng':load>=.95?'wait':'ok';
-  const html=(ts.length?it('ok','● 射撃可','射撃可',fireable)+it('wait','● 装填・旋回','装填',Math.max(0,ready-loaded+turning-nochg))+(starved?it('wait','● 充電待ち','充電',starved):'')+it('ng','● 遮蔽・射界外','射界外',blocked+out)+(nochg?it('ng','● 充電装置なし','充電なし',nochg):''):'<span class="ng">主砲なし</span>')+(pdl.length?it(pdOn?'wait':'ok','● 点防御','点防御',pdOn?`射撃 ${pdFire}/${pdl.length}`:pdl.length):'')+it(eCls,'⚡ 兵装エネルギー','⚡',Math.round(ef*100)+'%')+it(lCls,'炉心','炉心',Math.round(load*100)+'%')+(thrust<.98?it('wait','推力','推力',Math.round(thrust*100)+'%'):'');
-  const grew=gs.innerHTML.length!==html.length;setHTML(gs,html);const gm=q('gunmode'),M=GUN_MODES[trial.gunMode||'free'],gl=`<em class="l">主砲 ${M.name}</em><em class="s">${M.short}</em>`;if(gm)setHTML(gm,gl);gm?.classList.toggle('on',(trial.gunMode||'free')!=='free');const vb=q('volley'),vs=trial.volley==='salvo',vl=`<em class="l">${vs?'斉射':'連続射撃'}</em><em class="s">${vs?'斉射':'連続'}</em>`;if(vb)setHTML(vb,vl);vb?.classList.toggle('on',vs);
+  const html=(ts.length?it('ok','● 射撃可','射撃可',fireable)+it('wait','● 装填・旋回','装填',Math.max(0,ready-loaded+turning-nochg))+(starved?it('wait','● 充電待ち','充電',starved):'')+it('ng','● 遮蔽・射界外','射界外',blocked+out)+(nochg?it('ng','● 充電装置なし','充電なし',nochg):''):'<span class="ng">主砲なし</span>')+(pdl.length?it(pdOn?'wait':'ok','● 点防御','点防御',pdOn?`射撃 ${pdFire}/${pdl.length}`:pdl.length):'')+it(eCls,'⚡ 兵装エネルギー','⚡',Math.round(ef*100)+'%')+it(lCls,'炉心負荷','炉心',Math.round(load*100)+'%')+(thrust<.98?it('wait','推力','推力',Math.round(thrust*100)+'%'):'');
+  const grew=gs._sourceHTML?.length!==html.length;setHTML(gs,html);const gm=q('gunmode'),M=GUN_MODES[trial.gunMode||'free'],gl=`<em class="l">主砲 ${M.name}</em><em class="s">${M.short}</em>`;if(gm)setHTML(gm,gl);gm?.classList.toggle('on',(trial.gunMode||'free')!=='free');const vb=q('volley'),vs=trial.volley==='salvo',vl=`<em class="l">${vs?'斉射':'連続射撃'}</em><em class="s">${vs?'斉射':'連続'}</em>`;if(vb)setHTML(vb,vl);vb?.classList.toggle('on',vs);
   // v21.1 Escorts' behaviour (shown in a battle with escorts of ours).
-  const eb=q('escort'),B=trial.battle,hasEsc=!!(B&&!trial.rts&&B.me&&B.b.units.some(u=>!u.manual&&u.team===B.me.team&&!u.dead&&!u.absent));if(eb){if(eb.hidden===hasEsc)eb.hidden=!hasEsc;const ef=!!trial.escortFree,el=`<em class="l">随伴艦 ${ef?'自由攻撃':'護衛'}</em><em class="s">${ef?'攻撃':'護衛'}</em>`;if(eb.innerHTML!==el)eb.innerHTML=el;eb.classList.toggle('on',!ef);}
+  const eb=q('escort'),B=trial.battle,hasEsc=!!(B&&!trial.rts&&B.me&&B.b.units.some(u=>!u.manual&&u.team===B.me.team&&!u.dead&&!u.absent));if(eb){if(eb.hidden===hasEsc)eb.hidden=!hasEsc;const ef=!!trial.escortFree,el=`<em class="l">随伴艦 ${ef?'自由攻撃':'護衛'}</em><em class="s">${ef?'攻撃':'護衛'}</em>`;setHTML(eb,el);eb.classList.toggle('on',!ef);}
   trialGunsLayout(hud,gn,grew);}
  trialSwHud(q,set);
  const ml=q('msl');if(ml&&trial.launchers.length){const ready=trial.launchers.filter(l=>l.reload<=0).length,rl=Math.min(...trial.launchers.map(l=>l.reload)),f=1-rl/20;ml.style.setProperty('--fill',(ready?1:f).toFixed(3));set('mslstate',ready?`${ready*8} 発`:`${Math.ceil(rl)} 秒`);ml.classList.toggle('ready',ready>0);}
@@ -5058,8 +5062,8 @@ function armourFaces(u){
  return [0,1,2,3,4,5].map(f=>{let a=0,i=0,l=0;for(let s=0;s<N;s++){const z=s*6+f,A=Z.A[z];if(!(A>0))continue;a+=A;const zi=u.zi?.[z]??1;i+=A*zi;l=Math.max(l,(u.zl?.[z]||0)/Math.max(1e-9,Z.cap[z]*zi));}return {i:a>0?i/a:1,l:C.clamp(l,0,1),a};});
 }
 function armourFacesHTML(u){
- const fs=armourFaces(u),names=['首','尾','右','左','上','下'];
- return `<div class="ts-row ts-arm"><span>装甲</span><span class="arm6">${fs.map((x,f)=>`<i class="${x.a>0?(x.i<.35?'bad':x.i<.75?'mid':''):'none'}" title="${C.COMBAT_FACE[f]} 残存 ${Math.round(x.i*100)}% · 負荷 ${Math.round(x.l*100)}%"><b>${names[f]}</b><em style="height:${Math.round(x.l*100)}%"></em></i>`).join('')}</span><small>${Math.round((u.armor??1)*100)}%</small></div>`;
+ const fs=armourFaces(u),names=window.KSI18n?.language==='en'?['B','A','S','P','D','V']:['首','尾','右','左','上','下'];
+ return `<div class="ts-row ts-arm"><span>装甲</span><span class="arm6">${fs.map((x,f)=>`<i class="${x.a>0?(x.i<.35?'bad':x.i<.75?'mid':''):'none'}" title="${C.COMBAT_FACE[f]} 残存 ${Math.round(x.i*100)}% · 負荷 ${Math.round(x.l*100)}%"><b translate="no">${names[f]}</b><em style="height:${Math.round(x.l*100)}%"></em></i>`).join('')}</span><small>${Math.round((u.armor??1)*100)}%</small></div>`;
 }
 // Where the reactor's output goes this moment.
 function powerSplitHTML(u){
@@ -9548,6 +9552,7 @@ window.addEventListener('ks-language-change',()=>{
  if(S){renderStrip();if(fleet.mode==='design')renderSpecTargets();}
  requestDraw();if(st.palQuery)paletteSearch(st.palQuery);if(voy.w)voy.dirty=true;
  if(tut.on)tutRender();if(vtut.on)vtutRender();
+ if(trial.on){trialGunsLaidAt=0;if(trial.spectate)voySpectateHudUpdate(true);else trialHudUpdate(true);}
  // SVG label collision boxes must use the displayed language, including after a switch.
  for(const k of Object.keys(GMAP))if(GMAP[k].root?.isConnected)gmApply(k);
  if(voy.screen==='setup' && !document.activeElement?.matches('[data-obname]')){voyRenderSetup();if(voy.setup?.editing)voyOrbatSheet();}

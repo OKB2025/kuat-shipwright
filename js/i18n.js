@@ -28,7 +28,7 @@ function t(value){const s=String(value??'');if(language==='ja'||!hasJapanese.tes
 const skip='script,style,[translate="no"],[data-l10n-skip],[contenteditable]:not([contenteditable="false"])';
 function ignored(n){return !!(n.nodeType===1?n:n.parentElement)?.closest?.(skip);}
 function textNode(n){if(ignored(n)||n.parentElement?.closest('textarea'))return;const prev=originals.get(n),current=n.nodeValue,source=prev&&current===prev.shown?prev.source:current,shown=t(source);originals.set(n,{source,shown});if(current!==shown)n.nodeValue=shown;}
-const attrNames=['aria-label','aria-description','title','placeholder','alt','label'];
+const attrNames=['aria-label','aria-description','aria-valuetext','title','placeholder','alt','label'];
 function localize(el){
  if(!el||ignored(el))return;if(el.nodeType===3){textNode(el);return;}if(![1,9,11].includes(el.nodeType))return;
  if(el.nodeType===1){
