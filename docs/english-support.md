@@ -27,10 +27,12 @@ that exactly match a default name are displayed using that name's translation;
 older saves do not record whether those names were manually entered.
 
 Saved designs, identifiers and simulation rules retain their original values.
-Unknown text falls back to its
-Japanese source; some detailed example descriptions and historical source notes
-are not translated yet. This is an English interface, not a complete translation
-of every reference document in the application.
+Built-in ship-example descriptions, equipment and compartment names, ordnance
+source notes, and design warnings are translated. The fleet interface also covers
+native sortie-size options, numbered aircraft markers, hyperspace destinations
+and countdowns, contact strength and age, victory messages, and task-force
+hyperdrive, towing, and disabled-ship details. Unknown user-authored text retains
+its source wording.
 
 ## Military terminology
 
@@ -69,7 +71,7 @@ From the repository root, run with a recent Node.js release (tested with 24.22.1
 node --test tests/*.cjs
 ```
 
-The 25 automated tests cover the real custom-craft save/load/registration path,
+The 30 automated tests cover the real custom-craft save/load/registration path,
 raid recall and missile progression, invalid hyperdrive values, language
 defaults and persistence, blocked storage, dynamic translations, canvas text
 measurement, translation-template arguments, all map data and composed mission
@@ -79,6 +81,18 @@ designs, every civilian class/name combination with intact and damaged markers,
 all hyperspace phases, damage flags, power modes, battle-result variants and
 slider descriptions across language switches. Orbit labels cover every system,
 including shipyard rings, and all twelve loading tips are translated.
+Fleet regressions use actual squadron generation and 3D marker templates, the
+spectator hyperspace renderer across all 84 destinations, all faction victory
+messages, contact age and approximate strength, built-in equipment names nested
+in damage reports, native sortie options, example descriptions, source notes,
+and accessible simulation-speed controls. The contact-age assertion checks
+“5 min Ago” explicitly so the directional term “Front” cannot replace it.
+
+A source inventory checks 6,688 unique Japanese strings or templates from the
+HTML, application, core, graphics, engine, and built-in ship data. The remaining
+55 source fragments are intentional: two language-picker labels, six fragments
+used in Japanese-only formatting or internal parsing, and 47 procedural name
+syllables whose assembled names are romanized by the application.
 
 The Canvas2D fallback also has regression coverage for mesh drawing and fleet
 lighting under full ship rotation. These tests reproduce the undefined `cs`
@@ -111,6 +125,11 @@ Japanese, and verify that damage cards fit between the controls and helm pad.
 such as `{0}`. Preserve every placeholder when adding a translation.
 
 `js/i18n.js` localizes changed DOM subtrees and the app's own canvas contexts.
+Template matching requires numeric ordinals after Japanese “第”, skips captures
+equal to the entire input, and tries other matching templates when a nested label
+is still untranslated. Complete translations take precedence over partial ones.
+The entry page versions the catalog and localizer script URLs together so an
+existing browser cache cannot retain the earlier incomplete catalog.
 Use `data-l10n-skip` or `translate="no"` for content that must remain verbatim.
 Application logic that reads a rendered label must use `KSI18n.sourceText()`
 instead of treating its translation as an internal identifier. Number formatting
