@@ -7,7 +7,7 @@ let language=supported.has(saved)?saved:/^ja\b/i.test(root.navigator?.language||
 const cache=new Map(),originals=new WeakMap(),attributes=new WeakMap(),contexts=new WeakSet();
 const hasJapanese=/[\u3040-\u30ff\u3400-\u9fff]/,escapeRE=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 const patterns=Object.entries(exact).filter(([s])=>/\{\d+\}/.test(s)&&s.replace(/\{\d+\}/g,'').trim().length>=2).map(([s,to])=>{
- const order=[],parts=s.split(/(\{\d+\})/);return {re:new RegExp('^'+parts.map(p=>/^\{\d+\}$/.test(p)?(order.push(+p.slice(1,-1)),'(.*?)'):escapeRE(p)).join('')+'$'),to,order,weight:s.replace(/\{\d+\}/g,'').length};
+ const order=[],parts=s.split(/(\{\d+\})/);return {re:new RegExp('^'+parts.map((p,i)=>/^\{\d+\}$/.test(p)?(order.push(+p.slice(1,-1)),parts[i-1]?.endsWith('第')?'(\\d+)':'(.*?)'):escapeRE(p)).join('')+'$'),to,order,weight:s.replace(/\{\d+\}/g,'').length};
 }).sort((a,b)=>b.weight-a.weight);
 const termKeys=Object.keys(terms).sort((a,b)=>b.length-a.length),termRE=termKeys.length?new RegExp(termKeys.map(escapeRE).join('|'),'g'):null;
 function english(value,depth=0){
@@ -15,14 +15,18 @@ function english(value,depth=0){
  if(Object.hasOwn(exact,s))return exact[s];
  const trimmed=s.trim();if(trimmed!==s)return s.slice(0,s.indexOf(trimmed))+english(trimmed,depth)+s.slice(s.indexOf(trimmed)+trimmed.length);
  if(Object.hasOwn(terms,s))return terms[s];
- if(depth<4&&s.startsWith('— '))return '— '+english(s.slice(2),depth+1);
- if(depth<4&&s.endsWith(' ▸'))return english(s.slice(0,-2),depth+1)+' ▸';
+ if(depth<8&&s.startsWith('— '))return '— '+english(s.slice(2),depth+1);
+ if(depth<8&&s.endsWith(' ▸'))return english(s.slice(0,-2),depth+1)+' ▸';
  // Complete templates preserve grammar before individual terms are substituted.
- if(depth<4)for(const p of patterns){const m=p.re.exec(s);if(!m)continue;const args={};p.order.forEach((k,i)=>{args[k]=english(m[i+1],depth+1);});return p.to.replace(/\{(\d+)\}/g,(_,k)=>args[k]??'');}
+ let partial=s,remaining=(s.match(/[\u3040-\u30ff\u3400-\u9fff]/g)||[]).length;
+ const consider=out=>{const n=(out.match(/[\u3040-\u30ff\u3400-\u9fff]/g)||[]).length;if(n<remaining){partial=out;remaining=n;}return n===0;};
+ // Keep looking when a broad template leaves a nested label untranslated.
+ // Skip unchanged captures to avoid consuming the recursion budget on itself.
+ if(depth<8)for(const p of patterns){const m=p.re.exec(s);if(!m||m.slice(1).includes(s))continue;const args={};p.order.forEach((k,i)=>{args[k]=english(m[i+1],depth+1);});const out=p.to.replace(/\{(\d+)\}/g,(_,k)=>args[k]??'');if(consider(out))return out;}
  // Translate compound labels only when all of their Japanese terms are known.
  if(termRE&&!/[。！？]/.test(s)){const out=s.replace(termRE,k=>' '+terms[k]+' ').replace(/（/g,'(').replace(/）/g,')').replace(/：/g,': ').replace(/・/g,' / ').replace(/\s+/g,' ').trim();if(!hasJapanese.test(out))return out;}
- if(depth<4&&s.includes(' · '))return s.split(' · ').map(p=>english(p,depth+1)).join(' · ');
- return s;
+ if(depth<8&&s.includes(' · ')){const out=s.split(' · ').map(p=>english(p,depth+1)).join(' · ');if(consider(out))return out;}
+ return partial;
 }
 function t(value){const s=String(value??'');if(language==='ja'||!hasJapanese.test(s))return s;if(cache.has(s))return cache.get(s);const out=english(s);if(cache.size>=4096)cache.clear();cache.set(s,out);return out;}
 const skip='script,style,[translate="no"],[data-l10n-skip],[contenteditable]:not([contenteditable="false"])';
