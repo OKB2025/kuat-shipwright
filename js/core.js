@@ -89,6 +89,25 @@ const AUTO_M3_PER_CREW=20,AUTO_W_PER_CREW=5e19,AUTO_MIN_HUMAN=.05;
 // held level beyond its peak (about 76 km).
 const CREW_LIVING_M3=100,CREW_REF_L=1600,CREW_REF_M3=1195,CREW_B=2.19132,CREW_C=-.283787;
 function personVolume(L){const d=Math.min(Math.log(Math.max(10,+L||0)/CREW_REF_L),CREW_B/(-2*CREW_C));return Math.max(CREW_LIVING_M3,CREW_REF_M3*Math.exp(CREW_B*d+CREW_C*d*d));}
+// ---------- PLAN-002 cost (建造費) ----------
+// The build cost (cr) is summed in computeStats from the parts' own rates (PARTS[k].cost per m³, FITS[k].cost per
+// mount), the hull's volume (0.6 cr/m³) and the armour (30 cr per m³ of plate); costBy splits the same sum by what it
+// buys, so the categories always add up to S.cost. A compartment kind is filed under its part group.
+const COST_CATS = {hull: '船体', armor: '装甲', power: '動力', drive: '推進・超空間', defense: 'シールド・防御', hangar: '格納・搭載', command: '指揮・艦橋', weapons: '武装', systems: 'その他の設備', crew: '乗員'};
+const COST_KIND = {gen: 'power', shield: 'defense', hyper: 'drive', engine: 'drive', hangar: 'hangar', struct: 'hull', vls: 'weapons', capacitor: 'weapons', localShield: 'defense', integrity: 'defense', firecontrol: 'command', scanner: 'command', sensor: 'command'};
+const COST_GROUP = {power: 'power', air: 'hangar', command: 'command', craft: 'command', superweapon: 'weapons', support: 'systems'};
+function costCategory(k) { return COST_KIND[k] || COST_GROUP[PARTS[k]?.group] || 'systems'; }
+// The cost service: one ship's cost from its stats (or from a fleet profile's info, which carries cost, costBy and
+// crewNeed). Provisional (the user has not fixed a formula): the build cost above plus the crew's outfitting and
+// training, COST_K.crew cr a head. Every side's figures come from here (fleet organisation, scenario cost limits,
+// later the campaign's budget requests).
+const COST_K = {crew: 1000};
+function designCost(S) {
+ const build = Math.max(0, +S?.cost || 0), crewN = Math.max(0, +(S?.crewNeed ?? S?.crew) || 0), crew = crewN * COST_K.crew, by = {};
+ if (S?.costBy) for (const k of Object.keys(COST_CATS)) if (S.costBy[k] > 0) by[k] = S.costBy[k];
+ if (crew > 0) by.crew = crew;
+ return {build, crew, total: build + crew, by, detailed: !!S?.costBy};
+}
 // ---------- parts (compartments) ----------
 const PARTS = {
   gen: {name: 'ジェネレーター', shape: 'sphere', dens: 0.90, hp: 0.7, crew: 0.5, cost: 8, col: [238, 140, 62], min: 10, max: 400, def: 110, crit: true,
@@ -1097,7 +1116,7 @@ function baseComputeStats(ship) {
     if(overlapParts(a,b)){invalid.add(a.id);invalid.add(b.id);}
   }
   const demands=new Map();for(const e of ship.parts.filter(p=>p.k==='engine'&&!invalid.has(p.id))){const r=reactorFor(ship,e);if(r)demands.set(r.id,(demands.get(r.id)||0)+nozzleDemand(e));}
-  let crew = 0, cost = 0, hpSum = 0;
+  let crew = 0, cost = 0, hpSum = 0;const costBy = {hull: 0, armor: 0, power: 0, drive: 0, defense: 0, hangar: 0, command: 0, weapons: 0, systems: 0};   // PLAN-002 the build cost by category (costCategory)
   let Vgen = 0, Vsh = 0, Vhyp = 0, Veng = 0, ventEng = 0, engN = 0, Vhang = 0, Vstruct = 0, structOut = 0, Vint = 0;
   let reactorOutput=0,availableThrust=0,engineDemand=0,shieldCapacity=0,hyperEffectiveVolume=0;
   let exposedArea = 0, critExp = 0, critN = 0, critProt = 0, genExpFrac = 0, floating = 0, overlap = 0, citArea = 0, plateA = 0, plateAT = 0, plateM = 0;
@@ -1115,7 +1134,7 @@ function baseComputeStats(ship) {
       // The outer plateT of the exposed skin is armour; behind it, light framing.
       const t = plateThickness(pt), skin = unclippedPartArea(pt) * expF, armV = Math.min(V, skin * t), m = (V - armV) * .05 + armV * K.armorDens;
       plateA += skin; plateAT += skin * t; plateM += armV * K.armorDens;
-      Vstruct += V; structOut += V * (1 - fH); hpSum += (V - armV) * .05 * 1.5; cost += V * d.cost + armV * 30; crew += V * d.crew / 1000;
+      Vstruct += V; structOut += V * (1 - fH); hpSum += (V - armV) * .05 * 1.5; cost += V * d.cost + armV * 30; costBy.hull += V * d.cost; costBy.armor += armV * 30; crew += V * d.crew / 1000;
       const b = structBox(pt);
       { const k0 = binOf(b.x0), k1 = binOf(b.x1), nk = k1 - k0 + 1; for (let k = k0; k <= k1; k++) { strA[k] += b.w * b.h * (1 - b.tp * 0.5) * .12; bins[k] += m / nk; } }
       continue;
@@ -1124,13 +1143,13 @@ function baseComputeStats(ship) {
       // A light structure (an open framework or a lightly built hull extension,
       // like a freighter's cargo ring) weighs and holds a quarter of a solid one.
       const lf = pt.light ? .25 : 1, vOut = V * (1 - fH), m = (V*.08 + vOut*(K.structDens-.08)) * lf;
-      Vstruct += V; structOut += vOut; hpSum += m * 1.5; cost += V * d.cost * lf; crew += V * d.crew / 1000;
+      Vstruct += V; structOut += vOut; hpSum += m * 1.5; cost += V * d.cost * lf; costBy.hull += V * d.cost * lf; crew += V * d.crew / 1000;
       const b = structBox(pt);
       // The whole mass goes into the bins the structure spans (those beyond the hull's own length fold into the end bins).
       { const k0 = binOf(b.x0), k1 = binOf(b.x1), nk = k1 - k0 + 1; for (let k = k0; k <= k1; k++) { strA[k] += b.w * b.h * (1 - b.tp * 0.5) * .12 * lf; bins[k] += m / nk; } }
       continue;
     }
-    const m = V * d.dens; hpSum += m * d.hp; cost += V * d.cost; crew += V * d.crew / 1000; Vint += V * newHull/Math.max(1,vs.length);
+    const m = V * d.dens; hpSum += m * d.hp; cost += V * d.cost; costBy[costCategory(pt.k)] += V * d.cost; crew += V * d.crew / 1000; Vint += V * newHull/Math.max(1,vs.length);
     const ab = partAABB(pt), k0 = binOf(ab[0]), k1 = binOf(ab[3]), span = k1 - k0 + 1;
     for (let k = k0; k <= k1; k++) {bins[k]+=m/span;hullBins[k]-=V*newHull/Math.max(1,vs.length)*K.hullDens/span;} accepted.push(pt); { const pad = Math.max(ab[3] - ab[0], ab[4] - ab[1], ab[5] - ab[2]) * .05; acceptedBounds.push([ab[0] - pad, ab[1] - pad, ab[2] - pad, ab[3] + pad, ab[4] + pad, ab[5] + pad]); }
     if (V > 0 && fE < 0.02 && expF > 0.98 && !attachedEngine(ship,pt)) { floating++; info[pt.id].floating = true; }
@@ -1208,7 +1227,7 @@ function baseComputeStats(ship) {
     // v21 Craft weapons sit flush on their mount (drawn without a pedestal), so they carry no pedestal mass.
     const ph = d.craft ? 0 : Math.max(0, f.base + f.ped - (f.low || 0)), pr = d.r * 0.8, pv = Math.PI * pr * pr * ph; pedVol += pv;
     // v18 Each weapon needs its gun crew and as many again to feed, power and maintain it.
-    const m = d.mass + pv * 0.3, fc = d.cat === 'w' ? (d.crew || 0) * WEAPON_CREW_K : (d.crew || 0); crew += fc; if (d.cat === 'w' && !f.float) weaponCrew += fc; cost += d.cost;
+    const m = d.mass + pv * 0.3, fc = d.cat === 'w' ? (d.crew || 0) * WEAPON_CREW_K : (d.crew || 0); crew += fc; if (d.cat === 'w' && !f.float) weaponCrew += fc; cost += d.cost; costBy[d.cat === 'w' ? 'weapons' : 'command'] += d.cost || 0;
     bins[binOf(f.p[0])] += m;
     if (d.cat === 'w') {
       if(f.float)continue;
@@ -1253,7 +1272,7 @@ function baseComputeStats(ship) {
   for (const pt of ship.parts) if (PARTS[pt.k].crit) bins[binOf(pt.c[0])] += ship.armor.cit * partArea(pt) * K.armorDens;
   const M = bins.reduce((a, b) => a + b, 0);
   hpSum += Math.max(0, g.volume - Vint) * K.hullDens;
-  cost += g.volume * 0.6 + (ship.armor.hull * armorArea + ship.armor.cit * citArea) * 30;
+  cost += g.volume * 0.6 + (ship.armor.hull * armorArea + ship.armor.cit * citArea) * 30;costBy.hull += g.volume * 0.6;costBy.armor += (ship.armor.hull * armorArea + ship.armor.cit * citArea) * 30;
   crew += g.volume * 0.3 / 1000 + slots * 3;
   // Automation units take over crew posts (never the last AUTO_MIN_HUMAN of them) and draw power all the time.
   const autoV=ship.parts.filter(p=>p.k==='automation').reduce((n,p)=>n+partVolume(p),0),crewBase=crew,autoCrew=Math.max(0,Math.min(Math.floor(autoV/AUTO_M3_PER_CREW),Math.floor(crewBase*(1-AUTO_MIN_HUMAN)))),autoW=autoV/AUTO_M3_PER_CREW*AUTO_W_PER_CREW;
@@ -1303,7 +1322,7 @@ function baseComputeStats(ship) {
     alphaRate,ionRate,aaArc,bandRate,alpha, alphaTot, alphaBest, alphaMean, ionBest: Math.max(...ionS), ionMean: ionS.reduce((a, b) => a + b, 0) / 6, ionTot, aa, mslSalvo, imslSalvo, tractors,
     arcEff: alphaTot > 0 ? alphaBest / alphaTot : 0,
     commandInfo, bridges, view, accuracy, sensor, aaChannels: Math.max(1, Math.round(aaCh)), airCtl: Math.max(1, Math.round(airCtl)), protectedFrac, critExpo: expo, genExpFrac, vuln,
-    hp: hpSum * K.hpPerT + (armHull + armCit + plateM) * 0.2 * K.hpPerT, crew: Math.round(crew), crewBase: Math.round(crewBase), autoCrew, autoVolume: autoV, autoPower: autoW, weaponCrew: Math.round(weaponCrew), habit, cost,
+    hp: hpSum * K.hpPerT + (armHull + armCit + plateM) * 0.2 * K.hpPerT, crew: Math.round(crew), crewBase: Math.round(crewBase), autoCrew, autoVolume: autoV, autoPower: autoW, weaponCrew: Math.round(weaponCrew), habit, cost, costBy,
     floating, floatFits, plateFits, overlap, info, fitInfo, hatchInfo, pedVol,
     frac: {gen: Vgen / Math.max(1, ship.hull.assembly?volume:g.volume), engine: Veng / Math.max(1, ship.hull.assembly?volume:g.volume), hyper: Vhyp / Math.max(1, ship.hull.assembly?volume:g.volume), shield: Vsh / Math.max(1, ship.hull.assembly?volume:g.volume), hangar: Vhang / Math.max(1, ship.hull.assembly?volume:g.volume), struct: Vstruct / Math.max(1, ship.hull.assembly?volume:g.volume)},
     Vgen, Vsh, Vhyp,
@@ -1734,7 +1753,7 @@ function overlapParts(a,b){
 }
 function conflicts(ship,pt,ignore=[]){return allOccupied(ship).filter(q=>q.id!==pt.id&&!ignore.includes(q.id)&&q.k!=='struct'&&!(pt.k==='engine'&&q.k==='machinery'&&q.nozzle===pt.id)&&overlapParts(pt,q));}
 function engineVented(ship,e){const m=partDims(e),u=norm(e.dir||[-1,0,0]),p=add(e.c,mul(u,m.l/2+Math.max(1,m.rad*.2)));if(inEnv(ship,p))return false;return !ship.parts.some(q=>q!==e&&q.k!=='struct'&&inPart(q,p));}
-function mirrorPart(p,ship){const q=JSON.parse(JSON.stringify(p,(k,v)=>k.startsWith('_')?undefined:v));q.c=mirrorP(p.c);delete q._geom;if(q.dir)q.dir=mirrorP(q.dir);if(q.yaw)q.yaw=-q.yaw;if(q.surfaceNormal)q.surfaceNormal=mirrorP(q.surfaceNormal);if(q.roll)q.roll=-q.roll;if(q.angles)[q.angles[2],q.angles[3]]=[q.angles[3],q.angles[2]];if(q.offsetZ)q.offsetZ=-q.offsetZ;if(q.form==='arc')q.arcStart=((-(p.arcStart??30)-(p.arcSweep??300)+540)%360)-180;if(q.form==='shell')q.shellFlip=!p.shellFlip;if(q.loft)q.loft=q.loft.map(a=>a.length>4?[...a.slice(0,4),-a[4]]:a);if(q.outline)q.outline=q.outline.map(a=>[a[0],-a[1]]);if(q.reactor){const r=ship.parts.find(x=>x.id===q.reactor);if(r?.tw)q.reactor=r.tw;}if(q.aviationSurfaces){const a=q.aviationSurfaces;[a.port,a.stbd]=[a.stbd||'none',a.port||'none'];}mirrorEquipment(p,q);return q;}
+function mirrorPart(p,ship){const q=JSON.parse(JSON.stringify(p,(k,v)=>k.startsWith('_')?undefined:v));q.c=mirrorP(p.c);delete q._geom;if(q.dir)q.dir=mirrorP(q.dir);if(q.yaw)q.yaw=-q.yaw;if(q.surfaceNormal)q.surfaceNormal=mirrorP(q.surfaceNormal);if(q.roll)q.roll=-q.roll;if(q.angles)[q.angles[2],q.angles[3]]=[q.angles[3],q.angles[2]];if(q.offsetZ)q.offsetZ=-q.offsetZ;if(q.form==='arc')q.arcStart=((-(p.arcStart??30)-(p.arcSweep??300)+540)%360)-180;if(q.form==='shell')q.shellFlip=!p.shellFlip;if(q.loft)q.loft=q.loft.map(a=>a.length>4?[...a.slice(0,4),-a[4]]:a);if(q.outline)q.outline=q.outline.map(a=>[a[0],-a[1]]);if(q.mesh)q.mesh=mirrorStructMesh(p.mesh);if(q.wing?.pivot)q.wing.pivot=mirrorP(q.wing.pivot);if(q.reactor){const r=ship.parts.find(x=>x.id===q.reactor);if(r?.tw)q.reactor=r.tw;}if(q.aviationSurfaces){const a=q.aviationSurfaces;[a.port,a.stbd]=[a.stbd||'none',a.port||'none'];}mirrorEquipment(p,q);return q;}
 function v3PlacePart(ship,k,c,size,opts={},mirror=false){
   if(!Object.hasOwn(PARTS,k)||(k==='machinery'||k==='capacitor'||k==='vls'))throw new Error('配置できない部品です');
   if(ship.parts.length+(mirror&&Math.abs(c[2])>1?2:1)>DESIGN_LIMITS.parts)throw new Error('区画数の上限は'+DESIGN_LIMITS.parts+'個です');
@@ -1935,6 +1954,7 @@ function liveUnpiercedStructTriangles(p){
   if(p.form==='arc')return arcTriangles(p);
   if(p.form==='outline')return outlineTriangles(p);
   if(p.form==='reference')return referenceTriangles(p);
+  if(p.form==='mesh')return meshStructTriangles(p);
   if(p.form==='ellipsoid')return ellipsoidTriangles(p);
   if(p.form==='loft'||p.form==='roundloft')return loftTriangles(p);
   if(p.form==='shell')return shellTriangles(p);
@@ -1950,6 +1970,7 @@ function unpiercedInStruct(p,q){
   if(p.form==='arc')return inArc(p,q);
   if(p.form==='outline')return inOutline(p,q);
   if(p.form==='reference')return inReferenceStructure(p,q);
+  if(p.form==='mesh')return inMeshStruct(p,q);
   if(p.form==='ellipsoid'){const v=localStruct(p,q);return (v[0]*2/p.s[0])**2+(v[1]*2/p.s[2])**2+(v[2]*2/p.s[1])**2<=1+1e-9;}
   if(p.form==='shell')return inShell(p,q);
   if(p.form==='loft'||p.form==='roundloft'){const v=localStruct(p,q),t=v[0]/p.s[0]+.5;if(t<0||t>1)return false;const row=loftProfile(p,t);if(p.form==='roundloft'){const hw=row[1]*p.s[1]/2,b=(row[3]-.5)*p.s[2],top=(row[2]-.5)*p.s[2];return ((v[2]-(row[4]||0)*p.s[1]/2)/hw)**2+((v[1]-(top+b)/2)/((top-b)/2))**2<=1+1e-9;}const ring=loftRing(p,row);return pointInRing(v[2],v[1],ring.map(q=>[q[2],q[1]]));}
@@ -1989,7 +2010,7 @@ function placePart(ship,k,c,size,opt={},mirror=false){
   const old=ship._building;ship._building=true;let p;
   try{p=v3PlacePart(ship,k,c,size,opt,mirror);}finally{ship._building=old;}
   const made=ship.parts.filter(q=>q.id===p.id||q.id===p.tw);
-  for(const q of made){for(const a of ['autoFit','engineLength','equipmentId','customEquipment','arcBands','bands','bandPaint','stripes','shellCurve','shellThick','shellFlip','arcInner','arcStart','arcSweep','label','length','corner','aftWidth','foreWidth','paint','bodyLength','bodyRadius','ribSpacing','nozzleLength','throatRatio','wallInset','ridge','deckSlope','skin','skinAsset','skinAxial','skinAnchor','skinDiameter','skinSize','airRole','pitch','roll','surfaceNormal'])if(opt[a]!=null)q[a]=opt[a];if(q.k==='struct'&&opt.plate){q.plate=true;q.plateT=plateThickness(opt);}if(q.k==='struct'&&opt.light&&!opt.plate)q.light=true;if(opt.outline)q.outline=opt.outline.map(a=>[a[0],a[1]*(q===p?1:-1)]);if(opt.loft)q.loft=opt.loft.map(a=>a.length>4?[...a.slice(0,4),a[4]*(q===p?1:-1)]:a.slice());if(q!==p&&q.form==='arc')q.arcStart=((-(p.arcStart??30)-(p.arcSweep??300)+540)%360)-180;if(q!==p&&q.form==='shell')q.shellFlip=!opt.shellFlip;if(opt.surfaceNormal)q.surfaceNormal=q===p?opt.surfaceNormal.slice():mirrorP(opt.surfaceNormal);if(q!==p&&opt.roll!=null)q.roll=-opt.roll;if(opt.room)setRoomSize(q,opt.room);if(opt.yaw!=null&&q.k!=='struct')q.yaw=q===p?opt.yaw:-opt.yaw;}
+  for(const q of made){for(const a of ['autoFit','engineLength','equipmentId','customEquipment','arcBands','bands','bandPaint','stripes','shellCurve','shellThick','shellFlip','arcInner','arcStart','arcSweep','label','length','corner','aftWidth','foreWidth','paint','bodyLength','bodyRadius','ribSpacing','nozzleLength','throatRatio','wallInset','ridge','deckSlope','skin','skinAsset','skinAxial','skinAnchor','skinDiameter','skinSize','airRole','pitch','roll','surfaceNormal'])if(opt[a]!=null)q[a]=opt[a];if(q.k==='struct'&&opt.plate){q.plate=true;q.plateT=plateThickness(opt);}if(q.k==='struct'&&opt.light&&!opt.plate)q.light=true;if(q.k==='struct'&&opt.wing){const w=normalizeWing(opt.wing);if(w){if(w.pivot&&q!==p)w.pivot=mirrorP(w.pivot);q.wing=w;}}if((q.k==='sensor'||q.k==='scanner')&&Object.hasOwn(SENSOR_BANDS,opt.band)&&opt.band!=='multi')q.band=opt.band;if(opt.outline)q.outline=opt.outline.map(a=>[a[0],a[1]*(q===p?1:-1)]);if(opt.loft)q.loft=opt.loft.map(a=>a.length>4?[...a.slice(0,4),a[4]*(q===p?1:-1)]:a.slice());if(q!==p&&q.form==='arc')q.arcStart=((-(p.arcStart??30)-(p.arcSweep??300)+540)%360)-180;if(q!==p&&q.form==='shell')q.shellFlip=!opt.shellFlip;if(opt.surfaceNormal)q.surfaceNormal=q===p?opt.surfaceNormal.slice():mirrorP(opt.surfaceNormal);if(q!==p&&opt.roll!=null)q.roll=-opt.roll;if(opt.room)setRoomSize(q,opt.room);if(opt.yaw!=null&&q.k!=='struct')q.yaw=q===p?opt.yaw:-opt.yaw;}
   for(const q of made){enforceEquipment(q);normalizeSuperweapon(q);if(q.k==='struct')q._solidCutShip=ship;}
   if(made.length===2&&equipmentSpec(p)){const q=made.find(q=>q!==p),id=q.id,tw=q.tw;Object.assign(q,mirrorPart(p,ship),{id,tw});}
   for(const q of made)if(isInternal(q))q._envelope=ship;
@@ -2107,7 +2128,7 @@ function openingInterior(ship,b){
   }
   return Float32Array.from(out);
 }
-function meshVolume(T){let sum=0;for(let i=0;i<T.length;i+=9)sum+=dot(Array.from(T.slice(i,i+3)),cross(Array.from(T.slice(i+3,i+6)),Array.from(T.slice(i+6,i+9))))/6;return Math.abs(sum);}
+function meshVolume(T){let sum=0;for(let i=0;i<T.length;i+=9){const ax=T[i],ay=T[i+1],az=T[i+2],bx=T[i+3],by=T[i+4],bz=T[i+5],cx=T[i+6],cy=T[i+7],cz=T[i+8];sum+=ax*(by*cz-bz*cy)+ay*(bz*cx-bx*cz)+az*(bx*cy-by*cx);}return Math.abs(sum/6);}
 function uncutSolidHullGeo(ship,flat=false){
   syncAviationSurfaces(ship);
   const g=v3HullGeo(ship,flat),mouths=ship.hatches.map(h=>({h,b:openingBounds(ship,h)})).filter(x=>x.b),bs=mouths.map(x=>x.b);
@@ -2130,7 +2151,17 @@ function hatchGrid(ship,h){
   for(let i=0;i<5;i++)for(let j=0;j<3;j++){const p=[0,0,0];p[l]=lerp(b[l],b[l+3],i/4);p[u]=(b[u]+b[u+3])/2+(j-1)*openingHalf(b,p[l],u);p[axis]=h.n[axis]>0?b[axis]:b[axis+3];pts.push(p);nrm.push(h.n);}
   return {nl:5,nw:3,pts,nrm,area:hatchOpenArea(ship,h)};
 }
-function computeStats(ship){return withFrozenStructures(()=>{syncCompartments(ship);ship._lockedCache=cache(ship);try{const s=v3ComputeStats(ship);s.sensorVolume=ship.parts.filter(p=>p.k==='sensor'||p.k==='scanner').reduce((n,p)=>n+partVolume(p),0);return heatStats(ship,hatchMotionStats(ship,layoutStats(ship,groundingStats(ship,superweaponStats(ship,outfittingStats(ship,s))))));}finally{delete ship._lockedCache;}});}
+function computeStats(ship){return withFrozenStructures(()=>{syncCompartments(ship);ship._lockedCache=cache(ship);try{const s=v3ComputeStats(ship);s.sensorVolume=ship.parts.filter(p=>p.k==='sensor'||p.k==='scanner').reduce((n,p)=>n+partVolume(p),0);return shapeStats(ship,sensorSuite(ship,wingStats(ship,heatStats(ship,solarStats(ship,hatchMotionStats(ship,layoutStats(ship,groundingStats(ship,superweaponStats(ship,outfittingStats(ship,s))))))))));}finally{delete ship._lockedCache;}});}
+// Shape inspection (EDIT-003, PLAN-010/013, USERPART-004/006): thin walls left
+// by cuts, editable meshes that are not closed solids, and user-part instances.
+function shapeStats(ship,S){
+ S.warnings=S.warnings||[];const from=S.warnings.length;
+ for(const w of solidCutThinWalls(ship))S.warnings.push({lv:'warn',code:'thin-wall',cutId:w.id,text:`立体切削 #${w.id} の切り口に厚さ ${w.thickness.toFixed(2)} m の薄い壁が残っています（${w.limit.toFixed(1)} m 未満）。カッターを動かして壁を残すか、貫通させてください。`});
+ if(typeof meshStructIssues==='function')for(const r of meshStructIssues(ship))S.warnings.push(r);
+ if(typeof assemblyIssues==='function')for(const r of assemblyIssues(ship,S))S.warnings.push(r);
+ for(const w of S.warnings.slice(from))w.targets=w.code==='thin-wall'?[{tab:'carve'}]:inspectionTargets(ship,S,w);
+ return S;
+}
 // Port-light colours a design may carry (the renderer holds the tints).
 const SHIP_LIGHT_KINDS=['white','blue','warm','off'];
 // v18 Engine light: the colour of the sublight drives' glow, a named colour or
@@ -2155,6 +2186,9 @@ function normalizeGroups(list,ship){
   let id=Number.isInteger(g.id)&&g.id>0&&!taken.has(g.id)?g.id:null;if(id==null)id=next++;taken.add(id);next=Math.max(next,id+1);
   const ids=a=>Array.isArray(a)?a.filter(x=>Number.isInteger(x)):[];
   const q={id,parts:ids(g.parts),fits:ids(g.fits),groups:ids(g.groups)};if(typeof g.name==='string'&&g.name.trim())q.name=g.name.trim().slice(0,40);
+  // USERPART-005/006: a placed user part is an edit group that remembers its
+  // template (name, category, mounting, ports); it survives the template's deletion.
+  if(g.assembly&&typeof g.assembly==='object'){const a=g.assembly,str=(v,n)=>typeof v==='string'?v.slice(0,n):'';q.assembly={template:str(a.template,40),name:str(a.name,40)||q.name||'ユーザー部品',category:Object.hasOwn(ASSEMBLY_CATEGORIES,a.category)?a.category:'composite',mount:Object.hasOwn(ASSEMBLY_MOUNTS,a.mount)?a.mount:'bottom',origin:Array.isArray(a.origin)&&a.origin.length===3&&a.origin.every(Number.isFinite)?a.origin.slice():[0,0,0],mirrored:a.mirrored===true,ports:(Array.isArray(a.ports)?a.ports:[]).filter(p=>p&&['power','mount'].includes(p.kind)&&Number.isInteger(p.child)).slice(0,200).map(p=>({kind:p.kind,need:['reactor','consumer','host'].includes(p.need)?p.need:'reactor',child:p.child,label:str(p.label,60)}))};}
   if(Number.isInteger(g.id)&&!byOld.has(g.id))byOld.set(g.id,q);out.push(q);
  }
  // One parent each, members that exist, child groups by their (possibly new) ids, no cycles, a bounded depth.
@@ -2198,6 +2232,9 @@ function deserialize(o){
     if(Array.isArray(q.bands)&&q.bands.length<=12&&q.bands.every(a=>Array.isArray(a)&&a.length===2&&a.every(Number.isFinite)&&a[0]>=0&&a[1]<=1&&a[0]<a[1]))p.bands=q.bands.map(a=>a.slice());
     if(Array.isArray(q.stripes)&&q.stripes.length<=8&&q.stripes.every(a=>Array.isArray(a)&&a.length===2&&a.every(Number.isFinite)&&a[0]>=0&&a[1]<=1&&a[0]<a[1]))p.stripes=q.stripes.map(a=>a.slice());
     if((p.bands||p.arcBands||p.stripes)&&/^#[0-9a-f]{6}$/i.test(q.bandPaint))p.bandPaint=q.bandPaint;
+    // Editable meshes: cleaned on load; an unusable mesh falls back to a box of the same size.
+    if(p.form==='mesh'){const r=normalizeStructMesh(q.mesh);if(r.mesh){p.mesh=r.mesh;if(q.imported===true)p.imported=true;}else{p.form='box';s.meshRepairs=(s.meshRepairs||0)+1;}}
+    if(p.k==='struct'&&q.wing){const w=normalizeWing(q.wing);if(w)p.wing=w;}if((p.k==='sensor'||p.k==='scanner')&&Object.hasOwn(SENSOR_BANDS,q.band)&&q.band!=='multi')p.band=q.band;
     if(p.form==='shell'){p.shellCurve=finite(q.shellCurve,-1,1,1);p.shellThick=finite(q.shellThick,.2,60,3);if(q.shellFlip===true)p.shellFlip=true;}
     if(p.k==='struct'||p.room){if(Array.isArray(q.surfaceNormal)&&q.surfaceNormal.length===3&&q.surfaceNormal.every(Number.isFinite)&&len(q.surfaceNormal)>.001)p.surfaceNormal=norm(q.surfaceNormal);if(q.pitch!=null)p.pitch=finite(q.pitch,-180,180,0);if(q.roll!=null)p.roll=finite(q.roll,-180,180,0);}
     if(q.corner!=null)p.corner=finite(q.corner,0,.45,.12);if(q.length!=null)p.length=finite(q.length,.1,DESIGN_LIMITS.partSize,p.d*1.5);if(q.bodyLength!=null)p.bodyLength=finite(q.bodyLength,.1,DESIGN_LIMITS.engineLength,p.d*2.2);if(q.bodyRadius!=null)p.bodyRadius=finite(q.bodyRadius,.3,.8,.52);if(q.yaw!=null)p.yaw=finite(q.yaw,-180,180,0);if(p.dir&&len(p.dir)<.1)p.dir=[-1,0,0];if(/^#[0-9a-f]{6}$/i.test(q.paint))p.paint=q.paint;if(q.ribSpacing!=null)p.ribSpacing=finite(q.ribSpacing,0,100,12);
@@ -2300,7 +2337,7 @@ function uncutSolidStructTriangles(p){
   const base=unpiercedStructTriangles(p),ms=p._apertures;if(!ms?.length)return base;
   const key=JSON.stringify(ms);if(p._pierced?.base===base&&p._pierced.key===key)return p._pierced.t;
   const bounds=[Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity];for(let i=0;i<base.length;i++){const a=i%3;bounds[a]=Math.min(bounds[a],base[i]);bounds[a+3]=Math.max(bounds[a+3],base[i]);}
-  let material=base;const doors=[];for(const m of ms){if(!boxesOverlap(bounds,m.b))continue;const a=subtractBoxMesh(material,m.b),cap=['arc','roundloft','outline','loft','shell'].includes(p.form)?solidCutCaps(p,m.b):convexCutCaps(base,m.b),out=new Float32Array(a.length+cap.length);out.set(a);out.set(cap,a.length);material=out;doors.push(structDoorSkin(base,m));}
+  let material=base;const doors=[];for(const m of ms){if(!boxesOverlap(bounds,m.b))continue;const a=subtractBoxMesh(material,m.b),cap=['arc','roundloft','outline','loft','shell','mesh'].includes(p.form)?solidCutCaps(p,m.b):convexCutCaps(base,m.b),out=new Float32Array(a.length+cap.length);out.set(a);out.set(cap,a.length);material=out;doors.push(structDoorSkin(base,m));}
   const T=new Float32Array(material.length+doors.reduce((n,a)=>n+a.length,0));T.set(material);let off=material.length;for(const door of doors){T.set(door,off);off+=door.length;}p._pierced={base,key,t:T,material};return T;
 }
 function inStruct(p,q){return !solidPartCutContains(p,q)&&unpiercedInStruct(p,q)&&!(p._apertures||[]).some(m=>inBox(q,m.b));}
@@ -2904,7 +2941,7 @@ function vmirrorPart(p,ship){
   // A vertical reflection equals a 180° roll of the left-right reflected shape.
   if(q.angles)[q.angles[2],q.angles[3]]=[q.angles[3],q.angles[2]];if(q.offsetZ)q.offsetZ=-q.offsetZ;
   if(q.form==='arc')q.arcStart=((-(p.arcStart??30)-(p.arcSweep??300)+540)%360)-180;if(q.form==='shell')q.shellFlip=!p.shellFlip;
-  if(q.loft)q.loft=q.loft.map(a=>a.length>4?[...a.slice(0,4),-a[4]]:a);if(q.outline)q.outline=q.outline.map(a=>[a[0],-a[1]]);
+  if(q.loft)q.loft=q.loft.map(a=>a.length>4?[...a.slice(0,4),-a[4]]:a);if(q.outline)q.outline=q.outline.map(a=>[a[0],-a[1]]);if(q.mesh)q.mesh=mirrorStructMesh(p.mesh);
   if(q.surfaceNormal){q.surfaceNormal=[q.surfaceNormal[0],-q.surfaceNormal[1],q.surfaceNormal[2]];if(q.yaw)q.yaw=-q.yaw;if(q.roll)q.roll=-q.roll;}
   else{q.pitch=-(q.pitch||0);q.roll=((180-(q.roll||0))%360+540)%360-180;}
  }else{if(q.pitch)q.pitch=-q.pitch;if(q.roll)q.roll=-q.roll;if(q.surfaceNormal)q.surfaceNormal=[q.surfaceNormal[0],-q.surfaceNormal[1],q.surfaceNormal[2]];}
@@ -4708,7 +4745,7 @@ function tieInBuild(){
  const xs=TIN.mid.map(p=>p[0]),ys=TIN.mid.map(p=>p[1]),x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys),Lm=x1-x0,Hm=y1-y0,cxm=(x0+x1)/2,cym=(y0+y1)/2;
  const [mz0,mz1]=TIN.midZ;
  M('struct',[gx(cxm),gy(cym),(mz0+mz1)/2],[Lm,Hm,mz1-mz0],{form:'outline',outline:TIN.mid.map(([x,y])=>[(x-cxm)/Lm,-(y-cym)/Hm]),roll:90,light:true,label:'翼中央部'});
- M('struct',[gx(1.15),gy(0),(mz0+mz1)/2],[1.7,mz1-mz0+.02,1.9],{form:'box',light:true,paint:PANEL,label:'翼中央パネル'});
+ M('struct',[gx(1.15),gy(0),(mz0+mz1)/2],[1.7,mz1-mz0+.02,1.9],{form:'box',light:true,paint:PANEL,wing:{solar:true},label:'翼中央パネル'});
  M('struct',[gx(3.12),gy(0),4.26],[1.35,.28,1.4],{form:'box',light:true,label:'翼外側ハブ'});
  // The upper and lower plates, bent inward, with the rim and the arm's strut band on them.
  const [yb,zb]=TIN.plateBase,[yt,zt]=TIN.plateTop,dy=yt-yb,dz=zt-zb,sl=Math.hypot(dy,dz),cs=dy/sl,sn=-dz/sl;
@@ -4718,7 +4755,7 @@ function tieInBuild(){
   const u=[0,sgn*cs,-sn],n=[0,sgn*sn,cs],k=-n[2]*u[1]+n[1]*u[2];
   const pts=TIN.plate.map(([x,y])=>[x,(Math.abs(y)-yb)/cs]);
   const px=pts.map(p=>p[0]),ps=pts.map(p=>p[1]),a0=Math.min(...px),a1=Math.max(...px),s0=Math.min(...ps),s1=Math.max(...ps),Lp=a1-a0,Sp=s1-s0,ac=(a0+a1)/2,sc=(s0+s1)/2;
-  M('struct',[gx(ac),gy(sgn*yb)+u[1]*sc,zb+u[2]*sc],[Lp,Sp,.2],{form:'outline',outline:pts.map(([x,sv])=>[(x-ac)/Lp,k*(sv-sc)/Sp]),surfaceNormal:n,light:true,paint:PANEL,label:sgn>0?'上翼板':'下翼板'});
+  M('struct',[gx(ac),gy(sgn*yb)+u[1]*sc,zb+u[2]*sc],[Lp,Sp,.2],{form:'outline',outline:pts.map(([x,sv])=>[(x-ac)/Lp,k*(sv-sc)/Sp]),surfaceNormal:n,light:true,paint:PANEL,wing:{solar:true},label:sgn>0?'上翼板':'下翼板'});
   const bar=(pa,pb,w,label)=>{const dxp=pb[0]-pa[0],dsp=pb[1]-pa[1],l=Math.hypot(dxp,dsp),mx=(pa[0]+pb[0])/2,ms=(pa[1]+pb[1])/2;
    M('struct',[gx(mx),gy(sgn*yb)+u[1]*ms,zb+u[2]*ms],[l,w,.24],{form:'box',surfaceNormal:n,yaw:Math.atan2(k*dsp,dxp)*180/Math.PI,light:true,label});};
   const inset=(a,b,d)=>{const dx=b[0]-a[0],ds=b[1]-a[1],l=Math.hypot(dx,ds);return [[a[0]+ds/l*d,a[1]-dx/l*d],[b[0]+ds/l*d,b[1]-dx/l*d]];};
@@ -4754,7 +4791,7 @@ registerShipExample({key:'craft_tie_in',name:'TIE/in インターセプター',s
 // of 7.24 m (its hexagonal wing's fore-and-aft extent) and turned into the ship frame: x from the
 // stern to the bow, y up, z to starboard. The cockpit ball is the hull, a 2.472 m sphere (least-squares
 // fit to the model; the ball starts at x 0 and its centre is at y 1.236). Model x maps to x - 2.385.
-// Measured and rebuilt as structures: the hexagonal solar collector panels (vertices taken from the
+// Measured and rebuilt as structures: the hexagonal solar collector panels (vertices taken from the (v25: the panels are solar wings, wing.solar: they collect power and radiate heat on the heat network, fictional technology)
 // model's outline, 0.143 m thick, 2.77-3.29 m off the centreline with the frame), the wing frame (a rim
 // 0.2 m wide, the horizontal spar and four diagonal spokes, each a deep rib with a flange, and the
 // central hub), the wing pylons (round lofts through ten measured sections), the front viewport and
@@ -4780,7 +4817,7 @@ function tieLnBuild(){
  // Wings (starboard, mirrored to port), light structures: the solar collector panel, the hub,
  // the rim, the horizontal spar and the four spokes (deep rib plus flange).
  const cx=3.62,zc=2.9865;
- M('struct',[gx(cx),gy(0),zc],[7.24,8.346,.143],{form:'outline',outline:TLN.wing.map(([x,y])=>[(x-cx)/7.24,-y/8.346]),roll:90,light:true,paint:PANEL,label:'太陽電池翼'});
+ M('struct',[gx(cx),gy(0),zc],[7.24,8.346,.143],{form:'outline',outline:TLN.wing.map(([x,y])=>[(x-cx)/7.24,-y/8.346]),roll:90,light:true,paint:PANEL,wing:{solar:true},label:'太陽電池翼'});
  M('struct',[gx(cx),gy(0),3.0],[2.0,2.0,.56],{form:'outline',outline:TLN.hub.map(([x,y])=>[x/2.0,-y/2.0]),roll:90,light:true,label:'翼中央ハブ'});
  const bar=(a,b,w,dep,label)=>{const dx=b[0]-a[0],dy=b[1]-a[1];M('struct',[gx((a[0]+b[0])/2),gy((a[1]+b[1])/2),zc],[Math.hypot(dx,dy),dep,w],{form:'box',pitch:Math.atan2(dy,dx)*180/Math.PI,light:true,label});};
  // The rim runs along the outline offset inward by half its width, so its mitred corners stay inside.
@@ -4866,7 +4903,7 @@ function tieSaBuild(){
  // lower plates bent inward, with the rim and the vertical beam.
  const xs=TSA.mid.map(p=>p[0]),ys=TSA.mid.map(p=>p[1]),x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys),Lm=x1-x0,Hm=y1-y0,cxm=(x0+x1)/2,cym=(y0+y1)/2;
  const [mz0,mz1]=TSA.midZ;
- M('struct',[gx(cxm),gy(cym),(mz0+mz1)/2],[Lm,Hm,mz1-mz0],{form:'outline',outline:TSA.mid.map(([x,y])=>[(x-cxm)/Lm,-(y-cym)/Hm]),roll:90,light:true,paint:PANEL,label:'翼中央部'});
+ M('struct',[gx(cxm),gy(cym),(mz0+mz1)/2],[Lm,Hm,mz1-mz0],{form:'outline',outline:TSA.mid.map(([x,y])=>[(x-cxm)/Lm,-(y-cym)/Hm]),roll:90,light:true,paint:PANEL,wing:{solar:true},label:'翼中央部'});
  M('struct',[gx(5.49),gy(0),(mz0+mz1)/2],[.56,mz1-mz0+.06,2.2],{form:'box',light:true,label:'翼縦梁'});
  const [yb,zb]=TSA.plateBase,[yt,zt]=TSA.plateTop,dy=yt-yb,dz=zt-zb,sl=Math.hypot(dy,dz),cs=dy/sl,sn=-dz/sl;
  for(const sgn of [1,-1]){
@@ -4875,7 +4912,7 @@ function tieSaBuild(){
   const u=[0,sgn*cs,-sn],n=[0,sgn*sn,cs],k=-n[2]*u[1]+n[1]*u[2];
   const pts=TSA.plate.map(([x,y])=>[x,(Math.abs(y)-yb)/cs]);
   const px=pts.map(p=>p[0]),ps=pts.map(p=>p[1]),a0=Math.min(...px),a1=Math.max(...px),s0=Math.min(...ps),s1=Math.max(...ps),Lp=a1-a0,Sp=s1-s0,ac=(a0+a1)/2,sc=(s0+s1)/2;
-  M('struct',[gx(ac),gy(sgn*yb)+u[1]*sc,zb+u[2]*sc],[Lp,Sp,.25],{form:'outline',outline:pts.map(([x,sv])=>[(x-ac)/Lp,k*(sv-sc)/Sp]),surfaceNormal:n,light:true,paint:PANEL,label:sgn>0?'上翼板':'下翼板'});
+  M('struct',[gx(ac),gy(sgn*yb)+u[1]*sc,zb+u[2]*sc],[Lp,Sp,.25],{form:'outline',outline:pts.map(([x,sv])=>[(x-ac)/Lp,k*(sv-sc)/Sp]),surfaceNormal:n,light:true,paint:PANEL,wing:{solar:true},label:sgn>0?'上翼板':'下翼板'});
   const bar=(pa,pb,w,label)=>{const dxp=pb[0]-pa[0],dsp=pb[1]-pa[1],l=Math.hypot(dxp,dsp),mx=(pa[0]+pb[0])/2,ms=(pa[1]+pb[1])/2;
    M('struct',[gx(mx),gy(sgn*yb)+u[1]*ms,zb+u[2]*ms],[l,w,.29],{form:'box',surfaceNormal:n,yaw:Math.atan2(k*dsp,dxp)*180/Math.PI,light:true,label});};
   const inset=(a,b,d)=>{const dx=b[0]-a[0],ds=b[1]-a[1],l=Math.hypot(dx,ds);return [[a[0]+ds/l*d,a[1]-dx/l*d],[b[0]+ds/l*d,b[1]-dx/l*d]];};
@@ -7783,7 +7820,7 @@ function fleetPowerStep(u,s,t,raw,dt){
  const mode=o.power==='auto'||!POWER_MODES[o.power]?fleetAutoPower(u,t,raw>0):o.power,M=POWER_MODES[mode];u.mode=mode;
  const cap=(p.wCap||0)*s.weapon,nominalShield=g?g.Ds*s.shield:0;
  if(!g){u.load=.7;u.engF=1;u.shF=1;u.pw=null;return raw>0?1:0;}
- const P=g.P*s.reactor*(1-COMBAT.ionReactor*(u.ionK||0))*swPower(u)*heatLim(u,'reactor'),regen=u.shield<u.shieldMax*.999||u.underFire||(u.bank||0)<(u.bankMax||0)*.999,man=u.out?0:clamp(u.maneuver||0,0,1);
+ const P=g.P*s.reactor*(1-COMBAT.ionReactor*(u.ionK||0))*swPower(u)*heatLim(u,'reactor')*EMCON[emconOf(u)].P,regen=u.shield<u.shieldMax*.999||u.underFire||(u.bank||0)<(u.bankMax||0)*.999,man=u.out?0:clamp(u.maneuver||0,0,1);
  const full=Math.min(P*COMBAT.engineCap,g.De*COMBAT.engineDraw)*s.engine;
  // A disabled ship's shield generators fail with it: its shields fade.
  // v23 The heat network limits what an overheating system may draw (heatLim is 1 until its stores fill).
@@ -7949,6 +7986,9 @@ function fleetProfile(S,name,ship){
  const sw=(S.superweapons||[]).filter(w=>w.ok);if(sw.length)out.sw=sw.map(w=>({id:w.id,k:w.k,aim:w.aim,mz:swMz(w),mode:w.mode||'beam',chargeT:w.chargeT,Emax:w.Emax,d:SUPERWEAPONS[w.k]?.d,r:w.reactor,rk:w.reactorKind,Pshare:clamp(w.reactorPower/Math.max(1,S.power||1),0,1),mod:out.modules?out.modules.findIndex(m=>m.k==='superweapon'&&m.part===w.id):-1}));
  // v23 The power + heat network, grouped onto the combat modules (heatProfileOf; old profiles: heatLegacy).
  if(ship&&S.heat){const H=heatProfileOf(out,S);if(H)out.heat=H;}
+ // v25 S-foils (hull section of the hinge, deploy time, jam threshold), the sensor suite and the radar cross-section
+ if(ship&&S.wings?.length){const [X0,X1]=shipSpan(ship),cuts=hullSectionShares(ship).cuts,fs=S.wings.filter(x=>x.foil);if(fs.length)out.foils=fs.map(x=>({id:x.id,n:x.name+' #'+x.id,T:x.T,sec:heatSec(x.pivot?.[0]??(X0+X1)/2,X0,Math.max(1,X1-X0),cuts),jam:+x.jamAt.toFixed(3)}));}
+ if(S.sens)out.sens={...S.sens};if(S.dims)out.sigma=Math.round((S.dims[0]*S.dims[2]+S.dims[1]*S.dims[2]+S.dims[0]*S.dims[1])/3);
  return out;
 }
 // Top and side silhouettes of the ship (hull and structures) as small bit
@@ -9138,7 +9178,7 @@ function craftCombat(ship,S){
  // Loaded with the default stores the craft is heavier: its acceleration falls by mass/(mass + stores).
  const Gl=G*(S.mass>0?S.mass/(S.mass+ordMass):1);
  return {name:ship.name||'設計機',role,roleName:S.cls?.role||'',speed,aa:Math.round(air*100)/100,strike,gun,armor:Math.round(armor*100)/100,crew:Math.round(S.seats??S.crew??0),dims,size:stowSize(dims),accelG:Math.round(G),shield:sh,hyper:S.jumpOK&&Number.isFinite(S.hyperClass)&&S.hyperClass>0?S.hyperClass:null,
-  stations,load,canonLoad:!!Lo.canon&&Lo.stations.length===stations.length,ord,ordMass:Math.round(ordMass*1000)/1000,mass:Math.round((S.mass||0)*100)/100,speedLoaded:craftSpeed(Gl),accelLoaded:Math.round(Gl)};
+  heat:craftHeat(S),stations,load,canonLoad:!!Lo.canon&&Lo.stations.length===stations.length,ord,ordMass:Math.round(ordMass*1000)/1000,mass:Math.round((S.mass||0)*100)/100,cost:Math.round(S.cost||0),speedLoaded:craftSpeed(Gl),accelLoaded:Math.round(Gl)};
 }
 // A design craft carried in an air wing row keeps this snapshot (so the carrier stays whole when the
 // craft's own design changes or is deleted); a row's snapshot is checked on load.
@@ -9148,7 +9188,7 @@ function cleanDesignCraft(d){
  // v22 the store stations and their default load (older snapshots have none: guns only)
  const stations=(Array.isArray(c.stations)?c.stations:[]).filter(st=>st&&FITS[st.fit]?.store&&Number.isInteger(st.count)&&st.count>=1&&st.count<=64).slice(0,8).map(st=>({fit:st.fit,mount:FITS[st.fit].store.mount,count:st.count}));
  const load=normalizeLoad(stations,Array.isArray(c.load)?c.load:null);
- return {ref:str(d.ref,80),name:str(d.name,40)||'設計機',craft:{role:c.role,roleName:str(c.roleName,20),speed:c.accelG>0&&Number.isFinite(c.accelG)?craftSpeed(c.accelG):Math.round(num(c.speed,500,3200,1500)),aa:Math.round(num(c.aa,0,2,1)*100)/100,strike:Math.round(num(c.strike,0,5000,10)),gun:Math.round(num(c.gun,0,5000,num(c.strike,0,5000,10))),armor:Math.round(num(c.armor,.1,4,1)*100)/100,crew:Math.round(num(c.crew,0,200,1)),accelG:Math.round(num(c.accelG,0,20000,0)),shield:!!c.shield,hyper:Number.isFinite(c.hyper)&&c.hyper>0?c.hyper:null,stations,load,mass:num(c.mass,0,1e6,0)||null}};
+ return {ref:str(d.ref,80),name:str(d.name,40)||'設計機',craft:{role:c.role,roleName:str(c.roleName,20),speed:c.accelG>0&&Number.isFinite(c.accelG)?craftSpeed(c.accelG):Math.round(num(c.speed,500,3200,1500)),aa:Math.round(num(c.aa,0,2,1)*100)/100,strike:Math.round(num(c.strike,0,5000,10)),gun:Math.round(num(c.gun,0,5000,num(c.strike,0,5000,10))),armor:Math.round(num(c.armor,.1,4,1)*100)/100,crew:Math.round(num(c.crew,0,200,1)),accelG:Math.round(num(c.accelG,0,20000,0)),shield:!!c.shield,hyper:Number.isFinite(c.hyper)&&c.hyper>0?c.hyper:null,stations,load,mass:num(c.mass,0,1e6,0)||null,...(cleanCraftHeat(c.heat)?{heat:cleanCraftHeat(c.heat)}:{})}};
 }
 function layoutStats(ship,S){
  const h=habitationSpace(ship);S.autoHabitationVolume=h.volume;S.unassignedVolume=h.volume;S.envelopeVolume=h.envelopeVolume;
@@ -9253,46 +9293,148 @@ function inspectionTargets(ship,S,w){
 
 // Editable convex cutting solids. Their displayed facets, point tests and closed
 // subtraction all use the same planes, including rotation and mirrored cuts.
-const SOLID_CUT_SHAPES=Object.freeze({box:'直方体',wedge:'楔形',cylinder:'円柱',ellipsoid:'球・楕円体'});
+const SOLID_CUT_SHAPES=Object.freeze({box:'直方体',prism:'三角柱',trapezoid:'台形柱',wedge:'楔形',cylinder:'円柱',ellcyl:'楕円柱',cone:'円錐',frustum:'円錐台',sphere:'球',ellipsoid:'楕円体',capsule:'カプセル',torus:'トーラス',poly:'自由多面体'});
+// EDIT-001: every cutter is a union of convex pieces. A convex piece is the
+// intersection of its face planes, so the subtraction, the caps, the point test
+// and the overlay all read the same planes. Convex shapes are one piece; the
+// torus is a ring of convex tube segments; a free polyhedron cuts with the
+// convex hull of its vertices (the editor warns while it is not convex).
+// Local axes: L along X (fore-aft), H along Y (up), W along Z (athwartship).
+const SOLID_CUT_POLY_MAX=48,SOLID_CUT_SEGMENTS=Object.freeze({round:32,torus:24,tube:12,lat:10});
+const SOLID_CUT_DEFAULT_POLY=Object.freeze([[-.5,-.5,-.5],[.5,-.5,-.5],[.5,.5,-.5],[-.5,.5,-.5],[-.5,-.5,.5],[.5,-.5,.5],[.5,.5,.5],[-.5,.5,.5]]);
 const SOLID_CUT_CACHE=new WeakMap();
 function normalizeSolidCut(input={}){
  input=input&&typeof input==='object'?input:{};
  const finite=(v,lo,hi,fallback)=>v!=null&&Number.isFinite(Number(v))?clamp(Number(v),lo,hi):fallback;
  const c={shape:Object.hasOwn(SOLID_CUT_SHAPES,input.shape)?input.shape:'box',c:[0,1,2].map(i=>finite(input.c?.[i],-DESIGN_LIMITS.coordinate,DESIGN_LIMITS.coordinate,0)),s:[0,1,2].map(i=>finite(input.s?.[i],1,DESIGN_LIMITS.partSize,100)),rotation:[0,1,2].map(i=>finite(input.rotation?.[i],-180,180,0)),mirror:input.mirror===true,structures:input.structures===true};
+ if(c.shape==='sphere')c.s=[c.s[0],c.s[0],c.s[0]];
+ if(c.shape==='cylinder'||c.shape==='cone'||c.shape==='frustum'){/* round in plan by default; L and W stay independent for old saves */}
+ // Top-to-bottom width ratio of the trapezoid prism and the frustum.
+ if(c.shape==='trapezoid'||c.shape==='frustum')c.top=finite(input.top,.05,.95,.5);
+ // Torus tube thickness is the height H; the ring's outer size is L × W.
+ if(c.shape==='torus')c.s[2]=Math.min(c.s[2],c.s[0]*.45,c.s[1]*.45);
+ if(c.shape==='poly'){const v=Array.isArray(input.verts)?input.verts.filter(p=>Array.isArray(p)&&p.length===3&&p.every(Number.isFinite)).slice(0,SOLID_CUT_POLY_MAX).map(p=>p.map(x=>clamp(Math.round(x*1e4)/1e4,-.5,.5))):[];c.verts=v.length>=4&&convexHullFaces(v).length>=4?v:SOLID_CUT_DEFAULT_POLY.map(p=>p.slice());}
  if(Number.isSafeInteger(input.id)&&input.id>0)c.id=input.id;
+ if(typeof input.name==='string'&&input.name.trim())c.name=input.name.trim().slice(0,40);
  return c;
 }
-function mirrorSolidCut(input){const c=normalizeSolidCut(input);c.c[2]*=-1;c.rotation[0]*=-1;c.rotation[1]*=-1;c.mirror=false;return c;}
+// Mirroring across Z = 0: M·R(rx,ry,rz) = R(-rx,-ry,rz)·M, so symmetric shapes
+// only change their angles; a free polyhedron also mirrors its own vertices.
+function mirrorSolidCut(input){const c=normalizeSolidCut(input);c.c[2]*=-1;c.rotation[0]*=-1;c.rotation[1]*=-1;c.mirror=false;if(c.verts)c.verts=c.verts.map(p=>[p[0],p[1],-p[2]]);return c;}
 function solidCutRotation(q,v){
  const [rx,ry,rz]=q.rotation.map(a=>a*Math.PI/180),sx=Math.sin(rx),cx=Math.cos(rx),sy=Math.sin(ry),cy=Math.cos(ry),sz=Math.sin(rz),cz=Math.cos(rz);
  const a=[v[0],v[1]*cx-v[2]*sx,v[1]*sx+v[2]*cx],b=[a[0]*cy+a[2]*sy,a[1],-a[0]*sy+a[2]*cy];
  return [b[0]*cz-b[1]*sz,b[0]*sz+b[1]*cz,b[2]];
 }
-function solidCutInstance(q){
- const [L,W,H]=q.s,faces=[],world=p=>add(q.c,solidCutRotation(q,p)),points=[];
- if(q.shape==='box'){
-  const v=[[-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1],[-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1]].map(a=>[a[0]*L/2,a[1]*H/2,a[2]*W/2]);
-  for(const ids of [[0,1,2,3],[4,7,6,5],[0,4,5,1],[3,2,6,7],[0,3,7,4],[1,5,6,2]])faces.push(ids.map(i=>v[i]));
- }else if(q.shape==='wedge'){
-  const v=[[-L/2,-H/2,-W/2],[L/2,-H/2,-W/2],[-L/2,H/2,-W/2],[-L/2,-H/2,W/2],[L/2,-H/2,W/2],[-L/2,H/2,W/2]];
-  for(const ids of [[0,1,2],[3,5,4],[0,3,4,1],[0,2,5,3],[1,4,5,2]])faces.push(ids.map(i=>v[i]));
- }else if(q.shape==='cylinder'){
-  const N=32,rings=[-1,1].map(s=>Array.from({length:N},(_,i)=>{const a=i/N*Math.PI*2;return [Math.cos(a)*L/2,s*H/2,Math.sin(a)*W/2];}));
-  faces.push(rings[0],rings[1]);for(let i=0;i<N;i++)faces.push([rings[0][i],rings[0][(i+1)%N],rings[1][(i+1)%N],rings[1][i]]);
- }else{
-  const N=20,M=10,p=(i,j)=>{if(i===0)return [0,H/2,0];if(i===M)return [0,-H/2,0];const a=i/M*Math.PI,b=j/N*Math.PI*2;return [L/2*Math.sin(a)*Math.cos(b),H/2*Math.cos(a),W/2*Math.sin(a)*Math.sin(b)];};
-  for(let i=0;i<M;i++)for(let j=0;j<N;j++)faces.push(i===0?[p(0,j),p(1,j),p(1,j+1)]:i===M-1?[p(i,j),p(M,j),p(i,j+1)]:[p(i,j),p(i+1,j),p(i+1,j+1),p(i,j+1)]);
+// Cutter-local ↔ world (local in metres: L along x, H along y, W along z).
+function solidCutWorld(q,l){return add(q.c,solidCutRotation(q,l));}
+function solidCutLocal(q,w){
+ const [rx,ry,rz]=q.rotation.map(a=>-a*Math.PI/180),v=sub(w,q.c),a=[v[0]*Math.cos(rz)-v[1]*Math.sin(rz),v[0]*Math.sin(rz)+v[1]*Math.cos(rz),v[2]],b=[a[0]*Math.cos(ry)+a[2]*Math.sin(ry),a[1],-a[0]*Math.sin(ry)+a[2]*Math.cos(ry)];
+ return [b[0],b[1]*Math.cos(rx)-b[2]*Math.sin(rx),b[1]*Math.sin(rx)+b[2]*Math.cos(rx)];
+}
+// A free-polyhedron cutter from local vertices in metres: size and centre are
+// refitted to the vertices' box, vertices stored normalised (EDIT-002).
+function solidCutFromLocal(q,local){
+ if(local.length<4)return {error:'頂点は4個以上必要です'};if(local.length>SOLID_CUT_POLY_MAX)return {error:`頂点は ${SOLID_CUT_POLY_MAX} 個までです`};
+ const lo=[0,1,2].map(a=>Math.min(...local.map(p=>p[a]))),hi=[0,1,2].map(a=>Math.max(...local.map(p=>p[a]))),size=[0,1,2].map(a=>hi[a]-lo[a]);
+ if(size.some(x=>x<1))return {error:'どの方向にも1 m以上の厚みが必要です'};
+ const mid=[0,1,2].map(a=>(lo[a]+hi[a])/2),verts=local.map(p=>p.map((x,a)=>Math.round((x-mid[a])/size[a]*1e4)/1e4));
+ if(convexHullFaces(verts).length<4)return {error:'頂点が同じ平面に並んでいて立体になりません'};
+ const out=normalizeSolidCut({...q,shape:'poly',c:solidCutWorld(q,mid),s:[size[0],size[2],size[1]],verts});return {cut:out};
+}
+function solidCutLocalVerts(q){q=normalizeSolidCut(q);return (q.verts||[]).map(v=>[v[0]*q.s[0],v[1]*q.s[2],v[2]*q.s[1]]);}
+// Turn any cutter into a free polyhedron with the same corners (≤ 48 points).
+function solidCutToPoly(input){
+ const q=normalizeSolidCut(input);if(q.shape==='poly')return q;const pieces=solidCutPieces({...q,c:[0,0,0],rotation:[0,0,0]}),pts=[];
+ for(const pc of pieces)for(const f of pc.faces)for(const p of f)if(!pts.some(r=>len(sub(r,p))<1e-6))pts.push(p);
+ let use=pts;if(use.length>SOLID_CUT_POLY_MAX){const step=use.length/SOLID_CUT_POLY_MAX;use=Array.from({length:SOLID_CUT_POLY_MAX},(_,i)=>pts[Math.floor(i*step)]);}
+ const r=solidCutFromLocal({...q,c:q.c},use);return r.cut||q;
+}
+// Convex hull of a small point set as merged planar faces (each a CCW polygon
+// seen from outside). Brute force over point triples: exact face merging for
+// the ≤ 48 vertices of a user polyhedron, no incremental-hull degeneracies.
+function convexHullFaces(P,eps){
+ const n=P.length;if(n<4)return [];const span=Math.max(1e-9,...[0,1,2].map(a=>Math.max(...P.map(p=>p[a]))-Math.min(...P.map(p=>p[a]))));eps=eps??span*1e-6;
+ const faces=[],seen=[];
+ for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)for(let k=j+1;k<n;k++){
+  let nn=cross(sub(P[j],P[i]),sub(P[k],P[i]));const l=len(nn);if(l<eps*span)continue;nn=mul(nn,1/l);let d=dot(nn,P[i]),pos=0,neg=0;
+  for(const p of P){const e=dot(nn,p)-d;if(e>eps)pos++;else if(e<-eps)neg++;if(pos&&neg)break;}
+  if(pos&&neg)continue;if(pos){nn=mul(nn,-1);d=-d;}
+  if(seen.some(f=>dot(f.n,nn)>1-1e-9&&Math.abs(f.d-d)<eps))continue;
+  const on=P.filter(p=>Math.abs(dot(nn,p)-d)<=eps),cen=mul(on.reduce(add,[0,0,0]),1/on.length),f=frameAxis(nn),u=f.v,v=f.w;
+  const uniq=[];for(const p of on)if(!uniq.some(q=>len(sub(p,q))<=eps))uniq.push(p);
+  // Keep only the polygon corners: drop points on an edge between two others.
+  uniq.sort((a,b)=>Math.atan2(dot(sub(a,cen),v),dot(sub(a,cen),u))-Math.atan2(dot(sub(b,cen),v),dot(sub(b,cen),u)));
+  const poly=uniq.filter((p,m)=>{const a=uniq[(m+uniq.length-1)%uniq.length],b=uniq[(m+1)%uniq.length];return len(cross(sub(p,a),sub(b,p)))>eps*span;});
+  if(poly.length<3)continue;if(dot(cross(sub(poly[1],poly[0]),sub(poly[2],poly[0])),nn)<0)poly.reverse();
+  seen.push({n:nn,d});faces.push(poly);
  }
- const center=q.shape==='wedge'?world([-L/6,-H/6,0]):q.c,T=[],planes=[];
- for(let poly of faces){poly=poly.map(world);let n=norm(cross(sub(poly[1],poly[0]),sub(poly[2],poly[0])));if(dot(n,sub(poly[0],center))<0){poly.reverse();n=mul(n,-1);}const d=dot(n,poly[0]);planes.push({n,d,poly});triangulateFan(poly,T);for(const p of poly)points.push(p);}
+ return faces;
+}
+function solidCutConvex(P,eps){const out=convexHullFaces(P,eps);return out;}
+// Local convex pieces of a cutter: [{faces:[polygon…], inner:[bool…]}]. An
+// inner face is shared with the next piece and is left out of the overlay.
+function solidCutPieces(q){
+ const [L,W,H]=q.s,R=SOLID_CUT_SEGMENTS,ring=(n,rx,rz,y,a0=0)=>Array.from({length:n},(_,i)=>{const a=a0+i/n*Math.PI*2;return [Math.cos(a)*rx,y,Math.sin(a)*rz];});
+ const prism=(sec)=>{const a=sec.map(([y,z])=>[-L/2,y,z]),b=sec.map(([y,z])=>[L/2,y,z]),faces=[a.slice().reverse(),b];for(let i=0;i<sec.length;i++){const j=(i+1)%sec.length;faces.push([a[i],a[j],b[j],b[i]]);}return [{faces}];};
+ const loft=(rings,capA=true,capB=true)=>{const faces=[];if(capA)faces.push(rings[0].slice().reverse());if(capB)faces.push(rings.at(-1));for(let k=0;k+1<rings.length;k++){const A=rings[k],B=rings[k+1];for(let i=0;i<A.length;i++){const j=(i+1)%A.length;faces.push([A[i],A[j],B[j],B[i]]);}}return faces;};
+ switch(q.shape){
+  case 'box':{const v=[[-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1],[-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1]].map(a=>[a[0]*L/2,a[1]*H/2,a[2]*W/2]);return [{faces:[[0,1,2,3],[4,7,6,5],[0,4,5,1],[3,2,6,7],[0,3,7,4],[1,5,6,2]].map(ids=>ids.map(i=>v[i]))}];}
+  case 'wedge':{const v=[[-L/2,-H/2,-W/2],[L/2,-H/2,-W/2],[-L/2,H/2,-W/2],[-L/2,-H/2,W/2],[L/2,-H/2,W/2],[-L/2,H/2,W/2]];return [{faces:[[0,1,2],[3,5,4],[0,3,4,1],[0,2,5,3],[1,4,5,2]].map(ids=>ids.map(i=>v[i]))}];}
+  case 'prism':return prism([[-H/2,-W/2],[H/2,0],[-H/2,W/2]]);
+  case 'trapezoid':{const t=q.top??.5;return prism([[-H/2,-W/2],[H/2,-W*t/2],[H/2,W*t/2],[-H/2,W/2]]);}
+  case 'cylinder':case 'ellcyl':return [{faces:loft([ring(R.round,L/2,W/2,-H/2),ring(R.round,L/2,W/2,H/2)])}];
+  case 'frustum':{const t=q.top??.5;return [{faces:loft([ring(R.round,L/2,W/2,-H/2),ring(R.round,L/2*t,W/2*t,H/2)])}];}
+  case 'cone':{const base=ring(R.round,L/2,W/2,-H/2),apex=[0,H/2,0],faces=[base.slice().reverse()];for(let i=0;i<base.length;i++)faces.push([base[i],apex,base[(i+1)%base.length]].reverse());return [{faces}];}
+  case 'capsule':{
+   // Axis along X: an elliptic tube (radii H/2, W/2) with half-ellipsoid ends of length r = min(H, W, L)/2.
+   const r=Math.min(H,W,L)/2,body=L/2-r,M=R.lat/2,N=R.round,rings=[];
+   for(let k=0;k<=M;k++){const a=k/M*Math.PI/2;rings.push({x:-body-r*Math.cos(a),f:Math.sin(a)});}
+   for(let k=0;k<=M;k++){const a=k/M*Math.PI/2;rings.push({x:body+r*Math.sin(a),f:Math.cos(a)});}
+   const pts=rings.map(({x,f})=>Array.from({length:N},(_,i)=>{const a=i/N*Math.PI*2;return [x,Math.cos(a)*H/2*f,Math.sin(a)*W/2*f];}));
+   const faces=[];for(let k=0;k+1<pts.length;k++){const A=pts[k],B=pts[k+1],fa=rings[k].f<1e-9,fb=rings[k+1].f<1e-9;if(Math.abs(rings[k+1].x-rings[k].x)<1e-9&&!fa&&!fb)continue;for(let i=0;i<N;i++){const j=(i+1)%N;const poly=fa?[A[0],B[j],B[i]]:fb?[A[i],A[j],B[0]]:[A[i],A[j],B[j],B[i]];faces.push(poly.reverse());}}
+   return [{faces}];
+  }
+  case 'sphere':case 'ellipsoid':{
+   const N=20,M=R.lat,p=(i,j)=>{if(i===0)return [0,H/2,0];if(i===M)return [0,-H/2,0];const a=i/M*Math.PI,b=j/N*Math.PI*2;return [L/2*Math.sin(a)*Math.cos(b),H/2*Math.cos(a),W/2*Math.sin(a)*Math.sin(b)];};
+   const faces=[];for(let i=0;i<M;i++)for(let j=0;j<N;j++)faces.push(i===0?[p(0,j),p(1,j),p(1,j+1)]:i===M-1?[p(i,j),p(M,j),p(i,j+1)]:[p(i,j),p(i+1,j),p(i+1,j+1),p(i,j+1)]);return [{faces}];
+  }
+  case 'torus':{
+   // Ring in the XZ plane, outer size L × W, tube diameter H. Each tube section
+   // lies in a vertical plane through the ring's axis (so it is planar even on
+   // an elliptic ring), and each segment is the exact convex hull of two
+   // neighbouring sections: neighbours share their end faces exactly.
+   const r=H/2,ax=Math.max(r*.05,L/2-r),az=Math.max(r*.05,W/2-r),S=R.torus,T=R.tube,sec=a=>{const e=[ax*Math.cos(a),0,az*Math.sin(a)],u=norm(e);return Array.from({length:T},(_,i)=>{const t=i/T*Math.PI*2;return [e[0]+u[0]*Math.cos(t)*r,Math.sin(t)*r,e[2]+u[2]*Math.cos(t)*r];});};
+   const rings=Array.from({length:S},(_,k)=>sec(k/S*Math.PI*2)),out=[];
+   for(let k=0;k<S;k++){const A=rings[k],B=rings[(k+1)%S],faces=convexHullFaces([...A,...B]),key=p=>p.join(','),inA=new Set(A.map(key)),inB=new Set(B.map(key));out.push({faces,inner:faces.map(f=>f.every(p=>inA.has(key(p)))||f.every(p=>inB.has(key(p))))});}
+   return out;
+  }
+  case 'poly':{const P=(q.verts||SOLID_CUT_DEFAULT_POLY).map(v=>[v[0]*L,v[1]*H,v[2]*W]);return [{faces:convexHullFaces(P)}];}
+ }
+ return solidCutPieces({...q,shape:'box'});
+}
+function solidCutInstance(q,piece){
+ const world=p=>add(q.c,solidCutRotation(q,p)),points=[],T=[],D=[],planes=[];
+ const local=piece.faces.flat(),center=world(mul(local.reduce(add,[0,0,0]),1/local.length));
+ piece.faces.forEach((face,f)=>{let poly=face.map(world);
+  // Planes from Newell's normal: robust for the near-degenerate quads at poles.
+  let n=[0,0,0];for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length];n=add(n,[(a[1]-b[1])*(a[2]+b[2]),(a[2]-b[2])*(a[0]+b[0]),(a[0]-b[0])*(a[1]+b[1])]);}
+  if(len(n)<1e-12)return;n=norm(n);if(dot(n,sub(poly[0],center))<0){poly.reverse();n=mul(n,-1);}
+  const d=Math.max(...poly.map(p=>dot(n,p)));planes.push({n,d,poly});triangulateFan(poly,T);if(!piece.inner?.[f])triangulateFan(poly,D);for(const p of poly)points.push(p);});
  const bounds=[0,1,2].map(i=>Math.min(...points.map(p=>p[i]))).concat([0,1,2].map(i=>Math.max(...points.map(p=>p[i]))));
- return {q,planes,bounds,tris:Float32Array.from(T)};
+ return {q,planes,bounds,center,tris:Float32Array.from(T),display:Float32Array.from(D)};
 }
 function compiledSolidCut(input){
  const q=normalizeSolidCut(input),key=JSON.stringify(q),cached=SOLID_CUT_CACHE.get(input);if(cached?.key===key)return cached;
- const instances=[solidCutInstance(q)];if(q.mirror){const m=mirrorSolidCut(q);if(JSON.stringify([m.c,m.rotation])!==JSON.stringify([q.c,q.rotation]))instances.push(solidCutInstance(m));}
+ const variants=[q];if(q.mirror){const m=mirrorSolidCut(q);if(JSON.stringify([m.c,m.rotation,m.verts])!==JSON.stringify([q.c,q.rotation,q.verts]))variants.push(m);}
+ const instances=variants.flatMap(v=>solidCutPieces(v).map(piece=>solidCutInstance(v,piece)));
  const data={key,instances};SOLID_CUT_CACHE.set(input,data);return data;
 }
+// Display mesh of a cutter (faces shared between pieces left out).
+function solidCutDisplayTriangles(c){const a=compiledSolidCut(c).instances,T=new Float32Array(a.reduce((s,q)=>s+q.display.length,0));let i=0;for(const q of a){T.set(q.display,i);i+=q.display.length;}return T;}
+// Signed volume of the cutter (union of its pieces; mirrored copies counted once each).
+function solidCutVolume(c){return compiledSolidCut(c).instances.reduce((v,q)=>v+meshVolume(q.tris),0);}
+function solidCutConvexOK(c){const q=normalizeSolidCut(c);if(q.shape!=='poly')return true;const P=q.verts;const faces=convexHullFaces(P);const hull=new Set();for(const f of faces)for(const p of f)hull.add(p.join(','));return P.every(p=>hull.has(p.join(','))||faces.some(f=>{const n=norm(cross(sub(f[1],f[0]),sub(f[2],f[0])));return Math.abs(dot(n,sub(p,f[0])))<1e-6;}));}
 function solidCutTriangles(c,includeMirror=true){const instances=compiledSolidCut(c).instances;if(!includeMirror||instances.length===1)return instances[0].tris;const T=new Float32Array(instances.reduce((s,q)=>s+q.tris.length,0));let i=0;for(const q of instances){T.set(q.tris,i);i+=q.tris.length;}return T;}
 function solidCutBounds(c,includeMirror=true){const a=compiledSolidCut(c).instances;if(!includeMirror||a.length===1)return a[0].bounds.slice();return [0,1,2].map(i=>Math.min(...a.map(q=>q.bounds[i]))).concat([3,4,5].map(i=>Math.max(...a.map(q=>q.bounds[i]))));}
 function solidCutContains(c,p){return compiledSolidCut(c).instances.some(q=>p.every((v,i)=>v>q.bounds[i]-1e-7&&v<q.bounds[i+3]+1e-7)&&q.planes.every(a=>dot(a.n,p)<a.d-1e-7));}
@@ -9302,9 +9444,10 @@ function solidCutsContain(ship,p,structures=false){
  return data.solidCutInstances.some(q=>(!structures||ship.hull.assembly||q.structures)&&p.every((v,i)=>v>q.bounds[i]-1e-7&&v<q.bounds[i+3]+1e-7)&&q.planes.every(a=>dot(a.n,p)<a.d-1e-7));
 }
 function solidPartCutContains(p,q){const s=p._solidCutShip;return !!s&&solidCutsContain(s,q,true);}
-function solidMeshBounds(T){const b=[Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity];for(let i=0;i<T.length;i++){const a=i%3;b[a]=Math.min(b[a],T[i]);b[a+3]=Math.max(b[a+3],T[i]);}return b;}
+const SOLID_BOUNDS=new WeakMap();
+function solidMeshBounds(T){const old=typeof T==='object'&&SOLID_BOUNDS.get(T);if(old)return old.slice();let x0=Infinity,y0=Infinity,z0=Infinity,x1=-Infinity,y1=-Infinity,z1=-Infinity;for(let i=0;i+2<T.length;i+=3){const x=T[i],y=T[i+1],z=T[i+2];if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y;if(z<z0)z0=z;if(z>z1)z1=z;}const b=[x0,y0,z0,x1,y1,z1];if(ArrayBuffer.isView(T))SOLID_BOUNDS.set(T,b);return b.slice();}
 function solidBoundsOverlap(a,b,e=0){return a[0]<b[3]-e&&a[3]>b[0]+e&&a[1]<b[4]-e&&a[4]>b[1]+e&&a[2]<b[5]-e&&a[5]>b[2]+e;}
-function solidMeshArea(T){let area=0;for(let i=0;i<T.length;i+=9)area+=len(cross([T[i+3]-T[i],T[i+4]-T[i+1],T[i+5]-T[i+2]],[T[i+6]-T[i],T[i+7]-T[i+1],T[i+8]-T[i+2]]))/2;return area;}
+function solidMeshArea(T){let area=0;for(let i=0;i<T.length;i+=9){const ux=T[i+3]-T[i],uy=T[i+4]-T[i+1],uz=T[i+5]-T[i+2],vx=T[i+6]-T[i],vy=T[i+7]-T[i+1],vz=T[i+8]-T[i+2];area+=Math.hypot(uy*vz-uz*vy,uz*vx-ux*vz,ux*vy-uy*vx)/2;}return area;}
 // Join collinear slice edges before capping. This avoids copying all of the
 // hull's longitudinal subdivisions into an otherwise flat rectangular cut.
 function solidSimplifySegments(segments,eps){
@@ -9319,12 +9462,17 @@ function solidSimplifySegments(segments,eps){
 }
 // Slice from the side that remains after subtraction. Treat vertices exactly
 // on the plane as lying on the cutter side, which also handles coplanar faces.
-function solidSliceSegments(T,plane,u,v,origin,eps){
+function solidSliceSegments(T,plane,u,v,origin,eps,umin=-Infinity,umax=Infinity){
  const segments=[],project=p=>[dot(sub(p,origin),u),dot(sub(p,origin),v)],n=plane.n,d=plane.d;
+ const n0=n[0],n1=n[1],n2=n[2];
  for(let i=0;i<T.length;i+=9){
-  const ds=[0,3,6].map(k=>T[i+k]*n[0]+T[i+k+1]*n[1]+T[i+k+2]*n[2]-d),side=ds.map(x=>x>eps);if(side.every(Boolean)||side.every(x=>!x))continue;
+  // Inline distances: this loop runs once per cutter face over the whole hull.
+  const d0=T[i]*n0+T[i+1]*n1+T[i+2]*n2-d,d1=T[i+3]*n0+T[i+4]*n1+T[i+5]*n2-d,d2=T[i+6]*n0+T[i+7]*n1+T[i+8]*n2-d,s0=d0>eps,s1=d1>eps,s2=d2>eps;if(s0===s1&&s1===s2)continue;
+  const ds=[d0,d1,d2],side=[s0,s1,s2];
   const pts=[];for(let k=0;k<3;k++){const j=(k+1)%3;if(side[k]===side[j])continue;const a=i+k*3,b=i+j*3,t=clamp(ds[k]/(ds[k]-ds[j]),0,1);pts.push([lerp(T[a],T[b],t),lerp(T[a+1],T[b+1],t),lerp(T[a+2],T[b+2],t)]);}
-  if(pts.length===2&&len(sub(pts[1],pts[0]))>eps)segments.push(pts.map(project));
+  if(pts.length!==2||len(sub(pts[1],pts[0]))<=eps)continue;const seg=pts.map(project);
+  // Only segments spanning the face's u-range can bound or count toward its intervals.
+  if(Math.max(seg[0][0],seg[1][0])<umin||Math.min(seg[0][0],seg[1][0])>umax)continue;segments.push(seg);
  }
  return solidSimplifySegments(segments,eps);
 }
@@ -9336,44 +9484,104 @@ function solidSegmentCrossX(a,b,eps){
 // Even-odd intervals preserve concave sections, disconnected pieces and holes
 // from earlier cuts. Slab boundaries include every edge crossing, so the caps
 // meet the surviving shell exactly instead of approximating it with a grid.
+// Fan with a sliver floor (≈ 1 mm² of area): clipping near a vertex otherwise
+// leaves needle triangles whose normals are noise (EDIT-003 zero-area faces).
+function solidFan(poly,out){for(let i=1;i+1<poly.length;i++){const a=poly[0],b=poly[i],c=poly[i+1];if(len(cross(sub(b,a),sub(c,a)))>2e-6)out.push(a[0],a[1],a[2],b[0],b[1],b[2],c[0],c[1],c[2]);}}
 function solidConvexCaps(T,instance,eps){
  const out=[];
  for(const plane of instance.planes){
   const f=frameAxis(plane.n),u=f.v,v=f.w,origin=plane.poly[0],project=p=>[dot(sub(p,origin),u),dot(sub(p,origin),v)],poly=plane.poly.map(project),faceEdges=poly.map((p,i)=>[p,poly[(i+1)%poly.length]]),xmin=Math.min(...poly.map(p=>p[0])),xmax=Math.max(...poly.map(p=>p[0]));
-  const segments=solidSliceSegments(T,plane,u,v,origin,eps).filter(e=>Math.max(e[0][0],e[1][0])>xmin+eps&&Math.min(e[0][0],e[1][0])<xmax-eps&&Math.abs(e[1][0]-e[0][0])>eps);if(!segments.length)continue;
+  const segments=solidSliceSegments(T,plane,u,v,origin,eps,xmin-eps*4,xmax+eps*4).filter(e=>Math.max(e[0][0],e[1][0])>xmin+eps&&Math.min(e[0][0],e[1][0])<xmax-eps&&Math.abs(e[1][0]-e[0][0])>eps);if(!segments.length)continue;
   const events=poly.map(p=>p[0]);for(const e of segments){for(const p of e)if(p[0]>xmin&&p[0]<xmax)events.push(p[0]);for(const edge of faceEdges){const x=solidSegmentCrossX(e,edge,eps);if(x!=null&&x>xmin&&x<xmax)events.push(x);}}
   events.sort((a,b)=>a-b);const xs=events.filter((x,i)=>!i||x-events[i-1]>eps),hits=(edges,x)=>edges.filter(e=>Math.min(e[0][0],e[1][0])<x&&Math.max(e[0][0],e[1][0])>x).map(e=>({edge:e,y:solidSegmentY(e,x)})).sort((a,b)=>a.y-b.y),world=(x,y)=>{const p=add(origin,add(mul(u,x),mul(v,y)));return plane.poly.find(q=>len(sub(q,p))<eps*4)||p;};
+  // Sweep the slabs left to right with the segments sorted by their left end:
+  // only the few segments spanning a slab are tested (a cross-section loop
+  // crosses a line a handful of times), not the whole section per slab.
+  const sorted=segments.map(e=>({e,lo:Math.min(e[0][0],e[1][0]),hi:Math.max(e[0][0],e[1][0])})).sort((p,q)=>p.lo-q.lo);let next=0,active=[];
   for(let i=0;i<xs.length-1;i++){
-   const a=xs[i],b=xs[i+1];if(b-a<=eps)continue;const x=(a+b)/2,h=hits(segments,x),bounds=hits(faceEdges,x);if(bounds.length<2)continue;
-   for(let j=0;j+1<h.length;j+=2){const lo=h[j].y>bounds[0].y?h[j]:bounds[0],hi=h[j+1].y<bounds.at(-1).y?h[j+1]:bounds.at(-1);if(hi.y-lo.y<=eps)continue;const cap=[world(a,solidSegmentY(lo.edge,a)),world(a,solidSegmentY(hi.edge,a)),world(b,solidSegmentY(hi.edge,b)),world(b,solidSegmentY(lo.edge,b))];triangulateFan(cap,out);}
+   const a=xs[i],b=xs[i+1];if(b-a<=eps)continue;const x=(a+b)/2;
+   while(next<sorted.length&&sorted[next].lo<x)active.push(sorted[next++]);active=active.filter(q=>q.hi>x);
+   const h=hits(active.map(q=>q.e),x),bounds=hits(faceEdges,x);if(bounds.length<2)continue;
+   for(let j=0;j+1<h.length;j+=2){const lo=h[j].y>bounds[0].y?h[j]:bounds[0],hi=h[j+1].y<bounds.at(-1).y?h[j+1]:bounds.at(-1);if(hi.y-lo.y<=eps)continue;const cap=[world(a,solidSegmentY(lo.edge,a)),world(a,solidSegmentY(hi.edge,a)),world(b,solidSegmentY(hi.edge,b)),world(b,solidSegmentY(lo.edge,b))];solidFan(cap,out);}
   }
  }
  return out;
 }
-function subtractSolidInstance(T,instance,capT=T){
+// Outside fragments of T with respect to one convex piece. A triangle on the
+// piece's boundary counts as inside, except on a face listed in keepPlanes
+// (a coplanar face of a later piece, see applySolidCuts).
+// Plane tolerance: meshes are stored as Float32 (≈ 6e-8 relative), so a vertex
+// cut exactly onto a plane may sit a few float steps off it. 3e-7 of the
+// largest coordinate (0.3 mm at 1 km) keeps such vertices on the plane.
+function solidEps(bounds){return Math.max(1e-6,Math.max(...bounds.map(Math.abs))*3e-7);}
+function solidClipOutside(T,instance,keepPlanes=null){
  if(!T.length||!solidBoundsOverlap(solidMeshBounds(T),instance.bounds))return T;
- const out=[],bounds=instance.bounds,eps=Math.max(1e-7,Math.max(...bounds.map(Math.abs))*1e-9),planes=instance.planes;
- for(let i=0;i<T.length;i+=9){
-  const a=[T[i],T[i+1],T[i+2]],b=[T[i+3],T[i+4],T[i+5]],c=[T[i+6],T[i+7],T[i+8]];
-  if([0,1,2].some(k=>Math.max(a[k],b[k],c[k])<bounds[k]-eps||Math.min(a[k],b[k],c[k])>bounds[k+3]+eps)||planes.some(p=>dot(p.n,a)>p.d+eps&&dot(p.n,b)>p.d+eps&&dot(p.n,c)>p.d+eps)){out.push(...a,...b,...c);continue;}
-  let poly=[a,b,c];for(const p of planes){const ds=poly.map(v=>dot(p.n,v)-p.d);if(ds.every(d=>d<=eps))continue;if(ds.every(d=>d>=-eps)){triangulateFan(poly,out);poly=[];break;}triangulateFan(clipGeneral(poly,mul(p.n,-1),-p.d),out);poly=clipGeneral(poly,p.n,p.d);if(poly.length<3)break;}
+ // Untouched triangles are copied as runs of the source array; only the ones
+ // reaching the cutter's box are clipped (their outside fragments follow).
+ const out=[],keep=new Uint8Array(T.length/9),bounds=instance.bounds,eps=solidEps(bounds),planes=instance.planes;let kept=0;
+ for(let i=0,t=0;i<T.length;i+=9,t++){
+  let away=false;for(let k=0;k<3&&!away;k++){const p=T[i+k],q=T[i+k+3],r=T[i+k+6];away=Math.max(p,q,r)<bounds[k]-eps||Math.min(p,q,r)>bounds[k+3]+eps;}
+  const a=away?null:[T[i],T[i+1],T[i+2]],b=away?null:[T[i+3],T[i+4],T[i+5]],c=away?null:[T[i+6],T[i+7],T[i+8]];
+  if(away||planes.some(p=>dot(p.n,a)>p.d+eps&&dot(p.n,b)>p.d+eps&&dot(p.n,c)>p.d+eps)||keepPlanes&&keepPlanes.some(p=>[a,b,c].every(v=>Math.abs(dot(p.n,v)-p.d)<=eps*8))){keep[t]=1;kept++;continue;}
+  let poly=[a,b,c];for(const p of planes){const ds=poly.map(v=>dot(p.n,v)-p.d);if(ds.every(d=>d<=eps))continue;if(ds.every(d=>d>=-eps)){solidFan(poly,out);poly=[];break;}solidFan(clipGeneral(poly,mul(p.n,-1),-p.d),out);poly=clipGeneral(poly,p.n,p.d);if(poly.length<3)break;}
  }
- for(const n of solidConvexCaps(capT,instance,Math.max(eps,1e-6)))out.push(n);
- return Float32Array.from(out);
+ if(!out.length&&kept*9===T.length)return T;
+ const R=new Float32Array(kept*9+out.length);let o=0;
+ for(let t=0;t<keep.length;){if(!keep[t]){t++;continue;}let e=t;while(e<keep.length&&keep[e])e++;R.set(T.subarray?T.subarray(t*9,e*9):T.slice(t*9,e*9),o);o+=(e-t)*9;t=e;}
+ R.set(out,o);return R;
 }
-// capT: the same body without trench slots. Its cross-section caps each cut,
-// so a cut through a trench leaves a flat face that closes the slot.
-function applySolidCuts(ship,T,structures=false,capT=null){
+// EDIT-003: all cuts are subtracted as one union of convex pieces from the
+// closed, uncut body T. Each piece's caps are sliced from T itself (never from
+// an already-cut mesh, whose coplanar faces left the even-odd slices open —
+// the torus segments and touching cutters lost faces), then trimmed by every
+// other piece. Two pieces sharing a face with opposite sides drop the face;
+// coplanar faces with the same orientation are kept once, by the first piece.
+// The result does not depend on the order of the cuts.
+function applySolidCuts(ship,T,structures=false){
  if(!ship.solidCuts?.length||!T.length)return T;
- let result=T,caps=capT;for(const c of ship.solidCuts){if(structures&&!ship.hull.assembly&&!c.structures)continue;for(const q of compiledSolidCut(c).instances){const next=subtractSolidInstance(result,q,caps||result);if(caps)caps=subtractSolidInstance(caps,q);result=next;}}return result;
+ const pieces=[];for(const c of ship.solidCuts){if(structures&&!ship.hull.assembly&&!c.structures)continue;for(const q of compiledSolidCut(c).instances)pieces.push(q);}
+ if(!pieces.length)return T;
+ const mb=solidMeshBounds(T),live=pieces.filter(q=>solidBoundsOverlap(mb,q.bounds));if(!live.length)return T;
+ let body=T;for(const q of live)body=solidClipOutside(body,q);
+ const parts=[body];
+ live.forEach((q,k)=>{
+  const eps=solidEps(q.bounds);let cap=solidConvexCaps(T,q,Math.max(eps,1e-6));if(!cap.length)return;cap=Float32Array.from(cap);
+  live.forEach((r,j)=>{if(j===k||!cap.length||!solidBoundsOverlap(solidMeshBounds(cap),r.bounds))return;
+   // A later piece's face lying in one of this piece's face planes, facing the same way, keeps this cap there.
+   const same=j>k?r.planes.filter(a=>q.planes.some(b=>dot(a.n,b.n)>1-1e-9&&Math.abs(a.d-b.d)<=eps*8)):null;
+   cap=solidClipOutside(cap,r,same&&same.length?same:null);});
+  parts.push(cap);
+ });
+ const R=new Float32Array(parts.reduce((n,a)=>n+a.length,0));let o=0;for(const a of parts){R.set(a,o);o+=a.length;}return R;
 }
-function slotlessHull(ship,which){if(!ship.trenches?.some(t=>t.mode==='split'&&t.depth>0))return null;const g=uncutSolidHullGeo(ship,true);return which==='material'?(g.materialTris||g.tris):g.tris;}
+// EDIT-003 thin walls: from points of each cut face that lie on the surviving
+// hull, measure the material behind the face (a ray into the hull to the next
+// surface). Walls under SOLID_THIN_WALL_M are reported, not silently kept.
+// Provisional threshold: 0.5 m or 0.15 % of the hull length, whichever is larger.
+const SOLID_THIN_WALL_M=0.5,SOLID_THIN_WALL_RATIO=.0015;
+function solidCutThinWalls(ship){
+ if(!ship.solidCuts?.length||ship.hull.assembly)return [];
+ const g=hullGeo(ship);if(!g.tris?.length)return [];
+ const key=JSON.stringify([ship.hull,ship.solidCuts,ship.trenches,ship.cuts,ship.subs]);if(ship._thinWalls?.key===key&&ship._thinWalls.tris===g.tris)return ship._thinWalls.rows;
+ const bvh=g.bvh||(g.bvh=buildBVH(g.tris)),limit=Math.max(SOLID_THIN_WALL_M,ship.hull.L*SOLID_THIN_WALL_RATIO),rows=[];
+ for(const c of ship.solidCuts){let thin=Infinity,probes=0;
+  for(const q of compiledSolidCut(c).instances)for(const pl of q.planes){
+   const P=pl.poly,cen=mul(P.reduce(add,[0,0,0]),1/P.length);
+   for(let k=0;k<P.length&&probes<400;k++)for(const t of [.35,.7]){const a=add(cen,mul(sub(P[k],cen),t)),b=add(cen,mul(sub(P[(k+1)%P.length],cen),t)),p=mul(add(a,b),.5);
+    // Only face points on the surviving surface: material just outside the cutter.
+    const o=add(p,mul(pl.n,.02));if(!inHull(ship,o))continue;probes++;
+    const h=rayBVH(bvh,add(p,mul(pl.n,1e-3)),pl.n,limit*4);const d=h?h.t:Infinity;if(d<thin)thin=d;}
+  }
+  if(thin<limit)rows.push({id:c.id,thickness:thin,limit});
+ }
+ ship._thinWalls={key,tris:g.tris,rows};return rows;
+}
 function solidCutIntersectsShip(ship,c){
  const g=hullGeo(ship),targets=[{tris:g.tris,inside:p=>inHull(ship,p)}];
  if(ship.hull.assembly||c.structures)for(const p of ship.parts)if(p.k==='struct')targets.push({tris:structTriangles(p),inside:q=>inStruct(p,q)});
  for(const target of targets){if(!target.tris.length)continue;const bounds=solidMeshBounds(target.tris);
   for(const q of compiledSolidCut(c).instances){if(!solidBoundsOverlap(bounds,q.bounds,1e-6))continue;
-   const center=q.q.shape==='wedge'?add(q.q.c,solidCutRotation(q.q,[-q.q.s[0]/6,-q.q.s[2]/6,0])):q.q.c;if(target.inside(center))return true;
+   if(target.inside(q.center))return true;
    for(let i=0;i<target.tris.length;i+=9){let poly=[Array.from(target.tris.slice(i,i+3)),Array.from(target.tris.slice(i+3,i+6)),Array.from(target.tris.slice(i+6,i+9))];if([0,1,2].some(a=>Math.max(...poly.map(p=>p[a]))<q.bounds[a]||Math.min(...poly.map(p=>p[a]))>q.bounds[a+3]))continue;
     for(const plane of q.planes){poly=clipGeneral(poly,plane.n,plane.d-1e-5);if(poly.length<3)break;}if(poly.length>2&&len(cross(sub(poly[1],poly[0]),sub(poly[2],poly[0])))>1e-7)return true;
    }
@@ -9390,10 +9598,13 @@ function hullGeo(ship){
  const g=uncutSolidHullGeo(ship);for(const p of ship.parts)if(p.k==='struct')p._solidCutShip=ship;
  if(!ship.solidCuts?.length||!g.tris.length)return g;
  const key=JSON.stringify(ship.solidCuts),old=ship._solidHull;if(old?.base===g&&old.key===key)return old.g;
- const tris=applySolidCuts(ship,g.tris,false,slotlessHull(ship));
+ // EDIT-003: cuts are plain CSG on the hull as it is, trench slots included.
+ // Capping from a slotless copy left a sheet across each slot with open edges
+ // at the slot mouth (a hole, and a back face seen from inside the trench).
+ const tris=applySolidCuts(ship,g.tris);
  // Existing hulls report a station-integrated volume. Keep that baseline and
  // apply the remaining fraction from the same closed mesh before/after the cut.
- const material=g.materialTris||g.tris,cutMaterial=material===g.tris?tris:applySolidCuts(ship,material,false,slotlessHull(ship,'material')),remaining=meshVolume(cutMaterial)/Math.max(1e-9,meshVolume(material)),result=tris===g.tris?g:{...g,tris,materialTris:cutMaterial,area:solidMeshArea(tris),volume:g.volume*clamp(remaining,0,1),bvh:null};ship._solidHull={base:g,key,g:result};return result;
+ const material=g.materialTris||g.tris,cutMaterial=material===g.tris?tris:applySolidCuts(ship,material),remaining=meshVolume(cutMaterial)/Math.max(1e-9,meshVolume(material)),result=tris===g.tris?g:{...g,tris,materialTris:cutMaterial,area:solidMeshArea(tris),volume:g.volume*clamp(remaining,0,1),bvh:null};ship._solidHull={base:g,key,g:result};return result;
 }
 function structTriangles(p){
  const base=uncutSolidStructTriangles(p),ship=p._solidCutShip;if(!ship?.solidCuts?.some(c=>ship.hull.assembly||c.structures)){delete p._solidGeometry;return base;}
@@ -9532,6 +9743,366 @@ function syncAviationSurfaces(ship){
 }
 
 
+// ---------- editable polyhedral structures (PLAN-013, PLAN-010) ----------
+// A structure of form 'mesh' carries its own closed triangle mesh:
+// p.mesh = {v:[[x,y,z]…], f:[[a,b,c]…]}. Vertices are local and normalised
+// to the structure's size: x along its length s[0], y up along its height
+// s[2], z across its width s[1] (the same local frame as every structure,
+// see localStruct). Faces wind counter-clockwise seen from outside.
+// Moving, rotating, resizing and mirroring therefore use the ordinary
+// structure tools; vertex editing changes only p.mesh. The mesh is a
+// structure only: no engine, reactor or weapon is ever derived from it.
+// Limits are provisional (editor responsiveness on phones).
+const STRUCT_MESH_LIMITS=Object.freeze({verts:6000,tris:12000});
+STRUCT_SHAPES.mesh='自由多面体（頂点編集）';
+const MESH_TRI_CACHE=new WeakMap(),MESH_LOCAL_CACHE=new WeakMap();
+// Topology check of an indexed triangle mesh: every edge must be used once in
+// each direction (closed, 2-manifold, consistently oriented).
+function meshTopology(f){
+ const dir=new Map();let bad=0;
+ for(const t of f)for(let k=0;k<3;k++){const a=t[k],b=t[(k+1)%3],key=a+'>'+b;if(dir.has(key))bad++;dir.set(key,1);}
+ let open=0;for(const key of dir.keys()){const [a,b]=key.split('>');if(!dir.has(b+'>'+a))open++;}
+ return {closed:open===0&&bad===0,open,duplicate:bad,edges:dir.size/2};
+}
+function meshLocalVolume(v,f){let s=0;for(const [a,b,c] of f)s+=dot(v[a],cross(v[b],v[c]));return s/6;}
+// Clean an untrusted mesh (from a save, an import or an edit): finite numbers,
+// indices in range, degenerate faces dropped, vertices welded, orientation
+// made outward. Returns {mesh, issues} or {mesh:null, issues} when unusable.
+function normalizeStructMesh(m,opt={}){
+ const issues=[];if(!m||!Array.isArray(m.v)||!Array.isArray(m.f))return {mesh:null,issues:['形状データがありません']};
+ if(m.v.length>STRUCT_MESH_LIMITS.verts||m.f.length>STRUCT_MESH_LIMITS.tris)return {mesh:null,issues:[`頂点 ${STRUCT_MESH_LIMITS.verts}・面 ${STRUCT_MESH_LIMITS.tris} までです`]};
+ const raw=m.v.map(p=>Array.isArray(p)&&p.length===3&&p.every(Number.isFinite)?p.map(x=>clamp(x,-1,1)):null);
+ // Weld coincident vertices (1e-5 of the structure's size).
+ const key=p=>p.map(x=>Math.round(x*1e5)).join(','),index=new Map(),v=[],remap=raw.map(p=>{if(!p)return -1;const k=key(p);let i=index.get(k);if(i==null){i=v.length;index.set(k,i);v.push(p.map(x=>Math.round(x*1e5)/1e5));}return i;});
+ let f=[],dropped=0;for(const t of m.f){if(!Array.isArray(t)||t.length!==3||!t.every(i=>Number.isInteger(i)&&i>=0&&i<raw.length)){dropped++;continue;}const q=t.map(i=>remap[i]);if(q.some(i=>i<0)||new Set(q).size<3){dropped++;continue;}if(len(cross(sub(v[q[1]],v[q[0]]),sub(v[q[2]],v[q[0]])))<1e-10){dropped++;continue;}f.push(q);}
+ if(dropped)issues.push(`不正・面積ゼロの面 ${dropped} 枚を除きました`);
+ if(f.length<4)return {mesh:null,issues:issues.concat('閉じた立体になる面がありません')};
+ const used=new Set(f.flat());if(used.size<v.length){const map=new Map();const nv=[];v.forEach((p,i)=>{if(used.has(i)){map.set(i,nv.length);nv.push(p);}});f=f.map(t=>t.map(i=>map.get(i)));v.length=0;v.push(...nv);}
+ if(meshLocalVolume(v,f)<0){f=f.map(t=>[t[0],t[2],t[1]]);issues.push('面の向きを外向きにそろえました');}
+ const topo=meshTopology(f);if(!topo.closed){if(opt.requireClosed)return {mesh:null,issues:issues.concat(`閉じていない辺が ${topo.open} 本あります`)};issues.push(`閉じていない辺が ${topo.open} 本あります（容積は近似）`);}
+ return {mesh:{v,f},issues,closed:topo.closed};
+}
+function meshScale(p){return [p.s[0],p.s[2],p.s[1]];}
+// Local triangles in metres (structure frame), cached per mesh object and size.
+function meshLocalTris(p){
+ const m=p.mesh,sc=meshScale(p),key=sc.join(',');let c=MESH_LOCAL_CACHE.get(m);if(c?.key===key)return c;
+ const T=new Float32Array(m.f.length*9);let o=0;for(const t of m.f)for(const i of t){const q=m.v[i];T[o++]=q[0]*sc[0];T[o++]=q[1]*sc[1];T[o++]=q[2]*sc[2];}
+ c={key,T,bvh:null,bounds:solidMeshBounds(T)};MESH_LOCAL_CACHE.set(m,c);return c;
+}
+function meshStructTriangles(p){
+ if(!p.mesh?.v?.length)return v3StructTriangles({...p,form:'box'});
+ const key=JSON.stringify([p.c,p.s,p.surfaceNormal,p.pitch,p.roll,p.yaw]),old=MESH_TRI_CACHE.get(p.mesh);if(old?.key===key&&old.p===p)return old.T;
+ const L=meshLocalTris(p).T,T=new Float32Array(L.length);for(let i=0;i<L.length;i+=3)T.set(worldStruct(p,[L[i],L[i+1],L[i+2]]),i);
+ MESH_TRI_CACHE.set(p.mesh,{key,p,T});return T;
+}
+function inMeshStruct(p,q){
+ if(!p.mesh?.v?.length)return v3InStruct({...p,form:'box'},q);
+ const c=meshLocalTris(p),l=localStruct(p,q),b=c.bounds;if(l.some((v,i)=>v<b[i]-1e-6||v>b[i+3]+1e-6))return false;
+ c.bvh||=buildBVH(c.T);let o=l.slice(),hits=0,dist=0;const d=[.937426,.202719,.283022],max=len(meshScale(p))*3;
+ for(let i=0;i<64;i++){const h=rayBVH(c.bvh,o,d);if(!h||dist>max)break;hits++;dist+=h.t+1e-4;o=add(h.p,mul(d,1e-4));}return hits%2===1;
+}
+// Mirror across the structure's own Z (left-right): negate z, reverse winding.
+function mirrorStructMesh(m){return m?{v:m.v.map(p=>[p[0],p[1],-p[2]]),f:m.f.map(t=>[t[0],t[2],t[1]])}:m;}
+// Turn any structure into an editable mesh with the same outer surface.
+function structToMesh(p){
+ const T=unpiercedStructTriangles(p),sc=meshScale(p),v=[],f=[],index=new Map(),tol=Math.max(...sc)*1e-5;
+ const id=w=>{const l=localStruct(p,w).map((x,i)=>x/sc[i]),k=l.map(x=>Math.round(x/1e-5)).join(',');let i=index.get(k);if(i==null){i=v.length;index.set(k,i);v.push(l);}return i;};
+ for(let i=0;i<T.length;i+=9){const t=[id([T[i],T[i+1],T[i+2]]),id([T[i+3],T[i+4],T[i+5]]),id([T[i+6],T[i+7],T[i+8]])];if(new Set(t).size===3)f.push(t);}
+ return normalizeStructMesh({v,f}).mesh;
+}
+// Fit size and centre to the vertices after an edit, so the selection box,
+// mirror plane and resize handles keep matching the shape.
+function refitStructMesh(p){
+ const m=p.mesh,sc=meshScale(p),lo=[0,1,2].map(a=>Math.min(...m.v.map(q=>q[a]))),hi=[0,1,2].map(a=>Math.max(...m.v.map(q=>q[a]))),size=[0,1,2].map(a=>Math.max(1e-3,(hi[a]-lo[a])*sc[a])),mid=[0,1,2].map(a=>(lo[a]+hi[a])/2);
+ if(mid.every(x=>Math.abs(x)<1e-9)&&size.every((x,a)=>Math.abs(x-sc[a])<1e-9))return p;
+ const c=worldStruct(p,mid.map((x,a)=>x*sc[a]));p.c=c;p.s=[size[0],size[2],size[1]];
+ p.mesh={v:m.v.map(q=>q.map((x,a)=>Math.round((x-mid[a])*sc[a]/size[a]*1e5)/1e5)),f:m.f};return p;
+}
+// Segment–triangle test for the self-intersection guard.
+function segTri(a,b,t0,t1,t2){const e1=sub(t1,t0),e2=sub(t2,t0),d=sub(b,a),h=cross(d,e2),det=dot(e1,h);if(Math.abs(det)<1e-12)return false;const s=sub(a,t0),u=dot(s,h)/det;if(u<1e-9||u>1-1e-9)return false;const q=cross(s,e1),v=dot(d,q)/det;if(v<1e-9||u+v>1-1e-9)return false;const t=dot(e2,q)/det;return t>1e-9&&t<1-1e-9;}
+// PLAN-013 guard: an edit is accepted only if the mesh stays a valid solid:
+// no face collapses, no face passes through another, the volume stays positive.
+function meshEditCheck(m,changed){
+ const v=m.v,touch=changed?new Set(changed):null,faces=touch?m.f.map((t,i)=>i).filter(i=>m.f[i].some(j=>touch.has(j))):m.f.map((t,i)=>i);
+ const span=Math.max(...[0,1,2].map(a=>Math.max(...v.map(q=>q[a]))-Math.min(...v.map(q=>q[a]))));
+ for(const i of faces){const [a,b,c]=m.f[i];if(len(cross(sub(v[b],v[a]),sub(v[c],v[a])))<1e-8*span*span)return '面がつぶれます（頂点が重なるか一直線に並びます）';}
+ if(meshLocalVolume(v,m.f)<=0)return '立体が裏返ります';
+ const box=t=>{const P=t.map(i=>v[i]);return [0,1,2].map(a=>Math.min(...P.map(p=>p[a]))).concat([0,1,2].map(a=>Math.max(...P.map(p=>p[a]))));};
+ const boxes=m.f.map(box),limit=m.f.length>4000&&!touch?0:Infinity;if(!limit)return '';
+ for(const i of faces){const A=m.f[i],bA=boxes[i];for(let j=0;j<m.f.length;j++){if(j===i||(touch&&faces.includes(j)&&j<i))continue;const B=m.f[j];if(A.some(x=>B.includes(x)))continue;const bB=boxes[j];if(bA[0]>bB[3]||bA[3]<bB[0]||bA[1]>bB[4]||bA[4]<bB[1]||bA[2]>bB[5]||bA[5]<bB[2])continue;
+  const P=A.map(k=>v[k]),Q=B.map(k=>v[k]);for(let k=0;k<3;k++){if(segTri(P[k],P[(k+1)%3],...Q)||segTri(Q[k],Q[(k+1)%3],...P))return '面同士が交差します';}}}
+ return '';
+}
+// Move vertices by a local offset in metres. With mirror, each vertex's
+// partner across the structure's own centre plane (z → −z) follows as its
+// mirror image; vertices on that plane stay on it. Returns {mesh} or {error}.
+function meshMoveVertices(p,ids,delta,opt={}){
+ const m=p.mesh,sc=meshScale(p),moved=new Map(),tol=1e-4;
+ const partner=i=>{const q=m.v[i];if(Math.abs(q[2])<tol)return i;return m.v.findIndex(r=>Math.abs(r[0]-q[0])<tol&&Math.abs(r[1]-q[1])<tol&&Math.abs(r[2]+q[2])<tol);};
+ for(const i of ids){if(!(i>=0&&i<m.v.length))continue;const d=delta.map((x,a)=>x/sc[a]);moved.set(i,d);
+  if(opt.mirror){const j=partner(i);if(j===i)moved.set(i,[d[0],d[1],0]);else if(j>=0&&!ids.includes(j))moved.set(j,[d[0],d[1],-d[2]]);}}
+ const v=m.v.map((q,i)=>moved.has(i)?q.map((x,a)=>Math.round((x+moved.get(i)[a])*1e5)/1e5):q),out={v,f:m.f};
+ if(v.some(q=>q.some(x=>Math.abs(x)>4)))return {error:'移動量が大きすぎます（寸法の4倍まで）'};
+ const err=meshEditCheck(out,[...moved.keys()]);return err?{error:err}:{mesh:out,moved:[...moved.keys()]};
+}
+// Set one vertex to a local position in metres.
+function meshSetVertex(p,i,local,opt={}){const q=p.mesh.v[i],sc=meshScale(p);if(!q)return {error:'頂点がありません'};return meshMoveVertices(p,[i],local.map((x,a)=>x-q[a]*sc[a]),opt);}
+// Split an edge at its midpoint (adds a vertex, both faces become two).
+function meshSplitEdge(m,a,b){
+ const v=m.v.concat([m.v[a].map((x,k)=>(x+m.v[b][k])/2)]),n=v.length-1,f=[];
+ for(const t of m.f){const i=t.indexOf(a),j=t.indexOf(b);if(i<0||j<0){f.push(t);continue;}const c=t.find(x=>x!==a&&x!==b),fw=t[(i+1)%3]===b;if(fw){f.push([a,n,c],[n,b,c]);}else{f.push([b,n,c],[n,a,c]);}}
+ return {v,f};
+}
+// Remove a vertex by collapsing it onto its nearest neighbour.
+function meshCollapseVertex(m,i){
+ const nb=new Set();for(const t of m.f)if(t.includes(i))for(const x of t)if(x!==i)nb.add(x);if(!nb.size)return {error:'頂点がありません'};
+ const j=[...nb].sort((x,y)=>len(sub(m.v[x],m.v[i]))-len(sub(m.v[y],m.v[i])))[0];
+ const f=m.f.map(t=>t.map(x=>x===i?j:x)).filter(t=>new Set(t).size===3),map=[];let k=0;m.v.forEach((_,x)=>{map[x]=x===i?-1:k++;});
+ const out={v:m.v.filter((_,x)=>x!==i),f:f.map(t=>t.map(x=>map[x]))};
+ if(out.f.length<4||!meshTopology(out.f).closed)return {error:'この頂点を消すと立体が閉じなくなります'};
+ const err=meshEditCheck(out);return err?{error:err}:{mesh:out};
+}
+// Extrude one face along its normal by a distance in metres (adds a prism).
+function meshExtrudeFace(p,fi,dist){
+ const m=p.mesh,t=m.f[fi];if(!t)return {error:'面がありません'};const sc=meshScale(p),P=t.map(i=>m.v[i].map((x,a)=>x*sc[a])),n=norm(cross(sub(P[1],P[0]),sub(P[2],P[0])));
+ const base=m.v.length,v=m.v.concat(P.map(q=>add(q,mul(n,dist)).map((x,a)=>x/sc[a]))),f=m.f.filter((_,i)=>i!==fi);
+ f.push([base,base+1,base+2]);for(let k=0;k<3;k++){const a=t[k],b=t[(k+1)%3],A=base+k,B=base+(k+1)%3;f.push([a,b,B],[a,B,A]);}
+ const out={v,f};const err=meshEditCheck(out,[base,base+1,base+2]);return err?{error:err}:{mesh:out};
+}
+// Inspection of mesh structures: open shells give approximate volume.
+function meshStructIssues(ship){
+ const out=[];for(const p of ship.parts){if(p.k!=='struct'||p.form!=='mesh'||!p.mesh)continue;const t=meshTopology(p.mesh.f);if(!t.closed)out.push({lv:'warn',code:'mesh-open',partId:p.id,text:`自由多面体 #${p.id} は閉じていません（開いた辺 ${t.open} 本）。容積・質量は近似値です。`});}
+ return out;
+}
+// ---------- PLAN-010: external 3D shapes as editable structural geometry ----------
+// OBJ, glTF 2.0 (.gltf with embedded buffers, .glb) and STL (binary and ASCII)
+// are read as triangle soups and become one free-form structure (form 'mesh')
+// with editable vertices. Nothing functional is inferred: no engine, reactor
+// or weapon is created from a mesh; those are added by the player afterwards.
+// Units, scale and axes are chosen explicitly. Oversized meshes are simplified
+// by vertex clustering to STRUCT_MESH_LIMITS (provisional), and every repair is
+// reported. Unsupported content (other formats, Draco/meshopt compression,
+// external buffer files, point/line primitives) is refused or skipped with a
+// message rather than guessed.
+const MESH_IMPORT_UNITS=Object.freeze({m:1,cm:.01,mm:.001,km:1000,ft:.3048,in:.0254});
+const MESH_IMPORT_AXES=Object.freeze({up:['y','z','-y','-z','x'],forward:['x','-x','z','-z','y','-y']});
+// Any binary input (ArrayBuffer from any realm, typed array) as bytes.
+function bytesOf(b){return ArrayBuffer.isView(b)?new Uint8Array(b.buffer,b.byteOffset,b.byteLength):new Uint8Array(b);}
+function importText(buf){return typeof buf==='string'?buf:new TextDecoder('utf-8').decode(bytesOf(buf));}
+function parseOBJ(text){
+ const v=[],f=[],issues=[];let skipped=0;
+ for(const raw of text.split(/\r?\n/)){const line=raw.trim();if(!line||line[0]==='#')continue;const a=line.split(/\s+/);
+  if(a[0]==='v'){const p=a.slice(1,4).map(Number);if(p.length===3&&p.every(Number.isFinite))v.push(p);else{v.push([0,0,0]);skipped++;}}
+  else if(a[0]==='f'){const ids=a.slice(1).map(t=>{let i=parseInt(t.split('/')[0],10);if(i<0)i=v.length+i+1;return i-1;});if(ids.length<3||ids.some(i=>!(i>=0&&i<v.length))){skipped++;continue;}for(let k=1;k+1<ids.length;k++)f.push([ids[0],ids[k],ids[k+1]]);}
+ }
+ if(skipped)issues.push(`読めない行 ${skipped} 件を除きました`);return {v,f,issues};
+}
+function parseSTL(buf){
+ if(typeof buf==='string')buf=new TextEncoder().encode(buf);
+ const u8=bytesOf(buf),issues=[];
+ const head=new TextDecoder('ascii').decode(u8.subarray(0,Math.min(u8.length,512)));
+ const binN=u8.length>=84?new DataView(u8.buffer,u8.byteOffset,u8.byteLength).getUint32(80,true):-1;
+ if(/^\s*solid\b/.test(head)&&!(binN>=0&&84+binN*50===u8.length)){
+  const v=[],f=[],re=/vertex\s+(\S+)\s+(\S+)\s+(\S+)/g,t=importText(u8);let m,tri=[];while((m=re.exec(t))){tri.push([+m[1],+m[2],+m[3]]);if(tri.length===3){const b=v.length;v.push(...tri);f.push([b,b+1,b+2]);tri=[];}}
+  return {v,f,issues};
+ }
+ if(binN<0||84+binN*50>u8.length)return {v:[],f:[],issues:['STL ファイルが途中で切れています']};
+ const dv=new DataView(u8.buffer,u8.byteOffset,u8.byteLength),v=[],f=[];
+ for(let i=0;i<binN;i++){const o=84+i*50+12,b=v.length;for(let k=0;k<3;k++)v.push([dv.getFloat32(o+k*12,true),dv.getFloat32(o+k*12+4,true),dv.getFloat32(o+k*12+8,true)]);f.push([b,b+1,b+2]);}
+ return {v,f,issues};
+}
+function gltfMatrix(n){
+ if(Array.isArray(n.matrix)&&n.matrix.length===16)return n.matrix.slice();
+ const t=n.translation||[0,0,0],q=n.rotation||[0,0,0,1],s=n.scale||[1,1,1],[x,y,z,w]=q;
+ return [(1-2*(y*y+z*z))*s[0],2*(x*y+z*w)*s[0],2*(x*z-y*w)*s[0],0,2*(x*y-z*w)*s[1],(1-2*(x*x+z*z))*s[1],2*(y*z+x*w)*s[1],0,2*(x*z+y*w)*s[2],2*(y*z-x*w)*s[2],(1-2*(x*x+y*y))*s[2],0,t[0],t[1],t[2],1];
+}
+function gltfMul(a,b){const o=new Array(16);for(let c=0;c<4;c++)for(let r=0;r<4;r++){let s=0;for(let k=0;k<4;k++)s+=a[k*4+r]*b[c*4+k];o[c*4+r]=s;}return o;}
+function parseGLTF(buf,isGLB){
+ const issues=[];let json,bin=null;
+ if(isGLB){const u8=bytesOf(buf),dv=new DataView(u8.buffer,u8.byteOffset,u8.byteLength);if(u8.length<20||dv.getUint32(0,true)!==0x46546C67)return {v:[],f:[],issues:['GLB の形式ではありません']};
+  let o=12;while(o+8<=u8.length){const len=dv.getUint32(o,true),type=dv.getUint32(o+4,true),data=u8.subarray(o+8,o+8+len);if(type===0x4E4F534A)json=JSON.parse(new TextDecoder('utf-8').decode(data));else if(type===0x004E4942)bin=data;o+=8+len;}}
+ else json=JSON.parse(importText(buf));
+ if(!json?.asset)return {v:[],f:[],issues:['glTF の形式ではありません']};
+ const ext=[...(json.extensionsRequired||[])];if(ext.length)return {v:[],f:[],issues:[`未対応の拡張機能があります（${ext.join(', ')}）。圧縮しないで書き出してください`]};
+ const buffers=(json.buffers||[]).map((b,i)=>{if(isGLB&&i===0&&b.uri==null)return bin;const m=/^data:[^;]*;base64,(.*)$/.exec(b.uri||'');if(m){const s=atob(m[1]),u=new Uint8Array(s.length);for(let k=0;k<s.length;k++)u[k]=s.charCodeAt(k);return u;}return null;});
+ if(buffers.some(b=>!b))issues.push('外部ファイルのバッファは読めません（.glb か埋め込み形式で書き出してください）');
+ const comp={5120:[1,'getInt8'],5121:[1,'getUint8'],5122:[2,'getInt16'],5123:[2,'getUint16'],5125:[4,'getUint32'],5126:[4,'getFloat32']},cnt={SCALAR:1,VEC2:2,VEC3:3,VEC4:4};
+ const read=i=>{const a=json.accessors?.[i];if(!a)return null;const bv=json.bufferViews?.[a.bufferView],buf=bv&&buffers[bv.buffer];if(!buf)return null;const [sz,fn]=comp[a.componentType]||[];if(!fn)return null;const n=cnt[a.type]||1,stride=bv.byteStride||sz*n,base=(bv.byteOffset||0)+(a.byteOffset||0),dv=new DataView(buf.buffer,buf.byteOffset,buf.byteLength),out=[];
+  for(let k=0;k<a.count;k++){const row=[];for(let j=0;j<n;j++){const o=base+k*stride+j*sz;if(o+sz>buf.byteLength)return null;row.push(dv[fn](o,true));}out.push(n===1?row[0]:row);}return out;};
+ const v=[],f=[];let skipped=0;
+ const visit=(ni,M,d=0)=>{const n=json.nodes?.[ni];if(!n||d>64)return;const W=gltfMul(M,gltfMatrix(n));
+  const mesh=n.mesh!=null?json.meshes?.[n.mesh]:null;
+  for(const pr of mesh?.primitives||[]){if((pr.mode??4)!==4){skipped++;continue;}if(pr.extensions&&Object.keys(pr.extensions).length){skipped++;continue;}const P=read(pr.attributes?.POSITION);if(!P){skipped++;continue;}const I=pr.indices!=null?read(pr.indices):P.map((_,k)=>k);if(!I){skipped++;continue;}
+   const b=v.length;for(const p of P)v.push([W[0]*p[0]+W[4]*p[1]+W[8]*p[2]+W[12],W[1]*p[0]+W[5]*p[1]+W[9]*p[2]+W[13],W[2]*p[0]+W[6]*p[1]+W[10]*p[2]+W[14]]);
+   const det=W[0]*(W[5]*W[10]-W[6]*W[9])-W[4]*(W[1]*W[10]-W[2]*W[9])+W[8]*(W[1]*W[6]-W[2]*W[5]);
+   for(let k=0;k+2<I.length;k+=3)f.push(det<0?[b+I[k],b+I[k+2],b+I[k+1]]:[b+I[k],b+I[k+1],b+I[k+2]]);}
+  for(const c of n.children||[])visit(c,W,d+1);};
+ const scene=json.scenes?.[json.scene??0],roots=scene?.nodes||(json.nodes||[]).map((_,i)=>i).filter(i=>!(json.nodes||[]).some(n=>(n.children||[]).includes(i)));
+ const I4=[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1];for(const r of roots)visit(r,I4);
+ if(!roots.length&&json.meshes?.length)issues.push('シーンにノードがありません');
+ if(skipped)issues.push(`三角形以外・圧縮・読めない形状 ${skipped} 個を除きました`);
+ return {v,f,issues};
+}
+// Read a file by its name: {v,f,format,issues} or {error}.
+function parseMeshFile(name,buf){
+ const ext=String(name||'').toLowerCase().split('.').pop();
+ try{
+  let r;if(ext==='obj')r=parseOBJ(importText(buf));else if(ext==='stl')r=parseSTL(buf);else if(ext==='glb')r=parseGLTF(buf,true);else if(ext==='gltf')r=parseGLTF(buf,false);
+  else return {error:`.${ext} は読み込めません。OBJ・glTF（.gltf/.glb）・STL に対応しています`};
+  if(!r.f.length)return {error:r.issues[0]||'三角形の面が見つかりません',issues:r.issues};
+  return {...r,format:ext};
+ }catch(e){return {error:'ファイルを解釈できませんでした（'+String(e.message||e).slice(0,80)+'）'};}
+}
+// Vertex clustering down to the limits (provisional simplification).
+function simplifyMesh(v,f,maxV,maxF){
+ let lo=[0,1,2].map(a=>Math.min(...v.map(p=>p[a]))),hi=[0,1,2].map(a=>Math.max(...v.map(p=>p[a]))),span=Math.max(1e-9,...hi.map((x,a)=>x-lo[a])),cells=Math.ceil(Math.cbrt(maxV)*2),out=null;
+ for(let it=0;it<24;it++){const h=span/cells,map=new Map(),acc=[],idx=v.map(p=>{const k=p.map((x,a)=>Math.floor((x-lo[a])/h)).join(',');let i=map.get(k);if(i==null){i=acc.length;map.set(k,i);acc.push([0,0,0,0]);}const q=acc[i];q[0]+=p[0];q[1]+=p[1];q[2]+=p[2];q[3]++;return i;});
+  const nv=acc.map(q=>[q[0]/q[3],q[1]/q[3],q[2]/q[3]]),seen=new Set(),nf=[];for(const t of f){const q=t.map(i=>idx[i]);if(new Set(q).size<3)continue;const key=q.slice().sort((a,b)=>a-b).join(',')+'|'+q.join(',');if(seen.has(key))continue;seen.add(key);nf.push(q);}
+  out={v:nv,f:nf};if(nv.length<=maxV&&nf.length<=maxF)break;cells=Math.floor(cells*.8);}
+ return out;
+}
+// Turn parsed triangles into a structure part (not yet in the ship).
+function meshImportPart(parsed,opt={}){
+ const issues=[...(parsed.issues||[])],unit=MESH_IMPORT_UNITS[opt.unit]??1,scale=clamp(Number(opt.scale)||1,1e-4,1e4),k=unit*scale;
+ const axis=a=>{const s=a[0]==='-'?-1:1,c=a.replace('-','');const v=[0,0,0];v['xyz'.indexOf(c)]=s;return v;};
+ const U=axis(MESH_IMPORT_AXES.up.includes(opt.up)?opt.up:'y'),F=axis(MESH_IMPORT_AXES.forward.includes(opt.forward)?opt.forward:'x');
+ if(Math.abs(dot(U,F))>.5)return {error:'上方向と前方向が同じ軸です'};const Rv=cross(F,U);
+ let v=parsed.v.map(p=>[dot(p,F)*k,dot(p,U)*k,dot(p,Rv)*k]),f=parsed.f;
+ if(v.some(p=>p.some(x=>!Number.isFinite(x))))return {error:'座標に数値でない値があります'};
+ if(v.length>STRUCT_MESH_LIMITS.verts||f.length>STRUCT_MESH_LIMITS.tris){const s=simplifyMesh(v,f,STRUCT_MESH_LIMITS.verts,STRUCT_MESH_LIMITS.tris);issues.push(`頂点 ${v.length.toLocaleString()}・面 ${f.length.toLocaleString()} を 頂点 ${s.v.length.toLocaleString()}・面 ${s.f.length.toLocaleString()} に簡略化しました`);v=s.v;f=s.f;}
+ const lo=[0,1,2].map(a=>Math.min(...v.map(p=>p[a]))),hi=[0,1,2].map(a=>Math.max(...v.map(p=>p[a]))),size=hi.map((x,a)=>x-lo[a]);
+ if(size.some(x=>x<.01))return {error:'厚みのない形です（どの方向にも1 cm以上必要です）'};
+ if(size.some(x=>x>DESIGN_LIMITS.partSize))return {error:`大きすぎます（一辺 ${DESIGN_LIMITS.partSize} m まで）。単位か倍率を見直してください`};
+ const mid=lo.map((x,a)=>(x+hi[a])/2),nv=v.map(p=>p.map((x,a)=>(x-mid[a])/size[a])),r=normalizeStructMesh({v:nv,f});
+ if(!r.mesh)return {error:r.issues.join('・')||'立体として使える面がありません',issues};
+ const part={k:'struct',form:'mesh',imported:true,c:[0,0,0],s:[size[0],size[2],size[1]],mesh:r.mesh,taper:0};
+ return {part,issues:issues.concat(r.issues),closed:r.closed,size,tris:r.mesh.f.length,verts:r.mesh.v.length,volume:meshLocalVolume(r.mesh.v.map(p=>p.map((x,a)=>x*size[a])),r.mesh.f)};
+}
+// ---------- user-defined composite parts (USERPART-001..006) ----------
+// A template is saved explicitly from a selection (grouping alone never makes
+// one). It holds independent copies of the selected parts and fittings with
+// positions relative to its origin, the internal references between them
+// (engine → reactor, fitting → host structure, symmetric pairs), the edit
+// groups wholly inside, and the external ports: references that pointed
+// outside the selection and must be connected again where it is placed.
+// Placing a template makes independent copies with fresh ids, inside an edit
+// group that carries the template's name (UI-007 hierarchy, same transforms).
+// Stats count the copies as ordinary parts: no bonus, nothing counted twice.
+// Limits are provisional.
+const ASSEMBLY_LIMITS=Object.freeze({parts:160,fits:160,groups:40});
+const ASSEMBLY_MOUNTS=Object.freeze({bottom:'下面で取り付け',top:'上面で取り付け',port:'左舷側で取り付け',stbd:'右舷側で取り付け',aft:'艦尾側で取り付け',fore:'艦首側で取り付け'});
+const ASSEMBLY_ORIGINS=Object.freeze({center:'選択の中心',bottom:'底面の中央',aft:'艦尾側の中央',top:'上面の中央'});
+const ASSEMBLY_CATEGORIES=Object.freeze({propulsion:'推進',power:'動力',weapons:'武装',structure:'構造・外装',command:'指揮',hangar:'航空',composite:'複合',other:'その他'});
+const publicCopyOf=o=>JSON.parse(JSON.stringify(o,(k,v)=>k&&k[0]==='_'?undefined:v));
+function assemblyBounds(ship,ids){
+ const bs=[...ship.parts.filter(p=>ids.parts.includes(p.id)).map(p=>partAABB({...p,_packing:undefined,_clip:undefined})),...ship.fits.filter(f=>ids.fits.includes(f.id)).map(f=>fitAABB(f))];
+ return bs.reduce((a,b)=>[0,1,2].map(k=>Math.min(a[k],b[k])).concat([3,4,5].map(k=>Math.max(a[k],b[k]))),[Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity]);
+}
+function assemblyOriginPoint(b,origin){const c=[0,1,2].map(a=>(b[a]+b[a+3])/2);if(origin==='bottom')c[1]=b[1];else if(origin==='top')c[1]=b[4];else if(origin==='aft')c[0]=b[0];return c;}
+// Internal links and external ports of a selection (USERPART-001/004).
+function assemblyLinks(ship,ids){
+ const P=new Set(ids.parts),F=new Set(ids.fits),links=[],ports=[],pr=id=>({list:'parts',id}),fr=id=>({list:'fits',id});
+ for(const p of ship.parts.filter(p=>P.has(p.id))){
+  if(p.reactor!=null){if(P.has(p.reactor))links.push({kind:'power',from:pr(p.id),to:pr(p.reactor)});else ports.push({kind:'power',child:pr(p.id),need:'reactor',label:partLabel(p)});}
+  else if(p.k==='engine')ports.push({kind:'power',child:pr(p.id),need:'reactor',label:partLabel(p)});
+  for(const key of ['tw','vt'])if(p[key]!=null&&P.has(p[key])&&p.id<p[key])links.push({kind:'symmetry',from:pr(p.id),to:pr(p[key])});
+ }
+ for(const f of ship.fits.filter(f=>F.has(f.id))){
+  if(f.host!=null){if(P.has(f.host))links.push({kind:'structural',from:fr(f.id),to:pr(f.host)});else ports.push({kind:'mount',child:fr(f.id),need:'host',label:FITS[f.k]?.short||FITS[f.k]?.name||f.k});}
+  for(const key of ['tw','vt'])if(f[key]!=null&&F.has(f[key])&&f.id<f[key])links.push({kind:'symmetry',from:fr(f.id),to:fr(f[key])});
+ }
+ // Reactors in the selection that feed engines outside it.
+ for(const e of ship.parts.filter(e=>!P.has(e.id)&&e.reactor!=null&&P.has(e.reactor)))ports.push({kind:'power',child:pr(e.reactor),need:'consumer',label:partLabel(e)});
+ return {links,ports};
+}
+// A small side and top silhouette (SVG) from the children's boxes.
+function assemblyPreview(parts,fits){
+ const boxes=[...parts.map(p=>({b:partAABB(p),c:PARTS[p.k]?.col||[170,176,184]})),...fits.map(f=>({b:fitAABB(f),c:FITS[f.k]?.cat==='w'?[214,120,90]:[150,200,230]}))].filter(x=>x.b.every(Number.isFinite));
+ if(!boxes.length)return '';const B=boxes.reduce((a,x)=>[0,1,2].map(k=>Math.min(a[k],x.b[k])).concat([3,4,5].map(k=>Math.max(a[k],x.b[k]))),[Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity]);
+ const W=Math.max(1e-6,B[3]-B[0]),H=Math.max(1e-6,B[4]-B[1]),D=Math.max(1e-6,B[5]-B[2]),s=56/Math.max(W,H+D+W*.08),gap=4,r=v=>Math.round(v*10)/10;
+ const side=boxes.map(x=>`<rect x="${r(4+(x.b[0]-B[0])*s)}" y="${r(4+(B[4]-x.b[4])*s)}" width="${r(Math.max(.6,(x.b[3]-x.b[0])*s))}" height="${r(Math.max(.6,(x.b[4]-x.b[1])*s))}" fill="rgb(${x.c.join(',')})" fill-opacity=".75"/>`).join('');
+ const top=boxes.map(x=>`<rect x="${r(4+(x.b[0]-B[0])*s)}" y="${r(4+H*s+gap+(x.b[2]-B[2])*s)}" width="${r(Math.max(.6,(x.b[3]-x.b[0])*s))}" height="${r(Math.max(.6,(x.b[5]-x.b[2])*s))}" fill="rgb(${x.c.join(',')})" fill-opacity=".5"/>`).join('');
+ return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${r(W*s+8)} ${r((H+D)*s+gap+8)}">${side}${top}</svg>`;
+}
+// USERPART-001: an explicit template from the selected parts and fittings.
+function assemblyCapture(ship,ids,meta={}){
+ ids={parts:[...new Set(ids.parts||[])].filter(id=>ship.parts.some(p=>p.id===id)),fits:[...new Set(ids.fits||[])].filter(id=>ship.fits.some(f=>f.id===id))};
+ if(!ids.parts.length&&!ids.fits.length)return {error:'登録する部品を選んでください'};
+ if(ids.parts.length>ASSEMBLY_LIMITS.parts||ids.fits.length>ASSEMBLY_LIMITS.fits)return {error:`ユーザー部品は区画・構造物 ${ASSEMBLY_LIMITS.parts}・装備 ${ASSEMBLY_LIMITS.fits} 個までです`};
+ const b=assemblyBounds(ship,ids),origin=Object.hasOwn(ASSEMBLY_ORIGINS,meta.origin)?meta.origin:'center',o=assemblyOriginPoint(b,origin),{links,ports}=assemblyLinks(ship,ids);
+ const P=new Set(ids.parts),F=new Set(ids.fits),local=new Map();let n=1;for(const id of ids.parts)local.set('p'+id,n++);for(const id of ids.fits)local.set('f'+id,n++);
+ const parts=ship.parts.filter(p=>P.has(p.id)).map(p=>{const q=publicCopyOf(p);q.id=local.get('p'+p.id);q.c=sub(p.c,o);for(const k of ['tw','vt','reactor']){if(q[k]==null)continue;if(P.has(q[k]))q[k]=local.get('p'+q[k]);else delete q[k];}return q;});
+ const fits=ship.fits.filter(f=>F.has(f.id)).map(f=>{const q=publicCopyOf(f);q.id=local.get('f'+f.id);q.p=sub(f.p,o);for(const k of ['tw','vt']){if(q[k]==null)continue;if(F.has(q[k]))q[k]=local.get('f'+q[k]);else delete q[k];}if(q.host!=null){if(P.has(q.host))q.host=local.get('p'+q.host);else{delete q.host;delete q.local;delete q.localNormal;}}delete q.float;return q;});
+ // Edit groups wholly inside the selection come along (renumbered after the children).
+ const gs=(ship.groups||[]),leaves=(g,d=0)=>{if(!g||d>GROUP_DEPTH)return null;let ok=g.parts.every(x=>P.has(x))&&g.fits.every(x=>F.has(x));for(const c of g.groups){const h=gs.find(x=>x.id===c);if(!leaves(h,d+1))ok=false;}return ok;},inside=gs.filter(g=>leaves(g));
+ const gid=new Map(inside.map(g=>[g.id,n++])),groups=inside.slice(0,ASSEMBLY_LIMITS.groups).map(g=>({id:gid.get(g.id),...(g.name?{name:g.name}:{}),parts:g.parts.map(x=>local.get('p'+x)),fits:g.fits.map(x=>local.get('f'+x)),groups:g.groups.map(x=>gid.get(x)).filter(x=>x!=null)}));
+ const name=String(meta.name||'').trim().slice(0,40)||'ユーザー部品',cat=Object.hasOwn(ASSEMBLY_CATEGORIES,meta.category)?meta.category:'composite',mount=Object.hasOwn(ASSEMBLY_MOUNTS,meta.mount)?meta.mount:'bottom';
+ const key=r=>local.get((r.list==='parts'?'p':'f')+r.id);
+ const tpl={format:'starship-yard-part',v:1,id:meta.id||'up'+Date.now().toString(36)+Math.random().toString(36).slice(2,7),name,category:cat,description:String(meta.description||'').slice(0,400),origin,mount,size:[b[3]-b[0],b[4]-b[1],b[5]-b[2]].map(v=>Math.round(v*100)/100),parts,fits,groups,
+  links:links.map(l=>({kind:l.kind,from:key(l.from),to:key(l.to)})).filter(l=>l.from&&l.to),
+  ports:ports.map(p=>({kind:p.kind,need:p.need,child:key(p.child),label:p.label})).filter(p=>p.child),createdAt:Date.now()};
+ tpl.preview=assemblyPreview(parts.map(p=>({...p,c:add(p.c,o)})),fits.map(f=>({...f,p:add(f.p,o)})));
+ return {template:tpl};
+}
+// Validate a template from storage or a JSON file. Children go through the
+// same checks as a saved design, so a broken file cannot place broken parts.
+function normalizeAssemblyTemplate(o){
+ if(!o||typeof o!=='object'||o.format!=='starship-yard-part'||o.v!==1)throw new Error('ユーザー部品の形式ではありません');
+ if(!Array.isArray(o.parts)||!Array.isArray(o.fits)||o.parts.length>ASSEMBLY_LIMITS.parts||o.fits.length>ASSEMBLY_LIMITS.fits||!(o.parts.length+o.fits.length))throw new Error('ユーザー部品の部品数が不正です');
+ const s=deserialize({format:'starship-yard',v:3,name:'tpl',hull:{plan:'rect',sec:'rect',L:100,W:40,H:20},keel:'std',cuts:[],trenches:[],solidCuts:[],subs:[],hatches:[],armor:{hull:.5,cit:0},parts:o.parts,fits:o.fits,groups:o.groups||[],nextId:1});
+ const str=(v,n,d)=>typeof v==='string'&&v.trim()?v.trim().slice(0,n):d;
+ const t={format:'starship-yard-part',v:1,id:str(o.id,40,'up'+Date.now().toString(36)).replace(/[^\w-]/g,'_'),name:str(o.name,40,'ユーザー部品'),category:Object.hasOwn(ASSEMBLY_CATEGORIES,o.category)?o.category:'composite',description:str(o.description,400,''),origin:Object.hasOwn(ASSEMBLY_ORIGINS,o.origin)?o.origin:'center',mount:Object.hasOwn(ASSEMBLY_MOUNTS,o.mount)?o.mount:'bottom',
+  size:Array.isArray(o.size)&&o.size.length===3&&o.size.every(Number.isFinite)?o.size.map(v=>clamp(v,0,DESIGN_LIMITS.coordinate)):[0,0,0],parts:s.parts.map(publicCopyOf),fits:s.fits.map(f=>{const q=publicCopyOf(f);if(q.host!=null&&!s.parts.some(p=>p.id===q.host)){delete q.host;delete q.local;delete q.localNormal;}delete q.float;return q;}),groups:(s.groups||[]).map(publicCopyOf),
+  links:(Array.isArray(o.links)?o.links:[]).filter(l=>l&&['power','structural','symmetry'].includes(l.kind)&&Number.isInteger(l.from)&&Number.isInteger(l.to)).slice(0,400).map(l=>({kind:l.kind,from:l.from,to:l.to})),
+  ports:(Array.isArray(o.ports)?o.ports:[]).filter(p=>p&&['power','mount'].includes(p.kind)&&Number.isInteger(p.child)).slice(0,200).map(p=>({kind:p.kind,need:['reactor','consumer','host'].includes(p.need)?p.need:'reactor',child:p.child,label:str(p.label,60,'')})),createdAt:Number.isFinite(o.createdAt)?o.createdAt:Date.now()};
+ if(typeof o.preview==='string'&&o.preview.length<60000&&/^<svg[^>]*>(<rect [^<>]*\/>)*<\/svg>$/.test(o.preview))t.preview=o.preview;else t.preview=assemblyPreview(t.parts,t.fits);
+ return t;
+}
+// Mirror one child across Z = 0 (USERPART-003): the same transform as the
+// ship's left-right symmetry (positions, rotations, nozzle directions, mesh
+// winding, equipment skins); fittings flip their normal and local position.
+function assemblyMirrorFit(f){const q=publicCopyOf(f);q.p=mirrorP(f.p);if(f.n)q.n=mirrorP(f.n);if(f.local)q.local=[f.local[0],f.local[1],-f.local[2]];if(f.localNormal)q.localNormal=[f.localNormal[0],f.localNormal[1],-f.localNormal[2]];if(Number.isInteger(q.a)&&q.n)q.a=AXES.reduce((i,x,j)=>dot(x,q.n)>dot(AXES[i],q.n)?j:i,0);if(q.yaw)q.yaw=-q.yaw;if(q.train!=null)q.train=-q.train;return q;}
+// USERPART-002/005: place independent copies at a point. Returns the new
+// group(s) and children, or {error}. With mirror (and the point off the
+// centre line) a mirrored instance is placed too and paired child by child.
+function assemblyPlace(ship,tpl,at,opt={}){
+ const L=DESIGN_LIMITS,n=opt.mirror&&Math.abs(at[2])>1e-3?2:1;
+ if(ship.parts.length+tpl.parts.length*n>L.parts||ship.fits.length+tpl.fits.length*n>L.fits)return {error:`部品数の上限（区画 ${L.parts}・装備 ${L.fits}）を超えるため配置できません`};
+ if((ship.groups||[]).length+(tpl.groups.length+1)*n>GROUP_MAX)return {error:'グループ数の上限を超えます'};
+ const made=[];
+ const one=(mirrored)=>{
+  const map=new Map(),parts=[],fits=[];for(const p of tpl.parts)map.set('p'+p.id,ship.nextId++);for(const f of tpl.fits)map.set('f'+f.id,ship.nextId++);
+  for(const src of tpl.parts){let q=publicCopyOf(src);q.c=add(at,src.c);if(mirrored){const tmp={parts:[]};q=mirrorPart(q,tmp);}q.id=map.get('p'+src.id);for(const k of ['tw','vt','reactor']){if(q[k]==null)continue;const m=map.get('p'+q[k]);if(m!=null)q[k]=m;else delete q[k];}if(q.reactor==null&&src.reactor!=null)delete q.reactor;delete q.tw;parts.push(q);}
+  for(const src of tpl.fits){let q=publicCopyOf(src);q.p=add(at,src.p);if(mirrored)q=assemblyMirrorFit(q);q.id=map.get('f'+src.id);for(const k of ['vt']){if(q[k]==null)continue;const m=map.get('f'+q[k]);if(m!=null)q[k]=m;else delete q[k];}delete q.tw;if(q.host!=null){const m=map.get('p'+q.host);if(m!=null)q.host=m;else{delete q.host;delete q.local;delete q.localNormal;}}delete q.float;fits.push(q);}
+  // Template-internal symmetric pairs stay paired inside one instance.
+  for(const src of tpl.parts)if(src.tw!=null){const a=parts.find(p=>p.id===map.get('p'+src.id)),b=map.get('p'+src.tw);if(a&&b!=null)a.tw=b;}
+  for(const src of tpl.fits)if(src.tw!=null){const a=fits.find(f=>f.id===map.get('f'+src.id)),b=map.get('f'+src.tw);if(a&&b!=null)a.tw=b;}
+  ship.parts.push(...parts);ship.fits.push(...fits);
+  for(const f of fits)if(f.host!=null)try{mountFit(ship,f);}catch(e){f.float=true;}
+  const gmap=new Map(tpl.groups.map(g=>[g.id,ship.nextId++])),inner=tpl.groups.map(g=>({id:gmap.get(g.id),...(g.name?{name:g.name}:{}),parts:g.parts.map(x=>map.get('p'+x)).filter(x=>x!=null),fits:g.fits.map(x=>map.get('f'+x)).filter(x=>x!=null),groups:g.groups.map(x=>gmap.get(x)).filter(x=>x!=null)}));
+  const child=new Set(tpl.groups.flatMap(g=>g.groups)),inGroup=new Set(tpl.groups.flatMap(g=>[...g.parts.map(x=>'p'+x),...g.fits.map(x=>'f'+x)]));
+  const top={id:ship.nextId++,name:tpl.name,parts:tpl.parts.filter(p=>!inGroup.has('p'+p.id)).map(p=>map.get('p'+p.id)),fits:tpl.fits.filter(f=>!inGroup.has('f'+f.id)).map(f=>map.get('f'+f.id)),groups:tpl.groups.filter(g=>!child.has(g.id)).map(g=>gmap.get(g.id)),
+   assembly:{template:tpl.id,name:tpl.name,category:tpl.category,mount:tpl.mount,origin:mirrored?mirrorP(at):at.slice(),mirrored:!!mirrored,ports:tpl.ports.map(p=>({...p,child:map.get((p.kind==='mount'?'f':'p')+p.child)})).filter(p=>p.child!=null)}};
+  ship.groups=[...(ship.groups||[]),...inner,top];made.push({group:top,parts,fits,map});
+ };
+ one(false);if(n===2){one(true);const [a,b]=made;
+  // Child-by-child symmetric pairs between the two instances.
+  for(const src of tpl.parts){const x=a.map.get('p'+src.id),y=b.map.get('p'+src.id),p=ship.parts.find(q=>q.id===x),q=ship.parts.find(r=>r.id===y);if(p&&q&&p.tw==null&&q.tw==null){p.tw=y;q.tw=x;}}
+  for(const src of tpl.fits){const x=a.map.get('f'+src.id),y=b.map.get('f'+src.id),p=ship.fits.find(q=>q.id===x),q=ship.fits.find(r=>r.id===y);if(p&&q&&p.tw==null&&q.tw==null){p.tw=y;q.tw=x;}}
+ }
+ return {groups:made.map(m=>m.group),parts:made.flatMap(m=>m.parts),fits:made.flatMap(m=>m.fits)};
+}
+// USERPART-004/006 inspection: ports left unconnected where an instance sits.
+function assemblyIssues(ship){
+ const out=[];
+ for(const g of ship.groups||[]){const a=g.assembly;if(!a)continue;
+  for(const p of a.ports||[]){
+   if(p.need==='reactor'){const e=ship.parts.find(q=>q.id===p.child);if(e&&!(e.reactor!=null&&ship.parts.some(r=>r.id===e.reactor&&isReactor(r))))out.push({lv:'warn',code:'assembly-port',partId:e.id,text:`ユーザー部品「${a.name}」#${g.id} の ${partLabel(e)} #${e.id} が反応炉に接続されていません。接続するまで推力・出力は出ません。`});}
+   if(p.need==='host'){const f=ship.fits.find(q=>q.id===p.child);if(f&&(f.float||f.host==null&&FITS[f.k]?.window))out.push({lv:'warn',code:'assembly-port',fitId:f.id,text:`ユーザー部品「${a.name}」#${g.id} の ${FITS[f.k]?.short||FITS[f.k]?.name} #${f.id} の取付先がありません。構造物の壁に据え直してください。`});}
+  }
+ }
+ return out;
+}
 // ============================================================
 // v23 One power + heat network for the whole ship (spec v13 §2.3, §10: ENG-001…007, PLAN-014/016/017).
 // Weapons, engines, reactors, shields, life support/electronics and superweapons all hang on the same
@@ -9588,7 +10159,7 @@ addComp('radiator','通常放熱装置','cube',.3,[160,178,196],'power','電子�
 INTERNAL_PARTS.add('hdis');
 Object.assign(MODULE_PART_KIND,{hdis:'dissipator',hdisx:'dissipator',radiator:'radiator'});
 Object.assign(MODULE_LABEL,{dissipator:'散逸装置',radiator:'放熱装置'});
-function dissipatorCap(p,S){if(!DISSIPATORS[p.k])return 0;const base=partVolume(p)*REACTOR_POWER_DENSITY*HEAT.disK[p.k],e=clamp(S?.info?.[p.id]?.exposed??1,0,1);return p.k==='hdisx'?base*clamp(e*1.5,0,1):p.k==='radiator'?base*(.3+.7*e):base;}
+function dissipatorCap(p,S,ex){if(!DISSIPATORS[p.k])return 0;const base=partVolume(p)*REACTOR_POWER_DENSITY*HEAT.disK[p.k],e=clamp(ex??S?.info?.[p.id]?.exposed??1,0,1);return p.k==='hdisx'?base*clamp(e*1.5,0,1):p.k==='radiator'?base*(.3+.7*e):base;}
 // Power each kind draws at a load preset, from the same distribution rules the battles use (powerSplit).
 // g: {P, fixed, De, Ds, Dw}; sw: [{k, Pshare, n, E, chargeT}] (superweapons charging at 'combat'/'max').
 function heatLoads(g,pr,sw=[]){
@@ -9629,6 +10200,8 @@ const heatSec=(x,X0,L,cuts)=>{const a=(x-X0)/L;let i=0;while(i<cuts.length&&a>=c
 function heatNetwork(ship,S){
  const info=S.info||{},bad=id=>!!info[id]?.overlap,[X0,X1]=shipSpan(ship),Lx=Math.max(1,X1-X0),cuts=hullSectionShares(ship).cuts,sec=q=>heatSec(q?.[0]??(X0+Lx/2),X0,Lx,cuts);
  const src=[],dis=[],links=[],mid=[(X0+X1)/2,0,0];
+ // v25 dissipators inside a functional wing radiate through its skin; an S-foil's stowed state masks them (WING)
+ const WM=wingMap(ship),foils=ship.parts.filter(isFoil);
  const sws=(S.superweapons||[]).filter(w=>w.ok),swIn=sws.map(w=>({k:w.k,Pshare:clamp(w.reactorPower/Math.max(1,S.power||1),0,1),n:sws.filter(x=>x.reactor===w.reactor).length,E:w.k==='hion'?w.Emax:w.E,chargeT:w.chargeT}));
  const g={P:S.power||0,fixed:(S.draw?.hotel||0)+(S.draw?.ray||0),De:S.draw?.engines||0,Ds:S.draw?.shields||0,Dw:S.draw?.weapons||0};
  const W={};for(const pr in HEAT_PRESETS)W[pr]=heatWaste(heatLoads(g,pr,swIn));
@@ -9644,17 +10217,22 @@ function heatNetwork(ship,S){
  const tot={};for(const s of src)if(s.k!=='sw')tot[s.k]=(tot[s.k]||0)+s.w;
  for(const s of src){s.rated={};for(const pr in W)s.rated[pr]=s.k==='sw'?W[pr].sw[s.sw]||0:W[pr][s.k]*s.w/Math.max(1e-30,tot[s.k]);s.size=Math.max(...HEAT_SIZING.map(pr=>s.rated[pr]||0));s.store=Math.max(1,HEAT.storeS*s.size);}
  // Dissipators: the parts, the hull skin (low grade) and every source's built-in cooling.
- for(const p of ship.parts){if(!DISSIPATORS[p.k]||bad(p.id))continue;dis.push({k:p.k,id:'p'+p.id,name:partLabel(p)+' #'+p.id,at:p.c,grade:DISSIPATORS[p.k].grade,cap:dissipatorCap(p,S),part:p.id,ext:DISSIPATORS[p.k].ext,exposed:info[p.id]?.exposed??0,sec:sec(p.c)});}
+ for(const p of ship.parts){if(!DISSIPATORS[p.k]||bad(p.id))continue;const w=WM.get(p.id),e0=info[p.id]?.exposed??0,e=w&&DISSIPATORS[p.k].ext?Math.max(e0,WING.expose):e0,fo=w?foils.indexOf(w):-1;
+  dis.push({k:p.k,id:'p'+p.id,name:partLabel(p)+' #'+p.id,at:p.c,grade:DISSIPATORS[p.k].grade,cap:dissipatorCap(p,S,e)*(w?Math.min(1,w.wing.feed??1):1),part:p.id,ext:DISSIPATORS[p.k].ext,exposed:e,sec:sec(p.c),wing:w?.id??null,fo,cs:fo>=0?WING.stowK[p.k]??1:1,sh:fo>=0?WING.shade[p.k]??0:0});}
+ // v25 solar wing panels: external high-energy dissipators sized by their area (SOLAR)
+ for(const p of ship.parts){if(!p.wing?.solar||bad(p.id))continue;const fo=foils.indexOf(p);dis.push({k:'solar',id:'p'+p.id,name:partLabel(p)+' #'+p.id,at:p.c,grade:'high',cap:solarCap(p,S)*Math.min(1,p.wing.feed??1),part:p.id,ext:true,exposed:clamp(info[p.id]?.exposed??1,.25,1),sec:sec(p.c),wing:p.id,fo,cs:fo>=0?WING.stowK.hdisx:1,sh:fo>=0?WING.shade.hdisx:0});}
  dis.push({k:'skin',id:'skin',name:'外殻からの放熱',at:mid,grade:'low',cap:(S.area||0)*HEAT.skinW,sec:-1});
  const portIx=new Map();src.forEach((s,i)=>portIx.set(s.id,i));const disIx=new Map();dis.forEach((d,j)=>disIx.set(d.id,j));
  const manual=normalizeLinks(ship.links)||[],manualHeat=new Set();
  for(const l of manual){if(l.kind!=='heat')continue;const s=portIx.get(l.from),d=disIx.get(l.to),ok=s!=null&&d!=null&&!(dis[d]?.grade==='low'&&src[s]?.grade==='high');
-  links.push({kind:'heat',from:l.from,to:l.to,s:s??-1,d:d??-1,cap:l.cap??(s!=null?HEAT.linkK*src[s].rated.max:0),auto:false,ok,why:ok?null:s==null||d==null?'missing':'grade'});if(s!=null)manualHeat.add(s);}
+  links.push({kind:'heat',from:l.from,to:l.to,s:s??-1,d:d??-1,cap:l.cap??(s!=null?HEAT.linkK*Math.max(src[s].rated.max,src[s].size):0),auto:false,ok,why:ok?null:s==null||d==null?'missing':'grade'});if(s!=null)manualHeat.add(s);}
  src.forEach((s,i)=>{
   const ic=HEAT.integral[s.k]*s.size;if(ic>0){dis.push({k:'integral',id:'int:'+s.id,name:s.name+'（内蔵冷却）',at:s.at,grade:s.grade,cap:ic,src:i,sec:-1});links.push({kind:'heat',from:s.id,to:'int:'+s.id,s:i,d:dis.length-1,cap:ic,auto:true,ok:true,dedicated:true});}
   if(manualHeat.has(i))return;
   const cand=dis.map((d,j)=>({d,j})).filter(({d})=>d.part!=null&&(d.grade==='high'||s.grade==='low')).sort((a,b)=>len(sub(a.d.at,s.at))-len(sub(b.d.at,s.at))||a.j-b.j).slice(0,s.grade==='low'?Infinity:HEAT.autoLinks);
-  for(const {d,j} of cand)links.push({kind:'heat',from:s.id,to:d.id,s:i,d:j,cap:HEAT.linkK*s.rated.max,auto:true,ok:true,l:len(sub(d.at,s.at))});
+  // v25 sized on the heaviest load the source sees (s.size), not only on 'max': at 'max' shields can take all the power and a gun
+  // group's path would get no capacity at all
+  for(const {d,j} of cand)links.push({kind:'heat',from:s.id,to:d.id,s:i,d:j,cap:HEAT.linkK*Math.max(s.rated.max,s.size),auto:true,ok:true,l:len(sub(d.at,s.at))});
   if(s.grade==='low')links.push({kind:'heat',from:s.id,to:'skin',s:i,d:disIx.get('skin'),cap:dis[disIx.get('skin')].cap,auto:true,ok:true});   // finite: profiles are JSON
  });
  // PLAN-016 auto-assignment: a superweapon that reaches no dissipator gets one on its generator (the canon
@@ -9674,16 +10252,19 @@ function heatNetwork(ship,S){
 // The network at a load preset, in steady state: what each source makes, what its paths and dissipators take,
 // what it stores (and how soon its output is limited), the margin and the low-emission endurance (how long
 // the ship can hold that load with every dissipator closed, everything going to the stores).
-function heatEvaluate(net,pr){
- const H=net.links.filter(l=>l.kind==='heat'&&l.ok&&l.s>=0&&l.d>=0),D=net.src.map(s=>s.rated[pr]||0),r=heatSolve(D,net.dis.map(d=>d.cap),H);
- const gen=D.reduce((a,b)=>a+b,0),out=r.out.reduce((a,b)=>a+b,0),reach=new Set(H.map(l=>l.d)),cap=net.dis.reduce((n,d,j)=>n+(reach.has(j)?d.cap:0),0),store=net.src.reduce((n,s)=>n+s.store,0);
+function heatEvaluate(net,pr,caps){
+ const C0=caps||net.dis.map(d=>d.cap),H=net.links.filter(l=>l.kind==='heat'&&l.ok&&l.s>=0&&l.d>=0),D=net.src.map(s=>s.rated[pr]||0),r=heatSolve(D,C0,H);
+ const gen=D.reduce((a,b)=>a+b,0),out=r.out.reduce((a,b)=>a+b,0),reach=new Set(H.map(l=>l.d)),cap=C0.reduce((n,c,j)=>n+(reach.has(j)?c:0),0),store=net.src.reduce((n,s)=>n+s.store,0);
  const over=net.src.map((s,i)=>({i,name:s.name,k:s.k,gen:D[i],stored:D[i]-r.out[i],t:D[i]-r.out[i]>D[i]*1e-6?s.store*HEAT.limitAt/(D[i]-r.out[i]):Infinity})).filter(x=>x.stored>x.gen*1e-6&&x.gen>0).sort((a,b)=>a.t-b.t);
  return {pr,gen,out,cap,used:r.used.reduce((a,b)=>a+b,0),margin:gen>0?out>=gen*(1-1e-9)?cap/gen:out/gen:Infinity,over,stored:gen-out,endurance:gen>0?store/gen:Infinity,flow:r};
 }
 // Designer statistics and inspection (10.5): S.heat and the warnings.
 function heatStats(ship,S){
  let net;try{net=heatNetwork(ship,S);}catch(e){S.heat=null;return S;}
- const presets={};for(const pr in HEAT_PRESETS){if(HEAT_PRESETS[pr].hidden)continue;const e=heatEvaluate(net,pr);presets[pr]={name:HEAT_PRESETS[pr].name,gen:e.gen,out:e.out,cap:e.cap,used:e.used,margin:e.margin,stored:e.stored,endurance:e.endurance,over:e.over.slice(0,8).map(x=>({name:x.name,k:x.k,gen:x.gen,stored:x.stored,t:x.t})),overCount:e.over.length};}
+ // v25 each preset with the S-foils deployed (as modelled) and stowed, and the band signatures of what is actually shed (SENS-001)
+ const hasFoil=net.dis.some(d=>d.fo>=0),capS=net.dis.map(d=>d.cap*(d.fo>=0?d.cs:1)),sig=(e,stow)=>{const b=emitBands(net.dis,e.flow.used,stow?net.dis.map(()=>0):null);return {nu:b.nu,ir:b.ir,em:b.em};};
+ const presets={};for(const pr in HEAT_PRESETS){if(HEAT_PRESETS[pr].hidden)continue;const e=heatEvaluate(net,pr);presets[pr]={name:HEAT_PRESETS[pr].name,gen:e.gen,out:e.out,cap:e.cap,used:e.used,margin:e.margin,stored:e.stored,endurance:e.endurance,over:e.over.slice(0,8).map(x=>({name:x.name,k:x.k,gen:x.gen,stored:x.stored,t:x.t})),overCount:e.over.length,sig:sig(e,false)};
+  if(hasFoil){const z=heatEvaluate(net,pr,capS);presets[pr].stow={cap:z.cap,out:z.out,margin:z.margin,stored:z.stored,overCount:z.over.length,over:z.over.slice(0,4).map(x=>({name:x.name,t:x.t})),sig:sig(z,true)};}}
  const pw=net.links.filter(l=>l.kind==='power'),ht=net.links.filter(l=>l.kind==='heat');
  const explicit=net.dis.filter(d=>d.part!=null),legacy=net.dis.filter(d=>d.legacy);
  S.heat={presets,sources:net.src.length,kinds:Object.fromEntries(Object.keys(HEAT_KINDS).map(k=>[k,net.src.filter(s=>s.k===k).length])),
@@ -9693,7 +10274,7 @@ function heatStats(ship,S){
   store:net.src.reduce((n,s)=>n+s.store,0),
   // positions for the X-ray view: [kind 0 power / 1 heat, ok, ax,ay,az, bx,by,bz] (at most 600 paths)
   draw:heatDrawLinks(ship,net),
-  net:{src:net.src.map(s=>({k:s.k,id:s.id,name:s.name,grade:s.grade,sec:s.sec,part:s.part??null,fit:s.fit??null,sw:s.sw??null,gen:s.gen??null,rated:s.rated,size:s.size,store:s.store})),dis:net.dis.map(d=>({k:d.k,id:d.id,name:d.name,grade:d.grade,cap:d.cap,part:d.part??null,src:d.src??null,sec:d.sec??-1,ext:!!d.ext,exposed:d.exposed??0,legacy:!!d.legacy})),links:ht.filter(l=>l.ok&&l.s>=0&&l.d>=0).map(l=>({s:l.s,d:l.d,cap:l.cap,sec:l.sec??-1,dedicated:!!l.dedicated}))}};
+  net:{src:net.src.map(s=>({k:s.k,id:s.id,name:s.name,grade:s.grade,sec:s.sec,part:s.part??null,fit:s.fit??null,sw:s.sw??null,gen:s.gen??null,rated:s.rated,size:s.size,store:s.store})),dis:net.dis.map(d=>({k:d.k,id:d.id,name:d.name,grade:d.grade,cap:d.cap,part:d.part??null,src:d.src??null,sec:d.sec??-1,ext:!!d.ext,exposed:d.exposed??0,legacy:!!d.legacy,...(d.fo>=0?{fo:d.fo,cs:d.cs,sh:d.sh}:{}),...(d.wing!=null?{wing:d.wing}:{})})),links:ht.filter(l=>l.ok&&l.s>=0&&l.d>=0).map(l=>({s:l.s,d:l.d,cap:l.cap,sec:l.sec??-1,dedicated:!!l.dedicated}))}};
  const warn=(lv,text)=>S.warnings.push({lv,code:'heat',text,targets:[{tab:'systems',section:'heat'}]});
  const c=presets.combat,m=presets.max,f=t=>t<120?Math.round(t)+' 秒':Math.round(t/60)+' 分';
  if(S.heat.power.broken)warn('bad',`給電経路のない設備が ${S.heat.power.broken} 系統あります（断線）。`);
@@ -9723,7 +10304,7 @@ function heatGroup(p,net,modIx){
   if(s.k==='weapon'&&mi>=0)mods.forEach((m,j)=>{if(m.k==='capacitor'&&m.link===mi&&!G.pc.includes(j))G.pc.push(j);});
   if(s.k==='sw'){G.gen=s.gen!=null?mods.findIndex(m=>m.k==='reactor'&&m.part===s.gen):-1;if(G.gen<0)G.gen=heatBiggest(mods,'reactor');}});
  const disIx=[],dmap=new Map();
- net.dis.forEach((d,j)=>{let key=d.k==='integral'||d.k==='legacy'?'int:'+srcIx[d.src]+':'+d.k:d.id;let D=dmap.get(key);if(!D){D={n:d.name,k:d.k,g:d.grade,cap:0,m:d.part!=null?mods.findIndex(m=>m.part===d.part&&(m.k==='dissipator'||m.k==='radiator')):-1,sec:d.sec??-1,src:d.src!=null?srcIx[d.src]:-1};if(d.k==='integral')D.n=src[D.src]?.n+'（内蔵冷却）';dmap.set(key,D);dis.push(D);}D.cap+=d.cap;disIx[j]=dis.indexOf(D);});
+ net.dis.forEach((d,j)=>{let key=d.k==='integral'||d.k==='legacy'?'int:'+srcIx[d.src]+':'+d.k:d.id;let D=dmap.get(key);if(!D){D={n:d.name,k:d.k,g:d.grade,cap:0,m:d.part!=null?mods.findIndex(m=>m.part===d.part&&(m.k==='dissipator'||m.k==='radiator')):-1,sec:d.sec??-1,src:d.src!=null?srcIx[d.src]:-1};if(d.fo>=0){D.fo=d.fo;D.cs=d.cs;D.sh=d.sh;}if(d.k==='integral')D.n=src[D.src]?.n+'（内蔵冷却）';dmap.set(key,D);dis.push(D);}D.cap+=d.cap;disIx[j]=dis.indexOf(D);});
  const lmap=new Map();for(const l of net.links){const s=srcIx[l.s],d=disIx[l.d];if(s==null||d==null)continue;const key=s+':'+d;let x=lmap.get(key);if(!x){x={s,d,cap:0,sec:l.sec??-1};lmap.set(key,x);ln.push(x);}x.cap+=l.cap;}
  for(const G of src)G.sh=+G.sh.toPrecision(6);
  return {v:HEAT_V,src,dis,ln};
@@ -9787,9 +10368,12 @@ function heatTick(ctx,u,dt){
  for(let i=0;i<n;i++){const s=H.src[i];let a=1;if(s.m.length){a=0;for(const m of s.m)a+=Math.max(0,mods[m]??1);a/=s.m.length;}alive[i]=a;if(s.k!=='sw')wsum[s.k]=(wsum[s.k]||0)+s.sh*a*h.lm[i];}
  for(let i=0;i<n;i++){const s=H.src[i];gen[i]=s.k==='sw'?(h.esw[s.sw]||0)/T:wsum[s.k]>0?(h.e[s.k]||0)/T*s.sh*alive[i]*h.lm[i]/wsum[s.k]:0;}
  const integ=fleetIntegrity(u),secOk=si=>si<0||!u.sec?.[si]||!u.secLost?.includes(si)&&u.sec[si].s>=u.sec[si].max*HEAT.linkBreak;
- const cap=H.dis.map(d=>d.cap*(d.m>=0?Math.max(0,mods[d.m]??1):d.k==='skin'?integ:d.k==='legacy'?(H.src[d.src]?.gen>=0?Math.max(0,mods[H.src[d.src].gen]??1):1):d.src>=0?alive[d.src]:1)*(secOk(d.sec)?1:0));
- const L=H.ln.map(l=>({s:l.s,d:l.d,cap:secOk(l.sec)?l.cap??Infinity:0})),D=Array.from(gen,(g,i)=>g+h.st[i]/HEAT.drainS),r=heatSolve(D,cap,L);
- let emit=0,peak=0;for(const v of r.used)emit+=v;h.emit=emit;
+ // v25 an S-foil's deploy state masks the dissipators inside its wing (cs: stowed share); the emission mode closes
+ // them down (low), or overdrives them and empties the stores faster (emergency, high) (WING-004, SENS-005)
+ const em=EMCON[emconOf(u)],fd=u.fo?.d;
+ const cap=H.dis.map(d=>d.cap*(d.m>=0?Math.max(0,mods[d.m]??1):d.k==='skin'?integ:d.k==='legacy'?(H.src[d.src]?.gen>=0?Math.max(0,mods[H.src[d.src].gen]??1):1):d.src>=0?alive[d.src]:1)*(secOk(d.sec)?1:0)*(d.fo>=0&&fd?d.cs+(1-d.cs)*(fd[d.fo]??1):1)*(d.k==='skin'?1:em.cap));
+ const L=H.ln.map(l=>({s:l.s,d:l.d,cap:secOk(l.sec)?l.cap??Infinity:0})),D=Array.from(gen,(g,i)=>g+h.st[i]/(HEAT.drainS*em.drain)),r=heatSolve(D,cap,L);
+ let emit=0,peak=0;for(const v of r.used)emit+=v;h.emit=emit;h.band=emitBands(H.dis,r.used,fd);h.cap=cap.reduce((a,b)=>a+b,0);
  for(let i=0;i<n;i++){const s=H.src[i],C=Math.max(1,s.st);h.st[i]=Math.max(0,h.st[i]+(gen[i]-r.out[i])*T);const f=h.st[i]/C;peak=Math.max(peak,f);
   const name=s.n,ev=t=>ctx?.ev?.(u,`${name}：${t}`);let md=h.md[i];
   if(md<=1){if(f>=1){md=2;h.lm[i]=HEAT.minOut;h.mt[i]=(HEAT.resp[s.k]??3)/Math.max(.25,alive[i]);ev(`過熱 ${Math.round(f*100)}%・緊急停止を開始`);}else{h.lm[i]=f<HEAT.limitAt?1:1-(1-HEAT.minOut)*(f-HEAT.limitAt)/(1-HEAT.limitAt);const nm=h.lm[i]<1?1:0;if(nm===1&&md===0){h.lg=h.lg||[];if(!((ctx?.time??0)-(h.lg[i]??-1e9)<60)){h.lg[i]=ctx?.time??0;ev(`過熱 ${Math.round(f*100)}%・出力制限`);}}md=nm;}}
@@ -9801,6 +10385,8 @@ function heatTick(ctx,u,dt){
   if(f>1&&s.m.length){const k=HEAT.burn*(f-1)*T;for(const m of s.m)if((mods[m]??0)>0){mods[m]=Math.max(0,mods[m]-k);if(mods[m]<=0)ctx?.ev?.(u,`${u.p.modules[m]?.name||name} 過熱で損傷・停止`);}}
  }
  h.peak=peak;
+ {const mode=emconOf(u);if(mode==='low'&&peak>=EMCON_LOW_MAX){u.order.emit='normal';u.emitDropped=ctx?.time??0;ctx?.ev?.(u,'蓄熱が限界：低放射運転を続けられず通常運転に戻ります');}
+  else if(mode==='emerg'&&peak<=EMCON_EMERG_END){u.order.emit='normal';ctx?.ev?.(u,'緊急散逸を終了（蓄熱を放出）');}}
  const lim={reactor:0,weapon:0,shield:0,engine:0},w={reactor:0,weapon:0,shield:0,engine:0};
  for(let i=0;i<n;i++){const s=H.src[i];if(s.k==='sw'){if(s.sw>=0)h.swLim[s.sw]=h.lm[i];continue;}if(!(s.k in lim))continue;lim[s.k]+=s.sh*alive[i]*h.lm[i];w[s.k]+=s.sh*alive[i];}
  for(const k in lim)h.lim[k]=w[k]>0?clamp(lim[k]/w[k],0,1):1;
@@ -9822,9 +10408,256 @@ function heatBlast(ctx,u,si,k,text){
  for(const j of [si-1,si,si+1])if(u.sec[j]&&u.sec[j].s<=0&&!u.secLost.includes(j))combatSectionLost(ctx,u,j);
 }
 // What a ship's network is doing now, for a HUD or a report.
-function heatStatus(u){const H=heatProfile(u?.p),h=u?.ht;if(!H||!h)return null;return {peak:h.peak,emit:h.emit,lim:{...h.lim},src:H.src.map((s,i)=>({name:s.n,k:s.k,fill:h.st[i]/Math.max(1,s.st),mode:HEAT_MODE[h.md[i]]}))};}
+function heatStatus(u){const H=heatProfile(u?.p),h=u?.ht;if(!H||!h)return null;return {peak:h.peak,emit:h.emit,band:h.band?{...h.band}:null,cap:h.cap??null,mode:emconOf(u),lim:{...h.lim},src:H.src.map((s,i)=>({name:s.n,k:s.k,fill:h.st[i]/Math.max(1,s.st),mode:HEAT_MODE[h.md[i]]}))};}
 
-return {HEAT,HEAT_PRESETS,HEAT_KINDS,HEAT_MODE,DISSIPATORS,dissipatorCap,heatLoads,heatWaste,heatSolve,heatNetwork,heatEvaluate,heatStats,heatProfile,heatProfileOf,heatLegacy,heatInit,heatTick,heatStatus,heatLim,heatSwLim,normalizeLinks,DESIGN_FACTIONS,ionDensity,ionReach,ionGlow,swRange,swFree,swAxis,MGLT,engineDepthRatio,sublightMGLT,AA_CHANNELS,ION_BOLT,ionDiam,ionArea,ionShare,ionPlan,ionStrike,ionBoltsStep,swMuzzle,fleetAim,modWorld,aimPoint,fireScreen,screenShare,escortThreat,escortStation,escortPick,SCREEN,aimHold,aimMark,modQ,exposedMod,standardFit,craftCombat,cleanDesignCraft,CRAFT_ROLE_RTS,ORDNANCE,ORDNANCE_EVIDENCE,STORE_MOUNTS,STORE_FITS,STORE_DEFAULT,storeCapacity,craftStations,CRAFT_LOADOUT,craftTypeOf,craftLoadout,normalizeLoad,craftOrdnance,ordnanceRuns,ordnanceSalvo,ordnanceSummary,VOLLEY,volleyMode,volleyStep,SUPERWEAPONS,SW_COMBAT,swPower,swChargeRate,swInArc,swHeading,swDecay,swOverload,swPulse,swIonWave,superweaponStep,isSuperweapon,superweaponAim,superweaponOpen,normalizeSuperweapon,superweaponStats,isCraft,partLimits,CRAFT_PART_SIZE,craftPart,craftFieldGain,TROOP_SEAT_M3,ENGINE_GLOWS,engineGlowOK,engineGlowRGB,engineLevel,MISSILE_MOUNTS,missileMount,missileCells,missileStatus,PLATE,plateThickness,shipSpan,HULL_SECTIONS,SECTION_NAMES,hullSectionShares,SHIP_LIGHT_KINDS,SHIP_EXAMPLES,registerShipExample,shipKit,SHELL_ROWS,structRows,shellSection,shellPoint,CIS_PAINT,fitTilt,fitUp,fitFrameOf,openingRimPoint,surfSamples,groundingStats,turretRayContext,turretClear,turretOrigin,turretRate,GROUND_LIMITS,GROUND_PRESETS,GROUND_KINDS,GROUND_VEHICLE_VOLUME,DROID_STORE_M3,CREW_M3_K,CREW_LIVING_M3,personVolume,RETIRED_PARTS,FEED_FLUX,CELL_ENERGY_DENSITY,CELL_DISCHARGE_S,feedConduits,normalizeGroundForces,groundStatus,planStations,bridgeBodyRole,podPoint,podDepth,intrinsicCommandFits,POD_ASSET,BRIDGE_BODY_COMMAND,REFERENCE_TONE,engineSkinMesh,referenceFitYaw,rayTris,vmirrorPlane,vmirrorPoint,vmirrorPart,SHIP_CLASSES,shipClassFor,PUBLIC_LISTS,publicJSON,patchShip,patchItem,cache,AIRCRAFT_CLEARANCE,aircraftFitsBay,shipFitsBay,shipStowSize,CRAFT_TYPES,VEHICLE_TYPES,CRAFT_HINTS,VEHICLE_HINTS,craftDims,airWingDims,groundDims,stowSize,vehicleStowSize,VEHICLE_STOW_FACTOR,craftLift,boxFits,stowLoad,stowInit,stowRows,isCombatRow,COMBAT_ROLES,stowPack,stowPasses,stowStatus,aviationBays,hatchOpening,STOW_GAP,STOW_PASS,STOW_ANY_LENGTH,BUILTIN_COMPLEMENTS,builtinComplement,SHIP_STOW_CLEAR,SHIP_STOW_FACTOR,AVIATION_SIZE_VOLUME,AIR_WING_LIMITS,hangarCapacity,normalizeAirWings,aviationStatus,AVIATION_SURFACE_FACES,hatchAxes,aviationSurfaceContacts,setAviationSurfaceMode,syncAviationSurfaces,aviationHatchActive,isSlidingHatch,slidingHatchSpec,slidingHatchPanels,hatchOpenArea,ISD_HYPER_BASELINE,HYPER_CLASS_COEFFICIENT,HYPER_POWER_DENSITY,ISD_SHIELD_VOLUME,SHIELD_BUFFER_SECONDS,SHIELD_ENERGY_DENSITY,SHIELD_POWER_DENSITY,REACTOR_POWER_DENSITY,SOLID_CUT_SHAPES,normalizeSolidCut,mirrorSolidCut,solidCutTriangles,solidCutBounds,solidCutContains,solidCutsContain,applySolidCuts,solidPartCutContains,solidStructVolume,solidCutIntersectsShip,flexibleCompartment,hardConflicts,weaponChargeSpec,DREADNOUGHT_EXAMPLES,DESIGN_LIMITS,ALIGNMENTS,alignedPosition,alignPart,replacementShape,replacementOptions,replacePart,COMMAND_ROLES,commandCompartments,commandStatus,habitationSpace,inspectionTargets,planCutEdge,normalizePlanCut,structFrame,alignStructure,FLEET_RULES,POWER_MODES,POWER_AUTO_NOTE,fleetAutoPower,AIM_KINDS,MODULE_LABEL,FLEET_MIN_CREW,powerSplit,coreDetonation,fleetModules,fleetSystems,fleetCrewEff,fleetCrewRatio,fleetAutoAvail,fleetOutReason,AUTO_M3_PER_CREW,AUTO_W_PER_CREW,AUTO_MIN_HUMAN,fleetEffective,fleetProfile,fleetUnit,fleetIntegrity,trenchBattery,sideBattery,fleetFire,fleetReach,fleetStandoff,fleetHeading,fleetBroadside,fleetPowerStep,bandFireAt,fitBand,GUN_BANDS,COMBAT,combatInit,combatIncoming,combatAdd,combatMerge,combatResolve,combatZones,combatClone,combatZoneAt,COMBAT_FACE,unpackBits,fleetFormation,fleetBattle,fleetOrder,fleetArc,fleetTick,hullHalf,hullMass,hullLocal,AIR_CTL,HF,hullField,hullShape,hullCell,hullTB,hullIn,airMouths,hullOverlap,hullSegment,fireBlocker,fireStray,hullCollide,hullGrid,hullNear,hullAlong,hullAround,hullPairs,HULL_GRID,hullImpact,HULL_HIT,HULL_FALL,hullFall,hullCarve,hullAvoid,fleetCommit,fleetFinish,fleetSample,fleetFrame,normalizeBow,bowStation,engineHullEntry,ENGINE_BASELINES,engineBaseline,resizeEngine,parametricEngine,engineRating,sourceEngine,EQUIPMENT,equipmentSpec,equipmentOptions,enforceEquipment,customizeEquipment,adoptEquipment,HYPERDRIVE_REFERENCE,hyperCapacity,arcParameters,arcPoint,arcTriangles,inArc,SEPARATIST_EXAMPLES,STATS_SOURCE,SHIP_REFERENCE,PART_RATINGS,reactorPower,nozzleThrust,nozzleDemand,shieldLoad,partRatingKeys,validOutline,outlinePoints,outlineArea,outlineTriangles,AVIATION_ROLES,CHARGE_TT_M3,aircraftCapacity,aviationConnected,needsCapacitor,weaponCapacitors,refitReferenceInterior,clipReferenceBox, referenceEnginePoint, fitSpec, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface,
+
+// ---------- v25 craft heat in battle (O(squadrons)) ----------
+// A squadron carries one stored-heat value (share of its craft's heat stores). Its craft design's network at
+// design time gives the rates: in a dogfight a fighter's guns run past their sustained rating (CRAFT_HEAT.burst ×
+// the 'combat' weapon draw, provisional), and what the paths and dissipators cannot shed fills the stores —
+// up (S-foils deployed, as modelled) and upS (stowed), as shares of the stores per second; off the trigger the
+// spare capacity at cruise empties them (down). Saturated squadrons throttle their fire (squadFireK). Fictional
+// technology; the numbers are provisional.
+const CRAFT_HEAT={burst:1.6,throttleAt:.85,floor:.35,max:1.3,strafeS:4,minDown:.01,def:{up:0,upS:0,down:.05,T:0}};
+function craftHeat(S){
+ const N=S?.heat?.net;if(!N?.src?.length)return null;const L=(N.links||[]).filter(l=>l.s>=0&&l.d>=0),store=N.src.reduce((n,x)=>n+(x.store||0),0);if(!(store>0))return null;
+ const D=N.src.map(x=>(x.rated?.combat||0)*(x.k==='weapon'?CRAFT_HEAT.burst:1)),gen=D.reduce((a,b)=>a+b,0),capO=N.dis.map(d=>d.cap),capS=N.dis.map(d=>d.cap*(d.fo>=0?d.cs:1));
+ const left=caps=>{const r=heatSolve(D,caps,L);return Math.max(0,gen-r.out.reduce((a,b)=>a+b,0));};
+ const Dc=N.src.map(x=>x.rated?.cruise||0),gc=Dc.reduce((a,b)=>a+b,0),rc=heatSolve(N.src.map((x,i)=>Dc[i]+x.store),capO,L),spare=Math.max(0,rc.out.reduce((a,b)=>a+b,0)-gc);
+ const foil=(S.wings||[]).filter(w=>w.foil),T=foil.length?Math.max(...foil.map(w=>w.T||0)):0,r=v=>+v.toPrecision(3);
+ return {up:r(left(capO)/store),upS:r(left(capS)/store),down:r(Math.max(CRAFT_HEAT.minDown,spare/store)),T:r(T)};
+}
+function cleanCraftHeat(h){if(!h||typeof h!=='object')return null;const n=(v,hi)=>Number.isFinite(v)?clamp(v,0,hi):0;const o={up:n(h.up,10),upS:n(h.upS,10),down:Math.max(CRAFT_HEAT.minDown,n(h.down,10)),T:n(h.T,600)};if(o.upS<o.up)o.upS=o.up;return o;}
+// Fire a squadron can still bring to bear (1 until its stores pass throttleAt, then down to floor when full).
+function squadFireK(s){const q=s?.heat||0;return q<CRAFT_HEAT.throttleAt?1:Math.max(CRAFT_HEAT.floor,1-(q-CRAFT_HEAT.throttleAt)/(1-CRAFT_HEAT.throttleAt)*(1-CRAFT_HEAT.floor));}
+// One step: S-foils open over T seconds while the squadron is in a battle, shut outside; heat rises while it fires.
+function squadHeatStep(s,H,firing,battle,dt){H=H||CRAFT_HEAT.def;s.foil=H.T>0?clamp((s.foil??0)+(battle?1:-1)*dt/H.T,0,1):1;const up=H.upS+(H.up-H.upS)*s.foil;s.heat=clamp((s.heat||0)+(firing?up:-H.down)*dt,0,CRAFT_HEAT.max);}
+// ============================================================
+// v25 Functional wings, S-foils, emission signatures and sensors (spec v13 §8.3, §11: WING-001…004,
+// SENS-001…005). Everything here is FICTIONAL Star Wars technology modelled for a game: high-energy
+// dissipation that sheds heat as a "neutrino" signature, S-foils that open dissipator faces, multi-band
+// sensors. None of it describes a real cooling or detection method. Every number is provisional and
+// tunable (spec §16); units are watts, metres and seconds.
+//
+// One-way pipeline (§2.3): the power each system draws → its waste heat (HEAT.waste) → what the heat paths
+// carry to the dissipators that still work (heatSolve) → the energy each dissipator ACTUALLY sheds, by its
+// type (EMIT.band) → band signatures (neutrino, IR, EM) → the enemy's sensors (by band, range, aperture
+// and noise) → contact stages. The drive's exhaust and active sensors radiate on their own (not heat).
+// A dissipator's capacity is never a signature: an idle dissipator radiates nothing.
+//
+// Wings (WING-001/002): a structure with p.wing is a functional wing. It is a structure (shape, volume,
+// mass and editing are the structure's, including the free-form vertex editor) whose inside can hold
+// equipment: high-energy dissipators, ordinary radiators, batteries, structural integrity (reinforcement)
+// … The wing itself dissipates nothing: only the dissipator parts inside it do. What the wing adds is a
+// radiating skin for them (an external dissipator or radiator inside a wing works through the wing's
+// faces, WING.expose), the energy transfer through its root (feed: the share of its dissipators'
+// capacity the root conduits carry), reinforcement and, with an S-foil, the actuator.
+// S-foils (WING-003/004): a hinge axis (ship X/Y/Z through a pivot, by default the wing's root), the
+// stowed and deployed angles (the shape is modelled deployed), the time to deploy, the actuator's mass
+// and durability, and an interference sweep in the designer. Stowed, the faces of the dissipators inside
+// are masked (WING.stowK: lower maximum capacity) and their IR/EM is partly hidden (WING.shade). The flow
+// through them at a load they can carry either way does not change, so deploying does not in itself
+// raise the signature (§11).
+// ============================================================
+const WING={
+ expose:.85,        // share of an external dissipator's / radiator's faces a wing's skin lets radiate (deployed)
+ stowK:{hdis:1,hdisx:.35,radiator:.4},   // maximum capacity stowed, × deployed (folded wings face each other or the hull)
+ shade:{hdis:.25,hdisx:.6,radiator:.6},  // share of IR/EM hidden while stowed (neutrinos pass through the wing)
+ rho:.6,            // structural mass of a wing, × the ship's mean density × its volume (light structures ¼)
+ feedK:.12,         // root energy transfer: mass, × the wing dissipators' mass, at feed 1
+ reinfK:.35,        // reinforcement: mass, × the wing's structural mass, at full reinforcement
+ actK:.06,          // S-foil actuator: mass, × the moving mass (wing + what it carries), at the reference speed
+ actT:2,            // s: reference deploy time of a 10 m wing (heavier/faster actuators scale with √(T_ref/T))
+ jamAt:.5,          // the mechanism jams when its hull section's frames fall below this share (reinforced: lower)
+ maxAngle:150,      // degrees either way from the modelled pose
+ sweep:9,           // steps of the interference sweep between the stowed and deployed angles
+ rootTol:.04        // points this close to the hinge (× the wing's span) are the root and never interfere
+};
+const FOIL_AXES={x:'前後軸（X）',y:'上下軸（Y）',z:'左右軸（Z）'};
+// Solar wing panels (the TIE series' "solar collectors"; canon has them double as heat radiators). FICTIONAL
+// technology on the yard's power scale: a panel (p.wing.solar) collects power over one face and, being outside,
+// is an external high-energy dissipator over both faces on the same heat network (it can be hit: its hull
+// section's damage cuts it like any path). Its power joins the ship's generating capacity (S.power) once, and
+// its dissipation goes through heatSolve like any dissipator's (no second heat model, nothing counted twice).
+// Provisional: W per m² of one face, set so the TIE/ln's two panels add about 5% to its reactor, and a cooling
+// rating per m² of each face that lets them carry about its combat waste heat.
+const SOLAR={W:6e14,disW:2.5e15};
+function solarArea(p){return p?.k==='struct'?partArea(p)/2:0;}
+function solarPower(p){return p?.wing?.solar?solarArea(p)*SOLAR.W:0;}
+function solarCap(p,S){return p?.wing?.solar?solarArea(p)*2*SOLAR.disW*clamp(S?.info?.[p.id]?.exposed??1,.25,1):0;}
+function solarStats(ship,S){let P=0;for(const p of ship.parts)P+=solarPower(p);S.solarPower=P;if(P>0){S.power=(S.power||0)+P;if(S.reactorSplit)S.reactorSplit={...S.reactorSplit,aux:(S.reactorSplit.aux||0)+P};}return S;}
+const WING_PARTS=new Set(['hdis','hdisx','radiator','battery','integrity','sensor','scanner','fuel','aux','inertial']);
+Object.assign(CRAFT_PART_SIZE,{hdis:[.05,4,.35],hdisx:[.05,4,.3],radiator:[.03,4,.3]});
+function normalizeWing(w){
+ if(!w||typeof w!=='object')return undefined;const f=(v,lo,hi,d)=>Number.isFinite(v)?clamp(v,lo,hi):d;
+ const o={feed:f(w.feed,0,2,1),reinf:f(w.reinf,0,1,0)};if(w.solar===true)o.solar=true;
+ if(w.foil===true){o.foil=true;o.axis=Object.hasOwn(FOIL_AXES,w.axis)?w.axis:'x';o.stow=f(w.stow,-WING.maxAngle,WING.maxAngle,0);o.open=f(w.open,-WING.maxAngle,WING.maxAngle,15);o.T=f(w.T,.1,600,WING.actT);
+  if(Array.isArray(w.pivot)&&w.pivot.length===3&&w.pivot.every(Number.isFinite))o.pivot=w.pivot.map(v=>clamp(v,-DESIGN_LIMITS.coordinate,DESIGN_LIMITS.coordinate));}
+ return o;
+}
+const isWing=p=>p?.k==='struct'&&!!p.wing;
+const isFoil=p=>isWing(p)&&!!p.wing.foil;
+// The ship's centre line (y at the middle of the hull's height, z 0), for the root of a wing.
+function wingBounds(p){const b=partAABB(p);return b;}
+function wingPivot(ship,p){
+ if(p.wing?.pivot)return p.wing.pivot.slice();
+ const b=wingBounds(p),yc=(ship.hull?.H||0)*.5,mid=[(b[0]+b[3])/2,(b[1]+b[4])/2,(b[2]+b[5])/2],faces=[];
+ for(const a of [1,2])for(const s of [0,3]){const q=mid.slice();q[a]=b[a+s];faces.push(q);}
+ // the face centre nearest the centre line (Y and Z only: a fore-and-aft wing hinges along its root)
+ return faces.sort((u,v)=>Math.hypot(u[1]-yc,u[2])-Math.hypot(v[1]-yc,v[2]))[0];
+}
+// Angle sense: a positive angle lifts the tip (X axis), sweeps it aft (Y axis) or tips it aft (Z axis) on either
+// side, so a mirrored pair shares its numbers.
+function foilSign(ship,p){const b=wingBounds(p),c=[(b[0]+b[3])/2,(b[1]+b[4])/2,(b[2]+b[5])/2],d=sub(c,wingPivot(ship,p)),ax=p.wing.axis||'x';
+ return ax==='z'?(d[1]<0?-1:1):(d[2]<0?1:-1);}
+function rotAxis(ax,th,v){const c=Math.cos(th),s=Math.sin(th);if(ax==='x')return [v[0],v[1]*c-v[2]*s,v[1]*s+v[2]*c];if(ax==='y')return [v[0]*c+v[2]*s,v[1],-v[0]*s+v[2]*c];return [v[0]*c-v[1]*s,v[0]*s+v[1]*c,v[2]];}
+// Where a point carried by the wing is at angle a (degrees) instead of the modelled (deployed) one.
+function foilFrame(ship,p){const pv=wingPivot(ship,p),sg=foilSign(ship,p),ax=p.wing.axis||'x';return {pv,sg,ax};}
+function foilAt(F,p,q,a){const th=(a-p.wing.open)*F.sg*Math.PI/180;return add(F.pv,rotAxis(F.ax,th,sub(q,F.pv)));}
+function foilDir(F,p,n,a){const th=(a-p.wing.open)*F.sg*Math.PI/180;return rotAxis(F.ax,th,n);}
+// What a wing carries: equipment whose centre is inside it, weapons and pods mounted on it, and the structures
+// built onto it outboard of the root (a nacelle, a gun barrel, a wingtip).
+function wingMembers(ship,w){
+ const b=wingBounds(w),pad=[0,1,2].map(a=>(b[a+3]-b[a])*.06),inB=q=>q.every((v,a)=>v>=b[a]-pad[a]&&v<=b[a+3]+pad[a]);
+ const pv=w.wing?.foil?wingPivot(ship,w):null,c=[(b[0]+b[3])/2,(b[1]+b[4])/2,(b[2]+b[5])/2],out=pv?sub(c,pv):null;
+ const parts=[],structs=[],fits=ship.fits.filter(f=>f.host===w.id);
+ for(const q of ship.parts){if(q===w||isWing(q))continue;
+  if(q.k==='struct'){if(!w.wing?.foil||!inB(q.c))continue;const o=sub(q.c,pv);if(dot(o,out)>0||inStruct(w,q.c))structs.push(q);continue;}
+  if(q.c&&inB(q.c)&&inStruct(w,q.c))parts.push(q);}
+ for(const s of structs)for(const f of ship.fits)if(f.host===s.id&&!fits.includes(f))fits.push(f);
+ return {parts,structs,fits};
+}
+// Part id → its wing (the first functional wing whose inside holds its centre).
+function wingMap(ship){const m=new Map();for(const w of ship.parts){if(!isWing(w))continue;for(const q of wingMembers(ship,w).parts)if(!m.has(q.id))m.set(q.id,w);}return m;}
+// Points that stand for a part or a structure in the sweep (vertices of its surface; corners of a box otherwise).
+function wingSamples(p,max=240){
+ if(p.k==='struct'){const T=unpiercedStructTriangles(p),n=T.length/3,st=Math.max(1,Math.ceil(n/max)),out=[];for(let i=0;i<n;i+=st)out.push([T[i*3],T[i*3+1],T[i*3+2]]);return out;}
+ const b=partAABB(p),out=[];for(const x of [0,3])for(const y of [1,4])for(const z of [2,5])out.push([b[x],b[y],b[z+0]]);return out;
+}
+// WING-003 interference: sweep the wing and what it carries from the deployed to the stowed angle and look for
+// points that enter the hull, another structure, a mounted weapon or another S-foil (in its own pose at the
+// same moment). Points already inside something in the modelled pose are the root and are skipped.
+function foilSweep(ship,w){
+ if(!isFoil(w))return null;const W=w.wing,F=foilFrame(ship,w),M=wingMembers(ship,w),movers=new Set([w,...M.structs,...M.parts]);
+ const b=wingBounds(w),span=Math.max(b[3]-b[0],b[4]-b[1],b[5]-b[2]),tol=Math.max(WING.rootTol*span,.02);
+ const others=ship.parts.filter(q=>q.k==='struct'&&!movers.has(q)&&!(isFoil(q))),otherFoils=ship.parts.filter(q=>q!==w&&isFoil(q)).map(q=>({q,F:foilFrame(ship,q),b:partAABB(q)}));
+ const boxes=others.map(q=>({q,b:partAABB(q)})),fitB=ship.fits.filter(f=>!M.fits.includes(f)&&!f.float).map(f=>{try{return {f,b:fitAABB(f)};}catch(e){return null;}}).filter(Boolean);
+ const inBox=(q,bb)=>q[0]>=bb[0]&&q[0]<=bb[3]&&q[1]>=bb[1]&&q[1]<=bb[4]&&q[2]>=bb[2]&&q[2]<=bb[5];
+ const hit=(q,t)=>{if(!ship.hull.assembly&&v3InHull(ship,q)&&!solidCutsContain(ship,q))return {k:'hull',name:'船体'};
+  for(const {q:s,b:bb} of boxes)if(inBox(q,bb)&&unpiercedInStruct(s,q))return {k:'struct',id:s.id,name:partLabel(s)+' #'+s.id};
+  for(const {f,b:bb} of fitB)if(inBox(q,bb))return {k:'fit',id:f.id,name:(FITS[f.k]?.short||FITS[f.k]?.name)+' #'+f.id};
+  for(const o of otherFoils){const a=o.q.wing.stow+(o.q.wing.open-o.q.wing.stow)*t,back=foilAt(o.F,o.q,q,o.q.wing.open-(a-o.q.wing.open));if(inBox(back,o.b)&&unpiercedInStruct(o.q,back))return {k:'foil',id:o.q.id,name:partLabel(o.q)+' #'+o.q.id};}
+  return null;};
+ const pts=[];for(const m of movers)for(const s of wingSamples(m,m===w?240:24))if(len(sub(s,F.pv))>tol&&!hit(s,1))pts.push(s);
+ const out={hits:[],steps:WING.sweep,points:pts.length};
+ for(let k=1;k<=WING.sweep;k++){const t=1-k/WING.sweep,a=W.stow+(W.open-W.stow)*t;for(const s of pts){const h=hit(foilAt(F,w,s,a),t);if(h){if(!out.hits.some(x=>x.k===h.k&&x.id===h.id))out.hits.push({...h,angle:+a.toFixed(1)});break;}}if(out.hits.length>=4)break;}
+ return out;
+}
+// The wing in a pose (designer preview): the wing and the structures it carries as free-form meshes turned to
+// angle a, the equipment and the weapons it carries moved with them. Returns copies (same ids); nothing is changed.
+function foilPose(ship,w,a){
+ if(!isFoil(w))return null;const F=foilFrame(ship,w),M=wingMembers(ship,w),out={parts:[],fits:[]};
+ for(const s of [w,...M.structs]){let m=s.form==='mesh'&&s.mesh?s.mesh:structToMesh(s);if(!m)continue;const sc=[s.s[0],s.s[2],s.s[1]];
+  const world=m.v.map(v=>foilAt(F,w,worldStruct(s,v.map((x,i)=>x*sc[i])),a)),c=world.reduce((x,y)=>add(x,y),[0,0,0]).map(v=>v/Math.max(1,world.length));
+  const lo=[0,1,2].map(i=>Math.min(...world.map(q=>q[i]))),hi=[0,1,2].map(i=>Math.max(...world.map(q=>q[i]))),mid=lo.map((v,i)=>(v+hi[i])/2),size=hi.map((v,i)=>Math.max(1e-3,v-lo[i]));
+  out.parts.push({...s,form:'mesh',c:mid,s:[size[0],size[2],size[1]],yaw:0,pitch:0,roll:0,surfaceNormal:undefined,mesh:{v:world.map(q=>q.map((x,i)=>(x-mid[i])/size[i])),f:m.f},_poseOf:s.id});}
+ for(const q of M.parts)out.parts.push({...q,c:foilAt(F,w,q.c,a),_poseOf:q.id});
+ for(const f of M.fits){const o={...f,p:foilAt(F,w,f.p,a),_poseOf:f.id};if(f.n)o.n=foilDir(F,w,f.n,a);out.fits.push(o);}
+ return out;
+}
+// Designer figures for every wing (S.wings) and the inspection. Runs after heatStats: the capacities of the
+// dissipators inside come from the heat network (deployed and stowed).
+function wingStats(ship,S){try{return wingStatsRaw(ship,S);}catch(e){S.wings=[];return S;}}
+function wingStatsRaw(ship,S){
+ const wings=ship.parts.filter(isWing);if(!wings.length){S.wings=[];return S;}
+ const rho=(S.mass||0)/Math.max(1e-9,S.volume||1),dis=S.heat?.net?.dis||[],out=[];let extra=0;
+ for(const w of wings){const W=w.wing,M=wingMembers(ship,w),V=partVolume(w),m0=V*rho*WING.rho*(w.light?.25:1);
+  const ids=new Set(M.parts.map(q=>q.id)),ds=dis.filter(d=>d.part!=null&&(ids.has(d.part)||d.part===w.id)),capO=ds.reduce((n,d)=>n+d.cap,0),capS=ds.reduce((n,d)=>n+d.cap*(d.cs??1),0);
+  const mDis=M.parts.filter(q=>DISSIPATORS[q.k]).reduce((n,q)=>n+partVolume(q)*rho,0)+(W.solar?m0*.3:0),mCarry=M.parts.concat(M.structs).reduce((n,q)=>n+partVolume(q)*rho*(q.k==='struct'?WING.rho:1),0);
+  const feed=mDis*WING.feedK*W.feed,reinf=m0*WING.reinfK*W.reinf,b=wingBounds(w),span=Math.max(b[3]-b[0],b[4]-b[1],b[5]-b[2]);
+  const Tref=WING.actT*Math.sqrt(Math.max(.1,span)/10),act=W.foil?(m0+mCarry)*WING.actK*Math.sqrt(Tref/Math.max(.1,W.T)):0,sweep=W.foil?foilSweep(ship,w):null;
+  extra+=feed+reinf+act;
+  out.push({id:w.id,name:partLabel(w),foil:!!W.foil,solar:!!W.solar,solarP:solarPower(w),area:solarArea(w),vol:V,mass:m0,feed:W.feed,feedMass:feed,reinf:W.reinf,reinfMass:reinf,act,T:W.foil?W.T:0,axis:W.axis||null,stow:W.stow??null,open:W.open??null,
+   pivot:W.foil?wingPivot(ship,w).map(v=>+v.toFixed(2)):null,span,jamAt:WING.jamAt*(1-.5*W.reinf),dis:ds.map(d=>({id:d.part,k:d.k,cap:d.cap,capS:d.cap*(d.cs??1)})),capOpen:capO,capStow:capS,
+   parts:M.parts.map(q=>q.id),structs:M.structs.map(q=>q.id),fits:M.fits.map(f=>f.id),hits:sweep?.hits||[]});}
+ S.wings=out;S.wingMass=extra;
+ // the root conduits, the reinforcement and the actuators are carried mass: they cost acceleration
+ if(extra>0&&S.mass>0){const k=S.mass/(S.mass+extra);for(const key of ['accelG','aEff','aThrust','aStruct','thrustG','structG'])if(Number.isFinite(S[key]))S[key]*=k;S.mass+=extra;}
+ for(const x of out){const tg=[{tab:'mod',partId:x.id}];
+  if(!x.dis.length)S.warnings.push({lv:'info',code:'wing-empty',partId:x.id,text:`主翼 #${x.id} の内部に散逸装置がありません（散逸能力は増えません）。`,targets:tg});
+  for(const h of x.hits)S.warnings.push({lv:'warn',code:'foil-clash',partId:x.id,text:`Sフォイル #${x.id} が ${h.angle}° で ${h.name} と干渉します。`,targets:tg});
+  if(x.foil&&Math.abs(x.open-x.stow)<.5)S.warnings.push({lv:'info',code:'foil-still',partId:x.id,text:`Sフォイル #${x.id} の収納角と展開角が同じです（動きません）。`,targets:tg});}
+ return S;
+}
+// ---------- emission signatures (SENS-001) ----------
+const EMIT={
+ // share of the energy a dissipator sheds seen in each band [neutrino, IR, EM] (fictional; by dissipator type)
+ band:{hdis:[.8,.15,.05],hdisx:[.55,.38,.07],radiator:[0,.95,.05],skin:[0,1,0],integral:[.6,.33,.07],legacy:[.8,.15,.05],solar:[.5,.42,.08]},
+ engine:[0,.03,.008],   // share of the power the drive draws seen as exhaust glow [nu, IR, EM] (not heat: it leaves with the exhaust)
+ radarW:1e22,           // W of EM radiated per unit of active-sensor aperture while the active sensors are on (a passive EM
+                        // receiver hears it farther than the radar itself sees: switching to low emission matters)
+ noGrid:1e19            // W per m² of length² of a ship with no power figures (very old profiles)
+};
+const BANDS=['nu','ir','em'],BAND_NAMES={nu:'ニュートリノ',ir:'赤外',em:'電磁'};
+// What a set of dissipators radiates given what each actually took (W), the S-foils' deploy state and the mode.
+function emitBands(dis,used,foil){const o={nu:0,ir:0,em:0};for(let j=0;j<dis.length;j++){const e=used[j]||0;if(!(e>0))continue;const d=dis[j],b=EMIT.band[d.k]||EMIT.band.integral,
+  sh=d.fo>=0?1-(d.sh||0)*(1-(foil?.[d.fo]??1)):1;o.nu+=e*b[0];o.ir+=e*b[1]*sh;o.em+=e*b[2]*sh;}return o;}
+// ---------- emission modes (SENS-005) ----------
+// low: the dissipators are closed down (cap) and the output limited (P); the heat goes to the stores, and when
+// they reach lowMax the ship cannot stay quiet (back to normal). high: everything at full (reactor overdrive),
+// active sensors at double power. emergency: the dissipators overdriven to empty the stores (cap, drain), the
+// brightest signature; it ends once the stores are nearly empty.
+const EMCON={normal:{name:'通常',cap:1,P:1,drain:1,radar:1},low:{name:'低放射',cap:.1,P:.5,drain:1,radar:0},high:{name:'高出力',cap:1,P:1.12,drain:.6,radar:2},emerg:{name:'緊急散逸',cap:1.6,P:1,drain:.2,radar:1}};
+const EMCON_LOW_MAX=.65,EMCON_EMERG_END=.08;
+const emconOf=u=>EMCON[u?.order?.emit]?u.order.emit:'normal';
+// ---------- multi-band sensors (SENS-002) ----------
+// A ship's sensor suite as apertures per band (1 = a capital ship's standard suite). Sensor parts give
+// cbrt(V / the ISD dome) each, a multi-band set .6 of that in every band, a dedicated one 1.6 in its own;
+// bridges and command rooms add optical/IR, passive EM and fire-control radar, and a basic neutrino detector.
+const SENSOR_BANDS={multi:'多帯域',nu:'ニュートリノ',ir:'赤外',em:'電磁（受動）',rad:'能動（レーダー）'};
+function sensorSuite(ship,S){
+ const o={nu:0,ir:0,em:0,rad:0},r=S.sensor||0;
+ for(const p of ship.parts){if(p.k!=='sensor'&&p.k!=='scanner')continue;const lb=p.label||'';if(/通信/.test(lb)&&!/センサー|標的|追跡|走査|索敵/.test(lb))continue;const V=partVolume(p);if(!(V>0))continue;
+  const A=clamp(Math.cbrt(V/AA_CHANNELS.podRef),.05,3),b=Object.hasOwn(SENSOR_BANDS,p.band)?p.band:'multi';if(b==='multi')for(const k in o)o[k]+=.6*A;else o[b]+=1.6*A;}
+ o.ir+=.5*r;o.em+=.5*r;o.rad+=.4*r;o.nu+=.2*r;
+ for(const k in o)o[k]=+o[k].toFixed(3);S.sens=o;return S;
+}
+const SENS={
+ // m: range at which a 1e22 W emitter gives SNR 1 to an aperture of 1 (the noise floor of each band)
+ ref:{nu:3e5,ir:1.5e5,em:2e5},
+ radRef:1.2e5,radSigma:1000, // m, m²: an aperture-1 active sensor sees a 1000 m² cross-section at SNR 1 at this range
+ // contact stages: SNR needed to reach each, and the seconds a contact must hold a stage before the next
+ stages:['未探知','微弱反応','放射源検知','概略位置','追跡','識別','射撃諸元'],
+ snr:[0,1,3,6,12,20,30],dwell:[1,1.5,2,2.5,3,2],
+ // tracking needs a position from IR, EM or the active sensor (neutrinos give only a source); identification and
+ // a firing solution need an image: the active sensor or IR close in
+ trackBand:3,idRad:20,idIr:40,fcRad:12,fcIr:80,
+ fire:[0,0,0,.35,.6,.75,1],  // accuracy against a target at each stage (no fire below 概略位置)
+ dt:1,far:8e4,farDt:4,ttl:20,cell:4e4,maxObs:12,drop:.7,
+ errK:.25                   // passive bearing error (radians) at SNR 1, falling as 1/√SNR
+};
+function sensNoise(b){return 1e22/(4*Math.PI*SENS.ref[b]*SENS.ref[b]);}
+const SENS_N={nu:sensNoise('nu'),ir:sensNoise('ir'),em:sensNoise('em')},SENS_KR=Math.pow(SENS.radRef,4)/SENS.radSigma;
+// Per-band SNR of a target seen by one observer at distance r (m): passive bands from the target's signature
+// (sig: {nu, ir, em} in W, its radar included in em) and the active sensor from its cross-section (sigma, m²).
+// radarOn: the observer's active-sensor power as a share of the standard (EMCON radar factor; 0 off).
+function sensSNR(sig,sigma,A,r,radarOn){const r2=Math.max(1,r*r),k=1/(4*Math.PI*r2);
+ return {nu:sig.nu*k*(A.nu||0)/SENS_N.nu,ir:sig.ir*k*(A.ir||0)/SENS_N.ir,em:sig.em*k*(A.em||0)/SENS_N.em,rad:radarOn>0?radarOn*(A.rad||0)*sigma*SENS_KR/(r2*r2):0};}
+// The stage a fused SNR set can support (before dwell limits): neutrinos alone stop at 概略位置.
+function sensStageCap(s){const tot=s.nu+s.ir+s.em+s.rad,pos=s.ir+s.em+s.rad;let st=0;for(let i=1;i<SENS.snr.length;i++)if(tot>=SENS.snr[i])st=i;
+ if(st>=4&&pos<SENS.trackBand)st=3;if(st>=5&&!(s.rad>=SENS.idRad||s.ir>=SENS.idIr))st=4;if(st>=6&&!(s.rad>=SENS.fcRad||s.ir>=SENS.fcIr))st=5;return st;}
+// ---------- S-foils in battle ----------
+// A profile carries its S-foils (p.foils: hull section, deploy time, jam threshold); a unit keeps each one's
+// deploy state u.fo.d[i] (0 stowed … 1 deployed) and whether it is jammed. want(i) → 0/1.
+function foilInit(u){const n=u.p?.foils?.length||0;if(!n)return null;return u.fo={d:new Array(n).fill(0),jam:new Array(n).fill(false),want:new Array(n).fill(0)};}
+function foilStep(u,dt,want,ev){
+ const F=u.p?.foils;if(!F?.length)return;const s=u.fo||foilInit(u);
+ for(let i=0;i<F.length;i++){const f=F[i];if(s.jam[i])continue;const sec=u.sec?.[f.sec];if(sec&&(sec.s<sec.max*f.jam||u.secLost?.includes(f.sec))){s.jam[i]=true;ev?.(`${f.n}：Sフォイル駆動部が損傷・固着（${Math.round(s.d[i]*100)}% 展開）`);continue;}
+  const t=want(i)?1:0;s.want[i]=t;const step=dt/Math.max(.1,f.T||WING.actT);s.d[i]=t>s.d[i]?Math.min(t,s.d[i]+step):Math.max(t,s.d[i]-step);}
+}
+function foilState(u){const s=u?.fo,F=u?.p?.foils;if(!s||!F?.length)return null;return F.map((f,i)=>({name:f.n,d:s.d[i],jam:s.jam[i],want:s.want[i]}));}
+
+return {CRAFT_HEAT, craftHeat, cleanCraftHeat, squadFireK, squadHeatStep, SOLAR, solarPower, solarCap, solarArea, WING, FOIL_AXES, WING_PARTS, normalizeWing, isWing, isFoil, wingPivot, wingMembers, wingMap, foilSweep, foilPose, foilAt, foilFrame, wingStats, EMIT, BANDS, BAND_NAMES, emitBands, EMCON, EMCON_LOW_MAX, emconOf, SENSOR_BANDS, sensorSuite, SENS, sensSNR, sensStageCap, foilInit, foilStep, foilState, HEAT, HEAT_PRESETS, HEAT_KINDS, HEAT_MODE, DISSIPATORS, dissipatorCap, heatLoads, heatWaste, heatSolve, heatNetwork, heatEvaluate, heatStats, heatProfile, heatProfileOf, heatLegacy, heatInit, heatTick, heatStatus, heatLim, heatSwLim, normalizeLinks, DESIGN_FACTIONS, ionDensity, ionReach, ionGlow, swRange, swFree, swAxis, MGLT, engineDepthRatio, sublightMGLT, AA_CHANNELS, ION_BOLT, ionDiam, ionArea, ionShare, ionPlan, ionStrike, ionBoltsStep, swMuzzle, fleetAim, modWorld, aimPoint, fireScreen, screenShare, escortThreat, escortStation, escortPick, SCREEN, aimHold, aimMark, modQ, exposedMod, standardFit, craftCombat, cleanDesignCraft, CRAFT_ROLE_RTS, ORDNANCE, ORDNANCE_EVIDENCE, STORE_MOUNTS, STORE_FITS, STORE_DEFAULT, storeCapacity, craftStations, CRAFT_LOADOUT, craftTypeOf, craftLoadout, normalizeLoad, craftOrdnance, ordnanceRuns, ordnanceSalvo, ordnanceSummary, VOLLEY, volleyMode, volleyStep, SUPERWEAPONS, SW_COMBAT, swPower, swChargeRate, swInArc, swHeading, swDecay, swOverload, swPulse, swIonWave, superweaponStep, isSuperweapon, superweaponAim, superweaponOpen, normalizeSuperweapon, superweaponStats, isCraft, partLimits, CRAFT_PART_SIZE, craftPart, craftFieldGain, TROOP_SEAT_M3, ENGINE_GLOWS, engineGlowOK, engineGlowRGB, engineLevel, MISSILE_MOUNTS, missileMount, missileCells, missileStatus, PLATE, plateThickness, shipSpan, HULL_SECTIONS, SECTION_NAMES, hullSectionShares, SHIP_LIGHT_KINDS, SHIP_EXAMPLES, registerShipExample, shipKit, SHELL_ROWS, structRows, shellSection, shellPoint, CIS_PAINT, fitTilt, fitUp, fitFrameOf, openingRimPoint, surfSamples, groundingStats, turretRayContext, turretClear, turretOrigin, turretRate, GROUND_LIMITS, GROUND_PRESETS, GROUND_KINDS, GROUND_VEHICLE_VOLUME, DROID_STORE_M3, CREW_M3_K, CREW_LIVING_M3, personVolume, RETIRED_PARTS, FEED_FLUX, CELL_ENERGY_DENSITY, CELL_DISCHARGE_S, feedConduits, normalizeGroundForces, groundStatus, planStations, bridgeBodyRole, podPoint, podDepth, intrinsicCommandFits, POD_ASSET, BRIDGE_BODY_COMMAND, REFERENCE_TONE, engineSkinMesh, referenceFitYaw, rayTris, vmirrorPlane, vmirrorPoint, vmirrorPart, SHIP_CLASSES, shipClassFor, PUBLIC_LISTS, publicJSON, patchShip, patchItem, cache, AIRCRAFT_CLEARANCE, aircraftFitsBay, shipFitsBay, shipStowSize, CRAFT_TYPES, VEHICLE_TYPES, CRAFT_HINTS, VEHICLE_HINTS, craftDims, airWingDims, groundDims, stowSize, vehicleStowSize, VEHICLE_STOW_FACTOR, craftLift, boxFits, stowLoad, stowInit, stowRows, isCombatRow, COMBAT_ROLES, stowPack, stowPasses, stowStatus, aviationBays, hatchOpening, STOW_GAP, STOW_PASS, STOW_ANY_LENGTH, BUILTIN_COMPLEMENTS, builtinComplement, SHIP_STOW_CLEAR, SHIP_STOW_FACTOR, AVIATION_SIZE_VOLUME, AIR_WING_LIMITS, hangarCapacity, normalizeAirWings, aviationStatus, AVIATION_SURFACE_FACES, hatchAxes, aviationSurfaceContacts, setAviationSurfaceMode, syncAviationSurfaces, aviationHatchActive, isSlidingHatch, slidingHatchSpec, slidingHatchPanels, hatchOpenArea, ISD_HYPER_BASELINE, HYPER_CLASS_COEFFICIENT, HYPER_POWER_DENSITY, ISD_SHIELD_VOLUME, SHIELD_BUFFER_SECONDS, SHIELD_ENERGY_DENSITY, SHIELD_POWER_DENSITY, REACTOR_POWER_DENSITY, SOLID_CUT_SHAPES, SOLID_CUT_POLY_MAX, solidCutDisplayTriangles, solidCutVolume, solidCutConvexOK, convexHullFaces, solidCutThinWalls, SOLID_THIN_WALL_M, compiledSolidCut, STRUCT_MESH_LIMITS, meshTopology, MESH_IMPORT_UNITS, MESH_IMPORT_AXES, parseMeshFile, meshImportPart, simplifyMesh, ASSEMBLY_LIMITS, ASSEMBLY_MOUNTS, ASSEMBLY_ORIGINS, ASSEMBLY_CATEGORIES, assemblyLinks, assemblyCapture, normalizeAssemblyTemplate, assemblyPlace, assemblyIssues, assemblyMirrorFit, assemblyPreview, solidCutWorld, solidCutLocal, solidCutFromLocal, solidCutLocalVerts, solidCutToPoly, normalizeStructMesh, meshStructTriangles, inMeshStruct, mirrorStructMesh, structToMesh, refitStructMesh, meshEditCheck, meshMoveVertices, meshSetVertex, meshSplitEdge, meshCollapseVertex, meshExtrudeFace, meshLocalTris, normalizeSolidCut, mirrorSolidCut, solidCutTriangles, solidCutBounds, solidCutContains, solidCutsContain, applySolidCuts, solidPartCutContains, solidStructVolume, solidCutIntersectsShip, flexibleCompartment, hardConflicts, weaponChargeSpec, DREADNOUGHT_EXAMPLES, DESIGN_LIMITS, ALIGNMENTS, alignedPosition, alignPart, replacementShape, replacementOptions, replacePart, COMMAND_ROLES, commandCompartments, commandStatus, habitationSpace, inspectionTargets, planCutEdge, normalizePlanCut, structFrame, alignStructure, FLEET_RULES, POWER_MODES, POWER_AUTO_NOTE, fleetAutoPower, AIM_KINDS, MODULE_LABEL, FLEET_MIN_CREW, powerSplit, coreDetonation, fleetModules, fleetSystems, fleetCrewEff, fleetCrewRatio, fleetAutoAvail, fleetOutReason, AUTO_M3_PER_CREW, AUTO_W_PER_CREW, AUTO_MIN_HUMAN, fleetEffective, fleetProfile, fleetUnit, fleetIntegrity, trenchBattery, sideBattery, fleetFire, fleetReach, fleetStandoff, fleetHeading, fleetBroadside, fleetPowerStep, bandFireAt, fitBand, GUN_BANDS, COMBAT, combatInit, combatIncoming, combatAdd, combatMerge, combatResolve, combatZones, combatClone, combatZoneAt, COMBAT_FACE, unpackBits, fleetFormation, fleetBattle, fleetOrder, fleetArc, fleetTick, hullHalf, hullMass, hullLocal, AIR_CTL, HF, hullField, hullShape, hullCell, hullTB, hullIn, airMouths, hullOverlap, hullSegment, fireBlocker, fireStray, hullCollide, hullGrid, hullNear, hullAlong, hullAround, hullPairs, HULL_GRID, hullImpact, HULL_HIT, HULL_FALL, hullFall, hullCarve, hullAvoid, fleetCommit, fleetFinish, fleetSample, fleetFrame, normalizeBow, bowStation, engineHullEntry, ENGINE_BASELINES, engineBaseline, resizeEngine, parametricEngine, engineRating, sourceEngine, EQUIPMENT, equipmentSpec, equipmentOptions, enforceEquipment, customizeEquipment, adoptEquipment, HYPERDRIVE_REFERENCE, hyperCapacity, arcParameters, arcPoint, arcTriangles, inArc, SEPARATIST_EXAMPLES, STATS_SOURCE, SHIP_REFERENCE, PART_RATINGS, reactorPower, nozzleThrust, nozzleDemand, shieldLoad, partRatingKeys, validOutline, outlinePoints, outlineArea, outlineTriangles, AVIATION_ROLES, CHARGE_TT_M3, aircraftCapacity, aviationConnected, needsCapacitor, weaponCapacitors, refitReferenceInterior, clipReferenceBox, referenceEnginePoint, fitSpec, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface, COST_CATS, COST_K, costCategory, designCost,
   TT, G0, ISD_W, K, PARTS, FITS, HULLS, SECTIONS, KEELS, SECTORS, CLASSES, DESIGNS, AXES, AXNAME, ARMOR_MAX,
   newShip, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
@@ -10363,6 +11196,12 @@ CRAFT.lambda.stay = true;
 // the Hyena bomber, V-19 and Z-95 (built without one) and the landing craft have none.
 const CRAFT_HYPER = {xwing: 1, ywing: 1, btlb: 1, awing: 1, uwing: 1, bwing: 2, arc170: 1.5, lambda: 1, sentinel: 1};
 for (const [k, h] of Object.entries(CRAFT_HYPER)) if (CRAFT[k]) CRAFT[k].hyper = h;
+// v25 squadron heat (C.craftHeat): the rates measured from the craft examples' design-time heat network
+// (ships/craft_*.js, regenerate when the heat model changes): stores filled per second of dogfight with S-foils
+// deployed (up) and stowed (upS), emptied per second off the trigger (down); T: S-foil deploy time.
+// Craft without an example (Eta-2, tri-fighter, Y/B-wing, transports) never saturate (C.CRAFT_HEAT.def).
+const CRAFT_HEAT_CANON = {arc170: {up: .00271, upS: .00271, down: .0133, T: 0}, awing: {up: .00255, upS: .00255, down: .0136, T: 0}, btlb: {up: .00108, upS: .00108, down: .0125, T: 0}, hyena: {up: .00758, upS: .00758, down: .019, T: 0}, tie_in: {up: .00481, upS: .00481, down: .0239, T: 0}, tie_ln: {up: 0, upS: 0, down: .0331, T: 0}, tie_sa: {up: .00212, upS: .00212, down: .0272, T: 0}, v19: {up: .00755, upS: .00755, down: .018, T: 0}, vulture: {up: .00758, upS: .00758, down: .0189, T: 0}, vwing: {up: .00337, upS: .00337, down: .0141, T: 0}, xwing: {up: .00171, upS: .00171, down: .0116, T: 0}, z95: {up: .00698, upS: .00698, down: .0187, T: 0}};
+for (const [k, h] of Object.entries(CRAFT_HEAT_CANON)) if (CRAFT[k]) CRAFT[k].heat = h;
 const ROLE_NAME = {fighter: '戦闘', interceptor: '迎撃', bomber: '爆撃', transport: '輸送'};
 // v22 Ordnance as stores (C.ORDNANCE): a craft type's store stations and its canon loadout (C.CRAFT_LOADOUT), its
 // guns' share of an attack run (gun: the table's strike when it carries nothing, else 6 + 8 × its air rating, so the
@@ -10377,7 +11216,7 @@ function squadStores(s, load) {
  const c = CRAFT[s.craft];if (!c) return s;if (load !== undefined) s.load = Array.isArray(load) ? C.normalizeLoad(c.stations, load, c.load) : undefined;
  s.ldg = C.craftOrdnance(c, s.load).map(x => ({...x, salvo: C.ordnanceSalvo(x, c.role)}));s.ord0 = s.ldg.reduce((n, x) => n + x.n, 0);rearmSquad(s);return s;
 }
-function rearmSquad(s) { s.ammo = (s.ldg || []).map(x => x.n); s.fired = false; squadMassK(s); }
+function rearmSquad(s) { s.ammo = (s.ldg || []).map(x => x.n); s.fired = false; s.heat = 0; squadMassK(s); }
 const squadArmed = s => (s.ammo || []).some(n => n > 1e-9);
 // Handling: a craft sheds its stores' mass as it fires them, and its speed rises by (mass at the canon load / mass now)^0.34.
 function squadMassK(s) { const c = CRAFT[s.craft], M = c?.mass;if (!(M > 0)) { s.spK = 1; return; } const left = (s.ldg || []).reduce((n, x, i) => n + (s.ammo?.[i] || 0) * x.mass, 0);s.spK = Math.pow((M + (c.ordMass || 0)) / (M + left), .34); }
@@ -10389,7 +11228,8 @@ function registerDesignCraft(d) {
  const c = d?.craft;if (!c) return null;
  let h = 0;const sig = (d.ref || '') + '|' + d.name + '|' + [c.role, c.speed, c.aa, c.strike, c.armor, c.crew].join(',') + '|' + (d.dims || []).join(',') + (c.hyper > 0 ? '|h' + c.hyper : '');for (let i = 0; i < sig.length; i++) h = (h * 31 + sig.charCodeAt(i)) | 0;
  const key = 'dsn' + (h >>> 0).toString(36);
- if (!CRAFT[key]) { const dims = Array.isArray(d.dims) && d.dims.length === 3 ? d.dims.slice() : [10, 8, 3]; CRAFT[key] = craftStores({name: d.name + '（設計機）', short: d.name.slice(0, 10), side: 'design', ref: typeof d.ref === 'string' ? d.ref : '', role: c.role, speed: c.speed, aa: c.aa, strike: c.strike, gun: c.gun ?? (c.stations?.length ? undefined : c.strike), armor: c.armor, size: C.stowSize(dims), crew: c.crew, dims, design: true, stay: c.role === 'transport' && !(c.strike > 30), mass: c.mass || undefined, hyper: c.hyper > 0 ? c.hyper : undefined}, {stations: c.stations || [], load: c.load || []}); }
+ if (!CRAFT[key]) { const dims = Array.isArray(d.dims) && d.dims.length === 3 ? d.dims.slice() : [10, 8, 3]; CRAFT[key] = craftStores({name: d.name + '（設計機）', short: d.name.slice(0, 10), side: 'design', ref: typeof d.ref === 'string' ? d.ref : '', role: c.role, speed: c.speed, aa: c.aa, strike: c.strike, gun: c.gun ?? (c.stations?.length ? undefined : c.strike), armor: c.armor, size: C.stowSize(dims), crew: c.crew, dims, design: true, stay: c.role === 'transport' && !(c.strike > 30), mass: c.mass || undefined, cost: c.cost > 0 ? c.cost + (c.crew || 0) * C.COST_K.crew : undefined, hyper: c.hyper > 0 ? c.hyper : undefined}, {stations: c.stations || [], load: c.load || []}); }
+ if (CRAFT[key] && c.heat && !CRAFT[key].heat) CRAFT[key].heat = C.cleanCraftHeat(c.heat);
  return key;
 }
 // A carrier's default complement, by faction: one wing of six squadrons per 72 units.
@@ -10412,7 +11252,18 @@ const SIDE_OF = {'銀河帝国': 'empire', '反乱同盟': 'rebel', '銀河共�
 // bomber wings hold back until a target's shields are down to strike before
 // they recover. Other factions fight as before.
 const DOCTRINE = {rebel: {name: 'イオン砲でシールドを剥ぎ、航空攻撃で撃沈', strip: .15, strike: .3, abort: .6}};
-const doctrineOf = (w, side) => DOCTRINE[w.sides[side]?.faction] || null;
+// SBOX A scenario may set a side's air doctrine apart from its faction ('faction' its own, 'standard' none, 'strip' the Alliance's).
+const doctrineOf = (w, side) => { const sd = w.sides[side];if (!sd) return null;if (sd.air === 'standard') return null;if (sd.air === 'strip') return DOCTRINE.rebel;return DOCTRINE[sd.faction] || null; };
+// SBOX The AI commander's temper (provisional values): odds — how much stronger than a contact the force must be before it
+// strikes (the original 1.15, and 0.85 after an hour without battle); retreat — it breaks off a battle when its
+// strength there falls below this share of the enemy's (the original 0.45).
+const AI_STRATEGY = {
+ balanced: {name: '標準', odds: 1.15, bold: .85, retreat: .45},
+ aggressive: {name: '積極的', odds: .8, bold: .6, retreat: .25},
+ cautious: {name: '慎重', odds: 1.6, bold: 1.2, retreat: .65}
+};
+const AIR_DOCTRINES = {faction: '陣営の既定', standard: '標準（爆撃機は最大の敵艦へ）', strip: 'イオン砲でシールドを剥ぎ、航空攻撃で撃沈'};
+const strategyOf = (w, side) => AI_STRATEGY[w.sides[side]?.strategy] || AI_STRATEGY.balanced;
 const shieldFrac = t => t && t.shieldMax > 0 ? Math.max(0, t.shield) / t.shieldMax : 0;
 
 // ---------- ground forces ----------
@@ -10569,7 +11420,7 @@ const KIND_NAME = {capital: '首都星系', shipyard: '造船星系', habitable:
 // info: what the operational layer needs beyond the fleet profile.
 function designInfo(S, p, extra = {}) {
  return {len: p.len, hyper: S.jumpOK ? S.hyperClass : null, sensor: S.sensor || 0, crew: Math.min(S.crew || 0, S.crewAboard ?? S.crew ?? 0), crewNeed: S.crew || 0, troopCap: S.troopCapacity || 0, droidCap: S.droidCapacity || 0,
-  vehicleCap: (S.vehicleSizeCapacity || 0) + Math.floor((S.cargoCapacity || 0) / 600), slotCap: S.slots || 0, mass: S.mass || 0, cost: S.cost || 0,
+  vehicleCap: (S.vehicleSizeCapacity || 0) + Math.floor((S.cargoCapacity || 0) / 600), slotCap: S.slots || 0, mass: S.mass || 0, cost: S.cost || 0, ...(S.costBy ? {costBy: Object.fromEntries(Object.entries(S.costBy).map(([k, v]) => [k, Math.round(v)]))} : {}),
   hangarCap: S.aviation?.capacity || 0, bays: (S.aviation?.bays || []).map(b => [...b.dims, Math.floor(b.capacity * 100) / 100]).sort((a, b) => b[3] - a[3]).slice(0, 8),
   stow: {bays: (S.aviation?.bays || []).map(b => ({d: b.dims.map(v => Math.round(v * 10) / 10), cap: Math.floor(b.capacity * 100) / 100, c: b.connected ? 1 : 0, doors: (b.doors || []).map(o => o.map(v => Math.round(v * 10) / 10)), vol: Math.round(b.vol || 0)}))},
   canLand: !!S.canLand, capital: p.len >= CAPITAL_LENGTH, ...extra};
@@ -10607,12 +11458,20 @@ function normalizeOrbat(raw) {
  const by = new Map();for (const e of raw || []) { const k = e.tg || 1; if (!by.has(k)) by.set(k, []); by.get(k).push(e); }
  return {ctgs: [{name: '第1合同任務群', tgs: [...by.entries()].sort((a, b) => a[0] - b[0]).map(([k, ships]) => ({name: `第${k}任務群`, formation: 'abreast', ships}))}]};
 }
+// ---------- SBOX scenario pieces the battle model reads ----------
+const VICTORY_DEFAULT = {breakAt: .25, timeLimit: 0};
+function normalizeVictory(v) { v = v || {}; const b = +v.breakAt, t = +v.timeLimit; return {breakAt: Number.isFinite(b) ? clamp(b, 0, .9) : VICTORY_DEFAULT.breakAt, timeLimit: Number.isFinite(t) && t > 0 ? clamp(Math.round(t), 60, 86400) : 0}; }
+// A task group's deployment: a system of the sector (by id), a heading (degrees) and a speed (m/s); missing = automatic.
+function normalizeDeploy(d, sector) { d = d || {}; const sys = Number.isInteger(d.sys) && (!sector || sector.systems[d.sys]) ? d.sys : null, h = d.heading == null || d.heading === '' ? NaN : +d.heading, v = +d.speed;
+ return {sys, heading: Number.isFinite(h) ? ((Math.round(h) % 360) + 360) % 360 : null, speed: Number.isFinite(v) && v > 0 ? clamp(Math.round(v), 0, 5000) : 0}; }
 function createWorld(opts) {
  const sector = opts.sector || makeSector(opts.region || 'kuat', opts.seed || 13);
  const w = {seed: opts.seed || 13, rand: rng((opts.seed || 13) * 7919 + 17), time: 0, acc: 0, nextId: 1, sector, mode: opts.mode || 'fleet',
-  sides: (opts.sides || [{faction: 'empire', ai: false}, {faction: 'rebel', ai: true}]).map((s, i) => ({id: i, faction: s.faction, name: s.name || FACTIONS[s.faction]?.name || ('陣営' + i), ai: !!s.ai, contacts: new Map(), seen: new Map(), start: null, lost: 0, captured: 0, initial: 0, ended: null})),
-  units: new Map(), groups: new Map(), ctgs: new Map(), squads: new Map(), wings: new Map(), missiles: [], battles: new Map(), events: [], designs: new Map(), timers: {ai: 0, det: 0, tac: 0}, result: null};
+  sides: (opts.sides || [{faction: 'empire', ai: false}, {faction: 'rebel', ai: true}]).map((s, i) => ({id: i, faction: s.faction, name: s.name || FACTIONS[s.faction]?.name || ('陣営' + i), ai: !!s.ai, strategy: AI_STRATEGY[s.strategy] ? s.strategy : 'balanced', air: AIR_DOCTRINES[s.air] ? s.air : 'faction', want: Number.isInteger(s.start) ? s.start : null, contacts: new Map(), seen: new Map(), start: null, lost: 0, captured: 0, initial: 0, ended: null})),
+  units: new Map(), groups: new Map(), ctgs: new Map(), squads: new Map(), wings: new Map(), missiles: [], battles: new Map(), events: [], designs: new Map(), timers: {ai: 0, det: 0, tac: 0}, result: null, victory: normalizeVictory(opts.victory)};
  for (const d of opts.designs || []) w.designs.set(d.key, d);
+ // v25 tactical sensors (SENS-004): on unless a test or an old scenario turns them off
+ if (opts.sensors === false) w.sensors = false;
  // v24 (FORM-008) the player's own formations used by this battle, copied in (a world never reads the browser's store)
  w.formTpls = {};for (const t of Array.isArray(opts.formations) ? opts.formations : Object.values(opts.formations || {})) { const n = normalizeFormation(t); if (n) w.formTpls[n.id] = n; }
  // The sides start at the two ends of the main route; home is the stations nearest by lane.
@@ -10620,17 +11479,19 @@ function createWorld(opts) {
  // (the era: as asked, else that of the two factions — Republic and Separatists the Clone Wars, Empire and Rebellion the Civil War —, else the theatre's)
  w.era = Galaxy.ERAS[opts.era] ? opts.era : w.sides.some(s => FACTIONS[s.faction]) ? Galaxy.eraOf(w.sides.map(s => s.faction)) : sector.era || 'gcw';
  const r0 = sector.routes[0], ends = [r0.nodes[r0.nodes.length - 1], r0.nodes[0]], starts = opts.keepEnds ? w.sides.map((sd, i) => ends[i % 2]) : sideStarts(w, sector, w.sides.map((sd, i) => ends[i % 2]));
- w.sides.forEach((sd, i) => { const st = starts[i]; sd.start = st; sd.home = sector.systems.map(x => x.id).sort((a, b) => routeCost(sector, st, a) - routeCost(sector, st, b)).slice(0, 4); });
+ w.sides.forEach((sd, i) => { const st = sector.systems[sd.want] ? sd.want : starts[i]; sd.start = st; sd.home = sector.systems.map(x => x.id).sort((a, b) => routeCost(sector, st, a) - routeCost(sector, st, b)).slice(0, 4); });
  for (const [i, raw] of (opts.fleets || []).entries()) {
   const sd = w.sides[i];if (!sd) continue;const ob = normalizeOrbat(raw);
   ob.ctgs.forEach((c, ci) => {
    const home = sd.home[ci % sd.home.length] ?? sd.start, ctg = makeCtg(w, i, c.name || `第${ci + 1}合同任務群`);
    (c.tgs || []).forEach((t, ti) => {
-    const g = makeGroup(w, i, t.name || `第${ci + 1}${ti + 1}任務群`, home);g.ctg = ctg.id;g.formation = formationKnown(w, t.formation) ? t.formation : 'abreast';if (TURN_MODES[t.turnMode]) g.turnMode = t.turnMode;if (t.autoForm != null) g.autoForm = !!t.autoForm;
+    // SBOX A scenario may place a task group in a system of its own, facing a bearing at a speed (deployGroup).
+    const dp = normalizeDeploy(t.deploy, sector), g = makeGroup(w, i, t.name || `第${ci + 1}${ti + 1}任務群`, dp.sys ?? home);g.ctg = ctg.id;g.formation = formationKnown(w, t.formation) ? t.formation : 'abreast';if (TURN_MODES[t.turnMode]) g.turnMode = t.turnMode;if (t.autoForm != null) g.autoForm = !!t.autoForm;g.deploy = dp;
     const carry = [];
-    for (const e of t.ships || []) { const d = w.designs.get(e.design); if (!d) continue; const u = makeUnit(w, i, d, e.name, g.id); g.units.push(u.id); u.sys = g.sys; u.troops = e.troops || 0; u.ground = e.ground || null; for (const q of e.air || []) addSquad(w, u, q); for (const c of e.carried || []) carry.push([u, c]); }
+    let flag = null;for (const e of t.ships || []) { const d = w.designs.get(e.design); if (!d) continue; const u = makeUnit(w, i, d, e.name, g.id); g.units.push(u.id);if (e.flag && !flag) flag = u.id; u.sys = g.sys; u.troops = e.troops || 0; u.ground = e.ground || null; for (const q of e.air || []) addSquad(w, u, q); for (const c of e.carried || []) carry.push([u, c]); }
     if (!g.units.length) { w.groups.delete(g.id); return; }
-    ctg.tgs.push(g.id);g.flag = g.units.slice().sort((a, b) => w.units.get(b).p.len - w.units.get(a).p.len)[0];g.units.sort((a, b) => (b === g.flag) - (a === g.flag));
+    // The flagship the order of battle names (its first ship in the editor), else the largest.
+    ctg.tgs.push(g.id);g.flag = flag || g.units.slice().sort((a, b) => w.units.get(b).p.len - w.units.get(a).p.len)[0];g.units.sort((a, b) => (b === g.flag) - (a === g.flag));
     deployGroup(w, g, null, ctg.tgs.length - 1);
     // Small ships carried in a hangar ride docked until their carrier launches them.
     for (const [u, c] of carry) { const d = w.designs.get(c.design); if (!d) continue; const x = makeUnit(w, i, d, c.name, g.id); x.carrier = u.id; x.status = 'carried'; x.sys = u.sys; x.pos = [...u.pos]; x.yaw = u.yaw; x.autoLaunch = true; }
@@ -10647,7 +11508,10 @@ function createWorld(opts) {
 // point's place on the galaxy map, in the era of the battle. null when the area is not on the map or the faction has none.
 function sideBearing(w, side, pos) { const f = w.sides[side]?.faction, at = sectorGal(w.sector, pos); return at && f ? Galaxy.factionBearing(w.era, f, at) : null; }
 function sideStarts(w, S, dflt) {
- const n = w.sides.length, fixed = w.sides.map(sd => S.starts?.[sd.faction] ?? null);if (n !== 2) return dflt;
+ const n = w.sides.length, fixed = w.sides.map(sd => S.starts?.[sd.faction] ?? null);
+ // SBOX-004 Three sides or more: each takes the system farthest by lane from those already taken, the two ends of the main route first.
+ if (n > 2) { const out = [...dflt.slice(0, 2)];while (out.length < n) { const far = S.systems.filter(x => !out.includes(x.id)).map(x => ({id: x.id, d: Math.min(...out.map(o => routeCost(S, o, x.id)))})).filter(x => x.d < Infinity).sort((a, b) => b.d - a.d)[0]; out.push(far ? far.id : dflt[out.length % 2]); } return out; }
+ if (n !== 2) return dflt;
  const ends = [...new Set(S.routes.flatMap(r => r.nodes.length ? [r.nodes[0], r.nodes[r.nodes.length - 1]] : []))], mid = [S.size / 2, S.size / 2];
  const bear = [0, 1].map(i => sideBearing(w, i, mid)), score = (i, id) => { const b = bear[i]; if (!b) return 0; const p = S.systems[id].pos, dx = p[0] - mid[0], dy = p[1] - mid[1], d = hyp(dx, dy) || 1; return (dx * b[0] + dy * b[1]) / d; };
  let best = null;
@@ -10791,8 +11655,10 @@ function formationTemplate(kind, n = 6) {
 // the side of the system toward their own space (sideBearing), else toward the system
 // from the edge of the map.
 function deployGroup(w, g, fromSys, slot = null) {
- const S = w.sector.systems, sys = S[g.sys];let dir;
- if (fromSys != null) { const a = S[fromSys].pos, b = sys.pos, d = norm([a[0] - b[0], 0, a[1] - b[1]]); dir = d; }
+ const S = w.sector.systems, sys = S[g.sys];let dir;const dp = fromSys == null && !g.deployed ? g.deploy : null;g.deployed = true;
+ // SBOX heading: degrees clockwise from the top of the map (north, sector -y); the group stands off the system on the far side and faces it.
+ if (dp && dp.heading != null) { const h = dp.heading * Math.PI / 180; dir = [-Math.sin(h), 0, Math.cos(h)]; }
+ else if (fromSys != null) { const a = S[fromSys].pos, b = sys.pos, d = norm([a[0] - b[0], 0, a[1] - b[1]]); dir = d; }
  else if (sideBearing(w, g.side, sys.pos)) { const b = sideBearing(w, g.side, sys.pos); dir = norm([b[0], 0, b[1]]); }
  else { const nb = sys.links.map(ei => w.sector.edges[ei]).map(e => S[e.a === sys.id ? e.b : e.a]).sort((p, q) => routeCost(w.sector, q.id, w.sides[g.side === 0 ? 1 : 0].start) - routeCost(w.sector, p.id, w.sides[g.side === 0 ? 1 : 0].start))[0], c = nb ? nb.pos : [w.sector.size / 2, w.sector.size / 2], d = norm([c[0] - sys.pos[0], 0, c[1] - sys.pos[1]]); dir = len(d) > 0 ? d : [1, 0, 0]; }
  const us = g.units.map(id => w.units.get(id)).filter(alive), fw = scale(dir, -1), side = [-dir[2], 0, dir[0]], dist = fromSys != null ? RULES.arrive : 30000;
@@ -10800,7 +11666,7 @@ function deployGroup(w, g, fromSys, slot = null) {
  const offs = us.length ? groupSlots(w, g, us).offs : [], span = us.length ? Math.max(...offs.map(o => Math.abs(o[2]))) * 2 + formationGaps(us).gz : 0, width = Math.max(4000, span), shift = (slot % 2 ? 1 : -1) * Math.ceil(slot / 2) * (width + 3000);
  const base = add(scale(dir, dist), side, shift);
  const gy = formationGaps(us).gy;
- us.forEach((u, i) => { const o = frameVec(fw, offs[i]); u.pos = add(add(base, o), [(w.rand() - .5) * 60, (w.rand() - .5) * gy * .3, (w.rand() - .5) * 60]); u.yaw = Math.atan2(fw[2], fw[0]); u.velocity = [0, 0, 0]; u.sys = g.sys; u.arrived = w.time;
+ us.forEach((u, i) => { const o = frameVec(fw, offs[i]); u.pos = add(add(base, o), [(w.rand() - .5) * 60, (w.rand() - .5) * gy * .3, (w.rand() - .5) * 60]); u.yaw = Math.atan2(fw[2], fw[0]); u.velocity = dp?.speed > 0 ? scale(fw, Math.min(dp.speed, u.p.maxSpeed || dp.speed)) : [0, 0, 0]; u.sys = g.sys; u.arrived = w.time;
   for (const id of u.squads) { const s = w.squads.get(id); if (s && s.state === 'docked') { s.sys = g.sys; s.pos = [...u.pos]; } } });
  g.holdPos = null;g.tf = null;
 }
@@ -10945,7 +11811,8 @@ function detect(w) {
   const reach = new Map();for (const u of eyes) { const r = RULES.detectLy * (u.info?.sensor || 0) * (u.out ? .3 : 1); reach.set(u.sys, Math.max(reach.get(u.sys) || 0, r)); }
   for (const g of w.groups.values()) {
    if (g.side === sd.id || g.sys == null) continue;const us = g.units.map(id => w.units.get(id)).filter(alive);if (!us.length) continue;
-   let seen = reach.has(g.sys), exact = seen;
+   // v25 in its own system a side knows a group's names once it has identified one of its ships (tactical sensors)
+   let seen = reach.has(g.sys), exact = seen && (!sensorsOn(w) || us.some(u => contactStage(w, sd.id, u) >= 5));
    if (!seen) for (const [sys, r] of reach) if (r > 0 && sysDistance(S, sys, g.sys) <= r) { seen = true; break; }
    // Traffic control and informants on inhabited worlds report fleets in their system.
    if (!seen && S.systems[g.sys].inhabited && w.time - (g.arrivedAt ?? g.created) >= RULES.reportDelay) seen = true;
@@ -10960,6 +11827,89 @@ function noteContact(w, side, g, o) {
  sd.contacts.set(g.id, c);
  if (!had || had.sys !== c.sys) event(w, o.transit ? `敵部隊のハイパースペース航跡：${w.sector.systems[o.sys].name}方面へ` : `敵艦隊を探知：${w.sector.systems[o.sys].name}（${c.ships} 隻）`, {side, sys: o.sys, contact: true});
 }
+
+// ---- tactical sensors and contacts (SENS-001…005; fictional Star Wars technology, provisional numbers in C.SENS) ----
+// Each side fuses what all its ships in a system see (data link) into one contact per enemy ship (side.tc):
+// its stage (C.SENS.stages: 未探知 → 微弱反応 → 放射源検知 → 概略位置 → 追跡 → 識別 → 射撃諸元), the SNR per band,
+// the estimated position and its error. Signatures come from what the ship's heat network actually sheds this
+// second (u.ht.band, by dissipator type), its drive's exhaust and its own active sensors; the active sensor
+// (radar) sees cross-section, not emission, and never neutrinos. Stages climb one at a time and must be held
+// for a while (C.SENS.dwell), so a contact never jumps from a faint return to an identified, locked target.
+// Cost: a target is updated every C.SENS.dt s while an observer is within C.SENS.far, else every farDt s; the
+// observers are bucketed in a coarse grid per side and only cells within the target's detection reach and the
+// nearest C.SENS.maxObs observers count. Movement and target choice use contacts at 放射源検知 or better; guns
+// fire only from 概略位置 and their accuracy grows with the stage (C.SENS.fire); missiles need 追跡.
+const SN = C.SENS;
+const sensorsOn = w => w.sensors !== false;
+function unitSens(u) { if (u.p.sens) return u.p.sens; if (!u._sens) { const s = clamp(u.info?.sensor ?? 1, .3, 3) * .8; u._sens = {nu: s, ir: s, em: s, rad: s}; } return u._sens; }
+function unitSigma(u) { if (u.p.sigma > 0) return u.p.sigma; if (!(u._sigma > 0)) { const L = u.p.len || 100, W = u.p.width || L * .4, H = u.p.height || L * .25; u._sigma = Math.round((L * H + W * H + L * W) / 3); } return u._sigma; }
+// W of active-sensor power per unit of aperture (0 when off: low emission, out of action, in hyperspace).
+function radarPower(u) { if (u.out || u.warp || u.dead) return 0; return C.EMIT.radarW * (C.EMCON[C.emconOf(u)]?.radar ?? 1); }
+// The signature this second, W per band: what the heat network sheds (by dissipator type), the drive's exhaust
+// glow and the active sensors' own transmissions (EM). A ship without power figures gets a size estimate.
+function unitSig(u) {
+ const b = u.ht?.band, o = {nu: 0, ir: 0, em: 0};
+ if (b) { o.nu = b.nu; o.ir = b.ir; o.em = b.em; } else { const P = u.p.grid?.P, E = P > 0 ? .05 * P : C.EMIT.noGrid * (u.p.len || 100) ** 2; o.nu = E * .6; o.ir = E * .33; o.em = E * .07; }
+ const pe = u.pw?.eng || 0;o.ir += pe * C.EMIT.engine[1];o.em += pe * C.EMIT.engine[2];o.em += radarPower(u) * (unitSens(u).rad || 0);
+ return o;
+}
+// A small deterministic jitter (no draw from the battle's random stream, so sensors never change the outcome of a fixed seed by themselves).
+function hashJit(id, t, k) { const s = String(id) + ':' + Math.floor(t) + ':' + k; let h = 2166136261; for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619); return ((h >>> 0) % 20001) / 10000 - 1; }
+function sensorTick(w, sys, us) {
+ if (!sensorsOn(w)) return;
+ const present = us.filter(u => !u.warp), bySide = new Map();
+ for (const u of present) { let a = bySide.get(u.side); if (!a) bySide.set(u.side, a = []); a.push(u); }
+ for (const sd of w.sides) {
+  const tc = sd.tc || (sd.tc = new Map()), obs = bySide.get(sd.id) || [];
+  // contacts on ships no longer here
+  for (const [id, c] of tc) { if (c.sys !== sys) continue; const t = w.units.get(id); if (!t || !alive(t) || t.sys !== sys) tc.delete(id); }
+  if (!obs.length) { for (const [id, c] of tc) if (c.sys === sys) tc.delete(id); continue; }
+  // observers in a coarse grid (x, z) with each cell's best apertures
+  const cells = new Map(), Amax = {nu: 0, ir: 0, em: 0, rad: 0};let Pmax = 0;
+  for (const o of obs) { const A = unitSens(o), k = Math.floor(o.pos[0] / SN.cell) + ',' + Math.floor(o.pos[2] / SN.cell); let c = cells.get(k); if (!c) cells.set(k, c = {x: (Math.floor(o.pos[0] / SN.cell) + .5) * SN.cell, z: (Math.floor(o.pos[2] / SN.cell) + .5) * SN.cell, list: []}); c.list.push(o); const dis = o.out ? .3 : 1; for (const b in Amax) Amax[b] = Math.max(Amax[b], (A[b] || 0) * dis); Pmax = Math.max(Pmax, radarPower(o)); }
+  for (const t of present) {
+   if (t.side === sd.id) continue;let c = tc.get(t.id);
+   if (c && c.sys === sys && w.time < c.next) continue;
+   if (!c || c.sys !== sys) { c = {id: t.id, sys, st: 0, since: w.time, next: 0, snr: {nu: 0, ir: 0, em: 0, rad: 0}, est: null, err: Infinity, low: 0, at: w.time}; tc.set(t.id, c); }
+   const sig = unitSig(t), sigma = unitSigma(t);
+   // reach: the distance beyond which even the best aperture here gets SNR .05 (passive and active)
+   const pas = C.sensSNR(sig, sigma, Amax, 1, Pmax / C.EMIT.radarW), reach = Math.max(Math.sqrt((pas.nu + pas.ir + pas.em) / .05), Math.sqrt(Math.sqrt(pas.rad / .05)));
+   const near = [];for (const cell of cells.values()) { const dx = cell.x - t.pos[0], dz = cell.z - t.pos[2]; if (Math.hypot(dx, dz) - SN.cell * .75 > reach) continue; for (const o of cell.list) near.push([len(sub(o.pos, t.pos)), o]); }
+   near.sort((a, b) => a[0] - b[0]);
+   const s = {nu: 0, ir: 0, em: 0, rad: 0};let dn = near.length ? near[0][0] : Infinity, errP = Infinity, errR = Infinity;
+   for (let i = 0; i < near.length && i < SN.maxObs; i++) { const [r, o] = near[i], A = unitSens(o), k = o.out ? .3 : 1, x = C.sensSNR(sig, sigma, {nu: A.nu * k, ir: A.ir * k, em: A.em * k, rad: A.rad * k}, r, radarPower(o) / C.EMIT.radarW); for (const b in s) s[b] += x[b];
+    const sp = x.ir + x.em + x.nu * .25; if (sp > .5) errP = Math.min(errP, r * SN.errK / Math.sqrt(sp)); if (x.rad > 1) errR = Math.min(errR, 30 + r * .004 / Math.sqrt(x.rad)); }
+   c.snr = s;c.dist = dn;c.at = w.time;
+   // stage: one step up per update once the current one has been held long enough; down one after two weak updates
+   const cap = C.sensStageCap(s), keep = C.sensStageCap({nu: s.nu / SN.drop, ir: s.ir / SN.drop, em: s.em / SN.drop, rad: s.rad / SN.drop});
+   if (cap > c.st) { c.low = 0; if (w.time - c.since >= SN.dwell[c.st]) { c.st++; c.since = w.time; if (c.st === 2 && !sd.tcLog?.has(sys)) { (sd.tcLog || (sd.tcLog = new Set())).add(sys); if (!sd.ai) blog(w, sys, '敵艦の放射源を探知', {side: sd.id}); } } }
+   else if (keep < c.st) { if (++c.low >= 2) { c.st--; c.since = w.time; c.low = 0; } } else c.low = 0;
+   // the estimated position: within the error of the best fix (the active sensor's, or the passive bearing's at range)
+   const err = Math.min(errP, errR, Math.max(dn, 1) * 2);c.err = c.st >= 6 ? Math.min(err, 60) : err;
+   c.est = c.st ? [t.pos[0] + hashJit(t.id, w.time, 0) * c.err * .7, t.pos[1] + hashJit(t.id, w.time, 1) * c.err * .3, t.pos[2] + hashJit(t.id, w.time, 2) * c.err * .7] : null;
+   if (!(c.st > 0) && !(s.nu + s.ir + s.em + s.rad > .5)) { tc.delete(t.id); continue; }
+   c.next = w.time + (dn > SN.far ? SN.farDt : SN.dt) * (.9 + .2 * ((t.id.charCodeAt?.(t.id.length - 1) || 0) % 10) / 10);
+  }
+ }
+}
+// A side's contact on a ship, and its stage (its own ships count as fully known; with sensors off, everything is).
+function contactOf(w, side, id) { const c = w.sides[side]?.tc?.get(id); return c || null; }
+function contactStage(w, side, u) { if (!u) return 0; if (u.side === side || !sensorsOn(w)) return SN.stages.length - 1; const c = w.sides[side]?.tc?.get(u.id); return c && c.sys === u.sys ? c.st : 0; }
+const known = (w, side, u, st) => contactStage(w, side, u) >= st;
+// With nothing found yet, an AI group searches: toward its strongest faint contact, else toward the middle of the system.
+function searchOrder(w, side, from) {
+ let best = null, bs = 0;for (const c of w.sides[side]?.tc?.values() || []) { if (c.sys !== from.sys || !c.est || c.st < 1) continue; const v = c.snr.nu + c.snr.ir + c.snr.em + c.snr.rad; if (v > bs) { bs = v; best = c; } }
+ const pt = best ? best.est : [0, from.pos[1], 0];if (!best && Math.hypot(from.pos[0], from.pos[2]) < 8000) return {type: 'hold'};
+ return {type: 'move', point: pt, dir: norm([pt[0] - from.pos[0], 0, pt[2] - from.pos[2]]), search: true};
+}
+// S-foils (WING-003/004): ordered open or closed, or on 'auto' open while the side is fighting someone it has found
+// (or the ship's heat stores are filling, or it is running hot), closed otherwise.
+function foilTick(w, sys, us, dt) {
+ const fighting = new Map();for (const sd of w.sides) { let on = false; if (!sensorsOn(w)) on = us.some(u => u.side !== sd.id && !u.warp); else for (const c of sd.tc?.values() || []) if (c.sys === sys && c.st >= 2) { on = true; break; } fighting.set(sd.id, on); }
+ for (const u of us) { if (!u.p.foils?.length || u.warp) continue; const m = u.order.foil || 'auto', hot = (u.ht?.peak || 0) > .3 || ['high', 'emerg'].includes(C.emconOf(u));
+  C.foilStep(u, dt, () => m === 'open' ? 1 : m === 'close' ? 0 : (!u.out && (fighting.get(u.side) || hot)) ? 1 : 0, text => blog(w, sys, `${u.name}：${text}`, u)); }
+}
+const EMIT_MODES = ['normal', 'low', 'high', 'emerg'], FOIL_MODES = ['auto', 'open', 'close'];
 
 // ---------- battles ----------
 // A system with ships of both sides is a battle. Ships fight as in the fleet
@@ -10990,7 +11940,7 @@ function targetValue(a) { const p = a.p, fire = (p.gunBest || 0) + .5 * (p.ionBe
 // order, or on 自動交戦 the target its guide picks. A ship may also be given an
 // order of its own (hold, move, attack, or 'auto' to pick its own target).
 function bestTarget(w, us, from, side, worth, keep) {
- const foes = us.filter(t => t.side !== side && alive(t));if (!foes.length) return null;
+ const foes = us.filter(t => t.side !== side && alive(t) && known(w, side, t, 2));if (!foes.length) return null;
  let tgt = null, best = Infinity, bestOut = true;
  for (const a of foes) { const out = !!a.out; if (out && !bestOut) continue; const dx = a.pos[0] - from.pos[0], dy = a.pos[1] - from.pos[1], dz = a.pos[2] - from.pos[2], sc = Math.sqrt(dx * dx + dy * dy + dz * dz) * (a.info?.capital === from.info?.capital ? 1 : 1.6) * worth.get(a.id) * (keep === a.id ? .75 : 1); if ((bestOut && !out) || sc < best) { tgt = a; best = sc; bestOut = out; } }
  return tgt;
@@ -10999,7 +11949,7 @@ function bestTarget(w, us, from, side, worth, keep) {
 // dangerous first, favouring one already stripped part way (fire stays on it
 // until its shields are down); with every enemy's shields down, as usual.
 function doctrineTarget(w, us, from, side, worth, keep) {
- const D = doctrineOf(w, side), up = us.filter(t => t.side !== side && alive(t) && !t.out && shieldFrac(t) > D.strip);
+ const D = doctrineOf(w, side), up = us.filter(t => t.side !== side && alive(t) && !t.out && shieldFrac(t) > D.strip && known(w, side, t, 2));
  if (!up.length) return bestTarget(w, us, from, side, worth, keep);
  let tgt = null, best = Infinity;
  for (const a of up) { const dx = a.pos[0] - from.pos[0], dy = a.pos[1] - from.pos[1], dz = a.pos[2] - from.pos[2], sc = Math.sqrt(dx * dx + dy * dy + dz * dz) * (a.info?.capital === from.info?.capital ? 1 : 1.6) * worth.get(a.id) * (keep === a.id ? .7 : 1) * (.45 + shieldFrac(a)); if (sc < best) { tgt = a; best = sc; } }
@@ -11014,7 +11964,7 @@ function tacticalOrders(w, sys, us) {
   const ai = w.sides[g.side].ai || g.order.type === 'auto';
   const members = g.units.map(id => w.units.get(id)).filter(u => u && u.sys === sys && fighting(u) && !u.manual && !u.jump);if (!members.length) continue;
   if (ai) { const guide = members.find(u => u.id === g.flag) || members[0], tgt = (doctrineOf(w, g.side) ? doctrineTarget : bestTarget)(w, us, guide, g.side, worth, g.auto?.target);
-   g.auto = tgt ? {type: 'attack', target: tgt.id} : {type: 'hold'}; }
+   g.auto = tgt ? {type: 'attack', target: tgt.id} : us.some(t => t.side !== g.side && alive(t)) ? searchOrder(w, g.side, guide) : {type: 'hold'}; }
   // v24 FORM-009/010 the task force AI's formation for the fight (AI sides; player groups only when left to choose it)
   if (w.sides[g.side].ai || g.autoForm) { const o = groupOrder(w, g), t = o.type === 'attack' ? w.units.get(o.target) : null; if (t && t.sys === sys) tfAutoForm(w, g, members.filter(u => u.order.type === 'group'), t, sys); }
  }
@@ -11023,7 +11973,7 @@ function tacticalOrders(w, sys, us) {
   // Badly damaged AI ships with a hyperdrive leave.
   if (side.ai && unitStruct(u) < .28 && unitHyper(u) != null && !u.leaving) { u.leaving = true; aiWithdrawUnit(w, u); continue; }
   if (u.order.type !== 'auto') continue;
-  const tgt = (doctrineOf(w, u.side) ? doctrineTarget : bestTarget)(w, us, u, u.side, worth, u.auto?.target);u.auto = tgt ? {type: 'attack', target: tgt.id} : {type: 'hold'};
+  const tgt = (doctrineOf(w, u.side) ? doctrineTarget : bestTarget)(w, us, u, u.side, worth, u.auto?.target);u.auto = tgt ? {type: 'attack', target: tgt.id} : us.some(t => t.side !== u.side && alive(t)) ? searchOrder(w, u.side, u) : {type: 'hold'};
  }
 }
 function groupOrder(w, g) {
@@ -11384,17 +12334,20 @@ function battleTick(w, sys, dt) {
  const DMG = RULES.damage, inc = new Map(us.map(u => [u.id, C.combatIncoming()])), plan = groupStations(w, sys, us, byId, sysOf, dt);
  moveShips(w, sys, us, byId, sysOf, plan, inc, dt);
  for (const u of us) if (u.tractor) tractorTick(w, u, dt);
+ // v25 sensors and contacts, then the S-foils (SENS-004, WING-004)
+ sensorTick(w, sys, us);foilTick(w, sys, us, dt);
  // --- gunnery and power
  // v24 (PERF-001) the line-of-fire checks look only at ships in the grid cells along the line (C.hullAlong), not at every ship
  const lof = us.length >= C.HULL_GRID.min ? C.hullGrid(us, 1, 0) : us;
  for (const u of us) {
   if (u.manual || u.warp) continue;const o = effectiveOrder(u, w), p = u.p, s = sysOf.get(u.id), crewEff = C.fleetCrewEff(u), reach = C.fleetReach(p);
-  const foes = us.filter(x => x.side !== u.side && !x.warp), live = foes.filter(x => !x.out), pool = live.length ? live : foes;
+  // v25 only what this side has located (概略位置 or better) can be fired at
+  const foes = us.filter(x => x.side !== u.side && !x.warp && known(w, u.side, x, 3)), live = foes.filter(x => !x.out), pool = live.length ? live : foes;
   // Guns fire by range band: the ordered target if any band reaches it, else the nearest enemy in reach.
   // A ship spooling its hyperdrive has its reactor on the drive and does not fire.
   let t = null, raw = 0, F = null, distance = 0;
   u.blocked = null;
-  if (!u.out && !u.jump && u.order.fire !== false) { t = byId.get(o.target); if (o.type === 'escort' && t && t.side === u.side) t = C.escortPick(u, t, pool, reach); if (!t || t.side === u.side || t.warp) t = nearestOf(pool, u.pos); if (t && len(sub(t.pos, u.pos)) > reach) { const n = nearestOf(pool, u.pos); t = n && len(sub(n.pos, u.pos)) <= reach ? n : null; }
+  if (!u.out && !u.jump && u.order.fire !== false) { t = byId.get(o.target); if (o.type === 'escort' && t && t.side === u.side) t = C.escortPick(u, t, pool, reach); if (!t || t.side === u.side || t.warp || !known(w, u.side, t, 3)) t = nearestOf(pool, u.pos); if (t && len(sub(t.pos, u.pos)) > reach) { const n = nearestOf(pool, u.pos); t = n && len(sub(n.pos, u.pos)) <= reach ? n : null; }
    // A ship of our own across the line of fire: another target in reach with a clear line, or hold fire and move off the line.
    if (t) { const bl = C.fireBlocker(lof, u, t); if (bl) { let alt = null, bd = Infinity; for (const x of pool) { if (x === t) continue; const dd = len(sub(x.pos, u.pos)); if (dd <= reach && dd < bd && !C.fireBlocker(lof, u, x)) { alt = x; bd = dd; } } if (!alt) { u.blocked = bl.id; if (!u.dodge || w.time > u.dodge.until) { const dy = u.pos[1] - bl.pos[1], sg = Math.abs(dy) > 200 ? Math.sign(dy) : (String(u.id).charCodeAt(String(u.id).length - 1) & 1 ? 1 : -1); u.dodge = {dy: sg * Math.max(900, ((u.p.height || u.p.len * .2) + (bl.p.height || bl.p.len * .2)) * 1.4), until: w.time + 25}; } } t = alt; } }
    if (t) { distance = len(sub(t.pos, u.pos)); F = C.fleetFire(u, t, distance); raw = F.cost * s.weapon; } }
@@ -11403,7 +12356,7 @@ function battleTick(w, sys, dt) {
   if (!t || u.out) { C.volleyStep(u, dt, false); continue; }
   const aim = C.fleetAim(u, t, true);
   // v20.6 Continuous fire lands every tick; salvos land all at once every few seconds (C.VOLLEY).
-  const vk = C.volleyStep(u, dt, F.gun + F.ion > 0), hit = p.acc * F.fall * crewEff * (.6 + .4 * s.fire) * (aim ? .8 : 1), gun = F.gun * s.weapon * fire * hit * vk, ion = F.ion * s.weapon * fire * hit * vk;
+  const vk = C.volleyStep(u, dt, F.gun + F.ion > 0), hit = p.acc * F.fall * crewEff * (.6 + .4 * s.fire) * (aim ? .8 : 1) * (sensorsOn(w) ? SN.fire[contactStage(w, u.side, t)] ?? 1 : 1), gun = F.gun * s.weapon * fire * hit * vk, ion = F.ion * s.weapon * fire * hit * vk;
   const x = inc.get(t.id), hd = dt * DMG, dealt = (gun + ion) * hd;
   // v21.1 A ship of the target's side across the line of fire takes its share (escorts screening their charge).
   const scr = gun + ion > 0 ? C.fireScreen(lof, u, t, C.aimPoint(t, aim)) : null;
@@ -11417,7 +12370,7 @@ function battleTick(w, sys, dt) {
  // --- missiles: launch, flight, point defence, impact
  for (const u of us) {
   if (u.manual || u.out || u.warp || u.jump || !(u.p.msl > 0 || u.p.imsl > 0)) continue;const o = effectiveOrder(u, w), want = byId.get(o.target);
-  let t = want && want.side !== u.side && !want.warp ? want : null;if (!t) { let bd = Infinity; for (const x of us) { if (x.side === u.side || x.warp || x.out) continue; const d = len(sub(x.pos, u.pos)); if (d < bd) { bd = d; t = x; } } }
+  let t = want && want.side !== u.side && !want.warp && known(w, u.side, want, 4) ? want : null;if (!t) { let bd = Infinity; for (const x of us) { if (x.side === u.side || x.warp || x.out || !known(w, u.side, x, 4)) continue; const d = len(sub(x.pos, u.pos)); if (d < bd) { bd = d; t = x; } } }
   if (!t || len(sub(t.pos, u.pos)) > RULES.missileRange) continue;
   const mods = u.p.modules || [];u.mslT = (u.mslT || 0) - dt;if (u.mslT > 0) continue;u.mslT = 20;
   const tubes = mods.map((m, i) => m.k === 'launcher' && u.mods[i] > 0 && u.ammo[i] >= 8 ? i : -1).filter(i => i >= 0), total = mods.filter(m => m.k === 'launcher').length;
@@ -11448,7 +12401,7 @@ function battleTick(w, sys, dt) {
  const ctx = combatCtx(w, sys);
  // --- v21 superweapons: charge, fire, hold a beam; stopped and overloaded reactors recover
  for (const u of us) C.swDecay(u, dt, ctx);
- for (const u of us) { if (u.warp || !u.sw?.length) continue; w.ionBolts = w.ionBolts || [];const sh = C.superweaponStep(u, dt, {foes: us.filter(x => x.side !== u.side && !x.warp), all: us.filter(x => !x.warp), bolts: w.ionBolts, inc: id => inc.get(id), ctx, time: w.time, damage: DMG, sys: sysOf.get(u.id)}); for (const b of w.ionBolts) if (b.sys == null) b.sys = sys; if (sh.length) { w.swShots = w.swShots || []; for (const x of sh) w.swShots.push({...x, sys, t: w.time}); } }
+ for (const u of us) { if (u.warp || !u.sw?.length) continue; w.ionBolts = w.ionBolts || [];const sh = C.superweaponStep(u, dt, {foes: us.filter(x => x.side !== u.side && !x.warp && known(w, u.side, x, 3)), all: us.filter(x => !x.warp), bolts: w.ionBolts, inc: id => inc.get(id), ctx, time: w.time, damage: DMG, sys: sysOf.get(u.id)}); for (const b of w.ionBolts) if (b.sys == null) b.sys = sys; if (sh.length) { w.swShots = w.swShots || []; for (const x of sh) w.swShots.push({...x, sys, t: w.time}); } }
  if (w.swShots?.length) w.swShots = w.swShots.filter(x => w.time - x.t < 12);
  // v21.2 Hyper-ion bolts in flight in this system sweep whatever they pass (either side).
  if (w.ionBolts?.length) { const here = w.ionBolts.filter(b => b.sys === sys); if (here.length) { C.ionBoltsStep(here, us.filter(x => !x.warp), dt, ctx, byId); w.ionBolts = w.ionBolts.filter(b => !b.done); } }
@@ -11540,7 +12493,7 @@ function craftTick(w, sys, us, byId, sysOf, inc, dt) {
     const aimK = o.aim && o.aim !== 'auto' ? o.aim : C.fleetAim({p: {len: 20}, order: {aim: 'auto'}}, t, true);
     for (const s of out) { const dd = len(sub(t.pos, s.pos));
      if (!s.fired && dd < Math.max(3000, t.p.len * .6)) { s.fired = true; squadRelease(w, sys, s, t, false, aimK); }
-     if (!s.ran && dd < Math.max(900, t.p.len * .45)) { const c2 = CRAFT[s.craft], tt = s.n * (c2.gun ?? c2.strike) * RULES.damage, x = inc.get(t.id); if (x && tt > 0) C.combatAdd(x, t, s.pos, {sf: .7 * tt, hull: .7 * tt, direct: .3 * tt}, aimK, s.home); const rel = squadRelease(w, sys, s, t, true, aimK); s.ran = true; s.runs++; s.dmg = (s.dmg || 0) + tt; (w.craftRuns || (w.craftRuns = [])).push({sys, t: w.time, sq: s.id, to: t.id, n: s.n, ord: [...(s.relG || []), ...rel]}); s.relG = null; } }
+     if (!s.ran && dd < Math.max(900, t.p.len * .45)) { const c2 = CRAFT[s.craft], tt = s.n * (c2.gun ?? c2.strike) * RULES.damage * C.squadFireK(s), x = inc.get(t.id);s.strafeT = w.time + C.CRAFT_HEAT.strafeS; if (x && tt > 0) C.combatAdd(x, t, s.pos, {sf: .7 * tt, hull: .7 * tt, direct: .3 * tt}, aimK, s.home); const rel = squadRelease(w, sys, s, t, true, aimK); s.ran = true; s.runs++; s.dmg = (s.dmg || 0) + tt; (w.craftRuns || (w.craftRuns = [])).push({sys, t: w.time, sq: s.id, to: t.id, n: s.n, ord: [...(s.relG || []), ...rel]}); s.relG = null; } }
     if (out.every(s => s.ran) || len(sub(t.pos, c)) < Math.max(700, t.p.len * .3)) { wing.phase = 'egress'; wing.egress = add(t.pos, shipToWorld(t, scale(ap, -9000 - t.p.len * .5))); } }
    else if (wing.phase === 'egress') { goal = wing.egress || ip; runOn = t; if (len(sub(goal, c)) < 2500) {
      // Bombers go home when their stores are spent, and so do fighters that carried ordnance; gun-only fighters go round again.
@@ -11563,13 +12516,15 @@ function craftTick(w, sys, us, byId, sysOf, inc, dt) {
  // 3D view shows it shooting at) and the one credited with what it shoots down.
  const air = sq.filter(s => s.state === 'out' && s.n > 0), N = air.length, nS = w.sides.length, DFC = 1500, cells = new Map(), tops = new Map(), near = new Map(), nearTop = new Map(), key = (i, j, k) => ((i & 1023) << 20) | ((j & 1023) << 10) | (k & 1023);
  const P = new Float64Array(N * 3), side = new Int8Array(N), soft = new Float64Array(N), cellOf = new Int32Array(N), loss = new Float64Array(N), pdL = new Float64Array(N), pdTop = new Float64Array(N), pdBy = new Array(N).fill(null), val = new Float64Array(N);
- for (let n = 0; n < N; n++) { const s = air[n], c = CRAFT[s.craft], x = s.pos[0], y = s.pos[1], z = s.pos[2], kk = key(Math.floor(x / DFC), Math.floor(y / DFC), Math.floor(z / DFC));P[n * 3] = x;P[n * 3 + 1] = y;P[n * 3 + 2] = z;side[n] = s.side;soft[n] = 1 / c.armor;cellOf[n] = kk;val[n] = s.n * c.aa;let e = cells.get(kk); if (!e) { cells.set(kk, e = new Float64Array(nS)); tops.set(kk, new Int32Array(nS).fill(-1)); } e[s.side] += val[n]; const tp = tops.get(kk); if (tp[s.side] < 0 || val[tp[s.side]] < val[n]) tp[s.side] = n; }
+ for (let n = 0; n < N; n++) { const s = air[n], c = CRAFT[s.craft], x = s.pos[0], y = s.pos[1], z = s.pos[2], kk = key(Math.floor(x / DFC), Math.floor(y / DFC), Math.floor(z / DFC));P[n * 3] = x;P[n * 3 + 1] = y;P[n * 3 + 2] = z;side[n] = s.side;soft[n] = 1 / c.armor;cellOf[n] = kk;val[n] = s.n * c.aa * C.squadFireK(s);let e = cells.get(kk); if (!e) { cells.set(kk, e = new Float64Array(nS)); tops.set(kk, new Int32Array(nS).fill(-1)); } e[s.side] += val[n]; const tp = tops.get(kk); if (tp[s.side] < 0 || val[tp[s.side]] < val[n]) tp[s.side] = n; }
  for (let n = 0; n < N; n++) {
   const kk = cellOf[n];let e = near.get(kk), et = nearTop.get(kk);
   if (!e) { e = new Float64Array(nS); et = new Int32Array(nS).fill(-1); const i = Math.floor(P[n * 3] / DFC), j = Math.floor(P[n * 3 + 1] / DFC), k = Math.floor(P[n * 3 + 2] / DFC); for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) for (let c = -1; c <= 1; c++) { const ck = key(i + a, j + b, k + c), q = cells.get(ck); if (!q) continue; const tq = tops.get(ck); for (let t = 0; t < nS; t++) { e[t] += q[t]; if (tq[t] >= 0 && (et[t] < 0 || val[et[t]] < val[tq[t]])) et[t] = tq[t]; } } near.set(kk, e); nearTop.set(kk, et); }
   let foe = 0, top = -1;for (let t = 0; t < nS; t++) if (t !== side[n]) { foe += e[t]; if (et[t] >= 0 && (top < 0 || val[top] < val[et[t]])) top = et[t]; }
   if (foe > 0) { loss[n] = RULES.dogfight * foe * soft[n] * dt; air[n].dogfight = w.time; air[n].dfFoe = top >= 0 ? air[top].id : null; }
  }
+ // v25 each squadron's stored heat: up while it fights (S-foils open in battle), down off the trigger; O(squadrons)
+ { const bat = w.battles.has(sys); for (let n = 0; n < N; n++) { const s = air[n]; C.squadHeatStep(s, CRAFT[s.craft]?.heat, s.dogfight === w.time || s.strafeT > w.time, bat, dt); } }
  // Point defence on craft near enemy ships.
  for (const x of us) {
   if (x.warp || x.manual) continue;const k = RULES.pdCraft * sysOf.get(x.id).weapon * C.fleetCrewEff(x) * dt, lim2 = (RULES.pdRange + x.p.len * .5) ** 2, px = x.pos[0], py = x.pos[1], pz = x.pos[2], a = x.p.aaArcs, arcs = a && (a[0] > 0 || a[1] > 0 || a[2] > 0 || a[3] > 0 || a[4] > 0 || a[5] > 0), cy = Math.cos(x.yaw), sy = Math.sin(x.yaw), flat = x.p.aa || 0, xs = x.side;
@@ -12024,12 +12979,12 @@ function aiStrategic(w, side) {
  // Break off a battle going badly; otherwise join or reinforce battles where our ships fight.
  for (const [sys] of w.battles) { if (!sidePresent(w, side, sys)) continue; const us = systemUnits(w, sys), ours = us.filter(u => u.side === side && fighting(u)).reduce((n, u) => n + unitStrength(u), 0), theirs = us.filter(u => u.side !== side && fighting(u)).reduce((n, u) => n + unitStrength(u), 0);
   const there = mine.filter(g => g.sys === sys && !g.spool && !g.transit);
-  if (ours < theirs * .45 && theirs > 0) { const safe = safeSystem(w, side, sys); if (safe != null) for (const g of there) { orderJump(w, g.id, safe); event(w, `${g.name} が撤退を開始`, {side}); } continue; }
+  if (ours < theirs * strategyOf(w, side).retreat && theirs > 0) { const safe = safeSystem(w, side, sys); if (safe != null) for (const g of there) { orderJump(w, g.id, safe); event(w, `${g.name} が撤退を開始`, {side}); } continue; }
   for (const g of mine) if (!g.transit && !g.spool && !g.waitJump && g.sys !== sys && !w.battles.has(g.sys)) { const eta = etaTo(w, g.id, sys); if (eta != null && eta < 900) orderJump(w, g.id, sys); } }
  // Strike the nearest fresh contact we outmatch, the whole fleet arriving together.
  // A commander kept from battle for an hour grows bolder about the odds.
  if ([...w.battles.keys()].some(sys => sidePresent(w, side, sys))) A.lastBattle = w.time;
- const fresh = contacts.filter(c => w.time - c.time < 900), ours = mine.reduce((n, g) => n + strength(g), 0), odds = w.time - (A.lastBattle ?? 0) > 3600 ? .85 : 1.15;
+ const fresh = contacts.filter(c => w.time - c.time < 900), ours = mine.reduce((n, g) => n + strength(g), 0), odds = w.time - (A.lastBattle ?? 0) > 3600 ? strategyOf(w, side).bold : strategyOf(w, side).odds;
  const danger = new Set(fresh.filter(c => c.strength * odds >= ours).map(c => c.sys)), at = here(main), idle = main.length && !busy(main) && at != null && !w.battles.has(at);
  if (fresh.length && idle) {
   const lead = main.find(g => g.sys === at), prey = fresh.filter(c => c.sys !== at && ours > c.strength * odds).map(c => ({c, eta: etaTo(w, lead.id, c.sys)})).filter(x => x.eta != null).sort((a, b) => a.eta - b.eta)[0];
@@ -12118,15 +13073,23 @@ function checkResult(w) {
  // Ships docked in a carrier are its strength still.
  const now = w.sides.map(sd => [...w.units.values()].filter(u => u.side === sd.id && (fighting(u) || rear(u) || aboard(u))).reduce((n, u) => n + unitStrength(u) * (rear(u) ? .5 : 1), 0));
  w.sides.forEach((sd, i) => sd.now = now[i]);
- const broken = w.sides.map((sd, i) => now[i] < sd.initial * .25 || ![...w.units.values()].some(u => u.side === sd.id && (fighting(u) || rear(u))));
- if (broken.some(Boolean)) { const winner = broken[0] && broken[1] ? -1 : broken[0] ? 1 : 0; w.result = {winner, time: w.time}; event(w, winner < 0 ? '両軍とも戦闘力を失いました' : `${w.sides[winner].name}の勝利`, {result: true}); }
+ // SBOX The victory conditions (w.victory): a side is broken below breakAt of its fighting value at the start (0.25 as
+ // before; 0 = to the last ship), or with no ship left able to fight. The last side unbroken wins (any number of sides).
+ // With a time limit, when it runs out the side keeping the largest share of its strength wins (a draw within 5 points).
+ const V = w.victory || VICTORY_DEFAULT, broken = w.sides.map((sd, i) => now[i] < sd.initial * V.breakAt || ![...w.units.values()].some(u => u.side === sd.id && (fighting(u) || rear(u))));
+ const standing = w.sides.filter((sd, i) => !broken[i]);let winner = null, reason = 'break';
+ if (standing.length <= 1 && broken.some(Boolean)) winner = standing.length ? standing[0].id : -1;
+ else if (V.timeLimit > 0 && w.time >= V.timeLimit) { reason = 'time'; const share = w.sides.map((sd, i) => broken[i] ? -1 : sd.initial > 0 ? now[i] / sd.initial : 0), best = Math.max(...share), lead = share.filter(x => x > best - .05).length; winner = lead > 1 ? -1 : share.indexOf(best); }
+ if (winner == null) return;
+ w.result = {winner, time: w.time, reason}; event(w, winner < 0 ? (reason === 'time' ? '制限時間に達しました。引き分けです' : '両軍とも戦闘力を失いました') : reason === 'time' ? `制限時間に達しました。${w.sides[winner].name}の判定勝ち` : `${w.sides[winner].name}の勝利`, {result: true});
 }
-
 // ---------- player orders ----------
 // Ships: 'group' (follow the task group), or an order of their own.
 function orderUnit(w, id, o) {
  const u = w.units.get(id);if (!u || !alive(u) || w.sides[u.side].ai) return false;
  if (o.type && !['group', 'auto', 'hold', 'move', 'attack', 'escort'].includes(o.type)) return false;
+ // v25 emission mode (SENS-005) and S-foils (WING-003)
+ if (o.emit != null && !EMIT_MODES.includes(o.emit)) return false;if (o.foil != null && !FOIL_MODES.includes(o.foil)) return false;
  if (o.type === 'attack' && !w.units.has(o.target)) return false;
  // v21.1 Escort: guard a ship of our own side (not itself).
  if (o.type === 'escort') { const t = w.units.get(o.target); if (!t || t === u || t.side !== u.side || !alive(t)) return false; }
@@ -12152,7 +13115,8 @@ function orderGroup(w, gid, o) {
   g.order = {type: o.type, target: o.target, point: o.point, dir: o.type === 'move' && o.point && guide ? norm([o.point[0] - guide.pos[0], 0, o.point[2] - guide.pos[2]]) : null};g.holdPos = null;if (o.type === 'course') g.order.hdg = angle(o.hdg);if (o.type !== 'auto') g.inbound = null;
   for (const id of g.units) { const u = w.units.get(id); if (u && alive(u)) u.order = {...u.order, type: 'group'}; delete u?.order.target; delete u?.order.point; }
  }
- for (const k of ['power', 'aim', 'fire', 'volley']) if (o[k] != null) for (const id of g.units) { const u = w.units.get(id); if (u && alive(u)) u.order[k] = o[k]; }
+ if (o.emit != null && !EMIT_MODES.includes(o.emit) || o.foil != null && !FOIL_MODES.includes(o.foil)) return false;
+ for (const k of ['power', 'aim', 'fire', 'volley', 'emit', 'foil']) if (o[k] != null) for (const id of g.units) { const u = w.units.get(id); if (u && alive(u)) u.order[k] = o[k]; }
  stir(w, g.sys);return true;
 }
 // A combined task group's order goes to each of its task groups; on a move the
@@ -12448,7 +13412,113 @@ function makeRegiment(faction, name) {
 function regimentTotals(r) { const t = {troops: 0, vehicles: {}, size: 0}; for (const b of r.battalions || []) for (const c of b.companies || []) { t.troops += c.troops || 0; for (const [k, n] of Object.entries(c.vehicles || {})) { if (!VEHICLES[k]) continue; t.vehicles[k] = (t.vehicles[k] || 0) + n; t.size += VEHICLES[k].size * n; } } return t; }
 function airTotals(list) { let n = 0, size = 0, crew = 0, fight = 0; for (const q of list || []) { const c = CRAFT[q.craft]; if (!c) continue; n += q.n; size += q.n * c.size; crew += q.n * c.crew; if (!c.stay) fight += q.n; } return {n, size, crew, fight}; }
 
-return {canonGround, DOCTRINE, doctrineOf, shieldFrac, doctrineTarget, aiWing, RULES, TICK, CRAFT, CRAFT_MIX, ROLE_NAME, FACTIONS, SIDE_OF, VEHICLES, COMPANY_TYPES, REGIMENT_TEMPLATES, COMPANY_TROOPS, CAPITAL_LENGTH, MAP_LY, GRID_COLS, SECTOR_DEFS, REGIONS, LANE, KIND_NAME, APPROACH, APPROACH_NAME, FORMATIONS, formationKnown, formationName, SLOT_ROLES, SLOT_SIZES, normalizeFormation, groupSlots, formationCheck, formationTemplate, TF, TURN_MODES, SPEEDS, taskForceInfo, slotError, sustainSpeed, deployGroup, groupStations, WING_PHASE,
+// ---------- PLAN-002 costs of ships, craft and fleets ----------
+// One service for every side: a ship's cost is C.designCost of its design (build cost by category + crew), its air
+// wing's craft, and the small ships it carries. Craft of the built-in types have no design to cost, so (provisional)
+// they are priced from their table figures — size, air rating, strike, armour, a hyperdrive — scaled so that the
+// T-65 X-wing comes to 150,000 cr, its list price in the West End Games sourcebooks; a craft of the player's own design
+// costs what its design does (registerDesignCraft keeps it).
+const CRAFT_COST = {ref: 'xwing', refCr: 150000, hyper: 1.25};
+const craftWorth = c => Math.pow(Math.max(.2, c.size || 1), .35) * (1 + .6 * (c.aa || 0) + (c.strike || 0) / 300 + .4 * (c.armor || 0)) * (c.hyper ? CRAFT_COST.hyper : 1);
+let craftK = 0;
+function craftCost(type) { const c = CRAFT[type];if (!c) return 0;if (c.cost > 0) return c.cost;if (!craftK) craftK = CRAFT_COST.refCr / craftWorth(CRAFT[CRAFT_COST.ref]);return Math.round(craftWorth(c) * craftK / 100) * 100; }
+// row: a ship of an order of battle ({key/src, air, carried}); designOf(row) gives its design ({key, info, p}).
+function shipCost(row, designOf) {
+ const d = designOf(row), own = C.designCost(d?.info), air = (row.air || []).reduce((n, q) => n + (q.n || 0) * craftCost(q.craft), 0);
+ let carried = 0;for (const x of row.carried || []) { const d2 = designOf(x); if (d2) carried += C.designCost(d2.info).total; }
+ return {ready: !!d, ship: own.total, build: own.build, crew: own.crew, by: own.by, detailed: own.detailed, air, carried, total: own.total + air + carried};
+}
+function fleetCost(ships, designOf) { const t = {ships: 0, air: 0, carried: 0, total: 0, n: 0, missing: 0}; for (const sh of ships || []) { const c = shipCost(sh, designOf); if (!c.ready) { t.missing++; continue; } t.n++; t.ships += c.ship; t.air += c.air; t.carried += c.carried; t.total += c.total; } return t; }
+
+// ---------- SBOX-001..004 battle scenarios ----------
+// A scenario is the whole of a sandbox fleet battle: every side (faction label, who commands it, its AI temper and air
+// doctrine, its own order of battle, which task groups sail, where each starts), the area, the victory conditions,
+// the cost limit and the random seed. The same seed and the same scenario fight the same battle. Sides are a list, so
+// the data holds three or more factions (the editor offers two for now). The fleets inside are copies of the orders of
+// battle (the fleet library keeps those separately): a scenario stands alone and travels as JSON.
+const SCENARIO_FORMAT = 'ks-scenario', SCENARIO_VERSION = 1, SCENARIO_SIDES = [2, 8];
+const SIDE_CONTROL = {player: 'プレイヤー', ai: 'AI'};
+const str = (v, n, d = '') => typeof v === 'string' ? v.slice(0, n) : d;
+// An order of battle as the editor keeps it: combined task groups of task groups of ships, every one with a unique id.
+function normalizeFleet(ob) {
+ const out = {ctgs: [], next: 1}, used = new Set(), uid = (id) => { let x = typeof id === 'string' && /^[A-Za-z0-9_-]{1,24}$/.test(id) && !used.has(id) ? id : null; while (!x || used.has(x)) x = 'o' + (++out.next); used.add(x); return x; };
+ const named = (o, d) => ({name: str(o?.name, 48, d) || d, ...(o?.customName ? {customName: true} : {})});
+ const shipRow = sh => { if (!sh || typeof sh !== 'object') return null; const src = str(sh.src, 80) || str(sh.key, 80);if (!src) return null;
+  return {id: uid(sh.id), src, key: str(sh.key, 80) || src, ...named(sh, '無名艦'), air: Array.isArray(sh.air) ? sh.air.filter(q => q && typeof q.craft === 'string' && +q.n > 0).map(q => ({...q, n: clamp(Math.round(+q.n), 1, RULES.maxSquadSize)})).slice(0, 400) : [],
+   ground: Array.isArray(sh.ground) ? sh.ground.slice(0, 40) : [], carried: Array.isArray(sh.carried) ? sh.carried.filter(x => x && (typeof x.src === 'string' || typeof x.key === 'string')).slice(0, 60).map(x => ({src: str(x.src, 80) || str(x.key, 80), key: str(x.key, 80) || str(x.src, 80), name: str(x.name, 48)})) : []}; };
+ for (const c of Array.isArray(ob?.ctgs) ? ob.ctgs.slice(0, 40) : []) {
+  const ctg = {id: uid(c?.id), ...named(c, `第${out.ctgs.length + 1}合同任務群`), tgs: []};
+  for (const t of Array.isArray(c?.tgs) ? c.tgs.slice(0, 40) : []) ctg.tgs.push({id: uid(t?.id), ...named(t, `第${out.ctgs.length + 1}${ctg.tgs.length + 1}任務群`), formation: FORMATIONS[t?.formation] || /^tpl:[\w-]{1,40}$/.test(t?.formation || '') ? t.formation : 'abreast', ships: (Array.isArray(t?.ships) ? t.ships.slice(0, 40) : []).map(shipRow).filter(Boolean), ...(TURN_MODES[t?.turnMode] ? {turnMode: t.turnMode} : {}), ...(t?.autoForm != null ? {autoForm: !!t.autoForm} : {})});
+  out.ctgs.push(ctg);
+ }
+ const nums = [...used].map(x => /^o(\d+)$/.exec(x)).filter(Boolean).map(m => +m[1]);out.next = Math.max(out.next, ...nums, 1);
+ return out;
+}
+function normalizeSide(sd, i, sector) {
+ sd = sd && typeof sd === 'object' ? sd : {};const faction = FACTIONS[sd.faction] ? sd.faction : i % 2 ? 'rebel' : 'empire', fleet = normalizeFleet(sd.fleet), ids = new Set(fleet.ctgs.flatMap(c => c.tgs.map(t => t.id)));
+ const sel = {}, deploy = {};for (const [k, v] of Object.entries(sd.sel || {})) if (ids.has(k) && v === false) sel[k] = false;
+ for (const [k, v] of Object.entries(sd.deploy || {})) if (ids.has(k)) { const d = normalizeDeploy(v, sector); if (d.sys != null || d.heading != null || d.speed > 0) deploy[k] = d; }
+ return {faction, label: str(sd.label, 40), control: SIDE_CONTROL[sd.control] ? sd.control : i ? 'ai' : 'player', strategy: AI_STRATEGY[sd.strategy] ? sd.strategy : 'balanced', air: AIR_DOCTRINES[sd.air] ? sd.air : 'faction',
+  start: Number.isInteger(sd.start) && sd.start >= 0 && (!sector || sector.systems[sd.start]) ? sd.start : null, auto: ['match', 'same'].includes(sd.auto) ? sd.auto : null, fleet, sel, deploy};
+}
+function normalizeScenario(raw) {
+ if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('シナリオの形式ではありません');
+ if (raw.format != null && raw.format !== SCENARIO_FORMAT) throw new Error('シナリオの形式ではありません');
+ if (raw.version != null && !(+raw.version >= 1 && +raw.version <= SCENARIO_VERSION)) throw new Error('新しい版のシナリオです（読み込めません）');
+ const region = REGIONS[raw.region] ? raw.region : 'kuat', seed = Number.isFinite(+raw.seed) ? Math.abs(Math.round(+raw.seed)) % 2147483647 : 1;
+ const sides = (Array.isArray(raw.sides) ? raw.sides : []).slice(0, SCENARIO_SIDES[1]);while (sides.length < SCENARIO_SIDES[0]) sides.push({});
+ const cl = raw.costLimit || {}, v = Math.round(+cl.value);
+ return {format: SCENARIO_FORMAT, version: SCENARIO_VERSION, name: str(raw.name, 60), region, seed, seedFixed: raw.seedFixed !== false, scale: str(raw.scale, 16, 'standard'),
+  formations: (Array.isArray(raw.formations) ? raw.formations : []).slice(0, 64).map(normalizeFormation).filter(Boolean), victory: normalizeVictory(raw.victory), costLimit: {on: !!cl.on, value: Number.isFinite(v) && v > 0 ? Math.min(v, 1e15) : 0}, sides: sides.map((sd, i) => normalizeSide(sd, i, null))};
+}
+const scenarioJSON = sc => JSON.stringify(normalizeScenario(sc), null, 1);
+function scenarioFromJSON(text) { let raw; try { raw = JSON.parse(String(text)); } catch (e) { throw new Error('JSON を読めません'); } return normalizeScenario(raw); }
+// The order of battle the battle model takes from an editor's: the chosen task groups (pick: ids, or all), the ships
+// whose design is ready, each wing cut to what its hangars can launch (shipStow), the first ship of each task group its
+// flagship, and the task group's deployment.
+const designDims = d => [d.p?.len || d.info?.len || 0, d.p?.width || 0, d.p?.height || 0];
+function battleOrbat(ob, pick, designOf, deploy = {}) {
+ const sel = pick ? new Set(pick) : null;
+ return {ctgs: (ob?.ctgs || []).map(c => ({name: c.name, tgs: (c.tgs || []).filter(t => (!sel || sel.has(t.id)) && t.ships?.length).map(t => ({name: t.name, formation: t.formation, ...(t.turnMode ? {turnMode: t.turnMode} : {}), ...(t.autoForm != null ? {autoForm: t.autoForm} : {}), deploy: deploy[t.id] || null, ships: t.ships.map((sh, si) => {
+  const d = designOf(sh);if (!d) return null;const st = d.info?.stow ? shipStow(d.info, sh.air || [], (sh.carried || []).map(x => { const d2 = designOf(x); return d2 ? {dims: designDims(d2)} : {dims: null}; }), sh.ground || []) : null;
+  return {design: d.key, name: sh.name, flag: si === 0, air: (sh.air || []).map((q, i) => ({...q, n: st ? Math.min(q.n, st.wings[i]?.deployable ?? q.n) : q.n, groupName: `${c.name}飛行団`})).filter(q => q.n > 0 && !CRAFT[q.craft]?.stay), ground: sh.ground || null, troops: (sh.ground || []).reduce((n, r) => n + regimentTotals(r).troops, 0),
+   carried: (sh.carried || []).map((x, i) => { const d2 = designOf(x); return d2 && (!st || st.carried[i]?.embarked) ? {design: d2.key, name: `${sh.name}搭載艦 ${x.name}`} : null; }).filter(Boolean)};
+ }).filter(Boolean)}))})).filter(c => c.tgs.length)};
+}
+const scenarioPick = sd => (sd.fleet?.ctgs || []).flatMap(c => c.tgs).filter(t => sd.sel?.[t.id] !== false && t.ships.length).map(t => t.id);
+// Each side's cost (of the task groups that sail) against the scenario's limit.
+function scenarioCosts(sc, designOf) { return sc.sides.map(sd => { const pick = new Set(scenarioPick(sd)), ships = sd.fleet.ctgs.flatMap(c => c.tgs).filter(t => pick.has(t.id)).flatMap(t => t.ships), c = fleetCost(ships, designOf); return {...c, over: !!(sc.costLimit?.on && sc.costLimit.value > 0 && c.total > sc.costLimit.value)}; }); }
+// The battle of a scenario. designs: [{key, name, p, info}] (or a Map by key); designOf(row) defaults to a lookup by key, then src.
+function scenarioWorld(raw, designs, designOf, extra = {}) {
+ const sc = normalizeScenario(raw), list = designs instanceof Map ? [...designs.values()] : designs || [], by = new Map(list.map(d => [d.key, d]));
+ const of = designOf || (sh => by.get(sh.key) || by.get(sh.src) || null);
+ const sector = makeSector(sc.region, sc.seed), sides = sc.sides.map((sd, i) => normalizeSide(sd, i, sector));
+ const fleets = sides.map(sd => battleOrbat(sd.fleet, scenarioPick(sd), of, sd.deploy)), keys = new Set(fleets.flatMap(o => o.ctgs.flatMap(c => c.tgs.flatMap(t => t.ships.flatMap(x => [x.design, ...x.carried.map(y => y.design)])))));
+ return createWorld({seed: sc.seed, region: sc.region, sector, formations: [...(extra.formations || []), ...sc.formations], designs: list.filter(d => keys.has(d.key)), victory: sc.victory, sides: sides.map(sd => ({faction: sd.faction, name: sd.label || undefined, ai: sd.control === 'ai', strategy: sd.strategy, air: sd.air, start: sd.start})), fleets});
+}
+
+// ---------- PLAN-011 campaign: the data interface only (PLAN-018 gives it a menu shell) ----------
+// The campaign is one progress state machine (spec §1: PLAN-011/018/019..025). Its stages are the twelve steps of the
+// 24 BBY opening (spec §5); what happens in each comes later as scenario data, so for now only the save format and the
+// stage order exist. A save keeps (PLAN-018, proposed): the stage and its step, the star system the fleet is at, funds
+// and approved budgets (the council's special budget apart from the ordinary requests, PLAN-024), the designs, the
+// yard's refit jobs, the ships and their order of battle (the same form as the sandbox's), flags and a log.
+const CAMPAIGN_FORMAT = 'ks-campaign', CAMPAIGN_VERSION = 1, CAMPAIGN_SLOTS = 3;
+const CAMPAIGN_STAGES = ['assign', 'helm', 'mock', 'dock', 'refit', 'yard', 'ground', 'patrol', 'capture', 'newbuild', 'arms', 'station', 'free'];
+function campaignNew(now = 0) { return {format: CAMPAIGN_FORMAT, version: CAMPAIGN_VERSION, created: now, saved: now, stage: CAMPAIGN_STAGES[0], step: 0, done: [], era: 'cw', year: -24, system: 'coruscant', funds: 0, budget: {approved: 0, special: 0, requests: []}, designs: [], yard: [], fleet: normalizeFleet(null), flags: {}, log: []}; }
+function normalizeCampaign(raw) {
+ if (!raw || typeof raw !== 'object' || raw.format !== CAMPAIGN_FORMAT) throw new Error('キャンペーンの保存データではありません');
+ if (!(+raw.version >= 1 && +raw.version <= CAMPAIGN_VERSION)) throw new Error('新しい版のキャンペーンです（読み込めません）');
+ const st = campaignNew(+raw.created || 0), num = (v, d) => Number.isFinite(+v) ? +v : d;
+ Object.assign(st, {saved: num(raw.saved, st.created), stage: CAMPAIGN_STAGES.includes(raw.stage) ? raw.stage : st.stage, step: Math.max(0, Math.round(num(raw.step, 0))), done: Array.isArray(raw.done) ? raw.done.filter(x => CAMPAIGN_STAGES.includes(x)) : [],
+  system: str(raw.system, 40, st.system), funds: num(raw.funds, 0), budget: {approved: num(raw.budget?.approved, 0), special: num(raw.budget?.special, 0), requests: Array.isArray(raw.budget?.requests) ? raw.budget.requests.slice(0, 100) : []},
+  designs: Array.isArray(raw.designs) ? raw.designs.slice(0, 200) : [], yard: Array.isArray(raw.yard) ? raw.yard.slice(0, 100) : [], fleet: normalizeFleet(raw.fleet), flags: raw.flags && typeof raw.flags === 'object' ? {...raw.flags} : {}, log: Array.isArray(raw.log) ? raw.log.slice(-200) : []});
+ return st;
+}
+// The one transition so far: a stage finished moves the campaign to the next (the events that finish them come with PLAN-019..025).
+function campaignAdvance(st) { const i = CAMPAIGN_STAGES.indexOf(st.stage);if (i < 0 || i >= CAMPAIGN_STAGES.length - 1) return st;if (!st.done.includes(st.stage)) st.done.push(st.stage);st.stage = CAMPAIGN_STAGES[i + 1];st.step = 0;return st; }
+
+return {CAMPAIGN_FORMAT, CAMPAIGN_VERSION, CAMPAIGN_SLOTS, CAMPAIGN_STAGES, campaignNew, normalizeCampaign, campaignAdvance, AI_STRATEGY, AIR_DOCTRINES, VICTORY_DEFAULT, normalizeVictory, normalizeDeploy, CRAFT_COST, craftCost, shipCost, fleetCost, SCENARIO_FORMAT, SCENARIO_VERSION, SCENARIO_SIDES, SIDE_CONTROL, normalizeFleet, normalizeSide, normalizeScenario, scenarioJSON, scenarioFromJSON, battleOrbat, scenarioPick, scenarioCosts, scenarioWorld, checkResult, canonGround, DOCTRINE, doctrineOf, shieldFrac, doctrineTarget, aiWing, RULES, TICK, CRAFT, CRAFT_MIX, ROLE_NAME, FACTIONS, SIDE_OF, VEHICLES, COMPANY_TYPES, REGIMENT_TEMPLATES, COMPANY_TROOPS, CAPITAL_LENGTH, MAP_LY, GRID_COLS, SECTOR_DEFS, REGIONS, LANE, KIND_NAME, APPROACH, APPROACH_NAME, FORMATIONS, formationKnown, formationName, SLOT_ROLES, SLOT_SIZES, normalizeFormation, groupSlots, formationCheck, formationTemplate, TF, TURN_MODES, SPEEDS, taskForceInfo, slotError, sustainSpeed, deployGroup, groupStations, WING_PHASE, sensorTick, contactOf, contactStage, searchOrder, foilTick, unitSig, unitSens, unitSigma, EMIT_MODES, FOIL_MODES,
  stowBays, shipStow, stir, peaceTick, formationOffsets, formationGaps, pendingWarp, jumpSequence, JUMP_STAGGER, rng, makeSector, sysDistance, routePath, routeCost, pathSeconds, tripSeconds, designInfo, unitDemand, createWorld, normalizeOrbat, makeUnit, makeGroup, makeCtg, ctgOf, addSquad, step, tick,
  detect, orderJump, cancelJump, etaTo, groupMapPos, orderUnit, orderGroup, orderCtg, orderCtgJump, orderTractor, orderWing, splitGroup, mergeGroups, systemUnits, unitStruct, unitStrength, unitHyper, carriedOf, launchCarried, recoverCarried, orderCarried, groupHyper, groupDisabled, groupStay,
  orderScuttle, orderRecover, recoverCheck, rearSeconds, SUPPLY, supplyAt, supplyLines, supplyNeeds, unitSupplyOf, alive, fighting, pdToward, effectiveOrder, groupOrder, tractorReach, tractorOk, registerDesignCraft, craftStores, squadStores, squadRelease, rearmSquad, squadArmed, squadSlots, craftDown,

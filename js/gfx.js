@@ -1330,6 +1330,9 @@ class Renderer {
     gl.enable(gl.DEPTH_TEST);this.drawLines('cutter',m,1);this.clip=cutterClip;
     gl.disable(gl.DEPTH_TEST); this.drawLines('ghost', m, 0.35);
     gl.enable(gl.DEPTH_TEST); this.drawLines('ghost', m, 1);
+    // PLAN-013 vertex handles: always visible, brighter where unoccluded.
+    gl.disable(gl.DEPTH_TEST); this.drawLines('verts', m, 0.55);
+    gl.enable(gl.DEPTH_TEST); this.drawLines('verts', m, 1);
     gl.depthMask(true); this.shTile = null;
     // getError() stalls the GPU pipeline; sample it occasionally.
     this._errCheck=(this._errCheck||0)+1;if(this._errCheck%120===1){const error=gl.getError();if(error===gl.OUT_OF_MEMORY)throw new Error('描画メモリが不足しました');}
@@ -2141,7 +2144,7 @@ Renderer.prototype.drawFleet=function(m,opt){
 function meshSolidCutter(c){
   const mesh=new Geo(64),ls=lineSet();
   if(!c)return {mesh,lines:ls.out()};
-  const T=C.solidCutTriangles(c),edges=new Map(),color=[246,137,97];
+  const T=C.solidCutDisplayTriangles?C.solidCutDisplayTriangles(c):C.solidCutTriangles(c),edges=new Map(),color=[246,137,97];
   triangleMesh(mesh,T,color,90);
   for(let i=0;i<T.length;i+=9){
     const p=[0,3,6].map(j=>Array.from(T.slice(i+j,i+j+3))),n=C.norm(C.cross(C.sub(p[1],p[0]),C.sub(p[2],p[0])));
@@ -2205,7 +2208,7 @@ class CompatRenderer {
    this.rasterMesh(this.meshes.cutter?.geo,'cutter',.28,null);
   }
   ctx.putImageData(image,0,0);
-  for(const name of opt.fleet?['fleetGrid','fleetOrders','fleetShots']:['grid',...(opt.mode==='cut'?['section']:[]),'ghost','cutter'])this.paintLines(name,name==='grid'||name==='fleetGrid');
+  for(const name of opt.fleet?['fleetGrid','fleetOrders','fleetShots']:['grid',...(opt.mode==='cut'?['section']:[]),'ghost','cutter','verts'])this.paintLines(name,name==='grid'||name==='fleetGrid');
   delete this._frame;this.frames++;return true;
  }
  rasterMesh(g,name,alpha,clip,transform){

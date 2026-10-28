@@ -1902,7 +1902,7 @@ const armMode = () => st.tab === 'arm' || st.tab === 'mod' && st.group === 'weap
 // v22.3 One menu 「指揮・艦橋」 holds the command rooms (指揮 parts), the bridge bodies and the bridge pods; a
 // second row picks which. Its group key stays 'command' (a craft keeps 「指揮」 alone: it has no bridge).
 const CMD_LABEL = '指揮・艦橋';
-function layoutGroups() { const cr = craftDesign(), out = []; for (const e of Object.entries(C.GROUPS)) { if (e[0] !== 'weapons' && !PART_KEYS.some(k => C.PARTS[k].group === e[0] && partOffered(k))) continue; out.push(e[0] === 'command' && !cr ? ['command', CMD_LABEL] : e); } return out; }
+function layoutGroups() { const cr = craftDesign(), out = []; for (const e of Object.entries(C.GROUPS)) { if (e[0] !== 'weapons' && !PART_KEYS.some(k => C.PARTS[k].group === e[0] && partOffered(k))) continue; out.push(e[0] === 'command' && !cr ? ['command', CMD_LABEL] : e); } out.push(['user', 'ユーザー部品']); return out; }
 const CMD_SUB = [['rooms', '指揮区画'], ['body', '艦橋本体'], ['windows', '艦橋ポッド']];
 const cmdSubNow = () => st.tab === 'bridge' ? (st.bridgeMode === 'windows' ? 'windows' : 'body') : 'rooms';
 function bridgeSubHTML() { return `<div class="pgroup command-sub panel-nav">${seg('cmdsub', CMD_SUB, cmdSubNow())}</div>`; }
@@ -2099,6 +2099,7 @@ function showPreview(list, items, removedIds) {
   requestDraw();
 }
 function clearPreview() {
+  st.foilView = null;
   if (!live.active) return;
   live.active = false; live.parts = []; live.fits = []; live.hide.parts.clear(); live.hide.fits.clear();
   if (view) for (const k of ['preview', 'previewRef', 'previewFits', 'previewRefFits']) if (view.meshes?.[k]) { if (view.kind === 'compat') delete view.meshes[k]; else view.meshes[k].count = 0; }
@@ -2416,7 +2417,7 @@ function pickRay(o, d, want) {
 // ---------- tools ----------
 function tool() {
   switch (st.tab) {
-    case 'mod': return st.group==='weapons'?(st.fitTool==='place'?'fit':st.fitTool==='remove'?'unfit':st.fitTool==='multi'?'multi':'adjust'):st.partTool === 'select' ? 'select' : st.partTool === 'multi' ? 'multi' : st.partTool === 'remove' ? 'unpart' : 'part';
+    case 'mod': if(st.group==='user'&&st.partTool==='place')return 'userpart';if(st.group==='shape'&&st.partTool==='place'&&st.importRaw&&!importResult()?.error)return 'importmesh';return st.group==='weapons'?(st.fitTool==='place'?'fit':st.fitTool==='remove'?'unfit':st.fitTool==='multi'?'multi':'adjust'):st.partTool === 'select' ? 'select' : st.partTool === 'multi' ? 'multi' : st.partTool === 'remove' ? 'unpart' : 'part';
     case 'launch': return 'select';
     case 'edit': return st.editTool === 'remove' ? 'unany' : 'edit';
     case 'arm': return st.fitTool === 'place' ? 'fit' : st.fitTool === 'remove' ? 'unfit' : st.fitTool === 'multi' ? 'multi' : 'adjust';
@@ -2430,6 +2431,8 @@ function hintText() {
   const t = tool();
   switch (t) {
     case 'multi': return '区画・構造物・装備をタップして選択に追加／もう一度で解除';
+    case 'importmesh': return '面をタップして取り込んだ3D形状を構造物として配置';
+    case 'userpart': return st.userPart ? '面をタップしてユーザー部品を配置（基準点がタップ位置に来ます）' : '一覧からユーザー部品を選んでください';
     case 'edit': return st.editTool === 'multi' ? 'タップで追加／もう一度で解除・ドラッグで移動' : isWide() ? 'クリックで選択・Shift＋クリックで追加／解除・ドラッグで移動' : 'タップで選択・「複数」で追加・ドラッグで移動';
     case 'unany': return '撤去する部品をタップ（対称の相手も外れます）';
     case 'unpart': return '撤去する区画・構造物をタップ（対称の相手も外れます）';
@@ -2515,7 +2518,7 @@ function ghostFor(hit) {
 }
 function refreshOverlay() {
   if (!view || !ship) return;
-  refreshSolidCutterOverlay();
+  refreshSolidCutterOverlay();refreshVertexOverlay();
   const ls = Gfx.lineSet(), it = selItem(), cy = [105, 195, 220, 255];
   // While the engine recomputes, outline the part's requested shape, not its old merged cells.
   const shape = (p) => p && (enginePending() && p._packing ? {...p, _packing: undefined} : p);
@@ -2557,11 +2560,13 @@ function onTap(px, py, add) {
 // Alignment snaps the placement point, except along the face normal (that
 // coordinate stays on the tapped face).
 function alignFitPoint(p, n) { if (!st.alignment || st.alignment === 'none') return p; const q = C.alignedPosition(ship, p, st.alignment); for (let a = 0; a < 3; a++) if (Math.abs(n[a]) > .7) q[a] = p[a]; return q; }
-function tapWant(t) { return {parts: t === 'select' || t === 'multi' || t === 'unpart' || t === 'inspect' || t === 'edit' || t === 'unany' || (t === 'notch' && st.notchStructures), fits: t !== 'part' && t !== 'notch' && t !== 'unpart'}; }
+function tapWant(t) { if (t === 'userpart' || t === 'importmesh') return {parts: true, fits: false}; return {parts: t === 'select' || t === 'multi' || t === 'unpart' || t === 'inspect' || t === 'edit' || t === 'unany' || (t === 'notch' && st.notchStructures), fits: t !== 'part' && t !== 'notch' && t !== 'unpart'}; }
 function tapHit(t, hit, add) {
   hoverLines = null;
   switch (t) {
     case 'edit': editTap(hit, !!add); break;
+    case 'userpart': placeUserPart(hit); break;
+    case 'importmesh': placeImportedMesh(hit); break;
     case 'unany': { const h = editHitItem(hit); if (h?.it) { removeWithPreview('撤去', h.list, h.it); selSync(); renderPanel(); } else toast(st.view === 'normal' ? '撤去する部品をタップしてください（内部の区画は「透視」で選べます）' : '撤去する部品をタップしてください'); break; }
     case 'inspect': showInspect(hit); break;
     case 'select':
@@ -3353,11 +3358,12 @@ function attachControls(canvas) {
       start = {x: e.clientX, y: e.clientY, t: performance.now(), add: e.button === 0 && (e.shiftKey || e.ctrlKey || e.metaKey)};
       last = {x: e.clientX, y: e.clientY}; moved = false;
       mode = (e.button === 2 || e.button === 1 || e.shiftKey) ? 'pan' : 'pending';
-      if(mode === 'pending' && cutterDragStart(e.clientX,e.clientY)) mode='cutter';
+      if(mode === 'pending' && veDragStart(e.clientX,e.clientY,start.add)) mode='verts';
+      else if(mode === 'pending' && cutterDragStart(e.clientX,e.clientY)) mode='cutter';
       else if(mode === 'pending' && e.button === 0 && dragItemStart(e.clientX,e.clientY)) mode='itemPending';
       if (e.pointerType !== 'mouse') onHover(e.clientX, e.clientY);
     } else if (ptrs.size === 2) {
-      cutterDragEnd(false);if(mode === 'item' || mode === 'itemPending')dragItemEnd(true);
+      cutterDragEnd(false);if(mode === 'verts')veDragEnd(true);if(mode === 'item' || mode === 'itemPending')dragItemEnd(true);
       const [a, b] = [...ptrs.values()];
       pinch = {d: Math.hypot(a.x - b.x, a.y - b.y), mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2};
       mode = 'pinch'; clearHover();
@@ -3375,6 +3381,7 @@ function attachControls(canvas) {
     }
     const dx = e.clientX - last.x, dy = e.clientY - last.y;
     if(mode === 'cutter'){cutterDragMove(e.clientX,e.clientY);last={x:e.clientX,y:e.clientY};moved=true;return;}
+    if(mode === 'verts'){veDragMove(e.clientX,e.clientY);last={x:e.clientX,y:e.clientY};moved=true;return;}
     if(mode === 'itemPending' && Math.hypot(e.clientX - start.x, e.clientY - start.y) > 7){mode='item';moved=true;clearHover();}
     if(mode === 'item'){dragItemMove(e.clientX,e.clientY);last={x:e.clientX,y:e.clientY};return;}
     if ((mode === 'pending' || mode === 'trialPending') && Math.hypot(e.clientX - start.x, e.clientY - start.y) > 7) { mode = 'rotate'; moved = true; clearHover(); }
@@ -3387,6 +3394,7 @@ function attachControls(canvas) {
     if (!ptrs.has(e.pointerId)) return;
     ptrs.delete(e.pointerId);
     if(mode === 'cutter')cutterDragEnd(false);
+    if(mode === 'verts')veDragEnd(false);
     if(mode === 'item')dragItemEnd(false);
     if(mode === 'itemPending'){itemDrag=null;if(ptrs.size === 0)onTap(e.clientX, e.clientY);}
     if (mode === 'pending' && ptrs.size === 0 && !moved && performance.now() - start.t < 900) onTap(e.clientX, e.clientY, start.add);
@@ -3397,7 +3405,7 @@ function attachControls(canvas) {
     else if (ptrs.size === 1) { const p = [...ptrs.values()][0]; last = {x: p.x, y: p.y}; mode = 'rotate'; moved = true; }
   };
   canvas.addEventListener('pointerup', end);
-  canvas.addEventListener('pointercancel', e => { ptrs.delete(e.pointerId); if(mode==='cutter')cutterDragEnd(true); if(mode==='item'||mode==='itemPending')dragItemEnd(true); if (!ptrs.size) mode = null; });
+  canvas.addEventListener('pointercancel', e => { ptrs.delete(e.pointerId); if(mode==='cutter')cutterDragEnd(true); if(mode==='verts')veDragEnd(true); if(mode==='item'||mode==='itemPending')dragItemEnd(true); if (!ptrs.size) mode = null; });
   canvas.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse' && !ptrs.size) clearHover(); });
   canvas.addEventListener('wheel', e => { e.preventDefault(); view.cam.r = Math.max(20, Math.min(400000, view.cam.r * (1 + Math.sign(e.deltaY) * Math.min(0.25, Math.abs(e.deltaY) * 0.0015)))); requestDraw(); }, {passive: false});
   function pan(dx, dy) {
@@ -3761,7 +3769,7 @@ function start(hot) {
   $('#newHulls').innerHTML = Object.entries(C.HULLS).map(([k, v]) => `<button type="button" class="hullcard" data-newhull="${k}">${silhouette(v)}<span>${v.name}</span></button>`).join('');
   $('#refGrid').innerHTML = [...exampleList(false), ...exampleList(true)].map(e => `<button class="btn" data-reference="${e.key}">${esc(e.name)}<small>${esc(e.side)} · ${esc(exampleLine(e))}</small></button>`).join('');
   restoreRenderer(false,false);bindRendering();
-  bind();bindEngineering();bindRealism();bindReference();bindAviation();bindFleet();bindSurface();bindPlanCuts();bindLayout();bindSolidCuts();bindTitle();bindTutorial();bindGround();bindTrial();bindMulti();bindEdit();bindInspBar();bindDockToggle();bindShot();bindVoyage();bindRail();bindPalette();bindSound();
+  bind();bindEngineering();bindWing();bindRealism();bindReference();bindAviation();bindFleet();bindSurface();bindPlanCuts();bindLayout();bindSolidCuts();bindVertexEdit();bindUserParts();bindImport();bindTitle();bindTutorial();bindGround();bindTrial();bindMulti();bindEdit();bindInspBar();bindDockToggle();bindShot();bindVoyage();bindRail();bindPalette();bindSound();
   if (hot && hot.ui) { for (const k of ['tab', 'part', 'partTool', 'mirror', 'view', 'coded', 'fit', 'bridge', 'bridgeMode', 'bridgeEquipment', 'equipmentId', 'group', 'ped']) if (hot.ui[k] != null) st[k] = hot.ui[k]; }
   if(!BRIDGES.includes(st.bridge))st.bridge='podBridge';
   if(!['body','windows'].includes(st.bridgeMode))st.bridgeMode='body';
@@ -3776,7 +3784,7 @@ function start(hot) {
     window.claude.hot.snapshot(() => ({design: ship ? C.serialize(ship) : null, ui: {tab: st.tab, part: st.part, partTool: st.partTool, mirror: st.mirror, view: st.view, coded: st.coded, fit: st.fit, bridge: st.bridge, bridgeMode:st.bridgeMode,bridgeEquipment:st.bridgeEquipment,equipmentId:st.equipmentId,group:st.group,ped: st.ped}}));
   }
   Store.init();
-  window.__yard = {get ship() { return ship; }, get stats() { return S; }, get retryTimer() { return renderRetryTimer; }, kickLoop: () => requestAnimationFrame(loop), st, draw: requestDraw, renderPanel: () => renderPanel(), fleet, fleetSetMode, renderHealth, restoreRenderer, view: () => view, setShip, C, pick, onTap, touch, eng, openExample, title: titleApi, meshStore, trial, trialCommand, trialStep: dt => trialStep(dt), trialCamera: dt => trialCamera(dt), trialStart: o => trialStart(o), trialJump: k => trialJump(k), spaceBattleLaunch: () => spaceBattleLaunch(), spaceStep: dt => spaceStep(dt), fleetAsset: k => fleetAsset(k), SYSTEMS, JUMP};
+  window.__yard = {veObject: () => veObject(), get ship() { return ship; }, get stats() { return S; }, get retryTimer() { return renderRetryTimer; }, kickLoop: () => requestAnimationFrame(loop), st, draw: requestDraw, renderPanel: () => renderPanel(), fleet, fleetSetMode, renderHealth, restoreRenderer, view: () => view, setShip, C, pick, onTap, touch, eng, openExample, title: titleApi, meshStore, trial, trialCommand, trialStep: dt => trialStep(dt), trialCamera: dt => trialCamera(dt), trialStart: o => trialStart(o), trialJump: k => trialJump(k), spaceBattleLaunch: () => spaceBattleLaunch(), spaceStep: dt => spaceStep(dt), fleetAsset: k => fleetAsset(k), SYSTEMS, JUMP};
   const boot = window.KSBoot, draft = readDraft(hot);
   const engineStart = YardEngineClient.start(boot ? null : collectSources(), boot ? {workerReady: boot.workerReady} : {});
   engineStart.then(mode => { engineHello(mode); boot?.step('engine', 'done'); titleStatus(); }).catch(e => { console.error(e); toast('設計エンジンを起動できませんでした'); });
@@ -3859,10 +3867,11 @@ function renderTitle() {
   for (const b of $$('#titleMenu .tmenu')) b.setAttribute('aria-pressed', String(b.dataset.title === titleState.panel));
   const panel = $('#titlePanel');
   if (titleState.panel === 'patrol') { titleState.panel = 'missions'; mm.mode = 'patrol'; }
-  panel.hidden = !titleState.panel || titleState.panel === 'missions' || titleState.panel === 'msn'; missionMapRender(); msTitleRender();
+  panel.hidden = !titleState.panel || titleState.panel === 'missions' || titleState.panel === 'msn'; missionMapRender(); msTitleRender(); campTitleRender();
   if (titleState.panel === 'new') panel.innerHTML = titleNewHTML();
   else if (titleState.panel === 'load') { panel.innerHTML = titleLoadHTML(); renderTitleSaves(); }
   else if (titleState.panel === 'sound') { panel.innerHTML = soundSettingsHTML(); const el = $('#soundSettings'); if (el && window.KSAudio) window.KSAudio.mountSettings(el); else if (el) el.innerHTML = '<p class="note">この端末では音を鳴らせません（Web Audio に対応していません）。</p>'; }
+  else if (titleState.panel === 'campaign') panel.innerHTML = campPanelHTML();
   else if (titleState.panel === 'credits') panel.innerHTML = `<div class="tpanel-head"><h2>使用素材とライセンス</h2><button type="button" class="btn ghost sm" data-title-back>戻る</button></div>${$$('#sheet .src').map(e => `<p class="src">${I18N?I18N.sourceHTML(e):e.innerHTML}</p>`).join('')}`;
   else panel.innerHTML = '';
   titleStatus();
@@ -3956,6 +3965,7 @@ function bindTitle() {
     if ('titleCredits' in d) { titleState.panel = 'credits'; renderTitle(); return; }
     if ('titleSound' in d) { titleState.panel = 'sound'; renderTitle(); return; }
     if ('titleBack' in d) { titleState.panel = null; renderTitle(); return; }
+    if (d.camp) { titleState.panel = titleState.panel === 'campaign' ? null : 'campaign'; renderTitle(); return; }
     if (d.titleMode) { titleState.mode = d.titleMode; titleState.panel = null; renderTitle(); setTimeout(() => t.querySelector(`[data-tgroup="${d.titleMode}"] .tmenu:not([disabled]):not(.tback)`)?.focus?.({preventScroll: true}), 20); return; }
     if (d.title === 'patrol' || d.title === 'mission' || d.title === 'fleetbattle') { missionMapOpen(d.title === 'patrol' ? 'patrol' : d.title === 'fleetbattle' ? 'fleet' : null); return; }
     if (d.mmMode) { mm.mode = d.mmMode === 'fleet' ? 'fleet' : 'patrol'; mmSave(); missionMapRender(); gmCenter('mission', mmSel()); return; }
@@ -4057,7 +4067,7 @@ function engineControls(p,selected){
 }
 function v3PartEditor(){
   let h=basePartEditor(),p=selItem();if(!p||st.sel.list!=='parts')return h;
-  let extra=p.k==='struct'?structureControls(p,true):p.k==='engine'?engineControls(p,true):'';
+  let extra=p.k==='struct'?structureControls(p,true)+wingControls(p):p.k==='engine'?engineControls(p,true):sensorBandControls(p);
   if(C.isSuperweapon(p))extra+=superweaponControls(p);
   else if(C.PARTS[p.k].shape==='cyl')extra+=`<div class="pgroup"><h4>円筒の向き</h4>${seg('partaxis',[['x','前後'],['y','上下'],['z','左右']],Math.abs(p.dir?.[1]||0)>.9?'y':Math.abs(p.dir?.[2]||0)>.9?'z':'x')}</div>`;
   if(p.k==='struct')extra+=`<button class="btn sm" data-duplicate="${p.id}">構造物を複製</button>`;
@@ -4096,6 +4106,7 @@ function v3RenderPanel(){
     if(st.part==='struct')panel.insertAdjacentHTML('beforeend',structureControls({form:st.structForm,skinAsset:st.skinAsset,angles:st.structAngles,yaw:st.structYaw,offsetX:st.structOffsetX,offsetZ:st.structOffsetZ,shellCurve:st.shellCurve,shellThick:st.shellThick,shellFlip:st.shellFlip},false));
     if(st.part==='engine')panel.insertAdjacentHTML('beforeend',engineControls({k:'engine',c:[0,0,0],d:pSize('engine'),dir:st.engineDir,reactor:st.reactor},false));
     panel.insertAdjacentHTML('beforeend',coordinateControls());
+    if(st.group==='shape')panel.insertAdjacentHTML('beforeend',importCardHTML());
   }
   if(st.tab==='bridge'){
     panel.innerHTML=`<div class="pgroup panel-nav">${seg('group',layoutGroups(),'command')}</div>`+bridgeSubHTML()+bridgePanel();
@@ -4114,6 +4125,77 @@ function trenchPanelHTML(){
 function hpWidth(){return ship.hull.W;}
 // v23 The ship's power + heat network (spec 10.5): sources, power and heat paths, dissipators, margin, broken
 // paths, overloads, residual heat and the low-emission endurance, at a load preset (通常航行 / 戦闘 / 最大出力).
+// ---------- v25 functional wings and S-foils (WING-001…004), signatures and sensors (SENS-001/002) ----------
+// A structure becomes a functional wing (equipment can sit inside it; its dissipators radiate through its skin)
+// or an S-foil (the same, plus a hinge). The shape is the structure's: any form, or a free-form mesh edited in the
+// 編集 tab's vertex editor. Fictional Star Wars technology; the numbers come from C.WING (provisional).
+const FOIL_AXIS_ROWS=[['x','前後軸'],['y','上下軸'],['z','左右軸']];
+function wingFigures(p){return (S?.wings||[]).find(x=>x.id===p.id)||null;}
+// A small view along the hinge axis: the wing and what it carries deployed (solid) and stowed (dashed), the hinge.
+function foilDiagramSVG(p){
+  if(!C.isFoil(p))return '';const F=C.foilFrame(ship,p),M=C.wingMembers(ship,p),ax=p.wing.axis||'x',pick=ax==='x'?[2,1]:ax==='y'?[0,2]:[0,1];
+  const shapes=[p,...M.structs].map(s=>{const T=C.structTriangles(s),pts=[];const st=Math.max(1,Math.ceil(T.length/3/160));for(let i=0;i<T.length/3;i+=st)pts.push([T[i*3],T[i*3+1],T[i*3+2]]);return pts;});
+  const at=a=>shapes.map(pts=>pts.map(q=>C.foilAt(F,p,q,a)));
+  const open=at(p.wing.open),stow=at(p.wing.stow),all=[...open.flat(),...stow.flat(),F.pv],xs=all.map(q=>q[pick[0]]),ys=all.map(q=>q[pick[1]]);
+  const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys),W0=260,H0=150,pad=12,s=Math.min((W0-2*pad)/Math.max(1e-6,x1-x0),(H0-2*pad)/Math.max(1e-6,y1-y0));
+  const P=q=>[pad+(q[pick[0]]-x0)*s,H0-pad-(q[pick[1]]-y0)*s],f=v=>v.toFixed(1);
+  const hull=pts=>{const a=pts.map(P).sort((u,v)=>u[0]-v[0]||u[1]-v[1]),cr=(o,a2,b)=>(a2[0]-o[0])*(b[1]-o[1])-(a2[1]-o[1])*(b[0]-o[0]),lo=[],hi=[];for(const q of a){while(lo.length>=2&&cr(lo[lo.length-2],lo[lo.length-1],q)<=0)lo.pop();lo.push(q);}for(const q of a.slice().reverse()){while(hi.length>=2&&cr(hi[hi.length-2],hi[hi.length-1],q)<=0)hi.pop();hi.push(q);}return lo.slice(0,-1).concat(hi.slice(0,-1));};
+  const poly=(pts,dash)=>{const h=hull(pts);return h.length>2?`<polygon points="${h.map(q=>f(q[0])+','+f(q[1])).join(' ')}" fill="${dash?'none':'currentColor'}" fill-opacity="${dash?0:.35}" stroke="currentColor" stroke-opacity="${dash?.75:.95}" ${dash?'stroke-dasharray="3 3"':''}/>`:'';};
+  const pv=P(F.pv),view={x:'前方から見た図',y:'上から見た図',z:'側面から見た図'}[ax];
+  return `<figure class="sw-arc"><svg viewBox="0 0 ${W0} ${H0}" role="img" aria-label="${view}">${stow.map(q=>poly(q,true)).join('')}${open.map(q=>poly(q,false)).join('')}<circle cx="${f(pv[0])}" cy="${f(pv[1])}" r="3.5" fill="#ffd27a"/></svg><figcaption class="note tight">${view}（実線：展開・破線：収納・黄点：回転軸）</figcaption></figure>`;
+}
+function wingControls(p){
+  if(p.k!=='struct'||p.plate)return '';const W=p.wing,kind=!W?'none':W.solar?'solar':W.foil?'foil':'wing',x=W?wingFigures(p):null;
+  let h=`<div class="pgroup wing-card" id="wing-editor"><h4>主翼・Sフォイル</h4>${seg('wingkind',[['none','構造のみ'],['wing','機能付き主翼'],['foil','Sフォイル'],['solar','太陽電池翼']],kind)}`;
+  if(!W)return h+`<p class="note">機能付き主翼にすると、翼の内部に散逸装置・通常放熱装置・蓄電池・構造維持装置などを置けます。翼そのものには散逸能力はありません。</p></div>`;
+  const parts=x?x.parts.map(id=>ship.parts.find(q=>q.id===id)).filter(Boolean):[],nDis=parts.filter(q=>C.DISSIPATORS[q.k]).length;
+  const row=(a,b)=>`<div><dt>${a}</dt><dd>${b}</dd></div>`;
+  h+=`<div class="sliders">${slider('wingFeed','エネルギー伝達（付け根）',Math.round((W.feed??1)*100),0,200,5,fPct(W.feed??1))}${slider('wingReinf','補強',Math.round((W.reinf||0)*100),0,100,5,fPct(W.reinf||0))}</div>`;
+  if(W.foil)h+=`<h4>Sフォイル機構</h4>${seg('foilaxis',FOIL_AXIS_ROWS,W.axis||'x')}<div class="sliders">${slider('foilStow','収納角',W.stow,-150,150,1,deg(W.stow))}${slider('foilOpen','展開角',W.open,-150,150,1,deg(W.open))}${slider('foilT','展開時間',W.T,.1,120,.1,num(W.T,1)+' 秒')}</div>`;
+  if(x&&W.solar)h+=`<dl class="engineering-stats">${row('パネル面積',num(x.area,1)+' m²')}${row('集電出力',fW(x.solarP))}${row('放熱能力（両面）',fW(x.capOpen))}</dl><p class="note">TIE の太陽電池翼のように、片面で集電して艦の発電に加わり、両面で外装型の散逸装置として熱を放出します（架空技術）。外に出ているので被弾すると失われます。面積に比例します。</p>`;
+  if(x){h+=`<dl class="engineering-stats">${row('翼内の設備',num(parts.length))}${row('翼内の散逸装置',num(nDis))}${row('最大散逸能力（展開）',fW(x.capOpen))}${W.foil?row('最大散逸能力（収納）',fW(x.capStow)):''}${row('構造質量',fMass(x.mass))}${row('伝達路・補強の質量',fMass(x.feedMass+x.reinfMass))}${W.foil?row('作動機構の質量',fMass(x.act))+row('固着する損傷',`区画の骨組み ${fPct(1-x.jamAt)} 損失`):''}</dl>`;
+   if(!nDis&&!W.solar)h+=`<p class="note warn">翼内に散逸装置がないため、散逸能力は増えません。</p>`;
+   if(W.foil)h+=x.hits.length?`<ul class="ilist">${x.hits.map(c=>`<li><span><b>${esc(c.name)}</b></span><span>${deg(c.angle)}で干渉</span></li>`).join('')}</ul>`:`<p class="note">可動範囲の干渉：なし</p>`;}
+  if(W.foil)h+=foilDiagramSVG(p)+`<div class="vs-acts"><button type="button" class="btn sm${st.foilView==='stow'?' on':''}" data-foilview="stow">収納状態を3Dで表示</button><button type="button" class="btn sm${st.foilView!=='stow'?' on':''}" data-foilview="open">展開状態（設計形状）</button></div><p class="note">形は展開状態で作ります。収納すると翼内の外装型散逸装置・放熱装置の面がふさがれて最大散逸能力が下がり、赤外・電磁の放射の一部が隠れます。負荷が収納時の能力以下なら実際の散逸量（と放射）は変わりません。武装は展開位置のまま表示します。</p>`;
+  if(p.form!=='mesh')h+=`<button type="button" class="btn sm" data-meshconvert>翼の形を頂点編集できる形に変換</button>`;
+  return h+`<p class="note">翼の形は「編集」タブの頂点編集で変えられます。中心が翼の内部にある設備が翼内の設備です。</p></div>`;
+}
+function sensorBandControls(p){
+  if(p.k!=='sensor'&&p.k!=='scanner')return '';
+  return `<div class="pgroup"><h4>センサーの帯域</h4>${seg('sensband',Object.entries(C.SENSOR_BANDS),p.band||'multi')}<p class="note">多帯域は全帯域に広く、専用センサーはその帯域に強く働きます。ニュートリノは受動センサーだけが捉え、能動センサー（レーダー）は反射断面で探知します。</p></div>`;
+}
+// The designer's signature figures (heat card): what the ship radiates at the chosen load, by band (SENS-001),
+// with the S-foils stowed if it has any, and its sensor suite (SENS-002).
+function signatureHTML(e){
+  const sg=e?.sig;if(!sg)return '';const row=(a,b)=>`<div><dt>${a}</dt><dd>${b}</dd></div>`,z=e.stow,sn=S?.sens;
+  return `<h4>放射シグネチャ（実際の散逸から）</h4><dl class="engineering-stats">${row('ニュートリノ',fW(sg.nu))}${row('赤外',fW(sg.ir))}${row('電磁',fW(sg.em))}${z?row('Sフォイル収納時の最大散逸',fW(z.cap))+row('Sフォイル収納時の散逸量',fW(z.out))+row('Sフォイル収納時の赤外',fW(z.sig.ir)):''}</dl>
+  ${sn?`<h4>センサー（開口）</h4><dl class="engineering-stats">${row('ニュートリノ',num(sn.nu,2))}${row('赤外',num(sn.ir,2))}${row('電磁（受動）',num(sn.em,2))}${row('能動（レーダー）',num(sn.rad,2))}</dl>`:''}
+  <p class="note">放射は散逸装置の最大能力ではなく、その負荷で実際に散逸した熱から決まります（推進の排気と能動センサーの電波は別に加わります）。高エネルギー散逸とニュートリノ放射は架空技術のモデルです。</p>`;
+}
+// The stowed pose in the 3D view, drawn with the live-preview meshes until the next edit.
+function foilPreview(on){
+  st.foilView=on?'stow':null;if(!on){clearPreview();return;}
+  const parts=[];for(const w of ship.parts.filter(C.isFoil)){const P=C.foilPose(ship,w,w.wing.stow);if(P)parts.push(...P.parts);}
+  if(!parts.length||!view)return;
+  live.active=true;live.parts=parts;live.fits=[];live.hide.parts=new Set(parts.map(q=>q._poseOf));live.hide.fits=new Set();live.gen=(eng.gen||0)+1;
+  try{const g=Gfx.meshPreview(ship,parts,[],{coded:st.coded});for(const k of ['preview','previewRef','previewFits','previewRefFits'])view.upload(k,g[k]);}catch(e){console.error(e);}
+  requestDraw();
+}
+function bindWing(){
+  $('#panel').addEventListener('click',e=>{
+    const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+    if(d.wingkind){mutate(d.wingkind==='none'?'主翼の機能を外す':d.wingkind==='foil'?'Sフォイルにする':d.wingkind==='solar'?'太陽電池翼にする':'機能付き主翼にする',()=>editSel(p=>{if(p.k!=='struct')return;if(d.wingkind==='none'){delete p.wing;return;}const w=p.wing||{feed:1,reinf:0};if(d.wingkind==='solar'){w.solar=true;delete w.foil;}else delete w.solar;if(d.wingkind==='foil'){w.foil=true;w.axis=w.axis||'x';w.stow=w.stow??0;w.open=w.open??15;w.T=w.T??(craftDesign()?1:Math.max(2,Math.round(Math.cbrt(C.partVolume(p))*.4)));}else{delete w.foil;delete w.axis;delete w.stow;delete w.open;delete w.T;delete w.pivot;}p.wing=C.normalizeWing(w);if(w.solar)p.wing.solar=true;}),'parts');renderPanel();return;}
+    if(d.foilaxis){mutate('Sフォイルの回転軸',()=>editSel(p=>{if(C.isFoil(p))p.wing.axis=d.foilaxis;}),'parts');renderPanel();return;}
+    if(d.foilview){foilPreview(d.foilview==='stow');renderPanel();return;}
+    if(d.sensband){mutate('センサーの帯域',()=>editSel(p=>{if(p.k==='sensor'||p.k==='scanner'){if(d.sensband==='multi')delete p.band;else p.band=d.sensband;}}),'parts');renderPanel();return;}
+  });
+  $('#panel').addEventListener('input',e=>{
+    const t=e.target,k=t.dataset.sl;if(!['wingFeed','wingReinf','foilStow','foilOpen','foilT'].includes(k)||t.value==='')return;const v=+t.value;if(!Number.isFinite(v))return;
+    beginDrag('主翼・Sフォイルを調整');
+    editSel(p=>{if(!C.isWing(p))return;const W=p.wing;if(k==='wingFeed')W.feed=C.clamp(v/100,0,2);if(k==='wingReinf')W.reinf=C.clamp(v/100,0,1);if(W.foil){if(k==='foilStow')W.stow=C.clamp(v,-150,150);if(k==='foilOpen')W.open=C.clamp(v,-150,150);if(k==='foilT')W.T=C.clamp(v,.1,600);}});
+    touch('parts');scheduleStats(350);const out=$('#out-'+k);if(out)out.textContent=k==='foilT'?num(v,1)+' 秒':k.startsWith('foil')?deg(v):fPct(v/100);
+  });
+}
 function heatHTML(){
   const H=S?.heat;if(!H)return '';const pr=['cruise','combat','max'].includes(st.heatPreset)?st.heatPreset:'combat',e=H.presets[pr];if(!e)return '';
   const dur=t=>!Number.isFinite(t)?'—':t<120?`${Math.round(t)} 秒`:t<7200?`${Math.round(t/60)} 分`:`${(t/3600).toFixed(1)} 時間`;
@@ -4122,7 +4204,7 @@ function heatHTML(){
    ['散逸設備',`${num(H.dis.length)} 基 · ${fW(H.disCap)}`],['内蔵冷却',fW(H.builtin)],['外殻の放熱（低温）',fW(H.skin)],['過負荷',e.overCount?`<span class="neg">${num(e.overCount)} 系統が蓄熱</span>`:'なし'],['低放射持続',dur(e.endurance)]];
   const kinds=Object.entries(H.kinds).filter(([,n])=>n>0).map(([k,n])=>`${C.HEAT_KINDS[k]} ${num(n)}`).join(' · ');
   return `<div class="pgroup blueprint-card" id="heat-editor"><h4>電力・熱ネットワーク</h4><div class="seg">${['cruise','combat','max'].map(k=>`<button type="button" data-heat-preset="${k}" aria-pressed="${k===pr}">${C.HEAT_PRESETS[k].name}</button>`).join('')}</div>
-  <dl class="engineering-stats">${rows.map(([a,b])=>`<div><dt>${a}</dt><dd>${b}</dd></div>`).join('')}</dl><p class="note">熱源：${kinds}</p>
+  <dl class="engineering-stats">${rows.map(([a,b])=>`<div><dt>${a}</dt><dd>${b}</dd></div>`).join('')}</dl>${signatureHTML(e)}<p class="note">熱源：${kinds}</p>
   ${e.over.length?`<h4>蓄熱する系統（装置ごとの残熱）</h4><ul class="ilist">${e.over.map(x=>`<li><span><b>${esc(x.name)}</b>残熱 ${fW(x.stored)}</span><span>${dur(x.t)}で出力制限</span></li>`).join('')}</ul>`:''}
   ${H.dis.length?`<h4>散逸設備</h4>${H.dis.map(d=>`<button class="engine-row" data-goto="${d.id}"><span>${esc(d.name)}</span><b>${fW(d.cap)}${d.ext?` · 露出 ${fPct(d.exposed)}`:''}</b></button>`).join('')}`:''}
   <p class="note">反応炉・武装・推進・シールド・生活設備・超兵器は一つの給電網と熱輸送網につながります。廃熱は消費電力のうち砲弾・排気・有効出力として出ていかない分です。各設備の内蔵冷却で足りない熱は熱輸送路で近くの散逸設備へ運ばれ、運びきれない分は設備に蓄熱します。蓄熱が増えると出力制限、満杯で緊急停止します。停止が間に合わないと武装は武装用電力区画が焼損し、超兵器は直結したジェネレーターが爆発します。超兵器は内蔵冷却を持たないので、散逸装置がない場合はジェネレーターに散逸能力を自動割当します。低放射持続は、散逸を止めて全廃熱を蓄熱した場合に続けられる時間です。数値はすべて仮の調整値です。</p></div>`;
@@ -4142,6 +4224,7 @@ function bindEngineering(){
     if(d.heatPreset){st.heatPreset=d.heatPreset;renderPanel();return;}
     // 指揮・艦橋 (and the old 艦橋 key) open on the part of the menu last used.
     if(d.group==='command'||d.group==='bridge'){if(st.structForm==='reference'){st.structForm='trap';delete st.skinAsset;}openCommandMenu(d.group==='bridge'?(st.cmdSub==='rooms'?'body':st.cmdSub):(st.tab==='bridge'||st.tab==='mod'&&st.group==='command'?cmdSubNow():st.cmdSub));renderPanel();return;}
+    if(d.group==='user'){st.equipmentId=null;st.tab='mod';st.group='user';st.partTool='place';renderPanel();return;}
     if(d.group){st.equipmentId=null;if(st.structForm==='reference'){st.structForm='trap';delete st.skinAsset;}st.tab='mod';st.group=d.group;if(st.group!=='weapons')st.part=PART_KEYS.find(k=>C.PARTS[k].group===st.group);st.partTool='place';renderPanel();}
     if(d.cmdsub){openCommandMenu(d.cmdsub);renderPanel();return;}
     if(d.structform){st.structForm=d.structform;renderPanel();}
@@ -4207,6 +4290,7 @@ function renderPanel(){if(!nativeRender&&fleet.mode==='design'&&ship){editRedire
   refreshSolidCutterOverlay();
 
   if(ship&&st.tab==='mod'&&st.group==='weapons'){compartmentWeaponsPanel();organizePanel();return;}
+  if(ship&&st.tab==='mod'&&st.group==='user'&&st.partTool==='place'){markTabs();$('#panel').innerHTML=userPartPanelHTML();updateHint();refreshOverlay();organizePanel();return;}
   if(ship&&st.tab==='ground'){markTabs();$('#panel').innerHTML=groundPanelHTML();updateHint();refreshOverlay();organizePanel();return;}
   v3RenderPanel();if(!ship)return;const panel=$('#panel');
   if(st.tab==='hull'){
@@ -4228,11 +4312,14 @@ function renderPanel(){if(!nativeRender&&fleet.mode==='design'&&ship){editRedire
 function partEditor(){
   let html=v3PartEditor(),p=selItem();if(!p||st.sel.list!=='parts')return html;
   html+=`<div class="pgroup"><h4>区画名</h4><label class="field-label"><input type="text" data-partlabel aria-label="区画名" value="${esc(p.label||C.PARTS[p.k].name)}" maxlength="80"></label></div>`;
-  if((p.k==='struct'&&!['reference','outline','loft','roundloft','arc','ellipsoid','dome','cylinder','cone','shell'].includes(p.form))||(p.room&&!p.outline)){html+=`<div class="pgroup"><h4>平面の輪郭</h4>${p.k==='struct'&&p.form!=='chamfer'?'<button class="btn sm" data-chamfer>切隅・平面台形にする</button>':''}<div class="sliders">${slider('aftWidth','艦尾側の幅',Math.round((p.aftWidth??1)*100),3,150,1,Math.round((p.aftWidth??1)*100)+'%')}${slider('foreWidth','艦首側の幅',Math.round((p.foreWidth??1)*100),3,150,1,Math.round((p.foreWidth??1)*100)+'%')}${slider('corner','隅を落とす',Math.round((p.corner??.12)*100),0,45,1,Math.round((p.corner??.12)*100)+'%')}</div><p class="note">甲板・艦橋の角や、船首へ細くなる区画を再現できます。</p></div>`;}
+  if((p.k==='struct'&&!['reference','outline','loft','roundloft','arc','ellipsoid','dome','cylinder','cone','shell','mesh'].includes(p.form))||(p.room&&!p.outline)){html+=`<div class="pgroup"><h4>平面の輪郭</h4>${p.k==='struct'&&p.form!=='chamfer'?'<button class="btn sm" data-chamfer>切隅・平面台形にする</button>':''}<div class="sliders">${slider('aftWidth','艦尾側の幅',Math.round((p.aftWidth??1)*100),3,150,1,Math.round((p.aftWidth??1)*100)+'%')}${slider('foreWidth','艦首側の幅',Math.round((p.foreWidth??1)*100),3,150,1,Math.round((p.foreWidth??1)*100)+'%')}${slider('corner','隅を落とす',Math.round((p.corner??.12)*100),0,45,1,Math.round((p.corner??.12)*100)+'%')}</div><p class="note">甲板・艦橋の角や、船首へ細くなる区画を再現できます。</p></div>`;}
   if(C.PARTS[p.k].shape==='cube'&&!p.room)html+='<button class="btn" data-roomconvert>長さ・幅・高さを個別に編集</button>';
   if(p.room&&!p.outline)html+='<button class="btn" data-roomoutline>区画の輪郭を頂点で編集する</button>';
   if(p.room&&p.outline)html+='<p class="note">輪郭区画の発着には、矩形の飛行・ドッキング区画を隣接させて接続します。</p>';
   if(p.room)html+='<div class="pgroup"><button class="btn" data-fitroom>区画を外殻内に収める</button><p class="note">位置を保ち、前後・幅・高さを同じ比率で縮小します。実際の占有・容量にも反映されます。</p></div>';
+  // PLAN-013: free-form structures are edited by their vertices; others can be converted.
+  if(p.k==='struct'&&p.form==='mesh'&&p.mesh)html+=st.ve.target?.kind==='struct'&&st.ve.target.id===p.id?vertexPanelHTML():`<div class="pgroup"><h4>頂点編集</h4><button class="btn" data-veopen>頂点を編集する</button><p class="note">頂点 ${p.mesh.v.length}・面 ${p.mesh.f.length}。前後・上下・左右（X/Y/Z）に頂点を動かせます。${p.imported?'外部ファイルから取り込んだ構造形状です（機能は持ちません）。':''}</p></div>`;
+  else if(p.k==='struct'&&p.form!=='reference')html+=`<div class="pgroup"><h4>頂点編集</h4><button class="btn" data-meshconvert>頂点編集できる形に変換</button><p class="note">今の外形を頂点と面に置き換え、上下（Y）を含む3方向に頂点を動かせるようにします。元の形の寸法パラメータは使えなくなります（元に戻すで戻せます）。</p></div>`;
   if(p.k==='struct')html+=`<div class="pgroup"><h4>構造物のスキン</h4>${seg('partskin',[['armor','装甲板'],['service','整備機器'],['plain','追加模様なし']],p.skin||'armor')}<p class="note">スキンは外板の模様です。指揮所が必要なら艦橋ポッドを壁に取り付けます。</p><label>構造物の塗色 <input type="color" data-partpaint value="${p.paint||'#ced2d6'}"></label></div>`;
   if(C.PARTS[p.k].shape==='cyl'&&!C.PARTS[p.k].fixed)html+=`<div class="sliders">${slider('cylLength','筒の長さ',p.length||C.partDims(p).l,4,p.k==='hyper'?C.DESIGN_LIMITS.partSize:Math.min(C.DESIGN_LIMITS.partSize,ship.hull.L),p.k==='hyper'?.1:1,p.k==='hyper'?num(p.length||C.partDims(p).l,2)+' m':fmtM(p.length||C.partDims(p).l))}</div>`;
   if(p.k==='engine'&&!C.parametricEngine(p))html+=`<div class="pgroup"><h4>ノズル前方の機関胴</h4><div class="sliders">${slider('bodyLength','機関胴の長さ',p.bodyLength||p.d*2.2,4,ship.hull.L*.6,1,fmtM(p.bodyLength||p.d*2.2))}${slider('bodyRadius','機関胴の径',Math.round((p.bodyRadius??.52)*200),60,160,1,Math.round((p.bodyRadius??.52)*200)+'%')}</div><p class="note">ノズルと平行な機関胴と、炉へつながる供給部を自動占有します。汎用ノズルの機関胴は炉との間隔の62%以内に収まります。</p></div>`;
@@ -4832,6 +4919,7 @@ function paletteItems(){
  for(const d of Object.values(C.EQUIPMENT))out.push({type:'equipment',key:d.id,name:d.name,sub:d.group==='bridge'?'艦橋本体':C.GROUPS[d.group]||'',col:C.PARTS[d.k]?.col,shape:C.PARTS[d.k]?.shape,group:gname(d.group)});
  for(const k of WEAPONS)if(C.FITS[k])out.push({type:'fit',key:k,name:C.FITS[k].name,sub:C.FITS[k].short||'',col:[214,120,90],shape:'fit',group:'武装'});
  for(const k of BRIDGES)if(C.FITS[k])out.push({type:'bridge',key:k,name:C.FITS[k].name,sub:'艦橋ポッド',col:[150,200,230],shape:'pod',group:CMD_LABEL});
+ for(const t of userParts())out.push({type:'user',key:t.id,name:t.name,sub:upCat(t.category),col:[198,170,230],shape:'cube',group:'ユーザー部品'});
  return out;
 }
 const palIcon=it=>`<i class="sw sh-${it.shape||'cube'}" style="background:${rgb(it.col||[160,170,180])}"></i>`;
@@ -4855,6 +4943,7 @@ function palettePick(type,key){
  else if(type==='equipment'){const d=C.EQUIPMENT[key];if(d.group==='bridge'){st.tab='bridge';st.bridgeMode='body';}else{st.tab='mod';st.group=d.group;}st.partTool='place';}
  else if(type==='fit'){st.tab='mod';st.group='weapons';st.fitTool='place';}
  else if(type==='bridge'){st.tab='bridge';st.bridgeMode='windows';st.bridgeTool='place';}
+ else if(type==='user'){st.tab='mod';st.group='user';st.partTool='place';st.userPart=key;st.sel=null;renderPanel();return;}
  st.sel=null;renderPanel();
  const sel={part:`[data-part="${key}"]`,equipment:`[data-equipment="${key}"]`,fit:`[data-fit="${key}"]`,bridge:`[data-bridge="${key}"]`}[type];
  const b=document.querySelector('#panel '+sel);if(b)b.click();
@@ -5205,8 +5294,8 @@ function editDuplicate(){
   for(const f of made.fits)if(f.host!=null)try{C.mountFit(ship,f);}catch(e){f.float=true;}
   // Groups wholly inside the copy are copied; copies sit in the same group as their originals otherwise.
   const gs=edGroups(),inside=g=>{const L=edLeaves(g);return [...L.parts].every(x=>map.parts.has(x))&&[...L.fits].every(x=>map.fits.has(x));},gmap=new Map();
-  for(const g of gs)if(inside(g))gmap.set(g.id,{id:ship.nextId++,...(g.name?{name:g.name}:{}),parts:[],fits:[],groups:[]});
-  for(const g of gs){const c=gmap.get(g.id);if(!c)continue;c.parts=g.parts.map(x=>map.parts.get(x));c.fits=g.fits.map(x=>map.fits.get(x));c.groups=g.groups.map(x=>gmap.get(x)?.id).filter(x=>x!=null);}
+  for(const g of gs)if(inside(g))gmap.set(g.id,{id:ship.nextId++,...(g.name?{name:g.name}:{}),...(g.assembly?{assembly:JSON.parse(JSON.stringify(g.assembly))}:{}),parts:[],fits:[],groups:[]});
+  for(const g of gs){const c=gmap.get(g.id);if(!c)continue;c.parts=g.parts.map(x=>map.parts.get(x));c.fits=g.fits.map(x=>map.fits.get(x));c.groups=g.groups.map(x=>gmap.get(x)?.id).filter(x=>x!=null);if(c.assembly)c.assembly.ports=(c.assembly.ports||[]).map(q=>({...q,child:(q.kind==='mount'?map.fits:map.parts).get(q.child)})).filter(q=>q.child!=null);}
   const place=(kind,oldId,newId)=>{const p=edParent(kind,oldId);if(p&&!gmap.has(p.id))p[kind].push(newId);};
   for(const l of ['parts','fits'])for(const [o,n] of map[l]){const p=edParent(l,o);if(!p||!gmap.has(p.id))place(l,o,n);}
   for(const [o,c] of gmap){const p=edParent('groups',o);if(!p||!gmap.has(p.id))place('groups',o,c.id);}
@@ -5259,7 +5348,7 @@ function edItemRow(list,q,lv){
 function edGroupRows(g,lv,seen){
  if(seen.has(g.id)||lv>C.GROUP_DEPTH+1)return '';seen.add(g.id);
  const L=selExpand(edLeaves(g)),on=selHasAll(L)&&(L.parts.size+L.fits.size>0),open=st.edOpen['g'+g.id]??false,n=edLeaves(g);
- let h=`<div class="ed-row ed-grp" style="--lv:${lv}"><button type="button" class="ed-fold" data-edfold="g${g.id}" aria-expanded="${open}" aria-label="${open?'たたむ':'開く'}">${open?'▾':'▸'}</button><button type="button" class="ed-pick" data-edpick="g:${g.id}" aria-pressed="${on}"><i class="ed-gi" aria-hidden="true"></i><span class="ed-n">${esc(edName(g))}</span><small>部品 ${n.parts.size+n.fits.size}</small></button></div>`;
+ let h=`<div class="ed-row ed-grp" style="--lv:${lv}"><button type="button" class="ed-fold" data-edfold="g${g.id}" aria-expanded="${open}" aria-label="${open?'たたむ':'開く'}">${open?'▾':'▸'}</button><button type="button" class="ed-pick" data-edpick="g:${g.id}" aria-pressed="${on}"><i class="ed-gi${g.assembly?' ed-up':''}" aria-hidden="true"></i><span class="ed-n">${esc(edName(g))}</span><small>${g.assembly?'ユーザー部品 · ':''}部品 ${n.parts.size+n.fits.size}</small></button></div>`;
  if(open){for(const id of g.groups){const c=edGroup(id);if(c)h+=edGroupRows(c,lv+1,seen);}for(const l of ['parts','fits'])for(const id of g[l]){const q=selFind(l,id);if(q&&edRowShown(l,q))h+=edItemRow(l,q,lv+1);}}
  return h;
 }
@@ -5281,7 +5370,7 @@ function editListHTML(){
 }
 function editOpsHTML(){
  const n=selN(),gs=selEntities().filter(e=>e.group).length,ents=selEntities().length,c=clipRead(),dis=b=>b?'':' disabled';
- return `<div class="pgroup ed-ops hscroll" role="toolbar" aria-label="選択した部品の操作"><button type="button" class="chip" data-ed="dup"${dis(n)} title="複製（少しずらして置く）">複製</button><button type="button" class="chip" data-ed="group"${dis(ents>1)} title="グループ化（Ctrl+G）">グループ化</button><button type="button" class="chip" data-ed="ungroup"${dis(gs)} title="グループ解除（Ctrl+Shift+G）">グループ解除</button><button type="button" class="chip" data-ed="copy"${dis(n)}>コピー</button><button type="button" class="chip" data-ed="paste"${dis(c&&(c.parts.length||c.fits.length))}>貼り付け</button><button type="button" class="chip" data-ed="all">すべて選択</button><button type="button" class="chip danger" data-ed="delete"${dis(n)}>撤去</button></div>`;
+ return `<div class="pgroup ed-ops hscroll" role="toolbar" aria-label="選択した部品の操作"><button type="button" class="chip" data-ed="dup"${dis(n)} title="複製（少しずらして置く）">複製</button><button type="button" class="chip" data-ed="group"${dis(ents>1)} title="グループ化（Ctrl+G）">グループ化</button><button type="button" class="chip" data-ed="ungroup"${dis(gs)} title="グループ解除（Ctrl+Shift+G）">${selEntities().some(e=>e.group?.assembly)?'分解・グループ解除':'グループ解除'}</button><button type="button" class="chip" data-up="register"${dis(n)} title="選んだ部品を、ほかの艦でも使える部品としてカタログに登録">部品として登録</button><button type="button" class="chip" data-ed="copy"${dis(n)}>コピー</button><button type="button" class="chip" data-ed="paste"${dis(c&&(c.parts.length||c.fits.length))}>貼り付け</button><button type="button" class="chip" data-ed="all">すべて選択</button><button type="button" class="chip danger" data-ed="delete"${dis(n)}>撤去</button></div>`;
 }
 function editXfHTML(){
  if(!selN())return '';
@@ -5295,7 +5384,8 @@ function editXfHTML(){
 function xfPlanSafe(k){try{return xfPlan(k);}catch(e){return null;}}
 function editGroupHTML(){
  const gs=selEntities().filter(e=>e.group).map(e=>e.group);
- return `<div class="pgroup" id="ed-groups"><h4>グループ</h4>${gs.map(g=>`<label class="field-label">${esc(`グループ #${g.id}`)}の名前<input type="text" maxlength="40" data-groupname="${g.id}" value="${esc(g.name||'')}" placeholder="${esc(edName(g))}"></label>`).join('')}<p class="note">選んだ部品を1つのグループにまとめ、移動・回転・複製・撤去をまとめて行います（Ctrl+G、解除は Ctrl+Shift+G）。グループの部品をもう一度タップすると中の部品だけを選べます。グループは入れ子にでき、設計図と一緒に保存されます。部品カタログへの登録とは別の機能です。</p></div>`;
+ const ups=gs.filter(g=>g.assembly);
+ return `<div class="pgroup" id="ed-groups"><h4>グループ</h4>${ups.length?`<p class="note">ユーザー部品「${ups.map(g=>esc(g.assembly.name)).join('」「')}」の配置です。中の部品は通常の部品として計上されます。「分解・グループ解除」でまとまりを解いても部品は残ります。</p>`:''}${gs.map(g=>`<label class="field-label">${esc(`グループ #${g.id}`)}の名前<input type="text" maxlength="40" data-groupname="${g.id}" value="${esc(g.name||'')}" placeholder="${esc(edName(g))}"></label>`).join('')}<p class="note">選んだ部品を1つのグループにまとめ、移動・回転・複製・撤去をまとめて行います（Ctrl+G、解除は Ctrl+Shift+G）。グループの部品をもう一度タップすると中の部品だけを選べます。グループは入れ子にでき、設計図と一緒に保存されます。部品カタログへの登録とは別の機能です。</p></div>`;
 }
 function editRenderPanel(){
  const panel=$('#panel');edPrune();selSync();
@@ -5312,7 +5402,7 @@ function editRenderPanel(){
   for(const h of panel.querySelectorAll(':scope > .pgroup > h4, :scope > details > summary')){const t=sourceText(h).trim();if(/^配置済みの|^武装の威力と出典/.test(t))h.parentElement.remove();}
  }else panel.innerHTML=selN()?'':`<p class="note keep ed-hint">一覧か3D表示で部品を選びます。${isWide()?'Shift＋クリックで追加・解除、':'「複数」をオンにするとタップで追加・解除、'}グループはまとめて選ばれます。</p>`;
  panel.insertAdjacentHTML('afterbegin',editOpsHTML()+editListHTML());
- if(selN())panel.insertAdjacentHTML('beforeend',editXfHTML()+editGroupHTML());
+ if(selN())panel.insertAdjacentHTML('beforeend',(st.upReg?userPartRegisterHTML():'')+editXfHTML()+editGroupHTML());else st.upReg=null;
  const card=document.createElement('div');card.innerHTML=multiPasteHTML();if(card.firstElementChild)panel.append(card.firstElementChild);
  if(!panel.querySelector('#pinfo'))panel.insertAdjacentHTML('beforeend','<div class="pinfo" id="pinfo"></div>');
  markTabs();renderPanelInfo();organizePanel();
@@ -7491,7 +7581,7 @@ function bindLayout(){
 // A cutter is a draft until Apply. Moving it never damages the current design.
 st.solidCutter=null;st.solidCutEdit=null;st.cutterVisible=true;st.cutterAction='place';st.cutterPlane='screen';st.cutterStep=5;
 let cutterOwner=null,cutterOverlayKey='',cutterDrag=null;
-const CUTTER_NAMES={box:'直方体',wedge:'楔形',cylinder:'円柱',ellipsoid:'球・楕円体'};
+const CUTTER_NAMES=C.SOLID_CUT_SHAPES;
 
 function resetSolidCutter(){
   cutterOwner=ship;st.solidCutter=null;st.solidCutEdit=null;st.cutterVisible=true;st.cutterAction='place';cutterDrag=null;cutterOverlayKey='';
@@ -7523,9 +7613,12 @@ function solidCutPanelHTML(){
   return `<div class="pgroup cutter-editor">
     <div class="cutter-heading"><h3>${editing?'切削 #'+st.solidCutEdit+' を調整':'立体を重ねて切り取る'}</h3>${editing?'<button class="btn sm ghost" data-cutter-new>新規</button>':''}</div>
     <p class="note">半透明の立体を船体に重ね、重なった部分を切り取ります。位置と大きさを決めてから実行できます。</p>
-    <div class="cutter-shapes">${Object.entries(CUTTER_NAMES).map(([k,name])=>`<button type="button" class="btn" data-cutter-shape="${k}" aria-pressed="${q.shape===k}">${name}</button>`).join('')}</div>
+    <div class="cutter-shapes hscroll">${Object.entries(CUTTER_NAMES).map(([k,name])=>`<button type="button" class="btn" data-cutter-shape="${k}" aria-pressed="${q.shape===k}">${name}</button>`).join('')}</div>
     <h4>1 · 大きさを決める</h4>
-    ${cutterInputs('s',['長さ','幅','高さ'],'m')}
+    ${q.shape==='sphere'?`<div class="cutter-coords"><label>直径<span><input type="number" inputmode="decimal" data-cutter-field="s" data-axis="0" min="2" max="${C.DESIGN_LIMITS.partSize}" step=".1" value="${cutterNumber(q.s[0])}" aria-label="カッターの直径"><i>m</i></span></label></div>`:cutterInputs('s',q.shape==='torus'?['外径（前後）','外径（左右）','管の太さ']:['長さ','幅','高さ'],'m')}
+    ${q.shape==='trapezoid'||q.shape==='frustum'?`<label class="field-label">上面の幅（底面に対する %）<input type="number" inputmode="decimal" data-cuttop min="5" max="95" step="1" value="${Math.round((q.top??.5)*100)}"></label>`:''}
+    ${q.shape==='poly'?(st.ve.target?.kind==='cutter'?vertexPanelHTML():`<div class="row2"><button type="button" class="btn sm" data-cutterveopen>頂点を編集する</button></div>`)+(C.solidCutConvexOK(q)?'':'<p class="note warn">凹んだ頂点があります。切削は頂点を包む凸の形で行います。</p>'):`<div class="row2"><button type="button" class="btn sm ghost" data-cutterpoly>この形を自由多面体にして頂点を編集</button></div>`}
+    ${cutPresetHTML()}
     <div class="cutter-scale"><button class="btn sm" data-cutter-scale="0.8">ひと回り小さく</button><button class="btn sm" data-cutter-scale="1.25">ひと回り大きく</button></div>
     <h4>2 · 船体に重ねる</h4>
     <div class="seg cutter-actions">${[['place','面をタップ'],['move','ドラッグ移動'],['camera','視点を回す']].map(([k,l])=>`<button type="button" data-cutter-action="${k}" aria-pressed="${st.cutterAction===k}">${l}</button>`).join('')}</div>
@@ -7539,7 +7632,7 @@ function solidCutPanelHTML(){
     </details>
     <details class="cutter-rotation"><summary>角度を変える</summary>${cutterInputs('rotation',['X軸回転','Y軸回転','Z軸回転'],'°')}<div class="cutter-nudge">${[0,1,2].map(a=>`<button class="btn sm" data-cutter-turn="${a}">${['X','Y','Z'][a]} +90°</button>`).join('')}</div><button class="btn sm ghost" data-cutter-zero>回転を戻す</button></details>
     <div class="pgroup"><h4>表示と切る対象</h4><div class="cutter-options"><label class="check"><input type="checkbox" data-cutter-visible ${st.cutterVisible!==false?'checked':''}> カッターを表示</label><label class="check"><input type="checkbox" data-cutter-mirror ${q.mirror?'checked':''}> 左右対称に切る</label><label class="check"><input type="checkbox" data-cutter-structures ${q.structures?'checked':''}> 上部構造・船殻パーツも切る</label></div></div>
-    <p class="note">${editing?'変更は実行するまで確定しません。':q.shape==='cylinder'?'円柱の軸は初期状態で上下方向です。':q.shape==='ellipsoid'?'長さ・幅・高さを同じ値にすると球になります。':'表示中の立体の内側が切り取られる範囲です。'}</p>
+    <p class="note">${editing?'変更は実行するまで確定しません。':['cylinder','ellcyl','cone','frustum'].includes(q.shape)?'軸は初期状態で上下方向です。':q.shape==='capsule'?'カプセルの軸は前後方向です。':q.shape==='torus'?'リングは水平で、管の太さは高さで決まります。':q.shape==='ellipsoid'?'長さ・幅・高さを同じ値にすると球になります。':'表示中の立体の内側が切り取られる範囲です。'}</p>
     <div class="cutter-apply"><button type="button" class="btn primary" data-cutter-apply>${editing?'この形で切削を更新':'重なりを切り取る'}</button>${editing?'<button class="btn ghost" data-cutter-cancel>調整をやめる</button>':''}</div>
   </div><div class="pgroup"><div class="cutter-heading"><h4>立体で切った箇所</h4><button class="btn sm ghost" data-cutter-new>新しいカッター</button></div>
   <ul class="ilist cutter-history">${(ship.solidCuts||[]).map(c=>`<li class="${st.solidCutEdit===c.id?'selected':''}"><span><b>${esc(CUTTER_NAMES[c.shape]||'立体')} #${c.id}${c.mirror?' · 左右対称':''}</b>${c.s.map(cutterNumber).join(' × ')} m</span><div class="cutter-list-actions"><button class="btn sm" data-cutter-select="${c.id}">選んで調整</button><button class="btn sm ghost" data-cutter-delete="${c.id}">取り消す</button></div></li>`).join('')||'<li><span>切り取った箇所をここから調整・取り消しできます。</span></li>'}</ul>
@@ -7611,7 +7704,7 @@ function cutterDragEnd(cancel=false){
 function bindSolidCuts(){
   $('#panel').addEventListener('click',e=>{
     const b=e.target.closest('button');if(!b)return;const d=b.dataset;
-    if(d.cutterShape){ensureSolidCutter().shape=d.cutterShape;updateCutterDraft(true);}
+    if(d.cutterShape){const q=ensureSolidCutter();q.shape=d.cutterShape;if(['cylinder','cone','frustum','sphere'].includes(q.shape)){const r=Math.max(q.s[0],q.s[1]);q.s[0]=q.s[1]=r;if(q.shape==='sphere')q.s[2]=r;}if(q.shape!=='poly'&&st.ve.target?.kind==='cutter')veClear();updateCutterDraft(true);}
     if(d.cutterAction){st.cutterAction=d.cutterAction;renderPanel();}
     if('cutterNew'in d){resetSolidCutter();st.carveTool='solid';renderPanel();}
     if('cutterCancel'in d){const c=ship.solidCuts?.find(c=>c.id===st.solidCutEdit);if(c)st.solidCutter=C.normalizeSolidCut(c);st.solidCutEdit=null;st.cutterAction='camera';updateCutterDraft(true);}
@@ -7628,7 +7721,7 @@ function bindSolidCuts(){
   const onField=e=>{
     const t=e.target,f=t.dataset.cutterField,a=+t.dataset.axis;
     if(!['c','s','rotation'].includes(f)||![0,1,2].includes(a)||t.value===''||!Number.isFinite(+t.value))return;
-    ensureSolidCutter()[f][a]=+t.value;updateCutterDraft(false);
+    const q=ensureSolidCutter();q[f][a]=+t.value;if(f==='s'&&q.shape==='sphere')q.s=[+t.value,+t.value,+t.value];updateCutterDraft(false);
   };
   $('#panel').addEventListener('input',onField);
   $('#panel').addEventListener('change',e=>{
@@ -7639,6 +7732,303 @@ function bindSolidCuts(){
     if('cutterPlane'in d&&['screen','xz','xy','yz'].includes(t.value))st.cutterPlane=t.value;
     if('cutterStep'in d&&t.value!==''&&Number.isFinite(+t.value))st.cutterStep=C.clamp(+t.value,.1,1000);
   });
+}
+
+// ---------- shape tools: JSON files, cutter presets, vertex editor (EDIT-002/004, PLAN-013) ----------
+// A JSON file for the player: the account's download, a browser download, or the clipboard.
+async function saveJSONFile(fname,obj,done){
+ const json=JSON.stringify(obj,null,1);let dl=null;
+ try{if(window.claude&&window.claude.use)dl=await window.claude.use('downloads');}catch(e){dl=null;}
+ if(dl){try{await dl.save({filename:fname,data:json});toast(done);return;}catch(e){if(e&&e.code==='declined'){toast('書き出しを取りやめました');return;}}}
+ if(!window.claude)try{const url=URL.createObjectURL(new Blob([json],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download=fname;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);toast(done);return;}catch(e){}
+ try{await navigator.clipboard.writeText(json);toast('JSON をクリップボードにコピーしました');}catch(e){toast('この画面では書き出せません');}
+}
+function readFileText(file){return new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(r.result);r.onerror=()=>no(r.error);r.readAsText(file);});}
+// EDIT-004 cutter presets: shape, size, angle and vertices (never a position),
+// kept on this device and exchangeable as JSON. Saved designs keep their own
+// cuts; a preset is only a starting shape for the next cutter.
+const CUT_PRESET_KEY='yard.cutPresets1';
+function cutPresets(){try{const o=JSON.parse(LS.get(CUT_PRESET_KEY)||'null');if(o&&o.v===1&&Array.isArray(o.presets))return o.presets.filter(p=>p&&typeof p.name==='string').map(cutPresetClean).filter(Boolean);}catch(e){}return [];}
+function cutPresetClean(p){if(!p||typeof p!=='object')return null;const q=C.normalizeSolidCut({...p,c:[0,0,0],mirror:false,structures:false});const o={id:typeof p.id==='string'?p.id.slice(0,40):'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),name:String(p.name||C.SOLID_CUT_SHAPES[q.shape]).trim().slice(0,40)||C.SOLID_CUT_SHAPES[q.shape],shape:q.shape,s:q.s,rotation:q.rotation};if(q.top!=null)o.top=q.top;if(q.verts)o.verts=q.verts;return o;}
+function cutPresetsWrite(list){if(!LS.set(CUT_PRESET_KEY,JSON.stringify({v:1,presets:list.slice(0,60)})))toast('この端末には保存できません');}
+function cutPresetSave(name){const q=ensureSolidCutter();if(!q)return;const list=cutPresets(),p=cutPresetClean({...q,name:name||`${C.SOLID_CUT_SHAPES[q.shape]} ${q.s.map(v=>Math.round(v)).join('×')}`});if(list.length>=60){toast('形状プリセットは60件までです');return;}list.push(p);cutPresetsWrite(list);toast(`形状プリセット「${esc(p.name)}」を保存しました`);}
+function cutPresetLoad(id){const p=cutPresets().find(x=>x.id===id),q=ensureSolidCutter();if(!p||!q)return;Object.assign(q,{shape:p.shape,s:p.s.slice(),rotation:p.rotation.slice()});delete q.top;delete q.verts;if(p.top!=null)q.top=p.top;if(p.verts)q.verts=p.verts.map(v=>v.slice());if(st.ve?.target?.kind==='cutter')veClear();updateCutterDraft(true);toast(`「${esc(p.name)}」の形にしました`);}
+function cutPresetImport(txt){let o;try{o=JSON.parse(txt);}catch(e){toast('JSON を読み込めませんでした');return;}const src=Array.isArray(o)?o:o?.format==='starship-yard-cutters'&&Array.isArray(o.presets)?o.presets:o?.shape?[o]:null;if(!src){toast('切削形状プリセットの JSON ではありません');return;}const list=cutPresets(),add=src.map(cutPresetClean).filter(Boolean).slice(0,60-list.length);for(const p of add){if(list.some(q=>q.id===p.id))p.id+='-'+Math.random().toString(36).slice(2,6);list.push(p);}cutPresetsWrite(list);toast(`形状プリセット ${add.length} 件を読み込みました`);}
+function cutPresetHTML(){
+ const list=cutPresets();
+ return `<details class="pgroup cutter-presets"${st.cutPresetOpen?' open':''}><summary>形状プリセット（${list.length}）</summary>
+  <div class="chips hscroll">${list.map(p=>`<span class="chip-pair"><button type="button" class="chip" data-cutpreset="${esc(p.id)}" title="${esc(C.SOLID_CUT_SHAPES[p.shape])} ${p.s.map(v=>Math.round(v)).join('×')} m">${esc(p.name)}</button><button type="button" class="chip ghost" data-cutpresetdel="${esc(p.id)}" aria-label="${esc(p.name)}を削除">×</button></span>`).join('')||'<span class="note">保存した形はまだありません。</span>'}</div>
+  <div class="row2"><input type="text" maxlength="40" data-cutpresetname placeholder="名前（省略可）" aria-label="プリセット名"><button type="button" class="btn sm" data-cutpresetsave>今の形を保存</button></div>
+  <div class="row2"><button type="button" class="btn sm ghost" data-cutpresetexport${list.length?'':' disabled'}>JSON に書き出す</button><label class="btn sm ghost file-btn">JSON から読み込む<input type="file" data-cutpresetfile accept=".json,application/json"></label></div>
+  <p class="note">形・寸法・角度・頂点を保存します（位置は含みません）。この端末に保存され、JSON で他の端末と共有できます。</p></details>`;
+}
+// ---- PLAN-013 vertex editor ----
+// One editor for every editable polyhedron: a free-form structure (form 'mesh')
+// or a free-polyhedron cutter. Vertices are picked in 3D (tap; Shift or 「複数」
+// adds), dragged on a plane, or typed. Positions are in the object's own
+// frame: 前後 X, 上下 Y, 左右 Z in metres. Moves snap to the step grid, can
+// follow left-right symmetry, and are refused when the solid would break.
+st.ve={target:null,sel:[],plane:'screen',step:0,mirror:true,d:[0,0,0],hist:[],drag:null,face:5};
+function veClear(){st.ve.target=null;st.ve.sel=[];st.ve.drag=null;st.ve.hist=[];refreshVertexOverlay();}
+function veOpen(target){st.ve.target=target;st.ve.sel=[];st.ve.d=[0,0,0];st.ve.hist=[];refreshVertexOverlay();}
+function veObject(){
+ const t=st.ve.target;if(!t||!ship)return null;
+ if(t.kind==='struct'){const p=ship.parts.find(q=>q.id===t.id);if(!p||p.k!=='struct'||p.form!=='mesh'||!p.mesh||selItem()!==p||st.sel?.list!=='parts')return null;const sc=[p.s[0],p.s[2],p.s[1]];
+  return {kind:'struct',p,local:p.mesh.v.map(v=>v.map((x,a)=>x*sc[a])),faces:p.mesh.f,world:l=>C.worldStruct(p,l),toLocal:w=>C.localStruct(p,w)};}
+ if(t.kind==='cutter'){if(!cutterActive())return null;const q=ensureSolidCutter();if(q.shape!=='poly')return null;const local=C.solidCutLocalVerts(q),faces=[];for(const f of C.convexHullFaces(local))for(let i=1;i+1<f.length;i++)faces.push([f[0],f[i],f[i+1]].map(p=>local.findIndex(r=>Math.hypot(r[0]-p[0],r[1]-p[1],r[2]-p[2])<1e-6)));
+  return {kind:'cutter',q,local,faces,world:l=>C.solidCutWorld(q,l),toLocal:w=>C.solidCutLocal(q,w)};}
+ return null;
+}
+const veSnap=v=>{const s=+st.ve.step||0;return s>0?Math.round(v/s)*s:Math.round(v*1000)/1000;};
+// Apply new local positions (metres) for the moved vertices; validation per target.
+function veCommit(o,moves,label){
+ if(!moves.size)return false;
+ if(o.kind==='struct'){
+  const p=o.p,ids=[...moves.keys()],first=ids[0],d=C.sub(moves.get(first),o.local[first]),same=ids.every(i=>C.len(C.sub(C.sub(moves.get(i),o.local[i]),d))<1e-9);
+  let r;if(same)r=C.meshMoveVertices(p,ids,d,{mirror:st.ve.mirror});else{let cur=p;r={mesh:p.mesh};for(const i of ids){r=C.meshSetVertex({...cur,mesh:r.mesh},i,moves.get(i),{mirror:st.ve.mirror});if(r.error)break;}}
+  if(r.error){sndUI('ui_error');toast(esc(r.error));return false;}
+  const ok=mutate(label||'頂点を移動',()=>{const q=ship.parts.find(x=>x.id===p.id);q.mesh=r.mesh;C.refitStructMesh(q);for(const t of [q.tw,q.vt].map(id=>ship.parts.find(x=>x.id===id)).filter(Boolean))veFollow(q,t);},'parts');
+  return ok!==false;
+ }
+ const local=o.local.map((l,i)=>moves.has(i)?moves.get(i):l);
+ if(st.ve.mirror)for(const [i,l] of moves){const src=o.local[i];if(Math.abs(src[2])<1e-6){local[i]=[l[0],l[1],0];continue;}const j=o.local.findIndex(r=>Math.abs(r[0]-src[0])<1e-6&&Math.abs(r[1]-src[1])<1e-6&&Math.abs(r[2]+src[2])<1e-6);if(j>=0&&!moves.has(j))local[j]=[l[0],l[1],-l[2]];}
+ const r=C.solidCutFromLocal(o.q,local);if(r.error){sndUI('ui_error');toast(esc(r.error));return false;}
+ st.ve.hist.push(JSON.stringify(o.q));if(st.ve.hist.length>40)st.ve.hist.shift();
+ Object.assign(st.solidCutter,r.cut);updateCutterDraft(false);if(!C.solidCutConvexOK(st.solidCutter))toast('凹んだ頂点があります。切削は頂点を包む凸の形で行います');return true;
+}
+// Symmetric twins of an edited structure follow with the same shape.
+function veFollow(src,twin){if(twin.form!=='mesh')return;const m=src.tw===twin.id?C.mirrorStructMesh(src.mesh):src.vt===twin.id?C.mirrorStructMesh(src.mesh):src.mesh;twin.mesh=m;twin.s=src.s.slice();if(src.tw===twin.id)twin.c=[src.c[0],src.c[1],-src.c[2]];else if(src.vt===twin.id)twin.c=C.vmirrorPoint(ship,src.c);}
+function veUndoLocal(){if(st.ve.target?.kind!=='cutter'||!st.ve.hist.length)return false;Object.assign(st.solidCutter,JSON.parse(st.ve.hist.pop()));updateCutterDraft(true);return true;}
+function veHandleSize(o){const b=[0,1,2].map(a=>Math.max(...o.local.map(l=>l[a]))-Math.min(...o.local.map(l=>l[a])));return Math.max(.05,Math.hypot(...b)*.025);}
+function refreshVertexOverlay(){
+ if(!view)return;const o=veObject(),ls=Gfx.lineSet();
+ if(o){const h=veHandleSize(o),sel=new Set(st.ve.sel),drag=st.ve.drag,pos=i=>o.world(drag&&sel.has(i)?C.add(o.local[i],drag.d):o.local[i]);
+  const seen=new Set();for(const f of o.faces)for(let k=0;k<3;k++){const a=f[k],b=f[(k+1)%3],key=a<b?a+'_'+b:b+'_'+a;if(seen.has(key)||a<0||b<0)continue;seen.add(key);ls.seg(pos(a),pos(b),[120,200,235,150]);}
+  o.local.forEach((_,i)=>{const p=pos(i),c=sel.has(i)?[255,170,60,255]:[150,230,255,255],s=sel.has(i)?h*1.5:h;for(const ax of [0,1,2]){const d=[0,0,0];d[ax]=s;ls.seg(C.sub(p,d),C.add(p,d),c);}});}
+ view.setLines('verts',ls.out());requestDraw();
+}
+function vePick(px,py){
+ const o=veObject();if(!o||!view)return -1;let best=-1,bd=22;
+ o.local.forEach((l,i)=>{const s=view.project(o.world(l));if(!s||s[2]<-1||s[2]>1)return;const d=Math.hypot(s[0]-px,s[1]-py);if(d<bd){bd=d;best=i;}});return best;
+}
+function veTap(px,py,add){
+ const i=vePick(px,py);if(i<0)return false;const sel=new Set(st.ve.sel);
+ if(add||st.editTool==='multi'){if(sel.has(i))sel.delete(i);else sel.add(i);}else{sel.clear();sel.add(i);}
+ st.ve.sel=[...sel];renderPanel();refreshVertexOverlay();return true;
+}
+function veDragStart(px,py,add){
+ const o=veObject();if(!o)return false;const i=vePick(px,py);if(i<0)return false;
+ if(!st.ve.sel.includes(i)){if(add||st.editTool==='multi')st.ve.sel.push(i);else st.ve.sel=[i];}
+ const m=view.matrices(),normal=st.ve.plane==='xz'?[0,1,0]:st.ve.plane==='xy'?[0,0,1]:st.ve.plane==='yz'?[1,0,0]:C.norm([m.V[2],m.V[6],m.V[10]]);
+ const at=o.world(o.local[i]),anchor=cutterPlanePoint(px,py,at,normal);if(!anchor)return false;
+ st.ve.drag={i,normal,anchor,at,d:[0,0,0],moved:false};refreshVertexOverlay();return true;
+}
+function veDragMove(px,py){
+ const g=st.ve.drag,o=veObject();if(!g||!o)return;const p=cutterPlanePoint(px,py,g.at,g.normal);if(!p)return;
+ const wl=o.toLocal(C.add(g.at,C.sub(p,g.anchor))),target=wl.map(veSnap);g.d=C.sub(target,o.local[g.i]);g.moved=C.len(g.d)>1e-9;refreshVertexOverlay();
+}
+function veDragEnd(cancel){
+ const g=st.ve.drag;st.ve.drag=null;if(!g)return;const o=veObject();st.ve.lastD=g.d;
+ if(!cancel&&g.moved&&o){const moves=new Map(st.ve.sel.map(i=>[i,C.add(o.local[i],g.d)]));veCommit(o,moves,'頂点をドラッグで移動');}
+ renderPanel();refreshVertexOverlay();
+}
+function vertexPanelHTML(){
+ const o=veObject();if(!o)return '';const sel=st.ve.sel.filter(i=>i<o.local.length),n=sel.length,one=n===1?o.local[sel[0]]:null,d=st.ve.d;
+ const axes=[['前後 X',0],['上下 Y',1],['左右 Z',2]];
+ const abs=one?`<div class="xf-grid">${axes.map(([l,a])=>`<div class="xf-row"><span>${l}</span><input type="number" step="any" data-veabs="${a}" value="${Math.round(one[a]*1000)/1000}" aria-label="頂点の${l}（m）"></div>`).join('')}</div>`:'';
+ const rel=`<div class="xf-grid">${axes.map(([l,a])=>`<div class="xf-row"><span>${l}</span><button type="button" class="btn sm" data-venudge="${a}" data-sign="-1" aria-label="${l} を減らす">−</button><input type="number" step="any" data-ved="${a}" value="${+d[a]||0}" aria-label="${l} の移動量（m）"><button type="button" class="btn sm" data-venudge="${a}" data-sign="1" aria-label="${l} を増やす">＋</button></div>`).join('')}</div>`;
+ return `<div class="pgroup ve-card" id="ve-card"><h4>頂点編集 ${o.kind==='cutter'?'（カッター）':'（構造物）'}</h4>
+  <p class="ve-count">頂点 ${o.local.length}・面 ${o.faces.length} · 選択 <b>${n}</b></p>
+  <div class="chips hscroll"><button type="button" class="chip" data-ve="all">すべて選択</button><button type="button" class="chip" data-ve="none"${n?'':' disabled'}>選択解除</button><button type="button" class="chip" data-ve="split"${n===2?'':' disabled'} title="選んだ2頂点の辺の中点に頂点を追加">辺に頂点を追加</button><button type="button" class="chip" data-ve="drop"${n===1?'':' disabled'}>頂点を削除</button>${o.kind==='struct'?`<button type="button" class="chip" data-ve="extrude"${n===3?'':' disabled'} title="選んだ3頂点の面を外へ押し出す">面を押し出す</button>`:''}${o.kind==='cutter'?`<button type="button" class="chip" data-ve="undo"${st.ve.hist.length?'':' disabled'}>1つ戻す</button>`:''}<button type="button" class="chip ghost" data-ve="close">頂点編集を終える</button></div>
+  ${one?'<h5>選んだ頂点の位置（m）</h5>'+abs:''}
+  ${n?`<h5>${n} 頂点を同時に動かす（m）</h5>${rel}<div class="xf-acts"><button type="button" class="btn sm ghost" data-ve="zero">0 に戻す</button><button type="button" class="btn sm primary" data-ve="move">移動を確定</button></div>`:''}
+  ${o.kind==='struct'?`<label class="field-label">押し出し量（m）<input type="number" step="any" data-veface value="${st.ve.face}"></label>`:''}
+  <div class="ve-opts"><label class="field-label">ドラッグする面<select data-veplane><option value="screen"${st.ve.plane==='screen'?' selected':''}>画面に平行</option><option value="xz"${st.ve.plane==='xz'?' selected':''}>前後・左右（XZ）</option><option value="xy"${st.ve.plane==='xy'?' selected':''}>前後・上下（XY）</option><option value="yz"${st.ve.plane==='yz'?' selected':''}>上下・左右（YZ）</option></select></label>
+  <label class="field-label">スナップ（m、0で無効）<input type="number" min="0" step="any" data-vestep value="${st.ve.step}"></label>
+  <label class="check"><input type="checkbox" data-vemirror ${st.ve.mirror?'checked':''}> 左右対称に編集（Z=0 をはさむ頂点が鏡写しに動く）</label></div>
+  <p class="note">3D表示で頂点（十字）をタップして選び、ドラッグで動かします。${isWide()?'Shift＋クリックで追加選択。':'「複数」がオンならタップで追加選択。'}座標はこの${o.kind==='cutter'?'カッター':'構造物'}自身の向きでの値です。面がつぶれる・交差する・裏返る移動は確定しません。${o.kind==='struct'?'元に戻す・やり直しに対応します。':''}</p></div>`;
+}
+function veButton(a){
+ const o=veObject();if(!o)return;const sel=st.ve.sel.filter(i=>i<o.local.length);
+ if(a==='all')st.ve.sel=o.local.map((_,i)=>i);
+ else if(a==='none')st.ve.sel=[];
+ else if(a==='close'){veClear();}
+ else if(a==='zero')st.ve.d=[0,0,0];
+ else if(a==='undo'){veUndoLocal();}
+ else if(a==='move'){const d=st.ve.d.map(v=>+v||0);if(!C.len(d))return;const moves=new Map(sel.map(i=>[i,o.local[i].map((x,k)=>veSnap(x+d[k]))]));if(veCommit(o,moves,`${sel.length} 頂点を移動`))st.ve.d=[0,0,0];}
+ else if(a==='split'&&sel.length===2){
+  if(o.kind==='struct'){const [x,y]=sel;if(!o.faces.some(f=>f.includes(x)&&f.includes(y))){toast('辺でつながった2頂点を選んでください');return;}const m=C.meshSplitEdge(o.p.mesh,x,y);mutate('辺に頂点を追加',()=>{ship.parts.find(q=>q.id===o.p.id).mesh=m;},'parts');st.ve.sel=[m.v.length-1];}
+  else{const [x,y]=sel,mid=o.local[x].map((v,k)=>(v+o.local[y][k])/2),local=o.local.concat([mid]);const r=C.solidCutFromLocal(o.q,local);if(r.error){toast(esc(r.error));return;}st.ve.hist.push(JSON.stringify(o.q));Object.assign(st.solidCutter,r.cut);st.ve.sel=[local.length-1];updateCutterDraft(false);}
+ }
+ else if(a==='drop'&&sel.length===1){
+  if(o.kind==='struct'){const r=C.meshCollapseVertex(o.p.mesh,sel[0]);if(r.error){toast(esc(r.error));return;}mutate('頂点を削除',()=>{const q=ship.parts.find(x=>x.id===o.p.id);q.mesh=r.mesh;C.refitStructMesh(q);},'parts');}
+  else{const local=o.local.filter((_,i)=>i!==sel[0]);const r=C.solidCutFromLocal(o.q,local);if(r.error){toast(esc(r.error));return;}st.ve.hist.push(JSON.stringify(o.q));Object.assign(st.solidCutter,r.cut);updateCutterDraft(false);}
+  st.ve.sel=[];
+ }
+ else if(a==='extrude'&&sel.length===3&&o.kind==='struct'){const fi=o.faces.findIndex(f=>sel.every(i=>f.includes(i)));if(fi<0){toast('1つの面の3頂点を選んでください');return;}const r=C.meshExtrudeFace(o.p,fi,+st.ve.face||0);if(r.error){toast(esc(r.error));return;}mutate('面を押し出す',()=>{const q=ship.parts.find(x=>x.id===o.p.id);q.mesh=r.mesh;C.refitStructMesh(q);},'parts');st.ve.sel=[];}
+ renderPanel();refreshVertexOverlay();
+}
+function bindVertexEdit(){
+ const panel=$('#panel');
+ panel.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled||!ship)return;const d=b.dataset;
+  if(d.ve){veButton(d.ve);return;}
+  if(d.venudge!=null){const a=+d.venudge,step=+st.ve.step||1;st.ve.d[a]=Math.round(((+st.ve.d[a]||0)+(+d.sign)*step)*1000)/1000;const inp=panel.querySelector(`[data-ved="${a}"]`);if(inp)inp.value=st.ve.d[a];return;}
+  if('veopen'in d){const p=selItem();if(p&&p.k==='struct'&&p.form==='mesh'){veOpen({kind:'struct',id:p.id});renderPanel();}return;}
+  if('meshconvert'in d){const p=selItem();if(!p||p.k!=='struct')return;const m=C.structToMesh(p);if(!m){toast('この形は頂点編集に変換できません');return;}mutate('頂点編集できる形に変換',()=>editSel(q=>{if(q.k!=='struct')return;const mm=q===p?m:C.structToMesh(q);if(!mm)return;q.mesh=mm;q.form='mesh';for(const k of ['taper','angles','outline','loft','deckSlope','ridge','corner','aftWidth','foreWidth','offsetX','offsetZ','arcInner','arcStart','arcSweep','shellCurve','shellThick','shellFlip','skinAsset'])delete q[k];}),'parts');veOpen({kind:'struct',id:p.id});renderPanel();return;}
+  if('cutterpoly'in d){const q=ensureSolidCutter();Object.assign(st.solidCutter,C.solidCutToPoly(q));veOpen({kind:'cutter'});updateCutterDraft(true);return;}
+  if('cutterveopen'in d){veOpen({kind:'cutter'});renderPanel();return;}
+  if(d.cutpreset){cutPresetLoad(d.cutpreset);return;}
+  if(d.cutpresetdel){const list=cutPresets().filter(p=>p.id!==d.cutpresetdel);cutPresetsWrite(list);st.cutPresetOpen=true;renderPanel();return;}
+  if('cutpresetsave'in d){const inp=panel.querySelector('[data-cutpresetname]');cutPresetSave(inp?.value?.trim());st.cutPresetOpen=true;renderPanel();return;}
+  if('cutpresetexport'in d){saveJSONFile('cutter-presets.json',{format:'starship-yard-cutters',v:1,presets:cutPresets()},'形状プリセットを書き出しました');return;}
+ });
+ panel.addEventListener('change',async e=>{const t=e.target,d=t.dataset;
+  if(d.veabs!=null){const o=veObject(),i=st.ve.sel[0],v=+t.value;if(!o||i==null||!Number.isFinite(v))return;const l=o.local[i].slice();l[+d.veabs]=veSnap(v);veCommit(o,new Map([[i,l]]),'頂点の座標を入力');renderPanel();refreshVertexOverlay();}
+  if(d.ved!=null){const v=+t.value;if(Number.isFinite(v))st.ve.d[+d.ved]=v;}
+  if(d.vestep!=null){const v=+t.value;st.ve.step=Number.isFinite(v)&&v>=0?v:0;}
+  if(d.veface!=null){const v=+t.value;if(Number.isFinite(v))st.ve.face=v;}
+  if(d.veplane!=null&&['screen','xz','xy','yz'].includes(t.value))st.ve.plane=t.value;
+  if(d.vemirror!=null)st.ve.mirror=t.checked;
+  if(d.cutpresetfile!=null&&t.files?.[0]){try{cutPresetImport(await readFileText(t.files[0]));}catch(err){toast('ファイルを読めませんでした');}t.value='';st.cutPresetOpen=true;renderPanel();}
+  if(d.cuttop!=null){const v=+t.value;if(Number.isFinite(v)){ensureSolidCutter().top=C.clamp(v/100,.05,.95);updateCutterDraft(false);}}
+ });
+ panel.addEventListener('toggle',e=>{if(e.target.classList?.contains('cutter-presets'))st.cutPresetOpen=e.target.open;},true);
+}
+
+// ---------- USERPART-001..006: user-defined composite parts ----------
+// Templates live on this device (localStorage) and travel as JSON. A placed
+// part is an edit group that remembers its template; its children are
+// ordinary parts, so stats, inspection, undo and saving treat them as such.
+const USER_PART_KEY='yard.userParts1';
+st.userPart=null;st.upQuery='';st.upReg=null;st.upOpen=null;
+function userParts(){try{const o=JSON.parse(LS.get(USER_PART_KEY)||'null');if(o&&o.v===1&&Array.isArray(o.parts))return o.parts.map(t=>{try{return C.normalizeAssemblyTemplate(t);}catch(e){return null;}}).filter(Boolean);}catch(e){}return [];}
+function userPartsWrite(list){if(!LS.set(USER_PART_KEY,JSON.stringify({v:1,parts:list.slice(0,200)}))){toast('この端末には保存できません（容量不足の可能性があります）');return false;}return true;}
+function userPartFind(id){return userParts().find(t=>t.id===id)||null;}
+const upCat=k=>C.ASSEMBLY_CATEGORIES[k]||k;
+function userPartCounts(t){const eng=t.parts.filter(p=>p.k==='engine').length,gen=t.parts.filter(p=>C.isReactor(p)).length,str=t.parts.filter(p=>p.k==='struct').length;return `区画・構造物 ${t.parts.length}・装備 ${t.fits.length}${gen?` · 反応炉 ${gen}`:''}${eng?` · ノズル ${eng}`:''}${str?` · 構造物 ${str}`:''}`;}
+// Registration card (編集): name, category, description, origin, mounting side, links and ports.
+function userPartRegisterHTML(){
+ const r=st.upReg;if(!r)return '';const ids={parts:[...st.multi.parts],fits:[...st.multi.fits]},L=C.assemblyLinks(ship,ids),cap=C.assemblyCapture(ship,ids,r),t=cap.template;
+ const link=k=>({power:'給電',structural:'取付',symmetry:'対称'}[k]||k),need=p=>p.need==='reactor'?'反応炉への接続':p.need==='host'?'取付先の構造物':'外部の消費機器';
+ return `<div class="pgroup up-reg" id="up-reg"><h4>ユーザー部品として登録</h4>
+  ${t?.preview?`<div class="up-prev" aria-hidden="true">${t.preview}</div>`:''}
+  <p class="note">選んだ ${ids.parts.length+ids.fits.length} 個（${t?userPartCounts(t):''}）を、ほかの艦にも置ける部品として保存します。グループ化とは別の操作で、この設計は変わりません。</p>
+  <label class="field-label">名前<input type="text" maxlength="40" data-upreg="name" value="${esc(r.name||'')}" placeholder="例：推進ポッド"></label>
+  <label class="field-label">分類<select data-upreg="category">${Object.entries(C.ASSEMBLY_CATEGORIES).map(([k,v])=>`<option value="${k}"${r.category===k?' selected':''}>${v}</option>`).join('')}</select></label>
+  <label class="field-label">説明<textarea maxlength="400" rows="2" data-upreg="description">${esc(r.description||'')}</textarea></label>
+  <h5>基準点（置くときにタップした点に来る位置）</h5>${seg('upregorigin',Object.entries(C.ASSEMBLY_ORIGINS),r.origin||'center')}
+  <h5>取付方向</h5>${seg('upregmount',Object.entries(C.ASSEMBLY_MOUNTS),r.mount||'bottom')}
+  <h5>内部の接続</h5><p class="note">${L.links.filter(l=>l.kind!=='symmetry').length?L.links.filter(l=>l.kind!=='symmetry').map(l=>`${link(l.kind)} #${l.from.id}→#${l.to.id}`).join('・'):'なし'}${L.links.some(l=>l.kind==='symmetry')?`（対称の組 ${L.links.filter(l=>l.kind==='symmetry').length}）`:''}</p>
+  <h5>外部接続ポート</h5><p class="note${L.ports.length?' warn':''}">${L.ports.length?L.ports.map(p=>`${esc(p.label)} #${p.child.id}：${need(p)}`).join('・')+'。置いた先で接続するまで、その機能は働きません。':'なし（選択の中で完結しています）'}</p>
+  <p class="note">炉・機関・砲などの機能部品は寸法のまま保存し、置くときに拡大縮小しません。</p>
+  <div class="xf-acts"><button type="button" class="btn sm ghost" data-up="regcancel">やめる</button><button type="button" class="btn sm primary" data-up="regsave"${cap.error?' disabled':''}>登録する</button></div>${cap.error?`<p class="note warn">${esc(cap.error)}</p>`:''}</div>`;
+}
+function userPartRegister(){
+ const r=st.upReg;if(!r)return;const ids={parts:[...st.multi.parts],fits:[...st.multi.fits]},cap=C.assemblyCapture(ship,ids,r);
+ if(cap.error){toast(esc(cap.error));return;}let t;try{t=C.normalizeAssemblyTemplate(JSON.parse(JSON.stringify(cap.template)));}catch(e){toast(esc(e.message));return;}
+ const list=userParts();if(list.length>=200){toast('ユーザー部品は200件までです');return;}list.push(t);if(!userPartsWrite(list))return;
+ st.upReg=null;st.userPart=t.id;toast(`「${esc(t.name)}」をユーザー部品に登録しました。「配置 → ユーザー部品」から置けます`);
+}
+// Catalogue (配置 → ユーザー部品): search, place, duplicate, rename, delete, JSON in/out.
+function userPartPanelHTML(){
+ const all=userParts(),q=(st.upQuery||'').trim().toLowerCase(),list=q?all.filter(t=>(t.name+' '+upCat(t.category)+' '+t.description+' '+T(t.name)+' '+T(upCat(t.category))).toLowerCase().includes(q)):all,sel=all.find(t=>t.id===st.userPart);
+ if(st.userPart&&!sel)st.userPart=null;
+ const card=t=>`<button type="button" class="part up-card" data-uppick="${esc(t.id)}" aria-pressed="${st.userPart===t.id}"><span class="up-prev" aria-hidden="true">${t.preview||''}</span><span class="pn" translate="no">${esc(t.name)}</span><span class="pd">${esc(upCat(t.category))} · ${t.size.map(v=>Math.round(v)).join('×')} m</span></button>`;
+ return `<div class="pgroup">${seg('parttool',[['place','配置'],['select','選択・調整'],['multi','複数選択'],['remove','撤去']],st.partTool)}</div><div class="pgroup panel-nav">${seg('group',layoutGroups(),'user')}</div>
+ <label class="pal-search up-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><input type="search" data-upsearch placeholder="ユーザー部品を探す" value="${esc(st.upQuery||'')}" aria-label="ユーザー部品を検索"></label>
+ <div class="parts up-list pal-strip hscroll">${list.map(card).join('')||`<p class="note keep">${all.length?'見つかりません。':'まだありません。「編集」で部品を選び「部品として登録」を押すと、ここに並びます。'}</p>`}</div>
+ ${sel?`<div class="pgroup up-sel"><h4 translate="no">${esc(sel.name)}</h4><p class="note">${esc(upCat(sel.category))} · ${userPartCounts(sel)} · ${esc(C.ASSEMBLY_MOUNTS[sel.mount])}${sel.description?'<br>'+esc(sel.description):''}</p>${sel.ports.length?`<p class="note warn">外部接続ポート ${sel.ports.length}：${sel.ports.map(p=>esc(p.label)).join('・')}。置いた先で接続してください。</p>`:''}
+  <p class="note">船体・構造物の面をタップすると、基準点をそこに合わせて独立したコピーを置きます${st.mirror?'（左右対称がオンなので反対舷にも鏡写しを置きます）':''}。置いた後は「編集」で1つのグループとして移動・回転・複製・撤去・分解できます。</p>
+  <label class="field-label">名前を変更<input type="text" maxlength="40" data-uprename="${esc(sel.id)}" value="${esc(sel.name)}"></label>
+  <div class="chips hscroll"><button type="button" class="chip" data-up="dup">複製</button><button type="button" class="chip" data-up="export">JSON に書き出す</button><button type="button" class="chip danger" data-up="delete">${st.upDel===sel.id?'もう一度押すと削除':'削除'}</button></div>
+  <p class="note">テンプレートを削除しても、すでに置いた部品は設計図に残ります。</p></div>`:''}
+ <div class="pgroup row2"><label class="btn sm ghost file-btn">JSON から読み込む<input type="file" data-upfile accept=".json,application/json"></label><button type="button" class="btn sm ghost" data-up="exportall"${all.length?'':' disabled'}>すべて書き出す</button></div>`;
+}
+function userPartImport(txt){
+ let o;try{o=JSON.parse(txt);}catch(e){toast('JSON を読み込めませんでした');return;}
+ const src=o?.format==='starship-yard-parts'&&Array.isArray(o.parts)?o.parts:Array.isArray(o)?o:[o],list=userParts();let n=0,bad=0;
+ for(const x of src){try{const t=C.normalizeAssemblyTemplate(x);if(list.some(q=>q.id===t.id))t.id+='_'+Math.random().toString(36).slice(2,6);if(list.length<200){list.push(t);n++;}}catch(e){bad++;}}
+ if(n)userPartsWrite(list);toast(n?`ユーザー部品 ${n} 件を読み込みました${bad?`（${bad} 件は形式が不正のため除外）`:''}`:'ユーザー部品の JSON ではありません');
+}
+// Place at a tapped surface point (origin there); with 左右対称 a mirrored twin too.
+function placeUserPart(hit){
+ const t=userPartFind(st.userPart);if(!t){toast('置くユーザー部品を一覧から選んでください');return;}
+ if(!hit?.p||hit.fit){toast('船体か構造物の面をタップしてください');return;}
+ let r=null;const ok=mutate(`ユーザー部品「${t.name}」を配置`,()=>{r=C.assemblyPlace(ship,t,hit.p.slice(),{mirror:st.mirror});if(r.error)throw new Error(r.error);},'all');
+ if(ok===false||!r||r.error)return;
+ st.multi={parts:new Set(r.parts.map(p=>p.id)),fits:new Set(r.fits.map(f=>f.id))};const l=r.parts.length?'parts':'fits';st.sel={list:l,id:(r[l][0]||{}).id};
+ showPreview('parts',r.parts);renderPanel();
+ toast(`「${esc(t.name)}」を${r.groups.length>1?'左右に':''}配置しました。「編集」で移動・回転・分解できます`);
+}
+function bindUserParts(){
+ const panel=$('#panel');
+ panel.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.disabled||!ship)return;const d=b.dataset;
+  if(d.uppick){st.userPart=d.uppick;st.upDel=null;renderPanel();return;}
+  if(d.upregorigin){if(st.upReg){st.upReg.origin=d.upregorigin;renderPanel();}return;}
+  if(d.upregmount){if(st.upReg){st.upReg.mount=d.upregmount;renderPanel();}return;}
+  if(!d.up)return;const a=d.up,list=userParts(),sel=list.find(t=>t.id===st.userPart);
+  if(a==='register'){if(!selN()){toast('登録する部品を選んでください');return;}st.upReg={name:'',category:'composite',description:'',origin:'center',mount:'bottom'};renderPanel();setTimeout(()=>document.querySelector('#up-reg')?.scrollIntoView({block:'nearest'}),0);return;}
+  if(a==='regcancel'){st.upReg=null;renderPanel();return;}
+  if(a==='regsave'){userPartRegister();renderPanel();return;}
+  if(a==='exportall'){saveJSONFile('user-parts.json',{format:'starship-yard-parts',v:1,parts:list},'ユーザー部品を書き出しました');return;}
+  if(!sel)return;
+  if(a==='export'){saveJSONFile(`${sel.name.replace(/[\\/:*?"<>|]/g,'_')}.part.json`,sel,'ユーザー部品を書き出しました');return;}
+  if(a==='dup'){const c=JSON.parse(JSON.stringify(sel));c.id='up'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);c.name=(sel.name+' のコピー').slice(0,40);list.push(c);if(userPartsWrite(list)){st.userPart=c.id;toast(`「${esc(c.name)}」を作りました`);}renderPanel();return;}
+  if(a==='delete'){if(st.upDel!==sel.id){st.upDel=sel.id;renderPanel();return;}userPartsWrite(list.filter(t=>t.id!==sel.id));st.upDel=null;st.userPart=null;toast('テンプレートを削除しました。配置済みの部品は残ります');renderPanel();return;}
+ });
+ panel.addEventListener('input',e=>{const t=e.target,d=t.dataset;
+  if(d.upsearch!=null){st.upQuery=t.value;const pos=t.selectionStart;renderPanel();const n=document.querySelector('[data-upsearch]');if(n){n.focus();try{n.setSelectionRange(pos,pos);}catch(_){}}}
+  if(d.upreg&&st.upReg)st.upReg[d.upreg]=t.value;
+ });
+ panel.addEventListener('change',async e=>{const t=e.target,d=t.dataset;
+  if(d.upreg&&st.upReg){st.upReg[d.upreg]=t.value;if(d.upreg==='category')renderPanel();}
+  if(d.uprename){const list=userParts(),x=list.find(q=>q.id===d.uprename),name=t.value.trim().slice(0,40);if(x&&name&&name!==x.name){x.name=name;userPartsWrite(list);toast('名前を変更しました（配置済みの部品の名前は変わりません）');renderPanel();}}
+  if(d.upfile!=null&&t.files?.[0]){try{userPartImport(await readFileText(t.files[0]));}catch(err){toast('ファイルを読めませんでした');}t.value='';renderPanel();}
+ });
+}
+
+// ---------- PLAN-010: import an external 3D shape as an editable structure ----------
+// The file is read on this device only; the result is a free-form structure
+// (vertices editable, cuttable, counted by volume like any structure). No
+// engine, reactor or weapon is created: functions are placed separately.
+st.importRaw=null;st.importOpt={unit:'m',scale:1,up:'y',forward:'x'};let importCache=null;
+function importResult(){
+ const r=st.importRaw;if(!r)return null;const key=JSON.stringify(st.importOpt);if(importCache?.raw===r&&importCache.key===key)return importCache.res;
+ const res=C.meshImportPart(r.parsed,st.importOpt);importCache={raw:r,key,res};return res;
+}
+function importCardHTML(){
+ const o=st.importOpt,r=st.importRaw,res=importResult(),sel=(k,opts)=>`<select data-impopt="${k}">${opts.map(([v,l])=>`<option value="${v}"${String(o[k])===v?' selected':''}>${l}</option>`).join('')}</select>`;
+ const axes=[['x','+X'],['-x','−X'],['y','+Y'],['-y','−Y'],['z','+Z'],['-z','−Z']];
+ return `<div class="pgroup imp-card" id="imp-card"><h4>外部3D形状を構造物として取り込む</h4>
+  <p class="note">OBJ・glTF（.gltf／.glb）・STL を、頂点を編集できる構造物に変換します。エンジン・反応炉・武装などの機能は作りません（あとから配置します）。</p>
+  <label class="btn file-btn">3Dファイルを選ぶ<input type="file" data-impfile accept=".obj,.stl,.gltf,.glb"></label>
+  <div class="imp-opts"><label class="field-label">単位${sel('unit',[['m','メートル'],['cm','センチメートル'],['mm','ミリメートル'],['km','キロメートル'],['ft','フィート'],['in','インチ']])}</label>
+  <label class="field-label">倍率<input type="number" min="0.0001" step="any" data-impopt="scale" value="${o.scale}"></label>
+  <label class="field-label">ファイルの上方向${sel('up',axes.filter(a=>a[0]!=='-x'))}</label>
+  <label class="field-label">ファイルの艦首方向${sel('forward',axes)}</label></div>
+  ${r?`<p class="imp-file"><b translate="no">${esc(r.name)}</b>（${esc(r.parsed.format.toUpperCase())}）</p>`+(res?.error?`<p class="note warn">${esc(res.error)}</p>`:`<p class="note">寸法 ${res.size.map(v=>fmtM(v)).join(' × ')}（前後×高さ×幅）・頂点 ${num(res.verts)}・面 ${num(res.tris)}・容積 ${num(Math.round(res.volume))} m³${res.closed?'':'（閉じていない面があり、容積は近似）'}</p>${res.issues.length?`<ul class="imp-issues">${res.issues.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>`:''}<p class="note">船体・構造物の面をタップすると、その位置に置きます（何度でも置けます）。置いた後は頂点編集・切削・移動・回転・ミラーができます。</p><button type="button" class="btn sm ghost" data-impclear>取り込みをやめる</button>`):''}</div>`;
+}
+async function importFile(file){
+ if(!file)return;if(file.size>40*1024*1024){toast('40 MB を超えるファイルは読み込めません');return;}
+ let buf;try{buf=/\.(obj|gltf)$/i.test(file.name)?await readFileText(file):await file.arrayBuffer();}catch(e){toast('ファイルを読めませんでした');return;}
+ const parsed=C.parseMeshFile(file.name,buf);if(parsed.error){st.importRaw=null;toast(esc(parsed.error));renderPanel();return;}
+ if(parsed.format==='gltf'||parsed.format==='glb'){st.importOpt.up='y';st.importOpt.forward='z';}else if(parsed.format==='stl'){st.importOpt.up='z';st.importOpt.forward='x';}
+ st.importRaw={name:file.name.slice(0,80),parsed};renderPanel();
+}
+function placeImportedMesh(hit){
+ const res=importResult();if(!res||res.error){toast(res?.error?esc(res.error):'3Dファイルを選んでください');return;}
+ if(!hit?.p||hit.fit){toast('船体か構造物の面をタップしてください');return;}
+ const n=hit.n||[0,1,0],ext=Math.abs(n[0])*res.part.s[0]+Math.abs(n[1])*res.part.s[2]+Math.abs(n[2])*res.part.s[1];
+ let made=null;const ok=mutate(`3D形状「${st.importRaw.name}」を取り込み`,()=>{const p=JSON.parse(JSON.stringify(res.part));p.id=ship.nextId++;p.c=C.add(hit.p,C.mul(n,ext*.35));p.label=st.importRaw.name.replace(/\.[^.]+$/,'').slice(0,60);ship.parts.push(p);made=p;},'parts');
+ if(ok===false||!made)return;st.sel={list:'parts',id:made.id};st.multi={parts:new Set([made.id]),fits:new Set()};renderPanel();toast('構造物として取り込みました。「編集」で頂点を編集できます');
+}
+function bindImport(){
+ const panel=$('#panel');
+ panel.addEventListener('change',async e=>{const t=e.target,d=t.dataset;
+  if(d.impfile!=null&&t.files?.[0]){await importFile(t.files[0]);t.value='';}
+  if(d.impopt){const k=d.impopt;st.importOpt[k]=k==='scale'?(Number(t.value)>0?Number(t.value):1):t.value;renderPanel();}
+ });
+ panel.addEventListener('click',e=>{const b=e.target.closest('button');if(b&&'impclear'in b.dataset){st.importRaw=null;importCache=null;renderPanel();}});
 }
 
 // Rendering owns no design data. Rebuilding GPU resources must never reset,
@@ -8332,13 +8722,75 @@ function voyDefaultFoe(s) {
 }
 // The enemy's order of battle for the chosen navy, allowance and seed (kept while they stay the same).
 function voyFoeOrbat(s) {
+ if (s.foeMode === 'manual') return s.foeOb || (s.foeOb = {ctgs: [], next: 1});   // SBOX-001 edited by hand in the same editor
  const target = s.foeMode === 'same' ? 0 : Math.round(voyShipsStrength(voySortieShips(s))), k = `${s.foe}|${s.scale}|${s.seed}|${s.foeMode}|${target}`;
  if (voy.foeOb?.k !== k) voy.foeOb = {k, ob: voyAutoOrbat(s.foe, s.scale, R.rng(s.seed), target > 0 ? {target} : {})};
  return voy.foeOb.ob;
 }
-function voyNewSetup() { return {own: 'empire', foe: 'rebel', foeMode: 'match', scale: 'standard', region: 'kuat', tab: 'orbat', sel: {}, editing: null, sheetTab: 'air', seed: (Math.random() * 1e6) | 0}; }
+function voyNewSetup() { return voySetupFix({own: 'empire', foe: 'rebel', foeMode: 'match', scale: 'standard', region: 'kuat', tab: 'orbat', sel: {}, editing: null, sheetTab: 'air', seed: (Math.random() * 1e6) | 0}); }
+// ---------- SBOX the sandbox fleet battle as a scenario (PLAN-003, SBOX-001..004) ----------
+// One order-of-battle editor serves both sides: s.side 0 is the player's fleet, 1 the enemy's. The enemy fleet is
+// generated as before (foeMode 'match' / 'same') or edited by hand ('manual', s.foeOb) with the very same editor.
+// Faction label and design are independent: any example of any navy, a saved design or the one on the drawing board
+// can sail for either side. The whole setup is a scenario (R.normalizeScenario): both fleets, the task groups that
+// sail, deployment, AI, victory conditions, cost limit and seed; it is kept as a draft, saved by name and travels as
+// JSON. The fleet library keeps orders of battle alone (a separate save unit).
+const SCN_KEY = 'yard.scenarios.v1', SCN_DRAFT = 'yard.scenario.draft1', FLEETLIB_KEY = 'yard.fleets.v1';
+// Setups made before v13 (and the mission's) get the new fields with their defaults.
+function voySetupFix(s) {
+ if (!s) return s;s.side = s.side === 1 ? 1 : 0;s.foeSel = s.foeSel || {};s.sel = s.sel || {};s.seedFixed = !!s.seedFixed;s.name = s.name || '';
+ s.ai = [0, 1].map(i => ({strategy: R.AI_STRATEGY[s.ai?.[i]?.strategy] ? s.ai[i].strategy : 'balanced', air: R.AIR_DOCTRINES[s.ai?.[i]?.air] ? s.ai[i].air : 'faction'}));
+ s.start = [0, 1].map(i => Number.isInteger(s.start?.[i]) ? s.start[i] : null);s.deploy = [0, 1].map(i => s.deploy?.[i] || {});
+ s.victory = R.normalizeVictory(s.victory);s.costLimit = {on: !!s.costLimit?.on, value: Math.max(0, +s.costLimit?.value || 0)};
+ return s;
+}
+const voyEdSide = s => !voy.msn && s?.side === 1 ? 1 : 0;
+const voyEdFac = s => voyEdSide(s) ? s.foe : s.own;
+// A side's order of battle: the player's (the one kept for its faction, or the one a loaded scenario brought), the enemy's.
+function voySideOb(s, i) { if (voy.msn || !i) return !voy.msn && s.ownOb ? s.ownOb : voyOb(s.own); return voyFoeOrbat(s); }
+const voyEdOb = s => voySideOb(s, voyEdSide(s));
+const voySideSel = (s, i) => i ? s.foeSel : s.sel;
+// PLAN-002 costs, from the one cost service (R.shipCost → C.designCost) for every side.
+const voyCostOf = sh => R.shipCost(sh, voyShipDesign);
+const voyFleetCost = ships => R.fleetCost(ships, voyShipDesign);
+// The sector of the chosen area and seed (its systems are the deployment choices).
+function voySector(s) { const k = `${s.region}|${s.seed}`; if (voy.sector?.k !== k) voy.sector = {k, S: R.makeSector(s.region, s.seed)}; return voy.sector.S; }
+// lean: leave out a generated enemy fleet (it is made again from the seed and the player's fleet; a big generated navy
+// with its embarked armies runs to megabytes, too much for this browser's storage). JSON exports keep it.
+function voyScenarioOf(s, lean = false) {
+ const fleets = [0, 1].map(i => lean && i && s.foeMode !== 'manual' ? null : voySideOb(s, i)), used = new Set(fleets.flatMap(ob => ob ? voyObTgs(ob).map(t => t.formation) : []));
+ return R.normalizeScenario({name: s.name, region: s.region, formations: voyFormStore().filter(t => used.has('tpl:' + t.id)), seed: s.seed, seedFixed: s.seedFixed, scale: s.scale, victory: s.victory, costLimit: s.costLimit,
+  sides: [0, 1].map(i => ({faction: i ? s.foe : s.own, control: i ? 'ai' : 'player', strategy: s.ai[i].strategy, air: s.ai[i].air, start: s.start[i], auto: i && s.foeMode !== 'manual' ? s.foeMode : null, fleet: fleets[i], sel: voySideSel(s, i), deploy: s.deploy[i]}))});
+}
+// A loaded scenario fights as saved: its enemy fleet is kept as edited (manual), so the same seed gives the same battle.
+function voyApplyScenario(sc, s = voy.setup) {
+ const [a, b] = sc.sides, has = ob => ob.ctgs.some(c => c.tgs.some(t => t.ships.length));
+ Object.assign(s, {name: sc.name, region: sc.region, seed: sc.seed, seedFixed: sc.seedFixed, scale: VOY_SCALES[sc.scale] ? sc.scale : 'standard', victory: {...sc.victory}, costLimit: {...sc.costLimit}, own: a.faction, foe: b.faction,
+  ownOb: a.fleet, sel: {...a.sel}, foeOb: has(b.fleet) || !b.auto ? b.fleet : null, foeSel: {...b.sel}, foeMode: has(b.fleet) || !b.auto ? 'manual' : b.auto, ai: sc.sides.slice(0, 2).map(x => ({strategy: x.strategy, air: x.air})), start: [a.start, b.start], deploy: [{...a.deploy}, {...b.deploy}], side: 0, editing: null});
+ // own formations the scenario uses join this device's (FORM-008 templates travel with it)
+ const have = new Set(voyFormStore().map(t => t.id));for (const t of sc.formations || []) if (!have.has(t.id)) voyFormPut(t);
+ voy.foeOb = null;voySetupFix(s);voyEnsureDesigns(s.ownOb);voyEnsureDesigns(s.foeOb);
+}
+// Local saves (draft, scenario and fleet libraries) are kept deflated (pack → 'z1:'): a Separatist ship's embarked
+// droid armies alone run to tens of kB of JSON, a matched Separatist navy to megabytes. Read once into voy.store.
+voy.store = {};const voyStoreN = {};
+async function voyStoreLoad(key) { const raw = LS.get(key);if (raw == null) return null;try { return /^(z1|j1):/.test(raw) ? await unpack(raw) : JSON.parse(raw); } catch (e) { return null; } }
+function voyStoreSave(key, obj, warn) {
+ voy.store[key] = obj;const n = voyStoreN[key] = (voyStoreN[key] || 0) + 1;
+ return pack(obj).then(z => { if (voyStoreN[key] !== n) return true; const ok = LS.set(key, z); if (!ok && warn) toast('このブラウザでは保存できません。JSON の書き出しを使ってください'); return ok; });
+}
+async function voyStorePrime() { for (const k of [SCN_KEY, FLEETLIB_KEY]) if (!(k in voy.store)) { const v = await voyStoreLoad(k); if (!(k in voy.store)) voy.store[k] = v || {version: 1, list: []}; } }
+// The draft: the setup as it stands, kept on every change (the player's own fleet stays in its faction's order of battle unless a scenario brought one).
+function voyDraftSave() { const s = voy.setup;if (!s || voy.msn) return;try { voyStoreSave(SCN_DRAFT, {ownOb: !!s.ownOb, tab: s.tab, side: s.side, foeMode: s.foeMode, scenario: voyScenarioOf(s, true)}, false); } catch (e) { /* the draft is a convenience */ } }
+async function voyDraftLoad() {
+ try { const d = await voyStoreLoad(SCN_DRAFT);if (!d?.scenario) return null;const s = voyNewSetup(), sc = R.normalizeScenario(d.scenario);voyApplyScenario(sc, s);
+  if (!d.ownOb) delete s.ownOb;if (d.foeMode && d.foeMode !== 'manual') { s.foeMode = d.foeMode; s.foeOb = null; }s.tab = ['orbat', 'sortie', 'scenario'].includes(d.tab) ? d.tab : 'orbat';s.side = d.side === 1 ? 1 : 0;return s; } catch (e) { return null; }
+}
+function voyLibRead(key) { const d = voy.store[key];return Array.isArray(d?.list) ? d.list : []; }
+function voyLibWrite(key, list) { voyStoreSave(key, {version: 1, list}, true); return true; }
 // The task groups chosen to sail: all of them, unless the player unticked some.
-function voySortieTgs(s) { const ob = voyOb(s.own); return voyObTgs(ob).filter(t => s.sel[t.id] !== false && t.ships.length); }
+function voySortieTgs(s) { const ob = voySideOb(s, 0); return voyObTgs(ob).filter(t => s.sel[t.id] !== false && t.ships.length); }
+function voyFoeTgs(s) { const ob = voySideOb(s, 1); return voyObTgs(ob).filter(t => s.foeSel?.[t.id] !== false && t.ships.length); }
 function voySortieShips(s) { return voySortieTgs(s).flatMap(t => t.ships); }
 // The toast lives with whichever layer is showing.
 function voyToast(on) { const t = $('#toast'), hb = $('.hudbottom'); if (!t) return; if (on) $('#voyage').appendChild(t); else if (hb) hb.insertBefore(t, hb.firstChild); }
@@ -8348,9 +8800,11 @@ function voyOpen(screen = 'setup', tab, msn = null) {
  if (msn) { if (!voy.msn) voy.custom = voy.setup; voy.msn = msn; voy.setup = msn.setup; } else voyMsnLeave();
  if (voy.saves && !(fleet.saves || []).length) fleet.saves = voy.saves;
  if (!voy.designs.size) for (const d of voyExampleDesigns()) voyRegister(d);
- if (!voy.setup) { voy.setup = voyNewSetup(); voy.setup.foe = voyDefaultFoe(voy.setup); }
- if (tab) voy.setup.tab = tab;
- voyShow(screen);voyEnsureDesigns(voyOb(voy.setup.own));
+ // (the draft of the last session is read when the app starts: bindVoyage)
+ if (!voy.setup) { voy.setup = voy.draft || null; voy.draft = null; if (!voy.setup) { voy.setup = voyNewSetup(); voy.setup.foe = voyDefaultFoe(voy.setup); } else if (voy.setup.foeMode === 'manual') voyEnsureDesigns(voy.setup.foeOb); }
+ voyStorePrime().then(() => { if (voy.screen === 'setup' && !voy.msn) voyRenderSetup(); });
+ voySetupFix(voy.setup);if (tab) voy.setup.tab = tab;
+ voyShow(screen);voyEnsureDesigns(voySideOb(voy.setup, 0));if (!voy.msn && voy.setup.foeMode === 'manual') voyEnsureDesigns(voy.setup.foeOb);
 }
 function voyMsnLeave() { if (!voy.msn) return; voy.msn = null; voy.setup = voy.custom || null; voy.custom = null; }
 function voyClose() {
@@ -8388,54 +8842,109 @@ function voyRegionOptions(cur) {
 function voyHistHTML(key) { const b = Galaxy.BATTLES[key], t = !b && R.REGIONS[key]?.theater ? R.REGIONS[key] : null, h = b ? {name: b.name, era: b.era, own: b.own, foe: b.foe} : t ? {name: t.battle, era: Galaxy.ERAS[t.era]?.name || '', own: t.own, foe: t.foe} : null;
  if (!h || !R.FACTIONS[h.own] || !R.FACTIONS[h.foe]) return '';return `<b>${h.name ? `戦史：${esc(h.name)}` : `${esc(h.era)}の戦域`}</b>（${h.name ? `${esc(h.era)}・` : ''}${esc(R.FACTIONS[h.own].name)}と${esc(R.FACTIONS[h.foe].name)}${t ? '。戦域を選ぶとこの陣営になります' : ''}）。`; }
 // Choosing a theatre puts the two sides that fought there on either side (they can be changed after).
-function voyRegionSides(s) { const d = R.REGIONS[s.region], h = d?.theater ? d : null; if (!h || !R.FACTIONS[h.own] || !R.FACTIONS[h.foe]) return; if (s.own !== h.own) { s.own = h.own; s.sel = {}; voyEnsureDesigns(voyOb(s.own)); } s.foe = h.foe; }
+function voyRegionSides(s) { const d = R.REGIONS[s.region], h = d?.theater ? d : null; if (!h || !R.FACTIONS[h.own] || !R.FACTIONS[h.foe]) return; if (s.own !== h.own) { s.own = h.own; if (!s.ownOb) s.sel = {}; voyEnsureDesigns(voySideOb(s, 0)); } s.foe = h.foe; }
 function voyRenderSetup() {
- const s = voy.setup, ob = voyOb(s.own), tab = s.tab === 'sortie' ? 'sortie' : 'orbat', sortie = voySortieShips(s), cap = VOY_SCALES[s.scale], t = voyShipsTotals(sortie);
+ const s = voy.setup, tab = ['sortie', 'scenario'].includes(s.tab) && !voy.msn ? s.tab : 'orbat', ob = voyEdOb(s), sortie = voySortieShips(s), cap = VOY_SCALES[s.scale], t = voyShipsTotals(sortie);
  // Ships whose design cannot be prepared (a saved design since deleted, say) stay behind.
- const ready = sortie.some(voyShipDesign) && !voy.pending.size, ok = ready && t.people <= cap.people && t.supply <= cap.supply && sortie.length <= VOY_SHIP_CAP;
- $('#voySetup').innerHTML = `<header class="voy-head"><div><span class="eyebrow">カスタム · 艦隊戦</span><h2>${tab === 'orbat' ? '艦隊編成' : '出撃準備'}</h2></div>
- <div class="seg voy-tabs" role="tablist"><button type="button" role="tab" data-voy="tab:orbat" aria-pressed="${tab === 'orbat'}">艦隊編成</button><button type="button" role="tab" data-voy="tab:sortie" aria-pressed="${tab === 'sortie'}">出撃準備</button></div>
+ const costs = voyCostCheck(s), ready = sortie.some(voyShipDesign) && !voy.pending.size, ok = ready && t.people <= cap.people && t.supply <= cap.supply && sortie.length <= VOY_SHIP_CAP && !costs.some(c => c.over) && (voy.msn || voyFoeTgs(s).some(x => x.ships.some(voyShipDesign)));
+ $('#voySetup').innerHTML = `<header class="voy-head"><div><span class="eyebrow">サンドボックス · 任務 · カスタム</span><h2>${tab === 'orbat' ? '艦隊編成' : tab === 'sortie' ? '出撃準備' : 'シナリオ'}</h2></div>
+ <div class="seg voy-tabs" role="tablist"><button type="button" role="tab" data-voy="tab:orbat" aria-pressed="${tab === 'orbat'}">艦隊編成</button><button type="button" role="tab" data-voy="tab:sortie" aria-pressed="${tab === 'sortie'}">出撃準備</button><button type="button" role="tab" data-voy="tab:scenario" aria-pressed="${tab === 'scenario'}">シナリオ</button></div>
  <div class="voy-head-go"><button type="button" class="btn ghost" data-voy="back">任務マップへ</button><button type="button" class="btn primary" data-voy="start" ${ok ? '' : 'disabled'}>出撃</button></div></header>
- <div class="voy-setup ${tab}">${tab === 'orbat' ? voyOrbatHTML(s, ob) : voySortieHTML(s, ob)}</div>`;
+ <div class="voy-setup ${tab}">${tab === 'orbat' ? voyOrbatHTML(s, ob) : tab === 'sortie' ? voySortieHTML(s, voySideOb(s, 0)) : voyScenarioHTML(s)}</div>`;
  if (voy.msn) msDecorateEditor();
 }
+// Both sides' costs of what sails, and whether each is over the scenario's limit (when it is on).
+function voyCostCheck(s) { if (voy.msn) return []; return [voySortieShips(s), voyFoeTgs(s).flatMap(t => t.ships)].map(ships => { const c = voyFleetCost(ships); return {...c, over: !!(s.costLimit?.on && s.costLimit.value > 0 && c.total > s.costLimit.value)}; }); }
+function voyCostLine(c) { return `<p class="vs-sub ob-cost"><span>費用 ${fCr(c.total)}</span>${c.air || c.carried ? `<small>${[`艦艇 ${fCr(c.ships)}`, c.air ? `艦載機 ${fCr(c.air)}` : '', c.carried ? `搭載艦 ${fCr(c.carried)}` : ''].filter(Boolean).join(' · ')}</small>` : ''}</p>`; }
+// The two sides of the editor (not in a mission, whose enemy is met on the map).
+function voySideSwitchHTML(s) { return voy.msn ? '' : `<div class="seg ob-sides" role="group" aria-label="編成する側">${[0, 1].map(i => `<button type="button" data-voy="side:${i}" aria-pressed="${voyEdSide(s) === i}">${i ? '敵軍' : '自軍'}<small>${esc(R.FACTIONS[i ? s.foe : s.own].name)}</small></button>`).join('')}</div>`; }
 function voyOrbatHTML(s, ob) {
- const all = voyObShips(ob), t = voyShipsTotals(all);
- return `<section class="voy-card voy-wide"><div class="voy-card-head"><h3>${esc(R.FACTIONS[s.own].name)}の艦隊</h3><div class="voy-row"><label>陣営<select data-voyset="own">${voyFactionOptions(s.own)}</select></label><button type="button" class="btn sm ghost" data-voy="auto">お任せ編成で作り直す</button><button type="button" class="btn sm" data-voy="ctgadd">合同任務群を追加</button></div></div>
-  <p class="note">合同任務群は任務群の集まり、任務群は${TG_MIN}〜${TG_MAX}隻（最大${TG_MAX}隻）。作戦図では任務群か合同任務群ごとにジャンプし、戦術図では任務群ごとに陣形と目標を指示します。艦名は自由に変えられます。編成はこの端末に陣営ごとに保存されます。</p>
-  <p class="vs-sub">${all.length} 隻 · 乗員 ${num(t.people)} 名 · 資材 ${num(Math.round(t.supply))} t</p></section>
-  ${ob.ctgs.map(c => voyCtgHTML(s, ob, c)).join('') || '<p class="muted">合同任務群がありません。</p>'}`;
+ const side = voyEdSide(s), fac = voyEdFac(s), all = voyObShips(ob), t = voyShipsTotals(all), cost = voyFleetCost(all);
+ const head = `<section class="voy-card voy-wide ob-head">${voySideSwitchHTML(s)}<div class="voy-card-head"><h3>${esc(R.FACTIONS[fac].name)}の艦隊</h3><div class="voy-row"><label>陣営<select data-voyset="${side ? 'foe' : 'own'}">${voyFactionOptions(fac)}</select></label>${side && s.foeMode !== 'manual' ? '' : `<button type="button" class="btn sm ghost" data-voy="auto">お任せ編成で作り直す</button><button type="button" class="btn sm" data-voy="ctgadd">合同任務群を追加</button>`}${side && s.foeMode === 'manual' ? '<button type="button" class="btn sm ghost" data-voy="foeauto">自動編成に戻す</button>' : ''}${!side && s.ownOb ? '<button type="button" class="btn sm ghost" data-voy="ownreset" title="シナリオから読み込んだ編成をやめ、この端末に保存された陣営の編成に戻す">端末の編成に戻す</button>' : ''}</div></div>
+  <p class="note">合同任務群は任務群の集まり、任務群は${TG_MIN}〜${TG_MAX}隻（最大${TG_MAX}隻）。作戦図では任務群か合同任務群ごとにジャンプし、戦術図では任務群ごとに陣形と目標を指示します。艦名は自由に変えられます。${side ? '敵軍も自軍と同じ画面で編成します。' : !s.ownOb ? '編成はこの端末に陣営ごとに保存されます。' : 'いまの編成はシナリオから読み込んだものです。'}陣営と艦の設計は別々に選べます（どの陣営の艦も、保存した自作の設計も配備できます）。各任務群の先頭の艦が旗艦です。</p>
+  <p class="vs-sub">${all.length} 隻 · 乗員 ${num(t.people)} 名 · 資材 ${num(Math.round(t.supply))} t</p>${voyCostLine(cost)}${voy.msn ? '' : voyFleetLibHTML(s)}</section>`;
+ if (side && s.foeMode !== 'manual') return head + `<section class="voy-card voy-wide"><h3>自動編成</h3><p class="note">敵軍は${s.foeMode === 'same' ? '自軍と同じ編成枠（乗員数・資材）で' : '自軍とほぼ同じ推定戦力になるよう'}自動で編成されます（出撃準備の「敵の戦力」）。手で編成するときは、いまの自動編成を写して編集するか、空の艦隊から始めます。</p>
+  <div class="voy-row"><button type="button" class="btn sm" data-voy="foemanual">この自動編成を手で編集する</button><button type="button" class="btn sm ghost" data-voy="foeempty">空の艦隊から編成する</button></div>
+  <ul class="ob-auto">${voyObTgs(ob).map(x => `<li><b>${voyNameHTML(x)}</b><small>${x.ships.length} 隻 · ${x.ships.slice(0, 4).map(sh => esc(voyShort(voyShipDesign(sh)?.name || ''))).join(' · ')}${x.ships.length > 4 ? ' ほか' : ''}</small></li>`).join('')}</ul></section>`;
+ return head + (ob.ctgs.map(c => voyCtgHTML(s, ob, c)).join('') || '<p class="muted">合同任務群がありません。</p>');
+}
+// PLAN-003 The fleet library: orders of battle saved by name (any faction), loaded into either side.
+function voyFleetLibHTML(s) {
+ const lib = voyLibRead(FLEETLIB_KEY), side = voyEdSide(s);
+ return `<details class="ob-lib"><summary>編成の保存・読み込み</summary><div class="voy-row"><input class="ob-libname" data-fleetname maxlength="48" placeholder="編成の名前" aria-label="編成の名前"><button type="button" class="btn sm" data-voy="fleetsave">この編成を保存</button></div>
+  ${lib.length ? `<div class="voy-row"><select data-fleetpick aria-label="保存した編成">${lib.map(r => `<option value="${esc(r.id)}">${esc(r.name)}（${esc(R.FACTIONS[r.faction]?.short || '')}・${num(r.n || 0)} 隻）</option>`).join('')}</select><button type="button" class="btn sm" data-voy="fleetload">${side ? '敵軍に読み込む' : '自軍に読み込む'}</button><button type="button" class="btn sm ghost" data-voy="fleetdel">削除</button></div>` : '<p class="muted">保存した編成はありません。</p>'}
+  <p class="note">合同任務群・任務群・艦と搭載だけを保存します（どちらの側にも読み込めます）。両軍・配置・勝利条件までまとめて残すときは「シナリオ」で保存します。</p></details>`;
 }
 function voyCtgHTML(s, ob, c) {
- const ships = c.tgs.flatMap(t => t.ships), t = voyShipsTotals(ships);
- return `<section class="voy-card voy-wide ob-ctg" data-ctg="${c.id}"><div class="voy-card-head"><input class="ob-name ob-ctgname" data-obname="ctg" value="${esc(voyDisplayName(c))}" aria-label="合同任務群の名前" maxlength="48"><span class="vs-sub">${c.tgs.length} 個任務群 · ${ships.length} 隻 · 乗員 ${num(t.people)} 名</span><div class="vs-acts"><button type="button" class="btn sm" data-ob="tgadd">任務群を追加</button><button type="button" class="btn sm ghost" data-ob="ctgdel" aria-label="この合同任務群を解散">×</button><button type="button" class="btn sm ghost" data-ob="ctgdup" title="同じ編成・同じ搭載の合同任務群を追加">この合同任務群を複製</button></div></div>
+ const ships = c.tgs.flatMap(t => t.ships), t = voyShipsTotals(ships), cost = voyFleetCost(ships);
+ return `<section class="voy-card voy-wide ob-ctg" data-ctg="${c.id}"><div class="voy-card-head"><input class="ob-name ob-ctgname" data-obname="ctg" value="${esc(voyDisplayName(c))}" aria-label="合同任務群の名前" maxlength="48"><span class="vs-sub">${c.tgs.length} 個任務群 · ${ships.length} 隻 · 乗員 ${num(t.people)} 名 · 費用 ${fCr(cost.total)}</span><div class="vs-acts"><button type="button" class="btn sm" data-ob="tgadd">任務群を追加</button><button type="button" class="btn sm ghost" data-ob="ctgdel" aria-label="この合同任務群を解散">×</button><button type="button" class="btn sm ghost" data-ob="ctgdup" title="同じ編成・同じ搭載の合同任務群を追加">この合同任務群を複製</button></div></div>
   <div class="ob-tgs">${c.tgs.map(tg => voyTgHTML(s, ob, tg)).join('') || '<p class="muted">任務群がありません。</p>'}</div></section>`;
 }
 function voyTgHTML(s, ob, tg) {
  const n = tg.ships.length, warn = n && n < TG_MIN ? `（${TG_MIN}隻未満）` : '', full = n >= TG_MAX, tgs = voyObTgs(ob);
- return `<div class="ob-tg" data-tg="${tg.id}"><div class="ob-tg-head"><input class="ob-name" data-obname="tg" value="${esc(voyDisplayName(tg))}" aria-label="任務群の名前" maxlength="48"><label class="ob-form">陣形<select data-obform>${[...Object.entries(R.FORMATIONS), ...voyFormStore().map(t => ['tpl:' + t.id, t.name])].map(([k, v]) => `<option value="${esc(k)}" ${tg.formation === k ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></label><button type="button" class="btn sm ghost" data-vfedtg="${tg.id}" title="陣形エディターで編集">編集</button><b class="ob-count${warn ? ' warn' : ''}">${n} / ${TG_MAX} 隻${warn}</b><button type="button" class="btn sm ghost" data-ob="tgdel" aria-label="この任務群を解散">×</button><button type="button" class="btn sm ghost" data-ob="tgdup" title="同じ艦級・同じ搭載の任務群をこの合同任務群に追加">この任務群を複製</button></div>
+ return `<div class="ob-tg" data-tg="${tg.id}"><div class="ob-tg-head"><input class="ob-name" data-obname="tg" value="${esc(voyDisplayName(tg))}" aria-label="任務群の名前" maxlength="48"><label class="ob-form">陣形<select data-obform>${[...Object.entries(R.FORMATIONS), ...voyFormStore().map(t => ['tpl:' + t.id, t.name])].map(([k, v]) => `<option value="${esc(k)}" ${tg.formation === k ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></label><button type="button" class="btn sm ghost" data-vfedtg="${tg.id}" title="陣形エディターで編集">編集</button><b class="ob-count${warn ? ' warn' : ''}">${n} / ${TG_MAX} 隻${warn}</b><small class="ob-tgcost">費用 ${fCr(voyFleetCost(tg.ships).total)}</small><button type="button" class="btn sm ghost" data-ob="tgdel" aria-label="この任務群を解散">×</button><button type="button" class="btn sm ghost" data-ob="tgdup" title="同じ艦級・同じ搭載の任務群をこの合同任務群に追加">この任務群を複製</button></div>
   <ul class="ob-ships">${tg.ships.map((sh, i) => { const d = voyShipDesign(sh), air = R.airTotals(sh.air), troops = (sh.ground || []).reduce((k, r) => k + R.regimentTotals(r).troops, 0), dem = voyShipDemand(sh), st = d && voyHasStow(d) && (sh.air?.length || sh.carried?.length) ? voyStowShort(sh, d) : null;
-   return `<li class="ob-ship" data-ship="${sh.id}"><span class="ob-flag" title="${i ? '' : '旗艦（任務群の先頭）'}">${i ? '' : '旗'}</span><input class="ob-name" data-obname="ship" value="${esc(voyDisplayName(sh))}" aria-label="艦名" maxlength="48"><small class="ob-cls">${d ? `${esc(voyShort(d.name))} · ${fLen(d.info.len)} · 乗員 ${num(dem.people)}` : '準備中…'}</small>
-    <button type="button" class="ve-orbat${st && st.short ? ' warn' : ''}" data-ob="air"><span>航空</span><b>${air.n ? `${num(air.n)} 機` : d?.info.slotCap || d?.info.hangarCap ? '未搭載' : '—'}${sh.carried?.length ? ` ＋艦 ${sh.carried.length}` : ''}${st && st.short ? ` · ${num(st.short)} 入らず` : ''}</b></button><button type="button" class="ve-orbat" data-ob="ground"><span>陸戦</span><b>${troops ? `${num(troops)} ${voy.setup.own === 'cis' ? '体' : '名'}` : R.troopRoom(d?.info || {}, voy.setup.own) ? '未乗艦' : '—'}</b></button>
+   return `<li class="ob-ship" data-ship="${sh.id}"><span class="ob-flag" title="${i ? '' : '旗艦（任務群の先頭）'}">${i ? '' : '旗'}</span><input class="ob-name" data-obname="ship" value="${esc(voyDisplayName(sh))}" aria-label="艦名" maxlength="48"><small class="ob-cls">${d ? `${esc(voyShort(d.name))} · ${fLen(d.info.len)} · 乗員 ${num(dem.people)} · 費用 ${fCr(voyCostOf(sh).total)}` : '準備中…'}</small>
+    <button type="button" class="ve-orbat${st && st.short ? ' warn' : ''}" data-ob="air"><span>航空</span><b>${air.n ? `${num(air.n)} 機` : d?.info.slotCap || d?.info.hangarCap ? '未搭載' : '—'}${sh.carried?.length ? ` ＋艦 ${sh.carried.length}` : ''}${st && st.short ? ` · ${num(st.short)} 入らず` : ''}</b></button><button type="button" class="ve-orbat" data-ob="ground"><span>陸戦</span><b>${troops ? `${num(troops)} ${voyEdFac(voy.setup) === 'cis' ? '体' : '名'}` : R.troopRoom(d?.info || {}, voyEdFac(voy.setup)) ? '未乗艦' : '—'}</b></button>
     <label class="ob-move">所属<select data-obmove>${tgs.map(x => `<option value="${x.id}" ${x.id === tg.id ? 'selected' : ''} ${x.id !== tg.id && x.ships.length >= TG_MAX ? 'disabled' : ''} translate="no">${esc(voyDisplayName(x))}</option>`).join('')}</select></label>
     <span class="ob-ord">${i ? `<button type="button" class="btn sm ghost" data-ob="lead" title="任務群の先頭（旗艦）にする">旗艦に</button>` : ''}<button type="button" class="btn sm ghost" data-ob="shipdel" aria-label="艦を外す">×</button><button type="button" class="btn sm ghost" data-ob="shipdup" title="同じ艦級・同じ搭載の艦を、この任務群にもう1隻">この艦級を複製</button></span></li>`; }).join('') || '<li class="muted">艦がありません</li>'}</ul>
-  <div class="voy-add"><select data-obadd aria-label="追加する艦">${voyDesignOptions(s.own)}</select><button type="button" class="btn sm" data-ob="shipadd" ${full ? 'disabled' : ''}>${full ? `${TG_MAX}隻まで` : '艦を追加'}</button></div></div>`;
+  <div class="voy-add"><select data-obadd aria-label="追加する艦">${voyDesignOptions(voyEdFac(s))}</select><button type="button" class="btn sm" data-ob="shipadd" ${full ? 'disabled' : ''}>${full ? `${TG_MAX}隻まで` : '艦を追加'}</button></div></div>`;
 }
 function voySortieHTML(s, ob) {
- const cap = VOY_SCALES[s.scale], ships = voySortieShips(s), t = voyShipsTotals(ships), foe = voyObShips(voyFoeOrbat(s)), a = voyShipsStrength(ships), b = voyShipsStrength(foe), r = a > 0 ? b / a : 0;
+ const cap = VOY_SCALES[s.scale], ships = voySortieShips(s), t = voyShipsTotals(ships), foe = voyFoeTgs(s).flatMap(x => x.ships), a = voyShipsStrength(ships), b = voyShipsStrength(foe), r = a > 0 ? b / a : 0, costs = voyCostCheck(s), manual = s.foeMode === 'manual';
  const word = !a ? '' : r > 1.4 ? '敵が優勢' : r > 1.15 ? '敵がやや優勢' : r < .7 ? '自軍が優勢' : r < .87 ? '自軍がやや優勢' : 'ほぼ互角', reg = R.REGIONS[s.region] || R.REGIONS.kuat;
  return `<section class="voy-card"><h3>陣営と戦域</h3>
-   <div class="voy-row"><label>自軍<select data-voyset="own">${voyFactionOptions(s.own)}</select></label><label>敵軍<select data-voyset="foe">${voyFactionOptions(s.foe)}</select></label><label>戦域<select data-voyset="region">${voyRegionOptions(s.region)}</select></label><button type="button" class="btn sm ghost voy-mapbtn" data-voy="map">任務マップで選ぶ</button><label>編成枠<select data-voyset="scale">${Object.entries(VOY_SCALES).map(([k, v]) => `<option value="${k}" ${k === s.scale ? 'selected' : ''}>${v.name}</option>`).join('')}</select></label><label>敵の戦力<select data-voyset="foeMode"><option value="match" ${s.foeMode !== 'same' ? 'selected' : ''}>自軍と同等</option><option value="same" ${s.foeMode === 'same' ? 'selected' : ''}>同じ編成枠</option></select></label></div>
-   <p class="note">${esc(reg.note)}（${esc(reg.routes.map(x => x.name).join('／'))}）。${voyHistHTML(s.region)}航路は主要幹線と、そこから分かれる支線だけ。艦隊は航路に沿ってジャンプし、幹線は速く、支線は遅く進みます。敵（AI）は${s.foeMode === 'same' ? '同じ編成枠（乗員数・資材）で' : '自軍とほぼ同じ推定戦力になるよう'}編成されます。</p>${[...new Set([s.own, s.foe])].map(f => R.DOCTRINE[f] ? `<p class="note"><b>${esc(R.FACTIONS[f].name)}のドクトリン：${esc(R.DOCTRINE[f].name)}</b>。自動交戦の艦はシールドの残る敵にイオン砲を集中し、爆撃機の飛行隊はシールドが落ちた艦だけを攻撃します。</p>` : '').join('')}</section>
+   <div class="voy-row"><label>自軍<select data-voyset="own">${voyFactionOptions(s.own)}</select></label><label>敵軍<select data-voyset="foe">${voyFactionOptions(s.foe)}</select></label><label>戦域<select data-voyset="region">${voyRegionOptions(s.region)}</select></label><button type="button" class="btn sm ghost voy-mapbtn" data-voy="map">任務マップで選ぶ</button><label>編成枠<select data-voyset="scale">${Object.entries(VOY_SCALES).map(([k, v]) => `<option value="${k}" ${k === s.scale ? 'selected' : ''}>${v.name}</option>`).join('')}</select></label><label>敵の戦力<select data-voyset="foeMode"><option value="match" ${s.foeMode === 'match' ? 'selected' : ''}>自軍と同等</option><option value="same" ${s.foeMode === 'same' ? 'selected' : ''}>同じ編成枠</option><option value="manual" ${manual ? 'selected' : ''}>手で編成（艦隊編成の敵軍）</option></select></label></div>
+   <p class="note">${esc(reg.note)}（${esc(reg.routes.map(x => x.name).join('／'))}）。${voyHistHTML(s.region)}航路は主要幹線と、そこから分かれる支線だけ。艦隊は航路に沿ってジャンプし、幹線は速く、支線は遅く進みます。${manual ? '敵（AI）は「艦隊編成」の敵軍で手編成した艦隊です。' : `敵（AI）は${s.foeMode === 'same' ? '同じ編成枠（乗員数・資材）で' : '自軍とほぼ同じ推定戦力になるよう'}編成されます。`}</p>${[...new Set([s.own, s.foe])].map(f => R.DOCTRINE[f] ? `<p class="note"><b>${esc(R.FACTIONS[f].name)}のドクトリン：${esc(R.DOCTRINE[f].name)}</b>。自動交戦の艦はシールドの残る敵にイオン砲を集中し、爆撃機の飛行隊はシールドが落ちた艦だけを攻撃します。</p>` : '').join('')}</section>
   <section class="voy-card"><h3>編成枠</h3>
-   <div class="vbal"><span>推定戦力比</span><b>自軍 1 : 敵 ${a ? (r > 0 && r < .01 ? '0.01未満' : r.toFixed(2)) : '—'}</b><small>${esc(word)}（敵は${esc(R.FACTIONS[s.foe].name)}の艦 ${foe.length} 隻）${s.foeMode !== 'same' && a && r < .85 ? `。${esc(R.FACTIONS[s.foe].name)}は出せる限りの艦（片軍 ${VOY_SHIP_CAP} 隻まで）でも自軍に届きません` : ''}</small></div>
+   <div class="vbal"><span>推定戦力比</span><b>自軍 1 : 敵 ${a ? (r > 0 && r < .01 ? '0.01未満' : r.toFixed(2)) : '—'}</b><small>${esc(word)}（敵は${esc(R.FACTIONS[s.foe].name)}の艦 ${foe.length} 隻）${s.foeMode === 'match' && a && r < .85 ? `。${esc(R.FACTIONS[s.foe].name)}は出せる限りの艦（片軍 ${VOY_SHIP_CAP} 隻まで）でも自軍に届きません` : ''}</small></div>
+   <div class="vbal"><span>費用</span><b>自軍 ${fCr(costs[0]?.total || 0)} · 敵軍 ${fCr(costs[1]?.total || 0)}</b><small>${s.costLimit.on && s.costLimit.value > 0 ? `上限 ${fCr(s.costLimit.value)}（シナリオで設定）` : 'コスト上限なし（シナリオで設定できます）'}</small></div>${costs.map((c, i) => c.over ? `<p class="note bad">${i ? '敵軍' : '自軍'}の費用 ${fCr(c.total)} が上限 ${fCr(s.costLimit.value)} を超えています。</p>` : '').join('')}
    ${voyBar('総乗員数（乗組員・操縦士・陸戦隊）', t.people, cap.people)}${voyBar('資材（補給品・予備品）', t.supply, cap.supply, x => num(Math.round(x)) + ' t')}
    <p class="note">艦数の上限はありません。枠は乗員数と資材だけです（計算の都合で一度に出せるのは片軍 ${VOY_SHIP_CAP} 隻まで）。出撃させる任務群を下で選びます。</p>${ships.some(sh => !voyShipDesign(sh)) ? `<p class="note bad">設計を準備できない艦 ${ships.filter(sh => !voyShipDesign(sh)).length} 隻は出撃しません${voy.pending.size ? '（準備中）' : ''}。</p>` : ''}${ships.length > VOY_SHIP_CAP ? `<p class="note bad">${ships.length} 隻は多すぎます。任務群を減らしてください。</p>` : ''}</section>
   <section class="voy-card voy-wide"><div class="voy-card-head"><h3>出撃させる任務群</h3><div class="vs-acts"><button type="button" class="btn sm ghost" data-voy="selall">すべて選ぶ</button><button type="button" class="btn sm ghost" data-voy="tab:orbat">編成を変える</button></div></div>
-   ${ob.ctgs.map(c => `<div class="ob-pick"><label class="ob-pick-ctg"><input type="checkbox" data-pickctg="${c.id}" ${c.tgs.every(x => s.sel[x.id] !== false) ? 'checked' : ''}><b>${voyNameHTML(c)}</b></label><div class="ob-pick-tgs">${c.tgs.map(x => { const tt = voyShipsTotals(x.ships); return `<label class="ob-pick-tg"><input type="checkbox" data-picktg="${x.id}" ${s.sel[x.id] !== false ? 'checked' : ''}><span><b>${voyNameHTML(x)}</b><small>${x.ships.length} 隻 · ${esc(R.FORMATIONS[x.formation] || '')} · 乗員 ${num(tt.people)} · ${x.ships.slice(0, 4).map(voyNameHTML).join(' · ')}${x.ships.length > 4 ? ' ほか' : ''}</small></span></label>`; }).join('')}</div></div>`).join('') || '<p class="muted">編成がありません。「艦隊編成」で作ってください。</p>'}</section>`;
+   ${ob.ctgs.map(c => `<div class="ob-pick"><label class="ob-pick-ctg"><input type="checkbox" data-pickctg="${c.id}" ${c.tgs.every(x => s.sel[x.id] !== false) ? 'checked' : ''}><b>${voyNameHTML(c)}</b></label><div class="ob-pick-tgs">${c.tgs.map(x => { const tt = voyShipsTotals(x.ships); return `<label class="ob-pick-tg"><input type="checkbox" data-picktg="${x.id}" ${s.sel[x.id] !== false ? 'checked' : ''}><span><b>${voyNameHTML(x)}</b><small>${x.ships.length} 隻 · ${esc(R.FORMATIONS[x.formation] || '')} · 乗員 ${num(tt.people)} · ${x.ships.slice(0, 4).map(voyNameHTML).join(' · ')}${x.ships.length > 4 ? ' ほか' : ''}</small></span></label>`; }).join('')}</div></div>`).join('') || '<p class="muted">編成がありません。「艦隊編成」で作ってください。</p>'}</section>
+  ${manual ? `<section class="voy-card voy-wide"><div class="voy-card-head"><h3>出撃させる敵の任務群</h3><div class="vs-acts"><button type="button" class="btn sm ghost" data-voy="foeselall">すべて選ぶ</button><button type="button" class="btn sm ghost" data-voy="foeedit">敵軍を編成する</button></div></div>
+   ${voySideOb(s, 1).ctgs.map(c => `<div class="ob-pick"><div class="ob-pick-tgs">${c.tgs.map(x => `<label class="ob-pick-tg"><input type="checkbox" data-pickfoe="${x.id}" ${s.foeSel[x.id] !== false ? 'checked' : ''}><span><b>${voyNameHTML(x)}</b><small>${x.ships.length} 隻 · ${esc(R.FORMATIONS[x.formation] || '')} · 費用 ${fCr(voyFleetCost(x.ships).total)}</small></span></label>`).join('')}</div></div>`).join('') || '<p class="muted">敵軍の編成がありません。「艦隊編成」の敵軍で作ってください。</p>'}</section>` : ''}`;
 }
+// ---- SBOX the scenario tab: AI, deployment, victory conditions, cost limit, seed, save/load and JSON ----
+const VOY_BREAK = [[.25, '戦闘力が25%を下回った側の負け（標準）'], [.5, '戦闘力が半分を下回った側の負け'], [.1, '戦闘力が10%を下回った側の負け'], [0, '全艦が戦闘不能になるまで']];
+const VOY_TIME = [[0, 'なし'], [1800, '30分'], [3600, '1時間'], [7200, '2時間'], [21600, '6時間']];
+function voyScenarioHTML(s) {
+ const S = voySector(s), sysOpts = cur => `<option value="" ${cur == null ? 'selected' : ''}>自動</option>${S.systems.map(x => `<option value="${x.id}" ${cur === x.id ? 'selected' : ''}>${esc(x.name)}</option>`).join('')}`;
+ const lib = voyLibRead(SCN_KEY), costs = voyCostCheck(s), lim = s.costLimit;
+ const sideCard = i => { const f = i ? s.foe : s.own, tgs = i ? voyFoeTgs(s) : voySortieTgs(s), dep = s.deploy[i], ai = s.ai[i];
+  return `<section class="voy-card sc-side"><h3>${i ? '敵軍' : '自軍'} · ${esc(R.FACTIONS[f].name)}</h3>
+  <div class="voy-row"><label>指揮<select disabled aria-label="指揮"><option>${i ? 'AI' : 'プレイヤー'}</option></select></label>${i ? `<label>AIの方針<select data-scai="${i}.strategy">${Object.entries(R.AI_STRATEGY).map(([k, v]) => `<option value="${k}" ${ai.strategy === k ? 'selected' : ''}>${esc(v.name)}</option>`).join('')}</select></label>` : ''}<label>航空ドクトリン<select data-scai="${i}.air">${Object.entries(R.AIR_DOCTRINES).map(([k, v]) => `<option value="${k}" ${ai.air === k ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></label><label>開始星系<select data-scstart="${i}">${sysOpts(s.start[i])}</select></label></div>
+  <div class="sc-dep">${tgs.map(t => { const d = dep[t.id] || {}; return `<div class="sc-tg" data-sctg="${i}:${t.id}"><b>${voyNameHTML(t)}</b><label>星系<select data-scdep="sys">${sysOpts(d.sys ?? null)}</select></label><label>方位<input type="number" data-scdep="heading" min="0" max="359" step="15" value="${d.heading ?? ''}" placeholder="自動" aria-label="方位（度）"></label><label>速度<input type="number" data-scdep="speed" min="0" max="5000" step="50" value="${d.speed || ''}" placeholder="0" aria-label="速度（m/s）"></label></div>`; }).join('') || '<p class="muted">出撃する任務群がありません。</p>'}</div></section>`; };
+ return `<section class="voy-card voy-wide"><div class="voy-card-head"><h3>シナリオ</h3><div class="voy-row"><input class="sc-name" data-scname maxlength="60" value="${esc(s.name || '')}" placeholder="シナリオの名前" aria-label="シナリオの名前"><button type="button" class="btn sm" data-voy="scsave">保存</button></div></div>
+  ${lib.length ? `<div class="voy-row"><select data-scpick aria-label="保存したシナリオ">${lib.map(r => `<option value="${esc(r.id)}">${esc(r.name)}（${esc(new Date(r.at || 0).toLocaleDateString(I18N?.locale || 'ja-JP'))}）</option>`).join('')}</select><button type="button" class="btn sm" data-voy="scload">読み込む</button><button type="button" class="btn sm ghost" data-voy="scdel">削除</button></div>` : '<p class="muted">保存したシナリオはありません。</p>'}
+  <div class="voy-row"><button type="button" class="btn sm ghost" data-voy="scexport">JSON を書き出す</button><button type="button" class="btn sm ghost" data-voy="sccopy">JSON をコピー</button><label class="btn sm ghost sc-file">JSON ファイルを読み込む<input type="file" accept=".json,application/json" data-scfile hidden></label></div>
+  <details class="sc-paste"><summary>JSON を貼り付けて読み込む</summary><textarea data-scpaste rows="4" aria-label="シナリオの JSON"></textarea><button type="button" class="btn sm" data-voy="scpaste">読み込む</button></details>
+  <p class="note">シナリオは両軍の編成（出撃させる任務群）・配置・AI・勝利条件・コスト上限・乱数シードをまとめて保存します。同じシナリオを同じシードで戦うと、同じ戦闘になります。保存した自作の設計は JSON に含めて書き出し、読み込んだ端末に無ければ設計図として追加します（設計中の艦は含まれないので、保存してから使ってください）。</p></section>
+  ${sideCard(0)}${sideCard(1)}
+  <section class="voy-card"><h3>勝利条件</h3><div class="voy-row"><label>撃破判定<select data-scvic="breakAt">${VOY_BREAK.map(([v, t]) => `<option value="${v}" ${Math.abs(s.victory.breakAt - v) < 1e-9 ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select></label><label>制限時間<select data-scvic="timeLimit">${VOY_TIME.map(([v, t]) => `<option value="${v}" ${s.victory.timeLimit === v ? 'selected' : ''}>${esc(t)}</option>`).join('')}</select></label></div>
+   <p class="note">撃破判定を下回るか、戦える艦がなくなった側の負けです。制限時間に達したときは、開始時の戦闘力をより多く残した側の判定勝ちになります（差が5%以内なら引き分け）。</p></section>
+  <section class="voy-card"><h3>コスト上限</h3><div class="voy-row"><label class="sc-check"><input type="checkbox" data-sccost="on" ${lim.on ? 'checked' : ''}>上限を設ける</label><label>上限（億 cr）<input type="number" data-sccost="value" min="0" step="0.5" value="${lim.value ? +(lim.value / 1e8).toFixed(2) : ''}" ${lim.on ? '' : 'disabled'}></label></div>
+   <p class="vs-sub">自軍 ${fCr(costs[0]?.total || 0)} · 敵軍 ${fCr(costs[1]?.total || 0)}</p><p class="note">両軍とも出撃させる艦の費用（艦・艦載機・搭載艦）がこの上限以内でないと出撃できません。サンドボックスでは既定で上限なしです。</p></section>
+  <section class="voy-card"><h3>乱数シード</h3><div class="voy-row"><label>シード<input type="number" data-scseed min="0" max="2147483646" value="${s.seed}"></label><label class="sc-check"><input type="checkbox" data-scfix ${s.seedFixed ? 'checked' : ''}>固定する</label><button type="button" class="btn sm ghost" data-voy="scnewseed">新しいシード</button></div>
+   <p class="note">シードは宙域の星系配置と戦闘の偶然を決めます。固定しないときは、出撃のたびに新しいシードになります。</p></section>`;
+}
+// JSON out: the scenario, with the player's saved designs it uses (so that it opens on another device).
+function voyScenarioExport(s) {
+ const sc = voyScenarioOf(s), ids = new Set(sc.sides.flatMap(sd => sd.fleet.ctgs.flatMap(c => c.tgs.flatMap(t => t.ships.flatMap(sh => [sh, ...(sh.carried || [])])))).map(x => x.src).filter(x => /^save:/.test(x)).map(x => x.slice(5)));
+ const designs = (voy.saves || []).filter(r => ids.has(r.id));return JSON.stringify({...sc, designs}, null, 1);
+}
+async function voyScenarioImport(text) {
+ let raw;try { raw = JSON.parse(String(text)); } catch (e) { toast('JSON を読めません'); return false; }
+ let sc;try { sc = R.normalizeScenario(raw); } catch (e) { toast(esc(e.message)); return false; }
+ // Saved designs carried in the file are added to the designs on this device when missing.
+ const recs = Array.isArray(raw.designs) ? raw.designs.filter(r => r && typeof r.id === 'string' && r.kind === 'ship' && typeof r.data === 'string') : [];
+ if (recs.length) { const have = new Set((await Store.list().catch(() => [])).map(r => r.id));let n = 0; for (const r of recs) if (!have.has(r.id)) { try { await Store.save(r); n++; } catch (e) { console.warn('design not added', r.id, e.message); } } if (n) { voy.saves = await Store.list().catch(() => voy.saves); fleet.saves = voy.saves; toast(`設計図 ${n} 件を追加しました`); } }
+ voyApplyScenario(sc);voyObChanged();return true;
+}
+function voyDownload(name, text) { try { const a = document.createElement('a'), url = URL.createObjectURL(new Blob([text], {type: 'application/json'}));a.href = url;a.download = name;document.body.appendChild(a);a.click();setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);return true; } catch (e) { return false; } }
 // ---- the order of battle of one ship (air wing and embarked troops) ----
-function voyFindShip(id) { const ob = voyOb(voy.setup.own); for (const c of ob.ctgs) for (const t of c.tgs) for (const sh of t.ships) if (sh.id === id) return {ob, c, t, sh}; return null; }
+function voyFindShip(id) { const ob = voyEdOb(voy.setup); for (const c of ob.ctgs) for (const t of c.tgs) for (const sh of t.ships) if (sh.id === id) return {ob, c, t, sh}; return null; }
 function voyOrbatSheet() {
  const s = voy.setup, f = s.editing && voyFindShip(s.editing);if (!f) { $('#voySheet').hidden = true; return; }
  const e = f.sh, d = voyShipDesign(e), tab = s.sheetTab, el = $('#voySheet');if (!d) { el.hidden = true; return; }el.hidden = false;
@@ -8447,20 +8956,28 @@ function voyOrbatSheet() {
   const fly = e.air.filter(q => R.CRAFT[q.craft] && !R.CRAFT[q.craft].stay).length, ctl = d.p?.airCtl || 1;
   body = `${stow ? voyBar('格納庫（機体・搭載艦・車両で共用）', stow.used, stow.capacity, x => num(x, 1)) : voyBar('格納庫（機体の大きさの合計）', air.size, Math.max(0, (d.info.hangarCap || cap) - voyCarriedSize(e)), x => num(x, 1))}
   <p class="note">航空管制 ${num(ctl)} 中隊（同時に飛ばせる数）${fly > ctl ? ` · 戦闘中隊 ${num(fly)} のうち ${num(fly - ctl)} は艦内で待機し、帰還と交代で発艦` : ''}</p>
-  ${wings.map(wn => `<div class="vo-wing"><h4>第${wn}飛行隊</h4>${e.air.map((q, i) => (q.wingNo || 1) !== wn ? '' : `<div class="vo-sq"><select data-sq="${i}" data-sqk="craft">${Object.entries(R.CRAFT).map(([k, c]) => `<option value="${k}" ${k === q.craft ? 'selected' : ''}>${esc(c.name)}（${R.ROLE_NAME[c.role]}）</option>`).join('')}</select><label>機数<input type="number" data-sq="${i}" data-sqk="n" value="${q.n}" min="1" max="${R.RULES.maxSquadSize}"></label><label>飛行隊<input type="number" data-sq="${i}" data-sqk="wingNo" value="${q.wingNo || 1}" min="1" max="99"></label><button type="button" class="btn sm ghost" data-sqdel="${i}" aria-label="中隊を外す">×</button>${sqStatus(i)}${voySqLoadHTML(q, i)}</div>`).join('')}</div>`).join('') || '<p class="muted">中隊がありません。</p>'}
+  ${wings.map(wn => `<div class="vo-wing"><h4>第${wn}飛行隊</h4>${e.air.map((q, i) => (q.wingNo || 1) !== wn ? '' : `<div class="vo-sq"><select data-sq="${i}" data-sqk="craft">${Object.entries(R.CRAFT).map(([k, c]) => `<option value="${k}" ${k === q.craft ? 'selected' : ''}>${esc(c.name)}（${R.ROLE_NAME[c.role]}）</option>`).join('')}</select><label>機数<input type="number" data-sq="${i}" data-sqk="n" value="${q.n}" min="1" max="${R.RULES.maxSquadSize}"></label><label>飛行隊<input type="number" data-sq="${i}" data-sqk="wingNo" value="${q.wingNo || 1}" min="1" max="99"></label><button type="button" class="btn sm ghost" data-sqdel="${i}" aria-label="中隊を外す">×</button><small class="vo-cost">1機 ${fCr(R.craftCost(q.craft))} · 中隊 ${fCr(R.craftCost(q.craft) * q.n)}</small>${sqStatus(i)}${voySqLoadHTML(q, i)}</div>`).join('')}</div>`).join('') || '<p class="muted">中隊がありません。</p>'}
   ${voyCarriedRowsHTML(e, d)}
   <div class="voy-row">${voyEmbarkAddHTML(e, d)}<button type="button" class="btn sm ghost" data-vo="airdefault">お任せ（史実の搭載）</button><button type="button" class="btn sm ghost" data-vo="airclear">すべて降ろす</button></div>
   <p class="note">中隊は同じ機種12機が基本（大型キャリアは最大${R.RULES.maxSquadSize}機）。飛行隊の番号で中隊をまとめ、戦闘では飛行隊ごとに発艦・移動・攻撃・帰還します。機体は公式の寸法で、格納区画の内寸に入るか、ハッチを通れるかで搭載・発艦が決まります（設計画面と同じ判定）。シャトル・揚陸艇は地上部隊を降ろす輸送機で、艦隊戦では艦内に待機します。小型の艦も同じ一覧で積めます：格納区画に全長・全幅・全高とも ${C.SHIP_STOW_CLEAR} m の余裕をもって入る艦を、艦載機と同じ「サイズ」で積みます（艦の外形の容積 × ${C.SHIP_STOW_FACTOR} ÷ 艦載機1機分の格納容積）。戦闘が始まると発進して任務群に加わり、ジャンプの前に近くにいれば収容されます。</p>`;
  } else {
   const gs = (e.ground || []).map(r => R.regimentTotals(r)), troops = gs.reduce((n, x) => n + x.troops, 0), veh = gs.reduce((n, x) => n + x.size, 0), L = stow?.lift;
   const vehRows = stow ? stow.vehicles.map(v => `<li class="${v.unembarked || !v.landable ? 'bad' : ''}"><b>${esc(v.name)}</b> ${num(v.embarked)} / ${num(v.count)} 両${v.loaded ? `（輸送機に ${num(v.loaded)}）` : ''}${v.unembarked ? ` · ${num(v.unembarked)} 両入らず` : ''}${v.embarked && !v.landable ? ' · 積める輸送機なし' : ''}</li>`).join('') : '';
-  body = `${voy.setup.own === 'cis' ? voyBar('ドロイド格納（空き容積）', troops, R.troopRoom(d.info, 'cis'), x => num(Math.round(x)) + ' 体') : voyBar('兵員枠（空き容積から定員を除く）', troops, R.troopRoom(d.info, voy.setup.own), x => num(Math.round(x)) + ' 名')}${stow ? `<div class="vo-wing"><h4>車両と降下</h4>${vehRows ? `<ul class="vo-veh-fit">${vehRows}</ul>` : '<p class="muted">車両はありません。</p>'}<p class="note">${L && L.transports.length ? `1回の降下：兵員 ${num(L.troops)} 名${L.vehicleSize > 0 ? `・車両 ${num(L.vehicleSize, 1)} サイズ` : ''}（${Object.entries(L.transports.reduce((m, x) => { const k = R.CRAFT[x.type]?.name || x.name || x.type; m[k] = (m[k] || 0) + x.n; return m; }, {})).map(([k, n]) => `${esc(k)} ${num(n)} 機`).join('・')}）` : '輸送機（シャトル・揚陸艇）が搭載されていません。地上部隊は輸送機で降ろします（「航空隊」で輸送機の中隊を加えてください）。'}</p></div>` : voyBar('車両（車両区画・貨物区画）', veh, d.info.vehicleCap || 0, x => num(x, 1))}
+  body = `${voyEdFac(voy.setup) === 'cis' ? voyBar('ドロイド格納（空き容積）', troops, R.troopRoom(d.info, 'cis'), x => num(Math.round(x)) + ' 体') : voyBar('兵員枠（空き容積から定員を除く）', troops, R.troopRoom(d.info, voyEdFac(voy.setup)), x => num(Math.round(x)) + ' 名')}${stow ? `<div class="vo-wing"><h4>車両と降下</h4>${vehRows ? `<ul class="vo-veh-fit">${vehRows}</ul>` : '<p class="muted">車両はありません。</p>'}<p class="note">${L && L.transports.length ? `1回の降下：兵員 ${num(L.troops)} 名${L.vehicleSize > 0 ? `・車両 ${num(L.vehicleSize, 1)} サイズ` : ''}（${Object.entries(L.transports.reduce((m, x) => { const k = R.CRAFT[x.type]?.name || x.name || x.type; m[k] = (m[k] || 0) + x.n; return m; }, {})).map(([k, n]) => `${esc(k)} ${num(n)} 機`).join('・')}）` : '輸送機（シャトル・揚陸艇）が搭載されていません。地上部隊は輸送機で降ろします（「航空隊」で輸送機の中隊を加えてください）。'}</p></div>` : voyBar('車両（車両区画・貨物区画）', veh, d.info.vehicleCap || 0, x => num(x, 1))}
   ${(e.ground || []).map((r, ri) => { const t = R.regimentTotals(r); return `<details class="vo-reg"><summary><b>${esc(r.name)}</b><span>${num(t.troops)} 名${Object.keys(t.vehicles).length ? ' · ' + Object.entries(t.vehicles).map(([k, n]) => `${R.VEHICLES[k]?.name || k} ${n}`).join('・') : ''}</span><button type="button" class="btn sm ghost" data-regdel="${ri}" aria-label="連隊を外す">×</button></summary>
-   ${r.battalions.map((b, bi) => `<div class="vo-bat"><h5>${esc(b.name)}</h5>${b.companies.map((c, ci) => `<div class="vo-co"><span>${esc(c.name)}</span><label>兵員<input type="number" data-co="${ri}.${bi}.${ci}" data-cok="troops" value="${c.troops}" min="0" max="600"></label>${voyVehicleSelect(ri, bi, ci, c, voy.setup.own)}</div>`).join('')}</div>`).join('')}</details>`; }).join('') || '<p class="muted">連隊がありません。</p>'}
-  <div class="voy-row"><button type="button" class="btn sm" data-vo="regadd">連隊を追加（${esc(R.REGIMENT_TEMPLATES[voy.setup.own]?.name || '連隊')}）</button><button type="button" class="btn sm ghost" data-vo="grdefault">お任せ（史実の陸戦隊）</button><button type="button" class="btn sm ghost" data-vo="grclear">すべて降ろす</button></div>
+   ${r.battalions.map((b, bi) => `<div class="vo-bat"><h5>${esc(b.name)}</h5>${b.companies.map((c, ci) => `<div class="vo-co"><span>${esc(c.name)}</span><label>兵員<input type="number" data-co="${ri}.${bi}.${ci}" data-cok="troops" value="${c.troops}" min="0" max="600"></label>${voyVehicleSelect(ri, bi, ci, c, voyEdFac(voy.setup))}</div>`).join('')}</div>`).join('')}</details>`; }).join('') || '<p class="muted">連隊がありません。</p>'}
+  <div class="voy-row"><button type="button" class="btn sm" data-vo="regadd">連隊を追加（${esc(R.REGIMENT_TEMPLATES[voyEdFac(voy.setup)]?.name || '連隊')}）</button><button type="button" class="btn sm ghost" data-vo="grdefault">お任せ（史実の陸戦隊）</button><button type="button" class="btn sm ghost" data-vo="grclear">すべて降ろす</button></div>
   <p class="note">連隊は4個大隊、大隊は4個中隊（144名）。乗艦した陸戦隊は拿捕のときに移乗攻撃の兵力になります。車両は輸送機の積載区画か格納庫（航空機と共用）に寸法で入ります。</p>`;
  }
- el.innerHTML = `<div class="voy-sheet-card" role="dialog" aria-label="編成の詳細"><div class="voy-sheet-head"><div><span class="eyebrow">${voyNameHTML(e)} · ${esc(voyShort(d.name))}</span><h3>${tab === 'air' ? '航空隊・搭載艦' : '陸戦隊'}の編成</h3></div><div class="seg" role="group"><button type="button" data-vo="tab:air" aria-pressed="${tab === 'air'}">航空隊</button><button type="button" data-vo="tab:ground" aria-pressed="${tab === 'ground'}">陸戦隊</button></div><button type="button" class="btn sm" data-vo="close">閉じる</button></div><div class="voy-sheet-body">${body}</div></div>`;
+ el.innerHTML = `<div class="voy-sheet-card" role="dialog" aria-label="編成の詳細"><div class="voy-sheet-head"><div><span class="eyebrow">${voyNameHTML(e)} · ${esc(voyShort(d.name))}</span><h3>${tab === 'air' ? '航空隊・搭載艦' : '陸戦隊'}の編成</h3>${voyShipCostHTML(e)}</div><div class="seg" role="group"><button type="button" data-vo="tab:air" aria-pressed="${tab === 'air'}">航空隊</button><button type="button" data-vo="tab:ground" aria-pressed="${tab === 'ground'}">陸戦隊</button></div><button type="button" class="btn sm" data-vo="close">閉じる</button></div><div class="voy-sheet-body">${body}</div></div>`;
+}
+// PLAN-002 A ship's cost in the sheet: its total, then what it is made of (the design's build cost by category and
+// its crew; examples built before the breakdown show build cost and crew only), its craft and carried ships.
+function voyShipCostHTML(e) {
+ const c = voyCostOf(e);if (!c.ready) return '';
+ const parts = c.detailed ? Object.entries(c.by).filter(([, v]) => v >= 1).sort((a, b) => b[1] - a[1]).map(([k, v]) => `<li><span>${esc(C.COST_CATS[k] || k)}</span><b>${fCr(v)}</b></li>`) : [`<li><span>建造費</span><b>${fCr(c.build)}</b></li>`, `<li><span>乗員</span><b>${fCr(c.crew)}</b></li>`];
+ if (c.air) parts.push(`<li><span>艦載機</span><b>${fCr(c.air)}</b></li>`);if (c.carried) parts.push(`<li><span>搭載艦</span><b>${fCr(c.carried)}</b></li>`);
+ return `<details class="vo-costs"><summary>費用 ${fCr(c.total)}</summary><ul class="vo-costby">${parts.join('')}</ul><p class="note">費用は設計から計算した建造費（船体・装甲・動力・推進・武装などの部品ごとの単価の合計）に、乗員の育成費 1名 ${fCr(C.COST_K.crew)} と艦載機・搭載艦を加えたものです（仮の算式・調整可能）。</p></details>`;
 }
 // v22 A squadron's stores (搭載): お任せ is the craft's canon loadout (R.CRAFT[k].load, C.CRAFT_LOADOUT); the presets fill
 // every station that takes one kind, or carry another canon load (a Y-wing's ion torpedoes at Scarif); each station's
@@ -8485,19 +9002,19 @@ function voySqLoadHTML(q, i) {
 }
 // v21.2 Ships and aircraft are embarked in one list: the carried ships after the squadrons, and one add control
 // offering the craft (a new squadron) and the ships that fit a bay (greyed when there is no room left).
-function voyCarryCands(e, d) { return voyExampleDesigns().filter(x => voyServes(x, voy.setup.own)).map(x => ({x, fit: voyCarryFit(d, x)})).filter(o => o.fit.ok).sort((a, b) => a.fit.size - b.fit.size); }
+function voyCarryCands(e, d) { return voyExampleDesigns().filter(x => voyServes(x, voyEdFac(voy.setup))).map(x => ({x, fit: voyCarryFit(d, x)})).filter(o => o.fit.ok).sort((a, b) => a.fit.size - b.fit.size); }
 function voyCarriedRowsHTML(e, d) {
  const rows = (e.carried || []).map((c, i) => { const d2 = voyShipDesign(c), f = d2 ? voyCarryFit(d, d2) : null; return `<div class="vo-sq"><span><b>${voyNameHTML(c)}</b> <small>${d2 ? `${num(Math.round(f.dims[0]))} × ${num(Math.round(f.dims[1]))} × ${num(Math.round(f.dims[2]))} m · サイズ ${num(f.size, 1)}` : '設計なし'}</small></span><button type="button" class="btn sm ghost" data-cardel="${i}" aria-label="搭載艦を降ろす">×</button></div>`; }).join('');
  return rows ? `<div class="vo-wing vo-carried"><h4>搭載艦艇</h4>${rows}</div>` : '';
 }
 function voyEmbarkAddHTML(e, d) {
- const mix = R.CRAFT_MIX[voy.setup.own] || R.CRAFT_MIX.empire, room = voyCarryRoom(e, d), used = voyCarriedSize(e), cand = voyCarryCands(e, d);
+ const mix = R.CRAFT_MIX[voyEdFac(voy.setup)] || R.CRAFT_MIX.empire, room = voyCarryRoom(e, d), used = voyCarriedSize(e), cand = voyCarryCands(e, d);
  const crafts = Object.entries(R.CRAFT).sort(([a], [b]) => (mix.includes(b) - mix.includes(a)));
  return `<select id="voyEmbarkSel" aria-label="搭載する機種・艦種"><optgroup label="航空機（中隊を追加）">${crafts.map(([k, c]) => `<option value="craft:${k}" ${k === mix[e.air.length % mix.length] ? 'selected' : ''}>${esc(c.name)}（${R.ROLE_NAME[c.role]}）</option>`).join('')}</optgroup>${cand.length ? `<optgroup label="艦艇">${cand.map(o => `<option value="ship:${esc(o.x.key)}" ${used + o.fit.size > room + 1e-6 ? 'disabled' : ''}>${esc(voyShort(o.x.name))}（サイズ ${num(o.fit.size, 1)}）</option>`).join('')}</optgroup>` : ''}</select><button type="button" class="btn sm" data-vo="embadd">搭載を追加</button>`;
 }
 // The small ships this carrier takes into battle: any design whose hull fits one of its bays.
 function voyCarriedEditHTML(e, d) {
- const room = voyCarryRoom(e, d), used = voyCarriedSize(e), cand = voyExampleDesigns().filter(x => voyServes(x, voy.setup.own)).map(x => ({x, fit: voyCarryFit(d, x)})).filter(o => o.fit.ok).sort((a, b) => a.fit.size - b.fit.size);
+ const room = voyCarryRoom(e, d), used = voyCarriedSize(e), cand = voyExampleDesigns().filter(x => voyServes(x, voyEdFac(voy.setup))).map(x => ({x, fit: voyCarryFit(d, x)})).filter(o => o.fit.ok).sort((a, b) => a.fit.size - b.fit.size);
  const rows = (e.carried || []).map((c, i) => { const d2 = voyShipDesign(c), f = d2 ? voyCarryFit(d, d2) : null; return `<div class="vo-sq"><span><b>${esc(c.name)}</b> <small>${d2 ? `${num(Math.round(f.dims[0]))} × ${num(Math.round(f.dims[1]))} × ${num(Math.round(f.dims[2]))} m · サイズ ${num(f.size, 1)}` : '設計なし'}</small></span><button type="button" class="btn sm ghost" data-cardel="${i}" aria-label="搭載艦を降ろす">×</button></div>`; }).join('');
  return `<div class="vo-wing vo-carried"><h4>搭載艦艇</h4>${voyBar('搭載艦の格納（艦の大きさの合計）', used, room, x => num(x, 1))}${rows || '<p class="muted">搭載艦はありません。</p>'}
   ${cand.length ? `<div class="voy-row"><select id="voyCarrySel" aria-label="搭載する艦">${cand.map(o => `<option value="${esc(o.x.key)}" ${used + o.fit.size > room + 1e-6 ? 'disabled' : ''}>${esc(voyShort(o.x.name))}（サイズ ${num(o.fit.size, 1)}）</option>`).join('')}</select><button type="button" class="btn sm" data-vo="caradd">艦を搭載</button></div>` : `<p class="note">${(d.info?.bays || []).length ? 'この艦の格納区画に入る艦がありません。' : 'この艦には格納区画がありません。'}</p>`}
@@ -8507,17 +9024,35 @@ function voyVehicleSelect(ri, bi, ci, c, faction) {
  const ks = Object.entries(R.VEHICLES).filter(([, v]) => v.side === 'any' || v.side === faction || faction === 'empire' && v.side === 'empire').map(([k]) => k);
  return `<span class="vo-veh">${ks.map(k => `<label title="${esc(R.VEHICLES[k].note)}">${esc(R.VEHICLES[k].name)}<input type="number" data-co="${ri}.${bi}.${ci}" data-cov="${k}" value="${c.vehicles?.[k] || 0}" min="0" max="40"></label>`).join('')}</span>`;
 }
-function voyObChanged(render = true) { voyOrbatSave(); if (render) voyRenderSetup(); }
+function voyObChanged(render = true) { voyOrbatSave(); voyDraftSave(); if (render) voyRenderSetup(); }
 async function voyObAddShip(t, src) {
- const s = voy.setup, ob = voyOb(s.own);if (t.ships.length >= TG_MAX) { toast(`任務群は${TG_MAX}隻までです`); return; }
- const d = voyFactionDesign(await voyPrepare(src), s.own), used = new Set(voyObShips(ob).map(x => x.name));
- t.ships.push({id: voyUid(ob), src: d.base ? d.key : src, key: d.key, name: voyNextName(s.own, used), ...voyAutoLoad(d, s.own)});voyObChanged();
+ const s = voy.setup, ob = voyEdOb(s), f = voyEdFac(s);if (t.ships.length >= TG_MAX) { toast(`任務群は${TG_MAX}隻までです`); return; }
+ const d = voyFactionDesign(await voyPrepare(src), f), used = new Set(voyObShips(ob).map(x => x.name));
+ t.ships.push({id: voyUid(ob), src: d.base ? d.key : src, key: d.key, name: voyNextName(f, used), ...voyAutoLoad(d, f)});voyObChanged();
 }
 function voyBindSetup() {
  const root = $('#voyage');
  root.addEventListener('change', e => {
-  const t = e.target, s = voy.setup;if (!s || voy.screen !== 'setup' && !t.closest('#voySheet')) return;const ob = voyOb(s.own);
-  if (t.dataset.voyset) { const k = t.dataset.voyset; s[k] = t.value; if (k === 'own') { s.sel = {}; voyEnsureDesigns(voyOb(s.own)); s.foe = voyDefaultFoe(s); } if (k === 'region') voyRegionSides(s); voyRenderSetup(); return; }
+  const t = e.target, s = voy.setup;if (!s || voy.screen !== 'setup' && !t.closest('#voySheet')) return;const ob = voyEdOb(s);
+  if (t.dataset.voyset) { const k = t.dataset.voyset;
+   // (choosing to edit the enemy by hand starts from the fleet generated so far)
+   if (k === 'foeMode' && t.value === 'manual' && s.foeMode !== 'manual' && !s.foeOb) s.foeOb = R.normalizeFleet(JSON.parse(JSON.stringify(voyFoeOrbat(s))));
+   s[k] = t.value;
+   // The faction of a fleet loaded from a scenario, or of a hand-made enemy, is only its label; the player's own fleet otherwise is kept per faction.
+   if (k === 'own' && !s.ownOb) { s.sel = {}; voyEnsureDesigns(voySideOb(s, 0)); if (s.foeMode !== 'manual') s.foe = voyDefaultFoe(s); }
+   if (k === 'region') voyRegionSides(s);voyDraftSave();voyRenderSetup();return; }
+  if (t.dataset.pickfoe) { s.foeSel[t.dataset.pickfoe] = t.checked; voyDraftSave(); voyRenderSetup(); return; }
+  if (t.dataset.scai) { const [i, k] = t.dataset.scai.split('.'); s.ai[+i][k] = t.value; voyDraftSave(); return; }
+  if (t.dataset.scstart != null) { s.start[+t.dataset.scstart] = t.value === '' ? null : +t.value; voyDraftSave(); return; }
+  if (t.dataset.scdep) { const [i, id] = t.closest('[data-sctg]').dataset.sctg.split(':'), k = t.dataset.scdep, cur = s.deploy[+i][id] || {}, v = t.value;
+   const next = R.normalizeDeploy({...cur, [k]: v === '' ? null : +v}, voySector(s));if (next.sys == null && next.heading == null && !next.speed) delete s.deploy[+i][id]; else s.deploy[+i][id] = next;
+   if (k !== 'sys') t.value = k === 'heading' ? next.heading ?? '' : next.speed || '';voyDraftSave();return; }
+  if (t.dataset.scvic) { s.victory = R.normalizeVictory({...s.victory, [t.dataset.scvic]: +t.value}); voyDraftSave(); return; }
+  if (t.dataset.sccost) { if (t.dataset.sccost === 'on') { s.costLimit.on = t.checked; if (t.checked && !s.costLimit.value) s.costLimit.value = Math.ceil(Math.max(...voyCostCheck(s).map(c => c.total), 1e8) / 1e8) * 1e8; } else s.costLimit.value = Math.max(0, Math.round((+t.value || 0) * 1e8)); voyDraftSave(); voyRenderSetup(); return; }
+  if ('scseed' in t.dataset) { s.seed = C.clamp(Math.round(+t.value || 0), 0, 2147483646); t.value = s.seed; voyDraftSave(); voyRenderSetup(); return; }
+  if ('scfix' in t.dataset) { s.seedFixed = t.checked; voyDraftSave(); return; }
+  if ('scname' in t.dataset) { s.name = t.value.trim().slice(0, 60); voyDraftSave(); return; }
+  if ('scfile' in t.dataset) { const f = t.files?.[0]; if (!f) return; f.text().then(voyScenarioImport).then(ok => { if (ok) toast('シナリオを読み込みました'); }).catch(err => toast('読み込めません：' + esc(err.message || err))); t.value = ''; return; }
   if (t.dataset.obname != null) { const kind = t.dataset.obname, el = t.closest(kind === 'ctg' ? '[data-ctg]' : kind === 'tg' ? '[data-tg]' : '[data-ship]');
    const row = kind === 'ctg' ? ob.ctgs.find(x => x.id === el.dataset.ctg) : kind === 'tg' ? voyObTgs(ob).find(x => x.id === el.dataset.tg) : voyFindShip(el.dataset.ship)?.sh;
    if (row && voySetName(row, t.value)) voyObChanged(false);if (row) t.value = voyDisplayName(row);return; }
@@ -8534,35 +9069,55 @@ function voyBindSetup() {
   const b = e.target.closest('button');if (!b || b.disabled) return;const s = voy.setup, d = b.dataset;if (!s) return;
   if (d.voy === 'back') { voyClose(); showTitle('missions'); return; }
   if (d.voy === 'map') { if (Galaxy.BY[s.region]) { mm.fleetSys = s.region; } mm.mode = 'fleet'; mmSave(); voyClose(); showTitle('missions'); return; }
-  if (d.voy?.startsWith('tab:')) { s.tab = d.voy.slice(4); voyRenderSetup(); return; }
-  if (d.voy === 'auto') { voy.orbat.factions[s.own] = voyAutoOrbat(s.own, s.scale, Math.random, {cap: 48}); s.sel = {}; voyObChanged(); return; }
-  if (d.voy === 'ctgadd') { const ob = voyOb(s.own), n = ob.ctgs.length + 1; ob.ctgs.push({id: voyUid(ob), name: `第${n}合同任務群`, tgs: [{id: voyUid(ob), name: `第${n}1任務群`, formation: 'abreast', ships: []}]}); voyObChanged(); return; }
+  if (d.voy?.startsWith('tab:')) { s.tab = d.voy.slice(4); voyDraftSave(); voyRenderSetup(); return; }
+  if (d.voy?.startsWith('side:')) { s.side = +d.voy.slice(5) ? 1 : 0; s.editing = null; $('#voySheet').hidden = true; voyDraftSave(); voyRenderSetup(); return; }
+  if (d.voy === 'auto') { const side = voyEdSide(s), f = voyEdFac(s), ob = voyAutoOrbat(f, s.scale, Math.random, {cap: 48}); if (side) { s.foeOb = ob; s.foeSel = {}; } else if (s.ownOb) { s.ownOb = ob; s.sel = {}; } else { voy.orbat.factions[s.own] = ob; s.sel = {}; } voyObChanged(); return; }
+  if (d.voy === 'foemanual' || d.voy === 'foeempty') { s.foeOb = d.voy === 'foeempty' ? {ctgs: [{id: 'o2', name: '第1合同任務群', tgs: [{id: 'o3', name: '第11任務群', formation: 'abreast', ships: []}]}], next: 3} : R.normalizeFleet(JSON.parse(JSON.stringify(voyFoeOrbat(s)))); s.foeMode = 'manual'; s.foeSel = {}; voyObChanged(); return; }
+  if (d.voy === 'foeauto') { s.foeMode = 'match'; s.foeOb = null; voy.foeOb = null; s.foeSel = {}; voyObChanged(); return; }
+  if (d.voy === 'ownreset') { delete s.ownOb; s.sel = {}; voyEnsureDesigns(voySideOb(s, 0)); voyObChanged(); return; }
+  if (d.voy === 'foeselall') { s.foeSel = {}; voyDraftSave(); voyRenderSetup(); return; }
+  if (d.voy === 'foeedit') { s.tab = 'orbat'; s.side = 1; voyDraftSave(); voyRenderSetup(); return; }
+  if (d.voy === 'fleetsave') { const ob = voyEdOb(s), name = ($('#voySetup [data-fleetname]')?.value || '').trim().slice(0, 48) || `${R.FACTIONS[voyEdFac(s)].name}の艦隊`, list = voyLibRead(FLEETLIB_KEY);
+   list.unshift({id: 'f' + Date.now().toString(36), name, faction: voyEdFac(s), at: Date.now(), n: voyObShips(ob).length, fleet: R.normalizeFleet(JSON.parse(JSON.stringify(ob)))});if (voyLibWrite(FLEETLIB_KEY, list.slice(0, 60))) toast(`編成「${esc(name)}」を保存しました`);voyRenderSetup();return; }
+  if (d.voy === 'fleetload' || d.voy === 'fleetdel') { const id = $('#voySetup [data-fleetpick]')?.value, list = voyLibRead(FLEETLIB_KEY), r = list.find(x => x.id === id);if (!r) return;
+   if (d.voy === 'fleetdel') { if (!b.dataset.sure) { b.dataset.sure = '1'; b.textContent = '削除する'; return; } voyLibWrite(FLEETLIB_KEY, list.filter(x => x !== r)); voyRenderSetup(); return; }
+   const ob = R.normalizeFleet(r.fleet);if (voyEdSide(s)) { s.foeOb = ob; s.foeMode = 'manual'; s.foeSel = {}; } else { s.ownOb = ob; s.sel = {}; }voyEnsureDesigns(ob);toast(`編成「${esc(r.name)}」を読み込みました`);voyObChanged();return; }
+  if (d.voy === 'scsave') { const name = s.name || `${R.FACTIONS[s.own].short}対${R.FACTIONS[s.foe].short}`, list = voyLibRead(SCN_KEY);s.name = name;
+   list.unshift({id: 's' + Date.now().toString(36), name, at: Date.now(), scenario: voyScenarioOf(s, true)});if (voyLibWrite(SCN_KEY, list.slice(0, 40))) toast(`シナリオ「${esc(name)}」を保存しました`);voyDraftSave();voyRenderSetup();return; }
+  if (d.voy === 'scload' || d.voy === 'scdel') { const id = $('#voySetup [data-scpick]')?.value, list = voyLibRead(SCN_KEY), r = list.find(x => x.id === id);if (!r) return;
+   if (d.voy === 'scdel') { if (!b.dataset.sure) { b.dataset.sure = '1'; b.textContent = '削除する'; return; } voyLibWrite(SCN_KEY, list.filter(x => x !== r)); voyRenderSetup(); return; }
+   try { voyApplyScenario(R.normalizeScenario(r.scenario)); } catch (err) { toast('読み込めません：' + esc(err.message || err)); return; } s.tab = 'scenario';toast(`シナリオ「${esc(r.name)}」を読み込みました`);voyObChanged();return; }
+  if (d.voy === 'scexport') { const name = (s.name || 'scenario').replace(/[\\/:*?"<>|]+/g, '_') + '.json'; if (!voyDownload(name, voyScenarioExport(s))) toast('書き出せません'); return; }
+  if (d.voy === 'sccopy') { navigator.clipboard?.writeText(voyScenarioExport(s)).then(() => toast('シナリオの JSON をコピーしました'), () => toast('コピーできません')); return; }
+  if (d.voy === 'scpaste') { const txt = $('#voySetup [data-scpaste]')?.value || ''; if (!txt.trim()) return; if (await voyScenarioImport(txt)) toast('シナリオを読み込みました'); return; }
+  if (d.voy === 'scnewseed') { s.seed = (Math.random() * 1e6) | 0; voyDraftSave(); voyRenderSetup(); return; }
+  if (d.voy === 'ctgadd') { const ob = voyEdOb(s), n = ob.ctgs.length + 1; ob.ctgs.push({id: voyUid(ob), name: `第${n}合同任務群`, tgs: [{id: voyUid(ob), name: `第${n}1任務群`, formation: 'abreast', ships: []}]}); voyObChanged(); return; }
   if (d.voy === 'selall') { s.sel = {}; voyRenderSetup(); return; }
   if (d.voy === 'start') { voyStartBattle(); return; }
   if (d.ob) {
-   const ob = voyOb(s.own), ce = b.closest('[data-ctg]'), te = b.closest('[data-tg]'), se = b.closest('[data-ship]'), c = ce && ob.ctgs.find(x => x.id === ce.dataset.ctg), t = te && voyObTgs(ob).find(x => x.id === te.dataset.tg), f = se && voyFindShip(se.dataset.ship);
+   const ob = voyEdOb(s), fac = voyEdFac(s), ce = b.closest('[data-ctg]'), te = b.closest('[data-tg]'), se = b.closest('[data-ship]'), c = ce && ob.ctgs.find(x => x.id === ce.dataset.ctg), t = te && voyObTgs(ob).find(x => x.id === te.dataset.tg), f = se && voyFindShip(se.dataset.ship);
    if (d.ob === 'tgadd' && c) { const n = ob.ctgs.indexOf(c) + 1; c.tgs.push({id: voyUid(ob), name: `第${n}${c.tgs.length + 1}任務群`, formation: 'abreast', ships: []}); }
    else if (d.ob === 'ctgdel' && c) { if (c.tgs.some(x => x.ships.length) && !b.dataset.sure) { b.dataset.sure = '1'; b.textContent = '解散する'; return; } ob.ctgs.splice(ob.ctgs.indexOf(c), 1); }
    else if (d.ob === 'tgdel' && t && c) { if (t.ships.length && !b.dataset.sure) { b.dataset.sure = '1'; b.textContent = '解散する'; return; } c.tgs.splice(c.tgs.indexOf(t), 1); }
    else if (d.ob === 'shipadd' && t) { const src = te.querySelector('[data-obadd]').value; if (!src) return; b.disabled = true; b.textContent = '準備中…'; try { await voyObAddShip(t, src); } catch (err) { console.error(err); toast('艦を準備できません：' + esc(err.message || err)); voyRenderSetup(); } return; }
    else if (d.ob === 'shipdel' && f) f.t.ships.splice(f.t.ships.indexOf(f.sh), 1);
    // v21.2 Copies: the same class with the same load-out (aircraft, small ships, troops), under new names.
-   else if (d.ob === 'shipdup' && f) { if (f.t.ships.length >= TG_MAX) { toast(`任務群は${TG_MAX}隻までです`); return; } f.t.ships.splice(f.t.ships.indexOf(f.sh) + 1, 0, voyCopyShip(ob, f.sh, s.own)); }
-   else if (d.ob === 'tgdup' && t && c) { const n = ob.ctgs.indexOf(c) + 1;c.tgs.splice(c.tgs.indexOf(t) + 1, 0, {id: voyUid(ob), name: `第${n}${c.tgs.length + 1}任務群`, formation: t.formation, ships: t.ships.map(sh => voyCopyShip(ob, sh, s.own))}); }
-   else if (d.ob === 'ctgdup' && c) { const n = ob.ctgs.length + 1;ob.ctgs.splice(ob.ctgs.indexOf(c) + 1, 0, {id: voyUid(ob), name: `第${n}合同任務群`, tgs: c.tgs.map((x, i) => ({id: voyUid(ob), name: `第${n}${i + 1}任務群`, formation: x.formation, ships: x.ships.map(sh => voyCopyShip(ob, sh, s.own))}))}); }
+   else if (d.ob === 'shipdup' && f) { if (f.t.ships.length >= TG_MAX) { toast(`任務群は${TG_MAX}隻までです`); return; } f.t.ships.splice(f.t.ships.indexOf(f.sh) + 1, 0, voyCopyShip(ob, f.sh, fac)); }
+   else if (d.ob === 'tgdup' && t && c) { const n = ob.ctgs.indexOf(c) + 1;c.tgs.splice(c.tgs.indexOf(t) + 1, 0, {id: voyUid(ob), name: `第${n}${c.tgs.length + 1}任務群`, formation: t.formation, ships: t.ships.map(sh => voyCopyShip(ob, sh, fac))}); }
+   else if (d.ob === 'ctgdup' && c) { const n = ob.ctgs.length + 1;ob.ctgs.splice(ob.ctgs.indexOf(c) + 1, 0, {id: voyUid(ob), name: `第${n}合同任務群`, tgs: c.tgs.map((x, i) => ({id: voyUid(ob), name: `第${n}${i + 1}任務群`, formation: x.formation, ships: x.ships.map(sh => voyCopyShip(ob, sh, fac))}))}); }
    else if (d.ob === 'lead' && f) { f.t.ships.splice(f.t.ships.indexOf(f.sh), 1); f.t.ships.unshift(f.sh); }
    else if ((d.ob === 'air' || d.ob === 'ground') && f) { s.editing = f.sh.id; s.sheetTab = d.ob; voyOrbatSheet(); return; }
    voyObChanged();return;
   }
-  if (d.vo) { const f = s.editing && voyFindShip(s.editing), x = f?.sh, des = x && voyShipDesign(x);
+  if (d.vo) { const f = s.editing && voyFindShip(s.editing), x = f?.sh, des = x && voyShipDesign(x), fac = voyEdFac(s);
    if (d.vo === 'close') { s.editing = null; $('#voySheet').hidden = true; voyRenderSetup(); return; }
    if (d.vo.startsWith('tab:')) { s.sheetTab = d.vo.slice(4); voyOrbatSheet(); return; }
    if (!x || !des) return;
-   if (d.vo === 'sqadd') { const mix = R.CRAFT_MIX[s.own] || R.CRAFT_MIX.empire, last = x.air[x.air.length - 1], wn = last ? (x.air.filter(q => (q.wingNo || 1) === (last.wingNo || 1)).length >= 6 ? (last.wingNo || 1) + 1 : last.wingNo || 1) : 1, craft = mix[x.air.length % mix.length]; x.air.push({craft, n: 12, name: `${R.ROLE_NAME[R.CRAFT[craft].role]}中隊`, wingNo: wn}); }
-   if (d.vo === 'airdefault') { x.air = R.defaultAir(des.info, s.own, des.air); x.carried = voyDefaultCarried(des); }
-   if (d.vo === 'grdefault') x.ground = voyAutoGround(des, s.own);
+   if (d.vo === 'sqadd') { const mix = R.CRAFT_MIX[fac] || R.CRAFT_MIX.empire, last = x.air[x.air.length - 1], wn = last ? (x.air.filter(q => (q.wingNo || 1) === (last.wingNo || 1)).length >= 6 ? (last.wingNo || 1) + 1 : last.wingNo || 1) : 1, craft = mix[x.air.length % mix.length]; x.air.push({craft, n: 12, name: `${R.ROLE_NAME[R.CRAFT[craft].role]}中隊`, wingNo: wn}); }
+   if (d.vo === 'airdefault') { x.air = R.defaultAir(des.info, fac, des.air); x.carried = voyDefaultCarried(des); }
+   if (d.vo === 'grdefault') x.ground = voyAutoGround(des, fac);
    if (d.vo === 'airclear') x.air = [];
-   if (d.vo === 'regadd') { const tpl = R.REGIMENT_TEMPLATES[s.own] || R.REGIMENT_TEMPLATES.empire; x.ground = x.ground || []; x.ground.push(R.makeRegiment(s.own, `第${x.ground.length + 1}${tpl.name}`)); }
+   if (d.vo === 'regadd') { const tpl = R.REGIMENT_TEMPLATES[fac] || R.REGIMENT_TEMPLATES.empire; x.ground = x.ground || []; x.ground.push(R.makeRegiment(fac, `第${x.ground.length + 1}${tpl.name}`)); }
    if (d.vo === 'grclear') x.ground = [];
    if (d.vo === 'embadd') { const v = $('#voyEmbarkSel')?.value || '';
     if (v.startsWith('craft:')) { const craft = v.slice(6); if (!R.CRAFT[craft]) return; const last = x.air[x.air.length - 1], wn = last ? (x.air.filter(q => (q.wingNo || 1) === (last.wingNo || 1)).length >= 6 ? (last.wingNo || 1) + 1 : last.wingNo || 1) : 1; x.air.push({craft, n: 12, name: `${R.ROLE_NAME[R.CRAFT[craft].role]}中隊`, wingNo: wn}); }
@@ -8578,19 +9133,16 @@ function voyBindSetup() {
 
 // ---------- starting a battle ----------
 // The order of battle as the battle model takes it: combined task groups of task groups of ships.
-function voyBattleOrbat(ob, tgs, faction) {
- const pick = new Set(tgs.map(t => t.id));
- return {ctgs: ob.ctgs.map(c => ({name: c.name, tgs: c.tgs.filter(t => pick.has(t.id) && t.ships.length).map(t => ({name: t.name, formation: t.formation, ships: t.ships.map(sh => { const d = voyShipDesign(sh);if (!d) return null;const st = voyHasStow(d) ? voyStow(sh, d) : null; return {design: d.key, name: sh.name, air: (sh.air || []).map((q, i) => ({...q, n: st ? Math.min(q.n, st.wings[i]?.deployable ?? q.n) : q.n, groupName: `${c.name}飛行団`})).filter(q => q.n > 0 && !R.CRAFT[q.craft]?.stay), ground: sh.ground || null, troops: (sh.ground || []).reduce((n, r) => n + R.regimentTotals(r).troops, 0), carried: (sh.carried || []).map((x, i) => { const d2 = voyShipDesign(x); return d2 && (!st || st.carried[i]?.embarked) ? {design: d2.key, name: `${sh.name}搭載艦 ${x.name}`} : null; }).filter(Boolean)}; }).filter(Boolean)}))})).filter(c => c.tgs.length)};
-}
+function voyBattleOrbat(ob, tgs, faction) { return R.battleOrbat(ob, tgs.map(t => t.id), voyShipDesign); }
+// SBOX The custom battle is its scenario: R.scenarioWorld builds the same world the headless tests do.
 function voyStartBattle() {
- const s = voy.setup, ob = voyOb(s.own), mine = voySortieTgs(s), foeOb = voyFoeOrbat(s);
- const own = voyBattleOrbat(ob, mine, s.own), foe = voyBattleOrbat(foeOb, voyObTgs(foeOb), s.foe);
- const keys = [...new Set([own, foe].flatMap(o => o.ctgs.flatMap(c => c.tgs.flatMap(t => t.ships.flatMap(x => [x.design, ...(x.carried || []).map(y => y.design)])))))], designs = keys.map(voyDesign).filter(Boolean).map(d => ({key: d.key, name: d.name, p: d.p, info: d.info}));
- voy.w = R.createWorld({seed: s.seed, region: s.region, designs, formations: voyFormStore(), sides: [{faction: s.own, ai: false}, {faction: s.foe, ai: true}], fleets: [own, foe]});voy.w.onHit = voyOnHit;
+ const s = voy.setup, sc = voyScenarioOf(s), designs = [...new Set(voy.designs.values())].map(d => ({key: d.key, name: d.name, p: d.p, info: d.info}));
+ voy.w = R.scenarioWorld(sc, designs, voyShipDesign, {formations: voyFormStore()});voy.w.onHit = voyOnHit;
+ const keys = [...new Set([...voy.w.units.values()].map(u => u.design))];
  voy.speed = 4;voy.seenEv = 0;voy.notes = [];voy.sel = {group: null, ctg: null, sys: null, dest: null, units: [], wing: null, foe: null};voy.cmd = null;voy.ops.fitted = false;voy.tac = {sys: null, c: [0, 0], mpp: 300, fitted: false};voy.result = null;voy.resultDismissed = false;
  const first = [...voy.w.ctgs.values()].find(c => c.side === 0);if (first) voy.sel.ctg = first.id;
  voyShow('ops');voyNote(`作戦開始：${voy.w.sector.name}。敵艦隊（${R.FACTIONS[s.foe].name}）の位置は不明です。任務群を航路に沿ってジャンプさせて探してください。`);
- s.seed = (Math.random() * 1e6) | 0;
+ if (!s.seedFixed) s.seed = (Math.random() * 1e6) | 0;voyDraftSave();
  // The battle opens in 3D on our lead task group; the maps are under 「命令」.
  if (voyCan3D()) voyEnter3D().then(ok => { if (ok) toast('「命令」で作戦図・戦術図を開いて命令します'); voyWarm(keys); });else voyWarm(keys);
 }
@@ -8865,9 +9417,9 @@ function voyDrawTac(ctx, W, H) {
  const us = R.systemUnits(w, sys).filter(u => !R.pendingWarp(u)), byId = new Map(us.map(u => [u.id, u]));
  // Task groups: a faint line from each ship to its group's guide.
  const tgs = new Map();for (const u of us) { const g = w.groups.get(u.group); if (!g) continue; let a = tgs.get(g.id); if (!a) tgs.set(g.id, a = {g, m: []}); a.m.push(u); }
- for (const {g, m} of tgs.values()) { const guide = m.find(u => u.id === g.flag) || m[0], gp = P(guide.pos), own = g.side === 0, hot = own && m.some(u => sel.has(u.id)); ctx.strokeStyle = own ? (hot ? 'rgba(200,240,255,.42)' : 'rgba(127,211,255,.15)') : 'rgba(255,138,112,.13)'; ctx.lineWidth = 1; ctx.beginPath(); for (const u of m) { if (u === guide || u.towedBy) continue; const p = P(u.pos); ctx.moveTo(gp[0], gp[1]); ctx.lineTo(p[0], p[1]); } ctx.stroke(); }
+ for (const {g, m: m0} of tgs.values()) { const m = g.side === 0 ? m0 : m0.filter(u => voyStage(u) >= 4); if (m.length < 2) continue; const guide = m.find(u => u.id === g.flag) || m[0], gp = P(guide.pos), own = g.side === 0, hot = own && m.some(u => sel.has(u.id)); ctx.strokeStyle = own ? (hot ? 'rgba(200,240,255,.42)' : 'rgba(127,211,255,.15)') : 'rgba(255,138,112,.13)'; ctx.lineWidth = 1; ctx.beginPath(); for (const u of m) { if (u === guide || u.towedBy) continue; const p = P(u.pos); ctx.moveTo(gp[0], gp[1]); ctx.lineTo(p[0], p[1]); } ctx.stroke(); }
  // Fire: thin lines from each ship to the one it is engaging.
- ctx.lineWidth = 1;for (const u of us) { const f = byId.get(u.firingAt); if (!f || u.out) continue; const a = P(u.pos), b = P(f.pos); ctx.strokeStyle = u.side === 0 ? 'rgba(127,255,170,.28)' : 'rgba(255,120,100,.3)'; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); }
+ ctx.lineWidth = 1;for (const u of us) { const f = byId.get(u.firingAt); if (!f || u.out || (u.side !== 0 && voyStage(u) < 3)) continue; const a = P(u.pos), b = P(f.pos); ctx.strokeStyle = u.side === 0 ? 'rgba(127,255,170,.28)' : 'rgba(255,120,100,.3)'; ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); }
  // Tractor beams: a broad band from the projector to its charge, dashed while closing in.
  for (const u of us) { const tr = u.tractor, x = tr && byId.get(tr.target); if (!x) continue; const a = P(u.pos), b = P(x.pos); ctx.strokeStyle = tr.mode === 'capture' ? 'rgba(195,168,255,.8)' : 'rgba(150,255,200,.75)'; ctx.lineWidth = tr.lock ? 3.5 : 1.5; if (!tr.lock) ctx.setLineDash([3, 5]); ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke(); ctx.setLineDash([]); ctx.lineWidth = 1; }
  const swLabs = voyTacSwArcs(ctx, P, us, sel, shipSel, label, font);
@@ -8891,6 +9443,9 @@ function voyDrawTac(ctx, W, H) {
  for (const m of w.missiles) { if (m.sys !== sys || m.n <= 0) continue; const p = P(m.pos); ctx.fillStyle = m.ion ? '#d8ecff' : m.side === 0 ? '#bdf3ff' : '#ffd2a8'; ctx.beginPath(); ctx.arc(p[0], p[1], 1.6 + Math.min(2, m.n / 6), 0, Math.PI * 2); ctx.fill(); }
  // Ships: a wedge along the heading, sized by length (never smaller than a mark).
  for (const u of us) {
+  // v25 (SENS-003) an enemy short of 追跡 is a return on the map: a ring the size of its position error at the estimated
+  // position (dashed while it is only a faint or emission contact); not drawn at all until found
+  if (u.side !== 0) { const stg = voyStage(u); if (stg < 4) { u._lab = null; if (stg >= 1) { const c = voyContact(u), q = P(c?.est || u.pos), r = Math.max(5, Math.min(70, (Number.isFinite(c?.err) ? c.err : 8000) / t.mpp)); ctx.strokeStyle = voy.sel.foe === u.id ? '#ffd0c4' : 'rgba(255,170,140,.7)'; ctx.setLineDash(stg < 3 ? [3, 4] : []); ctx.beginPath(); ctx.arc(q[0], q[1], r, 0, Math.PI * 2); ctx.stroke(); ctx.setLineDash([]); ctx.fillStyle = 'rgba(255,170,140,.9)'; ctx.beginPath(); ctx.arc(q[0], q[1], stg >= 3 ? 3 : 2, 0, Math.PI * 2); ctx.fill(); } continue; } }
   const [x, y] = P(u.pos), L = Math.max(9, u.p.len / t.mpp), Wd = Math.max(5, (u.p.width || u.p.len * .5) / t.mpp * .9), c = Math.cos(u.yaw), s = Math.sin(u.yaw), own = u.side === 0, col = u.out ? '#8d969c' : own ? VC.own : VC.foe;
   const pt = (f, r) => [x + c * f - s * r, y + s * f + c * r];
   ctx.fillStyle = col;ctx.globalAlpha = u.warp ? .5 : 1;ctx.beginPath();ctx.moveTo(...pt(L * .55, 0));ctx.lineTo(...pt(-L * .45, Wd * .5));ctx.lineTo(...pt(-L * .3, 0));ctx.lineTo(...pt(-L * .45, -Wd * .5));ctx.closePath();ctx.fill();ctx.globalAlpha = 1;
@@ -8914,9 +9469,9 @@ function voyDrawTac(ctx, W, H) {
  voy.tacWings = [];
  for (const [id, g] of wings) { g.cx = g.x / g.n; g.cy = g.y / g.n; arrow(g.cx, g.cy, g.hx || 1, g.hz, C.clamp(3 + Math.sqrt(g.n) * .5, 6, 12), g.hot ? '#ffffff' : g.own ? '#a8f0ff' : '#ffc29a', .95); if (g.hot) { ctx.strokeStyle = '#ffffff'; ctx.beginPath(); ctx.arc(g.cx, g.cy, 14, 0, Math.PI * 2); ctx.stroke(); } if (g.own) voy.tacWings.push({id, x: g.cx, y: g.cy}); label.block(g.cx - 7, g.cy - 7, g.cx + 7, g.cy + 7); }
  // Names keep off the ship marks (theirs and their neighbours').
- for (const u of us) { const [x, y] = P(u.pos), r = Math.max(9, u.p.len / t.mpp) * .62 + 3; label.block(x - r, y - r, x + r, y + r + 7); }
+ for (const u of us) { if (u.side !== 0 && voyStage(u) < 4) continue; const [x, y] = P(u.pos), r = Math.max(9, u.p.len / t.mpp) * .62 + 3; label.block(x - r, y - r, x + r, y + r + 7); }
  // Labels: the selected ships, then our task groups (at their guides), then the other ships, then the wings.
- const order = us.slice().sort((a, b) => (sel.has(b.id) && shipSel) - (sel.has(a.id) && shipSel) || ((a.side === 0) ? -1 : 1) - ((b.side === 0) ? -1 : 1) || b.p.len - a.p.len), lab = u => { if (!u._lab) return; const n = shipTag(u.name) + voyTagSuffix(u), cr = u.side === 0 ? crewShare(u) : null; label(cr == null ? n : [`${n} 乗員${crewPct(cr)}%`, n], wd => [u._lab, [u._lab[2] - wd, u._lab[1]]], u.side === 0 ? (cr != null && cr < .35 ? '#ffb29e' : cr != null && cr < .7 ? '#ffe0a0' : '#cfefff') : '#ffd0c4', '600 10.5px ' + font, shipSel && sel.has(u.id)); };
+ const order = us.slice().sort((a, b) => (sel.has(b.id) && shipSel) - (sel.has(a.id) && shipSel) || ((a.side === 0) ? -1 : 1) - ((b.side === 0) ? -1 : 1) || b.p.len - a.p.len), lab = u => { if (!u._lab) return; const n = (u.side === 0 || voyStage(u) >= 5 ? shipTag(u.name) + voyTagSuffix(u) : voyFoeName(u)), cr = u.side === 0 ? crewShare(u) : null; label(cr == null ? n : [`${n} 乗員${crewPct(cr)}%`, n], wd => [u._lab, [u._lab[2] - wd, u._lab[1]]], u.side === 0 ? (cr != null && cr < .35 ? '#ffb29e' : cr != null && cr < .7 ? '#ffe0a0' : '#cfefff') : '#ffd0c4', '600 10.5px ' + font, shipSel && sel.has(u.id)); };
  if (shipSel) for (const u of order) if (sel.has(u.id)) lab(u);
  for (const {g, m} of tgs.values()) {
   if (g.side !== 0) continue;const guide = m.find(u => u.id === g.flag) || m[0], [x, y] = P(guide.pos), r = Math.max(9, guide.p.len / t.mpp) * .62 + 12, on = !shipSel && m.some(u => sel.has(u.id)), name = voyTgShort(g.name), o = g.spool ? (g.spool.blocked ? '離脱停止' : '離脱準備') : {auto: '自動', hold: '待機', move: '移動', attack: '攻撃'}[g.order.type] || '';
@@ -9151,13 +9706,13 @@ const fedR = v => Math.round(v / FED_STEP) * FED_STEP;
 function fedShips() {
  const s = fed.src;
  if (s?.g && voy.w) { const g = voy.w.groups.get(s.g); if (g) return g.units.map(id => voy.w.units.get(id)).filter(u => u && R.alive(u)).map(u => u.p); }
- if (s?.tg && voy.setup) { const t = voyObTgs(voyOb(voy.setup.own)).find(x => x.id === s.tg); if (t) return t.ships.map(sh => voyShipDesign(sh)?.p).filter(Boolean); }
+ if (s?.tg && voy.setup) { const t = voyObTgs(voyEdOb(voy.setup)).find(x => x.id === s.tg); if (t) return t.ships.map(sh => voyShipDesign(sh)?.p).filter(Boolean); }
  return Array.from({length: 6}, () => ({len: 800, width: 300, height: 150}));
 }
 function voyFedOpen(src) {
  const tpls = voyFormStore();let k = 'abreast', n = 6;
  if (src?.g && voy.w) { const g = voy.w.groups.get(src.g); if (g) { k = g.formation; n = g.units.filter(id => R.alive(voy.w.units.get(id))).length; } }
- if (src?.tg && voy.setup) { const t = voyObTgs(voyOb(voy.setup.own)).find(x => x.id === src.tg); if (t) { k = t.formation; n = t.ships.length || 6; } }
+ if (src?.tg && voy.setup) { const t = voyObTgs(voyEdOb(voy.setup)).find(x => x.id === src.tg); if (t) { k = t.formation; n = t.ships.length || 6; } }
  const own = String(k).startsWith('tpl:') ? tpls.find(t => 'tpl:' + t.id === k) : null;
  fed.tpl = own ? JSON.parse(JSON.stringify(own)) : {...R.formationTemplate(R.FORMATIONS[k] ? k : 'abreast', Math.max(2, n)), id: voyFedId()};
  fed.src = src || null;fed.sel = new Set();fed.open = true;fed.json = false;fed.msg = '';voyFedRender();
@@ -9170,7 +9725,7 @@ function voyFedRender() {
  const t = fed.tpl, sel = [...fed.sel].filter(i => t.slots[i]), one = sel.length === 1 ? t.slots[sel[0]] : null, tpls = voyFormStore(), ships = fedShips(), chk = R.formationCheck(t, ships);
  const num = (k, v, step, lab) => `<label>${lab}<input type="number" step="${step}" data-fedf="${k}" value="${v}" ${one ? '' : 'disabled'}></label>`;
  const opt = (o, v) => Object.entries(o).map(([k, n]) => `<option value="${k}" ${v === k ? 'selected' : ''}>${n}</option>`).join('');
- const target = fed.src?.g ? voy.w?.groups.get(fed.src.g)?.name : fed.src?.tg ? voyObTgs(voyOb(voy.setup.own)).find(x => x.id === fed.src.tg)?.name : null;
+ const target = fed.src?.g ? voy.w?.groups.get(fed.src.g)?.name : fed.src?.tg ? voyObTgs(voyEdOb(voy.setup)).find(x => x.id === fed.src.tg)?.name : null;
  el.innerHTML = `<div class="vs-card fed">
   <div class="vs-head"><h3>陣形エディター</h3><button type="button" class="btn sm ghost" data-fed="close">閉じる</button></div>
   <label class="fed-name">名前<input data-fedname maxlength="40" value="${esc(t.name)}"></label>
@@ -9249,7 +9804,7 @@ function voyFedAction(a) {
  if (a === 'save') { const n = R.normalizeFormation(t); if (!n) return; fed.tpl = n; voyFormPut(n); fed.msg = '保存しました'; voyFedRender(); if (voy.screen === 'setup') voyRenderSetup(); return; }
  if (a === 'apply') { const n = R.normalizeFormation(t); if (!n) return; fed.tpl = n; voyFormPut(n);
   if (fed.src?.g && voy.w) { const ok = R.orderGroup(voy.w, fed.src.g, {template: n, formation: 'tpl:' + n.id}); fed.msg = ok ? '任務群に適用しました（艦は新しいスロットへ移動します）' : '適用できませんでした'; }
-  else if (fed.src?.tg && voy.setup) { const x = voyObTgs(voyOb(voy.setup.own)).find(q => q.id === fed.src.tg); if (x) { x.formation = 'tpl:' + n.id; voyObChanged(); fed.msg = '任務群に適用しました'; } }
+  else if (fed.src?.tg && voy.setup) { const x = voyObTgs(voyEdOb(voy.setup)).find(q => q.id === fed.src.tg); if (x) { x.formation = 'tpl:' + n.id; voyObChanged(); fed.msg = '任務群に適用しました'; } }
   voyFedRender(); return; }
  if (a.startsWith('load:')) { const x = voyFormStore().find(q => q.id === a.slice(5)); if (x) { fed.tpl = JSON.parse(JSON.stringify(x)); fed.sel = new Set(); voyFedRender(); } return; }
  if (a === 'remove') { voyFormDel(t.id); fed.tpl = {...t, id: voyFedId()}; fed.msg = '削除しました（編集中の内容は残っています）'; voyFedRender(); if (voy.screen === 'setup') voyRenderSetup(); return; }
@@ -9289,6 +9844,21 @@ function voyFedBind() {
  window.addEventListener('resize', () => { if (fed.open) voyFedDraw(); });
 }
 function voyPowerAimHTML(list) { const pw = voyCommon(list, u => u.order.power || 'auto'), aim = voyCommon(list, u => u.order.aim || 'auto'), vol = voyCommon(list, u => C.volleyMode(u)); return `<p class="vs-sub">射撃</p><div class="vs-acts">${VOY_VOLLEY.map(([k, n]) => `<button type="button" class="btn sm${vol === k ? ' on' : ''}" data-vvol="${k}">${n}</button>`).join('')}</div><p class="note">${vol === 'salvo' ? '斉射：同じ種類の砲がそろって撃ちます。一度に当たるので装甲を破りやすく（大口径の砲ほど効きます）、最初の斉射は目標が射程に入った瞬間に撃てます。待つぶん発射数はわずかに減り、斉射の合間は敵が射撃を受けません（敵のハイパードライブ充填が進みます）。' : vol === 'stream' ? '連続射撃：各砲が装填しだい撃ち続けます。発射数がいちばん多く、敵を絶えず射撃下に置いてハイパードライブの充填を止めます。' : '艦によって射撃の型が違います。'}</p><p class="vs-sub">出力配分</p><div class="vs-acts">${VOY_POWER.map(([k, n]) => `<button type="button" class="btn sm${pw === k ? ' on' : ''}" data-vpow="${k}">${n}</button>`).join('')}</div><p class="vs-sub">照準部位</p><div class="vs-acts">${VOY_AIM.map(([k, n]) => `<button type="button" class="btn sm${aim === k ? ' on' : ''}" data-vaim="${k}">${n}</button>`).join('')}</div><p class="note">${aim === 'auto' ? '自動：ふだんは艦全体を撃ちます。自艦の2.5倍以上の大きさの艦はシールドが弱まると艦橋を狙います。' : aim === 'bridge' || aim === 'weapon' ? '艦橋・砲塔は装甲の外にあります。シールドが弱まると、狙いを保てた分（近いほど・的が大きいほど多い）が装甲を通さず直撃します。' : '狙った部位のある区画に被弾が集まります。'}</p>`; }
+// v25 Emission management and S-foils of the ships chosen (SENS-005, WING-003/004), and what they radiate now.
+const VOY_EMIT = [['normal', '通常'], ['low', '低放射'], ['high', '高出力'], ['emerg', '緊急散逸']], VOY_FOIL = [['auto', '自動'], ['open', '展開'], ['close', '収納']];
+const VOY_EMIT_NOTE = {normal: '通常：散逸装置を通常に運転し、能動センサーを使います。', low: '低放射：散逸装置を絞って出力を抑え、能動センサーを止めます。廃熱は蓄熱され、蓄熱が限界に近づくと通常運転に戻ります。', high: '高出力：炉を過負荷気味に回し、能動センサーを強めます。廃熱と放射が増えます。', emerg: '緊急散逸：散逸装置を過駆動して蓄熱を一気に放出します。最も目立ちます。蓄熱が抜けると通常に戻ります。'};
+function voySensHTML(list) {
+ if (!list.length) return '';const em = voyCommon(list, u => C.emconOf(u)), foils = list.filter(u => u.p.foils?.length), fm = voyCommon(foils, u => u.order.foil || 'auto');
+ let h = `<p class="vs-sub">放射管理</p><div class="vs-acts">${VOY_EMIT.map(([k, n]) => `<button type="button" class="btn sm${em === k ? ' on' : ''}" data-vemit="${k}">${n}</button>`).join('')}</div>`;
+ if (list.length === 1) { const u = list[0], sg = R.unitSig(u), hs = C.heatStatus(u); h += `<p class="vs-sub">放射：ニュートリノ ${fW(sg.nu)} · 赤外 ${fW(sg.ir)} · 電磁 ${fW(sg.em)}</p>${hs ? `<p class="vs-sub">蓄熱 ${Math.round((hs.peak || 0) * 100)}%</p>` : ''}`; }
+ if (em) h += `<p class="note">${VOY_EMIT_NOTE[em]}</p>`;
+ if (foils.length) { const fx = foils.flatMap(u => C.foilState(u) || []), d = fx.length ? fx.reduce((a, x) => a + x.d, 0) / fx.length : 0, jam = fx.filter(x => x.jam).length;
+  h += `<p class="vs-sub">Sフォイル</p><div class="vs-acts">${VOY_FOIL.map(([k, n]) => `<button type="button" class="btn sm${fm === k ? ' on' : ''}" data-vfoil="${k}">${n}</button>`).join('')}</div><p class="vs-sub">展開 ${Math.round(d * 100)}%${jam ? ` · 固着 ${jam} 基` : ''}</p>`; }
+ return h;
+}
+// What our side knows of an enemy ship (SENS-003/004): its stage, and the estimated position and its error.
+const voyStage = u => R.contactStage(voy.w, 0, u), voyContact = u => R.contactOf(voy.w, 0, u.id);
+function voyFoeName(u) { const st = voyStage(u); return st >= 5 ? u.name : `未識別（${C.SENS.stages[st]}）`; }
 // v21 Superweapons of the ships chosen: each one's state, whether they may fire on their own, and for the
 // composite beam a held beam or one pulse.
 const VOY_SW_STATE = {charge: '充電中', ready: '発射可', beam: '照射中', cool: '過負荷・冷却中', down: '使用不能'};
@@ -9318,7 +9888,7 @@ function voyTgTacCard(g) {
  return `<div class="vs-card">${voyCrumbs(c, null)}<div class="vs-head"><h3>${esc(g.name)}</h3><span>${ms.length} 隻 · ${esc(R.formationName(w, g.formation))}</span></div>
   <p class="vs-state${g.spool?.blocked ? ' bad' : g.spool ? ' warn' : ''}">${esc(g.spool ? voyTgStatus(g) : voyGroupOrderText(g))}</p>
   <div class="vs-list"><ul>${ms.map(voyShipRow).join('')}</ul></div>${voyDisabledHTML(R.groupDisabled(w, g).filter(u => u.sys === sys))}
-  <p class="vs-sub">任務群への命令</p>${voyOrderButtons('tg', g.order.type)}${voyFormHTML(g.formation, [g])}${voyPowerAimHTML(ms)}${voySwHTML(ms)}
+  <p class="vs-sub">任務群への命令</p>${voyOrderButtons('tg', g.order.type)}${voyFormHTML(g.formation, [g])}${voyPowerAimHTML(ms)}${voySwHTML(ms)}${voySensHTML(ms)}
   ${trac.length ? voyTractorHTML(trac) : ''}
   ${indiv.length ? `<div class="vs-acts"><p class="vs-sub">${indiv.length} 隻が個別の命令で行動中</p><button type="button" class="btn sm ghost" data-vact="rejoin">任務群に戻す</button></div>` : ''}
   ${g.spool ? '<p class="note">離脱にはリアクターの全出力が要ります。準備中は砲撃できず、被弾している間は準備が止まります（距離を取りながら準備します）。</p>' : ''}</div>`;
@@ -9328,7 +9898,7 @@ function voyCtgTacCard(c) {
  const heldC = gs.flatMap(g => R.groupDisabled(w, g));
  return `<div class="vs-card"><div class="vs-head"><h3>${esc(c.name)}</h3><span>${gs.length} 個任務群 · ${ms.length} 隻</span></div>
   <ul class="vs-tree">${gs.map(g => voyTgRow(g, sys)).join('')}</ul>${heldC.length ? voyDisabledHTML(heldC) : ''}
-  <p class="vs-sub">合同任務群への命令（全任務群）</p>${voyOrderButtons('ctg', voyCommon(gs, g => g.order.type))}${voyFormHTML(voyCommon(gs, g => g.formation), gs)}${voyPowerAimHTML(ms)}
+  <p class="vs-sub">合同任務群への命令（全任務群）</p>${voyOrderButtons('ctg', voyCommon(gs, g => g.order.type))}${voyFormHTML(voyCommon(gs, g => g.formation), gs)}${voyPowerAimHTML(ms)}${voySensHTML(ms)}
   ${trac.length ? voyTractorHTML(trac) : ''}
   <p class="note">移動を命じると、任務群は進路を横切る線上に並んで進みます。</p></div>`;
 }
@@ -9336,7 +9906,7 @@ function voyShipCard(sel) {
  const w = voy.w, u = sel[0], one = sel.length === 1, g = w.groups.get(u.group), c = g && R.ctgOf(w, g), sx = C.fleetSystems(u), lost = (u.p.modules || []).map((m, i) => u.mods[i] <= 0 && m.k !== 'hull' ? m.name : null).filter(Boolean), trac = sel.filter(x => x.p.trac > 0 && !x.out);
  return `<div class="vs-card">${voyCrumbs(c, g)}<div class="vs-head"><h3>${one ? esc(u.name) : `${sel.length} 隻を選択`}</h3><span>${esc(voyUnitState(u))}</span></div>
   ${one ? `<p class="vs-sub">${voyCrewHTML(u)}${crewShare(u) != null ? `（${num(Math.round(u.crew || 0))} / ${num(Math.round(u.p.crewMax ?? u.p.crewNeed))} 名）` : ''} · シールド ${Math.round(u.shield / Math.max(1, u.shieldMax) * 100)}%${u.bankMax > 0 ? ` · 蓄電 ${Math.round(u.bank / u.bankMax * 100)}%` : ''} · 装甲 ${Math.round(u.armor * 100)}% · 炉 ${Math.round(sx.reactor * 100)}% · 推進 ${Math.round(sx.engine * 100)}% · 兵装 ${Math.round(sx.weapon * 100)}%</p><div class="vs-status">${armourFacesHTML(u)}${powerSplitHTML(u)}${statusFlagsHTML(u)}</div>${lost.length ? `<p class="vs-sub bad">損傷：${esc([...new Set(lost)].slice(0, 6).join('・'))}${lost.length > 6 ? ' ほか' : ''}</p>` : ''}<p class="vs-sub">${esc(voyNeedText(u))} · 補給線 ${voySupplyLine(u.sys)}${w.battles.has(u.sys) && u.supplyNeed?.total ? '（戦闘中は補給できません）' : ''}</p>${voyHitLogHTML(u)}` : ''}
-  <p class="vs-sub">${one ? 'この艦' : '選んだ艦'}への命令</p>${voyOrderButtons('ship', voyCommon(sel, x => x.order.type))}${voyPowerAimHTML(sel)}${voySwHTML(sel)}
+  <p class="vs-sub">${one ? 'この艦' : '選んだ艦'}への命令</p>${voyOrderButtons('ship', voyCommon(sel, x => x.order.type))}${voyPowerAimHTML(sel)}${voySwHTML(sel)}${voySensHTML(sel)}
   ${trac.length ? voyTractorHTML(trac) : ''}${one && u.out ? voyDisabledHTML([u], false) : ''}${one ? voyCarriedTacHTML(u) : ''}
   ${one && !u.out ? `<button type="button" class="btn primary vs-pilot" data-vpilot="${u.id}">この艦を3Dで操艦</button>` : ''}${one ? `<button type="button" class="btn sm ghost vs-pilot" data-vspectate="${voy.tac.sys}" data-vfollow="${u.id}">${voy3D() ? '3D視点でこの艦を追う' : 'この艦を追って観戦'}</button>` : ''}</div>`;
 }
@@ -9346,9 +9916,11 @@ function voyCarriedTacHTML(u) {
  return `<p class="vs-sub">搭載艦：艦内 ${aboard.length} 隻 · 発進中 ${out.length} 隻${u.holdCarried ? '（戦闘でも艦内に待機）' : ''}</p><div class="vs-acts">${aboard.length ? `<button type="button" class="btn sm" data-vcarry="launch:${u.id}">搭載艦を発進</button>` : ''}${out.length ? `<button type="button" class="btn sm" data-vcarry="recover:${u.id}">搭載艦を収容（${Math.round(R.RULES.carryRange / 1000)} km 以内）</button>` : ''}</div>`;
 }
 function voyFoeCard(fs) {
- const s = voyTacSel(), towers = fs.out && !(fs.shield > 1) ? voyTowers(fs) : [];
- return `<div class="vs-card foe"><div class="vs-head"><h3>敵 ${esc(fs.name)}</h3><span>${esc(voyUnitState(fs))}</span></div><p class="vs-sub">シールド ${fs.shieldMax > 0 ? Math.round(fs.shield / fs.shieldMax * 100) + '%' : 'なし'}</p><div class="vs-status">${statusFlagsHTML(fs)}</div>${voyHitLogHTML(fs)}
-  <div class="vs-acts">${s.kind && !fs.out ? `<button type="button" class="btn sm" data-vact="attackfoe">${s.kind === 'ship' ? '選んだ艦で攻撃' : s.kind === 'tg' ? '任務群で攻撃' : '合同任務群で攻撃'}</button>` : ''}${towers.length ? `<button type="button" class="btn sm" data-vtrq="capture:${fs.id}">拿捕する（${esc(towers[0].name)}）</button>` : ''}<button type="button" class="btn sm ghost" data-vspectate="${voy.tac.sys}" data-vfollow="${fs.id}">${voy3D() ? '3D視点で追う' : '追って観戦'}</button><button type="button" class="btn sm ghost" data-vact="nofoe">閉じる</button></div></div>`;
+ const s = voyTacSel(), towers = fs.out && !(fs.shield > 1) ? voyTowers(fs) : [], st = voyStage(fs), ct = voyContact(fs), idd = st >= 5;
+ // v25 an enemy is known only as far as our sensors have got: its stage, its position error, and its state once identified
+ const sens = `<p class="vs-sub">探知段階：${C.SENS.stages[st]}${ct && Number.isFinite(ct.err) ? ` · 位置誤差 ±${ct.err >= 1000 ? (ct.err / 1000).toFixed(1) + ' km' : Math.round(ct.err) + ' m'}` : ''}</p>`;
+ return `<div class="vs-card foe"><div class="vs-head"><h3>敵 ${esc(voyFoeName(fs))}</h3><span>${idd ? esc(voyUnitState(fs)) : ''}</span></div>${sens}${idd ? `<p class="vs-sub">シールド ${fs.shieldMax > 0 ? Math.round(fs.shield / fs.shieldMax * 100) + '%' : 'なし'}</p><div class="vs-status">${statusFlagsHTML(fs)}</div>${voyHitLogHTML(fs)}` : ''}
+  <div class="vs-acts">${s.kind && !fs.out && st >= 3 ? `<button type="button" class="btn sm" data-vact="attackfoe">${s.kind === 'ship' ? '選んだ艦で攻撃' : s.kind === 'tg' ? '任務群で攻撃' : '合同任務群で攻撃'}</button>` : ''}${towers.length ? `<button type="button" class="btn sm" data-vtrq="capture:${fs.id}">拿捕する（${esc(towers[0].name)}）</button>` : ''}<button type="button" class="btn sm ghost" data-vspectate="${voy.tac.sys}" data-vfollow="${fs.id}">${voy3D() ? '3D視点で追う' : '追って観戦'}</button><button type="button" class="btn sm ghost" data-vact="nofoe">閉じる</button></div></div>`;
 }
 function voyTacSide() {
  const w = voy.w, sys = voy.tac.sys, us = R.systemUnits(w, sys), foes = us.filter(u => u.side !== 0), tab = voy.tab;
@@ -9362,13 +9934,13 @@ function voyTacSide() {
   if (s.kind === 'ship') body += voyShipCard(s.units);else if (s.kind === 'tg') body += voyTgTacCard(s.g);else if (s.kind === 'ctg') body += voyCtgTacCard(s.c);
   else body += '<p class="vs-sub">命令する部隊を選んでください。地図の艦をタップすると、1回目でその任務群、2回目でその艦を選びます。</p>';
   body += `<div class="vs-card vs-list"><h3>自軍</h3>${voyForceTree(sys)}</div>
-  <div class="vs-card vs-list"><h3>敵艦</h3><ul>${foes.map(u => `<li class="foe${voy.sel.foe === u.id ? ' on' : ''}"><button type="button" data-vfoe="${u.id}"><b>${esc(u.name)}</b><small>${u.shieldMax > 0 ? `シールド ${Math.round(u.shield / u.shieldMax * 100)}%` : ''}</small><span>${esc(voyUnitState(u))}</span></button></li>`).join('') || '<li class="muted">敵艦はいません</li>'}</ul></div>`;
+  <div class="vs-card vs-list"><h3>敵艦</h3><ul>${foes.filter(u => voyStage(u) >= 1).sort((a, b) => voyStage(b) - voyStage(a)).map(u => { const idd = voyStage(u) >= 5; return `<li class="foe${voy.sel.foe === u.id ? ' on' : ''}"><button type="button" data-vfoe="${u.id}"><b>${esc(voyFoeName(u))}</b><small>${idd && u.shieldMax > 0 ? `シールド ${Math.round(u.shield / u.shieldMax * 100)}%` : ''}</small><span>${idd ? esc(voyUnitState(u)) : ''}</span></button></li>`; }).join('') || (foes.length ? '<li class="muted">敵艦は探知されていません</li>' : '<li class="muted">敵艦はいません</li>')}</ul></div>`;
  } else if (tab === 'wings') {
   const wings = [...w.wings.values()].filter(x => x.side === 0 && (x.raid?.phase === 'strike' && x.raid.to === sys || w.units.get(x.home)?.sys === sys && R.alive(w.units.get(x.home))));
   const wsel = voy.sel.wing && w.wings.get(voy.sel.wing);
   if (wsel) { const o = wsel.order, t = o.target && w.units.get(o.target);
    const hm = w.units.get(wsel.home), waitN = wsel.squads.filter(id => w.squads.get(id)?.wait === 'ctl' && w.squads.get(id)?.state === 'docked').length;
-   body += `<div class="vs-card"><div class="vs-head"><h3>${esc(wsel.name)}</h3><span>${esc(R.WING_PHASE[wsel.phase] || '')}</span></div><p class="vs-state">${esc(voyWingOrderText(wsel))}</p>${hm && R.alive(hm) && hm.sys === sys ? `<p class="vs-sub">母艦の航空管制 ${esc(voyCtlText(w, hm))}${waitN ? ` · ${waitN} 中隊が管制容量待ち` : ''}</p>` : ''}${wsel.raid ? `<div class="vs-acts">${wsel.raid.recall ? '' : `<button type="button" class="btn sm" data-vraidback="${wsel.id}">帰還させる</button>`}</div>` : `<div class="vs-acts">${[['auto', '自動'], ['standby', '待機・帰還']].map(([k, n]) => `<button type="button" class="btn sm${o.type === k ? ' on' : ''}" data-vwing="${k}">${n}</button>`).join('')}<button type="button" class="btn sm${voy.cmd?.type === 'strike' ? ' on' : ''}" data-vact="cmd:strike">攻撃</button><button type="button" class="btn sm${voy.cmd?.type === 'cap' ? ' on' : ''}" data-vact="cmd:cap">制空</button><button type="button" class="btn sm${voy.cmd?.type === 'escort' ? ' on' : ''}" data-vact="cmd:escort">直掩</button></div>${R.wingHyper(w, wsel) != null ? '<p class="note">この飛行隊は全機ハイパードライブ搭載です。作戦図で星系をタップすると、別の星系への航空攻撃に出せます。</p>' : ''}`}
+   body += `<div class="vs-card"><div class="vs-head"><h3>${esc(wsel.name)}</h3><span>${esc(R.WING_PHASE[wsel.phase] || '')}</span></div><p class="vs-state">${esc(voyWingOrderText(wsel))}</p>${(() => { const sq = wsel.squads.map(id => w.squads.get(id)).filter(q => q && q.state === 'out' && q.n > 0); if (!sq.length) return ''; const hq = Math.max(...sq.map(q => q.heat || 0)); return `<p class="vs-sub">蓄熱 ${Math.round(hq * 100)}%</p>${hq >= C.CRAFT_HEAT.throttleAt ? '<p class="note warn">蓄熱が限界に近く、射撃を抑えています。</p>' : ''}`; })()}${hm && R.alive(hm) && hm.sys === sys ? `<p class="vs-sub">母艦の航空管制 ${esc(voyCtlText(w, hm))}${waitN ? ` · ${waitN} 中隊が管制容量待ち` : ''}</p>` : ''}${wsel.raid ? `<div class="vs-acts">${wsel.raid.recall ? '' : `<button type="button" class="btn sm" data-vraidback="${wsel.id}">帰還させる</button>`}</div>` : `<div class="vs-acts">${[['auto', '自動'], ['standby', '待機・帰還']].map(([k, n]) => `<button type="button" class="btn sm${o.type === k ? ' on' : ''}" data-vwing="${k}">${n}</button>`).join('')}<button type="button" class="btn sm${voy.cmd?.type === 'strike' ? ' on' : ''}" data-vact="cmd:strike">攻撃</button><button type="button" class="btn sm${voy.cmd?.type === 'cap' ? ' on' : ''}" data-vact="cmd:cap">制空</button><button type="button" class="btn sm${voy.cmd?.type === 'escort' ? ' on' : ''}" data-vact="cmd:escort">直掩</button></div>${R.wingHyper(w, wsel) != null ? '<p class="note">この飛行隊は全機ハイパードライブ搭載です。作戦図で星系をタップすると、別の星系への航空攻撃に出せます。</p>' : ''}`}
    ${o.type === 'strike' && t ? `<p class="vs-sub">進入方向（${esc(t.name)} から見て）</p><div class="vs-acts">${Object.entries(R.APPROACH_NAME).map(([k, n]) => `<button type="button" class="btn sm${o.approach === k ? ' on' : ''}" data-vappr="${k}">${n}</button>`).join('')}</div><p class="note">対空火力が最も弱いのは「${esc(R.APPROACH_NAME[voyWeakArc(t)])}」方向です。</p>` : ''}<p class="note">艦載機はすべて飛行隊単位で発艦・集合・進撃・攻撃・帰還します。地図の飛行隊の印をタップしても選べます。</p></div>`; }
   // v23 each carrier's air control in use (R.airCtlOf): squadrons out / squadrons it can direct at once
   const ctl = [...new Set(wings.map(x => x.home))].map(id => w.units.get(id)).filter(u => u && R.alive(u) && u.sys === sys).map(u => voyCtlText(w, u, true)).join('・');
@@ -9484,7 +10056,7 @@ function voySidebarClick(e) {
  if (d.vtab) { voy.tab = d.vtab; voy.cmd = null; voyRenderSide(); return; }
  if (d.vunit && ['guard', 'escort', 'tow'].includes(voy.cmd?.type) && voyTapUnit(w.units.get(d.vunit))) return;
  if (d.vunit) { const id = d.vunit, u = w.units.get(id);voy.sel.foe = null; if (e.shiftKey || voy.multi) { const i = voy.sel.units.indexOf(id); if (i >= 0) voy.sel.units.splice(i, 1); else voy.sel.units.push(id); } else { voySelect({group: u?.group}); voy.sel.units = [id]; } if (u) voyCenterTac(u.pos, false); voyRenderSide(); return; }
- if (d.vfoe) { const u = w.units.get(d.vfoe); if (u) voyCenterTac(u.pos, false); if (['attack', 'strike', 'capture'].includes(voy.cmd?.type)) voyTapUnit(u); else { voy.sel.foe = d.vfoe; voyRenderSide(); } return; }
+ if (d.vfoe) { const u = w.units.get(d.vfoe); if (u) voyCenterTac(voyStage(u) >= 4 ? u.pos : voyContact(u)?.est || u.pos, false); if (['attack', 'strike', 'capture'].includes(voy.cmd?.type)) voyTapUnit(u); else { voy.sel.foe = d.vfoe; voyRenderSide(); } return; }
  if (d.vord) { voyApply({type: d.vord}); voy.cmd = null; voyRenderSide(); return; }
  if (d.vform) { const tp = d.vform.startsWith('tpl:') ? voyFormStore().find(t => 'tpl:' + t.id === d.vform) : null; if (d.vform.startsWith('tpl:') && !tp) return; voyApply(tp ? {template: tp, formation: d.vform} : {formation: d.vform}); voyRenderSide(); return; }
  // v24 task force movement: course changes, how to turn, speed, the formation chosen by the AI
@@ -9493,6 +10065,8 @@ function voySidebarClick(e) {
  if (d.vspd) { voyApply({speed: d.vspd}); voyRenderSide(); return; }
  if (d.vautoform != null) { voyApply({autoForm: d.vautoform === '1'}); voyRenderSide(); return; }
  if (d.vpow) { voyApply({power: d.vpow}); voyRenderSide(); return; }
+ if (d.vemit) { voyApply({emit: d.vemit}); voyRenderSide(); return; }
+ if (d.vfoil) { voyApply({foil: d.vfoil}); voyRenderSide(); return; }
  if (d.vvol) { voyApply({volley: d.vvol}); voyRenderSide(); return; }
  if (d.vsw) { const s = voyTacSel(), sys = voy.tac.sys, list = voySwShips(s.kind === 'ship' ? s.units : (s.kind === 'tg' ? [s.g] : s.kind === 'ctg' ? voyCtgGroups(s.c) : []).flatMap(g => g.units.map(id => w.units.get(id))).filter(u => u && R.alive(u) && u.sys === sys));
   if (d.vsw === 'free' || d.vsw === 'hold') { for (const u of list) R.orderUnit(w, u.id, {sw: d.vsw === 'free'}); toast(d.vsw === 'free' ? '超兵器：自由発射' : '超兵器：発射待機'); }
@@ -9514,7 +10088,7 @@ function voyCenterTac(p, force) { const c = $('#voyMap'), r = c.getBoundingClien
 function voyTapUnit(u) {
  const w = voy.w, cmd = voy.cmd;if (!u) return false;
  if (cmd?.type === 'attack' && u.side !== 0) { voyApplyAttack(u); voy.cmd = null; voyRenderSide(); return true; }
- if (cmd?.type === 'strike' && u.side !== 0 && voy.sel.wing) { R.orderWing(w, voy.sel.wing, {type: 'strike', target: u.id, approach: voyWeakArc(u)}); voy.cmd = null; voy.tab = 'wings'; toast(`${esc(w.wings.get(voy.sel.wing).name)}：${esc(u.name)}を攻撃（進入方向は飛行隊の一覧で変えられます）`); voyRenderSide(); return true; }
+ if (cmd?.type === 'strike' && u.side !== 0 && voy.sel.wing) { R.orderWing(w, voy.sel.wing, {type: 'strike', target: u.id, approach: voyWeakArc(u)}); voy.cmd = null; voy.tab = 'wings'; toast(`${esc(w.wings.get(voy.sel.wing).name)}：${esc(voyFoeName(u))}を攻撃（進入方向は飛行隊の一覧で変えられます）`); voyRenderSide(); return true; }
  if (cmd?.type === 'guard' && u.side === 0) { const s = voyTacSel(), own = s.kind === 'ship' ? s.units.map(x => x.id) : s.g ? s.g.units : []; if (s.kind === 'ship' && own.length === 1 && own[0] === u.id) { toast('護衛する相手には別の艦を選んでください'); return true; } if (s.kind === 'ship') for (const id of own) if (id !== u.id) R.orderUnit(w, id, {type: 'escort', target: u.id}); if (s.kind === 'tg' && !R.orderGroup(w, s.g.id, {type: 'escort', target: u.id})) { toast('自分の任務群の艦は護衛の相手にできません（艦ごとに命令してください）'); return true; } if (s.kind === 'ctg') R.orderCtg(w, s.c.id, {type: 'escort', target: u.id}); toast(`${esc(u.name)}を護衛`); voy.cmd = null; voyRenderSide(); return true; }
  if (cmd?.type === 'escort' && u.side === 0 && voy.sel.wing) { R.orderWing(w, voy.sel.wing, {type: 'escort', target: u.id}); voy.cmd = null; voyRenderSide(); return true; }
  if (cmd?.type === 'tow' && u.side === 0 || cmd?.type === 'capture' && u.side !== 0) { voyTractorOrder(cmd.type, u, voySelUnits(voyTacSel()).filter(x => x.p.trac > 0)); voy.cmd = null; voyRenderSide(); return true; }
@@ -9546,7 +10120,8 @@ function voyMapTap(x, y) {
  }
  // tactical
  const us = R.systemUnits(w, voy.tac.sys).filter(u => !R.pendingWarp(u));let hit = null, hd = 22;
- for (const u of us) { const p = tacP(u.pos, W, H), L = Math.max(9, u.p.len / voy.tac.mpp), dd = Math.hypot(p[0] - x, p[1] - y) - L * .5; if (dd < hd) { hd = dd; hit = u; } }
+ // v25 enemy ships are where our sensors put them (and not there at all until found)
+ for (const u of us) { const stg = u.side === 0 ? 6 : voyStage(u); if (!stg) continue; const p = tacP(stg >= 4 ? u.pos : voyContact(u)?.est || u.pos, W, H), L = stg >= 4 ? Math.max(9, u.p.len / voy.tac.mpp) : 10, dd = Math.hypot(p[0] - x, p[1] - y) - L * .5; if (dd < hd) { hd = dd; hit = u; } }
  let wing = null, wd = 16;if (!voy.cmd || voy.cmd.type === 'strike' || voy.cmd.type === 'cap' || voy.cmd.type === 'escort') for (const m of voy.tacWings || []) { const dd = Math.hypot(m.x - x, m.y - y); if (dd < wd) { wd = dd; wing = m.id; } }
  if (wing && !voy.cmd && (!hit || wd < 7 || wd < hd)) { voy.sel.wing = wing; voy.tab = 'wings'; voyRenderSide(); return; }
  if (hit && voyTapUnit(hit)) return;
@@ -10955,7 +11530,7 @@ window.addEventListener('ks-language-change',()=>{
  for(const k of Object.keys(GMAP))if(GMAP[k].root?.isConnected)gmApply(k);
  if(voy.screen==='setup' && !document.activeElement?.matches('[data-obname]')){voyRenderSetup();if(voy.setup?.editing)voyOrbatSheet();}
 });
-function bindVoyage() { voyBindSetup(); voyBindMap(); document.addEventListener('click', e => { const hb = e.target.closest('[data-vhit],[data-vhitplay],[data-vhitclose]'); if (hb) { if (hb.dataset.vhit) { const [id, i] = hb.dataset.vhit.split(':'); voyHitReplay(id, +i); } else if ('vhitplay' in hb.dataset && voy.replay) voy.replay.t0 = performance.now(); else { $('#voySheet').hidden = true; voy.replay = null; } return; } if (trial.spectate) { const sb = e.target.closest('[data-spec]'); if (sb) { voySpectateCmd(sb.dataset.spec); return; } const mk = e.target.closest('.th-tmark'); if (mk?.dataset.tmark?.startsWith('u')) { voySpectateCmd('follow:' + mk.dataset.tmark.slice(1)); return; } if (mk?.dataset.tmark?.startsWith('q')) { voySpectateCmd('sq:' + mk.dataset.tmark.slice(1)); return; } } const b = e.target.closest('[data-voyopen]'); if (b) { e.preventDefault(); voyOpenWithCurrent(); } }); window.__voy = {voy, R, fed, open: voyOpen, pilot: voyPilot, go: voyGo, spectate: voySpectate, step: voySpectateStep, pilotStep: voyPilotStep, tap: voyMapTap, follow: voySpectateSwitch, tut: voyTutStart, vtut, vtutGo, load: {show: loadShow, hide: loadHide, shots}, fxStep: (dt, n = 1) => { for (let i = 0; i < n; i++) { trialWrecksStep(dt); trialFxStep(dt); } }}; }
+function bindVoyage() { voyDraftLoad().then(d => { if (!voy.setup) voy.draft = d; });voyStorePrime(); voyBindSetup(); voyBindMap(); document.addEventListener('click', e => { const hb = e.target.closest('[data-vhit],[data-vhitplay],[data-vhitclose]'); if (hb) { if (hb.dataset.vhit) { const [id, i] = hb.dataset.vhit.split(':'); voyHitReplay(id, +i); } else if ('vhitplay' in hb.dataset && voy.replay) voy.replay.t0 = performance.now(); else { $('#voySheet').hidden = true; voy.replay = null; } return; } if (trial.spectate) { const sb = e.target.closest('[data-spec]'); if (sb) { voySpectateCmd(sb.dataset.spec); return; } const mk = e.target.closest('.th-tmark'); if (mk?.dataset.tmark?.startsWith('u')) { voySpectateCmd('follow:' + mk.dataset.tmark.slice(1)); return; } if (mk?.dataset.tmark?.startsWith('q')) { voySpectateCmd('sq:' + mk.dataset.tmark.slice(1)); return; } } const b = e.target.closest('[data-voyopen]'); if (b) { e.preventDefault(); voyOpenWithCurrent(); } }); window.__voy = {voy, R, fed, sbox: {of: voyScenarioOf, apply: voyApplyScenario, exportJSON: voyScenarioExport, importJSON: voyScenarioImport, render: voyRenderSetup, start: voyStartBattle, camp: {slots: campSlots, save: campSave}}, open: voyOpen, pilot: voyPilot, go: voyGo, spectate: voySpectate, step: voySpectateStep, pilotStep: voyPilotStep, tap: voyMapTap, follow: voySpectateSwitch, tut: voyTutStart, vtut, vtutGo, load: {show: loadShow, hide: loadHide, shots}, fxStep: (dt, n = 1) => { for (let i = 0; i < n; i++) { trialWrecksStep(dt); trialFxStep(dt); } }}; }
 
 // ============================================================
 // v23 任務 (mission): one fleet of the player's navy kept from one
@@ -11226,7 +11801,7 @@ function msEditorHeadHTML(st) {
  const all = voyObShips(st.ob), t = voyShipsTotals(all), dock = all.filter(sh => sh.dock).length;
  return `<section class="voy-card voy-wide ms-edit-head"><div class="voy-card-head"><h3>${esc(R.FACTIONS[st.faction].name)}の艦隊</h3><div class="voy-row">${st.started ? '' : `<label>陣営<select data-msnfac aria-label="陣営">${msFactionOptions(st.faction)}</select></label><button type="button" class="btn sm ghost" data-msn="auto">お任せ編成で作り直す</button>`}<button type="button" class="btn sm" data-voy="ctgadd">合同任務群を追加</button></div></div>
   <p class="note">${st.started ? `母港は${esc(msSysName(st.home))}。修理中・改装中・就役準備中・回航中の艦は出撃できません（残り時間を表示）。新しく加えた艦は就役準備のあとに、別の星系にいる任務群へ移した艦は回航を終えてから出撃できます。` : `${msEraName(st.era)}。敵は${esc(R.FACTIONS[st.foe].name)}、母港は${esc(msSysName(st.home))}。「編成完了」で銀河図に出ます。`}任務群は${TG_MIN}〜${TG_MAX}隻、パトロールには任務群ひとつで出ます。艦名は自由に変えられます。編成は任務の保存データに記録されます。</p>
-  <p class="vs-sub">${msSeg(`${all.length} 隻 · 出撃可 ${all.length - dock} 隻${dock ? ` · ドック・回航 ${dock} 隻` : ''} · 乗員 ${num(t.people)} 名 · 資材 ${num(Math.round(t.supply))} t`)}</p></section>`;
+  <p class="vs-sub">${msSeg(`${all.length} 隻 · 出撃可 ${all.length - dock} 隻${dock ? ` · ドック・回航 ${dock} 隻` : ''} · 乗員 ${num(t.people)} 名 · 資材 ${num(Math.round(t.supply))} t`)}</p>${voyCostLine(voyFleetCost(all))}</section>`;
 }
 // The order of battle screen as the mission shows it: its own head, where each task group is, and the ships in dock.
 function msDecorateEditor() {
@@ -11253,6 +11828,24 @@ function msEditDone() {
   for (let i = 0; i < MS_RULES.foeFirst; i++) msSpawnFoe(st);
  }
  msSave();$('#voySheet').hidden = true;voyClose();msUI.tab = 'fleet';showTitle('msn');
+}
+
+// ---------- PLAN-018 the campaign's menu shell (PLAN-011 itself comes later) ----------
+// キャンペーン → 初めから / 続きから. The campaign cannot be played yet: 初めから shows what is coming (準備中), and
+// 続きから opens only when a save exists. Saves go to CAMPAIGN_SLOTS slots under CAMP_KEY in R.normalizeCampaign's
+// form (the data interface the campaign's state machine will fill).
+const CAMP_KEY = 'yard.campaign.v1';
+function campSlots() { try { const d = JSON.parse(LS.get(CAMP_KEY) || 'null'); return Array.from({length: R.CAMPAIGN_SLOTS}, (_, i) => { try { return d?.slots?.[i] ? R.normalizeCampaign(d.slots[i]) : null; } catch (e) { return null; } }); } catch (e) { return Array(R.CAMPAIGN_SLOTS).fill(null); } }
+function campSave(slot, st) { const all = campSlots();all[slot] = {...st, saved: Date.now()};return LS.set(CAMP_KEY, JSON.stringify({version: 1, slots: all})); }
+function campTitleRender() {
+ const menu = $('#titleMenu');if (!menu) return;const any = campSlots().some(Boolean), c = menu.querySelector('[data-camp="continue"]');
+ if (c) { c.disabled = !any; const t = $('#campSaved'); if (t) t.textContent = any ? '保存したキャンペーンを読み込む（準備中）' : '保存されたキャンペーンはありません'; }
+}
+function campPanelHTML() {
+ return `<div class="tpanel-head"><h2>キャンペーン（準備中）</h2><button type="button" class="btn ghost sm" data-title-back>戻る</button></div>
+ <p class="note">キャンペーンはまだ遊べません。24 BBY、司法軍の実験任務群に着任するところから始まり、艦隊戦・地上戦・設計・編成・補給・予算要求までを序盤の物語で一巡する予定です。</p>
+ <ol class="camp-plan"><li>司法軍実験任務群への着任と3D操艦</li><li>第55任務群との4対4模擬戦・艦載機</li><li>基地への入港・補給・演習の結果</li><li>議長特別予算によるドレッドノート改修</li><li>境界宙域の哨戒とミュニフィセント級の拿捕</li><li>新造艦の設計と予算査定</li></ol>
+ <p class="note">それまでは「サンドボックス」の任務と設計をお使いください。</p>`;
 }
 
 // ---------- the galaxy map ----------

@@ -1247,6 +1247,22 @@ button.ed-row:hover,.ed-grp .ed-pick:hover{background:var(--cyan-soft)}
 .fleet-active .inspbar,body.trial-on .inspbar,body.shot-mode .inspbar{display:none!important}
 @container ks (max-width:600px){.ib-c.ib-info{display:none}}
 @container ks (orientation:landscape) and (max-height:560px){.ib-head{min-height:32px;padding-block:2px}.ib-sum{display:none}.inspbar.open{max-height:55%}}
+/* v13 SBOX/PLAN-002 sandbox fleet editor: both sides, costs, scenario tab; PLAN-018 campaign shell */
+.ob-sides{display:flex;width:100%}.ob-sides button{flex:1 1 0;display:grid;gap:1px;text-align:center;min-height:42px}.ob-sides button small{font-weight:500;font-size:11px;opacity:.85}
+.ob-cost{display:flex;flex-wrap:wrap;gap:2px 10px;align-items:baseline}.ob-cost span{font:600 13px var(--font-mono);color:var(--accent)}.ob-cost small{font-size:11px;color:var(--muted)}
+.ob-tgcost{font:500 11px var(--font-mono);color:var(--muted);white-space:nowrap}
+.ob-lib{border-top:1px dashed var(--line);padding-top:6px}.ob-lib summary{cursor:pointer;font-size:12.5px;color:var(--cyan);min-height:30px;display:flex;align-items:center}.ob-lib>.voy-row{margin:6px 0}.ob-libname,.sc-name{font:13px var(--font-ui);color:var(--fg);background:var(--panel-2);border:1px solid var(--line-2);border-radius:6px;padding:6px 8px;min-width:0;flex:1 1 160px}
+.ob-lib select,.voy-card select[data-scpick]{flex:1 1 180px;min-width:0;max-width:100%}
+.ob-auto{list-style:none;margin:0;padding:0;display:grid;gap:4px}.ob-auto li{display:grid;gap:1px;padding:4px 0;border-top:1px dashed var(--line)}.ob-auto small{font-size:11px;color:var(--muted)}
+.vo-cost{flex:1 1 100%;font:500 11px var(--font-mono);color:var(--muted)}
+.vo-costs{margin-top:3px}.vo-costs summary{cursor:pointer;font:600 12.5px var(--font-mono);color:var(--accent)}.vo-costby{list-style:none;margin:6px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:2px 12px}.vo-costby li{display:flex;justify-content:space-between;gap:8px;font-size:12px}.vo-costby span{color:var(--muted)}.vo-costby b{font-family:var(--font-mono);font-weight:600}
+.voy-setup.scenario .sc-side{grid-column:1/-1}
+.sc-dep{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:6px}.sc-tg{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:flex-end;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--panel-2);min-width:0}.sc-tg>b{flex:1 1 100%;font-size:12.5px}
+.sc-tg label{display:grid;gap:2px;font-size:10.5px;color:var(--muted)}.sc-tg select{max-width:150px}.sc-tg input{width:76px}
+.sc-check{display:flex!important;align-items:center;gap:6px!important;font-size:12.5px!important;color:var(--fg)!important;min-height:32px}
+.sc-file{position:relative;cursor:pointer;display:inline-flex;align-items:center}
+.sc-paste summary{cursor:pointer;font-size:12.5px;color:var(--cyan);min-height:30px;display:flex;align-items:center}.sc-paste textarea{width:100%;box-sizing:border-box;font:12px var(--font-mono);background:var(--panel-2);color:var(--fg);border:1px solid var(--line-2);border-radius:6px;margin:4px 0}
+.camp-plan{margin:4px 0 8px 1.2em;padding:0;font-size:13px;color:var(--fg);display:grid;gap:3px}
 </style>
 <script>
 /* v15.3 Phones show the game sideways however they are held. With the page
@@ -1338,23 +1354,33 @@ button.ed-row:hover,.ed-grp .ed-pick:hover{background:var(--cyan-soft)}
     </header>
     <div class="title-body">
       <nav class="title-menu" id="titleMenu" aria-label="開始メニュー">
+        <!-- v13 PLAN-018 Two branches at the top: the sandbox (missions and design, free of campaign rules) and the campaign. -->
         <div class="tmenu-group" data-tgroup="top">
+          <button type="button" class="tmenu tbig" data-title-mode="sandbox" disabled><b>サンドボックス</b><span>自由に設計し、艦隊を編成して戦う（任務・設計）</span></button>
+          <button type="button" class="tmenu tbig" data-title-mode="campaign" disabled><b>キャンペーン</b><span>24 BBY、司法軍の実験任務群から始まる物語（準備中）</span></button>
+        </div>
+        <div class="tmenu-group" data-tgroup="sandbox" hidden>
+          <button type="button" class="tmenu tback" data-title-mode="top"><b>← サンドボックス</b><span>メニューに戻る</span></button>
+          <button type="button" class="tmenu tbig" data-title-mode="voyage" disabled><b>任務</b><span>艦隊を編成して銀河を巡回し、敵艦隊と戦う（損傷艦は修理、撃沈艦は失われる）。両軍を自由に組む艦隊戦も</span></button>
           <button type="button" class="tmenu tbig" data-title-mode="design" disabled><b>設計</b><span>艦を設計・編集する（新規設計・下書き・設計図・チュートリアル）</span></button>
-          <button type="button" class="tmenu tbig" data-title-mode="voyage" disabled><b>任務</b><span>艦隊を編成して銀河を巡回し、敵艦隊と戦う（損傷艦は修理、撃沈艦は失われる）。自由に組む艦隊戦も</span></button>
-          <button type="button" class="tmenu tbig tsoon" data-title-soon disabled aria-disabled="true"><b>キャンペーン</b><span>今後実装予定</span></button>
+        </div>
+        <div class="tmenu-group" data-tgroup="campaign" hidden>
+          <button type="button" class="tmenu tback" data-title-mode="top"><b>← キャンペーン</b><span>メニューに戻る</span></button>
+          <button type="button" class="tmenu" data-camp="new" disabled><b>初めから</b><span>新しいキャンペーンを始める（準備中）</span></button>
+          <button type="button" class="tmenu" data-camp="continue" disabled><b>続きから</b><span id="campSaved">保存されたキャンペーンはありません</span></button>
         </div>
         <div class="tmenu-group" data-tgroup="design" hidden>
-          <button type="button" class="tmenu tback" data-title-mode="top"><b>← 設計</b><span>メニューに戻る</span></button>
+          <button type="button" class="tmenu tback" data-title-mode="sandbox"><b>← 設計</b><span>メニューに戻る</span></button>
           <button type="button" class="tmenu" data-title="continue" disabled><b>途中から設計</b><span id="titleDraft">保存された下書きを確認中…</span></button>
           <button type="button" class="tmenu" data-title="new" disabled><b>新規設計</b><span>艦種と船体の型・全長を決めて始める</span></button>
           <button type="button" class="tmenu" data-title="load" disabled><b>設計図を読み込む</b><span>保存した設計・ファイル・配置見本から開く</span></button>
           <button type="button" class="tmenu" data-tut="start" disabled><b>チュートリアル</b><span>ごく簡素なインペリアル級を順番に作って操作を覚える</span></button>
         </div>
         <div class="tmenu-group" data-tgroup="voyage" hidden>
-          <button type="button" class="tmenu tback" data-title-mode="top"><b>← 任務</b><span>メニューに戻る</span></button>
+          <button type="button" class="tmenu tback" data-title-mode="sandbox"><b>← 任務</b><span>メニューに戻る</span></button>
           <button type="button" class="tmenu" data-msn="new" disabled><b>初めから</b><span>陣営を選んで艦隊を編成し、母港から任務を始める</span></button>
           <button type="button" class="tmenu" data-msn="continue" disabled><b>続きから</b><span id="msnSaved">保存された任務はありません</span></button>
-          <button type="button" class="tmenu" data-title="fleetbattle" disabled><b>カスタム</b><span>自分で組んだ艦隊で戦域を選んで戦う艦隊戦（単艦パトロールも）</span></button>
+          <button type="button" class="tmenu" data-title="fleetbattle" disabled><b>カスタム</b><span>自軍も敵軍も自由に編成し、配置・AI・勝利条件を決めて戦う艦隊戦。シナリオとして保存・共有できる（単艦パトロールも）</span></button>
           <button type="button" class="tmenu" data-vtut="start" disabled><b>艦隊戦チュートリアル</b><span>小さな艦隊戦で、命令・作戦図と戦術図・補給線・航行不能艦の処置を順に覚える</span></button>
         </div>
       </nav>
@@ -1538,9 +1564,9 @@ button.ed-row:hover,.ed-grp .ed-pick:hover{background:var(--cyan-soft)}
 
 
 <style>.ks-language{display:flex;align-items:center;gap:8px;font-size:12px;padding:6px 0;color:#b7c9d2}.ks-language select{font:inherit;color:#eef4f7;background:#14232c;border:1px solid #34505e;border-radius:6px;padding:6px}.brand,.brand-txt{min-width:0}.brand-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}html[lang=en] #tabs button{font-size:11px}.title-foot{flex-wrap:wrap}</style>
-<script src="js/lang-en.js?v=202eb14acf"></script>
-<script src="js/i18n.js?v=202eb14acf"></script>
-<script>window.KS_FILES={data:["data/reference.js","data/textures.js","data/imperial2.js","data/fleet.js"],core:"js/core.js",gfx:"js/gfx.js",engine:"js/engine.js",app:"js/app.js",worker:"js/worker.js",sizes:{"data/reference.js":6270785,"data/textures.js":2338303,"data/imperial2.js":83602,"data/fleet.js":1712942,"js/core.js":1700842,"js/gfx.js":192328,"js/engine.js":15964,"js/app.js":1336430}};</script>
+<script src="js/lang-en.js?v=321084292d"></script>
+<script src="js/i18n.js?v=321084292d"></script>
+<script>window.KS_FILES={data:["data/reference.js","data/textures.js","data/imperial2.js","data/fleet.js"],core:"js/core.js",gfx:"js/gfx.js",engine:"js/engine.js",app:"js/app.js",worker:"js/worker.js",sizes:{"data/reference.js":6270785,"data/textures.js":2338303,"data/imperial2.js":83602,"data/fleet.js":1712942,"js/core.js":1819560,"js/gfx.js":192594,"js/engine.js":15964,"js/app.js":1426391}};</script>
 <script>
 /* ============================================================
    boot.js — title screen first, then the 3D assets, the engine
