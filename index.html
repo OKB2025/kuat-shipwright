@@ -928,6 +928,11 @@ html[lang="en"] .th-sw{font-size:9px;letter-spacing:-.04em}
 /* v22.3 rows keep their content height (grid-auto-rows): the tab bar clips, so once the panel overflowed it shrank to its border and 部隊／飛行隊／増援／記録 could not be pressed */
 .voy-side{position:absolute;right:var(--gr);top:74px;bottom:12px;width:min(350px,40cqw);overflow:auto;display:grid;align-content:start;grid-auto-rows:max-content;gap:8px;padding-bottom:10px;z-index:2;scrollbar-width:thin}
 .voy-side[hidden]{display:none}
+/* v24 formation editor (FORM-006〜008): a panel in the side panel's place */
+.voy-fed{z-index:45}.fed .fed-cv{width:100%;display:block;border:1px solid var(--hud-line);border-radius:8px;background:rgba(4,18,28,.55);touch-action:none;cursor:pointer}
+.fed-num{display:flex;flex-wrap:wrap;gap:4px 8px}.fed-num label,.fed-name,.fed-base{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--hud-dim)}
+.fed-num input{width:58px}.fed-name input{flex:1;min-width:0}.fed .note.bad{color:#ffb29e}.fed-view{display:flex}.fed-view button{flex:1}
+.fed-json{width:100%;box-sizing:border-box;font:11px ui-monospace,monospace;background:rgba(0,0,0,.35);color:inherit;border:1px solid var(--hud-line);border-radius:6px}
 .vs-card{background:var(--hud-bg);border:1px solid var(--hud-line);border-radius:12px;padding:10px 12px;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);display:grid;gap:6px;min-width:0}
 .vs-card h3{margin:0;font:600 15px var(--font-display);letter-spacing:.06em}.vs-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px}.vs-head span{font-size:11px;color:var(--muted)}
 .vs-where{margin:0;font-size:12.5px}.vs-sub{margin:0;font-size:11px;color:var(--hud-dim)}.vs-sub.bad{color:#ffb29e}.vs-card p{margin:0}.vs-card .foe{color:#ffb29e;font-size:12px}
@@ -1134,6 +1139,37 @@ html[lang="en"] .ob-ord{flex-wrap:wrap}
 .btn.vh-3d{border-color:rgba(240,170,70,.85);color:#ffe2b0;background:rgba(240,160,58,.16);letter-spacing:.06em}
 @container ks (orientation:landscape) and (max-height:560px) {.spec-orders{min-width:100px;min-height:52px;padding:5px 12px;font-size:17px;border-radius:14px}.spec-orders small{font-size:9.5px}#trialHud.spectate .spec-log{max-width:calc(100% - 140px)}.vh-maps button{min-height:26px;padding:1px 9px;font-size:11px}}
 @container ks (orientation:landscape) and (max-height:500px) {#trialHud.spectate .th-btn{min-height:28px;padding:3px 8px;font-size:11px}.spec-log li{font-size:9.5px;padding:1px 6px}.spec-log li:nth-child(n+3){display:none}#trialHud.spectate .th-id b{font-size:13px}#trialHud.spectate .th-id small{font-size:9.5px}}
+/* ---------- v23 任務 (mission): the title's entries, the galaxy map and its menu, the fleet screen's marks, the jump's skip ---------- */
+.tmenu.tsoon:disabled{opacity:.45;cursor:default}.tmenu.tsoon::after{content:none}
+.tmenu[data-msn="continue"]:not(:disabled) b{color:var(--accent)}
+.ms-head .ms-clock{display:grid;justify-items:end;line-height:1.2}.ms-clock span{font-size:10px;color:var(--muted);letter-spacing:.12em}.ms-clock b{font:600 15px var(--font-mono);color:var(--fg);white-space:nowrap}
+.ms-menu{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;position:sticky;top:-10px;z-index:2;padding:2px 0 6px;background:var(--panel)}
+.ms-menu button{min-height:46px;padding:5px 6px;border-radius:9px;border:1px solid var(--line-2);background:rgba(255,255,255,.04);color:var(--fg);font:700 14px/1.2 var(--font-ui);letter-spacing:.05em;display:grid;place-items:center;gap:1px;cursor:pointer;touch-action:manipulation}
+.ms-menu button small{font:500 10px/1.2 var(--font-ui);color:var(--muted);letter-spacing:0}
+.ms-menu button[aria-pressed="true"]{border-color:var(--cyan);background:var(--cyan-soft);color:#e8f8ff}
+.ms-panel{display:grid;gap:8px;align-content:start;min-width:0}.ms-panel h3{margin:6px 0 0}.ms-panel h4{margin:4px 0 0;font-size:12.5px}
+.ms-sum p{margin:0 0 2px;font-size:12.5px;line-height:1.55}.ms-sum b{font-size:14px}
+.ms-list{display:grid;gap:6px}
+.ms-row,.ms-pick{display:grid;gap:2px;text-align:left;width:100%;padding:8px 10px;border-radius:8px;border:1px solid var(--line-2);background:rgba(255,255,255,.03);color:var(--fg);font:inherit;cursor:pointer;touch-action:manipulation}
+.ms-row b,.ms-pick b{font-size:13px}.ms-row span,.ms-pick span{font-size:11.5px;color:var(--muted);line-height:1.45}
+.ms-pick[aria-pressed="true"]{border-color:var(--cyan);background:var(--cyan-soft)}.ms-pick:disabled{opacity:.5;cursor:default}
+.ms-row.foe b,.ms-pick.foe b{color:#ffb9ab}.ms-pick.foe[aria-pressed="true"]{border-color:#ff8a70;background:rgba(255,138,112,.1)}
+.ms-detail{display:grid;gap:7px;padding-top:4px;border-top:1px solid var(--line-2)}
+.ms-ships{margin:0;padding:0;list-style:none;display:grid;gap:2px;font-size:12px}.ms-ships li{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:3px 0;border-bottom:1px dashed var(--line-2)}.ms-ships li small{color:var(--muted);text-align:right}.ms-ships li.dock{opacity:.62}
+.ms-tgpick{display:flex;gap:8px;align-items:flex-start;padding:7px 9px;border:1px solid var(--line-2);border-radius:8px;cursor:pointer}.ms-tgpick input{margin-top:3px;width:18px;height:18px;flex:none}.ms-tgpick span{display:grid;gap:1px}.ms-tgpick b{font-size:12.5px}.ms-tgpick small{color:var(--muted);font-size:11px}
+.ms-go{display:grid;gap:6px}.ms-go .btn{min-height:44px}
+.ms-wait{display:flex;flex-wrap:wrap;gap:6px}.ms-wait .btn{min-height:36px}
+.ms-log{margin:0;padding:0;list-style:none;display:grid;gap:3px;font-size:11.5px;line-height:1.45;color:var(--muted)}.ms-log time{font-family:var(--font-mono);color:var(--dim);margin-right:6px;white-space:nowrap}
+.ms-report{display:grid;gap:5px;padding:9px 11px;border-radius:10px;border:1px solid var(--line-2);background:rgba(104,194,219,.08)}.ms-report.win{border-color:rgba(120,230,160,.6);background:rgba(120,230,160,.07)}.ms-report.lose{border-color:rgba(255,138,112,.6);background:rgba(255,138,112,.07)}
+.ms-report-h{display:flex;justify-content:space-between;align-items:center;gap:8px}.ms-report b.big{font:700 17px var(--font-display);letter-spacing:.1em}.ms-report ul{margin:0;padding-left:16px;font-size:12px;line-height:1.55}
+.ms-mk rect{stroke:#05070c;stroke-width:1}.ms-mk.own rect{fill:#62d6ff}.ms-mk.foe rect{fill:#ff7a64}.ms-mk text{font:700 9px var(--font-mono);text-anchor:middle;fill:#05070c}
+.msn .gm-era-btn{display:none}
+.ms-at{font:600 10.5px var(--font-ui);padding:2px 8px;border-radius:999px;border:1px solid rgba(98,214,255,.45);color:#bfefff;white-space:nowrap;align-self:center}
+.ms-dock{font:600 10.5px var(--font-ui);padding:2px 8px;border-radius:999px;background:rgba(255,184,90,.14);border:1px solid rgba(255,184,90,.5);color:#ffd391;white-space:nowrap;align-self:center}
+.ob-ship.ms-docked>.ob-name{opacity:.7}
+#trialHud .th-skip{position:absolute;left:50%;top:calc(50% - 60px);transform:translateX(-50%);display:grid;justify-items:center;gap:1px;min-height:42px;padding:5px 20px;border-radius:999px;font-weight:700;pointer-events:auto;color:#eaf3ff;border-color:rgba(170,205,255,.75);background:rgba(8,20,48,.86)}#trialHud .th-skip[hidden]{display:none}#trialHud .th-skip small{font-size:10px;font-weight:500;opacity:.8}
+@container ks (max-width:640px){#trialHud .th-skip{top:calc(50% + 104px)}}
+@container ks (orientation:landscape) and (max-height:560px){.ms-head .ms-clock b{font-size:13px}.ms-clock span{display:none}.ms-menu button{min-height:40px;font-size:13px}#trialHud .th-skip{top:calc(50% + 50px);min-height:36px;padding:3px 16px}}
 /* v20 The app covers the whole screen, the safe areas too. The frame pads the root by the
    insets, which left the home indicator's strip black under the 3D view; the body now spans
    the screen and the controls keep clear of the insets themselves (--sa-*). */
@@ -1147,6 +1183,70 @@ html:not(.ks-rot) body{position:fixed;inset:0;width:auto;height:auto}
 .tactical-active .hudbottom{bottom:calc(135px + var(--sa-bottom,0px))}
 body.tut-on .inspect{bottom:calc(70px + var(--sa-bottom,0px))}
 @container ks (orientation: landscape) and (max-height: 560px) {.hudbottom{bottom:calc(6px + var(--sa-bottom,0px))}.panel{padding-bottom:calc(14px + var(--sa-bottom,0px))}}
+/* ---- BUG-001 title footer: 音の設定 and the other footer controls are real buttons of the top bar's height (36 px) ---- */
+.title-foot .title-credit:not(.title-land){display:inline-flex}
+.title-foot .title-credit{align-items:center;gap:6px;min-height:36px;padding:0 12px;border:1px solid var(--line-2);border-radius:8px;background:var(--raise);color:var(--fg);text-decoration:none;font-size:13px;font-weight:600;cursor:pointer}
+@media (pointer:coarse){.title-foot .title-credit.title-land{display:inline-flex}}
+.title-foot .title-credit:hover{border-color:var(--cyan);color:var(--cyan)}
+.title-foot .title-credit svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.title-foot .ks-language select{min-height:36px}
+/* ---- v23 編集 menu: operations row, the list of placed items, move / turn / align ---- */
+.panel .ed-ops{display:flex;flex-wrap:nowrap;gap:5px;overflow-x:auto;margin:0 0 6px;padding-bottom:2px}
+.panel .ed-ops .chip{flex:0 0 auto;white-space:nowrap}
+.chip.danger{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 55%,transparent);background:transparent}
+.chip:disabled{opacity:.45}
+.ed-hint{margin:0 0 8px}
+.ed-list{border:1px solid var(--line-2);border-radius:8px;background:var(--panel-2);margin:0 0 8px;overflow:hidden}
+.ed-head{display:flex;align-items:baseline;gap:8px;padding:6px 10px;border-bottom:1px solid var(--line);font-size:12px}
+.ed-head b{font-size:12.5px;flex:none}.ed-head span{color:var(--muted);font-variant-numeric:tabular-nums;flex:none}.ed-head .ed-tip{margin-left:auto;min-width:0;color:var(--muted);font-size:10.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ed-scroll{max-height:clamp(140px,34vh,380px);overflow-y:auto;overscroll-behavior:contain;padding:3px 0}
+.ed-row{display:flex;align-items:center;gap:6px;width:100%;min-height:32px;padding:3px 8px 3px calc(8px + var(--lv,0) * 14px);box-sizing:border-box;border:0;background:transparent;color:var(--fg);text-align:left;font-size:12.5px}
+button.ed-row:hover,.ed-grp .ed-pick:hover{background:var(--cyan-soft)}
+.ed-item[aria-pressed="true"],.ed-grp .ed-pick[aria-pressed="true"]{background:color-mix(in srgb,var(--accent) 16%,transparent)}
+.ed-item.prim{box-shadow:inset 3px 0 0 var(--cyan)}
+.ed-item .sw{width:10px;height:10px;flex:none}
+.ed-n{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ed-row small{flex:0 0 auto;color:var(--muted);font-size:11px;font-variant-numeric:tabular-nums}
+.ed-row em{flex:0 0 auto;font-style:normal;font-size:10.5px;color:var(--cyan);border:1px solid var(--line-2);border-radius:8px;padding:0 5px}
+.ed-cat{padding-left:4px;min-height:30px;border-top:1px solid var(--line)}.ed-scroll>.ed-cat:first-child{border-top:0}
+.ed-fold{flex:0 0 auto;border:0;background:transparent;color:var(--muted);font-size:12px;font-weight:700;padding:4px;min-height:28px;text-align:left}
+.ed-ct{flex:1 1 auto;min-width:0;display:flex;gap:5px;color:var(--fg);overflow:hidden;white-space:nowrap}.ed-ct i{font-style:normal;color:var(--cyan)}.ed-ct span{overflow:hidden;text-overflow:ellipsis}
+.ed-all{flex:0 0 auto;border:1px solid var(--line-2);border-radius:12px;background:transparent;color:var(--muted);font-size:10.5px;padding:1px 8px;min-height:24px}
+.ed-grp{padding-right:4px}.ed-grp .ed-pick{display:flex;align-items:center;gap:6px;flex:1 1 auto;min-width:0;min-height:30px;border:0;border-radius:6px;background:transparent;color:var(--fg);text-align:left;padding:2px 6px;font-size:12.5px;font-weight:700}
+.ed-gi{width:11px;height:11px;flex:none;border:1.5px dashed var(--accent);border-radius:2px}
+@media (pointer:coarse){.ed-row{min-height:38px}.ed-grp .ed-pick{min-height:36px}}
+.xf-grid{display:grid;gap:5px;margin:4px 0 6px}
+.xf-row{display:grid;grid-template-columns:5.2em 34px minmax(0,1fr) 34px;align-items:center;gap:5px;font-size:12px}
+.xf-row>span{color:var(--muted)}
+.xf-row input,.xf-step input{min-width:0;width:100%;box-sizing:border-box;padding:6px;background:var(--bg);color:var(--fg);border:1px solid var(--line-2);border-radius:5px;font:14px var(--font-display);font-variant-numeric:tabular-nums}
+.xf-row .btn{min-height:32px;padding:0}
+.xf-row.xf-ang{grid-template-columns:5.2em minmax(0,8em) auto;margin:6px 0}
+.xf-step{max-width:180px;margin:4px 0}
+.xf-acts{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;margin:6px 0}
+.xf-info{margin:6px 0 0;font-size:12px;color:var(--accent);font-variant-numeric:tabular-nums}
+.xf-card .seg{margin:4px 0}.xf-card .chips{margin:4px 0}
+/* ---- UI-006 the inspection bar under the editor ---- */
+.inspbar{flex:0 0 auto;display:flex;flex-direction:column;min-height:0;max-height:40%;border-top:1px solid var(--line);background:var(--panel-2)}
+.inspbar[hidden]{display:none}
+.ib-head{display:flex;align-items:center;gap:6px;width:100%;min-height:36px;padding:4px var(--gr) 4px var(--gl);border:0;background:transparent;color:var(--fg);text-align:left;font-size:12px;flex:0 0 auto;overflow:hidden;cursor:pointer}
+.ib-head b{flex:0 0 auto;font-size:12px}
+.ib-st{flex:0 0 auto;display:grid;place-items:center;width:18px;height:18px;border-radius:50%;font-size:11px;font-weight:800;color:var(--panel)}
+.ib-st.ib-ok{background:var(--ok)}.ib-st.ib-warn{background:var(--warn)}.ib-st.ib-bad{background:var(--bad)}
+.ib-c{flex:0 0 auto;font-size:11px;font-variant-numeric:tabular-nums;padding:1px 6px;border-radius:9px;border:1px solid var(--line-2);color:var(--muted);white-space:nowrap}
+.ib-c.ib-bad{color:var(--bad)}.ib-c.ib-warn{color:var(--warn)}.ib-c.ib-ok{color:var(--ok)}
+.ib-sum{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted);font-size:11.5px}
+.ib-car{flex:0 0 auto;margin-left:auto;font-style:normal;color:var(--cyan)}
+.ib-list{list-style:none;margin:0;padding:0 var(--gr) 6px var(--gl);overflow-y:auto;overscroll-behavior:contain;min-height:0;flex:1 1 auto}
+.ib-list>li>span{display:block;padding:6px;font-size:12px;color:var(--muted)}
+.ib-item{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 8px;width:100%;padding:6px;border:0;border-top:1px solid var(--line);background:transparent;color:var(--fg);text-align:left;font-size:12px;line-height:1.45}
+.ib-item:hover{background:var(--cyan-soft)}
+.ib-item span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ib-item small{grid-column:2;color:var(--cyan);font-size:11px}
+.ib-lv{font-style:normal;font-size:10.5px;font-weight:700;padding:0 5px;border-radius:4px;align-self:start;margin-top:1px;white-space:nowrap}
+.w-bad .ib-lv{color:var(--bad);border:1px solid var(--bad)}.w-warn .ib-lv{color:var(--warn);border:1px solid var(--warn)}.w-info .ib-lv{color:var(--muted);border:1px solid var(--line-2)}
+.fleet-active .inspbar,body.trial-on .inspbar,body.shot-mode .inspbar{display:none!important}
+@container ks (max-width:600px){.ib-c.ib-info{display:none}}
+@container ks (orientation:landscape) and (max-height:560px){.ib-head{min-height:32px;padding-block:2px}.ib-sum{display:none}.inspbar.open{max-height:55%}}
 </style>
 <script>
 /* v15.3 Phones show the game sideways however they are held. With the page
@@ -1240,7 +1340,8 @@ body.tut-on .inspect{bottom:calc(70px + var(--sa-bottom,0px))}
       <nav class="title-menu" id="titleMenu" aria-label="開始メニュー">
         <div class="tmenu-group" data-tgroup="top">
           <button type="button" class="tmenu tbig" data-title-mode="design" disabled><b>設計</b><span>艦を設計・編集する（新規設計・下書き・設計図・チュートリアル）</span></button>
-          <button type="button" class="tmenu tbig" data-title-mode="voyage" disabled><b>航行</b><span>パトロール・艦隊戦・任務。設計した艦や作例の艦で出撃する</span></button>
+          <button type="button" class="tmenu tbig" data-title-mode="voyage" disabled><b>任務</b><span>艦隊を編成して銀河を巡回し、敵艦隊と戦う（損傷艦は修理、撃沈艦は失われる）。自由に組む艦隊戦も</span></button>
+          <button type="button" class="tmenu tbig tsoon" data-title-soon disabled aria-disabled="true"><b>キャンペーン</b><span>今後実装予定</span></button>
         </div>
         <div class="tmenu-group" data-tgroup="design" hidden>
           <button type="button" class="tmenu tback" data-title-mode="top"><b>← 設計</b><span>メニューに戻る</span></button>
@@ -1250,12 +1351,11 @@ body.tut-on .inspect{bottom:calc(70px + var(--sa-bottom,0px))}
           <button type="button" class="tmenu" data-tut="start" disabled><b>チュートリアル</b><span>ごく簡素なインペリアル級を順番に作って操作を覚える</span></button>
         </div>
         <div class="tmenu-group" data-tgroup="voyage" hidden>
-          <button type="button" class="tmenu tback" data-title-mode="top"><b>← 航行</b><span>メニューに戻る</span></button>
-          <button type="button" class="tmenu" data-title="mission" disabled><b>任務マップ</b><span>銀河図から星系を選び、パトロールや艦隊戦の任務に出る</span></button>
-          <button type="button" class="tmenu" data-title="patrol" disabled><b>パトロール</b><span>任務マップで星系を選び、単艦で航行して操艦と砲術を試す</span></button>
-          <button type="button" class="tmenu" data-title="orbat" disabled><b>艦隊編成</b><span>合同任務群・任務群（4〜8隻）・艦名を編成して保存する</span></button>
+          <button type="button" class="tmenu tback" data-title-mode="top"><b>← 任務</b><span>メニューに戻る</span></button>
+          <button type="button" class="tmenu" data-msn="new" disabled><b>初めから</b><span>陣営を選んで艦隊を編成し、母港から任務を始める</span></button>
+          <button type="button" class="tmenu" data-msn="continue" disabled><b>続きから</b><span id="msnSaved">保存された任務はありません</span></button>
+          <button type="button" class="tmenu" data-title="fleetbattle" disabled><b>カスタム</b><span>自分で組んだ艦隊で戦域を選んで戦う艦隊戦（単艦パトロールも）</span></button>
           <button type="button" class="tmenu" data-vtut="start" disabled><b>艦隊戦チュートリアル</b><span>小さな艦隊戦で、命令・作戦図と戦術図・補給線・航行不能艦の処置を順に覚える</span></button>
-          <button type="button" class="tmenu" data-title="fleetbattle" disabled><b>艦隊戦</b><span>任務マップで戦域の星系を選び、編成した任務群で500光年四方の宙域の敵艦隊とリアルタイムで戦う</span></button>
         </div>
       </nav>
       <section class="title-panel" id="titlePanel" hidden></section>
@@ -1267,7 +1367,7 @@ body.tut-on .inspect{bottom:calc(70px + var(--sa-bottom,0px))}
       <p class="title-status" id="titleStatus" role="status" aria-live="polite">読み込み中…</p>
       <button type="button" class="title-credit title-land" data-landscape>全画面・横向きにする</button>
       <button type="button" class="title-credit ks-rot-only" data-rotflip>画面の向きを反転</button>
-      <button type="button" class="title-credit" data-title-sound>音の設定</button>
+      <button type="button" class="title-credit title-snd" data-title-sound><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg>音の設定</button>
       <button type="button" class="title-credit" data-title-credits>使用素材とライセンス</button>
     </footer>
   </div>
@@ -1330,6 +1430,7 @@ body.tut-on .inspect{bottom:calc(70px + var(--sa-bottom,0px))}
       <button type="button" class="statstrip" id="statstrip" aria-label="性能の要約。押すと性能タブを開きます"></button>
       <nav class="tabs" id="tabs" role="tablist" aria-label="設計の工程"></nav>
       <div class="panel" id="panel"></div>
+      <div class="inspbar" id="inspBar" role="region" aria-label="点検" hidden></div>
     </aside>
     <aside class="spec" id="specSide" aria-label="性能諸元"></aside>
   </main>
@@ -1341,6 +1442,7 @@ body.tut-on .inspect{bottom:calc(70px + var(--sa-bottom,0px))}
       <aside class="voy-side" id="voySide" aria-label="部隊と命令"></aside>
       <div class="voy-log" id="voyLog" aria-live="polite"></div>
     </div>
+    <aside class="voy-side voy-fed" id="voyFed" hidden aria-label="陣形エディター"></aside>
     <div class="voy-sheet" id="voySheet" hidden></div>
     <div class="voy-busy" id="voyBusy" hidden><div class="busy-card" role="status" aria-live="polite"><i class="spinner" aria-hidden="true"></i><span>準備中…</span></div></div>
   </section>
@@ -1415,7 +1517,7 @@ body.tut-on .inspect{bottom:calc(70px + var(--sa-bottom,0px))}
         <dt>1本指ドラッグ</dt><dd>設計は回転、公試は艦の周りを見回す（マウスは左ドラッグ）</dd>
         <dt>2本指</dt><dd>拡大縮小と移動（マウスはホイールと右ドラッグ）</dd>
         <dt>タップ</dt><dd>設計では選んだ道具を使う</dd>
-        <dt>道具バー</dt><dd>3D表示の左端に「配置・選択・複数・撤去」と「左右対称・上下対称」。区画・構造物・武装・艦橋のどの画面でも同じ場所で切り替えられる</dd>
+        <dt>道具バー</dt><dd>3D表示の左端に、「配置」では「配置・選択・撤去」、「編集」では「選択・複数・撤去」と「左右対称・上下対称」。区画・構造物・武装・艦橋のどの画面でも同じ場所で切り替えられる</dd>
         <dt>部品を探す</dt><dd>部品一覧の上の検索欄に名前や用途（反応炉・砲塔・格納庫など）を入れると、全分類から探して選べる。「最近」には最後に使った部品が並ぶ</dd>
         <dt>説明文</dt><dd>操作盤の説明は2行に縮めてある。タップで全文を表示</dd>
         <dt>区画の配置</dt><dd>面をタップし、配置深さを選ぶ。内部区画は外殻外を切り取るため、張り出す区画には先に構造物が必要。内部の位置は「座標を指定して配置」でも指定できる</dd>
@@ -1427,7 +1529,7 @@ body.tut-on .inspect{bottom:calc(70px + var(--sa-bottom,0px))}
         <dt>星図とハイパードライブ</dt><dd>公試・艦隊戦の「星図」（J キー）からコルサントとクワットを行き来する。ハイパードライブのある艦は亜光速まで急加速して惑星や塵が後方へ流れ、星が流れて超空間へ突入する。到着時は亜光速から一瞬で減速して実空間に戻る。ほかの艦の出現は、引き伸ばされた姿から実寸に戻って見える。戦闘中にジャンプすると戦域から離脱し、僚艦も続く</dd>
         <dt>艦隊戦の損害</dt><dd>シールドが落ちると装甲が削れ、抜けた弾は区画と装備に当たる。反応炉・シールド発生器・機関・砲塔・格納庫などは壊れるとその能力を失う。撃沈は船体破断、炉心誘爆、反応物誘爆、弾薬庫誘爆。戦闘不能は全反応炉の停止（電源喪失）、艦橋・指揮所の全損、乗員が必要数の35%を割ったとき。出力配分で炉を上げるほど、炉に被弾したときの誘爆率が上がる。攻撃の「照準」で部位を狙える（命中率は2割落ちる）</dd>
         <dt>対称の武装</dt><dd>左右対称・上下対称で置いた武装は、片方を調整すると対の武装（左右・上下・対角）も鏡写しに変わる。位置・支持台・大きさ・旋回角・砲塔の交換・撤去が対象。片側だけ変えたいときは編集欄の「対の武装も同時に編集」を切る</dd>
-        <dt>複数選択・コピー</dt><dd>「区画および艤装」の「複数選択」で区画・構造物・装備をタップして集め、コピー・切り取り・撤去・まとめて移動ができる。コピーはこの端末に残るので、設計図から別の艦を開いて「貼り付け」できる（同じ座標／艦の寸法に合わせる）。Ctrl+C・Ctrl+X・Ctrl+V も使える</dd>
+        <dt>配置と編集</dt><dd>「配置」は置ける部品のカタログ、「編集」は置いた区画・装備の一覧と編集。一覧と3D表示の選択は同じもの</dd><dt>複数選択・コピー</dt><dd>「編集」で Shift＋クリック（スマホは道具バーの「複数」）で区画・構造物・装備を選択に加え・外し、まとめて移動・回転・整列・複製・撤去・コピー・切り取りができる。選択した部品は3D表示でドラッグしてもまとめて動く。コピーはこの端末に残るので、設計図から別の艦を開いて「貼り付け」できる（同じ座標／艦の寸法に合わせる）。Ctrl+C・Ctrl+X・Ctrl+V も使える</dd><dt>グループ</dt><dd>選んだ部品を Ctrl+G（または「グループ化」）で1つのグループにすると、タップ1回でまとめて選べる。もう一度タップすると中の部品を選ぶ。Ctrl+Shift+G で解除。グループは設計図に保存され、部品カタログには登録されない</dd><dt>点検</dt><dd>操作パネルの下に、エラー・警告・情報の件数と最初の問題を常に表示する。開いて項目を押すと該当部品を「編集」で選ぶ</dd>
         <dt>横持ちの操作パネル</dt><dd>スマホ横持ちでは上部のパネルボタンで右側の操作パネルを隠し、3D表示を全幅にできる</dd>
       </dl>
     </section>
@@ -1436,9 +1538,9 @@ body.tut-on .inspect{bottom:calc(70px + var(--sa-bottom,0px))}
 
 
 <style>.ks-language{display:flex;align-items:center;gap:8px;font-size:12px;padding:6px 0;color:#b7c9d2}.ks-language select{font:inherit;color:#eef4f7;background:#14232c;border:1px solid #34505e;border-radius:6px;padding:6px}.brand,.brand-txt{min-width:0}.brand-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}html[lang=en] #tabs button{font-size:11px}.title-foot{flex-wrap:wrap}</style>
-<script src="js/lang-en.js?v=42c05e8c2e"></script>
-<script src="js/i18n.js?v=42c05e8c2e"></script>
-<script>window.KS_FILES={data:["data/reference.js","data/textures.js","data/imperial2.js","data/fleet.js"],core:"js/core.js",gfx:"js/gfx.js",engine:"js/engine.js",app:"js/app.js",worker:"js/worker.js",sizes:{"data/reference.js":6270785,"data/textures.js":2338303,"data/imperial2.js":83602,"data/fleet.js":1032326,"js/core.js":1578471,"js/gfx.js":192313,"js/engine.js":15964,"js/app.js":1129280}};</script>
+<script src="js/lang-en.js?v=202eb14acf"></script>
+<script src="js/i18n.js?v=202eb14acf"></script>
+<script>window.KS_FILES={data:["data/reference.js","data/textures.js","data/imperial2.js","data/fleet.js"],core:"js/core.js",gfx:"js/gfx.js",engine:"js/engine.js",app:"js/app.js",worker:"js/worker.js",sizes:{"data/reference.js":6270785,"data/textures.js":2338303,"data/imperial2.js":83602,"data/fleet.js":1712942,"js/core.js":1700842,"js/gfx.js":192328,"js/engine.js":15964,"js/app.js":1336430}};</script>
 <script>
 /* ============================================================
    boot.js — title screen first, then the 3D assets, the engine

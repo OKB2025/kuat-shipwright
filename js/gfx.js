@@ -625,7 +625,7 @@ function meshFits(ship, filter, ranges) {
       }
       return;
     }
-    if (k === 'ion' || k === 'ionL') {
+    if (k === 'ion' || k === 'ionL' || k === 'nk7') {
       cyl(g, M, o, 0, h * 0.09, 0, W * 0.5, W * 0.46, h * 0.18, 1, FC.dark, 6);
       cyl(g, M, o, 0, h * 0.2, 0, W * 0.4, W * 0.4, h * 0.06, 1, FC.ring, 12);
       domeL(g, M, o, -L * 0.04, h * 0.22, 0, W * 0.38, h * 0.66, body, 14, 4);

@@ -1,3 +1,525 @@
+// ---- src/47_input.js ----
+// 47_input.js — KSInput: the common input-action layer (spec v13 §12, PAD-001〜005).
+// Keyboard, mouse and touch keep their own handlers in the screens; the Gamepad API (navigator.getGamepads and the
+// gamepadconnected / gamepaddisconnected events) is read here and turned into the SAME commands: either directly
+// through the app's host adapter (48_input_app.js, inside the app module: trialCommand, onTap, multiToggle…) or, where
+// a screen already answers the keyboard or the pointer, as the key / pointer / wheel events those handlers read.
+// So one pad press ends in the same code path as the key or the tap it stands for; no screen has a pad-only editor.
+//
+// Model (all numbers provisional, tunable in the diagnostics screen and saved per pad):
+//  · actions: confirm cancel action mode prev next trigL trigR select menu l3 r3 up down left right home (buttons)
+//    and moveX moveY lookX lookY (axes). The W3C "standard" mapping gives the default binding (index n → action).
+//    A pad without it (mapping '') starts from the same indices and is re-bound in the diagnostics screen; a D-pad
+//    reported as two axes or as one "hat" axis can be bound there too (axis+sign / axis=value bindings).
+//  · stick deadzone is radial (per stick) and the rest is rescaled to 0…1, so small drift is never a command.
+//  · several pads: the user picks the one that drives the game (diagnostics screen); "auto" follows the pad that
+//    was pressed last. Other pads are shown in the diagnostics but ignored by the game.
+//  · on disconnect (or window blur / hidden page) every held action is released: fire, sticks, a held virtual click.
+//  · rumble (vibrationActuator.playEffect 'dual-rumble') only where the browser offers it, and only if enabled.
+(function () {
+'use strict';
+const W = typeof window !== 'undefined' ? window : null;
+if (!W || (W.KSInput && W.KSInput.__ks)) return;
+const D = document, T = s => (W.KSI18n ? W.KSI18n.t(s) : String(s));
+const NAV = W.navigator || {};
+const HAS_API = typeof NAV.getGamepads === 'function';
+const LS_KEY = 'yard.pad1';
+const VID = 7071;   // the virtual pointer's id (synthetic pointer events from the pad's cursor)
+
+// ---------- actions and the default (standard-mapping) binding ----------
+const BUTTON_ACTIONS = ['confirm', 'cancel', 'action', 'mode', 'prev', 'next', 'trigL', 'trigR', 'select', 'menu', 'l3', 'r3', 'up', 'down', 'left', 'right', 'home'];
+const AXIS_ACTIONS = ['moveX', 'moveY', 'lookX', 'lookY'];
+// Labels shown in the diagnostics / remap screen (Japanese keys; English in 60_lang_en.js).
+const LABEL = {confirm: '決定（A/×）', cancel: '戻る・取消（B/○）', action: '選択の追加・解除／目標（X/□）', mode: 'モード切替（Y/△）',
+  prev: '前へ（L1）', next: '次へ（R1）', trigL: '縮小・減速（L2）', trigR: '拡大・加速（R2）', select: 'セレクト（Back）', menu: 'メニュー（Start）',
+  l3: '左スティック押し込み（L3）', r3: '右スティック押し込み（R3）', up: '十字キー上', down: '十字キー下', left: '十字キー左', right: '十字キー右', home: 'ホーム',
+  moveX: '左スティック 左右', moveY: '左スティック 上下', lookX: '右スティック 左右', lookY: '右スティック 上下'};
+// What the remap wizard asks the player to do for an axis (the direction that reads as +1).
+const AXIS_PROMPT = {moveX: '左スティックを右へ倒してください', moveY: '左スティックを下へ倒してください', lookX: '右スティックを右へ倒してください', lookY: '右スティックを下へ倒してください'};
+const STD_BINDS = () => BUTTON_ACTIONS.map((a, i) => ({a, b: i}));
+const STD_AXES = () => ({moveX: {i: 0, inv: false}, moveY: {i: 1, inv: false}, lookX: {i: 2, inv: false}, lookY: {i: 3, inv: false}});
+// Provisional tuning: deadzone 0.18 (common drift of cheap pads is 0.05–0.12), trigger press at 0.35,
+// D-pad / shoulder auto-repeat after 0.42 s every 0.11 s, cursor 900 px/s at full deflection, look 2.4 rad/s.
+const DEF = {dead: .18, trig: .35, sensCursor: 1, sensLook: 1, invMoveY: false, invLookY: false, rumble: true};
+const REPEAT_FIRST = .42, REPEAT_EVERY = .11, CURSOR_PX = 900, LOOK_RAD = 2.4;
+const REPEATS = new Set(['up', 'down', 'left', 'right', 'prev', 'next']);
+
+function defaultProfile(pad) {
+  return {v: 1, id: pad ? pad.id : '', mapping: pad ? pad.mapping || '' : 'standard', binds: STD_BINDS(), axes: STD_AXES(), ...DEF};
+}
+// ---------- saved profiles (localStorage, guarded: private windows and blocked storage fall back to memory) ----------
+let store = {v: 1, choice: 'auto', profiles: {}};
+function load() {
+  try { const s = JSON.parse(W.localStorage.getItem(LS_KEY) || 'null'); if (s && typeof s === 'object' && s.profiles && typeof s.profiles === 'object') store = {v: 1, choice: s.choice || 'auto', profiles: s.profiles}; } catch (e) {}
+}
+function save() { try { W.localStorage.setItem(LS_KEY, JSON.stringify(store)); } catch (e) {} }
+// A stored profile is checked field by field; anything missing or out of range takes the default (old saves load).
+function sane(p, pad) {
+  const d = defaultProfile(pad), n = (v, lo, hi, def) => typeof v === 'number' && isFinite(v) ? Math.min(hi, Math.max(lo, v)) : def;
+  if (!p || typeof p !== 'object') return d;
+  const binds = Array.isArray(p.binds) ? p.binds.filter(x => x && BUTTON_ACTIONS.includes(x.a) && (Number.isInteger(x.b) || Number.isInteger(x.axis))) : d.binds;
+  const axes = {};for (const k of AXIS_ACTIONS) { const q = p.axes && p.axes[k]; axes[k] = q && Number.isInteger(q.i) && q.i >= 0 ? {i: q.i, inv: !!q.inv} : d.axes[k]; }
+  return {v: 1, id: d.id, mapping: d.mapping, binds, axes, dead: n(p.dead, 0, .6, DEF.dead), trig: n(p.trig, .1, .9, DEF.trig), sensCursor: n(p.sensCursor, .2, 4, 1), sensLook: n(p.sensLook, .2, 4, 1),
+    invMoveY: !!p.invMoveY, invLookY: !!p.invLookY, rumble: p.rumble !== false};
+}
+function profileFor(pad) { const key = pad.id || ('#' + pad.index); return sane(store.profiles[key], pad); }
+function setProfile(pad, p) { store.profiles[pad.id || ('#' + pad.index)] = sane(p, pad); save(); }
+
+// ---------- pads ----------
+const S = {mute: new Set(), active: -1, last: {}, held: new Set(), heldAt: {}, rep: {}, axes: {moveX: 0, moveY: 0, lookX: 0, lookY: 0}, vals: {}, lastAct: null, lastActAt: 0,
+  mode: 'focus', cursor: null, cursorShown: false, cursorIdle: 0, vptr: null, host: null, raf: 0, t: 0, capture: null, connected: new Map(), diag: null, events: 0};
+function rawPads() { if (!HAS_API) return []; let a; try { a = NAV.getGamepads(); } catch (e) { return []; } return Array.from(a || []).filter(p => p && p.connected !== false); }
+// The pad that drives the game: the player's choice when it is connected, else the last one pressed, else the first.
+function activePad(list) {
+  list = list || rawPads();
+  if (store.choice !== 'auto') { const p = list.find(q => (q.id || '#' + q.index) === store.choice); if (p) return p; }
+  return list.find(p => p.index === S.active) || list[0] || null;
+}
+// A button's value 0…1; a digital button that says pressed with no value counts as 1 (analog triggers keep their value).
+function bval(pad, i) { const b = pad.buttons[i]; return b ? (typeof b === 'object' ? (b.pressed && !(b.value > 0) ? 1 : b.value || 0) : +b || 0) : 0; }
+function anyPressed(pad) { for (let i = 0; i < pad.buttons.length; i++) if (bval(pad, i) > .5) return true; for (let i = 0; i < Math.min(4, pad.axes.length); i++) if (Math.abs(pad.axes[i]) > .6) return true; return false; }
+function readPad(pad, prof) {
+  const v = {};
+  for (const a of BUTTON_ACTIONS) v[a] = 0;
+  for (const bd of prof.binds) {
+    let x = 0;
+    if (Number.isInteger(bd.b)) x = bval(pad, bd.b);
+    else if (Number.isInteger(bd.axis)) { const ax = pad.axes[bd.axis]; if (typeof ax === 'number') x = bd.eq != null ? (Math.abs(ax - bd.eq) < .1 ? 1 : 0) : Math.max(0, ax * (bd.sign || 1)); }
+    if (x > v[bd.a]) v[bd.a] = Math.min(1, x);
+  }
+  const ax = k => { const q = prof.axes[k], r = q && pad.axes[q.i]; return typeof r === 'number' && isFinite(r) && Math.abs(r) <= 1.01 ? (q.inv ? -r : r) : 0; };
+  const stick = (kx, ky, invY) => { let x = ax(kx), y = ax(ky); if (invY) y = -y; const m = Math.hypot(x, y); if (m <= prof.dead) return [0, 0]; const k = Math.min(1, (m - prof.dead) / (1 - prof.dead)) / m; return [x * k, y * k]; };
+  const [mx, my] = stick('moveX', 'moveY', prof.invMoveY), [lx, ly] = stick('lookX', 'lookY', prof.invLookY);
+  return {btn: v, axes: {moveX: mx, moveY: my, lookX: lx, lookY: ly}};
+}
+
+// ---------- synthetic events for the screens' own handlers ----------
+const kbTarget = () => { const a = D.activeElement; return a && a !== D.body && a !== D.documentElement && a.isConnected ? a : scopeRoot(); };   // reaches a dialog's own key handler
+function key(code, keyName, up) {
+  const init = {key: keyName, code, bubbles: true, cancelable: true, composed: true};
+  try { kbTarget().dispatchEvent(new KeyboardEvent(up ? 'keyup' : 'keydown', init)); } catch (e) { console.warn('pad key', e); }
+}
+function tapKey(code, keyName) { key(code, keyName, false); key(code, keyName, true); }
+// Pointer capture of the virtual pointer: browsers refuse setPointerCapture for an id they do not know, which would
+// abort the screens' pointerdown handlers. The virtual pointer is captured by hand (moves/up go to the down target).
+(function patchCapture() {
+  const E = W.Element && W.Element.prototype;if (!E || E.__ksPad) return;E.__ksPad = true;
+  for (const k of ['setPointerCapture', 'releasePointerCapture']) { const o = E[k];if (typeof o !== 'function') continue; E[k] = function (id) { if (id === VID) return; return o.call(this, id); }; }
+  const oh = E.hasPointerCapture;if (typeof oh === 'function') E.hasPointerCapture = function (id) { return id === VID ? !!(S.vptr && S.vptr.target === this) : oh.call(this, id); };
+})();
+function hitAt(x, y) { return D.elementFromPoint(x, y); }   // the cursor itself has pointer-events:none
+function ptr(type, target, x, y, buttons, extra) {
+  const init = {bubbles: true, cancelable: true, composed: true, clientX: x, clientY: y, screenX: x, screenY: y, pointerId: VID, pointerType: 'mouse', isPrimary: true, button: type === 'pointermove' ? -1 : 0, buttons, ...(extra || {})};
+  let ev;try { ev = new PointerEvent(type, init); } catch (e) { ev = new MouseEvent(type, init); }
+  target.dispatchEvent(ev);return ev;
+}
+function mouse(type, target, x, y, extra) { try { target.dispatchEvent(new MouseEvent(type, {bubbles: true, cancelable: true, composed: true, clientX: x, clientY: y, button: 0, ...(extra || {})})); } catch (e) {} }
+function vDown(extra) {
+  const {x, y} = S.pos, t = hitAt(x, y);if (!t) return;
+  S.vptr = {target: t, x0: x, y0: y, extra};ptr('pointerdown', t, x, y, 1, extra);mouse('mousedown', t, x, y, extra);
+}
+function vMove() {
+  const {x, y} = S.pos;
+  if (S.vptr) { ptr('pointermove', S.vptr.target, x, y, 1, S.vptr.extra); return; }
+  const t = hitAt(x, y);if (t) ptr('pointermove', t, x, y, 0);
+}
+function vUp(cancel) {
+  const v = S.vptr;if (!v) return;S.vptr = null;const {x, y} = S.pos;
+  if (cancel) { ptr('pointercancel', v.target, x, y, 0, v.extra); return; }
+  ptr('pointerup', v.target, x, y, 0, v.extra);mouse('mouseup', v.target, x, y, v.extra);
+  if (Math.hypot(x - v.x0, y - v.y0) < 8) { const t = hitAt(x, y);if (t && (t === v.target || v.target.contains(t) || t.contains(v.target))) { if (typeof t.click === 'function' && t.closest('button,a,label,summary,[role=tab],input,select')) t.click();else mouse('click', t, x, y, v.extra); } }
+}
+function wheel(dy) {
+  const {x, y} = S.mode === 'cursor' && S.pos ? S.pos : {x: W.innerWidth / 2, y: W.innerHeight / 2}, t = hitAt(x, y);if (!t) return;
+  try { t.dispatchEvent(new WheelEvent('wheel', {bubbles: true, cancelable: true, composed: true, clientX: x, clientY: y, deltaY: dy, deltaMode: 0})); } catch (e) {}
+}
+
+// ---------- focus ring (D-pad over buttons, tabs, fields) ----------
+const FOCUSABLE = 'button,[role=tab],a[href],input:not([type=hidden]),select,textarea,summary,[tabindex]:not([tabindex="-1"])';
+function visible(el) {
+  if (el.disabled || el.closest('[hidden],[inert],[aria-hidden="true"]')) return false;
+  const r = el.getBoundingClientRect();if (r.width < 2 || r.height < 2 || r.bottom < 0 || r.right < 0 || r.top > W.innerHeight || r.left > W.innerWidth) return false;
+  const cs = W.getComputedStyle(el);if (cs.visibility === 'hidden' || cs.display === 'none' || +cs.opacity === 0) return false;
+  return true;
+}
+// The layer the D-pad moves in: the topmost open dialog or sheet, else the screen the host names, else the page.
+function scopeRoot() {
+  if (S.diag && !S.diag.hidden) return S.diag;
+  const h = S.host && S.host.scope && S.host.scope();if (h) return h;
+  for (const sel of ['#splash', '#sheet:not([hidden])', '#voySheet:not([hidden])']) { const e = D.querySelector(sel);if (e && e.getClientRects().length) return e; }
+  if (D.body.classList.contains('title-open')) { const t = D.getElementById('title');if (t) return t; }
+  return D.body;
+}
+function candidates(root) {
+  const out = [];
+  for (const el of root.querySelectorAll(FOCUSABLE)) {
+    if (el === S.cursor || !visible(el)) continue;
+    const r = el.getBoundingClientRect(), cx = Math.min(W.innerWidth - 1, Math.max(0, r.left + r.width / 2)), cy = Math.min(W.innerHeight - 1, Math.max(0, r.top + r.height / 2)), top = hitAt(cx, cy);
+    if (top && root !== D.body && !root.contains(top)) continue;   // covered by something outside the open layer
+    out.push(el);
+  }
+  return out;
+}
+let ringEl = null;
+function setRing(el) {
+  if (ringEl && ringEl !== el) ringEl.classList.remove('ks-padfocus');
+  ringEl = el;if (!el) return;
+  el.classList.add('ks-padfocus');try { el.focus({preventScroll: true}); } catch (e) {}
+  try { el.scrollIntoView({block: 'nearest', inline: 'nearest'}); } catch (e) {}
+}
+function current(root) {
+  // Keyboard/Tab focus wins (it is where the ring is put too); the ring alone covers elements that refused focus.
+  const ok = a => a && a !== D.body && a.isConnected && root.contains(a) && a.matches && a.matches(FOCUSABLE) && visible(a);
+  return ok(D.activeElement) ? D.activeElement : ok(ringEl) ? ringEl : null;
+}
+// Spatial move: the nearest element whose centre lies in the pressed direction; distance across the direction
+// counts 2.5× (so a row stays a row), elements overlapping in the cross direction are preferred.
+function focusMove(dir) {
+  const root = scopeRoot(), list = candidates(root);if (!list.length) return false;
+  const cur = current(root);
+  if (!cur) { let best = list[0];if (S.pos && S.cursorShown) { let d = Infinity;for (const el of list) { const r = el.getBoundingClientRect(), dd = Math.hypot(r.left + r.width / 2 - S.pos.x, r.top + r.height / 2 - S.pos.y);if (dd < d) { d = dd;best = el; } } } setRing(best);return true; }
+  const a = cur.getBoundingClientRect(), ax = a.left + a.width / 2, ay = a.top + a.height / 2;
+  const [ux, uy] = {up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0]}[dir];
+  let best = null, bs = Infinity;
+  for (const el of list) {
+    if (el === cur || cur.contains(el) || el.contains(cur)) continue;
+    const r = el.getBoundingClientRect(), bx = r.left + r.width / 2, by = r.top + r.height / 2, dx = bx - ax, dy = by - ay, along = dx * ux + dy * uy;
+    if (along <= 2) continue;
+    const overlap = ux ? Math.min(a.bottom, r.bottom) - Math.max(a.top, r.top) : Math.min(a.right, r.right) - Math.max(a.left, r.left);
+    const across = overlap > 0 ? 0 : Math.abs(ux ? dy : dx), gap = ux ? (ux > 0 ? r.left - a.right : a.left - r.right) : (uy > 0 ? r.top - a.bottom : a.top - r.bottom);
+    const s = Math.max(0, gap) + along * .25 + across * 2.5;
+    if (s < bs) { bs = s;best = el; }
+  }
+  if (best) { setRing(best);return true; }
+  return false;
+}
+// D-pad left/right on a slider, a number field or a list nudges its value (数値微調整) instead of moving away.
+function adjustFocused(dir) {
+  const el = current(scopeRoot());if (!el || (dir !== 'left' && dir !== 'right')) return false;const s = dir === 'right' ? 1 : -1;
+  if (el.tagName === 'INPUT' && (el.type === 'range' || el.type === 'number')) { try { s > 0 ? el.stepUp() : el.stepDown(); } catch (e) { return false; } el.dispatchEvent(new Event('input', {bubbles: true}));el.dispatchEvent(new Event('change', {bubbles: true}));return true; }
+  if (el.tagName === 'SELECT') { const n = el.options.length;if (!n) return false;let i = el.selectedIndex;do { i = (i + s + n) % n; } while (el.options[i].disabled && i !== el.selectedIndex);el.selectedIndex = i;el.dispatchEvent(new Event('input', {bubbles: true}));el.dispatchEvent(new Event('change', {bubbles: true}));return true; }
+  return false;
+}
+function activateFocused() {
+  const root = scopeRoot(), el = current(root);
+  if (!el) return focusMove('down');
+  if (el.tagName === 'SELECT') return adjustFocused('right');
+  if (el.tagName === 'INPUT' && /^(text|search|number|email|url|password)$/.test(el.type) || el.tagName === 'TEXTAREA') { try { el.focus(); el.select && el.select(); } catch (e) {} return true; }
+  if (el.tagName === 'LABEL' || el.closest('label')) { const inp = el.querySelector && el.querySelector('input');if (inp) { inp.click();return true; } }
+  el.click();return true;
+}
+
+// ---------- the virtual cursor (left stick over maps and the 3D view) ----------
+function ensureCursor() {
+  if (S.cursor) return;
+  const c = D.createElement('div');c.className = 'ks-padcursor';c.setAttribute('aria-hidden', 'true');c.setAttribute('data-l10n-skip', '');
+  c.innerHTML = '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="9"/><path d="M16 1v9M16 22v9M1 16h9M22 16h9"/></svg>';c.style.display = 'none';D.body.appendChild(c);S.cursor = c;
+  if (!S.pos) S.pos = {x: W.innerWidth / 2, y: W.innerHeight / 2};
+}
+function showCursor(on) {
+  ensureCursor();S.cursorShown = on;S.cursor.style.display = on ? '' : 'none';
+  if (on) { S.mode = 'cursor';if (ringEl) { ringEl.classList.remove('ks-padfocus'); } }
+}
+function placeCursor() { if (!S.cursor) return; S.cursor.style.transform = `translate(${(S.pos.x - 16).toFixed(1)}px,${(S.pos.y - 16).toFixed(1)}px)`; S.cursor.classList.toggle('down', !!S.vptr); }
+function moveCursor(dx, dy) {
+  ensureCursor();if (!S.cursorShown) showCursor(true);
+  S.pos.x = Math.min(W.innerWidth - 2, Math.max(1, S.pos.x + dx));S.pos.y = Math.min(W.innerHeight - 2, Math.max(1, S.pos.y + dy));
+  placeCursor();vMove();
+}
+
+// ---------- dispatch ----------
+function ctxName() { if (S.diag && !S.diag.hidden) return 'diag'; try { return (S.host && S.host.context && S.host.context()) || 'page'; } catch (e) { return 'page'; } }
+const API = {
+  get mode() { return S.mode; }, get pos() { return S.pos ? {...S.pos} : null; }, key, tapKey, wheel, focusMove, activateFocused,
+  vclick(extra) { if (!S.pos) return; vDown(extra); vUp(false); }, vdown: vDown, vup: vUp, rumble, toast: msg => hostToast(msg),
+  cursorOver(sel) { if (S.mode !== 'cursor' || !S.cursorShown || !S.pos) return null; const t = hitAt(S.pos.x, S.pos.y); return t && (!sel || t.closest(sel)) ? t : null; },
+  focused() { return current(scopeRoot()); }, scopeRoot};
+function hostToast(msg) { try { if (S.host && S.host.toast) { S.host.toast(T(msg)); return; } } catch (e) {} const st = D.getElementById('titleStatus'); if (st && D.body.classList.contains('title-open')) st.textContent = T(msg); }
+function press(a, repeat) {
+  S.lastAct = a;S.lastActAt = performance.now();
+  // Back acts on release only, so Back+Start (and Back+another button) can be chords without Back's own command.
+  if (a === 'select' && !S.selDirect) { S.selChord = false;return; }
+  if (S.held.has('select') && a !== 'select') S.selChord = true;
+  const ctx = ctxName();
+  if (ctx === 'diag') { diagPress(a);return; }
+  // Back + Start opens the diagnostics from anywhere (also reachable from the title footer and the 設計図 sheet).
+  if (a === 'menu' && S.held.has('select')) { openDiag();return; }
+  try { if (S.host && S.host.press && S.host.press(a, ctx, API, repeat)) return; } catch (e) { console.warn('pad host', a, e); }
+  generic(a, repeat);
+}
+function generic(a, repeat) {
+  if (a === 'up' || a === 'down' || a === 'left' || a === 'right') { S.mode = 'focus';if (S.cursorShown && !S.vptr) showCursor(false);if (!adjustFocused(a)) focusMove(a);return; }
+  if (a === 'confirm') { if (repeat) return; if (S.mode === 'cursor' && S.cursorShown) vDown();else activateFocused();return; }
+  if (a === 'cancel') { if (!repeat) tapKey('Escape', 'Escape');return; }
+  if (a === 'menu') { if (!repeat) tapKey('Escape', 'Escape');return; }
+}
+function release(a) {
+  if (a === 'select' && !S.selDirect) { if (S.selChord) return; S.selDirect = true; try { press('select', false); } finally { S.selDirect = false; } }
+  const ctx = ctxName();
+  try { if (S.host && S.host.release && S.host.release(a, ctx, API)) return; } catch (e) { console.warn('pad host', a, e); }
+  if (a === 'confirm' && S.vptr) vUp(false);
+}
+function analog(ax, btn, dt) {
+  const ctx = ctxName();if (ctx === 'diag') return;
+  let used = {};
+  try { used = (S.host && S.host.analog && S.host.analog(ax, btn, dt, ctx, API)) || {}; } catch (e) { console.warn('pad analog', e); }
+  const prof = S.prof;
+  if (!used.move && (ax.moveX || ax.moveY)) moveCursor(ax.moveX * CURSOR_PX * prof.sensCursor * dt, ax.moveY * CURSOR_PX * prof.sensCursor * dt);
+  // Right stick, when the screen has no camera: scroll the panel under the focus ring (long lists on phones).
+  if (!used.look && Math.abs(ax.lookY) > 0) { const el = current(scopeRoot());let p = el && el.parentElement;while (p && p !== D.body && !(p.scrollHeight > p.clientHeight + 2 && /auto|scroll/.test(W.getComputedStyle(p).overflowY))) p = p.parentElement;if (p && p !== D.body) p.scrollTop += ax.lookY * 900 * dt; }
+  // Triggers without a screen-specific meaning zoom what is under the cursor (maps answer the wheel).
+  if (!used.trig) { const z = (btn.trigR > prof.trig ? btn.trigR : 0) - (btn.trigL > prof.trig ? btn.trigL : 0);if (z) wheel(-z * 700 * dt); }
+}
+function releaseAll(why) {
+  S.selChord = true;   // a Back still held is not a command when the pad goes away
+  // Buttons still physically down stay muted until they come up, so the press that opened a screen (Back+Start)
+  // is not read again as a fresh press inside it.
+  for (const a of [...S.held]) { S.held.delete(a); S.mute.add(a); release(a); }
+  S.rep = {};if (S.vptr) vUp(true);
+  const z = {moveX: 0, moveY: 0, lookX: 0, lookY: 0};
+  try { S.host && S.host.analog && S.host.analog(z, {}, 0, ctxName(), API); } catch (e) {}
+  S.axes = z;if (why) hostToast(why);
+}
+function rumble(strong, ms) {
+  const pad = activePad();if (!pad || !S.prof || !S.prof.rumble) return false;
+  const act = pad.vibrationActuator;
+  try { if (act && act.playEffect) { act.playEffect(act.type || 'dual-rumble', {duration: ms || 120, strongMagnitude: Math.min(1, strong || .5), weakMagnitude: Math.min(1, (strong || .5) * .6)}).catch(() => {});return true; } } catch (e) {}
+  try { if (pad.hapticActuators && pad.hapticActuators[0]) { pad.hapticActuators[0].pulse(strong || .5, ms || 120);return true; } } catch (e) {}
+  return false;
+}
+
+// ---------- the poll loop ----------
+let lastT = 0, padKey = null;
+function frame(t) {
+  S.raf = W.requestAnimationFrame(frame);S.frames = (S.frames || 0) + 1;
+  const dt = lastT ? Math.min(.1, (t - lastT) / 1000) : 0;lastT = t;S.t = t / 1000;
+  const list = rawPads();
+  // Connection bookkeeping also by polling: Safari and some Android browsers fire no event until a button is pressed.
+  const seen = new Set();
+  for (const p of list) { seen.add(p.index); if (!S.connected.has(p.index)) onConnect(p); }
+  for (const i of [...S.connected.keys()]) if (!seen.has(i)) onDisconnect(i);
+  if (S.diag && !S.diag.hidden) diagFrame(list);
+  // The pad pressed last becomes the active one in "auto" (multiple pads).
+  if (store.choice === 'auto') for (const p of list) if (p.index !== S.active && anyPressed(p)) { if (S.active >= 0) releaseAll(); S.active = p.index; }
+  const pad = activePad(list);
+  if (!pad) { if (S.held.size || S.vptr) releaseAll(); return; }
+  const k = (pad.id || '') + '#' + pad.index;if (k !== padKey) { padKey = k; S.prof = profileFor(pad); S.active = pad.index; }
+  if (S.capture) { captureFrame(pad);return; }
+  const st = readPad(pad, S.prof);S.vals = st.btn;S.axes = st.axes;
+  for (const a of BUTTON_ACTIONS) {
+    const v = st.btn[a], th = a === 'trigL' || a === 'trigR' ? S.prof.trig : .5, on = v > th, was = S.held.has(a);
+    if (S.mute.has(a)) { if (!on) S.mute.delete(a); continue; }
+    if (on && !was) { S.held.add(a); S.heldAt[a] = S.t; S.rep[a] = S.t + REPEAT_FIRST; press(a, false); }
+    else if (!on && was) { S.held.delete(a); release(a); }
+    else if (on && REPEATS.has(a) && S.t >= S.rep[a]) { S.rep[a] = S.t + REPEAT_EVERY; press(a, true); }
+  }
+  analog(st.axes, st.btn, dt);
+}
+function onConnect(p) {
+  S.connected.set(p.index, {id: p.id, mapping: p.mapping, at: Date.now()});S.events++;
+  if (S.active < 0) S.active = p.index;
+  hostToast((p.mapping === 'standard' ? 'ゲームパッドを接続しました：{0}' : 'ゲームパッドを接続しました：{0}（非標準の割当 — 診断画面で設定できます）').replace('{0}', shortId(p.id)));
+  if (S.diag && !S.diag.hidden) diagBuild();
+}
+function onDisconnect(i) {
+  const was = S.connected.get(i);S.connected.delete(i);S.events++;
+  if (i === S.active || !S.connected.size) { releaseAll('ゲームパッドが切断されました。入力を解除しました'); S.active = -1; padKey = null; showCursor(false); }
+  else if (was) hostToast('ゲームパッドが切断されました：{0}'.replace('{0}', shortId(was.id)));
+  if (S.diag && !S.diag.hidden) diagBuild();
+}
+const shortId = id => String(id || '').replace(/\s*\((?:STANDARD GAMEPAD\s*)?Vendor: (\w+) Product: (\w+)\)/i, ' ($1:$2)').slice(0, 60);
+
+// ---------- diagnostics screen (PAD-005) ----------
+// "Press buttons to see the input state": raw button and axis indexes and values, the mapping id, which action each
+// index drives, the active pad among several, and the settings (deadzone, sensitivity, inversion, rumble, remap).
+// The status line separates "this browser has no Gamepad API" from "the API is there but no pad is connected".
+function apiStatus() {
+  if (!HAS_API) return {kind: 'noapi', text: 'このブラウザは Gamepad API に対応していません（navigator.getGamepads がありません）。最新の Chrome・Edge・Safari・Firefox で開いてください。'};
+  if (W.isSecureContext === false) return {kind: 'insecure', text: '安全な接続（https）ではないため、ブラウザがゲームパッドを無効にしています。https のページで開いてください。'};
+  if (!rawPads().length) return {kind: 'none', text: 'ゲームパッドが検出されていません。OS でペアリング済みなら、いずれかのボタンを押してください（ブラウザはボタンが押されるまで接続を知らせません）。'};
+  return {kind: 'ok', text: 'ゲームパッドを認識しています。ボタンやスティックを動かすと下の表示が変わります。'};
+}
+const DEFAULT_TABLE = [
+  ['左スティック', '移動・操舵（機体種別に応じる）', '仮想カーソル・選択対象の移動'], ['右スティック', 'カメラ', '3Dビュー回転'],
+  ['A/×', '決定・選択（操艦中は射撃）', '配置・選択確定'], ['B/○', '戻る', 'キャンセル'], ['X/□', '目標/アクション', '選択の追加・解除'],
+  ['Y/△', '操作モード切替', '移動/回転/編集モード切替'], ['L1/R1', '目標・編隊切替', '設備・カテゴリ切替'], ['L2/R2', '減速/加速、武器切替', 'ズームアウト/イン'],
+  ['十字キー', '戦術命令/UI移動', 'フォーカス・数値微調整'], ['Start', 'ポーズ/メニュー', 'メニュー'], ['Back＋Start', 'ゲームパッド診断', 'ゲームパッド診断']];
+function el(tag, cls, text) { const e = D.createElement(tag);if (cls) e.className = cls;if (text != null) e.textContent = text;return e; }
+function openDiag() {
+  if (!S.diag) {
+    const d = el('div', 'ks-paddiag');d.id = 'padDiag';d.setAttribute('role', 'dialog');d.setAttribute('aria-modal', 'true');d.setAttribute('aria-label', 'ゲームパッドの診断と設定');d.hidden = true;
+    d.innerHTML = `<div class="pd-card"><header class="pd-head"><h2>ゲームパッドの診断と設定</h2><button type="button" class="btn ghost sm" data-pd="close">閉じる</button></header>
+<p class="pd-status" data-pd-status role="status" aria-live="polite"></p>
+<div class="pd-pads" data-pd-pads></div>
+<section class="pd-live"><h3>入力の状態（ボタンを押して確認）</h3><p class="pd-meta"><span>割当方式</span> <b data-pd-mapping data-l10n-skip>—</b> · <span>ID</span> <b data-pd-id data-l10n-skip>—</b></p>
+<p class="pd-last"><span>直近の操作</span> <b data-pd-last>—</b></p><div class="pd-grid" data-pd-buttons></div><div class="pd-axes" data-pd-axes></div></section>
+<section class="pd-set"><h3>設定（このゲームパッドごとに保存）</h3>
+<label class="pd-row"><span>デッドゾーン</span><input type="range" min="0" max="0.5" step="0.02" data-pd-set="dead"><output data-pd-out="dead"></output></label>
+<label class="pd-row"><span>カーソル感度</span><input type="range" min="0.2" max="3" step="0.1" data-pd-set="sensCursor"><output data-pd-out="sensCursor"></output></label>
+<label class="pd-row"><span>視点感度</span><input type="range" min="0.2" max="3" step="0.1" data-pd-set="sensLook"><output data-pd-out="sensLook"></output></label>
+<label class="pd-row pd-check"><input type="checkbox" data-pd-set="invMoveY"><span>左スティックの上下を反転</span></label>
+<label class="pd-row pd-check"><input type="checkbox" data-pd-set="invLookY"><span>右スティック（視点）の上下を反転</span></label>
+<label class="pd-row pd-check"><input type="checkbox" data-pd-set="rumble"><span>振動（対応する環境のみ）</span></label>
+<div class="pd-acts"><button type="button" class="btn sm" data-pd="rumble">振動を試す</button><button type="button" class="btn sm" data-pd="remap">ボタン割当を変更</button><button type="button" class="btn sm ghost" data-pd="reset">既定に戻す</button></div>
+<p class="pd-remap" data-pd-remap hidden aria-live="assertive"></p></section>
+<section class="pd-help"><h3>既定の割当</h3><table class="pd-table"><thead><tr><th>操作</th><th>戦闘/操縦</th><th>設計/陣形/メニュー</th></tr></thead><tbody>${DEFAULT_TABLE.map(r => `<tr><th>${r[0]}</th><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}</tbody></table>
+<p class="note">テキスト入力は OS のソフトウェアキーボードを使います。スマートフォンではタッチ操作と併用できます。</p></section></div>`;
+    d.addEventListener('click', diagClick);d.addEventListener('input', diagInput);d.addEventListener('change', diagInput);
+    d.addEventListener('keydown', e => { if (e.key === 'Escape') { e.stopPropagation(); closeDiag(); } });
+    D.body.appendChild(d);S.diag = d;
+  }
+  releaseAll();S.diag.hidden = false;D.body.classList.add('ks-paddiag-open');diagBuild();
+  const c = S.diag.querySelector('[data-pd="close"]');if (c) setRing(c);
+}
+function closeDiag() { if (!S.diag) return; stopCapture(); S.diag.hidden = true; D.body.classList.remove('ks-paddiag-open'); setRing(null); }
+function diagPad() { return activePad(); }
+let diagSig = '';
+function diagBuild() {
+  const d = S.diag;if (!d) return;const list = rawPads(), st = apiStatus();
+  const s = d.querySelector('[data-pd-status]');s.textContent = T(st.text);s.dataset.kind = st.kind;
+  const pads = d.querySelector('[data-pd-pads]');
+  pads.innerHTML = list.length > 0 ? `<fieldset class="pd-choice"><legend>操作に使うゲームパッド</legend><label><input type="radio" name="pdChoice" value="auto" ${store.choice === 'auto' ? 'checked' : ''}><span>自動（最後に押したもの）</span></label>${list.map(p => { const k = p.id || '#' + p.index; return `<label><input type="radio" name="pdChoice" value="${escA(k)}" ${store.choice === k ? 'checked' : ''}><span data-l10n-skip>#${p.index} ${escH(shortId(p.id))}</span><small>${p.mapping === 'standard' ? 'standard' : '非標準'}</small></label>`; }).join('')}</fieldset>` : '';
+  const p = diagPad(), prof = p ? profileFor(p) : null;
+  d.querySelector('[data-pd-mapping]').textContent = p ? (p.mapping === 'standard' ? 'standard' : T('非標準（mapping が空）')) : '—';
+  d.querySelector('[data-pd-id]').textContent = p ? p.id : '—';
+  const bx = d.querySelector('[data-pd-buttons]'), ax = d.querySelector('[data-pd-axes]');
+  diagSig = list.length + '|' + (p ? p.index + ':' + p.buttons.length + ':' + p.axes.length : '');
+  if (p) {
+    const act = i => prof.binds.filter(b => b.b === i).map(b => T(LABEL[b.a])).join(' · ');
+    bx.innerHTML = Array.from(p.buttons, (_, i) => `<div class="pd-b" data-pd-b="${i}"><i></i><b>B${i}</b><small>${escH(act(i) || '—')}</small></div>`).join('');
+    const axAct = i => AXIS_ACTIONS.filter(k => prof.axes[k].i === i).map(k => T(LABEL[k]) + (prof.axes[k].inv ? T('（反転）') : '')).concat(prof.binds.filter(b => b.axis === i).map(b => T(LABEL[b.a]))).join(' · ');
+    ax.innerHTML = Array.from(p.axes, (_, i) => `<div class="pd-a" data-pd-a="${i}"><b>A${i}</b><span class="pd-bar"><i></i></span><output data-l10n-skip>0.00</output><small>${escH(axAct(i) || '—')}</small></div>`).join('');
+  } else { bx.innerHTML = '';ax.innerHTML = ''; }
+  const set = prof || {...DEF};
+  for (const inp of d.querySelectorAll('[data-pd-set]')) { const k = inp.dataset.pdSet;if (inp.type === 'checkbox') inp.checked = !!set[k];else inp.value = set[k];inp.disabled = !p; }
+  for (const o of d.querySelectorAll('[data-pd-out]')) o.textContent = (+set[o.dataset.pdOut]).toFixed(2);
+  for (const b of d.querySelectorAll('[data-pd="rumble"],[data-pd="remap"],[data-pd="reset"]')) b.disabled = !p;
+}
+const escH = s => String(s).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c])), escA = escH;
+function diagFrame(list) {
+  const d = S.diag, p = diagPad();
+  const sig = list.length + '|' + (p ? p.index + ':' + p.buttons.length + ':' + p.axes.length : '');if (sig !== diagSig) diagBuild();
+  if (!p) return;
+  for (const e of d.querySelectorAll('[data-pd-b]')) { const v = bval(p, +e.dataset.pdB);e.classList.toggle('on', v > .5);e.firstChild.style.height = Math.round(Math.min(1, v) * 100) + '%'; }
+  for (const e of d.querySelectorAll('[data-pd-a]')) { const v = p.axes[+e.dataset.pdA] || 0, i = e.querySelector('.pd-bar i');i.style.left = (Math.min(v, 0) * 50 + 50) + '%';i.style.width = Math.abs(Math.max(-1, Math.min(1, v))) * 50 + '%';e.querySelector('output').textContent = v.toFixed(2); }
+  const last = d.querySelector('[data-pd-last]'), txt = S.lastAct ? T(LABEL[S.lastAct] || S.lastAct) : '—';if (last.textContent !== txt) last.textContent = txt;
+}
+function diagPress(a) {
+  if (a === 'cancel' || a === 'menu') { closeDiag();return; }
+  if (a === 'up' || a === 'down' || a === 'left' || a === 'right') { S.mode = 'focus';if (!adjustFocused(a)) focusMove(a);return; }
+  if (a === 'confirm') activateFocused();
+}
+function diagClick(e) {
+  const b = e.target.closest('[data-pd]');const r = e.target.closest('input[name=pdChoice]');
+  if (r) { store.choice = r.value;save();releaseAll();padKey = null;S.prof = null;diagBuild();return; }
+  if (!b) return;const p = diagPad();
+  if (b.dataset.pd === 'close') closeDiag();
+  else if (b.dataset.pd === 'rumble') { if (!rumble(.8, 300)) hostDiagNote('この環境では振動を使えません（ブラウザまたはゲームパッドが未対応）'); }
+  else if (b.dataset.pd === 'reset' && p) { setProfile(p, defaultProfile(p));padKey = null;diagBuild();hostDiagNote('既定の割当に戻しました'); }
+  else if (b.dataset.pd === 'remap' && p) startCapture(p);
+  else if (b.dataset.pd === 'skip') captureNext(null);
+  else if (b.dataset.pd === 'stop') { stopCapture();hostDiagNote('割当の変更を取りやめました'); }
+}
+function diagInput(e) {
+  const inp = e.target.closest('[data-pd-set]');if (!inp) return;const p = diagPad();if (!p) return;
+  const prof = profileFor(p), k = inp.dataset.pdSet;prof[k] = inp.type === 'checkbox' ? inp.checked : +inp.value;setProfile(p, prof);S.prof = profileFor(p);
+  const o = S.diag.querySelector(`[data-pd-out="${k}"]`);if (o) o.textContent = (+prof[k]).toFixed(2);
+}
+function hostDiagNote(msg) { const n = S.diag && S.diag.querySelector('[data-pd-remap]');if (!n) return;n.hidden = false;n.textContent = T(msg); }
+// Remap wizard: one action at a time, the next button (or axis) that moves is bound. Buttons first, then the sticks.
+const CAPTURE_ORDER = [...BUTTON_ACTIONS.filter(a => a !== 'home'), ...AXIS_ACTIONS];
+function startCapture(p) { releaseAll(); S.capture = {pad: p.index, step: 0, prof: {...profileFor(p), binds: [], axes: STD_AXES()}, base: null, wait: 0}; captureShow(); }
+function stopCapture() { S.capture = null; const n = S.diag && S.diag.querySelector('[data-pd-remap]');if (n) n.hidden = true; }
+function captureShow() {
+  const c = S.capture, n = S.diag.querySelector('[data-pd-remap]');if (!c) return;const a = CAPTURE_ORDER[c.step];
+  n.hidden = false;n.innerHTML = '';
+  n.append(el('b', null, `${c.step + 1}/${CAPTURE_ORDER.length}`), ' ', el('span', null, T(AXIS_ACTIONS.includes(a) ? AXIS_PROMPT[a] : '「{0}」に使うボタンを押してください'.replace('{0}', LABEL[a]))), ' ');
+  const sk = el('button', 'btn sm ghost', '飛ばす');sk.type = 'button';sk.dataset.pd = 'skip';const stp = el('button', 'btn sm ghost', '中止');stp.type = 'button';stp.dataset.pd = 'stop';n.append(sk, stp);
+  // The baseline is read on the first frame on which every button is up (the previous step's button released).
+  c.base = null;c.wait = 0;
+}
+function captureFrame(pad) {
+  const c = S.capture;if (!c || pad.index !== c.pad || S.t < c.wait) return;
+  const snap = {b: Array.from(pad.buttons, (_, i) => bval(pad, i)), a: Array.from(pad.axes)};
+  if (!c.base) { if (snap.b.some(v => v > .3)) return; c.base = snap; return; }   // wait until everything is released
+  const a = CAPTURE_ORDER[c.step];
+  if (AXIS_ACTIONS.includes(a)) {
+    for (let i = 0; i < snap.a.length; i++) { const d = snap.a[i] - c.base.a[i];if (Math.abs(c.base.a[i]) <= 1.01 && Math.abs(d) > .6 && Math.abs(snap.a[i]) > .6) { captureNext({axis: i, inv: snap.a[i] < 0});return; } }
+    return;
+  }
+  for (let i = 0; i < snap.b.length; i++) if (snap.b[i] > .6 && c.base.b[i] < .3) { captureNext({b: i});return; }
+  for (let i = 0; i < snap.a.length; i++) {
+    const v = snap.a[i], b0 = c.base.a[i];
+    if (Math.abs(b0) > 1.05 && Math.abs(v - b0) > .05 && Math.abs(v) <= 1.01) { captureNext({axis: i, eq: Math.round(v * 1000) / 1000});return; }   // one "hat" axis for the D-pad
+    if (Math.abs(b0) <= 1.01 && Math.abs(v) <= 1.01 && Math.abs(v - b0) > .6 && Math.abs(v) > .6) { captureNext({axis: i, sign: v > 0 ? 1 : -1});return; }   // (a hat returning to its rest value >1 is not a press)   // D-pad or trigger as an axis
+  }
+}
+function captureNext(hit) {
+  const c = S.capture;if (!c) return;const a = CAPTURE_ORDER[c.step];
+  if (hit) { if (AXIS_ACTIONS.includes(a)) c.prof.axes[a] = {i: hit.axis, inv: hit.inv}; else c.prof.binds.push(hit.b != null ? {a, b: hit.b} : {a, axis: hit.axis, ...(hit.eq != null ? {eq: hit.eq} : {sign: hit.sign})}); }
+  else if (!AXIS_ACTIONS.includes(a)) { const d = STD_BINDS().find(x => x.a === a);if (d) c.prof.binds.push(d); }
+  c.step++;
+  if (c.step >= CAPTURE_ORDER.length) {
+    const pad = rawPads().find(p => p.index === c.pad);c.prof.binds.push(...STD_BINDS().filter(x => x.a === 'home'));
+    if (pad) setProfile(pad, c.prof);S.capture = null;padKey = null;diagBuild();hostDiagNote('割当を保存しました');return;
+  }
+  captureShow();
+}
+
+// ---------- style (one small sheet; the dark look of the game) ----------
+function style() {
+  if (D.getElementById('ksPadCss')) return;const s = D.createElement('style');s.id = 'ksPadCss';
+  s.textContent = `.ks-padfocus{outline:2px solid #f0a03a!important;outline-offset:2px;box-shadow:0 0 0 4px rgba(240,160,58,.25)!important}
+.ks-padcursor{position:fixed;left:0;top:0;width:32px;height:32px;z-index:2147483000;pointer-events:none;filter:drop-shadow(0 0 2px #000)}
+.ks-padcursor svg{width:32px;height:32px;fill:none;stroke:#f0a03a;stroke-width:2}.ks-padcursor.down svg{stroke:#fff;stroke-width:3}
+.ks-paddiag{position:fixed;inset:0;z-index:2147482000;background:rgba(5,10,14,.94);overflow:auto;color:#dbe7ec;font-size:13px;padding:max(10px,env(safe-area-inset-top)) 12px 16px}
+.ks-paddiag[hidden]{display:none}.pd-card{max-width:980px;margin:0 auto;display:grid;gap:10px}
+.pd-head{display:flex;align-items:center;justify-content:space-between;gap:8px}.pd-head h2{font-size:16px;margin:0}
+.pd-status{margin:0;padding:8px 10px;border-radius:6px;border:1px solid #34505e;background:#14232c}.pd-status[data-kind=noapi],.pd-status[data-kind=insecure]{border-color:#c0583a;background:#2a1612}.pd-status[data-kind=none]{border-color:#b08a3a}
+.pd-choice{border:1px solid #34505e;border-radius:6px;display:flex;flex-wrap:wrap;gap:6px 14px;padding:6px 10px}.pd-choice label{display:flex;gap:6px;align-items:center}.pd-choice small{opacity:.7}
+.ks-paddiag h3{font-size:13px;margin:4px 0 6px;color:#9fc3d3}.pd-meta,.pd-last{margin:2px 0;word-break:break-all}
+.pd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:4px}.pd-b{position:relative;border:1px solid #34505e;border-radius:5px;padding:4px 6px;overflow:hidden;min-height:38px}
+.pd-b i{position:absolute;left:0;bottom:0;width:100%;height:0;background:rgba(240,160,58,.35)}.pd-b.on{border-color:#f0a03a}.pd-b b,.pd-b small{position:relative;display:block}.pd-b small{font-size:10px;opacity:.8;line-height:1.2}
+.pd-axes{display:grid;gap:3px;margin-top:6px}.pd-a{display:grid;grid-template-columns:34px 1fr 44px;gap:6px;align-items:center}.pd-a small{grid-column:2/4;font-size:10px;opacity:.75;margin-top:-2px}
+.pd-bar{position:relative;height:10px;border:1px solid #34505e;border-radius:3px}.pd-bar i{position:absolute;top:0;bottom:0;background:#68c2db}
+.pd-row{display:grid;grid-template-columns:120px 1fr 44px;gap:8px;align-items:center;margin:4px 0}.pd-check{grid-template-columns:auto 1fr}.pd-acts{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.pd-remap{margin:6px 0 0;padding:8px;border:1px solid #f0a03a;border-radius:6px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.pd-remap[hidden]{display:none}
+.pd-table{border-collapse:collapse;width:100%;font-size:12px}.pd-table th,.pd-table td{border-bottom:1px solid #24394400;border-top:1px solid #243944;padding:4px 6px;text-align:left;vertical-align:top}
+@media (min-width:760px){.pd-card{grid-template-columns:1fr 1fr}.pd-head,.pd-status,.pd-pads{grid-column:1/3}}
+.ks-padentry{white-space:nowrap}`;
+  D.head.appendChild(s);
+}
+// Entry points without editing the screens' markup: a footer button on the title and a row in the 設計図 sheet.
+function entries() {
+  const foot = D.querySelector('.title-foot');
+  if (foot && !foot.querySelector('[data-pad-diag]')) { const b = el('button', 'title-credit ks-padentry', 'ゲームパッド');b.type = 'button';b.dataset.padDiag = '';const ref = foot.querySelector('[data-title-sound]');foot.insertBefore(b, ref || null); }
+  const sheet = D.querySelector('#sheet [data-viewfix]');
+  if (sheet && !D.querySelector('#sheet [data-pad-diag]')) { const b = el('button', 'btn sm ks-padentry', 'ゲームパッドの診断と設定');b.type = 'button';b.dataset.padDiag = '';sheet.parentElement.appendChild(b); }
+}
+
+// ---------- start ----------
+function start() {
+  load();style();entries();
+  D.addEventListener('click', e => { if (e.target.closest && e.target.closest('[data-pad-diag]')) { e.preventDefault(); openDiag(); } });
+  if (HAS_API) {
+    W.addEventListener('gamepadconnected', e => { if (e.gamepad && !S.connected.has(e.gamepad.index)) onConnect(e.gamepad); });
+    W.addEventListener('gamepaddisconnected', e => { if (e.gamepad && S.connected.has(e.gamepad.index)) onDisconnect(e.gamepad.index); });
+  }
+  W.addEventListener('blur', () => releaseAll());
+  D.addEventListener('visibilitychange', () => { if (D.hidden) releaseAll(); });
+  // Real mouse / touch take over again: the pad's cursor and ring step aside (keyboard focus keeps the ring off).
+  W.addEventListener('pointerdown', e => { if (e.pointerId !== VID && e.isTrusted) { if (S.cursorShown && !S.vptr) showCursor(false); setRing(null); } }, true);
+  W.addEventListener('resize', () => { if (S.pos) { S.pos.x = Math.min(S.pos.x, W.innerWidth - 2); S.pos.y = Math.min(S.pos.y, W.innerHeight - 2); placeCursor(); } });
+  S.raf = W.requestAnimationFrame(frame);
+}
+W.KSInput = {__ks: true, HAS_API, BUTTON_ACTIONS, AXIS_ACTIONS, LABEL, API,
+  setHost(h) { S.host = h; entries(); }, openDiag, closeDiag, apiStatus, entries,
+  dispatch(a) { press(a, false); release(a); },   // keyboard or tests can drive the same actions
+  state() { return {frames: S.frames || 0, active: S.active, choice: store.choice, held: [...S.held], axes: {...S.axes}, mode: S.mode, cursor: S.cursorShown ? {...S.pos} : null, last: S.lastAct, ctx: ctxName(), connected: [...S.connected.entries()].map(([i, v]) => ({index: i, ...v})), profile: S.prof ? JSON.parse(JSON.stringify(S.prof)) : null, capture: S.capture ? CAPTURE_ORDER[S.capture.step] : null}; },
+  profileFor, setProfile, rumble, releaseAll, store: () => JSON.parse(JSON.stringify(store))};
+if (D.readyState === 'loading') D.addEventListener('DOMContentLoaded', start, {once: true}); else start();
+})();
+
 // ---- src/45_audio.js ----
 // 45_audio.js — KSAudio: synthesized orchestral BGM and SFX (Web Audio only; no samples, all themes original).
 // createEngine(ctx, dest) builds the graph on any BaseAudioContext, so the same code renders offline for tests.
@@ -1359,7 +1881,7 @@ const rgb = (c) => `rgb(${c[0]},${c[1]},${c[2]})`;
 
 // ---------- state ----------
 const PART_KEYS = Object.keys(C.PARTS).filter(k=>!['machinery','capacitor'].includes(k));
-const WEAPONS = ['refVen','refISD','refIon','refSide','oct40','casemate40','casemateMid','casemateLight','triple40','quad200','pd', 'ltl', 'mtl', 'htl', 'stl', 'utl', 'ionL', 'ion', 'msl', 'itl', 'trc'];
+const WEAPONS = ['refVen','refISD','refIon','refSide','oct40','casemate40','casemateMid','casemateLight','casemateIon','casemateIonL','triple40','quad200','pd', 'ltl', 'mtl', 'htl', 'xx9', 'stl', 'utl', 'ionL', 'nk7', 'ion', 'msl', 'itl', 'trc'];
 const BRIDGES = ['podBridge','podAir','podHangar','podCombat'];
 // v21 Craft weapons (starfighters, shuttles); capital turrets stay off a craft's palette and the reverse.
 const CRAFT_WEAPONS = ['claser', 'claserH', 'cion', 'cturret', 'ctorp', 'cmsl', 'cbomb', 'cpylon'];
@@ -1370,11 +1892,12 @@ const partOffered = k => craftDesign() ? C.craftPart(k) : C.PARTS[k].group !== '
 // Part sizes are kept apart for craft and capital ships (metres vs tens of metres).
 const pSize = k => craftDesign() ? (st.sizeCraft[k] ?? C.partLimits(ship, k).def) : st.size[k];
 const setPSize = (k, v) => { if (craftDesign()) st.sizeCraft[k] = v; else st.size[k] = v; };
-const TABS = [['hull', '船体'], ['mod', '区画および艤装'], ['systems','系統'], ['launch', '搭載'], ['ground', '地上部隊'], ['spec', '性能']];
+// v23 (UI-008) 配置 is the catalogue of parts to add (tab key 'mod', as before); 編集 lists and edits what is placed.
+const TABS = [['hull', '船体'], ['mod', '配置'], ['edit', '編集'], ['systems','系統'], ['launch', '搭載'], ['ground', '地上部隊'], ['spec', '性能']];
 // 削る・装甲 live inside 船体; their editors keep their own tab keys.
 const HULL_SUB = [['hull', '船体の形'], ['carve', '削る'], ['armor', '装甲']];
 const TAB_NAMES = {...Object.fromEntries(TABS), carve: '削る', armor: '装甲', bridge: '指揮・艦橋'};
-// Weapons live inside 区画および艤装 as a group of their own.
+// Weapons live inside 配置 as a group of their own.
 const armMode = () => st.tab === 'arm' || st.tab === 'mod' && st.group === 'weapons';
 // v22.3 One menu 「指揮・艦橋」 holds the command rooms (指揮 parts), the bridge bodies and the bridge pods; a
 // second row picks which. Its group key stays 'command' (a craft keeps 「指揮」 alone: it has no bridge).
@@ -1391,7 +1914,7 @@ function openCommandMenu(sub) {
 }
 // The bridge editor lives inside 区画 → 指揮・艦橋; its state keeps the 'bridge' key.
 const tabKey = () => st.tab === 'bridge' ? 'mod' : st.tab === 'carve' || st.tab === 'armor' ? 'hull' : st.tab;
-function markTabs() { $$('#tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === tabKey()))); }
+function markTabs() { $$('#tabs button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === tabKey()))); if (!nativeRender) renderInspBar(); }
 const PLACE = [['inside', '内蔵'], ['partial', '一部露出'], ['outside', '外付け']];
 const st = {
   tab: 'hull', part: 'gen', partTool: 'place',
@@ -1522,7 +2045,7 @@ function onEngineStats(msg) {
   if (msg.gen < eng.statsGen) return;
   eng.statsGen = msg.gen;
   prevS = S; S = msg.stats;
-  renderStrip(); renderSpecTargets(); if (st.tab === 'systems' || armMode() && st.sel?.list === 'fits' && !dragSnap) renderPanel();
+  renderStrip(); renderSpecTargets(); if (st.tab === 'systems' || (armMode() || st.tab === 'edit' && selSingle()) && st.sel?.list === 'fits' && !dragSnap) renderPanel();
   if (st.tab !== 'spec' && st.tab !== 'sim') renderPanelInfo();
   updateAviationUI(); updateGroundUI();
   if (JSON.stringify(S?.ungrounded || null) !== JSON.stringify(prevS?.ungrounded || null)) refreshOverlay();
@@ -1545,7 +2068,7 @@ function refreshDerivedPanel() {
   const a = document.activeElement;
   if (a && a.closest && a.closest('#panel') && a.matches('input, select, textarea')) return;
   const it = selItem();
-  if (['systems', 'launch'].includes(st.tab) || (st.tab === 'mod' && it && (it.k === 'hangar' || it._packingGroup || C.isInternal(it))) || (armMode() && st.sel?.list === 'fits')) renderPanel();
+  if (['systems', 'launch'].includes(st.tab) || ((st.tab === 'mod' || st.tab === 'edit' && selSingle()) && it && st.sel?.list === 'parts' && (it.k === 'hangar' || it._packingGroup || C.isInternal(it))) || ((armMode() || st.tab === 'edit' && selSingle()) && st.sel?.list === 'fits')) renderPanel();
 }
 function engineHello(mode) {
   eng.mode = mode; eng.ready = true;
@@ -1895,6 +2418,7 @@ function tool() {
   switch (st.tab) {
     case 'mod': return st.group==='weapons'?(st.fitTool==='place'?'fit':st.fitTool==='remove'?'unfit':st.fitTool==='multi'?'multi':'adjust'):st.partTool === 'select' ? 'select' : st.partTool === 'multi' ? 'multi' : st.partTool === 'remove' ? 'unpart' : 'part';
     case 'launch': return 'select';
+    case 'edit': return st.editTool === 'remove' ? 'unany' : 'edit';
     case 'arm': return st.fitTool === 'place' ? 'fit' : st.fitTool === 'remove' ? 'unfit' : st.fitTool === 'multi' ? 'multi' : 'adjust';
     case 'bridge': if(st.bridgeMode==='body')return st.partTool==='select'?'select':st.partTool==='multi'?'multi':st.partTool==='remove'?'unpart':'part';return st.bridgeTool === 'place' ? 'fit' : st.bridgeTool === 'remove' ? 'unfit' : 'adjust';
     case 'carve': return st.carveTool === 'solid' ? 'solid' : st.carveTool === 'notch' ? 'notch' : 'inspect';
@@ -1906,6 +2430,8 @@ function hintText() {
   const t = tool();
   switch (t) {
     case 'multi': return '区画・構造物・装備をタップして選択に追加／もう一度で解除';
+    case 'edit': return st.editTool === 'multi' ? 'タップで追加／もう一度で解除・ドラッグで移動' : isWide() ? 'クリックで選択・Shift＋クリックで追加／解除・ドラッグで移動' : 'タップで選択・「複数」で追加・ドラッグで移動';
+    case 'unany': return '撤去する部品をタップ（対称の相手も外れます）';
     case 'unpart': return '撤去する区画・構造物をタップ（対称の相手も外れます）';
     case 'part': {
       const spec=activeEquipment();if(spec)return `面をタップして${spec.name}を配置${spec.k==='engine'?'（寸法で推力が変化）':''}`;
@@ -1979,6 +2505,9 @@ function ghostFor(hit) {
     ls.box(C.fitAABB(hit.fit), t === 'unfit' ? ng : cy);
   } else if (t === 'select' && hit.part) {
     ls.part(hit.part, cy);
+  } else if (t === 'edit' || t === 'unany') {
+    const h = editHitItem(hit), col = t === 'unany' ? ng : cy; if (!h?.it) return null;
+    if (h.list === 'parts') ls.part(h.it, col); else ls.box(C.fitAABB(h.it), col);
   } else if (t === 'notch' && (hit.kind === 'hull' || st.notchStructures && hit.part?.k === 'struct')) {
     ls.box(notchBox(hit), ng);
   } else return null;
@@ -1996,6 +2525,7 @@ function refreshOverlay() {
   }
   // Parts that touch neither the hull nor anything connected to it are outlined in red.
   if (S?.ungrounded && fleet.mode === 'design') { const red = [255, 86, 76, 255], gp = new Set(S.ungrounded.parts), gf = new Set(S.ungrounded.fits); for (const p of ship.parts) if (gp.has(p.id)) ls.part(shape(p), red); for (const f of ship.fits) if (gf.has(f.id)) ls.box(C.fitAABB(f), red); }
+  if (st.tab === 'edit') { const am = [240, 170, 70, 255], pr = st.sel; for (const p of ship.parts) if (st.multi.parts.has(p.id)) ls.part(shape(p), pr?.list === 'parts' && pr.id === p.id ? cy : am); for (const f of ship.fits) if (st.multi.fits.has(f.id)) ls.box(C.fitAABB(f), pr?.list === 'fits' && pr.id === f.id ? cy : am); xfPreviewLines(ls); }
   if (tool() === 'multi') { const am = [240, 170, 70, 255]; for (const p of ship.parts) if (st.multi.parts.has(p.id)) ls.part(shape(p), am); for (const f of ship.fits) if (st.multi.fits.has(f.id)) ls.box(C.fitAABB(f), am); }
   if (it && st.sel.list === 'fits' && (armMode() || st.tab === 'bridge')) { ls.box(C.fitAABB(it), cy); for (const l of fitLinks(it)) ls.box(C.fitAABB(l.fit), [105, 195, 220, 130]);const room=C.commandCompartments(ship).find(p=>p.windowId===it.id);if(room)ls.part(room,[142,229,192,255]); }
   const base = ls.out();
@@ -2011,26 +2541,28 @@ function onHover(px, py) {
   if (!ship || !view) return;
   const t = tool();
   if(t === 'solid') return;
-  hoverLines = ghostFor(pick(px, py, {parts: t === 'select' || t === 'multi' || t === 'unpart', fits: t === 'unfit' || t === 'adjust' || t === 'inspect' || t === 'fit' || t === 'multi'}));
+  hoverLines = ghostFor(pick(px, py, {parts: t === 'select' || t === 'multi' || t === 'unpart' || t === 'edit' || t === 'unany', fits: t === 'unfit' || t === 'adjust' || t === 'inspect' || t === 'fit' || t === 'multi' || t === 'edit' || t === 'unany'}));
   refreshOverlay();
 }
 function clearHover() { hoverLines = null; refreshOverlay(); }
 
-function onTap(px, py) {
+function onTap(px, py, add) {
   if(trial.on)return;
   if(fleet.mode!=='design'){fleetTap(px,py);return;}
   if(!view)return;
   const t = tool();
   if(t === 'solid') { if(st.cutterAction === 'place') { const hit=pick(px,py,{parts:true,fits:false}); if(hit?.p)placeSolidCutter(hit);else toast('カッターを重ねる船体・構造物をタップしてください'); } return; }
-  tapHit(t, pick(px, py, tapWant(t)));
+  tapHit(t, pick(px, py, tapWant(t)), add);
 }
 // Alignment snaps the placement point, except along the face normal (that
 // coordinate stays on the tapped face).
 function alignFitPoint(p, n) { if (!st.alignment || st.alignment === 'none') return p; const q = C.alignedPosition(ship, p, st.alignment); for (let a = 0; a < 3; a++) if (Math.abs(n[a]) > .7) q[a] = p[a]; return q; }
-function tapWant(t) { return {parts: t === 'select' || t === 'multi' || t === 'unpart' || t === 'inspect' || (t === 'notch' && st.notchStructures), fits: t !== 'part' && t !== 'notch' && t !== 'unpart'}; }
-function tapHit(t, hit) {
+function tapWant(t) { return {parts: t === 'select' || t === 'multi' || t === 'unpart' || t === 'inspect' || t === 'edit' || t === 'unany' || (t === 'notch' && st.notchStructures), fits: t !== 'part' && t !== 'notch' && t !== 'unpart'}; }
+function tapHit(t, hit, add) {
   hoverLines = null;
   switch (t) {
+    case 'edit': editTap(hit, !!add); break;
+    case 'unany': { const h = editHitItem(hit); if (h?.it) { removeWithPreview('撤去', h.list, h.it); selSync(); renderPanel(); } else toast(st.view === 'normal' ? '撤去する部品をタップしてください（内部の区画は「透視」で選べます）' : '撤去する部品をタップしてください'); break; }
     case 'inspect': showInspect(hit); break;
     case 'select':
       if(hit?.part?.windowId||hit?.part?.weaponId){openLayoutTarget({list:'fits',id:hit.part.windowId||hit.part.weaponId});break;}
@@ -2113,7 +2645,7 @@ function hullDetailHTML(p) {
 // What the strip shows: the selection being edited, else the last thing tapped with the inspect tool.
 function selTarget() {
   if (!ship) return null;
-  const it = selItem(), here = l => l === 'fits' ? armMode() || st.tab === 'bridge' && st.bridgeMode === 'windows' : l === 'parts' && ['mod', 'launch', 'bridge'].includes(st.tab);
+  const it = selItem(), here = l => st.tab === 'edit' && ['fits', 'parts'].includes(l) || (l === 'fits' ? armMode() || st.tab === 'bridge' && st.bridgeMode === 'windows' : l === 'parts' && ['mod', 'launch', 'bridge'].includes(st.tab));
   if (it && st.sel && ['fits', 'parts'].includes(st.sel.list) && here(st.sel.list)) return {list: st.sel.list, it, sel: true};
   const q = st.inspect; if (!q) return null;
   if (q.list) { const x = ship[q.list]?.find(o => o.id === q.id); return x ? {list: q.list, it: x, sel: false} : null; }
@@ -2143,9 +2675,9 @@ function stripFacts(t) {
 function renderSelStrip() {
   const panel = $('#panel'); if (!panel || fleet.mode !== 'design') return;
   let strip = panel.querySelector(':scope > .sel-strip'), info = panel.querySelector(':scope > .sel-info');
-  const t = ship ? selTarget() : null;
+  const many = ship && st.tab === 'edit' && selN() && !selSingle(), t = many ? {list: 'multi', sel: true} : ship ? selTarget() : null;
   if (!t) { strip?.remove(); info?.remove(); return; }
-  const f = stripFacts(t);
+  const f = many ? editStripFacts() : stripFacts(t);
   const html = `<span class="ss-t"><b>${esc(f.title)}</b>${f.id != null ? `<small>#${f.id}</small>` : ''}${f.tw ? '<small class="ss-tw">· 対</small>' : ''}</span><span class="ss-l">${esc(f.line)}</span><button type="button" class="ss-b ss-i" data-selinfo aria-pressed="${!!st.selInfo}" aria-label="詳しい情報" title="詳しい情報">i</button>${t.sel ? '<button type="button" class="ss-b" data-desel title="選択解除" aria-label="選択解除">解除</button><button type="button" class="ss-b danger" data-delsel title="撤去" aria-label="撤去">撤去</button>' : '<button type="button" class="ss-b" data-inspectx title="閉じる" aria-label="閉じる">×</button>'}`;
   if (!strip) { strip = document.createElement('div'); strip.className = 'sel-strip'; strip.setAttribute('role', 'status'); }
   const nav = [...panel.querySelectorAll(':scope > .panel-nav')].pop(); if (nav ? nav.nextElementSibling !== strip : panel.firstElementChild !== strip) { if (nav) nav.after(strip); else panel.prepend(strip); }
@@ -2202,6 +2734,7 @@ function renderStrip() {
     <span class="ss"><i>加速</i><b>${fG(S.accelG)}</b></span>
     <span class="ss"><i>一斉射</i><b>${fTT(S.alphaTot)}</b></span>
     <span class="ss-flag ${bad ? 'bad' : warn.length ? 'warn' : 'ok'}" aria-label="警告 ${warn.length} 件">${warn.length ? warn.length : '✓'}</span>`;
+  renderInspBar();
 }
 function bar(frac, cls) { return `<span class="bar ${cls || ''}"><em style="width:${Math.max(0, Math.min(100, frac * 100)).toFixed(1)}%"></em></span>`; }
 function radar(S) {
@@ -2515,8 +3048,8 @@ function renderPanelInfo() {
   const box = $('#pinfo'); if (!box || !S) return;
   let h = '';
   switch (armMode() ? 'arm' : st.tab) {
-    case 'mod': h = `<div class="mini"><span>出力 ${fW(S.power)}（ISD比 ×${S.xISD.toFixed(2)}）</span><span>推力 ${fG(S.thrustG)}</span><span>シールド ${fPct(S.shieldPct)}</span><span>ハイパー ${S.hyperClass ? 'クラス' + S.hyperClass.toFixed(1) : 'なし'}</span><span>搭載機 ${num(Math.floor(S.slots))}</span><span>反応炉の露出 ${fPct(S.genExpFrac)}</span></div>`; break;
-    case 'launch': { const a=S.aviation||C.aviationStatus(ship,S.info),closed=S.slidingHatches>0&&S.launch===0; h=`<div class="mini"><span>格納容量 ${a.capacity.toFixed(2)} サイズ</span><span>格納区画 ${num(ship.parts.filter(p=>p.k==='hangar').length)}</span><span>${closed?'ハッチ閉鎖中':'発艦口あり'}</span><span>搭載は編成画面で</span></div>`; break; }
+    case 'edit': case 'mod': h = `<div class="mini"><span>出力 ${fW(S.power)}（ISD比 ×${S.xISD.toFixed(2)}）</span><span>推力 ${fG(S.thrustG)}</span><span>シールド ${fPct(S.shieldPct)}</span><span>ハイパー ${S.hyperClass ? 'クラス' + S.hyperClass.toFixed(1) : 'なし'}</span><span>搭載機 ${num(Math.floor(S.slots))}</span><span>反応炉の露出 ${fPct(S.genExpFrac)}</span></div>`; break;
+    case 'launch': { const a=S.aviation||C.aviationStatus(ship,S.info),closed=S.slidingHatches>0&&S.launch===0; h=`<div class="mini"><span>格納容量 ${a.capacity.toFixed(2)} サイズ</span><span>格納区画 ${num(ship.parts.filter(p=>p.k==='hangar').length)}</span><span>${closed?'ハッチ閉鎖中':'発艦口あり'}</span><span>航空管制 ${num(S.airCtl||1)} 中隊</span><span>搭載は編成画面で</span></div>`; break; }
     case 'arm': h = `<div class="mini"><span>一斉射 ${fTT(S.alphaTot)}</span><span>主射界 ${fTT(S.alphaBest)}（${fPct(S.arcEff)}）</span><span>兵装電力 ${Math.round(S.draw.weapons / Math.max(1, S.power) * 100)}%</span><span>配電路 ${fPct(S.feedShare || 0)}</span><span>兵装充電 ${fPct(S.rc)}</span></div>`; break;
     case 'bridge': h = `<div class="mini"><span>艦橋 ${S.bridges} 基</span><span>平均視界 ${fPct(S.view)}</span><span>命中補正 ${fPct(S.accuracy)}</span></div>`; break;
     case 'armor': h = `<div class="mini"><span>装甲質量 ${fMass(S.armorMass)}</span><span>表面積 ${ja(S.area)} m²</span><span>重要区画の防護 ${fPct(S.protectedFrac)}</span><span>脆弱性 ${fPct(S.vuln)}</span><span>加速 ${fG(S.accelG)}</span></div>`; break;
@@ -2743,9 +3276,10 @@ let itemDrag = null, itemDragTouch = 0;
 function dragItemStart(px, py) {
   itemDrag = null;
   if (fleet.mode !== 'design' || !view || !ship?._geoProxy || !st.sel) return false;
-  const t = tool(); if (t !== 'select' && t !== 'adjust') return false;
+  const t = tool(); if (t !== 'select' && t !== 'adjust' && t !== 'edit') return false;
   const it = selItem(), list = st.sel.list; if (!it || (list !== 'parts' && list !== 'fits')) return false;
   const r = view.ray(px, py); if (!r) return false;
+  if (t === 'edit' && !selSingle()) { const D = dragSelStart(px, py, r); if (!D) return false; itemDrag = D; return true; }   // v23 the whole selection
   let best = null;
   for (const q of linkedItems(list, it)) {
     const b = (list === 'parts' ? C.partAABB(q) : C.fitAABB(q)).slice(), pad = Math.max(2, .06 * Math.max(b[3] - b[0], b[4] - b[1], b[5] - b[2]));
@@ -2768,6 +3302,7 @@ function dragSupportY(c, skip) {
 function dragItemMove(px, py) {
   const D = itemDrag; if (!D || !ship) return;
   const r = view.ray(px, py); if (!r) return;
+  if (D.multi) { dragSelMove(D, r); const now = performance.now(); if (now - itemDragTouch > 90) { itemDragTouch = now; touch('all'); scheduleStats(400); } requestDraw(); return; }
   if (!D.moving) { D.moving = true; beginDrag(D.list === 'parts' ? 'ドラッグで移動' : '装備をドラッグで移動'); st.sel = {list: D.list, id: D.id}; }
   if (D.list === 'parts') {
     const den = C.dot(r.d, D.normal); if (Math.abs(den) < 1e-6) return;
@@ -2783,9 +3318,11 @@ function dragItemMove(px, py) {
   const now = performance.now(); if (now - itemDragTouch > 90) { itemDragTouch = now; touch(D.list); scheduleStats(400); }
   requestDraw();
 }
+// Seat a fitting at a point with a face normal: the mounting axis, tilt and surface follow the new place.
+function seatFit(g, q, m) { g.p = q.slice(); g.n = C.norm(m); if (g.mountAxis == null) g.a = C.AXES.reduce((i, x, j) => C.dot(x, g.n) > C.dot(C.AXES[i], g.n) ? j : i, 0); const tl = g.mountAxis == null && !g.localMount && weaponTiltMode(g.k) ? C.fitTilt(g.n) : null; if (tl) g.tilt = tl; else delete g.tilt; delete g.local; delete g.localNormal; delete g.host; try { C.mountFit(ship, g); } catch (e) { g.float = true; } }
 function moveFitTo(f, p, n0) {
   const d = C.FITS[f.k], n = d.cat === 'w' ? weaponPlacementNormal(f.k, n0) : n0;
-  const set = (g, q, m) => { g.p = q.slice(); g.n = C.norm(m); if (g.mountAxis == null) g.a = C.AXES.reduce((i, x, j) => C.dot(x, g.n) > C.dot(C.AXES[i], g.n) ? j : i, 0); const tl = g.mountAxis == null && !g.localMount && weaponTiltMode(g.k) ? C.fitTilt(g.n) : null; if (tl) g.tilt = tl; else delete g.tilt; delete g.local; delete g.localNormal; delete g.host; try { C.mountFit(ship, g); } catch (e) { g.float = true; } };
+  const set = seatFit;
   const links = fitLinks(f);
   set(f, p, n);
   for (const l of links) { let q = p, m = n; if (l.y) { q = C.vmirrorPoint(ship, q); m = [m[0], -m[1], m[2]]; } if (l.z) { q = C.mirrorP(q); m = C.mirrorP(m); } set(l.fit, q, m); }
@@ -2793,6 +3330,7 @@ function moveFitTo(f, p, n0) {
 }
 function dragItemEnd(cancel) {
   const D = itemDrag; itemDrag = null; if (!D?.moving) return;
+  if (D.multi) { dragSelEnd(D, cancel); return; }
   if (cancel && dragSnap) { const old = dragSnap; dragSnap = null; restore(old); return; }
   touch(D.list); endDrag(); scheduleStats(30);
   const it = D.list === 'fits' ? ship.fits.find(q => q.id === D.id) : null;
@@ -2812,7 +3350,7 @@ function attachControls(canvas) {
       return;
     }
     if (ptrs.size === 1) {
-      start = {x: e.clientX, y: e.clientY, t: performance.now()};
+      start = {x: e.clientX, y: e.clientY, t: performance.now(), add: e.button === 0 && (e.shiftKey || e.ctrlKey || e.metaKey)};
       last = {x: e.clientX, y: e.clientY}; moved = false;
       mode = (e.button === 2 || e.button === 1 || e.shiftKey) ? 'pan' : 'pending';
       if(mode === 'pending' && cutterDragStart(e.clientX,e.clientY)) mode='cutter';
@@ -2851,7 +3389,9 @@ function attachControls(canvas) {
     if(mode === 'cutter')cutterDragEnd(false);
     if(mode === 'item')dragItemEnd(false);
     if(mode === 'itemPending'){itemDrag=null;if(ptrs.size === 0)onTap(e.clientX, e.clientY);}
-    if (mode === 'pending' && ptrs.size === 0 && !moved && performance.now() - start.t < 900) onTap(e.clientX, e.clientY);
+    if (mode === 'pending' && ptrs.size === 0 && !moved && performance.now() - start.t < 900) onTap(e.clientX, e.clientY, start.add);
+    // v23 Shift + click (no drag) adds to or removes from the selection; Shift + drag still pans.
+    if (mode === 'pan' && ptrs.size === 0 && start?.add && Math.hypot(e.clientX - start.x, e.clientY - start.y) < 7 && performance.now() - start.t < 900) onTap(e.clientX, e.clientY, true);
     if (mode === 'trialPending' && ptrs.size === 0 && performance.now() - start.t < 600 && !shot.on) trialCommand('fireTap');
     if (ptrs.size === 0) { mode = null; pinch = null; if (e.pointerType !== 'mouse') clearHover(); }
     else if (ptrs.size === 1) { const p = [...ptrs.values()][0]; last = {x: p.x, y: p.y}; mode = 'rotate'; moved = true; }
@@ -3005,7 +3545,11 @@ function bind() {
     const b = e.target.closest('button[data-tab]'); if (!b) return;
     if (tabKey() === b.dataset.tab && !st.dockCollapsed) { st.dockCollapsed = true; $('#dock').classList.add('collapsed'); return; }
     st.dockCollapsed = false; $('#dock').classList.remove('collapsed');
-    st.tab = b.dataset.tab; st.hatchA = null; hideInspect(); renderPanel();
+    let to = b.dataset.tab;
+    // 配置 from 編集 with one item selected: the catalogue opens on that kind, set up like it (as 選択 → 配置 did).
+    if (to === 'mod') { if (st.tab === 'edit' && selSingle()) { carryToPlace(); selClear(); if (st.tab === 'bridge') to = 'bridge'; } if (st.partTool !== 'remove') st.partTool = 'place'; if (st.fitTool !== 'remove') st.fitTool = 'place'; if (st.bridgeTool !== 'remove') st.bridgeTool = 'place'; }
+    if (to === 'edit' && st.editTool === 'remove') st.editTool = 'select';
+    st.tab = to; st.hatchA = null; xfReset(); hideInspect(); renderPanel();
   });
   $('#statstrip').addEventListener('click', () => { st.tab = isWide() ? st.tab : 'spec'; st.dockCollapsed = false; $('#dock').classList.remove('collapsed'); renderPanel(); });
   $('#panel').addEventListener('click', e => {
@@ -3019,9 +3563,10 @@ function bind() {
     else if (d.psize) { st.size.hangar = +d.psize; renderPanel(); }
     else if (d.hsize) { mutate('格納庫の大きさ', () => editSel(it => { it.d = +d.hsize; }), 'parts'); renderPanel(); }
     else if (d.selpart) { st.sel = {list: 'parts', id: +d.selpart}; st.partTool = 'select'; renderPanel(); }
-    else if ('desel' in d) { st.sel = null; renderPanel(); }
+    else if ('desel' in d) { selClear(); xfReset(); renderPanel(); }
     else if ('fitpair' in d) { st.fitPairEdit = st.fitPairEdit === false; renderPanel(); refreshOverlay(); }
     else if ('delsel' in d) {
+      if (st.tab === 'edit') { editDelete(); renderPanel(); return; }
       const it = selItem(); if (!it) return;
       const list = st.sel.list;
       if (list === 'fits') {   // the editor removes the pair it edits
@@ -3169,10 +3714,19 @@ function bind() {
     const mod = e.ctrlKey || e.metaKey;
     if (shot.on && (e.key === 'Escape' || e.code === 'KeyH')) { e.preventDefault(); shotSet(false); return; }
     if (!mod && !e.altKey && e.code === 'KeyH' && !document.body.classList.contains('title-open')) { e.preventDefault(); shotSet(true); return; }
+    if (st.tab === 'edit' && ship) {   // v23 編集: Ctrl+G group, Ctrl+Shift+G ungroup, Ctrl+A all, Ctrl+D duplicate, Ctrl+C/X/V, Delete, Esc
+      const k = e.key.toLowerCase();
+      if (mod && k === 'g') { e.preventDefault(); e.shiftKey ? editUngroup() : editGroup(); renderPanel(); return; }
+      if (mod && k === 'a') { e.preventDefault(); st.multi = {parts: new Set(ship.parts.map(p => p.id)), fits: new Set(ship.fits.map(f => f.id))}; st.sel = null; selSync(); xfReset(); renderPanel(); return; }
+      if (mod && k === 'd') { e.preventDefault(); editDuplicate(); xfReset(); renderPanel(); return; }
+      if (mod && ['c', 'x', 'v'].includes(k)) { e.preventDefault(); if (k === 'v') { multiPaste(); selSync(); } else if (multiCopy()) { if (k === 'x') editDelete(); else toast('コピーしました'); } renderPanel(); refreshOverlay(); return; }
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selN()) { e.preventDefault(); editDelete(); renderPanel(); return; }
+      if (e.key === 'Escape' && $('#sheet').hidden) { selClear(); xfReset(); renderPanel(); return; }
+    }
     if (mod && tool() === 'multi' && ['c', 'x', 'v'].includes(e.key.toLowerCase())) { e.preventDefault(); const k = e.key.toLowerCase(); if (k === 'v') multiPaste(); else if (multiCopy()) { if (k === 'x') multiDelete('切り取り'); else toast('コピーしました'); } renderPanel(); refreshOverlay(); return; }
     if (mod && e.key.toLowerCase() === 'z') { e.preventDefault(); e.shiftKey ? redo() : undo(); }
     else if (mod && e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); }
-    else if (e.key === 'Escape') { if (!$('#sheet').hidden) closeSheet(); else { st.hatchA = null; st.sel = null; hideInspect(); renderPanel(); } }
+    else if (e.key === 'Escape') { if (!$('#sheet').hidden) closeSheet(); else { st.hatchA = null; selClear(); hideInspect(); renderPanel(); } }
     else if ((e.key === 'Delete' || e.key === 'Backspace') && selItem()) { const it = selItem(), list = st.sel.list; removeWithPreview('撤去', list, it); st.sel = null; renderPanel(); }
   });
   window.addEventListener('resize', () => { requestDraw(); renderSpecTargets(); });
@@ -3207,7 +3761,7 @@ function start(hot) {
   $('#newHulls').innerHTML = Object.entries(C.HULLS).map(([k, v]) => `<button type="button" class="hullcard" data-newhull="${k}">${silhouette(v)}<span>${v.name}</span></button>`).join('');
   $('#refGrid').innerHTML = [...exampleList(false), ...exampleList(true)].map(e => `<button class="btn" data-reference="${e.key}">${esc(e.name)}<small>${esc(e.side)} · ${esc(exampleLine(e))}</small></button>`).join('');
   restoreRenderer(false,false);bindRendering();
-  bind();bindEngineering();bindRealism();bindReference();bindAviation();bindFleet();bindSurface();bindPlanCuts();bindLayout();bindSolidCuts();bindTitle();bindTutorial();bindGround();bindTrial();bindMulti();bindDockToggle();bindShot();bindVoyage();bindRail();bindPalette();bindSound();
+  bind();bindEngineering();bindRealism();bindReference();bindAviation();bindFleet();bindSurface();bindPlanCuts();bindLayout();bindSolidCuts();bindTitle();bindTutorial();bindGround();bindTrial();bindMulti();bindEdit();bindInspBar();bindDockToggle();bindShot();bindVoyage();bindRail();bindPalette();bindSound();
   if (hot && hot.ui) { for (const k of ['tab', 'part', 'partTool', 'mirror', 'view', 'coded', 'fit', 'bridge', 'bridgeMode', 'bridgeEquipment', 'equipmentId', 'group', 'ped']) if (hot.ui[k] != null) st[k] = hot.ui[k]; }
   if(!BRIDGES.includes(st.bridge))st.bridge='podBridge';
   if(!['body','windows'].includes(st.bridgeMode))st.bridgeMode='body';
@@ -3271,7 +3825,7 @@ function titleOrbit(now) {
 function showTitle(panel) {
   const t = $('#title'); if (!t) return;
   t.hidden = false; document.body.classList.add('title-open'); titleCam.base = null; titleCam.last = 0; titleShipView();
-  hideBusyOverlay(); if (panel === 'voyage' || panel === 'design') { titleState.mode = panel; titleState.panel = null; } else if (panel === 'missions') { titleState.mode = 'voyage'; titleState.panel = 'missions'; } else { titleState.panel = panel || null; if (panel) titleState.mode = 'design'; } renderTitle();
+  hideBusyOverlay(); if (panel === 'voyage' || panel === 'design') { titleState.mode = panel; titleState.panel = null; } else if (panel === 'missions' || panel === 'msn') { titleState.mode = 'voyage'; titleState.panel = panel; } else { titleState.panel = panel || null; if (panel) titleState.mode = 'design'; } renderTitle();
   setTimeout(() => t.querySelector('.tmenu:not([disabled])')?.focus?.({preventScroll: true}), 30);
 }
 function hideTitle() {
@@ -3305,7 +3859,7 @@ function renderTitle() {
   for (const b of $$('#titleMenu .tmenu')) b.setAttribute('aria-pressed', String(b.dataset.title === titleState.panel));
   const panel = $('#titlePanel');
   if (titleState.panel === 'patrol') { titleState.panel = 'missions'; mm.mode = 'patrol'; }
-  panel.hidden = !titleState.panel || titleState.panel === 'missions'; missionMapRender();
+  panel.hidden = !titleState.panel || titleState.panel === 'missions' || titleState.panel === 'msn'; missionMapRender(); msTitleRender();
   if (titleState.panel === 'new') panel.innerHTML = titleNewHTML();
   else if (titleState.panel === 'load') { panel.innerHTML = titleLoadHTML(); renderTitleSaves(); }
   else if (titleState.panel === 'sound') { panel.innerHTML = soundSettingsHTML(); const el = $('#soundSettings'); if (el && window.KSAudio) window.KSAudio.mountSettings(el); else if (el) el.innerHTML = '<p class="note">この端末では音を鳴らせません（Web Audio に対応していません）。</p>'; }
@@ -3558,17 +4112,34 @@ function trenchPanelHTML(){
   <div class="pgroup"><h4>設置済みトレンチ</h4><ul class="ilist">${(ship.trenches||[]).map(q=>`<li><span><b>${q.mode==='split'?'一定間隔':'従来の切削'} · ${q.side==='both'?'両舷':q.side==='port'?'左舷':'右舷'}</b>上下 ${fmtM(q.height)} / 後退 ${fmtM(q.depth)}</span><div class="cutter-list-actions">${q.mode!=='split'?`<button class="btn sm" data-gap-trench="${q.id}">一定間隔に変更</button>`:''}<button class="btn sm ghost" data-deltrench="${q.id}">撤去</button></div></li>`).join('')||'<li>トレンチはまだありません。</li>'}</ul></div>`;
 }
 function hpWidth(){return ship.hull.W;}
+// v23 The ship's power + heat network (spec 10.5): sources, power and heat paths, dissipators, margin, broken
+// paths, overloads, residual heat and the low-emission endurance, at a load preset (通常航行 / 戦闘 / 最大出力).
+function heatHTML(){
+  const H=S?.heat;if(!H)return '';const pr=['cruise','combat','max'].includes(st.heatPreset)?st.heatPreset:'combat',e=H.presets[pr];if(!e)return '';
+  const dur=t=>!Number.isFinite(t)?'—':t<120?`${Math.round(t)} 秒`:t<7200?`${Math.round(t/60)} 分`:`${(t/3600).toFixed(1)} 時間`;
+  const rows=[['熱源',`${num(H.sources)} 系統`],['廃熱',fW(e.gen)],['散逸量',fW(e.out)],['余裕率',Number.isFinite(e.margin)?`${e.margin.toFixed(2)}×`:'—'],
+   ['給電経路',H.power.broken?`<span class="neg">${num(H.power.links)} 本（断線 ${num(H.power.broken)}）</span>`:`${num(H.power.links)} 本（断線なし）`],['熱輸送経路',`${num(H.heat.links)} 本（専用 ${num(H.heat.dedicated)}・共用 ${num(H.heat.shared)}）`+(H.heat.broken?` <span class="neg">（不通 ${num(H.heat.broken)}）</span>`:'')],
+   ['散逸設備',`${num(H.dis.length)} 基 · ${fW(H.disCap)}`],['内蔵冷却',fW(H.builtin)],['外殻の放熱（低温）',fW(H.skin)],['過負荷',e.overCount?`<span class="neg">${num(e.overCount)} 系統が蓄熱</span>`:'なし'],['低放射持続',dur(e.endurance)]];
+  const kinds=Object.entries(H.kinds).filter(([,n])=>n>0).map(([k,n])=>`${C.HEAT_KINDS[k]} ${num(n)}`).join(' · ');
+  return `<div class="pgroup blueprint-card" id="heat-editor"><h4>電力・熱ネットワーク</h4><div class="seg">${['cruise','combat','max'].map(k=>`<button type="button" data-heat-preset="${k}" aria-pressed="${k===pr}">${C.HEAT_PRESETS[k].name}</button>`).join('')}</div>
+  <dl class="engineering-stats">${rows.map(([a,b])=>`<div><dt>${a}</dt><dd>${b}</dd></div>`).join('')}</dl><p class="note">熱源：${kinds}</p>
+  ${e.over.length?`<h4>蓄熱する系統（装置ごとの残熱）</h4><ul class="ilist">${e.over.map(x=>`<li><span><b>${esc(x.name)}</b>残熱 ${fW(x.stored)}</span><span>${dur(x.t)}で出力制限</span></li>`).join('')}</ul>`:''}
+  ${H.dis.length?`<h4>散逸設備</h4>${H.dis.map(d=>`<button class="engine-row" data-goto="${d.id}"><span>${esc(d.name)}</span><b>${fW(d.cap)}${d.ext?` · 露出 ${fPct(d.exposed)}`:''}</b></button>`).join('')}`:''}
+  <p class="note">反応炉・武装・推進・シールド・生活設備・超兵器は一つの給電網と熱輸送網につながります。廃熱は消費電力のうち砲弾・排気・有効出力として出ていかない分です。各設備の内蔵冷却で足りない熱は熱輸送路で近くの散逸設備へ運ばれ、運びきれない分は設備に蓄熱します。蓄熱が増えると出力制限、満杯で緊急停止します。停止が間に合わないと武装は武装用電力区画が焼損し、超兵器は直結したジェネレーターが爆発します。超兵器は内蔵冷却を持たないので、散逸装置がない場合はジェネレーターに散逸能力を自動割当します。低放射持続は、散逸を止めて全廃熱を蓄熱した場合に続けられる時間です。数値はすべて仮の調整値です。</p></div>`;
+}
 function systemsHTML(){
   const rs=ship.parts.filter(C.isReactor),eng=ship.parts.filter(p=>p.k==='engine'),routes=C.enginePaths(ship),S0=S;
   return `<div class="flow-intro"><span class="eyebrow">ENGINEERING / 03</span><h3>炉とノズルで機関を組む</h3><p>接続された機関は自動生成され、航空区画の自動充填から除外されます。</p><button class="btn primary" data-internal>内部を透視する</button></div>
   <h4>動力の接続</h4>${rs.map(r=>`<div class="system-card"><button class="system-title" data-goto="${r.id}"><i style="background:${rgb(C.PARTS[r.k].col)}"></i>${C.PARTS[r.k].name} #${r.id}<span>${fW(C.reactorPower(r))}</span></button>${eng.filter(e=>C.reactorFor(ship,e)?.id===r.id).map(e=>{const path=routes.find(p=>p.nozzle===e.id);return `<button class="engine-row" data-goto="${e.id}"><span>↳ ノズル #${e.id} · ⌀${Math.round(e.d)} m</span><b>${path?fLen(path.seg.l):'接続不可'}</b></button>`;}).join('')||'<p class="note">接続されたノズルはありません。</p>'}</div>`).join('')||'<p class="note">先に主反応炉か補助反応炉を配置してください。</p>'}
   ${eng.filter(e=>!C.reactorFor(ship,e)).map(e=>`<button class="engine-row neg" data-goto="${e.id}">未接続ノズル #${e.id}</button>`).join('')}
+  ${heatHTML()}
   ${S0?`<h4>区画の能力</h4><dl class="engineering-stats">${[['自動機関の占有',ja(S0.engineVolume)+' m³'],['反応物貯蔵',ja(S0.fuelVolume)+' m³'],['巡航時持続',S0.fuelHours.toFixed(1)+' 時間'],['反応物供給能力',fPct(S0.supplyRatio)],['慣性制御 対応質量',fMass(S0.inertialSupport)],['構造維持 対応質量',fMass(S0.integritySupport)],['リパルサー 支持質量',fMass(S0.repulsorSupport)],['乗艦可能',num(S0.personCapacity??S0.crewCapacity)+' 名'],['自動化装置の受け持ち',num(S0.autoCrew||0)+' 名分'],['兵員枠（定員を除く）',num(S0.troopCapacity)+' 名'],['車両の搭載',num(S0.vehicleCapacity)+' 両'],['航空整備',num(S0.serviceCapacity)+' 機分'],['貨物容量',fMass(S0.cargoCapacity)]].map(([a,b])=>`<div><dt>${a}</dt><dd>${b}</dd></div>`).join('')}</dl>`:''}
   `;
 }
 function bindEngineering(){
   $('#panel').addEventListener('click',e=>{
     const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+    if(d.heatPreset){st.heatPreset=d.heatPreset;renderPanel();return;}
     // 指揮・艦橋 (and the old 艦橋 key) open on the part of the menu last used.
     if(d.group==='command'||d.group==='bridge'){if(st.structForm==='reference'){st.structForm='trap';delete st.skinAsset;}openCommandMenu(d.group==='bridge'?(st.cmdSub==='rooms'?'body':st.cmdSub):(st.tab==='bridge'||st.tab==='mod'&&st.group==='command'?cmdSubNow():st.cmdSub));renderPanel();return;}
     if(d.group){st.equipmentId=null;if(st.structForm==='reference'){st.structForm='trap';delete st.skinAsset;}st.tab='mod';st.group=d.group;if(st.group!=='weapons')st.part=PART_KEYS.find(k=>C.PARTS[k].group===st.group);st.partTool='place';renderPanel();}
@@ -3620,7 +4191,18 @@ function bindEngineering(){
 st.roomSize=[120,60,24];
 // v21 Keep the palette choices valid when the design changes between craft and capital ship.
 function craftPaletteGuard(){if(!ship)return;const gs=layoutGroups();if(craftDesign()&&st.tab==='bridge'){st.tab='mod';st.group=gs.some(g=>g[0]==='command')?'command':'craft';}if(st.group!=='weapons'&&st.group!=='bridge'&&!gs.some(g=>g[0]===st.group))st.group=craftDesign()?'craft':'power';if(st.part&&!partOffered(st.part))st.part=PART_KEYS.find(k=>C.PARTS[k].group===st.group&&partOffered(k))||'struct';if(craftDesign()&&st.group==='bridge')st.group='craft';const wk=weaponKeys();if(!wk.includes(st.fit))st.fit=wk[0];if(craftDesign()&&st.structSize[0]>ship.hull.L)st.structSize=[Math.max(.2,+(ship.hull.L*.3).toFixed(2)),Math.max(.2,+(ship.hull.W*.3).toFixed(2)),Math.max(.05,+(ship.hull.H*.1).toFixed(2))];}
-function renderPanel(){craftPaletteGuard();if(st.tab==='bridge')st.cmdSub=st.bridgeMode==='windows'?'windows':'body';else if(st.tab==='mod'&&st.group==='command')st.cmdSub='rooms';
+// v23 Item selection in the 配置 menus (the old 選択 / 複数 tools, the inspection list, a placed-item chip) opens the
+// 編集 menu on that selection instead.
+function editRedirect(){
+ if(nativeRender||fleet.mode!=='design'||!ship)return;
+ const parts=['select','multi'].includes(st.partTool),fits=['adjust','multi'].includes(st.fitTool);
+ const hit=st.tab==='mod'&&st.group!=='weapons'&&parts||(st.tab==='mod'&&st.group==='weapons'||st.tab==='arm')&&fits||st.tab==='bridge'&&(st.bridgeMode==='body'?parts:st.bridgeTool==='adjust');
+ if(!hit)return;
+ st.editTool=st.partTool==='multi'||st.fitTool==='multi'?'multi':'select';
+ if(parts)st.partTool='place';if(fits)st.fitTool='place';if(st.bridgeTool==='adjust')st.bridgeTool='place';if(st.tab==='arm')st.group='weapons';
+ st.tab='edit';st.edReveal=true;
+}
+function renderPanel(){if(!nativeRender&&fleet.mode==='design'&&ship){editRedirect();selSync();if(st.tab==='edit'){editRenderPanel();renderInspBar();return;}}craftPaletteGuard();if(st.tab==='bridge')st.cmdSub=st.bridgeMode==='windows'?'windows':'body';else if(st.tab==='mod'&&st.group==='command')st.cmdSub='rooms';
   if(fleet.mode!=='design'){fleetRender();return;}
   refreshSolidCutterOverlay();
 
@@ -3632,7 +4214,7 @@ function renderPanel(){craftPaletteGuard();if(st.tab==='bridge')st.cmdSub=st.bri
     const rows=ship.hull.stations||C.planStations(ship.hull).map(t=>C.profileAt(ship.hull,t)),deckOK=ship.hull.sec!=='ellipse';
     panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>船体断面・艦尾を設計</h4><p class="note">艦尾から艦首へ。肩の張り出し・舷側の切り込み・艦首の薄さを個別に作れます。幅・厚さ・上下位置は船体寸法に対する割合。甲板（上面）・船底（下面）の平らな幅は各断面の幅に対する割合です。舷側帯・帯位置は装甲楔形の舷側にある垂直帯の厚さと高さ位置（各断面の厚さに対する割合）で、断面ごとに変えられます。艦首の末端2断面は幅・厚さが同率で連動し、船体の幅：高さを保ちます（下のチェックで解除できます）。上の列で断面を選び、「＋」で次の断面との間に断面を追加します。菱形は上下が頂点です。装甲楔形も甲板・船底幅を0%にすれば尖ります。</p>${stationEditorHTML(rows,deckOK)}<label class="check"><input type="checkbox" data-bowlink ${ship.hull.bowFree?'':'checked'}> 艦首の末端2断面は幅と厚さを連動する（船体の幅：高さの比を保つ）</label>${ship.hull.sec!=='warship'?`<p class="note">${deckOK?'甲板・船底の幅を変えると、断面は今の形に近い「装甲楔形」へ切り替わります。':'楕円断面では甲板・船底の幅は使いません。'}</p>`:''}</div><div class="pgroup"><h4>甲板・舷側帯・艦尾位置</h4><div class="sliders">${slider('deckWidth','上甲板の幅',Math.round((ship.hull.deckWidth??.52)*100),0,98,1,Math.round((ship.hull.deckWidth??.52)*100)+'%')}${slider('keelWidth','船底の平坦幅',Math.round((ship.hull.keelWidth??0)*100),0,95,1,Math.round((ship.hull.keelWidth??0)*100)+'%')}${slider('hullStart','本体船殻の艦尾位置',Math.round((ship.hull.start||0)*1000)/10,0,60,.1,Math.round((ship.hull.start||0)*ship.hull.L)+' m')}${slider('chineHeight','舷側帯の上下位置',Math.round((ship.hull.chineHeight??.5)*100),20,80,1,Math.round((ship.hull.chineHeight??.5)*100)+'%')}${slider('belt','舷側帯の厚さ',Math.round((ship.hull.belt??.13)*100),2,45,1,Math.round((ship.hull.belt??.13)*100)+'%')}</div></div>`);
     panel.insertAdjacentHTML('beforeend',`<div class="pgroup"><h4>所属陣営</h4>${seg('yardfaction',Object.entries(C.DESIGN_FACTIONS),ship.faction||'any')}<p class="note">編成画面の艦の一覧と、任務で使える陣営を決めます（全陣営ならどの艦隊にも加えられます）。</p></div>`);
-    panel.insertAdjacentHTML('beforeend',`<div class="pgroup"><h4>外板スキン</h4>${seg('yardpaint',[['neutral','無塗装'],['republic','共和国の赤帯'],['dark','暗色'],['cis','分離主義の青灰色']],ship.paint||'neutral')}<p class="field-label">窓明かり（トレンチ・構造物の壁）</p>${seg('yardlights',[['white','白'],['blue','青'],['warm','暖色'],['off','消灯']],ship.lights||'white')}<p class="field-label">バーニア光（エンジン噴射の色）</p>${seg('yardengine',Object.entries(C.ENGINE_GLOWS).map(([k,v])=>[k,`<i class="swatch" style="background:rgb(${v.rgb.join(',')})"></i>${v.name}`]),C.ENGINE_GLOWS[ship.engineGlow||'blue']?ship.engineGlow||'blue':'')}<label class="engine-pick"><input type="color" data-yardenginecolor value="${engineHex(ship.engineGlow)}"><span>任意の色${ship.engineGlow&&!C.ENGINE_GLOWS[ship.engineGlow]?`（${ship.engineGlow}）`:''}</span></label><div class="sliders">${slider('yardDetail','トレンチ内の設備密度',ship.detail??1,0,2,.5,String(ship.detail??1))}</div><p class="note">スキンは塗装・装甲継ぎ目のみで、指揮能力は追加されません。指揮所は「区画および艤装 → 指揮・艦橋」から艦橋本体やポッドを配置します。</p></div>`);
+    panel.insertAdjacentHTML('beforeend',`<div class="pgroup"><h4>外板スキン</h4>${seg('yardpaint',[['neutral','無塗装'],['republic','共和国の赤帯'],['dark','暗色'],['cis','分離主義の青灰色']],ship.paint||'neutral')}<p class="field-label">窓明かり（トレンチ・構造物の壁）</p>${seg('yardlights',[['white','白'],['blue','青'],['warm','暖色'],['off','消灯']],ship.lights||'white')}<p class="field-label">バーニア光（エンジン噴射の色）</p>${seg('yardengine',Object.entries(C.ENGINE_GLOWS).map(([k,v])=>[k,`<i class="swatch" style="background:rgb(${v.rgb.join(',')})"></i>${v.name}`]),C.ENGINE_GLOWS[ship.engineGlow||'blue']?ship.engineGlow||'blue':'')}<label class="engine-pick"><input type="color" data-yardenginecolor value="${engineHex(ship.engineGlow)}"><span>任意の色${ship.engineGlow&&!C.ENGINE_GLOWS[ship.engineGlow]?`（${ship.engineGlow}）`:''}</span></label><div class="sliders">${slider('yardDetail','トレンチ内の設備密度',ship.detail??1,0,2,.5,String(ship.detail??1))}</div><p class="note">スキンは塗装・装甲継ぎ目のみで、指揮能力は追加されません。指揮所は「配置 → 指揮・艦橋」から艦橋本体やポッドを配置します。</p></div>`);
   }
   if(st.tab==='mod'&&st.partTool==='place'&&C.PARTS[st.part].shape==='cube')panel.insertAdjacentHTML('beforeend',`<div class="pgroup"><h4>区画の寸法</h4><div class="sliders">${st.roomSize.map((v,i)=>slider('newRoom'+i,['長さ','幅','高さ'][i],v,4,[ship.hull.L,ship.hull.W,ship.hull.H][i],1,fmtM(v))).join('')}</div><p class="note">立方体に限らず、飛行甲板・貨物甲板のような薄く長い区画を配置できます。</p></div>`);
   if(st.tab==='mod')panel.insertAdjacentHTML('afterbegin','<div class="note compartment-rule">内部区画は外殻内に収容。箱形区画の干渉は必要容積を保って自動統合します。主炉・シールド・エンジンと外装機器は張出し可能。</div>');
@@ -3867,7 +4449,7 @@ function aviationSize(v){return num(Number.isFinite(v)?v:0,2);}
 const ROOM_REF_CRAFT=[['tie_ln','TIE/LN'],['xwing','Xウイング'],['vwing','Vウイング'],['laat','LAAT/i']];
 function aviationRoomHTML(a){
  const bays=ship.parts.filter(p=>p.k==='hangar'),flight=bays.filter(p=>['flight','dock'].includes(p.airRole)).length,eq=ROOM_REF_CRAFT.filter(([k])=>C.CRAFT_TYPES[k]).map(([k,n])=>`${n} 約 ${num(Math.floor(a.capacity/Math.max(.05,C.stowSize(C.craftDims(k)))))} 機`).join('・');
- return `<div class="aviation-budget"><span>格納容量（航空機・搭載艦・車両で共用）</span><strong>${aviationSize(a.capacity)} <small>サイズ</small></strong><p>格納・兼用区画 ${num(bays.length-flight)} · 発着・ドック区画 ${num(flight)}</p>${a.capacity>0?`<p class="note">目安：${eq}（機種ごとの格納サイズで割った数。実際の搭載は区画の内寸と出入口で決まります）</p>`:''}</div>`;
+ return `<div class="aviation-budget"><span>格納容量（航空機・搭載艦・車両で共用）</span><strong>${aviationSize(a.capacity)} <small>サイズ</small></strong><p>格納・兼用区画 ${num(bays.length-flight)} · 発着・ドック区画 ${num(flight)}</p><p>航空管制 <b>${num(S?.airCtl||1)} 中隊</b>（同時に飛ばせる中隊の数。艦橋・指揮所・センサーと通信アレイで決まり、航空指揮ポッドで増えます）</p>${a.capacity>0?`<p class="note">目安：${eq}（機種ごとの格納サイズで割った数。実際の搭載は区画の内寸と出入口で決まります）</p>`:''}</div>`;
 }
 function aviationCapacityHTML(a){
  const used=a.embarkedSize+(a.vehicleSize||0),unloaded=Math.max(0,a.requestedCount-a.embarkedCount),ships=Math.max(0,a.shipCount-a.shipEmbarked);
@@ -4080,9 +4662,11 @@ const RAIL_ICONS={place:'<path d="M12 5v14M5 12h14"/>',select:'<path d="M6 3l12 
 const RAIL_LABELS={place:'配置',select:'選択',multi:'複数',remove:'撤去'};
 function railContext(){
  if(!ship||fleet.mode!=='design'||trial.on)return null;
- if(st.tab==='mod'&&st.group!=='weapons')return {kind:'parts',tools:['place','select','multi','remove'],cur:st.partTool||'place'};
- if(st.tab==='mod'&&st.group==='weapons'||st.tab==='arm')return {kind:'fits',tools:['place','select','multi','remove'],cur:st.fitTool==='adjust'?'select':st.fitTool||'place'};
- if(st.tab==='bridge')return st.bridgeMode==='body'?{kind:'parts',tools:['place','select','multi','remove'],cur:st.partTool||'place'}:{kind:'pods',tools:['place','select','remove'],cur:st.bridgeTool==='adjust'?'select':st.bridgeTool||'place'};
+ // v23 配置 places and removes; 選択 opens 編集, whose rail is select / multi (add or remove with each tap) / remove.
+ if(st.tab==='edit')return {kind:'edit',tools:['select','multi','remove'],cur:st.editTool||'select'};
+ if(st.tab==='mod'&&st.group!=='weapons')return {kind:'parts',tools:['place','select','remove'],cur:st.partTool||'place'};
+ if(st.tab==='mod'&&st.group==='weapons'||st.tab==='arm')return {kind:'fits',tools:['place','select','remove'],cur:st.fitTool==='adjust'?'select':st.fitTool||'place'};
+ if(st.tab==='bridge')return st.bridgeMode==='body'?{kind:'parts',tools:['place','select','remove'],cur:st.partTool||'place'}:{kind:'pods',tools:['place','select','remove'],cur:st.bridgeTool==='adjust'?'select':st.bridgeTool||'place'};
  return null;
 }
 function renderRail(){
@@ -4092,6 +4676,8 @@ function renderRail(){
 }
 function railSet(v){
  const c=railContext();if(!c||!c.tools.includes(v))return;
+ if(c.kind==='edit'){st.editTool=v;hideInspect();clearHover();renderPanel();refreshOverlay();updateHint();if(st.dockCollapsed){st.dockCollapsed=false;$('#dock').classList.remove('collapsed');}return;}
+ if(v==='select'){st.tab='edit';st.editTool='select';hideInspect();clearHover();renderPanel();refreshOverlay();updateHint();if(st.dockCollapsed){st.dockCollapsed=false;$('#dock').classList.remove('collapsed');}return;}
  if(c.kind==='parts'){if(v==='place'&&st.partTool!=='place')carryToPlace();st.partTool=v;if(v!=='select'&&st.sel?.list==='fits')st.sel=null;}
  else{const t=v==='select'?'adjust':v,key=c.kind==='fits'?'fitTool':'bridgeTool';if(t==='place'&&st[key]!=='place')carryToPlace();st[key]=t;if(t!=='adjust')st.sel=null;}
  hideInspect();clearHover();renderPanel();refreshOverlay();updateHint();
@@ -4105,10 +4691,12 @@ function bindRail(){$('#toolRail')?.addEventListener('click',e=>{const b=e.targe
 // and explanatory notes shrink to two lines (tap to read the rest).
 function placeMode(){const t=tool();return t==='part'||t==='fit';}
 function organizePanel(){
- const panel=$('#panel');if(!panel||!ship||fleet.mode!=='design')return;
+ const panel=$('#panel');if(nativeRender||!panel||!ship||fleet.mode!=='design')return;
  for(const sel of ['[data-parttool]','[data-fittool]','[data-bridgetool]']){const g=panel.querySelector(sel)?.closest('.pgroup');if(g)g.classList.add('rail-dup');}
  for(const n of panel.querySelectorAll('.note'))if(!n.classList.contains('keep')&&!n.closest('.trial-card,.ground-editor .aviation-budget'))n.classList.add('clamp');
  for(const h of panel.querySelectorAll('.pgroup > h4')){const t=sourceText(h).trim();const g=h.parentElement;if(g.tagName==='DETAILS')continue;
+  // v23 (UI-008) Lists of placed items belong to 編集; the 配置 menus show the catalogue only.
+  if(/^配置済みの|^艦橋に付随する指揮区画$/.test(t)&&st.tab!=='edit'){g.remove();continue;}
   if(/^配置済みの/.test(t)){const n=g.querySelectorAll('button').length;foldGroup(g,h,`${t}（${n}）`,false);}
   else if(/^配置位置を揃える$/.test(t)){const cur=sourceText(g.querySelector('[aria-pressed="true"]'))||'';foldGroup(g,h,`${t}：${cur}`,false);}}
  const pal=placeMode()?panel.querySelector('.parts, .fits'):null;
@@ -4129,7 +4717,7 @@ function foldGroup(g,h,label,open){const d=document.createElement('details');d.c
 // lists of placed items become sideways strips, the menus are rows of chips that scroll sideways, and the
 // selection is one line at the top of the panel (ⓘ for the rest).
 st.folds={};st.cmdSub='body';st.stationSel=0;
-const FOLD_SKIP='.pal-head,.palette,.pal-results,.pal-pick,.rail-dup,.sel-strip,.sel-info,.panel-nav,.editor,.cutter-editor,.cutter-heading,.cutter-apply,.compartment-rule,.trial-card,.spec-wrap,.mini,#pinfo';
+const FOLD_SKIP='.ed-list,.ed-ops,.ed-hint,.pal-head,.palette,.pal-results,.pal-pick,.rail-dup,.sel-strip,.sel-info,.panel-nav,.editor,.cutter-editor,.cutter-heading,.cutter-apply,.compartment-rule,.trial-card,.spec-wrap,.mini,#pinfo';
 // Sections looked up now and then go below the ones that edit the item in hand.
 const FOLD_LATER=['配置位置を揃える','座標を指定して配置','配置済みの区画','配置済みの武装','配置済みの艦橋本体','武装の威力と出典','中心線・中心面へ整列','同じ形状の設備へ交換','艦橋に付随する指揮区画','ほかの加工の一覧'];
 const foldScope=()=>st.tab==='bridge'?'bridge-'+(st.bridgeMode==='windows'?'windows':'body'):st.tab==='mod'?'mod-'+st.group:st.tab;
@@ -4341,7 +4929,11 @@ function multiPanelHTML(){
  <h4>まとめて移動</h4><label class="field-label multi-step">移動量（m）<input type="number" data-multistep min="0.1" step="any" value="${st.multiStep}"></label>
  <div class="multi-move">${[[0,1,'艦首へ'],[0,-1,'艦尾へ'],[1,1,'上へ'],[1,-1,'下へ'],[2,-1,'左舷へ'],[2,1,'右舷へ']].map(([a,sg,l])=>`<button type="button" class="btn sm" data-multimove="${a}" data-sign="${sg}" ${n?'':'disabled'}>${l}</button>`).join('')}</div>
  <p class="note">対称の相手も選んでいれば鏡写しに動きます。装備は移動後に近くの面へ据え直します。</p></div>
- <div class="pgroup blueprint-card multi-card"><h4>貼り付け</h4>${c?`<p class="multi-clip"><span>区画・構造物 <b>${c.parts.length}</b>　装備 <b>${c.fits.length}</b></span><small>「${esc(c.from?.name||'不明')}」全長 ${fLen(c.from?.L||0)} から</small></p>${seg('pastemode',[['same','同じ座標'],['scale','艦の寸法に合わせる']],st.pasteMode)}<div class="multi-actions"><button type="button" class="btn primary" data-multi="paste">${cn} 個を貼り付け</button></div><p class="note">貼り付けた部品はそのまま選択されるので、続けて「まとめて移動」で位置を整えられます。別の艦へは、設計図から艦を開いてこの画面で貼り付けます。クリップボードはこの端末のブラウザに残ります。</p>`:'<p class="note">まだコピーしていません。選択して「コピー」すると、この艦や別の艦に貼り付けられます。</p>'}</div>`;
+ ${multiPasteHTML()}`;
+}
+function multiPasteHTML(){
+ const c=clipRead(),cn=c?c.parts.length+c.fits.length:0;
+ return `<div class="pgroup blueprint-card multi-card"><h4>貼り付け</h4>${c?`<p class="multi-clip"><span>区画・構造物 <b>${c.parts.length}</b>　装備 <b>${c.fits.length}</b></span><small>「${esc(c.from?.name||'不明')}」全長 ${fLen(c.from?.L||0)} から</small></p>${seg('pastemode',[['same','同じ座標'],['scale','艦の寸法に合わせる']],st.pasteMode)}<div class="multi-actions"><button type="button" class="btn primary" data-multi="paste">${cn} 個を貼り付け</button></div><p class="note">貼り付けた部品はそのまま選択されるので、続けて「まとめて移動」で位置を整えられます。別の艦へは、設計図から艦を開いてこの画面で貼り付けます。クリップボードはこの端末のブラウザに残ります。</p>`:'<p class="note">まだコピーしていません。選択して「コピー」すると、この艦や別の艦に貼り付けられます。</p>'}</div>`;
 }
 function bindMulti(){
  const panel=$('#panel');
@@ -4360,6 +4952,440 @@ function bindMulti(){
   renderPanel();refreshOverlay();
  });
  panel.addEventListener('change',e=>{if(e.target.dataset.multistep==null)return;const v=+e.target.value;if(Number.isFinite(v)&&v>0)st.multiStep=v;else e.target.value=st.multiStep;});
+}
+// ---------- v23 the 編集 menu: one selection, the placed list, moving, turning, spacing and edit groups ----------
+// UI-008 The catalogue of parts to add (配置: tab 'mod', the bridge editor inside it) and the parts already placed
+// (編集: tab 'edit') are two menus; neither lists the other's items. UI-001 One selection serves the 編集 list and
+// the 3D view: st.multi holds parts and fittings by id and st.sel is its primary item (the one the item editor
+// shows). A plain tap or click selects one object, Shift (or Ctrl/⌘) + click adds or removes one, and the rail's
+// 「複数」 makes every tap add or remove (phones). An object is the outermost edit group around an item; a tap on
+// a member of the group that is already the whole selection picks the next level inside (as in a slide editor).
+// While 左右対称 / 上下対称 are on, the symmetric copies come along, as they do for one item.
+st.editTool='select';st.edOpen={};st.edScroll=0;st.inspOpen=null;
+st.xf={d:[0,0,0],step:10,rax:1,ang:90,pivot:'group',aax:0,align:'space',preview:null};
+let nativeRender=false,xfCache=null;
+const ED_AXES=[['0','前後 X'],['1','上下 Y'],['2','左右 Z']];
+const ED_ROT_AXES=[['0','X 軸（ロール）'],['1','Y 軸（ヨー）'],['2','Z 軸（ピッチ）']];
+const ED_ALIGN=[['min','小さい側に揃える'],['mid','中心を揃える'],['max','大きい側に揃える'],['space','等間隔']];
+// --- edit groups (data in Core.normalizeGroups) ---
+function edGroups(){return Array.isArray(ship?.groups)?ship.groups:[];}
+function edGroup(id){return edGroups().find(g=>g.id===id)||null;}
+function edParent(kind,id){return edGroups().find(g=>(g[kind]||[]).includes(id))||null;}
+// The groups around an item or group, outermost first.
+function edChain(kind,id){const out=[];let g=edParent(kind,id),n=0;while(g&&n++<=C.GROUP_DEPTH+1&&!out.includes(g)){out.unshift(g);g=edParent('groups',g.id);}return out;}
+function edLeaves(g,out={parts:new Set(),fits:new Set()},n=0){if(!g||n>C.GROUP_DEPTH+1)return out;for(const id of g.parts||[])out.parts.add(id);for(const id of g.fits||[])out.fits.add(id);for(const id of g.groups||[])edLeaves(edGroup(id),out,n+1);return out;}
+function edPrune(){if(!ship||ship.groups==null)return;const g=C.normalizeGroups(ship.groups,ship).groups;if(g.length)ship.groups=g;else delete ship.groups;}
+const edName=g=>g.name||`グループ #${g.id}`;
+// --- the selection ---
+function selN(){return st.multi.parts.size+st.multi.fits.size;}
+function selClear(){st.multi={parts:new Set(),fits:new Set()};st.sel=null;}
+function selFind(list,id){return ship?.[list]?.find(q=>q.id===id)||null;}
+// A set of items with the symmetric copies the toggles bring along (Shift-selection and taps use the same rule).
+function selExpand(set){const out={parts:new Set(),fits:new Set()};for(const l of ['parts','fits'])for(const id of set[l]){const it=selFind(l,id);if(it)for(const q of multiLinked(l,it))out[l].add(q.id);}return out;}
+const selSame=a=>a.parts.size===st.multi.parts.size&&a.fits.size===st.multi.fits.size&&[...a.parts].every(x=>st.multi.parts.has(x))&&[...a.fits].every(x=>st.multi.fits.has(x));
+const selHasAll=a=>[...a.parts].every(x=>st.multi.parts.has(x))&&[...a.fits].every(x=>st.multi.fits.has(x));
+// Keep st.sel and st.multi one selection: the primary is always selected, and a primary set elsewhere (the
+// inspection list, the tutorial, the item just placed) replaces the selection by itself.
+function selSync(){
+ if(!ship)return;
+ for(const l of ['parts','fits']){const ids=new Set(ship[l].map(q=>q.id));for(const id of [...st.multi[l]])if(!ids.has(id))st.multi[l].delete(id);}
+ if(st.sel&&(!['parts','fits'].includes(st.sel.list)||!findSel(st.sel)))st.sel=null;
+ if(st.sel&&!st.multi[st.sel.list].has(st.sel.id))st.multi=selExpand({parts:new Set(st.sel.list==='parts'?[st.sel.id]:[]),fits:new Set(st.sel.list==='fits'?[st.sel.id]:[])});
+ if(!st.sel&&selN()){const l=st.multi.parts.size?'parts':'fits';st.sel={list:l,id:[...st.multi[l]][0]};}
+}
+// One object (an item and its symmetric copies) is selected: the item editor applies.
+function selSingle(){const it=selItem();if(!it||!['parts','fits'].includes(st.sel.list))return false;const ids=new Set(linkedItems(st.sel.list,it).map(q=>q.id));return [...st.multi[st.sel.list]].every(id=>ids.has(id))&&!st.multi[st.sel.list==='parts'?'fits':'parts'].size;}
+function selPick(list,id,add,exact){
+ const it=selFind(list,id);if(!it)return;
+ const chain=exact?[]:edChain(list,id),one={parts:new Set(list==='parts'?[id]:[]),fits:new Set(list==='fits'?[id]:[])};
+ let pick=chain[0]||null;
+ if(!add&&chain.length){let at=-1;chain.forEach((g,i)=>{if(selSame(selExpand(edLeaves(g))))at=i;});if(at>=0)pick=chain[at+1]||null;}
+ const ent=selExpand(pick?edLeaves(pick):one);
+ if(add){const on=!selHasAll(ent);for(const l of ['parts','fits'])for(const x of ent[l])on?st.multi[l].add(x):st.multi[l].delete(x);
+  if(on)st.sel={list,id};else if(st.sel&&!st.multi[st.sel.list].has(st.sel.id))st.sel=null;selSync();}
+ else{st.multi=ent;st.sel={list,id};}
+}
+function selGroup(g,add){const ent=selExpand(edLeaves(g));if(add&&selHasAll(ent)){for(const l of ['parts','fits'])for(const x of ent[l])st.multi[l].delete(x);if(st.sel&&!st.multi[st.sel.list].has(st.sel.id))st.sel=null;selSync();return;}
+ if(!add)st.multi={parts:new Set(),fits:new Set()};for(const l of ['parts','fits'])for(const x of ent[l])st.multi[l].add(x);const l=ent.parts.size?'parts':'fits';if(ent[l].size)st.sel={list:l,id:[...ent[l]][0]};}
+// The objects of the selection: an outermost group whose items are all selected counts as one.
+function selEntities(){
+ const out=[],seen=new Set();
+ for(const l of ['parts','fits'])for(const id of st.multi[l]){
+  let ent=null;for(const g of edChain(l,id))if(selHasAll(edLeaves(g))){ent=g;break;}
+  const key=ent?'g'+ent.id:l+id;if(seen.has(key))continue;seen.add(key);out.push(ent?{group:ent,key}:{list:l,id,key});
+ }
+ return out;
+}
+function editHitItem(hit){
+ if(hit?.part?.windowId||hit?.part?.weaponId)return {list:'fits',it:ship.fits.find(f=>f.id===(hit.part.windowId||hit.part.weaponId))};
+ if(hit?.fit)return {list:'fits',it:hit.fit};
+ if(hit?.part&&hit.part.id>0){const p=ship.parts.find(q=>q.id===hit.part.id);if(p)return {list:'parts',it:p};}
+ return null;
+}
+function editTap(hit,add){
+ const h=editHitItem(hit);
+ if(!h?.it){if(!add&&st.editTool!=='multi'){selClear();xfReset();}else toast(st.view==='normal'?'部品をタップしてください（内部の区画は「透視」で選べます）':'部品が見つかりません');renderPanel();return;}
+ selPick(h.list,h.it.id,add||st.editTool==='multi');xfReset();renderPanel();
+}
+// --- moving, turning, aligning ---
+// Every selected item is a driver; its symmetric copies follow as mirror images, as when one item is edited
+// (parts by 左右対称 / 上下対称, fittings by 「対の武装も同時に編集」). Drivers on the primary's side go first.
+function xfFollowers(list,q){
+ if(list==='fits')return fitLinks(q).map(l=>({it:l.fit,z:l.z,y:l.y}));
+ const find=id=>id==null?null:ship.parts.find(x=>x.id===id),tw=st.mirror?find(q.tw):null,vt=st.vmirror?find(q.vt):null,vtw=vt&&st.mirror?find(vt.tw):null,out=[];
+ if(tw)out.push({it:tw,z:true,y:false});if(vt)out.push({it:vt,z:false,y:true});if(vtw&&vtw!==tw)out.push({it:vtw,z:true,y:true});return out;
+}
+const xfPos=(list,q)=>list==='parts'?q.c:q.p;
+function xfDrivers(){
+ const m=multiItems(),pr=selItem(),pp=pr&&xfPos(st.sel.list,pr),sz=pp&&pp[2]<0?-1:1,sy=pp&&pp[1]<C.vmirrorPlane(ship,pp[0])?-1:1,taken=new Set(),out=[];
+ const score=(l,q)=>{const p=xfPos(l,q);return ((p[2]<0?-1:1)===sz?0:2)+((p[1]<C.vmirrorPlane(ship,p[0])?-1:1)===sy?0:1);};
+ for(const l of ['parts','fits'])for(const q of m[l].slice().sort((a,b)=>score(l,a)-score(l,b)||a.id-b.id)){
+  if(taken.has(l+q.id))continue;taken.add(l+q.id);const fol=xfFollowers(l,q).filter(f=>!taken.has(l+f.it.id));for(const f of fol)taken.add(l+f.it.id);out.push({list:l,it:q,fol});
+ }
+ return out;
+}
+// Shapes as requested, not as the engine merged or clipped them.
+const xfClean=p=>({...p,_packing:undefined,_clip:undefined});
+function xfBox(list,q){return list==='parts'?C.partAABB(xfClean(q)):C.fitAABB(q);}
+const xfUnion=bs=>bs.reduce((a,b)=>[0,1,2].map(k=>Math.min(a[k],b[k])).concat([3,4,5].map(k=>Math.max(a[k],b[k]))),[Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity]);
+// Units: a fully selected outermost group moves, turns and is spaced as one; otherwise each driver is a unit.
+function xfUnits(drivers){
+ const units=[],by=new Map();
+ for(const d of drivers){let g=null;for(const c of edChain(d.list,d.it.id))if(selHasAll(edLeaves(c))){g=c;break;}
+  const key=g?'g'+g.id:d.list+d.it.id;let u=by.get(key);if(!u){u={key,group:g,drivers:[]};by.set(key,u);units.push(u);}u.drivers.push(d);}
+ for(const u of units)u.box=xfUnion(u.drivers.map(d=>xfBox(d.list,d.it)));
+ return units;
+}
+const r6=v=>Math.round(v*1e6)/1e6;
+function xfRot(axis,deg){const a=deg*Math.PI/180,c=Math.cos(a),s=Math.sin(a);return v=>axis===0?[v[0],v[1]*c-v[2]*s,v[1]*s+v[2]*c]:axis===1?[v[0]*c+v[2]*s,v[1],-v[0]*s+v[2]*c]:[v[0]*c-v[1]*s,v[0]*s+v[1]*c,v[2]];}
+// Which parts turn: structures, rooms and box compartments (a box becomes a room with its own frame), cylinders and
+// nozzles (their axis). Spheres look the same every way; superweapons keep their fixed aim; sensors keep their mesh.
+function xfTurns(q){const d=C.PARTS[q.k];return !!d&&!C.isSuperweapon(q)&&!d.fixed&&q.k!=='sensor'&&d.shape!=='sphere';}
+// A turned frame stored the way Core.structFrame reads it: the new up as surfaceNormal (left out when level) and the
+// heading about it as yaw; pitch and roll fold into those two.
+function xfFrame(o,fw,up){
+ up=C.norm(up);let f0=C.sub([1,0,0],C.mul(up,up[0]));if(C.len(f0)<.001)f0=C.sub([0,0,1],C.mul(up,up[2]));f0=C.norm(f0);const r0=C.norm(C.cross(f0,up));
+ const yaw=Math.atan2(C.dot(fw,r0),C.dot(fw,f0))*180/Math.PI;
+ if(1-up[1]<1e-9)delete o.surfaceNormal;else o.surfaceNormal=up.map(r6);o.yaw=Math.round(yaw*1e4)/1e4;if(Math.abs(o.yaw)<1e-4)o.yaw=0;delete o.pitch;delete o.roll;
+}
+function xfPartOut(q,T){
+ const o=publicCopy(q);o.c=T.pt(q.c).map(r6);
+ if(T.R&&xfTurns(q)){const sh=C.PARTS[q.k].shape;
+  if(q.k==='struct'||q.room||sh==='cube'){if(q.k!=='struct'&&!o.room)C.setRoomSize(o,[q.d,q.d,q.d]);const f=C.structFrame(q);xfFrame(o,T.R(f.fw),T.R(f.up));}
+  else if(sh==='cyl'||sh==='engine')o.dir=C.norm(T.R(q.dir||[1,0,0])).map(r6);}
+ return o;
+}
+function xfMirrorOut(o,f){let q=o;if(f.y)q=C.vmirrorPart(q,ship);if(f.z)q=C.mirrorPart(q,ship);const r=publicCopy(q);r.id=f.it.id;delete r.tw;delete r.vt;if(f.it.tw!=null)r.tw=f.it.tw;if(f.it.vt!=null)r.vt=f.it.vt;return r;}
+function xfFitOut(f,p,n){const o=publicCopy(f);seatFit(o,p,n);return o;}
+// The rows of one operation: each item with its new state. T(unit, driver) gives the point map and the turn.
+function xfRows(drivers,units,Tof){
+ const rows=[],moved=new Set();for(const d of drivers)if(d.list==='parts'){moved.add(d.it.id);for(const f of d.fol)moved.add(f.it.id);}
+ for(const u of units)for(const d of u.drivers){const T=Tof(u,d);if(!T)continue;
+  if(d.list==='parts'){const out=xfPartOut(d.it,T);rows.push({list:'parts',it:d.it,out});for(const f of d.fol)rows.push({list:'parts',it:f.it,out:xfMirrorOut(out,f)});continue;}
+  if(d.it.host!=null&&moved.has(d.it.host))continue;   // a pod rides its wall
+  const n=d.it.n||C.AXES[d.it.a],p=T.pt(d.it.p),m=T.R?T.R(n):n,out=xfFitOut(d.it,p,m);rows.push({list:'fits',it:d.it,out});
+  for(const f of d.fol){let q=p,k=m;if(f.y){q=C.vmirrorPoint(ship,q);k=[k[0],-k[1],k[2]];}if(f.z){q=C.mirrorP(q);k=C.mirrorP(k);}rows.push({list:'fits',it:f.it,out:xfFitOut(f.it,q,k)});}
+ }
+ return {rows,moved};
+}
+// UI-002/003/004 The plan for the open operation (move by Δ, turn, align / space evenly), shown as a preview.
+function xfPlan(kind){
+ if(!ship||!selN())return null;
+ const drivers=xfDrivers(),units=xfUnits(drivers),x=st.xf;let Tof=null,info='';
+ if(kind==='move'){const dv=x.d.map(v=>+v||0);if(!dv.some(v=>v))return null;Tof=()=>({pt:p=>C.add(p,dv),R:null});}
+ else if(kind==='rotate'){const ang=+x.ang||0;if(!ang)return null;const R=xfRot(+x.rax,ang),all=xfUnion(units.map(u=>u.box)),mid=b=>[0,1,2].map(k=>(b[k]+b[k+3])/2),g=mid(all);
+  Tof=u=>{const c=x.pivot==='each'?mid(u.box):g;return {pt:p=>C.add(c,R(C.sub(p,c))),R};};}
+ else if(kind==='align'){const a=+x.aax,n=units.length;if(n<2)return null;
+  const shift=new Map(),all=xfUnion(units.map(u=>u.box));
+  if(x.align==='space'){if(n<3)return null;const us=units.slice().sort((p,q)=>(p.box[a]+p.box[a+3])-(q.box[a]+q.box[a+3])),size=us.reduce((s,u)=>s+u.box[a+3]-u.box[a],0),span=us[n-1].box[a+3]-us[0].box[a],gap=(span-size)/(n-1);
+   let cur=us[0].box[a+3]+gap;for(let i=1;i<n-1;i++){const u=us[i];shift.set(u,cur-u.box[a]);cur+=u.box[a+3]-u.box[a]+gap;}info=`隙間 ${fmtM(gap)}`+(gap<0?'（重なります）':'');}
+  else for(const u of units)shift.set(u,x.align==='min'?all[a]-u.box[a]:x.align==='max'?all[a+3]-u.box[a+3]:(all[a]+all[a+3])/2-(u.box[a]+u.box[a+3])/2);
+  Tof=u=>{const s=shift.get(u);if(!s||Math.abs(s)<1e-6)return null;const dv=[0,0,0];dv[a]=s;return {pt:p=>C.add(p,dv),R:null};};}
+ if(!Tof)return null;
+ const {rows,moved}=xfRows(drivers,units,Tof);if(!rows.length)return null;
+ // A pure shift of everything with no mirrored followers keeps the moved parts' overlaps among themselves.
+ const rigid=kind==='move'&&drivers.every(d=>!d.fol.length);
+ return {kind,rows,moved,info,check:xfCheck(rows.map(r=>({list:r.list,before:publicCopy(r.it),after:r.out})),rigid)};
+}
+// Placement rules on commit (and for the preview's colour): inside the design limits, a nozzle within the angles its
+// editor allows, a fitting still on a surface, and no new hard overlap between compartments (box compartments that
+// merge with their neighbours, and structures, may overlap as when placing).
+function xfCheck(rows,rigid){
+ const L=C.DESIGN_LIMITS,bad=new Map(),pIds=new Set(rows.filter(r=>r.list==='parts').map(r=>r.after.id)),fIds=new Set(rows.filter(r=>r.list==='fits').map(r=>r.after.id));
+ for(const r of rows){const a=r.after,p=r.list==='parts'?a.c:a.p;
+  if(p.some(v=>!Number.isFinite(v)||Math.abs(v)>L.coordinate)){bad.set(r.list+a.id,'設計範囲の外');continue;}
+  // A fitting is checked for a surface only when no part moves with it: the ones riding moved structures are
+  // re-seated by the design engine against the new shapes (and the inspection reports any left floating).
+  if(r.list==='fits'){if(!pIds.size&&a.float&&!r.before?.float)bad.set('fits'+a.id,'取り付ける面がありません');continue;}
+  if(a.k==='engine'&&a.dir){const yaw=Math.atan2(a.dir[2],-a.dir[0])*180/Math.PI,pitch=Math.asin(C.clamp(a.dir[1],-1,1))*180/Math.PI;if(Math.abs(yaw)>70.5||Math.abs(pitch)>60.5)bad.set('parts'+a.id,'ノズルの向きが限度（左右 70°・上下 60°）を超えます');}}
+ const hard=q=>q.k!=='struct'&&!C.flexibleCompartment(ship,q),parts=rows.filter(r=>r.list==='parts'&&hard(r.after));
+ if(parts.length){
+  const others=C.allOccupied(ship).filter(q=>!pIds.has(q.id)&&!(q.nozzle!=null&&pIds.has(q.nozzle))&&!(q.weaponId!=null&&fIds.has(q.weaponId))&&!(q.windowId!=null&&fIds.has(q.windowId))&&hard(q));
+  const hit=(a,b)=>!(a.k==='engine'&&b.k==='machinery'&&b.nozzle===a.id)&&C.overlapParts(a,b);
+  for(let i=0;i<parts.length;i++){const r=parts[i];if(bad.has('parts'+r.after.id))continue;
+   let clash=others.find(q=>hit(r.after,q)&&!(r.before&&hit(r.before,q)));
+   if(!clash&&!rigid)for(let j=0;j<parts.length&&!clash;j++)if(j!==i&&hit(r.after,parts[j].after)&&!(r.before&&parts[j].before&&hit(r.before,parts[j].before)))clash=parts[j].after;
+   if(clash)bad.set('parts'+r.after.id,`#${clash.id} と干渉します`);}
+ }
+ return bad;
+}
+function xfMessage(bad){const [k,v]=[...bad][0];return `${bad.size} 個は配置できません（#${k.replace(/\D/g,'')}：${v}）`;}
+// Apply rows to the design (inside mutate): pods on moved walls are re-seated on them; with a symmetry toggle off,
+// an edited part leaves its pair, as in the item editor.
+function xfApply(rows,moved){
+ for(const r of rows)C.patchItem(r.it,r.out);
+ for(const f of ship.fits)if(f.host!=null&&moved.has(f.host))try{C.mountFit(ship,f);}catch(e){f.float=true;}
+ const done=new Set(rows.filter(r=>r.list==='parts').map(r=>r.it.id));
+ for(const r of rows){if(r.list!=='parts')continue;const it=r.it,find=id=>ship.parts.find(q=>q.id===id);
+  if(!st.mirror&&it.tw!=null){const t=find(it.tw);if(t){delete t.tw;}delete it.tw;}
+  if(!st.vmirror&&it.vt!=null){const t=find(it.vt);if(t){delete t.vt;}delete it.vt;}}
+ return done.size;
+}
+const XF_LABEL={move:'まとめて移動',rotate:'回転',align:'整列'};
+function xfCommit(kind){
+ const plan=xfPlan(kind);if(!plan){toast(kind==='align'&&selEntities().length<(st.xf.align==='space'?3:2)?(st.xf.align==='space'?'等間隔には3つ以上選んでください':'2つ以上選んでください'):'変化はありません');return;}
+ if(plan.check.size){sndUI('ui_error');toast(esc(xfMessage(plan.check)));xfCache=null;refreshOverlay();return;}
+ const ids=plan.rows.map(r=>r.list+r.it.id);
+ if(mutate(XF_LABEL[kind],()=>xfApply(plan.rows,plan.moved),'all')){showPreview('parts',plan.rows.filter(r=>r.list==='parts').map(r=>r.it));if(kind==='move')st.xf.d=[0,0,0];st.xf.preview=null;xfCache=null;}
+ renderPanel();refreshOverlay();void ids;
+}
+function xfReset(){st.xf.preview=null;st.xf.d=[0,0,0];xfCache=null;}
+// The preview: the selection where the operation would put it, green when it can go there, red when it cannot.
+function xfPreviewLines(ls){
+ if(st.tab!=='edit'||!st.xf.preview)return;
+ const key=JSON.stringify([st.xf,[...st.multi.parts],[...st.multi.fits],st.mirror,st.vmirror,eng.gen]);
+ if(!xfCache||xfCache.key!==key){let plan=null;try{plan=xfPlan(st.xf.preview);}catch(e){console.warn(e);}xfCache={key,plan};}
+ const plan=xfCache.plan;if(!plan)return;
+ for(const r of plan.rows){const bad=plan.check.has(r.list+r.out.id),col=bad?[236,106,92,255]:[95,196,138,230];if(r.list==='parts')ls.part(r.out,col);else ls.box(C.fitAABB(r.out),col);}
+}
+// --- dragging the selection (UI-002): the items move together by the pointer's offset on a plane through the grab
+// point, live as a preview; the rules are checked on release and a move that breaks them is taken back.
+function dragSelStart(px,py,r){
+ const drivers=xfDrivers();let best=null;
+ for(const d of drivers)for(const q of [d.it,...d.fol.map(f=>f.it)]){const l=d.list,b=xfBox(l,q).slice(),pad=Math.max(2,.06*Math.max(b[3]-b[0],b[4]-b[1],b[5]-b[2]));for(let k=0;k<3;k++){b[k]-=pad;b[k+3]+=pad;}const h=C.rayAABB(r.o,r.d,b);if(h&&(!best||h.t<best.t))best={t:h.t,p:h.p||C.add(r.o,C.mul(r.d,h.t)),l,q};}
+ if(!best)return null;
+ const level=Math.abs(r.d[1])<.35,normal=level?(Math.abs(r.d[0])>Math.abs(r.d[2])?[1,0,0]:[0,0,1]):[0,1,0];
+ return {multi:true,grab:best.p,normal,drivers,units:xfUnits(drivers),orig:new Map(drivers.flatMap(d=>[d.it,...d.fol.map(f=>f.it)].map(q=>[d.list+q.id,publicCopy(q)]))),dv:[0,0,0]};
+}
+function dragSelMove(D,r){
+ const den=C.dot(r.d,D.normal);if(Math.abs(den)<1e-6)return;const t=C.dot(C.sub(D.grab,r.o),D.normal)/den;if(t<0)return;
+ if(!D.moving){D.moving=true;beginDrag('まとめて移動');}
+ const dv=C.sub(C.add(r.o,C.mul(r.d,t)),D.grab);D.dv=dv;
+ // Each frame starts from the positions at the grab, so nothing drifts.
+ for(const [k,o] of D.orig){const l=k.startsWith('parts')?'parts':'fits',it=ship[l].find(q=>q.id===o.id);if(it)C.patchItem(it,o);}
+ const {rows,moved}=xfRows(D.drivers,D.units,()=>({pt:p=>C.add(p,dv),R:null}));D.rows=rows;D.moved=moved;
+ for(const rw of rows)C.patchItem(rw.it,rw.out);
+ for(const f of ship.fits)if(f.host!=null&&moved.has(f.host))try{C.mountFit(ship,f);}catch(e){f.float=true;}
+}
+function dragSelEnd(D,cancel){
+ if(!D.moving)return;
+ if(cancel&&dragSnap){const old=dragSnap;dragSnap=null;restore(old);return;}
+ const bad=D.rows?xfCheck(D.rows.map(r=>({list:r.list,before:D.orig.get(r.list+r.it.id),after:publicCopy(r.it)})),D.drivers.every(d=>!d.fol.length)):new Map();
+ if(bad.size&&dragSnap){const old=dragSnap;dragSnap=null;restore(old);sndUI('ui_error');toast(esc(xfMessage(bad))+'。元の位置に戻しました');return;}
+ if(D.rows)for(const r of D.rows){if(r.list!=='parts')continue;const it=r.it;if(!st.mirror&&it.tw!=null){const t=ship.parts.find(q=>q.id===it.tw);if(t)delete t.tw;delete it.tw;}if(!st.vmirror&&it.vt!=null){const t=ship.parts.find(q=>q.id===it.vt);if(t)delete t.vt;delete it.vt;}}
+ touch('all');endDrag();scheduleStats(30);renderPanel();requestDraw();
+}
+// --- duplicate, delete, groups ---
+// Copies get new ids; symmetry pairs, hosts and groups wholly inside the copy are carried over to the copies.
+function editDuplicate(){
+ const drivers=xfDrivers();if(!drivers.length){toast('選択がありません');return;}
+ const src={parts:[],fits:[]};for(const d of drivers)for(const q of [d.it,...d.fol.map(f=>f.it)])if(!src[d.list].includes(q))src[d.list].push(q);
+ const L=C.DESIGN_LIMITS;if(ship.parts.length+src.parts.length>L.parts||ship.fits.length+src.fits.length>L.fits){toast(`部品数の上限（区画 ${L.parts}・装備 ${L.fits}）を超えるため複製できません`);return;}
+ // The copy goes forward by the selection's length (at least the move step), so symmetric pairs stay symmetric.
+ const ext=xfUnion([...src.parts.map(p=>xfBox('parts',p)),...src.fits.map(f=>xfBox('fits',f))]),off=[Math.max(+st.xf.step||10,Math.round((ext[3]-ext[0])*1.05+1)),0,0];
+ const map={parts:new Map(),fits:new Map()},made={parts:[],fits:[]};let next=ship.nextId;
+ for(const l of ['parts','fits'])for(const q of src[l]){const o=publicCopy(q);map[l].set(q.id,next);o.id=next++;made[l].push(o);}
+ for(const l of ['parts','fits'])for(const o of made[l]){for(const r of ['tw','vt']){if(o[r]==null)continue;const n=map[l].get(o[r]);if(n!=null)o[r]=n;else delete o[r];}
+  if(l==='parts'){o.c=o.c.map((v,i)=>v+off[i]);if(o.reactor!=null&&map.parts.has(o.reactor))o.reactor=map.parts.get(o.reactor);}
+  else{if(o.host!=null){const n=map.parts.get(o.host);if(n!=null)o.host=n;else{delete o.host;delete o.local;delete o.localNormal;}}if(o.host==null){const p=o.p.map((v,i)=>v+off[i]);seatFit(o,p,o.n||C.AXES[o.a]);}}}
+ const check=xfCheck([...made.parts.map(o=>({list:'parts',before:null,after:o})),...made.fits.filter(o=>o.host==null).map(o=>({list:'fits',before:{float:false},after:o}))],true);
+ if(check.size){sndUI('ui_error');toast(esc(xfMessage(check))+'。「刻み」を大きくするか、向きを変えてください');return;}
+ const ok=mutate(`${made.parts.length+made.fits.length} 個を複製`,()=>{
+  ship.parts.push(...made.parts);ship.fits.push(...made.fits);ship.nextId=next;
+  for(const f of made.fits)if(f.host!=null)try{C.mountFit(ship,f);}catch(e){f.float=true;}
+  // Groups wholly inside the copy are copied; copies sit in the same group as their originals otherwise.
+  const gs=edGroups(),inside=g=>{const L=edLeaves(g);return [...L.parts].every(x=>map.parts.has(x))&&[...L.fits].every(x=>map.fits.has(x));},gmap=new Map();
+  for(const g of gs)if(inside(g))gmap.set(g.id,{id:ship.nextId++,...(g.name?{name:g.name}:{}),parts:[],fits:[],groups:[]});
+  for(const g of gs){const c=gmap.get(g.id);if(!c)continue;c.parts=g.parts.map(x=>map.parts.get(x));c.fits=g.fits.map(x=>map.fits.get(x));c.groups=g.groups.map(x=>gmap.get(x)?.id).filter(x=>x!=null);}
+  const place=(kind,oldId,newId)=>{const p=edParent(kind,oldId);if(p&&!gmap.has(p.id))p[kind].push(newId);};
+  for(const l of ['parts','fits'])for(const [o,n] of map[l]){const p=edParent(l,o);if(!p||!gmap.has(p.id))place(l,o,n);}
+  for(const [o,c] of gmap){const p=edParent('groups',o);if(!p||!gmap.has(p.id))place('groups',o,c.id);}
+  if(gmap.size)ship.groups=[...gs,...gmap.values()];
+ },'all');
+ if(ok===false)return;
+ st.multi={parts:new Set(made.parts.map(o=>o.id)),fits:new Set(made.fits.map(o=>o.id))};const l=made.parts.length?'parts':'fits';st.sel={list:l,id:made[l][0].id};
+ toast(`複製しました（${fmtM(Math.max(...off.map(Math.abs)))} ずらして配置）`);
+}
+function editDelete(){
+ const drivers=xfDrivers();if(!drivers.length)return;
+ const ids={parts:new Set(),fits:new Set()};for(const d of drivers)for(const q of [d.it,...d.fol.map(f=>f.it)])ids[d.list].add(q.id);
+ if(mutate(`${ids.parts.size+ids.fits.size} 個を撤去`,()=>{for(const id of ids.fits)C.removeItem(ship,'fits',id,false);for(const id of ids.parts)C.removeItem(ship,'parts',id,false);
+   for(const l of ['parts','fits'])for(const q of ship[l]){if(ids[l].has(q.tw))delete q.tw;if(ids[l].has(q.vt))delete q.vt;}for(const f of ship.fits)if(f.host!=null&&ids.parts.has(f.host))delete f.host;edPrune();},'all'))
+  showPreview('parts',[],[...ids.parts]);
+ selClear();xfReset();
+}
+// UI-007 Ctrl+G: the selected objects become one group (inside their common group, if they share one).
+function editGroup(){
+ const ents=selEntities();if(ents.length<2){toast('グループにするには2つ以上選んでください');return;}
+ const par=ents.map(e=>e.group?edParent('groups',e.group.id):edParent(e.list,e.id)),common=par.every(p=>p===par[0])?par[0]:null;
+ if(common&&edChain('groups',common.id).length+1>=C.GROUP_DEPTH){toast(`グループの入れ子は ${C.GROUP_DEPTH} 段までです`);return;}
+ mutate('グループ化',()=>{
+  ship.groups=edGroups().slice();const g={id:ship.nextId++,parts:[],fits:[],groups:[]};
+  for(const e of ents){const kind=e.group?'groups':e.list,id=e.group?e.group.id:e.id,p=edParent(kind,id);if(p)p[kind]=p[kind].filter(x=>x!==id);g[kind].push(id);}
+  ship.groups.push(g);if(common)common.groups.push(g.id);edPrune();
+ },'none');
+ toast('グループにしました。グループは設計の中の編集単位で、部品カタログには登録されません');
+}
+// Ctrl+Shift+G: the selected groups dissolve one level; their members stay where they are, selected.
+function editUngroup(){
+ const gs=selEntities().filter(e=>e.group).map(e=>e.group);if(!gs.length){toast('選択にグループがありません');return;}
+ mutate('グループ解除',()=>{for(const g of gs){const p=edParent('groups',g.id);if(p){p.groups=p.groups.filter(x=>x!==g.id);p.parts.push(...g.parts);p.fits.push(...g.fits);p.groups.push(...g.groups);}ship.groups=edGroups().filter(x=>x!==g);}edPrune();},'none');
+}
+function editRenameGroup(id,name){const g=edGroup(id);if(!g)return;name=String(name||'').trim().slice(0,40);if((g.name||'')===name)return;mutate('グループ名',()=>{const q=edGroup(id);if(name)q.name=name;else delete q.name;},'none',{quiet:true});}
+// --- the list of placed items (UI-005) ---
+// Category, then item; an item inside a group is listed under its group only. With 左右対称 / 上下対称 on, a
+// symmetric set is one row (×2, ×4).
+function edCategory(list,q){
+ if(list==='fits'){const d=C.FITS[q.k];return d?.window||d?.cat==='b'?['pods','艦橋ポッド']:['weapons',C.GROUPS.weapons];}
+ const spec=C.equipmentSpec(q);if(spec?.group==='bridge')return ['command',CMD_LABEL];const g=C.PARTS[q.k]?.group||'shape';return [g,g==='command'&&!craftDesign()?CMD_LABEL:C.GROUPS[g]||g];
+}
+function edRowShown(list,q){const find=id=>id==null?null:ship[list].find(x=>x.id===id);if(st.mirror&&q.tw!=null&&find(q.tw)&&q.id>q.tw)return false;if(st.vmirror&&q.vt!=null&&find(q.vt)&&q.id>q.vt)return false;return true;}
+function edItemRow(list,q,lv){
+ const on=st.multi[list].has(q.id),prim=st.sel?.list===list&&st.sel.id===q.id,n=multiLinked(list,q).length;
+ const d=list==='parts'?C.PARTS[q.k]:C.FITS[q.k],col=list==='parts'?d.col:d.cat==='w'?[214,120,90]:[150,200,230],sh=list==='parts'?d.shape:d.window?'pod':'fit';
+ const name=list==='parts'?C.partLabel(q):d.short||d.name,size=list==='parts'?(q.k==='struct'||q.room?(q.room||q.s).map(v=>Math.round(v)).join('×')+' m':fmtM(q.d)):'';
+ return `<button type="button" class="ed-row ed-item${prim?' prim':''}" style="--lv:${lv}" data-edpick="${list}:${q.id}" aria-pressed="${on}"><i class="sw sh-${sh}" style="background:${rgb(col)}"></i><span class="ed-n">${esc(name)}</span><small>#${q.id}${size?' · '+size:''}</small>${n>1?`<em>×${n}</em>`:''}</button>`;
+}
+function edGroupRows(g,lv,seen){
+ if(seen.has(g.id)||lv>C.GROUP_DEPTH+1)return '';seen.add(g.id);
+ const L=selExpand(edLeaves(g)),on=selHasAll(L)&&(L.parts.size+L.fits.size>0),open=st.edOpen['g'+g.id]??false,n=edLeaves(g);
+ let h=`<div class="ed-row ed-grp" style="--lv:${lv}"><button type="button" class="ed-fold" data-edfold="g${g.id}" aria-expanded="${open}" aria-label="${open?'たたむ':'開く'}">${open?'▾':'▸'}</button><button type="button" class="ed-pick" data-edpick="g:${g.id}" aria-pressed="${on}"><i class="ed-gi" aria-hidden="true"></i><span class="ed-n">${esc(edName(g))}</span><small>部品 ${n.parts.size+n.fits.size}</small></button></div>`;
+ if(open){for(const id of g.groups){const c=edGroup(id);if(c)h+=edGroupRows(c,lv+1,seen);}for(const l of ['parts','fits'])for(const id of g[l]){const q=selFind(l,id);if(q&&edRowShown(l,q))h+=edItemRow(l,q,lv+1);}}
+ return h;
+}
+function editListHTML(){
+ const cats=new Map(),grouped={parts:new Set(),fits:new Set()};
+ for(const g of edGroups()){const L=edLeaves(g);for(const l of ['parts','fits'])for(const x of L[l])grouped[l].add(x);}
+ const order=[...Object.keys(C.GROUPS).filter(k=>k!=='weapons'),'weapons','pods'];
+ for(const l of ['parts','fits'])for(const q of ship[l]){if(grouped[l].has(q.id)||!edRowShown(l,q))continue;const [k,name]=edCategory(l,q);if(!cats.has(k))cats.set(k,{name,rows:[]});cats.get(k).rows.push([l,q]);}
+ const keys=[...cats.keys()].sort((a,b)=>(order.indexOf(a)+1||99)-(order.indexOf(b)+1||99)),total=[...cats.values()].reduce((a,c)=>a+c.rows.length,0)+edGroups().length;
+ const tops=edGroups().filter(g=>!edParent('groups',g.id));
+ let h='';
+ if(tops.length){const open=st.edOpen.cgroups??true;h+=`<div class="ed-row ed-cat"><button type="button" class="ed-fold ed-ct" data-edfold="cgroups" aria-expanded="${open}"><i aria-hidden="true">${open?'▾':'▸'}</i><span>グループ</span></button><small>${tops.length}</small></div>`;if(open){const seen=new Set();for(const g of tops)h+=edGroupRows(g,1,seen);}}
+ for(const k of keys){const c=cats.get(k),sel=c.rows.some(([l,q])=>st.multi[l].has(q.id)),open=st.edOpen['c'+k]??(total<=30||sel);
+  h+=`<div class="ed-row ed-cat"><button type="button" class="ed-fold ed-ct" data-edfold="c${k}" aria-expanded="${open}"><i aria-hidden="true">${open?'▾':'▸'}</i><span>${esc(c.name)}</span></button><small>${c.rows.length}</small><button type="button" class="ed-all" data-edcat="${k}" title="この分類をすべて選択">全選択</button></div>`;
+  if(open)for(const [l,q] of c.rows)h+=edItemRow(l,q,1);}
+ if(!h)h='<p class="note keep">まだ何も配置していません。「配置」で部品を選んで置きます。</p>';
+ const np=ship.parts.length,nf=ship.fits.length;
+ return `<div class="ed-list" aria-label="配置済みの区画・装備"><div class="ed-head"><b>配置済み</b><span>区画 ${np}・装備 ${nf}</span><small class="ed-tip">${isWide()?'Shift＋クリックで追加・解除':'「複数」で追加選択'}</small></div><div class="ed-scroll" role="listbox" aria-multiselectable="true">${h}</div></div>`;
+}
+function editOpsHTML(){
+ const n=selN(),gs=selEntities().filter(e=>e.group).length,ents=selEntities().length,c=clipRead(),dis=b=>b?'':' disabled';
+ return `<div class="pgroup ed-ops hscroll" role="toolbar" aria-label="選択した部品の操作"><button type="button" class="chip" data-ed="dup"${dis(n)} title="複製（少しずらして置く）">複製</button><button type="button" class="chip" data-ed="group"${dis(ents>1)} title="グループ化（Ctrl+G）">グループ化</button><button type="button" class="chip" data-ed="ungroup"${dis(gs)} title="グループ解除（Ctrl+Shift+G）">グループ解除</button><button type="button" class="chip" data-ed="copy"${dis(n)}>コピー</button><button type="button" class="chip" data-ed="paste"${dis(c&&(c.parts.length||c.fits.length))}>貼り付け</button><button type="button" class="chip" data-ed="all">すべて選択</button><button type="button" class="chip danger" data-ed="delete"${dis(n)}>撤去</button></div>`;
+}
+function editXfHTML(){
+ if(!selN())return '';
+ const x=st.xf,ents=selEntities().length,plan=x.preview==='align'?xfPlanSafe('align'):null;
+ const num3=(i,l)=>`<div class="xf-row"><span>${l}</span><button type="button" class="btn sm" data-xfnudge="${i}" data-sign="-1" aria-label="${l} を減らす">−</button><input type="number" step="any" data-xfd="${i}" value="${+x.d[i]||0}" aria-label="${l}（m）"><button type="button" class="btn sm" data-xfnudge="${i}" data-sign="1" aria-label="${l} を増やす">＋</button></div>`;
+ let h=`<div class="pgroup xf-card" id="xf-move"><h4>移動</h4><div class="xf-grid">${num3(0,'前後 X')}${num3(1,'上下 Y')}${num3(2,'左右 Z')}</div><label class="field-label xf-step">刻み（m）<input type="number" min="0.01" step="any" data-xfstep value="${x.step}"></label><div class="xf-acts"><button type="button" class="btn sm ghost" data-xfreset>0 に戻す</button><button type="button" class="btn sm primary" data-xfgo="move">移動を確定</button></div><p class="note">緑の枠が移動先です（赤は配置できない位置）。相対位置を保ったまま動き、3D表示で選択部品をドラッグしても動かせます。</p></div>`;
+ h+=`<div class="pgroup xf-card" id="xf-rotate"><h4>回転</h4>${seg('xfrax',ED_ROT_AXES,String(x.rax))}<div class="xf-row xf-ang"><span>角度</span><input type="number" step="any" data-xfang value="${x.ang}" aria-label="回転角（度）"><span>°</span></div><div class="chips">${[-90,-15,15,90].map(a=>`<button type="button" class="chip" data-xfangset="${a}" aria-pressed="${+x.ang===a}">${a>0?'+':''}${a}°</button>`).join('')}</div>${seg('xfpivot',[['group','まとめて（全体の中心）'],['each','個別（それぞれの中心）']],x.pivot)}<div class="xf-acts"><button type="button" class="btn sm primary" data-xfgo="rotate">回転を確定</button></div><p class="note">構造物・区画・円筒・ノズルの向きが変わります（球形の設備は位置だけ）。装備は回した先の面に据え直します。左右対称がオンなら対の部品は鏡写しに回ります。</p></div>`;
+ if(ents>=2)h+=`<div class="pgroup xf-card" id="xf-align"><h4>整列・等間隔</h4>${seg('xfaax',ED_AXES,String(x.aax))}${seg('xfalign',ED_ALIGN,x.align)}${plan?.info?`<p class="xf-info">${esc(plan.info)}</p>`:''}<div class="xf-acts"><button type="button" class="btn sm primary" data-xfgo="align"${x.align==='space'&&ents<3?' disabled':''}>整列を確定</button></div><p class="note">等間隔は両端の部品を動かさず、部品の大きさを含めた隙間が等しくなるよう中間を並べ直します（3つ以上）。グループは1つの部品として扱います。</p></div>`;
+ return h;
+}
+function xfPlanSafe(k){try{return xfPlan(k);}catch(e){return null;}}
+function editGroupHTML(){
+ const gs=selEntities().filter(e=>e.group).map(e=>e.group);
+ return `<div class="pgroup" id="ed-groups"><h4>グループ</h4>${gs.map(g=>`<label class="field-label">${esc(`グループ #${g.id}`)}の名前<input type="text" maxlength="40" data-groupname="${g.id}" value="${esc(g.name||'')}" placeholder="${esc(edName(g))}"></label>`).join('')}<p class="note">選んだ部品を1つのグループにまとめ、移動・回転・複製・撤去をまとめて行います（Ctrl+G、解除は Ctrl+Shift+G）。グループの部品をもう一度タップすると中の部品だけを選べます。グループは入れ子にでき、設計図と一緒に保存されます。部品カタログへの登録とは別の機能です。</p></div>`;
+}
+function editRenderPanel(){
+ const panel=$('#panel');edPrune();selSync();
+ const top=panel.querySelector('.ed-scroll')?.scrollTop;if(top!=null)st.edScroll=top;
+ if(selSingle()){const keep={tab:st.tab,group:st.group,partTool:st.partTool,fitTool:st.fitTool,bridgeTool:st.bridgeTool,bridgeMode:st.bridgeMode,part:st.part,fit:st.fit,bridge:st.bridge,equipmentId:st.equipmentId,bridgeEquipment:st.bridgeEquipment,cmdSub:st.cmdSub,template:st.template};
+  const it=selItem();
+  if(st.sel.list==='parts'){const spec=C.equipmentSpec(it);if(spec?.group==='bridge'&&!craftDesign()){st.tab='bridge';st.bridgeMode='body';}else{st.tab='mod';st.group=C.PARTS[it.k].group;}st.partTool='select';}
+  else if(C.FITS[it.k].window){st.tab='bridge';st.bridgeMode='windows';st.bridgeTool='adjust';st.bridge=it.k;}
+  else{st.tab='mod';st.group='weapons';st.fitTool='adjust';st.fit=it.k;}
+  nativeRender=true;try{renderPanel();}finally{nativeRender=false;Object.assign(st,keep);}
+  // Only the item editor stays: the menus, the catalogue and the old lists of placed items go.
+  for(const sel of ['[data-parttool]','[data-fittool]','[data-bridgetool]','[data-group]','[data-cmdsub]','[data-placementalign]'])for(const b of panel.querySelectorAll(sel)){const g=b.closest('.pgroup')||b.closest('.seg');if(g&&g.parentElement===panel)g.remove();}
+  for(const e of panel.querySelectorAll(':scope > .parts, :scope > .fits, :scope > .compartment-rule, :scope > .note:not(.keep)'))e.remove();
+  for(const h of panel.querySelectorAll(':scope > .pgroup > h4, :scope > details > summary')){const t=sourceText(h).trim();if(/^配置済みの|^武装の威力と出典/.test(t))h.parentElement.remove();}
+ }else panel.innerHTML=selN()?'':`<p class="note keep ed-hint">一覧か3D表示で部品を選びます。${isWide()?'Shift＋クリックで追加・解除、':'「複数」をオンにするとタップで追加・解除、'}グループはまとめて選ばれます。</p>`;
+ panel.insertAdjacentHTML('afterbegin',editOpsHTML()+editListHTML());
+ if(selN())panel.insertAdjacentHTML('beforeend',editXfHTML()+editGroupHTML());
+ const card=document.createElement('div');card.innerHTML=multiPasteHTML();if(card.firstElementChild)panel.append(card.firstElementChild);
+ if(!panel.querySelector('#pinfo'))panel.insertAdjacentHTML('beforeend','<div class="pinfo" id="pinfo"></div>');
+ markTabs();renderPanelInfo();organizePanel();
+ // The selection line first, then the operations and the list, then the item editor and the tools.
+ {const at=panel.querySelector(':scope > .sel-info')||panel.querySelector(':scope > .sel-strip'),ops=panel.querySelector(':scope > .ed-ops'),list=panel.querySelector(':scope > .ed-list');if(at&&ops&&list){at.after(ops);ops.after(list);}}
+ const sc=panel.querySelector('.ed-scroll');if(sc){sc.scrollTop=st.edScroll||0;const on=sc.querySelector('.ed-row.prim');if(on&&st.edReveal){st.edReveal=false;const r=on.offsetTop-sc.offsetTop;if(r<sc.scrollTop||r+on.offsetHeight>sc.scrollTop+sc.clientHeight)sc.scrollTop=Math.max(0,r-sc.clientHeight/2);}}
+ updateHint();refreshOverlay();
+}
+// The camera turns to an object picked in a list.
+function edFocus(list,id){const p=selFind(list,id);if(!p||!view)return;const c=p.c||p.p;view.cam.target=C.add(c,view.off);view.cam.r=Math.max(180,p.c?C.partDims(p).r*6:250);requestDraw();}
+function bindEdit(){
+ const panel=$('#panel');
+ panel.addEventListener('click',e=>{if(st.tab!=='edit'||!ship)return;const b=e.target.closest('button');if(!b||b.disabled)return;const d=b.dataset,add=e.shiftKey||e.ctrlKey||e.metaKey||st.editTool==='multi';
+  if(d.edfold){st.edOpen[d.edfold.startsWith('g')||d.edfold.startsWith('c')?d.edfold:d.edfold]=b.getAttribute('aria-expanded')!=='true';renderPanel();return;}
+  if(d.edpick){const [l,i]=d.edpick.split(':'),id=+i;if(l==='g'){const g=edGroup(id);if(g)selGroup(g,add);}else selPick(l,id,add,true);xfReset();st.edReveal=false;renderPanel();if(e.detail>=2&&l!=='g')edFocus(l,id);return;}
+  if(d.edcat){const ids={parts:[],fits:[]};for(const l of ['parts','fits'])for(const q of ship[l])if(edCategory(l,q)[0]===d.edcat)ids[l].push(q.id);if(!add)st.multi={parts:new Set(),fits:new Set()};for(const l of ['parts','fits'])for(const x of ids[l])st.multi[l].add(x);st.multi=selExpand(st.multi);st.sel=null;selSync();xfReset();renderPanel();return;}
+  if(d.ed){const a=d.ed;
+   if(a==='dup')editDuplicate();else if(a==='group')editGroup();else if(a==='ungroup')editUngroup();
+   else if(a==='copy'){if(multiCopy())toast('コピーしました。別の艦を開いても貼り付けられます');}
+   else if(a==='paste'){multiPaste();selSync();}
+   else if(a==='all'){st.multi={parts:new Set(ship.parts.map(p=>p.id)),fits:new Set(ship.fits.map(f=>f.id))};st.sel=null;selSync();}
+   else if(a==='delete')editDelete();
+   xfReset();renderPanel();refreshOverlay();return;}
+  if(d.xfnudge!=null){const i=+d.xfnudge;st.xf.d[i]=r6((+st.xf.d[i]||0)+(+d.sign)*(+st.xf.step||10));st.xf.preview='move';xfCache=null;const inp=panel.querySelector(`[data-xfd="${i}"]`);if(inp)inp.value=st.xf.d[i];refreshOverlay();return;}
+  if('xfreset' in d){st.xf.d=[0,0,0];st.xf.preview=null;xfCache=null;renderPanel();return;}
+  if(d.xfgo){xfCommit(d.xfgo);return;}
+  if(d.xfrax!=null){st.xf.rax=+d.xfrax;st.xf.preview='rotate';xfCache=null;renderPanel();return;}
+  if(d.xfangset!=null){st.xf.ang=+d.xfangset;st.xf.preview='rotate';xfCache=null;renderPanel();return;}
+  if(d.xfpivot){st.xf.pivot=d.xfpivot;st.xf.preview='rotate';xfCache=null;renderPanel();return;}
+  if(d.xfaax!=null){st.xf.aax=+d.xfaax;st.xf.preview='align';xfCache=null;renderPanel();return;}
+  if(d.xfalign){st.xf.align=d.xfalign;st.xf.preview='align';xfCache=null;renderPanel();return;}
+ });
+ panel.addEventListener('input',e=>{if(st.tab!=='edit')return;const t=e.target,d=t.dataset;
+  if(d.xfd!=null){const v=+t.value;if(Number.isFinite(v)){st.xf.d[+d.xfd]=v;st.xf.preview='move';xfCache=null;refreshOverlay();}}
+  if(d.xfang!=null){const v=+t.value;if(Number.isFinite(v)){st.xf.ang=v;st.xf.preview='rotate';xfCache=null;refreshOverlay();}}
+ });
+ panel.addEventListener('change',e=>{if(st.tab!=='edit')return;const t=e.target,d=t.dataset;
+  if(d.xfstep!=null){const v=+t.value;if(Number.isFinite(v)&&v>0)st.xf.step=v;else t.value=st.xf.step;}
+  if(d.groupname!=null){editRenameGroup(+d.groupname,t.value);renderPanel();}
+ });
+ panel.addEventListener('toggle',e=>{const d=e.target;if(st.tab!=='edit'||!(d instanceof HTMLDetailsElement)||!d.open)return;const id=d.id||d.querySelector('[id^="xf-"]')?.id||'';const k=id==='xf-move'?'move':id==='xf-rotate'?'rotate':id==='xf-align'?'align':null;if(k&&k!==st.xf.preview){st.xf.preview=k==='move'&&!st.xf.d.some(v=>+v)?null:k;xfCache=null;refreshOverlay();}},true);
+ panel.addEventListener('scroll',e=>{if(e.target.classList?.contains('ed-scroll'))st.edScroll=e.target.scrollTop;},true);
+}
+// ---------- UI-006 inspection bar ----------
+// Always under the editor while designing: counts of errors, warnings and notes, the parts with no reported problem,
+// and the first problem; open it (phones start folded) for the list. An item selects its parts in 編集.
+st.ibRows=[];
+function renderInspBar(){
+ const bar=$('#inspBar');if(!bar)return;const on=!!ship&&fleet.mode==='design'&&!trial.on&&st.tab!=='spec';bar.hidden=!on;if(!on)return;
+ if(!S){setHTML(bar,'<div class="ib-head"><b>点検</b><span class="ib-sum">計算中…</span></div>');return;}
+ const W=(S.warnings||[]).slice(),rank={bad:0,warn:1,info:2};W.sort((a,b)=>(rank[a.lv]??3)-(rank[b.lv]??3));st.ibRows=W;
+ const n={bad:0,warn:0,info:0};for(const w of W)n[w.lv]=(n[w.lv]||0)+1;
+ const flagged=new Set();for(const w of W)if(w.lv!=='info')for(const t of w.targets||[])if(t.list==='parts'||t.list==='fits')flagged.add(t.list+t.id);
+ const total=ship.parts.length+ship.fits.length,okN=total-[...flagged].filter(k=>k.startsWith('parts')?ship.parts.some(p=>'parts'+p.id===k):ship.fits.some(f=>'fits'+f.id===k)).length;
+ const open=st.inspOpen??isWide(),lv=n.bad?'bad':n.warn?'warn':'ok',top=W.find(w=>w.lv!=='info');
+ const head=`<button type="button" class="ib-head" data-ibtoggle aria-expanded="${open}" aria-controls="ibList"><span class="ib-st ib-${lv}" aria-hidden="true">${lv==='bad'?'✕':lv==='warn'?'!':'✓'}</span><b>点検</b><span class="ib-c ib-bad" title="エラー">エラー ${n.bad}</span><span class="ib-c ib-warn" title="警告">警告 ${n.warn}</span><span class="ib-c ib-info" title="情報">情報 ${n.info}</span><span class="ib-c ib-ok" title="問題の報告がない部品">正常 ${okN}/${total}</span><span class="ib-sum">${esc(top?top.text:'大きな問題はありません。')}</span><i class="ib-car" aria-hidden="true">${open?'▾':'▸'}</i></button>`;
+ const list=open?`<ul class="ib-list" id="ibList">${W.length?W.map((w,i)=>{const ts=(w.targets||[]).filter(t=>t.list==='parts'||t.list==='fits'),obj=ts.map(t=>selFind(t.list,t.id)).filter(Boolean);return `<li class="w-${w.lv}"><button type="button" class="ib-item" data-ibpick="${i}"><i class="ib-lv">${w.lv==='bad'?'エラー':w.lv==='warn'?'警告':'情報'}</i><span>${esc(w.text)}</span>${obj.length?`<small>${obj.length} 個を選択 →</small>`:(w.targets||[])[0]?.tab?'<small>開く →</small>':''}</button></li>`;}).join(''):'<li class="w-ok"><span>大きな問題はありません。</span></li>'}</ul>`:'';
+ setHTML(bar,head+list);bar.classList.toggle('open',open);
+}
+function bindInspBar(){
+ const bar=$('#inspBar');if(!bar)return;
+ bar.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  if('ibtoggle' in b.dataset){st.inspOpen=!(st.inspOpen??isWide());renderInspBar();return;}
+  if(b.dataset.ibpick!=null){const w=st.ibRows[+b.dataset.ibpick];if(!w)return;const ts=(w.targets||[]).filter(t=>(t.list==='parts'||t.list==='fits')&&selFind(t.list,t.id));
+   if(ts.length){st.multi={parts:new Set(),fits:new Set()};for(const t of ts)st.multi[t.list].add(t.id);st.sel={list:ts[0].list,id:ts[0].id};st.tab='edit';st.editTool='select';st.edReveal=true;
+    if(ts.some(t=>t.list==='parts'&&C.isInternal(selFind('parts',t.id))))st.view='xray';st.dockCollapsed=false;$('#dock').classList.remove('collapsed');syncHud();renderPanel();edFocus(ts[0].list,ts[0].id);refreshOverlay();}
+   else if((w.targets||[])[0])openLayoutTarget(w.targets[0]);else openLayoutTarget({tab:'systems'});}
+ });
+}
+// The selection strip for several objects: how many, of what, and the groups among them.
+function editStripFacts(){
+ const m=multiItems(),gs=selEntities().filter(e=>e.group).length,kinds=[...m.parts.map(p=>C.partLabel(p)),...m.fits.map(f=>C.FITS[f.k]?.short||C.FITS[f.k]?.name)].reduce((o,k)=>(o[k]=(o[k]||0)+1,o),{});
+ return {title:`${selN()} 個を選択`,id:null,tw:false,line:`区画・構造物 ${m.parts.length}・装備 ${m.fits.length}${gs?` · グループ ${gs}`:''}`,detail:()=>`<div class="ins-row">${Object.entries(kinds).map(([k,v])=>esc(k||'—')+' ×'+v).join('・')}</div>`};
 }
 // Phone landscape: the right-hand editor can be hidden to give the 3D view the whole screen.
 function bindDockToggle(){
@@ -4470,12 +5496,12 @@ async function trialStart(opts={}){
  requestAnimationFrame(()=>{requestDraw();});loadHideSoon();
 }
 function trialStop(){
- if(!trial.on)return;if(shot.on)shotSet(false);trial.paused=false;trial.on=false;trial.hitcam=null;trial.fire=trial.fireKey=false;trial.keys.clear();trial.stick={x:0,y:0};trial.keyStick={x:0,y:0};
+ if(!trial.on)return;const msp=msPatrolCollect();if(shot.on)shotSet(false);trial.paused=false;trial.on=false;trial.hitcam=null;trial.fire=trial.fireKey=false;trial.keys.clear();trial.stick={x:0,y:0};trial.keyStick={x:0,y:0};
  document.body.classList.remove('trial-on');const hud=$('#trialHud');hud.hidden=true;hud.innerHTML='';hud.classList.remove('spectate');if(view)view.renderScale=1;
  if(view){if(trial.designCamera){view.cam=trial.designCamera.cam;view.off=trial.designCamera.off;}delete view.cam.frame;delete view.cam.far;delete view.cam.near;}
  try{YardEngineClient.post({type:'trialEnd'});}catch(e){}
  trial.asset=null;trial.turrets=[];trial.launchers=[];trial.bolts=[];trial.missiles=[];trial.fx=[];trial.wrecks=[];trial.vbolts=[];trial.targets=[];trial.battle=null;trial.jump=null;trial.cine=null;trial.pat=null;
- const back=trial.returnTo,wasRts=!!trial.rts;trial.spectate=false;trial.returnTo=null;trial.battlePlan=null;trial.rts=null;trial.mode='trial';trial.foeCraft=[];trial.ownCraft=[];trial.foeMissiles=[];trial.cbolts=[];trial.craftGhosts=[];trial.cord=[];fleetPrune();renderPanel();renderSpecTargets();syncHud();requestDraw();if(back==='tactical')fleetSetMode('tactical');if(back==='voyage'||wasRts)voyPilotEnd();else if(back==='title')showTitle('missions');
+ const back=trial.returnTo,wasRts=!!trial.rts;trial.spectate=false;trial.returnTo=null;trial.battlePlan=null;trial.rts=null;trial.mode='trial';trial.foeCraft=[];trial.ownCraft=[];trial.foeMissiles=[];trial.cbolts=[];trial.craftGhosts=[];trial.cord=[];fleetPrune();renderPanel();renderSpecTargets();syncHud();requestDraw();if(back==='tactical')fleetSetMode('tactical');if(back==='voyage'||wasRts)voyPilotEnd();else if(back==='title'){if(msp)msPatrolDone(msp);else showTitle('missions');}
 }
 function trialAttitude(){
  // Coming out of hyperspace the ship is still far out on its line to the
@@ -5092,8 +6118,10 @@ function trialSelfUpdate(hud){
 // The status line of a jump, phase by phase (left: seconds to the far end of the tunnel).
 function trialHyperText(j,d,left){
  const c=`光速の ${(trial.vf/LIGHT*100).toFixed(trial.vf<LIGHT*.01?2:1)}%`;
- return j.phase==='spool'?`ハイパードライブ充填中 · ${d}へ ${Math.max(0,JUMP.spool-j.t).toFixed(1)} 秒`:j.phase==='accel'?`亜光速へ加速 · ${c}`:j.phase==='enter'?`亜光速 · ${c} — ハイパースペースへ突入`:j.phase==='tunnel'?`ハイパースペース航行中${d?` · ${d}まで`:''}${Number.isFinite(left)?` ${Math.ceil(left)} 秒`:''}`:j.phase==='exit'?`リアルスペースへ復帰 · 亜光速`:j.phase==='brake'?`亜光速から減速 · ${trial.vf>=1e5?`秒速 ${num(Math.round(trial.vf/1000))} km`:`${num(Math.round(trial.vf))} m/s`}`:`${trialSys().name}に到着`;
+ return j.phase==='spool'?`ハイパードライブ充填中 · ${d}へ ${Math.max(0,JUMP.spool-j.t).toFixed(1)} 秒`:j.phase==='accel'?`亜光速へ加速 · ${c}`:j.phase==='enter'?`亜光速 · ${c} — ハイパースペースへ突入`:j.phase==='tunnel'?`ハイパースペース航行中${d?` · ${d}まで`:''}${Number.isFinite(left)?` ${trialDurText(Math.ceil(left))}`:''}`:j.phase==='exit'?`リアルスペースへ復帰 · 亜光速`:j.phase==='brake'?`亜光速から減速 · ${trial.vf>=1e5?`秒速 ${num(Math.round(trial.vf/1000))} km`:`${num(Math.round(trial.vf))} m/s`}`:`${trialSys().name}に到着`;
 }
+// Jump durations as text (the voyage map and the piloted jump both use it).
+function trialDurText(s) { s = Math.max(0, Math.round(s)); if (s < 60) return `${s} 秒`; const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return `${h ? h + '時間 ' : ''}${m}分 ${x}秒`; }
 function trialHyperUpdate(hud){
  const el=hud.querySelector('[data-th="hyper"]'),j=trial.jump;if(!el)return;el.hidden=!j;if(!j)return;const d=SYSTEMS[j.dest]?.name||'';
  const txt=trialHyperText(j,d,Math.max(0,trialTunnelLeft(j)));
@@ -5230,8 +6258,8 @@ function trialJump(dest){
  if(!trial.on||trial.jump||!SYSTEMS[dest])return;if(dest===trial.sysKey){toast('すでにこの星系にいます');return;}
  const hc=trialHyperClass();if(hc==null){toast('この艦にはハイパードライブがありません');return;}
  if(trial.battle?.me?.out||trial.battle?.me?.dead){toast('戦闘不能のためジャンプできません');return;}
- spaceCineEnd();trial.jump={phase:'spool',t:0,dest,from:trial.sysKey,tunnel:jumpSeconds(hc,trial.sysKey,dest),dir:trialCol(trial.R,0)};trial.tele=5;trial.fire=trial.fireKey=false;trial.fireTap=0;
- trialMapShow(false);const way=Galaxy.path(trial.sysKey,dest);toast(`ハイパードライブ起動 — ${SYSTEMS[dest].name}へ（超空間 ${Math.round(trial.jump.tunnel)} 秒${way&&way.legs.length>1?`・${way.legs.length - 1} 星系経由`:''}）`);
+ spaceCineEnd();trial.jump={phase:'spool',t:0,dest,from:trial.sysKey,tunnel:trialJumpSecs(hc,trial.sysKey,dest),dir:trialCol(trial.R,0)};trial.tele=5;trial.fire=trial.fireKey=false;trial.fireTap=0;
+ trialMapShow(false);const way=Galaxy.path(trial.sysKey,dest);toast(`ハイパードライブ起動 — ${SYSTEMS[dest].name}へ（超空間 ${trialDurText(trial.jump.tunnel)}${way&&way.legs.length>1?`・${way.legs.length - 1} 星系経由`:''}）`);
  if(trial.battle&&!trial.battle.result)spaceDepartEscorts();
 }
 // Seconds left in the tunnel (known for a flight; for a ship followed in a
@@ -5429,10 +6457,10 @@ function trialMapHTML(){
 function trialMapSide(){
  const cur=trialSys(),st=GMAP.trial,hc=trialHyperClass(),inBattle=trial.battle&&!trial.battle.result,sel=st?.sel&&SYSTEMS[st.sel]?st.sel:null;
  let h='';
- if(sel){const p=Galaxy.path(cur.key,sel),t=hc==null?null:Math.round(jumpSeconds(hc,cur.key,sel));
-  h+=gmSysCardHTML(sel,`<p class="gm-way">${esc(gmPathText(p))}</p><button type="button" class="th-btn th-jumpbtn" data-trial-cmd="jump:${sel}" ${hc==null?'disabled':''}>${inBattle?'離脱して':''}${esc(SYSTEMS[sel].name)}へジャンプ${t==null?'':`（${t} 秒）`}</button>`);}
+ if(sel){const p=Galaxy.path(cur.key,sel),t=hc==null?null:Math.round(trialJumpSecs(hc,cur.key,sel));
+  h+=gmSysCardHTML(sel,`<p class="gm-way">${esc(gmPathText(p))}</p><button type="button" class="th-btn th-jumpbtn" data-trial-cmd="jump:${sel}" ${hc==null?'disabled':''}>${inBattle?'離脱して':''}${esc(SYSTEMS[sel].name)}へジャンプ${t==null?'':`（${trialDurText(t)}）`}</button>`);}
  else h+=gmSysCardHTML(cur.key,`<p class="gm-hint">行き先の星系をタップしてください（ドラッグで移動・ピンチで拡大）。</p>`);
- h+=`<p class="th-map-note">${hc==null?'この艦にはハイパードライブがありません。':`ハイパードライブ クラス ${num(hc,1)} · 主要交易路は速く、支線は遅い（演習時間）。全速から亜光速まで加速し、星空が放射状に引き伸ばされてハイパースペースへ。ジャンプ中は射撃できません。${inBattle?'戦闘中にジャンプすると戦域から離脱し、僚艦も続きます。':''}`}</p>`;
+ h+=`<p class="th-map-note">${hc==null?'この艦にはハイパードライブがありません。':`ハイパードライブ クラス ${num(hc,1)} · 主要交易路は速く、支線は遅い${trial.msnPatrol?'（実際の航行時間。ハイパースペースでは「スキップ」で到着の数秒前まで時間を進められます）':'（演習時間）'}。全速から亜光速まで加速し、星空が放射状に引き伸ばされてハイパースペースへ。ジャンプ中は射撃できません。${inBattle?'戦闘中にジャンプすると戦域から離脱し、僚艦も続きます。':''}`}</p>`;
  return h+gmLegendHTML()+gmListHTML('data-gm-pick');}
 function trialMapPick(key){const st=GMAP.trial;if(!st||!SYSTEMS[key])return;st.sel=key===st.cur?null:key;gmMark('trial');gmLayout('trial');const side=$('#thMapSide');if(side)side.innerHTML=trialMapSide();}
 function trialMapShow(on){
@@ -5462,7 +6490,7 @@ function missionMapRender(){
  if(titleState.panel!=='missions'){if(el)el.hidden=true;return;}
  if(!el){el=document.createElement('div');el.id='missionMap';el.className='mmap';el.setAttribute('role','region');el.setAttribute('aria-label','任務マップ');t.appendChild(el);}
  const st=GMAP.mission||(GMAP.mission={cx:90,cy:100,z:1.7}),sel=mmSel();st.sel=sel;st.cur=null;st.selTag=mm.mode==='fleet'?'戦域':'出発地';st.onPick=mmPick;
- if(!el.dataset.ready){el.innerHTML=`<header class="mm-head"><div class="mm-title"><span class="eyebrow">航行</span><h2>任務マップ</h2></div><div class="seg mm-tabs" role="tablist"><button type="button" role="tab" data-mm-mode="patrol">パトロール</button><button type="button" role="tab" data-mm-mode="fleet">艦隊戦</button></div><button type="button" class="btn ghost sm" data-title-back>戻る</button></header><div class="mm-body"><div class="mm-map">${galMapHTML('mission')}</div><aside class="mm-side" id="mmSide"></aside></div>`;el.dataset.ready='1';
+ if(!el.dataset.ready){el.innerHTML=`<header class="mm-head"><div class="mm-title"><span class="eyebrow">任務 · カスタム</span><h2>任務マップ</h2></div><div class="seg mm-tabs" role="tablist"><button type="button" role="tab" data-mm-mode="patrol">パトロール</button><button type="button" role="tab" data-mm-mode="fleet">艦隊戦</button></div><button type="button" class="btn ghost sm" data-title-back>戻る</button></header><div class="mm-body"><div class="mm-map">${galMapHTML('mission')}</div><aside class="mm-side" id="mmSide"></aside></div>`;el.dataset.ready='1';
   el.addEventListener('click',e=>{const b=e.target.closest('[data-mm-pick]');if(b){e.preventDefault();e.stopPropagation();mmPick(b.dataset.mmPick);gmCenter('mission',b.dataset.mmPick,2);b.closest('details')?.removeAttribute('open');}});
   gmBind('mission',el.querySelector('.gm'));[st.cx,st.cy]=gmP(Galaxy.BY[sel].at);}
  el.hidden=false;el.dataset.mode=mm.mode;for(const b of el.querySelectorAll('[data-mm-mode]'))b.setAttribute('aria-pressed',String(b.dataset.mmMode===mm.mode));
@@ -6076,7 +7104,7 @@ function spaceDrawUnits(){
   if(tt!=null&&tt<.9){if(tt<0)continue;const k=warpLook(tt,u.p.len);w=tv.add(w,f,-k.D);stretch=k.stretch;flash=k.tint;}
   else if(u.absent&&!u.depart)continue;
   if(u.depart&&u.depart.t>0){const t=u.depart.t;w=tv.add(w,f,u.p.len*40*(t/.8)**3);stretch=1+25*t*t;flash=C.clamp((stretch-1)/16,0,.45);}
-  out.push({key:u.key,pos:tv.sub(w,trial.P),rot:R,glow:u.depart?1:glowOf(u.id,C.engineLevel(u)),hatchOpen:0,dead:false,stretch,flash});}
+  out.push({key:u.key,pos:tv.sub(w,trial.P),rot:R,glow:u.depart?1:glowOf(u.id,C.engineLevel(u)),hatchOpen:B.rts?u.hatchOpen||0:0,dead:false,stretch,flash});}   // v23 a fleet battle's carriers open their sliding hatch doors for launches and landings (Rts hatchTick)
  // Ships that jumped out, seen from outside: stretched along their heading and gone.
  for(const g of B.ghosts||[]){const t=g.t,stretch=1+25*t*t;out.push({key:g.key,pos:tv.sub(tv.add(g.w,g.f,g.L*40*(t/.8)**3),trial.P),rot:g.rot,glow:.55,hatchOpen:0,dead:false,stretch,flash:C.clamp((stretch-1)/16,0,.45)});}
  out.push(...spaceWreckDraw());
@@ -6409,6 +7437,7 @@ function openLayoutTarget(t){
  if(fleet.mode!=='design')fleetSetMode('design');
  st.dockCollapsed=false;$('#dock').classList.remove('collapsed');st.sel=null;st.equipmentId=null;st.hatchA=null;
  const p=t.list&&ship[t.list]?.find(p=>p.id===t.id);
+ if(p&&(t.list==='parts'||t.list==='fits')){selClear();st.sel={list:t.list,id:p.id};}
  if(p&&t.list==='parts'){st.tab='mod';st.group=C.PARTS[p.k].group;st.partTool='select';st.sel={list:'parts',id:p.id};st.view='xray';}
  else if(p&&t.list==='fits'){
   st.sel={list:'fits',id:p.id};if(C.FITS[p.k].window){st.tab='bridge';st.bridgeMode='windows';st.bridgeTool='adjust';st.bridge=p.k;st.view='xray';}
@@ -6707,7 +7736,7 @@ function tutPartStep(o){
 const TUT_STEPS=[
  {title:'船体を用意する',text:'全長 1,600 m・全幅 1,000 m のくさび形船体（艦種：デストロイヤー）を用意しました。インペリアル級の要点は<b>平たい三角形の船体</b>・<b>艦尾寄りの艦橋</b>・<b>艦尾の大型エンジン</b>の3つです。寸法は「船体」タブでいつでも変えられます。',
   focus:['#tabs [data-tab="hull"]'],setup(){st.tab='hull';st.view='normal';tutCam('iso');},done:()=>true},
- {title:'艦橋本体を置く',text:'「区画および艤装 → 指揮・艦橋 → 艦橋本体」で<b>インペリアル級 艦橋本体</b>を選んであります。甲板の<b>艦尾寄り（後ろから約1/5）の中心線</b>をタップしてください。前面の円筒ポッドが指揮所なので、置くだけで艦橋として働きます。',
+ {title:'艦橋本体を置く',text:'「配置 → 指揮・艦橋 → 艦橋本体」で<b>インペリアル級 艦橋本体</b>を選んであります。甲板の<b>艦尾寄り（後ろから約1/5）の中心線</b>をタップしてください。前面の円筒ポッドが指揮所なので、置くだけで艦橋として働きます。',
   focus:['#tabs [data-tab="mod"]','[data-group="command"]','[data-cmdsub="body"]','[data-equipment="isdBridge"]'],
   setup(){st.tab='bridge';st.bridgeMode='body';st.bridgeEquipment='isdBridge';st.equipmentId=null;st.partTool='place';st.sel=null;st.view='normal';tutCam('iso');},
   done:()=>!!tutBridge(),auto:()=>tutTap(...tutDeck(TUT_HULL.L*.2,0))},
@@ -6725,7 +7754,7 @@ const TUT_STEPS=[
   items:[{k:'inertial',size:60,at:()=>tutDeck(TUT_HULL.L*.56,90)},{k:'integrity',room:[110,50,30],at:()=>tutDeck(TUT_HULL.L*.33,150)}]}),
  tutPartStep({title:'シールド発生器を据える',group:'support',view:'normal',text:'<b>広域シールド発生器</b>を「一部露出」で選んであります。<b>艦橋本体の上</b>を中心から少しずらしてタップすると、左右一対の球形ドームが据わります。インペリアル級の艦橋の上にある、あの2つの球です。',
   items:[{k:'shield',size:34,placeBy:'partial',at:()=>{const b=tutBridge();return tutDeck(b?b.c[0]-b.s[0]*.25:TUT_HULL.L*.2,b?b.s[1]*.28:80);}}]}),
- {title:'主砲を並べる',text:'「区画および艤装 → 武装」で<b>6連装重ターボレーザー</b>を選んであります。<b>甲板の左右の縁</b>を艦尾から艦首へ2〜3か所タップしてください。左右対称なので1回で両舷に付きます。',
+ {title:'主砲を並べる',text:'「配置 → 武装」で<b>6連装重ターボレーザー</b>を選んであります。<b>甲板の左右の縁</b>を艦尾から艦首へ2〜3か所タップしてください。左右対称なので1回で両舷に付きます。',
   focus:['[data-group="weapons"]','[data-fit="refISD"]'],
   setup(){st.tab='mod';st.group='weapons';st.fit='refISD';st.fitTool='place';st.weaponMount='auto';st.mirror=true;st.sel=null;st.view='normal';syncHud();tutCam('iso');},
   done:()=>ship&&ship.fits.filter(f=>C.FITS[f.k].cat==='w').length>=4,auto:()=>{for(const [x,z] of [[.22,300],[.36,230],[.5,160]])tutTap(...tutDeck(TUT_HULL.L*x,z));}},
@@ -6940,6 +7969,144 @@ function bindSound() {
  document.addEventListener('click', e => { const b = e.target.closest?.('button,[role=tab],summary');if (!b || b.disabled) return; sndUI(b.matches('[role=tab],.seg button,summary,[aria-pressed]') ? 'ui_toggle' : 'ui_click', .35); }, true);
 }
 
+// ---- src/48_input_app.js ----
+// ---------- 48_input_app.js — the app's side of the input-action layer (spec v13 §12, PAD-003) ----------
+// Placed inside the app module (build.py, at /*@INPUT@*/) so the pad reaches the same command functions the keyboard,
+// mouse and touch use: trialCommand, onTap via the canvas pointer path, onTap(x, y, add) (the Shift+click path), railSet, voySpectateCmd, the
+// voyage map's own pointer and wheel handlers. Nothing here edits designs or the simulation directly except through
+// those commands; only the cameras (view.cam, the voyage map centre) are moved here, as a drag would move them.
+// Contexts: title · sheet · design · pilot · spectate · voymap · voysetup · fleetmap · page (generic focus ring).
+const PAD_LOOK = 2.4, PAD_ZOOM = 1.6, PAD_PAN = 700;   // provisional: rad/s, e-folds/s of zoom, px/s of map pan at full deflection
+const padIn = {stick: false, hit: 0};
+function padVis(el) { return !!el && !el.hidden && el.getClientRects().length > 0; }
+function padHudMenu() { for (const s of ['#thMenu', '#thPower', '#thMap', '#trialHud [data-th="result"]']) { const e = $(s); if (padVis(e)) return e; } return null; }
+function padContext() {
+  if (document.getElementById('splash') || document.body.classList.contains('title-open')) return 'title';
+  if (!$('#sheet').hidden) return 'sheet';
+  if (trial.on && !trial.spectate) return 'pilot';
+  if (trial.on && trial.spectate && !voy.orders) return 'spectate';
+  if (voy.open) return voy.screen === 'setup' ? 'voysetup' : !$('#voySheet').hidden ? 'voysheet' : 'voymap';
+  if (fleet.mode === 'tactical') return 'fleetmap';
+  if (fleet.mode === 'design' && ship) return 'design';
+  return 'page';
+}
+// The D-pad's layer inside a screen: an open HUD menu while piloting, the voyage screen while it is up.
+function padScope() {
+  const c = padContext();
+  if (c === 'pilot' || c === 'spectate') return padHudMenu() || $('#trialHud');
+  if (c === 'voymap' || c === 'voysetup') return $('#voyage');
+  return null;
+}
+// The camera of the 3D view, as a drag (rotate) and the wheel / pinch (zoom) move it.
+function padLook(ax, dt, zoom) {
+  if (!view) return;let moved = false;
+  if (ax.lookX || ax.lookY) { view.cam.th += ax.lookX * PAD_LOOK * dt; view.cam.ph = Math.max(0.0006, Math.min(Math.PI - 0.02, view.cam.ph + ax.lookY * PAD_LOOK * dt)); moved = true; }
+  if (zoom) { view.cam.r = Math.max(20, Math.min(400000, view.cam.r * Math.exp(-zoom * PAD_ZOOM * dt))); moved = true; }
+  if (moved) requestDraw();
+}
+const padTrig = (btn, th) => (btn.trigR > th ? btn.trigR : 0) - (btn.trigL > th ? btn.trigL : 0);
+// Cycle among visible buttons of a list (palette items, tabs, task groups): the pressed/selected one, then the next.
+function padCycle(sel, dir, onSel) {
+  const list = $$(sel).filter(e => padVis(e) && !e.disabled);if (!list.length) return false;
+  let i = list.findIndex(onSel);i = i < 0 ? (dir > 0 ? 0 : list.length - 1) : (i + dir + list.length) % list.length;
+  list[i].click();try { list[i].scrollIntoView({block: 'nearest', inline: 'nearest'}); } catch (e) {}
+  return true;
+}
+// Piloting: the enemy targets in order of distance; L1/R1 step through them, X takes the nearest. The fixed-battery
+// gun mode (敵方固定) is what keeps the guns on a chosen target, so choosing one switches 自由照準 to it.
+function padTarget(step) {
+  const ts = (trial.targets || []).filter(t => t.alive && !t.ally).sort((a, b) => tv.len(tv.sub(a.pos, trial.P)) - tv.len(tv.sub(b.pos, trial.P)));
+  if (!ts.length) { toast('目標がありません'); return; }
+  const i = ts.indexOf(trial.gunTarget), t = step === 0 ? ts[0] : ts[i < 0 ? 0 : (i + step + ts.length) % ts.length];
+  if (trial.gunMode !== 'enemy') trialCommand('gun:enemy');
+  trial.gunTarget = t;toast(T('目標：{0}（{1} km）').replace('{0}', esc(t.name || t.label || T('敵艦'))).replace('{1}', num(tv.len(tv.sub(t.pos, trial.P)) / 1000, 1)));
+}
+function padClose(e) { e.hidden = true; document.querySelector(`[aria-controls="${e.id}"],[data-trial-cmd="${e.id === 'thMenu' ? 'menu' : 'power'}"]`)?.setAttribute('aria-expanded', 'false'); }
+const PAD_HOST = {
+  context: padContext, scope: padScope, toast: m => toast(esc(m)),
+  press(a, ctx, P, repeat) {
+    // Title: B closes an open panel (as Esc does), else steps back out of a sub-menu with its ← button.
+    if (ctx === 'title' && a === 'cancel' && !document.getElementById('splash')) { if (repeat) return true; if (titleState.panel) { P.tapKey('Escape', 'Escape'); return true; } const back = $$('#titleMenu .tback').find(padVis); if (back) back.click(); return true; }
+    if (ctx === 'pilot') {
+      const menu = padHudMenu();
+      if (menu && ['confirm', 'up', 'down', 'left', 'right'].includes(a)) return false;   // the focus ring works the open menu
+      if (a === 'cancel') { if (menu) { if (menu.id === 'thMap') trialMapShow(false); else if (menu.id) padClose(menu); else menu.hidden = true; } return true; }
+      const cmd = {up: 'level', down: 'center', left: 'rudder-', right: 'rudder+', trigL: 'tele-', trigR: 'tele+', mode: 'gunmode', menu: 'menu', select: 'pnext', l3: 'missile', r3: 'cam'}[a];
+      if (a === 'confirm') { if (!repeat) trial.fire = true; return true; }
+      if (a === 'action') { padTarget(0); return true; }
+      if (a === 'prev' || a === 'next') { padTarget(a === 'next' ? 1 : -1); return true; }
+      if (cmd) { if (!repeat || /^rudder/.test(cmd)) trialCommand(cmd); return true; }
+      return false;
+    }
+    if (ctx === 'spectate') {
+      if (padHudMenu() && ['confirm', 'up', 'down', 'left', 'right'].includes(a)) return false;
+      const cmd = {prev: 'prev', next: 'next', mode: 'cam', action: 'side'}[a];
+      if (cmd) { voySpectateCmd(cmd); return true; }
+      if (a === 'menu') { voySpectateCmd('speed:' + (voy.speed ? 0 : voy.lastSpeed || 1)); return true; }
+      if (a === 'cancel' || a === 'select') { if (!repeat) voyOrdersOpen(); return true; }
+      if (a === 'r3') { trialCommand('shot'); return true; }
+      return false;
+    }
+    if (ctx === 'design') {
+      const onView = P.cursorOver('#cv');
+      if (a === 'action') {
+        // 選択の追加・解除: exactly Shift+click (onTap(x, y, add)) on the shared selection of the 編集 tab; from another
+        // tab the pad first opens 編集, as the 選択 tool does.
+        if (!onView) return false;
+        if (st.tab !== 'edit') $('#tabs [data-tab="edit"]')?.click();
+        if (tool() !== 'edit') railSet('select');
+        if (tool() === 'edit') onTap(P.pos.x, P.pos.y, true); else toast('この工程では複数選択を使えません');
+        return true;
+      }
+      if (a === 'mode') { const c = railContext(); if (c) { railSet(c.tools[(c.tools.indexOf(c.cur) + 1) % c.tools.length]); toast(T('道具：{0}').replace('{0}', T(RAIL_LABELS[railContext()?.cur] || ''))); } else $('#viewSeg [data-view]:not([aria-pressed="true"])')?.click(); return true; }
+      if (a === 'prev' || a === 'next') {
+        const d = a === 'next' ? 1 : -1, pal = '#panel [data-part],#panel [data-equipment],#panel [data-fit],#panel [data-bridge]';
+        // 設備・カテゴリ切替: while placing, the next item of the palette; otherwise (or with Back held) the next tab.
+        if (!(placeMode() && padCycle(pal, d, e => e.getAttribute('aria-pressed') === 'true' || e.classList.contains('on')))) padCycle('#tabs [role=tab]', d, e => e.getAttribute('aria-selected') === 'true');
+        return true;
+      }
+      if (a === 'menu') { $('#btnMenu')?.click(); return true; }
+      if (a === 'select') { $('#viewSeg [data-view]:not([aria-pressed="true"])')?.click(); return true; }
+      if (a === 'l3') { $('#camSeg [data-cam="iso"]')?.click(); return true; }
+      return false;
+    }
+    if (ctx === 'voymap') {
+      if (a === 'action') { if (!P.cursorOver('#voyMap')) return false; voy.multi = true; try { P.vclick({shiftKey: true}); } finally { voy.multi = false; } return true; }
+      if (a === 'mode') { $('#voyHud .vh-maps button[aria-pressed="false"]')?.click(); return true; }
+      if (a === 'prev' || a === 'next') return padCycle('#voySide [data-vgroup]', a === 'next' ? 1 : -1, e => !!e.closest('li.on'));
+      if (a === 'menu') { if (!repeat) P.tapKey('Space', ' '); return true; }
+      if (a === 'select') { if (voy3D()) voyOrdersClose(); return true; }
+      return false;
+    }
+    if (ctx === 'fleetmap') { if (a === 'menu') { if (!repeat) P.tapKey('Space', ' '); return true; } return false; }
+    return false;
+  },
+  release(a, ctx) {
+    if (a === 'confirm' && ctx === 'pilot') { trial.fire = false; return !padHudMenu(); }
+    return false;
+  },
+  analog(ax, btn, dt, ctx, P) {
+    if (ctx === 'pilot') {
+      // Left stick = the touch stick (roll and pitch, same command); the pad lets go of it at rest so touch still works.
+      const x = ax.moveX, y = -ax.moveY;
+      if (x || y) { trial.stick = {x: C.clamp(x, -1, 1), y: C.clamp(y, -1, 1)}; padIn.stick = true; } else if (padIn.stick) { trial.stick = {x: 0, y: 0}; padIn.stick = false; }
+      padLook(ax, dt, 0);
+      if ((trial.hitFlash || 0) > padIn.hit + .15) KSInput.rumble(Math.min(1, trial.hitFlash), 160);padIn.hit = trial.hitFlash || 0;
+      return {move: true, look: true, trig: true};
+    }
+    if (padIn.stick) { trial.stick = {x: 0, y: 0}; padIn.stick = false; }
+    if (ctx === 'spectate') { padLook(ax, dt, padTrig(btn, .35)); return {look: true, trig: true}; }
+    if (ctx === 'design') { padLook(ax, dt, padTrig(btn, .35)); return {look: true, trig: true}; }
+    if (ctx === 'voymap' && (ax.lookX || ax.lookY)) {
+      const k = PAD_PAN * dt, t = voy.screen === 'tac';(t ? voy.tac : voy.ops).auto = false;
+      if (t) voy.tac.c = [voy.tac.c[0] + ax.lookX * k * voy.tac.mpp, voy.tac.c[1] + ax.lookY * k * voy.tac.mpp];
+      else voy.ops.c = [voy.ops.c[0] + ax.lookX * k / voy.ops.k, voy.ops.c[1] + ax.lookY * k / voy.ops.k];
+      return {look: true};
+    }
+    return {};
+  }};
+window.KSInput?.setHost(PAD_HOST);
+
 // ---- src/55_voyage.js ----
 // ============================================================
 // 航行 (voyage): patrol, fleet battle and — in a later version —
@@ -7026,8 +8193,9 @@ function voyRenameCis(d) {
  }
  return n > 0;
 }
-function voyOrbatSave() { if (voy.orbat) LS.set(ORBAT_KEY, JSON.stringify(voy.orbat)); }
+function voyOrbatSave() { if (voy.msn) { msSave(); return; } if (voy.orbat) LS.set(ORBAT_KEY, JSON.stringify(voy.orbat)); }
 function voyOb(f) {
+ if (voy.msn) return voy.msn.st.ob;   // v23 the mission's own fleet while its screens are open
  voy.orbat = voy.orbat || voyOrbatLoad();let ob = voy.orbat.factions[f];
  if (!ob) { ob = voy.orbat.factions[f] = voyAutoOrbat(f, 'standard', Math.random, {cap: 48}); voyOrbatSave(); }
  return ob;
@@ -7174,18 +8342,23 @@ function voySortieTgs(s) { const ob = voyOb(s.own); return voyObTgs(ob).filter(t
 function voySortieShips(s) { return voySortieTgs(s).flatMap(t => t.ships); }
 // The toast lives with whichever layer is showing.
 function voyToast(on) { const t = $('#toast'), hb = $('.hudbottom'); if (!t) return; if (on) $('#voyage').appendChild(t); else if (hb) hb.insertBefore(t, hb.firstChild); }
-function voyOpen(screen = 'setup', tab) {
+function voyOpen(screen = 'setup', tab, msn = null) {
  voy.open = true;$('#voyage').hidden = false;document.body.classList.add('voy-on');voyToast(true);
+ // v23 A mission opens the same screens on its own fleet and setup; the custom battle's are put back after.
+ if (msn) { if (!voy.msn) voy.custom = voy.setup; voy.msn = msn; voy.setup = msn.setup; } else voyMsnLeave();
  if (voy.saves && !(fleet.saves || []).length) fleet.saves = voy.saves;
  if (!voy.designs.size) for (const d of voyExampleDesigns()) voyRegister(d);
  if (!voy.setup) { voy.setup = voyNewSetup(); voy.setup.foe = voyDefaultFoe(voy.setup); }
  if (tab) voy.setup.tab = tab;
  voyShow(screen);voyEnsureDesigns(voyOb(voy.setup.own));
 }
+function voyMsnLeave() { if (!voy.msn) return; voy.msn = null; voy.setup = voy.custom || null; voy.custom = null; }
 function voyClose() {
- vtutStop();voy.open = false;voy.screen = null;$('#voyage').hidden = true;document.body.classList.remove('voy-on');voyToast(false);requestDraw();
+ if (fed.open) voyFedClose();
+ vtutStop();voyMsnLeave();voy.open = false;voy.screen = null;$('#voyage').hidden = true;document.body.classList.remove('voy-on');voyToast(false);requestDraw();
 }
 function voyShow(screen) {
+ if (fed.open && (screen === 'setup' ? fed.src?.g : fed.src?.tg)) voyFedClose();
  voy.screen = screen;for (const id of ['voySetup', 'voyMapScreen']) $('#' + id).hidden = true;$('#voySheet').hidden = true;
  if (screen === 'setup') { $('#voySetup').hidden = false; voyRenderSetup(); }
  else { $('#voyMapScreen').hidden = false; $('#voyMapScreen').dataset.mode = screen; voyMapResize(); voyRenderSide(); voyRenderHud(); }
@@ -7220,10 +8393,11 @@ function voyRenderSetup() {
  const s = voy.setup, ob = voyOb(s.own), tab = s.tab === 'sortie' ? 'sortie' : 'orbat', sortie = voySortieShips(s), cap = VOY_SCALES[s.scale], t = voyShipsTotals(sortie);
  // Ships whose design cannot be prepared (a saved design since deleted, say) stay behind.
  const ready = sortie.some(voyShipDesign) && !voy.pending.size, ok = ready && t.people <= cap.people && t.supply <= cap.supply && sortie.length <= VOY_SHIP_CAP;
- $('#voySetup').innerHTML = `<header class="voy-head"><div><span class="eyebrow">航行 · 艦隊戦</span><h2>${tab === 'orbat' ? '艦隊編成' : '出撃準備'}</h2></div>
+ $('#voySetup').innerHTML = `<header class="voy-head"><div><span class="eyebrow">カスタム · 艦隊戦</span><h2>${tab === 'orbat' ? '艦隊編成' : '出撃準備'}</h2></div>
  <div class="seg voy-tabs" role="tablist"><button type="button" role="tab" data-voy="tab:orbat" aria-pressed="${tab === 'orbat'}">艦隊編成</button><button type="button" role="tab" data-voy="tab:sortie" aria-pressed="${tab === 'sortie'}">出撃準備</button></div>
  <div class="voy-head-go"><button type="button" class="btn ghost" data-voy="back">任務マップへ</button><button type="button" class="btn primary" data-voy="start" ${ok ? '' : 'disabled'}>出撃</button></div></header>
  <div class="voy-setup ${tab}">${tab === 'orbat' ? voyOrbatHTML(s, ob) : voySortieHTML(s, ob)}</div>`;
+ if (voy.msn) msDecorateEditor();
 }
 function voyOrbatHTML(s, ob) {
  const all = voyObShips(ob), t = voyShipsTotals(all);
@@ -7239,7 +8413,7 @@ function voyCtgHTML(s, ob, c) {
 }
 function voyTgHTML(s, ob, tg) {
  const n = tg.ships.length, warn = n && n < TG_MIN ? `（${TG_MIN}隻未満）` : '', full = n >= TG_MAX, tgs = voyObTgs(ob);
- return `<div class="ob-tg" data-tg="${tg.id}"><div class="ob-tg-head"><input class="ob-name" data-obname="tg" value="${esc(voyDisplayName(tg))}" aria-label="任務群の名前" maxlength="48"><label class="ob-form">陣形<select data-obform>${Object.entries(R.FORMATIONS).map(([k, v]) => `<option value="${k}" ${tg.formation === k ? 'selected' : ''}>${v}</option>`).join('')}</select></label><b class="ob-count${warn ? ' warn' : ''}">${n} / ${TG_MAX} 隻${warn}</b><button type="button" class="btn sm ghost" data-ob="tgdel" aria-label="この任務群を解散">×</button><button type="button" class="btn sm ghost" data-ob="tgdup" title="同じ艦級・同じ搭載の任務群をこの合同任務群に追加">この任務群を複製</button></div>
+ return `<div class="ob-tg" data-tg="${tg.id}"><div class="ob-tg-head"><input class="ob-name" data-obname="tg" value="${esc(voyDisplayName(tg))}" aria-label="任務群の名前" maxlength="48"><label class="ob-form">陣形<select data-obform>${[...Object.entries(R.FORMATIONS), ...voyFormStore().map(t => ['tpl:' + t.id, t.name])].map(([k, v]) => `<option value="${esc(k)}" ${tg.formation === k ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></label><button type="button" class="btn sm ghost" data-vfedtg="${tg.id}" title="陣形エディターで編集">編集</button><b class="ob-count${warn ? ' warn' : ''}">${n} / ${TG_MAX} 隻${warn}</b><button type="button" class="btn sm ghost" data-ob="tgdel" aria-label="この任務群を解散">×</button><button type="button" class="btn sm ghost" data-ob="tgdup" title="同じ艦級・同じ搭載の任務群をこの合同任務群に追加">この任務群を複製</button></div>
   <ul class="ob-ships">${tg.ships.map((sh, i) => { const d = voyShipDesign(sh), air = R.airTotals(sh.air), troops = (sh.ground || []).reduce((k, r) => k + R.regimentTotals(r).troops, 0), dem = voyShipDemand(sh), st = d && voyHasStow(d) && (sh.air?.length || sh.carried?.length) ? voyStowShort(sh, d) : null;
    return `<li class="ob-ship" data-ship="${sh.id}"><span class="ob-flag" title="${i ? '' : '旗艦（任務群の先頭）'}">${i ? '' : '旗'}</span><input class="ob-name" data-obname="ship" value="${esc(voyDisplayName(sh))}" aria-label="艦名" maxlength="48"><small class="ob-cls">${d ? `${esc(voyShort(d.name))} · ${fLen(d.info.len)} · 乗員 ${num(dem.people)}` : '準備中…'}</small>
     <button type="button" class="ve-orbat${st && st.short ? ' warn' : ''}" data-ob="air"><span>航空</span><b>${air.n ? `${num(air.n)} 機` : d?.info.slotCap || d?.info.hangarCap ? '未搭載' : '—'}${sh.carried?.length ? ` ＋艦 ${sh.carried.length}` : ''}${st && st.short ? ` · ${num(st.short)} 入らず` : ''}</b></button><button type="button" class="ve-orbat" data-ob="ground"><span>陸戦</span><b>${troops ? `${num(troops)} ${voy.setup.own === 'cis' ? '体' : '名'}` : R.troopRoom(d?.info || {}, voy.setup.own) ? '未乗艦' : '—'}</b></button>
@@ -7270,7 +8444,9 @@ function voyOrbatSheet() {
  if (tab === 'air') {
   const air = R.airTotals(e.air), cap = d.info.slotCap || 0, wings = [...new Set(e.air.map(q => q.wingNo || 1))].sort((a, b) => a - b);
   const sqStatus = i => { const r = stow?.wings[i];if (!r) return '';const c = R.CRAFT[e.air[i].craft];return `<small class="vo-fit${r.unembarked || r.undeployable ? ' bad' : ''}">${r.tooLarge ? '入る格納区画なし' : r.unembarked ? `${num(r.embarked)} 機だけ搭載（${num(r.unembarked)} 機入らず）` : r.undeployable ? `${num(r.undeployable)} 機はハッチを通れず発艦不可` : c?.stay ? '輸送機（艦隊戦では艦内に待機）' : '搭載・発艦可'}</small>`; };
+  const fly = e.air.filter(q => R.CRAFT[q.craft] && !R.CRAFT[q.craft].stay).length, ctl = d.p?.airCtl || 1;
   body = `${stow ? voyBar('格納庫（機体・搭載艦・車両で共用）', stow.used, stow.capacity, x => num(x, 1)) : voyBar('格納庫（機体の大きさの合計）', air.size, Math.max(0, (d.info.hangarCap || cap) - voyCarriedSize(e)), x => num(x, 1))}
+  <p class="note">航空管制 ${num(ctl)} 中隊（同時に飛ばせる数）${fly > ctl ? ` · 戦闘中隊 ${num(fly)} のうち ${num(fly - ctl)} は艦内で待機し、帰還と交代で発艦` : ''}</p>
   ${wings.map(wn => `<div class="vo-wing"><h4>第${wn}飛行隊</h4>${e.air.map((q, i) => (q.wingNo || 1) !== wn ? '' : `<div class="vo-sq"><select data-sq="${i}" data-sqk="craft">${Object.entries(R.CRAFT).map(([k, c]) => `<option value="${k}" ${k === q.craft ? 'selected' : ''}>${esc(c.name)}（${R.ROLE_NAME[c.role]}）</option>`).join('')}</select><label>機数<input type="number" data-sq="${i}" data-sqk="n" value="${q.n}" min="1" max="${R.RULES.maxSquadSize}"></label><label>飛行隊<input type="number" data-sq="${i}" data-sqk="wingNo" value="${q.wingNo || 1}" min="1" max="99"></label><button type="button" class="btn sm ghost" data-sqdel="${i}" aria-label="中隊を外す">×</button>${sqStatus(i)}${voySqLoadHTML(q, i)}</div>`).join('')}</div>`).join('') || '<p class="muted">中隊がありません。</p>'}
   ${voyCarriedRowsHTML(e, d)}
   <div class="voy-row">${voyEmbarkAddHTML(e, d)}<button type="button" class="btn sm ghost" data-vo="airdefault">お任せ（史実の搭載）</button><button type="button" class="btn sm ghost" data-vo="airclear">すべて降ろす</button></div>
@@ -7345,7 +8521,7 @@ function voyBindSetup() {
   if (t.dataset.obname != null) { const kind = t.dataset.obname, el = t.closest(kind === 'ctg' ? '[data-ctg]' : kind === 'tg' ? '[data-tg]' : '[data-ship]');
    const row = kind === 'ctg' ? ob.ctgs.find(x => x.id === el.dataset.ctg) : kind === 'tg' ? voyObTgs(ob).find(x => x.id === el.dataset.tg) : voyFindShip(el.dataset.ship)?.sh;
    if (row && voySetName(row, t.value)) voyObChanged(false);if (row) t.value = voyDisplayName(row);return; }
-  if ('obform' in t.dataset) { const x = voyObTgs(ob).find(q => q.id === t.closest('[data-tg]').dataset.tg); if (x && R.FORMATIONS[t.value]) x.formation = t.value; voyObChanged(false); return; }
+  if ('obform' in t.dataset) { const x = voyObTgs(ob).find(q => q.id === t.closest('[data-tg]').dataset.tg); if (x && (R.FORMATIONS[t.value] || voyFormStore().some(q => 'tpl:' + q.id === t.value))) x.formation = t.value; voyObChanged(false); return; }
   if ('obmove' in t.dataset) { const f = voyFindShip(t.closest('[data-ship]').dataset.ship), to = voyObTgs(ob).find(q => q.id === t.value); if (f && to && to !== f.t && to.ships.length < TG_MAX) { f.t.ships.splice(f.t.ships.indexOf(f.sh), 1); to.ships.push(f.sh); } voyObChanged(); return; }
   if (t.dataset.pickctg) { const c = ob.ctgs.find(x => x.id === t.dataset.pickctg); if (c) for (const x of c.tgs) s.sel[x.id] = t.checked; voyRenderSetup(); return; }
   if (t.dataset.picktg) { s.sel[t.dataset.picktg] = t.checked; voyRenderSetup(); return; }
@@ -7410,7 +8586,7 @@ function voyStartBattle() {
  const s = voy.setup, ob = voyOb(s.own), mine = voySortieTgs(s), foeOb = voyFoeOrbat(s);
  const own = voyBattleOrbat(ob, mine, s.own), foe = voyBattleOrbat(foeOb, voyObTgs(foeOb), s.foe);
  const keys = [...new Set([own, foe].flatMap(o => o.ctgs.flatMap(c => c.tgs.flatMap(t => t.ships.flatMap(x => [x.design, ...(x.carried || []).map(y => y.design)])))))], designs = keys.map(voyDesign).filter(Boolean).map(d => ({key: d.key, name: d.name, p: d.p, info: d.info}));
- voy.w = R.createWorld({seed: s.seed, region: s.region, designs, sides: [{faction: s.own, ai: false}, {faction: s.foe, ai: true}], fleets: [own, foe]});voy.w.onHit = voyOnHit;
+ voy.w = R.createWorld({seed: s.seed, region: s.region, designs, formations: voyFormStore(), sides: [{faction: s.own, ai: false}, {faction: s.foe, ai: true}], fleets: [own, foe]});voy.w.onHit = voyOnHit;
  voy.speed = 4;voy.seenEv = 0;voy.notes = [];voy.sel = {group: null, ctg: null, sys: null, dest: null, units: [], wing: null, foe: null};voy.cmd = null;voy.ops.fitted = false;voy.tac = {sys: null, c: [0, 0], mpp: 300, fitted: false};voy.result = null;voy.resultDismissed = false;
  const first = [...voy.w.ctgs.values()].find(c => c.side === 0);if (first) voy.sel.ctg = first.id;
  voyShow('ops');voyNote(`作戦開始：${voy.w.sector.name}。敵艦隊（${R.FACTIONS[s.foe].name}）の位置は不明です。任務群を航路に沿ってジャンプさせて探してください。`);
@@ -7744,7 +8920,7 @@ function voyDrawTac(ctx, W, H) {
  if (shipSel) for (const u of order) if (sel.has(u.id)) lab(u);
  for (const {g, m} of tgs.values()) {
   if (g.side !== 0) continue;const guide = m.find(u => u.id === g.flag) || m[0], [x, y] = P(guide.pos), r = Math.max(9, guide.p.len / t.mpp) * .62 + 12, on = !shipSel && m.some(u => sel.has(u.id)), name = voyTgShort(g.name), o = g.spool ? (g.spool.blocked ? '離脱停止' : '離脱準備') : {auto: '自動', hold: '待機', move: '移動', attack: '攻撃'}[g.order.type] || '';
-  label([`${name} · ${R.FORMATIONS[g.formation] || ''} · ${o}`, `${name} ${o}`, name], wd => [[x - wd / 2, y - r], [x - wd / 2, y + r + 16], [x + r + 4, y - r + 4], [x - r - 4 - wd, y - r + 4]], on ? '#ffffff' : '#8fdcff', '700 10.5px ' + font, true);
+  label([`${name} · ${R.formationName(voy.w, g.formation)} · ${o}`, `${name} ${o}`, name], wd => [[x - wd / 2, y - r], [x - wd / 2, y + r + 16], [x + r + 4, y - r + 4], [x - r - 4 - wd, y - r + 4]], on ? '#ffffff' : '#8fdcff', '700 10.5px ' + font, true);
  }
  for (const u of order) if (!(shipSel && sel.has(u.id))) lab(u);
  for (const [id, g] of wings) { const wing = w.wings.get(id); if (!wing) continue; label([`${g.own ? '' : '敵 '}${wing.name} ${Math.round(g.n)}機 · ${R.WING_PHASE[wing.phase] || ''}`, `${g.own ? '' : '敵 '}${wing.name.replace(/^.*?\s(第\d+飛行隊)$/, '$1')} ${Math.round(g.n)}機 · ${R.WING_PHASE[wing.phase] || ''}`, `${g.own ? '' : '敵 '}${Math.round(g.n)}機 · ${R.WING_PHASE[wing.phase] || ''}`], wd => [[g.cx + 10, g.cy - 6], [g.cx - 10 - wd, g.cy - 6], [g.cx - wd / 2, g.cy - 14], [g.cx - wd / 2, g.cy + 20]], g.hot ? '#ffffff' : g.own ? '#a8f0ff' : '#ffc29a', '600 9.5px ' + font, g.hot); }
@@ -7779,7 +8955,7 @@ const VOY_POWER = [['auto', '自動'], ['cruise', '巡航'], ['balanced', '均�
 const VOY_AIM = [['auto', '自動'], ['reactor', '反応炉'], ['bridge', '艦橋'], ['weapon', '砲塔'], ['engine', '推進'], ['shield', 'シールド']];
 // v20.6 How the guns fire: continuously (each gun as it is ready) or in salvos (all together).
 const VOY_VOLLEY = [['stream', '連続射撃'], ['salvo', '斉射']];
-const VOY_ORDER = {group: '任務群に従う', auto: '自動交戦', hold: '待機', move: '移動', attack: '攻撃', escort: '護衛'};
+const VOY_ORDER = {group: '任務群に従う', auto: '自動交戦', hold: '待機', move: '移動', attack: '攻撃', escort: '護衛', course: '進路'};
 const VOY_CMD_HINT = {move: '移動先を地図でタップ', attack: '攻撃する敵艦をタップ', strike: '攻撃する敵艦をタップ', cap: '制空する地点をタップ', escort: '直掩する味方艦をタップ', guard: '護衛する味方艦をタップ（その艦と脅威のあいだに位置取り、狙ってくる敵を優先して撃ち、射線をふさぎます）', tow: '牽引する戦闘不能の味方艦をタップ', capture: '拿捕する戦闘不能の敵艦をタップ', jump: 'ジャンプ先の星系を地図でタップ'};
 const voyCommon = (list, f) => { if (!list.length) return null; const v = f(list[0]); return list.every(x => f(x) === v) ? v : null; };
 // v22.3 Damage falls on modules, so no ship carries a hull bar, ours or the enemy's. Ours show instead the share of
@@ -7791,7 +8967,7 @@ function crewShareOf(us) { let n = 0, m = 0; for (const u of us) { if (u.capture
 const crewPct = f => f >= 1 ? 100 : Math.floor(Math.max(0, f) * 100);
 const crewCls = f => f < .35 ? ' bad' : f < .7 ? ' mid' : '';
 function voyCrewHTML(u) { const f = crewShare(u); return f == null ? '' : `<span class="vcrew${crewCls(f)}" title="乗員 ${num(Math.round(u.crew || 0))} / ${num(Math.round(u.p.crewMax ?? u.p.crewNeed))} 名">乗員 ${crewPct(f)}%</span>`; }
-function voyOrderText(o) { return o.type === 'attack' ? `攻撃：${voy.w.units.get(o.target)?.name || '—'}` : o.type === 'escort' ? `護衛：${voy.w.units.get(o.target)?.name || '—'}` : VOY_ORDER[o.type] || ''; }
+function voyOrderText(o) { if (o.type === 'course') return `進路 ${Math.round(((o.hdg * 180 / Math.PI) % 360 + 360) % 360)}°`; return o.type === 'attack' ? `攻撃：${voy.w.units.get(o.target)?.name || '—'}` : o.type === 'escort' ? `護衛：${voy.w.units.get(o.target)?.name || '—'}` : VOY_ORDER[o.type] || ''; }
 function voyGroupOrderText(g) { const w = voy.w, o = g.order; if (o.type === 'auto') { const t = g.auto?.target && w.units.get(g.auto.target); return '自動交戦' + (t ? '：' + t.name : ''); } return voyOrderText(o); }
 function voyUnitState(u) {
  const w = voy.w, cap = u.captured ? '拿捕艦 · ' : '';
@@ -7804,7 +8980,7 @@ function voyUnitState(u) {
  const g = w.groups.get(u.group);return cap + (u.order.type === 'group' ? (g ? voyGroupOrderText(g) : '待機') : '個別：' + voyOrderText(u.order)) + tr;
 }
 function voyRenderSide(tick) {
- const el = $('#voySide'), w = voy.w;if (!el || !w) return;el.hidden = !voy.side;if (!voy.side) return;
+ const el = $('#voySide'), w = voy.w;if (!el || !w) return;if (fed.open) { el.hidden = true; return; }el.hidden = !voy.side;if (!voy.side) return;
  if (tick && voy.sidePause) return;
  const html = voy.screen === 'tac' ? voyTacSide() : voyOpsSide();
  if (el.dataset.html !== html) { const t = document.createElement('div'); t.innerHTML = html; voyMorph(el, t); el.dataset.html = html; }
@@ -7884,7 +9060,7 @@ function voyOpsSide() {
 function voyTgOpsCard(g) {
  const w = voy.w, S = w.sector, us = g.units.map(id => w.units.get(id)).filter(R.alive), hc = R.groupHyper(w, g), c = R.ctgOf(w, g), tow = us.filter(u => u.tractor?.lock && u.tractor.mode === 'tow').length, held = R.groupDisabled(w, g), stay = R.groupStay(w, g);
  const dest = voy.sel.dest != null && voy.sel.dest !== g.sys ? voy.sel.dest : null, from = g.sys ?? g.transit?.to, eta = dest != null ? R.etaTo(w, g.id, dest) : null, free = !g.transit && !g.spool && !g.waitJump;
- return `<div class="vs-card">${voyCrumbs(c, null)}<div class="vs-head"><h3>${esc(g.name)}</h3><span>${us.length} 隻 · ${esc(R.FORMATIONS[g.formation] || '')}</span></div>
+ return `<div class="vs-card">${voyCrumbs(c, null)}<div class="vs-head"><h3>${esc(g.name)}</h3><span>${us.length} 隻 · ${esc(R.formationName(w, g.formation))}</span></div>
   <p class="vs-state${g.spool?.blocked ? ' bad' : g.spool || g.waitJump ? ' warn' : ''}">${esc(voyTgStatus(g))}</p>
   <p class="vs-sub">ハイパードライブ ${hc == null ? (held.length ? 'ジャンプ不能（航行不能艦あり）' : 'ジャンプできる艦がありません') : 'クラス ' + hc.toFixed(1) + '（任務群で最も遅い艦）'}${tow ? ` · 牽引中 ${tow} 隻（同行）` : ''}${stay.length ? ` · ハイパードライブを失った ${stay.length} 隻は残置` : ''}</p>
   ${g.sys != null ? `<p class="vs-sub">補給線 ${voySupplyLine(g.sys)}${us.some(u => u.supplyNeed?.total) ? ` · 補給待ち ${us.filter(u => u.supplyNeed?.total).length} 隻` : ''}</p>` : ''}
@@ -7931,7 +9107,187 @@ function voyOrderButtons(kind, cur) {
  const b = (k, n) => `<button type="button" class="btn sm${cur === k && !voy.cmd ? ' on' : ''}" data-vord="${k}">${n}</button>`, c = (k, n) => `<button type="button" class="btn sm${voy.cmd?.type === k || cur === k && !voy.cmd ? ' on' : ''}" data-vact="cmd:${k}">${n}</button>`;
  return `<div class="vs-acts">${kind === 'ship' ? b('group', '任務群に従う') : ''}${b('auto', '自動交戦')}${b('hold', '待機')}${c('move', '移動')}${c('attack', '攻撃')}${c('guard', '護衛')}<button type="button" class="btn sm ghost" data-vact="withdraw">離脱</button></div>`;
 }
-function voyFormHTML(cur) { return `<p class="vs-sub">陣形</p><div class="vs-acts">${Object.entries(R.FORMATIONS).map(([k, n]) => `<button type="button" class="btn sm${cur === k ? ' on' : ''}" data-vform="${k}">${n}</button>`).join('')}</div>`; }
+// ---- task force movement orders and the formation editor (v24: AI-001, FORM-001〜010) ----
+// Own formations (templates, R.normalizeFormation) live in the browser's store under FORM_KEY as
+// {version: 1, list: [...]}, apart from orders of battle (a task group refers to one as 'tpl:<id>') and from ship
+// designs; a battle gets copies of them (createWorld opts.formations), so a saved order of battle that names a
+// template since deleted simply falls back to 横陣.
+const FORM_KEY = 'yard.formations.v1';
+function voyFormStore() { try { const d = JSON.parse(LS.get(FORM_KEY) || 'null'); if (d && d.version === 1 && Array.isArray(d.list)) return d.list.map(R.normalizeFormation).filter(Boolean); } catch (e) { /* a broken store reads as empty */ } return []; }
+function voyFormPut(t) { const list = voyFormStore().filter(x => x.id !== t.id);list.push(t);LS.set(FORM_KEY, JSON.stringify({version: 1, list})); }
+function voyFormDel(id) { LS.set(FORM_KEY, JSON.stringify({version: 1, list: voyFormStore().filter(x => x.id !== id)})); }
+const VOY_TFTURNS = [[-90, '左90°'], [-45, '左45°'], [45, '右45°'], [90, '右90°'], [180, '反転']], VOY_TFSPEEDS = [['full', '全速'], ['cruise', '巡航'], ['slow', '低速']];
+// The formation and movement block of a task group's (or a combined task group's) card.
+function voyFormHTML(cur, gs = []) {
+ const w = voy.w, tpls = voyFormStore(), one = gs.length === 1 ? gs[0] : null;
+ const tm = voyCommon(gs, g => R.TURN_MODES[g.turnMode] ? g.turnMode : 'auto'), sp = voyCommon(gs, g => R.SPEEDS[g.speed] ? g.speed : 'full'), af = voyCommon(gs, g => !!g.autoForm);
+ const fb = (k, n) => `<button type="button" class="btn sm${cur === k ? ' on' : ''}" data-vform="${esc(k)}">${esc(n)}</button>`;
+ let h = `<p class="vs-sub">陣形</p><div class="vs-acts">${Object.entries(R.FORMATIONS).map(([k, n]) => fb(k, n)).join('')}${tpls.map(t => fb('tpl:' + t.id, t.name)).join('')}</div>
+  <div class="vs-acts"><button type="button" class="btn sm${af ? ' on' : ''}" data-vautoform="${af ? 0 : 1}" aria-pressed="${af === true}">陣形を自動で選ぶ</button><button type="button" class="btn sm ghost" data-vfed="${one ? 'g:' + one.id : 'new'}">陣形エディター</button></div>
+  <p class="vs-sub">進路変更</p><div class="vs-acts">${VOY_TFTURNS.map(([d, n]) => `<button type="button" class="btn sm" data-vturn="${d}">${n}</button>`).join('')}</div>
+  <p class="vs-sub">回頭方式</p><div class="vs-acts">${Object.entries(R.TURN_MODES).map(([k, n]) => `<button type="button" class="btn sm${tm === k ? ' on' : ''}" data-vtmode="${k}">${n}</button>`).join('')}</div>
+  <p class="vs-sub">速力</p><div class="vs-acts">${VOY_TFSPEEDS.map(([k, n]) => `<button type="button" class="btn sm${sp === k ? ' on' : ''}" data-vspd="${k}">${n}</button>`).join('')}</div>`;
+ const f = one && R.taskForceInfo(w, one.id);
+ if (f && f.vSus != null) {
+  const slow = f.slow && w.units.get(f.slow);
+  h += `<p class="note">任務群速力 ${Math.round(f.v)} m/s（持続 ${Math.round(f.vSus)} m/s · 最も遅い艦 ${slow ? esc(slow.name) : '—'}）</p>`;
+  h += `<p class="note">${f.reform ? '陣形再編中' : f.turning ? `回頭中（${esc(R.TURN_MODES[f.turning] || '')}）` : '隊形維持'} · 平均位置ずれ ${Math.round(f.err || 0)} m</p>`;
+ }
+ return h;
+}
+// A course change for the groups selected: relative to the formation's own heading (not a ship's bow).
+function voyTurn(deg) {
+ const w = voy.w, s = voyTacSel(), gs = s.kind === 'tg' ? [s.g] : s.kind === 'ctg' ? voyCtgGroups(s.c).filter(g => voyGroupIn(g, voy.tac.sys)) : [];if (!gs.length) return;
+ const base = g => g.tf && g.tf.sys === voy.tac.sys ? g.tf.hdg : (w.units.get(g.flag)?.yaw ?? 0), h0 = base(gs[0]), hdg = h0 + deg * Math.PI / 180;
+ if (s.kind === 'ctg') R.orderCtg(w, s.c.id, {type: 'course', hdg});else R.orderGroup(w, s.g.id, {type: 'course', hdg});
+ toast(`進路 ${Math.round(((hdg * 180 / Math.PI) % 360 + 360) % 360)}°（${esc(R.TURN_MODES[R.TURN_MODES[gs[0].turnMode] ? gs[0].turnMode : 'auto'])}）`);
+}
+// ---- the formation editor (FORM-006〜008): a panel in place of the side panel, on the battle screens and in the
+// order of battle. Slots are edited in formation intervals (1 = one ship interval of the ships it is applied to),
+// on a top view (ahead up, starboard right) or a side view (ahead right, up up), by dragging or by numbers.
+const fed = {open: false, tpl: null, sel: new Set(), view: 'top', src: null, json: false, multi: false, drag: null, fit: null, msg: ''};
+const FED_STEP = .25;
+const fedR = v => Math.round(v / FED_STEP) * FED_STEP;
+function fedShips() {
+ const s = fed.src;
+ if (s?.g && voy.w) { const g = voy.w.groups.get(s.g); if (g) return g.units.map(id => voy.w.units.get(id)).filter(u => u && R.alive(u)).map(u => u.p); }
+ if (s?.tg && voy.setup) { const t = voyObTgs(voyOb(voy.setup.own)).find(x => x.id === s.tg); if (t) return t.ships.map(sh => voyShipDesign(sh)?.p).filter(Boolean); }
+ return Array.from({length: 6}, () => ({len: 800, width: 300, height: 150}));
+}
+function voyFedOpen(src) {
+ const tpls = voyFormStore();let k = 'abreast', n = 6;
+ if (src?.g && voy.w) { const g = voy.w.groups.get(src.g); if (g) { k = g.formation; n = g.units.filter(id => R.alive(voy.w.units.get(id))).length; } }
+ if (src?.tg && voy.setup) { const t = voyObTgs(voyOb(voy.setup.own)).find(x => x.id === src.tg); if (t) { k = t.formation; n = t.ships.length || 6; } }
+ const own = String(k).startsWith('tpl:') ? tpls.find(t => 'tpl:' + t.id === k) : null;
+ fed.tpl = own ? JSON.parse(JSON.stringify(own)) : {...R.formationTemplate(R.FORMATIONS[k] ? k : 'abreast', Math.max(2, n)), id: voyFedId()};
+ fed.src = src || null;fed.sel = new Set();fed.open = true;fed.json = false;fed.msg = '';voyFedRender();
+}
+function voyFedId() { return 'f' + Date.now().toString(36) + Math.floor(Math.random() * 1296).toString(36); }
+function voyFedClose() { fed.open = false;const el = $('#voyFed');if (el) el.hidden = true;const side = $('#voySide');if (side && voy.w) { side.hidden = !voy.side; voyRenderSide(); } }
+function voyFedRender() {
+ const el = $('#voyFed');if (!el) return;if (!fed.open) { el.hidden = true; return; }
+ el.hidden = false;const side = $('#voySide');if (side) side.hidden = true;
+ const t = fed.tpl, sel = [...fed.sel].filter(i => t.slots[i]), one = sel.length === 1 ? t.slots[sel[0]] : null, tpls = voyFormStore(), ships = fedShips(), chk = R.formationCheck(t, ships);
+ const num = (k, v, step, lab) => `<label>${lab}<input type="number" step="${step}" data-fedf="${k}" value="${v}" ${one ? '' : 'disabled'}></label>`;
+ const opt = (o, v) => Object.entries(o).map(([k, n]) => `<option value="${k}" ${v === k ? 'selected' : ''}>${n}</option>`).join('');
+ const target = fed.src?.g ? voy.w?.groups.get(fed.src.g)?.name : fed.src?.tg ? voyObTgs(voyOb(voy.setup.own)).find(x => x.id === fed.src.tg)?.name : null;
+ el.innerHTML = `<div class="vs-card fed">
+  <div class="vs-head"><h3>陣形エディター</h3><button type="button" class="btn sm ghost" data-fed="close">閉じる</button></div>
+  <label class="fed-name">名前<input data-fedname maxlength="40" value="${esc(t.name)}"></label>
+  <div class="seg fed-view" role="group" aria-label="表示"><button type="button" data-fed="view:top" aria-pressed="${fed.view === 'top'}">上から（X・Z）</button><button type="button" data-fed="view:side" aria-pressed="${fed.view === 'side'}">横から（X・Y）</button></div>
+  <canvas class="fed-cv" id="fedCanvas" aria-label="陣形のスロット。ドラッグで移動、タップで選択"></canvas>
+  <p class="vs-sub">スロット ${t.slots.length} · 選択 ${sel.length} · 1目盛り＝艦間隔</p>
+  <div class="fed-num">${num('x', one ? one.x : '', FED_STEP, 'X 前方')}${num('y', one ? one.y : '', FED_STEP, 'Y 上方')}${num('z', one ? one.z : '', FED_STEP, 'Z 右舷')}${num('hdg', one ? one.hdg : '', 15, '向き°')}${num('prio', one ? one.prio : '', 1, '優先度')}</div>
+  <div class="fed-num"><label>役割<select data-fedf="role" ${one ? '' : 'disabled'}>${opt(R.SLOT_ROLES, one?.role)}</select></label><label>大きさ<select data-fedf="size" ${one ? '' : 'disabled'}>${opt(R.SLOT_SIZES, one?.size)}</select></label></div>
+  <div class="vs-acts"><button type="button" class="btn sm" data-fed="add">追加</button><button type="button" class="btn sm" data-fed="dup" ${sel.length ? '' : 'disabled'}>複製</button><button type="button" class="btn sm" data-fed="del" ${sel.length ? '' : 'disabled'}>削除</button><button type="button" class="btn sm${fed.multi ? ' on' : ''}" data-fed="multi" aria-pressed="${fed.multi}">複数選択</button><button type="button" class="btn sm ghost" data-fed="all">全選択</button></div>
+  <div class="vs-acts"><button type="button" class="btn sm" data-fed="mirror">左右反転</button><button type="button" class="btn sm" data-fed="flip">上下反転</button><button type="button" class="btn sm" data-fed="rot:-45">左回転45°</button><button type="button" class="btn sm" data-fed="rot:45">右回転45°</button><button type="button" class="btn sm" data-fed="scale:1.25">拡大</button><button type="button" class="btn sm" data-fed="scale:0.8">縮小</button><button type="button" class="btn sm" data-fed="even" ${sel.length >= 3 ? '' : 'disabled'}>等間隔</button></div>
+  <p class="note${chk.close.length || chk.extra ? ' bad' : ''}">${ships.length} 隻に適用：${chk.close.length ? `安全距離不足 ${chk.close.length} 組` : '安全距離 良好'}${chk.extra ? ` · スロット不足 ${chk.extra} 隻（後方に単縦で配置）` : ''}</p>
+  ${fed.msg ? `<p class="note">${esc(fed.msg)}</p>` : ''}
+  <div class="vs-acts"><button type="button" class="btn sm" data-fed="save">保存</button>${target ? `<button type="button" class="btn sm" data-fed="apply">${esc(target)}に適用</button>` : ''}<label class="fed-base">新規<select data-fedbase><option value="">—</option>${opt(R.FORMATIONS, '')}</select></label></div>
+  ${tpls.length ? `<p class="vs-sub">保存した陣形</p><div class="vs-acts">${tpls.map(x => `<button type="button" class="btn sm${x.id === t.id ? ' on' : ''}" data-fed="load:${esc(x.id)}">${esc(x.name)}</button>`).join('')}${tpls.some(x => x.id === t.id) ? '<button type="button" class="btn sm ghost" data-fed="remove">この陣形を削除</button>' : ''}</div>` : ''}
+  <div class="vs-acts"><button type="button" class="btn sm ghost" data-fed="json">JSON 書き出し・読み込み</button></div>
+  ${fed.json ? `<textarea class="fed-json" data-fedjson rows="5" spellcheck="false" aria-label="陣形のJSON">${esc(JSON.stringify(t))}</textarea><div class="vs-acts"><button type="button" class="btn sm" data-fed="import">JSONを読み込む</button><button type="button" class="btn sm ghost" data-fed="copy">コピー</button></div>` : ''}
+ </div>`;
+ fed.chk = chk;voyFedDraw();
+}
+// The canvas: grid every interval, the flagship's slot square, slots too close for the ships red-ringed.
+function voyFedDraw() {
+ const cv = $('#fedCanvas');if (!cv || !fed.open) return;
+ const W = Math.max(160, cv.clientWidth || 260), H = Math.round(Math.min(220, Math.max(140, W * .7))), dpr = Math.min(2, window.devicePixelRatio || 1);
+ if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); cv.style.height = H + 'px'; }
+ const ctx = window.KSI18n?.canvas ? KSI18n.canvas(cv.getContext('2d')) : cv.getContext('2d'), t = fed.tpl, side = fed.view === 'side';ctx.setTransform(dpr, 0, 0, dpr, 0, 0);ctx.clearRect(0, 0, W, H);
+ // screen axes: top view x ahead → up, z starboard → right; side view x ahead → right, y up → up
+ const P = s => side ? [s.x, s.y] : [s.z, s.x];let a0 = -2, a1 = 2, b0 = -2, b1 = 2;
+ for (const s of t.slots) { const [a, b] = P(s); a0 = Math.min(a0, a); a1 = Math.max(a1, a); b0 = Math.min(b0, b); b1 = Math.max(b1, b); }
+ const k = Math.min((W - 30) / (a1 - a0 || 1), (H - 30) / (b1 - b0 || 1), 60), ca = (a0 + a1) / 2, cb = (b0 + b1) / 2;
+ fed.fit = {k, ca, cb, W, H, side};
+ const X = a => W / 2 + (a - ca) * k, Y = b => H / 2 - (b - cb) * k;
+ ctx.strokeStyle = 'rgba(143,220,255,.13)';ctx.lineWidth = 1;ctx.beginPath();
+ for (let a = Math.floor(a0 - 2); a <= a1 + 2; a++) { ctx.moveTo(X(a), 0); ctx.lineTo(X(a), H); }
+ for (let b = Math.floor(b0 - 2); b <= b1 + 2; b++) { ctx.moveTo(0, Y(b)); ctx.lineTo(W, Y(b)); }ctx.stroke();
+ ctx.strokeStyle = 'rgba(143,220,255,.4)';ctx.beginPath();ctx.moveTo(X(0), 0);ctx.lineTo(X(0), H);ctx.moveTo(0, Y(0));ctx.lineTo(W, Y(0));ctx.stroke();
+ ctx.fillStyle = 'rgba(143,220,255,.7)';ctx.font = '600 10px system-ui,sans-serif';ctx.fillText(side ? '前方 →' : '↑ 前方', side ? W - 52 : X(0) + 4, side ? Y(0) - 4 : 12);ctx.fillText(side ? '↑ 上' : '右舷 →', side ? X(0) + 4 : W - 48, side ? 12 : Y(0) - 4);
+ const close = new Set((fed.chk?.close || []).flatMap(c => [c.a, c.b]));
+ t.slots.forEach((s, i) => {
+  const [a, b] = P(s), x = X(a), y = Y(b), on = fed.sel.has(i), flag = s.role === 'flag', r = 9;
+  ctx.beginPath();if (flag) ctx.rect(x - r, y - r, r * 2, r * 2);else ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fillStyle = flag ? 'rgba(255,210,122,.85)' : on ? 'rgba(143,220,255,.85)' : 'rgba(143,220,255,.35)';ctx.fill();
+  ctx.lineWidth = on ? 2.5 : 1.2;ctx.strokeStyle = on ? '#ffffff' : 'rgba(255,255,255,.5)';ctx.stroke();
+  // the slot's resting heading (top view)
+  if (!side) { const h = (s.hdg || 0) * Math.PI / 180; ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + Math.sin(h) * 15, y - Math.cos(h) * 15); ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = 1.2; ctx.stroke(); }
+  ctx.fillStyle = '#04121c';ctx.font = '700 9px system-ui,sans-serif';ctx.textAlign = 'center';ctx.fillText(String(i + 1), x, y + 3);ctx.textAlign = 'left';
+ });
+ // slots whose ships would stand closer than safe: ringed red (the check pairs ships in slot order of assignment)
+ if (close.size && fed.chk?.offs) { ctx.strokeStyle = '#ff8a70';ctx.lineWidth = 2;for (const i of close) { const o = fed.chk.offs[i], g = fed.chk.gaps; if (!o) continue; const s = {x: o[0] / g.gx, y: o[1] / g.gy, z: o[2] / g.gz}, f = t.slots.find(q => q.role === 'flag') || {x: 0, y: 0, z: 0}; s.x += f.x; s.y += f.y; s.z += f.z; const [a, b] = P(s); ctx.beginPath(); ctx.arc(X(a), Y(b), 13, 0, Math.PI * 2); ctx.stroke(); } }
+}
+function fedHit(e) {
+ const cv = $('#fedCanvas'), f = fed.fit;if (!cv || !f) return {i: -1};const r = cv.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top;
+ const P = s => f.side ? [s.x, s.y] : [s.z, s.x];let best = -1, bd = 16;
+ fed.tpl.slots.forEach((s, i) => { const [a, b] = P(s), d = Math.hypot(f.W / 2 + (a - f.ca) * f.k - px, f.H / 2 - (b - f.cb) * f.k - py); if (d < bd) { bd = d; best = i; } });
+ return {i: best, px, py};
+}
+function fedChanged(render = true) { fed.tpl = R.normalizeFormation(fed.tpl) || fed.tpl;fed.msg = '';if (render) voyFedRender();else voyFedDraw(); }
+function fedSelOrAll() { const s = [...fed.sel].filter(i => fed.tpl.slots[i]); return s.length ? s : fed.tpl.slots.map((_, i) => i); }
+function voyFedAction(a) {
+ const t = fed.tpl, S = t.slots;
+ if (a === 'close') { voyFedClose(); return; }
+ if (a.startsWith('view:')) { fed.view = a.slice(5); voyFedRender(); return; }
+ if (a === 'multi') { fed.multi = !fed.multi; voyFedRender(); return; }
+ if (a === 'all') { fed.sel = new Set(S.map((_, i) => i)); voyFedRender(); return; }
+ if (a === 'add') { if (S.length >= 64) return; const minX = Math.min(0, ...S.map(s => s.x)); S.push({x: minX - 1, y: 0, z: 0, role: 'any', size: 'any', prio: 5, hdg: 0}); fed.sel = new Set([S.length - 1]); fedChanged(); return; }
+ if (a === 'dup') { const add = [...fed.sel].filter(i => S[i]).map(i => ({...S[i], role: S[i].role === 'flag' ? 'line' : S[i].role, z: S[i].z + 1})); if (S.length + add.length > 64) return; const n0 = S.length; S.push(...add); fed.sel = new Set(add.map((_, k) => n0 + k)); fedChanged(); return; }
+ if (a === 'del') { if (S.length - fed.sel.size < 1) return; t.slots = S.filter((_, i) => !fed.sel.has(i)); fed.sel = new Set(); fedChanged(); return; }
+ // transforms act on the slots selected, or on all of them; about the flagship's slot
+ const ids = fedSelOrAll(), f = S.find(s => s.role === 'flag') || {x: 0, y: 0, z: 0};
+ if (a === 'mirror') { for (const i of ids) { S[i].z = fedR(2 * f.z - S[i].z); S[i].hdg = -S[i].hdg; } fedChanged(); return; }
+ if (a === 'flip') { for (const i of ids) S[i].y = fedR(2 * f.y - S[i].y); fedChanged(); return; }
+ if (a.startsWith('rot:')) { const r = +a.slice(4) * Math.PI / 180, c = Math.cos(r), s = Math.sin(r); for (const i of ids) { const x = S[i].x - f.x, z = S[i].z - f.z; S[i].x = fedR(f.x + x * c - z * s); S[i].z = fedR(f.z + x * s + z * c); } fedChanged(); return; }
+ if (a.startsWith('scale:')) { const k = +a.slice(6); for (const i of ids) { S[i].x = fedR(f.x + (S[i].x - f.x) * k); S[i].y = fedR(f.y + (S[i].y - f.y) * k); S[i].z = fedR(f.z + (S[i].z - f.z) * k); } fedChanged(); return; }
+ if (a === 'even') { const L = [...fed.sel].filter(i => S[i]); if (L.length < 3) return; const p = i => [S[i].x, S[i].y, S[i].z], A = p(L[0]), B = p(L[L.length - 1]), d = B.map((v, k) => v - A[k]), dd = d[0] ** 2 + d[1] ** 2 + d[2] ** 2 || 1;
+  const sorted = L.slice().sort((i, j) => p(i).reduce((n, v, k) => n + (v - A[k]) * d[k], 0) / dd - p(j).reduce((n, v, k) => n + (v - A[k]) * d[k], 0) / dd), a0 = p(sorted[0]), b0 = p(sorted[sorted.length - 1]);
+  sorted.forEach((i, k) => { const u = k / (sorted.length - 1); S[i].x = fedR(a0[0] + (b0[0] - a0[0]) * u); S[i].y = fedR(a0[1] + (b0[1] - a0[1]) * u); S[i].z = fedR(a0[2] + (b0[2] - a0[2]) * u); }); fedChanged(); return; }
+ if (a === 'save') { const n = R.normalizeFormation(t); if (!n) return; fed.tpl = n; voyFormPut(n); fed.msg = '保存しました'; voyFedRender(); if (voy.screen === 'setup') voyRenderSetup(); return; }
+ if (a === 'apply') { const n = R.normalizeFormation(t); if (!n) return; fed.tpl = n; voyFormPut(n);
+  if (fed.src?.g && voy.w) { const ok = R.orderGroup(voy.w, fed.src.g, {template: n, formation: 'tpl:' + n.id}); fed.msg = ok ? '任務群に適用しました（艦は新しいスロットへ移動します）' : '適用できませんでした'; }
+  else if (fed.src?.tg && voy.setup) { const x = voyObTgs(voyOb(voy.setup.own)).find(q => q.id === fed.src.tg); if (x) { x.formation = 'tpl:' + n.id; voyObChanged(); fed.msg = '任務群に適用しました'; } }
+  voyFedRender(); return; }
+ if (a.startsWith('load:')) { const x = voyFormStore().find(q => q.id === a.slice(5)); if (x) { fed.tpl = JSON.parse(JSON.stringify(x)); fed.sel = new Set(); voyFedRender(); } return; }
+ if (a === 'remove') { voyFormDel(t.id); fed.tpl = {...t, id: voyFedId()}; fed.msg = '削除しました（編集中の内容は残っています）'; voyFedRender(); if (voy.screen === 'setup') voyRenderSetup(); return; }
+ if (a === 'json') { fed.json = !fed.json; voyFedRender(); return; }
+ if (a === 'copy') { try { navigator.clipboard?.writeText(JSON.stringify(t)); fed.msg = 'コピーしました'; } catch (e) { fed.msg = 'コピーできませんでした'; } voyFedRender(); return; }
+ if (a === 'import') { const ta = $('#voyFed [data-fedjson]'); let n = null; try { n = R.normalizeFormation(JSON.parse(ta?.value || '')); } catch (e) { n = null; } if (!n) { fed.msg = 'JSONを読み込めませんでした'; voyFedRender(); return; } fed.tpl = n; fed.sel = new Set(); fed.msg = '読み込みました（保存すると一覧に加わります）'; voyFedRender(); return; }
+}
+function voyFedBind() {
+ const el = $('#voyFed');if (!el || el.dataset.bound) return;el.dataset.bound = '1';
+ el.addEventListener('click', e => { const b = e.target.closest('button[data-fed]');if (b && !b.disabled) voyFedAction(b.dataset.fed); });
+ el.addEventListener('change', e => {
+  const t = e.target, d = t.dataset;
+  if (d.fedbase != null && t.value) { fed.tpl = {...R.formationTemplate(t.value, Math.max(2, fedShips().length)), id: voyFedId()}; fed.sel = new Set(); voyFedRender(); return; }
+  if (d.fedname != null) { fed.tpl.name = t.value.slice(0, 40) || '自作陣形'; fedChanged(false); return; }
+  if (d.fedf) { const i = [...fed.sel][0], s = fed.tpl.slots[i]; if (!s || fed.sel.size !== 1) return; if (d.fedf === 'role' || d.fedf === 'size') s[d.fedf] = t.value; else { const v = +t.value; if (Number.isFinite(v)) s[d.fedf] = d.fedf === 'prio' ? Math.round(v) : d.fedf === 'hdg' ? v : fedR(v); } fedChanged(); }
+ });
+ // dragging slots on the canvas (mouse, touch, pen): the selection moves together, snapped to a quarter interval
+ el.addEventListener('pointerdown', e => {
+  if (e.target.id !== 'fedCanvas') return;const h = fedHit(e);e.preventDefault();
+  if (h.i < 0) { if (!fed.multi && !e.shiftKey) { fed.sel = new Set(); voyFedRender(); } return; }
+  if (fed.multi || e.shiftKey) { if (fed.sel.has(h.i)) fed.sel.delete(h.i); else fed.sel.add(h.i); } else if (!fed.sel.has(h.i)) fed.sel = new Set([h.i]);
+  fed.drag = {id: e.pointerId, x: e.clientX, y: e.clientY, start: fed.tpl.slots.map(s => ({...s})), moved: false};try { e.target.setPointerCapture?.(e.pointerId); } catch (_) { /* a synthetic pointer */ }voyFedDraw();
+ });
+ el.addEventListener('pointermove', e => {
+  const D = fed.drag, f = fed.fit;if (!D || D.id !== e.pointerId || !f) return;const da = (e.clientX - D.x) / f.k, db = -(e.clientY - D.y) / f.k;if (Math.hypot(e.clientX - D.x, e.clientY - D.y) > 3) D.moved = true;
+  for (const i of fed.sel) { const s = fed.tpl.slots[i], o = D.start[i]; if (!s || !o) continue; if (f.side) { s.x = fedR(o.x + da); s.y = fedR(o.y + db); } else { s.z = fedR(o.z + da); s.x = fedR(o.x + db); } }
+  voyFedDraw();
+ });
+ const up = e => { const D = fed.drag;if (!D || D.id !== e.pointerId) return;fed.drag = null;fedChanged(); };
+ el.addEventListener('pointerup', up);el.addEventListener('pointercancel', up);
+ // opening the editor from a task group's card (battle) or from the order of battle
+ $('#voyage').addEventListener('click', e => {
+  const b = e.target.closest('[data-vfed],[data-vfedtg]');if (!b) return;
+  if (b.dataset.vfedtg) { voyFedOpen({tg: b.dataset.vfedtg}); return; }
+  const v = b.dataset.vfed;voyFedOpen(v.startsWith('g:') ? {g: v.slice(2)} : null);
+ });
+ window.addEventListener('resize', () => { if (fed.open) voyFedDraw(); });
+}
 function voyPowerAimHTML(list) { const pw = voyCommon(list, u => u.order.power || 'auto'), aim = voyCommon(list, u => u.order.aim || 'auto'), vol = voyCommon(list, u => C.volleyMode(u)); return `<p class="vs-sub">射撃</p><div class="vs-acts">${VOY_VOLLEY.map(([k, n]) => `<button type="button" class="btn sm${vol === k ? ' on' : ''}" data-vvol="${k}">${n}</button>`).join('')}</div><p class="note">${vol === 'salvo' ? '斉射：同じ種類の砲がそろって撃ちます。一度に当たるので装甲を破りやすく（大口径の砲ほど効きます）、最初の斉射は目標が射程に入った瞬間に撃てます。待つぶん発射数はわずかに減り、斉射の合間は敵が射撃を受けません（敵のハイパードライブ充填が進みます）。' : vol === 'stream' ? '連続射撃：各砲が装填しだい撃ち続けます。発射数がいちばん多く、敵を絶えず射撃下に置いてハイパードライブの充填を止めます。' : '艦によって射撃の型が違います。'}</p><p class="vs-sub">出力配分</p><div class="vs-acts">${VOY_POWER.map(([k, n]) => `<button type="button" class="btn sm${pw === k ? ' on' : ''}" data-vpow="${k}">${n}</button>`).join('')}</div><p class="vs-sub">照準部位</p><div class="vs-acts">${VOY_AIM.map(([k, n]) => `<button type="button" class="btn sm${aim === k ? ' on' : ''}" data-vaim="${k}">${n}</button>`).join('')}</div><p class="note">${aim === 'auto' ? '自動：ふだんは艦全体を撃ちます。自艦の2.5倍以上の大きさの艦はシールドが弱まると艦橋を狙います。' : aim === 'bridge' || aim === 'weapon' ? '艦橋・砲塔は装甲の外にあります。シールドが弱まると、狙いを保てた分（近いほど・的が大きいほど多い）が装甲を通さず直撃します。' : '狙った部位のある区画に被弾が集まります。'}</p>`; }
 // v21 Superweapons of the ships chosen: each one's state, whether they may fire on their own, and for the
 // composite beam a held beam or one pulse.
@@ -7959,10 +9315,10 @@ function voyTractorHTML(list) {
 }
 function voyTgTacCard(g) {
  const w = voy.w, sys = voy.tac.sys, c = R.ctgOf(w, g), ms = g.units.map(id => w.units.get(id)).filter(u => R.alive(u) && u.sys === sys), indiv = ms.filter(u => u.order.type !== 'group' && !u.out), trac = ms.filter(u => u.p.trac > 0 && !u.out);
- return `<div class="vs-card">${voyCrumbs(c, null)}<div class="vs-head"><h3>${esc(g.name)}</h3><span>${ms.length} 隻 · ${esc(R.FORMATIONS[g.formation] || '')}</span></div>
+ return `<div class="vs-card">${voyCrumbs(c, null)}<div class="vs-head"><h3>${esc(g.name)}</h3><span>${ms.length} 隻 · ${esc(R.formationName(w, g.formation))}</span></div>
   <p class="vs-state${g.spool?.blocked ? ' bad' : g.spool ? ' warn' : ''}">${esc(g.spool ? voyTgStatus(g) : voyGroupOrderText(g))}</p>
   <div class="vs-list"><ul>${ms.map(voyShipRow).join('')}</ul></div>${voyDisabledHTML(R.groupDisabled(w, g).filter(u => u.sys === sys))}
-  <p class="vs-sub">任務群への命令</p>${voyOrderButtons('tg', g.order.type)}${voyFormHTML(g.formation)}${voyPowerAimHTML(ms)}${voySwHTML(ms)}
+  <p class="vs-sub">任務群への命令</p>${voyOrderButtons('tg', g.order.type)}${voyFormHTML(g.formation, [g])}${voyPowerAimHTML(ms)}${voySwHTML(ms)}
   ${trac.length ? voyTractorHTML(trac) : ''}
   ${indiv.length ? `<div class="vs-acts"><p class="vs-sub">${indiv.length} 隻が個別の命令で行動中</p><button type="button" class="btn sm ghost" data-vact="rejoin">任務群に戻す</button></div>` : ''}
   ${g.spool ? '<p class="note">離脱にはリアクターの全出力が要ります。準備中は砲撃できず、被弾している間は準備が止まります（距離を取りながら準備します）。</p>' : ''}</div>`;
@@ -7972,7 +9328,7 @@ function voyCtgTacCard(c) {
  const heldC = gs.flatMap(g => R.groupDisabled(w, g));
  return `<div class="vs-card"><div class="vs-head"><h3>${esc(c.name)}</h3><span>${gs.length} 個任務群 · ${ms.length} 隻</span></div>
   <ul class="vs-tree">${gs.map(g => voyTgRow(g, sys)).join('')}</ul>${heldC.length ? voyDisabledHTML(heldC) : ''}
-  <p class="vs-sub">合同任務群への命令（全任務群）</p>${voyOrderButtons('ctg', voyCommon(gs, g => g.order.type))}${voyFormHTML(voyCommon(gs, g => g.formation))}${voyPowerAimHTML(ms)}
+  <p class="vs-sub">合同任務群への命令（全任務群）</p>${voyOrderButtons('ctg', voyCommon(gs, g => g.order.type))}${voyFormHTML(voyCommon(gs, g => g.formation), gs)}${voyPowerAimHTML(ms)}
   ${trac.length ? voyTractorHTML(trac) : ''}
   <p class="note">移動を命じると、任務群は進路を横切る線上に並んで進みます。</p></div>`;
 }
@@ -8011,9 +9367,12 @@ function voyTacSide() {
   const wings = [...w.wings.values()].filter(x => x.side === 0 && (x.raid?.phase === 'strike' && x.raid.to === sys || w.units.get(x.home)?.sys === sys && R.alive(w.units.get(x.home))));
   const wsel = voy.sel.wing && w.wings.get(voy.sel.wing);
   if (wsel) { const o = wsel.order, t = o.target && w.units.get(o.target);
-   body += `<div class="vs-card"><div class="vs-head"><h3>${esc(wsel.name)}</h3><span>${esc(R.WING_PHASE[wsel.phase] || '')}</span></div><p class="vs-state">${esc(voyWingOrderText(wsel))}</p>${wsel.raid ? `<div class="vs-acts">${wsel.raid.recall ? '' : `<button type="button" class="btn sm" data-vraidback="${wsel.id}">帰還させる</button>`}</div>` : `<div class="vs-acts">${[['auto', '自動'], ['standby', '待機・帰還']].map(([k, n]) => `<button type="button" class="btn sm${o.type === k ? ' on' : ''}" data-vwing="${k}">${n}</button>`).join('')}<button type="button" class="btn sm${voy.cmd?.type === 'strike' ? ' on' : ''}" data-vact="cmd:strike">攻撃</button><button type="button" class="btn sm${voy.cmd?.type === 'cap' ? ' on' : ''}" data-vact="cmd:cap">制空</button><button type="button" class="btn sm${voy.cmd?.type === 'escort' ? ' on' : ''}" data-vact="cmd:escort">直掩</button></div>${R.wingHyper(w, wsel) != null ? '<p class="note">この飛行隊は全機ハイパードライブ搭載です。作戦図で星系をタップすると、別の星系への航空攻撃に出せます。</p>' : ''}`}
+   const hm = w.units.get(wsel.home), waitN = wsel.squads.filter(id => w.squads.get(id)?.wait === 'ctl' && w.squads.get(id)?.state === 'docked').length;
+   body += `<div class="vs-card"><div class="vs-head"><h3>${esc(wsel.name)}</h3><span>${esc(R.WING_PHASE[wsel.phase] || '')}</span></div><p class="vs-state">${esc(voyWingOrderText(wsel))}</p>${hm && R.alive(hm) && hm.sys === sys ? `<p class="vs-sub">母艦の航空管制 ${esc(voyCtlText(w, hm))}${waitN ? ` · ${waitN} 中隊が管制容量待ち` : ''}</p>` : ''}${wsel.raid ? `<div class="vs-acts">${wsel.raid.recall ? '' : `<button type="button" class="btn sm" data-vraidback="${wsel.id}">帰還させる</button>`}</div>` : `<div class="vs-acts">${[['auto', '自動'], ['standby', '待機・帰還']].map(([k, n]) => `<button type="button" class="btn sm${o.type === k ? ' on' : ''}" data-vwing="${k}">${n}</button>`).join('')}<button type="button" class="btn sm${voy.cmd?.type === 'strike' ? ' on' : ''}" data-vact="cmd:strike">攻撃</button><button type="button" class="btn sm${voy.cmd?.type === 'cap' ? ' on' : ''}" data-vact="cmd:cap">制空</button><button type="button" class="btn sm${voy.cmd?.type === 'escort' ? ' on' : ''}" data-vact="cmd:escort">直掩</button></div>${R.wingHyper(w, wsel) != null ? '<p class="note">この飛行隊は全機ハイパードライブ搭載です。作戦図で星系をタップすると、別の星系への航空攻撃に出せます。</p>' : ''}`}
    ${o.type === 'strike' && t ? `<p class="vs-sub">進入方向（${esc(t.name)} から見て）</p><div class="vs-acts">${Object.entries(R.APPROACH_NAME).map(([k, n]) => `<button type="button" class="btn sm${o.approach === k ? ' on' : ''}" data-vappr="${k}">${n}</button>`).join('')}</div><p class="note">対空火力が最も弱いのは「${esc(R.APPROACH_NAME[voyWeakArc(t)])}」方向です。</p>` : ''}<p class="note">艦載機はすべて飛行隊単位で発艦・集合・進撃・攻撃・帰還します。地図の飛行隊の印をタップしても選べます。</p></div>`; }
-  body += `<div class="vs-card vs-list"><h3>飛行隊</h3><ul>${wings.map(x => { const sq = x.squads.map(id => w.squads.get(id)).filter(Boolean), n = sq.reduce((a, s) => a + s.n, 0), n0 = sq.reduce((a, s) => a + s.n0, 0), out = sq.filter(s => s.state === 'out').length; return `<li class="${voy.sel.wing === x.id ? 'on' : ''}"><button type="button" data-vwsel="${x.id}"><b>${esc(x.name)}</b><small>${esc(R.WING_PHASE[x.phase] || '')}</small><span>${esc(voyWingOrderText(x))} · ${Math.round(n)} / ${n0} 機 · 発艦 ${out}/${sq.length} 中隊</span></button></li>`; }).join('') || '<li class="muted">この星系に飛行隊はいません</li>'}</ul></div>`;
+  // v23 each carrier's air control in use (R.airCtlOf): squadrons out / squadrons it can direct at once
+  const ctl = [...new Set(wings.map(x => x.home))].map(id => w.units.get(id)).filter(u => u && R.alive(u) && u.sys === sys).map(u => voyCtlText(w, u, true)).join('・');
+  body += `<div class="vs-card vs-list"><h3>飛行隊</h3>${ctl ? `<p class="vs-sub">航空管制 ${esc(ctl)}</p>` : ''}<ul>${wings.map(x => { const sq = x.squads.map(id => w.squads.get(id)).filter(Boolean), n = sq.reduce((a, s) => a + s.n, 0), n0 = sq.reduce((a, s) => a + s.n0, 0), out = sq.filter(s => s.state === 'out').length, wait = sq.filter(s => s.state === 'docked' && s.wait === 'ctl').length; return `<li class="${voy.sel.wing === x.id ? 'on' : ''}"><button type="button" data-vwsel="${x.id}"><b>${esc(x.name)}</b><small>${esc(R.WING_PHASE[x.phase] || '')}</small><span>${esc(voyWingOrderText(x))} · ${Math.round(n)} / ${n0} 機 · 発艦 ${out}/${sq.length} 中隊${wait ? ` · 管制容量待ち ${wait}` : ''}</span></button></li>`; }).join('') || '<li class="muted">この星系に飛行隊はいません</li>'}</ul></div>`;
  } else if (tab === 'help') {
   const ctgs = [...w.ctgs.values()].filter(c => c.side === 0 && voyCtgGroups(c).some(g => !voyGroupIn(g, sys))), gs = [...w.groups.values()].filter(h => h.side === 0 && voyLive(h) && !voyGroupIn(h, sys));
   const ctgEta = c => { const e = voyCtgGroups(c).filter(h => !h.transit && h.sys != null && h.sys !== sys).map(h => R.etaTo(w, h.id, sys)).filter(v => v != null); return e.length ? Math.max(...e) : null; };
@@ -8025,6 +9384,8 @@ function voyTacSide() {
 }
 function voyWeakArc(t) { return Object.keys(R.APPROACH).sort((a, b) => R.pdToward(t, C.add(t.pos, voyShipVec(t, R.APPROACH[a]))) - R.pdToward(t, C.add(t.pos, voyShipVec(t, R.APPROACH[b]))))[0]; }
 const voyShipVec = (u, v) => { const c = Math.cos(u.yaw), s = Math.sin(u.yaw); return [(v[0] * c - v[2] * s) * 9000, v[1] * 9000, (v[0] * s + v[2] * c) * 9000]; };
+// v23 A carrier's air control as a line: 「艦名 管制 3/4 中隊」, with what its flagship lends (or it lends).
+function voyCtlText(w, u, name) { const a = R.airCtlOf(w, u);return `${name ? voyShort(u.name) + ' ' : ''}${a.used}/${a.cap} 中隊${a.borrow ? `（旗艦の管制 ${a.borrow}）` : a.lent ? `（ほか ${a.lent} を管制）` : ''}`; }
 function voyWingOrderText(x) { const w = voy.w, o = x.order; if (x.raid) { const r = x.raid, t = r.order && w.units.get(r.order.target); return `星系間攻撃：${w.sector.systems[r.to]?.name || ''}（${VOY_RAID_PHASE[r.phase] || ''}${r.phase === 'strike' && t ? '・' + t.name : ''}${r.recall ? '・帰還命令' : ''}）`; } if (o.type === 'auto') { const a = x.auto, D = R.doctrineOf(w, x.side); if (!D) return '自動（母艦を直掩）'; return a?.type === 'strike' ? `自動（ドクトリン）：シールドの落ちた${w.units.get(a.target)?.name || '敵艦'}を攻撃` : '自動（ドクトリン）：敵のシールドが落ちるまで母艦を直掩'; } if (o.type === 'standby') return '待機・帰還'; if (o.type === 'strike') return `攻撃：${w.units.get(o.target)?.name || '—'}（${R.APPROACH_NAME[o.approach] || '艦首'}方向から）`; if (o.type === 'cap') return '制空'; if (o.type === 'escort') return `直掩：${w.units.get(o.target)?.name || '—'}`; return ''; }
 
 // ---------- input ----------
@@ -8044,6 +9405,7 @@ function voyGo(where) {
 function voyConfirmQuit() {
  const el = $('#voySheet');el.hidden = false;
  el.innerHTML = `<div class="voy-sheet-card small" role="dialog" aria-label="艦隊戦を終える"><h3>艦隊戦を終えますか？</h3><p class="note">戦況は保存されません。</p><div class="vs-acts"><button type="button" class="btn" data-vq="setup">編成画面へ</button><button type="button" class="btn" data-vq="title">任務マップへ</button><button type="button" class="btn ghost" data-vq="no">続ける</button></div></div>`;
+ if (voy.msn) msBattleSheet(el, false);
 }
 // Orders to whatever is selected on the tactical map: ships, a task group or a combined task group.
 function voyApply(o) {
@@ -8124,7 +9486,12 @@ function voySidebarClick(e) {
  if (d.vunit) { const id = d.vunit, u = w.units.get(id);voy.sel.foe = null; if (e.shiftKey || voy.multi) { const i = voy.sel.units.indexOf(id); if (i >= 0) voy.sel.units.splice(i, 1); else voy.sel.units.push(id); } else { voySelect({group: u?.group}); voy.sel.units = [id]; } if (u) voyCenterTac(u.pos, false); voyRenderSide(); return; }
  if (d.vfoe) { const u = w.units.get(d.vfoe); if (u) voyCenterTac(u.pos, false); if (['attack', 'strike', 'capture'].includes(voy.cmd?.type)) voyTapUnit(u); else { voy.sel.foe = d.vfoe; voyRenderSide(); } return; }
  if (d.vord) { voyApply({type: d.vord}); voy.cmd = null; voyRenderSide(); return; }
- if (d.vform) { voyApply({formation: d.vform}); voyRenderSide(); return; }
+ if (d.vform) { const tp = d.vform.startsWith('tpl:') ? voyFormStore().find(t => 'tpl:' + t.id === d.vform) : null; if (d.vform.startsWith('tpl:') && !tp) return; voyApply(tp ? {template: tp, formation: d.vform} : {formation: d.vform}); voyRenderSide(); return; }
+ // v24 task force movement: course changes, how to turn, speed, the formation chosen by the AI
+ if (d.vturn) { voyTurn(+d.vturn); voyRenderSide(); return; }
+ if (d.vtmode) { voyApply({turn: d.vtmode}); voyRenderSide(); return; }
+ if (d.vspd) { voyApply({speed: d.vspd}); voyRenderSide(); return; }
+ if (d.vautoform != null) { voyApply({autoForm: d.vautoform === '1'}); voyRenderSide(); return; }
  if (d.vpow) { voyApply({power: d.vpow}); voyRenderSide(); return; }
  if (d.vvol) { voyApply({volley: d.vvol}); voyRenderSide(); return; }
  if (d.vsw) { const s = voyTacSel(), sys = voy.tac.sys, list = voySwShips(s.kind === 'ship' ? s.units : (s.kind === 'tg' ? [s.g] : s.kind === 'ctg' ? voyCtgGroups(s.c) : []).flatMap(g => g.units.map(id => w.units.get(id))).filter(u => u && R.alive(u) && u.sys === sys));
@@ -8200,6 +9567,7 @@ function voyBindMap() {
  c.addEventListener('pointerup', end);c.addEventListener('pointercancel', e => { ptrs.delete(e.pointerId); pinch = null; });
  c.addEventListener('wheel', e => { e.preventDefault(); const r = c.getBoundingClientRect(); zoom(Math.exp(-Math.sign(e.deltaY) * Math.min(.3, Math.abs(e.deltaY) * .002)), e.clientX - r.left, e.clientY - r.top); }, {passive: false});
  window.addEventListener('resize', () => { if (voy.open) voyMapResize(); });
+ voyFedBind();
  const side = $('#voySide');side.addEventListener('click', voySidebarClick);side.addEventListener('pointerenter', () => { voy.sidePause = true; });side.addEventListener('pointerleave', () => { voy.sidePause = false; });
  $('#voyHud').addEventListener('click', voySidebarClick);$('#voySheet').addEventListener('click', e => { if (voy.screen !== 'setup') voySidebarClick(e); });
  window.addEventListener('keydown', e => { if (!voy.open || voy.screen === 'setup' || trial.on && !voy.orders || e.target.matches('input,textarea,select')) return; if (e.code === 'Space') { e.preventDefault(); voy.speed = voy.speed ? 0 : voy.lastSpeed || 1; if (voy.speed) voy.lastSpeed = voy.speed; voyRenderHud(); } else if (e.key === 'Escape') { if (!$('#voySheet').hidden && voy.result) return; if (voy.cmd) { voy.cmd = null; voyRenderSide(); } else if (voy.screen === 'tac') voyGo('ops'); else if (voy3D()) voyOrdersClose(); } else if (e.code === 'KeyM' && voy3D()) voyOrdersClose(); else if (/^Digit[1-5]$/.test(e.code)) { voy.speed = VOY_SPEEDS[+e.code.slice(5) - 1]; if (voy.speed) voy.lastSpeed = voy.speed; voyRenderHud(); } else if (e.key === 'Shift') voy.multi = true; });
@@ -8213,6 +9581,7 @@ function voyShowResult() {
  if (voy3D() && !voy.orders) voyOrdersOpen('ops');el.hidden = false;
  const side = i => { const us = [...w.units.values()].filter(u => (u.origSide ?? u.side) === i), sq = [...w.squads.values()].filter(s => s.side === i), taken = us.filter(u => u.captured).length; return `<dt>${esc(w.sides[i].name)}</dt><dd>${us.length} 隻中 撃沈 ${us.filter(u => u.dead).length} · 戦闘不能 ${us.filter(u => !u.dead && u.out && !u.captured).length}${taken ? ` · 拿捕された ${taken}` : ''}${w.sides[i].captured ? ` · 敵艦を拿捕 ${w.sides[i].captured}` : ''} · 艦載機 ${Math.round(sq.reduce((n, s) => n + s.n, 0))} / ${sq.reduce((n, s) => n + s.n0, 0)} 機${voyCraftTally(w, i, us, sq)}</dd>`; };
  el.innerHTML = `<div class="voy-sheet-card small" role="dialog" aria-label="艦隊戦の結果"><b class="vr-big ${win ? 'win' : 'lose'}">${r.winner < 0 ? '痛み分け' : win ? '勝利' : '敗北'}</b><p class="note">${win ? '敵艦隊の戦闘力の4分の3以上を失わせました。' : r.winner < 0 ? '両軍とも戦闘力を失いました。' : '自軍が戦闘力の4分の3以上を失いました。'} 経過 ${voyClock(r.time)}</p><dl class="vr-dl">${side(0)}${side(1)}</dl><div class="vs-acts"><button type="button" class="btn primary" data-vresult="setup">編成画面へ</button><button type="button" class="btn" data-vresult="title">任務マップへ</button><button type="button" class="btn ghost" data-vresult="stay">${voy3D() ? '3D視点で戦場を見る' : '戦場を見る'}</button></div></div>`;
+ if (voy.msn) msBattleSheet(el, true);
 }
 
 // v21.2 Craft shot down by the side (its squadrons in dogfights, its ships' point defence) and lost by it.
@@ -8431,13 +9800,32 @@ function craftRollAngle(q, S, ct, fk) {
 }
 // A ship's centre and frame in the 3D view (the flown ship is the camera's own).
 const craftShip = u => ({c: spaceWorld(u), R: u.manual ? trial.R : spaceRotU(trial.battle.E, u)});
-// Over the ship it attacks a craft flies low along the hull: kept above (or below) the hull's ellipsoid by a few
-// craft heights wherever its path would take it into the ship.
+// Over the ship it attacks a craft flies low along the hull: kept above (or below) the plating by a few craft heights
+// wherever its path would take it into the ship. v23 The hull is the battle's (Core hullShape: its height field).
 function craftSkim(p, run, span, k) {
- const u = run.u;if (!u || !R.alive(u)) return p;const sh = craftShip(u), Cs = sh.c, Rs = sh.R, l = trialApplyT(Rs, tv.sub(p, Cs)), a = u.p.len * .5, b = (u.p.height || u.p.len * .2) * .5, c = (u.p.width || u.p.len * .5) * .5;
- const e = 1 - (l[0] / a) ** 2 - (l[2] / c) ** 2;if (e <= 0) return p;const ys = b * Math.sqrt(e), alt = 10 + span * 1.6 + (k % 4) * span * .5;
- if (run.side >= 0) { if (l[1] >= ys + alt) return p; l[1] = ys + alt; } else { if (l[1] <= -ys - alt) return p; l[1] = -ys - alt; }
+ const u = run.u;if (!u || !R.alive(u)) return p;const sh = craftShip(u), Cs = sh.c, Rs = sh.R, l = trialApplyT(Rs, tv.sub(p, Cs)), tb = C.hullTB(C.hullShape(u.p), l, span);if (!tb) return p;
+ const alt = 10 + span * 1.6 + (k % 4) * span * .5;
+ if (run.side >= 0) { if (l[1] >= tb[0] + alt || l[1] < tb[1] - alt) return p; l[1] = tb[0] + alt; } else { if (l[1] <= tb[1] - alt || l[1] > tb[0] + alt) return p; l[1] = tb[1] - alt; }
  return tv.add(Cs, trialApply(Rs, l));
+}
+// v23 Every craft drawn keeps out of the hulls near its squadron (near: [{u, c, R, H}]), over or under each the nearer
+// way, as the squadron does in the battle (one on a hatch's rails is clear of its own carrier, skip).
+function craftClear(p, near, skip, span) {
+ for (const x of near) { if (x.u === skip) continue; const l = trialApplyT(x.R, tv.sub(p, x.c)), tb = C.hullTB(x.H, l, span); if (!tb || l[1] > tb[0] + span || l[1] < tb[1] - span) continue; l[1] = l[1] >= (tb[0] + tb[1]) / 2 ? tb[0] + span : tb[1] - span; p = tv.add(x.c, trialApply(x.R, l)); }
+ return p;
+}
+// v23 A squadron on a hatch mouth's rails (launching, landing; R.opsPlace): each craft on the line through the mouth in
+// the carrier's frame as drawn — out of the bay one after another to where the squadron forms, or in from the gate in
+// single file and into the bay — eased from and to its place in the formation; inside the bay it is not drawn.
+function craftRail(w, s, home) {
+ const o = s.ops;if (!o || (o.k !== 'launch' && o.k !== 'land') || !home || !R.alive(home)) return null;const m = R.mouthsOf(home)[o.m];if (!m) return null;
+ const sh = craftShip(home), at = tv.add(sh.c, trialApply(sh.R, m.p)), n = trialApply(sh.R, m.n), ax = trialApply(sh.R, m.ax || [1, 0, 0]), V = R.RULES.hatchV, X = R.RULES.exitD, depth = m.d || 10;
+ const tc = w.time + (w.acc || 0), gate = R.RULES.gateD + 300 * (o.stack || 0), lat = Math.min(12, (m.o?.[0] || 30) * .2);
+ return i => {
+  const T = o.t0 + i * o.per, side = (i % 2 ? 1 : -1) * lat;
+  if (o.k === 'launch') { const d = (tc - T) * V;if (d < -depth) return {hide: true};return {p: tv.add(tv.add(at, n, Math.min(d, X)), ax, side * C.clamp(d / 60, 0, 1)), k: 1 - smoothstep((d - X * .5) / (X * .5))}; }
+  const d = (T - tc) * V;if (d < -depth) return {hide: true};return {p: tv.add(tv.add(at, n, Math.min(d, gate)), ax, side * C.clamp(d / 120, 0, 1)), k: smoothstep((gate + 150 - d) / 300)};
+ };
 }
 // The craft's attitude from how it moves on screen: nose along its path (the squadron's heading at screen pace plus
 // its own manoeuvre), banked into the turn (the sideways pull against a little "lift"), then any roll.
@@ -8469,7 +9857,10 @@ function craftLayout(cf, st, a) {
   const o = q.off, wt = q.want;if (!q.set) { let dd = 0; for (let j = 0; j < 3; j++) { o[j] += (wt[j] - o[j]) * k1; dd += Math.abs(wt[j] - o[j]); } if (dd < .3) { o[0] = wt[0]; o[1] = wt[1]; o[2] = wt[2]; q.set = true; } }
   const m = craftMan(q, S, i, id, d, st, ct, cdt), ox = o[0] * spread + m[0], oy = o[1] * spread + m[1], oz = o[2] * spread + m[2];
   let p = [fr.c[0] + fr.fw[0] * ox + fr.uv[0] * oy + fr.rt[0] * oz, fr.c[1] + fr.fw[1] * ox + fr.uv[1] * oy + fr.rt[1] * oz, fr.c[2] + fr.fw[2] * ox + fr.uv[2] * oy + fr.rt[2] * oz];
-  if (run && st.runK > .02) p = craftSkim(p, run, span, i);
+  const rl = a.rail ? a.rail(i) : null;if (rl?.hide) continue;
+  if (rl && rl.k > 0) p = rl.k >= 1 ? rl.p : tv.add(p, tv.sub(rl.p, p), rl.k);
+  else if (run && st.runK > .02) p = craftSkim(p, run, span, i);
+  if (a.near?.length) p = craftClear(p, a.near, rl ? a.home : null, span * .6 + 4);
   craftAttitude(q, p, fr, S, cdt, ct, fk);
   q.pos = p;q.vel = q.vm && cdt > 1e-5 ? tv.add(vel, q.vm) : vel;q.alive = true;q.team = team;q.glow = glow;q.model = null;q.f = cf.f;q.far = false;out.push(q);list.push(q);
   // models: the selected wing's craft; else the wing's lead as soon as it shows, its squadrons' leads and the other
@@ -8488,6 +9879,8 @@ function voyPilotThreats() {
  // squadrons under point-defence fire this moment, and the attack runs being flown
  const pdOn = new Set();for (const u of R.systemUnits(w, sys)) if (u.pdOn != null && w.time - (u.pdAt ?? -99) < 1.2) pdOn.add(u.pdOn);
  cf.sqPos = new Map();
+ // v23 the hulls of the system as drawn (craft keep out of them)
+ const hulls = [];for (const u of R.systemUnits(w, sys)) { if (u.dead || u.warp && u.warp.t < 0) continue; const sh = craftShip(u); hulls.push({u, c: sh.c, R: sh.R, H: C.hullShape(u.p)}); }
  for (const s of w.squads.values()) {
   if (s.sys !== sys || (s.state !== 'out' && s.state !== 'return') || s.n <= 0) continue;const n = s.n, c = R.CRAFT[s.craft], team = s.side === mine ? 0 : 1, glow = team ? [255, 110, 80, 230] : [120, 200, 255, 230];
   const iv = voySqView(cf, s, w), c0 = world(iv.pos), h = trialApply(B.E, iv.h), v = trialApply(B.E, iv.vel), dS = Math.hypot(c0[0] - eye[0], c0[1] - eye[1], c0[2] - eye[2]), isSel = sel === s.id || (selWing != null && s.wing === selWing), mk = voyCraftModel(s.craft), L = c.dims?.[0] || 10, out = team ? foe : own;
@@ -8503,11 +9896,14 @@ function voyPilotThreats() {
   const S = craftFly(s.craft), d = Math.max(16, 2.4 * Math.max(c.dims?.[1] || 0, c.dims?.[0] || 0, 6)), fight = w.time - (s.dogfight ?? -99) < 2;
   // on an attack run: the wing's strike target, over whose hull it strafes (from above unless it came from below)
   const wg = w.wings.get(s.wing), wo = wg ? (wg.raid ? wg.raid.order : wg.order?.type === 'auto' ? wg.auto : wg.order) : null, tgt = wo?.type === 'strike' && (wg.phase === 'run' || (st.run && wg.phase === 'egress')) ? w.units.get(wo.target) : null;
-  if (tgt && R.alive(tgt)) { if (!st.run || st.run.u !== tgt) { const l = trialApplyT(spaceRotU(B.E, tgt), tv.sub(c0, spaceWorld(tgt))); st.run = {u: tgt, side: wo.approach === 'below' || l[1] < -(tgt.p.height || 200) * .8 ? -1 : 1}; } } else if (st.run && st.runK < .03) st.run = null;
-  craftSqMood(st, {fight, fire: pdOn.has(s.id) || fight, run: !!(tgt && wg.phase === 'run'), hold: !fight && !tgt && tv.len(iv.vel) < c.speed * .15}, cdt);
+  if (tgt && R.alive(tgt)) { if (!st.run || st.run.u !== tgt) { const l = trialApplyT(spaceRotU(B.E, tgt), tv.sub(c0, spaceWorld(tgt))); st.run = {u: tgt, side: s.runSide || (wo.approach === 'below' || l[1] < -(tgt.p.height || 200) * .8 ? -1 : 1)}; } } else if (st.run && st.runK < .03) st.run = null;
+  const rails = s.ops?.k === 'launch' || s.ops?.k === 'land', home = rails ? w.units.get(s.ops.u) : null;
+  craftSqMood(st, {fight, fire: pdOn.has(s.id) || fight, run: !!(tgt && wg.phase === 'run'), hold: !rails && !fight && !tgt && tv.len(iv.vel) < c.speed * .15}, cdt);
   const fr = craftSqFrame(st, c0, v, h, up, S, d, ct, cdt, trialApply(B.E, [1, 0, 0])), models = !!mk && (isSel || dS < L * focal / 2.2 + 600);
   if (mk) voyCraftWant(mk, dS);
-  const list = craftLayout(cf, st, {c, S, d, fr, ct, cdt, slots: R.squadSlots(s), mk, models, eye, focal, cand, out, team, glow, pri: isSel ? 0 : 1, wingLead: wingLead.get(s.wing) === s, run: st.run, vel: v,
+  // v23 the hulls near it (each craft keeps out of them) and, on a hatch's rails, its carrier's mouth
+  const reach = d * 16 + 500, near = hulls.filter(x => Math.hypot(x.c[0] - c0[0], x.c[1] - c0[1], x.c[2] - c0[2]) < x.H.R + reach);
+  const list = craftLayout(cf, st, {c, S, d, fr, ct, cdt, slots: R.squadSlots(s), mk, models, eye, focal, cand, out, team, glow, pri: isSel ? 0 : 1, wingLead: wingLead.get(s.wing) === s, run: st.run, vel: v, near, home, rail: rails ? craftRail(w, s, home) : null,
    make: id => craftQ(cf, s.id + ':' + id, s, id, c, () => { cf.done.add(s.id + ':' + id); R.craftDown(w, sys, s, id, 'pd', me.id); })});
   st.fr = fr;
   // Craft gone since the last frame: shot down where they flew (or landed, or out of sight).
@@ -8571,6 +9967,8 @@ function voyCraftLoad() {
 // squadron or ship that did, and it blows up when the bolt arrives; one landed or flown out of sight just goes.
 function voyCraftLost(B, w, s, id, q) {
  const cf = B.cf;q.alive = false;if (cf.done.delete(q.id)) return;const d = (s.downs || []).find(x => x.id === id && w.time - x.t < 8);if (!d) return;
+ // v23 one that flew into a hull blows up against it; one lost aboard its carrier or left behind is not seen to go
+ if (d.why === 'hull') { craftKill(cf, q, null, [255, 200, 120], false); return; } if (d.why === 'ship' || d.why === 'behind') return;
  const by = d.why === 'pd' ? w.units.get(d.by) : w.squads.get(d.by);let from = null;
  if (d.why === 'pd') { if (by && R.alive(by) && by.sys === s.sys) from = spaceHullPoint(by, .35); }
  else { const a = d.by != null && cf.sq.get(d.by)?.list; if (a?.length) { const x = a[Math.floor(Math.random() * a.length)]; from = tv.add(x.pos, x.h, 6); } }
@@ -9297,7 +10695,7 @@ const PATROL_NAMES = ['ブライト・ホープ', 'ケッセル・スター', '�
 const PATROL = {want: 4, first: 150, again: 120, mean: 150, range: 9e4, keep: 600};
 const patrolExp = mean => -Math.log(1 - Math.random()) * mean;
 // The flagship's side: an example's own, else the paint (a design of one's own is the Empire's).
-function patrolFaction() { const d = trial.asset?.design || {}, ref = YardFleetData?.designs?.[d.reference]; return ref?.faction || (d.paint === 'republic' ? 'republic' : d.paint === 'cis' ? 'cis' : 'empire'); }
+function patrolFaction() { if (trial.msnPatrol) return trial.msnPatrol.faction; const d = trial.asset?.design || {}, ref = YardFleetData?.designs?.[d.reference]; return ref?.faction || (d.paint === 'republic' ? 'republic' : d.paint === 'cis' ? 'cis' : 'empire'); }
 // v22 The system's region sets how busy it is and how often the enemy comes (Galaxy.REGIONS traffic and threat:
 // the Core Worlds crowded and safe, the Outer Rim and Hutt Space thin and dangerous, the Unknown Regions all but empty).
 function patrolRegion() { const r = Galaxy.REGIONS[SYSTEMS[trial.sysKey]?.region] || {}; return {want: Math.max(1, Math.round(PATROL.want * (r.traffic ?? 1))), encK: 1 / Math.max(.3, r.threat ?? 1)}; }
@@ -9466,7 +10864,7 @@ function patrolBattleStart(group) {
   const u = e.unit || C.fleetUnit('a' + (P.uid++), e.key, e.p, 0), f = trialApplyT(E, e.f);u.name = e.name;u.esc = e;u.pos = trialApplyT(E, tv.sub(e.pos, O));u.velocity = trialApplyT(E, e.V);u.yaw = Math.atan2(f[2], f[0]);
   u.absent = false;u.hidden = false;delete u.depart;delete u.warp;u.order = {...u.order, type: 'hold', fire: true, power: u.order?.power || 'auto', aim: 'auto'};units.push(u);
  }
- const a0 = (Math.random() * 2 - 1) * 1.9, cd = [Math.cos(a0), Math.sin(a0)], sd = [-cd[1], cd[0]], R0 = 15000 + Math.random() * 5000 + Math.max(...group.map(x => x.p.len)) * 2;
+ const a0 = msPatrolBearing(E) ?? (Math.random() * 2 - 1) * 1.9, cd = [Math.cos(a0), Math.sin(a0)], sd = [-cd[1], cd[0]], R0 = 15000 + Math.random() * 5000 + Math.max(...group.map(x => x.p.len)) * 2;
  group.forEach((x, i) => {
   const u = C.fleetUnit('e' + (P.uid++), x.key, x.p, 1), gap = Math.max(2600, x.p.len * 2.2), back = i * gap * .4, off = i * gap * .8 * (i % 2 ? -1 : 1);
   u.name = x.name;u.pos = [cd[0] * (R0 + back) + sd[0] * off, 400 + (i % 3) * 450, cd[1] * (R0 + back) + sd[1] * off];u.yaw = Math.atan2(-u.pos[2], -u.pos[0]) + (Math.random() - .5) * .3;u.absent = true;u.warp = {at: 4 + i * .6, t: 0};units.push(u);
@@ -9557,7 +10955,628 @@ window.addEventListener('ks-language-change',()=>{
  for(const k of Object.keys(GMAP))if(GMAP[k].root?.isConnected)gmApply(k);
  if(voy.screen==='setup' && !document.activeElement?.matches('[data-obname]')){voyRenderSetup();if(voy.setup?.editing)voyOrbatSheet();}
 });
-function bindVoyage() { voyBindSetup(); voyBindMap(); document.addEventListener('click', e => { const hb = e.target.closest('[data-vhit],[data-vhitplay],[data-vhitclose]'); if (hb) { if (hb.dataset.vhit) { const [id, i] = hb.dataset.vhit.split(':'); voyHitReplay(id, +i); } else if ('vhitplay' in hb.dataset && voy.replay) voy.replay.t0 = performance.now(); else { $('#voySheet').hidden = true; voy.replay = null; } return; } if (trial.spectate) { const sb = e.target.closest('[data-spec]'); if (sb) { voySpectateCmd(sb.dataset.spec); return; } const mk = e.target.closest('.th-tmark'); if (mk?.dataset.tmark?.startsWith('u')) { voySpectateCmd('follow:' + mk.dataset.tmark.slice(1)); return; } if (mk?.dataset.tmark?.startsWith('q')) { voySpectateCmd('sq:' + mk.dataset.tmark.slice(1)); return; } } const b = e.target.closest('[data-voyopen]'); if (b) { e.preventDefault(); voyOpenWithCurrent(); } }); window.__voy = {voy, R, open: voyOpen, pilot: voyPilot, go: voyGo, spectate: voySpectate, step: voySpectateStep, pilotStep: voyPilotStep, tap: voyMapTap, follow: voySpectateSwitch, tut: voyTutStart, vtut, vtutGo, load: {show: loadShow, hide: loadHide, shots}, fxStep: (dt, n = 1) => { for (let i = 0; i < n; i++) { trialWrecksStep(dt); trialFxStep(dt); } }}; }
+function bindVoyage() { voyBindSetup(); voyBindMap(); document.addEventListener('click', e => { const hb = e.target.closest('[data-vhit],[data-vhitplay],[data-vhitclose]'); if (hb) { if (hb.dataset.vhit) { const [id, i] = hb.dataset.vhit.split(':'); voyHitReplay(id, +i); } else if ('vhitplay' in hb.dataset && voy.replay) voy.replay.t0 = performance.now(); else { $('#voySheet').hidden = true; voy.replay = null; } return; } if (trial.spectate) { const sb = e.target.closest('[data-spec]'); if (sb) { voySpectateCmd(sb.dataset.spec); return; } const mk = e.target.closest('.th-tmark'); if (mk?.dataset.tmark?.startsWith('u')) { voySpectateCmd('follow:' + mk.dataset.tmark.slice(1)); return; } if (mk?.dataset.tmark?.startsWith('q')) { voySpectateCmd('sq:' + mk.dataset.tmark.slice(1)); return; } } const b = e.target.closest('[data-voyopen]'); if (b) { e.preventDefault(); voyOpenWithCurrent(); } }); window.__voy = {voy, R, fed, open: voyOpen, pilot: voyPilot, go: voyGo, spectate: voySpectate, step: voySpectateStep, pilotStep: voyPilotStep, tap: voyMapTap, follow: voySpectateSwitch, tut: voyTutStart, vtut, vtutGo, load: {show: loadShow, hide: loadHide, shots}, fxStep: (dt, n = 1) => { for (let i = 0; i < n; i++) { trialWrecksStep(dt); trialFxStep(dt); } }}; }
+
+// ============================================================
+// v23 任務 (mission): one fleet of the player's navy kept from one
+// session to the next. It is organised as in the fleet battle (combined
+// task groups of task groups), starts at its navy's home — Coruscant for
+// the Empire and the Republic, Saleucami for the Separatists, Yavin for
+// the Alliance — and lives on the galaxy map: a task group patrols the
+// galaxy (the flight, its escorts and the star map, the jumps taking
+// their real time unless skipped), and the fleet sails against the enemy
+// fleets that turn up in random systems (Republic against Separatists in
+// the Clone Wars, Empire against the Alliance in the civil war), fighting
+// them on the fleet battle. Damage puts a ship in dock for a time that
+// grows with the damage and the size of the ship; a sunk, captured or
+// abandoned ship leaves the fleet; captured enemy ships join it after a
+// refit. Everything — the fleet, where each task group is, the docks, the
+// enemy fleets and the clock — is saved in this browser (and in the
+// artifact's own store when it has one) and taken up again with 続きから.
+// ============================================================
+const MS_KEY = 'yard.msn.v1', MS_CLOUD = 'mission-v1';
+const MS_HOME = {empire: 'coruscant', republic: 'coruscant', cis: 'saleucami', rebel: 'yavin'};
+// The era follows the two navies (Galaxy.eraOf): the Republic and the Separatists fight the Clone Wars (cw), the Empire
+// and the Alliance the civil war (gcw).
+const msEraOf = f => typeof Galaxy.eraOf === 'function' ? Galaxy.eraOf(f) : f === 'republic' || f === 'cis' ? 'cw' : 'gcw';
+const msEraName = e => Galaxy.ERAS?.[e]?.name || (e === 'cw' ? 'クローン戦争' : '銀河内戦');
+// Times in seconds of the mission clock.
+// hyper: in hyperspace per grid square of the way (a hyperlane counting double, as Galaxy.path costs it) at
+//   hyperdrive class 1 (class 2 takes twice as long); minJump: the shortest jump.
+// repair: dock time for a ship wholly wrecked (damage 1) of 1,000 m, scaled by √(length/1000) between ½ and 2½;
+//   minRepair: the least time a damaged ship spends in dock; disabled: added for a ship that was disabled
+//   (towed home); refit: added for a captured ship; commission: a ship added after the start, before it can sail.
+// foe*: enemy fleets — at most foeMax at once, foeFirst at the start, a new one every foeEvery, each staying foeStay,
+//   and of at most foeShips ships (whole task groups), so that a battle stays light enough for a phone.
+// startTgs: the task groups of the starting fleet (the navy's お任せ make-up, whatever the crews and troops come to).
+const MS_RULES = {hyper: 1800, minJump: 1200, repair: 8 * 3600, minRepair: 1800, disabled: 4 * 3600, refit: 8 * 3600, commission: 8 * 3600,
+ foeMax: 4, foeFirst: 2, foeEvery: [6 * 3600, 14 * 3600], foeStay: [36 * 3600, 72 * 3600], foeShips: 80, startTgs: 6, wait: 6 * 3600};
+// The enemy's strength, against the whole of our fleet when it appears.
+const MS_TIERS = [{name: '偵察部隊', lo: .15, hi: .35, p: .25}, {name: '小艦隊', lo: .35, hi: .7, p: .35}, {name: '艦隊', lo: .7, hi: 1.05, p: .28}, {name: '主力艦隊', lo: 1.05, hi: 1.5, p: .12}];
+const MS_DOCK = {repair: '修理中', refit: '改装中', new: '就役準備', transit: '回航中'};
+// A seventh escort station, so a task group of eight sails whole on patrol.
+if (ESCORT_SLOTS.length < TG_MAX - 1) ESCORT_SLOTS.push([-1.7, .45, 0]);
+let MS = null, msLoaded = false;
+const msUI = {tab: 'fleet', tg: null, foe: null, pick: {}, sel: null, report: null, setup: null, battle: null, poll: 0, warned: false, cloud: {pulled: false, timer: 0}};
+
+// ---------- territory ----------
+// Who holds each system in the mission's era (Galaxy.allegiance: in the Clone Wars the Republic, the Separatists,
+// Hutt Space, the contested fronts; in the civil war the Empire's space, the Alliance coming from the frontier),
+// and the direction toward a navy's own space (Galaxy.factionBearing), where its fleets come from. Without those
+// (an older galaxy layer) a rough fallback: the minor navy's worlds listed below, the rest the major one's.
+const MS_HOLD = {cw: {cis: ['geonosis', 'saleucami', 'mygeeto', 'felucia', 'utapau', 'mustafar', 'catoneimoidia', 'umbara', 'bonadan', 'ryloth', 'christophsis']}, gcw: {rebel: ['yavin', 'hoth', 'dantooine', 'crait', 'ajankloss', 'sullust', 'moncala']}};
+const msOwnerMemo = {};
+function msOwners(era) {
+ if (msOwnerMemo[era]) return msOwnerMemo[era];const o = {};
+ if (typeof Galaxy.allegiance === 'function') for (const s of Galaxy.SYSTEMS) o[s.key] = Galaxy.allegiance(era, s.key) || null;
+ else { const minor = era === 'cw' ? 'cis' : 'rebel', major = era === 'cw' ? 'republic' : 'empire', hold = MS_HOLD[era]?.[minor] || [];
+  for (const s of Galaxy.SYSTEMS) o[s.key] = hold.includes(s.key) ? minor : s.region === 'hutt' || s.region === 'unknown' ? null : major; }
+ return msOwnerMemo[era] = o;
+}
+// The way from system a toward b along the lanes: its first half square, as a unit vector on the map (y down).
+function msWayDir(a, b) {
+ const p = a && b && a !== b ? Galaxy.path(a, b) : null, q = p && p.legs.length ? Galaxy.pathPts(p) : null;
+ const unit = (p0, p1) => { const l = Math.hypot(p1[0] - p0[0], p1[1] - p0[1]); return l > 1e-6 ? [(p1[0] - p0[0]) / l, (p1[1] - p0[1]) / l] : null; };
+ if (!q || q.length < 2) { const A = Galaxy.BY[a]?.at, B = Galaxy.BY[b]?.at; return A && B ? unit(A, B) : null; }
+ let L = 0, k = 0;while (k + 1 < q.length && L < .45) { L += Math.hypot(q[k + 1][0] - q[k][0], q[k + 1][1] - q[k][1]); k++; }
+ return unit(q[0], q[k]);
+}
+// The side a navy's ships come from, seen from sys (a unit vector on the map).
+const msSideMemo = new Map();
+function msSideDir(sys, faction, era) {
+ const key = `${sys}|${faction}|${era}`;if (msSideMemo.has(key)) return msSideMemo.get(key);
+ const at = Galaxy.BY[sys]?.at;let d = null;
+ if (at && typeof Galaxy.factionBearing === 'function') d = Galaxy.factionBearing(era, faction, at);
+ else if (at) { const own = msOwners(era);let best = null, bc = Infinity;
+  for (const s of Galaxy.SYSTEMS) { if (s.key === sys || own[s.key] !== faction) continue; const p = Galaxy.path(sys, s.key); if (p && p.cost < bc) { bc = p.cost; best = s.key; } }
+  const to = best || (MS_HOME[faction] !== sys ? MS_HOME[faction] : null);d = to ? msWayDir(sys, to) : null; }
+ msSideMemo.set(key, d);return d;
+}
+// Where a navy's fleet is said to come in from (for the notes): Galaxy.factionSide's name for that way.
+function msSideName(sys, faction, era) { const at = Galaxy.BY[sys]?.at; try { return at && typeof Galaxy.factionSide === 'function' ? Galaxy.factionSide(era, faction, at)?.name || '' : ''; } catch (e) { return ''; } }
+// The fleet battle: the enemy comes in from its own side (Rts.createWorld turns the area that way); our task groups,
+// when they sailed from another system, at the end of a main route that faces the way they came (sector.starts).
+function msOwnStart(S, ownDir) {
+ if (!ownDir) return null;const c = [S.size / 2, S.size / 2], ends = [...new Set(S.routes.flatMap(r => r.nodes?.length ? [r.nodes[0], r.nodes[r.nodes.length - 1]] : []))];
+ let best = null;for (const id of ends) { const p = S.systems[id].pos, dx = p[0] - c[0], dy = p[1] - c[1], l = Math.hypot(dx, dy) || 1, v = (dx * ownDir[0] + dy * ownDir[1]) / l; if (!best || v > best.v) best = {v, id}; }
+ return best && best.v > .2 ? best.id : null;
+}
+
+// ---------- the state ----------
+function msEnsureDesigns() { if (!voy.designs.size) for (const d of voyExampleDesigns()) voyRegister(d); }
+function msValid(st) { if (st && st.era === 'clone') st.era = 'cw'; if (st && st.era === 'civil') st.era = 'gcw'; return !!st && st.version === 1 && R.FACTIONS[st.faction] && st.ob && Array.isArray(st.ob.ctgs) && Array.isArray(st.foes); }
+function msNew(faction) {
+ msEnsureDesigns();const foe = VOY_RIVAL[faction] || 'rebel';
+ const st = {version: 1, faction, foe, era: msEraOf(faction), home: MS_HOME[faction] || 'coruscant', started: false, t: 0, foeNo: 0, nextFoe: 0, ob: null, at: {}, foes: [], log: [], active: null,
+  stats: {battles: 0, won: 0, lost: 0, drawn: 0, sunk: 0, captured: 0, shipsLost: 0, patrols: 0, jumps: 0}, savedAt: 0};
+ st.ob = msStartFleet(faction);
+ return st;
+}
+// An order of battle cut to whole task groups: at most maxTgs of them and maxShips ships.
+function msTrimOb(ob, maxTgs = Infinity, maxShips = Infinity) {
+ let n = 0, k = 0;for (const c of ob.ctgs) c.tgs = c.tgs.filter(t => { if (k >= maxTgs || n && n + t.ships.length > maxShips) return false; n += t.ships.length; k++; return true; });
+ ob.ctgs = ob.ctgs.filter(c => c.tgs.length);return ob;
+}
+// The starting fleet: the navy's task groups as お任せ makes them up (two line ships and their escorts each, with
+// the class's canon air wing and troops), startTgs of them — the same size for every navy, not cut by the allowance
+// of crews and stores that balances the custom battle.
+function msStartFleet(faction) { return msTrimOb(voyAutoOrbat(faction, 'standard', Math.random, {target: 1e12}), MS_RULES.startTgs); }
+// The mission is kept in this browser compressed (pack: 'z1:' deflate, or 'j1:' JSON where the browser cannot
+// compress): a Separatist fleet's droid regiments alone come to megabytes of JSON. Reading it back is asynchronous, so
+// the title's 続きから waits for it (msLoad returns null until then and the title is drawn again when it is in).
+let msLoading = null;
+function msLoad() { if (msLoaded) return MS; if (!msLoading) msLoading = msLoadAsync(); return null; }
+async function msLoadAsync() {
+ let st = null;
+ try { const raw = LS.get(MS_KEY); if (raw) st = /^[zj]1:/.test(raw) ? await unpack(raw) : JSON.parse(raw); } catch (e) { console.warn('mission: cannot read the saved mission', e); st = null; }
+ if (!msLoaded) { if (msValid(st)) MS = st;
+  if (MS?.active) { msLog(MS, MS.active.kind === 'battle' ? '前回の艦隊戦は中断されました（出撃した艦は損傷なしで戦域に残っています）' : '前回のパトロールは中断されました（任務群は出発した星系にいます）'); MS.active = null; }
+  msLoaded = true; }
+ if (titleVisible()) renderTitle();
+ return MS;
+}
+// Before writing: every ship knows its task group (a ship moved to a group in another system sails there), a ship
+// added (or duplicated) after the start goes through commissioning, and every task group has a place.
+function msNormalize(st) {
+ const tgs = voyObTgs(st.ob), ids = new Set(tgs.map(t => t.id));
+ for (const k of Object.keys(st.at)) if (!ids.has(k)) delete st.at[k];
+ for (const t of tgs) { if (!st.at[t.id] || !Galaxy.BY[st.at[t.id]]) st.at[t.id] = st.home;
+  for (const sh of t.ships) {
+   // (a ship duplicated in the fleet screen carries the original's record: it is a new ship, still to be commissioned)
+   if (sh.mid && sh.mid !== sh.id) { delete sh.born; delete sh.dock; delete sh.prize; delete sh.tg; delete sh.tgAt; }
+   sh.mid = sh.id;
+   if (sh.born == null) { sh.born = st.t; if (st.started) { const d = voyShipDesign(sh); sh.dock = {until: st.t + Math.round(MS_RULES.commission * msSizeK(d?.info?.len)), why: 'new'}; } }
+   if (sh.tg && sh.tg !== t.id && st.started) { const from = sh.tgAt || st.home, to = st.at[t.id]; if (from !== to) { const secs = msJumpSeconds(msHyper([sh]), from, to); if (!sh.dock || sh.dock.until < st.t + secs) sh.dock = {until: st.t + secs, why: sh.dock?.why === 'repair' || sh.dock?.why === 'refit' ? sh.dock.why : 'transit'}; } }
+   sh.tg = t.id;sh.tgAt = st.at[t.id];
+  } }
+}
+// Saving: the state is brought up to date at once; it is written a moment later (one write for a burst of edits).
+let msSaveT = 0, msWriting = false;
+function msSave() {
+ const st = MS;if (!st) return;msNormalize(st);st.savedAt = Date.now();
+ clearTimeout(msSaveT);msSaveT = setTimeout(msWrite, 200);msCloudPush();
+}
+async function msWrite() {
+ msSaveT = 0;const st = MS;if (!st) return;let ok = false;msWriting = true;
+ try { const data = await pack(st); ok = msWriting ? LS.set(MS_KEY, data) : true; } catch (e) { ok = false; } finally { msWriting = false; }
+ if (!ok && !msUI.warned) { msUI.warned = true; toast('この端末では任務を保存できません（このページを開いているあいだは続けられます）'); }
+}
+// Leaving the page with a write still to come: written at once, uncompressed.
+function msFlush() { if (!MS || !msSaveT && !msWriting) return; clearTimeout(msSaveT); msSaveT = 0; msWriting = false; try { LS.set(MS_KEY, JSON.stringify(MS)); } catch (e) {} }
+// The artifact's own store (when the viewer gives it one) keeps a copy, so a cleared browser does not lose the mission.
+function msCloudPush() {
+ clearTimeout(msUI.cloud.timer);
+ msUI.cloud.timer = setTimeout(async () => { try { await Store.init(); if (!Store.db || !MS) return; const data = await pack(MS); if (data.length > 240000) return; await Store.col().doc(MS_CLOUD).set({kind: 'mission', savedAt: MS.savedAt, name: msSummary(MS), data}); } catch (e) { console.warn('mission: cloud save', e); } }, 1500);
+}
+function msCloudPull() {
+ if (msUI.cloud.pulled) return;msUI.cloud.pulled = true;
+ Store.init().then(async () => {
+  if (!Store.db) return;
+  try { const snap = await Store.col().doc(MS_CLOUD).get(); if (!snap?.exists) return; const d = snap.data();if (!d || d.kind !== 'mission' || typeof d.data !== 'string') return;
+   msLoad();const cur = await msLoading || MS;if (cur && (cur.savedAt || 0) >= (d.savedAt || 0) || trial.msnPatrol || msUI.battle || !titleVisible()) return;
+   const st = await unpack(d.data);if (!msValid(st)) return;st.active = null;MS = st;LS.set(MS_KEY, d.data);if (titleVisible()) renderTitle();
+  } catch (e) { console.warn('mission: cloud load', e); }
+ });
+}
+window.addEventListener('pagehide', msFlush);
+function msLog(st, text, t = st.t) { st.log.unshift({t, text}); st.log.sort((a, b) => b.t - a.t); st.log = st.log.slice(0, 40); }
+const msRand = ([a, b]) => a + Math.random() * (b - a);
+const msSizeK = len => C.clamp(Math.sqrt((len || 300) / 1000), .5, 2.5);
+const msAt = (st, tgId) => st.at[tgId] || st.home;
+const msSysName = k => Galaxy.BY[k]?.name || SYSTEMS[k]?.name || k || '';
+function msFindShip(st, id) { for (const c of st.ob.ctgs) for (const t of c.tgs) for (const sh of t.ships) if (sh.id === id) return {c, t, sh}; return null; }
+function msRemoveShip(st, f) { const i = f.t.ships.indexOf(f.sh); if (i >= 0) f.t.ships.splice(i, 1); }
+const msReadyShips = t => t.ships.filter(sh => !sh.dock && voyShipDesign(sh));
+// A group sails at the pace of its slowest hyperdrive (a ship without one is carried along at class 2).
+function msHyper(ships) { const hs = ships.map(sh => voyShipDesign(sh)?.info?.hyper).filter(v => v > 0); return hs.length ? Math.max(...hs) : 2; }
+function msJumpSeconds(hc, a, b) { if (!a || !b || a === b) return 0; const p = Galaxy.path(a, b), cost = p ? p.cost : 8; return Math.round(Math.max(MS_RULES.minJump, cost * MS_RULES.hyper * Math.max(.5, hc || 2))); }
+// The flight's jumps: in a mission patrol the real time at the task group's pace; otherwise the exercise time.
+function trialJumpSecs(hc, from, to) { const P = trial.msnPatrol; return P ? msJumpSeconds(Math.max(hc || 0, P.hc || 0) || 2, from, to) : jumpSeconds(hc, from, to); }
+function msDur(s) { s = Math.max(0, Math.round(s)); if (s < 60) return `${s}秒`; if (s < 3600) return `${Math.max(1, Math.round(s / 60))}分`; const d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60); return d ? (h ? `${d}日${h}時間` : `${d}日間`) : `${h}時間${m ? m + '分' : ''}`; }
+function msClock(t) { const d = Math.floor(t / 86400) + 1, h = Math.floor(t % 86400 / 3600), m = Math.floor(t % 3600 / 60); return `第${d}日 ${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`; }
+function msSummary(st) { const n = voyObShips(st.ob).length; return `${R.FACTIONS[st.faction].name}艦隊 · ${msEraName(st.era)} · ${st.started ? msClock(st.t) : '編成中'} · ${n} 隻`; }
+// Each ' · ' part in its own element, so the English catalog translates the parts one by one.
+const msSeg = h => String(h).split(' · ').map(p => `<bdi>${p}</bdi>`).join(' · ');
+function msDockText(st, sh) { const d = sh.dock; return d ? `${MS_DOCK[d.why] || '修理中'} · あと ${msDur(d.until - st.t)}` : ''; }
+const msShipLabel = sh => { const d = voyShipDesign(sh); return d ? `${voyShort(d.name)}「${sh.name}」` : sh.name; };
+
+// ---------- damage and repair ----------
+// Damage: the hull strength lost (0–1), plus 0.15 for each hull section destroyed, 0.3 × the share of its
+// systems (modules) knocked out and 0.25 × the share of its crew lost; at most 1.5. Dock time is that damage ×
+// 8 hours × the size factor (√(length/1000), ½–2½), at least 30 minutes; a ship that was disabled adds 4 hours ×
+// the size factor (it is towed home first). Under 2 % damage the ship sails on.
+function msDamageOf(u) {
+ if (!u) return 0;const hull = 1 - C.fleetIntegrity(u), lost = (u.secLost?.length || 0) * .15, mods = u.mods?.length ? 1 - u.mods.reduce((a, b) => a + C.clamp(+b || 0, 0, 1), 0) / u.mods.length : 0;
+ const c0 = u.p?.crewMax ?? u.p?.crewNeed ?? 0, crew = c0 > 0 ? C.clamp(1 - (u.crew ?? c0) / c0, 0, 1) : 0;
+ return C.clamp(hull + lost + .3 * mods + .25 * crew, 0, 1.5);
+}
+function msRepairSecs(u, disabled) {
+ const D = msDamageOf(u), k = msSizeK(u?.p?.len);if (D < .02 && !disabled) return 0;
+ return Math.round(Math.max(MS_RULES.minRepair, D * MS_RULES.repair * k) + (disabled ? MS_RULES.disabled * k : 0));
+}
+function msDockShip(st, sh, secs, why = 'repair') { if (!(secs > 0)) return; const until = st.t + secs; if (!sh.dock || sh.dock.until < until) sh.dock = {until, why}; }
+
+// ---------- enemy fleets ----------
+function msFoeTier(f) { return MS_TIERS.find(x => f.ratio < x.hi) || MS_TIERS[MS_TIERS.length - 1]; }
+const msFoeName = f => `${R.FACTIONS[f.faction]?.name || '敵'}の${msFoeTier(f).name}「${f.name}」`;
+function msFleetStrength(st) { const v = voyShipsStrength(voyObShips(st.ob)); return v > 0 ? v : 800; }
+const msFoeMemo = new Map();
+function msFoeOrbat(f) {
+ const k = `${f.id}|${f.k.toFixed(4)}|${f.target}`;if (msFoeMemo.has(k)) return msFoeMemo.get(k);
+ const ob = msTrimOb(voyAutoOrbat(f.faction, 'large', R.rng(f.seed), {target: Math.max(1, f.target * f.k)}), Infinity, MS_RULES.foeShips);msFoeMemo.set(k, ob);return ob;
+}
+function msFoeInfo(f) { const ships = voyObShips(msFoeOrbat(f)); return {n: ships.length, str: voyShipsStrength(ships), caps: ships.filter(sh => voyShipDesign(sh)?.info?.capital).length}; }
+// A new enemy fleet: in a random system (not our home, not where another one is, not the Unknown Regions),
+// likelier in the dangerous regions (Galaxy.REGIONS threat) and on our side of the line, at the frontier most;
+// its strength drawn by tiers against our whole fleet; it stays two to three days.
+function msSpawnFoe(st) {
+ const own = msOwners(st.era), taken = new Set(st.foes.map(f => f.sys)), nb = k => (Galaxy.ADJ[k] || []).map(e => e.a === k ? e.b : e.a);
+ const cand = Galaxy.SYSTEMS.filter(s => s.key !== st.home && !taken.has(s.key) && s.region !== 'unknown' && SYSTEMS[s.key]).map(s => {
+  const o = own[s.key], front = o === st.faction && nb(s.key).some(k => own[k] !== st.faction);
+  return {s, w: (Galaxy.REGIONS[s.region]?.threat ?? 1) * (o === st.foe ? .7 : o === 'contested' ? 1.8 : o === st.faction ? (front ? 1.8 : 1.2) : 1)}; });
+ if (!cand.length) return null;
+ let r = Math.random() * cand.reduce((n, c) => n + c.w, 0), sys = cand[0].s.key;for (const c of cand) { r -= c.w; if (r <= 0) { sys = c.s.key; break; } }
+ let q = Math.random(), tier = MS_TIERS[0];for (const x of MS_TIERS) { q -= x.p; if (q <= 0) { tier = x; break; } }
+ const ratio = tier.lo + Math.random() * (tier.hi - tier.lo), used = new Set(st.foes.map(f => f.name));
+ const f = {id: 'f' + (++st.foeNo), n: st.foeNo, sys, faction: st.foe, name: voyNextName(st.foe, used), seed: (Math.random() * 1e9) | 0, ratio, target: Math.round(msFleetStrength(st) * ratio), k: 1, t0: st.t, until: st.t + Math.round(msRand(MS_RULES.foeStay))};
+ st.foes.push(f);const info = msFoeInfo(f), mine = msFleetStrength(st);if (info.str < f.target * .95) f.ratio = info.str / mine;   // (cut to foeShips: its real strength)
+ msLog(st, `${msSysName(sys)}に${msFoeName(f)}が出現（約 ${info.n} 隻）`);
+ return f;
+}
+// The clock runs on: repairs finish, enemy fleets come and go (keep: the one our fleet is sailing against stays).
+function msAdvance(st, dt, keep) {
+ if (!(dt > 0)) return;const end = st.t + dt;
+ for (const sh of voyObShips(st.ob)) if (sh.dock && sh.dock.until <= end) { msLog(st, `${sh.name}：${sh.dock.why === 'new' ? '就役準備を終えて艦隊に加わりました' : sh.dock.why === 'transit' ? '回航を終えて任務群に合流しました' : sh.dock.why === 'refit' ? '改装を終えて艦隊に加わりました' : '修理を終えて出撃可能'}`, sh.dock.until); delete sh.dock; }
+ st.foes = st.foes.filter(f => { if (f.id === keep || f.until > end) return true; msLog(st, `${msFoeName(f)}は${msSysName(f.sys)}から撤収しました`, f.until); return false; });
+ if (st.started) { while (st.nextFoe <= end) { const t0 = st.nextFoe; st.t = Math.max(st.t, t0); if (st.foes.length < MS_RULES.foeMax) msSpawnFoe(st); st.nextFoe = t0 + Math.round(msRand(MS_RULES.foeEvery)); } }
+ st.t = end;
+ if (st.started && !st.foes.length) msSpawnFoe(st);
+}
+
+// ---------- the title's 任務 menu ----------
+function msTitleRender() {
+ const st = msLoad(), menu = $('#titleMenu');msCloudPull();const checking = !msLoaded;
+ if (menu) {
+  const soon = menu.querySelector('[data-title-soon]');if (soon) soon.disabled = true;
+  const c = menu.querySelector('[data-msn="continue"]');if (c) { c.disabled = !st; const s = $('#msnSaved'); if (s) s.innerHTML = st ? msSeg(esc(msSummary(st))) : checking ? '保存された任務を確認中…' : '保存された任務はありません'; }
+  const nw = menu.querySelector('[data-msn="new"]');if (nw?.dataset.sure) { delete nw.dataset.sure; nw.querySelector('span').textContent = nw.dataset.text || nw.querySelector('span').textContent; }
+ }
+ msScreenRender();
+}
+function msNewClick(b) {
+ if (!msLoaded) { msLoad(); toast('保存された任務を確認中です'); return; }
+ const cur = MS;
+ if (cur && cur.started && !b.dataset.sure) { b.dataset.sure = '1'; const s = b.querySelector('span'); b.dataset.text = s.textContent; s.textContent = '保存中の任務は消えます。もう一度押すと新しい任務を始めます'; return; }
+ delete b.dataset.sure;MS = msNew(cur?.faction || voy.setup?.own || 'empire');msLoaded = true;msUI.tab = 'fleet';msUI.report = null;msUI.tg = msUI.foe = null;msUI.pick = {};msSave();msOpenEditor();
+}
+function msContinue() {
+ const st = msLoad();if (!st) return;msEnsureDesigns();voyEnsureDesigns(st.ob);
+ if (!st.started) { msOpenEditor(); return; }
+ msUI.tab = 'fleet';showTitle('msn');
+}
+
+// ---------- the fleet organisation (the order of battle screen on the mission's fleet) ----------
+function msSetupFor(st) { const s = msUI.setup || (msUI.setup = {foeMode: 'match', scale: 'standard', tab: 'orbat', sel: {}, editing: null, sheetTab: 'air', seed: 1}); s.own = st.faction; s.foe = st.foe; s.region = st.home; s.tab = 'orbat'; return s; }
+async function msOpenEditor() {
+ const st = MS;if (!st) return;msEnsureDesigns();hideTitle();voy.saves = await Store.list().catch(() => []);
+ voyOpen('setup', 'orbat', {st, setup: msSetupFor(st)});
+}
+function msFactionOptions(cur) { return Object.keys(MS_HOME).map(f => `<option value="${f}" ${f === cur ? 'selected' : ''}>${esc(R.FACTIONS[f].name)}（${msEraName(msEraOf(f))}・母港 ${esc(msSysName(MS_HOME[f]))}）</option>`).join(''); }
+function msEditorHeadHTML(st) {
+ const all = voyObShips(st.ob), t = voyShipsTotals(all), dock = all.filter(sh => sh.dock).length;
+ return `<section class="voy-card voy-wide ms-edit-head"><div class="voy-card-head"><h3>${esc(R.FACTIONS[st.faction].name)}の艦隊</h3><div class="voy-row">${st.started ? '' : `<label>陣営<select data-msnfac aria-label="陣営">${msFactionOptions(st.faction)}</select></label><button type="button" class="btn sm ghost" data-msn="auto">お任せ編成で作り直す</button>`}<button type="button" class="btn sm" data-voy="ctgadd">合同任務群を追加</button></div></div>
+  <p class="note">${st.started ? `母港は${esc(msSysName(st.home))}。修理中・改装中・就役準備中・回航中の艦は出撃できません（残り時間を表示）。新しく加えた艦は就役準備のあとに、別の星系にいる任務群へ移した艦は回航を終えてから出撃できます。` : `${msEraName(st.era)}。敵は${esc(R.FACTIONS[st.foe].name)}、母港は${esc(msSysName(st.home))}。「編成完了」で銀河図に出ます。`}任務群は${TG_MIN}〜${TG_MAX}隻、パトロールには任務群ひとつで出ます。艦名は自由に変えられます。編成は任務の保存データに記録されます。</p>
+  <p class="vs-sub">${msSeg(`${all.length} 隻 · 出撃可 ${all.length - dock} 隻${dock ? ` · ドック・回航 ${dock} 隻` : ''} · 乗員 ${num(t.people)} 名 · 資材 ${num(Math.round(t.supply))} t`)}</p></section>`;
+}
+// The order of battle screen as the mission shows it: its own head, where each task group is, and the ships in dock.
+function msDecorateEditor() {
+ const st = voy.msn?.st, root = $('#voySetup');if (!st || !root) return;
+ const head = root.querySelector('.voy-head');
+ if (head) head.innerHTML = `<div><span class="eyebrow">${msSeg(`任務 · ${st.started ? esc(msClock(st.t)) : '新しい任務'}`)}</span><h2>艦隊編成</h2></div><div class="voy-head-go">${st.started ? '<button type="button" class="btn primary" data-msn="edit-done">銀河図へ</button>' : `<button type="button" class="btn ghost" data-msn="edit-back">タイトルへ</button><button type="button" class="btn primary" data-msn="edit-done" ${voyObShips(st.ob).some(voyShipDesign) ? '' : 'disabled'}>編成完了</button>`}</div>`;
+ const card = root.querySelector('.voy-setup > .voy-card');if (card) card.outerHTML = msEditorHeadHTML(st);
+ for (const el of root.querySelectorAll('.ob-tg[data-tg]')) { const n = el.querySelector('.ob-tg-head .ob-name'); if (n && !el.querySelector('.ms-at')) n.insertAdjacentHTML('afterend', `<span class="ms-at" title="この任務群のいる星系">${esc(msSysName(msAt(st, el.dataset.tg)))}</span>`); }
+ for (const li of root.querySelectorAll('li.ob-ship[data-ship]')) { const f = msFindShip(st, li.dataset.ship); if (!f?.sh.dock) continue; li.classList.add('ms-docked'); li.querySelector('.ob-name')?.insertAdjacentHTML('afterend', `<span class="ms-dock">${msSeg(esc(msDockText(st, f.sh)))}</span>`); }
+ for (const sel of root.querySelectorAll('select[data-obmove]')) { const li = sel.closest('[data-ship]'), f = li && msFindShip(st, li.dataset.ship); if (!f) continue; const here = msAt(st, f.t.id); for (const o of sel.options) { const at = msAt(st, o.value); if (at !== here) o.textContent += `（${msSysName(at)}・回航）`; } }
+}
+function msSetFaction(f) {
+ const st = MS;if (!st || st.started || !MS_HOME[f] || st.faction === f) return;
+ const fresh = msNew(f);Object.assign(st, {faction: fresh.faction, foe: fresh.foe, era: fresh.era, home: fresh.home, ob: fresh.ob, at: {}});
+ const s = msSetupFor(st);s.sel = {};s.editing = null;$('#voySheet').hidden = true;voyEnsureDesigns(st.ob);msSave();voyRenderSetup();
+}
+function msEditDone() {
+ const st = MS;if (!st) return;
+ if (!st.started) {
+  if (!voyObShips(st.ob).some(voyShipDesign)) { toast('艦がありません'); return; }
+  msNormalize(st);for (const sh of voyObShips(st.ob)) { sh.born = 0; delete sh.dock; }
+  st.started = true;st.t = 0;st.nextFoe = Math.round(msRand(MS_RULES.foeEvery));
+  msLog(st, `任務開始：${R.FACTIONS[st.faction].name}艦隊 ${voyObShips(st.ob).length} 隻が${msSysName(st.home)}に集結`);
+  for (let i = 0; i < MS_RULES.foeFirst; i++) msSpawnFoe(st);
+ }
+ msSave();$('#voySheet').hidden = true;voyClose();msUI.tab = 'fleet';showTitle('msn');
+}
+
+// ---------- the galaxy map ----------
+function msScreenRender() {
+ const t = $('#title');if (!t) return;let el = $('#msnMap');const st = MS;
+ if (titleState.panel !== 'msn' || !st || !st.started) { if (el) el.hidden = true; if (titleState.panel === 'msn' && (!st || !st.started)) titleState.panel = null; return; }
+ msEnsureDesigns();
+ const gs = GMAP.msn || (GMAP.msn = {cx: 90, cy: 100, z: 1.5});gs.era = st.era;
+ if (!el) {
+  el = document.createElement('div');el.id = 'msnMap';el.className = 'mmap msn';el.setAttribute('role', 'region');el.setAttribute('aria-label', '任務・銀河図');t.appendChild(el);
+  el.innerHTML = `<header class="mm-head ms-head"><div class="mm-title"><span class="eyebrow" data-ms="eyebrow"></span><h2>銀河図</h2></div><div class="ms-clock"><span>任務の経過</span><b data-ms="clock"></b></div><button type="button" class="btn ghost sm" data-msn="title" title="任務は自動で保存されています">タイトルへ</button></header><div class="mm-body"><div class="mm-map">${galMapHTML('msn')}</div><aside class="mm-side ms-side" id="msSide" aria-label="任務のメニュー"></aside></div>`;
+  el.querySelector('.gm-svg')?.insertAdjacentHTML('beforeend', '<g class="ms-marks"></g>');
+  gmBind('msn', el.querySelector('.gm'));[gs.cx, gs.cy] = gmP(Galaxy.BY[st.home]?.at || [9, 9]);gs.msnEra = null;
+ }
+ gs.onPick = msPick;el.hidden = false;
+ el.querySelector('[data-ms="eyebrow"]').innerHTML = msSeg(esc(`任務 · ${R.FACTIONS[st.faction].name}艦隊 · ${msEraName(st.era)}`));el.querySelector('[data-ms="clock"]').textContent = msClock(st.t);
+ // (the era is the mission's: its map shows that era's territories, and the era switch is hidden)
+ if (gs.msnEra !== st.era) { gs.msnEra = st.era; if (typeof gmSetEra === 'function') gmSetEra('msn', st.era); }
+ gs.onEra = e => { if (MS && e !== MS.era && typeof gmSetEra === 'function') gmSetEra('msn', MS.era); };
+ msSideRender();msMarks(st, el);
+ requestAnimationFrame(() => { gmApply('msn'); msMarks(st, el); });
+}
+// Our task groups (blue, with their ships ready to sail) and the enemy fleets (red, with their ships) by each system.
+function msMarks(st, el) {
+ const g = el.querySelector('.ms-marks');if (!g) return;const s = GMAP.msn?.ks || 1, by = {};
+ for (const t of voyObTgs(st.ob)) { if (!t.ships.length) continue; const k = msAt(st, t.id); (by[k] || (by[k] = {own: 0, foe: 0})).own += msReadyShips(t).length || 0; by[k].tg = (by[k].tg || 0) + 1; }
+ for (const f of st.foes) { (by[f.sys] || (by[f.sys] = {own: 0, foe: 0})).foe += msFoeInfo(f).n; }
+ const pill = (cls, x, n, label) => { const txt = String(n), w = 8 + txt.length * 5.6; return `<g class="ms-mk ${cls}"><title>${esc(label)}</title><rect x="${cls === 'own' ? -w - 6 : 6}" y="-21" width="${w}" height="11" rx="3"/><text x="${cls === 'own' ? -w / 2 - 6 : 6 + w / 2}" y="-12.6">${txt}</text></g>`; };
+ g.innerHTML = Object.entries(by).filter(([k]) => Galaxy.BY[k]).map(([k, v]) => { const [px, py] = gmP(Galaxy.BY[k].at); return `<g class="gm-k" data-x="${px}" data-y="${py}" transform="translate(${px} ${py}) scale(${s.toFixed(4)})">${v.tg ? pill('own', 0, v.own, `自軍の任務群 ${v.tg} · 出撃可 ${v.own} 隻`) : ''}${v.foe ? pill('foe', 0, v.foe, `敵艦隊 約 ${v.foe} 隻`) : ''}</g>`; }).join('');
+}
+function msPick(key) {
+ const st = MS;if (!st || !Galaxy.BY[key]) return;const f = st.foes.find(x => x.sys === key), t = voyObTgs(st.ob).find(x => msAt(st, x.id) === key && msReadyShips(x).length);
+ if (f) { msUI.tab = 'battle'; msUI.foe = f.id; }
+ else if (t && msUI.tab !== 'battle') { msUI.tab = 'patrol'; msUI.tg = t.id; }
+ else msUI.sel = key;
+ msSideRender();
+}
+function msSideRender() {
+ const side = $('#msSide'), st = MS;if (!side || !st) return;const top = side.scrollTop, gs = GMAP.msn || {};
+ const nFoe = st.foes.length, tab = msUI.tab;
+ const menu = `<nav class="ms-menu" aria-label="任務"><button type="button" data-msn="tab:patrol" aria-pressed="${tab === 'patrol'}">パトロール<small>任務群で巡回</small></button><button type="button" data-msn="tab:battle" aria-pressed="${tab === 'battle'}">艦隊戦<small>敵艦隊 ${nFoe}</small></button><button type="button" data-msn="orbat">艦隊編成<small>${voyObShips(st.ob).length} 隻</small></button></nav>`;
+ const body = tab === 'patrol' ? msPatrolPanel(st) : tab === 'battle' ? msBattlePanel(st) : msFleetPanel(st);
+ side.innerHTML = menu + (msUI.report ? msReportHTML(msUI.report) : '') + `<div class="ms-panel">${body}</div>`;side.scrollTop = msUI.report?.fresh ? 0 : top;if (msUI.report) msUI.report.fresh = false;
+ // The map follows: where the selected group starts from, and the enemy fleet chosen.
+ gs.cur = null;gs.sel = null;gs.curTag = '';gs.selTag = '';
+ if (tab === 'patrol') { const t = voyObTgs(st.ob).find(x => x.id === msUI.tg); if (t) { gs.cur = msAt(st, t.id); gs.curTag = '出発地'; } }
+ else if (tab === 'battle') { const f = st.foes.find(x => x.id === msUI.foe); const tg = msSortieTgs(st)[0]; if (tg) { gs.cur = msAt(st, tg.id); gs.curTag = '出撃地'; } if (f) { gs.sel = f.sys; gs.selTag = '敵艦隊'; if (gs.cur === gs.sel) gs.cur = null; } }
+ else { gs.cur = st.home; gs.curTag = '母港'; if (msUI.sel && msUI.sel !== st.home) { gs.sel = msUI.sel; gs.selTag = ''; } }
+ if (gs.root) { gmMark('msn'); if (gs.vb) gmLayout('msn'); }
+}
+function msReportHTML(r) { return `<div class="ms-report ${r.cls || ''}" role="status"><div class="ms-report-h"><b class="big">${esc(r.title)}</b><button type="button" class="btn sm ghost" data-msn="report-close" aria-label="閉じる">閉じる</button></div>${r.sub ? `<p class="note">${msSeg(esc(r.sub))}</p>` : ''}<ul>${r.lines.map(x => `<li>${msSeg(esc(x))}</li>`).join('')}</ul></div>`; }
+function msTgLine(st, t) { const r = msReadyShips(t).length, d = t.ships.filter(sh => sh.dock), next = d.length ? Math.min(...d.map(sh => sh.dock.until)) - st.t : 0; return msSeg(`${esc(msSysName(msAt(st, t.id)))} · 出撃可 ${r} / ${t.ships.length} 隻${d.length ? ` · ドック ${d.length}（次の復帰まで ${msDur(next)}）` : ''}`); }
+function msFleetPanel(st) {
+ const ships = voyObShips(st.ob), dock = ships.filter(sh => sh.dock), next = dock.length ? Math.min(...dock.map(sh => sh.dock.until)) - st.t : 0, tgs = voyObTgs(st.ob).filter(t => t.ships.length);
+ const sel = msUI.sel && Galaxy.BY[msUI.sel] ? msUI.sel : null;
+ let h = sel ? gmSysCardHTML(sel, `${msHereHTML(st, sel)}<button type="button" class="btn sm ghost" data-msn="unsel">閉じる</button>`) : '';
+ h += `<div class="ms-sum"><p><b>${esc(R.FACTIONS[st.faction].name)}艦隊</b> · ${msSeg(`${msEraName(st.era)} · 母港 ${esc(msSysName(st.home))}`)}</p><p>${msSeg(`${ships.length} 隻 · 出撃可 ${ships.length - dock.length} 隻${dock.length ? ` · ドック・回航 ${dock.length} 隻（次の復帰まで ${msDur(next)}）` : ''}`)}</p><p class="note">${msSeg(`戦果：交戦 ${st.stats.battles} 回（勝利 ${st.stats.won}・敗北 ${st.stats.lost}） · 敵艦撃沈 ${st.stats.sunk} · 拿捕 ${st.stats.captured} · 失った艦 ${st.stats.shipsLost} · パトロール ${st.stats.patrols} 回`)}</p></div>`;
+ h += `<h3>任務群</h3><div class="ms-list">${tgs.map(t => `<button type="button" class="ms-row" data-msn="tgp:${t.id}"><b>${esc(t.name)}</b><span>${msTgLine(st, t)}</span></button>`).join('') || '<p class="muted">艦がありません。「艦隊編成」で艦を加えてください。</p>'}</div>`;
+ h += `<h3>敵艦隊</h3><div class="ms-list">${st.foes.map(f => `<button type="button" class="ms-row foe" data-msn="foe:${f.id}"><b>${esc(msFoeName(f))}</b><span>${msSeg(`${esc(msSysName(f.sys))} · 約 ${msFoeInfo(f).n} 隻 · 撤収まで ${msDur(f.until - st.t)}`)}</span></button>`).join('') || '<p class="muted">確認されている敵艦隊はありません。</p>'}</div>`;
+ h += `<h3>時間</h3><div class="ms-wait"><button type="button" class="btn sm" data-msn="wait:6h">6時間待機</button>${dock.length ? `<button type="button" class="btn sm" data-msn="wait:dock">次の艦が復帰するまで（${msDur(next)}）</button>` : ''}</div><p class="note">時間はパトロールの航行・ジャンプ、艦隊戦の進出と戦闘、待機で進みます。そのあいだに修理が進み、敵艦隊が現れたり撤収したりします。</p>`;
+ h += `<h3>記録</h3><ul class="ms-log">${st.log.slice(0, 10).map(x => `<li><time>${esc(msClock(x.t))}</time>${msSeg(esc(x.text))}</li>`).join('')}</ul>`;
+ return h;
+}
+function msHereHTML(st, key) {
+ const tgs = voyObTgs(st.ob).filter(t => t.ships.length && msAt(st, t.id) === key), fs = st.foes.filter(f => f.sys === key);
+ return `${tgs.length ? `<p class="gm-mission"><b>自軍</b>${tgs.map(t => esc(t.name)).join('・')}</p>` : ''}${fs.length ? `<p class="gm-mission"><b>敵</b>${fs.map(f => esc(msFoeName(f))).join('・')}</p>` : ''}`;
+}
+function msPatrolPanel(st) {
+ const tgs = voyObTgs(st.ob).filter(t => t.ships.length);
+ let sel = tgs.find(t => t.id === msUI.tg && msReadyShips(t).length) || tgs.find(t => msReadyShips(t).length) || null;msUI.tg = sel?.id || null;
+ let h = '<h3>パトロール</h3><p class="note">任務群をひとつ選んで、いる星系から銀河を巡回します。</p>';
+ h += `<div class="ms-list">${tgs.map(t => { const r = msReadyShips(t).length; return `<button type="button" class="ms-pick" data-msn="tg:${t.id}" aria-pressed="${t === sel}" ${r ? '' : 'disabled'}><b>${esc(t.name)}</b><span>${msTgLine(st, t)}</span></button>`; }).join('') || '<p class="muted">任務群がありません。</p>'}</div>`;
+ if (sel) {
+  const ready = msReadyShips(sel), from = msAt(st, sel.id), hc = msHyper(ready.slice(0, 1 + ESCORT_SLOTS.length));
+  h += `<div class="ms-detail"><h4>${msSeg(`${esc(sel.name)} · ${esc(msSysName(from))}から`)}</h4><ul class="ms-ships">${sel.ships.map(sh => { const d = voyShipDesign(sh), i = ready.indexOf(sh); return `<li class="${sh.dock ? 'dock' : ''}"><b>${i === 0 ? '旗艦 ' : ''}${esc(sh.name)}</b><small>${msSeg(`${d ? esc(voyShort(d.name)) + ' · ' + fLen(d.info.len) : '準備中…'}${sh.dock ? ' · ' + esc(msDockText(st, sh)) : i > 0 ? ' · 僚艦' : ''}`)}</small></li>`; }).join('')}</ul>
+  <p class="note">ハイパードライブ クラス ${num(hc, 1)}（任務群でいちばん遅い艦）。</p><div class="ms-go"><button type="button" class="btn primary" data-msn="patrol">${esc(msSysName(from))}からパトロールに出る</button></div>
+  <p class="note">旗艦（任務群の先頭の出撃可能艦）を操艦し、僚艦は隊形を組んで続きます。星図でほかの星系へジャンプでき、ハイパースペースの航行時間は実際の時間です（「スキップ」で到着の数秒前まで進められます）。民間船が行き交い、ときおり敵艦が現れます。敵艦隊のいる星系では敵の哨戒艦がすぐに来ます。「帰還」でパトロールを終え、損傷した艦はドックに入ります。</p></div>`;
+ } else h += '<p class="note bad">出撃できる艦のいる任務群がありません。修理が終わるのを待つか、艦隊編成で艦を加えてください。</p>';
+ return h;
+}
+// The task groups sent to a fleet battle: every one with ships ready to sail, unless the player unticked it.
+function msSortieTgs(st) { return voyObTgs(st.ob).filter(t => msUI.pick[t.id] !== false && msReadyShips(t).length); }
+function msSortieEta(st, tgs, sys) { return tgs.reduce((m, t) => Math.max(m, msJumpSeconds(msHyper(msReadyShips(t)), msAt(st, t.id), sys)), 0); }
+function msBattlePanel(st) {
+ const foes = st.foes.slice().sort((a, b) => a.t0 - b.t0);let f = foes.find(x => x.id === msUI.foe) || foes[0] || null;msUI.foe = f?.id || null;
+ let h = '<h3>艦隊戦</h3><p class="note">敵艦隊を選んで任務群を送り、その星系の宙域で戦います。</p>';
+ h += `<div class="ms-list">${foes.map(x => { const i = msFoeInfo(x); return `<button type="button" class="ms-pick foe" data-msn="foe:${x.id}" aria-pressed="${x === f}"><b>${esc(msFoeName(x))}</b><span>${msSeg(`${esc(msSysName(x.sys))} · 約 ${i.n} 隻${i.caps ? `（主力艦 ${i.caps}）` : ''} · 撤収まで ${msDur(x.until - st.t)}`)}</span></button>`; }).join('') || '<p class="muted">確認されている敵艦隊はありません。時間を進めると現れます。</p>'}</div>`;
+ if (!f) return h;
+ const all = voyObTgs(st.ob).filter(t => msReadyShips(t).length), tgs = msSortieTgs(st), ships = tgs.flatMap(msReadyShips), eta = msSortieEta(st, tgs, f.sys), info = msFoeInfo(f), a = voyShipsStrength(ships), r = a > 0 ? info.str / a : 0;
+ const word = !a ? '' : r > 1.4 ? '敵が優勢' : r > 1.15 ? '敵がやや優勢' : r < .7 ? '自軍が優勢' : r < .87 ? '自軍がやや優勢' : 'ほぼ互角';
+ h += `<div class="ms-detail">${gmSysCardHTML(f.sys, msHereHTML(st, f.sys))}<h4>出撃させる任務群</h4><div class="ms-list">${all.map(t => { const r1 = msReadyShips(t), et = msJumpSeconds(msHyper(r1), msAt(st, t.id), f.sys); return `<label class="ms-tgpick"><input type="checkbox" data-msnpick="${t.id}" ${msUI.pick[t.id] !== false ? 'checked' : ''}><span><b>${esc(t.name)}</b><small>${msSeg(`${esc(msSysName(msAt(st, t.id)))} · 出撃可 ${r1.length} 隻 · ${et ? `到着まで ${msDur(et)}` : 'この星系にいます'}`)}</small></span></label>`; }).join('') || '<p class="muted">出撃できる艦がいません。</p>'}</div>
+  <div class="vbal"><span>推定戦力比</span><b>自軍 1 : 敵 ${a ? r.toFixed(2) : '—'}</b><small>${esc(word)}（自軍 ${ships.length} 隻・敵 約 ${info.n} 隻）</small></div>
+  ${ships.length > VOY_SHIP_CAP ? `<p class="note bad">一度に出せるのは ${VOY_SHIP_CAP} 隻までです。任務群を減らしてください。</p>` : ''}
+  <div class="ms-go"><button type="button" class="btn primary" data-msn="go" ${ships.length && ships.length <= VOY_SHIP_CAP ? '' : 'disabled'}>${esc(msSysName(f.sys))}へ出撃${eta ? `（到着まで ${msDur(eta)}）` : ''}</button></div>
+  <p class="note">敵艦隊は銀河のあちこちの星系に現れ（強さはさまざま）、2〜3日で撤収します。戦場はその星系を中心とする一辺500光年の宙域で、敵は自分の勢力圏の側から、自軍は来た方角から入ります。戦闘のあと、損傷した艦は損傷に応じた時間ドックに入ります（損傷度 × 8時間 × 艦の大きさ。航行不能だった艦はさらに長く）。撃沈・拿捕された艦は編成から消え、敵のいる星系に残された航行不能艦は放棄されます。拿捕した敵艦は改装のあと艦隊に加わります。</p></div>`;
+ return h;
+}
+function msWait(kind) {
+ const st = MS;if (!st) return;let dt = MS_RULES.wait;
+ if (kind === 'dock') { const ds = voyObShips(st.ob).filter(sh => sh.dock).map(sh => sh.dock.until - st.t); if (!ds.length) return; dt = Math.max(60, Math.min(...ds)); }
+ msAdvance(st, dt);msLog(st, `${msDur(dt)}待機`);msSave();msScreenRender();
+}
+
+// ---------- patrol: one task group in the flight ----------
+async function msPatrolStart() {
+ const st = MS, t = st && voyObTgs(st.ob).find(x => x.id === msUI.tg);if (!t || trial.on) return;
+ const ready = msReadyShips(t);if (!ready.length) { toast('出撃できる艦がいません'); return; }
+ const flag = ready[0], from = msAt(st, t.id);let escorts = ready.slice(1, 1 + ESCORT_SLOTS.length);
+ loadShow('パトロールの準備中…（大型艦は時間がかかります）', 'パトロール');hideTitle();
+ let a = null;
+ try {
+  voy.saves = await Store.list().catch(() => voy.saves || []);a = await fleetAsset(flag.src);
+  for (const sh of escorts) { try { await fleetAsset(sh.src); } catch (e) { console.warn('mission: escort not ready', sh.src, e); } }
+  escorts = escorts.filter(sh => fleet.assets.has(sh.src));
+  trial.msnPatrol = {tg: t.id, flag: flag.id, escorts: escorts.map(sh => sh.id), faction: st.faction, foe: st.foe, era: st.era, hc: msHyper([flag, ...escorts]), from, sys: from, acc: 0, last: null, tun: 0, jumps: 0, units: {}, fates: {}, lastB: null, me: null, stats: null};
+  await trialStart({returnTo: 'title', system: from, escorts: escorts.map(sh => sh.src), patrol: true, design: a.design});
+  if (!trial.on) throw new Error('パトロールを開始できませんでした');
+ } catch (e) { console.error(e); trial.msnPatrol = null; loadHide(); toast('艦を準備できません：' + esc(e.message || e)); showTitle('msn'); return; }
+ const P = trial.msnPatrol;P.last = trial.t;msPatrolNames();
+ // the star map shows the mission's era while the patrol is out
+ const tm = GMAP.trial || (GMAP.trial = {cx: 90, cy: 100, z: 2.2});P.mapEra = tm.era;if (typeof gmSetEra === 'function') gmSetEra('trial', st.era);
+ st.active = {kind: 'patrol', tg: t.id, t: st.t};msSave();
+ clearInterval(msUI.poll);msUI.poll = setInterval(msPatrolPoll, 250);
+ toast(`${t.name}：${msSysName(from)}からパトロールを開始（旗艦 ${flag.name}${escorts.length ? `・僚艦 ${escorts.length} 隻` : ''}）`);
+ msPatrolArrived(from);
+}
+// The flown ship and the escorts carry the ships' own names.
+function msPatrolNames() {
+ const P = trial.msnPatrol, st = MS;if (!P || !st || !trial.on) return;
+ const f = msFindShip(st, P.flag);if (f && trial.p) { const nm = msShipLabel(f.sh); if (trial.p.name !== nm) { trial.p.name = nm; const b = $('#trialHud .th-id b'); if (b) b.textContent = nm; } if (trial.pat?.me) trial.pat.me.name = nm; }
+ (trial.escorts || []).forEach((e, i) => { if (e.oid) return; const id = P.escorts[i], g = id && msFindShip(st, id); if (!g) return; e.oid = id; e.name = msShipLabel(g.sh); });
+}
+function msPatrolWon(B) { return B?.result?.kind === 'win' || !!B?.b && !B.b.units.some(u => u.team === 1 && !u.dead && !u.out && !u.absent); }
+// A fight is over (beaten off, or left by jumping away): our disabled ships are towed home when it was won, else lost.
+function msPatrolFightEnd(P, B) {
+ const won = msPatrolWon(B);
+ for (const u of B.b?.units || []) { const id = u.esc?.oid; if (!id || P.fates[id]) continue; P.units[id] = u; if (u.dead) P.fates[id] = 'sunk'; else if (u.out) P.fates[id] = won ? 'recovered' : 'lost'; }
+ P.won = (P.won || 0) + (won && B.result ? 1 : 0);
+}
+function msPatrolPoll() {
+ const P = trial.msnPatrol;if (!P || !trial.on) { clearInterval(msUI.poll); return; }
+ if (P.last != null && trial.t >= P.last) P.acc += trial.t - P.last;P.last = trial.t;
+ const j = trial.jump;if (j && j.phase === 'tunnel' && !j.msnCounted) { j.msnCounted = true; P.tun += j.tunnel || 0; P.jumps++; }
+ const B = trial.battle;if (B?.b) { if (B.me) P.me = B.me; for (const u of B.b.units) if (u.esc?.oid) P.units[u.esc.oid] = u; }
+ if (P.lastB && P.lastB !== B) msPatrolFightEnd(P, P.lastB);P.lastB = B || null;
+ if (trial.pat) P.stats = {enc: trial.pat.enc, won: trial.pat.won, sunk: trial.pat.sunk + (B?.b ? B.b.units.filter(u => u.team === 1 && u.dead).length : 0), civLost: trial.pat.civLost};
+ if (!j && trial.sysKey !== P.sys) { P.sys = trial.sysKey; msPatrolArrived(P.sys); }
+ msPatrolNames();msSkipButton();
+ // (the flight's 再開始 and もう一度 would give back every hit and every lost escort)
+ for (const rs of $$('#trialHud [data-trial-cmd="reset"],#trialHud [data-trial-cmd="retry"]')) if (!rs.hidden) rs.hidden = true;
+}
+// In a system where an enemy fleet is, its pickets find the patrol soon.
+function msPatrolArrived(sys) {
+ const f = MS?.foes.find(x => x.sys === sys), P = trial.pat;if (!f || !P) return;
+ P.encAt = Math.min(P.encAt ?? Infinity, trial.t + 25 + Math.random() * 30);toast(`この星系には${msFoeName(f)}がいます — 哨戒中の敵艦が接近しています`);
+}
+// The enemy of a mission patrol drops out of hyperspace on the side of its own territory (a bearing in the frame E).
+function msPatrolBearing(E) {
+ const P = trial.msnPatrol;if (!P) return null;const d = msSideDir(trial.sysKey, P.foe, P.era);if (!d) return null;
+ const b = Math.atan2(d[0], -d[1]), up = tv.norm(trial.P);let nt = tv.add([0, 0, -1], up, -tv.dot([0, 0, -1], up));nt = tv.len(nt) > 1e-6 ? tv.norm(nt) : [1, 0, 0];
+ const et = tv.cross(nt, up), w = tv.add(tv.scale(nt, Math.cos(b)), et, Math.sin(b)), l = trialApplyT(E, w);
+ return Math.atan2(l[2], l[0]) + (Math.random() - .5) * .6;
+}
+function msSkipButton() {
+ const hud = $('#trialHud');if (!hud) return;let b = hud.querySelector('.th-skip');
+ const j = trial.jump, left = j && j.phase === 'tunnel' && j.end != null ? j.end - j.t : 0, on = !!trial.msnPatrol && left > 5;
+ if (!b) { if (!on) return; hud.insertAdjacentHTML('beforeend', '<button type="button" class="th-btn th-skip" data-msn="skip">スキップ<small>到着の数秒前まで進める</small></button>'); b = hud.querySelector('.th-skip'); }
+ b.hidden = !on;
+}
+function msSkip() { const j = trial.jump;if (!trial.msnPatrol || !j || j.phase !== 'tunnel' || j.end == null) return; const to = j.end - 3;if (j.t < to) j.t = to; msSkipButton(); }
+// trialStop, before the flight is cleared: what became of each ship, where the group is, how long it was out.
+function msPatrolCollect() {
+ const P = trial.msnPatrol;if (!P) return null;clearInterval(msUI.poll);
+ if (P.last != null && trial.t >= P.last) P.acc += trial.t - P.last;
+ const j = trial.jump;if (j && j.phase === 'tunnel' && !j.msnCounted) { j.msnCounted = true; P.tun += j.tunnel || 0; P.jumps++; }
+ const B = trial.battle;if (B?.b) { if (B.me) P.me = B.me; for (const u of B.b.units) if (u.esc?.oid) P.units[u.esc.oid] = u; }
+ if (P.lastB && P.lastB !== B) msPatrolFightEnd(P, P.lastB);if (B?.b) msPatrolFightEnd(P, B);
+ const me = P.me || trial.pat?.me || null, won = !B || msPatrolWon(B), flagFate = me?.dead ? 'sunk' : me?.out ? (won ? 'recovered' : 'lost') : null;
+ // Past the tunnel's mouth the group goes on to where it was bound; before it, the jump is called off.
+ const at = j && ['tunnel', 'exit', 'brake', 'arrive'].includes(j.phase) && SYSTEMS[j.dest] ? j.dest : trial.sysKey;
+ if (trial.pat) P.stats = {enc: trial.pat.enc, won: trial.pat.won, sunk: trial.pat.sunk + (B?.b ? B.b.units.filter(u => u.team === 1 && u.dead).length : 0), civLost: trial.pat.civLost};
+ return {P, me, flagFate, at};
+}
+function msPatrolDone(c) {
+ const st = MS, P = c.P;trial.msnPatrol = null;loadHide();if (GMAP.trial && P.mapEra && typeof gmSetEra === 'function') gmSetEra('trial', P.mapEra);if (!st) { showTitle('voyage'); return; }
+ const dt = Math.round(P.acc + P.tun);msAdvance(st, dt);
+ const sunk = [], lost = [], dock = [];
+ for (const id of [P.flag, ...P.escorts]) {
+  const f = msFindShip(st, id);if (!f) continue;const u = id === P.flag ? c.me : P.units[id], fate = id === P.flag ? c.flagFate : P.fates[id] || (u?.dead ? 'sunk' : null);
+  if (fate === 'sunk') { msRemoveShip(st, f); sunk.push(f.sh.name); continue; }
+  if (fate === 'lost') { msRemoveShip(st, f); lost.push(f.sh.name); continue; }
+  const secs = u ? msRepairSecs(u, fate === 'recovered' || !!u.out) : 0;if (secs > 0) { msDockShip(st, f.sh, secs); dock.push(`${f.sh.name}（${msDur(secs)}）`); }
+ }
+ const t = voyObTgs(st.ob).find(x => x.id === P.tg);if (t && SYSTEMS[c.at]) st.at[t.id] = c.at;
+ const s = P.stats || {enc: 0, won: 0, sunk: 0, civLost: 0};st.stats.patrols++;st.stats.jumps += P.jumps;st.stats.sunk += s.sunk || 0;st.stats.shipsLost += sunk.length + lost.length;
+ const lines = [`航行 ${msDur(dt)} · ジャンプ ${P.jumps} 回 · 交戦 ${s.enc || 0} 回（撃退 ${s.won || 0}）· 敵艦撃沈 ${s.sunk || 0}`];
+ if (sunk.length) lines.push(`撃沈された艦：${sunk.join('・')}`);if (lost.length) lines.push(`放棄した航行不能艦：${lost.join('・')}`);if (dock.length) lines.push(`ドック入り：${dock.join('・')}`);
+ if (s.civLost) lines.push(`民間船を撃沈 ${s.civLost} 隻（交戦規定違反）`);
+ if (t) lines.push(`${t.name}は${msSysName(c.at)}にいます`);
+ msLog(st, `${t?.name || '任務群'}がパトロールを終えて${msSysName(c.at)}に${sunk.length + lost.length ? `（${sunk.length + lost.length} 隻を失う）` : ''}`);
+ msUI.report = {title: 'パトロール終了', cls: sunk.length + lost.length ? 'lose' : '', lines, fresh: true};
+ st.active = null;msSave();msUI.tab = 'fleet';showTitle('msn');
+}
+
+// ---------- fleet battle ----------
+// Which unit of the battle is which ship of the fleet: Rts.createWorld makes them in the order of battle's order
+// (each task group's ships, then the small ships they carry); names confirm the pairing.
+function msTagUnits(w, ob, tgs) {
+ const pick = new Set(tgs.map(t => t.id)), order = [];
+ for (const c of ob.ctgs) for (const t of c.tgs) { if (!pick.has(t.id) || !t.ships.length) continue; for (const sh of t.ships) { const d = voyShipDesign(sh); if (d && w.designs.has(d.key)) order.push(sh); } }
+ const units = [...w.units.values()].filter(u => u.side === 0 && !u.carrier), used = new Set(), map = [];let k = 0;
+ for (const sh of order) {
+  let u = units.find(x => !used.has(x.id) && x.name === sh.name);if (!u) { while (k < units.length && used.has(units[k].id)) k++; u = units[k]; }
+  if (!u) continue;used.add(u.id);const e = {oid: sh.id, uid: u.id, carried: []}, d = voyShipDesign(sh), stw = d && voyHasStow(d) ? voyStow(sh, d) : null;
+  const idx = (sh.carried || []).map((x, i) => { const d2 = voyShipDesign(x); return d2 && w.designs.has(d2.key) && (!stw || stw.carried[i]?.embarked) ? i : null; }).filter(i => i != null), cu = [...w.units.values()].filter(x => x.carrier === u.id);
+  idx.forEach((i, n) => { if (cu[n]) e.carried.push({idx: i, uid: cu[n].id}); });map.push(e);
+ }
+ return map;
+}
+async function msBattleGo() {
+ const st = MS, f = st?.foes.find(x => x.id === msUI.foe);if (!f) return;
+ const tgs = msSortieTgs(st), ready = tgs.flatMap(msReadyShips);if (!ready.length) { toast('出撃できる艦がいません'); return; }
+ const eta = msSortieEta(st, tgs, f.sys), from = (() => { const n = {}; for (const t of tgs) { const k = msAt(st, t.id); n[k] = (n[k] || 0) + msReadyShips(t).length; } return Object.entries(n).sort((a, b) => b[1] - a[1])[0][0]; })();
+ hideTitle();voy.saves = await Store.list().catch(() => voy.saves || []);
+ // The ships ready now sail (one whose repair ends on the way stays behind); the clock runs on by the longest passage
+ // (the enemy fleet waits for them).
+ const pick = new Set(tgs.map(t => t.id)), obF = {ctgs: st.ob.ctgs.map(c => ({id: c.id, name: c.name, tgs: c.tgs.map(t => ({id: t.id, name: t.name, formation: t.formation, ships: pick.has(t.id) ? t.ships.filter(sh => !sh.dock && voyShipDesign(sh)) : []}))}))};
+ msAdvance(st, eta, f.id);for (const t of tgs) st.at[t.id] = f.sys;
+ const sortie = voyObTgs(obF).filter(t => pick.has(t.id) && t.ships.length), foeOb = msFoeOrbat(f);
+ const own = voyBattleOrbat(obF, sortie, st.faction), enemy = voyBattleOrbat(foeOb, voyObTgs(foeOb), f.faction);
+ const keys = [...new Set([own, enemy].flatMap(o => o.ctgs.flatMap(c => c.tgs.flatMap(t => t.ships.flatMap(x => [x.design, ...(x.carried || []).map(y => y.design)])))))], designs = keys.map(voyDesign).filter(Boolean).map(d => ({key: d.key, name: d.name, p: d.p, info: d.info}));
+ const seed = (Math.random() * 1e6) | 0, sector = R.makeSector(f.sys, seed), ownStart = from !== f.sys ? msOwnStart(sector, msWayDir(f.sys, from)) : null;
+ if (ownStart != null) sector.starts = {...(sector.starts || {}), [st.faction]: ownStart};
+ const w = R.createWorld({sector, seed, region: f.sys, era: st.era, designs, sides: [{faction: st.faction, ai: false}, {faction: f.faction, ai: true}], fleets: [own, enemy]});w.onHit = voyOnHit;
+ msUI.battle = {foe: f.id, sys: f.sys, map: msTagUnits(w, obF, sortie), tgs: [...pick], eta, foeName: msFoeName(f)};
+ st.active = {kind: 'battle', foe: f.id, tgs: [...pick], t: st.t};msSave();
+ voy.w = w;voy.speed = 4;voy.seenEv = 0;voy.notes = [];voy.sel = {group: null, ctg: null, sys: null, dest: null, units: [], wing: null, foe: null};voy.cmd = null;voy.ops.fitted = false;voy.tac = {sys: null, c: [0, 0], mpp: 300, fitted: false};voy.result = null;voy.resultDismissed = false;
+ voyOpen('ops', undefined, {st, setup: msSetupFor(st), battle: true});
+ const first = [...w.ctgs.values()].find(c => c.side === 0);if (first) voy.sel.ctg = first.id;
+ voyShow('ops');const side = msSideName(f.sys, f.faction, st.era);
+ voyNote(`任務：${w.sector.name}で${msFoeName(f)}と交戦。${eta ? `${msDur(eta)}の航行ののち、` : ''}敵は勢力圏の側${side ? `（${side}）` : ''}から宙域に入っているとみられます。位置は不明です。`);
+ if (voyCan3D()) voyEnter3D().then(ok => { if (ok) toast('「命令」で作戦図・戦術図を開いて命令します'); voyWarm(keys); });else voyWarm(keys);
+}
+// The fleet battle's result sheet and its 終了 sheet in a mission: back to the galaxy map, the outcome settled.
+function msBattleSheet(el, res) {
+ const acts = el.querySelector('.vs-acts'), w = voy.w;if (!acts || !msUI.battle) return;
+ if (res) { acts.innerHTML = `<button type="button" class="btn primary" data-msn="bdone">銀河図へ戻る（戦果を確定）</button><button type="button" class="btn ghost" data-vresult="stay">${voy3D() ? '3D視点で戦場を見る' : '戦場を見る'}</button>`; return; }
+ const done = !!w?.result, h = el.querySelector('h3'), p = el.querySelector('.note');
+ if (h) h.textContent = done ? '銀河図へ戻りますか？' : '撤退しますか？';
+ if (p) p.textContent = done ? '戦果を確定して銀河図に戻ります。' : '戦場を離れて銀河図に戻ります。航行不能の艦は、敵のいる星系に残っていれば放棄されます。ほかの艦は損傷に応じてドックに入ります。';
+ acts.innerHTML = `<button type="button" class="btn primary" data-msn="${done ? 'bdone' : 'bquit'}">${done ? '銀河図へ戻る' : '撤退して銀河図へ'}</button><button type="button" class="btn ghost" data-vq="no">続ける</button>`;
+}
+function msBattleExit(how) { const w = voy.w;$('#voySheet').hidden = true;voyStop3D();voy.orders = false;msBattleDone(w, how);voy.w = null;voy.result = null;voyClose();msUI.tab = 'fleet';showTitle('msn'); }
+function msAddPrize(st, u) {
+ const d = voyDesign(u.design);if (!d) return null;
+ let c = st.ob.ctgs.find(x => x.prize);if (!c) { c = {id: voyUid(st.ob), name: '拿捕艦隊', prize: true, tgs: []}; st.ob.ctgs.push(c); }
+ let t = c.tgs.find(x => x.ships.length < TG_MAX);if (!t) { t = {id: voyUid(st.ob), name: `拿捕艦群${c.tgs.length + 1}`, formation: 'column', ships: []}; c.tgs.push(t); st.at[t.id] = st.home; }
+ const used = new Set(voyObShips(st.ob).map(x => x.name)), name = used.has(u.name) ? voyNextName(st.faction, used) : u.name;
+ const sh = {id: voyUid(st.ob), src: d.key, key: d.key, name, air: [], carried: [], ground: [], born: st.t, tg: t.id, tgAt: msAt(st, t.id), prize: true};
+ msDockShip(st, sh, msRepairSecs(u, true) + Math.round(MS_RULES.refit * msSizeK(d.info.len)), 'refit');t.ships.push(sh);return sh;
+}
+function msBattleDone(w, how) {
+ const st = MS, b = msUI.battle;msUI.battle = null;if (!st || !b || !w) return;
+ const f = st.foes.find(x => x.id === b.foe), r = w.result, win = r?.winner === 0, lose = r?.winner === 1;
+ msAdvance(st, Math.round(w.time || 0), b.foe);
+ const enemyIn = sys => sys != null && R.systemUnits(w, sys).some(x => x.side === 1 && R.fighting(x));
+ const sunk = [], taken = [], lost = [], dock = [], prizes = [];
+ for (const e of b.map) {
+  const g = msFindShip(st, e.oid);if (!g) continue;const u = w.units.get(e.uid), sh = g.sh;
+  const fate = !u || u.dead ? 'sunk' : u.side !== 0 ? 'captured' : u.status === 'rear' ? 'rear' : u.out ? (win || !enemyIn(u.sys) ? 'recovered' : 'lost') : 'ok';
+  if (fate === 'sunk') { msRemoveShip(st, g); sunk.push(sh.name); continue; }
+  if (fate === 'captured') { msRemoveShip(st, g); taken.push(sh.name); continue; }
+  if (fate === 'lost') { msRemoveShip(st, g); lost.push(sh.name); continue; }
+  // Small ships it carried: gone with it if sunk, taken or left disabled with the enemy.
+  const drop = e.carried.filter(c => { const x = w.units.get(c.uid); return !x || x.dead || x.side !== 0 || x.out && !win && enemyIn(x.sys); }).map(c => c.idx).sort((p, q) => q - p);
+  for (const i of drop) { const x = sh.carried?.[i]; if (x) { sunk.push(x.name); sh.carried.splice(i, 1); } }
+  const secs = msRepairSecs(u, fate !== 'ok');if (secs > 0) { msDockShip(st, sh, secs); dock.push(`${sh.name}（${msDur(secs)}）`); }
+ }
+ for (const u of w.units.values()) if (u.captured && u.side === 0 && (u.origSide ?? 1) === 1 && !u.dead) { const p = msAddPrize(st, u); if (p) prizes.push(p.name); }
+ const foeUs = [...w.units.values()].filter(u => (u.origSide ?? u.side) === 1), foeSunk = foeUs.filter(u => u.dead).length;
+ let foeLine = '';
+ if (f) { const s1 = w.sides[1], frac = s1.initial > 0 ? (s1.now ?? s1.initial) / s1.initial : 1;
+  if (win || frac < .2) { st.foes = st.foes.filter(x => x !== f); foeLine = `${msFoeName(f)}は壊滅しました`; }
+  else { f.k = Math.max(.15, f.k * frac); foeLine = `${msFoeName(f)}は戦力の約 ${Math.round(frac * 100)}% を残して${msSysName(f.sys)}にとどまっています`; } }
+ st.stats.battles++;if (win) st.stats.won++;else if (lose) st.stats.lost++;else st.stats.drawn++;st.stats.sunk += foeSunk;st.stats.captured += prizes.length;st.stats.shipsLost += sunk.length + taken.length + lost.length;
+ const title = win ? '勝利' : lose ? '敗北' : r ? '痛み分け' : '撤退';
+ const lines = [`${msSysName(b.sys)}宙域 · 戦闘 ${msDur(w.time || 0)}${b.eta ? `（進出 ${msDur(b.eta)}）` : ''} · 敵艦撃沈 ${foeSunk}${prizes.length ? ` · 拿捕 ${prizes.length}` : ''}`];
+ if (foeLine) lines.push(foeLine);if (sunk.length) lines.push(`撃沈された艦：${sunk.join('・')}`);if (taken.length) lines.push(`拿捕された艦：${taken.join('・')}`);if (lost.length) lines.push(`放棄した航行不能艦：${lost.join('・')}`);
+ if (dock.length) lines.push(`ドック入り：${dock.join('・')}`);if (prizes.length) lines.push(`拿捕艦（改装ののち加入）：${prizes.join('・')}`);
+ msLog(st, `${msSysName(b.sys)}で${b.foeName}と交戦：${title}（撃沈 ${foeSunk}・損失 ${sunk.length + taken.length + lost.length}）`);
+ msUI.report = {title: `艦隊戦 · ${title}`, cls: win ? 'win' : lose || how === 'withdraw' ? 'lose' : '', lines, fresh: true};
+ st.active = null;msSave();
+}
+
+// ---------- input ----------
+document.addEventListener('click', e => {
+ const b = e.target.closest?.('[data-msn]');if (!b || b.disabled) return;const a = b.dataset.msn;
+ if (a === 'skip') { e.preventDefault(); msSkip(); return; }
+ if (a === 'new') { msNewClick(b); return; }
+ if (a === 'continue') { msContinue(); return; }
+ if (a === 'auto') { const st = MS; if (!st || st.started) return; st.ob = msStartFleet(st.faction); st.at = {}; msSetupFor(st).sel = {}; voyObChanged(); return; }
+ if (a === 'edit-done') { msEditDone(); return; }
+ if (a === 'edit-back') { msSave(); $('#voySheet').hidden = true; voyClose(); showTitle('voyage'); return; }
+ if (a === 'bdone' || a === 'bquit') { msBattleExit(a === 'bdone' ? 'done' : 'withdraw'); return; }
+ if (!MS) return;
+ if (a === 'title') { titleState.panel = null; renderTitle(); return; }
+ if (a.startsWith('tab:')) { const k = a.slice(4); msUI.tab = msUI.tab === k ? 'fleet' : k; msUI.sel = null; msSideRender(); const gs = GMAP.msn, at = msUI.tab === 'battle' ? gs?.sel : gs?.cur; if (at) gmCenter('msn', at); return; }
+ if (a === 'orbat') { msOpenEditor(); return; }
+ if (a === 'report-close') { msUI.report = null; msSideRender(); return; }
+ if (a === 'unsel') { msUI.sel = null; msSideRender(); return; }
+ if (a.startsWith('tg:')) { msUI.tg = a.slice(3); msSideRender(); const t = voyObTgs(MS.ob).find(x => x.id === msUI.tg); if (t) gmCenter('msn', msAt(MS, t.id)); return; }
+ if (a.startsWith('tgp:')) { msUI.tab = 'patrol'; msUI.tg = a.slice(4); msSideRender(); const t = voyObTgs(MS.ob).find(x => x.id === msUI.tg); if (t) gmCenter('msn', msAt(MS, t.id)); return; }
+ if (a.startsWith('foe:')) { msUI.tab = 'battle'; msUI.foe = a.slice(4); msSideRender(); const f = MS.foes.find(x => x.id === msUI.foe); if (f) gmCenter('msn', f.sys); return; }
+ if (a === 'patrol') { msPatrolStart(); return; }
+ if (a === 'go') { msBattleGo(); return; }
+ if (a.startsWith('wait:')) { msWait(a.slice(5) === 'dock' ? 'dock' : '6h'); return; }
+});
+document.addEventListener('change', e => {
+ const t = e.target;if (!t?.dataset) return;
+ if ('msnfac' in t.dataset) { msSetFaction(t.value); return; }
+ if (t.dataset.msnpick) { msUI.pick[t.dataset.msnpick] = t.checked; msSideRender(); }
+});
+// (tests) the mission from outside
+window.__msn = {get st() { return MS; }, ui: msUI, save: msSave, advance: (dt, keep) => { if (MS) { msAdvance(MS, dt, keep); msSave(); msScreenRender(); } }, spawn: () => MS && msSpawnFoe(MS), repairSecs: msRepairSecs, damage: msDamageOf, jumpSecs: msJumpSeconds, owners: msOwners, side: msSideDir, ownStart: msOwnStart, reload: () => { msLoaded = false; msLoading = null; MS = null; msLoad(); return msLoading; }, flush: () => msWrite()};
 
 window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
 })();
