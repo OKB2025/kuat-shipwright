@@ -1931,6 +1931,9 @@ st.group='power';st.structPlate=false;st.structLight=false;st.structPlateT=1;st.
 for(const k of PART_KEYS){if(st.size[k]==null)st.size[k]=C.PARTS[k].def||40;if(!st.placeBy[k])st.placeBy[k]='inside';}
 let ship = null, S = null, prevS = null, view = null, bounds = [0, 0, 0, 1, 1, 1];
 const undoStack = [], redoStack = [];
+// Every edit of one design shares its save identity, including edits made
+// before its first save. Loading another design starts a separate identity.
+let designHistory = null;
 let lastOp = '', dragSnap = null, dragLabel = '';
 
 // ---------- view / rendering ----------
@@ -2070,11 +2073,19 @@ function refreshDerivedPanel() {
   const it = selItem();
   if (['systems', 'launch'].includes(st.tab) || ((st.tab === 'mod' || st.tab === 'edit' && selSingle()) && it && st.sel?.list === 'parts' && (it.k === 'hangar' || it._packingGroup || C.isInternal(it))) || ((armMode() || st.tab === 'edit' && selSingle()) && st.sel?.list === 'fits')) renderPanel();
 }
+function onEngineRestart() {
+  // The failed worker cannot finish its last update. Rebuild the inline
+  // engine from the current design, including edits made while it was busy.
+  eng.mode = YardEngineClient.mode; eng.waiting = false; eng.reset = true;
+  eng.sentGen = -1;
+  if (ship) touch('all'); else engineStatus();
+}
 function engineHello(mode) {
   eng.mode = mode; eng.ready = true;
   YardEngineClient.on('geometry', onEngineGeometry);
   YardEngineClient.on('stats', onEngineStats);
   YardEngineClient.on('error', onEngineError);
+  YardEngineClient.on('restart', onEngineRestart);
   kickEngine(); engineStatus();
 }
 // ---------- live preview ----------
@@ -2308,7 +2319,8 @@ const CAMS = {iso: [0.85, 1.02], top: [Math.PI / 2, 0.0006], side: [Math.PI / 2,
 // ---------- ship lifecycle & history ----------
 function setShip(s, opts) {
   if(fleet.mode!=='design')fleetSetMode('design');
-  if(ship && !(opts&&opts.keepHistory)){undoStack.push(snap());if(undoStack.length>60)undoStack.shift();redoStack.length=0;}
+  if(ship && !(opts&&opts.keepHistory)){undoStack.push(historySnapshot());if(undoStack.length>60)undoStack.shift();redoStack.length=0;}
+  designHistory = {saveId: s.saveId};
   if (s.retiredRooms) { const n = s.retiredRooms; delete s.retiredRooms; setTimeout(() => toast(`居住区・兵員室 ${n} 区画を外しました（v19 から乗員と兵員は船内の空き容積に乗ります）`), 400); }
   if (s.vehicleBays) { const n = s.vehicleBays; delete s.vehicleBays; setTimeout(() => toast(`車両格納区画 ${n} 区画を機体格納の格納区画に変えました（v20 から車両は航空機と同じ格納庫に寸法で入ります。ハッチか、ハッチにつながる格納区画に接するようにしてください）`), 700); }
   ship = s; s._client = true; S = null; prevS = null; st.sel = null; st.multi = {parts: new Set(), fits: new Set()}; st.hatchA = null; resetSolidCutter();
@@ -2320,13 +2332,16 @@ function setShip(s, opts) {
   hideInspect(); updateName(); renderPanel(); scheduleStats(0); updateUndo(); autosave();
 }
 function snap() { return JSON.stringify(C.serialize(ship)); }
-function restore(json) {
+function historySnapshot(state = snap()) { return {state, identity: designHistory}; }
+function restore(entry) {
   // Undo keeps the editor's objects (and their caches) and patches the design.
+  const json = typeof entry === 'string' ? entry : entry.state;
+  if (typeof entry !== 'string') designHistory = entry.identity;
   const s = C.deserialize(JSON.parse(json)), src = JSON.parse(C.publicJSON(s));
-  if (ship.saveId != null) src.saveId = ship.saveId;
+  if (designHistory?.saveId != null) src.saveId = designHistory.saveId;
   C.patchShip(ship, src); ship._client = true; reconcileSolidCutter();
   const sel = st.sel; st.sel = sel && findSel(sel) ? sel : null; st.hatchA = null;
-  touch('all'); hideInspect(); renderPanel(); scheduleStats(60); updateUndo(); autosave();
+  touch('all'); hideInspect(); updateName(); renderPanel(); scheduleStats(60); updateUndo(); autosave();
 }
 function mutate(label, fn, what, opts) {
   const before = snap();
@@ -2335,18 +2350,18 @@ function mutate(label, fn, what, opts) {
   if (snap() === before) { if (!(opts && opts.silent)) toast(typeof res === 'string' ? res : '変化はありません'); return false; }
   sndEdit(label);
 
-  undoStack.push(before); if (undoStack.length > 60) undoStack.shift(); redoStack.length = 0;
+  undoStack.push(historySnapshot(before)); if (undoStack.length > 60) undoStack.shift(); redoStack.length = 0;
   lastOp = label; touch(what || 'all'); scheduleStats(opts && opts.quiet ? -1 : 60); updateUndo(); autosave();
   return res == null ? true : res;
 }
 function beginDrag(label) { if (!dragSnap) { dragSnap = snap(); dragLabel = label; } }
 function endDrag() {
   if (!dragSnap) return;
-  if (snap() !== dragSnap) { undoStack.push(dragSnap); if (undoStack.length > 60) undoStack.shift(); redoStack.length = 0; lastOp = dragLabel; scheduleStats(30); updateUndo(); autosave(); }
+  if (snap() !== dragSnap) { undoStack.push(historySnapshot(dragSnap)); if (undoStack.length > 60) undoStack.shift(); redoStack.length = 0; lastOp = dragLabel; scheduleStats(30); updateUndo(); autosave(); }
   dragSnap = null;
 }
-function undo() { if (!undoStack.length) return; redoStack.push(snap()); lastOp = '元に戻す'; restore(undoStack.pop()); }
-function redo() { if (!redoStack.length) return; undoStack.push(snap()); lastOp = 'やり直し'; restore(redoStack.pop()); }
+function undo() { if (!undoStack.length) return; redoStack.push(historySnapshot()); lastOp = '元に戻す'; restore(undoStack.pop()); }
+function redo() { if (!redoStack.length) return; undoStack.push(historySnapshot()); lastOp = 'やり直し'; restore(redoStack.pop()); }
 function updateUndo() { $('#btnUndo').disabled = !undoStack.length; $('#btnRedo').disabled = !redoStack.length; }
 function updateName() { const el = $('#shipName'); el.textContent = ship.name; el.setAttribute('aria-label', T('艦名と設計図')); }
 // Performance figures arrive from the engine after each edit settles.
@@ -3145,7 +3160,7 @@ async function fillHangarsRemote() {
     const r = await YardEngineClient.request('op', {gen: eng.gen, state: C.publicJSON(ship), op: 'fillHangars', args: [st.size.hangar, st.fill[0], st.fill[1], st.mirror]});
     if (!r.result) { hideBusyOverlay(); toast('空きが見つかりませんでした'); return; }
     C.patchShip(ship, JSON.parse(r.state)); ship._client = true;
-    undoStack.push(before); if (undoStack.length > 60) undoStack.shift(); redoStack.length = 0;
+    undoStack.push(historySnapshot(before)); if (undoStack.length > 60) undoStack.shift(); redoStack.length = 0;
     lastOp = '格納庫を自動充填'; touch('parts'); scheduleStats(60); updateUndo(); autosave();
     toast(`格納庫を ${r.result} 個並べました`); renderPanel();
   } catch (e) { console.error(e); hideBusyOverlay(); toast('自動充填できませんでした：' + esc(e.message || '')); }
@@ -3218,13 +3233,16 @@ const Store = {
 async function saveCurrent() {
   if (!S) return;
   const btn = $('#btnSave'); btn.disabled = true;
+  const identity = designHistory, stats = S;
   try {
-    const data = await pack(C.serialize(ship));
+    const design = C.serialize(ship);
+    const data = await pack(design);
     if (data.length > 2000000) throw new Error('設計が大きすぎて保存できません。書き出しを使ってください。');
-    const id = ship.saveId || ('ship-' + Date.now().toString(36));
-    const where = await Store.save({id, kind: 'ship', name: ship.name, savedAt: Date.now(), cls: S.cls.role + '／' + S.cls.name, len: Math.round(S.hullLen), data});
+    const id = identity.saveId || ('ship-' + Date.now().toString(36));
+    const where = await Store.save({id, kind: 'ship', name: design.name, savedAt: Date.now(), cls: stats.cls.role + '／' + stats.cls.name, len: Math.round(stats.hullLen), data});
     st.carrySaves = null;
-    ship.saveId = id;
+    identity.saveId = id;
+    if (designHistory === identity) ship.saveId = id;
     toast(where === 'cloud' ? '保存しました（あなたのアカウント）' : '保存しました（この端末）');
     renderSaves();
   } catch (e) { toast(esc(e.message || '保存できませんでした')); }
@@ -7261,20 +7279,25 @@ const fleetCanRefit=()=>fleet.mode==='review'||fleet.battle?.phase==='plan'&&fle
 function fleetHash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0).toString(36);}
 // A source is 'current', 'save:<id>' or an example key; a prepared design is also
 // asked for again by its asset key ('save:<id>-<savedAt>', 'draft-<hash>'), as the
-// voyage does for its 3D view. Saved designs are found in the fleet's or the
-// voyage's list of saves, or read from the store; a design saved again since it
-// was prepared is served from its latest save under the old key as well.
+// voyage does for its 3D view. Mutable save references read the current store;
+// versioned keys keep their original snapshots even after a design is edited.
+// Legacy persisted fleets only kept a versioned reference, so a missing old
+// snapshot may still resolve to that save's current version after a reload.
 function findSave(list,source){const id=source.slice(5),a=list||[];return a.find(r=>r.id===id)||a.find(r=>source==='save:'+r.id+'-'+r.savedAt)||a.find(r=>source.startsWith('save:'+r.id+'-')&&/^\d+$/.test(source.slice(6+r.id.length)))||null;}
-async function fleetAsset(source){
- if(fleet.assets.has(source))return fleet.assets.get(source);
- let payload=null,key=source,alias=null;
+async function fleetAsset(source,persisted=null){
+ if(source!=='current'&&fleet.assets.has(source)&&(!persisted||fleet.assets.get(source).key===source))return fleet.assets.get(source);
+ let payload=null,key=source,snapshot=persisted,legacyAlias=null;
+ try{const d=voy.designs.get(source);if(!snapshot&&d?.key===source)snapshot=d.design;}catch(e){}
  if(source==='current'){const data=C.serialize(ship);key='draft-'+fleetHash(JSON.stringify(data));payload={design:data};}
+ else if(snapshot)payload={design:snapshot};
  else if(source.startsWith('save:')){
-  let vs=null;try{vs=voy.saves;}catch(e){}
-  let rec=findSave(fleet.saves,source)||findSave(vs,source);
-  if(!rec){try{const all=await Store.list();fleet.saves=all;rec=findSave(all,source);}catch(e){}}
+  let all;
+  try{all=await Store.list();fleet.saves=all;try{voy.saves=all;}catch(e){}}
+  catch(e){let vs=[];try{vs=voy.saves||[];}catch(err){}const latest=new Map();for(const r of [...(fleet.saves||[]),...vs])if(!latest.has(r.id)||(r.savedAt||0)>(latest.get(r.id).savedAt||0))latest.set(r.id,r);all=[...latest.values()];}
+  const rec=findSave(all,source);
   if(!rec)throw new Error('保存艦が見つかりません');
-  key='save:'+rec.id+'-'+rec.savedAt;if(source!==key&&source!=='save:'+rec.id)alias=source;
+  key='save:'+rec.id+'-'+rec.savedAt;
+  if(source!==key&&source!=='save:'+rec.id)legacyAlias=source;
   if(!fleet.assets.has(key))payload={design:await unpack(rec.data)};
  }
  else if(source.startsWith('draft-')){const data=C.serialize(ship);if('draft-'+fleetHash(JSON.stringify(data))!==source)throw new Error('作業中の設計が変わったため、この艦の3Dモデルを準備できません');payload={design:data};}
@@ -7282,11 +7305,14 @@ async function fleetAsset(source){
  else if(/^[A-Za-z0-9_]+#(republic|neutral|dark|cis)$/.test(source)){if(!fleet.assets.has(key)){const [k0,paint]=source.split('#');payload={key:k0,paint};}}
  else if(!fleet.assets.has(key))payload={key:source};
  let asset=fleet.assets.get(key);
+ if(snapshot&&asset?.key!==key)asset=null;
  if(!asset){
   // Stats and meshes for fleet ships are prepared by the engine in the background.
-  const r=await YardEngineClient.request('fleet',payload);asset={key,design:r.design,stats:r.stats,p:r.profile,geometry:r.geometry};if(view)view.loadFleet(key,r.geometry);fleet.assets.set(key,asset);
+  const pending=fleet.pending||(fleet.pending=new Map());let job=pending.get(key);
+  if(!job){job=(async()=>{const r=await YardEngineClient.request('fleet',payload),a={key,design:r.design,stats:r.stats,p:r.profile,geometry:r.geometry};if(view)view.loadFleet(key,r.geometry);fleet.assets.set(key,a);return a;})();pending.set(key,job);}
+  try{asset=await job;}finally{if(pending.get(key)===job)pending.delete(key);}
  }
- if(alias){fleet.assets.set(alias,asset);if(view)view.loadFleet(alias,asset.geometry);}
+ if(legacyAlias){fleet.assets.set(legacyAlias,asset);if(view)view.loadFleet(legacyAlias,asset.geometry);}
  return asset;
 }
 async function fleetAdd(source=fleet.source,team=fleet.team){
@@ -8129,17 +8155,23 @@ function voyExampleDesigns() {
 }
 function voyDesign(key) { const d = voy.designs.get(key);if (d) return d;const m = /^([A-Za-z0-9_]+)#(republic|neutral|dark|cis)$/.exec(key || '');if (!m) return null;const b = voy.designs.get(m[1]);return b ? voyRegister({...b, key, base: b.key, paint: m[2], faction: Object.entries(VOY_PAINT[b.key] || {}).find(([, p]) => p === m[2])?.[0] || b.faction}) : null; }
 function voyRegister(d) { voy.designs.set(d.key, d); return d; }
-async function voyPrepare(source) {
+async function voyPrepare(source, snapshot = null) {
  // source: 'current' | 'save:<id>' | example key
- if (voy.designs.has(source)) return voy.designs.get(source);
- if (voy.pending.has(source)) return voy.pending.get(source);
+ const cached=voy.designs.get(source);
+ if (source!=='current'&&cached?.key===source) return cached;
+ // Resolve mutable references on every request. Only immutable asset keys are
+ // cached, so a slower old request cannot replace a newer current/save alias.
+ const a = await fleetAsset(source, snapshot), key = a.key;
+ if (voy.designs.has(key)) return voy.designs.get(key);
+ if (voy.pending.has(key)) return voy.pending.get(key);
  const job = (async () => {
-  const a = await fleetAsset(source), S = a.stats, p = a.p;
+  const S = a.stats, p = a.p;
   const df = C.DESIGN_FACTIONS[a.design?.faction] && a.design.faction !== 'any' ? a.design.faction : null;
   const d = {key: a.key, name: p.name || S.name || '設計艦', faction: df || voy.setup?.own || 'empire', anyFaction: !df, side: '自作艦', cls: S.cls?.name || '', p, info: R.designInfo(S, p), air: a.design?.airWings || [], ground: a.design?.groundForces || [], src: source.startsWith('save:') ? 'save' : source === 'current' ? 'current' : 'example'};
-  voy.designs.set(source, d);voy.designs.set(a.key, d);return d;
+  if(source==='current'||source.startsWith('save:')||source.startsWith('draft-'))d.design=a.design;
+  voy.designs.set(key, d);return d;
  })();
- voy.pending.set(source, job);try { return await job; } finally { voy.pending.delete(source); }
+ voy.pending.set(key, job);try { return await job; } finally { if(voy.pending.get(key)===job)voy.pending.delete(key); }
 }
 const voyShort = n => String(n || '').split('｜')[0];
 
@@ -8193,7 +8225,7 @@ function voyRenameCis(d) {
  }
  return n > 0;
 }
-function voyOrbatSave() { if (voy.msn) { msSave(); return; } if (voy.orbat) LS.set(ORBAT_KEY, JSON.stringify(voy.orbat)); }
+function voyOrbatSave() { if (voy.msn) { msSave(); return; } if (voy.orbat) { for(const ob of Object.values(voy.orbat.factions))voySnapshotDesigns(ob);LS.set(ORBAT_KEY, JSON.stringify(voy.orbat)); } }
 function voyOb(f) {
  if (voy.msn) return voy.msn.st.ob;   // v23 the mission's own fleet while its screens are open
  voy.orbat = voy.orbat || voyOrbatLoad();let ob = voy.orbat.factions[f];
@@ -8201,6 +8233,18 @@ function voyOb(f) {
  return ob;
 }
 const voyObShips = ob => ob.ctgs.flatMap(c => c.tgs.flatMap(t => t.ships));
+function voyAllShips(ob) {
+ const out=[],seen=new Set(),queue=voyObShips(ob).slice();
+ for(let i=0;i<queue.length;i++){const sh=queue[i];if(!sh||seen.has(sh))continue;seen.add(sh);out.push(sh);queue.push(...(sh.carried||[]));}
+ return out;
+}
+// Keep one immutable custom-design snapshot per referenced key, including
+// carried ships. The same catalog is persisted in custom fleets and missions.
+function voySnapshotDesigns(ob) {
+ const prior=ob.designs||{},designs={};
+ for(const sh of voyAllShips(ob)){const key=sh.key||sh.src;if(!/^(draft-|save:)/.test(key||''))continue;const d=voy.designs.get(key),a=fleet.assets.get(key),data=d?.design||(a?.key===key?a.design:null)||prior[key];if(data?.format==='starship-yard')designs[key]=data;}
+ if(Object.keys(designs).length)ob.designs=designs;else delete ob.designs;
+}
 const voyObTgs = ob => ob.ctgs.flatMap(c => c.tgs);
 const voyUid = ob => (ob.next = (ob.next || 1) + 1, 'o' + ob.next);
 // A copy of a ship of the order of battle: its class and everything aboard, a new id and name.
@@ -8230,7 +8274,9 @@ function voyAutoGround(d, faction) { return R.canonGround(d.ground, faction, R.t
 function voyAutoLoad(d, faction) { return {air: R.defaultAir(d.info, faction, d.air), carried: voyDefaultCarried(d), ground: voyAutoGround(d, faction)}; }
 function voyDefaultCarried(d) { const out = []; for (const r of d.air || []) { if (r.kind !== 'ship') continue; const d2 = voyDesign(r.ref); if (!d2 || !voyCarryFit(d, d2).ok) continue; for (let i = 0; i < Math.min(12, r.count || 0); i++) out.push({src: d2.key, key: d2.key, name: `${voyShort(d2.name)} ${out.length + 1}`}); } return out; }
 async function voyEnsureDesigns(ob) {
- const miss = voyObShips(ob).filter(sh => !voyShipDesign(sh));if (!miss.length) return;
+ const ships=voyAllShips(ob),snapshots=ob.designs||{},keys=[...new Set(ships.filter(sh=>!voyShipDesign(sh)&&Object.hasOwn(snapshots,sh.key)).map(sh=>sh.key))];
+ for(const key of keys){try{await voyPrepare(key,snapshots[key]);}catch(e){console.warn('snapshot not ready',key,e.message);}}
+ const miss = ships.filter(sh => !voyShipDesign(sh));if (!miss.length) { if(voy.screen==='setup')voyRenderSetup();return; }
  for (const src of [...new Set(miss.map(sh => sh.src))]) { try { const d = await voyPrepare(src); for (const sh of miss) if (sh.src === src) sh.key = d.key; } catch (e) { console.warn('design not ready', src, e.message); } }
  if (voy.screen === 'setup') voyRenderSetup();
 }
@@ -11093,7 +11139,7 @@ function msNormalize(st) {
 // Saving: the state is brought up to date at once; it is written a moment later (one write for a burst of edits).
 let msSaveT = 0, msWriting = false;
 function msSave() {
- const st = MS;if (!st) return;msNormalize(st);st.savedAt = Date.now();
+ const st = MS;if (!st) return;msNormalize(st);voySnapshotDesigns(st.ob);st.savedAt = Date.now();
  clearTimeout(msSaveT);msSaveT = setTimeout(msWrite, 200);msCloudPush();
 }
 async function msWrite() {

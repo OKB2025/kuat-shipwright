@@ -2192,7 +2192,7 @@ class CompatRenderer {
   this.resize();const w=this.canvas.width,h=this.canvas.height,ctx=this.ctx,m=this.matrices();
   const image=ctx.createImageData(w,h),pixels=image.data,depth=new Float32Array(w*h);depth.fill(Infinity);
   for(let y=0;y<h;y++){const t=y/h;for(let x=0;x<w;x++){const k=(y*w+x)*4;pixels[k]=Math.round(10-4*t);pixels[k+1]=Math.round(17-5*t);pixels[k+2]=Math.round(25-7*t);pixels[k+3]=255;}}
-  this._frame={w,h,m,pixels,depth};
+  this._frame={w,h,m,pixels,depth,hidden:opt.fleet?null:opt.hidden,meshScale:opt.fleet?null:opt.meshScale};
   const external=['hull','struct','plate','refHull','refStruct','refHatches','gen','shield','hyper','engine','refEngine','nozzle','hangar','fits','refFits','hatchOpen','hatchRay','preview','previewRef','previewFits','previewRefFits'];
   const inside=['keel','plant','refPlant','interior'];
   if(opt.fleet){for(const unit of opt.fleet){if(unit.dead)continue;const a=this.fleetCache.get(unit.key);if(!a)continue;for(const name of external)this.rasterMesh(a.meshes[name]?.geo,name,name==='hatchRay'?.5:1,null,{off:unit.pos,center:a.center,yaw:unit.yaw||0,rot:unit.rot||null});for(const e of a.extra||[])this.rasterMesh(e.geo,e.name.startsWith('ref')?'refFits':'hull',1,null,{off:unit.pos,center:a.center,yaw:unit.yaw||0,rot:unit.rot||null});const R=unit.rot||yawMatrix(unit.yaw||0);for(const t of unit.turrets||[]){const v=[t.pivot[0]-a.center[0],t.pivot[1]-a.center[1],t.pivot[2]-a.center[2]];this.rasterMesh(a.meshes[t.mesh]?.geo,t.mesh.startsWith('ref')?'refFits':'fits',1,null,{off:[unit.pos[0]+R[0]*v[0]+R[3]*v[1]+R[6]*v[2],unit.pos[1]+R[1]*v[0]+R[4]*v[1]+R[7]*v[2],unit.pos[2]+R[2]*v[0]+R[5]*v[1]+R[8]*v[2]],center:t.pivot,rot:mat3Mul(R,t.rot)});}for(const t of unit.targets||[])this.rasterMesh(a.meshes.trialTarget?.geo,'fits',1,null,{off:t.pos,center:[0,0,0],rot:t.rot||MAT3_I});}}
@@ -2209,10 +2209,14 @@ class CompatRenderer {
   delete this._frame;this.frames++;return true;
  }
  rasterMesh(g,name,alpha,clip,transform){
-  if(!g?.ni)return;const colScale=REFERENCE_SHADED.has(name)||name==='refEngine'?2:1;const {w,h,m,pixels,depth}=this._frame,off=transform?.off||this.off,center=transform?.center||[0,0,0],R=transform?.rot||yawMatrix(transform?.yaw||0),M=m.VP;
+  if(!g?.ni)return;const colScale=REFERENCE_SHADED.has(name)||name==='refEngine'?2:1;const {w,h,m,pixels,depth}=this._frame,off=transform?.off||this.off,center=transform?.center||[0,0,0],R=transform?.rot||yawMatrix(transform?.yaw||0),M=m.VP,scale=this._frame.meshScale?.[name]||[1,1,1],hidden=this._frame.hidden?.[name]||[];
   const projected=new Float32Array(g.n*4);
-  for(let i=0;i<g.n;i++){const ax=g.pos[i*3]-center[0],ay=g.pos[i*3+1]-center[1],az=g.pos[i*3+2]-center[2],x=R[0]*ax+R[3]*ay+R[6]*az+off[0],y=R[1]*ax+R[4]*ay+R[7]*az+off[1],z=R[2]*ax+R[5]*ay+R[8]*az+off[2];const cw=M[3]*x+M[7]*y+M[11]*z+M[15],k=i*4;projected[k]=((M[0]*x+M[4]*y+M[8]*z+M[12])/cw+1)*w*.5;projected[k+1]=(1-(M[1]*x+M[5]*y+M[9]*z+M[13])/cw)*h*.5;projected[k+2]=(M[2]*x+M[6]*y+M[10]*z+M[14])/cw;projected[k+3]=cw;}
+  for(let i=0;i<g.n;i++){const ax=g.pos[i*3]*scale[0]-center[0],ay=g.pos[i*3+1]*scale[1]-center[1],az=g.pos[i*3+2]*scale[2]-center[2],x=R[0]*ax+R[3]*ay+R[6]*az+off[0],y=R[1]*ax+R[4]*ay+R[7]*az+off[1],z=R[2]*ax+R[5]*ay+R[8]*az+off[2];const cw=M[3]*x+M[7]*y+M[11]*z+M[15],k=i*4;projected[k]=((M[0]*x+M[4]*y+M[8]*z+M[12])/cw+1)*w*.5;projected[k+1]=(1-(M[1]*x+M[5]*y+M[9]*z+M[13])/cw)*h*.5;projected[k+2]=(M[2]*x+M[6]*y+M[10]*z+M[14])/cw;projected[k+3]=cw;}
+  // The editor supplies sorted index ranges for the old copies of live previews.
+  let hiddenIndex=0;
   for(let t=0;t<g.ni;t+=3){
+   while(hiddenIndex<hidden.length&&hidden[hiddenIndex][0]+hidden[hiddenIndex][1]<=t)hiddenIndex++;
+   if(hiddenIndex<hidden.length&&hidden[hiddenIndex][0]<=t)continue;
    const a=g.idx[t],b=g.idx[t+1],c=g.idx[t+2],ai=a*4,bi=b*4,ci=c*4;
    if(projected[ai+3]<=0||projected[bi+3]<=0||projected[ci+3]<=0)continue;
    if(clip&&[0,1,2].some(ax=>g.pos[a*3+ax]>clip[ax]&&g.pos[b*3+ax]>clip[ax]&&g.pos[c*3+ax]>clip[ax]))continue;

@@ -10832,6 +10832,20 @@ function unitHyper(u) {
  if (!has) return hc;if (left <= 1e-6) return null;return hc / clamp(left / has, .25, 1);
 }
 const inBattleGroup = (w, g) => g.units.some(id => { const u = w.units.get(id); return alive(u) && w.battles.has(u.sys); });
+// Use the same preparation and flight times for orders and arrival estimates.
+// Ships left behind and ships in tow do not set the time needed to turn.
+function jumpTiming(w, g, route, from = g.sys) {
+ const hc = groupHyper(w, g);if (hc == null) return null;
+ const towed = towedIn(w, g), S = w.sector.systems, a = S[from]?.pos, b = S[route.path[1]]?.pos;
+ let need = inBattleGroup(w, g) ? RULES.withdrawSpool : 8;
+ if (a && b) {
+  const hb = Math.atan2(b[1] - a[1], b[0] - a[0]), prev = g.transit && S[g.transit.path?.[g.transit.path.length - 2] ?? g.transit.from]?.pos;
+  const arrivalYaw = prev ? Math.atan2(a[1] - prev[1], a[0] - prev[0]) : null;let turn = 0;
+  for (const id of g.units) { const u = w.units.get(id);if (!alive(u) || u.out || towed.has(id) || unitHyper(u) == null) continue;turn = Math.max(turn, Math.abs(angle(hb - (arrivalYaw ?? u.yaw))) / Math.max(.005, u.p.turnRate || .05)); }
+  need = Math.max(need, turn * 1.15 + 3);
+ }
+ return {need, trip: pathSeconds(route, hc) * (towed.size ? 1.25 : 1), hc};
+}
 // A jump is plotted along the lanes. The reactor goes to the hyperdrive for the
 // spool: the guns fall silent, and the spool stands still while any ship of the
 // group is taking fire.
@@ -10846,26 +10860,33 @@ function orderJump(w, gid, dest) {
  const towed = towedIn(w, g), stay = g.units.filter(id => { const u = w.units.get(id); return alive(u) && unitHyper(u) == null && !towed.has(id); });
  if (stay.length && stay.length === g.units.filter(id => alive(w.units.get(id))).length) return {ok: false, why: 'ハイパードライブが使えません'};
  if (stay.length) { const h = makeGroup(w, g.side, g.name + '（残置）', g.sys); h.units = stay; h.ctg = null; g.units = g.units.filter(id => !stay.includes(id)); for (const id of stay) w.units.get(id).group = h.id; h.flag = stay[0]; event(w, `${g.name}：ハイパードライブを失った艦を残置`, {side: g.side}); }
- const hc = groupHyper(w, g), inBattle = inBattleGroup(w, g), slow = towed.size ? 1.25 : 1;
- g.spool = {t: 0, need: inBattle ? RULES.withdrawSpool : 8, dest, route, trip: pathSeconds(route, hc) * slow, hc, blocked: false};g.inbound = null;
- // v21.2 The spool lasts at least as long as the slowest ship takes to come round onto the hyperspace vector.
- { const a = w.sector.systems[g.sys]?.pos, b = w.sector.systems[route.path?.[1] ?? dest]?.pos;
-  if (a && b) { const hb = Math.atan2(b[1] - a[1], b[0] - a[0]);let tt = 0;for (const id of g.units) { const u = w.units.get(id); if (!alive(u) || u.out || u.sys !== g.sys || towed.has(id)) continue; tt = Math.max(tt, Math.abs(angle(hb - u.yaw)) / Math.max(.005, u.p.turnRate || .05)); }
-   g.spool.need = Math.max(g.spool.need, tt * 1.15 + 3); } }
+ const timing = jumpTiming(w, g, route);if (!timing) return {ok: false, why: 'ハイパードライブが使えません'};
+ g.spool = {t: 0, ...timing, dest, route, blocked: false};g.inbound = null;g.waitJump = null;
  // Craft out get the spool time to land; any still out when the ship jumps are left behind.
  for (const wing of w.wings.values()) if (g.units.includes(wing.home)) { if (wing.raid && wing.raid.phase !== 'launch') continue; wing.recall = true; for (const sid of wing.squads) { const s = w.squads.get(sid); if (s && s.state === 'out' && !s.raid) s.state = 'return'; } }
  for (const id of g.units) { const u = w.units.get(id); if (alive(u)) u.jump = {phase: 'spool', t: 0, dest}; }
  stir(w, g.sys);   // v21.2 (out of battle too: the ships come round onto their hyperspace vector)
- return {ok: true, eta: g.spool.need + g.spool.trip, hc};
+ return {ok: true, eta: g.spool.need + g.spool.trip, hc: timing.hc};
 }
 // Once the first ship has jumped, the rest follow: the jump can no longer be called off.
 function cancelJump(w, gid) { const g = w.groups.get(gid); if (!g || !g.spool) return true; if (g.spool.left) return false; g.spool = null; for (const id of g.units) { const u = w.units.get(id); if (u) u.jump = null; } for (const wing of w.wings.values()) if (g.units.includes(wing.home)) wing.recall = false; return true; }
 // Seconds until a group would arrive at dest if ordered now.
 function etaTo(w, gid, dest) {
- const g = w.groups.get(gid);if (!g) return null;const hc = groupHyper(w, g);if (hc == null) return null;
+ const g = w.groups.get(gid);if (!g) return null;if (g.spool?.dest === dest) return Math.max(0, g.spool.need - g.spool.t) + g.spool.trip;
+ if (groupHyper(w, g) == null) return null;
  const from = g.transit ? g.transit.to : g.sys;if (from === dest) return g.transit ? g.transit.t1 - w.time : 0;
  const route = routePath(w.sector, from, dest);if (!route) return null;
- return (g.transit ? g.transit.t1 - w.time : 0) + (inBattleGroup(w, g) ? RULES.withdrawSpool : 8) + pathSeconds(route, hc) * (towedIn(w, g).size ? 1.25 : 1);
+ const timing = jumpTiming(w, g, route, from);return timing ? (g.transit ? g.transit.t1 - w.time : 0) + timing.need + timing.trip : null;
+}
+// Begin turning now, then hold the faster groups in preparation for the same
+// arrival time. Delaying the order itself would let their headings change and
+// invalidate the preparation estimate. Fire can still delay a blocked spool.
+function orderGroupJumps(w, groups, dest, together = true) {
+ const jumps = [];
+ for (const g of groups) { if (etaTo(w, g.id, dest) == null) continue;const r = orderJump(w, g.id, dest);if (r.ok) jumps.push({g, eta: r.eta}); }
+ if (!jumps.length) return {ok: false, why: 'ハイパードライブが使えません'};
+ const eta = Math.max(...jumps.map(x => x.eta));if (together) for (const x of jumps) x.g.spool.need += eta - x.eta;
+ return {ok: true, eta, n: jumps.length};
 }
 // v20.6 A group does not vanish all at once: over the last seconds of its spool its ships jump one
 // after another, the smallest first and the flagship last. A ship towing (and its charge) and a
@@ -12016,7 +12037,7 @@ function aiStrategic(w, side) {
  const strength = g => g.units.map(id => w.units.get(id)).filter(fighting).reduce((n, u) => n + unitStrength(u), 0);
  const busy = gs => gs.some(g => g.transit || g.spool || g.waitJump), here = gs => { const n = new Map(); for (const g of gs) if (g.sys != null) n.set(g.sys, (n.get(g.sys) || 0) + g.units.length); return [...n.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null; };
  // A body jumps together: groups that would arrive first wait for the slowest.
- const bodyJump = (gs, dest) => { const etas = gs.filter(g => !g.transit && !g.spool && !g.waitJump && g.sys != null && g.sys !== dest).map(g => ({g, eta: etaTo(w, g.id, dest)})).filter(x => x.eta != null); if (!etas.length) return false; const last = Math.max(...etas.map(x => x.eta)); for (const x of etas) { if (last - x.eta > 45) x.g.waitJump = {dest, at: w.time + last - x.eta}; else orderJump(w, x.g.id, dest); } return true; };
+ const bodyJump = (gs, dest) => orderGroupJumps(w, gs.filter(g => !g.transit && !g.spool && !g.waitJump && g.sys != null && g.sys !== dest), dest).ok;
  const contacts = [...sd.contacts.values()].filter(c => !c.transit).sort((a, b) => b.time - a.time);
  // Scouts: the nearest system (by lane) not seen for the longest.
  for (const id of A.scouts || []) { const g = live(id); if (!g || g.transit || g.spool || w.battles.has(g.sys) || w.time - (g.arrivedAt ?? -1e9) < RULES.dwell * .6) continue; const stale = S.systems.filter(s => s.id !== g.sys).map(s => ({s, age: w.time - (sd.seen.get(s.id) ?? -1e9), d: routeCost(S, g.sys, s.id)})).filter(x => x.d < Infinity).sort((a, b) => (b.age > 600) - (a.age > 600) || a.d - b.d)[0]; if (stale) orderJump(w, g.id, stale.s.id); }
@@ -12169,10 +12190,7 @@ function orderCtgJump(w, cid, dest, together = true) {
  const c = w.ctgs.get(cid);if (!c || w.sides[c.side].ai) return {ok: false, why: '命令できません'};
  const gs = c.tgs.map(id => w.groups.get(id)).filter(g => g && !g.transit && g.sys != null && g.sys !== dest && g.units.some(id => alive(w.units.get(id))));
  if (!gs.length) return {ok: false, why: '移動できる任務群がありません'};
- const etas = gs.map(g => ({g, eta: etaTo(w, g.id, dest)})).filter(x => x.eta != null);if (!etas.length) return {ok: false, why: 'ハイパードライブが使えません'};
- const last = Math.max(...etas.map(x => x.eta));let n = 0;
- for (const x of etas) { if (together && last - x.eta > 30) { x.g.waitJump = {dest, at: w.time + (last - x.eta)}; n++; continue; } const r = orderJump(w, x.g.id, dest); if (r.ok) n++; }
- return {ok: n > 0, eta: last, n};
+ return orderGroupJumps(w, gs, dest, together);
 }
 function orderTractor(w, id, mode, target) {
  const u = w.units.get(id), t = w.units.get(target);if (!u || w.sides[u.side].ai) return {ok: false, why: '命令できません'};
