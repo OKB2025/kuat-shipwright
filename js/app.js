@@ -4145,20 +4145,111 @@ function foilDiagramSVG(p){
   const pv=P(F.pv),view={x:'前方から見た図',y:'上から見た図',z:'側面から見た図'}[ax];
   return `<figure class="sw-arc"><svg viewBox="0 0 ${W0} ${H0}" role="img" aria-label="${view}">${stow.map(q=>poly(q,true)).join('')}${open.map(q=>poly(q,false)).join('')}<circle cx="${f(pv[0])}" cy="${f(pv[1])}" r="3.5" fill="#ffd27a"/></svg><figcaption class="note tight">${view}（実線：展開・破線：収納・黄点：回転軸）</figcaption></figure>`;
 }
-// Pivot coordinates use the ship frame, like the structure position editor. Leaving pivot unset
-// keeps the existing automatic root; typing any coordinate freezes the other two at their current values.
+// Picking state belongs to the editor, never to a saved wing. A geometry or history change
+// invalidates the anchor, so a vertex index cannot silently refer to a different corner.
+function foilPickState(p){
+  const q=st.foilPick,H=C.foilHandles(p),pv=C.wingPivot(ship,p);
+  if(q&&q.geometry!==H){
+    // Worker cache adoption replaces arrays even for unchanged shapes. Compare their
+    // actual handles once before accepting the new cache; indices must remain the same.
+    const old=q.geometry,same=old.points.length===H.points.length&&old.edges.length===H.edges.length&&old.points.every((v,i)=>v.every((n,a)=>n===H.points[i][a]))&&old.edges.every((v,i)=>v.every((n,a)=>n===H.edges[i][a]));
+    if(same)q.geometry=H;
+  }
+  if(q&&(q.ship!==ship||q.id!==p.id||q.geometry!==H||q.pivot.some((v,a)=>Math.abs(v-pv[a])>1e-7)))st.foilPick=null;
+  return st.foilPick||null;
+}
+function foilPickAnchor(p,q=foilPickState(p)){
+  const H=C.foilHandles(p);
+  if(q?.kind==='vertex'&&H.points[q.index])return H.points[q.index].slice();
+  if(q?.kind==='edge'&&H.edges[q.index]){const [a,b]=H.edges[q.index].map(i=>H.points[i]);return a.map((v,i)=>v+(b[i]-v)*q.t);}
+  if(q?.kind==='center'){const b=C.partAABB(p);return [0,1,2].map(a=>(b[a]+b[a+3])/2);}
+  return C.wingPivot(ship,{...p,wing:{...p.wing,pivot:undefined}});
+}
+function foilRememberPick(p,kind,index,t=.5){
+  st.foilPick={ship,id:p.id,geometry:C.foilHandles(p),kind,index,t,pivot:C.wingPivot(ship,p)};
+  return st.foilPick;
+}
+function foilWritePivot(v){
+  const next=v.map(n=>C.clamp(n,-C.DESIGN_LIMITS.coordinate,C.DESIGN_LIMITS.coordinate));
+  editSel(p=>{if(C.isFoil(p))p.wing.pivot=next.slice();});
+  const q=st.foilPick;if(q)q.pivot=next.slice();
+}
+function foilGaugeRange(p,a,delta){
+  const b=C.partAABB(p),span=Math.max(b[3]-b[0],b[4]-b[1],b[5]-b[2],.1);
+  return Math.max(.1,b[a+3]-b[a],span*.1,Math.ceil(Math.abs(delta)*1000)/1000);
+}
+function foilPickerSVG(p){
+  const H=C.foilHandles(p),q=foilPickState(p),pv=C.wingPivot(ship,p),mode=st.foilPickMode||'vertex',view=st.foilPickView||'iso';
+  if(!H.points.length)return '<p class="note">この形状の角・辺は選択できません。ゲージか数値で調整できます。</p>';
+  const b=C.partAABB(p),mid=[0,1,2].map(a=>(b[a]+b[a+3])/2),W=280,V=190,pad=25;
+  const project=v=>{const [x,y,z]=C.sub(v,mid);return view==='x'?[z,-y]:view==='y'?[x,-z]:view==='z'?[x,-y]:[.866*(x-z),.45*(x+z)-y];};
+  const pp=H.points.map(project),lo=[0,1].map(a=>Math.min(...pp.map(v=>v[a]))),hi=[0,1].map(a=>Math.max(...pp.map(v=>v[a])));
+  const scale=Math.min((W-2*pad)/Math.max(1e-5,hi[0]-lo[0]),(V-2*pad)/Math.max(1e-5,hi[1]-lo[1]));
+  const screen=v=>{const a=project(v);return [W/2+(a[0]-(lo[0]+hi[0])/2)*scale,V/2+(a[1]-(lo[1]+hi[1])/2)*scale];},f=v=>v.toFixed(2);
+  const pos=H.points.map(screen),edgeStep=Math.max(1,Math.ceil(H.edges.length/800)),pointStep=Math.max(1,Math.ceil(H.points.length/500));
+  const lines=H.edges.map(([a,b],i)=>{
+    if(i%edgeStep&&!(q?.kind==='edge'&&q.index===i))return '';
+    const A=pos[a],B=pos[b],on=q?.kind==='edge'&&q.index===i,path=`M${A.map(f).join(' ')}L${B.map(f).join(' ')}`;
+    if(Math.hypot(A[0]-B[0],A[1]-B[1])<2)return '';
+    const attr=mode==='edge'?` role="button" tabindex="0" data-foiledge="${i}" data-pa="${A.join(',')}" data-pb="${B.join(',')}" aria-label="辺 ${i+1} を回転起点にする" aria-pressed="${on}"`:'';
+    return `<g class="foil-pick-edge${on?' selected':''}"${attr}><path class="foil-edge-hit" d="${path}"/><path class="foil-edge-line" d="${path}"/></g>`;
+  }).join('');
+  const dots=mode==='vertex'?H.points.map((v,i)=>{
+    if(i%pointStep&&!(q?.kind==='vertex'&&q.index===i))return '';
+    const P=pos[i],on=q?.kind==='vertex'&&q.index===i;
+    return `<g class="foil-pick-vertex${on?' selected':''}" role="button" tabindex="0" data-foilvertex="${i}" aria-label="角 ${i+1} を回転起点にする" aria-pressed="${on}"><circle class="foil-vertex-hit" cx="${f(P[0])}" cy="${f(P[1])}" r="8"/><circle class="foil-vertex-dot" cx="${f(P[0])}" cy="${f(P[1])}" r="3.5"/></g>`;
+  }).join(''):'';
+  const ends=q?.kind==='edge'?H.edges[q.index].map((id,i)=>{const P=pos[id],x=C.clamp(P[0]+(i?8:-8),26,W-26),y=C.clamp(P[1]+(i?15:-9),12,V-6);return `<text class="foil-edge-end" x="${f(x)}" y="${f(y)}" text-anchor="middle" aria-hidden="true">${i?100:0}%</text>`;}).join(''):'';
+  const actual=screen(pv),P=[C.clamp(actual[0],8,W-8),C.clamp(actual[1],8,V-8)],outside=P.some((v,a)=>Math.abs(v-actual[a])>.01);
+  return `<svg viewBox="0 0 ${W} ${V}" role="group" aria-label="角や辺から回転起点を選ぶ図">${lines}${dots}${ends}<g class="foil-pick-pivot" aria-hidden="true"><circle cx="${f(P[0])}" cy="${f(P[1])}" r="6"/><path d="M${f(P[0]-10)} ${f(P[1])}h20 M${f(P[0])} ${f(P[1]-10)}v20"/></g></svg>${outside?'<p class="note tight">起点は図の外にあります（黄印は方向を示します）。</p>':''}${edgeStep>1||pointStep>1?'<p class="note tight">細かい形状は一部の角・辺を表示します。ゲージや数値でも位置を調整できます。</p>':''}`;
+}
 function foilPivotControls(p){
-  const pv=C.foilFrame(ship,p).pv,L=C.DESIGN_LIMITS.coordinate;
-  return `<h4>回転起点（艦の座標・m）</h4><p class="note tight" data-foilpivotmode>${p.wing.pivot?'任意の位置':'付け根（自動）'}</p>
+  const pv=C.wingPivot(ship,p),q=foilPickState(p),anchor=foilPickAnchor(p,q),delta=C.sub(pv,anchor),L=C.DESIGN_LIMITS.coordinate;
+  const anchorLabel=q?.kind==='vertex'?'選んだ角から調整':q?.kind==='edge'?'選んだ辺から調整':q?.kind==='center'?'翼の中心から調整':'付け根から調整';
+  return `<h4>回転起点を選ぶ</h4><p class="note">① 角か辺を選んで図をタップ。② ゲージで位置を調整します。黄印が回転起点です。</p>
+  ${seg('foilpickmode',[['vertex','角を選ぶ'],['edge','辺を選ぶ']],st.foilPickMode||'vertex')}
+  ${seg('foilpickview',[['iso','立体'],['x','正面'],['y','上面'],['z','側面']],st.foilPickView||'iso')}
+  <div class="foil-pick-diagram">${foilPickerSVG(p)}</div>
+  <p class="note tight foil-anchor-label">${anchorLabel}</p>
+  ${q?.kind==='edge'?`<div class="sliders">${slider('foilAlong','辺に沿った位置',q.t*100,0,100,.1,num(q.t*100,1)+'%')}</div><p class="note tight">0% が辺の始点、100% が終点です。辺の選択は起点の位置だけを変えます。</p>`:''}
+  <div class="sliders foil-gauges">${[['前後にずらす（X）',0],['上下にずらす（Y）',1],['左右にずらす（Z）',2]].map(([label,a])=>{const r=foilGaugeRange(p,a,delta[a]);return slider('foilShift'+a,label,+delta[a].toFixed(6),-r,r,.001,num(delta[a],3)+' m');}).join('')}</div>
+  <div class="vs-acts"><button type="button" class="btn sm" data-foilpivot="anchor">ずれを0に戻す</button><button type="button" class="btn sm" data-foilpivot="center">翼の中心に設定</button><button type="button" class="btn sm" data-foilpivot="auto">付け根の自動設定に戻す</button></div>
+  <details class="foil-coordinates"><summary>座標を直接入力（詳細）</summary><h4>回転起点（艦の座標・m）</h4><p class="note tight" data-foilpivotmode>${p.wing.pivot?'任意の位置':'付け根（自動）'}</p>
   <div class="xf-grid">${[['X（前後）',0],['Y（上下）',1],['Z（左右）',2]].map(([label,a])=>`<label class="xf-row foil-pivot-row"><span>${label}</span><input type="number" step="any" min="${-L}" max="${L}" data-foilpivotcoord="${a}" value="${+pv[a].toFixed(6)}" aria-label="回転起点の${label}（m）"></label>`).join('')}</div>
-  <div class="vs-acts"><button type="button" class="btn sm" data-foilpivot="center">翼の中心に設定</button><button type="button" class="btn sm" data-foilpivot="auto">付け根の自動設定に戻す</button></div>
-  <p class="note">座標を入力すると回転起点を固定します。翼の外にも設定できます。黄点で起点を確認できます。</p>`;
+  <p class="note">座標を入力すると回転起点を固定します。翼の外にも設定できます。黄点で起点を確認できます。</p></details>`;
 }
 function refreshFoilEditor(){
   const p=selItem();if(!C.isFoil(p))return;
   const mode=$('#wing-editor [data-foilpivotmode]');if(mode)mode.textContent=T(p.wing.pivot?'任意の位置':'付け根（自動）');
   const diagram=$('#wing-editor .sw-arc');if(diagram)diagram.outerHTML=foilDiagramSVG(p);
+  const picker=$('#wing-editor .foil-pick-diagram');if(picker)picker.innerHTML=foilPickerSVG(p);
+  const root=$('#wing-editor');if(root){
+    const pv=C.wingPivot(ship,p),q=foilPickState(p),delta=C.sub(pv,foilPickAnchor(p,q));
+    root.querySelectorAll('[data-foilpivotcoord]').forEach(el=>{if(el!==document.activeElement)el.value=+pv[+el.dataset.foilpivotcoord].toFixed(6);});
+    for(let a=0;a<3;a++){
+      const k='foilShift'+a,r=foilGaugeRange(p,a,delta[a]);
+      root.querySelectorAll(`[data-sl="${k}"]`).forEach(el=>{if(el!==document.activeElement){el.min=-r;el.max=r;el.value=+delta[a].toFixed(6);}});
+      const out=root.querySelector('#out-'+k);if(out)out.textContent=num(delta[a],3)+' m';
+    }
+    const out=root.querySelector('#out-foilAlong');if(out&&q?.kind==='edge')out.textContent=num(q.t*100,1)+'%';
+  }
   if(st.foilView==='stow')foilPreview(true);
+}
+function foilSelectHandle(kind,index,t=.5){
+  const p=selItem();if(!C.isFoil(p))return;const H=C.foilHandles(p),items=kind==='edge'?H.edges:H.points;
+  if(!Number.isInteger(index)||!items[index])return;
+  endDrag();foilRememberPick(p,kind,index,C.clamp(t,0,1));const next=foilPickAnchor(p);
+  mutate('Sフォイルの回転起点',()=>foilWritePivot(next),'parts',{silent:true});refreshFoilEditor();renderPanel();
+  const key=kind==='vertex'?'foilvertex':'foiledge';$('#wing-editor [data-'+key+'="'+index+'"]')?.focus?.({preventScroll:true});
+}
+// The line hit area is wider than its visible stroke. Project a tap onto it in SVG
+// coordinates; keyboard activation chooses its midpoint and can then use the gauge.
+function foilEdgeFraction(e,el){
+  if(!e.detail)return .5;
+  const svg=el.closest('svg'),matrix=svg?.getScreenCTM();if(!matrix)return .5;
+  const pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;const P=pt.matrixTransform(matrix.inverse());
+  const A=el.dataset.pa.split(',').map(Number),B=el.dataset.pb.split(',').map(Number),d=B.map((v,i)=>v-A[i]),n=d[0]*d[0]+d[1]*d[1];
+  return n?C.clamp(((P.x-A[0])*d[0]+(P.y-A[1])*d[1])/n,0,1):.5;
 }
 function wingControls(p){
   if(p.k!=='struct'||p.plate)return '';const W=p.wing,kind=!W?'none':W.solar?'solar':W.foil?'foil':'wing',x=W?wingFigures(p):null;
@@ -4199,29 +4290,50 @@ function foilPreview(on){
 }
 function bindWing(){
   $('#panel').addEventListener('click',e=>{
+    const h=e.target.closest('[data-foilvertex],[data-foiledge]');if(h){if(h.dataset.foilvertex!=null)foilSelectHandle('vertex',Number(h.dataset.foilvertex));else foilSelectHandle('edge',Number(h.dataset.foiledge),foilEdgeFraction(e,h));return;}
     const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+    if(d.foilpickmode){endDrag();st.foilPickMode=d.foilpickmode;renderPanel();return;}
+    if(d.foilpickview){endDrag();st.foilPickView=d.foilpickview;renderPanel();return;}
     if(d.wingkind){mutate(d.wingkind==='none'?'主翼の機能を外す':d.wingkind==='foil'?'Sフォイルにする':d.wingkind==='solar'?'太陽電池翼にする':'機能付き主翼にする',()=>editSel(p=>{if(p.k!=='struct')return;if(d.wingkind==='none'){delete p.wing;return;}const w=p.wing||{feed:1,reinf:0};if(d.wingkind==='solar'){w.solar=true;delete w.foil;}else delete w.solar;if(d.wingkind==='foil'){w.foil=true;w.axis=w.axis||'x';w.stow=w.stow??0;w.open=w.open??15;w.T=w.T??(craftDesign()?1:Math.max(2,Math.round(Math.cbrt(C.partVolume(p))*.4)));}else{delete w.foil;delete w.axis;delete w.stow;delete w.open;delete w.T;delete w.pivot;}p.wing=C.normalizeWing(w);if(w.solar)p.wing.solar=true;}),'parts');renderPanel();return;}
     if(d.foilpivot){
-      endDrag();mutate('Sフォイルの回転起点',()=>editSel(p=>{if(!C.isFoil(p))return;if(d.foilpivot==='auto')delete p.wing.pivot;else if(d.foilpivot==='center'){const b=C.partAABB(p);p.wing.pivot=[0,1,2].map(a=>(b[a]+b[a+3])/2);}}),'parts');refreshFoilEditor();renderPanel();return;
+      const p=selItem();if(!C.isFoil(p))return;endDrag();
+      const anchor=foilPickAnchor(p);mutate('Sフォイルの回転起点',()=>{
+        if(d.foilpivot==='auto'){st.foilPick=null;editSel(q=>{if(C.isFoil(q))delete q.wing.pivot;});}
+        else if(d.foilpivot==='center'){foilRememberPick(p,'center',0);foilWritePivot(foilPickAnchor(p));}
+        else if(d.foilpivot==='anchor')foilWritePivot(anchor);
+      },'parts');refreshFoilEditor();renderPanel();return;
     }
     if(d.foilaxis){mutate('Sフォイルの回転軸',()=>editSel(p=>{if(C.isFoil(p))p.wing.axis=d.foilaxis;}),'parts');refreshFoilEditor();renderPanel();return;}
     if(d.foilview){foilPreview(d.foilview==='stow');renderPanel();return;}
     if(d.sensband){mutate('センサーの帯域',()=>editSel(p=>{if(p.k==='sensor'||p.k==='scanner'){if(d.sensband==='multi')delete p.band;else p.band=d.sensband;}}),'parts');renderPanel();return;}
   });
+  $('#panel').addEventListener('keydown',e=>{
+    const h=e.target.closest('[data-foilvertex],[data-foiledge]');if(!h||!['Enter',' '].includes(e.key))return;e.preventDefault();
+    if(h.dataset.foilvertex!=null)foilSelectHandle('vertex',Number(h.dataset.foilvertex));else foilSelectHandle('edge',Number(h.dataset.foiledge));
+  });
   $('#panel').addEventListener('input',e=>{
-    const t=e.target;
+    const t=e.target,k=t.dataset.sl;
+    if(k==='foilAlong'||/^foilShift[012]$/.test(k||'')){
+      const p=selItem(),v=Number(t.value);if(!C.isFoil(p)||t.value.trim()===''||!Number.isFinite(v))return;
+      const q=foilPickState(p),anchor=foilPickAnchor(p,q),delta=C.sub(C.wingPivot(ship,p),anchor);
+      if(k==='foilAlong'&&q?.kind!=='edge')return;
+      beginDrag('Sフォイルの回転起点');
+      if(k==='foilAlong')q.t=C.clamp(v/100,0,1);else delta[Number(k.slice(-1))]=C.clamp(v,Number(t.min),Number(t.max));
+      foilWritePivot(C.add(foilPickAnchor(p,q),delta));touch('parts');scheduleStats(350);refreshFoilEditor();return;
+    }
     if(t.dataset.foilpivotcoord!=null){
       const a=Number(t.dataset.foilpivotcoord),v=Number(t.value);if(t.value.trim()===''||![0,1,2].includes(a)||!Number.isFinite(v)||!C.isFoil(selItem()))return;
-      beginDrag('Sフォイルの回転起点');editSel(p=>{if(!C.isFoil(p))return;const pv=C.foilFrame(ship,p).pv;pv[a]=C.clamp(v,-C.DESIGN_LIMITS.coordinate,C.DESIGN_LIMITS.coordinate);p.wing.pivot=pv;});
+      const p=selItem();foilPickState(p);const pv=C.wingPivot(ship,p);pv[a]=v;beginDrag('Sフォイルの回転起点');foilWritePivot(pv);
       touch('parts');scheduleStats(350);refreshFoilEditor();return;
     }
-    const k=t.dataset.sl;if(!['wingFeed','wingReinf','foilStow','foilOpen','foilT'].includes(k)||t.value==='')return;const v=+t.value;if(!Number.isFinite(v))return;
+    if(!['wingFeed','wingReinf','foilStow','foilOpen','foilT'].includes(k)||t.value==='')return;const v=+t.value;if(!Number.isFinite(v))return;
     beginDrag('主翼・Sフォイルを調整');
     editSel(p=>{if(!C.isWing(p))return;const W=p.wing;if(k==='wingFeed')W.feed=C.clamp(v/100,0,2);if(k==='wingReinf')W.reinf=C.clamp(v/100,0,1);if(W.foil){if(k==='foilStow')W.stow=C.clamp(v,-150,150);if(k==='foilOpen')W.open=C.clamp(v,-150,150);if(k==='foilT')W.T=C.clamp(v,.1,600);}});
     touch('parts');scheduleStats(350);const out=$('#out-'+k);if(out)out.textContent=k==='foilT'?num(v,1)+' 秒':k.startsWith('foil')?deg(v):fPct(v/100);refreshFoilEditor();
   });
   $('#panel').addEventListener('change',e=>{
-    const t=e.target;if(t.dataset.foilpivotcoord!=null){endDrag();const p=selItem(),a=Number(t.dataset.foilpivotcoord);if(C.isFoil(p)&&[0,1,2].includes(a))t.value=+C.foilFrame(ship,p).pv[a].toFixed(6);}
+    const t=e.target;if(t.dataset.sl==='foilAlong'||/^foilShift[012]$/.test(t.dataset.sl||'')){endDrag();refreshFoilEditor();}
+    if(t.dataset.foilpivotcoord!=null){endDrag();const p=selItem(),a=Number(t.dataset.foilpivotcoord);if(C.isFoil(p)&&[0,1,2].includes(a))t.value=+C.foilFrame(ship,p).pv[a].toFixed(6);}
   });
 }
 function heatHTML(){
