@@ -1220,6 +1220,19 @@ button.ed-row:hover,.ed-grp .ed-pick:hover{background:var(--cyan-soft)}
 .xf-row>span{color:var(--muted)}
 .xf-row input,.xf-step input{min-width:0;width:100%;box-sizing:border-box;padding:6px;background:var(--bg);color:var(--fg);border:1px solid var(--line-2);border-radius:5px;font:14px var(--font-display);font-variant-numeric:tabular-nums}
 .xf-row .btn{min-height:32px;padding:0}
+.foil-pick-diagram{margin:8px 0;padding:6px;border:1px solid var(--line-2);border-radius:8px;background:rgba(0,0,0,.2)}
+.foil-pick-diagram svg{display:block;width:100%;height:auto;overflow:hidden}
+.foil-pick-edge[role],.foil-pick-vertex{cursor:pointer;outline:none}
+.foil-edge-hit{fill:none;stroke:transparent;stroke-width:14;pointer-events:stroke}
+.foil-edge-line{fill:none;stroke:var(--cyan);stroke-opacity:.6;stroke-width:1.4;pointer-events:none}
+.foil-pick-edge:not([role]){pointer-events:none}
+.foil-pick-edge.selected .foil-edge-line,.foil-pick-edge[role]:hover .foil-edge-line,.foil-pick-edge:focus .foil-edge-line{stroke:#ffd27a;stroke-opacity:1;stroke-width:3}
+.foil-vertex-hit{fill:transparent;pointer-events:all}
+.foil-vertex-dot{fill:var(--cyan);stroke:var(--bg);stroke-width:1.2;pointer-events:none}
+.foil-pick-vertex.selected .foil-vertex-dot,.foil-pick-vertex:hover .foil-vertex-dot,.foil-pick-vertex:focus .foil-vertex-dot{fill:#ffd27a;stroke:#fff;stroke-width:2}
+.foil-edge-end{fill:#ffd27a;stroke:var(--bg);stroke-width:3px;paint-order:stroke;font-size:10px;pointer-events:none}
+.foil-pick-pivot{pointer-events:none}.foil-pick-pivot circle{fill:#ffd27a;stroke:var(--bg);stroke-width:1.5}.foil-pick-pivot path{fill:none;stroke:#ffd27a;stroke-width:1.5}
+.foil-coordinates{margin:8px 0}.foil-coordinates>summary{cursor:pointer;color:var(--muted);font-size:12px;padding:6px 0}
 .xf-row.foil-pivot-row{grid-template-columns:7em minmax(0,1fr)}
 .xf-row.xf-ang{grid-template-columns:5.2em minmax(0,8em) auto;margin:6px 0}
 .xf-step{max-width:180px;margin:4px 0}
@@ -1565,9 +1578,9 @@ button.ed-row:hover,.ed-grp .ed-pick:hover{background:var(--cyan-soft)}
 
 
 <style>.ks-language{display:flex;align-items:center;gap:8px;font-size:12px;padding:6px 0;color:#b7c9d2}.ks-language select{font:inherit;color:#eef4f7;background:#14232c;border:1px solid #34505e;border-radius:6px;padding:6px}.brand,.brand-txt{min-width:0}.brand-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}html[lang=en] #tabs button{font-size:11px}.title-foot{flex-wrap:wrap}</style>
-<script src="js/lang-en.js?v=f2b9dc225e"></script>
+<script src="js/lang-en.js?v=afcffba28f"></script>
 <script src="js/i18n.js?v=321084292d"></script>
-<script>window.KS_FILES={data:["data/reference.js","data/textures.js","data/imperial2.js","data/fleet.js"],core:"js/core.js",gfx:"js/gfx.js",engine:"js/engine.js",app:"js/app.js",worker:"js/worker.js",sizes:{"data/reference.js":6270785,"data/textures.js":2338303,"data/imperial2.js":83602,"data/fleet.js":1712942,"js/core.js":1820078,"js/gfx.js":192594,"js/engine.js":15964,"js/app.js":1429209}};</script>
+<script>window.KS_FILES={data:["data/reference.js","data/textures.js","data/imperial2.js","data/fleet.js"],core:"js/core.js",gfx:"js/gfx.js",engine:"js/engine.js",app:"js/app.js",worker:"js/worker.js",sizes:{"data/reference.js":6270785,"data/textures.js":2338303,"data/imperial2.js":83602,"data/fleet.js":1712942,"js/core.js":1822539,"js/gfx.js":192594,"js/engine.js":15964,"js/app.js":1439121}};</script>
 <script>
 /* ============================================================
    boot.js — title screen first, then the 3D assets, the engine
