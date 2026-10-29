@@ -8376,6 +8376,23 @@ Object.assign(root.KS_EN.messages,{
  "厚みのない形です（どの方向にも1 cm以上必要です）":"The shape is flat (needs at least 1 cm in every direction)","大きすぎます（一辺 {0} m まで）。単位か倍率を見直してください":"Too large (up to {0} m per side). Check the units or scale","立体として使える面がありません":"No faces usable as a solid"
 });
 // </shape-catalog>
+// Screenshot export controls and output dimensions.
+Object.assign(root.KS_EN.terms,{
+"保存画質": "Save Quality",
+"スクリーンショットの保存画質": "Screenshot Save Quality",
+"標準（1倍）": "Standard (1×)",
+"高画質（2倍）": "High (2×)",
+"最高画質（4倍）": "Ultra (4×)",
+"PNGで保存": "Save PNG",
+"画像を保存中…": "Saving image…",
+"画像の保存は3D表示で使えます。": "Image saving is available in the 3D view.",
+"画質を選んで「PNGで保存」を押すと、高解像度の画像を保存できます（H・Esc で戻る）。": "Choose the quality and press Save PNG to save a high-resolution image (H / Esc to return).",
+"画像を保存できませんでした。画質を下げて再試行してください。": "Could not save the image. Try again at a lower quality.",
+ });
+Object.assign(root.KS_EN.messages,{
+"{0} × {1} px（端末の上限に調整）": "{0} × {1} px (adjusted to device limits)",
+"PNGを保存しました（{0} × {1} px）。": "Saved PNG ({0} × {1} px)."
+});
 // <wing-catalog> v25 functional wings, S-foils, emission signatures, sensors and contacts (WING-001…004, SENS-001…005)
 Object.assign(root.KS_EN.terms,{
 "主翼・Sフォイル": "Wings & S-foils",

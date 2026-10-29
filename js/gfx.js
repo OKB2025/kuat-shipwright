@@ -1061,6 +1061,44 @@ const MESH_EMI = {hull: 0.9, struct: 1, keel: 0, gen: 1.1, shield: 0.8, hyper: 0
 for(const k of ['refHull','refStruct','refEngine','refPlant','refFits','refHatches','previewRef','previewRefFits'])MESH_EMI[k]=0;
 MESH_EMI.preview=.6;MESH_EMI.previewFits=.6;
 MESH_EMI.refEngine=.8;
+// Export resolution follows the viewport and device density, independently of adaptive rendering.
+// The cap preserves aspect ratio and bounds both GPU attachments and software depth buffers.
+function captureDimensions(width,height,scale=2,dpr=1,limits={}){
+ if(![1,2,4].includes(scale))throw new RangeError('撮影倍率は1・2・4から選んでください');
+ const positive=(v,f)=>Number.isFinite(v)&&v>0?v:f,px=Math.min(2,positive(dpr,1))*scale;
+ const w=Math.max(1,Math.round(Math.min(Number.MAX_SAFE_INTEGER,positive(width,1)*px))),h=Math.max(1,Math.round(Math.min(Number.MAX_SAFE_INTEGER,positive(height,1)*px)));
+ const maxW=Math.min(8192,positive(limits.maxWidth,8192)),maxH=Math.min(8192,positive(limits.maxHeight,8192)),pixels=positive(limits.maxPixels,24000000);
+ const k=Math.min(1,maxW/w,maxH/h,Math.sqrt(pixels/(w*h))),rw=Math.max(1,Math.floor(w*k)),rh=Math.max(1,Math.floor(h*k));
+ return {width:rw,height:rh,limited:rw!==w||rh!==h};
+}
+function rendererCapture(renderer,scale){
+ if(renderer.disposed||renderer.gl?.isContextLost())throw new Error('描画画面を利用できません');
+ if(!renderer._lastDrawOptions)throw new Error('撮影する描画がまだありません');
+ if(renderer._captureSize)throw new Error('撮影処理が実行中です');
+ const source=renderer.canvas,size=renderer.captureSize(scale),doc=source.ownerDocument||(typeof document!=='undefined'?document:null);
+ const output=doc?.createElement('canvas');if(!output)throw new Error('撮影用の画像を作成できません');
+ output.width=size.width;output.height=size.height;const ctx=output.getContext('2d');if(!ctx)throw new Error('撮影用の画像を作成できません');
+ const width=source.width,height=source.height,options=renderer._lastDrawOptions,keys=['_captureSize','_captureTime','_capturePointDpr','_lastDrawOptions','rayTime','frames','_errCheck','_frame'];
+ const saved=keys.map(key=>({key,own:Object.hasOwn(renderer,key),value:renderer[key]}));let error=null;
+ try{
+  renderer._captureSize=size;renderer._captureTime=renderer.rayTime??7.3;renderer._capturePointDpr=size.width/Math.max(1,source.clientWidth);
+  if(renderer.draw(options)!==true||renderer.gl?.isContextLost()||source.width!==size.width||source.height!==size.height)throw new Error('撮影用の描画に失敗しました');
+  if(renderer.gl&&((renderer.gl.drawingBufferWidth!=null&&renderer.gl.drawingBufferWidth!==size.width)||(renderer.gl.drawingBufferHeight!=null&&renderer.gl.drawingBufferHeight!==size.height)))throw new Error('撮影用の描画領域を確保できません');
+  ctx.drawImage(source,0,0);
+ }catch(e){error=e;}
+ finally{
+  try{
+   const pointDpr=saved.find(entry=>entry.key==='_capturePointDpr');if(pointDpr.own)renderer._capturePointDpr=pointDpr.value;else delete renderer._capturePointDpr;
+   renderer._captureSize={width,height};renderer.resize();
+   if(!renderer.disposed&&!renderer.gl?.isContextLost()&&renderer.draw(options)!==true)throw new Error('通常表示の再描画に失敗しました');
+  }catch(e){if(!error)error=e;}
+  finally{
+   if(source.width!==width)source.width=width;if(source.height!==height)source.height=height;
+   for(const entry of saved)if(entry.own)renderer[entry.key]=entry.value;else delete renderer[entry.key];
+  }
+ }
+ if(error)throw error;return output;
+}
 class Renderer {
   constructor(canvas) {
     this.canvas = canvas;this.kind='webgl';this.disposed=false;this.ownedTextures=new Set();
@@ -1230,7 +1268,13 @@ class Renderer {
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, S.idx); gl.drawElements(gl.TRIANGLES, S.count, gl.UNSIGNED_SHORT, 0);
     gl.disableVertexAttribArray(p.a.aDir); gl.disableVertexAttribArray(p.a.aCorner); gl.disableVertexAttribArray(p.a.aCol);
   }
+  captureSize(scale=2){
+    const gl=this.gl,viewport=gl.getParameter(gl.MAX_VIEWPORT_DIMS),rb=gl.getParameter(gl.MAX_RENDERBUFFER_SIZE),dpr=typeof window!=='undefined'?window.devicePixelRatio:1;
+    return captureDimensions(this.canvas.clientWidth,this.canvas.clientHeight,scale,dpr,{maxWidth:Math.min(rb||8192,viewport?.[0]||8192),maxHeight:Math.min(rb||8192,viewport?.[1]||8192)});
+  }
+  capture(scale=2){return rendererCapture(this,scale);}
   resize() {
+    if(this._captureSize){const {width,height}=this._captureSize;if(this.canvas.width!==width)this.canvas.width=width;if(this.canvas.height!==height)this.canvas.height=height;return;}
     // renderScale (≤1) lowers the resolution when a busy scene drops frames.
     const dpr = Math.min(2, window.devicePixelRatio || 1) * C.clamp(this.renderScale || 1, .4, 1);
     const w = Math.max(1, Math.round(this.canvas.clientWidth * dpr)), h = Math.max(1, Math.round(this.canvas.clientHeight * dpr));
@@ -1263,15 +1307,15 @@ class Renderer {
     const rect = this.canvas.getBoundingClientRect();
     return [rect.left + (q[0] + 1) / 2 * rect.width, rect.top + (1 - q[1]) / 2 * rect.height, q[2]];
   }
-  draw(opt) {
-    const gl = this.gl;if(gl.isContextLost())return false;this.resize();
+  draw(opt={}) {
+    const gl = this.gl;if(this.disposed||gl.isContextLost())return false;this.resize();
     gl.colorMask(true,true,true,true);gl.depthMask(true);gl.disable(gl.SCISSOR_TEST);
     gl.viewport(0, 0, this.canvas.width, this.canvas.height);
     gl.clearColor(0.02, 0.03, 0.045, 1); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     const m = this.matrices();
     // Shields shimmer in the animated fleet and trial views; the editor redraws
     // on demand, so it keeps one still frame of the pattern.
-    this.rayTime=opt.fleet?(performance.now()/1000)%600:7.3;
+    this.rayTime=this._captureTime??(opt.fleet?(performance.now()/1000)%600:7.3);
     this.paint=opt.paint||'neutral';this.setLights(opt.lights);this.engineTint=opt.engineGlow&&opt.engineGlow!=='blue'?C.engineGlowRGB(opt.engineGlow):null;this.engineK=1;this.hullLength=opt.hullLength||1600;this.sourceRed=opt.reference==='venator';this.meshScale=opt.fleet?null:opt.meshScale||null;this.hidden=opt.fleet?null:opt.hidden||null;
     this.clip = opt.mode === 'cut' ? opt.clip : null;
     this.look = this.pickLook(opt); this.shTile = null;
@@ -1291,7 +1335,7 @@ class Renderer {
     this.planetLight = !!opt.planet; if (opt.planet) this.drawPlanet(m, opt.planet); if (opt.hyper) this.drawHyper(m, opt.hyper);
     gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL);
     gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-    if(opt.fleet){this.drawFleet(m,opt);this.shTile=null;return true;}
+    if(opt.fleet){this.drawFleet(m,opt);this.shTile=null;if(gl.isContextLost())return false;this._lastDrawOptions=opt;return true;}
     if (this.look.shadow && !this.noShadow) this.shTile = this.shadowDesign(opt);
     this.drawLines('grid', m, 1);
     gl.disable(gl.BLEND); gl.depthMask(true);
@@ -1336,7 +1380,7 @@ class Renderer {
     gl.depthMask(true); this.shTile = null;
     // getError() stalls the GPU pipeline; sample it occasionally.
     this._errCheck=(this._errCheck||0)+1;if(this._errCheck%120===1){const error=gl.getError();if(error===gl.OUT_OF_MEMORY)throw new Error('描画メモリが不足しました');}
-    if(gl.isContextLost())return false;return true;
+    if(gl.isContextLost())return false;this._lastDrawOptions=opt;return true;
   }
   // Translucent pass for ray shields, after every opaque surface: depth-tested
   // but not depth-writing, pulled forward so the halo never fights the plating.
@@ -1448,7 +1492,7 @@ class Renderer {
       gl.uniform3fv(p.u.uOff, off);
       gl.uniform1f(p.u.uScale, this.canvas.height / (2 * Math.tan(this.cam.fov / 2) * (this.cam.ortho?this.cam.r:1)));
     }
-    gl.uniformMatrix4fv(p.u.uVP, false, VP); gl.uniform1f(p.u.uMin, minPx * Math.min(2, window.devicePixelRatio || 1));
+    gl.uniformMatrix4fv(p.u.uVP, false, VP); gl.uniform1f(p.u.uMin, minPx * (this._capturePointDpr??Math.min(2, window.devicePixelRatio || 1)));
     gl.bindBuffer(gl.ARRAY_BUFFER, pt.pos); gl.enableVertexAttribArray(p.a.aPos); gl.vertexAttribPointer(p.a.aPos, 3, gl.FLOAT, false, 0, 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, pt.col); gl.enableVertexAttribArray(p.a.aCol); gl.vertexAttribPointer(p.a.aCol, 4, gl.UNSIGNED_BYTE, true, 0, 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, pt.size); gl.enableVertexAttribArray(p.a.aSize); gl.vertexAttribPointer(p.a.aSize, 1, gl.FLOAT, false, 0, 0);
@@ -2164,19 +2208,21 @@ class CompatRenderer {
  constructor(canvas) {
   this.canvas=canvas;this.ctx=canvas.getContext('2d',{alpha:false});
   if(!this.ctx)throw new Error('互換描画も初期化できませんでした');
-  this.kind='compat';this.meshes={};this.lines={};this.points={};this.fleetCache=new Map();
+  this.kind='compat';this.disposed=false;this.meshes={};this.lines={};this.points={};this.fleetCache=new Map();
   this.off=[0,0,0];this.cam={th:.85,ph:1.05,r:1500,target:[0,0,0],fov:.72};this.frames=0;
  }
  upload(name,g){this.meshes[name]={geo:g,count:g.ni};}
  setLines(name,data){this.lines[name]=data;}
  setPoints(name,pos,col,size){this.points[name]={pos,col,size};}
  setGlow(list,rgb){const c=rgb||[110,185,255],pos=[],col=[],size=[];for(let i=0;i<list.length;i+=4){pos.push(...list.slice(i,i+3));col.push(c[0],c[1],c[2],150);size.push(list[i+3]);}this.setPoints('glow',pos,col,size);}
- resize(){const w=Math.max(1,Math.round(this.canvas.clientWidth)),h=Math.max(1,Math.round(this.canvas.clientHeight)),scale=Math.min(1,Math.sqrt(420000/(w*h)));const rw=Math.max(1,Math.round(w*scale)),rh=Math.max(1,Math.round(h*scale));if(this.canvas.width!==rw||this.canvas.height!==rh){this.canvas.width=rw;this.canvas.height=rh;}}
+ captureSize(scale=2){return captureDimensions(this.canvas.clientWidth,this.canvas.clientHeight,scale,typeof window!=='undefined'?window.devicePixelRatio:1,{maxPixels:4000000});}
+ capture(scale=2){return rendererCapture(this,scale);}
+ resize(){if(this._captureSize){const {width,height}=this._captureSize;if(this.canvas.width!==width)this.canvas.width=width;if(this.canvas.height!==height)this.canvas.height=height;return;}const w=Math.max(1,Math.round(this.canvas.clientWidth)),h=Math.max(1,Math.round(this.canvas.clientHeight)),scale=Math.min(1,Math.sqrt(420000/(w*h)));const rw=Math.max(1,Math.round(w*scale)),rh=Math.max(1,Math.round(h*scale));if(this.canvas.width!==rw||this.canvas.height!==rh){this.canvas.width=rw;this.canvas.height=rh;}}
  eye(){return Renderer.prototype.eye.call(this);}
  matrices(){return Renderer.prototype.matrices.call(this);}
  ray(x,y){return Renderer.prototype.ray.call(this,x,y);}
  project(p){return Renderer.prototype.project.call(this,p);}
- dispose(){this.meshes={};this.lines={};this.points={};this.fleetCache.clear();}
+ dispose(){this.disposed=true;this.meshes={};this.lines={};this.points={};this.fleetCache.clear();}
  prepareFleet(key,ship){
   if(this.fleetCache.has(key))return this.fleetCache.get(key);
   const model=C.deserialize(C.serialize(ship));for(const h of model.hatches)if(C.isSlidingHatch(model,h))h.open=0;
@@ -2192,7 +2238,7 @@ class CompatRenderer {
  }
  pruneFleet(keys){for(const key of this.fleetCache.keys())if(!keys.has(key))this.fleetCache.delete(key);}
  draw(opt={}){
-  this.resize();const w=this.canvas.width,h=this.canvas.height,ctx=this.ctx,m=this.matrices();
+  if(this.disposed)return false;this.resize();const w=this.canvas.width,h=this.canvas.height,ctx=this.ctx,m=this.matrices();
   const image=ctx.createImageData(w,h),pixels=image.data,depth=new Float32Array(w*h);depth.fill(Infinity);
   for(let y=0;y<h;y++){const t=y/h;for(let x=0;x<w;x++){const k=(y*w+x)*4;pixels[k]=Math.round(10-4*t);pixels[k+1]=Math.round(17-5*t);pixels[k+2]=Math.round(25-7*t);pixels[k+3]=255;}}
   this._frame={w,h,m,pixels,depth};
@@ -2209,7 +2255,7 @@ class CompatRenderer {
   }
   ctx.putImageData(image,0,0);
   for(const name of opt.fleet?['fleetGrid','fleetOrders','fleetShots']:['grid',...(opt.mode==='cut'?['section']:[]),'ghost','cutter','verts'])this.paintLines(name,name==='grid'||name==='fleetGrid');
-  delete this._frame;this.frames++;return true;
+  delete this._frame;this.frames++;this._lastDrawOptions=opt;return true;
  }
  rasterMesh(g,name,alpha,clip,transform){
   if(!g?.ni)return;const colScale=REFERENCE_SHADED.has(name)||name==='refEngine'?2:1;const {w,h,m,pixels,depth}=this._frame,off=transform?.off||this.off,center=transform?.center||[0,0,0],R=transform?.rot||yawMatrix(transform?.yaw||0),M=m.VP;
@@ -2247,6 +2293,6 @@ class CompatRenderer {
  }
 }
 
-return {meshPreview, fleetGeometry, Renderer, CompatRenderer, meshSolidCutter, meshReferenceHull, meshReferenceFits, meshReferenceHatches, meshReferenceParts, sectionLines, meshHull, meshParts, meshKeel, meshHatches, meshFits, gridLines, shipBounds, lineSet, M4, Geo};
+return {meshPreview, fleetGeometry, captureDimensions, Renderer, CompatRenderer, meshSolidCutter, meshReferenceHull, meshReferenceFits, meshReferenceHatches, meshReferenceParts, sectionLines, meshHull, meshParts, meshKeel, meshHatches, meshFits, gridLines, shipBounds, lineSet, M4, Geo};
 })();
 
