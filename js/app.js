@@ -2275,6 +2275,7 @@ function paintPlan(g,W,H,R){
 function loop(now=performance.now()) {
   renderHealth.loops=(renderHealth.loops||0)+1;
   if(document.hidden){requestAnimationFrame(loop);return;}
+  if(shot.on)shotRefreshAvailability();
   // A fleet battle's maps laid over its 3D view run the world; the view waits underneath.
   if(trial.on&&voy.orders&&voy.open&&trial.rts){try{voyLoop(now);}catch(e){console.error(e);}trial.last=0;requestAnimationFrame(loop);return;}
   if(trial.on){try{if(view&&!renderHealth.lost&&!renderRetryTimer)trialLoop(now);}catch(e){renderingFailed(e);}requestAnimationFrame(loop);return;}
@@ -3719,9 +3720,9 @@ function bind() {
   });
   window.addEventListener('keydown', e => {
     if(fleet.mode!=='design'||trial.on)return;
-    if (e.target.matches('input, textarea, select')) return;
     const mod = e.ctrlKey || e.metaKey;
     if (shot.on && (e.key === 'Escape' || e.code === 'KeyH')) { e.preventDefault(); shotSet(false); return; }
+    if (e.target.matches('input, textarea, select') || e.target.closest?.('#shotBar')) return;
     if (!mod && !e.altKey && e.code === 'KeyH' && !document.body.classList.contains('title-open')) { e.preventDefault(); shotSet(true); return; }
     if (st.tab === 'edit' && ship) {   // v23 編集: Ctrl+G group, Ctrl+Shift+G ungroup, Ctrl+A all, Ctrl+D duplicate, Ctrl+C/X/V, Delete, Esc
       const k = e.key.toLowerCase();
@@ -5625,23 +5626,60 @@ function bindDockToggle(){
  b.addEventListener('click',()=>set(!$('#app').classList.contains('dock-off')));set(false);
 }
 // ---------- screenshot mode ----------
-// Hides every control so only the 3D view is left, on the drawing board and in
-// flight. A small bar (pause in flight, and the way back) shows while the
-// pointer moves and fades after a moment so it stays out of the picture.
-const shot={on:false,timer:0};
+// Keep the scene at its normal interactive resolution. Only PNG export redraws a
+// single frame at the chosen resolution; the renderer restores its live buffer.
+const SHOT_SCALES=[1,2,4];
+const shot={on:false,timer:0,scale:SHOT_SCALES.includes(Number(LS.get('yard.shotQuality')))?Number(LS.get('yard.shotQuality')):2,busy:false,status:''};
 function shotSet(on){
  on=!!on;if(shot.on===on)return;shot.on=on;document.body.classList.toggle('shot-mode',on);const bar=$('#shotBar');
- if(on){hideInspect();clearHover();if(!trial.on){st.sel=null;st.hatchA=null;refreshOverlay();}if(bar)bar.hidden=false;shotBarRender();shotWake();toast('スクリーンショット表示：画面に触れると操作ボタンが出ます（H・Esc で戻る）');}
+ if(on){hideInspect();clearHover();if(!trial.on){st.sel=null;st.hatchA=null;refreshOverlay();}if(bar)bar.hidden=false;shot.status='';shotBarRender();shotWake();toast('画質を選んで「PNGで保存」を押すと、高解像度の画像を保存できます（H・Esc で戻る）。');}
  else{if(bar){bar.hidden=true;bar.classList.remove('idle');}clearTimeout(shot.timer);if(trial.paused)trialPause(false);if(!trial.on)renderPanel();}
  const b=$('#btnShot');if(b)b.setAttribute('aria-pressed',String(on));setTimeout(()=>requestDraw(),30);
 }
-function shotWake(){const bar=$('#shotBar');if(!shot.on||!bar)return;bar.classList.remove('idle');clearTimeout(shot.timer);shot.timer=setTimeout(()=>bar.classList.add('idle'),2600);}
-function shotBarRender(){const bar=$('#shotBar');if(!bar)return;bar.innerHTML=`${trial.on?`<button type="button" class="shot-btn" data-shot="pause" aria-pressed="${!!trial.paused}">${trial.paused?'▶ 再開':'❚❚ 一時停止'}</button>`:''}<button type="button" class="shot-btn" data-shot="exit">表示を戻す</button>`;}
+function shotWake(){
+ const bar=$('#shotBar');if(!shot.on||!bar)return;bar.classList.remove('idle');clearTimeout(shot.timer);
+ shot.timer=setTimeout(()=>{if(shot.busy||bar.matches(':hover')||bar.contains(document.activeElement))shotWake();else bar.classList.add('idle');},2600);
+}
+function shotCanSave(){return !!view?.capture&&!renderHealth.lost&&!load.on&&(trial.on?!(voy.open&&voy.orders):!voy.open&&fleet.mode!=='tactical');}
+function shotOutputSize(){try{return shotCanSave()?view.captureSize(shot.scale):null;}catch(e){return null;}}
+// Loading and map overlays can finish while the bar is already open. Update only
+// availability here so native selects/buttons keep their focus during a flight.
+function shotRefreshAvailability(){
+ const bar=$('#shotBar'),save=bar?.querySelector?.('[data-shot="save"]');if(!save)return;
+ const disabled=shot.busy||!shotCanSave();if(save.disabled!==disabled){save.disabled=disabled;const size=bar.querySelector('[data-shot-size]');if(size)size.textContent=T(shotSizeText());}
+}
+function shotSizeText(){const s=shotOutputSize();return s?`${s.width} × ${s.height} px${s.limited?'（端末の上限に調整）':''}`:'画像の保存は3D表示で使えます。';}
+function shotBarRender(){
+ const bar=$('#shotBar');if(!bar)return;const can=shotCanSave();
+ bar.innerHTML=`<div class="shot-export"><label class="shot-quality"><span>保存画質</span><select data-shot-quality aria-label="スクリーンショットの保存画質"${shot.busy?' disabled':''}>${[[1,'標準（1倍）'],[2,'高画質（2倍）'],[4,'最高画質（4倍）']].map(([v,n])=>`<option value="${v}"${shot.scale===v?' selected':''}>${n}</option>`).join('')}</select></label><span class="shot-size" data-shot-size>${shotSizeText()}</span><button type="button" class="shot-btn shot-save" data-shot="save"${shot.busy||!can?' disabled':''}>${shot.busy?'画像を保存中…':'PNGで保存'}</button></div><div class="shot-actions">${trial.on?`<button type="button" class="shot-btn" data-shot="pause" aria-pressed="${!!trial.paused}">${trial.paused?'▶ 再開':'❚❚ 一時停止'}</button>`:''}<button type="button" class="shot-btn" data-shot="exit">表示を戻す</button></div><span class="shot-result" role="status" aria-live="polite">${esc(shot.status)}</span>`;
+}
+function shotPNGBlob(canvas){return new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('PNG encoding failed')),'image/png'));}
+function shotFilename(width,height){
+ const raw=(trial.on?trial.asset?.design?.name:ship?.name)||'kuat-shipwright',name=String(raw).replace(/[\\/:*?"<>|\u0000-\u001f]/g,'_').slice(0,80);
+ return `${name}_${width}x${height}_${new Date().toISOString().replace(/[:.]/g,'-')}.png`;
+}
+async function shotSavePNG(){
+ if(shot.busy)return;if(!shotCanSave()){toast('画像の保存は3D表示で使えます。');return;}
+ shot.busy=true;shot.status='';shotBarRender();shotWake();
+ try{
+  // Let the full-screen layout and the progress label paint before the synchronous
+  // capture. Replaying the last rendered scene never advances flight or battle time.
+  await new Promise(resolve=>requestAnimationFrame(resolve));
+  if(!shotCanSave())throw new Error('3D view unavailable');
+  const image=view.capture(shot.scale),width=image.width,height=image.height,blob=await shotPNGBlob(image),url=URL.createObjectURL(blob);
+  try{const a=document.createElement('a');a.href=url;a.download=shotFilename(width,height);document.body.appendChild(a);try{a.click();}finally{a.remove();}}
+  finally{setTimeout(()=>URL.revokeObjectURL(url),60000);}
+  shot.status=`PNGを保存しました（${width} × ${height} px）。`;toast(shot.status);
+ }catch(e){console.error('Screenshot export failed',e);shot.status='画像を保存できませんでした。画質を下げて再試行してください。';toast(shot.status);}
+ finally{shot.busy=false;if(shot.on){shotBarRender();shotWake();}requestDraw();}
+}
 function trialPause(on){trial.paused=on==null?!trial.paused:!!on;trial.fire=trial.fireKey=false;trial.last=0;shotBarRender();if(!shot.on)toast(trial.paused?'一時停止（K で再開）':'再開');}
 function bindShot(){
  $('#btnShot')?.addEventListener('click',()=>shotSet(!shot.on));
- $('#shotBar')?.addEventListener('click',e=>{const b=e.target.closest('[data-shot]');if(!b)return;e.preventDefault();if(b.dataset.shot==='pause')trialPause();else shotSet(false);shotWake();});
+ $('#shotBar')?.addEventListener('click',e=>{const b=e.target.closest('[data-shot]');if(!b)return;e.preventDefault();if(b.dataset.shot==='pause')trialPause();else if(b.dataset.shot==='save')shotSavePNG();else shotSet(false);shotWake();});
+ $('#shotBar')?.addEventListener('change',e=>{const t=e.target;if(!t.matches('[data-shot-quality]'))return;const v=Number(t.value);if(shot.busy||!SHOT_SCALES.includes(v))return;shot.scale=v;LS.set('yard.shotQuality',String(v));const size=$('#shotBar [data-shot-size]');if(size)size.textContent=T(shotSizeText());shotWake();});
  for(const ev of ['pointerdown','pointermove'])window.addEventListener(ev,()=>{if(shot.on)shotWake();},{passive:true});
+ window.addEventListener('resize',()=>{if(shot.on)shotBarRender();});
 }
 // ---------- 公試: a free flight trial in low orbit over Coruscant ----------
 // WoWS-style standing orders for speed and rudder, a stick for pitch and roll,
@@ -7368,7 +7406,8 @@ function bindTrial(){
  window.addEventListener('keydown',e=>{if(!trial.on||e.ctrlKey||e.metaKey||e.altKey)return;
   // The maps over a fleet battle's 3D view take the keys.
   if(trial.spectate&&voy.orders)return;
-  if(shot.on&&e.code==='Escape'){e.preventDefault();e.stopImmediatePropagation();shotSet(false);return;}
+  if(shot.on&&(e.code==='Escape'||e.code==='KeyH')){e.preventDefault();e.stopImmediatePropagation();shotSet(false);return;}
+  if(e.target.closest?.('#shotBar'))return;
   if(trial.spectate){if(!e.target.matches?.('input,textarea,select')&&voySpectateKey(e)){e.preventDefault();e.stopImmediatePropagation();}return;}
   if(TRIAL_HOLD[e.code]){e.preventDefault();e.stopImmediatePropagation();trial.keys.add(e.code);trialKeyStick();return;}
   if(e.code==='Space'){e.preventDefault();e.stopImmediatePropagation();trial.fireKey=true;return;}
