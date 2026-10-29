@@ -2936,6 +2936,10 @@ function vmirrorPoint(ship,p){const y0=vmirrorPlane(ship,p[0]);return [p[0],2*y0
 function vmirrorPart(p,ship){
  const q=JSON.parse(JSON.stringify(p,(k,v)=>k.startsWith('_')?undefined:v));delete q.tw;delete q.vt;
  q.c=vmirrorPoint(ship,p.c);if(q.dir)q.dir=[q.dir[0],-q.dir[1],q.dir[2]];
+ if(q.wing?.pivot)q.wing.pivot=vmirrorPoint(ship,q.wing.pivot);
+ // X-axis rotation changes sense across the horizontal symmetry plane.
+ // Y rotates about the reflected axis; Z's sense already follows its vertical side.
+ if(q.wing?.foil&&(q.wing.axis||'x')==='x'){q.wing.stow=-(q.wing.stow??0);q.wing.open=-(q.wing.open??15);}
  if(q.aviationSurfaces){const a=q.aviationSurfaces;[a.top,a.bottom]=[a.bottom||'none',a.top||'none'];}
  if(p.k==='struct'){
   // A vertical reflection equals a 180° roll of the left-right reflected shape.
@@ -10509,7 +10513,9 @@ function wingPivot(ship,p){
 // Angle sense: a positive angle lifts the tip (X axis), sweeps it aft (Y axis) or tips it aft (Z axis) on either
 // side, so a mirrored pair shares its numbers.
 function foilSign(ship,p){const b=wingBounds(p),c=[(b[0]+b[3])/2,(b[1]+b[4])/2,(b[2]+b[5])/2],d=sub(c,wingPivot(ship,p)),ax=p.wing.axis||'x';
- return ax==='z'?(d[1]<0?-1:1):(d[2]<0?1:-1);}
+ // A hinge at the wing's centre still needs opposite senses on mirrored wings.
+ const side=ax==='z'?(Math.abs(d[1])>1e-9?d[1]:c[1]-vmirrorPlane(ship,c[0])):(Math.abs(d[2])>1e-9?d[2]:c[2]);
+ return ax==='z'?(side<0?-1:1):(side<0?1:-1);}
 function rotAxis(ax,th,v){const c=Math.cos(th),s=Math.sin(th);if(ax==='x')return [v[0],v[1]*c-v[2]*s,v[1]*s+v[2]*c];if(ax==='y')return [v[0]*c+v[2]*s,v[1],-v[0]*s+v[2]*c];return [v[0]*c-v[1]*s,v[0]*s+v[1]*c,v[2]];}
 // Where a point carried by the wing is at angle a (degrees) instead of the modelled (deployed) one.
 function foilFrame(ship,p){const pv=wingPivot(ship,p),sg=foilSign(ship,p),ax=p.wing.axis||'x';return {pv,sg,ax};}

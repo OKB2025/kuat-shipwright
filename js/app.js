@@ -2029,9 +2029,10 @@ function adoptEngineState(msg) {
 }
 function onEngineGeometry(msg) {
   eng.waiting = false;
-  if (msg.gen >= eng.geoGen) { eng.geoGen = msg.gen; applyGeometry(msg); eng.ms = msg.totalMs; if (live.active && msg.gen >= live.gen) clearPreview(); }
+  if (msg.gen >= eng.geoGen) { eng.geoGen = msg.gen; applyGeometry(msg); eng.ms = msg.totalMs; if (live.active && msg.gen >= live.gen && st.foilView !== 'stow') clearPreview(); }
   if (msg.gen === eng.gen && msg.state) {
     adoptEngineState(msg);
+    if (st.foilView === 'stow') foilPreview(true);
     if (eng.fitOnGeometry) { eng.fitOnGeometry = false; fitCamera(eng.keepCam); }
     hideBusyOverlay();
     refreshOverlay(); renderPanelInfo(); updateAviationUI(); refreshDerivedPanel(); autosave();
@@ -4144,6 +4145,21 @@ function foilDiagramSVG(p){
   const pv=P(F.pv),view={x:'前方から見た図',y:'上から見た図',z:'側面から見た図'}[ax];
   return `<figure class="sw-arc"><svg viewBox="0 0 ${W0} ${H0}" role="img" aria-label="${view}">${stow.map(q=>poly(q,true)).join('')}${open.map(q=>poly(q,false)).join('')}<circle cx="${f(pv[0])}" cy="${f(pv[1])}" r="3.5" fill="#ffd27a"/></svg><figcaption class="note tight">${view}（実線：展開・破線：収納・黄点：回転軸）</figcaption></figure>`;
 }
+// Pivot coordinates use the ship frame, like the structure position editor. Leaving pivot unset
+// keeps the existing automatic root; typing any coordinate freezes the other two at their current values.
+function foilPivotControls(p){
+  const pv=C.foilFrame(ship,p).pv,L=C.DESIGN_LIMITS.coordinate;
+  return `<h4>回転起点（艦の座標・m）</h4><p class="note tight" data-foilpivotmode>${p.wing.pivot?'任意の位置':'付け根（自動）'}</p>
+  <div class="xf-grid">${[['X（前後）',0],['Y（上下）',1],['Z（左右）',2]].map(([label,a])=>`<label class="xf-row foil-pivot-row"><span>${label}</span><input type="number" step="any" min="${-L}" max="${L}" data-foilpivotcoord="${a}" value="${+pv[a].toFixed(6)}" aria-label="回転起点の${label}（m）"></label>`).join('')}</div>
+  <div class="vs-acts"><button type="button" class="btn sm" data-foilpivot="center">翼の中心に設定</button><button type="button" class="btn sm" data-foilpivot="auto">付け根の自動設定に戻す</button></div>
+  <p class="note">座標を入力すると回転起点を固定します。翼の外にも設定できます。黄点で起点を確認できます。</p>`;
+}
+function refreshFoilEditor(){
+  const p=selItem();if(!C.isFoil(p))return;
+  const mode=$('#wing-editor [data-foilpivotmode]');if(mode)mode.textContent=T(p.wing.pivot?'任意の位置':'付け根（自動）');
+  const diagram=$('#wing-editor .sw-arc');if(diagram)diagram.outerHTML=foilDiagramSVG(p);
+  if(st.foilView==='stow')foilPreview(true);
+}
 function wingControls(p){
   if(p.k!=='struct'||p.plate)return '';const W=p.wing,kind=!W?'none':W.solar?'solar':W.foil?'foil':'wing',x=W?wingFigures(p):null;
   let h=`<div class="pgroup wing-card" id="wing-editor"><h4>主翼・Sフォイル</h4>${seg('wingkind',[['none','構造のみ'],['wing','機能付き主翼'],['foil','Sフォイル'],['solar','太陽電池翼']],kind)}`;
@@ -4151,7 +4167,7 @@ function wingControls(p){
   const parts=x?x.parts.map(id=>ship.parts.find(q=>q.id===id)).filter(Boolean):[],nDis=parts.filter(q=>C.DISSIPATORS[q.k]).length;
   const row=(a,b)=>`<div><dt>${a}</dt><dd>${b}</dd></div>`;
   h+=`<div class="sliders">${slider('wingFeed','エネルギー伝達（付け根）',Math.round((W.feed??1)*100),0,200,5,fPct(W.feed??1))}${slider('wingReinf','補強',Math.round((W.reinf||0)*100),0,100,5,fPct(W.reinf||0))}</div>`;
-  if(W.foil)h+=`<h4>Sフォイル機構</h4>${seg('foilaxis',FOIL_AXIS_ROWS,W.axis||'x')}<div class="sliders">${slider('foilStow','収納角',W.stow,-150,150,1,deg(W.stow))}${slider('foilOpen','展開角',W.open,-150,150,1,deg(W.open))}${slider('foilT','展開時間',W.T,.1,120,.1,num(W.T,1)+' 秒')}</div>`;
+  if(W.foil)h+=`<h4>Sフォイル機構</h4>${seg('foilaxis',FOIL_AXIS_ROWS,W.axis||'x')}${foilPivotControls(p)}<div class="sliders">${slider('foilStow','収納角',W.stow,-150,150,1,deg(W.stow))}${slider('foilOpen','展開角',W.open,-150,150,1,deg(W.open))}${slider('foilT','展開時間',W.T,.1,120,.1,num(W.T,1)+' 秒')}</div>`;
   if(x&&W.solar)h+=`<dl class="engineering-stats">${row('パネル面積',num(x.area,1)+' m²')}${row('集電出力',fW(x.solarP))}${row('放熱能力（両面）',fW(x.capOpen))}</dl><p class="note">TIE の太陽電池翼のように、片面で集電して艦の発電に加わり、両面で外装型の散逸装置として熱を放出します（架空技術）。外に出ているので被弾すると失われます。面積に比例します。</p>`;
   if(x){h+=`<dl class="engineering-stats">${row('翼内の設備',num(parts.length))}${row('翼内の散逸装置',num(nDis))}${row('最大散逸能力（展開）',fW(x.capOpen))}${W.foil?row('最大散逸能力（収納）',fW(x.capStow)):''}${row('構造質量',fMass(x.mass))}${row('伝達路・補強の質量',fMass(x.feedMass+x.reinfMass))}${W.foil?row('作動機構の質量',fMass(x.act))+row('固着する損傷',`区画の骨組み ${fPct(1-x.jamAt)} 損失`):''}</dl>`;
    if(!nDis&&!W.solar)h+=`<p class="note warn">翼内に散逸装置がないため、散逸能力は増えません。</p>`;
@@ -4176,7 +4192,7 @@ function signatureHTML(e){
 function foilPreview(on){
   st.foilView=on?'stow':null;if(!on){clearPreview();return;}
   const parts=[];for(const w of ship.parts.filter(C.isFoil)){const P=C.foilPose(ship,w,w.wing.stow);if(P)parts.push(...P.parts);}
-  if(!parts.length||!view)return;
+  if(!parts.length){clearPreview();return;}if(!view)return;
   live.active=true;live.parts=parts;live.fits=[];live.hide.parts=new Set(parts.map(q=>q._poseOf));live.hide.fits=new Set();live.gen=(eng.gen||0)+1;
   try{const g=Gfx.meshPreview(ship,parts,[],{coded:st.coded});for(const k of ['preview','previewRef','previewFits','previewRefFits'])view.upload(k,g[k]);}catch(e){console.error(e);}
   requestDraw();
@@ -4185,15 +4201,27 @@ function bindWing(){
   $('#panel').addEventListener('click',e=>{
     const b=e.target.closest('button');if(!b)return;const d=b.dataset;
     if(d.wingkind){mutate(d.wingkind==='none'?'主翼の機能を外す':d.wingkind==='foil'?'Sフォイルにする':d.wingkind==='solar'?'太陽電池翼にする':'機能付き主翼にする',()=>editSel(p=>{if(p.k!=='struct')return;if(d.wingkind==='none'){delete p.wing;return;}const w=p.wing||{feed:1,reinf:0};if(d.wingkind==='solar'){w.solar=true;delete w.foil;}else delete w.solar;if(d.wingkind==='foil'){w.foil=true;w.axis=w.axis||'x';w.stow=w.stow??0;w.open=w.open??15;w.T=w.T??(craftDesign()?1:Math.max(2,Math.round(Math.cbrt(C.partVolume(p))*.4)));}else{delete w.foil;delete w.axis;delete w.stow;delete w.open;delete w.T;delete w.pivot;}p.wing=C.normalizeWing(w);if(w.solar)p.wing.solar=true;}),'parts');renderPanel();return;}
-    if(d.foilaxis){mutate('Sフォイルの回転軸',()=>editSel(p=>{if(C.isFoil(p))p.wing.axis=d.foilaxis;}),'parts');renderPanel();return;}
+    if(d.foilpivot){
+      endDrag();mutate('Sフォイルの回転起点',()=>editSel(p=>{if(!C.isFoil(p))return;if(d.foilpivot==='auto')delete p.wing.pivot;else if(d.foilpivot==='center'){const b=C.partAABB(p);p.wing.pivot=[0,1,2].map(a=>(b[a]+b[a+3])/2);}}),'parts');refreshFoilEditor();renderPanel();return;
+    }
+    if(d.foilaxis){mutate('Sフォイルの回転軸',()=>editSel(p=>{if(C.isFoil(p))p.wing.axis=d.foilaxis;}),'parts');refreshFoilEditor();renderPanel();return;}
     if(d.foilview){foilPreview(d.foilview==='stow');renderPanel();return;}
     if(d.sensband){mutate('センサーの帯域',()=>editSel(p=>{if(p.k==='sensor'||p.k==='scanner'){if(d.sensband==='multi')delete p.band;else p.band=d.sensband;}}),'parts');renderPanel();return;}
   });
   $('#panel').addEventListener('input',e=>{
-    const t=e.target,k=t.dataset.sl;if(!['wingFeed','wingReinf','foilStow','foilOpen','foilT'].includes(k)||t.value==='')return;const v=+t.value;if(!Number.isFinite(v))return;
+    const t=e.target;
+    if(t.dataset.foilpivotcoord!=null){
+      const a=Number(t.dataset.foilpivotcoord),v=Number(t.value);if(t.value.trim()===''||![0,1,2].includes(a)||!Number.isFinite(v)||!C.isFoil(selItem()))return;
+      beginDrag('Sフォイルの回転起点');editSel(p=>{if(!C.isFoil(p))return;const pv=C.foilFrame(ship,p).pv;pv[a]=C.clamp(v,-C.DESIGN_LIMITS.coordinate,C.DESIGN_LIMITS.coordinate);p.wing.pivot=pv;});
+      touch('parts');scheduleStats(350);refreshFoilEditor();return;
+    }
+    const k=t.dataset.sl;if(!['wingFeed','wingReinf','foilStow','foilOpen','foilT'].includes(k)||t.value==='')return;const v=+t.value;if(!Number.isFinite(v))return;
     beginDrag('主翼・Sフォイルを調整');
     editSel(p=>{if(!C.isWing(p))return;const W=p.wing;if(k==='wingFeed')W.feed=C.clamp(v/100,0,2);if(k==='wingReinf')W.reinf=C.clamp(v/100,0,1);if(W.foil){if(k==='foilStow')W.stow=C.clamp(v,-150,150);if(k==='foilOpen')W.open=C.clamp(v,-150,150);if(k==='foilT')W.T=C.clamp(v,.1,600);}});
-    touch('parts');scheduleStats(350);const out=$('#out-'+k);if(out)out.textContent=k==='foilT'?num(v,1)+' 秒':k.startsWith('foil')?deg(v):fPct(v/100);
+    touch('parts');scheduleStats(350);const out=$('#out-'+k);if(out)out.textContent=k==='foilT'?num(v,1)+' 秒':k.startsWith('foil')?deg(v):fPct(v/100);refreshFoilEditor();
+  });
+  $('#panel').addEventListener('change',e=>{
+    const t=e.target;if(t.dataset.foilpivotcoord!=null){endDrag();const p=selItem(),a=Number(t.dataset.foilpivotcoord);if(C.isFoil(p)&&[0,1,2].includes(a))t.value=+C.foilFrame(ship,p).pv[a].toFixed(6);}
   });
 }
 function heatHTML(){
@@ -5159,6 +5187,7 @@ function xfFrame(o,fw,up){
 }
 function xfPartOut(q,T){
  const o=publicCopy(q);o.c=T.pt(q.c).map(r6);
+ if(q.wing?.pivot)o.wing.pivot=T.pt(q.wing.pivot).map(r6);
  if(T.R&&xfTurns(q)){const sh=C.PARTS[q.k].shape;
   if(q.k==='struct'||q.room||sh==='cube'){if(q.k!=='struct'&&!o.room)C.setRoomSize(o,[q.d,q.d,q.d]);const f=C.structFrame(q);xfFrame(o,T.R(f.fw),T.R(f.up));}
   else if(sh==='cyl'||sh==='engine')o.dir=C.norm(T.R(q.dir||[1,0,0])).map(r6);}
