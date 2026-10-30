@@ -3724,6 +3724,7 @@ function bind() {
     if (shot.on && (e.key === 'Escape' || e.code === 'KeyH')) { e.preventDefault(); shotSet(false); return; }
     if (e.target.matches('input, textarea, select') || e.target.closest?.('#shotBar')) return;
     if (!mod && !e.altKey && e.code === 'KeyH' && !document.body.classList.contains('title-open')) { e.preventDefault(); shotSet(true); return; }
+    if(!mod&&!e.altKey&&e.code==='KeyO'&&ship?.parts.some(C.isFoil)&&!document.body.classList.contains('title-open')){e.preventDefault();if(e.repeat)return;foilPreview(st.foilView!=='stow');renderPanel();return;}
     if (st.tab === 'edit' && ship) {   // v23 編集: Ctrl+G group, Ctrl+Shift+G ungroup, Ctrl+A all, Ctrl+D duplicate, Ctrl+C/X/V, Delete, Esc
       const k = e.key.toLowerCase();
       if (mod && k === 'g') { e.preventDefault(); e.shiftKey ? editUngroup() : editGroup(); renderPanel(); return; }
@@ -4264,7 +4265,7 @@ function wingControls(p){
   if(x){h+=`<dl class="engineering-stats">${row('翼内の設備',num(parts.length))}${row('翼内の散逸装置',num(nDis))}${row('最大散逸能力（展開）',fW(x.capOpen))}${W.foil?row('最大散逸能力（収納）',fW(x.capStow)):''}${row('構造質量',fMass(x.mass))}${row('伝達路・補強の質量',fMass(x.feedMass+x.reinfMass))}${W.foil?row('作動機構の質量',fMass(x.act))+row('固着する損傷',`区画の骨組み ${fPct(1-x.jamAt)} 損失`):''}</dl>`;
    if(!nDis&&!W.solar)h+=`<p class="note warn">翼内に散逸装置がないため、散逸能力は増えません。</p>`;
    if(W.foil)h+=x.hits.length?`<ul class="ilist">${x.hits.map(c=>`<li><span><b>${esc(c.name)}</b></span><span>${deg(c.angle)}で干渉</span></li>`).join('')}</ul>`:`<p class="note">可動範囲の干渉：なし</p>`;}
-  if(W.foil)h+=foilDiagramSVG(p)+`<div class="vs-acts"><button type="button" class="btn sm${st.foilView==='stow'?' on':''}" data-foilview="stow">収納状態を3Dで表示</button><button type="button" class="btn sm${st.foilView!=='stow'?' on':''}" data-foilview="open">展開状態（設計形状）</button></div><p class="note">形は展開状態で作ります。収納すると翼内の外装型散逸装置・放熱装置の面がふさがれて最大散逸能力が下がり、赤外・電磁の放射の一部が隠れます。負荷が収納時の能力以下なら実際の散逸量（と放射）は変わりません。武装は展開位置のまま表示します。</p>`;
+  if(W.foil)h+=foilDiagramSVG(p)+`<div class="vs-acts"><button type="button" class="btn sm${st.foilView==='stow'?' on':''}" data-foilview="stow">収納状態を3Dで表示</button><button type="button" class="btn sm${st.foilView!=='stow'?' on':''}" data-foilview="open">展開状態（設計形状）</button></div><p class="note">O キーでも展開・収納表示を切り替えられます。</p><p class="note">形は展開状態で作ります。収納すると翼内の外装型散逸装置・放熱装置の面がふさがれて最大散逸能力が下がり、赤外・電磁の放射の一部が隠れます。負荷が収納時の能力以下なら実際の散逸量（と放射）は変わりません。武装は展開位置のまま表示します。</p>`;
   if(p.form!=='mesh')h+=`<button type="button" class="btn sm" data-meshconvert>翼の形を頂点編集できる形に変換</button>`;
   return h+`<p class="note">翼の形は「編集」タブの頂点編集で変えられます。中心が翼の内部にある設備が翼内の設備です。</p></div>`;
 }
@@ -5124,6 +5125,14 @@ function multiDelete(label){
  mutate(label||'まとめて撤去',()=>{for(const id of ids.fits)C.removeItem(ship,'fits',id,false);for(const id of ids.parts)C.removeItem(ship,'parts',id,false);for(const f of ship.fits)if(f.host!=null&&ids.parts.has(f.host))delete f.host;},'all');
  st.multi={parts:new Set(),fits:new Set()};if(st.sel&&ids[st.sel.list]?.has(st.sel.id))st.sel=null;
 }
+// Copied wings own only the members included in that copy. Their explicit hinge
+// uses the same position transform as the copied parts, while automatic roots stay automatic.
+function copyWingLinks(p,map,point){
+ const w=p.wing;if(!w)return;if(Array.isArray(w.pivot))w.pivot=point(w.pivot);
+ const m=C.normalizeWing(w)?.members;if(!m){delete w.members;return;}
+ const parts=m.parts.map(id=>map.parts.get(id)).filter(id=>id!=null),fits=m.fits.map(id=>map.fits.get(id)).filter(id=>id!=null);
+ if(parts.length||fits.length)w.members={parts,fits};else delete w.members;
+}
 function multiPaste(){
  const c=clipRead();if(!c||!(c.parts.length||c.fits.length)){toast('クリップボードは空です');return;}
  const k=st.pasteMode==='scale'&&c.from?.L>0?[ship.hull.L/c.from.L,ship.hull.H/(c.from.H||ship.hull.H),ship.hull.W/(c.from.W||ship.hull.W)]:[1,1,1],sc=v=>v.map((x,i)=>x*k[i]);
@@ -5132,7 +5141,7 @@ function multiPaste(){
  const ok=mutate(`${c.parts.length+c.fits.length} 個を貼り付け`,()=>{
   for(const l of ['parts','fits'])for(const src of c[l]){const q=JSON.parse(JSON.stringify(src));map[l].set(src.id,ship.nextId);q.id=ship.nextId++;made[l].push(q);}
   for(const l of ['parts','fits'])for(const q of made[l]){for(const r of ['tw','vt']){if(q[r]==null)continue;const n=map[l].get(q[r]);if(n!=null)q[r]=n;else delete q[r];}
-   if(l==='fits'){if(q.host!=null){const n=map.parts.get(q.host);if(n!=null)q.host=n;else delete q.host;}q.p=sc(q.p);delete q.float;}else q.c=sc(q.c);
+   if(l==='fits'){if(q.host!=null){const n=map.parts.get(q.host);if(n!=null)q.host=n;else delete q.host;}q.p=sc(q.p);delete q.float;}else{q.c=sc(q.c);copyWingLinks(q,map,sc);}
    ship[l].push(q);}
  },'all');
  if(ok===false)return;st.multi={parts:new Set(made.parts.map(q=>q.id)),fits:new Set(made.fits.map(q=>q.id))};
@@ -5142,7 +5151,7 @@ function multiMove(axis,sign){
  const m=multiItems(),step=C.clamp(+st.multiStep||0,0,C.DESIGN_LIMITS?.coordinate||1e5);if(!(m.parts.length||m.fits.length)||!step)return;
  const d=[0,0,0];d[axis]=sign*step;const moved=new Set();
  mutate('まとめて移動',()=>{
-  const apply=(l,q,v)=>{if(!q||moved.has(l+q.id))return;moved.add(l+q.id);if(l==='parts')q.c=q.c.map((x,i)=>x+v[i]);else q.p=q.p.map((x,i)=>x+v[i]);};
+  const apply=(l,q,v)=>{if(!q||moved.has(l+q.id))return;moved.add(l+q.id);if(l==='parts'){q.c=q.c.map((x,i)=>x+v[i]);if(q.wing?.pivot)q.wing.pivot=q.wing.pivot.map((x,i)=>x+v[i]);}else q.p=q.p.map((x,i)=>x+v[i]);};
   for(const l of ['parts','fits']){const find=id=>ship[l].find(x=>x.id===id),inSel=id=>id!=null&&st.multi[l].has(id);
    for(const q of m[l]){if(moved.has(l+q.id))continue;apply(l,q,d);
     if(st.mirror&&inSel(q.tw))apply(l,find(q.tw),[d[0],d[1],-d[2]]);
@@ -5427,7 +5436,7 @@ function editDuplicate(){
  const map={parts:new Map(),fits:new Map()},made={parts:[],fits:[]};let next=ship.nextId;
  for(const l of ['parts','fits'])for(const q of src[l]){const o=publicCopy(q);map[l].set(q.id,next);o.id=next++;made[l].push(o);}
  for(const l of ['parts','fits'])for(const o of made[l]){for(const r of ['tw','vt']){if(o[r]==null)continue;const n=map[l].get(o[r]);if(n!=null)o[r]=n;else delete o[r];}
-  if(l==='parts'){o.c=o.c.map((v,i)=>v+off[i]);if(o.reactor!=null&&map.parts.has(o.reactor))o.reactor=map.parts.get(o.reactor);}
+  if(l==='parts'){o.c=o.c.map((v,i)=>v+off[i]);copyWingLinks(o,map,p=>p.map((v,i)=>v+off[i]));if(o.reactor!=null&&map.parts.has(o.reactor))o.reactor=map.parts.get(o.reactor);}
   else{if(o.host!=null){const n=map.parts.get(o.host);if(n!=null)o.host=n;else{delete o.host;delete o.local;delete o.localNormal;}}if(o.host==null){const p=o.p.map((v,i)=>v+off[i]);seatFit(o,p,o.n||C.AXES[o.a]);}}}
  const check=xfCheck([...made.parts.map(o=>({list:'parts',before:null,after:o})),...made.fits.filter(o=>o.host==null).map(o=>({list:'fits',before:{float:false},after:o}))],true);
  if(check.size){sndUI('ui_error');toast(esc(xfMessage(check))+'。「刻み」を大きくするか、向きを変えてください');return;}
@@ -5651,7 +5660,7 @@ function shotRefreshAvailability(){
 function shotSizeText(){const s=shotOutputSize();return s?`${s.width} × ${s.height} px${s.limited?'（端末の上限に調整）':''}`:'画像の保存は3D表示で使えます。';}
 function shotBarRender(){
  const bar=$('#shotBar');if(!bar)return;const can=shotCanSave();
- bar.innerHTML=`<div class="shot-export"><label class="shot-quality"><span>保存画質</span><select data-shot-quality aria-label="スクリーンショットの保存画質"${shot.busy?' disabled':''}>${[[1,'標準（1倍）'],[2,'高画質（2倍）'],[4,'最高画質（4倍）']].map(([v,n])=>`<option value="${v}"${shot.scale===v?' selected':''}>${n}</option>`).join('')}</select></label><span class="shot-size" data-shot-size>${shotSizeText()}</span><button type="button" class="shot-btn shot-save" data-shot="save"${shot.busy||!can?' disabled':''}>${shot.busy?'画像を保存中…':'PNGで保存'}</button></div><div class="shot-actions">${trial.on?`<button type="button" class="shot-btn" data-shot="pause" aria-pressed="${!!trial.paused}">${trial.paused?'▶ 再開':'❚❚ 一時停止'}</button>`:''}<button type="button" class="shot-btn" data-shot="exit">表示を戻す</button></div><span class="shot-result" role="status" aria-live="polite">${esc(shot.status)}</span>`;
+ bar.innerHTML=`<div class="shot-export"><label class="shot-quality"><span>保存画質</span><select data-shot-quality aria-label="スクリーンショットの保存画質"${shot.busy?' disabled':''}>${[[1,'標準（1倍）'],[2,'高画質（2倍）'],[4,'最高画質（4倍）']].map(([v,n])=>`<option value="${v}"${shot.scale===v?' selected':''}>${n}</option>`).join('')}</select></label><span class="shot-size" data-shot-size>${shotSizeText()}</span><button type="button" class="shot-btn shot-save" data-shot="save"${shot.busy||!can?' disabled':''}>${shot.busy?'画像を保存中…':'PNGで保存'}</button></div><div class="shot-actions">${trial.on&&typeof trialHasFoils==='function'&&trialHasFoils()?trialFoilButtonHTML('shot'):''}${trial.on?`<button type="button" class="shot-btn" data-shot="pause" aria-pressed="${!!trial.paused}">${trial.paused?'▶ 再開':'❚❚ 一時停止'}</button>`:''}<button type="button" class="shot-btn" data-shot="exit">表示を戻す</button></div><span class="shot-result" role="status" aria-live="polite">${esc(shot.status)}</span>`;
 }
 function shotPNGBlob(canvas){return new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('PNG encoding failed')),'image/png'));}
 function shotFilename(width,height){
@@ -5676,7 +5685,7 @@ async function shotSavePNG(){
 function trialPause(on){trial.paused=on==null?!trial.paused:!!on;trial.fire=trial.fireKey=false;trial.last=0;shotBarRender();if(!shot.on)toast(trial.paused?'一時停止（K で再開）':'再開');}
 function bindShot(){
  $('#btnShot')?.addEventListener('click',()=>shotSet(!shot.on));
- $('#shotBar')?.addEventListener('click',e=>{const b=e.target.closest('[data-shot]');if(!b)return;e.preventDefault();if(b.dataset.shot==='pause')trialPause();else if(b.dataset.shot==='save')shotSavePNG();else shotSet(false);shotWake();});
+ $('#shotBar')?.addEventListener('click',e=>{const b=e.target.closest('[data-shot]');if(!b)return;e.preventDefault();if(b.dataset.shot==='pause')trialPause();else if(b.dataset.shot==='foil')trialCommand('foil');else if(b.dataset.shot==='save')shotSavePNG();else shotSet(false);shotWake();});
  $('#shotBar')?.addEventListener('change',e=>{const t=e.target;if(!t.matches('[data-shot-quality]'))return;const v=Number(t.value);if(shot.busy||!SHOT_SCALES.includes(v))return;shot.scale=v;LS.set('yard.shotQuality',String(v));const size=$('#shotBar [data-shot-size]');if(size)size.textContent=T(shotSizeText());shotWake();});
  for(const ev of ['pointerdown','pointermove'])window.addEventListener(ev,()=>{if(shot.on)shotWake();},{passive:true});
  window.addEventListener('resize',()=>{if(shot.on)shotBarRender();});
@@ -5720,6 +5729,65 @@ function trialCardHTML(side){
 // v21 The fixed pads (60 m, 4 km) suit ships; under 200 m they shrink with the length, so a starfighter's camera sits a few lengths away.
 const trialCamPad=L=>C.clamp(L/200,.02,1);
 const trialCamRange=r=>{const L=trial.spectate&&trial.camLen?trial.camLen:trial.p.len,k=trialCamPad(L);return C.clamp(r,L*.45+60*k,trial.spectate?Math.max(L*12+6000*k,60000*k):L*10+4000*k);};
+// Runtime wing state is independent of the saved design. A flown battle ship uses
+// its battle state so heat, damage jams and manual orders have one source of truth.
+function trialFoilUnit(){
+ if(trial.spectate)return null;const me=trial.battle?.me;
+ return me?.p?.foils?.length?me:trial.foilUnit||null;
+}
+function trialHasFoils(){return !trial.spectate&&!!trial.asset?.geometry?.foils?.length;}
+function unitFoilDeployments(u){
+ if(!u?.p?.foils?.length)return undefined;const out={};
+ for(let i=0;i<u.p.foils.length;i++)out[u.p.foils[i].id]=C.clamp(u.fo?.d?.[i]??1,0,1);
+ return out;
+}
+function trialFoilDeployments(){return unitFoilDeployments(trialFoilUnit());}
+function trialFoilReset(){
+ const F=trial.asset?.geometry?.foils||[],p=trial.p?.foils?.length?trial.p:{...trial.p,foils:F.map(f=>({id:f.id,T:f.T||1,sec:0,jam:0,n:'Sフォイル #'+f.id}))};
+ trial.foilUnit=F.length?{p,order:{foil:'close'}}:null;if(trial.foilUnit)C.foilInit(trial.foilUnit);
+ const u=trialFoilUnit();if(u&&!u.fo)C.foilInit(u);trialPoseFoilMounts();
+}
+function trialFoilTarget(u=trialFoilUnit()){
+ if(!u)return 0;if(u.order?.foil==='open')return 1;if(u.order?.foil==='close')return 0;
+ return u.fo?.want?.some(v=>v>.5)?1:0;
+}
+function trialFoilProgress(){
+ const u=trialFoilUnit(),s=u?.fo,n=s?.d?.length||0,d=n?s.d.reduce((a,b)=>a+b,0)/n:1,jam=s?.jam?.filter(Boolean).length||0;
+ return `Sフォイル ${Math.round(d*100)}% 展開${jam?' · 固着 '+jam+' 基':''}`;
+}
+function trialFoilButtonHTML(kind='hud'){
+ if(!trialHasFoils())return '';const open=trialFoilTarget(),action=open?'Sフォイルを収納':'Sフォイルを展開',attr=kind==='shot'?'data-shot="foil"':'data-trial-cmd="foil"';
+ return `<button type="button" class="${kind==='shot'?'shot-btn':'th-btn'} th-foil" ${attr} data-foil-control aria-pressed="${!!open}" aria-label="${action}"><span data-foil-action>${action}</span> <kbd>O</kbd><small class="foil-progress" data-foil-progress>${trialFoilProgress()}</small></button>`;
+}
+function trialFoilUpdateControls(){
+ if(!trialHasFoils())return;const open=trialFoilTarget(),action=open?'Sフォイルを収納':'Sフォイルを展開',progress=trialFoilProgress();
+ for(const b of document.querySelectorAll('[data-foil-control]')){b.setAttribute('aria-pressed',String(!!open));b.setAttribute('aria-label',T(action));const a=b.querySelector('[data-foil-action]'),s=b.querySelector('[data-foil-progress]');if(a&&sourceText(a)!==action)a.textContent=action;if(s&&sourceText(s)!==progress)s.textContent=progress;}
+}
+function trialFoilCommand(mode){
+ if(!trialHasFoils()){toast('この艦にはSフォイルがありません');return;}
+ const u=trialFoilUnit();if(!u)return;const open=mode==='open'?1:mode==='close'?0:1-trialFoilTarget(u);
+ u.order={...u.order,foil:open?'open':'close'};if(!u.fo)C.foilInit(u);for(let i=0;i<u.fo.want.length;i++)u.fo.want[i]=open;
+ trialFoilUpdateControls();toast(open?'Sフォイル：展開を指示':'Sフォイル：収納を指示');
+}
+function trialFoilStep(dt){
+ const u=trialFoilUnit();if(!u)return;
+ // Rts.foilTick already advances a flown voyage ship. Free flight and the
+ // standalone battle need their own single update, using simulation time.
+ if(!(trial.rts&&u===trial.battle?.me)&&dt>0)C.foilStep(u,dt,()=>trialFoilTarget(u),text=>toast(text));
+ trialPoseFoilMounts();
+}
+function trialFoilBase(t){
+ if(t._foilBase)return t._foilBase;const b={};for(const k of ['pivot','origin','axis','fw','e2','mount'])if(t[k])b[k]=t[k].slice();return t._foilBase=b;
+}
+function trialPoseFoilMounts(){
+ const F=trial.asset?.geometry?.foils;if(!F?.length||!Gfx.foilTransform)return;const ds=trialFoilDeployments()||{};
+ for(const t of trial.turrets||[]){const f=F.find(f=>f.id===t.foilId);if(!f)continue;const b=trialFoilBase(t),d=ds[f.id]??1,X=Gfx.foilTransform(f,d);
+  if(t._foilD!==d){t.clear=false;t.clearDir=null;t._foilD=d;}
+  for(const k of ['pivot','origin'])if(b[k])t[k]=X.point(b[k]);for(const k of ['axis','fw','e2','mount'])if(b[k])t[k]=X.direction(b[k]);
+  t._foilRot=X.rot;if(t.mesh)t.rot=m3Mul(trialAxisMatrix(t.axis,t.yaw||0),X.rot);
+ }
+ for(const t of trial.launchers||[]){const f=F.find(f=>f.id===t.foilId);if(!f)continue;const b=trialFoilBase(t),X=Gfx.foilTransform(f,ds[f.id]??1);if(b.origin)t.origin=X.point(b.origin);if(b.axis)t.axis=X.direction(b.axis);}
+}
 function trialReset(){
  if(trial.cine)spaceCineEnd();const sy=trialSys(),R=sy.planet.radius;Object.assign(trial,{P:[0,R+sy.altitude,0],V:[0,0,0],R:[1,0,0,0,1,0,0,0,1],w:[0,0,0],tele:1,rudder:0,level:false,t:0,last:0,vf:0,thrust:0,camF:null,warn:'',bolts:[],missiles:[],fx:[],wrecks:[],vbolts:[],fireTap:0,aim:null,lead:null,mslOrder:false,jump:null,flash:0,hitFlash:0,camSave:null,drones:[],gunTarget:null,heldLock:null});
  trial.rec={top:0,accel:null,run:null,turn:null,turnSpeed:0};trial.gun={shots:0,hits:0,kills:0,missiles:0};for(const l of trial.launchers){l.reload=0;l.queue=0;l.next=0;if(l.ammo0!=null)l.ammo=l.ammo0;}
@@ -5731,6 +5799,7 @@ function trialReset(){
  escortsInit();
  trial.swSolo=null;trial.swfx=[];trial.swPend=[];
  if(view){const asp=(view.canvas.clientWidth||900)/(view.canvas.clientHeight||600),r=trialCamRange((L*1.35+260*trialCamPad(L))*Math.max(1,.95/asp));view.cam.th=Math.PI;if(trial.camMode==='cockpit'){trial.chaseR=r;view.cam.ph=Math.PI/2;}else{view.cam.ph=TRIAL_CAM_PH;view.cam.r=r;}}
+ trialFoilReset();
 }
 // Target buoys sit ahead of the ship in its local horizon, 8–28 km out.
 function trialSpawnTarget(i,first){
@@ -5765,7 +5834,7 @@ async function trialStart(opts={}){
  requestAnimationFrame(()=>{requestDraw();});loadHideSoon();
 }
 function trialStop(){
- if(!trial.on)return;const msp=msPatrolCollect();if(shot.on)shotSet(false);trial.paused=false;trial.on=false;trial.hitcam=null;trial.fire=trial.fireKey=false;trial.keys.clear();trial.stick={x:0,y:0};trial.keyStick={x:0,y:0};
+ if(!trial.on)return;const msp=msPatrolCollect();if(shot.on)shotSet(false);trial.foilUnit=null;trial.paused=false;trial.on=false;trial.hitcam=null;trial.fire=trial.fireKey=false;trial.keys.clear();trial.stick={x:0,y:0};trial.keyStick={x:0,y:0};
  document.body.classList.remove('trial-on');const hud=$('#trialHud');hud.hidden=true;hud.innerHTML='';hud.classList.remove('spectate');if(view)view.renderScale=1;
  if(view){if(trial.designCamera){view.cam=trial.designCamera.cam;view.off=trial.designCamera.off;}delete view.cam.frame;delete view.cam.far;delete view.cam.near;}
  try{YardEngineClient.post({type:'trialEnd'});}catch(e){}
@@ -5961,7 +6030,7 @@ function trialGunnery(dt){
   if(lim.yaw!=null&&Math.abs(ty)>lim.yaw){ty=Math.sign(ty)*lim.yaw;t.arc=false;}if(te<lim.lo||te>lim.hi){te=C.clamp(te,lim.lo,lim.hi);t.arc=false;}
   if(t.pd&&!t.pdTarget)t.arc=false;
   const sy=t.rateRad*dt,dy=trialWrap(ty-t.yaw);t.yaw=trialWrap(t.yaw+C.clamp(dy,-sy,sy));const se=t.rateRad*1.5*dt;t.el+=C.clamp(te-t.el,-se,se);
-  if(t.mesh)trialAxisMatrix(t.axis,t.yaw,t.rot);
+  if(t.mesh){trialAxisMatrix(t.axis,t.yaw,t.rot);if(t._foilRot)t.rot=m3Mul(t.rot,t._foilRot);}
   const err=Math.max(Math.abs(trialWrap(ty-t.yaw)),Math.abs(te-t.el));t.aimed=t.arc&&err<.018;t.laid=t.arc&&err<(t.pilot?.02:.005);
   // Point defence slews fast after small targets, so it accepts an older line-of-fire check.
   const bd=trialBarrel(t,t.yaw,t.el),ok=t.clear&&t.clearDir&&tv.dot(bd,t.clearDir)>(t.pd?.995:.9986);t.ready=(t.pd?t.arc&&Math.max(Math.abs(trialWrap(ty-t.yaw)),Math.abs(te-t.el))<.03:t.aimed)&&ok&&t.charge>0&&!t.dead;
@@ -6035,8 +6104,8 @@ function trialMissiles(dt,lock){
 // other fittings; firing waits for a clear answer for the current direction.
 function trialRays(now){
  const ts=trial.turrets,ids=new Int32Array(ts.length),dirs=new Float32Array(ts.length*3),sent=ts.map(t=>trialBarrel(t,t.yaw,t.el));
- ts.forEach((t,i)=>{ids[i]=t.id;dirs.set(sent[i],i*3);});trial.rays.busy=true;trial.rays.last=now;const asset=trial.asset;
- YardEngineClient.request('trialRays',{ids:Array.from(ids),dirs:Array.from(dirs)}).then(r=>{if(trial.asset!==asset)return;const c=r.clear||[];ts.forEach((t,i)=>{t.clear=!!c[i];t.clearDir=sent[i];});}).catch(()=>{}).finally(()=>{trial.rays.busy=false;});
+ ts.forEach((t,i)=>{ids[i]=t.id;dirs.set(sent[i],i*3);});trial.rays.busy=true;trial.rays.last=now;const asset=trial.asset,foils=trialFoilDeployments(),poseKey=JSON.stringify(foils);
+ YardEngineClient.request('trialRays',{ids:Array.from(ids),dirs:Array.from(dirs),foils}).then(r=>{if(trial.asset!==asset||JSON.stringify(trialFoilDeployments())!==poseKey)return;const c=r.clear||[];ts.forEach((t,i)=>{t.clear=!!c[i];t.clearDir=sent[i];});}).catch(()=>{}).finally(()=>{trial.rays.busy=false;});
 }
 function trialRenderSets(){
  // (v21.2 with the small craft's guns and the point defence firing at them: trial.cbolts)
@@ -6123,6 +6192,7 @@ function trialCamera(dt){
 function trialLoop(now){
  // Paused, only the camera moves (for screenshots); the world and its clock stand still.
  const real=trial.last?Math.min(.05,(now-trial.last)/1000):0,dt=trial.paused?0:real;trial.last=now;
+ trialFoilStep(dt);
  if(trial.cine){trial.cine.t+=dt;if(trial.cine.t>=trial.cine.dur||trial.fire||trial.fireKey)spaceCineEnd();}
  trialCamera(real||.016);trialJumpStep(dt);
  // In hyperspace the ship holds still in the tunnel; in a flight everything
@@ -6133,8 +6203,9 @@ function trialLoop(now){
  if(trial.battle&&!tunnel){spaceAttStep(dt);spaceDeaths();trialSwBeamCheck();}
  if(trial.pat)patrolStep(dt,tunnel);
  trial.flash=Math.max(0,(trial.flash||0)-dt*2.2);trial.hitFlash=Math.max(0,(trial.hitFlash||0)-dt*1.6);
+ trialPoseFoilMounts();
  const d=trial.dust;view.setPoints('trialDust',d.pos,d.col,d.size);trialRenderSets();
- const me=trial.battle?.me,unit={key:trial.asset.key,pos:[0,0,0],yaw:0,rot:trial.R,glow:me?.out?0:glowOf('me',C.clamp(Math.max(.16,.8*Math.abs(TRIAL_TELEGRAPH[trial.tele][1]),trial.thrust||0),0,1)),hatchOpen:0,dead:!!me?.dead,noInner:trial.camMode==='cockpit'&&!!trialCockpitEye(),
+ const me=trial.battle?.me,unit={key:trial.asset.key,foils:trialFoilDeployments(),pos:[0,0,0],yaw:0,rot:trial.R,glow:me?.out?0:glowOf('me',C.clamp(Math.max(.16,.8*Math.abs(TRIAL_TELEGRAPH[trial.tele][1]),trial.thrust||0),0,1)),hatchOpen:0,dead:!!me?.dead,noInner:trial.camMode==='cockpit'&&!!trialCockpitEye(),
   turrets:trial.turrets.filter(t=>t.mesh).map(t=>({mesh:t.mesh,pivot:t.pivot,rot:t.rot})),targets:trial.targets.filter(t=>t.alive&&!t.ship).map(t=>({pos:tv.sub(t.pos,trial.P),rot:t.rot}))};
  // The stars stretch around the direction of travel; the tunnel covers them.
  const j=trial.jump,dir=j?.dir||trialCol(trial.R,0),hk=trialTunnelK(j);
@@ -6282,7 +6353,7 @@ function hitcamStep(now){
 function trialHudHTML(){
  return `<div class="th-canopy" aria-hidden="true"></div><div class="th-top"><div class="th-card th-bar"><div class="th-id"><b>${esc(trial.p?.name||ship?.name||'設計艦')}</b><small><span data-th="where">${trialWhere()}</span> <span data-th="clock">T+0:00</span></small></div>
  <dl class="th-read"><div><dt>速力</dt><dd data-th="speed">0</dd></div><div><dt>方位</dt><dd data-th="head">090°</dd></div><div><dt>高度</dt><dd data-th="alt">160 km</dd></div><div class="th-att"><dt>ピッチ</dt><dd data-th="pitch">0.0°</dd></div><div class="th-att"><dt>ロール</dt><dd data-th="bank">0.0°</dd></div></dl></div>
- <div class="th-actions">${trial.rts?'':'<button type="button" class="th-btn th-mapbtn" data-trial-cmd="map" aria-expanded="false" aria-controls="thMap" aria-label="星図とハイパードライブ">星図</button>'}<button type="button" class="th-btn th-pw" data-trial-cmd="power" data-th="pwbtn" aria-expanded="false" aria-controls="thPower" aria-label="出力配分">⚡ ${(C.POWER_MODES[trial.powerMode]||C.POWER_MODES.balanced).name}</button><button type="button" class="th-btn th-cambtn" data-trial-cmd="cam" aria-label="視点の切り替え（V）" title="視点の切り替え（V）"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.6"/></svg><span data-th="camq">${trialCamName(trial.camMode)}</span></button><button type="button" class="th-btn snd-btn" data-trial-cmd="mute" data-sound-toggle aria-pressed="false" aria-label="音を切る"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="snd-wave" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/><path class="snd-x" d="M16 9l5 6M21 9l-5 6"/></svg></button><button type="button" class="th-btn th-more" data-trial-cmd="menu" aria-expanded="false" aria-controls="thMenu" aria-label="その他の操作">⋯</button>
+ <div class="th-actions">${trialFoilButtonHTML()}${trial.rts?'':'<button type="button" class="th-btn th-mapbtn" data-trial-cmd="map" aria-expanded="false" aria-controls="thMap" aria-label="星図とハイパードライブ">星図</button>'}<button type="button" class="th-btn th-pw" data-trial-cmd="power" data-th="pwbtn" aria-expanded="false" aria-controls="thPower" aria-label="出力配分">⚡ ${(C.POWER_MODES[trial.powerMode]||C.POWER_MODES.balanced).name}</button><button type="button" class="th-btn th-cambtn" data-trial-cmd="cam" aria-label="視点の切り替え（V）" title="視点の切り替え（V）"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z"/><circle cx="12" cy="12" r="2.6"/></svg><span data-th="camq">${trialCamName(trial.camMode)}</span></button><button type="button" class="th-btn snd-btn" data-trial-cmd="mute" data-sound-toggle aria-pressed="false" aria-label="音を切る"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="snd-wave" d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/><path class="snd-x" d="M16 9l5 6M21 9l-5 6"/></svg></button><button type="button" class="th-btn th-more" data-trial-cmd="menu" aria-expanded="false" aria-controls="thMenu" aria-label="その他の操作">⋯</button>
  <div class="th-card th-menu th-power" id="thPower" hidden><p class="th-power-head">出力配分 <kbd>P</kbd></p>${Object.entries(C.POWER_MODES).map(([k,m])=>`<button type="button" class="th-btn th-pmode" data-trial-cmd="pmode:${k}" aria-pressed="${(trial.powerMode||'balanced')===k}"><b>${m.name}</b><small>${esc(m.note)}</small></button>`).join('')}</div><button type="button" class="th-btn th-exit" data-trial-cmd="exit">${trial.rts?'操艦終了':trial.mode==='battle'?'戦闘終了':trial.returnTo==='title'?'帰還':'公試終了'}</button>
  <div class="th-card th-menu th-map" id="thMap" hidden></div>
  <div class="th-card th-menu" id="thMenu" hidden><button type="button" class="th-btn" data-trial-cmd="cam" data-th="cam">視点 ${trialCamName(trial.camMode)}</button><button type="button" class="th-btn" data-trial-cmd="gunmode" data-th="gunmenu">主砲 ${GUN_MODES[trial.gunMode||'free'].name} <kbd>G</kbd></button><button type="button" class="th-btn" data-trial-cmd="shot">スクリーンショット <kbd>H</kbd></button><button type="button" class="th-btn" data-trial-cmd="level">水平復帰 <kbd>Z</kbd></button><button type="button" class="th-btn" data-trial-cmd="center">舵中央 <kbd>X</kbd></button><button type="button" class="th-btn" data-trial-cmd="records" data-th="recbtn">記録を表示</button><button type="button" class="th-btn" data-trial-cmd="reset">再開始</button></div></div></div>
@@ -6301,7 +6372,7 @@ function trialHudHTML(){
  <button type="button" class="th-msl" data-trial-cmd="missile" data-th="msl" aria-label="ミサイル発射" ${trial.launchers.length?'':'disabled'}>ミサイル<small data-th="mslstate">${trial.launchers.length?trial.launchers.length*8+' 発':'発射管なし'}</small></button>
  ${trialSwKinds().length?`<button type="button" class="th-sw" data-trial-cmd="sw" data-th="sw" aria-label="超兵器発射">超兵器<small data-th="swstate">充電</small></button>${trialSwKinds().includes('sbeam')?`<button type="button" class="th-swmode" data-trial-cmd="swmode" data-th="swmode" aria-label="超兵器の射撃の型">ビーム</button>`:''}<p class="th-swinfo${trialSwKinds().includes('sbeam')?'':' low'}" data-th="swinfo" aria-live="off" hidden></p>`:''}
  <i class="th-lead" data-th="lead" hidden aria-hidden="true"></i>
- <p class="th-keys">W/S 速力 · A/D 舵 · R/F 上げ下げ · Q/E ロール · Space 射撃 · C 斉射/連続 · T 随伴艦 · M ミサイル${trialSwKinds().length?' · B 超兵器'+(trialSwKinds().includes('sbeam')?' · N ビーム/パルス':''):''} · G 主砲照準 · P 出力配分 · J 星図 · H スクリーンショット · Z 水平復帰 · X 舵中央 · V 視点 · ドラッグで照準 · ホイールで距離</p>`;
+ <p class="th-keys">W/S 速力 · A/D 舵 · R/F 上げ下げ · Q/E ロール · Space 射撃 · C 斉射/連続 · T 随伴艦 · M ミサイル${trialSwKinds().length?' · B 超兵器'+(trialSwKinds().includes('sbeam')?' · N ビーム/パルス':''):''}${trialHasFoils()?' · O Sフォイル':''} · G 主砲照準 · P 出力配分 · J 星図 · H スクリーンショット · Z 水平復帰 · X 舵中央 · V 視点 · ドラッグで照準 · ホイールで距離</p>`;
 }
 function trialBindHud(hud){
  const stick=hud.querySelector('[data-th-stick]'),knob=stick?.querySelector('.knob'),fire=hud.querySelector('[data-th-fire]');
@@ -6315,7 +6386,7 @@ function trialBindHud(hud){
  fire?.addEventListener('contextmenu',e=>e.preventDefault());
 }
 function trialHudUpdate(full){
- const hud=$('#trialHud');if(!hud||!trial.on&&!full)return;const a=trialAttitude(),q=k=>hud.querySelector(`[data-th="${k}"]`),set=(k,v)=>{const e=q(k);if(e&&sourceText(e) !== String(v))e.textContent=v;};
+ const hud=$('#trialHud');if(!hud||!trial.on&&!full)return;trialFoilUpdateControls();const a=trialAttitude(),q=k=>hud.querySelector(`[data-th="${k}"]`),set=(k,v)=>{const e=q(k);if(e&&sourceText(e) !== String(v))e.textContent=v;};
  const v=trial.vf,p=trial.p,max=trialMaxRates(),deg=x=>x*180/Math.PI;
  set('speed',v>=1e5?`${num(Math.round(v/1000))} km/s`:`${num(Math.round(v))} m/s`);set('head',String(Math.round(a.heading)%360).padStart(3,'0')+'°');set('alt',`${(a.alt/1000).toFixed(1)} km`);
  set('pitch',`${deg(a.pitch)>=0?'+':''}${deg(a.pitch).toFixed(1)}°`);const b=deg(a.bank);set('bank',Math.abs(b)<.05?'0.0°':`${b>0?'右':'左'} ${Math.abs(b).toFixed(1)}°`);
@@ -6406,6 +6477,7 @@ function trialCommand(cmd){
  else if(cmd==='center'){trial.rudder=0;trial.level=false;}
  else if(cmd==='cam'){trialSetCam(TRIAL_CAMS[(TRIAL_CAMS.indexOf(trial.camMode)+1)%TRIAL_CAMS.length]);toast('視点：'+trialCamName(trial.camMode));}
  else if(cmd==='reset'){if(trial.rts){toast('艦隊戦の途中では再開始できません');return;}trialReset();}
+ else if(cmd==='foil'||cmd==='foil:open'||cmd==='foil:close'){trialFoilCommand(cmd.split(':')[1]);return;}
  else if(cmd==='fireTap')trial.fireTap=.25;
  else if(cmd==='menu'){const m=$('#thMenu'),b=document.querySelector('[data-trial-cmd="menu"]');if(m){m.hidden=!m.hidden;b?.setAttribute('aria-expanded',String(!m.hidden));}return;}
  else if(cmd==='power'){const m=$('#thPower'),b=document.querySelector('[data-trial-cmd="power"]');if(m){m.hidden=!m.hidden;b?.setAttribute('aria-expanded',String(!m.hidden));}return;}
@@ -7373,7 +7445,7 @@ function spaceDrawUnits(){
   if(tt!=null&&tt<.9){if(tt<0)continue;const k=warpLook(tt,u.p.len);w=tv.add(w,f,-k.D);stretch=k.stretch;flash=k.tint;}
   else if(u.absent&&!u.depart)continue;
   if(u.depart&&u.depart.t>0){const t=u.depart.t;w=tv.add(w,f,u.p.len*40*(t/.8)**3);stretch=1+25*t*t;flash=C.clamp((stretch-1)/16,0,.45);}
-  out.push({key:u.key,pos:tv.sub(w,trial.P),rot:R,glow:u.depart?1:glowOf(u.id,C.engineLevel(u)),hatchOpen:B.rts?u.hatchOpen||0:0,dead:false,stretch,flash});}   // v23 a fleet battle's carriers open their sliding hatch doors for launches and landings (Rts hatchTick)
+  out.push({key:u.key,foils:unitFoilDeployments(u),pos:tv.sub(w,trial.P),rot:R,glow:u.depart?1:glowOf(u.id,C.engineLevel(u)),hatchOpen:B.rts?u.hatchOpen||0:0,dead:false,stretch,flash});}   // v23 a fleet battle's carriers open their sliding hatch doors for launches and landings (Rts hatchTick)
  // Ships that jumped out, seen from outside: stretched along their heading and gone.
  for(const g of B.ghosts||[]){const t=g.t,stretch=1+25*t*t;out.push({key:g.key,pos:tv.sub(tv.add(g.w,g.f,g.L*40*(t/.8)**3),trial.P),rot:g.rot,glow:.55,hatchOpen:0,dead:false,stretch,flash:C.clamp((stretch-1)/16,0,.45)});}
  out.push(...spaceWreckDraw());
@@ -7398,7 +7470,7 @@ async function spaceBattleLaunch(){
  await fleetSetMode('design');await trialStart({design:asset.design,battle:plan,system:fleet.system||'coruscant',returnTo:'tactical'});
 }
 function trialSetPower(k){if(!Object.hasOwn(C.POWER_MODES,k))return;trial.powerMode=k;const b=document.querySelector('[data-th="pwbtn"]');if(b)b.textContent='⚡ '+C.POWER_MODES[k].name;document.querySelectorAll('#thPower [data-trial-cmd^="pmode:"]').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.trialCmd==='pmode:'+k)));toast('出力配分：'+C.POWER_MODES[k].name+' — '+C.POWER_MODES[k].note);}
-const TRIAL_KEYS={KeyT:'escort',KeyB:'sw',KeyN:'swmode',KeyC:'volley',KeyG:'gunmode',KeyH:'shot',KeyK:'pause',KeyP:'pnext',KeyM:'missile',KeyW:'tele+',ArrowUp:'tele+',KeyS:'tele-',ArrowDown:'tele-',KeyA:'rudder-',ArrowLeft:'rudder-',KeyD:'rudder+',ArrowRight:'rudder+',KeyZ:'level',KeyX:'center',KeyV:'cam',KeyJ:'map',Escape:'exit'};
+const TRIAL_KEYS={KeyO:'foil',KeyT:'escort',KeyB:'sw',KeyN:'swmode',KeyC:'volley',KeyG:'gunmode',KeyH:'shot',KeyK:'pause',KeyP:'pnext',KeyM:'missile',KeyW:'tele+',ArrowUp:'tele+',KeyS:'tele-',ArrowDown:'tele-',KeyA:'rudder-',ArrowLeft:'rudder-',KeyD:'rudder+',ArrowRight:'rudder+',KeyZ:'level',KeyX:'center',KeyV:'cam',KeyJ:'map',Escape:'exit'};
 const TRIAL_HOLD={KeyR:['y',1],KeyF:['y',-1],KeyQ:['x',-1],KeyE:['x',1]};
 function trialKeyStick(){const s={x:0,y:0};for(const k of trial.keys){const h=TRIAL_HOLD[k];if(h)s[h[0]]+=h[1];}trial.keyStick={x:C.clamp(s.x,-1,1),y:C.clamp(s.y,-1,1)};}
 function bindTrial(){
@@ -7407,7 +7479,8 @@ function bindTrial(){
   // The maps over a fleet battle's 3D view take the keys.
   if(trial.spectate&&voy.orders)return;
   if(shot.on&&(e.code==='Escape'||e.code==='KeyH')){e.preventDefault();e.stopImmediatePropagation();shotSet(false);return;}
-  if(e.target.closest?.('#shotBar'))return;
+  if(e.target.closest?.('#shotBar')||e.target.matches?.('input,textarea,select')||e.target.isContentEditable)return;
+  if(e.target.closest?.('[data-foil-control]')&&['Space','Enter'].includes(e.code))return;
   if(trial.spectate){if(!e.target.matches?.('input,textarea,select')&&voySpectateKey(e)){e.preventDefault();e.stopImmediatePropagation();}return;}
   if(TRIAL_HOLD[e.code]){e.preventDefault();e.stopImmediatePropagation();trial.keys.add(e.code);trialKeyStick();return;}
   if(e.code==='Space'){e.preventDefault();e.stopImmediatePropagation();trial.fireKey=true;return;}

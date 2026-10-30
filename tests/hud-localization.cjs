@@ -18,6 +18,8 @@ vm.runInContext(`const C=Core, T=s=>KSI18n.t(s), esc=s=>String(s), num=s=>String
  const trial={p:{name:'インペリアルI級｜重砲戦艦'},launchers:[],powerMode:'balanced',camMode:'ship',gunMode:'free',gun:{},pat:{civ:[]},vf:20000000};
  const ship=null, JUMP={spool:5};
  const trialCamName=()=> '追従', trialSwKinds=()=>['sbeam','hion'];
+ // This fixture exercises hull names and generic HUD labels; articulated controls are tested in trial-foils.cjs.
+ const trialFoilButtonHTML=()=>'',trialHasFoils=()=>false;
  const trialSys=()=>trial.sys||({name:'コルサント',planet:{ring:false}});
  const window=globalThis;
 `, c);

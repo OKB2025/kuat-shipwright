@@ -8399,6 +8399,13 @@ Object.assign(root.KS_EN.terms,{
 "構造のみ": "Structure only",
 "機能付き主翼": "Functional wing",
 "Sフォイル": "S-foil",
+"Sフォイルを収納": "Stow S-foils",
+"Sフォイルを展開": "Deploy S-foils",
+"この艦にはSフォイルがありません": "This ship has no S-foils",
+"Sフォイル：展開を指示": "S-foils: deploy ordered",
+"Sフォイル：収納を指示": "S-foils: stow ordered",
+"O キーでも展開・収納表示を切り替えられます。": "Press O to switch between deployed and stowed views.",
+"O Sフォイル": "O S-foils",
 "Sフォイル機構": "S-foil Mechanism",
 "回転起点を選ぶ": "Choose the Rotation Pivot",
 "① 角か辺を選んで図をタップ。② ゲージで位置を調整します。黄印が回転起点です。": "1. Choose corners or edges and tap the diagram. 2. Adjust with the sliders. The yellow marker is the rotation pivot.",
@@ -8498,6 +8505,8 @@ Object.assign(root.KS_EN.terms,{
 "可動範囲の干渉：なし": "Interference over the travel: none"
 });
 Object.assign(root.KS_EN.messages,{
+"Sフォイル {0}% 展開": "S-foils {0}% deployed",
+"Sフォイル {0}% 展開 · 固着 {1} 基": "S-foils {0}% deployed · {1} jammed",
 "角 {0} を回転起点にする": "Set Corner {0} as the Rotation Pivot",
 "辺 {0} を回転起点にする": "Set a Pivot on Edge {0}",
 "主翼 #{0} の内部に散逸装置がありません（散逸能力は増えません）。": "Wing #{0} holds no dissipator (it adds no dissipation).",

@@ -754,9 +754,16 @@ html[lang="en"] .th-sw{font-size:9px;letter-spacing:-.04em}
 .th-lead{position:absolute;left:0;top:0;width:12px;height:12px;margin:-6px 0 0 -6px;border:1.5px solid #ff9a5a;box-shadow:0 0 6px rgba(255,140,70,.8);will-change:transform}
 .th-bar{display:flex;flex-wrap:wrap;align-items:center;gap:4px 16px;min-width:0;max-width:calc(100% - 150px)}
 .th-bar .th-id{display:grid;gap:1px;min-width:0}.th-bar .th-id b{font:600 16px/1.15 var(--font-display);letter-spacing:.04em;max-width:30cqw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.th-bar .th-id small{font-size:10.5px;color:var(--hud-dim);white-space:nowrap}.th-bar .th-id small span:first-child{color:var(--hud-on);letter-spacing:.1em}
-.th-bar .th-read{flex-wrap:nowrap}.th-actions{position:relative;flex-wrap:nowrap;align-items:flex-start}
+.th-bar .th-read{flex-wrap:nowrap}.th-actions{position:relative;flex-wrap:wrap;align-items:flex-start;min-width:0;max-width:min(620px,100%)}
 .th-more{min-width:40px;font-size:18px;line-height:1}
 .th-btn.th-cambtn{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}.th-cambtn svg{width:17px;height:17px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round}
+.th-foil,.shot-btn[data-shot="foil"]{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:2px 7px;max-width:200px;min-width:0;text-align:left;overflow-wrap:anywhere}
+.th-foil>span,.shot-btn[data-shot="foil"]>span{display:flex;align-items:center;justify-content:space-between;gap:7px}
+.foil-progress{display:block;grid-column:1/-1;color:var(--hud-dim,#bdcbd4);font:500 9.5px/1.25 var(--font-ui);font-variant-numeric:tabular-nums;white-space:normal}
+.th-foil kbd,.shot-btn[data-shot="foil"] kbd{flex:none;border:1px solid var(--hud-line,rgba(255,255,255,.25));border-radius:3px;padding:0 3px;color:var(--hud-dim,#bdcbd4);font:500 9px/1.25 var(--font-ui)}
+.th-foil[aria-pressed="true"]{color:#ffd59a;border-color:rgba(255,180,90,.6)}
+.shot-actions{flex-wrap:wrap;align-items:flex-start;justify-content:flex-end;max-width:100%}
+@container ks (max-width:640px){.th-actions{gap:4px}.th-foil,.shot-btn[data-shot="foil"]{max-width:160px}.foil-progress{font-size:9px}}
 .th-menu{position:absolute;right:0;top:calc(100% + 6px);display:grid;gap:4px;min-width:150px;padding:6px;z-index:3}.th-menu[hidden]{display:none}
 .th-power{min-width:min(300px,86cqw);max-height:min(70cqh,420px);overflow:auto}.th-power-head{margin:2px 4px 4px;font-size:11px;color:var(--hud-dim);display:flex;justify-content:space-between}#thPower .th-pmode{display:grid;gap:2px;justify-content:stretch;text-align:left}#thPower .th-pmode b{font-size:12.5px}#thPower .th-pmode small{font-weight:500;font-size:10.5px;color:var(--hud-dim);line-height:1.4}#thPower .th-pmode[aria-pressed="true"]{border-color:rgba(255,190,90,.8);background:rgba(90,60,20,.7)}.th-power kbd{font:500 10px var(--font-ui);border:1px solid var(--hud-line);border-radius:4px;padding:0 4px}
 .th-pw{color:#ffd391}.th-menu .th-btn{text-align:left;display:flex;justify-content:space-between;gap:12px}
@@ -1582,9 +1589,9 @@ button.ed-row:hover,.ed-grp .ed-pick:hover{background:var(--cyan-soft)}
 
 
 <style>.ks-language{display:flex;align-items:center;gap:8px;font-size:12px;padding:6px 0;color:#b7c9d2}.ks-language select{font:inherit;color:#eef4f7;background:#14232c;border:1px solid #34505e;border-radius:6px;padding:6px}.brand,.brand-txt{min-width:0}.brand-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}html[lang=en] #tabs button{font-size:11px}.title-foot{flex-wrap:wrap}</style>
-<script src="js/lang-en.js?v=a6a7784c80"></script>
+<script src="js/lang-en.js?v=9756d474b5"></script>
 <script src="js/i18n.js?v=321084292d"></script>
-<script>window.KS_FILES={data:["data/reference.js","data/textures.js","data/imperial2.js","data/fleet.js"],core:"js/core.js",gfx:"js/gfx.js",engine:"js/engine.js",app:"js/app.js",worker:"js/worker.js",sizes:{"data/reference.js":6270785,"data/textures.js":2338303,"data/imperial2.js":83602,"data/fleet.js":1712942,"js/core.js":1822539,"js/gfx.js":197211,"js/engine.js":15964,"js/app.js":1443228}};</script>
+<script>window.KS_FILES={data:["data/reference.js","data/textures.js","data/imperial2.js","data/fleet.js"],core:"js/core.js",gfx:"js/gfx.js",engine:"js/engine.js",app:"js/app.js",worker:"js/worker.js",sizes:{"data/reference.js":6270785,"data/textures.js":2338303,"data/imperial2.js":83602,"data/fleet.js":1712942,"js/core.js":1825390,"js/gfx.js":200419,"js/engine.js":19442,"js/app.js":1449364}};</script>
 <script>
 /* ============================================================
    boot.js — title screen first, then the 3D assets, the engine
