@@ -160,10 +160,47 @@ function handleBuild(job) {
 }
 
 let trialHold = null;
+// Clearance uses the same rigid S-foil pose as the visible trial ship. The worker owns the
+// normalized source design; requests supply only deployment fractions for its existing roots.
+function trialRayPose(t,requested){
+ const roots=t.foils||(t.foils=t.ship.parts.filter(C.isFoil)),fractions=roots.map(w=>{const value=requested&&Object.hasOwn(requested,w.id)?requested[w.id]:1;return Number.isFinite(value)?C.clamp(value,0,1):1;});
+ if(fractions.every(d=>d===1))return t;
+ const key=fractions.join(','),poses=t.poses||(t.poses=new Map());if(poses.has(key)){const hit=poses.get(key);poses.delete(key);poses.set(key,hit);return hit;}
+ const posed=JSON.parse(C.publicJSON(t.ship)),partIndex=new Map(posed.parts.map((p,i)=>[p.id,i])),fitIndex=new Map(posed.fits.map((f,i)=>[f.id,i])),sourceParts=new Map(t.ship.parts.map(p=>[p.id,p])),sourceFits=t.fits;
+ const usedParts=new Set(),usedFits=new Set();
+ for(let i=0;i<roots.length;i++){
+  const wing=roots[i],members=C.wingMembers(t.ship,wing),ownedParts=new Set([wing,...members.structs,...members.parts].filter(p=>!usedParts.has(p.id)).map(p=>p.id)),ownedFits=new Set(members.fits.filter(f=>!usedFits.has(f.id)).map(f=>f.id));
+  for(const id of ownedParts)usedParts.add(id);for(const id of ownedFits)usedFits.add(id);if(fractions[i]===1)continue;
+  const angle=wing.wing.stow+(wing.wing.open-wing.wing.stow)*fractions[i],frame=C.foilFrame(t.ship,wing),rotate=v=>C.sub(C.foilAt(frame,wing,C.add(frame.pv,v),angle),frame.pv),pose=C.foilPose(t.ship,wing,angle);
+  if(!pose)continue;
+  for(const part of pose.parts)if(ownedParts.has(part.id)&&partIndex.has(part.id)){
+   const copy=JSON.parse(C.publicJSON(part)),source=sourceParts.get(part.id);if(source.k!=='struct'){
+    if(source.dir)copy.dir=C.norm(rotate(source.dir));
+    if(source.room||C.PARTS[source.k]?.shape==='cube'){
+     const original=C.structFrame(source),up=C.norm(rotate(original.up)),fw=rotate(original.fw);let base=C.sub([1,0,0],C.mul(up,up[0]));if(C.len(base)<.001)base=C.sub([0,0,1],C.mul(up,up[2]));base=C.norm(base);
+     copy.surfaceNormal=up;copy.yaw=Math.atan2(C.dot(fw,C.cross(base,up)),C.dot(fw,base))*180/Math.PI;delete copy.pitch;delete copy.roll;
+    }
+   }
+   posed.parts[partIndex.get(copy.id)]=copy;
+  }
+  for(const fit of pose.fits)if(ownedFits.has(fit.id)&&fitIndex.has(fit.id)){
+   // fitUp reads tilt, not n. Rebuild it from the original mount frame, without inherited
+   // bounds/spec caches or remounting the gun onto a different structure in the folded pose.
+   const copy=JSON.parse(C.publicJSON(fit)),source=sourceFits.get(fit.id),original=C.fitFrameOf(source);copy.tilt=C.norm(rotate(C.fitUp(source)));copy.n=C.norm(rotate(source.n||C.fitUp(source)));
+   const current=C.fitFrameOf(copy),fw=rotate(original.fw),yaw=Math.atan2(C.dot(fw,current.rt),C.dot(fw,current.fw))*180/Math.PI;if(Math.abs(yaw)>1e-8)copy.assetYaw=(source.assetYaw||0)+yaw;
+   delete copy.local;delete copy.localNormal;posed.fits[fitIndex.get(copy.id)]=copy;
+  }
+ }
+ for(const part of posed.parts)if(part.k==='struct')part._solidCutShip=posed;
+ const result={ship:posed,ctx:C.turretRayContext(posed),fits:new Map(posed.fits.map(f=>[f.id,f]))};poses.set(key,result);while(poses.size>3)poses.delete(poses.keys().next().value);return result;
+}
 function handleTrialRays(job) {
-  const ids = job.ids || [], dirs = job.dirs || [], out = new Uint8Array(ids.length), t = trialHold;
-  if (t) for (let i = 0; i < ids.length; i++) { const f = t.fits.get(ids[i]); out[i] = f && C.turretClear(t.ship, f, [dirs[i * 3], dirs[i * 3 + 1], dirs[i * 3 + 2]], t.ctx) ? 1 : 0; }
-  post({type: 'trialRays', id: job.id, clear: out, ready: !!t});
+ const valid=a=>Array.isArray(a)||ArrayBuffer.isView(a)&&Number.isInteger(a.length),ids=valid(job.ids)?Array.from(job.ids).slice(0,C.DESIGN_LIMITS.fits):[],dirs=valid(job.dirs)?job.dirs:[],out=new Uint8Array(ids.length),held=trialHold,t=held&&trialRayPose(held,job.foils);
+ if(t)for(let i=0;i<ids.length;i++){
+  const dir=[dirs[i*3],dirs[i*3+1],dirs[i*3+2]],f=Number.isSafeInteger(ids[i])&&t.fits.get(ids[i]);
+  if(f&&dir.every(Number.isFinite)&&C.len(dir)>1e-8)out[i]=C.turretClear(t.ship,f,C.norm(dir),t.ctx)?1:0;
+ }
+ post({type:'trialRays',id:job.id,clear:out,ready:!!t});
 }
 // Built fleet ships are kept for a while: a fleet battle asks for the same
 // design again (its 3D model, then the turrets when it is flown), and building

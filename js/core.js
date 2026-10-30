@@ -1753,7 +1753,7 @@ function overlapParts(a,b){
 }
 function conflicts(ship,pt,ignore=[]){return allOccupied(ship).filter(q=>q.id!==pt.id&&!ignore.includes(q.id)&&q.k!=='struct'&&!(pt.k==='engine'&&q.k==='machinery'&&q.nozzle===pt.id)&&overlapParts(pt,q));}
 function engineVented(ship,e){const m=partDims(e),u=norm(e.dir||[-1,0,0]),p=add(e.c,mul(u,m.l/2+Math.max(1,m.rad*.2)));if(inEnv(ship,p))return false;return !ship.parts.some(q=>q!==e&&q.k!=='struct'&&inPart(q,p));}
-function mirrorPart(p,ship){const q=JSON.parse(JSON.stringify(p,(k,v)=>k.startsWith('_')?undefined:v));q.c=mirrorP(p.c);delete q._geom;if(q.dir)q.dir=mirrorP(q.dir);if(q.yaw)q.yaw=-q.yaw;if(q.surfaceNormal)q.surfaceNormal=mirrorP(q.surfaceNormal);if(q.roll)q.roll=-q.roll;if(q.angles)[q.angles[2],q.angles[3]]=[q.angles[3],q.angles[2]];if(q.offsetZ)q.offsetZ=-q.offsetZ;if(q.form==='arc')q.arcStart=((-(p.arcStart??30)-(p.arcSweep??300)+540)%360)-180;if(q.form==='shell')q.shellFlip=!p.shellFlip;if(q.loft)q.loft=q.loft.map(a=>a.length>4?[...a.slice(0,4),-a[4]]:a);if(q.outline)q.outline=q.outline.map(a=>[a[0],-a[1]]);if(q.mesh)q.mesh=mirrorStructMesh(p.mesh);if(q.wing?.pivot)q.wing.pivot=mirrorP(q.wing.pivot);if(q.reactor){const r=ship.parts.find(x=>x.id===q.reactor);if(r?.tw)q.reactor=r.tw;}if(q.aviationSurfaces){const a=q.aviationSurfaces;[a.port,a.stbd]=[a.stbd||'none',a.port||'none'];}mirrorEquipment(p,q);return q;}
+function mirrorPart(p,ship){const q=JSON.parse(JSON.stringify(p,(k,v)=>k.startsWith('_')?undefined:v));q.c=mirrorP(p.c);delete q._geom;if(q.dir)q.dir=mirrorP(q.dir);if(q.yaw)q.yaw=-q.yaw;if(q.surfaceNormal)q.surfaceNormal=mirrorP(q.surfaceNormal);if(q.roll)q.roll=-q.roll;if(q.angles)[q.angles[2],q.angles[3]]=[q.angles[3],q.angles[2]];if(q.offsetZ)q.offsetZ=-q.offsetZ;if(q.form==='arc')q.arcStart=((-(p.arcStart??30)-(p.arcSweep??300)+540)%360)-180;if(q.form==='shell')q.shellFlip=!p.shellFlip;if(q.loft)q.loft=q.loft.map(a=>a.length>4?[...a.slice(0,4),-a[4]]:a);if(q.outline)q.outline=q.outline.map(a=>[a[0],-a[1]]);if(q.mesh)q.mesh=mirrorStructMesh(p.mesh);if(q.wing?.pivot)q.wing.pivot=mirrorP(q.wing.pivot);if(q.wing?.members)mirrorWingMembers(q.wing,ship,'tw');if(q.reactor){const r=ship.parts.find(x=>x.id===q.reactor);if(r?.tw)q.reactor=r.tw;}if(q.aviationSurfaces){const a=q.aviationSurfaces;[a.port,a.stbd]=[a.stbd||'none',a.port||'none'];}mirrorEquipment(p,q);return q;}
 function v3PlacePart(ship,k,c,size,opts={},mirror=false){
   if(!Object.hasOwn(PARTS,k)||(k==='machinery'||k==='capacitor'||k==='vls'))throw new Error('配置できない部品です');
   if(ship.parts.length+(mirror&&Math.abs(c[2])>1?2:1)>DESIGN_LIMITS.parts)throw new Error('区画数の上限は'+DESIGN_LIMITS.parts+'個です');
@@ -2010,7 +2010,7 @@ function placePart(ship,k,c,size,opt={},mirror=false){
   const old=ship._building;ship._building=true;let p;
   try{p=v3PlacePart(ship,k,c,size,opt,mirror);}finally{ship._building=old;}
   const made=ship.parts.filter(q=>q.id===p.id||q.id===p.tw);
-  for(const q of made){for(const a of ['autoFit','engineLength','equipmentId','customEquipment','arcBands','bands','bandPaint','stripes','shellCurve','shellThick','shellFlip','arcInner','arcStart','arcSweep','label','length','corner','aftWidth','foreWidth','paint','bodyLength','bodyRadius','ribSpacing','nozzleLength','throatRatio','wallInset','ridge','deckSlope','skin','skinAsset','skinAxial','skinAnchor','skinDiameter','skinSize','airRole','pitch','roll','surfaceNormal'])if(opt[a]!=null)q[a]=opt[a];if(q.k==='struct'&&opt.plate){q.plate=true;q.plateT=plateThickness(opt);}if(q.k==='struct'&&opt.light&&!opt.plate)q.light=true;if(q.k==='struct'&&opt.wing){const w=normalizeWing(opt.wing);if(w){if(w.pivot&&q!==p)w.pivot=mirrorP(w.pivot);q.wing=w;}}if((q.k==='sensor'||q.k==='scanner')&&Object.hasOwn(SENSOR_BANDS,opt.band)&&opt.band!=='multi')q.band=opt.band;if(opt.outline)q.outline=opt.outline.map(a=>[a[0],a[1]*(q===p?1:-1)]);if(opt.loft)q.loft=opt.loft.map(a=>a.length>4?[...a.slice(0,4),a[4]*(q===p?1:-1)]:a.slice());if(q!==p&&q.form==='arc')q.arcStart=((-(p.arcStart??30)-(p.arcSweep??300)+540)%360)-180;if(q!==p&&q.form==='shell')q.shellFlip=!opt.shellFlip;if(opt.surfaceNormal)q.surfaceNormal=q===p?opt.surfaceNormal.slice():mirrorP(opt.surfaceNormal);if(q!==p&&opt.roll!=null)q.roll=-opt.roll;if(opt.room)setRoomSize(q,opt.room);if(opt.yaw!=null&&q.k!=='struct')q.yaw=q===p?opt.yaw:-opt.yaw;}
+  for(const q of made){for(const a of ['autoFit','engineLength','equipmentId','customEquipment','arcBands','bands','bandPaint','stripes','shellCurve','shellThick','shellFlip','arcInner','arcStart','arcSweep','label','length','corner','aftWidth','foreWidth','paint','bodyLength','bodyRadius','ribSpacing','nozzleLength','throatRatio','wallInset','ridge','deckSlope','skin','skinAsset','skinAxial','skinAnchor','skinDiameter','skinSize','airRole','pitch','roll','surfaceNormal'])if(opt[a]!=null)q[a]=opt[a];if(q.k==='struct'&&opt.plate){q.plate=true;q.plateT=plateThickness(opt);}if(q.k==='struct'&&opt.light&&!opt.plate)q.light=true;if(q.k==='struct'&&opt.wing){const w=normalizeWing(opt.wing);if(w){if(opt.id!=null&&opt.id!==q.id)delete w.members;if(q!==p){if(w.pivot)w.pivot=mirrorP(w.pivot);if(w.members)mirrorWingMembers(w,ship,'tw');}q.wing=w;}}if((q.k==='sensor'||q.k==='scanner')&&Object.hasOwn(SENSOR_BANDS,opt.band)&&opt.band!=='multi')q.band=opt.band;if(opt.outline)q.outline=opt.outline.map(a=>[a[0],a[1]*(q===p?1:-1)]);if(opt.loft)q.loft=opt.loft.map(a=>a.length>4?[...a.slice(0,4),a[4]*(q===p?1:-1)]:a.slice());if(q!==p&&q.form==='arc')q.arcStart=((-(p.arcStart??30)-(p.arcSweep??300)+540)%360)-180;if(q!==p&&q.form==='shell')q.shellFlip=!opt.shellFlip;if(opt.surfaceNormal)q.surfaceNormal=q===p?opt.surfaceNormal.slice():mirrorP(opt.surfaceNormal);if(q!==p&&opt.roll!=null)q.roll=-opt.roll;if(opt.room)setRoomSize(q,opt.room);if(opt.yaw!=null&&q.k!=='struct')q.yaw=q===p?opt.yaw:-opt.yaw;}
   for(const q of made){enforceEquipment(q);normalizeSuperweapon(q);if(q.k==='struct')q._solidCutShip=ship;}
   if(made.length===2&&equipmentSpec(p)){const q=made.find(q=>q!==p),id=q.id,tw=q.tw;Object.assign(q,mirrorPart(p,ship),{id,tw});}
   for(const q of made)if(isInternal(q))q._envelope=ship;
@@ -2936,7 +2936,7 @@ function vmirrorPoint(ship,p){const y0=vmirrorPlane(ship,p[0]);return [p[0],2*y0
 function vmirrorPart(p,ship){
  const q=JSON.parse(JSON.stringify(p,(k,v)=>k.startsWith('_')?undefined:v));delete q.tw;delete q.vt;
  q.c=vmirrorPoint(ship,p.c);if(q.dir)q.dir=[q.dir[0],-q.dir[1],q.dir[2]];
- if(q.wing?.pivot)q.wing.pivot=vmirrorPoint(ship,q.wing.pivot);
+ if(q.wing?.pivot)q.wing.pivot=vmirrorPoint(ship,q.wing.pivot);if(q.wing?.members)mirrorWingMembers(q.wing,ship,'vt');
  // X-axis rotation changes sense across the horizontal symmetry plane.
  // Y rotates about the reflected axis; Z's sense already follows its vertical side.
  if(q.wing?.foil&&(q.wing.axis||'x')==='x'){q.wing.stow=-(q.wing.stow??0);q.wing.open=-(q.wing.open??15);}
@@ -5229,6 +5229,7 @@ function xwingBuild(opt={}){
  const s=newShip({L,W,H,plan:'wedge',sec:'warship',bowW:st.at(-1)[1],bowH:st.at(-1)[2],stern:1,bowFree:true,start:.94/L,stations:st,keel:'std'},'T-65B Xウイング');
  s._building=true;s.shipClass='starfighter';s.paint='neutral';s.lights='white';s.detail=1;s.armor={hull:opt.armor??.0015,cit:0};s.shieldTarget=.1;s.engineGlow='#ffd84a';
  const put=(k,label,c,size,o={},mirror=false)=>placePart(s,k,c,size,{label,...o},mirror);
+ const foils=new Map(),twin=p=>s.parts.find(q=>q.id===p.tw),carry=(w,p)=>{const root=foils.get(w);if(root){root.wing.members.parts.push(p.id);const a=twin(root),b=twin(p);if(a&&b)a.wing.members.parts.push(b.id);}return p;};
  // Round loft along x from rows [x, zc, half-width, yc, half-height] (any size; no minimum).
  const roundX=(label,rows,o={},mirror=false)=>{rows=rows.slice().sort((a,b)=>a[0]-b[0]);
   const x0=rows[0][0],x1=rows.at(-1)[0],z0=Math.min(...rows.map(r=>r[1]-r[2])),z1=Math.max(...rows.map(r=>r[1]+r[2])),y0=Math.min(...rows.map(r=>r[3]-r[4])),y1=Math.max(...rows.map(r=>r[3]+r[4]));
@@ -5239,15 +5240,15 @@ function xwingBuild(opt={}){
  const foilRound=(w,label,rows,o={})=>{const c=xwFoil(w,(rows[0][0]+rows.at(-1)[0])/2,rows[0][3],rows[0][1]);
   const p=roundX(label,rows.map(r=>[r[0],0,r[2],0,r[4]]),{roll:-w*XW_TH,...o},false);
   // Re-centre on the turned axis (the rows share one axis in the closed frame) and add the port twin.
-  p.c=c;const q=JSON.parse(JSON.stringify(p,(k,v)=>k.startsWith('_')?undefined:v));q.id=s.nextId++;q.c=[c[0],c[1],-c[2]];q.roll=-p.roll;p.tw=q.id;q.tw=p.id;q._solidCutShip=s;s.parts.push(q);return p;};
+  p.c=c;const q=JSON.parse(JSON.stringify(p,(k,v)=>k.startsWith('_')?undefined:v));q.id=s.nextId++;q.c=[c[0],c[1],-c[2]];q.roll=-p.roll;p.tw=q.id;q.tw=p.id;q._solidCutShip=s;s.parts.push(q);return carry(w,p);};
  // A starboard S-foil plate: an outline slab in the plate's plane (local x along the ship, local z outboard).
  const foilSlab=(w,label,pts,y0,y1,o={})=>{const xs=pts.map(p=>p[0]),zs=pts.map(p=>p[1]),xa=Math.min(...xs),xb=Math.max(...xs),za=Math.min(...zs),zb=Math.max(...zs),cx=(xa+xb)/2,cz=(za+zb)/2;
   const c=xwFoil(w,cx,w>0?(y0+y1)/2:2*XW_YC-(y0+y1)/2,cz);
-  return put('struct',label,c,[xb-xa,zb-za,y1-y0],{form:'outline',outline:pts.map(([x,z])=>[(x-cx)/(xb-xa),(z-cz)/(zb-za)]),roll:-w*XW_TH,corner:0,taper:0,...o},true);};
+  return carry(w,put('struct',label,c,[xb-xa,zb-za,y1-y0],{form:'outline',outline:pts.map(([x,z])=>[(x-cx)/(xb-xa),(z-cz)/(zb-za)]),roll:-w*XW_TH,corner:0,taper:0,...o},true));};
  // A starboard S-foil block: a closed-frame box [x, y, |z|] lo..hi with side slopes (angles: fore, aft, inboard, outboard).
  const foilTrap=(w,label,lo,hi,angles,o={})=>{const yl=w>0?lo[1]:2*XW_YC-hi[1],yh=w>0?hi[1]:2*XW_YC-lo[1],c=xwFoil(w,(lo[0]+hi[0])/2,(yl+yh)/2,(lo[2]+hi[2])/2);
   // On the lower S-foil the block hangs under the plate: rolled half a turn more (its local z then points inboard).
-  return put('struct',label,c,[hi[0]-lo[0],hi[2]-lo[2],yh-yl],{form:'trap',angles:w>0?angles.slice():[angles[0],angles[1],angles[3],angles[2]],roll:w>0?-XW_TH:XW_TH-180,light:true,...o},true);};
+  return carry(w,put('struct',label,c,[hi[0]-lo[0],hi[2]-lo[2],yh-yl],{form:'trap',angles:w>0?angles.slice():[angles[0],angles[1],angles[3],angles[2]],roll:w>0?-XW_TH:XW_TH-180,light:true,...o},true));};
  if(opt.stage==='hull'){delete s._building;return s;}
  // ---- canopy (tinted, over the cockpit) ----
  {const r=D.canopy,x0=r[0][0],x1=r.at(-1)[0],y0=Math.min(...r.map(q=>q[3])),y1=Math.max(...r.map(q=>q[4])),Wc=1.24,Hc=y1-y0;
@@ -5255,7 +5256,9 @@ function xwingBuild(opt={}){
  // ---- S-foils: wing plates, engine intake bodies, exhaust tubes, cannon housings and barrels ----
  for(const w of [1,-1]){
   const up=w>0?'上':'下',Y=y=>w>0?y:2*XW_YC-y;
-  foilSlab(w,`右舷${up}翼（Sフォイル）`,D.wing,1.308,1.459,{light:true});
+  const root=foilSlab(w,`右舷${up}翼（Sフォイル）`,D.wing,1.308,1.459,{light:true});
+  root.wing=normalizeWing({foil:true,axis:'x',open:w*XW_TH,stow:0,T:1,pivot:[root.c[0],XW_Y0+XW_YC,XW_ZC]});root.wing.members={parts:[],fits:[]};
+  const paired=twin(root);paired.wing=normalizeWing({...root.wing,pivot:mirrorP(root.wing.pivot)});paired.wing.members={parts:[],fits:[]};foils.set(w,root);
   // Nacelle intake body (closed-frame axis y 1.95, |z| 1.643; 1.23 m wide, 1.15 m deep), rounded intake lip.
   foilRound(w,`右舷${up}機関ナセル`,[[1.6,1.643,.5,Y(1.95),.47],[1.75,1.643,.615,Y(1.95),.575],[4.45,1.643,.615,Y(1.95),.575],[4.58,1.643,.57,Y(1.95),.53]],{light:true,paint:XW_DARK});
   // Fairing on the plate along the nacelle's outboard side (to 0.46 m over the plate, run out by |z| 3.5 m).
@@ -5276,7 +5279,7 @@ function xwingBuild(opt={}){
  for(const w of [1,-1]){
   const up=w>0?'上':'下',Y=y=>w>0?y:2*XW_YC-y;
   const NL=opt.nozzleL??4.25,c=xwFoil(w,NL/2+.02,Y(opt.nozzleY??2.2),1.643);
-  put('engine',`右舷${up}機関 4L4 核融合推進機関`,c,opt.nozzleD??.6,{dir:[-1,0,0],nozzleLength:NL,bodyLength:.15,bodyRadius:.52,reactor:gen.id},true);
+  carry(w,put('engine',`右舷${up}機関 4L4 核融合推進機関`,c,opt.nozzleD??.6,{dir:[-1,0,0],nozzleLength:NL,bodyLength:.15,bodyRadius:.52,reactor:gen.id},true));
  }
  // Cockpit under the canopy; the astromech socket behind it, its dome standing out of the hull.
  const ck=put('cockpit','操縦席',[6.35,2.3,0],1.1);ck.seats=1;
@@ -5296,7 +5299,8 @@ function xwingBuild(opt={}){
   // outer side of its barrel (over an upper barrel, under a lower one), leaning 6 deg inboard of plumb
   // (the plate normal leans 13 deg inboard; this tilt keeps the mount short and survives a save and reload).
   const g=(opt.gunTilt??6)*Math.PI/180,p=xwFoil(w,opt.gunX??7.7,w>0?1.735+.085:2*XW_YC-1.735-.085,5.715);
-  fit('claser',[p[0],p[1],sz*p[2]],w>0?2:3,[0,w*Math.cos(g),-sz*Math.sin(g)]);
+  const gun=fit('claser',[p[0],p[1],sz*p[2]],w>0?2:3,[0,w*Math.cos(g),-sz*Math.sin(g)]),root=sz>0?foils.get(w):twin(foils.get(w));root.wing.members.fits.push(gun.id);
+  if(sz<0){const mate=s.fits.find(f=>f.id===foils.get(w).wing.members.fits[0]);gun.tw=mate.id;mate.tw=gun.id;}
  }
  // Two MG7 proton torpedo launchers on the lower flanks of the nose.
  // (A craft launcher is an external box: the capital-ship VLS magazine, 3,600 m³, has no place in a fighter.)
@@ -10035,7 +10039,7 @@ function assemblyCapture(ship,ids,meta={}){
  if(ids.parts.length>ASSEMBLY_LIMITS.parts||ids.fits.length>ASSEMBLY_LIMITS.fits)return {error:`ユーザー部品は区画・構造物 ${ASSEMBLY_LIMITS.parts}・装備 ${ASSEMBLY_LIMITS.fits} 個までです`};
  const b=assemblyBounds(ship,ids),origin=Object.hasOwn(ASSEMBLY_ORIGINS,meta.origin)?meta.origin:'center',o=assemblyOriginPoint(b,origin),{links,ports}=assemblyLinks(ship,ids);
  const P=new Set(ids.parts),F=new Set(ids.fits),local=new Map();let n=1;for(const id of ids.parts)local.set('p'+id,n++);for(const id of ids.fits)local.set('f'+id,n++);
- const parts=ship.parts.filter(p=>P.has(p.id)).map(p=>{const q=publicCopyOf(p);q.id=local.get('p'+p.id);q.c=sub(p.c,o);for(const k of ['tw','vt','reactor']){if(q[k]==null)continue;if(P.has(q[k]))q[k]=local.get('p'+q[k]);else delete q[k];}return q;});
+ const parts=ship.parts.filter(p=>P.has(p.id)).map(p=>{const q=publicCopyOf(p);q.id=local.get('p'+p.id);q.c=sub(p.c,o);if(q.wing?.pivot)q.wing.pivot=sub(q.wing.pivot,o);remapWingMembers(q.wing,id=>local.get('p'+id),id=>local.get('f'+id));for(const k of ['tw','vt','reactor']){if(q[k]==null)continue;if(P.has(q[k]))q[k]=local.get('p'+q[k]);else delete q[k];}return q;});
  const fits=ship.fits.filter(f=>F.has(f.id)).map(f=>{const q=publicCopyOf(f);q.id=local.get('f'+f.id);q.p=sub(f.p,o);for(const k of ['tw','vt']){if(q[k]==null)continue;if(F.has(q[k]))q[k]=local.get('f'+q[k]);else delete q[k];}if(q.host!=null){if(P.has(q.host))q.host=local.get('p'+q.host);else{delete q.host;delete q.local;delete q.localNormal;}}delete q.float;return q;});
  // Edit groups wholly inside the selection come along (renumbered after the children).
  const gs=(ship.groups||[]),leaves=(g,d=0)=>{if(!g||d>GROUP_DEPTH)return null;let ok=g.parts.every(x=>P.has(x))&&g.fits.every(x=>F.has(x));for(const c of g.groups){const h=gs.find(x=>x.id===c);if(!leaves(h,d+1))ok=false;}return ok;},inside=gs.filter(g=>leaves(g));
@@ -10076,7 +10080,7 @@ function assemblyPlace(ship,tpl,at,opt={}){
  const made=[];
  const one=(mirrored)=>{
   const map=new Map(),parts=[],fits=[];for(const p of tpl.parts)map.set('p'+p.id,ship.nextId++);for(const f of tpl.fits)map.set('f'+f.id,ship.nextId++);
-  for(const src of tpl.parts){let q=publicCopyOf(src);q.c=add(at,src.c);if(mirrored){const tmp={parts:[]};q=mirrorPart(q,tmp);}q.id=map.get('p'+src.id);for(const k of ['tw','vt','reactor']){if(q[k]==null)continue;const m=map.get('p'+q[k]);if(m!=null)q[k]=m;else delete q[k];}if(q.reactor==null&&src.reactor!=null)delete q.reactor;delete q.tw;parts.push(q);}
+  for(const src of tpl.parts){let q=publicCopyOf(src);q.c=add(at,src.c);if(q.wing?.pivot)q.wing.pivot=add(at,q.wing.pivot);const members=q.wing?.members;if(mirrored){const tmp={parts:[]};q=mirrorPart(q,tmp);if(members)q.wing.members=members;}remapWingMembers(q.wing,id=>map.get('p'+id),id=>map.get('f'+id));q.id=map.get('p'+src.id);for(const k of ['tw','vt','reactor']){if(q[k]==null)continue;const m=map.get('p'+q[k]);if(m!=null)q[k]=m;else delete q[k];}if(q.reactor==null&&src.reactor!=null)delete q.reactor;delete q.tw;parts.push(q);}
   for(const src of tpl.fits){let q=publicCopyOf(src);q.p=add(at,src.p);if(mirrored)q=assemblyMirrorFit(q);q.id=map.get('f'+src.id);for(const k of ['vt']){if(q[k]==null)continue;const m=map.get('f'+q[k]);if(m!=null)q[k]=m;else delete q[k];}delete q.tw;if(q.host!=null){const m=map.get('p'+q.host);if(m!=null)q.host=m;else{delete q.host;delete q.local;delete q.localNormal;}}delete q.float;fits.push(q);}
   // Template-internal symmetric pairs stay paired inside one instance.
   for(const src of tpl.parts)if(src.tw!=null){const a=parts.find(p=>p.id===map.get('p'+src.id)),b=map.get('p'+src.tw);if(a&&b!=null)a.tw=b;}
@@ -10492,11 +10496,20 @@ function solarCap(p,S){return p?.wing?.solar?solarArea(p)*2*SOLAR.disW*clamp(S?.
 function solarStats(ship,S){let P=0;for(const p of ship.parts)P+=solarPower(p);S.solarPower=P;if(P>0){S.power=(S.power||0)+P;if(S.reactorSplit)S.reactorSplit={...S.reactorSplit,aux:(S.reactorSplit.aux||0)+P};}return S;}
 const WING_PARTS=new Set(['hdis','hdisx','radiator','battery','integrity','sensor','scanner','fuel','aux','inertial']);
 Object.assign(CRAFT_PART_SIZE,{hdis:[.05,4,.35],hdisx:[.05,4,.3],radiator:[.03,4,.3]});
+// Optional source IDs associate assemblies that extend beyond the wing's own bounds.
+// IDs are local to a design and must be remapped whenever its children are copied.
+function normalizeWingMembers(m){
+ if(!m||typeof m!=='object')return undefined;
+ const ids=(a,max)=>[...new Set((Array.isArray(a)?a.slice(0,max*2):[]).filter(id=>Number.isSafeInteger(id)&&id>0))].slice(0,max);
+ const parts=ids(m.parts,DESIGN_LIMITS.parts),fits=ids(m.fits,DESIGN_LIMITS.fits);return parts.length||fits.length?{parts,fits}:undefined;
+}
+function remapWingMembers(w,part,fit){if(!w?.members)return;const m=normalizeWingMembers(w.members),next=m&&normalizeWingMembers({parts:m.parts.map(part),fits:m.fits.map(fit)});if(next)w.members=next;else delete w.members;}
+function mirrorWingMembers(w,ship,key){remapWingMembers(w,id=>ship.parts?.find(p=>p.id===id)?.[key],id=>ship.fits?.find(f=>f.id===id)?.[key]);}
 function normalizeWing(w){
  if(!w||typeof w!=='object')return undefined;const f=(v,lo,hi,d)=>Number.isFinite(v)?clamp(v,lo,hi):d;
  const o={feed:f(w.feed,0,2,1),reinf:f(w.reinf,0,1,0)};if(w.solar===true)o.solar=true;
  if(w.foil===true){o.foil=true;o.axis=Object.hasOwn(FOIL_AXES,w.axis)?w.axis:'x';o.stow=f(w.stow,-WING.maxAngle,WING.maxAngle,0);o.open=f(w.open,-WING.maxAngle,WING.maxAngle,15);o.T=f(w.T,.1,600,WING.actT);
-  if(Array.isArray(w.pivot)&&w.pivot.length===3&&w.pivot.every(Number.isFinite))o.pivot=w.pivot.map(v=>clamp(v,-DESIGN_LIMITS.coordinate,DESIGN_LIMITS.coordinate));}
+  if(Array.isArray(w.pivot)&&w.pivot.length===3&&w.pivot.every(Number.isFinite))o.pivot=w.pivot.map(v=>clamp(v,-DESIGN_LIMITS.coordinate,DESIGN_LIMITS.coordinate));const members=normalizeWingMembers(w.members);if(members)o.members=members;}
  return o;
 }
 const isWing=p=>p?.k==='struct'&&!!p.wing;
@@ -10552,11 +10565,15 @@ function foilDir(F,p,n,a){const th=(a-p.wing.open)*F.sg*Math.PI/180;return rotAx
 function wingMembers(ship,w){
  const b=wingBounds(w),pad=[0,1,2].map(a=>(b[a+3]-b[a])*.06),inB=q=>q.every((v,a)=>v>=b[a]-pad[a]&&v<=b[a+3]+pad[a]);
  const pv=w.wing?.foil?wingPivot(ship,w):null,c=[(b[0]+b[3])/2,(b[1]+b[4])/2,(b[2]+b[5])/2],out=pv?sub(c,pv):null;
- const parts=[],structs=[],fits=ship.fits.filter(f=>f.host===w.id);
+ const explicit=normalizeWingMembers(w.wing?.members),ownParts=new Set(explicit?.parts||[]),ownFits=new Set(explicit?.fits||[]),partOwner=new Map(),fitOwner=new Map();
+ for(const other of ship.parts)if(isWing(other)){const m=normalizeWingMembers(other.wing.members);for(const id of m?.parts||[])if(!partOwner.has(id))partOwner.set(id,other.id);for(const id of m?.fits||[])if(!fitOwner.has(id))fitOwner.set(id,other.id);}
+ const parts=[],structs=[],fits=[];
  for(const q of ship.parts){if(q===w||isWing(q))continue;
-  if(q.k==='struct'){if(!w.wing?.foil||!inB(q.c))continue;const o=sub(q.c,pv);if(dot(o,out)>0||inStruct(w,q.c))structs.push(q);continue;}
-  if(q.c&&inB(q.c)&&inStruct(w,q.c))parts.push(q);}
- for(const s of structs)for(const f of ship.fits)if(f.host===s.id&&!fits.includes(f))fits.push(f);
+  const own=ownParts.has(q.id);if(partOwner.has(q.id)&&partOwner.get(q.id)!==w.id)continue;
+  if(q.k==='struct'){if(own){structs.push(q);continue;}if(!w.wing?.foil||!inB(q.c))continue;const o=sub(q.c,pv);if(dot(o,out)>0||inStruct(w,q.c))structs.push(q);continue;}
+  if(own||(q.c&&inB(q.c)&&inStruct(w,q.c)))parts.push(q);}
+ const hosts=new Set([w.id,...structs.map(q=>q.id)]);
+ for(const f of ship.fits)if((!fitOwner.has(f.id)||fitOwner.get(f.id)===w.id)&&(ownFits.has(f.id)||hosts.has(f.host)))fits.push(f);
  return {parts,structs,fits};
 }
 // Part id → its wing (the first functional wing whose inside holds its centre).
