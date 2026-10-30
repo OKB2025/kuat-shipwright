@@ -333,7 +333,7 @@ root.KS_EN={
   "部隊": "Units",
   "飛行隊": "Air Wings",
   "中隊": "Squadron",
-  "飛行団": "Wing",
+  "飛行団": "Air Group",
   "連隊": "Regiment",
   "大隊": "Battalion",
   "小隊": "Platoon",
@@ -4766,7 +4766,7 @@ root.KS_EN={
   "下面に配置": "Place Underneath",
   "トレンチ内": "In Trench",
   "側壁ケースメイト": "Side-wall Casemate",
-  "にすると史実に近い搭載になります）。機体は公式の寸法で、格納区画の内寸に {0} m の余裕をもって入るか、出入口のハッチを通れるかで搭載・発艦が決まります。": " chooses a near-canonical complement). Craft use official dimensions. Embarkation requires {0} m of clearance within the hangar; launching also requires a large enough exit hatch.",
+  "にすると史実に近い搭載になります）。標準機は公式寸法、自作機は保存した設計の寸法で、格納区画の内寸に {0} m の余裕をもって入るか、出入口のハッチを通れるかで搭載・発艦が決まります。": " chooses a near-canonical complement). Standard craft use official dimensions; custom craft use the dimensions of the saved design. Embarkation requires {0} m of clearance within the hangar; launching also requires a large enough exit hatch.",
   "にすると史実に近い陸戦隊になります）。歩兵は、船内の空き容積に乗れる人数から定員（必要乗員）を除いた「兵員枠」に乗ります（1名あたり {0} m³）。停止保管ドロイドは同じ枠を 1 体 {1} m³ で使います。車両は公式の寸法で、輸送機の積載区画か格納庫（航空機と共用）に入ります。": " chooses near-canonical ground forces). Infantry use troop berths remaining after required crew, at {0} m³ per person. Inactive stored droids use the same space at {1} m³ each. Vehicles use official dimensions and must fit a transport's cargo compartment or the shared hangar.",
   "合同任務群は任務群の集まり、任務群は{2}〜{3}隻（最大{4}隻）。作戦図では任務群か合同任務群ごとにジャンプし、戦術図では任務群ごとに陣形と目標を指示します。艦名は自由に変えられます。編成はこの端末に陣営ごとに保存されます。": "A combined task force contains task forces of {2}–{3} ships, up to {4}. On the Operations Map, jump by task force or combined task force. On the Tactical Map, set formations and targets by task force. Ship names are editable. Organizations are saved on this device separately for each faction.",
   "敵が優勢": "Enemy Advantage",
@@ -4783,7 +4783,7 @@ root.KS_EN={
   "同じ編成枠（乗員数・資材）で": "with the same personnel and material budget",
   "自軍とほぼ同じ推定戦力になるよう": "to approximately match friendly estimated strength",
   "{0}のドクトリン：{1}": "{0} Doctrine: {1}",
-  "中隊は同じ機種12機が基本（大型キャリアは最大{4}機）。飛行隊の番号で中隊をまとめ、戦闘では飛行隊ごとに発艦・移動・攻撃・帰還します。機体は公式の寸法で、格納区画の内寸に入るか、ハッチを通れるかで搭載・発艦が決まります（設計画面と同じ判定）。シャトル・揚陸艇は地上部隊を降ろす輸送機で、艦隊戦では艦内に待機します。小型の艦も同じ一覧で積めます：格納区画に全長・全幅・全高とも {5} m の余裕をもって入る艦を、艦載機と同じ「サイズ」で積みます（艦の外形の容積 × {6} ÷ 艦載機1機分の格納容積）。戦闘が始まると発進して任務群に加わり、ジャンプの前に近くにいれば収容されます。": "A squadron normally contains 12 craft of one type, up to {4} on large carriers. Wing numbers group squadrons for launching, assembly, movement, attacks, and return. Official craft dimensions determine whether they fit a hangar and its hatches, using the same checks as the designer. Shuttles and landing craft carry ground troops and stay aboard during fleet battles. Small ships can also embark with {5} m of clearance in every dimension, using size units based on envelope volume × {6} divided by standard fighter storage volume. They deploy at battle start and recover before a jump if close enough.",
+  "中隊は同じ機種12機が基本（大型キャリアは最大{4}機）。飛行隊の番号で中隊をまとめ、戦闘では飛行隊ごとに発艦・移動・攻撃・帰還します。標準機は公式寸法、自作機は保存した設計の寸法で、格納区画の内寸に入るか、ハッチを通れるかで搭載・発艦が決まります（設計画面と同じ判定）。シャトル・揚陸艇は地上部隊を降ろす輸送機で、艦隊戦では艦内に待機します。小型の艦も同じ一覧で積めます：格納区画に全長・全幅・全高とも {5} m の余裕をもって入る艦を、艦載機と同じ「サイズ」で積みます（艦の外形の容積 × {6} ÷ 艦載機1機分の格納容積）。戦闘が始まると発進して任務群に加わり、ジャンプの前に近くにいれば収容されます。": "A squadron normally contains 12 craft of one type, up to {4} on large carriers. Wing numbers group squadrons for launching, assembly, movement, attacks, and return. Official craft dimensions determine whether they fit a hangar and its hatches, using the same checks as the designer. Shuttles and landing craft carry ground troops and stay aboard during fleet battles. Small ships can also embark with {5} m of clearance in every dimension, using size units based on envelope volume × {6} divided by standard fighter storage volume. They deploy at battle start and recover before a jump if close enough.",
   "1回の降下：兵員 {0} 名{1}（{2}）": "Per Deployment: {0} Troops{1} ({2})",
   "· {0}分前": "· {0} min Ago",
   "敵 {0} 隻{1}": "Enemy {0} Ships{1}",
@@ -5649,7 +5649,7 @@ root.KS_EN={
   "ドラッグで視点を回転。半透明の立体が切り取る範囲です": "Drag to rotate the view. The translucent solid shows the volume to remove.",
   "大きな問題はありません。": "No major issues found.",
   "積む弾は編成画面の中隊ごとに選びます。お任せ{1}：{2}・計 {3} kg（満載時の加速 {4}・速度 {5} m/s）。撃てば弾が減り、母艦の格納庫で再装填します。{6}": "Choose ordnance for each squadron in the order of battle. Automatic{1}: {2}; total {3} kg (fully loaded acceleration {4}; speed {5} m/s). Firing expends ammunition; reload in the carrier's hangar.{6}",
-  "速度は MGLT（公式の亜光速性能）1 につき 20 m/s（インペリアル級 60 MGLT＝1,200 m/s）。比較：Xウイング（100 MGLT）速度 2,000・空戦 1.25・対艦 160・耐久 1.2、TIE/ln（100 MGLT）2,000・1.0・10・0.6、Aウイング（120 MGLT）2,400。空母の「航空隊」で機種に「設計した機体」としてこの設計（保存したもの）を選ぶと、航行ではこの性能で出撃します。": "Each MGLT of published sublight performance equals 20 m/s here (Imperial-class: 60 MGLT = 1,200 m/s). Comparison: X-wing (100 MGLT): speed 2,000, dogfighting 1.25, anti-ship 160, durability 1.2; TIE/ln (100 MGLT): 2,000, 1.0, 10, 0.6; A-wing (120 MGLT): 2,400. Save this design, then select it as a Custom Craft type in the carrier's Air Wing to deploy it with these stats.",
+  "速度は MGLT（公式の亜光速性能）1 につき 20 m/s（インペリアル級 60 MGLT＝1,200 m/s）。比較：Xウイング（100 MGLT）速度 2,000・空戦 1.25・対艦 160・耐久 1.2、TIE/ln（100 MGLT）2,000・1.0・10・0.6、Aウイング（120 MGLT）2,400。母艦の「編成」→「航空」で「設計した機体・小型艦」からこの設計を選ぶと、航行ではこの性能で出撃します。": "Each MGLT of published sublight performance equals 20 m/s here (Imperial-class: 60 MGLT = 1,200 m/s). Comparison: X-wing (100 MGLT): speed 2,000, dogfighting 1.25, anti-ship 160, durability 1.2; TIE/ln (100 MGLT): 2,000, 1.0, 10, 0.6; A-wing (120 MGLT): 2,400. In the carrier's Order of Battle, open Air Wing and select this design under Custom Aircraft & Small Ships to deploy it with these stats.",
   "秒。": "s.",
   "艦尾・船底・中心線からの距離です。": "Distances from the stern, keel and centerline.",
   "{0}は実寸の機器で、大きさは変えられません（{1} × {2} × {3}）。": "{0} is full-scale equipment and cannot be resized ({1} × {2} × {3}).",
@@ -6685,7 +6685,7 @@ root.KS_EN={
   "4分の1以下": "one quarter or less",
   "に減らせば勝利です。これでチュートリアルは終わりです。上の": " to win. This concludes the tutorial. End the operation using the upper",
   "から作戦を終えられます。": " control.",
-  "第1合同任務群飛行団": "CTF-1 Air Wing",
+  "第1合同任務群飛行団": "CTF-1 Air Group",
   "設計中の艦を{0}に加えました": "Added the current design to {0}",
   "設計中の艦を準備できません：": "Cannot prepare the current design:",
   "軽TL四連": "Quad Light TL",
@@ -8544,4 +8544,25 @@ Object.assign(root.KS_EN.messages,{
 "TIE の太陽電池翼のように、片面で集電して艦の発電に加わり、両面で外装型の散逸装置として熱を放出します（架空技術）。外に出ているので被弾すると失われます。面積に比例します。": "Like a TIE's solar wing, it collects power over one face (added to the ship's generation) and sheds heat over both faces as an external dissipator (fictional technology). Being outside, it is lost when hit. Both scale with its area."
 });
 // </wing-catalog>
+// <embarked-design-catalog> Shared aircraft/small-ship assignments and air hierarchy.
+Object.assign(root.KS_EN.terms,{
+"設計した機体・小型艦": "Custom Aircraft & Small Ships",
+"標準機種": "Standard Craft",
+"機種・設計": "Craft Type / Design",
+"編成時の設計": "Assigned Design",
+"設計中": "Current Draft",
+"設計を読み込み中…": "Loading design…",
+"設計した機体・小型艦を読み込めません": "Unable to load the custom aircraft or small ship",
+"飛行団 → 飛行隊 → 中隊の順に編成します。同じ飛行団・飛行隊の番号を指定した中隊は、まとめて発艦・移動・攻撃・帰還します。": "Organize craft into air groups, wings, and squadrons. Squadrons with the same air group and wing numbers launch, move, attack, and return together.",
+"「設計した機体・小型艦」から追加すると、機種や艦種にかかわらず中隊として編成します。選択時の形状と性能を編成に保存するので、元の設計を変更・削除しても搭載済みの機体は変わりません。": "Entries from Custom Aircraft & Small Ships form squadrons regardless of craft or ship class. Their shape and performance are saved when assigned, so editing or deleting the source design does not change craft already embarked.",
+"格納区画に入っても、出入口のハッチを通れない機体は発艦できません。シャトル・揚陸艇は地上部隊を降ろす輸送機で、艦隊戦では艦内に待機します。「艦艇」から追加した搭載艦は独立した艦として発進し、任務群に加わります。": "Craft must fit through the hangar hatch to launch, even if they fit inside the compartment. Shuttles and landing craft transport ground troops and stay aboard during fleet battles. Ships added under Ships launch independently and join the task force."
+});
+Object.assign(root.KS_EN.messages,{
+"第{0}飛行団": "Air Group {0}",
+"{0} 第{1}飛行団": "{0} Air Group {1}",
+"{0} 第{1}飛行団 第{2}飛行隊": "{0} Air Group {1} / Air Wing {2}",
+"{0}（編成時の設計）": "{0} (Assigned Design)",
+"{0}（設計中）": "{0} (Current Draft)"
+});
+// </embarked-design-catalog>
 })(typeof window==="undefined"?globalThis:window);
