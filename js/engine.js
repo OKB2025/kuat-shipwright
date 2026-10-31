@@ -207,6 +207,10 @@ function handleTrialRays(job) {
 // a large example takes tens of seconds. Very large designs are not kept.
 const fleetBuilt = new Map(), FLEET_KEEP = 4;
 const designHash = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(36) + ':' + s.length; };
+function handleCraftPrice(job){
+ const d=C.deserialize(job.design);C.syncCompartments(d);C.remount(d);C.syncCompartments(d);
+ const stats=C.computeStats(d);post({type:'craftPrice',id:job.id,price:{...C.designCost(stats),costBy:stats.costBy,crewCount:stats.crew,version:C.COST_MODEL.version}});
+}
 function handleFleet(job) {
   const t0 = now();
   const dkey = job.key ? 'k:' + job.key + (job.paint ? '#' + job.paint : '') : 'd:' + designHash(JSON.stringify(job.design));
@@ -246,6 +250,7 @@ async function pump() {
         if (job.type === 'update') await handleUpdate(job);
         else if (job.type === 'build') handleBuild(job);
         else if (job.type === 'fleet') handleFleet(job);
+        else if (job.type === 'craftPrice') handleCraftPrice(job);
         else if (job.type === 'trialRays') handleTrialRays(job);
         else if (job.type === 'trialEnd') trialHold = null;
         else if (job.type === 'op') handleOp(job);
