@@ -14,11 +14,11 @@ const expected={
 };
 function fixture(key){if(!fixtures.has(key)){const ship=C.buildDesign(key),stats=C.computeStats(ship);fixtures.set(key,{ship,stats});}return fixtures.get(key);}
 for(const [key,exp] of Object.entries(expected))test(`${key} uses its original measured main-wing panels as heat-dissipating devices`,()=>{
- const {ship,stats}=fixture(key),raw=C.SHIP_EXAMPLES[key].build(),panels=raw.parts.filter(p=>p.wing?.thermal==='high');
+ const {ship,stats}=fixture(key),raw=C.dedicateAeroParts(C.SHIP_EXAMPLES[key].build()),panels=raw.parts.filter(p=>p.wing?.thermal==='high');
  assert.deepEqual(plain(panels.map(p=>p.id)),exp.ids);
  assert.equal(raw.parts.some(p=>p.k==='hdisx'),false,'there is no external box hidden in a wing');
  for(const p of panels){
-  assert.equal(p.k,'struct','the device retains the shared editable outline/mesh geometry');
+  assert.equal(p.k,'wing','each measured main-wing panel is an independent wing catalogue part');
   assert.match(p.label,exp.labels);
   assert.ok(p.s.every(v=>Number.isFinite(v)&&v>0));
   const d=stats.heat.net.dis.filter(d=>d.part===p.id);
@@ -34,7 +34,7 @@ for(const [key,exp] of Object.entries(expected))test(`${key} uses its original m
 test('TIE collector panels keep one direct solar-and-heat device without a second thermal layer',()=>{
  for(const [key,count] of [['craft_tie_ln',2],['craft_tie_in',6],['craft_tie_sa',6]]){
   const {ship,stats}=fixture(key),panels=ship.parts.filter(p=>p.wing?.solar);assert.equal(panels.length,count);
-  for(const p of panels){assert.equal(p.wing.thermal,'high');const ds=stats.heat.net.dis.filter(d=>d.part===p.id);assert.equal(ds.length,1);assert.equal(ds[0].k,'solar');assert.ok(ds[0].cap>0);}
+  for(const p of panels){assert.equal(p.k,'solarPanel');assert.equal(p.wing.thermal,'high');const ds=stats.heat.net.dis.filter(d=>d.part===p.id);assert.equal(ds.length,1);assert.equal(ds[0].k,'solar');assert.ok(ds[0].cap>0);}
  }
 });
 

@@ -4,7 +4,7 @@ for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/c
 const app=fs.readFileSync(path.join(root,'js/app.js'),'utf8'),run=code=>vm.runInContext(code,context),plain=value=>JSON.parse(JSON.stringify(value));
 function section(start,end){const a=app.indexOf(start),b=app.indexOf(end,a+start.length);assert.ok(a>=0&&b>a,start);run(app.slice(a,b));}
 run(`
-const C=Core,T=s=>s,esc=s=>String(s),num=s=>String(s),deg=s=>s+'°',fPct=s=>s+'%',S=null;
+const C=Core,isAeroKind=k=>C.isAeroPart({k}),T=s=>s,esc=s=>String(s),num=s=>String(s),deg=s=>s+'°',fPct=s=>s+'%',S=null;
 let ship,dragSnap=null,dragLabel='',lastOp='',renders=0,previews=[],adoptions=0;
 const st={foilView:null},eng={gen:0,geoGen:0,sentGen:0,waiting:false,fitOnGeometry:false};
 const undoStack=[],redoStack=[],listeners={},modeNode={textContent:''},diagramNode={outerHTML:''};
@@ -18,7 +18,7 @@ const renderPanel=()=>renders++,requestDraw=()=>{};
 const applyGeometry=()=>{},adoptEngineState=()=>adoptions++,fitCamera=()=>{},hideBusyOverlay=()=>{},refreshOverlay=()=>{},renderPanelInfo=()=>{},updateAviationUI=()=>{},refreshDerivedPanel=()=>{},titleVisible=()=>false,kickEngine=()=>{},engineStatus=()=>{};
 const publicCopy=q=>JSON.parse(JSON.stringify(q));
 function reset(){
- ship={hull:{L:30,W:30,H:10,assembly:true},parts:[{id:1,k:'struct',form:'trap',c:[10,4,8],s:[6,10,1],wing:{foil:true,axis:'x',stow:0,open:15,T:1,feed:1,reinf:0}}],fits:[]};
+ ship={hull:{L:30,W:30,H:10,assembly:true},parts:[{id:1,k:'wing',form:'trap',c:[10,4,8],s:[6,10,1],wing:{foil:true,axis:'x',stow:0,open:15,T:1,feed:1,reinf:0}}],fits:[]};
  dragSnap=null;undoStack.length=0;redoStack.length=0;renders=0;previews=[];adoptions=0;st.foilView=null;st.foilPick=null;st.foilPickMode='vertex';st.foilPickView='iso';eng.gen=0;eng.geoGen=0;eng.sentGen=0;
  clearPreview();modeNode.textContent='';diagramNode.outerHTML='';
 }
@@ -245,7 +245,7 @@ test('equivalent worker geometry-cache replacement keeps the selected edge and i
  run('reset();foilSelectHandle("edge",0,.35);gauge("foilShift0",1.25);gaugeChange("foilShift0");');
  const before=plain(run('selItem().wing.pivot'));
  context.previousHandles=run('st.foilPick.geometry');
- run('selItem()._geom={...selItem()._geom,tris:selItem()._geom.tris.slice()};');
+ run("for(const key of Object.keys(selItem()))if(key.startsWith('_'))delete selItem()[key];");
  assert.notEqual(run('C.foilHandles(selItem())'),context.previousHandles,'worker arrays must actually have new identity');
  assert.equal(run('foilPickState(selItem()).kind'),'edge');
  assert.equal(run('foilPickState(selItem()).t'),.35);

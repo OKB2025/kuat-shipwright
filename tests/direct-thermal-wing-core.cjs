@@ -56,7 +56,7 @@ test('a standalone retired external device retains its measured room geometry an
  o.parts=[{id:1,k:'hdisx',c:[4,1,-3],d:1,room:[2,3,.064],corner:.15,aftWidth:.8,foreWidth:.6,yaw:12,roll:3,label:'saved panel'}];o.nextId=2;
  o.links=[{kind:'heat',from:'p9',to:'p1'}];const before=JSON.stringify(o),loaded=C.deserialize(o),p=loaded.parts[0];
  assert.equal(JSON.stringify(o),before,'loading does not mutate the saved source');
- assert.equal(p.id,1);assert.equal(p.k,'struct');assert.equal(p.form,'chamfer');assert.equal(p.wing.thermal,'high');
+ assert.equal(p.id,1);assert.equal(p.k,'wing');assert.equal(p.form,'chamfer');assert.equal(p.wing.thermal,'high');
  assert.deepEqual(plain(p.s),[2,3,.064]);assert.deepEqual(plain(p.c),[4,1,-3]);assert.equal(p.corner,.15);assert.equal(p.yaw,12);assert.equal(p.roll,3);
  assert.deepEqual(plain(loaded.links),o.links);
  const again=C.deserialize(C.serialize(loaded));assert.deepEqual(plain(again.parts[0].s),plain(p.s));assert.deepEqual(plain(again.parts[0].wing),plain(p.wing));

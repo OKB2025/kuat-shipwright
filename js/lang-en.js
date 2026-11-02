@@ -8670,5 +8670,41 @@ Object.assign(root.KS_EN.messages,{
 "{0} 名分 · {1}": "Capacity for {0} people · {1}",
 "{0} 秒の連続射撃": "{0} s of continuous fire"
 });
+// Dedicated wing and solar-panel parts.
+Object.assign(root.KS_EN.terms,{
+"太陽光パネル": "Solar Panel",
+"太陽光パネルの形": "Solar Panel Shape",
+"太陽光パネルの散熱・発電": "Solar Panel Cooling and Power",
+"主翼の形": "Wing Shape",
+"固定主翼": "Fixed Wing",
+"固定主翼にする": "Make a Fixed Wing",
+"翼弦・前後長": "Chord / Length",
+"翼幅・パネル幅": "Span / Panel Width",
+"翼面積（片面）": "Wing Area (One Face)",
+"薄い六角形の主翼断面": "Thin Hexagonal Wing Section",
+"薄い六角断面の主翼": "Thin Hexagonal-section Wing",
+"先細り": "Tapered",
+"直線翼": "Straight Wing",
+"後退翼": "Swept Wing",
+"六角形（TIE/ln型）": "Hexagon (TIE/ln)",
+"切欠き形（TIE/in型）": "Notched (TIE/in)",
+"折れ曲がり（TIE/sa型）": "Bent (TIE/sa)",
+"縁の骨組みの幅": "Rim Frame Width",
+"対角線の骨組みの幅": "Diagonal Brace Width",
+"上下パネルの折れ角": "Outer Panel Fold Angle",
+"中央の平面部分": "Flat Center Section",
+"パーツの翼形状": "Part Planform",
+"翼形状の頂点": "Planform Vertices"
+});
+Object.assign(root.KS_EN.messages,{
+"薄い六角断面を持つ独立した主翼。寸法・輪郭・厚さとSフォイル機構を編集でき、翼面積に応じて廃熱を放出します。": "A dedicated wing with a thin hexagonal section. Edit its dimensions, outline, thickness and S-foil mechanism. Waste-heat dissipation scales with wing area.",
+"集電面、縁と対角線の骨組みを持つ独立したパネル。輪郭や折れ角を編集でき、面積に応じて発電と散熱を行います。": "A dedicated panel with a collector face, rim frame and diagonal braces. Edit its outline and fold angle. Power generation and cooling scale with area.",
+"頂点編集したパネルは、その頂点に沿って骨組みが追従します。折れ角の調整へ戻すには上の翼形状を選びます。": "On a vertex-edited panel, the frame follows its vertices. Choose a planform above to return to fold-angle controls.",
+"集電面の縁と対角線に骨組みを備えた専用パーツです。輪郭と折れ角を変えて、面積に応じて発電量と排熱能力が変わります。": "A dedicated part with a frame around the collector face and along its diagonals. Change its outline and fold angle; power generation and heat rejection scale with area.",
+"主翼専用の薄い六角断面です。翼弦・翼幅・厚さと平面の輪郭を変えられ、翼面積に応じて排熱能力が変わります。": "A thin hexagonal section designed for wings. Edit its chord, span, thickness and planform. Heat rejection scales with wing area.",
+"配置後は「輪郭の頂点」で各頂点を動かしたり、頂点を追加・削除して形を自由に変えられます。3Dの頂点編集では上下方向も変更できます。": "After placement, move, add or remove outline vertices to reshape the part. 3D vertex editing also lets you move vertices vertically.",
+"接触面の法線にパーツの上方向を揃え、底面を接地させます。斜面・舷側・下面に対応。回転は接触面上の方位、傾きはその面に対する追加角度です。": "Aligns the part's up direction with the surface normal and rests its base on the surface. Supports slopes, hull sides and undersides. Rotation sets the heading along that surface; tilt adds an angle relative to it.",
+"輪郭の編集はパーツの外形と面積に反映します。太陽光パネルでは発電量も変わります。": "Outline edits change the part's shape and area. They also change power generation for solar panels."
+});
 // </craft-systems-catalog>
 })(typeof window==="undefined"?globalThis:window);

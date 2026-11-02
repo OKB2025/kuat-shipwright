@@ -6,7 +6,7 @@ function section(start,end){const a=app.indexOf(start),b=app.indexOf(end,a+start
 function setup(){const c=vm.createContext({console,C});vm.runInContext(`
  const ship=C.newShip({L:20,W:12,H:8},'Thermal wing UI'),st={part:'gen',sel:null},listeners={},history=[],redoStack=[];
  ship.parts=[];ship.nextId=1;let S=null,renders=0,lastOp='',dragSnap=null;
- const num=(v,d=0)=>Number(v).toFixed(d),esc=String,fPct=v=>Math.round(v*100)+'%',fW=v=>v+' W',fMass=v=>v+' t',deg=v=>v+'°';
+ const rgb=v=>'rgb('+v.join(',')+')',fmtM=v=>v+' m',num=(v,d=0)=>Number(v).toFixed(d),esc=String,fPct=v=>Math.round(v*100)+'%',fW=v=>v+' W',fMass=v=>v+' t',deg=v=>v+'°';
  const activeEquipment=()=>null,craftDesign=()=>C.isCraft(ship),selItem=()=>ship.parts.find(p=>p.id===st.sel?.id),editSel=fn=>fn(selItem());
  const panel={addEventListener:(type,fn)=>(listeners[type]||=[]).push(fn)},$=selector=>selector==='#panel'?panel:null;
  const snap=()=>JSON.stringify(C.serialize(ship)),undoStack=history,sndEdit=()=>{},sndUI=()=>{},toast=()=>{},touch=()=>{},scheduleStats=()=>{},updateUndo=()=>{},autosave=()=>{},rememberPick=()=>{},renderPanel=()=>renders++,updateHint=()=>{},endDrag=()=>{},foilPivotControls=()=>'<div data-test-pivot></div>',foilDiagramSVG=()=>'<svg></svg>';
@@ -16,13 +16,13 @@ function setup(){const c=vm.createContext({console,C});vm.runInContext(`
  function installPreview(){const p=unalignedPartPreview({p:[10,4,8],n:[0,1,0],kind:'section'});const made=C.placePart(ship,p.k,p.c,p.s,p,false);st.sel={list:'parts',id:made.id};return made;}
  function refresh(){S=C.computeStats(ship);return S;}
  `,c);
- for(const [start,end]of [['function seg(','function silhouette('],['function wingPresetCard(','function fitBtn('],['function unalignedPartPreview(','function notchBox('],['function wingControls(','function sensorBandControls('],['function bindWing(){','function heatHTML('],['function mutate(','function beginDrag(']])vm.runInContext(section(start,end),c);
+ for(const [start,end]of [['function seg(','function silhouette('],['function partCard(','function fitBtn('],['function unalignedPartPreview(','function notchBox('],['function wingControls(','function sensorBandControls('],['function bindWing(){','function heatHTML('],['function mutate(','function beginDrag(']])vm.runInContext(section(start,end),c);
  vm.runInContext('bindWing()',c);return code=>vm.runInContext(code,c);
 }
-test('the palette preset places the radiating wing itself without a nested external device',()=>{
- const run=setup();assert.match(run('wingPresetCard()'),/data-wingpreset="high"/);run('click("wingpreset","high")');
- assert.equal(run('st.part'),'struct');assert.equal(run('st.structWing.thermal'),'high');assert.equal(run('ship.parts.length'),0);assert.match(run('wingPresetCard()'),/aria-pressed="true"/);
- const p=plain(run('installPreview();C.serialize(ship).parts[0]'));assert.equal(p.k,'struct');assert.equal(p.wing.thermal,'high');assert.equal(p.s[2],.08);assert.equal(run('ship.parts.length'),1);assert.equal(run('ship.parts.some(p=>p.k==="hdisx")'),false);
+test('normal catalogue cards and legacy recent selections place a dedicated wing without a structural host',()=>{
+ const run=setup();assert.match(run("partCard('wing',false)"),/data-part="wing"/);assert.match(run("partCard('solarPanel',false)"),/data-part="solarPanel"/);run('click("wingpreset","high")');
+ assert.equal(run('st.part'),'wing');assert.equal(run('st.structWing.thermal'),'high');assert.equal(run('ship.parts.length'),0);assert.match(run('wingPresetCard()'),/aria-pressed="true"/);
+ const p=plain(run('installPreview();C.serialize(ship).parts[0]'));assert.equal(p.k,'wing');assert.equal(p.wing.thermal,'high');assert.equal(p.s[2],.08);assert.equal(run('ship.parts.length'),1);assert.equal(run('ship.parts.some(p=>p.k==="hdisx")'),false);
  assert.ok(run('refresh().wings[0].capOpen')>0);assert.equal(run('S.wings[0].parts.length'),0);assert.equal(run('S.heat.net.dis.filter(d=>d.part===selItem().id).length'),1);
 });
 test('preselecting low temperature cooling puts that function directly on the placed wing',()=>{
@@ -40,9 +40,9 @@ test('changing the wing cooling mode records a normal undo step and keeps the ge
  const after=plain(run('C.serialize(ship).parts[0]'));assert.deepEqual(after.c,before.c);assert.deepEqual(after.s,before.s);assert.equal(after.form,before.form);assert.ok(run('S.wings[0].capOpen')>0);assert.ok(run('S.wings[0].capOpen')<high);
  assert.equal(run('C.deserialize(JSON.parse(history[0])).parts[0].wing.thermal'),'high');
 });
-test('solar wings expose generation and cooling as one piece of equipment',()=>{
- const run=setup();run('click("wingpreset","high");installPreview();click("wingkind","solar");refresh()');const html=run('wingControls(selItem())');
- assert.equal(run('selItem().wing.solar'),true);assert.equal(run('ship.parts.length'),1);assert.ok(run('S.solarPower')>0);assert.ok(run('S.wings[0].capOpen')>0);
+test('a separate solar-panel catalogue part exposes generation and cooling as one piece of equipment',()=>{
+ const run=setup();run('selectAeroPart("solarPanel");installPreview();refresh()');const html=run('wingControls(selItem())');
+ assert.equal(run('selItem().k'),'solarPanel');assert.equal(run('selItem().wing.solar'),true);assert.equal(run('ship.parts.length'),1);assert.ok(run('S.solarPower')>0);assert.ok(run('S.wings[0].capOpen')>0);
  assert.match(html,/集電出力/);assert.match(html,/放熱能力（両面）/);assert.doesNotMatch(html,/data-wingthermal=|外装型の散逸装置/);
 });
 test('S-foil conversion keeps the cooling mode and uses the existing movable wing controls',()=>{

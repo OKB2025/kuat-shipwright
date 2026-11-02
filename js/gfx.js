@@ -341,7 +341,7 @@ function cylX(g, c, rad, l, col, ru, rv, caps) {   // cylinder along X; caps: {f
 function engineVents(ship, pt) {
   const m = C.partDims(pt), ex = [pt.c[0] - m.l / 2 - m.rad * 0.25, pt.c[1], pt.c[2]];
   if (C.inEnv(ship, ex)) return false;
-  for (const q of ship.parts) if (q !== pt && q.k !== 'struct' && C.inPart(q, ex)) return false;
+  for (const q of ship.parts) if (q !== pt && !C.isShapePart(q) && C.inPart(q, ex)) return false;
   return true;
 }
 function baseMeshParts(ship, opt) {
@@ -350,7 +350,7 @@ function baseMeshParts(ship, opt) {
   const colOf = (k) => coded ? C.PARTS[k].col : (k === 'hangar' ? [210, 214, 218] : PAINT);
   for (const pt of ship.parts) {
     const k = pt.k;
-    if (k === 'struct') { frustum(out.struct, pt, coded ? STRUCT_PAINT : STRUCT_PAINT); continue; }
+    if (C.isShapeKind(k)) { triangleMesh(out.struct,C.structTriangles(pt),STRUCT_PAINT); continue; }
     if (k === 'gen') { sphere(out.gen, pt.c, pt.d / 2, coded ? [255, 214, 176] : PAINT, 8, 3); continue; }
     if (k === 'shield') { sphere(out.shield, pt.c, pt.d / 2, coded ? [190, 255, 244] : PAINT, 12, 6); continue; }
     if (k === 'hangar') { const h = pt.d / 2; boxSolid(out.hangar, [pt.c[0] - h, pt.c[1] - h, pt.c[2] - h], [pt.c[0] + h, pt.c[1] + h, pt.c[2] + h], colOf(k), 0); continue; }
@@ -1620,7 +1620,7 @@ function lineSet() {
       const skin=pt.k==='engine'&&C.engineSkinMesh(pt);
       if(skin){const f=C.frameAxis(skin.u),e0=C.add(pt.c,C.mul(skin.u,skin.t0)),e1=C.add(pt.c,C.mul(skin.u,skin.t1)),r=skin.rad*1.02;for(const e of [e0,e1])this.circle(e,f.v,f.w,r,c,32);for(const a of [0,Math.PI/2,Math.PI,Math.PI*1.5]){const q=C.add(C.mul(f.v,Math.cos(a)*r),C.mul(f.w,Math.sin(a)*r));this.seg(C.add(e0,q),C.add(e1,q),c);}return;}
       if(sh==='cyl'||sh==='engine'){const m=C.partDims(pt),f=C.frameAxis(pt.dir||[1,0,0]);for(const sg of [-1,1])this.circle(C.add(pt.c,C.mul(f.u,sg*m.l/2)),f.v,f.w,m.rad,c,32);for(const a of [0,Math.PI/2,Math.PI,Math.PI*1.5]){const r=C.add(C.mul(f.v,Math.cos(a)*m.rad),C.mul(f.w,Math.sin(a)*m.rad));this.seg(C.add(C.sub(pt.c,C.mul(f.u,m.l/2)),r),C.add(C.add(pt.c,C.mul(f.u,m.l/2)),r),c);}return;}
-      if(pt.k==='struct'||pt.room){const T=C.structTriangles(pt.room?C.roomShape(pt):pt);for(let i=0;i<T.length;i+=9){const a=Array.from(T.slice(i,i+3)),b=Array.from(T.slice(i+3,i+6)),d=Array.from(T.slice(i+6,i+9));this.seg(a,b,c);this.seg(b,d,c);this.seg(d,a,c);}return;}
+      if(C.isShapePart(pt)||pt.room){const T=C.structTriangles(pt.room?C.roomShape(pt):pt);for(let i=0;i<T.length;i+=9){const a=Array.from(T.slice(i,i+3)),b=Array.from(T.slice(i+3,i+6)),d=Array.from(T.slice(i+6,i+9));this.seg(a,b,c);this.seg(b,d,c);this.seg(d,a,c);}return;}
       this.box(C.partAABB(pt), c);
     },
     cross(p, r, c) { this.seg([p[0] - r, p[1], p[2]], [p[0] + r, p[1], p[2]], c); this.seg([p[0], p[1] - r, p[2]], [p[0], p[1] + r, p[2]], c); this.seg([p[0], p[1], p[2] - r], [p[0], p[1], p[2] + r], c); },
@@ -1705,6 +1705,11 @@ function v3MeshParts(ship,opt){
 // One part into the group meshes (shared by the full build and the live preview).
 function meshOnePart(out,p,ship,opt,glow){
     const k=p.k,d=C.PARTS[k],color=opt.info?.[p.id]?.overlap?[240,91,85]:(opt.coded?d.col:PAINT);
+    if(k==='solarPanel'){
+      triangleMesh(out.struct,C.structTriangles(p),opt.coded?d.col:p.paint?hex(p.paint):[35,43,57],10);
+      triangleMesh(out.struct,C.aeroPanelRibs(p),[154,161,169],48);return;
+    }
+    if(k==='wing'){triangleMesh(out.struct,C.structTriangles(p),opt.coded?d.col:p.paint?hex(p.paint):STRUCT_PAINT,36);return;}
     if(k==='struct'&&(p.form==='reference'&&C.REFERENCE_ASSETS[p.skinAsset]||(p.form==='ellipsoid'&&ship.hullSkin?.enabled)))return;
     if(k==='sensor'&&p.skinAsset)return;
     if(k==='struct'&&p.plate){triangleMesh(out.plate,C.structTriangles(p),opt.coded?PLATE_CODED:p.paint?hex(p.paint):ship.paint==='dark'?PLATE_DARK:ship.paint==='cis'?PLATE_CIS:PLATE_PAINT,64);if(p.bands)structureBands(p,out.plate);if(p.stripes&&p.form==='shell')shellStripes(p,out.plate);return;}
