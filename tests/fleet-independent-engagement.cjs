@@ -44,7 +44,7 @@ test('unknown contacts, targets outside range and empty power do not receive opp
 
 test('ceasefire also stops missile launch and stored energy can fund moving shots while recharge is limited',()=>{
  const stopped=fixture(1),u=stopped.own[0];u.p={...u.p,msl:80};R.orderGroup(stopped.w,stopped.g.id,{type:'move',point:[30000,0,-6000],fire:false});tick(stopped,4);assert.equal(u.lastShot,null);assert.equal(stopped.w.missiles.length,0);
- const f=fixture(1),v=f.own[0];v.p={...v.p,grid:{...v.p.grid,P:0}};v.energy=100;R.orderUnit(f.w,v.id,{type:'move',point:[30000,0,-6000]});const before=v.energy;tick(f);assert.ok(v.lastShot?.gun>0);assert.ok(v.energy<before&&v.energy>=0);assert.ok(C.len(v.velocity)>0);
+ const f=fixture(1),v=f.own[0];v.p={...v.p,grid:{...v.p.grid,P:C.TT*.01}};v.energy=100;R.orderUnit(f.w,v.id,{type:'move',point:[30000,0,-6000]});const before=v.energy;tick(f);assert.ok(v.lastShot?.gun>0);assert.ok(v.energy<before&&v.energy>=0);assert.ok(C.len(v.velocity)>0);
 });
 
 test('legacy tactical fleet battles use per-ship forward targeting and continue fire while moving',()=>{

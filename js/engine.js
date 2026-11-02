@@ -223,7 +223,7 @@ function handleFleet(job) {
     if (d.parts.length + d.fits.length < 3000) { const rec = {d, stats, profile, serial}; fleetBuilt.set(dkey, rec); fleetBuilt.set('d:' + designHash(JSON.stringify(serial)), rec); while (fleetBuilt.size > FLEET_KEEP * 2) fleetBuilt.delete(fleetBuilt.keys().next().value); }
   }
   const transfer = [];
-  const geometry = G.fleetGeometry(d, job.trial ? {trial: true} : null);
+  const geometry = G.fleetGeometry(d, {trial: !!job.trial, ...(profile.surface?.offset ? {center: profile.surface.offset} : {})});
   for (const m of Object.values(geometry.meshes)) { m.geo = geoOut(m.geo, transfer); }
   // A trial keeps its ship here so turret rays can be tested against it.
   if (job.trial) trialHold = {ship: d, ctx: C.turretRayContext(d), fits: new Map(d.fits.map(f => [f.id, f]))};
