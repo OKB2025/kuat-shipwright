@@ -6,7 +6,7 @@ function source(start,end){const a=app.indexOf(start),b=app.indexOf(end,a+start.
 function setup(){const c=vm.createContext({console,C,R});vm.runInContext(`
  const esc=String,num=String,fCr=String,sh={air:[]},messages=[],listeners={},panel={addEventListener:(k,f)=>listeners[k]=f};let sheets=0,saves=0,sides=0;
  const voy={setup:{editing:'carrier'},screen:'setup',sel:{wing:null},cmd:null,w:null},fleet={assets:new Map()},Store={list:async()=>[]};let ship=null;
- const $=()=>panel,voyFindShip=id=>id==='carrier'?{sh}:null,voyOrbatSheet=()=>sheets++,voyObChanged=()=>saves++,voyRenderSide=()=>sides++,toast=x=>messages.push(x),voySqLoadHTML=()=>'',voyWingOrderText=()=>'',voyWeakArc=()=>'bow',voyFoeName=u=>u.name;
+ const $=()=>panel,voyFindShip=id=>id==='carrier'?{sh}:null,voyOrbatSheet=()=>sheets++,voyObChanged=()=>saves++,voyRenderSide=()=>sides++,toast=x=>messages.push(x),voySqLoadHTML=()=>'',voyWingOrderText=()=>'',voyWingFollowText=()=>'',voyWingStateText=()=>'',voyWeakArc=()=>'bow',voyFoeName=u=>u.name;
  function click(data){const b={dataset:data,closest:()=>null};return listeners.click({target:{closest:s=>s==='button'?b:null},preventDefault:()=>{}});}
  function sideClick(data){const b={dataset:data};voySidebarClick({target:{closest:()=>b}});}
  `,c);for(const [a,b]of [['function voyEmbarkedSources()','// ---- the order of battle of one ship (air wing and embarked troops) ----'],['function voyBindSetup()','// ---------- starting a battle ----------'],['function voySidebarClick(e)','function voyCenterOps('],['function voyTapUnit(','function voyMapTap(']])vm.runInContext(source(a,b),c);vm.runInContext('voyBindSetup()',c);return code=>vm.runInContext(code,c);}

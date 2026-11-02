@@ -13019,7 +13019,7 @@ function jumpVector(w, u) {
  const g = w.groups.get(u.group), S = w.sector.systems, path = g?.spool?.route?.path, next = path?.[1] ?? u.jump?.dest, a = S[u.sys]?.pos, b = S[next]?.pos;
  if (!a || !b || next === u.sys) return null;const d = [b[0] - a[0], 0, b[1] - a[1]];return len(d) > 0 ? norm(d) : null;
 }
-function jumpAhead(w, u) { u.hyperT = w.time; u.jump = null; u.sys = null; u.velocity = [0, 0, 0]; for (const sid of u.squads) { const s = w.squads.get(sid); if (s && s.state === 'docked') s.sys = null; } }
+function jumpAhead(w, u) { const from=u.sys,dest=w.groups.get(u.group)?.spool?.dest; followDepartingCarrier(w,u,from,dest);u.hyperT = w.time; u.jump = null; u.sys = null; u.velocity = [0, 0, 0]; for (const sid of u.squads) { const s = w.squads.get(sid); if (s && s.state === 'docked') s.sys = null; } }
 function spoolSequence(w, g) {
  const sp = g.spool;if (!sp) return;
  if (!sp.seq && sp.t >= sp.need - JUMP_STAGGER.span) { sp.seq = jumpSequence(w, g); sp.gap = sp.seq.length ? Math.min(JUMP_STAGGER.gap, JUMP_STAGGER.span / sp.seq.length) : 0; sp.left = 0; }
@@ -13029,9 +13029,10 @@ function departGroup(w, g) {
  const sp = g.spool;g.spool = null;const from = g.sys;
  // Ships held in a tractor beam by a ship of the group go along, joining it.
  for (const id of [...towedIn(w, g)]) { const t = w.units.get(id); if (!t || g.units.includes(id)) continue; const old = w.groups.get(t.group); if (old) old.units = old.units.filter(x => x !== id); g.units.push(id); t.group = g.id; }
- // Craft aboard go along; craft still out are left behind.
+ // Craft aboard go along; airborne craft with their own drive follow independently.
+ for(const id of g.units){const u=w.units.get(id);if(alive(u)&&u.sys!=null)followDepartingCarrier(w,u,from,sp.dest);}
  for (const id of g.units) { const u = w.units.get(id); if (!alive(u)) continue; if (u.sys != null) u.hyperT = w.time; u.jump = null; u.sys = null; u.velocity = [0, 0, 0];
-  for (const sid of u.squads) { const s = w.squads.get(sid); if (!s) continue; if (s.state === 'docked') s.sys = null; else if (s.state !== 'lost' && !s.raid) { if ((s.ops?.k === 'launch' ? s.n - opsDone(w, s) : s.ops?.k === 'land' ? opsDone(w, s) : 0) > 0) { const n = opsCut(w, from, s, false, 'behind', null); if (n) blog(w, from, `${s.name}の ${n} 機が母艦の離脱に間に合わず喪失`, {side: s.side}); if (s.n > 0) { dockSquad(w, s, u); s.sys = null; continue; } } craftLostBehind(w, s, from); } } }
+  for (const sid of u.squads) { const s = w.squads.get(sid); if (!s) continue; if (s.state === 'docked') s.sys = null; else if (s.state !== 'lost' && !s.raid && !s.follow) { if ((s.ops?.k === 'launch' ? s.n - opsDone(w, s) : s.ops?.k === 'land' ? opsDone(w, s) : 0) > 0) { const n = opsCut(w, from, s, false, 'behind', null); if (n) blog(w, from, `${s.name}の ${n} 機が母艦の離脱に間に合わず喪失`, {side: s.side}); if (s.n > 0) { dockSquad(w, s, u); s.sys = null; continue; } } craftLostBehind(w, s, from); } } }
  for (const wing of w.wings.values()) if (g.units.includes(wing.home) && !(wing.raid && wing.raid.phase !== 'launch')) { wing.recall = false; wing.phase = 'docked'; }
  // Leg by leg, each at its lane's speed.
  const r = sp.route, total = r.legs.reduce((t, e) => t + e.len / LANE[e.kind].f, 0) || 1;let t = w.time;
@@ -13188,8 +13189,9 @@ function systemUnits(w, sys) { const out = []; for (const u of w.units.values())
 function updateBattles(w) {
  const bySys = new Map();
  for (const u of w.units.values()) { if (!alive(u) || u.sys == null) continue; let a = bySys.get(u.sys); if (!a) bySys.set(u.sys, a = new Set()); a.add(u.side); }
- // v22 A raiding wing's craft hold their side's place in the system they strike (until they jump out).
- for (const s of w.squads.values()) { if (!s.raid || s.sys == null || !['out', 'return'].includes(s.state) || !(s.n > 0)) continue; let a = bySys.get(s.sys); if (!a) bySys.set(s.sys, a = new Set()); a.add(s.side); }
+ // Raiders and independently withdrawing craft hold their side's place until
+ // their own jump, even after the last friendly capital ship has departed.
+ for (const s of w.squads.values()) { if (!(s.raid||s.follow?.phase==='spool') || s.sys == null || !['out', 'return'].includes(s.state) || !(s.n > 0)) continue; let a = bySys.get(s.sys); if (!a) bySys.set(s.sys, a = new Set()); a.add(s.side); }
  // Salvos already in flight must resolve after raiding craft withdraw.
  for (const m of w.missiles) {
   const target = w.units.get(m.target);
@@ -13736,6 +13738,16 @@ function pdToward(u, pt) {
 function nearestOf(list, p) { let best = null, bd = Infinity; for (const x of list) { const dx = x.pos[0] - p[0], dy = x.pos[1] - p[1], dz = x.pos[2] - p[2], d = dx * dx + dy * dy + dz * dz; if (d < bd) { bd = d; best = x; } } return best; }
 // A wing on automatic orders covers its carrier (the AI's wings get the AI's orders).
 function wingOrder(w, wing) { if (wing?.raid) return wing.raid.phase === 'strike' && wing.raid.order || {type: 'standby'}; const o = wing?.order || {type: 'standby'}; if (o.type !== 'auto') return o; return wing.auto || {type: 'escort', target: wing.home}; }
+// Only aircraft free of a hatch can intercept another formation. Read their current
+// position rather than last tick's wing.c, which can still point at a departed wing.
+function wingAirInfo(w, wing, sys) {
+ let n=0,p=[0,0,0],v=[0,0,0],bombers=0;
+ for(const id of wing.squads){const s=w.squads.get(id);if(!s||s.sys!==sys||s.state!=='out'||s.ops||!(s.n>0))continue;n+=s.n;p=add(p,s.pos,s.n);v=add(v,s.vel||[0,0,0],s.n);if(CRAFT[s.craft]?.role==='bomber')bombers+=s.n;}
+ return n?{wing,n,c:scale(p,1/n),v:scale(v,1/n),bombers}:null;
+}
+// Lead the distant formation, then bring the actual target onto the nose once
+// within gun range; permanent velocity lead would keep fixed barrels off target.
+function airInterceptPoint(from, target, speed) { const seconds=clamp((len(sub(target.c,from))-4500)/Math.max(500,speed+len(target.v))*.6,0,2);return add(target.c,target.v,seconds); }
 // The bearing in a ship's frame from which an attack run comes in.
 const APPROACH = {bow: [1, 0, 0], stern: [-1, 0, 0], stbd: [0, 0, 1], port: [0, 0, -1], above: [0, 1, 0], below: [0, -1, 0]};
 const APPROACH_NAME = {bow: '艦首', stern: '艦尾', stbd: '右舷', port: '左舷', above: '上方', below: '下方'};
@@ -13769,9 +13781,9 @@ function craftTick(w, sys, us, byId, sysOf, inc, dt) {
   const hk = home ? sysOf.get(home.id)?.hangar ?? 1 : 1;
   for (const s of list) {
    if (s.state === 'docked') { if (home) s.pos = [...home.pos]; if (s.t > 0) s.t -= dt; continue; }
-   if (s.state === 'return' && s.raid) { steer(s, add(s.pos, scale(s.h, 5000)), sqSpeed(s), dt); continue; }
+   if (s.state === 'return' && (s.raid || s.follow)) { steer(s, add(s.pos, scale(s.h, 5000)), sqSpeed(s), dt); continue; }
    // v23 Home through a hatch mouth (squadHome): lined up on it, in single file, aboard once the last craft is in.
-   if (s.state === 'return') { if (!home || home.dead || home.sys !== sys) { s.state = 'lost'; s.lostN = (s.lostN || 0) + s.n; s.n = 0; s.slots = []; s.ops = null; continue; } squadHome(w, s, home, dt, hk); continue; }
+   if (s.state === 'return') { if (!home || home.dead || home.sys !== sys) { if(followCarrier(w,s,sys))continue;s.state = 'lost'; s.lostN = (s.lostN || 0) + s.n; s.n = 0; s.slots = []; s.ops = null; continue; } squadHome(w, s, home, dt, hk); continue; }
    if (s.ops?.k === 'launch') launchStep(w, s, byId.get(s.ops.u));
   }
   const all = list.filter(s => s.state === 'out' && s.n > 0);
@@ -13779,7 +13791,7 @@ function craftTick(w, sys, us, byId, sysOf, inc, dt) {
   // v23 Launch: the wing's rearmed squadrons go out through the carrier's hatch mouths (launchSquad), as many as its
   // air control has room for; the rest wait aboard (管制容量待ち) until squadrons come home or are lost. Transports
   // (shuttles, landing craft) stay aboard in a fleet battle, as the order of battle says.
-  const ready = list.filter(s => s.state === 'docked' && !(s.t > 0) && s.n > 0 && !CRAFT[s.craft]?.stay);
+  const ready = list.filter(s => s.state === 'docked' && !(s.t > 0) && s.n > 0 && !s.followParent && !s.followSplit && !CRAFT[s.craft]?.stay);
   if (ready.length && !all.length && wing.phase !== 'form') { wing.phase = 'form'; wing.formT = w.time; }
   for (const s of ready) { if (airCtlRoom(w, home) < 1) { s.wait = 'ctl'; continue; } s.wait = null; if (!launchSquad(w, home, s, hk)) break; }
   const out = list.filter(s => s.state === 'out' && s.n > 0 && !s.ops);
@@ -13828,20 +13840,27 @@ function craftTick(w, sys, us, byId, sysOf, inc, dt) {
    }
    engageR = out.every(s => CRAFT[s.craft].role === 'bomber') ? 0 : 3000;
   } else if (o.type === 'cap') { goal = o.point || home.pos; engageR = (o.radius || 15000) + 4000; }
-  else { const e = byId.get(o.target) || home; goal = add(e.pos, [0, Math.max(e.p.height * .8 || 300, C.hullShape(e.p).hy + 250), 0]); engageR = 9000; }
+  else { const escorted=o.escortWing&&w.wings.get(o.escortWing),formation=escorted&&escorted.side===wing.side&&wingAirInfo(w,escorted,sys),e=byId.get(o.target)||home;
+   // An attack escort goes with the bombers, ahead of their flight path, instead
+   // of waiting above the carrier while its strike is exposed at the enemy fleet.
+   goal=formation?add(formation.c,norm(formation.v),1800):add(e.pos,[0,Math.max(e.p.height*.8||300,C.hullShape(e.p).hy+250),0]);engageR=formation?14000:12000;
+  }
   // v23 On the run (and breaking away) a squadron keeps to its side of the hull it strafes: over it unless it came in
   // from below or level below its middle.
   for (const s of out) { if (!runOn) { s.runOn = null; continue; } if (s.runOn !== runOn.id) { s.runOn = runOn.id; s.runSide = o.approach === 'below' || (o.approach !== 'above' && C.hullLocal(runOn, s.pos)[1] < -40) ? -1 : 1; } }
   // Wings hunt enemy wings near their goal (patrol, escort) or near themselves (strike escorts).
-  if (engageR > 0 && wing.phase !== 'run'&&wing.phase!=='egress') { const ref = o.type === 'strike' ? (wing.c || lead.pos) : goal; let best = null, bd = engageR * engageR; for (const e of centres) { if (e.side === wing.side || !e.c) continue; const dx = e.c[0] - ref[0], dy = e.c[1] - ref[1], dz = e.c[2] - ref[2], d2 = dx * dx + dy * dy + dz * dz; if (d2 < bd) { bd = d2; best = e; } } wing.engaged = best ? best.id : null; if (best) { goal = best.c; tight = .6; } } else wing.engaged = null;
+  if (engageR > 0 && wing.phase !== 'run'&&wing.phase!=='egress') { const ref=o.type==='strike'?(wing.c||lead.pos):goal;let best=null,score=Infinity;
+   for(const e of centres){if(e.side===wing.side||!e.c)continue;const d2=dot(sub(e.c,ref),sub(e.c,ref));if(d2>engageR*engageR)continue;const rank=d2*(e.id===o.airTarget ? .25 : 1);if(rank<score){score=rank;best=e;}}
+   wing.engaged=best?best.id:null;if(best){const info=wingAirInfo(w,best,sys);goal=info?airInterceptPoint(wing.c||lead.pos,info,Math.min(...out.map(sqSpeed))):best.c;tight=.35;}
+  } else wing.engaged = null;
   steerWing(out, goal, hd, dt, tight);
  }
  // A squadron fires at one nearby enemy that its own guns can bear on. Cell lists keep the existing 4.5 km
  // neighbourhood; at most 64 candidates per attacker are sampled, rotating through dense cells each tick.
  // Firing/heat/visual markers belong to the attacker; kill credit belongs to the damage received by its victim.
- const air = sq.filter(s => s.state === 'out' && s.n > 0), N = air.length, DFC = 1500, cells = new Map(), near = new Map(), bySq = new Map(), key = (i, j, k) => ((i & 1023) << 20) | ((j & 1023) << 10) | (k & 1023);
+ const air = sq.filter(s => (s.state === 'out'||s.state==='return'&&s.follow?.phase==='spool') && s.n > 0), N = air.length, DFC = 1500, cells = new Map(), near = new Map(), bySq = new Map(), key = (i, j, k) => ((i & 1023) << 20) | ((j & 1023) << 10) | (k & 1023);
  const P = new Float64Array(N * 3), side = new Int8Array(N), soft = new Float64Array(N), cellOf = new Int32Array(N), loss = new Float64Array(N), pdL = new Float64Array(N), pdTop = new Float64Array(N), pdBy = new Array(N).fill(null), dfBy = new Array(N).fill(null), dfTop = new Float64Array(N), val = new Float64Array(N), previous = air.map(s=>s.dfFoe);
- for (let n = 0; n < N; n++) { const s = air[n], c = CRAFT[s.craft], x = s.pos[0], y = s.pos[1], z = s.pos[2], kk = key(Math.floor(x / DFC), Math.floor(y / DFC), Math.floor(z / DFC));P[n * 3] = x;P[n * 3 + 1] = y;P[n * 3 + 2] = z;side[n] = s.side;soft[n] = 1 / c.armor;cellOf[n] = kk;val[n] = s.n * c.aa * C.squadFireK(s) * squadLaserK(s,'aa');let e = cells.get(kk);if(!e)cells.set(kk,e=[]);e.push(n);bySq.set(s.id,n);s.dfFoe=null; }
+ for (let n = 0; n < N; n++) { const s = air[n], c = CRAFT[s.craft], x = s.pos[0], y = s.pos[1], z = s.pos[2], kk = key(Math.floor(x / DFC), Math.floor(y / DFC), Math.floor(z / DFC));P[n * 3] = x;P[n * 3 + 1] = y;P[n * 3 + 2] = z;side[n] = s.side;soft[n] = 1 / c.armor;cellOf[n] = kk;val[n] = s.state==='out'?s.n * c.aa * C.squadFireK(s) * squadLaserK(s,'aa'):0;let e = cells.get(kk);if(!e)cells.set(kk,e=[]);e.push(n);bySq.set(s.id,n);s.dfFoe=null; }
  for (let n = 0; n < N; n++) {
   if(!(val[n]>0))continue;
   const s=air[n],i=Math.floor(P[n*3]/DFC),j=Math.floor(P[n*3+1]/DFC),k=Math.floor(P[n*3+2]/DFC),nk=cellOf[n]+':'+side[n];let candidates=near.get(nk);
@@ -14045,6 +14064,7 @@ const fitsMouth = (c, m) => { const d = (c.dims || [10, 8, 3]).slice().sort((a, 
 // after craft at the mouth's share of the launch rate (k: the hangars' state), and forms on the far side; false while
 // that mouth is busy. Launches and landings share each mouth's traffic.
 function launchSquad(w, u, s, k = 1) {
+ if(s.followParent||s.followSplit)return false;
  const ms = mouthsOf(u), c = CRAFT[s.craft], q = u.mq || (u.mq = []), fit = ms.some(m => fitsMouth(c, m));let best = -1, bt = Infinity;
  for (let i = 0; i < ms.length; i++) { const m = ms[i];if (fit && !fitsMouth(c, m)) continue;const door = m.sl ? (1 - (u.hatchOpen || 0)) * (u.p.hatchOpenSeconds || 4) : 0, t = Math.max(w.time + door, q[i] || 0) + s.n * c.size / Math.max(.02, m.r * k);if (t < bt) { bt = t; best = i; } }
  if (best < 0) return false;const m = ms[best];if (m.sl) u.hatchWant = w.time;
@@ -14112,8 +14132,8 @@ function shipLost(w, sys, u, text, ev) {
  if (u.tractor) releaseTractor(w, u);if (u.towedBy) { const t = w.units.get(u.towedBy); if (t) releaseTractor(w, t); u.towedBy = null; }
 }
 function lostToGravity(w, sys, u) { u.dead = true;u.fate = 'fall';u.velocity = [0, 0, 0];u.fire = u.fire.map(() => 0);shipLost(w, sys, u, `${u.name}：大気圏に落下して喪失`, `${u.name} 喪失（航行不能のまま大気圏に落下）`); }
-// Craft still out when their carrier jumps cannot follow it into hyperspace:
-// the squadron is written off with every craft in it.
+// Aircraft unable to follow a departing carrier are written off. Craft with a
+// usable independent drive take followCarrier's route instead.
 function craftLostBehind(w, s, sys) {
  const n = Math.ceil(s.n);s.lostN = (s.lostN || 0) + s.n;s.n = 0;s.state = 'lost';s.slots = [];
  if (n > 0) { blog(w, sys, `${s.name}：母艦がハイパースペースに入り帰還できず全機喪失（${n} 機）`, {side: s.side}); event(w, `${s.name} 全機喪失（母艦の離脱に間に合わず）`, {side: s.side, sys}); }
@@ -14128,9 +14148,9 @@ function craftIdle(w, dt) {
   if (s.raid && s.state === 'out' && w.wings.get(s.wing)?.raid?.phase === 'launch') continue;   // v23 forming up for a cross-system strike (raidTick)
   if (s.state === 'out') { s.state = 'return'; s.ops = null; s.runOn = null; } if (s.state !== 'return') continue;
   if (!hs.has(s.sys)) hs.set(s.sys, hullsFor(w, s.sys));HULLS = hs.get(s.sys);
-  if (s.raid) { steer(s, add(s.pos, scale(s.h, 5000)), sqSpeed(s), dt); continue; }   // v22 raiders clear out to jump home (raidTick)
+  if (s.raid || s.follow) { steer(s, add(s.pos, scale(s.h, 5000)), sqSpeed(s), dt); continue; }   // raiders and retreating craft clear out before their own jump
   const home = w.units.get(s.home);
-  if (!home || !alive(home) || home.sys !== s.sys) { craftLostBehind(w, s, s.sys); continue; }
+  if (!home || !alive(home) || home.sys !== s.sys) { if(followCarrier(w,s,s.sys))continue;craftLostBehind(w, s, s.sys); continue; }
   // v23 home through a hatch mouth, as in battle (squadHome)
   squadHome(w, s, home, dt);
   if (s.state === 'docked') { const wg = w.wings.get(s.wing); if (wg && !wg.raid && wg.squads.every(id => w.squads.get(id)?.state !== 'out' && w.squads.get(id)?.state !== 'return')) wg.phase = 'docked'; }
@@ -14232,7 +14252,9 @@ const supplyAt = (w, side, sys) => w.sides[side]?.supply?.lines.get(sys)?.eff ||
 function supplyNeeds(w, u, ln) {
  const p = u.p, mods = p.modules || [], base = unitSupplyOf(u), yard = !!ln?.home, out = {total: 0, ammo: 0, craft: 0, hull: 0, mods: 0, plate: 0, crew: 0, parts: 0};
  for (let i = 0; i < mods.length; i++) if (mods[i].k === 'launcher' && u.mods[i] > 0 && (mods[i].stock || 0) > u.ammo[i]) out.ammo += (mods[i].stock - u.ammo[i]) * SUPPLY.missile;
- for (const sid of u.squads) { const q = w.squads.get(sid); if (!q || !(q.n0 > 0) || (q.state !== 'docked' && q.state !== 'lost')) continue; const miss = q.n0 - q.n - (q.rep || 0); if (miss > .001) out.craft += miss * SUPPLY.craft * (CRAFT[q.craft]?.size || 1); }
+ // A split hatch cohort reserves the other flight's formation slots until it
+ // rejoins. Replenish the whole squadron after that merge, never either half.
+ for (const sid of u.squads) { const q = w.squads.get(sid); if (!q || q.followSplit || q.followParent || !(q.n0 > 0) || (q.state !== 'docked' && q.state !== 'lost')) continue; const miss = q.n0 - q.n - (q.rep || 0); if (miss > .001) out.craft += miss * SUPPLY.craft * (CRAFT[q.craft]?.size || 1); }
  const hp = Math.max(1, p.hp);let sec = 0;for (let i = 0; i < u.sec.length; i++) if (!u.secLost.includes(i)) sec += Math.max(0, u.sec[i].max - Math.max(0, u.sec[i].s));out.hull = sec / hp * base * SUPPLY.repair;
  const W = modTotal(p);let dm = 0, dd = 0;
  for (let i = 0; i < mods.length; i++) { const m = mods[i]; if (m.k === 'hull' || u.secLost.includes(u.secOf[i])) continue; const v = u.mods[i]; if (v > 0 && v < 1) dm += (1 - v) * (m.w || 0); else if (v <= 0 && yard) dd += m.w || 0; }
@@ -14248,7 +14270,7 @@ function supplyGive(w, u, nd, t) {
  const use = (want, f) => { if (!(want > 0) || !(t > 0)) return; const k = Math.min(1, t / want); t -= want * k; f(k); };
  use(nd.crew, k => { const cm = p.crewMax ?? p.crewNeed ?? 0; u.crew = Math.min(cm, u.crew + Math.max(0, cm - u.crew) * k); });
  use(nd.ammo, k => { for (let i = 0; i < mods.length; i++) if (mods[i].k === 'launcher' && u.mods[i] > 0) u.ammo[i] = Math.min(mods[i].stock || 0, u.ammo[i] + Math.max(0, (mods[i].stock || 0) - u.ammo[i]) * k); });
- use(nd.craft, k => { for (const sid of u.squads) { const q = w.squads.get(sid); if (!q || !(q.n0 > 0) || (q.state !== 'docked' && q.state !== 'lost')) continue; squadSlots(q); q.rep = (q.rep || 0) + Math.max(0, q.n0 - q.n - (q.rep || 0)) * k; const add = Math.min(q.n0 - q.n, Math.floor(q.rep + .002)); if (add > 0) { q.n += add; q.rep = Math.max(0, q.rep - add); squadSlots(q); } if (q.n >= q.n0) q.rep = 0; if (q.state === 'lost' && q.n >= 1) { q.state = 'docked'; q.sys = u.sys; q.pos = [...u.pos]; q.t = RULES.craftRearm; } } });
+ use(nd.craft, k => { for (const sid of u.squads) { const q = w.squads.get(sid); if (!q || q.followSplit || q.followParent || !(q.n0 > 0) || (q.state !== 'docked' && q.state !== 'lost')) continue; squadSlots(q); q.rep = (q.rep || 0) + Math.max(0, q.n0 - q.n - (q.rep || 0)) * k; const add = Math.min(q.n0 - q.n, Math.floor(q.rep + .002)); if (add > 0) { q.n += add; q.rep = Math.max(0, q.rep - add); squadSlots(q); } if (q.n >= q.n0) q.rep = 0; if (q.state === 'lost' && q.n >= 1) { q.state = 'docked'; q.sys = u.sys; q.pos = [...u.pos]; q.t = RULES.craftRearm; } } });
  use(nd.mods, k => { for (let i = 0; i < mods.length; i++) { const v = u.mods[i]; if (v > 0 && v < 1 && !u.secLost.includes(u.secOf[i])) u.mods[i] = Math.min(1, v + (1 - v) * k); } });
  use(nd.hull, k => { let hp = 0; for (let i = 0; i < u.sec.length; i++) { const x = u.sec[i]; if (!u.secLost.includes(i)) x.s = Math.min(x.max, Math.max(0, x.s) + (x.max - Math.max(0, x.s)) * k); hp += Math.max(0, x.s); } u.hp = hp; });
  use(nd.plate, k => { const Z = C.combatZones(p, u.sec.length);let a = 0, s = 0; for (let z = 0; z < u.zi.length; z++) { if (u.zi[z] < 1) u.zi[z] = Math.min(1, u.zi[z] + (1 - u.zi[z]) * k); a += Z.A[z] || 0; s += (Z.A[z] || 0) * u.zi[z]; } u.armor = a > 0 ? s / a : 1; });
@@ -14339,33 +14361,59 @@ function aiStrategic(w, side) {
  // Carriers in battle send their wings: fighters to cover the fleet, bombers at the biggest enemy.
  for (const wing of w.wings.values()) { if (wing.side !== side) continue; const home = w.units.get(wing.home); if (!home || !alive(home) || !w.battles.has(home.sys)) { wing.auto = null; continue; } aiWing(w, wing, home); }
 }
-// AI wings: mostly-bomber wings strike the largest enemy from its weakest
-// point-defence arc; the rest cover their carrier.
+// Fighters contest the airspace between the fleets, intercept incoming attack
+// formations and cover outbound strikes. With the air clear they join the attack.
+// Bombers retain the faction's shield-stripping doctrine and close attack runs.
 function aiWing(w, wing, home) {
- const sqs = wing.squads.map(id => w.squads.get(id)).filter(s => s && s.state !== 'lost'), bombers = sqs.filter(s => CRAFT[s.craft].role === 'bomber').length;
- const foes = systemUnits(w, home.sys).filter(u => u.side !== home.side && fighting(u)).sort((a, b) => b.p.len - a.p.len);if (!foes.length) return;
- const cur = wing.auto, D = doctrineOf(w, home.side);
+ if(wing.order?.type!=='auto'||wing.raid||wing.recall||!alive(home)||home.sys==null||home.out||home.jump||home.warp)return;
+ const sqs=wing.squads.map(id=>w.squads.get(id)).filter(s=>s&&s.n>0&&s.state!=='lost'&&!CRAFT[s.craft]?.stay),total=sqs.reduce((n,s)=>n+s.n,0),bombers=sqs.reduce((n,s)=>n+(CRAFT[s.craft]?.role==='bomber'?s.n:0),0);
+ if(!total)return;const ships=systemUnits(w,home.sys),foes=ships.filter(u=>u.side!==home.side&&fighting(u)).sort((a,b)=>b.p.len-a.p.len);
+ const cur=wing.auto,D=doctrineOf(w,home.side),ct=cur?.type==='strike'?foes.find(u=>u.id===cur.target):null;
+ // Finish the pass and clear its hull before answering a new interception.
+ if(cur?.type==='strike'&&fighting(ct)&&['run','egress'].includes(wing.phase))return;
+ const set=o=>{wing.auto=o;if(cur?.type==='strike'&&(o.type!=='strike'||o.target!==cur.target)){wing.attackRun=null;if(['go','run','egress'].includes(wing.phase))wing.phase=o.type==='strike'?'go':'on';for(const s of sqs){s.runOn=null;s.strafeT=null;}}};
+ if(bombers<total*.5){
+  const self=wingAirInfo(w,wing,home.sys),from=self?.c||home.pos,speed=Math.min(...sqs.map(sqSpeed)),friends=ships.filter(u=>u.side===home.side&&fighting(u)),enemies=[],strikes=[],committed=new Map(),escorted=new Set();
+  for(const other of w.wings.values()){if(other===wing)continue;const a=wingAirInfo(w,other,home.sys);if(!a)continue;const order=wingOrder(w,other);
+   if(other.side===wing.side){if(order.type==='strike'&&!other.recall&&other.phase!=='egress')strikes.push(a);if(other.order?.type==='auto'){if(other.auto?.airTarget)committed.set(other.auto.airTarget,(committed.get(other.auto.airTarget)||0)+a.n);if(other.auto?.escortWing)escorted.add(other.auto.escortWing);}}
+   else{a.order=order;enemies.push(a);}
+  }
+  // The defender meets the incoming formation before it reaches the defended
+  // hull. Nearby fighters harassing our attack wing also take priority.
+  let threat=null,best=-Infinity;
+  for(const a of enemies){const victim=a.order.type==='strike'&&w.units.get(a.order.target),shipDist=victim?.side===wing.side?len(sub(a.c,victim.pos)):Math.min(...friends.map(u=>len(sub(a.c,u.pos)))),toward=victim?.side===wing.side&&dot(a.v,sub(victim.pos,a.c))>0,inbound=victim?.side===wing.side&&a.wing.phase!=='egress'&&(shipDist<45000||toward&&shipDist/Math.max(500,len(a.v))<35),cover=strikes.some(x=>len(sub(x.c,a.c))<18000),urgent=inbound||shipDist<12000||cover;
+   if(!urgent)continue;
+   const rank=(inbound?5:cover?4:2)*(1+a.bombers/a.n*.5)/(1+len(sub(a.c,from))/24000)/(1+(committed.get(a.wing.id)||0)/Math.max(4,a.n));if(rank>best){best=rank;threat=a;}
+  }
+  if(threat){set({type:'cap',point:airInterceptPoint(from,threat,speed),radius:24000,airMission:'intercept',airTarget:threat.wing.id});return;}
+  // One escort per outbound strike is enough until an enemy actually contests
+  // it; spare fighter wings can sweep ahead or attack a ship themselves.
+  const escort=strikes.filter(a=>!escorted.has(a.wing.id)).sort((a,b)=>(b.bombers/b.n-a.bombers/a.n)||len(sub(a.c,from))-len(sub(b.c,from)))[0];
+  if(escort){set({type:'escort',target:home.id,escortWing:escort.wing.id,airMission:'strike-escort'});return;}
+  if(enemies.length){const enemy=enemies.sort((a,b)=>len(sub(a.c,from))-len(sub(b.c,from)))[0];set({type:'cap',point:airInterceptPoint(from,enemy,speed),radius:24000,airMission:'superiority',airTarget:enemy.wing.id});return;}
+  if(ct&&fighting(ct)){set({...cur,airMission:'strike'});return;}
+  const target=foes.slice().sort((a,b)=>len(sub(a.pos,from))-len(sub(b.pos,from)))[0];set(target?{type:'strike',target:target.id,approach:weakestApproach(target),airMission:'strike'}:{type:'escort',target:home.id});return;
+ }
+ if(!foes.length){wing.auto=null;return;}
  // Rebel doctrine: bombers wait over the fleet for a target whose shields are
  // down (the largest such), then go in; the even-numbered fighter wings with them.
  if (D) {
   // A strike already flying goes on, unless the target's shields came back up
   // before the bombers got there; then they pick again or fall back.
-  const ct = cur?.type === 'strike' ? w.units.get(cur.target) : null;
   // v22 Wings armed with ion torpedoes are the ones that strip the shields: they go in against the largest
   // enemy whose field still stands (as Gold Squadron's Y-wings did at Scarif).
-  if (sqs.some(s => s.ldg?.some(x => x.ion && x.n > 0))) { if (ct && cur.ionStrip && fighting(ct) && shieldFrac(ct) > D.strip) return; const up = foes.filter(t => shieldFrac(t) > D.strip), tg = up[0] || foes[0]; wing.auto = {type: 'strike', target: tg.id, approach: weakestApproach(tg), ionStrip: true}; return; }
+  if (sqs.some(s => s.ldg?.some(x => x.ion && x.n > 0))) { if (ct && cur.ionStrip && fighting(ct) && shieldFrac(ct) > D.strip) return; const up = foes.filter(t => shieldFrac(t) > D.strip), tg = up[0] || foes[0]; wing.auto = {type: 'strike', target: tg.id, approach: weakestApproach(tg), ionStrip: true,airMission:'strike'}; return; }
   if (ct && fighting(ct) && !(cur.doctrine && shieldFrac(ct) > D.abort)) return;
   const bare = foes.filter(t => shieldFrac(t) <= D.strike);
-  wing.auto = bare.length && (bombers > 0 || (wing.no || 1) % 2 === 0) ? {type: 'strike', target: bare[0].id, approach: weakestApproach(bare[0]), doctrine: true} : {type: 'escort', target: home.id, waiting: bombers > 0 && !bare.length};
+  wing.auto = bare.length ? {type: 'strike', target: bare[0].id, approach: weakestApproach(bare[0]), doctrine: true,airMission:'strike'} : {type: 'escort', target: home.id, waiting: true};
   return;
  }
- if (cur && (cur.type !== 'strike' || fighting(w.units.get(cur.target)))) return;
- if (bombers > 0 || (wing.no || 1) % 2 === 0) wing.auto = {type: 'strike', target: foes[0].id, approach: weakestApproach(foes[0])};
- else wing.auto = {type: 'escort', target: home.id};
+ if(cur?.type==='strike'&&fighting(ct))return;
+ wing.auto={type:'strike',target:foes[0].id,approach:weakestApproach(foes[0]),airMission:'strike'};
 }
-// Wings the player leaves on 自動 follow their faction's doctrine too (the
-// Alliance's bombers go in only against ships whose shields are down).
-function doctrineWings(w, sys) { for (const wing of w.wings.values()) { if (w.sides[wing.side]?.ai || wing.order?.type !== 'auto' || !doctrineOf(w, wing.side)) continue; const home = w.units.get(wing.home); if (!home || !alive(home) || home.sys !== sys) continue; aiWing(w, wing, home); } }
+// Refresh every side's automatic wings at tactical cadence, including standard
+// doctrine and player fleets. Explicit wing missions remain the player's orders.
+function doctrineWings(w, sys) { for (const wing of w.wings.values()) { if(wing.order?.type!=='auto')continue;const home=w.units.get(wing.home);if(!home||!alive(home)||home.sys!==sys)continue;aiWing(w,wing,home); } }
 function weakestApproach(t) { return Object.keys(APPROACH).sort((a, b) => pdToward(t, add(t.pos, shipToWorld(t, scale(APPROACH[a], 9000)))) - pdToward(t, add(t.pos, shipToWorld(t, scale(APPROACH[b], 9000)))))[0]; }
 
 // ---------- the clock ----------
@@ -14384,7 +14432,7 @@ function tick(w, dt) {
   // The spool stands still while any ship of the group is under fire (the reactor cannot feed the drive and the shields at once).
   if (g.spool) { const blocked = g.units.some(id => { const u = w.units.get(id); return alive(u) && !u.out && u.sys != null && w.battles.has(u.sys) && u.underFire; }); g.spool.blocked = blocked; if (!blocked) g.spool.t += dt; for (const id of g.units) { const u = w.units.get(id); if (u?.jump) { u.jump.t = g.spool.t; u.jump.blocked = blocked; } } spoolSequence(w, g); if (g.spool.t >= g.spool.need) departGroup(w, g); }
  }
-raidTick(w, dt);hatchTick(w, dt);
+followTick(w,dt);raidTick(w, dt);hatchTick(w, dt);
  updateBattles(w);
  if ((w.timers.det -= dt) <= 0) { w.timers.det = RULES.detectEvery; detect(w); }
  if ((w.timers.tac -= dt) <= 0) { w.timers.tac = RULES.aiTactical; for (const [sys] of w.battles) { tacticalOrders(w, sys, systemUnits(w, sys)); doctrineWings(w, sys); } }
@@ -14507,6 +14555,75 @@ function orderWing(w, id, o) {
  else if (['go', 'run', 'egress', 'on'].includes(wing.phase)) wing.phase = o.type === 'strike' ? 'go' : 'on';
  return true;
 }
+// ---------- independent carrier withdrawal ----------
+// A drive belongs to a craft, not its wing: a mixed wing's TIEs cannot stop its
+// X-wings following. Keep the original mission so rejoining never changes a
+// player's orders. Unlike an offensive raid, a withdrawal follows the carrier's
+// plotted route rather than limiting its destination to the strike radius.
+function followCarrier(w,s,from,dest=null){
+ if(s.follow)return true;
+ const home=w.units.get(s.home),hc=CRAFT[s.craft]?.hyper;
+ if(!(s.n>0)||!(hc>0)||!Number.isFinite(hc)||!home||!alive(home)||s.raid||from==null)return false;
+ dest=dest??raidDest(w,home);if(dest==null||dest===from||!w.sector.systems[dest])return false;
+ const route=routePath(w.sector,from,dest);if(!route)return false;
+ s.follow={phase:'spool',from,dest,hc,route,go:w.time+RULES.raidLeave};s.state='return';s.sys=from;s.ops=null;s.landM=null;s.wait=null;s.runOn=null;s.strafeT=null;s.dogfight=null;s.dfFoe=null;s.target=null;
+ const wing=w.wings.get(s.wing);if(wing){wing.attackRun=null;wing.egress=null;}
+ event(w,`${s.name}：自機のハイパードライブで母艦に続いて離脱`,{side:s.side,sys:from});return true;
+}
+function followDepartingCarrier(w,u,from,dest){
+ for(const sid of [...u.squads]){
+  const s=w.squads.get(sid);if(!s||!(s.n>0)||s.state==='docked'||s.state==='lost'||s.raid||s.follow||!(CRAFT[s.craft]?.hyper>0))continue;
+  // A squadron can straddle a hatch. The aircraft already aboard stay aboard;
+  // only those actually outside form a temporary flight for the independent jump.
+  const o=s.ops,slots=squadSlots(s).slice(),done=opsDone(w,s),outside=o?.k==='launch'?slots.slice(0,done):o?.k==='land'?slots.slice(done):slots;
+  if(!outside.length){dockSquad(w,s,u);continue;}
+  if(outside.length<slots.length){
+   const child={...s,id:'s'+w.nextId++,name:s.name+'（離脱隊）',n:outside.length,n0:outside.length,slots:outside.slice(),pos:s.pos.slice(),h:s.h.slice(),vel:(s.vel||[0,0,0]).slice(),ammo:s.ammo?.slice(),ldg:s.ldg?.map(x=>({...x})),load:s.load?.map(x=>({...x})),followParent:s.id,kills:0,dmg:0,lostN:0,rep:0,downs:[],crewLost:0,pilotSurvived:0};
+   const out=new Set(outside);s.slots=slots.filter(id=>!out.has(id));s.n=s.slots.length;s.n0=Math.max(s.n,(s.n0||slots.length)-child.n0);s.followSplit=child.id;dockSquad(w,s,u);
+   w.squads.set(child.id,child);u.squads.push(child.id);w.wings.get(s.wing)?.squads.push(child.id);followCarrier(w,child,from,dest);
+  }else followCarrier(w,s,from,dest);
+ }
+}
+function followTick(w,dt=TICK){
+ for(const s of w.squads.values()){
+  const r=s.follow;if(!r)continue;
+  if(!(s.n>0)||s.state==='lost'){s.follow=null;continue;}
+  const home=w.units.get(s.home);
+  if(!home||!alive(home)){const sys=s.sys??r.dest;s.follow=null;craftLostBehind(w,s,sys);continue;}
+  if(r.phase==='spool'){
+   if(w.time<r.go)continue;
+   // Resolve any new carrier destination at departure, while keeping real lane
+   // travel time at this squadron's own hyperdrive class.
+   const dest=raidDest(w,home),route=dest!=null&&dest!==r.from?routePath(w.sector,r.from,dest):null;
+   if(!route){s.follow=null;craftLostBehind(w,s,r.from);continue;}
+   r.dest=dest;raidLegs(w,r,route,pathSeconds(route,r.hc));r.phase='back';s.state='follow';s.sys=null;s.hyperT=w.time;s.vel=[0,0,0];
+   event(w,`${s.name} がハイパースペースへ（母艦追従・${w.sector.systems[dest].name}まで ${Math.max(1,Math.round((r.t1-w.time)/60))} 分）`,{side:s.side,sys:r.from});continue;
+  }
+  if(r.phase==='back'&&w.time<r.t1)continue;
+  const at=r.dest;
+  if(home.sys===at){
+   s.state='return';s.sys=at;s.pos=add(home.pos,shipToWorld(home,[-(home.p.len||500)*.3,1500,(home.p.width||300)+5000+800*(s.slot||0)]));s.h=norm(sub(home.pos,s.pos));s.vel=[0,0,0];s.warpIn=w.time;s.ops=null;s.landM=null;s.runOn=null;s.follow=null;
+   const wing=w.wings.get(s.wing);if(wing)wing.phase='return';event(w,`${s.name} が ${home.name} のもとに自力帰還（着艦）`,{side:s.side,sys:at});stir(w,at);continue;
+  }
+  const dest=raidDest(w,home),route=dest!=null&&dest!==at?routePath(w.sector,at,dest):null;
+  if(route){r.from=at;r.dest=dest;raidLegs(w,r,route,pathSeconds(route,r.hc));r.phase='back';}
+  else{r.phase='wait';r.at=at;}
+ }
+ // Restore a split hatch cohort once both portions are safely aboard. Its
+ // original slots and strength are conserved rather than creating extra craft.
+ for(const s of [...w.squads.values()]){
+  if(!s.followParent||!['docked','lost'].includes(s.state))continue;const parent=w.squads.get(s.followParent);if(!parent||parent.state!=='docked')continue;
+  parent.n+=s.n;parent.n0+=s.n0;parent.slots=[...squadSlots(parent).slice(0,parent.n-s.n),...squadSlots(s)];
+  for(const k of ['kills','dmg','lostN','crewLost','pilotSurvived'])parent[k]=(parent[k]||0)+(s[k]||0);
+  parent.downs=[...(parent.downs||[]),...(s.downs||[])].slice(-24);parent.t=Math.max(parent.t||0,s.t||0);parent.followSplit=null;
+  const wing=w.wings.get(s.wing),home=w.units.get(s.home);if(wing)wing.squads=wing.squads.filter(id=>id!==s.id);if(home)home.squads=home.squads.filter(id=>id!==s.id);w.squads.delete(s.id);
+ }
+}
+function followMapPos(w,s){
+ const r=s?.follow,S=w.sector.systems;if(!r)return null;if(r.phase==='spool')return S[r.from]?.pos||null;if(r.phase==='wait')return S[r.dest]?.pos||null;
+ const l=(r.legs||[]).find(l=>w.time<=l.t1)||r.legs?.[r.legs.length-1];if(!l)return S[r.from]?.pos||null;
+ const a=S[l.a].pos,b=S[l.b].pos,f=clamp((w.time-l.t0)/Math.max(1e-6,l.t1-l.t0),0,1);return[a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f];
+}
 // ---------- cross-system strikes (v22) ----------
 // A wing whose craft all carry a hyperdrive (CRAFT hyper) can be sent from its carrier's system to strike in another
 // within reach (RULES.raidLy along the lanes: the craft's consumables). It launches and forms up off the carrier, jumps
@@ -14559,7 +14676,7 @@ function raidLegs(w, r, route, trip) {
  r.legs = route.legs.map((e, i) => { const d = trip * (e.len / LANE[e.kind].f) / total, L = {a: route.path[i], b: route.path[i + 1], t0: t, t1: t + d}; t += d; return L; });r.path = route.path;r.t0 = w.time;r.t1 = w.time + trip;
 }
 // Where a raid's carrier is, or is going to be (null: gone, or in hyperspace with no end in sight).
-function raidDest(w, home) { if (!home || !alive(home)) return null; if (home.sys != null) return home.sys; return w.groups.get(home.group)?.transit?.to ?? null; }
+function raidDest(w, home) { if (!home || !alive(home)) return null; if (home.sys != null) return home.sys; const g=w.groups.get(home.group);return g?.transit?.to ?? g?.spool?.dest ?? null; }
 // What the wing strikes: the target named if it is there, else the nearest enemy capital ship still fighting (one
 // whose shields are down sooner), from the bearing its point defence covers worst.
 function raidOrder(w, wing, us, prefer = null) {
@@ -14916,5 +15033,5 @@ return {CAMPAIGN_FORMAT, CAMPAIGN_VERSION, CAMPAIGN_SLOTS, CAMPAIGN_STAGES, camp
  orderScuttle, orderRecover, recoverCheck, rearSeconds, SUPPLY, supplyAt, supplyLines, supplyNeeds, unitSupplyOf, alive, fighting, pdToward, effectiveOrder, groupOrder, tractorReach, tractorOk, registerDesignCraft, craftStores, squadStores, squadRelease, rearmSquad, squadSystemsTick, squadLaserK, squadArmed, squadSlots, craftDown,
  squadFireArc,ctgFormationInfo,
  craftFormation, defaultAir, troopRoom, defaultGround, makeRegiment, regimentTotals, fleetGroundRows, airTotals, battleTick, sectorGal, sideBearing, sideStarts,
- wingHyper, raidCheck, orderRaid, recallRaid, raidMapPos, CRAFT_HYPER, wingOrder, airCtlOf, airCtlCap, airCtlUsed, mouthsOf, opsDone, runGoal};
+ wingHyper, raidCheck, orderRaid, recallRaid, raidMapPos, followMapPos, CRAFT_HYPER, wingOrder, airCtlOf, airCtlCap, airCtlUsed, mouthsOf, opsDone, runGoal};
 })();

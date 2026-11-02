@@ -8,7 +8,7 @@ function translatedHTML(html){
  for(const m of html.matchAll(/(?:label|title|aria-label)="([^"]*)"/g))translated(m[1]);
 }
 run(`const C=Core,R=Rts,esc=s=>String(s),num=s=>String(s),fCr=s=>s+' cr';
- const ship={name:'設計艦'},voy={saves:[{id:'my-save',name:'Xウイング'}],sel:{wing:'wing'}},voySqLoadHTML=()=>'',voyWingOrderText=()=> '待機';
+ const ship={name:'設計艦'},voy={saves:[{id:'my-save',name:'Xウイング'}],sel:{wing:'wing'}},voySqLoadHTML=()=>'',voyWingOrderText=()=> '待機',voyWingFollowText=()=>'',voyWingStateText=x=>R.WING_PHASE[x.phase]||'';
 `);
 const a=app.indexOf('function voyEmbarkedSources()'),b=app.indexOf('// ---- the order of battle of one ship',a);
 assert.ok(a>=0&&b>a);run(app.slice(a,b));
