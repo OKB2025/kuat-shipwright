@@ -2108,7 +2108,7 @@ function mirroredTurretPose(f,fits,poses){
 function turretPose(f){
  const d=C.FITS[f.k],fr=C.fitFrameOf(f);
  if(d.asset&&f.skinAsset&&f.skinAsset!==d.asset){const k=skinTurretPose(f);if(k)return k;return null;}
- if(d.fixed)return {pivot:C.fitOrigin(f),axis:C.fitUp(f),fw:[1,0,0]};
+ if(d.fixed)return {pivot:C.fitOrigin(f),axis:C.fitUp(f),fw:fr.fw};
  if(d.casemate)return {pivot:C.fitOrigin(f),axis:[0,1,0],fw:C.AXES[f.a]};
  if(d.asset){const y=(f.assetYaw||0)*Math.PI/180;return {pivot:C.fitOrigin(f),axis:fr.up,fw:C.norm(C.add(C.mul(fr.fw,Math.cos(y)),C.mul(fr.rt,Math.sin(y))))};}
  return {pivot:C.fitOrigin(f),axis:fr.up,fw:fr.fw};
@@ -2124,7 +2124,7 @@ function trialTurrets(model,put,ranges){
  for(const f of list){
   const d=C.fitSpec(f),spec=C.FITS[f.k],pose=poses.get(f.id),axis=C.norm(pose.axis),fw=C.norm(C.sub(pose.fw,C.mul(axis,C.dot(pose.fw,axis)))),rot=turning.has(f.id);
   let mesh=null;if(rot){if(spec.asset){mesh='refTur_'+f.id;put(mesh,meshReferenceFits(model,null,[f]),'reference',null);}else{mesh='tur_'+f.id;FIT_SKIP_PED=all;try{put(mesh,meshFits(model,x=>x===f),'fits',.6);}finally{FIT_SKIP_PED=null;}}}
-  out.push({id:f.id,k:f.k,name:spec.short||spec.name,mesh,pivot:pose.pivot,axis,fw,origin:C.turretOrigin(f),mount:C.fitUp(f),r:d.r,hm:d.hm,casemate:!!(spec.casemate||spec.fixed),barrels:spec.barrels||TRIAL_BARRELS[f.k]||2,cycle:spec.cycle||2.5,tt:d.tt||0,ion:!!d.ion&&!d.tt,rate:C.turretRate(f),power:d.power||0,cap:C.needsCapacitor(f)});
+  out.push({id:f.id,k:f.k,name:spec.short||spec.name,mesh,pivot:pose.pivot,axis,fw,origin:C.turretOrigin(f),mount:C.fitUp(f),r:d.r,hm:d.hm,casemate:!!(spec.casemate||spec.fixed),barrels:spec.barrels||(spec.fixed?1:TRIAL_BARRELS[f.k]||2),cycle:spec.cycle||2.5,tt:d.tt||0,ion:!!d.ion&&!d.tt,rate:C.turretRate(f),power:d.power||0,cap:C.needsCapacitor(f)});
  }
  return out;
 }

@@ -24,6 +24,7 @@ section('const tv=', 'function trialRot(');
 section('const trialCol=', 'const trialWrap=');
 run(app.match(/const trialWrap=.*?;/)[0]);
 section('function trialCraftSystemsSpec()', 'function trialReset()');
+section('const TRIAL_PILOT_REFERENCE_CYCLE=', 'function trialTurretState(');
 section('function trialGunnery(dt)', '// Missiles leave');
 section('function trialDurText(', 'function trialHyperUpdate(');
 section('function trialRateBase(', 'function trialMaxRates(');
@@ -34,8 +35,8 @@ test('only actual qualifying laser shots consume their weighted reload-cycle sha
  run('reset();');const gas=run('trial.systemsRuntime.gasSeconds');
  run('trial.turrets[0].clear=false;fire();');assert.equal(run('trial.systemsRuntime.gasSeconds'),gas);assert.equal(run('trial.gun.shots'),0);
  run('trial.turrets[0].clear=true;trial.energy.E=0;fire();');assert.equal(run('trial.systemsRuntime.gasSeconds'),gas);assert.equal(run('trial.gun.shots'),0);
- run('trial.energy.E=1e20;salvo=new Set();fire();');assert.equal(run('trial.systemsRuntime.gasSeconds'),gas);
- run('salvo=null;trial.turrets[0].reload=10;trialGunnery(.1);');assert.equal(run('trial.systemsRuntime.gasSeconds'),gas);
+ run('trial.energy.E=1e20;trial.turrets[0].pilot=false;salvo=new Set();fire();');assert.equal(run('trial.systemsRuntime.gasSeconds'),gas);
+ run('salvo=null;trial.turrets[0].pilot=true;trial.turrets[0].reload=10;trialGunnery(.1);');assert.equal(run('trial.systemsRuntime.gasSeconds'),gas);
  run('fire();');near(run('trial.systemsRuntime.gasSeconds'),.75);assert.equal(run('trial.gun.shots'),1);
  run('trial.turrets[0].power=C.FITS.claser.power*2;fire();');near(run('trial.systemsRuntime.gasSeconds'),.25);
  run('reset({laserGasSeconds:.1});fire();');assert.equal(run('trial.systemsRuntime.gasSeconds'),0);assert.equal(run('trial.gun.shots'),1);run('fire();');assert.equal(run('trial.gun.shots'),1);

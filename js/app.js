@@ -2473,7 +2473,7 @@ function unalignedPartPreview(hit) {
     const [l, w, hh] = st.structSize, n = hit.n, ax = Math.abs(n[1]) >= Math.abs(n[2]) && Math.abs(n[1]) >= Math.abs(n[0]) ? 1 : Math.abs(n[2]) >= Math.abs(n[0]) ? 2 : 0;
     const ext = [l / 2, hh / 2, w / 2][ax], c = hit.p.slice();
     if (hit.kind !== 'section') c[ax] += Math.sign(n[ax] || 1) * ext * 0.6;
-    return C.alignStructure({id:-1,k,c,s:[l,w,hh],pitch:st.structPitch||0,roll:st.structRoll||0,taper:st.structTaper,form:st.structForm,skinAsset:st.structForm==='reference'?st.skinAsset:undefined,angles:st.structAngles.slice(),yaw:st.structYaw,offsetX:st.structOffsetX,offsetZ:st.structOffsetZ,...(isAeroKind(k)?{wing:C.normalizeWing({...st.structWing,...(k==='solarPanel'?{solar:true}:{})}),outline:(st.structOutline||aeroOutline(k)).map(q=>q.slice()),...(k==='solarPanel'?{panelFrame:st.panelFrame,panelRib:st.panelRib,panelFold:st.panelFold,panelKnee:st.panelKnee,panelBracing:st.panelBracing,panelSparX:st.panelSparX}:{})}:{}),...(st.structForm==='shell'?{shellCurve:st.shellCurve??1,shellThick:st.shellThick??3,shellFlip:!!st.shellFlip}:{}),...(st.structPlate?{plate:true,plateT:st.structPlateT}:st.structLight?{light:true}:{})},hit,st.surfaceMode);
+    return C.alignStructure({id:-1,k,c,s:[l,w,hh],pitch:st.structPitch||0,roll:st.structRoll||0,taper:st.structTaper,form:st.structForm,skinAsset:st.structForm==='reference'?st.skinAsset:undefined,angles:st.structAngles.slice(),yaw:st.structYaw,offsetX:st.structOffsetX,offsetZ:st.structOffsetZ,...(isAeroKind(k)?{wing:C.normalizeWing({...st.structWing,...(k==='solarPanel'?{solar:true}:{})}),outline:(st.structOutline||aeroOutline(k)).map(q=>q.slice()),...(k==='solarPanel'?{panelFrame:st.panelFrame,panelRib:st.panelRib,panelFold:st.panelFold,panelKnee:st.panelKnee,panelBracing:st.panelBracing,panelSparX:st.panelSparX}:{wingTipSide:st.wingTipSide??1})}:{}),...(st.structForm==='shell'?{shellCurve:st.shellCurve??1,shellThick:st.shellThick??3,shellFlip:!!st.shellFlip}:{}),...(st.structPlate?{plate:true,plateT:st.structPlateT}:st.structLight?{light:true}:{})},hit,st.surfaceMode);
   }
   const size = pSize(k);
   let c;
@@ -2508,9 +2508,10 @@ function ghostFor(hit) {
     const k = curFit(), d = C.FITS[k],normal=weaponPlacementNormal(k,hit.n);
     let a = 2; if (d.cat !== 'b') { let bv = -2; for (let i = 0; i < 6; i++) { const v = C.dot(C.AXES[i], normal); if (v > bv) { bv = v; a = i; } } }
     const tilt=weaponTiltMode(k)?C.fitTilt(normal):null;
-    const f = C.mountFit(ship, {id:-1,k,p:alignFitPoint(hit.p,hit.n).slice(),n:normal.slice(),a,ped:st.ped,...(['trench','casemate'].includes(st.weaponMount)&&d.cat==='w'?{localMount:true}:{}),...(tilt?{tilt}:{})});
+    const f = C.mountFit(ship, {id:-1,k,p:alignFitPoint(hit.p,hit.n).slice(),n:normal.slice(),a,ped:st.ped,...(C.fitCanRotate(k)?{assetYaw:st.gunYaw||0}:{}),...(['trench','casemate'].includes(st.weaponMount)&&d.cat==='w'?{localMount:true}:{}),...(tilt?{tilt}:{})});
     const bad = f.float || (d.casemate&&Math.abs(normal[1])>.65) || (d.cat === 'b' && !d.window && hit.n[1] < 0.2) || C.fitClash(ship, f);
     ls.box(C.fitAABB(f), bad ? ng : ok);
+    turretHeadingLines(ls,f,bad?ng:ok);
   } else if ((t === 'unfit' || t === 'adjust' || t === 'inspect') && hit.fit) {
     ls.box(C.fitAABB(hit.fit), t === 'unfit' ? ng : cy);
   } else if (t === 'select' && hit.part) {
@@ -2595,7 +2596,7 @@ function tapHit(t, hit, add) {
       if (!hit || hit.kind === 'section') { toast('船体の外面をタップしてください'); break; }
       if (hit.fit) { toast('その場所には装備があります'); break; }
       const k = curFit(); let err = null, made = null;
-      mutate(C.FITS[k].short + 'を設置', () => { const opts = {localMount:['trench','casemate'].includes(st.weaponMount),tilt:weaponTiltMode(k)}, r = C.placeFit(ship, k, alignFitPoint(hit.p, hit.n), weaponPlacementNormal(k,hit.n), st.ped, st.mirror, opts); err = r.err; made = r.fit; if (made) { placeVerticalFits(made, k, st.ped, opts); applyPedDefaults(made); applyFitTemplate(made); } }, 'fits', {silent: true});
+      mutate(C.FITS[k].short + 'を設置', () => { const opts = {localMount:['trench','casemate'].includes(st.weaponMount),tilt:weaponTiltMode(k),...(C.fitCanRotate(k)?{assetYaw:st.gunYaw||0}:{})}, r = C.placeFit(ship, k, alignFitPoint(hit.p, hit.n), weaponPlacementNormal(k,hit.n), st.ped, st.mirror, opts); err = r.err; made = r.fit; if (made) { placeVerticalFits(made, k, st.ped, opts); applyPedDefaults(made); applyFitTemplate(made); } }, 'fits', {silent: true});
       if (err) toast(err); else if (made) { showPreview('fits', linkedItems('fits', made)); st.sel = {list: 'fits', id: made.id}; renderPanel(); }
       break;
     }
@@ -2868,11 +2869,12 @@ function setEngineGlow(v){if(!ship||!C.engineGlowOK(v))return;v=v.toLowerCase();
 function seg(name, opts, cur) {
   return `<div class="seg" role="group">${opts.map(([v, l]) => `<button type="button" data-${name}="${v}" aria-pressed="${String(v) === String(cur)}">${l}</button>`).join('')}</div>`;
 }
-function slider(id, label, v, min, max, step, out, numberStep=step) {
-  return `<label class="sl"><span class="sl-l">${label}</span><input type="range" id="sl-${id}" data-sl="${id}" min="${min}" max="${max}" step="${step}" value="${v}" aria-label="${label}"><input class="sl-num" type="number" inputmode="decimal" data-sl="${id}" min="${min}" max="${max}" step="${numberStep}" value="${v}" aria-label="${label} 数値"><output id="out-${id}">${out}</output></label>`;
+function slider(id, label, v, min, max, step, out, numberStep=step,numberMax=max) {
+  return `<label class="sl"><span class="sl-l">${label}</span><input type="range" id="sl-${id}" data-sl="${id}" min="${min}" max="${max}" step="${step}" value="${v}" aria-label="${label}"><input class="sl-num" type="number" inputmode="decimal" data-sl="${id}" min="${min}" max="${numberMax}" step="${numberStep}" value="${v}" aria-label="${label} 数値"><output id="out-${id}">${out}</output></label>`;
 }
 // Metre sliders move in centimetres; direct entries keep finer measured dimensions.
 function metreSlider(id,label,v,min,max,out=fmtM(v)){return slider(id,label,Number(v.toFixed(6)),min,max,.01,out,'any');}
+function shapeDimensionSlider(id,label,v,axis){const limit=C.DESIGN_LIMITS.partSize,extent=[ship.hull.L,ship.hull.W*1.6,ship.hull.H*1.5][axis],max=Math.min(limit,Math.max(v,extent,axis===2?2:40));return slider(id,label,Number(v.toFixed(6)),.02,max,.01,fmtM(v),'any',limit);}
 function silhouette(hp) {
   const pts = [], n = 28;
   for (let k = 0; k <= n; k++) { const t = k / n, w = C.profileAt(hp,t)[1]; pts.push([4 + t * 92, 20 - w * 15]); }
@@ -2889,21 +2891,27 @@ function selectAeroPart(k){
  st.tab='mod';st.group=C.PARTS[k].group;st.part=k;st.partTool='place';st.sel=null;st.template=null;st.equipmentId=null;st.structPlate=false;st.structLight=false;st.structForm=k==='wing'?'airfoil':'outline';st.structTaper=0;st.structAngles=[0,0,0,0];st.structYaw=0;st.structOffsetX=0;st.structOffsetZ=0;st.structPitch=0;st.structRoll=k==='solarPanel'?90:0;delete st.skinAsset;
  const preset=k==='solarPanel'?C.solarPanelPreset('hex'):null;
  st.structSize=k==='wing'?[2,4,.08]:[3,3*preset.aspect,.08];st.structOutline=aeroOutline(k);st.structWing=C.normalizeWing({thermal:'high',feed:1,reinf:0,...(k==='solarPanel'?{solar:true}:{})});
- st.panelFrame=.06;st.panelRib=.035;st.panelFold=0;st.panelKnee=.35;st.panelBracing='radial';st.panelSparX=0;if(preset)Object.assign(st,solarPresetSettings(preset,st.structSize[0]));
+ st.wingTipSide=1;st.panelFrame=.06;st.panelRib=.035;st.panelFold=0;st.panelKnee=.35;st.panelBracing='radial';st.panelSparX=0;if(preset)Object.assign(st,solarPresetSettings(preset,st.structSize[0]));
 }
 // Legacy recent selections resolve to the actual wing catalogue item.
 function wingPresetCard(){return partCard('wing',st.part==='wing');}
 function selectWingPreset(){selectAeroPart('wing');}
 function solarPresetSettings(shape,chord){return {panelFold:shape.panelFold,panelKnee:shape.panelKnee,panelBracing:shape.panelBracing,panelSparX:shape.panelSparX,...(Number.isFinite(shape.frameRatio)?{panelFrame:chord*shape.frameRatio}:{}),...(Number.isFinite(shape.ribRatio)?{panelRib:chord*shape.ribRatio}:{})};}
-function aeroPresetRows(k){return k==='solarPanel'?[['hex','六角形（TIE/ln型）'],['interceptor','切欠き形（TIE/in型）'],['bomber','折れ曲がり（TIE/sa型）']]:[['taper','先細り'],['straight','直線翼'],['swept','後退翼']];}
-function aeroPreset(k,key){
+function aeroPresetRows(k){return k==='solarPanel'?[['hex','六角形（TIE/ln型）'],['interceptor','切欠き形（TIE/in型）'],['bomber','折れ曲がり（TIE/sa型）']]:[['taper','先細り'],['straight','直線翼'],['swept','後退翼'],['forward','前進翼'],['delta','デルタ翼'],['doubleDelta','ダブルデルタ翼']];}
+function aeroPreset(k,key,tipSide=1){
  if(k==='solarPanel')return C.solarPanelPreset(key);
- let outline=aeroOutline(k),panelFold=0;
- if(k==='wing'){
-  if(key==='straight')outline=[[-.5,-.5],[.5,-.5],[.5,.5],[-.5,.5]];
-  if(key==='swept')outline=[[-.5,-.5],[.05,-.5],[.5,.5],[.05,.5]];
- }
- return {outline,panelFold,panelKnee:.35};
+ return C.wingPlanformPreset(key,tipSide);
+}
+function wingControlPart(p,selected){return selected?p:{k:'wing',form:st.structForm,s:st.structSize,c:[0,0,1],outline:st.structOutline||aeroOutline('wing'),wingTipSide:st.wingTipSide??1};}
+function wingTipControls(p,selected){
+ const q=wingControlPart(p,selected),r=C.wingTipRange(q);if(!r)return '<p class="note">翼形状を選ぶと、翼端の前後位置を調整できます。頂点編集した形はそのまま保持されます。</p>';
+ const id=(selected?'aero':'newAero')+'WingTip',side=C.wingTipSide(q),v=C.wingTipOffset(q);
+ return `<div class="pgroup wing-tip-controls"><h4>翼端を前後へ移動</h4><div class="sliders">${metreSlider(id,'翼端の前後位置',v,r.min,r.max)}</div><button type="button" class="btn sm" data-${selected?'wingtipside':'newwingtipside'}="${-side}">翼根と翼端を入れ替える</button><p class="note">翼根を固定して翼端を前後に動かします。＋で前進翼、−で後退翼にできます。途中の折れ点も一緒に動きます。</p></div>`;
+}
+function syncWingTipControls(){
+ const p=selItem(),selected=p?.k==='wing';if(!selected&&(st.part!=='wing'||st.partTool!=='place'))return;
+ const q=wingControlPart(p,selected),r=C.wingTipRange(q);if(!r)return;const id=(selected?'aero':'newAero')+'WingTip',v=C.wingTipOffset(q);
+ $$('[data-sl="'+id+'"]').forEach(t=>{t.min=r.min;t.max=r.max;t.value=v;});const out=$('#out-'+id);if(out)out.textContent=fmtM(v);
 }
 function wingSectionDiagram(){
  const points=C.AERO_WING_SECTION.map(([u,y])=>`${(18+224*u).toFixed(3)},${(25-26*y).toFixed(3)}`).join(' ');
@@ -2913,7 +2921,7 @@ function aeroShapeControls(p,selected){
  const k=p.k,prefix=selected?'e':'s',panel=k==='solarPanel',mesh=selected&&p.form==='mesh',value=key=>selected?p[key]:st[key],size=selected?p.s:st.structSize;
  const frame=value('panelFrame')??Math.min(size[0],size[1])*.02,rib=value('panelRib')??frame*.6,fold=value('panelFold')??0,knee=value('panelKnee')??.35,bracing=value('panelBracing')??'radial',sparX=value('panelSparX')??0,max=Math.max(.005,Math.min(size[0],size[1])*.2),id=key=>(selected?'aero':'newAero')+key;
  return `<div class="pgroup aero-shape"><h4>${panel?'太陽光パネルの形':'主翼の形'}</h4>${surfaceControls(p,selected)}<div class="sliders">${slider(prefix+'yaw','回転',p.yaw||0,-180,180,1,deg(p.yaw||0))}</div>${panel?'':'<h4>平面の翼形状（上から見た輪郭）</h4>'}<div class="chips">${aeroPresetRows(k).map(([key,label])=>`<button type="button" class="chip" data-aeropreset="${key}" data-aeronew="${selected?'no':'yes'}">${label}</button>`).join('')}</div>
- ${panel?`<h4>支柱配置</h4>${seg(selected?'aerobracing':'newaerobracing',[['radial',mesh?'頂点に沿う梁':'放射梁'],['spar','縦梁'],['none','骨組みを追加しない']],bracing)}<div class="sliders">${metreSlider(id('PanelFrame'),'縁の骨組みの幅',frame,0,Math.max(max,frame))}${metreSlider(id('PanelRib'),'支柱・梁の幅',rib,0,Math.max(max,rib))}${bracing==='spar'?slider(id('PanelSparX'),'主支柱の前後位置',Number((sparX*100).toFixed(4)),Math.min(-50,sparX*100),Math.max(50,sparX*100),1,num(sparX*100,1)+'%','any'):''}${mesh?'':slider(id('PanelFold'),'上下パネルの折れ角',fold,-80,80,1,deg(fold))+slider(id('PanelKnee'),'中央の平面部分',knee*100,0,90,1,fPct(knee))}</div><p class="note">${mesh?'頂点編集したパネルは、その頂点に沿って骨組みが追従します。折れ角の調整へ戻すには上の翼形状を選びます。':'形状プリセットは前後長を保ち、幅を機体の比率に合わせます。輪郭・内側への折れ角・主支柱位置も設定します。主支柱の前後位置は艦尾側がマイナス、艦首側がプラスです。'}</p>`:wingSectionDiagram()}
+ ${panel?`<h4>支柱配置</h4>${seg(selected?'aerobracing':'newaerobracing',[['radial',mesh?'頂点に沿う梁':'放射梁'],['spar','縦梁'],['none','骨組みを追加しない']],bracing)}<div class="sliders">${metreSlider(id('PanelFrame'),'縁の骨組みの幅',frame,0,Math.max(max,frame))}${metreSlider(id('PanelRib'),'支柱・梁の幅',rib,0,Math.max(max,rib))}${bracing==='spar'?slider(id('PanelSparX'),'主支柱の前後位置',Number((sparX*100).toFixed(4)),Math.min(-50,sparX*100),Math.max(50,sparX*100),1,num(sparX*100,1)+'%','any'):''}${mesh?'':slider(id('PanelFold'),'上下パネルの折れ角',fold,-80,80,1,deg(fold))+slider(id('PanelKnee'),'中央の平面部分',knee*100,0,90,1,fPct(knee))}</div><p class="note">${mesh?'頂点編集したパネルは、その頂点に沿って骨組みが追従します。折れ角の調整へ戻すには上の翼形状を選びます。':'形状プリセットは前後長を保ち、幅を機体の比率に合わせます。輪郭・内側への折れ角・主支柱位置も設定します。主支柱の前後位置は艦尾側がマイナス、艦首側がプラスです。'}</p>`:wingTipControls(p,selected)+wingSectionDiagram()}
  <p class="note">配置後は「輪郭の頂点」で各頂点を動かしたり、頂点を追加・削除して形を自由に変えられます。3Dの頂点編集では上下方向も変更できます。</p></div>`;
 }
 function fitBtn(k, sel, data) {
@@ -2936,9 +2944,9 @@ function basePartEditor() {
   if (C.isShapePart(it) && it.form === 'reference' && C.equipmentSpec(it)) {
     size = `<p class="note tight">${esc(C.equipmentSpec(it).name)}は実寸の機器で、大きさは変えられません（${fmtM(it.s[0])} × ${fmtM(it.s[1])} × ${fmtM(it.s[2])}）。</p>`;
   } else if (C.isShapePart(it)) {
-    size = '<div class="sliders">' + metreSlider('el',isAeroKind(it.k)?'翼弦・前後長':'長さ',it.s[0],.02,Math.max(it.s[0],hp.L))
-      + metreSlider('ew',isAeroKind(it.k)?'翼幅・パネル幅':'幅',it.s[1],.02,Math.max(it.s[1],hp.W*1.6))
-      + metreSlider('eh',isAeroKind(it.k)?'厚さ':'高さ',it.s[2],.02,Math.max(it.s[2],hp.H*1.5))
+    size = '<div class="sliders">' + shapeDimensionSlider('el',isAeroKind(it.k)?'翼弦・前後長':'長さ',it.s[0],0)
+      + shapeDimensionSlider('ew',isAeroKind(it.k)?'翼幅・パネル幅':'幅',it.s[1],1)
+      + shapeDimensionSlider('eh',isAeroKind(it.k)?'厚さ':'高さ',it.s[2],2)
       + (['loft', 'roundloft', 'shell', 'arc', 'ellipsoid', 'outline', 'airfoil', 'reference'].includes(it.form) ? '' : slider('et', '上すぼまり', Math.round((it.taper || 0) * 100), 0, 80, 1, Math.round((it.taper || 0) * 100) + '%')) + '</div>';
   } else if (it.room) {
     size = '<div class="sliders">' + it.room.map((v,i)=>metreSlider('room'+i,['長さ','幅','高さ'][i],v,.02,Math.max(v,[hp.L,hp.W,hp.H][i]))).join('') + '</div>';
@@ -2960,7 +2968,7 @@ function baseFitEditor() {
   const it = selItem(); if (!it || st.sel.list !== 'fits') return '';
   const d = C.fitSpec(it);
   return `<div class="editor"><div class="ed-head"><b>${esc(d.name)}</b><button type="button" class="btn sm ghost" data-desel>選択解除</button><button type="button" class="btn sm danger" data-delsel>撤去</button></div>
-    ${fitPairHTML(it)}${fitPositionSliders(it)}
+    ${fitPairHTML(it)}${fitPositionSliders(it)}${weaponYawControls(it)}
     <h4>支持台</h4>${seg('pedshapesel', PED_SHAPES, it.pedShape || 'round')}
     <div class="sliders">${slider('pedsel', '追加の高さ', it.ped.toFixed(1), 0, Math.max(60, Math.round(d.r * 4)), 0.5, `${it.ped.toFixed(1)} m`)}${slider('pedsizesel', '大きさ', Math.round((it.pedSize || 1) * 100), 40, 250, 5, Math.round((it.pedSize || 1) * 100) + '%')}</div>
     <p class="note" id="pedinfo">傾斜に合わせた自動の高さ ${it.base.toFixed(1)} m ＋ 追加 ${it.ped.toFixed(1)} m。高くすると射界が開けますが、標的にもなりやすくなります。</p></div>`;
@@ -2999,7 +3007,7 @@ function baseRenderPanel() {
         h += `<div class="parts">${paletteParts(st.group).map(t => partCard(t, k === t&&!activeEquipment())).join('')}${Object.values(C.EQUIPMENT).filter(d=>d.group===st.group).map(d=>equipmentCard(d.id)).join('')}</div>`;
         if (C.isShapeKind(k)) {
           h += `<div class="pgroup sliders"><h4>${isAeroKind(k)?C.PARTS[k].name+'の大きさ':'構造物の大きさ'}</h4>
-            ${[['sl',isAeroKind(k)?'翼弦・前後長':'長さ',hp.L,0],['sw',isAeroKind(k)?'翼幅・パネル幅':'幅',hp.W*1.6,1],['sh',isAeroKind(k)?'厚さ':'高さ',hp.H*1.5,2]].map(([id,label,max,a])=>metreSlider(id,label,st.structSize[a],.02,Math.max(1,max,st.structSize[a]))).join('')}
+            ${[['sl',isAeroKind(k)?'翼弦・前後長':'長さ',0],['sw',isAeroKind(k)?'翼幅・パネル幅':'幅',1],['sh',isAeroKind(k)?'厚さ':'高さ',2]].map(([id,label,a])=>shapeDimensionSlider(id,label,st.structSize[a],a)).join('')}
             ${['loft', 'roundloft', 'shell', 'arc', 'ellipsoid', 'outline', 'airfoil', 'reference'].includes(st.structForm) ? '' : slider('st', '上すぼまり', Math.round(st.structTaper * 100), 0, 80, 1, Math.round(st.structTaper * 100) + '%')}</div>
             ${isAeroKind(k)?'<p class="note">専用パーツを面に据えます。座標指定で翼の付け根やパネルの位置を正確に合わせられます。</p>':'<p class="note">構造物は面の上に3割ほど沈めて据えます。船台構造物で反応炉の張り出しを覆うと露出が減り、縦強度も上がります。</p>'}`;
         } else {
@@ -3031,7 +3039,7 @@ function baseRenderPanel() {
       ${st.fitTool === 'adjust' ? (fitEditor() || '<p class="note">装備をタップして選んでください。</p>') : ''}${st.fitTool === 'multi' ? multiPanelHTML() : ''}
       ${st.fitTool === 'place' ? `<div class="pgroup sliders"><h4>支持台（新設時）</h4>${seg('pedshape', PED_SHAPES, st.pedShape)}${slider('ped', '追加の高さ', st.ped, 0, 40, 0.5, `${st.ped} m`)}${slider('pedsize', '大きさ', Math.round(st.pedSize * 100), 40, 250, 5, Math.round(st.pedSize * 100) + '%')}</div>` : ''}
       <div class="fits">${weaponKeys().map(k => fitBtn(k, st.fit === k, 'fit')).join('')}</div>
-      <p class="note">砲塔は実寸で、新しく置くと砲身は艦首を向きます。傾斜面では接地面の高低差だけ支持台が自動で伸び、砲は水平を保ちます。「調整」で1基ずつ支持台の形・高さ・大きさを変えられます。</p>
+      <p class="note">砲塔は実寸で、砲身の向きはゲージで調整できます。傾斜面では接地面の高低差だけ支持台が自動で伸び、砲は水平を保ちます。「調整」で1基ずつ支持台の形・高さ・大きさを変えられます。</p>
       <div class="pinfo" id="pinfo"></div>`;
       break;
     case 'bridge':
@@ -3537,13 +3545,13 @@ function carryToPlace() {
     else if (spec) { st.group = spec.group; st.part = it.k; st.equipmentId = spec.id; if (it.k === 'engine') st.engineSizes[spec.id] = {d: it.d, engineLength: it.engineLength}; }
     else {
       st.equipmentId = null; st.part = it.k; if (st.tab === 'mod') st.group = C.PARTS[it.k].group;
-      if (C.isShapePart(it)) { st.structWing=it.wing?C.normalizeWing(it.wing):null;st.structOutline=it.outline?.map(q=>q.slice());for(const key of ['panelFrame','panelRib','panelFold','panelKnee','panelBracing','panelSparX'])st[key]=it[key];st.structPlate=!!it.plate;st.structLight=!!it.light;st.structPlateT=C.plateThickness(it);st.structSize = it.s.slice(); st.structForm = it.form || 'box'; st.structTaper = it.taper || 0; st.structAngles = (it.angles || [0, 0, 0, 0]).slice(); st.structYaw = it.yaw || 0; st.structOffsetX = it.offsetX || 0; st.structOffsetZ = it.offsetZ || 0; if (it.form === 'reference') st.skinAsset = it.skinAsset; }
+      if (C.isShapePart(it)) { st.structWing=it.wing?C.normalizeWing(it.wing):null;st.structOutline=it.outline?.map(q=>q.slice());if(it.k==='wing')st.wingTipSide=C.wingTipSide(it);for(const key of ['panelFrame','panelRib','panelFold','panelKnee','panelBracing','panelSparX'])st[key]=it[key];st.structPlate=!!it.plate;st.structLight=!!it.light;st.structPlateT=C.plateThickness(it);st.structSize = it.s.slice(); st.structForm = it.form || 'box'; st.structTaper = it.taper || 0; st.structAngles = (it.angles || [0, 0, 0, 0]).slice(); st.structYaw = it.yaw || 0; st.structOffsetX = it.offsetX || 0; st.structOffsetZ = it.offsetZ || 0; if (it.form === 'reference') st.skinAsset = it.skinAsset; }
       else if (it.room) st.roomSize = it.room.slice(); else if (it.d) setPSize(it.k, it.d);
       if (it.k === 'engine' && it.dir) st.engineDir = it.dir.slice();
     }
   } else {
     if (C.FITS[it.k].window) st.bridge = it.k; else st.fit = it.k;
-    st.ped = it.ped || 0; st.pedShape = it.pedShape || 'round'; st.pedSize = it.pedSize || 1;
+    st.ped = it.ped || 0; st.pedShape = it.pedShape || 'round'; st.pedSize = it.pedSize || 1;st.gunYaw=C.fitCanRotate(it)?it.assetYaw||0:0;
   }
   st.sel = null; toast(`${list === 'parts' ? C.partLabel(it) : C.FITS[it.k].name} を同じ設定で設置できます`);
 }
@@ -3600,7 +3608,7 @@ function placeVerticalFits(f, k, ped, opts) {
   for (const g of src) {
     const n = g.n || C.AXES[g.a], p = C.vmirrorPoint(ship, g.p), n2 = [n[0], -n[1], n[2]];
     if (Math.abs(n[1]) < .2 && Math.abs(p[1] - g.p[1]) < Math.max(1, C.FITS[k].r)) continue;
-    const r = C.placeFit(ship, k, p, n2, ped, false, opts);
+    const r = C.placeFit(ship, k, p, n2, ped, false, {...opts,...(C.fitCanRotate(g)?{assetYaw:-(g.assetYaw||0)}:{})});
     if (r.err || !r.fit) continue;
     copyFitSettings(g, r.fit); g.vt = r.fit.id; r.fit.vt = g.id; made.push(r.fit);
   }
@@ -3683,7 +3691,7 @@ function bind() {
     if (t.id === 'rzprop') { st.razee.prop = t.checked; return; }
     const k = t.dataset.sl; if (!k) return;
     const v=Math.max(+t.min,Math.min(+t.max,Number(t.value)||0)),out=$('#out-'+k),hp=ship.hull;
-    $$('[data-sl="'+k+'"]').forEach(q=>{if(q!==t)q.value=v;});
+    $$('[data-sl="'+k+'"]').forEach(q=>{if(q!==t){if(q.type==='range'&&v>+q.max&&+t.max>+q.max)q.max=Math.min(+t.max,Math.max(v,+q.max*2));q.value=v;}});
     const live = (label, what, fn, txt) => { beginDrag(label); fn(); touch(what); if (out) out.textContent = txt; scheduleStats(350); };
     switch (k) {
       case 'L': live('全長', 'hull', () => { const r = v / hp.L; setHullDims(v, st.hullRatio ? hp.W * r : hp.W, st.hullRatio ? hp.H * r : hp.H); }, fLen(v)); syncHullInputs(t); break;
@@ -3721,6 +3729,7 @@ function bind() {
       case 'nw': st.notch.w = v; if (out) out.textContent = fmtM(v); updateHint(); break;
       case 'nd': st.notch.d = v; if (out) out.textContent = fmtM(v); updateHint(); break;
     }
+    if(['sl','sw','sh','el','ew','eh'].includes(k)&&(st.part==='wing'||selItem()?.k==='wing'))syncWingTipControls();
   });
   $('#panel').addEventListener('change', e => {
     const k = e.target.dataset.sl; if (!k) return;
@@ -4355,7 +4364,9 @@ function bindWing(){
     if(d.wingpreset){selectAeroPart('wing');rememberPick('part','wing');renderPanel();updateHint();return;}
     if(d.newaerobracing&&st.part==='solarPanel'&&['radial','spar','none'].includes(d.newaerobracing)){st.panelBracing=d.newaerobracing;st.template=null;renderPanel();updateHint();return;}
     if(d.aerobracing&&['radial','spar','none'].includes(d.aerobracing)){mutate('太陽光パネルの支柱配置',()=>editSel(p=>{if(p.k==='solarPanel')p.panelBracing=d.aerobracing;}),'parts');renderPanel();return;}
-    if(d.aeropreset){const fresh=d.aeronew==='yes',p=fresh?null:selItem(),k=fresh?st.part:p?.k;if(!isAeroKind(k))return;const shape=aeroPreset(k,d.aeropreset);if(fresh){st.structOutline=shape.outline;st.structForm=k==='wing'?'airfoil':'outline';st.panelFold=shape.panelFold;st.panelKnee=shape.panelKnee;if(k==='solarPanel'){st.structSize=[st.structSize[0],st.structSize[0]*shape.aspect,st.structSize[2]];Object.assign(st,solarPresetSettings(shape,st.structSize[0]));}st.template=null;}else mutate('パーツの翼形状',()=>editSel(q=>{if(!isAeroKind(q.k))return;q.outline=shape.outline.map(v=>v.slice());q.form=q.k==='wing'?'airfoil':'outline';delete q.mesh;if(q.k==='solarPanel'){Object.assign(q,solarPresetSettings(shape,q.s[0]));q.s=[q.s[0],q.s[0]*shape.aspect,q.s[2]];}}),'parts');renderPanel();updateHint();return;}
+    if(d.newwingtipside&&st.part==='wing'){st.wingTipSide=+d.newwingtipside===-1?-1:1;st.template=null;renderPanel();updateHint();return;}
+    if(d.wingtipside&&selItem()?.k==='wing'){mutate('翼根と翼端を入れ替える',()=>editSel(p=>{p.wingTipSide=+d.wingtipside===-1?-1:1;}),'parts');renderPanel();return;}
+    if(d.aeropreset){const fresh=d.aeronew==='yes',p=fresh?null:selItem(),k=fresh?st.part:p?.k;if(!isAeroKind(k))return;const shape=aeroPreset(k,d.aeropreset,k==='wing'?(fresh?st.wingTipSide??1:C.wingTipSide(p)):1);if(fresh){st.structOutline=shape.outline;st.structForm=k==='wing'?'airfoil':'outline';if(k==='wing')st.wingTipSide=shape.wingTipSide;else{st.structSize=[st.structSize[0],st.structSize[0]*shape.aspect,st.structSize[2]];Object.assign(st,solarPresetSettings(shape,st.structSize[0]));}st.template=null;}else mutate('パーツの翼形状',()=>editSel(q=>{if(!isAeroKind(q.k))return;q.outline=shape.outline.map(v=>v.slice());q.form=q.k==='wing'?'airfoil':'outline';delete q.mesh;if(q.k==='wing')q.wingTipSide=shape.wingTipSide;else{Object.assign(q,solarPresetSettings(shape,q.s[0]));q.s=[q.s[0],q.s[0]*shape.aspect,q.s[2]];}}),'parts');renderPanel();updateHint();return;}
     if(d.newwingthermal&&st.structWing){st.structWing=C.normalizeWing({...st.structWing,thermal:d.newwingthermal});renderPanel();updateHint();return;}
     if(d.wingthermal){mutate('主翼の散熱方式',()=>editSel(p=>{if(C.isWing(p)&&!p.wing.solar)p.wing=C.normalizeWing({...p.wing,thermal:d.wingthermal});}),'parts');renderPanel();return;}
     if(d.foilpickmode){endDrag();st.foilPickMode=d.foilpickmode;renderPanel();return;}
@@ -4379,6 +4390,14 @@ function bindWing(){
   });
   $('#panel').addEventListener('input',e=>{
     const t=e.target,k=t.dataset.sl;
+    if(k==='newAeroWingTip'||k==='aeroWingTip'){
+      if(t.value===''||!Number.isFinite(+t.value))return;
+      const fresh=k==='newAeroWingTip';if(fresh?st.part!=='wing':selItem()?.k!=='wing')return;
+      const p=wingControlPart(selItem(),!fresh),v=C.clamp(+t.value,+t.min,+t.max),outline=C.wingShiftTip(p,v);if(!outline)return;
+      if(fresh){st.structOutline=outline;st.wingTipSide=C.wingTipSide(p);st.template=null;updateHint();}
+      else{beginDrag('翼端の前後位置');editSel(q=>{const side=C.wingTipSide(q),a=C.wingShiftTip(q,v);if(a){q.outline=a;q.wingTipSide=side;}});touch('parts');scheduleStats(150);}
+      syncWingTipControls();return;
+    }
     if(/^(?:newAero|aero)Panel(?:Frame|Rib|Fold|Knee|SparX)$/.test(k||'')){
       if(t.value===''||!Number.isFinite(+t.value))return;const fresh=k.startsWith('new'),key='panel'+k.split('Panel')[1],v=C.clamp(+t.value,+t.min,+t.max),value=key==='panelKnee'||key==='panelSparX'?v/100:v;
       if(fresh){if(st.part!=='solarPanel')return;st[key]=value;st.template=null;updateHint();}
@@ -4633,7 +4652,7 @@ function referencePanel(panel){
   // v18 Missile launchers: cells below deck (VLS) or a box on the hull.
   if(selected&&st.sel.list==='fits'&&C.FITS[selected.k]?.msl){const mm=C.missileMount(selected),q=S?.vlsInfo?.[selected.id],M=C.MISSILE_MOUNTS;panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>ミサイル発射機の搭載方式</h4>${seg('mslmount',Object.entries(M).map(([k,v])=>[k,v.name]),mm)}<p>${mm==='vls'?`船内のセル・弾庫 ${q?num(q.volume,0):'—'} / ${q?num(q.required,0):'—'} m³（${q?fPct(q.ratio):'—'}）· 搭載弾数 ${Math.round(M.vls.stock*(q?.ratio??1))} 発`:`船内容積を使いません · 搭載弾数 ${M.ext.stock} 発`}</p><p class="note">VLS は発射機の下に船内容積を確保します（その分、乗員の居住に回せる空き容積が減ります）。露出はハッチだけで被弾しにくい反面、弾庫まで撃ち抜かれると誘爆します。外置きは船内容積を使わず、搭載弾数が半分、箱型発射機がむき出しで被弾しやすくなります。</p></div>`);}
   if(selected&&st.sel.list==='fits'&&C.FITS[selected.k]?.store){const sd=C.FITS[selected.k].store;panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>${esc(C.STORE_MOUNTS[sd.mount].name)}の容量</h4><p>${esc(storeCapText(sd))}${sd.mount==='wing'?' · 機外に吊るので機内の容積を使いません':''}</p>${storeCapHTML(sd)}<p class="note">設計で決まるのは入る数だけです。積む弾と数は編成画面の中隊ごとに選び（お任せは正史の搭載）、撃つと減り、母艦で再装填します。弾の質量だけ機体が重くなります。</p></div>`);}
-  const f=selItem();if(f&&st.sel.list==='fits'&&!C.FITS[f.k].window){const d=C.fitSpec(f);panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>${d.craft?'装備の交換':'砲塔の交換・向き'}</h4><label>${d.craft?'装備を交換':'砲塔を交換'}<select data-refweapon>${weaponKeys().map(k=>`<option value="${k}" ${f.k===k?'selected':''}>${esc(C.FITS[k].name)}</option>`).join('')}</select></label>${C.FITS[f.k].asset?`${d.casemate?'':`<div class="sliders">${slider('gunYaw','砲塔の向き',f.assetYaw||0,-180,180,1,deg(f.assetYaw||0))}</div>`}<p class="note">兵装の大きさは規格どおりで変えられません${(f.scale||1)!==1?`（この砲塔は作例の規格 ${Math.round((f.scale||1)*100)}%）`:''}。</p>`:''}<p>${d.store?esc(storeCapText(d.store)):`${fTT(d.tt||d.ion||0)} / 一斉射`} · ${fW(d.power)} / 連射時${S?.feedInfo?.[f.id]?`<br>配電路 ${ja(S.feedInfo[f.id][0])} m³（${feedSrc(S.feedInfo[f.id])} ${num(S.feedInfo[f.id][1])} m）`:''}</p></div>`);}
+  const f=selItem();if(f&&st.sel.list==='fits'&&!C.FITS[f.k].window){const d=C.fitSpec(f);panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>${d.craft?'装備の交換':'砲塔の交換・向き'}</h4><label>${d.craft?'装備を交換':'砲塔を交換'}<select data-refweapon>${weaponKeys().map(k=>`<option value="${k}" ${f.k===k?'selected':''}>${esc(C.FITS[k].name)}</option>`).join('')}</select></label>${C.FITS[f.k].asset?`<p class="note">兵装の大きさは規格どおりで変えられません${(f.scale||1)!==1?`（この砲塔は作例の規格 ${Math.round((f.scale||1)*100)}%）`:''}。</p>`:''}<p>${d.store?esc(storeCapText(d.store)):`${fTT(d.tt||d.ion||0)} / 一斉射`} · ${fW(d.power)} / 連射時${S?.feedInfo?.[f.id]?`<br>配電路 ${ja(S.feedInfo[f.id][0])} m³（${feedSrc(S.feedInfo[f.id])} ${num(S.feedInfo[f.id][1])} m）`:''}</p></div>`);}
   panel.insertAdjacentHTML('beforeend',weaponSourcesHTML());
  }
 }
@@ -4675,7 +4694,11 @@ function bindReference(){
   if('custombridge'in d){st.tab='mod';st.group='shape';st.part='struct';st.equipmentId=null;st.partTool='place';st.structForm='trap';delete st.skinAsset;renderPanel();return;}
   if('removeskin'in d){mutate('基本形状へ変更',()=>editSel(p=>{delete p.equipmentId;delete p.customEquipment;delete p.skinAsset;delete p.skinSize;if(p.form==='reference')p.form='box';}),'parts');renderPanel();}
  });
- $('#panel').addEventListener('input',e=>{const k=e.target.dataset.sl,v=+e.target.value;if(!Number.isFinite(v)||k!=='gunYaw')return;beginDrag('砲塔の形状');editSel(f=>{f.assetYaw=C.clamp(v,-180,180);});touch('fits');scheduleStats(350);const out=$('#out-'+k);if(out)out.textContent=deg(v);});
+ $('#panel').addEventListener('input',e=>{const t=e.target,k=t.dataset.sl,v=+t.value;if(t.value===''||!Number.isFinite(v)||!['gunYaw','newGunYaw'].includes(k))return;const yaw=C.clamp(v,-180,180);
+  if(k==='newGunYaw'){if(!C.fitCanRotate(st.fit))return;st.gunYaw=yaw;updateHint();}
+  else{if(st.sel?.list!=='fits'||!C.fitCanRotate(selItem()))return;beginDrag('砲塔の向き');editSel(f=>{f.assetYaw=yaw;});touch('fits');scheduleStats(350);}
+  const out=$('#out-'+k);if(out)out.textContent=deg(yaw);
+ });
  $('#panel').addEventListener('input',e=>{const k=e.target.dataset.sl,v=+e.target.value;if(!Number.isFinite(v)||!['chargeDepth','chargeScale','chargeSalvos'].includes(k))return;beginDrag('主砲充電装置を調整');editSel(f=>f[k]=k==='chargeDepth'?C.clamp(v,1,500):k==='chargeSalvos'?Math.round(C.clamp(v,1,20)):C.clamp(v/100,.25,4));touch('fits');scheduleStats(350);const o=$('#out-'+k);if(o)o.textContent=k==='chargeDepth'?fmtM(v):k==='chargeSalvos'?v+' 回分':v+'%';});
 }
 
@@ -4740,11 +4763,21 @@ function bridgePanel(){
 }
 
 // Placement direction is shared by the preview and the actual mount.
-st.weaponMount='auto';
+st.weaponMount='auto';st.gunYaw=0;
+function weaponYawControls(f=null){
+ const k=f?.k||st.fit;if(!C.fitCanRotate(k))return '';
+ const id=f?'gunYaw':'newGunYaw',v=f?f.assetYaw||0:st.gunYaw||0;
+ return `<div class="pgroup turret-yaw"><h4>砲塔の向き</h4><div class="sliders">${slider(id,'砲塔の向き',v,-180,180,1,deg(v),'any')}</div><p class="note">取付面に沿って砲塔の向きを変えます。</p></div>`;
+}
+function turretHeadingLines(ls,f,col){
+ if(!C.fitCanRotate(f))return;
+ const d=C.fitSpec(f),fr=C.fitFrameOf(f),a=(d.asset?f.assetYaw||0:0)*Math.PI/180,fw=C.add(C.mul(fr.fw,Math.cos(a)),C.mul(fr.rt,Math.sin(a))),rt=C.cross(fw,fr.up),length=Math.max(d.fm*.7,d.r*1.3),start=C.add(C.fitOrigin(f),C.mul(fr.up,d.hm*.65)),end=C.add(start,C.mul(fw,length));
+ ls.seg(start,end,col);for(const sign of [-1,1])ls.seg(end,C.add(end,C.add(C.mul(fw,-length*.2),C.mul(rt,sign*length*.12))),col);
+}
 // 「面に合わせる」 stands a weapon on the face's own normal, slopes included.
 function weaponTiltMode(k){const d=C.FITS[k];return d?.cat==='w'&&!d.casemate&&st.weaponMount==='auto';}
 function weaponPlacementNormal(k,n){return C.FITS[k]?.cat==='w'&&!['auto','trench','casemate'].includes(st.weaponMount)?(st.weaponMount==='bottom'?[0,-1,0]:[0,1,0]):n;}
-function weaponMountControls(){return `<div class="pgroup"><h4>武装の取付面</h4>${seg('weaponmount',[['auto','面に合わせる'],['top','上面に配置'],['bottom','下面に配置'],['trench','トレンチ内'],['casemate','側壁ケースメイト']],st.weaponMount)}<p class="note">「面に合わせる」では斜めの面にも面の傾きに沿って傾けて据え付け、射界はその面の外向き半球になります。垂直に立てるときは「上面に配置」「下面に配置」。下面を選ぶと船底へ視点を切り替えます。船体・構造物の下面をタップして搭載。砲塔は下向き、充電装置は取付面の船内側に配置されます。射界は取付面の外向き半球です。「トレンチ内」では溝の床・内壁に局所固定し、外甲板へ移しません。「側壁ケースメイト」は砲口を壁の外向きにして、背面の船内に充電装置を確保します。</p></div>`;}
+function weaponMountControls(){return `<div class="pgroup"><h4>武装の取付面</h4>${seg('weaponmount',[['auto','面に合わせる'],['top','上面に配置'],['bottom','下面に配置'],['trench','トレンチ内'],['casemate','側壁ケースメイト']],st.weaponMount)}<p class="note">「面に合わせる」では斜めの面にも面の傾きに沿って傾けて据え付け、射界はその面の外向き半球になります。垂直に立てるときは「上面に配置」「下面に配置」。下面を選ぶと船底へ視点を切り替えます。船体・構造物の下面をタップして搭載。砲塔は下向き、充電装置は取付面の船内側に配置されます。射界は取付面の外向き半球です。「トレンチ内」では溝の床・内壁に局所固定し、外甲板へ移しません。「側壁ケースメイト」は砲口を壁の外向きにして、背面の船内に充電装置を確保します。</p></div>${st.fitTool==='place'?weaponYawControls():''}`;}
 function chooseWeaponMount(face){
  if(!['auto','top','bottom','trench','casemate'].includes(face))return;
  if(face==='casemate'&&C.FITS.casemateMid)st.fit='casemateMid';
@@ -5398,15 +5431,22 @@ function xfPartOut(q,T){
  return o;
 }
 function xfMirrorOut(o,f){let q=o;if(f.y)q=C.vmirrorPart(q,ship);if(f.z)q=C.mirrorPart(q,ship);const r=publicCopy(q);r.id=f.it.id;delete r.tw;delete r.vt;if(f.it.tw!=null)r.tw=f.it.tw;if(f.it.vt!=null)r.vt=f.it.vt;return r;}
-function xfFitOut(f,p,n){const o=publicCopy(f);seatFit(o,p,n);return o;}
+// Preserve the heading as well as the mounting normal when a fitting turns.
+// Model assets apply assetYaw separately, so derive both kinds from an unturned frame.
+function xfFitForward(f){const fr=C.fitFrameOf({...f,assetYaw:0}),r=(f.assetYaw||0)*Math.PI/180;return C.add(C.mul(fr.fw,Math.cos(r)),C.mul(fr.rt,Math.sin(r)));}
+function xfFitOut(f,p,n,fw=null){
+ const o=publicCopy(f);seatFit(o,p,n);
+ if(fw&&C.fitCanRotate(o)){const fr=C.fitFrameOf({...o,assetYaw:0}),x=C.dot(fw,fr.fw),z=C.dot(fw,fr.rt);if(Math.hypot(x,z)>1e-8){const yaw=Math.atan2(z,x)*180/Math.PI,delta=((yaw-(f.assetYaw||0)+540)%360)-180;if(Math.abs(delta)>1e-7)o.assetYaw=r6(yaw);}}
+ return o;
+}
 // The rows of one operation: each item with its new state. T(unit, driver) gives the point map and the turn.
 function xfRows(drivers,units,Tof){
  const rows=[],moved=new Set();for(const d of drivers)if(d.list==='parts'){moved.add(d.it.id);for(const f of d.fol)moved.add(f.it.id);}
  for(const u of units)for(const d of u.drivers){const T=Tof(u,d);if(!T)continue;
   if(d.list==='parts'){const out=xfPartOut(d.it,T);rows.push({list:'parts',it:d.it,out});for(const f of d.fol)rows.push({list:'parts',it:f.it,out:xfMirrorOut(out,f)});continue;}
   if(d.it.host!=null&&moved.has(d.it.host))continue;   // a pod rides its wall
-  const n=d.it.n||C.AXES[d.it.a],p=T.pt(d.it.p),m=T.R?T.R(n):n,out=xfFitOut(d.it,p,m);rows.push({list:'fits',it:d.it,out});
-  for(const f of d.fol){let q=p,k=m;if(f.y){q=C.vmirrorPoint(ship,q);k=[k[0],-k[1],k[2]];}if(f.z){q=C.mirrorP(q);k=C.mirrorP(k);}rows.push({list:'fits',it:f.it,out:xfFitOut(f.it,q,k)});}
+  const n=d.it.n||C.AXES[d.it.a],p=T.pt(d.it.p),m=T.R?T.R(n):n,fw=T.R&&C.fitCanRotate(d.it)?T.R(xfFitForward(d.it)):null,out=xfFitOut(d.it,p,m,fw);rows.push({list:'fits',it:d.it,out});
+  for(const f of d.fol){let q=p,k=m,v=fw;if(f.y){q=C.vmirrorPoint(ship,q);k=[k[0],-k[1],k[2]];if(v)v=[v[0],-v[1],v[2]];}if(f.z){q=C.mirrorP(q);k=C.mirrorP(k);if(v)v=C.mirrorP(v);}rows.push({list:'fits',it:f.it,out:xfFitOut(f.it,q,k,v)});}
  }
  return {rows,moved};
 }
@@ -5950,8 +5990,11 @@ function trialSpawnTarget(i,first){
 // Each gun keeps its range band: how far its bolts carry and what its fire costs in stored energy.
 // v21.3 A flown craft's fixed guns are the pilot's: they fire on the trigger at the reticle, a few shots a
 // second each (the same power, so the same weight of fire), and only its real turrets defend it on their own.
-const TRIAL_PILOT_CYCLE={claser:.5,claserH:.7,cion:.8};
-function trialTurretState(t){const fw=tv.norm(t.fw),axis=tv.norm(t.axis),spec=C.FITS[t.k]||{},band=C.fitBand(spec),pilot=!!(trial.craft&&spec.craft&&spec.fixed);return {...t,band,reach:C.GUN_BANDS[band]?.range||TRIAL_GUN.range,costK:spec.ion?1:C.COMBAT.bandCost[band]??1,pd:(spec.aa||0)>0&&!((spec.tt||0)>.01)&&!spec.ion&&!pilot,pilot,cycle:pilot?TRIAL_PILOT_CYCLE[t.k]||.6:t.cycle,fw,axis,e2:tv.cross(axis,fw),rateRad:t.rate*Math.PI/180,yaw:0,el:0,reload:0,clear:false,clearDir:null,aimed:false,arc:true,rot:trialAxisMatrix(axis,0)};}
+const TRIAL_PILOT_CYCLE=C.CRAFT_FIRE.cycles;
+// Small-target kill odds and practice hits were calibrated to the former volleys.
+// Frequent pulses split that exposure as well as the physical shot energy.
+const TRIAL_PILOT_REFERENCE_CYCLE={claser:.5,claserH:.7,cion:.8};
+function trialTurretState(t){const fw=tv.norm(t.fw),axis=tv.norm(t.axis),spec=C.FITS[t.k]||{},band=C.fitBand(spec),pilot=!!(trial.craft&&spec.craft&&spec.fixed),cycle=pilot?TRIAL_PILOT_CYCLE[t.k]||C.CRAFT_FIRE.defaultCycle:t.cycle;return {...t,band,reach:C.GUN_BANDS[band]?.range||TRIAL_GUN.range,costK:spec.ion?1:C.COMBAT.bandCost[band]??1,pd:(spec.aa||0)>0&&!((spec.tt||0)>.01)&&!spec.ion&&!pilot,pilot,cycle,fw,axis,e2:tv.cross(axis,fw),rateRad:t.rate*Math.PI/180,yaw:0,el:0,reload:pilot?((Math.abs(t.id||0)*.61803398875)%1)*cycle:0,clear:false,clearDir:null,aimed:false,arc:true,rot:trialAxisMatrix(axis,0)};}
 // opts.design flies another design than the one on the drawing board;
 // opts.battle starts a space battle with that plan; opts.system picks the system.
 async function trialStart(opts={}){
@@ -6032,7 +6075,7 @@ function trialStep(dt){
 }
 // ---- gunnery ----
 const trialBarrel=(t,yaw,el)=>{const c=Math.cos(el),h=tv.add(tv.scale(t.fw,Math.cos(yaw)),t.e2,Math.sin(yaw));return tv.norm(tv.add(tv.scale(h,c),t.axis,Math.sin(el)));};
-const trialLimits=t=>t.pilot?{yaw:15*Math.PI/180,lo:-15*Math.PI/180,hi:15*Math.PI/180}:t.casemate?{yaw:65*Math.PI/180,lo:-20*Math.PI/180,hi:20*Math.PI/180}:{yaw:null,lo:-10*Math.PI/180,hi:85*Math.PI/180};
+const trialLimits=t=>t.pilot?{yaw:0,lo:0,hi:0}:t.casemate?{yaw:65*Math.PI/180,lo:-20*Math.PI/180,hi:20*Math.PI/180}:{yaw:null,lo:-10*Math.PI/180,hi:85*Math.PI/180};
 function trialAim(){
  if(!view)return null;const eye=view.eye(),dir=tv.norm(tv.sub(view.cam.target,eye));let dist=Math.max(TRIAL_GUN.aim,trial.p.len*1.5),lock=null,best=Infinity;
  for(const t of trial.targets){if(!t.alive||t.ally)continue;const v=tv.sub(tv.sub(t.pos,trial.P),eye),d=tv.len(v),ang=Math.acos(C.clamp(tv.dot(v,dir)/d,-1,1)),cone=Math.atan((t.radius||trial.asset.geometry.targetRadius*1.6)/d)+.006;if(ang<cone&&ang<best){best=ang;lock=t;dist=d;}}
@@ -6088,10 +6131,11 @@ function trialPdBoltHit(b){
 // Small craft and missiles a pilot's guns can reach.
 function trialPilotThreats(){const out=[],P=trial.P,R2=TRIAL_PILOT_HIT.range**2;for(const l of [trial.drones,trial.foeCraft,trial.foeMissiles])for(const q of l||[]){if(!q.alive)continue;const x=q.pos[0]-P[0],y=q.pos[1]-P[1],z=q.pos[2]-P[2];if(x*x+y*y+z*z<R2)out.push(q);}return out;}
 // A pilot's bolt (or missile, k scaling the reach) passing a small craft or missile: true when it struck.
-function trialPilotHit(a0,a1,qs,w,k=1){
+function trialPilotHit(a0,a1,qs,w,k=1,exposure=1){
  const seg=tv.sub(a1,a0),l2=tv.dot(seg,seg)||1;
  for(const q of qs){if(!q.alive)continue;const t=C.clamp(tv.dot(tv.sub(q.pos,a0),seg)/l2,0,1),p=tv.add(a0,seg,t);if(tv.len(tv.sub(p,q.pos))>(TRIAL_PILOT_HIT.radius[q.kind]||20)*k)continue;
-  trial.gun.hits+=w;if(k>1||Math.random()<(TRIAL_PILOT_HIT.pKill[q.kind]||.4))trialThreatDown(q,p,true);else trial.fx.push({pos:p,vel:q.vel,life:.2,max:.2,size:6,col:[255,220,160]});return true;}
+  const base=TRIAL_PILOT_HIT.pKill[q.kind]||.4,chance=1-Math.pow(1-base,Math.max(0,Number.isFinite(exposure)?exposure:1));
+  trial.gun.hits+=w;if(k>1||Math.random()<chance)trialThreatDown(q,p,true);else trial.fx.push({pos:p,vel:q.vel,life:.2,max:.2,size:6,col:[255,220,160]});return true;}
  return false;
 }
 function trialThreatDown(q,p,gun){
@@ -6146,7 +6190,7 @@ const TT_J=4.184e21;
 // one that cannot come on. Returns the guns to fire this frame (null: continuous fire).
 function trialSalvoPlan(dt){
  if(trial.volley!=='salvo')return null;const bats=new Map(),W=trial.salvoWait||(trial.salvoWait={}),go=new Set();
- for(const t of trial.turrets){if(t.pd||t.dead||!t.firing||t.held)continue;let b=bats.get(t.k);if(!b)bats.set(t.k,b=[]);b.push(t);}
+ for(const t of trial.turrets){if(t.pd||t.pilot||t.dead||!t.firing||t.held)continue;let b=bats.get(t.k);if(!b)bats.set(t.k,b=[]);b.push(t);}
  for(const k of Object.keys(W))if(!bats.has(k))delete W[k];
  for(const [k,b] of bats){const rdy=b.filter(t=>t.laid&&t.reload<=0);if(!rdy.length){W[k]=0;continue;}W[k]=(W[k]||0)+dt;
   if(rdy.length===b.length||W[k]>Math.max(...b.map(t=>t.cycle))*.6){for(const t of rdy)go.add(t);W[k]=0;}}
@@ -6166,12 +6210,12 @@ function trialGunnery(dt){
  for(const t of trial.turrets){
   const oW=trialApply(R,tv.sub(t.origin,center)),lim=trialLimits(t);let ty=0,te=0;t.arc=true;t.pdTarget=null;
   if(t.pd){const q=trialPdPick(t,oW,threats);if(q){t.pdTarget=q;const rel=tv.sub(q.pos,trial.P),uv=tv.sub(q.vel,trial.V),tt=trialIntercept(tv.sub(rel,oW),uv,spd),aimW=tt?tv.add(rel,uv,tt):rel,dl=trialApplyT(R,tv.norm(tv.sub(aimW,oW)));ty=Math.atan2(tv.dot(dl,t.e2),tv.dot(dl,t.fw));te=Math.asin(C.clamp(tv.dot(dl,t.axis),-1,1));}}
-  else if(!home){let aimW=a.point;
+  else if(!t.pilot&&!home){let aimW=a.point;
    if(lock){const tt=trialIntercept(tv.sub(lockRel,oW),u,spd);if(tt)aimW=tv.add(lockRel,u,tt);}
    const dl=trialApplyT(R,tv.norm(tv.sub(aimW,oW)));ty=Math.atan2(tv.dot(dl,t.e2),tv.dot(dl,t.fw));te=Math.asin(C.clamp(tv.dot(dl,t.axis),-1,1));}
   if(lim.yaw!=null&&Math.abs(ty)>lim.yaw){ty=Math.sign(ty)*lim.yaw;t.arc=false;}if(te<lim.lo||te>lim.hi){te=C.clamp(te,lim.lo,lim.hi);t.arc=false;}
   if(t.pd&&!t.pdTarget)t.arc=false;
-  const sy=t.rateRad*dt,dy=trialWrap(ty-t.yaw);t.yaw=trialWrap(t.yaw+C.clamp(dy,-sy,sy));const se=t.rateRad*1.5*dt;t.el+=C.clamp(te-t.el,-se,se);
+  const sy=t.rateRad*dt,dy=trialWrap(ty-t.yaw);t.yaw=trialWrap(t.yaw+C.clamp(dy,-sy,sy));const se=t.rateRad*1.5*dt;t.el+=C.clamp(te-t.el,-se,se);if(t.pilot){t.yaw=0;t.el=0;}
   if(t.mesh){trialAxisMatrix(t.axis,t.yaw,t.rot);if(t._foilRot)t.rot=m3Mul(t.rot,t._foilRot);}
   const err=Math.max(Math.abs(trialWrap(ty-t.yaw)),Math.abs(te-t.el));t.aimed=t.arc&&err<.018;t.laid=t.arc&&err<(t.pilot?.02:.005);
   // Point defence slews fast after small targets, so it accepts an older line-of-fire check.
@@ -6181,21 +6225,21 @@ function trialGunnery(dt){
  }
  trialPowerStep(dt,demand);const en=trial.energy;let held=0;
  for(const t of trial.turrets){
-  t.reload=Math.max(0,t.reload-dt);t.starved=false;
+  t.reload=Math.max(t.pilot&&t.firing?-3*t.cycle:0,t.reload-dt);t.starved=false;
   // A main battery holds its fire while one of our own ships is across its line.
   if(t.firing&&!t.pd&&trial.battle){t.held=!!trialAllyOnLine(tv.add(trial.P,t.oW),trialApply(R,t.bd),Math.max(t.reach||TRIAL_GUN.range,trial.p.len*2));if(t.held)held++;}else t.held=false;}
  // v20.6 Salvo fire: the guns of each battery wait for one another and fire together.
  const salvo=trialSalvoPlan(dt);
  for(const t of trial.turrets){
-  if(t.held||salvo&&!t.pd&&!salvo.has(t))continue;
-  if(t.firing&&(t.laid||t.pd)&&t.reload<=0){
-   const shotTT=t.power*t.cycle*t.charge/TT_J,cost=shotTT*(t.costK??1);if(en.E<cost){t.starved=true;continue;}if(!trialCraftGasTake(t,dt)){t.gasStarved=true;continue;}en.E-=cost;
-   t.reload=t.cycle*(1+Math.random()*(salvo&&!t.pd?.01:.08));const bd=t.bd,n=Math.min(t.barrels,t.r>12?2:t.barrels>2?2:1),sc=t.pd?.009:.0012,g=()=>(Math.random()+Math.random()+Math.random()-1.5)*sc,bw=trialApply(R,tv.norm(tv.add(tv.add(bd,t.e2,g()),t.axis,g()))),side=trialApply(R,tv.norm(tv.cross(t.axis,bd))),base=tv.add(tv.add(trial.P,t.oW),bw,t.r*1.2),spread=t.r*.35;
+  if(t.held||salvo&&!t.pd&&!t.pilot&&!salvo.has(t)){if(t.pilot)t.reload=Math.max(0,t.reload);continue;}
+  for(let burst=0;t.firing&&(t.laid||t.pd)&&t.reload<=0&&burst<(t.pilot?4:1);burst++){
+   const shotTT=t.power*t.cycle*t.charge/TT_J,cost=shotTT*(t.costK??1);if(en.E<cost){t.starved=true;if(t.pilot)t.reload=0;break;}if(!trialCraftGasTake(t,dt)){t.gasStarved=true;if(t.pilot)t.reload=0;break;}en.E-=cost;
+   t.reload=t.pilot?t.reload+t.cycle:t.cycle*(1+Math.random()*(salvo&&!t.pd?.01:.08));const bd=t.bd,n=Math.min(t.barrels,t.r>12?2:t.barrels>2?2:1),sc=t.pd?.009:.0012,g=()=>(Math.random()+Math.random()+Math.random()-1.5)*sc,bw=trialApply(R,tv.norm(tv.add(tv.add(bd,t.e2,g()),t.axis,g()))),side=trialApply(R,tv.norm(tv.cross(t.axis,bd))),base=tv.add(tv.add(trial.P,t.oW),bw,t.r*1.2),spread=t.r*.35;
    if(t.pd){sndAt('point_defense',base,{gain:.45});trial.gun.pd=(trial.gun.pd||0)+t.barrels;for(let i=0;i<n;i++){const off=n>1?(i/(n-1)-.5)*spread:0,pos=tv.add(base,side,off);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(bw,spd),trial.V),life:TRIAL_PD.range*1.15/spd,len:Math.max(40,t.r*6),size:Math.max(3,t.r*.45),col:trialPdColor(),weight:0,tt:0,pd:true,target:t.pdTarget});}continue;}
    trial.gun.shots+=t.barrels;
    // (a pilot's guns: a fighter's laser, its bolts and flash sized like the other craft's)
-   const pl=t.pilot,hv=t.k==='claserH';sndAt(pl?sndPilotGun():sndGun(t),base,pl?{gain:.7,near:400,far:8000}:{gain:.85,near:2500,fac:sndFac(trial.battle?.me||{manual:true,side:0})});
-   for(let i=0;i<n;i++){const off=n>1?(i/(n-1)-.5)*spread:0,pos=tv.add(base,side,off);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(bw,spd),trial.V),life:Math.max(t.reach||TRIAL_GUN.range,trial.p.len*(t.band==='close'?1.2:3))/spd,len:pl?(hv?18:14):Math.max(70,t.r*9),size:pl?(hv?2.4:2):Math.max(5,t.r*.9),col:t.ion?[170,215,255]:color,weight:t.barrels/n,tt:shotTT/n,ion:!!t.ion,pilot:pl});}
+   const pl=t.pilot,hv=t.k==='claserH',hitScale=pl?t.cycle/(TRIAL_PILOT_REFERENCE_CYCLE[t.k]||.5):1;sndAt(pl?sndPilotGun():sndGun(t),base,pl?{gain:.7,near:400,far:8000}:{gain:.85,near:2500,fac:sndFac(trial.battle?.me||{manual:true,side:0})});
+   for(let i=0;i<n;i++){const off=n>1?(i/(n-1)-.5)*spread:0,pos=tv.add(base,side,off);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(bw,spd),trial.V),life:Math.max(t.reach||TRIAL_GUN.range,trial.p.len*(t.band==='close'?1.2:3))/spd,len:pl?(hv?32:24):Math.max(70,t.r*9),size:pl?(hv?2.4:2):Math.max(5,t.r*.9),col:t.ion?[170,215,255]:color,weight:pl?2*hitScale/n:t.barrels/n,hitScale,tt:shotTT/n,ion:!!t.ion,pilot:pl});}
    trial.fx.push({pos:base,vel:trial.V,life:.12,max:.12,size:pl?2.5:Math.max(6,t.r*1.6),col:[255,240,210]});
   }
  }
@@ -6213,7 +6257,7 @@ function trialGunnery(dt){
  const pq=trial.craft?trialPilotThreats():null;
  for(const b of trial.bolts){b.prev=b.pos;b.pos=tv.add(b.pos,b.vel,dt);b.life-=dt;
   if(b.pd){trialPdBoltHit(b);continue;}
-  if(b.pilot&&pq.length&&trialPilotHit(b.prev,b.pos,pq,b.weight)){b.life=0;continue;}
+  if(b.pilot&&pq.length&&trialPilotHit(b.prev,b.pos,pq,b.weight,1,b.hitScale)){b.life=0;continue;}
   if(!b.esc&&trial.escorts?.length){let hitE=null;for(const e of trial.escorts){const sd=tv.sub(b.pos,b.prev),l=tv.len(sd);if(l>0&&trialBoxOnLine({pos:e.pos,rot:e.R,radius:e.p.len*.5,semi:[e.p.len*.5,(e.p.height||e.p.len*.2)*.5,(e.p.width||e.p.len*.5)*.5]},b.prev,tv.scale(sd,1/l),l,1)){hitE=e;break;}}if(hitE){b.life=0;spaceImpact(b.pos,hitE.V,{shield:1},10);if(performance.now()-(trial.ffToast||0)>4000){trial.ffToast=performance.now();toast(`誤射：随伴艦 ${esc(hitE.name)} に命中`);}continue;}}
   for(const t of trial.targets){if(!t.alive||b.life<=0)continue;if(t.ship){const q=segShip(t,b.prev,b.pos);if(q){b.life=0;shipHit(t,q,b.tt||0,b.ion?'ion':'bolt',b.weight);}continue;}const q=segHit(t,b.prev,b.pos);if(q){b.life=0;hitTarget(t,q,b.weight,b.esc);}}}
  // (a missile homing on a small craft bursts on it)
@@ -10994,6 +11038,7 @@ function voyPilotThreats() {
   const wg = w.wings.get(s.wing), wo = wg ? (wg.raid ? wg.raid.order : wg.order?.type === 'auto' ? wg.auto : wg.order) : null, tgt = wo?.type === 'strike' && (wg.phase === 'run' || (st.run && wg.phase === 'egress')) ? w.units.get(wo.target) : null;
   if (tgt && R.alive(tgt)) { if (!st.run || st.run.u !== tgt) { const l = trialApplyT(spaceRotU(B.E, tgt), tv.sub(c0, spaceWorld(tgt))); st.run = {u: tgt, side: s.runSide || (wo.approach === 'below' || l[1] < -(tgt.p.height || 200) * .8 ? -1 : 1)}; } } else if (st.run && st.runK < .03) st.run = null;
   const rails = s.ops?.k === 'launch' || s.ops?.k === 'land', home = rails ? w.units.get(s.ops.u) : null;
+  if (st.runPhase === 'run' && wg?.phase !== 'run') st.brk = ct;st.runPhase = wg?.phase;
   craftSqMood(st, {fight, fire: pdOn.has(s.id) || fight, run: !!(tgt && wg.phase === 'run'), hold: !rails && !fight && !tgt && tv.len(iv.vel) < c.speed * .15}, cdt);
   const fr = craftSqFrame(st, c0, v, h, up, S, d, ct, cdt, trialApply(B.E, [1, 0, 0])), models = !!mk && (isSel || dS < L * focal / 2.2 + 600);
   if (mk) voyCraftWant(mk, dS);
@@ -11102,12 +11147,18 @@ function voySqCamera(B, w, cf) {
 // strafe (and bombers drop their torpedoes and bombs on) the ship they attack as the battle lands it, and ships
 // whose point defence is on craft fire at them.
 function voyCraftFire(B, w, sys, cf, fdt, eye) {
+ if (trial.paused) return;
  const jobs = {df: [], runs: [], pd: []};
- for (const [sid, st] of cf.sq) { const m = st.list;if (!m.length || st.f !== cf.f) continue;const s = w.squads.get(sid);if (!s || s.state !== 'out' || w.time - (s.dogfight ?? -99) > 1.5 || !s.dfFoe) continue;const fm = cf.sq.get(s.dfFoe)?.list;if (fm?.length) jobs.df.push({m, fm, c: R.CRAFT[s.craft], col: voyBoltCol(w, s.side), gun: craftGun(w, s)}); }
- // attack runs, as the battle records them (w.craftRuns): a burst of a second and a half from every craft; then the
- // squadron peels off
- for (const x of w.craftRuns || []) if (x.sys === sys && x.t > cf.runT) { cf.runs.push({sq: x.sq, to: x.to, left: 1.6, first: true, noOrd: Array.isArray(x.ord) || 'ord' in x}); cf.runT = Math.max(cf.runT, x.t); const st = cf.sq.get(x.sq); if (st) st.brk = cf.ct + 1; }
- for (const r of cf.runs) { r.left -= fdt;const s = w.squads.get(r.sq), u = w.units.get(r.to), m = cf.sq.get(r.sq)?.list;if (!s || !u || !m?.length || r.left <= 0) { r.left = 0; continue; } jobs.runs.push({r, m, u, c: R.CRAFT[s.craft], key: s.craft, col: voyBoltCol(w, s.side), gun: craftGun(w, s)}); }
+ for (const [sid, st] of cf.sq) {
+  const m = st.list;if (!m.length || st.f !== cf.f) continue;const s = w.squads.get(sid);if (!s || s.state !== 'out') continue;
+  if (s.dogfight === w.time && s.dfFoe != null) { const fm = cf.sq.get(s.dfFoe)?.list;if (fm?.length) jobs.df.push({s, m, fm, c: R.CRAFT[s.craft], col: voyBoltCol(w, s.side), gun: craftGun(w, s)}); }
+  // A recorded pass may still be visible after the craft has broken away. Only the battle's current firing
+  // window enables its lasers; the event below is retained separately for carried ordnance.
+  if (s.strafeT > w.time && s.runOn != null) { const u = w.units.get(s.runOn);if (u && R.alive(u)) jobs.runs.push({s, r: {first: false, noOrd: true}, m, u, c: R.CRAFT[s.craft], key: s.craft, col: voyBoltCol(w, s.side), gun: craftGun(w, s)}); }
+ }
+ const since = cf.runT;
+ for (const x of w.craftRuns || []) if (x.sys === sys && x.t > since) { cf.runs.push({sq: x.sq, to: x.to, left: 1.6, first: true, noOrd: Array.isArray(x.ord) || 'ord' in x}); cf.runT = Math.max(cf.runT, x.t); }
+ for (const r of cf.runs) { r.left -= fdt;const s = w.squads.get(r.sq), u = w.units.get(r.to), m = cf.sq.get(r.sq)?.list;if (!s || !u || !m?.length || r.left <= 0) { r.left = 0; continue; } jobs.runs.push({s, r, m, u, fire: false, c: R.CRAFT[s.craft], key: s.craft, col: voyBoltCol(w, s.side), gun: craftGun(w, s)}); }
  cf.runs = cf.runs.filter(r => r.left > 0);
  // point defence at craft from every ship firing it (the flown ship's own batteries are its turrets)
  for (const u of R.systemUnits(w, sys)) { if (u.manual || !R.alive(u) || u.out || w.time - (u.pdAt ?? -99) > 1 || !u.pdOn) continue; const m = cf.sq.get(u.pdOn)?.list;if (m?.length) jobs.pd.push({u, m, col: voyBoltCol(w, u.side)}); }
@@ -11162,31 +11213,64 @@ function craftOrdPoints(P) {
   else out.push([p, [255, 205, 150, 255], 4.2], [p, [255, 120, 60, 170], 10 * fl]); }
  return out;
 }
+// Mounts are in the same local frame as the craft model. Legacy combat-only craft retain a forward nose pair.
+function craftVisualGuns(a, c, mode, s) {
+ const explicit = Array.isArray(c.fireArcs), L = c.dims?.[0] || 8, W = c.dims?.[1] || 8, span = W * (W > 9 ? .45 : .18), frame = trialFrame(a.h || [1, 0, 0], a.up || [0, 1, 0]);
+ const center = fleet.assets.get(voyCraftModel(a.craft))?.geometry?.center;
+ const arcs = explicit ? c.fireArcs : (mode === 'aa' ? c.aa > 0 : (c.gun ?? c.strike) > 0) ? [-1, 1].map(sign => ({fixed: true, dir: [1, 0, 0], up: [0, 1, 0], pos: [L * .45, 0, span * sign], centered: true, k: 'claser', gun: 1, aa: 1})) : [];
+ const emptyGas = c.systems?.managed && s?.laserGas === 0, share = mode === 'aa' ? c.systems?.laserAaShare : c.systems?.laserGunShare, usesGas = g => { const d = C.FITS[g.k];return !!(d?.craft && d.tt > 0 && !d.store); };
+ return arcs.map((g, i) => ({...g, i})).filter(g => (g[mode] || 0) > 0 && (!emptyGas || (explicit ? !usesGas(g) : (share ?? 1) < 1))).slice(0, 16).map(g => {
+  const dir = tv.norm(trialApply(frame, g.dir)), up = tv.norm(trialApply(frame, g.up || [0, 1, 0])), pos = g.centered ? tv.add(a.pos, trialApply(frame, g.pos)) : center && g.pos ? tv.add(a.pos, trialApply(frame, tv.sub(g.pos, center))) : tv.add(a.pos, dir, L * .45);
+  return {...g, dir, up, pos, cycle: g.cycle || C.CRAFT_FIRE?.cycles?.[g.k] || C.CRAFT_FIRE?.defaultCycle || .12};
+ });
+}
+// Fixed barrels never turn toward a target. Their sight cone only decides whether a forward stream is warranted.
+function craftVisualGunGate(g, target, radius = 0) {
+ const d = tv.sub(target, g.pos), L = tv.len(d);if (!(L > 1)) return false;const h = tv.scale(d, 1 / L);
+ return g.fixed ? tv.dot(g.dir, h) >= Math.cos(((C.CRAFT_FIRE?.fixedCone || 8) * Math.PI / 180) + Math.atan2(Math.max(0, radius), L)) : tv.dot(g.up, h) >= -.02;
+}
+function craftGunPulses(a, index, dt, cycle) {
+ if (!(dt > 0)) return 0;const clocks = a.gunClocks || (a.gunClocks = []);
+ let v = clocks[index];if (!Number.isFinite(v)) { const seed = String(a.id ?? a.cid ?? 0);let h = 0;for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;v = ((h % 997) / 997 + index * .61803398875) % 1; }
+ v += dt / Math.max(.03, cycle);const n = Math.floor(v);clocks[index] = v - n;return Math.min(4, n);
+}
+// A forward shot flashes only when its segment actually crosses the target's hull, never at an arbitrary expiry.
+function craftBoltHullHit(u, from, to) {
+ if (!u || !R.alive(u)) return null;const sh = craftShip(u), H = C.hullShape(u.p), p = trialApplyT(sh.R, tv.sub(from, sh.c)), q = trialApplyT(sh.R, tv.sub(to, sh.c)), d = tv.sub(q, p), half = [H.hx + 2, H.hy + 2, H.hz + 2];let lo = 0, hi = 1;
+ for (let i = 0; i < 3; i++) { if (Math.abs(d[i]) < 1e-9) { if (Math.abs(p[i]) > half[i]) return null;continue; } let a = (-half[i] - p[i]) / d[i], b = (half[i] - p[i]) / d[i];if (a > b) [a, b] = [b, a];lo = Math.max(lo, a);hi = Math.min(hi, b);if (lo > hi) return null; }
+ for (let i = 0; i <= 16; i++) { const t = lo + (hi - lo) * i / 16, l = tv.add(p, d, t);if (C.hullIn(H, l, 2) >= 0) return tv.add(from, tv.sub(to, from), t); }return null;
+}
 // The craft's guns and the point defence firing at them, for the 3D view: only near the camera, and only so many
 // bolts a frame. jobs.df: a squadron's craft (m) shooting at another's (fm); jobs.runs: craft strafing (bombers:
 // torpedoes and bombs first) ship u; jobs.pd: ship u firing at craft m. Then the bolts fly and the craft hit blow up.
 // v22 Fighters fire from their guns (paired, from the nose and the wings), each in its faction's voice; the run opens
 // with the ordnance the craft carries.
 function craftFx(B, cf, fdt, eye, jobs) {
- const NEAR2 = 9000 * 9000, near = p => (p[0] - eye[0]) ** 2 + (p[1] - eye[1]) ** 2 + (p[2] - eye[2]) ** 2 < NEAR2, bolts = trial.cbolts || (trial.cbolts = []);let budget = 70;cf.ord = cf.ord || [];
- const shoot = (from, to, tvel, col, o) => { if (budget <= 0 || bolts.length > 1100) return; budget--; const sp = o.sp || 3400, d0 = tv.sub(to, from), tof = Math.min(2, tv.len(d0) / sp), m = o.miss, aim = tv.add(tv.add(to, tvel || [0, 0, 0], tof), [(Math.random() - .5) * m, (Math.random() - .5) * m, (Math.random() - .5) * m]), d = tv.sub(aim, from), L = tv.len(d); if (L < 1) return; bolts.push({pos: from, vel: tv.add(o.base || [0, 0, 0], tv.scale(d, sp / L)), life: Math.min(2.2, L / sp + (o.over || 0)), len: o.len || 14, size: o.size || 2, col, hit: o.hit || null, torp: o.torp || false}); };
+ if (trial.paused) return;
+ const NEAR2 = 9000 * 9000, near = p => (p[0] - eye[0]) ** 2 + (p[1] - eye[1]) ** 2 + (p[2] - eye[2]) ** 2 < NEAR2, bolts = trial.cbolts || (trial.cbolts = []), frame = cf.fireFrame = (cf.fireFrame || 0) + 1;let budget = 70;cf.ord = cf.ord || [];
+ const shoot = (from, to, tvel, col, o) => { if (budget <= 0 || bolts.length >= 1100) return false;const sp = o.sp || 3400, d0 = tv.sub(to, from), tof = Math.min(2, tv.len(d0) / sp), m = o.miss || 0, aim = o.dir ? null : tv.add(tv.add(to, tvel || [0, 0, 0], tof), [(Math.random() - .5) * m, (Math.random() - .5) * m, (Math.random() - .5) * m]), d = o.dir || tv.sub(aim, from), L = tv.len(d0);if (L < 1 || tv.len(d) < 1e-6) return false;budget--;bolts.push({pos: from, vel: tv.add(o.base || [0, 0, 0], tv.scale(tv.norm(d), sp)), life: Math.min(2.2, L / sp + (o.over || 0) + (o.dir ? .2 : 0)), len: o.len || 14, size: o.size || 2, col, hit: o.hit || null, torp: o.torp || false});return true; };
  const pick = a => a?.length ? a[Math.floor(Math.random() * a.length)] : null;
  const noise = (n, k) => { if (!(fdt > 0) || B.result) return 0; const e = n * k * fdt; return Math.floor(e) + (Math.random() < e % 1 ? 1 : 0); };
  let sndN = 0;const pew = (p, name, g, pitch) => { if (sndN++ > 1 || performance.now() - cf.snd < 90) return; cf.snd = performance.now(); sndAt(sndPick(name, 'laser_light'), p, {gain: g ?? .45, near: 300, far: 6000, pitch}); };
- // the guns of craft a: a linked pair from either side of the nose (wingtips for the wide-winged)
- const guns = (a, c, at, tvel, col, o, gun) => { const h = a.h || [1, 0, 0], upv = a.up || [0, 1, 0], rt = tv.cross(h, upv), sp = (c.dims?.[1] || 8) * (c.dims?.[1] > 9 ? .45 : .18), nose = tv.add(a.pos, h, (c.dims?.[0] || 8) * .45), fl = (a.gunF = (a.gunF || 0) + 1) & 1 ? 1 : -1;
-  o.base = a.vel; shoot(tv.add(nose, rt, sp * fl), at, tvel, col, o); if (Math.random() < .6) shoot(tv.add(nose, rt, -sp * fl), at, tvel, col, o); pew(a.pos, gun, undefined, craftGunPitch(a.craft)); };
- for (const {m, fm, c, col, gun} of jobs.df) { if (!near(m[0].pos)) continue; const heavy = (c.strike || 0) > 150, k = noise(m.length, .9 * Math.min(1.6, c.aa || .5)), o = {sp: 5200, miss: 60, len: heavy ? 18 : 14, size: heavy ? 2.4 : 1.9};
-  for (let i = 0; i < k; i++) { const a = pick(m), t = pick(fm); guns(a, c, t.pos, t.vel, col, o, gun); } }
- for (const {r, m, u, c, key, col, gun} of jobs.runs) { if (!near(m[0].pos)) continue; const uv = spaceVel(u);
-  if (r.first) { r.first = false; const ord = r.noOrd ? [] : craftOrd(key || m[0].craft);
+ // Every craft owns staggered barrel clocks: a steady stream at either frame rate, without a burst backlog.
+ const guns = (a, c, at, tvel, col, o, gun, mode, s, radius) => {
+  if (!(fdt > 0) || B.result || a.gunFxFrame === frame || !near(a.pos)) return;let used = false, fired = false;
+  for (const g of craftVisualGuns(a, c, mode, s)) { if (!craftVisualGunGate(g, at, radius)) continue;used = true;const n = craftGunPulses(a, g.i, fdt, g.cycle);
+   for (let i = 0; i < n; i++) fired = shoot(g.pos, at, tvel, g.k === 'cion' ? [175, 215, 255] : col, {...o, base: a.vel, ...(g.fixed ? {dir: g.dir} : {})}) || fired;
+  }
+  if (used) a.gunFxFrame = frame;if (fired) pew(a.pos, gun, undefined, craftGunPitch(a.craft));
+ };
+ for (const {s, m, fm, c, col, gun} of jobs.df) { if (!m.length || !fm.length || !near(m[0].pos)) continue;const heavy = (c.strike || 0) > 150, o = {sp: 5200, miss: 24, len: heavy ? 18 : 14, size: heavy ? 2.4 : 1.9};
+  for (let i = 0; i < m.length; i++) { const a = m[i], t = fm[(i + (a.cid || 0)) % fm.length];guns(a, c, t.pos, t.vel, col, o, gun, 'aa', s, Math.max(4, t.size || 10)); } }
+ for (const {s, r, m, u, c, key, col, gun, fire} of jobs.runs) { if (!m.length || !near(m[0].pos)) continue; const uv = spaceVel(u);
+  if (r.first && fdt > 0 && !B.result) { r.first = false; const ord = r.noOrd ? [] : craftOrd(key || m[0].craft);
    if (ord.length) { let n = 0; for (const a of m) { if (n > 24) break; const x = ord[(a.k || 0) % ord.length], per = x.mount === 'bay' ? Math.min(4, x.n) : Math.min(2, x.n); for (let j = 0; j < per; j++) { craftOrdLaunch(cf, a, u, x.kind, j * (x.mount === 'bay' ? .13 : .09) + (a.k || 0) * .05); n++; } } } }
-  const k = noise(m.length, c.role === 'bomber' ? 2.5 : 6);for (let i = 0; i < k; i++) { const a = pick(m); guns(a, c, spaceHullPoint(u, .35), uv, col, {sp: 4800, miss: 6, len: 14, size: 2, hit: u}, gun); } }
+  if (fire !== false) { const at = spaceWorld(u), radius = Math.max(u.p.len || 0, u.p.width || 0, u.p.height || 0) * .5;for (const a of m) guns(a, c, at, uv, col, {sp: 4800, miss: 6, len: 14, size: 2, hit: u}, gun, 'gun', s, radius); } }
  for (const {u, m, col} of jobs.pd) { const at = spaceWorld(u);if (!near(at)) continue; const k = noise(1, Math.min(14, 1 + Math.sqrt(Math.max(0, u.p.aa || 0)) * .9)), o = {sp: 3600, miss: 90, len: 34, size: 3, base: spaceVel(u), over: .25};
   for (let i = 0; i < k; i++) { const t = pick(m); shoot(spaceHullPoint(u, .4), t.pos, t.vel, col, o); pew(t.pos, 'point_defense', .35); } }
  // the bolts: lasers flash where they strike a ship; torpedoes and bombs burst on it
- for (const b of bolts) { b.pos = tv.add(b.pos, b.vel, fdt); b.life -= fdt;
-  if (b.life <= 0 && b.hit) { const sh = b.hit.shield > 0, L = b.torp ? 26 : 7, hv = spaceVel(b.hit); trial.fx.push({pos: b.pos, vel: hv, life: b.torp ? .7 : .25, max: b.torp ? .7 : .25, size: L * (b.torp ? 2 : 1.4), col: sh ? [130, 195, 255] : [255, 190, 110]}); } }
+ for (const b of bolts) { const prev = b.pos;b.pos = tv.add(b.pos, b.vel, fdt);b.life -= fdt;const impact = b.hit && craftBoltHullHit(b.hit, prev, b.pos);
+  if (impact) { b.life = 0;const sh = b.hit.shield > 0, L = b.torp ? 26 : 7, hv = spaceVel(b.hit); trial.fx.push({pos: impact, vel: hv, life: b.torp ? .7 : .25, max: b.torp ? .7 : .25, size: L * (b.torp ? 2 : 1.4), col: sh ? [130, 195, 255] : [255, 190, 110]}); } }
  trial.cbolts = bolts.filter(b => b.life > 0);
  craftOrdStep(cf, fdt, eye);
  // craft hit by the bolt that got them: they blow up as it arrives
