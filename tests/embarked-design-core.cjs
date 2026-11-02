@@ -22,11 +22,12 @@ test('live and engine-serialized designs produce the same persistent model witho
  assert.equal(live.blueprint.parts.find(p=>p.id===3).wing.pivot[0],40);
  ship.parts[2].c[0]+=1;assert.equal(live.blueprint.parts.find(p=>p.id===3).c[0],40);ship.parts[2].c[0]-=1;
 });
-test('carrier rows round trip their exact model, dimensions and flight hierarchy',()=>{
+test('fleet rows preserve their exact model and hierarchy while carrier blueprints stay empty',()=>{
  const design=C.designCraftSnapshot(ship,stats,'save:corvette'),before=C.publicJSON(ship);
  const rows=C.normalizeAirWings([{id:'custom',name:'Custom',count:4,design,groupNo:2,wingNo:3}]);
  const carrier=C.newShip({L:500,W:200,H:100},'Carrier');carrier.airWings=rows;
- const restored=C.deserialize(JSON.parse(JSON.stringify(C.serialize(carrier)))).airWings[0];
+ assert.deepEqual(plain(C.deserialize(JSON.parse(JSON.stringify(C.serialize(carrier)))).airWings),[]);
+ const restored=C.normalizeAirWings(JSON.parse(JSON.stringify(rows)))[0];
  assert.ok(restored.design.blueprint);assert.equal(restored.groupNo,2);assert.equal(restored.wingNo,3);assert.equal(restored.count,4);
  assert.deepEqual(plain(restored.dims),plain(design.dims));assert.equal(C.publicJSON(ship),before);
 });
