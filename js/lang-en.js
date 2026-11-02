@@ -8543,6 +8543,33 @@ Object.assign(root.KS_EN.messages,{
 "蓄熱が限界に近く、射撃を抑えています。": "Heat stores near their limit: fire is held back.",
 "TIE の太陽電池翼のように、片面で集電して艦の発電に加わり、両面で外装型の散逸装置として熱を放出します（架空技術）。外に出ているので被弾すると失われます。面積に比例します。": "Like a TIE's solar wing, it collects power over one face (added to the ship's generation) and sheds heat over both faces as an external dissipator (fictional technology). Being outside, it is lost when hit. Both scale with its area."
 });
+// Direct radiator wings share the editable wing shape; no separate external box is required.
+Object.assign(root.KS_EN.terms,{
+"構造材": "Structural Material",
+"散熱主翼": "Radiator Wing",
+"Sフォイル（散熱主翼）": "S-foil (Radiator Wing)",
+"太陽電池・散熱翼": "Solar Radiator Wing",
+"翼そのものの散熱方式": "Wing Dissipation Mode",
+"高エネルギー散熱": "High-energy Dissipation",
+"通常放熱（低温）": "Low-temperature Radiation",
+"最大散熱能力（展開）": "Max Dissipation (Deployed)",
+"最大散熱能力（収納）": "Max Dissipation (Stowed)",
+"主翼の質量": "Wing Mass",
+"主翼の散熱方式": "Wing Dissipation Mode",
+"散熱主翼にする": "Make a Radiator Wing",
+"太陽電池・散熱翼にする": "Make a Solar Radiator Wing"
+});
+Object.assign(root.KS_EN.messages,{
+"主翼そのものの両面で廃熱を放出します。": "The wing itself releases waste heat through both faces.",
+"主翼そのものの両面で廃熱を放出します。翼の輪郭・厚さ・散熱方式を編集できます。": "The wing itself releases waste heat through both faces. Edit its outline, thickness and dissipation mode.",
+"翼の両面が散熱面です。内部に別の外装式装置を置く必要はありません。配置後にSフォイルや太陽電池翼へ変更できます。": "Both faces of the wing dissipate heat. No separate external device is needed inside it. After placing it, you can convert it to an S-foil or solar wing.",
+"散熱主翼にすると、この翼の両面が散熱面になり、廃熱を放出します。翼の内部に外装式の散逸装置を置く必要はありません。": "Making this a radiator wing lets both faces release waste heat. No separate external dissipator is needed inside the wing.",
+"高エネルギー散熱は反応炉・武装・推進の廃熱も扱います。通常放熱は生活設備などの低温の廃熱を扱います。能力は翼の散熱面積に応じます。": "High-energy dissipation also handles waste heat from reactors, weapons and engines. Low-temperature radiation handles heat from systems such as life support. Capacity depends on the wing's radiating surface area.",
+"TIE の太陽電池翼のように、片面で集電して艦の発電に加わり、翼そのものの両面で熱を放出します（架空技術）。外に出ているので被弾すると失われます。面積に比例します。": "Like a TIE's solar wings, one face collects power for the ship and both faces of the wing release heat (fictional technology). Exposed wings can be lost to enemy fire. Output scales with area.",
+"形は展開状態で作ります。収納すると主翼の散熱面がふさがれて最大散熱能力が下がり、赤外・電磁の放射の一部が隠れます。負荷が収納時の能力以下なら実際の散熱量（と放射）は変わりません。": "Build the shape deployed. Stowing covers the wing's radiating surfaces, reduces maximum dissipation and hides some infrared and EM emissions. If the load stays within the stowed capacity, actual heat dissipation and emissions stay the same.",
+"翼の形は「編集」タブの頂点編集で変えられます。蓄電池や構造維持装置などは翼内に配置できます。": "Edit the wing's shape with vertex editing in the Edit tab. Power cells, structural integrity units and other equipment can be placed inside the wing.",
+"寸法は小数で入力でき、ゲージでは0.01 mずつ調整できます。全幅・全高は船体の型の比率から始まり、個別に調整できます。設計中も「船体」タブで変更できます。": "Enter decimal dimensions or adjust the sliders in 0.01 m steps. Beam and height start at the hull type's proportions and can be adjusted separately. You can also change them in the Hull tab while designing."
+});
 // </wing-catalog>
 // <embarked-design-catalog> Shared aircraft/small-ship assignments and air hierarchy.
 Object.assign(root.KS_EN.terms,{

@@ -16,7 +16,7 @@ for (const key of Object.keys(C.SHIP_EXAMPLES).sort()) {
   const type = C.craftTypeOf(key);
   if (!type || !R.CRAFT[type] || entries[type]) continue;
   const ship = C.buildDesign(key), stats = C.computeStats(ship), price = C.designCost(stats);
-  entries[type] = {reference: key, signature: C.costSignature({modelSignature, blueprint: C.serialize(ship)}), ...price, systems: C.cleanCraftSystems(stats.craftSystems)};
+  entries[type] = {reference: key, signature: C.costSignature({modelSignature, blueprint: C.serialize(ship)}), ...price, systems: C.cleanCraftSystems(stats.craftSystems), heat: C.cleanCraftHeat(C.craftHeat(stats))};
 }
 const catalog = {modelVersion: C.COST_MODEL.version, modelSignature, entries};
 const first = '// BEGIN GENERATED CRAFT PRICES — scripts/update-craft-costs.cjs';
