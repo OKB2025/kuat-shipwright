@@ -701,14 +701,16 @@ vec2 shipLights(vec3 ns){
 void main(){
 if(uClipOn>0.5&&(vS.x>uClip.x||vS.y>uClip.y||vS.z>uClip.z||vS.x<uClipLo.x||vS.y<uClipLo.y||vS.z<uClipLo.z))discard;
 vec3 n=normalize(vN);vec3 tx=texture2D(uTex,vUv).rgb;float mask=max(max(texture2D(uEmiTex,vUv).r,texture2D(uEmiTex,vUv).g),texture2D(uEmiTex,vUv).b);float lit=smoothstep(0.035,0.18,mask);if(uReference>0.5&&uReference<1.5)tx=mix(tx,vec3(0.48,0.50,0.51),lit);if(uReference>0.5){bool red=tx.r>tx.g*1.35&&tx.r>tx.b*1.25;if(uPaint<0.5&&red)tx=vec3(min(0.8,tx.r*1.3));if(uPaint>1.5)tx*=uReference>1.5?mix(0.62,1.0,lit):0.62;else if(uPaint>0.5&&uRefHull>0.5&&vS.x>uHullLength*.52&&abs(vS.z)<(uHullLength-vS.x)*.065&&n.y>.4)tx*=vec3(.7,.28,.31);}
-vec3 vc=uReference>0.5?vCol.rgb*2.0:vCol.rgb;vec3 base=vc*vc*tx*tx;float ao=vCol.a;
+// Vertex byte 254 marks non-habitable solar surfaces; their frame shares the same material flag.
+bool solarSurface=vCol.a>253.5/255.0&&vCol.a<254.5/255.0;
+vec3 vc=uReference>0.5?vCol.rgb*2.0:vCol.rgb;vec3 base=vc*vc*tx*tx;float ao=solarSurface?1.0:vCol.a;
 float ef=1.0;
 if(!gl_FrontFacing){n=-n;ef=0.0;if(uBack<0.5){base=vec3(0.085,0.092,0.10);}else{base*=0.62;}}
 vec3 amb=mix(uGnd,uSky,n.y*0.5+0.5)*ao;float d1=max(dot(n,uL1),0.0);float d2=max(dot(n,uL2),0.0);
 float sh=1.0;if(uShK.x>0.5&&d1>0.0)sh=shadowK(normalize(vNS)*(gl_FrontFacing?1.0:-1.0),d1);d1*=sh;
 vec3 V=normalize(uEye-vW);vec3 H=normalize(uL1+V);float sp=pow(max(dot(n,H),0.0),40.0)*0.22*ao*ef*sh;
 vec3 c=base*(amb+uC1*d1*(0.6+0.4*ao)+uC2*d2*ao)+uC1*sp;vec3 e=texture2D(uEmiTex,vUv).rgb;if(uEmiTint.w>0.5){float l=dot(e,vec3(0.3,0.5,0.2));e=mix(uEmiTint.rgb*min(1.0,l*1.3),vec3(l),smoothstep(0.86,1.0,l)*0.7);}c+=e*e*uEmi*ef;
-if(uLightK>0.0&&ef>0.5){vec2 pl=shipLights(normalize(vNS));c*=1.0-0.5*pl.y;float lk=uLightK*pl.x;c=mix(c,uLightCol,clamp(lk,0.0,1.0))+uLightCol*(max(0.0,lk-1.0)*0.25);}
+if(uLightK>0.0&&ef>0.5&&!solarSurface){vec2 pl=shipLights(normalize(vNS));c*=1.0-0.5*pl.y;float lk=uLightK*pl.x;c=mix(c,uLightCol,clamp(lk,0.0,1.0))+uLightCol*(max(0.0,lk-1.0)*0.25);}
 // A wreck: plating scorched in patches, and the edges where it broke glowing hot.
 if(uChar>0.0){float sc=hash12(floor(vS.xz/9.0))*0.5+hash12(floor(vS.xy/23.0+vec2(3.0)))*0.5;c*=1.0-uChar*(0.45+0.4*sc);}
 if(uSeam.w>0.0){float sd=min(abs(vS.x-uSeam.x),abs(vS.x-uSeam.y)),g=uSeam.w*(1.0-smoothstep(0.0,uSeam.z,sd))*(0.75+0.25*hash12(floor(vS.yz/4.0)));c=c*(1.0-0.6*g)+vec3(1.0,0.42,0.12)*g*1.6;}
@@ -1620,6 +1622,7 @@ function lineSet() {
       const skin=pt.k==='engine'&&C.engineSkinMesh(pt);
       if(skin){const f=C.frameAxis(skin.u),e0=C.add(pt.c,C.mul(skin.u,skin.t0)),e1=C.add(pt.c,C.mul(skin.u,skin.t1)),r=skin.rad*1.02;for(const e of [e0,e1])this.circle(e,f.v,f.w,r,c,32);for(const a of [0,Math.PI/2,Math.PI,Math.PI*1.5]){const q=C.add(C.mul(f.v,Math.cos(a)*r),C.mul(f.w,Math.sin(a)*r));this.seg(C.add(e0,q),C.add(e1,q),c);}return;}
       if(sh==='cyl'||sh==='engine'){const m=C.partDims(pt),f=C.frameAxis(pt.dir||[1,0,0]);for(const sg of [-1,1])this.circle(C.add(pt.c,C.mul(f.u,sg*m.l/2)),f.v,f.w,m.rad,c,32);for(const a of [0,Math.PI/2,Math.PI,Math.PI*1.5]){const r=C.add(C.mul(f.v,Math.cos(a)*m.rad),C.mul(f.w,Math.sin(a)*m.rad));this.seg(C.add(C.sub(pt.c,C.mul(f.u,m.l/2)),r),C.add(C.add(pt.c,C.mul(f.u,m.l/2)),r),c);}return;}
+      if(pt.k==='solarPanel'){const H=C.foilHandles(pt);this.poly(H.points,H.edges,c);return;}
       if(C.isShapePart(pt)||pt.room){const T=C.structTriangles(pt.room?C.roomShape(pt):pt);for(let i=0;i<T.length;i+=9){const a=Array.from(T.slice(i,i+3)),b=Array.from(T.slice(i+3,i+6)),d=Array.from(T.slice(i+6,i+9));this.seg(a,b,c);this.seg(b,d,c);this.seg(d,a,c);}return;}
       this.box(C.partAABB(pt), c);
     },
@@ -1670,13 +1673,13 @@ function shipBounds(ship) {
   if (!isFinite(b[1])) { b[1] = 0; b[4] = ship.hull.H; b[2] = -ship.hull.W / 2; b[5] = ship.hull.W / 2; }
   return b;
 }
-function triangleMesh(g,T,col,scale=48){
+function triangleMesh(g,T,col,scale=48,alpha=255){
   // Allocation-free flat-shaded triangles (same output as the per-vertex path).
   const nt=Math.floor(T.length/9);if(!nt)return;g.room(nt*3,nt*3);
   for(let i=0;i<nt*9;i+=9){
     const ax=T[i],ay=T[i+1],az=T[i+2],bx=T[i+3],by=T[i+4],bz=T[i+5],cx=T[i+6],cy=T[i+7],cz=T[i+8];
     const ux=bx-ax,uy=by-ay,uz=bz-az,vx=cx-ax,vy=cy-ay,vz=cz-az;let nx=uy*vz-uz*vy,ny=uz*vx-ux*vz,nz=ux*vy-uy*vx;const l=Math.hypot(nx,ny,nz)||1;if(Math.abs(l-1)>=1e-12){nx/=l;ny/=l;nz/=l;}
-    const k=g.n;g.v(ax,ay,az,nx,ny,nz,ax/scale,(ay+az)/scale,col,255);g.v(bx,by,bz,nx,ny,nz,bx/scale,(by+bz)/scale,col,255);g.v(cx,cy,cz,nx,ny,nz,cx/scale,(cy+cz)/scale,col,255);g.tri(k,k+1,k+2);
+    const k=g.n;g.v(ax,ay,az,nx,ny,nz,ax/scale,(ay+az)/scale,col,alpha);g.v(bx,by,bz,nx,ny,nz,bx/scale,(by+bz)/scale,col,alpha);g.v(cx,cy,cz,nx,ny,nz,cx/scale,(cy+cz)/scale,col,alpha);g.tri(k,k+1,k+2);
   }
 }
 function axisFrustum(g,a,b,r0,r1,col,caps=true,inward=false,segments=32){
@@ -1706,8 +1709,8 @@ function v3MeshParts(ship,opt){
 function meshOnePart(out,p,ship,opt,glow){
     const k=p.k,d=C.PARTS[k],color=opt.info?.[p.id]?.overlap?[240,91,85]:(opt.coded?d.col:PAINT);
     if(k==='solarPanel'){
-      triangleMesh(out.struct,C.structTriangles(p),opt.coded?d.col:p.paint?hex(p.paint):[35,43,57],10);
-      triangleMesh(out.struct,C.aeroPanelRibs(p),[154,161,169],48);return;
+      triangleMesh(out.struct,C.structTriangles(p),opt.coded?d.col:p.paint?hex(p.paint):[35,43,57],10,254);
+      triangleMesh(out.struct,C.aeroPanelRibs(p),[154,161,169],48,254);return;
     }
     if(k==='wing'){triangleMesh(out.struct,C.structTriangles(p),opt.coded?d.col:p.paint?hex(p.paint):STRUCT_PAINT,36);return;}
     if(k==='struct'&&(p.form==='reference'&&C.REFERENCE_ASSETS[p.skinAsset]||(p.form==='ellipsoid'&&ship.hullSkin?.enabled)))return;

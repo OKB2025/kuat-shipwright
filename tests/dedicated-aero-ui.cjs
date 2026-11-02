@@ -27,6 +27,7 @@ function setup(){
   ['function seg(','function silhouette('],
   ['function partCard(','function fitBtn('],
   ['function unalignedPartPreview(','function notchBox('],
+  ['const TEMPLATE_SKIP =','function applyFitTemplate('],
   ['function wingControls(','function sensorBandControls('],
   ['function v3PartEditor(){','function fitPositionSliders('],
   ['function partEditor(){','function bindRealism(){'],
@@ -54,11 +55,11 @@ test('the normal catalogue cards place two distinct aero kinds with fractional d
 test('solar placement offers an actual six-corner face with editable ribs and fold',()=>{
  const run=setup();run("selectAeroPart('solarPanel')");
  assert.equal(run('st.structOutline.length'),6);assert.equal(run('st.structRoll'),90);
- run("input('newAeroPanelFrame',.012,.005,.5);input('newAeroPanelRib',.007,.005,.5);input('newAeroPanelFold',32,-80,80);input('newAeroPanelKnee',42,0,90);installPreview()");
+ run("click({newaerobracing:'spar'});input('newAeroPanelFrame',.012,0,.5);input('newAeroPanelRib',.007,0,.5);input('newAeroPanelFold',32,-80,80);input('newAeroPanelKnee',42,0,90);input('newAeroPanelSparX',-17,-50,50);installPreview()");
  const p=plain(run('C.serialize(ship).parts[0]'));
- assert.equal(p.panelFrame,.012);assert.equal(p.panelRib,.007);assert.equal(p.panelFold,32);assert.equal(p.panelKnee,.42);
+ assert.equal(p.panelFrame,.012);assert.equal(p.panelRib,.007);assert.equal(p.panelFold,32);assert.equal(p.panelKnee,.42);assert.equal(p.panelBracing,'spar');assert.equal(p.panelSparX,-.17);
  const restored=plain(run('C.serialize(C.deserialize(C.serialize(ship))).parts[0]'));
- for(const k of ['k','s','outline','panelFrame','panelRib','panelFold','panelKnee'])assert.deepEqual(restored[k],p[k],k);
+ for(const k of ['k','s','outline','panelFrame','panelRib','panelFold','panelKnee','panelBracing','panelSparX'])assert.deepEqual(restored[k],p[k],k);
 });
 
 test('wing planforms can change without losing the airfoil section or dedicated kind',()=>{
@@ -85,11 +86,32 @@ test('the chordwise section diagram uses the physical six-vertex airfoil and lab
 
 test('TIE panel presets provide concave interceptor and folded bomber shapes with undo',()=>{
  const run=setup();run("selectAeroPart('solarPanel');installPreview();click({aeropreset:'interceptor',aeronew:'no'})");
- assert.equal(run('selItem().k'),'solarPanel');assert.equal(run('C.validOutline(selItem().outline)'),true);assert.ok(run('selItem().outline.length')>6);
- const interceptor=plain(run('selItem().outline'));
- run("click({aeropreset:'bomber',aeronew:'no'})");assert.equal(run('selItem().panelFold'),30);assert.equal(run('selItem().outline.length'),6);
- run('undo()');assert.deepEqual(plain(run('selItem().outline')),interceptor);assert.equal(run('selItem().panelFold'),0);
- const loaded=plain(run('C.serialize(C.deserialize(C.serialize(ship))).parts[0]'));assert.equal(loaded.k,'solarPanel');assert.deepEqual(loaded.outline,interceptor);
+ assert.equal(run('selItem().k'),'solarPanel');assert.equal(run('C.validOutline(selItem().outline)'),true);assert.equal(run('selItem().outline.length'),22);
+ const interceptor=plain(run('C.serialize(ship).parts[0]')),IN=plain(C.solarPanelPreset('interceptor')),SA=plain(C.solarPanelPreset('bomber'));
+ assert.equal(interceptor.panelBracing,'spar');assert.ok(interceptor.panelSparX<0);assert.ok(interceptor.panelFold< -35);assert.equal(interceptor.s[1],interceptor.s[0]*IN.aspect);
+ assert.equal(interceptor.panelFrame,interceptor.s[0]*IN.frameRatio);assert.equal(interceptor.panelRib,interceptor.s[0]*IN.ribRatio);
+ run("click({aeropreset:'bomber',aeronew:'no'})");const bomber=plain(run('C.serialize(ship).parts[0]'));
+ assert.equal(bomber.outline.length,12);assert.equal(bomber.s[0],interceptor.s[0]);assert.equal(bomber.s[2],interceptor.s[2]);assert.equal(bomber.s[1],bomber.s[0]*SA.aspect);
+ assert.equal(bomber.panelFold,SA.panelFold);assert.ok(bomber.panelFold< -35);assert.ok(bomber.panelSparX>0);assert.equal(bomber.panelBracing,'spar');
+ run('undo()');assert.deepEqual(plain(run('C.serialize(ship).parts[0]')),interceptor);
+ const loaded=plain(run('C.serialize(C.deserialize(C.serialize(ship))).parts[0]'));assert.equal(loaded.k,'solarPanel');assert.deepEqual(loaded.outline,interceptor.outline);assert.equal(loaded.panelSparX,interceptor.panelSparX);
+});
+
+test('the signed main-spar gauge persists one drag transaction and frame widths can be zero',()=>{
+ const run=setup();run("selectAeroPart('solarPanel');installPreview();click({aerobracing:'spar'})");const before=plain(run('C.serialize(ship).parts[0]')),steps=run('undoStack.length');
+ run("input('aeroPanelSparX',-24,-50,50);input('aeroPanelSparX',-26,-50,50);change('aeroPanelSparX')");
+ assert.equal(run('undoStack.length'),steps+1);assert.equal(run('selItem().panelSparX'),-.26);assert.equal(run('C.deserialize(C.serialize(ship)).parts[0].panelSparX'),-.26);
+ run('undo()');assert.equal(run('selItem().panelSparX'),before.panelSparX);run('redo()');assert.equal(run('selItem().panelSparX'),-.26);
+ run("input('aeroPanelFrame',0,0,.5);change('aeroPanelFrame');input('aeroPanelRib',0,0,.5);change('aeroPanelRib');click({aerobracing:'none'})");
+ const p=plain(run('C.serialize(C.deserialize(C.serialize(ship))).parts[0]'));assert.equal(p.panelFrame,0);assert.equal(p.panelRib,0);assert.equal(p.panelBracing,'none');
+ assert.equal(run('C.aeroPanelRibs(selItem()).length'),0);assert.match(run('aeroShapeControls(selItem(),true)'),/data-aerobracing="none" aria-pressed="true"/);
+});
+
+test('copying a panel into placement keeps its measured outline and chosen spar settings',()=>{
+ const run=setup();run("selectAeroPart('solarPanel');click({aeropreset:'interceptor',aeronew:'yes'});installPreview();input('aeroPanelSparX',-31,-50,50);change('aeroPanelSparX')");
+ const before=plain(run('C.serialize(ship).parts[0]'));run('carryToPlace();installPreview()');const copy=plain(run('C.serialize(ship).parts.at(-1)'));
+ for(const k of ['k','s','outline','panelFold','panelKnee','panelBracing','panelSparX','panelFrame','panelRib'])assert.deepEqual(copy[k],before[k],k);
+ assert.notEqual(copy.id,before.id);
 });
 
 test('solar rib and folding controls create one normal undo transaction and persist',()=>{
@@ -140,13 +162,17 @@ test('individual outline vertices can move, split and persist without changing t
 test('baking a folded solar panel for free vertex editing preserves its kind and physical bounds',()=>{
  const run=setup();run("selectAeroPart('solarPanel');click({aeropreset:'bomber',aeronew:'yes'});installPreview()");
  const before=plain(run('C.serialize(ship).parts[0]')),bounds=plain(run('C.partAABB(selItem())'));
- assert.equal(before.panelFold,30);run("click({meshconvert:''})");
+ assert.equal(before.panelFold,C.solarPanelPreset('bomber').panelFold);run("click({meshconvert:''})");
  assert.equal(run('selItem().k'),'solarPanel');assert.equal(run('selItem().form'),'mesh');assert.ok(run('selItem().mesh.v.length')>6);
  const baked=plain(run('C.partAABB(selItem())'));
  bounds.forEach((v,i)=>assert.ok(Math.abs(v-baked[i])<1e-4,`baked bound ${i}: ${baked[i]} != ${v}`));
  const loaded=plain(run('C.partAABB(C.deserialize(C.serialize(ship)).parts[0])'));
  baked.forEach((v,i)=>assert.ok(Math.abs(v-loaded[i])<1e-4,`loaded bound ${i}`));
- assert.equal(run('undoStack.length'),1);assert.equal(run('JSON.parse(undoStack[0]).parts[0].panelFold'),30);
- run('undo()');assert.equal(run('selItem().form'),'outline');assert.equal(run('selItem().panelFold'),30);
+ assert.equal(run('undoStack.length'),1);assert.equal(run('JSON.parse(undoStack[0]).parts[0].panelFold'),before.panelFold);
+ run('undo()');assert.equal(run('selItem().form'),'outline');assert.equal(run('selItem().panelFold'),before.panelFold);
  run('redo()');assert.equal(run('selItem().form'),'mesh');assert.equal(run('selItem().k'),'solarPanel');
+ assert.match(run('aeroShapeControls(selItem(),true)'),/data-sl="aeroPanelSparX"/);
+ const ribs=plain(run('Array.from(C.aeroPanelRibs(selItem()))'));run("input('aeroPanelSparX',-10,-50,50);change('aeroPanelSparX')");
+ assert.equal(run('selItem().panelSparX'),-.1);assert.notDeepEqual(plain(run('Array.from(C.aeroPanelRibs(selItem()))')),ribs);
+ run('undo()');assert.equal(run('selItem().panelSparX'),before.panelSparX);
 });

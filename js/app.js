@@ -2473,7 +2473,7 @@ function unalignedPartPreview(hit) {
     const [l, w, hh] = st.structSize, n = hit.n, ax = Math.abs(n[1]) >= Math.abs(n[2]) && Math.abs(n[1]) >= Math.abs(n[0]) ? 1 : Math.abs(n[2]) >= Math.abs(n[0]) ? 2 : 0;
     const ext = [l / 2, hh / 2, w / 2][ax], c = hit.p.slice();
     if (hit.kind !== 'section') c[ax] += Math.sign(n[ax] || 1) * ext * 0.6;
-    return C.alignStructure({id:-1,k,c,s:[l,w,hh],pitch:st.structPitch||0,roll:st.structRoll||0,taper:st.structTaper,form:st.structForm,skinAsset:st.structForm==='reference'?st.skinAsset:undefined,angles:st.structAngles.slice(),yaw:st.structYaw,offsetX:st.structOffsetX,offsetZ:st.structOffsetZ,...(isAeroKind(k)?{wing:C.normalizeWing({...st.structWing,...(k==='solarPanel'?{solar:true}:{})}),outline:(st.structOutline||aeroOutline(k)).map(q=>q.slice()),...(k==='solarPanel'?{panelFrame:st.panelFrame,panelRib:st.panelRib,panelFold:st.panelFold,panelKnee:st.panelKnee}:{})}:{}),...(st.structForm==='shell'?{shellCurve:st.shellCurve??1,shellThick:st.shellThick??3,shellFlip:!!st.shellFlip}:{}),...(st.structPlate?{plate:true,plateT:st.structPlateT}:st.structLight?{light:true}:{})},hit,st.surfaceMode);
+    return C.alignStructure({id:-1,k,c,s:[l,w,hh],pitch:st.structPitch||0,roll:st.structRoll||0,taper:st.structTaper,form:st.structForm,skinAsset:st.structForm==='reference'?st.skinAsset:undefined,angles:st.structAngles.slice(),yaw:st.structYaw,offsetX:st.structOffsetX,offsetZ:st.structOffsetZ,...(isAeroKind(k)?{wing:C.normalizeWing({...st.structWing,...(k==='solarPanel'?{solar:true}:{})}),outline:(st.structOutline||aeroOutline(k)).map(q=>q.slice()),...(k==='solarPanel'?{panelFrame:st.panelFrame,panelRib:st.panelRib,panelFold:st.panelFold,panelKnee:st.panelKnee,panelBracing:st.panelBracing,panelSparX:st.panelSparX}:{})}:{}),...(st.structForm==='shell'?{shellCurve:st.shellCurve??1,shellThick:st.shellThick??3,shellFlip:!!st.shellFlip}:{}),...(st.structPlate?{plate:true,plateT:st.structPlateT}:st.structLight?{light:true}:{})},hit,st.surfaceMode);
   }
   const size = pSize(k);
   let c;
@@ -2884,24 +2884,24 @@ function partCard(k, sel) {
   return `<button type="button" class="part${sel ? ' on' : ''}" data-part="${k}" aria-pressed="${sel}"><i class="sw sh-${d.shape}" style="background:${rgb(d.col)}"></i><span class="pn">${d.name}</span><span class="pd">${esc(d.desc)}</span></button>`;
 }
 function isAeroKind(k){return k==='wing'||k==='solarPanel';}
-function aeroOutline(k){return (k==='solarPanel'?(C.AERO_PANEL_OUTLINE||[[-.5,0],[-.3,-.5],[.3,-.5],[.5,0],[.3,.5],[-.3,.5]]):(C.AERO_WING_OUTLINE||[[-.5,-.5],[.5,-.5],[.3,.5],[-.25,.5]])).map(p=>p.slice());}
+function aeroOutline(k){return (k==='solarPanel'?C.solarPanelPreset('hex').outline:(C.AERO_WING_OUTLINE||[[-.5,-.5],[.5,-.5],[.3,.5],[-.25,.5]])).map(p=>p.slice());}
 function selectAeroPart(k){
  st.tab='mod';st.group=C.PARTS[k].group;st.part=k;st.partTool='place';st.sel=null;st.template=null;st.equipmentId=null;st.structPlate=false;st.structLight=false;st.structForm=k==='wing'?'airfoil':'outline';st.structTaper=0;st.structAngles=[0,0,0,0];st.structYaw=0;st.structOffsetX=0;st.structOffsetZ=0;st.structPitch=0;st.structRoll=k==='solarPanel'?90:0;delete st.skinAsset;
- st.structSize=k==='wing'?[2,4,.08]:[3,4,.08];st.structOutline=aeroOutline(k);st.structWing=C.normalizeWing({thermal:'high',feed:1,reinf:0,...(k==='solarPanel'?{solar:true}:{})});
- st.panelFrame=.06;st.panelRib=.035;st.panelFold=0;st.panelKnee=.35;
+ const preset=k==='solarPanel'?C.solarPanelPreset('hex'):null;
+ st.structSize=k==='wing'?[2,4,.08]:[3,3*preset.aspect,.08];st.structOutline=aeroOutline(k);st.structWing=C.normalizeWing({thermal:'high',feed:1,reinf:0,...(k==='solarPanel'?{solar:true}:{})});
+ st.panelFrame=.06;st.panelRib=.035;st.panelFold=0;st.panelKnee=.35;st.panelBracing='radial';st.panelSparX=0;if(preset)Object.assign(st,solarPresetSettings(preset,st.structSize[0]));
 }
 // Legacy recent selections resolve to the actual wing catalogue item.
 function wingPresetCard(){return partCard('wing',st.part==='wing');}
 function selectWingPreset(){selectAeroPart('wing');}
+function solarPresetSettings(shape,chord){return {panelFold:shape.panelFold,panelKnee:shape.panelKnee,panelBracing:shape.panelBracing,panelSparX:shape.panelSparX,...(Number.isFinite(shape.frameRatio)?{panelFrame:chord*shape.frameRatio}:{}),...(Number.isFinite(shape.ribRatio)?{panelRib:chord*shape.ribRatio}:{})};}
 function aeroPresetRows(k){return k==='solarPanel'?[['hex','六角形（TIE/ln型）'],['interceptor','切欠き形（TIE/in型）'],['bomber','折れ曲がり（TIE/sa型）']]:[['taper','先細り'],['straight','直線翼'],['swept','後退翼']];}
 function aeroPreset(k,key){
+ if(k==='solarPanel')return C.solarPanelPreset(key);
  let outline=aeroOutline(k),panelFold=0;
  if(k==='wing'){
   if(key==='straight')outline=[[-.5,-.5],[.5,-.5],[.5,.5],[-.5,.5]];
   if(key==='swept')outline=[[-.5,-.5],[.05,-.5],[.5,.5],[.05,.5]];
- }else{
-  if(key==='interceptor')outline=[[-.5,-.35],[-.35,-.5],[.5,-.5],[.15,-.15],[.15,.15],[.5,.5],[-.35,.5],[-.5,.35]];
-  if(key==='bomber')panelFold=30;
  }
  return {outline,panelFold,panelKnee:.35};
 }
@@ -2911,9 +2911,9 @@ function wingSectionDiagram(){
 }
 function aeroShapeControls(p,selected){
  const k=p.k,prefix=selected?'e':'s',panel=k==='solarPanel',mesh=selected&&p.form==='mesh',value=key=>selected?p[key]:st[key],size=selected?p.s:st.structSize;
- const frame=value('panelFrame')??Math.min(size[0],size[1])*.02,rib=value('panelRib')??frame*.6,fold=value('panelFold')??0,knee=value('panelKnee')??.35,max=Math.max(.005,Math.min(size[0],size[1])*.2),id=key=>(selected?'aero':'newAero')+key;
+ const frame=value('panelFrame')??Math.min(size[0],size[1])*.02,rib=value('panelRib')??frame*.6,fold=value('panelFold')??0,knee=value('panelKnee')??.35,bracing=value('panelBracing')??'radial',sparX=value('panelSparX')??0,max=Math.max(.005,Math.min(size[0],size[1])*.2),id=key=>(selected?'aero':'newAero')+key;
  return `<div class="pgroup aero-shape"><h4>${panel?'太陽光パネルの形':'主翼の形'}</h4>${surfaceControls(p,selected)}<div class="sliders">${slider(prefix+'yaw','回転',p.yaw||0,-180,180,1,deg(p.yaw||0))}</div>${panel?'':'<h4>平面の翼形状（上から見た輪郭）</h4>'}<div class="chips">${aeroPresetRows(k).map(([key,label])=>`<button type="button" class="chip" data-aeropreset="${key}" data-aeronew="${selected?'no':'yes'}">${label}</button>`).join('')}</div>
- ${panel?`<div class="sliders">${metreSlider(id('PanelFrame'),'縁の骨組みの幅',frame,.005,Math.max(max,frame))}${metreSlider(id('PanelRib'),'対角線の骨組みの幅',rib,.005,Math.max(max,rib))}${mesh?'':slider(id('PanelFold'),'上下パネルの折れ角',fold,-80,80,1,deg(fold))+slider(id('PanelKnee'),'中央の平面部分',knee*100,0,90,1,fPct(knee))}</div><p class="note">${mesh?'頂点編集したパネルは、その頂点に沿って骨組みが追従します。折れ角の調整へ戻すには上の翼形状を選びます。':'集電面の縁と対角線に骨組みを備えた専用パーツです。輪郭と折れ角を変えて、面積に応じて発電量と排熱能力が変わります。'}</p>`:wingSectionDiagram()}
+ ${panel?`<h4>支柱配置</h4>${seg(selected?'aerobracing':'newaerobracing',[['radial',mesh?'頂点に沿う梁':'放射梁'],['spar','縦梁'],['none','骨組みを追加しない']],bracing)}<div class="sliders">${metreSlider(id('PanelFrame'),'縁の骨組みの幅',frame,0,Math.max(max,frame))}${metreSlider(id('PanelRib'),'支柱・梁の幅',rib,0,Math.max(max,rib))}${bracing==='spar'?slider(id('PanelSparX'),'主支柱の前後位置',Number((sparX*100).toFixed(4)),Math.min(-50,sparX*100),Math.max(50,sparX*100),1,num(sparX*100,1)+'%','any'):''}${mesh?'':slider(id('PanelFold'),'上下パネルの折れ角',fold,-80,80,1,deg(fold))+slider(id('PanelKnee'),'中央の平面部分',knee*100,0,90,1,fPct(knee))}</div><p class="note">${mesh?'頂点編集したパネルは、その頂点に沿って骨組みが追従します。折れ角の調整へ戻すには上の翼形状を選びます。':'形状プリセットは前後長を保ち、幅を機体の比率に合わせます。輪郭・内側への折れ角・主支柱位置も設定します。主支柱の前後位置は艦尾側がマイナス、艦首側がプラスです。'}</p>`:wingSectionDiagram()}
  <p class="note">配置後は「輪郭の頂点」で各頂点を動かしたり、頂点を追加・削除して形を自由に変えられます。3Dの頂点編集では上下方向も変更できます。</p></div>`;
 }
 function fitBtn(k, sel, data) {
@@ -3537,7 +3537,7 @@ function carryToPlace() {
     else if (spec) { st.group = spec.group; st.part = it.k; st.equipmentId = spec.id; if (it.k === 'engine') st.engineSizes[spec.id] = {d: it.d, engineLength: it.engineLength}; }
     else {
       st.equipmentId = null; st.part = it.k; if (st.tab === 'mod') st.group = C.PARTS[it.k].group;
-      if (C.isShapePart(it)) { st.structWing=it.wing?C.normalizeWing(it.wing):null;st.structOutline=it.outline?.map(q=>q.slice());for(const key of ['panelFrame','panelRib','panelFold','panelKnee'])st[key]=it[key];st.structPlate=!!it.plate;st.structLight=!!it.light;st.structPlateT=C.plateThickness(it);st.structSize = it.s.slice(); st.structForm = it.form || 'box'; st.structTaper = it.taper || 0; st.structAngles = (it.angles || [0, 0, 0, 0]).slice(); st.structYaw = it.yaw || 0; st.structOffsetX = it.offsetX || 0; st.structOffsetZ = it.offsetZ || 0; if (it.form === 'reference') st.skinAsset = it.skinAsset; }
+      if (C.isShapePart(it)) { st.structWing=it.wing?C.normalizeWing(it.wing):null;st.structOutline=it.outline?.map(q=>q.slice());for(const key of ['panelFrame','panelRib','panelFold','panelKnee','panelBracing','panelSparX'])st[key]=it[key];st.structPlate=!!it.plate;st.structLight=!!it.light;st.structPlateT=C.plateThickness(it);st.structSize = it.s.slice(); st.structForm = it.form || 'box'; st.structTaper = it.taper || 0; st.structAngles = (it.angles || [0, 0, 0, 0]).slice(); st.structYaw = it.yaw || 0; st.structOffsetX = it.offsetX || 0; st.structOffsetZ = it.offsetZ || 0; if (it.form === 'reference') st.skinAsset = it.skinAsset; }
       else if (it.room) st.roomSize = it.room.slice(); else if (it.d) setPSize(it.k, it.d);
       if (it.k === 'engine' && it.dir) st.engineDir = it.dir.slice();
     }
@@ -4353,7 +4353,9 @@ function bindWing(){
     const h=e.target.closest('[data-foilvertex],[data-foiledge]');if(h){if(h.dataset.foilvertex!=null)foilSelectHandle('vertex',Number(h.dataset.foilvertex));else foilSelectHandle('edge',Number(h.dataset.foiledge),foilEdgeFraction(e,h));return;}
     const b=e.target.closest('button');if(!b)return;const d=b.dataset;
     if(d.wingpreset){selectAeroPart('wing');rememberPick('part','wing');renderPanel();updateHint();return;}
-    if(d.aeropreset){const fresh=d.aeronew==='yes',p=fresh?null:selItem(),k=fresh?st.part:p?.k;if(!isAeroKind(k))return;const shape=aeroPreset(k,d.aeropreset);if(fresh){st.structOutline=shape.outline;st.structForm=k==='wing'?'airfoil':'outline';st.panelFold=shape.panelFold;st.panelKnee=shape.panelKnee;st.template=null;}else mutate('パーツの翼形状',()=>editSel(q=>{if(!isAeroKind(q.k))return;q.outline=shape.outline.map(v=>v.slice());q.form=q.k==='wing'?'airfoil':'outline';delete q.mesh;if(q.k==='solarPanel'){q.panelFold=shape.panelFold;q.panelKnee=shape.panelKnee;}}),'parts');renderPanel();updateHint();return;}
+    if(d.newaerobracing&&st.part==='solarPanel'&&['radial','spar','none'].includes(d.newaerobracing)){st.panelBracing=d.newaerobracing;st.template=null;renderPanel();updateHint();return;}
+    if(d.aerobracing&&['radial','spar','none'].includes(d.aerobracing)){mutate('太陽光パネルの支柱配置',()=>editSel(p=>{if(p.k==='solarPanel')p.panelBracing=d.aerobracing;}),'parts');renderPanel();return;}
+    if(d.aeropreset){const fresh=d.aeronew==='yes',p=fresh?null:selItem(),k=fresh?st.part:p?.k;if(!isAeroKind(k))return;const shape=aeroPreset(k,d.aeropreset);if(fresh){st.structOutline=shape.outline;st.structForm=k==='wing'?'airfoil':'outline';st.panelFold=shape.panelFold;st.panelKnee=shape.panelKnee;if(k==='solarPanel'){st.structSize=[st.structSize[0],st.structSize[0]*shape.aspect,st.structSize[2]];Object.assign(st,solarPresetSettings(shape,st.structSize[0]));}st.template=null;}else mutate('パーツの翼形状',()=>editSel(q=>{if(!isAeroKind(q.k))return;q.outline=shape.outline.map(v=>v.slice());q.form=q.k==='wing'?'airfoil':'outline';delete q.mesh;if(q.k==='solarPanel'){Object.assign(q,solarPresetSettings(shape,q.s[0]));q.s=[q.s[0],q.s[0]*shape.aspect,q.s[2]];}}),'parts');renderPanel();updateHint();return;}
     if(d.newwingthermal&&st.structWing){st.structWing=C.normalizeWing({...st.structWing,thermal:d.newwingthermal});renderPanel();updateHint();return;}
     if(d.wingthermal){mutate('主翼の散熱方式',()=>editSel(p=>{if(C.isWing(p)&&!p.wing.solar)p.wing=C.normalizeWing({...p.wing,thermal:d.wingthermal});}),'parts');renderPanel();return;}
     if(d.foilpickmode){endDrag();st.foilPickMode=d.foilpickmode;renderPanel();return;}
@@ -4377,11 +4379,11 @@ function bindWing(){
   });
   $('#panel').addEventListener('input',e=>{
     const t=e.target,k=t.dataset.sl;
-    if(/^(?:newAero|aero)Panel(?:Frame|Rib|Fold|Knee)$/.test(k||'')){
-      if(t.value===''||!Number.isFinite(+t.value))return;const fresh=k.startsWith('new'),key='panel'+k.split('Panel')[1],v=C.clamp(+t.value,+t.min,+t.max),value=key==='panelKnee'?v/100:v;
+    if(/^(?:newAero|aero)Panel(?:Frame|Rib|Fold|Knee|SparX)$/.test(k||'')){
+      if(t.value===''||!Number.isFinite(+t.value))return;const fresh=k.startsWith('new'),key='panel'+k.split('Panel')[1],v=C.clamp(+t.value,+t.min,+t.max),value=key==='panelKnee'||key==='panelSparX'?v/100:v;
       if(fresh){if(st.part!=='solarPanel')return;st[key]=value;st.template=null;updateHint();}
       else{if(selItem()?.k!=='solarPanel')return;beginDrag('太陽光パネルの形');editSel(p=>{if(p.k==='solarPanel')p[key]=value;});touch('parts');scheduleStats(150);}
-      const out=$('#out-'+k);if(out)out.textContent=key==='panelKnee'?fPct(value):key==='panelFold'?deg(value):fmtM(value);return;
+      const out=$('#out-'+k);if(out)out.textContent=key==='panelKnee'||key==='panelSparX'?num(value*100,1)+'%':key==='panelFold'?deg(value):fmtM(value);return;
     }
     if(k==='foilAlong'||/^foilShift[012]$/.test(k||'')){
       const p=selItem(),v=Number(t.value);if(!C.isFoil(p)||t.value.trim()===''||!Number.isFinite(v))return;
@@ -4402,7 +4404,7 @@ function bindWing(){
     touch('parts');scheduleStats(350);const out=$('#out-'+k);if(out)out.textContent=k==='foilT'?num(v,1)+' 秒':k.startsWith('foil')?deg(v):fPct(v/100);refreshFoilEditor();
   });
   $('#panel').addEventListener('change',e=>{
-    const t=e.target;if(/^(?:newAero|aero)Panel(?:Frame|Rib|Fold|Knee)$/.test(t.dataset.sl||'')){endDrag();renderPanel();return;}if(t.dataset.sl==='foilAlong'||/^foilShift[012]$/.test(t.dataset.sl||'')){endDrag();refreshFoilEditor();}
+    const t=e.target;if(/^(?:newAero|aero)Panel(?:Frame|Rib|Fold|Knee|SparX)$/.test(t.dataset.sl||'')){endDrag();renderPanel();return;}if(t.dataset.sl==='foilAlong'||/^foilShift[012]$/.test(t.dataset.sl||'')){endDrag();refreshFoilEditor();}
     if(t.dataset.foilpivotcoord!=null){endDrag();const p=selItem(),a=Number(t.dataset.foilpivotcoord);if(C.isFoil(p)&&[0,1,2].includes(a))t.value=+C.foilFrame(ship,p).pv[a].toFixed(6);}
   });
 }
