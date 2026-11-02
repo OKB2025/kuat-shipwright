@@ -108,3 +108,12 @@ test('legacy short craft keys rehydrate from the carrier complement before stow 
   const result = second.R.battleOrbat(raw, null, () => d), row = result.ctgs[0].tgs[0].ships[0].air[0];
   assert.ok(row.design?.blueprint);assert.equal(row.craft, key);assert.equal(Object.keys(second.R.CRAFT).includes(legacy), false, 'legacy aliases do not duplicate aircraft choices');
 });
+
+test('legacy descriptor complements remain reference-only for empty fleet aircraft assignments', () => {
+  const {C, R, designs} = runtime(), design = snapshot(C), d = {...carrier(designs), air: [{dims: design.dims, design}]};
+  const before = Object.keys(R.CRAFT), result = R.battleOrbat(fleet([]), null, () => d);
+  assert.deepEqual(plain(result.ctgs[0].tgs[0].ships[0].air), []);
+  assert.deepEqual(Object.keys(R.CRAFT), before, 'an empty fleet assignment does not hydrate or load reference aircraft');
+  const world = R.createWorld({designs: [d], sides: [{faction: 'republic'}], fleets: [result]});
+  assert.equal(world.squads.size, 0);
+});

@@ -2537,7 +2537,7 @@ function placeFit(ship,k,p,n,ped,mirror,options={}){
 }
 function v3ComputeStats(ship){return engineeringStats(ship,baseComputeStats(ship));}
 function v3Serialize(ship){
-  const o={format:'starship-yard',v:3};for(const k of ['name','hull','keel','cuts','trenches','solidCuts','subs','parts','hatches','fits','armor','nextId','shieldTarget'])o[k]=ship[k];if(ship.systemsVersion===1||ship.parts.some(p=>CRAFT_SYSTEM_KEYS.includes(p.k)))o.systemsVersion=1;o.airWings=normalizeAirWings(ship.airWings);
+  const o={format:'starship-yard',v:3};for(const k of ['name','hull','keel','cuts','trenches','solidCuts','subs','parts','hatches','fits','armor','nextId','shieldTarget'])o[k]=ship[k];if(ship.systemsVersion===1||ship.parts.some(p=>CRAFT_SYSTEM_KEYS.includes(p.k)))o.systemsVersion=1;o.airWings=[];
   // Old performance multipliers have no place in new saves. Physical
   // dimensions and positions survive unchanged, including on legacy imports.
   return JSON.parse(JSON.stringify(o,(k,v)=>k.startsWith('_')||LEGACY_PERFORMANCE_FACTORS.has(k)||k==='aircraftType'||k==='berths'?undefined:v));
@@ -2850,7 +2850,7 @@ function hatchGrid(ship,h){
   return {nl:5,nw:3,pts,nrm,area:hatchOpenArea(ship,h)};
 }
 function computeStats(ship){return withFrozenStructures(()=>{
- syncCompartments(ship);ship._lockedCache=cache(ship);
+ clearDesignLoadouts(ship);syncCompartments(ship);ship._lockedCache=cache(ship);
  try{
   const s=v3ComputeStats(ship);s.sensorVolume=ship.parts.filter(p=>p.k==='sensor'||p.k==='scanner').reduce((n,p)=>n+partVolume(p),0);
   for(const stage of [outfittingStats,superweaponStats,groundingStats,layoutStats,hatchMotionStats,solarStats,craftSystemsStats,heatStats,wingStats,sensorSuite,shapeStats])stage(ship,s);
@@ -2907,7 +2907,7 @@ function normalizeGroups(list,ship){
  const keep=out.filter(g=>leaves(g)>0),kept=new Set(keep.map(g=>g.id));for(const g of keep)g.groups=g.groups.filter(x=>kept.has(x));
  return {groups:keep,nextId:next};
 }
-function serialize(ship){const o=v3Serialize(ship);o.groundForces=normalizeGroundForces(ship.groundForces);if(Array.isArray(ship.groups)&&ship.groups.length){const g=normalizeGroups(ship.groups,ship).groups;if(g.length){o.groups=g;o.nextId=Math.max(o.nextId||1,...g.map(x=>x.id+1));}}for(const k of ['paint','lights','engineGlow','hullBands','detail','reference','hullSkin','autoHabitation','hullLocked','shipClass','faction'])if(ship[k]!=null)o[k]=JSON.parse(JSON.stringify(ship[k]));const links=normalizeLinks(ship.links);if(links)o.links=links;return o;}
+function serialize(ship){const o=v3Serialize(ship);o.groundForces=[];if(Array.isArray(ship.groups)&&ship.groups.length){const g=normalizeGroups(ship.groups,ship).groups;if(g.length){o.groups=g;o.nextId=Math.max(o.nextId||1,...g.map(x=>x.id+1));}}for(const k of ['paint','lights','engineGlow','hullBands','detail','reference','hullSkin','autoHabitation','hullLocked','shipClass','faction'])if(ship[k]!=null)o[k]=JSON.parse(JSON.stringify(ship[k]));const links=normalizeLinks(ship.links);if(links)o.links=links;return clearDesignLoadouts(o);}
 function deserialize(o){
   o=migrateAeroParts(migrateExternalDissipators(o));
   const s=v3Deserialize(o),finite=(v,lo,hi,d)=>Number.isFinite(v)?clamp(v,lo,hi):d;
@@ -2949,7 +2949,7 @@ function deserialize(o){
   adoptEquipment(s);
   for(const p of s.parts)if(isSuperweapon(p)){const q=o.parts.find(q=>q.id===p.id);if(q&&(q.reactor===0||s.parts.some(r=>r.id===q.reactor&&isReactor(r))))p.reactor=q.reactor;if(q&&['beam','pulse'].includes(q.fireMode))p.fireMode=q.fireMode;normalizeSuperweapon(p);}
   for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(h.tw==null)delete h.tw;if(q.portal){h.portal=true;h.face=Object.hasOwn(AVIATION_SURFACE_FACES,q.face)?q.face:'top';if(q.surface)h.surface=true;h.open=finite(q.open,0,1,1);h.aperture=finite(q.aperture,.1,1,.85);if(q.sill!=null)h.sill=finite(q.sill,0,1,.5);if(s.parts.some(p=>p.id===q.bay&&p.k==='hangar'))h.bay=q.bay;else if(Array.isArray(q.cut)&&q.cut.length===6&&q.cut.every(Number.isFinite))h.cut=q.cut.map(v=>clamp(v,-DESIGN_LIMITS.coordinate,DESIGN_LIMITS.coordinate));}}
-  s.paint=['republic','neutral','dark','cis'].includes(o.paint)?o.paint:'neutral';if(DESIGN_FACTIONS[o.faction])s.faction=o.faction;s.detail=finite(o.detail,0,2,1);if(o.reference)s.reference=String(o.reference).slice(0,80);for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.motion==='fixed')h.motion='fixed';else if(q.motion==='slide'||isSlidingHatch(s,h))h.motion='slide';}if(REFERENCE_ASSETS[o.hullSkin?.asset]?.kind==='hull'&&o.hullSkin.base?.hull){const b=o.hullSkin.base,valid=[b.hull.L,b.hull.W,b.hull.H].every(v=>Number.isFinite(v)&&v>0&&v<=4000)&&Array.isArray(b.hull.stations)&&b.hull.stations.length>=2&&b.hull.stations.length<=64&&b.hull.stations.every(a=>Array.isArray(a)&&a.length>=3&&a.every(Number.isFinite))&&Array.isArray(b.trenches)&&b.trenches.length<=30&&Array.isArray(b.cuts)&&b.cuts.length<=50;if(valid){s.hullSkin=JSON.parse(JSON.stringify(o.hullSkin));s.hullSkin.enabled=!!o.hullSkin.enabled;}}for(const f of s.fits){const q=o.fits.find(q=>q.id===f.id);if(q.localMount)f.localMount=true;if(Array.isArray(q.tilt)&&q.tilt.length===3&&q.tilt.every(Number.isFinite)&&len(q.tilt)>.5&&FITS[f.k].cat==='w'&&!FITS[f.k].casemate&&!f.localMount){f.tilt=norm(q.tilt);if(!f.n)f.n=f.tilt.slice();}if(typeof q.batteryZone==='string')f.batteryZone=q.batteryZone.slice(0,40);if(FITS[f.k].window){f.commandEnabled=q.commandEnabled!==false;if(q.commandDepth!=null)f.commandDepth=finite(q.commandDepth,2,200,12);if(q.commandHeight!=null)f.commandHeight=finite(q.commandHeight,2,80,8);}if(q.mount==='ext'&&FITS[f.k]?.msl)f.mount='ext';if(Number.isFinite(q.chargeSalvos))f.chargeSalvos=finite(q.chargeSalvos,1,20,1);if(Number.isFinite(q.chargeDepth))f.chargeDepth=finite(q.chargeDepth,1,500,10);if(Number.isFinite(q.chargeScale))f.chargeScale=finite(q.chargeScale,.25,4,1);if(Number.isFinite(q.assetYaw))f.assetYaw=finite(q.assetYaw,-180,180,0);standardFit(f);if(Number.isInteger(q.mountAxis)&&q.mountAxis>=0&&q.mountAxis<=5)f.mountAxis=q.mountAxis;if(Number.isFinite(q.mountOffset))f.mountOffset=finite(q.mountOffset,-50,50,0);if(REFERENCE_ASSETS[q.skinAsset])f.skinAsset=q.skinAsset;}for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.referenceMouth)h.referenceMouth=true;if(REFERENCE_ASSETS[q.skinAsset]){h.skinAsset=q.skinAsset;if(Array.isArray(q.skinBayAnchor)&&q.skinBayAnchor.length===3&&q.skinBayAnchor.every(Number.isFinite))h.skinBayAnchor=q.skinBayAnchor.slice();}}migrateAviationSurfaces(s,o);migrateAviation(s,o);s.groundForces=normalizeGroundForces(o.groundForces);
+  s.paint=['republic','neutral','dark','cis'].includes(o.paint)?o.paint:'neutral';if(DESIGN_FACTIONS[o.faction])s.faction=o.faction;s.detail=finite(o.detail,0,2,1);if(o.reference)s.reference=String(o.reference).slice(0,80);for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.motion==='fixed')h.motion='fixed';else if(q.motion==='slide'||isSlidingHatch(s,h))h.motion='slide';}if(REFERENCE_ASSETS[o.hullSkin?.asset]?.kind==='hull'&&o.hullSkin.base?.hull){const b=o.hullSkin.base,valid=[b.hull.L,b.hull.W,b.hull.H].every(v=>Number.isFinite(v)&&v>0&&v<=4000)&&Array.isArray(b.hull.stations)&&b.hull.stations.length>=2&&b.hull.stations.length<=64&&b.hull.stations.every(a=>Array.isArray(a)&&a.length>=3&&a.every(Number.isFinite))&&Array.isArray(b.trenches)&&b.trenches.length<=30&&Array.isArray(b.cuts)&&b.cuts.length<=50;if(valid){s.hullSkin=JSON.parse(JSON.stringify(o.hullSkin));s.hullSkin.enabled=!!o.hullSkin.enabled;}}for(const f of s.fits){const q=o.fits.find(q=>q.id===f.id);if(q.localMount)f.localMount=true;if(Array.isArray(q.tilt)&&q.tilt.length===3&&q.tilt.every(Number.isFinite)&&len(q.tilt)>.5&&FITS[f.k].cat==='w'&&!FITS[f.k].casemate&&!f.localMount){f.tilt=norm(q.tilt);if(!f.n)f.n=f.tilt.slice();}if(typeof q.batteryZone==='string')f.batteryZone=q.batteryZone.slice(0,40);if(FITS[f.k].window){f.commandEnabled=q.commandEnabled!==false;if(q.commandDepth!=null)f.commandDepth=finite(q.commandDepth,2,200,12);if(q.commandHeight!=null)f.commandHeight=finite(q.commandHeight,2,80,8);}if(q.mount==='ext'&&FITS[f.k]?.msl)f.mount='ext';if(Number.isFinite(q.chargeSalvos))f.chargeSalvos=finite(q.chargeSalvos,1,20,1);if(Number.isFinite(q.chargeDepth))f.chargeDepth=finite(q.chargeDepth,1,500,10);if(Number.isFinite(q.chargeScale))f.chargeScale=finite(q.chargeScale,.25,4,1);if(Number.isFinite(q.assetYaw))f.assetYaw=finite(q.assetYaw,-180,180,0);standardFit(f);if(Number.isInteger(q.mountAxis)&&q.mountAxis>=0&&q.mountAxis<=5)f.mountAxis=q.mountAxis;if(Number.isFinite(q.mountOffset))f.mountOffset=finite(q.mountOffset,-50,50,0);if(REFERENCE_ASSETS[q.skinAsset])f.skinAsset=q.skinAsset;}for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.referenceMouth)h.referenceMouth=true;if(REFERENCE_ASSETS[q.skinAsset]){h.skinAsset=q.skinAsset;if(Array.isArray(q.skinBayAnchor)&&q.skinBayAnchor.length===3&&q.skinBayAnchor.every(Number.isFinite))h.skinBayAnchor=q.skinBayAnchor.slice();}}migrateAviationSurfaces(s,o);migrateAviation(s,o);
   // Old window rows on a model bridge repeat the role the body now carries.
   for(const p of s.parts){const q=o.parts.find(q=>q.id===p.id);if(bridgeBodyRole(p)){if(['bridge','air','hangar','combat'].includes(q.commandRole))p.commandRole=q.commandRole;if(q.commandEnabled===false)p.commandEnabled=false;}}
   const dropped=new Set(s.fits.filter(f=>f.legacyWindow&&bridgeBodyRole(s.parts.find(p=>p.id===f.host))===FITS[f.k].role).map(f=>f.id));
@@ -4197,35 +4197,25 @@ const BUILTIN_COMPLEMENTS={
   ground:[['ストームトルーパー兵団（4個軍団）','troops',36864],['プレハブ駐屯基地4基の支援要員','troops',1936],['AT-AT 全地形装甲トランスポート','atat',80],['AT-ST 全地形偵察トランスポート','atst',120],['帝国軍兵員輸送車（ITT）','itt',60]]}
 };
 function builtinComplement(key){
+ const preset=EXAMPLE_COMPLEMENTS[key];if(preset)return {air:normalizeAirWings(preset.air),ground:normalizeGroundForces(preset.ground)};
  const c=BUILTIN_COMPLEMENTS[key];if(!c)return null;
  return {air:c.air.map(([name,type,count],i)=>({id:'air-'+(i+1),name,type,count})),ground:c.ground.map(([name,k,count],i)=>({id:'ground-'+(i+1),name,...(GROUND_KINDS[k]?{kind:k}:{kind:'vehicle',type:k}),count}))};
 }
-function initializeAviation(ship,key){
- syncCompartments(ship);
- const capacity=aviationStatus(ship).capacity,std=builtinComplement(key);
- if(std)ship.airWings=std.air;
- else if(SHIP_EXAMPLES[key]?.airWings?.length)ship.airWings=SHIP_EXAMPLES[key].airWings.map(w=>({...w}));
- else ship.airWings=smallAircraftWings(capacity);
- for(const p of ship.parts){delete p.aircraftType;delete p.berths;}
- ship.groundForces=normalizeGroundForces(SHIP_EXAMPLES[key]?.groundForces||std?.ground||[]);
+// A ship design contains rooms and equipment, never the forces assigned to it.
+// Fleet manifests are separate ORBAT rows and use the generic stow helpers.
+function clearDesignLoadouts(ship){
+ if(!ship||typeof ship!=='object')return ship;
+ ship.airWings=[];ship.groundForces=[];
+ for(const key of ['airWing','air','ground','troops','carried','complement','manifest'])delete ship[key];
+ for(const p of ship.parts||[]){delete p.aircraftType;delete p.berths;}
  return ship;
 }
+function initializeAviation(ship,key){
+ syncCompartments(ship);
+ return clearDesignLoadouts(ship);
+}
 function migrateAviation(ship,source){
- if(source.airWings==null&&Array.isArray(source.airWing))source={...source,airWings:source.airWing};
- if(source.airWings!=null){
-  if(!Array.isArray(source.airWings)||source.airWings.length>AIR_WING_LIMITS.rows)throw new Error('航空隊は200隊以内の一覧にしてください');
-  ship.airWings=normalizeAirWings(source.airWings);
- }else{
-  const oldStorage=(source.parts||[]).filter(p=>p?.k==='hangar'&&!['flight','dock'].includes(p.airRole));
-  const assigned=oldStorage.filter(p=>p.berths!=null);
-  if(assigned.length){
-   const count=assigned.reduce((n,p)=>n+(Number.isFinite(p.berths)?Math.max(0,Math.floor(p.berths)):0),0);
-   if(source.reference==='executor'&&count===3600)ship.airWings=Array.from({length:50},(_,i)=>({id:'air-'+(i+1),name:'第'+(i+1)+'飛行隊',size:1,count:72}));
-   else ship.airWings=smallAircraftWings(count,'引継ぎ航空隊');
-  }else{syncCompartments(ship);ship.airWings=smallAircraftWings(aviationStatus(ship).capacity);}
- }
- for(const p of ship.parts){delete p.aircraftType;delete p.berths;}
- return ship;
+ return clearDesignLoadouts(ship);
 }
 
 // Authored compartment layouts. Every visible form is an editable hull, structure, room or fitting.
@@ -4598,9 +4588,13 @@ function dreadnoughtDesign(key){if(key!=='executor')throw new Error('設計見�
 // build time). Each registers {key,name,side,role,length,author,source,license,
 // note,build}; build() returns a finished ship made of ordinary parts.
 const SHIP_EXAMPLES={};
+// Historical complements are optional fleet-editor presets, outside the hull.
+const EXAMPLE_COMPLEMENTS={};
 function registerShipExample(d){
  if(!d||typeof d.key!=='string'||typeof d.build!=='function')throw new Error('作例の登録が不正です');
- SHIP_EXAMPLES[d.key]=d;DESIGNS[d.key]={name:d.name,hull:{L:d.length}};return d;
+ const {airWings,groundForces,...example}=d;
+ if(airWings?.length||groundForces?.length)EXAMPLE_COMPLEMENTS[d.key]=JSON.parse(JSON.stringify({air:airWings||[],ground:groundForces||[]}));
+ SHIP_EXAMPLES[d.key]={...example,build:()=>clearDesignLoadouts(d.build())};DESIGNS[d.key]={name:d.name,hull:{L:d.length}};return SHIP_EXAMPLES[d.key];
 }
 // Measured-section helpers for those builders (absolute metres, x bow, y up,
 // z starboard). Rows are [x, zMin, zMax, yMin, yMax]; the bounding box of the
@@ -8541,6 +8535,14 @@ function fleetFire(u,t,d){
  if(d<=GUN_BANDS.long.range){ion=fleetArc(u,t,p.ionArcs);cost+=ion;}
  return {gun,ion,cost,fall:bandFall(d)};
 }
+// Fire control is independent of the course being steered. An assigned target
+// has priority; otherwise bearings ahead of this ship's bow come first.
+function fleetTargetCandidates(u,pool,reach,priority,requireGun=true){
+ const cy=Math.cos(u.yaw||0),sy=Math.sin(u.yaw||0),rows=[];
+ for(const target of pool){const d=sub(target.pos,u.pos),distance=len(d);if(distance>reach)continue;const F=fleetFire(u,target,distance);if(requireGun&&!(F.cost>0))continue;
+  const f=distance>1e-6?(d[0]*cy+d[2]*sy)/distance:1;rows.push({target,distance,F,ahead:f>=0,score:distance*(1+4*(1-f))*(u.firingAt===target.id? .9:1)});}
+ rows.sort((a,b)=>(b.target===priority)-(a.target===priority)||((b.F.cost>0)-(a.F.cost>0))||(b.ahead-a.ahead)||a.score-b.score);return rows;
+}
 // The longest reach among the bands a ship actually carries.
 function fleetReach(p){const B=p.gunBands;if(!B)return GUN_BANDS.long.range;let r=0;for(const k in GUN_BANDS)if(B[k]&&B[k].some(v=>v>0))r=Math.max(r,GUN_BANDS[k].range);if((p.ionArcs||[]).some(v=>v>0))r=Math.max(r,GUN_BANDS.long.range);return r||GUN_BANDS.mid.range;}
 // Best-arc fire a profile lands at a distance (TT/s), as far as its reactor can
@@ -8848,6 +8850,11 @@ function hullSectionShares(ship){
  return {shares:new Array(HULL_SECTIONS).fill(1/HULL_SECTIONS),cuts};
 }
 
+function emptyDesignProfile(p){
+ const q={...p,slots:0,embarkedSlots:0,aviationSize:0};
+ for(const key of ['airOrd','airIon','airWings','airWing','groundForces','air','ground','troops','vehicles','carried','complement','manifest'])delete q[key];
+ return q;
+}
 function fleetUnit(id,key,p,team=0){
  const shield=Math.max(0,p.shieldBuffer??p.D*K.bufferS),bank=Math.max(0,p.reserve||0),mods=p.modules||[];
  return combatInit({id,key,name:p.name,team,p,pos:[0,0,0],yaw:0,velocity:[0,0,0],hp:p.hp,shield,shieldMax:shield,bank,bankMax:bank,armor:1,energy:p.wCap||0,load:0,engF:1,crew:p.crewMax??p.crewNeed??0,mods:mods.map(()=>1),ammo:mods.map(m=>m.stock||0),hitAcc:0,out:null,fate:null,air:0,launched:0,lost:0,hatchOpen:0,hatchTarget:0,queue:[],order:{type:'hold',fire:true,launch:false,power:'auto',aim:'auto'},dead:false});
@@ -9495,11 +9502,9 @@ function fleetTick(b,dt,opts={}){
  for(const u of alive){const o=u.order,p=u.p,s=sys.get(u.id),crewEff=fleetCrewEff(u);
   if(u.manual)continue;
   let t=null,raw=0,F=null,distance=0;const enemies=alive.filter(x=>x.team!==u.team),live=enemies.filter(fleetEffective),pool=live.length?live:enemies,reach=fleetReach(p);
-  if(b.combat&&!u.out&&o.fire!==false){const explicit=pool.find(x=>x.id===o.target)||enemies.find(x=>x.id===o.target),nearest=()=>pool.slice().sort((a,z)=>len(sub(a.pos,u.pos))-len(sub(z.pos,u.pos))||String(a.id).localeCompare(String(z.id)))[0]||null;
-   t=explicit||(o.type==='escort'&&byId.get(o.target)?escortPick(u,byId.get(o.target),pool,reach):null)||nearest();if(t&&len(sub(t.pos,u.pos))>reach){const n=nearest();t=n&&len(sub(n.pos,u.pos))<=reach?n:null;}
-   // A ship of our own across the line of fire: another target in reach with a clear line, or hold fire.
-   u.blocked=null;if(t){const bl=fireBlocker(alive,u,t);if(bl){const alt=pool.filter(x=>x!==t&&len(sub(x.pos,u.pos))<=reach&&!fireBlocker(alive,u,x)).sort((a,z)=>len(sub(a.pos,u.pos))-len(sub(z.pos,u.pos))||String(a.id).localeCompare(String(z.id)))[0]||null;if(!alt)u.blocked=bl.id;t=alt;}}
-   if(t){distance=len(sub(t.pos,u.pos));F=fleetFire(u,t,distance);raw=F.cost*s.weapon;}}
+  if(b.combat&&!u.out&&o.fire!==false){const explicit=o.type==='attack'?enemies.find(x=>x.id===o.target):null,priority=explicit||(o.type==='escort'&&byId.get(o.target)?escortPick(u,byId.get(o.target),pool,reach):null),targets=explicit&&!pool.includes(explicit)?[explicit,...pool]:pool;
+   u.blocked=null;let blocked=null;for(const q of fleetTargetCandidates(u,targets,reach,priority,false)){const obstruction=fireBlocker(alive,u,q.target);if(obstruction){blocked||=obstruction;continue;}t=q.target;distance=q.distance;F=q.F;raw=F.cost*s.weapon;break;}if(!t&&blocked)u.blocked=blocked.id;
+  }
   const fire=fleetPowerStep(u,s,t&&byId.get(t.id),raw,dt);u.firingAt=t?t.id:null;
   if(!b.combat||u.out)continue;
   const requested=o.launch===true&&u.launched<p.slots&&p.launch>0,sliding=(p.slidingHatches||0)>0,oldOpen=clamp(u.hatchOpen||0,0,1);u.hatchTarget=sliding&&requested?1:0;
@@ -9540,11 +9545,11 @@ function fleetTick(b,dt,opts={}){
  for(const u of alive)combatResolve(ctx,u,incoming.get(u.id),dt,fleetSystems(u));
  b.time+=dt;return shots;
 }
-// AI ships attack the nearest enemy still able to fight, with automatic power
-// distribution.
+// AI ships choose an enemy ahead of their own bow, with automatic power
+// distribution. A shared fleet destination is not a shared firing target.
 function fleetAiOrders(work){
- for(const u of work.units.filter(u=>u.team===1&&!u.dead&&!u.out)){const enemies=work.units.filter(t=>t.team===0&&!t.dead).sort((a,z)=>(!!a.out-!!z.out)||len(sub(a.pos,u.pos))-len(sub(z.pos,u.pos))||String(a.id).localeCompare(String(z.id)));
-  const near=enemies[0];u.order={type:enemies.length?'attack':'hold',target:near?.id,fire:true,launch:true,power:'auto',aim:'auto'};}
+ for(const u of work.units.filter(u=>u.team===1&&!u.dead&&!u.out)){const enemies=work.units.filter(t=>t.team===0&&!t.dead),live=enemies.filter(fleetEffective),near=fleetTargetCandidates(u,live.length?live:enemies,Infinity,null,false)[0]?.target;
+  u.order={type:near?'attack':'hold',target:near?.id,fire:true,launch:true,power:'auto',aim:'auto'};}
 }
 function fleetCommit(b){
  if(b.phase!=='plan'||b.winner!==null||!b.units.some(u=>u.team===0&&fleetEffective(u)))return null;
@@ -11830,7 +11835,8 @@ function foilState(u){const s=u?.fo,F=u?.p?.foils;if(!s||!F?.length)return null;
 
 return {isShapeKind,isShapePart,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,WING_PLANFORM_PRESETS,wingPlanformPreset,wingTipSide,wingTipOffset,wingTipRange,wingShiftTip,AERO_WING_OUTLINE,AERO_WING_SECTION,AERO_PANEL_OUTLINE,SOLAR_PANEL_PRESETS,solarPanelPreset,solarPanelBraces,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT, craftHeat, cleanCraftHeat, squadFireK, squadHeatStep, SOLAR, solarPower, solarCap, solarArea, wingCap, WING, FOIL_AXES, WING_PARTS, normalizeWing, isWing, isFoil, foilHandles, wingPivot, wingMembers, wingMap, foilSweep, foilPose, foilAt, foilFrame, wingStats, EMIT, BANDS, BAND_NAMES, emitBands, EMCON, EMCON_LOW_MAX, emconOf, SENSOR_BANDS, sensorSuite, SENS, sensSNR, sensStageCap, foilInit, foilStep, foilState, HEAT, HEAT_PRESETS, HEAT_KINDS, HEAT_MODE, DISSIPATORS, dissipatorCap, heatLoads, heatWaste, heatSolve, heatNetwork, heatEvaluate, heatStats, heatProfile, heatProfileOf, heatLegacy, heatInit, heatTick, heatStatus, heatLim, heatSwLim, normalizeLinks, DESIGN_FACTIONS, ionDensity, ionReach, ionGlow, swRange, swFree, swAxis, MGLT, engineDepthRatio, sublightMGLT, AA_CHANNELS, ION_BOLT, ionDiam, ionArea, ionShare, ionPlan, ionStrike, ionBoltsStep, swMuzzle, fleetAim, modWorld, aimPoint, fireScreen, screenShare, escortThreat, escortStation, escortPick, SCREEN, aimHold, aimMark, modQ, exposedMod, standardFit, craftCombat, designCraftSnapshot, cleanDesignCraft, CRAFT_ROLE_RTS, ORDNANCE, ORDNANCE_EVIDENCE, STORE_MOUNTS, STORE_FITS, STORE_DEFAULT, storeCapacity, craftStations, CRAFT_LOADOUT, craftTypeOf, craftLoadout, normalizeLoad, craftOrdnance, ordnanceRuns, ordnanceSalvo, ordnanceSummary, VOLLEY, volleyMode, volleyStep, SUPERWEAPONS, SW_COMBAT, swPower, swChargeRate, swInArc, swHeading, swDecay, swOverload, swPulse, swIonWave, superweaponStep, isSuperweapon, superweaponAim, superweaponOpen, normalizeSuperweapon, superweaponStats, isCraft, partLimits, CRAFT_PART_SIZE, craftPart, craftFieldGain, TROOP_SEAT_M3, ENGINE_GLOWS, engineGlowOK, engineGlowRGB, engineLevel, MISSILE_MOUNTS, missileMount, missileCells, missileStatus, PLATE, plateThickness, shipSpan, HULL_SECTIONS, SECTION_NAMES, hullSectionShares, SHIP_LIGHT_KINDS, SHIP_EXAMPLES, registerShipExample, shipKit, SHELL_ROWS, structRows, shellSection, shellPoint, CIS_PAINT, fitTilt, fitUp, fitCanRotate, fitFrameOf, openingRimPoint, surfSamples, groundingStats, turretRayContext, turretClear, turretOrigin, turretRate, GROUND_LIMITS, GROUND_PRESETS, GROUND_KINDS, GROUND_VEHICLE_VOLUME, DROID_STORE_M3, CREW_M3_K, CREW_LIVING_M3, personVolume, RETIRED_PARTS, FEED_FLUX, CELL_ENERGY_DENSITY, CELL_DISCHARGE_S, feedConduits, normalizeGroundForces, groundStatus, planStations, bridgeBodyRole, podPoint, podDepth, intrinsicCommandFits, POD_ASSET, BRIDGE_BODY_COMMAND, REFERENCE_TONE, engineSkinMesh, referenceFitYaw, rayTris, vmirrorPlane, vmirrorPoint, vmirrorPart, SHIP_CLASSES, shipClassFor, PUBLIC_LISTS, publicJSON, patchShip, patchItem, cache, AIRCRAFT_CLEARANCE, aircraftFitsBay, shipFitsBay, shipStowSize, CRAFT_TYPES, VEHICLE_TYPES, CRAFT_HINTS, VEHICLE_HINTS, craftDims, airWingDims, groundDims, stowSize, vehicleStowSize, VEHICLE_STOW_FACTOR, craftLift, boxFits, stowLoad, stowInit, stowRows, isCombatRow, COMBAT_ROLES, stowPack, stowPasses, stowStatus, aviationBays, hatchOpening, STOW_GAP, STOW_PASS, STOW_ANY_LENGTH, BUILTIN_COMPLEMENTS, builtinComplement, SHIP_STOW_CLEAR, SHIP_STOW_FACTOR, AVIATION_SIZE_VOLUME, AIR_WING_LIMITS, hangarCapacity, normalizeAirWings, aviationStatus, AVIATION_SURFACE_FACES, hatchAxes, aviationSurfaceContacts, setAviationSurfaceMode, syncAviationSurfaces, aviationHatchActive, isSlidingHatch, slidingHatchSpec, slidingHatchPanels, hatchOpenArea, ISD_HYPER_BASELINE, HYPER_CLASS_COEFFICIENT, HYPER_POWER_DENSITY, ISD_SHIELD_VOLUME, SHIELD_BUFFER_SECONDS, SHIELD_ENERGY_DENSITY, SHIELD_POWER_DENSITY, REACTOR_POWER_DENSITY, SOLID_CUT_SHAPES, SOLID_CUT_POLY_MAX, solidCutDisplayTriangles, solidCutVolume, solidCutConvexOK, convexHullFaces, solidCutThinWalls, SOLID_THIN_WALL_M, compiledSolidCut, STRUCT_MESH_LIMITS, meshTopology, MESH_IMPORT_UNITS, MESH_IMPORT_AXES, parseMeshFile, meshImportPart, simplifyMesh, ASSEMBLY_LIMITS, ASSEMBLY_MOUNTS, ASSEMBLY_ORIGINS, ASSEMBLY_CATEGORIES, assemblyLinks, assemblyCapture, normalizeAssemblyTemplate, assemblyPlace, assemblyIssues, assemblyMirrorFit, assemblyPreview, solidCutWorld, solidCutLocal, solidCutFromLocal, solidCutLocalVerts, solidCutToPoly, normalizeStructMesh, meshStructTriangles, inMeshStruct, mirrorStructMesh, structToMesh, refitStructMesh, meshEditCheck, meshMoveVertices, meshSetVertex, meshSplitEdge, meshCollapseVertex, meshExtrudeFace, meshLocalTris, normalizeSolidCut, mirrorSolidCut, solidCutTriangles, solidCutBounds, solidCutContains, solidCutsContain, applySolidCuts, solidPartCutContains, solidStructVolume, solidCutIntersectsShip, flexibleCompartment, hardConflicts, weaponChargeSpec, DREADNOUGHT_EXAMPLES, DESIGN_LIMITS, ALIGNMENTS, alignedPosition, alignPart, replacementShape, replacementOptions, replacePart, COMMAND_ROLES, commandCompartments, commandStatus, habitationSpace, inspectionTargets, planCutEdge, normalizePlanCut, structFrame, alignStructure, FLEET_RULES, POWER_MODES, POWER_AUTO_NOTE, fleetAutoPower, AIM_KINDS, MODULE_LABEL, FLEET_MIN_CREW, powerSplit, coreDetonation, fleetModules, fleetSystems, fleetCrewEff, fleetCrewRatio, fleetAutoAvail, fleetOutReason, AUTO_M3_PER_CREW, AUTO_W_PER_CREW, AUTO_MIN_HUMAN, fleetEffective, fleetProfile, fleetUnit, fleetIntegrity, trenchBattery, sideBattery, fleetFire, fleetReach, fleetStandoff, fleetHeading, fleetBroadside, fleetPowerStep, bandFireAt, fitBand, GUN_BANDS, COMBAT, combatInit, combatIncoming, combatAdd, combatMerge, combatResolve, combatZones, combatClone, combatZoneAt, COMBAT_FACE, unpackBits, fleetFormation, fleetBattle, fleetOrder, fleetArc, fleetTick, hullHalf, hullMass, hullLocal, AIR_CTL, HF, hullField, hullShape, hullCell, hullTB, hullIn, airMouths, hullOverlap, hullSegment, fireBlocker, fireStray, hullCollide, hullGrid, hullNear, hullAlong, hullAround, hullPairs, HULL_GRID, hullImpact, HULL_HIT, HULL_FALL, hullFall, hullCarve, hullAvoid, fleetCommit, fleetFinish, fleetSample, fleetFrame, normalizeBow, bowStation, engineHullEntry, ENGINE_BASELINES, engineBaseline, resizeEngine, parametricEngine, engineRating, sourceEngine, EQUIPMENT, equipmentSpec, equipmentOptions, enforceEquipment, customizeEquipment, adoptEquipment, HYPERDRIVE_REFERENCE, hyperCapacity, arcParameters, arcPoint, arcTriangles, inArc, SEPARATIST_EXAMPLES, STATS_SOURCE, SHIP_REFERENCE, PART_RATINGS, reactorPower, nozzleThrust, nozzleDemand, shieldLoad, partRatingKeys, validOutline, outlinePoints, outlineArea, outlineTriangles, AVIATION_ROLES, CHARGE_TT_M3, aircraftCapacity, aviationConnected, needsCapacitor, weaponCapacitors, refitReferenceInterior, clipReferenceBox, referenceEnginePoint, fitSpec, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface, COST_CATS, COST_K, COST_MODEL, COST_INSTALL, COST_MOUNT_INSTALL, costCategory, partBuildCost, fitBuildCost, costBreakdown, costSignature, costModelSignature, CRAFT_PRICE_CATALOG, craftCatalogPrice, quoteCostBOM, designCost,
    CRAFT_FIRE, cleanCraftFireArcs, craftGunMounts,
-   TT, G0, ISD_W, K, PARTS, FITS, HULLS, SECTIONS, KEELS, SECTORS, CLASSES, DESIGNS, AXES, AXNAME, ARMOR_MAX,
+  fleetTargetCandidates, emptyDesignProfile,
+  TT, G0, ISD_W, K, PARTS, FITS, HULLS, SECTIONS, KEELS, SECTORS, CLASSES, DESIGNS, AXES, AXNAME, ARMOR_MAX,
   newShip, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
   hatchGrid, hatchFrame, fillHangars, keelAt, computeStats, normalizeGroups, GROUP_DEPTH, serialize, deserialize, buildDesign, profile, simulate,
@@ -12672,21 +12678,24 @@ function unitDemand(info, air = 0, troops = 0) {
  return {people, supply: Math.round(people * .4 + (info.mass || 0) * .0005)};
 }
 function makeUnit(w, side, design, name, group) {
- const p = design.p, base = C.fleetUnit('u' + (w.nextId++), design.key, p, side);
+ const p = C.emptyDesignProfile(design.p), base = C.fleetUnit('u' + (w.nextId++), design.key, p, side);
  // Hull sections, armour zones and fires come from the core's combat state (C.combatInit).
  const u = Object.assign(base, {name: name || p.name, side, team: side, design: design.key, info: design.info, group, sys: null, order: {type: 'group', fire: true, power: 'auto', aim: 'auto'}, jump: null, squads: [], status: 'ready', kills: 0, dmgDone: 0, arrived: 0});
- w.units.set(u.id, u); return u;
+ UNIT_WORLD.set(u,w);w.units.set(u.id, u); return u;
 }
 const unitStruct = u => { let s = 0, m = 0; for (const x of u.sec) { s += Math.max(0, x.s); m += x.max; } return m > 0 ? s / m : 0; };
 // A carried ship docked in its carrier's hangar ('carried') is out of the battle until launched.
 const alive = u => u && !u.dead && u.status !== 'withdrawn' && u.status !== 'rear' && u.status !== 'carried';
 const fighting = u => alive(u) && !u.out;
 // A rough fighting value used by the AI and the strength readouts.
+// This per-unit association never enters serialized world or design data.
+const UNIT_WORLD=new WeakMap();
+function assignedAircraft(u){const w=UNIT_WORLD.get(u);if(!w)return 0;return (u.squads||[]).reduce((n,id)=>{const s=w.squads.get(id),c=s&&CRAFT[s.craft];return n+(s&&s.home===u.id&&s.side===u.side&&s.state!=='lost'&&s.n>0&&c&&!c.stay?s.n:0);},0);}
 function unitStrength(u) {
  const p = u.p, sx = C.fleetSystems(u), health = unitStruct(u) * (u.out ? .15 : 1);
  const fire = (p.gunBest || 0) + .5 * (p.ionBest || 0) + .2 * (p.aa || 0) + 2 * (p.msl || 0) + 1.5 * (p.imsl || 0);
  const tough = Math.sqrt(Math.max(1, p.hp) * Math.max(1, (p.shieldBuffer ?? p.D * 10) + 1)) * .02;
- return Math.sqrt(Math.max(1, fire * sx.weapon) * tough) * health + (p.slots || 0) * 4 * (sx.hangar ?? 1);
+ return Math.sqrt(Math.max(1, fire * sx.weapon) * tough) * health + assignedAircraft(u) * 4 * (sx.hangar ?? 1);
 }
 
 // ---------- the world ----------
@@ -12723,10 +12732,10 @@ function createWorld(opts) {
  for (const [i, raw] of (opts.fleets || []).entries()) {
   const sd = w.sides[i];if (!sd) continue;const ob = normalizeOrbat(raw);
   ob.ctgs.forEach((c, ci) => {
-   const home = sd.home[ci % sd.home.length] ?? sd.start, ctg = makeCtg(w, i, c.name || `第${ci + 1}合同任務群`);
+   const home = sd.home[ci % sd.home.length] ?? sd.start, ctg = makeCtg(w, i, c.name || `第${ci + 1}合同任務群`);ctg.formation=formationKnown(w,c.formation)?c.formation:null;
    (c.tgs || []).forEach((t, ti) => {
     // SBOX A scenario may place a task group in a system of its own, facing a bearing at a speed (deployGroup).
-    const dp = normalizeDeploy(t.deploy, sector), g = makeGroup(w, i, t.name || `第${ci + 1}${ti + 1}任務群`, dp.sys ?? home);g.ctg = ctg.id;g.formation = formationKnown(w, t.formation) ? t.formation : 'abreast';if (TURN_MODES[t.turnMode]) g.turnMode = t.turnMode;if (t.autoForm != null) g.autoForm = !!t.autoForm;g.deploy = dp;
+    const dp = normalizeDeploy(t.deploy, sector), g = makeGroup(w, i, t.name || `第${ci + 1}${ti + 1}任務群`, dp.sys ?? home);g.ctg = ctg.id;g.ctgFollow=!!ctg.formation;g.formation = formationKnown(w, t.formation) ? t.formation : 'abreast';if (TURN_MODES[t.turnMode]) g.turnMode = t.turnMode;if (t.autoForm != null) g.autoForm = !!t.autoForm;g.deploy = dp;
     const carry = [];
     let flag = null;for (const e of t.ships || []) { const d = w.designs.get(e.design); if (!d) continue; const u = makeUnit(w, i, d, e.name, g.id); g.units.push(u.id);if (e.flag && !flag) flag = u.id; u.sys = g.sys; u.troops = e.troops || 0; u.ground = e.ground || null; for (const q of e.air || []) addSquad(w, u, q); for (const c of e.carried || []) carry.push([u, c]); }
     if (!g.units.length) { w.groups.delete(g.id); return; }
@@ -12736,7 +12745,7 @@ function createWorld(opts) {
     // Small ships carried in a hangar ride docked until their carrier launches them.
     for (const [u, c] of carry) { const d = w.designs.get(c.design); if (!d) continue; const x = makeUnit(w, i, d, c.name, g.id); x.carrier = u.id; x.status = 'carried'; x.sys = u.sys; x.pos = [...u.pos]; x.yaw = u.yaw; x.autoLaunch = true; }
    });
-   if (!ctg.tgs.length) w.ctgs.delete(ctg.id);
+   if (!ctg.tgs.length) w.ctgs.delete(ctg.id);else if(ctg.formation)deployCtgFormation(w,ctg);
   });
   sd.initial = [...w.units.values()].filter(u => u.side === i).reduce((n, u) => n + unitStrength(u), 0);
  }
@@ -12758,7 +12767,7 @@ function sideStarts(w, S, dflt) {
  for (const a of fixed[0] != null ? [fixed[0]] : ends) for (const b of fixed[1] != null ? [fixed[1]] : ends) { if (a === b) continue; const v = score(0, a) + score(1, b) + (a === dflt[0] && b === dflt[1] ? 1e-6 : 0); if (!best || v > best.v) best = {v, a, b}; }
  return best ? [best.a, best.b] : dflt;
 }
-function makeCtg(w, side, name) { const c = {id: 'c' + (w.nextId++), side, name, tgs: []}; w.ctgs.set(c.id, c); return c; }
+function makeCtg(w, side, name) { const c = {id: 'c' + (w.nextId++), side, name, tgs: [],formation:null}; w.ctgs.set(c.id, c); return c; }
 function makeGroup(w, side, name, sys) {
  const g = {id: 'g' + (w.nextId++), side, name, units: [], sys, transit: null, spool: null, flag: null, formation: 'abreast', ctg: null, order: {type: 'auto'}, created: w.time};
  w.groups.set(g.id, g); return g;
@@ -12836,7 +12845,7 @@ function normalizeFormation(t) {
 }
 // A ship's role and size class for slot matching (provisional thresholds).
 const shipSize = u => (u.p.len || 0) >= 1000 ? 'large' : (u.p.len || 0) >= 300 ? 'medium' : 'small';
-function shipRole(u) { const p = u.p; if ((p.slots || 0) >= 24) return 'carrier'; if (!(p.gunBest > 0) && !(p.msl > 0) && !(p.ionBest > 0)) return 'supply'; if ((p.aa || 0) > (p.gunBest || 0) * 2) return 'aa'; return (p.len || 0) < 400 ? 'escort' : 'line'; }
+function shipRole(u) { const p = u.p,capacity=Math.max(u.info?.slotCap||0,u.info?.hangarCap||0,(u.info?.stow?.bays||[]).reduce((n,b)=>n+(b.cap||0),0),assignedAircraft(u));if(capacity>=24)return 'carrier'; if (!(p.gunBest > 0) && !(p.msl > 0) && !(p.ionBest > 0)) return 'supply'; if ((p.aa || 0) > (p.gunBest || 0) * 2) return 'aa'; return (p.len || 0) < 400 ? 'escort' : 'line'; }
 const ROLE_NEAR = {line: 'carrier', carrier: 'line', escort: 'aa', aa: 'escort'};
 function slotScore(u, s) {
  let k = 0;
@@ -12871,6 +12880,24 @@ function groupSlots(w, g, m, open = false, cur = null) {
  const f = slots.find(s => s.role === 'flag') || slots[0], o0 = f.p;slots.forEach(s => { s.p = sub(s.p, o0); });
  const a = assignSlots(slots, m, cur, gp.gx);
  return {offs: a.map(i => slots[i] ? [...slots[i].p] : [0, 0, 0]), hdg: a.map(i => slots[i]?.hdg || 0), gaps: gp};
+}
+// A joint formation spaces entire task-group envelopes, keeping each group's own ship formation.
+function ctgGroupShape(w,g,m,open){
+ const offs=groupSlots(w,g,m,open).offs;let x=0,y=0,z=0;
+ m.forEach((u,i)=>{const q=offs[i]||[0,0,0];x=Math.max(x,Math.abs(q[0])+(u.p.len||100)*.5);y=Math.max(y,Math.abs(q[1])+(u.p.height||30)*.5);z=Math.max(z,Math.abs(q[2])+(u.p.width||50)*.5);});
+ return {id:g.id,p:{len:Math.max(1800,x*2+1200),height:Math.max(600,y*2+600),width:Math.max(1800,z*2+1200)}};
+}
+function ctgLayout(w,c,entries,open){
+ const proxies=entries.map(({g,m})=>ctgGroupShape(w,g,m,open)),layout=groupSlots(w,{formation:c.formation},proxies,open);
+ return {slot:Object.fromEntries(entries.map(({g},i)=>[g.id,layout.offs[i]])),gap:Math.max(layout.gaps.gx,layout.gaps.gz)};
+}
+function deployCtgFormation(w,c){
+ const systems=new Map();for(const id of c.tgs){const g=w.groups.get(id),m=g?.units.map(id=>w.units.get(id)).filter(alive);if(!g||!m?.length)continue;let e=systems.get(g.sys);if(!e)systems.set(g.sys,e=[]);e.push({g,m});}
+ for(const entries of systems.values()){const first=entries[0].m.find(u=>u.id===entries[0].g.flag)||entries[0].m[0],at=first.pos.slice(),fw=[Math.cos(first.yaw),0,Math.sin(first.yaw)],layout=ctgLayout(w,c,entries,false);
+  for(const {g,m} of entries){const f=m.find(u=>u.id===g.flag)||m[0],origin=f.pos.slice(),heading=f.yaw,base=add(at,frameVec(fw,layout.slot[g.id])),turn=first.yaw-heading;
+   for(const u of w.units.values())if(u.group===g.id){u.pos=add(base,frameVec(fw,toLocal(heading,sub(u.pos,origin))));u.velocity=frameVec(fw,toLocal(heading,u.velocity||[0,0,0]));u.yaw=angle(u.yaw+turn);for(const sid of u.squads||[]){const s=w.squads.get(sid);if(s?.state==='docked')s.pos=u.pos.slice();}}
+  }
+ }
 }
 // FORM-008 A template applied to ships: where each would stand (metres) and the pairs closer than safe: their hull
 // boxes in the formation's frame (each ship lying along its slot heading; a slot turned more than 30° counts its
@@ -13177,15 +13204,32 @@ function updateBattles(w) {
 const blog = (w, sys, text, u) => { const b = w.battles.get(sys); const e = {n: w.evN = (w.evN || 0) + 1, t: w.time, text, side: u?.side, id: u?.id}; if (b) { b.log.push(e); if (b.log.length > 120) b.log.shift(); } w.events.push({...e, sys, combat: true}); if (w.events.length > 400) w.events.shift(); };
 
 // Firepower (guns, missiles, carried craft) against what is left to destroy.
-function targetValue(a) { const p = a.p, fire = (p.gunBest || 0) + .5 * (p.ionBest || 0) + .2 * (p.aa || 0) + 2 * (p.msl || 0) + 1.5 * (p.imsl || 0) + (p.slots || 0) * 4 + 1; return fire / (Math.max(1, p.hp || 0) * Math.max(.05, unitStruct(a)) + Math.max(0, a.shield || 0) + 1); }
+function targetValue(a) { const p = a.p, fire = (p.gunBest || 0) + .5 * (p.ionBest || 0) + .2 * (p.aa || 0) + 2 * (p.msl || 0) + 1.5 * (p.imsl || 0) + assignedAircraft(a) * 4 + 1; return fire / (Math.max(1, p.hp || 0) * Math.max(.05, unitStruct(a)) + Math.max(0, a.shield || 0) + 1); }
 // Orders inside a battle. Ships follow their task group ('group'): the group's
-// order, or on 自動交戦 the target its guide picks. A ship may also be given an
-// order of its own (hold, move, attack, or 'auto' to pick its own target).
+// order, or on 自動交戦 the manoeuvre its guide picks. Its default firing target
+// remains independent. A ship may also be given an order of its own.
 function bestTarget(w, us, from, side, worth, keep) {
  const foes = us.filter(t => t.side !== side && alive(t) && known(w, side, t, 2));if (!foes.length) return null;
  let tgt = null, best = Infinity, bestOut = true;
  for (const a of foes) { const out = !!a.out; if (out && !bestOut) continue; const dx = a.pos[0] - from.pos[0], dy = a.pos[1] - from.pos[1], dz = a.pos[2] - from.pos[2], sc = Math.sqrt(dx * dx + dy * dy + dz * dz) * (a.info?.capital === from.info?.capital ? 1 : 1.6) * worth.get(a.id) * (keep === a.id ? .75 : 1); if ((bestOut && !out) || sc < best) { tgt = a; best = sc; bestOut = out; } }
  return tgt;
+}
+// A task group's target guides its manoeuvre. Unless a target was explicitly
+// assigned, each ship works from its own bow rather than borrowing that target.
+function forwardTarget(us, from, keep) {
+ const cy=Math.cos(from.yaw||0),sy=Math.sin(from.yaw||0);let target=null,best=Infinity,front=false;
+ for(const t of us){const d=sub(t.pos,from.pos),r=len(d),f=r>1e-6?(d[0]*cy+d[2]*sy)/r:1,ahead=f>=0;if(front&&!ahead)continue;
+  const score=r*(1+4*(1-f))*(keep===t.id? .9:1);
+  if(ahead&&!front||score<best){target=t;best=score;front=ahead;}
+ }return target;
+}
+function commandedTarget(w,u,o){
+ if(u.order.type==='attack')return w.units.get(u.order.target)||null;
+ if(u.order.type==='group'){const g=w.groups.get(u.group);if(g?.order.type==='attack')return w.units.get(g.order.target)||null;}
+ return o.type==='escort'?w.units.get(o.target)||null:null;
+}
+function firingCandidates(u,pool,reach,priority){
+ return C.fleetTargetCandidates(u,pool,reach,priority);
 }
 // Rebel doctrine: the enemy whose shields still stand, the nearest and most
 // dangerous first, favouring one already stripped part way (fire stays on it
@@ -13215,7 +13259,7 @@ function tacticalOrders(w, sys, us) {
   // Badly damaged AI ships with a hyperdrive leave.
   if (side.ai && unitStruct(u) < .28 && unitHyper(u) != null && !u.leaving) { u.leaving = true; aiWithdrawUnit(w, u); continue; }
   if (u.order.type !== 'auto') continue;
-  const tgt = (doctrineOf(w, u.side) ? doctrineTarget : bestTarget)(w, us, u, u.side, worth, u.auto?.target);u.auto = tgt ? {type: 'attack', target: tgt.id} : us.some(t => t.side !== u.side && alive(t)) ? searchOrder(w, u.side, u) : {type: 'hold'};
+  const tgt = forwardTarget(us.filter(t=>t.side!==u.side&&alive(t)&&known(w,u.side,t,2)),u,u.auto?.target);u.auto = tgt ? {type: 'attack', target: tgt.id} : us.some(t => t.side !== u.side && alive(t)) ? searchOrder(w, u.side, u) : {type: 'hold'};
  }
 }
 function groupOrder(w, g) {
@@ -13303,6 +13347,21 @@ function tfRange(w, tf, m, t) {
  d = Math.min(d, Math.max(reach * .9, (m[0].p.len + t.p.len) * .7));
  tf.rng = {t: t.id, at: w.time, d};return d;
 }
+// Each system has its own joint controller, so groups in transit never drag another system's formation.
+function ctgStations(w,sys,groups,sysOf,battle){
+ const plan=new Map();for(const c of w.ctgs.values()){
+  if(!formationKnown(w,c.formation))continue;
+  const entries=c.tgs.map(id=>groups.get(id)).filter(e=>e&&e.g.ctgFollow&&!e.g.transit&&!e.g.spool);if(!entries.length)continue;
+  c.formState||={};let state=c.formState[sys];const sig=c.formation+'|'+battle+'|'+entries.map(e=>e.g.id+':'+e.g.formation+':'+e.m.map(u=>u.id).join(',')).join('|');
+  if(!state||state.sig!==sig)state=c.formState[sys]={...ctgLayout(w,c,entries,battle),sig,lead:entries[0].g.id};
+  const lead=entries[0],F=lead.m.find(u=>u.id===lead.g.flag)||lead.m[0],lt=lead.g.tf,ref=lt?.sys===sys?lt.ref:F.pos,hdg=lt?.sys===sys?lt.hdg:F.yaw;
+  let slow=Infinity,lag=0;for(const {g,m} of entries){const vs=m.map(u=>sustainSpeed(u,sysOf.get(u.id)||C.fleetSystems(u))),med=vs.slice().sort((a,b)=>a-b)[vs.length>>1],active=vs.filter((v,i)=>!(battle&&unitStruct(m[i])<TF.breakOff)&&v>=med*TF.cripple);slow=Math.min(slow,...(active.length?active:vs).map(v=>v*(SPEEDS[g.speed]??1)));const f=m.find(u=>u.id===g.flag)||m[0],p=g.tf?.sys===sys?g.tf.ref:f.pos;lag=Math.max(lag,len(sub(p,add(ref,frameVec(hdgVec(hdg),state.slot[g.id])))));}
+  state.cap=Math.max(0,slow)*.85*clamp(1-lag/Math.max(1,state.gap*5),.25,1);state.t=w.time;state.groups=entries.map(e=>e.g.id);
+  for(const {g} of entries)plan.set(g.id,{lead:state.lead,slot:state.slot[g.id],cap:state.cap});
+ }
+ return plan;
+}
+function ctgFormationInfo(w,id,sys){const c=w.ctgs.get(id);if(!c)return null;const state=c.formState?.[sys];return {formation:c.formation||null,name:c.formation?formationName(w,c.formation):'',lead:state?.lead||null,groups:state?.groups||[],speed:state?.cap??null};}
 // Stations of the ships following their group (AI-001 / FORM-001): the task force's reference moves toward its
 // objective — its fighting distance off the target, the point ordered, a course, the escort station, or where it
 // stands on hold — at no more than its slowest ship can sustain (FORM-002), turning in the mode ordered (FORM-003/4).
@@ -13311,7 +13370,8 @@ function groupStations(w, sys, us, byId, sysOf, dt = 0) {
  for (const u of us) { if (u.manual || u.out || u.jump || u.warp || u.towedBy || u.order.type !== 'group' || effectiveOrder(u, w).type === 'escort') continue; const g = w.groups.get(u.group); if (!g) continue; let a = groups.get(g.id); if (!a) groups.set(g.id, a = {g, m: []}); a.m.push(u); }
  const foeC = new Map();
  const foeCentre = side => { if (foeC.has(side)) return foeC.get(side); let x = 0, z = 0, n = 0; for (const f of us) if (f.side !== side && fighting(f) && !f.warp) { x += f.pos[0]; z += f.pos[2]; n++; } const c = n ? [x / n, 0, z / n] : null; foeC.set(side, c); return c; };
- for (const {g, m} of groups.values()) {
+ const jointPlan=ctgStations(w,sys,groups,sysOf,battle);
+ for (const {g, m} of [...groups.values()].sort((a,b)=>Number(jointPlan.get(b.g.id)?.lead===b.g.id)-Number(jointPlan.get(a.g.id)?.lead===a.g.id))) {
   m.sort((a, b) => g.units.indexOf(a.id) - g.units.indexOf(b.id));const gi = m.findIndex(u => u.id === g.flag);if (gi > 0) m.unshift(m.splice(gi, 1)[0]);
   const o = groupOrder(w, g), sig = m.map(u => u.id).join(',');
   let tf = g.tf;if (!tf || tf.sys !== sys) tf = g.tf = tfInit(m, sys, w.time);
@@ -13351,6 +13411,7 @@ function groupStations(w, sys, us, byId, sysOf, dt = 0) {
    const P = byId.get(o.target), th = C.escortThreat(P, us.filter(x => x.side !== g.side && !x.warp));goal = C.escortStation(m[0], P, th, 0, 1);hFinal = th ? Math.atan2(th[2] - P.pos[2], th[0] - P.pos[0]) : P.yaw;
   }
   else if (o.type === 'course' && Number.isFinite(o.hdg)) { course = o.hdg; hFinal = o.hdg; }
+  const joint=jointPlan.get(g.id);if(joint&&joint.lead!==g.id){const lg=w.groups.get(joint.lead),lt=lg?.tf,F=byId.get(lg?.flag);if(lt?.sys===sys||F){const h=lt?.sys===sys?lt.hdg:F.yaw,p=lt?.sys===sys?lt.ref:F.pos;goal=add(p,frameVec(hdgVec(h),joint.slot));hFinal=h;course=null;}}
   if (!(Number.isFinite(hFinal))) hFinal = tf.hdg;
   const dist = goal ? len(sub(goal, tf.ref)) : 0, far = goal && dist > Math.max(4000, 3 * tf.gap), hWant = course != null ? course : far ? Math.atan2(goal[2] - tf.ref[2], goal[0] - tf.ref[0]) : hFinal;
   // FORM-003/004 the turn. Large course changes are made in the mode ordered; small ones (following a target's
@@ -13376,7 +13437,7 @@ function groupStations(w, sys, us, byId, sysOf, dt = 0) {
   }
   tf.spread += clamp((tf.turning === 'safe' ? TF.safeSpread : 1) - tf.spread, -.02 * dt, .02 * dt);
   // the reference's speed: sustained speed × the speed ordered, less while turning or re-forming, less again while ships lag behind
-  let vCap = vSus * TF.margin * (SPEEDS[g.speed] ?? 1) * vk;
+  let vCap = vSus * TF.margin * (SPEEDS[g.speed] ?? 1) * vk;if(joint?.lead===g.id)vCap=Math.min(vCap,joint.cap);
   if (mode !== 'fast') { if (tf.reform) vCap *= TF.reform; vCap *= clamp(1 - (tf.err / Math.max(1, tf.gap) - TF.lagStart) / TF.lagSpan, TF.lagMin, 1); }
   let tv = [0, 0, 0];
   if (course != null) tv = scale(hdgVec(tf.hdg), vCap);
@@ -13563,7 +13624,7 @@ function peaceTick(w, sys, dt) {
  if (contacts.length) { const ctx = combatCtx(w, sys), hit = new Set(); for (const c of contacts) { hit.add(c.a); hit.add(c.z); } for (const u of hit) applyDamage(w, sys, u, inc.get(u.id), dt, sysOf.get(u.id), ctx); }
  // Still unsettled: a ship under way (moving), or one short of its station or of the point ordered (far).
  let moving = false, far = false;
- for (const u of us) { if (!alive(u) || u.out || u.manual || u.towedBy) continue; if (u.warp || len(u.velocity || [0, 0, 0]) > .5) { moving = true; break; } const pl = plan.get(u.id), o = effectiveOrder(u, w), d = pl ? pl.dest : o.type === 'move' ? o.point : null; if (d && len(sub(d, u.pos)) > Math.max(40, Math.min(220, (u.p.len || 100) * .1))) far = true; }
+ for (const u of us) { if (!alive(u) || u.out || u.manual || u.towedBy) continue; if (u.warp || len(u.velocity || [0, 0, 0]) > .5) { moving = true; break; } const pl = plan.get(u.id), o = effectiveOrder(u, w), d = pl ? pl.dest : o.type === 'move' ? o.point : null; if(o.type==='course')far=true;if (d && len(sub(d, u.pos)) > Math.max(40, Math.min(220, (u.p.len || 100) * .1))) far = true; }
  return {moving, far};
 }
 function peaceMoves(w, dt) {
@@ -13585,14 +13646,19 @@ function battleTick(w, sys, dt) {
   if (u.manual || u.warp) continue;const o = effectiveOrder(u, w), p = u.p, s = sysOf.get(u.id), crewEff = C.fleetCrewEff(u), reach = C.fleetReach(p);
   // v25 only what this side has located (概略位置 or better) can be fired at
   const foes = us.filter(x => x.side !== u.side && !x.warp && known(w, u.side, x, 3)), live = foes.filter(x => !x.out), pool = live.length ? live : foes;
-  // Guns fire by range band: the ordered target if any band reaches it, else the nearest enemy in reach.
+  // Guns fire by range band: a commanded target takes priority; otherwise each
+  // ship chooses an available bearing ahead of its own bow, also while moving.
   // A ship spooling its hyperdrive has its reactor on the drive and does not fire.
   let t = null, raw = 0, F = null, distance = 0;
   u.blocked = null;
-  if (!u.out && !u.jump && u.order.fire !== false) { t = byId.get(o.target); if (o.type === 'escort' && t && t.side === u.side) t = C.escortPick(u, t, pool, reach); if (!t || t.side === u.side || t.warp || !known(w, u.side, t, 3)) t = nearestOf(pool, u.pos); if (t && len(sub(t.pos, u.pos)) > reach) { const n = nearestOf(pool, u.pos); t = n && len(sub(n.pos, u.pos)) <= reach ? n : null; }
-   // A ship of our own across the line of fire: another target in reach with a clear line, or hold fire and move off the line.
-   if (t) { const bl = C.fireBlocker(lof, u, t); if (bl) { let alt = null, bd = Infinity; for (const x of pool) { if (x === t) continue; const dd = len(sub(x.pos, u.pos)); if (dd <= reach && dd < bd && !C.fireBlocker(lof, u, x)) { alt = x; bd = dd; } } if (!alt) { u.blocked = bl.id; if (!u.dodge || w.time > u.dodge.until) { const dy = u.pos[1] - bl.pos[1], sg = Math.abs(dy) > 200 ? Math.sign(dy) : (String(u.id).charCodeAt(String(u.id).length - 1) & 1 ? 1 : -1); u.dodge = {dy: sg * Math.max(900, ((u.p.height || u.p.len * .2) + (bl.p.height || bl.p.len * .2)) * 1.4), until: w.time + 25}; } } t = alt; } }
-   if (t) { distance = len(sub(t.pos, u.pos)); F = C.fleetFire(u, t, distance); raw = F.cost * s.weapon; } }
+  if (!u.out && !u.jump && u.order.fire !== false) {
+   let priority=commandedTarget(w,u,o);if(o.type==='escort'&&priority?.side===u.side)priority=C.escortPick(u,priority,pool,reach);
+   const targets=priority&&foes.includes(priority)&&!pool.includes(priority)?[priority,...pool]:pool,candidates=firingCandidates(u,targets,reach,priority);let blocked=null;
+   for(const q of candidates){const obstruction=C.fireBlocker(lof,u,q.target);if(obstruction){blocked||=obstruction;continue;}t=q.target;distance=q.distance;F=q.F;raw=F.cost*s.weapon;break;}
+   // A move or course order never silences an available battery. If every
+   // bearing is blocked, hold fire and move clear rather than shoot through it.
+   if(!t&&blocked){u.blocked=blocked.id;if(!u.dodge||w.time>u.dodge.until){const dy=u.pos[1]-blocked.pos[1],sg=Math.abs(dy)>200?Math.sign(dy):(String(u.id).charCodeAt(String(u.id).length-1)&1?1:-1);u.dodge={dy:sg*Math.max(900,((u.p.height||u.p.len*.2)+(blocked.p.height||blocked.p.len*.2))*1.4),until:w.time+25};}}
+  }
   u.firingAt = t ? t.id : null;u.lastShot = null;
   const fire = C.fleetPowerStep(u, s, t, raw, dt);
   if (!t || u.out) { C.volleyStep(u, dt, false); continue; }
@@ -13611,8 +13677,9 @@ function battleTick(w, sys, dt) {
  }
  // --- missiles: launch, flight, point defence, impact
  for (const u of us) {
-  if (u.manual || u.out || u.warp || u.jump || !(u.p.msl > 0 || u.p.imsl > 0)) continue;const o = effectiveOrder(u, w), want = byId.get(o.target);
-  let t = want && want.side !== u.side && !want.warp && known(w, u.side, want, 4) ? want : null;if (!t) { let bd = Infinity; for (const x of us) { if (x.side === u.side || x.warp || x.out || !known(w, u.side, x, 4)) continue; const d = len(sub(x.pos, u.pos)); if (d < bd) { bd = d; t = x; } } }
+  if (u.manual || u.out || u.warp || u.jump || u.order.fire===false || !(u.p.msl > 0 || u.p.imsl > 0)) continue;const o = effectiveOrder(u, w), want = commandedTarget(w,u,o);
+  const missileFoes=us.filter(x=>x.side!==u.side&&!x.warp&&!x.out&&known(w,u.side,x,4)&&len(sub(x.pos,u.pos))<=RULES.missileRange);
+  let t = want && byId.has(want.id) && want.side!==u.side && !want.warp && known(w,u.side,want,4) && len(sub(want.pos,u.pos))<=RULES.missileRange ? want : forwardTarget(missileFoes,u,u.firingAt);
   if (!t || len(sub(t.pos, u.pos)) > RULES.missileRange) continue;
   const mods = u.p.modules || [];u.mslT = (u.mslT || 0) - dt;if (u.mslT > 0) continue;u.mslT = 20;
   const tubes = mods.map((m, i) => m.k === 'launcher' && u.mods[i] > 0 && u.ammo[i] >= 8 ? i : -1).filter(i => i >= 0), total = mods.filter(m => m.k === 'launcher').length;
@@ -14383,19 +14450,27 @@ function orderGroup(w, gid, o) {
   if (o.type === 'escort') { const t = w.units.get(o.target); if (!t || t.side !== g.side || !alive(t) || g.units.includes(t.id)) return false; }
   const guide = w.units.get(g.flag) || g.units.map(id => w.units.get(id)).find(fighting);
   g.order = {type: o.type, target: o.target, point: o.point, dir: o.type === 'move' && o.point && guide ? norm([o.point[0] - guide.pos[0], 0, o.point[2] - guide.pos[2]]) : null};g.holdPos = null;if (o.type === 'course') g.order.hdg = angle(o.hdg);if (o.type !== 'auto') g.inbound = null;
-  for (const id of g.units) { const u = w.units.get(id); if (u && alive(u)) u.order = {...u.order, type: 'group'}; delete u?.order.target; delete u?.order.point; }
+  if(!o.ctg)g.ctgFollow=false;
+  for (const id of g.units) { const u = w.units.get(id);if(!u||!alive(u)||o.ctg&&u.order.type!=='group')continue;u.order = {...u.order, type: 'group'};delete u.order.target;delete u.order.point; }
  }
  if (o.emit != null && !EMIT_MODES.includes(o.emit) || o.foil != null && !FOIL_MODES.includes(o.foil)) return false;
  for (const k of ['power', 'aim', 'fire', 'volley', 'emit', 'foil']) if (o[k] != null) for (const id of g.units) { const u = w.units.get(id); if (u && alive(u)) u.order[k] = o[k]; }
  stir(w, g.sys);return true;
 }
-// A combined task group's order goes to each of its task groups; on a move the
-// groups keep station side by side across the line of advance.
+// Joint formation changes arrange task-group centres; internal ship formations remain independent.
 function orderCtg(w, cid, o) {
  const c = w.ctgs.get(cid);if (!c || w.sides[c.side].ai) return false;
+ if(o.type&&!['auto','hold','move','attack','escort','course'].includes(o.type))return false;
+ if(o.type==='move'&&(!Array.isArray(o.point)||o.point.length!==3||!o.point.every(Number.isFinite)))return false;
+ if(o.type==='course'&&!Number.isFinite(o.hdg))return false;
+ if(o.type==='attack'&&(!w.units.has(o.target)||w.units.get(o.target).side===c.side))return false;
+ if(o.type==='escort'&&(!alive(w.units.get(o.target))||w.units.get(o.target).side!==c.side))return false;
  const gs = c.tgs.map(id => w.groups.get(id)).filter(g => g && g.units.some(id => fighting(w.units.get(id))));let ok = false;
- if (o.type === 'move' && o.point) { const lead = w.units.get(gs[0]?.flag), dir = lead ? norm([o.point[0] - lead.pos[0], 0, o.point[2] - lead.pos[2]]) : [1, 0, 0], spans = gs.map(g => { const us = g.units.map(id => w.units.get(id)).filter(fighting); if (!us.length) return 0; const offs = groupSlots(w, g, us).offs; return Math.max(...offs.map(q => Math.abs(q[2]))) * 2 + formationGaps(us).gz; }), step = Math.max(4000, ...spans) + 2500; gs.forEach((g, i) => { const k = Math.ceil(i / 2), sg = i % 2 ? 1 : -1, off = frameVec(dir, [0, 0, sg * k * step]); ok = orderGroup(w, g.id, {...o, point: add(o.point, off)}) || ok; }); return ok; }
- for (const g of gs) ok = orderGroup(w, g.id, o) || ok;return ok;
+ if(o.ctgFormation!=null){if(o.ctgFormation!=='independent'&&!formationKnown(w,o.ctgFormation))return false;c.formation=o.ctgFormation==='independent'?null:o.ctgFormation;delete c.formState;for(const g of gs){g.ctgFollow=!!c.formation;stir(w,g.sys);}ok=gs.length>0;}
+ if(o.type){if(!formationKnown(w,c.formation))c.formation='abreast';delete c.formState;}
+ const {ctgFormation,...go}=o;
+ if(Object.keys(go).length)for(const g of gs){const done=orderGroup(w,g.id,{...go,ctg:true});if(done&&o.type)g.ctgFollow=true;ok=done||ok;}
+ return ok;
 }
 // Jumps for a whole combined task group: each group by its own lanes, those
 // that would arrive first waiting so that all come out of hyperspace together.
@@ -14418,12 +14493,17 @@ function orderTractor(w, id, mode, target) {
  releaseTractor(w, u);u.tractor = {target: t.id, mode, lock: false, progress: 0};return {ok: true};
 }
 function orderWing(w, id, o) {
- const wing = w.wings.get(id);if (!wing || w.sides[wing.side].ai) return false;
+ const wing = w.wings.get(id);if (!wing || w.sides[wing.side].ai || !o || typeof o!=='object') return false;
  // v22 A wing away on a cross-system strike takes only the recall (待機・帰還).
  if (wing.raid) { if (o.type !== 'standby') return false; recallRaid(w, wing); return true; }
  if (!['auto', 'standby', 'strike', 'cap', 'escort'].includes(o.type)) return false;
- if (o.type === 'strike' && !(w.units.get(o.target)?.side !== wing.side)) return false;
- wing.order = {...o};if (o.type === 'standby') for (const sid of wing.squads) { const s = w.squads.get(sid); if (s && s.state === 'out') s.state = 'return'; }
+ const home=w.units.get(wing.home),target=o.target&&w.units.get(o.target);
+ if (o.type === 'strike' && (!target || !alive(target) || target.side===wing.side || !home || target.sys!==home.sys || target.sys==null)) return false;
+ if (o.type === 'escort' && (!target || !alive(target) || target.side!==wing.side || !home || target.sys!==home.sys || target.sys==null)) return false;
+ if (o.type === 'cap' && (!Array.isArray(o.point) || o.point.length!==3 || !o.point.every(Number.isFinite) || o.radius!=null&&(!(o.radius>0)||!Number.isFinite(o.radius)))) return false;
+ wing.order = {...o,...(o.type==='strike'?{approach:APPROACH[o.approach]?o.approach:'bow'}:{}),...(o.type==='cap'?{point:o.point.slice(),radius:o.radius??15000}:{})};wing.attackRun=null;wing.egress=null;
+ for(const sid of wing.squads){const s=w.squads.get(sid);if(!s)continue;s.strafeT=null;s.runOn=null;s.dogfight=null;s.dfFoe=null;if(o.type==='standby'&&s.state==='out')s.state='return';}
+ if (o.type === 'standby') wing.phase=wing.squads.some(id=>w.squads.get(id)?.state==='return')?'return':'docked';
  else if (['go', 'run', 'egress', 'on'].includes(wing.phase)) wing.phase = o.type === 'strike' ? 'go' : 'on';
  return true;
 }
@@ -14740,14 +14820,22 @@ const SCENARIO_FORMAT = 'ks-scenario', SCENARIO_VERSION = 1, SCENARIO_SIDES = [2
 const SIDE_CONTROL = {player: 'プレイヤー', ai: 'AI'};
 const str = (v, n, d = '') => typeof v === 'string' ? v.slice(0, n) : d;
 // An order of battle as the editor keeps it: combined task groups of task groups of ships, every one with a unique id.
+function fleetGroundRows(sh){
+ if(Array.isArray(sh?.ground))return sh.ground.slice(0,40);
+ const count=Number.isFinite(+sh?.troops)?Math.max(0,Math.min(C.GROUND_LIMITS.maxCount,Math.floor(+sh.troops))):0;
+ const rows=canonGround(count?[{kind:'troops',count}]:[],'neutral');
+ for(const r of rows){r.name='歩兵部隊';for(const b of r.battalions)for(const c of b.companies){c.name=COMPANY_TYPES.infantry;c.type='infantry';}}
+ if(rows.length>40)rows[39].battalions.push(...rows.splice(40).flatMap(r=>r.battalions));
+ return rows;
+}
 function normalizeFleet(ob) {
  const out = {ctgs: [], next: 1}, used = new Set(), uid = (id) => { let x = typeof id === 'string' && /^[A-Za-z0-9_-]{1,24}$/.test(id) && !used.has(id) ? id : null; while (!x || used.has(x)) x = 'o' + (++out.next); used.add(x); return x; };
  const named = (o, d) => ({name: str(o?.name, 48, d) || d, ...(o?.customName ? {customName: true} : {})});
  const shipRow = sh => { if (!sh || typeof sh !== 'object') return null; const src = str(sh.src, 80) || str(sh.key, 80);if (!src) return null;
   return {id: uid(sh.id), src, key: str(sh.key, 80) || src, ...named(sh, '無名艦'), air: Array.isArray(sh.air) ? sh.air.slice(0,400).map(q=>normalizeSquadRow(q)).filter(Boolean) : [],
-   ground: Array.isArray(sh.ground) ? sh.ground.slice(0, 40) : [], carried: Array.isArray(sh.carried) ? sh.carried.filter(x => x && (typeof x.src === 'string' || typeof x.key === 'string')).slice(0, 60).map(x => ({src: str(x.src, 80) || str(x.key, 80), key: str(x.key, 80) || str(x.src, 80), name: str(x.name, 48)})) : []}; };
+   ground: fleetGroundRows(sh), carried: Array.isArray(sh.carried) ? sh.carried.filter(x => x && (typeof x.src === 'string' || typeof x.key === 'string')).slice(0, 60).map(x => ({src: str(x.src, 80) || str(x.key, 80), key: str(x.key, 80) || str(x.src, 80), name: str(x.name, 48)})) : []}; };
  for (const c of Array.isArray(ob?.ctgs) ? ob.ctgs.slice(0, 40) : []) {
-  const ctg = {id: uid(c?.id), ...named(c, `第${out.ctgs.length + 1}合同任務群`), tgs: []};
+  const ctg = {id: uid(c?.id), ...named(c, `第${out.ctgs.length + 1}合同任務群`), ...(FORMATIONS[c?.formation]||/^tpl:[\w-]{1,40}$/.test(c?.formation||'')?{formation:c.formation}:{}), tgs: []};
   for (const t of Array.isArray(c?.tgs) ? c.tgs.slice(0, 40) : []) ctg.tgs.push({id: uid(t?.id), ...named(t, `第${out.ctgs.length + 1}${ctg.tgs.length + 1}任務群`), formation: FORMATIONS[t?.formation] || /^tpl:[\w-]{1,40}$/.test(t?.formation || '') ? t.formation : 'abreast', ships: (Array.isArray(t?.ships) ? t.ships.slice(0, 40) : []).map(shipRow).filter(Boolean), ...(TURN_MODES[t?.turnMode] ? {turnMode: t.turnMode} : {}), ...(t?.autoForm != null ? {autoForm: !!t.autoForm} : {})});
   out.ctgs.push(ctg);
  }
@@ -14779,9 +14867,13 @@ function scenarioFromJSON(text) { let raw; try { raw = JSON.parse(String(text));
 const designDims = d => [d.p?.len || d.info?.len || 0, d.p?.width || 0, d.p?.height || 0];
 function battleOrbat(ob, pick, designOf, deploy = {}) {
  const sel = pick ? new Set(pick) : null;
- return {ctgs: (ob?.ctgs || []).map(c => ({name: c.name, tgs: (c.tgs || []).filter(t => (!sel || sel.has(t.id)) && t.ships?.length).map(t => ({name: t.name, formation: t.formation, ...(t.turnMode ? {turnMode: t.turnMode} : {}), ...(t.autoForm != null ? {autoForm: t.autoForm} : {}), deploy: deploy[t.id] || null, ships: t.ships.map((sh, si) => {
-  const d = designOf(sh);if (!d) return null;for(const r of d.air||[])if(r.design?.craft)registerDesignCraft(designWithDims(r.design,r.dims));const air=(sh.air||[]).map(q=>normalizeSquadRow(q)).filter(Boolean);const st = d.info?.stow ? shipStow(d.info, air, (sh.carried || []).map(x => { const d2 = designOf(x); return d2 ? {dims: designDims(d2)} : {dims: null}; }), sh.ground || []) : null;
-  return {design: d.key, name: sh.name, flag: si === 0, air: air.map((q, i) => ({...q, n: st ? Math.min(q.n, st.wings[i]?.deployable ?? q.n) : q.n, groupName: q.groupName||`${c.name} 第${q.groupNo}飛行団`})).filter(q => q.n > 0 && !CRAFT[q.craft]?.stay), ground: sh.ground || null, troops: (sh.ground || []).reduce((n, r) => n + regimentTotals(r).troops, 0),
+ return {ctgs: (ob?.ctgs || []).map(c => ({name: c.name,...(c.formation?{formation:c.formation}:{}), tgs: (c.tgs || []).filter(t => (!sel || sel.has(t.id)) && t.ships?.length).map(t => ({name: t.name, formation: t.formation, ...(t.turnMode ? {turnMode: t.turnMode} : {}), ...(t.autoForm != null ? {autoForm: t.autoForm} : {}), deploy: deploy[t.id] || null, ships: t.ships.map((sh, si) => {
+  const d = designOf(sh);if (!d) return null;
+  // Older explicit fleet rows may carry only a short design key. Their carrier's
+  // reference preset can restore its model without assigning any preset aircraft.
+  if((sh.air||[]).some(q=>!q?.design&&typeof q?.craft==='string'&&/^dsn[a-z0-9]+$/.test(q.craft)&&!CRAFT[q.craft]))for(const q of d.loadPreset?.air||d.air||[])if(q?.design)registerDesignCraft(designWithDims(q.design,q.dims));
+  const air=(sh.air||[]).map(q=>normalizeSquadRow(q)).filter(Boolean),ground=fleetGroundRows(sh);const st = d.info?.stow ? shipStow(d.info, air, (sh.carried || []).map(x => { const d2 = designOf(x); return d2 ? {dims: designDims(d2)} : {dims: null}; }), ground) : null;
+  return {design: d.key, name: sh.name, flag: si === 0, air: air.map((q, i) => ({...q, n: st ? Math.min(q.n, st.wings[i]?.deployable ?? q.n) : q.n, groupName: q.groupName||`${c.name} 第${q.groupNo}飛行団`})).filter(q => q.n > 0 && !CRAFT[q.craft]?.stay), ground, troops: ground.reduce((n, r) => n + regimentTotals(r).troops, 0),
    carried: (sh.carried || []).map((x, i) => { const d2 = designOf(x); return d2 && (!st || st.carried[i]?.embarked) ? {design: d2.key, name: `${sh.name}搭載艦 ${x.name}`} : null; }).filter(Boolean)};
  }).filter(Boolean)}))})).filter(c => c.tgs.length)};
 }
@@ -14822,7 +14914,7 @@ return {CAMPAIGN_FORMAT, CAMPAIGN_VERSION, CAMPAIGN_SLOTS, CAMPAIGN_STAGES, camp
  stowBays, shipStow, stir, peaceTick, formationOffsets, formationGaps, pendingWarp, jumpSequence, JUMP_STAGGER, rng, makeSector, sysDistance, routePath, routeCost, pathSeconds, tripSeconds, designInfo, unitDemand, createWorld, normalizeOrbat, makeUnit, makeGroup, makeCtg, ctgOf, addSquad, step, tick,
  detect, orderJump, cancelJump, etaTo, groupMapPos, orderUnit, orderGroup, orderCtg, orderCtgJump, orderTractor, orderWing, splitGroup, mergeGroups, systemUnits, unitStruct, unitStrength, unitHyper, carriedOf, launchCarried, recoverCarried, orderCarried, groupHyper, groupDisabled, groupStay,
  orderScuttle, orderRecover, recoverCheck, rearSeconds, SUPPLY, supplyAt, supplyLines, supplyNeeds, unitSupplyOf, alive, fighting, pdToward, effectiveOrder, groupOrder, tractorReach, tractorOk, registerDesignCraft, craftStores, squadStores, squadRelease, rearmSquad, squadSystemsTick, squadLaserK, squadArmed, squadSlots, craftDown,
- squadFireArc,
- craftFormation, defaultAir, troopRoom, defaultGround, makeRegiment, regimentTotals, airTotals, battleTick, sectorGal, sideBearing, sideStarts,
+ squadFireArc,ctgFormationInfo,
+ craftFormation, defaultAir, troopRoom, defaultGround, makeRegiment, regimentTotals, fleetGroundRows, airTotals, battleTick, sectorGal, sideBearing, sideStarts,
  wingHyper, raidCheck, orderRaid, recallRaid, raidMapPos, CRAFT_HYPER, wingOrder, airCtlOf, airCtlCap, airCtlUsed, mouthsOf, opsDone, runGoal};
 })();

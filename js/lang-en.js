@@ -8734,4 +8734,29 @@ Object.assign(root.KS_EN.messages,{
 "翼根を固定して翼端を前後に動かします。＋で前進翼、−で後退翼にできます。途中の折れ点も一緒に動きます。": "Move the wing tip fore and aft while keeping the root fixed. Positive values sweep the wing forward; negative values sweep it back. Intermediate bends move with the tip."
 });
 // </craft-systems-catalog>
+// <fleet-orders-catalog>
+Object.assign(root.KS_EN.terms,{
+"中隊をコピー": "Copy Squadron",
+"飛行隊をコピー": "Copy Air Wing",
+"この飛行隊の任務": "Mission for This Air Wing",
+"同時交戦数（対空・迎撃）": "Simultaneous Engagements (AA / Interception)",
+"合同任務群全体の陣形": "Combined Task Force Formation",
+"任務群ごとに独立": "Independent Task Forces",
+"各任務群の内部陣形": "Formation within Each Task Force",
+"歩兵部隊": "Infantry Unit",
+"枠": "Slots",
+"（コピー）": " (Copy)"
+});
+Object.assign(root.KS_EN.messages,{
+"中隊は400個までです": "A carrier can have up to 400 squadrons.",
+"この飛行団には空いている飛行隊番号がありません": "This air group has no unused wing numbers.",
+"コピーする中隊がありません": "There are no squadrons to copy.",
+"各任務群の内部陣形を保ったまま、任務群同士を並べます。": "Arrange the task forces while preserving the formation within each one.",
+"各任務群の内部陣形を保ったまま、任務群同士を並べます。個別に命令した任務群・艦は、その命令を優先します。移動などを合同任務群に命じると、任務群は合同陣形へ戻ります。": "Arrange the task forces while preserving the formation within each one. Individual task force and ship orders take priority. Movement and other combined task force orders bring its task forces back into the combined formation.",
+"{0} 枠": "{0} Slots",
+"{0}（コピー {1}）": "{0} (Copy {1})",
+"航空機4機の小隊、またはミサイル8発の斉射で1枠": "One slot covers a flight of 4 craft or a salvo of 8 missiles.",
+"中隊や飛行隊をコピーすると、機種・機数・兵装・設計図を引き継ぎます。搭載枠と費用はコピー分も計上します。": "Copying a squadron or air wing retains its craft type, count, loadout, and blueprint. Copies also count toward hangar capacity and cost."
+});
+// </fleet-orders-catalog>
 })(typeof window==="undefined"?globalThis:window);
