@@ -90,6 +90,6 @@ test('editing sub-metre equipment and rooms does not clamp them to capital-size 
   let html=run('basePartEditor()');assert.match(html,/data-sl="ed"[^>]*value="1\.25"/);assert.doesNotMatch(html,/NaN|undefined/);
   const min=Number(html.match(/data-sl="ed"[^>]*min="([^"]+)"/)[1]);assert.ok(min<=1.25);
   run('ship.parts[0]={id:1,k:"cargo",c:[5,2,0],d:1,room:[2,1,.5]};');
-  html=run('basePartEditor()');assert.match(html,/data-sl="room2"[^>]*min="0\.05"[^>]*value="0\.5"/);
+  html=run('basePartEditor()');assert.match(html,/data-sl="room2"[^>]*min="0\.02"[^>]*value="0\.5"/);
  }
 });

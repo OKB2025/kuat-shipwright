@@ -102,10 +102,10 @@ function costCategory(k) { return COST_KIND[k] || COST_GROUP[PARTS[k]?.group] ||
 // training, COST_K.crew cr a head. Every side's figures come from here (fleet organisation, scenario cost limits,
 // later the campaign's budget requests).
 const COST_K = {crew: 1000};
-const COST_MODEL=Object.freeze({version:2,hull:0.6,armor:30});
+const COST_MODEL=Object.freeze({version:3,hull:0.6,armor:30,wingInstall:1800,wingArea:18});
 const COST_INSTALL=Object.freeze({gen:18000,aux:6000,engine:7500,hyper:20000,shield:12000,localShield:4000,fuel:2000,battery:2500,inertial:7000,integrity:4000,repulsor:3500,sensor:3000,scanner:4000,firecontrol:6000,cockpit:6000,astromech:6000,droidbrain:5000,automation:6000,command:8000,lifeSupport:2500,ejectSeat:1500,navComputer:4500,targetComputer:4000,maneuver:3000,laserGas:2000,landingGear:2500});
 const COST_MOUNT_INSTALL=Object.freeze({claser:3500,claserH:5000,cion:4500,cturret:4500,ctorp:5500,cmsl:4000,cbomb:3500,cpylon:1250,weapon:750,command:1500});
-function partBuildCost(p,volume){const d=PARTS[p?.k];if(!d)return 0;const V=Number.isFinite(volume)?Math.max(0,volume):partVolume(p),light=p.k==='struct'&&p.light&&!p.plate?.25:1;return V>0?V*(d.cost||0)*light+(p.id<0?0:COST_INSTALL[p.k]||0):0;}
+function partBuildCost(p,volume){const d=PARTS[p?.k];if(!d)return 0;const V=Number.isFinite(volume)?Math.max(0,volume):partVolume(p),light=p.k==='struct'&&p.light&&!p.plate?.25:1;return V>0?V*(d.cost||0)*light+(p.id<0?0:COST_INSTALL[p.k]||0)+(isWing(p)?COST_MODEL.wingInstall+partArea(p)*COST_MODEL.wingArea:0):0;}
 function fitBuildCost(f,spec){const d=spec||FITS[f?.k];return d?Math.max(0,d.cost||0)+(COST_MOUNT_INSTALL[f.k]??COST_MOUNT_INSTALL[d.cat==='w'?'weapon':'command']):0;}
 function costBreakdown(total,source){
  const keys=Object.keys(COST_CATS).filter(k=>k!=='crew'),raw=keys.map(k=>Number.isFinite(source?.[k])?Math.max(0,source[k]):0),sum=raw.reduce((a,b)=>a+b,0),target=Number.isFinite(total)?Math.max(0,Math.round(total)):0;
@@ -114,20 +114,20 @@ function costBreakdown(total,source){
  return Object.fromEntries(Object.entries(by).filter(([,v])=>v>0));
 }
 function costSignature(value){const text=JSON.stringify(value,(key,v)=>v&&typeof v==='object'&&!Array.isArray(v)?Object.fromEntries(Object.keys(v).sort().map(k=>[k,v[k]])):v);let h=2166136261;for(let i=0;i<text.length;i++)h=Math.imul(h^text.charCodeAt(i),16777619);return (h>>>0).toString(36);}
-function costModelSignature(){return costSignature({model:COST_MODEL,systems:CRAFT_SYSTEMS,crew:COST_K.crew,install:COST_INSTALL,mount:COST_MOUNT_INSTALL,categories:COST_KIND,parts:Object.fromEntries(Object.entries(PARTS).map(([k,d])=>[k,{cost:d.cost||0,group:d.group||''}])),fits:Object.fromEntries(Object.entries(FITS).map(([k,d])=>[k,{cost:d.cost||0,cat:d.cat||''}]))});}
+function costModelSignature(){return costSignature({model:COST_MODEL,systems:CRAFT_SYSTEMS,wing:WING,solar:SOLAR,heat:HEAT,crew:COST_K.crew,install:COST_INSTALL,mount:COST_MOUNT_INSTALL,categories:COST_KIND,parts:Object.fromEntries(Object.entries(PARTS).map(([k,d])=>[k,{cost:d.cost||0,group:d.group||''}])),fits:Object.fromEntries(Object.entries(FITS).map(([k,d])=>[k,{cost:d.cost||0,cat:d.cat||''}]))});}
 // BEGIN GENERATED CRAFT PRICES — scripts/update-craft-costs.cjs
 const CRAFT_PRICE_CATALOG={
- "modelVersion": 2,
- "modelSignature": "kqyx28",
+ "modelVersion": 3,
+ "modelSignature": "1fk27sz",
  "entries": {
   "arc170": {
    "reference": "craft_arc170",
-   "signature": "cou4ro",
-   "build": 193317,
+   "signature": "1oac6tl",
+   "build": 210152,
    "crew": 3000,
-   "total": 196317,
+   "total": 213152,
    "by": {
-    "hull": 23,
+    "hull": 16858,
     "armor": 30,
     "power": 42524,
     "drive": 47030,
@@ -165,11 +165,17 @@ const CRAFT_PRICE_CATALOG={
     "landingSupport": 45.5877,
     "landingRatio": 1,
     "landingReady": true
+   },
+   "heat": {
+    "up": 0.0018,
+    "upS": 0.0018,
+    "down": 0.0172,
+    "T": 0
    }
   },
   "awing": {
    "reference": "craft_awing",
-   "signature": "jvt00c",
+   "signature": "hbmgfp",
    "build": 155334,
    "crew": 1000,
    "total": 156334,
@@ -212,16 +218,22 @@ const CRAFT_PRICE_CATALOG={
     "landingSupport": 14.0625,
     "landingRatio": 1,
     "landingReady": true
+   },
+   "heat": {
+    "up": 0.00253,
+    "upS": 0.00253,
+    "down": 0.0204,
+    "T": 0
    }
   },
   "btlb": {
    "reference": "craft_btlb",
-   "signature": "1fvzp8v",
-   "build": 194876,
+   "signature": "1xnbugk",
+   "build": 200062,
    "crew": 2000,
-   "total": 196876,
+   "total": 202062,
    "by": {
-    "hull": 76,
+    "hull": 5262,
     "armor": 21,
     "power": 58533,
     "drive": 47038,
@@ -259,16 +271,22 @@ const CRAFT_PRICE_CATALOG={
     "landingSupport": 66.6792,
     "landingRatio": 1,
     "landingReady": true
+   },
+   "heat": {
+    "up": 0.000432,
+    "upS": 0.000432,
+    "down": 0.0175,
+    "T": 0
    }
   },
   "hyena": {
    "reference": "craft_hyena",
-   "signature": "vr815o",
-   "build": 198166,
+   "signature": "1l3dpch",
+   "build": 207622,
    "crew": 0,
-   "total": 198166,
+   "total": 207622,
    "by": {
-    "hull": 34,
+    "hull": 9490,
     "armor": 11,
     "power": 76504,
     "drive": 42015,
@@ -304,19 +322,25 @@ const CRAFT_PRICE_CATALOG={
     "landingSupport": 39.321600000000004,
     "landingRatio": 1,
     "landingReady": true
+   },
+   "heat": {
+    "up": 0,
+    "upS": 0,
+    "down": 0.0541,
+    "T": 0
    }
   },
   "tie_in": {
    "reference": "craft_tie_in",
-   "signature": "nckclu",
-   "build": 94655,
+   "signature": "fvah8v",
+   "build": 108099,
    "crew": 1000,
-   "total": 95655,
+   "total": 109099,
    "by": {
-    "hull": 21,
+    "hull": 13464,
     "armor": 10,
     "power": 20005,
-    "drive": 27017,
+    "drive": 27018,
     "defense": 1500,
     "command": 14502,
     "weapons": 19600,
@@ -351,16 +375,22 @@ const CRAFT_PRICE_CATALOG={
     "landingSupport": 23.582400000000007,
     "landingRatio": 1,
     "landingReady": true
+   },
+   "heat": {
+    "up": 0.00473,
+    "upS": 0.00473,
+    "down": 0.0359,
+    "T": 0
    }
   },
   "tie_ln": {
    "reference": "craft_tie_ln",
-   "signature": "yvyfdc",
-   "build": 86833,
+   "signature": "1ry6k81",
+   "build": 94207,
    "crew": 1000,
-   "total": 87833,
+   "total": 95207,
    "by": {
-    "hull": 13,
+    "hull": 7387,
     "armor": 7,
     "power": 20002,
     "drive": 27010,
@@ -398,16 +428,22 @@ const CRAFT_PRICE_CATALOG={
     "landingSupport": 13.171200000000004,
     "landingRatio": 1,
     "landingReady": true
+   },
+   "heat": {
+    "up": 0,
+    "upS": 0,
+    "down": 0.0555,
+    "T": 0
    }
   },
   "tie_sa": {
    "reference": "craft_tie_sa",
-   "signature": "b6shop",
-   "build": 117455,
+   "signature": "a8lmoo",
+   "build": 132238,
    "crew": 1000,
-   "total": 118455,
+   "total": 133238,
    "by": {
-    "hull": 77,
+    "hull": 14860,
     "armor": 34,
     "power": 38012,
     "drive": 27029,
@@ -445,16 +481,22 @@ const CRAFT_PRICE_CATALOG={
     "landingSupport": 66.3552,
     "landingRatio": 1,
     "landingReady": true
+   },
+   "heat": {
+    "up": 0.00205,
+    "upS": 0.00205,
+    "down": 0.0575,
+    "T": 0
    }
   },
   "v19": {
    "reference": "craft_v19",
-   "signature": "1w8bckq",
-   "build": 147841,
+   "signature": "2m70o6",
+   "build": 158054,
    "crew": 1000,
-   "total": 148841,
+   "total": 159054,
    "by": {
-    "hull": 6,
+    "hull": 10219,
     "armor": 16,
     "power": 58503,
     "drive": 34514,
@@ -492,16 +534,22 @@ const CRAFT_PRICE_CATALOG={
     "landingSupport": 17.7147,
     "landingRatio": 1,
     "landingReady": true
+   },
+   "heat": {
+    "up": 0.00197,
+    "upS": 0.00197,
+    "down": 0.0449,
+    "T": 0
    }
   },
   "vulture": {
    "reference": "craft_vulture",
-   "signature": "13omlvw",
-   "build": 136606,
+   "signature": "1ivop2t",
+   "build": 144426,
    "crew": 0,
-   "total": 136606,
+   "total": 144426,
    "by": {
-    "hull": 2,
+    "hull": 7822,
     "armor": 1,
     "power": 40501,
     "drive": 27002,
@@ -537,23 +585,29 @@ const CRAFT_PRICE_CATALOG={
     "landingSupport": 12.7776,
     "landingRatio": 1,
     "landingReady": true
+   },
+   "heat": {
+    "up": 0,
+    "upS": 0,
+    "down": 0.121,
+    "T": 0
    }
   },
   "vwing": {
    "reference": "craft_vwing",
-   "signature": "15bbnyc",
-   "build": 220329,
+   "signature": "rf39xv",
+   "build": 227906,
    "crew": 1000,
-   "total": 221329,
+   "total": 228906,
    "by": {
-    "hull": 7,
+    "hull": 7583,
     "armor": 3,
     "power": 96506,
     "drive": 27011,
     "defense": 37501,
     "command": 20501,
     "weapons": 14800,
-    "systems": 24000,
+    "systems": 24001,
     "crew": 1000
    },
    "detailed": true,
@@ -584,19 +638,25 @@ const CRAFT_PRICE_CATALOG={
     "landingSupport": 12.4416,
     "landingRatio": 1,
     "landingReady": true
+   },
+   "heat": {
+    "up": 0.00271,
+    "upS": 0.00271,
+    "down": 0.02,
+    "T": 0
    }
   },
   "xwing": {
    "reference": "craft_xwing",
-   "signature": "1smms0t",
-   "build": 169178,
+   "signature": "10ww784",
+   "build": 178032,
    "crew": 1000,
-   "total": 170178,
+   "total": 179032,
    "by": {
-    "hull": 21,
+    "hull": 8876,
     "armor": 11,
     "power": 22520,
-    "drive": 62021,
+    "drive": 62020,
     "defense": 13502,
     "command": 20502,
     "weapons": 33600,
@@ -631,16 +691,22 @@ const CRAFT_PRICE_CATALOG={
     "landingSupport": 29.491200000000006,
     "landingRatio": 1,
     "landingReady": true
+   },
+   "heat": {
+    "up": 0.000582,
+    "upS": 0.00131,
+    "down": 0.0158,
+    "T": 1
    }
   },
   "z95": {
    "reference": "craft_z95",
-   "signature": "119vcvd",
-   "build": 127756,
+   "signature": "1b5wbyc",
+   "build": 132919,
    "crew": 1000,
-   "total": 128756,
+   "total": 133919,
    "by": {
-    "hull": 22,
+    "hull": 5185,
     "armor": 10,
     "power": 40507,
     "drive": 27015,
@@ -678,6 +744,12 @@ const CRAFT_PRICE_CATALOG={
     "landingSupport": 24.3,
     "landingRatio": 1,
     "landingReady": true
+   },
+   "heat": {
+    "up": 0.00356,
+    "upS": 0.00356,
+    "down": 0.0339,
+    "T": 0
    }
   }
  }
@@ -2189,7 +2261,7 @@ const DESIGN_FACTIONS={any:'全陣営',empire:'銀河帝国',republic:'銀河共
 const GROUPS = {craft:'操縦・搭乗（小型艇）',power:'動力・推進',support:'防御・船体維持',air:'航空・輸送',command:'指揮',shape:'構造'};
 // Compact placement sizes (min, max, default, metres). Every hull can use the full catalogue.
 const CRAFT_PART_SIZE={cockpit:[.6,6,1.6],astromech:[.5,1.6,.9],droidbrain:[.3,3,.8],troopbay:[.8,40,3],gen:[.25,8,1.2],engine:[.15,10,1],shield:[.15,6,.7],hyper:[.15,6,.8],fuel:[.1,6,.6],battery:[.1,4,.5],inertial:[.1,4,.5],integrity:[.1,4,.5],repulsor:[.1,6,.5],sensor:[.1,3,.4],scanner:[.1,3,.3],cargo:[.3,30,2],hangar:[2,80,8],struct:[.02,100,2]};
-function partLimits(ship,k){const d=PARTS[k]||{};if(d.group==='craft'||isCraft(ship)){const c=CRAFT_PART_SIZE[k];if(c)return {min:c[0],max:c[1],def:c[2]};}return {min:d.min??8,max:d.max??240,def:d.def??40};}
+function partLimits(ship,k){const d=PARTS[k]||{},c=CRAFT_PART_SIZE[k];if(c&&(d.group==='craft'||isCraft(ship)))return {min:c[0],max:c[1],def:c[2]};return {min:Math.min(d.min??8,c?.[0]??.1),max:d.max??240,def:d.def??40};}
 const craftPart=k=>Object.hasOwn(CRAFT_PART_SIZE,k);
 Object.assign(PARTS.gen,{name:'主反応炉',group:'power',desc:'主動力源。ノズルを置くと、その間の推進機関を自動生成します。'});
 Object.assign(PARTS.engine,{name:'汎用ノズル',group:'power',ratio:0.32,desc:'炉との間を機関として自動占有。接続炉・向き・口径を調整できます。'});
@@ -2477,7 +2549,7 @@ function v3Deserialize(o){
   const vehicleBays=o.parts.filter(p=>p?.k==='vehicle').length;if(vehicleBays)s.vehicleBays=vehicleBays;
   o={...o,parts:o.parts.map(p=>p?.k==='vehicle'?{...p,k:'hangar',airRole:'storage',label:p.label||'車両格納庫'}:p)};
   s.parts=o.parts.filter(p=>p&&Object.hasOwn(PARTS,p.k)&&!['machinery','capacitor','vls'].includes(p.k)).map(p=>{
-    const q={id:ident(p.id),k:p.k,c:vec(p.c)};if(p.k==='struct'){q.s=vec(p.s,[100,100,50]).map(v=>clamp(v,.02,DESIGN_LIMITS.partSize));q.taper=number(p.taper,0,.95,0);q.form=Object.hasOwn(STRUCT_SHAPES,p.form)?p.form:'trap';if(Array.isArray(p.angles))q.angles=[0,1,2,3].map(i=>number(p.angles[i],-60,70,0));q.yaw=number(p.yaw,-180,180,0);q.offsetX=number(p.offsetX,-2000,2000,0);q.offsetZ=number(p.offsetZ,-2000,2000,0);}else q.d=number(p.d,CRAFT_SYSTEM_KEYS.includes(p.k)?.05:.1,DESIGN_LIMITS.diameter,PARTS[p.k].def||40);if(p.k==='cockpit'){q.seats=Math.round(number(p.seats,1,20,1));if(p.suit===true)q.suit=true;}
+    const q={id:ident(p.id),k:p.k,c:vec(p.c)};if(p.k==='struct'){q.s=vec(p.s,[100,100,50]).map(v=>clamp(v,.02,DESIGN_LIMITS.partSize));q.taper=number(p.taper,0,.95,0);q.form=Object.hasOwn(STRUCT_SHAPES,p.form)?p.form:'trap';if(Array.isArray(p.angles))q.angles=[0,1,2,3].map(i=>number(p.angles[i],-60,70,0));q.yaw=number(p.yaw,-180,180,0);q.offsetX=number(p.offsetX,-2000,2000,0);q.offsetZ=number(p.offsetZ,-2000,2000,0);}else q.d=number(p.d,Math.min(.1,CRAFT_PART_SIZE[p.k]?.[0]??.1),DESIGN_LIMITS.diameter,PARTS[p.k].def||40);if(p.k==='cockpit'){q.seats=Math.round(number(p.seats,1,20,1));if(p.suit===true)q.suit=true;}
     if(p.dir)q.dir=norm(vec(p.dir,[-1,0,0]));if(p.k==='engine'){if(!q.dir)q.dir=[-1,0,0];if(o.v===2)q.c[0]-=q.d*.64;if(Number.isInteger(p.reactor)&&p.reactor>=0)q.reactor=p.reactor;}if(Number.isInteger(p.tw))q.tw=p.tw;if(Number.isInteger(p.vt))q.vt=p.vt;return q;
   });
   s.fits=o.fits.filter(f=>f&&(Object.hasOwn(FITS,f.k)||Object.hasOwn(LEGACY_WINDOWS,f.k))).map(f=>{const legacy=LEGACY_WINDOWS[f.k],q={id:ident(f.id),k:legacy||f.k,p:vec(f.p),a:Math.floor(number(f.a,0,5,2)),ped:number(f.ped,0,500,0),base:0,low:0,slope:0};if(f.n)q.n=norm(vec(f.n,[1,0,0]));if(f.host)q.host=f.host;if(f.local)q.local=vec(f.local);if(f.localNormal)q.localNormal=vec(f.localNormal);if(legacy){q.width=clamp(Math.round(number(f.width,8,160,32)/2),6,60);q.height=Math.round(q.width*4)/10;q.legacyWindow=true;}else if(FITS[q.k].window){q.width=number(f.width,6,60,FITS[q.k].fm);q.height=number(f.height,3,30,FITS[q.k].wm);}else{if(f.width!=null)q.width=number(f.width,.01,DESIGN_LIMITS.partSize,FITS[q.k].fm);if(f.height!=null)q.height=number(f.height,.01,DESIGN_LIMITS.partSize,FITS[q.k].wm);}if(f.tw)q.tw=f.tw;if(Number.isInteger(f.vt))q.vt=f.vt;if(f.pedShape==='trap')q.pedShape='trap';if(Number.isFinite(f.pedSize))q.pedSize=number(f.pedSize,.4,3,1);return q;});
@@ -2510,7 +2582,7 @@ STRUCT_SHAPES.chamfer='切隅・平面台形';
 STRUCT_SHAPES.loft='断面ロフト・傾斜甲板';
 STRUCT_SHAPES.ellipsoid='球・楕円体（腹部装甲）';
 addComp('sensor','センサー・標的追跡装置','sphere',.18,[166,178,185],'support','シールドとは別の索敵・標的追跡機器。外殻やマストに配置します。',{def:16});
-function partLabel(p){return p.label||equipmentSpec(p)?.name||(p.k==='struct'&&p.plate?'装甲外板':PARTS[p.k]?.name)||'区画';}
+function partLabel(p){return p.label||equipmentSpec(p)?.name||(isWing(p)?p.wing.solar?'太陽電池・散熱翼':p.wing.foil?'Sフォイル（散熱主翼）':'散熱主翼':p.k==='struct'&&p.plate?'装甲外板':PARTS[p.k]?.name)||'区画';}
 // Default stations for the section table: they fall on the plan's own corners.
 function planStations(h){if(h.plan==='arrow'){const m=clamp(h.maxAt??.3,.05,.9);return [0,m/2,m,m+(1-m)/3,m+(1-m)*2/3,1];}if(h.plan==='rect')return [0,.35,.7,.8,.9,1];return [0,.2,.4,.6,.8,1];}
 function profileAt(h,t){
@@ -2540,7 +2612,7 @@ function memoShape(p,slot,make){const sig=shapeSig(p),old=p[slot];if(old&&old.si
 function structBounds(p){const T=unpiercedStructTriangles(p),old=p._structBounds;if(old&&old.T===T)return old.b;const b=[Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity];for(let i=0;i<T.length;i++){const a=i%3;if(T[i]<b[a])b[a]=T[i];if(T[i]>b[a+3])b[a+3]=T[i];}const pad=Math.max(b[3]-b[0],b[4]-b[1],b[5]-b[2])*.05+1e-4;for(let a=0;a<3;a++){b[a]-=pad;b[a+3]+=pad;}p._structBounds={T,b};return b;}
 function roomShape(p){return memoShape(p,'_roomShape',roomShapeRaw);}
 function roomShapeRaw(p){const orientation={surfaceNormal:p.surfaceNormal,pitch:p.pitch||0,roll:p.roll||0};if(p.outline)return {...orientation,k:'struct',c:p.c,s:p.room||[p.d,p.d,p.d],form:'outline',outline:p.outline,deckSlope:p.deckSlope||0,ridge:p.ridge||0,yaw:p.yaw||0};return {...orientation,k:'struct',c:p.c,s:p.room||[p.d,p.d,p.d],form:'chamfer',corner:p.corner??0,aftWidth:p.aftWidth??1,foreWidth:p.foreWidth??1,yaw:p.yaw||0,taper:0};}
-function setRoomSize(p,size){p.room=size.map(x=>clamp(x,.2,DESIGN_LIMITS.partSize));p.d=Math.cbrt(p.room.reduce((a,b)=>a*b,1));}
+function setRoomSize(p,size){p.room=size.map(x=>clamp(x,.02,DESIGN_LIMITS.partSize));p.d=Math.cbrt(p.room.reduce((a,b)=>a*b,1));}
 function chamferRing(p,t){
   const [x0,x1,z0,z1]=structLimits(p,t),m=(z0+z1)/2,w=(z1-z0)/2,a=clamp(p.aftWidth??1,.03,2),f=clamp(p.foreWidth??1,.03,2),c=clamp(p.corner??.12,0,.45),dx=(x1-x0)*c;
   const at=x=>m-w*lerp(a,f,(x-x0)/(x1-x0));const bt=x=>m+w*lerp(a,f,(x-x0)/(x1-x0));
@@ -2816,6 +2888,7 @@ function normalizeGroups(list,ship){
 }
 function serialize(ship){const o=v3Serialize(ship);o.groundForces=normalizeGroundForces(ship.groundForces);if(Array.isArray(ship.groups)&&ship.groups.length){const g=normalizeGroups(ship.groups,ship).groups;if(g.length){o.groups=g;o.nextId=Math.max(o.nextId||1,...g.map(x=>x.id+1));}}for(const k of ['paint','lights','engineGlow','hullBands','detail','reference','hullSkin','autoHabitation','hullLocked','shipClass','faction'])if(ship[k]!=null)o[k]=JSON.parse(JSON.stringify(ship[k]));const links=normalizeLinks(ship.links);if(links)o.links=links;return o;}
 function deserialize(o){
+  o=migrateExternalDissipators(o);
   const s=v3Deserialize(o),finite=(v,lo,hi,d)=>Number.isFinite(v)?clamp(v,lo,hi):d;
   if(Array.isArray(o.hull?.stations)&&o.hull.stations.length>=2&&o.hull.stations.length<=32){const a=o.hull.stations.map((p,i)=>{const r=[finite(p?.[0],0,1,i/(o.hull.stations.length-1)),finite(p?.[1],.005,1.5,1),finite(p?.[2],.005,1.5,1)];if(p?.length>3)r.push(finite(p[3],-.5,.8,0));if(p?.length>4)r.push(finite(p[4],0,.98,.52));if(p?.length>5)r.push(finite(p[5],0,.98,0));if(p?.length>6)r.push(finite(p[6],.02,.98,.13));if(p?.length>7)r.push(finite(p[7],.2,.8,.5));return r;}).sort((a,b)=>a[0]-b[0]);if(a.some((p,i)=>i&&p[0]-a[i-1][0]<.001))throw new Error('船体断面の位置が重複しています');a[0][0]=0;a.at(-1)[0]=1;s.hull.stations=a;}
   if(SHIP_CLASSES.some(c=>c.id===o.shipClass))s.shipClass=o.shipClass;
@@ -2828,7 +2901,7 @@ function deserialize(o){
   if(o.hull?.start!=null)s.hull.start=finite(o.hull.start,0,.6,0);
   for(const k of ['chineHeight','keelWidth'])if(o.hull?.[k]!=null)s.hull[k]=finite(o.hull[k],k==='chineHeight'?.2:0,k==='chineHeight'?.95:.98,k==='chineHeight'?.5:0);
   if(o.hull?.maxAt!=null)s.hull.maxAt=finite(o.hull.maxAt,.05,.9,.3);
-  for(const p of s.parts){const q=o.parts.find(q=>q.id===p.id);for(const [k,lo,hi,d] of [['arcInner',.05,.95,.65],['arcStart',-180,180,30],['arcSweep',5,360,300]])if(q[k]!=null)p[k]=finite(q[k],lo,hi,d);if(q.label)p.label=String(q.label).slice(0,80);if(Array.isArray(q.room)&&q.room.length===3&&PARTS[p.k].shape==='cube')setRoomSize(p,q.room.map((v,i)=>finite(v,.2,DESIGN_LIMITS.partSize,40)));
+  for(const p of s.parts){const q=o.parts.find(q=>q.id===p.id);for(const [k,lo,hi,d] of [['arcInner',.05,.95,.65],['arcStart',-180,180,30],['arcSweep',5,360,300]])if(q[k]!=null)p[k]=finite(q[k],lo,hi,d);if(q.label)p.label=String(q.label).slice(0,80);if(Array.isArray(q.room)&&q.room.length===3&&PARTS[p.k].shape==='cube')setRoomSize(p,q.room.map((v,i)=>finite(v,.02,DESIGN_LIMITS.partSize,40)));
     for(const k of ['aftWidth','foreWidth'])if(q[k]!=null)p[k]=finite(q[k],.03,2,1);
     if(q.loft){if(!Array.isArray(q.loft)||q.loft.length<2||q.loft.length>32)throw new Error('ロフト断面は2〜32個にしてください');p.loft=q.loft.map(a=>[finite(a?.[0],0,1,0),finite(a?.[1],.02,2,1),finite(a?.[2],.03,1.5,1),finite(a?.[3],0,1,0),...(a?.length>4?[finite(a[4],-2,2,0)]:[])]).sort((a,b)=>a[0]-b[0]);if(p.loft.some((a,i)=>a[3]>=a[2]||(i&&a[0]-p.loft[i-1][0]<.002)))throw new Error('ロフトの断面位置か上下寸法が不正です');p.loft[0][0]=0;p.loft.at(-1)[0]=1;}
     if(Array.isArray(q.skinAxial)&&q.skinAxial.length===3&&q.skinAxial.every(v=>Number.isFinite(v)&&v>0&&v<=10000))p.skinAxial=q.skinAxial.slice();
@@ -2847,7 +2920,7 @@ function deserialize(o){
     // Editable meshes: cleaned on load; an unusable mesh falls back to a box of the same size.
     if(p.form==='mesh'){const r=normalizeStructMesh(q.mesh);if(r.mesh){p.mesh=r.mesh;if(q.imported===true)p.imported=true;}else{p.form='box';s.meshRepairs=(s.meshRepairs||0)+1;}}
     if(p.k==='struct'&&q.wing){const w=normalizeWing(q.wing);if(w)p.wing=w;}if((p.k==='sensor'||p.k==='scanner')&&Object.hasOwn(SENSOR_BANDS,q.band)&&q.band!=='multi')p.band=q.band;
-    if(p.form==='shell'){p.shellCurve=finite(q.shellCurve,-1,1,1);p.shellThick=finite(q.shellThick,.2,60,3);if(q.shellFlip===true)p.shellFlip=true;}
+    if(p.form==='shell'){p.shellCurve=finite(q.shellCurve,-1,1,1);p.shellThick=finite(q.shellThick,.02,60,3);if(q.shellFlip===true)p.shellFlip=true;}
     if(p.k==='struct'||p.room){if(Array.isArray(q.surfaceNormal)&&q.surfaceNormal.length===3&&q.surfaceNormal.every(Number.isFinite)&&len(q.surfaceNormal)>.001)p.surfaceNormal=norm(q.surfaceNormal);if(q.pitch!=null)p.pitch=finite(q.pitch,-180,180,0);if(q.roll!=null)p.roll=finite(q.roll,-180,180,0);}
     if(q.corner!=null)p.corner=finite(q.corner,0,.45,.12);if(q.length!=null)p.length=finite(q.length,.1,DESIGN_LIMITS.partSize,p.d*1.5);if(q.bodyLength!=null)p.bodyLength=finite(q.bodyLength,.1,DESIGN_LIMITS.engineLength,p.d*2.2);if(q.bodyRadius!=null)p.bodyRadius=finite(q.bodyRadius,.3,.8,.52);if(q.yaw!=null)p.yaw=finite(q.yaw,-180,180,0);if(p.dir&&len(p.dir)<.1)p.dir=[-1,0,0];if(/^#[0-9a-f]{6}$/i.test(q.paint))p.paint=q.paint;if(q.ribSpacing!=null)p.ribSpacing=finite(q.ribSpacing,0,100,12);
   }
@@ -2889,7 +2962,7 @@ const SHELL_SEGMENTS=12;
 function structRows(p){return p.loft||(p.form==='shell'?SHELL_ROWS:[[0,p.aftWidth??1,1,0],[1,p.foreWidth??1,1,0]]);}
 function shellSection(p,row){
  const [t,w,h,floor=0,cz=0]=row,[L,W,H]=p.s,x=(t-.5)*L,b=(floor-.5)*H,top=(h-.5)*H,hw=Math.max(.05,w*W/2),c0=cz*W/2,f=p.shellFlip?-1:1,curve=clamp(p.shellCurve??1,-1,1);
- const zi=c0-f*hw,zo=c0+f*hw,dh=Math.max(.05,top-b),T=clamp(p.shellThick??3,.2,Math.max(.2,Math.min(dh,2*hw)*.8)),outer=[];
+ const zi=c0-f*hw,zo=c0+f*hw,dh=Math.max(.05,top-b),T=clamp(p.shellThick??3,.02,Math.max(.02,Math.min(dh,2*hw)*.8)),outer=[];
  for(let i=0;i<=SHELL_SEGMENTS;i++){const u=i/SHELL_SEGMENTS,a=(1-u)*Math.PI/2,ez=zi+(zo-zi)*Math.cos(a),ey=b+dh*Math.sin(a),lz=zi+(zo-zi)*u,ly=top-dh*u;outer.push([lz+(ez-lz)*curve,ly+(ey-ly)*curve]);}
  const inner=outer.map((q,i)=>{const a=outer[Math.max(0,i-1)],c=outer[Math.min(outer.length-1,i+1)],tz=c[0]-a[0],ty=c[1]-a[1],l=Math.hypot(tz,ty)||1;let nz=-ty/l,ny=tz/l;if(nz*(zi-q[0])+ny*(b-q[1])<0){nz=-nz;ny=-ny;}return [q[0]+nz*T,q[1]+ny*T];});
  return {x,outer,inner};
@@ -4977,10 +5050,10 @@ function arcBuild(){
  stlPair('機関ナセル',NAC.map(([x,r])=>[x,r,1.92-r,1.92+r,2.12+(x-1.5)/6.45*.05]),{light:true,bands:[[.958,1]],bandPaint:ARC_RED},true);
  // ---- main wings, S-foils, wingtip cannon housings ----
  // The main wings are split where the red wingtip marking begins (z 7.09 m on the model).
- slabPair('主翼（内翼）',{c:[5.1681,1.7414,4.8105],s:[4.93,4.5684,.1],n:[0,.997956,.063897],outline:[[-0.5,-0.5],[-0.3651,-0.4639],[-0.3509,-0.4486],[-0.0936,0.5],[0.4048,0.5],[0.4544,-0.2757],[0.5,-0.3719],[0.2921,-0.3687],[0.285,-0.3041],[-0.0203,-0.3041],[-0.0669,-0.5]]},{light:true});
- slabPair('主翼（翼端・赤）',{c:[5.9846,1.4953,8.6526],s:[2.5564,3.1316,.1],n:[0,.997956,.063897],outline:[[-0.5,-0.5],[-0.1844,0.3803],[-0.1316,0.4361],[0.0032,0.4985],[0.156,0.5],[0.24,0.473],[0.3085,0.4297],[0.377,0.3355],[0.4433,0.3259],[0.5,0.2893],[0.4863,0.2669],[0.3984,0.2431],[0.4612,-0.5]]},{light:true,paint:ARC_RED});
- slabPair('上部Sフォイル（放熱板）',{c:[5.7048,2.5858,5.2077],s:[2.31,5.3,.064],n:[-.005376,.983325,-.181779],outline:[[-0.4416,-0.5],[-0.5,-0.467],[-0.0065,0.4547],[0.0823,0.4943],[0.2121,0.5],[0.2987,0.4774],[0.3463,0.4321],[0.5,-0.4075],[0.2835,-0.4236],[0.1623,-0.1764],[-0.0714,-0.1642],[-0.1104,-0.1811],[-0.2771,-0.5]]},{light:true});
- slabPair('下部Sフォイル（放熱板）',{c:[5.7042,.8575,5.0774],s:[2.31,5.335,.06],n:[-.013512,-.958462,-.284901],outline:[[0.2143,-0.5],[0.0823,-0.4944],[-0.0065,-0.455],[-0.5,0.4606],[-0.4394,0.5],[-0.2749,0.5],[-0.1061,0.172],[-0.0714,0.1598],[0.1623,0.172],[0.2835,0.4269],[0.5,0.4016],[0.3463,-0.4372],[0.2987,-0.4775]]},{light:true});
+ slabPair('主翼（内翼）',{c:[5.1681,1.7414,4.8105],s:[4.93,4.5684,.1],n:[0,.997956,.063897],outline:[[-0.5,-0.5],[-0.3651,-0.4639],[-0.3509,-0.4486],[-0.0936,0.5],[0.4048,0.5],[0.4544,-0.2757],[0.5,-0.3719],[0.2921,-0.3687],[0.285,-0.3041],[-0.0203,-0.3041],[-0.0669,-0.5]]},{wing:{thermal:'high'},light:true});
+ slabPair('主翼（翼端・赤）',{c:[5.9846,1.4953,8.6526],s:[2.5564,3.1316,.1],n:[0,.997956,.063897],outline:[[-0.5,-0.5],[-0.1844,0.3803],[-0.1316,0.4361],[0.0032,0.4985],[0.156,0.5],[0.24,0.473],[0.3085,0.4297],[0.377,0.3355],[0.4433,0.3259],[0.5,0.2893],[0.4863,0.2669],[0.3984,0.2431],[0.4612,-0.5]]},{wing:{thermal:'high'},light:true,paint:ARC_RED});
+ slabPair('上部Sフォイル（放熱板）',{c:[5.7048,2.5858,5.2077],s:[2.31,5.3,.064],n:[-.005376,.983325,-.181779],outline:[[-0.4416,-0.5],[-0.5,-0.467],[-0.0065,0.4547],[0.0823,0.4943],[0.2121,0.5],[0.2987,0.4774],[0.3463,0.4321],[0.5,-0.4075],[0.2835,-0.4236],[0.1623,-0.1764],[-0.0714,-0.1642],[-0.1104,-0.1811],[-0.2771,-0.5]]},{wing:{thermal:'high'},light:true});
+ slabPair('下部Sフォイル（放熱板）',{c:[5.7042,.8575,5.0774],s:[2.31,5.335,.06],n:[-.013512,-.958462,-.284901],outline:[[0.2143,-0.5],[0.0823,-0.4944],[-0.0065,-0.455],[-0.5,0.4606],[-0.4394,0.5],[-0.2749,0.5],[-0.1061,0.172],[-0.0714,0.1598],[0.1623,0.172],[0.2835,0.4269],[0.5,0.4016],[0.3463,-0.4372],[0.2987,-0.4775]]},{wing:{thermal:'high'},light:true});
  slabPair('翼端砲ハウジング',{c:[7.6820,0.83175,9.5355],s:[5.2360,0.78850,.39],n:[0,0,1],outline:[[-0.5, 0.0732], [-0.4868, 0.1607], [-0.348, 0.5], [0.5, 0.5], [0.5, 0.2178], [0.1746, -0.2603], [-0.1776, -0.5], [-0.4868, -0.462], [-0.5, -0.3744]]},{light:true});
  pair('struct','翼端砲身（延長部）',[11.52,.1875,9.5355],[.2,.2,2.04],{skin:'armor',form:'cylinder',surfaceNormal:[1,0,0],light:true});
  // Tail gun mounts above and below the tail plate; the torpedo launcher housing under the nose.
@@ -5191,7 +5264,7 @@ registerShipExample({key:'craft_btlb',name:'BTL-B Yウイング・スターフ�
   const k=btlKit(s),[ny,nz]=D.nc,hull='#cdc9bf';
   // engine nacelles (light cowlings around the ion jet engines) and the wing plates joining them
   k.loft('エンジン・ナセル',D.nacelle.map(([x,q])=>[x,nz-q,nz+q,ny-q,ny+q]),{round:true,light:true,paint:hull},true);
-  k.slab('主翼（ナセル支持）',D.plate,1.15,0.5,{paint:hull},true);
+  k.slab('主翼（ナセル支持）',D.plate,1.15,0.5,{paint:hull,wing:{thermal:'high'}},true);
   // cockpit canopy, ventral keel pod and the nose cannon housings
   k.loft('操縦席キャノピー',[[16.07,-.3,.3,1.95,2.0],[16.6,-.55,.55,1.95,2.17],[18.4,-.62,.62,1.95,2.17],[19.8,-.5,.5,1.85,2.05],[20.43,-.3,.3,1.75,1.85]],{corner:.25,paint:'#5b232c'});
   k.loft('腹部キール',[[14.6,-.3,.3,.32,.62],[15.0,-.45,.45,.3,.7],[18.2,-.45,.45,.3,.7],[18.6,-.3,.3,.4,.68]],{round:true,paint:'#aaa79e'});
@@ -5295,8 +5368,8 @@ registerShipExample({key:'craft_hyena',name:'ハイエナ級ボマー',side:'独
   k.put('右舷船体ユニット（中央処理装置）',[5.9,2.105,1.09],[4.4,1.67,1.85],{form:'ellipsoid'});
   k.put('左舷船体ユニット（兵装庫）',[5.9,1.815,-1.09],[4.4,1.63,1.49],{form:'ellipsoid'});
   // split wings, the wing-root knuckles (drives and reactors) and the gun blades at the wing fronts
-  k.shell('上翼',D.upper,{},true);
-  k.shell('下翼',D.lower,{lower:true},true);
+  k.shell('上翼',D.upper,{wing:{thermal:'high'}},true);
+  k.shell('下翼',D.lower,{lower:true,wing:{thermal:'high'}},true);
   k.box('翼の付け根（推進機関・反応炉）',[6.4,1.42,3.5],[9.05,2.13,4.37],{corner:.08},true);
   k.box('上翼砲架',[8.6,2.143,4.24],[12.35,2.56,4.36],{corner:.1},true);
   k.box('下翼砲架',[8.6,0.96,4.24],[12.35,1.40,4.36],{corner:.1},true);
@@ -5601,9 +5674,9 @@ function v19Build(){
  stlPair('タービン・ナセル',NAC.map(([x,r])=>[x,r,.735-r,.735+r,1.88]),{light:true},true);
  // ---- gull wings, ventral S-foil (fin) with the third turbine pod ----
  // Gull wings, split where the red root marking ends (z 3.3 m).
- slabPair('主翼（Sフォイル・付け根）',{c:[2.4269,.2141,2.6899],s:[2.0,1.5039,.16],n:[.000165,-.811455,-.584415],outline:[[-0.4959,-0.5],[-0.5,0.5],[0.5,0.5],[0.5,-0.4998]]},{light:true,paint:V19_RED});
- slabPair('主翼（Sフォイル）',{c:[2.556,-1.4251,4.966],s:[2.2419,4.1063,.16],n:[.000165,-.811455,-.584415],outline:[[-0.1691,-0.5],[-0.439,0.2039],[-0.4992,0.4205],[-0.5,0.4999],[0.3885,0.5],[0.3885,-0.0117],[0.5,-0.0957],[0.5,-0.4963]]},{light:true});
- slab('腹部Sフォイル（垂直安定板）',{c:[2.8429,-1.8603,0],s:[2.515,4.88,.15],n:[0,0,1],outline:[[-0.5,-0.5],[-0.5,-0.2449],[-0.3469,0.0338],[-0.0845,0.1014],[-0.2336,0.0994],[-0.2336,0.2141],[0.1262,0.5],[0.4344,0.5],[0.4344,-0.5]]},{light:true});
+ slabPair('主翼（Sフォイル・付け根）',{c:[2.4269,.2141,2.6899],s:[2.0,1.5039,.16],n:[.000165,-.811455,-.584415],outline:[[-0.4959,-0.5],[-0.5,0.5],[0.5,0.5],[0.5,-0.4998]]},{wing:{thermal:'high'},light:true,paint:V19_RED});
+ slabPair('主翼（Sフォイル）',{c:[2.556,-1.4251,4.966],s:[2.2419,4.1063,.16],n:[.000165,-.811455,-.584415],outline:[[-0.1691,-0.5],[-0.439,0.2039],[-0.4992,0.4205],[-0.5,0.4999],[0.3885,0.5],[0.3885,-0.0117],[0.5,-0.0957],[0.5,-0.4963]]},{wing:{thermal:'high'},light:true});
+ slab('腹部Sフォイル（垂直安定板）',{c:[2.8429,-1.8603,0],s:[2.515,4.88,.15],n:[0,0,1],outline:[[-0.5,-0.5],[-0.5,-0.2449],[-0.3469,0.0338],[-0.0845,0.1014],[-0.2336,0.0994],[-0.2336,0.2141],[0.1262,0.5],[0.4344,0.5],[0.4344,-0.5]]},{wing:{thermal:'high'},light:true});
  stl('腹部タービン・ポッド',[[2.35,.2,-2.82,-2.42],[2.5,.29,-2.91,-2.33],[3.95,.29,-2.91,-2.33],[4.1,.24,-2.86,-2.38]],{light:true},true);
  pair('struct','翼端砲身（延長部）',[5.34,-2.191,6.4404],[.16,.16,1.32],{skin:'armor',form:'cylinder',surfaceNormal:[1,0,0],light:true});
  // Missile launcher housings on the fuselage plate ahead of the canopy (the model's launcher slots).
@@ -5711,8 +5784,8 @@ registerShipExample({key:'craft_vulture',name:'ヴァルチャー級ドロイド
   k.put('頭部ポッド（ドロイド・ブレイン）',[1.865,1.3315,0],[2.67,0.97,0.663],{form:'dome',light:true,paint:'#7d838c'});
   // wing-root knuckles (they hold the drives) and the split wings
   k.box('翼の付け根（関節・推進機関）',[1.85,0.6,1.48],[3.56,1.18,1.96],{corner:.1,light:true,paint:dark},true);
-  k.shell('上翼',D.wing,{light:true,paint:grey},true);
-  k.shell('下翼',D.wing.map(q=>[q[0],q[1],q[2],2*D.mid-q[3],2*D.mid-q[4]]),{lower:true,light:true,paint:grey},true);
+  k.shell('上翼',D.wing,{light:true,paint:grey,wing:{thermal:'high'}},true);
+  k.shell('下翼',D.wing.map(q=>[q[0],q[1],q[2],2*D.mid-q[3],2*D.mid-q[4]]),{lower:true,light:true,paint:grey,wing:{thermal:'high'}},true);
   // blaster cannon housings in the wing gap at the wingtips
   k.box('上翼ブラスター砲架',[5.3,1.19,1.565],[6.96,1.33,1.70],{corner:.1,paint:gun},true);
   k.box('下翼ブラスター砲架',[5.3,0.445,1.565],[6.96,0.583,1.70],{corner:.1,paint:gun},true);
@@ -5763,8 +5836,8 @@ function vwBuild(){
  const part=(k,label,c,d,o={})=>placePart(s,k,c,d,{label,...o});
  const st=(label,c,size,o={})=>pair('struct',label,c,size,{skin:'armor',...o});
  // Radiator wings, upper and lower, on the articulated hubs (measured panels).
- st('上部翼（放熱板）',[2.0209,1.9608,1.6703],[1.3178,2.7741,.08],{form:'outline',surfaceNormal:N([.0084,.0688,.9976]),outline:[[-0.5,0.3244],[0.0024,-0.39],[0.4173,-0.5],[0.5,-0.4546],[0.3378,0.3327],[0.1902,0.4432],[-0.0155,0.5],[-0.4443,0.3587]],corner:0,taper:0,light:true,paint:VW_PANEL});
- st('下部翼（放熱板）',[2.1175,-1.0296,1.6774],[1.7648,3.0238,.08],{form:'outline',surfaceNormal:N([.025,-.0595,.9979]),outline:[[-0.5,-0.2705],[-0.0351,-0.5],[0.0884,-0.4373],[0.1991,-0.2709],[0.5,0.5],[0.1417,0.456]],corner:0,taper:0,light:true,paint:VW_PANEL});
+ st('上部翼（放熱板）',[2.0209,1.9608,1.6703],[1.3178,2.7741,.08],{wing:{thermal:'high'},form:'outline',surfaceNormal:N([.0084,.0688,.9976]),outline:[[-0.5,0.3244],[0.0024,-0.39],[0.4173,-0.5],[0.5,-0.4546],[0.3378,0.3327],[0.1902,0.4432],[-0.0155,0.5],[-0.4443,0.3587]],corner:0,taper:0,light:true,paint:VW_PANEL});
+ st('下部翼（放熱板）',[2.1175,-1.0296,1.6774],[1.7648,3.0238,.08],{wing:{thermal:'high'},form:'outline',surfaceNormal:N([.025,-.0595,.9979]),outline:[[-0.5,-0.2705],[-0.0351,-0.5],[0.0884,-0.4373],[0.1991,-0.2709],[0.5,0.5],[0.1417,0.456]],corner:0,taper:0,light:true,paint:VW_PANEL});
  // Hub discs and their caps.
  st('翼基部ハブ',[2.236,.55,1.3],[1.26,1.26,.6],{form:'cylinder',surfaceNormal:[0,0,1],light:true});
  st('ハブ・キャップ',[2.236,.55,1.75],[.9,.9,.3],{form:'dome',surfaceNormal:[0,0,1],light:true,paint:VW_RED});
@@ -5870,7 +5943,7 @@ function xwingBuild(opt={}){
  for(const w of [1,-1]){
   const up=w>0?'上':'下',Y=y=>w>0?y:2*XW_YC-y;
   const root=foilSlab(w,`右舷${up}翼（Sフォイル）`,D.wing,1.308,1.459,{light:true});
-  root.wing=normalizeWing({foil:true,axis:'x',open:w*XW_TH,stow:0,T:1,pivot:[root.c[0],XW_Y0+XW_YC,XW_ZC]});root.wing.members={parts:[],fits:[]};
+  root.wing=normalizeWing({thermal:'high',foil:true,axis:'x',open:w*XW_TH,stow:0,T:1,pivot:[root.c[0],XW_Y0+XW_YC,XW_ZC]});root.wing.members={parts:[],fits:[]};
   const paired=twin(root);paired.wing=normalizeWing({...root.wing,pivot:mirrorP(root.wing.pivot)});paired.wing.members={parts:[],fits:[]};foils.set(w,root);
   // Nacelle intake body (closed-frame axis y 1.95, |z| 1.643; 1.23 m wide, 1.15 m deep), rounded intake lip.
   foilRound(w,`右舷${up}機関ナセル`,[[1.6,1.643,.5,Y(1.95),.47],[1.75,1.643,.615,Y(1.95),.575],[4.45,1.643,.615,Y(1.95),.575],[4.58,1.643,.57,Y(1.95),.53]],{light:true,paint:XW_DARK});
@@ -5995,7 +6068,7 @@ function z95Build(opt={}){
  loftX('右舷側面インテーク',D.intake,{round:true,light:true,paint:Z95_NAVY},true);
  twin(slab('右舷カナード',D.canard,.74,.785,{light:true,paint:Z95_RED}));
  // ---- wings and nacelles ----
- slab('右舷主翼',D.wing,.714,.812,{light:true});
+ slab('右舷主翼',D.wing,.714,.812,{light:true,wing:{thermal:'high'}});
  nacelle('右舷ナセル排気コーン',[[.06,.4],[.5,.53],[.92,.62],[1.0,.47]],{light:true,paint:'#4a535e'});
  nacelle('右舷ナセル頸部',[[.98,.45],[2.32,.45]],{light:true});
  nacelle('右舷ナセル本体',[[2.3,.62],[2.4,.763],[6.55,.763],[6.62,.7]],{light:true});
@@ -8610,11 +8683,11 @@ function fleetModules(ship,S){
   const mm=k==='launcher'?MISSILE_MOUNTS[missileMount(f)]:null,cellK=mm&&missileMount(f)==='vls'?clamp(S.vlsInfo?.[f.id]?.ratio??1,0,1):1;
   mods.push(place({k,fit:f.id,name:d.short||d.name,w:s.fm*s.wm*1.2*(mm?mm.expose:1),hits:clamp(Math.round(Math.max(s.fm,s.wm)/24),1,4),crew:s.crew||0,size:k==='weapon'?(s.tt||0)+(s.ion||0)+(s.aa||0)*.5:1,stock:k==='launcher'?Math.round(mm.stock*MAGAZINE_MISSILES/120*cellK):0,mount:mm?missileMount(f):undefined,ion:k==='launcher'&&d.ionMsl?1:undefined,at:+clamp((f.p[0]-X0)/L,0,1).toFixed(3),pd:k==='weapon'&&(d.aa||0)>0&&!((d.tt||0)>.01)&&!d.ion,band:k==='weapon'?fitBand(d):undefined},f.p,Math.max(s.fm,s.wm)/2));}
  for(const f of intrinsicCommandFits(ship)){const d=FITS[f.k];if(!d||(d.role!=='bridge'&&d.role!=='combat')||(S.commandInfo?.[f.id]?.ratio??0)<=0)continue;mods.push(place({k:'bridge',name:d.short||d.name,w:(f.width||15)*(f.height||6)*1.2,hits:1,crew:d.crew||16,size:1,at:+clamp((f.p[0]-X0)/L,0,1).toFixed(3)},f.p,(f.width||15)/2));}
- for(const p of allOccupied(ship)){
-  if(p.windowId!=null)continue;const V=partVolume(p);if(!(V>1))continue;const k=MODULE_PART_KIND[p.k]||'other';
+ for(const p of [...allOccupied(ship),...ship.parts.filter(isWing)]){
+  if(p.windowId!=null)continue;const V=partVolume(p);if(!(V>0)||(!isWing(p)&&!(V>1)))continue;const k=isWing(p)?p.wing.thermal==='low'&&!p.wing.solar?'radiator':'dissipator':MODULE_PART_KIND[p.k]||'other';
   let w=Math.pow(V,2/3)*((p._packing?.retained??p._clip?.retained??1)<.97?1.5:1);if(CRIT_MODULES.has(k))w*=protect;
   // v23 External dissipators stand out of the hull: they present more to fire and are as fragile as a turret.
-  const ext=DISSIPATORS[p.k]?.ext&&(S.info?.[p.id]?.exposed||0)>.2;if(ext)w*=1+2*(S.info[p.id].exposed||0);
+  const ext=(isWing(p)||DISSIPATORS[p.k]?.ext)&&(S.info?.[p.id]?.exposed||0)>.2;if(ext)w*=1+2*(S.info[p.id].exposed||0);
   const m={k,name:partLabel(p),w,hits:clamp(Math.round(Math.cbrt(V)/22),1,5),crew:V*(PARTS[p.k]?.crew||0)/1000,size:V,at:+clamp(((p.c?.[0]??X0+L/2)-X0)/L,0,1).toFixed(3)};
   if((k==='capacitor'||k==='magazine')&&byFit.has(p.weaponId))m.link=byFit.get(p.weaponId);if(k==='superweapon')m.part=p.id;if(p.id>0&&(k==='reactor'||k==='shield'||k==='engine'||k==='dissipator'||k==='radiator'))m.part=p.id;if(ext)m.ext=1;mods.push(place(m,p.c,Math.cbrt(V)/2));}
  // v19: the crew and troops live in the free volume; hits through it kill people
@@ -10072,7 +10145,7 @@ const SOLID_CUT_CACHE=new WeakMap();
 function normalizeSolidCut(input={}){
  input=input&&typeof input==='object'?input:{};
  const finite=(v,lo,hi,fallback)=>v!=null&&Number.isFinite(Number(v))?clamp(Number(v),lo,hi):fallback;
- const c={shape:Object.hasOwn(SOLID_CUT_SHAPES,input.shape)?input.shape:'box',c:[0,1,2].map(i=>finite(input.c?.[i],-DESIGN_LIMITS.coordinate,DESIGN_LIMITS.coordinate,0)),s:[0,1,2].map(i=>finite(input.s?.[i],1,DESIGN_LIMITS.partSize,100)),rotation:[0,1,2].map(i=>finite(input.rotation?.[i],-180,180,0)),mirror:input.mirror===true,structures:input.structures===true};
+ const c={shape:Object.hasOwn(SOLID_CUT_SHAPES,input.shape)?input.shape:'box',c:[0,1,2].map(i=>finite(input.c?.[i],-DESIGN_LIMITS.coordinate,DESIGN_LIMITS.coordinate,0)),s:[0,1,2].map(i=>finite(input.s?.[i],.02,DESIGN_LIMITS.partSize,100)),rotation:[0,1,2].map(i=>finite(input.rotation?.[i],-180,180,0)),mirror:input.mirror===true,structures:input.structures===true};
  if(c.shape==='sphere')c.s=[c.s[0],c.s[0],c.s[0]];
  if(c.shape==='cylinder'||c.shape==='cone'||c.shape==='frustum'){/* round in plan by default; L and W stay independent for old saves */}
  // Top-to-bottom width ratio of the trapezoid prism and the frustum.
@@ -10897,7 +10970,7 @@ const HEAT={
  storeS:60,          // a source's local store holds this many seconds of its 'combat' waste
  // Dissipator ratings, W per m³, as multiples of the yard's reactor power density (fictional): internal
  // high-energy (ENG-003), external high-energy (ENG-004, × its exposed share), ordinary radiator (ENG-005, low grade only).
- disK:{hdis:2,hdisx:6,radiator:.1},
+ disK:{hdis:2,radiator:.1},
  skinW:3e18,         // W per m² of exposed hull skin radiating low-grade heat (the Executor's hotel load is 1.9e18 W/m²: ~1.5× margin)
  autoLinks:2,        // auto-generated heat paths: each source to its nearest dissipators…
  linkK:1.5,          // …each sized to this many times the source's 'max' waste
@@ -10918,14 +10991,13 @@ const HEAT_PRESETS={cruise:{name:'通常航行',mode:'cruise',eng:.6,sh:1,wpn:0,
  hold:{hidden:true,mode:'weapons',eng:.06,sh:1,wpn:1,sw:1},defend:{hidden:true,mode:'shields',eng:.35,sh:1.5,wpn:1,sw:1},evade:{hidden:true,mode:'balanced',eng:1,sh:1,wpn:1,sw:1}};
 const HEAT_SIZING=['cruise','combat','hold','defend','evade'];
 const HEAT_KINDS={reactor:'反応炉',weapon:'武装',shield:'シールド',engine:'推進',hotel:'生活・電子設備',sw:'超兵器'};
-const DISSIPATORS={hdis:{grade:'high',ext:false},hdisx:{grade:'high',ext:true},radiator:{grade:'low',ext:true}};
+const DISSIPATORS={hdis:{grade:'high',ext:false},radiator:{grade:'low',ext:true}};
 addComp('hdis','内蔵型高エネルギー散逸装置','cube',.5,[214,96,120],'power','船体内部に置く高エネルギー散逸装置（スター・ウォーズの架空技術）。内部容積・質量を使い、近くの熱源から熱輸送路で廃熱を受けて処理します。武装・反応炉・推進・シールド・超兵器のどの熱も扱えます。',{def:30,crew:.05,cost:3});
-addComp('hdisx','外装型高エネルギー散逸装置','cube',.45,[236,120,92],'power','外殻・主翼の外面に張り出させる高エネルギー散逸装置（架空技術）。容積あたりの能力が高い一方、外に出ている分だけ被弾しやすい弱点です。船外に出ている割合に応じて能力が決まります。',{def:24,crew:.03,cost:3,hp:.5});
 addComp('radiator','通常放熱装置','cube',.3,[160,178,196],'power','電子機器・生活設備などの低温の廃熱だけを処理する放熱装置。武装や炉の高エネルギーの廃熱は扱えません。船外に出ている割合が大きいほど能力が上がります。',{def:20,crew:.02,cost:.5,hp:.5});
 INTERNAL_PARTS.add('hdis');
-Object.assign(MODULE_PART_KIND,{hdis:'dissipator',hdisx:'dissipator',radiator:'radiator'});
+Object.assign(MODULE_PART_KIND,{hdis:'dissipator',radiator:'radiator'});
 Object.assign(MODULE_LABEL,{dissipator:'散逸装置',radiator:'放熱装置'});
-function dissipatorCap(p,S,ex){if(!DISSIPATORS[p.k])return 0;const base=partVolume(p)*REACTOR_POWER_DENSITY*HEAT.disK[p.k],e=clamp(ex??S?.info?.[p.id]?.exposed??1,0,1);return p.k==='hdisx'?base*clamp(e*1.5,0,1):p.k==='radiator'?base*(.3+.7*e):base;}
+function dissipatorCap(p,S,ex){if(isWing(p))return wingCap(p,S,ex);if(!DISSIPATORS[p.k])return 0;const base=partVolume(p)*REACTOR_POWER_DENSITY*HEAT.disK[p.k],e=clamp(ex??S?.info?.[p.id]?.exposed??1,0,1);return p.k==='radiator'?base*(.3+.7*e):base;}
 // Power each kind draws at a load preset, from the same distribution rules the battles use (powerSplit).
 // g: {P, fixed, De, Ds, Dw}; sw: [{k, Pshare, n, E, chargeT}] (superweapons charging at 'combat'/'max').
 function heatLoads(g,pr,sw=[]){
@@ -10985,8 +11057,8 @@ function heatNetwork(ship,S){
  // Dissipators: the parts, the hull skin (low grade) and every source's built-in cooling.
  for(const p of ship.parts){if(!DISSIPATORS[p.k]||bad(p.id))continue;const w=WM.get(p.id),e0=info[p.id]?.exposed??0,e=w&&DISSIPATORS[p.k].ext?Math.max(e0,WING.expose):e0,fo=w?foils.indexOf(w):-1;
   dis.push({k:p.k,id:'p'+p.id,name:partLabel(p)+' #'+p.id,at:p.c,grade:DISSIPATORS[p.k].grade,cap:dissipatorCap(p,S,e)*(w?Math.min(1,w.wing.feed??1):1),part:p.id,ext:DISSIPATORS[p.k].ext,exposed:e,sec:sec(p.c),wing:w?.id??null,fo,cs:fo>=0?WING.stowK[p.k]??1:1,sh:fo>=0?WING.shade[p.k]??0:0});}
- // v25 solar wing panels: external high-energy dissipators sized by their area (SOLAR)
- for(const p of ship.parts){if(!p.wing?.solar||bad(p.id))continue;const fo=foils.indexOf(p);dis.push({k:'solar',id:'p'+p.id,name:partLabel(p)+' #'+p.id,at:p.c,grade:'high',cap:solarCap(p,S)*Math.min(1,p.wing.feed??1),part:p.id,ext:true,exposed:clamp(info[p.id]?.exposed??1,.25,1),sec:sec(p.c),wing:p.id,fo,cs:fo>=0?WING.stowK.hdisx:1,sh:fo>=0?WING.shade.hdisx:0});}
+ // The wing IS the dissipator. Solar collection and cooling share one node and one damageable part.
+ for(const p of ship.parts){if(!isWing(p)||bad(p.id))continue;const fo=foils.indexOf(p),low=!p.wing.solar&&p.wing.thermal==='low',kind=p.wing.solar?'solar':low?'radiator':'wing',e=clamp(info[p.id]?.exposed??1,0,1);dis.push({k:kind,id:'p'+p.id,name:partLabel(p)+' #'+p.id,at:p.c,grade:low?'low':'high',cap:wingCap(p,S)*Math.min(1,p.wing.feed??1),part:p.id,ext:true,exposed:e,sec:sec(p.c),wing:p.id,fo,cs:fo>=0?WING.stowK[low?'radiator':'wing']:1,sh:fo>=0?WING.shade[low?'radiator':'wing']:0});}
  dis.push({k:'skin',id:'skin',name:'外殻からの放熱',at:mid,grade:'low',cap:(S.area||0)*HEAT.skinW,sec:-1});
  const portIx=new Map();src.forEach((s,i)=>portIx.set(s.id,i));const disIx=new Map();dis.forEach((d,j)=>disIx.set(d.id,j));
  const manual=normalizeLinks(ship.links)||[],manualHeat=new Set();
@@ -11211,13 +11283,11 @@ function squadHeatStep(s,H,firing,battle,dt){H=H||CRAFT_HEAT.def;s.foil=H.T>0?cl
 // and noise) → contact stages. The drive's exhaust and active sensors radiate on their own (not heat).
 // A dissipator's capacity is never a signature: an idle dissipator radiates nothing.
 //
-// Wings (WING-001/002): a structure with p.wing is a functional wing. It is a structure (shape, volume,
-// mass and editing are the structure's, including the free-form vertex editor) whose inside can hold
-// equipment: high-energy dissipators, ordinary radiators, batteries, structural integrity (reinforcement)
-// … The wing itself dissipates nothing: only the dissipator parts inside it do. What the wing adds is a
-// radiating skin for them (an external dissipator or radiator inside a wing works through the wing's
-// faces, WING.expose), the energy transfer through its root (feed: the share of its dissipators'
-// capacity the root conduits carry), reinforcement and, with an S-foil, the actuator.
+// Wings (WING-001/002): p.wing makes the shaped part itself a heat dissipator. The existing structural
+// geometry preserves outlines, meshes, mounting and vertex editing; there is no separate external box
+// hidden inside a cosmetic wing. Its exposed surface sets its cooling rating; root feed, reinforcement
+// and an optional S-foil actuator belong to this same piece of equipment. Other internal equipment may
+// still be carried by a wing, but never grants it a second external dissipator.
 // S-foils (WING-003/004): a hinge axis (ship X/Y/Z through a pivot, by default the wing's root), the
 // stowed and deployed angles (the shape is modelled deployed), the time to deploy, the actuator's mass
 // and durability, and an interference sweep in the designer. Stowed, the faces of the dissipators inside
@@ -11226,9 +11296,10 @@ function squadHeatStep(s,H,firing,battle,dt){H=H||CRAFT_HEAT.def;s.foil=H.T>0?cl
 // raise the signature (§11).
 // ============================================================
 const WING={
- expose:.85,        // share of an external dissipator's / radiator's faces a wing's skin lets radiate (deployed)
- stowK:{hdis:1,hdisx:.35,radiator:.4},   // maximum capacity stowed, × deployed (folded wings face each other or the hull)
- shade:{hdis:.25,hdisx:.6,radiator:.6},  // share of IR/EM hidden while stowed (neutrinos pass through the wing)
+ expose:.85,
+ highW:5e15,lowW:2.5e14, // provisional W/m² of the actual wing surface; fictional technology
+ stowK:{hdis:1,wing:.35,radiator:.4},
+ shade:{hdis:.25,wing:.6,radiator:.6},
  rho:.6,            // structural mass of a wing, × the ship's mean density × its volume (light structures ¼)
  feedK:.12,         // root energy transfer: mass, × the wing dissipators' mass, at feed 1
  reinfK:.35,        // reinforcement: mass, × the wing's structural mass, at full reinforcement
@@ -11252,8 +11323,24 @@ function solarArea(p){return p?.k==='struct'?partArea(p)/2:0;}
 function solarPower(p){return p?.wing?.solar?solarArea(p)*SOLAR.W:0;}
 function solarCap(p,S){return p?.wing?.solar?solarArea(p)*2*SOLAR.disW*clamp(S?.info?.[p.id]?.exposed??1,.25,1):0;}
 function solarStats(ship,S){let P=0;for(const p of ship.parts)P+=solarPower(p);S.solarPower=P;if(P>0){S.power=(S.power||0)+P;if(S.reactorSplit)S.reactorSplit={...S.reactorSplit,aux:(S.reactorSplit.aux||0)+P};}return S;}
-const WING_PARTS=new Set(['hdis','hdisx','radiator','battery','integrity','sensor','scanner','fuel','aux','inertial']);
-Object.assign(CRAFT_PART_SIZE,{hdis:[.05,4,.35],hdisx:[.05,4,.3],radiator:[.03,4,.3]});
+function wingCap(p,S,ex){if(!isWing(p))return 0;if(p.wing.solar)return solarCap(p,S);const e=clamp(ex??S?.info?.[p.id]?.exposed??1,0,1);return partArea(p)*(p.wing.thermal==='low'?WING.lowW:WING.highW)*e;}
+// Migrate the retired external-box model before the normal loader filters unknown catalogue kinds.
+// Nested boxes become their host wing's function. Standalone boxes keep their shape, ID and links as wings.
+function migrateExternalDissipators(o){
+ if(!o||!Array.isArray(o.parts)||!o.parts.some(p=>p?.k==='hdisx'))return o;
+ const parts=o.parts.map(p=>p?{...p}:p),redirect=new Map(),removed=new Set();
+ for(const p of parts){if(p?.k!=='hdisx')continue;const host=parts.find(w=>w?.k==='struct'&&w.wing&&Array.isArray(w.s)&&Array.isArray(p.c)&&(()=>{try{return inStruct(w,p.c);}catch{return false;}})());
+  if(host){host.wing={...host.wing,thermal:'high'};redirect.set(p.id,host.id);removed.add(p.id);continue;}
+  const d=Number.isFinite(p.d)?Math.max(.1,p.d):24,shape=roomShapeRaw({...p,d});Object.assign(p,shape,{s:shape.s.slice(),wing:{thermal:'high',feed:1,reinf:0}});delete p.room;delete p.d;
+ }
+ const id=n=>redirect.get(n)??n,port=s=>typeof s==='string'&&/^p\d+$/.test(s)?'p'+id(+s.slice(1)):s;
+ for(const p of parts)if(p?.wing?.members)p.wing={...p.wing,members:{parts:[...new Set((p.wing.members.parts||[]).map(id))].filter(n=>n!==p.id),fits:p.wing.members.fits||[]}};
+ return {...o,parts:parts.filter(p=>!removed.has(p?.id)),fits:Array.isArray(o.fits)?o.fits.map(f=>removed.has(f?.host)?{...f,host:id(f.host)}:f):o.fits,
+  links:Array.isArray(o.links)?o.links.map(l=>({...l,from:port(l.from),to:port(l.to)})):o.links,
+  groups:Array.isArray(o.groups)?o.groups.map(g=>({...g,parts:[...new Set((g.parts||[]).map(id))]})):o.groups};
+}
+const WING_PARTS=new Set(['hdis','radiator','battery','integrity','sensor','scanner','fuel','aux','inertial']);
+Object.assign(CRAFT_PART_SIZE,{hdis:[.05,4,.35],radiator:[.03,4,.3]});
 // Optional source IDs associate assemblies that extend beyond the wing's own bounds.
 // IDs are local to a design and must be remapped whenever its children are copied.
 function normalizeWingMembers(m){
@@ -11265,7 +11352,7 @@ function remapWingMembers(w,part,fit){if(!w?.members)return;const m=normalizeWin
 function mirrorWingMembers(w,ship,key){remapWingMembers(w,id=>ship.parts?.find(p=>p.id===id)?.[key],id=>ship.fits?.find(f=>f.id===id)?.[key]);}
 function normalizeWing(w){
  if(!w||typeof w!=='object')return undefined;const f=(v,lo,hi,d)=>Number.isFinite(v)?clamp(v,lo,hi):d;
- const o={feed:f(w.feed,0,2,1),reinf:f(w.reinf,0,1,0)};if(w.solar===true)o.solar=true;
+ const o={thermal:w.thermal==='low'?'low':'high',feed:f(w.feed,0,2,1),reinf:f(w.reinf,0,1,0)};if(w.solar===true)o.solar=true;
  if(w.foil===true){o.foil=true;o.axis=Object.hasOwn(FOIL_AXES,w.axis)?w.axis:'x';o.stow=f(w.stow,-WING.maxAngle,WING.maxAngle,0);o.open=f(w.open,-WING.maxAngle,WING.maxAngle,15);o.T=f(w.T,.1,600,WING.actT);
   if(Array.isArray(w.pivot)&&w.pivot.length===3&&w.pivot.every(Number.isFinite))o.pivot=w.pivot.map(v=>clamp(v,-DESIGN_LIMITS.coordinate,DESIGN_LIMITS.coordinate));const members=normalizeWingMembers(w.members);if(members)o.members=members;}
  return o;
@@ -11380,7 +11467,7 @@ function wingStatsRaw(ship,S){
  const rho=(S.mass||0)/Math.max(1e-9,S.volume||1),dis=S.heat?.net?.dis||[],out=[];let extra=0;
  for(const w of wings){const W=w.wing,M=wingMembers(ship,w),V=partVolume(w),m0=V*rho*WING.rho*(w.light?.25:1);
   const ids=new Set(M.parts.map(q=>q.id)),ds=dis.filter(d=>d.part!=null&&(ids.has(d.part)||d.part===w.id)),capO=ds.reduce((n,d)=>n+d.cap,0),capS=ds.reduce((n,d)=>n+d.cap*(d.cs??1),0);
-  const mDis=M.parts.filter(q=>DISSIPATORS[q.k]).reduce((n,q)=>n+partVolume(q)*rho,0)+(W.solar?m0*.3:0),mCarry=M.parts.concat(M.structs).reduce((n,q)=>n+partVolume(q)*rho*(q.k==='struct'?WING.rho:1),0);
+  const mDis=M.parts.filter(q=>DISSIPATORS[q.k]).reduce((n,q)=>n+partVolume(q)*rho,0)+m0*.3,mCarry=M.parts.concat(M.structs).reduce((n,q)=>n+partVolume(q)*rho*(q.k==='struct'?WING.rho:1),0);
   const feed=mDis*WING.feedK*W.feed,reinf=m0*WING.reinfK*W.reinf,b=wingBounds(w),span=Math.max(b[3]-b[0],b[4]-b[1],b[5]-b[2]);
   const Tref=WING.actT*Math.sqrt(Math.max(.1,span)/10),act=W.foil?(m0+mCarry)*WING.actK*Math.sqrt(Tref/Math.max(.1,W.T)):0,sweep=W.foil?foilSweep(ship,w):null;
   extra+=feed+reinf+act;
@@ -11391,7 +11478,6 @@ function wingStatsRaw(ship,S){
  // the root conduits, the reinforcement and the actuators are carried mass: they cost acceleration
  if(extra>0&&S.mass>0){const k=S.mass/(S.mass+extra);for(const key of ['accelG','aEff','aThrust','aStruct','thrustG','structG'])if(Number.isFinite(S[key]))S[key]*=k;S.mass+=extra;}
  for(const x of out){const tg=[{tab:'mod',partId:x.id}];
-  if(!x.dis.length)S.warnings.push({lv:'info',code:'wing-empty',partId:x.id,text:`主翼 #${x.id} の内部に散逸装置がありません（散逸能力は増えません）。`,targets:tg});
   for(const h of x.hits)S.warnings.push({lv:'warn',code:'foil-clash',partId:x.id,text:`Sフォイル #${x.id} が ${h.angle}° で ${h.name} と干渉します。`,targets:tg});
   if(x.foil&&Math.abs(x.open-x.stow)<.5)S.warnings.push({lv:'info',code:'foil-still',partId:x.id,text:`Sフォイル #${x.id} の収納角と展開角が同じです（動きません）。`,targets:tg});}
  return S;
@@ -11399,7 +11485,7 @@ function wingStatsRaw(ship,S){
 // ---------- emission signatures (SENS-001) ----------
 const EMIT={
  // share of the energy a dissipator sheds seen in each band [neutrino, IR, EM] (fictional; by dissipator type)
- band:{hdis:[.8,.15,.05],hdisx:[.55,.38,.07],radiator:[0,.95,.05],skin:[0,1,0],integral:[.6,.33,.07],legacy:[.8,.15,.05],solar:[.5,.42,.08]},
+ band:{hdis:[.8,.15,.05],wing:[.55,.38,.07],radiator:[0,.95,.05],skin:[0,1,0],integral:[.6,.33,.07],legacy:[.8,.15,.05],solar:[.5,.42,.08]},
  engine:[0,.03,.008],   // share of the power the drive draws seen as exhaust glow [nu, IR, EM] (not heat: it leaves with the exhaust)
  radarW:1e22,           // W of EM radiated per unit of active-sensor aperture while the active sensors are on (a passive EM
                         // receiver hears it farther than the radar itself sees: switching to low emission matters)
@@ -11464,7 +11550,7 @@ function foilStep(u,dt,want,ev){
 }
 function foilState(u){const s=u?.fo,F=u?.p?.foils;if(!s||!F?.length)return null;return F.map((f,i)=>({name:f.n,d:s.d[i],jam:s.jam[i],want:s.want[i]}));}
 
-return {CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT, craftHeat, cleanCraftHeat, squadFireK, squadHeatStep, SOLAR, solarPower, solarCap, solarArea, WING, FOIL_AXES, WING_PARTS, normalizeWing, isWing, isFoil, foilHandles, wingPivot, wingMembers, wingMap, foilSweep, foilPose, foilAt, foilFrame, wingStats, EMIT, BANDS, BAND_NAMES, emitBands, EMCON, EMCON_LOW_MAX, emconOf, SENSOR_BANDS, sensorSuite, SENS, sensSNR, sensStageCap, foilInit, foilStep, foilState, HEAT, HEAT_PRESETS, HEAT_KINDS, HEAT_MODE, DISSIPATORS, dissipatorCap, heatLoads, heatWaste, heatSolve, heatNetwork, heatEvaluate, heatStats, heatProfile, heatProfileOf, heatLegacy, heatInit, heatTick, heatStatus, heatLim, heatSwLim, normalizeLinks, DESIGN_FACTIONS, ionDensity, ionReach, ionGlow, swRange, swFree, swAxis, MGLT, engineDepthRatio, sublightMGLT, AA_CHANNELS, ION_BOLT, ionDiam, ionArea, ionShare, ionPlan, ionStrike, ionBoltsStep, swMuzzle, fleetAim, modWorld, aimPoint, fireScreen, screenShare, escortThreat, escortStation, escortPick, SCREEN, aimHold, aimMark, modQ, exposedMod, standardFit, craftCombat, designCraftSnapshot, cleanDesignCraft, CRAFT_ROLE_RTS, ORDNANCE, ORDNANCE_EVIDENCE, STORE_MOUNTS, STORE_FITS, STORE_DEFAULT, storeCapacity, craftStations, CRAFT_LOADOUT, craftTypeOf, craftLoadout, normalizeLoad, craftOrdnance, ordnanceRuns, ordnanceSalvo, ordnanceSummary, VOLLEY, volleyMode, volleyStep, SUPERWEAPONS, SW_COMBAT, swPower, swChargeRate, swInArc, swHeading, swDecay, swOverload, swPulse, swIonWave, superweaponStep, isSuperweapon, superweaponAim, superweaponOpen, normalizeSuperweapon, superweaponStats, isCraft, partLimits, CRAFT_PART_SIZE, craftPart, craftFieldGain, TROOP_SEAT_M3, ENGINE_GLOWS, engineGlowOK, engineGlowRGB, engineLevel, MISSILE_MOUNTS, missileMount, missileCells, missileStatus, PLATE, plateThickness, shipSpan, HULL_SECTIONS, SECTION_NAMES, hullSectionShares, SHIP_LIGHT_KINDS, SHIP_EXAMPLES, registerShipExample, shipKit, SHELL_ROWS, structRows, shellSection, shellPoint, CIS_PAINT, fitTilt, fitUp, fitFrameOf, openingRimPoint, surfSamples, groundingStats, turretRayContext, turretClear, turretOrigin, turretRate, GROUND_LIMITS, GROUND_PRESETS, GROUND_KINDS, GROUND_VEHICLE_VOLUME, DROID_STORE_M3, CREW_M3_K, CREW_LIVING_M3, personVolume, RETIRED_PARTS, FEED_FLUX, CELL_ENERGY_DENSITY, CELL_DISCHARGE_S, feedConduits, normalizeGroundForces, groundStatus, planStations, bridgeBodyRole, podPoint, podDepth, intrinsicCommandFits, POD_ASSET, BRIDGE_BODY_COMMAND, REFERENCE_TONE, engineSkinMesh, referenceFitYaw, rayTris, vmirrorPlane, vmirrorPoint, vmirrorPart, SHIP_CLASSES, shipClassFor, PUBLIC_LISTS, publicJSON, patchShip, patchItem, cache, AIRCRAFT_CLEARANCE, aircraftFitsBay, shipFitsBay, shipStowSize, CRAFT_TYPES, VEHICLE_TYPES, CRAFT_HINTS, VEHICLE_HINTS, craftDims, airWingDims, groundDims, stowSize, vehicleStowSize, VEHICLE_STOW_FACTOR, craftLift, boxFits, stowLoad, stowInit, stowRows, isCombatRow, COMBAT_ROLES, stowPack, stowPasses, stowStatus, aviationBays, hatchOpening, STOW_GAP, STOW_PASS, STOW_ANY_LENGTH, BUILTIN_COMPLEMENTS, builtinComplement, SHIP_STOW_CLEAR, SHIP_STOW_FACTOR, AVIATION_SIZE_VOLUME, AIR_WING_LIMITS, hangarCapacity, normalizeAirWings, aviationStatus, AVIATION_SURFACE_FACES, hatchAxes, aviationSurfaceContacts, setAviationSurfaceMode, syncAviationSurfaces, aviationHatchActive, isSlidingHatch, slidingHatchSpec, slidingHatchPanels, hatchOpenArea, ISD_HYPER_BASELINE, HYPER_CLASS_COEFFICIENT, HYPER_POWER_DENSITY, ISD_SHIELD_VOLUME, SHIELD_BUFFER_SECONDS, SHIELD_ENERGY_DENSITY, SHIELD_POWER_DENSITY, REACTOR_POWER_DENSITY, SOLID_CUT_SHAPES, SOLID_CUT_POLY_MAX, solidCutDisplayTriangles, solidCutVolume, solidCutConvexOK, convexHullFaces, solidCutThinWalls, SOLID_THIN_WALL_M, compiledSolidCut, STRUCT_MESH_LIMITS, meshTopology, MESH_IMPORT_UNITS, MESH_IMPORT_AXES, parseMeshFile, meshImportPart, simplifyMesh, ASSEMBLY_LIMITS, ASSEMBLY_MOUNTS, ASSEMBLY_ORIGINS, ASSEMBLY_CATEGORIES, assemblyLinks, assemblyCapture, normalizeAssemblyTemplate, assemblyPlace, assemblyIssues, assemblyMirrorFit, assemblyPreview, solidCutWorld, solidCutLocal, solidCutFromLocal, solidCutLocalVerts, solidCutToPoly, normalizeStructMesh, meshStructTriangles, inMeshStruct, mirrorStructMesh, structToMesh, refitStructMesh, meshEditCheck, meshMoveVertices, meshSetVertex, meshSplitEdge, meshCollapseVertex, meshExtrudeFace, meshLocalTris, normalizeSolidCut, mirrorSolidCut, solidCutTriangles, solidCutBounds, solidCutContains, solidCutsContain, applySolidCuts, solidPartCutContains, solidStructVolume, solidCutIntersectsShip, flexibleCompartment, hardConflicts, weaponChargeSpec, DREADNOUGHT_EXAMPLES, DESIGN_LIMITS, ALIGNMENTS, alignedPosition, alignPart, replacementShape, replacementOptions, replacePart, COMMAND_ROLES, commandCompartments, commandStatus, habitationSpace, inspectionTargets, planCutEdge, normalizePlanCut, structFrame, alignStructure, FLEET_RULES, POWER_MODES, POWER_AUTO_NOTE, fleetAutoPower, AIM_KINDS, MODULE_LABEL, FLEET_MIN_CREW, powerSplit, coreDetonation, fleetModules, fleetSystems, fleetCrewEff, fleetCrewRatio, fleetAutoAvail, fleetOutReason, AUTO_M3_PER_CREW, AUTO_W_PER_CREW, AUTO_MIN_HUMAN, fleetEffective, fleetProfile, fleetUnit, fleetIntegrity, trenchBattery, sideBattery, fleetFire, fleetReach, fleetStandoff, fleetHeading, fleetBroadside, fleetPowerStep, bandFireAt, fitBand, GUN_BANDS, COMBAT, combatInit, combatIncoming, combatAdd, combatMerge, combatResolve, combatZones, combatClone, combatZoneAt, COMBAT_FACE, unpackBits, fleetFormation, fleetBattle, fleetOrder, fleetArc, fleetTick, hullHalf, hullMass, hullLocal, AIR_CTL, HF, hullField, hullShape, hullCell, hullTB, hullIn, airMouths, hullOverlap, hullSegment, fireBlocker, fireStray, hullCollide, hullGrid, hullNear, hullAlong, hullAround, hullPairs, HULL_GRID, hullImpact, HULL_HIT, HULL_FALL, hullFall, hullCarve, hullAvoid, fleetCommit, fleetFinish, fleetSample, fleetFrame, normalizeBow, bowStation, engineHullEntry, ENGINE_BASELINES, engineBaseline, resizeEngine, parametricEngine, engineRating, sourceEngine, EQUIPMENT, equipmentSpec, equipmentOptions, enforceEquipment, customizeEquipment, adoptEquipment, HYPERDRIVE_REFERENCE, hyperCapacity, arcParameters, arcPoint, arcTriangles, inArc, SEPARATIST_EXAMPLES, STATS_SOURCE, SHIP_REFERENCE, PART_RATINGS, reactorPower, nozzleThrust, nozzleDemand, shieldLoad, partRatingKeys, validOutline, outlinePoints, outlineArea, outlineTriangles, AVIATION_ROLES, CHARGE_TT_M3, aircraftCapacity, aviationConnected, needsCapacitor, weaponCapacitors, refitReferenceInterior, clipReferenceBox, referenceEnginePoint, fitSpec, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface, COST_CATS, COST_K, COST_MODEL, COST_INSTALL, COST_MOUNT_INSTALL, costCategory, partBuildCost, fitBuildCost, costBreakdown, costSignature, costModelSignature, CRAFT_PRICE_CATALOG, craftCatalogPrice, quoteCostBOM, designCost,
+return {CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT, craftHeat, cleanCraftHeat, squadFireK, squadHeatStep, SOLAR, solarPower, solarCap, solarArea, wingCap, WING, FOIL_AXES, WING_PARTS, normalizeWing, isWing, isFoil, foilHandles, wingPivot, wingMembers, wingMap, foilSweep, foilPose, foilAt, foilFrame, wingStats, EMIT, BANDS, BAND_NAMES, emitBands, EMCON, EMCON_LOW_MAX, emconOf, SENSOR_BANDS, sensorSuite, SENS, sensSNR, sensStageCap, foilInit, foilStep, foilState, HEAT, HEAT_PRESETS, HEAT_KINDS, HEAT_MODE, DISSIPATORS, dissipatorCap, heatLoads, heatWaste, heatSolve, heatNetwork, heatEvaluate, heatStats, heatProfile, heatProfileOf, heatLegacy, heatInit, heatTick, heatStatus, heatLim, heatSwLim, normalizeLinks, DESIGN_FACTIONS, ionDensity, ionReach, ionGlow, swRange, swFree, swAxis, MGLT, engineDepthRatio, sublightMGLT, AA_CHANNELS, ION_BOLT, ionDiam, ionArea, ionShare, ionPlan, ionStrike, ionBoltsStep, swMuzzle, fleetAim, modWorld, aimPoint, fireScreen, screenShare, escortThreat, escortStation, escortPick, SCREEN, aimHold, aimMark, modQ, exposedMod, standardFit, craftCombat, designCraftSnapshot, cleanDesignCraft, CRAFT_ROLE_RTS, ORDNANCE, ORDNANCE_EVIDENCE, STORE_MOUNTS, STORE_FITS, STORE_DEFAULT, storeCapacity, craftStations, CRAFT_LOADOUT, craftTypeOf, craftLoadout, normalizeLoad, craftOrdnance, ordnanceRuns, ordnanceSalvo, ordnanceSummary, VOLLEY, volleyMode, volleyStep, SUPERWEAPONS, SW_COMBAT, swPower, swChargeRate, swInArc, swHeading, swDecay, swOverload, swPulse, swIonWave, superweaponStep, isSuperweapon, superweaponAim, superweaponOpen, normalizeSuperweapon, superweaponStats, isCraft, partLimits, CRAFT_PART_SIZE, craftPart, craftFieldGain, TROOP_SEAT_M3, ENGINE_GLOWS, engineGlowOK, engineGlowRGB, engineLevel, MISSILE_MOUNTS, missileMount, missileCells, missileStatus, PLATE, plateThickness, shipSpan, HULL_SECTIONS, SECTION_NAMES, hullSectionShares, SHIP_LIGHT_KINDS, SHIP_EXAMPLES, registerShipExample, shipKit, SHELL_ROWS, structRows, shellSection, shellPoint, CIS_PAINT, fitTilt, fitUp, fitFrameOf, openingRimPoint, surfSamples, groundingStats, turretRayContext, turretClear, turretOrigin, turretRate, GROUND_LIMITS, GROUND_PRESETS, GROUND_KINDS, GROUND_VEHICLE_VOLUME, DROID_STORE_M3, CREW_M3_K, CREW_LIVING_M3, personVolume, RETIRED_PARTS, FEED_FLUX, CELL_ENERGY_DENSITY, CELL_DISCHARGE_S, feedConduits, normalizeGroundForces, groundStatus, planStations, bridgeBodyRole, podPoint, podDepth, intrinsicCommandFits, POD_ASSET, BRIDGE_BODY_COMMAND, REFERENCE_TONE, engineSkinMesh, referenceFitYaw, rayTris, vmirrorPlane, vmirrorPoint, vmirrorPart, SHIP_CLASSES, shipClassFor, PUBLIC_LISTS, publicJSON, patchShip, patchItem, cache, AIRCRAFT_CLEARANCE, aircraftFitsBay, shipFitsBay, shipStowSize, CRAFT_TYPES, VEHICLE_TYPES, CRAFT_HINTS, VEHICLE_HINTS, craftDims, airWingDims, groundDims, stowSize, vehicleStowSize, VEHICLE_STOW_FACTOR, craftLift, boxFits, stowLoad, stowInit, stowRows, isCombatRow, COMBAT_ROLES, stowPack, stowPasses, stowStatus, aviationBays, hatchOpening, STOW_GAP, STOW_PASS, STOW_ANY_LENGTH, BUILTIN_COMPLEMENTS, builtinComplement, SHIP_STOW_CLEAR, SHIP_STOW_FACTOR, AVIATION_SIZE_VOLUME, AIR_WING_LIMITS, hangarCapacity, normalizeAirWings, aviationStatus, AVIATION_SURFACE_FACES, hatchAxes, aviationSurfaceContacts, setAviationSurfaceMode, syncAviationSurfaces, aviationHatchActive, isSlidingHatch, slidingHatchSpec, slidingHatchPanels, hatchOpenArea, ISD_HYPER_BASELINE, HYPER_CLASS_COEFFICIENT, HYPER_POWER_DENSITY, ISD_SHIELD_VOLUME, SHIELD_BUFFER_SECONDS, SHIELD_ENERGY_DENSITY, SHIELD_POWER_DENSITY, REACTOR_POWER_DENSITY, SOLID_CUT_SHAPES, SOLID_CUT_POLY_MAX, solidCutDisplayTriangles, solidCutVolume, solidCutConvexOK, convexHullFaces, solidCutThinWalls, SOLID_THIN_WALL_M, compiledSolidCut, STRUCT_MESH_LIMITS, meshTopology, MESH_IMPORT_UNITS, MESH_IMPORT_AXES, parseMeshFile, meshImportPart, simplifyMesh, ASSEMBLY_LIMITS, ASSEMBLY_MOUNTS, ASSEMBLY_ORIGINS, ASSEMBLY_CATEGORIES, assemblyLinks, assemblyCapture, normalizeAssemblyTemplate, assemblyPlace, assemblyIssues, assemblyMirrorFit, assemblyPreview, solidCutWorld, solidCutLocal, solidCutFromLocal, solidCutLocalVerts, solidCutToPoly, normalizeStructMesh, meshStructTriangles, inMeshStruct, mirrorStructMesh, structToMesh, refitStructMesh, meshEditCheck, meshMoveVertices, meshSetVertex, meshSplitEdge, meshCollapseVertex, meshExtrudeFace, meshLocalTris, normalizeSolidCut, mirrorSolidCut, solidCutTriangles, solidCutBounds, solidCutContains, solidCutsContain, applySolidCuts, solidPartCutContains, solidStructVolume, solidCutIntersectsShip, flexibleCompartment, hardConflicts, weaponChargeSpec, DREADNOUGHT_EXAMPLES, DESIGN_LIMITS, ALIGNMENTS, alignedPosition, alignPart, replacementShape, replacementOptions, replacePart, COMMAND_ROLES, commandCompartments, commandStatus, habitationSpace, inspectionTargets, planCutEdge, normalizePlanCut, structFrame, alignStructure, FLEET_RULES, POWER_MODES, POWER_AUTO_NOTE, fleetAutoPower, AIM_KINDS, MODULE_LABEL, FLEET_MIN_CREW, powerSplit, coreDetonation, fleetModules, fleetSystems, fleetCrewEff, fleetCrewRatio, fleetAutoAvail, fleetOutReason, AUTO_M3_PER_CREW, AUTO_W_PER_CREW, AUTO_MIN_HUMAN, fleetEffective, fleetProfile, fleetUnit, fleetIntegrity, trenchBattery, sideBattery, fleetFire, fleetReach, fleetStandoff, fleetHeading, fleetBroadside, fleetPowerStep, bandFireAt, fitBand, GUN_BANDS, COMBAT, combatInit, combatIncoming, combatAdd, combatMerge, combatResolve, combatZones, combatClone, combatZoneAt, COMBAT_FACE, unpackBits, fleetFormation, fleetBattle, fleetOrder, fleetArc, fleetTick, hullHalf, hullMass, hullLocal, AIR_CTL, HF, hullField, hullShape, hullCell, hullTB, hullIn, airMouths, hullOverlap, hullSegment, fireBlocker, fireStray, hullCollide, hullGrid, hullNear, hullAlong, hullAround, hullPairs, HULL_GRID, hullImpact, HULL_HIT, HULL_FALL, hullFall, hullCarve, hullAvoid, fleetCommit, fleetFinish, fleetSample, fleetFrame, normalizeBow, bowStation, engineHullEntry, ENGINE_BASELINES, engineBaseline, resizeEngine, parametricEngine, engineRating, sourceEngine, EQUIPMENT, equipmentSpec, equipmentOptions, enforceEquipment, customizeEquipment, adoptEquipment, HYPERDRIVE_REFERENCE, hyperCapacity, arcParameters, arcPoint, arcTriangles, inArc, SEPARATIST_EXAMPLES, STATS_SOURCE, SHIP_REFERENCE, PART_RATINGS, reactorPower, nozzleThrust, nozzleDemand, shieldLoad, partRatingKeys, validOutline, outlinePoints, outlineArea, outlineTriangles, AVIATION_ROLES, CHARGE_TT_M3, aircraftCapacity, aviationConnected, needsCapacitor, weaponCapacitors, refitReferenceInterior, clipReferenceBox, referenceEnginePoint, fitSpec, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface, COST_CATS, COST_K, COST_MODEL, COST_INSTALL, COST_MOUNT_INSTALL, costCategory, partBuildCost, fitBuildCost, costBreakdown, costSignature, costModelSignature, CRAFT_PRICE_CATALOG, craftCatalogPrice, quoteCostBOM, designCost,
   TT, G0, ISD_W, K, PARTS, FITS, HULLS, SECTIONS, KEELS, SECTORS, CLASSES, DESIGNS, AXES, AXNAME, ARMOR_MAX,
   newShip, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
@@ -12003,12 +12089,9 @@ CRAFT.lambda.stay = true;
 // the Hyena bomber, V-19 and Z-95 (built without one) and the landing craft have none.
 const CRAFT_HYPER = {xwing: 1, ywing: 1, btlb: 1, awing: 1, uwing: 1, bwing: 2, arc170: 1.5, lambda: 1, sentinel: 1};
 for (const [k, h] of Object.entries(CRAFT_HYPER)) if (CRAFT[k]) CRAFT[k].hyper = h;
-// v25 squadron heat (C.craftHeat): the rates measured from the craft examples' design-time heat network
-// (ships/craft_*.js, regenerate when the heat model changes): stores filled per second of dogfight with S-foils
-// deployed (up) and stowed (upS), emptied per second off the trigger (down); T: S-foil deploy time.
-// Craft without an example (Eta-2, tri-fighter, Y/B-wing, transports) never saturate (C.CRAFT_HEAT.def).
-const CRAFT_HEAT_CANON = {arc170: {up: .00271, upS: .00271, down: .0133, T: 0}, awing: {up: .00255, upS: .00255, down: .0136, T: 0}, btlb: {up: .00108, upS: .00108, down: .0125, T: 0}, hyena: {up: .00758, upS: .00758, down: .019, T: 0}, tie_in: {up: .00481, upS: .00481, down: .0239, T: 0}, tie_ln: {up: 0, upS: 0, down: .0331, T: 0}, tie_sa: {up: .00212, upS: .00212, down: .0272, T: 0}, v19: {up: .00755, upS: .00755, down: .018, T: 0}, vulture: {up: .00758, upS: .00758, down: .0189, T: 0}, vwing: {up: .00337, upS: .00337, down: .0141, T: 0}, xwing: {up: .00171, upS: .00171, down: .0116, T: 0}, z95: {up: .00698, upS: .00698, down: .0187, T: 0}};
-for (const [k, h] of Object.entries(CRAFT_HEAT_CANON)) if (CRAFT[k]) CRAFT[k].heat = h;
+// Squadron heat is generated from each editable blueprint's current thermal network.
+// The runtime uses this inexpensive snapshot, including actual S-foil cooling and deployment time.
+for(const [k,c] of Object.entries(CRAFT)){const heat=C.cleanCraftHeat(C.craftCatalogPrice(k)?.heat);if(heat)c.heat=heat;}
 // Stock aircraft use the same measured systems as their editable blueprints.
 // Table-only types use their priced equipment list with the shared systems stage.
 for(const [k,c] of Object.entries(CRAFT)){const catalog=C.craftCatalogPrice(k),systems=catalog?.systems||estimatedCraftSystems(c);if(systems){c.systems=C.cleanCraftSystems(systems);c.systemsSource=catalog?.systems?'blueprint':'estimate';}}

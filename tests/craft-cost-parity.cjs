@@ -75,6 +75,11 @@ for (const reference of Object.keys(C.SHIP_EXAMPLES).filter(k => k.startsWith('c
     assert.deepEqual(plain(R.CRAFT[type].systems), systems, 'standard systems come from the same measured blueprint');
     assert.deepEqual(plain(R.CRAFT[registered].systems), systems, 'registering the model does not change its systems');
     assert.equal(R.CRAFT[type].systemsSource, 'blueprint');
+    const heat=plain(C.cleanCraftHeat(C.craftHeat(stats)));
+    assert.deepEqual(plain(C.CRAFT_PRICE_CATALOG.entries[type].heat),heat,'catalog carries the current heat network');
+    assert.deepEqual(plain(R.CRAFT[type].heat),heat,'standard aircraft use the design thermal model');
+    assert.deepEqual(plain(R.CRAFT[registered].heat),heat,'custom aircraft use the same cooling and S-foil timing');
+    assert.deepEqual(plain(R.CRAFT[copied].heat),heat,'renaming the model does not alter cooling');
     const stock = {id: 'stock', craft: type, n: 1, state: 'out', ldg: []}, custom = {id: 'custom', craft: registered, n: 1, state: 'out', ldg: []};
     for (const squad of [stock, custom]) {R.rearmSquad(squad);squad.dogfight = 10;}
     assert.equal(stock.laserGas, custom.laserGas);assert.equal(stock.lifeSupport, custom.lifeSupport);
