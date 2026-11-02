@@ -47,3 +47,17 @@ test('fractional size guidance and metric fields retain exact decimal values in 
  const html=run(`metreSlider('eh','高さ',.064,.02,3)`);htmlTranslated(html);
  assert.match(html,/value="0\.064"/);assert.match(html,/step="any"/);assert.equal(translated('0.064 m'),'0.064 m');
 });
+
+test('TIE panel frame choices and signed spar-position controls translate in placed and placement editors',()=>{
+ for(const form of ['outline','mesh'])for(const bracing of ['radial','spar','none']){
+  context.part={k:'solarPanel',form,s:[7,6,.08],panelBracing:bracing,panelSparX:-.22039474,panelFrame:0,panelRib:0,panelFold:-41.431207,panelKnee:.35101387};
+  const placed=run('aeroShapeControls(part,true)');htmlTranslated(placed);
+  assert.match(placed,/data-aerobracing="radial"/);assert.match(placed,/data-aerobracing="spar"/);assert.match(placed,/data-aerobracing="none"/);
+  assert.match(placed,form==='mesh'?/頂点に沿う梁/:/放射梁/);assert.match(placed,/縦梁/);
+  if(bracing==='spar'){const value=placed.match(/data-sl="aeroPanelSparX"[^>]*value="([^"]+)"/);assert.ok(value);assert.ok(Math.abs(Number(value[1])+22.039474)<.00005);}
+  else assert.doesNotMatch(placed,/data-sl="aeroPanelSparX"/);
+  run(`Object.assign(st,{part:'solarPanel',panelBracing:'${bracing}',panelSparX:-.22039474,panelFrame:0,panelRib:0})`);
+  const fresh=run('aeroShapeControls(part,false)');htmlTranslated(fresh);assert.match(fresh,/data-newaerobracing="none"/);
+ }
+ assert.equal(translated('太陽光パネルの支柱配置'),'Solar Panel Frame Layout');
+});

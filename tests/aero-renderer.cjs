@@ -8,6 +8,7 @@ test('a dedicated solar panel renders a dark collector and a contrasting perimet
  const {ship,part}=fixture('solarPanel'),g=G.meshParts(ship,{coded:false}),mesh=g.g.struct;
  assert.equal(part.k,'solarPanel');assert.equal(ship.parts.length,1);
  assert.ok(colors(mesh).has('35,43,57'));assert.ok(colors(mesh).has('154,161,169'));
+ for(let i=0;i<mesh.n;i++)assert.equal(mesh.col[i*4+3],254,'collector and frame suppress generated cabin lights');
  assert.ok(C.aeroPanelRibs(part).length>0);assert.ok(mesh.ni>C.structTriangles(part).length/3);
  assert.equal(Object.keys(g.ranges).length,1);assert.ok(g.ranges[part.id].some(r=>r[0]==='struct'));
 });
@@ -15,6 +16,7 @@ test('a dedicated wing renders its six-corner section without a cosmetic structu
  const {ship,part}=fixture('wing'),g=G.meshParts(ship,{coded:false});
  assert.equal(part.k,'wing');assert.equal(part.form,'airfoil');assert.equal(ship.parts.filter(p=>p.k==='struct').length,0);
  assert.ok(g.g.struct.ni>0);assert.ok(g.ranges[part.id]);
+ for(let i=0;i<g.g.struct.n;i++)assert.equal(g.g.struct.col[i*4+3],255,'other exterior parts retain their lighting material');
 });
 test('bending a panel moves its collector and ribs together, without modifying its saved shape',()=>{
  const {ship,part}=fixture('solarPanel',{panelFold:35,panelKnee:.35}),before=C.publicJSON(ship),g=G.meshParts(ship,{coded:false});
@@ -28,4 +30,11 @@ test('baking a folded collector keeps its support bars thin rather than using it
  const before=bounds(C.aeroPanelRibs(part)),baked=C.aeroBake(part),after=bounds(C.aeroPanelRibs(baked));
  assert.ok(baked.s[2]>part.s[2]*5);
  before.forEach((x,i)=>assert.ok(Math.abs(x-after[i])<.1,`support envelope ${i}: ${x} -> ${after[i]}`));
+});
+
+test('a selected solar panel outlines its physical edges without drawing triangulation as extra support bars',()=>{
+ const {part}=fixture('solarPanel'),lines=G.lineSet();lines.part(part,[100,200,255,255]);const out=lines.out();
+ assert.equal(out.pos.length,18*6,'six edges on each face and six thickness edges');
+ assert.ok(out.pos.length<C.structTriangles(part).length*2,'internal triangle diagonals are hidden');
+ const raw=C.structTriangles(part);for(let i=0;i<out.pos.length;i+=3){const v=Array.from(out.pos.slice(i,i+3));assert.ok(Array.from({length:raw.length/3},(_,j)=>[raw[j*3],raw[j*3+1],raw[j*3+2]]).some(q=>q.every((x,a)=>Math.abs(x-v[a])<1e-6)));}
 });

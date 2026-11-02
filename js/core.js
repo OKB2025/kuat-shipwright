@@ -105,7 +105,7 @@ function costCategory(k) { return COST_KIND[k] || COST_GROUP[PARTS[k]?.group] ||
 // training, COST_K.crew cr a head. Every side's figures come from here (fleet organisation, scenario cost limits,
 // later the campaign's budget requests).
 const COST_K = {crew: 1000};
-const COST_MODEL=Object.freeze({version:5,hull:0.6,armor:30,wingInstall:1800,wingArea:18});
+const COST_MODEL=Object.freeze({version:6,hull:0.6,armor:30,wingInstall:1800,wingArea:18});
 const COST_INSTALL=Object.freeze({gen:18000,aux:6000,engine:7500,hyper:20000,shield:12000,localShield:4000,fuel:2000,battery:2500,inertial:7000,integrity:4000,repulsor:3500,sensor:3000,scanner:4000,firecontrol:6000,cockpit:6000,astromech:6000,droidbrain:5000,automation:6000,command:8000,lifeSupport:2500,ejectSeat:1500,navComputer:4500,targetComputer:4000,maneuver:3000,laserGas:2000,landingGear:2500});
 const COST_MOUNT_INSTALL=Object.freeze({claser:3500,claserH:5000,cion:4500,cturret:4500,ctorp:5500,cmsl:4000,cbomb:3500,cpylon:1250,weapon:750,command:1500});
 function partBuildCost(p,volume){const d=PARTS[p?.k];if(!d)return 0;const V=Number.isFinite(volume)?Math.max(0,volume):partVolume(p),light=p.k==='struct'&&p.light&&!p.plate?.25:1,area=isWing(p)?Array.isArray(p.s)?partArea(p):6*Math.pow(V,2/3):0;return V>0?V*(d.cost||0)*light+(p.id<0?0:COST_INSTALL[p.k]||0)+(isWing(p)?COST_MODEL.wingInstall+area*COST_MODEL.wingArea:0):0;}
@@ -117,15 +117,15 @@ function costBreakdown(total,source){
  return Object.fromEntries(Object.entries(by).filter(([,v])=>v>0));
 }
 function costSignature(value){const text=JSON.stringify(value,(key,v)=>v&&typeof v==='object'&&!Array.isArray(v)?Object.fromEntries(Object.keys(v).sort().map(k=>[k,v[k]])):v);let h=2166136261;for(let i=0;i<text.length;i++)h=Math.imul(h^text.charCodeAt(i),16777619);return (h>>>0).toString(36);}
-function costModelSignature(){return costSignature({model:COST_MODEL,systems:CRAFT_SYSTEMS,wing:WING,wingSection:AERO_WING_SECTION,solar:SOLAR,heat:HEAT,crew:COST_K.crew,install:COST_INSTALL,mount:COST_MOUNT_INSTALL,categories:COST_KIND,parts:Object.fromEntries(Object.entries(PARTS).map(([k,d])=>[k,{cost:d.cost||0,group:d.group||''}])),fits:Object.fromEntries(Object.entries(FITS).map(([k,d])=>[k,{cost:d.cost||0,cat:d.cat||''}]))});}
+function costModelSignature(){return costSignature({model:COST_MODEL,systems:CRAFT_SYSTEMS,wing:WING,wingSection:AERO_WING_SECTION,solar:SOLAR,solarPresets:SOLAR_PANEL_PRESETS,heat:HEAT,crew:COST_K.crew,install:COST_INSTALL,mount:COST_MOUNT_INSTALL,categories:COST_KIND,parts:Object.fromEntries(Object.entries(PARTS).map(([k,d])=>[k,{cost:d.cost||0,group:d.group||''}])),fits:Object.fromEntries(Object.entries(FITS).map(([k,d])=>[k,{cost:d.cost||0,cat:d.cat||''}]))});}
 // BEGIN GENERATED CRAFT PRICES — scripts/update-craft-costs.cjs
 const CRAFT_PRICE_CATALOG={
- "modelVersion": 5,
- "modelSignature": "hyi8zm",
+ "modelVersion": 6,
+ "modelSignature": "15zisth",
  "entries": {
   "arc170": {
    "reference": "craft_arc170",
-   "signature": "g7n4eg",
+   "signature": "17k4aw7",
    "build": 210058,
    "crew": 3000,
    "total": 213058,
@@ -178,7 +178,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "awing": {
    "reference": "craft_awing",
-   "signature": "1xkh99g",
+   "signature": "1271677",
    "build": 155334,
    "crew": 1000,
    "total": 156334,
@@ -231,7 +231,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "btlb": {
    "reference": "craft_btlb",
-   "signature": "15bcub7",
+   "signature": "1qrzdcm",
    "build": 199776,
    "crew": 2000,
    "total": 201776,
@@ -284,7 +284,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "hyena": {
    "reference": "craft_hyena",
-   "signature": "aa7sz4",
+   "signature": "1eyxndb",
    "build": 207626,
    "crew": 0,
    "total": 207626,
@@ -335,7 +335,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_in": {
    "reference": "craft_tie_in",
-   "signature": "1vdzunw",
+   "signature": "1k3qs2",
    "build": 108118,
    "crew": 1000,
    "total": 109118,
@@ -382,13 +382,13 @@ const CRAFT_PRICE_CATALOG={
    "heat": {
     "up": 0.00446,
     "upS": 0.00446,
-    "down": 0.0361,
+    "down": 0.0362,
     "T": 0
    }
   },
   "tie_ln": {
    "reference": "craft_tie_ln",
-   "signature": "1pbrkwo",
+   "signature": "y51s0f",
    "build": 94225,
    "crew": 1000,
    "total": 95225,
@@ -441,7 +441,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_sa": {
    "reference": "craft_tie_sa",
-   "signature": "1x0jr93",
+   "signature": "13nnl4a",
    "build": 132279,
    "crew": 1000,
    "total": 133279,
@@ -494,7 +494,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "v19": {
    "reference": "craft_v19",
-   "signature": "1qijir9",
+   "signature": "hod6jc",
    "build": 157966,
    "crew": 1000,
    "total": 158966,
@@ -547,7 +547,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "vulture": {
    "reference": "craft_vulture",
-   "signature": "7elwgc",
+   "signature": "t8aenf",
    "build": 144429,
    "crew": 0,
    "total": 144429,
@@ -598,7 +598,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "vwing": {
    "reference": "craft_vwing",
-   "signature": "13f9yoq",
+   "signature": "sa6001",
    "build": 227872,
    "crew": 1000,
    "total": 228872,
@@ -651,7 +651,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "xwing": {
    "reference": "craft_xwing",
-   "signature": "febdhj",
+   "signature": "4vynoa",
    "build": 177920,
    "crew": 1000,
    "total": 178920,
@@ -704,7 +704,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "z95": {
    "reference": "craft_z95",
-   "signature": "z3y9lo",
+   "signature": "n0x257",
    "build": 132864,
    "crew": 1000,
    "total": 133864,
@@ -2705,7 +2705,7 @@ function placePart(ship,k,c,size,opt={},mirror=false){
   const old=ship._building;ship._building=true;let p;
   try{p=v3PlacePart(ship,k,c,size,opt,mirror);}finally{ship._building=old;}
   const made=ship.parts.filter(q=>q.id===p.id||q.id===p.tw);
-  for(const q of made){for(const a of ['autoFit','engineLength','equipmentId','customEquipment','arcBands','bands','bandPaint','stripes','shellCurve','shellThick','shellFlip','arcInner','arcStart','arcSweep','label','length','corner','aftWidth','foreWidth','paint','bodyLength','bodyRadius','ribSpacing','nozzleLength','throatRatio','wallInset','ridge','deckSlope','skin','skinAsset','skinAxial','skinAnchor','skinDiameter','skinSize','airRole','pitch','roll','surfaceNormal','panelFrame','panelRib','panelFold','panelKnee'])if(opt[a]!=null)q[a]=opt[a];if(isShapePart(q)&&opt.plate){q.plate=true;q.plateT=plateThickness(opt);}if(isShapePart(q)&&opt.light&&!opt.plate)q.light=true;if(isShapePart(q)&&opt.wing){const w=normalizeWing(opt.wing);if(w){if(opt.id!=null&&opt.id!==q.id)delete w.members;if(q!==p){if(w.pivot)w.pivot=mirrorP(w.pivot);if(w.members)mirrorWingMembers(w,ship,'tw');}q.wing=w;}}if((q.k==='sensor'||q.k==='scanner')&&Object.hasOwn(SENSOR_BANDS,opt.band)&&opt.band!=='multi')q.band=opt.band;if(opt.outline)q.outline=opt.outline.map(a=>[a[0],a[1]*(q===p?1:-1)]);if(opt.loft)q.loft=opt.loft.map(a=>a.length>4?[...a.slice(0,4),a[4]*(q===p?1:-1)]:a.slice());if(q!==p&&q.form==='arc')q.arcStart=((-(p.arcStart??30)-(p.arcSweep??300)+540)%360)-180;if(q!==p&&q.form==='shell')q.shellFlip=!opt.shellFlip;if(opt.surfaceNormal)q.surfaceNormal=q===p?opt.surfaceNormal.slice():mirrorP(opt.surfaceNormal);if(q!==p&&opt.roll!=null)q.roll=-opt.roll;if(opt.room)setRoomSize(q,opt.room);if(opt.yaw!=null&&!isShapePart(q))q.yaw=q===p?opt.yaw:-opt.yaw;}
+  for(const q of made){for(const a of ['autoFit','engineLength','equipmentId','customEquipment','arcBands','bands','bandPaint','stripes','shellCurve','shellThick','shellFlip','arcInner','arcStart','arcSweep','label','length','corner','aftWidth','foreWidth','paint','bodyLength','bodyRadius','ribSpacing','nozzleLength','throatRatio','wallInset','ridge','deckSlope','skin','skinAsset','skinAxial','skinAnchor','skinDiameter','skinSize','airRole','pitch','roll','surfaceNormal','panelFrame','panelRib','panelFold','panelKnee','panelSparX','panelBracing'])if(opt[a]!=null)q[a]=opt[a];if(isShapePart(q)&&opt.plate){q.plate=true;q.plateT=plateThickness(opt);}if(isShapePart(q)&&opt.light&&!opt.plate)q.light=true;if(isShapePart(q)&&opt.wing){const w=normalizeWing(opt.wing);if(w){if(opt.id!=null&&opt.id!==q.id)delete w.members;if(q!==p){if(w.pivot)w.pivot=mirrorP(w.pivot);if(w.members)mirrorWingMembers(w,ship,'tw');}q.wing=w;}}if((q.k==='sensor'||q.k==='scanner')&&Object.hasOwn(SENSOR_BANDS,opt.band)&&opt.band!=='multi')q.band=opt.band;if(opt.outline)q.outline=opt.outline.map(a=>[a[0],a[1]*(q===p?1:-1)]);if(opt.loft)q.loft=opt.loft.map(a=>a.length>4?[...a.slice(0,4),a[4]*(q===p?1:-1)]:a.slice());if(q!==p&&q.form==='arc')q.arcStart=((-(p.arcStart??30)-(p.arcSweep??300)+540)%360)-180;if(q!==p&&q.form==='shell')q.shellFlip=!opt.shellFlip;if(opt.surfaceNormal)q.surfaceNormal=q===p?opt.surfaceNormal.slice():mirrorP(opt.surfaceNormal);if(q!==p&&opt.roll!=null)q.roll=-opt.roll;if(opt.room)setRoomSize(q,opt.room);if(opt.yaw!=null&&!isShapePart(q))q.yaw=q===p?opt.yaw:-opt.yaw;}
   for(const q of made){normalizeAeroPart(q);enforceEquipment(q);normalizeSuperweapon(q);if(isShapePart(q))q._solidCutShip=ship;if(q.k==='cockpit'){if(Number.isFinite(opt.seats))q.seats=clamp(Math.round(opt.seats),1,20);if(opt.suit===true)q.suit=true;}}
   if(made.length===2&&equipmentSpec(p)){const q=made.find(q=>q!==p),id=q.id,tw=q.tw;Object.assign(q,mirrorPart(p,ship),{id,tw});}
   for(const q of made)if(isInternal(q))q._envelope=ship;
@@ -2937,7 +2937,7 @@ function deserialize(o){
     if((p.bands||p.arcBands||p.stripes)&&/^#[0-9a-f]{6}$/i.test(q.bandPaint))p.bandPaint=q.bandPaint;
     // Editable meshes: cleaned on load; an unusable mesh falls back to a box of the same size.
     if(p.form==='mesh'){const r=normalizeStructMesh(q.mesh);if(r.mesh){p.mesh=r.mesh;if(q.imported===true)p.imported=true;}else{p.form='box';s.meshRepairs=(s.meshRepairs||0)+1;}}
-    if(isShapePart(p)&&q.wing){const w=normalizeWing(q.wing);if(w)p.wing=w;}if(isAeroPart(p)){for(const k of ['panelFrame','panelRib','panelFold','panelKnee'])if(Number.isFinite(q[k]))p[k]=q[k];normalizeAeroPart(p);}if((p.k==='sensor'||p.k==='scanner')&&Object.hasOwn(SENSOR_BANDS,q.band)&&q.band!=='multi')p.band=q.band;
+    if(isShapePart(p)&&q.wing){const w=normalizeWing(q.wing);if(w)p.wing=w;}if(isAeroPart(p)){for(const k of ['panelFrame','panelRib','panelFold','panelKnee','panelSparX'])if(Number.isFinite(q[k]))p[k]=q[k];if(['radial','spar','none'].includes(q.panelBracing))p.panelBracing=q.panelBracing;normalizeAeroPart(p);}if((p.k==='sensor'||p.k==='scanner')&&Object.hasOwn(SENSOR_BANDS,q.band)&&q.band!=='multi')p.band=q.band;
     if(p.form==='shell'){p.shellCurve=finite(q.shellCurve,-1,1,1);p.shellThick=finite(q.shellThick,.02,60,3);if(q.shellFlip===true)p.shellFlip=true;}
     if(isShapePart(p)||p.room){if(Array.isArray(q.surfaceNormal)&&q.surfaceNormal.length===3&&q.surfaceNormal.every(Number.isFinite)&&len(q.surfaceNormal)>.001)p.surfaceNormal=norm(q.surfaceNormal);if(q.pitch!=null)p.pitch=finite(q.pitch,-180,180,0);if(q.roll!=null)p.roll=finite(q.roll,-180,180,0);}
     if(q.corner!=null)p.corner=finite(q.corner,0,.45,.12);if(q.length!=null)p.length=finite(q.length,.1,DESIGN_LIMITS.partSize,p.d*1.5);if(q.bodyLength!=null)p.bodyLength=finite(q.bodyLength,.1,DESIGN_LIMITS.engineLength,p.d*2.2);if(q.bodyRadius!=null)p.bodyRadius=finite(q.bodyRadius,.3,.8,.52);if(q.yaw!=null)p.yaw=finite(q.yaw,-180,180,0);if(p.dir&&len(p.dir)<.1)p.dir=[-1,0,0];if(/^#[0-9a-f]{6}$/i.test(q.paint))p.paint=q.paint;if(q.ribSpacing!=null)p.ribSpacing=finite(q.ribSpacing,0,100,12);
@@ -5453,7 +5453,7 @@ function tieInBuild(){
  const xs=TIN.mid.map(p=>p[0]),ys=TIN.mid.map(p=>p[1]),x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys),Lm=x1-x0,Hm=y1-y0,cxm=(x0+x1)/2,cym=(y0+y1)/2;
  const [mz0,mz1]=TIN.midZ;
  M('struct',[gx(cxm),gy(cym),(mz0+mz1)/2],[Lm,Hm,mz1-mz0],{form:'outline',outline:TIN.mid.map(([x,y])=>[(x-cxm)/Lm,-(y-cym)/Hm]),roll:90,light:true,label:'翼中央部'});
- M('struct',[gx(1.15),gy(0),(mz0+mz1)/2],[1.7,mz1-mz0+.02,1.9],{form:'box',light:true,paint:PANEL,wing:{solar:true},label:'翼中央パネル'});
+ M('struct',[gx(1.15),gy(0),(mz0+mz1)/2],[1.7,1.9,mz1-mz0+.02],{form:'box',roll:90,light:true,paint:PANEL,wing:{solar:true},panelBracing:'none',panelFrame:0,panelRib:0,label:'翼中央パネル'});
  M('struct',[gx(3.12),gy(0),4.26],[1.35,.28,1.4],{form:'box',light:true,label:'翼外側ハブ'});
  // The upper and lower plates, bent inward, with the rim and the arm's strut band on them.
  const [yb,zb]=TIN.plateBase,[yt,zt]=TIN.plateTop,dy=yt-yb,dz=zt-zb,sl=Math.hypot(dy,dz),cs=dy/sl,sn=-dz/sl;
@@ -5463,7 +5463,7 @@ function tieInBuild(){
   const u=[0,sgn*cs,-sn],n=[0,sgn*sn,cs],k=-n[2]*u[1]+n[1]*u[2];
   const pts=TIN.plate.map(([x,y])=>[x,(Math.abs(y)-yb)/cs]);
   const px=pts.map(p=>p[0]),ps=pts.map(p=>p[1]),a0=Math.min(...px),a1=Math.max(...px),s0=Math.min(...ps),s1=Math.max(...ps),Lp=a1-a0,Sp=s1-s0,ac=(a0+a1)/2,sc=(s0+s1)/2;
-  M('struct',[gx(ac),gy(sgn*yb)+u[1]*sc,zb+u[2]*sc],[Lp,Sp,.2],{form:'outline',outline:pts.map(([x,sv])=>[(x-ac)/Lp,k*(sv-sc)/Sp]),surfaceNormal:n,light:true,paint:PANEL,wing:{solar:true},label:sgn>0?'上翼板':'下翼板'});
+  M('struct',[gx(ac),gy(sgn*yb)+u[1]*sc,zb+u[2]*sc],[Lp,Sp,.2],{form:'outline',outline:pts.map(([x,sv])=>[(x-ac)/Lp,k*(sv-sc)/Sp]),surfaceNormal:n,light:true,paint:PANEL,wing:{solar:true},panelBracing:'none',panelFrame:0,panelRib:0,label:sgn>0?'上翼板':'下翼板'});
   const bar=(pa,pb,w,label)=>{const dxp=pb[0]-pa[0],dsp=pb[1]-pa[1],l=Math.hypot(dxp,dsp),mx=(pa[0]+pb[0])/2,ms=(pa[1]+pb[1])/2;
    M('struct',[gx(mx),gy(sgn*yb)+u[1]*ms,zb+u[2]*ms],[l,w,.24],{form:'box',surfaceNormal:n,yaw:Math.atan2(k*dsp,dxp)*180/Math.PI,light:true,label});};
   const inset=(a,b,d)=>{const dx=b[0]-a[0],ds=b[1]-a[1],l=Math.hypot(dx,ds);return [[a[0]+ds/l*d,a[1]-dx/l*d],[b[0]+ds/l*d,b[1]-dx/l*d]];};
@@ -5525,7 +5525,7 @@ function tieLnBuild(){
  // Wings (starboard, mirrored to port), light structures: the solar collector panel, the hub,
  // the rim, the horizontal spar and the four spokes (deep rib plus flange).
  const cx=3.62,zc=2.9865;
- M('struct',[gx(cx),gy(0),zc],[7.24,8.346,.143],{form:'outline',outline:TLN.wing.map(([x,y])=>[(x-cx)/7.24,-y/8.346]),roll:90,light:true,paint:PANEL,wing:{solar:true},label:'太陽電池翼'});
+ M('struct',[gx(cx),gy(0),zc],[7.24,8.346,.143],{form:'outline',outline:TLN.wing.map(([x,y])=>[(x-cx)/7.24,-y/8.346]),roll:90,light:true,paint:PANEL,wing:{solar:true},panelBracing:'none',panelFrame:0,panelRib:0,label:'太陽電池翼'});
  M('struct',[gx(cx),gy(0),3.0],[2.0,2.0,.56],{form:'outline',outline:TLN.hub.map(([x,y])=>[x/2.0,-y/2.0]),roll:90,light:true,label:'翼中央ハブ'});
  const bar=(a,b,w,dep,label)=>{const dx=b[0]-a[0],dy=b[1]-a[1];M('struct',[gx((a[0]+b[0])/2),gy((a[1]+b[1])/2),zc],[Math.hypot(dx,dy),dep,w],{form:'box',pitch:Math.atan2(dy,dx)*180/Math.PI,light:true,label});};
  // The rim runs along the outline offset inward by half its width, so its mitred corners stay inside.
@@ -5611,7 +5611,7 @@ function tieSaBuild(){
  // lower plates bent inward, with the rim and the vertical beam.
  const xs=TSA.mid.map(p=>p[0]),ys=TSA.mid.map(p=>p[1]),x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys),Lm=x1-x0,Hm=y1-y0,cxm=(x0+x1)/2,cym=(y0+y1)/2;
  const [mz0,mz1]=TSA.midZ;
- M('struct',[gx(cxm),gy(cym),(mz0+mz1)/2],[Lm,Hm,mz1-mz0],{form:'outline',outline:TSA.mid.map(([x,y])=>[(x-cxm)/Lm,-(y-cym)/Hm]),roll:90,light:true,paint:PANEL,wing:{solar:true},label:'翼中央部'});
+ M('struct',[gx(cxm),gy(cym),(mz0+mz1)/2],[Lm,Hm,mz1-mz0],{form:'outline',outline:TSA.mid.map(([x,y])=>[(x-cxm)/Lm,-(y-cym)/Hm]),roll:90,light:true,paint:PANEL,wing:{solar:true},panelBracing:'none',panelFrame:0,panelRib:0,label:'翼中央部'});
  M('struct',[gx(5.49),gy(0),(mz0+mz1)/2],[.56,mz1-mz0+.06,2.2],{form:'box',light:true,label:'翼縦梁'});
  const [yb,zb]=TSA.plateBase,[yt,zt]=TSA.plateTop,dy=yt-yb,dz=zt-zb,sl=Math.hypot(dy,dz),cs=dy/sl,sn=-dz/sl;
  for(const sgn of [1,-1]){
@@ -5620,7 +5620,7 @@ function tieSaBuild(){
   const u=[0,sgn*cs,-sn],n=[0,sgn*sn,cs],k=-n[2]*u[1]+n[1]*u[2];
   const pts=TSA.plate.map(([x,y])=>[x,(Math.abs(y)-yb)/cs]);
   const px=pts.map(p=>p[0]),ps=pts.map(p=>p[1]),a0=Math.min(...px),a1=Math.max(...px),s0=Math.min(...ps),s1=Math.max(...ps),Lp=a1-a0,Sp=s1-s0,ac=(a0+a1)/2,sc=(s0+s1)/2;
-  M('struct',[gx(ac),gy(sgn*yb)+u[1]*sc,zb+u[2]*sc],[Lp,Sp,.25],{form:'outline',outline:pts.map(([x,sv])=>[(x-ac)/Lp,k*(sv-sc)/Sp]),surfaceNormal:n,light:true,paint:PANEL,wing:{solar:true},label:sgn>0?'上翼板':'下翼板'});
+  M('struct',[gx(ac),gy(sgn*yb)+u[1]*sc,zb+u[2]*sc],[Lp,Sp,.25],{form:'outline',outline:pts.map(([x,sv])=>[(x-ac)/Lp,k*(sv-sc)/Sp]),surfaceNormal:n,light:true,paint:PANEL,wing:{solar:true},panelBracing:'none',panelFrame:0,panelRib:0,label:sgn>0?'上翼板':'下翼板'});
   const bar=(pa,pb,w,label)=>{const dxp=pb[0]-pa[0],dsp=pb[1]-pa[1],l=Math.hypot(dxp,dsp),mx=(pa[0]+pb[0])/2,ms=(pa[1]+pb[1])/2;
    M('struct',[gx(mx),gy(sgn*yb)+u[1]*ms,zb+u[2]*ms],[l,w,.29],{form:'box',surfaceNormal:n,yaw:Math.atan2(k*dsp,dxp)*180/Math.PI,light:true,label});};
   const inset=(a,b,d)=>{const dx=b[0]-a[0],ds=b[1]-a[1],l=Math.hypot(dx,ds);return [[a[0]+ds/l*d,a[1]-dx/l*d],[b[0]+ds/l*d,b[1]-dx/l*d]];};
@@ -11359,6 +11359,39 @@ const AERO_WING_SECTION=Object.freeze([[0,0],[.22,.5],[.62,.3],[1,0],[.62,-.3],[
 const AERO_PANEL_OUTLINE=Object.freeze([[-.5,0],[-.34,-.5],[.34,-.5],[.5,0],[.34,.5],[-.34,.5]].map(Object.freeze));
 // Six corners, matching a TIE/ln collector in the part's own plane.
 const AERO_SOLAR_HEX=AERO_PANEL_OUTLINE;
+// TIE collectors are unfolded here, then bent along their measured upper/lower roots.
+// Coordinates use local +X forward and local Z along the panel span. Width is unfolded span/chord.
+const SOLAR_PANEL_PRESETS=(()=>{
+ const make=(L,root,outer,drop,P,sparX,bracing,rib)=>{const sl=Math.hypot(outer-root,drop),half=root+sl;return Object.freeze({outline:Object.freeze(P(half).map(([x,y])=>Object.freeze([x/L-.5,-y/(2*half)]))),aspect:2*half/L,panelFold:-Math.atan2(drop,outer-root)*180/Math.PI,panelKnee:root/half,panelSparX:sparX/L-.5,panelBracing:bracing,frameRatio:.2/L,ribRatio:rib/L});};
+ const hex=Object.freeze({outline:Object.freeze([[0,0],[1.192,-4.173],[6.048,-4.173],[7.24,0],[6.048,4.173],[1.192,4.173]].map(([x,y])=>Object.freeze([x/7.24-.5,-y/8.346]))),aspect:8.346/7.24,panelFold:0,panelKnee:.35,panelSparX:0,panelBracing:'radial',frameRatio:.2/7.24,ribRatio:.27/7.24});
+ const interceptor=make(9.12,1.45,3.46,1.774,h=>[[0,-1.30],[.12,-1.45],[1.35,-h],[3.1,-h],[8.8,-1.45],[8.9,-1.45],[9.12,-1.3],[9.12,-.95],[4.25,-.95],[4.25,-.5],[4.9,-.45],[4.9,.45],[4.25,.5],[4.25,.95],[9.12,.95],[9.12,1.3],[8.9,1.45],[8.8,1.45],[3.1,h],[1.35,h],[.12,1.45],[0,1.30]],2.55,'spar',1.05);
+ const bomber=make(7.9,1.1,2.704,1.31,h=>[[0,-.922],[.094,-1.1],[.941,-h],[6.959,-h],[7.806,-1.1],[7.9,-.922],[7.9,.922],[7.806,1.1],[6.959,h],[.941,h],[.094,1.1],[0,.922]],5.49,'spar',.56);
+ return Object.freeze({hex,interceptor,bomber});
+})();
+function solarPanelPreset(key='hex'){key=({tie_ln:'hex',tie_in:'interceptor',tie_sa:'bomber'})[key]||key;const d=Object.hasOwn(SOLAR_PANEL_PRESETS,key)?SOLAR_PANEL_PRESETS[key]:SOLAR_PANEL_PRESETS.hex;return {...d,outline:d.outline.map(q=>q.slice())};}
+function solarPanelClipLine(P,a,b){
+ const dx=b[0]-a[0],dz=b[1]-a[1],ts=[0,1];if(Math.hypot(dx,dz)<1e-10)return [];
+ for(let i=0;i<P.length;i++){const q=P[i],r=P[(i+1)%P.length],ex=r[0]-q[0],ez=r[1]-q[1],den=dx*ez-dz*ex;if(Math.abs(den)<1e-12)continue;const x=q[0]-a[0],z=q[1]-a[1],t=(x*ez-z*ex)/den,u=(x*dz-z*dx)/den;if(t>1e-9&&t<1-1e-9&&u>=-1e-9&&u<=1+1e-9)ts.push(t);}
+ const T=[...new Set(ts.map(t=>Math.round(t*1e10)/1e10))].sort((x,y)=>x-y),out=[];
+ for(let i=0;i+1<T.length;i++){const t=(T[i]+T[i+1])/2;if(pointInRing(a[0]+dx*t,a[1]+dz*t,P))out.push([[a[0]+dx*T[i],a[1]+dz*T[i]],[a[0]+dx*T[i+1],a[1]+dz*T[i+1]]]);}return out;
+}
+function solarPanelBraces(p){
+ if(p.panelBracing==='none')return [];
+ const P=aeroFootprint(p),lo=[0,1].map(a=>Math.min(...P.map(q=>q[a]))),hi=[0,1].map(a=>Math.max(...P.map(q=>q[a]))),out=[];
+ const add=(a,b,kind)=>{for(const [A,B] of solarPanelClipLine(P,a,b))out.push({a:A,b:B,kind});};
+ const x=clamp(Number.isFinite(p.panelSparX)?p.panelSparX:0,lo[0],hi[0]);
+ if(p.panelBracing==='spar'){
+  add([x,lo[1]],[x,hi[1]],'spar');
+  const knee=clamp(Number.isFinite(p.panelKnee)?p.panelKnee:.35,0,.9)/2;
+  if(Math.abs(p.panelFold||0)>1e-8)for(const z of [-knee,knee])add([lo[0],z],[hi[0],z],'fold');
+ }else{
+  const z=(lo[1]+hi[1])/2;add([lo[0],z],[hi[0],z],'spar');
+  // Four diagonal spokes to the top/bottom corners; the two side tips use the horizontal spar.
+  const reach=Math.max(...P.map(q=>Math.abs(q[1]-z))),corners=P.filter(q=>Math.abs(Math.abs(q[1]-z)-reach)<1e-7);
+  for(const q of corners)add([x,z],q,'spoke');
+ }
+ return out;
+}
 function aeroFootprint(p){
  let P=p.outline;
  if(!validOutline(P)){
@@ -11422,21 +11455,57 @@ function aeroArea(p){
  if(p.form==='mesh'&&p.mesh?.v?.length){const sc=[p.s[0],p.s[2],p.s[1]],cells=Array.isArray(p.mesh.cellFaces)?new Set(p.mesh.cellFaces.filter(i=>Number.isInteger(i)&&i>=0&&i<p.mesh.f.length)):null;let area=0;for(let i=0;i<p.mesh.f.length;i++){if(cells&&!cells.has(i))continue;const [a,b,c]=p.mesh.f[i].map(i=>p.mesh.v[i].map((x,j)=>x*sc[j])),n=cross(sub(b,a),sub(c,a)),A=len(n);if(A>0&&(cells||Math.abs(n[1])/A>.05))area+=A/2;}return area/2;}
  return Math.abs(outlineArea(aeroFootprint(p)))*p.s[0]*p.s[1];
 }
-function aeroRibWidths(p){const span=Math.min(p.s[0],p.s[1]),sane=(v,d)=>Number.isFinite(v)?clamp(v,0,span*.2):d,frame=sane(p.panelFrame,span*.02),rib=sane(p.panelRib,span*.012);return {frame,rib,depth:Math.max(frame,rib)*.6};}
+function aeroRibWidths(p){const span=Math.min(p.s[0],p.s[1]),sane=(v,d)=>Number.isFinite(v)?clamp(v,0,span*.2):d,frame=sane(p.panelFrame,span*.02),rib=sane(p.panelRib,span*.012);return {frame,rib,depth:frame>0?frame*.6:rib*.15};}
+function solarPanelRibbonPolys(P,Q){
+ const out=[];
+ for(const ids of outlineEars(P)){
+  let poly=Q;
+  for(let i=0;i<3&&poly.length;i++){
+   const a=P[ids[i]],b=P[ids[(i+1)%3]],next=[],side=q=>(b[0]-a[0])*(q[1]-a[1])-(b[1]-a[1])*(q[0]-a[0]);
+   for(let j=0;j<poly.length;j++){const u=poly[j],v=poly[(j+1)%poly.length],du=side(u),dv=side(v),iu=du>=-1e-10,iv=dv>=-1e-10;if(iu)next.push(u);if(iu!==iv){const t=du/(du-dv);next.push([u[0]+(v[0]-u[0])*t,u[1]+(v[1]-u[1])*t]);}}
+   poly=next.filter((q,i)=>!i||Math.hypot(q[0]-next[i-1][0],q[1]-next[i-1][1])>1e-10);
+   if(poly.length>2&&Math.hypot(poly[0][0]-poly.at(-1)[0],poly[0][1]-poly.at(-1)[1])<1e-10)poly.pop();
+  }
+  if(poly.length>2&&Math.abs(outlineArea(poly))>1e-12)out.push(poly);
+ }
+ return out;
+}
 function aeroPanelRibs(p){
- if(p.k!=='solarPanel'&&!p.wing?.solar)return new Float32Array();
- const key=JSON.stringify([p.form,p.mesh,p.outline,p.c,p.s,p.surfaceNormal,p.pitch,p.roll,p.yaw,p.corner,p.aftWidth,p.foreWidth,p.panelFrame,p.panelRib,p.panelFold,p.panelKnee]),old=p._aeroRibs;if(old?.key===key)return old.tris;
+ if((p.k!=='solarPanel'&&!p.wing?.solar)||p.panelBracing==='none')return new Float32Array();
+ const key=JSON.stringify([p.form,p.mesh,p.outline,p.c,p.s,p.surfaceNormal,p.pitch,p.roll,p.yaw,p.corner,p.aftWidth,p.foreWidth,p.panelFrame,p.panelRib,p.panelFold,p.panelKnee,p.panelBracing,p.panelSparX]),old=p._aeroRibs;if(old?.key===key)return old.tris;
  const B=aeroBuilder(),[L,W,H]=p.s,{frame,rib,depth}=aeroRibWidths(p),flat=[],world=m=>{for(const t of m.f)for(const i of t)flat.push(...worldStruct(p,[m.v[i][0]*L,m.v[i][1]*H,m.v[i][2]*W]));};
  if(p.form==='mesh'&&p.mesh){
-  const M=p.mesh,edges=new Map(),sc=[L,H,W];for(const t of M.f){const q=t.map(i=>M.v[i].map((x,a)=>x*sc[a])),n=norm(cross(sub(q[1],q[0]),sub(q[2],q[0])));for(let i=0;i<3;i++){const a=Math.min(t[i],t[(i+1)%3]),b=Math.max(t[i],t[(i+1)%3]),key=a+','+b,e=edges.get(key)||{a,b,n:[]};e.n.push(n);edges.set(key,e);}}
-  const crease=[],inside=[];for(const e of edges.values()){const a=M.v[e.a].map((x,i)=>x*sc[i]),b=M.v[e.b].map((x,i)=>x*sc[i]);e.a3=a;e.b3=b;e.length=len(sub(b,a));if(e.n.length!==2||Math.abs(dot(e.n[0],e.n[1]))<.985)crease.push(e);else if(e.n.every(n=>Math.abs(n[1])>.05)&&e.length>Math.min(L,W)*.2)inside.push(e);}
-  const bar=(e,width)=>{if(!(width>0)||e.length<1e-8)return;const d=norm(sub(e.b3,e.a3)),n=e.n.reduce((a,b)=>add(a,b),[0,0,0]),up=len(n)>1e-8?norm(n):[0,1,0],rt0=cross(d,up),rt=len(rt0)>1e-8?norm(rt0):norm(cross(d,[1,0,0])),u=norm(cross(rt,d)),v=[];for(const a of [e.a3,e.b3])for(const x of [-1,1])for(const y of [-1,1])v.push(add(a,add(mul(rt,x*width/2),mul(u,y*depth/2))).map((x,i)=>x/sc[i]));const faces=[[0,1,3,2],[4,6,7,5],[0,4,5,1],[2,3,7,6],[0,2,6,4],[1,5,7,3]];for(const f of faces)B.poly(f.map(i=>v[i]));};
-  for(const e of crease)bar(e,frame);for(const e of inside.sort((a,b)=>b.length-a.length).slice(0,12))bar(e,rib);world(B.done());
+  const M=p.mesh,edges=new Map(),sc=[L,H,W];
+  for(const t of M.f){const q=t.map(i=>M.v[i].map((x,a)=>x*sc[a])),n=norm(cross(sub(q[1],q[0]),sub(q[2],q[0])));for(let i=0;i<3;i++){const a=Math.min(t[i],t[(i+1)%3]),b=Math.max(t[i],t[(i+1)%3]),key=a+','+b,e=edges.get(key)||{a,b,n:[]};e.n.push(n);edges.set(key,e);}}
+  const crease=[],inside=[];for(const e of edges.values()){e.a3=M.v[e.a].map((x,i)=>x*sc[i]);e.b3=M.v[e.b].map((x,i)=>x*sc[i]);e.length=len(sub(e.b3,e.a3));if(e.n.length!==2||Math.abs(dot(e.n[0],e.n[1]))<.985)crease.push(e);else if(e.n.every(n=>Math.abs(n[1])>.05)&&e.length>Math.min(L,W)*.2)inside.push(e);}
+  const bar=(e,width)=>{
+   if(!(width>0)||e.length<1e-8)return;
+   const d=norm(sub(e.b3,e.a3)),n=e.n.reduce((a,b)=>add(a,b),[0,0,0]),up=len(n)>1e-8?norm(n):[0,1,0],rt0=cross(d,up),rt=len(rt0)>1e-8?norm(rt0):norm(cross(d,Math.abs(d[0])<.8?[1,0,0]:[0,0,1])),u=norm(cross(rt,d)),v=[];
+   for(const a of [e.a3,e.b3])for(const x of [-1,1])for(const y of [-1,1])v.push(add(a,add(mul(rt,x*width/2),mul(u,y*depth/2))).map((x,i)=>x/sc[i]));
+   for(const f of [[0,1,3,2],[4,6,7,5],[0,4,5,1],[2,3,7,6],[0,2,6,4],[1,5,7,3]])B.poly(f.map(i=>v[i]));
+  };
+  for(const e of crease)bar(e,frame);
+  if(p.panelBracing==='spar'){
+   const x=Number.isFinite(p.panelSparX)?p.panelSparX:0,cells=Array.isArray(M.cellFaces)?M.cellFaces:M.f.map((_,i)=>i),seen=new Set();
+   for(const fi of cells){const q=M.f[fi].map(i=>M.v[i]),cuts=[];
+    for(let i=0;i<3;i++){const a=q[i],b=q[(i+1)%3],da=a[0]-x,db=b[0]-x;if(Math.abs(da)<1e-9)cuts.push(a);if(da*db<0){const t=da/(da-db);cuts.push(a.map((v,j)=>v+(b[j]-v)*t));}}
+    const Q=cuts.filter((a,i)=>!cuts.slice(0,i).some(b=>len(sub(a,b))<1e-9));if(Q.length!==2)continue;
+    const A=Q[0].map((v,i)=>v*sc[i]),D=Q[1].map((v,i)=>v*sc[i]),id=[A,D].map(q=>q.map(v=>Math.round(v*1e7)).join(',')).sort().join('|');if(seen.has(id))continue;seen.add(id);
+    const v=q.map(a=>a.map((v,i)=>v*sc[i]));bar({a3:A,b3:D,length:len(sub(D,A)),n:[norm(cross(sub(v[1],v[0]),sub(v[2],v[0])))]},rib);
+   }
+  }else for(const e of inside.sort((a,b)=>b.length-a.length).slice(0,12))bar(e,rib);
+  world(B.done());
  }else{
-  const P=aeroFootprint(p),F=aeroFoldConfig(p),ears=outlineEars(P),inside=q=>pointInRing(q[0],q[1],P);let center=[0,0],area=outlineArea(P)*6;for(let i=0;i<P.length;i++){const a=P[i],b=P[(i+1)%P.length],c=a[0]*b[1]-b[0]*a[1];center[0]+=(a[0]+b[0])*c;center[1]+=(a[1]+b[1])*c;}center=center.map(v=>v/area);if(!inside(center)){const t=ears.sort((a,b)=>Math.abs(outlineCross(P[b[0]],P[b[1]],P[b[2]]))-Math.abs(outlineCross(P[a[0]],P[a[1]],P[a[2]])))[0];center=[0,1].map(a=>t.reduce((n,i)=>n+P[i][a],0)/3);}
-  const segment=(a,b,width)=>{if(!(width>0))return;const dx=(b[0]-a[0])*L,dz=(b[1]-a[1])*W,d=Math.hypot(dx,dz);if(d<1e-8)return;const ex=-dz/d*width/2/L,ez=dx/d*width/2/W,Q=[[a[0]-ex,a[1]-ez],[b[0]-ex,b[1]-ez],[b[0]+ex,b[1]+ez],[a[0]+ex,a[1]+ez]];if(outlineArea(Q)<0)Q.reverse();for(const sign of [-1,1]){const y=sign*(.5+depth/2/H);aeroPrism(Q,y-depth/2/H,y+depth/2/H,B,q=>aeroFoldPoint(p,q,F),F.levels);}};
-  for(let i=0;i<P.length;i++)segment(P[i],P[(i+1)%P.length],frame);
-  for(const corner of P){const d=sub(corner,center),ts=[0,1];for(let i=0;i<P.length;i++){const a=P[i],b=P[(i+1)%P.length],e=sub(b,a),den=d[0]*e[1]-d[1]*e[0];if(Math.abs(den)<1e-12)continue;const q=sub(a,center),t=(q[0]*e[1]-q[1]*e[0])/den,u=(q[0]*d[1]-q[1]*d[0])/den;if(t>1e-8&&t<1-1e-8&&u>=0&&u<=1)ts.push(t);}ts.sort((a,b)=>a-b);for(let i=0;i+1<ts.length;i++){const t=(ts[i]+ts[i+1])/2;if(inside([center[0]+d[0]*t,center[1]+d[1]*t]))segment([center[0]+d[0]*ts[i],center[1]+d[1]*ts[i]],[center[0]+d[0]*ts[i+1],center[1]+d[1]*ts[i+1]],rib);}}
+  const P=aeroFootprint(p),F=aeroFoldConfig(p);
+  const segment=(a,b,width,inset=false)=>{
+   if(!(width>0))return;
+   const dx=(b[0]-a[0])*L,dz=(b[1]-a[1])*W,d=Math.hypot(dx,dz);if(d<1e-8)return;
+   const nx=-dz/d,nz=dx/d,shift=inset?width/2:0,extend=inset?width/2:0,A=[a[0]+(nx*shift-dx/d*extend)/L,a[1]+(nz*shift-dz/d*extend)/W],D=[b[0]+(nx*shift+dx/d*extend)/L,b[1]+(nz*shift+dz/d*extend)/W],ex=nx*width/2/L,ez=nz*width/2/W,Q=[[A[0]-ex,A[1]-ez],[D[0]-ex,D[1]-ez],[D[0]+ex,D[1]+ez],[A[0]+ex,A[1]+ez]];
+   if(outlineArea(Q)<0)Q.reverse();
+   for(const clipped of solarPanelRibbonPolys(P,Q))for(const sign of [-1,1]){const y=sign*(.5+depth/2/H);aeroPrism(clipped,y-depth/2/H,y+depth/2/H,B,q=>aeroFoldPoint(p,q,F),F.levels);}
+  };
+  for(let i=0;i<P.length;i++)segment(P[i],P[(i+1)%P.length],frame,true);
+  for(const e of solarPanelBraces(p))segment(e.a,e.b,e.kind==='fold'?frame:rib);
   world(B.done());
  }
  const tris=Float32Array.from(flat);p._aeroRibs={key,tris};return tris;
@@ -11455,13 +11524,24 @@ function normalizeAeroPart(p){
   p.outline=ring.filter((q,i)=>!ring.slice(0,i).some(v=>Math.hypot(v[0]-q[0],v[1]-q[1])<1e-9));
  }
  if(!p.outline&&['airfoil','outline'].includes(p.form))p.outline=(solar?AERO_PANEL_OUTLINE:AERO_WING_OUTLINE).map(q=>q.slice());
- if(solar){const span=Math.min(...(p.s||[4,6]).slice(0,2));p.panelFrame=finite(p.panelFrame,0,1000,Math.max(.004,Math.min(.08,span*.02)));p.panelRib=finite(p.panelRib,0,1000,p.panelFrame*.65);p.panelFold=finite(p.panelFold,-80,80,0);p.panelKnee=finite(p.panelKnee,0,.9,.35);}
+ if(solar){const span=Math.min(...(p.s||[4,6]).slice(0,2));p.panelFrame=finite(p.panelFrame,0,1000,Math.max(.004,Math.min(.08,span*.02)));p.panelRib=finite(p.panelRib,0,1000,p.panelFrame*.65);p.panelFold=finite(p.panelFold,-80,80,0);p.panelKnee=finite(p.panelKnee,0,.9,.35);p.panelSparX=finite(p.panelSparX,-2,2,0);p.panelBracing=['radial','spar','none'].includes(p.panelBracing)?p.panelBracing:'radial';}
  delete p.plate;delete p.plateT;return p;
 }
 function dedicateAeroParts(ship){for(const p of ship.parts||[]){normalizeAeroPart(p);if(isShapePart(p))p._solidCutShip=ship;}return ship;}
 function migrateAeroParts(o){
  if(!o||!Array.isArray(o.parts))return o;
- return {...o,parts:o.parts.map(p=>p&&(isAeroPart(p)||(p.k==='struct'&&p.wing))?normalizeAeroPart({...p,wing:p.wing?{...p.wing}:undefined}):p)};
+ const frames=o.parts.filter(p=>p?.k==='struct'&&['翼支柱帯','翼縦梁','翼支柱','翼外枠'].includes(p.label)&&Array.isArray(p.c));
+ return {...o,parts:o.parts.map(p=>{
+  if(!p||!(isAeroPart(p)||(p.k==='struct'&&p.wing)))return p;
+  const q={...p,wing:p.wing?{...p.wing}:undefined};
+  // The interceptor's old rear collector used box axes (height last). Reframe its identical box
+  // as a vertical sheet so solar area and preset thickness use the two broad face dimensions.
+  const rectangle=!p.outline||(Array.isArray(p.outline)&&p.outline.length===4&&p.outline.every(a=>Array.isArray(a)&&a.length===2&&a.every(v=>Math.abs(Math.abs(v)-.5)<1e-8))&&validOutline(p.outline));
+  if((p.k==='solarPanel'||p.wing?.solar)&&p.label==='翼中央パネル'&&p.form==='box'&&!p.surfaceNormal&&!(p.pitch||p.roll||p.yaw)&&Array.isArray(p.s)&&p.s.length===3&&p.s.every(v=>Number.isFinite(v)&&v>0)&&p.s[2]>p.s[1]&&rectangle){q.s=[p.s[0],p.s[2],p.s[1]];q.roll=p.c?.[2]<0?-90:90;}
+  // Older stock copies already contain measured structural beams. Do not paint a second framework.
+  if(!Object.hasOwn(p,'panelBracing')&&(p.k==='solarPanel'||p.wing?.solar)&&['太陽電池翼','翼中央パネル','翼中央部','上翼板','下翼板'].includes(p.label)&&Array.isArray(p.s)&&Array.isArray(p.c)&&frames.some(f=>len(sub(f.c,p.c))<Math.max(4,len(p.s))))Object.assign(q,{panelBracing:'none',panelFrame:0,panelRib:0});
+  return normalizeAeroPart(q);
+ })};
 }
 function solarArea(p){return isAeroPart(p)?aeroArea(p):isShapePart(p)?partArea(p)/2:0;}
 function solarPower(p){return p?.wing?.solar?solarArea(p)*SOLAR.W:0;}
@@ -11694,7 +11774,7 @@ function foilStep(u,dt,want,ev){
 }
 function foilState(u){const s=u?.fo,F=u?.p?.foils;if(!s||!F?.length)return null;return F.map((f,i)=>({name:f.n,d:s.d[i],jam:s.jam[i],want:s.want[i]}));}
 
-return {isShapeKind,isShapePart,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,AERO_WING_OUTLINE,AERO_WING_SECTION,AERO_PANEL_OUTLINE,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT, craftHeat, cleanCraftHeat, squadFireK, squadHeatStep, SOLAR, solarPower, solarCap, solarArea, wingCap, WING, FOIL_AXES, WING_PARTS, normalizeWing, isWing, isFoil, foilHandles, wingPivot, wingMembers, wingMap, foilSweep, foilPose, foilAt, foilFrame, wingStats, EMIT, BANDS, BAND_NAMES, emitBands, EMCON, EMCON_LOW_MAX, emconOf, SENSOR_BANDS, sensorSuite, SENS, sensSNR, sensStageCap, foilInit, foilStep, foilState, HEAT, HEAT_PRESETS, HEAT_KINDS, HEAT_MODE, DISSIPATORS, dissipatorCap, heatLoads, heatWaste, heatSolve, heatNetwork, heatEvaluate, heatStats, heatProfile, heatProfileOf, heatLegacy, heatInit, heatTick, heatStatus, heatLim, heatSwLim, normalizeLinks, DESIGN_FACTIONS, ionDensity, ionReach, ionGlow, swRange, swFree, swAxis, MGLT, engineDepthRatio, sublightMGLT, AA_CHANNELS, ION_BOLT, ionDiam, ionArea, ionShare, ionPlan, ionStrike, ionBoltsStep, swMuzzle, fleetAim, modWorld, aimPoint, fireScreen, screenShare, escortThreat, escortStation, escortPick, SCREEN, aimHold, aimMark, modQ, exposedMod, standardFit, craftCombat, designCraftSnapshot, cleanDesignCraft, CRAFT_ROLE_RTS, ORDNANCE, ORDNANCE_EVIDENCE, STORE_MOUNTS, STORE_FITS, STORE_DEFAULT, storeCapacity, craftStations, CRAFT_LOADOUT, craftTypeOf, craftLoadout, normalizeLoad, craftOrdnance, ordnanceRuns, ordnanceSalvo, ordnanceSummary, VOLLEY, volleyMode, volleyStep, SUPERWEAPONS, SW_COMBAT, swPower, swChargeRate, swInArc, swHeading, swDecay, swOverload, swPulse, swIonWave, superweaponStep, isSuperweapon, superweaponAim, superweaponOpen, normalizeSuperweapon, superweaponStats, isCraft, partLimits, CRAFT_PART_SIZE, craftPart, craftFieldGain, TROOP_SEAT_M3, ENGINE_GLOWS, engineGlowOK, engineGlowRGB, engineLevel, MISSILE_MOUNTS, missileMount, missileCells, missileStatus, PLATE, plateThickness, shipSpan, HULL_SECTIONS, SECTION_NAMES, hullSectionShares, SHIP_LIGHT_KINDS, SHIP_EXAMPLES, registerShipExample, shipKit, SHELL_ROWS, structRows, shellSection, shellPoint, CIS_PAINT, fitTilt, fitUp, fitFrameOf, openingRimPoint, surfSamples, groundingStats, turretRayContext, turretClear, turretOrigin, turretRate, GROUND_LIMITS, GROUND_PRESETS, GROUND_KINDS, GROUND_VEHICLE_VOLUME, DROID_STORE_M3, CREW_M3_K, CREW_LIVING_M3, personVolume, RETIRED_PARTS, FEED_FLUX, CELL_ENERGY_DENSITY, CELL_DISCHARGE_S, feedConduits, normalizeGroundForces, groundStatus, planStations, bridgeBodyRole, podPoint, podDepth, intrinsicCommandFits, POD_ASSET, BRIDGE_BODY_COMMAND, REFERENCE_TONE, engineSkinMesh, referenceFitYaw, rayTris, vmirrorPlane, vmirrorPoint, vmirrorPart, SHIP_CLASSES, shipClassFor, PUBLIC_LISTS, publicJSON, patchShip, patchItem, cache, AIRCRAFT_CLEARANCE, aircraftFitsBay, shipFitsBay, shipStowSize, CRAFT_TYPES, VEHICLE_TYPES, CRAFT_HINTS, VEHICLE_HINTS, craftDims, airWingDims, groundDims, stowSize, vehicleStowSize, VEHICLE_STOW_FACTOR, craftLift, boxFits, stowLoad, stowInit, stowRows, isCombatRow, COMBAT_ROLES, stowPack, stowPasses, stowStatus, aviationBays, hatchOpening, STOW_GAP, STOW_PASS, STOW_ANY_LENGTH, BUILTIN_COMPLEMENTS, builtinComplement, SHIP_STOW_CLEAR, SHIP_STOW_FACTOR, AVIATION_SIZE_VOLUME, AIR_WING_LIMITS, hangarCapacity, normalizeAirWings, aviationStatus, AVIATION_SURFACE_FACES, hatchAxes, aviationSurfaceContacts, setAviationSurfaceMode, syncAviationSurfaces, aviationHatchActive, isSlidingHatch, slidingHatchSpec, slidingHatchPanels, hatchOpenArea, ISD_HYPER_BASELINE, HYPER_CLASS_COEFFICIENT, HYPER_POWER_DENSITY, ISD_SHIELD_VOLUME, SHIELD_BUFFER_SECONDS, SHIELD_ENERGY_DENSITY, SHIELD_POWER_DENSITY, REACTOR_POWER_DENSITY, SOLID_CUT_SHAPES, SOLID_CUT_POLY_MAX, solidCutDisplayTriangles, solidCutVolume, solidCutConvexOK, convexHullFaces, solidCutThinWalls, SOLID_THIN_WALL_M, compiledSolidCut, STRUCT_MESH_LIMITS, meshTopology, MESH_IMPORT_UNITS, MESH_IMPORT_AXES, parseMeshFile, meshImportPart, simplifyMesh, ASSEMBLY_LIMITS, ASSEMBLY_MOUNTS, ASSEMBLY_ORIGINS, ASSEMBLY_CATEGORIES, assemblyLinks, assemblyCapture, normalizeAssemblyTemplate, assemblyPlace, assemblyIssues, assemblyMirrorFit, assemblyPreview, solidCutWorld, solidCutLocal, solidCutFromLocal, solidCutLocalVerts, solidCutToPoly, normalizeStructMesh, meshStructTriangles, inMeshStruct, mirrorStructMesh, structToMesh, refitStructMesh, meshEditCheck, meshMoveVertices, meshSetVertex, meshSplitEdge, meshCollapseVertex, meshExtrudeFace, meshLocalTris, normalizeSolidCut, mirrorSolidCut, solidCutTriangles, solidCutBounds, solidCutContains, solidCutsContain, applySolidCuts, solidPartCutContains, solidStructVolume, solidCutIntersectsShip, flexibleCompartment, hardConflicts, weaponChargeSpec, DREADNOUGHT_EXAMPLES, DESIGN_LIMITS, ALIGNMENTS, alignedPosition, alignPart, replacementShape, replacementOptions, replacePart, COMMAND_ROLES, commandCompartments, commandStatus, habitationSpace, inspectionTargets, planCutEdge, normalizePlanCut, structFrame, alignStructure, FLEET_RULES, POWER_MODES, POWER_AUTO_NOTE, fleetAutoPower, AIM_KINDS, MODULE_LABEL, FLEET_MIN_CREW, powerSplit, coreDetonation, fleetModules, fleetSystems, fleetCrewEff, fleetCrewRatio, fleetAutoAvail, fleetOutReason, AUTO_M3_PER_CREW, AUTO_W_PER_CREW, AUTO_MIN_HUMAN, fleetEffective, fleetProfile, fleetUnit, fleetIntegrity, trenchBattery, sideBattery, fleetFire, fleetReach, fleetStandoff, fleetHeading, fleetBroadside, fleetPowerStep, bandFireAt, fitBand, GUN_BANDS, COMBAT, combatInit, combatIncoming, combatAdd, combatMerge, combatResolve, combatZones, combatClone, combatZoneAt, COMBAT_FACE, unpackBits, fleetFormation, fleetBattle, fleetOrder, fleetArc, fleetTick, hullHalf, hullMass, hullLocal, AIR_CTL, HF, hullField, hullShape, hullCell, hullTB, hullIn, airMouths, hullOverlap, hullSegment, fireBlocker, fireStray, hullCollide, hullGrid, hullNear, hullAlong, hullAround, hullPairs, HULL_GRID, hullImpact, HULL_HIT, HULL_FALL, hullFall, hullCarve, hullAvoid, fleetCommit, fleetFinish, fleetSample, fleetFrame, normalizeBow, bowStation, engineHullEntry, ENGINE_BASELINES, engineBaseline, resizeEngine, parametricEngine, engineRating, sourceEngine, EQUIPMENT, equipmentSpec, equipmentOptions, enforceEquipment, customizeEquipment, adoptEquipment, HYPERDRIVE_REFERENCE, hyperCapacity, arcParameters, arcPoint, arcTriangles, inArc, SEPARATIST_EXAMPLES, STATS_SOURCE, SHIP_REFERENCE, PART_RATINGS, reactorPower, nozzleThrust, nozzleDemand, shieldLoad, partRatingKeys, validOutline, outlinePoints, outlineArea, outlineTriangles, AVIATION_ROLES, CHARGE_TT_M3, aircraftCapacity, aviationConnected, needsCapacitor, weaponCapacitors, refitReferenceInterior, clipReferenceBox, referenceEnginePoint, fitSpec, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface, COST_CATS, COST_K, COST_MODEL, COST_INSTALL, COST_MOUNT_INSTALL, costCategory, partBuildCost, fitBuildCost, costBreakdown, costSignature, costModelSignature, CRAFT_PRICE_CATALOG, craftCatalogPrice, quoteCostBOM, designCost,
+return {isShapeKind,isShapePart,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,AERO_WING_OUTLINE,AERO_WING_SECTION,AERO_PANEL_OUTLINE,SOLAR_PANEL_PRESETS,solarPanelPreset,solarPanelBraces,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT, craftHeat, cleanCraftHeat, squadFireK, squadHeatStep, SOLAR, solarPower, solarCap, solarArea, wingCap, WING, FOIL_AXES, WING_PARTS, normalizeWing, isWing, isFoil, foilHandles, wingPivot, wingMembers, wingMap, foilSweep, foilPose, foilAt, foilFrame, wingStats, EMIT, BANDS, BAND_NAMES, emitBands, EMCON, EMCON_LOW_MAX, emconOf, SENSOR_BANDS, sensorSuite, SENS, sensSNR, sensStageCap, foilInit, foilStep, foilState, HEAT, HEAT_PRESETS, HEAT_KINDS, HEAT_MODE, DISSIPATORS, dissipatorCap, heatLoads, heatWaste, heatSolve, heatNetwork, heatEvaluate, heatStats, heatProfile, heatProfileOf, heatLegacy, heatInit, heatTick, heatStatus, heatLim, heatSwLim, normalizeLinks, DESIGN_FACTIONS, ionDensity, ionReach, ionGlow, swRange, swFree, swAxis, MGLT, engineDepthRatio, sublightMGLT, AA_CHANNELS, ION_BOLT, ionDiam, ionArea, ionShare, ionPlan, ionStrike, ionBoltsStep, swMuzzle, fleetAim, modWorld, aimPoint, fireScreen, screenShare, escortThreat, escortStation, escortPick, SCREEN, aimHold, aimMark, modQ, exposedMod, standardFit, craftCombat, designCraftSnapshot, cleanDesignCraft, CRAFT_ROLE_RTS, ORDNANCE, ORDNANCE_EVIDENCE, STORE_MOUNTS, STORE_FITS, STORE_DEFAULT, storeCapacity, craftStations, CRAFT_LOADOUT, craftTypeOf, craftLoadout, normalizeLoad, craftOrdnance, ordnanceRuns, ordnanceSalvo, ordnanceSummary, VOLLEY, volleyMode, volleyStep, SUPERWEAPONS, SW_COMBAT, swPower, swChargeRate, swInArc, swHeading, swDecay, swOverload, swPulse, swIonWave, superweaponStep, isSuperweapon, superweaponAim, superweaponOpen, normalizeSuperweapon, superweaponStats, isCraft, partLimits, CRAFT_PART_SIZE, craftPart, craftFieldGain, TROOP_SEAT_M3, ENGINE_GLOWS, engineGlowOK, engineGlowRGB, engineLevel, MISSILE_MOUNTS, missileMount, missileCells, missileStatus, PLATE, plateThickness, shipSpan, HULL_SECTIONS, SECTION_NAMES, hullSectionShares, SHIP_LIGHT_KINDS, SHIP_EXAMPLES, registerShipExample, shipKit, SHELL_ROWS, structRows, shellSection, shellPoint, CIS_PAINT, fitTilt, fitUp, fitFrameOf, openingRimPoint, surfSamples, groundingStats, turretRayContext, turretClear, turretOrigin, turretRate, GROUND_LIMITS, GROUND_PRESETS, GROUND_KINDS, GROUND_VEHICLE_VOLUME, DROID_STORE_M3, CREW_M3_K, CREW_LIVING_M3, personVolume, RETIRED_PARTS, FEED_FLUX, CELL_ENERGY_DENSITY, CELL_DISCHARGE_S, feedConduits, normalizeGroundForces, groundStatus, planStations, bridgeBodyRole, podPoint, podDepth, intrinsicCommandFits, POD_ASSET, BRIDGE_BODY_COMMAND, REFERENCE_TONE, engineSkinMesh, referenceFitYaw, rayTris, vmirrorPlane, vmirrorPoint, vmirrorPart, SHIP_CLASSES, shipClassFor, PUBLIC_LISTS, publicJSON, patchShip, patchItem, cache, AIRCRAFT_CLEARANCE, aircraftFitsBay, shipFitsBay, shipStowSize, CRAFT_TYPES, VEHICLE_TYPES, CRAFT_HINTS, VEHICLE_HINTS, craftDims, airWingDims, groundDims, stowSize, vehicleStowSize, VEHICLE_STOW_FACTOR, craftLift, boxFits, stowLoad, stowInit, stowRows, isCombatRow, COMBAT_ROLES, stowPack, stowPasses, stowStatus, aviationBays, hatchOpening, STOW_GAP, STOW_PASS, STOW_ANY_LENGTH, BUILTIN_COMPLEMENTS, builtinComplement, SHIP_STOW_CLEAR, SHIP_STOW_FACTOR, AVIATION_SIZE_VOLUME, AIR_WING_LIMITS, hangarCapacity, normalizeAirWings, aviationStatus, AVIATION_SURFACE_FACES, hatchAxes, aviationSurfaceContacts, setAviationSurfaceMode, syncAviationSurfaces, aviationHatchActive, isSlidingHatch, slidingHatchSpec, slidingHatchPanels, hatchOpenArea, ISD_HYPER_BASELINE, HYPER_CLASS_COEFFICIENT, HYPER_POWER_DENSITY, ISD_SHIELD_VOLUME, SHIELD_BUFFER_SECONDS, SHIELD_ENERGY_DENSITY, SHIELD_POWER_DENSITY, REACTOR_POWER_DENSITY, SOLID_CUT_SHAPES, SOLID_CUT_POLY_MAX, solidCutDisplayTriangles, solidCutVolume, solidCutConvexOK, convexHullFaces, solidCutThinWalls, SOLID_THIN_WALL_M, compiledSolidCut, STRUCT_MESH_LIMITS, meshTopology, MESH_IMPORT_UNITS, MESH_IMPORT_AXES, parseMeshFile, meshImportPart, simplifyMesh, ASSEMBLY_LIMITS, ASSEMBLY_MOUNTS, ASSEMBLY_ORIGINS, ASSEMBLY_CATEGORIES, assemblyLinks, assemblyCapture, normalizeAssemblyTemplate, assemblyPlace, assemblyIssues, assemblyMirrorFit, assemblyPreview, solidCutWorld, solidCutLocal, solidCutFromLocal, solidCutLocalVerts, solidCutToPoly, normalizeStructMesh, meshStructTriangles, inMeshStruct, mirrorStructMesh, structToMesh, refitStructMesh, meshEditCheck, meshMoveVertices, meshSetVertex, meshSplitEdge, meshCollapseVertex, meshExtrudeFace, meshLocalTris, normalizeSolidCut, mirrorSolidCut, solidCutTriangles, solidCutBounds, solidCutContains, solidCutsContain, applySolidCuts, solidPartCutContains, solidStructVolume, solidCutIntersectsShip, flexibleCompartment, hardConflicts, weaponChargeSpec, DREADNOUGHT_EXAMPLES, DESIGN_LIMITS, ALIGNMENTS, alignedPosition, alignPart, replacementShape, replacementOptions, replacePart, COMMAND_ROLES, commandCompartments, commandStatus, habitationSpace, inspectionTargets, planCutEdge, normalizePlanCut, structFrame, alignStructure, FLEET_RULES, POWER_MODES, POWER_AUTO_NOTE, fleetAutoPower, AIM_KINDS, MODULE_LABEL, FLEET_MIN_CREW, powerSplit, coreDetonation, fleetModules, fleetSystems, fleetCrewEff, fleetCrewRatio, fleetAutoAvail, fleetOutReason, AUTO_M3_PER_CREW, AUTO_W_PER_CREW, AUTO_MIN_HUMAN, fleetEffective, fleetProfile, fleetUnit, fleetIntegrity, trenchBattery, sideBattery, fleetFire, fleetReach, fleetStandoff, fleetHeading, fleetBroadside, fleetPowerStep, bandFireAt, fitBand, GUN_BANDS, COMBAT, combatInit, combatIncoming, combatAdd, combatMerge, combatResolve, combatZones, combatClone, combatZoneAt, COMBAT_FACE, unpackBits, fleetFormation, fleetBattle, fleetOrder, fleetArc, fleetTick, hullHalf, hullMass, hullLocal, AIR_CTL, HF, hullField, hullShape, hullCell, hullTB, hullIn, airMouths, hullOverlap, hullSegment, fireBlocker, fireStray, hullCollide, hullGrid, hullNear, hullAlong, hullAround, hullPairs, HULL_GRID, hullImpact, HULL_HIT, HULL_FALL, hullFall, hullCarve, hullAvoid, fleetCommit, fleetFinish, fleetSample, fleetFrame, normalizeBow, bowStation, engineHullEntry, ENGINE_BASELINES, engineBaseline, resizeEngine, parametricEngine, engineRating, sourceEngine, EQUIPMENT, equipmentSpec, equipmentOptions, enforceEquipment, customizeEquipment, adoptEquipment, HYPERDRIVE_REFERENCE, hyperCapacity, arcParameters, arcPoint, arcTriangles, inArc, SEPARATIST_EXAMPLES, STATS_SOURCE, SHIP_REFERENCE, PART_RATINGS, reactorPower, nozzleThrust, nozzleDemand, shieldLoad, partRatingKeys, validOutline, outlinePoints, outlineArea, outlineTriangles, AVIATION_ROLES, CHARGE_TT_M3, aircraftCapacity, aviationConnected, needsCapacitor, weaponCapacitors, refitReferenceInterior, clipReferenceBox, referenceEnginePoint, fitSpec, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface, COST_CATS, COST_K, COST_MODEL, COST_INSTALL, COST_MOUNT_INSTALL, costCategory, partBuildCost, fitBuildCost, costBreakdown, costSignature, costModelSignature, CRAFT_PRICE_CATALOG, craftCatalogPrice, quoteCostBOM, designCost,
   TT, G0, ISD_W, K, PARTS, FITS, HULLS, SECTIONS, KEELS, SECTORS, CLASSES, DESIGNS, AXES, AXNAME, ARMOR_MAX,
   newShip, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
