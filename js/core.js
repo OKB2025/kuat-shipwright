@@ -10000,6 +10000,23 @@ function ordnanceSummary(list){return (list||[]).map(x=>`${x.name} ${x.n}`).join
 // toughness: 0.35 + 0.17 ln(mass in t), ×1.3 with shields.
 const craftSpeed=G=>Math.round(clamp(2070*Math.pow(Math.max(0,G)/3700,.34),500,3200));
 const CRAFT_ROLE_RTS={'爆撃機':'bomber','迎撃機':'interceptor','戦闘機':'fighter','重戦闘機':'fighter','ドロイド戦闘機':'fighter','ガンシップ':'transport','揚陸艇':'transport','シャトル':'transport','非武装艇':'transport'};
+// A fixed fighter cannon only fires near its physical barrel axis. Cadence changes
+// split the same sustained power into smaller, more frequent pulses.
+const CRAFT_FIRE=Object.freeze({fixedCone:8,defaultCycle:.12,cycles:Object.freeze({claser:.12,claserH:.18,cion:.22,cturret:.12})});
+function cleanCraftFireArcs(raw){
+ if(!Array.isArray(raw))return null;const vec=(v,fallback)=>{if(!Array.isArray(v)||v.length!==3||!v.every(Number.isFinite))return fallback;if(Math.abs(Math.hypot(...v)-1)<1e-12)return v.slice();const scale=Math.max(...v.map(Math.abs));return scale>1e-8?norm(v.map(n=>n/scale)):fallback;};
+ return raw.slice(0,128).filter(a=>a&&typeof a==='object'&&vec(a.dir,null)).map(a=>({fixed:!!a.fixed,dir:vec(a.dir,[1,0,0]),up:vec(a.up,[0,1,0]),...(Array.isArray(a.pos)&&a.pos.length===3&&a.pos.every(Number.isFinite)?{pos:a.pos.map(v=>clamp(v,-DESIGN_LIMITS.coordinate,DESIGN_LIMITS.coordinate))}:{}),...(typeof a.k==='string'&&FITS[a.k]?{k:a.k}:{}),gun:Number.isFinite(a.gun)?clamp(a.gun,0,1):0,aa:Number.isFinite(a.aa)?clamp(a.aa,0,1):0,cycle:Number.isFinite(a.cycle)?clamp(a.cycle,.03,10):CRAFT_FIRE.cycles[a.k]||FITS[a.k]?.cycle||CRAFT_FIRE.defaultCycle}));
+}
+// Muzzles remain in blueprint coordinates, like fitOrigin; a renderer subtracts
+// its loaded model's centre. Weights are shares of the complete installed battery.
+function craftGunMounts(ship,S={}){
+ const arcs=[];let gun=0,aa=0;for(const f of ship?.fits||[]){const spec=FITS[f.k];if(!spec||f.float||S.info?.[f.id]?.overlap)continue;const d=fitSpec(f);if(d.cat!=='w'||!(d.tt>0||d.ion>0))continue;
+  const fr=fitFrameOf(f),r=spec.asset?(f.assetYaw||0)*Math.PI/180:0,dir=norm(add(mul(fr.fw,Math.cos(r)),mul(fr.rt,Math.sin(r)))),g=Math.max(0,d.tt||0)+Math.max(0,d.ion||0)/3+Math.max(0,spec.aa||0)*(f.scale||1)**2,a=Math.max(0,spec.aa||0)*(f.scale||1)**2;
+  let pos;try{pos=add(fitOrigin(f),add(mul(fr.up,d.hm*.55),mul(dir,d.fm*.5)));}catch(e){pos=f.p||[0,0,0];}
+  arcs.push({fixed:!!spec.fixed,dir,up:fr.up.slice(),pos,k:f.k,gun:g,aa:a,cycle:CRAFT_FIRE.cycles[f.k]||spec.cycle||CRAFT_FIRE.defaultCycle});gun+=g;aa+=a;
+ }
+ for(const a of arcs){a.gun=gun>0?a.gun/gun:0;a.aa=aa>0?a.aa/aa:0;}return cleanCraftFireArcs(arcs);
+}
 function craftCombat(ship,S){
  if(!ship?.hull||!S||!Array.isArray(ship.fits))return null;let A=0,shipGun=false,armed=false;
  for(const f of ship.fits){if(!FITS[f.k])continue;const d=fitSpec(f);if(d.cat!=='w'||f.float||S.info?.[f.id]?.overlap)continue;A+=(FITS[f.k].aa||0)*(f.scale||1)**2;shipGun||=!d.craft&&!!(d.tt||d.ion||d.msl);armed||=!!(d.tt||d.ion||d.msl||d.store);}
@@ -10014,7 +10031,7 @@ function craftCombat(ship,S){
  const strike=Math.round(gun+salvo),armor=clamp((.35+.17*Math.log(Math.max(.5,S.mass||0)))*(sh?1.3:1)*(small?1:Math.cbrt(Math.max(1,Math.max(...dims)/25))),.3,small?3:20);
  const Gl=G*(S.mass>0?S.mass/(S.mass+ordMass):1);
  return {name:ship.name||'設計機',role,roleName:S.cls?.role||'',speed,...(!small?{speedMode:'ship'}:{}),aa:Math.round(air*100)/100,strike,gun,armor:Math.round(armor*100)/100,crew:Math.round(S.crew??S.seats??0),dims,size:stowSize(dims),accelG:Math.round(G),shield:sh,hyper:S.jumpOK&&Number.isFinite(S.hyperClass)&&S.hyperClass>0?S.hyperClass:null,
-  heat:craftHeat(S),...(systems?{systems}:{}),stations,load,canonLoad:!!Lo.canon&&Lo.stations.length===stations.length,ord,ordMass:Math.round(ordMass*1000)/1000,mass:Math.round((S.mass||0)*100)/100,cost:Math.round(S.cost||0),costBy:costBreakdown(S.cost||0,S.costBy),priceVersion:COST_MODEL.version,speedLoaded:small?craftSpeed(Gl):Math.round(shipSpeed(Gl)),accelLoaded:Math.round(Gl)};
+  heat:craftHeat(S),fireArcs:craftGunMounts(ship,S),...(systems?{systems}:{}),stations,load,canonLoad:!!Lo.canon&&Lo.stations.length===stations.length,ord,ordMass:Math.round(ordMass*1000)/1000,mass:Math.round((S.mass||0)*100)/100,cost:Math.round(S.cost||0),costBy:costBreakdown(S.cost||0,S.costBy),priceVersion:COST_MODEL.version,speedLoaded:small?craftSpeed(Gl):Math.round(shipSpeed(Gl)),accelLoaded:Math.round(Gl)};
 }
 // Only validated, immutable leaf blueprints are shared between repeated carrier normalization passes.
 // A nested carrier complement is deliberately not embedded again inside each embarked copy.
@@ -10048,7 +10065,7 @@ function cleanDesignCraft(d){
  const str=(v,n)=>(typeof v==='string'?v:'').replace(/[\u0000-\u001f\u007f]/g,'').trim().slice(0,n),num=(v,lo,hi,def)=>Number.isFinite(v)?clamp(v,lo,hi):def;
  const stations=(Array.isArray(c.stations)?c.stations:[]).filter(st=>st&&FITS[st.fit]?.store&&Number.isInteger(st.count)&&st.count>=1&&st.count<=DESIGN_LIMITS.fits).slice(0,8).map(st=>({fit:st.fit,mount:FITS[st.fit].store.mount,count:st.count}));
  const load=normalizeLoad(stations,Array.isArray(c.load)?c.load:null),shipSpeed=c.speedMode==='ship',dims=cleanDims(d.dims)||cleanDims(c.dims),blueprint=cleanDesignBlueprint(d.blueprint),systems=cleanCraftSystems(c.systems),hasCost=Number.isFinite(c.cost)&&c.cost>=0,build=Math.round(num(c.cost,0,1e15,0));
- return {ref:str(d.ref,80),name:str(d.name,40)||'設計機',...(dims?{dims}:{}),...(blueprint?{blueprint}:{}),craft:{role:c.role,roleName:str(c.roleName,20),speed:shipSpeed?Math.round(num(c.speed,0,20000,0)):c.accelG>0&&Number.isFinite(c.accelG)?craftSpeed(c.accelG):Math.round(num(c.speed,500,3200,1500)),...(shipSpeed?{speedMode:'ship'}:{}),aa:Math.round(num(c.aa,0,2,1)*100)/100,strike:Math.round(num(c.strike,0,1e12,10)),gun:Math.round(num(c.gun,0,1e12,num(c.strike,0,1e12,10))),armor:Math.round(num(c.armor,.1,100,1)*100)/100,crew:Math.round(num(c.crew,0,1e9,1)),accelG:Math.round(num(c.accelG,0,20000,0)),shield:!!c.shield,hyper:Number.isFinite(c.hyper)&&c.hyper>0?c.hyper:null,stations,load,mass:num(c.mass,0,1e15,0)||null,...(hasCost?{cost:build,...(c.costBy&&typeof c.costBy==='object'?{costBy:costBreakdown(build,c.costBy)}:{}),...(Number.isFinite(c.priceVersion)?{priceVersion:Math.round(num(c.priceVersion,1,1e6,1))}:{})}:{}),...(systems?{systems}:{}),...(cleanCraftHeat(c.heat)?{heat:cleanCraftHeat(c.heat)}:{})}};
+ return {ref:str(d.ref,80),name:str(d.name,40)||'設計機',...(dims?{dims}:{}),...(blueprint?{blueprint}:{}),craft:{role:c.role,roleName:str(c.roleName,20),speed:shipSpeed?Math.round(num(c.speed,0,20000,0)):c.accelG>0&&Number.isFinite(c.accelG)?craftSpeed(c.accelG):Math.round(num(c.speed,500,3200,1500)),...(shipSpeed?{speedMode:'ship'}:{}),aa:Math.round(num(c.aa,0,2,1)*100)/100,strike:Math.round(num(c.strike,0,1e12,10)),gun:Math.round(num(c.gun,0,1e12,num(c.strike,0,1e12,10))),armor:Math.round(num(c.armor,.1,100,1)*100)/100,crew:Math.round(num(c.crew,0,1e9,1)),accelG:Math.round(num(c.accelG,0,20000,0)),shield:!!c.shield,hyper:Number.isFinite(c.hyper)&&c.hyper>0?c.hyper:null,stations,load,mass:num(c.mass,0,1e15,0)||null,...(hasCost?{cost:build,...(c.costBy&&typeof c.costBy==='object'?{costBy:costBreakdown(build,c.costBy)}:{}),...(Number.isFinite(c.priceVersion)?{priceVersion:Math.round(num(c.priceVersion,1,1e6,1))}:{})}:{}),...(systems?{systems}:{}),...(Array.isArray(c.fireArcs)?{fireArcs:cleanCraftFireArcs(c.fireArcs)}:{}),...(cleanCraftHeat(c.heat)?{heat:cleanCraftHeat(c.heat)}:{})}};
 }
 function layoutStats(ship,S){
  const h=habitationSpace(ship);S.autoHabitationVolume=h.volume;S.unassignedVolume=h.volume;S.envelopeVolume=h.envelopeVolume;
@@ -11812,7 +11829,8 @@ function foilStep(u,dt,want,ev){
 function foilState(u){const s=u?.fo,F=u?.p?.foils;if(!s||!F?.length)return null;return F.map((f,i)=>({name:f.n,d:s.d[i],jam:s.jam[i],want:s.want[i]}));}
 
 return {isShapeKind,isShapePart,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,WING_PLANFORM_PRESETS,wingPlanformPreset,wingTipSide,wingTipOffset,wingTipRange,wingShiftTip,AERO_WING_OUTLINE,AERO_WING_SECTION,AERO_PANEL_OUTLINE,SOLAR_PANEL_PRESETS,solarPanelPreset,solarPanelBraces,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT, craftHeat, cleanCraftHeat, squadFireK, squadHeatStep, SOLAR, solarPower, solarCap, solarArea, wingCap, WING, FOIL_AXES, WING_PARTS, normalizeWing, isWing, isFoil, foilHandles, wingPivot, wingMembers, wingMap, foilSweep, foilPose, foilAt, foilFrame, wingStats, EMIT, BANDS, BAND_NAMES, emitBands, EMCON, EMCON_LOW_MAX, emconOf, SENSOR_BANDS, sensorSuite, SENS, sensSNR, sensStageCap, foilInit, foilStep, foilState, HEAT, HEAT_PRESETS, HEAT_KINDS, HEAT_MODE, DISSIPATORS, dissipatorCap, heatLoads, heatWaste, heatSolve, heatNetwork, heatEvaluate, heatStats, heatProfile, heatProfileOf, heatLegacy, heatInit, heatTick, heatStatus, heatLim, heatSwLim, normalizeLinks, DESIGN_FACTIONS, ionDensity, ionReach, ionGlow, swRange, swFree, swAxis, MGLT, engineDepthRatio, sublightMGLT, AA_CHANNELS, ION_BOLT, ionDiam, ionArea, ionShare, ionPlan, ionStrike, ionBoltsStep, swMuzzle, fleetAim, modWorld, aimPoint, fireScreen, screenShare, escortThreat, escortStation, escortPick, SCREEN, aimHold, aimMark, modQ, exposedMod, standardFit, craftCombat, designCraftSnapshot, cleanDesignCraft, CRAFT_ROLE_RTS, ORDNANCE, ORDNANCE_EVIDENCE, STORE_MOUNTS, STORE_FITS, STORE_DEFAULT, storeCapacity, craftStations, CRAFT_LOADOUT, craftTypeOf, craftLoadout, normalizeLoad, craftOrdnance, ordnanceRuns, ordnanceSalvo, ordnanceSummary, VOLLEY, volleyMode, volleyStep, SUPERWEAPONS, SW_COMBAT, swPower, swChargeRate, swInArc, swHeading, swDecay, swOverload, swPulse, swIonWave, superweaponStep, isSuperweapon, superweaponAim, superweaponOpen, normalizeSuperweapon, superweaponStats, isCraft, partLimits, CRAFT_PART_SIZE, craftPart, craftFieldGain, TROOP_SEAT_M3, ENGINE_GLOWS, engineGlowOK, engineGlowRGB, engineLevel, MISSILE_MOUNTS, missileMount, missileCells, missileStatus, PLATE, plateThickness, shipSpan, HULL_SECTIONS, SECTION_NAMES, hullSectionShares, SHIP_LIGHT_KINDS, SHIP_EXAMPLES, registerShipExample, shipKit, SHELL_ROWS, structRows, shellSection, shellPoint, CIS_PAINT, fitTilt, fitUp, fitCanRotate, fitFrameOf, openingRimPoint, surfSamples, groundingStats, turretRayContext, turretClear, turretOrigin, turretRate, GROUND_LIMITS, GROUND_PRESETS, GROUND_KINDS, GROUND_VEHICLE_VOLUME, DROID_STORE_M3, CREW_M3_K, CREW_LIVING_M3, personVolume, RETIRED_PARTS, FEED_FLUX, CELL_ENERGY_DENSITY, CELL_DISCHARGE_S, feedConduits, normalizeGroundForces, groundStatus, planStations, bridgeBodyRole, podPoint, podDepth, intrinsicCommandFits, POD_ASSET, BRIDGE_BODY_COMMAND, REFERENCE_TONE, engineSkinMesh, referenceFitYaw, rayTris, vmirrorPlane, vmirrorPoint, vmirrorPart, SHIP_CLASSES, shipClassFor, PUBLIC_LISTS, publicJSON, patchShip, patchItem, cache, AIRCRAFT_CLEARANCE, aircraftFitsBay, shipFitsBay, shipStowSize, CRAFT_TYPES, VEHICLE_TYPES, CRAFT_HINTS, VEHICLE_HINTS, craftDims, airWingDims, groundDims, stowSize, vehicleStowSize, VEHICLE_STOW_FACTOR, craftLift, boxFits, stowLoad, stowInit, stowRows, isCombatRow, COMBAT_ROLES, stowPack, stowPasses, stowStatus, aviationBays, hatchOpening, STOW_GAP, STOW_PASS, STOW_ANY_LENGTH, BUILTIN_COMPLEMENTS, builtinComplement, SHIP_STOW_CLEAR, SHIP_STOW_FACTOR, AVIATION_SIZE_VOLUME, AIR_WING_LIMITS, hangarCapacity, normalizeAirWings, aviationStatus, AVIATION_SURFACE_FACES, hatchAxes, aviationSurfaceContacts, setAviationSurfaceMode, syncAviationSurfaces, aviationHatchActive, isSlidingHatch, slidingHatchSpec, slidingHatchPanels, hatchOpenArea, ISD_HYPER_BASELINE, HYPER_CLASS_COEFFICIENT, HYPER_POWER_DENSITY, ISD_SHIELD_VOLUME, SHIELD_BUFFER_SECONDS, SHIELD_ENERGY_DENSITY, SHIELD_POWER_DENSITY, REACTOR_POWER_DENSITY, SOLID_CUT_SHAPES, SOLID_CUT_POLY_MAX, solidCutDisplayTriangles, solidCutVolume, solidCutConvexOK, convexHullFaces, solidCutThinWalls, SOLID_THIN_WALL_M, compiledSolidCut, STRUCT_MESH_LIMITS, meshTopology, MESH_IMPORT_UNITS, MESH_IMPORT_AXES, parseMeshFile, meshImportPart, simplifyMesh, ASSEMBLY_LIMITS, ASSEMBLY_MOUNTS, ASSEMBLY_ORIGINS, ASSEMBLY_CATEGORIES, assemblyLinks, assemblyCapture, normalizeAssemblyTemplate, assemblyPlace, assemblyIssues, assemblyMirrorFit, assemblyPreview, solidCutWorld, solidCutLocal, solidCutFromLocal, solidCutLocalVerts, solidCutToPoly, normalizeStructMesh, meshStructTriangles, inMeshStruct, mirrorStructMesh, structToMesh, refitStructMesh, meshEditCheck, meshMoveVertices, meshSetVertex, meshSplitEdge, meshCollapseVertex, meshExtrudeFace, meshLocalTris, normalizeSolidCut, mirrorSolidCut, solidCutTriangles, solidCutBounds, solidCutContains, solidCutsContain, applySolidCuts, solidPartCutContains, solidStructVolume, solidCutIntersectsShip, flexibleCompartment, hardConflicts, weaponChargeSpec, DREADNOUGHT_EXAMPLES, DESIGN_LIMITS, ALIGNMENTS, alignedPosition, alignPart, replacementShape, replacementOptions, replacePart, COMMAND_ROLES, commandCompartments, commandStatus, habitationSpace, inspectionTargets, planCutEdge, normalizePlanCut, structFrame, alignStructure, FLEET_RULES, POWER_MODES, POWER_AUTO_NOTE, fleetAutoPower, AIM_KINDS, MODULE_LABEL, FLEET_MIN_CREW, powerSplit, coreDetonation, fleetModules, fleetSystems, fleetCrewEff, fleetCrewRatio, fleetAutoAvail, fleetOutReason, AUTO_M3_PER_CREW, AUTO_W_PER_CREW, AUTO_MIN_HUMAN, fleetEffective, fleetProfile, fleetUnit, fleetIntegrity, trenchBattery, sideBattery, fleetFire, fleetReach, fleetStandoff, fleetHeading, fleetBroadside, fleetPowerStep, bandFireAt, fitBand, GUN_BANDS, COMBAT, combatInit, combatIncoming, combatAdd, combatMerge, combatResolve, combatZones, combatClone, combatZoneAt, COMBAT_FACE, unpackBits, fleetFormation, fleetBattle, fleetOrder, fleetArc, fleetTick, hullHalf, hullMass, hullLocal, AIR_CTL, HF, hullField, hullShape, hullCell, hullTB, hullIn, airMouths, hullOverlap, hullSegment, fireBlocker, fireStray, hullCollide, hullGrid, hullNear, hullAlong, hullAround, hullPairs, HULL_GRID, hullImpact, HULL_HIT, HULL_FALL, hullFall, hullCarve, hullAvoid, fleetCommit, fleetFinish, fleetSample, fleetFrame, normalizeBow, bowStation, engineHullEntry, ENGINE_BASELINES, engineBaseline, resizeEngine, parametricEngine, engineRating, sourceEngine, EQUIPMENT, equipmentSpec, equipmentOptions, enforceEquipment, customizeEquipment, adoptEquipment, HYPERDRIVE_REFERENCE, hyperCapacity, arcParameters, arcPoint, arcTriangles, inArc, SEPARATIST_EXAMPLES, STATS_SOURCE, SHIP_REFERENCE, PART_RATINGS, reactorPower, nozzleThrust, nozzleDemand, shieldLoad, partRatingKeys, validOutline, outlinePoints, outlineArea, outlineTriangles, AVIATION_ROLES, CHARGE_TT_M3, aircraftCapacity, aviationConnected, needsCapacitor, weaponCapacitors, refitReferenceInterior, clipReferenceBox, referenceEnginePoint, fitSpec, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface, COST_CATS, COST_K, COST_MODEL, COST_INSTALL, COST_MOUNT_INSTALL, costCategory, partBuildCost, fitBuildCost, costBreakdown, costSignature, costModelSignature, CRAFT_PRICE_CATALOG, craftCatalogPrice, quoteCostBOM, designCost,
-  TT, G0, ISD_W, K, PARTS, FITS, HULLS, SECTIONS, KEELS, SECTORS, CLASSES, DESIGNS, AXES, AXNAME, ARMOR_MAX,
+   CRAFT_FIRE, cleanCraftFireArcs, craftGunMounts,
+   TT, G0, ISD_W, K, PARTS, FITS, HULLS, SECTIONS, KEELS, SECTORS, CLASSES, DESIGNS, AXES, AXNAME, ARMOR_MAX,
   newShip, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
   hatchGrid, hatchFrame, fillHangars, keelAt, computeStats, normalizeGroups, GROUP_DEPTH, serialize, deserialize, buildDesign, profile, simulate,
@@ -12383,6 +12401,22 @@ function squadLaserK(s,kind='gun') {
  const c=CRAFT[s?.craft]?.systems;if(!c?.managed||s.laserGas!==0)return 1;
  const share=kind==='aa'?c.laserAaShare:c.laserGunShare;return 1-clamp(Number.isFinite(share)?share:c.laserUnits>0?1:0,0,1);
 }
+// The share of the installed guns able to fire towards this target. Fixed guns
+// keep their barrel axes; proximity alone never turns a forward gun backwards.
+function squadFireArc(s,target,kind='gun'){
+ const c=CRAFT[s?.craft];if(!c||!Array.isArray(s?.pos)||!(squadLaserK(s,kind)>0))return 0;const centre=Array.isArray(target)?target:target?.pos;if(!Array.isArray(centre))return 0;
+ const fw=norm(s.h||[1,0,0]),alt=Math.abs(fw[1])>.97?[0,0,1]:[0,1,0],rt=norm(C.cross(fw,alt)),up=norm(C.cross(rt,fw)),world=v=>add(add(scale(fw,v[0]),scale(up,v[1])),scale(rt,v[2]));
+ const arcs=Array.isArray(c.fireArcs)?c.fireArcs:[{fixed:true,dir:[1,0,0],up:[0,1,0],gun:1,aa:1}],points=[centre];
+ if(!Array.isArray(target)&&target?.p){const h=C.hullHalf(target.p),local=C.hullLocal(target,s.pos),nearest=local.map((v,i)=>clamp(v,-h[i],h[i]));points.push(add(centre,shipToWorld(target,nearest)));for(let a=0;a<3;a++)for(const sign of [-1,1]){const q=nearest.slice();q[a]=h[a]*sign;points.push(add(centre,shipToWorld(target,q)));}for(const x of [-h[0],h[0]])for(const y of [-h[1],h[1]])for(const z of [-h[2],h[2]])points.push(add(centre,shipToWorld(target,[x,y,z])));}
+ const cone=Math.cos(C.CRAFT_FIRE.fixedCone*Math.PI/180),emptyGas=c.systems?.managed&&s.laserGas===0;let share=0,available=0;
+ for(const a of arcs){const weight=Number.isFinite(a[kind])?a[kind]:0,spec=C.FITS[a.k];if(!(weight>0)||emptyGas&&spec?.craft&&spec.tt>0&&!spec.store)continue;available+=weight;const dir=world(a.dir||[1,0,0]),normal=world(a.up||[0,1,0]);let hit=points.some(p=>{const v=sub(p,s.pos),d=len(v);return d>1e-6&&(a.fixed?C.dot(dir,v)/d>=cone:C.dot(normal,v)/d>=-.04);});
+  if(!hit&&a.fixed&&!Array.isArray(target)&&target?.p){const reach=len(sub(centre,s.pos))+Math.max(...C.hullHalf(target.p))*2;hit=C.hullSegment(target,s.pos,add(s.pos,scale(dir,reach)),.98);}
+  if(hit)share+=weight;
+ }
+ // Damage already multiplies by squadLaserK's surviving battery fraction. At
+ // empty gas, aim only that surviving battery rather than penalizing it twice.
+ return clamp(emptyGas?(available>0?share/available:0):share,0,1);
+}
 function squadSystemsReturn(w,s,why) {
  s.returnReason=why;const wing=w.wings.get(s.wing);
  if(wing?.raid){recallRaid(w,wing);return;}
@@ -12419,7 +12453,7 @@ function registerDesignCraft(d) {
  const sig=JSON.stringify(snapshot,(key,value)=>value&&typeof value==='object'&&!Array.isArray(value)?Object.fromEntries(Object.keys(value).sort().map(k=>[k,value[k]])):value);
  let h=2166136261,h2=0;for(let i=0;i<sig.length;i++){h=Math.imul(h^sig.charCodeAt(i),16777619);h2=(Math.imul(h2,31)+sig.charCodeAt(i))|0;}
  const base='dsn'+(h>>>0).toString(36)+'_'+(h2>>>0).toString(36);let key=base,n=1;while(CRAFT[key]&&CRAFT[key]._signature!==sig)key=base+'_'+n++;
- if(!CRAFT[key]){const c=snapshot.craft;CRAFT[key]=craftStores({name:snapshot.name+'（設計機）',short:snapshot.name.slice(0,10),side:'design',ref:snapshot.ref||'',role:c.role,speed:c.speed,aa:c.aa,strike:c.strike,gun:c.gun??(c.stations?.length?undefined:c.strike),armor:c.armor,size:C.stowSize(dims),crew:c.crew,dims:dims.slice(),design:true,stay:false,mass:c.mass||undefined,cost:c.cost>0?c.cost+(c.crew||0)*C.COST_K.crew:undefined,hyper:c.hyper>0?c.hyper:undefined,heat:C.cleanCraftHeat(c.heat)||undefined,...(c.systems?{systems:c.systems}:{}),snapshot,blueprint:snapshot.blueprint,_signature:sig},{stations:c.stations||[],load:c.load||[]});}
+ if(!CRAFT[key]){const c=snapshot.craft;CRAFT[key]=craftStores({name:snapshot.name+'（設計機）',short:snapshot.name.slice(0,10),side:'design',ref:snapshot.ref||'',role:c.role,speed:c.speed,aa:c.aa,strike:c.strike,gun:c.gun??(c.stations?.length?undefined:c.strike),armor:c.armor,size:C.stowSize(dims),crew:c.crew,dims:dims.slice(),design:true,stay:false,mass:c.mass||undefined,cost:c.cost>0?c.cost+(c.crew||0)*C.COST_K.crew:undefined,hyper:c.hyper>0?c.hyper:undefined,heat:C.cleanCraftHeat(c.heat)||undefined,...(Array.isArray(c.fireArcs)?{fireArcs:C.cleanCraftFireArcs(c.fireArcs)}:{}),...(c.systems?{systems:c.systems}:{}),snapshot,blueprint:snapshot.blueprint,_signature:sig},{stations:c.stations||[],load:c.load||[]});}
  // Old fleet saves kept only the old short key. Re-registering their carrier's
  // design rows restores those keys; aliases stay out of aircraft pickers.
  const c=snapshot.craft,legacySig=(snapshot.ref||'')+'|'+snapshot.name+'|'+[c.role,c.speed,c.aa,c.strike,c.armor,c.crew].join(',')+'|'+dims.join(',')+(c.hyper>0?'|h'+c.hyper:'');let legacyHash=0;
@@ -13674,7 +13708,7 @@ function craftTick(w, sys, us, byId, sysOf, inc, dt) {
    if (s.ops?.k === 'launch') launchStep(w, s, byId.get(s.ops.u));
   }
   const all = list.filter(s => s.state === 'out' && s.n > 0);
-  if (!active) { for (const s of all) { s.state = 'return'; s.ops = null; s.runOn = null; } for (const s of list) s.wait = null; wing.phase = list.some(s => s.state === 'return') ? 'return' : 'docked'; continue; }
+  if (!active) { for (const s of all) { s.state = 'return'; s.ops = null; s.runOn = null;s.strafeT=null; } for (const s of list) s.wait = null;wing.attackRun=null; wing.phase = list.some(s => s.state === 'return') ? 'return' : 'docked'; continue; }
   // v23 Launch: the wing's rearmed squadrons go out through the carrier's hatch mouths (launchSquad), as many as its
   // air control has room for; the rest wait aboard (管制容量待ち) until squadrons come home or are lost. Transports
   // (shuttles, landing craft) stay aboard in a fleet battle, as the order of battle says.
@@ -13690,23 +13724,41 @@ function craftTick(w, sys, us, byId, sysOf, inc, dt) {
   if (wing.phase === 'docked' || wing.phase === 'return') wing.phase = o.type === 'strike' ? 'go' : 'on';
   let goal = null, engageR = 0, tight = 1, runOn = null;
   if (o.type === 'strike') {
-   const t = byId.get(o.target);if (!t || t.dead || t.side === wing.side) { for (const s of all) { s.state = 'return'; s.ops = null; s.runOn = null; } wing.phase = 'return'; continue; }
+   const t = byId.get(o.target);if (!t || t.dead || t.side === wing.side) { for (const s of all) { s.state = 'return'; s.ops = null; s.runOn = null;s.strafeT=null; } wing.phase='return';wing.attackRun=null;continue; }
    if (wing.phase === 'on') wing.phase = 'go';
    const ap = APPROACH[o.approach] || APPROACH.bow, ip = add(t.pos, shipToWorld(t, scale(ap, 12000 + t.p.len * .6))), c = wing.c || lead.pos;
-   if (wing.phase !== 'run' && wing.phase !== 'egress') { wing.phase = 'go'; goal = ip; if (len(sub(ip, c)) < 2500) { wing.phase = 'run'; for (const s of out) { s.ran = false; s.fired = false; } } }
-   if (wing.phase === 'run') { goal = runGoal(t, ap); tight = .45; runOn = t;
+   if (wing.phase !== 'run' && wing.phase !== 'egress') { wing.phase = 'go'; goal = ip; if (len(sub(ip, c)) < 2500) {
+    const sh=C.hullShape(t.p),v=ap[1]?[-1,0,0]:[-ap[0],0,-ap[2]],side=ap[1]?Math.sign(ap[1]):c[1]<t.pos[1]-40?-1:1,speed=Math.min(...out.map(sqSpeed));
+    wing.phase = 'run';wing.attackRun={target:t.id,dir:shipToWorld(t,v),side,extent:Math.abs(v[0])*sh.hx+Math.abs(v[2])*sh.hz,clear:Math.max(4500,speed*2.5),lineReady:!ap[1],until:w.time+Math.max(12,len(sub(t.pos,c))/Math.max(100,speed)*3+6)};
+    for (const s of out) { s.ran = false; s.fired = false;s.runShot=false;s.strafeT=null; }
+   } }
+   if (wing.phase === 'run') { const r=wing.attackRun;if(!r||r.target!==t.id){wing.phase='go';continue;}goal=runGoal(t,ap,r.side);tight=.45;runOn=t;
+    // A steep above/below entry levels off outside the bow before the horizontal pass; it must not dive
+    // through the far side while still trying to turn its nose along the hull.
+    if(!r.lineReady){const speed=Math.min(...out.map(sqSpeed)),entry=add(t.pos,r.dir,-r.extent-Math.max(3500,speed*2.5));entry[1]=t.pos[1]+r.side*(C.hullShape(t.p).hy+Math.max(500,speed*.3));goal=entry;
+     if(len(sub(entry,c))<1500||w.time>=r.until){r.lineReady=true;r.until=w.time+Math.max(12,(r.extent+r.clear*2)/Math.max(100,speed)*3);goal=runGoal(t,ap,r.side);}
+    }
     // Attack run: torpedoes and missiles leave at stand-off range (v22: stores, as missiles the target's point
     // defence can engage), then each squadron strafes with its guns and bombers drop their bombs as it passes.
     // v23 The run goes over (or under) the hull from the bearing ordered to its far side, skimming the plating.
     const aimK = o.aim && o.aim !== 'auto' ? o.aim : C.fleetAim({p: {len: 20}, order: {aim: 'auto'}}, t, true);
-    for (const s of out) { const dd = len(sub(t.pos, s.pos));
+    for (const s of out) { const dd = len(sub(t.pos, s.pos)),gate=r.lineReady&&dd<Math.max(3000,t.p.len*.6+2200)?squadFireArc(s,t,'gun'):0;
      if (!s.fired && dd < Math.max(3000, t.p.len * .6)) { s.fired = true; squadRelease(w, sys, s, t, false, aimK); }
-     if (!s.ran && dd < Math.max(900, t.p.len * .45)) { const c2 = CRAFT[s.craft], tt = s.n * (c2.gun ?? c2.strike) * RULES.damage * C.squadFireK(s) * squadLaserK(s), x = inc.get(t.id);s.strafeT = w.time + C.CRAFT_HEAT.strafeS; if (x && tt > 0) C.combatAdd(x, t, s.pos, {sf: .7 * tt, hull: .7 * tt, direct: .3 * tt}, aimK, s.home); const rel = squadRelease(w, sys, s, t, true, aimK); s.ran = true; s.runs++; s.dmg = (s.dmg || 0) + tt; (w.craftRuns || (w.craftRuns = [])).push({sys, t: w.time, sq: s.id, to: t.id, n: s.n, ord: [...(s.relG || []), ...rel]}); s.relG = null; } }
-    if (out.every(s => s.ran) || len(sub(t.pos, c)) < Math.max(700, t.p.len * .3)) { wing.phase = 'egress'; wing.egress = add(t.pos, shipToWorld(t, scale(ap, -9000 - t.p.len * .5))); } }
-   else if (wing.phase === 'egress') { goal = wing.egress || ip; runOn = t; if (len(sub(goal, c)) < 2500) {
-     // Bombers go home when their stores are spent, and so do fighters that carried ordnance; gun-only fighters go round again.
+     if(!(gate>0))s.strafeT=null;
+     if (r.lineReady&&!s.runShot && gate>0 && dd < Math.max(3000,t.p.len*.6+2200)) { const c2=CRAFT[s.craft],tt=s.n*(c2.gun??c2.strike)*RULES.damage*C.squadFireK(s)*squadLaserK(s)*gate,x=inc.get(t.id);
+      if(tt>0){s.runShot=true;s.strafeT=w.time+C.CRAFT_HEAT.strafeS;if(x)C.combatAdd(x,t,s.pos,{sf:.7*tt,hull:.7*tt,direct:.3*tt},aimK,s.home);s.dmg=(s.dmg||0)+tt;(w.craftRuns||(w.craftRuns=[])).push({sys,t:w.time,sq:s.id,to:t.id,n:s.n,ord:[...(s.relG||[])]});s.relG=null;}
+     }
+     if(r.lineReady&&!s.ran&&(dd<Math.max(900,t.p.len*.45)||dd<Math.max(1800,t.p.len*.6)&&dot(sub(s.pos,t.pos),r.dir)>0||w.time>=r.until)){const rel=squadRelease(w,sys,s,t,true,aimK);s.ran=true;s.runs=(s.runs||0)+1;
+      if(rel.length||s.relG?.length){(w.craftRuns||(w.craftRuns=[])).push({sys,t:w.time,sq:s.id,to:t.id,n:s.n,ord:[...(s.relG||[]),...rel]});s.relG=null;}
+     }
+    }
+    if (out.every(s => s.ran)||w.time>=r.until) { wing.phase='egress';wing.egress=runExit(t,r);r.egressUntil=w.time+Math.max(12,len(sub(wing.egress,c))/Math.max(100,Math.min(...out.map(sqSpeed)))*3);for(const s of out)s.strafeT=null;goal=wing.egress; }
+   }
+   else if (wing.phase === 'egress') { const r=wing.attackRun;goal=r?runExit(t,r):wing.egress||ip;wing.egress=goal;runOn=t;for(const s of out)s.strafeT=null;if (len(sub(goal,c))<1800||r&&(dot(sub(c,t.pos),r.dir)>r.extent+r.clear-1800||w.time>=r.egressUntil)) {
+     // Every sortie has a departure: gun-only fighters return after two passes; armed craft return to rearm.
      const bomb = out.some(s => CRAFT[s.craft].role === 'bomber'), had = out.some(s => s.ord0 > 0), left = out.some(squadArmed);
-     if ((bomb || had) && !left) { for (const s of all) { s.state = 'return'; s.ops = null; s.runOn = null; } wing.phase = 'return'; continue; } wing.phase = 'go'; runOn = null; } }
+     if ((bomb || had) && !left||!had&&!bomb&&out.every(s=>(s.runs||0)>=2)) { for (const s of all) { s.state='return';s.ops=null;s.runOn=null;s.strafeT=null; }wing.phase='return';wing.attackRun=null;continue; }wing.phase='go';wing.attackRun=null;runOn=null; }
+   }
    engageR = out.every(s => CRAFT[s.craft].role === 'bomber') ? 0 : 3000;
   } else if (o.type === 'cap') { goal = o.point || home.pos; engageR = (o.radius || 15000) + 4000; }
   else { const e = byId.get(o.target) || home; goal = add(e.pos, [0, Math.max(e.p.height * .8 || 300, C.hullShape(e.p).hy + 250), 0]); engageR = 9000; }
@@ -13714,22 +13766,25 @@ function craftTick(w, sys, us, byId, sysOf, inc, dt) {
   // from below or level below its middle.
   for (const s of out) { if (!runOn) { s.runOn = null; continue; } if (s.runOn !== runOn.id) { s.runOn = runOn.id; s.runSide = o.approach === 'below' || (o.approach !== 'above' && C.hullLocal(runOn, s.pos)[1] < -40) ? -1 : 1; } }
   // Wings hunt enemy wings near their goal (patrol, escort) or near themselves (strike escorts).
-  if (engageR > 0 && wing.phase !== 'run') { const ref = o.type === 'strike' ? (wing.c || lead.pos) : goal; let best = null, bd = engageR * engageR; for (const e of centres) { if (e.side === wing.side || !e.c) continue; const dx = e.c[0] - ref[0], dy = e.c[1] - ref[1], dz = e.c[2] - ref[2], d2 = dx * dx + dy * dy + dz * dz; if (d2 < bd) { bd = d2; best = e; } } wing.engaged = best ? best.id : null; if (best) { goal = best.c; tight = .6; } } else wing.engaged = null;
+  if (engageR > 0 && wing.phase !== 'run'&&wing.phase!=='egress') { const ref = o.type === 'strike' ? (wing.c || lead.pos) : goal; let best = null, bd = engageR * engageR; for (const e of centres) { if (e.side === wing.side || !e.c) continue; const dx = e.c[0] - ref[0], dy = e.c[1] - ref[1], dz = e.c[2] - ref[2], d2 = dx * dx + dy * dy + dz * dz; if (d2 < bd) { bd = d2; best = e; } } wing.engaged = best ? best.id : null; if (best) { goal = best.c; tight = .6; } } else wing.engaged = null;
   steerWing(out, goal, hd, dt, tight);
  }
- // Dogfights: a squadron is worn down by the air-to-air strength of every
- // enemy squadron in the 4.5 km cube around it (cells of 1.5 km, summed per
- // side), so a swarm of thousands costs no more than a handful.
- // v21.2 Each cell also keeps its strongest squadron per side: the one a squadron is fighting (dfFoe, which the
- // 3D view shows it shooting at) and the one credited with what it shoots down.
- const air = sq.filter(s => s.state === 'out' && s.n > 0), N = air.length, nS = w.sides.length, DFC = 1500, cells = new Map(), tops = new Map(), near = new Map(), nearTop = new Map(), key = (i, j, k) => ((i & 1023) << 20) | ((j & 1023) << 10) | (k & 1023);
- const P = new Float64Array(N * 3), side = new Int8Array(N), soft = new Float64Array(N), cellOf = new Int32Array(N), loss = new Float64Array(N), pdL = new Float64Array(N), pdTop = new Float64Array(N), pdBy = new Array(N).fill(null), val = new Float64Array(N);
- for (let n = 0; n < N; n++) { const s = air[n], c = CRAFT[s.craft], x = s.pos[0], y = s.pos[1], z = s.pos[2], kk = key(Math.floor(x / DFC), Math.floor(y / DFC), Math.floor(z / DFC));P[n * 3] = x;P[n * 3 + 1] = y;P[n * 3 + 2] = z;side[n] = s.side;soft[n] = 1 / c.armor;cellOf[n] = kk;val[n] = s.n * c.aa * C.squadFireK(s) * squadLaserK(s,'aa');let e = cells.get(kk); if (!e) { cells.set(kk, e = new Float64Array(nS)); tops.set(kk, new Int32Array(nS).fill(-1)); } e[s.side] += val[n]; const tp = tops.get(kk); if (tp[s.side] < 0 || val[tp[s.side]] < val[n]) tp[s.side] = n; }
+ // A squadron fires at one nearby enemy that its own guns can bear on. Cell lists keep the existing 4.5 km
+ // neighbourhood; at most 64 candidates per attacker are sampled, rotating through dense cells each tick.
+ // Firing/heat/visual markers belong to the attacker; kill credit belongs to the damage received by its victim.
+ const air = sq.filter(s => s.state === 'out' && s.n > 0), N = air.length, DFC = 1500, cells = new Map(), near = new Map(), bySq = new Map(), key = (i, j, k) => ((i & 1023) << 20) | ((j & 1023) << 10) | (k & 1023);
+ const P = new Float64Array(N * 3), side = new Int8Array(N), soft = new Float64Array(N), cellOf = new Int32Array(N), loss = new Float64Array(N), pdL = new Float64Array(N), pdTop = new Float64Array(N), pdBy = new Array(N).fill(null), dfBy = new Array(N).fill(null), dfTop = new Float64Array(N), val = new Float64Array(N), previous = air.map(s=>s.dfFoe);
+ for (let n = 0; n < N; n++) { const s = air[n], c = CRAFT[s.craft], x = s.pos[0], y = s.pos[1], z = s.pos[2], kk = key(Math.floor(x / DFC), Math.floor(y / DFC), Math.floor(z / DFC));P[n * 3] = x;P[n * 3 + 1] = y;P[n * 3 + 2] = z;side[n] = s.side;soft[n] = 1 / c.armor;cellOf[n] = kk;val[n] = s.n * c.aa * C.squadFireK(s) * squadLaserK(s,'aa');let e = cells.get(kk);if(!e)cells.set(kk,e=[]);e.push(n);bySq.set(s.id,n);s.dfFoe=null; }
  for (let n = 0; n < N; n++) {
-  const kk = cellOf[n];let e = near.get(kk), et = nearTop.get(kk);
-  if (!e) { e = new Float64Array(nS); et = new Int32Array(nS).fill(-1); const i = Math.floor(P[n * 3] / DFC), j = Math.floor(P[n * 3 + 1] / DFC), k = Math.floor(P[n * 3 + 2] / DFC); for (let a = -1; a <= 1; a++) for (let b = -1; b <= 1; b++) for (let c = -1; c <= 1; c++) { const ck = key(i + a, j + b, k + c), q = cells.get(ck); if (!q) continue; const tq = tops.get(ck); for (let t = 0; t < nS; t++) { e[t] += q[t]; if (tq[t] >= 0 && (et[t] < 0 || val[et[t]] < val[tq[t]])) et[t] = tq[t]; } } near.set(kk, e); nearTop.set(kk, et); }
-  let foe = 0, top = -1;for (let t = 0; t < nS; t++) if (t !== side[n]) { foe += e[t]; if (et[t] >= 0 && (top < 0 || val[top] < val[et[t]])) top = et[t]; }
-  if (foe > 0) { loss[n] = RULES.dogfight * foe * soft[n] * dt; air[n].dogfight = w.time; air[n].dfFoe = top >= 0 ? air[top].id : null; }
+  if(!(val[n]>0))continue;
+  const s=air[n],i=Math.floor(P[n*3]/DFC),j=Math.floor(P[n*3+1]/DFC),k=Math.floor(P[n*3+2]/DFC),nk=cellOf[n]+':'+side[n];let candidates=near.get(nk);
+  if(!candidates){candidates=[];for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++)for(let c=-1;c<=1;c++){const q=cells.get(key(i+a,j+b,k+c));if(q)for(const t of q)if(side[t]!==side[n])candidates.push(t);}near.set(nk,candidates);}
+  let target=-1,gate=0,score=-1,checked=0;const prior=bySq.get(previous[n]);
+  const consider=t=>{const g=squadFireArc(s,air[t].pos,'aa');checked++;if(!(g>0))return;const dx=P[t*3]-P[n*3],dy=P[t*3+1]-P[n*3+1],dz=P[t*3+2]-P[n*3+2],v=g/Math.max(1,dx*dx+dy*dy+dz*dz);if(v>score){target=t;gate=g;score=v;}};
+  if(prior!=null&&side[prior]!==side[n]&&Math.abs(Math.floor(P[prior*3]/DFC)-i)<=1&&Math.abs(Math.floor(P[prior*3+1]/DFC)-j)<=1&&Math.abs(Math.floor(P[prior*3+2]/DFC)-k)<=1)consider(prior);
+  if(target<0&&candidates.length){const count=Math.min(64-checked,candidates.length),offset=(Math.floor(w.time/TICK)+n*17)%candidates.length;for(let a=0;a<count;a++){const t=candidates[(offset+Math.floor(a*candidates.length/count))%candidates.length];if(t!==prior)consider(t);}}
+  if(target<0)continue;const amount=RULES.dogfight*val[n]*gate*soft[target]*dt;if(!(amount>0))continue;
+  loss[target]+=amount;if(amount>dfTop[target]){dfTop[target]=amount;dfBy[target]=s.id;}s.dogfight=w.time;s.dfFoe=air[target].id;
  }
  // v25 each squadron's stored heat: up while it fights (S-foils open in battle), down off the trigger; O(squadrons)
  { const bat = w.battles.has(sys); for (let n = 0; n < N; n++) { const s = air[n]; C.squadHeatStep(s, CRAFT[s.craft]?.heat, (s.dogfight === w.time && squadLaserK(s,'aa')>0) || (s.strafeT > w.time && squadLaserK(s)>0), bat, dt); } }
@@ -13749,7 +13804,7 @@ function craftTick(w, sys, us, byId, sysOf, inc, dt) {
  // v21.2 Craft are lost whole: the damage a squadron takes adds up (hurt), and each craft's worth of it brings
  // one down, by dogfight or point defence in proportion to what each dealt.
  for (let n = 0; n < N; n++) { if (!(loss[n] > 0)) continue; const s = air[n];s.hurt = (s.hurt || 0) + loss[n] * (1 + (w.rand() - .5) * .5);
-  while (s.hurt >= 1 && s.n > 0) { s.hurt -= 1; const pd = pdL[n] > w.rand() * loss[n]; craftDown(w, sys, s, null, pd ? 'pd' : 'air', pd ? pdBy[n] : s.dfFoe); } }
+  while (s.hurt >= 1 && s.n > 0) { s.hurt -= 1; const pd = pdL[n] > w.rand() * loss[n]; craftDown(w, sys, s, null, pd ? 'pd' : 'air', pd ? pdBy[n] : dfBy[n]); } }
  for (const {wing} of wings.values()) if (wing.logK && wing.logK.air + wing.logK.pd > 0 && w.time - (wing.logT ?? -1e9) >= 30) craftLossLog(w, sys, wing);
  HULLS = null;
 }
@@ -13810,13 +13865,13 @@ function craftFormation(k, role, dims) {
 // A wing's squadrons in a loose vee behind the leader, each heading for its place.
 function steerWing(out, goal, hd, dt, tight = 1) {
  const right = [-hd[2], 0, hd[0]], vmin = Math.min(...out.map(sqSpeed));
- for (const s of out) { const k = s.slot ?? 0, row = Math.ceil(k / 2), sg = k % 2 ? 1 : -1, off = add(scale(hd, -row * 420 * tight), right, sg * row * 520 * tight), g = add(goal, off), lag = len(sub(g, s.pos)); steer(s, g, Math.min(sqSpeed(s), vmin * (lag > 1500 ? 1.15 : 1)), dt); }
+ for (const s of out) { const k = s.slot ?? 0, row = Math.ceil(k / 2), sg = k % 2 ? 1 : -1, off = add(scale(hd, -row * 420 * tight), right, sg * row * 520 * tight), g = add(goal, off), lag = len(sub(g, s.pos)); steer(s, g, Math.min(sqSpeed(s), vmin * (lag > 1500 ? 1.15 : 1)), dt, true); }
 }
-function steer(s, goal, speed, dt) {
- const d = sub(goal, s.pos), l = len(d);if (l < 1) return;let want = scale(d, 1 / l);if (HULLS) want = hullSteer(s, want, speed, goal, l);
+function steer(s, goal, speed, dt, flyThrough = false) {
+ if(!(dt>0))return;const d = sub(goal, s.pos), l = len(d);if (l < 1&&!flyThrough) {s.vel=[0,0,0];return;}let want=l>=1?scale(d,1/l):s.h.slice();if (HULLS) want = hullSteer(s, want, speed, goal, l);
  const c = clamp(dot(s.h, want), -1, 1), ang = Math.acos(c), maxA = 1.3 * dt * (CRAFT[s.craft]?.systems?.turnK??1);
- if (ang > 1e-4) { const k = Math.min(1, maxA / ang); s.h = norm(add(scale(s.h, 1 - k), want, k)); }
- let v = Math.min(speed, l / dt);if (HULLS) v = Math.min(v, hullFree(s, v * dt) / dt);
+ if (ang > 1e-4) { const turn=Math.min(ang,maxA);let axis=C.cross(s.h,want);if(len(axis)<1e-8)axis=C.cross(s.h,Math.abs(s.h[1])<.9?[0,1,0]:[1,0,0]);axis=norm(axis);s.h=norm(add(scale(s.h,Math.cos(turn)),C.cross(axis,s.h),Math.sin(turn))); }
+ let v = flyThrough?speed:Math.min(speed, l / dt);if (HULLS) v = Math.min(v, hullFree(s, v * dt) / dt);
  const p0 = s.pos;s.vel = scale(s.h, v);s.pos = add(s.pos, s.vel, dt);if (HULLS) hullContact(s, p0);
 }
 // ---------- craft and hulls (v23) ----------
@@ -13967,7 +14022,8 @@ function opsCut(w, sys, s, aboard, why, by) {
 }
 // The far end of an attack run: through the target from the bearing it came in on and past its far side (a run from
 // above or below dives on its middle and strafes aft along it), where the wing breaks away.
-function runGoal(t, ap) { const s = C.hullShape(t.p), v = ap[1] ? [-1, 0, 0] : [-ap[0], 0, -ap[2]];return add(t.pos, shipToWorld(t, scale(v, Math.abs(v[0]) * s.hx + Math.abs(v[2]) * s.hz + 600))); }
+function runGoal(t, ap, side=1) { const s = C.hullShape(t.p), v = ap[1] ? [-1, 0, 0] : [-ap[0], 0, -ap[2]],q=scale(v,Math.abs(v[0])*s.hx+Math.abs(v[2])*s.hz+3500);q[1]=(side<0?-1:1)*(s.hy+RULES.skim+50);return add(t.pos,shipToWorld(t,q)); }
+function runExit(t,r){const q=add(t.pos,r.dir,r.extent+r.clear);q[1]=t.pos[1]+r.side*(C.hullShape(t.p).hy+RULES.hullM+350);return q;}
 // Sliding hatch doors (the Venator's flight deck) open while a launch or a landing wants them, over p.hatchOpenSeconds,
 // and close again a few seconds after the traffic stops; the 3D view draws them.
 function hatchTick(w, dt) { for (const u of w.units.values()) { if (!(u.p.slidingHatches > 0) || !alive(u)) continue; const want = w.time - (u.hatchWant ?? -1e9) < 6;u.hatchTarget = want ? 1 : 0;u.hatchOpen = clamp((u.hatchOpen || 0) + (want ? 1 : -1) * dt / Math.max(.5, u.p.hatchOpenSeconds || 4), 0, 1); } }
@@ -14766,6 +14822,7 @@ return {CAMPAIGN_FORMAT, CAMPAIGN_VERSION, CAMPAIGN_SLOTS, CAMPAIGN_STAGES, camp
  stowBays, shipStow, stir, peaceTick, formationOffsets, formationGaps, pendingWarp, jumpSequence, JUMP_STAGGER, rng, makeSector, sysDistance, routePath, routeCost, pathSeconds, tripSeconds, designInfo, unitDemand, createWorld, normalizeOrbat, makeUnit, makeGroup, makeCtg, ctgOf, addSquad, step, tick,
  detect, orderJump, cancelJump, etaTo, groupMapPos, orderUnit, orderGroup, orderCtg, orderCtgJump, orderTractor, orderWing, splitGroup, mergeGroups, systemUnits, unitStruct, unitStrength, unitHyper, carriedOf, launchCarried, recoverCarried, orderCarried, groupHyper, groupDisabled, groupStay,
  orderScuttle, orderRecover, recoverCheck, rearSeconds, SUPPLY, supplyAt, supplyLines, supplyNeeds, unitSupplyOf, alive, fighting, pdToward, effectiveOrder, groupOrder, tractorReach, tractorOk, registerDesignCraft, craftStores, squadStores, squadRelease, rearmSquad, squadSystemsTick, squadLaserK, squadArmed, squadSlots, craftDown,
+ squadFireArc,
  craftFormation, defaultAir, troopRoom, defaultGround, makeRegiment, regimentTotals, airTotals, battleTick, sectorGal, sideBearing, sideStarts,
  wingHyper, raidCheck, orderRaid, recallRaid, raidMapPos, CRAFT_HYPER, wingOrder, airCtlOf, airCtlCap, airCtlUsed, mouthsOf, opsDone, runGoal};
 })();

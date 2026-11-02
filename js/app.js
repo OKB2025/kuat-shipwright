@@ -5990,8 +5990,11 @@ function trialSpawnTarget(i,first){
 // Each gun keeps its range band: how far its bolts carry and what its fire costs in stored energy.
 // v21.3 A flown craft's fixed guns are the pilot's: they fire on the trigger at the reticle, a few shots a
 // second each (the same power, so the same weight of fire), and only its real turrets defend it on their own.
-const TRIAL_PILOT_CYCLE={claser:.5,claserH:.7,cion:.8};
-function trialTurretState(t){const fw=tv.norm(t.fw),axis=tv.norm(t.axis),spec=C.FITS[t.k]||{},band=C.fitBand(spec),pilot=!!(trial.craft&&spec.craft&&spec.fixed);return {...t,band,reach:C.GUN_BANDS[band]?.range||TRIAL_GUN.range,costK:spec.ion?1:C.COMBAT.bandCost[band]??1,pd:(spec.aa||0)>0&&!((spec.tt||0)>.01)&&!spec.ion&&!pilot,pilot,cycle:pilot?TRIAL_PILOT_CYCLE[t.k]||.6:t.cycle,fw,axis,e2:tv.cross(axis,fw),rateRad:t.rate*Math.PI/180,yaw:0,el:0,reload:0,clear:false,clearDir:null,aimed:false,arc:true,rot:trialAxisMatrix(axis,0)};}
+const TRIAL_PILOT_CYCLE=C.CRAFT_FIRE.cycles;
+// Small-target kill odds and practice hits were calibrated to the former volleys.
+// Frequent pulses split that exposure as well as the physical shot energy.
+const TRIAL_PILOT_REFERENCE_CYCLE={claser:.5,claserH:.7,cion:.8};
+function trialTurretState(t){const fw=tv.norm(t.fw),axis=tv.norm(t.axis),spec=C.FITS[t.k]||{},band=C.fitBand(spec),pilot=!!(trial.craft&&spec.craft&&spec.fixed),cycle=pilot?TRIAL_PILOT_CYCLE[t.k]||C.CRAFT_FIRE.defaultCycle:t.cycle;return {...t,band,reach:C.GUN_BANDS[band]?.range||TRIAL_GUN.range,costK:spec.ion?1:C.COMBAT.bandCost[band]??1,pd:(spec.aa||0)>0&&!((spec.tt||0)>.01)&&!spec.ion&&!pilot,pilot,cycle,fw,axis,e2:tv.cross(axis,fw),rateRad:t.rate*Math.PI/180,yaw:0,el:0,reload:pilot?((Math.abs(t.id||0)*.61803398875)%1)*cycle:0,clear:false,clearDir:null,aimed:false,arc:true,rot:trialAxisMatrix(axis,0)};}
 // opts.design flies another design than the one on the drawing board;
 // opts.battle starts a space battle with that plan; opts.system picks the system.
 async function trialStart(opts={}){
@@ -6072,7 +6075,7 @@ function trialStep(dt){
 }
 // ---- gunnery ----
 const trialBarrel=(t,yaw,el)=>{const c=Math.cos(el),h=tv.add(tv.scale(t.fw,Math.cos(yaw)),t.e2,Math.sin(yaw));return tv.norm(tv.add(tv.scale(h,c),t.axis,Math.sin(el)));};
-const trialLimits=t=>t.pilot?{yaw:15*Math.PI/180,lo:-15*Math.PI/180,hi:15*Math.PI/180}:t.casemate?{yaw:65*Math.PI/180,lo:-20*Math.PI/180,hi:20*Math.PI/180}:{yaw:null,lo:-10*Math.PI/180,hi:85*Math.PI/180};
+const trialLimits=t=>t.pilot?{yaw:0,lo:0,hi:0}:t.casemate?{yaw:65*Math.PI/180,lo:-20*Math.PI/180,hi:20*Math.PI/180}:{yaw:null,lo:-10*Math.PI/180,hi:85*Math.PI/180};
 function trialAim(){
  if(!view)return null;const eye=view.eye(),dir=tv.norm(tv.sub(view.cam.target,eye));let dist=Math.max(TRIAL_GUN.aim,trial.p.len*1.5),lock=null,best=Infinity;
  for(const t of trial.targets){if(!t.alive||t.ally)continue;const v=tv.sub(tv.sub(t.pos,trial.P),eye),d=tv.len(v),ang=Math.acos(C.clamp(tv.dot(v,dir)/d,-1,1)),cone=Math.atan((t.radius||trial.asset.geometry.targetRadius*1.6)/d)+.006;if(ang<cone&&ang<best){best=ang;lock=t;dist=d;}}
@@ -6128,10 +6131,11 @@ function trialPdBoltHit(b){
 // Small craft and missiles a pilot's guns can reach.
 function trialPilotThreats(){const out=[],P=trial.P,R2=TRIAL_PILOT_HIT.range**2;for(const l of [trial.drones,trial.foeCraft,trial.foeMissiles])for(const q of l||[]){if(!q.alive)continue;const x=q.pos[0]-P[0],y=q.pos[1]-P[1],z=q.pos[2]-P[2];if(x*x+y*y+z*z<R2)out.push(q);}return out;}
 // A pilot's bolt (or missile, k scaling the reach) passing a small craft or missile: true when it struck.
-function trialPilotHit(a0,a1,qs,w,k=1){
+function trialPilotHit(a0,a1,qs,w,k=1,exposure=1){
  const seg=tv.sub(a1,a0),l2=tv.dot(seg,seg)||1;
  for(const q of qs){if(!q.alive)continue;const t=C.clamp(tv.dot(tv.sub(q.pos,a0),seg)/l2,0,1),p=tv.add(a0,seg,t);if(tv.len(tv.sub(p,q.pos))>(TRIAL_PILOT_HIT.radius[q.kind]||20)*k)continue;
-  trial.gun.hits+=w;if(k>1||Math.random()<(TRIAL_PILOT_HIT.pKill[q.kind]||.4))trialThreatDown(q,p,true);else trial.fx.push({pos:p,vel:q.vel,life:.2,max:.2,size:6,col:[255,220,160]});return true;}
+  const base=TRIAL_PILOT_HIT.pKill[q.kind]||.4,chance=1-Math.pow(1-base,Math.max(0,Number.isFinite(exposure)?exposure:1));
+  trial.gun.hits+=w;if(k>1||Math.random()<chance)trialThreatDown(q,p,true);else trial.fx.push({pos:p,vel:q.vel,life:.2,max:.2,size:6,col:[255,220,160]});return true;}
  return false;
 }
 function trialThreatDown(q,p,gun){
@@ -6186,7 +6190,7 @@ const TT_J=4.184e21;
 // one that cannot come on. Returns the guns to fire this frame (null: continuous fire).
 function trialSalvoPlan(dt){
  if(trial.volley!=='salvo')return null;const bats=new Map(),W=trial.salvoWait||(trial.salvoWait={}),go=new Set();
- for(const t of trial.turrets){if(t.pd||t.dead||!t.firing||t.held)continue;let b=bats.get(t.k);if(!b)bats.set(t.k,b=[]);b.push(t);}
+ for(const t of trial.turrets){if(t.pd||t.pilot||t.dead||!t.firing||t.held)continue;let b=bats.get(t.k);if(!b)bats.set(t.k,b=[]);b.push(t);}
  for(const k of Object.keys(W))if(!bats.has(k))delete W[k];
  for(const [k,b] of bats){const rdy=b.filter(t=>t.laid&&t.reload<=0);if(!rdy.length){W[k]=0;continue;}W[k]=(W[k]||0)+dt;
   if(rdy.length===b.length||W[k]>Math.max(...b.map(t=>t.cycle))*.6){for(const t of rdy)go.add(t);W[k]=0;}}
@@ -6206,12 +6210,12 @@ function trialGunnery(dt){
  for(const t of trial.turrets){
   const oW=trialApply(R,tv.sub(t.origin,center)),lim=trialLimits(t);let ty=0,te=0;t.arc=true;t.pdTarget=null;
   if(t.pd){const q=trialPdPick(t,oW,threats);if(q){t.pdTarget=q;const rel=tv.sub(q.pos,trial.P),uv=tv.sub(q.vel,trial.V),tt=trialIntercept(tv.sub(rel,oW),uv,spd),aimW=tt?tv.add(rel,uv,tt):rel,dl=trialApplyT(R,tv.norm(tv.sub(aimW,oW)));ty=Math.atan2(tv.dot(dl,t.e2),tv.dot(dl,t.fw));te=Math.asin(C.clamp(tv.dot(dl,t.axis),-1,1));}}
-  else if(!home){let aimW=a.point;
+  else if(!t.pilot&&!home){let aimW=a.point;
    if(lock){const tt=trialIntercept(tv.sub(lockRel,oW),u,spd);if(tt)aimW=tv.add(lockRel,u,tt);}
    const dl=trialApplyT(R,tv.norm(tv.sub(aimW,oW)));ty=Math.atan2(tv.dot(dl,t.e2),tv.dot(dl,t.fw));te=Math.asin(C.clamp(tv.dot(dl,t.axis),-1,1));}
   if(lim.yaw!=null&&Math.abs(ty)>lim.yaw){ty=Math.sign(ty)*lim.yaw;t.arc=false;}if(te<lim.lo||te>lim.hi){te=C.clamp(te,lim.lo,lim.hi);t.arc=false;}
   if(t.pd&&!t.pdTarget)t.arc=false;
-  const sy=t.rateRad*dt,dy=trialWrap(ty-t.yaw);t.yaw=trialWrap(t.yaw+C.clamp(dy,-sy,sy));const se=t.rateRad*1.5*dt;t.el+=C.clamp(te-t.el,-se,se);
+  const sy=t.rateRad*dt,dy=trialWrap(ty-t.yaw);t.yaw=trialWrap(t.yaw+C.clamp(dy,-sy,sy));const se=t.rateRad*1.5*dt;t.el+=C.clamp(te-t.el,-se,se);if(t.pilot){t.yaw=0;t.el=0;}
   if(t.mesh){trialAxisMatrix(t.axis,t.yaw,t.rot);if(t._foilRot)t.rot=m3Mul(t.rot,t._foilRot);}
   const err=Math.max(Math.abs(trialWrap(ty-t.yaw)),Math.abs(te-t.el));t.aimed=t.arc&&err<.018;t.laid=t.arc&&err<(t.pilot?.02:.005);
   // Point defence slews fast after small targets, so it accepts an older line-of-fire check.
@@ -6221,21 +6225,21 @@ function trialGunnery(dt){
  }
  trialPowerStep(dt,demand);const en=trial.energy;let held=0;
  for(const t of trial.turrets){
-  t.reload=Math.max(0,t.reload-dt);t.starved=false;
+  t.reload=Math.max(t.pilot&&t.firing?-3*t.cycle:0,t.reload-dt);t.starved=false;
   // A main battery holds its fire while one of our own ships is across its line.
   if(t.firing&&!t.pd&&trial.battle){t.held=!!trialAllyOnLine(tv.add(trial.P,t.oW),trialApply(R,t.bd),Math.max(t.reach||TRIAL_GUN.range,trial.p.len*2));if(t.held)held++;}else t.held=false;}
  // v20.6 Salvo fire: the guns of each battery wait for one another and fire together.
  const salvo=trialSalvoPlan(dt);
  for(const t of trial.turrets){
-  if(t.held||salvo&&!t.pd&&!salvo.has(t))continue;
-  if(t.firing&&(t.laid||t.pd)&&t.reload<=0){
-   const shotTT=t.power*t.cycle*t.charge/TT_J,cost=shotTT*(t.costK??1);if(en.E<cost){t.starved=true;continue;}if(!trialCraftGasTake(t,dt)){t.gasStarved=true;continue;}en.E-=cost;
-   t.reload=t.cycle*(1+Math.random()*(salvo&&!t.pd?.01:.08));const bd=t.bd,n=Math.min(t.barrels,t.r>12?2:t.barrels>2?2:1),sc=t.pd?.009:.0012,g=()=>(Math.random()+Math.random()+Math.random()-1.5)*sc,bw=trialApply(R,tv.norm(tv.add(tv.add(bd,t.e2,g()),t.axis,g()))),side=trialApply(R,tv.norm(tv.cross(t.axis,bd))),base=tv.add(tv.add(trial.P,t.oW),bw,t.r*1.2),spread=t.r*.35;
+  if(t.held||salvo&&!t.pd&&!t.pilot&&!salvo.has(t)){if(t.pilot)t.reload=Math.max(0,t.reload);continue;}
+  for(let burst=0;t.firing&&(t.laid||t.pd)&&t.reload<=0&&burst<(t.pilot?4:1);burst++){
+   const shotTT=t.power*t.cycle*t.charge/TT_J,cost=shotTT*(t.costK??1);if(en.E<cost){t.starved=true;if(t.pilot)t.reload=0;break;}if(!trialCraftGasTake(t,dt)){t.gasStarved=true;if(t.pilot)t.reload=0;break;}en.E-=cost;
+   t.reload=t.pilot?t.reload+t.cycle:t.cycle*(1+Math.random()*(salvo&&!t.pd?.01:.08));const bd=t.bd,n=Math.min(t.barrels,t.r>12?2:t.barrels>2?2:1),sc=t.pd?.009:.0012,g=()=>(Math.random()+Math.random()+Math.random()-1.5)*sc,bw=trialApply(R,tv.norm(tv.add(tv.add(bd,t.e2,g()),t.axis,g()))),side=trialApply(R,tv.norm(tv.cross(t.axis,bd))),base=tv.add(tv.add(trial.P,t.oW),bw,t.r*1.2),spread=t.r*.35;
    if(t.pd){sndAt('point_defense',base,{gain:.45});trial.gun.pd=(trial.gun.pd||0)+t.barrels;for(let i=0;i<n;i++){const off=n>1?(i/(n-1)-.5)*spread:0,pos=tv.add(base,side,off);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(bw,spd),trial.V),life:TRIAL_PD.range*1.15/spd,len:Math.max(40,t.r*6),size:Math.max(3,t.r*.45),col:trialPdColor(),weight:0,tt:0,pd:true,target:t.pdTarget});}continue;}
    trial.gun.shots+=t.barrels;
    // (a pilot's guns: a fighter's laser, its bolts and flash sized like the other craft's)
-   const pl=t.pilot,hv=t.k==='claserH';sndAt(pl?sndPilotGun():sndGun(t),base,pl?{gain:.7,near:400,far:8000}:{gain:.85,near:2500,fac:sndFac(trial.battle?.me||{manual:true,side:0})});
-   for(let i=0;i<n;i++){const off=n>1?(i/(n-1)-.5)*spread:0,pos=tv.add(base,side,off);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(bw,spd),trial.V),life:Math.max(t.reach||TRIAL_GUN.range,trial.p.len*(t.band==='close'?1.2:3))/spd,len:pl?(hv?18:14):Math.max(70,t.r*9),size:pl?(hv?2.4:2):Math.max(5,t.r*.9),col:t.ion?[170,215,255]:color,weight:t.barrels/n,tt:shotTT/n,ion:!!t.ion,pilot:pl});}
+   const pl=t.pilot,hv=t.k==='claserH',hitScale=pl?t.cycle/(TRIAL_PILOT_REFERENCE_CYCLE[t.k]||.5):1;sndAt(pl?sndPilotGun():sndGun(t),base,pl?{gain:.7,near:400,far:8000}:{gain:.85,near:2500,fac:sndFac(trial.battle?.me||{manual:true,side:0})});
+   for(let i=0;i<n;i++){const off=n>1?(i/(n-1)-.5)*spread:0,pos=tv.add(base,side,off);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(bw,spd),trial.V),life:Math.max(t.reach||TRIAL_GUN.range,trial.p.len*(t.band==='close'?1.2:3))/spd,len:pl?(hv?32:24):Math.max(70,t.r*9),size:pl?(hv?2.4:2):Math.max(5,t.r*.9),col:t.ion?[170,215,255]:color,weight:pl?2*hitScale/n:t.barrels/n,hitScale,tt:shotTT/n,ion:!!t.ion,pilot:pl});}
    trial.fx.push({pos:base,vel:trial.V,life:.12,max:.12,size:pl?2.5:Math.max(6,t.r*1.6),col:[255,240,210]});
   }
  }
@@ -6253,7 +6257,7 @@ function trialGunnery(dt){
  const pq=trial.craft?trialPilotThreats():null;
  for(const b of trial.bolts){b.prev=b.pos;b.pos=tv.add(b.pos,b.vel,dt);b.life-=dt;
   if(b.pd){trialPdBoltHit(b);continue;}
-  if(b.pilot&&pq.length&&trialPilotHit(b.prev,b.pos,pq,b.weight)){b.life=0;continue;}
+  if(b.pilot&&pq.length&&trialPilotHit(b.prev,b.pos,pq,b.weight,1,b.hitScale)){b.life=0;continue;}
   if(!b.esc&&trial.escorts?.length){let hitE=null;for(const e of trial.escorts){const sd=tv.sub(b.pos,b.prev),l=tv.len(sd);if(l>0&&trialBoxOnLine({pos:e.pos,rot:e.R,radius:e.p.len*.5,semi:[e.p.len*.5,(e.p.height||e.p.len*.2)*.5,(e.p.width||e.p.len*.5)*.5]},b.prev,tv.scale(sd,1/l),l,1)){hitE=e;break;}}if(hitE){b.life=0;spaceImpact(b.pos,hitE.V,{shield:1},10);if(performance.now()-(trial.ffToast||0)>4000){trial.ffToast=performance.now();toast(`誤射：随伴艦 ${esc(hitE.name)} に命中`);}continue;}}
   for(const t of trial.targets){if(!t.alive||b.life<=0)continue;if(t.ship){const q=segShip(t,b.prev,b.pos);if(q){b.life=0;shipHit(t,q,b.tt||0,b.ion?'ion':'bolt',b.weight);}continue;}const q=segHit(t,b.prev,b.pos);if(q){b.life=0;hitTarget(t,q,b.weight,b.esc);}}}
  // (a missile homing on a small craft bursts on it)
@@ -11034,6 +11038,7 @@ function voyPilotThreats() {
   const wg = w.wings.get(s.wing), wo = wg ? (wg.raid ? wg.raid.order : wg.order?.type === 'auto' ? wg.auto : wg.order) : null, tgt = wo?.type === 'strike' && (wg.phase === 'run' || (st.run && wg.phase === 'egress')) ? w.units.get(wo.target) : null;
   if (tgt && R.alive(tgt)) { if (!st.run || st.run.u !== tgt) { const l = trialApplyT(spaceRotU(B.E, tgt), tv.sub(c0, spaceWorld(tgt))); st.run = {u: tgt, side: s.runSide || (wo.approach === 'below' || l[1] < -(tgt.p.height || 200) * .8 ? -1 : 1)}; } } else if (st.run && st.runK < .03) st.run = null;
   const rails = s.ops?.k === 'launch' || s.ops?.k === 'land', home = rails ? w.units.get(s.ops.u) : null;
+  if (st.runPhase === 'run' && wg?.phase !== 'run') st.brk = ct;st.runPhase = wg?.phase;
   craftSqMood(st, {fight, fire: pdOn.has(s.id) || fight, run: !!(tgt && wg.phase === 'run'), hold: !rails && !fight && !tgt && tv.len(iv.vel) < c.speed * .15}, cdt);
   const fr = craftSqFrame(st, c0, v, h, up, S, d, ct, cdt, trialApply(B.E, [1, 0, 0])), models = !!mk && (isSel || dS < L * focal / 2.2 + 600);
   if (mk) voyCraftWant(mk, dS);
@@ -11142,12 +11147,18 @@ function voySqCamera(B, w, cf) {
 // strafe (and bombers drop their torpedoes and bombs on) the ship they attack as the battle lands it, and ships
 // whose point defence is on craft fire at them.
 function voyCraftFire(B, w, sys, cf, fdt, eye) {
+ if (trial.paused) return;
  const jobs = {df: [], runs: [], pd: []};
- for (const [sid, st] of cf.sq) { const m = st.list;if (!m.length || st.f !== cf.f) continue;const s = w.squads.get(sid);if (!s || s.state !== 'out' || w.time - (s.dogfight ?? -99) > 1.5 || !s.dfFoe) continue;const fm = cf.sq.get(s.dfFoe)?.list;if (fm?.length) jobs.df.push({m, fm, c: R.CRAFT[s.craft], col: voyBoltCol(w, s.side), gun: craftGun(w, s)}); }
- // attack runs, as the battle records them (w.craftRuns): a burst of a second and a half from every craft; then the
- // squadron peels off
- for (const x of w.craftRuns || []) if (x.sys === sys && x.t > cf.runT) { cf.runs.push({sq: x.sq, to: x.to, left: 1.6, first: true, noOrd: Array.isArray(x.ord) || 'ord' in x}); cf.runT = Math.max(cf.runT, x.t); const st = cf.sq.get(x.sq); if (st) st.brk = cf.ct + 1; }
- for (const r of cf.runs) { r.left -= fdt;const s = w.squads.get(r.sq), u = w.units.get(r.to), m = cf.sq.get(r.sq)?.list;if (!s || !u || !m?.length || r.left <= 0) { r.left = 0; continue; } jobs.runs.push({r, m, u, c: R.CRAFT[s.craft], key: s.craft, col: voyBoltCol(w, s.side), gun: craftGun(w, s)}); }
+ for (const [sid, st] of cf.sq) {
+  const m = st.list;if (!m.length || st.f !== cf.f) continue;const s = w.squads.get(sid);if (!s || s.state !== 'out') continue;
+  if (s.dogfight === w.time && s.dfFoe != null) { const fm = cf.sq.get(s.dfFoe)?.list;if (fm?.length) jobs.df.push({s, m, fm, c: R.CRAFT[s.craft], col: voyBoltCol(w, s.side), gun: craftGun(w, s)}); }
+  // A recorded pass may still be visible after the craft has broken away. Only the battle's current firing
+  // window enables its lasers; the event below is retained separately for carried ordnance.
+  if (s.strafeT > w.time && s.runOn != null) { const u = w.units.get(s.runOn);if (u && R.alive(u)) jobs.runs.push({s, r: {first: false, noOrd: true}, m, u, c: R.CRAFT[s.craft], key: s.craft, col: voyBoltCol(w, s.side), gun: craftGun(w, s)}); }
+ }
+ const since = cf.runT;
+ for (const x of w.craftRuns || []) if (x.sys === sys && x.t > since) { cf.runs.push({sq: x.sq, to: x.to, left: 1.6, first: true, noOrd: Array.isArray(x.ord) || 'ord' in x}); cf.runT = Math.max(cf.runT, x.t); }
+ for (const r of cf.runs) { r.left -= fdt;const s = w.squads.get(r.sq), u = w.units.get(r.to), m = cf.sq.get(r.sq)?.list;if (!s || !u || !m?.length || r.left <= 0) { r.left = 0; continue; } jobs.runs.push({s, r, m, u, fire: false, c: R.CRAFT[s.craft], key: s.craft, col: voyBoltCol(w, s.side), gun: craftGun(w, s)}); }
  cf.runs = cf.runs.filter(r => r.left > 0);
  // point defence at craft from every ship firing it (the flown ship's own batteries are its turrets)
  for (const u of R.systemUnits(w, sys)) { if (u.manual || !R.alive(u) || u.out || w.time - (u.pdAt ?? -99) > 1 || !u.pdOn) continue; const m = cf.sq.get(u.pdOn)?.list;if (m?.length) jobs.pd.push({u, m, col: voyBoltCol(w, u.side)}); }
@@ -11202,31 +11213,64 @@ function craftOrdPoints(P) {
   else out.push([p, [255, 205, 150, 255], 4.2], [p, [255, 120, 60, 170], 10 * fl]); }
  return out;
 }
+// Mounts are in the same local frame as the craft model. Legacy combat-only craft retain a forward nose pair.
+function craftVisualGuns(a, c, mode, s) {
+ const explicit = Array.isArray(c.fireArcs), L = c.dims?.[0] || 8, W = c.dims?.[1] || 8, span = W * (W > 9 ? .45 : .18), frame = trialFrame(a.h || [1, 0, 0], a.up || [0, 1, 0]);
+ const center = fleet.assets.get(voyCraftModel(a.craft))?.geometry?.center;
+ const arcs = explicit ? c.fireArcs : (mode === 'aa' ? c.aa > 0 : (c.gun ?? c.strike) > 0) ? [-1, 1].map(sign => ({fixed: true, dir: [1, 0, 0], up: [0, 1, 0], pos: [L * .45, 0, span * sign], centered: true, k: 'claser', gun: 1, aa: 1})) : [];
+ const emptyGas = c.systems?.managed && s?.laserGas === 0, share = mode === 'aa' ? c.systems?.laserAaShare : c.systems?.laserGunShare, usesGas = g => { const d = C.FITS[g.k];return !!(d?.craft && d.tt > 0 && !d.store); };
+ return arcs.map((g, i) => ({...g, i})).filter(g => (g[mode] || 0) > 0 && (!emptyGas || (explicit ? !usesGas(g) : (share ?? 1) < 1))).slice(0, 16).map(g => {
+  const dir = tv.norm(trialApply(frame, g.dir)), up = tv.norm(trialApply(frame, g.up || [0, 1, 0])), pos = g.centered ? tv.add(a.pos, trialApply(frame, g.pos)) : center && g.pos ? tv.add(a.pos, trialApply(frame, tv.sub(g.pos, center))) : tv.add(a.pos, dir, L * .45);
+  return {...g, dir, up, pos, cycle: g.cycle || C.CRAFT_FIRE?.cycles?.[g.k] || C.CRAFT_FIRE?.defaultCycle || .12};
+ });
+}
+// Fixed barrels never turn toward a target. Their sight cone only decides whether a forward stream is warranted.
+function craftVisualGunGate(g, target, radius = 0) {
+ const d = tv.sub(target, g.pos), L = tv.len(d);if (!(L > 1)) return false;const h = tv.scale(d, 1 / L);
+ return g.fixed ? tv.dot(g.dir, h) >= Math.cos(((C.CRAFT_FIRE?.fixedCone || 8) * Math.PI / 180) + Math.atan2(Math.max(0, radius), L)) : tv.dot(g.up, h) >= -.02;
+}
+function craftGunPulses(a, index, dt, cycle) {
+ if (!(dt > 0)) return 0;const clocks = a.gunClocks || (a.gunClocks = []);
+ let v = clocks[index];if (!Number.isFinite(v)) { const seed = String(a.id ?? a.cid ?? 0);let h = 0;for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;v = ((h % 997) / 997 + index * .61803398875) % 1; }
+ v += dt / Math.max(.03, cycle);const n = Math.floor(v);clocks[index] = v - n;return Math.min(4, n);
+}
+// A forward shot flashes only when its segment actually crosses the target's hull, never at an arbitrary expiry.
+function craftBoltHullHit(u, from, to) {
+ if (!u || !R.alive(u)) return null;const sh = craftShip(u), H = C.hullShape(u.p), p = trialApplyT(sh.R, tv.sub(from, sh.c)), q = trialApplyT(sh.R, tv.sub(to, sh.c)), d = tv.sub(q, p), half = [H.hx + 2, H.hy + 2, H.hz + 2];let lo = 0, hi = 1;
+ for (let i = 0; i < 3; i++) { if (Math.abs(d[i]) < 1e-9) { if (Math.abs(p[i]) > half[i]) return null;continue; } let a = (-half[i] - p[i]) / d[i], b = (half[i] - p[i]) / d[i];if (a > b) [a, b] = [b, a];lo = Math.max(lo, a);hi = Math.min(hi, b);if (lo > hi) return null; }
+ for (let i = 0; i <= 16; i++) { const t = lo + (hi - lo) * i / 16, l = tv.add(p, d, t);if (C.hullIn(H, l, 2) >= 0) return tv.add(from, tv.sub(to, from), t); }return null;
+}
 // The craft's guns and the point defence firing at them, for the 3D view: only near the camera, and only so many
 // bolts a frame. jobs.df: a squadron's craft (m) shooting at another's (fm); jobs.runs: craft strafing (bombers:
 // torpedoes and bombs first) ship u; jobs.pd: ship u firing at craft m. Then the bolts fly and the craft hit blow up.
 // v22 Fighters fire from their guns (paired, from the nose and the wings), each in its faction's voice; the run opens
 // with the ordnance the craft carries.
 function craftFx(B, cf, fdt, eye, jobs) {
- const NEAR2 = 9000 * 9000, near = p => (p[0] - eye[0]) ** 2 + (p[1] - eye[1]) ** 2 + (p[2] - eye[2]) ** 2 < NEAR2, bolts = trial.cbolts || (trial.cbolts = []);let budget = 70;cf.ord = cf.ord || [];
- const shoot = (from, to, tvel, col, o) => { if (budget <= 0 || bolts.length > 1100) return; budget--; const sp = o.sp || 3400, d0 = tv.sub(to, from), tof = Math.min(2, tv.len(d0) / sp), m = o.miss, aim = tv.add(tv.add(to, tvel || [0, 0, 0], tof), [(Math.random() - .5) * m, (Math.random() - .5) * m, (Math.random() - .5) * m]), d = tv.sub(aim, from), L = tv.len(d); if (L < 1) return; bolts.push({pos: from, vel: tv.add(o.base || [0, 0, 0], tv.scale(d, sp / L)), life: Math.min(2.2, L / sp + (o.over || 0)), len: o.len || 14, size: o.size || 2, col, hit: o.hit || null, torp: o.torp || false}); };
+ if (trial.paused) return;
+ const NEAR2 = 9000 * 9000, near = p => (p[0] - eye[0]) ** 2 + (p[1] - eye[1]) ** 2 + (p[2] - eye[2]) ** 2 < NEAR2, bolts = trial.cbolts || (trial.cbolts = []), frame = cf.fireFrame = (cf.fireFrame || 0) + 1;let budget = 70;cf.ord = cf.ord || [];
+ const shoot = (from, to, tvel, col, o) => { if (budget <= 0 || bolts.length >= 1100) return false;const sp = o.sp || 3400, d0 = tv.sub(to, from), tof = Math.min(2, tv.len(d0) / sp), m = o.miss || 0, aim = o.dir ? null : tv.add(tv.add(to, tvel || [0, 0, 0], tof), [(Math.random() - .5) * m, (Math.random() - .5) * m, (Math.random() - .5) * m]), d = o.dir || tv.sub(aim, from), L = tv.len(d0);if (L < 1 || tv.len(d) < 1e-6) return false;budget--;bolts.push({pos: from, vel: tv.add(o.base || [0, 0, 0], tv.scale(tv.norm(d), sp)), life: Math.min(2.2, L / sp + (o.over || 0) + (o.dir ? .2 : 0)), len: o.len || 14, size: o.size || 2, col, hit: o.hit || null, torp: o.torp || false});return true; };
  const pick = a => a?.length ? a[Math.floor(Math.random() * a.length)] : null;
  const noise = (n, k) => { if (!(fdt > 0) || B.result) return 0; const e = n * k * fdt; return Math.floor(e) + (Math.random() < e % 1 ? 1 : 0); };
  let sndN = 0;const pew = (p, name, g, pitch) => { if (sndN++ > 1 || performance.now() - cf.snd < 90) return; cf.snd = performance.now(); sndAt(sndPick(name, 'laser_light'), p, {gain: g ?? .45, near: 300, far: 6000, pitch}); };
- // the guns of craft a: a linked pair from either side of the nose (wingtips for the wide-winged)
- const guns = (a, c, at, tvel, col, o, gun) => { const h = a.h || [1, 0, 0], upv = a.up || [0, 1, 0], rt = tv.cross(h, upv), sp = (c.dims?.[1] || 8) * (c.dims?.[1] > 9 ? .45 : .18), nose = tv.add(a.pos, h, (c.dims?.[0] || 8) * .45), fl = (a.gunF = (a.gunF || 0) + 1) & 1 ? 1 : -1;
-  o.base = a.vel; shoot(tv.add(nose, rt, sp * fl), at, tvel, col, o); if (Math.random() < .6) shoot(tv.add(nose, rt, -sp * fl), at, tvel, col, o); pew(a.pos, gun, undefined, craftGunPitch(a.craft)); };
- for (const {m, fm, c, col, gun} of jobs.df) { if (!near(m[0].pos)) continue; const heavy = (c.strike || 0) > 150, k = noise(m.length, .9 * Math.min(1.6, c.aa || .5)), o = {sp: 5200, miss: 60, len: heavy ? 18 : 14, size: heavy ? 2.4 : 1.9};
-  for (let i = 0; i < k; i++) { const a = pick(m), t = pick(fm); guns(a, c, t.pos, t.vel, col, o, gun); } }
- for (const {r, m, u, c, key, col, gun} of jobs.runs) { if (!near(m[0].pos)) continue; const uv = spaceVel(u);
-  if (r.first) { r.first = false; const ord = r.noOrd ? [] : craftOrd(key || m[0].craft);
+ // Every craft owns staggered barrel clocks: a steady stream at either frame rate, without a burst backlog.
+ const guns = (a, c, at, tvel, col, o, gun, mode, s, radius) => {
+  if (!(fdt > 0) || B.result || a.gunFxFrame === frame || !near(a.pos)) return;let used = false, fired = false;
+  for (const g of craftVisualGuns(a, c, mode, s)) { if (!craftVisualGunGate(g, at, radius)) continue;used = true;const n = craftGunPulses(a, g.i, fdt, g.cycle);
+   for (let i = 0; i < n; i++) fired = shoot(g.pos, at, tvel, g.k === 'cion' ? [175, 215, 255] : col, {...o, base: a.vel, ...(g.fixed ? {dir: g.dir} : {})}) || fired;
+  }
+  if (used) a.gunFxFrame = frame;if (fired) pew(a.pos, gun, undefined, craftGunPitch(a.craft));
+ };
+ for (const {s, m, fm, c, col, gun} of jobs.df) { if (!m.length || !fm.length || !near(m[0].pos)) continue;const heavy = (c.strike || 0) > 150, o = {sp: 5200, miss: 24, len: heavy ? 18 : 14, size: heavy ? 2.4 : 1.9};
+  for (let i = 0; i < m.length; i++) { const a = m[i], t = fm[(i + (a.cid || 0)) % fm.length];guns(a, c, t.pos, t.vel, col, o, gun, 'aa', s, Math.max(4, t.size || 10)); } }
+ for (const {s, r, m, u, c, key, col, gun, fire} of jobs.runs) { if (!m.length || !near(m[0].pos)) continue; const uv = spaceVel(u);
+  if (r.first && fdt > 0 && !B.result) { r.first = false; const ord = r.noOrd ? [] : craftOrd(key || m[0].craft);
    if (ord.length) { let n = 0; for (const a of m) { if (n > 24) break; const x = ord[(a.k || 0) % ord.length], per = x.mount === 'bay' ? Math.min(4, x.n) : Math.min(2, x.n); for (let j = 0; j < per; j++) { craftOrdLaunch(cf, a, u, x.kind, j * (x.mount === 'bay' ? .13 : .09) + (a.k || 0) * .05); n++; } } } }
-  const k = noise(m.length, c.role === 'bomber' ? 2.5 : 6);for (let i = 0; i < k; i++) { const a = pick(m); guns(a, c, spaceHullPoint(u, .35), uv, col, {sp: 4800, miss: 6, len: 14, size: 2, hit: u}, gun); } }
+  if (fire !== false) { const at = spaceWorld(u), radius = Math.max(u.p.len || 0, u.p.width || 0, u.p.height || 0) * .5;for (const a of m) guns(a, c, at, uv, col, {sp: 4800, miss: 6, len: 14, size: 2, hit: u}, gun, 'gun', s, radius); } }
  for (const {u, m, col} of jobs.pd) { const at = spaceWorld(u);if (!near(at)) continue; const k = noise(1, Math.min(14, 1 + Math.sqrt(Math.max(0, u.p.aa || 0)) * .9)), o = {sp: 3600, miss: 90, len: 34, size: 3, base: spaceVel(u), over: .25};
   for (let i = 0; i < k; i++) { const t = pick(m); shoot(spaceHullPoint(u, .4), t.pos, t.vel, col, o); pew(t.pos, 'point_defense', .35); } }
  // the bolts: lasers flash where they strike a ship; torpedoes and bombs burst on it
- for (const b of bolts) { b.pos = tv.add(b.pos, b.vel, fdt); b.life -= fdt;
-  if (b.life <= 0 && b.hit) { const sh = b.hit.shield > 0, L = b.torp ? 26 : 7, hv = spaceVel(b.hit); trial.fx.push({pos: b.pos, vel: hv, life: b.torp ? .7 : .25, max: b.torp ? .7 : .25, size: L * (b.torp ? 2 : 1.4), col: sh ? [130, 195, 255] : [255, 190, 110]}); } }
+ for (const b of bolts) { const prev = b.pos;b.pos = tv.add(b.pos, b.vel, fdt);b.life -= fdt;const impact = b.hit && craftBoltHullHit(b.hit, prev, b.pos);
+  if (impact) { b.life = 0;const sh = b.hit.shield > 0, L = b.torp ? 26 : 7, hv = spaceVel(b.hit); trial.fx.push({pos: impact, vel: hv, life: b.torp ? .7 : .25, max: b.torp ? .7 : .25, size: L * (b.torp ? 2 : 1.4), col: sh ? [130, 195, 255] : [255, 190, 110]}); } }
  trial.cbolts = bolts.filter(b => b.life > 0);
  craftOrdStep(cf, fdt, eye);
  // craft hit by the bolt that got them: they blow up as it arrives
