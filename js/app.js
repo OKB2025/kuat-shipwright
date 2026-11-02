@@ -2905,11 +2905,15 @@ function aeroPreset(k,key){
  }
  return {outline,panelFold,panelKnee:.35};
 }
+function wingSectionDiagram(){
+ const points=C.AERO_WING_SECTION.map(([u,y])=>`${(18+224*u).toFixed(3)},${(25-26*y).toFixed(3)}`).join(' ');
+ return `<h4>翼断面（翼弦方向）</h4><svg class="aero-section" viewBox="0 0 260 72" role="img" aria-label="翼断面（翼弦方向）"><polygon points="${points}" fill="currentColor" fill-opacity=".15" stroke="currentColor"/><text x="8" y="63" font-size="11" fill="currentColor">前縁（艦首側）</text><text x="252" y="63" text-anchor="end" font-size="11" fill="currentColor">後縁</text></svg><p class="note">翼弦方向の翼型を6頂点の薄い六角断面に簡略化しています。前縁寄りを厚くし、後縁へ細く絞ります。厚さは寸法の「厚さ」で調整します。</p>`;
+}
 function aeroShapeControls(p,selected){
  const k=p.k,prefix=selected?'e':'s',panel=k==='solarPanel',mesh=selected&&p.form==='mesh',value=key=>selected?p[key]:st[key],size=selected?p.s:st.structSize;
  const frame=value('panelFrame')??Math.min(size[0],size[1])*.02,rib=value('panelRib')??frame*.6,fold=value('panelFold')??0,knee=value('panelKnee')??.35,max=Math.max(.005,Math.min(size[0],size[1])*.2),id=key=>(selected?'aero':'newAero')+key;
- return `<div class="pgroup aero-shape"><h4>${panel?'太陽光パネルの形':'主翼の形'}</h4>${surfaceControls(p,selected)}<div class="sliders">${slider(prefix+'yaw','回転',p.yaw||0,-180,180,1,deg(p.yaw||0))}</div><div class="chips">${aeroPresetRows(k).map(([key,label])=>`<button type="button" class="chip" data-aeropreset="${key}" data-aeronew="${selected?'no':'yes'}">${label}</button>`).join('')}</div>
- ${panel?`<div class="sliders">${metreSlider(id('PanelFrame'),'縁の骨組みの幅',frame,.005,Math.max(max,frame))}${metreSlider(id('PanelRib'),'対角線の骨組みの幅',rib,.005,Math.max(max,rib))}${mesh?'':slider(id('PanelFold'),'上下パネルの折れ角',fold,-80,80,1,deg(fold))+slider(id('PanelKnee'),'中央の平面部分',knee*100,0,90,1,fPct(knee))}</div><p class="note">${mesh?'頂点編集したパネルは、その頂点に沿って骨組みが追従します。折れ角の調整へ戻すには上の翼形状を選びます。':'集電面の縁と対角線に骨組みを備えた専用パーツです。輪郭と折れ角を変えて、面積に応じて発電量と排熱能力が変わります。'}</p>`:`<svg class="aero-section" viewBox="0 0 220 54" role="img" aria-label="薄い六角形の主翼断面"><polygon points="8,27 55,16 154,16 212,27 154,38 55,38" fill="currentColor" fill-opacity=".15" stroke="currentColor"/></svg><p class="note">主翼専用の薄い六角断面です。翼弦・翼幅・厚さと平面の輪郭を変えられ、翼面積に応じて排熱能力が変わります。</p>`}
+ return `<div class="pgroup aero-shape"><h4>${panel?'太陽光パネルの形':'主翼の形'}</h4>${surfaceControls(p,selected)}<div class="sliders">${slider(prefix+'yaw','回転',p.yaw||0,-180,180,1,deg(p.yaw||0))}</div>${panel?'':'<h4>平面の翼形状（上から見た輪郭）</h4>'}<div class="chips">${aeroPresetRows(k).map(([key,label])=>`<button type="button" class="chip" data-aeropreset="${key}" data-aeronew="${selected?'no':'yes'}">${label}</button>`).join('')}</div>
+ ${panel?`<div class="sliders">${metreSlider(id('PanelFrame'),'縁の骨組みの幅',frame,.005,Math.max(max,frame))}${metreSlider(id('PanelRib'),'対角線の骨組みの幅',rib,.005,Math.max(max,rib))}${mesh?'':slider(id('PanelFold'),'上下パネルの折れ角',fold,-80,80,1,deg(fold))+slider(id('PanelKnee'),'中央の平面部分',knee*100,0,90,1,fPct(knee))}</div><p class="note">${mesh?'頂点編集したパネルは、その頂点に沿って骨組みが追従します。折れ角の調整へ戻すには上の翼形状を選びます。':'集電面の縁と対角線に骨組みを備えた専用パーツです。輪郭と折れ角を変えて、面積に応じて発電量と排熱能力が変わります。'}</p>`:wingSectionDiagram()}
  <p class="note">配置後は「輪郭の頂点」で各頂点を動かしたり、頂点を追加・削除して形を自由に変えられます。3Dの頂点編集では上下方向も変更できます。</p></div>`;
 }
 function fitBtn(k, sel, data) {

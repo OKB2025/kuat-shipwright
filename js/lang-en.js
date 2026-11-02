@@ -8676,6 +8676,10 @@ Object.assign(root.KS_EN.terms,{
 "太陽光パネルの形": "Solar Panel Shape",
 "太陽光パネルの散熱・発電": "Solar Panel Cooling and Power",
 "主翼の形": "Wing Shape",
+"平面の翼形状（上から見た輪郭）": "Planform (Outline from Above)",
+"翼断面（翼弦方向）": "Airfoil Section (Along the Chord)",
+"前縁（艦首側）": "Leading Edge (Forward)",
+"後縁": "Trailing Edge",
 "固定主翼": "Fixed Wing",
 "固定主翼にする": "Make a Fixed Wing",
 "翼弦・前後長": "Chord / Length",
@@ -8697,6 +8701,8 @@ Object.assign(root.KS_EN.terms,{
 "翼形状の頂点": "Planform Vertices"
 });
 Object.assign(root.KS_EN.messages,{
+"翼弦方向の翼型を6頂点の薄い六角断面に簡略化しています。前縁寄りを厚くし、後縁へ細く絞ります。厚さは寸法の「厚さ」で調整します。": "The airfoil section along the chord is simplified to a thin hexagon with six vertices. It is thickest near the leading edge and tapers toward the trailing edge. Adjust it with the Thickness dimension.",
+"翼弦方向の断面を6頂点の翼型に簡略化した主翼。前縁寄りが最も厚く、後縁へ細くなります。寸法・平面の輪郭・厚さとSフォイル機構を編集でき、翼面積に応じて廃熱を放出します。": "A wing with a six-vertex airfoil section along its chord, thickest near the leading edge and tapering toward the trailing edge. Edit its dimensions, planform, thickness and S-foil mechanism. Waste-heat dissipation scales with wing area.",
 "薄い六角断面を持つ独立した主翼。寸法・輪郭・厚さとSフォイル機構を編集でき、翼面積に応じて廃熱を放出します。": "A dedicated wing with a thin hexagonal section. Edit its dimensions, outline, thickness and S-foil mechanism. Waste-heat dissipation scales with wing area.",
 "集電面、縁と対角線の骨組みを持つ独立したパネル。輪郭や折れ角を編集でき、面積に応じて発電と散熱を行います。": "A dedicated panel with a collector face, rim frame and diagonal braces. Edit its outline and fold angle. Power generation and cooling scale with area.",
 "頂点編集したパネルは、その頂点に沿って骨組みが追従します。折れ角の調整へ戻すには上の翼形状を選びます。": "On a vertex-edited panel, the frame follows its vertices. Choose a planform above to return to fold-angle controls.",

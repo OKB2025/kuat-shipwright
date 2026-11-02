@@ -105,7 +105,7 @@ function costCategory(k) { return COST_KIND[k] || COST_GROUP[PARTS[k]?.group] ||
 // training, COST_K.crew cr a head. Every side's figures come from here (fleet organisation, scenario cost limits,
 // later the campaign's budget requests).
 const COST_K = {crew: 1000};
-const COST_MODEL=Object.freeze({version:4,hull:0.6,armor:30,wingInstall:1800,wingArea:18});
+const COST_MODEL=Object.freeze({version:5,hull:0.6,armor:30,wingInstall:1800,wingArea:18});
 const COST_INSTALL=Object.freeze({gen:18000,aux:6000,engine:7500,hyper:20000,shield:12000,localShield:4000,fuel:2000,battery:2500,inertial:7000,integrity:4000,repulsor:3500,sensor:3000,scanner:4000,firecontrol:6000,cockpit:6000,astromech:6000,droidbrain:5000,automation:6000,command:8000,lifeSupport:2500,ejectSeat:1500,navComputer:4500,targetComputer:4000,maneuver:3000,laserGas:2000,landingGear:2500});
 const COST_MOUNT_INSTALL=Object.freeze({claser:3500,claserH:5000,cion:4500,cturret:4500,ctorp:5500,cmsl:4000,cbomb:3500,cpylon:1250,weapon:750,command:1500});
 function partBuildCost(p,volume){const d=PARTS[p?.k];if(!d)return 0;const V=Number.isFinite(volume)?Math.max(0,volume):partVolume(p),light=p.k==='struct'&&p.light&&!p.plate?.25:1,area=isWing(p)?Array.isArray(p.s)?partArea(p):6*Math.pow(V,2/3):0;return V>0?V*(d.cost||0)*light+(p.id<0?0:COST_INSTALL[p.k]||0)+(isWing(p)?COST_MODEL.wingInstall+area*COST_MODEL.wingArea:0):0;}
@@ -117,23 +117,23 @@ function costBreakdown(total,source){
  return Object.fromEntries(Object.entries(by).filter(([,v])=>v>0));
 }
 function costSignature(value){const text=JSON.stringify(value,(key,v)=>v&&typeof v==='object'&&!Array.isArray(v)?Object.fromEntries(Object.keys(v).sort().map(k=>[k,v[k]])):v);let h=2166136261;for(let i=0;i<text.length;i++)h=Math.imul(h^text.charCodeAt(i),16777619);return (h>>>0).toString(36);}
-function costModelSignature(){return costSignature({model:COST_MODEL,systems:CRAFT_SYSTEMS,wing:WING,solar:SOLAR,heat:HEAT,crew:COST_K.crew,install:COST_INSTALL,mount:COST_MOUNT_INSTALL,categories:COST_KIND,parts:Object.fromEntries(Object.entries(PARTS).map(([k,d])=>[k,{cost:d.cost||0,group:d.group||''}])),fits:Object.fromEntries(Object.entries(FITS).map(([k,d])=>[k,{cost:d.cost||0,cat:d.cat||''}]))});}
+function costModelSignature(){return costSignature({model:COST_MODEL,systems:CRAFT_SYSTEMS,wing:WING,wingSection:AERO_WING_SECTION,solar:SOLAR,heat:HEAT,crew:COST_K.crew,install:COST_INSTALL,mount:COST_MOUNT_INSTALL,categories:COST_KIND,parts:Object.fromEntries(Object.entries(PARTS).map(([k,d])=>[k,{cost:d.cost||0,group:d.group||''}])),fits:Object.fromEntries(Object.entries(FITS).map(([k,d])=>[k,{cost:d.cost||0,cat:d.cat||''}]))});}
 // BEGIN GENERATED CRAFT PRICES — scripts/update-craft-costs.cjs
 const CRAFT_PRICE_CATALOG={
- "modelVersion": 4,
- "modelSignature": "1233mhg",
+ "modelVersion": 5,
+ "modelSignature": "hyi8zm",
  "entries": {
   "arc170": {
    "reference": "craft_arc170",
-   "signature": "3sc9uu",
-   "build": 210088,
+   "signature": "g7n4eg",
+   "build": 210058,
    "crew": 3000,
-   "total": 213088,
+   "total": 213058,
    "by": {
     "hull": 22,
     "armor": 30,
-    "power": 59297,
-    "drive": 47029,
+    "power": 59266,
+    "drive": 47030,
     "defense": 16503,
     "command": 32505,
     "weapons": 34201,
@@ -170,15 +170,15 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.00191,
-    "upS": 0.00191,
+    "up": 0.00193,
+    "upS": 0.00193,
     "down": 0.0171,
     "T": 0
    }
   },
   "awing": {
    "reference": "craft_awing",
-   "signature": "ni45oi",
+   "signature": "1xkh99g",
    "build": 155334,
    "crew": 1000,
    "total": 156334,
@@ -231,14 +231,14 @@ const CRAFT_PRICE_CATALOG={
   },
   "btlb": {
    "reference": "craft_btlb",
-   "signature": "2m9pe7",
-   "build": 199853,
+   "signature": "15bcub7",
+   "build": 199776,
    "crew": 2000,
-   "total": 201853,
+   "total": 201776,
    "by": {
     "hull": 60,
     "armor": 21,
-    "power": 63525,
+    "power": 63448,
     "drive": 47038,
     "defense": 15004,
     "command": 20503,
@@ -276,15 +276,15 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.000673,
-    "upS": 0.000673,
-    "down": 0.0173,
+    "up": 0.00067,
+    "upS": 0.00067,
+    "down": 0.0172,
     "T": 0
    }
   },
   "hyena": {
    "reference": "craft_hyena",
-   "signature": "1levace",
+   "signature": "aa7sz4",
    "build": 207626,
    "crew": 0,
    "total": 207626,
@@ -335,7 +335,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_in": {
    "reference": "craft_tie_in",
-   "signature": "irhwq",
+   "signature": "1vdzunw",
    "build": 108118,
    "crew": 1000,
    "total": 109118,
@@ -388,7 +388,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_ln": {
    "reference": "craft_tie_ln",
-   "signature": "1ehwewm",
+   "signature": "1pbrkwo",
    "build": 94225,
    "crew": 1000,
    "total": 95225,
@@ -441,7 +441,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_sa": {
    "reference": "craft_tie_sa",
-   "signature": "1d41qyr",
+   "signature": "1x0jr93",
    "build": 132279,
    "crew": 1000,
    "total": 133279,
@@ -494,19 +494,19 @@ const CRAFT_PRICE_CATALOG={
   },
   "v19": {
    "reference": "craft_v19",
-   "signature": "uf6s31",
-   "build": 157974,
+   "signature": "1qijir9",
+   "build": 157966,
    "crew": 1000,
-   "total": 158974,
+   "total": 158966,
    "by": {
     "hull": 5,
     "armor": 16,
-    "power": 68638,
+    "power": 68629,
     "drive": 34514,
     "defense": 1500,
     "command": 14501,
     "weapons": 21800,
-    "systems": 17000,
+    "systems": 17001,
     "crew": 1000
    },
    "detailed": true,
@@ -539,15 +539,15 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.00276,
-    "upS": 0.00276,
-    "down": 0.0437,
+    "up": 0.00275,
+    "upS": 0.00275,
+    "down": 0.0435,
     "T": 0
    }
   },
   "vulture": {
    "reference": "craft_vulture",
-   "signature": "1ijl03e",
+   "signature": "7elwgc",
    "build": 144429,
    "crew": 0,
    "total": 144429,
@@ -598,14 +598,14 @@ const CRAFT_PRICE_CATALOG={
   },
   "vwing": {
    "reference": "craft_vwing",
-   "signature": "y3rsrc",
-   "build": 227874,
+   "signature": "13f9yoq",
+   "build": 227872,
    "crew": 1000,
-   "total": 228874,
+   "total": 228872,
    "by": {
     "hull": 7,
     "armor": 3,
-    "power": 104051,
+    "power": 104049,
     "drive": 27011,
     "defense": 37501,
     "command": 20501,
@@ -643,22 +643,22 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.00284,
-    "upS": 0.00284,
-    "down": 0.0199,
+    "up": 0.00286,
+    "upS": 0.00286,
+    "down": 0.0198,
     "T": 0
    }
   },
   "xwing": {
    "reference": "craft_xwing",
-   "signature": "1fkvo43",
-   "build": 177934,
+   "signature": "febdhj",
+   "build": 177920,
    "crew": 1000,
-   "total": 178934,
+   "total": 178920,
    "by": {
     "hull": 20,
     "armor": 11,
-    "power": 31278,
+    "power": 31264,
     "drive": 62020,
     "defense": 13502,
     "command": 20502,
@@ -696,22 +696,22 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.000676,
-    "upS": 0.00135,
-    "down": 0.0157,
+    "up": 0.000624,
+    "upS": 0.00131,
+    "down": 0.0158,
     "T": 1
    }
   },
   "z95": {
    "reference": "craft_z95",
-   "signature": "y98kfe",
-   "build": 132870,
+   "signature": "z3y9lo",
+   "build": 132864,
    "crew": 1000,
-   "total": 133870,
+   "total": 133864,
    "by": {
     "hull": 21,
     "armor": 10,
-    "power": 45622,
+    "power": 45616,
     "drive": 27015,
     "defense": 1500,
     "command": 14501,
@@ -751,7 +751,7 @@ const CRAFT_PRICE_CATALOG={
    "heat": {
     "up": 0.00405,
     "upS": 0.00405,
-    "down": 0.0334,
+    "down": 0.0333,
     "T": 0
    }
   }
@@ -2273,7 +2273,7 @@ Object.assign(PARTS.shield,{group:'support',name:'広域シールド発生器'})
 Object.assign(PARTS.hangar,{group:'air',min:10,max:180,desc:'航空機の格納区画。自動充填は炉・推進機関・主要区画を避けます。'});
 Object.assign(PARTS.struct,{group:'shape',desc:'機関を包む外殻と支持構造。形状と前後左右の傾斜を指定できます。'});
 const addComp = (k,name,shape,dens,col,group,desc,extra={}) => PARTS[k]={name,shape,dens,col,group,desc,hp:0.65,crew:0.2,cost:1,min:8,max:240,def:40,ratio:1.5,...extra};
-addComp('wing','主翼','box',.15,[192,199,208],'power','薄い六角断面を持つ独立した主翼。寸法・輪郭・厚さとSフォイル機構を編集でき、翼面積に応じて廃熱を放出します。',{min:.02,max:4000,def:4,crew:0,cost:1.4,hp:1});
+addComp('wing','主翼','box',.15,[192,199,208],'power','翼弦方向の断面を6頂点の翼型に簡略化した主翼。前縁寄りが最も厚く、後縁へ細くなります。寸法・平面の輪郭・厚さとSフォイル機構を編集でき、翼面積に応じて廃熱を放出します。',{min:.02,max:4000,def:4,crew:0,cost:1.4,hp:1});
 addComp('solarPanel','太陽光パネル','box',.12,[70,79,91],'power','集電面、縁と対角線の骨組みを持つ独立したパネル。輪郭や折れ角を編集でき、面積に応じて発電と散熱を行います。',{min:.02,max:4000,def:4,crew:0,cost:1.6,hp:.65});
 Object.assign(CRAFT_PART_SIZE,{wing:[.02,100,4],solarPanel:[.02,100,4]});
 addComp('aux','補助反応炉','sphere',0.9,[243,187,91],'power','主反応炉と同じ容積あたりの出力を持つ補助炉。独立したノズルの接続先にもできます。',{def:48,crit:true});
@@ -11354,6 +11354,8 @@ const FOIL_AXES={x:'前後軸（X）',y:'上下軸（Y）',z:'左右軸（Z）'}
 // Dedicated aero solids use normalized indexed meshes. Their useful area is the cell/wing
 // footprint, counted once; the visible frame never creates a second emitting surface.
 const AERO_WING_OUTLINE=Object.freeze([[-.5,-.5],[.5,-.5],[.3,.5],[-.3,.5]].map(Object.freeze));
+// [distance aft from the leading edge / chord, height / maximum thickness]. Local +X is forward.
+const AERO_WING_SECTION=Object.freeze([[0,0],[.22,.5],[.62,.3],[1,0],[.62,-.3],[.22,-.5]].map(Object.freeze));
 const AERO_PANEL_OUTLINE=Object.freeze([[-.5,0],[-.34,-.5],[.34,-.5],[.5,0],[.34,.5],[-.34,.5]].map(Object.freeze));
 // Six corners, matching a TIE/ln collector in the part's own plane.
 const AERO_SOLAR_HEX=AERO_PANEL_OUTLINE;
@@ -11384,17 +11386,17 @@ function aeroEdgeSplits(a,b,axis,levels){const ts=[0,1];for(const level of level
 // with disjoint span intervals use a continuous global chord roof, preserving a closed solid.
 function aeroWingMesh(p){
  if(p.form==='mesh'&&p.mesh)return p.mesh;
- const key=JSON.stringify(p.outline),old=p._aeroWing;if(old&&old.key===key)return old.mesh;
+ const key=JSON.stringify([p.outline,AERO_WING_SECTION]),old=p._aeroWing;if(old&&old.key===key)return old.mesh;
  const P=aeroFootprint(p),zs=[...new Set(P.map(q=>q[1]))].sort((a,b)=>a-b),strips=[];let continuous=true;
  for(let i=0;i<P.length;i++){const a=P[i],b=P[(i+1)%P.length];if(Math.abs(a[1]-b[1])<1e-10&&a[1]>zs[0]+1e-10&&a[1]<zs.at(-1)-1e-10)continuous=false;}
  for(let j=0;j+1<zs.length;j++){const z0=zs[j],z1=zs[j+1],mid=(z0+z1)/2,edges=[];for(let i=0;i<P.length;i++){const a=P[i],b=P[(i+1)%P.length];if(mid>Math.min(a[1],b[1])&&mid<Math.max(a[1],b[1]))edges.push({a,b,x:a[0]+(b[0]-a[0])*(mid-a[1])/(b[1]-a[1])});}edges.sort((a,b)=>a.x-b.x);if(edges.length!==2){continuous=false;break;}const x=(e,z)=>e.a[0]+(e.b[0]-e.a[0])*(z-e.a[1])/(e.b[1]-e.a[1]);strips.push({z0,z1,l0:x(edges[0],z0),r0:x(edges[1],z0),l1:x(edges[0],z1),r1:x(edges[1],z1)});}
- const B=aeroBuilder(),ts=[0,.25,.75,1],height=t=>Math.min(1,t*4,(1-t)*4)*.5;
+ const B=aeroBuilder(),top=AERO_WING_SECTION.slice(0,4).map(([u,h])=>[1-u,h]).reverse(),ts=top.map(q=>q[0]),height=t=>{for(let i=1;i<top.length;i++)if(t<=top[i][0])return lerp(top[i-1][1],top[i][1],(t-top[i-1][0])/(top[i][0]-top[i-1][0]));return 0;};
  if(continuous&&strips.length){
   for(const s of strips){const point=(t,z,top)=>[z===s.z0?s.l0+(s.r0-s.l0)*t:s.l1+(s.r1-s.l1)*t,(top?1:-1)*height(t),z];
-   for(let i=0;i<3;i++)for(const top of [false,true]){const q=[point(ts[i],s.z0,top),point(ts[i+1],s.z0,top),point(ts[i+1],s.z1,top),point(ts[i],s.z1,top)];B.poly(top?q.reverse():q);}}
-  for(const [s,z,end] of [[strips[0],zs[0],false],[strips.at(-1),zs.at(-1),true]]){const l=end?s.l1:s.l0,r=end?s.r1:s.r0,ring=[[0,0],[.25,.5],[.75,.5],[1,0],[.75,-.5],[.25,-.5]].map(([t,y])=>[l+(r-l)*t,y,z]);B.poly(end?ring.slice().reverse():ring);}
+   for(let i=0;i<ts.length-1;i++)for(const upper of [false,true]){const q=[point(ts[i],s.z0,upper),point(ts[i+1],s.z0,upper),point(ts[i+1],s.z1,upper),point(ts[i],s.z1,upper)];B.poly(upper?q.reverse():q);}}
+  for(const [s,z,end] of [[strips[0],zs[0],false],[strips.at(-1),zs.at(-1),true]]){const l=end?s.l1:s.l0,r=end?s.r1:s.r0,ring=[...top,...top.slice(1,-1).reverse().map(([t,y])=>[t,-y])].map(([t,y])=>[l+(r-l)*t,y,z]);B.poly(end?ring.slice().reverse():ring);}
  }else{
-  const xmin=Math.min(...P.map(q=>q[0])),xmax=Math.max(...P.map(q=>q[0])),chord=xmax-xmin,levels=[xmin+chord*.25,xmin+chord*.75],point=(q,top)=>[q[0],(top?1:-1)*height((q[0]-xmin)/chord),q[1]];
+  const xmin=Math.min(...P.map(q=>q[0])),xmax=Math.max(...P.map(q=>q[0])),chord=xmax-xmin,levels=ts.slice(1,-1).map(t=>xmin+chord*t),point=(q,top)=>[q[0],(top?1:-1)*height((q[0]-xmin)/chord),q[1]];
   for(const ids of outlineEars(P))for(const q of aeroSplit(ids.map(i=>P[i]),0,levels))for(const top of [false,true])B.poly((top?q.slice().reverse():q).map(a=>point(a,top)));
   for(let i=0;i<P.length;i++){const Q=aeroEdgeSplits(P[i],P[(i+1)%P.length],0,levels);for(let j=0;j+1<Q.length;j++){const a=Q[j],b=Q[j+1];B.poly([point(a,false),point(a,true),point(b,true),point(b,false)]);}}
  }
@@ -11692,7 +11694,7 @@ function foilStep(u,dt,want,ev){
 }
 function foilState(u){const s=u?.fo,F=u?.p?.foils;if(!s||!F?.length)return null;return F.map((f,i)=>({name:f.n,d:s.d[i],jam:s.jam[i],want:s.want[i]}));}
 
-return {isShapeKind,isShapePart,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,AERO_WING_OUTLINE,AERO_PANEL_OUTLINE,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT, craftHeat, cleanCraftHeat, squadFireK, squadHeatStep, SOLAR, solarPower, solarCap, solarArea, wingCap, WING, FOIL_AXES, WING_PARTS, normalizeWing, isWing, isFoil, foilHandles, wingPivot, wingMembers, wingMap, foilSweep, foilPose, foilAt, foilFrame, wingStats, EMIT, BANDS, BAND_NAMES, emitBands, EMCON, EMCON_LOW_MAX, emconOf, SENSOR_BANDS, sensorSuite, SENS, sensSNR, sensStageCap, foilInit, foilStep, foilState, HEAT, HEAT_PRESETS, HEAT_KINDS, HEAT_MODE, DISSIPATORS, dissipatorCap, heatLoads, heatWaste, heatSolve, heatNetwork, heatEvaluate, heatStats, heatProfile, heatProfileOf, heatLegacy, heatInit, heatTick, heatStatus, heatLim, heatSwLim, normalizeLinks, DESIGN_FACTIONS, ionDensity, ionReach, ionGlow, swRange, swFree, swAxis, MGLT, engineDepthRatio, sublightMGLT, AA_CHANNELS, ION_BOLT, ionDiam, ionArea, ionShare, ionPlan, ionStrike, ionBoltsStep, swMuzzle, fleetAim, modWorld, aimPoint, fireScreen, screenShare, escortThreat, escortStation, escortPick, SCREEN, aimHold, aimMark, modQ, exposedMod, standardFit, craftCombat, designCraftSnapshot, cleanDesignCraft, CRAFT_ROLE_RTS, ORDNANCE, ORDNANCE_EVIDENCE, STORE_MOUNTS, STORE_FITS, STORE_DEFAULT, storeCapacity, craftStations, CRAFT_LOADOUT, craftTypeOf, craftLoadout, normalizeLoad, craftOrdnance, ordnanceRuns, ordnanceSalvo, ordnanceSummary, VOLLEY, volleyMode, volleyStep, SUPERWEAPONS, SW_COMBAT, swPower, swChargeRate, swInArc, swHeading, swDecay, swOverload, swPulse, swIonWave, superweaponStep, isSuperweapon, superweaponAim, superweaponOpen, normalizeSuperweapon, superweaponStats, isCraft, partLimits, CRAFT_PART_SIZE, craftPart, craftFieldGain, TROOP_SEAT_M3, ENGINE_GLOWS, engineGlowOK, engineGlowRGB, engineLevel, MISSILE_MOUNTS, missileMount, missileCells, missileStatus, PLATE, plateThickness, shipSpan, HULL_SECTIONS, SECTION_NAMES, hullSectionShares, SHIP_LIGHT_KINDS, SHIP_EXAMPLES, registerShipExample, shipKit, SHELL_ROWS, structRows, shellSection, shellPoint, CIS_PAINT, fitTilt, fitUp, fitFrameOf, openingRimPoint, surfSamples, groundingStats, turretRayContext, turretClear, turretOrigin, turretRate, GROUND_LIMITS, GROUND_PRESETS, GROUND_KINDS, GROUND_VEHICLE_VOLUME, DROID_STORE_M3, CREW_M3_K, CREW_LIVING_M3, personVolume, RETIRED_PARTS, FEED_FLUX, CELL_ENERGY_DENSITY, CELL_DISCHARGE_S, feedConduits, normalizeGroundForces, groundStatus, planStations, bridgeBodyRole, podPoint, podDepth, intrinsicCommandFits, POD_ASSET, BRIDGE_BODY_COMMAND, REFERENCE_TONE, engineSkinMesh, referenceFitYaw, rayTris, vmirrorPlane, vmirrorPoint, vmirrorPart, SHIP_CLASSES, shipClassFor, PUBLIC_LISTS, publicJSON, patchShip, patchItem, cache, AIRCRAFT_CLEARANCE, aircraftFitsBay, shipFitsBay, shipStowSize, CRAFT_TYPES, VEHICLE_TYPES, CRAFT_HINTS, VEHICLE_HINTS, craftDims, airWingDims, groundDims, stowSize, vehicleStowSize, VEHICLE_STOW_FACTOR, craftLift, boxFits, stowLoad, stowInit, stowRows, isCombatRow, COMBAT_ROLES, stowPack, stowPasses, stowStatus, aviationBays, hatchOpening, STOW_GAP, STOW_PASS, STOW_ANY_LENGTH, BUILTIN_COMPLEMENTS, builtinComplement, SHIP_STOW_CLEAR, SHIP_STOW_FACTOR, AVIATION_SIZE_VOLUME, AIR_WING_LIMITS, hangarCapacity, normalizeAirWings, aviationStatus, AVIATION_SURFACE_FACES, hatchAxes, aviationSurfaceContacts, setAviationSurfaceMode, syncAviationSurfaces, aviationHatchActive, isSlidingHatch, slidingHatchSpec, slidingHatchPanels, hatchOpenArea, ISD_HYPER_BASELINE, HYPER_CLASS_COEFFICIENT, HYPER_POWER_DENSITY, ISD_SHIELD_VOLUME, SHIELD_BUFFER_SECONDS, SHIELD_ENERGY_DENSITY, SHIELD_POWER_DENSITY, REACTOR_POWER_DENSITY, SOLID_CUT_SHAPES, SOLID_CUT_POLY_MAX, solidCutDisplayTriangles, solidCutVolume, solidCutConvexOK, convexHullFaces, solidCutThinWalls, SOLID_THIN_WALL_M, compiledSolidCut, STRUCT_MESH_LIMITS, meshTopology, MESH_IMPORT_UNITS, MESH_IMPORT_AXES, parseMeshFile, meshImportPart, simplifyMesh, ASSEMBLY_LIMITS, ASSEMBLY_MOUNTS, ASSEMBLY_ORIGINS, ASSEMBLY_CATEGORIES, assemblyLinks, assemblyCapture, normalizeAssemblyTemplate, assemblyPlace, assemblyIssues, assemblyMirrorFit, assemblyPreview, solidCutWorld, solidCutLocal, solidCutFromLocal, solidCutLocalVerts, solidCutToPoly, normalizeStructMesh, meshStructTriangles, inMeshStruct, mirrorStructMesh, structToMesh, refitStructMesh, meshEditCheck, meshMoveVertices, meshSetVertex, meshSplitEdge, meshCollapseVertex, meshExtrudeFace, meshLocalTris, normalizeSolidCut, mirrorSolidCut, solidCutTriangles, solidCutBounds, solidCutContains, solidCutsContain, applySolidCuts, solidPartCutContains, solidStructVolume, solidCutIntersectsShip, flexibleCompartment, hardConflicts, weaponChargeSpec, DREADNOUGHT_EXAMPLES, DESIGN_LIMITS, ALIGNMENTS, alignedPosition, alignPart, replacementShape, replacementOptions, replacePart, COMMAND_ROLES, commandCompartments, commandStatus, habitationSpace, inspectionTargets, planCutEdge, normalizePlanCut, structFrame, alignStructure, FLEET_RULES, POWER_MODES, POWER_AUTO_NOTE, fleetAutoPower, AIM_KINDS, MODULE_LABEL, FLEET_MIN_CREW, powerSplit, coreDetonation, fleetModules, fleetSystems, fleetCrewEff, fleetCrewRatio, fleetAutoAvail, fleetOutReason, AUTO_M3_PER_CREW, AUTO_W_PER_CREW, AUTO_MIN_HUMAN, fleetEffective, fleetProfile, fleetUnit, fleetIntegrity, trenchBattery, sideBattery, fleetFire, fleetReach, fleetStandoff, fleetHeading, fleetBroadside, fleetPowerStep, bandFireAt, fitBand, GUN_BANDS, COMBAT, combatInit, combatIncoming, combatAdd, combatMerge, combatResolve, combatZones, combatClone, combatZoneAt, COMBAT_FACE, unpackBits, fleetFormation, fleetBattle, fleetOrder, fleetArc, fleetTick, hullHalf, hullMass, hullLocal, AIR_CTL, HF, hullField, hullShape, hullCell, hullTB, hullIn, airMouths, hullOverlap, hullSegment, fireBlocker, fireStray, hullCollide, hullGrid, hullNear, hullAlong, hullAround, hullPairs, HULL_GRID, hullImpact, HULL_HIT, HULL_FALL, hullFall, hullCarve, hullAvoid, fleetCommit, fleetFinish, fleetSample, fleetFrame, normalizeBow, bowStation, engineHullEntry, ENGINE_BASELINES, engineBaseline, resizeEngine, parametricEngine, engineRating, sourceEngine, EQUIPMENT, equipmentSpec, equipmentOptions, enforceEquipment, customizeEquipment, adoptEquipment, HYPERDRIVE_REFERENCE, hyperCapacity, arcParameters, arcPoint, arcTriangles, inArc, SEPARATIST_EXAMPLES, STATS_SOURCE, SHIP_REFERENCE, PART_RATINGS, reactorPower, nozzleThrust, nozzleDemand, shieldLoad, partRatingKeys, validOutline, outlinePoints, outlineArea, outlineTriangles, AVIATION_ROLES, CHARGE_TT_M3, aircraftCapacity, aviationConnected, needsCapacitor, weaponCapacitors, refitReferenceInterior, clipReferenceBox, referenceEnginePoint, fitSpec, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface, COST_CATS, COST_K, COST_MODEL, COST_INSTALL, COST_MOUNT_INSTALL, costCategory, partBuildCost, fitBuildCost, costBreakdown, costSignature, costModelSignature, CRAFT_PRICE_CATALOG, craftCatalogPrice, quoteCostBOM, designCost,
+return {isShapeKind,isShapePart,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,AERO_WING_OUTLINE,AERO_WING_SECTION,AERO_PANEL_OUTLINE,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT, craftHeat, cleanCraftHeat, squadFireK, squadHeatStep, SOLAR, solarPower, solarCap, solarArea, wingCap, WING, FOIL_AXES, WING_PARTS, normalizeWing, isWing, isFoil, foilHandles, wingPivot, wingMembers, wingMap, foilSweep, foilPose, foilAt, foilFrame, wingStats, EMIT, BANDS, BAND_NAMES, emitBands, EMCON, EMCON_LOW_MAX, emconOf, SENSOR_BANDS, sensorSuite, SENS, sensSNR, sensStageCap, foilInit, foilStep, foilState, HEAT, HEAT_PRESETS, HEAT_KINDS, HEAT_MODE, DISSIPATORS, dissipatorCap, heatLoads, heatWaste, heatSolve, heatNetwork, heatEvaluate, heatStats, heatProfile, heatProfileOf, heatLegacy, heatInit, heatTick, heatStatus, heatLim, heatSwLim, normalizeLinks, DESIGN_FACTIONS, ionDensity, ionReach, ionGlow, swRange, swFree, swAxis, MGLT, engineDepthRatio, sublightMGLT, AA_CHANNELS, ION_BOLT, ionDiam, ionArea, ionShare, ionPlan, ionStrike, ionBoltsStep, swMuzzle, fleetAim, modWorld, aimPoint, fireScreen, screenShare, escortThreat, escortStation, escortPick, SCREEN, aimHold, aimMark, modQ, exposedMod, standardFit, craftCombat, designCraftSnapshot, cleanDesignCraft, CRAFT_ROLE_RTS, ORDNANCE, ORDNANCE_EVIDENCE, STORE_MOUNTS, STORE_FITS, STORE_DEFAULT, storeCapacity, craftStations, CRAFT_LOADOUT, craftTypeOf, craftLoadout, normalizeLoad, craftOrdnance, ordnanceRuns, ordnanceSalvo, ordnanceSummary, VOLLEY, volleyMode, volleyStep, SUPERWEAPONS, SW_COMBAT, swPower, swChargeRate, swInArc, swHeading, swDecay, swOverload, swPulse, swIonWave, superweaponStep, isSuperweapon, superweaponAim, superweaponOpen, normalizeSuperweapon, superweaponStats, isCraft, partLimits, CRAFT_PART_SIZE, craftPart, craftFieldGain, TROOP_SEAT_M3, ENGINE_GLOWS, engineGlowOK, engineGlowRGB, engineLevel, MISSILE_MOUNTS, missileMount, missileCells, missileStatus, PLATE, plateThickness, shipSpan, HULL_SECTIONS, SECTION_NAMES, hullSectionShares, SHIP_LIGHT_KINDS, SHIP_EXAMPLES, registerShipExample, shipKit, SHELL_ROWS, structRows, shellSection, shellPoint, CIS_PAINT, fitTilt, fitUp, fitFrameOf, openingRimPoint, surfSamples, groundingStats, turretRayContext, turretClear, turretOrigin, turretRate, GROUND_LIMITS, GROUND_PRESETS, GROUND_KINDS, GROUND_VEHICLE_VOLUME, DROID_STORE_M3, CREW_M3_K, CREW_LIVING_M3, personVolume, RETIRED_PARTS, FEED_FLUX, CELL_ENERGY_DENSITY, CELL_DISCHARGE_S, feedConduits, normalizeGroundForces, groundStatus, planStations, bridgeBodyRole, podPoint, podDepth, intrinsicCommandFits, POD_ASSET, BRIDGE_BODY_COMMAND, REFERENCE_TONE, engineSkinMesh, referenceFitYaw, rayTris, vmirrorPlane, vmirrorPoint, vmirrorPart, SHIP_CLASSES, shipClassFor, PUBLIC_LISTS, publicJSON, patchShip, patchItem, cache, AIRCRAFT_CLEARANCE, aircraftFitsBay, shipFitsBay, shipStowSize, CRAFT_TYPES, VEHICLE_TYPES, CRAFT_HINTS, VEHICLE_HINTS, craftDims, airWingDims, groundDims, stowSize, vehicleStowSize, VEHICLE_STOW_FACTOR, craftLift, boxFits, stowLoad, stowInit, stowRows, isCombatRow, COMBAT_ROLES, stowPack, stowPasses, stowStatus, aviationBays, hatchOpening, STOW_GAP, STOW_PASS, STOW_ANY_LENGTH, BUILTIN_COMPLEMENTS, builtinComplement, SHIP_STOW_CLEAR, SHIP_STOW_FACTOR, AVIATION_SIZE_VOLUME, AIR_WING_LIMITS, hangarCapacity, normalizeAirWings, aviationStatus, AVIATION_SURFACE_FACES, hatchAxes, aviationSurfaceContacts, setAviationSurfaceMode, syncAviationSurfaces, aviationHatchActive, isSlidingHatch, slidingHatchSpec, slidingHatchPanels, hatchOpenArea, ISD_HYPER_BASELINE, HYPER_CLASS_COEFFICIENT, HYPER_POWER_DENSITY, ISD_SHIELD_VOLUME, SHIELD_BUFFER_SECONDS, SHIELD_ENERGY_DENSITY, SHIELD_POWER_DENSITY, REACTOR_POWER_DENSITY, SOLID_CUT_SHAPES, SOLID_CUT_POLY_MAX, solidCutDisplayTriangles, solidCutVolume, solidCutConvexOK, convexHullFaces, solidCutThinWalls, SOLID_THIN_WALL_M, compiledSolidCut, STRUCT_MESH_LIMITS, meshTopology, MESH_IMPORT_UNITS, MESH_IMPORT_AXES, parseMeshFile, meshImportPart, simplifyMesh, ASSEMBLY_LIMITS, ASSEMBLY_MOUNTS, ASSEMBLY_ORIGINS, ASSEMBLY_CATEGORIES, assemblyLinks, assemblyCapture, normalizeAssemblyTemplate, assemblyPlace, assemblyIssues, assemblyMirrorFit, assemblyPreview, solidCutWorld, solidCutLocal, solidCutFromLocal, solidCutLocalVerts, solidCutToPoly, normalizeStructMesh, meshStructTriangles, inMeshStruct, mirrorStructMesh, structToMesh, refitStructMesh, meshEditCheck, meshMoveVertices, meshSetVertex, meshSplitEdge, meshCollapseVertex, meshExtrudeFace, meshLocalTris, normalizeSolidCut, mirrorSolidCut, solidCutTriangles, solidCutBounds, solidCutContains, solidCutsContain, applySolidCuts, solidPartCutContains, solidStructVolume, solidCutIntersectsShip, flexibleCompartment, hardConflicts, weaponChargeSpec, DREADNOUGHT_EXAMPLES, DESIGN_LIMITS, ALIGNMENTS, alignedPosition, alignPart, replacementShape, replacementOptions, replacePart, COMMAND_ROLES, commandCompartments, commandStatus, habitationSpace, inspectionTargets, planCutEdge, normalizePlanCut, structFrame, alignStructure, FLEET_RULES, POWER_MODES, POWER_AUTO_NOTE, fleetAutoPower, AIM_KINDS, MODULE_LABEL, FLEET_MIN_CREW, powerSplit, coreDetonation, fleetModules, fleetSystems, fleetCrewEff, fleetCrewRatio, fleetAutoAvail, fleetOutReason, AUTO_M3_PER_CREW, AUTO_W_PER_CREW, AUTO_MIN_HUMAN, fleetEffective, fleetProfile, fleetUnit, fleetIntegrity, trenchBattery, sideBattery, fleetFire, fleetReach, fleetStandoff, fleetHeading, fleetBroadside, fleetPowerStep, bandFireAt, fitBand, GUN_BANDS, COMBAT, combatInit, combatIncoming, combatAdd, combatMerge, combatResolve, combatZones, combatClone, combatZoneAt, COMBAT_FACE, unpackBits, fleetFormation, fleetBattle, fleetOrder, fleetArc, fleetTick, hullHalf, hullMass, hullLocal, AIR_CTL, HF, hullField, hullShape, hullCell, hullTB, hullIn, airMouths, hullOverlap, hullSegment, fireBlocker, fireStray, hullCollide, hullGrid, hullNear, hullAlong, hullAround, hullPairs, HULL_GRID, hullImpact, HULL_HIT, HULL_FALL, hullFall, hullCarve, hullAvoid, fleetCommit, fleetFinish, fleetSample, fleetFrame, normalizeBow, bowStation, engineHullEntry, ENGINE_BASELINES, engineBaseline, resizeEngine, parametricEngine, engineRating, sourceEngine, EQUIPMENT, equipmentSpec, equipmentOptions, enforceEquipment, customizeEquipment, adoptEquipment, HYPERDRIVE_REFERENCE, hyperCapacity, arcParameters, arcPoint, arcTriangles, inArc, SEPARATIST_EXAMPLES, STATS_SOURCE, SHIP_REFERENCE, PART_RATINGS, reactorPower, nozzleThrust, nozzleDemand, shieldLoad, partRatingKeys, validOutline, outlinePoints, outlineArea, outlineTriangles, AVIATION_ROLES, CHARGE_TT_M3, aircraftCapacity, aviationConnected, needsCapacitor, weaponCapacitors, refitReferenceInterior, clipReferenceBox, referenceEnginePoint, fitSpec, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface, COST_CATS, COST_K, COST_MODEL, COST_INSTALL, COST_MOUNT_INSTALL, costCategory, partBuildCost, fitBuildCost, costBreakdown, costSignature, costModelSignature, CRAFT_PRICE_CATALOG, craftCatalogPrice, quoteCostBOM, designCost,
   TT, G0, ISD_W, K, PARTS, FITS, HULLS, SECTIONS, KEELS, SECTORS, CLASSES, DESIGNS, AXES, AXNAME, ARMOR_MAX,
   newShip, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
