@@ -8759,4 +8759,32 @@ Object.assign(root.KS_EN.messages,{
 "中隊や飛行隊をコピーすると、機種・機数・兵装・設計図を引き継ぎます。搭載枠と費用はコピー分も計上します。": "Copying a squadron or air wing retains its craft type, count, loadout, and blueprint. Copies also count toward hangar capacity and cost."
 });
 // </fleet-orders-catalog>
+// <fighter-air-control-catalog>
+Object.assign(root.KS_EN.terms,{
+"敵攻撃隊": "Enemy Attack Wing",
+"味方攻撃隊": "Friendly Attack Wing",
+"母艦を追う航空機": "Craft Following Their Carrier",
+"母艦追従中": "Following Carrier",
+"母艦を追跡": "Following Carrier",
+"ジャンプ準備中": "Preparing to Jump",
+"自力離脱": "Independent Withdrawal"
+});
+Object.assign(root.KS_EN.messages,{
+"自動：{0}を迎撃": "Auto: Intercept {0}",
+"自動：敵機を掃討して制空": "Auto: Sweep Enemy Craft for Air Superiority",
+"自動：{0}を護衛": "Auto: Escort {0}",
+"自動：{0}へ対艦攻撃": "Auto: Attack {0}",
+"自動：母艦を直掩し対艦攻撃の機会を待機": "Auto: Cover Carrier while Awaiting an Attack Opportunity",
+"自動：母艦を直掩": "Auto: Cover Carrier",
+"自力離脱 {0} 機：{1}（{2}）": "Independent Withdrawal: {0} craft to {1} ({2})",
+"{0} 自力離脱 {1} 機": "{0}: {1} craft withdrawing independently",
+"{0}：自機のハイパードライブで母艦に続いて離脱": "{0}: following the departing carrier using their own hyperdrives",
+"{0} がハイパースペースへ（母艦追従・{1}まで {2} 分）": "{0} enters hyperspace to follow its carrier ({2} min to {1})",
+"{0} が {1} のもとに自力帰還（着艦）": "{0} returns to {1} using its own hyperdrives (landing)",
+"{0}（離脱隊）": "{0} (Withdrawal Flight)",
+"戦術図の<b>「飛行隊」</b>タブで艦載機に命令します。<b>自動</b>では迎撃・制空・攻撃隊護衛・対艦攻撃を判断します。<b>攻撃</b>（目標と進入方向）・<b>制空</b>・<b>直掩</b>を個別に指定することもできます。母艦の離脱時、飛行中のハイパードライブ搭載機は自力で母艦を追います。非搭載機は離脱までに帰還させましょう。": "Command embarked craft in the Tactical Map's <b>Air Wings</b> tab. <b>Auto</b> chooses interception, air superiority, strike escort, or anti-ship attack. You can also assign <b>Attack</b> with a target and approach, <b>Air Superiority</b>, or <b>Combat Air Patrol</b> individually. Airborne craft with hyperdrives follow a withdrawing carrier under their own power. Recall craft without hyperdrives before the carrier leaves.",
+"では迎撃・制空・攻撃隊護衛・対艦攻撃を判断します。": " chooses interception, air superiority, strike escort, or anti-ship attack.",
+"を個別に指定することもできます。母艦の離脱時、飛行中のハイパードライブ搭載機は自力で母艦を追います。非搭載機は離脱までに帰還させましょう。": " individually. Airborne craft with hyperdrives follow a withdrawing carrier under their own power. Recall craft without hyperdrives before the carrier leaves."
+});
+// </fighter-air-control-catalog>
 })(typeof window==="undefined"?globalThis:window);

@@ -9532,7 +9532,7 @@ function voyBattleWingListHTML(wings,w){
  const groups=new Map();for(const x of wings){const key=x.home+':'+(x.groupNo||1);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(x);}
  return [...groups.values()].map(rows=>{const first=rows[0],home=w.units.get(first.home),gn=first.groupNo||1;return `<li class="vs-airgroup"><b>${esc(home?.name||'')} 第${gn}飛行団</b></li>`+rows.sort((a,b)=>(a.no||1)-(b.no||1)).map(x=>{
   const sq=x.squads.map(id=>w.squads.get(id)).filter(Boolean),n=sq.reduce((a,q)=>a+q.n,0),n0=sq.reduce((a,q)=>a+q.n0,0),out=sq.filter(q=>q.state==='out').length,wait=sq.filter(q=>q.state==='docked'&&q.wait==='ctl').length;
-  return `<li class="${voy.sel.wing===x.id?'on':''}"><button type="button" data-vwsel="${x.id}"><b>${esc(x.name)}</b><small>${esc(R.WING_PHASE[x.phase]||'')}</small><span>${esc(voyWingOrderText(x))} · ${Math.round(n)} / ${n0} 機 · 発艦 ${out}/${sq.length} 中隊${wait?` · 管制容量待ち ${wait}`:''}</span><small>${sq.map(q=>`${esc(q.name)} ${Math.round(q.n)}機`).join('・')}</small></button>${voyWingMissionButtons(x)}</li>`;
+  return `<li class="${voy.sel.wing===x.id?'on':''}"><button type="button" data-vwsel="${x.id}"><b>${esc(x.name)}</b><small>${esc(voyWingStateText(x))}</small><span>${esc(voyWingOrderText(x))} · ${Math.round(n)} / ${n0} 機 · 発艦 ${out}/${sq.length} 中隊${wait?` · 管制容量待ち ${wait}`:''}</span><span>${sq.map(q=>`${esc(q.name)} ${Math.round(q.n)}機`).join('・')}</span>${voyWingFollowText(x)?`<span>${esc(voyWingFollowText(x))}</span>`:''}</button>${voyWingMissionButtons(x)}</li>`;
  }).join('');}).join('')||'<li class="muted">この星系に飛行隊はいません</li>';
 }
 function voyWingMissionButtons(x){
@@ -9955,6 +9955,19 @@ function voyDrawOps(ctx, W, H) {
   const tail = r.phase === 'out' || r.phase === 'back' ? ` · ${voyClock(r.t1 - w.time)}` : r.phase === 'launch' ? ' · 発艦中' : r.phase === 'strike' ? ' · 攻撃中' : '';
   label([`${voyWingShort(x)}${tail}`, voyWingShort(x)], wd => [[px + 8, py + 4], [px - 8 - wd, py + 4], [px - wd / 2, py + 16], [px - wd / 2, py - 8]], '#ffd678', '700 10px ' + font, true);
  }
+ // Aircraft following a departed carrier use their own lane travel and timing.
+ for(const wing of w.wings.values()){
+  if(wing.side!==0)continue;const sq=voyWingFollowers(w,wing),groups=new Map();
+  for(const s of sq){const f=s.follow,key=[f.phase,f.from,f.dest,f.t0,f.t1].join(':');if(!groups.has(key))groups.set(key,[]);groups.get(key).push(s);}
+  for(const list of groups.values()){
+   const s=list[0],f=s.follow,at=R.followMapPos(w,s);if(!at)continue;
+   if(f.phase==='back'&&f.legs){ctx.setLineDash([2,4]);ctx.strokeStyle='rgba(150,230,255,.7)';ctx.lineWidth=1.4;voyPoly(ctx,P,[at,...f.legs.filter(l=>w.time<l.t1).map(l=>S.systems[l.b].pos)]);ctx.setLineDash([]);ctx.lineWidth=1;}
+   let [px,py]=P(at);if(f.phase!=='back'){px+=13;py+=13*fz;}
+   ctx.fillStyle='#96e6ff';ctx.strokeStyle='#06222e';ctx.beginPath();ctx.moveTo(px,py-5);ctx.lineTo(px+5,py+4);ctx.lineTo(px-5,py+4);ctx.closePath();ctx.fill();ctx.stroke();label.block(px-5,py-5,px+5,py+4);
+   const text=`${voyWingShort(wing)} 自力離脱 ${Math.round(list.reduce((n,s)=>n+s.n,0))} 機`;
+   label(text,wd=>[[px+8,py+4],[px-8-wd,py+4],[px-wd/2,py+16]],'#96e6ff','700 10px '+font,true);
+  }
+ }
  // System names where they fit: those with a battle, our forces or a selection first, then the major ones.
  const ours = new Set([...w.groups.values()].filter(h => h.side === 0 && h.sys != null).map(h => h.sys)), must = s => w.battles.has(s.id) || ours.has(s.id) || voy.sel.sys === s.id || voy.sel.dest === s.id;
  names.sort((p, q) => (must(q.s) - must(p.s)) || (q.s.major - p.s.major) || (q.s.inhabited - p.s.inhabited));
@@ -10097,7 +10110,7 @@ function voyDrawTac(ctx, W, H) {
   label([`${name} · ${R.formationName(voy.w, g.formation)} · ${o}`, `${name} ${o}`, name], wd => [[x - wd / 2, y - r], [x - wd / 2, y + r + 16], [x + r + 4, y - r + 4], [x - r - 4 - wd, y - r + 4]], on ? '#ffffff' : '#8fdcff', '700 10.5px ' + font, true);
  }
  for (const u of order) if (!(shipSel && sel.has(u.id))) lab(u);
- for (const [id, g] of wings) { const wing = w.wings.get(id); if (!wing) continue; label([`${g.own ? '' : '敵 '}${wing.name} ${Math.round(g.n)}機 · ${R.WING_PHASE[wing.phase] || ''}`, `${g.own ? '' : '敵 '}${wing.name.replace(/^.*?\s(第\d+飛行隊)$/, '$1')} ${Math.round(g.n)}機 · ${R.WING_PHASE[wing.phase] || ''}`, `${g.own ? '' : '敵 '}${Math.round(g.n)}機 · ${R.WING_PHASE[wing.phase] || ''}`], wd => [[g.cx + 10, g.cy - 6], [g.cx - 10 - wd, g.cy - 6], [g.cx - wd / 2, g.cy - 14], [g.cx - wd / 2, g.cy + 20]], g.hot ? '#ffffff' : g.own ? '#a8f0ff' : '#ffc29a', '600 9.5px ' + font, g.hot); }
+ for (const [id, g] of wings) { const wing = w.wings.get(id); if (!wing) continue; label([`${g.own ? '' : '敵 '}${wing.name} ${Math.round(g.n)}機 · ${voyWingStateText(wing)}`, `${g.own ? '' : '敵 '}${wing.name.replace(/^.*?\s(第\d+飛行隊)$/, '$1')} ${Math.round(g.n)}機 · ${voyWingStateText(wing)}`, `${g.own ? '' : '敵 '}${Math.round(g.n)}機 · ${voyWingStateText(wing)}`], wd => [[g.cx + 10, g.cy - 6], [g.cx - 10 - wd, g.cy - 6], [g.cx - wd / 2, g.cy - 14], [g.cx - wd / 2, g.cy + 20]], g.hot ? '#ffffff' : g.own ? '#a8f0ff' : '#ffc29a', '600 9.5px ' + font, g.hot); }
  for (const f of swLabs) f();
 }
 
@@ -10227,6 +10240,8 @@ function voyOpsSide() {
  else if (c) parts.push(voyCtgOpsCard(c));
  else if (voy.sel.sys != null) parts.push(voySysCard(S.systems[voy.sel.sys]));
  parts.push(`<div class="vs-card vs-list"><h3>部隊一覧</h3>${voyForceTree(null)}<p class="note">合同任務群を選ぶと、配下の任務群をそろえてジャンプさせられます。艦隊は航路（主要幹線・支線）に沿ってだけ移動します。</p></div>`);
+ const following=[...w.wings.values()].filter(x=>x.side===0&&voyWingFollowers(w,x).length);
+ if(following.length)parts.push(`<div class="vs-card vs-list" data-vfollow><h3>母艦を追う航空機</h3><ul>${following.map(x=>`<li><b>${esc(x.name)}</b><small>${esc(voyWingFollowText(x))}</small></li>`).join('')}</ul></div>`);
  const rear = [...w.units.values()].filter(u => u.side === 0 && u.status === 'rear' && !u.dead);
  if (rear.length) parts.push(`<div class="vs-card vs-list"><h3>後方で修理中</h3><ul>${rear.map(u => `<li class="muted"><b>${esc(u.name)}</b><small>母港で復帰まで ${voyClock(u.rear.back - w.time)}</small></li>`).join('')}</ul></div>`);
  return parts.join('');
@@ -10557,11 +10572,12 @@ function voyTacSide() {
   body += `<div class="vs-card vs-list"><h3>自軍</h3>${voyForceTree(sys)}</div>
   <div class="vs-card vs-list"><h3>敵艦</h3><ul>${foes.filter(u => voyStage(u) >= 1).sort((a, b) => voyStage(b) - voyStage(a)).map(u => { const idd = voyStage(u) >= 5; return `<li class="foe${voy.sel.foe === u.id ? ' on' : ''}"><button type="button" data-vfoe="${u.id}"><b>${esc(voyFoeName(u))}</b><small>${idd && u.shieldMax > 0 ? `シールド ${Math.round(u.shield / u.shieldMax * 100)}%` : ''}</small><span>${idd ? esc(voyUnitState(u)) : ''}</span></button></li>`; }).join('') || (foes.length ? '<li class="muted">敵艦は探知されていません</li>' : '<li class="muted">敵艦はいません</li>')}</ul></div>`;
  } else if (tab === 'wings') {
-  const wings = [...w.wings.values()].filter(x => x.side === 0 && (x.raid?.phase === 'strike' && x.raid.to === sys || w.units.get(x.home)?.sys === sys && R.alive(w.units.get(x.home))));
+  const wings = [...w.wings.values()].filter(x => x.side === 0 && (x.raid?.phase === 'strike' && x.raid.to === sys || w.units.get(x.home)?.sys === sys && R.alive(w.units.get(x.home)) || voyWingFollowers(w,x).some(s=>s.follow.from===sys||s.follow.dest===sys)));
   const wsel = voy.sel.wing && w.wings.get(voy.sel.wing);
   if (wsel) { const o = wsel.order, t = o.target && w.units.get(o.target);
    const hm = w.units.get(wsel.home), waitN = wsel.squads.filter(id => w.squads.get(id)?.wait === 'ctl' && w.squads.get(id)?.state === 'docked').length;
-   body += `<div class="vs-card"><div class="vs-head"><h3>${esc(wsel.name)}</h3><span>${esc(R.WING_PHASE[wsel.phase] || '')}</span></div><p class="vs-state">${esc(voyWingOrderText(wsel))}</p>${(() => { const sq = wsel.squads.map(id => w.squads.get(id)).filter(q => q && q.state === 'out' && q.n > 0); if (!sq.length) return ''; const hq = Math.max(...sq.map(q => q.heat || 0)); return `<p class="vs-sub">蓄熱 ${Math.round(hq * 100)}%</p>${hq >= C.CRAFT_HEAT.throttleAt ? '<p class="note warn">蓄熱が限界に近く、射撃を抑えています。</p>' : ''}`; })()}${hm && R.alive(hm) && hm.sys === sys ? `<p class="vs-sub">母艦の航空管制 ${esc(voyCtlText(w, hm))}${waitN ? ` · ${waitN} 中隊が管制容量待ち` : ''}</p>` : ''}${wsel.raid ? `<div class="vs-acts">${wsel.raid.recall ? '' : `<button type="button" class="btn sm" data-vraidback="${wsel.id}">帰還させる</button>`}</div>` : `<div class="vs-acts">${[['auto', '自動'], ['standby', '待機・帰還']].map(([k, n]) => `<button type="button" class="btn sm${o.type === k ? ' on' : ''}" data-vwing="${k}">${n}</button>`).join('')}<button type="button" class="btn sm${voy.cmd?.type === 'strike' ? ' on' : ''}" data-vact="cmd:strike">攻撃</button><button type="button" class="btn sm${voy.cmd?.type === 'cap' ? ' on' : ''}" data-vact="cmd:cap">制空</button><button type="button" class="btn sm${voy.cmd?.type === 'escort' ? ' on' : ''}" data-vact="cmd:escort">直掩</button></div>${R.wingHyper(w, wsel) != null ? '<p class="note">この飛行隊は全機ハイパードライブ搭載です。作戦図で星系をタップすると、別の星系への航空攻撃に出せます。</p>' : ''}`}
+   const follow=voyWingFollowText(wsel);if(follow)body+=`<div class="vs-card" data-vfollow><p class="vs-state">${esc(follow)}</p></div>`;
+   body += `<div class="vs-card"><div class="vs-head"><h3>${esc(wsel.name)}</h3><span>${esc(voyWingStateText(wsel))}</span></div><p class="vs-state">${esc(voyWingOrderText(wsel))}</p>${(() => { const sq = wsel.squads.map(id => w.squads.get(id)).filter(q => q && q.state === 'out' && q.n > 0); if (!sq.length) return ''; const hq = Math.max(...sq.map(q => q.heat || 0)); return `<p class="vs-sub">蓄熱 ${Math.round(hq * 100)}%</p>${hq >= C.CRAFT_HEAT.throttleAt ? '<p class="note warn">蓄熱が限界に近く、射撃を抑えています。</p>' : ''}`; })()}${hm && R.alive(hm) && hm.sys === sys ? `<p class="vs-sub">母艦の航空管制 ${esc(voyCtlText(w, hm))}${waitN ? ` · ${waitN} 中隊が管制容量待ち` : ''}</p>` : ''}${wsel.raid ? `<div class="vs-acts">${wsel.raid.recall ? '' : `<button type="button" class="btn sm" data-vraidback="${wsel.id}">帰還させる</button>`}</div>` : `<div class="vs-acts">${[['auto', '自動'], ['standby', '待機・帰還']].map(([k, n]) => `<button type="button" class="btn sm${o.type === k ? ' on' : ''}" data-vwing="${k}">${n}</button>`).join('')}<button type="button" class="btn sm${voy.cmd?.type === 'strike' ? ' on' : ''}" data-vact="cmd:strike">攻撃</button><button type="button" class="btn sm${voy.cmd?.type === 'cap' ? ' on' : ''}" data-vact="cmd:cap">制空</button><button type="button" class="btn sm${voy.cmd?.type === 'escort' ? ' on' : ''}" data-vact="cmd:escort">直掩</button></div>${R.wingHyper(w, wsel) != null ? '<p class="note">この飛行隊は全機ハイパードライブ搭載です。作戦図で星系をタップすると、別の星系への航空攻撃に出せます。</p>' : ''}`}
    ${o.type === 'strike' && t ? `<p class="vs-sub">進入方向（${esc(t.name)} から見て）</p><div class="vs-acts">${Object.entries(R.APPROACH_NAME).map(([k, n]) => `<button type="button" class="btn sm${o.approach === k ? ' on' : ''}" data-vappr="${k}">${n}</button>`).join('')}</div><p class="note">対空火力が最も弱いのは「${esc(R.APPROACH_NAME[voyWeakArc(t)])}」方向です。</p>` : ''}<p class="note">艦載機はすべて飛行隊単位で発艦・集合・進撃・攻撃・帰還します。地図の飛行隊の印をタップしても選べます。</p></div>`; }
   // v23 each carrier's air control in use (R.airCtlOf): squadrons out / squadrons it can direct at once
   const ctl = [...new Set(wings.map(x => x.home))].map(id => w.units.get(id)).filter(u => u && R.alive(u) && u.sys === sys).map(u => voyCtlText(w, u, true)).join('・');
@@ -10579,7 +10595,33 @@ function voyWeakArc(t) { return Object.keys(R.APPROACH).sort((a, b) => R.pdTowar
 const voyShipVec = (u, v) => { const c = Math.cos(u.yaw), s = Math.sin(u.yaw); return [(v[0] * c - v[2] * s) * 9000, v[1] * 9000, (v[0] * s + v[2] * c) * 9000]; };
 // v23 A carrier's air control as a line: 「艦名 管制 3/4 中隊」, with what its flagship lends (or it lends).
 function voyCtlText(w, u, name) { const a = R.airCtlOf(w, u);return `${name ? voyShort(u.name) + ' ' : ''}${a.used}/${a.cap} 中隊${a.borrow ? `（旗艦の管制 ${a.borrow}）` : a.lent ? `（ほか ${a.lent} を管制）` : ''}`; }
-function voyWingOrderText(x) { const w = voy.w, o = x.order; if (x.raid) { const r = x.raid, t = r.order && w.units.get(r.order.target); return `星系間攻撃：${w.sector.systems[r.to]?.name || ''}（${VOY_RAID_PHASE[r.phase] || ''}${r.phase === 'strike' && t ? '・' + t.name : ''}${r.recall ? '・帰還命令' : ''}）`; } if (o.type === 'auto') { const a = x.auto, D = R.doctrineOf(w, x.side); if (!D) return '自動（母艦を直掩）'; return a?.type === 'strike' ? `自動（ドクトリン）：シールドの落ちた${w.units.get(a.target)?.name || '敵艦'}を攻撃` : '自動（ドクトリン）：敵のシールドが落ちるまで母艦を直掩'; } if (o.type === 'standby') return '待機・帰還'; if (o.type === 'strike') return `攻撃：${w.units.get(o.target)?.name || '—'}（${R.APPROACH_NAME[o.approach] || '艦首'}方向から）`; if (o.type === 'cap') return '制空'; if (o.type === 'escort') return `直掩：${w.units.get(o.target)?.name || '—'}`; return ''; }
+function voyWingOrderText(x) {
+ const w=voy.w,o=x.order||{type:'auto'};
+ if(x.raid){const r=x.raid,t=r.order&&w.units.get(r.order.target);return `星系間攻撃：${w.sector.systems[r.to]?.name||''}（${VOY_RAID_PHASE[r.phase]||''}${r.phase==='strike'&&t?'・'+t.name:''}${r.recall?'・帰還命令':''}）`;}
+ if(o.type==='auto'){
+  const a=x.auto;
+  if(a?.airMission==='intercept')return `自動：${w.wings.get(a.airTarget)?.name||'敵攻撃隊'}を迎撃`;
+  if(a?.airMission==='superiority')return '自動：敵機を掃討して制空';
+  if(a?.escortWing)return `自動：${w.wings.get(a.escortWing)?.name||'味方攻撃隊'}を護衛`;
+  if(a?.type==='strike')return `自動：${w.units.get(a.target)?.name||'敵艦'}へ対艦攻撃`;
+  return a?.waiting?'自動：母艦を直掩し対艦攻撃の機会を待機':'自動：母艦を直掩';
+ }
+ if(o.type==='standby')return '待機・帰還';
+ if(o.type==='strike')return `攻撃：${w.units.get(o.target)?.name||'—'}（${R.APPROACH_NAME[o.approach]||'艦首'}方向から）`;
+ if(o.type==='cap')return '制空';
+ if(o.type==='escort')return `直掩：${w.units.get(o.target)?.name||'—'}`;
+ return '';
+}
+function voyWingFollowers(w,x){return x.squads.map(id=>w.squads.get(id)).filter(s=>s?.follow&&s.n>0);}
+function voyWingStateText(x){return x&&voyWingFollowers(voy.w,x).length?'母艦追従中':R.WING_PHASE[x?.phase]||'';}
+function voyWingFollowText(x){
+ const w=voy.w,sq=voyWingFollowers(w,x);if(!sq.length)return '';
+ const n=Math.round(sq.reduce((t,s)=>t+s.n,0)),dest=[...new Set(sq.map(s=>w.sector.systems[s.follow.dest]?.name).filter(Boolean))].join('・'),phases=[];
+ if(sq.some(s=>s.follow.phase==='spool'))phases.push('ジャンプ準備中');
+ const flying=sq.filter(s=>s.follow.phase==='back');if(flying.length)phases.push(`到着まで ${voyClock(Math.max(...flying.map(s=>s.follow.t1-w.time)))}`);
+ if(sq.some(s=>s.follow.phase==='wait'))phases.push('母艦の到着待ち');
+ return `自力離脱 ${n} 機：${dest||'母艦を追跡'}（${phases.join(' · ')}）`;
+}
 
 // ---------- input ----------
 function voyGo(where) {
@@ -11624,7 +11666,7 @@ function voySpectateHudUpdate(full) {
  const hud = $('#trialHud'), B = trial.battle;if (!hud || !B?.spectate) return;const {w, sys} = trial.rts, q = k => hud.querySelector(`[data-sp="${k}"]`), set = (k, v) => { const e = q(k); if (e && sourceText(e) !== String(v)) e.textContent = v; };
  const f = w.units.get(B.follow), us = R.systemUnits(w, sys), own = us.filter(u => u.side === 0), foe = us.filter(u => u.side !== 0), up = l => l.filter(R.fighting).length, bt = w.battles.get(sys), ride = trial.jump?.follow && !trial.jump.arrived;
  const fq = B.followSq != null ? w.squads.get(B.followSq) : null;
- if (fq) { const wg = w.wings.get(fq.wing), c = R.CRAFT[fq.craft]; set('name', `${fq.side === 0 ? '' : '敵 '}${fq.name}`); set('where', `${wg?.name || ''} · ${c?.short || ''} ${fq.n}/${fq.n0 || fq.n} 機 · ${R.WING_PHASE[wg?.phase] || ''}${fq.kills ? ` · 撃墜 ${fq.kills}` : ''}`); }
+ if (fq) { const wg = w.wings.get(fq.wing), c = R.CRAFT[fq.craft]; set('name', `${fq.side === 0 ? '' : '敵 '}${fq.name}`); set('where', `${wg?.name || ''} · ${c?.short || ''} ${fq.n}/${fq.n0 || fq.n} 機 · ${voyWingStateText(wg)}${fq.kills ? ` · 撃墜 ${fq.kills}` : ''}`); }
  else if (f) { set('name', `${f.side === 0 ? '' : '敵 '}${f.name}`); set('where', `${R.FACTIONS[w.sides[f.side].faction]?.short || ''} · ${voyUnitState(f)} · シールド ${Math.round(f.shield / Math.max(1, f.shieldMax) * 100)}%${f.side === 0 && crewShare(f) != null ? ` · 乗員 ${crewPct(crewShare(f))}%` : ''}${voySwBrief(f)}`); }
  set('records', ride ? `${w.groups.get(f?.group)?.name || ''} · ハイパースペース · 経過 ${voyClock(w.time)}` : `${w.sector.systems[sys].name}　自軍 ${up(own)}/${own.length} 隻 · 敵 ${up(foe)}/${foe.length} 隻${bt ? ` · 交戦 ${voyClock(w.time - bt.t0)}` : B.hadBattle ? ' · 戦闘終了' : ' · 交戦なし'} · 経過 ${voyClock(w.time)}`);
  set('side', {all: '全艦', own: '自軍', foe: '敵艦'}[voy.specSide || 'all']);set('cam', trial.specCam === 'free' ? '視点 自由' : '視点 追尾');
@@ -11726,7 +11768,7 @@ const VTUT_STEPS = [
    const from = voySelUnits(s)[0] || own[0];if (!from) return null;const t = vtutFoes().filter(u => u.sys === b && R.fighting(u) && !R.pendingWarp(u)).sort((p, q) => C.len(C.sub(p.pos, from.pos)) - C.len(C.sub(q.pos, from.pos)))[0], pt = vtutUnitPt(t);
    return pt ? {pt, r: vtutUnitR(t), hint: '狙う敵艦（赤）をタップ', map: true} : null;
   }},
- {title: '飛行隊', text: '戦術図の<b>「飛行隊」</b>タブで艦載機に命令します。<b>攻撃</b>（目標と進入方向）・<b>制空</b>・<b>直掩</b>を選べます。母艦がハイパースペースに入るまでに戻れなかった機は失われるので、離脱の前に呼び戻しましょう。', done: () => voy.screen === 'tac' && voy.tab === 'wings', auto: () => { const b = vtutBattle(); if (voy.screen !== 'tac' && b != null) { if (!voy.orders && voy3D()) voyOrdersOpen('tac:' + b); else voyGo('tac:' + b); } voy.tab = 'wings'; voyRenderSide(); },
+ {title: '飛行隊', text: '戦術図の<b>「飛行隊」</b>タブで艦載機に命令します。<b>自動</b>では迎撃・制空・攻撃隊護衛・対艦攻撃を判断します。<b>攻撃</b>（目標と進入方向）・<b>制空</b>・<b>直掩</b>を個別に指定することもできます。母艦の離脱時、飛行中のハイパードライブ搭載機は自力で母艦を追います。非搭載機は離脱までに帰還させましょう。', done: () => voy.screen === 'tac' && voy.tab === 'wings', auto: () => { const b = vtutBattle(); if (voy.screen !== 'tac' && b != null) { if (!voy.orders && voy3D()) voyOrdersOpen('tac:' + b); else voyGo('tac:' + b); } voy.tab = 'wings'; voyRenderSide(); },
   focus: () => { const m = vtutMaps(vtutBattle() ?? 'tac');if (m) return m; return voy.tab !== 'wings' ? vtutSide('#voySide [data-vtab=wings]', '「飛行隊」タブを押す', false, null) : vtutSide('#voySide [data-vwsel]', '飛行隊を選ぶと命令できます', true, 'wings'); }, act: true},
  {title: '航行不能艦の処置', text: '航行不能になった艦がいると、その<b>任務群はジャンプできません</b>。艦を選んで<b>「後方へ回収」</b>（戦闘のない星系で補給線が届くとき。修理を終えると母港で復帰）・<b>「牽引で回収」</b>（トラクター・ビームを持つ艦で連れて行く）・<b>「自沈」</b>から選びます。放置すると惑星の重力に引かれて落ちていきます。いま「フォルティス」を航行不能にしました。', enter: () => vtutDisable(), done: () => !vtutHeld().length, auto: () => { const w = vtutW(); for (const g of vtutOwnGroups()) for (const u of R.groupDisabled(w, g)) { if (!R.recoverCheck(w, u)) R.orderRecover(w, u.id); else { const tw = voyTowers(u); if (tw.length) voyTractorOrder('tow', u, tw); else R.orderScuttle(w, u.id); } } voyRenderSide(); }, adv: true,
   focus: () => {
