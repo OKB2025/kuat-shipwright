@@ -2319,6 +2319,10 @@ function setShip(s, opts) {
   if(ship && !(opts&&opts.keepHistory)){undoStack.push(snap());if(undoStack.length>60)undoStack.shift();redoStack.length=0;}
   if (s.retiredRooms) { const n = s.retiredRooms; delete s.retiredRooms; setTimeout(() => toast(`居住区・兵員室 ${n} 区画を外しました（v19 から乗員と兵員は船内の空き容積に乗ります）`), 400); }
   if (s.vehicleBays) { const n = s.vehicleBays; delete s.vehicleBays; setTimeout(() => toast(`車両格納区画 ${n} 区画を機体格納の格納区画に変えました（v20 から車両は航空機と同じ格納庫に寸法で入ります。ハッチか、ハッチにつながる格納区画に接するようにしてください）`), 700); }
+  // Reserve identity before the first edit/save so all undo states of a new
+  // design share a destination. Imported blueprints never supply this field.
+  if (!s.saveId) s.saveId = newSaveId();
+  dragSnap = null;
   ship = s; s._client = true; S = null; prevS = null; st.sel = null; st.multi = {parts: new Set(), fits: new Set()}; st.hatchA = null; resetSolidCutter();
   // Loading another design remains undoable. The engine starts from scratch.
   eng.reset = true; eng.fitOnGeometry = true; eng.keepCam = !!(opts && opts.keepCam);
@@ -2327,14 +2331,22 @@ function setShip(s, opts) {
   touch('all');
   hideInspect(); updateName(); renderPanel(); scheduleStats(0); updateUndo(); autosave();
 }
-function snap() { return JSON.stringify(C.serialize(ship)); }
+function snap() {
+  if (!ship.saveId) ship.saveId = newSaveId();
+  return JSON.stringify({...C.serialize(ship), _historySaveId: ship.saveId});
+}
+function newSaveId() {
+  return 'ship-' + (globalThis.crypto?.randomUUID?.() || (Date.now().toString(36) + '-' + Math.random().toString(36).slice(2)));
+}
 function restore(json) {
   // Undo keeps the editor's objects (and their caches) and patches the design.
-  const s = C.deserialize(JSON.parse(json)), src = JSON.parse(C.publicJSON(s));
-  if (ship.saveId != null) src.saveId = ship.saveId;
+  const state = JSON.parse(json), s = C.deserialize(state), src = JSON.parse(C.publicJSON(s));
+  src.saveId = state._historySaveId || newSaveId();
+  if (src.saveId !== ship.saveId) { S = null; prevS = null; }
+  const nameChanged = ship.name !== src.name;
   C.patchShip(ship, src); ship._client = true; reconcileSolidCutter();
   const sel = st.sel; st.sel = sel && findSel(sel) ? sel : null; st.hatchA = null;
-  touch('all'); hideInspect(); renderPanel(); scheduleStats(60); updateUndo(); autosave();
+  touch('all'); hideInspect(); if (nameChanged) updateName(); renderPanel(); scheduleStats(60); updateUndo(); autosave();
 }
 function mutate(label, fn, what, opts) {
   const before = snap();
@@ -3287,20 +3299,24 @@ const Store = {
     const all = (await this.list()).filter(x => x.id !== id); LS.set('yard.saves', JSON.stringify(all));
   },
 };
+let savingCurrent = false;
 async function saveCurrent() {
-  if (!S) return;
+  if (!S || savingCurrent) return;
+  savingCurrent = true;
   const btn = $('#btnSave'); btn.disabled = true;
   try {
-    const data = await pack(C.serialize(ship));
+    // Capture both content and destination before compression/storage yields.
+    // The editor can switch designs or undo in place while either is pending.
+    const design = C.serialize(ship), id = ship.saveId;
+    const rec = {id, kind: 'ship', name: design.name, savedAt: Date.now(), cls: S.cls.role + '／' + S.cls.name, len: Math.round(S.hullLen)};
+    const data = await pack(design);
     if (data.length > 2000000) throw new Error('設計が大きすぎて保存できません。書き出しを使ってください。');
-    const id = ship.saveId || ('ship-' + Date.now().toString(36));
-    const where = await Store.save({id, kind: 'ship', name: ship.name, savedAt: Date.now(), cls: S.cls.role + '／' + S.cls.name, len: Math.round(S.hullLen), data});
+    const where = await Store.save({...rec, data});
     st.carrySaves = null;st.craftSaves = null;
-    ship.saveId = id;
     toast(where === 'cloud' ? '保存しました（あなたのアカウント）' : '保存しました（この端末）');
     renderSaves();
   } catch (e) { toast(esc(e.message || '保存できませんでした')); }
-  btn.disabled = false;
+  finally { savingCurrent = false; btn.disabled = false; }
 }
 let delConfirm = null;
 async function renderSaves() {
