@@ -9,6 +9,7 @@ const esc=String,num=String,deg=v=>v+'°',fW=v=>v+' W',fMass=v=>v+' t',fPct=v=>(
 const activeEquipment=()=>null,wingFigures=()=>figures,foilPivotControls=()=>'',foilDiagramSVG=()=>'';
 const FOIL_AXIS_ROWS=[['x','前後軸（X）']];let figures=null;
 `);
+const sectionDeclaration=core.match(/^const AERO_WING_SECTION=.*$/m);assert.ok(sectionDeclaration);run(sectionDeclaration[0]+'\nC.AERO_WING_SECTION=AERO_WING_SECTION;');
 section('function seg(', 'function silhouette(');
 section('function partCard(', 'function fitBtn(');
 const surfaceStart=app.indexOf('function surfaceControls('),surfaceEnd=app.indexOf('\nfunction ',surfaceStart+1);

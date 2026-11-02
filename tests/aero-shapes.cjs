@@ -6,13 +6,41 @@ const wing=opt=>({k:'wing',form:'airfoil',c:[0,0,0],s:[2,4,.08],outline:plain(C.
 const panel=opt=>({k:'solarPanel',form:'outline',c:[0,0,0],s:[2,4,.08],outline:plain(C.AERO_PANEL_OUTLINE),...opt});
 function solid(mesh){assert.ok(mesh.v.every(v=>v.length===3&&v.every(Number.isFinite)));assert.ok(mesh.f.length>=4);assert.equal(C.meshTopology(mesh.f).closed,true);const V=mesh.f.reduce((s,[a,b,c])=>s+C.dot(mesh.v[a],C.cross(mesh.v[b],mesh.v[c])),0)/6;assert.ok(V>0,`outward positive volume ${V}`);}
 
-test('a tapered main wing has a six-corner airfoil section rather than a thin rectangular box',()=>{
+test('the six-corner chord section is thick near the forward leading edge and tapers to the trailing edge',()=>{
  const p=wing(),m=C.aeroWingMesh(p);solid(m);
+ const expected=[[0,0],[.22,.5],[.62,.3],[1,0],[.62,-.3],[.22,-.5]];
  for(const z of [-.5,.5]){
   const section=m.v.filter(q=>Math.abs(q[2]-z)<1e-9);assert.equal(section.length,6);
-  assert.equal(section.filter(q=>Math.abs(q[1]-.5)<1e-9).length,2);assert.equal(section.filter(q=>Math.abs(q[1]+.5)<1e-9).length,2);assert.equal(section.filter(q=>Math.abs(q[1])<1e-9).length,2);
+  const leading=Math.max(...section.map(q=>q[0])),trailing=Math.min(...section.map(q=>q[0])),chord=leading-trailing;
+  for(const [u,y] of expected)assert.ok(section.some(q=>Math.abs((leading-q[0])/chord-u)<1e-9&&Math.abs(q[1]-y)<1e-9),`section at span ${z} contains chord/height (${u},${y})`);
+  const thickest=section.filter(q=>Math.abs(q[1])>.499999);assert.equal(thickest.length,2);
+  for(const q of thickest){near((leading-q[0])/chord,.22);assert.ok(q[0]>(leading+trailing)/2,'maximum thickness is on the forward half of the chord');}
+  assert.equal(section.filter(q=>Math.abs(q[1])<1e-9).length,2,'leading and trailing edges meet at the chord line');
  }
- const T=C.structTriangles(p);assert.ok(T.length>0);assert.ok(C.partVolume(p)>0);assert.ok(C.inStruct(p,[0,0,0]));assert.equal(C.inStruct(p,[.99,.039,0]),false,'a bevelled leading edge has no box corner');
+ const T=C.structTriangles(p);assert.ok(T.length>0);assert.ok(C.partVolume(p)>0);assert.ok(C.inStruct(p,[0,0,0]));
+ assert.ok(C.inStruct(p,[.448,.039,0]),'the thick forward shoulder is part of the wing');
+ assert.equal(C.inStruct(p,[.78,.035,0]),false,'the leading edge does not have a flat slab corner');
+ assert.equal(C.inStruct(p,[-.72,.025,0]),false,'the long aft taper is thinner than the forward shoulder');
+ for(const [x,z] of p.outline)assert.ok(m.v.some(q=>Math.abs(q[0]-x)<1e-9&&Math.abs(q[1])<1e-9&&Math.abs(q[2]-z)<1e-9),'the four-corner planform is independent of the six-corner section');
+ near(C.aeroArea(p),Math.abs(C.outlineArea(p.outline))*p.s[0]*p.s[1]);
+});
+
+test('the forward-heavy chord section follows part rotation and port-starboard mirroring',()=>{
+ const s=C.newShip({L:12,W:8,H:4,assembly:true}),p=wing({id:1,c:[3.125,2.375,4.625],yaw:31,pitch:13,roll:-17});s.parts=[p];s.nextId=2;
+ const has=(T,q)=>{for(let i=0;i<T.length;i+=3)if(Math.hypot(T[i]-q[0],T[i+1]-q[1],T[i+2]-q[2])<1e-6)return true;return false;};
+ const T=C.structTriangles(p),points=[[1,0,-2],[.56,.04,-2],[-1,0,-2]].map(q=>C.worldStruct(p,q));
+ for(const q of points)assert.ok(has(T,q),'rotated leading edge, maximum thickness and trailing edge remain in the actual mesh');
+ const mirrored=C.mirrorPart(p,s),M=C.structTriangles(mirrored);solid(C.aeroWingMesh(mirrored));
+ for(const q of points)assert.ok(has(M,C.mirrorP(q)),'mirroring preserves the chord direction and reflects the same section');
+ near(C.aeroArea(mirrored),C.aeroArea(p));
+});
+
+test('an explicitly edited wing mesh survives loading without being replaced by the new parametric section',()=>{
+ const mesh=C.structToMesh({k:'struct',form:'box',c:[0,0,0],s:[2,4,.08]}),p=wing({id:1,form:'mesh',mesh}),before=plain(mesh);
+ assert.strictEqual(C.aeroWingMesh(p),mesh);
+ const s=C.newShip({L:12,W:8,H:4,assembly:true});s.parts=[p];s.nextId=2;
+ const restored=C.deserialize(C.serialize(s)).parts[0];assert.equal(restored.k,'wing');assert.equal(restored.form,'mesh');
+ assert.deepEqual(plain(restored.mesh),before);assert.equal(restored.mesh.v.filter(q=>q.every(v=>Math.abs(Math.abs(v)-.5)<1e-9)).length,8,'an explicit box-shaped user mesh retains its eight corners');
 });
 
 test('concave and swept custom wing outlines remain closed and keep their missing regions',()=>{

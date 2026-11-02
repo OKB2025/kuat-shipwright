@@ -71,6 +71,18 @@ test('wing planforms can change without losing the airfoil section or dedicated 
  run('redo()');assert.notDeepEqual(plain(run('selItem().outline')),before.outline);
 });
 
+test('the chordwise section diagram uses the physical six-vertex airfoil and labels its forward leading edge',()=>{
+ const run=setup();run("selectAeroPart('wing');installPreview()");const html=run('aeroShapeControls(selItem(),true)');
+ assert.match(html,/平面の翼形状（上から見た輪郭）/);assert.match(html,/翼断面（翼弦方向）/);
+ assert.match(html,/前縁（艦首側）/);assert.match(html,/後縁/);
+ const svg=html.match(/<svg class="aero-section"[^>]*>(.*?)<\/svg>/s);assert.ok(svg);
+ const points=svg[1].match(/points="([^"]+)"/)[1].split(' ').map(p=>p.split(',').map(Number));assert.equal(points.length,6);
+ const profile=plain(C.AERO_WING_SECTION);points.forEach(([x,y],i)=>{assert.ok(Math.abs((x-18)/224-profile[i][0])<1e-5);assert.ok(Math.abs((25-y)/26-profile[i][1])<1e-5);});
+ assert.equal(points[0][1],points[3][1]);assert.ok(points[1][0]-points[0][0]<points[3][0]-points[1][0]);
+ assert.equal(run('aeroPreset("wing","straight").outline.length'),4,'the section does not impose a hexagonal planform');
+ run("selectAeroPart('solarPanel');installPreview()");const panel=run('aeroShapeControls(selItem(),true)');assert.doesNotMatch(panel,/翼断面（翼弦方向）/);assert.equal(run('selItem().outline.length'),6);
+});
+
 test('TIE panel presets provide concave interceptor and folded bomber shapes with undo',()=>{
  const run=setup();run("selectAeroPart('solarPanel');installPreview();click({aeropreset:'interceptor',aeronew:'no'})");
  assert.equal(run('selItem().k'),'solarPanel');assert.equal(run('C.validOutline(selItem().outline)'),true);assert.ok(run('selItem().outline.length')>6);
