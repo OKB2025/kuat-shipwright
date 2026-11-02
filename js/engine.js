@@ -174,7 +174,7 @@ function trialRayPose(t,requested){
   const angle=wing.wing.stow+(wing.wing.open-wing.wing.stow)*fractions[i],frame=C.foilFrame(t.ship,wing),rotate=v=>C.sub(C.foilAt(frame,wing,C.add(frame.pv,v),angle),frame.pv),pose=C.foilPose(t.ship,wing,angle);
   if(!pose)continue;
   for(const part of pose.parts)if(ownedParts.has(part.id)&&partIndex.has(part.id)){
-   const copy=JSON.parse(C.publicJSON(part)),source=sourceParts.get(part.id);if(source.k!=='struct'){
+   const copy=JSON.parse(C.publicJSON(part)),source=sourceParts.get(part.id);if(!C.isShapePart(source)){
     if(source.dir)copy.dir=C.norm(rotate(source.dir));
     if(source.room||C.PARTS[source.k]?.shape==='cube'){
      const original=C.structFrame(source),up=C.norm(rotate(original.up)),fw=rotate(original.fw);let base=C.sub([1,0,0],C.mul(up,up[0]));if(C.len(base)<.001)base=C.sub([0,0,1],C.mul(up,up[2]));base=C.norm(base);
@@ -191,7 +191,7 @@ function trialRayPose(t,requested){
    delete copy.local;delete copy.localNormal;posed.fits[fitIndex.get(copy.id)]=copy;
   }
  }
- for(const part of posed.parts)if(part.k==='struct')part._solidCutShip=posed;
+ for(const part of posed.parts)if(C.isShapePart(part))part._solidCutShip=posed;
  const result={ship:posed,ctx:C.turretRayContext(posed),fits:new Map(posed.fits.map(f=>[f.id,f]))};poses.set(key,result);while(poses.size>3)poses.delete(poses.keys().next().value);return result;
 }
 function handleTrialRays(job) {

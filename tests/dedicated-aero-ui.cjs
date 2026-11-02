@@ -1,0 +1,140 @@
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test');
+const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),app=fs.readFileSync(path.join(root,'js/app.js'),'utf8'),core=vm.createContext({console});
+for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),core,{filename:file});
+const C=vm.runInContext('Core',core),plain=v=>JSON.parse(JSON.stringify(v));
+function section(start,end){const a=app.indexOf(start),b=app.indexOf(end,a+start.length);assert.ok(a>=0&&b>a,start);return app.slice(a,b);}
+function setup(){
+ const context=vm.createContext({console,C});
+ vm.runInContext(`
+ let ship=C.newShip({L:20,W:12,H:8},'Aero UI');ship.parts=[];ship.nextId=1;
+ const st={part:'gen',sel:null,surfaceMode:'horizontal',ve:{target:null}},listeners={},undoStack=[],redoStack=[];let dragSnap=null,dragLabel='',lastOp='';
+ const num=(v,d=0)=>Number(v).toFixed(d),esc=String,rgb=v=>v.join(','),fmtM=v=>v+' m',fPct=v=>Math.round(v*100)+'%',fW=v=>v+' W',fMass=v=>v+' t',deg=v=>v+'°';
+ const activeEquipment=()=>null,craftDesign=()=>C.isCraft(ship),selItem=()=>ship.parts.find(p=>p.id===st.sel?.id),editSel=fn=>fn(selItem());
+ const panel={addEventListener:(type,fn)=>(listeners[type]||=[]).push(fn)},$=s=>s==='#panel'?panel:null;
+ const snap=()=>JSON.stringify(C.serialize(ship)),restore=s=>{ship=C.deserialize(JSON.parse(s));},sndEdit=()=>{},sndUI=()=>{},toast=()=>{},touch=()=>{},scheduleStats=()=>{},updateUndo=()=>{},autosave=()=>{},rememberPick=()=>{},renderPanel=()=>{},updateHint=()=>{};
+ const blockedHullControl=()=>false,editCockpitEquipment=()=>{},cockpitEquipmentHTML=()=>'';
+ const veOpen=target=>{st.ve.target=target;};
+ const surfaceControls=()=>'<div data-test-orientation></div>',foilPivotControls=()=>'<div data-test-pivot></div>',foilDiagramSVG=()=>'<svg></svg>',basePartEditor=()=>'',structureControls=()=>'<div data-test-structure-materials></div>',engineControls=()=>'',sensorBandControls=()=>'',superweaponControls=()=>'';
+ const FOIL_AXIS_ROWS=[['x','前後軸']];
+ const wingFigures=()=>({parts:[],area:7.25,capOpen:100000,capStow:35000,mass:.3,feedMass:.01,reinfMass:0,act:.02,jamAt:.5,solarP:50000,hits:[]});
+ function click(data){const button={dataset:data};for(const fn of listeners.click)fn({target:{closest:s=>s==='button'?button:null}});}
+ function input(key,value,min,max){const target={dataset:{sl:key},value:String(value),min:String(min),max:String(max)};for(const fn of listeners.input)fn({target});}
+ function change(key){for(const fn of listeners.change)fn({target:{dataset:{sl:key}}});}
+ function changeOutline(i,axis,value){for(const fn of listeners.change)fn({target:{dataset:{outline:String(i),axis:String(axis)},value:String(value)}});}
+ function installPreview(){const p=unalignedPartPreview({p:[10,4,8],n:[0,1,0],kind:'section'}),made=C.placePart(ship,p.k,p.c,p.s,p,false);st.sel={list:'parts',id:made.id};return made;}
+ `,context);
+ for(const [start,end]of [
+  ['function seg(','function silhouette('],
+  ['function partCard(','function fitBtn('],
+  ['function unalignedPartPreview(','function notchBox('],
+  ['function wingControls(','function sensorBandControls('],
+  ['function v3PartEditor(){','function fitPositionSliders('],
+  ['function partEditor(){','function bindRealism(){'],
+  ['function bindRealism(){','function referenceAircraftSettingHTML('],
+  ['function bindWing(){','function heatHTML('],
+  ['function bindVertexEdit(){','// ---------- USERPART-001'],
+  ['function mutate(','function updateUndo(']
+ ])vm.runInContext(section(start,end),context);
+ vm.runInContext('bindWing();bindRealism();bindVertexEdit()',context);
+ return code=>vm.runInContext(code,context);
+}
+
+test('the normal catalogue cards place two distinct aero kinds with fractional dimensions',()=>{
+ const run=setup();
+ for(const kind of ['wing','solarPanel']){
+  assert.match(run(`partCard('${kind}',false)`),new RegExp(`data-part="${kind}"`));
+  run(`selectAeroPart('${kind}');st.structSize=[.375,.625,.035];installPreview()`);
+  const p=plain(run('C.serialize(ship).parts.at(-1)'));
+  assert.equal(p.k,kind);assert.notEqual(p.k,'struct');assert.deepEqual(p.s,[.375,.625,.035]);
+  assert.equal(p.form,kind==='wing'?'airfoil':'outline');assert.equal(!!p.wing.solar,kind==='solarPanel');
+ }
+ assert.equal(run('ship.parts.filter(p=>p.k==="struct").length'),0);
+});
+
+test('solar placement offers an actual six-corner face with editable ribs and fold',()=>{
+ const run=setup();run("selectAeroPart('solarPanel')");
+ assert.equal(run('st.structOutline.length'),6);assert.equal(run('st.structRoll'),90);
+ run("input('newAeroPanelFrame',.012,.005,.5);input('newAeroPanelRib',.007,.005,.5);input('newAeroPanelFold',32,-80,80);input('newAeroPanelKnee',42,0,90);installPreview()");
+ const p=plain(run('C.serialize(ship).parts[0]'));
+ assert.equal(p.panelFrame,.012);assert.equal(p.panelRib,.007);assert.equal(p.panelFold,32);assert.equal(p.panelKnee,.42);
+ const restored=plain(run('C.serialize(C.deserialize(C.serialize(ship))).parts[0]'));
+ for(const k of ['k','s','outline','panelFrame','panelRib','panelFold','panelKnee'])assert.deepEqual(restored[k],p[k],k);
+});
+
+test('wing planforms can change without losing the airfoil section or dedicated kind',()=>{
+ const run=setup();run("selectAeroPart('wing');click({aeropreset:'straight',aeronew:'yes'});installPreview()");
+ const before=plain(run('C.serialize(ship).parts[0]'));
+ run("click({aeropreset:'swept',aeronew:'no'})");
+ assert.equal(run('selItem().k'),'wing');assert.equal(run('selItem().form'),'airfoil');assert.equal(run('C.validOutline(selItem().outline)'),true);
+ assert.notDeepEqual(plain(run('selItem().outline')),before.outline);assert.equal(run('undoStack.length'),1);
+ run('undo()');assert.deepEqual(plain(run('selItem().outline')),before.outline);assert.equal(run('selItem().k'),'wing');
+ run('redo()');assert.notDeepEqual(plain(run('selItem().outline')),before.outline);
+});
+
+test('TIE panel presets provide concave interceptor and folded bomber shapes with undo',()=>{
+ const run=setup();run("selectAeroPart('solarPanel');installPreview();click({aeropreset:'interceptor',aeronew:'no'})");
+ assert.equal(run('selItem().k'),'solarPanel');assert.equal(run('C.validOutline(selItem().outline)'),true);assert.ok(run('selItem().outline.length')>6);
+ const interceptor=plain(run('selItem().outline'));
+ run("click({aeropreset:'bomber',aeronew:'no'})");assert.equal(run('selItem().panelFold'),30);assert.equal(run('selItem().outline.length'),6);
+ run('undo()');assert.deepEqual(plain(run('selItem().outline')),interceptor);assert.equal(run('selItem().panelFold'),0);
+ const loaded=plain(run('C.serialize(C.deserialize(C.serialize(ship))).parts[0]'));assert.equal(loaded.k,'solarPanel');assert.deepEqual(loaded.outline,interceptor);
+});
+
+test('solar rib and folding controls create one normal undo transaction and persist',()=>{
+ const run=setup();run("selectAeroPart('solarPanel');installPreview()");const before=plain(run('C.serialize(ship).parts[0]'));
+ run("input('aeroPanelFold',48,-80,80);input('aeroPanelFold',52,-80,80);change('aeroPanelFold')");
+ assert.equal(run('undoStack.length'),1);assert.equal(run('selItem().panelFold'),52);assert.equal(run('selItem().k'),'solarPanel');
+ assert.deepEqual(plain(run('selItem().s')),before.s);assert.deepEqual(plain(run('selItem().outline')),before.outline);
+ assert.equal(run('C.deserialize(C.serialize(ship)).parts[0].panelFold'),52);
+ run('undo()');assert.equal(run('selItem().panelFold'),before.panelFold);run('redo()');assert.equal(run('selItem().panelFold'),52);
+});
+
+test('dedicated editors expose aero geometry and operating controls without structural materials',()=>{
+ const run=setup();
+ for(const kind of ['wing','solarPanel']){
+  run(`selectAeroPart('${kind}');installPreview()`);const html=run('v3PartEditor()');
+  assert.match(html,/data-aeropreset=/);assert.match(html,/data-test-orientation/);assert.doesNotMatch(html,/data-test-structure-materials|data-editplate=|data-structform=|data-wingkind="none"|data-wingkind="solar"/);
+  if(kind==='wing'){assert.match(html,/薄い六角/);assert.match(html,/data-wingkind="foil"/);}
+  else{assert.match(html,/data-sl="aeroPanelFrame"/);assert.match(html,/data-sl="aeroPanelRib"/);assert.match(html,/data-sl="aeroPanelFold"/);assert.match(html,/集電出力/);}
+ }
+});
+
+test('S-foil operation preserves the wing part while ordinary structures cannot gain that function',()=>{
+ const run=setup();run("selectAeroPart('wing');installPreview();click({wingkind:'foil'})");
+ assert.equal(run('selItem().k'),'wing');assert.equal(run('selItem().wing.foil'),true);assert.equal(run('selItem().form'),'airfoil');
+ assert.equal(run('C.deserialize(C.serialize(ship)).parts[0].wing.foil'),true);
+ run("click({wingkind:'wing'})");assert.equal(run('selItem().k'),'wing');assert.notEqual(run('selItem().wing.foil'),true);
+ run("const structure=C.placePart(ship,'struct',[10,4,-8],[2,3,.1],{form:'box'},false);st.sel={list:'parts',id:structure.id};click({wingkind:'foil'})");
+ assert.equal(run('selItem().k'),'struct');assert.equal(run('selItem().wing'),undefined);assert.equal(run('wingControls(selItem())'),'');
+ assert.doesNotMatch(run('v3PartEditor()'),/data-aeropreset=|data-wingkind=/);
+});
+
+
+test('individual outline vertices can move, split and persist without changing the aero part kind',()=>{
+ const run=setup();
+ for(const kind of ['wing','solarPanel']){
+  run(`selectAeroPart('${kind}');installPreview()`);const before=plain(run('selItem().outline'));
+  assert.match(run('partEditor()'),/data-outline="0"/);
+  const moved=(before[0][0]+.05)*100;run(`changeOutline(0,0,${moved})`);
+  assert.equal(run('selItem().k'),kind);assert.notDeepEqual(plain(run('selItem().outline')),before);
+  const count=run('selItem().outline.length');run("click({addvertex:'0'})");assert.equal(run('selItem().outline.length'),count+1);
+  assert.equal(run('C.validOutline(selItem().outline)'),true);
+  const p=plain(run('C.serialize(C.deserialize(C.serialize(ship))).parts.at(-1)'));
+  assert.equal(p.k,kind);assert.equal(p.form,kind==='wing'?'airfoil':'outline');assert.equal(p.outline.length,count+1);
+ }
+});
+
+
+test('baking a folded solar panel for free vertex editing preserves its kind and physical bounds',()=>{
+ const run=setup();run("selectAeroPart('solarPanel');click({aeropreset:'bomber',aeronew:'yes'});installPreview()");
+ const before=plain(run('C.serialize(ship).parts[0]')),bounds=plain(run('C.partAABB(selItem())'));
+ assert.equal(before.panelFold,30);run("click({meshconvert:''})");
+ assert.equal(run('selItem().k'),'solarPanel');assert.equal(run('selItem().form'),'mesh');assert.ok(run('selItem().mesh.v.length')>6);
+ const baked=plain(run('C.partAABB(selItem())'));
+ bounds.forEach((v,i)=>assert.ok(Math.abs(v-baked[i])<1e-4,`baked bound ${i}: ${baked[i]} != ${v}`));
+ const loaded=plain(run('C.partAABB(C.deserialize(C.serialize(ship)).parts[0])'));
+ baked.forEach((v,i)=>assert.ok(Math.abs(v-loaded[i])<1e-4,`loaded bound ${i}`));
+ assert.equal(run('undoStack.length'),1);assert.equal(run('JSON.parse(undoStack[0]).parts[0].panelFold'),30);
+ run('undo()');assert.equal(run('selItem().form'),'outline');assert.equal(run('selItem().panelFold'),30);
+ run('redo()');assert.equal(run('selItem().form'),'mesh');assert.equal(run('selItem().k'),'solarPanel');
+});

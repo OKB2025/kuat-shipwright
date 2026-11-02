@@ -22,9 +22,9 @@ for(const key of examples)test(`${key} carries complete ordinary systems without
 
 test('new support systems preserve every example hull, visible structure, gun, and existing wing mechanism',()=>{
  for(const key of examples){
-  const {ship}=fixture(key),before=C.serialize(C.SHIP_EXAMPLES[key].build()),after=C.serialize(ship);
+  const {ship}=fixture(key),before=C.serialize(C.dedicateAeroParts(C.SHIP_EXAMPLES[key].build())),after=C.serialize(ship);
   assert.deepEqual(plain(after.hull),plain(before.hull),key+' hull');
-  assert.deepEqual(plain(after.parts.filter(p=>p.k==='struct')),plain(before.parts.filter(p=>p.k==='struct')),key+' structures and wings');
+  assert.deepEqual(plain(after.parts.filter(C.isShapePart)),plain(before.parts.filter(C.isShapePart)),key+' structures and wings');
   assert.deepEqual(plain(after.fits),plain(before.fits),key+' guns and mounts');
   for(const kind of ['gen','engine','hyper','shield','battery','fuel','astromech','droidbrain','radiator','hdis','hdisx'])assert.equal(after.parts.filter(p=>p.k===kind).length,before.parts.filter(p=>p.k===kind).length,key+' '+kind);
  }

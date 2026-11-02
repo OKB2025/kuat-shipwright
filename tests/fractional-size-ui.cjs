@@ -8,7 +8,7 @@ function input(html,id,type='number'){
  assert.ok(tag,`${id} ${type} control`);return Object.fromEntries([...tag.matchAll(/([\w-]+)="([^"]*)"/g)].map(m=>[m[1],m[2]]));
 }
 function setup(){const context=vm.createContext({console,C});vm.runInContext(`
- const I18N=null,ship=C.newShip({L:20,W:12,H:8},'Fractional controls'),st={sel:{list:'parts',id:1},part:'sensor',structSize:[2,1,.064],hullFollow:'keep',size:{},sizeCraft:{}};
+ const isAeroKind=k=>C.isAeroPart({k}),I18N=null,ship=C.newShip({L:20,W:12,H:8},'Fractional controls'),st={sel:{list:'parts',id:1},part:'sensor',structSize:[2,1,.064],hullFollow:'keep',size:{},sizeCraft:{}};
  ship.parts=[{id:1,k:'struct',form:'box',c:[5.125,2.375,-.0625],s:[2.35,1.125,.064],taper:0}];ship.nextId=2;
  const num=(n,d=0)=>Number(n).toFixed(d),esc=String,seg=()=>'',partInfoHTML=()=>'',twinOfItem=()=>null,selItem=()=>ship.parts.find(p=>p.id===st.sel.id),editSel=fn=>fn(selItem()),craftDesign=()=>C.isCraft(ship),blockedHullControl=()=>false;
  const precisePartSize=p=>C.isReactor(p)||['engine','hyper','shield','localShield'].includes(p.k),smallPartSize=k=>C.PARTS[k]?.group==='craft'||craftDesign()&&C.craftPart(k),pSize=k=>C.partLimits(ship,k).def,setPSize=(k,v)=>st.size[k]=v,sizeOut=(k,v)=>v+' m';
