@@ -2473,7 +2473,7 @@ function unalignedPartPreview(hit) {
     const [l, w, hh] = st.structSize, n = hit.n, ax = Math.abs(n[1]) >= Math.abs(n[2]) && Math.abs(n[1]) >= Math.abs(n[0]) ? 1 : Math.abs(n[2]) >= Math.abs(n[0]) ? 2 : 0;
     const ext = [l / 2, hh / 2, w / 2][ax], c = hit.p.slice();
     if (hit.kind !== 'section') c[ax] += Math.sign(n[ax] || 1) * ext * 0.6;
-    return C.alignStructure({id:-1,k,c,s:[l,w,hh],pitch:st.structPitch||0,roll:st.structRoll||0,taper:st.structTaper,form:st.structForm,skinAsset:st.structForm==='reference'?st.skinAsset:undefined,angles:st.structAngles.slice(),yaw:st.structYaw,offsetX:st.structOffsetX,offsetZ:st.structOffsetZ,...(isAeroKind(k)?{wing:C.normalizeWing({...st.structWing,...(k==='solarPanel'?{solar:true}:{})}),outline:(st.structOutline||aeroOutline(k)).map(q=>q.slice()),...(k==='solarPanel'?{panelFrame:st.panelFrame,panelRib:st.panelRib,panelFold:st.panelFold,panelKnee:st.panelKnee,panelBracing:st.panelBracing,panelSparX:st.panelSparX}:{})}:{}),...(st.structForm==='shell'?{shellCurve:st.shellCurve??1,shellThick:st.shellThick??3,shellFlip:!!st.shellFlip}:{}),...(st.structPlate?{plate:true,plateT:st.structPlateT}:st.structLight?{light:true}:{})},hit,st.surfaceMode);
+    return C.alignStructure({id:-1,k,c,s:[l,w,hh],pitch:st.structPitch||0,roll:st.structRoll||0,taper:st.structTaper,form:st.structForm,skinAsset:st.structForm==='reference'?st.skinAsset:undefined,angles:st.structAngles.slice(),yaw:st.structYaw,offsetX:st.structOffsetX,offsetZ:st.structOffsetZ,...(isAeroKind(k)?{wing:C.normalizeWing({...st.structWing,...(k==='solarPanel'?{solar:true}:{})}),outline:(st.structOutline||aeroOutline(k)).map(q=>q.slice()),...(k==='solarPanel'?{panelFrame:st.panelFrame,panelRib:st.panelRib,panelFold:st.panelFold,panelKnee:st.panelKnee,panelBracing:st.panelBracing,panelSparX:st.panelSparX}:{wingTipSide:st.wingTipSide??1})}:{}),...(st.structForm==='shell'?{shellCurve:st.shellCurve??1,shellThick:st.shellThick??3,shellFlip:!!st.shellFlip}:{}),...(st.structPlate?{plate:true,plateT:st.structPlateT}:st.structLight?{light:true}:{})},hit,st.surfaceMode);
   }
   const size = pSize(k);
   let c;
@@ -2868,11 +2868,12 @@ function setEngineGlow(v){if(!ship||!C.engineGlowOK(v))return;v=v.toLowerCase();
 function seg(name, opts, cur) {
   return `<div class="seg" role="group">${opts.map(([v, l]) => `<button type="button" data-${name}="${v}" aria-pressed="${String(v) === String(cur)}">${l}</button>`).join('')}</div>`;
 }
-function slider(id, label, v, min, max, step, out, numberStep=step) {
-  return `<label class="sl"><span class="sl-l">${label}</span><input type="range" id="sl-${id}" data-sl="${id}" min="${min}" max="${max}" step="${step}" value="${v}" aria-label="${label}"><input class="sl-num" type="number" inputmode="decimal" data-sl="${id}" min="${min}" max="${max}" step="${numberStep}" value="${v}" aria-label="${label} 数値"><output id="out-${id}">${out}</output></label>`;
+function slider(id, label, v, min, max, step, out, numberStep=step,numberMax=max) {
+  return `<label class="sl"><span class="sl-l">${label}</span><input type="range" id="sl-${id}" data-sl="${id}" min="${min}" max="${max}" step="${step}" value="${v}" aria-label="${label}"><input class="sl-num" type="number" inputmode="decimal" data-sl="${id}" min="${min}" max="${numberMax}" step="${numberStep}" value="${v}" aria-label="${label} 数値"><output id="out-${id}">${out}</output></label>`;
 }
 // Metre sliders move in centimetres; direct entries keep finer measured dimensions.
 function metreSlider(id,label,v,min,max,out=fmtM(v)){return slider(id,label,Number(v.toFixed(6)),min,max,.01,out,'any');}
+function shapeDimensionSlider(id,label,v,axis){const limit=C.DESIGN_LIMITS.partSize,extent=[ship.hull.L,ship.hull.W*1.6,ship.hull.H*1.5][axis],max=Math.min(limit,Math.max(v,extent,axis===2?2:40));return slider(id,label,Number(v.toFixed(6)),.02,max,.01,fmtM(v),'any',limit);}
 function silhouette(hp) {
   const pts = [], n = 28;
   for (let k = 0; k <= n; k++) { const t = k / n, w = C.profileAt(hp,t)[1]; pts.push([4 + t * 92, 20 - w * 15]); }
@@ -2889,21 +2890,27 @@ function selectAeroPart(k){
  st.tab='mod';st.group=C.PARTS[k].group;st.part=k;st.partTool='place';st.sel=null;st.template=null;st.equipmentId=null;st.structPlate=false;st.structLight=false;st.structForm=k==='wing'?'airfoil':'outline';st.structTaper=0;st.structAngles=[0,0,0,0];st.structYaw=0;st.structOffsetX=0;st.structOffsetZ=0;st.structPitch=0;st.structRoll=k==='solarPanel'?90:0;delete st.skinAsset;
  const preset=k==='solarPanel'?C.solarPanelPreset('hex'):null;
  st.structSize=k==='wing'?[2,4,.08]:[3,3*preset.aspect,.08];st.structOutline=aeroOutline(k);st.structWing=C.normalizeWing({thermal:'high',feed:1,reinf:0,...(k==='solarPanel'?{solar:true}:{})});
- st.panelFrame=.06;st.panelRib=.035;st.panelFold=0;st.panelKnee=.35;st.panelBracing='radial';st.panelSparX=0;if(preset)Object.assign(st,solarPresetSettings(preset,st.structSize[0]));
+ st.wingTipSide=1;st.panelFrame=.06;st.panelRib=.035;st.panelFold=0;st.panelKnee=.35;st.panelBracing='radial';st.panelSparX=0;if(preset)Object.assign(st,solarPresetSettings(preset,st.structSize[0]));
 }
 // Legacy recent selections resolve to the actual wing catalogue item.
 function wingPresetCard(){return partCard('wing',st.part==='wing');}
 function selectWingPreset(){selectAeroPart('wing');}
 function solarPresetSettings(shape,chord){return {panelFold:shape.panelFold,panelKnee:shape.panelKnee,panelBracing:shape.panelBracing,panelSparX:shape.panelSparX,...(Number.isFinite(shape.frameRatio)?{panelFrame:chord*shape.frameRatio}:{}),...(Number.isFinite(shape.ribRatio)?{panelRib:chord*shape.ribRatio}:{})};}
-function aeroPresetRows(k){return k==='solarPanel'?[['hex','六角形（TIE/ln型）'],['interceptor','切欠き形（TIE/in型）'],['bomber','折れ曲がり（TIE/sa型）']]:[['taper','先細り'],['straight','直線翼'],['swept','後退翼']];}
-function aeroPreset(k,key){
+function aeroPresetRows(k){return k==='solarPanel'?[['hex','六角形（TIE/ln型）'],['interceptor','切欠き形（TIE/in型）'],['bomber','折れ曲がり（TIE/sa型）']]:[['taper','先細り'],['straight','直線翼'],['swept','後退翼'],['forward','前進翼'],['delta','デルタ翼'],['doubleDelta','ダブルデルタ翼']];}
+function aeroPreset(k,key,tipSide=1){
  if(k==='solarPanel')return C.solarPanelPreset(key);
- let outline=aeroOutline(k),panelFold=0;
- if(k==='wing'){
-  if(key==='straight')outline=[[-.5,-.5],[.5,-.5],[.5,.5],[-.5,.5]];
-  if(key==='swept')outline=[[-.5,-.5],[.05,-.5],[.5,.5],[.05,.5]];
- }
- return {outline,panelFold,panelKnee:.35};
+ return C.wingPlanformPreset(key,tipSide);
+}
+function wingControlPart(p,selected){return selected?p:{k:'wing',form:st.structForm,s:st.structSize,c:[0,0,1],outline:st.structOutline||aeroOutline('wing'),wingTipSide:st.wingTipSide??1};}
+function wingTipControls(p,selected){
+ const q=wingControlPart(p,selected),r=C.wingTipRange(q);if(!r)return '<p class="note">翼形状を選ぶと、翼端の前後位置を調整できます。頂点編集した形はそのまま保持されます。</p>';
+ const id=(selected?'aero':'newAero')+'WingTip',side=C.wingTipSide(q),v=C.wingTipOffset(q);
+ return `<div class="pgroup wing-tip-controls"><h4>翼端を前後へ移動</h4><div class="sliders">${metreSlider(id,'翼端の前後位置',v,r.min,r.max)}</div><button type="button" class="btn sm" data-${selected?'wingtipside':'newwingtipside'}="${-side}">翼根と翼端を入れ替える</button><p class="note">翼根を固定して翼端を前後に動かします。＋で前進翼、−で後退翼にできます。途中の折れ点も一緒に動きます。</p></div>`;
+}
+function syncWingTipControls(){
+ const p=selItem(),selected=p?.k==='wing';if(!selected&&(st.part!=='wing'||st.partTool!=='place'))return;
+ const q=wingControlPart(p,selected),r=C.wingTipRange(q);if(!r)return;const id=(selected?'aero':'newAero')+'WingTip',v=C.wingTipOffset(q);
+ $$('[data-sl="'+id+'"]').forEach(t=>{t.min=r.min;t.max=r.max;t.value=v;});const out=$('#out-'+id);if(out)out.textContent=fmtM(v);
 }
 function wingSectionDiagram(){
  const points=C.AERO_WING_SECTION.map(([u,y])=>`${(18+224*u).toFixed(3)},${(25-26*y).toFixed(3)}`).join(' ');
@@ -2913,7 +2920,7 @@ function aeroShapeControls(p,selected){
  const k=p.k,prefix=selected?'e':'s',panel=k==='solarPanel',mesh=selected&&p.form==='mesh',value=key=>selected?p[key]:st[key],size=selected?p.s:st.structSize;
  const frame=value('panelFrame')??Math.min(size[0],size[1])*.02,rib=value('panelRib')??frame*.6,fold=value('panelFold')??0,knee=value('panelKnee')??.35,bracing=value('panelBracing')??'radial',sparX=value('panelSparX')??0,max=Math.max(.005,Math.min(size[0],size[1])*.2),id=key=>(selected?'aero':'newAero')+key;
  return `<div class="pgroup aero-shape"><h4>${panel?'太陽光パネルの形':'主翼の形'}</h4>${surfaceControls(p,selected)}<div class="sliders">${slider(prefix+'yaw','回転',p.yaw||0,-180,180,1,deg(p.yaw||0))}</div>${panel?'':'<h4>平面の翼形状（上から見た輪郭）</h4>'}<div class="chips">${aeroPresetRows(k).map(([key,label])=>`<button type="button" class="chip" data-aeropreset="${key}" data-aeronew="${selected?'no':'yes'}">${label}</button>`).join('')}</div>
- ${panel?`<h4>支柱配置</h4>${seg(selected?'aerobracing':'newaerobracing',[['radial',mesh?'頂点に沿う梁':'放射梁'],['spar','縦梁'],['none','骨組みを追加しない']],bracing)}<div class="sliders">${metreSlider(id('PanelFrame'),'縁の骨組みの幅',frame,0,Math.max(max,frame))}${metreSlider(id('PanelRib'),'支柱・梁の幅',rib,0,Math.max(max,rib))}${bracing==='spar'?slider(id('PanelSparX'),'主支柱の前後位置',Number((sparX*100).toFixed(4)),Math.min(-50,sparX*100),Math.max(50,sparX*100),1,num(sparX*100,1)+'%','any'):''}${mesh?'':slider(id('PanelFold'),'上下パネルの折れ角',fold,-80,80,1,deg(fold))+slider(id('PanelKnee'),'中央の平面部分',knee*100,0,90,1,fPct(knee))}</div><p class="note">${mesh?'頂点編集したパネルは、その頂点に沿って骨組みが追従します。折れ角の調整へ戻すには上の翼形状を選びます。':'形状プリセットは前後長を保ち、幅を機体の比率に合わせます。輪郭・内側への折れ角・主支柱位置も設定します。主支柱の前後位置は艦尾側がマイナス、艦首側がプラスです。'}</p>`:wingSectionDiagram()}
+ ${panel?`<h4>支柱配置</h4>${seg(selected?'aerobracing':'newaerobracing',[['radial',mesh?'頂点に沿う梁':'放射梁'],['spar','縦梁'],['none','骨組みを追加しない']],bracing)}<div class="sliders">${metreSlider(id('PanelFrame'),'縁の骨組みの幅',frame,0,Math.max(max,frame))}${metreSlider(id('PanelRib'),'支柱・梁の幅',rib,0,Math.max(max,rib))}${bracing==='spar'?slider(id('PanelSparX'),'主支柱の前後位置',Number((sparX*100).toFixed(4)),Math.min(-50,sparX*100),Math.max(50,sparX*100),1,num(sparX*100,1)+'%','any'):''}${mesh?'':slider(id('PanelFold'),'上下パネルの折れ角',fold,-80,80,1,deg(fold))+slider(id('PanelKnee'),'中央の平面部分',knee*100,0,90,1,fPct(knee))}</div><p class="note">${mesh?'頂点編集したパネルは、その頂点に沿って骨組みが追従します。折れ角の調整へ戻すには上の翼形状を選びます。':'形状プリセットは前後長を保ち、幅を機体の比率に合わせます。輪郭・内側への折れ角・主支柱位置も設定します。主支柱の前後位置は艦尾側がマイナス、艦首側がプラスです。'}</p>`:wingTipControls(p,selected)+wingSectionDiagram()}
  <p class="note">配置後は「輪郭の頂点」で各頂点を動かしたり、頂点を追加・削除して形を自由に変えられます。3Dの頂点編集では上下方向も変更できます。</p></div>`;
 }
 function fitBtn(k, sel, data) {
@@ -2936,9 +2943,9 @@ function basePartEditor() {
   if (C.isShapePart(it) && it.form === 'reference' && C.equipmentSpec(it)) {
     size = `<p class="note tight">${esc(C.equipmentSpec(it).name)}は実寸の機器で、大きさは変えられません（${fmtM(it.s[0])} × ${fmtM(it.s[1])} × ${fmtM(it.s[2])}）。</p>`;
   } else if (C.isShapePart(it)) {
-    size = '<div class="sliders">' + metreSlider('el',isAeroKind(it.k)?'翼弦・前後長':'長さ',it.s[0],.02,Math.max(it.s[0],hp.L))
-      + metreSlider('ew',isAeroKind(it.k)?'翼幅・パネル幅':'幅',it.s[1],.02,Math.max(it.s[1],hp.W*1.6))
-      + metreSlider('eh',isAeroKind(it.k)?'厚さ':'高さ',it.s[2],.02,Math.max(it.s[2],hp.H*1.5))
+    size = '<div class="sliders">' + shapeDimensionSlider('el',isAeroKind(it.k)?'翼弦・前後長':'長さ',it.s[0],0)
+      + shapeDimensionSlider('ew',isAeroKind(it.k)?'翼幅・パネル幅':'幅',it.s[1],1)
+      + shapeDimensionSlider('eh',isAeroKind(it.k)?'厚さ':'高さ',it.s[2],2)
       + (['loft', 'roundloft', 'shell', 'arc', 'ellipsoid', 'outline', 'airfoil', 'reference'].includes(it.form) ? '' : slider('et', '上すぼまり', Math.round((it.taper || 0) * 100), 0, 80, 1, Math.round((it.taper || 0) * 100) + '%')) + '</div>';
   } else if (it.room) {
     size = '<div class="sliders">' + it.room.map((v,i)=>metreSlider('room'+i,['長さ','幅','高さ'][i],v,.02,Math.max(v,[hp.L,hp.W,hp.H][i]))).join('') + '</div>';
@@ -2999,7 +3006,7 @@ function baseRenderPanel() {
         h += `<div class="parts">${paletteParts(st.group).map(t => partCard(t, k === t&&!activeEquipment())).join('')}${Object.values(C.EQUIPMENT).filter(d=>d.group===st.group).map(d=>equipmentCard(d.id)).join('')}</div>`;
         if (C.isShapeKind(k)) {
           h += `<div class="pgroup sliders"><h4>${isAeroKind(k)?C.PARTS[k].name+'の大きさ':'構造物の大きさ'}</h4>
-            ${[['sl',isAeroKind(k)?'翼弦・前後長':'長さ',hp.L,0],['sw',isAeroKind(k)?'翼幅・パネル幅':'幅',hp.W*1.6,1],['sh',isAeroKind(k)?'厚さ':'高さ',hp.H*1.5,2]].map(([id,label,max,a])=>metreSlider(id,label,st.structSize[a],.02,Math.max(1,max,st.structSize[a]))).join('')}
+            ${[['sl',isAeroKind(k)?'翼弦・前後長':'長さ',0],['sw',isAeroKind(k)?'翼幅・パネル幅':'幅',1],['sh',isAeroKind(k)?'厚さ':'高さ',2]].map(([id,label,a])=>shapeDimensionSlider(id,label,st.structSize[a],a)).join('')}
             ${['loft', 'roundloft', 'shell', 'arc', 'ellipsoid', 'outline', 'airfoil', 'reference'].includes(st.structForm) ? '' : slider('st', '上すぼまり', Math.round(st.structTaper * 100), 0, 80, 1, Math.round(st.structTaper * 100) + '%')}</div>
             ${isAeroKind(k)?'<p class="note">専用パーツを面に据えます。座標指定で翼の付け根やパネルの位置を正確に合わせられます。</p>':'<p class="note">構造物は面の上に3割ほど沈めて据えます。船台構造物で反応炉の張り出しを覆うと露出が減り、縦強度も上がります。</p>'}`;
         } else {
@@ -3537,7 +3544,7 @@ function carryToPlace() {
     else if (spec) { st.group = spec.group; st.part = it.k; st.equipmentId = spec.id; if (it.k === 'engine') st.engineSizes[spec.id] = {d: it.d, engineLength: it.engineLength}; }
     else {
       st.equipmentId = null; st.part = it.k; if (st.tab === 'mod') st.group = C.PARTS[it.k].group;
-      if (C.isShapePart(it)) { st.structWing=it.wing?C.normalizeWing(it.wing):null;st.structOutline=it.outline?.map(q=>q.slice());for(const key of ['panelFrame','panelRib','panelFold','panelKnee','panelBracing','panelSparX'])st[key]=it[key];st.structPlate=!!it.plate;st.structLight=!!it.light;st.structPlateT=C.plateThickness(it);st.structSize = it.s.slice(); st.structForm = it.form || 'box'; st.structTaper = it.taper || 0; st.structAngles = (it.angles || [0, 0, 0, 0]).slice(); st.structYaw = it.yaw || 0; st.structOffsetX = it.offsetX || 0; st.structOffsetZ = it.offsetZ || 0; if (it.form === 'reference') st.skinAsset = it.skinAsset; }
+      if (C.isShapePart(it)) { st.structWing=it.wing?C.normalizeWing(it.wing):null;st.structOutline=it.outline?.map(q=>q.slice());if(it.k==='wing')st.wingTipSide=C.wingTipSide(it);for(const key of ['panelFrame','panelRib','panelFold','panelKnee','panelBracing','panelSparX'])st[key]=it[key];st.structPlate=!!it.plate;st.structLight=!!it.light;st.structPlateT=C.plateThickness(it);st.structSize = it.s.slice(); st.structForm = it.form || 'box'; st.structTaper = it.taper || 0; st.structAngles = (it.angles || [0, 0, 0, 0]).slice(); st.structYaw = it.yaw || 0; st.structOffsetX = it.offsetX || 0; st.structOffsetZ = it.offsetZ || 0; if (it.form === 'reference') st.skinAsset = it.skinAsset; }
       else if (it.room) st.roomSize = it.room.slice(); else if (it.d) setPSize(it.k, it.d);
       if (it.k === 'engine' && it.dir) st.engineDir = it.dir.slice();
     }
@@ -3683,7 +3690,7 @@ function bind() {
     if (t.id === 'rzprop') { st.razee.prop = t.checked; return; }
     const k = t.dataset.sl; if (!k) return;
     const v=Math.max(+t.min,Math.min(+t.max,Number(t.value)||0)),out=$('#out-'+k),hp=ship.hull;
-    $$('[data-sl="'+k+'"]').forEach(q=>{if(q!==t)q.value=v;});
+    $$('[data-sl="'+k+'"]').forEach(q=>{if(q!==t){if(q.type==='range'&&v>+q.max&&+t.max>+q.max)q.max=Math.min(+t.max,Math.max(v,+q.max*2));q.value=v;}});
     const live = (label, what, fn, txt) => { beginDrag(label); fn(); touch(what); if (out) out.textContent = txt; scheduleStats(350); };
     switch (k) {
       case 'L': live('全長', 'hull', () => { const r = v / hp.L; setHullDims(v, st.hullRatio ? hp.W * r : hp.W, st.hullRatio ? hp.H * r : hp.H); }, fLen(v)); syncHullInputs(t); break;
@@ -3721,6 +3728,7 @@ function bind() {
       case 'nw': st.notch.w = v; if (out) out.textContent = fmtM(v); updateHint(); break;
       case 'nd': st.notch.d = v; if (out) out.textContent = fmtM(v); updateHint(); break;
     }
+    if(['sl','sw','sh','el','ew','eh'].includes(k)&&(st.part==='wing'||selItem()?.k==='wing'))syncWingTipControls();
   });
   $('#panel').addEventListener('change', e => {
     const k = e.target.dataset.sl; if (!k) return;
@@ -4355,7 +4363,9 @@ function bindWing(){
     if(d.wingpreset){selectAeroPart('wing');rememberPick('part','wing');renderPanel();updateHint();return;}
     if(d.newaerobracing&&st.part==='solarPanel'&&['radial','spar','none'].includes(d.newaerobracing)){st.panelBracing=d.newaerobracing;st.template=null;renderPanel();updateHint();return;}
     if(d.aerobracing&&['radial','spar','none'].includes(d.aerobracing)){mutate('太陽光パネルの支柱配置',()=>editSel(p=>{if(p.k==='solarPanel')p.panelBracing=d.aerobracing;}),'parts');renderPanel();return;}
-    if(d.aeropreset){const fresh=d.aeronew==='yes',p=fresh?null:selItem(),k=fresh?st.part:p?.k;if(!isAeroKind(k))return;const shape=aeroPreset(k,d.aeropreset);if(fresh){st.structOutline=shape.outline;st.structForm=k==='wing'?'airfoil':'outline';st.panelFold=shape.panelFold;st.panelKnee=shape.panelKnee;if(k==='solarPanel'){st.structSize=[st.structSize[0],st.structSize[0]*shape.aspect,st.structSize[2]];Object.assign(st,solarPresetSettings(shape,st.structSize[0]));}st.template=null;}else mutate('パーツの翼形状',()=>editSel(q=>{if(!isAeroKind(q.k))return;q.outline=shape.outline.map(v=>v.slice());q.form=q.k==='wing'?'airfoil':'outline';delete q.mesh;if(q.k==='solarPanel'){Object.assign(q,solarPresetSettings(shape,q.s[0]));q.s=[q.s[0],q.s[0]*shape.aspect,q.s[2]];}}),'parts');renderPanel();updateHint();return;}
+    if(d.newwingtipside&&st.part==='wing'){st.wingTipSide=+d.newwingtipside===-1?-1:1;st.template=null;renderPanel();updateHint();return;}
+    if(d.wingtipside&&selItem()?.k==='wing'){mutate('翼根と翼端を入れ替える',()=>editSel(p=>{p.wingTipSide=+d.wingtipside===-1?-1:1;}),'parts');renderPanel();return;}
+    if(d.aeropreset){const fresh=d.aeronew==='yes',p=fresh?null:selItem(),k=fresh?st.part:p?.k;if(!isAeroKind(k))return;const shape=aeroPreset(k,d.aeropreset,k==='wing'?(fresh?st.wingTipSide??1:C.wingTipSide(p)):1);if(fresh){st.structOutline=shape.outline;st.structForm=k==='wing'?'airfoil':'outline';if(k==='wing')st.wingTipSide=shape.wingTipSide;else{st.structSize=[st.structSize[0],st.structSize[0]*shape.aspect,st.structSize[2]];Object.assign(st,solarPresetSettings(shape,st.structSize[0]));}st.template=null;}else mutate('パーツの翼形状',()=>editSel(q=>{if(!isAeroKind(q.k))return;q.outline=shape.outline.map(v=>v.slice());q.form=q.k==='wing'?'airfoil':'outline';delete q.mesh;if(q.k==='wing')q.wingTipSide=shape.wingTipSide;else{Object.assign(q,solarPresetSettings(shape,q.s[0]));q.s=[q.s[0],q.s[0]*shape.aspect,q.s[2]];}}),'parts');renderPanel();updateHint();return;}
     if(d.newwingthermal&&st.structWing){st.structWing=C.normalizeWing({...st.structWing,thermal:d.newwingthermal});renderPanel();updateHint();return;}
     if(d.wingthermal){mutate('主翼の散熱方式',()=>editSel(p=>{if(C.isWing(p)&&!p.wing.solar)p.wing=C.normalizeWing({...p.wing,thermal:d.wingthermal});}),'parts');renderPanel();return;}
     if(d.foilpickmode){endDrag();st.foilPickMode=d.foilpickmode;renderPanel();return;}
@@ -4379,6 +4389,14 @@ function bindWing(){
   });
   $('#panel').addEventListener('input',e=>{
     const t=e.target,k=t.dataset.sl;
+    if(k==='newAeroWingTip'||k==='aeroWingTip'){
+      if(t.value===''||!Number.isFinite(+t.value))return;
+      const fresh=k==='newAeroWingTip';if(fresh?st.part!=='wing':selItem()?.k!=='wing')return;
+      const p=wingControlPart(selItem(),!fresh),v=C.clamp(+t.value,+t.min,+t.max),outline=C.wingShiftTip(p,v);if(!outline)return;
+      if(fresh){st.structOutline=outline;st.wingTipSide=C.wingTipSide(p);st.template=null;updateHint();}
+      else{beginDrag('翼端の前後位置');editSel(q=>{const side=C.wingTipSide(q),a=C.wingShiftTip(q,v);if(a){q.outline=a;q.wingTipSide=side;}});touch('parts');scheduleStats(150);}
+      syncWingTipControls();return;
+    }
     if(/^(?:newAero|aero)Panel(?:Frame|Rib|Fold|Knee|SparX)$/.test(k||'')){
       if(t.value===''||!Number.isFinite(+t.value))return;const fresh=k.startsWith('new'),key='panel'+k.split('Panel')[1],v=C.clamp(+t.value,+t.min,+t.max),value=key==='panelKnee'||key==='panelSparX'?v/100:v;
       if(fresh){if(st.part!=='solarPanel')return;st[key]=value;st.template=null;updateHint();}

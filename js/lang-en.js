@@ -8690,6 +8690,12 @@ Object.assign(root.KS_EN.terms,{
 "先細り": "Tapered",
 "直線翼": "Straight Wing",
 "後退翼": "Swept Wing",
+"前進翼": "Forward-swept Wing",
+"デルタ翼": "Delta Wing",
+"ダブルデルタ翼": "Double-delta Wing",
+"翼端を前後へ移動": "Move the Wing Tip Fore / Aft",
+"翼端の前後位置": "Wing Tip Fore / Aft",
+"翼根と翼端を入れ替える": "Swap Wing Root and Tip",
 "六角形（TIE/ln型）": "Hexagon (TIE/ln)",
 "切欠き形（TIE/in型）": "Notched (TIE/in)",
 "折れ曲がり（TIE/sa型）": "Bent (TIE/sa)",
@@ -8721,7 +8727,9 @@ Object.assign(root.KS_EN.messages,{
 "主翼専用の薄い六角断面です。翼弦・翼幅・厚さと平面の輪郭を変えられ、翼面積に応じて排熱能力が変わります。": "A thin hexagonal section designed for wings. Edit its chord, span, thickness and planform. Heat rejection scales with wing area.",
 "配置後は「輪郭の頂点」で各頂点を動かしたり、頂点を追加・削除して形を自由に変えられます。3Dの頂点編集では上下方向も変更できます。": "After placement, move, add or remove outline vertices to reshape the part. 3D vertex editing also lets you move vertices vertically.",
 "接触面の法線にパーツの上方向を揃え、底面を接地させます。斜面・舷側・下面に対応。回転は接触面上の方位、傾きはその面に対する追加角度です。": "Aligns the part's up direction with the surface normal and rests its base on the surface. Supports slopes, hull sides and undersides. Rotation sets the heading along that surface; tilt adds an angle relative to it.",
-"輪郭の編集はパーツの外形と面積に反映します。太陽光パネルでは発電量も変わります。": "Outline edits change the part's shape and area. They also change power generation for solar panels."
+"輪郭の編集はパーツの外形と面積に反映します。太陽光パネルでは発電量も変わります。": "Outline edits change the part's shape and area. They also change power generation for solar panels.",
+"翼形状を選ぶと、翼端の前後位置を調整できます。頂点編集した形はそのまま保持されます。": "Choose a planform to adjust the wing tip fore and aft. The vertex-edited shape is preserved.",
+"翼根を固定して翼端を前後に動かします。＋で前進翼、−で後退翼にできます。途中の折れ点も一緒に動きます。": "Move the wing tip fore and aft while keeping the root fixed. Positive values sweep the wing forward; negative values sweep it back. Intermediate bends move with the tip."
 });
 // </craft-systems-catalog>
 })(typeof window==="undefined"?globalThis:window);

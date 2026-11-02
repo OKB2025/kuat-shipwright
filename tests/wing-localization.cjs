@@ -1,9 +1,11 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test');
-const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),app=fs.readFileSync(path.join(root,'js/app.js'),'utf8'),core=fs.readFileSync(path.join(root,'js/core.js'),'utf8'),context=vm.createContext({navigator:{language:'en-US'}}),run=s=>vm.runInContext(s,context);
+const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),app=fs.readFileSync(path.join(root,'js/app.js'),'utf8'),core=fs.readFileSync(path.join(root,'js/core.js'),'utf8'),coreContext=vm.createContext({console});
+for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),coreContext,{filename:file});
+const context=vm.createContext({navigator:{language:'en-US'},CoreExports:vm.runInContext('Core',coreContext)}),run=s=>vm.runInContext(s,context);
 for(const file of ['js/lang-en.js','js/i18n.js'])run(fs.readFileSync(path.join(root,file),'utf8'));
 function section(start,end){const a=app.indexOf(start),b=app.indexOf(end,a+start.length);assert.ok(a>=0&&b>a,start);run(app.slice(a,b));}
 run(`const st={part:'wing',structWing:{thermal:'high'},structSize:[2,4,.064],structPitch:0,structRoll:0,surfaceMode:'surface'},ship={parts:[]};
-const C={PARTS:{},normalizeWing:w=>({thermal:'high',feed:1,reinf:0,...w})};
+const C=CoreExports;
 const addComp=(k,name,shape,dens,col,group,desc)=>C.PARTS[k]={name,shape,dens,col,group,desc};
 const esc=String,num=String,deg=v=>v+'°',fW=v=>v+' W',fMass=v=>v+' t',fPct=v=>(v*100)+'%',fmtM=v=>v+' m',rgb=c=>c.join(',');
 const activeEquipment=()=>null,wingFigures=()=>figures,foilPivotControls=()=>'',foilDiagramSVG=()=>'';
@@ -60,4 +62,15 @@ test('TIE panel frame choices and signed spar-position controls translate in pla
   const fresh=run('aeroShapeControls(part,false)');htmlTranslated(fresh);assert.match(fresh,/data-newaerobracing="none"/);
  }
  assert.equal(translated('太陽光パネルの支柱配置'),'Solar Panel Frame Layout');
+});
+
+test('wing sweep gauges, all six presets and the root-tip swap translate with measured metre values',()=>{
+ run("Object.assign(st,{part:'wing',structForm:'airfoil',structSize:[12.375,25.125,.064],structOutline:C.wingPlanformPreset('doubleDelta').outline,wingTipSide:1})");
+ const fresh=run("aeroShapeControls({k:'wing',form:'airfoil',s:st.structSize},false)");htmlTranslated(fresh);
+ for(const key of ['taper','straight','swept','forward','delta','doubleDelta'])assert.match(fresh,new RegExp(`data-aeropreset="${key}"`));
+ assert.match(fresh,/data-sl="newAeroWingTip"/);assert.match(fresh,/data-newwingtipside="-1"/);
+ run("part={k:'wing',form:'airfoil',s:[12.375,25.125,.064],...C.wingPlanformPreset('straight')};part.outline=C.wingShiftTip(part,-4.0625)");
+ const placed=run('aeroShapeControls(part,true)');htmlTranslated(placed);assert.match(placed,/data-sl="aeroWingTip"[^>]*value="-4\.0625"/);assert.match(placed,/step="any"/);
+ for(const source of ['前進翼','デルタ翼','ダブルデルタ翼','翼端の前後位置','翼根と翼端を入れ替える'])translated(source);
+ const mesh=run("aeroShapeControls({...part,form:'mesh'},true)");htmlTranslated(mesh);assert.doesNotMatch(mesh,/data-sl="aeroWingTip"/);
 });
