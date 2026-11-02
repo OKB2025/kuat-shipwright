@@ -6028,6 +6028,8 @@ root.KS_EN={
   "砲塔を交換": "Replace Turret",
   "兵装の大きさは規格どおりで変えられません{1}。": "Weapons have fixed standard dimensions and cannot be resized{1}.",
   "砲塔の向き": "Turret Orientation",
+  "取付面に沿って砲塔の向きを変えます。": "Turn the turret along its mounting surface.",
+  "砲塔は実寸で、砲身の向きはゲージで調整できます。傾斜面では接地面の高低差だけ支持台が自動で伸び、砲は水平を保ちます。「調整」で1基ずつ支持台の形・高さ・大きさを変えられます。": "Turrets use their actual dimensions, and the direction of their barrels can be adjusted with the slider. On sloping surfaces, their pedestals automatically extend to keep the guns level. In Adjust, change each turret's pedestal shape, height and size.",
   "（この砲塔は作例の規格 {0}%）": "(this turret is {0}% of the example's standard size)",
   "ISD比": "ISD Ratio",
   "最大加速度": "Maximum Acceleration",

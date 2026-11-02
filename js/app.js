@@ -2508,9 +2508,10 @@ function ghostFor(hit) {
     const k = curFit(), d = C.FITS[k],normal=weaponPlacementNormal(k,hit.n);
     let a = 2; if (d.cat !== 'b') { let bv = -2; for (let i = 0; i < 6; i++) { const v = C.dot(C.AXES[i], normal); if (v > bv) { bv = v; a = i; } } }
     const tilt=weaponTiltMode(k)?C.fitTilt(normal):null;
-    const f = C.mountFit(ship, {id:-1,k,p:alignFitPoint(hit.p,hit.n).slice(),n:normal.slice(),a,ped:st.ped,...(['trench','casemate'].includes(st.weaponMount)&&d.cat==='w'?{localMount:true}:{}),...(tilt?{tilt}:{})});
+    const f = C.mountFit(ship, {id:-1,k,p:alignFitPoint(hit.p,hit.n).slice(),n:normal.slice(),a,ped:st.ped,...(C.fitCanRotate(k)?{assetYaw:st.gunYaw||0}:{}),...(['trench','casemate'].includes(st.weaponMount)&&d.cat==='w'?{localMount:true}:{}),...(tilt?{tilt}:{})});
     const bad = f.float || (d.casemate&&Math.abs(normal[1])>.65) || (d.cat === 'b' && !d.window && hit.n[1] < 0.2) || C.fitClash(ship, f);
     ls.box(C.fitAABB(f), bad ? ng : ok);
+    turretHeadingLines(ls,f,bad?ng:ok);
   } else if ((t === 'unfit' || t === 'adjust' || t === 'inspect') && hit.fit) {
     ls.box(C.fitAABB(hit.fit), t === 'unfit' ? ng : cy);
   } else if (t === 'select' && hit.part) {
@@ -2595,7 +2596,7 @@ function tapHit(t, hit, add) {
       if (!hit || hit.kind === 'section') { toast('船体の外面をタップしてください'); break; }
       if (hit.fit) { toast('その場所には装備があります'); break; }
       const k = curFit(); let err = null, made = null;
-      mutate(C.FITS[k].short + 'を設置', () => { const opts = {localMount:['trench','casemate'].includes(st.weaponMount),tilt:weaponTiltMode(k)}, r = C.placeFit(ship, k, alignFitPoint(hit.p, hit.n), weaponPlacementNormal(k,hit.n), st.ped, st.mirror, opts); err = r.err; made = r.fit; if (made) { placeVerticalFits(made, k, st.ped, opts); applyPedDefaults(made); applyFitTemplate(made); } }, 'fits', {silent: true});
+      mutate(C.FITS[k].short + 'を設置', () => { const opts = {localMount:['trench','casemate'].includes(st.weaponMount),tilt:weaponTiltMode(k),...(C.fitCanRotate(k)?{assetYaw:st.gunYaw||0}:{})}, r = C.placeFit(ship, k, alignFitPoint(hit.p, hit.n), weaponPlacementNormal(k,hit.n), st.ped, st.mirror, opts); err = r.err; made = r.fit; if (made) { placeVerticalFits(made, k, st.ped, opts); applyPedDefaults(made); applyFitTemplate(made); } }, 'fits', {silent: true});
       if (err) toast(err); else if (made) { showPreview('fits', linkedItems('fits', made)); st.sel = {list: 'fits', id: made.id}; renderPanel(); }
       break;
     }
@@ -2967,7 +2968,7 @@ function baseFitEditor() {
   const it = selItem(); if (!it || st.sel.list !== 'fits') return '';
   const d = C.fitSpec(it);
   return `<div class="editor"><div class="ed-head"><b>${esc(d.name)}</b><button type="button" class="btn sm ghost" data-desel>選択解除</button><button type="button" class="btn sm danger" data-delsel>撤去</button></div>
-    ${fitPairHTML(it)}${fitPositionSliders(it)}
+    ${fitPairHTML(it)}${fitPositionSliders(it)}${weaponYawControls(it)}
     <h4>支持台</h4>${seg('pedshapesel', PED_SHAPES, it.pedShape || 'round')}
     <div class="sliders">${slider('pedsel', '追加の高さ', it.ped.toFixed(1), 0, Math.max(60, Math.round(d.r * 4)), 0.5, `${it.ped.toFixed(1)} m`)}${slider('pedsizesel', '大きさ', Math.round((it.pedSize || 1) * 100), 40, 250, 5, Math.round((it.pedSize || 1) * 100) + '%')}</div>
     <p class="note" id="pedinfo">傾斜に合わせた自動の高さ ${it.base.toFixed(1)} m ＋ 追加 ${it.ped.toFixed(1)} m。高くすると射界が開けますが、標的にもなりやすくなります。</p></div>`;
@@ -3038,7 +3039,7 @@ function baseRenderPanel() {
       ${st.fitTool === 'adjust' ? (fitEditor() || '<p class="note">装備をタップして選んでください。</p>') : ''}${st.fitTool === 'multi' ? multiPanelHTML() : ''}
       ${st.fitTool === 'place' ? `<div class="pgroup sliders"><h4>支持台（新設時）</h4>${seg('pedshape', PED_SHAPES, st.pedShape)}${slider('ped', '追加の高さ', st.ped, 0, 40, 0.5, `${st.ped} m`)}${slider('pedsize', '大きさ', Math.round(st.pedSize * 100), 40, 250, 5, Math.round(st.pedSize * 100) + '%')}</div>` : ''}
       <div class="fits">${weaponKeys().map(k => fitBtn(k, st.fit === k, 'fit')).join('')}</div>
-      <p class="note">砲塔は実寸で、新しく置くと砲身は艦首を向きます。傾斜面では接地面の高低差だけ支持台が自動で伸び、砲は水平を保ちます。「調整」で1基ずつ支持台の形・高さ・大きさを変えられます。</p>
+      <p class="note">砲塔は実寸で、砲身の向きはゲージで調整できます。傾斜面では接地面の高低差だけ支持台が自動で伸び、砲は水平を保ちます。「調整」で1基ずつ支持台の形・高さ・大きさを変えられます。</p>
       <div class="pinfo" id="pinfo"></div>`;
       break;
     case 'bridge':
@@ -3550,7 +3551,7 @@ function carryToPlace() {
     }
   } else {
     if (C.FITS[it.k].window) st.bridge = it.k; else st.fit = it.k;
-    st.ped = it.ped || 0; st.pedShape = it.pedShape || 'round'; st.pedSize = it.pedSize || 1;
+    st.ped = it.ped || 0; st.pedShape = it.pedShape || 'round'; st.pedSize = it.pedSize || 1;st.gunYaw=C.fitCanRotate(it)?it.assetYaw||0:0;
   }
   st.sel = null; toast(`${list === 'parts' ? C.partLabel(it) : C.FITS[it.k].name} を同じ設定で設置できます`);
 }
@@ -3607,7 +3608,7 @@ function placeVerticalFits(f, k, ped, opts) {
   for (const g of src) {
     const n = g.n || C.AXES[g.a], p = C.vmirrorPoint(ship, g.p), n2 = [n[0], -n[1], n[2]];
     if (Math.abs(n[1]) < .2 && Math.abs(p[1] - g.p[1]) < Math.max(1, C.FITS[k].r)) continue;
-    const r = C.placeFit(ship, k, p, n2, ped, false, opts);
+    const r = C.placeFit(ship, k, p, n2, ped, false, {...opts,...(C.fitCanRotate(g)?{assetYaw:-(g.assetYaw||0)}:{})});
     if (r.err || !r.fit) continue;
     copyFitSettings(g, r.fit); g.vt = r.fit.id; r.fit.vt = g.id; made.push(r.fit);
   }
@@ -4651,7 +4652,7 @@ function referencePanel(panel){
   // v18 Missile launchers: cells below deck (VLS) or a box on the hull.
   if(selected&&st.sel.list==='fits'&&C.FITS[selected.k]?.msl){const mm=C.missileMount(selected),q=S?.vlsInfo?.[selected.id],M=C.MISSILE_MOUNTS;panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>ミサイル発射機の搭載方式</h4>${seg('mslmount',Object.entries(M).map(([k,v])=>[k,v.name]),mm)}<p>${mm==='vls'?`船内のセル・弾庫 ${q?num(q.volume,0):'—'} / ${q?num(q.required,0):'—'} m³（${q?fPct(q.ratio):'—'}）· 搭載弾数 ${Math.round(M.vls.stock*(q?.ratio??1))} 発`:`船内容積を使いません · 搭載弾数 ${M.ext.stock} 発`}</p><p class="note">VLS は発射機の下に船内容積を確保します（その分、乗員の居住に回せる空き容積が減ります）。露出はハッチだけで被弾しにくい反面、弾庫まで撃ち抜かれると誘爆します。外置きは船内容積を使わず、搭載弾数が半分、箱型発射機がむき出しで被弾しやすくなります。</p></div>`);}
   if(selected&&st.sel.list==='fits'&&C.FITS[selected.k]?.store){const sd=C.FITS[selected.k].store;panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>${esc(C.STORE_MOUNTS[sd.mount].name)}の容量</h4><p>${esc(storeCapText(sd))}${sd.mount==='wing'?' · 機外に吊るので機内の容積を使いません':''}</p>${storeCapHTML(sd)}<p class="note">設計で決まるのは入る数だけです。積む弾と数は編成画面の中隊ごとに選び（お任せは正史の搭載）、撃つと減り、母艦で再装填します。弾の質量だけ機体が重くなります。</p></div>`);}
-  const f=selItem();if(f&&st.sel.list==='fits'&&!C.FITS[f.k].window){const d=C.fitSpec(f);panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>${d.craft?'装備の交換':'砲塔の交換・向き'}</h4><label>${d.craft?'装備を交換':'砲塔を交換'}<select data-refweapon>${weaponKeys().map(k=>`<option value="${k}" ${f.k===k?'selected':''}>${esc(C.FITS[k].name)}</option>`).join('')}</select></label>${C.FITS[f.k].asset?`${d.casemate?'':`<div class="sliders">${slider('gunYaw','砲塔の向き',f.assetYaw||0,-180,180,1,deg(f.assetYaw||0))}</div>`}<p class="note">兵装の大きさは規格どおりで変えられません${(f.scale||1)!==1?`（この砲塔は作例の規格 ${Math.round((f.scale||1)*100)}%）`:''}。</p>`:''}<p>${d.store?esc(storeCapText(d.store)):`${fTT(d.tt||d.ion||0)} / 一斉射`} · ${fW(d.power)} / 連射時${S?.feedInfo?.[f.id]?`<br>配電路 ${ja(S.feedInfo[f.id][0])} m³（${feedSrc(S.feedInfo[f.id])} ${num(S.feedInfo[f.id][1])} m）`:''}</p></div>`);}
+  const f=selItem();if(f&&st.sel.list==='fits'&&!C.FITS[f.k].window){const d=C.fitSpec(f);panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>${d.craft?'装備の交換':'砲塔の交換・向き'}</h4><label>${d.craft?'装備を交換':'砲塔を交換'}<select data-refweapon>${weaponKeys().map(k=>`<option value="${k}" ${f.k===k?'selected':''}>${esc(C.FITS[k].name)}</option>`).join('')}</select></label>${C.FITS[f.k].asset?`<p class="note">兵装の大きさは規格どおりで変えられません${(f.scale||1)!==1?`（この砲塔は作例の規格 ${Math.round((f.scale||1)*100)}%）`:''}。</p>`:''}<p>${d.store?esc(storeCapText(d.store)):`${fTT(d.tt||d.ion||0)} / 一斉射`} · ${fW(d.power)} / 連射時${S?.feedInfo?.[f.id]?`<br>配電路 ${ja(S.feedInfo[f.id][0])} m³（${feedSrc(S.feedInfo[f.id])} ${num(S.feedInfo[f.id][1])} m）`:''}</p></div>`);}
   panel.insertAdjacentHTML('beforeend',weaponSourcesHTML());
  }
 }
@@ -4693,7 +4694,11 @@ function bindReference(){
   if('custombridge'in d){st.tab='mod';st.group='shape';st.part='struct';st.equipmentId=null;st.partTool='place';st.structForm='trap';delete st.skinAsset;renderPanel();return;}
   if('removeskin'in d){mutate('基本形状へ変更',()=>editSel(p=>{delete p.equipmentId;delete p.customEquipment;delete p.skinAsset;delete p.skinSize;if(p.form==='reference')p.form='box';}),'parts');renderPanel();}
  });
- $('#panel').addEventListener('input',e=>{const k=e.target.dataset.sl,v=+e.target.value;if(!Number.isFinite(v)||k!=='gunYaw')return;beginDrag('砲塔の形状');editSel(f=>{f.assetYaw=C.clamp(v,-180,180);});touch('fits');scheduleStats(350);const out=$('#out-'+k);if(out)out.textContent=deg(v);});
+ $('#panel').addEventListener('input',e=>{const t=e.target,k=t.dataset.sl,v=+t.value;if(t.value===''||!Number.isFinite(v)||!['gunYaw','newGunYaw'].includes(k))return;const yaw=C.clamp(v,-180,180);
+  if(k==='newGunYaw'){if(!C.fitCanRotate(st.fit))return;st.gunYaw=yaw;updateHint();}
+  else{if(st.sel?.list!=='fits'||!C.fitCanRotate(selItem()))return;beginDrag('砲塔の向き');editSel(f=>{f.assetYaw=yaw;});touch('fits');scheduleStats(350);}
+  const out=$('#out-'+k);if(out)out.textContent=deg(yaw);
+ });
  $('#panel').addEventListener('input',e=>{const k=e.target.dataset.sl,v=+e.target.value;if(!Number.isFinite(v)||!['chargeDepth','chargeScale','chargeSalvos'].includes(k))return;beginDrag('主砲充電装置を調整');editSel(f=>f[k]=k==='chargeDepth'?C.clamp(v,1,500):k==='chargeSalvos'?Math.round(C.clamp(v,1,20)):C.clamp(v/100,.25,4));touch('fits');scheduleStats(350);const o=$('#out-'+k);if(o)o.textContent=k==='chargeDepth'?fmtM(v):k==='chargeSalvos'?v+' 回分':v+'%';});
 }
 
@@ -4758,11 +4763,21 @@ function bridgePanel(){
 }
 
 // Placement direction is shared by the preview and the actual mount.
-st.weaponMount='auto';
+st.weaponMount='auto';st.gunYaw=0;
+function weaponYawControls(f=null){
+ const k=f?.k||st.fit;if(!C.fitCanRotate(k))return '';
+ const id=f?'gunYaw':'newGunYaw',v=f?f.assetYaw||0:st.gunYaw||0;
+ return `<div class="pgroup turret-yaw"><h4>砲塔の向き</h4><div class="sliders">${slider(id,'砲塔の向き',v,-180,180,1,deg(v),'any')}</div><p class="note">取付面に沿って砲塔の向きを変えます。</p></div>`;
+}
+function turretHeadingLines(ls,f,col){
+ if(!C.fitCanRotate(f))return;
+ const d=C.fitSpec(f),fr=C.fitFrameOf(f),a=(d.asset?f.assetYaw||0:0)*Math.PI/180,fw=C.add(C.mul(fr.fw,Math.cos(a)),C.mul(fr.rt,Math.sin(a))),rt=C.cross(fw,fr.up),length=Math.max(d.fm*.7,d.r*1.3),start=C.add(C.fitOrigin(f),C.mul(fr.up,d.hm*.65)),end=C.add(start,C.mul(fw,length));
+ ls.seg(start,end,col);for(const sign of [-1,1])ls.seg(end,C.add(end,C.add(C.mul(fw,-length*.2),C.mul(rt,sign*length*.12))),col);
+}
 // 「面に合わせる」 stands a weapon on the face's own normal, slopes included.
 function weaponTiltMode(k){const d=C.FITS[k];return d?.cat==='w'&&!d.casemate&&st.weaponMount==='auto';}
 function weaponPlacementNormal(k,n){return C.FITS[k]?.cat==='w'&&!['auto','trench','casemate'].includes(st.weaponMount)?(st.weaponMount==='bottom'?[0,-1,0]:[0,1,0]):n;}
-function weaponMountControls(){return `<div class="pgroup"><h4>武装の取付面</h4>${seg('weaponmount',[['auto','面に合わせる'],['top','上面に配置'],['bottom','下面に配置'],['trench','トレンチ内'],['casemate','側壁ケースメイト']],st.weaponMount)}<p class="note">「面に合わせる」では斜めの面にも面の傾きに沿って傾けて据え付け、射界はその面の外向き半球になります。垂直に立てるときは「上面に配置」「下面に配置」。下面を選ぶと船底へ視点を切り替えます。船体・構造物の下面をタップして搭載。砲塔は下向き、充電装置は取付面の船内側に配置されます。射界は取付面の外向き半球です。「トレンチ内」では溝の床・内壁に局所固定し、外甲板へ移しません。「側壁ケースメイト」は砲口を壁の外向きにして、背面の船内に充電装置を確保します。</p></div>`;}
+function weaponMountControls(){return `<div class="pgroup"><h4>武装の取付面</h4>${seg('weaponmount',[['auto','面に合わせる'],['top','上面に配置'],['bottom','下面に配置'],['trench','トレンチ内'],['casemate','側壁ケースメイト']],st.weaponMount)}<p class="note">「面に合わせる」では斜めの面にも面の傾きに沿って傾けて据え付け、射界はその面の外向き半球になります。垂直に立てるときは「上面に配置」「下面に配置」。下面を選ぶと船底へ視点を切り替えます。船体・構造物の下面をタップして搭載。砲塔は下向き、充電装置は取付面の船内側に配置されます。射界は取付面の外向き半球です。「トレンチ内」では溝の床・内壁に局所固定し、外甲板へ移しません。「側壁ケースメイト」は砲口を壁の外向きにして、背面の船内に充電装置を確保します。</p></div>${st.fitTool==='place'?weaponYawControls():''}`;}
 function chooseWeaponMount(face){
  if(!['auto','top','bottom','trench','casemate'].includes(face))return;
  if(face==='casemate'&&C.FITS.casemateMid)st.fit='casemateMid';
@@ -5416,15 +5431,22 @@ function xfPartOut(q,T){
  return o;
 }
 function xfMirrorOut(o,f){let q=o;if(f.y)q=C.vmirrorPart(q,ship);if(f.z)q=C.mirrorPart(q,ship);const r=publicCopy(q);r.id=f.it.id;delete r.tw;delete r.vt;if(f.it.tw!=null)r.tw=f.it.tw;if(f.it.vt!=null)r.vt=f.it.vt;return r;}
-function xfFitOut(f,p,n){const o=publicCopy(f);seatFit(o,p,n);return o;}
+// Preserve the heading as well as the mounting normal when a fitting turns.
+// Model assets apply assetYaw separately, so derive both kinds from an unturned frame.
+function xfFitForward(f){const fr=C.fitFrameOf({...f,assetYaw:0}),r=(f.assetYaw||0)*Math.PI/180;return C.add(C.mul(fr.fw,Math.cos(r)),C.mul(fr.rt,Math.sin(r)));}
+function xfFitOut(f,p,n,fw=null){
+ const o=publicCopy(f);seatFit(o,p,n);
+ if(fw&&C.fitCanRotate(o)){const fr=C.fitFrameOf({...o,assetYaw:0}),x=C.dot(fw,fr.fw),z=C.dot(fw,fr.rt);if(Math.hypot(x,z)>1e-8){const yaw=Math.atan2(z,x)*180/Math.PI,delta=((yaw-(f.assetYaw||0)+540)%360)-180;if(Math.abs(delta)>1e-7)o.assetYaw=r6(yaw);}}
+ return o;
+}
 // The rows of one operation: each item with its new state. T(unit, driver) gives the point map and the turn.
 function xfRows(drivers,units,Tof){
  const rows=[],moved=new Set();for(const d of drivers)if(d.list==='parts'){moved.add(d.it.id);for(const f of d.fol)moved.add(f.it.id);}
  for(const u of units)for(const d of u.drivers){const T=Tof(u,d);if(!T)continue;
   if(d.list==='parts'){const out=xfPartOut(d.it,T);rows.push({list:'parts',it:d.it,out});for(const f of d.fol)rows.push({list:'parts',it:f.it,out:xfMirrorOut(out,f)});continue;}
   if(d.it.host!=null&&moved.has(d.it.host))continue;   // a pod rides its wall
-  const n=d.it.n||C.AXES[d.it.a],p=T.pt(d.it.p),m=T.R?T.R(n):n,out=xfFitOut(d.it,p,m);rows.push({list:'fits',it:d.it,out});
-  for(const f of d.fol){let q=p,k=m;if(f.y){q=C.vmirrorPoint(ship,q);k=[k[0],-k[1],k[2]];}if(f.z){q=C.mirrorP(q);k=C.mirrorP(k);}rows.push({list:'fits',it:f.it,out:xfFitOut(f.it,q,k)});}
+  const n=d.it.n||C.AXES[d.it.a],p=T.pt(d.it.p),m=T.R?T.R(n):n,fw=T.R&&C.fitCanRotate(d.it)?T.R(xfFitForward(d.it)):null,out=xfFitOut(d.it,p,m,fw);rows.push({list:'fits',it:d.it,out});
+  for(const f of d.fol){let q=p,k=m,v=fw;if(f.y){q=C.vmirrorPoint(ship,q);k=[k[0],-k[1],k[2]];if(v)v=[v[0],-v[1],v[2]];}if(f.z){q=C.mirrorP(q);k=C.mirrorP(k);if(v)v=C.mirrorP(v);}rows.push({list:'fits',it:f.it,out:xfFitOut(f.it,q,k,v)});}
  }
  return {rows,moved};
 }
