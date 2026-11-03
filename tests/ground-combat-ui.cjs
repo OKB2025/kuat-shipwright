@@ -7,7 +7,7 @@ function translatedHTML(html) {
   for (const text of html.replace(/<[^>]*translate="no"[^>]*>[^<]*<\/[^>]*>/g, '').split(/<[^>]*>/)) if (text.trim()) translated(text.trim());
   for (const m of html.matchAll(/(?:label|title|aria-label)="([^"]*)"/g)) translated(m[1]);
 }
-run(`const C=Core,R=Rts,esc=s=>String(s),num=v=>String(v),fCr=v=>v+' cr',T=s=>KSI18n.t(s),I18N=KSI18n,toast=()=>{},window={},document={addEventListener(){},querySelector(){return null},head:{appendChild(){}}},$=()=>null,$$=()=>[],
+run(`const C=Core,R=Rts,esc=s=>String(s),num=v=>String(v),fCr=v=>v+' cr',T=s=>KSI18n.t(s),I18N=KSI18n,toast=()=>{},window={addEventListener(){}},document={addEventListener(){},querySelector(){return null},head:{appendChild(){}}},$=()=>null,$$=()=>[],
  LS={get(){return null},set(){return true}},Store={init(){},db:null},voyDownload=()=>{},msOwners=()=>({kashyyyk:'cis'}),voyObTgs=ob=>ob.ctgs.flatMap(c=>c.tgs),msAt=(st,id)=>st.at[id],msReadyShips=t=>t.ships,msSysName=k=>k==='kashyyyk'?'キャッシーク':k;`);
 const a = app.indexOf('// v26 PLAN-007 / PLAN-008 ground combat'), b = app.indexOf('// (tests) the ground screens from outside', a);
 assert.ok(a >= 0 && b > a);run(app.slice(a, b));

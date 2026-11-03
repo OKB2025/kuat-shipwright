@@ -13686,7 +13686,7 @@ function createWorld(opts) {
     // SBOX A scenario may place a task group in a system of its own, facing a bearing at a speed (deployGroup).
     const dp = normalizeDeploy(t.deploy, sector), g = makeGroup(w, i, t.name || `第${ci + 1}${ti + 1}任務群`, dp.sys ?? home);g.ctg = ctg.id;g.ctgFollow=!!ctg.formation;g.formation = formationKnown(w, t.formation) ? t.formation : 'abreast';if (TURN_MODES[t.turnMode]) g.turnMode = t.turnMode;if (t.autoForm != null) g.autoForm = !!t.autoForm;g.deploy = dp;
     const carry = [];
-    let flag = null;for (const e of t.ships || []) { const d = w.designs.get(e.design); if (!d) continue; const u = makeUnit(w, i, d, e.name, g.id); g.units.push(u.id);if (e.flag && !flag) flag = u.id; u.sys = g.sys; u.troops = e.troops || 0; u.ground = e.ground || null; for (const q of e.air || []) addSquad(w, u, q); for (const c of e.carried || []) carry.push([u, c]); }
+    let flag = null;for (const e of t.ships || []) { const d = w.designs.get(e.design); if (!d) continue; const u = makeUnit(w, i, d, e.name, g.id); g.units.push(u.id);if (e.flag && !flag) flag = u.id; u.sys = g.sys; u.troops = e.troops || 0; u.ground = e.ground || null; if (e.landers?.length) u.landers = e.landers; for (const q of e.air || []) addSquad(w, u, q); for (const c of e.carried || []) carry.push([u, c]); }
     if (!g.units.length) { w.groups.delete(g.id); return; }
     // The flagship the order of battle names (its first ship in the editor), else the largest.
     ctg.tgs.push(g.id);g.flag = flag || g.units.slice().sort((a, b) => w.units.get(b).p.len - w.units.get(a).p.len)[0];g.units.sort((a, b) => (b === g.flag) - (a === g.flag));
@@ -15979,6 +15979,8 @@ function battleOrbat(ob, pick, designOf, deploy = {}) {
   if((sh.air||[]).some(q=>!q?.design&&typeof q?.craft==='string'&&/^dsn[a-z0-9]+$/.test(q.craft)&&!CRAFT[q.craft]))for(const q of d.loadPreset?.air||d.air||[])if(q?.design)registerDesignCraft(designWithDims(q.design,q.dims));
   const air=(sh.air||[]).map(q=>normalizeSquadRow(q)).filter(Boolean),ground=fleetGroundRows(sh);const st = d.info?.stow ? shipStow(d.info, air, (sh.carried || []).map(x => { const d2 = designOf(x); return d2 ? {dims: designDims(d2)} : {dims: null}; }), ground) : null;
   return {design: d.key, name: sh.name, flag: si === 0, air: air.map((q, i) => ({...q, n: st ? Math.min(q.n, st.wings[i]?.deployable ?? q.n) : q.n, groupName: q.groupName||`${c.name} 第${q.groupNo}飛行団`})).filter(q => q.n > 0 && !CRAFT[q.craft]?.stay), ground, troops: ground.reduce((n, r) => n + regimentTotals(r).troops, 0),
+   // v26 PLAN-007 the landing craft stay aboard in the fleet battle but carry its landings (Ground.landingCheck)
+   landers: ground.length ? air.map((q, i) => ({craft: q.craft, n: st ? Math.min(q.n, st.wings[i]?.deployable ?? q.n) : q.n})).filter(q => q.n > 0 && CRAFT[q.craft]?.stay) : [],
    carried: (sh.carried || []).map((x, i) => { const d2 = designOf(x); return d2 && (!st || st.carried[i]?.embarked) ? {design: d2.key, name: `${sh.name}搭載艦 ${x.name}`} : null; }).filter(Boolean)};
  }).filter(Boolean)}))})).filter(c => c.tgs.length)};
 }
@@ -16635,7 +16637,7 @@ function landingCheck(w, groupId) {
  const units = g.units.map(id => w.units.get(id)).filter(u => R.fighting(u) && Array.isArray(u.ground) && u.ground.length);
  const troops = units.reduce((n, u) => n + u.ground.reduce((m, r) => m + R.regimentTotals(r).troops, 0), 0);if (!units.length || !(troops > 0)) return {ok: false, why: 'troops'};
  const lift = {troops: 0, size: 0, boxes: []};
- for (const u of units) { const d = w.designs.get(u.design), air = [...w.squads.values()].filter(q => q.home === u.id && q.state === 'docked').map(q => ({craft: q.craft, n: q.n})), st = d?.info?.stow ? R.shipStow(d.info, air, [], u.ground) : null, L = st?.lift;
+ for (const u of units) { const d = w.designs.get(u.design), air = [...[...w.squads.values()].filter(q => q.home === u.id && q.state === 'docked').map(q => ({craft: q.craft, n: q.n})), ...(u.landers || [])], st = d?.info?.stow ? R.shipStow(d.info, air, [], u.ground) : null, L = st?.lift;
   if (L) { lift.troops += L.troops; lift.size += L.vehicleSize; for (const bx of L.boxes || []) if (!lift.boxes.some(x => x.every((v, i) => v === bx[i]))) lift.boxes.push(bx); }
   else { lift.troops += 200; lift.size += 2; } }
  if (!(lift.troops > 0)) return {ok: false, why: 'lift'};

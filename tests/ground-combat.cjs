@@ -137,3 +137,11 @@ test('ground combat labels translate to English', () => {
   assert.equal(I.t('{0}揚陸作戦'.replace('{0}', 'クワット')), 'Landing on Kuat');
   ok(`${R.FACTIONS.republic.name}：戦死・損失 12 名`);ok('目標 確保・未確保・確保');ok('144 名（未着 30）');
 });
+
+test('landing craft that stay aboard in a fleet battle still carry its landings', () => {
+  const {G, R, D} = runtime(), acc = plain(D.acclamator), reg = R.makeRegiment('republic', 'R');
+  const ob = R.battleOrbat({ctgs: [{id: 'c', tgs: [{id: 't', ships: [{id: 's', key: 'acclamator', src: 'acclamator', name: 'A', air: [{craft: 'laatc', n: 4}], ground: [reg]}]}]}]}, ['t'], () => acc), e = ob.ctgs[0].tgs[0].ships[0];
+  assert.equal(e.air.length, 0, 'the LAAT/c carriers do not fly as squadrons');assert.deepEqual(plain(e.landers), [{craft: 'laatc', n: 4}]);
+  const w = R.createWorld({mode: 'test', sensors: false, region: 'kuat', seed: 13, designs: [acc], sides: [{faction: 'republic'}, {faction: 'cis', ai: true}], fleets: [ob, []]});
+  const c = G.landingCheck(w, [...w.groups.values()][0].id);assert.ok(c.ok && c.lift.size > 0, 'their holds lift the vehicles: ' + JSON.stringify(c.lift));
+});
