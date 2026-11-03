@@ -1,0 +1,3284 @@
+{
+  "started": "2026-11-03T10:16:08.661Z",
+  "source": {
+    "js/core.js": "e05c227e325151ecfeead028a936128d9ccc26b8f27d5acf02254e8259bafe5a",
+    "js/app.js": "c2e995a73360787c913304e28a0ce832e9932c4dbbe700546fced7d72cbe8860",
+    "js/gfx.js": "20b4da8da6607b58b810568ba2cbbe4c21355212c7ea5d9c57f192c123d6c34e",
+    "js/engine.js": "807e3f245279007fe1966b38d75f53aa8e54f1954159d3a314bcf6de3c060003",
+    "js/lang-en.js": "ada7dd0abcdcb424f81d1290c6ccd1f097d6dc08e6470d5b2354635b8e6fc479",
+    "index.html": "38ddc127ce5dd96fe29f5dc274094fd38e167e1e3bee26a0a00931fefd93bd32"
+  },
+  "checks": [
+    "genuine old capacity remains explicitly marked and native objects survive load",
+    "worker profile is reused without client fleet recomputation",
+    "explicit visual depth changes actual geometry while preserving old capacity and full ledger",
+    "actual zero Apply restores automatic relief without changing physical resources",
+    "capacity update is staged until actual Apply",
+    "actual area upgrade expands capacity and preserves native and explicit guns",
+    "actual Undo restores the old capacity ledger and quote",
+    "public reload retains the old capacity, physical rows and native gun",
+    "new area capacity uses the full face beyond the old256cell ceiling",
+    "actual split preserves continuous floor levels and has no artificial recessed divider in the adopted mesh",
+    "small final normal visual has no GL/application error",
+    "large final normal visual has no GL/application error",
+    "no actual application errors and all final source hashes stable"
+  ],
+  "readiness": [
+    {
+      "action": "load genuine old-v4 fixture",
+      "readyMs": 2523,
+      "gen": 1
+    },
+    {
+      "action": "[data-surface-action=\"apply\"]",
+      "readyMs": 1769.2999999970198,
+      "gen": 2
+    },
+    {
+      "action": "[data-surface-action=\"apply\"]",
+      "readyMs": 1831.5,
+      "gen": 3
+    },
+    {
+      "action": "[data-surface-action=\"apply\"]",
+      "readyMs": 1722,
+      "gen": 4
+    },
+    {
+      "action": "#btnUndo",
+      "readyMs": 1555.5,
+      "gen": 5
+    },
+    {
+      "action": "reload old capacity after Undo",
+      "readyMs": 1192.2999999970198,
+      "gen": 6
+    },
+    {
+      "action": "load newly configured200marea face",
+      "readyMs": 3375.5,
+      "gen": 7
+    },
+    {
+      "action": "[data-surface-action=\"split-u\"]",
+      "readyMs": 4301.699999988079,
+      "gen": 8
+    }
+  ],
+  "images": [
+    {
+      "path": "docs/images/surface-layered-200m-front.png",
+      "camera": {
+        "th": -1.5707963267948966,
+        "ph": 1.43,
+        "r": 275,
+        "point": [
+          100,
+          52,
+          -56
+        ]
+      },
+      "fixtureSha256": "7cf0aad15633a626d11f2ec4d822284e012596d5d494408ea51c640adef2c882",
+      "sha256": "7bb7309c6dcc5546987bfc2f12b7b381639f5c69242a1a73fda242d5cf218b06"
+    },
+    {
+      "path": "docs/images/surface-layered-200m-grazing.png",
+      "camera": {
+        "th": -0.35,
+        "ph": 1.43,
+        "r": 225,
+        "point": [
+          100,
+          52,
+          -56
+        ]
+      },
+      "fixtureSha256": "7cf0aad15633a626d11f2ec4d822284e012596d5d494408ea51c640adef2c882",
+      "sha256": "3228fb6aedf5bf4b50d90f6612d7f59edbe19fd15e22257a121e59525a7c3601"
+    },
+    {
+      "path": "docs/images/surface-layered-1600m-front.png",
+      "camera": {
+        "th": -1.5707963267948966,
+        "ph": 1.37,
+        "r": 1050,
+        "point": [
+          475,
+          330,
+          -235
+        ]
+      },
+      "fixtureSha256": "98183696818de21de7906d58c300c11f793d2468a6e9e04c97197f2b015c453d",
+      "sha256": "83d712a463073f05eb48dad11b4efdb8caaedbe319b6e102e6df2753774e1dd7"
+    },
+    {
+      "path": "docs/images/surface-layered-1600m-grazing.png",
+      "camera": {
+        "th": -0.45,
+        "ph": 1.43,
+        "r": 490,
+        "point": [
+          500,
+          270,
+          -280
+        ]
+      },
+      "fixtureSha256": "98183696818de21de7906d58c300c11f793d2468a6e9e04c97197f2b015c453d",
+      "sha256": "c6f82b46d2500e46cf6800437ac21b105ae69f7d24c4889f265513bee18bf2a8"
+    }
+  ],
+  "scope": "Focused real-app/real-worker UI smoke and normal-runtime visual verification. Readiness values are individual observations after real action clicks or public load, not a matched benchmark or performance guarantee. Representative200mbluebox and1600mwedge/terraces are not a stock ISD design. No combat/flight, hardware GPU or FPS claim.",
+  "oldFixture": {
+    "sha256": "2a6067ddf1e447af6d116f1c5a1e51823e6fcf3a592b397b8aaac3cea24505ed",
+    "origin": "Genuine old-v4 save embedded in tests/surface-layered-editor-ui.cjs:2manualparts,1manualgun,9numeric nonweapon reservations."
+  },
+  "profile": {
+    "present": true,
+    "sameObject": true,
+    "profileGen": 1,
+    "statsGen": 1,
+    "calls": []
+  },
+  "seam": {
+    "dividerArea": 0,
+    "triangles": 0,
+    "meshIndices": 96
+  },
+  "states": {
+    "old": {
+      "gen": 1,
+      "profileGen": 1,
+      "statsGen": 1,
+      "plan": [
+        {
+          "id": "p1:port:0:cctl1g",
+          "recessDepth": 4.800000000000001,
+          "levels": [
+            28.103896993759736,
+            28.103896993759736,
+            28.103896993759736,
+            28.103896993759736,
+            31.169098127920684,
+            31.169098127920684,
+            31.169098127920684,
+            34.632331253245205,
+            34.632331253245205,
+            34.632331253245205,
+            34.632331253245205,
+            34.632331253245205,
+            38.095564378569726,
+            38.095564378569726,
+            38.095564378569726,
+            38.095564378569726,
+            41.55879750389425,
+            41.55879750389425,
+            41.55879750389425,
+            45.02203062921877,
+            45.02203062921877,
+            45.02203062921877,
+            45.02203062921877,
+            48.48526375454329,
+            48.48526375454329,
+            48.48526375454329,
+            48.48526375454329
+          ],
+          "layerPitch": 3.4632331253245203,
+          "boundary": 4,
+          "revealBoundary": 4,
+          "features": {
+            "stratum-floor": 27,
+            "stratum-lip": 27,
+            "stratum-machinery": 43,
+            "stratum-pipe-bundle": 41,
+            "stratum-core": 3,
+            "stratum-riser": 2
+          }
+        }
+      ],
+      "derivedGuns": [
+        {
+          "id": 901,
+          "k": "claser",
+          "surfacePatch": "p1:port:0:cctl1g"
+        },
+        {
+          "id": 902,
+          "k": "claser",
+          "surfacePatch": "p1:port:0:cctl1g"
+        }
+      ],
+      "adapters": 3,
+      "stats": {
+        "mass": 25204.159289474475,
+        "cost": 123562,
+        "crew": 9,
+        "power": 175493678799952300000,
+        "sensorVolume": 383.9999999999999,
+        "habitationVolume": 255.99999999999991,
+        "dissipatorPower": 80440377011694030000
+      },
+      "draft": {},
+      "selected": [
+        "p1:port:0:cctl1g"
+      ],
+      "undo": 0,
+      "ui": {
+        "legacy": true,
+        "area": false,
+        "visualDepth": "0",
+        "fields": [
+          "functionMode",
+          "allocation.cooling",
+          "allocation.sensors",
+          "allocation.habitation",
+          "battery.weapon",
+          "battery.count",
+          "battery.spacing",
+          "battery.angle",
+          "equipment.kind",
+          "equipment.depth",
+          "style.depth",
+          "style.density",
+          "style.seed"
+        ]
+      },
+      "warnings": [
+        "エンジンがありません。",
+        "艦橋がありません。命中率が大きく落ちます。",
+        "取り付け面を失った装備が 1 基あります。",
+        "シールド発生器がありません。",
+        "ハイパードライブがありません（星系内専用艦）。",
+        "反応物供給能力 0%。サイロと供給設備を確認してください。",
+        "反応物サイロがありません。継続運転用の燃料を確保してください。",
+        "慣性制御装置の対応質量が不足しています。",
+        "構造維持装置の対応質量が不足しています。",
+        "1面の装置数上限により割当の一部が未配置です",
+        "要求した設備の一部が未配置です"
+      ],
+      "renderError": null,
+      "glError": 0,
+      "canvas": {
+        "x": 340,
+        "y": 59,
+        "width": 800,
+        "height": 941,
+        "top": 59,
+        "right": 1140,
+        "bottom": 1000,
+        "left": 340
+      },
+      "sourceParts": [
+        {
+          "id": 1,
+          "k": "struct"
+        },
+        {
+          "id": 2,
+          "k": "gen"
+        }
+      ],
+      "sourceFits": [
+        {
+          "id": 900,
+          "k": "pd"
+        }
+      ],
+      "ledgerSha256": "d6e8ccee27dce09bb91f6c62adeec5c7a0a70a6e9910b4d4c721a843001a3140",
+      "configs": [
+        {
+          "id": "p1:port:0:cctl1g",
+          "armor": {
+            "material": "standard",
+            "thickness": 0
+          },
+          "equipment": {
+            "kind": "hdis",
+            "count": 0,
+            "depth": 2,
+            "limit": 9
+          },
+          "battery": {
+            "weapon": "claser",
+            "count": 2,
+            "spacing": 1,
+            "angle": 0,
+            "reversed": false
+          },
+          "style": {
+            "kind": "standard",
+            "depth": 0,
+            "density": 0.25,
+            "seed": 72
+          },
+          "powerDomain": "main",
+          "authored": true,
+          "functionMode": "equipment",
+          "allocation": {
+            "cooling": 50,
+            "sensors": 30,
+            "habitation": 20
+          },
+          "boundArea": 1536,
+          "layout": {
+            "u": 1,
+            "v": 1
+          },
+          "aggregateKeys": [
+            "version",
+            "signature",
+            "cells",
+            "guns",
+            "errors",
+            "requested",
+            "requestedEquipment",
+            "demand"
+          ],
+          "numericRows": 9,
+          "gunRows": 2
+        }
+      ],
+      "rows": [
+        {
+          "id": "p1:port:0:cctl1g",
+          "area": 1536,
+          "exposedArea": 1536,
+          "config": {
+            "id": "p1:port:0:cctl1g",
+            "authored": true,
+            "functionMode": "equipment",
+            "allocation": {
+              "cooling": 50,
+              "sensors": 30,
+              "habitation": 20
+            },
+            "armor": {
+              "material": "standard",
+              "thickness": 0
+            },
+            "equipment": {
+              "kind": "hdis",
+              "count": 0,
+              "depth": 2,
+              "limit": 9
+            },
+            "battery": {
+              "weapon": "claser",
+              "count": 2,
+              "spacing": 1,
+              "angle": 0,
+              "reversed": false
+            },
+            "style": {
+              "kind": "standard",
+              "depth": 0,
+              "density": 0.25,
+              "seed": 72
+            },
+            "powerDomain": "main",
+            "layout": {
+              "u": 1,
+              "v": 1
+            },
+            "boundArea": 1536
+          },
+          "categories": {
+            "weapons": {
+              "share": 0,
+              "budgetArea": 162,
+              "occupiedArea": 128,
+              "volume": 25.6,
+              "installed": 2,
+              "requested": 2,
+              "unusedArea": 162,
+              "usableFraction": 0,
+              "explicit": true
+            },
+            "cooling": {
+              "share": 50,
+              "budgetArea": 687,
+              "occupiedArea": 256,
+              "volume": 511.99999999999983,
+              "installed": 4,
+              "requested": 9,
+              "unusedArea": 431,
+              "usableFraction": 0.16666666666666666,
+              "roleid": 903
+            },
+            "sensors": {
+              "share": 30,
+              "budgetArea": 412.2,
+              "occupiedArea": 192,
+              "volume": 383.9999999999999,
+              "installed": 3,
+              "requested": 5,
+              "unusedArea": 220.2,
+              "usableFraction": 0.125,
+              "roleid": 904
+            },
+            "habitation": {
+              "share": 20,
+              "budgetArea": 274.8,
+              "occupiedArea": 128,
+              "volume": 255.99999999999991,
+              "installed": 2,
+              "requested": 3,
+              "unusedArea": 146.8,
+              "usableFraction": 0.08333333333333333,
+              "roleid": 905
+            }
+          },
+          "occupiedArea": 704,
+          "volume": 1177.5999999999997,
+          "errors": [
+            "1面の装置数上限により割当の一部が未配置です",
+            "要求した設備の一部が未配置です"
+          ]
+        }
+      ]
+    },
+    "explicit": {
+      "gen": 2,
+      "profileGen": 2,
+      "statsGen": 2,
+      "plan": [
+        {
+          "id": "p1:port:0:cctl1g",
+          "recessDepth": 2.5,
+          "levels": [
+            28.103896993759736,
+            28.103896993759736,
+            28.103896993759736,
+            28.103896993759736,
+            31.169098127920684,
+            31.169098127920684,
+            31.169098127920684,
+            34.632331253245205,
+            34.632331253245205,
+            34.632331253245205,
+            34.632331253245205,
+            34.632331253245205,
+            38.095564378569726,
+            38.095564378569726,
+            38.095564378569726,
+            38.095564378569726,
+            41.55879750389425,
+            41.55879750389425,
+            41.55879750389425,
+            45.02203062921877,
+            45.02203062921877,
+            45.02203062921877,
+            45.02203062921877,
+            48.48526375454329,
+            48.48526375454329,
+            48.48526375454329,
+            48.48526375454329
+          ],
+          "layerPitch": 3.4632331253245203,
+          "boundary": 4,
+          "revealBoundary": 4,
+          "features": {
+            "stratum-floor": 27,
+            "stratum-lip": 27,
+            "stratum-machinery": 43,
+            "stratum-pipe-bundle": 41,
+            "stratum-core": 3,
+            "stratum-riser": 2
+          }
+        }
+      ],
+      "derivedGuns": [
+        {
+          "id": 901,
+          "k": "claser",
+          "surfacePatch": "p1:port:0:cctl1g"
+        },
+        {
+          "id": 902,
+          "k": "claser",
+          "surfacePatch": "p1:port:0:cctl1g"
+        }
+      ],
+      "adapters": 3,
+      "stats": {
+        "mass": 25204.159289474475,
+        "cost": 123562,
+        "crew": 9,
+        "power": 175493678799952300000,
+        "sensorVolume": 383.9999999999999,
+        "habitationVolume": 255.99999999999991,
+        "dissipatorPower": 80440377011694030000
+      },
+      "draft": {},
+      "selected": [
+        "p1:port:0:cctl1g"
+      ],
+      "undo": 1,
+      "ui": {
+        "legacy": true,
+        "area": false,
+        "visualDepth": "2.5",
+        "fields": [
+          "functionMode",
+          "allocation.cooling",
+          "allocation.sensors",
+          "allocation.habitation",
+          "battery.weapon",
+          "battery.count",
+          "battery.spacing",
+          "battery.angle",
+          "equipment.kind",
+          "equipment.depth",
+          "style.depth",
+          "style.density",
+          "style.seed"
+        ]
+      },
+      "warnings": [
+        "エンジンがありません。",
+        "艦橋がありません。命中率が大きく落ちます。",
+        "取り付け面を失った装備が 1 基あります。",
+        "シールド発生器がありません。",
+        "ハイパードライブがありません（星系内専用艦）。",
+        "反応物供給能力 0%。サイロと供給設備を確認してください。",
+        "反応物サイロがありません。継続運転用の燃料を確保してください。",
+        "慣性制御装置の対応質量が不足しています。",
+        "構造維持装置の対応質量が不足しています。",
+        "1面の装置数上限により割当の一部が未配置です",
+        "要求した設備の一部が未配置です"
+      ],
+      "renderError": null,
+      "glError": 0,
+      "canvas": {
+        "x": 340,
+        "y": 59,
+        "width": 800,
+        "height": 941,
+        "top": 59,
+        "right": 1140,
+        "bottom": 1000,
+        "left": 340
+      },
+      "sourceParts": [
+        {
+          "id": 1,
+          "k": "struct"
+        },
+        {
+          "id": 2,
+          "k": "gen"
+        }
+      ],
+      "sourceFits": [
+        {
+          "id": 900,
+          "k": "pd"
+        }
+      ],
+      "ledgerSha256": "d6e8ccee27dce09bb91f6c62adeec5c7a0a70a6e9910b4d4c721a843001a3140",
+      "configs": [
+        {
+          "id": "p1:port:0:cctl1g",
+          "armor": {
+            "material": "standard",
+            "thickness": 0
+          },
+          "equipment": {
+            "kind": "hdis",
+            "count": 0,
+            "depth": 2,
+            "limit": 9
+          },
+          "battery": {
+            "weapon": "claser",
+            "count": 2,
+            "spacing": 1,
+            "angle": 0,
+            "reversed": false
+          },
+          "style": {
+            "kind": "standard",
+            "depth": 2.5,
+            "density": 0.25,
+            "seed": 72
+          },
+          "powerDomain": "main",
+          "authored": true,
+          "functionMode": "equipment",
+          "allocation": {
+            "cooling": 50,
+            "sensors": 30,
+            "habitation": 20
+          },
+          "boundArea": 1536,
+          "layout": {
+            "u": 1,
+            "v": 1
+          },
+          "aggregateKeys": [
+            "version",
+            "signature",
+            "cells",
+            "guns",
+            "errors",
+            "requested",
+            "requestedEquipment",
+            "demand"
+          ],
+          "numericRows": 9,
+          "gunRows": 2
+        }
+      ],
+      "rows": [
+        {
+          "id": "p1:port:0:cctl1g",
+          "area": 1536,
+          "exposedArea": 1536,
+          "config": {
+            "id": "p1:port:0:cctl1g",
+            "authored": true,
+            "functionMode": "equipment",
+            "allocation": {
+              "cooling": 50,
+              "sensors": 30,
+              "habitation": 20
+            },
+            "armor": {
+              "material": "standard",
+              "thickness": 0
+            },
+            "equipment": {
+              "kind": "hdis",
+              "count": 0,
+              "depth": 2,
+              "limit": 9
+            },
+            "battery": {
+              "weapon": "claser",
+              "count": 2,
+              "spacing": 1,
+              "angle": 0,
+              "reversed": false
+            },
+            "style": {
+              "kind": "standard",
+              "depth": 2.5,
+              "density": 0.25,
+              "seed": 72
+            },
+            "powerDomain": "main",
+            "layout": {
+              "u": 1,
+              "v": 1
+            },
+            "boundArea": 1536
+          },
+          "categories": {
+            "weapons": {
+              "share": 0,
+              "budgetArea": 162,
+              "occupiedArea": 128,
+              "volume": 25.6,
+              "installed": 2,
+              "requested": 2,
+              "unusedArea": 162,
+              "usableFraction": 0,
+              "explicit": true
+            },
+            "cooling": {
+              "share": 50,
+              "budgetArea": 687,
+              "occupiedArea": 256,
+              "volume": 511.99999999999983,
+              "installed": 4,
+              "requested": 9,
+              "unusedArea": 431,
+              "usableFraction": 0.16666666666666666,
+              "roleid": 903
+            },
+            "sensors": {
+              "share": 30,
+              "budgetArea": 412.2,
+              "occupiedArea": 192,
+              "volume": 383.9999999999999,
+              "installed": 3,
+              "requested": 5,
+              "unusedArea": 220.2,
+              "usableFraction": 0.125,
+              "roleid": 904
+            },
+            "habitation": {
+              "share": 20,
+              "budgetArea": 274.8,
+              "occupiedArea": 128,
+              "volume": 255.99999999999991,
+              "installed": 2,
+              "requested": 3,
+              "unusedArea": 146.8,
+              "usableFraction": 0.08333333333333333,
+              "roleid": 905
+            }
+          },
+          "occupiedArea": 704,
+          "volume": 1177.5999999999997,
+          "errors": [
+            "1面の装置数上限により割当の一部が未配置です",
+            "要求した設備の一部が未配置です"
+          ]
+        }
+      ]
+    },
+    "automatic": {
+      "gen": 3,
+      "profileGen": 3,
+      "statsGen": 3,
+      "plan": [
+        {
+          "id": "p1:port:0:cctl1g",
+          "recessDepth": 4.800000000000001,
+          "levels": [
+            28.103896993759736,
+            28.103896993759736,
+            28.103896993759736,
+            28.103896993759736,
+            31.169098127920684,
+            31.169098127920684,
+            31.169098127920684,
+            34.632331253245205,
+            34.632331253245205,
+            34.632331253245205,
+            34.632331253245205,
+            34.632331253245205,
+            38.095564378569726,
+            38.095564378569726,
+            38.095564378569726,
+            38.095564378569726,
+            41.55879750389425,
+            41.55879750389425,
+            41.55879750389425,
+            45.02203062921877,
+            45.02203062921877,
+            45.02203062921877,
+            45.02203062921877,
+            48.48526375454329,
+            48.48526375454329,
+            48.48526375454329,
+            48.48526375454329
+          ],
+          "layerPitch": 3.4632331253245203,
+          "boundary": 4,
+          "revealBoundary": 4,
+          "features": {
+            "stratum-floor": 27,
+            "stratum-lip": 27,
+            "stratum-machinery": 43,
+            "stratum-pipe-bundle": 41,
+            "stratum-core": 3,
+            "stratum-riser": 2
+          }
+        }
+      ],
+      "derivedGuns": [
+        {
+          "id": 901,
+          "k": "claser",
+          "surfacePatch": "p1:port:0:cctl1g"
+        },
+        {
+          "id": 902,
+          "k": "claser",
+          "surfacePatch": "p1:port:0:cctl1g"
+        }
+      ],
+      "adapters": 3,
+      "stats": {
+        "mass": 25204.159289474475,
+        "cost": 123562,
+        "crew": 9,
+        "power": 175493678799952300000,
+        "sensorVolume": 383.9999999999999,
+        "habitationVolume": 255.99999999999991,
+        "dissipatorPower": 80440377011694030000
+      },
+      "draft": {},
+      "selected": [
+        "p1:port:0:cctl1g"
+      ],
+      "undo": 2,
+      "ui": {
+        "legacy": true,
+        "area": false,
+        "visualDepth": "0",
+        "fields": [
+          "functionMode",
+          "allocation.cooling",
+          "allocation.sensors",
+          "allocation.habitation",
+          "battery.weapon",
+          "battery.count",
+          "battery.spacing",
+          "battery.angle",
+          "equipment.kind",
+          "equipment.depth",
+          "style.depth",
+          "style.density",
+          "style.seed"
+        ]
+      },
+      "warnings": [
+        "エンジンがありません。",
+        "艦橋がありません。命中率が大きく落ちます。",
+        "取り付け面を失った装備が 1 基あります。",
+        "シールド発生器がありません。",
+        "ハイパードライブがありません（星系内専用艦）。",
+        "反応物供給能力 0%。サイロと供給設備を確認してください。",
+        "反応物サイロがありません。継続運転用の燃料を確保してください。",
+        "慣性制御装置の対応質量が不足しています。",
+        "構造維持装置の対応質量が不足しています。",
+        "1面の装置数上限により割当の一部が未配置です",
+        "要求した設備の一部が未配置です"
+      ],
+      "renderError": null,
+      "glError": 0,
+      "canvas": {
+        "x": 340,
+        "y": 59,
+        "width": 800,
+        "height": 941,
+        "top": 59,
+        "right": 1140,
+        "bottom": 1000,
+        "left": 340
+      },
+      "sourceParts": [
+        {
+          "id": 1,
+          "k": "struct"
+        },
+        {
+          "id": 2,
+          "k": "gen"
+        }
+      ],
+      "sourceFits": [
+        {
+          "id": 900,
+          "k": "pd"
+        }
+      ],
+      "ledgerSha256": "d6e8ccee27dce09bb91f6c62adeec5c7a0a70a6e9910b4d4c721a843001a3140",
+      "configs": [
+        {
+          "id": "p1:port:0:cctl1g",
+          "armor": {
+            "material": "standard",
+            "thickness": 0
+          },
+          "equipment": {
+            "kind": "hdis",
+            "count": 0,
+            "depth": 2,
+            "limit": 9
+          },
+          "battery": {
+            "weapon": "claser",
+            "count": 2,
+            "spacing": 1,
+            "angle": 0,
+            "reversed": false
+          },
+          "style": {
+            "kind": "standard",
+            "depth": 0,
+            "density": 0.25,
+            "seed": 72
+          },
+          "powerDomain": "main",
+          "authored": true,
+          "functionMode": "equipment",
+          "allocation": {
+            "cooling": 50,
+            "sensors": 30,
+            "habitation": 20
+          },
+          "boundArea": 1536,
+          "layout": {
+            "u": 1,
+            "v": 1
+          },
+          "aggregateKeys": [
+            "version",
+            "signature",
+            "cells",
+            "guns",
+            "errors",
+            "requested",
+            "requestedEquipment",
+            "demand"
+          ],
+          "numericRows": 9,
+          "gunRows": 2
+        }
+      ],
+      "rows": [
+        {
+          "id": "p1:port:0:cctl1g",
+          "area": 1536,
+          "exposedArea": 1536,
+          "config": {
+            "id": "p1:port:0:cctl1g",
+            "authored": true,
+            "functionMode": "equipment",
+            "allocation": {
+              "cooling": 50,
+              "sensors": 30,
+              "habitation": 20
+            },
+            "armor": {
+              "material": "standard",
+              "thickness": 0
+            },
+            "equipment": {
+              "kind": "hdis",
+              "count": 0,
+              "depth": 2,
+              "limit": 9
+            },
+            "battery": {
+              "weapon": "claser",
+              "count": 2,
+              "spacing": 1,
+              "angle": 0,
+              "reversed": false
+            },
+            "style": {
+              "kind": "standard",
+              "depth": 0,
+              "density": 0.25,
+              "seed": 72
+            },
+            "powerDomain": "main",
+            "layout": {
+              "u": 1,
+              "v": 1
+            },
+            "boundArea": 1536
+          },
+          "categories": {
+            "weapons": {
+              "share": 0,
+              "budgetArea": 162,
+              "occupiedArea": 128,
+              "volume": 25.6,
+              "installed": 2,
+              "requested": 2,
+              "unusedArea": 162,
+              "usableFraction": 0,
+              "explicit": true
+            },
+            "cooling": {
+              "share": 50,
+              "budgetArea": 687,
+              "occupiedArea": 256,
+              "volume": 511.99999999999983,
+              "installed": 4,
+              "requested": 9,
+              "unusedArea": 431,
+              "usableFraction": 0.16666666666666666,
+              "roleid": 903
+            },
+            "sensors": {
+              "share": 30,
+              "budgetArea": 412.2,
+              "occupiedArea": 192,
+              "volume": 383.9999999999999,
+              "installed": 3,
+              "requested": 5,
+              "unusedArea": 220.2,
+              "usableFraction": 0.125,
+              "roleid": 904
+            },
+            "habitation": {
+              "share": 20,
+              "budgetArea": 274.8,
+              "occupiedArea": 128,
+              "volume": 255.99999999999991,
+              "installed": 2,
+              "requested": 3,
+              "unusedArea": 146.8,
+              "usableFraction": 0.08333333333333333,
+              "roleid": 905
+            }
+          },
+          "occupiedArea": 704,
+          "volume": 1177.5999999999997,
+          "errors": [
+            "1面の装置数上限により割当の一部が未配置です",
+            "要求した設備の一部が未配置です"
+          ]
+        }
+      ]
+    },
+    "upgraded": {
+      "gen": 4,
+      "profileGen": 4,
+      "statsGen": 4,
+      "plan": [
+        {
+          "id": "p1:port:0:cctl1g",
+          "recessDepth": 4.800000000000001,
+          "levels": [
+            28.103896993759736,
+            28.103896993759736,
+            28.103896993759736,
+            28.103896993759736,
+            31.169098127920684,
+            31.169098127920684,
+            31.169098127920684,
+            34.632331253245205,
+            34.632331253245205,
+            34.632331253245205,
+            34.632331253245205,
+            34.632331253245205,
+            38.095564378569726,
+            38.095564378569726,
+            38.095564378569726,
+            38.095564378569726,
+            41.55879750389425,
+            41.55879750389425,
+            41.55879750389425,
+            45.02203062921877,
+            45.02203062921877,
+            45.02203062921877,
+            45.02203062921877,
+            48.48526375454329,
+            48.48526375454329,
+            48.48526375454329,
+            48.48526375454329
+          ],
+          "layerPitch": 3.4632331253245203,
+          "boundary": 4,
+          "revealBoundary": 4,
+          "features": {
+            "stratum-floor": 27,
+            "stratum-lip": 27,
+            "stratum-machinery": 43,
+            "stratum-pipe-bundle": 41,
+            "stratum-core": 3,
+            "stratum-riser": 2
+          }
+        }
+      ],
+      "derivedGuns": [
+        {
+          "id": 901,
+          "k": "claser",
+          "surfacePatch": "p1:port:0:cctl1g"
+        },
+        {
+          "id": 902,
+          "k": "claser",
+          "surfacePatch": "p1:port:0:cctl1g"
+        }
+      ],
+      "adapters": 3,
+      "stats": {
+        "mass": 25737.91928947448,
+        "cost": 141938,
+        "crew": 9,
+        "power": 175493678799952300000,
+        "sensorVolume": 824.4000000000001,
+        "habitationVolume": 549.5999999999999,
+        "dissipatorPower": 215869292996225860000
+      },
+      "draft": {},
+      "selected": [
+        "p1:port:0:cctl1g"
+      ],
+      "undo": 3,
+      "ui": {
+        "legacy": false,
+        "area": true,
+        "visualDepth": "0",
+        "fields": [
+          "functionMode",
+          "allocation.cooling",
+          "allocation.sensors",
+          "allocation.habitation",
+          "battery.weapon",
+          "battery.count",
+          "battery.spacing",
+          "battery.angle",
+          "equipment.kind",
+          "equipment.depth",
+          "style.depth",
+          "style.density",
+          "style.seed"
+        ]
+      },
+      "warnings": [
+        "エンジンがありません。",
+        "艦橋がありません。命中率が大きく落ちます。",
+        "取り付け面を失った装備が 1 基あります。",
+        "シールド発生器がありません。",
+        "ハイパードライブがありません（星系内専用艦）。",
+        "反応物供給能力 0%。サイロと供給設備を確認してください。",
+        "反応物サイロがありません。継続運転用の燃料を確保してください。",
+        "慣性制御装置の対応質量が不足しています。",
+        "構造維持装置の対応質量が不足しています。",
+        "兵装・既存機材・他の面の占有範囲を保守的に予約しています"
+      ],
+      "renderError": null,
+      "glError": 0,
+      "canvas": {
+        "x": 340,
+        "y": 59,
+        "width": 800,
+        "height": 941,
+        "top": 59,
+        "right": 1140,
+        "bottom": 1000,
+        "left": 340
+      },
+      "sourceParts": [
+        {
+          "id": 1,
+          "k": "struct"
+        },
+        {
+          "id": 2,
+          "k": "gen"
+        }
+      ],
+      "sourceFits": [
+        {
+          "id": 900,
+          "k": "pd"
+        }
+      ],
+      "ledgerSha256": "c944de6d29456b522185265acf330605d753b880528b9d0ea92f052941d28260",
+      "configs": [
+        {
+          "id": "p1:port:0:cctl1g",
+          "armor": {
+            "material": "standard",
+            "thickness": 0
+          },
+          "equipment": {
+            "kind": "hdis",
+            "count": 0,
+            "depth": 2,
+            "capacityModel": "area-v1",
+            "limit": 9
+          },
+          "battery": {
+            "weapon": "claser",
+            "count": 2,
+            "spacing": 1,
+            "angle": 0,
+            "reversed": false
+          },
+          "style": {
+            "kind": "standard",
+            "depth": 0,
+            "density": 0.25,
+            "seed": 72
+          },
+          "powerDomain": "main",
+          "authored": true,
+          "functionMode": "equipment",
+          "allocation": {
+            "cooling": 50,
+            "sensors": 30,
+            "habitation": 20
+          },
+          "boundArea": 1536,
+          "layout": {
+            "u": 1,
+            "v": 1
+          },
+          "aggregateKeys": [
+            "version",
+            "capacityModel",
+            "signature",
+            "cells",
+            "guns",
+            "errors",
+            "requested",
+            "requestedEquipment",
+            "demand",
+            "aliases",
+            "sensorMix",
+            "manifestKey"
+          ],
+          "numericRows": 8,
+          "gunRows": 2
+        }
+      ],
+      "rows": [
+        {
+          "id": "p1:port:0:cctl1g",
+          "area": 1536,
+          "exposedArea": 1536,
+          "config": {
+            "id": "p1:port:0:cctl1g",
+            "authored": true,
+            "functionMode": "equipment",
+            "allocation": {
+              "cooling": 50,
+              "sensors": 30,
+              "habitation": 20
+            },
+            "armor": {
+              "material": "standard",
+              "thickness": 0
+            },
+            "equipment": {
+              "kind": "hdis",
+              "count": 0,
+              "depth": 2,
+              "capacityModel": "area-v1",
+              "limit": 9
+            },
+            "battery": {
+              "weapon": "claser",
+              "count": 2,
+              "spacing": 1,
+              "angle": 0,
+              "reversed": false
+            },
+            "style": {
+              "kind": "standard",
+              "depth": 0,
+              "density": 0.25,
+              "seed": 72
+            },
+            "powerDomain": "main",
+            "layout": {
+              "u": 1,
+              "v": 1
+            },
+            "boundArea": 1536
+          },
+          "categories": {
+            "weapons": {
+              "share": 0,
+              "budgetArea": 0,
+              "occupiedArea": 128,
+              "volume": 25.6,
+              "installed": 2,
+              "requested": 2,
+              "unusedArea": 0,
+              "usableFraction": 0,
+              "explicit": true
+            },
+            "cooling": {
+              "share": 50,
+              "budgetArea": 687,
+              "occupiedArea": 687,
+              "volume": 1374,
+              "installed": 6,
+              "requested": 0,
+              "unusedArea": 0,
+              "usableFraction": 0.447265625,
+              "roleid": 903
+            },
+            "sensors": {
+              "share": 30,
+              "budgetArea": 412.2,
+              "occupiedArea": 412.20000000000005,
+              "volume": 824.4000000000001,
+              "installed": 1,
+              "requested": 0,
+              "unusedArea": 0,
+              "usableFraction": 0.268359375,
+              "roleid": 904
+            },
+            "habitation": {
+              "share": 20,
+              "budgetArea": 274.8,
+              "occupiedArea": 274.79999999999995,
+              "volume": 549.5999999999999,
+              "installed": 1,
+              "requested": 0,
+              "unusedArea": 5.684341886080802e-14,
+              "usableFraction": 0.17890624999999996,
+              "roleid": 905
+            }
+          },
+          "occupiedArea": 1502,
+          "volume": 2773.6,
+          "errors": [
+            "兵装・既存機材・他の面の占有範囲を保守的に予約しています"
+          ]
+        }
+      ]
+    },
+    "undone": {
+      "gen": 5,
+      "profileGen": 5,
+      "statsGen": 5,
+      "plan": [
+        {
+          "id": "p1:port:0:cctl1g",
+          "recessDepth": 4.800000000000001,
+          "levels": [
+            28.103896993759736,
+            28.103896993759736,
+            28.103896993759736,
+            28.103896993759736,
+            31.169098127920684,
+            31.169098127920684,
+            31.169098127920684,
+            34.632331253245205,
+            34.632331253245205,
+            34.632331253245205,
+            34.632331253245205,
+            34.632331253245205,
+            38.095564378569726,
+            38.095564378569726,
+            38.095564378569726,
+            38.095564378569726,
+            41.55879750389425,
+            41.55879750389425,
+            41.55879750389425,
+            45.02203062921877,
+            45.02203062921877,
+            45.02203062921877,
+            45.02203062921877,
+            48.48526375454329,
+            48.48526375454329,
+            48.48526375454329,
+            48.48526375454329
+          ],
+          "layerPitch": 3.4632331253245203,
+          "boundary": 4,
+          "revealBoundary": 4,
+          "features": {
+            "stratum-floor": 27,
+            "stratum-lip": 27,
+            "stratum-machinery": 43,
+            "stratum-pipe-bundle": 41,
+            "stratum-core": 3,
+            "stratum-riser": 2
+          }
+        }
+      ],
+      "derivedGuns": [
+        {
+          "id": 901,
+          "k": "claser",
+          "surfacePatch": "p1:port:0:cctl1g"
+        },
+        {
+          "id": 902,
+          "k": "claser",
+          "surfacePatch": "p1:port:0:cctl1g"
+        }
+      ],
+      "adapters": 3,
+      "stats": {
+        "mass": 25204.159289474475,
+        "cost": 123562,
+        "crew": 9,
+        "power": 175493678799952300000,
+        "sensorVolume": 383.9999999999999,
+        "habitationVolume": 255.99999999999991,
+        "dissipatorPower": 80440377011694030000
+      },
+      "draft": {},
+      "selected": [
+        "p1:port:0:cctl1g"
+      ],
+      "undo": 2,
+      "ui": {
+        "legacy": true,
+        "area": false,
+        "visualDepth": "0",
+        "fields": [
+          "functionMode",
+          "allocation.cooling",
+          "allocation.sensors",
+          "allocation.habitation",
+          "battery.weapon",
+          "battery.count",
+          "battery.spacing",
+          "battery.angle",
+          "equipment.kind",
+          "equipment.depth",
+          "style.depth",
+          "style.density",
+          "style.seed"
+        ]
+      },
+      "warnings": [
+        "エンジンがありません。",
+        "艦橋がありません。命中率が大きく落ちます。",
+        "取り付け面を失った装備が 1 基あります。",
+        "シールド発生器がありません。",
+        "ハイパードライブがありません（星系内専用艦）。",
+        "反応物供給能力 0%。サイロと供給設備を確認してください。",
+        "反応物サイロがありません。継続運転用の燃料を確保してください。",
+        "慣性制御装置の対応質量が不足しています。",
+        "構造維持装置の対応質量が不足しています。",
+        "1面の装置数上限により割当の一部が未配置です",
+        "要求した設備の一部が未配置です"
+      ],
+      "renderError": null,
+      "glError": 0,
+      "canvas": {
+        "x": 340,
+        "y": 59,
+        "width": 800,
+        "height": 941,
+        "top": 59,
+        "right": 1140,
+        "bottom": 1000,
+        "left": 340
+      },
+      "sourceParts": [
+        {
+          "id": 1,
+          "k": "struct"
+        },
+        {
+          "id": 2,
+          "k": "gen"
+        }
+      ],
+      "sourceFits": [
+        {
+          "id": 900,
+          "k": "pd"
+        }
+      ],
+      "ledgerSha256": "d6e8ccee27dce09bb91f6c62adeec5c7a0a70a6e9910b4d4c721a843001a3140",
+      "configs": [
+        {
+          "id": "p1:port:0:cctl1g",
+          "armor": {
+            "material": "standard",
+            "thickness": 0
+          },
+          "equipment": {
+            "kind": "hdis",
+            "count": 0,
+            "depth": 2,
+            "limit": 9
+          },
+          "battery": {
+            "weapon": "claser",
+            "count": 2,
+            "spacing": 1,
+            "angle": 0,
+            "reversed": false
+          },
+          "style": {
+            "kind": "standard",
+            "depth": 0,
+            "density": 0.25,
+            "seed": 72
+          },
+          "powerDomain": "main",
+          "authored": true,
+          "functionMode": "equipment",
+          "allocation": {
+            "cooling": 50,
+            "sensors": 30,
+            "habitation": 20
+          },
+          "boundArea": 1536,
+          "layout": {
+            "u": 1,
+            "v": 1
+          },
+          "aggregateKeys": [
+            "version",
+            "signature",
+            "cells",
+            "guns",
+            "errors",
+            "requested",
+            "requestedEquipment",
+            "demand"
+          ],
+          "numericRows": 9,
+          "gunRows": 2
+        }
+      ],
+      "rows": [
+        {
+          "id": "p1:port:0:cctl1g",
+          "area": 1536,
+          "exposedArea": 1536,
+          "config": {
+            "id": "p1:port:0:cctl1g",
+            "authored": true,
+            "functionMode": "equipment",
+            "allocation": {
+              "cooling": 50,
+              "sensors": 30,
+              "habitation": 20
+            },
+            "armor": {
+              "material": "standard",
+              "thickness": 0
+            },
+            "equipment": {
+              "kind": "hdis",
+              "count": 0,
+              "depth": 2,
+              "limit": 9
+            },
+            "battery": {
+              "weapon": "claser",
+              "count": 2,
+              "spacing": 1,
+              "angle": 0,
+              "reversed": false
+            },
+            "style": {
+              "kind": "standard",
+              "depth": 0,
+              "density": 0.25,
+              "seed": 72
+            },
+            "powerDomain": "main",
+            "layout": {
+              "u": 1,
+              "v": 1
+            },
+            "boundArea": 1536
+          },
+          "categories": {
+            "weapons": {
+              "share": 0,
+              "budgetArea": 162,
+              "occupiedArea": 128,
+              "volume": 25.6,
+              "installed": 2,
+              "requested": 2,
+              "unusedArea": 162,
+              "usableFraction": 0,
+              "explicit": true
+            },
+            "cooling": {
+              "share": 50,
+              "budgetArea": 687,
+              "occupiedArea": 256,
+              "volume": 511.99999999999983,
+              "installed": 4,
+              "requested": 9,
+              "unusedArea": 431,
+              "usableFraction": 0.16666666666666666,
+              "roleid": 903
+            },
+            "sensors": {
+              "share": 30,
+              "budgetArea": 412.2,
+              "occupiedArea": 192,
+              "volume": 383.9999999999999,
+              "installed": 3,
+              "requested": 5,
+              "unusedArea": 220.2,
+              "usableFraction": 0.125,
+              "roleid": 904
+            },
+            "habitation": {
+              "share": 20,
+              "budgetArea": 274.8,
+              "occupiedArea": 128,
+              "volume": 255.99999999999991,
+              "installed": 2,
+              "requested": 3,
+              "unusedArea": 146.8,
+              "usableFraction": 0.08333333333333333,
+              "roleid": 905
+            }
+          },
+          "occupiedArea": 704,
+          "volume": 1177.5999999999997,
+          "errors": [
+            "1面の装置数上限により割当の一部が未配置です",
+            "要求した設備の一部が未配置です"
+          ]
+        }
+      ]
+    },
+    "reloaded": {
+      "gen": 6,
+      "profileGen": 6,
+      "statsGen": 6,
+      "plan": [
+        {
+          "id": "p1:port:0:cctl1g",
+          "recessDepth": 4.800000000000001,
+          "levels": [
+            28.103896993759736,
+            28.103896993759736,
+            28.103896993759736,
+            28.103896993759736,
+            31.169098127920684,
+            31.169098127920684,
+            31.169098127920684,
+            34.632331253245205,
+            34.632331253245205,
+            34.632331253245205,
+            34.632331253245205,
+            34.632331253245205,
+            38.095564378569726,
+            38.095564378569726,
+            38.095564378569726,
+            38.095564378569726,
+            41.55879750389425,
+            41.55879750389425,
+            41.55879750389425,
+            45.02203062921877,
+            45.02203062921877,
+            45.02203062921877,
+            45.02203062921877,
+            48.48526375454329,
+            48.48526375454329,
+            48.48526375454329,
+            48.48526375454329
+          ],
+          "layerPitch": 3.4632331253245203,
+          "boundary": 4,
+          "revealBoundary": 4,
+          "features": {
+            "stratum-floor": 27,
+            "stratum-lip": 27,
+            "stratum-machinery": 43,
+            "stratum-pipe-bundle": 41,
+            "stratum-core": 3,
+            "stratum-riser": 2
+          }
+        }
+      ],
+      "derivedGuns": [
+        {
+          "id": 901,
+          "k": "claser",
+          "surfacePatch": "p1:port:0:cctl1g"
+        },
+        {
+          "id": 902,
+          "k": "claser",
+          "surfacePatch": "p1:port:0:cctl1g"
+        }
+      ],
+      "adapters": 3,
+      "stats": {
+        "mass": 25204.159289474475,
+        "cost": 123562,
+        "crew": 9,
+        "power": 175493678799952300000,
+        "sensorVolume": 383.9999999999999,
+        "habitationVolume": 255.99999999999991,
+        "dissipatorPower": 80440377011694030000
+      },
+      "draft": {},
+      "selected": [],
+      "undo": 3,
+      "ui": {
+        "legacy": false,
+        "area": false,
+        "fields": []
+      },
+      "warnings": [
+        "エンジンがありません。",
+        "艦橋がありません。命中率が大きく落ちます。",
+        "取り付け面を失った装備が 1 基あります。",
+        "シールド発生器がありません。",
+        "ハイパードライブがありません（星系内専用艦）。",
+        "反応物供給能力 0%。サイロと供給設備を確認してください。",
+        "反応物サイロがありません。継続運転用の燃料を確保してください。",
+        "慣性制御装置の対応質量が不足しています。",
+        "構造維持装置の対応質量が不足しています。",
+        "1面の装置数上限により割当の一部が未配置です",
+        "要求した設備の一部が未配置です"
+      ],
+      "renderError": null,
+      "glError": 0,
+      "canvas": {
+        "x": 340,
+        "y": 59,
+        "width": 800,
+        "height": 941,
+        "top": 59,
+        "right": 1140,
+        "bottom": 1000,
+        "left": 340
+      },
+      "sourceParts": [
+        {
+          "id": 1,
+          "k": "struct"
+        },
+        {
+          "id": 2,
+          "k": "gen"
+        }
+      ],
+      "sourceFits": [
+        {
+          "id": 900,
+          "k": "pd"
+        }
+      ],
+      "ledgerSha256": "d6e8ccee27dce09bb91f6c62adeec5c7a0a70a6e9910b4d4c721a843001a3140",
+      "configs": [
+        {
+          "id": "p1:port:0:cctl1g",
+          "armor": {
+            "material": "standard",
+            "thickness": 0
+          },
+          "equipment": {
+            "kind": "hdis",
+            "count": 0,
+            "depth": 2,
+            "limit": 9
+          },
+          "battery": {
+            "weapon": "claser",
+            "count": 2,
+            "spacing": 1,
+            "angle": 0,
+            "reversed": false
+          },
+          "style": {
+            "kind": "standard",
+            "depth": 0,
+            "density": 0.25,
+            "seed": 72
+          },
+          "powerDomain": "main",
+          "authored": true,
+          "functionMode": "equipment",
+          "allocation": {
+            "cooling": 50,
+            "sensors": 30,
+            "habitation": 20
+          },
+          "boundArea": 1536,
+          "layout": {
+            "u": 1,
+            "v": 1
+          },
+          "aggregateKeys": [
+            "version",
+            "signature",
+            "cells",
+            "guns",
+            "errors",
+            "requested",
+            "requestedEquipment",
+            "demand"
+          ],
+          "numericRows": 9,
+          "gunRows": 2
+        }
+      ],
+      "rows": [
+        {
+          "id": "p1:port:0:cctl1g",
+          "area": 1536,
+          "exposedArea": 1536,
+          "config": {
+            "id": "p1:port:0:cctl1g",
+            "authored": true,
+            "functionMode": "equipment",
+            "allocation": {
+              "cooling": 50,
+              "sensors": 30,
+              "habitation": 20
+            },
+            "armor": {
+              "material": "standard",
+              "thickness": 0
+            },
+            "equipment": {
+              "kind": "hdis",
+              "count": 0,
+              "depth": 2,
+              "limit": 9
+            },
+            "battery": {
+              "weapon": "claser",
+              "count": 2,
+              "spacing": 1,
+              "angle": 0,
+              "reversed": false
+            },
+            "style": {
+              "kind": "standard",
+              "depth": 0,
+              "density": 0.25,
+              "seed": 72
+            },
+            "powerDomain": "main",
+            "layout": {
+              "u": 1,
+              "v": 1
+            },
+            "boundArea": 1536
+          },
+          "categories": {
+            "weapons": {
+              "share": 0,
+              "budgetArea": 162,
+              "occupiedArea": 128,
+              "volume": 25.6,
+              "installed": 2,
+              "requested": 2,
+              "unusedArea": 162,
+              "usableFraction": 0,
+              "explicit": true
+            },
+            "cooling": {
+              "share": 50,
+              "budgetArea": 687,
+              "occupiedArea": 256,
+              "volume": 511.99999999999983,
+              "installed": 4,
+              "requested": 9,
+              "unusedArea": 431,
+              "usableFraction": 0.16666666666666666,
+              "roleid": 903
+            },
+            "sensors": {
+              "share": 30,
+              "budgetArea": 412.2,
+              "occupiedArea": 192,
+              "volume": 383.9999999999999,
+              "installed": 3,
+              "requested": 5,
+              "unusedArea": 220.2,
+              "usableFraction": 0.125,
+              "roleid": 904
+            },
+            "habitation": {
+              "share": 20,
+              "budgetArea": 274.8,
+              "occupiedArea": 128,
+              "volume": 255.99999999999991,
+              "installed": 2,
+              "requested": 3,
+              "unusedArea": 146.8,
+              "usableFraction": 0.08333333333333333,
+              "roleid": 905
+            }
+          },
+          "occupiedArea": 704,
+          "volume": 1177.5999999999997,
+          "errors": [
+            "1面の装置数上限により割当の一部が未配置です",
+            "要求した設備の一部が未配置です"
+          ]
+        }
+      ]
+    },
+    "area": {
+      "gen": 7,
+      "profileGen": 7,
+      "statsGen": 7,
+      "plan": [
+        {
+          "id": "p1:port:0:cctl1g",
+          "recessDepth": 19.200000000000003,
+          "levels": [
+            4.113846029280979,
+            4.113846029280979,
+            4.113846029280979,
+            4.113846029280979,
+            4.113846029280979,
+            4.113846029280979,
+            4.113846029280979,
+            4.113846029280979,
+            4.113846029280979,
+            4.113846029280979,
+            4.113846029280979,
+            7.589735285398627,
+            7.589735285398627,
+            7.589735285398627,
+            7.589735285398627,
+            7.589735285398627,
+            7.589735285398627,
+            7.589735285398627,
+            7.589735285398627,
+            7.589735285398627,
+            7.589735285398627,
+            7.589735285398627,
+            11.38460292809794,
+            11.38460292809794,
+            11.38460292809794,
+            11.38460292809794,
+            11.38460292809794,
+            11.38460292809794,
+            11.38460292809794,
+            11.38460292809794,
+            11.38460292809794,
+            11.38460292809794,
+            15.179470570797253,
+            15.179470570797253,
+            15.179470570797253,
+            15.179470570797253,
+            15.179470570797253,
+            15.179470570797253,
+            15.179470570797253,
+            15.179470570797253,
+            15.179470570797253,
+            15.179470570797253,
+            18.974338213496566,
+            18.974338213496566,
+            18.974338213496566,
+            18.974338213496566,
+            18.974338213496566,
+            18.974338213496566,
+            18.974338213496566,
+            18.974338213496566,
+            18.974338213496566,
+            18.974338213496566,
+            22.769205856195878,
+            22.769205856195878,
+            22.769205856195878,
+            22.769205856195878,
+            22.769205856195878,
+            22.769205856195878,
+            22.769205856195878,
+            22.769205856195878,
+            22.769205856195878,
+            22.769205856195878,
+            26.56407349889519,
+            26.56407349889519,
+            26.56407349889519,
+            26.56407349889519,
+            26.56407349889519,
+            26.56407349889519,
+            26.56407349889519,
+            26.56407349889519,
+            26.56407349889519,
+            26.56407349889519,
+            26.56407349889519,
+            30.358941141594503,
+            30.358941141594503,
+            30.358941141594503,
+            30.358941141594503,
+            30.358941141594503,
+            30.358941141594503,
+            30.358941141594503,
+            30.358941141594503,
+            30.358941141594503,
+            30.358941141594503,
+            34.153808784293815,
+            34.153808784293815,
+            34.153808784293815,
+            34.153808784293815,
+            34.153808784293815,
+            34.153808784293815,
+            34.153808784293815,
+            34.153808784293815,
+            34.153808784293815,
+            34.153808784293815,
+            34.153808784293815,
+            34.153808784293815,
+            37.94867642699313,
+            37.94867642699313,
+            37.94867642699313,
+            37.94867642699313,
+            37.94867642699313,
+            37.94867642699313,
+            37.94867642699313,
+            37.94867642699313,
+            37.94867642699313,
+            37.94867642699313,
+            37.94867642699313,
+            41.74354406969245,
+            41.74354406969245,
+            41.74354406969245,
+            41.74354406969245,
+            41.74354406969245,
+            41.74354406969245,
+            41.74354406969245,
+            41.74354406969245,
+            41.74354406969245,
+            41.74354406969245,
+            45.53841171239176,
+            45.53841171239176,
+            45.53841171239176,
+            45.53841171239176,
+            45.53841171239176,
+            45.53841171239176,
+            45.53841171239176,
+            45.53841171239176,
+            45.53841171239176,
+            45.53841171239176,
+            49.33327935509108,
+            49.33327935509108,
+            49.33327935509108,
+            49.33327935509108,
+            49.33327935509108,
+            49.33327935509108,
+            49.33327935509108,
+            49.33327935509108,
+            49.33327935509108,
+            49.33327935509108,
+            49.33327935509108,
+            53.128146997790395,
+            53.128146997790395,
+            53.128146997790395,
+            53.128146997790395,
+            53.128146997790395,
+            53.128146997790395,
+            53.128146997790395,
+            53.128146997790395,
+            53.128146997790395,
+            53.128146997790395,
+            56.92301464048971,
+            56.92301464048971,
+            56.92301464048971,
+            56.92301464048971,
+            56.92301464048971,
+            56.92301464048971,
+            56.92301464048971,
+            56.92301464048971,
+            56.92301464048971,
+            56.92301464048971,
+            60.71788228318903,
+            60.71788228318903,
+            60.71788228318903,
+            60.71788228318903,
+            60.71788228318903,
+            60.71788228318903,
+            60.71788228318903,
+            60.71788228318903,
+            60.71788228318903,
+            60.71788228318903,
+            64.51274992588834,
+            64.51274992588834,
+            64.51274992588834,
+            64.51274992588834,
+            64.51274992588834,
+            64.51274992588834,
+            64.51274992588834,
+            64.51274992588834,
+            64.51274992588834,
+            64.51274992588834,
+            64.51274992588834,
+            64.51274992588834,
+            68.30761756858766,
+            68.30761756858766,
+            68.30761756858766,
+            68.30761756858766,
+            68.30761756858766,
+            68.30761756858766,
+            68.30761756858766,
+            68.30761756858766,
+            68.30761756858766,
+            68.30761756858766,
+            72.10248521128698,
+            72.10248521128698,
+            72.10248521128698,
+            72.10248521128698,
+            72.10248521128698,
+            72.10248521128698,
+            72.10248521128698,
+            72.10248521128698,
+            72.10248521128698,
+            72.10248521128698,
+            75.89735285398629,
+            75.89735285398629,
+            75.89735285398629,
+            75.89735285398629,
+            75.89735285398629,
+            75.89735285398629,
+            75.89735285398629,
+            75.89735285398629,
+            75.89735285398629,
+            75.89735285398629,
+            75.89735285398629,
+            79.69222049668561,
+            79.69222049668561,
+            79.69222049668561,
+            79.69222049668561,
+            79.69222049668561,
+            79.69222049668561,
+            79.69222049668561,
+            79.69222049668561,
+            79.69222049668561,
+            79.69222049668561,
+            79.69222049668561,
+            83.48708813938492,
+            83.48708813938492,
+            83.48708813938492,
+            83.48708813938492,
+            83.48708813938492,
+            83.48708813938492,
+            83.48708813938492,
+            83.48708813938492,
+            83.48708813938492,
+            83.48708813938492,
+            87.28195578208424,
+            87.28195578208424,
+            87.28195578208424,
+            87.28195578208424,
+            87.28195578208424,
+            87.28195578208424,
+            87.28195578208424,
+            87.28195578208424,
+            87.28195578208424,
+            87.28195578208424,
+            87.28195578208424,
+            87.28195578208424,
+            91.07682342478356,
+            91.07682342478356,
+            91.07682342478356,
+            91.07682342478356,
+            91.07682342478356,
+            91.07682342478356,
+            91.07682342478356,
+            91.07682342478356,
+            91.07682342478356,
+            91.07682342478356,
+            91.07682342478356,
+            94.87169106748287,
+            94.87169106748287,
+            94.87169106748287,
+            94.87169106748287,
+            94.87169106748287,
+            94.87169106748287,
+            94.87169106748287,
+            94.87169106748287,
+            94.87169106748287,
+            94.87169106748287,
+            98.66655871018219,
+            98.66655871018219,
+            98.66655871018219,
+            98.66655871018219,
+            98.66655871018219,
+            98.66655871018219,
+            98.66655871018219,
+            98.66655871018219,
+            98.66655871018219,
+            98.66655871018219,
+            99.88615397071902,
+            99.88615397071902,
+            99.88615397071902,
+            99.88615397071902,
+            99.88615397071902,
+            99.88615397071902,
+            99.88615397071902,
+            99.88615397071902,
+            99.88615397071902,
+            99.88615397071902,
+            99.88615397071902
+          ],
+          "layerPitch": 3.7948676426993133,
+          "boundary": 4,
+          "revealBoundary": 4,
+          "features": {
+            "stratum-floor": 285,
+            "stratum-lip": 285,
+            "stratum-machinery": 372,
+            "stratum-pipe-bundle": 421,
+            "stratum-core": 9,
+            "stratum-riser": 6
+          }
+        }
+      ],
+      "derivedGuns": [],
+      "adapters": 3,
+      "stats": {
+        "mass": 832623.5705263654,
+        "cost": 2539605,
+        "crew": 105,
+        "power": 1.1231595443196948e+22,
+        "sensorVolume": 3686.3999999999996,
+        "habitationVolume": 7372.799999999998,
+        "dissipatorPower": 1.1583414289683947e+21
+      },
+      "draft": {},
+      "selected": [
+        "p1:port:0:cctl1g"
+      ],
+      "undo": 4,
+      "ui": {
+        "legacy": false,
+        "area": true,
+        "visualDepth": "0",
+        "fields": [
+          "functionMode",
+          "allocation.cooling",
+          "allocation.sensors",
+          "allocation.habitation",
+          "battery.weapon",
+          "battery.count",
+          "battery.spacing",
+          "battery.angle",
+          "equipment.kind",
+          "equipment.depth",
+          "style.depth",
+          "style.density",
+          "style.seed"
+        ]
+      },
+      "warnings": [
+        "エンジンがありません。",
+        "艦橋がありません。命中率が大きく落ちます。",
+        "シールド発生器がありません。",
+        "ハイパードライブがありません（星系内専用艦）。",
+        "反応物供給能力 0%。サイロと供給設備を確認してください。",
+        "反応物サイロがありません。継続運転用の燃料を確保してください。",
+        "慣性制御装置の対応質量が不足しています。",
+        "構造維持装置の対応質量が不足しています。"
+      ],
+      "renderError": null,
+      "glError": 0,
+      "canvas": {
+        "x": 340,
+        "y": 59,
+        "width": 800,
+        "height": 941,
+        "top": 59,
+        "right": 1140,
+        "bottom": 1000,
+        "left": 340
+      },
+      "sourceParts": [
+        {
+          "id": 1,
+          "k": "struct"
+        },
+        {
+          "id": 2,
+          "k": "gen"
+        }
+      ],
+      "sourceFits": [],
+      "ledgerSha256": "fd0249a66a23794fbfacc4e8234b3ce425210e757c27cb8fb4bc7f763f37d6ba",
+      "configs": [
+        {
+          "id": "p1:port:0:cctl1g",
+          "armor": {
+            "material": "standard",
+            "thickness": 0
+          },
+          "equipment": {
+            "kind": "hdis",
+            "count": 0,
+            "depth": 1,
+            "capacityModel": "area-v1"
+          },
+          "battery": {
+            "weapon": "pd",
+            "count": 0,
+            "spacing": 1,
+            "angle": 0,
+            "reversed": false
+          },
+          "style": {
+            "kind": "machinery",
+            "depth": 0,
+            "density": 0.8,
+            "seed": 37
+          },
+          "powerDomain": "main",
+          "authored": true,
+          "functionMode": "equipment",
+          "allocation": {
+            "cooling": 40,
+            "sensors": 20,
+            "habitation": 40
+          },
+          "boundArea": 18432,
+          "layout": {
+            "u": 1,
+            "v": 1
+          },
+          "aggregateKeys": [
+            "version",
+            "capacityModel",
+            "signature",
+            "cells",
+            "guns",
+            "errors",
+            "requested",
+            "requestedEquipment",
+            "demand",
+            "aliases",
+            "sensorMix",
+            "manifestKey"
+          ],
+          "numericRows": 3,
+          "gunRows": 0
+        }
+      ],
+      "rows": [
+        {
+          "id": "p1:port:0:cctl1g",
+          "area": 18432,
+          "exposedArea": 18432,
+          "config": {
+            "id": "p1:port:0:cctl1g",
+            "authored": true,
+            "functionMode": "equipment",
+            "allocation": {
+              "cooling": 40,
+              "sensors": 20,
+              "habitation": 40
+            },
+            "armor": {
+              "material": "standard",
+              "thickness": 0
+            },
+            "equipment": {
+              "kind": "hdis",
+              "count": 0,
+              "depth": 1,
+              "capacityModel": "area-v1"
+            },
+            "battery": {
+              "weapon": "pd",
+              "count": 0,
+              "spacing": 1,
+              "angle": 0,
+              "reversed": false
+            },
+            "style": {
+              "kind": "machinery",
+              "depth": 0,
+              "density": 0.8,
+              "seed": 37
+            },
+            "powerDomain": "main",
+            "layout": {
+              "u": 1,
+              "v": 1
+            },
+            "boundArea": 18432
+          },
+          "categories": {
+            "weapons": {
+              "share": 0,
+              "budgetArea": 0,
+              "occupiedArea": 0,
+              "volume": 0,
+              "installed": 0,
+              "requested": 0,
+              "unusedArea": 0,
+              "usableFraction": 0,
+              "explicit": true
+            },
+            "cooling": {
+              "share": 40,
+              "budgetArea": 7372.8,
+              "occupiedArea": 7372.800000000001,
+              "volume": 7372.800000000001,
+              "installed": 1,
+              "requested": 0,
+              "unusedArea": 0,
+              "usableFraction": 0.4000000000000001,
+              "roleid": 3
+            },
+            "sensors": {
+              "share": 20,
+              "budgetArea": 3686.4,
+              "occupiedArea": 3686.3999999999996,
+              "volume": 3686.3999999999996,
+              "installed": 1,
+              "requested": 0,
+              "unusedArea": 4.547473508864641e-13,
+              "usableFraction": 0.19999999999999998,
+              "roleid": 4
+            },
+            "habitation": {
+              "share": 40,
+              "budgetArea": 7372.8,
+              "occupiedArea": 7372.799999999998,
+              "volume": 7372.799999999998,
+              "installed": 1,
+              "requested": 0,
+              "unusedArea": 1.8189894035458565e-12,
+              "usableFraction": 0.3999999999999999,
+              "roleid": 5
+            }
+          },
+          "occupiedArea": 18432,
+          "volume": 18432,
+          "errors": []
+        }
+      ]
+    },
+    "split": {
+      "gen": 8,
+      "profileGen": 8,
+      "statsGen": 8,
+      "plan": [
+        {
+          "id": "p1:port:0:cctl1g/r0.0.apsw.lfls",
+          "recessDepth": 19.200000000000003,
+          "levels": [
+            4.113846029280979,
+            4.113846029280979,
+            4.113846029280979,
+            4.113846029280979,
+            4.113846029280979,
+            7.589735285398627,
+            7.589735285398627,
+            7.589735285398627,
+            7.589735285398627,
+            7.589735285398627,
+            7.589735285398627,
+            11.38460292809794,
+            11.38460292809794,
+            11.38460292809794,
+            11.38460292809794,
+            11.38460292809794,
+            11.38460292809794,
+            15.179470570797253,
+            15.179470570797253,
+            15.179470570797253,
+            15.179470570797253,
+            15.179470570797253,
+            15.179470570797253,
+            18.974338213496566,
+            18.974338213496566,
+            18.974338213496566,
+            18.974338213496566,
+            18.974338213496566,
+            18.974338213496566,
+            22.769205856195878,
+            22.769205856195878,
+            22.769205856195878,
+            22.769205856195878,
+            22.769205856195878,
+            26.56407349889519,
+            26.56407349889519,
+            26.56407349889519,
+            26.56407349889519,
+            26.56407349889519,
+            26.56407349889519,
+            30.358941141594503,
+            30.358941141594503,
+            30.358941141594503,
+            30.358941141594503,
+            30.358941141594503,
+            34.153808784293815,
+            34.153808784293815,
+            34.153808784293815,
+            34.153808784293815,
+            34.153808784293815,
+            34.153808784293815,
+            34.153808784293815,
+            37.94867642699313,
+            37.94867642699313,
+            37.94867642699313,
+            37.94867642699313,
+            37.94867642699313,
+            41.74354406969245,
+            41.74354406969245,
+            41.74354406969245,
+            41.74354406969245,
+            41.74354406969245,
+            41.74354406969245,
+            45.53841171239176,
+            45.53841171239176,
+            45.53841171239176,
+            45.53841171239176,
+            45.53841171239176,
+            45.53841171239176,
+            49.33327935509108,
+            49.33327935509108,
+            49.33327935509108,
+            49.33327935509108,
+            49.33327935509108,
+            49.33327935509108,
+            53.128146997790395,
+            53.128146997790395,
+            53.128146997790395,
+            53.128146997790395,
+            53.128146997790395,
+            56.92301464048971,
+            56.92301464048971,
+            56.92301464048971,
+            56.92301464048971,
+            56.92301464048971,
+            60.71788228318903,
+            60.71788228318903,
+            60.71788228318903,
+            60.71788228318903,
+            60.71788228318903,
+            64.51274992588834,
+            64.51274992588834,
+            64.51274992588834,
+            64.51274992588834,
+            64.51274992588834,
+            64.51274992588834,
+            68.30761756858766,
+            68.30761756858766,
+            68.30761756858766,
+            68.30761756858766,
+            68.30761756858766,
+            68.30761756858766,
+            72.10248521128698,
+            72.10248521128698,
+            72.10248521128698,
+            72.10248521128698,
+            72.10248521128698,
+            72.10248521128698,
+            75.89735285398629,
+            75.89735285398629,
+            75.89735285398629,
+            75.89735285398629,
+            75.89735285398629,
+            75.89735285398629,
+            79.69222049668561,
+            79.69222049668561,
+            79.69222049668561,
+            79.69222049668561,
+            79.69222049668561,
+            79.69222049668561,
+            83.48708813938492,
+            83.48708813938492,
+            83.48708813938492,
+            83.48708813938492,
+            83.48708813938492,
+            87.28195578208424,
+            87.28195578208424,
+            87.28195578208424,
+            87.28195578208424,
+            87.28195578208424,
+            87.28195578208424,
+            91.07682342478356,
+            91.07682342478356,
+            91.07682342478356,
+            91.07682342478356,
+            91.07682342478356,
+            91.07682342478356,
+            94.87169106748287,
+            94.87169106748287,
+            94.87169106748287,
+            94.87169106748287,
+            94.87169106748287,
+            98.66655871018219,
+            98.66655871018219,
+            98.66655871018219,
+            98.66655871018219,
+            98.66655871018219,
+            98.66655871018219,
+            99.88615397071902,
+            99.88615397071902,
+            99.88615397071902,
+            99.88615397071902,
+            99.88615397071902,
+            99.88615397071902
+          ],
+          "layerPitch": 3.7948676426993133,
+          "boundary": 5,
+          "revealBoundary": 3,
+          "features": {
+            "stratum-floor": 154,
+            "stratum-lip": 154,
+            "stratum-machinery": 192,
+            "stratum-pipe-bundle": 205,
+            "stratum-core": 6,
+            "stratum-riser": 3
+          }
+        },
+        {
+          "id": "p1:port:0:cctl1g/rapsw.0.lfls.lfls",
+          "recessDepth": 19.200000000000003,
+          "levels": [
+            4.113846029280979,
+            4.113846029280979,
+            4.113846029280979,
+            4.113846029280979,
+            4.113846029280979,
+            4.113846029280979,
+            4.113846029280979,
+            7.589735285398627,
+            7.589735285398627,
+            7.589735285398627,
+            7.589735285398627,
+            7.589735285398627,
+            7.589735285398627,
+            11.38460292809794,
+            11.38460292809794,
+            11.38460292809794,
+            11.38460292809794,
+            11.38460292809794,
+            15.179470570797253,
+            15.179470570797253,
+            15.179470570797253,
+            15.179470570797253,
+            15.179470570797253,
+            18.974338213496566,
+            18.974338213496566,
+            18.974338213496566,
+            18.974338213496566,
+            18.974338213496566,
+            22.769205856195878,
+            22.769205856195878,
+            22.769205856195878,
+            22.769205856195878,
+            22.769205856195878,
+            22.769205856195878,
+            26.56407349889519,
+            26.56407349889519,
+            26.56407349889519,
+            26.56407349889519,
+            26.56407349889519,
+            26.56407349889519,
+            30.358941141594503,
+            30.358941141594503,
+            30.358941141594503,
+            30.358941141594503,
+            30.358941141594503,
+            30.358941141594503,
+            34.153808784293815,
+            34.153808784293815,
+            34.153808784293815,
+            34.153808784293815,
+            34.153808784293815,
+            34.153808784293815,
+            37.94867642699313,
+            37.94867642699313,
+            37.94867642699313,
+            37.94867642699313,
+            37.94867642699313,
+            37.94867642699313,
+            37.94867642699313,
+            41.74354406969245,
+            41.74354406969245,
+            41.74354406969245,
+            41.74354406969245,
+            41.74354406969245,
+            45.53841171239176,
+            45.53841171239176,
+            45.53841171239176,
+            45.53841171239176,
+            45.53841171239176,
+            49.33327935509108,
+            49.33327935509108,
+            49.33327935509108,
+            49.33327935509108,
+            49.33327935509108,
+            49.33327935509108,
+            53.128146997790395,
+            53.128146997790395,
+            53.128146997790395,
+            53.128146997790395,
+            53.128146997790395,
+            53.128146997790395,
+            56.92301464048971,
+            56.92301464048971,
+            56.92301464048971,
+            56.92301464048971,
+            56.92301464048971,
+            56.92301464048971,
+            60.71788228318903,
+            60.71788228318903,
+            60.71788228318903,
+            60.71788228318903,
+            60.71788228318903,
+            60.71788228318903,
+            64.51274992588834,
+            64.51274992588834,
+            64.51274992588834,
+            64.51274992588834,
+            64.51274992588834,
+            64.51274992588834,
+            64.51274992588834,
+            68.30761756858766,
+            68.30761756858766,
+            68.30761756858766,
+            68.30761756858766,
+            68.30761756858766,
+            72.10248521128698,
+            72.10248521128698,
+            72.10248521128698,
+            72.10248521128698,
+            72.10248521128698,
+            75.89735285398629,
+            75.89735285398629,
+            75.89735285398629,
+            75.89735285398629,
+            75.89735285398629,
+            75.89735285398629,
+            79.69222049668561,
+            79.69222049668561,
+            79.69222049668561,
+            79.69222049668561,
+            79.69222049668561,
+            79.69222049668561,
+            83.48708813938492,
+            83.48708813938492,
+            83.48708813938492,
+            83.48708813938492,
+            83.48708813938492,
+            83.48708813938492,
+            87.28195578208424,
+            87.28195578208424,
+            87.28195578208424,
+            87.28195578208424,
+            87.28195578208424,
+            87.28195578208424,
+            87.28195578208424,
+            91.07682342478356,
+            91.07682342478356,
+            91.07682342478356,
+            91.07682342478356,
+            91.07682342478356,
+            91.07682342478356,
+            94.87169106748287,
+            94.87169106748287,
+            94.87169106748287,
+            94.87169106748287,
+            94.87169106748287,
+            94.87169106748287,
+            98.66655871018219,
+            98.66655871018219,
+            98.66655871018219,
+            98.66655871018219,
+            98.66655871018219,
+            99.88615397071902,
+            99.88615397071902,
+            99.88615397071902,
+            99.88615397071902,
+            99.88615397071902,
+            99.88615397071902
+          ],
+          "layerPitch": 3.7948676426993133,
+          "boundary": 5,
+          "revealBoundary": 3,
+          "features": {
+            "stratum-floor": 158,
+            "stratum-lip": 158,
+            "stratum-machinery": 192,
+            "stratum-pipe-bundle": 205,
+            "stratum-core": 5,
+            "stratum-riser": 4
+          }
+        }
+      ],
+      "derivedGuns": [],
+      "adapters": 4,
+      "stats": {
+        "mass": 832623.5705263655,
+        "cost": 2539605,
+        "crew": 105,
+        "power": 1.1231595443196948e+22,
+        "sensorVolume": 3686.3999999999996,
+        "habitationVolume": 7372.799999999998,
+        "dissipatorPower": 1.1583414289683947e+21
+      },
+      "draft": {},
+      "selected": [
+        "p1:port:0:cctl1g/r0.0.apsw.lfls",
+        "p1:port:0:cctl1g/rapsw.0.lfls.lfls"
+      ],
+      "undo": 5,
+      "ui": {
+        "legacy": false,
+        "area": true,
+        "visualDepth": "0",
+        "fields": [
+          "functionMode",
+          "allocation.cooling",
+          "allocation.sensors",
+          "allocation.habitation",
+          "battery.weapon",
+          "battery.count",
+          "battery.spacing",
+          "battery.angle",
+          "equipment.kind",
+          "equipment.depth",
+          "style.depth",
+          "style.density",
+          "style.seed"
+        ]
+      },
+      "warnings": [
+        "エンジンがありません。",
+        "艦橋がありません。命中率が大きく落ちます。",
+        "シールド発生器がありません。",
+        "ハイパードライブがありません（星系内専用艦）。",
+        "反応物供給能力 0%。サイロと供給設備を確認してください。",
+        "反応物サイロがありません。継続運転用の燃料を確保してください。",
+        "慣性制御装置の対応質量が不足しています。",
+        "構造維持装置の対応質量が不足しています。"
+      ],
+      "renderError": null,
+      "glError": 0,
+      "canvas": {
+        "x": 340,
+        "y": 59,
+        "width": 800,
+        "height": 941,
+        "top": 59,
+        "right": 1140,
+        "bottom": 1000,
+        "left": 340
+      },
+      "sourceParts": [
+        {
+          "id": 1,
+          "k": "struct"
+        },
+        {
+          "id": 2,
+          "k": "gen"
+        }
+      ],
+      "sourceFits": [],
+      "ledgerSha256": "abc5f67d90b8bfe4e5323bb048eb2cc099c584f8cd5ef7b94ae1b74632271e12",
+      "configs": [
+        {
+          "id": "p1:port:0:cctl1g/r0.0.apsw.lfls",
+          "armor": {
+            "material": "standard",
+            "thickness": 0
+          },
+          "equipment": {
+            "kind": "hdis",
+            "count": 0,
+            "depth": 1,
+            "capacityModel": "area-v1",
+            "limit": 128
+          },
+          "battery": {
+            "weapon": "pd",
+            "count": 0,
+            "spacing": 1,
+            "angle": 0,
+            "reversed": false
+          },
+          "style": {
+            "kind": "machinery",
+            "depth": 0,
+            "density": 0.8,
+            "seed": 37
+          },
+          "powerDomain": "main",
+          "authored": true,
+          "functionMode": "equipment",
+          "allocation": {
+            "cooling": 40,
+            "sensors": 20,
+            "habitation": 40
+          },
+          "boundArea": 9216,
+          "layout": {
+            "u": 1,
+            "v": 1
+          },
+          "aggregateKeys": [
+            "version",
+            "capacityModel",
+            "signature",
+            "cells",
+            "guns",
+            "errors",
+            "requested",
+            "requestedEquipment",
+            "demand",
+            "aliases",
+            "sensorMix",
+            "manifestKey"
+          ],
+          "numericRows": 2,
+          "gunRows": 0
+        },
+        {
+          "id": "p1:port:0:cctl1g/rapsw.0.lfls.lfls",
+          "armor": {
+            "material": "standard",
+            "thickness": 0
+          },
+          "equipment": {
+            "kind": "hdis",
+            "count": 0,
+            "depth": 1,
+            "capacityModel": "area-v1",
+            "limit": 128
+          },
+          "battery": {
+            "weapon": "pd",
+            "count": 0,
+            "spacing": 1,
+            "angle": 0,
+            "reversed": false
+          },
+          "style": {
+            "kind": "machinery",
+            "depth": 0,
+            "density": 0.8,
+            "seed": 37
+          },
+          "powerDomain": "main",
+          "authored": true,
+          "functionMode": "equipment",
+          "allocation": {
+            "cooling": 40,
+            "sensors": 20,
+            "habitation": 40
+          },
+          "boundArea": 9216,
+          "layout": {
+            "u": 1,
+            "v": 1
+          },
+          "aggregateKeys": [
+            "version",
+            "capacityModel",
+            "signature",
+            "cells",
+            "guns",
+            "errors",
+            "requested",
+            "requestedEquipment",
+            "demand",
+            "aliases",
+            "sensorMix",
+            "manifestKey"
+          ],
+          "numericRows": 2,
+          "gunRows": 0
+        }
+      ],
+      "rows": [
+        {
+          "id": "p1:port:0:cctl1g/r0.0.apsw.lfls",
+          "area": 9216,
+          "exposedArea": 9216,
+          "config": {
+            "id": "p1:port:0:cctl1g/r0.0.apsw.lfls",
+            "authored": true,
+            "functionMode": "equipment",
+            "allocation": {
+              "cooling": 40,
+              "sensors": 20,
+              "habitation": 40
+            },
+            "armor": {
+              "material": "standard",
+              "thickness": 0
+            },
+            "equipment": {
+              "kind": "hdis",
+              "count": 0,
+              "depth": 1,
+              "capacityModel": "area-v1",
+              "limit": 128
+            },
+            "battery": {
+              "weapon": "pd",
+              "count": 0,
+              "spacing": 1,
+              "angle": 0,
+              "reversed": false
+            },
+            "style": {
+              "kind": "machinery",
+              "depth": 0,
+              "density": 0.8,
+              "seed": 37
+            },
+            "powerDomain": "main",
+            "layout": {
+              "u": 1,
+              "v": 1
+            },
+            "boundArea": 9216
+          },
+          "categories": {
+            "weapons": {
+              "share": 0,
+              "budgetArea": 0,
+              "occupiedArea": 0,
+              "volume": 0,
+              "installed": 0,
+              "requested": 0,
+              "unusedArea": 0,
+              "usableFraction": 0,
+              "explicit": true
+            },
+            "cooling": {
+              "share": 40,
+              "budgetArea": 3686.4,
+              "occupiedArea": 7372.800000000001,
+              "volume": 7372.800000000001,
+              "installed": 1,
+              "requested": 0,
+              "unusedArea": 0,
+              "usableFraction": 0.8000000000000002,
+              "roleid": 6
+            },
+            "sensors": {
+              "share": 20,
+              "budgetArea": 1843.2,
+              "occupiedArea": 1843.1999999999985,
+              "volume": 1843.1999999999985,
+              "installed": 1,
+              "requested": 0,
+              "unusedArea": 1.5916157281026244e-12,
+              "usableFraction": 0.19999999999999984,
+              "roleid": 7
+            },
+            "habitation": {
+              "share": 40,
+              "budgetArea": 3686.4,
+              "occupiedArea": 0,
+              "volume": 0,
+              "installed": 0,
+              "requested": 0,
+              "unusedArea": 3686.4,
+              "usableFraction": 0
+            }
+          },
+          "occupiedArea": 9216,
+          "volume": 9216,
+          "errors": []
+        },
+        {
+          "id": "p1:port:0:cctl1g/rapsw.0.lfls.lfls",
+          "area": 9216,
+          "exposedArea": 9216,
+          "config": {
+            "id": "p1:port:0:cctl1g/rapsw.0.lfls.lfls",
+            "authored": true,
+            "functionMode": "equipment",
+            "allocation": {
+              "cooling": 40,
+              "sensors": 20,
+              "habitation": 40
+            },
+            "armor": {
+              "material": "standard",
+              "thickness": 0
+            },
+            "equipment": {
+              "kind": "hdis",
+              "count": 0,
+              "depth": 1,
+              "capacityModel": "area-v1",
+              "limit": 128
+            },
+            "battery": {
+              "weapon": "pd",
+              "count": 0,
+              "spacing": 1,
+              "angle": 0,
+              "reversed": false
+            },
+            "style": {
+              "kind": "machinery",
+              "depth": 0,
+              "density": 0.8,
+              "seed": 37
+            },
+            "powerDomain": "main",
+            "layout": {
+              "u": 1,
+              "v": 1
+            },
+            "boundArea": 9216
+          },
+          "categories": {
+            "weapons": {
+              "share": 0,
+              "budgetArea": 0,
+              "occupiedArea": 0,
+              "volume": 0,
+              "installed": 0,
+              "requested": 0,
+              "unusedArea": 0,
+              "usableFraction": 0,
+              "explicit": true
+            },
+            "cooling": {
+              "share": 40,
+              "budgetArea": 3686.4,
+              "occupiedArea": 0,
+              "volume": 0,
+              "installed": 0,
+              "requested": 0,
+              "unusedArea": 3686.4,
+              "usableFraction": 0
+            },
+            "sensors": {
+              "share": 20,
+              "budgetArea": 1843.2,
+              "occupiedArea": 1843.2000000000012,
+              "volume": 1843.2000000000012,
+              "installed": 1,
+              "requested": 0,
+              "unusedArea": 0,
+              "usableFraction": 0.20000000000000012,
+              "roleid": 4
+            },
+            "habitation": {
+              "share": 40,
+              "budgetArea": 3686.4,
+              "occupiedArea": 7372.799999999998,
+              "volume": 7372.799999999998,
+              "installed": 1,
+              "requested": 0,
+              "unusedArea": 0,
+              "usableFraction": 0.7999999999999998,
+              "roleid": 5
+            }
+          },
+          "occupiedArea": 9216,
+          "volume": 9216,
+          "errors": []
+        }
+      ]
+    }
+  },
+  "errors": [],
+  "consoleErrors": [],
+  "result": "PASS",
+  "browserClosed": true,
+  "finished": "2026-11-03T10:18:35.853Z",
+  "assertions": 97,
+  "sourceAfter": {
+    "js/core.js": "e05c227e325151ecfeead028a936128d9ccc26b8f27d5acf02254e8259bafe5a",
+    "js/app.js": "c2e995a73360787c913304e28a0ce832e9932c4dbbe700546fced7d72cbe8860",
+    "js/gfx.js": "20b4da8da6607b58b810568ba2cbbe4c21355212c7ea5d9c57f192c123d6c34e",
+    "js/engine.js": "807e3f245279007fe1966b38d75f53aa8e54f1954159d3a314bcf6de3c060003",
+    "js/lang-en.js": "ada7dd0abcdcb424f81d1290c6ccd1f097d6dc08e6470d5b2354635b8e6fc479",
+    "index.html": "38ddc127ce5dd96fe29f5dc274094fd38e167e1e3bee26a0a00931fefd93bd32"
+  },
+  "schema": 1,
+  "baseline": {
+    "head": "2736808",
+    "sourceSha256": {
+      "js/core.js": "59589f9de1973a9b2d336074a5581fb77267435e51728274ef87ea3b02899785",
+      "js/app.js": "fe6de0033a930dc71999436d2c1dd25e0f3bcc0260a53315eb06dcfc8e2328d3",
+      "js/gfx.js": "6afbde7251ba3eacbf0f502d3592c0315f03a950d0382aa623191156d57caf18",
+      "js/engine.js": "807e3f245279007fe1966b38d75f53aa8e54f1954159d3a314bcf6de3c060003",
+      "js/lang-en.js": "f99849baf0b507279102e6371ec192b668a45317a4d1b228e12f93262871503e",
+      "index.html": "38ddc127ce5dd96fe29f5dc274094fd38e167e1e3bee26a0a00931fefd93bd32"
+    },
+    "images": [
+      {
+        "path": "docs/images/surface-layered-before-200m-grazing.png",
+        "sha256": "8c670940edf6f213d5140ad4dd19a022b522ee7b7ebf0e0b497e6078a616bb87"
+      },
+      {
+        "path": "docs/images/surface-layered-before-1600m-grazing.png",
+        "sha256": "08f61b510c3af36d55fc5ae1030efacc4a6b3e38e188025037a6647e52efa209"
+      }
+    ],
+    "comparison": "The four final images load the exact same serialized public fixture JSON as the clean2736808 captures, including its legacy capacity schema. Functional area-v1 upgrade/new-face checks use separate small fixtures. Paint, shares, seed, cameras and render quality stay fixed for the paired visual comparison."
+  },
+  "visualSettings": {
+    "viewport": [
+      1440,
+      1000
+    ],
+    "imageCropPixels": [
+      800,
+      750
+    ],
+    "renderScale": 1,
+    "lighting": "normal studio shadows",
+    "shaderAndMaterial": "Normal current runtime, no hidden mesh, shader-uniform override, texture replacement or diagnostic lighting.",
+    "fixtureSetup": {
+      "200m": {
+        "type": "Nominal200m assembly with one192x112x96m box and an internal generator",
+        "paint": "#287da8",
+        "hostCenter": [
+          100,
+          52,
+          0
+        ]
+      },
+      "1600m": {
+        "type": "1600mwedge hull with four physically grounded terraces; not a stock ISD",
+        "hull": [
+          1600,
+          950,
+          240
+        ],
+        "paint": "#9ca3a8",
+        "terraces": [
+          {
+            "center": [
+              520,
+              185,
+              0
+            ],
+            "size": [
+              880,
+              680,
+              50
+            ]
+          },
+          {
+            "center": [
+              500,
+              270,
+              0
+            ],
+            "size": [
+              720,
+              560,
+              120
+            ]
+          },
+          {
+            "center": [
+              400,
+              380,
+              0
+            ],
+            "size": [
+              520,
+              400,
+              100
+            ]
+          },
+          {
+            "center": [
+              320,
+              464,
+              0
+            ],
+            "size": [
+              320,
+              240,
+              68
+            ]
+          }
+        ]
+      },
+      "shared": {
+        "faces": "port-facing host facades",
+        "allocation": {
+          "cooling": 40,
+          "sensors": 20,
+          "habitation": 40
+        },
+        "seed": 37,
+        "functionalDepth": 1,
+        "visualDepth": 0,
+        "detailDensity": 0.8,
+        "guns": 0
+      }
+    }
+  },
+  "readinessMethod": {
+    "definition": "Each readyMs is one observed public load or a real Apply/Undo/Split click until real worker stats+geometry adoption and editor idle. Snapshot analysis follows timing.",
+    "limit": "These are single observations from this verification session, not matched before/after performance measurements. No speedup, FPS or hardware GPU claim is made."
+  },
+  "scopeLimitations": [
+    "The screenshots use representative generated structures, not the user's unavailable actual1600m save or a stock ISD model.",
+    "Browser checks cover the listed UI, save, capacity and split cases; no operational combat/flight, physical phone or gamepad test was run.",
+    "Cosmetic structural depth changes rendered recess/floors but does not grant extra functional volume or performance. Functional capacity uses its separate area/depth/allocation model.",
+    "Old capacity remains intact on appearance-only edits. Explicit upgrade changes physical capacity and can change mass/cost/power/crew; Undo restores the old ledger.",
+    "Fresh area capacity uses role/area records. Migrated faces can retain legacy inactive inventory or alias records, so three fresh role records do not mean every old design always stores exactly three rows."
+  ],
+  "sourceStable": true
+}

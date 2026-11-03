@@ -1,0 +1,689 @@
+{
+  "schema": 1,
+  "result": "PASS",
+  "scope": "Actual application and real YardEngine worker validation. Fixture setup and read-only diagnostics use an appended test wrapper; canvas pointers, drags, surface Apply, display switches and support edits use real UI events. Source checkpoints are retained separately; overlapping assertion counts are not added.",
+  "modelVersion": 10,
+  "sourceSha256": {
+    "js/core.js": "9cce49673b6f0f192960ea470ab4b8160afe6055b9ba26b443e0c55d604ead2c",
+    "js/app.js": "79361da1ab448864beba9cf80214b132569fd4a9e188b3df7b2f33fcc34c3ea0",
+    "js/gfx.js": "9c2895600a7477de194c83f211c62298f56317c5f1a5b0d542fa89b09c6724a7",
+    "js/engine.js": "67c9bac3755f500e952b1095eedba89fb294f10f453b4cf801da74ca1ffa1d08",
+    "js/lang-en.js": "5cb4297f87e684b118bdaca44f04825f3ba6311be96818382893a65f5b7f3d57",
+    "index.html": "38ddc127ce5dd96fe29f5dc274094fd38e167e1e3bee26a0a00931fefd93bd32"
+  },
+  "sourceAfterSha256": {
+    "js/core.js": "9cce49673b6f0f192960ea470ab4b8160afe6055b9ba26b443e0c55d604ead2c",
+    "js/app.js": "79361da1ab448864beba9cf80214b132569fd4a9e188b3df7b2f33fcc34c3ea0",
+    "js/gfx.js": "9c2895600a7477de194c83f211c62298f56317c5f1a5b0d542fa89b09c6724a7",
+    "js/engine.js": "67c9bac3755f500e952b1095eedba89fb294f10f453b4cf801da74ca1ffa1d08",
+    "js/lang-en.js": "5cb4297f87e684b118bdaca44f04825f3ba6311be96818382893a65f5b7f3d57",
+    "index.html": "38ddc127ce5dd96fe29f5dc274094fd38e167e1e3bee26a0a00931fefd93bd32"
+  },
+  "allSourceHashesStable": true,
+  "hashScope": "Top-level hashes describe finalphase4; earlier feature groups retain their own exact source maps.",
+  "browserClosed": true,
+  "started": "2026-11-03T13:36:10.225Z",
+  "finished": "2026-11-03T14:08:11.966Z",
+  "checkpoints": [
+    {
+      "id": "phase1",
+      "recordedRunResult": "FAIL",
+      "completedGroups": 15,
+      "assertions": 89,
+      "sourceSha256": {
+        "js/core.js": "ecb1b74f8c6db08aa81105825ccf56f0e177431bf063c02f4d6c2560c301d947",
+        "js/app.js": "79361da1ab448864beba9cf80214b132569fd4a9e188b3df7b2f33fcc34c3ea0",
+        "js/gfx.js": "501acb5f011417e7acb13e6f640ee504049ad1934fb80c39ccb76c54ab416558",
+        "js/engine.js": "67c9bac3755f500e952b1095eedba89fb294f10f453b4cf801da74ca1ffa1d08",
+        "js/lang-en.js": "5cb4297f87e684b118bdaca44f04825f3ba6311be96818382893a65f5b7f3d57",
+        "index.html": "38ddc127ce5dd96fe29f5dc274094fd38e167e1e3bee26a0a00931fefd93bd32"
+      },
+      "sourceStable": true,
+      "browserClosed": true,
+      "started": "2026-11-03T13:36:10.225Z",
+      "finished": "2026-11-03T13:42:01.325Z",
+      "scopeNote": "All15 completed groups passed. The run then stopped because the test-only radius-sized miss-input grid skipped a narrow empty strip; the input search was corrected without product changes and pointer coverage completed in phases2/3."
+    },
+    {
+      "id": "phase2",
+      "recordedRunResult": "PASS",
+      "completedGroups": 9,
+      "assertions": 47,
+      "sourceSha256": {
+        "js/core.js": "ecb1b74f8c6db08aa81105825ccf56f0e177431bf063c02f4d6c2560c301d947",
+        "js/app.js": "79361da1ab448864beba9cf80214b132569fd4a9e188b3df7b2f33fcc34c3ea0",
+        "js/gfx.js": "501acb5f011417e7acb13e6f640ee504049ad1934fb80c39ccb76c54ab416558",
+        "js/engine.js": "67c9bac3755f500e952b1095eedba89fb294f10f453b4cf801da74ca1ffa1d08",
+        "js/lang-en.js": "5cb4297f87e684b118bdaca44f04825f3ba6311be96818382893a65f5b7f3d57",
+        "index.html": "38ddc127ce5dd96fe29f5dc274094fd38e167e1e3bee26a0a00931fefd93bd32"
+      },
+      "sourceStable": true,
+      "browserClosed": true,
+      "started": "2026-11-03T13:49:19.519Z",
+      "finished": "2026-11-03T13:50:28.302Z",
+      "scopeNote": "Exact pointers, nearby drag, barrel-tip drag/Undo, eligible support reload and stockTIE/ln passed."
+    },
+    {
+      "id": "phase3",
+      "recordedRunResult": "PASS",
+      "completedGroups": 16,
+      "assertions": 117,
+      "sourceSha256": {
+        "js/core.js": "9cce49673b6f0f192960ea470ab4b8160afe6055b9ba26b443e0c55d604ead2c",
+        "js/app.js": "79361da1ab448864beba9cf80214b132569fd4a9e188b3df7b2f33fcc34c3ea0",
+        "js/gfx.js": "c9c522972b3e7d3c45289b534627e9bc42aeac8cc65b71804aae2278c61b590f",
+        "js/engine.js": "67c9bac3755f500e952b1095eedba89fb294f10f453b4cf801da74ca1ffa1d08",
+        "js/lang-en.js": "5cb4297f87e684b118bdaca44f04825f3ba6311be96818382893a65f5b7f3d57",
+        "index.html": "38ddc127ce5dd96fe29f5dc274094fd38e167e1e3bee26a0a00931fefd93bd32"
+      },
+      "sourceStable": true,
+      "browserClosed": true,
+      "started": "2026-11-03T13:55:43.837Z",
+      "finished": "2026-11-03T13:58:09.550Z",
+      "scopeNote": "Final functional pointer/support/stock coverage. Review found remaining wedge backing ridge; phase4 supersedes its apparatus/wedge visual evidence."
+    },
+    {
+      "id": "phase4",
+      "recordedRunResult": "PASS",
+      "completedGroups": 8,
+      "assertions": 83,
+      "sourceSha256": {
+        "js/core.js": "9cce49673b6f0f192960ea470ab4b8160afe6055b9ba26b443e0c55d604ead2c",
+        "js/app.js": "79361da1ab448864beba9cf80214b132569fd4a9e188b3df7b2f33fcc34c3ea0",
+        "js/gfx.js": "9c2895600a7477de194c83f211c62298f56317c5f1a5b0d542fa89b09c6724a7",
+        "js/engine.js": "67c9bac3755f500e952b1095eedba89fb294f10f453b4cf801da74ca1ffa1d08",
+        "js/lang-en.js": "5cb4297f87e684b118bdaca44f04825f3ba6311be96818382893a65f5b7f3d57",
+        "index.html": "38ddc127ce5dd96fe29f5dc274094fd38e167e1e3bee26a0a00931fefd93bd32"
+      },
+      "sourceStable": true,
+      "browserClosed": true,
+      "started": "2026-11-03T14:06:42.181Z",
+      "finished": "2026-11-03T14:08:11.966Z",
+      "scopeNote": "Final affected apparatus/wedge UI and rendering recheck, including adopted-buffer shared-edge depth rays and refreshed images."
+    }
+  ],
+  "coverage": {
+    "materialUnion": {
+      "checkpoint": "phase1",
+      "fixture": {
+        "boxCenters": [
+          [
+            100,
+            100,
+            0
+          ],
+          [
+            150,
+            100,
+            0
+          ]
+        ],
+        "boxSize": [
+          100,
+          40,
+          60
+        ],
+        "equivalentCenter": [
+          125,
+          100,
+          0
+        ],
+        "equivalentSize": [
+          150,
+          40,
+          60
+        ],
+        "assembly": true,
+        "generator": {
+          "center": [
+            125,
+            100,
+            0
+          ],
+          "diameter": 8
+        }
+      },
+      "rawStructureVolume": 480000,
+      "overlapMaterialVolume": 360000,
+      "equivalentMaterialVolume": 360000,
+      "overlapMaterialMass": 144000,
+      "equivalentMaterialMass": 144000,
+      "overlapEditableStructureCount": 2,
+      "equivalentEditableStructureCount": 1,
+      "overlapVesselMass": 144241.27431579592,
+      "equivalentVesselMass": 144241.2743157957,
+      "overlapCost": 380145,
+      "equivalentCost": 380145,
+      "retainedGeneratorVolume": [
+        268.082573106329,
+        268.082573106329
+      ],
+      "retainedGeneratorOutput": [
+        1.4039494303996185e+21,
+        1.4039494303996185e+21
+      ]
+    },
+    "assemblyArmor": {
+      "checkpoint": "phase1",
+      "materialVolume": 1500,
+      "outerSkinArea": 800,
+      "armorThickness": 0.2,
+      "observedArmorMass": 1248,
+      "expectedArmorMass": 1248,
+      "observedVesselMass": 1848,
+      "expectedVesselMass": 1848
+    },
+    "apparatus": {
+      "checkpoint": "phase4",
+      "fixture": {
+        "hostCenter": [
+          120,
+          70,
+          0
+        ],
+        "hostSize": [
+          160,
+          100,
+          100
+        ],
+        "buriedGen": [
+          120,
+          70,
+          -42
+        ],
+        "buriedGenDiameter": 12,
+        "buriedSensor": [
+          75,
+          70,
+          -42
+        ],
+        "buriedSensorDiameter": 10,
+        "externalGen": [
+          165,
+          70,
+          -52
+        ],
+        "externalGenDiameter": 12,
+        "externalSensor": [
+          100,
+          70,
+          -55
+        ],
+        "externalSensorDiameter": 10,
+        "cosmeticDepth": 16,
+        "functionalDepth": 1
+      },
+      "buriedOwnership": {
+        "2": [
+          "interior"
+        ],
+        "3": [
+          "interior"
+        ]
+      },
+      "externalGenOwnership": [
+        "gen"
+      ],
+      "externalSensorOwnership": [
+        "struct"
+      ],
+      "normalDrawnMeshes": [
+        "struct",
+        "surfaceArmor",
+        "surfaceDevices",
+        "gen"
+      ],
+      "codedDrawnMeshes": [
+        "struct",
+        "surfaceArmor",
+        "surfaceDevices",
+        "gen"
+      ],
+      "xrayDrawnMeshes": [
+        "gen",
+        "interior",
+        "struct",
+        "surfaceArmor",
+        "surfaceDevices"
+      ],
+      "vesselMassNormalCodedXray": [
+        649695.0971908361,
+        649695.0971908361,
+        649695.0971908361
+      ],
+      "sourceObjectsUnchangedAcrossModes": true,
+      "movedPreviouslyBuriedGenOwnership": [
+        "gen"
+      ]
+    },
+    "wedge": {
+      "checkpoint": "phase4",
+      "fixture": {
+        "center": [
+          120,
+          80,
+          0
+        ],
+        "size": [
+          160,
+          80,
+          60
+        ],
+        "form": "wedge",
+        "cosmeticDepth": 4,
+        "functionalDepth": 1,
+        "camera": {
+          "th": 0,
+          "ph": 0.35877067027057213,
+          "r": 230,
+          "point": [
+            120,
+            80,
+            0
+          ]
+        }
+      },
+      "roofNormalsDotOutward": [
+        1,
+        1
+      ],
+      "normalRoofPixels": {
+        "mode": "webgl",
+        "drawOptions": {
+          "mode": "normal"
+        },
+        "pixels": [
+          {
+            "point": [
+              119.99999999999997,
+              79.99999999999999,
+              0
+            ],
+            "xy": [
+              770,
+              554.5000089886394
+            ],
+            "rgba": [
+              154,
+              171,
+              182,
+              255
+            ]
+          },
+          {
+            "point": [
+              130.94760863060225,
+              75.89464676352412,
+              0
+            ],
+            "xy": [
+              770,
+              621.4196533493656
+            ],
+            "rgba": [
+              168,
+              185,
+              194,
+              255
+            ]
+          },
+          {
+            "point": [
+              109.05239136939768,
+              84.10535323647585,
+              0
+            ],
+            "xy": [
+              770,
+              487.5803646753772
+            ],
+            "rgba": [
+              166,
+              184,
+              195,
+              255
+            ]
+          },
+          {
+            "point": [
+              119.99999999999997,
+              79.99999999999999,
+              -11.692051142767061
+            ],
+            "xy": [
+              836.9196445321502,
+              554.5000089886394
+            ],
+            "rgba": [
+              157,
+              173,
+              183,
+              255
+            ]
+          },
+          {
+            "point": [
+              119.99999999999997,
+              79.99999999999999,
+              11.692051142767061
+            ],
+            "xy": [
+              703.0803554678498,
+              554.5000089886394
+            ],
+            "rgba": [
+              144,
+              164,
+              175,
+              255
+            ]
+          }
+        ]
+      },
+      "realCanvasSurfaceClickAndApplyPassed": true,
+      "fieldPieces": 218,
+      "backingTriangleCount": 128,
+      "adoptedSurfaceDeviceIndices": 19560,
+      "sharedEdgeDepthEvidence": [
+        {
+          "t": 0.2,
+          "point": [
+            72,
+            98,
+            24
+          ],
+          "actualDepth": 51.2640224719052,
+          "planDepth": 4.000000000000007,
+          "gpuDepth": 3.999998003686237
+        },
+        {
+          "t": 0.5,
+          "point": [
+            120,
+            80,
+            0
+          ],
+          "actualDepth": 32.040014044940754,
+          "planDepth": 3.999999999999993,
+          "gpuDepth": 4.000003004229018
+        },
+        {
+          "t": 0.8,
+          "point": [
+            168,
+            62,
+            -24
+          ],
+          "actualDepth": 12.8160056179763,
+          "planDepth": 4.000000000000011,
+          "gpuDepth": 3.999997646511444
+        }
+      ],
+      "depthMethod": "Rays at t=.2,.5,.8 query both plan backing and actual adopted surfaceArmor GPU input triangles; true inward depth supports requested4m.",
+      "visualReview": "Parent visually accepted final roof tiers without the previous long triangular backing fans. Apparatus false diagonal reveal also removed."
+    },
+    "fixedPlacement": {
+      "checkpoint": "phase1",
+      "newDefaultAdditionalHeight": 0,
+      "realCanvasLaser": {
+        "id": 2,
+        "k": "claser",
+        "p": [
+          100.00002786284401,
+          100,
+          -24.999972970726013
+        ],
+        "ped": 0,
+        "base": 0,
+        "low": 0,
+        "slope": 0,
+        "hasPedestal": false
+      },
+      "realCanvasMissileLauncher": {
+        "id": 3,
+        "k": "cmsl",
+        "p": [
+          144.9999725916893,
+          100,
+          24.999973417184876
+        ],
+        "ped": 0,
+        "base": 0,
+        "low": 0,
+        "slope": 0,
+        "hasPedestal": false
+      },
+      "publicReloadedFixedFits": [
+        {
+          "id": 2,
+          "k": "claser",
+          "p": [
+            100.00002786284401,
+            100,
+            -24.999972970726013
+          ],
+          "ped": 0,
+          "base": 0,
+          "low": 0,
+          "slope": 0,
+          "hasPedestal": false
+        },
+        {
+          "id": 3,
+          "k": "cmsl",
+          "p": [
+            144.9999725916893,
+            100,
+            24.999973417184876
+          ],
+          "ped": 0,
+          "base": 0,
+          "low": 0,
+          "slope": 0,
+          "hasPedestal": false
+        }
+      ]
+    },
+    "exactPointers": {
+      "checkpoint": "phase3",
+      "laserVisibleInput": {
+        "xy": [
+          753.2752925368366,
+          550.9878618649913
+        ],
+        "p": [
+          119.89600372314453,
+          100.20800018310547,
+          -0.05333333214124044
+        ],
+        "oldBroadHit": true,
+        "oldPaddedHit": true,
+        "fit": 2
+      },
+      "laserEmptyInput": {
+        "xy": [
+          754.4537652913563,
+          544.0264120976581
+        ],
+        "p": [
+          119.91333333333333,
+          100.16,
+          -0.15946666666666667
+        ],
+        "oldBroadHit": true,
+        "fit": 2
+      },
+      "nearbyDragPreservedFitPositions": true,
+      "nearbyDragUndoCounts": [
+        4,
+        4
+      ],
+      "barrelTipInput": {
+        "xy": [
+          982.1625801302689,
+          517.4856254183434
+        ],
+        "p": [
+          137.16000111897787,
+          106.52884419759114,
+          -2.9916566212972007
+        ],
+        "oldBroadHit": false,
+        "oldPaddedHit": false,
+        "fit": 2
+      },
+      "barrelTipDragBefore": [
+        {
+          "id": 2,
+          "k": "htl",
+          "p": [
+            120,
+            100,
+            0
+          ],
+          "ped": 0,
+          "base": 0,
+          "low": 0,
+          "slope": 0,
+          "hasPedestal": true
+        }
+      ],
+      "barrelTipDragAfter": [
+        {
+          "id": 2,
+          "k": "htl",
+          "p": [
+            139.58581325457462,
+            100,
+            -3.1791685127507874
+          ],
+          "ped": 0,
+          "base": 0,
+          "low": 0,
+          "slope": 0,
+          "hasPedestal": true
+        }
+      ],
+      "actualUndoRestored": [
+        {
+          "id": 2,
+          "k": "htl",
+          "p": [
+            120,
+            100,
+            0
+          ],
+          "ped": 0,
+          "base": 0,
+          "low": 0,
+          "slope": 0,
+          "hasPedestal": true
+        }
+      ]
+    },
+    "articulatedSupport": {
+      "checkpoint": "phase3",
+      "editedAdditionalHeight": 3,
+      "observedEditedFit": [
+        {
+          "id": 2,
+          "k": "htl",
+          "p": [
+            120,
+            100,
+            0
+          ],
+          "ped": 3,
+          "base": 0,
+          "low": 0,
+          "slope": 0,
+          "hasPedestal": true
+        }
+      ],
+      "publicReloadedFit": [
+        {
+          "id": 2,
+          "k": "htl",
+          "p": [
+            120,
+            100,
+            0
+          ],
+          "ped": 3,
+          "base": 0,
+          "low": 0,
+          "slope": 0,
+          "hasPedestal": true
+        }
+      ]
+    },
+    "stockCraft": {
+      "checkpoint": "phase3",
+      "reference": "craft_tie_ln",
+      "modelVersion": 10,
+      "vesselMass": 10.348813921901888,
+      "cost": 94225,
+      "nativePartCount": 58,
+      "fixedFits": [
+        {
+          "id": 48,
+          "k": "claser",
+          "p": [
+            1.07,
+            0.053961844071075404,
+            0.318
+          ],
+          "ped": 0,
+          "base": 0,
+          "low": 0,
+          "slope": 0,
+          "hasPedestal": false
+        },
+        {
+          "id": 49,
+          "k": "claser",
+          "p": [
+            1.07,
+            0.05396184410845306,
+            -0.318
+          ],
+          "ped": 0,
+          "base": 0,
+          "low": 0,
+          "slope": 0,
+          "hasPedestal": false
+        }
+      ]
+    }
+  },
+  "screenshots": [
+    {
+      "path": "docs/images/structural-apparatus-normal.png",
+      "sha256": "24b3ff7ca7362bbb61b1f8d65d892b401688e0b0113158ff27c67158c4623622",
+      "checkpoint": "phase4"
+    },
+    {
+      "path": "docs/images/structural-apparatus-xray.png",
+      "sha256": "42aa7f3f81f8960bd60eea0a93e08f11d2b38ea9a953221e376483de816f0d5b",
+      "checkpoint": "phase4"
+    },
+    {
+      "path": "docs/images/structural-wedge-equipment.png",
+      "sha256": "3702cf8bf61cd483a1e009d201769e7f0c455e30320e4298aa81923bdbe30c83",
+      "checkpoint": "phase4"
+    },
+    {
+      "path": "docs/images/weapon-fixed-flush.png",
+      "sha256": "2d1090b6e5964d293250c072bfb5c34ab1bbf4bbd2d302e1b2a0804b7dab0ff0",
+      "checkpoint": "phase3"
+    }
+  ],
+  "errors": [],
+  "consoleErrors": [],
+  "limits": [
+    "The affected TIE/ex save was not provided; the real stock craft_tie_ln and explicit generated fixtures were tested instead.",
+    "Focused UI, rendering, pointer, save/reload and worker cases were verified; no full battle/flight, physical phone/gamepad or hardware GPU test is claimed.",
+    "No speed or FPS comparison is claimed.",
+    "Independent real equipment/plates/wing hardware retain separate native mass. Old wedge face configurations may require documented explicit reassignment."
+  ]
+}

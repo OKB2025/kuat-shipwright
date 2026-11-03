@@ -16,18 +16,18 @@ function inside(body,p,n){return C.inPart(body,p)||C.inPart(body,C.sub(p,C.mul(n
 const median=a=>a.sort((a,b)=>a-b)[Math.floor(a.length/2)];
 
 test('large staggered machinery and its working faces are inside their actual structure envelope',()=>{
- for(const rotate of [false,true]){const {ship,body,patch}=fixture({rotate}),saved=C.publicJSON(ship),row=G.surfaceVisualPlan(ship).find(r=>r.id===patch.id),mesh=G.meshSurfaceLayers(ship,{}),primary=row.field.filter(q=>q.feature==='service-housing'&&q.recess);assert.ok(primary.length>12);assert.equal(row.recessDepth,3);
+ for(const rotate of [false,true]){const {ship,body,patch}=fixture({rotate}),saved=C.publicJSON(ship),row=G.surfaceVisualPlan(ship).find(r=>r.id===patch.id),mesh=G.meshSurfaceLayers(ship,{}),primary=row.field.filter(q=>['stratum-machinery','stratum-core'].includes(q.feature)&&q.recess);assert.ok(primary.length>12);assert.equal(row.functionalDepth,3);assert.ok(row.recessDepth>3,'structural relief must be independent of the functional room depth');
   const back=primary.map(p=>C.dot(C.sub(p.center,patch.center),patch.normal)-p.size[2]/2),front=primary.map(p=>C.dot(C.sub(p.center,patch.center),patch.normal)+p.size[2]/2);assert.ok(Math.max(...back)-Math.min(...back)>.5);assert.ok(Math.max(...front)-Math.min(...front)>.8);assert.ok(median(primary.map(p=>Math.sqrt(p.size[0]*p.size[1])))>3);
   for(const name of ['surfaceDevices','surfaceDetail']){const P=points(mesh[name]);assert.ok(P.length>100);for(const p of P){assert.ok(C.dot(C.sub(p,patch.center),patch.normal)<.001,name+' protrudes outside the selected wall');assert.ok(inside(body,p,patch.normal),name+' leaves the actual owner volume: '+p);}}
-  for(let i=0;i<row.backingTriangles.length;i+=3){const p=row.backingTriangles.slice(i,i+3);assert.ok(inside(body,p,patch.normal));assert.ok(C.dot(C.sub(p,patch.center),patch.normal)<=-2.9);}
+  for(let i=0;i<row.backingTriangles.length;i+=3){const p=row.backingTriangles.slice(i,i+3);assert.ok(inside(body,p,patch.normal));assert.ok(C.dot(C.sub(p,patch.center),patch.normal)<=-row.recessDepth+.1);}
   assert.equal(C.publicJSON(ship),saved,'rendering must not alter native layout or capacity');
  }
 });
 
 test('equipment replaces the opaque host wall with recessed backing and retains the roof and underside caps',()=>{
- const {ship,body,patch}=fixture(),row=G.surfaceVisualPlan(ship).find(r=>r.id===patch.id),full=G.meshParts(ship,{coded:false}),T=tris(full.g.struct),primary=row.field.find(q=>q.feature==='service-housing'&&q.recess),wallPoint=C.sub(primary.center,C.mul(patch.normal,C.dot(C.sub(primary.center,patch.center),patch.normal))),o=C.add(wallPoint,C.mul(patch.normal,10)),hit=C.rayTris(T,o,C.mul(patch.normal,-1));
+ const {ship,body,patch}=fixture(),row=G.surfaceVisualPlan(ship).find(r=>r.id===patch.id),full=G.meshParts(ship,{coded:false}),T=tris(full.g.struct),primary=row.field.find(q=>['stratum-machinery','stratum-core'].includes(q.feature)&&q.recess),wallPoint=C.sub(primary.center,C.mul(patch.normal,C.dot(C.sub(primary.center,patch.center),patch.normal))),o=C.add(wallPoint,C.mul(patch.normal,10)),hit=C.rayTris(T,o,C.mul(patch.normal,-1));
  assert.ok(!hit||hit.t>20,'the original unbroken wall still obscures the inset machinery');
- const backing=C.rayTris(row.backingTriangles,o,C.mul(patch.normal,-1));assert.ok(backing&&Math.abs(backing.t-13)<1e-5,'backing must be inside the opening');
+ const backing=C.rayTris(row.backingTriangles,o,C.mul(patch.normal,-1));assert.ok(backing&&Math.abs(backing.t-(10+row.recessDepth))<1e-5,'backing must be inside the opening');
  for(const face of ['top','bottom']){const p=C.surfacePatches(ship).find(p=>p.host==='p'+body.id&&p.face===face),a=C.add(p.center,C.mul(p.normal,4)),h=C.rayTris(T,a,C.mul(p.normal,-1));assert.ok(h&&h.t<4.3,face+' armor cap was removed with the wall');}
  assert.ok(full.g.surfaceArmor.ni>row.backingTriangles.length/3,'equipment opening requires reveal walls at the armor edges');
 });
@@ -50,7 +50,10 @@ test('sloped armor seams use absolute ship coordinates instead of a diagonal loc
 });
 
 test('equipment faces without installed cells retain only neutral structure scenery and add no capacity',()=>{
- const {ship,body,patch}=fixture();assert.equal(C.setSurfaceConfig(ship,patch.id,{battery:{count:0},equipment:{limit:0}}).ok,true);
+ const initial=fixture();assert.equal(C.setSurfaceConfig(initial.ship,initial.patch.id,{battery:{count:0}}).ok,true);
+ // An imported count-v1 face can retain zero equipment. New area-v1 faces
+ // deliberately fill their nonweapon allocation even when an old limit is0.
+ const savedSource=C.serialize(initial.ship),cfg=savedSource.surfaces.patches.find(q=>q.id===initial.patch.id);delete cfg.equipment.capacityModel;delete cfg.aggregate;cfg.equipment.count=0;cfg.equipment.limit=0;const ship=C.deserialize(savedSource),body=ship.parts.find(q=>q.id===initial.body.id),patch=C.surfacePatches(ship).find(q=>q.id===initial.patch.id);
  const installed=()=>[...ship.parts,...ship.fits].filter(p=>p.surfacePatch===patch.id&&!p.surfaceUnplaced);assert.equal(installed().length,0);
  const saved=C.publicJSON(ship),stats=plain(C.computeStats(ship)),report=plain(C.surfaceReport(ship)),row=G.surfaceVisualPlan(ship).find(r=>r.id===patch.id);assert.ok(row.field.length>12,'an empty capacity budget must not leave a blank structural wall');assert.equal(row.devices.length,0,'functional working faces require native installed devices');
  for(const q of [...row.field,...row.boxes]){assert.equal(q.ownerId,body.id);assert.equal(q.role,null,'neutral machinery must not impersonate a functional category');assert.ok(!/cooling-|sensor-|habitation-|gun-/.test(q.feature));}

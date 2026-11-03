@@ -550,7 +550,7 @@ function meshFits(ship, filter, ranges, only) {
       // fills down to the lowest one so they never hang over a slope or step.
       if(f.float||C.FITS[f.k].casemate||f.localMount||f.mountAxis!=null)return;
       const d=C.fitSpec(f),ph=(f.base||0)+(f.ped||0)-(f.low||0);
-      if(ph>0.3&&!FIT_SKIP_PED?.has(f.id))pedestal(g,frameM(f),C.fitOrigin(f),ph,d.r*.72*(f.pedSize||1),f.pedShape,FC.ped,d.r*.8);
+      if(ph>0.3&&C.fitHasPedestal(f)&&!FIT_SKIP_PED?.has(f.id))pedestal(g,frameM(f),C.fitOrigin(f),ph,d.r*.72*(f.pedSize||1),f.pedShape,FC.ped,d.r*.8);
       return;
     }
     // Command pods are the bridge drum mesh, drawn with the model fittings.
@@ -560,7 +560,7 @@ function meshFits(ship, filter, ranges, only) {
     const d = C.fitSpec(f), M = frameM(f), o = C.fitOrigin(f), L = d.fm, W = d.wm, h = d.hm, k = f.k;
     // pedestal from below the surface up to the mount
     const ph = f.base + f.ped - (f.low || 0);
-    if (ph > 0.3 && !FIT_SKIP_PED?.has(f.id)) pedestal(g, M, o, ph, d.r * (d.cat === 'b' ? 0.55 : 0.72) * (f.pedSize || 1), f.pedShape, FC.ped, d.r * 0.8);
+    if (ph > 0.3 && C.fitHasPedestal(f) && !FIT_SKIP_PED?.has(f.id)) pedestal(g, M, o, ph, d.r * (d.cat === 'b' ? 0.55 : 0.72) * (f.pedSize || 1), f.pedShape, FC.ped, d.r * 0.8);
     if (FIT_SKIP_BODY?.has(f.id)) return;
     if (d.cat === 'b') {
       const WIN = UV_WINDOW;
@@ -667,6 +667,22 @@ function meshFits(ship, filter, ranges, only) {
   };
   for (const f of only||surfaceRenderFits(ship)) { if (filter && !filter(f)) continue; const before = g.ni; one(f); if (ranges && g.ni > before) (ranges[f.id] || (ranges[f.id] = [])).push(['fits', before, g.ni - before]); }
   return g;
+}
+
+// Selection follows the exact visible weapon mesh, including its own broad
+// bounds. Empty space in a ring or between barrels is not selectable. A small
+// LRU invalidates immediately after a pose or load edit.
+const FIT_RAY_CACHE=new Map(),FIT_RAY_BOUNDS=new WeakMap();
+function rayFit(o,d,f){
+ if(!f||!C.FITS[f.k])return null;
+ const key=JSON.stringify([f,C.fitSpec(f),f._store],(k,v)=>k.startsWith('_')?undefined:v),known=FIT_RAY_BOUNDS.get(f);if(known?.key===key&&!C.rayAABB(o,d,known.bounds))return null;let item=FIT_RAY_CACHE.get(f);
+ if(!item||item.key!==key){const model={fits:[f],parts:[],paint:'imperial'},skipBody=FIT_SKIP_BODY,skipPed=FIT_SKIP_PED;let meshes;
+  try{FIT_SKIP_BODY=FIT_SKIP_PED=null;meshes=[meshFits(model,null,null,[f]),meshReferenceFits(model,null,[f])];}finally{FIT_SKIP_BODY=skipBody;FIT_SKIP_PED=skipPed;}
+  const T=new Float32Array(meshes.reduce((n,g)=>n+g.ni*3,0)),bounds=[Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity];let cursor=0;
+  for(const g of meshes)for(let i=0;i<g.ni;i++){const k=g.idx[i]*3;for(let a=0;a<3;a++){const v=g.pos[k+a];T[cursor++]=v;bounds[a]=Math.min(bounds[a],v);bounds[a+3]=Math.max(bounds[a+3],v);}}
+  item={key,T,bounds};FIT_RAY_BOUNDS.set(f,{key,bounds});FIT_RAY_CACHE.delete(f);FIT_RAY_CACHE.set(f,item);while(FIT_RAY_CACHE.size>48)FIT_RAY_CACHE.delete(FIT_RAY_CACHE.keys().next().value);
+ }else{FIT_RAY_CACHE.delete(f);FIT_RAY_CACHE.set(f,item);}
+ if(!item.T.length||!C.rayAABB(o,d,item.bounds))return null;return C.rayTris(item.T,o,d);
 }
 
 // ---------- WebGL ----------
@@ -1828,8 +1844,11 @@ function roomMesh(ship,p,g,col){
 // Surface visuals read the installed design. Detail quality changes only the
 // decorative pass; armour and equipment ports are always derived from the same
 // physical patches and installed common parts used by the simulation.
-function surfaceTriangles(patch){
- const T=patch?.triangles;if(!T)return [];
+function surfaceTriangles(patch,exposed=true){
+ // Core keeps the full semantic surface for physical armour and stable IDs.
+ // Rendering uses only its camera-independent exposed fragments, including
+ // an explicitly empty mask for a completely buried face.
+ const T=exposed&&patch?.exposedTriangles!=null?patch.exposedTriangles:patch?.triangles;if(!T)return [];
  if(ArrayBuffer.isView(T)||typeof T[0]==='number')return Array.from(T);
  return T.flat(Infinity);
 }
@@ -1865,6 +1884,7 @@ function equipmentReferenceSkin(data,patches){
  for(let i=0;i<data.idx.length;i+=3){const poly=[0,1,2].map(j=>{const k=data.idx[i+j];return [...data.pos.slice(k*3,k*3+3),...data.uv.slice(k*2,k*2+2)];});for(const p of equipmentSkinFragments(poly,cutters))for(let j=1;j<p.length-1;j++)vertices.push(p[0],p[j],p[j+1]);}
  return {pos:Float32Array.from(vertices.flatMap(p=>p.slice(0,3))),uv:Float32Array.from(vertices.flatMap(p=>p.slice(3,5))),idx:Uint32Array.from(vertices.map((_,i)=>i))};
 }
+const SURFACE_RECESS_DATA=new WeakMap();
 function surfaceRecess(ship,patch,requested){
  const n=C.norm(patch.normal),T=surfaceTriangles(patch),recessDepth=Math.max(.02,Math.min(requested,patch.depth||requested)),backingTriangles=[],depths=new Map(),hints=new Map(),key=p=>p.map(v=>Math.round(v*1e6)).join(',');
  for(let i=0;i<T.length;i+=9){const ps=[T.slice(i,i+3),T.slice(i+3,i+6),T.slice(i+6,i+9)],center=C.mul(ps.reduce((a,b)=>C.add(a,b),[0,0,0]),1/3);for(const p of ps){const k=key(p);hints.set(k,C.add(hints.get(k)||[0,0,0],C.sub(center,p)));}}
@@ -1875,14 +1895,39 @@ function surfaceRecess(ship,patch,requested){
   if(!(depth>0))depth=C.surfaceInwardDepth?.(ship,patch,C.add(p,C.mul(hintAt(p),.001)))||0;
   const amount=Math.max(0,Math.min(recessDepth,depth-.012));depths.set(k,amount);return amount;};
  const pointAt=p=>C.sub(C.add(p,C.mul(hintAt(p),.0001)),C.mul(n,depthAt(p)));
- for(let i=0;i<T.length;i+=3)backingTriangles.push(...pointAt(T.slice(i,i+3)));
- return {recessDepth,backingTriangles,depthAt,pointAt};
+ // Raw wedge corners can all have zero depth while their shared diagonal
+ // has room for the full recess. Centroid fans retain that false ridge.
+ // Refine whole passes with shared edge midpoints so adjacent triangles
+ // agree; full-depth walls retain their exact original tessellation.
+ let faces=[];for(let i=0;i<T.length;i+=9)faces.push([T.slice(i,i+3),T.slice(i+3,i+6),T.slice(i+6,i+9)]);
+ const threshold=Math.max(.025,recessDepth*.18),midpoints=new Map(),midpoint=(a,b)=>{const ka=key(a),kb=key(b),k=ka<kb?ka+'|'+kb:kb+'|'+ka;let p=midpoints.get(k);if(!p){p=C.mul(C.add(a,b),.5);midpoints.set(k,p);}return p;};let splits=0;
+ const needsRefinement=([a,b,c])=>{const ds=[depthAt(a),depthAt(b),depthAt(c)];if(Math.min(...ds)>=recessDepth-threshold)return false;
+  const ps=[a,b,c];for(let j=0;j<3;j++)if(Math.abs(depthAt(midpoint(ps[j],ps[(j+1)%3]))-(ds[j]+ds[(j+1)%3])/2)>threshold)return true;
+  return Math.abs(depthAt(C.mul(C.add(C.add(a,b),c),1/3))-(ds[0]+ds[1]+ds[2])/3)>threshold;};
+ // At most three conforming passes and 192 four-way triangle splits.
+ for(let level=0;level<3&&splits+faces.length<=192&&faces.some(needsRefinement);level++){splits+=faces.length;const next=[];for(const [a,b,c]of faces){const ab=midpoint(a,b),bc=midpoint(b,c),ca=midpoint(c,a);next.push([a,ab,ca],[ab,b,bc],[ca,bc,c],[ab,bc,ca]);}faces=next;}
+ const frontTriangles=faces.flat(2);
+ for(let i=0;i<frontTriangles.length;i+=3)backingTriangles.push(...pointAt(frontTriangles.slice(i,i+3)));
+ const result={recessDepth,backingTriangles,frontTriangles,depthAt,pointAt};SURFACE_RECESS_DATA.set(backingTriangles,result);return result;
 }
 function surfaceBoundary(patch){
  const T=surfaceTriangles(patch),edges=new Map(),key=p=>p.map(v=>Math.round(v*1e6)).join(',');
  for(let i=0;i+8<T.length;i+=9){const p=[T.slice(i,i+3),T.slice(i+3,i+6),T.slice(i+6,i+9)];for(let j=0;j<3;j++){const a=p[j],b=p[(j+1)%3],ka=key(a),kb=key(b),k=ka<kb?ka+'|'+kb:kb+'|'+ka,q=edges.get(k);if(q)q.n++;else edges.set(k,{a,b,n:1});}}
- if(!T.length&&patch?.polygon?.length>2)for(let i=0;i<patch.polygon.length;i++)edges.set(String(i),{a:patch.polygon[i],b:patch.polygon[(i+1)%patch.polygon.length],n:1});
- return [...edges.values()].filter(e=>e.n===1);
+ if(!T.length&&patch?.exposedTriangles==null&&patch?.polygon?.length>2)for(let i=0;i<patch.polygon.length;i++)edges.set(String(i),{a:patch.polygon[i],b:patch.polygon[(i+1)%patch.polygon.length],n:1});
+ // Exposure clipping can leave a whole triangle edge opposite several
+ // shorter edges. Exact endpoint cancellation alone makes that T-junction
+ // look like an opening, extruding a false reveal through the equipment.
+ const boundary=[...edges.values()].filter(e=>e.n===1);
+ return surfaceUncoveredEdges(boundary,boundary,1e-6);
+}
+function surfaceUncoveredEdges(edges,covering,eps){
+ const out=[];
+ for(const e of edges){const d=C.sub(e.b,e.a),length2=C.dot(d,d),length=Math.sqrt(length2);if(length<=eps)continue;const tolerance=eps/length;let spans=[[0,1]];
+  for(const f of covering){if(e===f)continue;const a=C.sub(f.a,e.a),b=C.sub(f.b,e.a),ta=C.dot(a,d)/length2,tb=C.dot(b,d)/length2,lo=Math.max(0,Math.min(ta,tb)),hi=Math.min(1,Math.max(ta,tb));if(hi-lo<=tolerance||C.len(C.sub(a,C.mul(d,ta)))>eps||C.len(C.sub(b,C.mul(d,tb)))>eps)continue;
+   const next=[];for(const p of spans){if(p[0]<lo-tolerance)next.push([p[0],Math.min(p[1],lo)]);if(p[1]>hi+tolerance)next.push([Math.max(p[0],hi),p[1]]);}spans=next;if(!spans.length)break;
+  }
+  for(const [a,b]of spans)if(b-a>tolerance)out.push({a:C.add(e.a,C.mul(d,a)),b:C.add(e.a,C.mul(d,b))});
+ }return out;
 }
 function surfaceSelectionLines(ship,ids){
  const out=lineSet();if(!ship||!ids?.length||typeof C.surfacePatches!=='function')return out.out();
@@ -1906,6 +1951,21 @@ function surfaceEquipmentPaint(paint,color,feature,port){
  const brightness=(color[0]+color[1]+color[2])/3;
  return surfacePaintTone(paint,C.clamp(.92+(brightness-113)*.0019,.79,1.04));
 }
+// A semantic split does not create a structural wall. Remove only the
+// collinear shared interval when both siblings expose the same recessed space.
+function surfaceEquipmentReveals(row,plans){
+ const neighbors=plans.filter(q=>q!==row&&q.host===row.host&&q.config.functionMode==='equipment'&&Math.abs(q.visualDepth-row.visualDepth)<1e-5&&C.dot(q.patch.normal,row.patch.normal)>1-1e-6);
+ return surfaceUncoveredEdges(row.boundary,neighbors.flatMap(q=>q.boundary),1e-4);
+}
+function surfaceLayerFrame(patch){
+ const normal=C.norm(patch.normal),up=C.sub([0,1,0],C.mul(normal,normal[1])),vertical=C.len(up)>.08,v=vertical?C.norm(up):C.norm(C.sub([0,0,1],C.mul(normal,normal[2])));let u=C.norm(C.cross(v,normal));
+ if(Math.abs(u[0])>.05?u[0]<0:u[2]<0)u=C.mul(u,-1);
+ return {u,v,normal,vertical};
+}
+function surfaceLayerBases(patches){
+ const out=new Map();for(const p of patches){const id=p.baseId||p.id;let b=out.get(id);if(!b){const f=surfaceLayerFrame(p);out.set(id,b={...f,minU:Infinity,maxU:-Infinity,minV:Infinity,maxV:-Infinity,minY:Infinity,maxY:-Infinity});}const T=surfaceTriangles(p,false);for(let i=0;i<T.length;i+=3){const q=T.slice(i,i+3),x=C.dot(q,b.u),y=C.dot(q,b.v);b.minU=Math.min(b.minU,x);b.maxU=Math.max(b.maxU,x);b.minV=Math.min(b.minV,y);b.maxV=Math.max(b.maxV,y);b.minY=Math.min(b.minY,q[1]);b.maxY=Math.max(b.maxY,q[1]);}}
+ return out;
+}
 // Allocate a bounded visual budget before drawing any face. A small floor and
 // area-weighted remainder keep late/short/aft faces from being starved by a
 // large earlier wall. Largest-remainder rounding preserves the global cap.
@@ -1918,9 +1978,9 @@ function surfaceVisualShares(patches,total,floor){
 // is neutral scenery: its shelves, cases and conduits add zero capacity. Small
 // working faces are owned by the installed common device beside them, so local
 // damage, selection and S-foil ownership still refer to real design entities.
-function surfaceEquipmentField(ship,patch,cells,style,detail,extraBudget,fieldBudget,config,face){
- const u=C.norm(patch.u),v=C.norm(patch.v),normal=C.norm(patch.normal),T=surfaceTriangles(patch),origin=patch.center,uv=p=>{const q=C.sub(p,origin);return [C.dot(q,u),C.dot(q,v),C.dot(q,normal)];},tris=[],relief=Math.min(patch.depth||4.5,C.clamp(config?.equipment?.depth??Math.max(1,...cells.filter(c=>c.role!=='weapons').map(c=>c.depth||1)),.02,4.5)),recess=surfaceRecess(ship,patch,relief);
- for(let i=0;i+8<T.length;i+=9){const t=[T.slice(i,i+3),T.slice(i+3,i+6),T.slice(i+6,i+9)].map(p=>[...uv(p),C.dot(C.sub(recess.pointAt(p),origin),normal)]);t.bounds=[Math.min(...t.map(p=>p[0])),Math.min(...t.map(p=>p[1])),Math.max(...t.map(p=>p[0])),Math.max(...t.map(p=>p[1]))];tris.push(t);}
+function surfaceEquipmentField(ship,patch,cells,style,detail,extraBudget,fieldBudget,config,face,base){
+ const frame=base||surfaceLayerFrame(patch),{u,v,normal}=frame,T=surfaceTriangles(patch),origin=patch.center,uv=p=>{const q=C.sub(p,origin);return [C.dot(q,u),C.dot(q,v),C.dot(q,normal)];},tris=[],baseHeight=base?base.maxV-base.minV:Math.sqrt(patch.area),relief=Math.max(.02,Math.min(patch.depth||30,style.depth>0?Math.min(30,style.depth):Math.min(24,Math.max(1.2,baseHeight*.20),(patch.depth||30)*.22))),recess=surfaceRecess(ship,patch,relief),frontT=recess.frontTriangles;
+ for(let i=0;i+8<frontT.length;i+=9){const t=[frontT.slice(i,i+3),frontT.slice(i+3,i+6),frontT.slice(i+6,i+9)].map(p=>[...uv(p),C.dot(C.sub(recess.pointAt(p),origin),normal)]);t.bounds=[Math.min(...t.map(p=>p[0])),Math.min(...t.map(p=>p[1])),Math.max(...t.map(p=>p[0])),Math.max(...t.map(p=>p[1]))];tris.push(t);}
  const points=tris.flat(),lo=[Math.min(...points.map(p=>p[0])),Math.min(...points.map(p=>p[1]))],hi=[Math.max(...points.map(p=>p[0])),Math.max(...points.map(p=>p[1]))],blocked=[],host=/^p\d+$/.test(patch.host)?+patch.host.slice(1):patch.host,random=rng(surfaceSeed(patch.id+'|field',style.seed)),field=[],boxes=[],devices=[],scale=Math.max(1.5,Math.sqrt(patch.area/3500)),paint=surfaceHostPaint(ship,patch);
  const at=(x,y,z)=>C.add(origin,C.add(C.add(C.mul(u,x),C.mul(v,y)),C.mul(normal,z)));
  const clip=(poly,axis,limit,sign)=>{const out=[];for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length],da=(a[axis]-limit)*sign,db=(b[axis]-limit)*sign;if(da>=-1e-8)out.push(a);if((da<0)!==(db<0)){const t=da/(da-db);out.push(a.map((q,j)=>q+(b[j]-q)*t));}}return out;};
@@ -1933,7 +1993,7 @@ function surfaceEquipmentField(ship,patch,cells,style,detail,extraBudget,fieldBu
  const space=b=>{if(!(b[2]>b[0]&&b[3]>b[1])||b[0]<lo[0]-1e-6||b[1]<lo[1]-1e-6||b[2]>hi[0]+1e-6||b[3]>hi[1]+1e-6||blocked.some(a=>b[2]>a[0]&&b[0]<a[2]&&b[3]>a[1]&&b[1]<a[3]))return null;let area=0,height=-Infinity,ceiling=Infinity,floor=-Infinity;
   for(const tri of tris){const a=tri.bounds;if(a[2]<b[0]||a[0]>b[2]||a[3]<b[1]||a[1]>b[3])continue;let p=tri;for(const [axis,limit,sign]of [[0,b[0],1],[0,b[2],-1],[1,b[1],1],[1,b[3],-1]]){p=clip(p,axis,limit,sign);if(p.length<3)break;}if(p.length<3)continue;let area2=0;for(let i=0;i<p.length;i++){const q=p[i],r=p[(i+1)%p.length];area2+=q[0]*r[1]-q[1]*r[0];height=Math.max(height,q[2]);ceiling=Math.min(ceiling,q[2]);floor=Math.max(floor,q[3]);}area+=Math.abs(area2)*.5;}
   if(area<(b[2]-b[0])*(b[3]-b[1])*(1-1e-6))return null;
-  if(patch.exposedArea<patch.area*.999){for(const [x,y]of [[b[0],b[1]],[b[2],b[1]],[b[0],b[3]],[b[2],b[3]],[(b[0]+b[2])/2,(b[1]+b[3])/2]]){const p=C.add(origin,C.add(C.add(C.mul(u,x),C.mul(v,y)),C.mul(normal,height+2))),hit=C.surfacePick(ship,p,C.mul(normal,-1));if(hit?.id!==patch.id)return null;}}
+  if(patch.exposedTriangles==null&&patch.exposedArea<patch.area*.999){for(const [x,y]of [[b[0],b[1]],[b[2],b[1]],[b[0],b[3]],[b[2],b[3]],[(b[0]+b[2])/2,(b[1]+b[3])/2]]){const p=C.add(origin,C.add(C.add(C.mul(u,x),C.mul(v,y)),C.mul(normal,height+2))),hit=C.surfacePick(ship,p,C.mul(normal,-1));if(hit?.id!==patch.id)return null;}}
   return {height,ceiling:ceiling-.012,floor:floor+.008};
  };
  const checkOwner=ship.solidCuts?.length||patch._part?.mesh||['outline','shell','arc'].includes(patch._part?.form),inside=p=>patch._part?C.inPart(patch._part,p):C.inHull(ship,p);
@@ -1941,56 +2001,54 @@ function surfaceEquipmentField(ship,patch,cells,style,detail,extraBudget,fieldBu
   if(checkOwner)for(const a of [-1,1])for(const b of [-1,1])for(const c of [-1,1])if(!inside(at(x+a*w/2,y+b*h/2,center+c*d/2)))return null;
   target.push(q);return q;};
  const grey=()=>{const a=Math.round(90+random()*35);return [a,a+5,a+10];};
- // Exposed structure remains machinery even when no functional 8m cell fits.
- // This neutral host-owned field supplies neither capacity nor working faces.
+ // Strata are structural slabs, not enclosures pasted onto a tiled wall.
+ const strata=[],pitch=C.clamp(3.2+Math.log2(Math.max(1,ship.hull.L/80))*.45,3.2,6.3),slab=C.clamp(pitch*.06,.14,.38),horizontal=C.norm([normal[0],0,normal[2]]),k=Math.hypot(normal[0],normal[2]),worldU=C.dot(origin,u),worldV=C.dot(origin,v);
+ const mergeIntervals=list=>{list.sort((a,b)=>a[0]-b[0]);const out=[];for(const p of list){const q=out.at(-1);if(q&&p[0]<=q[1]+1e-5)q[1]=Math.max(q[1],p[1]);else out.push(p.slice());}return out;};
+ const slice=y=>{const list=[];for(const tri of tris){const xs=[];for(let j=0;j<3;j++){const a=tri[j],b=tri[(j+1)%3];if(Math.abs(a[1]-y)<1e-7)xs.push(a[0]);if((a[1]<y)!==(b[1]<y)){const t=(y-a[1])/(b[1]-a[1]);xs.push(a[0]+(b[0]-a[0])*t);}}if(xs.length>1)list.push([Math.min(...xs),Math.max(...xs)]);}return mergeIntervals(list);};
+ const band=(y,h)=>{const low=y-h/2,high=y+h/2,ys=[low+1e-5,high-1e-5,y];for(const tri of tris)for(const p of tri)if(p[1]>low&&p[1]<high)ys.push(p[1]-1e-5,p[1]+1e-5);let spans=null;for(const yy of ys){const row=slice(yy),next=[];if(spans==null){spans=row;continue;}for(const a of spans)for(const b of row){const l=Math.max(a[0],b[0]),r=Math.min(a[1],b[1]);if(r-l>.04)next.push([l,r]);}spans=mergeIntervals(next);if(!spans.length)break;}for(const q of blocked)if(q[3]>low&&q[1]<high){const next=[];for(const p of spans||[]){if(q[0]>p[0])next.push([p[0],Math.min(p[1],q[0])]);if(q[2]<p[1])next.push([Math.max(p[0],q[2]),p[1]]);}spans=next.filter(p=>p[1]-p[0]>.08);}return spans||[];};
+ const deck=(feature,x,Y,w,h,back,front,color)=>{if(field.length>=fieldBudget)return null;
+  if(k<.08)return piece(field,feature,x,Y-worldV,w,h,(back+front)/2,front-back,color,host,null,'box',{stratum:true});
+  let depth=(front-back)/k,z=-relief+(back+front)/2,y=(Y-origin[1]-normal[1]*z)/k,s;
+  for(let step=0;step<3;step++){const extent=k*h+Math.abs(normal[1])*depth,b=[x-w/2,y-extent/2,x+w/2,y+extent/2];s=space(b);if(!s)return null;const available=s.ceiling-s.floor-Math.abs(normal[1])*h;if(available<=.01)return null;depth=Math.min(depth,available/k);z=C.clamp(s.height-relief+(back+front)/2,s.floor+(k*depth+Math.abs(normal[1])*h)/2,s.ceiling-(k*depth+Math.abs(normal[1])*h)/2);y=(Y-origin[1]-normal[1]*z)/k;}
+  const center=at(x,y,z),bounds=[x-w/2,y-(k*h+Math.abs(normal[1])*depth)/2,x+w/2,y+(k*h+Math.abs(normal[1])*depth)/2];
+  for(const a of [-1,1])for(const b of [-1,1])for(const c of [-1,1])if(!inside(C.add(center,C.add(C.add(C.mul(u,a*w/2),[0,b*h/2,0]),C.mul(horizontal,c*depth/2)))))return null;
+  const q={feature,type:'box',ownerId:host,role:null,center,u,v:[0,1,0],normal:horizontal,size:[w,h,depth],bounds,color:surfaceEquipmentPaint(paint,color,feature),stratum:true,level:Y};field.push(q);return q;
+ };
+ const lowLevel=base?(frame.vertical?base.minY:base.minV):lo[1]+(frame.vertical?origin[1]:worldV),highLevel=base?(frame.vertical?base.maxY:base.maxV):hi[1]+(frame.vertical?origin[1]:worldV),levels=[];
+ for(let Y=Math.ceil((lowLevel+slab)/pitch)*pitch;Y<highLevel-slab;Y+=pitch)levels.push(Y);for(const Y of [lowLevel+slab/2,highLevel-slab/2])if(!levels.some(q=>Math.abs(q-Y)<slab*2))levels.push(Y);levels.sort((a,b)=>a-b);
+ const floorRows=[];
  if(fieldBudget>0){
-  // Unequal-height binary partitions make a single interlocking machinery
-  // field. No full-wall course and no installed-cell edge becomes a joint.
-  const pipeReserve=Math.min(220,Math.max(6,Math.floor(fieldBudget*.22))),pad=.12*scale;let free=[[lo[0]+pad,lo[1]+pad,hi[0]-pad,hi[1]-pad,0]];
-  // Enclosures pack around compact wall apertures instead of dropping an
-  // entire large enclosure wherever a small port happens to intersect it.
-  for(const a of blocked){const next=[];for(const b of free){const x0=Math.max(a[0],b[0]),y0=Math.max(a[1],b[1]),x1=Math.min(a[2],b[2]),y1=Math.min(a[3],b[3]);if(x1<=x0||y1<=y0){next.push(b);continue;}for(const q of [[b[0],b[1],x0,b[3],0],[x1,b[1],b[2],b[3],0],[x0,b[1],x1,y0,0],[x0,y1,x1,b[3],0]])if(q[2]-q[0]>.22&&q[3]-q[1]>.22)next.push(q);}free=next;}
-  const queue=free,leaves=[],limit=Math.min(1500,Math.max(queue.length,Math.floor((fieldBudget-pipeReserve)/4)));
-  // Refine the largest remaining region first; a finite quota must not leave
-  // a distant half of the wall as one enormous plate after a detailed corner.
-  while(queue.length){let largest=0;for(let i=1;i<queue.length;i++)if((queue[i][2]-queue[i][0])*(queue[i][3]-queue[i][1])>(queue[largest][2]-queue[largest][0])*(queue[largest][3]-queue[largest][1]))largest=i;const b=queue[largest];queue[largest]=queue[queue.length-1];queue.pop();const w=b[2]-b[0],h=b[3]-b[1],axis=w/h>2.2?0:h/w>2.2?1:random()<.5?0:1,span=axis?h:w,threshold=(5.5+random()*17)*scale*scale;
-   if(b[4]<17&&span>2.1*scale&&(w*h>threshold||Math.max(w,h)>9*scale)&&leaves.length+queue.length<limit-1){const cut=b[axis]+span*(.28+random()*.44),gap=(.06+random()*.12)*scale,a=b.slice(),c=b.slice();a[axis+2]=cut-gap/2;c[axis]=cut+gap/2;a[4]++;c[4]++;queue.push(a,c);}else leaves.push(b);
-  }
-  // Stepped L-shaped cases, upright boxes and cylindrical junctions interrupt
-  // one another. Sparse fittings sit at several depths instead of tiling the
-  // wall with broad, equally high plate faces.
-  for(const b of leaves){if(field.length>=Math.min(6500,fieldBudget))break;const W=b[2]-b[0],H=b[3]-b[1],variant=Math.floor(random()*5),w=W*(.78+random()*.19),h=H*(.67+random()*.29),x=b[0]+w/2+random()*(W-w),y=b[1]+h/2+random()*(H-h),back=(.025+random()*.36)*relief,front=Math.max(back+.12*relief,(.43+random()*.49)*relief),depth=front-back;
-   const body=piece(field,'service-housing',x,y,w,h,(back+front)/2,depth,grey(),host,null,'box',{recess:true});if(!body)continue;
-   if(back>.05)piece(field,'service-standoff',x,y,w*.60,h*.58,back/2,back,[74,87,99]);
-   if(variant===0||variant===3){const sw=Math.min(w*.44,2.4*scale),sh=h*(.40+random()*.43),sx=x+(variant===0?1:-1)*(w-sw)*.42,sy=y+(random()-.5)*(h-sh)*.7,sd=.10+relief*(.055+random()*.07);piece(field,'service-housing',sx,sy,sw,sh,front+sd/2,sd,grey());}
-   if(variant===1||variant===4){const vertical=H>W*.65,dia=Math.max(.12,Math.min(relief*.35,1.25,W*.21,H*.24)),length=Math.max(dia*1.5,Math.min(vertical?h*.78:w*.80,4.2*scale)),cx=x+(random()-.5)*w*.3,cy=y+(random()-.5)*h*.3;
-    piece(field,'service-junction',cx,cy,vertical?dia:length,vertical?length:dia,front+dia*.55,dia,[116,127,136],host,null,'pipe',{axis:vertical?'v':'u'});
-    if(variant===4){const off=dia*.95;piece(field,'service-junction',cx+(vertical?off:0),cy+(vertical?0:off),vertical?dia*.72:length*.76,vertical?length*.76:dia*.72,front+dia*.5,dia*.72,[100,112,123],host,null,'pipe',{axis:vertical?'v':'u'});}
+  const baseMinU=base?.minU??lo[0]+worldU,baseMaxU=base?.maxU??hi[0]+worldU,macro=C.clamp(ship.hull.L*.055,18,56),maxFloor=Math.max(levels.length,Math.floor(fieldBudget*.48));
+  for(const Y of levels){const y=frame.vertical?(Y-origin[1])/Math.max(.08,v[1]):Y-worldV,extent=k<.08?slab:slab+Math.abs(normal[1])*relief/k,spans=band(y,extent),R=rng(surfaceSeed((patch.baseId||patch.id)+'|floor|'+Y.toFixed(4),style.seed)),profiles=[];let a=baseMinU;
+   while(a<baseMaxU-.01){const b=Math.min(baseMaxU,a+macro*(.7+R()*.7)),front=(.67+R()*.28)*relief;profiles.push([a,b,front]);a=b;}
+   for(const span of spans){const parts=[];for(const profile of profiles){const a=Math.max(span[0],profile[0]-worldU)+.012,b=Math.min(span[1],profile[1]-worldU)-.012;if(b-a>.12)parts.push([a,b,profile[2]]);}if(field.length+parts.length>maxFloor&&span[1]-span[0]>.2){parts.length=0;parts.push([span[0]+.012,span[1]-.012,relief*.82]);}
+    for(const [a,b,front]of parts){const q=deck('stratum-floor',(a+b)/2,Y,b-a,slab,relief*.025,front,[130,139,147]);if(q){strata.push({level:Y,width:b-a,center:q.center.slice(),front});floorRows.push({Y,y,a,b,front});}}
    }
-   if(variant===2){const sw=Math.min(w*.76,4.5*scale),sh=Math.min(h*.22,.35*scale);piece(field,'service-brace',x,y+(h-sh)*.28,sw,sh,front+.08,.14,[133,143,151]);}
   }
-  // A shared path is segmented against real geometry and equipment envelopes.
-  // Its pieces can cross many physical cells without spanning a cutout.
-  const pipeSupports=field.slice(),supportFront=b=>pipeSupports.reduce((z,p)=>p.bounds[2]>b[0]&&p.bounds[0]<b[2]&&p.bounds[3]>b[1]&&p.bounds[1]<b[3]?Math.max(z,C.dot(C.sub(p.center,origin),normal)+p.size[2]/2):z,-Infinity);
-  const run=(axis,fixed,start,end,diameter,z,feature='service-conduit')=>{const step=Math.max(.35,scale*.65),quantum=Math.max(.02,relief*.16),segments=[];let from=null,to=null,level=0;
-   const close=()=>{if(from!=null)segments.push([from,to,level]);from=null;};
-   for(let a=start;a<end;a+=step){const b=Math.min(a+step,end),bounds=axis?[fixed-diameter/2,a,fixed+diameter/2,b]:[a,fixed-diameter/2,b,fixed+diameter/2],s=space(bounds);if(s){const next=Math.min(relief-diameter*.65-.025,Math.ceil(Math.max(z,supportFront(bounds)-s.height+relief+diameter*.65)/quantum)*quantum);if(from!=null&&Math.abs(next-level)>quantum*.25)close();if(from==null){from=a;level=next;}to=b;}else close();}close();
-   let previous=null;for(const [a,b,tier]of segments){if(b-a<=diameter*1.2)continue;piece(field,feature,axis?fixed:(a+b)/2,axis?(a+b)/2:fixed,axis?diameter:b-a,axis?b-a:diameter,tier,feature==='service-shelf'?.15:diameter,feature==='service-shelf'?[121,132,141]:[111,126,137],host,null,feature==='service-shelf'?'box':'pipe',{axis:axis?'v':'u'});
-    if(previous&&feature!=='service-shelf'&&Math.abs(previous[1]-a)<1e-5&&Math.abs(previous[2]-tier)>.03)piece(field,'service-depth-conduit',axis?fixed:a,axis?a:fixed,diameter,diameter,(previous[2]+tier)/2,Math.abs(previous[2]-tier),[104,119,131],host,null,'normal-pipe');previous=[a,b,tier];}
-  };
-  for(let axis=0;axis<2;axis++){const span=hi[1-axis]-lo[1-axis],count=axis?Math.min(10,Math.max(2,Math.floor(span/(18*scale)))):Math.min(7,Math.max(2,Math.floor(span/(5.7*scale))));for(let i=0;i<count;i++){
-   const fixed=lo[1-axis]+span*(i+.18+random()*.64)/count,diameter=(.15+random()*.14)*Math.min(1.5,scale),trim=(i%3===0?0:random()*.27)*(hi[axis]-lo[axis]),start=lo[axis]+.15+trim,end=hi[axis]-.15-random()*trim;
-   run(axis,fixed,start,end,diameter,.73);if(axis&&i%2===0){run(axis,fixed+diameter*1.45,start,end-(end-start)*.19,diameter*.65,.74);const elbow=start+(end-start)*(.3+random()*.4);run(0,elbow,Math.max(lo[0]+.15,fixed-2.2*scale),Math.min(hi[0]-.15,fixed+3.8*scale),diameter,.73);}
-   if(!axis&&i%2===0)run(0,fixed+.24*scale,lo[0]+.15,hi[0]-.15,.075,.60,'service-shelf');
-  }}
+  // Long floor edges carry a narrow lip; the bays behind remain genuinely open.
+  for(const p of floorRows){if(field.length>=fieldBudget*.60)break;deck('stratum-lip',(p.a+p.b)/2,p.Y+slab*.24,p.b-p.a,slab*.44,Math.max(relief*.03,p.front-.14),p.front+.025,[144,151,157]);}
+  // Irregular machine banks occupy most bays near their deck fronts. Some
+  // banks step far inward, leaving real recesses between the machinery itself.
+  const minY=lo[1]+.12,maxY=hi[1]-.12,localPitch=frame.vertical?pitch/Math.max(.08,v[1]):pitch;
+  for(let y=minY+localPitch*.49;y<maxY-localPitch*.22;y+=localPitch){const h=Math.min(localPitch*.82,maxY-y+localPitch*.28),spans=band(y,h),R=rng(surfaceSeed((patch.baseId||patch.id)+'|bay|'+Math.round((y+worldV)/localPitch),style.seed));
+   for(const span of spans){let x=span[0]+.12;while(x<span[1]-.7&&field.length<fieldBudget*.86){x+=.18+R()*localPitch*.35;const w=Math.min((1.2+R()*3.7)*localPitch,span[1]-x-.14);if(w<.6)break;const ht=h*(.66+R()*.33),cy=y+(R()-.5)*(h-ht),back=relief*(.05+R()*.17),front=relief*(R()<.20?.43+R()*.19:.79+R()*.19),body=piece(field,'stratum-machinery',x+w/2,cy,w,ht,(back+front)/2,front-back,grey(),host,null,'box',{recess:true});
+    if(body&&R()>.25){const dia=Math.min(ht*.28,.86),length=w*(.40+R()*.43);piece(field,'stratum-pipe-bundle',x+w*.52,cy+ht*.24,length,dia,front+dia*.3,dia,[119,130,139],host,null,'pipe',{axis:'u'});if(R()>.5)piece(field,'stratum-pipe-bundle',x+w*.52,cy-ht*.24,length*.85,dia*.62,front+dia*.24,dia*.62,[110,123,134],host,null,'pipe',{axis:'u'});}
+    x+=w+.18+R()*localPitch*.35;
+   }}
+  }
+  // Larger cores bridge two or three storeys at irregular long intervals.
+  // They break the floor rhythm without becoming a repeated facade grid.
+  for(let x=lo[0]+macro*.32;x<hi[0]-localPitch&&field.length<fieldBudget*.96;x+=macro*(.70+random()*.85)){const h=Math.min(localPitch*(1.7+random()*1.3),(hi[1]-lo[1])*.78),w=Math.min(localPitch*(.7+random()*1.5),hi[0]-x-.12),y=lo[1]+h/2+.12+random()*Math.max(0,hi[1]-lo[1]-h-.24),back=relief*(.10+random()*.16),front=relief*(.87+random()*.11);piece(field,'stratum-core',x+w/2,y,w,h,(back+front)/2,front-back,[128,136,144],host,null,'box',{recess:true});}
+  // Sparse narrow service trunks connect the remaining open levels.
+  for(let x=lo[0]+macro*.7;x<hi[0]-.5&&field.length<fieldBudget;x+=macro*(1.2+random()*.8)){const h=Math.min(localPitch*(1.5+random()*1.6),(hi[1]-lo[1])*.76),y=lo[1]+h/2+.08+random()*Math.max(0,hi[1]-lo[1]-h-.2),w=Math.min(.72,localPitch*.12);piece(field,'stratum-riser',x,y,w,h,relief*.88,relief*.15,[106,120,132]);}
  }
  if(face?.aggregate){
   // Functional paint is distributed across the generated face, not repeated
   // once per saved slot or common-network adapter. Capacity stays in Core.
-  const roles=['cooling','sensors','habitation'].map(role=>({role,...face.categories?.[role]})).filter(q=>q.occupiedArea>0&&Number.isFinite(q.roleid)),cases=field.filter(q=>q.feature==='service-housing'&&q.recess).map(q=>({q,rank:surfaceSeed(q.bounds.join('|'),style.seed)})).sort((a,b)=>a.rank-b.rank).map(p=>p.q),total=roles.reduce((n,q)=>n+q.occupiedArea,0),coverage=C.clamp(total/Math.max(.001,patch.exposedArea??patch.area),0,1),count=Math.min(96,cases.length,Math.max(roles.length,Math.round(cases.length*coverage))),weights=roles.map(()=>0);
+  const roles=['cooling','sensors','habitation'].map(role=>({role,...face.categories?.[role]})).filter(q=>q.occupiedArea>0&&Number.isFinite(q.roleid)),cases=field.filter(q=>['stratum-machinery','stratum-core'].includes(q.feature)&&q.recess).map(q=>({q,rank:surfaceSeed(q.bounds.join('|'),style.seed)})).sort((a,b)=>a.rank-b.rank).map(p=>p.q),total=roles.reduce((n,q)=>n+q.occupiedArea,0),coverage=C.clamp(total/Math.max(.001,patch.exposedArea??patch.area),0,1),count=Math.min(96,cases.length,Math.max(roles.length,Math.round(cases.length*coverage))),weights=roles.map(()=>0);
   cells=[];for(let i=0;i<count&&roles.length;i++){let pick=i<roles.length?i:0;if(i>=roles.length){for(let j=0;j<roles.length;j++){weights[j]+=roles[j].occupiedArea/total;if(weights[j]>weights[pick])pick=j;}weights[pick]-=1;}const role=roles[pick],q=cases[i],point=q.center.slice();cells.push({id:role.roleid,aggregate:true,cell:'visual:'+role.role+':'+i,role:role.role,k:role.role==='cooling'?config.equipment.kind:role.role==='sensors'?'sensor':'habitat',point,w:q.size[0]*.85,h:q.size[1]*.85,depth:relief});}
  }
- const frontAt=b=>field.reduce((z,p)=>p.bounds[2]>b[0]&&p.bounds[0]<b[2]&&p.bounds[3]>b[1]&&p.bounds[1]<b[3]?Math.max(z,C.dot(C.sub(p.center,origin),normal)+p.size[2]/2):z,-Infinity);
+ const frontAt=b=>field.reduce((z,p)=>p.bounds[2]>b[0]&&p.bounds[0]<b[2]&&p.bounds[3]>b[1]&&p.bounds[1]<b[3]?Math.max(z,C.dot(C.sub(p.center,origin),normal)+(Math.abs(C.dot(p.u,normal))*p.size[0]+Math.abs(C.dot(p.v,normal))*p.size[1]+Math.abs(C.dot(p.normal,normal))*p.size[2])/2):z,-Infinity);
  for(const cell of cells){if(!cell.point?.every(Number.isFinite)||!(cell.w>0&&cell.h>0))continue;const point=cell.point.slice(),local=uv(point),r=rng(surfaceSeed(patch.id+'|'+cell.cell,style.seed)),hardware=[],variant=Math.floor(r()*4),item={id:cell.id,cell:cell.cell,role:cell.role,kind:cell.k||cell.kind,variant,point,center:point.slice(),u,v,normal,size:[cell.w,cell.h,cell.depth],depth:cell.depth,hardware,micro:[]};devices.push(item);
   // Guns use only the compact embedded apertures in meshFits. The surrounding
   // field leaves their actual opening clear without drawing a turret body.
@@ -2003,11 +2061,11 @@ function surfaceEquipmentField(ship,patch,cells,style,detail,extraBudget,fieldBu
  }
  // Nested secondary cases are the only density/quality-controlled pass. They
  // sit inside the already accepted wall cases, not inside an 8m cell frame.
- const housings=field.filter(p=>p.feature==='service-housing'),extras=Math.min(extraBudget,Math.round(housings.length*C.clamp(style.density??0,0,1)*detail*2));
+ const housings=field.filter(p=>['stratum-machinery','stratum-core'].includes(p.feature)),extras=Math.min(extraBudget,Math.round(housings.length*C.clamp(style.density??0,0,1)*detail*2));
  for(let i=0;i<extras*3&&boxes.length<extras&&housings.length;i++){const parent=housings[Math.floor(random()*housings.length)],b=parent.bounds,w=Math.min(3.0,(b[2]-b[0])*(.12+random()*.33)),h=Math.min(1.4,(b[3]-b[1])*(.18+random()*.39)),x=b[0]+w/2+random()*(b[2]-b[0]-w),y=b[1]+h/2+random()*(b[3]-b[1]-h),d=.055+random()*.12;
   const s=space([x-w/2,y-h/2,x+w/2,y+h/2]);if(s)piece(boxes,'service-detail',x,y,w,h,C.dot(C.sub(parent.center,origin),normal)+parent.size[2]/2-s.height+relief+d/2,d,grey(),host,null,style.kind==='rounded'?'rounded':'box',{rounded:style.kind==='rounded'});
  }
- return {field,boxes,devices,paint,recessDepth:recess.recessDepth,backingTriangles:recess.backingTriangles};
+ return {field,boxes,devices,paint,frame:{u,v,normal},strata,layerPitch:pitch,visualDepth:relief,functionalDepth:config.equipment.depth,recessDepth:recess.recessDepth,backingTriangles:recess.backingTriangles};
 }
 const SURFACE_VISUAL_CACHE=new Map(),SURFACE_MESH_CACHE=new Map();
 function surfaceVisualKey(ship,opt={}){
@@ -2024,6 +2082,7 @@ function surfaceBuildVisualPlan(ship,opt={}){
  if(!ship?.surfaces?.patches?.length||typeof C.surfacePatches!=='function')return [];
  const configured=new Set(ship.surfaces.patches.map(p=>p.id)),detail=C.clamp(opt.detail??ship.detail??1,0,2),cap=Math.max(0,Math.floor(opt.maxDetails??1800)),out=[];
  const equipmentReports=new Map((C.surfaceRenderFaces?C.surfaceRenderFaces(ship):ship.surfaces.patches.some(p=>p.functionMode==='equipment')?C.surfaceReport(ship).patches:[]).map(p=>[p.id,p])),patches=C.surfacePatches(ship),eligible=patches.filter(p=>configured.has(p.id)&&p.exposed&&(p.exposedArea??p.area)>0&&p.config?.functionMode==='equipment'),fieldShares=surfaceVisualShares(eligible,Math.max(0,Math.floor(opt.maxField??12000)),30),detailShares=surfaceVisualShares(eligible,cap,4);let budget=cap;
+ const layerBases=surfaceLayerBases(patches);
  for(const patch of patches){
   if(!configured.has(patch.id)||!patch.exposed||!(patch.exposedArea??patch.area))continue;
   const config=patch.config||C.surfaceConfig(ship,patch.id),style=config.style||{},normal=C.norm(patch.normal),u=C.norm(patch.u),v=C.norm(patch.v),T=surfaceTriangles(patch),triangles=[],weights=[];let area=0;
@@ -2032,7 +2091,7 @@ function surfaceBuildVisualPlan(ship,opt={}){
   const random=rng(surfaceSeed(patch.id,style.seed)),density=C.clamp(style.density??0,0,1),size=C.clamp(Math.sqrt(area)/18,.04,6),n=Math.min(budget,Math.ceil(Math.sqrt(area)*density*detail*2)),boxes=[],devices=[];
   if(config.functionMode==='equipment'){
    const report=equipmentReports.get(patch.id),cells=report?.cells||[...ship.parts,...ship.fits].filter(p=>p.surfacePatch===patch.id&&!p.surfaceUnplaced&&p.surfaceRole).map(p=>({id:p.id,cell:p.surfaceCell,role:p.surfaceRole,k:p.k,point:p.surfacePoint,footprint:p.surfaceFootprint,w:p.surfaceFootprint?.[0],h:p.surfaceFootprint?.[1],depth:p.surfaceDepth}));
-   const plan=surfaceEquipmentField(ship,patch,cells,style,detail,Math.min(budget,detailShares.get(patch.id)||0),fieldShares.get(patch.id)||0,config,report);budget-=plan.boxes.length;
+   const plan=surfaceEquipmentField(ship,patch,cells,style,detail,Math.min(budget,detailShares.get(patch.id)||0),fieldShares.get(patch.id)||0,config,report,layerBases.get(patch.baseId||patch.id));budget-=plan.boxes.length;
    out.push({id:patch.id,host:patch.host,patch,config,triangles:T,boundary:surfaceBoundary(patch),...plan});continue;
   }
   if(config.functionMode==='armor'){out.push({id:patch.id,host:patch.host,patch,config,triangles:T,boundary:surfaceBoundary(patch),paint:surfaceHostPaint(ship,patch),boxes,devices});continue;}
@@ -2065,6 +2124,7 @@ function surfaceBuildVisualPlan(ship,opt={}){
   }
   budget-=boxes.length;out.push({id:patch.id,host:patch.host,patch,config,triangles:T,boundary:surfaceBoundary(patch),boxes,devices});
  }
+ for(const row of out)if(row.config.functionMode==='equipment')row.revealBoundary=surfaceEquipmentReveals(row,out);
  return out;
 }
 function meshSurfaceLayers(ship,ranges={},opt={}){
@@ -2088,8 +2148,8 @@ function buildSurfaceLayers(ship,ranges,opt,key){
   // Equipment is the opened structure itself: the selected outer skin is
   // replaced by an inward backing, with reveal walls under its armour caps.
   if(config.functionMode==='equipment'){
-   hullTriangleMesh(armor,row.backingTriangles,surfacePaintTone(paint,.52),30);const recess=surfaceRecess(ship,patch,row.recessDepth);
-   for(const e of row.boundary){const a=recess.pointAt(e.a),b=recess.pointAt(e.b),sn=C.norm(C.cross(n,C.sub(e.b,e.a)));hullQuad(armor,[e.a,e.b,b,a],sn,surfacePaintTone(paint,.85),30);}
+   hullTriangleMesh(armor,row.backingTriangles,surfacePaintTone(paint,.52),30);const recess=SURFACE_RECESS_DATA.get(row.backingTriangles)||surfaceRecess(ship,patch,row.recessDepth);
+   for(const e of row.revealBoundary||row.boundary){const a=recess.pointAt(e.a),b=recess.pointAt(e.b),sn=C.norm(C.cross(n,C.sub(e.b,e.a)));hullQuad(armor,[e.a,e.b,b,a],sn,surfacePaintTone(paint,.85),30);}
   }else if(config.functionMode==='armor'&&thickness===0){const lift=C.mul(n,.012);hullTriangleMesh(armor,row.triangles.map((q,i)=>q+lift[i%3]),col,30);}
   if(thickness>0){const lift=C.mul(n,thickness+.01),T=row.triangles.map((q,i)=>q+lift[i%3]);hullTriangleMesh(armor,T,col,30);for(const e of row.boundary){const a=C.add(e.a,lift),b=C.add(e.b,lift),sn=C.norm(C.cross(C.sub(b,a),n));hullQuad(armor,[e.a,e.b,b,a],sn,col,30);}}
   if(config.functionMode==='equipment'){
@@ -2128,8 +2188,30 @@ function meshParts(ship,opt){
       for(const sign of tr.side==='both'?[-1,1]:[tr.side==='port'?-1:1]){const wall=C.originalSurface(ship,x,2,y,sign);if(wall==null)continue;const z=wall+sign*1.8;if(ship.hatches.some(h=>{const b=C.openingBounds(ship,h);return b&&x>b[0]-8&&x<b[3]+8&&y>b[1]-tr.height/2&&y<b[4]+tr.height/2&&z>b[2]-8&&z<b[5]+8;}))continue;boxSolid(g,[x-1.4,y-tr.height*.34,z-1],[x+1.4,y+tr.height*.34,z+1],[92,107,114],20);const seed=Math.sin(x*.13)*.5+.5;boxSolid(g,[x+2,y-tr.height*.26,z-2],[x+5+seed*6,y+tr.height*.14,z+2],[130,137,139],20);}
     }
   }
+  routeBuriedApparatus(ship,result);
   Object.assign(result.g,meshSurfaceLayers(ship,result.ranges));
   return result;
+}
+// Open machinery scenery must not reveal coloured bodies that are still
+// enclosed by the original ship. Keep these bodies in the diagnostic mesh;
+// genuinely exposed apparatus, structures and hangar mouths remain exterior.
+function routeBuriedApparatus(ship,result){
+ const native=new Set(['struct','gen','shield','hyper','engine','nozzle','refStruct','refEngine']),remove=new Map(),moved=[];
+ for(const p of ship.parts||[]){if(C.isShapePart(p)||p.surfacePatch||p.k==='hangar')continue;const spans=(result.ranges[p.id]||[]).filter(([name,,count])=>native.has(name)&&count>0);if(!spans.length)continue;let enclosed=true;
+  for(const [name,start,count]of spans){const g=result.g[name],seen=new Set();for(let i=start;i<start+count&&enclosed;i++){const k=g.idx[i];if(seen.has(k))continue;seen.add(k);const point=[0,1,2].map(a=>g.pos[k*3+a]+g.nor[k*3+a]/127*.001);if(!C.insideOriginalEnvelope(ship,point))enclosed=false;}
+   // Vertices on separate pieces of a concave envelope cannot hide a bridge
+   // spanning an actual external gap between them.
+   for(let i=start;i<start+count&&enclosed;i+=3){const point=[0,1,2].map(a=>(g.pos[g.idx[i]*3+a]+g.pos[g.idx[i+1]*3+a]+g.pos[g.idx[i+2]*3+a])/3);if(!C.insideOriginalEnvelope(ship,point))enclosed=false;}if(!enclosed)break;
+  }if(!enclosed)continue;
+  for(const span of spans){const [name,start,count]=span,g=result.g[name],inside=result.g.interior,begin=inside.ni;inside.room(count,count);
+   for(let i=start;i<start+count;i+=3){const base=inside.n;for(let j=0;j<3;j++){const k=g.idx[i+j],col=Array.from(g.col.subarray(k*4,k*4+3),v=>name.startsWith('ref')?Math.min(255,v*2):v);inside.v(...g.pos.subarray(k*3,k*3+3),...Array.from(g.nor.subarray(k*3,k*3+3),v=>v/127),g.uv[k*2],g.uv[k*2+1],col,g.col[k*4+3]);}inside.tri(base,base+1,base+2);}
+   (remove.get(name)||remove.set(name,[]).get(name)).push([start,count]);moved.push({id:p.id,range:['interior',begin,count]});
+  }
+ }
+ for(const [name,spans]of remove){const g=result.g[name],drop=new Uint8Array(g.ni),prefix=new Uint32Array(g.ni+1);for(const [start,count]of spans)drop.fill(1,start,start+count);for(let i=0;i<g.ni;i++)prefix[i+1]=prefix[i]+!drop[i];for(let i=0;i<g.ni;i++)if(!drop[i])g.idx[prefix[i]]=g.idx[i];g.ni=prefix[prefix.length-1];
+  for(const id in result.ranges)result.ranges[id]=result.ranges[id].flatMap(r=>r[0]!==name?[r]:prefix[r[1]+r[2]]>prefix[r[1]]?[[name,prefix[r[1]],prefix[r[1]+r[2]]-prefix[r[1]]]]:[]);
+ }
+ for(const q of moved)(result.ranges[q.id]||(result.ranges[q.id]=[])).push(q.range);
 }
 function meshSlidingHatchPanel(ship,h,panel,open=0){
   const g=new Geo(panel.tris.length/3+100),T=panel.tris,offset=[0,0,0],edges=new Map(),face=ship.paint==='republic'&&h.face==='top'?[132,48,56]:ship.paint==='dark'?[103,116,129]:ship.paint==='cis'?PANEL_CIS:[174,180,184];offset[panel.axis]=panel.side*panel.travel*C.clamp(open,0,1);
@@ -2226,7 +2308,7 @@ function plateDetail(ship,g){
 function structuralDetail(p,g,ds=1,managed=[]){
  if(p.skin==='plain'||p.s[2]<10||p.s[0]<30)return;
  const T=C.structTriangles(p),service=p.skin==='service';
- const owned=(point,normal)=>managed.some(p=>C.dot(p.normal,normal)>.98&&Math.abs(C.dot(C.sub(point,p.center),p.normal))<1&&C.rayTris(p.triangles,C.add(point,C.mul(p.normal,2)),C.mul(p.normal,-1)));
+ const owned=(point,normal)=>managed.some(p=>C.dot(p.normal,normal)>.98&&Math.abs(C.dot(C.sub(point,p.center),p.normal))<1&&C.rayTris(surfaceTriangles(p),C.add(point,C.mul(p.normal,2)),C.mul(p.normal,-1)));
  // Mechanical bays on the walls are actual shallow geometry, with no glass or emission.
  for(let i=0;i<T.length;i+=9){const a=Array.from(T.slice(i,i+3)),b=Array.from(T.slice(i+3,i+6)),c=Array.from(T.slice(i+6,i+9)),n=C.norm(C.cross(C.sub(b,a),C.sub(c,a)));
   if(Math.abs(n[1])>.6)continue;
@@ -2703,6 +2785,6 @@ class CompatRenderer {
  }
 }
 
-return {meshPreview, fleetGeometry, foilTransform, captureDimensions, Renderer, CompatRenderer, meshSolidCutter, meshReferenceHull, meshReferenceFits, meshReferenceHatches, meshReferenceParts, sectionLines, meshHull, meshParts, meshKeel, meshHatches, meshFits, gridLines, shipBounds, lineSet, M4, Geo, surfaceVisualPlan, meshSurfaceLayers, surfaceSelectionLines};
+return {meshPreview, rayFit, fleetGeometry, foilTransform, captureDimensions, Renderer, CompatRenderer, meshSolidCutter, meshReferenceHull, meshReferenceFits, meshReferenceHatches, meshReferenceParts, sectionLines, meshHull, meshParts, meshKeel, meshHatches, meshFits, gridLines, shipBounds, lineSet, M4, Geo, surfaceVisualPlan, meshSurfaceLayers, surfaceSelectionLines};
 })();
 

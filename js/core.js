@@ -114,7 +114,7 @@ function navigationItinerary(route){
 // training, COST_K.crew cr a head. Every side's figures come from here (fleet organisation, scenario cost limits,
 // later the campaign's budget requests).
 const COST_K = {crew: 1000};
-const COST_MODEL=Object.freeze({version:9,hull:0.6,armor:30,wingInstall:1800,wingArea:18});
+const COST_MODEL=Object.freeze({version:10,hull:0.6,armor:30,wingInstall:1800,wingArea:18});
 const COST_INSTALL=Object.freeze({gen:18000,aux:6000,engine:7500,hyper:20000,shield:12000,localShield:4000,fuel:2000,battery:2500,inertial:7000,integrity:4000,repulsor:3500,sensor:3000,scanner:4000,firecontrol:6000,cockpit:6000,astromech:6000,droidbrain:5000,automation:6000,command:8000,lifeSupport:2500,ejectSeat:1500,navComputer:4500,targetComputer:4000,maneuver:3000,laserGas:2000,landingGear:2500,habitat:2000});
 const COST_MOUNT_INSTALL=Object.freeze({claser:3500,claserH:5000,cion:4500,cturret:4500,ctorp:5500,cmsl:4000,cbomb:3500,cpylon:1250,weapon:750,command:1500});
 function partBuildCost(p,volume){if(p?._surfaceAdapter)return p._surfaceAdapter.cost;const d=PARTS[p?.k];if(!d)return 0;const V=Number.isFinite(volume)?Math.max(0,volume):partVolume(p),light=p.k==='struct'&&p.light&&!p.plate?.25:1,area=isWing(p)?Array.isArray(p.s)?partArea(p):6*Math.pow(V,2/3):0;return V>0?V*(d.cost||0)*light+(p.id<0?0:COST_INSTALL[p.k]||0)+(isWing(p)?COST_MODEL.wingInstall+area*COST_MODEL.wingArea:0):0;}
@@ -129,18 +129,18 @@ function costSignature(value){const text=JSON.stringify(value,(key,v)=>v&&typeof
 function costModelSignature(){return costSignature({model:COST_MODEL,systems:CRAFT_SYSTEMS,wing:WING,wingSection:AERO_WING_SECTION,wingPlanforms:WING_PLANFORM_PRESETS,wingMesh:'point-tip-v1',solar:SOLAR,solarPresets:SOLAR_PANEL_PRESETS,heat:HEAT,surface:{version:SURFACE_VERSION,materials:SURFACE_MATERIALS},energy:ENERGY_MODEL,crew:COST_K.crew,install:COST_INSTALL,mount:COST_MOUNT_INSTALL,categories:COST_KIND,parts:Object.fromEntries(Object.entries(PARTS).map(([k,d])=>[k,{cost:d.cost||0,group:d.group||''}])),fits:Object.fromEntries(Object.entries(FITS).map(([k,d])=>[k,{cost:d.cost||0,cat:d.cat||''}]))});}
 // BEGIN GENERATED CRAFT PRICES — scripts/update-craft-costs.cjs
 const CRAFT_PRICE_CATALOG={
- "modelVersion": 9,
- "modelSignature": "h9aj2c",
+ "modelVersion": 10,
+ "modelSignature": "1w24no",
  "entries": {
   "arc170": {
    "reference": "craft_arc170",
-   "signature": "1i8gc50",
-   "build": 210058,
+   "signature": "pu1gwd",
+   "build": 210055,
    "crew": 3000,
-   "total": 213058,
+   "total": 213055,
    "by": {
-    "hull": 22,
-    "armor": 30,
+    "hull": 20,
+    "armor": 29,
     "power": 59266,
     "drive": 47030,
     "defense": 16503,
@@ -181,21 +181,21 @@ const CRAFT_PRICE_CATALOG={
    "heat": {
     "up": 0.00193,
     "upS": 0.00193,
-    "down": 0.0171,
+    "down": 0.017,
     "T": 0
    }
   },
   "awing": {
    "reference": "craft_awing",
-   "signature": "1q69dmg",
-   "build": 155334,
+   "signature": "1qe028x",
+   "build": 155333,
    "crew": 1000,
-   "total": 156334,
+   "total": 156333,
    "by": {
     "hull": 9,
     "armor": 3,
     "power": 22507,
-    "drive": 47013,
+    "drive": 47012,
     "defense": 25501,
     "command": 14501,
     "weapons": 21800,
@@ -232,18 +232,18 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.00253,
-    "upS": 0.00253,
-    "down": 0.0204,
+    "up": 0.00262,
+    "upS": 0.00262,
+    "down": 0.0205,
     "T": 0
    }
   },
   "btlb": {
    "reference": "craft_btlb",
-   "signature": "1j5amwf",
-   "build": 199776,
+   "signature": "qe3orr",
+   "build": 199775,
    "crew": 2000,
-   "total": 201776,
+   "total": 201775,
    "by": {
     "hull": 60,
     "armor": 21,
@@ -251,7 +251,7 @@ const CRAFT_PRICE_CATALOG={
     "drive": 47038,
     "defense": 15004,
     "command": 20503,
-    "weapons": 36701,
+    "weapons": 36700,
     "systems": 17001,
     "crew": 2000
    },
@@ -285,22 +285,22 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.00067,
-    "upS": 0.00067,
+    "up": 0.000674,
+    "upS": 0.000674,
     "down": 0.0172,
     "T": 0
    }
   },
   "hyena": {
    "reference": "craft_hyena",
-   "signature": "m8uo7g",
-   "build": 207626,
+   "signature": "1g7pdbx",
+   "build": 207622,
    "crew": 0,
-   "total": 207626,
+   "total": 207622,
    "by": {
-    "hull": 23,
+    "hull": 20,
     "armor": 11,
-    "power": 85975,
+    "power": 85974,
     "drive": 42015,
     "command": 13501,
     "weapons": 49100,
@@ -338,24 +338,24 @@ const CRAFT_PRICE_CATALOG={
    "heat": {
     "up": 0.0019,
     "upS": 0.0019,
-    "down": 0.049,
+    "down": 0.0486,
     "T": 0
    }
   },
   "tie_in": {
    "reference": "craft_tie_in",
-   "signature": "g6qzxf",
-   "build": 108118,
+   "signature": "90wzce",
+   "build": 108115,
    "crew": 1000,
-   "total": 109118,
+   "total": 109115,
    "by": {
-    "hull": 17,
-    "armor": 10,
+    "hull": 16,
+    "armor": 8,
     "power": 33471,
-    "drive": 27018,
+    "drive": 27017,
     "defense": 1500,
     "command": 14502,
-    "weapons": 19600,
+    "weapons": 19601,
     "systems": 12000,
     "crew": 1000
    },
@@ -391,19 +391,19 @@ const CRAFT_PRICE_CATALOG={
    "heat": {
     "up": 0.00446,
     "upS": 0.00446,
-    "down": 0.0362,
+    "down": 0.0361,
     "T": 0
    }
   },
   "tie_ln": {
    "reference": "craft_tie_ln",
-   "signature": "1cwn898",
+   "signature": "ac5870",
    "build": 94225,
    "crew": 1000,
    "total": 95225,
    "by": {
-    "hull": 9,
-    "armor": 5,
+    "hull": 8,
+    "armor": 6,
     "power": 27400,
     "drive": 27010,
     "defense": 1500,
@@ -444,19 +444,19 @@ const CRAFT_PRICE_CATALOG={
    "heat": {
     "up": 0.00367,
     "upS": 0.00367,
-    "down": 0.0494,
+    "down": 0.0488,
     "T": 0
    }
   },
   "tie_sa": {
    "reference": "craft_tie_sa",
-   "signature": "rexynf",
-   "build": 132279,
+   "signature": "6izlyy",
+   "build": 132267,
    "crew": 1000,
-   "total": 133279,
+   "total": 133267,
    "by": {
-    "hull": 69,
-    "armor": 33,
+    "hull": 61,
+    "armor": 29,
     "power": 52845,
     "drive": 27029,
     "defense": 1500,
@@ -497,20 +497,20 @@ const CRAFT_PRICE_CATALOG={
    "heat": {
     "up": 0.00274,
     "upS": 0.00274,
-    "down": 0.0556,
+    "down": 0.0549,
     "T": 0
    }
   },
   "v19": {
    "reference": "craft_v19",
-   "signature": "1wl1bk9",
-   "build": 157949,
+   "signature": "7ldnp2",
+   "build": 157947,
    "crew": 1000,
-   "total": 158949,
+   "total": 158947,
    "by": {
-    "hull": 5,
-    "armor": 16,
-    "power": 68612,
+    "hull": 4,
+    "armor": 14,
+    "power": 68613,
     "drive": 34514,
     "defense": 1500,
     "command": 14501,
@@ -550,13 +550,13 @@ const CRAFT_PRICE_CATALOG={
    "heat": {
     "up": 0.0028,
     "upS": 0.0028,
-    "down": 0.0435,
+    "down": 0.0434,
     "T": 0
    }
   },
   "vulture": {
    "reference": "craft_vulture",
-   "signature": "1r1ps28",
+   "signature": "96mpev",
    "build": 144429,
    "crew": 0,
    "total": 144429,
@@ -607,7 +607,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "vwing": {
    "reference": "craft_vwing",
-   "signature": "1whdcqm",
+   "signature": "1ee9xdl",
    "build": 227869,
    "crew": 1000,
    "total": 228869,
@@ -660,15 +660,15 @@ const CRAFT_PRICE_CATALOG={
   },
   "xwing": {
    "reference": "craft_xwing",
-   "signature": "1pepfrv",
-   "build": 177920,
+   "signature": "1i1gxv7",
+   "build": 177922,
    "crew": 1000,
-   "total": 178920,
+   "total": 178922,
    "by": {
-    "hull": 20,
-    "armor": 11,
+    "hull": 19,
+    "armor": 13,
     "power": 31264,
-    "drive": 62020,
+    "drive": 62021,
     "defense": 13502,
     "command": 20502,
     "weapons": 33600,
@@ -705,20 +705,20 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.000624,
-    "upS": 0.00131,
+    "up": 0.000615,
+    "upS": 0.00129,
     "down": 0.0158,
     "T": 1
    }
   },
   "z95": {
    "reference": "craft_z95",
-   "signature": "9biz5s",
-   "build": 132864,
+   "signature": "kp7pty",
+   "build": 132863,
    "crew": 1000,
-   "total": 133864,
+   "total": 133863,
    "by": {
-    "hull": 21,
+    "hull": 20,
     "armor": 10,
     "power": 45616,
     "drive": 27015,
@@ -760,7 +760,7 @@ const CRAFT_PRICE_CATALOG={
    "heat": {
     "up": 0.00405,
     "upS": 0.00405,
-    "down": 0.0333,
+    "down": 0.0332,
     "T": 0
    }
   }
@@ -1457,6 +1457,8 @@ function fitTilt(n) {
 function isSurfaceBattery(f){return !!(f&&typeof f==='object'&&typeof f.surfacePatch==='string'&&f.surfacePatch&&FITS[f.k]?.cat==='w');}
 function fitUp(f) { return isSurfaceBattery(f)?norm(f.n||f.tilt||AXES[f.mountAxis??f.a]||[0,1,0]):f.tilt || AXES[f.mountAxis ?? f.a]; }
 function fitCanRotate(f) { const d=FITS[typeof f==='string'?f:f?.k];return !!(d?.cat==='w'&&!d.casemate&&!d.fixed&&(d.tt>0||d.ion>0)); }
+function fitHasPedestal(f){const d=FITS[typeof f==='string'?f:f?.k];return !!d&&!(d.cat==='w'&&(d.craft||d.fixed||d.msl||typeof f==='object'&&isSurfaceBattery(f)));}
+function normalizeFitMount(f){if(f&&FITS[f.k]?.cat==='w'&&!fitHasPedestal(f)){f.ped=0;f.base=0;f.low=0;f.slope=0;delete f.pedShape;delete f.pedSize;}return f;}
 function fitFrameOf(f) {
   const surface=isSurfaceBattery(f),base=fitFrame(f.a),up=surface?fitUp(f):f.tilt||base.up;
   let fw=f.tilt||surface?sub(base.fw,mul(up,dot(base.fw,up))):base.fw;
@@ -1481,12 +1483,14 @@ function surfaceBatteryGeometry(f){
 }
 function surfaceBatteryInArc(port,dir){return dot(dir,port.normal)>=Math.cos(65*Math.PI/180)&&Math.abs(dot(dir,port.v))<=Math.sin(20*Math.PI/180);}
 function baseMountFit(ship, f) {
-  const d = fitSpec(f), fr = fitFrameOf(f), R = d.r, big = f.localMount||d.casemate ? Math.max(2,Math.min(6,R*.25)) : Math.max(ship.hull.H, ship.hull.W, 200) * 2;
+  normalizeFitMount(f);
+  const d = fitSpec(f), fr = fitFrameOf(f), R = d.r, flush=d.cat==='w'&&!fitHasPedestal(f),big = f.localMount||d.casemate||flush ? Math.max(2,Math.min(6,R*.25)) : Math.max(ship.hull.H, ship.hull.W, 200) * 2;
   const h0 = rayEnv(ship, add(f.p, mul(fr.up, big)), mul(fr.up, -1), {maxT: big * 2,structOnly:true});
   delete f._onPlate;
   if (!h0) { f.float = true; f.base = 0; f.low = 0; f.slope = 0; return f; }
   if (h0.part?.plate) { f.float = true; f._onPlate = true; f.base = 0; f.low = 0; f.slope = 0; return f; }
   f.float = false; f.p = h0.p;
+  if(flush)return normalizeFitMount(f);
   let hi = 0, lo = 0, miss = 0;
   for (let k = 0; k < 12; k++) {
     const a = k / 12 * Math.PI * 2, q = add(f.p, add(mul(fr.fw, Math.cos(a) * R * 0.95), mul(fr.rt, Math.sin(a) * R * 0.95)));
@@ -1498,10 +1502,10 @@ function baseMountFit(ship, f) {
   f.base = hi; f.low = Math.min(lo, 0) - (miss ? R * 0.5 : 0); f.slope = hi - lo;
   return f;
 }
-function baseFitOrigin(f) { const fr = fitFrameOf(f); return add(f.p, mul(fr.up, f.base + f.ped)); }
+function baseFitOrigin(f) { const fr = fitFrameOf(f); return add(f.p, mul(fr.up, fitHasPedestal(f)?(f.base||0)+(f.ped||0):0)); }
 function baseFitAABB(f) {
-  const d = fitSpec(f), fr = fitFrameOf(f), o = fitOrigin(f), R = d.r * Math.max(1.05, (f.pedSize || 1) * (f.pedShape === 'trap' ? 1.4 : 1.1));
-  const top = add(o, mul(fr.up, d.hm)), bot = add(f.p, mul(fr.up, f.low || 0));
+  const d = fitSpec(f), fr = fitFrameOf(f), o = fitOrigin(f), pedestal=fitHasPedestal(f),R = d.r * (pedestal?Math.max(1.05, (f.pedSize || 1) * (f.pedShape === 'trap' ? 1.4 : 1.1)):1);
+  const top = add(o, mul(fr.up, d.hm)), bot = add(f.p, mul(fr.up, pedestal?(f.low || 0):0));
   if (f.tilt) { const pts = []; for (const c of [top, bot]) for (const a of [-R, R]) for (const b of [-R, R]) pts.push(add(c, add(mul(fr.fw, a), mul(fr.rt, b)))); return [0, 1, 2].map(i => Math.min(...pts.map(p => p[i]))).concat([0, 1, 2].map(i => Math.max(...pts.map(p => p[i])))); }
   const lo = [0, 0, 0], hi = [0, 0, 0];
   for (let k = 0; k < 3; k++) {
@@ -1698,11 +1702,12 @@ function basePlaceFit(ship, k, p, n, ped, mirror, options={}) {
   if (d.cat === 'b') { if (n[1] < 0.2) return {err: '艦橋は上向きの面に置いてください'}; }
   else { let bv = -2; for (let i = 0; i < 6; i++) { const v = dot(AXES[i], n); if (v > bv) { bv = v; a = i; } } }
   const tilt = options.tilt && d.cat === 'w' && !options.localMount && !d.casemate ? fitTilt(n) : null;
-  const f = mountFit(ship, {id: nid(ship), k, p: p.slice(), a, ped: ped == null ? 2 : ped,...(fitCanRotate(k)&&Number.isFinite(options.assetYaw)?{assetYaw:clamp(options.assetYaw,-180,180)}:{}),...(options.localMount?{localMount:true}:{}),...(tilt?{tilt,n:tilt.slice()}:{})});
+  const f = mountFit(ship, {id: nid(ship), k, p: p.slice(), a, ped: ped == null ? (d.cat==='w'?0:2) : ped,...(fitCanRotate(k)&&Number.isFinite(options.assetYaw)?{assetYaw:clamp(options.assetYaw,-180,180)}:{}),...(options.localMount?{localMount:true}:{}),...(tilt?{tilt,n:tilt.slice()}:{})});
   if (f.float) return {err: f._onPlate ? '装甲外板には武装・装備を取り付けられません' : '取り付ける面が見つかりません'};
   const clash = fitClash(ship, f); if (clash) return {err: clash};
   ship.fits.push(f);
-  if (mirror && Math.abs(f.p[2]) > d.r) {
+  const mirrorBounds=mirror&&d.craft?fitAABB(f):null;
+  if (mirror && (mirrorBounds?mirrorBounds[2]>1e-6||mirrorBounds[5]<-1e-6:Math.abs(f.p[2])>d.r)) {
     const am = a === 4 ? 5 : a === 5 ? 4 : a;
     const g = mountFit(ship, {id: nid(ship), k, p: mirrorP(f.p), a: am, ped: f.ped,...(f.assetYaw!=null?{assetYaw:-f.assetYaw}:{}),...(f.localMount?{localMount:true}:{}),...(f.tilt?{tilt:mirrorP(f.tilt),n:mirrorP(f.tilt)}:{})});
     if (!g.float && !fitClash(ship, g)) { g.tw = f.id; f.tw = g.id; ship.fits.push(g); }
@@ -1715,7 +1720,8 @@ function fitClash(ship, f) {
     if (g === f) continue;
     const c = fitAABB(g);
     const ox = Math.min(b[3], c[3]) - Math.max(b[0], c[0]), oz = Math.min(b[5], c[5]) - Math.max(b[2], c[2]), oy = Math.min(b[4], c[4]) - Math.max(b[1], c[1]);
-    if (ox > d.r * 0.3 && oz > d.r * 0.3 && oy > 0) return 'ほかの装備と干渉します';
+    const craft=d.craft||FITS[g.k]?.craft,limit=axis=>Math.max(1e-6,Math.min(b[axis+3]-b[axis],c[axis+3]-c[axis])*.3);
+    if (craft?ox>limit(0)&&oy>limit(1)&&oz>limit(2):ox>d.r*.3&&oz>d.r*.3&&oy>0) return 'ほかの装備と干渉します';
   }
   return null;
 }
@@ -1795,7 +1801,7 @@ function baseComputeStats(ship) {
   // remaining volume of the cut shell instead of the original loft volume.
   if(ship.solidCuts?.length){const mass=bins.reduce((a,b)=>a+b,0),scale=mass>0?g.volume*K.hullDens/mass:0;for(let i=0;i<nb;i++)bins[i]*=scale;}
   const hullBins=bins.slice(); bins.fill(0);
-  const occupied=allOccupied(ship), physical=[...ship.parts.filter(p=>isShapePart(p)),...occupied], accepted=[], acceptedBounds=[];
+  const occupied=allOccupied(ship), physical=[...ship.parts.filter(p=>isShapePart(p)),...occupied], material=structuralMaterial(ship),accepted=[], acceptedBounds=[];
   const inAccepted=p=>{for(let i=0;i<accepted.length;i++){const b=acceptedBounds[i];if(p[0]>=b[0]-1e-4&&p[0]<=b[3]+1e-4&&p[1]>=b[1]-1e-4&&p[1]<=b[4]+1e-4&&p[2]>=b[2]-1e-4&&p[2]<=b[5]+1e-4&&inPart(accepted[i],p))return true;}return false;};
   const invalid=new Set();
   for(let i=0;i<occupied.length;i++)for(let j=i+1;j<occupied.length;j++){
@@ -1812,7 +1818,7 @@ function baseComputeStats(ship) {
   let exposedArea = 0, critExp = 0, critN = 0, critProt = 0, genExpFrac = 0, floating = 0, overlap = 0, citArea = 0, plateA = 0, plateAT = 0, plateM = 0;
   const info = {}, hangars = [];
   for (const pt of physical) {
-    const d = PARTS[pt.k], V = partVolume(pt), vs = volSamples(pt);
+    const d = PARTS[pt.k], V = partVolume(pt), materialV=pt.k==='struct'&&!pt.plate?(material.volumes.get(pt.id)??V):V,materialRatio=V>0?materialV/V:0,vs = volSamples(pt);
     let inH = 0, inE = 0, newHull = 0;
     for (const p of vs) { const h = inHull(ship, p),material=hullMaterialContains(ship,p,h); if (material) {inH++;if(!inAccepted(p))newHull++;} if (h || inEnv(ship, p, pt)) inE++; }
     const fH = vs.length ? inH / vs.length : 0, fE = vs.length ? inE / vs.length : 0;
@@ -1821,22 +1827,25 @@ function baseComputeStats(ship) {
     info[pt.id] = {inside: fE, inHull: fH, exposed: expF, overlap:invalid.has(pt.id)};
     exposedArea += A * expF;
     if (pt.k === 'struct' && pt.plate) {
-      // The outer plateT of the exposed skin is armour; behind it, light framing.
-      const t = plateThickness(pt), skin = unclippedPartArea(pt) * expF, armV = Math.min(V, skin * t), m = (V - armV) * .05 + armV * K.armorDens;
+      // Independent plate hardware keeps its material when buried, while only
+      // its actual exposed skin contributes to the exterior protection survey.
+      const t = plateThickness(pt), physicalSkin = unclippedPartArea(pt), skin = structuralArmorArea(ship,pt), armV = Math.min(materialV, physicalSkin * t), m = (materialV - armV) * .05 + armV * K.armorDens;
       plateA += skin; plateAT += skin * t; plateM += armV * K.armorDens;
-      Vstruct += V; structOut += V * (1 - fH); hpSum += (V - armV) * .05 * 1.5;const price=partBuildCost(pt,V);cost += price+armV*COST_MODEL.armor;costBy.hull+=price;costBy.armor+=armV*COST_MODEL.armor;crew += V * d.crew / 1000;
+      info[pt.id].materialVolume=materialV;info[pt.id].materialMass=m;
+      Vstruct += materialV; structOut += material.envelopeVolumes.get(pt.id)??V*(1-fH); hpSum += (materialV - armV) * .05 * 1.5;const price=partBuildCost(pt,materialV);cost += price+armV*COST_MODEL.armor;costBy.hull+=price;costBy.armor+=armV*COST_MODEL.armor;crew += materialV * d.crew / 1000;
       const b = structBox(pt);
-      { const k0 = binOf(b.x0), k1 = binOf(b.x1), nk = k1 - k0 + 1; for (let k = k0; k <= k1; k++) { strA[k] += b.w * b.h * (1 - b.tp * 0.5) * .12; bins[k] += m / nk; } }
+      { const k0 = binOf(b.x0), k1 = binOf(b.x1), nk = k1 - k0 + 1; for (let k = k0; k <= k1; k++) { strA[k] += b.w * b.h * (1 - b.tp * 0.5) * .12 * materialRatio; bins[k] += m / nk; } }
       continue;
     }
     if (isShapePart(pt)) {
       // A light structure (an open framework or a lightly built hull extension,
       // like a freighter's cargo ring) weighs and holds a quarter of a solid one.
-      const lf = pt.light ? .25 : 1, vOut = V * (1 - fH), m = isAeroPart(pt)?V*d.dens:(V*.08 + vOut*(K.structDens-.08)) * lf;
-      Vstruct += V; structOut += vOut; hpSum += m * 1.5;const price=partBuildCost(pt,V);cost += price;costBy[costCategory(pt.k)]+=price;crew += V * d.crew / 1000;
+      const lf = pt.light ? .25 : 1, vOut = material.envelopeVolumes.get(pt.id)??V*(1-fH),m=isAeroPart(pt)?V*d.dens:materialV*K.structDens*lf;
+      info[pt.id].materialVolume=materialV;info[pt.id].materialMass=m;
+      Vstruct += materialV; structOut += vOut; hpSum += m * 1.5;const price=partBuildCost(pt,materialV);cost += price;costBy[costCategory(pt.k)]+=price;crew += materialV * d.crew / 1000;
       const b = structBox(pt);
       // The whole mass goes into the bins the structure spans (those beyond the hull's own length fold into the end bins).
-      { const k0 = binOf(b.x0), k1 = binOf(b.x1), nk = k1 - k0 + 1; for (let k = k0; k <= k1; k++) { strA[k] += b.w * b.h * (1 - b.tp * 0.5) * .12 * lf; bins[k] += m / nk; } }
+      { const k0 = binOf(b.x0), k1 = binOf(b.x1), nk = k1 - k0 + 1; for (let k = k0; k <= k1; k++) { strA[k] += b.w * b.h * (1 - b.tp * 0.5) * .12 * lf * materialRatio; bins[k] += m / nk; } }
       continue;
     }
     const m = V * d.dens; hpSum += m * d.hp; const price=partBuildCost(pt,V);cost += price; costBy[costCategory(pt.k)] += price; crew += V * d.crew / 1000; Vint += V * newHull/Math.max(1,vs.length);
@@ -1915,7 +1924,7 @@ function baseComputeStats(ship) {
     const raw=fitSpec(f),cr=needsCapacitor(f)?(chargeInfo[f.id]?.ratio||0):1,d={...raw,power:raw.power*cr,tt:(raw.tt||0)*cr,ion:(raw.ion||0)*cr};
     if (f.float) { floatFits++; if (f._onPlate) plateFits++; }
     // v21 Craft weapons sit flush on their mount (drawn without a pedestal), so they carry no pedestal mass.
-    const ph = d.craft ? 0 : Math.max(0, f.base + f.ped - (f.low || 0)), pr = d.r * 0.8, pv = Math.PI * pr * pr * ph; pedVol += pv;
+    const ph = fitHasPedestal(f) ? Math.max(0, f.base + f.ped - (f.low || 0)) : 0, pr = d.r * 0.8, pv = Math.PI * pr * pr * ph; pedVol += pv;
     // v18 Each weapon needs its gun crew and as many again to feed, power and maintain it.
     const m = d.mass + pv * 0.3, fc = d.cat === 'w' ? (d.crew || 0) * WEAPON_CREW_K : (d.crew || 0); crew += fc; if (d.cat === 'w' && !f.float) weaponCrew += fc; const price=fitBuildCost(f,raw);cost += price; costBy[d.cat === 'w' ? 'weapons' : 'command'] += price;
     bins[binOf(f.p[0])] += m;
@@ -1958,7 +1967,15 @@ function baseComputeStats(ship) {
   const armorArea=armoredMaterialArea(ship,area),surfaceArmor=surfaceArmorBudget(ship,armorArea),armHull=surfaceArmor.mass,armCit=ship.armor.cit*citArea*K.armorDens;
   let perSum = 0; const per = new Float64Array(nb);
   for (let k = 0; k < nb; k++) { const sb = sectionBase(hp, (k + 0.5) * dxb); per[k] = sb.hw * 2 + sb.h * 2; perSum += per[k]; }
-  for (let k = 0; k < nb; k++) bins[k] += perSum > 0 ? armHull * per[k] / perSum : 0;
+  if(perSum>0){for(let k=0;k<nb;k++)bins[k]+=armHull*per[k]/perSum;}
+  else if(armHull>0){
+    // Assembly hulls have no loft perimeter. Their armor still belongs to
+    // the real exterior skin, whose survey has six facing areas per x bin.
+    const weights=new Float64Array(nb);let sum=0;
+    for(let i=0;i<skin.n;i++){let a=0;for(let f=0;f<6;f++)a+=skin.a[i*6+f];if(!(a>0)||!Number.isFinite(a))continue;weights[binOf(lerp(skin.x0,skin.x1,(i+.5)/skin.n))]+=a;sum+=a;}
+    if(sum>0){for(let k=0;k<nb;k++)bins[k]+=armHull*weights[k]/sum;}
+    else bins[binOf((skX0+skX1)/2)]+=armHull;
+  }
   for (const pt of ship.parts) if (PARTS[pt.k].crit) bins[binOf(pt.c[0])] += ship.armor.cit * partArea(pt) * K.armorDens;
   const M = bins.reduce((a, b) => a + b, 0);
   hpSum += Math.max(0, g.volume - Vint) * K.hullDens;
@@ -2413,12 +2430,56 @@ function v3StructTriangles(pt){
   for(let j=0;j<=levels;j++){const t=j/levels,[x0,x1,z0,z1]=structLimits(pt,t),y=(t-.5)*pt.s[2],r=pt.form==='dome'?Math.sqrt(Math.max(0,1-t*t)):1;
     const ring=[];for(let i=0;i<n;i++){if(round){const a=i/n*Math.PI*2;ring.push(worldStruct(pt,[(x0+x1)/2+Math.cos(a)*(x1-x0)/2*r,y,(z0+z1)/2+Math.sin(a)*(z1-z0)/2*r]));}else ring.push(worldStruct(pt,[[x0,y,z0],[x1,y,z0],[x1,y,z1],[x0,y,z1]][i]));}rings.push(ring);
   }
-  const push=(a,b,c)=>{let nn=cross(sub(b,a),sub(c,a)),cen=mul(add(add(a,b),c),1/3);if(dot(nn,sub(cen,pt.c))<0)[b,c]=[c,b];tri.push(...a,...b,...c);};
+  // The wedge origin lies on its diagonal roof, so it cannot determine
+  // which winding faces outward. The ring mean is strictly inside the solid.
+  const interior=pt.form==='wedge'?mul(rings.flat().reduce((a,b)=>add(a,b),[0,0,0]),1/(n*rings.length)):pt.c;
+  const push=(a,b,c)=>{let nn=cross(sub(b,a),sub(c,a)),cen=mul(add(add(a,b),c),1/3);if(dot(nn,sub(cen,interior))<0)[b,c]=[c,b];tri.push(...a,...b,...c);};
   for(let j=0;j<levels;j++)for(let i=0;i<n;i++){const k=(i+1)%n;push(rings[j][i],rings[j+1][i],rings[j+1][k]);push(rings[j][i],rings[j+1][k],rings[j][k]);}
   for(const j of [0,levels]){const c=mul(rings[j].reduce((a,b)=>add(a,b),[0,0,0]),1/n);for(let i=0;i<n;i++)push(c,rings[j][i],rings[j][(i+1)%n]);}
   pt._geom={key,tris:Float32Array.from(tri)};return pt._geom.tris;
 }
 function structVolume(pt){let v=0;const T=structTriangles(pt);for(let i=0;i<T.length;i+=9){const a=sub(Array.from(T.slice(i,i+3)),pt.c),b=sub(Array.from(T.slice(i+3,i+6)),pt.c),c=sub(Array.from(T.slice(i+6,i+9)),pt.c);v+=dot(a,cross(b,c))/6;}return Math.abs(v);}
+// Structural blocks describe one material envelope. Their editable solids stay
+// intact, but hull-first / stable-ID ownership charges common material once.
+// Independently installed wings, panels and equipment are not fused hardware.
+const STRUCTURAL_MATERIAL_CACHE=new WeakMap();
+const STRUCTURAL_VOLUME_CACHE=new WeakMap();
+function structuralMaterialOrder(a,b){const density=p=>p.plate?K.armorDens:K.structDens*(p.light?.25:1);return density(b)-density(a)||a.id-b.id;}
+function structuralMeshVolume(T){if(!T.length)return 0;const cached=STRUCTURAL_VOLUME_CACHE.get(T);if(cached!==undefined)return cached;const b=solidMeshBounds(T),o=[0,1,2].map(i=>(b[i]+b[i+3])/2);let value=0;for(let i=0;i<T.length;i+=9){const a=sub(Array.from(T.slice(i,i+3)),o),b=sub(Array.from(T.slice(i+3,i+6)),o),c=sub(Array.from(T.slice(i+6,i+9)),o);value+=dot(a,cross(b,c));}const result=Math.abs(value/6);STRUCTURAL_VOLUME_CACHE.set(T,result);return result;}
+function structuralCoplanarSection(T,n,d,u,v,origin,eps){
+ const edges=new Map(),pointKey=p=>p.map(x=>Math.round(x/eps)).join(','),n0=n[0],n1=n[1],n2=n[2],tolerance=eps*4;
+ for(let i=0;i<T.length;i+=9){
+  if(Math.abs(n0*T[i]+n1*T[i+1]+n2*T[i+2]-d)>tolerance||Math.abs(n0*T[i+3]+n1*T[i+4]+n2*T[i+5]-d)>tolerance||Math.abs(n0*T[i+6]+n1*T[i+7]+n2*T[i+8]-d)>tolerance)continue;
+  const ax=T[i+3]-T[i],ay=T[i+4]-T[i+1],az=T[i+5]-T[i+2],bx=T[i+6]-T[i],by=T[i+7]-T[i+1],bz=T[i+8]-T[i+2],raw=[ay*bz-az*by,az*bx-ax*bz,ax*by-ay*bx];
+  if(len(raw)<1e-12||dot(norm(raw),n)<1-1e-7)continue;
+  const Q=[0,3,6].map(j=>{const p=[T[i+j]-origin[0],T[i+j+1]-origin[1],T[i+j+2]-origin[2]];return [dot(p,u),dot(p,v)];});
+  for(let j=0;j<3;j++){const a=Q[j],b=Q[(j+1)%3],ka=pointKey(a),kb=pointKey(b),key=ka<kb?ka+'|'+kb:kb+'|'+ka;if(edges.has(key))edges.delete(key);else edges.set(key,[a,b]);}
+ }
+ const segments=solidSimplifySegments([...edges.values()],eps).filter(e=>Math.abs(e[1][0]-e[0][0])>eps*.05);return {edges:segments,events:segments.flatMap(e=>[e[0][0],e[1][0]])};
+}
+function structuralClipBoundary(T,other,coplanar=false,onlyCoplanar=false){
+ if(!T.length||!other.length)return T;const a=solidMeshBounds(T),b=solidMeshBounds(other),pad=1e-6;if([0,1,2].some(i=>a[i+3]<b[i]-pad||a[i]>b[i+3]+pad))return T;
+ const mesh={T:other,sections:new Map()},planes=new Map(),out=[],trianglePad=Math.max(pad,4e-8,...a.map(x=>Math.abs(x)*1.2e-7));
+ for(let i=0;i<T.length;i+=9){
+  // A distant component of the accumulated union cannot meet this solid.
+  // Retain it directly without constructing plane sections for its triangles.
+  if(Math.max(T[i],T[i+3],T[i+6])<b[0]-trianglePad||Math.min(T[i],T[i+3],T[i+6])>b[3]+trianglePad||Math.max(T[i+1],T[i+4],T[i+7])<b[1]-trianglePad||Math.min(T[i+1],T[i+4],T[i+7])>b[4]+trianglePad||Math.max(T[i+2],T[i+5],T[i+8])<b[2]-trianglePad||Math.min(T[i+2],T[i+5],T[i+8])>b[5]+trianglePad){for(let j=0;j<9;j++)out.push(T[i+j]);continue;}
+  const P=[0,3,6].map(j=>Array.from(T.slice(i+j,i+j+3))),raw=cross(sub(P[1],P[0]),sub(P[2],P[0]));if(len(raw)<1e-12)continue;const n=norm(raw),d=dot(n,P[0]),key=n.map(x=>Math.round(x*1e8)).join(',')+'|'+Math.round(d*1e5);let plane=planes.get(key);
+  if(!plane){const f=frameAxis(n),u=f.v,v=f.w,origin=mul(n,d),eps=Math.max(1e-8,Math.max(...P.flat().map(Math.abs))*3e-8),sections=[];let minimum=0,maximum=0;for(let a=0;a<3;a++){minimum+=n[a]*(n[a]<0?b[a+3]:b[a]);maximum+=n[a]*(n[a]<0?b[a]:b[a+3]);}if(maximum>=d-eps*4&&minimum<=d+eps*5){if(!onlyCoplanar){const s=surfaceExposurePlane(mesh,n,d+eps*4,u,v,origin,key,eps);if(s.edges.length)sections.push(s);}if(coplanar){const s=structuralCoplanarSection(other,n,d,u,v,origin,eps);if(s.edges.length)sections.push(s);}}plane={n,u,v,origin,eps,sections,crossings:surfaceExposureCrossings(sections,eps)};planes.set(key,plane);}
+  if(!plane.sections.length)out.push(...P[0],...P[1],...P[2]);else surfaceExposeTriangle(P,plane,plane.sections,out);
+ }return out.length===T.length&&out.every((v,i)=>v===T[i])?T:Float64Array.from(out);
+}
+function structuralJoinBoundary(a,b){if(!a.length)return b;if(!b.length)return a;const first=structuralClipBoundary(a,b),second=structuralClipBoundary(b,a,true);if(!first.length)return second;if(!second.length)return first;const out=new Float64Array(first.length+second.length);out.set(first);out.set(second,first.length);return out;}
+function structuralMaterial(ship){
+ const bulk=p=>p.k==='struct'&&!p.plate,g=hullGeo(ship),hull=g.materialTris||g.tris,parts=ship.parts.filter(isShapePart).slice().sort((a,b)=>(bulk(b)?1:0)-(bulk(a)?1:0)||structuralMaterialOrder(a,b)),entries=parts.map(p=>{const T=structTriangles(p);return {p,bulk:bulk(p),T:p._solidGeometry?.material||(p._apertures?.length?p._pierced?.material:T)||T};}),old=STRUCTURAL_MATERIAL_CACHE.get(ship);
+ if(old?.hull===hull&&old.entries.length===entries.length&&entries.every((e,i)=>e.p===old.entries[i].p&&e.T===old.entries[i].T&&e.bulk===old.entries[i].bulk))return old;
+ let boundary=hull,previous=structuralMeshVolume(boundary),extension=0;const volumes=new Map(),envelopeVolumes=new Map();for(const {p,T,bulk}of entries){const V=partVolume(p),joined=structuralJoinBoundary(boundary,T),next=structuralMeshVolume(joined),added=clamp(next-previous,0,V),volume=added<Math.max(1e-8,V*1e-10)?0:added;envelopeVolumes.set(p.id,volume);if(bulk)volumes.set(p.id,volume);extension+=volume;boundary=joined;previous=next;}
+ const result={hull,entries,volumes,envelopeVolumes,extension,boundary};STRUCTURAL_MATERIAL_CACHE.set(ship,result);return result;
+}
+function structuralCoincidentTriangles(ship,patch,T){
+ if(!T.length||patch._part?.k!=='struct')return T;const prior=ship.parts.filter(p=>p.k==='struct'&&structuralMaterialOrder(p,patch._part)<0).sort(structuralMaterialOrder);let result=T;if(!ship.hull.assembly)result=structuralClipBoundary(result,hullGeo(ship).tris,true,true);for(const p of prior){result=structuralClipBoundary(result,structTriangles(p),true,true);if(!result.length)break;}return result;
+}
+function structuralArmorArea(ship,part){return surfacePatches(ship,!ship.surfaces).filter(p=>p._part===part).reduce((n,p)=>n+p.exposedArea,0);}
 function cylinderLocal(pt,p){const q=sub(p,pt.c),f=frameAxis(pt.dir||[1,0,0]);return [dot(q,f.u),dot(q,f.v),dot(q,f.w)];}
 function v3PartDims(pt){if(pt.k==='machinery')return {r:pt.seg.l/2+Math.max(pt.seg.r0,pt.seg.r1),l:pt.seg.l,rad:pt.seg.r1};if(pt.boxSize)return {r:len(pt.boxSize)/2};return basePartDims(pt);}
 function v3PartVolume(pt){if(isShapePart(pt))return structVolume(pt);if(pt.k==='machinery'){const s=pt.seg;return Math.PI*s.l/3*(s.r0*s.r0+s.r0*s.r1+s.r1*s.r1);}if(pt.boxSize)return pt.boxSize.reduce((a,b)=>a*b,1);return basePartVolume(pt);}
@@ -2483,8 +2544,9 @@ function v3PlacePart(ship,k,c,size,opts={},mirror=false){
 function exposedSurface(ship,occupied,skin){
   const g=hullGeo(ship),structs=ship.parts.filter(p=>isShapePart(p)),physical=[...structs,...occupied],eps=.12;
   const bounds=physical.map(q=>[q,partAABB(q)]);const inside=(p,skip)=>bounds.some(([q,b])=>q!==skip&&p[0]>=b[0]&&p[0]<=b[3]&&p[1]>=b[1]&&p[1]<=b[4]&&p[2]>=b[2]&&p[2]<=b[5]&&inPart(q,p));let area=0;
-  const addMesh=(T,owner)=>{let result=0;const extra=owner?.plate?plateThickness(owner):0;for(let i=0;i<T.length;i+=9){const a=[T[i],T[i+1],T[i+2]],b=[T[i+3],T[i+4],T[i+5]],c=[T[i+6],T[i+7],T[i+8]],n=cross(sub(b,a),sub(c,a)),sz=len(n)/2;if(sz<1e-8)continue;const p=add(mul(add(add(a,b),c),1/3),mul(norm(n),eps));if((owner&&inHull(ship,p))||inside(p,owner))continue;result+=sz;if(skin)skinAdd(skin,(a[0]+b[0]+c[0])/3,n,sz,extra);}return result;};
-  area+=addMesh(g.tris,null);for(const p of structs)area+=addMesh(structTriangles(p),p);
+  // The common exposed mask includes partial overlaps and stable ownership of
+  // coincident structural sheets; centroid votes cannot measure their union.
+  for(const patch of surfacePatches(ship,!ship.surfaces)){if(patch._part&&!isShapePart(patch._part))continue;const T=patch.exposedTriangles??patch.triangles,extra=patch._part?.plate?plateThickness(patch._part):0;for(let i=0;i<T.length;i+=9){const a=Array.from(T.slice(i,i+3)),b=Array.from(T.slice(i+3,i+6)),c=Array.from(T.slice(i+6,i+9)),n=cross(sub(b,a),sub(c,a)),sz=len(n)/2;if(sz<1e-8)continue;area+=sz;if(skin)skinAdd(skin,(a[0]+b[0]+c[0])/3,n,sz,extra);}}
   for(const p of occupied){if(p.boxSize||isInternal(p))continue;const ss=surfSamples(p,eps);let ex=0;for(const q of ss)if(!inHull(ship,q)&&!inside(q,p))ex++;const a=partArea(p)*ex/Math.max(1,ss.length);area+=a;if(skin&&a>0&&p.c)skinAdd(skin,p.c[0],[0,p.c[1]-skin.yc,p.c[2]],a,0);}
   return area;
 }
@@ -2529,7 +2591,8 @@ function v3SurfSamples(pt,inflate=0){
   return baseSurfSamples(pt,inflate);
 }
 function mountFit(ship,f){
-  if(FITS[f.k]?.asset)return mountReferenceFit(ship,f);
+  normalizeFitMount(f);
+  if(FITS[f.k]?.asset)return normalizeFitMount(mountReferenceFit(ship,f));
   if(!FITS[f.k]?.window)return baseMountFit(ship,f);
   let p=f.p,n=f.n||AXES[f.a],host=f.host?ship.parts.find(q=>q.id===f.host):null,h=null;
   if(f.host&&!host){f.float=true;return f;}
@@ -2544,9 +2607,22 @@ function mountFit(ship,f){
   return f;
 }
 function fitOrigin(f){if(FITS[f.k]?.window)return add(f.p,mul(f.n||AXES[f.a],(f.intrinsic?0:podDepth(f))+.45));return baseFitOrigin(f);}
+// Local visual envelopes of the small-craft fittings, including their stores.
+// Mounting-radius circles are clearance probes, not the bodies' hit boxes.
+function craftFitBounds(f){
+ const d=fitSpec(f),L=d.fm,W=d.wm,h=d.hm,k=f.k;
+ if(k==='claser'||k==='claserH')return [-L*.4,Math.min(h*.05,h*.5-W*.42),-W*.5,L*.53,Math.max(h*.95,h*.5+W*.42),W*.5];
+ if(k==='cion')return [-L*.43,0,-W*.5,L*.47,h,W*.5];
+ if(k==='cturret')return [-W*.5,0,-W*.5,Math.max(L*.68,W*.5),Math.max(h*.8,h*.55+W*.06),W*.5];
+ if(k==='ctorp'||k==='cmsl')return [-L*.5,0,-W*.5,L*.51,h,W*.5];
+ if(k==='cbomb')return [-L*.5,-h*.01,-W*.5,L*.5,h,W*.5];
+ if(k==='cpylon'){let x=L*.5,y=h*1.02,z=W*.8;const load=f._store||(STORE_DEFAULT?.cpylon?{k:STORE_DEFAULT.cpylon[0],n:STORE_DEFAULT.cpylon[1]}:null),od=load&&ORDNANCE?.[load.k],n=od?Math.min(load.n,storeCapacity(d.store,load.k)):0;if(n>0){const [length,diameter]=od.dims;x=Math.max(x,length*.5);y=Math.max(y,h+diameter*1.05);z=Math.max(z,diameter*(n>1?1.1:.5));}return [-x,0,-z,x,y,z];}
+ return [-L*.5,0,-W*.5,L*.5,h,W*.5];
+}
 function fitAABB(f){
   const port=surfaceBatteryGeometry(f);if(port)return port.bounds;
   if(FITS[f.k]?.asset)return referenceFitAABB(f);
+  if(FITS[f.k]?.craft){const b=craftFitBounds(f),fr=fitFrameOf(f),o=fitOrigin(f),P=[];for(const x of [b[0],b[3]])for(const y of [b[1],b[4]])for(const z of [b[2],b[5]])P.push(add(o,add(add(mul(fr.fw,x),mul(fr.up,y)),mul(fr.rt,z))));return [0,1,2].map(i=>Math.min(...P.map(p=>p[i]))).concat([0,1,2].map(i=>Math.max(...P.map(p=>p[i]))));}
   if(!FITS[f.k]?.window)return baseFitAABB(f);
   const fr=windowFrame(f),w=f.width||FITS[f.k].fm,h=f.height||FITS[f.k].wm,depth=podDepth(f),c=add(f.p,mul(fr.up,depth/2)),e=[0,1,2].map(a=>Math.abs(fr.fw[a])*w/2+Math.abs(fr.rt[a])*h/2+Math.abs(fr.up[a])*depth/2);
   return sub(c,e).concat(add(c,e));
@@ -2897,7 +2973,7 @@ function surfaceArmor(config){return {...config.armor,thickness:config.functionM
 const SURFACE_LIMITS=Object.freeze({devices:SURFACE_DEVICE_MAX,armorThickness:100,equipmentDepth:100,spacing:1000,styleDepth:30,patches:SURFACE_MAX});
 const SURFACE_MATERIALS={standard:{name:'標準装甲',density:7.8,resistance:1},dense:{name:'高密度装甲',density:10.5,resistance:1.25},light:{name:'軽量装甲',density:4.6,resistance:.75}};
 const SURFACE_FACE={fore:[1,0,0],aft:[-1,0,0],top:[0,1,0],bottom:[0,-1,0],stbd:[0,0,1],port:[0,0,-1]};
-const surfaceCache=new WeakMap(),surfaceCollisionCache=new WeakMap(),surfaceLayoutCache=new WeakMap(),surfaceDepthCache=new WeakMap();
+const surfaceCache=new WeakMap(),surfaceStructuralCache=new WeakMap(),surfaceCollisionCache=new WeakMap(),surfaceLayoutCache=new WeakMap(),surfaceDepthCache=new WeakMap();
 const surfaceProxyIds=new WeakMap();let surfaceProxyNext=1;
 function surfaceProxyKey(ship){if(!ship._client)return 'local';const hull=ship._geoProxy?.hull;if(!hull||typeof hull!=='object')return 'client-pending';let id=surfaceProxyIds.get(hull);if(!id){id=surfaceProxyNext++;surfaceProxyIds.set(hull,id);}return 'client:'+id;}
 function surfaceHash(v){const s=typeof v==='string'?v:JSON.stringify(v);let h=2166136261;for(let i=0;i<s.length;i++)h=Math.imul(h^s.charCodeAt(i),16777619);return(h>>>0).toString(36);}
@@ -2911,6 +2987,7 @@ function normalizeSurfaces(value){
   const a=q.armor||{},e=q.equipment||{},b=q.battery||{},s=q.style||{},o={id:q.id,armor:{material:Object.hasOwn(SURFACE_MATERIALS,a.material)?a.material:'standard',thickness:number(a.thickness,0,100,0)},equipment:{kind:['none','hdis','radiator','machinery'].includes(e.kind)?e.kind:'none',count:Math.round(number(e.count,0,SURFACE_DEVICE_MAX,0)),depth:number(e.depth,.02,100,1)},battery:{weapon:Object.hasOwn(FITS,b.weapon)&&FITS[b.weapon].cat==='w'?b.weapon:'none',count:Math.round(number(b.count,0,SURFACE_DEVICE_MAX,0)),spacing:number(b.spacing,0,1000,2),angle:number(b.angle,-180,180,0),reversed:b.reversed===true},style:{kind:['standard','slab','machinery','rounded'].includes(s.kind)?s.kind:'standard',depth:number(s.depth,0,30,0),density:number(s.density,0,1,.25),seed:Math.round(number(s.seed,0,2147483647,1))},powerDomain:typeof q.powerDomain==='string'?q.powerDomain.slice(0,40):'main'};
   o.authored=q.authored!==false;o.functionMode=['armor','equipment','legacy'].includes(q.functionMode)?q.functionMode:'legacy';o.allocation=surfaceAllocation(q.allocation);if(o.functionMode==='equipment'){if(o.equipment.kind==='none'||o.equipment.kind==='machinery')o.equipment.kind='hdis';if(o.battery.weapon==='none')o.battery.weapon='pd';if(q.legacyAllocation||value.version<3&&Number.isFinite(q.allocation?.weapons))o.legacyAllocation=surfaceLegacyAllocation(q.legacyAllocation||q.allocation);}
   if(q.aggregate)o.aggregate=surfaceNormalizeAggregate(q.aggregate);
+  if(e.capacityModel==='area-v1')o.equipment.capacityModel='area-v1';
   if(Number.isFinite(e.limit))o.equipment.limit=Math.round(number(e.limit,0,SURFACE_DEVICE_MAX,SURFACE_DEVICE_MAX));
   if(Number.isFinite(q.boundArea)&&q.boundArea>=0)o.boundArea=Math.min(q.boundArea,1e14);o.layout={u:q.layout?.u===-1?-1:1,v:q.layout?.v===-1?-1:1};records.push(o);
  }
@@ -2921,31 +2998,84 @@ function normalizeSurfaces(value){
  return {version:SURFACE_VERSION,mode:value.mode==='strict'?'strict':'compat',compatAllowed:value.compatAllowed!==false,patches:records,...(partitions.length?{partitions}:{}),...(Number.isFinite(value.legacyArmor)?{legacyArmor:clamp(value.legacyArmor,0,100)}:{})};
 }
 function surfaceConfig(ship,id){const q=ship.surfaces?.patches?.find(x=>x.id===id),base={id,authored:false,functionMode:'armor',allocation:surfaceAllocation(),armor:{material:'standard',thickness:ship.surfaces?0:ship.armor?.hull??0},equipment:{kind:'none',count:0,depth:1},battery:{weapon:'none',count:0,spacing:2,angle:0,reversed:false},style:{kind:'standard',depth:0,density:.25,seed:1},powerDomain:'main',layout:{u:1,v:1}};if(!q)return base;for(const k of ['armor','equipment','battery','style'])base[k]={...base[k],...q[k]};if(q.aggregate)base.aggregate=q.aggregate;base.authored=q.authored!==false;base.functionMode=['armor','equipment','legacy'].includes(q.functionMode)?q.functionMode:'legacy';base.allocation=surfaceAllocation(q.allocation);if(q.legacyAllocation){base.legacyAllocation=surfaceLegacyAllocation(q.legacyAllocation);base.battery.count=(q.aggregate?.guns?.length??ship.fits.filter(f=>f.surfacePatch===id&&FITS[f.k]?.cat==='w').length);}base.powerDomain=q.powerDomain||'main';if(q.boundArea!=null)base.boundArea=q.boundArea;base.layout={u:q.layout?.u===-1?-1:1,v:q.layout?.v===-1?-1:1};return base;}
-function surfaceTopology(ship,p){return surfaceHash([p?p.k:'hull',p?.form||ship.hull.plan,p?.mesh?.f||null,p?.mesh?.v?.length||null,ship.cuts||[],ship.trenches||[],ship.subs||[],(ship.solidCuts||[]).filter(c=>!p||ship.hull.assembly||c.structures),p?null:(ship.hatches||[]).map(h=>[h.id,h.portal,h.bay,h.face,h.a,h.b,h.w])]);}
-function surfaceGeometryKey(ship){return JSON.stringify([surfaceProxyKey(ship),ship.hull,ship.cuts,ship.trenches,ship.subs,ship.solidCuts,ship.hatches,(ship.parts||[]).filter(p=>!p.surfacePatch).map(p=>[p.id,p.k,p.c,p.s,p.d,p.room,p.form,p.mesh,p.outline,p.yaw,p.pitch,p.roll,p.surfaceNormal,p.skinAsset,p.skinSize]),ship.surfaces?.partitions]);}
+function surfaceTopology(ship,p){const key=[p?p.k:'hull',p?.form||ship.hull.plan,p?.mesh?.f||null,p?.mesh?.v?.length||null,ship.cuts||[],ship.trenches||[],ship.subs||[],(ship.solidCuts||[]).filter(c=>!p||ship.hull.assembly||c.structures),p?null:(ship.hatches||[]).map(h=>[h.id,h.portal,h.bay,h.face,h.a,h.b,h.w])];if(p?.form==='wedge')key.push('outward-wedge-2');return surfaceHash(key);}
+function surfaceGeometryKey(ship){return JSON.stringify([surfaceProxyKey(ship),ship.hull,ship.cuts,ship.trenches,ship.subs,ship.solidCuts,ship.hatches,(ship.parts||[]).filter(p=>!p.surfacePatch).map(p=>[p.id,p.k,p.c,p.s,p.d,p.room,p.form,p.mesh,p.outline,p.yaw,p.pitch,p.roll,p.surfaceNormal,p.skinAsset,p.skinSize,p.dir,p.segments,p.boxSize,p.boxFrame,p.length,p.nozzleLength,p.light,p.plate]),ship.surfaces?.partitions]);}
 function surfaceHull2(points){const a=points.map(p=>p.slice()).sort((a,b)=>a[0]-b[0]||a[1]-b[1]),cross2=(a,b,c)=>(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);if(a.length<3)return a;const lo=[],hi=[];for(const p of a){while(lo.length>1&&cross2(lo.at(-2),lo.at(-1),p)<=1e-8)lo.pop();lo.push(p);}for(let i=a.length-1;i>=0;i--){const p=a[i];while(hi.length>1&&cross2(hi.at(-2),hi.at(-1),p)<=1e-8)hi.pop();hi.push(p);}lo.pop();hi.pop();return lo.concat(hi);}
 function surfaceBlocked(ship,p,n,host){const q=surfaceAdd(p,mul(n,.025));if(inHull(ship,q))return true;for(const part of ship.parts||[]){if(part===host||part.surfacePatch)continue;const b=partAABB(part);if(q.some((v,i)=>v<b[i]-.001||v>b[i+3]+.001))continue;if(inPart(part,q))return true;}return false;}
 function surfaceHosts(ship){const out=[];if(!ship.hull.assembly)out.push({host:'hull',part:null,T:hullGeo(ship).tris});for(const p of ship.parts||[]){if(p.surfacePatch)continue;if(isShapePart(p)){p._solidCutShip=ship;out.push({host:'p'+p.id,part:p,T:structTriangles(p)});continue;}if(p.room||PARTS[p.k]?.shape==='cube'){const q=roomShape(p);q._solidCutShip=ship;out.push({host:'p'+p.id,part:p,T:structTriangles(q)});}}return out;}
 function surfaceComponents(g){const n=g.triangles.length/9;if(n<2)return[g];const parent=Array.from({length:n},(_,i)=>i),find=i=>{while(parent[i]!==i){parent[i]=parent[parent[i]];i=parent[i];}return i;},vertices=new Map();for(let i=0;i<n;i++)for(let j=0;j<3;j++){const p=g.triangles.slice(i*9+j*3,i*9+j*3+3),key=p.map(v=>Math.round(v*1e4)).join(','),old=vertices.get(key);if(old!=null)parent[find(i)]=find(old);else vertices.set(key,i);}const map=new Map();for(let i=0;i<n;i++){const root=find(i);if(!map.has(root))map.set(root,[]);map.get(root).push(...g.triangles.slice(i*9,i*9+9));}if(map.size===1)return[g];const list=[];for(const T of map.values()){let area=0,center=[0,0,0],normal=[0,0,0];const samples=[];for(let i=0;i<T.length;i+=9){const a=T.slice(i,i+3),b=T.slice(i+3,i+6),c=T.slice(i+6,i+9),raw=cross(sub(b,a),sub(c,a)),ar=len(raw)/2,p=mul(surfaceAdd(surfaceAdd(a,b),c),1/3);area+=ar;center=surfaceAdd(center,p,ar);normal=surfaceAdd(normal,norm(raw),ar);if(samples.length<12)samples.push({p,n:norm(raw)});}list.push({...g,triangles:T,area,center,normal,samples});}list.sort((a,b)=>a.center[0]/a.area-b.center[0]/b.area||a.center[1]/a.area-b.center[1]/b.area||a.center[2]/a.area-b.center[2]/b.area);return list.map((p,i)=>({...p,seg:g.seg*64+i}));}
-function surfacePatches(ship){
- const key=surfaceGeometryKey(ship),old=surfaceCache.get(ship);if(old?.key===key)return old.patches.map(p=>({...p,config:surfaceConfig(ship,p.id)}));const out=[];
- for(const host of surfaceHosts(ship)){
+// Exterior masks are derived from the same closed solids as collision. The
+// original face mesh remains the physical skin; only its externally open
+// fragments are selectable and available for surface functions.
+const surfaceExposureUV=new WeakMap(),surfaceExposureValidation=new WeakMap();
+function surfaceExposureMeshes(ship,hosts){
+ const out=hosts.map((h,i)=>({...h,index:i,b:solidMeshBounds(h.T),sections:new Map()})),known=new Set(hosts.map(h=>h.part));
+ for(const p of ship.parts||[]){if(p.surfacePatch||p._surfaceAdapter||known.has(p))continue;let T=p._packing?.tris||p._clip?.tris;
+  if(!T&&p.k==='sensor'&&p.skinSize)T=structTriangles(sensorShape(p));
+  if(!T&&PARTS[p.k]?.shape==='sphere')T=ellipsoidTriangles({k:'struct',form:'ellipsoid',c:p.c,s:[p.d,p.d,p.d]});
+  if(!T&&['cyl','engine'].includes(PARTS[p.k]?.shape)){const m=partDims(p),fr=frameAxis(p.dir||[1,0,0]),rings=[-1,1].map(s=>Array.from({length:32},(_,i)=>add(p.c,add(mul(fr.u,s*m.l/2),add(mul(fr.v,Math.cos(i*Math.PI/16)*m.rad),mul(fr.w,Math.sin(i*Math.PI/16)*m.rad)))))),a=[];for(let i=0;i<32;i++){const j=(i+1)%32;triangulateFan([rings[0][i],rings[0][j],rings[1][j],rings[1][i]],a);}triangulateFan(rings[0].slice().reverse(),a);triangulateFan(rings[1],a);T=Float32Array.from(a);}
+  if(T?.length)out.push({host:'p'+p.id,part:p,T,index:out.length,b:solidMeshBounds(T),sections:new Map()});
+ }return out.filter(h=>h.T.length&&h.b.every(Number.isFinite));
+}
+function surfaceExposurePlane(mesh,n,d,u,v,origin,key,eps){
+ const cached=mesh.sections.get(key);if(cached)return cached;const segments=solidSliceSegments(mesh.T,{n,d},u,v,origin,eps),edges=segments.filter(e=>Math.abs(e[1][0]-e[0][0])>eps*.05),events=edges.flatMap(e=>[e[0][0],e[1][0]]),result={edges,events};mesh.sections.set(key,result);return result;
+}
+function surfaceExposureCrossings(sections,eps){const events=[];for(let a=0;a<sections.length;a++)for(let b=a+1;b<sections.length;b++)for(const x of sections[a].edges)for(const y of sections[b].edges){if(Math.max(x[0][0],x[1][0])<Math.min(y[0][0],y[1][0])-eps||Math.max(y[0][0],y[1][0])<Math.min(x[0][0],x[1][0])-eps||Math.max(x[0][1],x[1][1])<Math.min(y[0][1],y[1][1])-eps||Math.max(y[0][1],y[1][1])<Math.min(x[0][1],x[1][1])-eps)continue;const at=solidSegmentCrossX(x,y,eps);if(at!=null)events.push(at);}return events;}
+function surfaceExposeTriangle(points,plane,sections,out){
+ const {n,u,v,origin,eps,crossings}=plane,P=points.map(p=>[dot(sub(p,origin),u),dot(sub(p,origin),v)]),bounds=[Math.min(...P.map(p=>p[0])),Math.max(...P.map(p=>p[0]))],edges=P.map((p,i)=>[p,P[(i+1)%3]]),events=P.map(p=>p[0]);
+ for(const section of sections){for(const x of section.events)if(x>bounds[0]+eps&&x<bounds[1]-eps)events.push(x);for(const a of section.edges)for(const b of edges){const x=solidSegmentCrossX(a,b,eps);if(x!=null&&x>bounds[0]+eps&&x<bounds[1]-eps)events.push(x);}}
+ for(const x of crossings)if(x>bounds[0]+eps&&x<bounds[1]-eps)events.push(x);events.sort((a,b)=>a-b);const xs=events.filter((x,i)=>!i||x-events[i-1]>eps*.1),hits=(list,x)=>list.filter(e=>x>Math.min(e[0][0],e[1][0])&&x<Math.max(e[0][0],e[1][0])).map(edge=>({edge,y:solidSegmentY(edge,x)})).sort((a,b)=>a.y-b.y),result=[];let removed=false;
+ for(let i=0;i+1<xs.length;i++){const a=xs[i],b=xs[i+1];if(b-a<=eps*.1)continue;const x=(a+b)/2,subject=hits(edges,x);if(subject.length<2)continue;const lo=subject[0],hi=subject.at(-1),intervals=[];
+  for(const section of sections){const list=hits(section.edges,x);for(let j=0;j+1<list.length;j+=2)if(list[j+1].y>lo.y+eps*.1&&list[j].y<hi.y-eps*.1)intervals.push({lo:list[j],hi:list[j+1]});}
+  intervals.sort((a,b)=>a.lo.y-b.lo.y);const union=[];for(const q of intervals){const last=union.at(-1);if(last&&q.lo.y<=last.hi.y+eps*.1){if(q.hi.y>last.hi.y)last.hi=q.hi;}else union.push({...q});}
+  const put=(low,high)=>{if(high.y-low.y<=eps*.1)return;const world=(X,edge)=>add(origin,add(mul(u,X),mul(v,solidSegmentY(edge,X)))),poly=[world(a,low.edge),world(b,low.edge),world(b,high.edge),world(a,high.edge)];triangulateFan(poly,result);};let cursor=lo;
+  for(const q of union){if(q.hi.y<=cursor.y+eps*.1)continue;if(q.lo.y>=hi.y-eps*.1)break;removed=true;if(q.lo.y>cursor.y+eps*.1)put(cursor,q.lo.y<hi.y?q.lo:hi);if(q.hi.y>cursor.y)cursor=q.hi;if(cursor.y>=hi.y-eps*.1)break;}
+  if(cursor.y<hi.y-eps*.1)put(cursor,hi);
+ }if(removed)out.push(...result);else out.push(...points[0],...points[1],...points[2]);
+}
+function surfaceExposedTriangles(T,host,meshes){
+ if(!T.length)return [];const out=[],planes=new Map(),probe=1e-6,bounds=solidMeshBounds(T),candidates=meshes.filter(m=>m.part!==host&&[0,1,2].every(i=>m.b[i]<=bounds[i+3]+probe&&m.b[i+3]>=bounds[i]-probe));if(!candidates.length)return T;
+ for(let i=0;i<T.length;i+=9){const points=[0,3,6].map(j=>Array.from(T.slice(i+j,i+j+3))),raw=cross(sub(points[1],points[0]),sub(points[2],points[0]));if(len(raw)<1e-10)continue;const n=norm(raw),d=dot(n,points[0]),key=n.map(x=>Math.round(x*1e8)).join(',')+'|'+Math.round(d*1e5);let plane=planes.get(key);
+  if(!plane){const fr=frameAxis(n),u=fr.v,v=fr.w,origin=mul(n,d),eps=Math.max(1e-8,Math.max(...points.flat().map(Math.abs))*2e-10),sections=[];
+   for(const mesh of candidates){const low=mesh.b.slice(0,3).map((x,j)=>(x+mesh.b[j+3])/2),half=mesh.b.slice(0,3).map((x,j)=>(mesh.b[j+3]-x)/2),distance=dot(n,low)-d,extent=half.reduce((s,x,j)=>s+x*Math.abs(n[j]),0);if(distance+extent<=eps||distance-extent>eps)continue;
+    const section=surfaceExposurePlane(mesh,n,d,u,v,origin,key+'|out',eps);if(section.edges.length)sections.push(section);
+   }plane={n,u,v,origin,eps,sections,crossings:surfaceExposureCrossings(sections,eps)};planes.set(key,plane);
+  }
+  if(!plane.sections.length){out.push(...points[0],...points[1],...points[2]);continue;}const U=points.map(p=>dot(sub(p,plane.origin),plane.u)),umin=Math.min(...U),umax=Math.max(...U),relevant=plane.sections.filter(s=>s.edges.some(e=>Math.max(e[0][0],e[1][0])>=umin-plane.eps&&Math.min(e[0][0],e[1][0])<=umax+plane.eps));surfaceExposeTriangle(points,plane,relevant,out);
+ }return out.length===T.length&&out.every((v,i)=>v===T[i])?T:out;
+}
+function surfaceVisibleUV(p){const T=p.exposedTriangles??p.triangles,old=surfaceExposureUV.get(T);if(old)return old;const origin=p._origin||p.center,triangles=[];for(let i=0;i<T.length;i+=9){const points=[0,3,6].map(j=>{const q=sub(Array.from(T.slice(i+j,i+j+3)),origin);return [dot(q,p.u),dot(q,p.v)];});triangles.push({points,b:[Math.min(...points.map(p=>p[0])),Math.min(...points.map(p=>p[1])),Math.max(...points.map(p=>p[0])),Math.max(...points.map(p=>p[1]))]});}surfaceExposureUV.set(T,triangles);return triangles;}
+function surfaceVisibleArea(p,rect){let area=0;for(const t of surfaceVisibleUV(p)){if(t.b[2]<rect[0]||t.b[0]>rect[2]||t.b[3]<rect[1]||t.b[1]>rect[3])continue;let poly=t.points.map(q=>[q[0],q[1],0]);for(const [axis,sign,limit]of [[0,1,rect[0]],[0,-1,rect[2]],[1,1,rect[1]],[1,-1,rect[3]]])poly=clipPoly(poly,axis,limit,sign>0);if(poly.length<3)continue;let twice=0;for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length];twice+=a[0]*b[1]-a[1]*b[0];}area+=Math.abs(twice)/2;}return area;}
+function surfaceExposureCurrent(ship,key){
+ const ledger=surfaceLedgerKey(ship),old=surfaceExposureValidation.get(ship);if(old?.key===key&&old.ledger===ledger)return old.valid;const patches=new Map(surfacePatches(ship).map(p=>[p.id,p]));let valid=true;
+ for(const q of ship.surfaces?.patches||[]){const rows=(q.aggregate?.cells||[]).filter(r=>!r[3]),guns=(q.aggregate?.guns||[]).filter(r=>!r[18]);if(!rows.length&&!guns.length)continue;const p=patches.get(q.id);if(!p?.exposed){valid=false;break;}if(p.exposedArea>=p.area-Math.max(1e-5,p.area*1e-8))continue;for(const r of [...rows.map(r=>({point:r.slice(14,17),size:r.slice(17,19)})),...guns.map(r=>({point:r.slice(9,12),size:r.slice(12,14)}))]){const d=sub(r.point,p._origin||p.center),u=dot(d,p.u),v=dot(d,p.v),rect=[u-r.size[0]/2,v-r.size[1]/2,u+r.size[0]/2,v+r.size[1]/2];if(surfaceVisibleArea(p,rect)<r.size[0]*r.size[1]-Math.max(1e-5,r.size[0]*r.size[1]*1e-6)){valid=false;break;}}if(!valid)break;
+ }surfaceExposureValidation.set(ship,{key,ledger,valid});return valid;
+}
+function surfacePatches(ship,structuralOnly=false){
+ const key=surfaceGeometryKey(ship),full=surfaceCache.get(ship),old=full?.key===key?full:structuralOnly?surfaceStructuralCache.get(ship):null;if(old?.key===key)return (structuralOnly?old.patches.filter(p=>!p._part||isShapePart(p._part)):old.patches).map(p=>({...p,config:surfaceConfig(ship,p.id)}));const out=[],hosts=surfaceHosts(ship),meshes=surfaceExposureMeshes(ship,hosts);
+ for(const host of hosts){
+  // Aggregate hull surveys do not need semantic faces for native apparatus,
+  // but all those hosts remain in the shared occluder mesh list above.
+  if(structuralOnly&&host.part&&!isShapePart(host.part))continue;
   const {part,T}=host,token=surfaceTopology(ship,part),basis=part&&isShapePart(part)?structFrame(part):{fw:[1,0,0],up:[0,1,0],rt:[0,0,1]},axes=[basis.fw,basis.up,basis.rt],groups=new Map(),box=part?partAABB(part):[0,0,-ship.hull.W/2,ship.hull.L,ship.hull.H,ship.hull.W/2];
   for(let i=0;i<T.length;i+=9){const a=Array.from(T.slice(i,i+3)),b=Array.from(T.slice(i+3,i+6)),c=Array.from(T.slice(i+6,i+9)),raw=cross(sub(b,a),sub(c,a)),area=len(raw)/2;if(!(area>1e-8))continue;const n=norm(raw),at=mul(surfaceAdd(surfaceAdd(a,b),c),1/3),v=axes.map(x=>dot(n,x)),axis=Math.abs(v[0])>=Math.abs(v[1])&&Math.abs(v[0])>=Math.abs(v[2])?0:Math.abs(v[1])>=Math.abs(v[2])?1:2,face=axis===0?v[0]>0?'fore':'aft':axis===1?v[1]>0?'top':'bottom':v[2]>0?'stbd':'port',seg=part||axis===0?0:clamp(Math.floor(at[0]/Math.max(1,ship.hull.L)*4),0,3),gk=face+':'+seg;let g=groups.get(gk);if(!g)groups.set(gk,g={face,seg,axis,triangles:[],area:0,center:[0,0,0],normal:[0,0,0],samples:[]});g.triangles.push(...a,...b,...c);g.area+=area;g.center=surfaceAdd(g.center,at,area);g.normal=surfaceAdd(g.normal,n,area);if(g.samples.length<12)g.samples.push({p:at,n});
   }
   for(const g of [...groups.values()].flatMap(surfaceComponents)){
-   const center=mul(g.center,1/g.area),normal=norm(g.normal),u=norm(sub(g.axis===0?axes[2]:axes[0],mul(normal,dot(g.axis===0?axes[2]:axes[0],normal)))),v=norm(cross(normal,u)),uv=[];for(let i=0;i<g.triangles.length;i+=3){const p=sub(g.triangles.slice(i,i+3),center);uv.push([dot(p,u),dot(p,v)]);}const ring=surfaceHull2(uv),min=[Math.min(...uv.map(p=>p[0])),Math.min(...uv.map(p=>p[1]))],max=[Math.max(...uv.map(p=>p[0])),Math.max(...uv.map(p=>p[1]))],open=g.samples.filter(x=>!surfaceBlocked(ship,x.p,x.n,part)).length,depth=Math.max(.02,part?(part.room||part.s||[part.d,part.d,part.d])[g.axis===1?2:g.axis===2?1:0]:g.axis===0?ship.hull.L:g.axis===1?ship.hull.H:ship.hull.W),baseId=host.host+':'+g.face+':'+g.seg+':'+token;
-   const base={id:baseId,baseId,host:host.host,face:g.face,area:g.area,center,normal,u,v,polygon:ring.map(p=>surfaceAdd(surfaceAdd(center,u,p[0]),v,p[1])),triangles:g.triangles,exposed:open>0,exposedArea:g.area*open/Math.max(1,g.samples.length),depth,range:[0,0,1,1],_min:min,_max:max,_part:part};
+   const center=mul(g.center,1/g.area),normal=norm(g.normal),u=norm(sub(g.axis===0?axes[2]:axes[0],mul(normal,dot(g.axis===0?axes[2]:axes[0],normal)))),v=norm(cross(normal,u)),uv=[];for(let i=0;i<g.triangles.length;i+=3){const p=sub(g.triangles.slice(i,i+3),center);uv.push([dot(p,u),dot(p,v)]);}const ring=surfaceHull2(uv),min=[Math.min(...uv.map(p=>p[0])),Math.min(...uv.map(p=>p[1]))],max=[Math.max(...uv.map(p=>p[0])),Math.max(...uv.map(p=>p[1]))],depth=Math.max(.02,part?(part.room||part.s||[part.d,part.d,part.d])[g.axis===1?2:g.axis===2?1:0]:g.axis===0?ship.hull.L:g.axis===1?ship.hull.H:ship.hull.W),baseId=host.host+':'+g.face+':'+g.seg+':'+token;
+   const base={id:baseId,baseId,host:host.host,face:g.face,area:g.area,center,normal,u,v,polygon:ring.map(p=>surfaceAdd(surfaceAdd(center,u,p[0]),v,p[1])),triangles:g.triangles,exposed:true,exposedArea:g.area,depth,range:[0,0,1,1],_min:min,_max:max,_part:part};
    const partition=ship.surfaces?.partitions?.find(x=>x.baseId===baseId);
    if(!partition){out.push(base);continue;}
    for(const leaf of partition.leaves){let tris=[];const [a,b,c,d]=leaf.range,lo=[min[0]+(max[0]-min[0])*a,min[1]+(max[1]-min[1])*b],hi=[min[0]+(max[0]-min[0])*c,min[1]+(max[1]-min[1])*d];for(let i=0;i<g.triangles.length;i+=9){let poly=[g.triangles.slice(i,i+3),g.triangles.slice(i+3,i+6),g.triangles.slice(i+6,i+9)];for(const [axis,sign,lim]of [[u,-1,-lo[0]],[u,1,hi[0]],[v,-1,-lo[1]],[v,1,hi[1]]])poly=clipGeneral(poly,mul(axis,sign),dot(mul(axis,sign),center)+lim);if(poly.length>=3)triangulateFan(poly,tris);}if(!tris.length)continue;const poly=[[lo[0],lo[1]],[hi[0],lo[1]],[hi[0],hi[1]],[lo[0],hi[1]]].map(p=>surfaceAdd(surfaceAdd(center,u,p[0]),v,p[1])),lc=mul(poly.reduce((s,p)=>surfaceAdd(s,p),[0,0,0]),.25),area=solidMeshArea(tris);out.push({...base,id:leaf.id,range:leaf.range.slice(),center:lc,polygon:poly,triangles:tris,area,exposedArea:base.exposedArea*area/base.area,_min:lo,_max:hi,_origin:center});}
   }
  }
- surfaceCache.set(ship,{key,patches:out});return out.map(p=>({...p,config:surfaceConfig(ship,p.id)}));
+ for(const p of out){p.exposedTriangles=structuralCoincidentTriangles(ship,p,surfaceExposedTriangles(p.triangles,p._part,meshes));p.exposedArea=Math.min(p.area,solidMeshArea(p.exposedTriangles));p.exposed=p.exposedArea>Math.max(1e-7,p.area*1e-10);}
+ (structuralOnly?surfaceStructuralCache:surfaceCache).set(ship,{key,patches:out});return out.map(p=>({...p,config:surfaceConfig(ship,p.id)}));
 }
-function surfacePick(ship,o,d){let best=null;for(const p of surfacePatches(ship)){if(!p.exposed)continue;const h=rayTris(p.triangles,o,d);if(!h||best&&h.t>=best.distance||surfaceBlocked(ship,h.p,h.n,p._part))continue;best={...p,point:h.p,distance:h.t};}return best;}
-function surfaceDepthRay(T,o,d){
- let bvh=surfaceDepthCache.get(T);if(!bvh){bvh=buildBVH(T);for(let k=0;k<bvh.B.length;k+=6)for(let a=0;a<3;a++){const pad=1e-5+Math.max(Math.abs(bvh.B[k+a]),Math.abs(bvh.B[k+a+3]))*2.4e-7;bvh.B[k+a]-=pad;bvh.B[k+a+3]+=pad;}surfaceDepthCache.set(T,bvh);}return rayBVH(bvh,o,d);
+function surfacePick(ship,o,d){let best=null;for(const p of surfacePatches(ship)){if(!p.exposed)continue;const h=rayTris(p.exposedTriangles??p.triangles,o,d);if(!h||best&&h.t>=best.distance||p.exposedTriangles==null&&surfaceBlocked(ship,h.p,h.n,p._part))continue;best={...p,point:h.p,distance:h.t};}return best;}
+function surfaceDepthBVH(T){
+ let bvh=surfaceDepthCache.get(T);if(!bvh){bvh=buildBVH(T);for(let k=0;k<bvh.B.length;k+=6)for(let a=0;a<3;a++){const pad=1e-5+Math.max(Math.abs(bvh.B[k+a]),Math.abs(bvh.B[k+a+3]))*2.4e-7;bvh.B[k+a]-=pad;bvh.B[k+a+3]+=pad;}surfaceDepthCache.set(T,bvh);}return bvh;
+}
+function surfaceDepthRay(T,o,d){return rayBVH(surfaceDepthBVH(T),o,d);
 }
 function surfaceInwardDepth(ship,patch,point=patch.center){
  const n=patch.normal,o=surfaceAdd(point,n,-1e-4),part=patch._part,inside=part?inPart(part,o):inHull(ship,o);if(!inside)return 0;const d=mul(n,-1);let T;
@@ -2956,10 +3086,10 @@ function surfaceAutoCandidates(ship,options={}){const angle=clamp(Number.isFinit
 function autoConfigureSurfaces(ship,options={}){
  surfaceSync(ship);
  const candidates=surfaceAutoCandidates(ship,options);if(!candidates.length)return {ok:true,ids:[],skipped:[],report:surfaceReport(ship)};
- const previous=ship.surfaces?JSON.parse(JSON.stringify(ship.surfaces)):undefined,enabled=enableSurfaceMode(ship,ship.surfaces?.mode!=='compat');if(!enabled.ok)return enabled;
+ const previous=ship.surfaces?JSON.parse(JSON.stringify(ship.surfaces)):undefined;surfaceSeedEquipmentKeys(ship);const enabled=enableSurfaceMode(ship,ship.surfaces?.mode!=='compat');if(!enabled.ok)return enabled;
  if(new Set([...ship.surfaces.patches.map(p=>p.id),...candidates.map(p=>p.id)]).size>SURFACE_MAX){if(previous)ship.surfaces=previous;else delete ship.surfaces;return {ok:false,why:'表面設定の上限です'};}
  const targetIds=new Set(candidates.map(p=>p.id)),used=ship.parts.filter(q=>!q.surfacePatch||!targetIds.has(q.surfacePatch)).length,available=Math.max(0,DESIGN_LIMITS.parts-used),per=Math.min(SURFACE_DEVICE_MAX,Math.floor(available/candidates.length)),extra=Math.min(candidates.length,available-per*candidates.length),partial=options.config||options;
- for(let i=0;i<candidates.length;i++){const p=candidates[i],old=surfaceConfig(ship,p.id),q={...old,authored:true,functionMode:'equipment',allocation:surfaceAllocation(partial.allocation||old.allocation),equipment:{...old.equipment,kind:'hdis',depth:1,...partial.equipment,limit:Math.min(per+(i<extra?1:0),partial.equipment?.limit??SURFACE_DEVICE_MAX)},battery:{...old.battery,weapon:old.battery.weapon==='none'?'pd':old.battery.weapon,...partial.battery,count:0},style:{...old.style,kind:'machinery',...partial.style},boundArea:p.area};delete q.legacyAllocation;const clean=normalizeSurfaces({version:SURFACE_VERSION,patches:[q]}).patches[0],index=ship.surfaces.patches.findIndex(x=>x.id===p.id);if(index<0)ship.surfaces.patches.push(clean);else ship.surfaces.patches[index]=clean;}
+ for(let i=0;i<candidates.length;i++){const p=candidates[i],old=surfaceConfig(ship,p.id),q={...old,authored:true,functionMode:'equipment',allocation:surfaceAllocation(partial.allocation||old.allocation),equipment:{...old.equipment,kind:'hdis',depth:1,...partial.equipment,capacityModel:'area-v1',limit:Math.min(per+(i<extra?1:0),partial.equipment?.limit??SURFACE_DEVICE_MAX)},battery:{...old.battery,weapon:old.battery.weapon==='none'?'pd':old.battery.weapon,...partial.battery,count:0},style:{...old.style,kind:'machinery',...partial.style},boundArea:p.area};delete q.legacyAllocation;const clean=normalizeSurfaces({version:SURFACE_VERSION,patches:[q]}).patches[0],index=ship.surfaces.patches.findIndex(x=>x.id===p.id);if(index<0)ship.surfaces.patches.push(clean);else ship.surfaces.patches[index]=clean;}
  surfaceSync(ship);surfaceInvalidate(ship);const report=surfaceReport(ship),ids=candidates.map(p=>p.id),rows=report.patches.filter(p=>targetIds.has(p.id));return {ok:true,ids,skipped:rows.filter(p=>!p.installedEquipment).map(p=>p.id),unplaced:rows.reduce((n,p)=>n+Math.max(0,p.requestedEquipment-p.installedEquipment),0),report};
 }
 function surfaceSymmetryIds(ship,ids,options={}){
@@ -2967,16 +3097,16 @@ function surfaceSymmetryIds(ship,ids,options={}){
  for(const id of Array.isArray(ids)?ids:[ids]){const p=patches.find(q=>q.id===id&&q.exposed);if(!p)continue;out.add(id);for(const y of options.vmirror?[false,true]:[false])for(const z of options.mirror?[false,true]:[false]){if(!y&&!z)continue;const q=find(p,y,z);if(q)out.add(q);}}return [...out];
 }
 function enableSurfaceMode(ship,strict=true){if(!strict&&ship.surfaces?.compatAllowed===false)return {ok:false,why:'新しい設計では互換冷却を使用できません'};if(!ship.surfaces){const patches=surfacePatches(ship).filter(p=>p.exposed);if(patches.length>SURFACE_MAX)return {ok:false,why:'表面設定の上限です'};const records=patches.map(p=>({...surfaceConfig(ship,p.id),boundArea:p.area}));ship.surfaces={version:SURFACE_VERSION,mode:strict?'strict':'compat',compatAllowed:true,legacyArmor:ship.armor?.hull||0,patches:records};}else ship.surfaces.mode=strict?'strict':'compat';return {ok:true,report:surfaceReport(ship)};}
-function surfaceInvalidate(ship){ship._cache=null;delete ship._feed;surfaceCache.delete(ship);}
+function surfaceInvalidate(ship){ship._cache=null;delete ship._feed;surfaceCache.delete(ship);surfaceStructuralCache.delete(ship);}
 function setSurfaceConfig(ship,ids,partial){
  surfaceSync(ship);
- if(!Array.isArray(ids))ids=[ids];const patches=surfacePatches(ship),selected=[...new Set(ids)].map(id=>patches.find(p=>p.id===id));if(!selected.length||selected.some(p=>!p||!p.exposed))return {ok:false,why:'船外に露出した面を選んでください'};const previous=ship.surfaces?JSON.parse(JSON.stringify(ship.surfaces)):undefined,enabled=enableSurfaceMode(ship,ship.surfaces?.mode!=='compat');if(!enabled.ok)return enabled;if(new Set([...ship.surfaces.patches.map(p=>p.id),...selected.map(p=>p.id)]).size>SURFACE_MAX)return {ok:false,why:'表面設定の上限です'};
- for(const p of selected){let q=surfaceConfig(ship,p.id);q.authored=true;for(const k of ['armor','equipment','battery','style'])if(Object.hasOwn(partial||{},k))q[k]=partial[k]===null?surfaceConfig({...ship,surfaces:null},p.id)[k]:{...q[k],...partial[k]};if(['armor','equipment','legacy'].includes(partial?.functionMode))q.functionMode=partial.functionMode;else if(q.functionMode!=='equipment'&&!partial?.allocation&&!partial?.allocationEdits&&(Object.hasOwn(partial?.battery||{},'count')||Object.hasOwn(partial?.equipment||{},'count')))q.functionMode='legacy';if(partial?.allocation||partial?.allocationEdits?.length||Object.hasOwn(partial?.battery||{},'count'))delete q.legacyAllocation;if(partial?.legacyAllocation)q.legacyAllocation=surfaceLegacyAllocation(partial.legacyAllocation);if(partial?.aggregate){q.aggregate=surfaceNormalizeAggregate(partial.aggregate);if(q.aggregate){for(const r of q.aggregate.cells)r[0]=nid(ship);for(const r of q.aggregate.guns)r[0]=nid(ship);q.aggregate.signature='';}}if(partial?.allocation)q.allocation=surfaceAllocation({...q.allocation,...partial.allocation});for(const edit of partial?.allocationEdits||[])q.allocation=surfaceAllocation(q.allocation,edit.key,edit.value);if(typeof partial?.powerDomain==='string')q.powerDomain=partial.powerDomain;const clean=normalizeSurfaces({version:SURFACE_VERSION,patches:[q]}).patches[0],i=ship.surfaces.patches.findIndex(x=>x.id===p.id);if(i>=0)ship.surfaces.patches[i]=clean;else if(ship.surfaces.patches.length<SURFACE_MAX)ship.surfaces.patches.push(clean);else return {ok:false,why:'表面設定の上限です'};}
+ if(!Array.isArray(ids))ids=[ids];const patches=surfacePatches(ship),selected=[...new Set(ids)].map(id=>patches.find(p=>p.id===id));if(!selected.length||selected.some(p=>!p||!p.exposed))return {ok:false,why:'船外に露出した面を選んでください'};const previous=ship.surfaces?JSON.parse(JSON.stringify(ship.surfaces)):undefined;if(partial?.allocation||partial?.allocationEdits?.length||partial?.functionMode||partial?.battery||partial?.equipment)surfaceSeedEquipmentKeys(ship);const enabled=enableSurfaceMode(ship,ship.surfaces?.mode!=='compat');if(!enabled.ok)return enabled;if(new Set([...ship.surfaces.patches.map(p=>p.id),...selected.map(p=>p.id)]).size>SURFACE_MAX)return {ok:false,why:'表面設定の上限です'};
+ for(const p of selected){let q=surfaceConfig(ship,p.id);const wasEquipment=q.functionMode==='equipment',hadLedger=!!q.aggregate,copiedCount=partial?.aggregate?.version===1&&partial?.equipment?.capacityModel!=='area-v1';q.authored=true;for(const k of ['armor','equipment','battery','style'])if(Object.hasOwn(partial||{},k))q[k]=partial[k]===null?surfaceConfig({...ship,surfaces:null},p.id)[k]:{...q[k],...partial[k]};if(['armor','equipment','legacy'].includes(partial?.functionMode))q.functionMode=partial.functionMode;else if(q.functionMode!=='equipment'&&!partial?.allocation&&!partial?.allocationEdits&&(Object.hasOwn(partial?.battery||{},'count')||Object.hasOwn(partial?.equipment||{},'count')))q.functionMode='legacy';if(partial?.allocation||partial?.allocationEdits?.length||Object.hasOwn(partial?.battery||{},'count'))delete q.legacyAllocation;if(partial?.legacyAllocation)q.legacyAllocation=surfaceLegacyAllocation(partial.legacyAllocation);if(partial?.aggregate){q.aggregate=surfaceNormalizeAggregate(partial.aggregate);if(q.aggregate){const nodes=new Map();for(const r of [...q.aggregate.cells,...(q.aggregate.aliases||[]),...q.aggregate.guns]){if(!nodes.has(r[0]))nodes.set(r[0],nid(ship));r[0]=nodes.get(r[0]);}q.aggregate.signature='';}}if(copiedCount)delete q.equipment.capacityModel;if(q.functionMode==='equipment'&&(partial?.equipment?.capacityModel==='area-v1'||!copiedCount&&(partial?.allocation||partial?.allocationEdits?.length||Object.hasOwn(partial?.equipment||{},'depth')||Object.hasOwn(partial?.equipment||{},'kind')||(!wasEquipment||!hadLedger)&&partial?.functionMode==='equipment'))){q.equipment.capacityModel='area-v1';delete q.legacyAllocation;}if(partial?.allocation)q.allocation=surfaceAllocation({...q.allocation,...partial.allocation});for(const edit of partial?.allocationEdits||[])q.allocation=surfaceAllocation(q.allocation,edit.key,edit.value);if(typeof partial?.powerDomain==='string')q.powerDomain=partial.powerDomain;const clean=normalizeSurfaces({version:SURFACE_VERSION,patches:[q]}).patches[0],i=ship.surfaces.patches.findIndex(x=>x.id===p.id);if(i>=0)ship.surfaces.patches[i]=clean;else if(ship.surfaces.patches.length<SURFACE_MAX)ship.surfaces.patches.push(clean);else return {ok:false,why:'表面設定の上限です'};}
  const totals=surfaceDeviceTotals(ship,patches);if(totals.parts>DESIGN_LIMITS.parts||totals.fits>DESIGN_LIMITS.fits){if(previous)ship.surfaces=previous;else delete ship.surfaces;surfaceCache.delete(ship);return {ok:false,why:'設計全体のパーツ・砲座数の上限を超えます'};}
  surfaceSync(ship);surfaceInvalidate(ship);return {ok:true,report:surfaceReport(ship)};
 }
-function surfaceDeviceTotals(ship,patches=surfacePatches(ship)){const totals={parts:ship.parts.filter(q=>!q.surfacePatch).length,fits:ship.fits.filter(q=>!q.surfacePatch).length},ids=new Set(patches.map(p=>p.id));for(const c of ship.surfaces?.patches||[]){const p=patches.find(p=>p.id===c.id);if(p)for(const q of surfaceLayout(ship,p,c).placed)totals[q.kind==='fit'?'fits':'parts']++;}for(const q of ship.parts)if(q.surfacePatch&&!ids.has(q.surfacePatch))totals.parts++;for(const q of ship.fits)if(q.surfacePatch&&!ids.has(q.surfacePatch))totals.fits++;return totals;}
-function surfacePointOn(p,u,v){const origin=p._origin||p.center,q=surfaceAdd(surfaceAdd(origin,p.u,u),p.v,v),hit=rayTris(p.triangles,surfaceAdd(q,p.normal,Math.max(10,p.depth*2)),mul(p.normal,-1));return hit?.p||null;}
+function surfaceDeviceTotals(ship,patches=surfacePatches(ship)){const totals={parts:ship.parts.filter(q=>!q.surfacePatch).length,fits:ship.fits.filter(q=>!q.surfacePatch).length},ids=new Set(patches.map(p=>p.id));for(const c of ship.surfaces?.patches||[]){const p=patches.find(p=>p.id===c.id);if(p){for(const q of surfaceLayout(ship,p,c).placed)totals[q.kind==='fit'?'fits':'parts']++;}}for(const q of ship.parts)if(q.surfacePatch&&!ids.has(q.surfacePatch))totals.parts++;for(const q of ship.fits)if(q.surfacePatch&&!ids.has(q.surfacePatch))totals.fits++;return totals;}
+function surfacePointOn(p,u,v){const origin=p._origin||p.center,q=surfaceAdd(surfaceAdd(origin,p.u,u),p.v,v),hit=rayTris(p.exposedTriangles??p.triangles,surfaceAdd(q,p.normal,Math.max(10,p.depth*2)),mul(p.normal,-1));return hit?.p||null;}
 function surfaceRoomAt(p,c,point){const q={k:c.kind==='part'?c.k:'habitat',c:surfaceAdd(point,p.normal,-c.depth/2-(c.inset||0)),surfaceNormal:p.normal.slice(),yaw:0,d:1},frame=structFrame(q);q.yaw=Math.atan2(dot(p.u,frame.rt),dot(p.u,frame.fw))*180/Math.PI;setRoomSize(q,[c.w,c.h,c.depth]);return q;}
 function surfaceEnvelopeContains(ship,point,room,patch=null){
  const contains=q=>patch?patch._part?inPart(patch._part,q):inHull(ship,q):insideOriginalEnvelope(ship,q);
@@ -2999,6 +3129,7 @@ function surfaceLegacyAllocationPlan(p,config){
  return {items,categories,requested:categories.weapons.requested,requestedEquipment:SURFACE_ROLES.filter(k=>k!=='weapons').reduce((n,k)=>n+categories[k].requested,0)};
 }
 function surfaceAllocationPlan(p,config){
+ if(surfaceIsArea(config)){const gunOnly={...config,equipment:{...config.equipment,capacityModel:undefined,limit:0}};const plan=surfaceAllocationPlan(p,gunOnly);for(const role of SURFACE_ALLOCATION_ROLES)plan.categories[role].requested=0;plan.requestedEquipment=0;return plan;}
  if(config.legacyAllocation)return surfaceLegacyAllocationPlan(p,config);
  const allocation=surfaceAllocation(config.allocation),area=Math.max(0,Math.min(p.area,p.exposedArea)),categories={},items=[],d=FITS[config.battery.weapon],gun=d?{kind:'fit',k:config.battery.weapon,w:Math.max(SURFACE_TILE,d.fm),h:Math.max(SURFACE_TILE,d.wm),depth:Math.max(.2,needsCapacitor({k:config.battery.weapon})?weaponChargeSpec({k:config.battery.weapon}).targetVolume/Math.max(1,d.fm*d.wm):.2),margin:config.battery.spacing}:null,requested=gun?config.battery.count:0,reserved=gun?(gun.w+gun.margin)*(gun.h+gun.margin):0,gunArea=Math.min(area,requested*reserved),freeArea=Math.max(0,area-gunArea);
  categories.weapons={share:0,explicit:true,budgetArea:gunArea,requested,installed:0,occupiedArea:0,volume:0,unusedArea:gunArea};
@@ -3024,7 +3155,7 @@ function surfaceLayoutRaw(ship,p,config){
  // retired rooms immediately and produces the same layout after reload.
  const reserved=[];if(modern)for(const c of before){const face=surfaceCache.get(ship)?.patches.find(q=>q.id===c.id);if(face)for(const cell of surfaceLayout(ship,face,c).placed)reserved.push(surfaceRoomAt(face,cell,cell.point));}
  const footprint=placed.map(x=>x);const blocked=(a,point)=>{
-  if(surfaceBlocked(ship,point,p.normal,p._part))return true;
+  if(p.exposedTriangles==null&&surfaceBlocked(ship,point,p.normal,p._part))return true;
   for(const h of ship.hatches||[]){const B=openingBounds(ship,h);if(B&&point.every((x,i)=>x>=B[i]-.1&&x<=B[i+3]+.1))return true;}
   for(const f of nativeFits){const v=sub(f.p,origin),fu=dot(v,p.u),fv=dot(v,p.v),spec=fitSpec(f);if(Math.abs(dot(v,p.normal))<Math.max(2,spec.hm||0)&&Math.abs(fu-a.u)<(a.w+spec.fm)/2+.2&&Math.abs(fv-a.v)<(a.h+spec.wm)/2+.2)return true;}
   const inner=surfaceAdd(point,p.normal,-a.depth/2),candidate=modern&&(nativeParts.length||reserved.length)?surfaceRoomAt(p,a,point):null;
@@ -3055,19 +3186,77 @@ function surfaceSyncLegacy(ship){
 // a compiled volume reservation, never editable ship.parts or ship.fits.
 const surfaceDataCache=new WeakMap(),surfaceWorkCache=new WeakMap();
 const SURFACE_CELL_KINDS=['hdis','radiator','sensor','habitat','service','scanner'];
-function surfaceNormalizeAggregate(a){
- if(!a||typeof a!=='object')return undefined;
- const cells=(Array.isArray(a.cells)?a.cells:[]).slice(0,SURFACE_DEVICE_MAX).filter(r=>Array.isArray(r)&&r.length>=27&&r.slice(0,26).every(Number.isFinite)&&Number.isInteger(r[0])&&r[0]>0&&SURFACE_CELL_KINDS[r[2]]&&typeof r[26]==='string').map(r=>{const c=r.slice(0,29);c[27]=Object.hasOwn(SENSOR_BANDS,r[27])?r[27]:'multi';c[28]=r[28]===0?0:1;for(const i of [7,8,9])c[i]=clamp(c[i],.02,DESIGN_LIMITS.partSize);c[3]=c[3]?1:0;c[20]=clamp(c[20],0,1);c[21]=clamp(c[21],0,c[7]*c[8]*c[9]);c[22]=partBuildCost({id:c[0],k:SURFACE_CELL_KINDS[c[2]]},c[21]);c[23]=Math.max(0,c[23]);c[24]=clamp(Math.cbrt(c[21]/AA_CHANNELS.podRef),.05,3);c[25]=clamp(Math.cbrt(c[21]/AA_CHANNELS.podRef),.3,2);return c;});
- const guns=(Array.isArray(a.guns)?a.guns:[]).slice(0,SURFACE_DEVICE_MAX).filter(r=>Array.isArray(r)&&r.length>=21&&Number.isInteger(r[0])&&r[0]>0&&FITS[r[1]]?.cat==='w'&&r.slice(2,20).every(Number.isFinite)&&typeof r[20]==='string').map(r=>r.slice(0,21));
- return {version:1,signature:typeof a.signature==='string'?a.signature.slice(0,100):'',cells,guns,errors:(Array.isArray(a.errors)?a.errors:[]).filter(v=>typeof v==='string').slice(0,32).map(v=>v.slice(0,240)),requested:Number.isFinite(a.requested)?clamp(a.requested,0,1000000):guns.length,requestedEquipment:Number.isFinite(a.requestedEquipment)?clamp(a.requestedEquipment,0,1000000):cells.length,demand:Object.fromEntries(SURFACE_ROLES.map(k=>[k,{requested:Number.isFinite(a.demand?.[k]?.requested)?clamp(a.demand[k].requested,0,1000000):0,budgetArea:Number.isFinite(a.demand?.[k]?.budgetArea)?clamp(a.demand[k].budgetArea,0,1e14):0}])),...(a.retainInventory?{retainInventory:true}:{})};
+const SURFACE_AREA_MODEL='area-v1',SURFACE_AREA_REFERENCE=64,SURFACE_AREA_REGIONS=256;
+function surfaceIsArea(config){return config?.functionMode==='equipment'&&config.equipment?.capacityModel===SURFACE_AREA_MODEL;}
+function surfaceEquipmentKey(ship,config){const quiet={...ship,surfaces:{...ship.surfaces,patches:[{...config,legacyAllocation:undefined,battery:{weapon:'none',count:0,spacing:0,angle:0,reversed:false}}]}};return surfaceAggregateKey(quiet);}
+function surfaceSeedEquipmentKeys(ship){for(const q of ship.surfaces?.patches||[])if(q.aggregate?.version===1&&!q.aggregate.equipmentKey)q.aggregate.equipmentKey=surfaceEquipmentKey(ship,q);}
+// Area-v1 is a continuum of the existing 8m equipment reference, not a count
+// of installed boxes. Regions below are conservative geometric reservations.
+function surfaceAreaResource(r){
+ const area=r[7]*r[8],depth=r[9],volume=area*depth,units=area/SURFACE_AREA_REFERENCE,reference=SURFACE_AREA_REFERENCE*depth,k=SURFACE_CELL_KINDS[r[2]];
+ r[17]=r[7];r[18]=r[8];r[19]=depth;r[21]=volume;r[22]=volume*(PARTS[k]?.cost||0)+units*(COST_INSTALL[k]||0);r[23]=units*2*(SURFACE_AREA_REFERENCE+16*depth);r[24]=units*clamp(Math.cbrt(reference/AA_CHANNELS.podRef),.05,3);r[25]=units*clamp(Math.cbrt(reference/AA_CHANNELS.podRef),.3,2);r[29]=units;r[30]=1;return r;
 }
-function surfaceReserveIds(ship){let next=Math.max(1,ship.nextId||1);for(const q of [...(ship.parts||[]),...(ship.fits||[])])next=Math.max(next,(q.id||0)+1);for(const q of ship.surfaces?.patches||[])for(const r of [...(q.aggregate?.cells||[]),...(q.aggregate?.guns||[])])next=Math.max(next,(r[0]||0)+1);ship.nextId=next;}
+function surfaceAreaAliases(previous){
+ const out=new Map();for(const a of previous?.aliases||[])out.set(a[0],a.slice());for(const r of previous?.cells||[])if(!out.has(r[0]))out.set(r[0],[r[0],r[1],r[3]?1:0,...r.slice(14,17)]);return [...out.values()];
+}
+function surfaceAreaBands(previous){
+ if(previous?.capacityModel===SURFACE_AREA_MODEL&&previous.sensorMix)return {...previous.sensorMix};
+ const rows=(previous?.cells||[]).filter(r=>r[1]===2&&!r[3]),total=rows.reduce((n,r)=>n+r[24],0);if(!(total>0))return {multi:1,nu:0,ir:0,em:0,rad:0};return Object.fromEntries(Object.keys(SENSOR_BANDS).map(b=>[b,rows.filter(r=>(r[27]||'multi')===b&&r[28]!==0).reduce((n,r)=>n+r[24],0)/total]));
+}
+function surfaceAreaHostTriangles(ship,p){const part=p._part;if(!part)return hullGeo(ship).tris;if(part._packing)return part._packing.tris;if(part._clip)return part._clip.tris;return structTriangles(isShapePart(part)?part:roomShape(part));}
+function surfaceAreaPrismInside(ship,p,room){
+ const frame=structFrame(room),half=[room.room[0]/2,room.room[2]/2,room.room[1]/2],corners=[];for(const x of [-1,1])for(const y of [-1,1])for(const z of [-1,1])corners.push(add(room.c,add(add(mul(frame.fw,x*half[0]),mul(frame.up,y*half[1])),mul(frame.rt,z*half[2]))));
+ if([...corners,room.c].some(q=>!surfaceEnvelopeContains(ship,q,room,p)&&!surfaceEnvelopeContains(ship,add(q,mul(norm(sub(room.c,q)),1e-4)),room,p)))return false;
+ const T=surfaceAreaHostTriangles(ship,p);if(!T.length)return false;const bvh=surfaceDepthBVH(T),lo=[0,1,2].map(i=>Math.min(...corners.map(q=>q[i]))),hi=[0,1,2].map(i=>Math.max(...corners.map(q=>q[i]))),stack=[0],eps=Math.min(1e-4,...half.map(v=>v*.01));
+ while(stack.length){const node=stack.pop(),k=node*6;if([0,1,2].some(i=>bvh.B[k+i]>hi[i]+eps||bvh.B[k+i+3]<lo[i]-eps))continue;if(!bvh.C[node]){stack.push(bvh.L[node],bvh.R[node]);continue;}
+  for(let j=bvh.S[node],end=j+bvh.C[node];j<end;j++){const off=bvh.idx[j]*9;let poly=[0,3,6].map(i=>{const d=sub(Array.from(T.slice(off+i,off+i+3)),room.c);return [dot(d,frame.fw),dot(d,frame.up),dot(d,frame.rt)];});for(let a=0;a<3&&poly.length>=3;a++)for(const sign of [-1,1]){const n=[0,0,0];n[a]=sign;poly=clipGeneral(poly,n,half[a]-eps);}if(poly.length>=3&&len(cross(sub(poly[1],poly[0]),sub(poly[2],poly[0])))>1e-10)return false;
+  }
+ }return true;
+}
+function surfaceAreaProjection(p,B,depth,external=false){
+ const origin=p._origin||p.center,P=[];for(const x of [B[0],B[3]])for(const y of [B[1],B[4]])for(const z of [B[2],B[5]]){const d=sub([x,y,z],origin);P.push([dot(d,p.u),dot(d,p.v),dot(d,p.normal)]);}const near=Math.min(...P.map(q=>q[2])),far=Math.max(...P.map(q=>q[2]));if(external?far<.025-1e-6||near>.025+1e-6:far<=-depth+1e-6||near>=1e-6)return null;return [Math.min(...P.map(q=>q[0])),Math.min(...P.map(q=>q[1])),Math.max(...P.map(q=>q[0])),Math.max(...P.map(q=>q[1]))];
+}
+function surfaceAreaSubtract(rect,cut){const x0=Math.max(rect[0],cut[0]),y0=Math.max(rect[1],cut[1]),x1=Math.min(rect[2],cut[2]),y1=Math.min(rect[3],cut[3]);if(x1<=x0+1e-7||y1<=y0+1e-7)return [rect];const out=[];if(x0>rect[0]+1e-7)out.push([rect[0],rect[1],x0,rect[3]]);if(x1<rect[2]-1e-7)out.push([x1,rect[1],rect[2],rect[3]]);if(y0>rect[1]+1e-7)out.push([x0,rect[1],x1,y0]);if(y1<rect[3]-1e-7)out.push([x0,y1,x1,rect[3]]);return out;}
+function surfaceAreaCompile(ship,p,config,guns,reserved){
+ const previous=config.aggregate,aliases=surfaceAreaAliases(previous),inactive=(previous?.cells||[]).filter(r=>r[3]&&r[30]!==1).map(r=>r.slice()),mix=surfaceAreaBands(previous),errors=[],depth=config.equipment.depth,allocation=surfaceAllocation(config.allocation),demand=Object.fromEntries(SURFACE_ROLES.map(k=>[k,{requested:0,budgetArea:0}])),result={version:2,capacityModel:SURFACE_AREA_MODEL,signature:'',cells:inactive,guns,aliases,errors,requested:config.battery.count,requestedEquipment:0,demand,sensorMix:mix};
+ const retainArea=()=>{if(previous?.version===2)for(const r of previous.cells||[])if(r[30]===1)result.cells.push([...r.slice(0,3),1,...r.slice(4)]);};
+ if(!p?.exposed){retainArea();errors.push('面が船外に露出していません');return result;}if(!(depth>0)||depth>p.depth+1e-4){retainArea();errors.push('装置の内部深さが面の背後に収まりません');return result;}
+ let rects=[[p._min[0],p._min[1],p._max[0],p._max[1]]],conservative=false,complex=false;const cuts=[];
+ for(const q of ship.parts){if(q.surfacePatch||q._surfaceFrozen||q===p._part||isShapePart(q))continue;const cut=surfaceAreaProjection(p,partAABB(q),depth,false);if(cut)cuts.push(cut);}
+ for(const q of ship.fits){if(q.float||q.surfaceUnplaced)continue;const port=surfaceBatteryGeometry(q),fr=port?{fw:port.u,up:port.normal,rt:port.v}:fitFrameOf(q),spec=fitSpec(q),w=(q.surfaceFootprint?.[0]||spec.fm)+(q.surfacePatch?config.battery.spacing:0),h=(q.surfaceFootprint?.[1]||spec.wm)+(q.surfacePatch?config.battery.spacing:0),at=q.surfacePoint||q.p,D=Math.max(depth,q.surfaceDepth||.2),P=[];for(const x of [-.5,.5])for(const y of [-.5,.5])for(const z of [-1,0])P.push(add(at,add(add(mul(fr.fw,x*w),mul(fr.rt,y*h)),mul(fr.up,z*D))));const B=[0,1,2].map(i=>Math.min(...P.map(q=>q[i]))).concat([0,1,2].map(i=>Math.max(...P.map(q=>q[i])))),cut=surfaceAreaProjection(p,B,depth);if(cut)cuts.push(cut);}
+ for(const x of [...reserved,...inactive.map(row=>({row,patch:config.id}))]){const cut=surfaceAreaProjection(p,surfaceCellGeometry(x.row).b,depth);if(cut)cuts.push(cut);}
+ for(const h of ship.hatches||[]){const B=openingBounds(ship,h);if(B){const cut=surfaceAreaProjection(p,B,depth);if(cut)cuts.push(cut);}}
+ for(const cut of cuts){const next=[];for(const r of rects)next.push(...surfaceAreaSubtract(r,cut));if(next.length<rects.length||next.some((r,i)=>r!==rects[i]))conservative=true;rects=next;if(rects.length>SURFACE_AREA_REGIONS-2){rects=rects.sort((a,b)=>(b[2]-b[0])*(b[3]-b[1])-(a[2]-a[0])*(a[3]-a[1])).slice(0,SURFACE_AREA_REGIONS-2);complex=true;}}
+ const stack=rects.map(rect=>({rect,level:0})),accepted=[],origin=p._origin||p.center,partial=p.exposedArea<p.area-Math.max(1e-5,p.area*1e-8),maskBreaks=partial?[0,1].map(axis=>[...new Set(surfaceVisibleUV(p).flatMap(t=>t.points.map(q=>Math.round(q[axis]*1e6)/1e6)))].sort((a,b)=>a-b)):null;let visits=0;
+ while(stack.length){if(++visits>SURFACE_AREA_REGIONS*16||accepted.length>=SURFACE_AREA_REGIONS-2){complex=true;break;}const {rect,level}=stack.pop(),w=rect[2]-rect[0],h=rect[3]-rect[1];if(w<1e-5||h<1e-5)continue;const u=(rect[0]+rect[2])/2,v=(rect[1]+rect[3])/2,points=[[-1,-1],[1,-1],[1,1],[-1,1],[0,0]].map(([x,y])=>surfacePointOn(p,u+x*w/2,v+y*h/2));let room=null,inset=0;if(points.every(Boolean)){inset=Math.max(0,...points.map(q=>dot(sub(points[4],q),p.normal)));if(inset>1e-5)inset+=1e-4;room=surfaceRoomAt(p,{kind:'part',k:'hdis',w,h,depth,inset},points[4]);}
+  if(room&&(p.exposedArea>=p.area-Math.max(1e-5,p.area*1e-8)||surfaceVisibleArea(p,rect)>=w*h-Math.max(1e-5,w*h*1e-6))&&surfaceAreaPrismInside(ship,p,room)){accepted.push({rect,point:points[4],inset});continue;}
+  if(level<12&&Math.max(w,h)>.02){let axis=w>=h?0:1,mid=(rect[axis]+rect[axis+2])/2;if(maskBreaks){let options=maskBreaks[axis].filter(x=>x>rect[axis]+1e-5&&x<rect[axis+2]-1e-5);if(!options.length){const other=1-axis,alternative=maskBreaks[other].filter(x=>x>rect[other]+1e-5&&x<rect[other+2]-1e-5);if(alternative.length){axis=other;mid=(rect[axis]+rect[axis+2])/2;options=alternative;}}if(options.length)mid=options.reduce((a,b)=>Math.abs(a-mid)<Math.abs(b-mid)?a:b);}const a=rect.slice(),b=rect.slice();a[axis+2]=mid;b[axis]=mid;stack.push({rect:b,level:level+1},{rect:a,level:level+1});}else complex=true;
+ }
+ const direction=[config.layout?.u===-1?-1:1,config.layout?.v===-1?-1:1];accepted.sort((a,b)=>direction[0]*(a.rect[0]-b.rect[0])||direction[1]*(a.rect[1]-b.rect[1]));const area=Math.min(p.exposedArea,accepted.reduce((n,a)=>n+(a.rect[2]-a.rect[0])*(a.rect[3]-a.rect[1]),0)),total=Math.min(p.exposedArea,rects.reduce((n,r)=>n+(r[2]-r[0])*(r[3]-r[1]),0)),targets=SURFACE_ALLOCATION_ROLES.map(role=>({role,left:area*allocation[role]/100}));for(const t of targets){demand[t.role]={requested:0,budgetArea:total*allocation[t.role]/100};}
+ let ti=0,sequence=0;const owner=new Map();for(const t of targets){const role=SURFACE_ROLES.indexOf(t.role),a=aliases.find(a=>a[1]===role&&!a[2]);if(t.left>1e-8)owner.set(role,a?.[0]||nid(ship));}
+ for(const item of accepted){let r=item.rect.slice();while(ti<targets.length&&(r[2]-r[0])*(r[3]-r[1])>1e-8){const t=targets[ti];if(t.left<1e-8){ti++;continue;}const A=(r[2]-r[0])*(r[3]-r[1]),take=Math.min(A,t.left),piece=r.slice();if(take<A-1e-7){const axis=(r[2]-r[0])>=(r[3]-r[1])?0:1;if(direction[axis]>0){piece[axis+2]=r[axis]+(r[axis+2]-r[axis])*take/A;r[axis]=piece[axis+2];}else{piece[axis]=r[axis+2]-(r[axis+2]-r[axis])*take/A;r[axis+2]=piece[axis];}}else r=[0,0,0,0];const w=piece[2]-piece[0],h=piece[3]-piece[1],u=(piece[0]+piece[2])/2,v=(piece[1]+piece[3])/2,point=add(item.point,add(mul(p.u,u-(item.rect[0]+item.rect[2])/2),mul(p.v,v-(item.rect[1]+item.rect[3])/2))),kind=t.role==='cooling'?(config.equipment.kind==='radiator'?'radiator':'hdis'):t.role==='sensors'?'sensor':'habitat',room=surfaceRoomAt(p,{kind:'part',k:kind,w,h,depth,inset:item.inset},point),role=SURFACE_ROLES.indexOf(t.role),id=owner.get(role),n=p.normal,row=[id,role,SURFACE_CELL_KINDS.indexOf(kind),0,...room.c,w,h,depth,...n,room.yaw,...point,w,h,depth,1,0,0,0,0,0,'area:'+sequence++,'multi',1];surfaceAreaResource(row);result.cells.push(row);t.left=Math.max(0,t.left-take);}
+ }
+ if(!(area>0)){retainArea();errors.push('面の背後の実容積に設備が収まりません');}if(conservative)errors.push('兵装・既存機材・他の面の占有範囲を保守的に予約しています');if(complex||area<total-1e-4)errors.push('形状が複雑なため一部の面積を確保できません。面を分割すると利用範囲を増やせます');
+ for(const [role,id]of owner)if(!aliases.some(a=>a[0]===id))aliases.push([id,role,0,...p.center]);for(const r of inactive)if(!aliases.some(a=>a[0]===r[0]))aliases.push([r[0],r[1],1,...r.slice(14,17)]);return result;
+}
+function surfaceNormalizeAggregate(a){
+ if(!a||typeof a!=='object')return undefined;const area=a.version===2&&a.capacityModel===SURFACE_AREA_MODEL;
+ const valid=r=>Array.isArray(r)&&r.length>=27&&r.slice(0,26).every(Number.isFinite)&&Number.isInteger(r[0])&&r[0]>0&&SURFACE_CELL_KINDS[r[2]]&&typeof r[26]==='string',raw=(Array.isArray(a.cells)?a.cells:[]).filter(valid),inventory=area?raw.filter(r=>r[30]!==1).slice(0,SURFACE_DEVICE_MAX):raw.slice(0,SURFACE_DEVICE_MAX),regions=area?raw.filter(r=>r[30]===1).slice(0,SURFACE_AREA_REGIONS):[];
+ const cells=[...inventory,...regions].map(r=>{const continuum=area&&r[30]===1,c=r.slice(0,continuum?31:29);c[27]=Object.hasOwn(SENSOR_BANDS,r[27])?r[27]:'multi';c[28]=r[28]===0?0:1;for(const i of [7,8,9])c[i]=clamp(c[i],continuum?1e-6:.02,DESIGN_LIMITS.partSize);c[3]=c[3]?1:0;c[20]=clamp(c[20],0,1);if(continuum)return surfaceAreaResource(c);c[21]=clamp(c[21],0,c[7]*c[8]*c[9]);c[22]=partBuildCost({id:c[0],k:SURFACE_CELL_KINDS[c[2]]},c[21]);c[23]=Math.max(0,c[23]);c[24]=clamp(Math.cbrt(c[21]/AA_CHANNELS.podRef),.05,3);c[25]=clamp(Math.cbrt(c[21]/AA_CHANNELS.podRef),.3,2);return c;});
+ const guns=(Array.isArray(a.guns)?a.guns:[]).slice(0,SURFACE_DEVICE_MAX).filter(r=>Array.isArray(r)&&r.length>=21&&Number.isInteger(r[0])&&r[0]>0&&FITS[r[1]]?.cat==='w'&&r.slice(2,20).every(Number.isFinite)&&typeof r[20]==='string').map(r=>r.slice(0,21));
+ const out={version:area?2:1,...(area?{capacityModel:SURFACE_AREA_MODEL}:{}),signature:typeof a.signature==='string'?a.signature.slice(0,100):'',cells,guns,errors:(Array.isArray(a.errors)?a.errors:[]).filter(v=>typeof v==='string').slice(0,32).map(v=>v.slice(0,240)),requested:Number.isFinite(a.requested)?clamp(a.requested,0,1000000):guns.length,requestedEquipment:Number.isFinite(a.requestedEquipment)?clamp(a.requestedEquipment,0,1000000):cells.length,demand:Object.fromEntries(SURFACE_ROLES.map(k=>[k,{requested:Number.isFinite(a.demand?.[k]?.requested)?clamp(a.demand[k].requested,0,1000000):0,budgetArea:Number.isFinite(a.demand?.[k]?.budgetArea)?clamp(a.demand[k].budgetArea,0,1e14):0}])),...(a.retainInventory?{retainInventory:true}:{}),...(typeof a.equipmentKey==='string'?{equipmentKey:a.equipmentKey.slice(0,100)}:{})};
+ if(area){const seen=new Set();out.aliases=(Array.isArray(a.aliases)?a.aliases:[]).filter(r=>Array.isArray(r)&&r.length===6&&r.every(Number.isFinite)&&Number.isInteger(r[0])&&r[0]>0&&r[1]>=1&&r[1]<=3&&!seen.has(r[0])&&seen.add(r[0])).slice(0,DESIGN_LIMITS.parts).map(r=>[r[0],r[1],r[2]?1:0,...r.slice(3,6)]);out.sensorMix=Object.fromEntries(Object.keys(SENSOR_BANDS).map(k=>[k,Number.isFinite(a.sensorMix?.[k])?clamp(a.sensorMix[k],0,1):k==='multi'?1:0]));const sum=Object.values(out.sensorMix).reduce((n,v)=>n+v,0);if(sum>1+1e-12)for(const k in out.sensorMix)out.sensorMix[k]/=sum;out.manifestKey=typeof a.manifestKey==='string'?a.manifestKey.slice(0,100):'';}
+ return out;
+}
+function surfaceAreaManifest(a){return surfaceHash([a.cells,a.guns,a.aliases,a.sensorMix]);}
+
+function surfaceReserveIds(ship){let next=Math.max(1,ship.nextId||1);for(const q of [...(ship.parts||[]),...(ship.fits||[])])next=Math.max(next,(q.id||0)+1);for(const q of ship.surfaces?.patches||[])for(const r of [...(q.aggregate?.cells||[]),...(q.aggregate?.guns||[]),...(q.aggregate?.aliases||[])])next=Math.max(next,(r[0]||0)+1);ship.nextId=next;}
 function surfaceAggregateKey(ship){
  const hull={...ship.hull,deckWidth:ship.hull.deckWidth??.52,belt:ship.hull.belt??.13};delete hull.name;
  const configs=(ship.surfaces?.patches||[]).map(q=>({id:q.id,functionMode:q.functionMode,allocation:q.allocation,legacyAllocation:q.legacyAllocation,armor:q.armor,equipment:q.equipment,battery:q.battery,powerDomain:q.powerDomain||'main',layout:q.layout||{u:1,v:1}})),parts=ship.parts.filter(p=>!p.surfacePatch).map(p=>{const q=publicCopyOf(p);for(const k of ['paint','col','color','bandPaint','stripes'])delete q[k];return q;}),fits=ship.fits.filter(f=>!f.surfacePatch).map(f=>({...publicCopyOf(f),ped:f.ped||0,base:f.base||0,low:f.low||0,slope:f.slope||0,float:!!f.float}));
  const text=JSON.stringify([hull,ship.cuts,ship.trenches,ship.subs,ship.solidCuts,ship.hatches,parts,fits,configs,ship.surfaces?.partitions],(k,v)=>v&&typeof v==='object'&&!Array.isArray(v)&&!ArrayBuffer.isView(v)?Object.fromEntries(Object.keys(v).filter(k=>k[0]!=='_').sort().map(k=>[k,v[k]])):v);return surfaceHash(text);
 }
-function surfaceTransformAggregate(a,point,vector){if(!a)return;for(const r of a.cells||[]){const fw=structFrame({surfaceNormal:r.slice(10,13),yaw:r[13]}).fw,c=point(r.slice(4,7)),n=norm(vector(r.slice(10,13))),f=vector(fw),base=structFrame({surfaceNormal:n}),p=point(r.slice(14,17));r.splice(4,3,...c);r.splice(10,3,...n);r[13]=Math.atan2(dot(f,base.rt),dot(f,base.fw))*180/Math.PI;r.splice(14,3,...p);}for(const r of a.guns||[]){r.splice(2,3,...point(r.slice(2,5)));r.splice(6,3,...norm(vector(r.slice(6,9))));r.splice(9,3,...point(r.slice(9,12)));}a.signature='';}
+function surfaceTransformAggregate(a,point,vector){if(!a)return;for(const r of a.cells||[]){const fw=structFrame({surfaceNormal:r.slice(10,13),yaw:r[13]}).fw,c=point(r.slice(4,7)),n=norm(vector(r.slice(10,13))),f=vector(fw),base=structFrame({surfaceNormal:n}),p=point(r.slice(14,17));r.splice(4,3,...c);r.splice(10,3,...n);r[13]=Math.atan2(dot(f,base.rt),dot(f,base.fw))*180/Math.PI;r.splice(14,3,...p);}for(const r of a.aliases||[])r.splice(3,3,...point(r.slice(3,6)));for(const r of a.guns||[]){r.splice(2,3,...point(r.slice(2,5)));r.splice(6,3,...norm(vector(r.slice(6,9))));r.splice(9,3,...point(r.slice(9,12)));}a.signature='';}
 function surfaceEncodeCell(q){const V=partVolume(q),room=q.room||[q.d,q.d,q.d],n=q.surfaceNormal||[0,1,0],pt=q.surfacePoint||q.c,k=SURFACE_CELL_KINDS.indexOf(q.k),role=SURFACE_ROLES.indexOf(q.surfaceRole||'cooling');return [q.id,role,k,q.surfaceUnplaced?1:0,...q.c,...room,...n,q.yaw||0,...pt,...(q.surfaceFootprint||room.slice(0,2)),q.surfaceDepth||room[2],q.surfaceExposure??1,V,partBuildCost(q,V),partArea(q),clamp(Math.cbrt(V/AA_CHANNELS.podRef),.05,3),clamp(Math.cbrt(V/AA_CHANNELS.podRef),.3,2),q.surfaceCell||'e0',Object.hasOwn(SENSOR_BANDS,q.band)?q.band:'multi',/通信/.test(q.label||'')&&!/センサー|標的|追跡|走査|索敵/.test(q.label||'')?0:1];}
 function surfaceDecodeCell(r,patch){return {id:r[0],k:SURFACE_CELL_KINDS[r[2]],c:r.slice(4,7),room:r.slice(7,10),d:Math.cbrt(r[7]*r[8]*r[9]),surfaceNormal:r.slice(10,13),yaw:r[13],surfacePoint:r.slice(14,17),surfaceFootprint:r.slice(17,19),surfaceDepth:r[19],surfaceExposure:r[20],surfaceUnplaced:r[3]!==0,surfacePatch:patch,surfaceRole:SURFACE_ROLES[r[1]],surfaceCell:r[26],band:r[27]||'multi',...(r[28]===0?{label:'通信'}:{})};}
 function surfaceEncodeGun(f){const d=fitSpec(f);return [f.id,f.k,...f.p,f.a,...(f.n||AXES[f.a]||[0,1,0]),...(f.surfacePoint||f.p),...(f.surfaceFootprint||[d.fm,d.wm]),f.surfaceDepth||.2,f.surfaceArmorOffset||0,f.assetYaw||0,f.frameFlip?1:0,f.surfaceUnplaced?1:0,f.scale||1,f.surfaceCell||'w0'];}
@@ -3076,14 +3265,27 @@ function surfaceSync(ship){
  if(!ship?.surfaces||ship._surfaceWorking||ship._surfaceCompiling||ship._surfaceRenderOnly)return;
  if(ship.surfaces.version<SURFACE_VERSION)ship.surfaces=normalizeSurfaces(ship.surfaces);surfaceReserveIds(ship);
  const configs=ship.surfaces.patches||[],key=surfaceAggregateKey(ship),materialized=[...ship.parts,...ship.fits].some(q=>q.surfacePatch);
- if(!materialized&&configs.every(q=>q.aggregate?.signature===key))return;
- if(ship._client&&!materialized)return; // only the engine compiles physical reservations
- let work=ship;
- if(!materialized){const oldParts=[],oldFits=[],patches=surfacePatches(ship);for(const q of configs){for(const r of q.aggregate?.cells||[])oldParts.push(surfaceDecodeCell(r,q.id));const host=patches.find(p=>p.id===q.id)?._part;for(const r of q.aggregate?.guns||[])oldFits.push(surfaceDecodeGun(r,q.id,host));}work={...ship,_surfaceCompiling:true,parts:ship.parts.concat(oldParts),fits:ship.fits.concat(oldFits),surfaces:JSON.parse(JSON.stringify(ship.surfaces))};surfaceSyncLegacy(work);for(const q of work.surfaces.patches)if(q.aggregate?.retainInventory){for(const r of q.aggregate.cells||[])if(!work.parts.some(p=>p.id===r[0]))work.parts.push({...surfaceDecodeCell(r,q.id),surfaceUnplaced:true});for(const r of q.aggregate.guns||[])if(!work.fits.some(f=>f.id===r[0]))work.fits.push({...surfaceDecodeGun(r,q.id),surfaceUnplaced:true,float:true});}}
- const records=work.surfaces.patches;for(const q of records){const parts=work.parts.filter(p=>p.surfacePatch===q.id),fits=work.fits.filter(f=>f.surfacePatch===q.id),layout=work===ship?null:surfaceLayoutCache.get(work)?.get(q.id)?.value,patch=surfacePatches(work).find(p=>p.id===q.id),plan=patch&&q.functionMode==='equipment'?surfaceAllocationPlan(patch,q):null,requested=layout?.requested??(q.functionMode==='armor'?0:q.battery.count),requestedEquipment=layout?.requestedEquipment??plan?.requestedEquipment??(q.functionMode==='armor'?0:q.equipment.count);q.aggregate=surfaceNormalizeAggregate({version:1,signature:'',cells:parts.map(surfaceEncodeCell),guns:fits.map(surfaceEncodeGun),errors:layout?.errors?.slice()||q.aggregate?.errors?.slice()||[],requested,requestedEquipment,demand:Object.fromEntries(SURFACE_ROLES.map(k=>[k,{requested:(layout?.categories||plan?.categories)?.[k]?.requested||0,budgetArea:(layout?.categories||plan?.categories)?.[k]?.budgetArea||0}]))});}
- ship.parts=work.parts.filter(p=>!p.surfacePatch);ship.fits=work.fits.filter(f=>!f.surfacePatch);ship.surfaces={...work.surfaces,version:SURFACE_VERSION,patches:records};ship.nextId=Math.max(ship.nextId||1,work.nextId||1);surfaceWorkCache.delete(ship);surfaceDataCache.delete(ship);
+ if(!materialized&&configs.every(q=>q.aggregate?.signature===key&&(q.aggregate.version!==2||q.aggregate.manifestKey===surfaceAreaManifest(q.aggregate)))&&(ship._client||surfaceExposureCurrent(ship,key)))return;
+ if(ship._client&&!materialized)return;
+ const original=new Map(configs.map(q=>[q.id,q])),frozen=new Set(configs.filter(q=>!surfaceIsArea(q)&&q.aggregate?.version===1&&q.aggregate.equipmentKey===surfaceEquipmentKey(ship,q)).map(q=>q.id));let work=ship;
+ if(!materialized){const oldParts=[],oldFits=[],patches=surfacePatches(ship);for(const q of configs){if(!surfaceIsArea(q))for(const r of q.aggregate?.cells||[]){const p=surfaceDecodeCell(r,q.id);if(frozen.has(q.id)){p._surfaceFrozen=true;delete p.surfacePatch;}oldParts.push(p);}const host=patches.find(p=>p.id===q.id)?._part;for(const r of q.aggregate?.guns||[])oldFits.push(surfaceDecodeGun(r,q.id,host));}
+  work={...ship,_surfaceCompiling:true,parts:ship.parts.concat(oldParts),fits:ship.fits.concat(oldFits),surfaces:JSON.parse(JSON.stringify(ship.surfaces))};for(const q of work.surfaces.patches)if(frozen.has(q.id)){q.functionMode='equipment';q.equipment={...q.equipment,capacityModel:SURFACE_AREA_MODEL,limit:0};delete q.legacyAllocation;}
+  surfaceSyncLegacy(work);for(const q of work.surfaces.patches)if(q.aggregate?.retainInventory&&!surfaceIsArea(original.get(q.id))){for(const r of q.aggregate.cells||[])if(!work.parts.some(p=>p.id===r[0]))work.parts.push({...surfaceDecodeCell(r,q.id),surfaceUnplaced:true});for(const r of q.aggregate.guns||[])if(!work.fits.some(f=>f.id===r[0]))work.fits.push({...surfaceDecodeGun(r,q.id),surfaceUnplaced:true,float:true});}
+ }
+ const patches=surfacePatches(work),records=[],reserved=[];
+ for(const transformed of work.surfaces.patches){const source=original.get(transformed.id)||transformed,q={...source,boundArea:transformed.boundArea??source.boundArea},parts=work.parts.filter(p=>p.surfacePatch===q.id),fits=work.fits.filter(f=>f.surfacePatch===q.id),layout=work===ship?null:surfaceLayoutCache.get(work)?.get(q.id)?.value,patch=patches.find(p=>p.id===q.id),plan=patch&&q.functionMode==='equipment'?surfaceAllocationPlan(patch,q):null;
+  if(surfaceIsArea(q)){q._areaGuns=fits.map(surfaceEncodeGun);records.push(q);continue;}
+  if(frozen.has(q.id)){q.aggregate=surfaceNormalizeAggregate({...source.aggregate,guns:fits.map(surfaceEncodeGun),requested:q.battery.count,errors:[...new Set([...(source.aggregate.errors||[]),...(layout?.errors||[])])],equipmentKey:surfaceEquipmentKey(ship,q)});}
+  else q.aggregate=surfaceNormalizeAggregate({version:1,signature:'',cells:parts.map(surfaceEncodeCell),guns:fits.map(surfaceEncodeGun),errors:layout?.errors?.slice()||q.aggregate?.errors?.slice()||[],requested:layout?.requested??(q.functionMode==='armor'?0:q.battery.count),requestedEquipment:layout?.requestedEquipment??plan?.requestedEquipment??(q.functionMode==='armor'?0:q.equipment.count),demand:Object.fromEntries(SURFACE_ROLES.map(k=>[k,{requested:(layout?.categories||plan?.categories)?.[k]?.requested||0,budgetArea:(layout?.categories||plan?.categories)?.[k]?.budgetArea||0}]))});
+  records.push(q);for(const row of q.aggregate.cells)reserved.push({row,patch:q.id});
+ }
+ // Legacy physical inventory is fixed first. Area reservations then share one
+ // actual host volume in deterministic face order, including opposing faces.
+ for(const q of records)if(surfaceIsArea(q)){const patch=patches.find(p=>p.id===q.id),raw=surfaceAreaCompile(work,patch,q,q._areaGuns||[],reserved);delete q._areaGuns;q.aggregate=surfaceNormalizeAggregate(raw);q.aggregate.manifestKey=surfaceAreaManifest(q.aggregate);for(const row of q.aggregate.cells)reserved.push({row,patch:q.id});}
+ ship.parts=work.parts.filter(p=>!p.surfacePatch&&!p._surfaceFrozen);ship.fits=work.fits.filter(f=>!f.surfacePatch);ship.surfaces={...work.surfaces,version:SURFACE_VERSION,patches:records};ship.nextId=Math.max(ship.nextId||1,work.nextId||1);surfaceReserveIds(ship);surfaceWorkCache.delete(ship);surfaceDataCache.delete(ship);
  const finalKey=surfaceAggregateKey(ship);for(const q of records)q.aggregate.signature=finalKey;
 }
+
 function surfaceCellGeometry(r){const c=r.slice(4,7),size=r.slice(7,10),frame=structFrame({surfaceNormal:r.slice(10,13),yaw:r[13]}),half=[size[0]/2,size[2]/2,size[1]/2],extent=[0,1,2].map(i=>Math.abs(frame.fw[i])*half[0]+Math.abs(frame.up[i])*half[1]+Math.abs(frame.rt[i])*half[2]);return {c,half,frame,b:extent.map((v,i)=>c[i]-v).concat(extent.map((v,i)=>c[i]+v)),row:r};}
 function surfaceAdapterContains(p,q){const a=p._surfaceAdapter;for(const g of a.geometry){if(q.some((v,i)=>v<g.b[i]-1e-7||v>g.b[i+3]+1e-7))continue;const d=sub(q,g.c);const edge=[Math.abs(dot(d,g.frame.fw))-g.half[0],Math.abs(dot(d,g.frame.up))-g.half[1],Math.abs(dot(d,g.frame.rt))-g.half[2]];if(edge.every(v=>v< -1e-8))return true;if(edge.every(v=>v<=1e-7)){if(!g.boundaryShape)g.boundaryShape=roomShape(surfaceDecodeCell(g.row,p.surfacePatch));if(unpiercedInStruct(g.boundaryShape,q))return true;}}return false;}
 function surfaceAdapterSamples(p){const a=p._surfaceAdapter;if(a.samples)return a.samples;const out=[],N=Math.min(192,a.geometry.length),step=a.volume/Math.max(1,N);let total=0,target=step/2;for(const g of a.geometry){total+=g.row[21];while(out.length<N&&target<total){out.push(g.c);target+=step;}}return a.samples=out;}
@@ -3094,7 +3296,7 @@ function surfaceData(ship){
  const parts=[],fits=[],aliases=new Map(),patches=surfacePatches(ship),roles=new Map();
  for(const config of ship.surfaces?.patches||[]){const patch=patches.find(p=>p.id===config.id),groups=new Map();for(const r of config.aggregate?.cells||[]){const k=r[1]+':'+r[2]+':'+(r[3]?1:0);if(!groups.has(k))groups.set(k,[]);groups.get(k).push(r);}const faceRoles=[];
   for(const cells of groups.values()){const first=cells[0],volume=cells.reduce((a,r)=>a+r[21],0),geometry=cells.map(surfaceCellGeometry),center=volume>0?[0,1,2].map(i=>cells.reduce((a,r)=>a+r[i+4]*r[21],0)/volume):first.slice(4,7),id=first[0],kind=SURFACE_CELL_KINDS[first[2]],role=SURFACE_ROLES[first[1]],inactive=first[3]!==0,meta={cells,geometry,volume,cost:cells.reduce((a,r)=>a+r[22],0),area:cells.reduce((a,r)=>a+r[23],0),aperture:cells.reduce((a,r)=>a+(r[28]===0?0:r[24]),0),bands:Object.fromEntries(Object.keys(SENSOR_BANDS).map(b=>[b,cells.filter(r=>(r[27]||'multi')===b&&r[28]!==0).reduce((a,r)=>a+r[24],0)])),tracking:cells.reduce((a,r)=>a+(r[28]===0?0:r[25]),0),channels:cells.reduce((a,r)=>a+r[25],0),bounds:[0,1,2].map(i=>Math.min(...geometry.map(g=>g.b[i]))).concat([3,4,5].map(i=>Math.max(...geometry.map(g=>g.b[i]))))},p={id,k:kind,c:center,d:Math.cbrt(volume),surfacePatch:config.id,host:patch?._part?.id,surfaceRole:role,surfaceCell:'role:'+role+(inactive?':inactive':''),surfaceUnplaced:inactive,surfaceNormal:patch?.normal.slice()||first.slice(10,13),surfacePoint:patch?.center.slice()||first.slice(14,17),surfaceFootprint:[Math.sqrt(cells.reduce((a,r)=>a+r[17]*r[18],0)),Math.sqrt(cells.reduce((a,r)=>a+r[17]*r[18],0))],surfaceExposure:volume?cells.reduce((a,r)=>a+r[20]*r[21],0)/volume:0,powerDomain:config.powerDomain||'main',label:'面設備・'+({cooling:'散熱',sensors:'センサー',habitation:'居住区'}[role]||role),_surfaceAdapter:meta};parts.push(p);faceRoles.push(p);for(const r of cells)aliases.set('p'+r[0],'p'+id);}
-  roles.set(config.id,faceRoles);for(const r of config.aggregate?.guns||[])fits.push({...surfaceDecodeGun(r,config.id,patch?._part),powerDomain:config.powerDomain||'main'});
+  for(const a of config.aggregate?.aliases||[]){const p=faceRoles.find(p=>SURFACE_ROLES.indexOf(p.surfaceRole)===a[1]&&p.surfaceUnplaced===!!a[2]);if(p)aliases.set('p'+a[0],'p'+p.id);}for(const p of faceRoles)if(!p.surfaceUnplaced&&p.k==='sensor'&&config.aggregate?.sensorMix){const mix=config.aggregate.sensorMix,total=p._surfaceAdapter.aperture;p._surfaceAdapter.bands=Object.fromEntries(Object.keys(SENSOR_BANDS).map(k=>[k,total*(mix[k]||0)]));p._surfaceAdapter.aperture=Object.values(p._surfaceAdapter.bands).reduce((a,b)=>a+b,0);p._surfaceAdapter.tracking*=Object.values(mix).reduce((a,b)=>a+b,0);}roles.set(config.id,faceRoles);for(const r of config.aggregate?.guns||[])fits.push({...surfaceDecodeGun(r,config.id,patch?._part),powerDomain:config.powerDomain||'main'});
  }
  const data={key,parts,fits,aliases,roles};surfaceDataCache.set(ship,data);return data;
 }
@@ -3104,41 +3306,45 @@ function surfaceWorkingShip(ship){if(!ship?.surfaces||ship._surfaceWorking)retur
 function surfaceRenderKey(ship){return surfaceHash([surfaceGeometryKey(ship),surfaceAggregateKey(ship),surfaceLedgerKey(ship),(ship.surfaces?.patches||[]).map(q=>q.style)]);}
 function surfaceReport(ship){
  if(!ship?.surfaces)return surfaceReportLegacy(ship);if(ship._surfaceWorking)ship=ship._surfaceSource;
- const data=surfaceData(ship),patches=surfacePatches(ship),records=ship.surfaces.patches,rows=[],warnings=[],totals={area:0,exposedArea:0,occupiedArea:0,volume:0,mass:0,requested:0,installed:0,barrels:0,equipment:0,orphans:0};
+ const data=surfaceData(ship),patches=surfacePatches(ship),records=ship.surfaces.patches,rows=[],warnings=[],totals={area:0,physicalArea:0,exposedArea:0,faces:patches.filter(p=>p.exposed).length,physicalFaces:patches.length,hiddenFaces:patches.filter(p=>!p.exposed).length,occupiedArea:0,volume:0,mass:0,requested:0,installed:0,barrels:0,equipment:0,orphans:0};
  for(const p of patches){const config=surfaceConfig(ship,p.id),active=records.some(q=>q.id===p.id),equipment=(data.roles.get(p.id)||[]).filter(q=>!q.surfaceUnplaced),fits=data.fits.filter(f=>f.surfacePatch===p.id&&!f.surfaceUnplaced),all=config.aggregate?.cells||[],categories={};for(const role of SURFACE_ROLES){const rs=all.filter(r=>SURFACE_ROLES[r[1]]===role&&r[3]===0),share=config.allocation[role]||0,occupiedArea=rs.reduce((n,r)=>n+r[17]*r[18],0),volume=rs.reduce((n,r)=>n+r[21],0),roleid=equipment.find(q=>q.surfaceRole===role)?.id;const demand=config.aggregate?.demand?.[role],budgetArea=demand?.budgetArea??(role==='weapons'?0:p.exposedArea*share/100);categories[role]={share,budgetArea,occupiedArea,volume,installed:rs.length,requested:demand?.requested??rs.length,unusedArea:Math.max(0,budgetArea-occupiedArea),usableFraction:p.exposedArea>0?occupiedArea/p.exposedArea:0,roleid};}categories.weapons.explicit=true;categories.weapons.installed=fits.length;categories.weapons.requested=config.battery.count;categories.weapons.occupiedArea=fits.reduce((n,f)=>n+f.surfaceFootprint[0]*f.surfaceFootprint[1],0);categories.weapons.volume=fits.reduce((n,f)=>n+f.surfaceFootprint[0]*f.surfaceFootprint[1]*f.surfaceDepth,0);
-  const armor=surfaceArmor(config),armorMass=p.area*armor.thickness*SURFACE_MATERIALS[armor.material].density,barrels=fits.reduce((n,f)=>n+(fitSpec(f).barrels||1),0),batteryCrew=fits.reduce((n,f)=>n+(fitSpec(f).crew||0)*WEAPON_CREW_K,0),batteryPowerDemand=fits.reduce((n,f)=>n+(fitSpec(f).power||0),0),cells=fits.map(f=>({id:f.id,kind:'fit',k:f.k,role:'weapons',cell:f.surfaceCell,point:f.surfacePoint.slice(),footprint:f.surfaceFootprint.slice(),w:f.surfaceFootprint[0],h:f.surfaceFootprint[1],depth:f.surfaceDepth,surfacePatch:p.id})),installedEquipment=all.filter(r=>r[3]===0).length,occupiedArea=all.filter(r=>r[3]===0).reduce((n,r)=>n+r[17]*r[18],0)+fits.reduce((n,f)=>n+f.surfaceFootprint[0]*f.surfaceFootprint[1],0),volume=all.filter(r=>r[3]===0).reduce((n,r)=>n+r[21],0)+categories.weapons.volume,mass=armorMass+equipment.reduce((n,q)=>n+partVolume(q)*(PARTS[q.k]?.dens||0),0)+fits.reduce((n,f)=>n+(fitSpec(f).mass||0),0),coolingCapacity=equipment.reduce((n,q)=>n+dissipatorCap(q,null,q.surfaceExposure),0),physicalHabitationVolume=equipment.filter(q=>q.k==='habitat').reduce((n,q)=>n+partVolume(q),0),sensorVolume=equipment.filter(q=>q.k==='sensor'||q.k==='scanner').reduce((n,q)=>n+partVolume(q),0),requested=config.functionMode==='equipment'||config.functionMode==='legacy'?config.battery.count:0,errors=config.aggregate?.errors?.slice()||[];
-  if(config.functionMode==='legacy'&&active)warnings.push({code:'surface-legacy',text:'旧式の面設定を保持しています。装甲面または機材配分へ変換できます。',patch:p.id});if((config.aggregate?.requestedEquipment||0)>installedEquipment)errors.push('要求した設備の一部が未配置です');if(all.some(r=>r[3]!==0))errors.push('未配置の面設備を保管しています。質量と費用は維持され、能力には加算されません。');if(fits.length<requested)errors.push('要求した砲座の一部が未配置です');for(const text of errors)warnings.push({code:'surface-placement',text,patch:p.id});const row={...surfacePublicPatch(p),aggregate:true,inactiveVolume:all.filter(r=>r[3]!==0).reduce((n,r)=>n+r[21],0),inventoryVolume:all.reduce((n,r)=>n+r[21],0),inventoryMass:all.reduce((n,r)=>n+r[21]*(PARTS[SURFACE_CELL_KINDS[r[2]]]?.dens||0),0),inventoryCost:all.reduce((n,r)=>n+r[22],0),config,active,installed:fits.length,requested,installedEquipment,requestedEquipment:config.aggregate?.requestedEquipment??installedEquipment,fitIds:fits.map(f=>f.id),partIds:equipment.map(q=>q.id),cells,categories,occupiedArea,volume,mass,armorMass,batteryCrew,batteryPowerDemand,crew:batteryCrew+equipment.reduce((n,q)=>n+partVolume(q)*(PARTS[q.k]?.crew||0)/1000,0),powerDemand:batteryPowerDemand+equipment.reduce((n,q)=>n+partVolume(q)*(PARTS[q.k]?.power||0),0),coolingCapacity,physicalHabitationVolume,habitationVolume:physicalHabitationVolume,habitationCapacity:Math.floor(physicalHabitationVolume/personVolume(ship.hull.L)),sensorVolume,barrels,errors};rows.push(row);for(const k of ['area','exposedArea','occupiedArea','volume','mass','requested','installed','barrels'])totals[k]+=row[k]||0;totals.equipment+=installedEquipment;
+  const armor=surfaceArmor(config),armorMass=p.exposedArea*armor.thickness*SURFACE_MATERIALS[armor.material].density,barrels=fits.reduce((n,f)=>n+(fitSpec(f).barrels||1),0),batteryCrew=fits.reduce((n,f)=>n+(fitSpec(f).crew||0)*WEAPON_CREW_K,0),batteryPowerDemand=fits.reduce((n,f)=>n+(fitSpec(f).power||0),0),cells=fits.map(f=>({id:f.id,kind:'fit',k:f.k,role:'weapons',cell:f.surfaceCell,point:f.surfacePoint.slice(),footprint:f.surfaceFootprint.slice(),w:f.surfaceFootprint[0],h:f.surfaceFootprint[1],depth:f.surfaceDepth,surfacePatch:p.id})),installedEquipment=all.filter(r=>r[3]===0).length,occupiedArea=all.filter(r=>r[3]===0).reduce((n,r)=>n+r[17]*r[18],0)+fits.reduce((n,f)=>n+f.surfaceFootprint[0]*f.surfaceFootprint[1],0),volume=all.filter(r=>r[3]===0).reduce((n,r)=>n+r[21],0)+categories.weapons.volume,mass=armorMass+equipment.reduce((n,q)=>n+partVolume(q)*(PARTS[q.k]?.dens||0),0)+fits.reduce((n,f)=>n+(fitSpec(f).mass||0),0),coolingCapacity=equipment.reduce((n,q)=>n+dissipatorCap(q,null,q.surfaceExposure),0),physicalHabitationVolume=equipment.filter(q=>q.k==='habitat').reduce((n,q)=>n+partVolume(q),0),sensorVolume=equipment.filter(q=>q.k==='sensor'||q.k==='scanner').reduce((n,q)=>n+partVolume(q),0),requested=config.functionMode==='equipment'||config.functionMode==='legacy'?config.battery.count:0,errors=config.aggregate?.errors?.slice()||[];
+  if(config.functionMode==='legacy'&&active)warnings.push({code:'surface-legacy',text:'旧式の面設定を保持しています。装甲面または機材配分へ変換できます。',patch:p.id});if(!surfaceIsArea(config)&&(config.aggregate?.requestedEquipment||0)>installedEquipment)errors.push('要求した設備の一部が未配置です');if(all.some(r=>r[3]!==0))errors.push('未配置の面設備を保管しています。質量と費用は維持され、能力には加算されません。');if(fits.length<requested)errors.push('要求した砲座の一部が未配置です');for(const text of errors)warnings.push({code:'surface-placement',text,patch:p.id});const row={...surfacePublicPatch(p),aggregate:true,capacityModel:config.equipment.capacityModel||'legacy-count',inactiveVolume:all.filter(r=>r[3]!==0).reduce((n,r)=>n+r[21],0),inventoryVolume:all.reduce((n,r)=>n+r[21],0),inventoryMass:all.reduce((n,r)=>n+r[21]*(PARTS[SURFACE_CELL_KINDS[r[2]]]?.dens||0),0),inventoryCost:all.reduce((n,r)=>n+r[22],0),config,active,installed:fits.length,requested,installedEquipment,requestedEquipment:config.aggregate?.requestedEquipment??installedEquipment,fitIds:fits.map(f=>f.id),partIds:equipment.map(q=>q.id),cells,categories,occupiedArea,volume,mass,armorMass,batteryCrew,batteryPowerDemand,crew:batteryCrew+equipment.reduce((n,q)=>n+partVolume(q)*(PARTS[q.k]?.crew||0)/1000,0),powerDemand:batteryPowerDemand+equipment.reduce((n,q)=>n+partVolume(q)*(PARTS[q.k]?.power||0),0),coolingCapacity,physicalHabitationVolume,habitationVolume:physicalHabitationVolume,habitationCapacity:Math.floor(physicalHabitationVolume/personVolume(ship.hull.L)),sensorVolume,barrels,errors};rows.push(row);totals.physicalArea+=row.area;totals.area+=row.exposedArea;for(const k of ['exposedArea','occupiedArea','volume','mass','requested','installed','barrels'])totals[k]+=row[k]||0;totals.equipment+=installedEquipment;
  }
  const ids=new Set(patches.map(p=>p.id)),orphaned=records.filter(q=>!ids.has(q.id));totals.orphans=orphaned.length;for(const q of orphaned)warnings.push({code:'surface-orphan',text:'形状変更で面が失われました。設備を移設するか設定を解除してください。',patch:q.id});return {version:SURFACE_VERSION,aggregate:true,mode:ship.surfaces.mode,patches:rows,orphaned,warnings,totals};
 }
 function surfaceRenderFaces(ship){return surfaceReport(ship).patches;}
 function surfacePublicPatch(p){const {_part,_min,_max,_origin,...q}=p;return q;}
 function surfaceReportLegacy(ship){
- const patches=surfacePatches(ship),records=ship.surfaces?.patches||[],hab=ship.parts.some(q=>q.k==='habitat'&&!q.surfaceUnplaced)?habitationSpace(ship):null,rows=[],warnings=[],totals={area:0,exposedArea:0,occupiedArea:0,volume:0,mass:0,requested:0,installed:0,barrels:0,equipment:0,orphans:0};
- for(const p of patches){const config=surfaceConfig(ship,p.id),active=records.some(q=>q.id===p.id),layout=active?surfaceLayout(ship,p,config):{placed:[],errors:[],requested:0,requestedEquipment:0},fitIds=ship.fits.filter(f=>f.surfacePatch===p.id&&!f.surfaceUnplaced).map(f=>f.id),partIds=ship.parts.filter(q=>q.surfacePatch===p.id&&!q.surfaceUnplaced).map(q=>q.id),installed=fitIds.length,parts=partIds.map(id=>ship.parts.find(q=>q.id===id)),fits=fitIds.map(id=>ship.fits.find(q=>q.id===id)),occupiedArea=layout.placed.reduce((n,q)=>n+q.w*q.h,0),volume=layout.placed.reduce((n,q)=>n+q.w*q.h*q.depth,0),armorMass=p.area*surfaceArmor(config).thickness*SURFACE_MATERIALS[config.armor.material].density,mass=armorMass+parts.reduce((n,q)=>n+partVolume(q)*(PARTS[q.k]?.dens||0),0)+fits.reduce((n,q)=>n+(fitSpec(q).mass||0),0),crew=fits.reduce((n,q)=>n+(fitSpec(q).crew||0),0)+parts.reduce((n,q)=>n+partVolume(q)*(PARTS[q.k]?.crew||0)/1000,0),powerDemand=fits.reduce((n,q)=>n+(fitSpec(q).power||0),0),coolingCapacity=parts.reduce((n,q)=>n+(q.k==='hdis'||q.k==='radiator'?dissipatorCap(q,null,p.exposed?1:0):0),0),barrels=fits.reduce((n,q)=>n+(fitSpec(q).barrels||1),0),errors=layout.errors.slice();if(installed<layout.requested)errors.push('要求した砲座の一部が未配置です');if(partIds.length<layout.requestedEquipment)errors.push('要求した設備の一部が未配置です');for(const text of errors)warnings.push({code:'surface-placement',text,patch:p.id});
+ const patches=surfacePatches(ship),records=ship.surfaces?.patches||[],hab=ship.parts.some(q=>q.k==='habitat'&&!q.surfaceUnplaced)?habitationSpace(ship):null,rows=[],warnings=[],totals={area:0,physicalArea:0,exposedArea:0,faces:patches.filter(p=>p.exposed).length,physicalFaces:patches.length,hiddenFaces:patches.filter(p=>!p.exposed).length,occupiedArea:0,volume:0,mass:0,requested:0,installed:0,barrels:0,equipment:0,orphans:0};
+ for(const p of patches){const config=surfaceConfig(ship,p.id),active=records.some(q=>q.id===p.id),layout=active?surfaceLayout(ship,p,config):{placed:[],errors:[],requested:0,requestedEquipment:0},fitIds=ship.fits.filter(f=>f.surfacePatch===p.id&&!f.surfaceUnplaced).map(f=>f.id),partIds=ship.parts.filter(q=>q.surfacePatch===p.id&&!q.surfaceUnplaced).map(q=>q.id),installed=fitIds.length,parts=partIds.map(id=>ship.parts.find(q=>q.id===id)),fits=fitIds.map(id=>ship.fits.find(q=>q.id===id)),occupiedArea=layout.placed.reduce((n,q)=>n+q.w*q.h,0),volume=layout.placed.reduce((n,q)=>n+q.w*q.h*q.depth,0),armorMass=p.exposedArea*surfaceArmor(config).thickness*SURFACE_MATERIALS[config.armor.material].density,mass=armorMass+parts.reduce((n,q)=>n+partVolume(q)*(PARTS[q.k]?.dens||0),0)+fits.reduce((n,q)=>n+(fitSpec(q).mass||0),0),crew=fits.reduce((n,q)=>n+(fitSpec(q).crew||0),0)+parts.reduce((n,q)=>n+partVolume(q)*(PARTS[q.k]?.crew||0)/1000,0),powerDemand=fits.reduce((n,q)=>n+(fitSpec(q).power||0),0),coolingCapacity=parts.reduce((n,q)=>n+(q.k==='hdis'||q.k==='radiator'?dissipatorCap(q,null,p.exposed?1:0):0),0),barrels=fits.reduce((n,q)=>n+(fitSpec(q).barrels||1),0),errors=layout.errors.slice();if(installed<layout.requested)errors.push('要求した砲座の一部が未配置です');if(partIds.length<layout.requestedEquipment)errors.push('要求した設備の一部が未配置です');for(const text of errors)warnings.push({code:'surface-placement',text,patch:p.id});
   const owned=new Map([...parts,...fits].map(q=>[q.surfaceCell,q])),cells=layout.placed.filter(c=>owned.has(c.cell)).map(c=>({...c,id:owned.get(c.cell).id,surfacePatch:p.id,footprint:[c.w,c.h]})),categories=layout.categories?JSON.parse(JSON.stringify(layout.categories)):undefined;
   if(categories)for(const role of SURFACE_ROLES){const group=cells.filter(c=>c.role===role),r=categories[role];r.installed=group.length;r.occupiedArea=group.reduce((n,c)=>n+c.w*c.h,0);r.volume=group.reduce((n,c)=>n+c.w*c.h*c.depth,0);r.unusedArea=Math.max(0,r.budgetArea-r.occupiedArea);}
   const physicalHabitationVolume=parts.filter(q=>q.k==='habitat').reduce((n,q)=>n+partVolume(q),0),habitationVolume=parts.filter(q=>q.k==='habitat').reduce((n,q)=>n+(hab?.explicitByPart?.[q.id]||0),0),habitationCapacity=Math.floor(habitationVolume/personVolume(ship.hull.L));if(active&&config.functionMode==='legacy')warnings.push({code:'surface-legacy',text:'旧式の面設定を保持しています。装甲面または機材配分へ変換できます。',patch:p.id});
-  rows.push({...surfacePublicPatch(p),config,active,installed,requested:layout.requested,installedEquipment:partIds.length,requestedEquipment:layout.requestedEquipment,fitIds,partIds,cells,categories,occupiedArea:cells.reduce((n,c)=>n+c.w*c.h,0),volume:cells.reduce((n,c)=>n+c.w*c.h*c.depth,0),mass,armorMass,crew,powerDemand,coolingCapacity,physicalHabitationVolume,habitationVolume,habitationCapacity,sensorVolume:parts.filter(q=>q.k==='sensor'||q.k==='scanner').reduce((n,q)=>n+partVolume(q),0),barrels,errors});for(const k of ['area','exposedArea','occupiedArea','volume','mass','requested','installed','barrels'])totals[k]+=rows.at(-1)[k]||0;totals.equipment+=partIds.length;
+  rows.push({...surfacePublicPatch(p),config,active,installed,requested:layout.requested,installedEquipment:partIds.length,requestedEquipment:layout.requestedEquipment,fitIds,partIds,cells,categories,occupiedArea:cells.reduce((n,c)=>n+c.w*c.h,0),volume:cells.reduce((n,c)=>n+c.w*c.h*c.depth,0),mass,armorMass,crew,powerDemand,coolingCapacity,physicalHabitationVolume,habitationVolume,habitationCapacity,sensorVolume:parts.filter(q=>q.k==='sensor'||q.k==='scanner').reduce((n,q)=>n+partVolume(q),0),barrels,errors});totals.physicalArea+=p.area;totals.area+=p.exposedArea;for(const k of ['exposedArea','occupiedArea','volume','mass','requested','installed','barrels'])totals[k]+=rows.at(-1)[k]||0;totals.equipment+=partIds.length;
  }
  const ids=new Set(patches.map(p=>p.id)),orphaned=records.filter(q=>!ids.has(q.id));totals.orphans=orphaned.length;for(const q of orphaned)warnings.push({code:'surface-orphan',text:'形状変更で面が失われました。設備を移設するか設定を解除してください。',patch:q.id});return {version:SURFACE_VERSION,mode:ship.surfaces?.mode||'compat',patches:rows,orphaned,warnings,totals};
 }
-function surfaceArmorBudget(ship,area){if(!ship.surfaces)return {volume:ship.armor.hull*area,mass:ship.armor.hull*area*K.armorDens,average:ship.armor.hull};let volume=0,mass=0;const patches=new Map(surfacePatches(ship).map(p=>[p.id,p]));for(const q of ship.surfaces.patches){const armor=surfaceArmor(q),m=SURFACE_MATERIALS[armor.material],a=patches.get(q.id)?.area??q.boundArea??0;volume+=a*armor.thickness;mass+=a*armor.thickness*m.density;}return {volume,mass,average:area>0?volume/area:0};}
+function surfaceArmorBudget(ship,area){if(!ship.surfaces)return {volume:ship.armor.hull*area,mass:ship.armor.hull*area*K.armorDens,average:ship.armor.hull};let volume=0,mass=0;const patches=new Map(surfacePatches(ship).map(p=>[p.id,p]));for(const q of ship.surfaces.patches){const armor=surfaceArmor(q),m=SURFACE_MATERIALS[armor.material],a=patches.get(q.id)?.exposedArea??0;volume+=a*armor.thickness;mass+=a*armor.thickness*m.density;}return {volume,mass,average:area>0?volume/area:0};}
 function surfaceStats(ship,S){if(!ship.surfaces)return S;const r=surfaceReport(ship),hab=ship.parts.some(p=>p.k==='habitat')?habitationSpace(ship):null,net=S.heat?.net,e=net?heatEvaluate({...net,links:net.links.map(l=>({...l,kind:'heat',ok:true}))},'combat'):null,paths=S.heat?.powerPaths||[],crewK=S.crew>0?clamp((S.crewAboard??S.crew)/S.crew,0,1):1,factor=ship.surfaces.mode==='strict'?1/ENERGY_MODEL.eta:1;
  for(const row of r.patches){let maximum=0,sustained=0,heatGenerated=0,heatExported=0,requested=0,supplied=0,fed=0,operating=0,energy=0,volley=0;const bolts=[];for(const id of row.fitIds){const f=ship.fits.find(f=>f.id===id),d=fitSpec(f),cr=needsCapacitor(f)?S.chargeInfo?.[id]?.ratio||0:1,out=((d.tt||0)+(d.ion||0))*cr/(d.cycle||K.cycle),need=(d.power||0)*factor,got=Math.min(need,paths.filter(l=>l.ok&&l.to==='f'+id).reduce((n,l)=>n+(l.cap||0),0)),si=net?.src.findIndex(s=>s.id==='f'+id)??-1,gen=si>=0?net.src[si].rated.combat||0:0,shed=si>=0?e?.flow.out[si]||0:0,cool=gen>0?clamp(shed/gen,0,1):1,power=need>0?clamp(got/need,0,1):1;maximum+=out;sustained+=out*Math.min(power,cool,crewK);heatGenerated+=gen;heatExported+=shed;requested+=need;supplied+=got;if(power>0)fed++;if(power>0&&cool>0&&crewK>0)operating++;energy+=needsCapacitor(f)?S.chargeInfo?.[id]?.storedTT||0:(d.tt||d.ion||0);volley+=(d.tt||0)+(d.ion||0);bolts.push(((d.tt||0)+(d.ion||0))/Math.max(1,d.barrels||1));}Object.assign(row,{maximumTT:maximum,sustainedTT:sustained,heatGenerated,heatExported,chargeRequested:requested,chargeSupplied:supplied,fed,operating,maxEnergy:energy,volleyTT:volley,boltTT:bolts.length?Math.max(...bolts):0,crewAssigned:row.crew*crewK});}
  for(const row of r.patches){row.equipmentPower=(net?.dis||[]).filter(d=>row.partIds.includes(d.part)).reduce((n,d)=>n+(d.power||0),0);row.equipmentPower+=ship.parts.filter(p=>row.partIds.includes(p.id)).reduce((n,p)=>n+(PARTS[p.k]?.power||0)*partVolume(p),0);row.powerDemand+=row.equipmentPower;row.habitationPoweredCapacity=row.partIds.filter(id=>ship.parts.find(p=>p.id===id)?.k==='habitat').reduce((n,id)=>{const p=ship.parts.find(p=>p.id===id),need=partVolume(p)*(PARTS[p.k]?.power||0),fed=paths.filter(l=>l.ok&&l.to==='p'+id).reduce((n,l)=>n+(l.cap||0),0),ratio=need>0?clamp(fed/need,0,1):1;return n+(hab?.explicitByPart?.[id]||0)*ratio;},0)/personVolume(ship.hull.L);}
  S.surface=r;S.surfaceMode=ship.surfaces.mode;for(const w of r.warnings)S.warnings.push({lv:'warn',...w});return S;}
 function surfaceWeaponGeometry(f,offset){const port=surfaceBatteryGeometry(f);if(port)return {embedded:true,pivot:sub(port.pivot,offset),muzzle:sub(port.mouth,offset),barrelLength:0,dir:port.dir,u:port.u.slice(),v:port.v.slice(),casemate:port.casemate,fixed:!!fitSpec(f).fixed};const d=fitSpec(f),fr=fitFrameOf(f),r=FITS[f.k]?.asset?(f.assetYaw||0)*Math.PI/180:0,dir=norm(surfaceAdd(mul(fr.fw,Math.cos(r)),fr.rt,Math.sin(r))),fixed=!!(d.fixed||d.casemate),origin=turretOrigin(f),muzzle=d.casemate?casemateMuzzle(f):surfaceAdd(origin,dir,d.fm*.5);return {pivot:sub(origin,offset),muzzle:sub(muzzle,offset),barrelLength:d.casemate?0:d.fm*.5,dir,fixed};}
+function surfaceProfilePatch(q,offset){
+ const triangles=Array.from(q.exposedTriangles??q.triangles,(v,i)=>v-offset[i%3]),local=p=>sub(p,offset);let lo=Infinity,hi=-Infinity;for(let i=0;i<triangles.length;i+=3){lo=Math.min(lo,triangles[i]);hi=Math.max(hi,triangles[i]);}
+ return {id:q.id,host:q.host,face:q.face,area:q.exposedArea??q.area,physicalArea:q.area,xRange:triangles.length?[lo,hi]:[0,0],center:local(q.center),normal:q.normal.slice(),polygon:q.polygon.map(local),triangles,functionMode:q.config.functionMode,allocation:{...q.config.allocation},armor:surfaceArmor(q.config),fitIds:q.fitIds.slice(),partIds:q.partIds.slice(),powerDomain:q.config.powerDomain,exposed:q.exposed};
+}
 function surfaceProfile(ship,S,p){
  if(ship&&!ship._surfaceWorking&&!ship._surfaceCompiling&&ship.surfaces?.version===SURFACE_VERSION)return surfaceProfile(surfaceWorkingShip(ship),S,p);
  if(!ship?.surfaces)return p;const report=S.surface||surfaceReport(ship),span=shipSpan(ship),offset=[(span[0]+span[1])/2,((S.ybox?.[0]||0)+(S.ybox?.[1]??ship.hull.H))/2,0],local=q=>sub(q,offset),shell=[];
- p.surface={version:SURFACE_VERSION,mode:ship.surfaces.mode,offset,patches:report.patches.map(q=>({id:q.id,host:q.host,face:q.face,area:q.area,center:local(q.center),normal:q.normal.slice(),polygon:q.polygon.map(local),triangles:q.triangles.map((v,i)=>v-offset[i%3]),functionMode:q.config.functionMode,allocation:{...q.config.allocation},armor:surfaceArmor(q.config),fitIds:q.fitIds.slice(),partIds:q.partIds.slice(),powerDomain:q.config.powerDomain,exposed:q.exposed})),devices:[],mounts:[]};
- for(const q of report.patches)if(q.exposed)for(let i=0;i<q.triangles.length;i+=3)shell.push(...local(q.triangles.slice(i,i+3)));p.surface.shell=shell;
+ p.surface={version:SURFACE_VERSION,mode:ship.surfaces.mode,offset,patches:report.patches.map(q=>surfaceProfilePatch(q,offset)),devices:[],mounts:[]};
+ for(const q of p.surface.patches)if(q.exposed)for(const v of q.triangles)shell.push(v);p.surface.shell=shell;
  for(const f of ship.fits){const d=fitSpec(f);if(FITS[f.k]?.cat!=='w'||f.float||!((d.tt||0)+(d.ion||0)+(d.aa||0)>0))continue;const mi=(p.modules||[]).findIndex(m=>m.fit===f.id),cr=needsCapacitor(f)?S.chargeInfo?.[f.id]?.ratio||0:1,capacity=needsCapacitor(f)?S.chargeInfo?.[f.id]?.storedTT||0:(d.tt||d.ion||d.aa||0),mount={id:f.id,module:mi,patch:f.surfacePatch||null,cell:f.surfaceCell||null,name:d.short||d.name,volleyTT:(d.tt||0)+(d.ion||0),boltTT:((d.tt||0)+(d.ion||0))/Math.max(1,d.barrels||1),...surfaceWeaponGeometry(f,offset),center:local(f.surfacePoint||f.p),normal:(f.n||AXES[f.a]||[0,1,0]).slice(),footprint:f.surfaceFootprint?.slice()||[d.fm,d.wm],arcs:Array.isArray(S.fitInfo?.[f.id])?S.fitInfo[f.id].slice():[0,0,0,0,0,0],gun:(d.tt||0)*cr/(d.cycle||K.cycle),ion:(d.ion||0)*cr/(d.cycle||K.cycle),capacity:Math.max(0,capacity),power:Math.max(0,d.power||0)*weaponInputFactor(p),barrels:Math.max(1,d.barrels||1),crewNeed:(d.crew||0)*WEAPON_CREW_K,crew:(d.crew||0)*WEAPON_CREW_K,cycle:d.cycle||K.cycle,band:fitBand(d)};p.surface.mounts.push(mount);if(f.surfacePatch){const port=surfaceBatteryGeometry(f);p.surface.devices.push({...mount,...(port?{center:local(port.mouth),wallPoint:local(port.wallPoint),wallOffset:port.armorOffset,footprint:[port.width,port.height],u:port.u.slice(),v:port.v.slice(),normal:port.normal.slice(),lip:port.lip}:{}),kind:'weapon',external:true});}}
  for(const q of ship.parts)if(q.surfacePatch&&!q.surfaceUnplaced){const mi=(p.modules||[]).findIndex(m=>m.part===q.id);if(q._surfaceAdapter){for(const r of q._surfaceAdapter.cells)if(r[3]===0)p.surface.devices.push({id:r[0],module:mi,patch:q.surfacePatch,cell:r[26],center:local(r.slice(14,17)),normal:r.slice(10,13),footprint:r.slice(17,19),kind:q.k,external:q.k!=='hdis'});}else p.surface.devices.push({id:q.id,module:mi,patch:q.surfacePatch,cell:q.surfaceCell,center:local(q.surfacePoint||q.c),normal:q.surfaceNormal?.slice()||[0,1,0],footprint:q.surfaceFootprint?.slice()||[q.d,q.d],kind:q.k,external:q.k!=='hdis'});}
  if(p.zT&&p.zA){
   const cuts=[0,...(p.sectionCuts||[.2,.4,.6,.8]),1],L=Math.max(1,span[1]-span[0]);p.zT=p.zT.map(t=>Math.max(0,t-(S.armorHull||0)));p.armorHull=0;
-  for(const q of p.surface.patches){if(!q.exposed)continue;const n=q.normal,axis=Math.abs(n[0])>=Math.abs(n[1])&&Math.abs(n[0])>=Math.abs(n[2])?0:Math.abs(n[1])>=Math.abs(n[2])?1:2,f=axis===0?n[0]>0?0:1:axis===1?n[1]>0?4:5:n[2]>0?2:3,min=Math.min(...q.polygon.map(v=>v[0]))+offset[0]-span[0],max=Math.max(...q.polygon.map(v=>v[0]))+offset[0]-span[0],t=q.armor.thickness*SURFACE_MATERIALS[q.armor.material].resistance;
+  for(const q of p.surface.patches){if(!q.exposed)continue;const n=q.normal,axis=Math.abs(n[0])>=Math.abs(n[1])&&Math.abs(n[0])>=Math.abs(n[2])?0:Math.abs(n[1])>=Math.abs(n[2])?1:2,f=axis===0?n[0]>0?0:1:axis===1?n[1]>0?4:5:n[2]>0?2:3,min=(q.xRange?.[0]??Math.min(...q.polygon.map(v=>v[0])))+offset[0]-span[0],max=(q.xRange?.[1]??Math.max(...q.polygon.map(v=>v[0])))+offset[0]-span[0],t=q.armor.thickness*SURFACE_MATERIALS[q.armor.material].resistance;
    for(let si=0;si<cuts.length-1;si++){const overlap=max-min>.001?Math.max(0,Math.min(max,cuts[si+1]*L)-Math.max(min,cuts[si]*L))/(max-min):min>=cuts[si]*L-.001&&min<=cuts[si+1]*L+.001?1:0,z=si*6+f,a=p.zA[z]||0;if(a>0&&overlap>0)p.zT[z]+=t*q.area*overlap/a;}
   }
  }
@@ -3233,7 +3439,7 @@ function surfacePatchAt(u,point){let best=null,distance=Infinity;for(const p of 
 function surfaceDomainAt(u,point){return surfacePatchAt(u,point)?.powerDomain||null;}
 function surfaceArmorCapacity(u,p){return p.armor.thickness*SURFACE_MATERIALS[p.armor.material].resistance*COMBAT.capK*Math.cbrt(Math.max(1e-3,u.p.hp*p.area/Math.max(1,u.p.surface.patches.reduce((n,q)=>n+q.area,0))));}
 function surfaceArmorStatus(u){const rows=[],faces=Array.from({length:6},()=>({area:0,weight:0,left:0,load:0,thickness:0}));let weight=0,left=0,load=0;for(const p of u.p?.surface?.patches||[]){if(!p.exposed)continue;const s=u.surfaceArmor?.[p.id]||{integrity:1,load:0},w=p.area*p.armor.thickness*SURFACE_MATERIALS[p.armor.material].resistance,n=p.normal,axis=Math.abs(n[0])>=Math.abs(n[1])&&Math.abs(n[0])>=Math.abs(n[2])?0:Math.abs(n[1])>=Math.abs(n[2])?1:2,f=axis===0?n[0]>0?0:1:axis===1?n[1]>0?4:5:n[2]>0?2:3;rows.push({id:p.id,area:p.area,thickness:p.armor.thickness,material:p.armor.material,integrity:s.integrity,load:s.load});weight+=w;left+=w*s.integrity;load+=s.load;faces[f].area+=p.area;faces[f].weight+=w;faces[f].left+=w*s.integrity;faces[f].load+=s.load;faces[f].thickness+=p.area*p.armor.thickness;}return {rows,integrity:weight>0?left/weight:0,load,faces:faces.map(f=>({...f,integrity:f.weight>0?f.left/f.weight:0,thickness:f.area>0?f.thickness/f.area:0}))};}
-function surfaceArmorSync(u){if(!u.p?.surface)return;const count=(u.sec?.length||HULL_SECTIONS)*6,weights=new Array(count).fill(0),left=new Array(count).fill(0),loads=new Array(count).fill(0),cuts=[0,...(u.p.sectionCuts||[.2,.4,.6,.8]),1],L=Math.max(1,u.p.len||1);for(const p of u.p.surface.patches){if(!p.exposed)continue;const s=u.surfaceArmor?.[p.id]||{integrity:1,load:0},n=p.normal,axis=Math.abs(n[0])>=Math.abs(n[1])&&Math.abs(n[0])>=Math.abs(n[2])?0:Math.abs(n[1])>=Math.abs(n[2])?1:2,f=axis===0?n[0]>0?0:1:axis===1?n[1]>0?4:5:n[2]>0?2:3,min=Math.min(...p.polygon.map(v=>v[0]))+L/2,max=Math.max(...p.polygon.map(v=>v[0]))+L/2;for(let si=0;si<cuts.length-1;si++){const fraction=max-min>.001?Math.max(0,Math.min(max,cuts[si+1]*L)-Math.max(min,cuts[si]*L))/(max-min):min>=cuts[si]*L-.001&&min<=cuts[si+1]*L+.001?1:0,z=si*6+f,w=p.area*p.armor.thickness*SURFACE_MATERIALS[p.armor.material].resistance*fraction;if(z>=count)continue;weights[z]+=w;left[z]+=w*s.integrity;loads[z]+=s.load*fraction;}}
+function surfaceArmorSync(u){if(!u.p?.surface)return;const count=(u.sec?.length||HULL_SECTIONS)*6,weights=new Array(count).fill(0),left=new Array(count).fill(0),loads=new Array(count).fill(0),cuts=[0,...(u.p.sectionCuts||[.2,.4,.6,.8]),1],L=Math.max(1,u.p.len||1);for(const p of u.p.surface.patches){if(!p.exposed)continue;const s=u.surfaceArmor?.[p.id]||{integrity:1,load:0},n=p.normal,axis=Math.abs(n[0])>=Math.abs(n[1])&&Math.abs(n[0])>=Math.abs(n[2])?0:Math.abs(n[1])>=Math.abs(n[2])?1:2,f=axis===0?n[0]>0?0:1:axis===1?n[1]>0?4:5:n[2]>0?2:3,min=(p.xRange?.[0]??Math.min(...p.polygon.map(v=>v[0])))+L/2,max=(p.xRange?.[1]??Math.max(...p.polygon.map(v=>v[0])))+L/2;for(let si=0;si<cuts.length-1;si++){const fraction=max-min>.001?Math.max(0,Math.min(max,cuts[si+1]*L)-Math.max(min,cuts[si]*L))/(max-min):min>=cuts[si]*L-.001&&min<=cuts[si+1]*L+.001?1:0,z=si*6+f,w=p.area*p.armor.thickness*SURFACE_MATERIALS[p.armor.material].resistance*fraction;if(z>=count)continue;weights[z]+=w;left[z]+=w*s.integrity;loads[z]+=s.load*fraction;}}
  u.zi=weights.map((w,i)=>w>0?left[i]/w:0);u.zl=loads;u.zq=new Array(count).fill(0);const status=surfaceArmorStatus(u),peak=u.p.surface.patches.reduce((peak,p)=>{const s=u.surfaceArmor?.[p.id];return s?Math.max(peak,s.load/Math.max(1e-9,surfaceArmorCapacity(u,p)*s.integrity)):peak;},0);u.armor=status.integrity;u.armorLoad=peak;u.hot=peak>.003;}
 function surfaceArmorTick(u,dt,time){if(!u.p?.surface||!(dt>0))return;for(const s of Object.values(u.surfaceArmor||{})){const now=Number.isFinite(time)?time:(s.at||0)+dt,elapsed=Number.isFinite(s.at)?Math.max(0,now-s.at):dt;s.load=Math.max(0,s.load||0)*Math.exp(-elapsed/COMBAT.tau);s.at=now;}surfaceArmorSync(u);}
 function surfaceHit(ctx,u,point,E,kind='shot'){
@@ -3246,10 +3452,24 @@ function surfaceHit(ctx,u,point,E,kind='shot'){
 function surfaceRemoveConfig(ship,ids){if(!Array.isArray(ids))ids=[ids];if(!ship.surfaces)return {ok:true,report:surfaceReport(ship)};ship.surfaces.patches=ship.surfaces.patches.filter(q=>!ids.includes(q.id));surfaceSync(ship);surfaceInvalidate(ship);return {ok:true,report:surfaceReport(ship)};}
 function surfaceReassign(ship,oldId,newId){const old=ship.surfaces?.patches.find(q=>q.id===oldId),p=surfacePatches(ship).find(q=>q.id===newId);if(!old||!p?.exposed)return {ok:false,why:'移設する外面を選んでください'};if(ship.surfaces.patches.some(q=>q.id===newId&&q.id!==oldId))return {ok:false,why:'移設先の面には既に設定があります'};old.id=newId;for(const q of [...ship.parts,...ship.fits])if(q.surfacePatch===oldId)q.surfacePatch=newId;surfaceSync(ship);surfaceInvalidate(ship);return {ok:true,report:surfaceReport(ship)};}
 function surfaceCarve(ship,id,depth){const p=surfacePatches(ship).find(q=>q.id===id);if(!p?.exposed)return {ok:false,why:'切削する外面を選んでください'};if((ship.solidCuts?.length||0)>=32)return {ok:false,why:'立体切削は32箇所までです'};depth=clamp(Number(depth)||0,.02,Math.max(.02,p.depth*.8));const w=p._max[0]-p._min[0],h=p._max[1]-p._min[1],center=surfaceAdd(p.center,p.normal,-depth/2+.01),verts=[];for(const a of [-.5,.5])for(const b of [-.5,.5])for(const c of [-.5,.5])verts.push(surfaceAdd(surfaceAdd(surfaceAdd(center,p.u,a*w*.9),p.v,b*h*.9),p.normal,c*(depth+.04)));const lo=[0,1,2].map(i=>Math.min(...verts.map(p=>p[i]))),hi=[0,1,2].map(i=>Math.max(...verts.map(p=>p[i]))),size=hi.map((v,i)=>Math.max(.02,v-lo[i])),mid=lo.map((v,i)=>(v+hi[i])/2),cut=normalizeSolidCut({id:nid(ship),shape:'poly',c:mid,s:[size[0],size[2],size[1]],verts:verts.map(p=>p.map((v,i)=>(v-mid[i])/size[i])),structures:p.host!=='hull',name:'表面トレンチ'});if(!ship.solidCuts)ship.solidCuts=[];ship.solidCuts.push(cut);surfaceInvalidate(ship);surfaceSync(ship);return {ok:true,cutId:cut.id,report:surfaceReport(ship)};}
-function surfaceStampPartition(ship){const patches=surfacePatches(ship),key=surfaceAggregateKey(ship);for(const q of ship.surfaces.patches){const p=patches.find(p=>p.id===q.id);if(p)q.boundArea=p.area;if(q.aggregate)q.aggregate.signature=key;}surfaceDataCache.delete(ship);surfaceWorkCache.delete(ship);}
-function surfacePartitionLedger(q,p,axis,fraction){const out=[JSON.parse(JSON.stringify(q.aggregate)),JSON.parse(JSON.stringify(q.aggregate))],origin=p._origin||p.center,basis=axis===1?p.v:p.u,cut=p._min[axis]+(p._max[axis]-p._min[axis])*fraction;for(const a of out){a.cells=[];a.guns=[];}for(const r of q.aggregate.cells)out[dot(sub(r.slice(14,17),origin),basis)<cut?0:1].cells.push(r.slice());for(const r of q.aggregate.guns)out[dot(sub(r.slice(9,12),origin),basis)<cut?0:1].guns.push(r.slice());for(let j=0;j<2;j++){const a=out[j],counts={};for(const r of a.cells){const prefix=q.functionMode==='legacy'?'e':SURFACE_ROLES[r[1]][0];r[26]=prefix+(counts[prefix]||0);counts[prefix]=(counts[prefix]||0)+1;}a.guns.forEach((r,i)=>r[20]=(q.functionMode==='legacy'?'b':'w')+i);for(const role of SURFACE_ROLES){const d=q.aggregate.demand?.[role];if(d){const count=Math.round(d.requested*fraction);a.demand[role]={requested:j?d.requested-count:count,budgetArea:d.budgetArea*(j?1-fraction:fraction)};}}a.signature='';}return out;}
-function surfaceSplit(ship,id,axis='u',at=.5){const p=surfacePatches(ship).find(q=>q.id===id);if(!p||!p.exposed)return {ok:false,why:'分割する外面を選んでください'};const enabled=enableSurfaceMode(ship,ship.surfaces?.mode!=='compat');if(!enabled.ok)return enabled;if(ship.surfaces.patches.length>=SURFACE_MAX)return {ok:false,why:'表面設定の上限です'};const r=p.range.slice(),i=axis==='v'?1:0,x=r[i]+(r[i+2]-r[i])*clamp(at,.05,.95),a=r.slice(),b=r.slice();a[i+2]=x;b[i]=x;const partition=ship.surfaces.partitions||(ship.surfaces.partitions=[]);let group=partition.find(q=>q.baseId===p.baseId);if(!group)partition.push(group={baseId:p.baseId,leaves:[]});group.leaves=group.leaves.filter(q=>q.id!==id);const q=surfaceConfig(ship,id),leaf=range=>({id:p.baseId+'/r'+range.map(n=>Math.round(n*1e6).toString(36)).join('.'),range}),children=[leaf(a),leaf(b)],first=Math.round(q.battery.count*clamp(at,.05,.95)),firstE=Math.round(q.equipment.count*clamp(at,.05,.95));group.leaves.push(...children);ship.surfaces.patches=ship.surfaces.patches.filter(q=>q.id!==id);const fraction=clamp(at,.05,.95),ledgers=q.aggregate?surfacePartitionLedger(q,p,i,fraction):null,ownedG=ledgers?ledgers[0].guns.length+ledgers[1].guns.length:0,ownedE=ledgers?ledgers[0].cells.length+ledgers[1].cells.length:0,remainingG=Math.max(0,q.battery.count-ownedG),equipmentCap=Math.max(ownedE,Math.min(q.equipment.limit??SURFACE_DEVICE_MAX,Math.max(0,SURFACE_DEVICE_MAX-q.battery.count))),remainingE=Math.max(0,equipmentCap-ownedE);for(let j=0;j<2;j++){const gunCount=ledgers?ledgers[j].guns.length+(j?remainingG-Math.round(remainingG*fraction):Math.round(remainingG*fraction)):j?q.battery.count-first:first,limit=ledgers?ledgers[j].cells.length+(j?remainingE-Math.round(remainingE*fraction):Math.round(remainingE*fraction)):q.equipment.limit;ship.surfaces.patches.push({...JSON.parse(JSON.stringify(q)),id:children[j].id,...(ledgers?{aggregate:ledgers[j]}:{}),battery:{...q.battery,count:gunCount},equipment:{...q.equipment,count:j?q.equipment.count-firstE:firstE,...(Number.isFinite(limit)?{limit}:{})}});}if(ledgers)surfaceStampPartition(ship);else surfaceSync(ship);surfaceInvalidate(ship);return {ok:true,ids:children.map(q=>q.id),report:surfaceReport(ship)};}
-function surfaceMerge(ship,ids){const patches=surfacePatches(ship),a=ids.map(id=>patches.find(q=>q.id===id));if(a.length<2||a.some(q=>!q||q.baseId!==a[0].baseId))return {ok:false,why:'同じ元の面にある隣接パッチを選んでください'};const r=[Math.min(...a.map(q=>q.range[0])),Math.min(...a.map(q=>q.range[1])),Math.max(...a.map(q=>q.range[2])),Math.max(...a.map(q=>q.range[3]))],sum=a.reduce((n,q)=>n+(q.range[2]-q.range[0])*(q.range[3]-q.range[1]),0);if(Math.abs(sum-(r[2]-r[0])*(r[3]-r[1]))>1e-5)return {ok:false,why:'長方形に連続したパッチだけ結合できます'};const configs=a.map(q=>surfaceConfig(ship,q.id)),q=configs[0];if(configs.some(c=>c.functionMode!==q.functionMode||JSON.stringify(c.allocation)!==JSON.stringify(q.allocation)||JSON.stringify(c.armor)!==JSON.stringify(q.armor)||c.battery.weapon!==q.battery.weapon||c.equipment.kind!==q.equipment.kind||c.equipment.depth!==q.equipment.depth||c.battery.spacing!==q.battery.spacing||c.battery.angle!==q.battery.angle||c.battery.reversed!==q.battery.reversed||c.powerDomain!==q.powerDomain))return {ok:false,why:'材質・兵装・設備が一致する面を選んでください'};const aggregates=configs.every(c=>c.aggregate)?configs.map(c=>c.aggregate):null;if(aggregates&&(aggregates.reduce((n,a)=>n+a.cells.length,0)>SURFACE_DEVICE_MAX||aggregates.reduce((n,a)=>n+a.guns.length,0)>SURFACE_DEVICE_MAX||configs.reduce((n,c)=>n+c.battery.count,0)>SURFACE_DEVICE_MAX))return {ok:false,why:'結合すると面の設備上限を超えます。設定を整理してから結合してください。'};const group=ship.surfaces.partitions.find(p=>p.baseId===a[0].baseId),id=a[0].baseId+'/r'+r.map(n=>Math.round(n*1e6).toString(36)).join('.');group.leaves=group.leaves.filter(q=>!ids.includes(q.id));group.leaves.push({id,range:r});ship.surfaces.patches=ship.surfaces.patches.filter(q=>!ids.includes(q.id));ship.surfaces.patches.push({...JSON.parse(JSON.stringify(q)),id,...(aggregates?{aggregate:{version:1,signature:'',cells:aggregates.flatMap(a=>a.cells),guns:aggregates.flatMap(a=>a.guns),errors:[...new Set(aggregates.flatMap(a=>a.errors||[]))],requested:configs.reduce((n,c)=>n+c.battery.count,0),requestedEquipment:aggregates.reduce((n,a)=>n+(a.requestedEquipment||0),0),demand:Object.fromEntries(SURFACE_ROLES.map(k=>[k,{requested:aggregates.reduce((n,a)=>n+(a.demand?.[k]?.requested||0),0),budgetArea:aggregates.reduce((n,a)=>n+(a.demand?.[k]?.budgetArea||0),0)}]))}}:{}),battery:{...q.battery,count:configs.reduce((n,q)=>n+q.battery.count,0)},equipment:{...q.equipment,count:configs.reduce((n,q)=>n+q.equipment.count,0),...(aggregates?{limit:Math.min(SURFACE_DEVICE_MAX,configs.reduce((n,c)=>n+(c.equipment.limit??SURFACE_DEVICE_MAX),0))}:{})}});if(aggregates){const merged=ship.surfaces.patches.find(q=>q.id===id),counts={};for(const r of merged.aggregate.cells){const prefix=merged.functionMode==='legacy'?'e':SURFACE_ROLES[r[1]][0];r[26]=prefix+(counts[prefix]||0);counts[prefix]=(counts[prefix]||0)+1;}merged.aggregate.guns.forEach((r,i)=>r[20]=(merged.functionMode==='legacy'?'b':'w')+i);surfaceStampPartition(ship);}else surfaceSync(ship);surfaceInvalidate(ship);return {ok:true,ids:[id],report:surfaceReport(ship)};}
+function surfaceStampPartition(ship){const patches=surfacePatches(ship),key=surfaceAggregateKey(ship);for(const q of ship.surfaces.patches){const p=patches.find(p=>p.id===q.id);if(p)q.boundArea=p.area;if(q.aggregate){q.aggregate.signature=key;if(q.aggregate.version===2)q.aggregate.manifestKey=surfaceAreaManifest(q.aggregate);}}surfaceDataCache.delete(ship);surfaceWorkCache.delete(ship);}
+function surfacePartitionLedger(ship,q,p,axis,fraction){
+ const out=[JSON.parse(JSON.stringify(q.aggregate)),JSON.parse(JSON.stringify(q.aggregate))],origin=p._origin||p.center,basis=axis===1?p.v:p.u,cut=p._min[axis]+(p._max[axis]-p._min[axis])*fraction,side=point=>dot(sub(point,origin),basis)<cut?0:1,area=q.aggregate.version===2;
+ for(const a of out){a.cells=[];a.guns=[];if(area)a.aliases=[];}
+ if(area)for(const a of surfaceAreaAliases(q.aggregate))out[side(a.slice(3,6))].aliases.push(a.slice());
+ for(const row of q.aggregate.cells){if(!area||row[30]!==1){out[side(row.slice(14,17))].cells.push(row.slice());continue;}
+  const center=dot(sub(row.slice(14,17),origin),basis),lo=center-row[7+axis]/2,hi=center+row[7+axis]/2;
+  for(let j=0;j<2;j++){const low=j?Math.max(lo,cut):lo,high=j?hi:Math.min(hi,cut);if(high<=low+1e-8)continue;const r=row.slice(),shift=mul(basis,(low+high)/2-center);r.splice(4,3,...add(r.slice(4,7),shift));r.splice(14,3,...add(r.slice(14,17),shift));r[7+axis]=high-low;surfaceAreaResource(r);out[j].cells.push(r);}
+ }
+ for(const r of q.aggregate.guns)out[side(r.slice(9,12))].guns.push(r.slice());
+ for(let j=0;j<2;j++){const a=out[j],counts={},owners=new Map();if(area)for(const r of a.cells)if(r[30]===1){const key=r[1]+':'+r[3];let id=owners.get(key);if(!id){id=a.aliases.find(x=>x[1]===r[1]&&x[2]===r[3])?.[0]||nid(ship);owners.set(key,id);if(!a.aliases.some(x=>x[0]===id))a.aliases.push([id,r[1],r[3],...r.slice(14,17)]);}r[0]=id;}
+  for(const r of a.cells){const prefix=q.functionMode==='legacy'?'e':SURFACE_ROLES[r[1]][0];r[26]=r[30]===1?'area:'+(counts.area||0):prefix+(counts[prefix]||0);counts[r[30]===1?'area':prefix]=(counts[r[30]===1?'area':prefix]||0)+1;}a.guns.forEach((r,i)=>r[20]=(q.functionMode==='legacy'?'b':'w')+i);
+  for(const role of SURFACE_ROLES){const d=q.aggregate.demand?.[role];if(d){const count=Math.round(d.requested*fraction);a.demand[role]={requested:j?d.requested-count:count,budgetArea:d.budgetArea*(j?1-fraction:fraction)};}}for(const key of ['requested','requestedEquipment']){const count=Math.round((q.aggregate[key]||0)*fraction);a[key]=j?(q.aggregate[key]||0)-count:count;}a.signature='';
+ }return out;
+}
+function surfaceSplit(ship,id,axis='u',at=.5){const p=surfacePatches(ship).find(q=>q.id===id);if(!p||!p.exposed)return {ok:false,why:'分割する外面を選んでください'};const enabled=enableSurfaceMode(ship,ship.surfaces?.mode!=='compat');if(!enabled.ok)return enabled;if(ship.surfaces.patches.length>=SURFACE_MAX)return {ok:false,why:'表面設定の上限です'};const r=p.range.slice(),i=axis==='v'?1:0,x=r[i]+(r[i+2]-r[i])*clamp(at,.05,.95),a=r.slice(),b=r.slice();a[i+2]=x;b[i]=x;const partition=ship.surfaces.partitions||(ship.surfaces.partitions=[]);let group=partition.find(q=>q.baseId===p.baseId);if(!group)partition.push(group={baseId:p.baseId,leaves:[]});group.leaves=group.leaves.filter(q=>q.id!==id);const q=surfaceConfig(ship,id),leaf=range=>({id:p.baseId+'/r'+range.map(n=>Math.round(n*1e6).toString(36)).join('.'),range}),children=[leaf(a),leaf(b)],first=Math.round(q.battery.count*clamp(at,.05,.95)),firstE=Math.round(q.equipment.count*clamp(at,.05,.95));group.leaves.push(...children);ship.surfaces.patches=ship.surfaces.patches.filter(q=>q.id!==id);const fraction=clamp(at,.05,.95),ledgers=q.aggregate?surfacePartitionLedger(ship,q,p,i,fraction):null,ownedG=ledgers?ledgers[0].guns.length+ledgers[1].guns.length:0,ownedE=ledgers?ledgers[0].cells.length+ledgers[1].cells.length:0,remainingG=Math.max(0,q.battery.count-ownedG),equipmentCap=Math.max(ownedE,Math.min(q.equipment.limit??SURFACE_DEVICE_MAX,Math.max(0,SURFACE_DEVICE_MAX-q.battery.count))),remainingE=Math.max(0,equipmentCap-ownedE);for(let j=0;j<2;j++){const gunCount=ledgers?ledgers[j].guns.length+(j?remainingG-Math.round(remainingG*fraction):Math.round(remainingG*fraction)):j?q.battery.count-first:first,limit=ledgers?ledgers[j].cells.length+(j?remainingE-Math.round(remainingE*fraction):Math.round(remainingE*fraction)):q.equipment.limit;ship.surfaces.patches.push({...JSON.parse(JSON.stringify(q)),id:children[j].id,...(ledgers?{aggregate:ledgers[j]}:{}),battery:{...q.battery,count:gunCount},equipment:{...q.equipment,count:j?q.equipment.count-firstE:firstE,...(Number.isFinite(limit)?{limit}:{})}});}if(ledgers)surfaceStampPartition(ship);else surfaceSync(ship);surfaceInvalidate(ship);return {ok:true,ids:children.map(q=>q.id),report:surfaceReport(ship)};}
+function surfaceMergeBands(aggregates){const totals=Object.fromEntries(Object.keys(SENSOR_BANDS).map(k=>[k,0]));let aperture=0;for(const a of aggregates){const amount=(a.cells||[]).filter(r=>r[1]===2&&!r[3]).reduce((n,r)=>n+r[24],0);aperture+=amount;const mix=surfaceAreaBands(a);for(const k in totals)totals[k]+=amount*(mix[k]||0);}if(aperture>0)for(const k in totals)totals[k]/=aperture;else totals.multi=1;return totals;}
+function surfaceMerge(ship,ids){const patches=surfacePatches(ship),a=ids.map(id=>patches.find(q=>q.id===id));if(a.length<2||a.some(q=>!q||q.baseId!==a[0].baseId))return {ok:false,why:'同じ元の面にある隣接パッチを選んでください'};const r=[Math.min(...a.map(q=>q.range[0])),Math.min(...a.map(q=>q.range[1])),Math.max(...a.map(q=>q.range[2])),Math.max(...a.map(q=>q.range[3]))],sum=a.reduce((n,q)=>n+(q.range[2]-q.range[0])*(q.range[3]-q.range[1]),0);if(Math.abs(sum-(r[2]-r[0])*(r[3]-r[1]))>1e-5)return {ok:false,why:'長方形に連続したパッチだけ結合できます'};const configs=a.map(q=>surfaceConfig(ship,q.id)),q=configs[0];if(configs.some(c=>c.functionMode!==q.functionMode||JSON.stringify(c.allocation)!==JSON.stringify(q.allocation)||JSON.stringify(c.armor)!==JSON.stringify(q.armor)||c.battery.weapon!==q.battery.weapon||c.equipment.kind!==q.equipment.kind||c.equipment.depth!==q.equipment.depth||c.equipment.capacityModel!==q.equipment.capacityModel||c.battery.spacing!==q.battery.spacing||c.battery.angle!==q.battery.angle||c.battery.reversed!==q.battery.reversed||c.powerDomain!==q.powerDomain))return {ok:false,why:'材質・兵装・設備が一致する面を選んでください'};const aggregates=configs.every(c=>c.aggregate)?configs.map(c=>c.aggregate):null;if(aggregates&&((surfaceIsArea(q)?aggregates.reduce((n,a)=>n+a.cells.filter(r=>r[30]===1).length,0)>SURFACE_AREA_REGIONS||aggregates.reduce((n,a)=>n+a.cells.filter(r=>r[30]!==1).length,0)>SURFACE_DEVICE_MAX:aggregates.reduce((n,a)=>n+a.cells.length,0)>SURFACE_DEVICE_MAX)||aggregates.reduce((n,a)=>n+a.guns.length,0)>SURFACE_DEVICE_MAX||configs.reduce((n,c)=>n+c.battery.count,0)>SURFACE_DEVICE_MAX))return {ok:false,why:'結合すると面の設備上限を超えます。設定を整理してから結合してください。'};const group=ship.surfaces.partitions.find(p=>p.baseId===a[0].baseId),id=a[0].baseId+'/r'+r.map(n=>Math.round(n*1e6).toString(36)).join('.');group.leaves=group.leaves.filter(q=>!ids.includes(q.id));group.leaves.push({id,range:r});ship.surfaces.patches=ship.surfaces.patches.filter(q=>!ids.includes(q.id));ship.surfaces.patches.push({...JSON.parse(JSON.stringify(q)),id,...(aggregates?{aggregate:{version:surfaceIsArea(q)?2:1,...(surfaceIsArea(q)?{capacityModel:SURFACE_AREA_MODEL,aliases:aggregates.flatMap(a=>a.aliases||[]),sensorMix:surfaceMergeBands(aggregates)}:{}),signature:'',cells:aggregates.flatMap(a=>a.cells),guns:aggregates.flatMap(a=>a.guns),errors:[...new Set(aggregates.flatMap(a=>a.errors||[]))],requested:configs.reduce((n,c)=>n+c.battery.count,0),requestedEquipment:aggregates.reduce((n,a)=>n+(a.requestedEquipment||0),0),demand:Object.fromEntries(SURFACE_ROLES.map(k=>[k,{requested:aggregates.reduce((n,a)=>n+(a.demand?.[k]?.requested||0),0),budgetArea:aggregates.reduce((n,a)=>n+(a.demand?.[k]?.budgetArea||0),0)}]))}}:{}),battery:{...q.battery,count:configs.reduce((n,q)=>n+q.battery.count,0)},equipment:{...q.equipment,count:configs.reduce((n,q)=>n+q.equipment.count,0),...(aggregates?{limit:Math.min(SURFACE_DEVICE_MAX,configs.reduce((n,c)=>n+(c.equipment.limit??SURFACE_DEVICE_MAX),0))}:{})}});if(aggregates){const merged=ship.surfaces.patches.find(q=>q.id===id),counts={};for(const r of merged.aggregate.cells){const prefix=merged.functionMode==='legacy'?'e':SURFACE_ROLES[r[1]][0];r[26]=prefix+(counts[prefix]||0);counts[prefix]=(counts[prefix]||0)+1;}merged.aggregate.guns.forEach((r,i)=>r[20]=(merged.functionMode==='legacy'?'b':'w')+i);surfaceStampPartition(ship);}else surfaceSync(ship);surfaceInvalidate(ship);return {ok:true,ids:[id],report:surfaceReport(ship)};}
 function computeStats(ship){if(!ship._surfaceWorking){surfaceSync(ship);const work=surfaceWorkingShip(ship);if(work!==ship)return computeStats(work);}return withFrozenStructures(()=>{
  surfaceSync(ship);
  clearDesignLoadouts(ship);syncCompartments(ship);ship._lockedCache=cache(ship);
@@ -3285,7 +3505,7 @@ function engineGlowRGB(v){if(engineGlowOK(v)){if(ENGINE_GLOWS[v])return ENGINE_G
 const GROUP_DEPTH=8,GROUP_MAX=400;
 function normalizeGroups(list,ship){
  if(!Array.isArray(list)||!ship)return {groups:[],nextId:ship?.nextId||1};
- const has={parts:new Set((ship.parts||[]).map(p=>p.id)),fits:new Set((ship.fits||[]).map(f=>f.id))};for(const q of ship.surfaces?.patches||[]){for(const r of q.aggregate?.cells||[])has.parts.add(r[0]);for(const r of q.aggregate?.guns||[])has.fits.add(r[0]);}const taken=new Set([...has.parts,...has.fits]);
+ const has={parts:new Set((ship.parts||[]).map(p=>p.id)),fits:new Set((ship.fits||[]).map(f=>f.id))};for(const q of ship.surfaces?.patches||[]){for(const r of [...(q.aggregate?.cells||[]),...(q.aggregate?.aliases||[])])has.parts.add(r[0]);for(const r of q.aggregate?.guns||[])has.fits.add(r[0]);}const taken=new Set([...has.parts,...has.fits]);
  for(const k of ['hatches','cuts','subs','trenches','solidCuts'])for(const q of ship[k]||[])if(q&&q.id!=null)taken.add(q.id);
  let next=Math.max(ship.nextId||1,1);const out=[],byOld=new Map();
  for(const g of list.slice(0,GROUP_MAX)){
@@ -3497,7 +3717,7 @@ function surfSamples(p,e=0){
 }
 function rayPart(o,d,p){if(p._surfaceAdapter)return surfaceAdapterRay(p,o,d);return p._packing?rayTris(p._packing.tris,o,d):p._clip?rayTris(p._clip.tris,o,d):unclippedRayPart(o,d,p);}
 // v21.1 Every weapon and fitting has its standard size: no scale, and a bridge pod its standard diameter and height.
-function standardFit(f){const d=FITS[f.k];if(!d)return f;delete f.scale;if(d.window){f.width=d.fm;f.height=d.wm;}return f;}
+function standardFit(f){const d=FITS[f.k];if(!d)return f;delete f.scale;if(d.window){f.width=d.fm;f.height=d.wm;}return normalizeFitMount(f);}
 function syncCompartments(ship){
  if(ship._client)return;
  for(const p of ship.parts)if(isSuperweapon(p))normalizeSuperweapon(p);
@@ -11489,14 +11709,14 @@ function surfaceMapSnapshot(snapshot,mapping,mirror=false,patches=null){
   partitions.push({baseId,leaves});remap.set(source.baseId,baseId);
  }
  if(partitions.length)out.partitions=partitions;
- for(const src of snapshot.patches.slice(0,4096)){const id=remap.get(src?.id)||(orphanBases.has(src?.id?.split('/')[0])?orphanId(src.id):surfaceRemapPatchId(src?.id,mapping,mirror,patches,frames));if(!id)continue;remap.set(src.id,id);const p=publicCopyOf(src);p.id=id;if(p.aggregate){const get=(kind,n)=>{const m=mapping?.[kind]||mapping;return m instanceof Map?m.get(n):m?.[n];};for(const r of p.aggregate.cells)r[0]=get('parts',r[0])??r[0];for(const r of p.aggregate.guns)r[0]=get('fits',r[0])??r[0];p.aggregate.signature='';}
+ for(const src of snapshot.patches.slice(0,4096)){const id=remap.get(src?.id)||(orphanBases.has(src?.id?.split('/')[0])?orphanId(src.id):surfaceRemapPatchId(src?.id,mapping,mirror,patches,frames));if(!id)continue;remap.set(src.id,id);const p=publicCopyOf(src);p.id=id;if(p.aggregate){const get=(kind,n)=>{const m=mapping?.[kind]||mapping;return m instanceof Map?m.get(n):m?.[n];};for(const r of [...p.aggregate.cells,...(p.aggregate.aliases||[])])r[0]=get('parts',r[0])??r[0];for(const r of p.aggregate.guns)r[0]=get('fits',r[0])??r[0];p.aggregate.signature='';}
   const frame=frames.find(f=>f.id===src.id.split('/')[0]),target=patches?.find(q=>q.baseId===id.split('/')[0]||q.id===id.split('/')[0]);if(p.aggregate&&frame?.center&&target){const center=target._origin||target.center;surfaceTransformAggregate(p.aggregate,q=>add(center,reflect(sub(q,frame.center))),reflect);}p.layout={u:(src.layout?.u===-1?-1:1)*(frame&&target&&dot(reflect(frame.u),target.u)<0?-1:1),v:(src.layout?.v===-1?-1:1)*(frame&&target&&dot(reflect(frame.v),target.v)<0?-1:1)};
   if(frame&&target&&p.battery){const sourceNormal=norm(cross(frame.u,frame.v)),forward=n=>fitFrameOf({k:p.battery.weapon,a:AXES.reduce((i,a,j)=>dot(a,n)>dot(AXES[i],n)?j:i,0),tilt:n}).fw;p.battery.reversed=(src.battery?.reversed===true)!==(dot(reflect(forward(sourceNormal)),forward(target.normal))<0);}
   if(!!(mirror===true||mirror==='z'||mirror?.z)!==!!(mirror==='y'||mirror?.y)){if(p.battery?.angle!=null)p.battery.angle=-p.battery.angle;}
   if(p.powerDomain&&surfaceMappedHost(p.powerDomain,mapping))p.powerDomain=surfaceMappedHost(p.powerDomain,mapping);
   out.patches.push(p);
  }
- out.frames=(snapshot.frames||[]).map(f=>{const id=surfaceRemapPatchId(f.id,mapping,mirror,patches,frames),target=patches?.find(p=>p.baseId===id||p.id===id);return {id,u:target?target.u.slice():reflect(f.u),v:target?target.v.slice():reflect(f.v)};}).filter(f=>f.id);Object.defineProperty(out,'_ids',{value:remap});
+ out.frames=(snapshot.frames||[]).map(f=>{const id=surfaceRemapPatchId(f.id,mapping,mirror,patches,frames),target=patches?.find(p=>p.baseId===id||p.id===id);return {id,u:target?target.u.slice():reflect(f.u),v:target?target.v.slice():reflect(f.v),...(target?{center:(target._origin||target.center).slice()}:f.center?{center:reflect(f.center)}:{})};}).filter(f=>f.id);Object.defineProperty(out,'_ids',{value:remap});
  if(orphaned.length)out.orphaned=orphaned.map(id=>remap.get(id)||orphanId(id)).filter(Boolean);
  return out.patches.length||partitions.length?out:null;
 }
@@ -11525,11 +11745,11 @@ function surfaceCopySelection(ship,ids){
  for(const p of ship.parts)if(owned(p))P.add(p.id);for(const f of ship.fits)if(owned(f))F.add(f.id);
  const errors=[],copy=q=>{const baked=isShapePart(q)?surfaceBakeCopyHost(ship,q):{part:publicCopyOf(q)},out=baked.part||publicCopyOf(q);if(baked.error)errors.push(baked.error);if(out.surfacePatch&&!owned(out)){delete out.surfacePatch;delete out.surfaceCell;delete out.surfaceUnplaced;}return out;};
  const parts=ship.parts.filter(p=>P.has(p.id)).map(copy),fits=[...ship.fits,...surfaceDerivedFits(ship)].filter(f=>F.has(f.id)&&(!f.surfacePatch||!owned(f))).map(copy),nodes=new Set([...P].map(id=>'p'+id).concat([...F].map(id=>'f'+id)));
- const surfaces=surfaceCaptureConfig(ship,{parts:[...P]});for(const q of surfaces?.patches||[]){for(const r of q.aggregate?.cells||[])nodes.add('p'+r[0]);for(const r of q.aggregate?.guns||[])nodes.add('f'+r[0]);}if(surfaces?.patches.length>SURFACE_MAX)errors.push('コピーする表面パッチが上限を超えます。選択する構造物を減らしてください。');
+ const surfaces=surfaceCaptureConfig(ship,{parts:[...P]});for(const q of surfaces?.patches||[]){for(const r of [...(q.aggregate?.cells||[]),...(q.aggregate?.aliases||[])])nodes.add('p'+r[0]);for(const r of q.aggregate?.guns||[])nodes.add('f'+r[0]);}if(surfaces?.patches.length>SURFACE_MAX)errors.push('コピーする表面パッチが上限を超えます。選択する構造物を減らしてください。');
  return {parts,fits,surfaces,netLinks:(normalizeLinks(ship.links)||[]).filter(l=>nodes.has(l.from)&&nodes.has(l.to)).map(publicCopyOf),...(errors.length?{error:errors[0]}:{})};
 }
 function surfacePasteConfig(ship,snapshot,mapping,mirror=false,netLinks=[]){
- const logicalMaps=mapping?.parts?mapping:{parts:mapping||new Map(),fits:new Map()},ensure=(kind,id)=>{const m=logicalMaps[kind]||(logicalMaps[kind]=new Map());if(m instanceof Map){if(!m.has(id))m.set(id,nid(ship));}else if(m[id]==null)m[id]=nid(ship);};for(const q of snapshot?.patches||[]){for(const r of q.aggregate?.cells||[])ensure('parts',r[0]);for(const r of q.aggregate?.guns||[])ensure('fits',r[0]);}mapping=logicalMaps; if(!snapshot?.patches?.length&&!snapshot?.partitions?.length&&!netLinks?.length)return [];
+ const logicalMaps=mapping?.parts?mapping:{parts:mapping||new Map(),fits:new Map()},ensure=(kind,id)=>{const m=logicalMaps[kind]||(logicalMaps[kind]=new Map());if(m instanceof Map){if(!m.has(id))m.set(id,nid(ship));}else if(m[id]==null)m[id]=nid(ship);};for(const q of snapshot?.patches||[]){for(const r of [...(q.aggregate?.cells||[]),...(q.aggregate?.aliases||[])])ensure('parts',r[0]);for(const r of q.aggregate?.guns||[])ensure('fits',r[0]);}mapping=logicalMaps; if(!snapshot?.patches?.length&&!snapshot?.partitions?.length&&!netLinks?.length)return [];
  const patches=typeof surfacePatches==='function'?surfacePatches(ship):[],mapped=surfaceMapSnapshot(snapshot,mapping,mirror,patches),records=mapped?.patches||[],remap=mapped?mapped._ids:new Map();
  if(records.length){if(!ship.surfaces)ship.surfaces={version:SURFACE_VERSION,mode:snapshot.mode==='strict'?'strict':'compat',compatAllowed:snapshot.compatAllowed!==false,patches:[]};if(!Array.isArray(ship.surfaces.patches))ship.surfaces.patches=[];
   const existing=new Set(ship.surfaces.patches.map(p=>p.id));
@@ -11584,7 +11804,7 @@ function assemblyCapture(ship,ids,meta={}){
  if(ids.parts.length>ASSEMBLY_LIMITS.parts||ids.fits.length>ASSEMBLY_LIMITS.fits)return {error:`ユーザー部品は区画・構造物 ${ASSEMBLY_LIMITS.parts}・装備 ${ASSEMBLY_LIMITS.fits} 個までです`};
  const b=assemblyBounds(ship,ids),origin=Object.hasOwn(ASSEMBLY_ORIGINS,meta.origin)?meta.origin:'center',o=assemblyOriginPoint(b,origin),{links,ports}=assemblyLinks(ship,ids);
  const P=new Set(ids.parts),F=new Set(ids.fits),local=new Map();let n=1;for(const id of ids.parts)local.set('p'+id,n++);for(const id of ids.fits)local.set('f'+id,n++);
- for(const q of selection.surfaces?.patches||[]){for(const r of q.aggregate?.cells||[])if(!local.has('p'+r[0]))local.set('p'+r[0],n++);for(const r of q.aggregate?.guns||[])if(!local.has('f'+r[0]))local.set('f'+r[0],n++);}const localMap={parts:new Map([...local].filter(([k])=>k[0]==='p').map(([k,v])=>[+k.slice(1),v])),fits:new Map([...local].filter(([k])=>k[0]==='f').map(([k,v])=>[+k.slice(1),v]))},surfaceData=surfaceMapSnapshot(selection.surfaces,localMap);
+ for(const q of selection.surfaces?.patches||[]){for(const r of [...(q.aggregate?.cells||[]),...(q.aggregate?.aliases||[])])if(!local.has('p'+r[0]))local.set('p'+r[0],n++);for(const r of q.aggregate?.guns||[])if(!local.has('f'+r[0]))local.set('f'+r[0],n++);}const localMap={parts:new Map([...local].filter(([k])=>k[0]==='p').map(([k,v])=>[+k.slice(1),v])),fits:new Map([...local].filter(([k])=>k[0]==='f').map(([k,v])=>[+k.slice(1),v]))},surfaceData=surfaceMapSnapshot(selection.surfaces,localMap);
  const parts=selection.parts.map(p=>{const q=publicCopyOf(p);q.id=local.get('p'+p.id);q.c=sub(p.c,o);if(q.surfacePatch)q.surfacePatch=surfaceRemapPatchId(q.surfacePatch,localMap,false);if(q.wing?.pivot)q.wing.pivot=sub(q.wing.pivot,o);remapWingMembers(q.wing,id=>local.get('p'+id),id=>local.get('f'+id));for(const k of ['tw','vt','reactor']){if(q[k]==null)continue;if(P.has(q[k]))q[k]=local.get('p'+q[k]);else delete q[k];}return q;});
  const fits=selection.fits.map(f=>{const q=publicCopyOf(f);q.id=local.get('f'+f.id);q.p=sub(f.p,o);if(q.surfacePatch)q.surfacePatch=surfaceRemapPatchId(q.surfacePatch,localMap,false);for(const k of ['tw','vt']){if(q[k]==null)continue;if(F.has(q[k]))q[k]=local.get('f'+q[k]);else delete q[k];}if(q.host!=null){if(P.has(q.host))q.host=local.get('p'+q.host);else{delete q.host;delete q.local;delete q.localNormal;}}delete q.float;return q;});
  for(const [copies,originals]of [[parts,selection.parts],[fits,selection.fits]])copies.forEach((q,i)=>{if(originals[i].surfacePatch&&surfaceData?._ids.has(originals[i].surfacePatch))q.surfacePatch=surfaceData._ids.get(originals[i].surfacePatch);if(Array.isArray(q.surfacePoint))q.surfacePoint=sub(q.surfacePoint,o);if(q.powerDomain&&surfaceMappedHost(q.powerDomain,localMap))q.powerDomain=surfaceMappedHost(q.powerDomain,localMap);});
@@ -11614,7 +11834,7 @@ function normalizeAssemblyTemplate(o){
   size:Array.isArray(o.size)&&o.size.length===3&&o.size.every(Number.isFinite)?o.size.map(v=>clamp(v,0,DESIGN_LIMITS.coordinate)):[0,0,0],parts:s.parts.map(publicCopyOf),fits:s.fits.map(f=>{const q=publicCopyOf(f);if(q.host!=null&&!s.parts.some(p=>p.id===q.host)){delete q.host;delete q.local;delete q.localNormal;}delete q.float;return q;}),groups:(s.groups||[]).map(publicCopyOf),
   links:(Array.isArray(o.links)?o.links:[]).filter(l=>l&&['power','structural','symmetry'].includes(l.kind)&&Number.isInteger(l.from)&&Number.isInteger(l.to)).slice(0,400).map(l=>({kind:l.kind,from:l.from,to:l.to})),
   ports:(Array.isArray(o.ports)?o.ports:[]).filter(p=>p&&['power','mount'].includes(p.kind)&&Number.isInteger(p.child)).slice(0,200).map(p=>({kind:p.kind,need:['reactor','consumer','host'].includes(p.need)?p.need:'reactor',child:p.child,label:str(p.label,60,'')})),createdAt:Number.isFinite(o.createdAt)?o.createdAt:Date.now()};
- const nodes=new Set(t.parts.map(p=>'p'+p.id).concat(t.fits.map(f=>'f'+f.id)));for(const q of s.surfaces?.patches||[]){for(const r of q.aggregate?.cells||[])nodes.add('p'+r[0]);for(const r of q.aggregate?.guns||[])nodes.add('f'+r[0]);}
+ const nodes=new Set(t.parts.map(p=>'p'+p.id).concat(t.fits.map(f=>'f'+f.id)));for(const q of s.surfaces?.patches||[]){for(const r of [...(q.aggregate?.cells||[]),...(q.aggregate?.aliases||[])])nodes.add('p'+r[0]);for(const r of q.aggregate?.guns||[])nodes.add('f'+r[0]);}
  t.netLinks=(normalizeLinks(o.netLinks)||[]).filter(l=>nodes.has(l.from)&&nodes.has(l.to));t.networkPorts=surfaceNetworkPorts(o.networkPorts).filter(p=>nodes.has(p.node));
  if(s.surfaces){t.surfaces=publicCopyOf(s.surfaces);const frames=(Array.isArray(o.surfaces?.frames)?o.surfaces.frames:[]).filter(f=>typeof f?.id==='string'&&[f.u,f.v].every(v=>Array.isArray(v)&&v.length===3&&v.every(Number.isFinite))).slice(0,512).map(f=>({id:f.id,u:norm(f.u),v:norm(f.v),...(Array.isArray(f.center)&&f.center.length===3&&f.center.every(Number.isFinite)?{center:f.center.slice()}: {})}));if(frames.length)t.surfaces.frames=frames;const orphaned=(Array.isArray(o.surfaces?.orphaned)?o.surfaces.orphaned:[]).filter(id=>s.surfaces.patches.some(p=>p.id===id));if(orphaned.length)t.surfaces.orphaned=orphaned;}
  if(typeof o.preview==='string'&&o.preview.length<60000&&/^<svg[^>]*>(<rect [^<>]*\/>)*<\/svg>$/.test(o.preview))t.preview=o.preview;else t.preview=assemblyPreview(t.parts,t.fits);
@@ -12540,7 +12760,7 @@ return {surfaceRenderClone,surfaceWorkingShip,surfaceDerivedFits,surfaceRenderFa
   fleetTargetCandidates, emptyDesignProfile,
   TT, G0, ISD_W, K, PARTS, FITS, HULLS, SECTIONS, KEELS, SECTORS, CLASSES, DESIGNS, AXES, AXNAME, ARMOR_MAX,
   newShip, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
-  rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
+  rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitHasPedestal, normalizeFitMount, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
   hatchGrid, hatchFrame, fillHangars, keelAt, computeStats, normalizeGroups, GROUP_DEPTH, serialize, deserialize, buildDesign, profile, simulate,
   clamp, lerp, add, sub, mul, dot, cross, norm, len, mirrorP};
 })();

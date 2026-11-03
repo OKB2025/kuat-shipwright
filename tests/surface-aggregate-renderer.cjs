@@ -13,8 +13,8 @@ function sameHue(color,paint){const channel=paint.indexOf(Math.max(...paint)),sc
 
 test('machinery coating and opened structure inherit red or blue parent paint with small brightness variation',()=>{
  for(const paint of ['#a84431','#3862a7']){const {ship,body,patch}=fixture(paint),row=G.surfaceVisualPlan(ship).find(p=>p.id===patch.id),base=rgb(paint);assert.deepEqual(plain(row.paint),base);assert.ok(row.field.length>20);
-  const bodies=row.field.filter(q=>q.feature==='service-housing');for(const q of [...row.field,...row.boxes,...row.devices.flatMap(d=>d.hardware||[])])if(!q.port)sameHue(q.color,base);
-  for(const q of bodies){const ratio=q.color[0]/base[0];assert.ok(ratio>.78&&ratio<1.05,'machinery retains a detached dark gray palette');}
+  const bodies=row.field.filter(q=>['stratum-machinery','stratum-core'].includes(q.feature));for(const q of [...row.field,...row.boxes,...row.devices.flatMap(d=>d.hardware||[])])if(!q.port)sameHue(q.color,base);
+  assert.ok(bodies.length>12);for(const q of bodies){const ratio=q.color[0]/base[0];assert.ok(ratio>.78&&ratio<1.05,'machinery retains a detached dark gray palette');}
   const mesh=G.meshSurfaceLayers(ship,{});for(let i=0;i<mesh.surfaceArmor.n;i++)sameHue(Array.from(mesh.surfaceArmor.col.slice(i*4,i*4+3)),base);
   assert.equal(body.paint,paint);
  }

@@ -30,7 +30,7 @@ function linesOut(l, transfer) { if (!l) return null; const o = {pos: l.pos.slic
 // reservations already travel in their own source/cache payloads.
 function surfaceReportOut(report){
  if(!report)return null;
- return {...report,patches:(report.patches||[]).map(p=>{const {triangles,polygon,cells,...row}=p;if(row.config){const {aggregate,...config}=row.config;row.config=config;}return row;})};
+ return {...report,patches:(report.patches||[]).map(p=>{const {triangles,exposedTriangles,polygon,cells,...row}=p;if(row.config){const {aggregate,...config}=row.config;row.config=config;}return row;})};
 }
 const overlapSig = (info) => info ? Object.keys(info).filter(k => info[k] && info[k].overlap).sort().join(',') : '';
 
@@ -42,7 +42,7 @@ function packCaches(s) {
   for (const l of ['parts', 'fits', 'hatches']) for (const it of s[l]) refs.set(it, {$r: l, id: it.id});
   const memo = new Map();
   const conv = (v, key) => {
-    if (key === 'geoFlat') return undefined;
+    if (key === 'geoFlat' || key === 'exposedTriangles') return undefined;
     if (v === null || typeof v !== 'object') return typeof v === 'function' ? undefined : v;
     // Native compartment caches can refer back to the common simulation view.
     // On the editor side that reference must resolve to the source design.

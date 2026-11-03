@@ -1,0 +1,391 @@
+{
+  "schema": 1,
+  "result": "PASS",
+  "assertions": 109,
+  "groupedChecks": 12,
+  "checks": [
+    "exact adjacent and embedded geometry yields only exterior faces and correct visible area",
+    "hidden authored armor remains physically counted without being selectable",
+    "real Select All selects the eleven exterior patches only and creates no history",
+    "real X-ray and camera changes do not expose buried faces or alter mass/data",
+    "actual overwrite-auto controls still target seven exposed vertical faces only",
+    "real Select Auto matches exterior candidate IDs",
+    "real worker auto registers only exposed faces and retains native objects/hidden armor",
+    "partial face list, selected UI report and functional budgets use4800m² instead of full6400",
+    "real mutation/worker refresh exposes the former contact face and updates list/count/area",
+    "Select All refreshes to the twelve exterior faces after movement",
+    "burying a selected face prunes UI selection while restoring counts and retaining data",
+    "application/GL results and all final source hashes are clean"
+  ],
+  "scope": "Focused actual application/real YardEngine worker check of exterior-face counts, partial exposed area, UI list/selection/automatic targets, camera/x-ray independence, and obstruction movement through the existing app mutate→worker path. No pointer-drag, combat, hardware GPU or performance claim.",
+  "sourceSha256": {
+    "js/core.js": "af0e2b9ddc2abbfaa81753896c3b44fe34d0abfd8641e29a054651c7db7100ed",
+    "js/app.js": "ca9af47c12c706f65619761658b021bdc60deea70a519b81a2b47805258f2e8b",
+    "js/gfx.js": "317312026d2b0ec6b22b315d7cb254fc8e851f7e6cedf2464a363d4e18ca87e1",
+    "js/engine.js": "67c9bac3755f500e952b1095eedba89fb294f10f453b4cf801da74ca1ffa1d08",
+    "js/lang-en.js": "c092a7129c48bf09f915e3e93b2d565dac308fabd5b8e8cfa18c96cd8a64d25b",
+    "index.html": "38ddc127ce5dd96fe29f5dc274094fd38e167e1e3bee26a0a00931fefd93bd32"
+  },
+  "sourceAfterSha256": {
+    "js/core.js": "af0e2b9ddc2abbfaa81753896c3b44fe34d0abfd8641e29a054651c7db7100ed",
+    "js/app.js": "ca9af47c12c706f65619761658b021bdc60deea70a519b81a2b47805258f2e8b",
+    "js/gfx.js": "317312026d2b0ec6b22b315d7cb254fc8e851f7e6cedf2464a363d4e18ca87e1",
+    "js/engine.js": "67c9bac3755f500e952b1095eedba89fb294f10f453b4cf801da74ca1ffa1d08",
+    "js/lang-en.js": "c092a7129c48bf09f915e3e93b2d565dac308fabd5b8e8cfa18c96cd8a64d25b",
+    "index.html": "38ddc127ce5dd96fe29f5dc274094fd38e167e1e3bee26a0a00931fefd93bd32"
+  },
+  "allSourceHashesStable": true,
+  "browserClosed": true,
+  "started": "2026-11-03T10:54:46.940Z",
+  "finished": "2026-11-03T11:01:02.812Z",
+  "fixture": {
+    "hull": [
+      240,
+      160,
+      120
+    ],
+    "assembly": true,
+    "A": {
+      "center": [
+        80,
+        50,
+        0
+      ],
+      "size": [
+        100,
+        80,
+        80
+      ]
+    },
+    "B": {
+      "center": [
+        155,
+        50,
+        0
+      ],
+      "size": [
+        50,
+        40,
+        40
+      ]
+    },
+    "inner": {
+      "center": [
+        80,
+        50,
+        0
+      ],
+      "size": [
+        20,
+        20,
+        20
+      ],
+      "armor": 0.25
+    },
+    "expected": {
+      "initialExteriorFaces": 11,
+      "initialAutoTargets": 7,
+      "partialFullArea": 6400,
+      "partialExposedArea": 4800,
+      "initialTotalExposedArea": 52800,
+      "movedExteriorFaces": 12,
+      "movedAutoTargets": 8,
+      "movedTotalExposedArea": 56000
+    },
+    "nativeObjects": "Three structural boxes, one internal generator and one manually placed PD gun. Inner armor is authored while outside, then retained after embedding.",
+    "serializedSha256": "9c3bd4a8196e417ebfb46ea3b3568fdbb600438e116dfea957d032b997c30af8"
+  },
+  "initialVisibleIds": [
+    "p1:port:0:cctl1g",
+    "p1:fore:0:cctl1g",
+    "p1:stbd:0:cctl1g",
+    "p1:aft:0:cctl1g",
+    "p1:bottom:0:cctl1g",
+    "p1:top:0:cctl1g",
+    "p2:port:0:cctl1g",
+    "p2:fore:0:cctl1g",
+    "p2:stbd:0:cctl1g",
+    "p2:bottom:0:cctl1g",
+    "p2:top:0:cctl1g"
+  ],
+  "states": {
+    "initial": {
+      "view": "normal",
+      "workerGeneration": {
+        "gen": 1,
+        "stats": 1,
+        "geometry": 1
+      },
+      "uiExteriorCount": 11,
+      "listCount": 11,
+      "autoCount": 7,
+      "selectedCount": 0,
+      "selectedIds": [],
+      "physicalFaces": 18,
+      "hiddenFaces": 7,
+      "exteriorArea": 52800,
+      "physicalArea": 58400,
+      "nativeParts": 4,
+      "nativeFits": 1,
+      "nativeSourceSha256": "0bb53080862b51566feec32e37ac909b1b660b980e5f7036a1434d00b8ac8b3a",
+      "vesselMass": 291718.75696832984,
+      "armorMass": 4680,
+      "undoEntries": 0
+    },
+    "selectAll": {
+      "view": "normal",
+      "workerGeneration": {
+        "gen": 1,
+        "stats": 1,
+        "geometry": 1
+      },
+      "uiExteriorCount": 11,
+      "listCount": 11,
+      "autoCount": 7,
+      "selectedCount": 11,
+      "selectedIds": null,
+      "physicalFaces": 18,
+      "hiddenFaces": 7,
+      "exteriorArea": 52800,
+      "physicalArea": 58400,
+      "nativeParts": 4,
+      "nativeFits": 1,
+      "nativeSourceSha256": "0bb53080862b51566feec32e37ac909b1b660b980e5f7036a1434d00b8ac8b3a",
+      "vesselMass": 291718.75696832984,
+      "armorMass": 4680,
+      "undoEntries": 0
+    },
+    "xray": {
+      "view": "xray",
+      "workerGeneration": {
+        "gen": 1,
+        "stats": 1,
+        "geometry": 1
+      },
+      "uiExteriorCount": 11,
+      "listCount": 11,
+      "autoCount": 7,
+      "selectedCount": 11,
+      "selectedIds": null,
+      "physicalFaces": 18,
+      "hiddenFaces": 7,
+      "exteriorArea": 52800,
+      "physicalArea": 58400,
+      "nativeParts": 4,
+      "nativeFits": 1,
+      "nativeSourceSha256": "0bb53080862b51566feec32e37ac909b1b660b980e5f7036a1434d00b8ac8b3a",
+      "vesselMass": 291718.75696832984,
+      "armorMass": 4680,
+      "undoEntries": 0
+    },
+    "generated": {
+      "view": "normal",
+      "workerGeneration": {
+        "gen": 2,
+        "stats": 2,
+        "geometry": 2
+      },
+      "uiExteriorCount": 11,
+      "listCount": 11,
+      "autoCount": 7,
+      "selectedCount": 7,
+      "selectedIds": null,
+      "physicalFaces": 18,
+      "hiddenFaces": 7,
+      "exteriorArea": 52800,
+      "physicalArea": 58400,
+      "nativeParts": 4,
+      "nativeFits": 1,
+      "nativeSourceSha256": "0bb53080862b51566feec32e37ac909b1b660b980e5f7036a1434d00b8ac8b3a",
+      "vesselMass": 299916.49696832895,
+      "armorMass": 4680,
+      "undoEntries": 1
+    },
+    "partial": {
+      "view": "normal",
+      "workerGeneration": {
+        "gen": 2,
+        "stats": 2,
+        "geometry": 2
+      },
+      "uiExteriorCount": 11,
+      "listCount": 11,
+      "autoCount": 7,
+      "selectedCount": 1,
+      "selectedIds": [
+        "p1:fore:0:cctl1g"
+      ],
+      "physicalFaces": 18,
+      "hiddenFaces": 7,
+      "exteriorArea": 52800,
+      "physicalArea": 58400,
+      "nativeParts": 4,
+      "nativeFits": 1,
+      "nativeSourceSha256": "0bb53080862b51566feec32e37ac909b1b660b980e5f7036a1434d00b8ac8b3a",
+      "vesselMass": 299916.49696832895,
+      "armorMass": 4680,
+      "undoEntries": 1
+    },
+    "moved": {
+      "view": "normal",
+      "workerGeneration": {
+        "gen": 3,
+        "stats": 3,
+        "geometry": 3
+      },
+      "uiExteriorCount": 12,
+      "listCount": 12,
+      "autoCount": 8,
+      "selectedCount": 1,
+      "selectedIds": [
+        "p1:fore:0:cctl1g"
+      ],
+      "physicalFaces": 18,
+      "hiddenFaces": 6,
+      "exteriorArea": 56000,
+      "physicalArea": 58400,
+      "nativeParts": 4,
+      "nativeFits": 1,
+      "nativeSourceSha256": "f62c6fdb6e29a128b0fbbe238069e2fadf72c46db41be38c54d1f78c5c5f4b31",
+      "vesselMass": 300321.8303016623,
+      "armorMass": 4680,
+      "undoEntries": 2
+    },
+    "restored": {
+      "view": "normal",
+      "workerGeneration": {
+        "gen": 4,
+        "stats": 4,
+        "geometry": 4
+      },
+      "uiExteriorCount": 11,
+      "listCount": 11,
+      "autoCount": 7,
+      "selectedCount": 0,
+      "selectedIds": [],
+      "physicalFaces": 18,
+      "hiddenFaces": 7,
+      "exteriorArea": 52800,
+      "physicalArea": 58400,
+      "nativeParts": 4,
+      "nativeFits": 1,
+      "nativeSourceSha256": "0bb53080862b51566feec32e37ac909b1b660b980e5f7036a1434d00b8ac8b3a",
+      "vesselMass": 299916.49696832895,
+      "armorMass": 4680,
+      "undoEntries": 3
+    }
+  },
+  "partialFace": {
+    "id": "p1:fore:0:cctl1g",
+    "physicalArea": 6400,
+    "exposedArea": 4800,
+    "exposedTriangleArea": 4800,
+    "renderableTriangles": 10,
+    "uiListArea": 4800,
+    "uiSelectedReportArea": 4800,
+    "categoryBudgetArea": 4800.0,
+    "occupiedArea": 4720,
+    "functionalVolume": 4720
+  },
+  "retention": {
+    "sourcePartIds": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "sourceFitIds": [
+      900
+    ],
+    "sourcePartVolumes": [
+      {
+        "id": 1,
+        "k": "struct",
+        "volume": 639999.9999999999
+      },
+      {
+        "id": 2,
+        "k": "struct",
+        "volume": 79999.99999999999
+      },
+      {
+        "id": 3,
+        "k": "struct",
+        "volume": 7999.999999999997
+      },
+      {
+        "id": 4,
+        "k": "gen",
+        "volume": 268.082573106329
+      }
+    ],
+    "hiddenArmorConfigurations": [
+      {
+        "id": "p3:port:0:cctl1g",
+        "functionMode": "armor",
+        "armor": {
+          "material": "standard",
+          "thickness": 0.25
+        }
+      },
+      {
+        "id": "p3:fore:0:cctl1g",
+        "functionMode": "armor",
+        "armor": {
+          "material": "standard",
+          "thickness": 0.25
+        }
+      },
+      {
+        "id": "p3:stbd:0:cctl1g",
+        "functionMode": "armor",
+        "armor": {
+          "material": "standard",
+          "thickness": 0.25
+        }
+      },
+      {
+        "id": "p3:aft:0:cctl1g",
+        "functionMode": "armor",
+        "armor": {
+          "material": "standard",
+          "thickness": 0.25
+        }
+      },
+      {
+        "id": "p3:bottom:0:cctl1g",
+        "functionMode": "armor",
+        "armor": {
+          "material": "standard",
+          "thickness": 0.25
+        }
+      },
+      {
+        "id": "p3:top:0:cctl1g",
+        "functionMode": "armor",
+        "armor": {
+          "material": "standard",
+          "thickness": 0.25
+        }
+      }
+    ],
+    "hiddenArmorPhysicalArea": 2400,
+    "hiddenArmorThickness": 0.25,
+    "standardArmorDensity": 7.8,
+    "expectedAndObservedArmorMass": 4680,
+    "nativeVolumeDensityAuditInvariant": true,
+    "nativeVolumeDensityAuditFormula": "sum(partVolume*PARTS.dens)+sum(fitSpec.mass); vessel mass is reported separately from S.mass.",
+    "interpretation": "Camera/x-ray/selection leave vessel mass and source objects unchanged. Obstruction movement retains all native objects, their volumes and existing hidden armor. Effective equipment area changes can change the vessel total."
+  },
+  "screenshot": {
+    "path": "docs/images/surface-exposure-partial.png",
+    "sha256": "3ff2eb7ade7456790dcf2c6b61149bcbef8e385cacf137c1a4e34118b55493bf",
+    "scope": "Normal runtime view after real worker auto-generation with partial face selected; no shader/material overrides."
+  },
+  "errors": [],
+  "consoleErrors": [],
+  "limits": [
+    "Movement uses the existing app mutate/history/worker path; pointer dragging was not tested.",
+    "Only this focused adjacent/embedded assembly is the browser fixture; there is no whole-fleet, combat/flight, physical-phone, hardware-GPU or performance claim."
+  ]
+}

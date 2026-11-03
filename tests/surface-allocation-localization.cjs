@@ -20,7 +20,7 @@ test('the real armor editor translates the exclusive function choices and physic
  run('fixture()');const before=run('JSON.stringify(C.serialize(ship))'),html=run('surfaceEditorHTML()');translatedHTML(html);
  assert.match(html,/data-surface-field="functionMode"/);assert.match(html,/value="armor"/);assert.match(html,/value="equipment"/);
  assert.match(html,/data-surface-field="armor\.thickness"/);assert.doesNotMatch(html,/data-surface-field="allocation\.|data-surface-field="equipment\.count"|data-surface-field="battery\.count"/);
- assert.equal(translated('装甲面'),'Armor Surface');assert.equal(translated('機材搭載面'),'Equipment Surface');assert.equal(run('JSON.stringify(C.serialize(ship))'),before,'English rendering must preserve the blueprint');
+ assert.equal(translated('装甲面'),'Armor Surface');assert.equal(translated('機材構造面'),'Machinery Structure Surface');assert.equal(run('JSON.stringify(C.serialize(ship))'),before,'English rendering must preserve the blueprint');
 });
 
 test('the real equipment editor translates three linked shares, separate gun counts and whole-face resource reports',()=>{
@@ -47,21 +47,21 @@ test('mixed equipment shares and mixed face functions keep their distinct Englis
  run("C.setSurfaceConfig(ship,st.surfaceIds[1],{functionMode:'armor'})");const different=run('surfaceEditorHTML()');translatedHTML(different);assert.match(different,/選択した面の用途が異なります/);assert.doesNotMatch(different,/data-surface-allocation-row=/);
 });
 
-test('legacy migration and actual placement-limit warnings remain explicit in the English editor',()=>{
+test('legacy migration and usable-area capacity diagnostics remain explicit in the English editor',()=>{
  run(`fixture('legacy');C.setSurfaceConfig(ship,st.surfaceIds[0],{battery:{weapon:'claser',count:2,spacing:1},equipment:{kind:'hdis',count:1,depth:2}})`);
  const before=run('JSON.stringify(C.serialize(ship))'),legacy=run('surfaceEditorHTML()');translatedHTML(legacy);
  for(const action of ['convert-armor','convert-equipment'])assert.match(legacy,new RegExp('data-surface-action="'+action+'"'));
  assert.match(legacy,/data-surface-legacy-warning/);assert.match(legacy,/data-surface-legacy/);assert.match(legacy,/data-surface-field="battery\.count"/);assert.equal(run('JSON.stringify(C.serialize(ship))'),before);
  run(`fixture('equipment');ship.parts[0].s=[500,500,100];const p=C.surfacePatches(ship).find(p=>p.host==='p1'&&p.face==='port');C.setSurfaceConfig(ship,p.id,{functionMode:'equipment',allocation:{cooling:100,sensors:0,habitation:0},equipment:{kind:'hdis',depth:2}});st.surfaceIds=[p.id]`);
- const warnings=run('C.surfaceReport(ship).warnings');assert.ok(warnings.some(w=>w.text==='1面の装置数上限により割当の一部が未配置です'));
+ const area=run('C.surfaceReport(ship).patches.find(p=>p.id===st.surfaceIds[0])'),warnings=run('C.surfaceReport(ship).warnings');assert.equal(area.config.equipment.capacityModel,'area-v1');assert.ok(area.volume>256*64*2,'a new area-based face must not stop at the former256device limit');assert.ok(warnings.some(w=>w.text==='兵装・既存機材・他の面の占有範囲を保守的に予約しています'));assert.ok(!warnings.some(w=>w.text==='1面の装置数上限により割当の一部が未配置です'));
  for(const warning of warnings)translated(warning.text);translatedHTML(run('surfaceEditorHTML()'));
 });
 
 test('real native and cross-face volume conflicts and curved-envelope fit diagnostics translate in the editor',()=>{
- run(`fixture('equipment',{cooling:100,sensors:0,habitation:0});const nativeConflictFace=C.surfacePatches(ship).find(p=>p.id===st.surfaceIds[0]),nativeConflictCell=C.surfaceConfig(ship,nativeConflictFace.id).aggregate.cells.find(r=>!r[3]);ship.parts.push({id:ship.nextId++,k:'command',d:2,room:[2,2,2],c:C.add(nativeConflictCell.slice(4,7),C.mul(nativeConflictFace.u,4.5))});C.surfaceSync(ship)`);
- const native=run('C.surfaceReport(ship).warnings');assert.ok(native.some(w=>w.text==='既存設備と内部容積が干渉しています'));for(const warning of native)translated(warning.text);translatedHTML(run('surfaceEditorHTML()'));
+ run(`fixture('equipment',{cooling:100,sensors:0,habitation:0});const nativeConflictFace=C.surfacePatches(ship).find(p=>p.id===st.surfaceIds[0]),nativeConflictCell=C.surfaceConfig(ship,nativeConflictFace.id).aggregate.cells.find(r=>!r[3]),nativeConflictVolume=C.surfaceReport(ship).patches.find(p=>p.id===nativeConflictFace.id).volume;ship.parts.push({id:ship.nextId++,k:'command',d:2,room:[2,2,2],c:C.add(nativeConflictCell.slice(4,7),C.mul(nativeConflictFace.u,4.5))});C.surfaceSync(ship)`);
+ const native=run('C.surfaceReport(ship).warnings');assert.ok(run('C.surfaceReport(ship).patches.find(p=>p.id===nativeConflictFace.id).volume<nativeConflictVolume'),'the new native room removes usable equipment volume');assert.ok(native.some(w=>w.text==='兵装・既存機材・他の面の占有範囲を保守的に予約しています'));for(const warning of native)translated(warning.text);translatedHTML(run('surfaceEditorHTML()'));
  run(`fixture();ship.parts[0].s=[40,40,4];delete ship.surfaces;C.enableSurfaceMode(ship,true);const faces=C.surfacePatches(ship).filter(p=>p.host==='p1'&&['top','bottom'].includes(p.face));for(const p of faces)C.setSurfaceConfig(ship,p.id,{functionMode:'equipment',allocation:{cooling:100,sensors:0,habitation:0},equipment:{kind:'hdis',depth:3}});st.surfaceIds=faces.map(p=>p.id)`);
- const conflict=run('C.surfaceReport(ship).warnings');assert.ok(conflict.some(w=>w.text==='他の面の設備と内部容積が干渉しています'));for(const warning of conflict)translated(warning.text);translatedHTML(run('surfaceEditorHTML()'));
+ const conflict=run('C.surfaceReport(ship).warnings'),volumes=run('C.surfaceReport(ship).patches.filter(p=>st.surfaceIds.includes(p.id)).map(p=>p.volume)');assert.ok(volumes.some(v=>v>0)&&volumes.some(v=>v===0),'the intersecting opposite face cannot receive a second free equipment slab');assert.ok(conflict.some(w=>w.text==='兵装・既存機材・他の面の占有範囲を保守的に予約しています'));for(const warning of conflict)translated(warning.text);translatedHTML(run('surfaceEditorHTML()'));
  run(`fixture();ship.parts=[{id:1,k:'wing',c:[100,120,0],s:[64,40,6],form:'airfoil',wing:{thermal:'high',foil:true}}];ship.fits=[];delete ship.surfaces;C.enableSurfaceMode(ship,true);const curvedPanel=C.surfacePatches(ship).find(p=>p.host==='p1'&&p.face==='top');C.setSurfaceConfig(ship,curvedPanel.id,{functionMode:'equipment',allocation:{cooling:34,sensors:33,habitation:33},equipment:{kind:'hdis',depth:1}});st.surfaceIds=[curvedPanel.id]`);
- const curved=run('C.surfaceReport(ship).warnings');assert.ok(curved.some(w=>w.text==='面の背後の実容積に設備が収まりません'));for(const warning of curved)translated(warning.text);translatedHTML(run('surfaceEditorHTML()'));
+ const curved=run('C.surfaceReport(ship).warnings'),curvedRow=run('C.surfaceReport(ship).patches.find(p=>p.id===curvedPanel.id)');assert.ok(curvedRow.volume>0&&curvedRow.volume<curvedRow.exposedArea*curvedRow.config.equipment.depth,'the curved face uses only its actually reserved volume');assert.ok(curved.some(w=>w.text==='形状が複雑なため一部の面積を確保できません。面を分割すると利用範囲を増やせます'));for(const warning of curved)translated(warning.text);translatedHTML(run('surfaceEditorHTML()'));
 });
