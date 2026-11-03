@@ -13265,7 +13265,7 @@ function gdStyle() {
  if ($('#gnd-css')) return;const s = document.createElement('style');s.id = 'gnd-css';
  s.textContent = `.gnd{position:fixed;inset:0;z-index:66;display:flex;flex-direction:column;background:#071017;color:var(--fg);font-family:var(--font-ui,system-ui);padding:max(6px,var(--sa-top,0px)) max(8px,var(--sa-right,0px)) max(6px,var(--sa-bottom,0px)) max(8px,var(--sa-left,0px));gap:6px}
 .gnd[hidden]{display:none}.gnd h2{font-size:15px;margin:0}.gnd h3{font-size:13px;margin:8px 0 4px;color:#cfe0e6}.gnd .note{font-size:11.5px;color:var(--muted);margin:4px 0}.gnd .bad{color:var(--bad)}.gnd .warn{color:var(--warn)}.gnd .ok{color:var(--ok)}
-.gnd-top{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-height:36px}.gnd-top .gnd-t{flex:1;min-width:120px}.gnd-top small{display:block;color:var(--muted);font-size:11px}
+.gnd-top{display:flex;align-items:center;gap:5px;flex-wrap:wrap;min-height:34px}.gnd-top .gnd-t{flex:1;min-width:150px}.gnd-top small{display:block;color:var(--muted);font-size:10.5px;line-height:1.25}.gnd-top .gnd-b{min-height:34px;padding:3px 8px}
 .gnd .btn{width:auto;margin:0}.gnd-b{display:inline-flex;align-items:center;justify-content:center;min-height:38px;min-width:40px;padding:4px 10px;border-radius:8px;border:1px solid #34505e;background:#12212b;color:#dbe8ee;font:inherit;font-size:12.5px;cursor:pointer}
 .gnd-b[aria-pressed=true]{background:#2a4a5c;border-color:#68c2db;color:#fff}.gnd-b.pri{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}.gnd-b:disabled{opacity:.45;cursor:default}.gnd-b.warn{border-color:#a37a2c}
 .gnd-map{position:relative;flex:1;min-height:0;border-radius:8px;overflow:hidden;background:#0b161d;touch-action:none}.gnd-map canvas{position:absolute;inset:0;width:100%;height:100%}
@@ -13282,18 +13282,19 @@ function gdStyle() {
 .gnd-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:4px 8px;font-size:12px}.gnd-stats div{display:flex;flex-direction:column}.gnd-stats span{color:var(--muted);font-size:10.5px}.gnd-stats b{font-size:13px}
 .gnd-wrow{display:grid;grid-template-columns:minmax(0,2fr) 64px 56px minmax(0,1.3fr) 40px;gap:4px;align-items:center;margin:3px 0}
 .gnd-list{display:flex;flex-direction:column;gap:4px}.gnd-row{display:flex;gap:6px;align-items:center;justify-content:space-between;padding:6px 8px;border:1px solid #23343f;border-radius:8px;background:#0e1a21}.gnd-row div{min-width:0}.gnd-row small{display:block;color:var(--muted);font-size:11px}
+body.gnd-on #toast{z-index:67}
 @media (max-width:720px){.gnd-dz{grid-template-columns:1fr;grid-auto-rows:auto}.gnd-prev{min-height:130px;max-height:30vh}.gnd-drill{width:48%;font-size:10.5px}}`;
  document.head.appendChild(s);
 }
 function gdOpen(mode) {
  if (!GD) { toast('地上戦を読み込めません'); return null; }
  gdStyle();let el = $('#gndView');if (!el) { el = document.createElement('section'); el.id = 'gndView'; el.className = 'gnd'; el.setAttribute('aria-label', '地上戦'); document.body.appendChild(el); }
- el.hidden = false;GV.el = el;GV.mode = mode;const t = $('#toast');if (t && t.parentElement !== el) { GV.toastHome = GV.toastHome || t.parentElement; el.appendChild(t); }
+ el.hidden = false;GV.el = el;GV.mode = mode;document.body.classList.add('gnd-on');
  return el;
 }
 function gdClose() {
  cancelAnimationFrame(GV.raf);GV.raf = 0;const el = GV.el;if (el) { el.hidden = true; el.innerHTML = ''; }
- const t = $('#toast');if (t && GV.toastHome) GV.toastHome.appendChild(t);GV.b = null;GV.mode = null;GV.sel.clear();
+ document.body.classList.remove('gnd-on');GV.b = null;GV.mode = null;GV.sel.clear();
 }
 const gdF = f => R.FACTIONS[f]?.name || '惑星防衛軍';
 const gdT = s => { s = Math.max(0, Math.round(s)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
@@ -13307,7 +13308,7 @@ async function gdDesigner(d = null) {
 function gdPreviewSVG(s) {
  const d = s.design, {L, W, H, form} = d.body, walker = d.platform === 'walker', Ht = s.dims[2], clear = Ht - H, D = GD.DRIVES[d.drive];
  // Side view (left) and top view (right) to one scale, with a 1.8 m figure.
- const span = Math.max(L * 2 + 8, Ht * 1.6 + 2), k = 300 / span, gy = 150, x0 = 14;
+ const span = Math.max(L * 2.3 + 12, Ht * 1.6 + 2), k = 300 / span, gy = 150, x0 = 14;
  const body = (x, y, l, h) => form === 'wedge' ? `M${x} ${y + h} L${x + l} ${y + h} L${x + l} ${y + h * .25} L${x + l * .2} ${y} L${x} ${y + h * .35} Z` : form === 'round' ? `M${x + l * .15} ${y} L${x + l * .85} ${y} Q${x + l} ${y} ${x + l} ${y + h / 2} Q${x + l} ${y + h} ${x + l * .85} ${y + h} L${x + l * .15} ${y + h} Q${x} ${y + h} ${x} ${y + h / 2} Q${x} ${y} ${x + l * .15} ${y} Z` : `M${x} ${y} h${l} v${h} h${-l} Z`;
  const by = gy - Ht * k, bh = H * k, bl = L * k;let g = '';
  if (walker) { const n = Math.min(3, D.legs / 2), kn = clear * k; for (let i = 0; i < n; i++) { const lx = x0 + bl * (n === 1 ? .5 : .2 + .6 * i / (n - 1)); g += `<path d="M${lx} ${by + bh} l${-kn * .18} ${kn * .5} l${kn * .12} ${kn * .5}" stroke="#9fb6c6" stroke-width="${Math.max(1.5, W * k * .12)}" fill="none" stroke-linecap="round"/>`; } }
@@ -13317,8 +13318,9 @@ function gdPreviewSVG(s) {
  g += `<path d="${body(x0, by, bl, bh)}" fill="#3a4c57" stroke="#9fb6c6" stroke-width="1"/>`;
  for (const w of d.weapons) { const len = Math.max(4, (C.FITS[w.k]?.fm || 2) * w.scale * k), y = w.mount === 'turret' ? by - 3 : w.mount === 'chin' ? by + bh * .8 : by + bh * .45, x = w.mount === 'hull' || w.mount === 'chin' ? x0 + bl : x0 + bl * .6;
   if (w.mount === 'turret') g += `<rect x="${x0 + bl * .45}" y="${by - 6}" width="${bl * .3}" height="6" rx="2" fill="#4b606c"/>`;g += `<path d="M${x} ${y} h${len}" stroke="#f0a03a" stroke-width="2"/>`; }
- g += `<path d="M${x0 + bl + 18} ${gy} v${-1.8 * k}" stroke="#dbe5e8" stroke-width="1.5"/><circle cx="${x0 + bl + 18}" cy="${gy - 1.8 * k - 2}" r="2" fill="#dbe5e8"/>`;
- const tx = x0 + bl + 34, ty = 40, tw = W * k, top = form === 'wedge' ? `M${tx} ${ty + tw / 2} L${tx + bl * .3} ${ty} L${tx + bl} ${ty} L${tx + bl} ${ty + tw} L${tx + bl * .3} ${ty + tw} Z` : form === 'round' ? `M${tx} ${ty + tw / 2} Q${tx} ${ty} ${tx + bl * .2} ${ty} L${tx + bl * .8} ${ty} Q${tx + bl} ${ty} ${tx + bl} ${ty + tw / 2} Q${tx + bl} ${ty + tw} ${tx + bl * .8} ${ty + tw} L${tx + bl * .2} ${ty + tw} Q${tx} ${ty + tw} ${tx} ${ty + tw / 2} Z` : `M${tx} ${ty} h${bl} v${tw} h${-bl} Z`;
+ const gun = Math.max(0, ...d.weapons.filter(w => w.mount === 'hull' || w.mount === 'chin').map(w => Math.max(4, (C.FITS[w.k]?.fm || 2) * w.scale * k))), fx = x0 + bl + gun + 12;
+ g += `<path d="M${fx} ${gy} v${-1.8 * k}" stroke="#dbe5e8" stroke-width="1.5"/><circle cx="${fx}" cy="${gy - 1.8 * k - 2}" r="2" fill="#dbe5e8"/>`;
+ const tx = fx + 22, ty = 40, tw = W * k, top = form === 'wedge' ? `M${tx} ${ty + tw / 2} L${tx + bl * .3} ${ty} L${tx + bl} ${ty} L${tx + bl} ${ty + tw} L${tx + bl * .3} ${ty + tw} Z` : form === 'round' ? `M${tx} ${ty + tw / 2} Q${tx} ${ty} ${tx + bl * .2} ${ty} L${tx + bl * .8} ${ty} Q${tx + bl} ${ty} ${tx + bl} ${ty + tw / 2} Q${tx + bl} ${ty + tw} ${tx + bl * .8} ${ty + tw} L${tx + bl * .2} ${ty + tw} Q${tx} ${ty + tw} ${tx} ${ty + tw / 2} Z` : `M${tx} ${ty} h${bl} v${tw} h${-bl} Z`;
  g += `<path d="${top}" fill="#3a4c57" stroke="#9fb6c6" stroke-width="1"/>`;if (d.weapons.some(w => w.mount === 'turret')) g += `<circle cx="${tx + bl * .55}" cy="${ty + tw / 2}" r="${Math.min(tw * .35, bl * .2)}" fill="#4b606c" stroke="#9fb6c6"/>`;
  return `<svg viewBox="0 0 ${Math.max(330, tx + bl + 10)} 160" role="img" aria-label="側面図と平面図"><path d="M0 ${gy} H${Math.max(330, tx + bl + 10)}" stroke="#2c3b44"/>${g}<text x="6" y="14" fill="#8fa2ab" font-size="10">側面図・平面図（人物 1.8 m）</text></svg>`;
 }
@@ -13408,41 +13410,42 @@ function gdLoop(now) {
 function gdView(cv) {
  const r = cv.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1), W = Math.max(1, r.width), H = Math.max(1, r.height);
  if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
- const M = GD.MAP, k = Math.min(W / M.W, H / M.H) * GV.z, ox = (W - M.W * k) / 2 + GV.pan[0], oy = (H - M.H * k) / 2 + GV.pan[1];
- return {W, H, dpr, k, ox, oy, sx: x => ox + x * k, sy: y => oy + y * k, wx: px => (px - ox) / k, wy: py => (py - oy) / k};
+ // A tall screen (a phone held upright) turns the map a quarter: its 3 km run down the screen, the landing zone on the left.
+ const M = GD.MAP, rot = H > W * 1.15, MW = rot ? M.H : M.W, MH = rot ? M.W : M.H, k = Math.min(W / MW, H / MH) * GV.z, ox = (W - MW * k) / 2 + GV.pan[0], oy = (H - MH * k) / 2 + GV.pan[1];
+ return {W, H, dpr, k, rot, p: rot ? (x, y) => [ox + (M.H - y) * k, oy + x * k] : (x, y) => [ox + x * k, oy + y * k], w: rot ? (px, py) => [(py - oy) / k, M.H - (px - ox) / k] : (px, py) => [(px - ox) / k, (py - oy) / k]};
 }
 function gdUnitVisible(b, u) { return u.side === 0 || b.sides[0].vis.has(u.id) || GV.spectate || !!b.result; }
 function gdDraw() {
  const b = GV.b, ctx = GV.ctx, cv = ctx?.canvas;if (!b || !cv) return;const V = gdView(cv), m = b.map, pal = GD_PAL[m.kind] || GD_PAL[2];GV.v = V;
  ctx.setTransform(V.dpr, 0, 0, V.dpr, 0, 0);ctx.fillStyle = '#05090c';ctx.fillRect(0, 0, V.W, V.H);
  const cs = m.cell * V.k;
- for (let r = 0; r < m.rows; r++) for (let c = 0; c < m.cols; c++) { const t = m.t[r * m.cols + c], x = V.sx(c * m.cell), y = V.sy(r * m.cell); ctx.fillStyle = pal[t]; ctx.fillRect(x, y, cs + .6, cs + .6);
+ for (let r = 0; r < m.rows; r++) for (let c = 0; c < m.cols; c++) { const t = m.t[r * m.cols + c], [cx0, cy0] = V.p((c + .5) * m.cell, (r + .5) * m.cell), x = cx0 - cs / 2, y = cy0 - cs / 2; ctx.fillStyle = pal[t]; ctx.fillRect(x, y, cs + .6, cs + .6);
   if (t === 1) { ctx.fillStyle = 'rgba(0,0,0,.22)'; if (m.urban) { ctx.fillRect(x + cs * .15, y + cs * .15, cs * .3, cs * .3); ctx.fillRect(x + cs * .55, y + cs * .5, cs * .3, cs * .35); } else for (const [a, d] of [[.25, .3], [.7, .25], [.45, .7]]) { ctx.beginPath(); ctx.arc(x + cs * a, y + cs * d, cs * .16, 0, 7); ctx.fill(); } }
   if (t === 2) { ctx.strokeStyle = 'rgba(255,255,255,.12)'; ctx.beginPath(); ctx.arc(x + cs / 2, y + cs / 2, cs * .34, 0, 7); ctx.stroke(); } }
  // the landing zone
  const A = b.sides.find(s => s.role === 'attack');
- if (A?.lift) { const y0 = V.sy(m.H - GD.LZ_ROWS * m.cell); ctx.setLineDash([6, 5]); ctx.strokeStyle = A.id === 0 ? GD_COL.own : GD_COL.foe; ctx.lineWidth = 1.2; ctx.strokeRect(V.sx(Math.max(0, A.lz - 350)), y0 + 2, 700 * V.k, GD.LZ_ROWS * cs - 4); ctx.setLineDash([]);
-  ctx.fillStyle = A.id === 0 ? GD_COL.ownSoft : GD_COL.foeSoft; ctx.fillRect(V.sx(Math.max(0, A.lz - 350)), y0 + 2, 700 * V.k, GD.LZ_ROWS * cs - 4); }
+ if (A?.lift) { const p1 = V.p(Math.max(0, A.lz - 350), m.H - GD.LZ_ROWS * m.cell + 10), p2 = V.p(Math.min(m.W, A.lz + 350), m.H - 10), rx = Math.min(p1[0], p2[0]), ry = Math.min(p1[1], p2[1]), rw = Math.abs(p2[0] - p1[0]), rh = Math.abs(p2[1] - p1[1]);
+  ctx.setLineDash([6, 5]); ctx.strokeStyle = A.id === 0 ? GD_COL.own : GD_COL.foe; ctx.lineWidth = 1.2; ctx.strokeRect(rx, ry, rw, rh); ctx.setLineDash([]); ctx.fillStyle = A.id === 0 ? GD_COL.ownSoft : GD_COL.foeSoft; ctx.fillRect(rx, ry, rw, rh); }
  // objectives
- for (const o of m.objectives) { const x = V.sx(o.pos[0]), y = V.sy(o.pos[1]), R0 = GD.OBJ_RADIUS * V.k, col = o.owner === 0 ? GD_COL.own : o.owner === 1 ? GD_COL.foe : '#c9c9c9';
+ for (const o of m.objectives) { const [x, y] = V.p(o.pos[0], o.pos[1]), R0 = GD.OBJ_RADIUS * V.k, col = o.owner === 0 ? GD_COL.own : o.owner === 1 ? GD_COL.foe : '#c9c9c9';
   ctx.beginPath(); ctx.arc(x, y, R0, 0, 7); ctx.fillStyle = o.owner === 0 ? GD_COL.ownSoft : o.owner === 1 ? GD_COL.foeSoft : 'rgba(255,255,255,.06)'; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = col; ctx.stroke();
   if (o.prog > 0 && o.by != null && o.by !== 'contested') { ctx.beginPath(); ctx.arc(x, y, R0 + 4, -Math.PI / 2, -Math.PI / 2 + o.prog * Math.PI * 2); ctx.strokeStyle = o.by === 0 ? GD_COL.own : GD_COL.foe; ctx.lineWidth = 3; ctx.stroke(); }
   ctx.fillStyle = '#fff'; ctx.font = `bold ${Math.max(11, Math.min(16, R0 * .5))}px system-ui`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('ABC'[o.id], x, y); }
  // fire and air strikes
  for (const f of b.fx) { const age = b.time - f.t, a = Math.max(0, 1 - age / 2.5);
-  if (f.k === 'air') { ctx.beginPath(); ctx.arc(V.sx(f.at[0]), V.sy(f.at[1]), (70 + age * 30) * V.k, 0, 7); ctx.fillStyle = `rgba(255,170,60,${.35 * a})`; ctx.fill(); continue; }
+  if (f.k === 'air') { ctx.beginPath(); ctx.arc(...V.p(f.at[0], f.at[1]), (70 + age * 30) * V.k, 0, 7); ctx.fillStyle = `rgba(255,170,60,${.35 * a})`; ctx.fill(); continue; }
   if (!gdUnitVisible(b, {side: f.side, id: null}) && f.side !== 0 && !GV.spectate) { /* the muzzle gives the shooter away: shown */ }
-  ctx.strokeStyle = f.side === 0 ? `rgba(120,220,255,${.55 * a})` : `rgba(255,120,100,${.55 * a})`; ctx.lineWidth = f.k === 'h' ? 2 : 1; ctx.beginPath(); ctx.moveTo(V.sx(f.a[0]), V.sy(f.a[1])); ctx.lineTo(V.sx(f.z[0]), V.sy(f.z[1])); ctx.stroke(); }
- for (const a of b.airs) { const x = V.sx(a.at[0]), y = V.sy(a.at[1]); ctx.strokeStyle = a.side === 0 ? GD_COL.own : GD_COL.foe; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.arc(x, y, 70 * V.k, 0, 7); ctx.stroke(); ctx.setLineDash([]); }
+  ctx.strokeStyle = f.side === 0 ? `rgba(120,220,255,${.55 * a})` : `rgba(255,120,100,${.55 * a})`; ctx.lineWidth = f.k === 'h' ? 2 : 1; ctx.beginPath(); ctx.moveTo(...V.p(f.a[0], f.a[1])); ctx.lineTo(...V.p(f.z[0], f.z[1])); ctx.stroke(); }
+ for (const a of b.airs) { const [x, y] = V.p(a.at[0], a.at[1]); ctx.strokeStyle = a.side === 0 ? GD_COL.own : GD_COL.foe; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.arc(x, y, 70 * V.k, 0, 7); ctx.stroke(); ctx.setLineDash([]); }
  // units (ghosts of enemies last seen)
  for (const [id, s] of b.sides[0].seen) { if (b.sides[0].vis.has(id) || GV.spectate || b.result) continue; const u = b.units.find(x => x.id === id); if (!u || u.n <= 0 || b.time - s.t > 120) continue; ctx.globalAlpha = .35; gdUnit(ctx, V, u, s.pos); ctx.globalAlpha = 1; }
  for (const u of b.units) { if (!u.landed || u.n <= 0 || !gdUnitVisible(b, u)) continue; gdUnit(ctx, V, u, u.pos); }
  // the selection's orders
  for (const id of GV.sel) { const u = b.units.find(x => x.id === id); if (!u || u.n <= 0 || !u.landed) continue; const to = u.order.type === 'move' ? u.order.to : u.order.type === 'capture' ? m.objectives[u.order.obj]?.pos : u.order.type === 'attack' ? b.units.find(x => x.id === u.order.target)?.pos : null;
-  if (to) { ctx.strokeStyle = u.order.type === 'attack' ? 'rgba(255,140,120,.8)' : 'rgba(150,230,255,.7)'; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.moveTo(V.sx(u.pos[0]), V.sy(u.pos[1])); ctx.lineTo(V.sx(to[0]), V.sy(to[1])); ctx.stroke(); ctx.setLineDash([]); } }
+  if (to) { ctx.strokeStyle = u.order.type === 'attack' ? 'rgba(255,140,120,.8)' : 'rgba(150,230,255,.7)'; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.moveTo(...V.p(u.pos[0], u.pos[1])); ctx.lineTo(...V.p(to[0], to[1])); ctx.stroke(); ctx.setLineDash([]); } }
 }
 function gdUnit(ctx, V, u, p) {
- const x = V.sx(p[0]), y = V.sy(p[1]), own = u.side === 0, col = own ? GD_COL.own : GD_COL.foe, sel = GV.sel.has(u.id);
+ const [x, y] = V.p(p[0], p[1]), own = u.side === 0, col = own ? GD_COL.own : GD_COL.foe, sel = GV.sel.has(u.id);
  const w = u.kind === 'inf' ? 18 : u.kind === 'fort' ? 16 : 20, h = u.kind === 'inf' ? 12 : 14;
  ctx.fillStyle = 'rgba(6,12,16,.85)';ctx.strokeStyle = sel ? '#fff' : col;ctx.lineWidth = sel ? 2.4 : 1.6;ctx.fillRect(x - w / 2, y - h / 2, w, h);ctx.strokeRect(x - w / 2, y - h / 2, w, h);
  ctx.strokeStyle = col;ctx.lineWidth = 1.4;ctx.beginPath();
@@ -13463,7 +13466,7 @@ function gdHud(full) {
  q('sub').textContent = `自軍 ${gdF(own.faction)} · 敵軍 ${gdF(foe.faction)} · ${gdT(b.time)} / ${gdT(b.timeLimit)} · 目標 ${b.map.objectives.map(o => o.owner === 0 ? '■' : o.owner === 1 ? '□' : '－').join('')}${own.air.sorties ? ` · 航空支援 残り ${own.air.sorties - own.air.used}` : ''}`;
  const sp = q('speed');if (sp && !GV.spectate && (full || sp.dataset.k !== `${GV.paused}${GV.speed}`)) { sp.dataset.k = `${GV.paused}${GV.speed}`; sp.innerHTML = `<button type="button" class="gnd-b" data-gv="pause" aria-pressed="${GV.paused}" aria-label="一時停止">${GV.paused ? '▶' : 'Ⅱ'}</button>${GD_SPEEDS.map(v => `<button type="button" class="gnd-b" data-gv="spd:${v}" aria-pressed="${!GV.paused && GV.speed === v}">${v}×</button>`).join('')}`; }
  const ban = q('banner'), att = b.sides.find(s => s.role === 'attack'), mineAttack = att?.id === 0 && !GV.spectate;
- if (b.phase === 'deploy' && mineAttack) { ban.hidden = false; ban.innerHTML = `${esc(T('降下地点：画面下部の帯をタップして決め、「作戦開始」を押します。'))}`; }
+ if (b.phase === 'deploy' && mineAttack) { ban.hidden = false; ban.innerHTML = `${esc(T('降下地点：破線の帯（揚陸帯）沿いをタップして位置を決め、「作戦開始」を押します。'))}`; }
  else if (GV.cmd === 'air' && !GV.spectate) { ban.hidden = false; ban.textContent = T('航空攻撃の地点をタップ（味方も巻き込みます）'); }
  else if (GV.cmd === 'attack' && !GV.spectate) { ban.hidden = false; ban.textContent = T('攻撃する敵部隊をタップ'); }
  else if (GV.cmd === 'capture' && !GV.spectate) { ban.hidden = false; ban.textContent = T('奪取する目標（A・B・C）をタップ'); }
@@ -13483,11 +13486,11 @@ function gdHud(full) {
 function gdDrillState(b) { const o = b.orders || {};return {deploy: !!o.deploy || b.phase === 'battle', move: !!o.move, attack: !!o.attack, vehicle: !!o.vehicle, air: !!o.air, capture: b.map.objectives.some(x => x.owner === 0)}; }
 function gdPick(b, px, py) {
  const V = GV.v;if (!V) return null;let best = null, bd = 24;
- for (const u of b.units) { if (!u.landed || u.n <= 0 || !gdUnitVisible(b, u)) continue; const d = Math.hypot(V.sx(u.pos[0]) - px, V.sy(u.pos[1]) - py); if (d < bd) { bd = d; best = u; } }
+ for (const u of b.units) { if (!u.landed || u.n <= 0 || !gdUnitVisible(b, u)) continue; const q = V.p(u.pos[0], u.pos[1]), d = Math.hypot(q[0] - px, q[1] - py); if (d < bd) { bd = d; best = u; } }
  return best;
 }
 function gdTap(px, py) {
- const b = GV.b, V = GV.v;if (!b || !V || GV.spectate || b.result) return;const x = V.wx(px), y = V.wy(py), att = b.sides.find(s => s.role === 'attack');
+ const b = GV.b, V = GV.v;if (!b || !V || GV.spectate || b.result) return;const [x, y] = V.w(px, py), att = b.sides.find(s => s.role === 'attack');
  if (b.phase === 'deploy') { if (att?.id === 0) { GD.deploy(b, 0, x); gdHud(true); } return; }
  if (GV.cmd === 'air') { if (GD.airStrike(b, 0, [x, y])) toast(T('航空攻撃を要請しました（約20秒後に到着）')); GV.cmd = 'move'; gdHud(true); return; }
  const u = gdPick(b, px, py), ids = [...GV.sel];
@@ -13622,7 +13625,7 @@ function voyLandingHTML(g) {
 }
 function voyLandingAct(a, g) {
  const w = voy.w;if (!w || !g) return;
- if (a === 'land') { const r = GD.orderLanding(w, g.id); toast(r.ok ? `${esc(w.sector.systems[g.sys].name)}へ揚陸作戦を開始しました` : esc(GD.LANDING_WHY[r.why] || '揚陸できません')); voyRenderSide(); return; }
+ if (a === 'land') { GV.lcK = null; const r = GD.orderLanding(w, g.id); toast(r.ok ? `${esc(w.sector.systems[g.sys].name)}へ揚陸作戦を開始しました` : esc(GD.LANDING_WHY[r.why] || '揚陸できません')); voyRenderSide(); return; }
  if (a === 'landview') { const L = GD.landingAt(w, g.sys); if (L) gdBattle(null, {battle: L.b, spectate: true, title: `${w.sector.systems[L.sys].name}の地上戦`}); }
 }
 // (tests) the ground screens from outside
