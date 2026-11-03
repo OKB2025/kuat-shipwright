@@ -1,0 +1,458 @@
+{
+  "started": "2026-11-03T01:21:39.915Z",
+  "source": {
+    "js/core.js": "bd21fd665e58b0adea822069e5eee9e001fbd2fb66db6b6fdfaca871acd0d015",
+    "js/app.js": "d65bb0ec30c247ce4e507ccfb0a8ffa8181cc73456f3d7c2537212b17bbda5dc",
+    "js/gfx.js": "053f72eff8f379d1ef5d158a33cb94e08aa234824477b990a7a492d5eb033b6c",
+    "js/lang-en.js": "456da33f8c39a13a0399b5758d8d7afa764de8be321a79563a63640e6ba940a0"
+  },
+  "scopes": {
+    "browser": "headless Chromium software WebGL",
+    "desktop": "1100×800",
+    "mobile": "390×844 emulated touch; existing landscape design rotation may apply",
+    "gamepad": "not exercised",
+    "network": "External Cloudflaretelemetry emptyJS200 stub in harness; noapprequestsmodified",
+    "fixture": "real128×80×40 assembly; representative160m recessedtrench/terraces, not fullISD"
+  },
+  "runs": [
+    {
+      "locale": "ja-JP",
+      "result": "PASS",
+      "functionalAssertions": 55,
+      "runtimeAssertions": 3,
+      "assertions": 58,
+      "canvasPick": {
+        "xy": [
+          570,
+          386.25634357046744
+        ],
+        "id": "p1:top:0:cctl1g",
+        "want": "p1:top:0:cctl1g",
+        "rect": {
+          "x": 340,
+          "y": 59,
+          "width": 460,
+          "height": 741,
+          "top": 59,
+          "right": 800,
+          "bottom": 800,
+          "left": 340
+        }
+      },
+      "metrics": {
+        "mixedNative": {
+          "weapons": 25,
+          "cooling": 27,
+          "sensors": 27,
+          "habitation": 27
+        },
+        "occupiedArea": 7209,
+        "volume": 15957.000000000007,
+        "armorMass": 0,
+        "sensorVolume": 5184,
+        "habitationVolume": 5184,
+        "habitationCapacity": 51,
+        "commonExplicitHabitationCapacity": 51,
+        "sensors": {
+          "nu": 2.313,
+          "ir": 2.313,
+          "em": 2.313,
+          "rad": 2.313
+        },
+        "coolingCapacity": 5.429725448289347e+22,
+        "mass": 176512.53595437697,
+        "cost": 1310753
+      },
+      "roleZeroStates": {
+        "zeroSensors": {
+          "weapons": 32,
+          "cooling": 32,
+          "sensors": 0,
+          "habitation": 31
+        },
+        "zeroHabitation": {
+          "weapons": 46,
+          "cooling": 47,
+          "sensors": 0,
+          "habitation": 0
+        },
+        "onlyCooling": {
+          "weapons": 0,
+          "cooling": 135,
+          "sensors": 0,
+          "habitation": 0
+        },
+        "onlyWeapons": {
+          "weapons": 96,
+          "cooling": 0,
+          "sensors": 0,
+          "habitation": 0
+        }
+      },
+      "armor": {
+        "native": {
+          "fits": 0,
+          "parts": 0
+        },
+        "armorMass": 39936
+      },
+      "touch": {
+        "native": {
+          "weapons": 30,
+          "cooling": 74,
+          "sensors": 0,
+          "habitation": 0
+        },
+        "viewport": {
+          "width": 844,
+          "height": 390,
+          "scrollWidth": 390
+        }
+      },
+      "legacy": {
+        "before": {
+          "fits": 3,
+          "parts": 2
+        },
+        "converted": {
+          "fits": 21,
+          "parts": 82
+        },
+        "undo": {
+          "fits": 3,
+          "parts": 2
+        }
+      },
+      "uiApplyMs": {
+        "mixed": 4453,
+        "linked": 6083,
+        "zeroSensors": 4878,
+        "zeroHabitation": 2565,
+        "onlyCooling": 3469,
+        "onlyWeapons": 13107,
+        "armor": 2172,
+        "touch": 3364,
+        "converted": 3289
+      },
+      "shots": [
+        "/workspace/scratch/kuat-preview/equipment-editor-ja-JP.png",
+        "/workspace/scratch/kuat-preview/equipment-mobile-ja-JP.png"
+      ],
+      "errors": [],
+      "consoleErrors": []
+    },
+    {
+      "locale": "en-US",
+      "result": "PASS",
+      "functionalAssertions": 56,
+      "runtimeAssertions": 3,
+      "assertions": 59,
+      "canvasPick": {
+        "xy": [
+          570,
+          386.25634357046744
+        ],
+        "id": "p1:top:0:cctl1g",
+        "want": "p1:top:0:cctl1g",
+        "rect": {
+          "x": 340,
+          "y": 59,
+          "width": 460,
+          "height": 741,
+          "top": 59,
+          "right": 800,
+          "bottom": 800,
+          "left": 340
+        }
+      },
+      "metrics": {
+        "mixedNative": {
+          "weapons": 25,
+          "cooling": 27,
+          "sensors": 27,
+          "habitation": 27
+        },
+        "occupiedArea": 7209,
+        "volume": 15957.000000000007,
+        "armorMass": 0,
+        "sensorVolume": 5184,
+        "habitationVolume": 5184,
+        "habitationCapacity": 51,
+        "commonExplicitHabitationCapacity": 51,
+        "sensors": {
+          "nu": 2.313,
+          "ir": 2.313,
+          "em": 2.313,
+          "rad": 2.313
+        },
+        "coolingCapacity": 5.429725448289347e+22,
+        "mass": 176512.53595437697,
+        "cost": 1310753
+      },
+      "roleZeroStates": {
+        "zeroSensors": {
+          "weapons": 32,
+          "cooling": 32,
+          "sensors": 0,
+          "habitation": 31
+        },
+        "zeroHabitation": {
+          "weapons": 46,
+          "cooling": 47,
+          "sensors": 0,
+          "habitation": 0
+        },
+        "onlyCooling": {
+          "weapons": 0,
+          "cooling": 135,
+          "sensors": 0,
+          "habitation": 0
+        },
+        "onlyWeapons": {
+          "weapons": 96,
+          "cooling": 0,
+          "sensors": 0,
+          "habitation": 0
+        }
+      },
+      "armor": {
+        "native": {
+          "fits": 0,
+          "parts": 0
+        },
+        "armorMass": 39936
+      },
+      "touch": {
+        "native": {
+          "weapons": 30,
+          "cooling": 74,
+          "sensors": 0,
+          "habitation": 0
+        },
+        "viewport": {
+          "width": 844,
+          "height": 390,
+          "scrollWidth": 390
+        }
+      },
+      "legacy": {
+        "before": {
+          "fits": 3,
+          "parts": 2
+        },
+        "converted": {
+          "fits": 21,
+          "parts": 82
+        },
+        "undo": {
+          "fits": 3,
+          "parts": 2
+        }
+      },
+      "uiApplyMs": {
+        "mixed": 4002,
+        "linked": 5117,
+        "zeroSensors": 3052,
+        "zeroHabitation": 2904,
+        "onlyCooling": 4030,
+        "onlyWeapons": 2233,
+        "armor": 1334,
+        "touch": 4926,
+        "converted": 3100
+      },
+      "shots": [
+        "/workspace/scratch/kuat-preview/equipment-editor-en-US.png",
+        "/workspace/scratch/kuat-preview/equipment-mobile-en-US.png"
+      ],
+      "errors": [],
+      "consoleErrors": []
+    }
+  ],
+  "result": "PASS",
+  "browserClosed": true,
+  "finished": "2026-11-03T01:24:05.791Z",
+  "sourceAfter": {
+    "js/core.js": "bd21fd665e58b0adea822069e5eee9e001fbd2fb66db6b6fdfaca871acd0d015",
+    "js/app.js": "d65bb0ec30c247ce4e507ccfb0a8ffa8181cc73456f3d7c2537212b17bbda5dc",
+    "js/gfx.js": "053f72eff8f379d1ef5d158a33cb94e08aa234824477b990a7a492d5eb033b6c",
+    "js/lang-en.js": "456da33f8c39a13a0399b5758d8d7afa764de8be321a79563a63640e6ba940a0"
+  },
+  "totalAssertions": 117,
+  "preservedEarlierDiagnostics": [
+    "equipment-browser-ja-functional.json",
+    "equipment-browser-en-telemetry-mime-failure.json"
+  ],
+  "notes": [
+    "All assertions count successful checks only; functional and runtime/error checks counted separately.",
+    "Mobile is emulated Chromium touch at390×844 with existing landscape transform; no physicalphone/gamepadhardware, no virtualgamepad test.",
+    "Rolezero geometry/nativevolume and mode exclusivity checked; detailquality changes do not alter installed nativecounts/totals.",
+    "No directbattle/fullISDmodel/100shipGPU performance coverage in this browser run."
+  ],
+  "postfix": {
+    "started": "2026-11-03T01:27:27.030Z",
+    "source": {
+      "js/core.js": "74cc721b3bb72aa78d9909a3e377a3067ffe7d966f46f0e8fb93220a1141440a",
+      "js/app.js": "d65bb0ec30c247ce4e507ccfb0a8ffa8181cc73456f3d7c2537212b17bbda5dc",
+      "js/gfx.js": "053f72eff8f379d1ef5d158a33cb94e08aa234824477b990a7a492d5eb033b6c",
+      "js/lang-en.js": "456da33f8c39a13a0399b5758d8d7afa764de8be321a79563a63640e6ba940a0"
+    },
+    "scope": "Targeted postfix only: actual app render of box yaw31/pitch27/roll33 translated to[1000,500,800], then mirrored user composite through public assemblyCapture/assemblyPlace. No full117repeat, no combat/poweroperation claims.",
+    "rotated": {
+      "hosts": [
+        {
+          "id": 1,
+          "c": [
+            1000,
+            500,
+            800
+          ],
+          "s": [
+            64,
+            40,
+            32
+          ],
+          "yaw": 31,
+          "pitch": 27,
+          "roll": 33
+        }
+      ],
+      "rows": [
+        {
+          "id": "p1:port:0:cctl1g",
+          "normal": [
+            0.2200035028678969,
+            0.4852768338356665,
+            -0.8462297875094484
+          ],
+          "counts": {
+            "weapons": 5,
+            "cooling": 5,
+            "sensors": 5,
+            "habitation": 5
+          },
+          "occupiedArea": 1280,
+          "volume": 2944,
+          "errors": [
+            "面積・開口部・既存設備との干渉により配置できません",
+            "要求した砲座の一部が未配置です",
+            "要求した設備の一部が未配置です"
+          ]
+        }
+      ],
+      "glError": 0,
+      "renderer": "WebGL 1.0 (OpenGL ES 2.0 Chromium)",
+      "mesh": {
+        "surfaceArmor": 168,
+        "surfaceDevices": 13764,
+        "surfaceDetail": 3240
+      },
+      "shot": "/workspace/scratch/kuat-preview/equipment-postfix-rotated.jpg"
+    },
+    "mirrored": {
+      "hosts": [
+        {
+          "id": 1,
+          "c": [
+            160,
+            90.00001525878906,
+            100
+          ],
+          "s": [
+            64,
+            40,
+            32
+          ],
+          "yaw": 31,
+          "pitch": 27,
+          "roll": 33
+        },
+        {
+          "id": 23,
+          "c": [
+            160,
+            90.00001525878906,
+            -100
+          ],
+          "s": [
+            64,
+            40,
+            32
+          ],
+          "yaw": -31,
+          "pitch": 27,
+          "roll": -33
+        }
+      ],
+      "groups": 2,
+      "rows": [
+        {
+          "id": "p1:port:0:cctl1g",
+          "normal": [
+            0.22000324503249102,
+            0.4852769890291693,
+            -0.8462297655447706
+          ],
+          "counts": {
+            "weapons": 5,
+            "cooling": 5,
+            "sensors": 5,
+            "habitation": 5
+          },
+          "occupiedArea": 1280,
+          "volume": 2944,
+          "errors": [
+            "面積・開口部・既存設備との干渉により配置できません",
+            "要求した砲座の一部が未配置です",
+            "要求した設備の一部が未配置です"
+          ]
+        },
+        {
+          "id": "p23:stbd:0:cctl1g",
+          "normal": [
+            0.22000324503249102,
+            0.4852769890291693,
+            0.8462297655447706
+          ],
+          "counts": {
+            "weapons": 5,
+            "cooling": 5,
+            "sensors": 5,
+            "habitation": 5
+          },
+          "occupiedArea": 1280,
+          "volume": 2944,
+          "errors": [
+            "面積・開口部・既存設備との干渉により配置できません",
+            "要求した砲座の一部が未配置です",
+            "要求した設備の一部が未配置です"
+          ]
+        }
+      ],
+      "glError": 0,
+      "renderer": "WebGL 1.0 (OpenGL ES 2.0 Chromium)",
+      "mesh": {
+        "surfaceArmor": 336,
+        "surfaceDevices": 26052,
+        "surfaceDetail": 6480
+      },
+      "shot": "/workspace/scratch/kuat-preview/equipment-postfix-mirrored.jpg"
+    },
+    "errors": [],
+    "consoleErrors": [],
+    "result": "PASS",
+    "browserClosed": true,
+    "finished": "2026-11-03T01:27:43.370Z",
+    "sourceAfter": {
+      "js/core.js": "74cc721b3bb72aa78d9909a3e377a3067ffe7d966f46f0e8fb93220a1141440a",
+      "js/app.js": "d65bb0ec30c247ce4e507ccfb0a8ffa8181cc73456f3d7c2537212b17bbda5dc",
+      "js/gfx.js": "053f72eff8f379d1ef5d158a33cb94e08aa234824477b990a7a492d5eb033b6c",
+      "js/lang-en.js": "456da33f8c39a13a0399b5758d8d7afa764de8be321a79563a63640e6ba940a0"
+    },
+    "assertions": 31,
+    "limitations": [
+      "This targeted fixture omits reactors, engines and command systems. The separated mirrored copies trigger existing structural-connection and power diagnostics; installed geometry/counts are verified, not operational combat readiness.",
+      "Finite physical packing leaves ordinary requested-versus-installed placement warnings on all three observed faces; these constraints were not disabled.",
+      "The 117 normal-fixture assertions retain their original source hashes; the 31 postfix assertions explicitly record the later Core boundary-containment fix."
+    ]
+  }
+}
