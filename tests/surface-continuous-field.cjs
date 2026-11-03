@@ -40,12 +40,12 @@ test('the foreground field crosses logical cell seams with unequal spans rather 
  assert.ok(foreground.some(q=>q.size[0]>12||q.size[1]>12),'some ledges or conduits must connect multiple physical service cells');
 });
 
-test('pure-role equipment faces never display an uninstalled category or habitation windows at zero habitation',()=>{
+test('pure-role interfaces follow installed equipment while service lamps remain neutral scenery',()=>{
  for(const active of roles){const {ship,patch}=fixture({allocation:only(active)}),r=row(ship,patch),all=pieces(r);assert.equal(r.devices.length>0,active!=='weapons');assert.ok(r.devices.every(d=>d.role===active));
   for(const q of all)if(q.role!=null)assert.equal(q.role,active,'foreground category cues must have an installed functional owner');
   const features=all.map(q=>q.feature||'');for(const [role,pattern]of [['cooling',/cooling-/],['sensors',/sensor-/],['habitation',/habitation-/]])assert.equal(features.some(s=>pattern.test(s)),role===active,active+' face has incorrect '+role+' cues');
   assert.equal(C.surfaceDerivedFits(ship).some(f=>f.surfacePatch===patch.id&&!f.surfaceUnplaced),active==='weapons','weapon cues must remain real native guns rather than duplicated decorative barrels');if(active!=='weapons')assert.ok(features.every(s=>!/gun-/.test(s)));
-  const mesh=G.meshSurfaceLayers(ship,{}).surfaceDevices;let windows=0;for(let i=3;i<mesh.n*4;i+=4)if(mesh.col[i]===253)windows++;assert.equal(windows>0,active==='habitation','only installed habitation may generate window material');
+  const habitatLights=all.filter(q=>q.port);assert.ok(habitatLights.every(q=>q.role==='habitation'),'functional windows need an installed habitation owner');assert.equal(habitatLights.length>0,active==='habitation');assert.ok((r.lights||[]).every(q=>q.role===null&&q.port),'service lamps belong to the neutral face rather than an uninstalled category');const mesh=G.meshSurfaceLayers(ship,{}).surfaceDevices;let emitted=0;for(let i=3;i<mesh.n*4;i+=4)if(mesh.col[i]===253)emitted++;assert.equal(emitted>0,habitatLights.length>0||(r.lights||[]).length>0,'visible emissive triangles must come from functional windows or neutral service lamps');
  }
 });
 
@@ -66,7 +66,7 @@ test('rendered field triangles stay on the actual patch and leave a small off-ce
 
 test('rotated equipment faces keep all foreground and secondary mesh vertices within the actual semantic face',()=>{
  for(const face of ['fore','port','top']){const {ship,patch}=fixture({allocation:{weapons:0,cooling:34,sensors:33,habitation:33},face,rotate:true}),mesh=G.meshSurfaceLayers(ship,{});assert.ok(row(ship,patch).field?.length>0);let checked=0;
-  for(const name of ['surfaceDevices','surfaceDetail']){const g=mesh[name],seen=new Set();for(let i=0;i<g.ni;i++){const v=Array.from(g.pos.slice(g.idx[i]*3,g.idx[i]*3+3)),key=v.map(q=>q.toFixed(5)).join(',');if(seen.has(key))continue;seen.add(key);assert.ok(C.rayTris(patch.triangles,C.add(v,C.mul(patch.normal,100)),C.mul(patch.normal,-1)),face+' '+name+' vertex leaves its real face');checked++;}}assert.ok(checked>100);
+  for(const name of ['surfaceDevices','surfaceDetail']){const g=mesh[name],seen=new Set();for(let i=0;i<g.ni;i++){const v=Array.from(g.pos.slice(g.idx[i]*3,g.idx[i]*3+3)),key=v.map(q=>q.toFixed(5)).join(',');if(seen.has(key))continue;seen.add(key);const ray=q=>C.rayTris(patch.triangles,C.add(q,C.mul(patch.normal,100)),C.mul(patch.normal,-1)),toward=C.norm(C.sub(patch.center,v));assert.ok(ray(v)||ray(C.add(v,C.mul(toward,.0005))),face+' '+name+' vertex leaves its real face beyond Float32 boundary tolerance');checked++;}}assert.ok(checked>100);
  }
 });
 
@@ -81,7 +81,7 @@ test('field and hardware index ranges have one real owner and move with an artic
  const {ship,body,patch}=fixture({allocation:{weapons:0,cooling:34,sensors:33,habitation:33},foil:true}),ranges={},raw=G.meshSurfaceLayers(ship,ranges),r=row(ship,patch),owners=new Set([body.id,...r.devices.map(d=>d.id)]),coverage=new Uint8Array(raw.surfaceDevices.ni);
  assert.ok(r.field?.length>0);for(const [id,spans]of Object.entries(ranges))for(const [kind,start,count]of spans)if(kind==='surfaceDevices'){assert.ok(owners.has(+id),'every field fragment must belong to its host or a real native device');for(let i=start;i<start+count;i++)coverage[i]++;}
  assert.ok(coverage.length>0&&coverage.every(n=>n===1),'host field and device ranges may neither overlap nor leave ownerless geometry');
- const asset=G.fleetGeometry(ship),foil=asset.foils.find(q=>q.id===body.id);assert.ok(foil);for(const kind of ['surfaceArmor','surfaceDevices','surfaceDetail']){const moving=foil.meshes.filter(name=>foil.kinds[name]===kind);assert.equal(moving.length,1,kind+' must have one moving partition');assert.equal(asset.meshes[moving[0]].geo.ni,raw[kind].ni);assert.equal(asset.meshes[kind]?.geo.ni||0,0,kind+' must not remain as a stationary duplicate');}
+ const asset=G.fleetGeometry(ship),foil=asset.foils.find(q=>q.id===body.id);assert.ok(foil);for(const kind of ['surfaceArmor','surfaceDevices','surfaceDetail']){const moving=foil.meshes.filter(name=>foil.kinds[name]===kind);assert.equal(moving.length,raw[kind].ni?1:0,kind+' needs one moving partition when it contains triangles');if(raw[kind].ni)assert.equal(asset.meshes[moving[0]].geo.ni,raw[kind].ni);assert.equal(asset.meshes[kind]?.geo.ni||0,0,kind+' must not remain as a stationary duplicate');}
 });
 
 test('constrained structural budgets retain occupied bays without enormous unrefined plates',()=>{

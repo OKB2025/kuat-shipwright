@@ -2053,7 +2053,7 @@ function surfaceEquipmentField(ship,patch,cells,style,detail,extraBudget,fieldBu
   // Guns use only the compact embedded apertures in meshFits. The surrounding
   // field leaves their actual opening clear without drawing a turret body.
   if(cell.role==='weapons')continue;
-  let workLift=0,cueScale=1,cueCenter=local;const group=(w,h)=>{cueScale=cell.aggregate?Math.min(1,cell.w*.9/w,cell.h*.9/h):1;const W=w*cueScale,H=h*cueScale;for(let k=0;k<14;k++){const x=local[0]+(r()-.5)*Math.max(.02,cell.w-W-.04),y=local[1]+(r()-.5)*Math.max(.02,cell.h-H-.04),b=[x-W/2,y-H/2,x+W/2,y+H/2],s=space(b);if(s){workLift=Math.max(0,frontAt(b)-s.height+relief-.62);cueCenter=[x,y];return [x,y];}}return null;};
+  let workLift=0,cueScale=1,cueCenter=local;const group=(w,h)=>{cueScale=cell.aggregate?Math.min(3.2,cell.w*.9/w,cell.h*.9/h):1;const W=w*cueScale,H=h*cueScale;for(let k=0;k<14;k++){const x=local[0]+(r()-.5)*Math.max(.02,cell.w-W-.04),y=local[1]+(r()-.5)*Math.max(.02,cell.h-H-.04),b=[x-W/2,y-H/2,x+W/2,y+H/2],s=space(b);if(s){workLift=Math.max(0,frontAt(b)-s.height+relief-.62);cueCenter=[x,y];return [x,y];}}return null;};
   const add=(feature,x,y,w,h,z,d,color,type='box',opts={})=>piece(hardware,feature,cueCenter[0]+(x-cueCenter[0])*cueScale,cueCenter[1]+(y-cueCenter[1])*cueScale,w*cueScale,h*cueScale,z+workLift,d,color,cell.id,cell.role,'inlay',{...opts,...(opts.radius?{radius:opts.radius*cueScale}:{})});
   if(cell.role==='cooling')for(let q=0;q<1+variant%2;q++){const w=.65+r()*1.25,h=.35+r()*.9,p=group(w,h);if(!p)continue;const [x,y]=p;add('cooling-recess',x,y,w,h,.74,.08,[60,74,85]);const count=4+Math.floor(r()*5),vertical=variant===2;for(let i=0;i<count;i++)add('cooling-grille',x+(vertical?(i/(count-1)-.5)*w*.87:0),y+(vertical?0:(i/(count-1)-.5)*h*.80),vertical?w/count*.30:w*.90,vertical?h*.90:h/count*.31,.81,.07,[127,141,151]);}
   else if(cell.role==='sensors'){const size=.55+r()*.95,p=group(size,size);if(p){const [x,y]=p;if(variant===0||variant===3)add('sensor-array',x,y,size,size,.86,.30,[139,153,164],'dish',{radius:size/2});else{add('sensor-array',x,y,size,size*(variant===1?.57:1),.76,.10,[72,90,106]);const count=variant===1?4:3;for(let i=0;i<count;i++)add('sensor-element',x+(i-(count-1)/2)*size/count*.9,y,size/count*.47,size*(variant===1?.37:.72),.84,.065,[138,154,168]);}}}
@@ -2065,19 +2065,51 @@ function surfaceEquipmentField(ship,patch,cells,style,detail,extraBudget,fieldBu
  for(let i=0;i<extras*3&&boxes.length<extras&&housings.length;i++){const parent=housings[Math.floor(random()*housings.length)],b=parent.bounds,w=Math.min(10,(b[2]-b[0])*(.35+random()*.35)),h=Math.min(3,(b[3]-b[1])*(.25+random()*.35)),x=b[0]+w/2+random()*(b[2]-b[0]-w),y=b[1]+h/2+random()*(b[3]-b[1]-h),d=.055+random()*.12;
   const s=space([x-w/2,y-h/2,x+w/2,y+h/2]);if(s)piece(boxes,'service-detail',x,y,w,h,C.dot(C.sub(parent.center,origin),normal)+parent.size[2]/2-s.height+relief+d/2,d,grey(),host,null,'relief');
  }
- // One continuous triangulated height field replaces all closed scenery
- // boxes. Shared grid vertices make the relief watertight across its broad
- // horizontal facets; clipping preserves the exposed footprint and openings.
- const reliefFaces=[],gridSeed=patch.baseId||patch.id,targetCells=Math.max(4,Math.floor((base?.fieldBudget??fieldBudget)/4));let gridHeight=pitch,gridWidth=Math.max(pitch*2.8,12);
- const gridCells=()=> (Math.floor((base?.maxU??hi[0]+worldU)/gridWidth)-Math.floor((base?.minU??lo[0]+worldU)/gridWidth)+1)*(Math.floor((base?.maxV??hi[1]+worldV)/gridHeight)-Math.floor((base?.minV??lo[1]+worldV)/gridHeight)+1);
- for(let step=0;step<80&&gridCells()>targetCells;step++){const scale=Math.max(1.08,Math.sqrt(gridCells()/targetCells));gridHeight*=scale;gridWidth=gridHeight*2.8;}
- const gridX=[0,.08,.92,1],gridY=[0,.16,.84,1];
- // Uneven one-, two- and three-column runs merge into long stepped ribbons.
- // Each row has a different phase: no repeated brick or diamond facade.
- const runAt=(i,j)=>{const offset=surfaceSeed(gridSeed+'|phase|'+j,style.seed)%6,chunk=Math.floor((i+offset)/6),local=i+offset-chunk*6,patterns=[[1,3,2],[2,1,1,2],[3,3],[1,2,3]],pattern=patterns[surfaceSeed(gridSeed+'|runs|'+j+'|'+chunk,style.seed)%patterns.length];let a=0;for(const length of pattern){if(local<a+length)return {start:chunk*6+a-offset,length};a+=length;}return {start:i,length:1};};
- const peak=(i,j)=>{const run=runAt(i,j);return .56+(surfaceSeed(gridSeed+'|skin|'+run.start+'|'+j,style.seed)%4)*.13;};
- const profile=(a,b,i,j)=>{const run=runAt(i,j),t=(i+a-run.start)/run.length;return .10+(peak(i,j)-.10)*Math.min(C.clamp(Math.min(t/.08,(1-t)/.08),0,1),C.clamp(Math.min(b/.16,(1-b)/.16),0,1));};
- const gridAt=(x,y)=>{const X=(x+worldU)/gridWidth,Y=(y+worldV)/gridHeight,i=Math.floor(X),j=Math.floor(Y),a=C.clamp(X-i,0,1),b=C.clamp(Y-j,0,1),ix=a<gridX[1]?0:a<gridX[2]?1:2,iy=b<gridY[1]?0:b<gridY[2]?1:2,ax=gridX[ix],bx=gridX[ix+1],ay=gridY[iy],by=gridY[iy+1],tx=(a-ax)/(bx-ax),ty=(b-ay)/(by-ay),A=profile(ax,ay,i,j),B=profile(bx,ay,i,j),D=profile(ax,by,i,j),E=profile(bx,by,i,j);return tx>=ty?A*(1-tx)+B*(tx-ty)+E*ty:A*(1-ty)+E*tx+D*(ty-tx);};
+ // The reference's machinery is an irregular two-dimensional terrain: squat
+ // cabinets, tall risers, short beams and deep pockets, with smaller stepped
+ // panels inside them. Every feature belongs to this one exposed skin.
+ const reliefFaces=[],skinBuckets=new Map(),gridSeed=patch.baseId||patch.id,targetCells=Math.max(4,Math.floor((base?.fieldBudget??fieldBudget)/12));let gridHeight=pitch*1.25,gridWidth=gridHeight*2.1;
+ const axisJitter=new Map(),axisAt=(i,axis)=>{const key=axis+'|'+i;let jitter=axisJitter.get(key);if(jitter==null){jitter=((surfaceSeed(gridSeed+'|axis|'+key,style.seed)%10000)/10000-.5)*.42;axisJitter.set(key,jitter);}return (i+jitter)*(axis?gridHeight:gridWidth);};
+ const axisIndex=(x,axis)=>{let i=Math.floor(x/(axis?gridHeight:gridWidth));while(x<axisAt(i,axis))i--;while(x>=axisAt(i+1,axis))i++;return i;};
+ const gridCells=()=> (axisIndex(base?.maxU??hi[0]+worldU,0)-axisIndex(base?.minU??lo[0]+worldU,0)+1)*(axisIndex(base?.maxV??hi[1]+worldV,1)-axisIndex(base?.minV??lo[1]+worldV,1)+1);
+ for(let step=0;step<80&&gridCells()>targetCells;step++){const scale=Math.max(1.08,Math.sqrt(gridCells()/targetCells));gridHeight*=scale;gridWidth=gridHeight*2.1;}
+ const owners=new Map(),anchors=new Map(),terrain=new Map();
+ const anchor=(i,j)=>{const id=i+'|'+j;let a=anchors.get(id);if(a)return a;const r=rng(surfaceSeed(gridSeed+'|island|'+id,style.seed)),pick=r(),kind=pick<.26?'cavity':pick<.40?'beam':pick<.58?'riser':'cabinet',w=kind==='beam'?2+Math.floor(r()*3):kind==='riser'?1:1+Math.floor(r()*3),h=kind==='beam'?1:kind==='riser'?2+Math.floor(r()*2):1+Math.floor(r()*2);a={id,i,j,w,h,kind,rank:r(),peak:kind==='cavity'?.10+r()*.14:.55+r()*.39,tone:kind==='cavity'?.15+r()*.16:.76+r()*.26};anchors.set(id,a);return a;};
+ const ownerAt=(i,j)=>{const key=i+'|'+j;let owner=owners.get(key);if(owner)return owner;for(let y=j-2;y<=j;y++)for(let x=i-3;x<=i;x++){const a=anchor(x,y);if(i>=x+a.w||j>=y+a.h)continue;if(!owner||a.rank>owner.rank)owner=a;}owners.set(key,owner);return owner;};
+ const motifRanks=[];for(let j=axisIndex(base?.minV??lo[1]+worldV,1);j<=axisIndex(base?.maxV??hi[1]+worldV,1);j++)for(let i=axisIndex(base?.minU??lo[0]+worldU,0);i<=axisIndex(base?.maxU??hi[0]+worldU,0);i++)motifRanks.push({key:i+'|'+j,rank:surfaceSeed(gridSeed+'|motif-rank|'+i+'|'+j,style.seed)});
+ motifRanks.sort((a,b)=>a.rank-b.rank);const motifArea=(base?base.maxU-base.minU:hi[0]-lo[0])*(base?base.maxV-base.minV:hi[1]-lo[1]),motifLimit=Math.min(24,Math.floor(motifRanks.length*.30),Math.max(1,Math.round(Math.sqrt(motifArea)/(motifArea<3000?22:14)))),motifCells=new Set(motifRanks.slice(0,motifLimit).map(q=>q.key));
+ const cornerAt=(i,j)=>{const a=ownerAt(i-1,j-1),b=ownerAt(i,j-1),c=ownerAt(i,j),d=ownerAt(i-1,j);return a.id===b.id&&a.id===c.id&&a.id===d.id?a.peak:.075;};
+ const bary=(T,x,y)=>{const [a,b,c]=T,det=(b[1]-c[1])*(a[0]-c[0])+(c[0]-b[0])*(a[1]-c[1]);if(Math.abs(det)<1e-14)return null;const A=((b[1]-c[1])*(x-c[0])+(c[0]-b[0])*(y-c[1]))/det,B=((c[1]-a[1])*(x-c[0])+(a[0]-c[0])*(y-c[1]))/det,D=1-A-B;if(Math.min(A,B,D)<-1e-6)return null;return a[2]*A+b[2]*B+c[2]*D;};
+ const terrainCell=(i,j)=>{const key=i+'|'+j,old=terrain.get(key);if(old)return old;const owner=ownerAt(i,j),r=rng(surfaceSeed(gridSeed+'|panel|'+key,style.seed)),x0=axisAt(i,0),x1=axisAt(i+1,0),y0=axisAt(j,1),y1=axisAt(j+1,1),W=x1-x0,H=y1-y0,knots=[0,.075,.925,1],xs=knots.map(t=>x0+W*t),ys=knots.map(t=>y0+H*t),left=ownerAt(i-1,j).id===owner.id?owner.peak:.075,right=ownerAt(i+1,j).id===owner.id?owner.peak:.075,low=ownerAt(i,j-1).id===owner.id?owner.peak:.075,high=ownerAt(i,j+1).id===owner.id?owner.peak:.075,heights=[[cornerAt(i,j),low,low,cornerAt(i+1,j)],[left,owner.peak,owner.peak,right],[left,owner.peak,owner.peak,right],[cornerAt(i,j+1),high,high,cornerAt(i+1,j+1)]],shapes=[],tops=[];
+  const quad=(p,tone)=>{shapes.push({points:[p[0],p[1],p[2]],tone},{points:[p[0],p[2],p[3]],tone});},rect=(l,b,r,t,h)=>[[l,b,h],[r,b,h],[r,t,h],[l,t,h]],ring=(a,b,tone)=>{for(let k=0;k<4;k++){const next=(k+1)%4;quad([a[k],a[next],b[next],b[k]],tone);}};
+  const patternFrame=(p,xx,yy,level,tone)=>{const v=(x,y)=>[x,y,level],polys=[[p[0],p[1],...xx.slice().reverse().map(x=>v(x,yy[0]))],[p[1],p[2],...yy.slice().reverse().map(y=>v(xx[xx.length-1],y))],[p[2],p[3],...xx.map(x=>v(x,yy[yy.length-1]))],[p[3],p[0],...yy.map(y=>v(xx[0],y))]];for(const poly of polys)for(let k=1;k<poly.length-1;k++)shapes.push({points:[poly[0],poly[k],poly[k+1]],tone});};
+  for(let y=0;y<3;y++)for(let x=0;x<3;x++){
+   const p=[[xs[x],ys[y],heights[y][x]],[xs[x+1],ys[y],heights[y][x+1]],[xs[x+1],ys[y+1],heights[y+1][x+1]],[xs[x],ys[y+1],heights[y+1][x]]],flat=p.every(q=>Math.abs(q[2]-owner.peak)<1e-9),tone=flat?owner.tone:owner.kind==='cavity'?.13:owner.tone*.44;
+   if(x===1&&y===1&&motifCells.has(key)){
+    const motif=surfaceSeed(gridSeed+'|motif|'+key,style.seed)%4,front=C.clamp(owner.peak+.14,.26,.98),back=Math.max(.09,owner.peak-.18);
+    if(motif===0){
+     // Three broad folded fins, with dark channels between them.
+     const left=xs[1]+W*.10,right=xs[2]-W*.10,bottom=ys[1]+H*.10,top=ys[2]-H*.10,xx=[left,left+W*.05,right-W*.05,right],steps=[0,.14,.18,.30,.34,.41,.45,.57,.61,.68,.72,.84,.88,1],yy=steps.map(t=>bottom+(top-bottom)*t),levels=[owner.peak,back,front,front,back,back,front,front,back,back,front,front,back,owner.peak];
+     patternFrame(p,xx,yy,owner.peak,owner.tone);for(let a=0;a<3;a++)for(let b=0;b<yy.length-1;b++){const v=(ix,iy)=>[xx[ix],yy[iy],ix===0||ix===3?owner.peak:levels[iy]],ps=[v(a,b),v(a+1,b),v(a+1,b+1),v(a,b+1)];quad(ps,levels[b]===front&&levels[b+1]===front?Math.min(1.05,owner.tone):.25+owner.tone*.30);}
+    }else if(motif===1){
+     // An eight-sided manifold rim and an inset dark vent, integrated into
+     // the cabinet's own face rather than a separately closed cylinder.
+     const cx=(xs[1]+xs[2])/2,cy=(ys[1]+ys[2])/2,rx=(xs[2]-xs[1])*.37,ry=(ys[2]-ys[1])*.37,oct=(scale,z)=>[[-.55,-1],[.55,-1],[1,-.55],[1,.55],[.55,1],[-.55,1],[-1,.55],[-1,-.55]].map(([a,b])=>[cx+a*rx*scale,cy+b*ry*scale,z]),outer=oct(1,front),inner=oct(.62,back);
+     for(let k=0;k<4;k++){const next=(k+1)%4,a=k*2,b=(a+1)%8,c=(a+2)%8;quad([p[k],p[next],outer[b],outer[a]],owner.tone*.70);shapes.push({points:[p[next],outer[c],outer[b]],tone:owner.tone*.65});}
+     for(let k=0;k<8;k++){const next=(k+1)%8;quad([outer[k],outer[next],inner[next],inner[k]],Math.min(1.04,owner.tone));shapes.push({points:[[cx,cy,back],inner[k],inner[next]],tone:.14});}
+    }else if(motif===2){
+     // A thick U/L service route. Its bends and shadowed inner well share
+     // the surrounding face topology and remain only a few planar folds.
+     const kk=[0,.18,.32,.72,.86,1],xx=kk.map(t=>xs[1]+W*.08+(xs[2]-xs[1]-W*.16)*t),yy=kk.map(t=>ys[1]+H*.08+(ys[2]-ys[1]-H*.16)*t),U=r()>.45,v=(a,b)=>{const edge=a===0||a===5||b===0||b===5,route=!edge&&((a<=2)||(b<=2)||(U&&a>=3));return [xx[a],yy[b],edge?owner.peak:route?front:back];};
+     patternFrame(p,xx,yy,owner.peak,owner.tone);for(let a=0;a<5;a++)for(let b=0;b<5;b++){const ps=[v(a,b),v(a+1,b),v(a+1,b+1),v(a,b+1)],high=ps.filter(q=>q[2]===front).length;quad(ps,high>=3?Math.min(1.05,owner.tone):high?.48:.22);}
+    }else{
+     const w=W*(.24+r()*.30),h=H*(.25+r()*.36),cx=(x0+x1)/2+(r()-.5)*(W*.65-w),cy=(y0+y1)/2+(r()-.5)*(H*.65-h),delta=owner.kind==='cavity'?.26:r()<.27?-.24:.12+r()*.10,z=C.clamp(owner.peak+delta,.10,.98),bevel=Math.min(W,H)*.025,outer=rect(cx-w/2,cy-h/2,cx+w/2,cy+h/2,owner.peak),inner=rect(cx-w/2+bevel,cy-h/2+bevel,cx+w/2-bevel,cy+h/2-bevel,z);ring(p,outer,tone);ring(outer,inner,owner.tone*.48);quad(inner,delta<0?.18:Math.min(1.08,owner.tone*1.06));tops.push({bounds:[inner[0][0],inner[0][1],inner[2][0],inner[2][1]],height:z,kind:delta<0?'pocket':'panel'});
+    }
+   }else {quad(p,tone);if(x===1&&y===1)tops.push({bounds:[xs[1],ys[1],xs[2],ys[2]],height:owner.peak,kind:owner.kind});}
+  }
+  const cell={shapes,tops,owner,bounds:[x0,y0,x1,y1]};terrain.set(key,cell);return cell;
+ };
+ const gridAt=(x,y)=>{const X=x+worldU,Y=y+worldV,cell=terrainCell(axisIndex(X,0),axisIndex(Y,1));for(const shape of cell.shapes){const h=bary(shape.points,X,Y);if(h!=null)return h;}return .075;};
  const hostCenter=patch._part?.c||[ship.hull.L/2,ship.hull.H/2,0],safePoints=new Map();
  const safePoint=(p,front,hint)=>{const key=p.map(v=>v.toFixed(7)).join(','),old=safePoints.get(key);if(old)return old;const float=q=>Array.from(Float32Array.from(q));let q=float(p);
   if(!inside(q)){const candidates=[C.add(p,C.mul(C.sub(hostCenter,p),1e-5)),... [hint||C.sub(patch.center,p),C.sub(patch.center,p),C.mul(normal,-1),C.sub(hostCenter,p)].map(d=>C.add(p,C.mul(C.norm(d),.003)))];let found=candidates.find(v=>inside(float(v)));
@@ -2086,24 +2118,27 @@ function surfaceEquipmentField(ship,patch,cells,style,detail,extraBudget,fieldBu
    if(!found&&front){let inner=float(hint?C.sub(C.add(front,C.mul(C.norm(hint),.005)),C.mul(normal,.0005)):C.add(front,C.mul(C.sub(hostCenter,front),1e-5)));if(!inside(inner))inner=float(C.add(front,C.mul(C.norm(C.sub(patch.center,front)),.003)));if(inside(inner)){let outer=p;for(let step=0;step<14;step++){const mid=C.mul(C.add(inner,outer),.5);if(inside(float(mid)))inner=mid;else outer=mid;}found=inner;}}
    if(found)q=float(found);
   }safePoints.set(key,q);return q;};
- const skinHeight=(x,y)=>{for(const t of tris){if(x<t.bounds[0]-1e-6||x>t.bounds[2]+1e-6||y<t.bounds[1]-1e-6||y>t.bounds[3]+1e-6)continue;const [a,b,c]=t,det=(b[1]-c[1])*(a[0]-c[0])+(c[0]-b[0])*(a[1]-c[1]);if(Math.abs(det)<1e-12)continue;const A=((b[1]-c[1])*(x-c[0])+(c[0]-b[0])*(y-c[1]))/det,B=((c[1]-a[1])*(x-c[0])+(a[0]-c[0])*(y-c[1]))/det,D=1-A-B;if(Math.min(A,B,D)<-1e-6)continue;const front=a[2]*A+b[2]*B+c[2]*D,back=a[3]*A+b[3]*B+c[3]*D;return back+(front-back)*gridAt(x,y);}return null;};
+ // Lamps and category marks sit on the final clipped Float32 facets,
+ // including tapered recesses; they never sample a smoother analytic skin.
+ const skinHeight=(x,y)=>{const i=axisIndex(x+worldU,0),j=axisIndex(y+worldV,1);for(const [dx,dy]of [[0,0],[-1,0],[1,0],[0,-1],[0,1],[-1,-1],[1,-1],[-1,1],[1,1]])for(const T of skinBuckets.get((i+dx)+'|'+(j+dy))||[]){const h=bary(T,x,y);if(h!=null)return h;}return null;};
  const clipLine=(poly,A,B,sign)=>{const out=[],distance=p=>((B[0]-A[0])*(p[1]-A[1])-(B[1]-A[1])*(p[0]-A[0]))*sign;for(let k=0;k<poly.length;k++){const a=poly[k],b=poly[(k+1)%poly.length],da=distance(a),db=distance(b);if(da>=-1e-8)out.push(a);if((da<0)!==(db<0)){const t=da/(da-db);out.push(a.map((v,j)=>v+(b[j]-v)*t));}}return out;};
  const withoutBlocked=poly=>{let list=[poly];for(const b of blocked){const next=[];for(const p of list){let rest=p;for(const [axis,limit,sign]of [[0,b[0],1],[0,b[2],-1],[1,b[1],1],[1,b[3],-1]]){const outside=clip(rest,axis,limit,-sign);if(outside.length>2)next.push(outside);rest=clip(rest,axis,limit,sign);if(rest.length<3)break;}}list=next;}return list;};
- if((base?.fieldBudget??fieldBudget)>0)for(let j=Math.floor((lo[1]+worldV)/gridHeight);j<=Math.floor((hi[1]+worldV)/gridHeight);j++)for(let i=Math.floor((lo[0]+worldU)/gridWidth);i<=Math.floor((hi[0]+worldU)/gridWidth);i++){
-  const x=i*gridWidth-worldU,y=j*gridHeight-worldV,grids=[];
-  for(let gy=0;gy<3;gy++)for(let gx=0;gx<3;gx++){const a=[x+gridWidth*gridX[gx],y+gridHeight*gridY[gy]],b=[x+gridWidth*gridX[gx+1],a[1]],c=[b[0],y+gridHeight*gridY[gy+1]],d=[a[0],c[1]],run=runAt(i,j),raised=profile((gridX[gx]+gridX[gx+1])/2,(gridY[gy]+gridY[gy+1])/2,i,j)>peak(i,j)*.8,tone=raised?.88+(surfaceSeed(gridSeed+'|tone|'+run.start+'|'+j,style.seed)%10)*.012:.28+(gy===1?.10:0);grids.push({corners:[a,b,c],tone},{corners:[a,c,d],tone});}
-  for(const {corners:grid,tone} of grids){const triangles=[];for(const t of tris){if(t.bounds[2]<x||t.bounds[0]>x+gridWidth||t.bounds[3]<y||t.bounds[1]>y+gridHeight)continue;let poly=t;for(let k=0;k<3;k++){poly=clipLine(poly,grid[k],grid[(k+1)%3],1);if(poly.length<3)break;}if(poly.length<3)continue;
-    for(const p of withoutBlocked(poly)){const hint=C.mul(t.reduce((a,q)=>C.add(a,at(q[0],q[1],q[2])),[0,0,0]),1/3),points=p.map(q=>{const h=gridAt(q[0],q[1]),front=at(q[0],q[1],q[2]);return safePoint(at(q[0],q[1],q[3]+(q[2]-q[3])*h),front,C.sub(hint,front));});for(let k=1;k<points.length-1;k++){const tri=[points[0],points[k],points[k+1]],n=C.cross(C.sub(tri[1],tri[0]),C.sub(tri[2],tri[0]));if(C.len(n)<1e-8)continue;if(C.dot(n,normal)<0)tri.reverse();triangles.push(...tri.flat());}}
-   }if(triangles.length)reliefFaces.push({triangles,color:surfacePaintTone(paint,tone)});}
+ const visibleTops=[];
+ if((base?.fieldBudget??fieldBudget)>0)for(let j=axisIndex(lo[1]+worldV,1);j<=axisIndex(hi[1]+worldV,1);j++)for(let i=axisIndex(lo[0]+worldU,0);i<=axisIndex(hi[0]+worldU,0);i++){
+  const cell=terrainCell(i,j);visibleTops.push(...cell.tops);for(const shape of cell.shapes){const grid=shape.points.map(p=>[p[0]-worldU,p[1]-worldV]),minX=Math.min(...grid.map(p=>p[0])),maxX=Math.max(...grid.map(p=>p[0])),minY=Math.min(...grid.map(p=>p[1])),maxY=Math.max(...grid.map(p=>p[1])),triangles=[];
+   for(const t of tris){if(t.bounds[2]<minX||t.bounds[0]>maxX||t.bounds[3]<minY||t.bounds[1]>maxY)continue;let poly=t;for(let k=0;k<3;k++){poly=clipLine(poly,grid[k],grid[(k+1)%3],1);if(poly.length<3)break;}if(poly.length<3)continue;
+    for(const p of withoutBlocked(poly)){const hint=C.mul(t.reduce((a,q)=>C.add(a,at(q[0],q[1],q[2])),[0,0,0]),1/3),points=p.map(q=>{const h=bary(shape.points,q[0]+worldU,q[1]+worldV)??gridAt(q[0],q[1]),front=at(q[0],q[1],q[2]);return safePoint(at(q[0],q[1],q[3]+(q[2]-q[3])*h),front,C.sub(hint,front));});for(let k=1;k<points.length-1;k++){const tri=[points[0],points[k],points[k+1]],n=C.cross(C.sub(tri[1],tri[0]),C.sub(tri[2],tri[0]));if(C.len(n)<1e-8)continue;if(C.dot(n,normal)<0)tri.reverse();triangles.push(...tri.flat());const key=i+'|'+j,bucket=skinBuckets.get(key)||[];bucket.push(tri.map(p=>uv(p)));skinBuckets.set(key,bucket);}}
+   }if(triangles.length)reliefFaces.push({triangles,color:surfacePaintTone(paint,shape.tone)});
+  }
  }
  const seatInlay=q=>{const b=q.bounds,ps=[[b[0],b[1]],[b[2],b[1]],[b[2],b[3]],[b[0],b[3]]],points=ps.map(([x,y])=>{const z=skinHeight(x,y);if(z==null)return null;return safePoint(at(x,y,z+.002),at(x,y,0));});if(points.some(p=>!p))return false;q.type='inlay';q.points=points;q.center=C.mul(points.reduce((a,b)=>C.add(a,b),[0,0,0]),.25);return true;};
  for(const device of devices)device.hardware=device.hardware.filter(seatInlay);for(let i=boxes.length-1;i>=0;i--){if(!seatInlay(boxes[i]))boxes.splice(i,1);else boxes[i].color=surfacePaintTone(paint,i%3===0?.26:i%3===1?.62:.94);}
  // Navigation/service lamps belong to the skin, independently of the
  // habitation allocation. They are tiny emissive faces, never extra devices.
  const lights=[];for(const q of field)q.type='relief';
- const masses=field.filter(q=>q.recess),lampCount=Math.min(96,Math.max(1,Math.round(Math.sqrt(patch.exposedArea??patch.area)/3)));
- for(let i=0;i<lampCount&&masses.length;i++){
-  const bank=Math.floor(i/3),r=rng(surfaceSeed(gridSeed+'|lamps|'+bank,style.seed)),q=masses[Math.floor(r()*masses.length)],b=q.bounds,w=Math.min(.7,(b[2]-b[0])*.08),h=Math.min(.30,(b[3]-b[1])*.12),x=(b[0]+b[2])/2+(r()-.5)*(b[2]-b[0])*.48+(i%3-1)*w*1.7,y=(b[1]+b[3])/2+(r()-.5)*(b[3]-b[1])*.48,s=space([x-w/2,y-h/2,x+w/2,y+h/2]);if(!s)continue;
+ const lampSurfaces=visibleTops.filter(q=>q.bounds[2]-q.bounds[0]>2&&q.bounds[3]-q.bounds[1]>1.2),lampCount=Math.min(192,Math.max(6,Math.round(Math.sqrt(patch.exposedArea??patch.area)/12)*6));
+ for(let i=0;i<lampCount&&lampSurfaces.length;i++){
+  const bank=Math.floor(i/6),r=rng(surfaceSeed(gridSeed+'|lamps|'+bank,style.seed)),q=lampSurfaces[Math.floor(r()*lampSurfaces.length)],B=q.bounds,b=[B[0]-worldU,B[1]-worldV,B[2]-worldU,B[3]-worldV],w=Math.min(.95,(b[2]-b[0])/7),h=Math.min(.65,(b[3]-b[1])/5),x=(b[0]+b[2])/2+(r()-.5)*Math.max(0,b[2]-b[0]-w*6)+(i%3-1)*w*1.8,y=(b[1]+b[3])/2+(r()-.5)*Math.max(0,b[3]-b[1]-h*3.3)+(Math.floor(i/3)%2-.5)*h*1.9,s=space([x-w/2,y-h/2,x+w/2,y+h/2]);if(!s)continue;
   const z=skinHeight(x,y);if(z==null)continue;
   if(z>s.ceiling)continue;const lamp={feature:'service-light',type:'inlay',ownerId:host,role:null,center:at(x,y,z),u,v,normal,size:[w,h,.002],bounds:[x-w/2,y-h/2,x+w/2,y+h/2],color:bank%4===0?[166,205,238]:[242,226,184],port:true};if(seatInlay(lamp))lights.push(lamp);
  }

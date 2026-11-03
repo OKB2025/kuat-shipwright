@@ -1,0 +1,532 @@
+{
+  "reference": "https://fractalsponge.net/imperator-class-star-destroyer-redux/",
+  "environment": {
+    "browser": "154.0.8037.57",
+    "rendering": "WebGL with SwiftShader",
+    "sceneViewport": [
+      1440,
+      960
+    ],
+    "interactionViewport": [
+      1280,
+      800
+    ],
+    "notes": [
+      "These are procedural low-poly study envelopes, not the referenced artist mesh or a reproduction of the full source model.",
+      "No reference image or model was incorporated into the ship meshes.",
+      "Visual generation timings are individual setup observations, not controlled performance comparisons.",
+      "Final interaction runs use a 32-structure/32-equipment-face fixture and a warm trusted audio gesture before input.",
+      "SwiftShader software rendering and awaited automation inputs do not establish device FPS. rAF cadence describes event-loop availability."
+    ]
+  },
+  "scene": {
+    "nativePartsBefore": 9,
+    "nativePartsAfter": 9,
+    "nativeFitsAfter": 0,
+    "equipmentFaces": 27,
+    "fixtureUnchanged": true,
+    "fixtureSHA256": "d75b0fedb92d814d0ec13860d849f57753f6a574503008653423fa5b038f2925",
+    "nativePartIdsAfter": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "views": {
+      "overview": {
+        "center": [
+          390,
+          150,
+          0
+        ],
+        "distance": 1230,
+        "theta": -0.72,
+        "phi": 1.19
+      },
+      "bridge": {
+        "center": [
+          180,
+          278,
+          -12
+        ],
+        "distance": 330,
+        "theta": -0.65,
+        "phi": 1.32
+      },
+      "trench": {
+        "center": [
+          330,
+          135,
+          -120
+        ],
+        "distance": 380,
+        "theta": -1,
+        "phi": 1.38
+      },
+      "slope": {
+        "center": [
+          320,
+          90,
+          -120
+        ],
+        "distance": 450,
+        "theta": -0.4,
+        "phi": 0.9
+      }
+    },
+    "workerMode": "worker",
+    "jsErrors": []
+  },
+  "meshes": {
+    "baseline": {
+      "hull": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "refHull": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "keel": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "struct": {
+        "vertices": 11312,
+        "triangles": 4120
+      },
+      "plate": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "gen": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "shield": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "hyper": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "interior": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "engine": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "plant": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "nozzle": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "hangar": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "refStruct": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "refEngine": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "refPlant": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "surfaceArmor": {
+        "vertices": 19553,
+        "triangles": 6641
+      },
+      "surfaceDevices": {
+        "vertices": 289141,
+        "triangles": 99579
+      },
+      "surfaceDetail": {
+        "vertices": 1204,
+        "triangles": 602
+      },
+      "hatchOpen": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "hatchRay": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "refHatches": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "fits": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "refFits": {
+        "vertices": 0,
+        "triangles": 0
+      }
+    },
+    "final": {
+      "hull": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "refHull": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "keel": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "struct": {
+        "vertices": 11312,
+        "triangles": 4120
+      },
+      "plate": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "gen": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "shield": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "hyper": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "interior": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "engine": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "plant": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "nozzle": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "hangar": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "refStruct": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "refEngine": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "refPlant": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "surfaceArmor": {
+        "vertices": 19553,
+        "triangles": 6641
+      },
+      "surfaceDevices": {
+        "vertices": 271694,
+        "triangles": 93770
+      },
+      "surfaceDetail": {
+        "vertices": 1204,
+        "triangles": 602
+      },
+      "hatchOpen": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "hatchRay": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "refHatches": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "fits": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "refFits": {
+        "vertices": 0,
+        "triangles": 0
+      }
+    },
+    "surfaceDevicesTriangleReductionPercent": 5.834,
+    "workerSetupObservationMs": {
+      "baseline": 4085.7,
+      "final": 2895.8
+    }
+  },
+  "finalInteraction": {
+    "slider": {
+      "handlerSamples": 12,
+      "handlerMedianMs": 0.7,
+      "handlerMaxMs": 5.8,
+      "handlerDurationsMs": [
+        5.8,
+        0.5,
+        0.7,
+        0.5,
+        0.7,
+        0.7,
+        0.7,
+        0.7,
+        0.9,
+        0.8,
+        0.7,
+        0.5
+      ],
+      "actualInputs": [
+        80,
+        82,
+        84,
+        86,
+        88,
+        90,
+        92,
+        94,
+        96,
+        98,
+        100,
+        102
+      ],
+      "synchronousSurfaceQueries": 0,
+      "duringInputLongTasksMs": [],
+      "allMeasuredLongTasksMs": [
+        63
+      ],
+      "replayDurationMs": 663,
+      "rAF": {
+        "callbacks": 7,
+        "cadenceHz": 10.558,
+        "medianIntervalMs": 108.35,
+        "maxIntervalMs": 200
+      },
+      "editorDrawsDuringInput": 3,
+      "workerMode": "worker",
+      "finalPartCenter": [
+        102,
+        50,
+        -150
+      ],
+      "jsErrors": []
+    },
+    "drag": {
+      "handlerSamples": 20,
+      "handlerMedianMs": 0.3,
+      "handlerMaxMs": 6,
+      "handlerDurationsMs": [
+        0.1,
+        0.1,
+        6,
+        0.7,
+        0.5,
+        0.2,
+        0.5,
+        0.4,
+        0.5,
+        0.2,
+        0.4,
+        0.6,
+        0.3,
+        0.2,
+        0.2,
+        0.3,
+        0.3,
+        0.3,
+        0.3,
+        0.4
+      ],
+      "actualInputs": [
+        {
+          "x": 663,
+          "y": 429.0999755859375,
+          "buttons": 1
+        },
+        {
+          "x": 666,
+          "y": 428.6999816894531,
+          "buttons": 1
+        },
+        {
+          "x": 669,
+          "y": 428.29998779296875,
+          "buttons": 1
+        },
+        {
+          "x": 672,
+          "y": 427.8999938964844,
+          "buttons": 1
+        },
+        {
+          "x": 675,
+          "y": 427.5,
+          "buttons": 1
+        },
+        {
+          "x": 678,
+          "y": 427.0999755859375,
+          "buttons": 1
+        },
+        {
+          "x": 681,
+          "y": 426.6999816894531,
+          "buttons": 1
+        },
+        {
+          "x": 684,
+          "y": 426.29998779296875,
+          "buttons": 1
+        },
+        {
+          "x": 687,
+          "y": 425.8999938964844,
+          "buttons": 1
+        },
+        {
+          "x": 690,
+          "y": 425.5,
+          "buttons": 1
+        },
+        {
+          "x": 693,
+          "y": 425.0999755859375,
+          "buttons": 1
+        },
+        {
+          "x": 696,
+          "y": 424.6999816894531,
+          "buttons": 1
+        },
+        {
+          "x": 699,
+          "y": 424.29998779296875,
+          "buttons": 1
+        },
+        {
+          "x": 702,
+          "y": 423.8999938964844,
+          "buttons": 1
+        },
+        {
+          "x": 705,
+          "y": 423.5,
+          "buttons": 1
+        },
+        {
+          "x": 708,
+          "y": 423.0999755859375,
+          "buttons": 1
+        },
+        {
+          "x": 711,
+          "y": 422.6999816894531,
+          "buttons": 1
+        },
+        {
+          "x": 714,
+          "y": 422.29998779296875,
+          "buttons": 1
+        },
+        {
+          "x": 717,
+          "y": 421.8999938964844,
+          "buttons": 1
+        },
+        {
+          "x": 720,
+          "y": 421.5,
+          "buttons": 1
+        }
+      ],
+      "synchronousSurfaceQueries": 1,
+      "duringInputLongTasksMs": [],
+      "allMeasuredLongTasksMs": [
+        122
+      ],
+      "replayDurationMs": 3233.8,
+      "rAF": {
+        "callbacks": 26,
+        "cadenceHz": 8.04,
+        "medianIntervalMs": 166.7,
+        "maxIntervalMs": 250
+      },
+      "editorDrawsDuringInput": 18,
+      "workerMode": "worker",
+      "finalPartCenter": [
+        67.11629376121886,
+        50,
+        -145.7946690774525
+      ],
+      "jsErrors": []
+    }
+  },
+  "sourceHashes": {
+    "baseline": {
+      "js/app.js": "2a3e3331552941eef10fb917896ab781d13458daa5e5b2174471deafee86157f",
+      "js/core.js": "7e0da3bd9c8a00bf82dce1c6780094c4dae387c15db44979e9bf63fa26bf367d",
+      "js/gfx.js": "de6bc8c0edf5610aca49f5b6b4358647533447781c9dad7305e8e80eda49de15",
+      "js/engine.js": "2b81ddf076e73b2f0b0be2928d58e97d0200d775e2b38eb2531bcf28df72ee52"
+    },
+    "final": {
+      "js/gfx.js": "cdda736707af605ffa93cdf14ee2369af9af8dcedacae8c73b1371cd696893cd",
+      "js/engine.js": "2b81ddf076e73b2f0b0be2928d58e97d0200d775e2b38eb2531bcf28df72ee52",
+      "js/app.js": "2a3e3331552941eef10fb917896ab781d13458daa5e5b2174471deafee86157f",
+      "js/core.js": "7e0da3bd9c8a00bf82dce1c6780094c4dae387c15db44979e9bf63fa26bf367d"
+    }
+  },
+  "artifacts": {
+    "baseline": [
+      "imperator-baseline-overview.png",
+      "imperator-baseline-bridge.png",
+      "imperator-baseline-trench.png",
+      "imperator-baseline-slope.png"
+    ],
+    "final": [
+      "imperator-final-overview.png",
+      "imperator-final-bridge.png",
+      "imperator-final-trench.png",
+      "imperator-final-slope.png",
+      "imperator-final-inclined-grazing.png"
+    ]
+  },
+  "artifactSHA256": {
+    "imperator-baseline-overview.png": "f0809810676e9815795eaae3855a5c079c4fae844102b7fd4f7eb47d94464c77",
+    "imperator-baseline-bridge.png": "fbf48c45beffec0a1becdabe97ee1f8e278f0e0933dbfac7f679a643cb87f6d3",
+    "imperator-baseline-trench.png": "63da0abe7df779e9efa613110ae38c32f2cc5f83f804b8c34ffde51430f82092",
+    "imperator-baseline-slope.png": "3b84b12ea74b10ad3b13ed2e8d55a36c99a1e1b2213011b0cd35cf45421c28d3",
+    "imperator-final-overview.png": "35fa9aac7a71bc39bdf0d0f04f22a4531970d1592ce53e5f56a4a0c09f6ab198",
+    "imperator-final-bridge.png": "2bc70bb210220fddc96c0b153744f0635ed1dae67028d53dfabb193b5ac5e812",
+    "imperator-final-trench.png": "513fb7fa657641cdfa330531ce734e4857ca28b45ad4b236f5b10ffcf541d63e",
+    "imperator-final-slope.png": "af3e6b441b3e12462bebccf58038e90d2b62aa0659cf8e3b2421dfb921c7c8d3",
+    "imperator-final-inclined-grazing.png": "8caeb48b471c1b33a9f20db2c290d261d8ab81e96dcd6215dc88b835fb2d9ee2"
+  }
+}
