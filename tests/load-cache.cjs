@@ -28,42 +28,43 @@ function engine(idb,files={}){
 }
 const settle=()=>new Promise(r=>setTimeout(r,30));
 const meshSig=g=>Object.keys(g.meshes).sort().map(k=>{const m=g.meshes[k].geo;return m?k+':'+m.n+':'+m.ni:k;}).join(',');
+// A small design whose figures take moments (the examples' take minutes in a test run).
+function tiny(C){const s=C.deserialize(C.serialize(C.newShip({L:160,W:100,H:80,assembly:true},'Load test')));s.parts=[];s.fits=[];s.armor={hull:0,cit:0};s.detail=0;s.nextId=1;C.placePart(s,'struct',[80,40,30],[80,40,24],{form:'box'},false);return C.serialize(s);}
 
-test('a design built once is served from the disk cache on the next visit, with the same figures and model',async()=>{
+test('an example built once is served from the disk cache on the next visit, with the same design and model',async()=>{
  const idb=fakeIDB(),a=engine(idb);
- const first=await a.request({type:'fleet',key:'gozanti'});assert.equal(first.src,'built');await settle();
+ const first=await a.request({type:'fleet',key:'gozanti',lite:true});assert.equal(first.src,'built');assert.equal(first.stats,null);await settle();
  assert.ok([...idb.stores.get('rec').keys()].includes('k:gozanti'),'the build is stored under the example key');
- const b=engine(idb),second=await b.request({type:'fleet',key:'gozanti'});
- assert.equal(second.src,'disk');assert.deepEqual(plain(second.profile),plain(first.profile));assert.deepEqual(plain(second.design),plain(first.design));
- assert.equal(meshSig(second.geometry),meshSig(first.geometry));
- // the trial asks for the serialized design: the alias finds the same record
- const trial=await b.request({type:'fleet',design:first.design,trial:true});assert.ok(['memory','disk'].includes(trial.src));assert.ok(trial.geometry.turrets);
+ const b=engine(idb),second=await b.request({type:'fleet',key:'gozanti',lite:true});
+ assert.equal(second.src,'disk');assert.deepEqual(plain(second.design),plain(first.design));assert.equal(meshSig(second.geometry),meshSig(first.geometry));
  const built=await engine(idb).request({type:'build',key:'gozanti'});assert.equal(built.src,'disk');
 });
 
 test('records of other sources are not served: any change to the engine files starts afresh',async()=>{
- const idb=fakeIDB();await engine(idb).request({type:'fleet',key:'gr75'});await settle();
- const changed=engine(idb,{'js/core.js':read('js/core.js')+'\n// changed\n'}),r=await changed.request({type:'fleet',key:'gr75'});
+ const idb=fakeIDB();await engine(idb).request({type:'fleet',key:'gozanti',lite:true});await settle();
+ const r=await engine(idb,{'js/core.js':read('js/core.js')+'\n// changed\n'}).request({type:'fleet',key:'gozanti',lite:true});
  assert.equal(r.src,'built');
 });
 
 test('without IndexedDB everything is built as before',async()=>{
- const e=engine(null),a=await e.request({type:'fleet',key:'gozanti'}),b=await engine(null).request({type:'fleet',key:'gozanti'});
+ const e=engine(null),a=await e.request({type:'fleet',key:'gozanti',lite:true}),b=await engine(null).request({type:'fleet',key:'gozanti',lite:true});
  assert.equal(a.src,'built');assert.equal(b.src,'built');assert.equal(e.E.disk.off,true);
 });
 
-test('lite fleet models skip the figures; asking for them later gives the full profile',async()=>{
- const idb=fakeIDB(),e=engine(idb);
- const lite=await e.request({type:'fleet',key:'gr75',lite:true});assert.equal(lite.stats,null);assert.equal(lite.profile,null);assert.ok(Object.keys(lite.geometry.meshes).length);
- const figures=await e.request({type:'fleet',key:'gr75',statsOnly:true});assert.ok(figures.stats);assert.equal(figures.geometry,undefined);
- const full=await engine(fakeIDB()).request({type:'fleet',key:'gr75'});assert.deepEqual(plain(figures.profile),plain(full.profile));
+test('lite models skip the figures; asking for them later gives the same profile as a full request, from disk too',async()=>{
+ const idb=fakeIDB(),e=engine(idb),design=tiny(e.C);
+ const lite=await e.request({type:'fleet',design,lite:true});assert.equal(lite.stats,null);assert.equal(lite.profile,null);assert.ok(Object.keys(lite.geometry.meshes).length);
+ const figures=await e.request({type:'fleet',design,statsOnly:true});assert.ok(figures.stats);assert.equal(figures.geometry,undefined);await settle();
+ const full=await engine(fakeIDB()).request({type:'fleet',design});assert.deepEqual(plain(figures.profile),plain(full.profile));
+ const again=await engine(idb).request({type:'fleet',design,trial:true});assert.equal(again.src,'disk');assert.deepEqual(plain(again.profile),plain(full.profile));assert.ok(Array.isArray(again.geometry.turrets));
 });
 
 test('a trial of the design on the drawing board reuses the figures the editor already has',async()=>{
- const e=engine(fakeIDB()),{C}=e,ship=C.buildDesign('gozanti');C.syncCompartments(ship);C.remount(ship);C.syncCompartments(ship);
+ const e=engine(fakeIDB()),{C}=e,ship=C.deserialize(tiny(C));
  // the editor's update (geometry, then figures) runs first: the engine takes jobs in order
  e.request({type:'update',gen:1,state:C.publicJSON(ship),what:['all'],reset:true,stats:true,statsDelay:0});
- const r=await e.request({type:'fleet',design:C.serialize(ship),trial:true});assert.equal(r.src,'editor');assert.ok(r.stats&&r.profile.accel>0);
+ const r=await e.request({type:'fleet',design:C.serialize(ship),trial:true});assert.equal(r.src,'editor');assert.ok(r.stats&&r.profile);
+ const plainRun=await engine(fakeIDB()).request({type:'fleet',design:C.serialize(ship),trial:true});assert.equal(plainRun.src,'built');assert.deepEqual(plain(r.profile),plain(plainRun.profile));
 });
 
 test('Japanese mode neither loads nor needs the English catalog; English compiles it when it arrives',()=>{
