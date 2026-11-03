@@ -105,8 +105,27 @@ function plates(g, R, S, cells, base, spread, depth) {
   };
   for (let i = 0; i < cells; i++) for (let j = 0; j < cells; j++) plate(i * cell, j * cell, cell, cell, depth);
 }
+// One seamless material atlas, built at renderer startup rather than while a
+// design is edited. Shared, jittered cuts allow plates to join across a cell;
+// the suppressed internal edges produce L-shaped and stepped interlocks.
+function armorTexture() {
+  const S=1024,N=24,R=rng(145141137),a=document.createElement('canvas');a.width=a.height=S;const g=a.getContext('2d'),owner=new Int16Array(N*N).fill(-1),groups=[],axis=()=>Array.from({length:N+1},(_,i)=>i===0?0:i===N?S:(i+(R()-.5)*.48)*S/N),X=axis(),Y=axis(),wrap=x=>(x+N)%N,at=(x,y)=>wrap(y)*N+wrap(x);
+  const candidates=Array.from({length:N*N},(_,i)=>i);for(let i=candidates.length-1;i>0;i--){const j=Math.floor(R()*(i+1));[candidates[i],candidates[j]]=[candidates[j],candidates[i]];}
+  const place=(x,y,w,h,notch)=>{const cells=[];for(let j=0;j<h;j++)for(let i=0;i<w;i++){if(notch&&i===w-1&&j===h-1)continue;if(owner[at(x+i,y+j)]>=0)return false;cells.push([wrap(x+i),wrap(y+j)]);}const id=groups.length;for(const [i,j]of cells)owner[at(i,j)]=id;groups.push({cells,tone:199+R()*18,step:R()>.58});return true;};
+  for(const id of candidates){const x=id%N,y=Math.floor(id/N);if(owner[id]>=0)continue;for(let attempt=0;attempt<8;attempt++){const w=2+Math.floor(R()*4),h=1+Math.floor(R()*4);if(place(x,y,w,h,w>2&&h>1&&R()<.48))break;}}
+  // Small gaps become short neighboring plates, never a second fine grid.
+  for(const id of candidates)if(owner[id]<0){const x=id%N,y=Math.floor(id/N);if(!place(x,y,2,1,false)&&!place(x,y,1,2,false))place(x,y,1,1,false);}
+  for(const q of groups){g.fillStyle=sh(q.tone);for(const [x,y]of q.cells)g.fillRect(X[x]-.2,Y[y]-.2,X[x+1]-X[x]+.4,Y[y+1]-Y[y]+.4);}
+  // Hairline joints retain grey material rather than baking black cavities.
+  // A few wider bright/dark pairs suggest overlapping armor lips.
+  const edge=(a,b,q)=>{g.lineCap='butt';g.strokeStyle=sh(q.tone-35);g.lineWidth=q.step?1.6:1.05;g.beginPath();g.moveTo(...a);g.lineTo(...b);g.stroke();if(q.step){g.strokeStyle=sh(Math.min(231,q.tone+13));g.lineWidth=1.25;g.beginPath();g.moveTo(a[0]+1.45,a[1]+1.45);g.lineTo(b[0]+1.45,b[1]+1.45);g.stroke();}};
+  for(let y=0;y<N;y++)for(let x=0;x<N;x++){const id=owner[at(x,y)],q=groups[id];if(id!==owner[at(x-1,y)]){edge([X[x],Y[y]],[X[x],Y[y+1]],q);if(x===0)edge([S,Y[y]],[S,Y[y+1]],q);}if(id!==owner[at(x,y-1)]){edge([X[x],Y[y]],[X[x+1],Y[y]],q);if(y===0)edge([X[x],S],[X[x+1],S],q);}}
+  for(const q of groups){if(q.cells.length<3||R()>.22)continue;const [i,j]=q.cells[Math.floor(R()*q.cells.length)],x=X[i]+(X[i+1]-X[i])*.23,y=Y[j]+(Y[j+1]-Y[j])*.24,w=8+R()*14,h=6+R()*11;g.fillStyle=sh(q.tone-5);g.fillRect(x,y,w,h);g.strokeStyle=sh(q.tone-25);g.lineWidth=.8;g.strokeRect(x,y,w,h);g.fillStyle=sh(q.tone+9);g.fillRect(x+.8,y+h-1,w-.8,.8);if(R()>.55){g.fillStyle=sh(q.tone-22);g.fillRect(x+w*.62,y+h*.3,1.2,h*.4);}}
+  return {a,e:pair(2,2).e};
+}
 function makeTextures() {
   const T = {}, R = rng(1977);
+  T.armor=armorTexture();
   {const p=pair(2,2);p.g.fillStyle='#fff';p.g.fillRect(0,0,2,2);T.surface=p;}
   { // hull: 512 px = 96 m
     const S = 512, {a, e, g, ge} = pair(S);
@@ -208,7 +227,9 @@ function hullUV(nx, ny, nz) {
   if (ay >= ax && ay >= az) return p => [p[0], p[2]];
   const l=Math.hypot(nx,nz)||1,ux=nz/l,uz=-nx/l;return p=>[p[0]*ux+p[2]*uz,p[1]];
 }
-function hullTriangleMesh(g, T, col, scale=48,alpha=255) {
+// Vertex byte251 opts native armor into the ship-coordinate material. Other
+// instruments in the same draw batch retain their original atlas and shading.
+function hullTriangleMesh(g, T, col, scale=48,alpha=251) {
   const nt = Math.floor(T.length / 9); if (!nt) return; g.room(nt * 3, nt * 3);
   for (let i = 0; i < nt * 9; i += 9) {
     const a = [T[i], T[i + 1], T[i + 2]], b = [T[i + 3], T[i + 4], T[i + 5]], c = [T[i + 6], T[i + 7], T[i + 8]], n = C.cross(C.sub(b, a), C.sub(c, a)), l = Math.hypot(n[0], n[1], n[2]) || 1, uv = hullUV(n[0], n[1], n[2]), k = g.n;
@@ -216,7 +237,7 @@ function hullTriangleMesh(g, T, col, scale=48,alpha=255) {
     g.tri(k, k + 1, k + 2);
   }
 }
-function hullQuad(g,points,normal,color,scale=48){const uv=hullUV(...normal);quad(g,points,normal,points.map(p=>uv(p).map(x=>x/scale)),color,255);}
+function hullQuad(g,points,normal,color,scale=48,alpha=251){const uv=hullUV(...normal);quad(g,points,normal,points.map(p=>uv(p).map(x=>x/scale)),color,alpha);}
 function v3MeshHull(ship) {
   const g0 = C.hullGeo(ship), xs = g0.xs, secs = g0.secs, N = g0.N, S = xs.length;
   const P = (i, j) => [xs[i], secs[i].Y[j], secs[i].Z[j]];
@@ -253,7 +274,7 @@ function v3MeshHull(ship) {
     g.room(4);
     for (const [ci, cj] of corners) {
       const p = P(ci, cj), n = vnormal(ci, cj, i, j), uv = uvOf(p);
-      g.v(p[0], p[1], p[2], n[0], n[1], n[2], uv[0] / TS, uv[1] / TS, PAINT, 255);
+      g.v(p[0], p[1], p[2], n[0], n[1], n[2], uv[0] / TS, uv[1] / TS, PAINT, 251);
     }
     g.tri(base, base + 1, base + 2); g.tri(base, base + 2, base + 3);
   }
@@ -263,8 +284,8 @@ function v3MeshHull(ship) {
     let cz = 0, cy = 0; for (let j = 0; j < N; j++) { cz += s.Z[j]; cy += s.Y[j]; } cz /= N; cy /= N;
     const nx = i === 0 ? -1 : 1, base = g.n;
     g.room(N + 1, N * 3);
-    g.v(xs[i], cy, cz, nx, 0, 0, cz / TS, cy / TS, PAINT, 235);
-    for (let j = 0; j < N; j++) g.v(xs[i], s.Y[j], s.Z[j], nx, 0, 0, s.Z[j] / TS, s.Y[j] / TS, PAINT, 235);
+    g.v(xs[i], cy, cz, nx, 0, 0, cz / TS, cy / TS, PAINT, 251);
+    for (let j = 0; j < N; j++) g.v(xs[i], s.Y[j], s.Z[j], nx, 0, 0, s.Z[j] / TS, s.Y[j] / TS, PAINT, 251);
     for (let j = 0; j < N; j++) { const a = base + 1 + j, b = base + 1 + (j + 1) % N; if (i === 0) g.tri(base, a, b); else g.tri(base, b, a); }
   }
   return g;
@@ -695,9 +716,9 @@ precision highp float;
 #else
 precision mediump float;
 #endif
-uniform sampler2D uTex;uniform sampler2D uEmiTex;uniform vec3 uL1;uniform vec3 uL2;uniform vec3 uC1;uniform vec3 uC2;
+uniform sampler2D uTex;uniform sampler2D uEmiTex;uniform sampler2D uArmorTex;uniform vec3 uL1;uniform vec3 uL2;uniform vec3 uC1;uniform vec3 uC2;
 uniform vec3 uSky;uniform vec3 uGnd;uniform vec3 uEye;uniform float uAlpha;uniform float uEmi;uniform vec3 uClip;uniform vec3 uClipLo;uniform float uClipOn;uniform vec4 uSeam;uniform float uChar;uniform float uBack;uniform float uReference;uniform float uPaint;uniform float uRefHull;uniform float uHullLength;uniform float uFlash;uniform vec4 uEmiTint;
-uniform vec3 uLightCol;uniform float uLightK;uniform float uPortK;uniform vec2 uPix;uniform float uSkinScale;uniform float uSkinTexels;
+uniform vec3 uLightCol;uniform float uLightK;uniform float uPortK;uniform vec2 uPix;uniform float uSkinScale;
 uniform sampler2D uShadow;uniform mat4 uShM;uniform vec4 uShTile;uniform vec4 uShK;uniform vec2 uLook;
 varying vec3 vN;varying vec2 vUv;varying vec4 vCol;varying vec3 vW;varying vec3 vS;varying vec3 vNS;
 float hash12(vec2 p){vec3 q=fract(vec3(p.xyx)*0.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
@@ -710,17 +731,13 @@ vec2 plateFootprint(vec2 p){
  return vec2(max(0.0001,mpp/facing));
 #endif
 }
-float plateBandIntegral(float x,float w){float f=fract(x);return floor(x)*(2.0*w)+min(f,w)+max(f-(1.0-w),0.0);}
-float plateBand(float x,float width,float footprint){float w=max(footprint,0.00001);return clamp((plateBandIntegral(x+w*0.5,width)-plateBandIntegral(x-w*0.5,width))/w,0.0,1.0);}
 vec3 filteredDeckPlate(vec3 fine,vec2 p){
- vec2 fp=plateFootprint(p);float row=floor(p.y/6.0),offset=hash12(vec2(row,17.0))*12.0;
- vec2 panel=vec2((p.x+offset)/12.0,p.y/6.0),width=vec2(0.055/12.0,0.055/6.0);
- float joint=max(plateBand(panel.x,width.x,fp.x/12.0),plateBand(panel.y,width.y,fp.y/6.0));
- float variation=(hash12(floor(panel))-0.5)*0.018*(1.0-smoothstep(0.3,0.9,max(fp.x/12.0,fp.y/6.0)));
- float coarse=0.81+variation-joint*0.12;
- float texelFootprint=max(fp.x,fp.y)*uSkinTexels/max(uSkinScale,0.01);
- float fineWeight=1.0-smoothstep(1.0,5.0,texelFootprint);
- return mix(vec3(coarse),fine,fineWeight);
+ // Mipmaps integrate the actual interlocking outlines, including inspection
+ // panels. A grazing footprint fades their contrast before aliasing can turn
+ // the joints into a false diagonal network; the old grid never returns.
+ vec2 fp=plateFootprint(p);vec3 armor=texture2D(uArmorTex,p/192.0).rgb;
+ float contrast=1.0-smoothstep(3.5,16.0,max(fp.x,fp.y));
+ return mix(vec3(0.815),armor,contrast);
 }
 // v20.2 The key light's shadow, from the ship's depth map seen from the light in the mesh's own
 // frame (uShM), four texels blended for a clean edge; 1 lit, 0 shadowed. uShK: on, texel (atlas
@@ -753,18 +770,17 @@ vec2 shipLights(vec3 ns){
 void main(){
 if(uClipOn>0.5&&(vS.x>uClip.x||vS.y>uClip.y||vS.z>uClip.z||vS.x<uClipLo.x||vS.y<uClipLo.y||vS.z<uClipLo.z))discard;
 vec3 n=normalize(vN),ns=normalize(vNS);vec2 materialUV=vUv;
-// Procedural deck plating samples the ship coordinates at the fragment.
-// A legacy roof/detail triangle cannot introduce its own diagonal UV axis.
-if(uSkinScale>0.0&&abs(ns.y)>=abs(ns.x)&&abs(ns.y)>=abs(ns.z)&&!(vCol.a>253.5/255.0&&vCol.a<254.5/255.0))materialUV=vS.xz/uSkinScale;
+bool armorSurface=vCol.a>250.5/255.0&&vCol.a<251.5/255.0;
+bool plainSurface=vCol.a>251.5/255.0&&vCol.a<252.5/255.0;
+// Deck/sloped panels retain ship X/Z alignment. A wall uses a truly
+// horizontal tangent and absolute height, consistently across triangles.
+vec2 armorP=vS.xz;if(abs(ns.y)<abs(ns.x)||abs(ns.y)<abs(ns.z))armorP=vec2(dot(vS.xz,normalize(vec2(ns.z,-ns.x))),vS.y);
 vec3 tx=texture2D(uTex,materialUV).rgb;float mask=max(max(texture2D(uEmiTex,materialUV).r,texture2D(uEmiTex,materialUV).g),texture2D(uEmiTex,materialUV).b);float lit=smoothstep(0.035,0.18,mask);if(uReference>0.5&&uReference<1.5)tx=mix(tx,vec3(0.48,0.50,0.51),lit);if(uReference>0.5){bool red=tx.r>tx.g*1.35&&tx.r>tx.b*1.25;if(uPaint<0.5&&red)tx=vec3(min(0.8,tx.r*1.3));if(uPaint>1.5)tx*=uReference>1.5?mix(0.62,1.0,lit):0.62;else if(uPaint>0.5&&uRefHull>0.5&&vS.x>uHullLength*.52&&abs(vS.z)<(uHullLength-vS.x)*.065&&n.y>.4)tx*=vec3(.7,.28,.31);}
-// Subpixel atlas grids otherwise beat against the grazing pixel lattice and
-// form false diagonal networks. Integrate straight major joints over each
-// pixel footprint, retaining the original fine material when it is resolved.
-if(uSkinScale>0.0&&abs(ns.y)>=abs(ns.x)&&abs(ns.y)>=abs(ns.z)&&!(vCol.a>253.5/255.0&&vCol.a<254.5/255.0))tx=filteredDeckPlate(tx,vS.xz);
+if(uSkinScale>0.0&&armorSurface)tx=filteredDeckPlate(tx,armorP);
 // Vertex byte 254 marks non-habitable solar surfaces; their frame shares the same material flag.
 bool solarSurface=vCol.a>253.5/255.0&&vCol.a<254.5/255.0;
 bool surfacePort=vCol.a>252.5/255.0&&vCol.a<253.5/255.0;
-vec3 vc=uReference>0.5?vCol.rgb*2.0:vCol.rgb;vec3 base=vc*vc*tx*tx;float ao=solarSurface||surfacePort?1.0:vCol.a;
+vec3 vc=uReference>0.5?vCol.rgb*2.0:vCol.rgb;vec3 base=vc*vc*tx*tx;float ao=solarSurface||surfacePort||armorSurface||plainSurface?1.0:vCol.a;
 float ef=1.0;
 if(!gl_FrontFacing){n=-n;ef=0.0;if(uBack<0.5){base=vec3(0.085,0.092,0.10);}else{base*=0.62;}}
 vec3 amb=mix(uGnd,uSky,n.y*0.5+0.5)*ao;float d1=max(dot(n,uL1),0.0);float d2=max(dot(n,uL2),0.0);
@@ -1504,7 +1520,6 @@ class Renderer {
     gl.uniform1f(p.u.uPaint,this.paint==='dark'?2:this.paint==='republic'?1:0);gl.uniform1f(p.u.uRefHull,name==='refHull'&&!this.sourceRed?1:0);gl.uniform1f(p.u.uHullLength,this.hullLength||1600);
     gl.uniform1f(p.u.uReference, REFERENCE_SHADED.has(source)||source.startsWith('refTur_')?1:source==='refEngine'?2:0);
     gl.uniform1f(p.u.uSkinScale,source==='surfaceArmor'?30:source==='struct'||source==='hull'||source==='preview'?48:source==='plate'?64:0);
-    gl.uniform1f(p.u.uSkinTexels,source==='struct'||source==='preview'?256:512);
     // v18 Drive nozzles burn in the design's engine colour, brighter with thrust.
     const drive=source==='nozzle'||source==='refEngine',tint=drive?this.engineTint:null;gl.uniform4fv(p.u.uEmiTint,tint?[tint[0]/255,tint[1]/255,tint[2]/255,1]:[1,1,1,0]);
     gl.uniform1f(p.u.uEmi, (emi == null ? 1 : emi) * (MESH_EMI[name] == null ? 1 : MESH_EMI[name]) * (drive ? (this.engineK ?? 1) : 1));
@@ -1512,6 +1527,7 @@ class Renderer {
     gl.uniform4fv(p.u.uSeam, this.seam || [0, 0, 1, 0]); gl.uniform1f(p.u.uChar, this.char || 0);
     gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tx.a); gl.uniform1i(p.u.uTex, 0);
     gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, tx.e); gl.uniform1i(p.u.uEmiTex, 1);
+    gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D, this.tex.armor?.a||tx.a); gl.uniform1i(p.u.uArmorTex, 3);
     const at = (loc, buf, n, type, normd) => { gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, n, type, normd, 0, 0); };
     at(p.a.aPos, mm.pos, 3, gl.FLOAT, false); at(p.a.aNor, mm.nor, 3, gl.BYTE, true);
     at(p.a.aUv, mm.uv, 2, gl.FLOAT, false); at(p.a.aCol, mm.col, 4, gl.UNSIGNED_BYTE, true);
@@ -1788,7 +1804,7 @@ function meshOnePart(out,p,ship,opt,glow){
     if(p.surfacePatch&&p.surfaceUnplaced)return;
     // Drag previews use the requested envelope only; full skin cuts and CSG
     // belong to the asynchronous engine build, never to a pointer event.
-    if(opt.preview&&C.isShapePart(p)&&p.form!=='reference'){const q={...p,_solidCutShip:undefined,_apertures:undefined,_pierced:undefined};hullTriangleMesh(out.struct,C.structTriangles(q),opt.coded?d.col:p.paint?hex(p.paint):STRUCT_PAINT,36);return;}
+    if(opt.preview&&C.isShapePart(p)&&p.form!=='reference'){const q={...p,_solidCutShip:undefined,_apertures:undefined,_pierced:undefined};hullTriangleMesh(out.struct,C.structTriangles(q),opt.coded?d.col:p.paint?hex(p.paint):k==='solarPanel'?[35,43,57]:STRUCT_PAINT,36,k==='solarPanel'?254:251);return;}
     // The common part is the actual inward equipment volume, retained in the
     // diagnostic view. Its exterior is the footprint-bound surface kit below.
     if(p.surfaceRole&&p.surfaceRole!=='weapons'&&p.surfacePatch&&!p.surfaceUnplaced){roomMesh(ship,p,out.interior,color);return;}
@@ -2286,8 +2302,10 @@ function buildSurfaceLayers(ship,ranges,opt,key){
   // Equipment is the opened structure itself: the selected outer skin is
   // replaced by an inward backing, with reveal walls under its armour caps.
   if(config.functionMode==='equipment'){
-   hullTriangleMesh(armor,row.backingTriangles,surfacePaintTone(paint,.52),30);const recess=SURFACE_RECESS_DATA.get(row.backingTriangles)||surfaceRecess(ship,patch,row.recessDepth);
-   for(const e of row.revealBoundary||row.boundary){const a=recess.pointAt(e.a),b=recess.pointAt(e.b),sn=C.norm(C.cross(n,C.sub(e.b,e.a)));hullQuad(armor,[e.a,e.b,b,a],sn,surfacePaintTone(paint,.85),30);}
+   // Byte252 keeps machinery backing/reveals on their existing material even
+   // though they share a draw batch with true armored faces (byte251).
+   hullTriangleMesh(armor,row.backingTriangles,surfacePaintTone(paint,.52),30,252);const recess=SURFACE_RECESS_DATA.get(row.backingTriangles)||surfaceRecess(ship,patch,row.recessDepth);
+   for(const e of row.revealBoundary||row.boundary){const a=recess.pointAt(e.a),b=recess.pointAt(e.b),sn=C.norm(C.cross(n,C.sub(e.b,e.a)));hullQuad(armor,[e.a,e.b,b,a],sn,surfacePaintTone(paint,.85),30,252);}
   }else if(config.functionMode==='armor'&&thickness===0){const lift=C.mul(n,.012);hullTriangleMesh(armor,row.triangles.map((q,i)=>q+lift[i%3]),col,30);}
   if(thickness>0){const lift=C.mul(n,thickness+.01),T=row.triangles.map((q,i)=>q+lift[i%3]);hullTriangleMesh(armor,T,col,30);for(const e of row.boundary){const a=C.add(e.a,lift),b=C.add(e.b,lift),sn=C.norm(C.cross(C.sub(b,a),n));hullQuad(armor,[e.a,e.b,b,a],sn,col,30);}}
   if(config.functionMode==='equipment'){
@@ -2300,6 +2318,7 @@ function buildSurfaceLayers(ship,ranges,opt,key){
   for(const item of row.boxes)if(item.rounded){const half=C.mul(item.u,item.size[0]/2);axisFrustum(detail,C.sub(item.center,half),C.add(item.center,half),item.size[2]/2,item.size[2]/2,item.color,true,false,8);}else addBox(detail,item);
   if(/^p\d+$/.test(row.host)){const id=+row.host.slice(1);for(const [name,g,i]of [['surfaceArmor',armor,0],['surfaceDevices',devices,1],['surfaceDetail',detail,2]])if(g.ni>start[i])(ranges[id]||(ranges[id]=[])).push([name,start[i],g.ni-start[i]]);}
  }
+ if(opt.coded)for(let i=3;i<armor.n*4;i+=4)if(armor.col[i]===251)armor.col[i]=255;
  return {surfaceArmor:armor,surfaceDevices:devices,surfaceDetail:detail};
 }
 function meshParts(ship,opt){
@@ -2328,7 +2347,8 @@ function meshParts(ship,opt){
     }
   }
   routeBuriedApparatus(ship,result);
-  Object.assign(result.g,meshSurfaceLayers(ship,result.ranges));
+  Object.assign(result.g,meshSurfaceLayers(ship,result.ranges,{coded:!!opt.coded}));
+  if(opt.coded)for(const g of Object.values(result.g))for(let i=3;i<g.n*4;i+=4)if(g.col[i]===251)g.col[i]=255;
   return result;
 }
 // Open machinery scenery must not reveal coloured bodies that are still
@@ -2436,7 +2456,7 @@ function plateDetail(ship,g){
    const ps=[[x,z],[x1,z],[x1,z1],[x,z1]].map(([xx,zz])=>point(xx,zz));
    const opening=mouths.some(b=>x1>b[0]&&x<b[3]&&z1>b[2]-2&&z<b[5]+2&&sign*(b[1]+b[4]-h.H)>0);
    const red=ship.paint==='republic'&&((x>h.L*.52&&Math.abs((z+z1)/2)<C.sectionBase(h,x).hw*.28)||(x<h.L*.29&&x1>h.L*.22));
-   if(ps.every(Boolean)&&!opening&&!red){const n=C.norm(C.cross(C.sub(ps[3],ps[0]),C.sub(ps[1],ps[0]))),order=sign>0?[0,3,2,1]:[0,1,2,3];quad(g,order.map(i=>ps[i]),C.mul(n,sign),[[0,0],[0,1],[1,1],[1,0]],[val,val+3,val+4],255);
+   if(ps.every(Boolean)&&!opening&&!red){const n=C.norm(C.cross(C.sub(ps[3],ps[0]),C.sub(ps[1],ps[0]))),order=sign>0?[0,3,2,1]:[0,1,2,3];quad(g,order.map(i=>ps[i]),C.mul(n,sign),[[0,0],[0,1],[1,1],[1,0]],[val,val+3,val+4],251);
     // Narrow, non-repeating joints rather than isolated checkerboard squares.
     for(const edge of [[ps[0],ps[1]],[ps[1],ps[2]]]){const [a,b]=edge,v=C.norm(C.cross(C.sub(b,a),n)),q=[a,b,C.add(b,C.mul(v,.38)),C.add(a,C.mul(v,.38))].map(p=>C.add(p,[0,sign*.06,0]));quad(g,sign>0?q:q.reverse(),C.mul(n,sign),UV_WHITE,[143,152,158],255);}
    }
@@ -2559,6 +2579,7 @@ function meshPreview(ship,parts,fits,opt={}){
  const g=new Geo(2048),out={struct:g,plate:g,gen:g,shield:g,hyper:g,interior:g,engine:g,plant:g,nozzle:g,hangar:g},glow=[];
  const plain=parts.map(p=>({...p,_packing:undefined,_clip:undefined}));
  for(const p of plain)meshOnePart(out,p,ship,{coded:!!opt.coded,preview:true},glow);
+ if(opt.coded)for(let i=3;i<g.n*4;i+=4)if(g.col[i]===251)g.col[i]=255;
  const ref=meshReferenceParts(ship,null,plain.filter(p=>C.REFERENCE_ASSETS[p.skinAsset]),{preview:true}),refG=new Geo(64);for(const k of ['refStruct','refEngine','refPlant'])if(ref[k].ni)appendGeo(refG,ref[k]);
  const fitG=fits.length?meshFits(ship,null,null,fits):new Geo(16),refFitG=fits.length?meshReferenceFits(ship,null,fits):new Geo(16);
  return {preview:g,previewRef:refG,previewFits:fitG,previewRefFits:refFitG,glow};
