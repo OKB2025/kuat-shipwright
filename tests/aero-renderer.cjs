@@ -16,7 +16,7 @@ test('a dedicated wing renders its six-corner section without a cosmetic structu
  const {ship,part}=fixture('wing'),g=G.meshParts(ship,{coded:false});
  assert.equal(part.k,'wing');assert.equal(part.form,'airfoil');assert.equal(ship.parts.filter(p=>p.k==='struct').length,0);
  assert.ok(g.g.struct.ni>0);assert.ok(g.ranges[part.id]);
- for(let i=0;i<g.g.struct.n;i++)assert.equal(g.g.struct.col[i*4+3],255,'other exterior parts retain their lighting material');
+ for(let i=0;i<g.g.struct.n;i++)assert.equal(g.g.struct.col[i*4+3],251,'a wing keeps an ordinary exterior armor skin without the solar collector material flag');
 });
 test('bending a panel moves its collector and ribs together, without modifying its saved shape',()=>{
  const {ship,part}=fixture('solarPanel',{panelFold:35,panelKnee:.35}),before=C.publicJSON(ship),g=G.meshParts(ship,{coded:false});

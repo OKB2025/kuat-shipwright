@@ -1,0 +1,1578 @@
+{
+  "baselineCommit": "ff35f5df9a87e058c3b6639c85aa7ecf43804523",
+  "environment": {
+    "browser": "154.0.8037.57",
+    "rendering": "WebGL with SwiftShader",
+    "sceneViewport": [
+      1440,
+      960
+    ],
+    "interactionViewport": [
+      1280,
+      800
+    ],
+    "notes": [
+      "Same-seed procedural ship scene with 9 native structures and 27 equipment faces; no machinery was manually placed.",
+      "Generated attachments are real triangle geometry: sideways cylinders with rings/endcaps, convex round housings, and narrow floors with rails/posts/web supports.",
+      "Cavity material tone was evaluated separately from natural cast shadows. Pixel measurements include self-shadows and are diagnostic, not physical lighting measurements.",
+      "Final 32-face interaction tests use a trusted audio warm-up and serial awaited automation input. SwiftShader/rAF results do not establish device FPS."
+    ]
+  },
+  "scene": {
+    "nativePartsBefore": 9,
+    "nativePartsAfter": 9,
+    "nativeFitsAfter": 0,
+    "nativePartIdsAfter": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "equipmentFaces": 27,
+    "fixtureUnchanged": true,
+    "fixtureSHA256": "d75b0fedb92d814d0ec13860d849f57753f6a574503008653423fa5b038f2925",
+    "workerMode": "worker",
+    "wideViews": {
+      "overview": {
+        "center": [
+          390,
+          150,
+          0
+        ],
+        "distance": 1230,
+        "theta": -0.72,
+        "phi": 1.19
+      },
+      "bridge": {
+        "center": [
+          180,
+          278,
+          -12
+        ],
+        "distance": 330,
+        "theta": -0.65,
+        "phi": 1.32
+      },
+      "trench": {
+        "center": [
+          330,
+          135,
+          -120
+        ],
+        "distance": 380,
+        "theta": -1,
+        "phi": 1.38
+      },
+      "slope": {
+        "center": [
+          320,
+          90,
+          -120
+        ],
+        "distance": 450,
+        "theta": -0.4,
+        "phi": 0.9
+      },
+      "closeup": {
+        "center": [
+          270,
+          145,
+          -81.9
+        ],
+        "distance": 230,
+        "theta": -1.05,
+        "phi": 1.42
+      },
+      "grazing": {
+        "center": [
+          270,
+          145,
+          -81.9
+        ],
+        "distance": 230,
+        "theta": -0.2,
+        "phi": 1.38
+      }
+    },
+    "focusedViews": {
+      "cylinder-profile": {
+        "center": [
+          381.39368597086576,
+          130.43902888101212,
+          -67.01447143954009
+        ],
+        "distance": 55,
+        "theta": -0.5081446430338596,
+        "phi": 1.3482110699607315,
+        "featureId": "p3:port:0:z2gix5|turbine|351.65566|124.60777|387.03223|136.27029",
+        "kind": "turbine",
+        "patchId": "p3:port:0:z2gix5"
+      },
+      "round-profile": {
+        "center": [
+          258.25654727381107,
+          157.1389546682438,
+          -84.1362595984152
+        ],
+        "distance": 45,
+        "theta": -0.6617903402626281,
+        "phi": 1.2575992438772468,
+        "featureId": "p3:port:0:z2gix5|round-housing|238.55571|154.19696|251.49453|160.08095",
+        "kind": "round-housing",
+        "patchId": "p3:port:0:z2gix5"
+      },
+      "catwalk-profile": {
+        "center": [
+          189.48718160157748,
+          143.92625967620978,
+          -93.02194226778334
+        ],
+        "distance": 40,
+        "theta": -0.6541569007451351,
+        "phi": 1.420417342106465,
+        "featureId": "p3:port:0:z2gix5|catwalk|160.71736|138.29338|190.65130|149.55914",
+        "kind": "catwalk",
+        "patchId": "p3:port:0:z2gix5"
+      },
+      "catwalk-top": {
+        "center": [
+          189.48718160157748,
+          143.92625967620978,
+          -93.02194226778334
+        ],
+        "distance": 40,
+        "theta": -0.3324063463484929,
+        "phi": 1.0782554748642557,
+        "featureId": "p3:port:0:z2gix5|catwalk|160.71736|138.29338|190.65130|149.55914",
+        "kind": "catwalk",
+        "patchId": "p3:port:0:z2gix5"
+      }
+    },
+    "jsErrors": []
+  },
+  "geometry": {
+    "baseline": {
+      "hull": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "refHull": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "keel": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "struct": {
+        "vertices": 11312,
+        "triangles": 4120
+      },
+      "plate": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "gen": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "shield": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "hyper": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "interior": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "engine": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "plant": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "nozzle": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "hangar": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "refStruct": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "refEngine": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "refPlant": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "surfaceArmor": {
+        "vertices": 19553,
+        "triangles": 6641
+      },
+      "surfaceDevices": {
+        "vertices": 271694,
+        "triangles": 93770
+      },
+      "surfaceDetail": {
+        "vertices": 1204,
+        "triangles": 602
+      },
+      "hatchOpen": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "hatchRay": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "refHatches": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "fits": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "refFits": {
+        "vertices": 0,
+        "triangles": 0
+      }
+    },
+    "final": {
+      "hull": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "refHull": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "keel": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "struct": {
+        "vertices": 11312,
+        "triangles": 4120
+      },
+      "plate": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "gen": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "shield": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "hyper": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "interior": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "engine": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "plant": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "nozzle": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "hangar": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "refStruct": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "refEngine": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "refPlant": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "surfaceArmor": {
+        "vertices": 19553,
+        "triangles": 6641
+      },
+      "surfaceDevices": {
+        "vertices": 289532,
+        "triangles": 99716
+      },
+      "surfaceDetail": {
+        "vertices": 1204,
+        "triangles": 602
+      },
+      "hatchOpen": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "hatchRay": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "refHatches": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "fits": {
+        "vertices": 0,
+        "triangles": 0
+      },
+      "refFits": {
+        "vertices": 0,
+        "triangles": 0
+      }
+    },
+    "surfaceDevicesTriangleChangePercent": 6.341,
+    "generatedProjectionKinds": {
+      "turbine": {
+        "count": 19,
+        "maxActualNormalOutset": 3.1740102094409792,
+        "maxAllowedOutset": 3.2,
+        "allFinite": true,
+        "minimumDistinctFaceNormals": 30,
+        "maximumAxisNormalDot": 0,
+        "minimumWorldHorizontalTriangles": 0,
+        "catwalkWidths": []
+      },
+      "round-housing": {
+        "count": 19,
+        "maxActualNormalOutset": 2.21417236328125,
+        "maxAllowedOutset": 3,
+        "allFinite": true,
+        "minimumDistinctFaceNormals": 31,
+        "maximumAxisNormalDot": 1.0000000000000002,
+        "minimumWorldHorizontalTriangles": 0,
+        "catwalkWidths": []
+      },
+      "catwalk": {
+        "count": 16,
+        "maxActualNormalOutset": 1.0575077613421175,
+        "maxAllowedOutset": 1.65,
+        "allFinite": true,
+        "minimumDistinctFaceNormals": 8,
+        "maximumAxisNormalDot": 0,
+        "minimumWorldHorizontalTriangles": 34,
+        "catwalkWidths": [
+          1.05
+        ]
+      }
+    },
+    "projectionCheckCount": 54,
+    "outsetViolations": [],
+    "selectedFeatureDescriptors": [
+      {
+        "host": "p3",
+        "patchId": "p3:port:0:z2gix5",
+        "id": "p3:port:0:z2gix5|turbine|351.65566|124.60777|387.03223|136.27029",
+        "baseId": "p3:port:0:z2gix5",
+        "ownerId": 3,
+        "kind": "turbine",
+        "center": [
+          381.39368597086576,
+          130.43902888101212,
+          -67.01447143954009
+        ],
+        "axis": [
+          0.9914002198704559,
+          0,
+          0.13086483118398115
+        ],
+        "normal": [
+          0.13086483118398115,
+          0,
+          -0.9914002198704559
+        ],
+        "u": [
+          0.9914002198704559,
+          0,
+          0.13086483118398115
+        ],
+        "v": [
+          0,
+          1,
+          0
+        ],
+        "anchor": [
+          381.2498100253721,
+          130.43902888101212,
+          -65.92450217349659
+        ],
+        "bounds": [
+          371.755615234375,
+          127.919921875,
+          -70.27175903320312,
+          391.0500793457031,
+          132.9581298828125,
+          -63.85663986206055
+        ],
+        "normalRange": [
+          -2.6991094061789482,
+          2.3391082723022265
+        ],
+        "maxOutset": 3.2,
+        "footprint": [
+          359.843934763854,
+          127.919921875,
+          378.84396137440444,
+          132.9581298828125
+        ],
+        "dimensions": [
+          19,
+          4.665010474882758,
+          4.665010474882758
+        ],
+        "catwalkWidth": null
+      },
+      {
+        "host": "p3",
+        "patchId": "p3:port:0:z2gix5",
+        "id": "p3:port:0:z2gix5|round-housing|238.55571|154.19696|251.49453|160.08095",
+        "baseId": "p3:port:0:z2gix5",
+        "ownerId": 3,
+        "kind": "round-housing",
+        "center": [
+          258.25654727381107,
+          157.1389546682438,
+          -84.1362595984152
+        ],
+        "axis": [
+          0.13086483118398115,
+          0,
+          -0.9914002198704559
+        ],
+        "normal": [
+          0.13086483118398115,
+          0,
+          -0.9914002198704559
+        ],
+        "u": [
+          0.9914002198704559,
+          0,
+          0.13086483118398115
+        ],
+        "v": [
+          0,
+          1,
+          0
+        ],
+        "anchor": [
+          258.1518262533903,
+          157.1389546682438,
+          -83.3429185477228
+        ],
+        "bounds": [
+          256.3374938964844,
+          155.34823608398438,
+          -84.99859619140625,
+          260.07086181640625,
+          158.92967224121094,
+          -83.17044067382812
+        ],
+        "normalRange": [
+          -0.12000003718645758,
+          1.480449637428734
+        ],
+        "maxOutset": 3,
+        "footprint": [
+          243.14223508863049,
+          155.34823608398438,
+          246.90798777137033,
+          158.92967224121094
+        ],
+        "dimensions": [
+          3.7657543093997448,
+          3.7657543093997448,
+          1.6004455814948915
+        ],
+        "catwalkWidth": null
+      },
+      {
+        "host": "p3",
+        "patchId": "p3:port:0:z2gix5",
+        "id": "p3:port:0:z2gix5|catwalk|160.71736|138.29338|190.65130|149.55914",
+        "baseId": "p3:port:0:z2gix5",
+        "ownerId": 3,
+        "kind": "catwalk",
+        "center": [
+          189.48718160157748,
+          143.92625967620978,
+          -93.02194226778334
+        ],
+        "axis": [
+          0.9914002198704559,
+          0,
+          0.13086483118398115
+        ],
+        "normal": [
+          0.13086483118398115,
+          0,
+          -0.9914002198704559
+        ],
+        "u": [
+          0.9914002198704559,
+          0,
+          0.13086483118398115
+        ],
+        "v": [
+          0,
+          1,
+          0
+        ],
+        "anchor": [
+          189.30129345116532,
+          143.92625967620978,
+          -91.61369872731052
+        ],
+        "bounds": [
+          179.5044708251953,
+          142.67625427246094,
+          -94.89877319335938,
+          199.517578125,
+          144.91375732421875,
+          -90.60800170898438
+        ],
+        "normalRange": [
+          -0.9304618967522345,
+          1.057504039955944
+        ],
+        "maxOutset": 1.65,
+        "footprint": [
+          165.6418375458572,
+          142.67625427246094,
+          185.7268269061659,
+          144.91375732421875
+        ],
+        "dimensions": [
+          20,
+          1.05,
+          1.05
+        ],
+        "catwalkWidth": 1.05
+      }
+    ],
+    "independentTriangleChecks": [
+      {
+        "id": "p1:port:0:emkhov|turbine|226.10444|13.77438|258.17397|26.50042",
+        "kind": "turbine",
+        "patchId": "p1:port:0:emkhov",
+        "triangleCount": 152,
+        "allFinite": true,
+        "actualNormalMin": -2.9288288524625727,
+        "actualNormalMax": 2.5688334758519105,
+        "allowedNormalMax": 3.2,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 32,
+        "horizontalTriangles": 8
+      },
+      {
+        "id": "p1:port:0:emkhov|round-housing|456.23165|28.74619|482.95635|41.47224",
+        "kind": "round-housing",
+        "patchId": "p1:port:0:emkhov",
+        "triangleCount": 70,
+        "allFinite": true,
+        "actualNormalMin": -0.518195013108679,
+        "actualNormalMax": 2.081823121531057,
+        "allowedNormalMax": 3,
+        "axisNormalDot": 1,
+        "distinctFaceNormals": 34,
+        "horizontalTriangles": 0
+      },
+      {
+        "id": "p1:port:0:emkhov|catwalk|404.78325|-1.19744|431.50795|11.52860",
+        "kind": "catwalk",
+        "patchId": "p1:port:0:emkhov",
+        "triangleCount": 108,
+        "allFinite": true,
+        "actualNormalMin": -1.902600964856549,
+        "actualNormalMax": 1.0575077613421175,
+        "allowedNormalMax": 1.65,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 10,
+        "horizontalTriangles": 34
+      },
+      {
+        "id": "p1:stbd:0:emkhov|turbine|-68.82882|14.70746|-30.96950|30.00410",
+        "kind": "turbine",
+        "patchId": "p1:stbd:0:emkhov",
+        "triangleCount": 152,
+        "allFinite": true,
+        "actualNormalMin": -2.8740106827224707,
+        "actualNormalMax": 3.1740102094409792,
+        "allowedNormalMax": 3.2,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 32,
+        "horizontalTriangles": 8
+      },
+      {
+        "id": "p1:stbd:0:emkhov|round-housing|276.82274|3.25097|302.63589|12.53829",
+        "kind": "round-housing",
+        "patchId": "p1:stbd:0:emkhov",
+        "triangleCount": 70,
+        "allFinite": true,
+        "actualNormalMin": -1.3263301230418136,
+        "actualNormalMax": 1.1998300113480767,
+        "allowedNormalMax": 3,
+        "axisNormalDot": 1,
+        "distinctFaceNormals": 32,
+        "horizontalTriangles": 0
+      },
+      {
+        "id": "p1:stbd:0:emkhov|catwalk|546.26048|32.67941|577.81002|47.70300",
+        "kind": "catwalk",
+        "patchId": "p1:stbd:0:emkhov",
+        "triangleCount": 108,
+        "allFinite": true,
+        "actualNormalMin": -0.5884665836415479,
+        "actualNormalMax": 1.0575062919756313,
+        "allowedNormalMax": 1.65,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 12,
+        "horizontalTriangles": 34
+      },
+      {
+        "id": "p1:aft:0:emkhov|turbine|-39.69751|33.50008|-8.57432|50.03750",
+        "kind": "turbine",
+        "patchId": "p1:aft:0:emkhov",
+        "triangleCount": 152,
+        "allFinite": true,
+        "actualNormalMin": -3.2039999961853027,
+        "actualNormalMax": 2.8440001010894775,
+        "allowedNormalMax": 3.2,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 30,
+        "horizontalTriangles": 8
+      },
+      {
+        "id": "p1:aft:0:emkhov|round-housing|-256.10719|33.50008|-227.69301|50.03750",
+        "kind": "round-housing",
+        "patchId": "p1:aft:0:emkhov",
+        "triangleCount": 70,
+        "allFinite": true,
+        "actualNormalMin": -0.6733077764511108,
+        "actualNormalMax": 1.926692247390747,
+        "allowedNormalMax": 3,
+        "axisNormalDot": 1,
+        "distinctFaceNormals": 31,
+        "horizontalTriangles": 0
+      },
+      {
+        "id": "p1:aft:0:emkhov|catwalk|-2.15102|72.76526|39.52314|89.30268",
+        "kind": "catwalk",
+        "patchId": "p1:aft:0:emkhov",
+        "triangleCount": 108,
+        "allFinite": true,
+        "actualNormalMin": -1.77009117603302,
+        "actualNormalMax": 1.0575000047683716,
+        "allowedNormalMax": 1.65,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 8,
+        "horizontalTriangles": 34
+      },
+      {
+        "id": "p2:port:0:z2gix5|turbine|360.02438|99.27522|387.70055|111.73577",
+        "kind": "turbine",
+        "patchId": "p2:port:0:z2gix5",
+        "triangleCount": 152,
+        "allFinite": true,
+        "actualNormalMin": -2.8714852578160155,
+        "actualNormalMax": 2.5114845532225107,
+        "allowedNormalMax": 3.2,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 32,
+        "horizontalTriangles": 8
+      },
+      {
+        "id": "p2:port:0:z2gix5|round-housing|413.89627|83.83376|441.57244|97.01289",
+        "kind": "round-housing",
+        "patchId": "p2:port:0:z2gix5",
+        "triangleCount": 70,
+        "allFinite": true,
+        "actualNormalMin": -2.0300626183821677,
+        "actualNormalMax": 0.6500019726662707,
+        "allowedNormalMax": 3,
+        "axisNormalDot": 1.0000000000000002,
+        "distinctFaceNormals": 36,
+        "horizontalTriangles": 0
+      },
+      {
+        "id": "p2:port:0:z2gix5|catwalk|479.01668|99.27522|506.69286|111.73577",
+        "kind": "catwalk",
+        "patchId": "p2:port:0:z2gix5",
+        "triangleCount": 108,
+        "allFinite": true,
+        "actualNormalMin": -1.5221342807855187,
+        "actualNormalMax": 1.0575037300843242,
+        "allowedNormalMax": 1.65,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 10,
+        "horizontalTriangles": 34
+      },
+      {
+        "id": "p2:fore:0:z2gix5|turbine|-65.80193|92.62146|-35.20516|104.32944",
+        "kind": "turbine",
+        "patchId": "p2:fore:0:z2gix5",
+        "triangleCount": 152,
+        "allFinite": true,
+        "actualNormalMin": -2.70892333984375,
+        "actualNormalMax": 2.34893798828125,
+        "allowedNormalMax": 3.2,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 30,
+        "horizontalTriangles": 8
+      },
+      {
+        "id": "p2:fore:0:z2gix5|round-housing|6.85635|106.80881|25.43311|123.20031",
+        "kind": "round-housing",
+        "patchId": "p2:fore:0:z2gix5",
+        "triangleCount": 70,
+        "allFinite": true,
+        "actualNormalMin": -0.5081787109375,
+        "actualNormalMax": 2.091796875,
+        "allowedNormalMax": 3,
+        "axisNormalDot": 1,
+        "distinctFaceNormals": 32,
+        "horizontalTriangles": 0
+      },
+      {
+        "id": "p2:fore:0:z2gix5|catwalk|-65.80193|106.80881|-35.20516|123.20031",
+        "kind": "catwalk",
+        "patchId": "p2:fore:0:z2gix5",
+        "triangleCount": 108,
+        "allFinite": true,
+        "actualNormalMin": -1.6514892578125,
+        "actualNormalMax": 1.0574951171875,
+        "allowedNormalMax": 1.65,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 8,
+        "horizontalTriangles": 34
+      },
+      {
+        "id": "p2:stbd:0:z2gix5|turbine|391.64169|103.84299|425.17779|113.53888",
+        "kind": "turbine",
+        "patchId": "p2:stbd:0:z2gix5",
+        "triangleCount": 152,
+        "allFinite": true,
+        "actualNormalMin": -2.274317559897419,
+        "actualNormalMax": 1.9143172482486666,
+        "allowedNormalMax": 3.2,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 32,
+        "horizontalTriangles": 8
+      },
+      {
+        "id": "p2:stbd:0:z2gix5|round-housing|429.93345|103.84299|450.29482|113.53888",
+        "kind": "round-housing",
+        "patchId": "p2:stbd:0:z2gix5",
+        "triangleCount": 70,
+        "allFinite": true,
+        "actualNormalMin": -1.8786839689971018,
+        "actualNormalMax": 0.7213232164328005,
+        "allowedNormalMax": 3,
+        "axisNormalDot": 1.0000000000000002,
+        "distinctFaceNormals": 32,
+        "horizontalTriangles": 0
+      },
+      {
+        "id": "p2:stbd:0:z2gix5|catwalk|70.76083|85.91903|97.70957|101.60354",
+        "kind": "catwalk",
+        "patchId": "p2:stbd:0:z2gix5",
+        "triangleCount": 108,
+        "allFinite": true,
+        "actualNormalMin": -0.39056383435248065,
+        "actualNormalMax": 1.0575058328089533,
+        "allowedNormalMax": 1.65,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 10,
+        "horizontalTriangles": 34
+      },
+      {
+        "id": "p2:aft:0:z2gix5|turbine|-28.03849|101.94665|2.62768|115.83850",
+        "kind": "turbine",
+        "patchId": "p2:aft:0:z2gix5",
+        "triangleCount": 152,
+        "allFinite": true,
+        "actualNormalMin": -3.1806411743164062,
+        "actualNormalMax": 2.8206405639648438,
+        "allowedNormalMax": 3.2,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 30,
+        "horizontalTriangles": 8
+      },
+      {
+        "id": "p2:aft:0:z2gix5|round-housing|7.40198|101.94665|30.84454|115.83850",
+        "kind": "round-housing",
+        "patchId": "p2:aft:0:z2gix5",
+        "triangleCount": 70,
+        "allFinite": true,
+        "actualNormalMin": -1.9495697021484375,
+        "actualNormalMax": 0.6504287719726562,
+        "allowedNormalMax": 3,
+        "axisNormalDot": 1,
+        "distinctFaceNormals": 31,
+        "horizontalTriangles": 0
+      },
+      {
+        "id": "p2:aft:0:z2gix5|catwalk|68.39115|104.72936|81.13725|111.11413",
+        "kind": "catwalk",
+        "patchId": "p2:aft:0:z2gix5",
+        "triangleCount": 108,
+        "allFinite": true,
+        "actualNormalMin": -0.12000274658203125,
+        "actualNormalMax": 1.0575027465820312,
+        "allowedNormalMax": 1.65,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 8,
+        "horizontalTriangles": 34
+      },
+      {
+        "id": "p3:port:0:z2gix5|turbine|351.65566|124.60777|387.03223|136.27029",
+        "kind": "turbine",
+        "patchId": "p3:port:0:z2gix5",
+        "triangleCount": 152,
+        "allFinite": true,
+        "actualNormalMin": -2.699109406178943,
+        "actualNormalMax": 2.339108272302232,
+        "allowedNormalMax": 3.2,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 32,
+        "horizontalTriangles": 8
+      },
+      {
+        "id": "p3:port:0:z2gix5|round-housing|238.55571|154.19696|251.49453|160.08095",
+        "kind": "round-housing",
+        "patchId": "p3:port:0:z2gix5",
+        "triangleCount": 70,
+        "allFinite": true,
+        "actualNormalMin": -0.12000003718645869,
+        "actualNormalMax": 1.4804496374287395,
+        "allowedNormalMax": 3,
+        "axisNormalDot": 1.0000000000000002,
+        "distinctFaceNormals": 32,
+        "horizontalTriangles": 0
+      },
+      {
+        "id": "p3:port:0:z2gix5|catwalk|160.71736|138.29338|190.65130|149.55914",
+        "kind": "catwalk",
+        "patchId": "p3:port:0:z2gix5",
+        "triangleCount": 108,
+        "allFinite": true,
+        "actualNormalMin": -0.9304618967522416,
+        "actualNormalMax": 1.0575040399559459,
+        "allowedNormalMax": 1.65,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 10,
+        "horizontalTriangles": 34
+      },
+      {
+        "id": "p3:fore:0:z2gix5|turbine|-27.53335|160.94034|-9.70772|167.32594",
+        "kind": "turbine",
+        "patchId": "p3:fore:0:z2gix5",
+        "triangleCount": 152,
+        "allFinite": true,
+        "actualNormalMin": -1.633758544921875,
+        "actualNormalMax": 1.19927978515625,
+        "allowedNormalMax": 3.2,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 34,
+        "horizontalTriangles": 8
+      },
+      {
+        "id": "p3:fore:0:z2gix5|round-housing|3.18404|128.00735|28.23435|137.02020",
+        "kind": "round-housing",
+        "patchId": "p3:fore:0:z2gix5",
+        "triangleCount": 70,
+        "allFinite": true,
+        "actualNormalMin": -2.283050537109375,
+        "actualNormalMax": 0.649993896484375,
+        "allowedNormalMax": 3,
+        "axisNormalDot": 1,
+        "distinctFaceNormals": 31,
+        "horizontalTriangles": 0
+      },
+      {
+        "id": "p3:fore:0:z2gix5|catwalk|32.65499|139.19949|57.70530|154.88521",
+        "kind": "catwalk",
+        "patchId": "p3:fore:0:z2gix5",
+        "triangleCount": 108,
+        "allFinite": true,
+        "actualNormalMin": -2.02264404296875,
+        "actualNormalMax": 1.0574951171875,
+        "allowedNormalMax": 1.65,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 8,
+        "horizontalTriangles": 34
+      },
+      {
+        "id": "p3:stbd:0:z2gix5|turbine|205.13943|125.61464|236.12046|137.68512",
+        "kind": "turbine",
+        "patchId": "p3:stbd:0:z2gix5",
+        "triangleCount": 152,
+        "allFinite": true,
+        "actualNormalMin": -2.787227638394547,
+        "actualNormalMax": 2.4272261331941616,
+        "allowedNormalMax": 3.2,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 32,
+        "horizontalTriangles": 8
+      },
+      {
+        "id": "p3:stbd:0:z2gix5|round-housing|77.70254|127.78561|85.43814|131.08461",
+        "kind": "round-housing",
+        "patchId": "p3:stbd:0:z2gix5",
+        "triangleCount": 70,
+        "allFinite": true,
+        "actualNormalMin": -0.08806963721337979,
+        "actualNormalMax": 0.809262804595793,
+        "allowedNormalMax": 3,
+        "axisNormalDot": 1.0000000000000002,
+        "distinctFaceNormals": 32,
+        "horizontalTriangles": 0
+      },
+      {
+        "id": "p3:stbd:0:z2gix5|catwalk|299.52478|125.61464|326.19410|137.68512",
+        "kind": "catwalk",
+        "patchId": "p3:stbd:0:z2gix5",
+        "triangleCount": 108,
+        "allFinite": true,
+        "actualNormalMin": -1.5643773133485617,
+        "actualNormalMax": 1.0575047759402727,
+        "allowedNormalMax": 1.65,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 8,
+        "horizontalTriangles": 34
+      },
+      {
+        "id": "p3:aft:0:z2gix5|turbine|-27.33657|121.10917|-0.41665|138.32819",
+        "kind": "turbine",
+        "patchId": "p3:aft:0:z2gix5",
+        "triangleCount": 152,
+        "allFinite": true,
+        "actualNormalMin": -2.8740005493164062,
+        "actualNormalMax": 3.1740036010742188,
+        "allowedNormalMax": 3.2,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 30,
+        "horizontalTriangles": 8
+      },
+      {
+        "id": "p3:aft:0:z2gix5|round-housing|4.61746|140.93616|34.75086|153.27414",
+        "kind": "round-housing",
+        "patchId": "p3:aft:0:z2gix5",
+        "triangleCount": 70,
+        "allFinite": true,
+        "actualNormalMin": -0.38582611083984375,
+        "actualNormalMax": 2.21417236328125,
+        "allowedNormalMax": 3,
+        "axisNormalDot": 1,
+        "distinctFaceNormals": 31,
+        "horizontalTriangles": 0
+      },
+      {
+        "id": "p3:aft:0:z2gix5|catwalk|-97.95514|155.62889|-67.82174|169.97813",
+        "kind": "catwalk",
+        "patchId": "p3:aft:0:z2gix5",
+        "triangleCount": 108,
+        "allFinite": true,
+        "actualNormalMin": -2.0193939208984375,
+        "actualNormalMax": 1.0575027465820312,
+        "allowedNormalMax": 1.65,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 8,
+        "horizontalTriangles": 34
+      },
+      {
+        "id": "p4:port:0:z2gix5|turbine|141.82408|174.77568|167.25866|186.61834",
+        "kind": "turbine",
+        "patchId": "p4:port:0:z2gix5",
+        "triangleCount": 152,
+        "allFinite": true,
+        "actualNormalMin": -2.738014882285702,
+        "actualNormalMax": 2.37801905940173,
+        "allowedNormalMax": 3.2,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 33,
+        "horizontalTriangles": 8
+      },
+      {
+        "id": "p4:port:0:z2gix5|round-housing|263.89293|174.77568|301.19701|186.61834",
+        "kind": "round-housing",
+        "patchId": "p4:port:0:z2gix5",
+        "triangleCount": 70,
+        "allFinite": true,
+        "actualNormalMin": -1.5817397729249398,
+        "actualNormalMax": 1.0182645230027942,
+        "allowedNormalMax": 3,
+        "axisNormalDot": 1.0000000000000002,
+        "distinctFaceNormals": 32,
+        "horizontalTriangles": 0
+      },
+      {
+        "id": "p4:port:0:z2gix5|catwalk|263.89293|189.23068|301.19701|206.99453",
+        "kind": "catwalk",
+        "patchId": "p4:port:0:z2gix5",
+        "triangleCount": 108,
+        "allFinite": true,
+        "actualNormalMin": -1.5817432944948866,
+        "actualNormalMax": 1.0575032999633844,
+        "allowedNormalMax": 1.65,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 14,
+        "horizontalTriangles": 34
+      },
+      {
+        "id": "p4:fore:0:z2gix5|turbine|1.71031|168.05008|35.13016|183.96429",
+        "kind": "turbine",
+        "patchId": "p4:fore:0:z2gix5",
+        "triangleCount": 152,
+        "allFinite": true,
+        "actualNormalMin": -3.075531005859375,
+        "actualNormalMax": 2.97247314453125,
+        "allowedNormalMax": 3.2,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 30,
+        "horizontalTriangles": 8
+      },
+      {
+        "id": "p4:fore:0:z2gix5|round-housing|1.71031|186.77268|35.13016|202.68690",
+        "kind": "round-housing",
+        "patchId": "p4:fore:0:z2gix5",
+        "triangleCount": 70,
+        "allFinite": true,
+        "actualNormalMin": -2.15777587890625,
+        "actualNormalMax": 0.649993896484375,
+        "allowedNormalMax": 3,
+        "axisNormalDot": 1,
+        "distinctFaceNormals": 31,
+        "horizontalTriangles": 0
+      },
+      {
+        "id": "p4:stbd:0:z2gix5|turbine|114.55033|183.63663|143.36042|197.35572",
+        "kind": "turbine",
+        "patchId": "p4:stbd:0:z2gix5",
+        "triangleCount": 152,
+        "allFinite": true,
+        "actualNormalMin": -2.8133274812749836,
+        "actualNormalMax": 3.1133273749922594,
+        "allowedNormalMax": 3.2,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 34,
+        "horizontalTriangles": 8
+      },
+      {
+        "id": "p4:stbd:0:z2gix5|round-housing|298.01351|159.70096|340.26835|180.58354",
+        "kind": "round-housing",
+        "patchId": "p4:stbd:0:z2gix5",
+        "triangleCount": 70,
+        "allFinite": true,
+        "actualNormalMin": -0.589426417386365,
+        "actualNormalMax": 2.010578118402945,
+        "allowedNormalMax": 3,
+        "axisNormalDot": 1.0000000000000002,
+        "distinctFaceNormals": 32,
+        "horizontalTriangles": 0
+      },
+      {
+        "id": "p4:stbd:0:z2gix5|catwalk|149.63086|159.70096|191.88570|180.58354",
+        "kind": "catwalk",
+        "patchId": "p4:stbd:0:z2gix5",
+        "triangleCount": 108,
+        "allFinite": true,
+        "actualNormalMin": -1.8342189898665495,
+        "actualNormalMax": 1.0575035429431665,
+        "allowedNormalMax": 1.65,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 13,
+        "horizontalTriangles": 34
+      },
+      {
+        "id": "p4:aft:0:z2gix5|turbine|-29.54936|162.71564|-5.64637|175.05694",
+        "kind": "turbine",
+        "patchId": "p4:aft:0:z2gix5",
+        "triangleCount": 152,
+        "allFinite": true,
+        "actualNormalMin": -2.8457183837890625,
+        "actualNormalMax": 2.4857177734375,
+        "allowedNormalMax": 3.2,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 30,
+        "horizontalTriangles": 8
+      },
+      {
+        "id": "p4:aft:0:z2gix5|round-housing|-29.54936|177.21063|-5.64637|189.27778",
+        "kind": "round-housing",
+        "patchId": "p4:aft:0:z2gix5",
+        "triangleCount": 70,
+        "allFinite": true,
+        "actualNormalMin": -2.3599853515625,
+        "actualNormalMax": 0.6500015258789062,
+        "allowedNormalMax": 3,
+        "axisNormalDot": 1,
+        "distinctFaceNormals": 31,
+        "horizontalTriangles": 0
+      },
+      {
+        "id": "p4:aft:0:z2gix5|catwalk|-59.23545|162.71564|-33.89442|175.05694",
+        "kind": "catwalk",
+        "patchId": "p4:aft:0:z2gix5",
+        "triangleCount": 108,
+        "allFinite": true,
+        "actualNormalMin": -1.1125946044921875,
+        "actualNormalMax": 1.0575027465820312,
+        "allowedNormalMax": 1.65,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 8,
+        "horizontalTriangles": 34
+      },
+      {
+        "id": "p5:port:0:cvoyu4|round-housing|183.79408|206.58596|217.06741|222.43040",
+        "kind": "round-housing",
+        "patchId": "p5:port:0:cvoyu4",
+        "triangleCount": 70,
+        "allFinite": true,
+        "actualNormalMin": -0.7165363964491269,
+        "actualNormalMax": 1.883465665594604,
+        "allowedNormalMax": 3,
+        "axisNormalDot": 1,
+        "distinctFaceNormals": 32,
+        "horizontalTriangles": 0
+      },
+      {
+        "id": "p5:stbd:0:cvoyu4|turbine|147.87298|197.24350|176.39949|210.82756",
+        "kind": "turbine",
+        "patchId": "p5:stbd:0:cvoyu4",
+        "triangleCount": 152,
+        "allFinite": true,
+        "actualNormalMin": -3.1090929879707243,
+        "actualNormalMax": 2.749093329675846,
+        "allowedNormalMax": 3.2,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 30,
+        "horizontalTriangles": 0
+      },
+      {
+        "id": "p5:stbd:0:cvoyu4|round-housing|182.60821|213.22475|224.44713|226.80880",
+        "kind": "round-housing",
+        "patchId": "p5:stbd:0:cvoyu4",
+        "triangleCount": 70,
+        "allFinite": true,
+        "actualNormalMin": -0.7420508757478463,
+        "actualNormalMax": 1.8579512982992534,
+        "allowedNormalMax": 3,
+        "axisNormalDot": 1,
+        "distinctFaceNormals": 33,
+        "horizontalTriangles": 0
+      },
+      {
+        "id": "p6:port:0:11oof31|turbine|175.35580|251.41122|208.87287|267.08684",
+        "kind": "turbine",
+        "patchId": "p6:port:0:11oof31",
+        "triangleCount": 152,
+        "allFinite": true,
+        "actualNormalMin": -3.1848477337390744,
+        "actualNormalMax": 2.8248449475153956,
+        "allowedNormalMax": 3.2,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 30,
+        "horizontalTriangles": 0
+      },
+      {
+        "id": "p6:stbd:0:11oof31|turbine|184.42041|258.85333|218.01801|275.14296",
+        "kind": "turbine",
+        "patchId": "p6:stbd:0:11oof31",
+        "triangleCount": 152,
+        "allFinite": true,
+        "actualNormalMin": -2.8548428632639364,
+        "actualNormalMax": 3.1548422369248894,
+        "allowedNormalMax": 3.2,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 30,
+        "horizontalTriangles": 0
+      },
+      {
+        "id": "p6:stbd:0:11oof31|round-housing|144.89381|258.85333|178.49142|275.14296",
+        "kind": "round-housing",
+        "patchId": "p6:stbd:0:11oof31",
+        "triangleCount": 70,
+        "allFinite": true,
+        "actualNormalMin": -0.9813008984743277,
+        "actualNormalMax": 1.618707511706702,
+        "allowedNormalMax": 3,
+        "axisNormalDot": 1.0000000000000002,
+        "distinctFaceNormals": 33,
+        "horizontalTriangles": 0
+      },
+      {
+        "id": "p9:port:0:cctl1g|catwalk|158.32181|312.37806|187.47812|326.26202",
+        "kind": "catwalk",
+        "patchId": "p9:port:0:cctl1g",
+        "triangleCount": 108,
+        "allFinite": true,
+        "actualNormalMin": -1.1131362915039062,
+        "actualNormalMax": 1.0574989318847656,
+        "allowedNormalMax": 1.65,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 8,
+        "horizontalTriangles": 34
+      },
+      {
+        "id": "p9:stbd:0:cctl1g|catwalk|150.40133|312.20206|193.16396|327.01124",
+        "kind": "catwalk",
+        "patchId": "p9:stbd:0:cctl1g",
+        "triangleCount": 108,
+        "allFinite": true,
+        "actualNormalMin": -1.5392837524414062,
+        "actualNormalMax": 1.0574989318847656,
+        "allowedNormalMax": 1.65,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 8,
+        "horizontalTriangles": 34
+      },
+      {
+        "id": "p9:aft:0:cctl1g|turbine|-26.12079|309.36912|-3.41757|323.47564",
+        "kind": "turbine",
+        "patchId": "p9:aft:0:cctl1g",
+        "triangleCount": 152,
+        "allFinite": true,
+        "actualNormalMin": -2.87713623046875,
+        "actualNormalMax": 2.5171356201171875,
+        "allowedNormalMax": 3.2,
+        "axisNormalDot": 0,
+        "distinctFaceNormals": 30,
+        "horizontalTriangles": 8
+      },
+      {
+        "id": "p9:aft:0:cctl1g|round-housing|0.87242|309.36912|26.78915|323.47564",
+        "kind": "round-housing",
+        "patchId": "p9:aft:0:cctl1g",
+        "triangleCount": 70,
+        "allFinite": true,
+        "actualNormalMin": -0.986083984375,
+        "actualNormalMax": 1.613922119140625,
+        "allowedNormalMax": 3,
+        "axisNormalDot": 1,
+        "distinctFaceNormals": 31,
+        "horizontalTriangles": 0
+      }
+    ]
+  },
+  "toneComparison": {
+    "method": "Pixel luminance inside the projected polygon of the same middle-terrace port wall; includes actual self-shadows and generated attachments, excludes background. Diagnostic only, not a physical lighting measurement.",
+    "cases": {
+      "rounded-baseline": {
+        "closeup": {
+          "pixelsWithinProjectedSameWall": 328818,
+          "meanSRGBLuminance": 137,
+          "medianSRGBLuminance": 184,
+          "nearBlackBelow24Percent": 17.753,
+          "darkBelow40Percent": 20.883,
+          "imageSHA256": "068803de46697d33b056a6fda6150a3710978c20170e00c3f1287ae4212f4f65"
+        },
+        "grazing": {
+          "pixelsWithinProjectedSameWall": 303513,
+          "meanSRGBLuminance": 147.81,
+          "medianSRGBLuminance": 192,
+          "nearBlackBelow24Percent": 10.716,
+          "darkBelow40Percent": 17.635,
+          "imageSHA256": "0f1dccf36149b6994d21b4e8b3b2ccb819cd1b6ae8c56fa7f5dcd794af301c81"
+        }
+      },
+      "rounded-final": {
+        "closeup": {
+          "pixelsWithinProjectedSameWall": 328818,
+          "meanSRGBLuminance": 152.16,
+          "medianSRGBLuminance": 184,
+          "nearBlackBelow24Percent": 12.495,
+          "darkBelow40Percent": 13.638,
+          "imageSHA256": "2823a5a4dbdf37e9595f23a58f6021875cc9c02183865988e0bd6e63abb5c277"
+        },
+        "grazing": {
+          "pixelsWithinProjectedSameWall": 303513,
+          "meanSRGBLuminance": 165.83,
+          "medianSRGBLuminance": 192,
+          "nearBlackBelow24Percent": 7.203,
+          "darkBelow40Percent": 7.725,
+          "imageSHA256": "d66c1d2135eb4eb811f655f628b74e11c7a1927004a8708bb0d0ad4a32d9aca6"
+        }
+      }
+    }
+  },
+  "finalInteraction": {
+    "slider": {
+      "handlerSamples": 12,
+      "handlerMedianMs": 0.75,
+      "handlerMaxMs": 5.4,
+      "handlerDurationsMs": [
+        5.4,
+        0.8,
+        0.8,
+        0.7,
+        0.8,
+        0.8,
+        0.6,
+        0.7,
+        0.9,
+        0.7,
+        0.7,
+        0.6
+      ],
+      "actualInputs": [
+        80,
+        82,
+        84,
+        86,
+        88,
+        90,
+        92,
+        94,
+        96,
+        98,
+        100,
+        102
+      ],
+      "synchronousSurfaceQueries": 0,
+      "duringInputLongTasksMs": [],
+      "allMeasuredLongTasksMs": [
+        59
+      ],
+      "replayDurationMs": 731.7,
+      "rAF": {
+        "callbacks": 8,
+        "cadenceHz": 10.933,
+        "medianIntervalMs": 33.3,
+        "maxIntervalMs": 233.3
+      },
+      "editorDrawsDuringInput": 3,
+      "workerMode": "worker",
+      "finalPartCenter": [
+        102,
+        50,
+        -150
+      ],
+      "jsErrors": []
+    },
+    "drag": {
+      "handlerSamples": 20,
+      "handlerMedianMs": 0.4,
+      "handlerMaxMs": 5.4,
+      "handlerDurationsMs": [
+        0.1,
+        0.1,
+        5.4,
+        0.4,
+        0.4,
+        0.3,
+        0.7,
+        0.6,
+        0.6,
+        0.5,
+        0.4,
+        0.4,
+        0.4,
+        0.2,
+        0.3,
+        0.2,
+        0.3,
+        0.5,
+        0.4,
+        0.4
+      ],
+      "actualInputs": [
+        {
+          "x": 663,
+          "y": 429.0999755859375,
+          "buttons": 1
+        },
+        {
+          "x": 666,
+          "y": 428.6999816894531,
+          "buttons": 1
+        },
+        {
+          "x": 669,
+          "y": 428.29998779296875,
+          "buttons": 1
+        },
+        {
+          "x": 672,
+          "y": 427.8999938964844,
+          "buttons": 1
+        },
+        {
+          "x": 675,
+          "y": 427.5,
+          "buttons": 1
+        },
+        {
+          "x": 678,
+          "y": 427.0999755859375,
+          "buttons": 1
+        },
+        {
+          "x": 681,
+          "y": 426.6999816894531,
+          "buttons": 1
+        },
+        {
+          "x": 684,
+          "y": 426.29998779296875,
+          "buttons": 1
+        },
+        {
+          "x": 687,
+          "y": 425.8999938964844,
+          "buttons": 1
+        },
+        {
+          "x": 690,
+          "y": 425.5,
+          "buttons": 1
+        },
+        {
+          "x": 693,
+          "y": 425.0999755859375,
+          "buttons": 1
+        },
+        {
+          "x": 696,
+          "y": 424.6999816894531,
+          "buttons": 1
+        },
+        {
+          "x": 699,
+          "y": 424.29998779296875,
+          "buttons": 1
+        },
+        {
+          "x": 702,
+          "y": 423.8999938964844,
+          "buttons": 1
+        },
+        {
+          "x": 705,
+          "y": 423.5,
+          "buttons": 1
+        },
+        {
+          "x": 708,
+          "y": 423.0999755859375,
+          "buttons": 1
+        },
+        {
+          "x": 711,
+          "y": 422.6999816894531,
+          "buttons": 1
+        },
+        {
+          "x": 714,
+          "y": 422.29998779296875,
+          "buttons": 1
+        },
+        {
+          "x": 717,
+          "y": 421.8999938964844,
+          "buttons": 1
+        },
+        {
+          "x": 720,
+          "y": 421.5,
+          "buttons": 1
+        }
+      ],
+      "synchronousSurfaceQueries": 1,
+      "duringInputLongTasksMs": [],
+      "allMeasuredLongTasksMs": [
+        115,
+        62
+      ],
+      "replayDurationMs": 3737.7,
+      "rAF": {
+        "callbacks": 37,
+        "cadenceHz": 9.899,
+        "medianIntervalMs": 33.3,
+        "maxIntervalMs": 349.9
+      },
+      "editorDrawsDuringInput": 18,
+      "workerMode": "worker",
+      "finalPartCenter": [
+        67.11629376121886,
+        50,
+        -145.7946690774525
+      ],
+      "jsErrors": []
+    }
+  },
+  "sourceHashes": {
+    "baseline": {
+      "js/gfx.js": "cdda736707af605ffa93cdf14ee2369af9af8dcedacae8c73b1371cd696893cd",
+      "js/engine.js": "2b81ddf076e73b2f0b0be2928d58e97d0200d775e2b38eb2531bcf28df72ee52",
+      "js/core.js": "7e0da3bd9c8a00bf82dce1c6780094c4dae387c15db44979e9bf63fa26bf367d",
+      "js/app.js": "2a3e3331552941eef10fb917896ab781d13458daa5e5b2174471deafee86157f"
+    },
+    "final": {
+      "js/gfx.js": "acc2e7e0f686b63833d76d3c103ada17735f7fbfea2c5b9c68009faf3ccf81cc",
+      "js/engine.js": "2b81ddf076e73b2f0b0be2928d58e97d0200d775e2b38eb2531bcf28df72ee52",
+      "js/core.js": "7e0da3bd9c8a00bf82dce1c6780094c4dae387c15db44979e9bf63fa26bf367d",
+      "js/app.js": "2a3e3331552941eef10fb917896ab781d13458daa5e5b2174471deafee86157f"
+    },
+    "focused": {
+      "js/gfx.js": "acc2e7e0f686b63833d76d3c103ada17735f7fbfea2c5b9c68009faf3ccf81cc",
+      "js/engine.js": "2b81ddf076e73b2f0b0be2928d58e97d0200d775e2b38eb2531bcf28df72ee52",
+      "js/app.js": "2a3e3331552941eef10fb917896ab781d13458daa5e5b2174471deafee86157f",
+      "js/core.js": "7e0da3bd9c8a00bf82dce1c6780094c4dae387c15db44979e9bf63fa26bf367d"
+    }
+  },
+  "artifactSHA256": {
+    "rounded-baseline-overview.png": "35fa9aac7a71bc39bdf0d0f04f22a4531970d1592ce53e5f56a4a0c09f6ab198",
+    "rounded-baseline-bridge.png": "2bc70bb210220fddc96c0b153744f0635ed1dae67028d53dfabb193b5ac5e812",
+    "rounded-baseline-trench.png": "513fb7fa657641cdfa330531ce734e4857ca28b45ad4b236f5b10ffcf541d63e",
+    "rounded-baseline-slope.png": "af3e6b441b3e12462bebccf58038e90d2b62aa0659cf8e3b2421dfb921c7c8d3",
+    "rounded-baseline-closeup.png": "068803de46697d33b056a6fda6150a3710978c20170e00c3f1287ae4212f4f65",
+    "rounded-baseline-grazing.png": "0f1dccf36149b6994d21b4e8b3b2ccb819cd1b6ae8c56fa7f5dcd794af301c81",
+    "rounded-final-overview.png": "231400bac5e024be305abe81ed181cd25c90e73703bcd6a82c5dd881acda4198",
+    "rounded-final-bridge.png": "fa5b62947bf53dd0e9190b90bc01b3957ee273196784f0e98ea21e7f90992442",
+    "rounded-final-trench.png": "1e7598ddba831d13efb10772d44c4dc1bef357c5d52fc2ced310eb5edd1678fc",
+    "rounded-final-slope.png": "892074943ff4723e0c22e6e8c72ace0423cf5060751d9cee08b56f28cf01f3be",
+    "rounded-final-closeup.png": "2823a5a4dbdf37e9595f23a58f6021875cc9c02183865988e0bd6e63abb5c277",
+    "rounded-final-grazing.png": "d66c1d2135eb4eb811f655f628b74e11c7a1927004a8708bb0d0ad4a32d9aca6",
+    "rounded-focused-baseline-cylinder-profile.png": "6fc5e628f3d1eff2bba113977a04daa3c839620ac8e880fe84718e72de9dbaa8",
+    "rounded-focused-baseline-round-profile.png": "5bf23613f59543fe11f744f2dcd69018d9b0920c99dad0a11dd0522dd58301d6",
+    "rounded-focused-baseline-catwalk-profile.png": "372f3e1a18203a00e8244006e772104de02df95c491c474b6979b70e5ed11981",
+    "rounded-focused-baseline-catwalk-top.png": "2ee1ae24d63388527da26cbd37da6bbce0276e31026bc4361867eec6ac3a4a82",
+    "rounded-focused-final-cylinder-profile.png": "bdd5ac0ed1c4e9b37b1a327be828b431b223d0d3f4d8d7b874a75c08b80e90c3",
+    "rounded-focused-final-round-profile.png": "dc2e1793576cfbf2cf98da8a54c319ae03ecd0d0461be829a87e724a61c58bbe",
+    "rounded-focused-final-catwalk-profile.png": "48aec33b7bebf2d4f3299d7bf005c30ec4ef2c28adceb27cb6e875a42e1ca5e1",
+    "rounded-focused-final-catwalk-top.png": "9b630e116782843866107190ec2e25cf92dc15e566eca1c01e1524ffe54b4253",
+    "rounded-final-inclined-grazing.png": "18ead4ca9816bf2d0d480693e465daa846ccbb0d5381df8a9e7c78bec8112732"
+  },
+  "diskSourceMatchesExecuted": true
+}
