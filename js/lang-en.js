@@ -9114,4 +9114,8 @@ Object.assign(root.KS_EN.messages,{
 "形状が複雑なため一部の面積を確保できません。面を分割すると利用範囲を増やせます": "Some area could not be reserved because of the complex shape. Splitting the surface can increase the usable region."
 });
 // </surface-layered-structure-catalog>
+Object.assign(root.KS_EN.messages,{
+"一覧の露出面 · {0} 面": "Exposed Surfaces in List · {0}",
+"埋まった面は一覧と選択から除外し、面積は船外に露出した部分だけを表示します。保存した面設定は保持します。": "Buried surfaces are excluded from the list and selection. Areas show only the portions exposed to the exterior. Saved surface settings are retained."
+});
 })(typeof window==="undefined"?globalThis:window);

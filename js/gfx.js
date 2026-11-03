@@ -1828,8 +1828,11 @@ function roomMesh(ship,p,g,col){
 // Surface visuals read the installed design. Detail quality changes only the
 // decorative pass; armour and equipment ports are always derived from the same
 // physical patches and installed common parts used by the simulation.
-function surfaceTriangles(patch){
- const T=patch?.triangles;if(!T)return [];
+function surfaceTriangles(patch,exposed=true){
+ // Core keeps the full semantic surface for physical armour and stable IDs.
+ // Rendering uses only its camera-independent exposed fragments, including
+ // an explicitly empty mask for a completely buried face.
+ const T=exposed&&patch?.exposedTriangles!=null?patch.exposedTriangles:patch?.triangles;if(!T)return [];
  if(ArrayBuffer.isView(T)||typeof T[0]==='number')return Array.from(T);
  return T.flat(Infinity);
 }
@@ -1881,7 +1884,7 @@ function surfaceRecess(ship,patch,requested){
 function surfaceBoundary(patch){
  const T=surfaceTriangles(patch),edges=new Map(),key=p=>p.map(v=>Math.round(v*1e6)).join(',');
  for(let i=0;i+8<T.length;i+=9){const p=[T.slice(i,i+3),T.slice(i+3,i+6),T.slice(i+6,i+9)];for(let j=0;j<3;j++){const a=p[j],b=p[(j+1)%3],ka=key(a),kb=key(b),k=ka<kb?ka+'|'+kb:kb+'|'+ka,q=edges.get(k);if(q)q.n++;else edges.set(k,{a,b,n:1});}}
- if(!T.length&&patch?.polygon?.length>2)for(let i=0;i<patch.polygon.length;i++)edges.set(String(i),{a:patch.polygon[i],b:patch.polygon[(i+1)%patch.polygon.length],n:1});
+ if(!T.length&&patch?.exposedTriangles==null&&patch?.polygon?.length>2)for(let i=0;i<patch.polygon.length;i++)edges.set(String(i),{a:patch.polygon[i],b:patch.polygon[(i+1)%patch.polygon.length],n:1});
  return [...edges.values()].filter(e=>e.n===1);
 }
 function surfaceSelectionLines(ship,ids){
@@ -1921,7 +1924,7 @@ function surfaceLayerFrame(patch){
  return {u,v,normal,vertical};
 }
 function surfaceLayerBases(patches){
- const out=new Map();for(const p of patches){const id=p.baseId||p.id;let b=out.get(id);if(!b){const f=surfaceLayerFrame(p);out.set(id,b={...f,minU:Infinity,maxU:-Infinity,minV:Infinity,maxV:-Infinity,minY:Infinity,maxY:-Infinity});}const T=surfaceTriangles(p);for(let i=0;i<T.length;i+=3){const q=T.slice(i,i+3),x=C.dot(q,b.u),y=C.dot(q,b.v);b.minU=Math.min(b.minU,x);b.maxU=Math.max(b.maxU,x);b.minV=Math.min(b.minV,y);b.maxV=Math.max(b.maxV,y);b.minY=Math.min(b.minY,q[1]);b.maxY=Math.max(b.maxY,q[1]);}}
+ const out=new Map();for(const p of patches){const id=p.baseId||p.id;let b=out.get(id);if(!b){const f=surfaceLayerFrame(p);out.set(id,b={...f,minU:Infinity,maxU:-Infinity,minV:Infinity,maxV:-Infinity,minY:Infinity,maxY:-Infinity});}const T=surfaceTriangles(p,false);for(let i=0;i<T.length;i+=3){const q=T.slice(i,i+3),x=C.dot(q,b.u),y=C.dot(q,b.v);b.minU=Math.min(b.minU,x);b.maxU=Math.max(b.maxU,x);b.minV=Math.min(b.minV,y);b.maxV=Math.max(b.maxV,y);b.minY=Math.min(b.minY,q[1]);b.maxY=Math.max(b.maxY,q[1]);}}
  return out;
 }
 // Allocate a bounded visual budget before drawing any face. A small floor and
@@ -1951,7 +1954,7 @@ function surfaceEquipmentField(ship,patch,cells,style,detail,extraBudget,fieldBu
  const space=b=>{if(!(b[2]>b[0]&&b[3]>b[1])||b[0]<lo[0]-1e-6||b[1]<lo[1]-1e-6||b[2]>hi[0]+1e-6||b[3]>hi[1]+1e-6||blocked.some(a=>b[2]>a[0]&&b[0]<a[2]&&b[3]>a[1]&&b[1]<a[3]))return null;let area=0,height=-Infinity,ceiling=Infinity,floor=-Infinity;
   for(const tri of tris){const a=tri.bounds;if(a[2]<b[0]||a[0]>b[2]||a[3]<b[1]||a[1]>b[3])continue;let p=tri;for(const [axis,limit,sign]of [[0,b[0],1],[0,b[2],-1],[1,b[1],1],[1,b[3],-1]]){p=clip(p,axis,limit,sign);if(p.length<3)break;}if(p.length<3)continue;let area2=0;for(let i=0;i<p.length;i++){const q=p[i],r=p[(i+1)%p.length];area2+=q[0]*r[1]-q[1]*r[0];height=Math.max(height,q[2]);ceiling=Math.min(ceiling,q[2]);floor=Math.max(floor,q[3]);}area+=Math.abs(area2)*.5;}
   if(area<(b[2]-b[0])*(b[3]-b[1])*(1-1e-6))return null;
-  if(patch.exposedArea<patch.area*.999){for(const [x,y]of [[b[0],b[1]],[b[2],b[1]],[b[0],b[3]],[b[2],b[3]],[(b[0]+b[2])/2,(b[1]+b[3])/2]]){const p=C.add(origin,C.add(C.add(C.mul(u,x),C.mul(v,y)),C.mul(normal,height+2))),hit=C.surfacePick(ship,p,C.mul(normal,-1));if(hit?.id!==patch.id)return null;}}
+  if(patch.exposedTriangles==null&&patch.exposedArea<patch.area*.999){for(const [x,y]of [[b[0],b[1]],[b[2],b[1]],[b[0],b[3]],[b[2],b[3]],[(b[0]+b[2])/2,(b[1]+b[3])/2]]){const p=C.add(origin,C.add(C.add(C.mul(u,x),C.mul(v,y)),C.mul(normal,height+2))),hit=C.surfacePick(ship,p,C.mul(normal,-1));if(hit?.id!==patch.id)return null;}}
   return {height,ceiling:ceiling-.012,floor:floor+.008};
  };
  const checkOwner=ship.solidCuts?.length||patch._part?.mesh||['outline','shell','arc'].includes(patch._part?.form),inside=p=>patch._part?C.inPart(patch._part,p):C.inHull(ship,p);
@@ -2244,7 +2247,7 @@ function plateDetail(ship,g){
 function structuralDetail(p,g,ds=1,managed=[]){
  if(p.skin==='plain'||p.s[2]<10||p.s[0]<30)return;
  const T=C.structTriangles(p),service=p.skin==='service';
- const owned=(point,normal)=>managed.some(p=>C.dot(p.normal,normal)>.98&&Math.abs(C.dot(C.sub(point,p.center),p.normal))<1&&C.rayTris(p.triangles,C.add(point,C.mul(p.normal,2)),C.mul(p.normal,-1)));
+ const owned=(point,normal)=>managed.some(p=>C.dot(p.normal,normal)>.98&&Math.abs(C.dot(C.sub(point,p.center),p.normal))<1&&C.rayTris(surfaceTriangles(p),C.add(point,C.mul(p.normal,2)),C.mul(p.normal,-1)));
  // Mechanical bays on the walls are actual shallow geometry, with no glass or emission.
  for(let i=0;i<T.length;i+=9){const a=Array.from(T.slice(i,i+3)),b=Array.from(T.slice(i+3,i+6)),c=Array.from(T.slice(i+6,i+9)),n=C.norm(C.cross(C.sub(b,a),C.sub(c,a)));
   if(Math.abs(n[1])>.6)continue;
