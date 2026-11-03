@@ -12,24 +12,24 @@ function vertices(g,spans){const seen=new Set(),out=[];for(const [,a,n]of spans)
 const same=(a,b)=>assert.ok(C.len(C.sub(a,b))<1e-6),median=a=>{a=a.slice().sort((a,b)=>a-b);return a[Math.floor(a.length/2)];};
 
 test('procedural and referenced surface weapons render only their shallow wall ports while manual guns remain',()=>{
- for(const weapon of ['pd','refVen']){const {ship,patch}=fixture({weapon,onlyWeapons:true}),f=ship.fits.find(q=>q.surfacePatch===patch.id&&!q.float);assert.ok(f,weapon);
+ for(const weapon of ['pd','refVen']){const {ship,patch}=fixture({weapon,onlyWeapons:true}),f=C.surfaceDerivedFits(ship).find(q=>q.surfacePatch===patch.id&&!q.float);assert.ok(f,weapon);
   const ranges={},ports=G.meshFits(ship,null,ranges),p=C.surfaceBatteryGeometry(f),points=vertices(ports,(ranges[f.id]||[]).filter(q=>q[0]==='fits'));assert.ok(points.length>0,weapon+' port missing');
   for(const point of points){const q=C.sub(point,p.point);assert.ok(C.dot(q,p.normal)>=-.001&&C.dot(q,p.normal)<=p.lip+.001,weapon+' has exterior barrel or turret geometry');assert.ok(Math.abs(C.dot(q,p.u))<=p.width/2+.001);assert.ok(Math.abs(C.dot(q,p.v))<=p.height/2+.001);}
-  assert.equal(G.meshReferenceFits(ship,null,ship.fits.filter(q=>q.surfacePatch)).ni,0,'referenced turret must not be drawn as a second body');
+  assert.equal(G.meshReferenceFits(ship,null,C.surfaceDerivedFits(ship).filter(q=>q.surfacePatch)).ni,0,'referenced turret must not be drawn as a second body');
   const manual={...f,id:ship.nextId++,p:C.add(f.p,[0,30,0]),surfacePatch:undefined,surfaceCell:undefined,surfacePoint:undefined,surfaceUnplaced:undefined};ship.fits.push(manual);
-  assert.equal(C.surfaceBatteryGeometry(manual),null);assert.ok((C.FITS[weapon].asset?G.meshReferenceFits(ship,null,[manual]):G.meshFits(ship,q=>q===manual)).ni>0,weapon+' independent gun was hidden');
+  assert.equal(C.surfaceBatteryGeometry(manual),null);assert.ok((C.FITS[weapon].asset?G.meshReferenceFits(ship,null,[manual]):G.meshFits(ship,q=>q.id===manual.id)).ni>0,weapon+' independent gun was hidden');
  }
 });
 
 test('fleet and preview paths keep port identity and muzzle without creating hidden animated turret meshes',()=>{
- const {ship,patch}=fixture(),before=C.publicJSON(ship),fits=ship.fits.filter(f=>f.surfacePatch===patch.id&&!f.float),asset=G.fleetGeometry(ship,{trial:true});assert.ok(fits.length>0);
+ const {ship,patch}=fixture(),before=C.publicJSON(ship),fits=C.surfaceDerivedFits(ship).filter(f=>f.surfacePatch===patch.id&&!f.float),asset=G.fleetGeometry(ship,{trial:true});assert.ok(fits.length>0);
  for(const f of fits){const p=C.surfaceBatteryGeometry(f),t=asset.turrets.find(t=>t.id===f.id);assert.ok(t?.embedded);assert.equal(t.mesh,null);assert.ok(C.len(t.axis)>.99&&C.len(t.fw)>.99&&Math.abs(C.dot(t.axis,t.fw))<1e-7);same(t.fw,p.normal);same(t.origin,p.mouth);assert.equal(t.portWidth,p.width);assert.equal(t.portHeight,p.height);assert.ok(!asset.meshes['tur_'+f.id]&&!asset.meshes['refTur_'+f.id]);}
  const preview=G.meshPreview(ship,[],fits);assert.ok(preview.previewFits.ni>0);assert.equal(preview.previewRefFits.ni,0);assert.equal(C.publicJSON(ship),before);
 });
 
 test('legacy surface batteries show their aperture on the outer armor face instead of behind the armor slab',()=>{
  const {ship,patch}=fixture();assert.equal(C.setSurfaceConfig(ship,patch.id,{functionMode:'legacy',armor:{material:'standard',thickness:2},battery:{weapon:'pd',count:1},equipment:{kind:'none',count:0}}).ok,true);
- const f=ship.fits.find(q=>q.surfacePatch===patch.id&&!q.float);assert.ok(f);const p=C.surfaceBatteryGeometry(f),ranges={},g=G.meshFits(ship,null,ranges),points=vertices(g,ranges[f.id]);assert.ok(points.length>0);
+ const f=C.surfaceDerivedFits(ship).find(q=>q.surfacePatch===patch.id&&!q.float);assert.ok(f);const p=C.surfaceBatteryGeometry(f),ranges={},g=G.meshFits(ship,null,ranges),points=vertices(g,ranges[f.id]);assert.ok(points.length>0);
  for(const v of points){const n=C.dot(C.sub(v,f.surfacePoint),patch.normal);assert.ok(n>=2.01&&n<=2+p.lip+.001,'port is hidden by or protrudes beyond its actual armor surface');}
 });
 
@@ -45,5 +45,5 @@ test('larger machinery is staggered in wallnormal position and depth without cha
 test('embedded wall ports and depth-staggered machinery move exactly once with their S foil',()=>{
  const {ship,body}=fixture({foil:true,depth:1}),raw=G.meshFits(ship),parts=G.meshSurfaceLayers(ship,{}),asset=G.fleetGeometry(ship,{trial:true}),foil=asset.foils.find(p=>p.id===body.id);assert.ok(foil);
  for(const [kind,count]of [['fits',raw.ni],['surfaceDevices',parts.surfaceDevices.ni],['surfaceDetail',parts.surfaceDetail.ni]]){const moving=foil.meshes.filter(name=>foil.kinds[name]===kind);assert.equal(moving.length,1,kind);assert.equal(asset.meshes[moving[0]].geo.ni,count,kind+' duplicated or lost');assert.equal(asset.meshes[kind]?.geo.ni||0,0,kind+' stationary copy');}
- for(const f of ship.fits.filter(f=>f.surfacePatch&&!f.float)){const t=asset.turrets.find(t=>t.id===f.id);assert.ok(t?.embedded);assert.equal(t.foilId,body.id);assert.equal(t.mesh,null);}
+ for(const f of C.surfaceDerivedFits(ship).filter(f=>f.surfacePatch&&!f.float)){const t=asset.turrets.find(t=>t.id===f.id);assert.ok(t?.embedded);assert.equal(t.foilId,body.id);assert.equal(t.mesh,null);}
 });

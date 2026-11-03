@@ -47,9 +47,9 @@ test('range and additive selection use semantic IDs and do not modify the design
 
 test('a multi-face layer edit preserves different armor and stable physical equipment IDs',()=>{
  const {run}=setup();run(`fixture();const ps=surfaceFilteredRows().slice(0,2);C.setSurfaceConfig(ship,[ps[0].id],{armor:{thickness:.3},battery:{weapon:'pd',count:2}});C.setSurfaceConfig(ship,[ps[1].id],{armor:{thickness:.7},equipment:{kind:'hdis',count:1,depth:1}});st.surfaceIds=ps.map(p=>p.id);`);
- const before=plain(run('ship.fits.map(f=>f.id)'));run("st.surfaceDraft={'style.density':.9};surfaceApplyDraft()");
+ const before=plain(run('C.surfaceDerivedFits(ship).map(f=>f.id)'));assert.equal(before.length,2);run("st.surfaceDraft={'style.density':.9};surfaceApplyDraft()");
  assert.equal(run('C.surfaceConfig(ship,st.surfaceIds[0]).armor.thickness'),.3);assert.equal(run('C.surfaceConfig(ship,st.surfaceIds[1]).armor.thickness'),.7);
- assert.equal(run('C.surfaceConfig(ship,st.surfaceIds[0]).style.density'),.9);assert.equal(run('C.surfaceConfig(ship,st.surfaceIds[1]).equipment.count'),1);assert.deepEqual(plain(run('ship.fits.map(f=>f.id)')),before);assert.equal(run('history.length'),1);
+ assert.equal(run('C.surfaceConfig(ship,st.surfaceIds[0]).style.density'),.9);assert.equal(run('C.surfaceConfig(ship,st.surfaceIds[1]).equipment.count'),1);assert.deepEqual(plain(run('C.surfaceDerivedFits(ship).map(f=>f.id)')),before);assert.equal(run('ship.fits.length'),0);assert.equal(run('history.length'),1);
  const html=run('surfaceEditorHTML()');assert.match(html,/data-surface-field="armor.thickness" value=""/);assert.match(html,/placeholder="複数の値"/);assert.match(html,/data-surface-report/);assert.match(html,/砲座の設置数／要求数/);
 });
 
@@ -98,7 +98,7 @@ test('physical cutting keeps orphaned settings visible and the actual move contr
  assert.equal(run('ship.solidCuts.length'),1);assert.ok(run('C.surfaceReport(ship).orphaned.some(q=>q.id===oldId)'));assert.equal(run('st.surfaceIds.length'),0);
  run(`const orphanCount=C.surfaceReport(ship).orphaned.length,newId=surfaceFilteredRows().find(p=>p.face==='top').id;st.surfaceIds=[newId];`);const html=run('surfaceEditorHTML()');assert.match(html,/未配置の面設定/);assert.match(html,/data-surface-orphan=/);assert.match(html,/data-surface-cutdepth/);
  run(`const listeners={};form={addEventListener:(k,f)=>listeners[k]=f};bindSurfaceEditor();listeners.click({target:{closest:s=>s==='[data-surface-orphan]'?{dataset:{surfaceOrphan:oldId}}:null},stopImmediatePropagation(){}});`);
- assert.equal(run('C.surfaceReport(ship).orphaned.length'),run('orphanCount-1'));assert.equal(run('C.surfaceReport(ship).orphaned.some(q=>q.id===oldId)'),false);assert.equal(run('C.surfaceConfig(ship,newId).armor.thickness'),.4);assert.equal(run('C.surfaceConfig(ship,newId).battery.count'),2);assert.equal(run('ship.surfaces.patches.filter(q=>q.id===oldId).length'),0);assert.equal(run('ship.fits.filter(f=>f.surfacePatch===newId).length'),2);
+ assert.equal(run('C.surfaceReport(ship).orphaned.length'),run('orphanCount-1'));assert.equal(run('C.surfaceReport(ship).orphaned.some(q=>q.id===oldId)'),false);assert.equal(run('C.surfaceConfig(ship,newId).armor.thickness'),.4);assert.equal(run('C.surfaceConfig(ship,newId).battery.count'),2);assert.equal(run('ship.surfaces.patches.filter(q=>q.id===oldId).length'),0);assert.equal(run('C.surfaceDerivedFits(ship).filter(f=>f.surfacePatch===newId).length'),2);assert.equal(run('ship.fits.length'),0);
 });
 
 test('the design panel displays the common backend charge, heat and sustained-fire results',()=>{

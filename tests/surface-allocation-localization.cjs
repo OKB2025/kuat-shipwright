@@ -23,14 +23,14 @@ test('the real armor editor translates the exclusive function choices and physic
  assert.equal(translated('装甲面'),'Armor Surface');assert.equal(translated('機材搭載面'),'Equipment Surface');assert.equal(run('JSON.stringify(C.serialize(ship))'),before,'English rendering must preserve the blueprint');
 });
 
-test('the real equipment editor translates three linked shares, separate gun counts and native device reports',()=>{
+test('the real equipment editor translates three linked shares, separate gun counts and whole-face resource reports',()=>{
  run("fixture('equipment')");const before=run('JSON.stringify(C.serialize(ship))'),html=run('surfaceEditorHTML()');translatedHTML(html);
  assert.match(html,/data-surface-allocation-total>100%/);assert.match(html,/data-surface-allocation-report/);
  for(const role of ['cooling','sensors','habitation']){assert.match(html,new RegExp('data-surface-field="allocation\\.'+role+'"'));assert.match(html,new RegExp('data-surface-category="'+role+'"'));}
  assert.match(html,/data-surface-field="battery\.count"/);assert.doesNotMatch(html,/data-surface-field="armor\.thickness"|data-surface-field="equipment\.count"|data-surface-field="allocation\.weapons"/);
- const devices=run('ship.parts.filter(q=>q.surfacePatch&&q.surfacePatch===st.surfaceIds[0]).map(q=>({k:q.k,label:q.label,name:C.PARTS[q.k].name,desc:C.PARTS[q.k].desc}))');
+ const devices=run('C.surfaceWorkingShip(ship).parts.filter(q=>q.surfacePatch&&q.surfacePatch===st.surfaceIds[0]).map(q=>({k:q.k,label:q.label,name:C.PARTS[q.k].name,desc:C.PARTS[q.k].desc}))');
  assert.ok(devices.some(q=>q.k==='sensor'));assert.ok(devices.some(q=>q.k==='habitat'));assert.ok(devices.some(q=>q.k==='hdis'));
- for(const device of devices){translated(device.label);translated(device.name);translated(device.desc);}
+ for(const device of devices){translated(device.label);translated(device.name);translated(device.desc);}assert.equal(run('ship.parts.filter(p=>p.surfacePatch).length'),0);assert.match(html,/data-surface-representation="face"/);assert.doesNotMatch(html,/設備の設置数／要求数/);
  const report=run('C.surfaceReport(ship).patches.find(p=>p.id===st.surfaceIds[0])');for(const role of ['cooling','sensors','habitation'])assert.ok(report.categories[role].installed>0,role);assert.equal(report.requested,2);assert.ok(report.installed>0);
  assert.equal(translated('居住容積／居住定員'),'Habitable Volume / Capacity');assert.equal(run('JSON.stringify(C.serialize(ship))'),before,'category reports and translation are read-only');
 });
@@ -58,7 +58,7 @@ test('legacy migration and actual placement-limit warnings remain explicit in th
 });
 
 test('real native and cross-face volume conflicts and curved-envelope fit diagnostics translate in the editor',()=>{
- run(`fixture('equipment',{cooling:100,sensors:0,habitation:0});const nativeConflictFace=C.surfacePatches(ship).find(p=>p.id===st.surfaceIds[0]),nativeConflictRoom=ship.parts.find(q=>q.surfacePatch===nativeConflictFace.id&&!q.surfaceUnplaced);ship.parts.push({id:ship.nextId++,k:'command',d:2,room:[2,2,2],c:C.add(nativeConflictRoom.c,C.mul(nativeConflictFace.u,4.5))});C.surfaceSync(ship)`);
+ run(`fixture('equipment',{cooling:100,sensors:0,habitation:0});const nativeConflictFace=C.surfacePatches(ship).find(p=>p.id===st.surfaceIds[0]),nativeConflictCell=C.surfaceConfig(ship,nativeConflictFace.id).aggregate.cells.find(r=>!r[3]);ship.parts.push({id:ship.nextId++,k:'command',d:2,room:[2,2,2],c:C.add(nativeConflictCell.slice(4,7),C.mul(nativeConflictFace.u,4.5))});C.surfaceSync(ship)`);
  const native=run('C.surfaceReport(ship).warnings');assert.ok(native.some(w=>w.text==='既存設備と内部容積が干渉しています'));for(const warning of native)translated(warning.text);translatedHTML(run('surfaceEditorHTML()'));
  run(`fixture();ship.parts[0].s=[40,40,4];delete ship.surfaces;C.enableSurfaceMode(ship,true);const faces=C.surfacePatches(ship).filter(p=>p.host==='p1'&&['top','bottom'].includes(p.face));for(const p of faces)C.setSurfaceConfig(ship,p.id,{functionMode:'equipment',allocation:{cooling:100,sensors:0,habitation:0},equipment:{kind:'hdis',depth:3}});st.surfaceIds=faces.map(p=>p.id)`);
  const conflict=run('C.surfaceReport(ship).warnings');assert.ok(conflict.some(w=>w.text==='他の面の設備と内部容積が干渉しています'));for(const warning of conflict)translated(warning.text);translatedHTML(run('surfaceEditorHTML()'));

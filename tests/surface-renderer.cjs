@@ -12,7 +12,7 @@ function addManualTracker(ship,body){
  const face=C.surfacePatches(ship).find(p=>p.host==='p'+body.id&&p.face==='fore'),placed=C.placeFit(ship,'pd',face.center,face.normal,0,false,{localMount:true});
  assert.ok(placed.fit,placed.err);assert.ok(!placed.fit.surfacePatch);return placed.fit;
 }
-function functional(ship){const s=C.surfaceReport(ship);return plain({parts:ship.parts.map(p=>({id:p.id,k:p.k,c:p.c,room:p.room,s:p.s,d:p.d})),fits:ship.fits.map(f=>({id:f.id,k:f.k,p:f.p,n:f.n})),counts:s.totals});}
+function functional(ship){const s=C.surfaceReport(ship);return plain({parts:ship.parts.map(p=>({id:p.id,k:p.k,c:p.c,room:p.room,s:p.s,d:p.d})),fits:ship.fits.concat(C.surfaceDerivedFits(ship)).map(f=>({id:f.id,k:f.k,p:f.p,n:f.n})),roles:s.patches.filter(p=>p.active).map(p=>({id:p.id,partIds:p.partIds,categories:p.categories})),counts:s.totals});}
 function selectedPlan(ship,patch,opt){const row=G.surfaceVisualPlan(ship,opt).find(p=>p.id===patch.id);assert.ok(row,'the edited semantic patch must have a visual record');return row;}
 const identity3=[1,0,0,0,1,0,0,0,1],identity4=[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],apply=(r,p)=>[r[0]*p[0]+r[3]*p[1]+r[6]*p[2],r[1]*p[0]+r[4]*p[1]+r[7]*p[2],r[2]*p[0]+r[5]*p[1]+r[8]*p[2]];
 function rendererFixture(data,kind='webgl'){
@@ -29,8 +29,8 @@ function rendererFixture(data,kind='webgl'){
 }
 function nearVector(a,b,label){for(let i=0;i<3;i++)assert.ok(Math.abs(a[i]-b[i])<1e-6,label+' component '+i+': '+a[i]+' vs '+b[i]);}
 
-test('surface device ports correspond to installed equipment and remain when cosmetic detail is disabled',()=>{
- const {ship,patch}=fixture(),installed=ship.parts.filter(p=>p.surfacePatch);assert.equal(installed.length,2);assert.equal(ship.fits.length,2);
+test('legacy role interfaces retain installed capacities without persistent devices at cosmetic detail zero',()=>{
+ const {ship,patch}=fixture(),report=C.surfaceReport(ship).patches.find(p=>p.id===patch.id),installed=report.partIds;assert.equal(report.installedEquipment,2);assert.equal(installed.length,1);assert.equal(C.surfaceDerivedFits(ship).length,2);assert.ok(!ship.parts.some(p=>p.surfacePatch)&&!ship.fits.some(f=>f.surfacePatch));
  const before=C.publicJSON(ship),all=G.surfaceVisualPlan(ship,{detail:1}),near=selectedPlan(ship,patch,{detail:1}),low=selectedPlan(ship,patch,{detail:0});
  assert.equal(all.reduce((n,p)=>n+p.devices.length,0),installed.length,'automatic armor records do not create additional equipment ports');assert.equal(near.devices.length,installed.length);assert.ok(near.boxes.length>0);assert.equal(low.boxes.length,0);assert.deepEqual(plain(low.devices),plain(near.devices));
  assert.equal(C.publicJSON(ship),before,'render quality cannot add or remove functional equipment');
@@ -42,7 +42,7 @@ test('surface visual seeds are reproducible and density changes preserve mount I
  const {ship,patch}=fixture(),before=functional(ship),a=selectedPlan(ship,patch),b=selectedPlan(ship,patch);
  assert.deepEqual(plain(a),plain(b));
  C.setSurfaceConfig(ship,[patch.id],{style:{density:0,seed:99}});assert.deepEqual(functional(ship),before);
- const off=selectedPlan(ship,patch);assert.equal(off.boxes.length,0);assert.equal(off.devices.length,2);
+ const off=selectedPlan(ship,patch);assert.equal(off.boxes.length,0);assert.equal(off.devices.length,C.surfaceReport(ship).patches.find(p=>p.id===patch.id).partIds.length);
  C.setSurfaceConfig(ship,[patch.id],{style:{density:.7,seed:99}});const changed=selectedPlan(ship,patch);assert.notDeepEqual(plain(changed.boxes),plain(a.boxes));assert.deepEqual(functional(ship),before);
 });
 
@@ -67,7 +67,7 @@ test('surface picking uses the same exposed geometry for WebGL and Canvas2D edit
 
 test('surface ornament footprints keep clear of actual turret envelopes and remain bounded by the patch',()=>{
  const {ship,patch}=fixture(),plan=selectedPlan(ship,patch);assert.ok(plan.boxes.length>0);
- const right=C.norm(patch.u),up=C.norm(patch.v),normal=C.norm(patch.normal),bounds=ship.fits.map(f=>C.fitAABB(f));
+ const right=C.norm(patch.u),up=C.norm(patch.v),normal=C.norm(patch.normal),bounds=ship.fits.concat(C.surfaceDerivedFits(ship)).map(f=>C.fitAABB(f));
  for(const box of plan.boxes){const anchor=C.sub(box.center,C.mul(normal,(plan.config.armor.thickness||0)+.015+box.size[2]/2));
   for(const [x,y]of [[-1,-1],[1,-1],[1,1],[-1,1]]){const q=C.add(anchor,C.add(C.mul(right,x*box.size[0]*.6),C.mul(up,y*box.size[1]*.6)));assert.ok(C.rayTris(patch.triangles,C.add(q,C.mul(normal,100)),C.mul(normal,-1)));}
   for(const b of bounds)assert.ok(!box.center.every((v,i)=>v>=b[i]&&v<=b[i+3]),'decorative equipment must not occupy a turret');
@@ -86,8 +86,8 @@ test('surface armor, equipment ports and actual guns remain attached to an anima
  const ship=C.newShip({L:80,W:80,H:20,assembly:true});ship.detail=0;const wing=C.placePart(ship,'wing',[40,10,0],[40,50,4],{},false);wing.wing=C.normalizeWing({...wing.wing,foil:true,open:10,stow:50});
  const patch=C.surfacePatches(ship).find(p=>p.host==='p'+wing.id&&p.face==='top');assert.ok(patch);
  assert.equal(C.setSurfaceConfig(ship,[patch.id],{armor:{thickness:.03},equipment:{kind:'radiator',count:1,depth:.2},battery:{weapon:'claser',count:1},style:{density:0}}).ok,true);
- const asset=G.fleetGeometry(ship),foil=asset.foils.find(f=>f.id===wing.id),device=ship.parts.find(p=>p.surfacePatch),gun=ship.fits.find(f=>f.surfacePatch);
- assert.ok(foil.partIds.includes(device.id));assert.ok(foil.fitIds.includes(gun.id));
+ const asset=G.fleetGeometry(ship),foil=asset.foils.find(f=>f.id===wing.id),device=C.surfaceRenderFaces(ship).find(p=>p.id===patch.id).partIds[0],gun=C.surfaceDerivedFits(ship).find(f=>f.surfacePatch);
+ assert.ok(foil.partIds.includes(device));assert.ok(foil.fitIds.includes(gun.id));
  for(const kind of ['surfaceArmor','surfaceDevices','fits'])assert.ok(foil.meshes.some(name=>foil.kinds[name]===kind),kind+' must follow the same hinge');
  assert.equal(asset.meshes.surfaceArmor.geo.ni,0,'moving armor is removed from the stationary ship shell');assert.equal(asset.meshes.surfaceDevices.geo.ni,0);
 });
@@ -102,7 +102,7 @@ test('Canvas2D fleet LOD also separates decorative meshes from the physical armo
 test('both renderers retain embedded metadata and use the combat center for independent uncommanded turrets',()=>{
  const {ship,body}=fixture(),manual=addManualTracker(ship,body),profile=C.fleetProfile(C.computeStats(ship),ship.name,ship),center=profile.surface.offset.slice(),geometry=G.fleetGeometry(ship,{center});
  assert.deepEqual(plain(geometry.center),plain(center));center[0]+=100;assert.deepEqual(plain(geometry.center),plain(profile.surface.offset),'the common center is copied rather than aliased');assert.equal(geometry.surfaceTurrets,true);
- const embedded=geometry.turrets.filter(t=>t.embedded);assert.equal(embedded.length,ship.fits.filter(f=>f.surfacePatch).length);assert.ok(embedded.every(t=>t.mesh===null),'casemate openings stay in the static face mesh');
+ const embedded=geometry.turrets.filter(t=>t.embedded);assert.equal(embedded.length,C.surfaceDerivedFits(ship).filter(f=>f.surfacePatch).length);assert.ok(embedded.every(t=>t.mesh===null),'casemate openings stay in the static face mesh');
  const guns=geometry.turrets.filter(t=>t.mesh);assert.equal(guns.length,1,'only the independently placed turret owns a rotating body');assert.equal(guns[0].id,manual.id);
  const original=G.meshFits(ship),keys=g=>{const out=[];for(let i=0;i<g.ni;i+=3)out.push(Array.from(g.idx.slice(i,i+3)).flatMap(k=>Array.from(g.pos.slice(k*3,k*3+3))).join(','));return out;},partitioned=[geometry.meshes.fits.geo,...guns.map(t=>geometry.meshes[t.mesh].geo)];assert.deepEqual(partitioned.flatMap(keys).sort(),keys(original).sort(),'the common fit mesh is partitioned into pedestals and tracking bodies exactly once');
  for(const kind of ['webgl','compat']){

@@ -1,0 +1,1106 @@
+{
+  "schema": 1,
+  "result": "PASS",
+  "scope": "Actual app/real YardEngine worker in Chromium software WebGL; controlled local160m prototype comparison and final frozen-source focused UI/save verification. This is not a stock2200m Allegiance benchmark, hardware GPU/FPS result, full combat/flight test, or physical phone test. The390px check uses touch emulation.",
+  "finalSourceSha256": {
+    "js/core.js": "59589f9de1973a9b2d336074a5581fb77267435e51728274ef87ea3b02899785",
+    "js/app.js": "fe6de0033a930dc71999436d2c1dd25e0f3bcc0260a53315eb06dcfc8e2328d3",
+    "js/gfx.js": "6afbde7251ba3eacbf0f502d3592c0315f03a950d0382aa623191156d57caf18",
+    "js/engine.js": "807e3f245279007fe1966b38d75f53aa8e54f1954159d3a314bcf6de3c060003",
+    "js/lang-en.js": "f99849baf0b507279102e6371ec192b668a45317a4d1b228e12f93262871503e",
+    "index.html": "38ddc127ce5dd96fe29f5dc274094fd38e167e1e3bee26a0a00931fefd93bd32"
+  },
+  "allFinalSourceHashesStable": true,
+  "browserClosed": true,
+  "fixture": {
+    "sha256": "e1ce93ff02a9e78951a3a2fb76a2e46b6f1d695eae2fa3b8ae95db9bc08e277c",
+    "lengthMeters": 160,
+    "manualParts": 7,
+    "hosts": 5,
+    "equipmentFaces": 20,
+    "configuration": "Fresh equal cooling/sensor/habitation shares, zero guns; five terraced box hosts with one generator and one auxiliary source. The same serialized input JSON was used for both phases."
+  },
+  "method": {
+    "baselineHead": "e1cf2af",
+    "endpoint": "http://127.0.0.1:8768/",
+    "viewport": [
+      1100,
+      800
+    ],
+    "canvasPixels": [
+      276,
+      445
+    ],
+    "renderScale": 0.6,
+    "detail": 1,
+    "lighting": "studio shadows",
+    "sequence": "For each source phase, one fresh Chromium session; no preview screenshots or diagnostic scenes before three sequential open→actual UI auto→warm reload repeats. Both phases used the same harness and input. Heavy agent CPU suites were paused during each timing window.",
+    "engineReadyMs": "Operation start through real worker stats and geometry adoption and editor idle. Open/warm includes public deserialize/setShip; auto begins at captured real button click.",
+    "completedFrameMs": "engine-ready plus two requested animation frames and gl.finish.",
+    "snapshotTiming": "Detailed snapshots and stage-log reads occur after timing stops.",
+    "sampleLimit": "Three repetitions per source phase show local ranges; they do not establish a general performance guarantee. performance.memory may return rounded/cached values and is not used as a memory-reduction claim."
+  },
+  "timing": {
+    "before": {
+      "result": "PASS",
+      "sourceSha256": {
+        "js/core.js": "cab2e6ca304158ebcfdd118a9780c3c2e8b3b17635df09417f7d425f98db9c63",
+        "js/app.js": "843a74c80f8925f3a7c489144e93815055fa0eed134a6b6998ab13285b0f8311",
+        "js/gfx.js": "2d87ba0527435c614990809c0ebcc0e3f5082e7c401ac68c5a34d4e9eb73cdea",
+        "js/engine.js": "a3b40618ba119509d4427c2bd0b6f34773b843c3c27308d6de0a7ae795d279d8",
+        "js/lang-en.js": "ee939a45e2f02846f9f6588651627f6c453a238700dd6946919df577fff1ea44",
+        "index.html": "38ddc127ce5dd96fe29f5dc274094fd38e167e1e3bee26a0a00931fefd93bd32"
+      },
+      "sourceStable": true,
+      "appBootWallMs": 6333,
+      "summary": {
+        "opened": {
+          "minMs": 1730.2999999970198,
+          "medianMs": 2052.7000000029802,
+          "maxMs": 4523.70000000298,
+          "workerGeometryTotalMedianMs": 27.399999991059303
+        },
+        "auto": {
+          "minMs": 17871.90000000596,
+          "medianMs": 18871.09999999404,
+          "maxMs": 21643.79999999702,
+          "workerGeometryTotalMedianMs": 3976.2000000029802
+        },
+        "warm": {
+          "minMs": 13386.5,
+          "medianMs": 13576.5,
+          "maxMs": 14866,
+          "workerGeometryTotalMedianMs": 3212.8999999910593
+        }
+      },
+      "repeats": [
+        {
+          "repeat": 1,
+          "opened": {
+            "engineReadyMs": 4523.70000000298,
+            "completedFrameMs": 4924.79999999702,
+            "workerGeometryTotalMs": 229.6000000089407,
+            "stages": [
+              {
+                "type": "geometry",
+                "gen": 1,
+                "syncMs": 33,
+                "meshMs": 184.20000000298023,
+                "packMs": 0.5,
+                "totalMs": 229.6000000089407,
+                "mainHandlerMs": 65.20000000298023
+              },
+              {
+                "type": "stats",
+                "gen": 1,
+                "statsMs": 1942.2000000029802,
+                "mainHandlerMs": 37.3999999910593
+              }
+            ],
+            "memoryBefore": {
+              "used": 39600000,
+              "total": 47400000
+            },
+            "memoryAfter": {
+              "used": 39600000,
+              "total": 47400000
+            }
+          },
+          "auto": {
+            "engineReadyMs": 21643.79999999702,
+            "completedFrameMs": 22602.79999999702,
+            "workerGeometryTotalMs": 3976.2000000029802,
+            "stages": [
+              {
+                "type": "geometry",
+                "gen": 2,
+                "syncMs": 2366.1000000089407,
+                "meshMs": 1489.4000000059605,
+                "packMs": 38.099999994039536,
+                "totalMs": 3976.2000000029802,
+                "mainHandlerMs": 217.40000000596046
+              },
+              {
+                "type": "stats",
+                "gen": 2,
+                "statsMs": 8005.100000008941,
+                "mainHandlerMs": 164.79999999701977
+              }
+            ],
+            "memoryBefore": {
+              "used": 39600000,
+              "total": 47400000
+            },
+            "memoryAfter": {
+              "used": 39600000,
+              "total": 47400000
+            }
+          },
+          "warm": {
+            "engineReadyMs": 14866,
+            "completedFrameMs": 15835.5,
+            "workerGeometryTotalMs": 4270.5,
+            "stages": [
+              {
+                "type": "geometry",
+                "gen": 3,
+                "syncMs": 1661.5999999940395,
+                "meshMs": 2528.2000000029802,
+                "packMs": 31.099999994039536,
+                "totalMs": 4270.5,
+                "mainHandlerMs": 1719.1000000089407
+              },
+              {
+                "type": "stats",
+                "gen": 3,
+                "statsMs": 4584.5999999940395,
+                "mainHandlerMs": 274.59999999403954
+              }
+            ],
+            "memoryBefore": {
+              "used": 39600000,
+              "total": 47400000
+            },
+            "memoryAfter": {
+              "used": 39600000,
+              "total": 47400000
+            }
+          }
+        },
+        {
+          "repeat": 2,
+          "opened": {
+            "engineReadyMs": 1730.2999999970198,
+            "completedFrameMs": 2039.2999999970198,
+            "workerGeometryTotalMs": 27.399999991059303,
+            "stages": [
+              {
+                "type": "geometry",
+                "gen": 4,
+                "syncMs": 7.700000002980232,
+                "meshMs": 15.5,
+                "packMs": 0.09999999403953552,
+                "totalMs": 27.399999991059303,
+                "mainHandlerMs": 11.5
+              },
+              {
+                "type": "stats",
+                "gen": 4,
+                "statsMs": 551.1000000089407,
+                "mainHandlerMs": 11.599999994039536
+              }
+            ],
+            "memoryBefore": {
+              "used": 39600000,
+              "total": 47400000
+            },
+            "memoryAfter": {
+              "used": 39600000,
+              "total": 47400000
+            }
+          },
+          "auto": {
+            "engineReadyMs": 18871.09999999404,
+            "completedFrameMs": 19930.59999999404,
+            "workerGeometryTotalMs": 4263.600000008941,
+            "stages": [
+              {
+                "type": "geometry",
+                "gen": 5,
+                "syncMs": 2252.300000011921,
+                "meshMs": 1965,
+                "packMs": 34.5,
+                "totalMs": 4263.600000008941,
+                "mainHandlerMs": 60.79999999701977
+              },
+              {
+                "type": "stats",
+                "gen": 5,
+                "statsMs": 9721.90000000596,
+                "mainHandlerMs": 147.19999998807907
+              }
+            ],
+            "memoryBefore": {
+              "used": 39600000,
+              "total": 47400000
+            },
+            "memoryAfter": {
+              "used": 39600000,
+              "total": 47400000
+            }
+          },
+          "warm": {
+            "engineReadyMs": 13576.5,
+            "completedFrameMs": 14402,
+            "workerGeometryTotalMs": 2814.300000011921,
+            "stages": [
+              {
+                "type": "geometry",
+                "gen": 6,
+                "syncMs": 1140.5999999940395,
+                "meshMs": 1614.5,
+                "packMs": 42.5,
+                "totalMs": 2814.300000011921,
+                "mainHandlerMs": 2133.0999999940395
+              },
+              {
+                "type": "stats",
+                "gen": 6,
+                "statsMs": 6053.100000008941,
+                "mainHandlerMs": 247.79999999701977
+              }
+            ],
+            "memoryBefore": {
+              "used": 39600000,
+              "total": 47400000
+            },
+            "memoryAfter": {
+              "used": 39600000,
+              "total": 47400000
+            }
+          }
+        },
+        {
+          "repeat": 3,
+          "opened": {
+            "engineReadyMs": 2052.7000000029802,
+            "completedFrameMs": 2741.0999999940395,
+            "workerGeometryTotalMs": 15.5,
+            "stages": [
+              {
+                "type": "geometry",
+                "gen": 7,
+                "syncMs": 2.2000000029802322,
+                "meshMs": 8.700000002980232,
+                "packMs": 0.09999999403953552,
+                "totalMs": 15.5,
+                "mainHandlerMs": 7.5
+              },
+              {
+                "type": "stats",
+                "gen": 7,
+                "statsMs": 1588.6000000089407,
+                "mainHandlerMs": 19.900000005960464
+              }
+            ],
+            "memoryBefore": {
+              "used": 39600000,
+              "total": 47400000
+            },
+            "memoryAfter": {
+              "used": 39600000,
+              "total": 47400000
+            }
+          },
+          "auto": {
+            "engineReadyMs": 17871.90000000596,
+            "completedFrameMs": 19008.5,
+            "workerGeometryTotalMs": 2253.8999999910593,
+            "stages": [
+              {
+                "type": "geometry",
+                "gen": 8,
+                "syncMs": 1577.7000000029802,
+                "meshMs": 638.7000000029802,
+                "packMs": 12.5,
+                "totalMs": 2253.8999999910593,
+                "mainHandlerMs": 73.70000000298023
+              },
+              {
+                "type": "stats",
+                "gen": 8,
+                "statsMs": 7690.79999999702,
+                "mainHandlerMs": 993.5
+              }
+            ],
+            "memoryBefore": {
+              "used": 39600000,
+              "total": 47400000
+            },
+            "memoryAfter": {
+              "used": 39600000,
+              "total": 47400000
+            }
+          },
+          "warm": {
+            "engineReadyMs": 13386.5,
+            "completedFrameMs": 14265.5,
+            "workerGeometryTotalMs": 3212.8999999910593,
+            "stages": [
+              {
+                "type": "geometry",
+                "gen": 9,
+                "syncMs": 1312.9000000059605,
+                "meshMs": 1824.2999999970198,
+                "packMs": 39.8999999910593,
+                "totalMs": 3212.8999999910593,
+                "mainHandlerMs": 1917.7999999970198
+              },
+              {
+                "type": "stats",
+                "gen": 9,
+                "statsMs": 6647.29999999702,
+                "mainHandlerMs": 210.69999998807907
+              }
+            ],
+            "memoryBefore": {
+              "used": 39600000,
+              "total": 47400000
+            },
+            "memoryAfter": {
+              "used": 39600000,
+              "total": 47400000
+            }
+          }
+        }
+      ]
+    },
+    "after": {
+      "result": "PASS",
+      "sourceSha256": {
+        "js/core.js": "59589f9de1973a9b2d336074a5581fb77267435e51728274ef87ea3b02899785",
+        "js/app.js": "fe6de0033a930dc71999436d2c1dd25e0f3bcc0260a53315eb06dcfc8e2328d3",
+        "js/gfx.js": "6afbde7251ba3eacbf0f502d3592c0315f03a950d0382aa623191156d57caf18",
+        "js/engine.js": "807e3f245279007fe1966b38d75f53aa8e54f1954159d3a314bcf6de3c060003",
+        "js/lang-en.js": "f99849baf0b507279102e6371ec192b668a45317a4d1b228e12f93262871503e",
+        "index.html": "38ddc127ce5dd96fe29f5dc274094fd38e167e1e3bee26a0a00931fefd93bd32"
+      },
+      "sourceStable": true,
+      "appBootWallMs": 4959,
+      "summary": {
+        "opened": {
+          "minMs": 840.5,
+          "medianMs": 1351.5999999940395,
+          "maxMs": 2578,
+          "workerGeometryTotalMedianMs": 28.399999991059303
+        },
+        "auto": {
+          "minMs": 5654.300000011921,
+          "medianMs": 5995.20000000298,
+          "maxMs": 11043.39999999106,
+          "workerGeometryTotalMedianMs": 120.5
+        },
+        "warm": {
+          "minMs": 3758.5999999940395,
+          "medianMs": 4974.100000008941,
+          "maxMs": 5304.300000011921,
+          "workerGeometryTotalMedianMs": 112.5
+        }
+      },
+      "repeats": [
+        {
+          "repeat": 1,
+          "opened": {
+            "engineReadyMs": 2578,
+            "completedFrameMs": 2916.5,
+            "workerGeometryTotalMs": 124.80000001192093,
+            "stages": [
+              {
+                "type": "geometry",
+                "gen": 1,
+                "syncMs": 46.29999999701977,
+                "meshMs": 62.599999994039536,
+                "packMs": 1.2000000029802322,
+                "totalMs": 124.80000001192093,
+                "mainHandlerMs": 21.700000002980232
+              },
+              {
+                "type": "stats",
+                "gen": 1,
+                "statsMs": 1136.6000000089407,
+                "mainHandlerMs": 13.299999997019768
+              }
+            ],
+            "memoryBefore": {
+              "used": 39600000,
+              "total": 47400000
+            },
+            "memoryAfter": {
+              "used": 39600000,
+              "total": 47400000
+            }
+          },
+          "auto": {
+            "engineReadyMs": 11043.39999999106,
+            "completedFrameMs": 11880.5,
+            "workerGeometryTotalMs": 1244.7000000029802,
+            "stages": [
+              {
+                "type": "geometry",
+                "gen": 2,
+                "syncMs": 0.20000000298023224,
+                "meshMs": 1038.3999999910593,
+                "packMs": 188.20000000298023,
+                "totalMs": 1244.7000000029802,
+                "mainHandlerMs": 559.1000000089407
+              },
+              {
+                "type": "stats",
+                "gen": 2,
+                "statsMs": 2406.1000000089407,
+                "mainHandlerMs": 90.59999999403954
+              }
+            ],
+            "memoryBefore": {
+              "used": 39600000,
+              "total": 47400000
+            },
+            "memoryAfter": {
+              "used": 39600000,
+              "total": 47400000
+            }
+          },
+          "warm": {
+            "engineReadyMs": 5304.300000011921,
+            "completedFrameMs": 6213.70000000298,
+            "workerGeometryTotalMs": 112.5,
+            "stages": [
+              {
+                "type": "geometry",
+                "gen": 3,
+                "syncMs": 42.70000000298023,
+                "meshMs": 49.3999999910593,
+                "packMs": 13.5,
+                "totalMs": 112.5,
+                "mainHandlerMs": 142.70000000298023
+              },
+              {
+                "type": "stats",
+                "gen": 3,
+                "statsMs": 1489.7999999970198,
+                "mainHandlerMs": 13.400000005960464
+              }
+            ],
+            "memoryBefore": {
+              "used": 39600000,
+              "total": 47400000
+            },
+            "memoryAfter": {
+              "used": 39600000,
+              "total": 47400000
+            }
+          }
+        },
+        {
+          "repeat": 2,
+          "opened": {
+            "engineReadyMs": 840.5,
+            "completedFrameMs": 1264,
+            "workerGeometryTotalMs": 28.399999991059303,
+            "stages": [
+              {
+                "type": "geometry",
+                "gen": 4,
+                "syncMs": 1.2000000029802322,
+                "meshMs": 11.5,
+                "packMs": 0.3999999910593033,
+                "totalMs": 28.399999991059303,
+                "mainHandlerMs": 14.5
+              },
+              {
+                "type": "stats",
+                "gen": 4,
+                "statsMs": 465,
+                "mainHandlerMs": 19.799999997019768
+              }
+            ],
+            "memoryBefore": {
+              "used": 39600000,
+              "total": 47400000
+            },
+            "memoryAfter": {
+              "used": 39600000,
+              "total": 47400000
+            }
+          },
+          "auto": {
+            "engineReadyMs": 5654.300000011921,
+            "completedFrameMs": 6477.600000008941,
+            "workerGeometryTotalMs": 49,
+            "stages": [
+              {
+                "type": "geometry",
+                "gen": 5,
+                "syncMs": 0.20000000298023224,
+                "meshMs": 27.799999997019768,
+                "packMs": 16.899999991059303,
+                "totalMs": 49,
+                "mainHandlerMs": 91.69999998807907
+              },
+              {
+                "type": "stats",
+                "gen": 5,
+                "statsMs": 599.7999999970198,
+                "mainHandlerMs": 24
+              }
+            ],
+            "memoryBefore": {
+              "used": 39600000,
+              "total": 47400000
+            },
+            "memoryAfter": {
+              "used": 39600000,
+              "total": 47400000
+            }
+          },
+          "warm": {
+            "engineReadyMs": 3758.5999999940395,
+            "completedFrameMs": 4586.699999988079,
+            "workerGeometryTotalMs": 61.099999994039536,
+            "stages": [
+              {
+                "type": "geometry",
+                "gen": 6,
+                "syncMs": 12.200000002980232,
+                "meshMs": 37.29999999701977,
+                "packMs": 8.600000008940697,
+                "totalMs": 61.099999994039536,
+                "mainHandlerMs": 43.5
+              },
+              {
+                "type": "stats",
+                "gen": 6,
+                "statsMs": 526.8999999910593,
+                "mainHandlerMs": 18.099999994039536
+              }
+            ],
+            "memoryBefore": {
+              "used": 39600000,
+              "total": 47400000
+            },
+            "memoryAfter": {
+              "used": 39600000,
+              "total": 47400000
+            }
+          }
+        },
+        {
+          "repeat": 3,
+          "opened": {
+            "engineReadyMs": 1351.5999999940395,
+            "completedFrameMs": 1662.699999988079,
+            "workerGeometryTotalMs": 13.799999997019768,
+            "stages": [
+              {
+                "type": "geometry",
+                "gen": 7,
+                "syncMs": 2.3999999910593033,
+                "meshMs": 8.400000005960464,
+                "packMs": 0.10000000894069672,
+                "totalMs": 13.799999997019768,
+                "mainHandlerMs": 18.400000005960464
+              },
+              {
+                "type": "stats",
+                "gen": 7,
+                "statsMs": 466.3999999910593,
+                "mainHandlerMs": 28.400000005960464
+              }
+            ],
+            "memoryBefore": {
+              "used": 39600000,
+              "total": 47400000
+            },
+            "memoryAfter": {
+              "used": 39600000,
+              "total": 47400000
+            }
+          },
+          "auto": {
+            "engineReadyMs": 5995.20000000298,
+            "completedFrameMs": 6960.29999999702,
+            "workerGeometryTotalMs": 120.5,
+            "stages": [
+              {
+                "type": "geometry",
+                "gen": 8,
+                "syncMs": 0.4000000059604645,
+                "meshMs": 57.599999994039536,
+                "packMs": 37.79999999701977,
+                "totalMs": 120.5,
+                "mainHandlerMs": 47.1000000089407
+              },
+              {
+                "type": "stats",
+                "gen": 8,
+                "statsMs": 832.5,
+                "mainHandlerMs": 32
+              }
+            ],
+            "memoryBefore": {
+              "used": 39600000,
+              "total": 47400000
+            },
+            "memoryAfter": {
+              "used": 39600000,
+              "total": 47400000
+            }
+          },
+          "warm": {
+            "engineReadyMs": 4974.100000008941,
+            "completedFrameMs": 5985.100000008941,
+            "workerGeometryTotalMs": 160.29999999701977,
+            "stages": [
+              {
+                "type": "geometry",
+                "gen": 9,
+                "syncMs": 33.79999999701977,
+                "meshMs": 96.3999999910593,
+                "packMs": 19.5,
+                "totalMs": 160.29999999701977,
+                "mainHandlerMs": 126.70000000298023
+              },
+              {
+                "type": "stats",
+                "gen": 9,
+                "statsMs": 757.0999999940395,
+                "mainHandlerMs": 29.299999997019768
+              }
+            ],
+            "memoryBefore": {
+              "used": 39600000,
+              "total": 47400000
+            },
+            "memoryAfter": {
+              "used": 39600000,
+              "total": 47400000
+            }
+          }
+        }
+      ]
+    },
+    "medianReadyImprovementPercent": {
+      "opened": 34.15501534602829,
+      "auto": 68.2307867585627,
+      "warm": 63.36242772431082
+    }
+  },
+  "architecture": {
+    "before": {
+      "persistentEditableParts": 367,
+      "persistentGeneratedSurfaceParts": 360,
+      "persistentEditableFits": 0,
+      "serializedBytes": 136628,
+      "commonNetwork": {
+        "sources": 241,
+        "dissipators": 123,
+        "links": 29401,
+        "powerPaths": 361
+      },
+      "surfaceMeshes": {
+        "surfaceArmor": {
+          "vertices": 524,
+          "indices": 708
+        },
+        "surfaceDevices": {
+          "vertices": 265932,
+          "indices": 373680
+        },
+        "surfaceDetail": {
+          "vertices": 27744,
+          "indices": 41616
+        }
+      }
+    },
+    "after": {
+      "persistentEditableParts": 7,
+      "persistentGeneratedSurfaceParts": 0,
+      "persistentEditableFits": 0,
+      "persistedNumericReservationRows": 360,
+      "persistedNumericGunRows": 0,
+      "runtimeGroupedRoleAdapters": 60,
+      "activeRuntimeGroupedRoleAdapters": 60,
+      "serializedBytes": 68381,
+      "commonNetwork": {
+        "sources": 43,
+        "dissipators": 21,
+        "links": 865,
+        "powerPaths": 61
+      },
+      "surfaceMeshes": {
+        "surfaceArmor": {
+          "vertices": 524,
+          "indices": 708
+        },
+        "surfaceDevices": {
+          "vertices": 396960,
+          "indices": 568116
+        },
+        "surfaceDetail": {
+          "vertices": 27744,
+          "indices": 41616
+        }
+      }
+    },
+    "preservedScalarStats": {
+      "before": {
+        "mass": 352346.07843425614,
+        "cost": 1741410,
+        "power": 1.026638020979721e+22,
+        "crew": 46,
+        "sensorVolume": 7807.999999999999,
+        "habitationVolume": 7423.999999999999
+      },
+      "after": {
+        "mass": 352346.07843425596,
+        "cost": 1741410,
+        "power": 1.026638020979721e+22,
+        "crew": 46,
+        "sensorVolume": 7807.999999999999,
+        "habitationVolume": 7423.999999999999
+      },
+      "relativeTolerance": 1e-10
+    },
+    "limits": "Numeric per-reservation geometry/identity/volume/quote rows remain persisted inside the face ledger; the change removes editable per-device source part objects, not every per-reservation datum. Common power/heat paths use volume-weighted face/role centroids and role-module damage rather than identical fine device topology. Surface rendering remains detailed and its vertex count can increase; there is no polygon-reduction claim."
+  },
+  "focusedVerification": {
+    "result": "PASS",
+    "assertions": 60,
+    "groupedChecks": 11,
+    "checks": [
+      "final public authored save uses manual source plus numeric face inventory",
+      "final UI exposes3shares and explicit guns without equipment unit field",
+      "actual trial profile reuses worker profile without client fleet recomputation",
+      "final actual gun count edit stays derived",
+      "final actual Undo restores complete inventory and quote",
+      "style edit retains full numeric inventory, quotes and native source",
+      "public warm reload is idempotent for every numeric row and quote",
+      "390px touch style apply preserves capability and fits screen",
+      "normal final visuals render without GL/application errors",
+      "no application or console errors",
+      "source hashes stable"
+    ],
+    "cachedWorkerProfile": {
+      "present": true,
+      "profileGen": 1,
+      "statsGen": 1,
+      "sameObject": true,
+      "calls": []
+    },
+    "loaded": {
+      "persistent": {
+        "parts": 7,
+        "fits": 0,
+        "reservationRows": 360,
+        "gunRows": 3,
+        "savedBytes": 68708,
+        "faces": 20
+      },
+      "runtime": {
+        "parts": 69,
+        "fits": 3,
+        "adapters": 62,
+        "byRole": {
+          "cooling": 20,
+          "sensors": 21,
+          "habitation": 21
+        },
+        "activeAdapters": 60,
+        "derivedGuns": 3
+      },
+      "stats": {
+        "mass": 353380.2384342558,
+        "cost": 1775004,
+        "power": 1.026638020979721e+22,
+        "crew": 64,
+        "sensorVolume": 7295.999999999999,
+        "habitationVolume": 6911.999999999999
+      },
+      "ui": {
+        "representation": null,
+        "fields": [],
+        "allocationRoles": []
+      },
+      "sourceParts": [
+        {
+          "id": 1,
+          "k": "struct",
+          "surfacePatch": null
+        },
+        {
+          "id": 2,
+          "k": "struct",
+          "surfacePatch": null
+        },
+        {
+          "id": 3,
+          "k": "struct",
+          "surfacePatch": null
+        },
+        {
+          "id": 4,
+          "k": "struct",
+          "surfacePatch": null
+        },
+        {
+          "id": 5,
+          "k": "struct",
+          "surfacePatch": null
+        },
+        {
+          "id": 6,
+          "k": "gen",
+          "surfacePatch": null
+        },
+        {
+          "id": 7,
+          "k": "aux",
+          "surfacePatch": null
+        }
+      ],
+      "sourceFits": [],
+      "inventorySha256": "47d12717a9340c43dddc1c89f259e6186778f8cd7008a189dc212ac735f6af07",
+      "derivatives": true,
+      "viewport": {
+        "width": 1100,
+        "height": 800,
+        "scrollWidth": 1100
+      }
+    },
+    "reloaded": {
+      "persistent": {
+        "parts": 7,
+        "fits": 0,
+        "reservationRows": 360,
+        "gunRows": 3,
+        "savedBytes": 68708,
+        "faces": 20
+      },
+      "runtime": {
+        "parts": 69,
+        "fits": 3,
+        "adapters": 62,
+        "byRole": {
+          "cooling": 20,
+          "sensors": 21,
+          "habitation": 21
+        },
+        "activeAdapters": 60,
+        "derivedGuns": 3
+      },
+      "stats": {
+        "mass": 353380.2384342558,
+        "cost": 1775004,
+        "power": 1.026638020979721e+22,
+        "crew": 64,
+        "sensorVolume": 7295.999999999999,
+        "habitationVolume": 6911.999999999999
+      },
+      "ui": {
+        "representation": null,
+        "fields": [],
+        "allocationRoles": []
+      },
+      "sourceParts": [
+        {
+          "id": 1,
+          "k": "struct",
+          "surfacePatch": null
+        },
+        {
+          "id": 2,
+          "k": "struct",
+          "surfacePatch": null
+        },
+        {
+          "id": 3,
+          "k": "struct",
+          "surfacePatch": null
+        },
+        {
+          "id": 4,
+          "k": "struct",
+          "surfacePatch": null
+        },
+        {
+          "id": 5,
+          "k": "struct",
+          "surfacePatch": null
+        },
+        {
+          "id": 6,
+          "k": "gen",
+          "surfacePatch": null
+        },
+        {
+          "id": 7,
+          "k": "aux",
+          "surfacePatch": null
+        }
+      ],
+      "sourceFits": [],
+      "inventorySha256": "47d12717a9340c43dddc1c89f259e6186778f8cd7008a189dc212ac735f6af07",
+      "derivatives": true,
+      "viewport": {
+        "width": 1100,
+        "height": 800,
+        "scrollWidth": 1100
+      }
+    },
+    "mobile": {
+      "persistent": {
+        "parts": 7,
+        "fits": 0,
+        "reservationRows": 360,
+        "gunRows": 3,
+        "savedBytes": 68708,
+        "faces": 20
+      },
+      "runtime": {
+        "parts": 69,
+        "fits": 3,
+        "adapters": 62,
+        "byRole": {
+          "cooling": 20,
+          "sensors": 21,
+          "habitation": 21
+        },
+        "activeAdapters": 60,
+        "derivedGuns": 3
+      },
+      "stats": {
+        "mass": 353380.2384342558,
+        "cost": 1775004,
+        "power": 1.026638020979721e+22,
+        "crew": 64,
+        "sensorVolume": 7295.999999999999,
+        "habitationVolume": 6911.999999999999
+      },
+      "ui": {
+        "representation": "face",
+        "fields": [
+          {
+            "name": "functionMode",
+            "value": "equipment"
+          },
+          {
+            "name": "allocation.cooling",
+            "value": "60"
+          },
+          {
+            "name": "allocation.sensors",
+            "value": "20.000000000000004"
+          },
+          {
+            "name": "allocation.habitation",
+            "value": "20"
+          },
+          {
+            "name": "battery.weapon",
+            "value": "pd"
+          },
+          {
+            "name": "battery.count",
+            "value": "3"
+          },
+          {
+            "name": "battery.spacing",
+            "value": "2"
+          },
+          {
+            "name": "battery.angle",
+            "value": "0"
+          },
+          {
+            "name": "equipment.kind",
+            "value": "hdis"
+          },
+          {
+            "name": "equipment.depth",
+            "value": "1"
+          },
+          {
+            "name": "style.density",
+            "value": "0.4"
+          },
+          {
+            "name": "style.seed",
+            "value": "1"
+          }
+        ],
+        "allocationRoles": [
+          "cooling",
+          "sensors",
+          "habitation"
+        ]
+      },
+      "sourceParts": [
+        {
+          "id": 1,
+          "k": "struct",
+          "surfacePatch": null
+        },
+        {
+          "id": 2,
+          "k": "struct",
+          "surfacePatch": null
+        },
+        {
+          "id": 3,
+          "k": "struct",
+          "surfacePatch": null
+        },
+        {
+          "id": 4,
+          "k": "struct",
+          "surfacePatch": null
+        },
+        {
+          "id": 5,
+          "k": "struct",
+          "surfacePatch": null
+        },
+        {
+          "id": 6,
+          "k": "gen",
+          "surfacePatch": null
+        },
+        {
+          "id": 7,
+          "k": "aux",
+          "surfacePatch": null
+        }
+      ],
+      "sourceFits": [],
+      "inventorySha256": "47d12717a9340c43dddc1c89f259e6186778f8cd7008a189dc212ac735f6af07",
+      "derivatives": true,
+      "viewport": {
+        "width": 844,
+        "height": 390,
+        "scrollWidth": 390
+      }
+    },
+    "errors": [],
+    "consoleErrors": [],
+    "sourceSha256": {
+      "js/core.js": "59589f9de1973a9b2d336074a5581fb77267435e51728274ef87ea3b02899785",
+      "js/app.js": "fe6de0033a930dc71999436d2c1dd25e0f3bcc0260a53315eb06dcfc8e2328d3",
+      "js/gfx.js": "6afbde7251ba3eacbf0f502d3592c0315f03a950d0382aa623191156d57caf18",
+      "js/engine.js": "807e3f245279007fe1966b38d75f53aa8e54f1954159d3a314bcf6de3c060003",
+      "js/lang-en.js": "f99849baf0b507279102e6371ec192b668a45317a4d1b228e12f93262871503e",
+      "index.html": "38ddc127ce5dd96fe29f5dc274094fd38e167e1e3bee26a0a00931fefd93bd32"
+    },
+    "sourceStable": true,
+    "imagesUseNormalRuntime": true,
+    "imageRendering": "Default current shader/material uniforms, studio shadows, no forced texture, uniform override, hidden-mesh control or reduced-quality diagnostic."
+  },
+  "images": [
+    {
+      "path": "docs/images/surface-aggregate-armor-angle.jpg",
+      "sha256": "c78ec737e2f74099b4c56054dd04e98fe44eee0c2b4e66d168677ce0aa56c712"
+    },
+    {
+      "path": "docs/images/surface-aggregate-armor-top.jpg",
+      "sha256": "798befb2f1b70b3f75f12a5fa17bff4a121bb32156a8189f750ac8d55977b51e"
+    },
+    {
+      "path": "docs/images/surface-aggregate-painted-host.jpg",
+      "sha256": "6cc7f146bd5ae98134a25a537dc8d936cc29516c1a80380e473f5538aae738ef"
+    },
+    {
+      "path": "docs/images/surface-aggregate-machinery-detail.jpg",
+      "sha256": "e3163bf0cfa6dee5a977ad0ecaa036812b1d5b400398f68ec8c47bba1e5f52f9"
+    }
+  ],
+  "diagnosticHistory": "An earlier preview-warmed phase exposed a main-readiness regression and ended with a source-hash mismatch during a metadata update; it is excluded from the primary comparison. CPU profiling located client trial-card fleet/habitation recomputation. Worker-supplied profile reuse was added and directly verified with zero client C.fleetProfile calls. The final timing table uses only the new matched no-preview fresh-session phases. The accepted analytic anti-moire shader remains in production; the speculative baked alternative was not adopted."
+}

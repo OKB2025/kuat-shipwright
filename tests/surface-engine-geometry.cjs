@@ -37,5 +37,5 @@ test('moving a structure across an equipment hull face refreshes the live expose
 test('the background operation returns an automatic equipment plan without changing the caller design',async()=>{
  const {C,ship,op}=fixture(),before=C.publicJSON(ship),result=await op(ship,{equipment:{limit:3},allocation:{cooling:50,sensors:25,habitation:25}});
  assert.equal(result.result.ok,true);assert.ok(result.result.ids.length>0);assert.equal(C.publicJSON(ship),before);const loaded=JSON.parse(result.state),rows=C.surfaceReport(loaded).patches.filter(p=>result.result.ids.includes(p.id));
- assert.ok(rows.every(p=>p.config.functionMode==='equipment'&&p.config.battery.count===0));assert.equal(loaded.fits.length,0);assert.ok(loaded.parts.some(p=>p.surfacePatch));assert.ok(rows.every(p=>p.cells.filter(c=>c.role!=='weapons').length<=3));assert.deepEqual(plain(rows.map(p=>p.id).sort()),plain(result.result.ids.slice().sort()));
+ assert.ok(rows.every(p=>p.config.functionMode==='equipment'&&p.config.battery.count===0));assert.equal(loaded.fits.length,0);assert.ok(loaded.parts.every(p=>!p.surfacePatch));assert.ok(rows.some(p=>p.config.aggregate?.cells.length));assert.ok(rows.every(p=>p.config.aggregate.cells.length<=3));assert.deepEqual(plain(rows.map(p=>p.id).sort()),plain(result.result.ids.slice().sort()));
 });

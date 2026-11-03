@@ -9071,4 +9071,21 @@ Object.assign(root.KS_EN.messages,{
 "機材面を自動設定できませんでした：{0}": "Could not configure equipment surfaces automatically: {0}"
 });
 // </surface-independent-batteries-catalog>
+// <surface-face-aggregate-catalog>
+Object.assign(root.KS_EN.messages,{
+"外面をタップするか一覧から選び、装甲面か機材搭載面を設定します。機材搭載面は面全体で編集します。散熱・センサー・居住区を100%で配分し、砲列は砲座基数で別に設定します。透視で見える内部の面は選べません。": "Tap an exterior surface or select it from the list, then choose armor or equipment. Edit equipment as a whole surface, allocating 100% among cooling, sensors, and quarters; set battery mount counts separately. Internal surfaces revealed by X-ray view cannot be selected.",
+"面全体に、配分に応じた散熱・探知・居住機能を持たせます。機材の形は比率と配置シードから自動生成します。": "The whole surface provides cooling, sensing, and habitation according to its allocation. Machinery geometry is generated from the shares and placement seed.",
+"細部ディテール密度は装飾の設定です。機材搭載面の機能は、100%の面積配分と有効な内部容積から計算します。": "Detail density controls decoration. Equipment capability is calculated from the 100% area allocation and usable internal volume.",
+"設備容積 {0} m³": "Equipment Volume {0} m³",
+"比率は面全体の機能に割り当てる面積です。内部深さと有効な容積に応じて能力を計算します。居住定員は収容上限で、乗員を新規に生成しません。": "Shares allocate area to functions across the whole surface. Capability depends on internal depth and usable volume. Habitation capacity is an occupancy limit and does not create crew.",
+"面全体の占有面積・容積から機能を集計します。見た目の機材の個数や細部密度を変えても、能力や要員は増えません。砲列の基数と砲身数は別に扱います。": "Functions are calculated from the occupied area and volume of the whole surface. Changing the visible machinery count or detail density does not increase capability or crew. Battery mount counts and barrel counts are separate."
+});
+Object.assign(root.KS_EN.messages,{
+"保管中の面設備容積": "Stored Surface Equipment Volume",
+"面設備・散熱": "Surface Equipment · Cooling",
+"面設備・センサー": "Surface Equipment · Sensors",
+"面設備・居住区": "Surface Equipment · Quarters",
+"未配置の面設備を保管しています。質量と費用は維持され、能力には加算されません。": "Unplaced surface equipment is retained in storage. Its mass and cost are preserved without adding operational capability."
+});
+// </surface-face-aggregate-catalog>
 })(typeof window==="undefined"?globalThis:window);

@@ -11,13 +11,13 @@ function fixture(alloc={weapons:25,cooling:25,sensors:25,habitation:25},face='st
 }
 const row=(ship,id,opt)=>G.surfaceVisualPlan(ship,opt).find(q=>q.id===id),features=plan=>plan.devices.flatMap(d=>d.hardware.map(p=>p.feature));
 
-test('installed category records retain real device identities while native guns keep their own geometry',()=>{
- const {ship,patch}=fixture(),report=C.surfaceReport(ship).patches.find(q=>q.id===patch.id),plan=row(ship,patch.id);
- assert.deepEqual(plain(plan.devices.map(q=>({id:q.id,cell:q.cell,role:q.role}))),plain(report.cells.map(q=>({id:q.id,cell:q.cell,role:q.role}))));
- assert.equal(new Set(plan.devices.map(q=>q.id)).size,plan.devices.length);for(const role of roles)assert.ok(plan.devices.some(q=>q.role===role),role);
+test('bounded category cues use aggregate role identities while derived guns keep their own geometry',()=>{
+ const {ship,patch}=fixture(),report=C.surfaceReport(ship).patches.find(q=>q.id===patch.id),plan=row(ship,patch.id),roleIds=new Set(report.partIds);
+ assert.ok(plan.devices.length>0&&plan.devices.length<=96);for(const device of plan.devices){assert.ok(roleIds.has(device.id));assert.equal(device.id,report.categories[device.role].roleid);assert.ok(device.hardware.length>0);}
+ for(const role of roles.filter(r=>r!=='weapons'))assert.ok(plan.devices.some(q=>q.role===role),role);
  const f=features(plan);for(const feature of ['cooling-grille','sensor-array','habitation-window'])assert.ok(f.includes(feature),feature);
- assert.equal(plan.devices.filter(q=>q.role==='weapons').length,ship.fits.filter(q=>q.surfacePatch===patch.id&&!q.surfaceUnplaced).length);
- assert.ok(plan.devices.filter(q=>q.role==='weapons').every(q=>q.hardware.length===0),'the service field must not draw replacement gun plates or barrels');assert.ok(G.meshFits(ship).ni>0);
+ const guns=C.surfaceDerivedFits(ship).filter(q=>q.surfacePatch===patch.id&&!q.surfaceUnplaced);assert.equal(guns.length,report.installed);assert.equal(report.cells.length,guns.length);assert.ok(report.cells.every(q=>q.role==='weapons'));
+ assert.ok(!plan.devices.some(q=>q.role==='weapons'),'face working cues must not draw replacement gun plates or barrels');assert.ok(G.meshFits(ship).ni>0);assert.ok(![...ship.parts,...ship.fits].some(q=>q.surfacePatch),'source arrays must retain manual objects only');
  assert.ok(plan.field.length>0&&plan.field.every(p=>p.role===null),'continuous service geometry cannot imply extra equipment capacity');
 });
 
@@ -44,9 +44,9 @@ test('shared field and local working faces stay inside the actual patch on all s
  }
 });
 
-test('functional rooms remain in diagnostic geometry and host/device exterior ranges have exactly one owner',()=>{
+test('common role adapters retain functional volumes and exterior batches have exactly one owner',()=>{
  const {ship,body,patch}=fixture(),parts=G.meshParts(ship,{coded:false}),plan=row(ship,patch.id),ids=new Set(plan.devices.map(d=>d.id));
- for(const d of plan.devices.filter(d=>d.role!=='weapons')){assert.ok(parts.ranges[d.id].some(r=>r[0]==='interior'));assert.ok(parts.ranges[d.id].some(r=>r[0]==='surfaceDevices'));assert.ok(!parts.ranges[d.id].some(r=>['struct','gen','shield','hyper'].includes(r[0])));}
+ const adapters=C.surfaceWorkingShip(ship).parts.filter(p=>p.surfacePatch===patch.id&&!p.surfaceUnplaced);assert.equal(adapters.length,3);for(const p of adapters){assert.ok(C.partVolume(p)>0&&p._surfaceAdapter.geometry.length>0);assert.ok(parts.ranges[p.id].some(r=>r[0]==='surfaceDevices'));assert.ok(!parts.ranges[p.id].some(r=>['interior','struct','gen','shield','hyper'].includes(r[0])),'abstract role ownership may not recreate individual device bodies');}
  ids.add(body.id);const ownership=new Uint8Array(parts.g.surfaceDevices.ni);for(const [id,spans]of Object.entries(parts.ranges))for(const [name,start,count]of spans)if(name==='surfaceDevices'){assert.ok(ids.has(+id),'working faces belong to real devices and neutral machinery to the host');for(let i=start;i<start+count;i++)ownership[i]++;}assert.ok(ownership.every(n=>n===1),'host/device index ranges must neither overlap nor leave ownerless geometry');
  C.setSurfaceConfig(ship,patch.id,{functionMode:'armor',armor:{thickness:0}});const armor=row(ship,patch.id);assert.equal(armor.devices.length,0);assert.equal(armor.boxes.length,0);assert.ok(G.meshSurfaceLayers(ship,{}).surfaceArmor.ni>0,'even zero-thickness armour hides legacy wall windows');
 });

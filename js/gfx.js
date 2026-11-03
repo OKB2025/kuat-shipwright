@@ -508,13 +508,14 @@ function subFrame(M, o, at, ang) {
 function frameM(f) { const fr = C.FITS[f.k].window ? C.windowFrame(f) : C.fitFrameOf(f); return [fr.fw[0], fr.fw[1], fr.fw[2], fr.up[0], fr.up[1], fr.up[2], fr.rt[0], fr.rt[1], fr.rt[2]]; }
 let FIT_SKIP_BODY = null, FIT_SKIP_PED = null;
 const embeddedSurfaceFit=f=>!!(f?.surfacePatch&&C.FITS[f.k]?.cat==='w');
+function surfaceRenderFits(ship){const derived=C.surfaceDerivedFits?.(ship);if(!derived?.length)return ship.fits||[];const ids=new Set(derived.map(f=>f.id));return [...(ship.fits||[]).filter(f=>!ids.has(f.id)),...derived];}
 // A surface battery is an opening in its host wall. Its visible bore stays
 // behind the shallow lip; the shared Core geometry owns the actual muzzle.
-function surfaceBatteryMesh(g,f){
+function surfaceBatteryMesh(g,f,ship){
  const p=C.surfaceBatteryGeometry?.(f);if(!p||f.float||f.surfaceUnplaced)return;
- const {point,normal:n,u,v,width:w,height:h}=p,lip=Math.max(.025,C.dot(C.sub(p.mouth,point),n)),rim=Math.min(w*.08,h*.11,.18),back=Math.min(.018,lip*.30),at=(x,y,z)=>C.add(point,C.add(C.add(C.mul(u,x),C.mul(v,y)),C.mul(n,z))),outer=[[-w/2,-h/2],[w/2,-h/2],[w/2,h/2],[-w/2,h/2]],inner=[[-w/2+rim,-h/2+rim],[w/2-rim,-h/2+rim],[w/2-rim,h/2-rim],[-w/2+rim,h/2-rim]];
+ const {point,normal:n,u,v,width:w,height:h}=p,lip=Math.max(.025,C.dot(C.sub(p.mouth,point),n)),rim=Math.min(w*.08,h*.11,.18),back=Math.min(.018,lip*.30),paint=surfaceHostPaint(ship,{host:f.surfacePatch.split(':')[0]}),at=(x,y,z)=>C.add(point,C.add(C.add(C.mul(u,x),C.mul(v,y)),C.mul(n,z))),outer=[[-w/2,-h/2],[w/2,-h/2],[w/2,h/2],[-w/2,h/2]],inner=[[-w/2+rim,-h/2+rim],[w/2-rim,-h/2+rim],[w/2-rim,h/2-rim],[-w/2+rim,h/2-rim]];
  quad(g,inner.map(([x,y])=>at(x,y,back)),n,UV_WHITE,[15,20,26],255);
- for(let i=0;i<4;i++){const j=(i+1)%4,a=at(...outer[i],lip),b=at(...outer[j],lip),c=at(...inner[j],back),d=at(...inner[i],back),sn=C.norm(C.cross(C.sub(b,a),C.sub(d,a)));quad(g,[a,b,c,d],sn,UV_WHITE,[83,95,106],255);}
+ for(let i=0;i<4;i++){const j=(i+1)%4,a=at(...outer[i],lip),b=at(...outer[j],lip),c=at(...inner[j],back),d=at(...inner[i],back),sn=C.norm(C.cross(C.sub(b,a),C.sub(d,a)));quad(g,[a,b,c,d],sn,UV_WHITE,surfacePaintTone(paint,.86),255);}
  const rows=p.barrels>4?2:1,per=Math.ceil(Math.min(16,p.barrels||1)/rows),iw=w-rim*2,ih=h-rim*2,r=Math.max(.025,Math.min(.13,iw/(per*3.1),ih/(rows*3.2)));
  for(let i=0;i<Math.min(16,p.barrels||1);i++){const x=(i%per-(per-1)/2)*iw/per*.86,y=(Math.floor(i/per)-(rows-1)/2)*ih/(rows+1);axisFrustum(g,at(x,y,back+.002),at(x,y,back+.008),r*1.30,r*1.30,[69,78,86],true,false,8);axisFrustum(g,at(x,y,back+.009),at(x,y,back+.011),r,r,[8,12,17],true,false,8);}
 }
@@ -522,7 +523,7 @@ function surfaceBatteryMesh(g,f){
 // press of the missile button fires one round from every station still loaded, along the bow.
 function craftLaunchers(model){
  if(!C.craftLoadout||!C.isCraft(model))return [];const L=C.craftLoadout(model);if(!L?.stations?.length)return [];const ld=C.normalizeLoad(L.stations,L.load,L.load),out=[];
- for(const f of model.fits){const d=C.FITS[f.k];if(!d?.store||f.float)continue;const i=L.stations.findIndex(st=>st.fit===f.k),q=ld[i],o=C.ORDNANCE[q?.k];if(!o?.guided||!(q.n>0))continue;
+ for(const f of surfaceRenderFits(model)){const d=C.FITS[f.k];if(!d?.store||f.float)continue;const i=L.stations.findIndex(st=>st.fit===f.k),q=ld[i],o=C.ORDNANCE[q?.k];if(!o?.guided||!(q.n>0))continue;
   const fr=C.fitFrameOf(f);out.push({id:f.id,origin:C.add(C.fitOrigin(f),C.mul(fr.up,d.hm*.5)),axis:fr.fw,salvo:1,cycle:1.2,tt:o.tt,ion:!!o.ion,kind:q.k,ammo:q.n,ammo0:q.n});}
  return out;
 }
@@ -540,10 +541,10 @@ function craftWeaponMesh(g,f){
   const q=f._store||(C.STORE_DEFAULT?.cpylon?{k:C.STORE_DEFAULT.cpylon[0],n:C.STORE_DEFAULT.cpylon[1]}:null),od=q&&C.ORDNANCE?.[q.k];if(!od)return;const n=Math.min(q.n,C.storeCapacity(d.store,q.k)),[rl,rd]=od.dims,zs=n>1?[-rd*.6,rd*.6]:[0];
   for(let i=0;i<n;i++){const z=zs[i]??0,y=h+rd*.55;cyl(g,M,o,-rl*.07,y,z,rd*.5,rd*.5,rl*.86,0,od.ion?R:FC.glass,10);cyl(g,M,o,rl*.43,y,z,rd*.5,rd*.08,rl*.14,0,od.ion?FC.glass:R,10);}}
 }
-function meshFits(ship, filter, ranges) {
+function meshFits(ship, filter, ranges, only) {
   const g = new Geo(8192), body = FC.body;
   const one = (f) => {
-    if(embeddedSurfaceFit(f)){surfaceBatteryMesh(g,f);return;}
+    if(embeddedSurfaceFit(f)){surfaceBatteryMesh(g,f,ship);return;}
     if(C.FITS[f.k].asset){
       // Model turrets seat on the highest point under their ring; the pedestal
       // fills down to the lowest one so they never hang over a slope or step.
@@ -664,7 +665,7 @@ function meshFits(ship, filter, ranges) {
       if (nb <= 3) cyl(g, M, o, L * 0.3 + bl * 0.97, yy, zz, br * 1.3, br * 1.3, bl * 0.06, 0, FC.ring, 8);
     }
   };
-  for (const f of ship.fits) { if (filter && !filter(f)) continue; const before = g.ni; one(f); if (ranges && g.ni > before) (ranges[f.id] || (ranges[f.id] = [])).push(['fits', before, g.ni - before]); }
+  for (const f of only||surfaceRenderFits(ship)) { if (filter && !filter(f)) continue; const before = g.ni; one(f); if (ranges && g.ni > before) (ranges[f.id] || (ranges[f.id] = [])).push(['fits', before, g.ni - before]); }
   return g;
 }
 
@@ -679,10 +680,31 @@ precision mediump float;
 #endif
 uniform sampler2D uTex;uniform sampler2D uEmiTex;uniform vec3 uL1;uniform vec3 uL2;uniform vec3 uC1;uniform vec3 uC2;
 uniform vec3 uSky;uniform vec3 uGnd;uniform vec3 uEye;uniform float uAlpha;uniform float uEmi;uniform vec3 uClip;uniform vec3 uClipLo;uniform float uClipOn;uniform vec4 uSeam;uniform float uChar;uniform float uBack;uniform float uReference;uniform float uPaint;uniform float uRefHull;uniform float uHullLength;uniform float uFlash;uniform vec4 uEmiTint;
-uniform vec3 uLightCol;uniform float uLightK;uniform float uPortK;uniform vec2 uPix;
+uniform vec3 uLightCol;uniform float uLightK;uniform float uPortK;uniform vec2 uPix;uniform float uSkinScale;uniform float uSkinTexels;
 uniform sampler2D uShadow;uniform mat4 uShM;uniform vec4 uShTile;uniform vec4 uShK;uniform vec2 uLook;
 varying vec3 vN;varying vec2 vUv;varying vec4 vCol;varying vec3 vW;varying vec3 vS;varying vec3 vNS;
 float hash12(vec2 p){vec3 q=fract(vec3(p.xyx)*0.1031);q+=dot(q,q.yzx+33.33);return fract((q.x+q.y)*q.z);}
+vec2 plateFootprint(vec2 p){
+#ifdef ARMOR_DERIVATIVES
+ return max(abs(dFdx(p))+abs(dFdy(p)),vec2(0.0001));
+#else
+ float mpp=uPix.y>0.0?uPix.y:length(uEye-vW)*uPix.x;
+ float facing=max(0.08,abs(dot(normalize(vN),normalize(uEye-vW))));
+ return vec2(max(0.0001,mpp/facing));
+#endif
+}
+float plateBandIntegral(float x,float w){float f=fract(x);return floor(x)*(2.0*w)+min(f,w)+max(f-(1.0-w),0.0);}
+float plateBand(float x,float width,float footprint){float w=max(footprint,0.00001);return clamp((plateBandIntegral(x+w*0.5,width)-plateBandIntegral(x-w*0.5,width))/w,0.0,1.0);}
+vec3 filteredDeckPlate(vec3 fine,vec2 p){
+ vec2 fp=plateFootprint(p);float row=floor(p.y/6.0),offset=hash12(vec2(row,17.0))*12.0;
+ vec2 panel=vec2((p.x+offset)/12.0,p.y/6.0),width=vec2(0.055/12.0,0.055/6.0);
+ float joint=max(plateBand(panel.x,width.x,fp.x/12.0),plateBand(panel.y,width.y,fp.y/6.0));
+ float variation=(hash12(floor(panel))-0.5)*0.018*(1.0-smoothstep(0.3,0.9,max(fp.x/12.0,fp.y/6.0)));
+ float coarse=0.81+variation-joint*0.12;
+ float texelFootprint=max(fp.x,fp.y)*uSkinTexels/max(uSkinScale,0.01);
+ float fineWeight=1.0-smoothstep(1.0,5.0,texelFootprint);
+ return mix(vec3(coarse),fine,fineWeight);
+}
 // v20.2 The key light's shadow, from the ship's depth map seen from the light in the mesh's own
 // frame (uShM), four texels blended for a clean edge; 1 lit, 0 shadowed. uShK: on, texel (atlas
 // UV), depth bias, normal offset (m). The bias grows on faces turned away from the light.
@@ -713,7 +735,15 @@ vec2 shipLights(vec3 ns){
 }
 void main(){
 if(uClipOn>0.5&&(vS.x>uClip.x||vS.y>uClip.y||vS.z>uClip.z||vS.x<uClipLo.x||vS.y<uClipLo.y||vS.z<uClipLo.z))discard;
-vec3 n=normalize(vN);vec3 tx=texture2D(uTex,vUv).rgb;float mask=max(max(texture2D(uEmiTex,vUv).r,texture2D(uEmiTex,vUv).g),texture2D(uEmiTex,vUv).b);float lit=smoothstep(0.035,0.18,mask);if(uReference>0.5&&uReference<1.5)tx=mix(tx,vec3(0.48,0.50,0.51),lit);if(uReference>0.5){bool red=tx.r>tx.g*1.35&&tx.r>tx.b*1.25;if(uPaint<0.5&&red)tx=vec3(min(0.8,tx.r*1.3));if(uPaint>1.5)tx*=uReference>1.5?mix(0.62,1.0,lit):0.62;else if(uPaint>0.5&&uRefHull>0.5&&vS.x>uHullLength*.52&&abs(vS.z)<(uHullLength-vS.x)*.065&&n.y>.4)tx*=vec3(.7,.28,.31);}
+vec3 n=normalize(vN),ns=normalize(vNS);vec2 materialUV=vUv;
+// Procedural deck plating samples the ship coordinates at the fragment.
+// A legacy roof/detail triangle cannot introduce its own diagonal UV axis.
+if(uSkinScale>0.0&&abs(ns.y)>=abs(ns.x)&&abs(ns.y)>=abs(ns.z)&&!(vCol.a>253.5/255.0&&vCol.a<254.5/255.0))materialUV=vS.xz/uSkinScale;
+vec3 tx=texture2D(uTex,materialUV).rgb;float mask=max(max(texture2D(uEmiTex,materialUV).r,texture2D(uEmiTex,materialUV).g),texture2D(uEmiTex,materialUV).b);float lit=smoothstep(0.035,0.18,mask);if(uReference>0.5&&uReference<1.5)tx=mix(tx,vec3(0.48,0.50,0.51),lit);if(uReference>0.5){bool red=tx.r>tx.g*1.35&&tx.r>tx.b*1.25;if(uPaint<0.5&&red)tx=vec3(min(0.8,tx.r*1.3));if(uPaint>1.5)tx*=uReference>1.5?mix(0.62,1.0,lit):0.62;else if(uPaint>0.5&&uRefHull>0.5&&vS.x>uHullLength*.52&&abs(vS.z)<(uHullLength-vS.x)*.065&&n.y>.4)tx*=vec3(.7,.28,.31);}
+// Subpixel atlas grids otherwise beat against the grazing pixel lattice and
+// form false diagonal networks. Integrate straight major joints over each
+// pixel footprint, retaining the original fine material when it is resolved.
+if(uSkinScale>0.0&&abs(ns.y)>=abs(ns.x)&&abs(ns.y)>=abs(ns.z)&&!(vCol.a>253.5/255.0&&vCol.a<254.5/255.0))tx=filteredDeckPlate(tx,vS.xz);
 // Vertex byte 254 marks non-habitable solar surfaces; their frame shares the same material flag.
 bool solarSurface=vCol.a>253.5/255.0&&vCol.a<254.5/255.0;
 bool surfacePort=vCol.a>252.5/255.0&&vCol.a<253.5/255.0;
@@ -723,7 +753,7 @@ if(!gl_FrontFacing){n=-n;ef=0.0;if(uBack<0.5){base=vec3(0.085,0.092,0.10);}else{
 vec3 amb=mix(uGnd,uSky,n.y*0.5+0.5)*ao;float d1=max(dot(n,uL1),0.0);float d2=max(dot(n,uL2),0.0);
 float sh=1.0;if(uShK.x>0.5&&d1>0.0)sh=shadowK(normalize(vNS)*(gl_FrontFacing?1.0:-1.0),d1);d1*=sh;
 vec3 V=normalize(uEye-vW);vec3 H=normalize(uL1+V);float sp=pow(max(dot(n,H),0.0),40.0)*0.22*ao*ef*sh;
-vec3 c=base*(amb+uC1*d1*(0.6+0.4*ao)+uC2*d2*ao)+uC1*sp;vec3 e=texture2D(uEmiTex,vUv).rgb;if(uEmiTint.w>0.5){float l=dot(e,vec3(0.3,0.5,0.2));e=mix(uEmiTint.rgb*min(1.0,l*1.3),vec3(l),smoothstep(0.86,1.0,l)*0.7);}c+=e*e*uEmi*ef;
+vec3 c=base*(amb+uC1*d1*(0.6+0.4*ao)+uC2*d2*ao)+uC1*sp;vec3 e=texture2D(uEmiTex,materialUV).rgb;if(uEmiTint.w>0.5){float l=dot(e,vec3(0.3,0.5,0.2));e=mix(uEmiTint.rgb*min(1.0,l*1.3),vec3(l),smoothstep(0.86,1.0,l)*0.7);}c+=e*e*uEmi*ef;
 if(uLightK>0.0&&ef>0.5&&!solarSurface){vec2 pl=shipLights(normalize(vNS));c*=1.0-0.5*pl.y;float lk=uLightK*pl.x;c=mix(c,uLightCol,clamp(lk,0.0,1.0))+uLightCol*(max(0.0,lk-1.0)*0.25);}
 // Only installed habitation tiles carry this byte. Equipment walls never gain
 // windows from the generic wall shader or from decorative density/LOD.
@@ -1129,7 +1159,8 @@ class Renderer {
     if (!gl) throw new Error('WebGL が使えません');
     this.u32 = !!gl.getExtension('OES_element_index_uint');
     const aniso = gl.getExtension('EXT_texture_filter_anisotropic') || gl.getExtension('WEBKIT_EXT_texture_filter_anisotropic');
-    this.pm = compile(gl, VS_MESH, FS_MESH); this.pl = compile(gl, VS_LINE, FS_LINE);
+    this.armorDerivatives=!!gl.getExtension('OES_standard_derivatives');
+    this.pm = compile(gl, VS_MESH, this.armorDerivatives?'#extension GL_OES_standard_derivatives : enable\n#define ARMOR_DERIVATIVES\n'+FS_MESH:FS_MESH); this.pl = compile(gl, VS_LINE, FS_LINE);
     this.pp = compile(gl, VS_PT, FS_PT); this.pb = compile(gl, VS_BG, FS_BG);
     const tex = (cv, repeat) => {
       const t = gl.createTexture(); this.ownedTextures.add(t);gl.bindTexture(gl.TEXTURE_2D, t);
@@ -1446,7 +1477,7 @@ class Renderer {
     const gl = this.gl, p = this.pm, source=MESH_SOURCE[name]||name, tx = this.tex[MESH_TEX[name] || 'hull'];
     gl.useProgram(p.p);
     const lit=this.lightK>0&&LIGHT_MESHES.has(source)&&(alpha==null||alpha>.9),ports=this.lightK>0&&source==='surfaceDevices'&&(alpha==null||alpha>.9);gl.uniform1f(p.u.uLightK,lit?this.lightK:0);gl.uniform1f(p.u.uPortK,ports?this.lightK:0);
-    if(lit||ports){const H=Math.max(1,this.canvas.height),t=2*Math.tan((this.cam.fov||.72)/2);gl.uniform3fv(p.u.uLightCol,this.lightCol);gl.uniform2f(p.u.uPix,t/H,this.cam.ortho?t*this.cam.r/H:0);}
+    {const H=Math.max(1,this.canvas.height),t=2*Math.tan((this.cam.fov||.72)/2);gl.uniform2f(p.u.uPix,t/H,this.cam.ortho?t*this.cam.r/H:0);}if(lit||ports)gl.uniform3fv(p.u.uLightCol,this.lightCol);
     gl.uniformMatrix4fv(p.u.uVP, false, m.VP); gl.uniform3fv(p.u.uOff, this.off);
     gl.uniform3fv(p.u.uCenter,this.modelCenter||[0,0,0]);gl.uniformMatrix3fv(p.u.uRot,false,this.modelRot||yawMatrix(this.modelYaw||0));gl.uniform3fv(p.u.uScl,this.unitScl||this.meshScale?.[name]||[1,1,1]);gl.uniform1f(p.u.uFlash,this.unitFlash||0);
     const lk = this.look || LOOKS.flat; gl.uniform3fv(p.u.uL1, lk.L1); gl.uniform3fv(p.u.uL2, lk.L2);
@@ -1455,6 +1486,8 @@ class Renderer {
     gl.uniform3fv(p.u.uEye, m.eye); gl.uniform1f(p.u.uAlpha, alpha);
     gl.uniform1f(p.u.uPaint,this.paint==='dark'?2:this.paint==='republic'?1:0);gl.uniform1f(p.u.uRefHull,name==='refHull'&&!this.sourceRed?1:0);gl.uniform1f(p.u.uHullLength,this.hullLength||1600);
     gl.uniform1f(p.u.uReference, REFERENCE_SHADED.has(source)||source.startsWith('refTur_')?1:source==='refEngine'?2:0);
+    gl.uniform1f(p.u.uSkinScale,source==='surfaceArmor'?30:source==='struct'||source==='hull'||source==='preview'?48:source==='plate'?64:0);
+    gl.uniform1f(p.u.uSkinTexels,source==='struct'||source==='preview'?256:512);
     // v18 Drive nozzles burn in the design's engine colour, brighter with thrust.
     const drive=source==='nozzle'||source==='refEngine',tint=drive?this.engineTint:null;gl.uniform4fv(p.u.uEmiTint,tint?[tint[0]/255,tint[1]/255,tint[2]/255,1]:[1,1,1,0]);
     gl.uniform1f(p.u.uEmi, (emi == null ? 1 : emi) * (MESH_EMI[name] == null ? 1 : MESH_EMI[name]) * (drive ? (this.engineK ?? 1) : 1));
@@ -1695,7 +1728,7 @@ function shipBounds(ship) {
   for (const s of g.secs) for (let j = 0; j < s.Y.length; j++) { b[1] = Math.min(b[1], s.Y[j]); b[4] = Math.max(b[4], s.Y[j]); b[2] = Math.min(b[2], s.Z[j]); b[5] = Math.max(b[5], s.Z[j]); }
   const rb=C.referenceHullGeometry(ship)?.bounds;if(rb)for(let k=0;k<3;k++){b[k]=Math.min(b[k],rb[k]);b[k+3]=Math.max(b[k+3],rb[k+3]);}
   for (const pt of ship.parts) { const a = C.refPartBounds(pt)||C.partAABB(pt); for (let k = 0; k < 3; k++) { b[k] = Math.min(b[k], a[k]); b[k + 3] = Math.max(b[k + 3], a[k + 3]); } }
-  for (const f of ship.fits) { const a = C.fitAABB(f); for (let k = 0; k < 3; k++) { b[k] = Math.min(b[k], a[k]); b[k + 3] = Math.max(b[k + 3], a[k + 3]); } }
+  for (const f of surfaceRenderFits(ship)) { const a = C.fitAABB(f); for (let k = 0; k < 3; k++) { b[k] = Math.min(b[k], a[k]); b[k + 3] = Math.max(b[k + 3], a[k + 3]); } }
   if(ship.surfaces?.patches?.length&&typeof C.surfacePatches==='function')for(const p of C.surfacePatches(ship)){const t=p.config?.armor?.thickness||0;if(!p.exposed||!(t>0)||!ship.surfaces.patches.some(q=>q.id===p.id))continue;const T=surfaceTriangles(p);for(let i=0;i<T.length;i+=3)for(let a=0;a<3;a++){const v=T[i+a]+p.normal[a]*t;b[a]=Math.min(b[a],v);b[a+3]=Math.max(b[a+3],v);}}
   if (!isFinite(b[1])) { b[1] = 0; b[4] = ship.hull.H; b[2] = -ship.hull.W / 2; b[5] = ship.hull.W / 2; }
   return b;
@@ -1860,6 +1893,19 @@ function surfaceSelectionLines(ship,ids){
  return out.out();
 }
 function surfaceSeed(id,seed){let h=(seed||0)|0;for(const ch of String(id))h=Math.imul(h^ch.charCodeAt(0),16777619);return h>>>0;}
+function surfaceHostPaint(ship,patch){
+ const p=patch._part||(/^p\d+$/.test(patch.host)?ship.parts.find(p=>p.id===+patch.host.slice(1)):null);
+ if(p?.paint)return hex(p.paint);
+ if(p)return (ship.paint==='dark'?STRUCT_DARK:ship.paint==='cis'?STRUCT_CIS:STRUCT_PAINT).slice();
+ return (ship.paint==='dark'?[103,116,129]:ship.paint==='cis'?HULL_CIS:PAINT).slice();
+}
+function surfacePaintTone(paint,factor){return paint.map(c=>Math.round(C.clamp(c*factor,0,255)));}
+function surfaceEquipmentPaint(paint,color,feature,port){
+ if(port)return color;
+ if(/recess/.test(feature))return surfacePaintTone(paint,.52);
+ const brightness=(color[0]+color[1]+color[2])/3;
+ return surfacePaintTone(paint,C.clamp(.92+(brightness-113)*.0019,.79,1.04));
+}
 // Allocate a bounded visual budget before drawing any face. A small floor and
 // area-weighted remainder keep late/short/aft faces from being starved by a
 // large earlier wall. Largest-remainder rounding preserves the global cap.
@@ -1872,14 +1918,14 @@ function surfaceVisualShares(patches,total,floor){
 // is neutral scenery: its shelves, cases and conduits add zero capacity. Small
 // working faces are owned by the installed common device beside them, so local
 // damage, selection and S-foil ownership still refer to real design entities.
-function surfaceEquipmentField(ship,patch,cells,style,detail,extraBudget,fieldBudget,config){
+function surfaceEquipmentField(ship,patch,cells,style,detail,extraBudget,fieldBudget,config,face){
  const u=C.norm(patch.u),v=C.norm(patch.v),normal=C.norm(patch.normal),T=surfaceTriangles(patch),origin=patch.center,uv=p=>{const q=C.sub(p,origin);return [C.dot(q,u),C.dot(q,v),C.dot(q,normal)];},tris=[],relief=Math.min(patch.depth||4.5,C.clamp(config?.equipment?.depth??Math.max(1,...cells.filter(c=>c.role!=='weapons').map(c=>c.depth||1)),.02,4.5)),recess=surfaceRecess(ship,patch,relief);
  for(let i=0;i+8<T.length;i+=9){const t=[T.slice(i,i+3),T.slice(i+3,i+6),T.slice(i+6,i+9)].map(p=>[...uv(p),C.dot(C.sub(recess.pointAt(p),origin),normal)]);t.bounds=[Math.min(...t.map(p=>p[0])),Math.min(...t.map(p=>p[1])),Math.max(...t.map(p=>p[0])),Math.max(...t.map(p=>p[1]))];tris.push(t);}
- const points=tris.flat(),lo=[Math.min(...points.map(p=>p[0])),Math.min(...points.map(p=>p[1]))],hi=[Math.max(...points.map(p=>p[0])),Math.max(...points.map(p=>p[1]))],blocked=[],host=/^p\d+$/.test(patch.host)?+patch.host.slice(1):patch.host,random=rng(surfaceSeed(patch.id+'|field',style.seed)),field=[],boxes=[],devices=[],scale=Math.max(1.5,Math.sqrt(patch.area/3500));
+ const points=tris.flat(),lo=[Math.min(...points.map(p=>p[0])),Math.min(...points.map(p=>p[1]))],hi=[Math.max(...points.map(p=>p[0])),Math.max(...points.map(p=>p[1]))],blocked=[],host=/^p\d+$/.test(patch.host)?+patch.host.slice(1):patch.host,random=rng(surfaceSeed(patch.id+'|field',style.seed)),field=[],boxes=[],devices=[],scale=Math.max(1.5,Math.sqrt(patch.area/3500)),paint=surfaceHostPaint(ship,patch);
  const at=(x,y,z)=>C.add(origin,C.add(C.add(C.mul(u,x),C.mul(v,y)),C.mul(normal,z)));
  const clip=(poly,axis,limit,sign)=>{const out=[];for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length],da=(a[axis]-limit)*sign,db=(b[axis]-limit)*sign;if(da>=-1e-8)out.push(a);if((da<0)!==(db<0)){const t=da/(da-db);out.push(a.map((q,j)=>q+(b[j]-q)*t));}}return out;};
  const reserve=(b,pad=0,rotation=false)=>{if(!b?.every(Number.isFinite))return;const P=[];for(let i=0;i<8;i++)P.push(uv([b[i&1?3:0],b[i&2?4:1],b[i&4?5:2]]));if(Math.min(...P.map(p=>p[2]))>6||Math.max(...P.map(p=>p[2]))<-.1)return;let a=[Math.min(...P.map(p=>p[0]))-pad,Math.min(...P.map(p=>p[1]))-pad,Math.max(...P.map(p=>p[0]))+pad,Math.max(...P.map(p=>p[1]))+pad];if(rotation){const cx=(a[0]+a[2])/2,cy=(a[1]+a[3])/2,r=Math.max(a[2]-a[0],a[3]-a[1])*.56;a=[cx-r,cy-r,cx+r,cy+r];}blocked.push(a);};
- for(const f of ship.fits||[])if(!f.float&&!f.surfaceUnplaced)reserve(C.fitAABB(f),embeddedSurfaceFit(f)?.12:.24,!embeddedSurfaceFit(f));
+ for(const f of surfaceRenderFits(ship))if(!f.float&&!f.surfaceUnplaced)reserve(C.fitAABB(f),embeddedSurfaceFit(f)?.12:.24,!embeddedSurfaceFit(f));
  for(const h of ship.hatches||[])reserve(C.openingBounds(ship,h),.18);
  for(const p of ship.parts||[])if(!p.surfacePatch&&['engine','nozzle','sensor'].includes(p.k))reserve(C.partAABB(p),.25);
  // Integrating clipped triangle area, rather than checking only four corners,
@@ -1891,7 +1937,7 @@ function surfaceEquipmentField(ship,patch,cells,style,detail,extraBudget,fieldBu
   return {height,ceiling:ceiling-.012,floor:floor+.008};
  };
  const checkOwner=ship.solidCuts?.length||patch._part?.mesh||['outline','shell','arc'].includes(patch._part?.form),inside=p=>patch._part?C.inPart(patch._part,p):C.inHull(ship,p);
- const piece=(target,feature,x,y,w,h,z,d,color,ownerId=host,role=null,type='box',opts={})=>{if(target===field&&field.length>=fieldBudget)return null;const bounds=[x-w/2,y-h/2,x+w/2,y+h/2],s=space(bounds);if(!s||s.ceiling-s.floor<.006)return null;d=Math.min(d,s.ceiling-s.floor);const center=C.clamp(s.height-relief+z,s.floor+d/2,s.ceiling-d/2),q={feature,type,ownerId,role,center:at(x,y,center),u,v,normal,size:[w,h,d],bounds,color,...opts};
+ const piece=(target,feature,x,y,w,h,z,d,color,ownerId=host,role=null,type='box',opts={})=>{if(target===field&&field.length>=fieldBudget)return null;const bounds=[x-w/2,y-h/2,x+w/2,y+h/2],s=space(bounds);if(!s||s.ceiling-s.floor<.006)return null;d=Math.min(d,s.ceiling-s.floor);const center=C.clamp(s.height-relief+z,s.floor+d/2,s.ceiling-d/2),q={feature,type,ownerId,role,center:at(x,y,center),u,v,normal,size:[w,h,d],bounds,color:surfaceEquipmentPaint(paint,color,feature,opts.port),...opts};
   if(checkOwner)for(const a of [-1,1])for(const b of [-1,1])for(const c of [-1,1])if(!inside(at(x+a*w/2,y+b*h/2,center+c*d/2)))return null;
   target.push(q);return q;};
  const grey=()=>{const a=Math.round(90+random()*35);return [a,a+5,a+10];};
@@ -1938,13 +1984,19 @@ function surfaceEquipmentField(ship,patch,cells,style,detail,extraBudget,fieldBu
    if(!axis&&i%2===0)run(0,fixed+.24*scale,lo[0]+.15,hi[0]-.15,.075,.60,'service-shelf');
   }}
  }
+ if(face?.aggregate){
+  // Functional paint is distributed across the generated face, not repeated
+  // once per saved slot or common-network adapter. Capacity stays in Core.
+  const roles=['cooling','sensors','habitation'].map(role=>({role,...face.categories?.[role]})).filter(q=>q.occupiedArea>0&&Number.isFinite(q.roleid)),cases=field.filter(q=>q.feature==='service-housing'&&q.recess).map(q=>({q,rank:surfaceSeed(q.bounds.join('|'),style.seed)})).sort((a,b)=>a.rank-b.rank).map(p=>p.q),total=roles.reduce((n,q)=>n+q.occupiedArea,0),coverage=C.clamp(total/Math.max(.001,patch.exposedArea??patch.area),0,1),count=Math.min(96,cases.length,Math.max(roles.length,Math.round(cases.length*coverage))),weights=roles.map(()=>0);
+  cells=[];for(let i=0;i<count&&roles.length;i++){let pick=i<roles.length?i:0;if(i>=roles.length){for(let j=0;j<roles.length;j++){weights[j]+=roles[j].occupiedArea/total;if(weights[j]>weights[pick])pick=j;}weights[pick]-=1;}const role=roles[pick],q=cases[i],point=q.center.slice();cells.push({id:role.roleid,aggregate:true,cell:'visual:'+role.role+':'+i,role:role.role,k:role.role==='cooling'?config.equipment.kind:role.role==='sensors'?'sensor':'habitat',point,w:q.size[0]*.85,h:q.size[1]*.85,depth:relief});}
+ }
  const frontAt=b=>field.reduce((z,p)=>p.bounds[2]>b[0]&&p.bounds[0]<b[2]&&p.bounds[3]>b[1]&&p.bounds[1]<b[3]?Math.max(z,C.dot(C.sub(p.center,origin),normal)+p.size[2]/2):z,-Infinity);
  for(const cell of cells){if(!cell.point?.every(Number.isFinite)||!(cell.w>0&&cell.h>0))continue;const point=cell.point.slice(),local=uv(point),r=rng(surfaceSeed(patch.id+'|'+cell.cell,style.seed)),hardware=[],variant=Math.floor(r()*4),item={id:cell.id,cell:cell.cell,role:cell.role,kind:cell.k||cell.kind,variant,point,center:point.slice(),u,v,normal,size:[cell.w,cell.h,cell.depth],depth:cell.depth,hardware,micro:[]};devices.push(item);
   // Guns use only the compact embedded apertures in meshFits. The surrounding
   // field leaves their actual opening clear without drawing a turret body.
   if(cell.role==='weapons')continue;
-  let workLift=0;const group=(w,h)=>{for(let k=0;k<14;k++){const x=local[0]+(r()-.5)*Math.max(.2,cell.w-w-.4),y=local[1]+(r()-.5)*Math.max(.2,cell.h-h-.4),b=[x-w/2,y-h/2,x+w/2,y+h/2],s=space(b);if(s){workLift=Math.max(0,frontAt(b)-s.height+relief-.62);return [x,y];}}return null;};
-  const add=(feature,x,y,w,h,z,d,color,type='box',opts={})=>piece(hardware,feature,x,y,w,h,z+workLift,d,color,cell.id,cell.role,type,opts);
+  let workLift=0,cueScale=1,cueCenter=local;const group=(w,h)=>{cueScale=cell.aggregate?Math.min(1,cell.w*.9/w,cell.h*.9/h):1;const W=w*cueScale,H=h*cueScale;for(let k=0;k<14;k++){const x=local[0]+(r()-.5)*Math.max(.02,cell.w-W-.04),y=local[1]+(r()-.5)*Math.max(.02,cell.h-H-.04),b=[x-W/2,y-H/2,x+W/2,y+H/2],s=space(b);if(s){workLift=Math.max(0,frontAt(b)-s.height+relief-.62);cueCenter=[x,y];return [x,y];}}return null;};
+  const add=(feature,x,y,w,h,z,d,color,type='box',opts={})=>piece(hardware,feature,cueCenter[0]+(x-cueCenter[0])*cueScale,cueCenter[1]+(y-cueCenter[1])*cueScale,w*cueScale,h*cueScale,z+workLift,d,color,cell.id,cell.role,type,{...opts,...(opts.radius?{radius:opts.radius*cueScale}:{})});
   if(cell.role==='cooling')for(let q=0;q<1+variant%2;q++){const w=.65+r()*1.25,h=.35+r()*.9,p=group(w,h);if(!p)continue;const [x,y]=p;add('cooling-recess',x,y,w,h,.74,.08,[60,74,85]);const count=4+Math.floor(r()*5),vertical=variant===2;for(let i=0;i<count;i++)add('cooling-grille',x+(vertical?(i/(count-1)-.5)*w*.87:0),y+(vertical?0:(i/(count-1)-.5)*h*.80),vertical?w/count*.30:w*.90,vertical?h*.90:h/count*.31,.81,.07,[127,141,151]);}
   else if(cell.role==='sensors'){const size=.55+r()*.95,p=group(size,size);if(p){const [x,y]=p;if(variant===0||variant===3)add('sensor-array',x,y,size,size,.86,.30,[139,153,164],'dish',{radius:size/2});else{add('sensor-array',x,y,size,size*(variant===1?.57:1),.76,.10,[72,90,106]);const count=variant===1?4:3;for(let i=0;i<count;i++)add('sensor-element',x+(i-(count-1)/2)*size/count*.9,y,size/count*.47,size*(variant===1?.37:.72),.84,.065,[138,154,168]);}}}
   else if(cell.role==='habitation')for(let bank=0;bank<1+variant%3;bank++){const width=1.1+r()*1.35,p=group(width,.32);if(!p)continue;const [x,y]=p;add('window-recess',x,y,width,.27,.78,.05,[46,59,70]);const count=3+Math.floor(r()*4);for(let i=0;i<count;i++){const lit=r()>.22;add('habitation-window',x+(i-(count-1)/2)*width*.84/count,y,width*.64/count,.17,.825,.025,lit?[232,218,169]:[75,84,92],'box',{port:lit});}}
@@ -1955,12 +2007,23 @@ function surfaceEquipmentField(ship,patch,cells,style,detail,extraBudget,fieldBu
  for(let i=0;i<extras*3&&boxes.length<extras&&housings.length;i++){const parent=housings[Math.floor(random()*housings.length)],b=parent.bounds,w=Math.min(3.0,(b[2]-b[0])*(.12+random()*.33)),h=Math.min(1.4,(b[3]-b[1])*(.18+random()*.39)),x=b[0]+w/2+random()*(b[2]-b[0]-w),y=b[1]+h/2+random()*(b[3]-b[1]-h),d=.055+random()*.12;
   const s=space([x-w/2,y-h/2,x+w/2,y+h/2]);if(s)piece(boxes,'service-detail',x,y,w,h,C.dot(C.sub(parent.center,origin),normal)+parent.size[2]/2-s.height+relief+d/2,d,grey(),host,null,style.kind==='rounded'?'rounded':'box',{rounded:style.kind==='rounded'});
  }
- return {field,boxes,devices,recessDepth:recess.recessDepth,backingTriangles:recess.backingTriangles};
+ return {field,boxes,devices,paint,recessDepth:recess.recessDepth,backingTriangles:recess.backingTriangles};
 }
-function surfaceVisualPlan(ship,opt={}){
+const SURFACE_VISUAL_CACHE=new Map(),SURFACE_MESH_CACHE=new Map();
+function surfaceVisualKey(ship,opt={}){
+ const nativeParts=(ship.parts||[]).filter(p=>!p.surfacePatch),nativeFits=(ship.fits||[]).filter(f=>!f.surfacePatch),geometry=C.surfaceRenderKey?.(ship)||[ship.hull,ship.hullSkin,ship.cuts,ship.trenches,ship.subs,ship.solidCuts,ship.hatches,nativeParts,nativeFits,ship.surfaces];
+ return JSON.stringify([geometry,ship.paint,nativeParts.map(p=>[p.id,p.paint]),ship.detail,opt.detail??ship.detail??1,opt.maxDetails??1800,opt.maxField??12000,!!opt.coded],(k,v)=>k[0]==='_'?undefined:v);
+}
+function surfaceCachePut(cache,key,value,limit){cache.delete(key);cache.set(key,value);while(cache.size>limit)cache.delete(cache.keys().next().value);return value;}
+function surfaceVisualPlan(ship,opt={},key){
+ if(!ship?.surfaces?.patches?.length)return [];
+ key=key||surfaceVisualKey(ship,opt);const found=SURFACE_VISUAL_CACHE.get(key);if(found){SURFACE_VISUAL_CACHE.delete(key);SURFACE_VISUAL_CACHE.set(key,found);return found;}
+ return surfaceCachePut(SURFACE_VISUAL_CACHE,key,surfaceBuildVisualPlan(ship,opt),4);
+}
+function surfaceBuildVisualPlan(ship,opt={}){
  if(!ship?.surfaces?.patches?.length||typeof C.surfacePatches!=='function')return [];
  const configured=new Set(ship.surfaces.patches.map(p=>p.id)),detail=C.clamp(opt.detail??ship.detail??1,0,2),cap=Math.max(0,Math.floor(opt.maxDetails??1800)),out=[];
- const equipmentReports=new Map((ship.surfaces.patches.some(p=>p.functionMode==='equipment')?C.surfaceReport(ship).patches:[]).map(p=>[p.id,p])),patches=C.surfacePatches(ship),eligible=patches.filter(p=>configured.has(p.id)&&p.exposed&&(p.exposedArea??p.area)>0&&p.config?.functionMode==='equipment'),fieldShares=surfaceVisualShares(eligible,Math.max(0,Math.floor(opt.maxField??12000)),30),detailShares=surfaceVisualShares(eligible,cap,4);let budget=cap;
+ const equipmentReports=new Map((C.surfaceRenderFaces?C.surfaceRenderFaces(ship):ship.surfaces.patches.some(p=>p.functionMode==='equipment')?C.surfaceReport(ship).patches:[]).map(p=>[p.id,p])),patches=C.surfacePatches(ship),eligible=patches.filter(p=>configured.has(p.id)&&p.exposed&&(p.exposedArea??p.area)>0&&p.config?.functionMode==='equipment'),fieldShares=surfaceVisualShares(eligible,Math.max(0,Math.floor(opt.maxField??12000)),30),detailShares=surfaceVisualShares(eligible,cap,4);let budget=cap;
  for(const patch of patches){
   if(!configured.has(patch.id)||!patch.exposed||!(patch.exposedArea??patch.area))continue;
   const config=patch.config||C.surfaceConfig(ship,patch.id),style=config.style||{},normal=C.norm(patch.normal),u=C.norm(patch.u),v=C.norm(patch.v),T=surfaceTriangles(patch),triangles=[],weights=[];let area=0;
@@ -1969,15 +2032,15 @@ function surfaceVisualPlan(ship,opt={}){
   const random=rng(surfaceSeed(patch.id,style.seed)),density=C.clamp(style.density??0,0,1),size=C.clamp(Math.sqrt(area)/18,.04,6),n=Math.min(budget,Math.ceil(Math.sqrt(area)*density*detail*2)),boxes=[],devices=[];
   if(config.functionMode==='equipment'){
    const report=equipmentReports.get(patch.id),cells=report?.cells||[...ship.parts,...ship.fits].filter(p=>p.surfacePatch===patch.id&&!p.surfaceUnplaced&&p.surfaceRole).map(p=>({id:p.id,cell:p.surfaceCell,role:p.surfaceRole,k:p.k,point:p.surfacePoint,footprint:p.surfaceFootprint,w:p.surfaceFootprint?.[0],h:p.surfaceFootprint?.[1],depth:p.surfaceDepth}));
-   const plan=surfaceEquipmentField(ship,patch,cells,style,detail,Math.min(budget,detailShares.get(patch.id)||0),fieldShares.get(patch.id)||0,config);budget-=plan.boxes.length;
+   const plan=surfaceEquipmentField(ship,patch,cells,style,detail,Math.min(budget,detailShares.get(patch.id)||0),fieldShares.get(patch.id)||0,config,report);budget-=plan.boxes.length;
    out.push({id:patch.id,host:patch.host,patch,config,triangles:T,boundary:surfaceBoundary(patch),...plan});continue;
   }
-  if(config.functionMode==='armor'){out.push({id:patch.id,host:patch.host,patch,config,triangles:T,boundary:surfaceBoundary(patch),boxes,devices});continue;}
+  if(config.functionMode==='armor'){out.push({id:patch.id,host:patch.host,patch,config,triangles:T,boundary:surfaceBoundary(patch),paint:surfaceHostPaint(ship,patch),boxes,devices});continue;}
   // Project both endpoints of an obstruction's box onto this patch's frame.
   // No ornament may cover an actual muzzle, opening or nozzle.
   const blocked=[];
   const reserve=(b,pad=0)=>{if(!b||!b.every(Number.isFinite))return;const points=[];for(let i=0;i<8;i++)points.push([b[i&1?3:0],b[i&2?4:1],b[i&4?5:2]]);const n0=Math.min(...points.map(p=>C.dot(C.sub(p,patch.center),normal))),n1=Math.max(...points.map(p=>C.dot(C.sub(p,patch.center),normal)));if(n0>size*4||n1< -size*4)return;blocked.push([Math.min(...points.map(p=>C.dot(C.sub(p,patch.center),u)))-pad,Math.min(...points.map(p=>C.dot(C.sub(p,patch.center),v)))-pad,Math.max(...points.map(p=>C.dot(C.sub(p,patch.center),u)))+pad,Math.max(...points.map(p=>C.dot(C.sub(p,patch.center),v)))+pad]);};
-  for(const f of ship.fits||[])reserve(C.fitAABB(f),size*1.3);
+  for(const f of surfaceRenderFits(ship))reserve(C.fitAABB(f),size*1.3);
   for(const h of ship.hatches||[])reserve(C.openingBounds(ship,h),size*1.2);
   for(const p of ship.parts||[])if(p.k==='engine'||p.k==='nozzle'||p.surfacePatch===patch.id)reserve(C.partAABB(p),size);
   const free=(p,r)=>{const d=C.sub(p,patch.center),x=C.dot(d,u),y=C.dot(d,v);return !blocked.some(b=>x+r>b[0]&&x-r<b[2]&&y+r>b[1]&&y-r<b[3]);};
@@ -1992,28 +2055,41 @@ function surfaceVisualPlan(ship,opt={}){
   for(const p of ship.parts||[]){if(p.surfacePatch!==patch.id||p.surfaceUnplaced||!(p.surfaceCell!=null))continue;const b=C.partAABB(p),span=C.sub(b.slice(3),b.slice(0,3)),width=p.surfaceFootprint?.[0]||Math.max(.02,Math.min(...span.filter(x=>x>0))),height=p.surfaceFootprint?.[1]||width;
    const point=Array.isArray(p.surfacePoint)?p.surfacePoint:C.sub(p.c,C.mul(normal,C.dot(C.sub(p.c,patch.center),normal))),kind=p.k==='radiator'?'radiator':p.k==='hdis'?'hdis':'machinery';devices.push({id:p.id,kind,center:C.add(point,C.mul(normal,(config.armor?.thickness||0)+.025)),u,v,normal,size:[width,height,Math.max(.025,Math.min(width,height)*.035)]});
   }
+  const legacy=equipmentReports.get(patch.id);if(legacy?.aggregate)for(const role of ['cooling','sensors','habitation']){const category=legacy.categories?.[role];if(!(category?.occupiedArea>0)||!Number.isFinite(category.roleid))continue;
+   // Old mixed armour/equipment faces retain one interface per common role,
+   // without restoring every legacy reservation as an editable part/model.
+   const r=rng(surfaceSeed(patch.id+'|legacy-interface|'+role,style.seed)),width=Math.min(6,Math.sqrt(category.occupiedArea)*.45,(patch._max[0]-patch._min[0])*.6),height=Math.min(width*.6,(patch._max[1]-patch._min[1])*.6),depth=Math.max(.025,Math.min(width,height)*.035);
+   for(let attempt=0;attempt<32;attempt++){const ar=r()*area,index=Math.max(0,weights.findIndex(w=>ar<=w)),[a,b,c]=triangles[index],s=Math.sqrt(r()),t=r(),point=C.add(C.add(C.mul(a,1-s),C.mul(b,s*(1-t))),C.mul(c,s*t));if(!free(point,Math.max(width,height)*.55))continue;const corners=[[-1,-1],[1,-1],[1,1],[-1,1]].map(([x,y])=>C.add(point,C.add(C.mul(u,x*width*.55),C.mul(v,y*height*.55))));if(corners.some(q=>!C.rayTris(T,C.add(q,C.mul(normal,Math.max(2,patch.depth))),C.mul(normal,-1))))continue;
+    devices.push({id:category.roleid,role,aggregate:true,kind:role==='cooling'?config.equipment.kind:'machinery',center:C.add(point,C.mul(normal,(config.armor?.thickness||0)+.025+depth/2)),u,v,normal,size:[width,height,depth]});break;
+   }
+  }
   budget-=boxes.length;out.push({id:patch.id,host:patch.host,patch,config,triangles:T,boundary:surfaceBoundary(patch),boxes,devices});
  }
  return out;
 }
-function meshSurfaceLayers(ship,ranges,opt={}){
- const armor=new Geo(64),devices=new Geo(64),detail=new Geo(64),plans=surfaceVisualPlan(ship,opt);
+function meshSurfaceLayers(ship,ranges={},opt={}){
+ const key=surfaceVisualKey(ship,opt),found=SURFACE_MESH_CACHE.get(key),merge=rows=>{for(const [id,spans]of Object.entries(rows))for(const row of spans)(ranges[id]||(ranges[id]=[])).push(row.slice());};
+ if(found){SURFACE_MESH_CACHE.delete(key);SURFACE_MESH_CACHE.set(key,found);merge(found.ranges);return {...found.meshes};}
+ const localRanges={},meshes=buildSurfaceLayers(ship,localRanges,opt,key);surfaceCachePut(SURFACE_MESH_CACHE,key,{meshes,ranges:localRanges},2);merge(localRanges);return {...meshes};
+}
+function buildSurfaceLayers(ship,ranges,opt,key){
+ const armor=new Geo(64),devices=new Geo(64),detail=new Geo(64),plans=surfaceVisualPlan(ship,opt,key);
  const addBox=(g,item,col)=>{const {center:c,u,normal:n,size:s}=item;box(g,[...u,...n,...C.cross(u,n)],c,0,0,0,s[0],s[2],s[1],col||item.color);};
  const addHardware=(g,item)=>{const begin=g.n,{center:c,u,v,normal:n,size:s}=item;
   if(item.type==='normal-pipe'){const radius=Math.min(s[0],s[1])*.5;axisFrustum(g,C.sub(c,C.mul(n,s[2]/2)),C.add(c,C.mul(n,s[2]/2)),radius,radius,item.color,true,false,6);}
   else if(item.type==='pipe'){const axis=item.axis==='v'?v:u,length=item.axis==='v'?s[1]:s[0],radius=Math.min(item.axis==='v'?s[0]:s[1],s[2])*.5;axisFrustum(g,C.sub(c,C.mul(axis,length/2-radius)),C.add(c,C.mul(axis,length/2-radius)),radius,radius,item.color,true,false,6);}
-  else if(item.type==='dish'){const r=item.radius,a=C.sub(c,C.mul(n,s[2]/2)),b=C.add(c,C.mul(n,s[2]/2));axisFrustum(g,a,b,r*.58,r,item.color,false,false,10);axisFrustum(g,a,b,r*.50,r*.88,[50,64,78],false,true,10);axisFrustum(g,a,b,r*.08,r*.05,[165,179,188],true,false,6);}
+  else if(item.type==='dish'){const r=item.radius,a=C.sub(c,C.mul(n,s[2]/2)),b=C.add(c,C.mul(n,s[2]/2));axisFrustum(g,a,b,r*.58,r,item.color,false,false,10);axisFrustum(g,a,b,r*.50,r*.88,surfacePaintTone(item.color,.48),false,true,10);axisFrustum(g,a,b,r*.08,r*.05,surfacePaintTone(item.color,1.06),true,false,6);}
   else if(item.rounded){const radius=Math.max(.00001,Math.min(s[0]-.001,s[1],s[2])*.5),half=C.mul(u,Math.max(.001,s[0]-radius*2)/2);axisFrustum(g,C.sub(c,half),C.add(c,half),radius,radius,item.color,true,false,8);}
   else addBox(g,item);
   if(item.port)for(let i=begin;i<g.n;i++)g.col[i*4+3]=253;
  };
  const record=(id,name,g,start)=>{if(Number.isFinite(id)&&g.ni>start)(ranges[id]||(ranges[id]=[])).push([name,start,g.ni-start]);};
- for(const row of plans){const start=[armor.ni,devices.ni,detail.ni],{patch,config}=row,n=C.norm(patch.normal),thickness=config.functionMode==='equipment'?0:config.armor?.thickness||0,material=config.armor?.material,col=material==='dense'?[112,122,137]:material==='light'?[187,193,199]:[151,161,171];
+ for(const row of plans){const start=[armor.ni,devices.ni,detail.ni],{patch,config}=row,n=C.norm(patch.normal),thickness=config.functionMode==='equipment'?0:config.armor?.thickness||0,material=config.armor?.material,paint=row.paint||surfaceHostPaint(ship,patch),col=surfacePaintTone(paint,material==='dense'?.94:material==='light'?1.02:1);
   // Equipment is the opened structure itself: the selected outer skin is
   // replaced by an inward backing, with reveal walls under its armour caps.
   if(config.functionMode==='equipment'){
-   hullTriangleMesh(armor,row.backingTriangles,[65,74,83],30);const recess=surfaceRecess(ship,patch,row.recessDepth);
-   for(const e of row.boundary){const a=recess.pointAt(e.a),b=recess.pointAt(e.b),sn=C.norm(C.cross(n,C.sub(e.b,e.a)));hullQuad(armor,[e.a,e.b,b,a],sn,[101,112,122],30);}
+   hullTriangleMesh(armor,row.backingTriangles,surfacePaintTone(paint,.52),30);const recess=surfaceRecess(ship,patch,row.recessDepth);
+   for(const e of row.boundary){const a=recess.pointAt(e.a),b=recess.pointAt(e.b),sn=C.norm(C.cross(n,C.sub(e.b,e.a)));hullQuad(armor,[e.a,e.b,b,a],sn,surfacePaintTone(paint,.85),30);}
   }else if(config.functionMode==='armor'&&thickness===0){const lift=C.mul(n,.012);hullTriangleMesh(armor,row.triangles.map((q,i)=>q+lift[i%3]),col,30);}
   if(thickness>0){const lift=C.mul(n,thickness+.01),T=row.triangles.map((q,i)=>q+lift[i%3]);hullTriangleMesh(armor,T,col,30);for(const e of row.boundary){const a=C.add(e.a,lift),b=C.add(e.b,lift),sn=C.norm(C.cross(C.sub(b,a),n));hullQuad(armor,[e.a,e.b,b,a],sn,col,30);}}
   if(config.functionMode==='equipment'){
@@ -2021,7 +2097,7 @@ function meshSurfaceLayers(ship,ranges,opt={}){
    for(const item of row.devices){const a=devices.ni;for(const q of item.hardware)addHardware(devices,q);record(item.id,'surfaceDevices',devices,a);}
    if(/^p\d+$/.test(row.host))record(+row.host.slice(1),'surfaceArmor',armor,start[0]);continue;
   }
-  for(const item of row.devices){const col=item.kind==='radiator'?[102,148,166]:item.kind==='hdis'?[165,100,124]:[129,139,147];addBox(devices,item,col);const strips=Math.max(2,Math.min(12,Math.floor(item.size[1]/Math.max(.04,item.size[0]*.12))));for(let i=0;i<strips;i++){const c=C.add(item.center,C.add(C.mul(item.v,(i/(strips-1)-.5)*item.size[1]*.78),C.mul(item.normal,item.size[2]*.6)));addBox(devices,{...item,center:c,size:[item.size[0]*.8,item.size[1]/strips*.25,item.size[2]*.35]},[51,64,73]);}}
+  for(const item of row.devices){addBox(devices,item,surfacePaintTone(paint,.92));const strips=Math.max(2,Math.min(12,Math.floor(item.size[1]/Math.max(.04,item.size[0]*.12))));for(let i=0;i<strips;i++){const c=C.add(item.center,C.add(C.mul(item.v,(i/(strips-1)-.5)*item.size[1]*.78),C.mul(item.normal,item.size[2]*.6)));addBox(devices,{...item,center:c,size:[item.size[0]*.8,item.size[1]/strips*.25,item.size[2]*.35]},surfacePaintTone(paint,.52));}}
   for(const item of row.boxes)if(item.rounded){const half=C.mul(item.u,item.size[0]/2);axisFrustum(detail,C.sub(item.center,half),C.add(item.center,half),item.size[2]/2,item.size[2]/2,item.color,true,false,8);}else addBox(detail,item);
   if(/^p\d+$/.test(row.host)){const id=+row.host.slice(1);for(const [name,g,i]of [['surfaceArmor',armor,0],['surfaceDevices',devices,1],['surfaceDetail',detail,2]])if(g.ni>start[i])(ranges[id]||(ranges[id]=[])).push([name,start[i],g.ni-start[i]]);}
  }
@@ -2251,7 +2327,7 @@ function meshReferenceParts(ship,ranges,only){
  return {refStruct,refEngine,refPlant};
 }
 function meshReferenceFits(ship,ranges,only){
- const g=new Geo(16);for(const f of only||ship.fits){const d=C.FITS[f.k];if(embeddedSurfaceFit(f)||!(d.asset||d.pod)||f.float)continue;const before=g.ni;
+ const g=new Geo(16);for(const f of only||surfaceRenderFits(ship)){const d=C.FITS[f.k];if(embeddedSurfaceFit(f)||!(d.asset||d.pod)||f.float)continue;const before=g.ni;
   if(d.pod)appendReference(g,C.POD_ASSET,v=>C.podPoint(f,v));else appendReference(g,f.skinAsset||d.asset,v=>C.referenceFitPoint(f,v));
   if(ranges&&g.ni>before)(ranges[f.id]||(ranges[f.id]=[])).push(['refFits',before,g.ni-before]);
  }return g;
@@ -2263,7 +2339,7 @@ function meshPreview(ship,parts,fits,opt={}){
  const plain=parts.map(p=>({...p,_packing:undefined,_clip:undefined}));
  for(const p of plain)meshOnePart(out,p,ship,{coded:!!opt.coded},glow);
  const ref=meshReferenceParts(ship,null,plain.filter(p=>C.REFERENCE_ASSETS[p.skinAsset])),refG=new Geo(64);for(const k of ['refStruct','refEngine','refPlant'])if(ref[k].ni)appendGeo(refG,ref[k]);
- const fitG=fits.length?meshFits(ship,f=>fits.includes(f)):new Geo(16),refFitG=fits.length?meshReferenceFits(ship,null,fits):new Geo(16);
+ const fitG=fits.length?meshFits(ship,null,null,fits):new Geo(16),refFitG=fits.length?meshReferenceFits(ship,null,fits):new Geo(16);
  return {preview:g,previewRef:refG,previewFits:fitG,previewRefFits:refFitG,glow};
 }
 function meshReferenceHatches(ship){
@@ -2318,14 +2394,15 @@ function splitFoilGeometry(meshes,ranges,foils,owners){
 }
 // Fleet geometry is built by the background engine; the renderer only uploads it.
 function fleetGeometry(ship,opts){
- const sliding=ship.hatches.some(h=>C.isSlidingHatch(ship,h)),model=sliding?C.serialize(ship):ship;
+ const sliding=ship.hatches.some(h=>C.isSlidingHatch(ship,h)),model=sliding?C.surfaceRenderClone(ship):ship;
  if(sliding)for(const h of model.hatches)if(C.isSlidingHatch(model,h)){h.open=1;h._doorDetached=true;}
  const meshes={},b=shipBounds(ship),center=Array.isArray(opts?.center)&&opts.center.length===3&&opts.center.every(Number.isFinite)?opts.center.slice():[(b[0]+b[3])/2,(b[1]+b[4])/2,(b[2]+b[5])/2],doors=[],rays=[],put=(name,geo,tex,emi)=>{meshes[name]={geo,tex,emi};};
  const owners=new Map(),foils=model.parts.filter(C.isFoil).map((wing,i)=>{const members=C.wingMembers(model,wing),frame=C.foilFrame(model,wing),partIds=[],fitIds=[];for(const p of [wing,...members.structs,...members.parts])if(!owners.has(p.id)){owners.set(p.id,i);partIds.push(p.id);}for(const f of members.fits)if(!owners.has(f.id)){owners.set(f.id,i);fitIds.push(f.id);}return {id:wing.id,pivot:frame.pv,axis:frame.ax,sg:frame.sg,open:wing.wing.open,stow:wing.wing.stow,T:wing.wing.T,partIds,fitIds,meshes:[],kinds:{},glow:[]};});
- if(model.surfaces?.patches?.length&&typeof C.surfacePatches==='function'){const patches=new Map(C.surfacePatches(model).map(p=>[p.id,p]));for(const [kind,list]of [['part',model.parts],['fit',model.fits]])for(const q of list){const host=patches.get(q.surfacePatch)?.host,owner=/^p\d+$/.test(host||'')?owners.get(+host.slice(1)):null;if(owner==null||owners.has(q.id))continue;owners.set(q.id,owner);foils[owner][kind==='part'?'partIds':'fitIds'].push(q.id);}}
+ if(model.surfaces?.patches?.length&&typeof C.surfacePatches==='function'){const patches=new Map(C.surfacePatches(model).map(p=>[p.id,p]));for(const [kind,list]of [['part',model.parts],['fit',surfaceRenderFits(model)]])for(const q of list){const host=patches.get(q.surfacePatch)?.host,owner=/^p\d+$/.test(host||'')?owners.get(+host.slice(1)):null;if(owner==null||owners.has(q.id))continue;owners.set(q.id,owner);foils[owner][kind==='part'?'partIds':'fitIds'].push(q.id);}}
+ for(const row of surfaceVisualPlan(model)){const owner=/^p\d+$/.test(row.host)?owners.get(+row.host.slice(1)):null;if(owner==null)continue;for(const item of row.devices){if(owners.has(item.id))continue;owners.set(item.id,owner);foils[owner].partIds.push(item.id);}}
  put('hull',meshHull(model));const parts=meshParts(model,{coded:false});for(const name of ['struct','plate','surfaceArmor','surfaceDevices','surfaceDetail','refStruct','gen','shield','hyper','engine','refEngine','nozzle','hangar'])if(parts.g[name]&&(!name.startsWith('surface')||parts.g[name].ni))put(name,parts.g[name]);
  const h=meshHatches(model);put('hatchOpen',h.open);put('hatchRay',h.ray);put('refHatches',meshReferenceHatches(model));put('refHull',meshReferenceHull(model));
- const surfaceTurrets=!!model.surfaces,ranges=parts.ranges,turrets=opts?.trial||surfaceTurrets?trialTurrets(model,put,ranges):null,launchers=opts?.trial?[...model.fits.filter(f=>C.FITS[f.k].msl&&!f.float).map(f=>{const d=C.fitSpec(f),up=C.fitUp(f),port=C.surfaceBatteryGeometry?.(f);return {id:f.id,origin:port?port.mouth:C.add(C.fitOrigin(f),C.mul(up,d.hm)),axis:port?port.normal:up,salvo:8,cycle:20,tt:(d.msl||80)/8,ion:!!C.FITS[f.k].ionMsl};}),...craftLaunchers(model)]:null,targetRadius=C.clamp(ship.hull.L*.05,40,500);if(!turrets){put('fits',meshFits(model,null,ranges));put('refFits',meshReferenceFits(model,ranges));}else{put('trialTarget',trialTargetMesh(targetRadius),'fits',.6);for(const t of turrets){const owner=owners.get(t.id);if(owner!=null)t.foilId=foils[owner].id;}}
+ const surfaceTurrets=!!model.surfaces,ranges=parts.ranges,turrets=opts?.trial||surfaceTurrets?trialTurrets(model,put,ranges):null,launchers=opts?.trial?[...surfaceRenderFits(model).filter(f=>C.FITS[f.k].msl&&!f.float).map(f=>{const d=C.fitSpec(f),up=C.fitUp(f),port=C.surfaceBatteryGeometry?.(f);return {id:f.id,origin:port?port.mouth:C.add(C.fitOrigin(f),C.mul(up,d.hm)),axis:port?port.normal:up,salvo:8,cycle:20,tt:(d.msl||80)/8,ion:!!C.FITS[f.k].ionMsl};}),...craftLaunchers(model)]:null,targetRadius=C.clamp(ship.hull.L*.05,40,500);if(!turrets){put('fits',meshFits(model,null,ranges));put('refFits',meshReferenceFits(model,ranges));}else{put('trialTarget',trialTargetMesh(targetRadius),'fits',.6);for(const t of turrets){const owner=owners.get(t.id);if(owner!=null)t.foilId=foils[owner].id;}}
  for(const hatch of model.hatches){const spec=C.slidingHatchSpec(model,hatch);if(!spec)continue;
   if(hatch.k==='ray'){const name='slideRay_'+hatch.id;put(name,meshHatches({...model,hatches:[{...hatch,_rayOnly:true,_rayInset:5}]}).ray,'ray',1);rays.push({name});}
   if(hatch.skinAsset){for(const side of [-1,1]){const name='refSlideDoor_'+hatch.id+'_'+(side<0?'l':'r');put(name,meshReferenceHatches({...model,_referenceDoorOnly:true,hatches:[{...hatch,open:0,_doorDetached:false,_slideSide:side}]}),'reference',0);doors.push({name,axis:spec.slideAxis,side,travel:spec.travel});}}
@@ -2394,10 +2471,10 @@ function turretPose(f){
 }
 const TRIAL_BARRELS={pd:2,ltl:4,mtl:3,htl:2,stl:2,utl:2,ion:2,ionL:2};
 function trialTurrets(model,put,ranges){
- const list=model.fits.filter(trialTurretFit),turning=new Set(list.filter(f=>!embeddedSurfaceFit(f)&&!C.FITS[f.k].casemate&&!C.FITS[f.k].fixed).map(f=>f.id)),out=[];
+ const list=surfaceRenderFits(model).filter(trialTurretFit),turning=new Set(list.filter(f=>!embeddedSurfaceFit(f)&&!C.FITS[f.k].casemate&&!C.FITS[f.k].fixed).map(f=>f.id)),out=[];
  FIT_SKIP_BODY=turning;try{put('fits',meshFits(model,null,ranges));}finally{FIT_SKIP_BODY=null;}
- put('refFits',meshReferenceFits(model,ranges,model.fits.filter(f=>!turning.has(f.id))));
- const all=new Set(model.fits.map(f=>f.id)),poses=new Map();
+ put('refFits',meshReferenceFits(model,ranges,surfaceRenderFits(model).filter(f=>!turning.has(f.id))));
+ const all=new Set(surfaceRenderFits(model).map(f=>f.id)),poses=new Map();
  for(const f of list){const p=turretPose(f);if(p)poses.set(f.id,p);}
  for(const f of list)if(!poses.has(f.id))poses.set(f.id,mirroredTurretPose(f,list,poses)||(()=>{const fr=C.fitFrameOf(f);return {pivot:C.fitOrigin(f),axis:fr.up,fw:fr.fw};})());
  for(const f of list){
@@ -2431,7 +2508,7 @@ function trialEyes(ship,b,meshes){
  if(seat){const r=C.clamp((seat.d||1.6)/2,.2,4),[sx,sy,sz]=seat.c,hull=meshTopsAt(meshes,HULL,[sx],sz)[0];let y=sy+r*.3;
   if(sy+r>hull)y=Math.max(y,Math.min(Math.max(hull,meshTopsAt(meshes,SHELL,[sx],sz)[0]),sy+r*2.5)+Math.max(.05,r*.1));
   cockpit={pos:[sx+r*.15,y,sz],near:C.clamp(r*.4,.1,1),kind:'cockpit'};}
- try{const pods=[...ship.fits.filter(f=>C.FITS[f.k]?.pod&&!f.float),...C.intrinsicCommandFits(ship)].filter(f=>C.FITS[f.k]?.role==='bridge').sort((f,g)=>g.p[1]-f.p[1]||g.p[0]-f.p[0]);
+ try{const pods=[...surfaceRenderFits(ship).filter(f=>C.FITS[f.k]?.pod&&!f.float),...C.intrinsicCommandFits(ship)].filter(f=>C.FITS[f.k]?.role==='bridge').sort((f,g)=>g.p[1]-f.p[1]||g.p[0]-f.p[0]);
   const f=pods[0];if(f){const n=C.windowFrame(f).up,h=f.height||C.FITS[f.k].wm||6,out=(f.intrinsic?0:C.podDepth(f))+1+h*.1;bridge={pos:C.add(f.p,C.mul(n,out)),near:C.clamp(h*.25,.5,6),kind:'bridge'};}}catch(e){}
  // No bridge: the eye stands on the highest structure of the fore half, above
  // everything ahead of it on the centreline (fittings and turrets included).

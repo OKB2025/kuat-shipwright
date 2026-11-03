@@ -10,7 +10,7 @@ function fixture(face='port',kind='pd',manual=false){
  const ship=C.newShip({L:180,W:100,H:80,assembly:true},'Embedded manual firing');ship.hull.assembly=true;ship.parts=[];ship.fits=[];ship.armor={hull:0,cit:0};ship.detail=0;
  const body=C.placePart(ship,'struct',[70,30,0],[100,64,48],{form:'box',yaw:19,pitch:13,roll:7},false),p=C.surfacePatches(ship).find(p=>p.host==='p'+body.id&&p.face===face);
  let fit;if(manual){const out=C.placeFit(ship,kind,p.center,p.normal,0,false,{localMount:true});if(out.err)throw Error(out.err);fit=out.fit;}
- else {const out=C.setSurfaceConfig(ship,p.id,{battery:{weapon:kind,count:1,spacing:0},equipment:{kind:'none',count:0}});if(!out.ok)throw Error(out.why);fit=ship.fits.find(f=>f.surfacePatch===p.id&&!f.surfaceUnplaced);}
+ else {const out=C.setSurfaceConfig(ship,p.id,{battery:{weapon:kind,count:1,spacing:0},equipment:{kind:'none',count:0}});if(!out.ok)throw Error(out.why);fit=C.surfaceDerivedFits(ship).find(f=>f.surfacePatch===p.id&&!f.surfaceUnplaced);}
  if(!fit)throw Error('fixture has no mounted gun');const geometry=G.fleetGeometry(ship,{trial:true}),rest=geometry.turrets.find(t=>t.id===fit.id),t=trialTurretState(rest);t.oW=trialApply(trial.R,tv.sub(t.origin,geometry.center));t.bd=tv.norm(tv.add(tv.scale(t.fw,.12),t.e2,.98));return {ship,fit,geometry,t,port:C.surfaceBatteryGeometry(fit)};
 }
 `);

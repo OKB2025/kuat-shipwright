@@ -13,7 +13,7 @@ function fixture({weapon='pd',face='port',rotate=false,count=2,modern=false,foil
  const result=C.setSurfaceConfig(ship,patch.id,config);assert.equal(result.ok,true,result.why);
  return {ship,body,patch:C.surfacePatches(ship).find(p=>p.id===patch.id)};
 }
-const active=s=>s.fits.filter(f=>f.surfacePatch&&!f.float&&!f.surfaceUnplaced);
+const active=s=>{assert.equal(s.parts.some(p=>p.surfacePatch),false,'aggregate equipment cannot return to the editable part list');assert.equal(s.fits.some(f=>f.surfacePatch),false,'aggregate guns cannot return to the editable fit list');return C.surfaceDerivedFits(s).filter(f=>!f.float&&!f.surfaceUnplaced);};
 function vertices(g,spans){const out=[];if(!g)return out;for(const [,start,count]of spans||[['',0,g.ni]])for(let i=start;i<start+count;i++)out.push(Array.from(g.pos.slice(g.idx[i]*3,g.idx[i]*3+3)));return out;}
 function compact(points,port,label){assert.ok(points.length>0,label+' has no opening geometry');for(const p of points){assert.ok(p.every(Number.isFinite));assert.ok(p.every((v,i)=>v>=port.bounds[i]-2e-4&&v<=port.bounds[i+3]+2e-4),label+' contains a full turret or geometry outside the shared opening bounds');}}
 function visibleIdentity(s){return plain(active(s).map(f=>({id:f.id,k:f.k,cell:f.surfaceCell,patch:f.surfacePatch,point:f.surfacePoint})).sort((a,b)=>a.id-b.id));}
@@ -29,7 +29,7 @@ test('procedural and reference surface guns render only compact wall openings in
 
 test('independent manual guns retain their full native procedural and reference geometry beside surface batteries',()=>{
  for(const weapon of ['pd','refVen']){const {ship,body}=fixture({weapon}),top=C.surfacePatches(ship).find(p=>p.host==='p'+body.id&&p.face==='top'),placed=C.placeFit(ship,weapon,top.center,top.normal,0,false),manual=placed.fit;assert.ok(manual,placed.err);assert.equal(C.surfaceBatteryGeometry(manual),null);
-  const render=()=>C.FITS[weapon].asset?G.meshReferenceFits(ship,null,[manual]):G.meshFits(ship,f=>f.id===manual.id),mixed=render(),isolated={...ship,fits:[manual]},alone=C.FITS[weapon].asset?G.meshReferenceFits(isolated):G.meshFits(isolated);assert.ok(mixed.ni>0);assert.equal(mixed.ni,alone.ni);assert.deepEqual(plain(vertices(mixed)),plain(vertices(alone)),'surface rendering must not globally scale, replace or hide manual guns');
+  const render=()=>C.FITS[weapon].asset?G.meshReferenceFits(ship,null,[manual]):G.meshFits(ship,f=>f.id===manual.id),mixed=render(),isolated={...ship,surfaces:undefined,fits:[manual]},alone=C.FITS[weapon].asset?G.meshReferenceFits(isolated):G.meshFits(isolated);assert.ok(mixed.ni>0);assert.equal(mixed.ni,alone.ni);assert.deepEqual(plain(vertices(mixed)),plain(vertices(alone)),'surface rendering must not globally scale, replace or hide manual guns');
   const distances=vertices(mixed).map(p=>C.dot(C.sub(p,manual.p),C.fitUp(manual)));assert.ok(Math.max(...distances)>1,'manual turret should still have its original raised body');const a=G.fleetGeometry(ship),t=a.turrets.find(t=>t.id===manual.id);assert.ok(t?.mesh&&a.meshes[t.mesh]?.geo.ni>0);assert.equal(t.embedded,false);
  }
 });
@@ -54,13 +54,13 @@ test('static embedded ports move once with their S-foil and own the actual fitti
 });
 
 test('actual worker foil clearance keeps embedded mouths and full frames on the moving wall',()=>{
- const engine=fs.readFileSync(path.join(root,'js/engine.js'),'utf8'),start=engine.indexOf('function trialRayPose('),end=engine.indexOf('\nfunction handleTrialRays(',start);assert.ok(start>=0&&end>start);
- vm.runInContext('const C=Core;'+engine.slice(start,end),cx);const poseRays=vm.runInContext('trialRayPose',cx);
+ const engine=fs.readFileSync(path.join(root,'js/engine.js'),'utf8'),start=engine.indexOf('function trialSurfaceShip('),end=engine.indexOf('\nfunction handleTrialRays(',start);assert.ok(start>=0&&end>start);
+ vm.runInContext('const C=Core;'+engine.slice(start,end),cx);const poseRays=vm.runInContext('trialRayPose',cx),clearanceShip=vm.runInContext('trialSurfaceShip',cx);
  for(const axis of ['x','y','z'])for(const weapon of ['pd','refVen','casemateLight','claser']){
   const ship=C.newShip({L:480,W:320,H:280,assembly:true},'Worker articulated port');ship.parts=[];ship.fits=[];ship.nextId=1;ship.armor={hull:0,cit:0};
   const body=C.placePart(ship,'struct',[200,120,90],[160,100,48],{form:'box',yaw:29,pitch:21,roll:13},false);body.wing=C.normalizeWing({foil:true,axis,open:10,stow:50,pivot:[160,100,20]});
   const patch=C.surfacePatches(ship).find(p=>p.host==='p'+body.id&&p.face==='top');assert.equal(C.setSurfaceConfig(ship,patch.id,{functionMode:'legacy',armor:{thickness:8},battery:{weapon,count:1,spacing:2,angle:17},equipment:{kind:'none',count:0}}).ok,true);
-  const fit=active(ship)[0];assert.ok(fit,axis+' '+weapon);const port=C.surfaceBatteryGeometry(fit),frame=C.foilFrame(ship,body),rotate=v=>C.sub(C.foilAt(frame,body,C.add(frame.pv,v),50),frame.pv),held={ship,fits:new Map(ship.fits.map(f=>[f.id,f])),ctx:C.turretRayContext(ship)},before=C.publicJSON(ship),posed=poseRays(held,{[body.id]:0}),copy=posed.fits.get(fit.id),actual=C.surfaceBatteryGeometry(copy);
+  const fit=active(ship)[0];assert.ok(fit,axis+' '+weapon);const port=C.surfaceBatteryGeometry(fit),frame=C.foilFrame(ship,body),rotate=v=>C.sub(C.foilAt(frame,body,C.add(frame.pv,v),50),frame.pv),rays=clearanceShip(ship),held={ship:rays,fits:new Map(rays.fits.map(f=>[f.id,f])),ctx:C.turretRayContext(rays)},before=C.publicJSON(ship),posed=poseRays(held,{[body.id]:0}),copy=posed.fits.get(fit.id),actual=C.surfaceBatteryGeometry(copy);
   near(copy.surfacePoint,C.foilAt(frame,body,fit.surfacePoint,50),'the worker must pose the semantic wall point, not just fit.p');near(C.turretOrigin(copy),C.foilAt(frame,body,port.mouth,50),'worker ray origin must follow the visible mouth');near(actual.normal,rotate(port.normal));near(actual.u,rotate(port.u));near(actual.v,rotate(port.v));assert.equal(actual.armorOffset,8);assert.equal(actual.width,port.width);assert.equal(actual.height,port.height);assert.deepEqual(plain(copy.surfaceFootprint),plain(fit.surfaceFootprint));
   assert.ok(C.turretClear(posed.ship,copy,actual.normal,posed.ctx),'a clear outward ray must leave the actual articulated opening');assert.equal(poseRays(held,{[body.id]:0}),posed,'cached requests use the same posed geometry');assert.equal(C.publicJSON(ship),before,'worker posing cannot mutate the source design');
  }
@@ -82,7 +82,7 @@ test('legacy backing armor stays visible around the compact embrasure and an off
 });
 
 test('large machinery cases have genuinely different back and front offsets while graphics preserve native capabilities',()=>{
- const {ship,patch}=fixture({modern:true,allocation:only('cooling')}),stats=()=>{const S=C.computeStats(ship);return plain({mass:S.mass,cost:S.cost,power:S.power,crew:S.crew,parts:ship.parts.filter(q=>q.surfacePatch).map(q=>({id:q.id,k:q.k,c:q.c,room:q.room})),categories:S.surface.patches.find(p=>p.id===patch.id).categories});},before=stats(),blueprint=C.publicJSON(ship),plan=G.surfaceVisualPlan(ship).find(p=>p.id===patch.id),cases=plan.field.filter(q=>q.feature==='service-housing');assert.ok(cases.length>=8);
+ const {ship,patch}=fixture({modern:true,allocation:only('cooling')}),stats=()=>{const S=C.computeStats(ship);return plain({mass:S.mass,cost:S.cost,power:S.power,crew:S.crew,parts:C.surfaceWorkingShip(ship).parts.filter(q=>q.surfacePatch).map(q=>({id:q.id,k:q.k,c:q.c,volume:C.partVolume(q),area:C.partArea(q),cost:C.partBuildCost(q),unplaced:!!q.surfaceUnplaced})),categories:S.surface.patches.find(p=>p.id===patch.id).categories});},before=stats(),blueprint=C.publicJSON(ship),plan=G.surfaceVisualPlan(ship).find(p=>p.id===patch.id),cases=plan.field.filter(q=>q.feature==='service-housing');assert.ok(cases.length>=8);
  const backs=cases.map(q=>C.dot(C.sub(q.center,patch.center),patch.normal)-q.size[2]/2),fronts=cases.map(q=>C.dot(C.sub(q.center,patch.center),patch.normal)+q.size[2]/2),sizes=cases.map(q=>Math.sqrt(q.size[0]*q.size[1])).sort((a,b)=>a-b);assert.ok(sizes[Math.floor(sizes.length/2)]>=3,'the primary field must use larger units than the previous small greebles');assert.ok(Math.max(...backs)-Math.min(...backs)>=.5,'different thickness alone does not offset equipment forwards and backwards');assert.ok(Math.max(...fronts)-Math.min(...fronts)>=.8,'front silhouettes need substantial real depth variation');
  G.meshParts(ship,{coded:false});G.fleetGeometry(ship);G.surfaceVisualPlan(ship,{detail:0,maxDetails:0});assert.equal(C.publicJSON(ship),blueprint);assert.deepEqual(stats(),before,'larger decorative volume cannot create mass, free cooling or new native units');
 });
