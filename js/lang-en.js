@@ -9121,4 +9121,59 @@ Object.assign(root.KS_EN.messages,{
 "一覧の露出面 · {0} 面": "Exposed Surfaces in List · {0}",
 "埋まった面は一覧と選択から除外し、面積は船外に露出した部分だけを表示します。保存した面設定は保持します。": "Buried surfaces are excluded from the list and selection. Areas show only the portions exposed to the exterior. Saved surface settings are retained."
 });
+// <strat-catalog> v26 strategic AI, supply convoys, task force roles, LH-3210 freighter
+Object.assign(root.KS_EN.terms,{
+"主力": "Battle Line",
+"護衛": "Escort",
+"偵察": "Reconnaissance",
+"強行偵察": "Reconnaissance in Force",
+"襲撃": "Raiding",
+"船団": "Convoy",
+"補給船団": "Supply Convoy",
+"役割": "Role",
+"未指定": "Unassigned",
+"LH-3210 型ルクレハルク級貨物船": "LH-3210 Lucrehulk-class Freighter",
+"貨物船（補給船）": "Freighter (Supply Ship)",
+"右舷環状船体 貨物倉（第1区画）": "Starboard Ring Hold (Section 1)",
+"右舷環状船体 貨物倉（第2区画）": "Starboard Ring Hold (Section 2)",
+"左舷環状船体 貨物倉（第1区画）": "Port Ring Hold (Section 1)",
+"左舷環状船体 貨物倉（第2区画）": "Port Ring Hold (Section 2)",
+"補給を要請": "Request Supplies",
+"自動要請": "Auto Request"
+});
+Object.assign(root.KS_EN.messages,{
+"{0}：劣勢と判断し、通商破壊と各個撃破に転じる": "{0}: outmatched — turning to raids on the enemy's lines and defeat in detail",
+"{0}：戦力の優位を回復し、艦隊決戦に転じる": "{0}: superiority regained — seeking the decisive fleet battle",
+"{0} が離脱：次の目標 {1}へ": "{0} breaks off: next target {1}",
+"{0} ほか主力：敵主力を避けて {1}へ移動": "{0} and the main body: moving to {1}, clear of the enemy main body",
+"{0} 襲撃隊": "{0} Raiding Group",
+"補給船団 {0}": "Supply Convoy {0}",
+"補給船 {0}": "Supply Ship {0}",
+"DH-オムニ（代役） {0}": "DH-Omni (stand-in) {0}",
+"船団護衛 {0}": "Convoy Escort {0}",
+"{0}：{1}から{2}へ（{3}の要請・補給船 {4} 隻・護衛 {5} 隻・資材 {6} t・到着まで約 {7} 分）": "{0}: from {1} to {2} (requested by {3} · {4} supply ships · {5} escorts · {6} t of materiel · about {7} min to arrival)",
+"{0}：{1}から{2}へ（{3}の自動要請・補給船 {4} 隻・護衛 {5} 隻・資材 {6} t・到着まで約 {7} 分）": "{0}: from {1} to {2} (automatic request by {3} · {4} supply ships · {5} escorts · {6} t of materiel · about {7} min to arrival)",
+"{0} が {1}で資材 {2} t を引き渡し": "{0} delivered {2} t of materiel at {1}",
+"{0}：航路上の敵のため引き返す": "{0}: turning back — enemy on the route",
+"{0}の補給集積所を敵に奪われた（資材 {1} t）": "Supply dump at {0} lost to the enemy ({1} t)",
+"この戦闘では補給船団を使えません": "Supply convoys are not available in this battle",
+"任務群がありません": "No task force",
+"任務群の位置が定まりません": "The task force's position is not fixed",
+"母港では工廠から直接補給を受けます": "In a home system the yards supply the ships directly",
+"補給線が届いていません（敵のいる星系を越えられません）": "No supply line reaches it (lines cannot pass systems held by the enemy)",
+"補給船団がすべて出払っています（{0} 個）": "All supply convoys are out ({0})",
+"補給の必要がありません": "No supplies needed",
+"母港が使えません": "No home system available",
+"母港の補給品が足りません": "Not enough stores at the depot",
+"補給船団 · 資材 {0} t · 補給船 {1} 隻 · 護衛 {2} 隻 → {3}": "Supply Convoy · {0} t of materiel · {1} supply ships · {2} escorts → {3}",
+"帰投中": "Returning",
+"荷降ろし中": "Unloading",
+"敵のため待機中": "Holding: Enemy Ahead",
+"{0} · 資材 {1} t · 補給船 {2} 隻 · 護衛 {3} 隻 · 到着まで {4}": "{0} · {1} t of materiel · {2} supply ships · {3} escorts · arrives in {4}",
+"この星系の補給集積 {0} t": "Supply dump in this system {0} t",
+"資材 {0} t · 補給船 {1} 隻 · 護衛 {2} 隻 · 到着まで約 {3}": "{0} t of materiel · {1} supply ships · {2} escorts · about {3} to arrival",
+"補給船団を派遣：資材 {0} t・補給船 {1} 隻・護衛 {2} 隻（到着まで約 {3}）": "Supply convoy dispatched: {0} t of materiel · {1} supply ships · {2} escorts (about {3} to arrival)",
+"ルクレハルク級の非武装貨物船型。船体・環状船体・推進はルクレハルク級と同じで、四連レーザー砲台と防衛砲を降ろし、その砲座が占めていた容積を貨物倉に戻している（トラクター・ビームは荷役用に残す）。環状船体の上陸艇格納甲板は貨物倉。艦載機・地上部隊は持たない。艦隊戦では補給船団の大型輸送船として使われる。": "The unarmed cargo freighter version of the Lucrehulk class. Hull, ring and drive are the Lucrehulk's; the quad laser batteries and defence guns are removed and the volume their mounts took is returned to the holds (the tractor beams stay for cargo handling). The ring's landing-ship decks are cargo holds. It carries no small craft or ground forces. In fleet battles it sails as the big transport of supply convoys."
+});
+// </strat-catalog>
 })(typeof window==="undefined"?globalThis:window);

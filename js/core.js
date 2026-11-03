@@ -7259,7 +7259,7 @@ function lucrehulkBuild(opt={}){
  // canon gives about 696 m), centred 413 m above the lowest point of the ring.
  // Everything else, the C-ring, aft block, arms, claws and towers, is structure.
  const st=[];for(let i=0;i<=24;i++){const t=(1-Math.cos(Math.PI*i/24))/2,r=Math.max(.005,Math.sqrt(Math.max(0,1-(2*t-1)**2)));st.push([+t.toFixed(5),+r.toFixed(4),+r.toFixed(4),+(413/L-.5).toFixed(4)]);}
- const s=newShip({L,W:L,H:L,sec:'ellipse',plan:'ellipse',bowW:1,bowH:1,stern:1,bowFree:true,stations:st,keel:'light'},'ルクレハルク級');
+ const s=newShip({L,W:L,H:L,sec:'ellipse',plan:'ellipse',bowW:1,bowH:1,stern:1,bowFree:true,stations:st,keel:'light'},opt.freighter?'LH-3210 型ルクレハルク級貨物船':'ルクレハルク級');
  s.hull.core=true;s.shipClass='battlecruiser';
  s._building=true;s.reference='lucrehulk';s.paint='cis';s.lights='warm';s.detail=1;s.armor={hull:.46,cit:.4};s.shieldTarget=1;
  const k=shipKit(s),part=(kind,label,c,d,o={})=>placePart(s,kind,c,d,{label,...o});
@@ -7361,13 +7361,23 @@ function lucrehulkBuild(opt={}){
   // main tractor beam generators and multiple tractor beam projectors on the forward arms
   spread('trc',6,'beam','arm-tractor',range(X(2860),X(3060),20),[470,430,510,390]);
  });}finally{delete s._lockedCache;}
+ // LH-3210 freighter (opt.freighter): the same hull unarmed — the quad laser batteries and the defence artillery come
+ // off (the tractor beams stay for cargo handling) and the volume their mounts took (footprint × height of each fit,
+ // fitSpec) goes back to the holds below.
+ let freed=0;if(opt.freighter){const gone=s.fits.filter(f=>f.k==='quad200'||f.k==='pd');for(const f of gone){const d=fitSpec(f);freed+=Math.max(0,(d.fm||0)*(d.wm||0)*(d.hm||0));}s.fits=s.fits.filter(f=>!gone.includes(f));}
  if(opt.stage==='fitted'){delete s._building;return s;}
 
  if(opt.stage==='shape'){delete s._building;return s;}
  for(const [kind,label,c,size,role,mirror] of D.rooms||[]){const o={room:size};if(typeof role==='string')o.airRole=role;placePart(s,kind,c,30,{label,...o},mirror===1||role===1);}
  // v20 The landing ships ride in the ring: C-9979 decks stacked fourteen high, with doors in the ring's underside.
+ if(opt.freighter){
+  // The freighter's ring holds cargo where the battleship's landing-ship decks are, each a quarter of the freed volume longer.
+  for(const [x,n] of [[322,'第1'],[552,'第2']])for(const sg of [1,-1])part('cargo',(sg>0?'右舷':'左舷')+'環状船体 貨物倉（'+n+'区画）',[x,402.5,sg*1005],30,{room:[216+freed/4/(400*395),400,395]});
+  s.airWings=[];s.groundForces=normalizeGroundForces([]);
+ }else{
  for(const [x,n] of [[322,'第1'],[552,'第2']])for(const sg of [1,-1]){const bay=part('hangar',(sg>0?'右舷':'左舷')+'環状船体 C-9979 上陸艇格納甲板（'+n+'区画）',[x,402.5,sg*1005],30,{room:[216,400,395],airRole:'storage'});openBay(s,bay,'bottom','open');}
  s.airWings=LUC_AIR.map(r=>({...r}));s.groundForces=normalizeGroundForces(LUC_GROUND);
+ }
  delete s._building;adoptEquipment(s,true);remount(s);calibrateReferenceRatings(s);syncCompartments(s);
  return s;
 
@@ -7380,6 +7390,17 @@ registerShipExample({
  note:'基本船体は直径 640 m の球形のコアシップ（モデルから実測、公式は約 696 m）で、C 字形の環状船体・艦尾ブロック・前部アームとドッキング・クロー・各種の塔はすべて構造物（全長 3,170 m）。コアシップの中心にドロイド制御コンピューター・コアと配電監視ステーション、下半分にコア中央球反応炉・発電機集合体、底部に着陸用リパルサーリフト、頂部に管制ブリッジ塔。艦尾背部の信号送信プラットフォームに予備制御信号送信塔・送信塔アンテナ・主／補助センサー・レクテナ・高エネルギー送信塔と防衛砲、前部アームにドロイド信号受信ステーション・前部管制塔・予備センサー・レクテナ・主トラクター・ビーム発生器とドッキング用トラクター・ビーム収納部、環状船体上部に偏向シールド発生器ハウジングと投射器。各アームの内側面に外側・中間・内側の 3 区画の主格納庫口、ドロイド・スターファイターのラック、地上部隊の補給物資庫、格納甲板床下の予備部品庫、貨物ベイ、大規模弾薬庫。環状船体の左右に C-9979 上陸艇の格納甲板 4 区画（14 段積み、下面に扉）。艦尾ブロックに左右の主反応炉と主推進機関スラスト・チャンバー。兵装は環状船体の赤道に沿った三連四連レーザー砲台 14 群（計 42 基）。ヴァルチャー 1,500 機、C-9979 上陸艇 50 隻、B1 バトル・ドロイド 13 万 9,000 体、MTT 550 両、AAT 6,250 両。MTT と AAT の大半は上陸艇 1 隻に AAT 114 両・MTT 11 両ずつ積んだまま格納し、1 回の降下で上陸艇 50 隻と MTT がドロイド全軍を降ろせる。ハイパードライブ・クラス 2、加速約 1,300 G はゲーム上の設定値。Sketchfab の 3D モデル（Professor E12^2 作、CC BY 4.0）を実測。',
  airWings:LUC_AIR,groundForces:LUC_GROUND,
  build:lucrehulkBuild
+});
+// v26 The unarmed LH-3210 cargo freighter of the Trade Federation (the same hull; the Separatists and, captured or bought,
+// the Alliance ran them as supply ships). Its holds are the convoy system's big deliveries (Rts CONVOY_KIT).
+registerShipExample({
+ key:'lh3210',name:'LH-3210 型ルクレハルク級貨物船',side:'独立星系連合',role:'貨物船（補給船）',length:3170,supplyShip:true,
+ title:'Lucrehulk',author:'Professor E12^2',authorUrl:'https://sketchfab.com/profanity2009',
+ source:'https://sketchfab.com/3d-models/lucrehulk-8bb11e0ad31e4b23b1783e10242c5115',license:'CC BY 4.0',
+ credit:'This work is based on "Lucrehulk" (https://sketchfab.com/3d-models/lucrehulk-8bb11e0ad31e4b23b1783e10242c5115) by Professor E12^2 (https://sketchfab.com/profanity2009) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',
+ note:'ルクレハルク級の非武装貨物船型。船体・環状船体・推進はルクレハルク級と同じで、四連レーザー砲台と防衛砲を降ろし、その砲座が占めていた容積を貨物倉に戻している（トラクター・ビームは荷役用に残す）。環状船体の上陸艇格納甲板は貨物倉。艦載機・地上部隊は持たない。艦隊戦では補給船団の大型輸送船として使われる。',
+ airWings:[],groundForces:[],
+ build:(opt={})=>lucrehulkBuild({...opt,freighter:true})
 });
 }
 
@@ -13232,6 +13253,7 @@ const RULES = {
  hyperRate: .6,           // light years per second at hyperdrive class 1 on a trunk route (branch lines at half)
  minTrip: 20,             // shortest time in hyperspace
  minLeg: 8, hop: 15,      // shortest leg; re-plotting at each station passed
+ aiCraftWait: 150, aiLaneWait: 10, // v26 an AI group waits at most this long (s) for its craft before a jump; an AI group at a branch-line stop goes on after aiLaneWait
  detectLy: 90,            // long-range detection per unit of sensor rating
  wakeLy: 120,             // a reversion from hyperspace is felt this far away
  reportDelay: 120,        // inhabited worlds report fleets in their system after this long
@@ -13604,7 +13626,7 @@ function designInfo(S, p, extra = {}) {
   vehicleCap: (S.vehicleSizeCapacity || 0) + Math.floor((S.cargoCapacity || 0) / 600), slotCap: S.slots || 0, mass: S.mass || 0, cost: S.cost || 0, ...(S.costBy ? {costBy: Object.fromEntries(Object.entries(S.costBy).map(([k, v]) => [k, Math.round(v)]))} : {}),
   hangarCap: S.aviation?.capacity || 0, bays: (S.aviation?.bays || []).map(b => [...b.dims, Math.floor(b.capacity * 100) / 100]).sort((a, b) => b[3] - a[3]).slice(0, 8),
   stow: {bays: (S.aviation?.bays || []).map(b => ({d: b.dims.map(v => Math.round(v * 10) / 10), cap: Math.floor(b.capacity * 100) / 100, c: b.connected ? 1 : 0, doors: (b.doors || []).map(o => o.map(v => Math.round(v * 10) / 10)), vol: Math.round(b.vol || 0)}))},
-  canLand: !!S.canLand, capital: p.len >= CAPITAL_LENGTH, ...extra};
+  canLand: !!S.canLand, capital: p.len >= CAPITAL_LENGTH, cargo: Math.round(S.cargoCapacity || 0), ...extra};   // v26 cargo: hold volume (m³), for supply ships
 }
 // Personnel and supplies a ship draws from the fleet's allowance: its crew,
 // pilots and embarked troops; provisions for them and stores by tonnage.
@@ -13656,6 +13678,8 @@ function createWorld(opts) {
  for (const d of opts.designs || []) w.designs.set(d.key, d);
  // v25 tactical sensors (SENS-004): on unless a test or an old scenario turns them off
  if (opts.sensors === false) w.sensors = false;
+ // v26 supply convoys (CONVOY): on when the sides' kit designs are in the battle, unless turned off (opts.convoyMode false)
+ if (opts.convoyMode === false) w.convoyMode = false;
  // v24 (FORM-008) the player's own formations used by this battle, copied in (a world never reads the browser's store)
  w.formTpls = {};for (const t of Array.isArray(opts.formations) ? opts.formations : Object.values(opts.formations || {})) { const n = normalizeFormation(t); if (n) w.formTpls[n.id] = n; }
  // The sides start at the two ends of the main route; home is the stations nearest by lane.
@@ -13670,7 +13694,7 @@ function createWorld(opts) {
    const home = sd.home[ci % sd.home.length] ?? sd.start, ctg = makeCtg(w, i, c.name || `第${ci + 1}合同任務群`);ctg.formation=formationKnown(w,c.formation)?c.formation:null;
    (c.tgs || []).forEach((t, ti) => {
     // SBOX A scenario may place a task group in a system of its own, facing a bearing at a speed (deployGroup).
-    const dp = normalizeDeploy(t.deploy, sector), g = makeGroup(w, i, t.name || `第${ci + 1}${ti + 1}任務群`, dp.sys ?? home);g.ctg = ctg.id;g.ctgFollow=!!ctg.formation;g.formation = formationKnown(w, t.formation) ? t.formation : 'abreast';if (TURN_MODES[t.turnMode]) g.turnMode = t.turnMode;if (t.autoForm != null) g.autoForm = !!t.autoForm;g.deploy = dp;
+    const dp = normalizeDeploy(t.deploy, sector), g = makeGroup(w, i, t.name || `第${ci + 1}${ti + 1}任務群`, dp.sys ?? home);g.ctg = ctg.id;g.ctgFollow=!!ctg.formation;g.formation = formationKnown(w, t.formation) ? t.formation : 'abreast';if (TF_ROLES[t.role]) g.role = t.role;if (TURN_MODES[t.turnMode]) g.turnMode = t.turnMode;if (t.autoForm != null) g.autoForm = !!t.autoForm;g.deploy = dp;
     const carry = [];
     let flag = null;for (const e of t.ships || []) { const d = w.designs.get(e.design); if (!d) continue; const u = makeUnit(w, i, d, e.name, g.id); g.units.push(u.id);if (e.flag && !flag) flag = u.id; u.sys = g.sys; u.troops = e.troops || 0; u.ground = e.ground || null; for (const q of e.air || []) addSquad(w, u, q); for (const c of e.carried || []) carry.push([u, c]); }
     if (!g.units.length) { w.groups.delete(g.id); return; }
@@ -13728,6 +13752,13 @@ function addSquad(w, u, q) {
 // other, and closer than before); wedges and echelons step down a little as they go.
 // v24 (FORM-001〜010, AI-001) 斜行陣 (oblique: one straight line of bearing 45° off the course) joins them;
 // a player's own formations are templates, keyed 'tpl:<id>' (w.formTpls; normalizeFormation below).
+// v26 Task force roles (mission templates): a task force is the smallest combined-arms unit that can carry out a
+// mission. 主力 (battle line: capital ships and their support, a wing of the decisive battle), 護衛 (escort of carriers
+// and the fleet), 偵察 (reconnaissance: light pickets), 強行偵察 (reconnaissance in force: heavy enough to fight for
+// its information), 襲撃 (raiding: fast ships against the enemy's lines). The AI plans with them (aiSetup): recon
+// task forces scout, raiding ones raid, the rest form the main body and the detachment. Supply convoys are not a
+// role the player organizes: they are made up on request (requestConvoy).
+const TF_ROLES = {line: '主力', escort: '護衛', recon: '偵察', reconf: '強行偵察', raid: '襲撃'};
 const FORMATIONS = {abreast: '横陣', column: '単縦陣', oblique: '斜行陣', echelon: '梯陣', wedge: '楔形陣', ring: '輪形陣'};
 const formationKnown = (w, k) => !!(FORMATIONS[k] || (typeof k === 'string' && k.startsWith('tpl:') && w?.formTpls?.[k.slice(4)]));
 const formationName = (w, k) => FORMATIONS[k] || (typeof k === 'string' && k.startsWith('tpl:') ? w?.formTpls?.[k.slice(4)]?.name || '自作陣形' : '');
@@ -13909,7 +13940,14 @@ const inBattleGroup = (w, g) => g.units.some(id => { const u = w.units.get(id); 
 function orderJump(w, gid, dest) {
  const g = w.groups.get(gid);if (!g || g.transit || g.sys == null || dest == null || dest === g.sys || !w.sector.systems[dest]) return {ok: false, why: '移動できません'};
  if (g.spool?.left) return {ok: false, why: '艦が順にジャンプしている最中です'};
- const plan=routeItinerary(w.sector,g.sys,dest);if(!plan?.segments.length)return {ok:false,why:'航路がありません'};const route=plan.segments[0];dest=plan.next;
+ const plan=routeItinerary(w.sector,g.sys,dest);if(!plan?.segments.length)return {ok:false,why:'航路がありません'};const route=plan.segments[0];
+ // v26 An AI group out of battle whose craft are out calls them home and leaves when they are aboard (at most
+ // RULES.aiCraftWait s later): its carriers used to jump at once and leave whole wings behind.
+ if (w.sides[g.side].ai && !inBattleGroup(w, g)) { const away = [];for (const id of g.units) { const u = w.units.get(id); if (!alive(u)) continue; for (const sid of u.squads) { const q = w.squads.get(sid); if (q && !q.raid && !q.follow && q.n > 0 && (q.state === 'out' || q.state === 'return')) away.push(q); } }
+  const t0 = g.craftWait?.dest === dest ? g.craftWait.t0 : w.time;
+  if (away.length && w.time - t0 < RULES.aiCraftWait) { for (const q of away) if (q.state === 'out') q.state = 'return'; g.craftWait = {dest, t0}; g.waitJump = {dest, at: w.time + 10}; return {ok: true, eta: (etaTo(w, g.id, dest) ?? 0) + 10, deferred: true}; }
+  g.craftWait = null; }
+ dest=plan.next;
  // Carriers take their small ships back aboard for the jump when they are near.
  for (const id of [...g.units]) { const c = w.units.get(id); if (alive(c) && !c.out) recoverCarried(w, c.id, true); }
  const held = groupDisabled(w, g);
@@ -14153,7 +14191,7 @@ function updateBattles(w) {
   let sides = bySys.get(m.sys); if (!sides) bySys.set(m.sys, sides = new Set()); sides.add(m.side);
  }
  w.missiles = w.missiles.filter(m => m.n > 0 && m.life > 0);
- for (const [sys, sides] of bySys) if (sides.size > 1 && !w.battles.has(sys)) { w.battles.set(sys, {sys, t0: w.time, log: [], sides: [...sides]}); event(w, `${w.sector.systems[sys].name}で交戦開始`, {sys, battle: true}); }
+ for (const [sys, sides] of bySys) if (sides.size > 1 && !w.battles.has(sys)) { w.battles.set(sys, {sys, t0: w.time, log: [], sides: [...sides]}); event(w, `${w.sector.systems[sys].name}で交戦開始`, {sys, battle: true}); if ([...sides].some(i => w.sides[i]?.ai && w.sides[i].brain?.own)) w.timers.ai = Math.min(w.timers.ai, 3); }
  for (const [sys, b] of w.battles) { const sides = bySys.get(sys); if (!sides || sides.size < 2) { w.battles.delete(sys);stir(w, sys); const win = sides ? [...sides][0] : null; event(w, `${w.sector.systems[sys].name}の戦闘終結${win != null ? '：' + w.sides[win].name + 'が宙域を確保' : ''}`, {sys, battle: true, end: true, winner: win}); for (const s of w.squads.values()) if (s.sys === sys && s.state === 'out') s.state = 'return'; } }
 }
 const blog = (w, sys, text, u) => { const b = w.battles.get(sys); const e = {n: w.evN = (w.evN || 0) + 1, t: w.time, text, side: u?.side, id: u?.id}; if (b) { b.log.push(e); if (b.log.length > 120) b.log.shift(); } w.events.push({...e, sys, combat: true}); if (w.events.length > 400) w.events.shift(); };
@@ -15090,6 +15128,7 @@ function combatCtx(w, sys) {
 }
 // A ship lost for good: logged, counted, and its craft aboard lost with it.
 function shipLost(w, sys, u, text, ev) {
+ if (u.cargo > 0) { const sp = w.sides[u.side]?.supply; if (sp) sp.lostTotal += u.cargo; u.cargo = 0; }   // v26 a supply ship takes its cargo with it
  blog(w, sys, text, u);event(w, ev || text, {side: u.side, sys, sunk: true});w.sides[u.side].lost++;
  for (const id of u.squads) { const s = w.squads.get(id); if (s && s.state === 'docked') { s.state = 'lost'; s.lostN = (s.lostN || 0) + s.n; s.n = 0; s.slots = []; } }
  // v23 ...and the craft of a squadron still inside as it launched or already in as it landed.
@@ -15163,8 +15202,10 @@ function orderRecover(w, id) {
  return {ok: true, eta: dur};
 }
 // Back from the yards: hull, systems, plating, crew and magazines restored.
-function rearTick(w) {
+function rearTick(w, dt = 0) {
  for (const u of w.units.values()) {
+  // v26 Yards fed through harassed depots work slower (SUPPLY.rearSlow): the ship's return slips.
+  if (u.status === 'rear' && !u.dead && dt > 0) { const dp = w.sides[u.side]?.supply?.depot || 0; if (dp > 0) u.rear.back += dt * SUPPLY.rearSlow * dp; }
   if (u.status !== 'rear' || u.dead || w.time < u.rear.back) continue;
   const p = u.p, sd = w.sides[u.side], home = sd.start;C.combatInit(u);
   u.mods = u.mods.map(() => 1);u.ammo = (p.modules || []).map(m => m.stock || 0);u.crew = p.crewMax ?? p.crewNeed ?? 0;u.out = null;u.fate = null;u.fateHint = null;u.fall = null;u.load = 0;u.energy = p.wCap || 0;
@@ -15187,14 +15228,25 @@ function aiDisposeDisabled(w, u) { if (!u || !alive(u) || !u.out || u.towedBy) r
 // nothing. Out of battle, ships draw on it to reload missiles, make good lost
 // craft, mend sections, systems and plating, and — in a home system, where the
 // yards are — to replace destroyed systems and lost crew.
-const SUPPLY = {rate: .02 / 60, step: 1, lines: 5, missile: 1.5, craft: 12, crew: .25, repair: .3, intake: .003, lineCost: 1500};
+const SUPPLY = {rate: .02 / 60, step: 1, lines: 5, missile: 1.5, craft: 12, crew: .25, repair: .3, intake: .003, lineCost: 1500,
+ // v26 Interdiction (provisional values). The convoys of the fleet train run the lanes, so enemy forces working a
+ // system the line passes through (or one lane away from it) harass it: each system of the line has a harassment
+ // level h (0-1) that climbs toward its threat — 1 with enemy ships or raiding craft in the system, adj with enemy
+ // ships one lane away — in about harassUp seconds and dies away in about harassDown seconds once the threat is gone.
+ // A convoy loses cut × h of its load in every harassed system it passes (the materiel is spent from the train's
+ // capacity all the same), so a ship at the end of a harassed line gets less, and repairs and replenishment slow.
+ // The yards behind the home systems (rear repair, rearTick) slow by rearSlow × the harassment of the home systems
+ // (the depots): a home system held by the enemy counts as fully harassed.
+ adj: .35, harassUp: 90, harassDown: 600, cut: .6, rearSlow: .8};
 const unitSupplyOf = u => u.supplyBase ?? (u.supplyBase = Math.max(50, unitDemand(u.info || {}, 0, 0).supply));
 const modWeight = new WeakMap();
 function modTotal(p) { let t = modWeight.get(p); if (t == null) { t = 0; for (const m of p.modules || []) if (m.k !== 'hull') t += m.w || 0; t = Math.max(1e-9, t); modWeight.set(p, t); } return t; }
 function supplyInit(w) {
  for (const sd of w.sides) {
   let cap = 0;for (const u of w.units.values()) { if (u.side !== sd.id || u.dead) continue; const air = airTotals(u.squads.map(id => w.squads.get(id)).filter(Boolean).map(s => ({craft: s.craft, n: s.n0}))).crew; cap += unitDemand(u.info || {}, air, u.troops || 0).supply; }
-  sd.supply = {cap, rate: cap * SUPPLY.rate, lines: new Map(), foe: new Set(), want: 0, flow: 0, ratio: 1, need: 0, acc: 0};
+  sd.supply = {cap, rate: cap * SUPPLY.rate, lines: new Map(), foe: new Set(), want: 0, flow: 0, ratio: 1, need: 0, acc: 0, harass: new Map(), lost: 0, lostTotal: 0, cut: 0, depot: 0};
+  // v26 convoys (CONVOY): the depot store (an hour of the train's capacity, half full at the start) and the dumps.
+  const sp = sd.supply;sp.convoy = w.convoyMode !== false && !!convoyKitOf(w, sd.id);sp.storeMax = sp.rate * 3600 * CONVOY.storeHours;sp.store = sp.storeMax * .5;sp.dump = new Map();
  }
  supplyLines(w);
 }
@@ -15244,27 +15296,228 @@ function supplyGive(w, u, nd, t) {
  if (u.out) { const why = C.fleetOutReason(u);
   if (!why) { u.out = null; u.fall = null; u.order = {...u.order, type: 'group'}; blog(w, u.sys, `${u.name}：修理を終えて戦列に復帰`, u); event(w, `${u.name} が修理を終えて戦列に復帰`, {side: u.side, sys: u.sys}); } }
 }
+// v26 Convoy mode: the depot store fills at the train's capacity (less the depots' harassment); ships in a home
+// system draw on the store, others on their system's dump; a dump where the enemy holds the system is lost.
+function supplyConvoyStep(w, sd, asks, st, need, want) {
+ const sp = sd.supply;sp.store = Math.min(sp.storeMax, sp.store + sp.rate * st * (1 - SUPPLY.cut * sp.depot));
+ for (const [x, v] of sp.dump) { let mine = false, foe = false; for (const u of w.units.values()) { if (u.sys !== x || !fighting(u)) continue; if (u.side === sd.id) mine = true; else foe = true; if (mine) break; } if (foe && !mine) { sp.dump.delete(x); sp.lostTotal += v; event(w, `${w.sector.systems[x].name}の補給集積所を敵に奪われた（資材 ${Math.round(v)} t）`, {side: sd.id, sys: x}); } else if (v < 1) sp.dump.delete(x); }
+ const by = new Map();for (const a of asks) { let l = by.get(a.pool); if (!l) by.set(a.pool, l = {list: [], want: 0}); l.list.push(a); l.want += a.take; }
+ let got = 0;
+ for (const [pool, l] of by) { const have = pool === 'store' ? sp.store : sp.dump.get(pool) || 0, r = l.want > have ? have / l.want : 1; for (const a of l.list) { supplyGive(w, a.u, a.nd, a.take * r); got += a.take * r; } if (pool === 'store') sp.store = Math.max(0, have - l.want * r); else sp.dump.set(pool, Math.max(0, have - l.want * r)); }
+ const k = Math.min(1, st / 8);sp.want += (want / st - sp.want) * k;sp.flow += (got / st - sp.flow) * k;sp.ratio += ((want > 0 ? got / want : 1) - sp.ratio) * k;sp.need = need;
+ sp.lost += (0 - sp.lost) * k;
+}
+// v26 Interdiction: each line system's harassment level moves toward the enemy threat there (SUPPLY above).
+function supplyHarass(w, sd, st) {
+ const sp = sd.supply, S = w.sector, h = sp.harass || (sp.harass = new Map()), threat = new Map(), foe = new Set();
+ for (const u of w.units.values()) if (u.side !== sd.id && fighting(u) && u.sys != null && !pendingWarp(u)) foe.add(u.sys);
+ for (const q of w.squads.values()) if (q.side !== sd.id && q.raid && q.sys != null && q.state === 'out' && q.n > 0) foe.add(q.sys);
+ for (const x of foe) { threat.set(x, 1); for (const ei of S.systems[x].links) { const e = S.edges[ei], y = e.a === x ? e.b : e.a; if ((threat.get(y) || 0) < SUPPLY.adj) threat.set(y, SUPPLY.adj); } }
+ const up = Math.min(1, st / SUPPLY.harassUp), down = Math.min(1, st / SUPPLY.harassDown);
+ for (const [x, t] of threat) { if (!sp.lines.has(x) && !sd.home.includes(x)) continue; const v = h.get(x) || 0; if (t > v) h.set(x, v + (t - v) * up); }
+ for (const [x, v] of h) { const t = threat.get(x) || 0; if (t < v) { const n = v - (v - t) * down; if (n < .01) h.delete(x); else h.set(x, n); } }
+ // The depots: the home systems' mean harassment, one held by the enemy counting in full.
+ sp.depot = sd.home.length ? sd.home.reduce((n, x) => n + (sp.foe.has(x) ? 1 : h.get(x) || 0), 0) / sd.home.length : 0;
+}
+// The share of a convoy's load that reaches a ship in system sys, along its line from home.
+function supplyReach(sp, sys, memo) {
+ if (memo.has(sys)) return memo.get(sys);let f = 1, x = sys, n = 0;
+ while (x != null && x >= 0 && n++ < 64) { const v = sp.harass.get(x); if (v) f *= 1 - SUPPLY.cut * v; const ln = sp.lines.get(x); if (!ln || ln.prev < 0) break; x = ln.prev; }
+ memo.set(sys, f);return f;
+}
 function supplyTick(w, dt) {
  if ((w.timers.sup = (w.timers.sup ?? 0) - dt) <= 0) { w.timers.sup = SUPPLY.lines; supplyLines(w); }
  for (const sd of w.sides) {
   const sp = sd.supply;if (!sp) continue;sp.acc += dt;if (sp.acc < SUPPLY.step) continue;const st = sp.acc;sp.acc = 0;
-  const asks = [];let want = 0, need = 0;
+  supplyHarass(w, sd, st);const memo = new Map();
+  const asks = [];let want = 0, need = 0, got = 0, lost = 0;
   for (const u of w.units.values()) {
    if (u.side !== sd.id) continue;if (!alive(u) || u.sys == null || u.jump) { u.supplyNeed = null; continue; }
    const ln = sp.lines.get(u.sys), nd = supplyNeeds(w, u, ln);u.supplyNeed = nd;if (!nd.total) continue;need += nd.total;
+   if (sp.convoy) { if (w.battles.has(u.sys) || u.convoy) continue; const pool = ln?.home ? 'store' : sp.dump.has(u.sys) ? u.sys : null; if (pool == null) continue; const take = Math.min(nd.total, Math.max(5, unitSupplyOf(u) * SUPPLY.intake) * st); asks.push({u, nd, take, pool}); want += take; continue; }
    if (!ln || w.battles.has(u.sys)) continue;
    const take = Math.min(nd.total, Math.max(5, unitSupplyOf(u) * SUPPLY.intake) * st);asks.push({u, nd, take});want += take / ln.eff;
   }
+  if (sp.convoy) { supplyConvoyStep(w, sd, asks, st, need, want); continue; }
   const avail = sp.rate * st, r = want > avail ? avail / want : 1;
-  for (const a of asks) supplyGive(w, a.u, a.nd, a.take * r);
-  const k = Math.min(1, st / 8);sp.want += (want / st - sp.want) * k;sp.flow += (Math.min(want, avail) / st - sp.flow) * k;sp.ratio += ((want > 0 ? r : 1) - sp.ratio) * k;sp.need = need;
+  for (const a of asks) { const f = sp.harass.size ? supplyReach(sp, a.u.sys, memo) : 1, t = a.take * r; supplyGive(w, a.u, a.nd, t * f); got += t * f; lost += t * (1 - f); }
+  // flow: what reaches the ships (t/s); lost: what the enemy intercepts on the way; cut: its share of what was sent.
+  const k = Math.min(1, st / 8);sp.want += (want / st - sp.want) * k;sp.flow += (got / st - sp.flow) * k;sp.ratio += ((want > 0 ? r : 1) - sp.ratio) * k;sp.need = need;
+  sp.lost += (lost / st - sp.lost) * k;sp.lostTotal += lost;sp.cut += ((got + lost > 0 ? lost / (got + lost) : 0) - sp.cut) * k;
  }
 }
+
+// ---------- supply convoys (v26) ----------
+// Materiel reaches the fleet in supply ships. A side's home systems are its depots: the fleet train's capacity
+// (SUPPLY.rate, slowed by harassment of the depots) fills the depot store, ships in a home system draw on it
+// directly (the yards), and every other system gets only what a convoy has brought there (sp.dump, by system).
+// A convoy is called on request — by a task group's card (requestConvoy) or automatically when the ships of a
+// system lack more than CONVOY.autoNeed tonnes — and is made up for the job: enough supply ships for the cargo
+// (the faction's kit, CONVOY_KIT; the big LH-3210 freighter for large deliveries where the faction has it) and an
+// escort sized to the cargo and to the enemy known along the way. It leaves from the depot nearest the fleet, goes
+// along the lanes — under the lane rule, so it drops out at every branch-line system, where it can be seen and
+// caught — holds short of a stop where a stronger enemy is known (turning back after CONVOY.holdMax s), unloads
+// for CONVOY.unload s and goes home, where its ships stand down. A supply ship lost takes its cargo with it, and a
+// dump left where the enemy holds the system is lost too. Without the kit's designs in the battle (an old world)
+// the side keeps the abstract train of v17 (with v26 interdiction by harassment, supplyHarass).
+// Cargo: the design's hold volume (designInfo cargo, m³) at CONVOY.tPerM3, at least CONVOY.tPerM per metre of hull
+// (small transports' holds are not modelled in full; provisional). A load more than CONVOY.bigShips of the kit's
+// ordinary supply ships could carry goes in the big freighter where the kit has one (LH-3210). Convoy ships are not counted in the side's fighting strength (checkResult).
+// Kits (user's list, 2026-10-29): Empire/Republic — Heraklon or the Republic transport, escorts Arquitens/Gozanti;
+// Alliance — GR-75 (and LH-3210 freighters), escorts Nebulon-B/MC30c; Separatists — the DH-Omni support vessel,
+// which has no model in the game: the generic Republic-pattern transport hull sails in its place (named as a
+// stand-in), with LH-3210 freighters for big loads, escorts Munificent. A faction without a kit uses CONVOY_KIT.any.
+const CONVOY = {autoNeed: 300, autoEvery: 30, step: 5, maxShips: 8, escortPer: .6, escortMin: 2, escortMax: 6, holdMax: 900, unload: 60, tPerM3: .35, tPerM: 25, storeHours: 1, bigShips: 2, threat: 1.2, maxOut: 3};
+const CONVOY_KIT = {
+ empire: {ships: ['heraklon', 'reptransport'], escorts: ['arquitens', 'gozanti']},
+ republic: {ships: ['reptransport', 'heraklon'], escorts: ['arquitens', 'gozanti']},
+ rebel: {ships: ['gr75'], big: 'lh3210', escorts: ['nebulonb', 'mc30c']},
+ cis: {ships: ['reptransport'], standIn: 'DH-オムニ（代役）', big: 'lh3210', escorts: ['munificent']},
+ any: {ships: ['reptransport', 'gr75', 'heraklon'], escorts: ['arquitens', 'nebulonb', 'munificent']}
+};
+const convoyKitOf = (w, side) => { const f = w.sides[side]?.faction, k = CONVOY_KIT[f] || CONVOY_KIT.any, has = key => w.designs.has(key);
+ const ships = k.ships.filter(has), escorts = k.escorts.filter(has);return ships.length ? {ships, escorts, big: k.big && has(k.big) ? k.big : null, standIn: k.standIn || null} : null; };
+const cargoOf = d => Math.round(Math.max((d?.info?.cargo || 0) * CONVOY.tPerM3, (d?.p?.len || d?.info?.len || 50) * CONVOY.tPerM));
+// What the ships of a system lack, less what is already there or on its way.
+function convoyNeed(w, side, sys) {
+ const sp = w.sides[side].supply;let need = 0;for (const u of w.units.values()) if (u.side === side && u.sys === sys && alive(u) && !u.convoy) need += u.supplyNeed?.total || 0;
+ need -= sp.dump?.get(sys) || 0;for (const cv of w.convoys?.values() || []) if (cv.side === side && cv.phase !== 'back' && (cv.sys === sys || w.groups.get(cv.to)?.sys === sys)) need -= cv.cargo;
+ return Math.max(0, need);
+}
+// The convoy a request would bring (or why there is none): from the depot nearest the group by lane.
+function convoyPlan(w, gid) {
+ const g = w.groups.get(gid);if (!g) return {ok: false, why: '任務群がありません'};const sd = w.sides[g.side], sp = sd.supply, kit = convoyKitOf(w, g.side);
+ if (!sp?.convoy || !kit) return {ok: false, why: 'この戦闘では補給船団を使えません'};
+ const sys = g.sys ?? g.transit?.to;if (sys == null) return {ok: false, why: '任務群の位置が定まりません'};
+ if (sd.home.includes(sys)) return {ok: false, why: '母港では工廠から直接補給を受けます'};
+ if (!sp.lines.has(sys)) return {ok: false, why: '補給線が届いていません（敵のいる星系を越えられません）'};
+ const out = [...(w.convoys?.values() || [])].filter(c => c.side === g.side && c.phase !== 'back');if (out.length >= CONVOY.maxOut) return {ok: false, why: `補給船団がすべて出払っています（${CONVOY.maxOut} 個）`};
+ const need = convoyNeed(w, g.side, sys);if (need < 1) return {ok: false, why: '補給の必要がありません'};
+ const from = sd.home.filter(h => !sp.foe.has(h)).sort((a, b) => routeCost(w.sector, a, sys) - routeCost(w.sector, b, sys))[0];if (from == null) return {ok: false, why: '母港が使えません'};
+ const load = Math.min(need * 1.1, sp.store);if (load < Math.min(need, 50)) return {ok: false, why: '母港の補給品が足りません'};
+ // Supply ships: one big freighter for a big load where the kit has one, else the kit's ships in turn.
+ const ships = [];let room = 0;
+ if (kit.big && load > CONVOY.bigShips * cargoOf(w.designs.get(kit.ships[0]))) { const d = w.designs.get(kit.big); ships.push(kit.big); room += cargoOf(d); }
+ for (let i = 0; room < load && ships.length < CONVOY.maxShips; i++) { const k = kit.ships[i % kit.ships.length]; ships.push(k); room += cargoOf(w.designs.get(k)); }
+ // Escorts: for the number of supply ships, and more for enemy strength known along the way (contacts on the route).
+ const route = routePath(w.sector, from, sys), on = new Set(route?.path || []);let threat = 0;for (const c of sd.contacts.values()) if (on.has(c.sys)) threat = Math.max(threat, c.strength);
+ const escK = kit.escorts.map(k => w.designs.get(k)).filter(Boolean), each = escK.length ? escK.reduce((n, d) => n + unitStrength(C.fleetUnit('x', d.key, d.p, 0)), 0) / escK.length : 1;
+ const nEsc = escK.length ? clamp(Math.max(CONVOY.escortMin, Math.ceil(ships.length * CONVOY.escortPer), Math.ceil(threat * CONVOY.threat / Math.max(1, each))), 0, CONVOY.escortMax) : 0;
+ const hc = Math.max(...ships.concat(kit.escorts.slice(0, nEsc ? kit.escorts.length : 0)).map(k => w.designs.get(k)?.info?.hyper ?? 2));
+ const plan = routeItinerary(w.sector, from, sys), eta = plan?.segments.length ? plan.segments.reduce((n, r) => n + pathSeconds(r, hc) + 8, 0) + RULES.aiLaneWait * (plan.segments.length - 1) : 8;
+ return {ok: true, from, sys, load: Math.min(load, room), ships, escorts: Array.from({length: nEsc}, (_, i) => kit.escorts[i % kit.escorts.length]), eta, standIn: kit.standIn};
+}
+function requestConvoy(w, gid, auto = false) {
+ const pl = convoyPlan(w, gid);if (!pl.ok) return pl;const g = w.groups.get(gid), side = g.side, sd = w.sides[side], sp = sd.supply;
+ w.convoys = w.convoys || new Map();w.convoyN = (w.convoyN || 0) + 1;
+ const cg = makeGroup(w, side, `補給船団 ${w.convoyN}`, pl.from);cg.convoy = 'c' + w.convoyN;cg.formation = 'column';cg.order = {type: 'hold'};
+ let left = pl.load, n = 0;
+ for (const k of pl.ships) { const d = w.designs.get(k), u = makeUnit(w, side, d, pl.standIn && k !== CONVOY_KIT.cis.big ? `${pl.standIn} ${w.convoyN}-${++n}` : `補給船 ${w.convoyN}-${++n}`, cg.id); u.sys = pl.from; u.convoy = cg.convoy; u.cargo = Math.min(left, cargoOf(d)); left -= u.cargo; cg.units.push(u.id); }
+ n = 0;for (const k of pl.escorts) { const d = w.designs.get(k), u = makeUnit(w, side, d, `船団護衛 ${w.convoyN}-${++n}`, cg.id); u.sys = pl.from; u.convoy = cg.convoy; cg.units.push(u.id); }
+ cg.flag = cg.units[cg.units.length - 1];deployGroup(w, cg, null);
+ sp.store -= pl.load - Math.max(0, left);
+ const cv = {id: cg.convoy, gid: cg.id, side, to: gid, sys: pl.sys, home: pl.from, cargo: pl.load - Math.max(0, left), phase: 'out', t0: w.time, hold: 0, eta: w.time + pl.eta, ships: pl.ships.length, escorts: pl.escorts.length};
+ w.convoys.set(cv.id, cv);orderJump(w, cg.id, pl.sys);
+ event(w, `${cg.name}：${w.sector.systems[pl.from].name}から${w.sector.systems[pl.sys].name}へ（${g.name}の${auto ? '自動要請' : '要請'}・補給船 ${cv.ships} 隻・護衛 ${cv.escorts} 隻・資材 ${Math.round(cv.cargo)} t・到着まで約 ${Math.max(1, Math.round(pl.eta / 60))} 分）`, {side, sys: pl.from});
+ return {ok: true, id: cv.id, eta: pl.eta, cargo: cv.cargo, ships: cv.ships, escorts: cv.escorts};
+}
+// The convoys on their way to a task group (for its card).
+function convoysFor(w, gid) { return [...(w.convoys?.values() || [])].filter(c => c.to === gid && c.phase !== 'back').map(c => { const g = w.groups.get(c.gid); return {...c, name: g?.name || '', left: g ? etaAll(w, g.id, c.sys) : null}; }); }
+function convoyTick(w, dt) {
+ if ((w.timers.cv = (w.timers.cv ?? 0) - dt) > 0) return;w.timers.cv = CONVOY.step;
+ const S = w.sector;
+ for (const cv of [...(w.convoys?.values() || [])]) {
+  const g = w.groups.get(cv.gid), sd = w.sides[cv.side], sp = sd.supply, us = g ? g.units.map(id => w.units.get(id)).filter(alive) : [];
+  cv.cargo = us.reduce((n, u) => n + (u.cargo || 0), 0);
+  if (!g || !us.some(u => u.cargo > 0 || cv.phase === 'back')) { if (g && us.length && cv.phase !== 'back') { cv.phase = 'back'; orderJump(w, g.id, cv.home); } else { w.convoys.delete(cv.id); if (g) disbandConvoy(w, g); } continue; }
+  if (g.transit || g.spool) continue;
+  const here = g.sys, battle = here != null && w.battles.has(here);
+  if (battle) { // in a fight it runs for the depot if the escort cannot hold
+   const sys = systemUnits(w, here), ours = sys.filter(u => u.side === cv.side && fighting(u)).reduce((n, u) => n + unitStrength(u), 0), theirs = seenStrength(w, cv.side, sys);
+   if (theirs > ours && !g.spool) orderJump(w, g.id, cv.home);
+   continue; }
+  if (cv.phase === 'back') { if (here === cv.home) { sp.store += cv.cargo; w.convoys.delete(cv.id); disbandConvoy(w, g); } else if (w.time - (g.arrivedAt ?? -1e9) >= RULES.aiLaneWait) orderJump(w, g.id, cv.home); continue; }
+  if (cv.phase === 'unload') { if (w.time >= cv.t) { for (const u of us) { if (u.cargo > 0) { sp.dump.set(here, (sp.dump.get(here) || 0) + u.cargo); u.cargo = 0; } } event(w, `${g.name} が ${S.systems[here].name}で資材 ${Math.round(cv.cargo)} t を引き渡し`, {side: cv.side, sys: here}); cv.phase = 'back'; orderJump(w, g.id, cv.home); } continue; }
+  // Out: follow the group it serves if it has moved on (along our lines).
+  const tg = w.groups.get(cv.to), want = tg && (tg.sys ?? tg.transit?.to);if (want != null && want !== cv.sys && sp.lines.has(want) && !sd.home.includes(want)) cv.sys = want;
+  if (here === cv.sys) { cv.phase = 'unload'; cv.t = w.time + CONVOY.unload; continue; }
+  // The next jump: held short while a stronger enemy is known at its stop or the destination is cut off.
+  const route = routePath(S, here, cv.sys), hop = route ? routeItinerary(S, here, cv.sys)?.next ?? null : null, es = us.filter(u => !u.cargo).reduce((n, u) => n + unitStrength(u), 0);
+  const blocked = !route || !sp.lines.has(cv.sys) || [...sd.contacts.values()].some(c => (c.sys === hop || c.sys === cv.sys) && c.strength > es);
+  if (blocked) { cv.hold += CONVOY.step; if (cv.hold > CONVOY.holdMax) { cv.phase = 'back'; orderJump(w, g.id, cv.home); event(w, `${g.name}：航路上の敵のため引き返す`, {side: cv.side, sys: here}); } continue; }
+  cv.hold = 0;if (w.time - (g.arrivedAt ?? -1e9) >= RULES.aiLaneWait) orderJump(w, g.id, cv.sys);
+ }
+ // Automatic requests: each side's groups (not convoys) whose system lacks more than CONVOY.autoNeed.
+ if ((w.timers.cva = (w.timers.cva ?? 0) - CONVOY.step) > 0) return;w.timers.cva = CONVOY.autoEvery;
+ for (const sd of w.sides) { if (!sd.supply?.convoy || sd.autoConvoy === false) continue; const done = new Set();
+  for (const g of w.groups.values()) { if (g.side !== sd.id || g.convoy || g.noAutoConvoy || g.sys == null || g.transit || done.has(g.sys) || sd.home.includes(g.sys) || w.battles.has(g.sys)) continue; if (!g.units.some(id => fighting(w.units.get(id)))) continue;
+   done.add(g.sys);if (convoyNeed(w, sd.id, g.sys) >= CONVOY.autoNeed) requestConvoy(w, g.id, true); } }
+}
+// Home again (or with nothing left to do), a convoy's ships stand down: they leave the battle area.
+function disbandConvoy(w, g) { for (const id of g.units) { const u = w.units.get(id); if (u && !u.dead) { u.status = 'withdrawn'; u.sys = null; for (const sid of u.squads) { const q = w.squads.get(sid); if (q) q.sys = null; } } } w.groups.delete(g.id); }
 
 // ---------- AI ----------
 // The opposing commander splits its fleet into a main body, a detachment and
 // scouts; scouts search systems not seen lately, and the main body moves to
 // strike any group it can outmatch, gathering the detachment to arrive together.
+// v26 (an outnumbered AI used to do little but run) The commander weighs the correlation of forces from what its
+// side has detected — the strategic contacts, remembered for two hours (aiForces), never the enemy's true order of
+// battle — and fights one of two ways:
+//  battle  stronger, or not yet knowing better: as before, a concentrated main body that strikes enemy groups it
+//          outmatches and sweeps toward the enemy, a detachment and scouts. Small enemy groups working our supply
+//          lines are hunted by the detachment, so raiders do not draw the whole fleet off after them.
+//  raid    weaker (below plan.inferior of the enemy's estimated strength): it disperses to make the enemy disperse.
+//          Raiding groups of its fastest hyperdrive escorts (aiDisperse) work the enemy's presumed supply lines (the
+//          lanes from the enemy's home systems to its groups), its home systems (the depots) and isolated groups,
+//          keeping clear of its main body and slipping away from any stronger force to their next target; their
+//          presence harasses the lines (SUPPLY.adj/cut: the enemy's repairs and replenishment fall). Carriers send
+//          wings whose craft have hyperdrives on cross-system strikes at the same targets (orderRaid). The rest stay
+//          concentrated as the main body, which strikes enemy groups it outmatches locally (detachments sent after
+//          the raiders: defeat in detail) and keeps clear of the enemy main body until the odds improve — moving
+//          off at most plan.relocMax times an hour, then standing.
+// Withdrawal is tactical only, in both: a group breaks off a battle that is lost locally (below the strategy's
+// retreat share of the enemy it can see there) once it has fought plan.minFight s, or at once when overwhelmed;
+// a group that has broken off plan.stand times within the hour stands and fights (no endless flight).
+// Brains made by aiSetup carry own: true; one set up by hand (a tutorial, a test) keeps the old behaviour.
+// Provisional values, tunable; a faction's doctrine adjusts them (AI_FACTION).
+const AI_PLAN = {
+ inferior: .8, superior: 1.2,    // our strength / the enemy's estimated strength: below inferior → raid; above superior → battle again
+ memory: 7200,                   // s a contact counts toward the estimate (fading to 0.7 of it by then: a fleet not seen is not a fleet gone)
+ raidShare: .3,                  // share of our ships (not capital ships) detached as raiders, fastest hyperdrives first
+ raidSize: 3,                    // ships to a raiding group
+ raidDwell: 300,                 // s a raiding group works a system with nothing to fight before it moves on
+ raidOdds: 1.3,                  // a raiding group takes on an enemy group it outmatches this much
+ mainOdds: 1.25,                 // the main body strikes an enemy group it outmatches this much (local superiority)
+ relocate: 600, relocMax: 2,     // the main body moves off from the enemy main body at most this often (s) and this many times an hour
+ stand: 2, minFight: 60, overwhelm: .2, // a group stands after this many withdrawals in an hour; a battle lasts this long before breaking off, unless below this share of the enemy
+ wingRaid: 900, wingOdds: .35,   // s between one wing's cross-system strikes; it strikes groups below this share of our main body (not the enemy main body)
+ learnAt: 20000,                 // damage dealt and taken (both sides) before the side trusts its experience (aiQuality)
+ hunt: .35                       // battle mode: enemy groups below this share of our strength on our lines are the detachment's to hunt
+};
+// Doctrine flavour: the Alliance lives by raids and carrier strikes; the Separatists raid with their frigates; the
+// Empire seeks the decisive battle and turns to raiding only when badly outmatched.
+const AI_FACTION = {
+ rebel: {inferior: .95, raidShare: .45, wingRaid: 600, wingOdds: .6},
+ cis: {raidShare: .35},
+ republic: {raidShare: .25},
+ empire: {inferior: .65, raidShare: .2, relocMax: 1}
+};
+// v26 With the lane rule (navigation itineraries) a group stopped at a branch-line system on its way somewhere is
+// still on the way (onTheWay); an AI commander re-issues the next jump from there after RULES.aiLaneWait
+// (aiContinue). ETAs for planning are the whole trip, stops included (etaAll).
+const onTheWay = g => !!(g?.navigation && g.navigation.final != null && g.navigation.final !== g.sys);
+const etaAll = (w, gid, dest) => jumpEstimate(w, gid, dest)?.total ?? null;
+function aiContinue(w, side) { for (const g of w.groups.values()) { if (g.side !== side || g.convoy || !onTheWay(g) || g.transit || g.spool || g.waitJump || g.sys == null || w.battles.has(g.sys) || w.time - (g.arrivedAt ?? -1e9) < RULES.aiLaneWait) continue; orderJump(w, g.id, g.navigation.final); } }
+const aiPlan = (w, side) => ({...AI_PLAN, ...(AI_FACTION[w.sides[side]?.faction] || {})});
+const groupStrength = (w, g) => { let n = 0; for (const id of g.units) { const u = w.units.get(id); if (fighting(u)) n += unitStrength(u); } return n; };
+// What a side can tell of the enemy in a system: ships it holds at 放射源検知 or better in full, faint returns at half.
+function seenStrength(w, side, us) { let n = 0; for (const u of us) { if (u.side === side || !fighting(u)) continue; const st = contactStage(w, side, u); if (st >= 2) n += unitStrength(u); else if (st >= 1) n += unitStrength(u) * .5; } return n; }
+// v26 How far the nearest enemy ship this side can see is from its nearest ship in a system (m).
+function aiGap(w, side, us) { let d = Infinity; for (const a of us) { if (a.side !== side || !fighting(a)) continue; for (const b of us) { if (b.side === side || !fighting(b) || contactStage(w, side, b) < 2) continue; const x = a.pos[0] - b.pos[0], y = a.pos[1] - b.pos[1], z = a.pos[2] - b.pos[2], q = x * x + y * y + z * z; if (q < d) d = q; } } return Math.sqrt(d); }
+// v26 Experience: how the side's ships have actually fared, damage dealt over damage taken in its battles so far,
+// corrects the paper strengths (square root, between 0.5 and 2, once enough has been fought: P.learnAt).
+function aiQuality(w, side, P) { let out = 0, inn = 0; for (const u of w.units.values()) { if (u.side === side) out += u.dmgDone || 0; else inn += u.dmgDone || 0; } return out + inn < P.learnAt ? 1 : clamp(Math.sqrt((out + 1) / (inn + 1)), .5, 2); }
+const lanesOf = (S, x) => S.systems[x].links.map(ei => { const e = S.edges[ei]; return e.a === x ? e.b : e.a; });
 function aiWithdrawUnit(w, u) {
  const g = w.groups.get(u.group);if (!g) return;const safe = safeSystem(w, u.side, u.sys);if (safe == null) return;
  // A lone damaged ship leaves in a group of its own.
@@ -15281,39 +15534,145 @@ function aiSetup(w, side) {
  const gs = [...w.groups.values()].filter(g => g.side === side && g.units.some(id => alive(w.units.get(id)))), us = gs.flatMap(g => g.units).map(id => w.units.get(id)).filter(alive);
  // Fast small ships with long-range sensors scout alone; the task groups keep their formations
  // and form a main body (about two thirds of the strength) and a detachment.
- const scouts = us.filter(u => !u.info.capital && u.info.hyper != null && u.info.hyper <= 2).sort((a, b) => (a.info.hyper - b.info.hyper) || (b.info.sensor - a.info.sensor)).slice(0, Math.max(1, Math.round(us.length * .1)));
- const sc = scouts.map(u => { const g = w.groups.get(u.group); if (g) { g.units = g.units.filter(x => x !== u.id); if (g.flag === u.id) g.flag = g.units[0] || null; } const h = makeGroup(w, side, `${u.name} 偵察隊`, u.sys); h.units = [u.id]; h.flag = u.id; u.group = h.id; return h.id; });
- const tgs = gs.filter(g => g.units.length).sort((a, b) => strength(b) - strength(a)), main = [], det = [];let sm = 0, sdt = 0;
- for (const g of tgs) { if (sm <= sdt * 2) { main.push(g.id); sm += strength(g); } else { det.push(g.id); sdt += strength(g); } }
+ // v26 Task forces with a role keep it: reconnaissance task forces scout, raiding ones raid; with a reconnaissance
+ // task force there are no single-ship scouts.
+ const byRole = r => gs.filter(g => g.role === r && !g.convoy).map(g => g.id), recon = byRole('recon'), raid0 = byRole('raid'), reconf = byRole('reconf');
+ const scouts = recon.length ? [] : us.filter(u => !u.info.capital && u.info.hyper != null && u.info.hyper <= 2 && !raid0.includes(u.group)).sort((a, b) => (a.info.hyper - b.info.hyper) || (b.info.sensor - a.info.sensor)).slice(0, Math.max(1, Math.round(us.length * .1)));
+ const sc = recon.concat(scouts.map(u => { const g = w.groups.get(u.group); if (g) { g.units = g.units.filter(x => x !== u.id); if (g.flag === u.id) g.flag = g.units[0] || null; } const h = makeGroup(w, side, `${u.name} 偵察隊`, u.sys); h.units = [u.id]; h.flag = u.id; u.group = h.id; return h.id; }));
+ const tgs = gs.filter(g => g.units.length && !recon.includes(g.id) && !raid0.includes(g.id) && !g.convoy).sort((a, b) => strength(b) - strength(a)), main = [], det = [];let sm = 0, sdt = 0;
+ // (a reconnaissance-in-force task force is the detachment's)
+ for (const g of tgs) { if (reconf.includes(g.id)) { det.push(g.id); sdt += strength(g); } else if (sm <= sdt * 2) { main.push(g.id); sm += strength(g); } else { det.push(g.id); sdt += strength(g); } }
  for (const g of gs) if (!g.units.length) w.groups.delete(g.id);
- sd.brain = {main, det, scouts: sc, plan: null};
+ sd.brain = {main, det, scouts: sc, raiders: raid0.slice(), plan: null, own: true, mode: 'battle', foe: new Map(), fled: new Map(), fights: new Map(), raid: new Map(), wingT: new Map(), reloc: []};
+}
+// v26 The enemy's strength as this side knows it: every enemy group it has a contact on, the older the less (a
+// contact fades to 0.7 by plan.memory and is then forgotten), and none it has seen destroyed.
+function aiForces(w, side, A, P) {
+ const sd = w.sides[side];
+ for (const c of sd.contacts.values()) { const o = A.foe.get(c.gid); if (!o || c.time >= o.t) A.foe.set(c.gid, {s: c.strength, t: c.time, sys: c.sys, transit: c.transit, side: w.groups.get(c.gid)?.side}); }
+ let est = 0;
+ for (const [gid, o] of A.foe) { const g = w.groups.get(gid), age = w.time - o.t; if (!g || !g.units.some(id => fighting(w.units.get(id))) || age > P.memory) { A.foe.delete(gid); continue; } est += o.s * (1 - .3 * age / P.memory); }
+ return est;
+}
+// v26 Raiders: escorts with a hyperdrive (no capital ships), the fastest first, plan.raidShare of our ships, in groups
+// of plan.raidSize, taken from the main body and the detachment (a task group left without ships is dissolved).
+function aiDisperse(w, side, A, P) {
+ const gs = A.main.concat(A.det).map(id => w.groups.get(id)).filter(g => g && g.sys != null && !g.transit && !g.spool && !w.battles.has(g.sys));
+ const all = gs.flatMap(g => g.units.map(id => w.units.get(id))).filter(fighting), want = Math.round(all.length * P.raidShare);
+ const pool = all.filter(u => !u.info?.capital && unitHyper(u) != null && unitStruct(u) > .6).sort((a, b) => unitHyper(a) - unitHyper(b) || (b.p.maxSpeed || 0) - (a.p.maxSpeed || 0)).slice(0, want);
+ if (pool.length < 1) return;
+ // Ships of one system go together.
+ const bySys = new Map();for (const u of pool) { let a = bySys.get(u.sys); if (!a) bySys.set(u.sys, a = []); a.push(u); }
+ for (const list of bySys.values()) for (let i = 0; i < list.length; i += P.raidSize) {
+  const part = list.slice(i, i + P.raidSize), lead = part[0], h = makeGroup(w, side, `${lead.name} 襲撃隊`, lead.sys);
+  for (const u of part) { const g = w.groups.get(u.group); if (g) { g.units = g.units.filter(x => x !== u.id); if (g.flag === u.id) g.flag = g.units.find(x => fighting(w.units.get(x))) || g.units[0] || null; } h.units.push(u.id); u.group = h.id; }
+  h.flag = lead.id;h.formation = 'column';A.raiders.push(h.id);
+ }
+ for (const g of gs) if (!g.units.length) { w.groups.delete(g.id); A.main = A.main.filter(x => x !== g.id); A.det = A.det.filter(x => x !== g.id); }
+}
+// v26 Where the enemy's supply is presumed to run: the lanes from each enemy side's home (its start, known) to every
+// group of it this side has fresh contact on, weighted by that group's strength; its home systems are the depots.
+function aiEnemyLines(w, side, A) {
+ const S = w.sector, line = new Map(), depot = new Set();let tot = 0;
+ for (const sd of w.sides) if (sd.id !== side) for (const h of sd.home || []) depot.add(h);
+ for (const o of A.foe.values()) { if (w.time - o.t > 1800 || o.side == null) continue; const st = w.sides[o.side]?.start, r = st != null ? routePath(S, st, o.sys) : null; if (!r) continue; tot += o.s; for (const x of r.path) line.set(x, (line.get(x) || 0) + o.s); }
+ if (tot > 0) for (const [x, v] of line) line.set(x, v / tot);
+ return {line, depot};
+}
+// v26 The next system for a raiding group: the most valuable on the enemy's presumed lines, its depots or an enemy
+// group it outmatches, not held by a stronger enemy group, not within a lane of the enemy main body, and not another
+// raider's (they spread out); the nearer the better.
+function aiRaidTarget(w, side, A, P, g, ctx, avoid = null) {
+ const S = w.sector, rs = groupStrength(w, g), from = g.sys;let best = null, bv = .4;
+ const taken = new Set([...A.raid.entries()].filter(([id]) => id !== g.id && w.groups.get(id)).map(([, r]) => r.sys));
+ for (const x of S.systems) {
+  if (x.id === from || x.id === avoid) continue;const fo = ctx.foeAt.get(x.id) || 0;
+  if (fo > rs / P.raidOdds || ctx.nearMain.has(x.id)) continue;
+  let v = 2 * (ctx.lines.line.get(x.id) || 0) + (ctx.lines.depot.has(x.id) ? 1.2 : 0) + (fo > 0 ? 2.5 * (1 - fo * P.raidOdds / Math.max(1, rs)) + .5 : 0) + (x.inhabited ? .1 : 0) + (ctx.convoyAt?.has(x.id) ? 2.5 : 0);
+  if (taken.has(x.id)) v -= 1.5;if (v <= bv) continue;
+  const eta = etaAll(w, g.id, x.id);if (eta == null) continue;const sc = v - eta / 900;if (sc > bv) { bv = sc; best = x.id; }
+ }
+ return best;
 }
 function aiStrategic(w, side) {
  const sd = w.sides[side];aiSetup(w, side);const A = sd.brain, S = w.sector;
  for (const g of [...w.groups.values()]) if (g.side === side && g.sys != null && !w.battles.has(g.sys)) for (const u of groupDisabled(w, g)) aiDisposeDisabled(w, u);
  const live = id => { const g = w.groups.get(id); return g && g.units.some(u => alive(w.units.get(u))) ? g : null; }, body = ids => (Array.isArray(ids) ? ids : ids ? [ids] : []).map(live).filter(Boolean);
- const strength = g => g.units.map(id => w.units.get(id)).filter(fighting).reduce((n, u) => n + unitStrength(u), 0);
- const busy = gs => gs.some(g => g.transit || g.spool || g.waitJump), here = gs => { const n = new Map(); for (const g of gs) if (g.sys != null) n.set(g.sys, (n.get(g.sys) || 0) + g.units.length); return [...n.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null; };
+ const strength = g => groupStrength(w, g);
+ const busy = gs => gs.some(g => g.transit || g.spool || g.waitJump || onTheWay(g)), here = gs => { const n = new Map(); for (const g of gs) if (g.sys != null) n.set(g.sys, (n.get(g.sys) || 0) + g.units.length); return [...n.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null; };
  // A body jumps together: groups that would arrive first wait for the slowest.
- const bodyJump = (gs, dest) => { const etas = gs.filter(g => !g.transit && !g.spool && !g.waitJump && g.sys != null && g.sys !== dest).map(g => ({g, eta: etaTo(w, g.id, dest)})).filter(x => x.eta != null); if (!etas.length) return false; const last = Math.max(...etas.map(x => x.eta)); for (const x of etas) { if (last - x.eta > 45) x.g.waitJump = {dest, at: w.time + last - x.eta}; else orderJump(w, x.g.id, dest); } return true; };
+ const bodyJump = (gs, dest) => { const etas = gs.filter(g => !g.transit && !g.spool && !g.waitJump && g.sys != null && g.sys !== dest).map(g => ({g, eta: etaAll(w, g.id, dest)})).filter(x => x.eta != null); if (!etas.length) return false; const last = Math.max(...etas.map(x => x.eta)); for (const x of etas) { if (last - x.eta > 45) x.g.waitJump = {dest, at: w.time + last - x.eta}; else orderJump(w, x.g.id, dest); } return true; };
  const contacts = [...sd.contacts.values()].filter(c => !c.transit).sort((a, b) => b.time - a.time);
  // Scouts: the nearest system (by lane) not seen for the longest.
- for (const id of A.scouts || []) { const g = live(id); if (!g || g.transit || g.spool || w.battles.has(g.sys) || w.time - (g.arrivedAt ?? -1e9) < RULES.dwell * .6) continue; const stale = S.systems.filter(s => s.id !== g.sys).map(s => ({s, age: w.time - (sd.seen.get(s.id) ?? -1e9), d: routeCost(S, g.sys, s.id)})).filter(x => x.d < Infinity).sort((a, b) => (b.age > 600) - (a.age > 600) || a.d - b.d)[0]; if (stale) orderJump(w, g.id, stale.s.id); }
- const main = body(A.main), det = body(A.det), mine = main.concat(det);
- // Break off a battle going badly; otherwise join or reinforce battles where our ships fight.
- for (const [sys] of w.battles) { if (!sidePresent(w, side, sys)) continue; const us = systemUnits(w, sys), ours = us.filter(u => u.side === side && fighting(u)).reduce((n, u) => n + unitStrength(u), 0), theirs = us.filter(u => u.side !== side && fighting(u)).reduce((n, u) => n + unitStrength(u), 0);
-  const there = mine.filter(g => g.sys === sys && !g.spool && !g.transit);
-  if (ours < theirs * strategyOf(w, side).retreat && theirs > 0) { const safe = safeSystem(w, side, sys); if (safe != null) for (const g of there) { orderJump(w, g.id, safe); event(w, `${g.name} が撤退を開始`, {side}); } continue; }
-  for (const g of mine) if (!g.transit && !g.spool && !g.waitJump && g.sys !== sys && !w.battles.has(g.sys)) { const eta = etaTo(w, g.id, sys); if (eta != null && eta < 900) orderJump(w, g.id, sys); } }
+ for (const id of A.scouts || []) { const g = live(id); if (!g || g.transit || g.spool || onTheWay(g) || w.battles.has(g.sys) || w.time - (g.arrivedAt ?? -1e9) < RULES.dwell * .6) continue; const stale = S.systems.filter(s => s.id !== g.sys).map(s => ({s, age: w.time - (sd.seen.get(s.id) ?? -1e9), d: routeCost(S, g.sys, s.id)})).filter(x => x.d < Infinity).sort((a, b) => (b.age > 600) - (a.age > 600) || a.d - b.d)[0]; if (stale) orderJump(w, g.id, stale.s.id); }
+ const P = aiPlan(w, side), own = !!A.own;if (own) aiContinue(w, side);
+ if (own) { A.raiders = (A.raiders || []).filter(id => live(id)); for (const [id] of A.raid) if (!live(id)) A.raid.delete(id); }
+ let main = body(A.main), det = body(A.det);const raiders = own ? body(A.raiders) : [];let mine = main.concat(det);
+ // v26 The correlation of forces, from what this side knows.
+ if (own) {
+  const ours = mine.concat(raiders).reduce((n, g) => n + strength(g), 0), est = aiForces(w, side, A, P), ratio = est > 0 ? ours * aiQuality(w, side, P) / est : Infinity;A.ratio = ratio;
+  if (A.mode !== 'raid' && ratio < P.inferior) { A.mode = 'raid'; A.main = A.main.concat(A.det); A.det = []; aiDisperse(w, side, A, P); event(w, `${sd.name}：劣勢と判断し、通商破壊と各個撃破に転じる`, {side, ai: true}); }
+  else if (A.mode === 'raid' && ratio > P.superior) { A.mode = 'battle'; const role = id => w.groups.get(id)?.role === 'raid'; A.det = A.det.concat(A.raiders.filter(id => !role(id))); A.raiders = A.raiders.filter(role); for (const [id] of A.raid) if (!role(id)) A.raid.delete(id); event(w, `${sd.name}：戦力の優位を回復し、艦隊決戦に転じる`, {side, ai: true}); }
+  // Raiders are made (again) once the groups are out of hyperspace and out of battle, and when all have been lost.
+  if (A.mode === 'raid' && !body(A.raiders).some(g => g.role !== 'raid') && w.time - (A.dispersedAt ?? -1e9) > 1800) { aiDisperse(w, side, A, P); if (A.raiders.length) A.dispersedAt = w.time; }
+  main = body(A.main); det = body(A.det); mine = main.concat(det);
+ }
+ const raid = own && A.mode === 'raid', fresh = contacts.filter(c => w.time - c.time < 900), strat = strategyOf(w, side);
+ // The enemy main body: its strongest group known (where it is, or where it was seen heading).
+ const foeMain = own ? [...A.foe.values()].filter(o => w.time - o.t < 1800).sort((a, b) => b.s - a.s)[0] || null : null;
+ const ctx = own ? {foeAt: new Map(), nearMain: new Set(), lines: aiEnemyLines(w, side, A)} : null;
+ if (own) { ctx.convoyAt = new Set(); for (const c of sd.contacts.values()) if (w.time - c.time < 900 && w.groups.get(c.gid)?.convoy) ctx.convoyAt.add(c.sys);
+  for (const c of fresh) ctx.foeAt.set(c.sys, (ctx.foeAt.get(c.sys) || 0) + c.strength); if (foeMain) { ctx.nearMain.add(foeMain.sys); for (const y of lanesOf(S, foeMain.sys)) ctx.nearMain.add(y); } }
+ // Break off a battle lost locally; otherwise join or reinforce battles where our ships fight.
+ for (const [k, f] of A.fights || []) if (!w.battles.has(k)) A.fights.delete(k);
+ for (const [sys] of w.battles) { if (!sidePresent(w, side, sys)) continue; const us = systemUnits(w, sys), ours = us.filter(u => u.side === side && fighting(u)).reduce((n, u) => n + unitStrength(u), 0), theirs = own ? seenStrength(w, side, us) : us.filter(u => u.side !== side && fighting(u)).reduce((n, u) => n + unitStrength(u), 0);
+  const there = mine.concat(raiders).filter(g => g.sys === sys && !g.spool && !g.transit);
+  if (!own) { if (ours < theirs * strat.retreat && theirs > 0) { const safe = safeSystem(w, side, sys); if (safe != null) for (const g of there) { orderJump(w, g.id, safe); event(w, `${g.name} が撤退を開始`, {side}); } continue; } }
+  else {
+   let f = A.fights.get(sys);if (!f) A.fights.set(sys, f = {t0: w.time, s0: ours});
+   // Raid mode: the main body does not accept battle with a clearly stronger force (the enemy main body, met before
+   // the odds improve): it leaves as soon as it sees it, before the guns close (it drops out RULES.arrive away).
+   // (only while the enemy is still out of gun range: a group spooling under fire is silent and stuck — it fights)
+   const q = aiQuality(w, side, P), age = w.time - f.t0, over = theirs > 0 && ours < theirs * P.overwhelm, avoid = raid && theirs > ours * q * P.mainOdds && age < P.minFight && aiGap(w, side, us) > RULES.range, lost = avoid || (theirs > 0 && ours < theirs * strat.retreat && (age >= P.minFight || over || ours < f.s0 * .7));
+   let left = false;
+   for (const g of there) {
+    const isRaider = A.raiders.includes(g.id), gs = strength(g);
+    // Raiders do not stand against anything stronger: they slip away to their next target.
+    if (isRaider) { if (theirs > ours && (age >= 20 || theirs > ours * 2)) { const nx = aiRaidTarget(w, side, A, P, g, ctx, sys) ?? safeSystem(w, side, sys); if (nx != null && orderJump(w, g.id, nx).ok) { A.raid.set(g.id, {sys: nx, at: w.time}); event(w, `${g.name} が離脱：次の目標 ${S.systems[nx].name}へ`, {side, ai: true}); } } continue; }
+    if (!lost) continue;
+    const fled = (A.fled.get(g.id) || []).filter(t => w.time - t < 3600);A.fled.set(g.id, fled);
+    if (fled.length >= P.stand && !over) continue;   // no endless flight: it has broken off enough this hour, it stands
+    const safe = raid && A.rally != null && A.rally !== sys && !ctx.nearMain.has(A.rally) ? A.rally : safeSystem(w, side, sys);
+    if (safe != null && orderJump(w, g.id, safe).ok) { fled.push(w.time); left = true; event(w, `${g.name} が撤退を開始`, {side}); }
+    void gs;
+   }
+   if (left || lost) continue;
+  }
+  if (raid) {
+   // Raid: the main body joins a fight only where its arrival gives local superiority.
+   const add = main.filter(g => !g.transit && !g.spool && !g.waitJump && g.sys !== sys && !w.battles.has(g.sys)), s = add.reduce((n, g) => n + strength(g), 0);
+   if (add.length && (ours + s) * aiQuality(w, side, P) > theirs * P.mainOdds) for (const g of add) { const eta = etaAll(w, g.id, sys); if (eta != null && eta < 900) orderJump(w, g.id, sys); }
+   continue;
+  }
+  for (const g of mine) if (!g.transit && !g.spool && !g.waitJump && g.sys !== sys && !w.battles.has(g.sys)) { const eta = etaAll(w, g.id, sys); if (eta != null && eta < 900) orderJump(w, g.id, sys); } }
+ if ([...w.battles.keys()].some(sys => sidePresent(w, side, sys))) A.lastBattle = w.time;
+ if (raid) { aiRaidMoves(w, side, A, P, ctx, {main, raiders, fresh, foeMain, bodyJump, busy, here, strength}); aiRaidWings(w, side, A, P, ctx, main, foeMain); }
+ else {
  // Strike the nearest fresh contact we outmatch, the whole fleet arriving together.
  // A commander kept from battle for an hour grows bolder about the odds.
- if ([...w.battles.keys()].some(sys => sidePresent(w, side, sys))) A.lastBattle = w.time;
- const fresh = contacts.filter(c => w.time - c.time < 900), ours = mine.reduce((n, g) => n + strength(g), 0), odds = w.time - (A.lastBattle ?? 0) > 3600 ? strategyOf(w, side).bold : strategyOf(w, side).odds;
+ const ours = mine.reduce((n, g) => n + strength(g), 0), odds = w.time - (A.lastBattle ?? 0) > 3600 ? strat.bold : strat.odds;
  const danger = new Set(fresh.filter(c => c.strength * odds >= ours).map(c => c.sys)), at = here(main), idle = main.length && !busy(main) && at != null && !w.battles.has(at);
+ // v26 Small enemy groups on our own supply lines (raiders) are the detachment's: it hunts the nearest it outmatches,
+ // and the main body is not drawn off after them.
+ let hunt = null;
+ if (own && det.length && sd.supply) { const ds = det.reduce((n, g) => n + strength(g), 0), dat = here(det);
+  if (dat != null && !busy(det) && !det.some(g => w.battles.has(g.sys))) { hunt = fresh.filter(c => c.strength < ours * P.hunt && ds > c.strength * odds && (sd.supply.lines.has(c.sys) || sd.home.includes(c.sys) || lanesOf(S, c.sys).some(y => sd.supply.lines.has(y)))).map(c => ({c, eta: etaAll(w, det[0].id, c.sys)})).filter(x => x.eta != null && x.eta < 1800).sort((a, b) => a.eta - b.eta)[0]?.c || null;
+   if (hunt && hunt.sys !== dat) bodyJump(det, hunt.sys); } }
+ const pack = hunt ? main : mine;
  if (fresh.length && idle) {
-  const lead = main.find(g => g.sys === at), prey = fresh.filter(c => c.sys !== at && ours > c.strength * odds).map(c => ({c, eta: etaTo(w, lead.id, c.sys)})).filter(x => x.eta != null).sort((a, b) => a.eta - b.eta)[0];
-  if (prey) { bodyJump(mine.filter(g => !w.battles.has(g.sys)), prey.c.sys); A.plan = {sys: prey.c.sys, at: w.time}; }
-  else if (det.length && !busy(det) && here(det) !== at) bodyJump(det, at);
+  const lead = main.find(g => g.sys === at), prey = fresh.filter(c => c.sys !== at && c !== hunt && ours > c.strength * odds).map(c => ({c, eta: etaAll(w, lead.id, c.sys)})).filter(x => x.eta != null).sort((a, b) => a.eta - b.eta)[0];
+  if (prey) { bodyJump(pack.filter(g => !w.battles.has(g.sys)), prey.c.sys); A.plan = {sys: prey.c.sys, at: w.time}; }
+  else if (!hunt && det.length && !busy(det) && here(det) !== at) bodyJump(det, at);
  }
  // Nothing to strike: the main body sweeps along the lanes toward the enemy's end,
  // through the systems not seen for longest and round any force too strong for it;
@@ -15321,10 +15680,76 @@ function aiStrategic(w, side) {
  if (idle && !(A.plan && w.time - A.plan.at < RULES.dwell) && w.time - Math.max(...main.map(g => g.arrivedAt ?? -1e9)) > RULES.dwell) {
   const far = w.sides.find(x => x.id !== side), goal = far ? far.start : at;
   const cand = S.systems.filter(x => x.id !== at && !danger.has(x.id)).map(x => { const d = routeCost(S, at, x.id), toward = routeCost(S, x.id, goal) < routeCost(S, at, goal) - 20, seen = sd.seen.get(x.id), age = seen == null ? 1e9 : w.time - seen; return {x, score: (toward ? 0 : 120) + d + (age < 3600 ? 350 : 0) - (x.inhabited ? 30 : 0) - (x.trunk ? 20 : 0)}; }).filter(c => c.score < Infinity).sort((a, b) => a.score - b.score)[0];
-  if (cand) { bodyJump(main, cand.x.id); A.moved = w.time; if (det.length && !busy(det) && !det.some(g => w.battles.has(g.sys))) { const near = S.systems.filter(x => x.id !== cand.x.id && routeCost(S, x.id, cand.x.id) < 160).sort((a, b) => (w.time - (sd.seen.get(b.id) ?? -1e9)) - (w.time - (sd.seen.get(a.id) ?? -1e9)))[0]; bodyJump(det, (near || cand.x).id); } }
+  if (cand) { bodyJump(main, cand.x.id); A.moved = w.time; if (!hunt && det.length && !busy(det) && !det.some(g => w.battles.has(g.sys))) { const near = S.systems.filter(x => x.id !== cand.x.id && routeCost(S, x.id, cand.x.id) < 160).sort((a, b) => (w.time - (sd.seen.get(b.id) ?? -1e9)) - (w.time - (sd.seen.get(a.id) ?? -1e9)))[0]; bodyJump(det, (near || cand.x).id); } }
+ }
+ if (own && raiders.length) aiRaidMoves(w, side, A, P, ctx, {main, raiders, fresh, foeMain, bodyJump, busy, here, strength, onlyRaiders: true});
+ // Alliance doctrine: its carriers strike across systems even when it is the stronger.
+ if (own && doctrineOf(w, side) && sd.faction === 'rebel') aiRaidWings(w, side, A, P, ctx, main, foeMain);
  }
  // Carriers in battle send their wings: fighters to cover the fleet, bombers at the biggest enemy.
  for (const wing of w.wings.values()) { if (wing.side !== side) continue; const home = w.units.get(wing.home); if (!home || !alive(home) || !w.battles.has(home.sys)) { wing.auto = null; continue; } aiWing(w, wing, home); }
+}
+// v26 Raid mode: the raiding groups and the main body.
+function aiRaidMoves(w, side, A, P, ctx, o) {
+ const S = w.sector, sd = w.sides[side], {main, raiders, fresh, foeMain, bodyJump, busy, here, strength} = o;
+ // Raiders: on to a new target when they have none, when theirs has gone quiet for plan.raidDwell, or when a stronger
+ // enemy group is there or heading there.
+ for (const g of raiders) {
+  if (g.transit || g.spool || g.waitJump || onTheWay(g) || g.sys == null || w.battles.has(g.sys)) continue;
+  const r = A.raid.get(g.id), rs = strength(g), at = g.sys;
+  const threat = [...sd.contacts.values()].some(c => c.sys === at && c.strength > rs && (c.transit ? c.eta == null || c.eta - w.time < 600 : true));
+  if (r && r.sys !== at && !threat) { if (orderJump(w, g.id, r.sys).ok) continue; }
+  if (r && r.sys === at && !threat && w.time - (g.arrivedAt ?? r.at) < P.raidDwell) continue;
+  const nx = aiRaidTarget(w, side, A, P, g, ctx, at);
+  if (nx != null && orderJump(w, g.id, nx).ok) A.raid.set(g.id, {sys: nx, at: w.time});
+  else if (threat) { const safe = safeSystem(w, side, at); if (safe != null) orderJump(w, g.id, safe); }
+ }
+ if (o.onlyRaiders || !main.length || busy(main)) return;
+ // (not while its carriers' strike wings are forming up to jump: they would be left behind)
+ if ([...w.wings.values()].some(x => x.side === side && x.raid?.phase === 'launch' && main.some(g => g.units.includes(x.home)))) return;
+ const at = here(main);if (at == null || w.battles.has(at)) return;
+ // (strength on paper, corrected by experience: aiQuality)
+ const ms = main.reduce((n, g) => n + strength(g), 0) * aiQuality(w, side, P), lead = main.find(g => g.sys === at) || main[0];
+ // Defeat in detail: the nearest enemy group the main body outmatches, not the enemy main body nor one within a lane of it.
+ const prey = fresh.filter(c => c.sys !== at && ms > c.strength * P.mainOdds && !(foeMain && foeMain.s * P.mainOdds >= ms && ctx.nearMain.has(c.sys))).map(c => ({c, eta: etaAll(w, lead.id, c.sys)})).filter(x => x.eta != null && x.eta < 1500).sort((a, b) => a.eta - b.eta)[0];
+ if (prey) { if (bodyJump(main, prey.c.sys)) { A.plan = {sys: prey.c.sys, at: w.time}; A.rally = at; } return; }
+ // Keep clear of the enemy main body while it is the stronger: move off when it is within a lane or heading here,
+ // at most plan.relocMax times an hour (then stand), to a system clear of it, on our lines where we can, near the
+ // raiders' work so that the groups the enemy sends after them come within reach.
+ const threatened = foeMain && foeMain.s * P.mainOdds > ms && (ctx.nearMain.has(at) || [...sd.contacts.values()].some(c => c.transit && c.sys === at && c.strength * P.mainOdds > ms));
+ A.reloc = (A.reloc || []).filter(t => w.time - t < 3600);
+ if (threatened && A.reloc.length < P.relocMax && w.time - (A.reloc[A.reloc.length - 1] ?? -1e9) >= P.relocate) {
+  const work = [...A.raid.values()].map(r => r.sys), lines = sd.supply?.lines;
+  const best = S.systems.filter(x => x.id !== at && !ctx.nearMain.has(x.id) && !((ctx.foeAt.get(x.id) || 0) * P.mainOdds > ms)).map(x => { const d = routeCost(S, at, x.id); if (!(d < Infinity)) return null; const wk = work.length ? Math.min(...work.map(y => routeCost(S, x.id, y))) : 0; return {x, sc: d + .5 * wk - (lines?.has(x.id) ? 80 : 0)}; }).filter(Boolean).sort((a, b) => a.sc - b.sc)[0];
+  if (best && bodyJump(main, best.x.id)) { A.reloc.push(w.time); A.rally = best.x.id; event(w, `${main[0].name} ほか主力：敵主力を避けて ${S.systems[best.x.id].name}へ移動`, {side, ai: true}); }
+  return;
+ }
+ // Otherwise it waits where it is, mending on our lines: if cut off from them for long it moves back onto them.
+ A.rally = at;
+ if (sd.supply && !sd.supply.lines.has(at) && w.time - Math.max(...main.map(g => g.arrivedAt ?? -1e9)) > RULES.dwell) {
+  const back = S.systems.filter(x => sd.supply.lines.has(x.id) && !ctx.nearMain.has(x.id) && !(ctx.foeAt.get(x.id) > 0)).map(x => ({x, d: routeCost(S, at, x.id)})).filter(c => c.d < Infinity).sort((a, b) => a.d - b.d)[0];
+  if (back) bodyJump(main, back.x.id);
+ }
+}
+// v26 Cross-system strikes by AI carriers: a wing whose craft have hyperdrives (only those squadrons go) strikes an
+// enemy group within reach that is not the enemy main body and below plan.wingOdds of our main body, on the enemy's
+// presumed lines or at its depots by preference; one strike per wing every plan.wingRaid s, carriers not in battle.
+function aiRaidWings(w, side, A, P, ctx, main, foeMain) {
+ const sd = w.sides[side], ms = main.reduce((n, g) => n + groupStrength(w, g), 0) || 1;
+ const targets = [...A.foe.entries()].filter(([gid, o]) => !o.transit && w.time - o.t < 900 && o.s < ms * P.wingOdds && !(foeMain && o === foeMain && foeMain.s > ms * P.wingOdds)).map(([gid, o]) => ({gid, o, v: 1 + 2 * (ctx.lines.line.get(o.sys) || 0) + (ctx.lines.depot.has(o.sys) ? 1 : 0) - o.s / ms}));
+ if (!targets.length) return;
+ for (const wing of w.wings.values()) {
+  if (wing.side !== side || wing.raid) continue;const home = w.units.get(wing.home);
+  const hg = home && w.groups.get(home.group);
+  if (!home || !fighting(home) || home.sys == null || home.jump || w.battles.has(home.sys) || !hg || hg.spool || hg.transit || hg.waitJump || onTheWay(hg) || w.time - (A.wingT.get(wing.id) ?? -1e9) < P.wingRaid) continue;
+  if (!raidSquadsOf(w, wing).some(s => CRAFT[s.craft]?.hyper > 0)) continue;
+  let best = null, bv = -Infinity;
+  for (const t of targets) { if (t.o.sys === home.sys) continue; const c = raidCheck(w, wing.id, t.o.sys, true); if (!c.ok) { if (c.ctl || c.nohyper) break; continue; } const v = t.v - c.eta / 1200; if (v > bv) { bv = v; best = {t, c}; } }
+  if (!best) continue;
+  const tg = w.groups.get(best.t.gid), aim = tg ? tg.units.map(id => w.units.get(id)).filter(fighting).sort((a, b) => (b.p.len || 0) - (a.p.len || 0))[0] : null;
+  if (orderRaid(w, wing.id, best.t.o.sys, aim && known(w, side, aim, 2) ? aim.id : null, true).ok) A.wingT.set(wing.id, w.time);
+ }
+ void sd;
 }
 // Fighters contest the airspace between the fleets, intercept incoming attack
 // formations and cover outbound strikes. With the air clear they join the attack.
@@ -15412,7 +15837,7 @@ followTick(w,dt);raidTick(w, dt);hatchTick(w, dt);
  // v21.2 Out of battle (in a system or in hyperspace) superweapons keep charging and reactors recover.
  for (const u of w.units.values()) if (alive(u) && !(u.sys != null && w.battles.has(u.sys))) { C.swDecay(u, dt, null); (u.p.sw||[]).forEach((sw, i) => { const x = u.sw?.[i]; if (!x) return; if (x.st === 'cool') { x.t -= dt; if (x.t <= 0) { x.st = 'charge'; x.c = 0; } return; } if (x.st === 'charge')C.superweaponCharge(u,i,dt); }); }
  for (const s of w.squads.values()) if (s.state === 'docked' && s.t > 0 && !w.battles.has(s.sys)) s.t -= dt;
- squadSystemsTick(w, dt);craftIdle(w, dt);driftTick(w, dt);supplyTick(w, dt);rearTick(w);
+ squadSystemsTick(w, dt);craftIdle(w, dt);driftTick(w, dt);supplyTick(w, dt);convoyTick(w, dt);rearTick(w, dt);
  checkResult(w);
 }
 // The fleet battle ends when one side has lost three quarters of its fighting
@@ -15422,12 +15847,12 @@ function checkResult(w) {
  // Ships at the yards count for half of what they will bring back.
  const rear = u => u.status === 'rear' && !u.dead, aboard = u => u.status === 'carried' && !u.dead;
  // Ships docked in a carrier are its strength still.
- const now = w.sides.map(sd => [...w.units.values()].filter(u => u.side === sd.id && (fighting(u) || rear(u) || aboard(u))).reduce((n, u) => n + unitStrength(u) * (rear(u) ? .5 : 1), 0));
+ const now = w.sides.map(sd => [...w.units.values()].filter(u => u.side === sd.id && !u.convoy && (fighting(u) || rear(u) || aboard(u))).reduce((n, u) => n + unitStrength(u) * (rear(u) ? .5 : 1), 0));
  w.sides.forEach((sd, i) => sd.now = now[i]);
  // SBOX The victory conditions (w.victory): a side is broken below breakAt of its fighting value at the start (0.25 as
  // before; 0 = to the last ship), or with no ship left able to fight. The last side unbroken wins (any number of sides).
  // With a time limit, when it runs out the side keeping the largest share of its strength wins (a draw within 5 points).
- const V = w.victory || VICTORY_DEFAULT, broken = w.sides.map((sd, i) => now[i] < sd.initial * V.breakAt || ![...w.units.values()].some(u => u.side === sd.id && (fighting(u) || rear(u))));
+ const V = w.victory || VICTORY_DEFAULT, broken = w.sides.map((sd, i) => now[i] < sd.initial * V.breakAt || ![...w.units.values()].some(u => u.side === sd.id && !u.convoy && (fighting(u) || rear(u))));
  const standing = w.sides.filter((sd, i) => !broken[i]);let winner = null, reason = 'break';
  if (standing.length <= 1 && broken.some(Boolean)) winner = standing.length ? standing[0].id : -1;
  else if (V.timeLimit > 0 && w.time >= V.timeLimit) { reason = 'time'; const share = w.sides.map((sd, i) => broken[i] ? -1 : sd.initial > 0 ? now[i] / sd.initial : 0), best = Math.max(...share), lead = share.filter(x => x > best - .05).length; winner = lead > 1 ? -1 : share.indexOf(best); }
@@ -15599,11 +16024,12 @@ function followMapPos(w,s){
 // wherever that is by then; craft whose carrier is gone are lost.
 const raidSquadsOf = (w, wing) => wing.squads.map(id => w.squads.get(id)).filter(s => s && s.n > 0 && !CRAFT[s.craft]?.stay);
 function wingHyper(w, wing) { const sq = raidSquadsOf(w, wing);if (!sq.length) return null;let worst = 0;for (const s of sq) { const h = CRAFT[s.craft]?.hyper; if (!(h > 0)) return null; worst = Math.max(worst, h); } return worst; }
-function raidCheck(w, id, to) {
+function raidCheck(w, id, to, hyperOnly = false) {
  const wing = w.wings.get(id), home = wing && w.units.get(wing.home), S = w.sector.systems;
  if (!wing || !home || !alive(home)) return {ok: false, why: '母艦がありません'};
  if (wing.raid) return {ok: false, why: '星系間攻撃に出撃中です'};
- const sq = raidSquadsOf(w, wing), hc = wingHyper(w, wing);
+ // v26 hyperOnly (the AI's strikes): only the wing's squadrons whose craft have a hyperdrive go; the rest stay aboard.
+ const sq = raidSquadsOf(w, wing).filter(s => !hyperOnly || CRAFT[s.craft]?.hyper > 0), hc = hyperOnly ? (sq.length ? Math.max(...sq.map(s => CRAFT[s.craft].hyper)) : null) : wingHyper(w, wing);
  if (!sq.length) return {ok: false, why: '出撃できる中隊がありません'};
  if (hc == null) return {ok: false, why: 'ハイパードライブを持たない機体がいます', nohyper: true};
  if (home.sys == null || home.jump || home.out) return {ok: false, why: home.out ? '母艦が航行不能です' : '母艦が移動中です', hc};
@@ -15618,8 +16044,8 @@ function raidCheck(w, id, to) {
  const rate = Math.max(.05, home.p.launch || 1), launch = Math.max(0, ...sq.map(s => s.t > 0 ? s.t : 0)) + sq.reduce((n, s) => n + s.n * CRAFT[s.craft].size, 0) / rate + RULES.raidForm, trip = pathSeconds(route, hc);
  return {ok: true, hc, route, ly: route.ly, launch, trip, eta: launch + trip, squads: sq.map(s => s.id)};
 }
-function orderRaid(w, id, to, target = null) {
- const c = raidCheck(w, id, to);if (!c.ok) return c;
+function orderRaid(w, id, to, target = null, hyperOnly = false) {
+ const c = raidCheck(w, id, to, hyperOnly);if (!c.ok) return c;
  const wing = w.wings.get(id), home = w.units.get(wing.home), S = w.sector.systems;
  wing.raid = {to, from: home.sys, phase: 'launch', go: w.time + c.launch, hc: c.hc, route: c.route, trip: c.trip, target: target && w.units.get(target)?.side !== wing.side ? target : null, squads: c.squads, order: null, t0: w.time};
  wing.phase = 'form';
@@ -15922,7 +16348,7 @@ function normalizeFleet(ob) {
    ground: fleetGroundRows(sh), carried: Array.isArray(sh.carried) ? sh.carried.filter(x => x && (typeof x.src === 'string' || typeof x.key === 'string')).slice(0, 60).map(x => ({src: str(x.src, 80) || str(x.key, 80), key: str(x.key, 80) || str(x.src, 80), name: str(x.name, 48)})) : []}; };
  for (const c of Array.isArray(ob?.ctgs) ? ob.ctgs.slice(0, 40) : []) {
   const ctg = {id: uid(c?.id), ...named(c, `第${out.ctgs.length + 1}合同任務群`), ...(FORMATIONS[c?.formation]||/^tpl:[\w-]{1,40}$/.test(c?.formation||'')?{formation:c.formation}:{}), tgs: []};
-  for (const t of Array.isArray(c?.tgs) ? c.tgs.slice(0, 40) : []) ctg.tgs.push({id: uid(t?.id), ...named(t, `第${out.ctgs.length + 1}${ctg.tgs.length + 1}任務群`), formation: FORMATIONS[t?.formation] || /^tpl:[\w-]{1,40}$/.test(t?.formation || '') ? t.formation : 'abreast', ships: (Array.isArray(t?.ships) ? t.ships.slice(0, 40) : []).map(shipRow).filter(Boolean), ...(TURN_MODES[t?.turnMode] ? {turnMode: t.turnMode} : {}), ...(t?.autoForm != null ? {autoForm: !!t.autoForm} : {})});
+  for (const t of Array.isArray(c?.tgs) ? c.tgs.slice(0, 40) : []) ctg.tgs.push({id: uid(t?.id), ...named(t, `第${out.ctgs.length + 1}${ctg.tgs.length + 1}任務群`), formation: FORMATIONS[t?.formation] || /^tpl:[\w-]{1,40}$/.test(t?.formation || '') ? t.formation : 'abreast', ...(TF_ROLES[t?.role] ? {role: t.role} : {}), ships: (Array.isArray(t?.ships) ? t.ships.slice(0, 40) : []).map(shipRow).filter(Boolean), ...(TURN_MODES[t?.turnMode] ? {turnMode: t.turnMode} : {}), ...(t?.autoForm != null ? {autoForm: !!t.autoForm} : {})});
   out.ctgs.push(ctg);
  }
  const nums = [...used].map(x => /^o(\d+)$/.exec(x)).filter(Boolean).map(m => +m[1]);out.next = Math.max(out.next, ...nums, 1);
@@ -15953,7 +16379,7 @@ function scenarioFromJSON(text) { let raw; try { raw = JSON.parse(String(text));
 const designDims = d => [d.p?.len || d.info?.len || 0, d.p?.width || 0, d.p?.height || 0];
 function battleOrbat(ob, pick, designOf, deploy = {}) {
  const sel = pick ? new Set(pick) : null;
- return {ctgs: (ob?.ctgs || []).map(c => ({name: c.name,...(c.formation?{formation:c.formation}:{}), tgs: (c.tgs || []).filter(t => (!sel || sel.has(t.id)) && t.ships?.length).map(t => ({name: t.name, formation: t.formation, ...(t.turnMode ? {turnMode: t.turnMode} : {}), ...(t.autoForm != null ? {autoForm: t.autoForm} : {}), deploy: deploy[t.id] || null, ships: t.ships.map((sh, si) => {
+ return {ctgs: (ob?.ctgs || []).map(c => ({name: c.name,...(c.formation?{formation:c.formation}:{}), tgs: (c.tgs || []).filter(t => (!sel || sel.has(t.id)) && t.ships?.length).map(t => ({name: t.name, formation: t.formation, ...(t.role ? {role: t.role} : {}), ...(t.turnMode ? {turnMode: t.turnMode} : {}), ...(t.autoForm != null ? {autoForm: t.autoForm} : {}), deploy: deploy[t.id] || null, ships: t.ships.map((sh, si) => {
   const d = designOf(sh);if (!d) return null;
   // Older explicit fleet rows may carry only a short design key. Their carrier's
   // reference preset can restore its model without assigning any preset aircraft.
@@ -15972,6 +16398,8 @@ function scenarioWorld(raw, designs, designOf, extra = {}) {
  const of = designOf || (sh => by.get(sh.key) || by.get(sh.src) || null);
  const sector = makeSector(sc.region, sc.seed), sides = sc.sides.map((sd, i) => normalizeSide(sd, i, sector));
  const fleets = sides.map(sd => battleOrbat(sd.fleet, scenarioPick(sd), of, sd.deploy)), keys = new Set(fleets.flatMap(o => o.ctgs.flatMap(c => c.tgs.flatMap(t => t.ships.flatMap(x => [x.design, ...x.carried.map(y => y.design)])))));
+ // v26 the supply ships and escorts the sides' convoys are made of
+ for (const sd of sides) { const k = CONVOY_KIT[sd.faction] || CONVOY_KIT.any; for (const x of [...k.ships, ...k.escorts, k.big]) if (x) keys.add(x); }
  return createWorld({seed: sc.seed, region: sc.region, sector, formations: [...(extra.formations || []), ...sc.formations], designs: list.filter(d => keys.has(d.key)), victory: sc.victory, sides: sides.map(sd => ({faction: sd.faction, name: sd.label || undefined, ai: sd.control === 'ai', strategy: sd.strategy, air: sd.air, start: sd.start})), fleets});
 }
 
@@ -15998,7 +16426,7 @@ function campaignAdvance(st) { const i = CAMPAIGN_STAGES.indexOf(st.stage);if (i
 
 return {routeItinerary,jumpEstimate,normalizeJumpNavigation,CAMPAIGN_FORMAT, CAMPAIGN_VERSION, CAMPAIGN_SLOTS, CAMPAIGN_STAGES, campaignNew, normalizeCampaign, campaignAdvance, AI_STRATEGY, AIR_DOCTRINES, VICTORY_DEFAULT, normalizeVictory, normalizeDeploy, CRAFT_COST, craftPrice, craftCost, shipCost, fleetCost, SCENARIO_FORMAT, SCENARIO_VERSION, SCENARIO_SIDES, SIDE_CONTROL, normalizeFleet, normalizeSide, normalizeScenario, scenarioJSON, scenarioFromJSON, battleOrbat, scenarioPick, scenarioCosts, scenarioWorld, checkResult, canonGround, DOCTRINE, doctrineOf, shieldFrac, doctrineTarget, aiWing, RULES, TICK, CRAFT, CRAFT_MIX, ROLE_NAME, FACTIONS, SIDE_OF, VEHICLES, COMPANY_TYPES, REGIMENT_TEMPLATES, COMPANY_TROOPS, CAPITAL_LENGTH, MAP_LY, GRID_COLS, SECTOR_DEFS, REGIONS, LANE, KIND_NAME, APPROACH, APPROACH_NAME, FORMATIONS, formationKnown, formationName, SLOT_ROLES, SLOT_SIZES, normalizeFormation, groupSlots, formationCheck, formationTemplate, TF, TURN_MODES, SPEEDS, taskForceInfo, slotError, sustainSpeed, deployGroup, groupStations, WING_PHASE, sensorTick, contactOf, contactStage, searchOrder, foilTick, unitSig, unitSens, unitSigma, EMIT_MODES, FOIL_MODES,
  stowBays, shipStow, stir, peaceTick, formationOffsets, formationGaps, pendingWarp, jumpSequence, JUMP_STAGGER, rng, makeSector, sysDistance, routePath, routeCost, pathSeconds, tripSeconds, designInfo, unitDemand, createWorld, normalizeOrbat, makeUnit, makeGroup, makeCtg, ctgOf, addSquad, step, tick,
- detect, orderJump, cancelJump, etaTo, groupMapPos, orderUnit, orderGroup, orderCtg, orderCtgJump, orderTractor, orderWing, splitGroup, mergeGroups, systemUnits, unitStruct, unitStrength, unitHyper, carriedOf, launchCarried, recoverCarried, orderCarried, groupHyper, groupDisabled, groupStay,
+ detect, orderJump, cancelJump, etaTo, requestConvoy, convoyPlan, convoysFor, CONVOY, CONVOY_KIT, TF_ROLES, AI_PLAN, AI_FACTION, groupMapPos, orderUnit, orderGroup, orderCtg, orderCtgJump, orderTractor, orderWing, splitGroup, mergeGroups, systemUnits, unitStruct, unitStrength, unitHyper, carriedOf, launchCarried, recoverCarried, orderCarried, groupHyper, groupDisabled, groupStay,
  orderScuttle, orderRecover, recoverCheck, rearSeconds, SUPPLY, supplyAt, supplyLines, supplyNeeds, unitSupplyOf, alive, fighting, pdToward, effectiveOrder, groupOrder, tractorReach, tractorOk, registerDesignCraft, craftStores, squadStores, squadRelease, rearmSquad, squadSystemsTick, squadLaserK, squadArmed, squadSlots, craftDown,
  squadFireArc,ctgFormationInfo,
  craftFormation, defaultAir, troopRoom, defaultGround, makeRegiment, regimentTotals, fleetGroundRows, airTotals, battleTick, sectorGal, sideBearing, sideStarts,

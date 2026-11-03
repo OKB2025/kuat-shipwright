@@ -9491,7 +9491,7 @@ const VOY_SCALES = {
  decisive: {name: '決戦（超大型艦を含む）', people: 9000000, supply: 9000000, dread: true}
 };
 const VOY_SHIP_CAP = 60;   // ships a side (user decision 2026-10-29: 60 at most; was 120)
-const VOY_SHARED = {dreadnaught: ['empire', 'rebel', 'republic'], arquitens: ['empire', 'republic']};
+const VOY_SHARED = {dreadnaught: ['empire', 'rebel', 'republic'], arquitens: ['empire', 'republic'], lh3210: ['cis', 'rebel']};
 const voyServes = (d, faction) => d.anyFaction || d.faction === faction || !!VOY_SHARED[(d.base || d.key)]?.includes(faction);
 // v21.2 Classes both sides fielded wear their side's paint: the Republic's red bands in the Clone Wars, the Empire's
 // grey after. A ship of such a class in another side's fleet is the same design under the key 'class#paint' (its 3D
@@ -9521,6 +9521,15 @@ const VOY_FLEET_DOCTRINE = {
  cis: {caps: ['providence', 'recusant', 'providence', 'lucrehulk'], escorts: ['munificent', 'munificent', 'recusant', 'munificent']},
  rebel: {caps: ['mc80home', 'mc75', 'mc80liberty'], escorts: ['nebulonb', 'cr90', 'hammerhead', 'cr90', 'gr75', 'mc30c']}
 };
+// v26 Task forces by mission role (R.TF_ROLES): after two battle-line task forces the fleet adds, in the faction's
+// order, a reconnaissance, a raiding, an escort and a reconnaissance-in-force task force made up as below (classes the
+// navy has), and then battle line again. The Alliance puts raiders first; big ships stay with the battle line.
+const VOY_ROLE_TF = {
+ empire: {seq: ['line', 'line', 'recon', 'raid', 'line', 'escort', 'line', 'reconf'], recon: ['arquitens', 'gozanti', 'gozanti', 'arquitens'], raid: ['arquitens', 'arquitens', 'arquitens', 'gozanti'], escort: ['arquitens', 'gozanti', 'arquitens', 'gozanti'], reconf: ['imperial', 'arquitens', 'arquitens', 'arquitens', 'gozanti']},
+ republic: {seq: ['line', 'line', 'recon', 'raid', 'line', 'escort', 'line', 'reconf'], recon: ['arquitens', 'arquitens', 'arquitens', 'arquitens'], raid: ['acclamator', 'arquitens', 'acclamator', 'arquitens'], escort: ['arquitens', 'dreadnaught', 'arquitens', 'dreadnaught'], reconf: ['venator', 'acclamator', 'arquitens', 'arquitens']},
+ cis: {seq: ['line', 'line', 'raid', 'recon', 'line', 'escort', 'line', 'reconf'], recon: ['munificent', 'munificent', 'munificent', 'munificent'], raid: ['munificent', 'munificent', 'munificent', 'munificent'], escort: ['munificent', 'recusant', 'munificent', 'munificent'], reconf: ['recusant', 'recusant', 'munificent', 'munificent']},
+ rebel: {seq: ['line', 'line', 'raid', 'recon', 'raid', 'escort', 'line', 'reconf'], recon: ['cr90', 'hammerhead', 'cr90', 'hammerhead'], raid: ['mc30c', 'mc30c', 'cr90', 'cr90'], escort: ['nebulonb', 'cr90', 'nebulonb', 'cr90'], reconf: ['mc75', 'mc30c', 'mc30c', 'nebulonb']}
+};
 function voyAutoOrbat(faction, scale, rand = Math.random, opt = {}) {
  const cap = VOY_SCALES[scale] || VOY_SCALES.standard, pool = voyExampleDesigns(), mine = pool.filter(d => voyServes(d, faction)), use = mine.length ? mine : pool;
  const memo = new Map(), str = d => { if (!memo.has(d.key)) memo.set(d.key, R.unitStrength(C.fleetUnit('x', d.key, d.p, 0))); return memo.get(d.key); };
@@ -9539,24 +9548,28 @@ function voyAutoOrbat(faction, scale, rand = Math.random, opt = {}) {
   if (ships.length >= limit) return null;
   if (!opt.target && (tot.people + x.people > cap.people || tot.supply + x.supply > cap.supply)) return null;
   sh.name = voyNextName(faction, used, rand);used.add(sh.name);ships.push(sh);tot.people += x.people;tot.supply += x.supply;tot.str += str(d) + R.airTotals(sh.air).fight * 4;return sh; };
+ const roles = [];
  for (let k = 0; k < 60 && !done; k++) {
-  const plan = k === 0 ? supers.slice() : [];
+  let plan = k === 0 ? supers.slice() : [];
+  const RT = VOY_ROLE_TF[faction], role0 = RT?.seq[k] || 'line', tpl = role0 !== 'line' ? (RT[role0] || []).map(key => use.find(d => d.key === key)).filter(Boolean) : [], role = tpl.length >= 2 ? role0 : 'line';
+  if (role !== 'line') plan = tpl.slice(); else {
   for (let i = 0; i < (caps.length ? 2 : 0); i++) plan.push(caps[ci++ % caps.length]);
   // (the Empire lines up its big ships: more Star Destroyers to a group, fewer small escorts)
   if (VOY_FLEET_DOCTRINE[faction]?.perTg) for (let i = 2; i < VOY_FLEET_DOCTRINE[faction].perTg && caps.length; i++) plan.push(caps[ci++ % caps.length]);
   while (plan.length < 6 && (escs.length || caps.length)) plan.push(escs.length ? escs[ei++ % escs.length] : caps[ci++ % caps.length]);
+  }
   const tg = [];for (const d of plan) { if (opt.target && tot.str >= opt.target) { done = true; break; } const sh = take(d); if (sh) tg.push(sh); }
   // (a big-ship navy forms no group of escorts alone: when its line ships no longer fit, the fleet is complete)
-  if (VOY_FLEET_DOCTRINE[faction]?.perTg && tg.length && !tg.some(sh => caps.some(d => voyFactionDesign(d, faction).key === sh.key))) { for (const sh of tg) { ships.splice(ships.indexOf(sh), 1); tot.people -= voyShipDemand(sh).people; tot.supply -= voyShipDemand(sh).supply; } break; }
-  if (!tg.length) break;tgs.push(tg);if (opt.target && tot.str >= opt.target) done = true;
+  if (role === 'line' && VOY_FLEET_DOCTRINE[faction]?.perTg && tg.length && !tg.some(sh => caps.some(d => voyFactionDesign(d, faction).key === sh.key))) { for (const sh of tg) { ships.splice(ships.indexOf(sh), 1); tot.people -= voyShipDemand(sh).people; tot.supply -= voyShipDemand(sh).supply; } break; }
+  if (!tg.length) break;tgs.push(tg);roles.push(role);if (opt.target && tot.str >= opt.target) done = true;
  }
  if (!ships.length && use.length) { const d = use.slice().sort((a, b) => people(a) - people(b))[0], sh = {id: '', src: d.key, key: d.key, name: voyNextName(faction, used, rand), ...load(d)}; ships.push(sh); tgs.push([sh]); }
  // A last group of fewer than four ships joins the one before it where there is room.
- if (tgs.length > 1 && tgs[tgs.length - 1].length < TG_MIN) { const last = tgs[tgs.length - 1], prev = tgs[tgs.length - 2]; if (prev.length + last.length <= TG_MAX) prev.push(...tgs.pop()); else while (last.length < TG_MIN && prev.length > TG_MIN) last.unshift(prev.pop()); }
+ if (tgs.length > 1 && tgs[tgs.length - 1].length < TG_MIN) { const last = tgs[tgs.length - 1], prev = tgs[tgs.length - 2]; if (prev.length + last.length <= TG_MAX) { prev.push(...tgs.pop()); roles.pop(); } else while (last.length < TG_MIN && prev.length > TG_MIN) last.unshift(prev.pop()); }
  const ob = {ctgs: [], next: 1};
  tgs.forEach((t, i) => { const c0 = Math.floor(i / 3); if (!ob.ctgs[c0]) ob.ctgs[c0] = {id: voyUid(ob), name: `第${c0 + 1}合同任務群`, tgs: []}; const c = ob.ctgs[c0];
   t.sort((a, b) => voyDesign(b.key).info.len - voyDesign(a.key).info.len);
-  c.tgs.push({id: voyUid(ob), name: `第${c0 + 1}${c.tgs.length + 1}任務群`, formation: ['abreast', 'wedge', 'column'][c.tgs.length % 3], ships: t.map(sh => ({...sh, id: voyUid(ob)}))}); });
+  c.tgs.push({id: voyUid(ob), name: `第${c0 + 1}${c.tgs.length + 1}任務群`, formation: roles[i] === 'raid' || roles[i] === 'recon' ? 'column' : ['abreast', 'wedge', 'column'][c.tgs.length % 3], role: roles[i] || 'line', ships: t.map(sh => ({...sh, id: voyUid(ob)}))}); });
  return ob;
 }
 // The opponent first offered: the usual rival, unless its whole navy (as many ships as
@@ -9733,7 +9746,7 @@ function voyCtgHTML(s, ob, c) {
 }
 function voyTgHTML(s, ob, tg) {
  const n = tg.ships.length, warn = n && n < TG_MIN ? `（${TG_MIN}隻未満）` : '', full = n >= TG_MAX, tgs = voyObTgs(ob);
- return `<div class="ob-tg" data-tg="${tg.id}"><div class="ob-tg-head"><input class="ob-name" data-obname="tg" value="${esc(voyDisplayName(tg))}" aria-label="任務群の名前" maxlength="48"><label class="ob-form">陣形<select data-obform>${[...Object.entries(R.FORMATIONS), ...voyFormStore().map(t => ['tpl:' + t.id, t.name])].map(([k, v]) => `<option value="${esc(k)}" ${tg.formation === k ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></label><button type="button" class="btn sm ghost" data-vfedtg="${tg.id}" title="陣形エディターで編集">編集</button><b class="ob-count${warn ? ' warn' : ''}">${n} / ${TG_MAX} 隻${warn}</b><small class="ob-tgcost">費用 ${fCr(voyFleetCost(tg.ships).total)}</small><button type="button" class="btn sm ghost" data-ob="tgdel" aria-label="この任務群を解散">×</button><button type="button" class="btn sm ghost" data-ob="tgdup" title="同じ艦級・同じ搭載の任務群をこの合同任務群に追加">この任務群を複製</button></div>
+ return `<div class="ob-tg" data-tg="${tg.id}"><div class="ob-tg-head"><input class="ob-name" data-obname="tg" value="${esc(voyDisplayName(tg))}" aria-label="任務群の名前" maxlength="48"><label class="ob-form">役割<select data-obrole><option value="" ${tg.role ? '' : 'selected'}>未指定</option>${Object.entries(R.TF_ROLES).map(([k, v]) => `<option value="${k}" ${tg.role === k ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></label><label class="ob-form">陣形<select data-obform>${[...Object.entries(R.FORMATIONS), ...voyFormStore().map(t => ['tpl:' + t.id, t.name])].map(([k, v]) => `<option value="${esc(k)}" ${tg.formation === k ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></label><button type="button" class="btn sm ghost" data-vfedtg="${tg.id}" title="陣形エディターで編集">編集</button><b class="ob-count${warn ? ' warn' : ''}">${n} / ${TG_MAX} 隻${warn}</b><small class="ob-tgcost">費用 ${fCr(voyFleetCost(tg.ships).total)}</small><button type="button" class="btn sm ghost" data-ob="tgdel" aria-label="この任務群を解散">×</button><button type="button" class="btn sm ghost" data-ob="tgdup" title="同じ艦級・同じ搭載の任務群をこの合同任務群に追加">この任務群を複製</button></div>
   <ul class="ob-ships">${tg.ships.map((sh, i) => { const d = voyShipDesign(sh), air = R.airTotals(sh.air), troops = (sh.ground || []).reduce((k, r) => k + R.regimentTotals(r).troops, 0), dem = voyShipDemand(sh), st = d && voyHasStow(d) && (sh.air?.length || sh.carried?.length) ? voyStowShort(sh, d) : null;
    return `<li class="ob-ship" data-ship="${sh.id}"><span class="ob-flag" title="${i ? '' : '旗艦（任務群の先頭）'}">${i ? '' : '旗'}</span><input class="ob-name" data-obname="ship" value="${esc(voyDisplayName(sh))}" aria-label="艦名" maxlength="48"><small class="ob-cls">${d ? `${esc(voyShort(d.name))} · ${fLen(d.info.len)} · 乗員 ${num(dem.people)} · 費用 ${fCr(voyCostOf(sh).total)}` : '準備中…'}</small>
     <button type="button" class="ve-orbat${st && st.short ? ' warn' : ''}" data-ob="air"><span>航空</span><b>${air.n ? `${num(air.n)} 機` : d?.info.slotCap || d?.info.hangarCap ? '未搭載' : '—'}${sh.carried?.length ? ` ＋艦 ${sh.carried.length}` : ''}${st && st.short ? ` · ${num(st.short)} 入らず` : ''}</b></button><button type="button" class="ve-orbat" data-ob="ground"><span>陸戦</span><b>${troops ? `${num(troops)} ${voyEdFac(voy.setup) === 'cis' ? '体' : '名'}` : R.troopRoom(d?.info || {}, voyEdFac(voy.setup)) ? '未乗艦' : '—'}</b></button>
@@ -10009,6 +10022,7 @@ function voyBindSetup() {
    const row = kind === 'ctg' ? ob.ctgs.find(x => x.id === el.dataset.ctg) : kind === 'tg' ? voyObTgs(ob).find(x => x.id === el.dataset.tg) : voyFindShip(el.dataset.ship)?.sh;
    if (row && voySetName(row, t.value)) voyObChanged(false);if (row) t.value = voyDisplayName(row);return; }
   if ('obctgform' in t.dataset) { const c=ob.ctgs.find(x=>x.id===t.closest('[data-ctg]').dataset.ctg);if(c){if(R.FORMATIONS[t.value])c.formation=t.value;else delete c.formation;}voyObChanged(false);return; }
+  if ('obrole' in t.dataset) { const x = voyObTgs(ob).find(q => q.id === t.closest('[data-tg]').dataset.tg); if (x) { if (R.TF_ROLES[t.value]) x.role = t.value; else delete x.role; } voyObChanged(false); return; }
   if ('obform' in t.dataset) { const x = voyObTgs(ob).find(q => q.id === t.closest('[data-tg]').dataset.tg); if (x && (R.FORMATIONS[t.value] || voyFormStore().some(q => 'tpl:' + q.id === t.value))) x.formation = t.value; voyObChanged(false); return; }
   if ('obmove' in t.dataset) { const f = voyFindShip(t.closest('[data-ship]').dataset.ship), to = voyObTgs(ob).find(q => q.id === t.value); if (f && to && to !== f.t && to.ships.length < TG_MAX) { f.t.ships.splice(f.t.ships.indexOf(f.sh), 1); to.ships.push(f.sh); } voyObChanged(); return; }
   if (t.dataset.pickctg) { const c = ob.ctgs.find(x => x.id === t.dataset.pickctg); if (c) for (const x of c.tgs) s.sel[x.id] = t.checked; voyRenderSetup(); return; }
@@ -10056,8 +10070,8 @@ function voyBindSetup() {
    else if (d.ob === 'shipdel' && f) f.t.ships.splice(f.t.ships.indexOf(f.sh), 1);
    // v21.2 Copies: the same class with the same load-out (aircraft, small ships, troops), under new names.
    else if (d.ob === 'shipdup' && f) { if (f.t.ships.length >= TG_MAX) { toast(`任務群は${TG_MAX}隻までです`); return; } f.t.ships.splice(f.t.ships.indexOf(f.sh) + 1, 0, voyCopyShip(ob, f.sh, fac)); }
-   else if (d.ob === 'tgdup' && t && c) { const n = ob.ctgs.indexOf(c) + 1;c.tgs.splice(c.tgs.indexOf(t) + 1, 0, {id: voyUid(ob), name: `第${n}${c.tgs.length + 1}任務群`, formation: t.formation, ships: t.ships.map(sh => voyCopyShip(ob, sh, fac))}); }
-   else if (d.ob === 'ctgdup' && c) { const n = ob.ctgs.length + 1;ob.ctgs.splice(ob.ctgs.indexOf(c) + 1, 0, {id: voyUid(ob), name: `第${n}合同任務群`, ...(c.formation?{formation:c.formation}:{}), tgs: c.tgs.map((x, i) => ({id: voyUid(ob), name: `第${n}${i + 1}任務群`, formation: x.formation, ships: x.ships.map(sh => voyCopyShip(ob, sh, fac))}))}); }
+   else if (d.ob === 'tgdup' && t && c) { const n = ob.ctgs.indexOf(c) + 1;c.tgs.splice(c.tgs.indexOf(t) + 1, 0, {id: voyUid(ob), name: `第${n}${c.tgs.length + 1}任務群`, formation: t.formation, ...(t.role ? {role: t.role} : {}), ships: t.ships.map(sh => voyCopyShip(ob, sh, fac))}); }
+   else if (d.ob === 'ctgdup' && c) { const n = ob.ctgs.length + 1;ob.ctgs.splice(ob.ctgs.indexOf(c) + 1, 0, {id: voyUid(ob), name: `第${n}合同任務群`, ...(c.formation?{formation:c.formation}:{}), tgs: c.tgs.map((x, i) => ({id: voyUid(ob), name: `第${n}${i + 1}任務群`, formation: x.formation, ...(x.role ? {role: x.role} : {}), ships: x.ships.map(sh => voyCopyShip(ob, sh, fac))}))}); }
    else if (d.ob === 'lead' && f) { f.t.ships.splice(f.t.ships.indexOf(f.sh), 1); f.t.ships.unshift(f.sh); }
    else if ((d.ob === 'air' || d.ob === 'ground') && f) { s.editing = f.sh.id; s.sheetTab = d.ob; voyOrbatSheet(); return; }
    voyObChanged();return;
@@ -10094,7 +10108,7 @@ function voyStartBattle() {
  if(voyCraftPricesBlocked()){toast('機体の価格を更新中です');return;}
  const s = voy.setup, sc = voyScenarioOf(s), designs = [...new Set(voy.designs.values())].map(d => ({key: d.key, name: d.name, p: d.p, info: d.info}));
  voy.w = R.scenarioWorld(sc, designs, voyShipDesign, {formations: voyFormStore()});voy.w.onHit = voyOnHit;
- const keys = [...new Set([...voy.w.units.values()].map(u => u.design))];
+ const keys = [...new Set([...voy.w.units.values()].map(u => u.design).concat(voyConvoyKeys(voy.w)))];
  voy.speed = 4;voy.seenEv = 0;voy.notes = [];voy.sel = {group: null, ctg: null, sys: null, dest: null, units: [], wing: null, foe: null};voy.cmd = null;voy.ops.fitted = false;voy.tac = {sys: null, c: [0, 0], mpp: 300, fitted: false};voy.result = null;voy.resultDismissed = false;
  const first = [...voy.w.ctgs.values()].find(c => c.side === 0);if (first) voy.sel.ctg = first.id;
  voyShow('ops');voyNote(`作戦開始：${voy.w.sector.name}。敵艦隊（${R.FACTIONS[s.foe].name}）の位置は不明です。任務群を航路に沿ってジャンプさせて探してください。`);
@@ -10102,6 +10116,8 @@ function voyStartBattle() {
  // The battle opens in 3D on our lead task group; the maps are under 「命令」.
  if (voyCan3D()) voyEnter3D().then(ok => { if (ok) toast('「命令」で作戦図・戦術図を開いて命令します'); voyWarm(keys); });else voyWarm(keys);
 }
+// v26 The supply ships and escorts the sides' convoys may bring in (their models are warmed with the fleet's).
+const voyConvoyKeys = w => w.sides.flatMap(sd => { const k = R.CONVOY_KIT[sd.faction] || R.CONVOY_KIT.any; return [...k.ships, ...k.escorts, k.big].filter(x => x && w.designs.has(x)); });
 // The 3D models of every design in the battle are built in the background, so
 // that flying a ship later does not wait for them.
 async function voyWarm(keys) { for (const k of keys) { if (!voy.w) return; try { await fleetAsset(k); } catch (e) { console.warn('model not ready', k, e.message); } } }
@@ -10586,13 +10602,23 @@ function voyOpsSide() {
  if (rear.length) parts.push(`<div class="vs-card vs-list"><h3>後方で修理中</h3><ul>${rear.map(u => `<li class="muted"><b>${esc(u.name)}</b><small>母港で復帰まで ${voyClock(u.rear.back - w.time)}</small></li>`).join('')}</ul></div>`);
  return parts.join('');
 }
+// v26 Supply convoys for a task group: those on their way (what is coming and when), the request button (with the
+// reason when there can be none) and the automatic request switch. A convoy's own card says what it carries.
+function voyConvoyHTML(g) {
+ const w = voy.w, sp = w.sides[g.side]?.supply;if (!sp?.convoy || g.side !== 0) return '';
+ if (g.convoy) { const cv = w.convoys?.get(g.convoy); if (!cv) return ''; return `<p class="vs-sub">補給船団 · 資材 ${num(Math.round(cv.cargo))} t · 補給船 ${cv.ships} 隻 · 護衛 ${cv.escorts} 隻 → ${esc(w.sector.systems[cv.sys].name)}${cv.phase === 'back' ? ' · 帰投中' : cv.phase === 'unload' ? ' · 荷降ろし中' : cv.hold ? ' · 敵のため待機中' : ''}</p>`; }
+ const list = R.convoysFor(w, g.id), pl = R.convoyPlan(w, g.id), dump = g.sys != null ? sp.dump?.get(g.sys) || 0 : 0;
+ return `<div class="vs-convoy">${list.map(c => `<p class="vs-sub">${esc(c.name)} · 資材 ${num(Math.round(c.cargo))} t · 補給船 ${c.ships} 隻 · 護衛 ${c.escorts} 隻 · 到着まで ${c.left == null ? '—' : voyClock(c.left)}${c.hold ? ' · 敵のため待機中' : ''}</p>`).join('')}${dump >= 1 ? `<p class="vs-sub">この星系の補給集積 ${num(Math.round(dump))} t</p>` : ''}
+  <div class="vs-acts"><button type="button" class="btn sm" data-vact="convoy" ${pl.ok ? '' : 'disabled'} title="${esc(pl.ok ? `資材 ${num(Math.round(pl.load))} t · 補給船 ${pl.ships.length} 隻 · 護衛 ${pl.escorts.length} 隻 · 到着まで約 ${voyClock(pl.eta)}` : pl.why)}">補給を要請</button><button type="button" class="btn sm ghost" data-vact="convoyauto" aria-pressed="${!g.noAutoConvoy}">自動要請</button></div>${pl.ok ? '' : `<p class="note">${esc(pl.why)}</p>`}</div>`;
+}
 function voyTgOpsCard(g) {
  const w = voy.w, S = w.sector, us = g.units.map(id => w.units.get(id)).filter(R.alive), hc = R.groupHyper(w, g), c = R.ctgOf(w, g), tow = us.filter(u => u.tractor?.lock && u.tractor.mode === 'tow').length, held = R.groupDisabled(w, g), stay = R.groupStay(w, g);
  const dest = voy.sel.dest != null && voy.sel.dest !== g.sys ? voy.sel.dest : g.navigation?.waiting?g.navigation.final:null, from = g.sys ?? g.transit?.to, eta = dest != null ? R.etaTo(w, g.id, dest) : null, free = !g.transit && !g.spool && !g.waitJump;
- return `<div class="vs-card">${voyCrumbs(c, null)}<div class="vs-head"><h3>${esc(g.name)}</h3><span>${us.length} 隻 · ${esc(R.formationName(w, g.formation))}</span></div>
+ return `<div class="vs-card">${voyCrumbs(c, null)}<div class="vs-head"><h3>${esc(g.name)}</h3><span>${us.length} 隻${g.role ? ` · ${esc(R.TF_ROLES[g.role])}` : g.convoy ? ' · 補給船団' : ''} · ${esc(R.formationName(w, g.formation))}</span></div>
   <p class="vs-state${g.spool?.blocked ? ' bad' : g.spool || g.waitJump ? ' warn' : ''}">${esc(voyTgStatus(g))}</p>${navigationStateHTML(g.navigation,id=>S.systems[id]?.name||'')}
   <p class="vs-sub">ハイパードライブ ${hc == null ? (held.length ? 'ジャンプ不能（航行不能艦あり）' : 'ジャンプできる艦がありません') : 'クラス ' + hc.toFixed(1) + '（任務群で最も遅い艦）'}${tow ? ` · 牽引中 ${tow} 隻（同行）` : ''}${stay.length ? ` · ハイパードライブを失った ${stay.length} 隻は残置` : ''}</p>
   ${g.sys != null ? `<p class="vs-sub">補給線 ${voySupplyLine(g.sys)}${us.some(u => u.supplyNeed?.total) ? ` · 補給待ち ${us.filter(u => u.supplyNeed?.total).length} 隻` : ''}</p>` : ''}
+  ${voyConvoyHTML(g)}
   ${voyDisabledHTML(held)}
   <ul class="vs-ships">${us.map(u => `<li><label>${voy.split ? `<input type="checkbox" data-vsplit="${u.id}" ${voy.splitSel?.has(u.id) ? 'checked' : ''}>` : ''}<b>${u.id === g.flag ? '旗 ' : ''}${esc(u.name)}</b></label>${voyCrewHTML(u)}<small>${voyUnitState(u,true)}</small></li>`).join('')}</ul>
   ${dest != null ? `<div class="vs-jump"><p>→ <b>${esc(S.systems[dest].name)}</b>　今回の停止まで <b>${eta == null ? '—' : voyClock(eta)}</b></p><div class="vs-route">${voyRouteHTML(from, dest)}</div><div class="vs-acts"><button type="button" class="btn sm primary" data-vact="jump" ${eta == null || !free ? 'disabled' : ''}>ジャンプ</button><button type="button" class="btn sm ghost" data-vact="nodest">取消</button></div></div>` : ''}
@@ -11050,6 +11076,8 @@ function voySidebarClick(e) {
   if ((d.vact === 'ctgjump' || d.vact === 'ctgjump1') && c) { const dest = voy.sel.dest, r = R.orderCtgJump(w, c.id, dest, d.vact === 'ctgjump'); toast(r.ok ? `${esc(c.name)}：${esc(w.sector.systems[dest].name)}へ（全任務群の到着まで ${voyClock(r.eta)}）` : esc(r.why)); voy.sel.dest = null; voy.cmd = null; voyRenderSide(); return; }
   if (d.vact === 'cancel') { let late = false; for (const h of g ? [g] : voyCtgGroups(c)) { if (R.cancelJump(w, h.id) === false) late = true; else h.waitJump = null; } if (late) toast('艦が順にジャンプしている最中のため中止できません'); voyRenderSide(); return; }
   if (d.vact === 'split' && g) { if (!voy.split) { voy.split = true; voy.splitSel = new Set(); } else { const h = R.splitGroup(w, g.id, [...voy.splitSel], g.name + '分遣隊'); voy.split = false; if (h) { voySelect({group: h.id}); toast(`${esc(h.name)}を編成しました`); } else toast('分ける艦を選んでください（全艦は選べません）'); } voyRenderSide(); return; }
+  if (d.vact === 'convoy' && g) { const r = R.requestConvoy(w, g.id); toast(r.ok ? `補給船団を派遣：資材 ${num(Math.round(r.cargo))} t・補給船 ${r.ships} 隻・護衛 ${r.escorts} 隻（到着まで約 ${voyClock(r.eta)}）` : esc(r.why)); voyRenderSide(); return; }
+  if (d.vact === 'convoyauto' && g) { g.noAutoConvoy = !g.noAutoConvoy; voyRenderSide(); return; }
   if (d.vact === 'nocmd') { voy.cmd = null; voyRenderSide(); return; }
   if (d.vact === 'nofoe') { voy.sel.foe = null; voyRenderSide(); return; }
   if (d.vact.startsWith('cmd:')) { const t = d.vact.slice(4); voy.cmd = voy.cmd?.type === t ? null : {type: t}; voyRenderSide(); return; }
@@ -13131,7 +13159,7 @@ async function msBattleGo() {
  hideTitle();voy.saves = await Store.list().catch(() => voy.saves || []);
  // The ships ready now sail (one whose repair ends on the way stays behind); the clock runs on by the longest passage
  // (the enemy fleet waits for them).
- const pick = new Set(tgs.map(t => t.id)), obF = {ctgs: st.ob.ctgs.map(c => ({id: c.id, name: c.name, tgs: c.tgs.map(t => ({id: t.id, name: t.name, formation: t.formation, ships: pick.has(t.id) ? t.ships.filter(sh => !sh.dock && voyShipDesign(sh)) : []}))}))};
+ const pick = new Set(tgs.map(t => t.id)), obF = {ctgs: st.ob.ctgs.map(c => ({id: c.id, name: c.name, tgs: c.tgs.map(t => ({id: t.id, name: t.name, formation: t.formation, ...(t.role ? {role: t.role} : {}), ships: pick.has(t.id) ? t.ships.filter(sh => !sh.dock && voyShipDesign(sh)) : []}))}))};
  msAdvance(st, eta, f.id);for (const t of tgs){st.at[t.id] = f.sys;if(st.navigation)delete st.navigation[t.id];}
  const sortie = voyObTgs(obF).filter(t => pick.has(t.id) && t.ships.length), foeOb = msFoeOrbat(f);
  const own = voyBattleOrbat(obF, sortie, st.faction), enemy = voyBattleOrbat(foeOb, voyObTgs(foeOb), f.faction);
