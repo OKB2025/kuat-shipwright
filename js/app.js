@@ -8172,12 +8172,12 @@ function findSave(list,source){const id=source.slice(5),a=list||[];return a.find
 // v13 LOAD opts.lite: only the 3D model is wanted (a fleet battle's units carry the precomputed profiles of the
 // examples), so the engine skips the performance figures of an example; a later caller that needs them gets them.
 // A design already on its way to the engine is not asked for twice (a warm-up and the screen that needs it).
-const fleetExampleData=k=>{const b=String(k||'').split('#')[0];return typeof YardFleetData!=='undefined'&&Object.hasOwn(YardFleetData.designs||{},b)?YardFleetData.designs[b]:null;};
-const fleetPending=new Map();
-function fleetAsset(source,opts={}){
+async function fleetAsset(source,opts={}){
  const q=fleetPending.get(source);if(q)return opts.lite?q:q.then(a=>fleetAssetStats(a));
  const p=fleetAssetLoad(source,opts);fleetPending.set(source,p);p.then(()=>fleetPending.delete(source),()=>fleetPending.delete(source));return p;
 }
+const fleetExampleData=k=>{const b=String(k||'').split('#')[0];return typeof YardFleetData!=='undefined'&&Object.hasOwn(YardFleetData.designs||{},b)?YardFleetData.designs[b]:null;};
+const fleetPending=new Map();
 async function fleetAssetLoad(source,opts={}){
  if(fleet.assets.has(source)){const a=fleet.assets.get(source);return a.stats||opts.lite?a:fleetAssetStats(a);}
  let payload=null,key=source,alias=null;
