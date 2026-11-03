@@ -1,19 +1,31 @@
 // Display-only localization. Designs, identifiers and simulation data stay intact.
 (function(root){
 'use strict';
-const catalog=root.KS_EN||{},exact=catalog.messages||{},terms=catalog.terms||{},storageKey='yard.language',supported=new Set(['ja','en']);
+const storageKey='yard.language',supported=new Set(['ja','en']);
 let saved;try{saved=root.localStorage?.getItem(storageKey);}catch(_){}
 let language=supported.has(saved)?saved:/^ja\b/i.test(root.navigator?.language||'ja')?'ja':'en';
 const cache=new Map(),originals=new WeakMap(),attributes=new WeakMap(),contexts=new WeakSet();
 const hasJapanese=/[\u3040-\u30ff\u3400-\u9fff]/,escapeRE=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-const patterns=Object.entries(exact).filter(([s])=>/\{\d+\}/.test(s)&&s.replace(/\{\d+\}/g,'').trim().length>=2).map(([s,to])=>{
- const order=[],parts=s.split(/(\{\d+\})/);return {re:new RegExp('^'+parts.map((p,i)=>/^\{\d+\}$/.test(p)?(order.push(+p.slice(1,-1)),parts[i-1]?.endsWith('第')?'(\\d+)':'(.*?)'):escapeRE(p)).join('')+'$'),to,order,weight:s.replace(/\{\d+\}/g,'').length};
-}).sort((a,b)=>b.weight-a.weight);
-const termKeys=Object.keys(terms).sort((a,b)=>b.length-a.length),termRE=termKeys.length?new RegExp(termKeys.map(escapeRE).join('|'),'g'):null;
-// Translations are pure functions of the source text: remember them (bounded), since the same labels are
-// translated over and over by the DOM observer and every canvas frame.
+// The English catalog (js/lang-en.js, ~0.9 MB) is only fetched by the page when English is chosen; in Japanese the
+// page starts without it and it is loaded the first time the player switches. The lookup tables are built from
+// whichever catalog is present and rebuilt once if it arrives later.
+let preparedFor=null,exact={},terms={},patterns=[],termRE=null;
+function prepare(){
+ if(preparedFor===root.KS_EN)return;preparedFor=root.KS_EN;
+ const catalog=root.KS_EN||{};exact=catalog.messages||{};terms=catalog.terms||{};
+ patterns=Object.entries(exact).filter(([s])=>/\{\d+\}/.test(s)&&s.replace(/\{\d+\}/g,'').trim().length>=2).map(([s,to])=>{
+  const order=[],parts=s.split(/(\{\d+\})/);return {re:new RegExp('^'+parts.map((p,i)=>/^\{\d+\}$/.test(p)?(order.push(+p.slice(1,-1)),parts[i-1]?.endsWith('第')?'(\\d+)':'(.*?)'):escapeRE(p)).join('')+'$'),to,order,weight:s.replace(/\{\d+\}/g,'').length};
+ }).sort((a,b)=>b.weight-a.weight);
+ const termKeys=Object.keys(terms).sort((a,b)=>b.length-a.length);termRE=termKeys.length?new RegExp(termKeys.map(escapeRE).join('|'),'g'):null;
+ englishMemo.clear();cache.clear();
+}
+let catalogLoad=null;
+function loadCatalog(){
+ if(root.KS_EN||!root.document)return Promise.resolve();
+ return catalogLoad||(catalogLoad=new Promise(resolve=>{const s=root.document.createElement('script');s.src=root.KS_EN_SRC||'js/lang-en.js';s.onload=s.onerror=()=>{s.remove();if(!root.KS_EN)catalogLoad=null;resolve();};(root.document.head||root.document.documentElement).appendChild(s);}));
+}
 const englishMemo=new Map();
-function english(value,depth=0){if(depth)return englishRaw(value,depth);const k=String(value??'');let v=englishMemo.get(k);if(v===undefined){v=englishRaw(k,0);if(englishMemo.size>20000)englishMemo.clear();englishMemo.set(k,v);}return v;}
+function english(value,depth=0){prepare();if(depth)return englishRaw(value,depth);const k=String(value??'');let v=englishMemo.get(k);if(v===undefined){v=englishRaw(k,0);if(englishMemo.size>20000)englishMemo.clear();englishMemo.set(k,v);}return v;}
 function englishRaw(value,depth=0){
  const s=String(value??'');if(!hasJapanese.test(s))return s;
  if(Object.hasOwn(exact,s))return exact[s];
@@ -53,14 +65,15 @@ let observer;
 function watch(){if(observer&&root.document?.documentElement)observer.observe(root.document.documentElement,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:attrNames});}
 function refresh(){const doc=root.document;if(!doc)return;observer?.disconnect();doc.documentElement.lang=language;localize(doc.documentElement);for(const el of doc.querySelectorAll('[data-language]'))el.value=language;watch();}
 function announce(){root.dispatchEvent?.(new root.CustomEvent('ks-language-change',{detail:{language}}));}
-function setLanguage(value){if(!supported.has(value))return false;language=value;cache.clear();try{root.localStorage?.setItem(storageKey,value);}catch(_){}refresh();announce();return true;}
+function apply(){refresh();announce();if(language==='en'&&!root.KS_EN)loadCatalog().then(()=>{if(language==='en'&&root.KS_EN){cache.clear();refresh();announce();}});}
+function setLanguage(value){if(!supported.has(value))return false;language=value;cache.clear();try{root.localStorage?.setItem(storageKey,value);}catch(_){}apply();return true;}
 root.KSI18n={t,english,setLanguage,localize,sourceText,sourceHTML,canvas,refresh,get language(){return language;},get locale(){return language==='en'?'en-US':'ja-JP';}};
 if(root.document){
  const init=()=>{
   if(root.MutationObserver)observer=new root.MutationObserver(records=>{observer.disconnect();const nodes=new Set();for(const r of records){if(r.type==='childList')for(const n of r.addedNodes)nodes.add(n);else nodes.add(r.target);}for(const n of nodes)if(n.isConnected)localize(n);watch();});
-  root.document.addEventListener('change',e=>{if(e.target.matches?.('[data-language]'))setLanguage(e.target.value);});refresh();
+  root.document.addEventListener('change',e=>{if(e.target.matches?.('[data-language]'))setLanguage(e.target.value);});refresh();if(language==='en'&&!root.KS_EN)apply();
  };
  if(root.document.readyState==='loading')root.document.addEventListener('DOMContentLoaded',init,{once:true});else init();
- root.addEventListener('storage',e=>{if(e.key===storageKey&&supported.has(e.newValue)){language=e.newValue;cache.clear();refresh();announce();}});
+ root.addEventListener('storage',e=>{if(e.key===storageKey&&supported.has(e.newValue)){language=e.newValue;cache.clear();apply();}});
 }
 })(typeof window==='undefined'?globalThis:window);

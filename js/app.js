@@ -1685,8 +1685,11 @@ function pauseEls() { for (const s of els || []) if (!s.el.paused) { s.was = 1; 
 function resumeEls() { for (const s of els || []) if (s.was) { s.was = 0; const p = s.el.play(); if (p && p.catch) p.catch(() => {}); } }
 // Start loading tracks ahead of need (e.g. the title music while the title screen waits for a tap): no audio
 // context is needed to fetch and decode the data, only to play it. Returns how many were asked for.
+// Not while sound is off or the browser asks to save data (a phone on mobile data): the track then loads when it is
+// first played, with the synthesized score covering the wait, instead of ~9 MB arriving before the first tap.
+const saveData = () => { try { return !!(W.navigator && W.navigator.connection && W.navigator.connection.saveData); } catch (e) { return false; } };
 function preload(ids) {
- if (S.musicSource === 'synth' || noData || !canPlay()) return 0; let n = 0;
+ if (S.musicSource === 'synth' || noData || !canPlay() || quiet() || S.music <= 0 || saveData()) return 0; let n = 0;
  for (const id of [].concat(ids || [])) if (typeof id === 'string' && /^[\w-]+$/.test(id)) { loadTrack(id).catch(() => {}); n++; }
  return n;
 }
