@@ -1,0 +1,79 @@
+{
+  "schema": 1,
+  "beforeVersion": 9,
+  "afterVersion": 10,
+  "entries": {
+    "arc170": {
+      "reference": "craft_arc170",
+      "before": 213058,
+      "after": 213055,
+      "delta": -3
+    },
+    "awing": {
+      "reference": "craft_awing",
+      "before": 156334,
+      "after": 156333,
+      "delta": -1
+    },
+    "btlb": {
+      "reference": "craft_btlb",
+      "before": 201776,
+      "after": 201775,
+      "delta": -1
+    },
+    "hyena": {
+      "reference": "craft_hyena",
+      "before": 207626,
+      "after": 207622,
+      "delta": -4
+    },
+    "tie_in": {
+      "reference": "craft_tie_in",
+      "before": 109118,
+      "after": 109115,
+      "delta": -3
+    },
+    "tie_ln": {
+      "reference": "craft_tie_ln",
+      "before": 95225,
+      "after": 95225,
+      "delta": 0
+    },
+    "tie_sa": {
+      "reference": "craft_tie_sa",
+      "before": 133279,
+      "after": 133267,
+      "delta": -12
+    },
+    "v19": {
+      "reference": "craft_v19",
+      "before": 158949,
+      "after": 158947,
+      "delta": -2
+    },
+    "vulture": {
+      "reference": "craft_vulture",
+      "before": 144429,
+      "after": 144429,
+      "delta": 0
+    },
+    "vwing": {
+      "reference": "craft_vwing",
+      "before": 228869,
+      "after": 228869,
+      "delta": 0
+    },
+    "xwing": {
+      "reference": "craft_xwing",
+      "before": 178920,
+      "after": 178922,
+      "delta": 2
+    },
+    "z95": {
+      "reference": "craft_z95",
+      "before": 133864,
+      "after": 133863,
+      "delta": -1
+    }
+  }
+}

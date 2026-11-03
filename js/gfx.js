@@ -550,7 +550,7 @@ function meshFits(ship, filter, ranges, only) {
       // fills down to the lowest one so they never hang over a slope or step.
       if(f.float||C.FITS[f.k].casemate||f.localMount||f.mountAxis!=null)return;
       const d=C.fitSpec(f),ph=(f.base||0)+(f.ped||0)-(f.low||0);
-      if(ph>0.3&&!FIT_SKIP_PED?.has(f.id))pedestal(g,frameM(f),C.fitOrigin(f),ph,d.r*.72*(f.pedSize||1),f.pedShape,FC.ped,d.r*.8);
+      if(ph>0.3&&C.fitHasPedestal(f)&&!FIT_SKIP_PED?.has(f.id))pedestal(g,frameM(f),C.fitOrigin(f),ph,d.r*.72*(f.pedSize||1),f.pedShape,FC.ped,d.r*.8);
       return;
     }
     // Command pods are the bridge drum mesh, drawn with the model fittings.
@@ -560,7 +560,7 @@ function meshFits(ship, filter, ranges, only) {
     const d = C.fitSpec(f), M = frameM(f), o = C.fitOrigin(f), L = d.fm, W = d.wm, h = d.hm, k = f.k;
     // pedestal from below the surface up to the mount
     const ph = f.base + f.ped - (f.low || 0);
-    if (ph > 0.3 && !FIT_SKIP_PED?.has(f.id)) pedestal(g, M, o, ph, d.r * (d.cat === 'b' ? 0.55 : 0.72) * (f.pedSize || 1), f.pedShape, FC.ped, d.r * 0.8);
+    if (ph > 0.3 && C.fitHasPedestal(f) && !FIT_SKIP_PED?.has(f.id)) pedestal(g, M, o, ph, d.r * (d.cat === 'b' ? 0.55 : 0.72) * (f.pedSize || 1), f.pedShape, FC.ped, d.r * 0.8);
     if (FIT_SKIP_BODY?.has(f.id)) return;
     if (d.cat === 'b') {
       const WIN = UV_WINDOW;
@@ -667,6 +667,22 @@ function meshFits(ship, filter, ranges, only) {
   };
   for (const f of only||surfaceRenderFits(ship)) { if (filter && !filter(f)) continue; const before = g.ni; one(f); if (ranges && g.ni > before) (ranges[f.id] || (ranges[f.id] = [])).push(['fits', before, g.ni - before]); }
   return g;
+}
+
+// Selection follows the exact visible weapon mesh, including its own broad
+// bounds. Empty space in a ring or between barrels is not selectable. A small
+// LRU invalidates immediately after a pose or load edit.
+const FIT_RAY_CACHE=new Map(),FIT_RAY_BOUNDS=new WeakMap();
+function rayFit(o,d,f){
+ if(!f||!C.FITS[f.k])return null;
+ const key=JSON.stringify([f,C.fitSpec(f),f._store],(k,v)=>k.startsWith('_')?undefined:v),known=FIT_RAY_BOUNDS.get(f);if(known?.key===key&&!C.rayAABB(o,d,known.bounds))return null;let item=FIT_RAY_CACHE.get(f);
+ if(!item||item.key!==key){const model={fits:[f],parts:[],paint:'imperial'},skipBody=FIT_SKIP_BODY,skipPed=FIT_SKIP_PED;let meshes;
+  try{FIT_SKIP_BODY=FIT_SKIP_PED=null;meshes=[meshFits(model,null,null,[f]),meshReferenceFits(model,null,[f])];}finally{FIT_SKIP_BODY=skipBody;FIT_SKIP_PED=skipPed;}
+  const T=new Float32Array(meshes.reduce((n,g)=>n+g.ni*3,0)),bounds=[Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity];let cursor=0;
+  for(const g of meshes)for(let i=0;i<g.ni;i++){const k=g.idx[i]*3;for(let a=0;a<3;a++){const v=g.pos[k+a];T[cursor++]=v;bounds[a]=Math.min(bounds[a],v);bounds[a+3]=Math.max(bounds[a+3],v);}}
+  item={key,T,bounds};FIT_RAY_BOUNDS.set(f,{key,bounds});FIT_RAY_CACHE.delete(f);FIT_RAY_CACHE.set(f,item);while(FIT_RAY_CACHE.size>48)FIT_RAY_CACHE.delete(FIT_RAY_CACHE.keys().next().value);
+ }else{FIT_RAY_CACHE.delete(f);FIT_RAY_CACHE.set(f,item);}
+ if(!item.T.length||!C.rayAABB(o,d,item.bounds))return null;return C.rayTris(item.T,o,d);
 }
 
 // ---------- WebGL ----------
@@ -1868,6 +1884,7 @@ function equipmentReferenceSkin(data,patches){
  for(let i=0;i<data.idx.length;i+=3){const poly=[0,1,2].map(j=>{const k=data.idx[i+j];return [...data.pos.slice(k*3,k*3+3),...data.uv.slice(k*2,k*2+2)];});for(const p of equipmentSkinFragments(poly,cutters))for(let j=1;j<p.length-1;j++)vertices.push(p[0],p[j],p[j+1]);}
  return {pos:Float32Array.from(vertices.flatMap(p=>p.slice(0,3))),uv:Float32Array.from(vertices.flatMap(p=>p.slice(3,5))),idx:Uint32Array.from(vertices.map((_,i)=>i))};
 }
+const SURFACE_RECESS_DATA=new WeakMap();
 function surfaceRecess(ship,patch,requested){
  const n=C.norm(patch.normal),T=surfaceTriangles(patch),recessDepth=Math.max(.02,Math.min(requested,patch.depth||requested)),backingTriangles=[],depths=new Map(),hints=new Map(),key=p=>p.map(v=>Math.round(v*1e6)).join(',');
  for(let i=0;i<T.length;i+=9){const ps=[T.slice(i,i+3),T.slice(i+3,i+6),T.slice(i+6,i+9)],center=C.mul(ps.reduce((a,b)=>C.add(a,b),[0,0,0]),1/3);for(const p of ps){const k=key(p);hints.set(k,C.add(hints.get(k)||[0,0,0],C.sub(center,p)));}}
@@ -1878,14 +1895,39 @@ function surfaceRecess(ship,patch,requested){
   if(!(depth>0))depth=C.surfaceInwardDepth?.(ship,patch,C.add(p,C.mul(hintAt(p),.001)))||0;
   const amount=Math.max(0,Math.min(recessDepth,depth-.012));depths.set(k,amount);return amount;};
  const pointAt=p=>C.sub(C.add(p,C.mul(hintAt(p),.0001)),C.mul(n,depthAt(p)));
- for(let i=0;i<T.length;i+=3)backingTriangles.push(...pointAt(T.slice(i,i+3)));
- return {recessDepth,backingTriangles,depthAt,pointAt};
+ // Raw wedge corners can all have zero depth while their shared diagonal
+ // has room for the full recess. Centroid fans retain that false ridge.
+ // Refine whole passes with shared edge midpoints so adjacent triangles
+ // agree; full-depth walls retain their exact original tessellation.
+ let faces=[];for(let i=0;i<T.length;i+=9)faces.push([T.slice(i,i+3),T.slice(i+3,i+6),T.slice(i+6,i+9)]);
+ const threshold=Math.max(.025,recessDepth*.18),midpoints=new Map(),midpoint=(a,b)=>{const ka=key(a),kb=key(b),k=ka<kb?ka+'|'+kb:kb+'|'+ka;let p=midpoints.get(k);if(!p){p=C.mul(C.add(a,b),.5);midpoints.set(k,p);}return p;};let splits=0;
+ const needsRefinement=([a,b,c])=>{const ds=[depthAt(a),depthAt(b),depthAt(c)];if(Math.min(...ds)>=recessDepth-threshold)return false;
+  const ps=[a,b,c];for(let j=0;j<3;j++)if(Math.abs(depthAt(midpoint(ps[j],ps[(j+1)%3]))-(ds[j]+ds[(j+1)%3])/2)>threshold)return true;
+  return Math.abs(depthAt(C.mul(C.add(C.add(a,b),c),1/3))-(ds[0]+ds[1]+ds[2])/3)>threshold;};
+ // At most three conforming passes and 192 four-way triangle splits.
+ for(let level=0;level<3&&splits+faces.length<=192&&faces.some(needsRefinement);level++){splits+=faces.length;const next=[];for(const [a,b,c]of faces){const ab=midpoint(a,b),bc=midpoint(b,c),ca=midpoint(c,a);next.push([a,ab,ca],[ab,b,bc],[ca,bc,c],[ab,bc,ca]);}faces=next;}
+ const frontTriangles=faces.flat(2);
+ for(let i=0;i<frontTriangles.length;i+=3)backingTriangles.push(...pointAt(frontTriangles.slice(i,i+3)));
+ const result={recessDepth,backingTriangles,frontTriangles,depthAt,pointAt};SURFACE_RECESS_DATA.set(backingTriangles,result);return result;
 }
 function surfaceBoundary(patch){
  const T=surfaceTriangles(patch),edges=new Map(),key=p=>p.map(v=>Math.round(v*1e6)).join(',');
  for(let i=0;i+8<T.length;i+=9){const p=[T.slice(i,i+3),T.slice(i+3,i+6),T.slice(i+6,i+9)];for(let j=0;j<3;j++){const a=p[j],b=p[(j+1)%3],ka=key(a),kb=key(b),k=ka<kb?ka+'|'+kb:kb+'|'+ka,q=edges.get(k);if(q)q.n++;else edges.set(k,{a,b,n:1});}}
  if(!T.length&&patch?.exposedTriangles==null&&patch?.polygon?.length>2)for(let i=0;i<patch.polygon.length;i++)edges.set(String(i),{a:patch.polygon[i],b:patch.polygon[(i+1)%patch.polygon.length],n:1});
- return [...edges.values()].filter(e=>e.n===1);
+ // Exposure clipping can leave a whole triangle edge opposite several
+ // shorter edges. Exact endpoint cancellation alone makes that T-junction
+ // look like an opening, extruding a false reveal through the equipment.
+ const boundary=[...edges.values()].filter(e=>e.n===1);
+ return surfaceUncoveredEdges(boundary,boundary,1e-6);
+}
+function surfaceUncoveredEdges(edges,covering,eps){
+ const out=[];
+ for(const e of edges){const d=C.sub(e.b,e.a),length2=C.dot(d,d),length=Math.sqrt(length2);if(length<=eps)continue;const tolerance=eps/length;let spans=[[0,1]];
+  for(const f of covering){if(e===f)continue;const a=C.sub(f.a,e.a),b=C.sub(f.b,e.a),ta=C.dot(a,d)/length2,tb=C.dot(b,d)/length2,lo=Math.max(0,Math.min(ta,tb)),hi=Math.min(1,Math.max(ta,tb));if(hi-lo<=tolerance||C.len(C.sub(a,C.mul(d,ta)))>eps||C.len(C.sub(b,C.mul(d,tb)))>eps)continue;
+   const next=[];for(const p of spans){if(p[0]<lo-tolerance)next.push([p[0],Math.min(p[1],lo)]);if(p[1]>hi+tolerance)next.push([Math.max(p[0],hi),p[1]]);}spans=next;if(!spans.length)break;
+  }
+  for(const [a,b]of spans)if(b-a>tolerance)out.push({a:C.add(e.a,C.mul(d,a)),b:C.add(e.a,C.mul(d,b))});
+ }return out;
 }
 function surfaceSelectionLines(ship,ids){
  const out=lineSet();if(!ship||!ids?.length||typeof C.surfacePatches!=='function')return out.out();
@@ -1912,11 +1954,8 @@ function surfaceEquipmentPaint(paint,color,feature,port){
 // A semantic split does not create a structural wall. Remove only the
 // collinear shared interval when both siblings expose the same recessed space.
 function surfaceEquipmentReveals(row,plans){
- const neighbors=plans.filter(q=>q!==row&&q.host===row.host&&q.config.functionMode==='equipment'&&Math.abs(q.visualDepth-row.visualDepth)<1e-5&&C.dot(q.patch.normal,row.patch.normal)>1-1e-6),out=[];
- for(const e of row.boundary){const d=C.sub(e.b,e.a),length2=C.dot(d,d);if(length2<1e-12)continue;let spans=[[0,1]];
-  for(const q of neighbors)for(const f of q.boundary){const a=C.sub(f.a,e.a),b=C.sub(f.b,e.a),ta=C.dot(a,d)/length2,tb=C.dot(b,d)/length2;if(C.len(C.sub(a,C.mul(d,ta)))>1e-4||C.len(C.sub(b,C.mul(d,tb)))>1e-4)continue;const lo=Math.max(0,Math.min(ta,tb)),hi=Math.min(1,Math.max(ta,tb));if(hi-lo<1e-7)continue;const next=[];for(const p of spans){if(p[0]<lo-1e-7)next.push([p[0],Math.min(p[1],lo)]);if(p[1]>hi+1e-7)next.push([Math.max(p[0],hi),p[1]]);}spans=next;}
-  for(const [a,b]of spans)if(b-a>1e-7)out.push({a:C.add(e.a,C.mul(d,a)),b:C.add(e.a,C.mul(d,b))});
- }return out;
+ const neighbors=plans.filter(q=>q!==row&&q.host===row.host&&q.config.functionMode==='equipment'&&Math.abs(q.visualDepth-row.visualDepth)<1e-5&&C.dot(q.patch.normal,row.patch.normal)>1-1e-6);
+ return surfaceUncoveredEdges(row.boundary,neighbors.flatMap(q=>q.boundary),1e-4);
 }
 function surfaceLayerFrame(patch){
  const normal=C.norm(patch.normal),up=C.sub([0,1,0],C.mul(normal,normal[1])),vertical=C.len(up)>.08,v=vertical?C.norm(up):C.norm(C.sub([0,0,1],C.mul(normal,normal[2])));let u=C.norm(C.cross(v,normal));
@@ -1940,8 +1979,8 @@ function surfaceVisualShares(patches,total,floor){
 // working faces are owned by the installed common device beside them, so local
 // damage, selection and S-foil ownership still refer to real design entities.
 function surfaceEquipmentField(ship,patch,cells,style,detail,extraBudget,fieldBudget,config,face,base){
- const frame=base||surfaceLayerFrame(patch),{u,v,normal}=frame,T=surfaceTriangles(patch),origin=patch.center,uv=p=>{const q=C.sub(p,origin);return [C.dot(q,u),C.dot(q,v),C.dot(q,normal)];},tris=[],baseHeight=base?base.maxV-base.minV:Math.sqrt(patch.area),relief=Math.max(.02,Math.min(patch.depth||30,style.depth>0?Math.min(30,style.depth):Math.min(24,Math.max(1.2,baseHeight*.20),(patch.depth||30)*.22))),recess=surfaceRecess(ship,patch,relief);
- for(let i=0;i+8<T.length;i+=9){const t=[T.slice(i,i+3),T.slice(i+3,i+6),T.slice(i+6,i+9)].map(p=>[...uv(p),C.dot(C.sub(recess.pointAt(p),origin),normal)]);t.bounds=[Math.min(...t.map(p=>p[0])),Math.min(...t.map(p=>p[1])),Math.max(...t.map(p=>p[0])),Math.max(...t.map(p=>p[1]))];tris.push(t);}
+ const frame=base||surfaceLayerFrame(patch),{u,v,normal}=frame,T=surfaceTriangles(patch),origin=patch.center,uv=p=>{const q=C.sub(p,origin);return [C.dot(q,u),C.dot(q,v),C.dot(q,normal)];},tris=[],baseHeight=base?base.maxV-base.minV:Math.sqrt(patch.area),relief=Math.max(.02,Math.min(patch.depth||30,style.depth>0?Math.min(30,style.depth):Math.min(24,Math.max(1.2,baseHeight*.20),(patch.depth||30)*.22))),recess=surfaceRecess(ship,patch,relief),frontT=recess.frontTriangles;
+ for(let i=0;i+8<frontT.length;i+=9){const t=[frontT.slice(i,i+3),frontT.slice(i+3,i+6),frontT.slice(i+6,i+9)].map(p=>[...uv(p),C.dot(C.sub(recess.pointAt(p),origin),normal)]);t.bounds=[Math.min(...t.map(p=>p[0])),Math.min(...t.map(p=>p[1])),Math.max(...t.map(p=>p[0])),Math.max(...t.map(p=>p[1]))];tris.push(t);}
  const points=tris.flat(),lo=[Math.min(...points.map(p=>p[0])),Math.min(...points.map(p=>p[1]))],hi=[Math.max(...points.map(p=>p[0])),Math.max(...points.map(p=>p[1]))],blocked=[],host=/^p\d+$/.test(patch.host)?+patch.host.slice(1):patch.host,random=rng(surfaceSeed(patch.id+'|field',style.seed)),field=[],boxes=[],devices=[],scale=Math.max(1.5,Math.sqrt(patch.area/3500)),paint=surfaceHostPaint(ship,patch);
  const at=(x,y,z)=>C.add(origin,C.add(C.add(C.mul(u,x),C.mul(v,y)),C.mul(normal,z)));
  const clip=(poly,axis,limit,sign)=>{const out=[];for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length],da=(a[axis]-limit)*sign,db=(b[axis]-limit)*sign;if(da>=-1e-8)out.push(a);if((da<0)!==(db<0)){const t=da/(da-db);out.push(a.map((q,j)=>q+(b[j]-q)*t));}}return out;};
@@ -2109,7 +2148,7 @@ function buildSurfaceLayers(ship,ranges,opt,key){
   // Equipment is the opened structure itself: the selected outer skin is
   // replaced by an inward backing, with reveal walls under its armour caps.
   if(config.functionMode==='equipment'){
-   hullTriangleMesh(armor,row.backingTriangles,surfacePaintTone(paint,.52),30);const recess=surfaceRecess(ship,patch,row.recessDepth);
+   hullTriangleMesh(armor,row.backingTriangles,surfacePaintTone(paint,.52),30);const recess=SURFACE_RECESS_DATA.get(row.backingTriangles)||surfaceRecess(ship,patch,row.recessDepth);
    for(const e of row.revealBoundary||row.boundary){const a=recess.pointAt(e.a),b=recess.pointAt(e.b),sn=C.norm(C.cross(n,C.sub(e.b,e.a)));hullQuad(armor,[e.a,e.b,b,a],sn,surfacePaintTone(paint,.85),30);}
   }else if(config.functionMode==='armor'&&thickness===0){const lift=C.mul(n,.012);hullTriangleMesh(armor,row.triangles.map((q,i)=>q+lift[i%3]),col,30);}
   if(thickness>0){const lift=C.mul(n,thickness+.01),T=row.triangles.map((q,i)=>q+lift[i%3]);hullTriangleMesh(armor,T,col,30);for(const e of row.boundary){const a=C.add(e.a,lift),b=C.add(e.b,lift),sn=C.norm(C.cross(C.sub(b,a),n));hullQuad(armor,[e.a,e.b,b,a],sn,col,30);}}
@@ -2149,8 +2188,30 @@ function meshParts(ship,opt){
       for(const sign of tr.side==='both'?[-1,1]:[tr.side==='port'?-1:1]){const wall=C.originalSurface(ship,x,2,y,sign);if(wall==null)continue;const z=wall+sign*1.8;if(ship.hatches.some(h=>{const b=C.openingBounds(ship,h);return b&&x>b[0]-8&&x<b[3]+8&&y>b[1]-tr.height/2&&y<b[4]+tr.height/2&&z>b[2]-8&&z<b[5]+8;}))continue;boxSolid(g,[x-1.4,y-tr.height*.34,z-1],[x+1.4,y+tr.height*.34,z+1],[92,107,114],20);const seed=Math.sin(x*.13)*.5+.5;boxSolid(g,[x+2,y-tr.height*.26,z-2],[x+5+seed*6,y+tr.height*.14,z+2],[130,137,139],20);}
     }
   }
+  routeBuriedApparatus(ship,result);
   Object.assign(result.g,meshSurfaceLayers(ship,result.ranges));
   return result;
+}
+// Open machinery scenery must not reveal coloured bodies that are still
+// enclosed by the original ship. Keep these bodies in the diagnostic mesh;
+// genuinely exposed apparatus, structures and hangar mouths remain exterior.
+function routeBuriedApparatus(ship,result){
+ const native=new Set(['struct','gen','shield','hyper','engine','nozzle','refStruct','refEngine']),remove=new Map(),moved=[];
+ for(const p of ship.parts||[]){if(C.isShapePart(p)||p.surfacePatch||p.k==='hangar')continue;const spans=(result.ranges[p.id]||[]).filter(([name,,count])=>native.has(name)&&count>0);if(!spans.length)continue;let enclosed=true;
+  for(const [name,start,count]of spans){const g=result.g[name],seen=new Set();for(let i=start;i<start+count&&enclosed;i++){const k=g.idx[i];if(seen.has(k))continue;seen.add(k);const point=[0,1,2].map(a=>g.pos[k*3+a]+g.nor[k*3+a]/127*.001);if(!C.insideOriginalEnvelope(ship,point))enclosed=false;}
+   // Vertices on separate pieces of a concave envelope cannot hide a bridge
+   // spanning an actual external gap between them.
+   for(let i=start;i<start+count&&enclosed;i+=3){const point=[0,1,2].map(a=>(g.pos[g.idx[i]*3+a]+g.pos[g.idx[i+1]*3+a]+g.pos[g.idx[i+2]*3+a])/3);if(!C.insideOriginalEnvelope(ship,point))enclosed=false;}if(!enclosed)break;
+  }if(!enclosed)continue;
+  for(const span of spans){const [name,start,count]=span,g=result.g[name],inside=result.g.interior,begin=inside.ni;inside.room(count,count);
+   for(let i=start;i<start+count;i+=3){const base=inside.n;for(let j=0;j<3;j++){const k=g.idx[i+j],col=Array.from(g.col.subarray(k*4,k*4+3),v=>name.startsWith('ref')?Math.min(255,v*2):v);inside.v(...g.pos.subarray(k*3,k*3+3),...Array.from(g.nor.subarray(k*3,k*3+3),v=>v/127),g.uv[k*2],g.uv[k*2+1],col,g.col[k*4+3]);}inside.tri(base,base+1,base+2);}
+   (remove.get(name)||remove.set(name,[]).get(name)).push([start,count]);moved.push({id:p.id,range:['interior',begin,count]});
+  }
+ }
+ for(const [name,spans]of remove){const g=result.g[name],drop=new Uint8Array(g.ni),prefix=new Uint32Array(g.ni+1);for(const [start,count]of spans)drop.fill(1,start,start+count);for(let i=0;i<g.ni;i++)prefix[i+1]=prefix[i]+!drop[i];for(let i=0;i<g.ni;i++)if(!drop[i])g.idx[prefix[i]]=g.idx[i];g.ni=prefix[prefix.length-1];
+  for(const id in result.ranges)result.ranges[id]=result.ranges[id].flatMap(r=>r[0]!==name?[r]:prefix[r[1]+r[2]]>prefix[r[1]]?[[name,prefix[r[1]],prefix[r[1]+r[2]]-prefix[r[1]]]]:[]);
+ }
+ for(const q of moved)(result.ranges[q.id]||(result.ranges[q.id]=[])).push(q.range);
 }
 function meshSlidingHatchPanel(ship,h,panel,open=0){
   const g=new Geo(panel.tris.length/3+100),T=panel.tris,offset=[0,0,0],edges=new Map(),face=ship.paint==='republic'&&h.face==='top'?[132,48,56]:ship.paint==='dark'?[103,116,129]:ship.paint==='cis'?PANEL_CIS:[174,180,184];offset[panel.axis]=panel.side*panel.travel*C.clamp(open,0,1);
@@ -2724,6 +2785,6 @@ class CompatRenderer {
  }
 }
 
-return {meshPreview, fleetGeometry, foilTransform, captureDimensions, Renderer, CompatRenderer, meshSolidCutter, meshReferenceHull, meshReferenceFits, meshReferenceHatches, meshReferenceParts, sectionLines, meshHull, meshParts, meshKeel, meshHatches, meshFits, gridLines, shipBounds, lineSet, M4, Geo, surfaceVisualPlan, meshSurfaceLayers, surfaceSelectionLines};
+return {meshPreview, rayFit, fleetGeometry, foilTransform, captureDimensions, Renderer, CompatRenderer, meshSolidCutter, meshReferenceHull, meshReferenceFits, meshReferenceHatches, meshReferenceParts, sectionLines, meshHull, meshParts, meshKeel, meshHatches, meshFits, gridLines, shipBounds, lineSet, M4, Geo, surfaceVisualPlan, meshSurfaceLayers, surfaceSelectionLines};
 })();
 

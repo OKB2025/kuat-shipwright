@@ -24,9 +24,9 @@ test('partial exposure clips layered backing, machinery and highlights while ret
  const native=G.meshParts(ship,{coded:false}),spans=(native.ranges[host.id]||[]).filter(q=>q[0]==='struct'),T=triangles(native.g.struct,spans).flat(2),ray=x=>C.rayTris(T,[x,50,-100],[0,0,1]),open=ray(60),hidden=ray(98);assert.ok(!open||open.t>100,'selected exposed native skin was not opened');assert.ok(hidden&&Math.abs(hidden.t-70)<.01,'hidden native skin must remain physically represented');assert.equal(C.publicJSON(ship),saved);
 });
 
-test('fully buried faces render and highlight nothing while their full physical armor remains in the report',()=>{
- const {ship,id}=fixture('armor'),fullArea=selected(ship,id).area,oldArmor=C.surfaceReport(ship).patches.find(p=>p.id===id).armorMass;cover(ship,true);const patch=selected(ship,id);assert.equal(patch.exposed,false);assert.equal(patch.exposedArea,0);assert.equal(patch.exposedTriangles.length,0);assert.equal(patch.area,fullArea);
- const saved=C.publicJSON(ship);assert.ok(!G.surfaceVisualPlan(ship).some(p=>p.id===id));assert.equal(G.surfaceSelectionLines(ship,[id]).pos.length,0,'empty exposure masks must not fall back to the original polygon');assert.equal(C.surfaceReport(ship).patches.find(p=>p.id===id).armorMass,oldArmor,'burial does not erase retained armor mass');assert.equal(C.publicJSON(ship),saved);
+test('fully buried faces render and highlight nothing while saved armor returns when the face is revealed',()=>{
+ const {ship,id}=fixture('armor'),fullArea=selected(ship,id).area,oldArmor=C.surfaceReport(ship).patches.find(p=>p.id===id).armorMass,occluder=cover(ship,true);const patch=selected(ship,id);assert.equal(patch.exposed,false);assert.equal(patch.exposedArea,0);assert.equal(patch.exposedTriangles.length,0);assert.equal(patch.area,fullArea);
+ const saved=C.publicJSON(ship);assert.ok(!G.surfaceVisualPlan(ship).some(p=>p.id===id));assert.equal(G.surfaceSelectionLines(ship,[id]).pos.length,0,'empty exposure masks must not fall back to the original polygon');assert.equal(C.surfaceReport(ship).patches.find(p=>p.id===id).armorMass,0,'buried original faces do not add outer-skin armor mass');assert.equal(C.surfaceConfig(ship,id).armor.thickness,1.2,'burial keeps the saved armor setting');assert.equal(C.publicJSON(ship),saved);occluder.c[0]+=400;assert.equal(C.surfaceReport(ship).patches.find(p=>p.id===id).armorMass,oldArmor,'revealing the same face restores its configured outer armor');
 });
 
 test('partial armor overlays follow clipped exterior fragments instead of drawing across buried interiors',()=>{

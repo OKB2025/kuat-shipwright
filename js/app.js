@@ -1927,7 +1927,7 @@ const st = {
   size: {gen: 110, shield: 34, hyper: 50, engine: 60, hangar: 45},
   structSize: [180, 110, 60], structTaper: 0.2, fill: [0.3, 0.8], sizeCraft: {},
   sel: null, hatchA: null,
-  fit: 'htl', fitTool: 'place', bridge: 'podBridge', bridgeTool: 'place', ped: 2, pedShape: 'round', pedSize: 1,
+  fit: 'htl', fitTool: 'place', bridge: 'podBridge', bridgeTool: 'place', ped: 0, pedShape: 'round', pedSize: 1,
   carveTool: 'solid', razee: {side: 'both', edge: 'top', inset: 60, slope: 50, from: 0.1, to: 1, prop: true}, notch: {l: 120, w: 80, d: 40}, notchStructures: false,
   mirror: true, view: 'normal', coded: false, cut: {x: 1, y: 1, z: 1},
   simOpp: 'destroyer', dockCollapsed: false,
@@ -2418,9 +2418,12 @@ function partHit(o, d, clip, filter) {
   }
   return best;
 }
+function fitPickHit(o, d, f) {
+  return C.FITS[f.k]?.cat === 'w' ? Gfx.rayFit(o, d, f) : C.rayAABB(o, d, C.fitAABB(f));
+}
 function fitHit(o, d) {
   let best = null;
-  for (const f of ship.fits) { const h = C.rayAABB(o, d, C.fitAABB(f)); if (h && (!best || h.t < best.t)) best = {t: h.t, fit: f, p: h.p}; }
+  for (const f of ship.fits) { const h = fitPickHit(o, d, f); if (h && (!best || h.t < best.t)) best = {t: h.t, fit: f, p: h.p}; }
   return best;
 }
 function pick(px, py, want) {
@@ -2469,7 +2472,7 @@ function hintText() {
       const size=C.PARTS[k].shape==='cube'?(st.roomSize||[120,60,24]).map(v=>num(v,2)).join('×')+' m':fmtM(pSize(k));return `面をタップして${nm}（${size}・${PLACE.find(p => p[0] === st.placeBy[k])?.[1]||PLACE[0][1]}）を置く`;
     }
     case 'select': return st.tab==='launch'?'航空区画を選んで出口を設定。航空隊の機種と機数は下の欄で編集できます':st.sel?.list === 'parts' ? '選択中の区画は枠ごとドラッグで移動・別の区画はタップで選択' : st.view === 'normal' ? '区画をタップで選択（内部は透視で）・選ぶとドラッグで移動' : '区画をタップで選択・選ぶとドラッグで移動';
-    case 'fit': return (C.FITS[curFit()].pod?`構造物・艦橋本体の壁をタップして${C.FITS[curFit()].name}を設置`:`面をタップして${C.FITS[curFit()].short}を設置（${weaponTiltMode(curFit())?'斜面では面に沿って傾ける':'傾斜には支持台'}）`)+(ship?.parts.some(p=>p.plate)?'・装甲外板には付けられません':'');
+    case 'fit': return (C.FITS[curFit()].pod?`構造物・艦橋本体の壁をタップして${C.FITS[curFit()].name}を設置`:`面をタップして${C.FITS[curFit()].short}を設置（${!fitPedestalAllowed(curFit())?'面に直接設置':weaponTiltMode(curFit())?'斜面では面に沿って傾ける':'傾斜には支持台'}）`)+(ship?.parts.some(p=>p.plate)?'・装甲外板には付けられません':'');
     case 'unfit': return '撤去する装備をタップ';
     case 'adjust': return st.sel?.list === 'fits' ? '選択中の装備はドラッグで面に沿って移動・別の装備はタップで選択' : '装備をタップして選択・選ぶとドラッグで移動';
     case 'notch': return `外面をタップして ${st.notch.l}×${st.notch.w}×深さ${st.notch.d} m を切り欠く`;
@@ -2527,7 +2530,7 @@ function ghostFor(hit) {
     const k = curFit(), d = C.FITS[k],normal=weaponPlacementNormal(k,hit.n);
     let a = 2; if (d.cat !== 'b') { let bv = -2; for (let i = 0; i < 6; i++) { const v = C.dot(C.AXES[i], normal); if (v > bv) { bv = v; a = i; } } }
     const tilt=weaponTiltMode(k)?C.fitTilt(normal):null;
-    const f = C.mountFit(ship, {id:-1,k,p:alignFitPoint(hit.p,hit.n).slice(),n:normal.slice(),a,ped:st.ped,...(C.fitCanRotate(k)?{assetYaw:st.gunYaw||0}:{}),...(['trench','casemate'].includes(st.weaponMount)&&d.cat==='w'?{localMount:true}:{}),...(tilt?{tilt}:{})});
+    const f = C.mountFit(ship, {id:-1,k,p:alignFitPoint(hit.p,hit.n).slice(),n:normal.slice(),a,ped:fitPlacementPed(k),...(C.fitCanRotate(k)?{assetYaw:st.gunYaw||0}:{}),...(['trench','casemate'].includes(st.weaponMount)&&d.cat==='w'?{localMount:true}:{}),...(tilt?{tilt}:{})});
     const bad = f.float || (d.casemate&&Math.abs(normal[1])>.65) || (d.cat === 'b' && !d.window && hit.n[1] < 0.2) || C.fitClash(ship, f);
     ls.box(C.fitAABB(f), bad ? ng : ok);
     turretHeadingLines(ls,f,bad?ng:ok);
@@ -2617,7 +2620,7 @@ function tapHit(t, hit, add) {
       if (!hit || hit.kind === 'section') { toast('船体の外面をタップしてください'); break; }
       if (hit.fit) { toast('その場所には装備があります'); break; }
       const k = curFit(); let err = null, made = null;
-      mutate(C.FITS[k].short + 'を設置', () => { const opts = {localMount:['trench','casemate'].includes(st.weaponMount),tilt:weaponTiltMode(k),...(C.fitCanRotate(k)?{assetYaw:st.gunYaw||0}:{})}, r = C.placeFit(ship, k, alignFitPoint(hit.p, hit.n), weaponPlacementNormal(k,hit.n), st.ped, st.mirror, opts); err = r.err; made = r.fit; if (made) { placeVerticalFits(made, k, st.ped, opts); applyPedDefaults(made); applyFitTemplate(made); } }, 'fits', {silent: true});
+      mutate(C.FITS[k].short + 'を設置', () => { const opts = {localMount:['trench','casemate'].includes(st.weaponMount),tilt:weaponTiltMode(k),...(C.fitCanRotate(k)?{assetYaw:st.gunYaw||0}:{})}, r = C.placeFit(ship, k, alignFitPoint(hit.p, hit.n), weaponPlacementNormal(k,hit.n), fitPlacementPed(k), st.mirror, opts); err = r.err; made = r.fit; if (made) { placeVerticalFits(made, k, fitPlacementPed(k), opts); applyPedDefaults(made); applyFitTemplate(made); } }, 'fits', {silent: true});
       if (err) toast(err); else if (made) { showPreview('fits', linkedItems('fits', made)); st.sel = {list: 'fits', id: made.id}; renderPanel(); }
       break;
     }
@@ -2660,7 +2663,7 @@ function showInspect(hit) {
 function hideInspect() { const had = !!st.inspect; st.inspect = null; const b = $('#inspect'); if (b) b.hidden = true; if (had) renderSelStrip(); }
 function fitDetailHTML(f) {
   const d = C.FITS[f.k], sp = C.fitSpec(f) || d, ped = f.base + f.ped;
-  let html = `<div class="ins-row">支持台 ${ped.toFixed(1)} m（自動 ${f.base.toFixed(1)}＋追加 ${f.ped.toFixed(1)}）・${esc(C.AXNAME[f.a])}${f.tilt?` · 面に沿って ${Math.round(Math.acos(C.clamp(C.dot(f.tilt,C.AXES[f.a]),-1,1))*180/Math.PI)}° 傾斜`:''}</div>`;
+  let html = fitPedestalAllowed(f) ? `<div class="ins-row">支持台 ${ped.toFixed(1)} m（自動 ${f.base.toFixed(1)}＋追加 ${f.ped.toFixed(1)}）・${esc(C.AXNAME[f.a])}${f.tilt?` · 面に沿って ${Math.round(Math.acos(C.clamp(C.dot(f.tilt,C.AXES[f.a]),-1,1))*180/Math.PI)}° 傾斜`:''}</div>` : `<div class="ins-row">支持台なし・${esc(C.AXNAME[f.a])}</div>`;
   if (d.cat === 'w') {
     const arc = (S && S.fitInfo[f.id]) || C.fireArcs(ship, f);
     if (sp.tt) html += `<div class="ins-row">一斉射 ${fTT(sp.tt)}・電力 ${fW(sp.power)}</div>`;
@@ -2992,9 +2995,7 @@ function baseFitEditor() {
   const d = C.fitSpec(it);
   return `<div class="editor"><div class="ed-head"><b>${esc(d.name)}</b><button type="button" class="btn sm ghost" data-desel>選択解除</button><button type="button" class="btn sm danger" data-delsel>撤去</button></div>
     ${fitPairHTML(it)}${fitPositionSliders(it)}${weaponYawControls(it)}
-    <h4>支持台</h4>${seg('pedshapesel', PED_SHAPES, it.pedShape || 'round')}
-    <div class="sliders">${slider('pedsel', '追加の高さ', it.ped.toFixed(1), 0, Math.max(60, Math.round(d.r * 4)), 0.5, `${it.ped.toFixed(1)} m`)}${slider('pedsizesel', '大きさ', Math.round((it.pedSize || 1) * 100), 40, 250, 5, Math.round((it.pedSize || 1) * 100) + '%')}</div>
-    <p class="note" id="pedinfo">傾斜に合わせた自動の高さ ${it.base.toFixed(1)} m ＋ 追加 ${it.ped.toFixed(1)} m。高くすると射界が開けますが、標的にもなりやすくなります。</p></div>`;
+    ${fitPedestalControls(it)}</div>`;
 }
 function partList() {
   const items = ship.parts.filter(p => !(p.tw && p.id > p.tw));
@@ -3060,9 +3061,9 @@ function baseRenderPanel() {
     case 'arm':
       h = `<div class="pgroup">${seg('fittool', [['place', '設置'], ['adjust', '調整・射界'], ['remove', '撤去'], ['multi', '複数選択']], st.fitTool)}</div>
       ${st.fitTool === 'adjust' ? (fitEditor() || '<p class="note">装備をタップして選んでください。</p>') : ''}${st.fitTool === 'multi' ? multiPanelHTML() : ''}
-      ${st.fitTool === 'place' ? `<div class="pgroup sliders"><h4>支持台（新設時）</h4>${seg('pedshape', PED_SHAPES, st.pedShape)}${slider('ped', '追加の高さ', st.ped, 0, 40, 0.5, `${st.ped} m`)}${slider('pedsize', '大きさ', Math.round(st.pedSize * 100), 40, 250, 5, Math.round(st.pedSize * 100) + '%')}</div>` : ''}
+      ${st.fitTool === 'place' ? fitPedestalControls() : ''}
       <div class="fits">${weaponKeys().map(k => fitBtn(k, st.fit === k, 'fit')).join('')}</div>
-      <p class="note">砲塔は実寸で、砲身の向きはゲージで調整できます。傾斜面では接地面の高低差だけ支持台が自動で伸び、砲は水平を保ちます。「調整」で1基ずつ支持台の形・高さ・大きさを変えられます。</p>
+      ${fitPedestalAllowed(st.fit)?'<p class="note">砲塔は実寸で、砲身の向きはゲージで調整できます。傾斜面では接地面の高低差だけ支持台が自動で伸び、砲は水平を保ちます。「調整」で1基ずつ支持台の形・高さ・大きさを変えられます。</p>':''}
       <div class="pinfo" id="pinfo"></div>`;
       break;
     case 'bridge':
@@ -3368,7 +3369,7 @@ function closeSheet() { $('#sheet').hidden = true; $('#sheetBg').hidden = true; 
 
 // ---------- pointer / camera controls ----------
 // ---------- dragging the selected compartment, structure or fitting ----------
-// Press on the selected item (its outline box) and drag. Compartments slide in
+// Press on the selected item and drag; weapons require a hit on their visible mesh. Compartments slide in
 // the horizontal plane (a vertical plane when the view is nearly level);
 // structures resting on a deck keep resting on it; fittings follow the surface.
 let itemDrag = null, itemDragTouch = 0;
@@ -3381,9 +3382,14 @@ function dragItemStart(px, py) {
   if (t === 'edit' && !selSingle()) { const D = dragSelStart(px, py, r); if (!D) return false; itemDrag = D; return true; }   // v23 the whole selection
   let best = null;
   for (const q of linkedItems(list, it)) {
-    const b = (list === 'parts' ? C.partAABB(q) : C.fitAABB(q)).slice(), pad = Math.max(2, .06 * Math.max(b[3] - b[0], b[4] - b[1], b[5] - b[2]));
-    for (let k = 0; k < 3; k++) { b[k] -= pad; b[k + 3] += pad; }
-    const h = C.rayAABB(r.o, r.d, b); if (h && (!best || h.t < best.t)) best = {t: h.t, q, p: h.p || C.add(r.o, C.mul(r.d, h.t))};
+    let h;
+    if (list === 'fits' && C.FITS[q.k]?.cat === 'w') h = fitPickHit(r.o, r.d, q);
+    else {
+      const b = (list === 'parts' ? C.partAABB(q) : C.fitAABB(q)).slice(), pad = Math.max(2, .06 * Math.max(b[3] - b[0], b[4] - b[1], b[5] - b[2]));
+      for (let k = 0; k < 3; k++) { b[k] -= pad; b[k + 3] += pad; }
+      h = C.rayAABB(r.o, r.d, b);
+    }
+    if (h && (!best || h.t < best.t)) best = {t: h.t, q, p: h.p || C.add(r.o, C.mul(r.d, h.t))};
   }
   if (!best) return false;
   const q = best.q, level = Math.abs(r.d[1]) < .35, normal = level ? (Math.abs(r.d[0]) > Math.abs(r.d[2]) ? [1, 0, 0] : [0, 0, 1]) : [0, 1, 0];
@@ -3518,7 +3524,7 @@ function assignMirror(target, q) {
   Object.assign(target, q, {id}); delete target.tw; delete target.vt;
   if (tw != null) target.tw = tw; if (vt != null) target.vt = vt;
 }
-function copyFitSettings(from, to) { to.ped = from.ped; if (from.width) to.width = from.width; if (from.height) to.height = from.height; for (const k of ['commandDepth', 'commandHeight', 'commandEnabled', 'chargeSalvos', 'chargeDepth', 'chargeScale', 'scale']) if (from[k] != null) to[k] = from[k]; }
+function copyFitSettings(from, to) { to.ped = from.ped; if (from.width) to.width = from.width; if (from.height) to.height = from.height; for (const k of ['commandDepth', 'commandHeight', 'commandEnabled', 'chargeSalvos', 'chargeDepth', 'chargeScale', 'scale']) if (from[k] != null) to[k] = from[k]; C.normalizeFitMount(to); }
 // Fittings placed with 左右対称 / 上下対称 keep links to their counterparts
 // (tw: across the centreline, vt: top/bottom). Edits follow those links unless
 // 「対の武装も同時に編集」 is switched off; the symmetry toggles only decide
@@ -3536,10 +3542,11 @@ function syncFitTwin(from, to, link) {
   for (const k of FIT_SYNC_KEYS) { if (from[k] === undefined) delete to[k]; else to[k] = JSON.parse(JSON.stringify(from[k])); }
   // A mirror image turns the other way: one flip negates the train angle, two restore it.
   if (from.assetYaw != null || to.assetYaw != null) to.assetYaw = (from.assetYaw || 0) * ((link.z ? -1 : 1) * (link.y ? -1 : 1));
+  C.normalizeFitMount(to);
 }
 function editSel(fn) {   // live edit of the selected part/fit (and its mirrored twins)
   const it = selItem(); if (!it) return;
-  if (st.sel.list === 'fits') { const links = fitLinks(it); fn(it); C.enforceEquipment(it); for (const l of links) syncFitTwin(it, l.fit, l); queuePreview('fits', [it, ...links.map(l => l.fit)]); return; }
+  if (st.sel.list === 'fits') { const links = fitLinks(it); fn(it); C.enforceEquipment(it); C.normalizeFitMount(it); for (const l of links) syncFitTwin(it, l.fit, l); queuePreview('fits', [it, ...links.map(l => l.fit)]); return; }
   const list = st.sel.list, find = (id) => id == null ? null : ship[list].find(q => q.id === id), tw = st.mirror ? twinOfItem(list, it) : null;
   fn(it);C.enforceEquipment(it);
   if (tw) {
@@ -3555,6 +3562,13 @@ function editSel(fn) {   // live edit of the selected part/fit (and its mirrored
   queuePreview(list, [it, tw, vt && st.vmirror ? vt : null, vtw]);
 }
 const PED_SHAPES = [['round', '円形'], ['trap', '台形']];
+function fitPedestalAllowed(f) { const k = typeof f === 'string' ? f : f?.k; return !!C.FITS[k] && (C.FITS[k].cat !== 'w' || C.fitHasPedestal(f)); }
+function fitPlacementPed(k) { return fitPedestalAllowed(k) ? st.ped : 0; }
+function fitPedestalControls(f = null) {
+  if (!fitPedestalAllowed(f || st.fit)) return '<p class="note">支持台を使わず、取付面に直接設置します。</p>';
+  if (!f) return `<div class="pgroup sliders"><h4>支持台（新設時）</h4>${seg('pedshape', PED_SHAPES, st.pedShape)}${slider('ped', '追加の高さ', st.ped, 0, 40, 0.5, `${st.ped} m`)}${slider('pedsize', '大きさ', Math.round(st.pedSize * 100), 40, 250, 5, Math.round(st.pedSize * 100) + '%')}</div>`;
+  return `<h4>支持台</h4>${seg('pedshapesel', PED_SHAPES, f.pedShape || 'round')}<div class="sliders">${slider('pedsel', '追加の高さ', (f.ped || 0).toFixed(1), 0, Math.max(60, Math.round(C.fitSpec(f).r * 4)), 0.5, `${(f.ped || 0).toFixed(1)} m`)}${slider('pedsizesel', '大きさ', Math.round((f.pedSize || 1) * 100), 40, 250, 5, Math.round((f.pedSize || 1) * 100) + '%')}</div><p class="note" id="pedinfo">傾斜に合わせた自動の高さ ${(f.base || 0).toFixed(1)} m ＋ 追加 ${(f.ped || 0).toFixed(1)} m。高くすると射界が開けますが、標的にもなりやすくなります。</p>`;
+}
 // Switching from 編集 to 設置 keeps what was just being edited ready to place:
 // the same kind, size and settings, apart from where it sits.
 const TEMPLATE_SKIP = ['id', 'tw', 'vt', 'c', 'p', 'n', 'a', 'tilt', 'host', 'local', 'localNormal', 'base', 'low', 'slope', 'float', 'surfaceNormal', 'pitch', 'roll', 'mountAxis', 'mountOffset', 'localMount', 'batteryZone', 'assetYaw'];
@@ -3578,17 +3592,17 @@ function carryToPlace() {
     }
   } else {
     if (C.FITS[it.k].window) st.bridge = it.k; else st.fit = it.k;
-    st.ped = it.ped || 0; st.pedShape = it.pedShape || 'round'; st.pedSize = it.pedSize || 1;st.gunYaw=C.fitCanRotate(it)?it.assetYaw||0:0;
+    st.ped = fitPedestalAllowed(it) ? it.ped || 0 : 0; st.pedShape = fitPedestalAllowed(it) ? it.pedShape || 'round' : 'round'; st.pedSize = fitPedestalAllowed(it) ? it.pedSize || 1 : 1;st.gunYaw=C.fitCanRotate(it)?it.assetYaw||0:0;
   }
   st.sel = null; toast(`${list === 'parts' ? C.partLabel(it) : C.FITS[it.k].name} を同じ設定で設置できます`);
 }
 function applyFitTemplate(f) {
   const t = activeTemplate('fits', f.k); if (!t) return;
-  for (const q of linkedItems('fits', f)) for (const k of FIT_TEMPLATE_KEYS) if (t.data[k] != null) q[k] = JSON.parse(JSON.stringify(t.data[k]));
+  for (const q of linkedItems('fits', f)) { for (const k of FIT_TEMPLATE_KEYS) if (t.data[k] != null) q[k] = JSON.parse(JSON.stringify(t.data[k])); C.normalizeFitMount(q); }
 }
 function applyPedDefaults(f) {
   if (C.FITS[f.k].window || C.FITS[f.k].cat === 'b') return;
-  for (const q of linkedItems('fits', f)) { if (st.pedShape === 'trap') q.pedShape = 'trap'; if (Math.abs(st.pedSize - 1) > 1e-6) q.pedSize = st.pedSize; }
+  for (const q of linkedItems('fits', f)) { if (fitPedestalAllowed(q)) { if (st.pedShape === 'trap') q.pedShape = 'trap'; if (Math.abs(st.pedSize - 1) > 1e-6) q.pedSize = st.pedSize; } C.normalizeFitMount(q); }
 }
 function linkedItems(list, it) {
   if (!it) return [];
@@ -3679,8 +3693,8 @@ function bind() {
       st.sel = null; renderPanel();
     }
     else if (d.fittool) { if (d.fittool === 'place' && st.fitTool !== 'place') carryToPlace(); st.fitTool = d.fittool; if (d.fittool !== 'adjust') st.sel = null; renderPanel(); }
-    else if (d.pedshape) { st.pedShape = d.pedshape; renderPanel(); }
-    else if (d.pedshapesel) { mutate('支持台の形', () => editSel(it => { if (d.pedshapesel === 'trap') it.pedShape = 'trap'; else delete it.pedShape; }), 'fits'); renderPanel(); }
+    else if (d.pedshape) { if (fitPedestalAllowed(curFit())) st.pedShape = d.pedshape; renderPanel(); }
+    else if (d.pedshapesel && st.sel?.list === 'fits' && fitPedestalAllowed(selItem())) { mutate('支持台の形', () => editSel(it => { if (d.pedshapesel === 'trap') it.pedShape = 'trap'; else delete it.pedShape; }), 'fits'); renderPanel(); }
     else if (d.fit) { st.template = null; st.fit = d.fit; st.fitTool = 'place'; st.sel = null; renderPanel(); }
     else if (d.bridgetool) { if (d.bridgetool === 'place' && st.bridgeTool !== 'place') carryToPlace(); st.bridgeTool = d.bridgetool; if (d.bridgetool !== 'adjust') st.sel = null; renderPanel(); }
     else if (d.bridge) { st.template = null; st.bridgeMode='windows';st.bridge = d.bridge; st.bridgeTool = 'place'; st.sel = null; renderPanel(); }
@@ -3736,7 +3750,7 @@ function bind() {
       case 'ew': live('大きさ', 'parts', () => editSel(it => { if (it.form === 'reference' && C.equipmentSpec(it)) return; it.s[1] = v; }), fmtM(v)); break;
       case 'eh': live('大きさ', 'parts', () => editSel(it => { if (it.form === 'reference' && C.equipmentSpec(it)) return; it.s[2] = v; }), fmtM(v)); break;
       case 'et': live('すぼまり', 'parts', () => editSel(it => { it.taper = v / 100; }), v + '%'); break;
-      case 'pedsel': live('支持台の高さ', 'fits', () => { editSel(it => { it.ped = v; }); }, `${v.toFixed(1)} m`); { const it = selItem(), pi = $('#pedinfo'); if (it && pi) pi.textContent = `傾斜に合わせた自動の高さ ${it.base.toFixed(1)} m ＋ 追加 ${it.ped.toFixed(1)} m。高くすると射界が開けますが、標的にもなりやすくなります。`; } break;
+      case 'pedsel': if (st.sel?.list !== 'fits' || !fitPedestalAllowed(selItem())) break; live('支持台の高さ', 'fits', () => { editSel(it => { it.ped = v; }); }, `${v.toFixed(1)} m`); { const it = selItem(), pi = $('#pedinfo'); if (it && pi) pi.textContent = `傾斜に合わせた自動の高さ ${it.base.toFixed(1)} m ＋ 追加 ${it.ped.toFixed(1)} m。高くすると射界が開けますが、標的にもなりやすくなります。`; } break;
       case 'arh': live('外殻装甲', 'none', () => { ship.armor.hull = v; }, craftDesign() ? `${(v * 1000).toFixed(0)} mm` : `${v.toFixed(2)} m`); break;
       case 'arc': live('集中防御', 'none', () => { ship.armor.cit = v; }, `${v.toFixed(1)} m`); break;
       case 'psize': setPSize(st.part, v); if (out) out.textContent = sizeOut(st.part, v); updateHint(); break;
@@ -3746,9 +3760,9 @@ function bind() {
       case 'st': st.structTaper = v / 100; if (out) out.textContent = v + '%'; break;
       case 'ffrom': st.fill[0] = v / 100; if (out) out.textContent = v + '%'; break;
       case 'fto': st.fill[1] = v / 100; if (out) out.textContent = v + '%'; break;
-      case 'ped': st.ped = v; if (out) out.textContent = `${v} m`; break;
-      case 'pedsize': st.pedSize = v / 100; if (out) out.textContent = v + '%'; break;
-      case 'pedsizesel': live('支持台の大きさ', 'fits', () => editSel(it => { if (v === 100) delete it.pedSize; else it.pedSize = v / 100; }), v + '%'); break;
+      case 'ped': if (!fitPedestalAllowed(curFit())) break; st.ped = v; if (out) out.textContent = `${v} m`; break;
+      case 'pedsize': if (!fitPedestalAllowed(curFit())) break; st.pedSize = v / 100; if (out) out.textContent = v + '%'; break;
+      case 'pedsizesel': if (st.sel?.list !== 'fits' || !fitPedestalAllowed(selItem())) break; live('支持台の大きさ', 'fits', () => editSel(it => { if (v === 100) delete it.pedSize; else it.pedSize = v / 100; }), v + '%'); break;
       case 'rzinset': st.razee.inset = v; if (out) out.textContent = fmtM(v); break;
       case 'rzslope': st.razee.slope = v; if (out) out.textContent = fmtM(v); break;
       case 'rzfrom': st.razee.from = v / 100; if (out) out.textContent = v + '%'; break;
@@ -5501,7 +5515,7 @@ function multiPaste(){
   for(const l of ['parts','fits'])for(const src of c[l]){const q=JSON.parse(JSON.stringify(src));map[l].set(src.id,ship.nextId);q.id=ship.nextId++;made[l].push(q);}
   for(const l of ['parts','fits'])for(const q of made[l]){for(const r of ['tw','vt']){if(q[r]==null)continue;const n=map[l].get(q[r]);if(n!=null)q[r]=n;else delete q[r];}
    if(Array.isArray(q.surfacePoint))q.surfacePoint=sc(q.surfacePoint);
-   if(l==='fits'){if(q.host!=null){const n=map.parts.get(q.host);if(n!=null)q.host=n;else delete q.host;}q.p=sc(q.p);delete q.float;}else{q.c=sc(q.c);copyWingLinks(q,map,sc);}
+   if(l==='fits'){if(q.host!=null){const n=map.parts.get(q.host);if(n!=null)q.host=n;else delete q.host;}q.p=sc(q.p);delete q.float;C.normalizeFitMount(q);}else{q.c=sc(q.c);copyWingLinks(q,map,sc);}
    ship[l].push(q);}
   C.surfacePasteConfig(ship,c.surfaces,map,false,c.netLinks||[]);
  },'all');
@@ -5770,7 +5784,12 @@ function xfPreviewLines(ls){
 // point, live as a preview; the rules are checked on release and a move that breaks them is taken back.
 function dragSelStart(px,py,r){
  const drivers=xfDrivers();let best=null;
- for(const d of drivers)for(const q of [d.it,...d.fol.map(f=>f.it)]){const l=d.list,b=xfBox(l,q).slice(),pad=Math.max(2,.06*Math.max(b[3]-b[0],b[4]-b[1],b[5]-b[2]));for(let k=0;k<3;k++){b[k]-=pad;b[k+3]+=pad;}const h=C.rayAABB(r.o,r.d,b);if(h&&(!best||h.t<best.t))best={t:h.t,p:h.p||C.add(r.o,C.mul(r.d,h.t)),l,q};}
+ for(const d of drivers)for(const q of [d.it,...d.fol.map(f=>f.it)]){
+  const l=d.list;let h;
+  if(l==='fits'&&C.FITS[q.k]?.cat==='w')h=fitPickHit(r.o,r.d,q);
+  else{const b=xfBox(l,q).slice(),pad=Math.max(2,.06*Math.max(b[3]-b[0],b[4]-b[1],b[5]-b[2]));for(let k=0;k<3;k++){b[k]-=pad;b[k+3]+=pad;}h=C.rayAABB(r.o,r.d,b);}
+  if(h&&(!best||h.t<best.t))best={t:h.t,p:h.p||C.add(r.o,C.mul(r.d,h.t)),l,q};
+ }
  if(!best)return null;
  const level=Math.abs(r.d[1])<.35,normal=level?(Math.abs(r.d[0])>Math.abs(r.d[2])?[1,0,0]:[0,0,1]):[0,1,0];
  return {multi:true,grab:best.p,normal,drivers,units:xfUnits(drivers),orig:new Map(drivers.flatMap(d=>[d.it,...d.fol.map(f=>f.it)].map(q=>[d.list+q.id,publicCopy(q)]))),dv:[0,0,0]};

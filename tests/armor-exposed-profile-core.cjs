@@ -1,0 +1,10 @@
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test');
+const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=vm.createContext({console});
+for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});
+const C=vm.runInContext('Core',cx),near=(a,b)=>assert.ok(Math.abs(a-b)<=Math.max(1e-5,Math.abs(b)*1e-8),`${a} != ${b}`);
+function area(T){let n=0;for(let i=0;i<T.length;i+=9)n+=C.len(C.cross(C.sub(T.slice(i+3,i+6),T.slice(i,i+3)),C.sub(T.slice(i+6,i+9),T.slice(i,i+3))))/2;return n;}
+function fixture(){const ship=C.newShip({L:240,W:180,H:140,assembly:true},'Exposed armor profile');ship.parts=[];ship.fits=[];ship.nextId=1;ship.armor={hull:0,cit:0};const host=C.placePart(ship,'struct',[120,60,0],[120,80,80],{form:'box'},false);C.placePart(ship,'struct',[153,60,-45],[66,20,100],{form:'box'},false);const patch=C.surfacePatches(ship).find(p=>p.host==='p'+host.id&&p.face==='port');near(patch.area,9600);near(patch.exposedArea,4800);assert.equal(C.setSurfaceConfig(ship,patch.id,{functionMode:'armor',armor:{material:'standard',thickness:.25}}).ok,true);const S=C.computeStats(ship),p=C.fleetProfile(S,ship.name,ship);return {ship,patch,S,p};}
+test('combat armor profile uses the same exposed area and triangles as the charged physical coating',()=>{
+ const {ship,patch,S,p}=fixture(),q=p.surface.patches.find(q=>q.id===patch.id),report=C.surfaceReport(ship);near(q.area,4800);near(area(q.triangles),4800);near(area(p.surface.shell),report.totals.exposedArea);near(S.armorMass,4800*.25*C.SURFACE_MATERIALS.standard.density);
+ const u=C.fleetUnit('armor-exposed','armor-exposed',p),status=C.surfaceArmorStatus(u);near(status.faces.reduce((n,f)=>n+f.weight,0),4800*.25);const local=point=>C.sub(point,p.surface.offset);assert.equal(C.surfacePatchAt(u,local([90,60,-40]))?.id,patch.id);assert.equal(C.surfacePatchAt(u,local([150,60,-40])),null,'a buried portion cannot resolve as a functioning armor patch');
+});
