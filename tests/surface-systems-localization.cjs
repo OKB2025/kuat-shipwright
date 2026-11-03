@@ -20,8 +20,8 @@ test('the actual surface editor translates selection and explicit compatibility 
  run('C.enableSurfaceMode(ship,true);ship.surfaces.compatAllowed=false');const strict=run('surfaceEditorHTML()');assert.match(strict,/data-surface-action="compat" disabled/);translatedHTML(strict);
 });
 
-test('actual installed surface equipment and battery reports render translated controls and counts',()=>{
- run(`fixture();ship.parts.push({id:ship.nextId++,k:'gen',c:[60,12,0],d:8});const top=C.surfacePatches(ship).find(p=>p.exposed&&p.face==='top');C.setSurfaceConfig(ship,top.id,{armor:{material:'dense',thickness:.3},equipment:{kind:'hdis',count:1,depth:.2},battery:{weapon:'claser',count:2,spacing:1}});st.surfaceIds=[top.id];S=C.computeStats(ship);`);
+test('legacy installed surface equipment and battery reports render translated controls and counts',()=>{
+ run(`fixture();ship.parts.push({id:ship.nextId++,k:'gen',c:[60,12,0],d:8});const top=C.surfacePatches(ship).find(p=>p.exposed&&p.face==='top');C.setSurfaceConfig(ship,top.id,{functionMode:'legacy',armor:{material:'dense',thickness:.3},equipment:{kind:'hdis',count:1,depth:.2},battery:{weapon:'claser',count:2,spacing:1}});st.surfaceIds=[top.id];S=C.computeStats(ship);`);
  const report=run('C.surfaceReport(ship)'),selected=report.patches.find(p=>p.id===run('st.surfaceIds[0]'));assert.ok(selected.installed>0);assert.ok(selected.installedEquipment>0);
  const before=run('JSON.stringify(C.serialize(ship))'),html=run('surfaceEditorHTML()');translatedHTML(html);
  for(const field of ['armor.material','armor.thickness','equipment.kind','equipment.count','equipment.depth','battery.weapon','battery.count','battery.spacing','battery.angle','style.kind','style.depth','style.density','style.seed'])assert.match(html,new RegExp('data-surface-field="'+field.replace('.','\\.')+'"'));
@@ -33,14 +33,14 @@ test('actual installed surface equipment and battery reports render translated c
 });
 
 test('multiple surface values and pending changes translate without applying changes to the design',()=>{
- run(`fixture();const ps=C.surfacePatches(ship).filter(p=>p.exposed&&p.face==='top').slice(0,2);C.setSurfaceConfig(ship,ps[0].id,{armor:{material:'light',thickness:.1}});C.setSurfaceConfig(ship,ps[1].id,{armor:{material:'dense',thickness:.4}});st.surfaceIds=ps.map(p=>p.id);st.surfaceDraft={'battery.count':3};`);
+ run(`fixture();const ps=C.surfacePatches(ship).filter(p=>p.exposed&&p.face==='top').slice(0,2);C.setSurfaceConfig(ship,ps[0].id,{armor:{material:'light',thickness:.1}});C.setSurfaceConfig(ship,ps[1].id,{armor:{material:'dense',thickness:.4}});st.surfaceIds=ps.map(p=>p.id);st.surfaceDraft={'armor.thickness':.2};`);
  const before=run('JSON.stringify(C.serialize(ship))'),html=run('surfaceEditorHTML()');translatedHTML(html);
  assert.match(html,/2 面に一括設定/);assert.match(html,/複数の値/);assert.match(html,/未適用の変更があります/);assert.equal(run('JSON.stringify(C.serialize(ship))'),before);
  assert.match(translated('2 面に一括設定'),/2 Surfaces/);assert.equal(translated('複数の値'),'Multiple Values');
 });
 
 test('orphaned surface settings and actual placement diagnostics remain understandable in English',()=>{
- run(`fixture();const p=C.surfacePatches(ship).find(p=>p.exposed&&p.face==='top');C.setSurfaceConfig(ship,p.id,{battery:{weapon:'claser',count:256,spacing:1000},equipment:{kind:'hdis',count:1,depth:100}});st.surfaceIds=[p.id];`);
+ run(`fixture();const p=C.surfacePatches(ship).find(p=>p.exposed&&p.face==='top');C.setSurfaceConfig(ship,p.id,{functionMode:'legacy',battery:{weapon:'claser',count:256,spacing:1000},equipment:{kind:'hdis',count:1,depth:100}});st.surfaceIds=[p.id];`);
  const report=run('C.surfaceReport(ship)');assert.ok(report.warnings.length>0);for(const warning of report.warnings)translated(warning.text);translatedHTML(run('surfaceEditorHTML()'));
  run(`ship.hull.plan='arrow';C.surfaceSync(ship);st.surfaceIds=C.surfacePatches(ship).filter(p=>p.exposed).slice(0,1).map(p=>p.id);`);
  const html=run('surfaceEditorHTML()');assert.match(html,/未配置の面設定/);translatedHTML(html);

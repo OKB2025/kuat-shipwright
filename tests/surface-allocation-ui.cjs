@@ -1,0 +1,60 @@
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test');
+const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),app=fs.readFileSync(path.join(root,'js/app.js'),'utf8'),plain=x=>JSON.parse(JSON.stringify(x));
+function setup(){
+ const cx=vm.createContext({console});for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),cx,{filename:file});
+ const run=code=>vm.runInContext(code,cx);run(`const C=Core,st={tab:'surface',surfaceIds:[],surfaceDraft:{},surfaceFilter:'all'},fleet={mode:'design'},history=[],messages=[];let S=null,form=null,renders=0,ship=C.newShip({L:64,W:48,H:24,plan:'rect',sec:'rect'},'Allocation editor');ship.parts=[];ship.fits=[];ship.armor={hull:.2,cit:0};
+  const esc=v=>String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('"','&quot;'),num=(v,n=0)=>Number(v||0).toFixed(n),fMass=v=>num(v,2)+' t',fW=v=>num(v,2)+' W',$=()=>form,toast=s=>messages.push(s),requestDraw=()=>{},renderPanel=()=>renders++,view={setSurfaceSelection:()=>{}};
+  function mutate(label,fn){const before=JSON.stringify(C.serialize(ship));fn();if(before===JSON.stringify(C.serialize(ship)))return false;history.push(before);return true;}
+ `);const start=app.indexOf('// ---------- surface patch editing ----------'),end=app.indexOf('// ---------- multiple selection, copy and paste ----------',start);run(app.slice(start,end));
+ run(`const patchId=surfaceRows().find(p=>p.face==='aft').id;st.surfaceIds=[patchId];
+  function edit(path,value){const el={dataset:{surfaceField:path},value:String(value),type:'number',closest:()=>form};surfaceUpdateDraft(el);return el;}
+  function ratioForm(){const button={disabled:true},note={textContent:''},total={textContent:''},inputs=[];for(const key of Object.keys(SURFACE_ALLOCATION_LABELS))for(const type of ['number','range'])inputs.push({dataset:{surfaceField:'allocation.'+key},type,value:'',checkValidity(){return this.type==='range'||(this.value===''?!this.required:Number.isFinite(+this.value)&&+this.value>=0&&+this.value<=100);}});return {inputs,button,total,querySelectorAll:()=>inputs,querySelector:s=>s.includes('apply')?button:s.includes('allocation-total')?total:note};}
+ `);return{run,cx};
+}
+
+test('the exclusive armor/equipment selector previews native defaults and commits through one Undo entry',()=>{
+ const {run}=setup(),before=run('JSON.stringify(C.serialize(ship))');let html=run('surfaceEditorHTML()');assert.match(html,/data-surface-field="functionMode"/);assert.match(html,/data-surface-field="armor.thickness"/);assert.doesNotMatch(html,/data-surface-field="allocation.weapons"/);
+ run("edit('functionMode','equipment')");html=run('surfaceEditorHTML()');assert.equal(run('JSON.stringify(C.serialize(ship))'),before);assert.match(html,/data-surface-allocation-total>100%/);assert.match(html,/<option value="pd" selected>/);assert.match(html,/<option value="hdis" selected>/);assert.doesNotMatch(html,/data-surface-field="(?:battery.count|equipment.count|armor.thickness|style.depth|style.kind)"/);
+ assert.equal(run('surfaceApplyDraft()'),true);assert.equal(run('history.length'),1);assert.equal(run('C.surfaceConfig(ship,patchId).functionMode'),'equipment');
+ assert.deepEqual(plain(run('Object.fromEntries(Object.keys(SURFACE_ALLOCATION_LABELS).map(k=>[k,C.surfaceReport(ship).patches.find(p=>p.id===patchId).categories[k].installed>0]))')),{weapons:true,cooling:true,sensors:true,habitation:true});
+ run('ship=C.deserialize(JSON.parse(history.pop()))');assert.equal(run('C.surfaceConfig(ship,patchId).functionMode'),'armor');assert.equal(run('ship.parts.filter(p=>p.surfacePatch).length+ship.fits.filter(f=>f.surfacePatch).length'),0);
+});
+
+test('linked edits stage exact budgets and accept fractional peers when zeroing sensor and habitation shares',()=>{
+ const {run}=setup();run("C.setSurfaceConfig(ship,patchId,{functionMode:'equipment',equipment:{depth:3}});form=ratioForm()");const before=run('JSON.stringify(C.serialize(ship))');
+ run("edit('allocation.weapons',40)");assert.deepEqual(plain(run('surfaceDraftConfig(C.surfaceConfig(ship,patchId)).allocation')),{weapons:40,cooling:20,sensors:20,habitation:20});assert.equal(run('form.total.textContent'),'100%');
+ run("edit('allocation.sensors',0);edit('allocation.habitation',0)");const draft=plain(run('surfaceDraftConfig(C.surfaceConfig(ship,patchId)).allocation'));assert.equal(Object.values(draft).reduce((a,b)=>a+b,0),100);assert.ok(draft.weapons>66&&draft.weapons<67);assert.equal(draft.sensors,0);assert.equal(draft.habitation,0);assert.equal(run('JSON.stringify(C.serialize(ship))'),before);
+ const html=run('surfaceEditorHTML()');for(const match of html.matchAll(/<input type="number" data-surface-field="allocation\.[^"]+"[^>]*>/g))assert.match(match[0],/step="any"/,'automatically redistributed fractions must pass native input validity');
+ assert.equal(run('surfaceApplyDraft()'),true);assert.deepEqual(plain(run('C.surfaceConfig(ship,patchId).allocation')),draft);assert.equal(run('ship.parts.filter(p=>p.surfacePatch===patchId&&(p.k==="sensor"||p.k==="habitat")).length'),0);assert.equal(run('history.length'),1);
+ assert.equal(run('Object.hasOwn(C.surfaceConfig(ship,patchId),"allocationEdits")'),false);assert.equal(run('JSON.stringify(C.serialize(ship)).includes("_allocationEdits")'),false);
+});
+
+test('one multi-face Apply redistributes each face from its own shares and preserves the other settings',()=>{
+ const {run}=setup();run(`const otherId=surfaceRows().find(p=>p.face==='fore').id;C.setSurfaceConfig(ship,patchId,{functionMode:'equipment',allocation:{weapons:40,cooling:20,sensors:30,habitation:10},style:{seed:71}});C.setSurfaceConfig(ship,otherId,{functionMode:'equipment',allocation:{weapons:10,cooling:20,sensors:30,habitation:40},style:{seed:82}});st.surfaceIds=[patchId,otherId];form=ratioForm();let applyCalls=0;const originalApply=C.setSurfaceConfig;C.setSurfaceConfig=(...args)=>{applyCalls++;return originalApply(...args)};edit('allocation.cooling',50);surfaceApplyDraft();`);
+ assert.equal(run('applyCalls'),1);assert.equal(run('history.length'),1);const configs=plain(run('st.surfaceIds.map(id=>C.surfaceConfig(ship,id))'));assert.deepEqual(configs[0].allocation,{weapons:25,cooling:50,sensors:18.75,habitation:6.25});assert.deepEqual(configs[1].allocation,{weapons:6.25,cooling:50,sensors:18.75,habitation:25});assert.deepEqual(configs.map(q=>q.style.seed),[71,82]);
+ for(const q of configs)assert.equal(Object.values(q.allocation).reduce((a,b)=>a+b,0),100);
+ run("form=ratioForm();for(const input of form.inputs)if(input.dataset.surfaceField==='allocation.cooling'&&input.type==='number')input.required=true;edit('allocation.weapons',40)");
+ assert.equal(run("form.inputs.find(input=>input.dataset.surfaceField==='allocation.cooling'&&input.type==='number').required"),false,'a previously common share that becomes mixed must accept its empty multiple-values field');assert.equal(run('surfaceApplyDraft()'),true);assert.equal(run('applyCalls'),2);assert.equal(run('history.length'),2);
+});
+
+test('legacy mixed layouts stay intact until an explicit conversion is applied and Undo restores their devices',()=>{
+ const {run}=setup();run("C.setSurfaceConfig(ship,patchId,{armor:{thickness:.7},battery:{weapon:'pd',count:1},equipment:{kind:'hdis',count:1,depth:1}});ship.surfaces.version=1;delete ship.surfaces.patches.find(p=>p.id===patchId).functionMode;ship=C.deserialize(C.serialize(ship));");
+ const before=run('JSON.stringify(C.serialize(ship))'),ids=plain(run('[...ship.parts,...ship.fits].filter(p=>p.surfacePatch===patchId).map(p=>p.id).sort((a,b)=>a-b)')),html=run('surfaceEditorHTML()');assert.match(html,/data-surface-legacy-warning/);assert.match(html,/data-surface-legacy/);assert.match(html,/data-surface-action="convert-equipment"/);assert.match(html,/data-surface-field="battery.count"/);
+ run("surfaceAction('convert-armor')");assert.equal(run('JSON.stringify(C.serialize(ship))'),before);assert.equal(run('history.length'),0);assert.equal(run('surfaceApplyDraft()'),true);assert.equal(run('C.surfaceConfig(ship,patchId).functionMode'),'armor');assert.equal(run('[...ship.parts,...ship.fits].filter(p=>p.surfacePatch===patchId).length'),0);
+ run('ship=C.deserialize(JSON.parse(history.pop()))');assert.equal(run('C.surfaceConfig(ship,patchId).functionMode'),'legacy');assert.deepEqual(plain(run('[...ship.parts,...ship.fits].filter(p=>p.surfacePatch===patchId).map(p=>p.id).sort((a,b)=>a-b)')),ids);
+});
+
+test('equipment copy/paste, reset and reload preserve ratios while leaving an independent turret intact',()=>{
+ const {run}=setup();run(`const destinationId=surfaceRows().find(p=>p.face==='fore').id;ship.fits.push({id:900,k:'pd',p:[32,25,0],a:4,n:[0,1,0],base:0,ped:0,host:null});ship.nextId=901;C.setSurfaceConfig(ship,patchId,{functionMode:'equipment',allocation:{weapons:0,cooling:25,sensors:25,habitation:50},equipment:{depth:3},style:{seed:441}});surfaceAction('copy');st.surfaceIds=[destinationId];surfaceAction('paste');ship=C.deserialize(C.serialize(ship));`);
+ assert.equal(run('C.surfaceConfig(ship,destinationId).functionMode'),'equipment');assert.deepEqual(plain(run('C.surfaceConfig(ship,destinationId).allocation')),{weapons:0,cooling:25,sensors:25,habitation:50});assert.equal(run('C.surfaceConfig(ship,destinationId).style.seed'),441);assert.equal(run('ship.fits.filter(f=>f.id===900&&!f.surfacePatch).length'),1);
+ run("surfaceAction('reset')");assert.equal(run('C.surfaceConfig(ship,destinationId).functionMode'),'armor');assert.equal(run('ship.parts.filter(p=>p.surfacePatch===destinationId).length'),0);assert.equal(run('ship.fits.filter(f=>f.id===900&&!f.surfacePatch).length'),1);
+ run('ship=C.deserialize(JSON.parse(history.pop()))');assert.equal(run('C.surfaceConfig(ship,destinationId).functionMode'),'equipment');assert.equal(run('new Set([...ship.parts,...ship.fits].map(p=>p.id)).size'),run('ship.parts.length+ship.fits.length'));
+});
+
+test('UI-authored equipment shares survive a mirrored composite with real role cells and reflected normals',()=>{
+ const {run}=setup();run(`ship.hull.assembly=true;ship.parts=[{id:1,k:'struct',form:'box',c:[40,20,60],s:[48,24,24],taper:0}];ship.fits=[];ship.nextId=2;const hostPatch=surfaceRows().find(p=>p.host==='p1'&&p.face==='port');st.surfaceIds=[hostPatch.id];st.surfaceDraft={functionMode:'equipment','battery.weapon':'claser','battery.spacing':1,'equipment.depth':3,'allocation.weapons':25,'style.seed':73};surfaceApplyDraft();const template=C.assemblyCapture(ship,{parts:[1],fits:[]},{name:'UI equipment section'}).template,target=C.newShip({L:200,W:200,H:80,plan:'rect',sec:'rect'},'Mirrored');target.hull.assembly=true;target.parts=[];target.fits=[];const placement=C.assemblyPlace(target,template,[100,40,60],{mirror:true}),hosts=placement.parts.filter(p=>p.k==='struct'),left=hosts.find(p=>p.c[2]>0),right=hosts.find(p=>p.c[2]<0),leftRecord=target.surfaces.patches.find(p=>p.id.startsWith('p'+left.id+':')&&p.functionMode==='equipment'),rightRecord=target.surfaces.patches.find(p=>p.id.startsWith('p'+right.id+':')&&p.functionMode==='equipment');`);
+ assert.equal(run('placement.groups.length'),2);assert.deepEqual(plain(run('leftRecord.allocation')),plain(run('rightRecord.allocation')));assert.equal(run('rightRecord.id.split(":")[1]'),'stbd');
+ assert.equal(run(`['weapons','cooling','sensors','habitation'].every(role=>[...target.parts,...target.fits].some(p=>p.surfacePatch===leftRecord.id&&p.surfaceRole===role)&&[...target.parts,...target.fits].some(p=>p.surfacePatch===rightRecord.id&&p.surfaceRole===role))`),true);
+ assert.equal(run(`target.fits.filter(f=>f.surfacePatch===leftRecord.id).every(f=>{const g=target.fits.find(g=>g.surfacePatch===rightRecord.id&&g.surfaceCell===f.surfaceCell);return !!g&&C.dot(g.n,C.mirrorP(f.n))>.999999})`),true);
+ const before=run('JSON.stringify(C.serialize(target))');run('C.surfaceSync(target)');assert.equal(run('JSON.stringify(C.serialize(target))'),before);
+});

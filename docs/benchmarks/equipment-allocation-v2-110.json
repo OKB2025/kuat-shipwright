@@ -1,0 +1,172 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "date": "2026-11-03T01:29:58.551Z",
+  "source": {
+    "revision": "2f08a9512092629907f57dd21f4707c8e8d5a5c5",
+    "sha256": {
+      "data/reference.js": "b017c7692e310b76c8cfb0e05ca4ea33c53b51b7a5dcef71e36c9b5d465440f7",
+      "data/imperial2.js": "26d94e9127caadf9bff4b8da757ca0cfe98f31bfdc2735c6b9f872c41e1075ca",
+      "data/fleet.js": "cf094bec6abb2ff947740ba29884d6e60067512811c51723242f31e8a2e8b157",
+      "js/core.js": "74cc721b3bb72aa78d9909a3e377a3067ffe7d966f46f0e8fb93220a1141440a",
+      "js/gfx.js": "053f72eff8f379d1ef5d158a33cb94e08aa234824477b990a7a492d5eb033b6c"
+    },
+    "workingTreeMayContainUncommittedChanges": true
+  },
+  "machine": {
+    "platform": "linux",
+    "architecture": "x64",
+    "node": "v24.19.0",
+    "cpuModel": "Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz",
+    "logicalCpus": 3,
+    "memoryGiB": 9.734611511230469
+  },
+  "configuration": {
+    "logicalShips": 110,
+    "uniqueDesigns": 1,
+    "sharedImmutableProfiles": 1,
+    "fixedStepSeconds": 0.25,
+    "simulationTicks": 8,
+    "simulatedSeconds": 2,
+    "partsPerDesign": 87,
+    "fitsPerDesign": 10,
+    "surfaceEquipmentFaces": 2,
+    "installedByCategoryPerShip": {
+      "weapons": 10,
+      "cooling": 29,
+      "sensors": 28,
+      "habitation": 27
+    },
+    "installedByCategoryAllLogicalShips": {
+      "weapons": 1100,
+      "cooling": 3190,
+      "sensors": 3080,
+      "habitation": 2970
+    },
+    "dedicatedHabitationVolume": 3456,
+    "collisionsEnabled": false
+  },
+  "phases": {
+    "loadMs": 1337.7067550000002,
+    "designAndGenerationMs": 13008.167307,
+    "statsAndProfileMs": 5753.433909999998,
+    "cachedReport110CallsMs": 6607.747653999999,
+    "geometryCpuBuildMs": 1460.6580759999997,
+    "nearDrawSelection110InstancesMs": 86.89585100000113,
+    "farDrawSelection110InstancesMs": 44.42605700000058,
+    "densityZeroRegenerationMs": 1100.8203390000017,
+    "logicalUnitInitializationMs": 14.697495999997045,
+    "sharedBattleTick": {
+      "samples": 8,
+      "totalMs": 6188.627592999997,
+      "medianMs": 715.7123539999957,
+      "p95Ms": 827.8985310000062,
+      "maxMs": 1386.9086360000001
+    }
+  },
+  "activity": {
+    "shots": 880,
+    "shotTT": 119.72130133333314,
+    "shieldReceivedTT": 119.72130133333314
+  },
+  "graphicsSelection": {
+    "near": {
+      "drawCallsByMesh": {
+        "hull": 110,
+        "struct": 110,
+        "plate": 110,
+        "surfaceArmor": 110,
+        "surfaceDevices": 110,
+        "surfaceDetail": 110,
+        "refHull": 110,
+        "refStruct": 110,
+        "refHatches": 110,
+        "gen": 110,
+        "shield": 110,
+        "hyper": 110,
+        "engine": 110,
+        "refEngine": 110,
+        "nozzle": 110,
+        "hangar": 110,
+        "hatchOpen": 110,
+        "fits": 110,
+        "refFits": 110,
+        "tur_4": 110,
+        "tur_8": 110,
+        "tur_12": 110,
+        "tur_35": 110,
+        "tur_39": 110,
+        "tur_43": 110,
+        "tur_47": 110,
+        "tur_51": 110,
+        "tur_55": 110,
+        "tur_59": 110
+      },
+      "skipped": 0
+    },
+    "far": {
+      "drawCallsByMesh": {
+        "hull": 110,
+        "struct": 110,
+        "plate": 110,
+        "surfaceArmor": 110,
+        "refHull": 110,
+        "refStruct": 110
+      },
+      "skipped": 0
+    },
+    "fullSurfaceDeviceIndices": 72468,
+    "minimalSurfaceDeviceIndices": 72468,
+    "minimalDecorativeIndices": 0,
+    "densityAndLodFunctionalInvariant": true
+  },
+  "scope": {
+    "measured": [
+      "one actual v2 generated design with all four native equipment categories",
+      "CPU setup, cached reports and geometry building",
+      "near/far WebGL draw command selection using a no-op GL stub",
+      "110 logical instances sharing one immutable profile with separate runtime state",
+      "common fleet weapons, shield, power and heat processing"
+    ],
+    "notMeasured": [
+      "GPU throughput, browser frame rate or visual quality",
+      "110 independently generated designs",
+      "ship collision solver, campaign AI or long-running memory growth"
+    ],
+    "notes": [
+      "Near/far draw-selection instances intentionally overlap at the same position; this measures selection work, not a rendered scene.",
+      "Each cached report call reuses one already generated design and its geometry/layout caches.",
+      "The battle uses two groups of separate spatial units, disables collisions, and runs for a bounded simulated duration.",
+      "Times are current-container wall times and may include other concurrent processes.",
+      "No performance target or browser FPS is inferred from these CPU measurements."
+    ]
+  },
+  "measurementConditions": {
+    "cpuExclusive": false,
+    "concurrentWorkload": "Root full test suite and final surface-system suite ran concurrently. The postfix browser verification had finished before this benchmark; Chrome remained closed. Times are concurrent-container wall measurements, not isolated CPU timings.",
+    "browserVerification": {
+      "started": "2026-11-03T01:27:27.030Z",
+      "finished": "2026-11-03T01:27:43.370Z",
+      "result": "PASS",
+      "assertions": 31,
+      "browserClosed": true
+    }
+  },
+  "postMeasurementValidation": {
+    "coreSha256": "54f0d25129ac7f089981a30a46bdbca2bba8c3f02129bb6c296ad203dde995d1",
+    "change": "Modern equipment placement now checks partial overlap against existing native parts using common physical volume collision.",
+    "fixtureRecreated": true,
+    "installedByCategoryPerShip": {
+      "weapons": 10,
+      "cooling": 29,
+      "sensors": 28,
+      "habitation": 27
+    },
+    "partsPerDesign": 87,
+    "fitsPerDesign": 10,
+    "countsUnchanged": true,
+    "additionalTargetedRegression": "partial overlap with an independent native room: PASS",
+    "timingRunRepeated": false,
+    "note": "The timing measurements above retain their actual measured Core hash. This later targeted collision fix was checked with the same generation fixture; no replacement timing or final-code performance claim is inferred."
+  }
+}

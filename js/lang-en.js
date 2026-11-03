@@ -8997,4 +8997,55 @@ Object.assign(root.KS_EN.messages,{
 "途中の必須停止があるため星系間攻撃を直接指定できません。母艦を次の停止星系へ移動してください": "An intermediate mandatory stop prevents a direct inter-system strike. Move the carrier to the next stop system."
 });
 // </v13-foundations-catalog>
+// <surface-equipment-allocation-catalog>
+Object.assign(root.KS_EN.terms,{
+"表面居住区": "Surface Quarters",
+"表面センサー": "Surface Sensor"
+});
+Object.assign(root.KS_EN.messages,{
+"装甲面": "Armor Surface",
+"機材搭載面": "Equipment Surface",
+"面の用途": "Surface Function",
+"外面をタップするか一覧から選び、装甲面か機材搭載面を設定します。機材搭載面は砲列・散熱・センサー・居住区の面積を100%で配分します。透視で見える内部の面は選べません。": "Tap an exterior surface or select it from the list, then choose armor or equipment. Equipment surfaces allocate a total of 100% of their area among batteries, cooling, sensors, and quarters. Internal surfaces revealed by X-ray view cannot be selected.",
+"砲列": "Batteries",
+"散熱": "Cooling",
+"砲列（%）": "Batteries (%)",
+"散熱（%）": "Cooling (%)",
+"センサー（%）": "Sensors (%)",
+"居住区（%）": "Quarters (%)",
+"旧式の重ね合わせ（互換保持）": "Legacy Layering (Preserved)",
+"面の用途を選びます。変更した項目だけを各選択面に適用し、「複数の値」は変更するまで維持します。": "Choose the surface function. Apply only changed fields to each selected surface; fields showing Multiple Values retain their individual settings until changed.",
+"この面は装甲として集計します。面生成の機材と砲列は稼働せず、個別配置した砲塔はそのまま残ります。": "This surface contributes armor. Surface-generated equipment and batteries are inactive; individually placed turrets are retained.",
+"機材の面積配分": "Equipment Area Allocation",
+"割当合計": "Total Allocation",
+"4種類の機材を合計100%で割り振ります。1項目を変えると、残りの比率を比例調整します。比率と面の実面積から基数を自動計算します。": "Allocate a total of 100% among the four equipment types. Changing one share adjusts the others proportionally. Equipment counts are calculated from these shares and the surface area.",
+"機材の仕様": "Equipment Specifications",
+"砲列の兵器定義": "Battery Weapon Definition",
+"散熱方式": "Cooling Type",
+"設備の内部深さ（m）": "Equipment Internal Depth (m)",
+"センサーは共通の複数帯域センサー、居住区は共通の居住設備として登録します。機材の外観も種類と配分に合わせて自動生成します。": "Sensors use the shared multiband sensor system, and quarters use shared habitation equipment. Equipment geometry is generated to match its type and allocation.",
+"旧式の装甲・機材の重ね合わせを保持しています。面用途を選んで適用すると、新しい方式へ変換します。": "Legacy armor and equipment layers are preserved. Choose a surface function and apply it to convert to the new system.",
+"装甲面へ切り替える": "Convert to Armor Surface",
+"比率式の機材面へ切り替える": "Convert to Allocated Equipment",
+"旧式の設定（互換）": "Legacy Settings (Compatibility)",
+"選択した面の用途が異なります。装甲面か機材搭載面を選ぶと、共通の設定を編集できます。": "The selected surfaces have different functions. Choose Armor Surface or Equipment Surface to edit their shared settings.",
+"外観の細部": "Visual Details",
+"細部ディテール密度": "Detail Density",
+"細部ディテール密度は装飾の設定です。機材搭載面の機能は、100%の面積配分と実際に設置できた設備から計算します。": "Detail density controls decoration. Equipment capability is calculated from the 100% area allocation and the equipment that actually fits.",
+"機材搭載面の面積配分": "Equipment Surface Area Allocation",
+"占有 {0} m² · 未使用 {1} m²": "Occupied {0} m² · Unused {1} m²",
+"居住容積／居住定員": "Habitable Volume / Capacity",
+"比率は各種類に予約する面積です。面積・内部深さ・開口部・既存設備の条件を満たす機材だけを実際に配置します。居住定員は収容上限で、乗員を新規に生成しません。": "Shares reserve area for each equipment type. Only equipment that meets the area, internal depth, opening, and clearance requirements is installed. Habitation capacity is an occupancy limit and does not create crew.",
+"旧式の面設定を保持しています。装甲面または機材配分へ変換できます。": "Legacy surface settings are preserved. They can be converted to armor or allocated equipment.",
+"1面の装置数上限により割当の一部が未配置です": "The per-surface device limit leaves part of the allocation unplaced.",
+"他の面の設備と内部容積が干渉しています": "The internal volume overlaps equipment on another surface.",
+"既存設備と内部容積が干渉しています": "The internal volume overlaps existing equipment.",
+"面の背後の実容積に設備が収まりません": "The equipment does not fit inside the actual volume behind the surface.",
+"居住設備区画": "Habitation Compartment",
+"外壁に接する居住設備。既存の船内容積を居住用に予約し、内装・生命維持・給電設備の質量と費用を持ちます。乗員や部隊は生成しません。": "Habitation equipment adjoining an exterior wall. It reserves existing interior volume for living space and includes the mass and cost of furnishings, life support, and power systems. It does not create crew or troops.",
+"機材搭載面の外観参考：": "Visual Reference for Equipment Surfaces: ",
+"トレンチと構造物外面の機器の組み方を参照し、機材ブロック・配管・グリル・窓帯を手続き生成で組み立てています。": "Equipment blocks, pipes, grilles and window bands are generated procedurally, using the arrangement of machinery in trenches and on structure walls as a visual reference.",
+"この機能に艦全体の参照メッシュやテクスチャは同梱していません。": "This feature does not bundle the reference ship's complete mesh or textures."
+});
+// </surface-equipment-allocation-catalog>
 })(typeof window==="undefined"?globalThis:window);
