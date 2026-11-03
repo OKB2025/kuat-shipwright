@@ -2454,9 +2454,25 @@ const STRUCTURAL_MATERIAL_CACHE=new WeakMap();
 const STRUCTURAL_VOLUME_CACHE=new WeakMap();
 function structuralMaterialOrder(a,b){const density=p=>p.plate?K.armorDens:K.structDens*(p.light?.25:1);return density(b)-density(a)||a.id-b.id;}
 function structuralMeshVolume(T){if(!T.length)return 0;const cached=STRUCTURAL_VOLUME_CACHE.get(T);if(cached!==undefined)return cached;const b=solidMeshBounds(T),o=[0,1,2].map(i=>(b[i]+b[i+3])/2);let value=0;for(let i=0;i<T.length;i+=9){const a=sub(Array.from(T.slice(i,i+3)),o),b=sub(Array.from(T.slice(i+3,i+6)),o),c=sub(Array.from(T.slice(i+6,i+9)),o);value+=dot(a,cross(b,c));}const result=Math.abs(value/6);STRUCTURAL_VOLUME_CACHE.set(T,result);return result;}
+// v13 LOAD A clip asks for the coplanar section of the same accumulated mesh once per plane of the other solid,
+// and each ask walked every triangle (planes x triangles: most of a Gozanti's 100 s of figures). The triangles are
+// binned once per mesh by their unit normal (cells of 1e-3): a triangle can pass the test below only if its normal
+// is within 4.5e-4 of n per component, i.e. in n's cell or a neighbour, so only those 27 cells are walked, in the
+// original order and with the unchanged test, giving the identical section.
+const COPLANAR_BINS=new WeakMap(),COPLANAR_CELL=1e3;
+function coplanarBins(T){
+ let bins=COPLANAR_BINS.get(T);if(bins)return bins;bins=new Map();
+ for(let i=0;i<T.length;i+=9){const ax=T[i+3]-T[i],ay=T[i+4]-T[i+1],az=T[i+5]-T[i+2],bx=T[i+6]-T[i],by=T[i+7]-T[i+1],bz=T[i+8]-T[i+2],raw=[ay*bz-az*by,az*bx-ax*bz,ax*by-ay*bx];if(len(raw)<1e-12)continue;const m=norm(raw),key=Math.floor(m[0]*COPLANAR_CELL)+','+Math.floor(m[1]*COPLANAR_CELL)+','+Math.floor(m[2]*COPLANAR_CELL);let list=bins.get(key);if(!list)bins.set(key,list=[]);list.push(i);}
+ COPLANAR_BINS.set(T,bins);return bins;
+}
+function coplanarCandidates(T,n){
+ const bins=coplanarBins(T),c=n.map(x=>Math.floor(x*COPLANAR_CELL)),out=[];
+ for(let x=-1;x<=1;x++)for(let y=-1;y<=1;y++)for(let z=-1;z<=1;z++){const list=bins.get((c[0]+x)+','+(c[1]+y)+','+(c[2]+z));if(list)for(const i of list)out.push(i);}
+ return out.sort((a,b)=>a-b);
+}
 function structuralCoplanarSection(T,n,d,u,v,origin,eps){
  const edges=new Map(),pointKey=p=>p.map(x=>Math.round(x/eps)).join(','),n0=n[0],n1=n[1],n2=n[2],tolerance=eps*4;
- for(let i=0;i<T.length;i+=9){
+ for(const i of coplanarCandidates(T,n)){
   if(Math.abs(n0*T[i]+n1*T[i+1]+n2*T[i+2]-d)>tolerance||Math.abs(n0*T[i+3]+n1*T[i+4]+n2*T[i+5]-d)>tolerance||Math.abs(n0*T[i+6]+n1*T[i+7]+n2*T[i+8]-d)>tolerance)continue;
   const ax=T[i+3]-T[i],ay=T[i+4]-T[i+1],az=T[i+5]-T[i+2],bx=T[i+6]-T[i],by=T[i+7]-T[i+1],bz=T[i+8]-T[i+2],raw=[ay*bz-az*by,az*bx-ax*bz,ax*by-ay*bx];
   if(len(raw)<1e-12||dot(norm(raw),n)<1-1e-7)continue;
