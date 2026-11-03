@@ -14659,6 +14659,8 @@ function boardSabotage(w, t, b) {
 function boardCapture(w, t, b, why) {
  const u = w.units.get(b.by), s = Math.max(0, b.aboard), cm = t.p.crewMax ?? t.p.crewNeed ?? 0;
  t.prisoners = Math.round((t.crew || 0) + (t.troops || 0));t.boarding = null;
+ // troops not yet across go back to their quarters
+ if (u?.tractor?.target === t.id && u.tractor.wait > 0) { boardReturn(u, b.crew, u.tractor.wait); u.tractor.wait = 0; }
  if (u) captureShip(w, u, t);else { t.origSide = t.origSide ?? t.side; t.side = b.side; t.team = b.side; t.captured = true; }
  // The prize crew: half the survivors work the ship, the rest garrison it.
  t.crew = Math.min(cm, Math.round(s * BOARD.prize));t.troops = Math.max(0, Math.round(s - t.crew));

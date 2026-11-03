@@ -25,7 +25,7 @@ test('a Star Destroyer\'s stormtroopers take a disabled CR90: lock, reel in, doc
  const seen=new Set();assert.ok(run(w,1800,()=>{const i=R.boardInfo(w,u)||R.boardInfo(w,t);if(i)seen.add(i.phase);return t.captured;}));
  for(const p of ['reel','dock','fight'])assert.ok(seen.has(p),p);
  assert.equal(t.side,0);assert.equal(t.origSide,1);assert.ok(t.prisoners>0);assert.ok(t.crew>0&&t.crew<=t.p.crewNeed);
- assert.ok(u.troops<9700&&u.troops>=9700-288);assert.equal(u.troopsSpent,9700-u.troops);
+ assert.ok(u.troops<9700&&u.troops>=9700-288);assert.equal(u.troopsSpent,9700-u.troops);assert.equal(u.tractor.wait,0);
  assert.equal(u.tractor?.mode,'tow');assert.equal(w.sides[0].captured,1);assert.equal(w.sides[1].lost,1);
  const d=C.len(C.sub(t.pos,u.pos)),side=(u.p.width||u.p.len*.4)/2+(t.p.width||t.p.len*.4)/2+R.BOARD.gap;assert.ok(Math.abs(d-side)<60,'alongside '+d);
  for(const k of ['強制接舷','突入','制圧','艦橋を制圧'])assert.ok(log(w).some(s=>s.includes(k)),k);
