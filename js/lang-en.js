@@ -9341,4 +9341,12 @@ Object.assign(root.KS_EN.messages,{
 "一覧の露出面 · {0} 面": "Exposed Surfaces in List · {0}",
 "埋まった面は一覧と選択から除外し、面積は船外に露出した部分だけを表示します。保存した面設定は保持します。": "Buried surfaces are excluded from the list and selection. Areas show only the portions exposed to the exterior. Saved surface settings are retained."
 });
+Object.assign(root.KS_EN.messages,{
+ "機材構造面の外観参考：": "Machinery Surface Visual Reference: ",
+ "艦橋と側面トレンチの拡大画像を参考に、大小の機器状の凹凸、奥まった空間、短い桁と発光点が入り組む面を手続き生成しています。": "Close-up images of the bridge and side trenches inform procedurally generated surfaces with machinery of varied sizes, recessed cavities, short beams and clustered lights."
+});
+Object.assign(root.KS_EN.messages,{
+ "装甲板・機材構造面の外観参考：": "Armor and Machinery Surface Visual Reference: ",
+ "甲板・外板・艦橋・側面トレンチの拡大画像を参考に、装甲板の継ぎ目と浅い段差、大小の機器状の凹凸、張り出しと発光点を手続き生成しています。": "Close-up images of the decks, hull, bridge and side trenches inform procedurally generated armor seams and shallow stepped edges, varied machinery relief, projections and clustered lights."
+});
 })(typeof window==="undefined"?globalThis:window);

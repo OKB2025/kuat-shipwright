@@ -1,4 +1,5 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test');
+const {primarySurfaceLayers}=require('./helpers/surface-geometry.cjs');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=vm.createContext({console});
 for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/gfx.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});
 const {C,G}=vm.runInContext('({C:Core,G:Gfx})',cx),plain=x=>JSON.parse(JSON.stringify(x));
@@ -10,11 +11,11 @@ function fixture({width=120,rotated=false,cut=false}={}){
  const result=C.setSurfaceConfig(ship,patch.id,{functionMode:'equipment',allocation:{cooling:100,sensors:0,habitation:0},equipment:{kind:'hdis',depth:1,limit:0},battery:{weapon:'pd',count:0},style:{depth:4,density:.7,seed:37}});assert.equal(result.ok,true,result.why);
  return {ship,host,patch};
 }
-function mesh(ship,opt={}){return G.meshSurfaceLayers(ship,{}, {detail:0,maxDetails:0,...opt});}
+function mesh(ship,opt={}){return primarySurfaceLayers(G,ship,{detail:0,maxDetails:0,...opt});}
 function triangles(g){const out=[];for(let i=0;i<g.ni;i+=3)out.push([0,1,2].map(j=>Array.from(g.pos.slice(g.idx[i+j]*3,g.idx[i+j]*3+3))));return out;}
 // Inspect emitted positions and owner ranges, rather than accepting feature
 // names as evidence that closed part models have become one face mesh.
-function neutral(ship,host,opt={}){const ranges={},m=G.meshSurfaceLayers(ship,ranges,{detail:0,maxDetails:0,...opt}),g=m.surfaceDevices,T=[];for(const [name,start,count]of ranges[host.id]||[])if(name==='surfaceDevices')for(let i=start;i<start+count;i+=3){if(g.col[g.idx[i]*4+3]===253)continue;T.push([0,1,2].map(j=>Array.from(g.pos.slice(g.idx[i+j]*3,g.idx[i+j]*3+3))));}return T;}
+function neutral(ship,host,opt={}){const ranges={},m=G.meshSurfaceLayers(ship,ranges,{detail:0,maxDetails:0,...opt}),g=m.surfaceDevices,T=[];for(const [name,start,count,meta]of ranges[host.id]||[])if(name==='surfaceDevices'&&!meta?.projection)for(let i=start;i<start+count;i+=3){if(g.col[g.idx[i]*4+3]===253)continue;T.push([0,1,2].map(j=>Array.from(g.pos.slice(g.idx[i+j]*3,g.idx[i+j]*3+3))));}return T;}
 function projectedArea(T,n){return T.reduce((a,t)=>a+C.dot(C.cross(C.sub(t[1],t[0]),C.sub(t[2],t[0])),n)/2,0);}
 function geometry(g){return {pos:Array.from(g.pos.slice(0,g.n*3)),idx:Array.from(g.idx.slice(0,g.ni))};}
 function conservativeInside(host,p){return C.inPart(host,p)||C.inPart(host,C.add(p,C.mul(C.norm(C.sub(host.c,p)),3e-4)));}
