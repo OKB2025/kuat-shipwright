@@ -8,6 +8,10 @@ function fixture(){
  assert.ok(patch?.exposed);const result=C.setSurfaceConfig(ship,[patch.id],{armor:{material:'dense',thickness:.4},equipment:{kind:'hdis',count:2,depth:1},battery:{weapon:'ltl',count:2,spacing:2},style:{kind:'machinery',density:.7,seed:37}});assert.equal(result.ok,true);
  return {ship,body,patch:C.surfacePatches(ship).find(p=>p.id===patch.id)};
 }
+function addManualTracker(ship,body){
+ const face=C.surfacePatches(ship).find(p=>p.host==='p'+body.id&&p.face==='fore'),placed=C.placeFit(ship,'pd',face.center,face.normal,0,false,{localMount:true});
+ assert.ok(placed.fit,placed.err);assert.ok(!placed.fit.surfacePatch);return placed.fit;
+}
 function functional(ship){const s=C.surfaceReport(ship);return plain({parts:ship.parts.map(p=>({id:p.id,k:p.k,c:p.c,room:p.room,s:p.s,d:p.d})),fits:ship.fits.map(f=>({id:f.id,k:f.k,p:f.p,n:f.n})),counts:s.totals});}
 function selectedPlan(ship,patch,opt){const row=G.surfaceVisualPlan(ship,opt).find(p=>p.id===patch.id);assert.ok(row,'the edited semantic patch must have a visual record');return row;}
 const identity3=[1,0,0,0,1,0,0,0,1],identity4=[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1],apply=(r,p)=>[r[0]*p[0]+r[3]*p[1]+r[6]*p[2],r[1]*p[0]+r[4]*p[1]+r[7]*p[2],r[2]*p[0]+r[5]*p[1]+r[8]*p[2]];
@@ -95,10 +99,11 @@ test('Canvas2D fleet LOD also separates decorative meshes from the physical armo
  drawn.length=0;renderer.eye=()=>[0,0,1000];renderer.draw({fleet:[{key:'surface',pos:[0,0,0]}],lod:true});assert.ok(drawn.includes('surfaceArmor'));assert.ok(!drawn.includes('surfaceDetail'));assert.ok(!drawn.includes('surfaceDevices'));
 });
 
-test('both renderers retain surface turret metadata and use the requested combat center for uncommanded rest meshes',()=>{
- const {ship}=fixture(),profile=C.fleetProfile(C.computeStats(ship),ship.name,ship),center=profile.surface.offset.slice(),geometry=G.fleetGeometry(ship,{center});
+test('both renderers retain embedded metadata and use the combat center for independent uncommanded turrets',()=>{
+ const {ship,body}=fixture(),manual=addManualTracker(ship,body),profile=C.fleetProfile(C.computeStats(ship),ship.name,ship),center=profile.surface.offset.slice(),geometry=G.fleetGeometry(ship,{center});
  assert.deepEqual(plain(geometry.center),plain(center));center[0]+=100;assert.deepEqual(plain(geometry.center),plain(profile.surface.offset),'the common center is copied rather than aliased');assert.equal(geometry.surfaceTurrets,true);
- const guns=geometry.turrets.filter(t=>t.mesh);assert.equal(guns.length,ship.fits.length,'each installed tracking gun owns a real mesh');
+ const embedded=geometry.turrets.filter(t=>t.embedded);assert.equal(embedded.length,ship.fits.filter(f=>f.surfacePatch).length);assert.ok(embedded.every(t=>t.mesh===null),'casemate openings stay in the static face mesh');
+ const guns=geometry.turrets.filter(t=>t.mesh);assert.equal(guns.length,1,'only the independently placed turret owns a rotating body');assert.equal(guns[0].id,manual.id);
  const original=G.meshFits(ship),keys=g=>{const out=[];for(let i=0;i<g.ni;i+=3)out.push(Array.from(g.idx.slice(i,i+3)).flatMap(k=>Array.from(g.pos.slice(k*3,k*3+3))).join(','));return out;},partitioned=[geometry.meshes.fits.geo,...guns.map(t=>geometry.meshes[t.mesh].geo)];assert.deepEqual(partitioned.flatMap(keys).sort(),keys(original).sort(),'the common fit mesh is partitioned into pedestals and tracking bodies exactly once');
  for(const kind of ['webgl','compat']){
   const {asset,calls,draw}=rendererFixture(geometry,kind),unit={key:'surface-test',pos:[15,7,-9],rot:[0,0,-1,0,1,0,1,0,0]};assert.equal(asset.surfaceTurrets,true,kind);draw(unit);
@@ -107,14 +112,15 @@ test('both renderers retain surface turret metadata and use the requested combat
  }
 });
 
-test('surface turret fallback follows a moving foil without needing an aiming update',()=>{
+test('an independent turret on a surface-enabled foil moves without needing an aiming update',()=>{
  const ship=C.newShip({L:80,W:80,H:20,assembly:true});ship.detail=0;const wing=C.placePart(ship,'wing',[40,10,0],[40,50,4],{},false);wing.wing=C.normalizeWing({...wing.wing,foil:true,axis:'x',open:10,stow:50});
- const patch=C.surfacePatches(ship).find(p=>p.host==='p'+wing.id&&p.face==='top');assert.equal(C.setSurfaceConfig(ship,[patch.id],{battery:{weapon:'cturret',count:1},style:{density:0}}).ok,true);
+ const patch=C.surfacePatches(ship).find(p=>p.host==='p'+wing.id&&p.face==='top');assert.equal(C.setSurfaceConfig(ship,[patch.id],{style:{density:0}}).ok,true);
+ const placed=C.placeFit(ship,'cturret',patch.center,patch.normal,0,false,{localMount:true});assert.ok(placed.fit,placed.err);assert.ok(!placed.fit.surfacePatch);wing.wing.members||={parts:[],fits:[]};wing.wing.members.fits.push(placed.fit.id);
  const center=[31,8,-4],geometry=G.fleetGeometry(ship,{center}),rest=geometry.turrets.find(t=>t.mesh),foil=geometry.foils.find(f=>f.id===wing.id);assert.ok(rest);assert.equal(rest.foilId,wing.id);
  for(const kind of ['webgl','compat']){const {calls,draw}=rendererFixture(geometry,kind),unit={key:'surface-test',pos:[8,12,-7],foils:{[wing.id]:0}};draw(unit);const call=calls.find(c=>c.name===rest.mesh);assert.ok(call,kind+' moving rest turret');const vertex=Array.from(geometry.meshes[rest.mesh].geo.pos.slice(0,3)),actual=C.add(call.off,apply(call.rot,C.sub(vertex,call.center))),expected=C.add(unit.pos,C.sub(G.foilTransform(foil,0).point(vertex),center));nearVector(actual,expected,kind+' foil rest mesh');}
 });
 
 test('far surface assets omit cosmetic and turret meshes even when the ship supplies aiming poses',()=>{
- const {ship}=fixture(),geometry=G.fleetGeometry(ship),poses=geometry.turrets.filter(t=>t.mesh).map(t=>({mesh:t.mesh,pivot:t.pivot.slice(),rot:identity3.slice()}));assert.ok(poses.length>0);
+ const {ship,body}=fixture();addManualTracker(ship,body);const geometry=G.fleetGeometry(ship),poses=geometry.turrets.filter(t=>t.mesh).map(t=>({mesh:t.mesh,pivot:t.pivot.slice(),rot:identity3.slice()}));assert.ok(poses.length>0);
  for(const kind of ['webgl','compat']){const {renderer,calls,draw}=rendererFixture(geometry,kind),unit={key:'surface-test',pos:[0,0,0],turrets:poses};draw(unit);assert.ok(calls.some(c=>c.name==='surfaceDetail'),kind+' near detail');assert.ok(calls.some(c=>poses.some(t=>t.mesh===c.name)),kind+' near turret');calls.length=0;renderer.eye=()=>[0,0,30000];draw(unit);assert.ok(calls.some(c=>c.name==='surfaceArmor'),kind+' far physical armor');assert.ok(!calls.some(c=>c.name==='surfaceDetail'||c.name==='surfaceDevices'),kind+' far cosmetics');assert.ok(!calls.some(c=>poses.some(t=>t.mesh===c.name)),kind+' far turret mesh');}
 });

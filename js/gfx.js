@@ -506,6 +506,17 @@ function subFrame(M, o, at, ang) {
 }
 function frameM(f) { const fr = C.FITS[f.k].window ? C.windowFrame(f) : C.fitFrameOf(f); return [fr.fw[0], fr.fw[1], fr.fw[2], fr.up[0], fr.up[1], fr.up[2], fr.rt[0], fr.rt[1], fr.rt[2]]; }
 let FIT_SKIP_BODY = null, FIT_SKIP_PED = null;
+const embeddedSurfaceFit=f=>!!(f?.surfacePatch&&C.FITS[f.k]?.cat==='w');
+// A surface battery is an opening in its host wall. Its visible bore stays
+// behind the shallow lip; the shared Core geometry owns the actual muzzle.
+function surfaceBatteryMesh(g,f){
+ const p=C.surfaceBatteryGeometry?.(f);if(!p||f.float||f.surfaceUnplaced)return;
+ const {point,normal:n,u,v,width:w,height:h}=p,lip=Math.max(.025,C.dot(C.sub(p.mouth,point),n)),rim=Math.min(w*.08,h*.11,.18),back=Math.min(.018,lip*.30),at=(x,y,z)=>C.add(point,C.add(C.add(C.mul(u,x),C.mul(v,y)),C.mul(n,z))),outer=[[-w/2,-h/2],[w/2,-h/2],[w/2,h/2],[-w/2,h/2]],inner=[[-w/2+rim,-h/2+rim],[w/2-rim,-h/2+rim],[w/2-rim,h/2-rim],[-w/2+rim,h/2-rim]];
+ quad(g,inner.map(([x,y])=>at(x,y,back)),n,UV_WHITE,[15,20,26],255);
+ for(let i=0;i<4;i++){const j=(i+1)%4,a=at(...outer[i],lip),b=at(...outer[j],lip),c=at(...inner[j],back),d=at(...inner[i],back),sn=C.norm(C.cross(C.sub(b,a),C.sub(d,a)));quad(g,[a,b,c,d],sn,UV_WHITE,[83,95,106],255);}
+ const rows=p.barrels>4?2:1,per=Math.ceil(Math.min(16,p.barrels||1)/rows),iw=w-rim*2,ih=h-rim*2,r=Math.max(.025,Math.min(.13,iw/(per*3.1),ih/(rows*3.2)));
+ for(let i=0;i<Math.min(16,p.barrels||1);i++){const x=(i%per-(per-1)/2)*iw/per*.86,y=(Math.floor(i/per)-(rows-1)/2)*ih/(rows+1);axisFrustum(g,at(x,y,back+.002),at(x,y,back+.008),r*1.30,r*1.30,[69,78,86],true,false,8);axisFrustum(g,at(x,y,back+.009),at(x,y,back+.011),r,r,[8,12,17],true,false,8);}
+}
 // v22 A craft's launch tubes and pylons fly in the trial with their default stores (the お任せ loadout): each
 // press of the missile button fires one round from every station still loaded, along the bow.
 function craftLaunchers(model){
@@ -531,6 +542,7 @@ function craftWeaponMesh(g,f){
 function meshFits(ship, filter, ranges) {
   const g = new Geo(8192), body = FC.body;
   const one = (f) => {
+    if(embeddedSurfaceFit(f)){surfaceBatteryMesh(g,f);return;}
     if(C.FITS[f.k].asset){
       // Model turrets seat on the highest point under their ring; the pedestal
       // fills down to the lowest one so they never hang over a slope or step.
@@ -1814,13 +1826,13 @@ function surfaceVisualShares(patches,total,floor){
 // is neutral scenery: its shelves, cases and conduits add zero capacity. Small
 // working faces are owned by the installed common device beside them, so local
 // damage, selection and S-foil ownership still refer to real design entities.
-function surfaceEquipmentField(ship,patch,cells,style,detail,extraBudget,fieldBudget){
+function surfaceEquipmentField(ship,patch,cells,style,detail,extraBudget,fieldBudget,config){
  const u=C.norm(patch.u),v=C.norm(patch.v),normal=C.norm(patch.normal),T=surfaceTriangles(patch),origin=patch.center,uv=p=>{const q=C.sub(p,origin);return [C.dot(q,u),C.dot(q,v),C.dot(q,normal)];},tris=[];
  for(let i=0;i+8<T.length;i+=9){const t=[uv(T.slice(i,i+3)),uv(T.slice(i+3,i+6)),uv(T.slice(i+6,i+9))];t.bounds=[Math.min(...t.map(p=>p[0])),Math.min(...t.map(p=>p[1])),Math.max(...t.map(p=>p[0])),Math.max(...t.map(p=>p[1]))];tris.push(t);}
- const points=tris.flat(),lo=[Math.min(...points.map(p=>p[0])),Math.min(...points.map(p=>p[1]))],hi=[Math.max(...points.map(p=>p[0])),Math.max(...points.map(p=>p[1]))],blocked=[],host=/^p\d+$/.test(patch.host)?+patch.host.slice(1):patch.host,random=rng(surfaceSeed(patch.id+'|field',style.seed)),field=[],boxes=[],devices=[],scale=Math.max(.7,Math.sqrt(patch.area/14000));
+ const points=tris.flat(),lo=[Math.min(...points.map(p=>p[0])),Math.min(...points.map(p=>p[1]))],hi=[Math.max(...points.map(p=>p[0])),Math.max(...points.map(p=>p[1]))],blocked=[],host=/^p\d+$/.test(patch.host)?+patch.host.slice(1):patch.host,random=rng(surfaceSeed(patch.id+'|field',style.seed)),field=[],boxes=[],devices=[],scale=Math.max(1.5,Math.sqrt(patch.area/3500)),relief=C.clamp(config?.equipment?.depth??Math.max(1,...cells.filter(c=>c.role!=='weapons').map(c=>c.depth||1)),.35,4.5);
  const clip=(poly,axis,limit,sign)=>{const out=[];for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length],da=(a[axis]-limit)*sign,db=(b[axis]-limit)*sign;if(da>=-1e-8)out.push(a);if((da<0)!==(db<0)){const t=da/(da-db);out.push(a.map((q,j)=>q+(b[j]-q)*t));}}return out;};
  const reserve=(b,pad=0,rotation=false)=>{if(!b?.every(Number.isFinite))return;const P=[];for(let i=0;i<8;i++)P.push(uv([b[i&1?3:0],b[i&2?4:1],b[i&4?5:2]]));if(Math.min(...P.map(p=>p[2]))>6||Math.max(...P.map(p=>p[2]))<-.1)return;let a=[Math.min(...P.map(p=>p[0]))-pad,Math.min(...P.map(p=>p[1]))-pad,Math.max(...P.map(p=>p[0]))+pad,Math.max(...P.map(p=>p[1]))+pad];if(rotation){const cx=(a[0]+a[2])/2,cy=(a[1]+a[3])/2,r=Math.max(a[2]-a[0],a[3]-a[1])*.56;a=[cx-r,cy-r,cx+r,cy+r];}blocked.push(a);};
- for(const f of ship.fits||[])if(!f.float&&!f.surfaceUnplaced)reserve(C.fitAABB(f),.24,true);
+ for(const f of ship.fits||[])if(!f.float&&!f.surfaceUnplaced)reserve(C.fitAABB(f),embeddedSurfaceFit(f)?.12:.24,!embeddedSurfaceFit(f));
  for(const h of ship.hatches||[])reserve(C.openingBounds(ship,h),.18);
  for(const p of ship.parts||[])if(!p.surfacePatch&&['engine','nozzle','sensor'].includes(p.k))reserve(C.partAABB(p),.25);
  // Integrating clipped triangle area, rather than checking only four corners,
@@ -1832,12 +1844,16 @@ function surfaceEquipmentField(ship,patch,cells,style,detail,extraBudget,fieldBu
   return {height};
  };
  const at=(x,y,z)=>C.add(origin,C.add(C.add(C.mul(u,x),C.mul(v,y)),C.mul(normal,z)));
- const piece=(target,feature,x,y,w,h,z,d,color,ownerId=host,role=null,type='box',opts={})=>{if(target===field&&field.length>=fieldBudget)return null;const bounds=[x-w/2,y-h/2,x+w/2,y+h/2],s=space(bounds);if(!s)return null;const q={feature,type,ownerId,role,center:at(x,y,s.height+.025+Math.max(z,d/2)),u,v,normal,size:[w,h,d],bounds,color,...opts};target.push(q);return q;};
+ const piece=(target,feature,x,y,w,h,z,d,color,ownerId=host,role=null,type='box',opts={})=>{if(target===field&&field.length>=fieldBudget)return null;const bounds=[x-w/2,y-h/2,x+w/2,y+h/2],s=space(bounds);if(!s)return null;const q={feature,type,ownerId,role,center:at(x,y,s.height+.025+(opts.recess?z:Math.max(z,d/2))),u,v,normal,size:[w,h,d],bounds,color,...opts};target.push(q);return q;};
  const grey=()=>{const a=Math.round(90+random()*35);return [a,a+5,a+10];};
  if(cells.length&&fieldBudget>0){
   // Unequal-height binary partitions make a single interlocking machinery
   // field. No full-wall course and no installed-cell edge becomes a joint.
-  const pipeReserve=Math.min(160,Math.max(6,Math.floor(fieldBudget*.18))),pad=.12*scale,queue=[[lo[0]+pad,lo[1]+pad,hi[0]-pad,hi[1]-pad,0]],leaves=[],limit=Math.min(1500,Math.max(1,Math.floor((fieldBudget-pipeReserve)/3)));
+  const pipeReserve=Math.min(220,Math.max(6,Math.floor(fieldBudget*.22))),pad=.12*scale;let free=[[lo[0]+pad,lo[1]+pad,hi[0]-pad,hi[1]-pad,0]];
+  // Enclosures pack around compact wall apertures instead of dropping an
+  // entire large enclosure wherever a small port happens to intersect it.
+  for(const a of blocked){const next=[];for(const b of free){const x0=Math.max(a[0],b[0]),y0=Math.max(a[1],b[1]),x1=Math.min(a[2],b[2]),y1=Math.min(a[3],b[3]);if(x1<=x0||y1<=y0){next.push(b);continue;}for(const q of [[b[0],b[1],x0,b[3],0],[x1,b[1],b[2],b[3],0],[x0,b[1],x1,y0,0],[x0,y1,x1,b[3],0]])if(q[2]-q[0]>.22&&q[3]-q[1]>.22)next.push(q);}free=next;}
+  const queue=free,leaves=[],limit=Math.min(1500,Math.max(queue.length,Math.floor((fieldBudget-pipeReserve)/4)));
   // Refine the largest remaining region first; a finite quota must not leave
   // a distant half of the wall as one enormous plate after a detailed corner.
   while(queue.length){let largest=0;for(let i=1;i<queue.length;i++)if((queue[i][2]-queue[i][0])*(queue[i][3]-queue[i][1])>(queue[largest][2]-queue[largest][0])*(queue[largest][3]-queue[largest][1]))largest=i;const b=queue[largest];queue[largest]=queue[queue.length-1];queue.pop();const w=b[2]-b[0],h=b[3]-b[1],axis=w/h>2.2?0:h/w>2.2?1:random()<.5?0:1,span=axis?h:w,threshold=(5.5+random()*17)*scale*scale;
@@ -1846,20 +1862,24 @@ function surfaceEquipmentField(ship,patch,cells,style,detail,extraBudget,fieldBu
   // Stepped L-shaped cases, upright boxes and cylindrical junctions interrupt
   // one another. Sparse fittings sit at several depths instead of tiling the
   // wall with broad, equally high plate faces.
-  for(const b of leaves){if(field.length>=Math.min(5200,fieldBudget))break;const W=b[2]-b[0],H=b[3]-b[1],variant=Math.floor(random()*5),w=W*(.70+random()*.26),h=H*(.58+random()*.37),x=b[0]+w/2+random()*(W-w),y=b[1]+h/2+random()*(H-h),depth=.16+random()*.40;
-   const body=piece(field,'service-housing',x,y,w,h,depth/2,depth,grey());if(!body)continue;
-   if(variant===0||variant===3){const sw=Math.min(w*.44,2.4*scale),sh=h*(.40+random()*.43),sx=x+(variant===0?1:-1)*(w-sw)*.42,sy=y+(random()-.5)*(h-sh)*.7;piece(field,'service-housing',sx,sy,sw,sh,depth+.10,.20+random()*.13,grey());}
-   if(variant===1||variant===4){const vertical=H>W*.65,dia=Math.max(.12,Math.min(.62,W*.21,H*.24)),length=Math.max(dia*1.5,Math.min(vertical?h*.78:w*.80,4.2*scale)),cx=x+(random()-.5)*w*.3,cy=y+(random()-.5)*h*.3;
-    piece(field,'service-junction',cx,cy,vertical?dia:length,vertical?length:dia,depth+.17,dia,[116,127,136],host,null,'pipe',{axis:vertical?'v':'u'});
-    if(variant===4){const off=dia*.95;piece(field,'service-junction',cx+(vertical?off:0),cy+(vertical?0:off),vertical?dia*.72:length*.76,vertical?length*.76:dia*.72,depth+.15,dia*.72,[100,112,123],host,null,'pipe',{axis:vertical?'v':'u'});}
+  for(const b of leaves){if(field.length>=Math.min(6500,fieldBudget))break;const W=b[2]-b[0],H=b[3]-b[1],variant=Math.floor(random()*5),w=W*(.78+random()*.19),h=H*(.67+random()*.29),x=b[0]+w/2+random()*(W-w),y=b[1]+h/2+random()*(H-h),back=(-.22+random()*.67)*relief,front=C.clamp(back+(.32+random()*.34)*relief,.16*relief,.86*relief),depth=front-back;
+   const body=piece(field,'service-housing',x,y,w,h,(back+front)/2,depth,grey(),host,null,'box',{recess:true});if(!body)continue;
+   if(back>.05)piece(field,'service-standoff',x,y,w*.60,h*.58,back/2,back,[74,87,99]);
+   if(variant===0||variant===3){const sw=Math.min(w*.44,2.4*scale),sh=h*(.40+random()*.43),sx=x+(variant===0?1:-1)*(w-sw)*.42,sy=y+(random()-.5)*(h-sh)*.7,sd=.10+relief*(.055+random()*.07);piece(field,'service-housing',sx,sy,sw,sh,front+sd/2,sd,grey());}
+   if(variant===1||variant===4){const vertical=H>W*.65,dia=Math.max(.12,Math.min(relief*.35,1.25,W*.21,H*.24)),length=Math.max(dia*1.5,Math.min(vertical?h*.78:w*.80,4.2*scale)),cx=x+(random()-.5)*w*.3,cy=y+(random()-.5)*h*.3;
+    piece(field,'service-junction',cx,cy,vertical?dia:length,vertical?length:dia,front+dia*.55,dia,[116,127,136],host,null,'pipe',{axis:vertical?'v':'u'});
+    if(variant===4){const off=dia*.95;piece(field,'service-junction',cx+(vertical?off:0),cy+(vertical?0:off),vertical?dia*.72:length*.76,vertical?length*.76:dia*.72,front+dia*.5,dia*.72,[100,112,123],host,null,'pipe',{axis:vertical?'v':'u'});}
    }
-   if(variant===2){const sw=Math.min(w*.76,4.5*scale),sh=Math.min(h*.22,.35*scale);piece(field,'service-brace',x,y+(h-sh)*.28,sw,sh,depth+.08,.14,[133,143,151]);}
+   if(variant===2){const sw=Math.min(w*.76,4.5*scale),sh=Math.min(h*.22,.35*scale);piece(field,'service-brace',x,y+(h-sh)*.28,sw,sh,front+.08,.14,[133,143,151]);}
   }
   // A shared path is segmented against real geometry and equipment envelopes.
   // Its pieces can cross many physical cells without spanning a cutout.
-  const run=(axis,fixed,start,end,diameter,z,feature='service-conduit')=>{const step=Math.max(.35,scale*.65),segments=[];let from=null,to=null;
-   for(let a=start;a<end;a+=step){const b=Math.min(a+step,end),bounds=axis?[fixed-diameter/2,a,fixed+diameter/2,b]:[a,fixed-diameter/2,b,fixed+diameter/2];if(space(bounds)){if(from==null)from=a;to=b;}else if(from!=null){segments.push([from,to]);from=null;}}if(from!=null)segments.push([from,to]);
-   for(const [a,b]of segments)if(b-a>diameter*2)piece(field,feature,axis?fixed:(a+b)/2,axis?(a+b)/2:fixed,axis?diameter:b-a,axis?b-a:diameter,z,feature==='service-shelf'?.15:diameter,feature==='service-shelf'?[121,132,141]:[111,126,137],host,null,feature==='service-shelf'?'box':'pipe',{axis:axis?'v':'u'});
+  const pipeSupports=field.slice(),supportFront=b=>pipeSupports.reduce((z,p)=>p.bounds[2]>b[0]&&p.bounds[0]<b[2]&&p.bounds[3]>b[1]&&p.bounds[1]<b[3]?Math.max(z,C.dot(C.sub(p.center,origin),normal)+p.size[2]/2):z,-Infinity);
+  const run=(axis,fixed,start,end,diameter,z,feature='service-conduit')=>{const step=Math.max(.35,scale*.65),quantum=Math.max(.20,relief*.16),segments=[];let from=null,to=null,level=0;
+   const close=()=>{if(from!=null)segments.push([from,to,level]);from=null;};
+   for(let a=start;a<end;a+=step){const b=Math.min(a+step,end),bounds=axis?[fixed-diameter/2,a,fixed+diameter/2,b]:[a,fixed-diameter/2,b,fixed+diameter/2],s=space(bounds);if(s){const next=Math.ceil(Math.max(z,supportFront(bounds)-s.height+diameter*.65)/quantum)*quantum;if(from!=null&&Math.abs(next-level)>quantum*.25)close();if(from==null){from=a;level=next;}to=b;}else close();}close();
+   let previous=null;for(const [a,b,tier]of segments){if(b-a<=diameter*1.2)continue;piece(field,feature,axis?fixed:(a+b)/2,axis?(a+b)/2:fixed,axis?diameter:b-a,axis?b-a:diameter,tier,feature==='service-shelf'?.15:diameter,feature==='service-shelf'?[121,132,141]:[111,126,137],host,null,feature==='service-shelf'?'box':'pipe',{axis:axis?'v':'u'});
+    if(previous&&feature!=='service-shelf'&&Math.abs(previous[1]-a)<1e-5&&Math.abs(previous[2]-tier)>.03)piece(field,'service-depth-conduit',axis?fixed:a,axis?a:fixed,diameter,diameter,(previous[2]+tier)/2,Math.abs(previous[2]-tier),[104,119,131],host,null,'normal-pipe');previous=[a,b,tier];}
   };
   for(let axis=0;axis<2;axis++){const span=hi[1-axis]-lo[1-axis],count=axis?Math.min(10,Math.max(2,Math.floor(span/(18*scale)))):Math.min(7,Math.max(2,Math.floor(span/(5.7*scale))));for(let i=0;i<count;i++){
    const fixed=lo[1-axis]+span*(i+.18+random()*.64)/count,diameter=(.15+random()*.14)*Math.min(1.5,scale),trim=(i%3===0?0:random()*.27)*(hi[axis]-lo[axis]),start=lo[axis]+.15+trim,end=hi[axis]-.15-random()*trim;
@@ -1881,7 +1901,7 @@ function surfaceEquipmentField(ship,patch,cells,style,detail,extraBudget,fieldBu
  // Nested secondary cases are the only density/quality-controlled pass. They
  // sit inside the already accepted wall cases, not inside an 8m cell frame.
  const housings=field.filter(p=>p.feature==='service-housing'),extras=Math.min(extraBudget,Math.round(housings.length*C.clamp(style.density??0,0,1)*detail*2));
- for(let i=0;i<extras*3&&boxes.length<extras&&housings.length;i++){const parent=housings[Math.floor(random()*housings.length)],b=parent.bounds,w=Math.min(1.7,(b[2]-b[0])*(.12+random()*.33)),h=Math.min(.8,(b[3]-b[1])*(.18+random()*.39)),x=b[0]+w/2+random()*(b[2]-b[0]-w),y=b[1]+h/2+random()*(b[3]-b[1]-h),d=.055+random()*.12;
+ for(let i=0;i<extras*3&&boxes.length<extras&&housings.length;i++){const parent=housings[Math.floor(random()*housings.length)],b=parent.bounds,w=Math.min(3.0,(b[2]-b[0])*(.12+random()*.33)),h=Math.min(1.4,(b[3]-b[1])*(.18+random()*.39)),x=b[0]+w/2+random()*(b[2]-b[0]-w),y=b[1]+h/2+random()*(b[3]-b[1]-h),d=.055+random()*.12;
   const s=space([x-w/2,y-h/2,x+w/2,y+h/2]);if(s)piece(boxes,'service-detail',x,y,w,h,C.dot(C.sub(parent.center,origin),normal)+parent.size[2]/2-s.height+d/2,d,grey(),host,null,style.kind==='rounded'?'rounded':'box',{rounded:style.kind==='rounded'});
  }
  return {field,boxes,devices};
@@ -1898,7 +1918,7 @@ function surfaceVisualPlan(ship,opt={}){
   const random=rng(surfaceSeed(patch.id,style.seed)),density=C.clamp(style.density??0,0,1),size=C.clamp(Math.sqrt(area)/18,.04,6),n=Math.min(budget,Math.ceil(Math.sqrt(area)*density*detail*2)),boxes=[],devices=[];
   if(config.functionMode==='equipment'){
    const report=equipmentReports.get(patch.id),cells=report?.cells||[...ship.parts,...ship.fits].filter(p=>p.surfacePatch===patch.id&&!p.surfaceUnplaced&&p.surfaceRole).map(p=>({id:p.id,cell:p.surfaceCell,role:p.surfaceRole,k:p.k,point:p.surfacePoint,footprint:p.surfaceFootprint,w:p.surfaceFootprint?.[0],h:p.surfaceFootprint?.[1],depth:p.surfaceDepth}));
-   const plan=surfaceEquipmentField(ship,patch,cells,style,detail,Math.min(budget,detailShares.get(patch.id)||0),fieldShares.get(patch.id)||0);budget-=plan.boxes.length;
+   const plan=surfaceEquipmentField(ship,patch,cells,style,detail,Math.min(budget,detailShares.get(patch.id)||0),fieldShares.get(patch.id)||0,config);budget-=plan.boxes.length;
    out.push({id:patch.id,host:patch.host,patch,config,triangles:T,boundary:surfaceBoundary(patch),...plan});continue;
   }
   if(config.functionMode==='armor'){out.push({id:patch.id,host:patch.host,patch,config,triangles:T,boundary:surfaceBoundary(patch),boxes,devices});continue;}
@@ -1929,7 +1949,8 @@ function meshSurfaceLayers(ship,ranges,opt={}){
  const armor=new Geo(64),devices=new Geo(64),detail=new Geo(64),plans=surfaceVisualPlan(ship,opt);
  const addBox=(g,item,col)=>{const {center:c,u,normal:n,size:s}=item;box(g,[...u,...n,...C.cross(u,n)],c,0,0,0,s[0],s[2],s[1],col||item.color);};
  const addHardware=(g,item)=>{const begin=g.n,{center:c,u,v,normal:n,size:s}=item;
-  if(item.type==='pipe'){const axis=item.axis==='v'?v:u,length=item.axis==='v'?s[1]:s[0],radius=Math.min(item.axis==='v'?s[0]:s[1],s[2])*.5;axisFrustum(g,C.sub(c,C.mul(axis,length/2-radius)),C.add(c,C.mul(axis,length/2-radius)),radius,radius,item.color,true,false,6);}
+  if(item.type==='normal-pipe'){const radius=Math.min(s[0],s[1])*.5;axisFrustum(g,C.sub(c,C.mul(n,s[2]/2)),C.add(c,C.mul(n,s[2]/2)),radius,radius,item.color,true,false,6);}
+  else if(item.type==='pipe'){const axis=item.axis==='v'?v:u,length=item.axis==='v'?s[1]:s[0],radius=Math.min(item.axis==='v'?s[0]:s[1],s[2])*.5;axisFrustum(g,C.sub(c,C.mul(axis,length/2-radius)),C.add(c,C.mul(axis,length/2-radius)),radius,radius,item.color,true,false,6);}
   else if(item.type==='dish'){const r=item.radius,a=C.sub(c,C.mul(n,s[2]/2)),b=C.add(c,C.mul(n,s[2]/2));axisFrustum(g,a,b,r*.58,r,item.color,false,false,10);axisFrustum(g,C.add(a,C.mul(n,.006)),C.add(b,C.mul(n,.006)),r*.50,r*.88,[50,64,78],false,true,10);axisFrustum(g,a,C.add(b,C.mul(n,s[2]*.35)),r*.08,r*.05,[165,179,188],true,false,6);}
   else if(item.rounded){const radius=Math.max(.00001,Math.min(s[0]-.001,s[1],s[2])*.5),half=C.mul(u,Math.max(.001,s[0]-radius*2)/2);axisFrustum(g,C.sub(c,half),C.add(c,half),radius,radius,item.color,true,false,8);}
   else addBox(g,item);
@@ -2173,7 +2194,7 @@ function meshReferenceParts(ship,ranges,only){
  return {refStruct,refEngine,refPlant};
 }
 function meshReferenceFits(ship,ranges,only){
- const g=new Geo(16);for(const f of only||ship.fits){const d=C.FITS[f.k];if(!(d.asset||d.pod)||f.float)continue;const before=g.ni;
+ const g=new Geo(16);for(const f of only||ship.fits){const d=C.FITS[f.k];if(embeddedSurfaceFit(f)||!(d.asset||d.pod)||f.float)continue;const before=g.ni;
   if(d.pod)appendReference(g,C.POD_ASSET,v=>C.podPoint(f,v));else appendReference(g,f.skinAsset||d.asset,v=>C.referenceFitPoint(f,v));
   if(ranges&&g.ni>before)(ranges[f.id]||(ranges[f.id]=[])).push(['refFits',before,g.ni-before]);
  }return g;
@@ -2247,7 +2268,7 @@ function fleetGeometry(ship,opts){
  if(model.surfaces?.patches?.length&&typeof C.surfacePatches==='function'){const patches=new Map(C.surfacePatches(model).map(p=>[p.id,p]));for(const [kind,list]of [['part',model.parts],['fit',model.fits]])for(const q of list){const host=patches.get(q.surfacePatch)?.host,owner=/^p\d+$/.test(host||'')?owners.get(+host.slice(1)):null;if(owner==null||owners.has(q.id))continue;owners.set(q.id,owner);foils[owner][kind==='part'?'partIds':'fitIds'].push(q.id);}}
  put('hull',meshHull(model));const parts=meshParts(model,{coded:false});for(const name of ['struct','plate','surfaceArmor','surfaceDevices','surfaceDetail','refStruct','gen','shield','hyper','engine','refEngine','nozzle','hangar'])if(parts.g[name]&&(!name.startsWith('surface')||parts.g[name].ni))put(name,parts.g[name]);
  const h=meshHatches(model);put('hatchOpen',h.open);put('hatchRay',h.ray);put('refHatches',meshReferenceHatches(model));put('refHull',meshReferenceHull(model));
- const surfaceTurrets=!!model.surfaces,ranges=parts.ranges,turrets=opts?.trial||surfaceTurrets?trialTurrets(model,put,ranges):null,launchers=opts?.trial?[...model.fits.filter(f=>C.FITS[f.k].msl&&!f.float).map(f=>{const d=C.fitSpec(f),up=C.fitUp(f);return {id:f.id,origin:C.add(C.fitOrigin(f),C.mul(up,d.hm)),axis:up,salvo:8,cycle:20,tt:(d.msl||80)/8,ion:!!C.FITS[f.k].ionMsl};}),...craftLaunchers(model)]:null,targetRadius=C.clamp(ship.hull.L*.05,40,500);if(!turrets){put('fits',meshFits(model,null,ranges));put('refFits',meshReferenceFits(model,ranges));}else{put('trialTarget',trialTargetMesh(targetRadius),'fits',.6);for(const t of turrets){const owner=owners.get(t.id);if(owner!=null)t.foilId=foils[owner].id;}}
+ const surfaceTurrets=!!model.surfaces,ranges=parts.ranges,turrets=opts?.trial||surfaceTurrets?trialTurrets(model,put,ranges):null,launchers=opts?.trial?[...model.fits.filter(f=>C.FITS[f.k].msl&&!f.float).map(f=>{const d=C.fitSpec(f),up=C.fitUp(f),port=C.surfaceBatteryGeometry?.(f);return {id:f.id,origin:port?port.mouth:C.add(C.fitOrigin(f),C.mul(up,d.hm)),axis:port?port.normal:up,salvo:8,cycle:20,tt:(d.msl||80)/8,ion:!!C.FITS[f.k].ionMsl};}),...craftLaunchers(model)]:null,targetRadius=C.clamp(ship.hull.L*.05,40,500);if(!turrets){put('fits',meshFits(model,null,ranges));put('refFits',meshReferenceFits(model,ranges));}else{put('trialTarget',trialTargetMesh(targetRadius),'fits',.6);for(const t of turrets){const owner=owners.get(t.id);if(owner!=null)t.foilId=foils[owner].id;}}
  for(const hatch of model.hatches){const spec=C.slidingHatchSpec(model,hatch);if(!spec)continue;
   if(hatch.k==='ray'){const name='slideRay_'+hatch.id;put(name,meshHatches({...model,hatches:[{...hatch,_rayOnly:true,_rayInset:5}]}).ray,'ray',1);rays.push({name});}
   if(hatch.skinAsset){for(const side of [-1,1]){const name='refSlideDoor_'+hatch.id+'_'+(side<0?'l':'r');put(name,meshReferenceHatches({...model,_referenceDoorOnly:true,hatches:[{...hatch,open:0,_doorDetached:false,_slideSide:side}]}),'reference',0);doors.push({name,axis:spec.slideAxis,side,travel:spec.travel});}}
@@ -2307,6 +2328,7 @@ function mirroredTurretPose(f,fits,poses){
 }
 function turretPose(f){
  const d=C.FITS[f.k],fr=C.fitFrameOf(f);
+ const embedded=C.surfaceBatteryGeometry?.(f);if(embedded)return {pivot:embedded.pivot,axis:embedded.v,fw:embedded.normal};
  if(d.asset&&f.skinAsset&&f.skinAsset!==d.asset){const k=skinTurretPose(f);if(k)return k;return null;}
  if(d.fixed)return {pivot:C.fitOrigin(f),axis:C.fitUp(f),fw:fr.fw};
  if(d.casemate)return {pivot:C.fitOrigin(f),axis:[0,1,0],fw:C.AXES[f.a]};
@@ -2315,7 +2337,7 @@ function turretPose(f){
 }
 const TRIAL_BARRELS={pd:2,ltl:4,mtl:3,htl:2,stl:2,utl:2,ion:2,ionL:2};
 function trialTurrets(model,put,ranges){
- const list=model.fits.filter(trialTurretFit),turning=new Set(list.filter(f=>!C.FITS[f.k].casemate&&!C.FITS[f.k].fixed).map(f=>f.id)),out=[];
+ const list=model.fits.filter(trialTurretFit),turning=new Set(list.filter(f=>!embeddedSurfaceFit(f)&&!C.FITS[f.k].casemate&&!C.FITS[f.k].fixed).map(f=>f.id)),out=[];
  FIT_SKIP_BODY=turning;try{put('fits',meshFits(model,null,ranges));}finally{FIT_SKIP_BODY=null;}
  put('refFits',meshReferenceFits(model,ranges,model.fits.filter(f=>!turning.has(f.id))));
  const all=new Set(model.fits.map(f=>f.id)),poses=new Map();
@@ -2324,7 +2346,7 @@ function trialTurrets(model,put,ranges){
  for(const f of list){
   const d=C.fitSpec(f),spec=C.FITS[f.k],pose=poses.get(f.id),axis=C.norm(pose.axis),fw=C.norm(C.sub(pose.fw,C.mul(axis,C.dot(pose.fw,axis)))),rot=turning.has(f.id);
   let mesh=null;if(rot){if(spec.asset){mesh='refTur_'+f.id;put(mesh,meshReferenceFits(model,null,[f]),'reference',null);}else{mesh='tur_'+f.id;FIT_SKIP_PED=all;try{put(mesh,meshFits(model,x=>x===f),'fits',.6);}finally{FIT_SKIP_PED=null;}}}
-  out.push({id:f.id,k:f.k,name:spec.short||spec.name,mesh,pivot:pose.pivot,axis,fw,origin:C.turretOrigin(f),mount:C.fitUp(f),r:d.r,hm:d.hm,casemate:!!(spec.casemate||spec.fixed),barrels:spec.barrels||(spec.fixed?1:TRIAL_BARRELS[f.k]||2),cycle:spec.cycle||2.5,tt:d.tt||0,ion:!!d.ion&&!d.tt,rate:C.turretRate(f),power:d.power||0,cap:C.needsCapacitor(f)});
+  const embedded=C.surfaceBatteryGeometry?.(f);out.push({id:f.id,k:f.k,name:spec.short||spec.name,mesh,pivot:pose.pivot,axis,fw,origin:C.turretOrigin(f),mount:C.fitUp(f),r:d.r,hm:embedded?embedded.height:d.hm,embedded:!!embedded,fixed:!!spec.fixed,portWidth:embedded?.width,portHeight:embedded?.height,port:embedded?{width:embedded.width,height:embedded.height,depth:embedded.depth}:undefined,casemate:embedded?false:!!(spec.casemate||spec.fixed),barrels:spec.barrels||(spec.fixed?1:TRIAL_BARRELS[f.k]||2),cycle:spec.cycle||2.5,tt:d.tt||0,ion:!!d.ion&&!d.tt,rate:C.turretRate(f),power:d.power||0,cap:C.needsCapacitor(f)});
  }
  return out;
 }

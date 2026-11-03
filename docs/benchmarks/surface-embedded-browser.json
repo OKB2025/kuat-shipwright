@@ -1,0 +1,5565 @@
+{
+  "started": "2026-11-03T04:22:11.726Z",
+  "source": {
+    "js/core.js": "f0e30d5881b2550f8cb4fdcb8686ac1b5c96c14c440781fadfaf738f93328312",
+    "js/app.js": "f9df2b279976942c175b5358df7abf02238843db54e32a486fbe774921dc1089",
+    "js/gfx.js": "606a192a8940eff9e0a86cec91b2e98add793dc62de422a512bfc6e16b73afcd",
+    "js/lang-en.js": "8a17347dff09ded30698e501fab87c6c30d446f8eea0574d8cee3d3237cb75e9"
+  },
+  "allocation": {
+    "weapons": 5,
+    "cooling": 35,
+    "sensors": 15,
+    "habitation": 45
+  },
+  "scope": "Actual Chromium software-WebGL app; generated surface ports and unchanged manual guns, machinery size/depth relief, static/model/trial asset mesh paths, actual direct-shot and AI representative-emitter functions with isolated roof/rotated/foil/native-casemate/fixed fixtures, PC and 390×844 emulated-touch cosmetic edits, public save/reload, LOD native-data invariance and role-zero checks. No operational flight, full combat, physical phone/gamepad, GPU timing or FPS claim.",
+  "normalization": "Public save comparison materializes the existing common C.surfaceSync contract before baseline and after reload; import adds documented defaults and regenerates derived surface data.",
+  "images": [
+    {
+      "path": "docs/images/surface-embedded-ports.jpg",
+      "bytes": 110034
+    },
+    {
+      "path": "docs/images/surface-embedded-detail.jpg",
+      "bytes": 110234
+    },
+    {
+      "path": "docs/images/surface-embedded-port-close.jpg",
+      "bytes": 58066
+    },
+    {
+      "path": "docs/images/surface-embedded-mobile.jpg",
+      "bytes": 58880
+    },
+    {
+      "path": "docs/images/surface-embedded-large.jpg",
+      "bytes": 61002
+    },
+    {
+      "path": "docs/images/surface-embedded-large-wide.jpg",
+      "bytes": 40937
+    }
+  ],
+  "zero": {
+    "weapons": {
+      "nativeByRole": {
+        "weapons": 0,
+        "cooling": 97,
+        "sensors": 54,
+        "habitation": 89
+      },
+      "ports": 0,
+      "roleFeatures": 0
+    },
+    "cooling": {
+      "nativeByRole": {
+        "weapons": 14,
+        "cooling": 0,
+        "sensors": 76,
+        "habitation": 144
+      },
+      "ports": 14,
+      "roleFeatures": 0
+    },
+    "sensors": {
+      "nativeByRole": {
+        "weapons": 8,
+        "cooling": 117,
+        "sensors": 0,
+        "habitation": 113
+      },
+      "ports": 8,
+      "roleFeatures": 0
+    },
+    "habitation": {
+      "nativeByRole": {
+        "weapons": 20,
+        "cooling": 120,
+        "sensors": 92,
+        "habitation": 0
+      },
+      "ports": 20,
+      "roleFeatures": 0
+    }
+  },
+  "baseline": {
+    "nativeByRole": {
+      "weapons": 8,
+      "cooling": 94,
+      "sensors": 50,
+      "habitation": 86
+    },
+    "nativeIds": [
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110,
+      111,
+      112,
+      113,
+      114,
+      115,
+      116,
+      117,
+      118,
+      119,
+      120,
+      121,
+      122,
+      123,
+      124,
+      125,
+      126,
+      127,
+      128,
+      129,
+      130,
+      131,
+      132,
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142,
+      143,
+      144,
+      145,
+      146,
+      147,
+      148,
+      149,
+      150,
+      151,
+      152,
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162,
+      163,
+      164,
+      165,
+      166,
+      167,
+      168,
+      169,
+      170,
+      171,
+      172,
+      173,
+      174,
+      175,
+      176,
+      177,
+      178,
+      179,
+      180,
+      181,
+      182,
+      183,
+      184,
+      185,
+      186,
+      187,
+      188,
+      189,
+      190,
+      191,
+      192,
+      193,
+      194,
+      195,
+      196,
+      197,
+      198,
+      199,
+      200,
+      201,
+      202,
+      203,
+      204,
+      205,
+      206,
+      207,
+      208,
+      209,
+      210,
+      211,
+      212,
+      213,
+      214,
+      215,
+      216,
+      217,
+      218,
+      219,
+      220,
+      221,
+      222,
+      223,
+      224,
+      225,
+      226,
+      227,
+      228,
+      229,
+      230,
+      231,
+      232,
+      233,
+      234,
+      235,
+      236,
+      237,
+      238,
+      239,
+      240,
+      241,
+      242,
+      243,
+      244,
+      245
+    ],
+    "totals": {
+      "area": 141248,
+      "exposedArea": 61024,
+      "occupiedArea": 15368,
+      "volume": 44289.6,
+      "mass": 79717.75999999998,
+      "requested": 8,
+      "installed": 8,
+      "barrels": 16,
+      "equipment": 230,
+      "orphans": 0
+    },
+    "visual": {
+      "keys": [
+        "id",
+        "host",
+        "patch",
+        "config",
+        "triangles",
+        "boundary",
+        "boxes",
+        "devices"
+      ],
+      "byFeature": {
+        "service-housing": 1790,
+        "service-brace": 252,
+        "service-junction": 776,
+        "service-standoff": 831,
+        "service-conduit": 1215,
+        "service-depth-conduit": 1111,
+        "service-shelf": 460,
+        "service-detail": 1800,
+        "cooling-recess": 143,
+        "cooling-grille": 881,
+        "sensor-array": 50,
+        "window-recess": 134,
+        "habitation-window": 588,
+        "sensor-element": 98
+      },
+      "byRole": {
+        "cooling": 1024,
+        "sensors": 148,
+        "habitation": 722
+      },
+      "featureCount": 10129,
+      "sizeRange": {
+        "min": 0.014693911014677721,
+        "max": 24.375000000000007,
+        "unique": 3635
+      },
+      "longestConduit": 15.599999999999996,
+      "samples": [
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            5.809363979134037,
+            5.83645646625462,
+            1.2914141922444105
+          ]
+        },
+        {
+          "feature": "service-brace",
+          "role": null,
+          "type": "box",
+          "size": [
+            4.415116624141868,
+            0.5249999999999999,
+            0.14
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            6.7063238559600284,
+            5.920940495980033,
+            1.705357628501952
+          ]
+        },
+        {
+          "feature": "service-junction",
+          "role": null,
+          "type": "pipe",
+          "size": [
+            1.0499999999999998,
+            4.618333586864426,
+            1.0499999999999998
+          ]
+        },
+        {
+          "feature": "service-junction",
+          "role": null,
+          "type": "pipe",
+          "size": [
+            0.7559999999999999,
+            3.509933526016964,
+            0.7559999999999999
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            3.169957073080913,
+            10.43774473630982,
+            1.3525528187071907
+          ]
+        },
+        {
+          "feature": "service-junction",
+          "role": null,
+          "type": "pipe",
+          "size": [
+            0.7247357452831178,
+            6.300000000000001,
+            0.7247357452831178
+          ]
+        },
+        {
+          "feature": "service-junction",
+          "role": null,
+          "type": "pipe",
+          "size": [
+            0.5218097366038448,
+            4.788,
+            0.5218097366038448
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            4.9556980446991306,
+            5.954742916674148,
+            1.3474550160532819
+          ]
+        },
+        {
+          "feature": "service-junction",
+          "role": null,
+          "type": "pipe",
+          "size": [
+            1.0499999999999998,
+            4.644699475005836,
+            1.0499999999999998
+          ]
+        },
+        {
+          "feature": "service-junction",
+          "role": null,
+          "type": "pipe",
+          "size": [
+            0.7559999999999999,
+            3.5299716010044353,
+            0.7559999999999999
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            6.47201334296548,
+            5.148071783060619,
+            1.1010012362664565
+          ]
+        }
+      ]
+    },
+    "visualFaces": [
+      {
+        "id": "p2:port:0:cctl1g",
+        "host": "p2",
+        "face": "port",
+        "features": 1815,
+        "field": 1123,
+        "micro": 307,
+        "roles": {
+          "cooling": 200,
+          "sensors": 16,
+          "habitation": 169
+        }
+      },
+      {
+        "id": "p2:fore:0:cctl1g",
+        "host": "p2",
+        "face": "fore",
+        "features": 1125,
+        "field": 723,
+        "micro": 189,
+        "roles": {
+          "cooling": 130,
+          "sensors": 5,
+          "habitation": 78
+        }
+      },
+      {
+        "id": "p2:stbd:0:cctl1g",
+        "host": "p2",
+        "face": "stbd",
+        "features": 1760,
+        "field": 1070,
+        "micro": 307,
+        "roles": {
+          "cooling": 191,
+          "sensors": 34,
+          "habitation": 158
+        }
+      },
+      {
+        "id": "p2:aft:0:cctl1g",
+        "host": "p2",
+        "face": "aft",
+        "features": 1084,
+        "field": 691,
+        "micro": 189,
+        "roles": {
+          "cooling": 130,
+          "sensors": 18,
+          "habitation": 56
+        }
+      },
+      {
+        "id": "p4:port:0:cctl1g",
+        "host": "p4",
+        "face": "port",
+        "features": 949,
+        "field": 581,
+        "micro": 168,
+        "roles": {
+          "cooling": 96,
+          "sensors": 16,
+          "habitation": 88
+        }
+      },
+      {
+        "id": "p4:fore:0:cctl1g",
+        "host": "p4",
+        "face": "fore",
+        "features": 557,
+        "field": 348,
+        "micro": 105,
+        "roles": {
+          "cooling": 67,
+          "sensors": 9,
+          "habitation": 28
+        }
+      },
+      {
+        "id": "p4:stbd:0:cctl1g",
+        "host": "p4",
+        "face": "stbd",
+        "features": 835,
+        "field": 526,
+        "micro": 168,
+        "roles": {
+          "cooling": 64,
+          "sensors": 17,
+          "habitation": 60
+        }
+      },
+      {
+        "id": "p4:aft:0:cctl1g",
+        "host": "p4",
+        "face": "aft",
+        "features": 550,
+        "field": 348,
+        "micro": 105,
+        "roles": {
+          "cooling": 54,
+          "sensors": 10,
+          "habitation": 33
+        }
+      },
+      {
+        "id": "p5:port:0:cctl1g",
+        "host": "p5",
+        "face": "port",
+        "features": 488,
+        "field": 354,
+        "micro": 80,
+        "roles": {
+          "cooling": 20,
+          "sensors": 10,
+          "habitation": 24
+        }
+      },
+      {
+        "id": "p5:fore:0:cctl1g",
+        "host": "p5",
+        "face": "fore",
+        "features": 284,
+        "field": 202,
+        "micro": 51,
+        "roles": {
+          "cooling": 21,
+          "sensors": 4,
+          "habitation": 6
+        }
+      },
+      {
+        "id": "p5:stbd:0:cctl1g",
+        "host": "p5",
+        "face": "stbd",
+        "features": 436,
+        "field": 298,
+        "micro": 80,
+        "roles": {
+          "cooling": 38,
+          "sensors": 5,
+          "habitation": 15
+        }
+      },
+      {
+        "id": "p5:aft:0:cctl1g",
+        "host": "p5",
+        "face": "aft",
+        "features": 246,
+        "field": 171,
+        "micro": 51,
+        "roles": {
+          "cooling": 13,
+          "sensors": 4,
+          "habitation": 7
+        }
+      }
+    ],
+    "mesh": {
+      "surfaceArmor": 420,
+      "surfaceDevices": 414792,
+      "surfaceDetail": 64800
+    },
+    "glError": 0,
+    "renderer": "WebGL 1.0 (OpenGL ES 2.0 Chromium)",
+    "error": null,
+    "portCount": 8,
+    "staticApertureIndices": 3312,
+    "modelBodyIndices": 0,
+    "movingNativeBodyMeshes": [],
+    "runtimeMetadataCount": 8,
+    "sampleFits": [
+      {
+        "id": 8,
+        "k": "pd",
+        "point": [
+          15,
+          34,
+          -44
+        ],
+        "wallPoint": [
+          15,
+          34,
+          -44
+        ],
+        "armorOffset": 0,
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "u": [
+          1,
+          0,
+          0
+        ],
+        "v": [
+          0,
+          -1,
+          0
+        ],
+        "width": 2.88,
+        "height": 1.3248,
+        "depth": 0.3312,
+        "lip": 0.105984,
+        "mouth": [
+          15,
+          34,
+          -44.105984
+        ],
+        "origin": [
+          15,
+          34,
+          -44.105984
+        ],
+        "pivot": [
+          15,
+          34,
+          -44.105984
+        ],
+        "bounds": [
+          13.56,
+          33.3376,
+          -44.105984,
+          16.44,
+          34.6624,
+          -43.6688
+        ],
+        "barrels": 2,
+        "mesh": {
+          "indices": 414,
+          "minNormal": 0.018001556396484375,
+          "maxNormal": 0.10598373413085938,
+          "maxU": 1.4400005340576172,
+          "maxV": 0.6623992919921875
+        }
+      },
+      {
+        "id": 12,
+        "k": "pd",
+        "point": [
+          55,
+          34,
+          -44
+        ],
+        "wallPoint": [
+          55,
+          34,
+          -44
+        ],
+        "armorOffset": 0,
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "u": [
+          1,
+          0,
+          0
+        ],
+        "v": [
+          0,
+          -1,
+          0
+        ],
+        "width": 2.88,
+        "height": 1.3248,
+        "depth": 0.3312,
+        "lip": 0.105984,
+        "mouth": [
+          55,
+          34,
+          -44.105984
+        ],
+        "origin": [
+          55,
+          34,
+          -44.105984
+        ],
+        "pivot": [
+          55,
+          34,
+          -44.105984
+        ],
+        "bounds": [
+          53.56,
+          33.3376,
+          -44.105984,
+          56.44,
+          34.6624,
+          -43.6688
+        ],
+        "barrels": 2,
+        "mesh": {
+          "indices": 414,
+          "minNormal": 0.018001556396484375,
+          "maxNormal": 0.10598373413085938,
+          "maxU": 1.4399986267089844,
+          "maxV": 0.6623992919921875
+        }
+      }
+    ],
+    "machinery": {
+      "count": 1790,
+      "medianWidth": 2.933033173678813,
+      "medianHeight": 3.0988992637547534,
+      "medianThickness": 1.2639054786949417,
+      "medianFrontOffset": 1.947112172145869,
+      "minFrontOffset": 0.504999999999992,
+      "maxFrontOffset": 3.075051892988846,
+      "depthTiers": 27
+    },
+    "features": {
+      "service-housing": 1790,
+      "service-brace": 252,
+      "service-junction": 776,
+      "service-standoff": 831,
+      "service-conduit": 1215,
+      "service-depth-conduit": 1111,
+      "service-shelf": 460,
+      "service-detail": 1800,
+      "cooling-recess": 143,
+      "cooling-grille": 881,
+      "sensor-array": 50,
+      "window-recess": 134,
+      "habitation-window": 588,
+      "sensor-element": 98
+    }
+  },
+  "publicBaselineSha256": "f5d27c495b01dd7bad60150c8a837671f7bb670e3f31bd153bf1d753165eda0e",
+  "portsImage": "docs/images/surface-embedded-ports.jpg",
+  "detailImage": "docs/images/surface-embedded-detail.jpg",
+  "portCloseImage": "docs/images/surface-embedded-port-close.jpg",
+  "manual": {
+    "ids": [
+      {
+        "id": 2,
+        "k": "pd",
+        "embedded": false,
+        "float": false
+      },
+      {
+        "id": 3,
+        "k": "refVen",
+        "embedded": false,
+        "float": false
+      }
+    ],
+    "surface": 0,
+    "procedural": 462,
+    "reference": 16716,
+    "metadata": [
+      {
+        "id": 2,
+        "k": "pd",
+        "mesh": "tur_2",
+        "embedded": false,
+        "origin": [
+          30,
+          44.2,
+          0
+        ],
+        "hm": 6
+      },
+      {
+        "id": 3,
+        "k": "refVen",
+        "mesh": "refTur_3",
+        "embedded": false,
+        "origin": [
+          100,
+          47.1257452,
+          0
+        ],
+        "hm": 10.179636
+      }
+    ]
+  },
+  "runtime": {
+    "scope": "Actual browser trialShotGeometry and trialPoseFoilMounts invoked with isolated transforms; no operational flight or combat was started.",
+    "cases": [
+      {
+        "options": {
+          "face": "port"
+        },
+        "id": 2,
+        "limits": {
+          "yaw": 1.5707963267948966,
+          "lo": -1.5707963267948966,
+          "hi": 1.5707963267948966
+        },
+        "barrelOutward": [
+          0,
+          0,
+          -1
+        ],
+        "ai": {
+          "emitter": {
+            "pos": [
+              48,
+              67,
+              20.894016
+            ],
+            "dir": [
+              0.5775495359167143,
+              0.19801698374287346,
+              -0.791975888339893
+            ],
+            "fixed": false,
+            "fit": 2,
+            "cell": "w0",
+            "unit": "__probe_ai"
+          },
+          "expected": [
+            48,
+            67,
+            20.894016
+          ]
+        },
+        "port": {
+          "embedded": true,
+          "casemate": false,
+          "point": [
+            15,
+            70,
+            -48
+          ],
+          "wallPoint": [
+            15,
+            70,
+            -48
+          ],
+          "surfacePoint": [
+            15,
+            70,
+            -48
+          ],
+          "armorOffset": 0,
+          "normal": [
+            0,
+            0,
+            -1
+          ],
+          "dir": [
+            0,
+            0,
+            -1
+          ],
+          "u": [
+            1,
+            0,
+            0
+          ],
+          "v": [
+            0,
+            -1,
+            0
+          ],
+          "width": 2.88,
+          "height": 1.3248,
+          "depth": 0.3312,
+          "lip": 0.105984,
+          "mouth": [
+            15,
+            70,
+            -48.105984
+          ],
+          "origin": [
+            15,
+            70,
+            -48.105984
+          ],
+          "pivot": [
+            15,
+            70,
+            -48.105984
+          ],
+          "bounds": [
+            13.56,
+            69.3376,
+            -48.105984,
+            16.44,
+            70.6624,
+            -47.6688
+          ],
+          "barrels": 2
+        },
+        "mount": {
+          "muzzle": [
+            -85,
+            32,
+            -48.105984
+          ],
+          "dir": [
+            0,
+            0,
+            -1
+          ],
+          "barrelLength": 0,
+          "fixed": false
+        },
+        "offset": [
+          100,
+          38,
+          0
+        ],
+        "metadata": {
+          "embedded": true,
+          "mesh": null,
+          "origin": [
+            15,
+            70,
+            -48.105984
+          ],
+          "axis": [
+            0,
+            -1,
+            0
+          ],
+          "fw": [
+            0,
+            0,
+            -1
+          ],
+          "portWidth": 2.88
+        },
+        "transformedOrigin": [
+          15,
+          70,
+          -48.105984
+        ],
+        "expectedTransformedOrigin": [
+          15,
+          70,
+          -48.105984
+        ],
+        "shots": [
+          {
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "base": [
+              -68,
+              43,
+              -55.105984
+            ],
+            "side": [
+              1,
+              0,
+              0
+            ],
+            "spread": 1.728,
+            "expectedBase": [
+              -68,
+              43,
+              -55.105984
+            ]
+          },
+          {
+            "direction": [
+              0.3162277660168379,
+              0,
+              -0.9486832980505138
+            ],
+            "base": [
+              -68,
+              43,
+              -55.105984
+            ],
+            "side": [
+              1,
+              0,
+              0
+            ],
+            "spread": 1.728,
+            "expectedBase": [
+              -68,
+              43,
+              -55.105984
+            ]
+          }
+        ],
+        "mesh": {
+          "indices": 414,
+          "minNormal": 0.018001556396484375,
+          "maxNormal": 0.10598373413085938,
+          "maxU": 1.4400005340576172,
+          "maxV": 0.6623992919921875
+        }
+      },
+      {
+        "options": {
+          "face": "top"
+        },
+        "id": 2,
+        "limits": {
+          "yaw": 1.5707963267948966,
+          "lo": -1.5707963267948966,
+          "hi": 1.5707963267948966
+        },
+        "barrelOutward": [
+          0,
+          1,
+          0
+        ],
+        "ai": {
+          "emitter": {
+            "pos": [
+              48,
+              73.052992,
+              109
+            ],
+            "dir": [
+              0.5445178627754972,
+              0.18173550442943784,
+              -0.81882385379774
+            ],
+            "fixed": false,
+            "fit": 2,
+            "cell": "w0",
+            "unit": "__probe_ai"
+          },
+          "expected": [
+            48,
+            73.052992,
+            109
+          ]
+        },
+        "port": {
+          "embedded": true,
+          "casemate": false,
+          "point": [
+            15,
+            76,
+            40
+          ],
+          "wallPoint": [
+            15,
+            76,
+            40
+          ],
+          "surfacePoint": [
+            15,
+            76,
+            40
+          ],
+          "armorOffset": 0,
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "dir": [
+            0,
+            1,
+            0
+          ],
+          "u": [
+            1,
+            0,
+            0
+          ],
+          "v": [
+            0,
+            0,
+            -1
+          ],
+          "width": 2.88,
+          "height": 1.3248,
+          "depth": 0.3312,
+          "lip": 0.105984,
+          "mouth": [
+            15,
+            76.105984,
+            40
+          ],
+          "origin": [
+            15,
+            76.105984,
+            40
+          ],
+          "pivot": [
+            15,
+            76.105984,
+            40
+          ],
+          "bounds": [
+            13.56,
+            75.6688,
+            39.3376,
+            16.44,
+            76.105984,
+            40.6624
+          ],
+          "barrels": 2
+        },
+        "mount": {
+          "muzzle": [
+            -85,
+            38.052992,
+            40
+          ],
+          "dir": [
+            0,
+            1,
+            0
+          ],
+          "barrelLength": 0,
+          "fixed": false
+        },
+        "offset": [
+          100,
+          38.052992,
+          0
+        ],
+        "metadata": {
+          "embedded": true,
+          "mesh": null,
+          "origin": [
+            15,
+            76.105984,
+            40
+          ],
+          "axis": [
+            0,
+            0,
+            -1
+          ],
+          "fw": [
+            0,
+            1,
+            0
+          ],
+          "portWidth": 2.88
+        },
+        "transformedOrigin": [
+          15,
+          76.105984,
+          40
+        ],
+        "expectedTransformedOrigin": [
+          15,
+          76.105984,
+          40
+        ],
+        "shots": [
+          {
+            "direction": [
+              0,
+              1,
+              0
+            ],
+            "base": [
+              -68,
+              49.052992,
+              33
+            ],
+            "side": [
+              1,
+              0,
+              0
+            ],
+            "spread": 1.728,
+            "expectedBase": [
+              -68,
+              49.052992,
+              33
+            ]
+          },
+          {
+            "direction": [
+              0.3162277660168379,
+              0.9486832980505138,
+              0
+            ],
+            "base": [
+              -68,
+              49.052992,
+              33
+            ],
+            "side": [
+              1,
+              0,
+              0
+            ],
+            "spread": 1.728,
+            "expectedBase": [
+              -68,
+              49.052992,
+              33
+            ]
+          }
+        ],
+        "mesh": {
+          "indices": 414,
+          "minNormal": 0.01799774169921875,
+          "maxNormal": 0.105987548828125,
+          "maxU": 1.4400005340576172,
+          "maxV": 0.6623992919921875
+        }
+      },
+      {
+        "options": {
+          "face": "port",
+          "rotate": true
+        },
+        "id": 2,
+        "limits": {
+          "yaw": 1.5707963267948966,
+          "lo": -1.5707963267948966,
+          "hi": 1.5707963267948966
+        },
+        "barrelOutward": [
+          0.39029891280357554,
+          0.18041345969373448,
+          -0.9028387132958378
+        ],
+        "ai": {
+          "emitter": {
+            "pos": [
+              65.87422998879288,
+              50.36143782952502,
+              -1.585932106183904
+            ],
+            "dir": [
+              0.5743042616758465,
+              0.21710921637740083,
+              -0.789327690623452
+            ],
+            "fixed": false,
+            "fit": 2,
+            "cell": "w0",
+            "unit": "__probe_ai"
+          },
+          "expected": [
+            65.87422998879288,
+            50.36143782952502,
+            -1.585932106183904
+          ]
+        },
+        "port": {
+          "embedded": true,
+          "casemate": false,
+          "point": [
+            32.83286454881829,
+            55.342318796761475,
+            -70.49024564799396
+          ],
+          "wallPoint": [
+            32.83286454881829,
+            55.342318796761475,
+            -70.49024564799396
+          ],
+          "surfacePoint": [
+            32.83286454881829,
+            55.342318796761475,
+            -70.49024564799396
+          ],
+          "armorOffset": 0,
+          "normal": [
+            0.39029891280357554,
+            0.18041345969373448,
+            -0.9028387132958378
+          ],
+          "dir": [
+            0.39029891280357554,
+            0.18041345969373448,
+            -0.9028387132958378
+          ],
+          "u": [
+            0.9206881983952804,
+            -0.0764810250596531,
+            0.3827321441184132
+          ],
+          "v": [
+            0,
+            -0.980612888130256,
+            -0.19595500410256955
+          ],
+          "width": 2.88,
+          "height": 1.3248,
+          "depth": 0.3312,
+          "lip": 0.105984,
+          "mouth": [
+            32.87422998879287,
+            55.361439736873656,
+            -70.5859321061839
+          ],
+          "origin": [
+            32.87422998879287,
+            55.361439736873656,
+            -70.5859321061839
+          ],
+          "pivot": [
+            32.87422998879287,
+            55.361439736873656,
+            -70.5859321061839
+          ],
+          "bounds": [
+            31.377806543208546,
+            54.52287520572753,
+            -71.26686698843196,
+            34.200020994482074,
+            56.12113039005704,
+            -69.51029058390232
+          ],
+          "barrels": 2
+        },
+        "mount": {
+          "muzzle": [
+            -67.12577001120712,
+            15.361437829525023,
+            -70.5859321061839
+          ],
+          "dir": [
+            0.39029891280357554,
+            0.18041345969373448,
+            -0.9028387132958378
+          ],
+          "barrelLength": 0,
+          "fixed": false
+        },
+        "offset": [
+          100,
+          40.00000190734863,
+          0
+        ],
+        "metadata": {
+          "embedded": true,
+          "mesh": null,
+          "origin": [
+            32.87422998879287,
+            55.361439736873656,
+            -70.5859321061839
+          ],
+          "axis": [
+            0,
+            -0.980612888130256,
+            -0.19595500410256955
+          ],
+          "fw": [
+            0.39029891280357554,
+            0.18041345969373448,
+            -0.9028387132958378
+          ],
+          "portWidth": 2.88
+        },
+        "transformedOrigin": [
+          32.87422998879287,
+          55.361439736873656,
+          -70.5859321061839
+        ],
+        "expectedTransformedOrigin": [
+          32.87422998879287,
+          55.361439736873656,
+          -70.5859321061839
+        ],
+        "shots": [
+          {
+            "direction": [
+              0.39029891280357554,
+              0.18041345969373448,
+              -0.9028387132958378
+            ],
+            "base": [
+              -50.12577001120712,
+              26.361437829525023,
+              -77.5859321061839
+            ],
+            "side": [
+              0.9206881983952802,
+              -0.07648102505965308,
+              0.38273214411841316
+            ],
+            "spread": 1.728,
+            "expectedBase": [
+              -50.12577001120712,
+              26.361437829525023,
+              -77.5859321061839
+            ]
+          },
+          {
+            "direction": [
+              0.6614172320006326,
+              0.1469698122576636,
+              -0.7354774772197775
+            ],
+            "base": [
+              -50.12577001120712,
+              26.361437829525023,
+              -77.5859321061839
+            ],
+            "side": [
+              0.9206881983952802,
+              -0.07648102505965308,
+              0.38273214411841316
+            ],
+            "spread": 1.728,
+            "expectedBase": [
+              -50.12577001120712,
+              26.361437829525023,
+              -77.5859321061839
+            ]
+          }
+        ],
+        "mesh": {
+          "indices": 414,
+          "minNormal": 0.017996321602319898,
+          "maxNormal": 0.10598535903534634,
+          "maxU": 1.4400005296633285,
+          "maxV": 0.6624019902022074
+        }
+      },
+      {
+        "options": {
+          "face": "top",
+          "foil": true
+        },
+        "id": 2,
+        "limits": {
+          "yaw": 1.5707963267948966,
+          "lo": -1.5707963267948966,
+          "hi": 1.5707963267948966
+        },
+        "barrelOutward": [
+          0,
+          0.8771334418767202,
+          -0.4802467336083593
+        ],
+        "ai": {
+          "emitter": {
+            "pos": [
+              98,
+              62.17446748541856,
+              83.28912779481035
+            ],
+            "dir": [
+              0.5232058994703135,
+              0.1980742961934086,
+              -0.8288679991089934
+            ],
+            "fixed": false,
+            "fit": 2,
+            "cell": "w0",
+            "unit": "__probe_ai"
+          },
+          "expected": [
+            98,
+            62.17446748541856,
+            83.28912779481035
+          ]
+        },
+        "port": {
+          "embedded": true,
+          "casemate": false,
+          "point": [
+            65,
+            41.27907969384149,
+            14.987511976931083
+          ],
+          "wallPoint": [
+            65,
+            41.27907969384149,
+            14.987511976931083
+          ],
+          "surfacePoint": [
+            65,
+            41.27907969384149,
+            14.987511976931083
+          ],
+          "armorOffset": 0,
+          "normal": [
+            0,
+            0.9997432099783007,
+            0.02266084954902291
+          ],
+          "dir": [
+            0,
+            0.9997432099783007,
+            0.02266084954902291
+          ],
+          "u": [
+            1,
+            0,
+            0
+          ],
+          "v": [
+            0,
+            0.02266084954902291,
+            -0.9997432099783007
+          ],
+          "width": 2.88,
+          "height": 1.3248,
+          "depth": 0.3312,
+          "lip": 0.105984,
+          "mouth": [
+            65,
+            41.38503647820783,
+            14.989913664409686
+          ],
+          "origin": [
+            65,
+            41.38503647820783,
+            14.989913664409686
+          ],
+          "pivot": [
+            65,
+            41.38503647820783,
+            14.989913664409686
+          ],
+          "bounds": [
+            63.56,
+            40.9329541959554,
+            14.31777680127082,
+            66.44,
+            41.4000470249491,
+            15.652143566699314
+          ],
+          "barrels": 2
+        },
+        "mount": {
+          "muzzle": [
+            -35,
+            19.329171971263197,
+            14.989913664409686
+          ],
+          "dir": [
+            0,
+            0.9997432099783007,
+            0.02266084954902291
+          ],
+          "barrelLength": 0,
+          "fixed": false
+        },
+        "offset": [
+          100,
+          22.055864506944634,
+          0
+        ],
+        "metadata": {
+          "embedded": true,
+          "mesh": null,
+          "origin": [
+            65,
+            41.38503647820783,
+            14.989913664409686
+          ],
+          "axis": [
+            0,
+            0.02266084954902291,
+            -0.9997432099783007
+          ],
+          "fw": [
+            0,
+            0.9997432099783007,
+            0.02266084954902291
+          ],
+          "portWidth": 2.88
+        },
+        "transformedOrigin": [
+          65,
+          49.2303319923632,
+          14.289127794810359
+        ],
+        "expectedTransformedOrigin": [
+          65,
+          49.2303319923632,
+          14.289127794810359
+        ],
+        "shots": [
+          {
+            "direction": [
+              0,
+              0.8771334418767202,
+              -0.4802467336083593
+            ],
+            "base": [
+              -18,
+              38.17446748541856,
+              7.2891277948103586
+            ],
+            "side": [
+              1,
+              0,
+              0
+            ],
+            "spread": 1.728,
+            "expectedBase": [
+              -18,
+              38.17446748541856,
+              7.2891277948103586
+            ]
+          },
+          {
+            "direction": [
+              0.3162277660168379,
+              0.8321218464700055,
+              -0.4556020551175648
+            ],
+            "base": [
+              -18,
+              38.17446748541856,
+              7.2891277948103586
+            ],
+            "side": [
+              1,
+              0,
+              0
+            ],
+            "spread": 1.728,
+            "expectedBase": [
+              -18,
+              38.17446748541856,
+              7.2891277948103586
+            ]
+          }
+        ],
+        "mesh": {
+          "indices": 414,
+          "minNormal": 0.017999217583151792,
+          "maxNormal": 0.10598427012549382,
+          "maxU": 1.44000244140625,
+          "maxV": 0.6624003195318824
+        }
+      },
+      {
+        "options": {
+          "face": "top",
+          "kind": "casemateLight"
+        },
+        "id": 2,
+        "limits": {
+          "yaw": 1.1344640137963142,
+          "lo": -0.3490658503988659,
+          "hi": 0.3490658503988659
+        },
+        "barrelOutward": [
+          0,
+          1,
+          0
+        ],
+        "ai": {
+          "emitter": {
+            "pos": [
+              45.5,
+              73.03532799999999,
+              109.5
+            ],
+            "dir": [
+              0.5457715626958273,
+              0.18148615116210748,
+              -0.8180441175688018
+            ],
+            "fixed": false,
+            "fit": 2,
+            "cell": "w0",
+            "unit": "__probe_ai"
+          },
+          "expected": [
+            45.5,
+            73.03532799999999,
+            109.5
+          ]
+        },
+        "port": {
+          "embedded": true,
+          "casemate": true,
+          "point": [
+            12.5,
+            76,
+            40.5
+          ],
+          "wallPoint": [
+            12.5,
+            76,
+            40.5
+          ],
+          "surfacePoint": [
+            12.5,
+            76,
+            40.5
+          ],
+          "armorOffset": 0,
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "dir": [
+            0,
+            1,
+            0
+          ],
+          "u": [
+            1,
+            0,
+            0
+          ],
+          "v": [
+            0,
+            0,
+            -1
+          ],
+          "width": 1.92,
+          "height": 0.8832,
+          "depth": 0.2208,
+          "lip": 0.070656,
+          "mouth": [
+            12.5,
+            76.070656,
+            40.5
+          ],
+          "origin": [
+            12.5,
+            76.070656,
+            40.5
+          ],
+          "pivot": [
+            12.5,
+            76.070656,
+            40.5
+          ],
+          "bounds": [
+            11.54,
+            75.7792,
+            40.0584,
+            13.46,
+            76.070656,
+            40.9416
+          ],
+          "barrels": 2
+        },
+        "mount": {
+          "muzzle": [
+            -87.5,
+            38.035328,
+            40.5
+          ],
+          "dir": [
+            0,
+            1,
+            0
+          ],
+          "barrelLength": 0,
+          "fixed": false
+        },
+        "offset": [
+          100,
+          38.035328,
+          0
+        ],
+        "metadata": {
+          "embedded": true,
+          "mesh": null,
+          "origin": [
+            12.5,
+            76.070656,
+            40.5
+          ],
+          "axis": [
+            0,
+            0,
+            -1
+          ],
+          "fw": [
+            0,
+            1,
+            0
+          ],
+          "portWidth": 1.92
+        },
+        "transformedOrigin": [
+          12.5,
+          76.070656,
+          40.5
+        ],
+        "expectedTransformedOrigin": [
+          12.5,
+          76.070656,
+          40.5
+        ],
+        "shots": [
+          {
+            "direction": [
+              0,
+              1,
+              0
+            ],
+            "base": [
+              -70.5,
+              49.035328,
+              33.5
+            ],
+            "side": [
+              1,
+              0,
+              0
+            ],
+            "spread": 1.152,
+            "expectedBase": [
+              -70.5,
+              49.035328,
+              33.5
+            ]
+          },
+          {
+            "direction": [
+              0.3162277660168379,
+              0.9486832980505138,
+              0
+            ],
+            "base": [
+              -70.5,
+              49.035328,
+              33.5
+            ],
+            "side": [
+              1,
+              0,
+              0
+            ],
+            "spread": 1.152,
+            "expectedBase": [
+              -70.5,
+              49.035328,
+              33.5
+            ]
+          }
+        ],
+        "mesh": {
+          "indices": 414,
+          "minNormal": 0.01799774169921875,
+          "maxNormal": 0.07065582275390625,
+          "maxU": 0.9600000381469727,
+          "maxV": 0.4416007995605469
+        }
+      },
+      {
+        "options": {
+          "face": "port",
+          "kind": "claser"
+        },
+        "id": 2,
+        "limits": {
+          "yaw": 0,
+          "lo": 0,
+          "hi": 0
+        },
+        "barrelOutward": [
+          0,
+          0,
+          -1
+        ],
+        "ai": {
+          "emitter": {
+            "pos": [
+              45.5,
+              68.5,
+              20.965000000000003
+            ],
+            "dir": [
+              0,
+              0,
+              -1
+            ],
+            "fixed": true,
+            "fit": 2,
+            "cell": "w0",
+            "unit": "__probe_ai"
+          },
+          "expected": [
+            45.5,
+            68.5,
+            20.965000000000003
+          ]
+        },
+        "port": {
+          "embedded": true,
+          "casemate": false,
+          "point": [
+            12.5,
+            71.5,
+            -48
+          ],
+          "wallPoint": [
+            12.5,
+            71.5,
+            -48
+          ],
+          "surfacePoint": [
+            12.5,
+            71.5,
+            -48
+          ],
+          "armorOffset": 0,
+          "normal": [
+            0,
+            0,
+            -1
+          ],
+          "dir": [
+            0,
+            0,
+            -1
+          ],
+          "u": [
+            1,
+            0,
+            0
+          ],
+          "v": [
+            0,
+            -1,
+            0
+          ],
+          "width": 0.8320000000000001,
+          "height": 0.25,
+          "depth": 0.08,
+          "lip": 0.035,
+          "mouth": [
+            12.5,
+            71.5,
+            -48.035
+          ],
+          "origin": [
+            12.5,
+            71.5,
+            -48.035
+          ],
+          "pivot": [
+            12.5,
+            71.5,
+            -48.035
+          ],
+          "bounds": [
+            12.084,
+            71.375,
+            -48.035,
+            12.916,
+            71.625,
+            -47.92
+          ],
+          "barrels": 1
+        },
+        "mount": {
+          "muzzle": [
+            -87.5,
+            33.5,
+            -48.035
+          ],
+          "dir": [
+            0,
+            0,
+            -1
+          ],
+          "barrelLength": 0,
+          "fixed": true
+        },
+        "offset": [
+          100,
+          38,
+          0
+        ],
+        "metadata": {
+          "embedded": true,
+          "mesh": null,
+          "origin": [
+            12.5,
+            71.5,
+            -48.035
+          ],
+          "axis": [
+            0,
+            -1,
+            0
+          ],
+          "fw": [
+            0,
+            0,
+            -1
+          ],
+          "portWidth": 0.8320000000000001
+        },
+        "transformedOrigin": [
+          12.5,
+          71.5,
+          -48.035
+        ],
+        "expectedTransformedOrigin": [
+          12.5,
+          71.5,
+          -48.035
+        ],
+        "shots": [
+          {
+            "direction": [
+              0,
+              0,
+              -1
+            ],
+            "base": [
+              -70.5,
+              44.5,
+              -55.035
+            ],
+            "side": [
+              1,
+              0,
+              0
+            ],
+            "spread": 0.49920000000000003,
+            "expectedBase": [
+              -70.5,
+              44.5,
+              -55.035
+            ]
+          },
+          {
+            "direction": [
+              0.3162277660168379,
+              0,
+              -0.9486832980505138
+            ],
+            "base": [
+              -70.5,
+              44.5,
+              -55.035
+            ],
+            "side": [
+              1,
+              0,
+              0
+            ],
+            "spread": 0.49920000000000003,
+            "expectedBase": [
+              -70.5,
+              44.5,
+              -55.035
+            ]
+          }
+        ],
+        "mesh": {
+          "indices": 222,
+          "minNormal": 0.010501861572265625,
+          "maxNormal": 0.034999847412109375,
+          "maxU": 0.4160003662109375,
+          "maxV": 0.125
+        }
+      }
+    ]
+  },
+  "buildProbe": {
+    "scope": "Bounded warm CPU builds in actual Chromium; mesh build includes its internal plan generation; no isolated/GPU/FPS/battle claim.",
+    "runs": [
+      {
+        "name": "micro-off",
+        "opt": {
+          "detail": 0,
+          "maxDetails": 0
+        },
+        "planBuildMs": 309.6000000014901,
+        "meshBuildWithPlanMs": 7201.19999999553,
+        "baseField": 6435,
+        "micro": 0,
+        "workingFaceFeatures": 1894,
+        "indices": {
+          "surfaceArmor": 420,
+          "surfaceDevices": 414792,
+          "surfaceDetail": 0
+        },
+        "vertices": {
+          "surfaceArmor": 332,
+          "surfaceDevices": 314004,
+          "surfaceDetail": 0
+        },
+        "nativeByRole": {
+          "weapons": 8,
+          "cooling": 94,
+          "sensors": 50,
+          "habitation": 86
+        }
+      },
+      {
+        "name": "medium",
+        "opt": {
+          "detail": 0.5,
+          "maxDetails": 400
+        },
+        "planBuildMs": 706.1000000014901,
+        "meshBuildWithPlanMs": 295,
+        "baseField": 6435,
+        "micro": 400,
+        "workingFaceFeatures": 1894,
+        "indices": {
+          "surfaceArmor": 420,
+          "surfaceDevices": 414792,
+          "surfaceDetail": 14400
+        },
+        "vertices": {
+          "surfaceArmor": 332,
+          "surfaceDevices": 314004,
+          "surfaceDetail": 9600
+        },
+        "nativeByRole": {
+          "weapons": 8,
+          "cooling": 94,
+          "sensors": 50,
+          "habitation": 86
+        }
+      },
+      {
+        "name": "near",
+        "opt": {
+          "detail": 1,
+          "maxDetails": 1800
+        },
+        "planBuildMs": 213.20000000298023,
+        "meshBuildWithPlanMs": 293.8999999985099,
+        "baseField": 6435,
+        "micro": 1800,
+        "workingFaceFeatures": 1894,
+        "indices": {
+          "surfaceArmor": 420,
+          "surfaceDevices": 414792,
+          "surfaceDetail": 64800
+        },
+        "vertices": {
+          "surfaceArmor": 332,
+          "surfaceDevices": 314004,
+          "surfaceDetail": 43200
+        },
+        "nativeByRole": {
+          "weapons": 8,
+          "cooling": 94,
+          "sensors": 50,
+          "habitation": 86
+        }
+      },
+      {
+        "name": "high",
+        "opt": {
+          "detail": 2,
+          "maxDetails": 1800
+        },
+        "planBuildMs": 146.29999999701977,
+        "meshBuildWithPlanMs": 452.5,
+        "baseField": 6435,
+        "micro": 1800,
+        "workingFaceFeatures": 1894,
+        "indices": {
+          "surfaceArmor": 420,
+          "surfaceDevices": 414792,
+          "surfaceDetail": 64800
+        },
+        "vertices": {
+          "surfaceArmor": 332,
+          "surfaceDevices": 314004,
+          "surfaceDetail": 43200
+        },
+        "nativeByRole": {
+          "weapons": 8,
+          "cooling": 94,
+          "sensors": 50,
+          "habitation": 86
+        }
+      }
+    ],
+    "nativeBefore": {
+      "weapons": 8,
+      "cooling": 94,
+      "sensors": 50,
+      "habitation": 86
+    },
+    "nativeAfter": {
+      "weapons": 8,
+      "cooling": 94,
+      "sensors": 50,
+      "habitation": 86
+    },
+    "coreUnchanged": true
+  },
+  "reload": {
+    "publicSha256": "f5d27c495b01dd7bad60150c8a837671f7bb670e3f31bd153bf1d753165eda0e",
+    "publicEqual": true,
+    "nativeIdsStable": true,
+    "totalsStable": true
+  },
+  "pc": {
+    "seed": 74,
+    "nativeIdsStable": true,
+    "countsStable": true,
+    "totalsStable": true
+  },
+  "mobile": {
+    "viewport": {
+      "width": 844,
+      "height": 390,
+      "scrollWidth": 390
+    },
+    "seed": 75,
+    "nativeIdsStable": true,
+    "countsStable": true,
+    "totalsStable": true
+  },
+  "mobileImage": "docs/images/surface-embedded-mobile.jpg",
+  "modelAsset": {
+    "nativeByRole": {
+      "weapons": 18,
+      "cooling": 0,
+      "sensors": 0,
+      "habitation": 0
+    },
+    "nativeIds": [
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+    ],
+    "totals": {
+      "area": 63200,
+      "exposedArea": 63200,
+      "occupiedArea": 8490.397795192057,
+      "volume": 50400,
+      "mass": 191616,
+      "requested": 18,
+      "installed": 18,
+      "barrels": 36,
+      "equipment": 0,
+      "orphans": 0
+    },
+    "visual": {
+      "keys": [
+        "id",
+        "host",
+        "patch",
+        "config",
+        "triangles",
+        "boundary",
+        "field",
+        "boxes",
+        "devices"
+      ],
+      "byFeature": {
+        "service-housing": 525,
+        "service-standoff": 250,
+        "service-junction": 245,
+        "service-brace": 73,
+        "service-conduit": 357,
+        "service-depth-conduit": 328,
+        "service-shelf": 143,
+        "service-detail": 840
+      },
+      "byRole": {},
+      "featureCount": 2761,
+      "sizeRange": {
+        "min": 0.05517903904430568,
+        "max": 13.99452954346293,
+        "unique": 1362
+      },
+      "longestConduit": 13.99452954346293,
+      "samples": [
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            5.119748362250897,
+            10.5534504479146,
+            1.4277291402127594
+          ]
+        },
+        {
+          "feature": "service-standoff",
+          "role": null,
+          "type": "box",
+          "size": [
+            3.071849017350538,
+            6.121001259790467,
+            1.1520607912167908
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            2.252689279390395,
+            5.787722255135268,
+            0.3518874311214313
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            11.17521613703832,
+            3.667797878130525,
+            1.4422939857188612
+          ]
+        },
+        {
+          "feature": "service-junction",
+          "role": null,
+          "type": "pipe",
+          "size": [
+            6.95586083817093,
+            1.0499999999999998,
+            1.0499999999999998
+          ]
+        },
+        {
+          "feature": "service-junction",
+          "role": null,
+          "type": "pipe",
+          "size": [
+            5.286454237009907,
+            0.7559999999999999,
+            0.7559999999999999
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            5.194942573725472,
+            7.765241816630898,
+            1.266248462512158
+          ]
+        },
+        {
+          "feature": "service-standoff",
+          "role": null,
+          "type": "box",
+          "size": [
+            3.116965544235283,
+            4.5038402536459206,
+            1.3137515374878421
+          ]
+        },
+        {
+          "feature": "service-junction",
+          "role": null,
+          "type": "pipe",
+          "size": [
+            1.0499999999999998,
+            6.056888616972101,
+            1.0499999999999998
+          ]
+        },
+        {
+          "feature": "service-junction",
+          "role": null,
+          "type": "pipe",
+          "size": [
+            0.7559999999999999,
+            4.603235348898797,
+            0.7559999999999999
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            10.618799309737273,
+            3.447645247215439,
+            0.9669671812187883
+          ]
+        },
+        {
+          "feature": "service-standoff",
+          "role": null,
+          "type": "box",
+          "size": [
+            6.371279585842363,
+            1.9996342433849543,
+            1.163993695175741
+          ]
+        }
+      ]
+    },
+    "visualFaces": [
+      {
+        "id": "p1:port:0:cctl1g",
+        "host": "p1",
+        "face": "port",
+        "features": 2761,
+        "field": 1921,
+        "micro": 840,
+        "roles": {}
+      }
+    ],
+    "mesh": {
+      "surfaceArmor": 168,
+      "surfaceDevices": 102636,
+      "surfaceDetail": 30240
+    },
+    "glError": 0,
+    "renderer": "WebGL 1.0 (OpenGL ES 2.0 Chromium)",
+    "error": null,
+    "portCount": 18,
+    "staticApertureIndices": 7452,
+    "modelBodyIndices": 0,
+    "movingNativeBodyMeshes": [],
+    "runtimeMetadataCount": 18,
+    "sampleFits": [
+      {
+        "id": 3,
+        "k": "refVen",
+        "point": [
+          10.506844000000001,
+          44.9042155,
+          -50
+        ],
+        "wallPoint": [
+          10.506844000000001,
+          44.9042155,
+          -50
+        ],
+        "armorOffset": 0,
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "u": [
+          1,
+          0,
+          0
+        ],
+        "v": [
+          0,
+          -1,
+          0
+        ],
+        "width": 5.23945248,
+        "height": 2.4101481408,
+        "depth": 0.6,
+        "lip": 0.12,
+        "mouth": [
+          10.506844000000001,
+          44.9042155,
+          -50.12
+        ],
+        "origin": [
+          10.506844000000001,
+          44.9042155,
+          -50.12
+        ],
+        "pivot": [
+          10.506844000000001,
+          44.9042155,
+          -50.12
+        ],
+        "bounds": [
+          7.887117760000001,
+          43.6991414296,
+          -50.12,
+          13.126570240000001,
+          46.1092895704,
+          -49.4
+        ],
+        "barrels": 2,
+        "mesh": {
+          "indices": 414,
+          "minNormal": 0.018001556396484375,
+          "maxNormal": 0.11999893188476562,
+          "maxU": 2.61972670159912,
+          "maxV": 1.2050755766601569
+        }
+      },
+      {
+        "id": 4,
+        "k": "refVen",
+        "point": [
+          27.880133,
+          44.9042155,
+          -50
+        ],
+        "wallPoint": [
+          27.880133,
+          44.9042155,
+          -50
+        ],
+        "armorOffset": 0,
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "u": [
+          1,
+          0,
+          0
+        ],
+        "v": [
+          0,
+          -1,
+          0
+        ],
+        "width": 5.23945248,
+        "height": 2.4101481408,
+        "depth": 0.6,
+        "lip": 0.12,
+        "mouth": [
+          27.880133,
+          44.9042155,
+          -50.12
+        ],
+        "origin": [
+          27.880133,
+          44.9042155,
+          -50.12
+        ],
+        "pivot": [
+          27.880133,
+          44.9042155,
+          -50.12
+        ],
+        "bounds": [
+          25.260406760000002,
+          43.6991414296,
+          -50.12,
+          30.49985924,
+          46.1092895704,
+          -49.4
+        ],
+        "barrels": 2,
+        "mesh": {
+          "indices": 414,
+          "minNormal": 0.018001556396484375,
+          "maxNormal": 0.11999893188476562,
+          "maxU": 2.6197265058593757,
+          "maxV": 1.2050755766601569
+        }
+      }
+    ],
+    "machinery": {
+      "count": 525,
+      "medianWidth": 2.986079126323458,
+      "medianHeight": 3.7158126267441007,
+      "medianThickness": 1.266248462512158,
+      "medianFrontOffset": 1.8961991926049824,
+      "minFrontOffset": 0.5049999999999966,
+      "maxFrontOffset": 3.0387061169650376,
+      "depthTiers": 26
+    },
+    "features": {
+      "service-housing": 525,
+      "service-standoff": 250,
+      "service-junction": 245,
+      "service-brace": 73,
+      "service-conduit": 357,
+      "service-depth-conduit": 328,
+      "service-shelf": 143,
+      "service-detail": 840
+    }
+  },
+  "legacyArmor": {
+    "nativeByRole": {
+      "weapons": 4,
+      "cooling": 4,
+      "sensors": 0,
+      "habitation": 0
+    },
+    "nativeIds": [
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "totals": {
+      "area": 62208,
+      "exposedArea": 62208,
+      "occupiedArea": 2628,
+      "volume": 6976.8,
+      "mass": 303054.39999999997,
+      "requested": 4,
+      "installed": 4,
+      "barrels": 8,
+      "equipment": 4,
+      "orphans": 0
+    },
+    "visual": {
+      "keys": [
+        "id",
+        "host",
+        "patch",
+        "config",
+        "triangles",
+        "boundary",
+        "boxes",
+        "devices"
+      ],
+      "byFeature": {},
+      "byRole": {},
+      "featureCount": 0,
+      "sizeRange": null,
+      "longestConduit": 0,
+      "samples": []
+    },
+    "visualFaces": [],
+    "mesh": {
+      "surfaceArmor": 192,
+      "surfaceDevices": 1296,
+      "surfaceDetail": 4428
+    },
+    "glError": 0,
+    "renderer": "WebGL 1.0 (OpenGL ES 2.0 Chromium)",
+    "error": null,
+    "portCount": 4,
+    "staticApertureIndices": 1656,
+    "modelBodyIndices": 0,
+    "movingNativeBodyMeshes": [],
+    "runtimeMetadataCount": 4,
+    "sampleFits": [
+      {
+        "id": 3,
+        "k": "pd",
+        "point": [
+          15,
+          70,
+          -50
+        ],
+        "wallPoint": [
+          15,
+          70,
+          -48
+        ],
+        "armorOffset": 2,
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "u": [
+          1,
+          0,
+          0
+        ],
+        "v": [
+          0,
+          -1,
+          0
+        ],
+        "width": 2.88,
+        "height": 1.3248,
+        "depth": 0.3312,
+        "lip": 0.105984,
+        "mouth": [
+          15,
+          70,
+          -50.105984
+        ],
+        "origin": [
+          15,
+          70,
+          -50.105984
+        ],
+        "pivot": [
+          15,
+          70,
+          -50.105984
+        ],
+        "bounds": [
+          13.56,
+          69.3376,
+          -50.105984,
+          16.44,
+          70.6624,
+          -49.6688
+        ],
+        "barrels": 2,
+        "mesh": {
+          "indices": 414,
+          "minNormal": 0.018001556396484375,
+          "maxNormal": 0.10598373413085938,
+          "maxU": 1.4400005340576172,
+          "maxV": 0.6623992919921875
+        }
+      },
+      {
+        "id": 4,
+        "k": "pd",
+        "point": [
+          25,
+          70,
+          -50
+        ],
+        "wallPoint": [
+          25,
+          70,
+          -48
+        ],
+        "armorOffset": 2,
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "u": [
+          1,
+          0,
+          0
+        ],
+        "v": [
+          0,
+          -1,
+          0
+        ],
+        "width": 2.88,
+        "height": 1.3248,
+        "depth": 0.3312,
+        "lip": 0.105984,
+        "mouth": [
+          25,
+          70,
+          -50.105984
+        ],
+        "origin": [
+          25,
+          70,
+          -50.105984
+        ],
+        "pivot": [
+          25,
+          70,
+          -50.105984
+        ],
+        "bounds": [
+          23.56,
+          69.3376,
+          -50.105984,
+          26.44,
+          70.6624,
+          -49.6688
+        ],
+        "barrels": 2,
+        "mesh": {
+          "indices": 414,
+          "minNormal": 0.018001556396484375,
+          "maxNormal": 0.10598373413085938,
+          "maxU": 1.4400005340576172,
+          "maxV": 0.6623992919921875
+        }
+      }
+    ],
+    "machinery": {
+      "count": 0,
+      "medianWidth": 0,
+      "medianHeight": 0,
+      "medianThickness": 0,
+      "medianFrontOffset": 0,
+      "minFrontOffset": null,
+      "maxFrontOffset": null,
+      "depthTiers": 0
+    },
+    "features": {
+      "undefined": 123
+    }
+  },
+  "large": {
+    "scope": "New representative 2,200m three-layer geometry, ONE equipment wall only; not a stock Allegiance save or full combat fixture. Existing 256 logical-cell per-patch cap remains; capacity diagnostics are retained.",
+    "nativeByRole": {
+      "weapons": 10,
+      "cooling": 91,
+      "sensors": 39,
+      "habitation": 116
+    },
+    "nativeIds": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      37,
+      38,
+      39,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57,
+      58,
+      59,
+      60,
+      61,
+      62,
+      63,
+      64,
+      65,
+      66,
+      67,
+      68,
+      69,
+      70,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      77,
+      78,
+      79,
+      80,
+      81,
+      82,
+      83,
+      84,
+      85,
+      86,
+      87,
+      88,
+      89,
+      90,
+      91,
+      92,
+      93,
+      94,
+      95,
+      96,
+      97,
+      98,
+      99,
+      100,
+      101,
+      102,
+      103,
+      104,
+      105,
+      106,
+      107,
+      108,
+      109,
+      110,
+      111,
+      112,
+      113,
+      114,
+      115,
+      116,
+      117,
+      118,
+      119,
+      120,
+      121,
+      122,
+      123,
+      124,
+      125,
+      126,
+      127,
+      128,
+      129,
+      130,
+      131,
+      132,
+      133,
+      134,
+      135,
+      136,
+      137,
+      138,
+      139,
+      140,
+      141,
+      142,
+      143,
+      144,
+      145,
+      146,
+      147,
+      148,
+      149,
+      150,
+      151,
+      152,
+      153,
+      154,
+      155,
+      156,
+      157,
+      158,
+      159,
+      160,
+      161,
+      162,
+      163,
+      164,
+      165,
+      166,
+      167,
+      168,
+      169,
+      170,
+      171,
+      172,
+      173,
+      174,
+      175,
+      176,
+      177,
+      178,
+      179,
+      180,
+      181,
+      182,
+      183,
+      184,
+      185,
+      186,
+      187,
+      188,
+      189,
+      190,
+      191,
+      192,
+      193,
+      194,
+      195,
+      196,
+      197,
+      198,
+      199,
+      200,
+      201,
+      202,
+      203,
+      204,
+      205,
+      206,
+      207,
+      208,
+      209,
+      210,
+      211,
+      212,
+      213,
+      214,
+      215,
+      216,
+      217,
+      218,
+      219,
+      220,
+      221,
+      222,
+      223,
+      224,
+      225,
+      226,
+      227,
+      228,
+      229,
+      230,
+      231,
+      232,
+      233,
+      234,
+      235,
+      236,
+      237,
+      238,
+      239,
+      240,
+      241,
+      242,
+      243,
+      244,
+      245,
+      246,
+      247,
+      248,
+      249,
+      250,
+      251,
+      252,
+      253,
+      254,
+      255,
+      256,
+      257,
+      258,
+      259,
+      260
+    ],
+    "totals": {
+      "area": 17376000,
+      "exposedArea": 7616000,
+      "occupiedArea": 16554,
+      "volume": 189090,
+      "mass": 11306922.4,
+      "requested": 200,
+      "installed": 10,
+      "barrels": 20,
+      "equipment": 246,
+      "orphans": 0
+    },
+    "visual": {
+      "keys": [
+        "id",
+        "host",
+        "patch",
+        "config",
+        "triangles",
+        "boundary",
+        "boxes",
+        "devices"
+      ],
+      "byFeature": {
+        "service-housing": 581,
+        "service-standoff": 269,
+        "service-junction": 234,
+        "service-brace": 91,
+        "service-conduit": 349,
+        "service-depth-conduit": 326,
+        "service-shelf": 167,
+        "service-detail": 930,
+        "cooling-recess": 135,
+        "cooling-grille": 791,
+        "sensor-array": 39,
+        "window-recess": 187,
+        "habitation-window": 853,
+        "sensor-element": 61
+      },
+      "byRole": {
+        "cooling": 926,
+        "sensors": 100,
+        "habitation": 1040
+      },
+      "featureCount": 5013,
+      "sizeRange": {
+        "min": 0.014682689989334901,
+        "max": 180.6685995327988,
+        "unique": 1448
+      },
+      "longestConduit": 180.6685995327988,
+      "samples": [
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            49.97661749661864,
+            39.916107567144365,
+            2.462363452700665
+          ]
+        },
+        {
+          "feature": "service-standoff",
+          "role": null,
+          "type": "box",
+          "size": [
+            29.98597049797118,
+            23.151342388943732,
+            1.4076365472993353
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            21.9897116985122,
+            26.06163462038114,
+            0.5989372758427635
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            33.89081630727582,
+            51.10832604795628,
+            1.651360100512393
+          ]
+        },
+        {
+          "feature": "service-junction",
+          "role": null,
+          "type": "pipe",
+          "size": [
+            1.25,
+            39.8644943174059,
+            1.25
+          ]
+        },
+        {
+          "feature": "service-junction",
+          "role": null,
+          "type": "pipe",
+          "size": [
+            0.8999999999999999,
+            30.297015681228483,
+            0.8999999999999999
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            22.02022625191258,
+            72.43099856817754,
+            2.2469646227010527
+          ]
+        },
+        {
+          "feature": "service-standoff",
+          "role": null,
+          "type": "box",
+          "size": [
+            13.212135751147548,
+            42.00997916954297,
+            0.49875924697495067
+          ]
+        },
+        {
+          "feature": "service-junction",
+          "role": null,
+          "type": "pipe",
+          "size": [
+            1.25,
+            44.8998886412873,
+            1.25
+          ]
+        },
+        {
+          "feature": "service-junction",
+          "role": null,
+          "type": "pipe",
+          "size": [
+            0.8999999999999999,
+            34.123915367378345,
+            0.8999999999999999
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            46.22625303489582,
+            33.1413524840393,
+            1.6020369852776637
+          ]
+        },
+        {
+          "feature": "service-standoff",
+          "role": null,
+          "type": "box",
+          "size": [
+            27.73575182093749,
+            19.221984440742794,
+            1.8740766974631697
+          ]
+        }
+      ]
+    },
+    "visualFaces": [
+      {
+        "id": "p2:port:0:cctl1g",
+        "host": "p2",
+        "face": "port",
+        "features": 5013,
+        "field": 2017,
+        "micro": 930,
+        "roles": {
+          "cooling": 926,
+          "sensors": 100,
+          "habitation": 1040
+        }
+      }
+    ],
+    "mesh": {
+      "surfaceArmor": 408,
+      "surfaceDevices": 182988,
+      "surfaceDetail": 33480
+    },
+    "glError": 0,
+    "renderer": "WebGL 1.0 (OpenGL ES 2.0 Chromium)",
+    "error": null,
+    "portCount": 10,
+    "staticApertureIndices": 4140,
+    "modelBodyIndices": 0,
+    "movingNativeBodyMeshes": [],
+    "runtimeMetadataCount": 10,
+    "sampleFits": [
+      {
+        "id": 5,
+        "k": "pd",
+        "point": [
+          105,
+          275,
+          -560
+        ],
+        "wallPoint": [
+          105,
+          275,
+          -560
+        ],
+        "armorOffset": 0,
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "u": [
+          1,
+          0,
+          0
+        ],
+        "v": [
+          0,
+          -1,
+          0
+        ],
+        "width": 2.88,
+        "height": 1.3248,
+        "depth": 0.3312,
+        "lip": 0.105984,
+        "mouth": [
+          105,
+          275,
+          -560.105984
+        ],
+        "origin": [
+          105,
+          275,
+          -560.105984
+        ],
+        "pivot": [
+          105,
+          275,
+          -560.105984
+        ],
+        "bounds": [
+          103.56,
+          274.3376,
+          -560.105984,
+          106.44,
+          275.6624,
+          -559.6688
+        ],
+        "barrels": 2,
+        "mesh": {
+          "indices": 414,
+          "minNormal": 0.01800537109375,
+          "maxNormal": 0.10595703125,
+          "maxU": 1.44000244140625,
+          "maxV": 0.66241455078125
+        }
+      },
+      {
+        "id": 9,
+        "k": "pd",
+        "point": [
+          145,
+          275,
+          -560
+        ],
+        "wallPoint": [
+          145,
+          275,
+          -560
+        ],
+        "armorOffset": 0,
+        "normal": [
+          0,
+          0,
+          -1
+        ],
+        "u": [
+          1,
+          0,
+          0
+        ],
+        "v": [
+          0,
+          -1,
+          0
+        ],
+        "width": 2.88,
+        "height": 1.3248,
+        "depth": 0.3312,
+        "lip": 0.105984,
+        "mouth": [
+          145,
+          275,
+          -560.105984
+        ],
+        "origin": [
+          145,
+          275,
+          -560.105984
+        ],
+        "pivot": [
+          145,
+          275,
+          -560.105984
+        ],
+        "bounds": [
+          143.56,
+          274.3376,
+          -560.105984,
+          146.44,
+          275.6624,
+          -559.6688
+        ],
+        "barrels": 2,
+        "mesh": {
+          "indices": 414,
+          "minNormal": 0.01800537109375,
+          "maxNormal": 0.10595703125,
+          "maxU": 1.44000244140625,
+          "maxV": 0.66241455078125
+        }
+      }
+    ],
+    "machinery": {
+      "count": 581,
+      "medianWidth": 19.475119995724544,
+      "medianHeight": 21.473880908263244,
+      "medianThickness": 1.8824146192800253,
+      "medianFrontOffset": 2.910122257481571,
+      "minFrontOffset": 0.7449999999999727,
+      "maxFrontOffset": 4.550887205179338,
+      "depthTiers": 40
+    },
+    "features": {
+      "service-housing": 581,
+      "service-standoff": 269,
+      "service-junction": 234,
+      "service-brace": 91,
+      "service-conduit": 349,
+      "service-depth-conduit": 326,
+      "service-shelf": 167,
+      "service-detail": 930,
+      "cooling-recess": 135,
+      "cooling-grille": 791,
+      "sensor-array": 39,
+      "window-recess": 187,
+      "habitation-window": 853,
+      "sensor-element": 61
+    }
+  },
+  "largeImage": "docs/images/surface-embedded-large.jpg",
+  "largeWideImage": "docs/images/surface-embedded-large-wide.jpg",
+  "errors": [],
+  "consoleErrors": [],
+  "sourceAfter": {
+    "js/core.js": "f0e30d5881b2550f8cb4fdcb8686ac1b5c96c14c440781fadfaf738f93328312",
+    "js/app.js": "f9df2b279976942c175b5358df7abf02238843db54e32a486fbe774921dc1089",
+    "js/gfx.js": "606a192a8940eff9e0a86cec91b2e98add793dc62de422a512bfc6e16b73afcd",
+    "js/lang-en.js": "8a17347dff09ded30698e501fab87c6c30d446f8eea0574d8cee3d3237cb75e9"
+  },
+  "result": "PASS",
+  "browserClosed": true,
+  "finished": "2026-11-03T04:32:38.744Z",
+  "assertions": 807,
+  "initialAssertions": 655,
+  "finalSourceWorkerSupplement": {
+    "started": "2026-11-03T04:32:22.828Z",
+    "source": {
+      "js/core.js": "29cd1b2ddc7d64e4a1324b4189893420d3fb6e928d2d489648726f9b2fefad4d",
+      "js/app.js": "f9df2b279976942c175b5358df7abf02238843db54e32a486fbe774921dc1089",
+      "js/gfx.js": "606a192a8940eff9e0a86cec91b2e98add793dc62de422a512bfc6e16b73afcd",
+      "js/lang-en.js": "8a17347dff09ded30698e501fab87c6c30d446f8eea0574d8cee3d3237cb75e9",
+      "js/engine.js": "a4819c0447baa1d1a3a13c4939fc394d8ae22094bf1e54a89047901e51988ce0",
+      "js/worker.js": "63dbd23292ff87aad19d05bbddbdb7e39d3abd35a8070e5bad6aead324fec3f9"
+    },
+    "actualEngineHelperSha256": "92d5f81735d3e5350fcc9fcbca1934f1808d30bcf1056b971421922e78a5dd38",
+    "scope": "Fresh browser follow-up after Core.foilPose began carrying surfacePoint. Checks actual worker clearance and verbatim production trialRayPose, full PD/reference-port mouth/normal/tangent frames at four S-foil deployments, and reruns the actual direct/AI emitter cases. Not operational flight or full combat.",
+    "worker": {
+      "mode": "worker",
+      "scope": "Unmodified actual browser engine Worker receives fleet/trialRays jobs. Its private trialRayPose is extracted verbatim into the page only to inspect otherwise-private posed points/frames and derive independent expected worker ray flags; no production source or worker response is patched.",
+      "cases": [
+        {
+          "kind": "pd",
+          "fraction": 0,
+          "id": 2,
+          "port": {
+            "wallPoint": [
+              78,
+              52.75752018041938,
+              34.682917197155604
+            ],
+            "point": [
+              78,
+              52.75752018041938,
+              34.682917197155604
+            ],
+            "mouth": [
+              78,
+              52.837302281386144,
+              34.75268412787015
+            ],
+            "normal": [
+              0,
+              0.7527749562836874,
+              0.6582779543567341
+            ],
+            "u": [
+              0.9563047559630354,
+              -0.19246184769667424,
+              0.22009009724124534
+            ],
+            "v": [
+              0.292371704722735,
+              0.6295143384969628,
+              -0.7198822708639564
+            ]
+          },
+          "expected": {
+            "wallPoint": [
+              78,
+              52.75752018041938,
+              34.682917197155604
+            ],
+            "point": [
+              78,
+              52.75752018041938,
+              34.682917197155604
+            ],
+            "mouth": [
+              78,
+              52.837302281386144,
+              34.75268412787015
+            ],
+            "normal": [
+              0,
+              0.7527749562836921,
+              0.6582779543567331
+            ],
+            "u": [
+              0.9563047559630354,
+              -0.19246184769667393,
+              0.22009009724124667
+            ],
+            "v": [
+              0.2923717047227367,
+              0.6295143384969618,
+              -0.7198822708639608
+            ]
+          },
+          "previewSurfacePoint": [
+            78,
+            52.75752018041938,
+            34.682917197155604
+          ],
+          "actualWorker": {
+            "ready": true,
+            "clear": [
+              1,
+              1,
+              0
+            ]
+          },
+          "expectedClear": [
+            1,
+            1,
+            0
+          ],
+          "sourceUnchanged": true
+        },
+        {
+          "kind": "pd",
+          "fraction": 0.25,
+          "id": 2,
+          "port": {
+            "wallPoint": [
+              78,
+              52.66056640188117,
+              34.20889604320239
+            ],
+            "point": [
+              78,
+              52.66056640188117,
+              34.20889604320239
+            ],
+            "mouth": [
+              78,
+              52.75125133384484,
+              34.263749041030614
+            ],
+            "normal": [
+              0,
+              0.8556473803939681,
+              0.517559233735561
+            ],
+            "u": [
+              0.9563047559630354,
+              -0.15131967546225936,
+              0.2501670832473285
+            ],
+            "v": [
+              0.2923717047227371,
+              0.4949443567139013,
+              -0.8182596592980642
+            ]
+          },
+          "expected": {
+            "wallPoint": [
+              78,
+              52.66056640188117,
+              34.20889604320239
+            ],
+            "point": [
+              78,
+              52.66056640188117,
+              34.20889604320239
+            ],
+            "mouth": [
+              78,
+              52.75125133384484,
+              34.263749041030614
+            ],
+            "normal": [
+              0,
+              0.8556473803939675,
+              0.5175592337355609
+            ],
+            "u": [
+              0.9563047559630354,
+              -0.1513196754622593,
+              0.2501670832473283
+            ],
+            "v": [
+              0.2923717047227367,
+              0.49494435671390113,
+              -0.8182596592980637
+            ]
+          },
+          "previewSurfacePoint": [
+            78,
+            52.66056640188117,
+            34.20889604320239
+          ],
+          "actualWorker": {
+            "ready": true,
+            "clear": [
+              1,
+              1,
+              0
+            ]
+          },
+          "expectedClear": [
+            1,
+            1,
+            0
+          ],
+          "sourceUnchanged": true
+        },
+        {
+          "kind": "pd",
+          "fraction": 0.5,
+          "id": 2,
+          "port": {
+            "wallPoint": [
+              78,
+              52.48277265953337,
+              33.75891218265855
+            ],
+            "point": [
+              78,
+              52.48277265953337,
+              33.75891218265855
+            ],
+            "mouth": [
+              78,
+              52.58160500672502,
+              33.79718456701841
+            ],
+            "normal": [
+              0,
+              0.9325213918294395,
+              0.3611147376949475
+            ],
+            "u": [
+              0.9563047559630354,
+              -0.10557973146037573,
+              0.2726428690195924
+            ],
+            "v": [
+              0.2923717047227385,
+              0.34533574110602233,
+              -0.8917746420437623
+            ]
+          },
+          "expected": {
+            "wallPoint": [
+              78,
+              52.48277265953337,
+              33.75891218265855
+            ],
+            "point": [
+              78,
+              52.48277265953337,
+              33.75891218265855
+            ],
+            "mouth": [
+              78,
+              52.58160500672501,
+              33.79718456701841
+            ],
+            "normal": [
+              0,
+              0.9325213918294382,
+              0.36111473769494273
+            ],
+            "u": [
+              0.9563047559630354,
+              -0.10557973146037435,
+              0.272642869019592
+            ],
+            "v": [
+              0.2923717047227367,
+              0.3453357411060177,
+              -0.891774642043761
+            ]
+          },
+          "previewSurfacePoint": [
+            78,
+            52.48277265953337,
+            33.75891218265855
+          ],
+          "actualWorker": {
+            "ready": true,
+            "clear": [
+              1,
+              1,
+              0
+            ]
+          },
+          "expectedClear": [
+            1,
+            1,
+            0
+          ],
+          "sourceUnchanged": true
+        },
+        {
+          "kind": "pd",
+          "fraction": 1,
+          "id": 2,
+          "port": {
+            "wallPoint": [
+              78,
+              51.908566114085644,
+              32.984600675438294
+            ],
+            "point": [
+              78,
+              51.908566114085644,
+              32.984600675438294
+            ],
+            "mouth": [
+              78,
+              52.01452806782076,
+              32.98676229904944
+            ],
+            "normal": [
+              0,
+              0.9997919849705633,
+              0.0203957541812201
+            ],
+            "u": [
+              0.9563047559630354,
+              -0.005963141419069207,
+              0.2923108870139724
+            ],
+            "v": [
+              0.2923717047227367,
+              0.019504556724953746,
+              -0.9561058302010733
+            ]
+          },
+          "expected": {
+            "wallPoint": [
+              78,
+              51.908566114085644,
+              32.984600675438294
+            ],
+            "point": [
+              78,
+              51.908566114085644,
+              32.984600675438294
+            ],
+            "mouth": [
+              78,
+              52.01452806782076,
+              32.98676229904944
+            ],
+            "normal": [
+              0,
+              0.9997919849705633,
+              0.0203957541812201
+            ],
+            "u": [
+              0.9563047559630354,
+              -0.005963141419069207,
+              0.2923108870139724
+            ],
+            "v": [
+              0.2923717047227367,
+              0.019504556724953746,
+              -0.9561058302010733
+            ]
+          },
+          "previewSurfacePoint": [
+            78,
+            51.908566114085644,
+            32.984600675438294
+          ],
+          "actualWorker": {
+            "ready": true,
+            "clear": [
+              1,
+              1,
+              0
+            ]
+          },
+          "expectedClear": [
+            1,
+            1,
+            0
+          ],
+          "sourceUnchanged": true
+        },
+        {
+          "kind": "refVen",
+          "fraction": 0,
+          "id": 2,
+          "port": {
+            "wallPoint": [
+              72.4400665,
+              63.64502323998671,
+              20.829133711344305
+            ],
+            "point": [
+              72.4400665,
+              63.64502323998671,
+              20.829133711344305
+            ],
+            "mouth": [
+              72.4400665,
+              63.735356234740756,
+              20.908127065867113
+            ],
+            "normal": [
+              0,
+              0.7527749562836874,
+              0.6582779543567341
+            ],
+            "u": [
+              0.9563047559630354,
+              -0.19246184769667424,
+              0.22009009724124534
+            ],
+            "v": [
+              0.292371704722735,
+              0.6295143384969628,
+              -0.7198822708639564
+            ]
+          },
+          "expected": {
+            "wallPoint": [
+              72.4400665,
+              63.64502323998671,
+              20.829133711344305
+            ],
+            "point": [
+              72.4400665,
+              63.64502323998671,
+              20.829133711344305
+            ],
+            "mouth": [
+              72.4400665,
+              63.73535623474076,
+              20.908127065867106
+            ],
+            "normal": [
+              0,
+              0.7527749562836921,
+              0.6582779543567331
+            ],
+            "u": [
+              0.9563047559630354,
+              -0.19246184769667393,
+              0.22009009724124667
+            ],
+            "v": [
+              0.2923717047227367,
+              0.6295143384969618,
+              -0.7198822708639608
+            ]
+          },
+          "previewSurfacePoint": [
+            72.4400665,
+            63.64502323998671,
+            20.829133711344305
+          ],
+          "actualWorker": {
+            "ready": true,
+            "clear": [
+              1,
+              1,
+              0
+            ]
+          },
+          "expectedClear": [
+            1,
+            1,
+            0
+          ],
+          "sourceUnchanged": true
+        },
+        {
+          "kind": "refVen",
+          "fraction": 0.25,
+          "id": 2,
+          "port": {
+            "wallPoint": [
+              72.4400665,
+              60.97697956978388,
+              18.67498759218593
+            ],
+            "point": [
+              72.4400665,
+              60.97697956978388,
+              18.67498759218593
+            ],
+            "mouth": [
+              72.4400665,
+              61.07965725543116,
+              18.737094700234195
+            ],
+            "normal": [
+              0,
+              0.8556473803939681,
+              0.517559233735561
+            ],
+            "u": [
+              0.9563047559630354,
+              -0.15131967546225936,
+              0.2501670832473285
+            ],
+            "v": [
+              0.2923717047227371,
+              0.4949443567139013,
+              -0.8182596592980642
+            ]
+          },
+          "expected": {
+            "wallPoint": [
+              72.4400665,
+              60.97697956978388,
+              18.67498759218593
+            ],
+            "point": [
+              72.4400665,
+              60.97697956978388,
+              18.67498759218593
+            ],
+            "mouth": [
+              72.4400665,
+              61.07965725543115,
+              18.73709470023419
+            ],
+            "normal": [
+              0,
+              0.8556473803939675,
+              0.5175592337355609
+            ],
+            "u": [
+              0.9563047559630354,
+              -0.1513196754622593,
+              0.2501670832473283
+            ],
+            "v": [
+              0.2923717047227367,
+              0.49494435671390113,
+              -0.8182596592980637
+            ]
+          },
+          "previewSurfacePoint": [
+            72.4400665,
+            60.97697956978388,
+            18.67498759218593
+          ],
+          "actualWorker": {
+            "ready": true,
+            "clear": [
+              1,
+              1,
+              0
+            ]
+          },
+          "expectedClear": [
+            1,
+            1,
+            0
+          ],
+          "sourceUnchanged": true
+        },
+        {
+          "kind": "refVen",
+          "fraction": 0.5,
+          "id": 2,
+          "port": {
+            "wallPoint": [
+              72.4400665,
+              57.97540592997284,
+              17.01686871418411
+            ],
+            "point": [
+              72.4400665,
+              57.97540592997284,
+              17.01686871418411
+            ],
+            "mouth": [
+              72.4400665,
+              58.08730849699237,
+              17.060202482707503
+            ],
+            "normal": [
+              0,
+              0.9325213918294395,
+              0.3611147376949475
+            ],
+            "u": [
+              0.9563047559630354,
+              -0.10557973146037573,
+              0.2726428690195924
+            ],
+            "v": [
+              0.2923717047227385,
+              0.34533574110602233,
+              -0.8917746420437623
+            ]
+          },
+          "expected": {
+            "wallPoint": [
+              72.4400665,
+              57.97540592997284,
+              17.01686871418411
+            ],
+            "point": [
+              72.4400665,
+              57.97540592997284,
+              17.01686871418411
+            ],
+            "mouth": [
+              72.4400665,
+              58.087308496992364,
+              17.0602024827075
+            ],
+            "normal": [
+              0,
+              0.9325213918294382,
+              0.36111473769494273
+            ],
+            "u": [
+              0.9563047559630354,
+              -0.10557973146037435,
+              0.272642869019592
+            ],
+            "v": [
+              0.2923717047227367,
+              0.3453357411060177,
+              -0.891774642043761
+            ]
+          },
+          "previewSurfacePoint": [
+            72.4400665,
+            57.97540592997284,
+            17.01686871418411
+          ],
+          "actualWorker": {
+            "ready": true,
+            "clear": [
+              1,
+              1,
+              0
+            ]
+          },
+          "expectedClear": [
+            1,
+            1,
+            0
+          ],
+          "sourceUnchanged": true
+        },
+        {
+          "kind": "refVen",
+          "fraction": 1,
+          "id": 2,
+          "port": {
+            "wallPoint": [
+              72.4400665,
+              51.34383696034858,
+              15.373634752844907
+            ],
+            "point": [
+              72.4400665,
+              51.34383696034858,
+              15.373634752844907
+            ],
+            "mouth": [
+              72.4400665,
+              51.46381199854505,
+              15.376082243346653
+            ],
+            "normal": [
+              0,
+              0.9997919849705633,
+              0.0203957541812201
+            ],
+            "u": [
+              0.9563047559630354,
+              -0.005963141419069207,
+              0.2923108870139724
+            ],
+            "v": [
+              0.2923717047227367,
+              0.019504556724953746,
+              -0.9561058302010733
+            ]
+          },
+          "expected": {
+            "wallPoint": [
+              72.4400665,
+              51.34383696034858,
+              15.373634752844907
+            ],
+            "point": [
+              72.4400665,
+              51.34383696034858,
+              15.373634752844907
+            ],
+            "mouth": [
+              72.4400665,
+              51.46381199854505,
+              15.376082243346652
+            ],
+            "normal": [
+              0,
+              0.9997919849705633,
+              0.0203957541812201
+            ],
+            "u": [
+              0.9563047559630354,
+              -0.005963141419069207,
+              0.2923108870139724
+            ],
+            "v": [
+              0.2923717047227367,
+              0.019504556724953746,
+              -0.9561058302010733
+            ]
+          },
+          "previewSurfacePoint": [
+            72.4400665,
+            51.34383696034858,
+            15.373634752844907
+          ],
+          "actualWorker": {
+            "ready": true,
+            "clear": [
+              1,
+              1,
+              0
+            ]
+          },
+          "expectedClear": [
+            1,
+            1,
+            0
+          ],
+          "sourceUnchanged": true
+        }
+      ]
+    },
+    "runtime": {
+      "scope": "Actual browser trialShotGeometry and trialPoseFoilMounts invoked with isolated transforms; no operational flight or combat was started.",
+      "cases": [
+        {
+          "options": {
+            "face": "port"
+          },
+          "id": 2,
+          "limits": {
+            "yaw": 1.5707963267948966,
+            "lo": -1.5707963267948966,
+            "hi": 1.5707963267948966
+          },
+          "barrelOutward": [
+            0,
+            0,
+            -1
+          ],
+          "ai": {
+            "emitter": {
+              "pos": [
+                48,
+                67,
+                20.894016
+              ],
+              "dir": [
+                0.5775495359167143,
+                0.19801698374287346,
+                -0.791975888339893
+              ],
+              "fixed": false,
+              "fit": 2,
+              "cell": "w0",
+              "unit": "__probe_ai"
+            },
+            "expected": [
+              48,
+              67,
+              20.894016
+            ]
+          },
+          "port": {
+            "embedded": true,
+            "casemate": false,
+            "point": [
+              15,
+              70,
+              -48
+            ],
+            "wallPoint": [
+              15,
+              70,
+              -48
+            ],
+            "surfacePoint": [
+              15,
+              70,
+              -48
+            ],
+            "armorOffset": 0,
+            "normal": [
+              0,
+              0,
+              -1
+            ],
+            "dir": [
+              0,
+              0,
+              -1
+            ],
+            "u": [
+              1,
+              0,
+              0
+            ],
+            "v": [
+              0,
+              -1,
+              0
+            ],
+            "width": 2.88,
+            "height": 1.3248,
+            "depth": 0.3312,
+            "lip": 0.105984,
+            "mouth": [
+              15,
+              70,
+              -48.105984
+            ],
+            "origin": [
+              15,
+              70,
+              -48.105984
+            ],
+            "pivot": [
+              15,
+              70,
+              -48.105984
+            ],
+            "bounds": [
+              13.56,
+              69.3376,
+              -48.105984,
+              16.44,
+              70.6624,
+              -47.6688
+            ],
+            "barrels": 2
+          },
+          "mount": {
+            "muzzle": [
+              -85,
+              32,
+              -48.105984
+            ],
+            "dir": [
+              0,
+              0,
+              -1
+            ],
+            "barrelLength": 0,
+            "fixed": false
+          },
+          "offset": [
+            100,
+            38,
+            0
+          ],
+          "metadata": {
+            "embedded": true,
+            "mesh": null,
+            "origin": [
+              15,
+              70,
+              -48.105984
+            ],
+            "axis": [
+              0,
+              -1,
+              0
+            ],
+            "fw": [
+              0,
+              0,
+              -1
+            ],
+            "portWidth": 2.88
+          },
+          "transformedOrigin": [
+            15,
+            70,
+            -48.105984
+          ],
+          "expectedTransformedOrigin": [
+            15,
+            70,
+            -48.105984
+          ],
+          "shots": [
+            {
+              "direction": [
+                0,
+                0,
+                -1
+              ],
+              "base": [
+                -68,
+                43,
+                -55.105984
+              ],
+              "side": [
+                1,
+                0,
+                0
+              ],
+              "spread": 1.728,
+              "expectedBase": [
+                -68,
+                43,
+                -55.105984
+              ]
+            },
+            {
+              "direction": [
+                0.3162277660168379,
+                0,
+                -0.9486832980505138
+              ],
+              "base": [
+                -68,
+                43,
+                -55.105984
+              ],
+              "side": [
+                1,
+                0,
+                0
+              ],
+              "spread": 1.728,
+              "expectedBase": [
+                -68,
+                43,
+                -55.105984
+              ]
+            }
+          ],
+          "mesh": {
+            "indices": 414,
+            "minNormal": 0.018001556396484375,
+            "maxNormal": 0.10598373413085938,
+            "maxU": 1.4400005340576172,
+            "maxV": 0.6623992919921875
+          }
+        },
+        {
+          "options": {
+            "face": "top"
+          },
+          "id": 2,
+          "limits": {
+            "yaw": 1.5707963267948966,
+            "lo": -1.5707963267948966,
+            "hi": 1.5707963267948966
+          },
+          "barrelOutward": [
+            0,
+            1,
+            0
+          ],
+          "ai": {
+            "emitter": {
+              "pos": [
+                48,
+                73.052992,
+                109
+              ],
+              "dir": [
+                0.5445178627754972,
+                0.18173550442943784,
+                -0.81882385379774
+              ],
+              "fixed": false,
+              "fit": 2,
+              "cell": "w0",
+              "unit": "__probe_ai"
+            },
+            "expected": [
+              48,
+              73.052992,
+              109
+            ]
+          },
+          "port": {
+            "embedded": true,
+            "casemate": false,
+            "point": [
+              15,
+              76,
+              40
+            ],
+            "wallPoint": [
+              15,
+              76,
+              40
+            ],
+            "surfacePoint": [
+              15,
+              76,
+              40
+            ],
+            "armorOffset": 0,
+            "normal": [
+              0,
+              1,
+              0
+            ],
+            "dir": [
+              0,
+              1,
+              0
+            ],
+            "u": [
+              1,
+              0,
+              0
+            ],
+            "v": [
+              0,
+              0,
+              -1
+            ],
+            "width": 2.88,
+            "height": 1.3248,
+            "depth": 0.3312,
+            "lip": 0.105984,
+            "mouth": [
+              15,
+              76.105984,
+              40
+            ],
+            "origin": [
+              15,
+              76.105984,
+              40
+            ],
+            "pivot": [
+              15,
+              76.105984,
+              40
+            ],
+            "bounds": [
+              13.56,
+              75.6688,
+              39.3376,
+              16.44,
+              76.105984,
+              40.6624
+            ],
+            "barrels": 2
+          },
+          "mount": {
+            "muzzle": [
+              -85,
+              38.052992,
+              40
+            ],
+            "dir": [
+              0,
+              1,
+              0
+            ],
+            "barrelLength": 0,
+            "fixed": false
+          },
+          "offset": [
+            100,
+            38.052992,
+            0
+          ],
+          "metadata": {
+            "embedded": true,
+            "mesh": null,
+            "origin": [
+              15,
+              76.105984,
+              40
+            ],
+            "axis": [
+              0,
+              0,
+              -1
+            ],
+            "fw": [
+              0,
+              1,
+              0
+            ],
+            "portWidth": 2.88
+          },
+          "transformedOrigin": [
+            15,
+            76.105984,
+            40
+          ],
+          "expectedTransformedOrigin": [
+            15,
+            76.105984,
+            40
+          ],
+          "shots": [
+            {
+              "direction": [
+                0,
+                1,
+                0
+              ],
+              "base": [
+                -68,
+                49.052992,
+                33
+              ],
+              "side": [
+                1,
+                0,
+                0
+              ],
+              "spread": 1.728,
+              "expectedBase": [
+                -68,
+                49.052992,
+                33
+              ]
+            },
+            {
+              "direction": [
+                0.3162277660168379,
+                0.9486832980505138,
+                0
+              ],
+              "base": [
+                -68,
+                49.052992,
+                33
+              ],
+              "side": [
+                1,
+                0,
+                0
+              ],
+              "spread": 1.728,
+              "expectedBase": [
+                -68,
+                49.052992,
+                33
+              ]
+            }
+          ],
+          "mesh": {
+            "indices": 414,
+            "minNormal": 0.01799774169921875,
+            "maxNormal": 0.105987548828125,
+            "maxU": 1.4400005340576172,
+            "maxV": 0.6623992919921875
+          }
+        },
+        {
+          "options": {
+            "face": "port",
+            "rotate": true
+          },
+          "id": 2,
+          "limits": {
+            "yaw": 1.5707963267948966,
+            "lo": -1.5707963267948966,
+            "hi": 1.5707963267948966
+          },
+          "barrelOutward": [
+            0.39029891280357554,
+            0.18041345969373448,
+            -0.9028387132958378
+          ],
+          "ai": {
+            "emitter": {
+              "pos": [
+                65.87422998879288,
+                50.36143782952502,
+                -1.585932106183904
+              ],
+              "dir": [
+                0.5743042616758465,
+                0.21710921637740083,
+                -0.789327690623452
+              ],
+              "fixed": false,
+              "fit": 2,
+              "cell": "w0",
+              "unit": "__probe_ai"
+            },
+            "expected": [
+              65.87422998879288,
+              50.36143782952502,
+              -1.585932106183904
+            ]
+          },
+          "port": {
+            "embedded": true,
+            "casemate": false,
+            "point": [
+              32.83286454881829,
+              55.342318796761475,
+              -70.49024564799396
+            ],
+            "wallPoint": [
+              32.83286454881829,
+              55.342318796761475,
+              -70.49024564799396
+            ],
+            "surfacePoint": [
+              32.83286454881829,
+              55.342318796761475,
+              -70.49024564799396
+            ],
+            "armorOffset": 0,
+            "normal": [
+              0.39029891280357554,
+              0.18041345969373448,
+              -0.9028387132958378
+            ],
+            "dir": [
+              0.39029891280357554,
+              0.18041345969373448,
+              -0.9028387132958378
+            ],
+            "u": [
+              0.9206881983952804,
+              -0.0764810250596531,
+              0.3827321441184132
+            ],
+            "v": [
+              0,
+              -0.980612888130256,
+              -0.19595500410256955
+            ],
+            "width": 2.88,
+            "height": 1.3248,
+            "depth": 0.3312,
+            "lip": 0.105984,
+            "mouth": [
+              32.87422998879287,
+              55.361439736873656,
+              -70.5859321061839
+            ],
+            "origin": [
+              32.87422998879287,
+              55.361439736873656,
+              -70.5859321061839
+            ],
+            "pivot": [
+              32.87422998879287,
+              55.361439736873656,
+              -70.5859321061839
+            ],
+            "bounds": [
+              31.377806543208546,
+              54.52287520572753,
+              -71.26686698843196,
+              34.200020994482074,
+              56.12113039005704,
+              -69.51029058390232
+            ],
+            "barrels": 2
+          },
+          "mount": {
+            "muzzle": [
+              -67.12577001120712,
+              15.361437829525023,
+              -70.5859321061839
+            ],
+            "dir": [
+              0.39029891280357554,
+              0.18041345969373448,
+              -0.9028387132958378
+            ],
+            "barrelLength": 0,
+            "fixed": false
+          },
+          "offset": [
+            100,
+            40.00000190734863,
+            0
+          ],
+          "metadata": {
+            "embedded": true,
+            "mesh": null,
+            "origin": [
+              32.87422998879287,
+              55.361439736873656,
+              -70.5859321061839
+            ],
+            "axis": [
+              0,
+              -0.980612888130256,
+              -0.19595500410256955
+            ],
+            "fw": [
+              0.39029891280357554,
+              0.18041345969373448,
+              -0.9028387132958378
+            ],
+            "portWidth": 2.88
+          },
+          "transformedOrigin": [
+            32.87422998879287,
+            55.361439736873656,
+            -70.5859321061839
+          ],
+          "expectedTransformedOrigin": [
+            32.87422998879287,
+            55.361439736873656,
+            -70.5859321061839
+          ],
+          "shots": [
+            {
+              "direction": [
+                0.39029891280357554,
+                0.18041345969373448,
+                -0.9028387132958378
+              ],
+              "base": [
+                -50.12577001120712,
+                26.361437829525023,
+                -77.5859321061839
+              ],
+              "side": [
+                0.9206881983952802,
+                -0.07648102505965308,
+                0.38273214411841316
+              ],
+              "spread": 1.728,
+              "expectedBase": [
+                -50.12577001120712,
+                26.361437829525023,
+                -77.5859321061839
+              ]
+            },
+            {
+              "direction": [
+                0.6614172320006326,
+                0.1469698122576636,
+                -0.7354774772197775
+              ],
+              "base": [
+                -50.12577001120712,
+                26.361437829525023,
+                -77.5859321061839
+              ],
+              "side": [
+                0.9206881983952802,
+                -0.07648102505965308,
+                0.38273214411841316
+              ],
+              "spread": 1.728,
+              "expectedBase": [
+                -50.12577001120712,
+                26.361437829525023,
+                -77.5859321061839
+              ]
+            }
+          ],
+          "mesh": {
+            "indices": 414,
+            "minNormal": 0.017996321602319898,
+            "maxNormal": 0.10598535903534634,
+            "maxU": 1.4400005296633285,
+            "maxV": 0.6624019902022074
+          }
+        },
+        {
+          "options": {
+            "face": "top",
+            "foil": true
+          },
+          "id": 2,
+          "limits": {
+            "yaw": 1.5707963267948966,
+            "lo": -1.5707963267948966,
+            "hi": 1.5707963267948966
+          },
+          "barrelOutward": [
+            0,
+            0.8771334418767202,
+            -0.4802467336083593
+          ],
+          "ai": {
+            "emitter": {
+              "pos": [
+                98,
+                62.17446748541856,
+                83.28912779481035
+              ],
+              "dir": [
+                0.5232058994703135,
+                0.1980742961934086,
+                -0.8288679991089934
+              ],
+              "fixed": false,
+              "fit": 2,
+              "cell": "w0",
+              "unit": "__probe_ai"
+            },
+            "expected": [
+              98,
+              62.17446748541856,
+              83.28912779481035
+            ]
+          },
+          "port": {
+            "embedded": true,
+            "casemate": false,
+            "point": [
+              65,
+              41.27907969384149,
+              14.987511976931083
+            ],
+            "wallPoint": [
+              65,
+              41.27907969384149,
+              14.987511976931083
+            ],
+            "surfacePoint": [
+              65,
+              41.27907969384149,
+              14.987511976931083
+            ],
+            "armorOffset": 0,
+            "normal": [
+              0,
+              0.9997432099783007,
+              0.02266084954902291
+            ],
+            "dir": [
+              0,
+              0.9997432099783007,
+              0.02266084954902291
+            ],
+            "u": [
+              1,
+              0,
+              0
+            ],
+            "v": [
+              0,
+              0.02266084954902291,
+              -0.9997432099783007
+            ],
+            "width": 2.88,
+            "height": 1.3248,
+            "depth": 0.3312,
+            "lip": 0.105984,
+            "mouth": [
+              65,
+              41.38503647820783,
+              14.989913664409686
+            ],
+            "origin": [
+              65,
+              41.38503647820783,
+              14.989913664409686
+            ],
+            "pivot": [
+              65,
+              41.38503647820783,
+              14.989913664409686
+            ],
+            "bounds": [
+              63.56,
+              40.9329541959554,
+              14.31777680127082,
+              66.44,
+              41.4000470249491,
+              15.652143566699314
+            ],
+            "barrels": 2
+          },
+          "mount": {
+            "muzzle": [
+              -35,
+              19.329171971263197,
+              14.989913664409686
+            ],
+            "dir": [
+              0,
+              0.9997432099783007,
+              0.02266084954902291
+            ],
+            "barrelLength": 0,
+            "fixed": false
+          },
+          "offset": [
+            100,
+            22.055864506944634,
+            0
+          ],
+          "metadata": {
+            "embedded": true,
+            "mesh": null,
+            "origin": [
+              65,
+              41.38503647820783,
+              14.989913664409686
+            ],
+            "axis": [
+              0,
+              0.02266084954902291,
+              -0.9997432099783007
+            ],
+            "fw": [
+              0,
+              0.9997432099783007,
+              0.02266084954902291
+            ],
+            "portWidth": 2.88
+          },
+          "transformedOrigin": [
+            65,
+            49.2303319923632,
+            14.289127794810359
+          ],
+          "expectedTransformedOrigin": [
+            65,
+            49.2303319923632,
+            14.289127794810359
+          ],
+          "shots": [
+            {
+              "direction": [
+                0,
+                0.8771334418767202,
+                -0.4802467336083593
+              ],
+              "base": [
+                -18,
+                38.17446748541856,
+                7.2891277948103586
+              ],
+              "side": [
+                1,
+                0,
+                0
+              ],
+              "spread": 1.728,
+              "expectedBase": [
+                -18,
+                38.17446748541856,
+                7.2891277948103586
+              ]
+            },
+            {
+              "direction": [
+                0.3162277660168379,
+                0.8321218464700055,
+                -0.4556020551175648
+              ],
+              "base": [
+                -18,
+                38.17446748541856,
+                7.2891277948103586
+              ],
+              "side": [
+                1,
+                0,
+                0
+              ],
+              "spread": 1.728,
+              "expectedBase": [
+                -18,
+                38.17446748541856,
+                7.2891277948103586
+              ]
+            }
+          ],
+          "mesh": {
+            "indices": 414,
+            "minNormal": 0.017999217583151792,
+            "maxNormal": 0.10598427012549382,
+            "maxU": 1.44000244140625,
+            "maxV": 0.6624003195318824
+          }
+        },
+        {
+          "options": {
+            "face": "top",
+            "kind": "casemateLight"
+          },
+          "id": 2,
+          "limits": {
+            "yaw": 1.1344640137963142,
+            "lo": -0.3490658503988659,
+            "hi": 0.3490658503988659
+          },
+          "barrelOutward": [
+            0,
+            1,
+            0
+          ],
+          "ai": {
+            "emitter": {
+              "pos": [
+                45.5,
+                73.03532799999999,
+                109.5
+              ],
+              "dir": [
+                0.5457715626958273,
+                0.18148615116210748,
+                -0.8180441175688018
+              ],
+              "fixed": false,
+              "fit": 2,
+              "cell": "w0",
+              "unit": "__probe_ai"
+            },
+            "expected": [
+              45.5,
+              73.03532799999999,
+              109.5
+            ]
+          },
+          "port": {
+            "embedded": true,
+            "casemate": true,
+            "point": [
+              12.5,
+              76,
+              40.5
+            ],
+            "wallPoint": [
+              12.5,
+              76,
+              40.5
+            ],
+            "surfacePoint": [
+              12.5,
+              76,
+              40.5
+            ],
+            "armorOffset": 0,
+            "normal": [
+              0,
+              1,
+              0
+            ],
+            "dir": [
+              0,
+              1,
+              0
+            ],
+            "u": [
+              1,
+              0,
+              0
+            ],
+            "v": [
+              0,
+              0,
+              -1
+            ],
+            "width": 1.92,
+            "height": 0.8832,
+            "depth": 0.2208,
+            "lip": 0.070656,
+            "mouth": [
+              12.5,
+              76.070656,
+              40.5
+            ],
+            "origin": [
+              12.5,
+              76.070656,
+              40.5
+            ],
+            "pivot": [
+              12.5,
+              76.070656,
+              40.5
+            ],
+            "bounds": [
+              11.54,
+              75.7792,
+              40.0584,
+              13.46,
+              76.070656,
+              40.9416
+            ],
+            "barrels": 2
+          },
+          "mount": {
+            "muzzle": [
+              -87.5,
+              38.035328,
+              40.5
+            ],
+            "dir": [
+              0,
+              1,
+              0
+            ],
+            "barrelLength": 0,
+            "fixed": false
+          },
+          "offset": [
+            100,
+            38.035328,
+            0
+          ],
+          "metadata": {
+            "embedded": true,
+            "mesh": null,
+            "origin": [
+              12.5,
+              76.070656,
+              40.5
+            ],
+            "axis": [
+              0,
+              0,
+              -1
+            ],
+            "fw": [
+              0,
+              1,
+              0
+            ],
+            "portWidth": 1.92
+          },
+          "transformedOrigin": [
+            12.5,
+            76.070656,
+            40.5
+          ],
+          "expectedTransformedOrigin": [
+            12.5,
+            76.070656,
+            40.5
+          ],
+          "shots": [
+            {
+              "direction": [
+                0,
+                1,
+                0
+              ],
+              "base": [
+                -70.5,
+                49.035328,
+                33.5
+              ],
+              "side": [
+                1,
+                0,
+                0
+              ],
+              "spread": 1.152,
+              "expectedBase": [
+                -70.5,
+                49.035328,
+                33.5
+              ]
+            },
+            {
+              "direction": [
+                0.3162277660168379,
+                0.9486832980505138,
+                0
+              ],
+              "base": [
+                -70.5,
+                49.035328,
+                33.5
+              ],
+              "side": [
+                1,
+                0,
+                0
+              ],
+              "spread": 1.152,
+              "expectedBase": [
+                -70.5,
+                49.035328,
+                33.5
+              ]
+            }
+          ],
+          "mesh": {
+            "indices": 414,
+            "minNormal": 0.01799774169921875,
+            "maxNormal": 0.07065582275390625,
+            "maxU": 0.9600000381469727,
+            "maxV": 0.4416007995605469
+          }
+        },
+        {
+          "options": {
+            "face": "port",
+            "kind": "claser"
+          },
+          "id": 2,
+          "limits": {
+            "yaw": 0,
+            "lo": 0,
+            "hi": 0
+          },
+          "barrelOutward": [
+            0,
+            0,
+            -1
+          ],
+          "ai": {
+            "emitter": {
+              "pos": [
+                45.5,
+                68.5,
+                20.965000000000003
+              ],
+              "dir": [
+                0,
+                0,
+                -1
+              ],
+              "fixed": true,
+              "fit": 2,
+              "cell": "w0",
+              "unit": "__probe_ai"
+            },
+            "expected": [
+              45.5,
+              68.5,
+              20.965000000000003
+            ]
+          },
+          "port": {
+            "embedded": true,
+            "casemate": false,
+            "point": [
+              12.5,
+              71.5,
+              -48
+            ],
+            "wallPoint": [
+              12.5,
+              71.5,
+              -48
+            ],
+            "surfacePoint": [
+              12.5,
+              71.5,
+              -48
+            ],
+            "armorOffset": 0,
+            "normal": [
+              0,
+              0,
+              -1
+            ],
+            "dir": [
+              0,
+              0,
+              -1
+            ],
+            "u": [
+              1,
+              0,
+              0
+            ],
+            "v": [
+              0,
+              -1,
+              0
+            ],
+            "width": 0.8320000000000001,
+            "height": 0.25,
+            "depth": 0.08,
+            "lip": 0.035,
+            "mouth": [
+              12.5,
+              71.5,
+              -48.035
+            ],
+            "origin": [
+              12.5,
+              71.5,
+              -48.035
+            ],
+            "pivot": [
+              12.5,
+              71.5,
+              -48.035
+            ],
+            "bounds": [
+              12.084,
+              71.375,
+              -48.035,
+              12.916,
+              71.625,
+              -47.92
+            ],
+            "barrels": 1
+          },
+          "mount": {
+            "muzzle": [
+              -87.5,
+              33.5,
+              -48.035
+            ],
+            "dir": [
+              0,
+              0,
+              -1
+            ],
+            "barrelLength": 0,
+            "fixed": true
+          },
+          "offset": [
+            100,
+            38,
+            0
+          ],
+          "metadata": {
+            "embedded": true,
+            "mesh": null,
+            "origin": [
+              12.5,
+              71.5,
+              -48.035
+            ],
+            "axis": [
+              0,
+              -1,
+              0
+            ],
+            "fw": [
+              0,
+              0,
+              -1
+            ],
+            "portWidth": 0.8320000000000001
+          },
+          "transformedOrigin": [
+            12.5,
+            71.5,
+            -48.035
+          ],
+          "expectedTransformedOrigin": [
+            12.5,
+            71.5,
+            -48.035
+          ],
+          "shots": [
+            {
+              "direction": [
+                0,
+                0,
+                -1
+              ],
+              "base": [
+                -70.5,
+                44.5,
+                -55.035
+              ],
+              "side": [
+                1,
+                0,
+                0
+              ],
+              "spread": 0.49920000000000003,
+              "expectedBase": [
+                -70.5,
+                44.5,
+                -55.035
+              ]
+            },
+            {
+              "direction": [
+                0.3162277660168379,
+                0,
+                -0.9486832980505138
+              ],
+              "base": [
+                -70.5,
+                44.5,
+                -55.035
+              ],
+              "side": [
+                1,
+                0,
+                0
+              ],
+              "spread": 0.49920000000000003,
+              "expectedBase": [
+                -70.5,
+                44.5,
+                -55.035
+              ]
+            }
+          ],
+          "mesh": {
+            "indices": 222,
+            "minNormal": 0.010501861572265625,
+            "maxNormal": 0.034999847412109375,
+            "maxU": 0.4160003662109375,
+            "maxV": 0.125
+          }
+        }
+      ]
+    },
+    "health": {
+      "error": null,
+      "glError": 0
+    },
+    "errors": [],
+    "consoleErrors": [],
+    "sourceAfter": {
+      "js/core.js": "29cd1b2ddc7d64e4a1324b4189893420d3fb6e928d2d489648726f9b2fefad4d",
+      "js/app.js": "f9df2b279976942c175b5358df7abf02238843db54e32a486fbe774921dc1089",
+      "js/gfx.js": "606a192a8940eff9e0a86cec91b2e98add793dc62de422a512bfc6e16b73afcd",
+      "js/lang-en.js": "8a17347dff09ded30698e501fab87c6c30d446f8eea0574d8cee3d3237cb75e9",
+      "js/engine.js": "a4819c0447baa1d1a3a13c4939fc394d8ae22094bf1e54a89047901e51988ce0",
+      "js/worker.js": "63dbd23292ff87aad19d05bbddbdb7e39d3abd35a8070e5bad6aead324fec3f9"
+    },
+    "result": "PASS",
+    "browserClosed": true,
+    "finished": "2026-11-03T04:32:38.744Z",
+    "assertions": 152
+  },
+  "finalSource": {
+    "js/core.js": "29cd1b2ddc7d64e4a1324b4189893420d3fb6e928d2d489648726f9b2fefad4d",
+    "js/app.js": "f9df2b279976942c175b5358df7abf02238843db54e32a486fbe774921dc1089",
+    "js/gfx.js": "606a192a8940eff9e0a86cec91b2e98add793dc62de422a512bfc6e16b73afcd",
+    "js/lang-en.js": "8a17347dff09ded30698e501fab87c6c30d446f8eea0574d8cee3d3237cb75e9",
+    "js/engine.js": "a4819c0447baa1d1a3a13c4939fc394d8ae22094bf1e54a89047901e51988ce0",
+    "js/worker.js": "63dbd23292ff87aad19d05bbddbdb7e39d3abd35a8070e5bad6aead324fec3f9"
+  },
+  "finalSourceAfter": {
+    "js/core.js": "29cd1b2ddc7d64e4a1324b4189893420d3fb6e928d2d489648726f9b2fefad4d",
+    "js/app.js": "f9df2b279976942c175b5358df7abf02238843db54e32a486fbe774921dc1089",
+    "js/gfx.js": "606a192a8940eff9e0a86cec91b2e98add793dc62de422a512bfc6e16b73afcd",
+    "js/lang-en.js": "8a17347dff09ded30698e501fab87c6c30d446f8eea0574d8cee3d3237cb75e9",
+    "js/engine.js": "a4819c0447baa1d1a3a13c4939fc394d8ae22094bf1e54a89047901e51988ce0",
+    "js/worker.js": "63dbd23292ff87aad19d05bbddbdb7e39d3abd35a8070e5bad6aead324fec3f9"
+  },
+  "phaseNote": "The initial 655-check browser run and all six non-articulated-wall images used the initial frozen Core (hash retained in source/sourceAfter). A later focused Core.foilPose surfacePoint fix changed only articulated clearance. This fresh-source supplemental phase reruns affected direct/AI emitter and mesh checks and additionally verifies actual worker clearance with full posed mouth/normal/u/v. Both phases passed on internally stable recorded sources."
+}
