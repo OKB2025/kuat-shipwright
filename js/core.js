@@ -1425,9 +1425,15 @@ function rayBVH(bvh, o, d, maxT) {
   const i = hit, n = norm(cross([T[i + 3] - T[i], T[i + 4] - T[i + 1], T[i + 5] - T[i + 2]], [T[i + 6] - T[i], T[i + 7] - T[i + 1], T[i + 8] - T[i + 2]]));
   return {t: best, n, p: add(o, mul(d, best))};
 }
+// v13 LOAD While every fitting is remounted (13 rays each; 2,200 fittings on an Executor) the hull and the structures
+// stay as they are: ship._rayLock remembers the hull mesh and each structure's triangles for the pass, instead of
+// re-deriving their cache keys (JSON of the hull, shape signatures) for every structure on every ray. They are the
+// triangles rayPart would test (packing, clip, sensor skin, room shape or structure mesh), so the hits are identical
+// (checked on whole example builds; Executor remount 83 s -> 12 s, ISD 0.7 -> 0.2 s).
+const lockedRayTris = (p) => p._packing ? p._packing.tris : p._clip ? p._clip.tris : p.k === 'sensor' && p.skinSize ? structTriangles(sensorShape(p)) : p.room ? structTriangles(roomShape(p)) : structTriangles(p);
 function rayEnv(ship, o, d, opts) {
   opts = opts || {};
-  const g = referenceHullGeometry(ship)||hullGeo(ship);
+  const lock = ship._rayLock, g = lock ? lock.env || (lock.env = referenceHullGeometry(ship) || hullGeo(ship)) : referenceHullGeometry(ship)||hullGeo(ship);
   if (!g.bvh) g.bvh = buildBVH(g.tris);
   let best = rayBVH(g.bvh, o, d, opts.maxT);
   if (best) best.kind = 'hull';
@@ -1435,7 +1441,9 @@ function rayEnv(ship, o, d, opts) {
     if (opts.structOnly && !isShapePart(pt)) continue;
     if (opts.skip && opts.skip === pt) continue;
     if (opts.skipSet && opts.skipSet.has(pt)) continue;
-    const h = rayPart(o, d, pt);
+    let h;
+    if (lock && isShapePart(pt) && !pt._surfaceAdapter) { let T = lock.tris.get(pt); if (!T) { T = lockedRayTris(pt); lock.tris.set(pt, T); } h = rayTris(T, o, d); }
+    else h = rayPart(o, d, pt);
     if (h && (!best || h.t < best.t) && (opts.maxT == null || h.t < opts.maxT)) { best = h; best.kind = 'part'; best.part = pt; }
   }
   return best;
@@ -1730,8 +1738,8 @@ function fitClash(ship, f) {
 function remount(ship) {
   if(ship._client)return;
   // Mounting never changes the hull, so one locked cache serves every fitting.
-  syncAviationSurfaces(ship);const old=ship._lockedCache;ship._lockedCache=cache(ship);
-  try{for (const f of ship.fits) mountFit(ship, f);}finally{if(old)ship._lockedCache=old;else delete ship._lockedCache;}
+  syncAviationSurfaces(ship);const old=ship._lockedCache;ship._lockedCache=cache(ship);ship._rayLock={env:null,tris:new Map()};
+  try{for (const f of ship.fits) mountFit(ship, f);}finally{if(old)ship._lockedCache=old;else delete ship._lockedCache;delete ship._rayLock;}
 }
 function removeItem(ship, listName, id, mirror) {
   const list = ship[listName], it = list.find(q => q.id === id); if (!it) return;
