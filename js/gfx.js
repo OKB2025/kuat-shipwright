@@ -2074,7 +2074,7 @@ function surfaceEquipmentField(ship,patch,cells,style,detail,extraBudget,fieldBu
  const gridCells=()=> (axisIndex(base?.maxU??hi[0]+worldU,0)-axisIndex(base?.minU??lo[0]+worldU,0)+1)*(axisIndex(base?.maxV??hi[1]+worldV,1)-axisIndex(base?.minV??lo[1]+worldV,1)+1);
  for(let step=0;step<80&&gridCells()>targetCells;step++){const scale=Math.max(1.08,Math.sqrt(gridCells()/targetCells));gridHeight*=scale;gridWidth=gridHeight*2.1;}
  const owners=new Map(),anchors=new Map(),terrain=new Map();
- const anchor=(i,j)=>{const id=i+'|'+j;let a=anchors.get(id);if(a)return a;const r=rng(surfaceSeed(gridSeed+'|island|'+id,style.seed)),pick=r(),kind=pick<.26?'cavity':pick<.40?'beam':pick<.58?'riser':'cabinet',w=kind==='beam'?2+Math.floor(r()*3):kind==='riser'?1:1+Math.floor(r()*3),h=kind==='beam'?1:kind==='riser'?2+Math.floor(r()*2):1+Math.floor(r()*2);a={id,i,j,w,h,kind,rank:r(),peak:kind==='cavity'?.10+r()*.14:.55+r()*.39,tone:kind==='cavity'?.15+r()*.16:.76+r()*.26};anchors.set(id,a);return a;};
+ const anchor=(i,j)=>{const id=i+'|'+j;let a=anchors.get(id);if(a)return a;const r=rng(surfaceSeed(gridSeed+'|island|'+id,style.seed)),pick=r(),kind=pick<.26?'cavity':pick<.40?'beam':pick<.58?'riser':'cabinet',w=kind==='beam'?2+Math.floor(r()*3):kind==='riser'?1:1+Math.floor(r()*3),h=kind==='beam'?1:kind==='riser'?2+Math.floor(r()*2):1+Math.floor(r()*2);a={id,i,j,w,h,kind,rank:r(),peak:kind==='cavity'?.10+r()*.14:.55+r()*.39,tone:kind==='cavity'?.48+r()*.12:.76+r()*.26};anchors.set(id,a);return a;};
  const ownerAt=(i,j)=>{const key=i+'|'+j;let owner=owners.get(key);if(owner)return owner;for(let y=j-2;y<=j;y++)for(let x=i-3;x<=i;x++){const a=anchor(x,y);if(i>=x+a.w||j>=y+a.h)continue;if(!owner||a.rank>owner.rank)owner=a;}owners.set(key,owner);return owner;};
  const motifRanks=[];for(let j=axisIndex(base?.minV??lo[1]+worldV,1);j<=axisIndex(base?.maxV??hi[1]+worldV,1);j++)for(let i=axisIndex(base?.minU??lo[0]+worldU,0);i<=axisIndex(base?.maxU??hi[0]+worldU,0);i++)motifRanks.push({key:i+'|'+j,rank:surfaceSeed(gridSeed+'|motif-rank|'+i+'|'+j,style.seed)});
  motifRanks.sort((a,b)=>a.rank-b.rank);const motifArea=(base?base.maxU-base.minU:hi[0]-lo[0])*(base?base.maxV-base.minV:hi[1]-lo[1]),motifLimit=Math.min(24,Math.floor(motifRanks.length*.30),Math.max(1,Math.round(Math.sqrt(motifArea)/(motifArea<3000?22:14)))),motifCells=new Set(motifRanks.slice(0,motifLimit).map(q=>q.key));
@@ -2084,26 +2084,26 @@ function surfaceEquipmentField(ship,patch,cells,style,detail,extraBudget,fieldBu
   const quad=(p,tone)=>{shapes.push({points:[p[0],p[1],p[2]],tone},{points:[p[0],p[2],p[3]],tone});},rect=(l,b,r,t,h)=>[[l,b,h],[r,b,h],[r,t,h],[l,t,h]],ring=(a,b,tone)=>{for(let k=0;k<4;k++){const next=(k+1)%4;quad([a[k],a[next],b[next],b[k]],tone);}};
   const patternFrame=(p,xx,yy,level,tone)=>{const v=(x,y)=>[x,y,level],polys=[[p[0],p[1],...xx.slice().reverse().map(x=>v(x,yy[0]))],[p[1],p[2],...yy.slice().reverse().map(y=>v(xx[xx.length-1],y))],[p[2],p[3],...xx.map(x=>v(x,yy[yy.length-1]))],[p[3],p[0],...yy.map(y=>v(xx[0],y))]];for(const poly of polys)for(let k=1;k<poly.length-1;k++)shapes.push({points:[poly[0],poly[k],poly[k+1]],tone});};
   for(let y=0;y<3;y++)for(let x=0;x<3;x++){
-   const p=[[xs[x],ys[y],heights[y][x]],[xs[x+1],ys[y],heights[y][x+1]],[xs[x+1],ys[y+1],heights[y+1][x+1]],[xs[x],ys[y+1],heights[y+1][x]]],flat=p.every(q=>Math.abs(q[2]-owner.peak)<1e-9),tone=flat?owner.tone:owner.kind==='cavity'?.13:owner.tone*.44;
+   const p=[[xs[x],ys[y],heights[y][x]],[xs[x+1],ys[y],heights[y][x+1]],[xs[x+1],ys[y+1],heights[y+1][x+1]],[xs[x],ys[y+1],heights[y+1][x]]],flat=p.every(q=>Math.abs(q[2]-owner.peak)<1e-9),tone=flat?owner.tone:owner.kind==='cavity'?.48:owner.tone*.70;
    if(x===1&&y===1&&motifCells.has(key)){
     const motif=surfaceSeed(gridSeed+'|motif|'+key,style.seed)%4,front=C.clamp(owner.peak+.14,.26,.98),back=Math.max(.09,owner.peak-.18);
     if(motif===0){
      // Three broad folded fins, with dark channels between them.
      const left=xs[1]+W*.10,right=xs[2]-W*.10,bottom=ys[1]+H*.10,top=ys[2]-H*.10,xx=[left,left+W*.05,right-W*.05,right],steps=[0,.14,.18,.30,.34,.41,.45,.57,.61,.68,.72,.84,.88,1],yy=steps.map(t=>bottom+(top-bottom)*t),levels=[owner.peak,back,front,front,back,back,front,front,back,back,front,front,back,owner.peak];
-     patternFrame(p,xx,yy,owner.peak,owner.tone);for(let a=0;a<3;a++)for(let b=0;b<yy.length-1;b++){const v=(ix,iy)=>[xx[ix],yy[iy],ix===0||ix===3?owner.peak:levels[iy]],ps=[v(a,b),v(a+1,b),v(a+1,b+1),v(a,b+1)];quad(ps,levels[b]===front&&levels[b+1]===front?Math.min(1.05,owner.tone):.25+owner.tone*.30);}
+     patternFrame(p,xx,yy,owner.peak,owner.tone);for(let a=0;a<3;a++)for(let b=0;b<yy.length-1;b++){const v=(ix,iy)=>[xx[ix],yy[iy],ix===0||ix===3?owner.peak:levels[iy]],ps=[v(a,b),v(a+1,b),v(a+1,b+1),v(a,b+1)];quad(ps,levels[b]===front&&levels[b+1]===front?Math.min(1.05,owner.tone):.52+owner.tone*.15);}
     }else if(motif===1){
      // An eight-sided manifold rim and an inset dark vent, integrated into
      // the cabinet's own face rather than a separately closed cylinder.
      const cx=(xs[1]+xs[2])/2,cy=(ys[1]+ys[2])/2,rx=(xs[2]-xs[1])*.37,ry=(ys[2]-ys[1])*.37,oct=(scale,z)=>[[-.55,-1],[.55,-1],[1,-.55],[1,.55],[.55,1],[-.55,1],[-1,.55],[-1,-.55]].map(([a,b])=>[cx+a*rx*scale,cy+b*ry*scale,z]),outer=oct(1,front),inner=oct(.62,back);
-     for(let k=0;k<4;k++){const next=(k+1)%4,a=k*2,b=(a+1)%8,c=(a+2)%8;quad([p[k],p[next],outer[b],outer[a]],owner.tone*.70);shapes.push({points:[p[next],outer[c],outer[b]],tone:owner.tone*.65});}
-     for(let k=0;k<8;k++){const next=(k+1)%8;quad([outer[k],outer[next],inner[next],inner[k]],Math.min(1.04,owner.tone));shapes.push({points:[[cx,cy,back],inner[k],inner[next]],tone:.14});}
+     for(let k=0;k<4;k++){const next=(k+1)%4,a=k*2,b=(a+1)%8,c=(a+2)%8;quad([p[k],p[next],outer[b],outer[a]],owner.tone*.82);shapes.push({points:[p[next],outer[c],outer[b]],tone:owner.tone*.70});}
+     for(let k=0;k<8;k++){const next=(k+1)%8;quad([outer[k],outer[next],inner[next],inner[k]],Math.min(1.04,owner.tone));shapes.push({points:[[cx,cy,back],inner[k],inner[next]],tone:.46});}
     }else if(motif===2){
      // A thick U/L service route. Its bends and shadowed inner well share
      // the surrounding face topology and remain only a few planar folds.
      const kk=[0,.18,.32,.72,.86,1],xx=kk.map(t=>xs[1]+W*.08+(xs[2]-xs[1]-W*.16)*t),yy=kk.map(t=>ys[1]+H*.08+(ys[2]-ys[1]-H*.16)*t),U=r()>.45,v=(a,b)=>{const edge=a===0||a===5||b===0||b===5,route=!edge&&((a<=2)||(b<=2)||(U&&a>=3));return [xx[a],yy[b],edge?owner.peak:route?front:back];};
-     patternFrame(p,xx,yy,owner.peak,owner.tone);for(let a=0;a<5;a++)for(let b=0;b<5;b++){const ps=[v(a,b),v(a+1,b),v(a+1,b+1),v(a,b+1)],high=ps.filter(q=>q[2]===front).length;quad(ps,high>=3?Math.min(1.05,owner.tone):high?.48:.22);}
+     patternFrame(p,xx,yy,owner.peak,owner.tone);for(let a=0;a<5;a++)for(let b=0;b<5;b++){const ps=[v(a,b),v(a+1,b),v(a+1,b+1),v(a,b+1)],high=ps.filter(q=>q[2]===front).length;quad(ps,high>=3?Math.min(1.05,owner.tone):high?.62:.48);}
     }else{
-     const w=W*(.24+r()*.30),h=H*(.25+r()*.36),cx=(x0+x1)/2+(r()-.5)*(W*.65-w),cy=(y0+y1)/2+(r()-.5)*(H*.65-h),delta=owner.kind==='cavity'?.26:r()<.27?-.24:.12+r()*.10,z=C.clamp(owner.peak+delta,.10,.98),bevel=Math.min(W,H)*.025,outer=rect(cx-w/2,cy-h/2,cx+w/2,cy+h/2,owner.peak),inner=rect(cx-w/2+bevel,cy-h/2+bevel,cx+w/2-bevel,cy+h/2-bevel,z);ring(p,outer,tone);ring(outer,inner,owner.tone*.48);quad(inner,delta<0?.18:Math.min(1.08,owner.tone*1.06));tops.push({bounds:[inner[0][0],inner[0][1],inner[2][0],inner[2][1]],height:z,kind:delta<0?'pocket':'panel'});
+     const w=W*(.24+r()*.30),h=H*(.25+r()*.36),cx=(x0+x1)/2+(r()-.5)*(W*.65-w),cy=(y0+y1)/2+(r()-.5)*(H*.65-h),delta=owner.kind==='cavity'?.26:r()<.27?-.24:.12+r()*.10,z=C.clamp(owner.peak+delta,.10,.98),bevel=Math.min(W,H)*.025,outer=rect(cx-w/2,cy-h/2,cx+w/2,cy+h/2,owner.peak),inner=rect(cx-w/2+bevel,cy-h/2+bevel,cx+w/2-bevel,cy+h/2-bevel,z);ring(p,outer,tone);ring(outer,inner,owner.tone*.70);quad(inner,delta<0?.48:Math.min(1.08,owner.tone*1.06));tops.push({bounds:[inner[0][0],inner[0][1],inner[2][0],inner[2][1]],height:z,kind:delta<0?'pocket':'panel'});
     }
    }else {quad(p,tone);if(x===1&&y===1)tops.push({bounds:[xs[1],ys[1],xs[2],ys[2]],height:owner.peak,kind:owner.kind});}
   }
@@ -2132,7 +2132,7 @@ function surfaceEquipmentField(ship,patch,cells,style,detail,extraBudget,fieldBu
   }
  }
  const seatInlay=q=>{const b=q.bounds,ps=[[b[0],b[1]],[b[2],b[1]],[b[2],b[3]],[b[0],b[3]]],points=ps.map(([x,y])=>{const z=skinHeight(x,y);if(z==null)return null;return safePoint(at(x,y,z+.002),at(x,y,0));});if(points.some(p=>!p))return false;q.type='inlay';q.points=points;q.center=C.mul(points.reduce((a,b)=>C.add(a,b),[0,0,0]),.25);return true;};
- for(const device of devices)device.hardware=device.hardware.filter(seatInlay);for(let i=boxes.length-1;i>=0;i--){if(!seatInlay(boxes[i]))boxes.splice(i,1);else boxes[i].color=surfacePaintTone(paint,i%3===0?.26:i%3===1?.62:.94);}
+ for(const device of devices)device.hardware=device.hardware.filter(seatInlay);for(let i=boxes.length-1;i>=0;i--){if(!seatInlay(boxes[i]))boxes.splice(i,1);else boxes[i].color=surfacePaintTone(paint,i%3===0?.50:i%3===1?.70:.94);}
  // Navigation/service lamps belong to the skin, independently of the
  // habitation allocation. They are tiny emissive faces, never extra devices.
  const lights=[];for(const q of field)q.type='relief';
@@ -2142,8 +2142,67 @@ function surfaceEquipmentField(ship,patch,cells,style,detail,extraBudget,fieldBu
   const z=skinHeight(x,y);if(z==null)continue;
   if(z>s.ceiling)continue;const lamp={feature:'service-light',type:'inlay',ownerId:host,role:null,center:at(x,y,z),u,v,normal,size:[w,h,.002],bounds:[x-w/2,y-h/2,x+w/2,y+h/2],color:bank%4===0?[166,205,238]:[242,226,184],port:true};if(seatInlay(lamp))lights.push(lamp);
  }
- return {field,reliefFaces,gridCells:gridCells(),boxes,devices,lights,paint,frame:{u,v,normal},strata,layerPitch:pitch,visualDepth:relief,functionalDepth:config.equipment.depth,recessDepth:recess.recessDepth,backingTriangles:recess.backingTriangles};
+ return {field,reliefFaces,attachmentSites:visibleTops,gridCells:gridCells(),boxes,devices,lights,paint,frame:{u,v,normal},strata,layerPitch:pitch,visualDepth:relief,functionalDepth:config.equipment.depth,recessDepth:recess.recessDepth,backingTriangles:recess.backingTriangles};
 }
+// Attached round machinery and small walks share the host's surface batches.
+// Build them once over a base face's exposed union: a semantic split never
+// chops a cylinder into capped halves or duplicates a projecting railing.
+function surfaceProjectionShares(groups,budget){
+ const out=new Map(groups.map(g=>[g.id,0])),limit=Math.min(groups.length*3,Math.floor(Math.max(0,budget)/40)),rank=new Map(groups.map(g=>[g.id,surfaceSeed(g.id+'|projection-quota',0)]));
+ // Allocate the fractional whole-ship budget before applying the per-face
+ // ceiling. Hundreds of small faces still receive a varied, bounded sample.
+ // Clipping round-off counts as equal weight when a face is partitioned.
+ for(let slot=0;slot<limit;slot++){let chosen=null,best=-Infinity;for(const g of groups){const count=out.get(g.id);if(count>=3)continue;const score=Math.max(.001,g.area)/(count+1),tie=chosen&&Math.abs(score-best)<=Math.max(1e-8,Math.abs(best)*1e-6);if(!chosen||score>best&&!tie||tie&&rank.get(g.id)<rank.get(chosen.id)){chosen=g;best=score;}}if(!chosen)break;out.set(chosen.id,out.get(chosen.id)+1);}return out;
+}
+function surfaceEquipmentProjections(ship,rows,quota){
+ if(!quota||!rows.length)return;
+ const first=rows[0],{u,v,normal:n}=first.frame,baseId=first.patch.baseId||first.id,seed=first.config.style?.seed,D=C.dot(first.patch.center,n),paint=first.paint,T=rows.flatMap(r=>surfaceTriangles(r.patch)),skin=rows.flatMap(r=>r.reliefFaces.flatMap(q=>q.triangles)),host=/^p\d+$/.test(first.host)?+first.host.slice(1):first.host;
+ // Projecting machinery needs one actual mounting plane. Curved hull
+ // collections retain their interior skin until a planar face is selected.
+ let minPlane=Infinity,maxPlane=-Infinity;for(let i=0;i<T.length;i+=9){const a=T.slice(i,i+3),b=T.slice(i+3,i+6),c=T.slice(i+6,i+9),sn=C.norm(C.cross(C.sub(b,a),C.sub(c,a)));if(Math.abs(C.dot(sn,n))<.995)return;for(const p of [a,b,c]){const d=C.dot(p,n);minPlane=Math.min(minPlane,d);maxPlane=Math.max(maxPlane,d);}}if(maxPlane-minPlane>.05)return;
+ const uv=p=>[C.dot(p,u),C.dot(p,v)],at=(x,y,z)=>C.add(C.add(C.mul(u,x),C.mul(v,y)),C.mul(n,D+z)),normalAt=p=>C.dot(p,n)-D,clip=(poly,axis,limit,sign)=>{const out=[];for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length],da=(a[axis]-limit)*sign,db=(b[axis]-limit)*sign;if(da>=-1e-8)out.push(a);if((da<0)!==(db<0)){const t=da/(da-db);out.push(a.map((q,j)=>q+(b[j]-q)*t));}}return out;},source=[];
+ for(let i=0;i<T.length;i+=9){const q=[uv(T.slice(i,i+3)),uv(T.slice(i+3,i+6)),uv(T.slice(i+6,i+9))];q.bounds=[Math.min(...q.map(p=>p[0])),Math.min(...q.map(p=>p[1])),Math.max(...q.map(p=>p[0])),Math.max(...q.map(p=>p[1]))];source.push(q);}
+ const blocked=[],occupied=[],reserve=b=>{if(!b?.every(Number.isFinite))return;const ps=[];for(let i=0;i<8;i++)ps.push([b[i&1?3:0],b[i&2?4:1],b[i&4?5:2]]);const zs=ps.map(normalAt);if(Math.min(...zs)>5||Math.max(...zs)<-1)return;const q=ps.map(uv);blocked.push([Math.min(...q.map(p=>p[0]))-.2,Math.min(...q.map(p=>p[1]))-.2,Math.max(...q.map(p=>p[0]))+.2,Math.max(...q.map(p=>p[1]))+.2]);};
+ for(const f of surfaceRenderFits(ship))if(!f.float&&!f.surfaceUnplaced)reserve(C.fitAABB(f));for(const h of ship.hatches||[])reserve(C.openingBounds(ship,h));
+ for(const p of ship.parts||[])if(p.id!==host&&!p.surfacePatch&&['sensor','engine','nozzle'].includes(p.k))reserve(C.partAABB(p));
+ const fits=b=>{if(!(b[2]>b[0]&&b[3]>b[1])||[...blocked,...occupied].some(a=>b[2]>a[0]&&b[0]<a[2]&&b[3]>a[1]&&b[1]<a[3]))return false;let area=0;
+  for(const t of source){if(t.bounds[2]<b[0]||t.bounds[0]>b[2]||t.bounds[3]<b[1]||t.bounds[1]>b[3])continue;let p=t;for(const [axis,limit,sign]of [[0,b[0],1],[0,b[2],-1],[1,b[1],1],[1,b[3],-1]]){p=clip(p,axis,limit,sign);if(p.length<3)break;}for(let k=1;k<p.length-1;k++)area+=Math.abs((p[k][0]-p[0][0])*(p[k+1][1]-p[0][1])-(p[k][1]-p[0][1])*(p[k+1][0]-p[0][0]))/2;
+  }return area>=(b[2]-b[0])*(b[3]-b[1])*(1-2e-5);
+ };
+ const sites=new Map();for(const row of rows)for(const site of row.attachmentSites||[]){if(site.height<.4)continue;const key=site.bounds.map(x=>x.toFixed(5)).join('|');if(!sites.has(key))sites.set(key,{...site,key,rank:surfaceSeed(baseId+'|attached|'+key,seed)});}
+ const candidates=[...sites.values()].sort((a,b)=>a.rank-b.rank),order=['turbine','round-housing','catwalk'],shift=quota<3?surfaceSeed(baseId+'|attachment-kind',seed)%3:0,kinds=order.slice(shift).concat(order.slice(0,shift));let placed=0;
+ for(const kind of kinds){if(placed>=quota)break;if(kind==='catwalk'&&Math.abs(n[1])>.55)continue;
+  for(const site of candidates){const b=site.bounds,W=b[2]-b[0],H=b[3]-b[1],x=(b[0]+b[2])/2,y=(b[1]+b[3])/2;if(W<5||H<3)continue;
+   const hit=C.rayTris(skin,at(x,y,12),C.mul(n,-1));if(!hit)continue;const anchor=hit.p,z=normalAt(anchor),batches=[];
+   const batch=(factor,build)=>{const color=surfacePaintTone(paint,factor),g=new Geo(128);build(g,color);const triangles=[];for(let j=0;j<g.ni;j++){const k=g.idx[j]*3;triangles.push(g.pos[k],g.pos[k+1],g.pos[k+2]);}if(triangles.length)batches.push({triangles,color});};
+   const boxAt=(g,c,a,out,w,d,h,col)=>box(g,[...a,...out,...C.cross(a,out)],c,0,0,0,w,d,h,col);
+   let center=anchor,axis=n,dimensions,catwalkWidth=null,attachmentReach=0,maxAttachmentReach=0;
+   if(kind==='turbine'){
+    const radius=Math.min(2.8,H*.20,W*.11),length=Math.min(19,W*.70);if(radius<.7||length<5)continue;const cz=Math.min(.15,Math.max(-.18,z+radius*.42));attachmentReach=Math.max(0,cz-radius*.6-z);maxAttachmentReach=Math.min(2,radius*.8);if(attachmentReach>maxAttachmentReach)continue;center=at(x,y,cz);axis=u;dimensions=[length,radius*2,radius*2];
+    batch(.88,(g,col)=>{const profiles=[[-.5,.72],[-.38,1],[.34,1],[.5,.78]];for(let k=1;k<profiles.length;k++)axisFrustum(g,C.add(center,C.mul(u,length*profiles[k-1][0])),C.add(center,C.mul(u,length*profiles[k][0])),radius*profiles[k-1][1],radius*profiles[k][1],col,false,false,8);});
+    batch(.97,(g,col)=>{for(const t of [-.27,.18])axisFrustum(g,C.add(center,C.mul(u,length*t-radius*.055)),C.add(center,C.mul(u,length*t+radius*.055)),radius*1.08,radius*1.08,col,false,false,8);});
+    batch(.66,(g,col)=>{for(const side of [-1,1]){const end=C.add(center,C.mul(u,length*.5*side)),f=C.frameAxis(u),outer=radius*(side<0?.72:.78),inner=outer*.52,point=(r,t)=>C.add(end,C.add(C.mul(f.v,r*Math.cos(t)),C.mul(f.w,r*Math.sin(t))));for(let k=0;k<8;k++){const a=k*Math.PI/4,b=(k+1)*Math.PI/4,ps=[point(outer,a),point(outer,b),point(inner,b),point(inner,a)];if(side<0)ps.reverse();hullQuad(g,ps,C.mul(u,side),col,30);}const cap=C.sub(end,C.mul(u,side*radius*.14));for(let k=0;k<8;k++){const a=C.sub(point(inner,k*Math.PI/4),C.mul(u,side*radius*.14)),b=C.sub(point(inner,(k+1)*Math.PI/4),C.mul(u,side*radius*.14)),ps=[cap,a,b];if(C.dot(C.cross(C.sub(a,cap),C.sub(b,cap)),C.mul(u,side))<0)ps.reverse();triangleMesh(g,ps.flat(),col,30);}}});
+    batch(.77,(g,col)=>{for(const t of [-.28,.28]){const foot=C.add(at(x,y,(z+cz-radius*.6)/2),C.mul(u,length*t));boxAt(g,foot,u,n,length*.12,Math.max(.15,cz-radius*.6-z),radius*.65,col);}});
+   }else if(kind==='round-housing'){
+    const radius=Math.min(4.1,W*.25,H*.32);if(radius<.9)continue;const top=Math.max(.65,z+Math.min(2.6,radius*.85)),lift=top-z;attachmentReach=lift;maxAttachmentReach=Math.min(3.5,radius*1.5);if(lift>maxAttachmentReach)continue;center=at(x,y,z+lift*.5);dimensions=[radius*2,radius*2,lift];
+    const rings=[[0,.70],[.25,1],[.78,.74],[1,.28]],point=(level,r,t)=>at(x+radius*r*Math.cos(t),y+radius*r*Math.sin(t),z+lift*level);
+    batch(.92,(g,col)=>{for(let j=1;j<rings.length;j++)for(let k=0;k<10;k++){const a=k*Math.PI/5,b=(k+1)*Math.PI/5,ps=[point(...rings[j-1],a),point(...rings[j-1],b),point(...rings[j],b),point(...rings[j],a)],sn=C.norm(C.cross(C.sub(ps[1],ps[0]),C.sub(ps[2],ps[0]))),radial=C.add(C.mul(u,Math.cos((a+b)/2)),C.mul(v,Math.sin((a+b)/2))),flip=C.dot(sn,radial)<0;hullQuad(g,flip?ps.reverse():ps,flip?C.mul(sn,-1):sn,col,30);}for(let k=0;k<10;k++){const a=point(1,.28,k*Math.PI/5),b=point(1,.28,(k+1)*Math.PI/5),c=at(x,y,top),T=[c,a,b];if(C.dot(C.cross(C.sub(a,c),C.sub(b,c)),n)<0)T.reverse();triangleMesh(g,T.flat(),col,30);}});
+   }else{
+    // A walk is horizontal in ship space. Only a short one-metre lip lies
+    // outside the hull; its web brackets reach back to the real recessed wall.
+    const horizontal=C.norm([n[0],0,n[2]]),k=C.dot(n,horizontal),width=Math.min(20,W*.72),depth=1.05,thick=.16,up=[0,1,0],back=C.add(anchor,C.mul(horizontal,(-.035-z)/k)),front=C.add(back,C.mul(horizontal,depth));if(width<6||H<4)continue;attachmentReach=Math.max(0,(-.035-z)/k);maxAttachmentReach=depth*2;if(attachmentReach>maxAttachmentReach)continue;catwalkWidth=depth;center=C.add(back,C.mul(horizontal,depth/2));axis=u;dimensions=[width,depth,1.05];
+    batch(.88,(g,col)=>boxAt(g,C.sub(center,[0,thick/2,0]),u,horizontal,width,depth,thick,col));
+    batch(.79,(g,col)=>{const railY=.95;boxAt(g,C.add(front,[0,railY,0]),u,horizontal,width,.075,.075,col);for(let k=0;k<5;k++)boxAt(g,C.add(C.add(front,C.mul(u,width*(k/4-.5))),[0,railY/2,0]),u,horizontal,.085,.085,railY,col);});
+    batch(.72,(g,col)=>{for(const t of [-.38,0,.38]){const offset=C.mul(u,width*t),a=C.add(C.sub(anchor,[0,1.25,0]),offset),b=C.add(C.sub(back,[0,thick,0]),offset),c=C.add(C.sub(front,[0,thick,0]),offset),e=C.mul(u,.085),A=C.sub(a,e),B=C.sub(b,e),Q=C.sub(c,e),a2=C.add(a,e),b2=C.add(b,e),c2=C.add(c,e);const centroid=C.mul(C.add(C.add(a,b),c),1/3);for(const [ps,wanted]of [[[A,Q,B],C.mul(u,-1)],[[a2,b2,c2],u]]){if(C.dot(C.cross(C.sub(ps[1],ps[0]),C.sub(ps[2],ps[0])),wanted)<0)ps.reverse();triangleMesh(g,ps.flat(),col,30);}for(const ps of [[A,B,b2,a2],[B,Q,c2,b2],[Q,A,a2,c2]]){const sn=C.norm(C.cross(C.sub(ps[1],ps[0]),C.sub(ps[2],ps[0]))),mid=C.mul(ps.reduce((a,b)=>C.add(a,b),[0,0,0]),.25),flip=C.dot(sn,C.sub(mid,centroid))<0;hullQuad(g,flip?ps.reverse():ps,flip?C.mul(sn,-1):sn,col,30);}}});
+   }
+   const triangles=batches.flatMap(q=>q.triangles);if(!triangles.length)continue;const points=[];for(let i=0;i<triangles.length;i+=3)points.push(triangles.slice(i,i+3));const P=points.map(uv),footprint=[Math.min(...P.map(p=>p[0])),Math.min(...P.map(p=>p[1])),Math.max(...P.map(p=>p[0])),Math.max(...P.map(p=>p[1]))];if(!fits(footprint))continue;
+   const normalRange=[Math.min(...points.map(normalAt)),Math.max(...points.map(normalAt))],maxOutset=kind==='catwalk'?1.65:kind==='turbine'?3.2:3.0;if(normalRange[1]>maxOutset+.001)continue;
+   const bounds=[0,1,2].map(k=>Math.min(...points.map(p=>p[k]))).concat([0,1,2].map(k=>Math.max(...points.map(p=>p[k])))),row=rows.find(r=>C.rayTris(r.triangles,at(x,y,12),C.mul(n,-1)))||first,id=baseId+'|'+kind+'|'+site.key;
+   (row.projections||(row.projections=[])).push({id,kind,ownerId:host,baseId,patchId:row.id,anchor:anchor.slice(),center,axis,u,v,normal:n,footprint,bounds,normalRange,maxOutset,dimensions,catwalkWidth,attachmentReach,maxAttachmentReach,batches,triangles});occupied.push(footprint);placed++;break;
+  }
+ }
+}
+
 const SURFACE_VISUAL_CACHE=new Map(),SURFACE_MESH_CACHE=new Map();
 function surfaceVisualKey(ship,opt={}){
  const nativeParts=(ship.parts||[]).filter(p=>!p.surfacePatch),nativeFits=(ship.fits||[]).filter(f=>!f.surfacePatch),geometry=C.surfaceRenderKey?.(ship)||[ship.hull,ship.hullSkin,ship.cuts,ship.trenches,ship.subs,ship.solidCuts,ship.hatches,nativeParts,nativeFits,ship.surfaces];
@@ -2204,7 +2263,8 @@ function surfaceBuildVisualPlan(ship,opt={}){
   }
   budget-=boxes.length;out.push({id:patch.id,host:patch.host,patch,config,triangles:T,boundary:surfaceBoundary(patch),boxes,devices});
  }
- for(const row of out)if(row.config.functionMode==='equipment')row.revealBoundary=surfaceEquipmentReveals(row,out);
+ const projectionGroups=new Map();for(const row of out)if(row.config.functionMode==='equipment'){row.revealBoundary=surfaceEquipmentReveals(row,out);const id=row.patch.baseId||row.id,group=projectionGroups.get(id)||[];group.push(row);projectionGroups.set(id,group);}
+ const projectionQuotas=surfaceProjectionShares([...fieldGroups.values()],opt.maxField??12000);for(const [id,rows]of projectionGroups)surfaceEquipmentProjections(ship,rows,projectionQuotas.get(id)||0);
  return out;
 }
 function meshSurfaceLayers(ship,ranges={},opt={}){
@@ -2221,7 +2281,7 @@ function buildSurfaceLayers(ship,ranges,opt,key){
   }else addBox(g,item);
   if(item.port)for(let i=begin;i<g.n;i++)g.col[i*4+3]=253;
  };
- const record=(id,name,g,start)=>{if(Number.isFinite(id)&&g.ni>start)(ranges[id]||(ranges[id]=[])).push([name,start,g.ni-start]);};
+ const record=(id,name,g,start,metadata)=>{if((Number.isFinite(id)||id==='hull'&&metadata?.projection)&&g.ni>start)(ranges[id]||(ranges[id]=[])).push(metadata?[name,start,g.ni-start,metadata]:[name,start,g.ni-start]);};
  for(const row of plans){const start=[armor.ni,devices.ni,detail.ni],{patch,config}=row,n=C.norm(patch.normal),thickness=config.functionMode==='equipment'?0:config.armor?.thickness||0,material=config.armor?.material,paint=row.paint||surfaceHostPaint(ship,patch),col=surfacePaintTone(paint,material==='dense'?.94:material==='light'?1.02:1);
   // Equipment is the opened structure itself: the selected outer skin is
   // replaced by an inward backing, with reveal walls under its armour caps.
@@ -2231,7 +2291,8 @@ function buildSurfaceLayers(ship,ranges,opt,key){
   }else if(config.functionMode==='armor'&&thickness===0){const lift=C.mul(n,.012);hullTriangleMesh(armor,row.triangles.map((q,i)=>q+lift[i%3]),col,30);}
   if(thickness>0){const lift=C.mul(n,thickness+.01),T=row.triangles.map((q,i)=>q+lift[i%3]);hullTriangleMesh(armor,T,col,30);for(const e of row.boundary){const a=C.add(e.a,lift),b=C.add(e.b,lift),sn=C.norm(C.cross(C.sub(b,a),n));hullQuad(armor,[e.a,e.b,b,a],sn,col,30);}}
   if(config.functionMode==='equipment'){
-   const host=/^p\d+$/.test(row.host)?+row.host.slice(1):null,a=devices.ni,b=detail.ni;for(const q of row.reliefFaces||[])triangleMesh(devices,q.triangles,q.color,30);for(const q of row.lights||[])addHardware(devices,q);for(const q of row.boxes)addHardware(detail,q);record(host,'surfaceDevices',devices,a);record(host,'surfaceDetail',detail,b);
+   const host=/^p\d+$/.test(row.host)?+row.host.slice(1):row.host==='hull'?'hull':null,a=devices.ni,b=detail.ni;for(const q of row.reliefFaces||[])triangleMesh(devices,q.triangles,q.color,30);for(const q of row.lights||[])addHardware(devices,q);for(const q of row.boxes)addHardware(detail,q);record(host,'surfaceDevices',devices,a);record(host,'surfaceDetail',detail,b);
+   for(const q of row.projections||[]){const start=devices.ni;for(const batch of q.batches)triangleMesh(devices,batch.triangles,batch.color,30);record(host,'surfaceDevices',devices,start,{projection:true,id:q.id,kind:q.kind,ownerId:q.ownerId,baseId:q.baseId,patchId:q.patchId,anchor:q.anchor,center:q.center,axis:q.axis,normal:q.normal,footprint:q.footprint,bounds:q.bounds,normalRange:q.normalRange,maxOutset:q.maxOutset,dimensions:q.dimensions,catwalkWidth:q.catwalkWidth,attachmentReach:q.attachmentReach,maxAttachmentReach:q.maxAttachmentReach});}
    for(const item of row.devices){const a=devices.ni;for(const q of item.hardware)addHardware(devices,q);record(item.id,'surfaceDevices',devices,a);}
    if(/^p\d+$/.test(row.host))record(+row.host.slice(1),'surfaceArmor',armor,start[0]);continue;
   }

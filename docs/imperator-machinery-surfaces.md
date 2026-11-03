@@ -1,5 +1,7 @@
 # Imperator Redux を参考にした機材構造面
 
+丸い機器・キャットウォーク・暗部の調整は、その後の [丸い機器とキャットウォーク、暗部の修正](rounded-machinery-and-catwalks.md) を参照してください。以下は最初の再制作時点の記録です。
+
 外観の参考は Fractalsponge の [Imperator-class Star Destroyer Redux](https://fractalsponge.net/imperator-class-star-destroyer-redux/) です。ページ内の艦橋と側面トレンチの拡大画像を確認し、前版の長い横帯が繰り返される面を作り直しました。
 
 具体的には、[艦橋の正面・側面](https://fractalsponge.net/wp/wp-content/uploads/2018/05/isd2_133.jpg)、[傾斜した構造物](https://fractalsponge.net/wp/wp-content/uploads/2018/05/isd2_137.jpg)、[段状の甲板とトレンチ](https://fractalsponge.net/wp/wp-content/uploads/2018/05/isd2_141.jpg)、[長い側面トレンチ](https://fractalsponge.net/wp/wp-content/uploads/2018/05/isd2_145.jpg) を参考にしています。
