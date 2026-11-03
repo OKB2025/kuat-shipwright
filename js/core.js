@@ -14466,14 +14466,14 @@ function taskForceInfo(w, gid) {
 // carries it: a friendly ship to be towed out (also through hyperspace), or an
 // enemy ship whose shields are down, which boarders take after a while.
 const tractorReach = (u, t) => 2500 + (u.p.len + t.p.len) * .5;
-function tractorOk(u, t, mode) { if (!u || !t || u === t || !alive(u) || !alive(t) || u.out || !(u.p.trac > 0)) return false; if (mode === 'tow') return t.side === u.side && !!t.out; return t.side !== u.side && !!t.out && !(t.shield > 1); }
-function releaseTractor(w, u, why) { const tr = u.tractor;if (!tr) return;const t = w.units.get(tr.target);if (t && t.towedBy === u.id) t.towedBy = null;u.tractor = null;if (why && u.sys != null) blog(w, u.sys, `${u.name}：牽引ビームを解除（${why}）`, u); }
+function tractorOk(u, t, mode) { if (!u || !t || u === t || !alive(u) || !alive(t) || u.out || !(u.p.trac > 0)) return false; if (mode === 'tow') return t.side === u.side && !!t.out; return boardOk(u, t); }
+function releaseTractor(w, u, why) { const tr = u.tractor;if (!tr) return;const t = w.units.get(tr.target);if (tr.mode === 'capture') boardRelease(w, u, tr, t);if (t && t.towedBy === u.id) t.towedBy = null;u.tractor = null;if (why && u.sys != null) blog(w, u.sys, `${u.name}：牽引ビームを解除（${why}）`, u); }
 function captureShip(w, u, t) {
  const old = t.side, g = w.groups.get(u.group), og = w.groups.get(t.group);
  if (og) og.units = og.units.filter(x => x !== t.id);t.origSide = t.origSide ?? old;t.side = u.side;t.team = u.team;t.captured = true;t.order = {type: 'group', fire: false, power: 'auto', aim: 'auto'};
  if (g) { g.units.push(t.id); t.group = g.id; }
  for (const sid of t.squads) { const q = w.squads.get(sid); if (q && q.state === 'docked') { q.state = 'lost'; q.lostN = (q.lostN || 0) + q.n; q.n = 0; if (q.slots) q.slots.length = 0; } }
- w.sides[old].lost++;w.sides[u.side].captured = (w.sides[u.side].captured || 0) + 1;u.tractor.mode = 'tow';u.tractor.progress = 1;
+ w.sides[old].lost++;w.sides[u.side].captured = (w.sides[u.side].captured || 0) + 1;if (u.tractor?.target === t.id) { u.tractor.mode = 'tow'; u.tractor.progress = 1; }
  blog(w, u.sys, `${u.name}：${t.name}を拿捕`, u);event(w, `${t.name} を拿捕（${u.name}）`, {side: u.side, sys: u.sys, captured: true});
 }
 function tractorTick(w, u, dt) {
@@ -14486,9 +14486,216 @@ function tractorTick(w, u, dt) {
  }
  t.pos = add(u.pos, frameVec([Math.cos(u.yaw), 0, Math.sin(u.yaw)], tr.off));t.velocity = [...u.velocity];t.yaw = u.yaw + (tr.dyaw || 0);
  if (tr.mode === 'capture' && t.side !== u.side) {
-  if (t.shield > 1 && !t.out) { releaseTractor(w, u, '目標が復旧'); return; }
-  const boarders = (u.troops || 0) + (u.crew || 0) * .04, defenders = (t.crew || 0) * .25, rate = clamp((boarders + 50) / (defenders + 100), .1, 3) / 90;
-  tr.progress = (tr.progress || 0) + rate * dt;if (tr.progress >= 1) captureShip(w, u, t);
+  boardTractor(w, u, t, tr, dt);
+ }
+}
+// ---------- v26 boarding: 接舷・移乗攻撃 ----------
+// The 'capture' tractor mode is a boarding action in four steps:
+//  1. lock — a ship with tractor projectors closes to reach and locks an enemy whose shields are down to
+//     BOARD.shieldMax of full (or that is disabled);
+//  2. reel in — the beam draws the enemy alongside, parallel, BOARD.gap off the hull (tr.off shrinks to dockOff),
+//     slower the heavier the enemy is; a ship whose engines still run pulls against the beam (boardStrain: thrust
+//     against the projectors' hold), and an overload kept up breaks the lock; so does the loss of the projectors,
+//     the reactor feeding them, or the enemy's shields coming back before it is alongside;
+//  3. forced docking — BOARD.dockSec to clamp on and cut through; boarding craft from the hangar (transports that
+//     carry troops) may cross before that, losing some to the enemy's point defence;
+//  4. the fight inside (boardFight, state on the target: t.boarding) — the party crosses through the tubes and
+//     fights compartment by compartment (the five hull sections, C.SECTION_NAMES) from the one it entered toward
+//     the bridge (to capture) or the reactor (to wreck). Only a front of BOARD.front men a corridor engages at a time
+//     (frontage, Lanchester's linear law inside a hull); defenders get BOARD.home in their own ship and more at the
+//     bridge. Organic crews surrender when the bridge falls or their losses pass 1 − BOARD.surrender; droid crews
+//     never surrender: more of them are armed but they fight poorly, the battle droids stored aboard are woken a
+//     few a second, and taking the bridge only ends it once its central control has been held BOARD.shutdown s.
+// Outcomes: capture (the ship changes side as before — captureShip — with its damage, its crew taken prisoner and
+// a prize crew from the survivors), sabotage (the modules of the compartments taken are wrecked, the party
+// withdraws) or repulse (the party falls back below BOARD.repulse of its strength, and goes home if still docked).
+// Every coefficient below is provisional (not set by the user or a source) and meant to be tuned:
+//  projHold: an ISD's ten projectors hold a CR90 (59,000 t × 66 m/s²) at about three quarters of its thrust;
+//  lethal / front: an even fight of 40 a side loses about one man every 2.5 s each — a company held in a corridor
+//  is spent in a few minutes; zoneSec: a compartment taken in 4 min at even odds, 1 min at 2 : 1;
+//  quality: stormtroopers 1, clone troopers 1.15, Rebel troopers 0.9, B1 battle droids 0.55, ship's crew 0.5.
+const BOARD = {shieldMax: .25, recover: .4, projHold: 3e5, breakSec: 20, reel: 150, gap: 40, dockSec: 45, cross: 6, tubeLen: 250, tubesMax: 6, craftTrip: 60,
+ front: 40, corridorLen: 200, lethal: .01, zoneSec: 240, home: 1.5, bridgeK: 1.5, crewArm: .3, crewQ: .5, droidArm: .6, droidQ: .35, wake: 25,
+ q: {empire: 1, republic: 1.15, rebel: .9, cis: .55}, surrender: .3, repulse: .3, shutdown: 20, crewParty: .05, prize: .5,
+ wreck: ['reactor', 'engine', 'shield', 'hyper', 'bridge', 'hangar', 'fire', 'battery'], aiOdds: 2, aiMin: 144, aiStrain: .8, holdResult: 900};
+const BOARD_PHASE = {close: '接近中', reel: '牽引中', dock: '強制接舷中', fight: '艦内戦闘', back: '撤収中'};
+const BOARD_GOAL = {capture: '拿捕', sabotage: '破壊工作'};
+const boardFac = (w, u) => w.sides[u?.origSide ?? u?.side]?.faction;
+const boardDroid = (w, u) => boardFac(w, u) === 'cis';
+// Tractor projectors: modules of the fit trc (named by its short name in the generated profiles); their intact share.
+function tracShare(u) { const ms = u.p.modules || [];let n = 0, ok = 0;ms.forEach((m, i) => { if (m.k === 'weapon' && m.name === C.FITS.trc.short) { n++; if ((u.mods?.[i] ?? 1) > 0) ok++; } });return n ? ok / n : (u.p.trac > 0 ? 1 : 0); }
+// What the projectors hold (t·m/s²) and what the enemy's engines pull with; strain = pull / hold.
+function boardStrain(u, t) {
+ const su = C.fleetSystems(u), hold = (u.p.trac || 0) * BOARD.projHold * tracShare(u) * (su.hasReactor ? su.reactor : 1);
+ if (t.out || t.dead) return hold > 0 ? 0 : Infinity;const st = C.fleetSystems(t), pull = (t.info?.mass || 0) * (t.p.accel || 0) * st.engine * clamp(t.engF ?? 1, 0, 1.2);
+ return hold > 0 ? pull / hold : Infinity;
+}
+function boardOk(u, t) {
+ if (!u || !t || u === t || !alive(u) || !alive(t) || u.out || u.sys == null || t.sys !== u.sys || !(u.p.trac > 0) || t.side === u.side || t.status === 'carried' || t.warp) return false;
+ if (!(tracShare(u) > 0) || t.towedBy && t.towedBy !== u.id) return false;if (t.boarding && t.boarding.by !== u.id) return false;
+ return !!t.out || shieldFrac(t) <= BOARD.shieldMax + 1e-9 || !(t.shieldMax > 0);
+}
+// The boarding party a ship can send: its embarked troops, or (with none) a share of its crew.
+function boardParty(w, u) { const tr = Math.floor(u.troops || 0);return tr > 0 ? {n: tr, crew: false} : {n: Math.floor((u.crew || 0) * BOARD.crewParty), crew: true}; }
+const boardQ = (w, u, crew) => crew ? (boardDroid(w, u) ? BOARD.droidQ : BOARD.crewQ) : BOARD.q[boardFac(w, u)] ?? 1;
+// The defence the enemy can put up (effective strength, home advantage included; stored droids at half).
+function boardDefence(w, t) { const d = boardDroid(w, t), q = BOARD.q[boardFac(w, t)] ?? 1;return ((t.crew || 0) * (d ? BOARD.droidArm * BOARD.droidQ : BOARD.crewArm * BOARD.crewQ) + (t.troops || 0) * q * (d ? .5 : 1)) * BOARD.home; }
+function boardOdds(w, u, t, n) { const p = boardParty(w, u), k = Math.min(n ?? p.n, p.n);return {n: k, crew: p.crew, att: k * boardQ(w, u, p.crew), def: boardDefence(w, t), odds: k * boardQ(w, u, p.crew) / Math.max(1, boardDefence(w, t)), strain: boardStrain(u, t)}; }
+// Troops to send when none is chosen: companies enough for 2.5 : 1, at most all of them.
+function boardDefault(w, u, t) { const p = boardParty(w, u), q = boardQ(w, u, p.crew), want = Math.ceil(boardDefence(w, t) * 2.5 / q / COMPANY_TROOPS) * COMPANY_TROOPS;return Math.max(1, Math.min(p.n, Math.max(COMPANY_TROOPS, want))); }
+const boardHW = u => (u.p.width || u.p.len * .4) / 2;
+// Section (0 stern … 4 bow) of a module of the given kinds, the bridge's for a capture.
+function boardGoalSec(t, kinds) { const ms = t.p.modules || [];for (const k of kinds) { const m = ms.filter(x => x.k === k && x.at != null).sort((a, b) => b.share - a.share)[0]; if (m) return clamp(Math.floor(m.at * C.HULL_SECTIONS), 0, C.HULL_SECTIONS - 1); } return C.HULL_SECTIONS - 1; }
+// Orders: send n troops (default boardDefault) with goal capture|sabotage; craft: use boarding craft if any.
+function orderBoard(w, id, target, opts = {}) {
+ const u = w.units.get(id), t = w.units.get(target);if (!u || w.sides[u.side].ai && !opts.ai) return {ok: false, why: '命令できません'};
+ if (!(u.p.trac > 0)) return {ok: false, why: 'トラクター・ビーム投射機がありません'};
+ if (!t || t.sys !== u.sys) return {ok: false, why: '目標が同じ星系にいません'};
+ if (t.side === u.side) return {ok: false, why: '移乗攻撃できるのは敵艦です'};
+ if (!boardOk(u, t)) return {ok: false, why: t.boarding && t.boarding.by !== u.id || t.towedBy && t.towedBy !== u.id ? 'ほかの艦が移乗攻撃・牽引しています' : !(tracShare(u) > 0) ? 'トラクター・ビーム投射機が損傷しています' : u.out ? '戦闘不能の艦は移乗攻撃できません' : `接舷できるのはシールドが ${Math.round(BOARD.shieldMax * 100)}% 以下の敵艦です`};
+ const p = boardParty(w, u), n = Math.min(p.n, Math.max(1, Math.floor(opts.n || boardDefault(w, u, t))));if (!(p.n > 0)) return {ok: false, why: '移乗させる兵員がいません'};
+ if (u.tractor?.mode === 'capture' && u.tractor.target === t.id) return {ok: false, why: 'すでに移乗攻撃中です'};
+ releaseTractor(w, u);
+ u.tractor = {target: t.id, mode: 'capture', lock: false, progress: 0, phase: 'close', t: 0, goal: BOARD_GOAL[opts.goal] ? opts.goal : 'capture', n, crew: p.crew, wait: 0, craft: opts.craft !== false, strain: 0};
+ return {ok: true, n, crew: p.crew};
+}
+// Recall: the party comes back (those still aboard the enemy fight their way out while docked).
+function orderBoardRecall(w, id) {
+ const u = w.units.get(id), tr = u?.tractor;if (!u || tr?.mode !== 'capture' || w.sides[u.side].ai) return {ok: false, why: '移乗攻撃していません'};
+ const t = w.units.get(tr.target), b = t?.boarding;if (b && b.by === u.id && b.phase === 'fight') { boardBack(w, t, b, '撤収命令'); return {ok: true}; }
+ if (!b) releaseTractor(w, u, '撤収命令');return {ok: true};
+}
+// The troops leave the attacker as the lock is made (they muster at the tubes and the boarding craft).
+function boardLocked(w, u, t, tr) {
+ const n = Math.min(tr.n || 0, tr.crew ? Math.floor((u.crew || 0) * BOARD.crewParty) : Math.floor(u.troops || 0));tr.n = n;
+ if (tr.crew) u.crew -= n; else { u.troops -= n; u.troopsSpent = (u.troopsSpent || 0) + n; }
+ tr.wait = n;tr.phase = 'reel';tr.t = 0;tr.at = w.time;tr.d0 = len(tr.off || [0, 0, 0]);
+ // Boarding craft: transports docked aboard that carry troops (C.craftLift), at most what the party needs.
+ let lift = 0;if (tr.craft) for (const sid of u.squads) { const q = w.squads.get(sid), c = q && CRAFT[q.craft]; if (q && q.state === 'docked' && q.n > 0 && c?.role === 'transport') lift += q.n * (C.craftLift(q.craft)?.troops || 0); }
+ tr.lift = Math.min(lift, n);
+ blog(w, u.sys, `${u.name}：${t.name}への移乗攻撃（${BOARD_GOAL[tr.goal]}）に ${n} 名を発進準備${tr.lift ? `（移乗艇 ${tr.lift} 名分）` : ''}`, u);
+}
+// Each tick while the beam holds: reel in, dock, cross, and the lock's strain.
+function boardTractor(w, u, t, tr, dt) {
+ if (!tr.phase || tr.phase === 'close') boardLocked(w, u, t, tr);
+ tr.t += dt;
+ // Projectors gone, or the enemy's engines overpower them long enough: the lock breaks.
+ const k = boardStrain(u, t);if (!(tracShare(u) > 0)) { releaseTractor(w, u, 'トラクター・ビーム投射機を喪失'); return; }
+ tr.strain = clamp((tr.strain || 0) + (k > 1 ? (k - 1) * dt / BOARD.breakSec : -dt / BOARD.breakSec), 0, 1);
+ if (tr.strain >= 1 || !Number.isFinite(k)) { releaseTractor(w, u, `${t.name}の推力で振り切られた`); return; }
+ if (tr.phase === 'reel') {
+  if (!t.out && shieldFrac(t) > BOARD.recover) { releaseTractor(w, u, '目標がシールドを回復'); return; }
+  const side = (tr.off?.[2] || 0) < 0 ? -1 : 1, dock = [0, 0, side * (boardHW(u) + boardHW(t) + BOARD.gap)], d = sub(dock, tr.off), l = len(d);
+  const v = BOARD.reel * clamp(1 - k, 0, 1) * tracShare(u) * clamp(Math.cbrt((u.info?.mass || 1) / Math.max(1, t.info?.mass || 1)), .25, 2);
+  if (l > 1) tr.off = add(tr.off, scale(d, Math.min(1, v * dt / l)));
+  tr.dyaw = (tr.dyaw || 0) * Math.max(0, 1 - dt * .1);
+  tr.progress = .05 + .15 * clamp(1 - len(sub(dock, tr.off)) / Math.max(1, tr.d0 || 1), 0, 1);
+  if (len(sub(dock, tr.off)) < 5) { tr.off = dock; tr.dyaw = 0; tr.phase = 'dock'; tr.t = 0; blog(w, u.sys, `${u.name}：${t.name}に強制接舷`, u); }
+ } else if (tr.phase === 'dock') { tr.progress = .2 + .1 * clamp(tr.t / BOARD.dockSec, 0, 1); if (tr.t >= BOARD.dockSec) { tr.phase = 'cross'; tr.t = 0; blog(w, u.sys, `${u.name}：移乗チューブを${t.name}に接続`, u); } }
+ // The party crosses: through the tubes once docked, by boarding craft from the lock (losses to point defence).
+ const b = t.boarding;
+ if (tr.wait > 0) {
+  let go = 0, lost = 0;
+  if (tr.phase === 'cross') go = Math.min(tr.wait, BOARD.cross * clamp(Math.floor(Math.min(u.p.len, t.p.len) / BOARD.tubeLen) + 1, 1, BOARD.tubesMax) * dt);
+  if (tr.lift > 0 && tr.phase !== 'cross') { const g = Math.min(tr.wait, tr.lift, tr.lift / BOARD.craftTrip * dt), pd = t.out ? .02 : clamp(.05 + (t.p.aa || 0) * C.fleetSystems(t).weapon / 400, 0, .4); go = g; lost = g * pd; }
+  if (go > 0) { tr.wait -= go; const nb = boardStart(w, u, t, tr); nb.aboard += go - lost; nb.lostA += lost; nb.crossed += go; }
+ }
+ if (b && b.by === u.id && b.phase === 'fight') tr.progress = .3 + .7 * clamp((b.comp + b.prog) / Math.max(1, b.need), 0, 1);
+}
+// The fight's state on the target, made when the first boarders reach it.
+function boardStart(w, u, t, tr) {
+ if (t.boarding && t.boarding.by === u.id) return t.boarding;
+ const droid = boardDroid(w, t), goal = tr.goal === 'sabotage' ? boardGoalSec(t, ['reactor', 'engine', 'bridge']) : boardGoalSec(t, ['bridge', 'reactor']);
+ const entry = clamp(Math.floor(C.HULL_SECTIONS / 2), 0, C.HULL_SECTIONS - 1), dir = goal >= entry ? 1 : -1, path = [];for (let s = entry; ; s += dir) { path.push(s); if (s === goal) break; }
+ const dC = (t.crew || 0) * (droid ? BOARD.droidArm : BOARD.crewArm), dT = droid ? 0 : t.troops || 0, dS = droid ? t.troops || 0 : 0;
+ t.boarding = {by: u.id, side: u.side, goal: tr.goal, crew: !!tr.crew, qA: boardQ(w, u, tr.crew), sent: tr.n, crossed: 0, aboard: 0, lostA: 0, lostD: 0, droid, qC: droid ? BOARD.droidQ : BOARD.crewQ, qT: BOARD.q[boardFac(w, t)] ?? 1,
+  dC, dT, dS, d0: dC + dT + dS, path, need: path.length, comp: 0, prog: 0, held: 0, phase: 'fight', t0: w.time, cut: false};
+ blog(w, u.sys, `${u.name}：移乗部隊が${t.name}の${C.SECTION_NAMES[entry]}に突入`, u);event(w, `${u.name} の移乗部隊が ${t.name} に突入`, {side: u.side, sys: u.sys});
+ return t.boarding;
+}
+// The fight inside, each tick (in battle or not) for every ship with boarders aboard.
+function boardFight(w, t, dt) {
+ const b = t.boarding, u = w.units.get(b.by);if (!b) return;
+ if (t.dead || !alive(t)) { t.boarding = null; if (u && u.sys != null) blog(w, u.sys, `${u.name}：移乗部隊 ${Math.round(b.aboard)} 名が${t.name}とともに失われた`, u); return; }
+ const docked = !!(u && alive(u) && u.tractor?.mode === 'capture' && u.tractor.target === t.id && u.tractor.lock && u.sys === t.sys);
+ if (!docked && !b.cut && b.crossed > 0) { b.cut = true; blog(w, t.sys, `${t.name}：移乗部隊の退路が断たれた`, t); }
+ // Stored battle droids wake a few a second once boarders are aboard.
+ if (b.dS > 0 && b.aboard > 0) { const k = Math.min(b.dS, BOARD.wake * dt); b.dS -= k; b.dT += k; }
+ const corr = clamp(Math.round(t.p.len / BOARD.corridorLen), 1, 12), F = BOARD.front * corr, sec = b.path[Math.min(b.comp, b.need - 1)], atBridge = b.goal !== 'sabotage' && b.comp === b.need - 1 ? BOARD.bridgeK : 1;
+ const home = BOARD.home * atBridge * (b.phase === 'back' ? .5 : 1), eA = Math.min(b.aboard, F) * b.qA, eT = Math.min(b.dT, F), eC = Math.min(b.dC, Math.max(0, F - eT)), eD = (eT * b.qT + eC * b.qC) * home;
+ // Losses: each side loses what the other's engaged front kills (BOARD.lethal a second per effective fighter).
+ const lA = Math.min(b.aboard, BOARD.lethal * eD * dt), lD = Math.min(b.dT + b.dC, BOARD.lethal * eA * dt), lT = Math.min(b.dT, lD * (eT + eC > 0 ? eT / (eT + eC) : 1)), lC = Math.min(b.dC, lD - lT);
+ b.aboard -= lA;b.lostA += lA;b.dT -= lT;b.dC -= lC;b.lostD += lT + lC;
+ t.troops = Math.max(0, (t.troops || 0) - lT);t.crew = Math.max(0, (t.crew || 0) - lC);
+ if (b.phase === 'back') {
+  // Withdrawing through the tubes; with no way back the rest are taken.
+  const go = docked ? Math.min(b.aboard, BOARD.cross * clamp(Math.floor(Math.min(u.p.len, t.p.len) / BOARD.tubeLen) + 1, 1, BOARD.tubesMax) * dt) : 0;
+  b.aboard -= go;boardReturn(u, b.crew, go);
+  if (b.aboard < .5 || !docked) boardEnd(w, t, b, docked ? 'back' : 'lost');
+  return;
+ }
+ const DT = b.dT + b.dC + b.dS, A = b.aboard + (docked && u ? u.tractor.wait || 0 : 0);
+ // Repulsed: the party (aboard and still to cross) is down to BOARD.repulse of those sent.
+ if (b.crossed > 0 && A < b.sent * BOARD.repulse && (u?.tractor?.wait || 0) < 1) { boardBack(w, t, b, '撃退された'); return; }
+ if (b.aboard <= 0) return;
+ // The push: compartments fall the faster the greater the whole party's weight against the defence (r² / zoneSec).
+ const r = DT > .5 ? b.aboard * b.qA / Math.max(1e-6, (b.dT * b.qT + b.dC * b.qC + b.dS * b.qT * .5) * home) : 10, rate = DT > .5 ? clamp(r, 0, 3) ** 2 / BOARD.zoneSec : 10 / BOARD.zoneSec;
+ if (b.comp < b.need) { b.prog += rate * dt; if (b.prog >= 1) { b.prog = 0; b.comp++; blog(w, t.sys, `${t.name}：移乗部隊が${C.SECTION_NAMES[sec]}を制圧（${b.comp}/${b.need}）`, u || t); } }
+ // Organic defenders give up when the bridge falls or their losses grow too heavy; droids hold out until shut down.
+ if (b.goal === 'sabotage') { if (b.comp >= b.need) boardSabotage(w, t, b); return; }
+ if (b.comp >= b.need) { if (!b.droid) { boardCapture(w, t, b, '艦橋を制圧、乗員が降伏'); return; } b.held += dt; if (b.held >= BOARD.shutdown) { boardCapture(w, t, b, '中央制御を掌握、ドロイドを停止'); return; } }
+ else if (!b.droid && b.d0 > 0 && b.dT + b.dC < b.d0 * BOARD.surrender) boardCapture(w, t, b, '守備隊が降伏');
+}
+function boardBack(w, t, b, why) { b.phase = 'back';blog(w, t.sys, `${t.name}：移乗部隊が撤収（${why}）`, w.units.get(b.by) || t);b.why = why;const u = w.units.get(b.by);if (u?.tractor?.target === t.id) { boardReturn(u, b.crew, u.tractor.wait || 0); u.tractor.wait = 0; } }
+// Troops (or crew) back aboard their ship; troopsSpent keeps those that did not come back (a mission's regiments shrink by it).
+function boardReturn(u, crew, n) { if (!u || !(n > 0)) return; if (crew) u.crew += n; else { u.troops = (u.troops || 0) + n; u.troopsSpent = Math.max(0, (u.troopsSpent || 0) - n); } }
+// Wrecked: every module of the kinds in BOARD.wreck in the compartments taken; then the party withdraws.
+function boardSabotage(w, t, b) {
+ const secs = new Set(b.path.slice(0, b.comp)), ms = t.p.modules || [];let n = 0;
+ ms.forEach((m, i) => { if (BOARD.wreck.includes(m.k) && m.at != null && secs.has(clamp(Math.floor(m.at * C.HULL_SECTIONS), 0, C.HULL_SECTIONS - 1)) && t.mods[i] > 0) { t.mods[i] = 0; n++; } });
+ b.wrecked = n;const why = C.fleetOutReason(t);if (why && !t.out) { t.out = why; t.order = {...t.order, type: 'hold'}; combatCtx(w, t.sys).out(t, why); }
+ event(w, `${t.name} の艦内で破壊工作（${n} 区画の設備を破壊）`, {side: b.side, sys: t.sys});boardBack(w, t, b, `破壊工作 ${n} 件を完了`);
+}
+function boardCapture(w, t, b, why) {
+ const u = w.units.get(b.by), s = Math.max(0, b.aboard), cm = t.p.crewMax ?? t.p.crewNeed ?? 0;
+ t.prisoners = Math.round((t.crew || 0) + (t.troops || 0));t.boarding = null;
+ if (u) captureShip(w, u, t);else { t.origSide = t.origSide ?? t.side; t.side = b.side; t.team = b.side; t.captured = true; }
+ // The prize crew: half the survivors work the ship, the rest garrison it.
+ t.crew = Math.min(cm, Math.round(s * BOARD.prize));t.troops = Math.max(0, Math.round(s - t.crew));
+ if (!t.out) { const o = C.fleetOutReason(t); if (o) { t.out = '回航要員不足'; t.order = {...t.order, type: 'hold'}; } }
+ blog(w, t.sys, `${t.name}：${why}（捕虜 ${t.prisoners} 名・移乗部隊の損失 ${Math.round(b.lostA)} 名）`, u || t);
+}
+function boardEnd(w, t, b, how) {
+ const u = w.units.get(b.by);t.boarding = null;
+ blog(w, t.sys, how === 'back' ? `${t.name}：移乗部隊が帰艦（損失 ${Math.round(b.lostA)} 名）` : `${t.name}：取り残された移乗部隊 ${Math.round(Math.max(0, b.aboard))} 名が捕虜に`, u || t);
+ if (how !== 'back' && u) event(w, `${u.name} の移乗攻撃は失敗（${t.name}）`, {side: u.side, sys: t.sys});
+ else if (u) event(w, `${u.name} の移乗部隊が ${t.name} から帰艦（${b.why || ''}）`, {side: u.side, sys: t.sys});
+ if (u?.tractor?.mode === 'capture' && u.tractor.target === t.id) releaseTractor(w, u, '移乗部隊を収容');
+}
+// The beam let go (ordered, broken, lost): troops still waiting go back to their quarters; boarders aboard are cut off.
+function boardRelease(w, u, tr, t) {
+ if (tr.wait > 0) { boardReturn(u, tr.crew, tr.wait); tr.wait = 0; }
+ const b = t?.boarding;if (b && b.by === u.id && b.phase !== 'back' && b.aboard > 0) { b.cut = true; }
+}
+// The battle's result waits for a boarding under way (from the lock, BOARD.holdResult s at most), so a prize taken
+// as the enemy breaks still counts.
+function boardPending(w) { for (const u of w.units.values()) { const tr = u.tractor; if (tr?.mode === 'capture' && tr.lock && alive(u) && w.time - (tr.at ?? w.time) < BOARD.holdResult) return true; if (u.boarding && alive(u) && w.time - u.boarding.t0 < BOARD.holdResult) return true; } return false; }
+function boardTick(w, dt) { for (const t of w.units.values()) if (t.boarding) boardFight(w, t, dt); }
+// What the UI shows of a boarding: from the attacker (u) or the boarded ship (t).
+function boardInfo(w, u) {
+ const tr = u?.tractor?.mode === 'capture' ? u.tractor : null, t = tr ? w.units.get(tr.target) : u?.boarding ? u : null, b = t?.boarding;
+ if (!tr && !b) return null;const by = b ? w.units.get(b.by) : u;
+ return {by: by?.id, target: t?.id, goal: (b || tr).goal, phase: b ? (b.phase === 'back' ? 'back' : 'fight') : tr.lock ? (tr.phase === 'cross' || tr.phase === 'dock' ? 'dock' : 'reel') : 'close', lock: !!tr?.lock, progress: tr?.progress || 0, strain: tr?.strain || 0,
+  sent: b ? b.sent : tr.n, wait: Math.round(tr?.wait || 0), aboard: Math.round(b?.aboard || 0), def: Math.round(b ? b.dT + b.dC : 0), stored: Math.round(b?.dS || 0), comp: b?.comp || 0, need: b?.need || 0, lostA: Math.round(b?.lostA || 0), lostD: Math.round(b?.lostD || 0), droid: !!b?.droid, cut: !!b?.cut, held: b?.held || 0, side: b?.side ?? u?.side};
+}
+// The AI boards with a ship that has troops and a tractor beam, when an enemy within a few beam reaches can be held
+// (engines below aiStrain of the hold) and its troops outweigh the defence by aiOdds.
+function aiBoarding(w, sys, us) {
+ for (const u of us) {
+  if (!w.sides[u.side]?.ai || !fighting(u) || u.manual || u.jump || u.tractor || !(u.p.trac > 0) || (u.troops || 0) < BOARD.aiMin) continue;
+  let best = null, bd = Infinity;
+  for (const t of us) { if (t.side === u.side || !boardOk(u, t) || t.boarding || t.towedBy) continue; const d = len(sub(t.pos, u.pos)); if (d > tractorReach(u, t) * 4 || d >= bd) continue; const o = boardOdds(w, u, t); if (o.strain > BOARD.aiStrain || o.odds < BOARD.aiOdds) continue; best = t; bd = d; }
+  if (best) { const r = orderBoard(w, u.id, best.id, {ai: true}); if (r.ok) blog(w, sys, `${u.name}：${best.name}に移乗攻撃を開始`, u); }
  }
 }
 // --- movement (as in the fleet model; arriving ships hang still for a moment after reversion).
@@ -15401,12 +15608,13 @@ function tick(w, dt) {
 followTick(w,dt);raidTick(w, dt);hatchTick(w, dt);
  updateBattles(w);
  if ((w.timers.det -= dt) <= 0) { w.timers.det = RULES.detectEvery; detect(w); }
- if ((w.timers.tac -= dt) <= 0) { w.timers.tac = RULES.aiTactical; for (const [sys] of w.battles) { tacticalOrders(w, sys, systemUnits(w, sys)); doctrineWings(w, sys); } }
+ if ((w.timers.tac -= dt) <= 0) { w.timers.tac = RULES.aiTactical; for (const [sys] of w.battles) { tacticalOrders(w, sys, systemUnits(w, sys)); doctrineWings(w, sys); aiBoarding(w, sys, systemUnits(w, sys)); } }
  if ((w.timers.ai -= dt) <= 0) { w.timers.ai = RULES.aiStrategic; for (const sd of w.sides) if (sd.ai) aiStrategic(w, sd.id); }
  carriedTick(w);
  for (const [sys] of w.battles) battleTick(w, sys, dt);
  peaceMoves(w, dt);
  for (const u of w.units.values()) if (u.tractor && alive(u) && u.sys != null && !w.battles.has(u.sys)) tractorTick(w, u, dt);
+ boardTick(w, dt);
  // Out of battle, shields recharge and docked craft rearm.
  for (const u of w.units.values()) if (alive(u) && u.sys != null && !w.battles.has(u.sys)) {const s=C.fleetSystems(u);if(!u.manual)C.fleetPowerStep(u,s,null,0,dt);C.combatResolve(combatCtx(w,u.sys),u,C.combatIncoming(),dt,s);if (u.warp) { u.warp.t += dt; if (u.warp.t > 1) delete u.warp; } }
  // v21.2 Out of battle (in a system or in hyperspace) superweapons keep charging and reactors recover.
@@ -15419,6 +15627,7 @@ followTick(w,dt);raidTick(w, dt);hatchTick(w, dt);
 // value (sunk, disabled or fled) or has no ship left able to fight.
 function checkResult(w) {
  if (w.mode !== 'fleet' || w.result) return;
+ if (boardPending(w)) return;   // v26 a boarding under way is fought out first
  // Ships at the yards count for half of what they will bring back.
  const rear = u => u.status === 'rear' && !u.dead, aboard = u => u.status === 'carried' && !u.dead;
  // Ships docked in a carrier are its strength still.
@@ -15497,9 +15706,11 @@ function orderCtgJump(w, cid, dest, together = true) {
  for (const x of etas) { if (together && last - x.eta > 30) { x.g.waitJump = {dest, at: w.time + (last - x.eta)}; n++; continue; } const r = orderJump(w, x.g.id, dest); if (r.ok) n++; }
  return {ok: n > 0, eta: last, n};
 }
-function orderTractor(w, id, mode, target) {
+function orderTractor(w, id, mode, target, opts) {
  const u = w.units.get(id), t = w.units.get(target);if (!u || w.sides[u.side].ai) return {ok: false, why: '命令できません'};
  if (mode === 'release') { releaseTractor(w, u, '命令'); return {ok: true}; }
+ // v26 拿捕 is a boarding action (orderBoard: lock, reel in, dock, fight inside)
+ if (mode === 'capture') return orderBoard(w, id, target, opts);
  if (!(u.p.trac > 0)) return {ok: false, why: 'トラクター・ビーム投射機がありません'};
  if (!t || t.sys !== u.sys) return {ok: false, why: '目標が同じ星系にいません'};
  if (!tractorOk(u, t, mode)) return {ok: false, why: mode === 'tow' ? '牽引できるのは戦闘不能の味方艦です' : '拿捕できるのはシールドを失った戦闘不能の敵艦です'};
@@ -15849,6 +16060,8 @@ function makeRegiment(faction, name) {
  const tpl = REGIMENT_TEMPLATES[faction] || REGIMENT_TEMPLATES.empire;
  return {name, faction, battalions: Array.from({length: REGIMENT_BATTALIONS}, (_, b) => ({name: `第${b + 1}大隊`, companies: tpl.companies.map((type, c) => ({name: `${'ABCD'[c]}中隊（${COMPANY_TYPES[type]}）`, type, troops: COMPANY_TROOPS, vehicles: {...(tpl.vehicles[type] || {})}}))}))};
 }
+// v26 Troops lost (boarding): taken from the companies, the last first; vehicles stay.
+function groundTrim(rows, n) { let left = Math.round(n || 0);for (const r of [...(rows || [])].reverse()) for (const b of [...(r.battalions || [])].reverse()) for (const c of [...(b.companies || [])].reverse()) { if (left <= 0) return rows; const k = Math.min(c.troops || 0, left); c.troops = (c.troops || 0) - k; left -= k; } return rows; }
 function regimentTotals(r) { const t = {troops: 0, vehicles: {}, size: 0}; for (const b of r.battalions || []) for (const c of b.companies || []) { t.troops += c.troops || 0; for (const [k, n] of Object.entries(c.vehicles || {})) { if (!VEHICLES[k]) continue; t.vehicles[k] = (t.vehicles[k] || 0) + n; t.size += VEHICLES[k].size * n; } } return t; }
 function airTotals(list) { let n = 0, size = 0, crew = 0, fight = 0; for (const q of list || []) { const c = CRAFT[q.craft]; if (!c) continue; n += q.n; size += q.n * c.size; crew += q.n * c.crew; if (!c.stay) fight += q.n; } return {n, size, crew, fight}; }
 
@@ -15998,7 +16211,7 @@ function campaignAdvance(st) { const i = CAMPAIGN_STAGES.indexOf(st.stage);if (i
 
 return {routeItinerary,jumpEstimate,normalizeJumpNavigation,CAMPAIGN_FORMAT, CAMPAIGN_VERSION, CAMPAIGN_SLOTS, CAMPAIGN_STAGES, campaignNew, normalizeCampaign, campaignAdvance, AI_STRATEGY, AIR_DOCTRINES, VICTORY_DEFAULT, normalizeVictory, normalizeDeploy, CRAFT_COST, craftPrice, craftCost, shipCost, fleetCost, SCENARIO_FORMAT, SCENARIO_VERSION, SCENARIO_SIDES, SIDE_CONTROL, normalizeFleet, normalizeSide, normalizeScenario, scenarioJSON, scenarioFromJSON, battleOrbat, scenarioPick, scenarioCosts, scenarioWorld, checkResult, canonGround, DOCTRINE, doctrineOf, shieldFrac, doctrineTarget, aiWing, RULES, TICK, CRAFT, CRAFT_MIX, ROLE_NAME, FACTIONS, SIDE_OF, VEHICLES, COMPANY_TYPES, REGIMENT_TEMPLATES, COMPANY_TROOPS, CAPITAL_LENGTH, MAP_LY, GRID_COLS, SECTOR_DEFS, REGIONS, LANE, KIND_NAME, APPROACH, APPROACH_NAME, FORMATIONS, formationKnown, formationName, SLOT_ROLES, SLOT_SIZES, normalizeFormation, groupSlots, formationCheck, formationTemplate, TF, TURN_MODES, SPEEDS, taskForceInfo, slotError, sustainSpeed, deployGroup, groupStations, WING_PHASE, sensorTick, contactOf, contactStage, searchOrder, foilTick, unitSig, unitSens, unitSigma, EMIT_MODES, FOIL_MODES,
  stowBays, shipStow, stir, peaceTick, formationOffsets, formationGaps, pendingWarp, jumpSequence, JUMP_STAGGER, rng, makeSector, sysDistance, routePath, routeCost, pathSeconds, tripSeconds, designInfo, unitDemand, createWorld, normalizeOrbat, makeUnit, makeGroup, makeCtg, ctgOf, addSquad, step, tick,
- detect, orderJump, cancelJump, etaTo, groupMapPos, orderUnit, orderGroup, orderCtg, orderCtgJump, orderTractor, orderWing, splitGroup, mergeGroups, systemUnits, unitStruct, unitStrength, unitHyper, carriedOf, launchCarried, recoverCarried, orderCarried, groupHyper, groupDisabled, groupStay,
+ detect, orderJump, cancelJump, etaTo, groupMapPos, orderUnit, orderGroup, orderCtg, orderCtgJump, orderTractor, BOARD, BOARD_PHASE, BOARD_GOAL, boardOk, boardOdds, boardDefault, boardParty, boardStrain, boardInfo, orderBoard, orderBoardRecall, groundTrim, orderWing, splitGroup, mergeGroups, systemUnits, unitStruct, unitStrength, unitHyper, carriedOf, launchCarried, recoverCarried, orderCarried, groupHyper, groupDisabled, groupStay,
  orderScuttle, orderRecover, recoverCheck, rearSeconds, SUPPLY, supplyAt, supplyLines, supplyNeeds, unitSupplyOf, alive, fighting, pdToward, effectiveOrder, groupOrder, tractorReach, tractorOk, registerDesignCraft, craftStores, squadStores, squadRelease, rearmSquad, squadSystemsTick, squadLaserK, squadArmed, squadSlots, craftDown,
  squadFireArc,ctgFormationInfo,
  craftFormation, defaultAir, troopRoom, defaultGround, makeRegiment, regimentTotals, fleetGroundRows, airTotals, battleTick, sectorGal, sideBearing, sideStarts,
