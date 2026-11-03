@@ -1,0 +1,64 @@
+{
+  "started": "2026-11-03T05:13:32.455Z",
+  "finished": "2026-11-03T05:17:44.086Z",
+  "scope": "Node/Core automatic-placement integration on the actual built-in imperial (Imperial I) design; no browser, flight, combat, GPU, or FPS measurement.",
+  "source": {
+    "data/reference.js": "b017c7692e310b76c8cfb0e05ca4ea33c53b51b7a5dcef71e36c9b5d465440f7",
+    "data/imperial2.js": "26d94e9127caadf9bff4b8da757ca0cfe98f31bfdc2735c6b9f872c41e1075ca",
+    "data/fleet.js": "cf094bec6abb2ff947740ba29884d6e60067512811c51723242f31e8a2e8b157",
+    "js/core.js": "b3829b9e4137a0c110db94f501fe1a37b379a46e3c2b7de3838c4bb25133b4ba"
+  },
+  "sourceAfter": {
+    "data/reference.js": "b017c7692e310b76c8cfb0e05ca4ea33c53b51b7a5dcef71e36c9b5d465440f7",
+    "data/imperial2.js": "26d94e9127caadf9bff4b8da757ca0cfe98f31bfdc2735c6b9f872c41e1075ca",
+    "data/fleet.js": "cf094bec6abb2ff947740ba29884d6e60067512811c51723242f31e8a2e8b157",
+    "js/core.js": "b3829b9e4137a0c110db94f501fe1a37b379a46e3c2b7de3838c4bb25133b4ba"
+  },
+  "design": {
+    "key": "imperial",
+    "name": "インペリアルI級｜重砲戦艦",
+    "length": 1600,
+    "nativeParts": 61,
+    "nativeGuns": 170
+  },
+  "candidateFaces": 116,
+  "candidateHosts": 16,
+  "result": {
+    "ok": true,
+    "configured": 116,
+    "skipped": 58,
+    "unplaced": 3491,
+    "parts": 533,
+    "fits": 170,
+    "generatedRooms": 472,
+    "generatedByRole": {
+      "cooling": 170,
+      "sensors": 161,
+      "habitation": 141
+    },
+    "generatedGuns": 0,
+    "nativeGunsRetained": true,
+    "affectedHosts": 14,
+    "warnings": 207
+  },
+  "timing": {
+    "buildMs": 194064.321728,
+    "scanMs": 2259.389422999986,
+    "automaticMs": 50357.943503999995,
+    "wallMs": 246707.404118,
+    "context": "CPU operation observations while other final checks may run; not an isolated performance benchmark."
+  },
+  "limits": "Skipped/unplaced requests retain common face/depth/collision and bounded-device constraints; neutral structural machinery can remain visible without providing uninstalled capability.",
+  "subsequentSourceUpdates": {
+    "changes": [
+      "Generated price-cache signatures for surface format v3",
+      "Preservation of generated room metadata during save/import",
+      "Private client geometry-proxy cache readiness and identity invalidation"
+    ],
+    "automaticPlacementRulesAndParametersUnchanged": true,
+    "unchangedReferencePrices": 12,
+    "costModelVersion": 9,
+    "currentCoreSha256": "cab2e6ca304158ebcfdd118a9780c3c2e8b3b17635df09417f7d425f98db9c63",
+    "note": "The exact measured source hashes remain above. This Node run preceded the listed follow-up corrections, which do not change its automatic-placement rules or parameters. Its timings do not represent a new benchmark of the final source."
+  }
+}

@@ -26,6 +26,12 @@ function geoOut(g, transfer) {
   return o;
 }
 function linesOut(l, transfer) { if (!l) return null; const o = {pos: l.pos.slice(), col: l.col.slice()}; if (transfer) transfer.push(o.pos.buffer, o.col.buffer); return o; }
+// The editor's report needs totals and settings. Geometry and compiled
+// reservations already travel in their own source/cache payloads.
+function surfaceReportOut(report){
+ if(!report)return null;
+ return {...report,patches:(report.patches||[]).map(p=>{const {triangles,polygon,cells,...row}=p;if(row.config){const {aggregate,...config}=row.config;row.config=config;}return row;})};
+}
 const overlapSig = (info) => info ? Object.keys(info).filter(k => info[k] && info[k].overlap).sort().join(',') : '';
 
 // Caches travel to the editor with references to ship objects replaced by
@@ -38,6 +44,9 @@ function packCaches(s) {
   const conv = (v, key) => {
     if (key === 'geoFlat') return undefined;
     if (v === null || typeof v !== 'object') return typeof v === 'function' ? undefined : v;
+    // Native compartment caches can refer back to the common simulation view.
+    // On the editor side that reference must resolve to the source design.
+    if (v._surfaceSource === s) return {$r: 'ship'};
     const r = refs.get(v); if (r) return r;
     if (ArrayBuffer.isView(v) || v instanceof ArrayBuffer) return v;
     let o = memo.get(v); if (o) return o;
@@ -70,7 +79,8 @@ function geometryPass(job, flags) {
   const t0 = now();
   if (flags.hull) {
     C.hullGeo(ship);
-    const key = (ship._cache && ship._cache.key) + JSON.stringify([ship.hullSkin || null, ship.paint || null, ship.detail ?? 1]);
+    const hullSurfaces=(ship.surfaces?.patches||[]).filter(p=>p.id.startsWith('hull:')).map(p=>[p.id,p.functionMode]);
+    const key = (ship._cache && ship._cache.key) + JSON.stringify([ship.hullSkin || null, ship.paint || null, ship.detail ?? 1,hullSurfaces,ship.surfaces?.partitions||null]);
     if (key !== hullKey) { geos.hull = geoOut(G.meshHull(ship), transfer); geos.refHull = geoOut(G.meshReferenceHull(ship), transfer); hullKey = key; }
     geos.keel = geoOut(G.meshKeel(ship), transfer);
     out.dims = [ship.hull.L, ship.hull.W, ship.hull.H];
@@ -101,6 +111,10 @@ function deriveState(job) {
   if (any('parts')) flags.parts = flags.hatches = flags.fits = true;
   if (any('fits')) flags.fits = flags.parts = true;
   if (any('view')) flags.parts = true;
+  // Moving exposed structures can reveal or cover a configured hull patch.
+  // Its removed skin must be rebuilt together with the equipment, even when
+  // the hull's physical collision geometry has not changed.
+  if(any('parts','fits')&&(ship.surfaces?.patches||[]).some(p=>p.id.startsWith('hull:')&&p.functionMode==='equipment')){flags.hull=true;hullKey='';}
   const sync = job.reset || any('hull', 'all', 'parts', 'fits', 'hatches');
   const mount = job.reset || any('hull', 'all', 'parts', 'hatches');
   const t0 = now();
@@ -113,6 +127,7 @@ function finishGeometry(job, out) {
   try { C.rayEnv(ship, [ship.hull.L / 2, 1e7, 0], [0, -1, 0]); } catch (e) { /* empty hull */ }
   const t0 = now();
   out.state = C.publicJSON(ship);
+  if(ship.surfaces)out.surfaceReport=surfaceReportOut(C.surfaceReport(ship));
   out.caches = packCaches(ship);
   out.packMs = now() - t0;
 }
@@ -141,7 +156,8 @@ async function handleUpdate(job) {
   const t1 = now();
   const S = C.computeStats(ship);
   lastInfo = S.info;
-  const msg = {type: 'stats', gen: job.gen, stats: S, statsMs: now() - t1};
+  const profile = C.fleetProfile(S, ship.name, ship);
+  const msg = {type: 'stats', gen: job.gen, stats: S.surface?{...S,surface:surfaceReportOut(S.surface)}:S, profile, statsMs: now() - t1};
   const transfer = [];
   if (overlapSig(S.info) !== lastOverlap) {
     const m = meshPartsRanged(ship, {coded: !!view.coded, info: lastInfo, habitation: !!view.habitation});
@@ -160,13 +176,19 @@ function handleBuild(job) {
 }
 
 let trialHold = null;
+// Clearance needs the physical host shells and the face's virtual gun ports.
+// Internal aggregate resource adapters are already contained by those shells.
+function trialSurfaceShip(source){
+ const work=typeof C.surfaceWorkingShip==='function'?C.surfaceWorkingShip(source):source;
+ return work===source?source:{...work,parts:source.parts};
+}
 // Clearance uses the same rigid S-foil pose as the visible trial ship. The worker owns the
 // normalized source design; requests supply only deployment fractions for its existing roots.
 function trialRayPose(t,requested){
  const roots=t.foils||(t.foils=t.ship.parts.filter(C.isFoil)),fractions=roots.map(w=>{const value=requested&&Object.hasOwn(requested,w.id)?requested[w.id]:1;return Number.isFinite(value)?C.clamp(value,0,1):1;});
  if(fractions.every(d=>d===1))return t;
  const key=fractions.join(','),poses=t.poses||(t.poses=new Map());if(poses.has(key)){const hit=poses.get(key);poses.delete(key);poses.set(key,hit);return hit;}
- const posed=JSON.parse(C.publicJSON(t.ship)),partIndex=new Map(posed.parts.map((p,i)=>[p.id,i])),fitIndex=new Map(posed.fits.map((f,i)=>[f.id,i])),sourceParts=new Map(t.ship.parts.map(p=>[p.id,p])),sourceFits=t.fits;
+ const posed=trialSurfaceShip(JSON.parse(C.publicJSON(t.ship))),partIndex=new Map(posed.parts.map((p,i)=>[p.id,i])),fitIndex=new Map(posed.fits.map((f,i)=>[f.id,i])),sourceParts=new Map(t.ship.parts.map(p=>[p.id,p])),sourceFits=t.fits;
  const usedParts=new Set(),usedFits=new Set();
  for(let i=0;i<roots.length;i++){
   const wing=roots[i],members=C.wingMembers(t.ship,wing),ownedParts=new Set([wing,...members.structs,...members.parts].filter(p=>!usedParts.has(p.id)).map(p=>p.id)),ownedFits=new Set(members.fits.filter(f=>!usedFits.has(f.id)).map(f=>f.id));
@@ -226,7 +248,7 @@ function handleFleet(job) {
   const geometry = G.fleetGeometry(d, {trial: !!job.trial, ...(profile.surface?.offset ? {center: profile.surface.offset} : {})});
   for (const m of Object.values(geometry.meshes)) { m.geo = geoOut(m.geo, transfer); }
   // A trial keeps its ship here so turret rays can be tested against it.
-  if (job.trial) trialHold = {ship: d, ctx: C.turretRayContext(d), fits: new Map(d.fits.map(f => [f.id, f]))};
+  if (job.trial) {const rays=trialSurfaceShip(d);trialHold={ship:rays,ctx:C.turretRayContext(rays),fits:new Map(rays.fits.map(f=>[f.id,f]))};}
   post({type: 'fleet', id: job.id, stats, profile, geometry, design: serial, ms: now() - t0, cached: !!hit}, transfer);
 }
 
@@ -236,6 +258,7 @@ function handleOp(job) {
   let result = null;
   switch (job.op) {
     case 'fillHangars': result = C.fillHangars(ship, ...job.args); break;
+    case 'surfaceAuto': result = C.autoConfigureSurfaces(ship, job.args?.[0] || {}); break;
     default: throw new Error('unknown operation ' + job.op);
   }
   post({type: 'op', id: job.id, result, state: C.publicJSON(ship)});

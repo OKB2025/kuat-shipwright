@@ -1947,7 +1947,7 @@ function requestDraw() { dirty.draw = true; }
 // Geometry, compartment clipping, mounts and performance run in the engine
 // (a worker when available). Edits only record what changed; the newest
 // design is sent whenever the engine is free, so dragging never queues work.
-const eng = {ready: false, gen: 0, sentGen: 0, geoGen: 0, adoptedGen: 0, statsGen: 0, waiting: false, scheduled: false, what: new Set(), reset: true, fitOnGeometry: true, quiet: false, label: '', labelGen: 0, mode: 'none', ms: null};
+const eng = {ready: false, gen: 0, sentGen: 0, geoGen: 0, adoptedGen: 0, statsGen: 0, profile: null, profileGen: -1, waiting: false, scheduled: false, what: new Set(), reset: true, fitOnGeometry: true, quiet: false, label: '', labelGen: 0, mode: 'none', ms: null};
 const meshStore = {geos: {}, glow: null, grid: null, ranges: null};
 function touch(what) {   // geometry or design changed
   if (!ship) return;
@@ -2008,7 +2008,7 @@ function liveScale() {
 // is adopted only when the design has not changed since the request.
 function adoptEngineState(msg) {
   const src = JSON.parse(msg.state);
-  C.patchShip(ship, src, ['parts', 'fits', 'hatches']);
+  C.patchShip(ship, src, ['parts', 'fits', 'hatches', 'surfaces']);
   if (Number.isFinite(src.nextId)) ship.nextId = Math.max(ship.nextId, src.nextId);
   const c = msg.caches; if (!c) return;
   const ids = {parts: new Map(ship.parts.map(p => [p.id, p])), fits: new Map(ship.fits.map(f => [f.id, f])), hatches: new Map(ship.hatches.map(h => [h.id, h]))};
@@ -2037,6 +2037,7 @@ function onEngineGeometry(msg) {
   if (msg.gen >= eng.geoGen) { eng.geoGen = msg.gen; applyGeometry(msg); eng.ms = msg.totalMs; if (live.active && msg.gen >= live.gen && st.foilView !== 'stow') clearPreview(); }
   if (msg.gen === eng.gen && msg.state) {
     adoptEngineState(msg);
+    if(msg.surfaceReport)surfaceRemoteReport={ship,gen:msg.gen,report:msg.surfaceReport};
     if (st.foilView === 'stow') foilPreview(true);
     if (eng.fitOnGeometry) { eng.fitOnGeometry = false; fitCamera(eng.keepCam); }
     hideBusyOverlay();
@@ -2050,6 +2051,7 @@ function onEngineStats(msg) {
   if (msg.geos && msg.gen >= eng.geoGen) applyGeometry(msg);
   if (msg.gen < eng.statsGen) return;
   eng.statsGen = msg.gen;
+  eng.profile = msg.profile || null; eng.profileGen = msg.gen;
   prevS = S; S = msg.stats;
   if(st.tab==='surface')surfaceRefreshReport();
   renderStrip(); renderSpecTargets(); if (st.tab === 'systems' || (armMode() || st.tab === 'edit' && selSingle()) && st.sel?.list === 'fits' && !dragSnap) renderPanel();
@@ -2325,6 +2327,7 @@ function setShip(s, opts) {
   if (!s.saveId) s.saveId = newSaveId();
   dragSnap = null;
   ship = s; s._client = true; S = null; prevS = null; st.sel = null; st.multi = {parts: new Set(), fits: new Set()}; st.surfaceIds=[];st.surfaceDraft={};st.surfaceLast=null;st.surfacePage=0;st.hatchA = null; resetSolidCutter();
+  eng.profile = null; eng.profileGen = -1;
   // Loading another design remains undoable. The engine starts from scratch.
   eng.reset = true; eng.fitOnGeometry = true; eng.keepCam = !!(opts && opts.keepCam);
   meshStore.geos = {}; meshStore.ranges = null; if (view) { for (const k of Object.keys(view.meshes || {})) if (view.meshes[k]) view.meshes[k].count = 0; }
@@ -2406,8 +2409,8 @@ function sectionHit(o, d, clip) {
   return {t, p: q, n, kind: 'section'};
 }
 function partHit(o, d, clip, filter) {
-  let best = null;
-  for (const pt of [...ship.parts,...C.commandCompartments(ship),...C.weaponCapacitors(ship),...C.missileCells(ship)]) {
+  let best = null;const nativeFits=new Set(ship.fits.map(f=>f.id));
+  for (const pt of [...ship.parts,...C.commandCompartments(ship),...C.weaponCapacitors(ship).filter(p=>nativeFits.has(p.weaponId)),...C.missileCells(ship)]) {
     if (filter && !filter(pt)) continue;
     const h = C.rayPart(o, d, pt);
     if (h && visibleAt(h.p, clip) && (!best || h.t < best.t)) { best = h; best.part = pt; best.kind = 'part'; }
@@ -5251,9 +5254,15 @@ function bindPalette(){
 // The selection contains semantic patch IDs. The form records only fields the
 // player changed, so applying one layer to several faces preserves their others.
 const SURFACE_FACES={top:'上面',bottom:'下面',port:'左舷',stbd:'右舷',fore:'前面',aft:'後面'};
-const SURFACE_ALLOCATION_LABELS={weapons:'砲列',cooling:'散熱',sensors:'センサー',habitation:'居住区'};
+const SURFACE_ALLOCATION_LABELS={cooling:'散熱',sensors:'センサー',habitation:'居住区'};
+let surfaceRemoteReport=null;
+function surfaceReportForEditor(){
+ if(S?.surface&&(typeof eng==='undefined'||eng.statsGen===eng.gen))return S.surface;
+ if(surfaceRemoteReport?.ship===ship&&surfaceRemoteReport.gen===eng.gen)return surfaceRemoteReport.report;
+ surfaceRemoteReport=null;return C.surfaceReport(ship);
+}
 const SURFACE_FIELDS={
- 'functionMode':'text','allocation.weapons':'number','allocation.cooling':'number','allocation.sensors':'number','allocation.habitation':'number',
+ 'functionMode':'text','allocation.cooling':'number','allocation.sensors':'number','allocation.habitation':'number',
  'armor.material':'text','armor.thickness':'number','equipment.kind':'text','equipment.count':'number','equipment.depth':'number',
  'battery.weapon':'text','battery.count':'number','battery.spacing':'number','battery.angle':'number',
  'style.kind':'text','style.depth':'number','style.density':'number','style.seed':'number'
@@ -5270,11 +5279,12 @@ function surfacePatchName(p){return `${surfaceHostName(p)} · ${SURFACE_FACES[p.
 function surfaceFilteredRows(){
  const filter=st.surfaceFilter||'all';return surfaceRows().filter(p=>p.exposed&&(filter==='all'||filter==='hull'&&p.host==='hull'||filter==='parts'&&p.host!=='hull'||filter==='configured'&&ship.surfaces?.patches?.some(q=>q.id===p.id)));
 }
+function surfaceSymmetricIds(ids){return C.surfaceSymmetryIds(ship,ids,{mirror:!!st.mirror,vmirror:!!st.vmirror});}
 function surfaceSelectPatch(id,add=false,range=false){
  const rows=surfaceFilteredRows(),p=surfaceRows().find(q=>q.id===id&&q.exposed);if(!p)return false;
  const ids=new Set(add?st.surfaceIds||[]:[]),a=rows.findIndex(q=>q.id===st.surfaceLast),b=rows.findIndex(q=>q.id===id);
- if(range&&a>=0&&b>=0){for(const q of rows.slice(Math.min(a,b),Math.max(a,b)+1))ids.add(q.id);}
- else if(add&&ids.has(id))ids.delete(id);else ids.add(id);
+ if(range&&a>=0&&b>=0){for(const q of surfaceSymmetricIds(rows.slice(Math.min(a,b),Math.max(a,b)+1).map(q=>q.id)))ids.add(q);}
+ else{const group=surfaceSymmetricIds([id]);if(add&&ids.has(id))for(const q of group)ids.delete(q);else for(const q of group)ids.add(q);}
  st.surfaceIds=[...ids];st.surfaceLast=id;st.surfaceDraft={};surfaceSyncSelection();renderPanel();requestDraw();return true;
 }
 function surfaceTap(px,py,add){
@@ -5288,7 +5298,7 @@ function surfaceFormValue(configs,path){
 }
 function surfaceRatioEdits(){const draft=st.surfaceDraft||{};return draft._allocationEdits||Object.entries(draft).filter(([path])=>path.startsWith('allocation.')).map(([path,value])=>({key:path.split('.')[1],value}));}
 function surfaceDraftConfig(config){
- const q={...config,armor:{...config.armor},equipment:{...config.equipment},battery:{...config.battery},style:{...config.style},allocation:{...(config.allocation||{weapons:25,cooling:25,sensors:25,habitation:25})}};
+ const q={...config,armor:{...config.armor},equipment:{...config.equipment},battery:{...config.battery},style:{...config.style},allocation:C.surfaceAllocation(config.allocation)};
  for(const [path,value]of Object.entries(st.surfaceDraft||{})){if(!Object.hasOwn(SURFACE_FIELDS,path)||path.startsWith('allocation.'))continue;const a=path.split('.');if(a.length===1)q[a[0]]=value;else q[a[0]][a[1]]=value;}
  for(const edit of surfaceRatioEdits())q.allocation=C.surfaceAllocation(q.allocation,edit.key,edit.value);
  if(q.functionMode==='equipment'){if(q.battery.weapon==='none')q.battery.weapon='pd';if(q.equipment.kind==='none'||q.equipment.kind==='machinery')q.equipment.kind='hdis';}
@@ -5305,36 +5315,59 @@ function surfaceSelectField(configs,path,label,options){
 }
 function surfaceReportHTML(report){
  const selected=new Set(st.surfaceIds||[]),statsReady=!!S&&(typeof eng==='undefined'||eng.gen===eng.statsGen),computed=statsReady?new Map((S.surface?.patches||[]).map(p=>[p.id,p])):new Map(),rows=(report.patches||[]).filter(p=>selected.has(p.id)).map(p=>({...p,...computed.get(p.id)})),total=(key)=>rows.reduce((n,p)=>n+(Number.isFinite(p[key])?p[key]:0),0),errors=rows.flatMap(p=>(p.errors||[]).map(text=>({text,patch:p.id}))),warnings=(report.warnings||[]).filter(w=>!w.patch||selected.has(w.patch));
- const installed=total('installed'),requested=total('requested'),fids=new Set(rows.flatMap(p=>p.fitIds||[])),fits=ship.fits.filter(f=>fids.has(f.id)),specs=fits.map(f=>C.fitSpec(f)),crew=specs.reduce((n,d)=>n+(d.crew||0)*2,0),power=specs.reduce((n,d)=>n+(d.power||0),0),fed=fits.filter(f=>S?.feedInfo?.[f.id]&&(!C.needsCapacitor?.(f)||(S.chargeInfo?.[f.id]?.ratio||0)>0)).length;
- const table=[['有効な外面積',`${num(total('exposedArea'),2)} m²`],['予約した共用面積',`${num(total('occupiedArea'),2)} m²`],['設備の占有容積',`${num(total('volume'),2)} m³`],['装甲と設備の質量',fMass(total('mass'))],['砲座の設置数／要求数',`${installed} / ${requested} 基`],['砲列の砲員・給電整備要員',`${num(crew)} 名`],['砲列の定格給電要求',fW(power)],['配電路が届く砲座',S?`${fed} / ${installed} 基`:'計算中']];
- table.splice(5,0,['砲身総数',`${total('barrels')} 門`],['設備の設置数／要求数',`${total('installedEquipment')} / ${total('requestedEquipment')} 基`],['散逸設備の定格容量',fW(total('coolingCapacity'))]);
+ const installed=total('installed'),requested=total('requested'),aggregate=rows.some(p=>p.aggregate),fids=new Set(rows.flatMap(p=>p.fitIds||[])),fits=ship.fits.filter(f=>fids.has(f.id)),metric=(key,read)=>rows.reduce((n,p)=>n+(Number.isFinite(p[key])?p[key]:fits.filter(f=>p.fitIds?.includes(f.id)).reduce((a,f)=>a+read(C.fitSpec(f)),0)),0),crew=metric('batteryCrew',d=>(d.crew||0)*2),power=metric('batteryPowerDemand',d=>d.power||0),fedKnown=statsReady&&rows.every(p=>Number.isFinite(p.fed)||!p.aggregate),fed=rows.every(p=>Number.isFinite(p.fed))?total('fed'):fits.filter(f=>S?.feedInfo?.[f.id]&&(!C.needsCapacitor?.(f)||(S.chargeInfo?.[f.id]?.ratio||0)>0)).length;
+ const table=[['有効な外面積',`${num(total('exposedArea'),2)} m²`],['予約した共用面積',`${num(total('occupiedArea'),2)} m²`],['設備の占有容積',`${num(total('volume'),2)} m³`],['装甲と設備の質量',fMass(total('mass'))],['砲座の設置数／要求数',`${installed} / ${requested} 基`],['砲列の砲員・給電整備要員',`${num(crew)} 名`],['砲列の定格給電要求',fW(power)],['配電路が届く砲座',fedKnown?`${fed} / ${installed} 基`:'計算中']];
+ table.splice(5,0,['砲身総数',`${total('barrels')} 門`],...(!aggregate?[['設備の設置数／要求数',`${total('installedEquipment')} / ${total('requestedEquipment')} 基`]]:[]),['散逸設備の定格容量',fW(total('coolingCapacity'))]);
+ if(total('inactiveVolume')>0)table.push(['保管中の面設備容積',`${num(total('inactiveVolume'),2)} m³`]);
  const measured=rows.length&&rows.every(p=>computed.has(p.id)&&Number.isFinite(p.maximumTT));
  table.push(['稼働可能な砲座',measured?`${total('operating')} / ${installed} 基`:'計算中'],['給電要求／供給',measured?`${fW(total('chargeRequested'))} / ${fW(total('chargeSupplied'))}`:'計算中'],['最大／持続射撃（ゲーム換算）',measured?`${num(total('maximumTT'),3)} / ${num(total('sustainedTT'),3)} TT/s`:'計算中'],['選択面の発熱／熱輸送',measured?`${fW(total('heatGenerated'))} / ${fW(total('heatExported'))}`:'計算中'],['最大蓄電量（ゲーム換算）',measured?`${num(total('maxEnergy'),3)} TT`:'計算中']);
  if(S)table.push(['艦全体の要員',`${num(S.crewAboard??S.crew??0)} / ${num(S.crew||0)} 名`],['共通熱系統の発熱／処理',`${fW(S.heat?.presets?.combat?.gen||0)} / ${fW(S.heat?.presets?.combat?.out||0)}`]);
- const equipmentRows=rows.filter(p=>p.config?.functionMode==='equipment'),category=(key,value)=>equipmentRows.reduce((n,p)=>n+(Number.isFinite(p.categories?.[key]?.[value])?p.categories[key][value]:0),0),allocationTable=equipmentRows.length?`<div data-surface-allocation-report><h4>機材搭載面の面積配分</h4><dl class="engineering-stats">${Object.entries(SURFACE_ALLOCATION_LABELS).map(([key,label])=>`<div data-surface-category="${key}"><dt>${label}</dt><dd>${num(category(key,'budgetArea'),2)} m² · ${category(key,'installed')} / ${category(key,'requested')} 基</dd><dd>占有 ${num(category(key,'occupiedArea'),2)} m² · 未使用 ${num(category(key,'unusedArea'),2)} m²</dd></div>`).join('')}<div><dt>居住容積／居住定員</dt><dd>${num(total('habitationVolume'),2)} m³ / ${num(total('habitationCapacity'))} 名</dd></div></dl><p class="note">比率は各種類に予約する面積です。面積・内部深さ・開口部・既存設備の条件を満たす機材だけを実際に配置します。居住定員は収容上限で、乗員を新規に生成しません。</p></div>`:'';
+ const equipmentRows=rows.filter(p=>p.config?.functionMode==='equipment'),category=(key,value)=>equipmentRows.reduce((n,p)=>n+(Number.isFinite(p.categories?.[key]?.[value])?p.categories[key][value]:0),0),allocationTable=equipmentRows.length?`<div data-surface-allocation-report><h4>機材搭載面の面積配分</h4><dl class="engineering-stats">${Object.entries(SURFACE_ALLOCATION_LABELS).map(([key,label])=>`<div data-surface-category="${key}"><dt>${label}</dt><dd>${num(category(key,'budgetArea'),2)} m²${aggregate?'':` · ${category(key,'installed')} / ${category(key,'requested')} 基`}</dd><dd>占有 ${num(category(key,'occupiedArea'),2)} m² · 未使用 ${num(category(key,'unusedArea'),2)} m²</dd>${aggregate?`<dd>設備容積 ${num(category(key,'volume'),2)} m³</dd>`:''}</div>`).join('')}<div><dt>居住容積／居住定員</dt><dd>${num(total('habitationVolume'),2)} m³ / ${num(total('habitationCapacity'))} 名</dd></div></dl><p class="note">比率は面全体の機能に割り当てる面積です。内部深さと有効な容積に応じて能力を計算します。居住定員は収容上限で、乗員を新規に生成しません。</p></div>`:'';
  const seen=new Set(),issues=[...errors,...warnings].map(w=>typeof w==='string'?w:w.text||w.code||'配置条件を確認してください').filter(text=>!seen.has(text)&&seen.add(text));
- return `<div class="pgroup" data-surface-report><h4>選択面の搭載と接続</h4>${allocationTable}<dl class="engineering-stats">${table.map(([k,v])=>`<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl><p class="note">設置数は実際に確保できた砲座です。射界・充電・要員・給電・熱輸送は共通の系統で判定します。表示品質や外観密度は能力に加算しません。</p>${issues.slice(0,20).map(text=>`<p class="note warn">${esc(text)}</p>`).join('')}</div>`;
+ return `<div class="pgroup" data-surface-report data-surface-representation="${aggregate?'face':'legacy'}"><h4>選択面の搭載と接続</h4>${allocationTable}<dl class="engineering-stats">${table.map(([k,v])=>`<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl><p class="note">面全体の占有面積・容積から機能を集計します。見た目の機材の個数や細部密度を変えても、能力や要員は増えません。砲列の基数と砲身数は別に扱います。</p>${issues.slice(0,20).map(text=>`<p class="note warn">${esc(text)}</p>`).join('')}</div>`;
 }
 function surfaceAllocationHTML(configs){
  const preview=configs.map(surfaceDraftConfig),totals=preview.map(q=>Object.values(q.allocation).reduce((a,b)=>a+b,0)),total=totals.length&&totals.every(v=>Math.abs(v-100)<.001)?'100%':'—';
- return `<div data-surface-allocation><p><b>割当合計</b> <output data-surface-allocation-total>${total}</output></p><p class="note">4種類の機材を合計100%で割り振ります。1項目を変えると、残りの比率を比例調整します。比率と面の実面積から基数を自動計算します。</p>${Object.entries(SURFACE_ALLOCATION_LABELS).map(([key,label])=>`<div data-surface-allocation-row="${key}">${surfaceNumberField(configs,'allocation.'+key,label+'（%）',0,100,.1,true)}</div>`).join('')}</div>`;
+ return `<div data-surface-allocation><p><b>割当合計</b> <output data-surface-allocation-total>${total}</output></p><p class="note">散熱・センサー・居住区を合計100%で配分します。1項目を変えると残りを比例調整します。砲列は比率に含めず、砲座基数を別に指定します。</p>${Object.entries(SURFACE_ALLOCATION_LABELS).map(([key,label])=>`<div data-surface-allocation-row="${key}">${surfaceNumberField(configs,'allocation.'+key,label+'（%）',0,100,.1,true)}</div>`).join('')}</div>`;
 }
 function surfaceFunctionFormHTML(configs,selected,weapons){
  const preview=configs.map(surfaceDraftConfig),mode=surfaceFormValue(preview,'functionMode'),legacy=configs.every(q=>q.functionMode==='legacy'||!q.functionMode),modeOptions=[['armor','装甲面'],['equipment','機材搭載面'],...(legacy?[['legacy','旧式の重ね合わせ（互換保持）']]:[])];
  let fields=`<p class="note">面の用途を選びます。変更した項目だけを各選択面に適用し、「複数の値」は変更するまで維持します。</p>${surfaceSelectField(configs,'functionMode','面の用途',modeOptions)}`;
+ if(configs.some(q=>q.legacyAllocation))fields+='<p class="note warn" data-surface-density-compat>旧版の密度配分による配置を保持しています。機材の比率か砲座基数を変更して適用すると、新しい配置方式へ更新します。</p>';
  if(mode==='armor')fields+=`<details open><summary>装甲面</summary>${surfaceSelectField(configs,'armor.material','材質',[['standard','標準装甲'],['dense','高密度装甲'],['light','軽量装甲']])}${surfaceNumberField(configs,'armor.thickness','実厚（m）',0,C.SURFACE_LIMITS?.armorThickness??100,.01,true)}<p class="note">この面は装甲として集計します。面生成の機材と砲列は稼働せず、個別配置した砲塔はそのまま残ります。</p></details>`;
- else if(mode==='equipment')fields+=`<details open><summary>機材の面積配分</summary>${surfaceAllocationHTML(configs)}</details><details open><summary>機材の仕様</summary>${surfaceSelectField(configs,'battery.weapon','砲列の兵器定義',weapons)}${surfaceSelectField(configs,'equipment.kind','散熱方式',[['hdis','高エネルギー散逸設備'],['radiator','通常放熱設備']])}${surfaceNumberField(configs,'equipment.depth','設備の内部深さ（m）',.02,C.SURFACE_LIMITS?.equipmentDepth??100,.01)}${surfaceNumberField(configs,'battery.spacing','砲座の間隔（m）',0,C.SURFACE_LIMITS?.spacing??1000,.1)}${surfaceNumberField(configs,'battery.angle','配列方向（度）',-180,180,1,true)}<p class="note">センサーは共通の複数帯域センサー、居住区は共通の居住設備として登録します。機材の外観も種類と配分に合わせて自動生成します。</p></details>`;
+ else if(mode==='equipment')fields+=`<details open><summary>機材の面積配分</summary>${surfaceAllocationHTML(configs)}</details><details open><summary>表面砲列（別枠）</summary>${surfaceSelectField(configs,'battery.weapon','砲列の兵器定義',weapons)}${surfaceNumberField(configs,'battery.count','要求する砲座基数',0,C.SURFACE_LIMITS?.devices??256,1)}${surfaceNumberField(configs,'battery.spacing','砲座の間隔（m）',0,C.SURFACE_LIMITS?.spacing??1000,.1)}${surfaceNumberField(configs,'battery.angle','配列方向（度）',-180,180,1,true)}<p class="note">砲列の基数は機材の密度配分から独立しています。砲座基数が0なら砲列を設置しません。砲座と機材は実際の面積・内部容積を共用します。</p></details><details open><summary>機材の仕様</summary>${surfaceSelectField(configs,'equipment.kind','散熱方式',[['hdis','高エネルギー散逸設備'],['radiator','通常放熱設備']])}${surfaceNumberField(configs,'equipment.depth','設備の内部深さ（m）',.02,C.SURFACE_LIMITS?.equipmentDepth??100,.01)}<p class="note">面全体に、配分に応じた散熱・探知・居住機能を持たせます。機材の形は比率と配置シードから自動生成します。</p></details>`;
  else if(mode==='legacy'||legacy&&mode==null)fields+=`<p class="note warn" data-surface-legacy-warning>旧式の装甲・機材の重ね合わせを保持しています。面用途を選んで適用すると、新しい方式へ変換します。</p><div class="row2"><button type="button" class="btn sm" data-surface-action="convert-armor">装甲面へ切り替える</button><button type="button" class="btn sm" data-surface-action="convert-equipment">比率式の機材面へ切り替える</button></div><details data-surface-legacy><summary>旧式の設定（互換）</summary>${surfaceSelectField(configs,'armor.material','材質',[['standard','標準装甲'],['dense','高密度装甲'],['light','軽量装甲']])}${surfaceNumberField(configs,'armor.thickness','実厚（m）',0,C.SURFACE_LIMITS?.armorThickness??100,.01,true)}${surfaceSelectField(configs,'equipment.kind','設備の種類',[['none','設備なし'],['hdis','高エネルギー散逸設備'],['radiator','通常放熱設備'],['machinery','機材群']])}${surfaceNumberField(configs,'equipment.count','ユニット数',0,C.SURFACE_LIMITS?.devices??256,1)}${surfaceNumberField(configs,'equipment.depth','内部深さ（m）',.02,C.SURFACE_LIMITS?.equipmentDepth??100,.01)}${surfaceSelectField(configs,'battery.weapon','兵器定義',[['none','砲列なし'],...weapons])}${surfaceNumberField(configs,'battery.count','要求する砲座基数',0,C.SURFACE_LIMITS?.devices??256,1)}${surfaceNumberField(configs,'battery.spacing','砲座の間隔（m）',0,C.SURFACE_LIMITS?.spacing??1000,.1)}${surfaceNumberField(configs,'battery.angle','配列方向（度）',-180,180,1,true)}</details>`;
  else fields+='<p class="note">選択した面の用途が異なります。装甲面か機材搭載面を選ぶと、共通の設定を編集できます。</p>';
- fields+=`<details><summary>外観の細部</summary>${mode==='equipment'?'':surfaceSelectField(configs,'style.kind','仕上げ',[['standard','標準外板'],['slab','装甲スラブ'],['machinery','機材密集面'],['rounded','丸みのある仕上げ']])}${mode==='equipment'?'':surfaceNumberField(configs,'style.depth','装飾の突出量（m）',0,C.SURFACE_LIMITS?.styleDepth??30,.01)}${surfaceNumberField(configs,'style.density','細部ディテール密度',0,1,.05,true)}${surfaceNumberField(configs,'style.seed','配置シード',0,2147483647,1)}<p class="note">細部ディテール密度は装飾の設定です。機材搭載面の機能は、100%の面積配分と実際に設置できた設備から計算します。</p></details>`;
+ fields+=`<details><summary>外観の細部</summary>${mode==='equipment'?'':surfaceSelectField(configs,'style.kind','仕上げ',[['standard','標準外板'],['slab','装甲スラブ'],['machinery','機材密集面'],['rounded','丸みのある仕上げ']])}${mode==='equipment'?'':surfaceNumberField(configs,'style.depth','装飾の突出量（m）',0,C.SURFACE_LIMITS?.styleDepth??30,.01)}${surfaceNumberField(configs,'style.density','細部ディテール密度',0,1,.05,true)}${surfaceNumberField(configs,'style.seed','配置シード',0,2147483647,1)}<p class="note">細部ディテール密度は装飾の設定です。機材搭載面の機能は、100%の面積配分と有効な内部容積から計算します。</p></details>`;
  return `<div class="pgroup" data-surface-form><h4>${selected.length===1?esc(surfacePatchName(selected[0])):`${selected.length} 面に一括設定`}</h4>${fields}<p class="note" data-surface-pending>${Object.keys(st.surfaceDraft||{}).length?'未適用の変更があります':'設定値を変更してから適用します'}</p><button type="button" class="btn primary" data-surface-action="apply" ${Object.keys(st.surfaceDraft||{}).length?'':'disabled'}>選択面へ適用</button><div class="row2"><button type="button" class="btn sm" data-surface-action="copy">先頭面の設定をコピー</button><button type="button" class="btn sm" data-surface-action="paste" ${st.surfaceClipboard?'':'disabled'}>設定を貼り付け</button><button type="button" class="btn sm" data-surface-action="split-u" ${selected.length===1?'':'disabled'}>面を縦に二分</button><button type="button" class="btn sm" data-surface-action="split-v" ${selected.length===1?'':'disabled'}>面を横に二分</button><button type="button" class="btn sm" data-surface-action="merge" ${selected.length>1?'':'disabled'}>隣接する面を結合</button><button type="button" class="btn sm danger" data-surface-action="reset">選択面の設定を解除</button><button type="button" class="btn sm" data-surface-action="systems">給電・熱輸送を診断</button></div></div>`;
+}
+function surfaceAutoOptions(){return {minAngle:45,overwrite:!!st.surfaceAutoOverwrite,config:{allocation:C.surfaceAllocation()}};}
+async function surfaceAutoRemote(){
+ if(!ship||st.surfaceAutoBusy)return false;
+ const target=ship,generation=eng.gen,before=snap(),options=surfaceAutoOptions();let adopted=false;
+ st.surfaceAutoBusy=true;showBusyOverlay('機材面を生成中…');renderPanel();
+ try{
+  const response=await YardEngineClient.request('op',{gen:generation,state:C.publicJSON(target),op:'surfaceAuto',args:[options]});
+  if(ship!==target||eng.gen!==generation)return false;
+  const result=response.result;if(!result?.ok){toast(result?.why||'機材面を自動設定できませんでした');return false;}if(!result.ids?.length)return false;
+  C.patchShip(target,JSON.parse(response.state));target._client=true;
+  undoStack.push(before);if(undoStack.length>60)undoStack.shift();redoStack.length=0;
+  st.surfaceIds=result.ids;st.surfaceDraft={};lastOp='機材面を自動設定';touch('all');if(result.report)surfaceRemoteReport={ship:target,gen:eng.gen,report:result.report};scheduleStats(60);updateUndo();autosave();adopted=true;
+  surfaceSyncSelection();requestDraw();return true;
+ }catch(e){console.error(e);if(ship===target&&eng.gen===generation)toast('機材面を自動設定できませんでした：'+esc(e.message||''));return false;}
+ finally{st.surfaceAutoBusy=false;if(!adopted&&ship===target)hideBusyOverlay();renderPanel();}
+}
+function surfaceAutoHTML(){
+ const candidates=C.surfaceAutoCandidates(ship,surfaceAutoOptions());
+ return `<div class="pgroup" data-surface-auto><h4>機材面の自動設定</h4><p class="note">船外に露出した側面と、水平から45°以上傾いた斜面を対象にします。水平な上下面や内部の面は対象外です。</p><label class="field-label"><input type="checkbox" data-surface-auto-overwrite ${st.surfaceAutoOverwrite?'checked':''}>装甲や既存の面設定を置き換える</label><p data-surface-auto-count>自動設定の対象 · ${candidates.length} 面</p><div class="row2"><button type="button" class="btn sm" data-surface-action="select-auto" ${candidates.length?'':'disabled'}>対象の面を選択</button><button type="button" class="btn primary" data-surface-action="auto-equipment" ${candidates.length&&!st.surfaceAutoBusy?'':'disabled'}>${st.surfaceAutoBusy?'機材面を生成中…':'対象を機材面に一括設定'}</button></div><p class="note">自動設定では砲列を追加しません。散熱・センサー・居住区を均等に配分し、元に戻す操作で一括して取り消せます。</p></div>`;
 }
 function surfaceEditorHTML(){
  const all=surfaceRows(),valid=new Set(all.filter(p=>p.exposed).map(p=>p.id));st.surfaceIds=(st.surfaceIds||[]).filter(id=>valid.has(id));
- const selected=surfaceSelection(),configs=selected.map(p=>C.surfaceConfig(ship,p.id)),report=C.surfaceReport(ship),filtered=surfaceFilteredRows(),page=Math.min(Math.max(0,st.surfacePage||0),Math.max(0,Math.ceil(filtered.length/48)-1));st.surfacePage=page;
+ const selected=surfaceSelection(),configs=selected.map(p=>C.surfaceConfig(ship,p.id)),report=surfaceReportForEditor(),filtered=surfaceFilteredRows(),page=Math.min(Math.max(0,st.surfacePage||0),Math.max(0,Math.ceil(filtered.length/48)-1));st.surfacePage=page;
  const mode=ship.surfaces?.mode||'compat',weapons=Object.entries(C.FITS).filter(([,d])=>d.cat==='w').map(([k,d])=>[k,d.short||d.name]),orphans=report.orphaned||[];
- let html=`<div class="pgroup" data-surface-editor><h3>表面の機能を設計</h3><p class="note">外面をタップするか一覧から選び、装甲面か機材搭載面を設定します。機材搭載面は砲列・散熱・センサー・居住区の面積を100%で配分します。透視で見える内部の面は選べません。</p><p>熱管理：<b>${mode==='strict'?'設備を必要とする設計':'旧設計の互換運転'}</b></p><div class="row2"><button type="button" class="btn sm${mode==='strict'?' on':''}" data-surface-action="strict">設備を必要とする設計へ</button><button type="button" class="btn sm${mode==='compat'?' on':''}" data-surface-action="compat" ${ship.surfaces?.compatAllowed===false?'disabled title="互換運転は旧設計の移行用です"':''}>互換運転を使う</button></div><p class="note">互換運転は既存艦の冷却を維持します。設備を必要とする設計へ切り替えると不足を診断します。個別に置いた砲塔はそのまま残ります。変更は「元に戻す」で戻せます。</p></div>`;
- html+=`<div class="pgroup"><h4>外面を選ぶ · ${selected.length} 面選択</h4><div class="row2"><button type="button" class="btn sm${st.surfaceAdd?' on':''}" data-surface-action="add" aria-pressed="${!!st.surfaceAdd}">追加選択</button><button type="button" class="btn sm${st.surfaceRange?' on':''}" data-surface-action="range" aria-pressed="${!!st.surfaceRange}">範囲選択</button><button type="button" class="btn sm" data-surface-action="all">表示中の外面をすべて選択</button><button type="button" class="btn sm" data-surface-action="clear">選択解除</button></div><label class="field-label">一覧の対象<select data-surface-filter>${[['all','すべての外面'],['hull','船体'],['parts','構造物・露出区画'],['configured','設定済みの面']].map(([k,n])=>`<option value="${k}" ${(st.surfaceFilter||'all')===k?'selected':''}>${n}</option>`).join('')}</select></label><div class="surface-patch-list">${filtered.slice(page*48,page*48+48).map(p=>`<button type="button" class="engine-row${st.surfaceIds.includes(p.id)?' on':''}" data-surface-pick="${esc(p.id)}" aria-pressed="${st.surfaceIds.includes(p.id)}"><span>${esc(surfacePatchName(p))}</span><b>${num(p.exposedArea,2)} m²</b></button>`).join('')||'<p class="note">この条件に合う外面はありません。</p>'}</div>${filtered.length>48?`<div class="row2"><button type="button" class="btn sm" data-surface-action="prev" ${page===0?'disabled':''}>前の面</button><span>${page+1} / ${Math.ceil(filtered.length/48)}</span><button type="button" class="btn sm" data-surface-action="next" ${(page+1)*48>=filtered.length?'disabled':''}>次の面</button></div>`:''}</div>`;
+ let html=`<div class="pgroup" data-surface-editor><h3>表面の機能を設計</h3><p class="note">外面をタップするか一覧から選び、装甲面か機材搭載面を設定します。機材搭載面は面全体で編集します。散熱・センサー・居住区を100%で配分し、砲列は砲座基数で別に設定します。透視で見える内部の面は選べません。</p><p>熱管理：<b>${mode==='strict'?'設備を必要とする設計':'旧設計の互換運転'}</b></p><div class="row2"><button type="button" class="btn sm${mode==='strict'?' on':''}" data-surface-action="strict">設備を必要とする設計へ</button><button type="button" class="btn sm${mode==='compat'?' on':''}" data-surface-action="compat" ${ship.surfaces?.compatAllowed===false?'disabled title="互換運転は旧設計の移行用です"':''}>互換運転を使う</button></div><p class="note">互換運転は既存艦の冷却を維持します。設備を必要とする設計へ切り替えると不足を診断します。個別に置いた砲塔はそのまま残ります。変更は「元に戻す」で戻せます。</p></div>`;
+ html+=surfaceAutoHTML();
+ html+=`<div class="pgroup"><h4>外面を選ぶ · ${selected.length} 面選択</h4><p class="note">左右・上下対称が有効なときは、対応する鏡写しの面も選択します。追加選択や範囲選択で複数の面をまとめて編集できます。</p><div class="row2"><button type="button" class="btn sm${st.mirror?' on':''}" data-surface-action="mirror" aria-pressed="${!!st.mirror}">左右対称</button><button type="button" class="btn sm${st.vmirror?' on':''}" data-surface-action="vmirror" aria-pressed="${!!st.vmirror}">上下対称</button><button type="button" class="btn sm${st.surfaceAdd?' on':''}" data-surface-action="add" aria-pressed="${!!st.surfaceAdd}">追加選択</button><button type="button" class="btn sm${st.surfaceRange?' on':''}" data-surface-action="range" aria-pressed="${!!st.surfaceRange}">範囲選択</button><button type="button" class="btn sm" data-surface-action="all">表示中の外面をすべて選択</button><button type="button" class="btn sm" data-surface-action="clear">選択解除</button></div><label class="field-label">一覧の対象<select data-surface-filter>${[['all','すべての外面'],['hull','船体'],['parts','構造物・露出区画'],['configured','設定済みの面']].map(([k,n])=>`<option value="${k}" ${(st.surfaceFilter||'all')===k?'selected':''}>${n}</option>`).join('')}</select></label><div class="surface-patch-list">${filtered.slice(page*48,page*48+48).map(p=>`<button type="button" class="engine-row${st.surfaceIds.includes(p.id)?' on':''}" data-surface-pick="${esc(p.id)}" aria-pressed="${st.surfaceIds.includes(p.id)}"><span>${esc(surfacePatchName(p))}</span><b>${num(p.exposedArea,2)} m²</b></button>`).join('')||'<p class="note">この条件に合う外面はありません。</p>'}</div>${filtered.length>48?`<div class="row2"><button type="button" class="btn sm" data-surface-action="prev" ${page===0?'disabled':''}>前の面</button><span>${page+1} / ${Math.ceil(filtered.length/48)}</span><button type="button" class="btn sm" data-surface-action="next" ${(page+1)*48>=filtered.length?'disabled':''}>次の面</button></div>`:''}</div>`;
  if(selected.length){
   html+=surfaceFunctionFormHTML(configs,selected,weapons);
   if(C.surfaceCarve&&selected.length===1)html+=`<div class="pgroup"><h4>実際の形状を切削</h4><label class="field-label">切削の深さ（m）<input type="number" data-surface-cutdepth value="${st.surfaceCarveDepth??1}" min=".02" max="${Math.max(.02,selected[0].depth||100)}" step=".01"></label><button type="button" class="btn danger" data-surface-action="carve">選択面を後退させて切削</button><p class="note">この操作は装飾と違い、船体・構造物の形状を削ります。既存の設備を新しい切削面へ自動では移さず、未配置の設定として保持します。</p></div>`;
@@ -5349,7 +5382,7 @@ function surfaceRefreshReport(){
  if(!current||!document.activeElement?.closest?.('[data-surface-form]')){renderPanel();return;}
  // An engine result must refresh derived numbers without replacing the form
  // under a player who has already started typing their next pending edit.
- const holder=document.createElement('div');holder.innerHTML=surfaceReportHTML(C.surfaceReport(ship));let next=holder.firstElementChild;
+ const holder=document.createElement('div');holder.innerHTML=surfaceReportHTML(surfaceReportForEditor());let next=holder.firstElementChild;
  if(!next)return;if(current.tagName==='DETAILS'){next=foldSection(next);next.open=current.open;}
  current.replaceWith(next);
 }
@@ -5387,11 +5420,14 @@ function surfaceAction(action){
  if(action==='strict'||action==='compat'){mutate('表面設備の運転方式',()=>{const r=C.enableSurfaceMode(ship,action==='strict');if(!r.ok)throw Error(r.why||'この設計の運転方式は変更できません');},'all');}
  else if(action==='add')st.surfaceAdd=!st.surfaceAdd;
  else if(action==='range')st.surfaceRange=!st.surfaceRange;
- else if(action==='all'){st.surfaceIds=surfaceFilteredRows().map(p=>p.id);st.surfaceDraft={};}
+ else if(action==='mirror'||action==='vmirror'){st[action]=!st[action];if(st[action])st.surfaceIds=surfaceSymmetricIds(st.surfaceIds||[]);st.surfaceDraft={};if(typeof syncHud==='function')syncHud();}
+ else if(action==='all'){st.surfaceIds=surfaceSymmetricIds(surfaceFilteredRows().map(p=>p.id));st.surfaceDraft={};}
+ else if(action==='select-auto'){st.surfaceIds=C.surfaceAutoCandidates(ship,surfaceAutoOptions()).map(p=>p.id);st.surfaceDraft={};}
+ else if(action==='auto-equipment')return surfaceAutoRemote();
  else if(action==='clear'){st.surfaceIds=[];st.surfaceDraft={};st.surfaceLast=null;}
  else if(action==='prev'||action==='next')st.surfacePage=Math.max(0,(st.surfacePage||0)+(action==='next'?1:-1));
  else if(action==='convert-armor'||action==='convert-equipment'){st.surfaceDraft||={};st.surfaceDraft.functionMode=action==='convert-equipment'?'equipment':'armor';}
- else if(action==='copy'&&selected.length){const q=C.surfaceConfig(ship,selected[0].id);st.surfaceClipboard=JSON.parse(JSON.stringify({functionMode:q.functionMode,allocation:q.allocation,armor:q.armor,equipment:q.equipment,battery:q.battery,style:q.style}));toast('面の設定をコピーしました');}
+ else if(action==='copy'&&selected.length){const q=C.surfaceConfig(ship,selected[0].id);st.surfaceClipboard=JSON.parse(JSON.stringify({functionMode:q.functionMode,allocation:q.allocation,legacyAllocation:q.legacyAllocation,armor:q.armor,equipment:q.equipment,battery:q.battery,style:q.style}));toast('面の設定をコピーしました');}
  else if(action==='paste'&&ids.length&&st.surfaceClipboard){mutate('表面設定を貼り付け',()=>{const r=C.setSurfaceConfig(ship,ids,st.surfaceClipboard);if(!r.ok)throw Error(r.why||'面へ設定できません');},'all');st.surfaceDraft={};}
  else if(action==='reset'&&ids.length){mutate('表面設定を解除',()=>{const r=C.setSurfaceConfig(ship,ids,{functionMode:'armor',armor:null,equipment:null,battery:null,style:null});if(!r.ok)throw Error(r.why||'面へ設定できません');},'all');st.surfaceDraft={};}
  else if(action==='split-u'||action==='split-v'||action==='merge'){surfaceTopology(action);return;}
@@ -5401,7 +5437,7 @@ function surfaceAction(action){
 }
 function bindSurfaceEditor(){
  const panel=$('#panel');panel.addEventListener('input',e=>{if(e.target.dataset.surfaceField)surfaceUpdateDraft(e.target);if('surfaceCutdepth'in e.target.dataset&&e.target.value!==''&&Number.isFinite(+e.target.value))st.surfaceCarveDepth=+e.target.value;});
- panel.addEventListener('change',e=>{if(e.target.dataset.surfaceField)surfaceUpdateDraft(e.target);if('surfaceFilter'in e.target.dataset){st.surfaceFilter=e.target.value;st.surfacePage=0;renderPanel();}});
+ panel.addEventListener('change',e=>{if(e.target.dataset.surfaceField)surfaceUpdateDraft(e.target);if('surfaceAutoOverwrite'in e.target.dataset){st.surfaceAutoOverwrite=e.target.checked;renderPanel();}if('surfaceFilter'in e.target.dataset){st.surfaceFilter=e.target.value;st.surfacePage=0;renderPanel();}});
  panel.addEventListener('click',e=>{
   const pick=e.target.closest('[data-surface-pick]');if(pick){e.stopImmediatePropagation();surfaceSelectPatch(pick.dataset.surfacePick,!!e.shiftKey||!!e.ctrlKey||!!st.surfaceAdd,!!st.surfaceRange||!!e.shiftKey);return;}
   const orphan=e.target.closest('[data-surface-orphan]');if(orphan&&C.surfaceReassign){e.stopImmediatePropagation();const selected=surfaceSelection();if(selected.length===1)mutate('未配置の面設定を移設',()=>{const r=C.surfaceReassign(ship,orphan.dataset.surfaceOrphan,selected[0].id);if(!r.ok)throw Error(r.why||'面へ設定できません');},'all');renderPanel();return;}
@@ -6041,7 +6077,7 @@ const trialApplyT=(M,v)=>[M[0]*v[0]+M[1]*v[1]+M[2]*v[2],M[3]*v[0]+M[4]*v[1]+M[5]
 // Rotation about a unit axis, column-major.
 function trialAxisMatrix(a,t,out){const c=Math.cos(t),s=Math.sin(t),k=1-c,[x,y,z]=a;out=out||new Array(9);out[0]=c+x*x*k;out[1]=y*x*k+z*s;out[2]=z*x*k-y*s;out[3]=x*y*k-z*s;out[4]=c+y*y*k;out[5]=z*y*k+x*s;out[6]=x*z*k+y*s;out[7]=y*z*k-x*s;out[8]=c+z*z*k;return out;}
 const trialWrap=a=>Math.atan2(Math.sin(a),Math.cos(a));
-function trialProfile(){if(!ship||!S)return null;try{return C.fleetProfile(S,ship.name);}catch(e){return null;}}
+function trialProfile(){if(!ship||!S)return null;if(typeof eng!=='undefined'&&eng.profile&&eng.profileGen===eng.statsGen)return eng.profile;try{return C.fleetProfile(S,ship.name);}catch(e){return null;}}
 function trialFigures(p){const v=p?.maxSpeed||0,ok=!!(p&&p.accel>0&&v>0&&p.turnRate>0),craft=!!ship&&C.isCraft(ship),b=ok?trialRateBase(p,craft):null,yaw=craft&&b?b.yaw:p?.turnRate||0;const rates=(ship?.fits||[]).filter(f=>{const d=C.FITS[f.k];return d.cat==='w'&&(d.tt||d.ion)&&!f.float&&!d.casemate;}).map(f=>C.turretRate(f));return {ok,v,kmh:v*3.6,accelTime:ok?v/p.accel:0,turn:ok?yaw*180/Math.PI:0,circle:ok?2*v/yaw:0,craft,pitch:b?b.pitch*180/Math.PI:0,roll:b?b.roll*180/Math.PI:0,traverse:rates.length?[Math.min(...rates),Math.max(...rates)]:null};}
 function trialCardHTML(side){
  if(!ship||!S)return '';const f=trialFigures(trialProfile()),tr=f.traverse;
@@ -6286,7 +6322,7 @@ function trialStep(dt){
 }
 // ---- gunnery ----
 const trialBarrel=(t,yaw,el)=>{const c=Math.cos(el),h=tv.add(tv.scale(t.fw,Math.cos(yaw)),t.e2,Math.sin(yaw));return tv.norm(tv.add(tv.scale(h,c),t.axis,Math.sin(el)));};
-const trialLimits=t=>t.pilot?{yaw:0,lo:0,hi:0}:t.casemate?{yaw:65*Math.PI/180,lo:-20*Math.PI/180,hi:20*Math.PI/180}:{yaw:null,lo:-10*Math.PI/180,hi:85*Math.PI/180};
+const trialLimits=t=>t.pilot||t.embedded&&t.fixed?{yaw:0,lo:0,hi:0}:t.casemate||t.embedded&&C.FITS[t.k]?.casemate?{yaw:65*Math.PI/180,lo:-20*Math.PI/180,hi:20*Math.PI/180}:t.embedded?{yaw:Math.PI/2,lo:-Math.PI/2,hi:Math.PI/2}:{yaw:null,lo:-10*Math.PI/180,hi:85*Math.PI/180};
 function trialAim(){
  if(!view)return null;const eye=view.eye(),dir=tv.norm(tv.sub(view.cam.target,eye));let dist=Math.max(TRIAL_GUN.aim,trial.p.len*1.5),lock=null,best=Infinity;
  for(const t of trial.targets){if(!t.alive||t.ally)continue;const v=tv.sub(tv.sub(t.pos,trial.P),eye),d=tv.len(v),ang=Math.acos(C.clamp(tv.dot(v,dir)/d,-1,1)),cone=Math.atan((t.radius||trial.asset.geometry.targetRadius*1.6)/d)+.006;if(ang<cone&&ang<best){best=ang;lock=t;dist=d;}}
@@ -6410,6 +6446,12 @@ function trialSalvoPlan(dt){
  return go;
 }
 function trialVolley(k){const m=k||(trial.volley==='salvo'?'stream':'salvo');trial.volley=m;const me=trial.battle?.me;if(me)me.order={...me.order,volley:m};toast(m==='salvo'?'射撃：斉射 — 同じ種類の主砲がそろって撃ちます':'射撃：連続射撃 — 各砲が装填しだい撃ちます');}
+function trialShotGeometry(t,bw){
+ // Embedded barrels stay within their wall aperture even while their fire is
+ // trained off-axis; the visible opening never moves out onto a turret arm.
+ const side=trialApply(trial.R,t.embedded?t.e2:tv.norm(tv.cross(t.axis,t.bd))),base=tv.add(tv.add(trial.P,t.oW),bw,t.embedded?0:t.r*1.2),spread=t.embedded?Math.max(0,t.portWidth||0)*.6:t.r*.35;
+ return {side,base,spread};
+}
 function trialGunnery(dt){
  if(!(dt>0))return;
  const a=trial.aim=trialAim();if(!a)return;trialDronesStep(dt);const R=trial.R,center=trial.asset.geometry.center,me=trial.battle?.me,wantFire=(trial.fire||trial.fireKey||trial.fireTap>0)&&!trial.jump&&!me?.dead&&!me?.out&&!me?.jump;trial.fireTap=Math.max(0,trial.fireTap-dt);
@@ -6447,7 +6489,7 @@ function trialGunnery(dt){
   if(t.held||salvo&&!t.pd&&!t.pilot&&!salvo.has(t)){if(t.pilot)t.reload=Math.max(0,t.reload);continue;}
   for(let burst=0;t.firing&&(t.laid||t.pd)&&t.reload<=0&&burst<(t.pilot?4:1);burst++){
    const shotTT=t.power*t.cycle*t.charge/TT_J,cost=shotTT*(t.costK??1),cellUnit=me||trial.systemsUnit,cell=cellUnit?.p?.surface?.mounts&&typeof C.surfaceSpend==='function';if(en.E<cost||cell&&C.surfaceMountEnergy(cellUnit,t.id)+1e-9<cost){t.starved=true;if(t.pilot)t.reload=0;break;}if(!trialCraftGasTake(t,dt)){t.gasStarved=true;if(t.pilot)t.reload=0;break;}if(cell){const used=C.surfaceSpend(cellUnit,t.id,cost);if(!used.ok){t.starved=true;break;}en.E=cellUnit.energy;}else en.E-=cost;
-   t.reload=t.pilot?t.reload+t.cycle:t.cycle*(1+Math.random()*(salvo&&!t.pd?.01:.08));const bd=t.bd,n=Math.min(t.barrels,t.r>12?2:t.barrels>2?2:1),sc=t.pd?.009:.0012,g=()=>(Math.random()+Math.random()+Math.random()-1.5)*sc,bw=trialApply(R,tv.norm(tv.add(tv.add(bd,t.e2,g()),t.axis,g()))),side=trialApply(R,tv.norm(tv.cross(t.axis,bd))),base=tv.add(tv.add(trial.P,t.oW),bw,t.r*1.2),spread=t.r*.35;
+   t.reload=t.pilot?t.reload+t.cycle:t.cycle*(1+Math.random()*(salvo&&!t.pd?.01:.08));const bd=t.bd,n=Math.min(t.barrels,t.r>12?2:t.barrels>2?2:1),sc=t.pd?.009:.0012,g=()=>(Math.random()+Math.random()+Math.random()-1.5)*sc,bw=trialApply(R,tv.norm(tv.add(tv.add(bd,t.e2,g()),t.axis,g()))),{side,base,spread}=trialShotGeometry(t,bw);
    if(t.pd){sndAt('point_defense',base,{gain:.45});trial.gun.pd=(trial.gun.pd||0)+t.barrels;for(let i=0;i<n;i++){const off=n>1?(i/(n-1)-.5)*spread:0,pos=tv.add(base,side,off);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(bw,spd),trial.V),life:TRIAL_PD.range*1.15/spd,len:Math.max(40,t.r*6),size:Math.max(3,t.r*.45),col:trialPdColor(),weight:0,tt:0,pd:true,target:t.pdTarget});}continue;}
    trial.gun.shots+=t.barrels;
    // (a pilot's guns: a fighter's laser, its bolts and flash sized like the other craft's)
