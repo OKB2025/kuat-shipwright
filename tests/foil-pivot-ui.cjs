@@ -11,6 +11,7 @@ const undoStack=[],redoStack=[],listeners={},modeNode={textContent:''},diagramNo
 const panel={addEventListener:(type,fn)=>(listeners[type]||=[]).push(fn)};
 const $=selector=>selector==='#panel'?panel:selector.includes('data-foilpivotmode')?modeNode:selector.includes('.sw-arc')?diagramNode:null;
 const live={active:false,parts:[],fits:[],hide:{parts:new Set(),fits:new Set()}};
+const meshStore={};
 const view={upload:()=>{},meshes:{preview:{count:0},previewRef:{count:0},previewFits:{count:0},previewRefFits:{count:0}}},Gfx={meshPreview:(s,parts)=>{previews.push(parts);return {};}};
 const snap=()=>JSON.stringify(ship),selItem=()=>ship.parts[0],editSel=fn=>fn(selItem());
 const touch=()=>eng.gen++,scheduleStats=()=>{},updateUndo=()=>{},autosave=()=>{},sndEdit=()=>{},sndUI=()=>{},toast=()=>{};
@@ -20,7 +21,7 @@ const publicCopy=q=>JSON.parse(JSON.stringify(q));
 function reset(){
  ship={hull:{L:30,W:30,H:10,assembly:true},parts:[{id:1,k:'wing',form:'trap',c:[10,4,8],s:[6,10,1],wing:{foil:true,axis:'x',stow:0,open:15,T:1,feed:1,reinf:0}}],fits:[]};
  dragSnap=null;undoStack.length=0;redoStack.length=0;renders=0;previews=[];adoptions=0;st.foilView=null;st.foilPick=null;st.foilPickMode='vertex';st.foilPickView='iso';eng.gen=0;eng.geoGen=0;eng.sentGen=0;
- clearPreview();modeNode.textContent='';diagramNode.outerHTML='';
+ meshStore.pendingGeometry=null;clearPreview();modeNode.textContent='';diagramNode.outerHTML='';
 }
 function input(a,value){for(const fn of listeners.input)fn({target:{dataset:{foilpivotcoord:String(a)},value:String(value)}});}
 function change(a){for(const fn of listeners.change)fn({target:{dataset:{foilpivotcoord:String(a)}}});}
@@ -41,7 +42,7 @@ function gaugeChange(k){endDrag();for(const fn of listeners.change)fn({target:{d
 section('function seg(', 'function silhouette(');
 section('function mutate(', 'function undo(');
 section('const FOIL_AXIS_ROWS=', 'function heatHTML(');
-section('function onEngineGeometry(', 'function onEngineStats(');
+section('function retainGeometry(', 'function onEngineStats(');
 section('function clearPreview()', '// Exterior view skips');
 section('const r6=', 'function xfMirrorOut(');
 run('bindWing();reset();');
@@ -97,6 +98,8 @@ test('changing the pivot refreshes the hinge diagram and live stowed geometry wi
 test('background geometry updates preserve and rebuild an active stowed preview',()=>{
  run('reset();click("foilview","stow");input(2,3);');const before=run('previews.length');
  run('onEngineGeometry({gen:eng.gen,state:{},totalMs:1});');
+ assert.equal(run('adoptions'),0,'a worker response must not replace caches during an active control drag');assert.equal(run('previews.length'),before);
+ run('change(2);onEngineGeometry({gen:eng.gen,state:{},totalMs:1});');
  assert.equal(run('st.foilView'),'stow');assert.equal(run('live.active'),true);assert.equal(run('adoptions'),1);assert.equal(run('previews.length'),before+1);
  run('click("foilview","open");');assert.equal(run('st.foilView'),null);assert.equal(run('live.active'),false);
 });

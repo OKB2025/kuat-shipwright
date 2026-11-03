@@ -9263,7 +9263,12 @@ Object.assign(root.KS_EN.messages,{
 "外壁に接する居住設備。既存の船内容積を居住用に予約し、内装・生命維持・給電設備の質量と費用を持ちます。乗員や部隊は生成しません。": "Habitation equipment adjoining an exterior wall. It reserves existing interior volume for living space and includes the mass and cost of furnishings, life support, and power systems. It does not create crew or troops.",
 "機材搭載面の外観参考：": "Visual Reference for Equipment Surfaces: ",
 "トレンチと構造物外面の機器の組み方を参照し、機材ブロック・配管・グリル・窓帯を手続き生成で組み立てています。": "Equipment blocks, pipes, grilles and window bands are generated procedurally, using the arrangement of machinery in trenches and on structure walls as a visual reference.",
+"トレンチと構造物外面の機器の配置を参考に、面に沿うローポリの凹凸と発光点を手続き生成しています。": "Low-poly relief and light points are generated along each surface, using machinery arrangements in trenches and on structure walls as a visual reference.",
 "この機能に艦全体の参照メッシュやテクスチャは同梱していません。": "This feature does not bundle the reference ship's complete mesh or textures."
+});
+Object.assign(root.KS_EN.messages,{
+"外面を選び、装甲で覆う面か機材構造面を設定します。機材構造面は横方向に広がる粗いローポリの凹凸面と発光点で表現し、面全体で編集します。散熱・センサー・居住区を100%で配分し、砲列は砲座基数で別に設定します。透視で見える内部の面は選べません。": "Select an exterior face and choose armor or an equipment surface. Equipment surfaces use coarse low-poly relief spreading along the face, with light points, and are edited as a whole face. Allocate 100% across cooling, sensors and habitation; batteries use a separate mount count. Internal faces visible through cutaways cannot be selected.",
+"細部ディテール密度は、面上の追加の凹凸だけを調整します。発光点は密度0でも表示します。機材構造面の機能は、100%の面積配分と有効な内部容積から計算します。": "Detail density adjusts extra surface relief. Light points remain visible at zero density. Equipment surface functions are calculated from the 100% area allocation and usable internal volume.",
 });
 // </surface-equipment-allocation-catalog>
 // <surface-independent-batteries-catalog>
@@ -9311,7 +9316,7 @@ Object.assign(root.KS_EN.messages,{
 "機材構造面": "Machinery Structure Surface",
 "機材構造面の面積配分": "Machinery Structure Area Allocation",
 "外面を選び、装甲で覆う面か機材構造面を設定します。機材構造面は薄い連続床と機材が積み重なった構造を露出させ、面全体で編集します。散熱・センサー・居住区を100%で配分し、砲列は砲座基数で別に設定します。透視で見える内部の面は選べません。": "Select an exterior surface and choose an armor cover or a machinery structure surface. A machinery structure surface exposes stacked machinery and thin continuous decks, edited as a whole face. Allocate 100% among cooling, sensors, and quarters; set battery mount counts separately. Internal surfaces revealed by X-ray view cannot be selected.",
-"面全体に、配分に応じた散熱・探知・居住機能を持たせます。薄い連続床と機材が層状に重なる外観を、比率と配置シードから生成します。設備の内部深さは機能用の容積を決める設定で、外観の凹凸の奥行きとは別に扱います。": "The whole surface provides cooling, sensing, and habitation according to its allocation. Shares and the placement seed generate layered machinery and thin continuous decks. Internal equipment depth determines functional volume, separately from the visual relief depth.",
+"面全体に、配分に応じた散熱・探知・居住機能を持たせます。横長の段差と溝が入り組むローポリの面を、比率と配置シードから生成します。設備の内部深さは機能用の容積を決める設定で、外観の凹凸の奥行きとは別に扱います。": "The whole surface provides cooling, sensing, and habitation according to its allocation. Shares and the placement seed generate a low-poly surface with interlocking horizontal steps and channels. Internal equipment depth determines functional volume, separately from the visual relief depth.",
 "構造の凹凸の奥行き（m、0＝自動）": "Structural Relief Depth (m, 0 = Auto)",
 "外観の凹凸だけを変え、設備の容積や性能には影響しません。0は構造の外形内の空間に合わせて自動調整します。同じ比率と配置シードから同じ外観を再現します。": "Changes visual relief only, without changing equipment volume or capability. Zero adjusts the depth automatically to the space inside the structure's outer envelope. The same shares and placement seed reproduce the same appearance.",
 "細部ディテール密度は、配管やグリルなどの追加装飾だけを調整します。機材構造面の機能は、100%の面積配分と有効な内部容積から計算します。": "Detail density adjusts secondary decoration such as pipes and grilles. Machinery structure capability is calculated from the 100% area allocation and usable internal volume.",

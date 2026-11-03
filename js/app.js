@@ -1939,7 +1939,7 @@ const undoStack = [], redoStack = [];
 let lastOp = '', dragSnap = null, dragLabel = '';
 
 // ---------- view / rendering ----------
-const dirty = {draw: true};
+const dirty = {draw: true, overlay: false};
 let statsTimer = 0, hoverLines = null;
 function requestDraw() { dirty.draw = true; }
 
@@ -1952,18 +1952,20 @@ const meshStore = {geos: {}, glow: null, grid: null, ranges: null};
 function touch(what) {   // geometry or design changed
   if (!ship) return;
   eng.gen++; eng.what.add(what || 'all');
-  if (live.queued) { const q = live.queued; live.queued = null; showPreview(q.list, q.items); }
-  else if (live.active) live.gen = eng.gen;
-  kickEngine(); engineStatus(); refreshOverlay(); dirty.draw = true;
+  if (live.active) live.gen = eng.gen;
+  kickEngine(); engineStatus(); dirty.overlay = true; dirty.draw = true;
 }
 function kickEngine() {
-  if (!eng.ready || eng.waiting || eng.scheduled) return;
+  if (!eng.ready || eng.waiting || eng.scheduled || dragSnap) return;
+  // A completion deferred before the first drag sample still needs its
+  // derived caches adopted after release, even when the value did not change.
+  if (meshStore.pendingGeometry && eng.sentGen === eng.gen) { eng.what.add('all'); eng.sentGen = eng.gen - 1; }
   eng.scheduled = true;
   setTimeout(sendEngineUpdate, 0);
 }
 function sendEngineUpdate() {
   eng.scheduled = false;
-  if (!eng.ready || eng.waiting || !ship || eng.sentGen === eng.gen) return;
+  if (!eng.ready || eng.waiting || dragSnap || !ship || eng.sentGen === eng.gen) return;
   eng.waiting = true; eng.sentGen = eng.gen;
   const msg = {type: 'update', gen: eng.gen, reset: eng.reset, state: C.publicJSON(ship), what: [...eng.what], view: {coded: st.coded, habitation: !!st.showHabitation}};
   eng.what.clear(); eng.reset = false;
@@ -2032,10 +2034,24 @@ function adoptEngineState(msg) {
   if (ship._cache) ship._lockedCache = ship._cache;
   eng.adoptedGen = msg.gen;
 }
+// A newer edit may touch only parts after an older hull rebuild. Keep the
+// older mesh fields until the current generation arrives, then upload their
+// union once; dropping them would leave the hull at its pre-edit dimensions.
+function retainGeometry(msg) {
+  if (msg.gen < (eng.designGen || 0)) return;
+  const pending = meshStore.pendingGeometry || (meshStore.pendingGeometry = {geos: {}});
+  Object.assign(pending.geos, msg.geos || {});
+  for (const key of ['glow', 'grid', 'ranges', 'fitRanges', 'bounds', 'dims']) if (msg[key] !== undefined) pending[key] = msg[key];
+}
 function onEngineGeometry(msg) {
   eng.waiting = false;
-  if (msg.gen >= eng.geoGen) { eng.geoGen = msg.gen; applyGeometry(msg); eng.ms = msg.totalMs; if (live.active && msg.gen >= live.gen && st.foilView !== 'stow') clearPreview(); }
-  if (msg.gen === eng.gen && msg.state) {
+  if (msg.gen < eng.gen || dragSnap) retainGeometry(msg);
+  else if (msg.gen === eng.gen && meshStore.pendingGeometry) {
+    const pending = meshStore.pendingGeometry; meshStore.pendingGeometry = null;
+    msg = {...pending, ...msg, geos: {...pending.geos, ...msg.geos}};
+  }
+  if (!dragSnap && msg.gen === eng.gen && msg.gen >= eng.geoGen) { eng.geoGen = msg.gen; applyGeometry(msg); eng.ms = msg.totalMs; if ((live.active || live.queued) && st.foilView !== 'stow') clearPreview(); }
+  if (!dragSnap && msg.gen === eng.gen && msg.state) {
     adoptEngineState(msg);
     if(msg.surfaceReport)surfaceRemoteReport={ship,gen:msg.gen,report:msg.surfaceReport};
     if (st.foilView === 'stow') foilPreview(true);
@@ -2048,6 +2064,7 @@ function onEngineGeometry(msg) {
   engineStatus();
 }
 function onEngineStats(msg) {
+  if (dragSnap || msg.gen < eng.gen) return;
   if (msg.geos && msg.gen >= eng.geoGen) applyGeometry(msg);
   if (msg.gen < eng.statsGen) return;
   eng.statsGen = msg.gen;
@@ -2091,14 +2108,25 @@ function engineHello(mode) {
 // An edited part or fitting is drawn at once from its requested shape, and its
 // stale copy in the engine's meshes is hidden, until the engine catches up.
 const live = {parts: [], fits: [], hide: {parts: new Set(), fits: new Set()}, gen: 0, queued: null, active: false};
-function queuePreview(list, items) { live.queued = {list, items: items.filter(Boolean)}; }
+// Pointer/input events can arrive several times per frame. Keep only their
+// current objects and build one lightweight preview on the next drawn frame.
+function queuePreview(list, items) {
+  const queued = live.queued || (live.queued = {parts: [], fits: []});
+  for (const it of items) if (it && !queued[list].includes(it)) queued[list].push(it);
+  requestDraw();
+}
+function flushLivePreview() {
+  const queued = live.queued; if (!queued) return;
+  live.queued = null;
+  if (st.foilView === 'stow') { foilPreview(true); return; }
+  showPreview(queued);
+}
 function showPreview(list, items, removedIds) {
   if (!view || !ship) return;
-  const sel = items.filter(Boolean);
+  const pending = typeof list === 'string' ? {[list]: items.filter(Boolean)} : list;
   if (!live.active) { live.parts = []; live.fits = []; live.hide.parts.clear(); live.hide.fits.clear(); }
   const add = (arr, xs) => { for (const x of xs) if (!arr.includes(x)) arr.push(x); };
-  if (list === 'parts') add(live.parts, sel); else add(live.fits, sel);
-  for (const it of sel) live.hide[list].add(it.id);
+  for (const kind of ['parts', 'fits']) for (const it of pending[kind] || []) { add(live[kind], [it]); live.hide[kind].add(it.id); }
   for (const id of removedIds || []) live.hide[list].add(id);
   live.parts = live.parts.filter(p => ship.parts.includes(p)); live.fits = live.fits.filter(f => ship.fits.includes(f));
   live.active = true; live.gen = eng.gen;
@@ -2109,7 +2137,7 @@ function showPreview(list, items, removedIds) {
   requestDraw();
 }
 function clearPreview() {
-  st.foilView = null;
+  live.queued = null; st.foilView = null;
   if (!live.active) return;
   live.active = false; live.parts = []; live.fits = []; live.hide.parts.clear(); live.hide.fits.clear();
   if (view) for (const k of ['preview', 'previewRef', 'previewFits', 'previewRefFits']) if (view.meshes?.[k]) { if (view.kind === 'compat') delete view.meshes[k]; else view.meshes[k].count = 0; }
@@ -2293,6 +2321,8 @@ function loop(now=performance.now()) {
   if (view && ship && !renderHealth.lost && !renderRetryTimer) {
     view.onTextureReady=requestDraw;
     try {
+      flushLivePreview();
+      if (dirty.overlay) { dirty.overlay = false; refreshOverlay(); }
       if (titleCam.base) titleOrbit(now);
       if (dirty.draw || (renderHealth.mode==='webgl' && now-renderHealth.lastFrame>1500)) {
         if(meshStore.glow&&view.glowKey!==(ship.engineGlow||'')){view.glowKey=ship.engineGlow||'';view.setGlow(meshStore.glow,C.engineGlowRGB(ship.engineGlow));}
@@ -2326,12 +2356,12 @@ function setShip(s, opts) {
   // Reserve identity before the first edit/save so all undo states of a new
   // design share a destination. Imported blueprints never supply this field.
   if (!s.saveId) s.saveId = newSaveId();
-  dragSnap = null;
+  dragSnap = null; clearPreview();
   ship = s; s._client = true; S = null; prevS = null; st.sel = null; st.multi = {parts: new Set(), fits: new Set()}; st.surfaceIds=[];st.surfaceDraft={};st.surfaceLast=null;st.surfacePage=0;st.hatchA = null; resetSolidCutter();
   eng.profile = null; eng.profileGen = -1;
   // Loading another design remains undoable. The engine starts from scratch.
-  eng.reset = true; eng.fitOnGeometry = true; eng.keepCam = !!(opts && opts.keepCam);
-  meshStore.geos = {}; meshStore.ranges = null; if (view) { for (const k of Object.keys(view.meshes || {})) if (view.meshes[k]) view.meshes[k].count = 0; }
+  eng.designGen = eng.gen + 1; eng.reset = true; eng.fitOnGeometry = true; eng.keepCam = !!(opts && opts.keepCam);
+  meshStore.geos = {}; meshStore.ranges = null; meshStore.pendingGeometry = null; if (view) { for (const k of Object.keys(view.meshes || {})) if (view.meshes[k]) view.meshes[k].count = 0; }
   showBusyOverlay(opts?.busyText);
   touch('all');
   hideInspect(); updateName(); renderPanel(); scheduleStats(0); updateUndo(); autosave();
@@ -2368,7 +2398,7 @@ function beginDrag(label) { if (!dragSnap) { dragSnap = snap(); dragLabel = labe
 function endDrag() {
   if (!dragSnap) return;
   if (snap() !== dragSnap) { undoStack.push(dragSnap); if (undoStack.length > 60) undoStack.shift(); redoStack.length = 0; lastOp = dragLabel; scheduleStats(30); updateUndo(); autosave(); }
-  dragSnap = null;
+  dragSnap = null; kickEngine();
 }
 function undo() { if (!undoStack.length) return; redoStack.push(snap()); lastOp = '元に戻す'; restore(undoStack.pop()); }
 function redo() { if (!redoStack.length) return; undoStack.push(snap()); lastOp = 'やり直し'; restore(redoStack.pop()); }
@@ -2551,7 +2581,7 @@ function refreshOverlay() {
   refreshSolidCutterOverlay();refreshVertexOverlay();
   const ls = Gfx.lineSet(), it = selItem(), cy = [105, 195, 220, 255];
   // While the engine recomputes, outline the part's requested shape, not its old merged cells.
-  const shape = (p) => p && (enginePending() && p._packing ? {...p, _packing: undefined} : p);
+  const shape = (p) => p && (enginePending() ? {...p, _packing: undefined, _solidCutShip: undefined, _apertures: undefined, _pierced: undefined} : p);
   if (it && st.sel.list === 'parts' && (st.tab === 'mod'||st.tab==='launch'||st.tab==='bridge'&&st.bridgeMode==='body')) {
     ls.part(shape(it), cy); const tw = twinOfItem('parts', it); if (tw) ls.part(shape(tw), [105, 195, 220, 140]);
     const vt = it.vt != null ? ship.parts.find(q => q.id === it.vt) : null; if (vt) { ls.part(shape(vt), [105, 195, 220, 140]); const vtw = twinOfItem('parts', vt); if (vtw) ls.part(shape(vtw), [105, 195, 220, 100]); }
@@ -4396,7 +4426,7 @@ function signatureHTML(e){
 }
 // The stowed pose in the 3D view, drawn with the live-preview meshes until the next edit.
 function foilPreview(on){
-  st.foilView=on?'stow':null;if(!on){clearPreview();return;}
+  live.queued=null;st.foilView=on?'stow':null;if(!on){clearPreview();return;}
   const parts=[];for(const w of ship.parts.filter(C.isFoil)){const P=C.foilPose(ship,w,w.wing.stow);if(P)parts.push(...P.parts);}
   if(!parts.length){clearPreview();return;}if(!view)return;
   live.active=true;live.parts=parts;live.fits=[];live.hide.parts=new Set(parts.map(q=>q._poseOf));live.hide.fits=new Set();live.gen=(eng.gen||0)+1;
@@ -5357,14 +5387,14 @@ function surfaceFunctionFormHTML(configs,selected,weapons){
  let fields=`<p class="note">面の用途を選びます。変更した項目だけを各選択面に適用し、「複数の値」は変更するまで維持します。</p>${surfaceSelectField(configs,'functionMode','面の用途',modeOptions)}`;
  if(configs.some(q=>q.legacyAllocation))fields+='<p class="note warn" data-surface-density-compat>旧版の密度配分による配置を保持しています。機材の比率か砲座基数を変更して適用すると、新しい配置方式へ更新します。</p>';
  if(mode==='armor')fields+=`<details open><summary>装甲面</summary>${surfaceSelectField(configs,'armor.material','材質',[['standard','標準装甲'],['dense','高密度装甲'],['light','軽量装甲']])}${surfaceNumberField(configs,'armor.thickness','実厚（m）',0,C.SURFACE_LIMITS?.armorThickness??100,.01,true)}<p class="note">この面は装甲として集計します。面生成の機材と砲列は稼働せず、個別配置した砲塔はそのまま残ります。</p></details>`;
- else if(mode==='equipment')fields+=`<details open><summary>機材の面積配分</summary>${surfaceAllocationHTML(configs)}</details><details open><summary>表面砲列（別枠）</summary>${surfaceSelectField(configs,'battery.weapon','砲列の兵器定義',weapons)}${surfaceNumberField(configs,'battery.count','要求する砲座基数',0,C.SURFACE_LIMITS?.devices??256,1)}${surfaceNumberField(configs,'battery.spacing','砲座の間隔（m）',0,C.SURFACE_LIMITS?.spacing??1000,.1)}${surfaceNumberField(configs,'battery.angle','配列方向（度）',-180,180,1,true)}<p class="note">砲列の基数は機材の密度配分から独立しています。砲座基数が0なら砲列を設置しません。砲座と機材は実際の面積・内部容積を共用します。</p></details><details open><summary>機材の仕様</summary>${surfaceSelectField(configs,'equipment.kind','散熱方式',[['hdis','高エネルギー散逸設備'],['radiator','通常放熱設備']])}${surfaceNumberField(configs,'equipment.depth','設備の内部深さ（m）',.02,C.SURFACE_LIMITS?.equipmentDepth??100,.01)}<p class="note">面全体に、配分に応じた散熱・探知・居住機能を持たせます。薄い連続床と機材が層状に重なる外観を、比率と配置シードから生成します。設備の内部深さは機能用の容積を決める設定で、外観の凹凸の奥行きとは別に扱います。</p></details>`;
+ else if(mode==='equipment')fields+=`<details open><summary>機材の面積配分</summary>${surfaceAllocationHTML(configs)}</details><details open><summary>表面砲列（別枠）</summary>${surfaceSelectField(configs,'battery.weapon','砲列の兵器定義',weapons)}${surfaceNumberField(configs,'battery.count','要求する砲座基数',0,C.SURFACE_LIMITS?.devices??256,1)}${surfaceNumberField(configs,'battery.spacing','砲座の間隔（m）',0,C.SURFACE_LIMITS?.spacing??1000,.1)}${surfaceNumberField(configs,'battery.angle','配列方向（度）',-180,180,1,true)}<p class="note">砲列の基数は機材の密度配分から独立しています。砲座基数が0なら砲列を設置しません。砲座と機材は実際の面積・内部容積を共用します。</p></details><details open><summary>機材の仕様</summary>${surfaceSelectField(configs,'equipment.kind','散熱方式',[['hdis','高エネルギー散逸設備'],['radiator','通常放熱設備']])}${surfaceNumberField(configs,'equipment.depth','設備の内部深さ（m）',.02,C.SURFACE_LIMITS?.equipmentDepth??100,.01)}<p class="note">面全体に、配分に応じた散熱・探知・居住機能を持たせます。横長の段差と溝が入り組むローポリの面を、比率と配置シードから生成します。設備の内部深さは機能用の容積を決める設定で、外観の凹凸の奥行きとは別に扱います。</p></details>`;
  else if(mode==='legacy'||legacy&&mode==null)fields+=`<p class="note warn" data-surface-legacy-warning>旧式の装甲・機材の重ね合わせを保持しています。面用途を選んで適用すると、新しい方式へ変換します。</p><div class="row2"><button type="button" class="btn sm" data-surface-action="convert-armor">装甲面へ切り替える</button><button type="button" class="btn sm" data-surface-action="convert-equipment">比率式の機材構造面へ切り替える</button></div><details data-surface-legacy><summary>旧式の設定（互換）</summary>${surfaceSelectField(configs,'armor.material','材質',[['standard','標準装甲'],['dense','高密度装甲'],['light','軽量装甲']])}${surfaceNumberField(configs,'armor.thickness','実厚（m）',0,C.SURFACE_LIMITS?.armorThickness??100,.01,true)}${surfaceSelectField(configs,'equipment.kind','設備の種類',[['none','設備なし'],['hdis','高エネルギー散逸設備'],['radiator','通常放熱設備'],['machinery','機材群']])}${surfaceNumberField(configs,'equipment.count','ユニット数',0,C.SURFACE_LIMITS?.devices??256,1)}${surfaceNumberField(configs,'equipment.depth','内部深さ（m）',.02,C.SURFACE_LIMITS?.equipmentDepth??100,.01)}${surfaceSelectField(configs,'battery.weapon','兵器定義',[['none','砲列なし'],...weapons])}${surfaceNumberField(configs,'battery.count','要求する砲座基数',0,C.SURFACE_LIMITS?.devices??256,1)}${surfaceNumberField(configs,'battery.spacing','砲座の間隔（m）',0,C.SURFACE_LIMITS?.spacing??1000,.1)}${surfaceNumberField(configs,'battery.angle','配列方向（度）',-180,180,1,true)}</details>`;
  else fields+='<p class="note">選択した面の用途が異なります。装甲面か機材構造面を選ぶと、共通の設定を編集できます。</p>';
  if(mode==='equipment'){
   const retained=configs.some(q=>q.functionMode==='equipment'&&q.equipment?.capacityModel!=='area-v1'),eligible=configs.every(q=>q.functionMode==='equipment'),pending=st.surfaceDraft?.['equipment.capacityModel']==='area-v1';
   fields+=retained?`<p class="note warn" data-surface-capacity-legacy>旧設計の設備容量を保持しています。見た目の変更では容量を変えません。機能の配分・内部深さ・散熱方式を変えるか、面積方式への更新を適用すると容量を再計算します。質量・費用・能力は適用後の表示で確認でき、元に戻す操作で戻せます。</p>${eligible?`<button type="button" class="btn sm" data-surface-action="capacity-area" ${pending?'disabled':''}>面積方式へ更新</button>`:''}`:'<p class="note" data-surface-capacity-area>設備機能は有効面積・内部深さ・配分で計算します。</p>';
  }
- fields+=`<details><summary>外観の細部</summary>${mode==='equipment'?'':surfaceSelectField(configs,'style.kind','仕上げ',[['standard','標準外板'],['slab','装甲スラブ'],['machinery','機材密集面'],['rounded','丸みのある仕上げ']])}${surfaceNumberField(configs,'style.depth',mode==='equipment'?'構造の凹凸の奥行き（m、0＝自動）':'装飾の突出量（m）',0,C.SURFACE_LIMITS?.styleDepth??30,mode==='equipment'?.1:.01)}${mode==='equipment'?'<p class="note" data-surface-visual-depth>外観の凹凸だけを変え、設備の容積や性能には影響しません。0は構造の外形内の空間に合わせて自動調整します。同じ比率と配置シードから同じ外観を再現します。</p>':''}${surfaceNumberField(configs,'style.density','細部ディテール密度',0,1,.05,true)}${surfaceNumberField(configs,'style.seed','配置シード',0,2147483647,1)}<p class="note">細部ディテール密度は、配管やグリルなどの追加装飾だけを調整します。機材構造面の機能は、100%の面積配分と有効な内部容積から計算します。</p></details>`;
+ fields+=`<details><summary>外観の細部</summary>${mode==='equipment'?'':surfaceSelectField(configs,'style.kind','仕上げ',[['standard','標準外板'],['slab','装甲スラブ'],['machinery','機材密集面'],['rounded','丸みのある仕上げ']])}${surfaceNumberField(configs,'style.depth',mode==='equipment'?'構造の凹凸の奥行き（m、0＝自動）':'装飾の突出量（m）',0,C.SURFACE_LIMITS?.styleDepth??30,mode==='equipment'?.1:.01)}${mode==='equipment'?'<p class="note" data-surface-visual-depth>外観の凹凸だけを変え、設備の容積や性能には影響しません。0は構造の外形内の空間に合わせて自動調整します。同じ比率と配置シードから同じ外観を再現します。</p>':''}${surfaceNumberField(configs,'style.density','細部ディテール密度',0,1,.05,true)}${surfaceNumberField(configs,'style.seed','配置シード',0,2147483647,1)}<p class="note">細部ディテール密度は、面上の追加の凹凸だけを調整します。発光点は密度0でも表示します。機材構造面の機能は、100%の面積配分と有効な内部容積から計算します。</p></details>`;
  return `<div class="pgroup" data-surface-form><h4>${selected.length===1?esc(surfacePatchName(selected[0])):`${selected.length} 面に一括設定`}</h4>${fields}<p class="note" data-surface-pending>${Object.keys(st.surfaceDraft||{}).length?'未適用の変更があります':'設定値を変更してから適用します'}</p><button type="button" class="btn primary" data-surface-action="apply" ${Object.keys(st.surfaceDraft||{}).length?'':'disabled'}>選択面へ適用</button><div class="row2"><button type="button" class="btn sm" data-surface-action="copy">先頭面の設定をコピー</button><button type="button" class="btn sm" data-surface-action="paste" ${st.surfaceClipboard?'':'disabled'}>設定を貼り付け</button><button type="button" class="btn sm" data-surface-action="split-u" ${selected.length===1?'':'disabled'}>面を縦に二分</button><button type="button" class="btn sm" data-surface-action="split-v" ${selected.length===1?'':'disabled'}>面を横に二分</button><button type="button" class="btn sm" data-surface-action="merge" ${selected.length>1?'':'disabled'}>隣接する面を結合</button><button type="button" class="btn sm danger" data-surface-action="reset">選択面の設定を解除</button><button type="button" class="btn sm" data-surface-action="systems">給電・熱輸送を診断</button></div></div>`;
 }
 function surfaceAutoOptions(){return {minAngle:45,overwrite:!!st.surfaceAutoOverwrite,config:{allocation:C.surfaceAllocation()}};}
@@ -5391,7 +5421,7 @@ function surfaceAutoHTML(){
 function surfaceEditorHTML(){
  const all=surfaceRows(),selected=surfaceSelection(all),configs=selected.map(p=>C.surfaceConfig(ship,p.id)),report=surfaceReportForEditor(),filtered=surfaceFilteredRows(all),page=Math.min(Math.max(0,st.surfacePage||0),Math.max(0,Math.ceil(filtered.length/48)-1));st.surfacePage=page;
  const mode=ship.surfaces?.mode||'compat',weapons=Object.entries(C.FITS).filter(([,d])=>d.cat==='w').map(([k,d])=>[k,d.short||d.name]),orphans=report.orphaned||[];
- let html=`<div class="pgroup" data-surface-editor><h3>表面の機能を設計</h3><p class="note">外面を選び、装甲で覆う面か機材構造面を設定します。機材構造面は薄い連続床と機材が積み重なった構造を露出させ、面全体で編集します。散熱・センサー・居住区を100%で配分し、砲列は砲座基数で別に設定します。透視で見える内部の面は選べません。</p><p>熱管理：<b>${mode==='strict'?'設備を必要とする設計':'旧設計の互換運転'}</b></p><div class="row2"><button type="button" class="btn sm${mode==='strict'?' on':''}" data-surface-action="strict">設備を必要とする設計へ</button><button type="button" class="btn sm${mode==='compat'?' on':''}" data-surface-action="compat" ${ship.surfaces?.compatAllowed===false?'disabled title="互換運転は旧設計の移行用です"':''}>互換運転を使う</button></div><p class="note">互換運転は既存艦の冷却を維持します。設備を必要とする設計へ切り替えると不足を診断します。個別に置いた砲塔はそのまま残ります。変更は「元に戻す」で戻せます。</p></div>`;
+ let html=`<div class="pgroup" data-surface-editor><h3>表面の機能を設計</h3><p class="note">外面を選び、装甲で覆う面か機材構造面を設定します。機材構造面は横方向に広がる粗いローポリの凹凸面と発光点で表現し、面全体で編集します。散熱・センサー・居住区を100%で配分し、砲列は砲座基数で別に設定します。透視で見える内部の面は選べません。</p><p>熱管理：<b>${mode==='strict'?'設備を必要とする設計':'旧設計の互換運転'}</b></p><div class="row2"><button type="button" class="btn sm${mode==='strict'?' on':''}" data-surface-action="strict">設備を必要とする設計へ</button><button type="button" class="btn sm${mode==='compat'?' on':''}" data-surface-action="compat" ${ship.surfaces?.compatAllowed===false?'disabled title="互換運転は旧設計の移行用です"':''}>互換運転を使う</button></div><p class="note">互換運転は既存艦の冷却を維持します。設備を必要とする設計へ切り替えると不足を診断します。個別に置いた砲塔はそのまま残ります。変更は「元に戻す」で戻せます。</p></div>`;
  html+=surfaceAutoHTML();
  html+=`<div class="pgroup"><h4>外面を選ぶ · ${selected.length} 面選択</h4><p class="note" data-surface-exposed-count>一覧の露出面 · ${filtered.length} 面</p><p class="note">埋まった面は一覧と選択から除外し、面積は船外に露出した部分だけを表示します。保存した面設定は保持します。</p><p class="note">左右・上下対称が有効なときは、対応する鏡写しの面も選択します。追加選択や範囲選択で複数の面をまとめて編集できます。</p><div class="row2"><button type="button" class="btn sm${st.mirror?' on':''}" data-surface-action="mirror" aria-pressed="${!!st.mirror}">左右対称</button><button type="button" class="btn sm${st.vmirror?' on':''}" data-surface-action="vmirror" aria-pressed="${!!st.vmirror}">上下対称</button><button type="button" class="btn sm${st.surfaceAdd?' on':''}" data-surface-action="add" aria-pressed="${!!st.surfaceAdd}">追加選択</button><button type="button" class="btn sm${st.surfaceRange?' on':''}" data-surface-action="range" aria-pressed="${!!st.surfaceRange}">範囲選択</button><button type="button" class="btn sm" data-surface-action="all">表示中の外面をすべて選択</button><button type="button" class="btn sm" data-surface-action="clear">選択解除</button></div><label class="field-label">一覧の対象<select data-surface-filter>${[['all','すべての外面'],['hull','船体'],['parts','構造物・露出区画'],['configured','設定済みの面']].map(([k,n])=>`<option value="${k}" ${(st.surfaceFilter||'all')===k?'selected':''}>${n}</option>`).join('')}</select></label><div class="surface-patch-list">${filtered.slice(page*48,page*48+48).map(p=>`<button type="button" class="engine-row${st.surfaceIds.includes(p.id)?' on':''}" data-surface-pick="${esc(p.id)}" aria-pressed="${st.surfaceIds.includes(p.id)}"><span>${esc(surfacePatchName(p))}</span><b>${num(p.exposedArea,2)} m²</b></button>`).join('')||'<p class="note">この条件に合う外面はありません。</p>'}</div>${filtered.length>48?`<div class="row2"><button type="button" class="btn sm" data-surface-action="prev" ${page===0?'disabled':''}>前の面</button><span>${page+1} / ${Math.ceil(filtered.length/48)}</span><button type="button" class="btn sm" data-surface-action="next" ${(page+1)*48>=filtered.length?'disabled':''}>次の面</button></div>`:''}</div>`;
  if(selected.length){
@@ -5802,6 +5832,7 @@ function dragSelMove(D,r){
  for(const [k,o] of D.orig){const l=k.startsWith('parts')?'parts':'fits',it=ship[l].find(q=>q.id===o.id);if(it)C.patchItem(it,o);}
  const {rows,moved}=xfRows(D.drivers,D.units,()=>({pt:p=>C.add(p,dv),R:null}));D.rows=rows;D.moved=moved;
  for(const rw of rows)C.patchItem(rw.it,rw.out);
+ for(const list of ['parts','fits'])queuePreview(list,rows.filter(r=>r.list===list).map(r=>r.it));
  for(const f of ship.fits)if(f.host!=null&&moved.has(f.host))try{C.mountFit(ship,f);}catch(e){f.float=true;}
 }
 function dragSelEnd(D,cancel){

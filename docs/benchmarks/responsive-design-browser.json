@@ -1,0 +1,592 @@
+{
+  "environment": {
+    "browser": "Chromium 154.0.8037.57 built on Debian GNU/Linux 13 (trixie)",
+    "node": "v24.19.0",
+    "cpu": "AMD EPYC 9V74 80-Core Processor",
+    "logicalCPUs": 5,
+    "rendering": "WebGL using SwiftShader software GPU",
+    "viewport": [
+      1280,
+      800
+    ],
+    "dateUTC": "2026-11-03T15:35:35.365Z",
+    "timingRuns": "One run per case with other Node test runners paused/stopped.",
+    "cautions": [
+      "Software rendering and automation timing are not a prediction of device FPS.",
+      "rAF cadence measures browser event-loop availability; the editor draws only dirty frames.",
+      "Input events were sent serially, awaiting each browser call and then 17 ms; replay time is not a fixed-rate latency measure.",
+      "A trusted header click plus 500 ms wait warms up audio before timing.",
+      "This synthetic 32-structure fixture is not an imported Imperial-class model."
+    ]
+  },
+  "fixture": {
+    "nativeStructures": 32,
+    "equipmentFaces": 32,
+    "totalFaces": 192,
+    "layout": "8 by 4 boxes;90x85x60m with 110 m longitudinal and 100 m transverse spacing",
+    "equipment": {
+      "visualDepth": 8,
+      "density": 0.65,
+      "seed": 37,
+      "cooling": 60,
+      "sensors": 20,
+      "habitation": 20,
+      "functionalDepth": 2
+    },
+    "sliderInputs": 12,
+    "pointerMoves": 20
+  },
+  "cases": {
+    "baseline-warm-slider": {
+      "handlerSamples": 12,
+      "handlerMedianMs": 19.55,
+      "handlerMaxMs": 43.7,
+      "handlerDurationsMs": [
+        21.8,
+        12.3,
+        13.1,
+        15.1,
+        32.2,
+        14,
+        19.3,
+        43.7,
+        13.3,
+        19.8,
+        22.3,
+        21.4
+      ],
+      "actualInputs": [
+        80,
+        82,
+        84,
+        86,
+        88,
+        90,
+        92,
+        94,
+        96,
+        98,
+        100,
+        102
+      ],
+      "synchronousSurfaceQueries": 12,
+      "surfaceQueryScope": "Across input and final adoption.",
+      "longTasksDuringInputMs": [
+        422
+      ],
+      "allMeasuredLongTasksMs": [
+        77,
+        422,
+        55
+      ],
+      "inputReplayMs": 1488.5,
+      "rAF": {
+        "callbacks": 9,
+        "effectiveCadenceHz": 6.046,
+        "medianIntervalMs": 125,
+        "maxIntervalMs": 433.3,
+        "intervalsMs": [
+          16.7,
+          300,
+          166.6,
+          33.4,
+          83.4,
+          433.3,
+          383.3,
+          33.3
+        ]
+      },
+      "editorDrawsDuringInput": 5,
+      "finalPartCenter": [
+        102,
+        50,
+        -150
+      ],
+      "workerMode": "worker",
+      "jsErrors": []
+    },
+    "final-warm-slider": {
+      "handlerSamples": 12,
+      "handlerMedianMs": 0.75,
+      "handlerMaxMs": 15,
+      "handlerDurationsMs": [
+        15,
+        0.6,
+        0.9,
+        0.8,
+        0.8,
+        0.6,
+        0.7,
+        0.6,
+        0.8,
+        0.8,
+        0.5,
+        0.6
+      ],
+      "actualInputs": [
+        80,
+        82,
+        84,
+        86,
+        88,
+        90,
+        92,
+        94,
+        96,
+        98,
+        100,
+        102
+      ],
+      "synchronousSurfaceQueries": 0,
+      "surfaceQueryScope": "Across input and final adoption.",
+      "longTasksDuringInputMs": [],
+      "allMeasuredLongTasksMs": [
+        54
+      ],
+      "inputReplayMs": 686.2,
+      "rAF": {
+        "callbacks": 8,
+        "effectiveCadenceHz": 11.658,
+        "medianIntervalMs": 50.1,
+        "maxIntervalMs": 233.4,
+        "intervalsMs": [
+          16.8,
+          149.9,
+          233.4,
+          16.6,
+          50.1,
+          166.6,
+          33.3
+        ]
+      },
+      "editorDrawsDuringInput": 4,
+      "finalPartCenter": [
+        102,
+        50,
+        -150
+      ],
+      "workerMode": "worker",
+      "jsErrors": []
+    },
+    "baseline-warm-drag": {
+      "handlerSamples": 20,
+      "handlerMedianMs": 17.7,
+      "handlerMaxMs": 48.7,
+      "handlerDurationsMs": [
+        0.1,
+        0.1,
+        20.7,
+        13.6,
+        0.2,
+        35.8,
+        26.6,
+        15.2,
+        18,
+        13.9,
+        20.1,
+        39.6,
+        17.4,
+        21.1,
+        26.9,
+        12.1,
+        12.8,
+        0.2,
+        48.7,
+        25.6
+      ],
+      "actualInputs": [
+        {
+          "x": 663,
+          "y": 429.0999755859375,
+          "buttons": 1
+        },
+        {
+          "x": 666,
+          "y": 428.6999816894531,
+          "buttons": 1
+        },
+        {
+          "x": 669,
+          "y": 428.29998779296875,
+          "buttons": 1
+        },
+        {
+          "x": 672,
+          "y": 427.8999938964844,
+          "buttons": 1
+        },
+        {
+          "x": 675,
+          "y": 427.5,
+          "buttons": 1
+        },
+        {
+          "x": 678,
+          "y": 427.0999755859375,
+          "buttons": 1
+        },
+        {
+          "x": 681,
+          "y": 426.6999816894531,
+          "buttons": 1
+        },
+        {
+          "x": 684,
+          "y": 426.29998779296875,
+          "buttons": 1
+        },
+        {
+          "x": 687,
+          "y": 425.8999938964844,
+          "buttons": 1
+        },
+        {
+          "x": 690,
+          "y": 425.5,
+          "buttons": 1
+        },
+        {
+          "x": 693,
+          "y": 425.0999755859375,
+          "buttons": 1
+        },
+        {
+          "x": 696,
+          "y": 424.6999816894531,
+          "buttons": 1
+        },
+        {
+          "x": 699,
+          "y": 424.29998779296875,
+          "buttons": 1
+        },
+        {
+          "x": 702,
+          "y": 423.8999938964844,
+          "buttons": 1
+        },
+        {
+          "x": 705,
+          "y": 423.5,
+          "buttons": 1
+        },
+        {
+          "x": 708,
+          "y": 423.0999755859375,
+          "buttons": 1
+        },
+        {
+          "x": 711,
+          "y": 422.6999816894531,
+          "buttons": 1
+        },
+        {
+          "x": 714,
+          "y": 422.29998779296875,
+          "buttons": 1
+        },
+        {
+          "x": 717,
+          "y": 421.8999938964844,
+          "buttons": 1
+        },
+        {
+          "x": 720,
+          "y": 421.5,
+          "buttons": 1
+        }
+      ],
+      "synchronousSurfaceQueries": 17,
+      "surfaceQueryScope": "Includes the single release-panel refresh after movement.",
+      "longTasksDuringInputMs": [
+        63,
+        75,
+        501,
+        303,
+        57,
+        71,
+        56,
+        511,
+        77
+      ],
+      "allMeasuredLongTasksMs": [
+        63,
+        75,
+        501,
+        303,
+        57,
+        71,
+        56,
+        511,
+        77,
+        66,
+        268
+      ],
+      "inputReplayMs": 8484.6,
+      "rAF": {
+        "callbacks": 36,
+        "effectiveCadenceHz": 4.243,
+        "medianIntervalMs": 333.2,
+        "maxIntervalMs": 750,
+        "intervalsMs": [
+          383.4,
+          16.6,
+          383.3,
+          16.7,
+          16.7,
+          16.6,
+          16.7,
+          33.4,
+          533.3,
+          16.6,
+          33.4,
+          366.7,
+          399.9,
+          316.7,
+          400,
+          16.6,
+          750,
+          33.4,
+          16.6,
+          383.3,
+          33.3,
+          350,
+          16.7,
+          50,
+          550,
+          400,
+          466.6,
+          383.3,
+          350,
+          16.7,
+          333.2,
+          400,
+          16.7,
+          533.4,
+          383.2
+        ]
+      },
+      "editorDrawsDuringInput": 19,
+      "finalPartCenter": [
+        67.11629376121886,
+        50,
+        -145.7946690774525
+      ],
+      "workerMode": "worker",
+      "jsErrors": []
+    },
+    "final-warm-drag": {
+      "handlerSamples": 20,
+      "handlerMedianMs": 0.4,
+      "handlerMaxMs": 5.2,
+      "handlerDurationsMs": [
+        0.1,
+        0.1,
+        5.2,
+        0.5,
+        0.6,
+        0.2,
+        0.4,
+        0.6,
+        0.5,
+        0.4,
+        0.4,
+        0.3,
+        2.8,
+        0.4,
+        0.3,
+        0.3,
+        0.3,
+        0.4,
+        0.4,
+        0.4
+      ],
+      "actualInputs": [
+        {
+          "x": 663,
+          "y": 429.0999755859375,
+          "buttons": 1
+        },
+        {
+          "x": 666,
+          "y": 428.6999816894531,
+          "buttons": 1
+        },
+        {
+          "x": 669,
+          "y": 428.29998779296875,
+          "buttons": 1
+        },
+        {
+          "x": 672,
+          "y": 427.8999938964844,
+          "buttons": 1
+        },
+        {
+          "x": 675,
+          "y": 427.5,
+          "buttons": 1
+        },
+        {
+          "x": 678,
+          "y": 427.0999755859375,
+          "buttons": 1
+        },
+        {
+          "x": 681,
+          "y": 426.6999816894531,
+          "buttons": 1
+        },
+        {
+          "x": 684,
+          "y": 426.29998779296875,
+          "buttons": 1
+        },
+        {
+          "x": 687,
+          "y": 425.8999938964844,
+          "buttons": 1
+        },
+        {
+          "x": 690,
+          "y": 425.5,
+          "buttons": 1
+        },
+        {
+          "x": 693,
+          "y": 425.0999755859375,
+          "buttons": 1
+        },
+        {
+          "x": 696,
+          "y": 424.6999816894531,
+          "buttons": 1
+        },
+        {
+          "x": 699,
+          "y": 424.29998779296875,
+          "buttons": 1
+        },
+        {
+          "x": 702,
+          "y": 423.8999938964844,
+          "buttons": 1
+        },
+        {
+          "x": 705,
+          "y": 423.5,
+          "buttons": 1
+        },
+        {
+          "x": 708,
+          "y": 423.0999755859375,
+          "buttons": 1
+        },
+        {
+          "x": 711,
+          "y": 422.6999816894531,
+          "buttons": 1
+        },
+        {
+          "x": 714,
+          "y": 422.29998779296875,
+          "buttons": 1
+        },
+        {
+          "x": 717,
+          "y": 421.8999938964844,
+          "buttons": 1
+        },
+        {
+          "x": 720,
+          "y": 421.5,
+          "buttons": 1
+        }
+      ],
+      "synchronousSurfaceQueries": 1,
+      "surfaceQueryScope": "Includes the single release-panel refresh after movement.",
+      "longTasksDuringInputMs": [],
+      "allMeasuredLongTasksMs": [
+        102
+      ],
+      "inputReplayMs": 3234.9,
+      "rAF": {
+        "callbacks": 29,
+        "effectiveCadenceHz": 8.965,
+        "medianIntervalMs": 150,
+        "maxIntervalMs": 216.7,
+        "intervalsMs": [
+          16.6,
+          183.4,
+          16.6,
+          16.7,
+          16.6,
+          16.7,
+          16.6,
+          216.7,
+          16.6,
+          150.1,
+          33.3,
+          16.6,
+          150,
+          183.4,
+          183.3,
+          183.3,
+          216.7,
+          150,
+          183.3,
+          150,
+          33.4,
+          166.6,
+          166.7,
+          183.3,
+          150,
+          50,
+          133.3,
+          166.7
+        ]
+      },
+      "editorDrawsDuringInput": 18,
+      "finalPartCenter": [
+        67.11629376121886,
+        50,
+        -145.7946690774525
+      ],
+      "workerMode": "worker",
+      "jsErrors": []
+    }
+  },
+  "sourceHashes": {
+    "baseline": {
+      "js/app.js": "14c15b42cdee296399eb65a9e75a2824da1bbc7c0b7a0b2907704bfcbd22fa05",
+      "js/core.js": "9cce49673b6f0f192960ea470ab4b8160afe6055b9ba26b443e0c55d604ead2c",
+      "js/gfx.js": "9c2895600a7477de194c83f211c62298f56317c5f1a5b0d542fa89b09c6724a7",
+      "js/engine.js": "67c9bac3755f500e952b1095eedba89fb294f10f453b4cf801da74ca1ffa1d08"
+    },
+    "final": {
+      "js/app.js": "5e765da23c0d3badc750698f218af332c2144d251e31f17e32084a65bfc8a2a9",
+      "js/core.js": "7e0da3bd9c8a00bf82dce1c6780094c4dae387c15db44979e9bf63fa26bf367d",
+      "js/gfx.js": "de6bc8c0edf5610aca49f5b6b4358647533447781c9dad7305e8e80eda49de15",
+      "js/engine.js": "2b81ddf076e73b2f0b0be2928d58e97d0200d775e2b38eb2531bcf28df72ee52"
+    }
+  },
+  "visualReview": {
+    "forms": [
+      "box",
+      "wedge",
+      "inclined box"
+    ],
+    "views": [
+      "front",
+      "grazing"
+    ],
+    "jsErrors": [],
+    "chosenArtifacts": [
+      "baseline-box-grazing.png",
+      "final-box-grazing.png",
+      "baseline-wedge-grazing.png",
+      "final-wedge-grazing.png"
+    ],
+    "fixture": "One 160x80x60 m structure; style.depth 4 m, density0.25, seed1; equal equipment allocations."
+  }
+}

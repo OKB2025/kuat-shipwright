@@ -24,7 +24,7 @@ test('bounded category cues use aggregate role identities while derived guns kee
 test('zero allocations never acquire category hardware through decorative density or seed',()=>{
  for(const active of ['cooling','sensors','habitation']){const {ship,patch}=fixture(Object.fromEntries(roles.map(k=>[k,k===active?100:0]))),plan=row(ship,patch.id,{detail:2});assert.ok(plan.devices.length>0);assert.ok(plan.devices.every(q=>q.role===active));assert.ok(new Set(plan.devices.map(q=>q.variant)).size>=3,'seeded '+active+' kits must offer multiple hardware arrangements');
   const f=features(plan);for(const [role,feature]of [['cooling','cooling-grille'],['sensors','sensor-array'],['habitation','habitation-window']])assert.equal(f.includes(feature),role===active,active+' / '+feature);
-  const g=G.meshSurfaceLayers(ship,{}).surfaceDevices,ports=Array.from(g.col.slice(0,g.n*4)).filter((_,i)=>i%4===3).filter(v=>v===253).length;assert.equal(ports>0,active==='habitation');
+  const g=G.meshSurfaceLayers(ship,{}).surfaceDevices,ports=Array.from(g.col.slice(0,g.n*4)).filter((_,i)=>i%4===3).filter(v=>v===253).length;assert.ok(ports>0,'service lights are independent of functional allocation');assert.ok(plan.lights.length>0&&plan.lights.every(q=>q.role===null));
  }
 });
 
@@ -55,5 +55,27 @@ test('continuous machinery fields on an articulated foil are partitioned once wi
  const ship=C.newShip({L:100,W:100,H:30,assembly:true},'Equipment foil');ship.parts=[];ship.fits=[];ship.armor={hull:0,cit:0};ship.detail=1;
  const wing=C.placePart(ship,'wing',[50,15,0],[64,40,6],{},false);wing.wing=C.normalizeWing({...wing.wing,foil:true,axis:'x',open:10,stow:50});const patch=C.surfacePatches(ship).find(p=>p.host==='p'+wing.id&&p.face==='top');
  C.setSurfaceConfig(ship,patch.id,{functionMode:'equipment',allocation:{weapons:0,cooling:34,sensors:33,habitation:33},equipment:{kind:'hdis',depth:1},style:{density:.8}});
- const raw=G.meshSurfaceLayers(ship,{}),asset=G.fleetGeometry(ship),foil=asset.foils.find(f=>f.id===wing.id);assert.ok(foil);for(const source of ['surfaceArmor','surfaceDevices','surfaceDetail']){const moved=foil.meshes.filter(name=>foil.kinds[name]===source);assert.equal(moved.length,1,source+' one partition');assert.equal(asset.meshes[moved[0]].geo.ni,raw[source].ni,source+' no duplicate triangles');assert.equal(asset.meshes[source]?.geo.ni||0,0,source+' no stationary copy');}
+ const raw=G.meshSurfaceLayers(ship,{}),asset=G.fleetGeometry(ship),foil=asset.foils.find(f=>f.id===wing.id);assert.ok(foil);for(const source of ['surfaceArmor','surfaceDevices','surfaceDetail']){const moved=foil.meshes.filter(name=>foil.kinds[name]===source);assert.equal(moved.length,raw[source].ni?1:0,source+' one partition');if(raw[source].ni)assert.equal(asset.meshes[moved[0]].geo.ni,raw[source].ni,source+' no duplicate triangles');assert.equal(asset.meshes[source]?.geo.ni||0,0,source+' no stationary copy');}
+});
+
+test('an unallocated equipment skin is a low-poly connected face with luminous service points',()=>{
+ const initial=fixture({weapons:0,cooling:100,sensors:0,habitation:0}),saved=C.serialize(initial.ship),config=saved.surfaces.patches.find(p=>p.id===initial.patch.id);delete config.aggregate;delete config.equipment.capacityModel;config.equipment.count=0;config.equipment.limit=0;const ship=C.deserialize(saved),body=ship.parts.find(p=>p.id===initial.body.id),patch=C.surfacePatches(ship).find(p=>p.id===initial.patch.id),source=C.publicJSON(ship),plan=row(ship,patch.id,{detail:0}),mesh=G.meshSurfaceLayers(ship,{}, {detail:0});
+ assert.equal(plan.devices.length,0);assert.ok(plan.reliefFaces.length>0);assert.ok(plan.lights.length>0);assert.ok(plan.lights.every(q=>q.ownerId===body.id&&q.role===null&&q.port));
+ let lit=0,neutral=0;for(let i=0;i<mesh.surfaceDevices.ni;i+=3){const ids=[0,1,2].map(j=>mesh.surfaceDevices.idx[i+j]),ps=ids.map(k=>Array.from(mesh.surfaceDevices.pos.slice(k*3,k*3+3))),n=C.cross(C.sub(ps[1],ps[0]),C.sub(ps[2],ps[0]));assert.ok(C.dot(n,patch.normal)>0,'the face must have no hidden backs or box end caps');if(ids.every(k=>mesh.surfaceDevices.col[k*4+3]===253))lit++;else neutral++;}
+ assert.ok(lit>0);assert.ok(neutral>0&&neutral<600,'a small face must retain coarse facets rather than thousands of tiny equipment parts');assert.equal(C.publicJSON(ship),source);
+});
+
+test('shape previews never query equipment exposure or rerun attached structure CSG',()=>{
+ const {ship,body}=fixture(),p={...body,_solidCutShip:ship,_apertures:[{invalid:'a preview must not inspect this'}]},surface=C.surfacePatches,triangles=C.structTriangles;let reads=0;
+ C.surfacePatches=()=>{reads++;throw new Error('synchronous surface rebuild during preview');};C.structTriangles=q=>{assert.equal(q._solidCutShip,undefined);assert.equal(q._apertures,undefined);return triangles(q);};
+ try{const preview=G.meshPreview(ship,[p],[]);assert.ok(preview.preview.ni>0);assert.equal(reads,0);}finally{C.surfacePatches=surface;C.structTriangles=triangles;}
+});
+
+test('very large and long narrow faces coarsen the actual relief grid to the visual budget',()=>{
+ for(const size of [[2800,2000,2400],[28000,2000,24]]){
+  const {ship,body,patch}=fixture({weapons:0,cooling:100,sensors:0,habitation:0});ship.hull.L=30000;ship.hull.W=4000;ship.hull.H=4000;body.c=[15000,2000,0];body.s=size;
+  const before=C.publicJSON(ship),plan=row(ship,patch.id,{detail:0,maxField:32,maxDetails:0}),ranges={},g=G.meshSurfaceLayers(ship,ranges,{detail:0,maxField:32,maxDetails:0}).surfaceDevices;
+  assert.ok(plan.gridCells<=8,'large and thin bounds must both obey the coarse cell budget');
+  const hostTriangles=(ranges[body.id]||[]).filter(q=>q[0]==='surfaceDevices').reduce((n,q)=>n+q[2]/3,0);assert.ok(hostTriangles<600,'bounded faces must not allocate millions of relief triangles: '+hostTriangles);assert.equal(C.publicJSON(ship),before);
+ }
 });
