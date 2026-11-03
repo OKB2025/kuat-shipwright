@@ -12,10 +12,10 @@ function airborne(f){Object.assign(f.s,{state:'out',sys:f.from,pos:[-90000,8000,
 function depart(f,to=f.to){assert.equal(R.orderJump(f.w,f.g.id,to).ok,true);f.g.spool.t=f.g.spool.need;R.tick(f.w,.25);assert.equal(f.home.sys,null);}
 function finishSpool(f){f.w.time=f.s.follow.go;R.tick(f.w,.25);assert.equal(f.s.follow.phase,'back');assert.equal(f.s.state,'follow');assert.equal(f.s.sys,null);}
 
-test('a faster fighter waits for the carrier to arrive before dropping out and physically landing',()=>{
+test('a faster fighter reaches the actual stop and waits in realspace for the carrier before physically landing',()=>{
  const f=fixture();f.home.info.hyper=5;airborne(f);depart(f);finishSpool(f);
  assert.ok(f.s.follow.t1<f.g.transit.t1);f.w.time=f.s.follow.t1;R.tick(f.w,.25);
- assert.equal(f.s.follow.phase,'wait');assert.equal(f.s.state,'follow');assert.equal(f.s.sys,null);assert.equal(f.s.n,4);
+ assert.equal(f.s.follow.phase,'wait');assert.equal(f.s.state,'return');assert.equal(f.s.sys,f.to);assert.equal(f.s.n,4);
  f.w.time=f.g.transit.t1;R.tick(f.w,.25);
  assert.equal(f.home.sys,f.to);assert.equal(f.s.follow,null);assert.equal(f.s.sys,f.to);assert.equal(f.s.state,'return');assert.notDeepEqual(plain(f.s.pos),plain(f.home.pos),'returning craft must approach a real hatch rather than teleport aboard');
  for(let i=0;i<1000&&f.s.state!=='docked';i++)R.tick(f.w,.25);
@@ -26,7 +26,8 @@ test('a fighter completes its first flight then plots another real leg when its 
  const f=fixture();f.home.info.hyper=.5;airborne(f);depart(f);finishSpool(f);const firstArrival=f.s.follow.t1;
  f.w.time=f.g.transit.t1;R.tick(f.w,.25);assert.equal(f.home.sys,f.to);assert.ok(firstArrival>f.w.time);
  depart(f,f.from);f.w.time=firstArrival;R.tick(f.w,.25);
- assert.equal(f.s.follow.from,f.to);assert.equal(f.s.follow.dest,f.from);assert.equal(f.s.follow.phase,'back');assert.ok(f.s.follow.t1>f.w.time,'the second leg must consume the craft drive travel time');assert.equal(f.s.sys,null);
+ assert.equal(f.s.follow.from,f.to);assert.equal(f.s.follow.dest,f.from);assert.equal(f.s.follow.phase,'spool');assert.equal(f.s.sys,f.to);assert.ok(f.s.follow.go>f.w.time,'a new segment must spend a fresh recharge interval in realspace');
+ f.w.time=f.s.follow.go;R.tick(f.w,.25);assert.equal(f.s.follow.phase,'back');assert.ok(f.s.follow.t1>f.w.time,'the second leg must consume the craft drive travel time');assert.equal(f.s.sys,null);
  f.w.time=Math.max(f.s.follow.t1,f.g.transit?.t1||0);R.tick(f.w,.25);
  assert.equal(f.home.sys,f.from);assert.equal(f.s.sys,f.from);assert.equal(f.s.follow,null);assert.equal(f.s.state,'return');assert.equal(f.s.n,4);
 });

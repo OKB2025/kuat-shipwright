@@ -1199,7 +1199,8 @@ body.tut-on .inspect{bottom:calc(70px + var(--sa-bottom,0px))}
 @container ks (orientation: landscape) and (max-height: 560px) {.hudbottom{bottom:calc(6px + var(--sa-bottom,0px))}.panel{padding-bottom:calc(14px + var(--sa-bottom,0px))}}
 /* ---- BUG-001 title footer: 音の設定 and the other footer controls are real buttons of the top bar's height (36 px) ---- */
 .title-foot .title-credit:not(.title-land){display:inline-flex}
-.title-foot .title-credit{align-items:center;gap:6px;min-height:36px;padding:0 12px;border:1px solid var(--line-2);border-radius:8px;background:var(--raise);color:var(--fg);text-decoration:none;font-size:13px;font-weight:600;cursor:pointer}
+.title-foot .title-credit{align-items:center;gap:6px;min-height:44px;padding:0 12px;border:1px solid var(--line-2);border-radius:8px;background:var(--raise);color:var(--fg);text-decoration:none;font-size:13px;font-weight:600;cursor:pointer}
+@container ks (min-width:900px){.topbar .icon-btn{width:44px;height:44px;flex:none}.topbar .btn-ghost{min-height:44px}.topbar .snd-btn svg{width:22px;height:22px}}
 @media (pointer:coarse){.title-foot .title-credit.title-land{display:inline-flex}}
 .title-foot .title-credit:hover{border-color:var(--cyan);color:var(--cyan)}
 .title-foot .title-credit svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}

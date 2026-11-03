@@ -8963,4 +8963,38 @@ Object.assign(root.KS_EN.messages,{
 "サブジュゲイター級の舷側砲。拡大する円盤状パルスを放ち、距離と投影面積に応じた有限のエネルギーを複数艦へ分配します。シールドを漏出した分が接続された電力網へ作用し、十分な過負荷では主炉・補助炉を含む共通系統を保護遮断します。性能係数はゲーム用の仮定です。": "A Subjugator-class broadside weapon. Its expanding disc pulse distributes finite energy among multiple ships according to distance and projected area. Energy leaking through shields affects the connected power grid; a sufficient overload trips the shared system, including connected primary and auxiliary reactors. Performance coefficients are game assumptions."
 });
 // </surface-systems-catalog>
+// <v13-foundations-catalog>
+Object.assign(root.KS_EN.messages,{
+"個別：{0}": "Individual: {0}",
+"個別：攻撃：": "Individual: Attack: ",
+"個別：護衛：": "Individual: Escort: ",
+"攻撃：": "Attack: ",
+"護衛：": "Escort: ",
+"自動交戦：": "Automatic Engagement: ",
+"今回の停止星系：": "Current Jump Stop: ",
+"最終目的地：": "Final Destination: ",
+"今回の停止まで": "To This Stop",
+"全任務群の今回の停止まで": "Until Every Task Force Reaches This Stop",
+"次の必須停止まで進む": "Proceed to the Next Mandatory Stop",
+"次の必須停止まで進む（今回の移動 {0}）": "Proceed to the Next Mandatory Stop (Current Segment: {0})",
+"{0}へ出撃（今回の移動 {1}）": "Sail to {0} (Current Segment: {1})",
+"今回の移動 {0}": "Current Segment: {0}",
+"今回の停止 {0}まで {1}": "This Stop: {0} · {1}",
+"最終目的地 {0} · 次航程指示待ち": "Final Destination: {0} · Awaiting Next Jump Order",
+"必須停止・次航程指示待ち": "Mandatory Stop · Awaiting Next Jump Order",
+"最終目的地：{0} · 残り {1} 航程": "Final Destination: {0} · {1} Segments Remaining",
+"最終目的地：{0} · 今回の停止星系：{1}": "Final Destination: {0} · Current Jump Stop: {1}",
+"最終目的地：{0} · 今回の停止星系：{1} · 次航程指示待ち": "Final Destination: {0} · Current Jump Stop: {1} · Awaiting Next Jump Order",
+"必須停止：{0}": "Mandatory Stops: {0}",
+"{0} · 必須停止：{1}": "{0} · Mandatory Stops: {1}",
+"{0} · 必須停止・次航程指示待ち": "{0} · Mandatory Stop · Awaiting Next Jump Order",
+"次航程指示待ち": "Awaiting Next Jump Order",
+"停止後は次のジャンプを改めて指示し、再充填します。": "After stopping, issue the next jump order and recharge the hyperdrive.",
+"この航程は途中で停止しません。": "This jump segment has no intermediate stop.",
+"— 支線は星系ごとに停止・再指示（主要交易路の半分の速さ）": "— Branch lanes require a stop and a new order at every system (half the speed of main routes).",
+"○ 必須停止星系": "○ Mandatory Stop System",
+"必須停止星系に到着しました。次の航程は改めて指示してください": "Arrived at a mandatory stop. Issue a new order for the next jump segment.",
+"途中の必須停止があるため星系間攻撃を直接指定できません。母艦を次の停止星系へ移動してください": "An intermediate mandatory stop prevents a direct inter-system strike. Move the carrier to the next stop system."
+});
+// </v13-foundations-catalog>
 })(typeof window==="undefined"?globalThis:window);
