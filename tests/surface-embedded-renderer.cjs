@@ -38,7 +38,7 @@ test('larger machinery is staggered in wallnormal position and depth without cha
  const backs=primary.map(p=>C.dot(C.sub(p.center,patch.center),patch.normal)-p.size[2]/2),fronts=primary.map(p=>C.dot(C.sub(p.center,patch.center),patch.normal)+p.size[2]/2);
  assert.ok(Math.max(...backs)-Math.min(...backs)>.8,'case backs remain on one plane');assert.ok(Math.max(...fronts)-Math.min(...fronts)>1,'case fronts lack visible depth staggering');assert.ok(fronts.every(z=>z<=.001)&&backs.every(z=>z>=-row.visualDepth-.05),'machinery must occupy inward relief within the declared structure');assert.ok(row.field.some(p=>p.feature==='stratum-core'||p.feature==='stratum-riser'));
  for(const p of primary)for(const a of [-.5,.5])for(const b of [-.5,.5])for(const n of [-.5,.5]){const q=C.add(p.center,C.add(C.add(C.mul(p.u,a*p.size[0]),C.mul(p.v,b*p.size[1])),C.mul(p.normal,n*p.size[2])));assert.ok(C.inStruct(ship.parts.find(p=>p.k==='struct'&&!p.surfacePatch),q),'a visible primary case leaves its actual host');}
- assert.ok(median(primary.map(p=>Math.sqrt(p.size[0]*p.size[1])))>3,'primary machinery still reads as tiny greebles');assert.ok(row.field.some(p=>p.feature==='stratum-pipe-bundle'),'occupied floor bays need connected pipe bundles');
+ assert.ok(median(primary.map(p=>Math.sqrt(p.size[0]*p.size[1])))>3,'primary machinery still reads as tiny greebles');assert.ok(row.reliefFaces.length>0,'machinery is one clipped low-poly surface');assert.ok(!row.field.some(p=>p.feature==='stratum-pipe-bundle'),'cosmetic pipe parts must not replace the continuous face');
  assert.equal(C.publicJSON(ship),before);const low=G.surfaceVisualPlan(ship,{detail:0}).find(p=>p.id===patch.id);assert.deepEqual(plain(low.field),plain(row.field));assert.equal(low.boxes.length,0);
 });
 
