@@ -1,4 +1,5 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test');
+const {primarySurfaceLayers}=require('./helpers/surface-geometry.cjs');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=vm.createContext({console});
 for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/gfx.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});
 const {C,G}=vm.runInContext('({C:Core,G:Gfx})',cx),plain=q=>JSON.parse(JSON.stringify(q));
@@ -12,12 +13,12 @@ function fixture({depth=0,rotated=false,foil=false,count=0}={}){
 }
 function row(ship,patch,opt={}){return G.surfaceVisualPlan(ship,opt).find(q=>q.id===patch.id);}
 function triangles(g){const out=[];for(let i=0;i<g.ni;i+=3)out.push([0,1,2].map(j=>Array.from(g.pos.slice(g.idx[i+j]*3,g.idx[i+j]*3+3))));return out;}
-function neutralTriangles(ship,host,opt={}){const ranges={},g=G.meshSurfaceLayers(ship,ranges,{detail:0,maxDetails:0,...opt}).surfaceDevices,out=[];for(const [name,start,count]of ranges[host.id]||[])if(name==='surfaceDevices')for(let i=start;i<start+count;i+=3){if(g.col[g.idx[i]*4+3]===253)continue;out.push([0,1,2].map(j=>Array.from(g.pos.slice(g.idx[i+j]*3,g.idx[i+j]*3+3))));}return out;}
+function neutralTriangles(ship,host,opt={}){const ranges={},g=G.meshSurfaceLayers(ship,ranges,{detail:0,maxDetails:0,...opt}).surfaceDevices,out=[];for(const [name,start,count,meta]of ranges[host.id]||[])if(name==='surfaceDevices'&&!meta?.projection)for(let i=start;i<start+count;i+=3){if(g.col[g.idx[i]*4+3]===253)continue;out.push([0,1,2].map(j=>Array.from(g.pos.slice(g.idx[i+j]*3,g.idx[i+j]*3+3))));}return out;}
 function projectedArea(T,n){return T.reduce((a,t)=>a+C.dot(C.cross(C.sub(t[1],t[0]),C.sub(t[2],t[0])),n)/2,0);}
 function inside(host,p){return C.inPart(host,p)||C.inPart(host,C.add(p,C.mul(C.norm(C.sub(host.c,p)),3e-4)));}
 
 test('automatic relief combines shallow machinery masses with broad horizontal runs',()=>{
- const {ship,host,patch}=fixture(),before=C.publicJSON(ship),r=row(ship,patch,{detail:0,maxDetails:0}),T=neutralTriangles(ship,host),m=G.meshSurfaceLayers(ship,{}, {detail:0,maxDetails:0});
+ const {ship,host,patch}=fixture(),before=C.publicJSON(ship),r=row(ship,patch,{detail:0,maxDetails:0}),T=neutralTriangles(ship,host),m=primarySurfaceLayers(G,ship,{detail:0,maxDetails:0});
  assert.equal(r.functionalDepth,1);assert.ok(r.visualDepth>0&&r.visualDepth<=4,'automatic relief must remain shallow compared with the forty-metre face');
  assert.ok(T.length>20&&T.length<1200,'a simple face must use a coarse skin rather than thousands of tiny parts');
  const broad=T.filter(t=>C.dot(C.norm(C.cross(C.sub(t[1],t[0]),C.sub(t[2],t[0]))),patch.normal)>.9);assert.ok(projectedArea(broad,patch.normal)>patch.exposedArea*.5,'broad front facets must occupy most of the face rather than thin edge detail');
@@ -34,7 +35,7 @@ test('explicit visual depth, cosmetic density and draw budgets do not alter the 
 });
 
 test('tilted walls keep their relief along the face and inside their tapered host',()=>{
- const {ship,host,patch}=fixture({depth:5,rotated:true}),m=G.meshSurfaceLayers(ship,{}, {detail:0,maxDetails:0}),T=neutralTriangles(ship,host);assert.ok(T.length>20);
+ const {ship,host,patch}=fixture({depth:5,rotated:true}),m=primarySurfaceLayers(G,ship,{detail:0,maxDetails:0}),T=neutralTriangles(ship,host);assert.ok(T.length>20);
  for(const t of T){const n=C.norm(C.cross(C.sub(t[1],t[0]),C.sub(t[2],t[0])));assert.ok(C.dot(n,patch.normal)>.05,'facets must follow the tilted wall instead of projecting world-horizontal slabs');}
  for(const g of [m.surfaceDevices,m.surfaceDetail])for(let i=0;i<g.n;i++)assert.ok(inside(host,Array.from(g.pos.slice(i*3,i*3+3))),'a face relief vertex escaped its actual host');
 });

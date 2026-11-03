@@ -1,4 +1,5 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test');
+const {primarySurfaceLayers}=require('./helpers/surface-geometry.cjs');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=vm.createContext({console,performance:{now:()=>0}});
 for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/gfx.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});
 const {C,G}=vm.runInContext('({C:Core,G:Gfx})',cx),plain=x=>JSON.parse(JSON.stringify(x)),roles=['weapons','cooling','sensors','habitation'];
@@ -59,7 +60,7 @@ test('continuous machinery fields on an articulated foil are partitioned once wi
 });
 
 test('an unallocated equipment skin is a low-poly connected face with luminous service points',()=>{
- const initial=fixture({weapons:0,cooling:100,sensors:0,habitation:0}),saved=C.serialize(initial.ship),config=saved.surfaces.patches.find(p=>p.id===initial.patch.id);delete config.aggregate;delete config.equipment.capacityModel;config.equipment.count=0;config.equipment.limit=0;const ship=C.deserialize(saved),body=ship.parts.find(p=>p.id===initial.body.id),patch=C.surfacePatches(ship).find(p=>p.id===initial.patch.id),source=C.publicJSON(ship),plan=row(ship,patch.id,{detail:0}),mesh=G.meshSurfaceLayers(ship,{}, {detail:0});
+ const initial=fixture({weapons:0,cooling:100,sensors:0,habitation:0}),saved=C.serialize(initial.ship),config=saved.surfaces.patches.find(p=>p.id===initial.patch.id);delete config.aggregate;delete config.equipment.capacityModel;config.equipment.count=0;config.equipment.limit=0;const ship=C.deserialize(saved),body=ship.parts.find(p=>p.id===initial.body.id),patch=C.surfacePatches(ship).find(p=>p.id===initial.patch.id),source=C.publicJSON(ship),plan=row(ship,patch.id,{detail:0}),mesh=primarySurfaceLayers(G,ship,{detail:0});
  assert.equal(plan.devices.length,0);assert.ok(plan.reliefFaces.length>0);assert.ok(plan.lights.length>0);assert.ok(plan.lights.every(q=>q.ownerId===body.id&&q.role===null&&q.port));
  let lit=0,neutral=0;for(let i=0;i<mesh.surfaceDevices.ni;i+=3){const ids=[0,1,2].map(j=>mesh.surfaceDevices.idx[i+j]),ps=ids.map(k=>Array.from(mesh.surfaceDevices.pos.slice(k*3,k*3+3))),n=C.cross(C.sub(ps[1],ps[0]),C.sub(ps[2],ps[0]));assert.ok(C.dot(n,patch.normal)>0,'the face must have no hidden backs or box end caps');if(ids.every(k=>mesh.surfaceDevices.col[k*4+3]===253))lit++;else neutral++;}
  assert.ok(lit>0);assert.ok(neutral>0&&neutral<600,'a small face must retain coarse facets rather than thousands of tiny equipment parts');assert.equal(C.publicJSON(ship),source);
