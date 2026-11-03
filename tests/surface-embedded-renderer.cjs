@@ -6,7 +6,7 @@ function fixture({weapon='pd',onlyWeapons=false,depth=3,foil=false,face='port'}=
  const s=C.newShip({L:240,W:160,H:100,assembly:true},'Embedded surface renderer');s.parts=[];s.fits=[];s.armor={hull:0,cit:0};s.detail=1;
  const p=C.placePart(s,foil?'wing':'struct',[100,50,0],foil?[112,80,8]:[160,100,80],foil?{}:{form:'box'},false);if(foil)p.wing=C.normalizeWing({...p.wing,foil:true,axis:'x',open:10,stow:50});
  const patch=C.surfacePatches(s).find(q=>q.host==='p'+p.id&&q.face===(foil?'top':face));assert.ok(patch?.exposed);
- const result=C.setSurfaceConfig(s,patch.id,{functionMode:'equipment',allocation:onlyWeapons?{weapons:100,cooling:0,sensors:0,habitation:0}:{weapons:5,cooling:35,sensors:15,habitation:45},battery:{weapon,spacing:1},equipment:{kind:'hdis',depth},style:{kind:'machinery',density:.8,seed:97}});assert.equal(result.ok,true,result.why);return {ship:s,body:p,patch:C.surfacePatches(s).find(q=>q.id===patch.id)};
+ const result=C.setSurfaceConfig(s,patch.id,{functionMode:'equipment',allocation:{cooling:35,sensors:15,habitation:50},battery:{weapon,count:2,spacing:1},equipment:{kind:'hdis',depth,...(onlyWeapons?{limit:0}:{})},style:{kind:'machinery',density:.8,seed:97}});assert.equal(result.ok,true,result.why);return {ship:s,body:p,patch:C.surfacePatches(s).find(q=>q.id===patch.id)};
 }
 function vertices(g,spans){const seen=new Set(),out=[];for(const [,a,n]of spans)for(let i=a;i<a+n;i++){const k=g.idx[i];if(!seen.has(k)){seen.add(k);out.push(Array.from(g.pos.slice(k*3,k*3+3)));}}return out;}
 const same=(a,b)=>assert.ok(C.len(C.sub(a,b))<1e-6),median=a=>{a=a.slice().sort((a,b)=>a-b);return a[Math.floor(a.length/2)];};
@@ -36,7 +36,8 @@ test('legacy surface batteries show their aperture on the outer armor face inste
 test('larger machinery is staggered in wallnormal position and depth without changing the saved design',()=>{
  const {ship,patch}=fixture({depth:3}),before=C.publicJSON(ship),row=G.surfaceVisualPlan(ship).find(p=>p.id===patch.id),housings=row.field.filter(p=>p.feature==='service-housing'),primary=housings.filter(p=>p.recess);assert.ok(primary.length>12);
  const backs=primary.map(p=>C.dot(C.sub(p.center,patch.center),patch.normal)-p.size[2]/2),fronts=primary.map(p=>C.dot(C.sub(p.center,patch.center),patch.normal)+p.size[2]/2);
- assert.ok(Math.max(...backs)-Math.min(...backs)>1,'case backs remain on one plane');assert.ok(Math.max(...fronts)-Math.min(...fronts)>1.5,'case fronts lack visible depth staggering');assert.ok(backs.some(z=>z<-.05)&&backs.some(z=>z>.1));assert.ok(row.field.some(p=>p.feature==='service-standoff'));
+ assert.ok(Math.max(...backs)-Math.min(...backs)>.8,'case backs remain on one plane');assert.ok(Math.max(...fronts)-Math.min(...fronts)>1,'case fronts lack visible depth staggering');assert.ok(fronts.every(z=>z<=.001)&&backs.every(z=>z>=-3.05),'machinery must occupy inward relief within the declared structure');assert.ok(row.field.some(p=>p.feature==='service-standoff'));
+ for(const p of primary)for(const a of [-.5,.5])for(const b of [-.5,.5])for(const n of [-.5,.5]){const q=C.add(p.center,C.add(C.add(C.mul(p.u,a*p.size[0]),C.mul(p.v,b*p.size[1])),C.mul(p.normal,n*p.size[2])));assert.ok(C.inStruct(ship.parts.find(p=>p.k==='struct'&&!p.surfacePatch),q),'a visible primary case leaves its actual host');}
  assert.ok(median(primary.map(p=>Math.sqrt(p.size[0]*p.size[1])))>3,'primary machinery still reads as tiny greebles');assert.ok(row.field.some(p=>p.feature==='service-depth-conduit'),'pipe network lacks wallnormal connections between depth tiers');
  assert.equal(C.publicJSON(ship),before);const low=G.surfaceVisualPlan(ship,{detail:0}).find(p=>p.id===patch.id);assert.deepEqual(plain(low.field),plain(row.field));assert.equal(low.boxes.length,0);
 });

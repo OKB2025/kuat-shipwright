@@ -70,7 +70,8 @@ function geometryPass(job, flags) {
   const t0 = now();
   if (flags.hull) {
     C.hullGeo(ship);
-    const key = (ship._cache && ship._cache.key) + JSON.stringify([ship.hullSkin || null, ship.paint || null, ship.detail ?? 1]);
+    const hullSurfaces=(ship.surfaces?.patches||[]).filter(p=>p.id.startsWith('hull:')).map(p=>[p.id,p.functionMode]);
+    const key = (ship._cache && ship._cache.key) + JSON.stringify([ship.hullSkin || null, ship.paint || null, ship.detail ?? 1,hullSurfaces,ship.surfaces?.partitions||null]);
     if (key !== hullKey) { geos.hull = geoOut(G.meshHull(ship), transfer); geos.refHull = geoOut(G.meshReferenceHull(ship), transfer); hullKey = key; }
     geos.keel = geoOut(G.meshKeel(ship), transfer);
     out.dims = [ship.hull.L, ship.hull.W, ship.hull.H];
@@ -101,6 +102,10 @@ function deriveState(job) {
   if (any('parts')) flags.parts = flags.hatches = flags.fits = true;
   if (any('fits')) flags.fits = flags.parts = true;
   if (any('view')) flags.parts = true;
+  // Moving exposed structures can reveal or cover a configured hull patch.
+  // Its removed skin must be rebuilt together with the equipment, even when
+  // the hull's physical collision geometry has not changed.
+  if(any('parts','fits')&&(ship.surfaces?.patches||[]).some(p=>p.id.startsWith('hull:')&&p.functionMode==='equipment')){flags.hull=true;hullKey='';}
   const sync = job.reset || any('hull', 'all', 'parts', 'fits', 'hatches');
   const mount = job.reset || any('hull', 'all', 'parts', 'hatches');
   const t0 = now();
@@ -236,6 +241,7 @@ function handleOp(job) {
   let result = null;
   switch (job.op) {
     case 'fillHangars': result = C.fillHangars(ship, ...job.args); break;
+    case 'surfaceAuto': result = C.autoConfigureSurfaces(ship, job.args?.[0] || {}); break;
     default: throw new Error('unknown operation ' + job.op);
   }
   post({type: 'op', id: job.id, result, state: C.publicJSON(ship)});

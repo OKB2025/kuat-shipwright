@@ -8,7 +8,8 @@ function fixture({weapon='pd',face='port',rotate=false,count=2,modern=false,foil
  const body=C.placePart(ship,foil?'wing':'struct',[100,60,0],foil?[80,50,8]:[120,100,80],foil?{}:{form:'box',...(rotate?{yaw:29,pitch:21,roll:13}:{})},false);assert.ok(body?.id);
  if(foil)body.wing=C.normalizeWing({...body.wing,foil:true,axis:'x',open:10,stow:50});
  const patch=C.surfacePatches(ship).find(p=>p.host==='p'+body.id&&p.face===(foil?'top':face));assert.ok(patch?.exposed);
- const config={functionMode:modern?'equipment':'legacy',battery:{weapon,count,spacing:2,angle:17},equipment:{kind:modern?'hdis':'none',count:0,depth:3},style:{kind:'machinery',density:.8,seed:137},...(modern?{allocation}:{})};
+ const density=Object.fromEntries(['cooling','sensors','habitation'].map(k=>[k,allocation[k]||0]));
+ const config={functionMode:modern?'equipment':'legacy',battery:{weapon,count,spacing:2,angle:17},equipment:{kind:modern?'hdis':'none',count:0,depth:3,...(modern&&allocation.weapons>0&&!Object.values(density).some(n=>n>0)?{limit:0}:{})},style:{kind:'machinery',density:.8,seed:137},...(modern?{allocation:density}:{})};
  const result=C.setSurfaceConfig(ship,patch.id,config);assert.equal(result.ok,true,result.why);
  return {ship,body,patch:C.surfacePatches(ship).find(p=>p.id===patch.id)};
 }
@@ -65,10 +66,10 @@ test('actual worker foil clearance keeps embedded mouths and full frames on the 
  }
 });
 
-test('an embedded battery takes local common damage and disappears when its weapon allocation reaches zero',()=>{
+test('an embedded battery takes local common damage and disappears when its explicit gun count reaches zero',()=>{
  const {ship,patch}=fixture({modern:true}),fits=active(ship);assert.ok(fits.length>=2);const S=C.computeStats(ship),p=C.fleetProfile(S,ship.name,ship),u=C.fleetUnit('embedded','embedded',p,0);u.pos=[0,0,0];u.yaw=0;const a=p.surface.mounts.find(m=>m.id===fits[0].id),b=p.surface.mounts.find(m=>m.id===fits[1].id),m=p.modules[a.module],other=u.mods[b.module],hp=Math.max(1,m.hits*C.modQ(m,Math.max(1,p.hp*C.COMBAT.quantum)));
  C.surfaceHit({time:1,rand:()=>.99,ev(){},out(){},sunk(){}},u,a.center,hp);assert.equal(u.mods[a.module],0);assert.equal(u.mods[b.module],other);const ranges={};G.meshFits(ship,null,ranges);assert.ok(ranges[fits[0].id]?.some(r=>r[0]==='fits'),'visible port belongs to the damaged real gun ID');
- assert.equal(C.setSurfaceConfig(ship,patch.id,{allocation:only('cooling')}).ok,true);assert.equal(active(ship).length,0);assert.equal(G.meshFits(ship).ni,0);assert.equal(G.meshReferenceFits(ship).ni,0);assert.equal(G.fleetGeometry(ship).turrets.length,0,'zero weapon allocation cannot retain invisible gunnery state');
+ assert.equal(C.setSurfaceConfig(ship,patch.id,{battery:{count:0},allocation:{cooling:100,sensors:0,habitation:0}}).ok,true);assert.equal(active(ship).length,0);assert.equal(G.meshFits(ship).ni,0);assert.equal(G.meshReferenceFits(ship).ni,0);assert.equal(G.fleetGeometry(ship).turrets.length,0,'zero explicit gun count cannot retain invisible gunnery state');
 });
 
 test('legacy backing armor stays visible around the compact embrasure and an off-port hit does not damage an invisible turret',()=>{

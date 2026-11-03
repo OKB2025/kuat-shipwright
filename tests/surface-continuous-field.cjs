@@ -9,7 +9,8 @@ function fixture({allocation={weapons:25,cooling:25,sensors:25,habitation:25},fa
  if(foil)body.wing=C.normalizeWing({...body.wing,foil:true,axis:'x',open:10,stow:50});
  if(hole)ship.solidCuts.push(C.normalizeSolidCut({id:ship.nextId++,shape:'box',c:[81,30,9],s:[5,7,80],structures:true}));
  const patch=C.surfacePatches(ship).find(p=>p.host==='p'+body.id&&p.face===(foil?'top':face));assert.ok(patch?.exposed);
- assert.equal(C.setSurfaceConfig(ship,patch.id,{functionMode:'equipment',allocation,battery:{weapon:'pd',spacing:.5},equipment:{kind:'hdis',depth:foil?.6:2},style:{kind:'machinery',density:.75,seed:137}}).ok,true);
+ const density=Object.fromEntries(roles.filter(k=>k!=='weapons').map(k=>[k,allocation[k]||0])),pureGuns=allocation.weapons>0&&!Object.values(density).some(n=>n>0);
+ assert.equal(C.setSurfaceConfig(ship,patch.id,{functionMode:'equipment',allocation:density,battery:{weapon:'pd',count:allocation.weapons>0?2:0,spacing:.5},equipment:{kind:'hdis',depth:foil?.6:2,...(pureGuns?{limit:0}:{})},style:{kind:'machinery',density:.75,seed:137}}).ok,true);
  return {ship,body,patch:C.surfacePatches(ship).find(p=>p.id===patch.id)};
 }
 const row=(s,p,opt)=>G.surfaceVisualPlan(s,opt).find(q=>q.id===p.id),pieces=r=>[...(r.field||[]),...r.devices.flatMap(d=>d.hardware||[])];

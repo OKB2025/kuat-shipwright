@@ -5251,9 +5251,14 @@ function bindPalette(){
 // The selection contains semantic patch IDs. The form records only fields the
 // player changed, so applying one layer to several faces preserves their others.
 const SURFACE_FACES={top:'上面',bottom:'下面',port:'左舷',stbd:'右舷',fore:'前面',aft:'後面'};
-const SURFACE_ALLOCATION_LABELS={weapons:'砲列',cooling:'散熱',sensors:'センサー',habitation:'居住区'};
+const SURFACE_ALLOCATION_LABELS={cooling:'散熱',sensors:'センサー',habitation:'居住区'};
+let surfaceRemoteReport=null;
+function surfaceReportForEditor(){
+ if(surfaceRemoteReport?.ship===ship&&surfaceRemoteReport.gen===eng.gen)return surfaceRemoteReport.report;
+ surfaceRemoteReport=null;return C.surfaceReport(ship);
+}
 const SURFACE_FIELDS={
- 'functionMode':'text','allocation.weapons':'number','allocation.cooling':'number','allocation.sensors':'number','allocation.habitation':'number',
+ 'functionMode':'text','allocation.cooling':'number','allocation.sensors':'number','allocation.habitation':'number',
  'armor.material':'text','armor.thickness':'number','equipment.kind':'text','equipment.count':'number','equipment.depth':'number',
  'battery.weapon':'text','battery.count':'number','battery.spacing':'number','battery.angle':'number',
  'style.kind':'text','style.depth':'number','style.density':'number','style.seed':'number'
@@ -5270,11 +5275,12 @@ function surfacePatchName(p){return `${surfaceHostName(p)} · ${SURFACE_FACES[p.
 function surfaceFilteredRows(){
  const filter=st.surfaceFilter||'all';return surfaceRows().filter(p=>p.exposed&&(filter==='all'||filter==='hull'&&p.host==='hull'||filter==='parts'&&p.host!=='hull'||filter==='configured'&&ship.surfaces?.patches?.some(q=>q.id===p.id)));
 }
+function surfaceSymmetricIds(ids){return C.surfaceSymmetryIds(ship,ids,{mirror:!!st.mirror,vmirror:!!st.vmirror});}
 function surfaceSelectPatch(id,add=false,range=false){
  const rows=surfaceFilteredRows(),p=surfaceRows().find(q=>q.id===id&&q.exposed);if(!p)return false;
  const ids=new Set(add?st.surfaceIds||[]:[]),a=rows.findIndex(q=>q.id===st.surfaceLast),b=rows.findIndex(q=>q.id===id);
- if(range&&a>=0&&b>=0){for(const q of rows.slice(Math.min(a,b),Math.max(a,b)+1))ids.add(q.id);}
- else if(add&&ids.has(id))ids.delete(id);else ids.add(id);
+ if(range&&a>=0&&b>=0){for(const q of surfaceSymmetricIds(rows.slice(Math.min(a,b),Math.max(a,b)+1).map(q=>q.id)))ids.add(q);}
+ else{const group=surfaceSymmetricIds([id]);if(add&&ids.has(id))for(const q of group)ids.delete(q);else for(const q of group)ids.add(q);}
  st.surfaceIds=[...ids];st.surfaceLast=id;st.surfaceDraft={};surfaceSyncSelection();renderPanel();requestDraw();return true;
 }
 function surfaceTap(px,py,add){
@@ -5288,7 +5294,7 @@ function surfaceFormValue(configs,path){
 }
 function surfaceRatioEdits(){const draft=st.surfaceDraft||{};return draft._allocationEdits||Object.entries(draft).filter(([path])=>path.startsWith('allocation.')).map(([path,value])=>({key:path.split('.')[1],value}));}
 function surfaceDraftConfig(config){
- const q={...config,armor:{...config.armor},equipment:{...config.equipment},battery:{...config.battery},style:{...config.style},allocation:{...(config.allocation||{weapons:25,cooling:25,sensors:25,habitation:25})}};
+ const q={...config,armor:{...config.armor},equipment:{...config.equipment},battery:{...config.battery},style:{...config.style},allocation:C.surfaceAllocation(config.allocation)};
  for(const [path,value]of Object.entries(st.surfaceDraft||{})){if(!Object.hasOwn(SURFACE_FIELDS,path)||path.startsWith('allocation.'))continue;const a=path.split('.');if(a.length===1)q[a[0]]=value;else q[a[0]][a[1]]=value;}
  for(const edit of surfaceRatioEdits())q.allocation=C.surfaceAllocation(q.allocation,edit.key,edit.value);
  if(q.functionMode==='equipment'){if(q.battery.weapon==='none')q.battery.weapon='pd';if(q.equipment.kind==='none'||q.equipment.kind==='machinery')q.equipment.kind='hdis';}
@@ -5317,24 +5323,46 @@ function surfaceReportHTML(report){
 }
 function surfaceAllocationHTML(configs){
  const preview=configs.map(surfaceDraftConfig),totals=preview.map(q=>Object.values(q.allocation).reduce((a,b)=>a+b,0)),total=totals.length&&totals.every(v=>Math.abs(v-100)<.001)?'100%':'—';
- return `<div data-surface-allocation><p><b>割当合計</b> <output data-surface-allocation-total>${total}</output></p><p class="note">4種類の機材を合計100%で割り振ります。1項目を変えると、残りの比率を比例調整します。比率と面の実面積から基数を自動計算します。</p>${Object.entries(SURFACE_ALLOCATION_LABELS).map(([key,label])=>`<div data-surface-allocation-row="${key}">${surfaceNumberField(configs,'allocation.'+key,label+'（%）',0,100,.1,true)}</div>`).join('')}</div>`;
+ return `<div data-surface-allocation><p><b>割当合計</b> <output data-surface-allocation-total>${total}</output></p><p class="note">散熱・センサー・居住区を合計100%で配分します。1項目を変えると残りを比例調整します。砲列は比率に含めず、砲座基数を別に指定します。</p>${Object.entries(SURFACE_ALLOCATION_LABELS).map(([key,label])=>`<div data-surface-allocation-row="${key}">${surfaceNumberField(configs,'allocation.'+key,label+'（%）',0,100,.1,true)}</div>`).join('')}</div>`;
 }
 function surfaceFunctionFormHTML(configs,selected,weapons){
  const preview=configs.map(surfaceDraftConfig),mode=surfaceFormValue(preview,'functionMode'),legacy=configs.every(q=>q.functionMode==='legacy'||!q.functionMode),modeOptions=[['armor','装甲面'],['equipment','機材搭載面'],...(legacy?[['legacy','旧式の重ね合わせ（互換保持）']]:[])];
  let fields=`<p class="note">面の用途を選びます。変更した項目だけを各選択面に適用し、「複数の値」は変更するまで維持します。</p>${surfaceSelectField(configs,'functionMode','面の用途',modeOptions)}`;
+ if(configs.some(q=>q.legacyAllocation))fields+='<p class="note warn" data-surface-density-compat>旧版の密度配分による配置を保持しています。機材の比率か砲座基数を変更して適用すると、新しい配置方式へ更新します。</p>';
  if(mode==='armor')fields+=`<details open><summary>装甲面</summary>${surfaceSelectField(configs,'armor.material','材質',[['standard','標準装甲'],['dense','高密度装甲'],['light','軽量装甲']])}${surfaceNumberField(configs,'armor.thickness','実厚（m）',0,C.SURFACE_LIMITS?.armorThickness??100,.01,true)}<p class="note">この面は装甲として集計します。面生成の機材と砲列は稼働せず、個別配置した砲塔はそのまま残ります。</p></details>`;
- else if(mode==='equipment')fields+=`<details open><summary>機材の面積配分</summary>${surfaceAllocationHTML(configs)}</details><details open><summary>機材の仕様</summary>${surfaceSelectField(configs,'battery.weapon','砲列の兵器定義',weapons)}${surfaceSelectField(configs,'equipment.kind','散熱方式',[['hdis','高エネルギー散逸設備'],['radiator','通常放熱設備']])}${surfaceNumberField(configs,'equipment.depth','設備の内部深さ（m）',.02,C.SURFACE_LIMITS?.equipmentDepth??100,.01)}${surfaceNumberField(configs,'battery.spacing','砲座の間隔（m）',0,C.SURFACE_LIMITS?.spacing??1000,.1)}${surfaceNumberField(configs,'battery.angle','配列方向（度）',-180,180,1,true)}<p class="note">センサーは共通の複数帯域センサー、居住区は共通の居住設備として登録します。機材の外観も種類と配分に合わせて自動生成します。</p></details>`;
+ else if(mode==='equipment')fields+=`<details open><summary>機材の面積配分</summary>${surfaceAllocationHTML(configs)}</details><details open><summary>表面砲列（別枠）</summary>${surfaceSelectField(configs,'battery.weapon','砲列の兵器定義',weapons)}${surfaceNumberField(configs,'battery.count','要求する砲座基数',0,C.SURFACE_LIMITS?.devices??256,1)}${surfaceNumberField(configs,'battery.spacing','砲座の間隔（m）',0,C.SURFACE_LIMITS?.spacing??1000,.1)}${surfaceNumberField(configs,'battery.angle','配列方向（度）',-180,180,1,true)}<p class="note">砲列の基数は機材の密度配分から独立しています。砲座基数が0なら砲列を設置しません。砲座と機材は実際の面積・内部容積を共用します。</p></details><details open><summary>機材の仕様</summary>${surfaceSelectField(configs,'equipment.kind','散熱方式',[['hdis','高エネルギー散逸設備'],['radiator','通常放熱設備']])}${surfaceNumberField(configs,'equipment.depth','設備の内部深さ（m）',.02,C.SURFACE_LIMITS?.equipmentDepth??100,.01)}<p class="note">センサーは共通の複数帯域センサー、居住区は共通の居住設備として登録します。機材の外観も種類と配分に合わせて自動生成します。</p></details>`;
  else if(mode==='legacy'||legacy&&mode==null)fields+=`<p class="note warn" data-surface-legacy-warning>旧式の装甲・機材の重ね合わせを保持しています。面用途を選んで適用すると、新しい方式へ変換します。</p><div class="row2"><button type="button" class="btn sm" data-surface-action="convert-armor">装甲面へ切り替える</button><button type="button" class="btn sm" data-surface-action="convert-equipment">比率式の機材面へ切り替える</button></div><details data-surface-legacy><summary>旧式の設定（互換）</summary>${surfaceSelectField(configs,'armor.material','材質',[['standard','標準装甲'],['dense','高密度装甲'],['light','軽量装甲']])}${surfaceNumberField(configs,'armor.thickness','実厚（m）',0,C.SURFACE_LIMITS?.armorThickness??100,.01,true)}${surfaceSelectField(configs,'equipment.kind','設備の種類',[['none','設備なし'],['hdis','高エネルギー散逸設備'],['radiator','通常放熱設備'],['machinery','機材群']])}${surfaceNumberField(configs,'equipment.count','ユニット数',0,C.SURFACE_LIMITS?.devices??256,1)}${surfaceNumberField(configs,'equipment.depth','内部深さ（m）',.02,C.SURFACE_LIMITS?.equipmentDepth??100,.01)}${surfaceSelectField(configs,'battery.weapon','兵器定義',[['none','砲列なし'],...weapons])}${surfaceNumberField(configs,'battery.count','要求する砲座基数',0,C.SURFACE_LIMITS?.devices??256,1)}${surfaceNumberField(configs,'battery.spacing','砲座の間隔（m）',0,C.SURFACE_LIMITS?.spacing??1000,.1)}${surfaceNumberField(configs,'battery.angle','配列方向（度）',-180,180,1,true)}</details>`;
  else fields+='<p class="note">選択した面の用途が異なります。装甲面か機材搭載面を選ぶと、共通の設定を編集できます。</p>';
  fields+=`<details><summary>外観の細部</summary>${mode==='equipment'?'':surfaceSelectField(configs,'style.kind','仕上げ',[['standard','標準外板'],['slab','装甲スラブ'],['machinery','機材密集面'],['rounded','丸みのある仕上げ']])}${mode==='equipment'?'':surfaceNumberField(configs,'style.depth','装飾の突出量（m）',0,C.SURFACE_LIMITS?.styleDepth??30,.01)}${surfaceNumberField(configs,'style.density','細部ディテール密度',0,1,.05,true)}${surfaceNumberField(configs,'style.seed','配置シード',0,2147483647,1)}<p class="note">細部ディテール密度は装飾の設定です。機材搭載面の機能は、100%の面積配分と実際に設置できた設備から計算します。</p></details>`;
  return `<div class="pgroup" data-surface-form><h4>${selected.length===1?esc(surfacePatchName(selected[0])):`${selected.length} 面に一括設定`}</h4>${fields}<p class="note" data-surface-pending>${Object.keys(st.surfaceDraft||{}).length?'未適用の変更があります':'設定値を変更してから適用します'}</p><button type="button" class="btn primary" data-surface-action="apply" ${Object.keys(st.surfaceDraft||{}).length?'':'disabled'}>選択面へ適用</button><div class="row2"><button type="button" class="btn sm" data-surface-action="copy">先頭面の設定をコピー</button><button type="button" class="btn sm" data-surface-action="paste" ${st.surfaceClipboard?'':'disabled'}>設定を貼り付け</button><button type="button" class="btn sm" data-surface-action="split-u" ${selected.length===1?'':'disabled'}>面を縦に二分</button><button type="button" class="btn sm" data-surface-action="split-v" ${selected.length===1?'':'disabled'}>面を横に二分</button><button type="button" class="btn sm" data-surface-action="merge" ${selected.length>1?'':'disabled'}>隣接する面を結合</button><button type="button" class="btn sm danger" data-surface-action="reset">選択面の設定を解除</button><button type="button" class="btn sm" data-surface-action="systems">給電・熱輸送を診断</button></div></div>`;
 }
+function surfaceAutoOptions(){return {minAngle:45,overwrite:!!st.surfaceAutoOverwrite,config:{allocation:C.surfaceAllocation()}};}
+async function surfaceAutoRemote(){
+ if(!ship||st.surfaceAutoBusy)return false;
+ const target=ship,generation=eng.gen,before=snap(),options=surfaceAutoOptions();let adopted=false;
+ st.surfaceAutoBusy=true;showBusyOverlay('機材面を生成中…');renderPanel();
+ try{
+  const response=await YardEngineClient.request('op',{gen:generation,state:C.publicJSON(target),op:'surfaceAuto',args:[options]});
+  if(ship!==target||eng.gen!==generation)return false;
+  const result=response.result;if(!result?.ok){toast(result?.why||'機材面を自動設定できませんでした');return false;}if(!result.ids?.length)return false;
+  C.patchShip(target,JSON.parse(response.state));target._client=true;
+  undoStack.push(before);if(undoStack.length>60)undoStack.shift();redoStack.length=0;
+  st.surfaceIds=result.ids;st.surfaceDraft={};lastOp='機材面を自動設定';touch('all');if(result.report)surfaceRemoteReport={ship:target,gen:eng.gen,report:result.report};scheduleStats(60);updateUndo();autosave();adopted=true;
+  surfaceSyncSelection();requestDraw();return true;
+ }catch(e){console.error(e);if(ship===target&&eng.gen===generation)toast('機材面を自動設定できませんでした：'+esc(e.message||''));return false;}
+ finally{st.surfaceAutoBusy=false;if(!adopted&&ship===target)hideBusyOverlay();renderPanel();}
+}
+function surfaceAutoHTML(){
+ const candidates=C.surfaceAutoCandidates(ship,surfaceAutoOptions());
+ return `<div class="pgroup" data-surface-auto><h4>機材面の自動設定</h4><p class="note">船外に露出した側面と、水平から45°以上傾いた斜面を対象にします。水平な上下面や内部の面は対象外です。</p><label class="field-label"><input type="checkbox" data-surface-auto-overwrite ${st.surfaceAutoOverwrite?'checked':''}>装甲や既存の面設定を置き換える</label><p data-surface-auto-count>自動設定の対象 · ${candidates.length} 面</p><div class="row2"><button type="button" class="btn sm" data-surface-action="select-auto" ${candidates.length?'':'disabled'}>対象の面を選択</button><button type="button" class="btn primary" data-surface-action="auto-equipment" ${candidates.length&&!st.surfaceAutoBusy?'':'disabled'}>${st.surfaceAutoBusy?'機材面を生成中…':'対象を機材面に一括設定'}</button></div><p class="note">自動設定では砲列を追加しません。散熱・センサー・居住区を均等に配分し、元に戻す操作で一括して取り消せます。</p></div>`;
+}
 function surfaceEditorHTML(){
  const all=surfaceRows(),valid=new Set(all.filter(p=>p.exposed).map(p=>p.id));st.surfaceIds=(st.surfaceIds||[]).filter(id=>valid.has(id));
- const selected=surfaceSelection(),configs=selected.map(p=>C.surfaceConfig(ship,p.id)),report=C.surfaceReport(ship),filtered=surfaceFilteredRows(),page=Math.min(Math.max(0,st.surfacePage||0),Math.max(0,Math.ceil(filtered.length/48)-1));st.surfacePage=page;
+ const selected=surfaceSelection(),configs=selected.map(p=>C.surfaceConfig(ship,p.id)),report=surfaceReportForEditor(),filtered=surfaceFilteredRows(),page=Math.min(Math.max(0,st.surfacePage||0),Math.max(0,Math.ceil(filtered.length/48)-1));st.surfacePage=page;
  const mode=ship.surfaces?.mode||'compat',weapons=Object.entries(C.FITS).filter(([,d])=>d.cat==='w').map(([k,d])=>[k,d.short||d.name]),orphans=report.orphaned||[];
- let html=`<div class="pgroup" data-surface-editor><h3>表面の機能を設計</h3><p class="note">外面をタップするか一覧から選び、装甲面か機材搭載面を設定します。機材搭載面は砲列・散熱・センサー・居住区の面積を100%で配分します。透視で見える内部の面は選べません。</p><p>熱管理：<b>${mode==='strict'?'設備を必要とする設計':'旧設計の互換運転'}</b></p><div class="row2"><button type="button" class="btn sm${mode==='strict'?' on':''}" data-surface-action="strict">設備を必要とする設計へ</button><button type="button" class="btn sm${mode==='compat'?' on':''}" data-surface-action="compat" ${ship.surfaces?.compatAllowed===false?'disabled title="互換運転は旧設計の移行用です"':''}>互換運転を使う</button></div><p class="note">互換運転は既存艦の冷却を維持します。設備を必要とする設計へ切り替えると不足を診断します。個別に置いた砲塔はそのまま残ります。変更は「元に戻す」で戻せます。</p></div>`;
- html+=`<div class="pgroup"><h4>外面を選ぶ · ${selected.length} 面選択</h4><div class="row2"><button type="button" class="btn sm${st.surfaceAdd?' on':''}" data-surface-action="add" aria-pressed="${!!st.surfaceAdd}">追加選択</button><button type="button" class="btn sm${st.surfaceRange?' on':''}" data-surface-action="range" aria-pressed="${!!st.surfaceRange}">範囲選択</button><button type="button" class="btn sm" data-surface-action="all">表示中の外面をすべて選択</button><button type="button" class="btn sm" data-surface-action="clear">選択解除</button></div><label class="field-label">一覧の対象<select data-surface-filter>${[['all','すべての外面'],['hull','船体'],['parts','構造物・露出区画'],['configured','設定済みの面']].map(([k,n])=>`<option value="${k}" ${(st.surfaceFilter||'all')===k?'selected':''}>${n}</option>`).join('')}</select></label><div class="surface-patch-list">${filtered.slice(page*48,page*48+48).map(p=>`<button type="button" class="engine-row${st.surfaceIds.includes(p.id)?' on':''}" data-surface-pick="${esc(p.id)}" aria-pressed="${st.surfaceIds.includes(p.id)}"><span>${esc(surfacePatchName(p))}</span><b>${num(p.exposedArea,2)} m²</b></button>`).join('')||'<p class="note">この条件に合う外面はありません。</p>'}</div>${filtered.length>48?`<div class="row2"><button type="button" class="btn sm" data-surface-action="prev" ${page===0?'disabled':''}>前の面</button><span>${page+1} / ${Math.ceil(filtered.length/48)}</span><button type="button" class="btn sm" data-surface-action="next" ${(page+1)*48>=filtered.length?'disabled':''}>次の面</button></div>`:''}</div>`;
+ let html=`<div class="pgroup" data-surface-editor><h3>表面の機能を設計</h3><p class="note">外面をタップするか一覧から選び、装甲面か機材搭載面を設定します。機材搭載面は散熱・センサー・居住区を100%で配分し、砲列は砲座基数で別に設定します。透視で見える内部の面は選べません。</p><p>熱管理：<b>${mode==='strict'?'設備を必要とする設計':'旧設計の互換運転'}</b></p><div class="row2"><button type="button" class="btn sm${mode==='strict'?' on':''}" data-surface-action="strict">設備を必要とする設計へ</button><button type="button" class="btn sm${mode==='compat'?' on':''}" data-surface-action="compat" ${ship.surfaces?.compatAllowed===false?'disabled title="互換運転は旧設計の移行用です"':''}>互換運転を使う</button></div><p class="note">互換運転は既存艦の冷却を維持します。設備を必要とする設計へ切り替えると不足を診断します。個別に置いた砲塔はそのまま残ります。変更は「元に戻す」で戻せます。</p></div>`;
+ html+=surfaceAutoHTML();
+ html+=`<div class="pgroup"><h4>外面を選ぶ · ${selected.length} 面選択</h4><p class="note">左右・上下対称が有効なときは、対応する鏡写しの面も選択します。追加選択や範囲選択で複数の面をまとめて編集できます。</p><div class="row2"><button type="button" class="btn sm${st.mirror?' on':''}" data-surface-action="mirror" aria-pressed="${!!st.mirror}">左右対称</button><button type="button" class="btn sm${st.vmirror?' on':''}" data-surface-action="vmirror" aria-pressed="${!!st.vmirror}">上下対称</button><button type="button" class="btn sm${st.surfaceAdd?' on':''}" data-surface-action="add" aria-pressed="${!!st.surfaceAdd}">追加選択</button><button type="button" class="btn sm${st.surfaceRange?' on':''}" data-surface-action="range" aria-pressed="${!!st.surfaceRange}">範囲選択</button><button type="button" class="btn sm" data-surface-action="all">表示中の外面をすべて選択</button><button type="button" class="btn sm" data-surface-action="clear">選択解除</button></div><label class="field-label">一覧の対象<select data-surface-filter>${[['all','すべての外面'],['hull','船体'],['parts','構造物・露出区画'],['configured','設定済みの面']].map(([k,n])=>`<option value="${k}" ${(st.surfaceFilter||'all')===k?'selected':''}>${n}</option>`).join('')}</select></label><div class="surface-patch-list">${filtered.slice(page*48,page*48+48).map(p=>`<button type="button" class="engine-row${st.surfaceIds.includes(p.id)?' on':''}" data-surface-pick="${esc(p.id)}" aria-pressed="${st.surfaceIds.includes(p.id)}"><span>${esc(surfacePatchName(p))}</span><b>${num(p.exposedArea,2)} m²</b></button>`).join('')||'<p class="note">この条件に合う外面はありません。</p>'}</div>${filtered.length>48?`<div class="row2"><button type="button" class="btn sm" data-surface-action="prev" ${page===0?'disabled':''}>前の面</button><span>${page+1} / ${Math.ceil(filtered.length/48)}</span><button type="button" class="btn sm" data-surface-action="next" ${(page+1)*48>=filtered.length?'disabled':''}>次の面</button></div>`:''}</div>`;
  if(selected.length){
   html+=surfaceFunctionFormHTML(configs,selected,weapons);
   if(C.surfaceCarve&&selected.length===1)html+=`<div class="pgroup"><h4>実際の形状を切削</h4><label class="field-label">切削の深さ（m）<input type="number" data-surface-cutdepth value="${st.surfaceCarveDepth??1}" min=".02" max="${Math.max(.02,selected[0].depth||100)}" step=".01"></label><button type="button" class="btn danger" data-surface-action="carve">選択面を後退させて切削</button><p class="note">この操作は装飾と違い、船体・構造物の形状を削ります。既存の設備を新しい切削面へ自動では移さず、未配置の設定として保持します。</p></div>`;
@@ -5349,7 +5377,7 @@ function surfaceRefreshReport(){
  if(!current||!document.activeElement?.closest?.('[data-surface-form]')){renderPanel();return;}
  // An engine result must refresh derived numbers without replacing the form
  // under a player who has already started typing their next pending edit.
- const holder=document.createElement('div');holder.innerHTML=surfaceReportHTML(C.surfaceReport(ship));let next=holder.firstElementChild;
+ const holder=document.createElement('div');holder.innerHTML=surfaceReportHTML(surfaceReportForEditor());let next=holder.firstElementChild;
  if(!next)return;if(current.tagName==='DETAILS'){next=foldSection(next);next.open=current.open;}
  current.replaceWith(next);
 }
@@ -5387,11 +5415,14 @@ function surfaceAction(action){
  if(action==='strict'||action==='compat'){mutate('表面設備の運転方式',()=>{const r=C.enableSurfaceMode(ship,action==='strict');if(!r.ok)throw Error(r.why||'この設計の運転方式は変更できません');},'all');}
  else if(action==='add')st.surfaceAdd=!st.surfaceAdd;
  else if(action==='range')st.surfaceRange=!st.surfaceRange;
- else if(action==='all'){st.surfaceIds=surfaceFilteredRows().map(p=>p.id);st.surfaceDraft={};}
+ else if(action==='mirror'||action==='vmirror'){st[action]=!st[action];if(st[action])st.surfaceIds=surfaceSymmetricIds(st.surfaceIds||[]);st.surfaceDraft={};if(typeof syncHud==='function')syncHud();}
+ else if(action==='all'){st.surfaceIds=surfaceSymmetricIds(surfaceFilteredRows().map(p=>p.id));st.surfaceDraft={};}
+ else if(action==='select-auto'){st.surfaceIds=C.surfaceAutoCandidates(ship,surfaceAutoOptions()).map(p=>p.id);st.surfaceDraft={};}
+ else if(action==='auto-equipment')return surfaceAutoRemote();
  else if(action==='clear'){st.surfaceIds=[];st.surfaceDraft={};st.surfaceLast=null;}
  else if(action==='prev'||action==='next')st.surfacePage=Math.max(0,(st.surfacePage||0)+(action==='next'?1:-1));
  else if(action==='convert-armor'||action==='convert-equipment'){st.surfaceDraft||={};st.surfaceDraft.functionMode=action==='convert-equipment'?'equipment':'armor';}
- else if(action==='copy'&&selected.length){const q=C.surfaceConfig(ship,selected[0].id);st.surfaceClipboard=JSON.parse(JSON.stringify({functionMode:q.functionMode,allocation:q.allocation,armor:q.armor,equipment:q.equipment,battery:q.battery,style:q.style}));toast('面の設定をコピーしました');}
+ else if(action==='copy'&&selected.length){const q=C.surfaceConfig(ship,selected[0].id);st.surfaceClipboard=JSON.parse(JSON.stringify({functionMode:q.functionMode,allocation:q.allocation,legacyAllocation:q.legacyAllocation,armor:q.armor,equipment:q.equipment,battery:q.battery,style:q.style}));toast('面の設定をコピーしました');}
  else if(action==='paste'&&ids.length&&st.surfaceClipboard){mutate('表面設定を貼り付け',()=>{const r=C.setSurfaceConfig(ship,ids,st.surfaceClipboard);if(!r.ok)throw Error(r.why||'面へ設定できません');},'all');st.surfaceDraft={};}
  else if(action==='reset'&&ids.length){mutate('表面設定を解除',()=>{const r=C.setSurfaceConfig(ship,ids,{functionMode:'armor',armor:null,equipment:null,battery:null,style:null});if(!r.ok)throw Error(r.why||'面へ設定できません');},'all');st.surfaceDraft={};}
  else if(action==='split-u'||action==='split-v'||action==='merge'){surfaceTopology(action);return;}
@@ -5401,7 +5432,7 @@ function surfaceAction(action){
 }
 function bindSurfaceEditor(){
  const panel=$('#panel');panel.addEventListener('input',e=>{if(e.target.dataset.surfaceField)surfaceUpdateDraft(e.target);if('surfaceCutdepth'in e.target.dataset&&e.target.value!==''&&Number.isFinite(+e.target.value))st.surfaceCarveDepth=+e.target.value;});
- panel.addEventListener('change',e=>{if(e.target.dataset.surfaceField)surfaceUpdateDraft(e.target);if('surfaceFilter'in e.target.dataset){st.surfaceFilter=e.target.value;st.surfacePage=0;renderPanel();}});
+ panel.addEventListener('change',e=>{if(e.target.dataset.surfaceField)surfaceUpdateDraft(e.target);if('surfaceAutoOverwrite'in e.target.dataset){st.surfaceAutoOverwrite=e.target.checked;renderPanel();}if('surfaceFilter'in e.target.dataset){st.surfaceFilter=e.target.value;st.surfacePage=0;renderPanel();}});
  panel.addEventListener('click',e=>{
   const pick=e.target.closest('[data-surface-pick]');if(pick){e.stopImmediatePropagation();surfaceSelectPatch(pick.dataset.surfacePick,!!e.shiftKey||!!e.ctrlKey||!!st.surfaceAdd,!!st.surfaceRange||!!e.shiftKey);return;}
   const orphan=e.target.closest('[data-surface-orphan]');if(orphan&&C.surfaceReassign){e.stopImmediatePropagation();const selected=surfaceSelection();if(selected.length===1)mutate('未配置の面設定を移設',()=>{const r=C.surfaceReassign(ship,orphan.dataset.surfaceOrphan,selected[0].id);if(!r.ok)throw Error(r.why||'面へ設定できません');},'all');renderPanel();return;}

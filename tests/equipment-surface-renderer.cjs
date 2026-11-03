@@ -5,7 +5,8 @@ const {C,G}=vm.runInContext('({C:Core,G:Gfx})',cx),plain=x=>JSON.parse(JSON.stri
 function fixture(alloc={weapons:25,cooling:25,sensors:25,habitation:25},face='stbd',options={}){
  const ship=C.newShip({L:80,W:60,H:40,assembly:true},'Equipment rendering');ship.parts=[];ship.fits=[];ship.armor={hull:0,cit:0};ship.detail=1;
  const body=C.placePart(ship,'struct',[40,20,0],[64,40,32],{form:'box',...options},false),patch=C.surfacePatches(ship).find(p=>p.host==='p'+body.id&&p.face===face);
- assert.ok(patch?.exposed,face+' patch');assert.equal(C.setSurfaceConfig(ship,patch.id,{functionMode:'equipment',allocation:alloc,battery:{weapon:'pd',spacing:.5},equipment:{kind:'hdis',depth:3},style:{kind:'machinery',density:.7,seed:13}}).ok,true);
+ const density=Object.fromEntries(roles.filter(k=>k!=='weapons').map(k=>[k,alloc[k]||0]));
+ assert.ok(patch?.exposed,face+' patch');assert.equal(C.setSurfaceConfig(ship,patch.id,{functionMode:'equipment',allocation:density,battery:{weapon:'pd',count:alloc.weapons>0?2:0,spacing:.5},equipment:{kind:'hdis',depth:3},style:{kind:'machinery',density:.7,seed:13}}).ok,true);
  return {ship,body,patch:C.surfacePatches(ship).find(p=>p.id===patch.id)};
 }
 const row=(ship,id,opt)=>G.surfaceVisualPlan(ship,opt).find(q=>q.id===id),features=plan=>plan.devices.flatMap(d=>d.hardware.map(p=>p.feature));
