@@ -10,7 +10,7 @@ function setup(){
  let ship=null,S=null,prevS=null,view=null,lastOp='',dragSnap=null,dragLabel='';
  const undoStack=[],redoStack=[],st={},fleet={mode:'design'},eng={},meshStore={},nodes=new Map(),records=new Map(),notices=[];
  const $=id=>{if(!nodes.has(id))nodes.set(id,{disabled:false,textContent:'',setAttribute(){}});return nodes.get(id);};
- const T=x=>x,esc=String,toast=x=>notices.push(x),resetSolidCutter=()=>{},reconcileSolidCutter=()=>{},showBusyOverlay=()=>{},touch=()=>{},hideInspect=()=>{},renderPanel=()=>{},scheduleStats=()=>{},autosave=()=>{},sndEdit=()=>{},sndUI=()=>{},findSel=()=>null,renderSaves=()=>{};
+ const T=x=>x,esc=String,toast=x=>notices.push(x),resetSolidCutter=()=>{},clearPreview=()=>{},reconcileSolidCutter=()=>{},showBusyOverlay=()=>{},touch=()=>{},kickEngine=()=>{},hideInspect=()=>{},renderPanel=()=>{},scheduleStats=()=>{},autosave=()=>{},sndEdit=()=>{},sndUI=()=>{},findSel=()=>null,renderSaves=()=>{};
  let releasePack=null,releaseStore=null,delayPack=false,delayStore=false,failStore=false,packCalls=0;
  async function pack(value){packCalls++;const data=JSON.stringify(value);if(delayPack)await new Promise(resolve=>releasePack=resolve);return data;}
  const Store={async save(rec){if(delayStore)await new Promise(resolve=>releaseStore=resolve);if(failStore)throw new Error('write failed');records.set(rec.id,rec);return 'local';}};

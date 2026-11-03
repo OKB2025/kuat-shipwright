@@ -3052,6 +3052,17 @@ function surfaceExposureCurrent(ship,key){
  }surfaceExposureValidation.set(ship,{key,ledger,valid});return valid;
 }
 function surfacePatches(ship,structuralOnly=false){
+ // The editor uses the last complete survey from the geometry worker. Moving
+ // a structure invalidates exposure across the whole ship; rebuilding that
+ // survey here would put the expensive clipping pass back on the UI thread.
+ // Settings stay live, while geometry changes arrive with the next proxy.
+ // Explicit split/merge commands need their new leaves immediately for
+ // ledger areas and selection. Only a changed partition layout bypasses
+ // the snapshot; ordinary position/size edits still wait for the worker.
+ if(ship._client&&Array.isArray(ship._geoProxy?.surfaces)&&(ship._geoProxy.surfacePartitions===undefined||ship._geoProxy.surfacePartitions===JSON.stringify(ship.surfaces?.partitions||null))){
+  const parts=new Map(ship.parts.map(p=>['p'+p.id,p]));
+  return ship._geoProxy.surfaces.filter(p=>p.host==='hull'||parts.has(p.host)).map(p=>({...p,_part:p.host==='hull'?null:parts.get(p.host),config:surfaceConfig(ship,p.id)})).filter(p=>!structuralOnly||!p._part||isShapePart(p._part));
+ }
  const key=surfaceGeometryKey(ship),full=surfaceCache.get(ship),old=full?.key===key?full:structuralOnly?surfaceStructuralCache.get(ship):null;if(old?.key===key)return (structuralOnly?old.patches.filter(p=>!p._part||isShapePart(p._part)):old.patches).map(p=>({...p,config:surfaceConfig(ship,p.id)}));const out=[],hosts=surfaceHosts(ship),meshes=surfaceExposureMeshes(ship,hosts);
  for(const host of hosts){
   // Aggregate hull surveys do not need semantic faces for native apparatus,
@@ -3264,9 +3275,12 @@ function surfaceDecodeGun(r,patch,host){const q={id:r[0],k:r[1],p:r.slice(2,5),a
 function surfaceSync(ship){
  if(!ship?.surfaces||ship._surfaceWorking||ship._surfaceCompiling||ship._surfaceRenderOnly)return;
  if(ship.surfaces.version<SURFACE_VERSION)ship.surfaces=normalizeSurfaces(ship.surfaces);surfaceReserveIds(ship);
- const configs=ship.surfaces.patches||[],key=surfaceAggregateKey(ship),materialized=[...ship.parts,...ship.fits].some(q=>q.surfacePatch);
- if(!materialized&&configs.every(q=>q.aggregate?.signature===key&&(q.aggregate.version!==2||q.aggregate.manifestKey===surfaceAreaManifest(q.aggregate)))&&(ship._client||surfaceExposureCurrent(ship,key)))return;
+ const configs=ship.surfaces.patches||[],materialized=[...ship.parts,...ship.fits].some(q=>q.surfacePatch);
+ // The worker owns compilation for aggregate client designs. Even testing
+ // validity hashes every native part and face ledger, so skip that work too.
  if(ship._client&&!materialized)return;
+ const key=surfaceAggregateKey(ship);
+ if(!materialized&&configs.every(q=>q.aggregate?.signature===key&&(q.aggregate.version!==2||q.aggregate.manifestKey===surfaceAreaManifest(q.aggregate)))&&(ship._client||surfaceExposureCurrent(ship,key)))return;
  const original=new Map(configs.map(q=>[q.id,q])),frozen=new Set(configs.filter(q=>!surfaceIsArea(q)&&q.aggregate?.version===1&&q.aggregate.equipmentKey===surfaceEquipmentKey(ship,q)).map(q=>q.id));let work=ship;
  if(!materialized){const oldParts=[],oldFits=[],patches=surfacePatches(ship);for(const q of configs){if(!surfaceIsArea(q))for(const r of q.aggregate?.cells||[]){const p=surfaceDecodeCell(r,q.id);if(frozen.has(q.id)){p._surfaceFrozen=true;delete p.surfacePatch;}oldParts.push(p);}const host=patches.find(p=>p.id===q.id)?._part;for(const r of q.aggregate?.guns||[])oldFits.push(surfaceDecodeGun(r,q.id,host));}
   work={...ship,_surfaceCompiling:true,parts:ship.parts.concat(oldParts),fits:ship.fits.concat(oldFits),surfaces:JSON.parse(JSON.stringify(ship.surfaces))};for(const q of work.surfaces.patches)if(frozen.has(q.id)){q.functionMode='equipment';q.equipment={...q.equipment,capacityModel:SURFACE_AREA_MODEL,limit:0};delete q.legacyAllocation;}
