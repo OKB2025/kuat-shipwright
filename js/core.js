@@ -100,6 +100,15 @@ const COST_CATS = {hull: '船体', armor: '装甲', power: '動力', drive: '推
 const COST_KIND = {gen: 'power', shield: 'defense', hyper: 'drive', engine: 'drive', hangar: 'hangar', struct: 'hull', vls: 'weapons', capacitor: 'weapons', localShield: 'defense', integrity: 'defense', firecontrol: 'command', scanner: 'command', sensor: 'command',lifeSupport:'systems',ejectSeat:'defense',navComputer:'command',targetComputer:'command',maneuver:'drive',laserGas:'weapons',landingGear:'systems'};
 const COST_GROUP = {power: 'power', air: 'hangar', command: 'command', craft: 'command', superweapon: 'weapons', support: 'systems'};
 function costCategory(k) { return COST_KIND[k] || COST_GROUP[PARTS[k]?.group] || 'systems'; }
+// Navigation owns topology only; Galaxy and Rts retain their existing graphs,
+// pathfinders and travel-time rules. A branch is one jump, while a consecutive
+// run of major-route edges may pass its intermediate systems without stopping.
+function navigationItinerary(route){
+ if(!route||!Array.isArray(route.path)||!Array.isArray(route.legs)||route.path.length!==route.legs.length+1||route.path.some(v=>typeof v!=='string'&&!Number.isInteger(v))||route.legs.some(e=>!e||!Number.isFinite(e.len)||e.len<0))return null;
+ const segments=[],major=e=>!!e&&(e.kind!=null?e.kind==='trunk':typeof e.route==='string'&&e.route.length>0),push=(a,b)=>{if(b>a)segments.push({from:route.path[a],to:route.path[b],kind:major(route.legs[a])?'trunk':'branch',path:route.path.slice(a,b+1),legs:route.legs.slice(a,b)});};let start=0;
+ for(let i=0;i<route.legs.length;i++)if(!major(route.legs[i])){push(start,i);push(i,i+1);start=i+1;}push(start,route.legs.length);
+ return {version:1,from:route.path[0],final:route.path.at(-1),next:segments[0]?.to??route.path[0],stops:segments.map(s=>s.to),segments};
+}
 // The cost service: one ship's cost from its stats (or from a fleet profile's info, which carries cost, costBy and
 // crewNeed). Provisional (the user has not fixed a formula): the build cost above plus the crew's outfitting and
 // training, COST_K.crew cr a head. Every side's figures come from here (fleet organisation, scenario cost limits,
@@ -12331,7 +12340,7 @@ function foilStep(u,dt,want,ev){
 }
 function foilState(u){const s=u?.fo,F=u?.p?.foils;if(!s||!F?.length)return null;return F.map((f,i)=>({name:f.n,d:s.d[i],jam:s.jam[i],want:s.want[i]}));}
 
-return {SURFACE_VERSION,SURFACE_MATERIALS,normalizeSurfaces,surfacePatches,surfaceConfig,setSurfaceConfig,enableSurfaceMode,surfaceReport,surfaceSync,surfacePick,surfaceSplit,surfaceMerge,surfaceProfile,ENERGY_MODEL,SHIELD_MODEL,ION_MODEL,weaponEnergy,weaponInputFactor,shieldReceive,shieldStatus,ionOverload,powerDomainProfile,powerFactor,powerStatus,powerTick,heatAccrue,heatLim,heatTick,superweaponCharge,SURFACE_LIMITS,surfaceBatteryStatus,surfaceFleetFire,surfacePowerStep,surfaceRayHit,surfaceHit,surfaceRemoveConfig,surfaceReassign,surfaceCarve,surfaceManualCharge,surfaceSpend,surfaceMountEnergy,armorLayerStep,surfacePatchAt,surfaceDomainAt,powerDomainWatts,superweaponDischarge,surfaceArmorStatus,surfaceArmorSync,surfaceArmorTick,coolingPowerReserve,
+return {navigationItinerary,SURFACE_VERSION,SURFACE_MATERIALS,normalizeSurfaces,surfacePatches,surfaceConfig,setSurfaceConfig,enableSurfaceMode,surfaceReport,surfaceSync,surfacePick,surfaceSplit,surfaceMerge,surfaceProfile,ENERGY_MODEL,SHIELD_MODEL,ION_MODEL,weaponEnergy,weaponInputFactor,shieldReceive,shieldStatus,ionOverload,powerDomainProfile,powerFactor,powerStatus,powerTick,heatAccrue,heatLim,heatTick,superweaponCharge,SURFACE_LIMITS,surfaceBatteryStatus,surfaceFleetFire,surfacePowerStep,surfaceRayHit,surfaceHit,surfaceRemoveConfig,surfaceReassign,surfaceCarve,surfaceManualCharge,surfaceSpend,surfaceMountEnergy,armorLayerStep,surfacePatchAt,surfaceDomainAt,powerDomainWatts,superweaponDischarge,surfaceArmorStatus,surfaceArmorSync,surfaceArmorTick,coolingPowerReserve,
  isShapeKind,isShapePart,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,WING_PLANFORM_PRESETS,wingPlanformPreset,wingTipSide,wingTipOffset,wingTipRange,wingShiftTip,AERO_WING_OUTLINE,AERO_WING_SECTION,AERO_PANEL_OUTLINE,SOLAR_PANEL_PRESETS,solarPanelPreset,solarPanelBraces,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT, craftHeat, cleanCraftHeat, squadFireK, squadHeatStep, SOLAR, solarPower, solarCap, solarArea, wingCap, WING, FOIL_AXES, WING_PARTS, normalizeWing, isWing, isFoil, foilHandles, wingPivot, wingMembers, wingMap, foilSweep, foilPose, foilAt, foilFrame, wingStats, EMIT, BANDS, BAND_NAMES, emitBands, EMCON, EMCON_LOW_MAX, emconOf, SENSOR_BANDS, sensorSuite, SENS, sensSNR, sensStageCap, foilInit, foilStep, foilState, HEAT, HEAT_PRESETS, HEAT_KINDS, HEAT_MODE, DISSIPATORS, dissipatorCap, heatLoads, heatWaste, heatSolve, heatNetwork, heatEvaluate, heatStats, heatProfile, heatProfileOf, heatLegacy, heatInit, heatTick, heatStatus, heatLim, heatSwLim, normalizeLinks, DESIGN_FACTIONS, ionDensity, ionReach, ionGlow, swRange, swFree, swAxis, MGLT, engineDepthRatio, sublightMGLT, AA_CHANNELS, ION_BOLT, ionDiam, ionArea, ionShare, ionPlan, ionStrike, ionBoltsStep, swMuzzle, fleetAim, modWorld, aimPoint, fireScreen, screenShare, escortThreat, escortStation, escortPick, SCREEN, aimHold, aimMark, modQ, exposedMod, standardFit, craftCombat, designCraftSnapshot, cleanDesignCraft, CRAFT_ROLE_RTS, ORDNANCE, ORDNANCE_EVIDENCE, STORE_MOUNTS, STORE_FITS, STORE_DEFAULT, storeCapacity, craftStations, CRAFT_LOADOUT, craftTypeOf, craftLoadout, normalizeLoad, craftOrdnance, ordnanceRuns, ordnanceSalvo, ordnanceSummary, VOLLEY, volleyMode, volleyStep, SUPERWEAPONS, SW_COMBAT, swPower, swChargeRate, swInArc, swHeading, swDecay, swOverload, swPulse, swIonWave, superweaponStep, isSuperweapon, superweaponAim, superweaponOpen, normalizeSuperweapon, superweaponStats, isCraft, partLimits, CRAFT_PART_SIZE, craftPart, craftFieldGain, TROOP_SEAT_M3, ENGINE_GLOWS, engineGlowOK, engineGlowRGB, engineLevel, MISSILE_MOUNTS, missileMount, missileCells, missileStatus, PLATE, plateThickness, shipSpan, HULL_SECTIONS, SECTION_NAMES, hullSectionShares, SHIP_LIGHT_KINDS, SHIP_EXAMPLES, registerShipExample, shipKit, SHELL_ROWS, structRows, shellSection, shellPoint, CIS_PAINT, fitTilt, fitUp, fitCanRotate, fitFrameOf, openingRimPoint, surfSamples, groundingStats, turretRayContext, turretClear, turretOrigin, turretRate, GROUND_LIMITS, GROUND_PRESETS, GROUND_KINDS, GROUND_VEHICLE_VOLUME, DROID_STORE_M3, CREW_M3_K, CREW_LIVING_M3, personVolume, RETIRED_PARTS, FEED_FLUX, CELL_ENERGY_DENSITY, CELL_DISCHARGE_S, feedConduits, normalizeGroundForces, groundStatus, planStations, bridgeBodyRole, podPoint, podDepth, intrinsicCommandFits, POD_ASSET, BRIDGE_BODY_COMMAND, REFERENCE_TONE, engineSkinMesh, referenceFitYaw, rayTris, vmirrorPlane, vmirrorPoint, vmirrorPart, SHIP_CLASSES, shipClassFor, PUBLIC_LISTS, publicJSON, patchShip, patchItem, cache, AIRCRAFT_CLEARANCE, aircraftFitsBay, shipFitsBay, shipStowSize, CRAFT_TYPES, VEHICLE_TYPES, CRAFT_HINTS, VEHICLE_HINTS, craftDims, airWingDims, groundDims, stowSize, vehicleStowSize, VEHICLE_STOW_FACTOR, craftLift, boxFits, stowLoad, stowInit, stowRows, isCombatRow, COMBAT_ROLES, stowPack, stowPasses, stowStatus, aviationBays, hatchOpening, STOW_GAP, STOW_PASS, STOW_ANY_LENGTH, BUILTIN_COMPLEMENTS, builtinComplement, SHIP_STOW_CLEAR, SHIP_STOW_FACTOR, AVIATION_SIZE_VOLUME, AIR_WING_LIMITS, hangarCapacity, normalizeAirWings, aviationStatus, AVIATION_SURFACE_FACES, hatchAxes, aviationSurfaceContacts, setAviationSurfaceMode, syncAviationSurfaces, aviationHatchActive, isSlidingHatch, slidingHatchSpec, slidingHatchPanels, hatchOpenArea, ISD_HYPER_BASELINE, HYPER_CLASS_COEFFICIENT, HYPER_POWER_DENSITY, ISD_SHIELD_VOLUME, SHIELD_BUFFER_SECONDS, SHIELD_ENERGY_DENSITY, SHIELD_POWER_DENSITY, REACTOR_POWER_DENSITY, SOLID_CUT_SHAPES, SOLID_CUT_POLY_MAX, solidCutDisplayTriangles, solidCutVolume, solidCutConvexOK, convexHullFaces, solidCutThinWalls, SOLID_THIN_WALL_M, compiledSolidCut, STRUCT_MESH_LIMITS, meshTopology, MESH_IMPORT_UNITS, MESH_IMPORT_AXES, parseMeshFile, meshImportPart, simplifyMesh, ASSEMBLY_LIMITS, ASSEMBLY_MOUNTS, ASSEMBLY_ORIGINS, ASSEMBLY_CATEGORIES, assemblyLinks, assemblyCapture, normalizeAssemblyTemplate, assemblyPlace, assemblyIssues, assemblyMirrorFit, assemblyPreview, solidCutWorld, solidCutLocal, solidCutFromLocal, solidCutLocalVerts, solidCutToPoly, normalizeStructMesh, meshStructTriangles, inMeshStruct, mirrorStructMesh, structToMesh, refitStructMesh, meshEditCheck, meshMoveVertices, meshSetVertex, meshSplitEdge, meshCollapseVertex, meshExtrudeFace, meshLocalTris, normalizeSolidCut, mirrorSolidCut, solidCutTriangles, solidCutBounds, solidCutContains, solidCutsContain, applySolidCuts, solidPartCutContains, solidStructVolume, solidCutIntersectsShip, flexibleCompartment, hardConflicts, weaponChargeSpec, DREADNOUGHT_EXAMPLES, DESIGN_LIMITS, ALIGNMENTS, alignedPosition, alignPart, replacementShape, replacementOptions, replacePart, COMMAND_ROLES, commandCompartments, commandStatus, habitationSpace, inspectionTargets, planCutEdge, normalizePlanCut, structFrame, alignStructure, FLEET_RULES, POWER_MODES, POWER_AUTO_NOTE, fleetAutoPower, AIM_KINDS, MODULE_LABEL, FLEET_MIN_CREW, powerSplit, coreDetonation, fleetModules, fleetSystems, fleetCrewEff, fleetCrewRatio, fleetAutoAvail, fleetOutReason, AUTO_M3_PER_CREW, AUTO_W_PER_CREW, AUTO_MIN_HUMAN, fleetEffective, fleetProfile, fleetUnit, fleetIntegrity, trenchBattery, sideBattery, fleetFire, fleetReach, fleetStandoff, fleetHeading, fleetBroadside, fleetPowerStep, bandFireAt, fitBand, GUN_BANDS, COMBAT, combatInit, combatIncoming, combatAdd, combatMerge, combatResolve, combatZones, combatClone, combatZoneAt, COMBAT_FACE, unpackBits, fleetFormation, fleetBattle, fleetOrder, fleetArc, fleetTick, hullHalf, hullMass, hullLocal, AIR_CTL, HF, hullField, hullShape, hullCell, hullTB, hullIn, airMouths, hullOverlap, hullSegment, fireBlocker, fireStray, hullCollide, hullGrid, hullNear, hullAlong, hullAround, hullPairs, HULL_GRID, hullImpact, HULL_HIT, HULL_FALL, hullFall, hullCarve, hullAvoid, fleetCommit, fleetFinish, fleetSample, fleetFrame, normalizeBow, bowStation, engineHullEntry, ENGINE_BASELINES, engineBaseline, resizeEngine, parametricEngine, engineRating, sourceEngine, EQUIPMENT, equipmentSpec, equipmentOptions, enforceEquipment, customizeEquipment, adoptEquipment, HYPERDRIVE_REFERENCE, hyperCapacity, arcParameters, arcPoint, arcTriangles, inArc, SEPARATIST_EXAMPLES, STATS_SOURCE, SHIP_REFERENCE, PART_RATINGS, reactorPower, nozzleThrust, nozzleDemand, shieldLoad, partRatingKeys, validOutline, outlinePoints, outlineArea, outlineTriangles, AVIATION_ROLES, CHARGE_TT_M3, aircraftCapacity, aviationConnected, needsCapacitor, weaponCapacitors, refitReferenceInterior, clipReferenceBox, referenceEnginePoint, fitSpec, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface, COST_CATS, COST_K, COST_MODEL, COST_INSTALL, COST_MOUNT_INSTALL, costCategory, partBuildCost, fitBuildCost, costBreakdown, costSignature, costModelSignature, CRAFT_PRICE_CATALOG, craftCatalogPrice, quoteCostBOM, designCost,
    CRAFT_FIRE, cleanCraftFireArcs, craftGunMounts,
    surfaceCopyIdentity, surfaceCaptureConfig, surfaceCopySelection, surfacePasteConfig, surfaceRemapHosts,
@@ -12773,7 +12782,7 @@ function theaterDef(key) {
   size: B.size, extra: t.extra || 44, gat: B.c, gc: [.5, .5], span: B.span, routes: routes.map(({name, pts, ends}) => ({name, pts, ends})), named, links, starts};
 }
 for (const b of Object.values(BATTLES)) b.ek = b.era === ERAS.cw.name ? 'cw' : 'gcw';
-return {COLS, ROWS, REGIONS, BANDS, ZONES, REGION_LABELS, SYSTEMS: SYS, BY, ROUTES, ROUTE_BY, LINKS, EDGES, ADJ, BATTLES, LINK_SLOW, grid, hash, path, legPts, pathPts, bandAt, sectorDef,
+return {COLS, ROWS, REGIONS, BANDS, ZONES, REGION_LABELS, SYSTEMS: SYS, BY, ROUTES, ROUTE_BY, LINKS, EDGES, ADJ, BATTLES, LINK_SLOW, grid, hash, path, itinerary:(a,b)=>Core.navigationItinerary(path(a,b)), legPts, pathPts, bandAt, sectorDef,
  ERAS, POWERS, eraOf, territoryAt, allegiance, factionBearing, factionSide, territoryLoops, THEATERS, THEATER_BY, theaterBox, theaterDef};
 })();
 
@@ -13156,6 +13165,19 @@ function routePath(S, a, b) {
  if (S.paths) S.paths.set(key, out);return out;
 }
 const routeCost = (S, a, b) => a === b ? 0 : routePath(S, a, b)?.cost ?? Infinity;
+function routeItinerary(S,a,b){const plan=C.navigationItinerary(routePath(S,a,b));if(plan)for(const s of plan.segments){s.ly=s.legs.reduce((n,e)=>n+e.len,0);s.cost=s.legs.reduce((n,e)=>n+e.len/LANE[e.kind].f+6,0);}return plan;}
+function jumpNavigation(plan){return {version:1,final:plan.final,stop:plan.next,remaining:plan.stops.slice(1),waiting:false};}
+// Imported runtime snapshots predating itineraries may still contain a full
+// multi-branch spool/transit. Keep the current position/timing, but end at the
+// next mandatory stop not already passed; historical travel is never rewound.
+function normalizeJumpNavigation(w,g,time=w.time){
+ const savedFinal=g.navigation?.final;if(g.navigation?.version===1&&w.sector.systems[savedFinal]&&w.sector.systems[g.navigation.stop]&&Array.isArray(g.navigation.remaining)&&g.navigation.remaining.every(id=>!!w.sector.systems[id]))return g.navigation;
+ g.navigation=null;
+ if(g.spool?.route){const p=C.navigationItinerary(g.spool.route);if(p?.segments.length){const sp=g.spool,ratio=sp.trip/Math.max(1e-9,pathSeconds(sp.route,sp.hc));g.navigation=jumpNavigation(p);sp.route=p.segments[0];sp.dest=p.next;sp.trip=pathSeconds(sp.route,sp.hc)*ratio;for(const id of g.units||[]){const u=w.units.get(id);if(u?.jump)u.jump.dest=sp.dest;}}}
+ else if(g.transit?.path?.length>1){const tr=g.transit,raw={path:tr.path.slice(),legs:tr.path.slice(1).map((b,i)=>w.sector.edges.find(e=>e.a===tr.path[i]&&e.b===b||e.b===tr.path[i]&&e.a===b))},p=C.navigationItinerary(raw);if(p?.segments.length&&Array.isArray(tr.legs)&&tr.legs.length===raw.legs.length){let stop=p.segments.find(s=>{const i=raw.path.indexOf(s.to)-1;return tr.legs[i]?.t1>=time-1e-8;})||p.segments.at(-1),end=raw.path.indexOf(stop.to);g.navigation=jumpNavigation(p);g.navigation.stop=stop.to;g.navigation.remaining=p.stops.slice(p.stops.indexOf(stop.to)+1);g.navigation.legacy=true;tr.to=stop.to;tr.path=tr.path.slice(0,end+1);tr.legs=tr.legs.slice(0,end);tr.t1=tr.legs.at(-1).t1;}}
+ else if(g.sys!=null&&w.sector.systems[savedFinal]&&savedFinal!==g.sys){const p=routeItinerary(w.sector,g.sys,savedFinal);if(p?.segments.length)g.navigation={...jumpNavigation(p),stop:g.sys,remaining:p.stops.slice(),waiting:true};}
+ return g.navigation;
+}
 // Seconds in hyperspace along a path at hyperdrive class hc (lower is faster):
 // each lane at its own speed, a short re-plot at every station passed.
 function pathSeconds(route, hc) { if (!route) return Infinity; let t = 0; for (const e of route.legs) t += Math.max(RULES.minLeg, e.len / (RULES.hyperRate * LANE[e.kind].f / Math.max(.25, hc))); return Math.max(RULES.minTrip, t + RULES.hop * Math.max(0, route.legs.length - 1)); }
@@ -13474,7 +13496,7 @@ const inBattleGroup = (w, g) => g.units.some(id => { const u = w.units.get(id); 
 function orderJump(w, gid, dest) {
  const g = w.groups.get(gid);if (!g || g.transit || g.sys == null || dest == null || dest === g.sys || !w.sector.systems[dest]) return {ok: false, why: '移動できません'};
  if (g.spool?.left) return {ok: false, why: '艦が順にジャンプしている最中です'};
- const route = routePath(w.sector, g.sys, dest);if (!route) return {ok: false, why: '航路がありません'};
+ const plan=routeItinerary(w.sector,g.sys,dest);if(!plan?.segments.length)return {ok:false,why:'航路がありません'};const route=plan.segments[0];dest=plan.next;
  // Carriers take their small ships back aboard for the jump when they are near.
  for (const id of [...g.units]) { const c = w.units.get(id); if (alive(c) && !c.out) recoverCarried(w, c.id, true); }
  const held = groupDisabled(w, g);
@@ -13483,7 +13505,7 @@ function orderJump(w, gid, dest) {
  if (stay.length && stay.length === g.units.filter(id => alive(w.units.get(id))).length) return {ok: false, why: 'ハイパードライブが使えません'};
  if (stay.length) { const h = makeGroup(w, g.side, g.name + '（残置）', g.sys); h.units = stay; h.ctg = null; g.units = g.units.filter(id => !stay.includes(id)); for (const id of stay) w.units.get(id).group = h.id; h.flag = stay[0]; event(w, `${g.name}：ハイパードライブを失った艦を残置`, {side: g.side}); }
  const hc = groupHyper(w, g), inBattle = inBattleGroup(w, g), slow = towed.size ? 1.25 : 1;
- g.spool = {t: 0, need: inBattle ? RULES.withdrawSpool : 8, dest, route, trip: pathSeconds(route, hc) * slow, hc, blocked: false};g.inbound = null;
+ g.navigation=jumpNavigation(plan);g.spool = {t: 0, need: inBattle ? RULES.withdrawSpool : 8, dest, route, trip: pathSeconds(route, hc) * slow, hc, blocked: false};g.inbound = null;
  // v21.2 The spool lasts at least as long as the slowest ship takes to come round onto the hyperspace vector.
  { const a = w.sector.systems[g.sys]?.pos, b = w.sector.systems[route.path?.[1] ?? dest]?.pos;
   if (a && b) { const hb = Math.atan2(b[1] - a[1], b[0] - a[0]);let tt = 0;for (const id of g.units) { const u = w.units.get(id); if (!alive(u) || u.out || u.sys !== g.sys || towed.has(id)) continue; tt = Math.max(tt, Math.abs(angle(hb - u.yaw)) / Math.max(.005, u.p.turnRate || .05)); }
@@ -13492,16 +13514,19 @@ function orderJump(w, gid, dest) {
  for (const wing of w.wings.values()) if (g.units.includes(wing.home)) { if (wing.raid && wing.raid.phase !== 'launch') continue; wing.recall = true; for (const sid of wing.squads) { const s = w.squads.get(sid); if (s && s.state === 'out' && !s.raid) s.state = 'return'; } }
  for (const id of g.units) { const u = w.units.get(id); if (alive(u)) u.jump = {phase: 'spool', t: 0, dest}; }
  stir(w, g.sys);   // v21.2 (out of battle too: the ships come round onto their hyperspace vector)
- return {ok: true, eta: g.spool.need + g.spool.trip, hc};
+ return {ok: true, eta: g.spool.need + g.spool.trip, hc,next:dest,final:plan.final,stops:plan.stops.slice()};
 }
 // Once the first ship has jumped, the rest follow: the jump can no longer be called off.
-function cancelJump(w, gid) { const g = w.groups.get(gid); if (!g || !g.spool) return true; if (g.spool.left) return false; g.spool = null; for (const id of g.units) { const u = w.units.get(id); if (u) u.jump = null; } for (const wing of w.wings.values()) if (g.units.includes(wing.home)) wing.recall = false; return true; }
+function cancelJump(w, gid) { const g = w.groups.get(gid); if (!g)return true;if(!g.spool){g.navigation=null;return true;} if (g.spool.left) return false; g.spool = null;g.navigation=null; for (const id of g.units) { const u = w.units.get(id); if (u) u.jump = null; } for (const wing of w.wings.values()) if (g.units.includes(wing.home)) wing.recall = false; return true; }
 // Seconds until a group would arrive at dest if ordered now.
 function etaTo(w, gid, dest) {
+ return jumpEstimate(w,gid,dest)?.first??null;
+}
+function jumpEstimate(w,gid,dest){
  const g = w.groups.get(gid);if (!g) return null;const hc = groupHyper(w, g);if (hc == null) return null;
- const from = g.transit ? g.transit.to : g.sys;if (from === dest) return g.transit ? g.transit.t1 - w.time : 0;
- const route = routePath(w.sector, from, dest);if (!route) return null;
- return (g.transit ? g.transit.t1 - w.time : 0) + (inBattleGroup(w, g) ? RULES.withdrawSpool : 8) + pathSeconds(route, hc) * (towedIn(w, g).size ? 1.25 : 1);
+ const from = g.transit ? g.transit.to : g.sys,lead=g.transit?Math.max(0,g.transit.t1-w.time):0;if(from===dest)return {first:lead,total:lead,next:dest,final:dest,stops:[]};
+ const plan=routeItinerary(w.sector,from,dest);if(!plan?.segments.length)return null;const spool=inBattleGroup(w,g)?RULES.withdrawSpool:8,slow=towedIn(w,g).size?1.25:1,times=plan.segments.map((r,i)=>pathSeconds(r,hc)*slow+(i?8:spool));
+ return {first:lead+times[0],total:lead+times.reduce((n,t)=>n+t,0),next:plan.next,final:dest,stops:plan.stops.slice()};
 }
 // v20.6 A group does not vanish all at once: over the last seconds of its spool its ships jump one
 // after another, the smallest first and the flagship last. A ship towing (and its charge) and a
@@ -13545,6 +13570,7 @@ function departGroup(w, g) {
 }
 function arriveGroup(w, g) {
  const tr = g.transit;g.transit = null;g.sys = tr.to;g.arrivedAt = w.time;deployGroup(w, g, tr.path?.[tr.path.length - 2] ?? tr.from);stir(w, g.sys);
+ if(g.navigation){const plan=routeItinerary(w.sector,g.sys,g.navigation.final);if(plan?.segments.length)g.navigation={...jumpNavigation(plan),stop:g.sys,remaining:plan.stops.slice(),waiting:true};else g.navigation=null;}
  // v21.2 It drops out on its line of approach facing in; left to itself (no order of its own) it then makes for the
  // middle of the system along that line, stopping RULES.inboundStop short of it in its own lane.
  { const guide = w.units.get(g.flag) || g.units.map(id => w.units.get(id)).find(alive);g.inbound = null;
@@ -13620,44 +13646,57 @@ function radarPower(u) { if (u.out || u.warp || u.dead) return 0; return C.EMIT.
 // glow and the active sensors' own transmissions (EM). A ship without power figures gets a size estimate.
 function unitSig(u) {
  const b = u.ht?.band, o = {nu: 0, ir: 0, em: 0};
- if (b) { o.nu = b.nu; o.ir = b.ir; o.em = b.em; } else { const P = u.p.grid?.P, E = P > 0 ? .05 * P : C.EMIT.noGrid * (u.p.len || 100) ** 2; o.nu = E * .6; o.ir = E * .33; o.em = E * .07; }
- const pe = u.pw?.eng || 0;o.ir += pe * C.EMIT.engine[1];o.em += pe * C.EMIT.engine[2];o.em += radarPower(u) * (unitSens(u).rad || 0);
+ // Strict profiles wait for the common heat solver's actual flow. Rated plant
+ // power (including a zero-power plant) is not a thermal source at startup.
+ // Old profiles retain the size/power fallback until their first heat solve.
+ if (b) { o.nu = b.nu; o.ir = b.ir; o.em = b.em; } else if(u.p.energyModel?.version!==1) { const P = u.p.grid?.P, E = P > 0 ? .05 * P : C.EMIT.noGrid * (u.p.len || 100) ** 2; o.nu = E * .6; o.ir = E * .33; o.em = E * .07; }
+ const pe = C.powerFactor(u,'engine')>0?u.pw?.eng||0:0;o.ir += pe * C.EMIT.engine[1];o.em += pe * C.EMIT.engine[2];o.em += radarPower(u) * (unitSens(u).rad || 0);
+ for(const k of C.BANDS)if(!Number.isFinite(o[k])||o[k]<0)o[k]=0;
  return o;
 }
 // A small deterministic jitter (no draw from the battle's random stream, so sensors never change the outcome of a fixed seed by themselves).
 function hashJit(id, t, k) { const s = String(id) + ':' + Math.floor(t) + ':' + k; let h = 2166136261; for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619); return ((h >>> 0) % 20001) / 10000 - 1; }
 function sensorTick(w, sys, us) {
  if (!sensorsOn(w)) return;
- const present = us.filter(u => !u.warp), bySide = new Map();
+ const present = us.filter(u => alive(u)&&u.sys===sys&&!u.warp), bySide = new Map();
  for (const u of present) { let a = bySide.get(u.side); if (!a) bySide.set(u.side, a = []); a.push(u); }
  for (const sd of w.sides) {
   const tc = sd.tc || (sd.tc = new Map()), obs = bySide.get(sd.id) || [];
   // contacts on ships no longer here
-  for (const [id, c] of tc) { if (c.sys !== sys) continue; const t = w.units.get(id); if (!t || !alive(t) || t.sys !== sys) tc.delete(id); }
+  for (const [id, c] of tc) { if (c.sys !== sys) continue; const t = w.units.get(id); if (!t || !alive(t) || t.sys !== sys || t.warp || t.side===sd.id) tc.delete(id); }
   if (!obs.length) { for (const [id, c] of tc) if (c.sys === sys) tc.delete(id); continue; }
   // observers in a coarse grid (x, z) with each cell's best apertures
   const cells = new Map(), Amax = {nu: 0, ir: 0, em: 0, rad: 0};let Pmax = 0;
   for (const o of obs) { const A = unitSens(o), k = Math.floor(o.pos[0] / SN.cell) + ',' + Math.floor(o.pos[2] / SN.cell); let c = cells.get(k); if (!c) cells.set(k, c = {x: (Math.floor(o.pos[0] / SN.cell) + .5) * SN.cell, z: (Math.floor(o.pos[2] / SN.cell) + .5) * SN.cell, list: []}); c.list.push(o); const dis = o.out ? .3 : 1; for (const b in Amax) Amax[b] = Math.max(Amax[b], (A[b] || 0) * dis); Pmax = Math.max(Pmax, radarPower(o)); }
   for (const t of present) {
    if (t.side === sd.id) continue;let c = tc.get(t.id);
+   if(c?.observed===false&&Number.isFinite(c.seen)&&w.time-c.seen>=SN.ttl){tc.delete(t.id);c=null;}
    if (c && c.sys === sys && w.time < c.next) continue;
    if (!c || c.sys !== sys) { c = {id: t.id, sys, st: 0, since: w.time, next: 0, snr: {nu: 0, ir: 0, em: 0, rad: 0}, est: null, err: Infinity, low: 0, at: w.time}; tc.set(t.id, c); }
    const sig = unitSig(t), sigma = unitSigma(t);
    // reach: the distance beyond which even the best aperture here gets SNR .05 (passive and active)
    const pas = C.sensSNR(sig, sigma, Amax, 1, Pmax / C.EMIT.radarW), reach = Math.max(Math.sqrt((pas.nu + pas.ir + pas.em) / .05), Math.sqrt(Math.sqrt(pas.rad / .05)));
    const near = [];for (const cell of cells.values()) { const dx = cell.x - t.pos[0], dz = cell.z - t.pos[2]; if (Math.hypot(dx, dz) - SN.cell * .75 > reach) continue; for (const o of cell.list) near.push([len(sub(o.pos, t.pos)), o]); }
-   near.sort((a, b) => a[0] - b[0]);
+   near.sort((a,b)=>a[0]-b[0]||(String(a[1].id)<String(b[1].id)?-1:String(a[1].id)>String(b[1].id)?1:0));
    const s = {nu: 0, ir: 0, em: 0, rad: 0};let dn = near.length ? near[0][0] : Infinity, errP = Infinity, errR = Infinity;
    for (let i = 0; i < near.length && i < SN.maxObs; i++) { const [r, o] = near[i], A = unitSens(o), k = o.out ? .3 : 1, x = C.sensSNR(sig, sigma, {nu: A.nu * k, ir: A.ir * k, em: A.em * k, rad: A.rad * k}, r, radarPower(o) / C.EMIT.radarW); for (const b in s) s[b] += x[b];
     const sp = x.ir + x.em + x.nu * .25; if (sp > .5) errP = Math.min(errP, r * SN.errK / Math.sqrt(sp)); if (x.rad > 1) errR = Math.min(errR, 30 + r * .004 / Math.sqrt(x.rad)); }
-   c.snr = s;c.dist = dn;c.at = w.time;
+   const previousAt=c.at;c.snr = s;c.at = w.time;
    // stage: one step up per update once the current one has been held long enough; down one after two weak updates
-   const cap = C.sensStageCap(s), keep = C.sensStageCap({nu: s.nu / SN.drop, ir: s.ir / SN.drop, em: s.em / SN.drop, rad: s.rad / SN.drop});
+   const cap = C.sensStageCap(s), keep = C.sensStageCap({nu: s.nu / SN.drop, ir: s.ir / SN.drop, em: s.em / SN.drop, rad: s.rad / SN.drop});c.cap=cap;
    if (cap > c.st) { c.low = 0; if (w.time - c.since >= SN.dwell[c.st]) { c.st++; c.since = w.time; if (c.st === 2 && !sd.tcLog?.has(sys)) { (sd.tcLog || (sd.tcLog = new Set())).add(sys); if (!sd.ai) blog(w, sys, '敵艦の放射源を探知', {side: sd.id}); } } }
    else if (keep < c.st) { if (++c.low >= 2) { c.st--; c.since = w.time; c.low = 0; } } else c.low = 0;
-   // the estimated position: within the error of the best fix (the active sensor's, or the passive bearing's at range)
-   const err = Math.min(errP, errR, Math.max(dn, 1) * 2);c.err = c.st >= 6 ? Math.min(err, 60) : err;
-   c.est = c.st ? [t.pos[0] + hashJit(t.id, w.time, 0) * c.err * .7, t.pos[1] + hashJit(t.id, w.time, 1) * c.err * .3, t.pos[2] + hashJit(t.id, w.time, 2) * c.err * .7] : null;
+   // Only a current signal may update the estimated position. A fading track
+   // retains its last known fix instead of following the hidden true ship.
+   const signal=s.nu+s.ir+s.em+s.rad>.5&&Number.isFinite(dn);c.observed=signal;
+   if(signal){const err=Math.min(errP,errR,Math.max(dn,1)*2);c.err=c.st>=6&&cap>=6?Math.min(err,60):err;c.dist=dn;c.seen=w.time;c.fixErr=c.err;c.fixDist=dn;
+    c.est=c.st?[t.pos[0]+hashJit(t.id,w.time,0)*c.err*.7,t.pos[1]+hashJit(t.id,w.time,1)*c.err*.3,t.pos[2]+hashJit(t.id,w.time,2)*c.err*.7]:null;
+   }else{if(!Number.isFinite(c.seen))c.seen=Number.isFinite(previousAt)?previousAt:w.time;const age=Math.max(0,w.time-c.seen);
+    if(age>=SN.ttl){tc.delete(t.id);continue;}
+    const base=Number.isFinite(c.fixErr)?c.fixErr:Number.isFinite(c.err)?c.err:SN.far,range=Number.isFinite(c.fixDist)?c.fixDist:Number.isFinite(c.dist)?c.dist:SN.far,bound=Math.max(base,SN.far,range*2);
+    c.fixErr=base;c.fixDist=range;c.err=Math.min(bound,base+(bound-base)*age/Math.max(1,SN.ttl));c.dist=range;
+    if(!c.st||!Array.isArray(c.est)||!c.est.every(Number.isFinite))c.est=null;
+   }
    if (!(c.st > 0) && !(s.nu + s.ir + s.em + s.rad > .5)) { tc.delete(t.id); continue; }
    c.next = w.time + (dn > SN.far ? SN.farDt : SN.dt) * (.9 + .2 * ((t.id.charCodeAt?.(t.id.length - 1) || 0) % 10) / 10);
   }
@@ -13665,7 +13704,7 @@ function sensorTick(w, sys, us) {
 }
 // A side's contact on a ship, and its stage (its own ships count as fully known; with sensors off, everything is).
 function contactOf(w, side, id) { const c = w.sides[side]?.tc?.get(id); return c || null; }
-function contactStage(w, side, u) { if (!u) return 0; if (u.side === side || !sensorsOn(w)) return SN.stages.length - 1; const c = w.sides[side]?.tc?.get(u.id); return c && c.sys === u.sys ? c.st : 0; }
+function contactStage(w, side, u) { if (!u) return 0; if (u.side === side || !sensorsOn(w)) return SN.stages.length - 1; const c = w.sides[side]?.tc?.get(u.id); return c && c.sys === u.sys ? Math.min(c.st,c.observed===false?1:c.cap??c.st) : 0; }
 const known = (w, side, u, st) => contactStage(w, side, u) >= st;
 // With nothing found yet, an AI group searches: toward its strongest faint contact, else toward the middle of the system.
 function searchOrder(w, side, from) {
@@ -13692,7 +13731,7 @@ function updateBattles(w) {
  for (const u of w.units.values()) { if (!alive(u) || u.sys == null) continue; let a = bySys.get(u.sys); if (!a) bySys.set(u.sys, a = new Set()); a.add(u.side); }
  // Raiders and independently withdrawing craft hold their side's place until
  // their own jump, even after the last friendly capital ship has departed.
- for (const s of w.squads.values()) { if (!(s.raid||s.follow?.phase==='spool') || s.sys == null || !['out', 'return'].includes(s.state) || !(s.n > 0)) continue; let a = bySys.get(s.sys); if (!a) bySys.set(s.sys, a = new Set()); a.add(s.side); }
+ for (const s of w.squads.values()) { if (!(s.raid||['spool','wait'].includes(s.follow?.phase)) || s.sys == null || !['out', 'return'].includes(s.state) || !(s.n > 0)) continue; let a = bySys.get(s.sys); if (!a) bySys.set(s.sys, a = new Set()); a.add(s.side); }
  // Salvos already in flight must resolve after raiding craft withdraw.
  for (const m of w.missiles) {
   const target = w.units.get(m.target);
@@ -13744,6 +13783,16 @@ function doctrineTarget(w, us, from, side, worth, keep) {
  for (const a of up) { const dx = a.pos[0] - from.pos[0], dy = a.pos[1] - from.pos[1], dz = a.pos[2] - from.pos[2], sc = Math.sqrt(dx * dx + dy * dy + dz * dz) * (a.info?.capital === from.info?.capital ? 1 : 1.6) * worth.get(a.id) * (keep === a.id ? .7 : 1) * (.45 + shieldFrac(a)); if (sc < best) { tgt = a; best = sc; } }
  return tgt;
 }
+// Preserve attack intent, but movement may only pursue a current tracking fix.
+// Every consumer sees the same derived search order; the stored command/cache
+// remains intact so reacquisition can resume it without learning hidden motion.
+function perceivedOrder(w,side,sys,o){
+ if(!w||o?.type!=='attack'||!sensorsOn(w))return o;const t=w.units.get(o.target);
+ if(t?.side===side||t?.sys===sys&&contactStage(w,side,t)>=4)return o;
+ const c=contactOf(w,side,o.target),point=c?.sys===sys&&c.st>0&&Array.isArray(c.est)&&c.est.length===3&&c.est.every(Number.isFinite)?c.est:null,q={...o,type:point?'move':'hold',search:true};
+ delete q.target;delete q.dir;if(point)q.point=point.slice();else delete q.point;return q;
+}
+function rememberedAttack(w,side,sys,o){const t=o?.type==='attack'?w.units.get(o.target):null,c=t?contactOf(w,side,t.id):null;return t&&alive(t)&&t.side!==side&&t.sys===sys&&c?.sys===sys&&c.st>0?o:null;}
 function tacticalOrders(w, sys, us) {
  const worth = new Map(us.map(a => [a.id, Math.pow(1 / Math.max(1e-12, targetValue(a)), .35)]));
  const groups = new Map();for (const u of us) { const g = w.groups.get(u.group); if (g) groups.set(g.id, g); }
@@ -13753,7 +13802,7 @@ function tacticalOrders(w, sys, us) {
   const ai = w.sides[g.side].ai || g.order.type === 'auto';
   const members = g.units.map(id => w.units.get(id)).filter(u => u && u.sys === sys && fighting(u) && !u.manual && !u.jump);if (!members.length) continue;
   if (ai) { const guide = members.find(u => u.id === g.flag) || members[0], tgt = (doctrineOf(w, g.side) ? doctrineTarget : bestTarget)(w, us, guide, g.side, worth, g.auto?.target);
-   g.auto = tgt ? {type: 'attack', target: tgt.id} : us.some(t => t.side !== g.side && alive(t)) ? searchOrder(w, g.side, guide) : {type: 'hold'}; }
+   g.auto = tgt ? {type: 'attack', target: tgt.id} : rememberedAttack(w,g.side,sys,g.auto)||(us.some(t => t.side !== g.side && alive(t)) ? searchOrder(w, g.side, guide) : {type: 'hold'}); }
   // v24 FORM-009/010 the task force AI's formation for the fight (AI sides; player groups only when left to choose it)
   if (w.sides[g.side].ai || g.autoForm) { const o = groupOrder(w, g), t = o.type === 'attack' ? w.units.get(o.target) : null; if (t && t.sys === sys) tfAutoForm(w, g, members.filter(u => u.order.type === 'group'), t, sys); }
  }
@@ -13762,7 +13811,7 @@ function tacticalOrders(w, sys, us) {
   // Badly damaged AI ships with a hyperdrive leave.
   if (side.ai && unitStruct(u) < .28 && unitHyper(u) != null && !u.leaving) { u.leaving = true; aiWithdrawUnit(w, u); continue; }
   if (u.order.type !== 'auto') continue;
-  const tgt = forwardTarget(us.filter(t=>t.side!==u.side&&alive(t)&&known(w,u.side,t,2)),u,u.auto?.target);u.auto = tgt ? {type: 'attack', target: tgt.id} : us.some(t => t.side !== u.side && alive(t)) ? searchOrder(w, u.side, u) : {type: 'hold'};
+  const tgt = forwardTarget(us.filter(t=>t.side!==u.side&&alive(t)&&known(w,u.side,t,2)),u,u.auto?.target);u.auto = tgt ? {type: 'attack', target: tgt.id} : rememberedAttack(w,u.side,sys,u.auto)||(us.some(t => t.side !== u.side && alive(t)) ? searchOrder(w, u.side, u) : {type: 'hold'});
  }
 }
 function groupOrder(w, g) {
@@ -13770,12 +13819,12 @@ function groupOrder(w, g) {
  // v21.2 A group left to itself that has just come out of hyperspace heads in toward the middle of the system
  // (until it gets there, or finds something to fight there).
  if (g.inbound && g.inbound.sys === g.sys && g.order.type === 'auto') { const t = o.type === 'attack' ? w.units.get(o.target) : null; if (o.type === 'hold' || (o.type === 'attack' && (!t || t.sys !== g.sys))) return {type: 'move', point: g.inbound.point, dir: g.inbound.dir, inbound: true}; }
- return o;
+ return perceivedOrder(w,g.side,g.sys,o);
 }
 function effectiveOrder(u, w) {
- if (u.order.type === 'auto') return u.auto || {type: 'hold'};
- if (u.order.type !== 'group') return u.order;
- const g = w && w.groups.get(u.group);if (!g) return u.auto || {type: 'hold'};
+ if (u.order.type === 'auto') return perceivedOrder(w,u.side,u.sys,u.auto||{type:'hold'});
+ if (u.order.type !== 'group') return perceivedOrder(w,u.side,u.sys,u.order);
+ const g = w && w.groups.get(u.group);if (!g) return perceivedOrder(w,u.side,u.sys,u.auto||{type:'hold'});
  // v21.1 The AI's smaller ships guard a flagship far larger than themselves (unless the group is on the move).
  if (RULES.aiEscort && w.sides[u.side]?.ai && g.flag !== u.id) { const F = w.units.get(g.flag), go = groupOrder(w, g); if (F && alive(F) && !F.out && !F.warp && F.sys === u.sys && F.p.len >= C.COMBAT.bigAim * u.p.len && go.type !== 'move') return {type: 'escort', target: F.id}; }
  return groupOrder(w, g);
@@ -14361,7 +14410,7 @@ function craftTick(w, sys, us, byId, sysOf, inc, dt) {
  // A squadron fires at one nearby enemy that its own guns can bear on. Cell lists keep the existing 4.5 km
  // neighbourhood; at most 64 candidates per attacker are sampled, rotating through dense cells each tick.
  // Firing/heat/visual markers belong to the attacker; kill credit belongs to the damage received by its victim.
- const air = sq.filter(s => (s.state === 'out'||s.state==='return'&&s.follow?.phase==='spool') && s.n > 0), N = air.length, DFC = 1500, cells = new Map(), near = new Map(), bySq = new Map(), key = (i, j, k) => ((i & 1023) << 20) | ((j & 1023) << 10) | (k & 1023);
+ const air = sq.filter(s => (s.state === 'out'||s.state==='return'&&['spool','wait'].includes(s.follow?.phase)) && s.n > 0), N = air.length, DFC = 1500, cells = new Map(), near = new Map(), bySq = new Map(), key = (i, j, k) => ((i & 1023) << 20) | ((j & 1023) << 10) | (k & 1023);
  const P = new Float64Array(N * 3), side = new Int8Array(N), soft = new Float64Array(N), cellOf = new Int32Array(N), loss = new Float64Array(N), pdL = new Float64Array(N), pdTop = new Float64Array(N), pdBy = new Array(N).fill(null), dfBy = new Array(N).fill(null), dfTop = new Float64Array(N), val = new Float64Array(N), previous = air.map(s=>s.dfFoe);
  for (let n = 0; n < N; n++) { const s = air[n], c = CRAFT[s.craft], x = s.pos[0], y = s.pos[1], z = s.pos[2], kk = key(Math.floor(x / DFC), Math.floor(y / DFC), Math.floor(z / DFC));P[n * 3] = x;P[n * 3 + 1] = y;P[n * 3 + 2] = z;side[n] = s.side;soft[n] = 1 / c.armor;cellOf[n] = kk;val[n] = s.state==='out'?s.n * c.aa * C.squadFireK(s) * squadLaserK(s,'aa'):0;let e = cells.get(kk);if(!e)cells.set(kk,e=[]);e.push(n);bySq.set(s.id,n);s.dfFoe=null; }
  for (let n = 0; n < N; n++) {
@@ -14928,8 +14977,9 @@ function step(w, dt, maxN = 4000) {
  if (w.acc > TICK) w.acc = TICK;return n;
 }
 function tick(w, dt) {
- w.time += dt;
+ const navigationTime=w.time;w.time += dt;
  for (const g of w.groups.values()) {
+  normalizeJumpNavigation(w,g,navigationTime);
   if (g.transit && w.time >= g.transit.t1) arriveGroup(w, g);
   if (g.waitJump && w.time >= g.waitJump.at && !g.transit && !g.spool) { const d = g.waitJump.dest; g.waitJump = null; if (g.sys != null && g.sys !== d) orderJump(w, g.id, d); }
   // The spool stands still while any ship of the group is under fire (the reactor cannot feed the drive and the shields at once).
@@ -15068,8 +15118,8 @@ function followCarrier(w,s,from,dest=null){
  const home=w.units.get(s.home),hc=CRAFT[s.craft]?.hyper;
  if(!(s.n>0)||!(hc>0)||!Number.isFinite(hc)||!home||!alive(home)||s.raid||from==null)return false;
  dest=dest??raidDest(w,home);if(dest==null||dest===from||!w.sector.systems[dest])return false;
- const route=routePath(w.sector,from,dest);if(!route)return false;
- s.follow={phase:'spool',from,dest,hc,route,go:w.time+RULES.raidLeave};s.state='return';s.sys=from;s.ops=null;s.landM=null;s.wait=null;s.runOn=null;s.strafeT=null;s.dogfight=null;s.dfFoe=null;s.target=null;
+ const plan=routeItinerary(w.sector,from,dest);if(!plan?.segments.length)return false;const route=plan.segments[0];dest=plan.next;
+ s.follow={phase:'spool',from,dest,final:plan.final,hc,route,go:w.time+RULES.raidLeave};s.state='return';s.sys=from;s.ops=null;s.landM=null;s.wait=null;s.runOn=null;s.strafeT=null;s.dogfight=null;s.dfFoe=null;s.target=null;
  const wing=w.wings.get(s.wing);if(wing){wing.attackRun=null;wing.egress=null;}
  event(w,`${s.name}：自機のハイパードライブで母艦に続いて離脱`,{side:s.side,sys:from});return true;
 }
@@ -15097,19 +15147,19 @@ function followTick(w,dt=TICK){
    if(w.time<r.go)continue;
    // Resolve any new carrier destination at departure, while keeping real lane
    // travel time at this squadron's own hyperdrive class.
-   const dest=raidDest(w,home),route=dest!=null&&dest!==r.from?routePath(w.sector,r.from,dest):null;
-   if(!route){s.follow=null;craftLostBehind(w,s,r.from);continue;}
-   r.dest=dest;raidLegs(w,r,route,pathSeconds(route,r.hc));r.phase='back';s.state='follow';s.sys=null;s.hyperT=w.time;s.vel=[0,0,0];
+   const final=raidDest(w,home),plan=final!=null&&final!==r.from?routeItinerary(w.sector,r.from,final):null,route=plan?.segments[0],dest=plan?.next;
+   if(!route){if(final===r.from){r.phase='wait';r.dest=r.from;r.at=r.from;}else{s.follow=null;craftLostBehind(w,s,r.from);}continue;}
+   r.final=final;r.dest=dest;raidLegs(w,r,route,pathSeconds(route,r.hc));r.phase='back';s.state='follow';s.sys=null;s.hyperT=w.time;s.vel=[0,0,0];
    event(w,`${s.name} がハイパースペースへ（母艦追従・${w.sector.systems[dest].name}まで ${Math.max(1,Math.round((r.t1-w.time)/60))} 分）`,{side:s.side,sys:r.from});continue;
   }
   if(r.phase==='back'&&w.time<r.t1)continue;
-  const at=r.dest;
+  const at=r.dest;if(r.phase==='back'){r.phase='wait';r.at=at;s.state='return';s.sys=at;s.warpIn=w.time;s.pos=[0,1500,5000+800*(s.slot||0)];s.vel=[0,0,0];}
   if(home.sys===at){
    s.state='return';s.sys=at;s.pos=add(home.pos,shipToWorld(home,[-(home.p.len||500)*.3,1500,(home.p.width||300)+5000+800*(s.slot||0)]));s.h=norm(sub(home.pos,s.pos));s.vel=[0,0,0];s.warpIn=w.time;s.ops=null;s.landM=null;s.runOn=null;s.follow=null;
    const wing=w.wings.get(s.wing);if(wing)wing.phase='return';event(w,`${s.name} が ${home.name} のもとに自力帰還（着艦）`,{side:s.side,sys:at});stir(w,at);continue;
   }
-  const dest=raidDest(w,home),route=dest!=null&&dest!==at?routePath(w.sector,at,dest):null;
-  if(route){r.from=at;r.dest=dest;raidLegs(w,r,route,pathSeconds(route,r.hc));r.phase='back';}
+  const dest=raidDest(w,home),plan=dest!=null&&dest!==at?routeItinerary(w.sector,at,dest):null;
+  if(plan?.segments.length){r.from=at;r.final=dest;r.dest=plan.next;r.route=plan.segments[0];r.go=w.time+RULES.raidLeave;r.phase='spool';s.state='return';s.sys=at;}
   else{r.phase='wait';r.at=at;}
  }
  // Restore a split hatch cohort once both portions are safely aboard. Its
@@ -15150,6 +15200,7 @@ function raidCheck(w, id, to) {
  // flagship) can control at once.
  { const g = w.groups.get(home.group), f = g && g.flag !== home.id ? w.units.get(g.flag) : null, most = airCtlCap(w, home) + (f && f.sys === home.sys ? airCtlCap(w, f) : 0); if (sq.length > most) return {ok: false, why: `管制容量を超えます（${sq.length} 中隊・管制 ${most} 中隊）`, ctl: true, hc}; }
  const route = routePath(w.sector, home.sys, to);if (!route) return {ok: false, why: '航路がありません', hc};
+ if(C.navigationItinerary(route).segments.length>1)return {ok:false,why:'途中の必須停止があるため星系間攻撃を直接指定できません。母艦を次の停止星系へ移動してください',hc,stop:routeItinerary(w.sector,home.sys,to).next};
  if (route.ly > RULES.raidLy) return {ok: false, why: `航続距離外（${Math.round(route.ly)} 光年・上限 ${RULES.raidLy} 光年）`, ly: route.ly, far: true, hc};
  const rate = Math.max(.05, home.p.launch || 1), launch = Math.max(0, ...sq.map(s => s.t > 0 ? s.t : 0)) + sq.reduce((n, s) => n + s.n * CRAFT[s.craft].size, 0) / rate + RULES.raidForm, trip = pathSeconds(route, hc);
  return {ok: true, hc, route, ly: route.ly, launch, trip, eta: launch + trip, squads: sq.map(s => s.id)};
@@ -15205,6 +15256,7 @@ function raidDepart(w, wing, here) {
  for (const s of here) { s.state = 'raid'; s.sys = null; s.hyperT = w.time; s.vel = [0, 0, 0]; }
  r.squads = here.map(s => s.id);r.from = r.to;r.order = null;
  const route = dest != null && dest !== r.to ? routePath(w.sector, r.to, dest) : null;
+ if(route&&C.navigationItinerary(route).segments.length>1){for(const s of here){s.raid=null;s.sys=r.to;s.state='return';followCarrier(w,s,r.to,dest);}wing.raid=null;wing.phase='return';return;}
  if (route) { raidLegs(w, r, route, pathSeconds(route, r.hc)); r.dest = dest; r.phase = 'back'; }
  else { r.phase = 'wait'; r.at = r.to; }
  wing.phase = 'hyper';
@@ -15220,6 +15272,7 @@ function raidHome(w, wing) {
   wing.raid = null;wing.phase = 'return';event(w, `${wing.name} が ${home.name} のもとに帰還（着艦）`, {side: wing.side, sys: home.sys});return;
  }
  const dest = raidDest(w, home), route = dest != null && dest !== at ? routePath(w.sector, at, dest) : null;
+ if(route&&C.navigationItinerary(route).segments.length>1){for(const s of sq){s.raid=null;s.sys=at;s.state='return';followCarrier(w,s,at,dest);}wing.raid=null;wing.phase='return';return;}
  if (route) { raidLegs(w, r, route, pathSeconds(route, r.hc)); r.dest = dest; r.phase = 'back'; } else { r.phase = 'wait'; r.at = at; }
 }
 function raidTick(w, dt = TICK) {
@@ -15530,7 +15583,7 @@ function normalizeCampaign(raw) {
 // The one transition so far: a stage finished moves the campaign to the next (the events that finish them come with PLAN-019..025).
 function campaignAdvance(st) { const i = CAMPAIGN_STAGES.indexOf(st.stage);if (i < 0 || i >= CAMPAIGN_STAGES.length - 1) return st;if (!st.done.includes(st.stage)) st.done.push(st.stage);st.stage = CAMPAIGN_STAGES[i + 1];st.step = 0;return st; }
 
-return {CAMPAIGN_FORMAT, CAMPAIGN_VERSION, CAMPAIGN_SLOTS, CAMPAIGN_STAGES, campaignNew, normalizeCampaign, campaignAdvance, AI_STRATEGY, AIR_DOCTRINES, VICTORY_DEFAULT, normalizeVictory, normalizeDeploy, CRAFT_COST, craftPrice, craftCost, shipCost, fleetCost, SCENARIO_FORMAT, SCENARIO_VERSION, SCENARIO_SIDES, SIDE_CONTROL, normalizeFleet, normalizeSide, normalizeScenario, scenarioJSON, scenarioFromJSON, battleOrbat, scenarioPick, scenarioCosts, scenarioWorld, checkResult, canonGround, DOCTRINE, doctrineOf, shieldFrac, doctrineTarget, aiWing, RULES, TICK, CRAFT, CRAFT_MIX, ROLE_NAME, FACTIONS, SIDE_OF, VEHICLES, COMPANY_TYPES, REGIMENT_TEMPLATES, COMPANY_TROOPS, CAPITAL_LENGTH, MAP_LY, GRID_COLS, SECTOR_DEFS, REGIONS, LANE, KIND_NAME, APPROACH, APPROACH_NAME, FORMATIONS, formationKnown, formationName, SLOT_ROLES, SLOT_SIZES, normalizeFormation, groupSlots, formationCheck, formationTemplate, TF, TURN_MODES, SPEEDS, taskForceInfo, slotError, sustainSpeed, deployGroup, groupStations, WING_PHASE, sensorTick, contactOf, contactStage, searchOrder, foilTick, unitSig, unitSens, unitSigma, EMIT_MODES, FOIL_MODES,
+return {routeItinerary,jumpEstimate,normalizeJumpNavigation,CAMPAIGN_FORMAT, CAMPAIGN_VERSION, CAMPAIGN_SLOTS, CAMPAIGN_STAGES, campaignNew, normalizeCampaign, campaignAdvance, AI_STRATEGY, AIR_DOCTRINES, VICTORY_DEFAULT, normalizeVictory, normalizeDeploy, CRAFT_COST, craftPrice, craftCost, shipCost, fleetCost, SCENARIO_FORMAT, SCENARIO_VERSION, SCENARIO_SIDES, SIDE_CONTROL, normalizeFleet, normalizeSide, normalizeScenario, scenarioJSON, scenarioFromJSON, battleOrbat, scenarioPick, scenarioCosts, scenarioWorld, checkResult, canonGround, DOCTRINE, doctrineOf, shieldFrac, doctrineTarget, aiWing, RULES, TICK, CRAFT, CRAFT_MIX, ROLE_NAME, FACTIONS, SIDE_OF, VEHICLES, COMPANY_TYPES, REGIMENT_TEMPLATES, COMPANY_TROOPS, CAPITAL_LENGTH, MAP_LY, GRID_COLS, SECTOR_DEFS, REGIONS, LANE, KIND_NAME, APPROACH, APPROACH_NAME, FORMATIONS, formationKnown, formationName, SLOT_ROLES, SLOT_SIZES, normalizeFormation, groupSlots, formationCheck, formationTemplate, TF, TURN_MODES, SPEEDS, taskForceInfo, slotError, sustainSpeed, deployGroup, groupStations, WING_PHASE, sensorTick, contactOf, contactStage, searchOrder, foilTick, unitSig, unitSens, unitSigma, EMIT_MODES, FOIL_MODES,
  stowBays, shipStow, stir, peaceTick, formationOffsets, formationGaps, pendingWarp, jumpSequence, JUMP_STAGGER, rng, makeSector, sysDistance, routePath, routeCost, pathSeconds, tripSeconds, designInfo, unitDemand, createWorld, normalizeOrbat, makeUnit, makeGroup, makeCtg, ctgOf, addSquad, step, tick,
  detect, orderJump, cancelJump, etaTo, groupMapPos, orderUnit, orderGroup, orderCtg, orderCtgJump, orderTractor, orderWing, splitGroup, mergeGroups, systemUnits, unitStruct, unitStrength, unitHyper, carriedOf, launchCarried, recoverCarried, orderCarried, groupHyper, groupDisabled, groupStay,
  orderScuttle, orderRecover, recoverCheck, rearSeconds, SUPPLY, supplyAt, supplyLines, supplyNeeds, unitSupplyOf, alive, fighting, pdToward, effectiveOrder, groupOrder, tractorReach, tractorOk, registerDesignCraft, craftStores, squadStores, squadRelease, rearmSquad, squadSystemsTick, squadLaserK, squadArmed, squadSlots, craftDown,
