@@ -10,7 +10,11 @@ const patterns=Object.entries(exact).filter(([s])=>/\{\d+\}/.test(s)&&s.replace(
  const order=[],parts=s.split(/(\{\d+\})/);return {re:new RegExp('^'+parts.map((p,i)=>/^\{\d+\}$/.test(p)?(order.push(+p.slice(1,-1)),parts[i-1]?.endsWith('第')?'(\\d+)':'(.*?)'):escapeRE(p)).join('')+'$'),to,order,weight:s.replace(/\{\d+\}/g,'').length};
 }).sort((a,b)=>b.weight-a.weight);
 const termKeys=Object.keys(terms).sort((a,b)=>b.length-a.length),termRE=termKeys.length?new RegExp(termKeys.map(escapeRE).join('|'),'g'):null;
-function english(value,depth=0){
+// Translations are pure functions of the source text: remember them (bounded), since the same labels are
+// translated over and over by the DOM observer and every canvas frame.
+const englishMemo=new Map();
+function english(value,depth=0){if(depth)return englishRaw(value,depth);const k=String(value??'');let v=englishMemo.get(k);if(v===undefined){v=englishRaw(k,0);if(englishMemo.size>20000)englishMemo.clear();englishMemo.set(k,v);}return v;}
+function englishRaw(value,depth=0){
  const s=String(value??'');if(!hasJapanese.test(s))return s;
  if(Object.hasOwn(exact,s))return exact[s];
  const trimmed=s.trim();if(trimmed!==s)return s.slice(0,s.indexOf(trimmed))+english(trimmed,depth)+s.slice(s.indexOf(trimmed)+trimmed.length);

@@ -9490,7 +9490,7 @@ const VOY_SCALES = {
  // A fleet built round a super star destroyer: the Executor's own crew is in the millions.
  decisive: {name: '決戦（超大型艦を含む）', people: 9000000, supply: 9000000, dread: true}
 };
-const VOY_SHIP_CAP = 120;   // ships a side the battle model can carry (a limit of the computer, not a rule)
+const VOY_SHIP_CAP = 60;   // ships a side (user decision 2026-10-29: 60 at most; was 120)
 const VOY_SHARED = {dreadnaught: ['empire', 'rebel', 'republic'], arquitens: ['empire', 'republic']};
 const voyServes = (d, faction) => d.anyFaction || d.faction === faction || !!VOY_SHARED[(d.base || d.key)]?.includes(faction);
 // v21.2 Classes both sides fielded wear their side's paint: the Republic's red bands in the Clone Wars, the Empire's
