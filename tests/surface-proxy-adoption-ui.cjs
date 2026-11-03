@@ -12,7 +12,7 @@ function setup(){
  return{run};
 }
 function expectEnabledTargets(run){
- assert.ok(run('C.surfacePatches(ship).length')>0);assert.ok(run('C.surfaceAutoCandidates(ship).length')>0);assert.match(run('panelHTML'),/data-surface-pick=/);assert.match(run('panelHTML'),/data-surface-action="auto-equipment" >対象を機材面に一括設定/);
+ assert.ok(run('C.surfacePatches(ship).length')>0);assert.ok(run('C.surfaceAutoCandidates(ship).length')>0);assert.match(run('panelHTML'),/data-surface-pick=/);assert.match(run('panelHTML'),/data-surface-action="auto-equipment" >対象を機材構造面に一括設定/);
 }
 
 test('actual geometry adoption rerenders the surface list and enables automatic targets after an empty client proxy',()=>{

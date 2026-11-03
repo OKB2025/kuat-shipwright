@@ -1906,6 +1906,24 @@ function surfaceEquipmentPaint(paint,color,feature,port){
  const brightness=(color[0]+color[1]+color[2])/3;
  return surfacePaintTone(paint,C.clamp(.92+(brightness-113)*.0019,.79,1.04));
 }
+// A semantic split does not create a structural wall. Remove only the
+// collinear shared interval when both siblings expose the same recessed space.
+function surfaceEquipmentReveals(row,plans){
+ const neighbors=plans.filter(q=>q!==row&&q.host===row.host&&q.config.functionMode==='equipment'&&Math.abs(q.visualDepth-row.visualDepth)<1e-5&&C.dot(q.patch.normal,row.patch.normal)>1-1e-6),out=[];
+ for(const e of row.boundary){const d=C.sub(e.b,e.a),length2=C.dot(d,d);if(length2<1e-12)continue;let spans=[[0,1]];
+  for(const q of neighbors)for(const f of q.boundary){const a=C.sub(f.a,e.a),b=C.sub(f.b,e.a),ta=C.dot(a,d)/length2,tb=C.dot(b,d)/length2;if(C.len(C.sub(a,C.mul(d,ta)))>1e-4||C.len(C.sub(b,C.mul(d,tb)))>1e-4)continue;const lo=Math.max(0,Math.min(ta,tb)),hi=Math.min(1,Math.max(ta,tb));if(hi-lo<1e-7)continue;const next=[];for(const p of spans){if(p[0]<lo-1e-7)next.push([p[0],Math.min(p[1],lo)]);if(p[1]>hi+1e-7)next.push([Math.max(p[0],hi),p[1]]);}spans=next;}
+  for(const [a,b]of spans)if(b-a>1e-7)out.push({a:C.add(e.a,C.mul(d,a)),b:C.add(e.a,C.mul(d,b))});
+ }return out;
+}
+function surfaceLayerFrame(patch){
+ const normal=C.norm(patch.normal),up=C.sub([0,1,0],C.mul(normal,normal[1])),vertical=C.len(up)>.08,v=vertical?C.norm(up):C.norm(C.sub([0,0,1],C.mul(normal,normal[2])));let u=C.norm(C.cross(v,normal));
+ if(Math.abs(u[0])>.05?u[0]<0:u[2]<0)u=C.mul(u,-1);
+ return {u,v,normal,vertical};
+}
+function surfaceLayerBases(patches){
+ const out=new Map();for(const p of patches){const id=p.baseId||p.id;let b=out.get(id);if(!b){const f=surfaceLayerFrame(p);out.set(id,b={...f,minU:Infinity,maxU:-Infinity,minV:Infinity,maxV:-Infinity,minY:Infinity,maxY:-Infinity});}const T=surfaceTriangles(p);for(let i=0;i<T.length;i+=3){const q=T.slice(i,i+3),x=C.dot(q,b.u),y=C.dot(q,b.v);b.minU=Math.min(b.minU,x);b.maxU=Math.max(b.maxU,x);b.minV=Math.min(b.minV,y);b.maxV=Math.max(b.maxV,y);b.minY=Math.min(b.minY,q[1]);b.maxY=Math.max(b.maxY,q[1]);}}
+ return out;
+}
 // Allocate a bounded visual budget before drawing any face. A small floor and
 // area-weighted remainder keep late/short/aft faces from being starved by a
 // large earlier wall. Largest-remainder rounding preserves the global cap.
@@ -1918,8 +1936,8 @@ function surfaceVisualShares(patches,total,floor){
 // is neutral scenery: its shelves, cases and conduits add zero capacity. Small
 // working faces are owned by the installed common device beside them, so local
 // damage, selection and S-foil ownership still refer to real design entities.
-function surfaceEquipmentField(ship,patch,cells,style,detail,extraBudget,fieldBudget,config,face){
- const u=C.norm(patch.u),v=C.norm(patch.v),normal=C.norm(patch.normal),T=surfaceTriangles(patch),origin=patch.center,uv=p=>{const q=C.sub(p,origin);return [C.dot(q,u),C.dot(q,v),C.dot(q,normal)];},tris=[],relief=Math.min(patch.depth||4.5,C.clamp(config?.equipment?.depth??Math.max(1,...cells.filter(c=>c.role!=='weapons').map(c=>c.depth||1)),.02,4.5)),recess=surfaceRecess(ship,patch,relief);
+function surfaceEquipmentField(ship,patch,cells,style,detail,extraBudget,fieldBudget,config,face,base){
+ const frame=base||surfaceLayerFrame(patch),{u,v,normal}=frame,T=surfaceTriangles(patch),origin=patch.center,uv=p=>{const q=C.sub(p,origin);return [C.dot(q,u),C.dot(q,v),C.dot(q,normal)];},tris=[],baseHeight=base?base.maxV-base.minV:Math.sqrt(patch.area),relief=Math.max(.02,Math.min(patch.depth||30,style.depth>0?Math.min(30,style.depth):Math.min(24,Math.max(1.2,baseHeight*.20),(patch.depth||30)*.22))),recess=surfaceRecess(ship,patch,relief);
  for(let i=0;i+8<T.length;i+=9){const t=[T.slice(i,i+3),T.slice(i+3,i+6),T.slice(i+6,i+9)].map(p=>[...uv(p),C.dot(C.sub(recess.pointAt(p),origin),normal)]);t.bounds=[Math.min(...t.map(p=>p[0])),Math.min(...t.map(p=>p[1])),Math.max(...t.map(p=>p[0])),Math.max(...t.map(p=>p[1]))];tris.push(t);}
  const points=tris.flat(),lo=[Math.min(...points.map(p=>p[0])),Math.min(...points.map(p=>p[1]))],hi=[Math.max(...points.map(p=>p[0])),Math.max(...points.map(p=>p[1]))],blocked=[],host=/^p\d+$/.test(patch.host)?+patch.host.slice(1):patch.host,random=rng(surfaceSeed(patch.id+'|field',style.seed)),field=[],boxes=[],devices=[],scale=Math.max(1.5,Math.sqrt(patch.area/3500)),paint=surfaceHostPaint(ship,patch);
  const at=(x,y,z)=>C.add(origin,C.add(C.add(C.mul(u,x),C.mul(v,y)),C.mul(normal,z)));
@@ -1941,56 +1959,54 @@ function surfaceEquipmentField(ship,patch,cells,style,detail,extraBudget,fieldBu
   if(checkOwner)for(const a of [-1,1])for(const b of [-1,1])for(const c of [-1,1])if(!inside(at(x+a*w/2,y+b*h/2,center+c*d/2)))return null;
   target.push(q);return q;};
  const grey=()=>{const a=Math.round(90+random()*35);return [a,a+5,a+10];};
- // Exposed structure remains machinery even when no functional 8m cell fits.
- // This neutral host-owned field supplies neither capacity nor working faces.
+ // Strata are structural slabs, not enclosures pasted onto a tiled wall.
+ const strata=[],pitch=C.clamp(3.2+Math.log2(Math.max(1,ship.hull.L/80))*.45,3.2,6.3),slab=C.clamp(pitch*.06,.14,.38),horizontal=C.norm([normal[0],0,normal[2]]),k=Math.hypot(normal[0],normal[2]),worldU=C.dot(origin,u),worldV=C.dot(origin,v);
+ const mergeIntervals=list=>{list.sort((a,b)=>a[0]-b[0]);const out=[];for(const p of list){const q=out.at(-1);if(q&&p[0]<=q[1]+1e-5)q[1]=Math.max(q[1],p[1]);else out.push(p.slice());}return out;};
+ const slice=y=>{const list=[];for(const tri of tris){const xs=[];for(let j=0;j<3;j++){const a=tri[j],b=tri[(j+1)%3];if(Math.abs(a[1]-y)<1e-7)xs.push(a[0]);if((a[1]<y)!==(b[1]<y)){const t=(y-a[1])/(b[1]-a[1]);xs.push(a[0]+(b[0]-a[0])*t);}}if(xs.length>1)list.push([Math.min(...xs),Math.max(...xs)]);}return mergeIntervals(list);};
+ const band=(y,h)=>{const low=y-h/2,high=y+h/2,ys=[low+1e-5,high-1e-5,y];for(const tri of tris)for(const p of tri)if(p[1]>low&&p[1]<high)ys.push(p[1]-1e-5,p[1]+1e-5);let spans=null;for(const yy of ys){const row=slice(yy),next=[];if(spans==null){spans=row;continue;}for(const a of spans)for(const b of row){const l=Math.max(a[0],b[0]),r=Math.min(a[1],b[1]);if(r-l>.04)next.push([l,r]);}spans=mergeIntervals(next);if(!spans.length)break;}for(const q of blocked)if(q[3]>low&&q[1]<high){const next=[];for(const p of spans||[]){if(q[0]>p[0])next.push([p[0],Math.min(p[1],q[0])]);if(q[2]<p[1])next.push([Math.max(p[0],q[2]),p[1]]);}spans=next.filter(p=>p[1]-p[0]>.08);}return spans||[];};
+ const deck=(feature,x,Y,w,h,back,front,color)=>{if(field.length>=fieldBudget)return null;
+  if(k<.08)return piece(field,feature,x,Y-worldV,w,h,(back+front)/2,front-back,color,host,null,'box',{stratum:true});
+  let depth=(front-back)/k,z=-relief+(back+front)/2,y=(Y-origin[1]-normal[1]*z)/k,s;
+  for(let step=0;step<3;step++){const extent=k*h+Math.abs(normal[1])*depth,b=[x-w/2,y-extent/2,x+w/2,y+extent/2];s=space(b);if(!s)return null;const available=s.ceiling-s.floor-Math.abs(normal[1])*h;if(available<=.01)return null;depth=Math.min(depth,available/k);z=C.clamp(s.height-relief+(back+front)/2,s.floor+(k*depth+Math.abs(normal[1])*h)/2,s.ceiling-(k*depth+Math.abs(normal[1])*h)/2);y=(Y-origin[1]-normal[1]*z)/k;}
+  const center=at(x,y,z),bounds=[x-w/2,y-(k*h+Math.abs(normal[1])*depth)/2,x+w/2,y+(k*h+Math.abs(normal[1])*depth)/2];
+  for(const a of [-1,1])for(const b of [-1,1])for(const c of [-1,1])if(!inside(C.add(center,C.add(C.add(C.mul(u,a*w/2),[0,b*h/2,0]),C.mul(horizontal,c*depth/2)))))return null;
+  const q={feature,type:'box',ownerId:host,role:null,center,u,v:[0,1,0],normal:horizontal,size:[w,h,depth],bounds,color:surfaceEquipmentPaint(paint,color,feature),stratum:true,level:Y};field.push(q);return q;
+ };
+ const lowLevel=base?(frame.vertical?base.minY:base.minV):lo[1]+(frame.vertical?origin[1]:worldV),highLevel=base?(frame.vertical?base.maxY:base.maxV):hi[1]+(frame.vertical?origin[1]:worldV),levels=[];
+ for(let Y=Math.ceil((lowLevel+slab)/pitch)*pitch;Y<highLevel-slab;Y+=pitch)levels.push(Y);for(const Y of [lowLevel+slab/2,highLevel-slab/2])if(!levels.some(q=>Math.abs(q-Y)<slab*2))levels.push(Y);levels.sort((a,b)=>a-b);
+ const floorRows=[];
  if(fieldBudget>0){
-  // Unequal-height binary partitions make a single interlocking machinery
-  // field. No full-wall course and no installed-cell edge becomes a joint.
-  const pipeReserve=Math.min(220,Math.max(6,Math.floor(fieldBudget*.22))),pad=.12*scale;let free=[[lo[0]+pad,lo[1]+pad,hi[0]-pad,hi[1]-pad,0]];
-  // Enclosures pack around compact wall apertures instead of dropping an
-  // entire large enclosure wherever a small port happens to intersect it.
-  for(const a of blocked){const next=[];for(const b of free){const x0=Math.max(a[0],b[0]),y0=Math.max(a[1],b[1]),x1=Math.min(a[2],b[2]),y1=Math.min(a[3],b[3]);if(x1<=x0||y1<=y0){next.push(b);continue;}for(const q of [[b[0],b[1],x0,b[3],0],[x1,b[1],b[2],b[3],0],[x0,b[1],x1,y0,0],[x0,y1,x1,b[3],0]])if(q[2]-q[0]>.22&&q[3]-q[1]>.22)next.push(q);}free=next;}
-  const queue=free,leaves=[],limit=Math.min(1500,Math.max(queue.length,Math.floor((fieldBudget-pipeReserve)/4)));
-  // Refine the largest remaining region first; a finite quota must not leave
-  // a distant half of the wall as one enormous plate after a detailed corner.
-  while(queue.length){let largest=0;for(let i=1;i<queue.length;i++)if((queue[i][2]-queue[i][0])*(queue[i][3]-queue[i][1])>(queue[largest][2]-queue[largest][0])*(queue[largest][3]-queue[largest][1]))largest=i;const b=queue[largest];queue[largest]=queue[queue.length-1];queue.pop();const w=b[2]-b[0],h=b[3]-b[1],axis=w/h>2.2?0:h/w>2.2?1:random()<.5?0:1,span=axis?h:w,threshold=(5.5+random()*17)*scale*scale;
-   if(b[4]<17&&span>2.1*scale&&(w*h>threshold||Math.max(w,h)>9*scale)&&leaves.length+queue.length<limit-1){const cut=b[axis]+span*(.28+random()*.44),gap=(.06+random()*.12)*scale,a=b.slice(),c=b.slice();a[axis+2]=cut-gap/2;c[axis]=cut+gap/2;a[4]++;c[4]++;queue.push(a,c);}else leaves.push(b);
-  }
-  // Stepped L-shaped cases, upright boxes and cylindrical junctions interrupt
-  // one another. Sparse fittings sit at several depths instead of tiling the
-  // wall with broad, equally high plate faces.
-  for(const b of leaves){if(field.length>=Math.min(6500,fieldBudget))break;const W=b[2]-b[0],H=b[3]-b[1],variant=Math.floor(random()*5),w=W*(.78+random()*.19),h=H*(.67+random()*.29),x=b[0]+w/2+random()*(W-w),y=b[1]+h/2+random()*(H-h),back=(.025+random()*.36)*relief,front=Math.max(back+.12*relief,(.43+random()*.49)*relief),depth=front-back;
-   const body=piece(field,'service-housing',x,y,w,h,(back+front)/2,depth,grey(),host,null,'box',{recess:true});if(!body)continue;
-   if(back>.05)piece(field,'service-standoff',x,y,w*.60,h*.58,back/2,back,[74,87,99]);
-   if(variant===0||variant===3){const sw=Math.min(w*.44,2.4*scale),sh=h*(.40+random()*.43),sx=x+(variant===0?1:-1)*(w-sw)*.42,sy=y+(random()-.5)*(h-sh)*.7,sd=.10+relief*(.055+random()*.07);piece(field,'service-housing',sx,sy,sw,sh,front+sd/2,sd,grey());}
-   if(variant===1||variant===4){const vertical=H>W*.65,dia=Math.max(.12,Math.min(relief*.35,1.25,W*.21,H*.24)),length=Math.max(dia*1.5,Math.min(vertical?h*.78:w*.80,4.2*scale)),cx=x+(random()-.5)*w*.3,cy=y+(random()-.5)*h*.3;
-    piece(field,'service-junction',cx,cy,vertical?dia:length,vertical?length:dia,front+dia*.55,dia,[116,127,136],host,null,'pipe',{axis:vertical?'v':'u'});
-    if(variant===4){const off=dia*.95;piece(field,'service-junction',cx+(vertical?off:0),cy+(vertical?0:off),vertical?dia*.72:length*.76,vertical?length*.76:dia*.72,front+dia*.5,dia*.72,[100,112,123],host,null,'pipe',{axis:vertical?'v':'u'});}
+  const baseMinU=base?.minU??lo[0]+worldU,baseMaxU=base?.maxU??hi[0]+worldU,macro=C.clamp(ship.hull.L*.055,18,56),maxFloor=Math.max(levels.length,Math.floor(fieldBudget*.48));
+  for(const Y of levels){const y=frame.vertical?(Y-origin[1])/Math.max(.08,v[1]):Y-worldV,extent=k<.08?slab:slab+Math.abs(normal[1])*relief/k,spans=band(y,extent),R=rng(surfaceSeed((patch.baseId||patch.id)+'|floor|'+Y.toFixed(4),style.seed)),profiles=[];let a=baseMinU;
+   while(a<baseMaxU-.01){const b=Math.min(baseMaxU,a+macro*(.7+R()*.7)),front=(.67+R()*.28)*relief;profiles.push([a,b,front]);a=b;}
+   for(const span of spans){const parts=[];for(const profile of profiles){const a=Math.max(span[0],profile[0]-worldU)+.012,b=Math.min(span[1],profile[1]-worldU)-.012;if(b-a>.12)parts.push([a,b,profile[2]]);}if(field.length+parts.length>maxFloor&&span[1]-span[0]>.2){parts.length=0;parts.push([span[0]+.012,span[1]-.012,relief*.82]);}
+    for(const [a,b,front]of parts){const q=deck('stratum-floor',(a+b)/2,Y,b-a,slab,relief*.025,front,[130,139,147]);if(q){strata.push({level:Y,width:b-a,center:q.center.slice(),front});floorRows.push({Y,y,a,b,front});}}
    }
-   if(variant===2){const sw=Math.min(w*.76,4.5*scale),sh=Math.min(h*.22,.35*scale);piece(field,'service-brace',x,y+(h-sh)*.28,sw,sh,front+.08,.14,[133,143,151]);}
   }
-  // A shared path is segmented against real geometry and equipment envelopes.
-  // Its pieces can cross many physical cells without spanning a cutout.
-  const pipeSupports=field.slice(),supportFront=b=>pipeSupports.reduce((z,p)=>p.bounds[2]>b[0]&&p.bounds[0]<b[2]&&p.bounds[3]>b[1]&&p.bounds[1]<b[3]?Math.max(z,C.dot(C.sub(p.center,origin),normal)+p.size[2]/2):z,-Infinity);
-  const run=(axis,fixed,start,end,diameter,z,feature='service-conduit')=>{const step=Math.max(.35,scale*.65),quantum=Math.max(.02,relief*.16),segments=[];let from=null,to=null,level=0;
-   const close=()=>{if(from!=null)segments.push([from,to,level]);from=null;};
-   for(let a=start;a<end;a+=step){const b=Math.min(a+step,end),bounds=axis?[fixed-diameter/2,a,fixed+diameter/2,b]:[a,fixed-diameter/2,b,fixed+diameter/2],s=space(bounds);if(s){const next=Math.min(relief-diameter*.65-.025,Math.ceil(Math.max(z,supportFront(bounds)-s.height+relief+diameter*.65)/quantum)*quantum);if(from!=null&&Math.abs(next-level)>quantum*.25)close();if(from==null){from=a;level=next;}to=b;}else close();}close();
-   let previous=null;for(const [a,b,tier]of segments){if(b-a<=diameter*1.2)continue;piece(field,feature,axis?fixed:(a+b)/2,axis?(a+b)/2:fixed,axis?diameter:b-a,axis?b-a:diameter,tier,feature==='service-shelf'?.15:diameter,feature==='service-shelf'?[121,132,141]:[111,126,137],host,null,feature==='service-shelf'?'box':'pipe',{axis:axis?'v':'u'});
-    if(previous&&feature!=='service-shelf'&&Math.abs(previous[1]-a)<1e-5&&Math.abs(previous[2]-tier)>.03)piece(field,'service-depth-conduit',axis?fixed:a,axis?a:fixed,diameter,diameter,(previous[2]+tier)/2,Math.abs(previous[2]-tier),[104,119,131],host,null,'normal-pipe');previous=[a,b,tier];}
-  };
-  for(let axis=0;axis<2;axis++){const span=hi[1-axis]-lo[1-axis],count=axis?Math.min(10,Math.max(2,Math.floor(span/(18*scale)))):Math.min(7,Math.max(2,Math.floor(span/(5.7*scale))));for(let i=0;i<count;i++){
-   const fixed=lo[1-axis]+span*(i+.18+random()*.64)/count,diameter=(.15+random()*.14)*Math.min(1.5,scale),trim=(i%3===0?0:random()*.27)*(hi[axis]-lo[axis]),start=lo[axis]+.15+trim,end=hi[axis]-.15-random()*trim;
-   run(axis,fixed,start,end,diameter,.73);if(axis&&i%2===0){run(axis,fixed+diameter*1.45,start,end-(end-start)*.19,diameter*.65,.74);const elbow=start+(end-start)*(.3+random()*.4);run(0,elbow,Math.max(lo[0]+.15,fixed-2.2*scale),Math.min(hi[0]-.15,fixed+3.8*scale),diameter,.73);}
-   if(!axis&&i%2===0)run(0,fixed+.24*scale,lo[0]+.15,hi[0]-.15,.075,.60,'service-shelf');
-  }}
+  // Long floor edges carry a narrow lip; the bays behind remain genuinely open.
+  for(const p of floorRows){if(field.length>=fieldBudget*.60)break;deck('stratum-lip',(p.a+p.b)/2,p.Y+slab*.24,p.b-p.a,slab*.44,Math.max(relief*.03,p.front-.14),p.front+.025,[144,151,157]);}
+  // Irregular machine banks occupy most bays near their deck fronts. Some
+  // banks step far inward, leaving real recesses between the machinery itself.
+  const minY=lo[1]+.12,maxY=hi[1]-.12,localPitch=frame.vertical?pitch/Math.max(.08,v[1]):pitch;
+  for(let y=minY+localPitch*.49;y<maxY-localPitch*.22;y+=localPitch){const h=Math.min(localPitch*.82,maxY-y+localPitch*.28),spans=band(y,h),R=rng(surfaceSeed((patch.baseId||patch.id)+'|bay|'+Math.round((y+worldV)/localPitch),style.seed));
+   for(const span of spans){let x=span[0]+.12;while(x<span[1]-.7&&field.length<fieldBudget*.86){x+=.18+R()*localPitch*.35;const w=Math.min((1.2+R()*3.7)*localPitch,span[1]-x-.14);if(w<.6)break;const ht=h*(.66+R()*.33),cy=y+(R()-.5)*(h-ht),back=relief*(.05+R()*.17),front=relief*(R()<.20?.43+R()*.19:.79+R()*.19),body=piece(field,'stratum-machinery',x+w/2,cy,w,ht,(back+front)/2,front-back,grey(),host,null,'box',{recess:true});
+    if(body&&R()>.25){const dia=Math.min(ht*.28,.86),length=w*(.40+R()*.43);piece(field,'stratum-pipe-bundle',x+w*.52,cy+ht*.24,length,dia,front+dia*.3,dia,[119,130,139],host,null,'pipe',{axis:'u'});if(R()>.5)piece(field,'stratum-pipe-bundle',x+w*.52,cy-ht*.24,length*.85,dia*.62,front+dia*.24,dia*.62,[110,123,134],host,null,'pipe',{axis:'u'});}
+    x+=w+.18+R()*localPitch*.35;
+   }}
+  }
+  // Larger cores bridge two or three storeys at irregular long intervals.
+  // They break the floor rhythm without becoming a repeated facade grid.
+  for(let x=lo[0]+macro*.32;x<hi[0]-localPitch&&field.length<fieldBudget*.96;x+=macro*(.70+random()*.85)){const h=Math.min(localPitch*(1.7+random()*1.3),(hi[1]-lo[1])*.78),w=Math.min(localPitch*(.7+random()*1.5),hi[0]-x-.12),y=lo[1]+h/2+.12+random()*Math.max(0,hi[1]-lo[1]-h-.24),back=relief*(.10+random()*.16),front=relief*(.87+random()*.11);piece(field,'stratum-core',x+w/2,y,w,h,(back+front)/2,front-back,[128,136,144],host,null,'box',{recess:true});}
+  // Sparse narrow service trunks connect the remaining open levels.
+  for(let x=lo[0]+macro*.7;x<hi[0]-.5&&field.length<fieldBudget;x+=macro*(1.2+random()*.8)){const h=Math.min(localPitch*(1.5+random()*1.6),(hi[1]-lo[1])*.76),y=lo[1]+h/2+.08+random()*Math.max(0,hi[1]-lo[1]-h-.2),w=Math.min(.72,localPitch*.12);piece(field,'stratum-riser',x,y,w,h,relief*.88,relief*.15,[106,120,132]);}
  }
  if(face?.aggregate){
   // Functional paint is distributed across the generated face, not repeated
   // once per saved slot or common-network adapter. Capacity stays in Core.
-  const roles=['cooling','sensors','habitation'].map(role=>({role,...face.categories?.[role]})).filter(q=>q.occupiedArea>0&&Number.isFinite(q.roleid)),cases=field.filter(q=>q.feature==='service-housing'&&q.recess).map(q=>({q,rank:surfaceSeed(q.bounds.join('|'),style.seed)})).sort((a,b)=>a.rank-b.rank).map(p=>p.q),total=roles.reduce((n,q)=>n+q.occupiedArea,0),coverage=C.clamp(total/Math.max(.001,patch.exposedArea??patch.area),0,1),count=Math.min(96,cases.length,Math.max(roles.length,Math.round(cases.length*coverage))),weights=roles.map(()=>0);
+  const roles=['cooling','sensors','habitation'].map(role=>({role,...face.categories?.[role]})).filter(q=>q.occupiedArea>0&&Number.isFinite(q.roleid)),cases=field.filter(q=>['stratum-machinery','stratum-core'].includes(q.feature)&&q.recess).map(q=>({q,rank:surfaceSeed(q.bounds.join('|'),style.seed)})).sort((a,b)=>a.rank-b.rank).map(p=>p.q),total=roles.reduce((n,q)=>n+q.occupiedArea,0),coverage=C.clamp(total/Math.max(.001,patch.exposedArea??patch.area),0,1),count=Math.min(96,cases.length,Math.max(roles.length,Math.round(cases.length*coverage))),weights=roles.map(()=>0);
   cells=[];for(let i=0;i<count&&roles.length;i++){let pick=i<roles.length?i:0;if(i>=roles.length){for(let j=0;j<roles.length;j++){weights[j]+=roles[j].occupiedArea/total;if(weights[j]>weights[pick])pick=j;}weights[pick]-=1;}const role=roles[pick],q=cases[i],point=q.center.slice();cells.push({id:role.roleid,aggregate:true,cell:'visual:'+role.role+':'+i,role:role.role,k:role.role==='cooling'?config.equipment.kind:role.role==='sensors'?'sensor':'habitat',point,w:q.size[0]*.85,h:q.size[1]*.85,depth:relief});}
  }
- const frontAt=b=>field.reduce((z,p)=>p.bounds[2]>b[0]&&p.bounds[0]<b[2]&&p.bounds[3]>b[1]&&p.bounds[1]<b[3]?Math.max(z,C.dot(C.sub(p.center,origin),normal)+p.size[2]/2):z,-Infinity);
+ const frontAt=b=>field.reduce((z,p)=>p.bounds[2]>b[0]&&p.bounds[0]<b[2]&&p.bounds[3]>b[1]&&p.bounds[1]<b[3]?Math.max(z,C.dot(C.sub(p.center,origin),normal)+(Math.abs(C.dot(p.u,normal))*p.size[0]+Math.abs(C.dot(p.v,normal))*p.size[1]+Math.abs(C.dot(p.normal,normal))*p.size[2])/2):z,-Infinity);
  for(const cell of cells){if(!cell.point?.every(Number.isFinite)||!(cell.w>0&&cell.h>0))continue;const point=cell.point.slice(),local=uv(point),r=rng(surfaceSeed(patch.id+'|'+cell.cell,style.seed)),hardware=[],variant=Math.floor(r()*4),item={id:cell.id,cell:cell.cell,role:cell.role,kind:cell.k||cell.kind,variant,point,center:point.slice(),u,v,normal,size:[cell.w,cell.h,cell.depth],depth:cell.depth,hardware,micro:[]};devices.push(item);
   // Guns use only the compact embedded apertures in meshFits. The surrounding
   // field leaves their actual opening clear without drawing a turret body.
@@ -2003,11 +2019,11 @@ function surfaceEquipmentField(ship,patch,cells,style,detail,extraBudget,fieldBu
  }
  // Nested secondary cases are the only density/quality-controlled pass. They
  // sit inside the already accepted wall cases, not inside an 8m cell frame.
- const housings=field.filter(p=>p.feature==='service-housing'),extras=Math.min(extraBudget,Math.round(housings.length*C.clamp(style.density??0,0,1)*detail*2));
+ const housings=field.filter(p=>['stratum-machinery','stratum-core'].includes(p.feature)),extras=Math.min(extraBudget,Math.round(housings.length*C.clamp(style.density??0,0,1)*detail*2));
  for(let i=0;i<extras*3&&boxes.length<extras&&housings.length;i++){const parent=housings[Math.floor(random()*housings.length)],b=parent.bounds,w=Math.min(3.0,(b[2]-b[0])*(.12+random()*.33)),h=Math.min(1.4,(b[3]-b[1])*(.18+random()*.39)),x=b[0]+w/2+random()*(b[2]-b[0]-w),y=b[1]+h/2+random()*(b[3]-b[1]-h),d=.055+random()*.12;
   const s=space([x-w/2,y-h/2,x+w/2,y+h/2]);if(s)piece(boxes,'service-detail',x,y,w,h,C.dot(C.sub(parent.center,origin),normal)+parent.size[2]/2-s.height+relief+d/2,d,grey(),host,null,style.kind==='rounded'?'rounded':'box',{rounded:style.kind==='rounded'});
  }
- return {field,boxes,devices,paint,recessDepth:recess.recessDepth,backingTriangles:recess.backingTriangles};
+ return {field,boxes,devices,paint,frame:{u,v,normal},strata,layerPitch:pitch,visualDepth:relief,functionalDepth:config.equipment.depth,recessDepth:recess.recessDepth,backingTriangles:recess.backingTriangles};
 }
 const SURFACE_VISUAL_CACHE=new Map(),SURFACE_MESH_CACHE=new Map();
 function surfaceVisualKey(ship,opt={}){
@@ -2024,6 +2040,7 @@ function surfaceBuildVisualPlan(ship,opt={}){
  if(!ship?.surfaces?.patches?.length||typeof C.surfacePatches!=='function')return [];
  const configured=new Set(ship.surfaces.patches.map(p=>p.id)),detail=C.clamp(opt.detail??ship.detail??1,0,2),cap=Math.max(0,Math.floor(opt.maxDetails??1800)),out=[];
  const equipmentReports=new Map((C.surfaceRenderFaces?C.surfaceRenderFaces(ship):ship.surfaces.patches.some(p=>p.functionMode==='equipment')?C.surfaceReport(ship).patches:[]).map(p=>[p.id,p])),patches=C.surfacePatches(ship),eligible=patches.filter(p=>configured.has(p.id)&&p.exposed&&(p.exposedArea??p.area)>0&&p.config?.functionMode==='equipment'),fieldShares=surfaceVisualShares(eligible,Math.max(0,Math.floor(opt.maxField??12000)),30),detailShares=surfaceVisualShares(eligible,cap,4);let budget=cap;
+ const layerBases=surfaceLayerBases(patches);
  for(const patch of patches){
   if(!configured.has(patch.id)||!patch.exposed||!(patch.exposedArea??patch.area))continue;
   const config=patch.config||C.surfaceConfig(ship,patch.id),style=config.style||{},normal=C.norm(patch.normal),u=C.norm(patch.u),v=C.norm(patch.v),T=surfaceTriangles(patch),triangles=[],weights=[];let area=0;
@@ -2032,7 +2049,7 @@ function surfaceBuildVisualPlan(ship,opt={}){
   const random=rng(surfaceSeed(patch.id,style.seed)),density=C.clamp(style.density??0,0,1),size=C.clamp(Math.sqrt(area)/18,.04,6),n=Math.min(budget,Math.ceil(Math.sqrt(area)*density*detail*2)),boxes=[],devices=[];
   if(config.functionMode==='equipment'){
    const report=equipmentReports.get(patch.id),cells=report?.cells||[...ship.parts,...ship.fits].filter(p=>p.surfacePatch===patch.id&&!p.surfaceUnplaced&&p.surfaceRole).map(p=>({id:p.id,cell:p.surfaceCell,role:p.surfaceRole,k:p.k,point:p.surfacePoint,footprint:p.surfaceFootprint,w:p.surfaceFootprint?.[0],h:p.surfaceFootprint?.[1],depth:p.surfaceDepth}));
-   const plan=surfaceEquipmentField(ship,patch,cells,style,detail,Math.min(budget,detailShares.get(patch.id)||0),fieldShares.get(patch.id)||0,config,report);budget-=plan.boxes.length;
+   const plan=surfaceEquipmentField(ship,patch,cells,style,detail,Math.min(budget,detailShares.get(patch.id)||0),fieldShares.get(patch.id)||0,config,report,layerBases.get(patch.baseId||patch.id));budget-=plan.boxes.length;
    out.push({id:patch.id,host:patch.host,patch,config,triangles:T,boundary:surfaceBoundary(patch),...plan});continue;
   }
   if(config.functionMode==='armor'){out.push({id:patch.id,host:patch.host,patch,config,triangles:T,boundary:surfaceBoundary(patch),paint:surfaceHostPaint(ship,patch),boxes,devices});continue;}
@@ -2065,6 +2082,7 @@ function surfaceBuildVisualPlan(ship,opt={}){
   }
   budget-=boxes.length;out.push({id:patch.id,host:patch.host,patch,config,triangles:T,boundary:surfaceBoundary(patch),boxes,devices});
  }
+ for(const row of out)if(row.config.functionMode==='equipment')row.revealBoundary=surfaceEquipmentReveals(row,out);
  return out;
 }
 function meshSurfaceLayers(ship,ranges={},opt={}){
@@ -2089,7 +2107,7 @@ function buildSurfaceLayers(ship,ranges,opt,key){
   // replaced by an inward backing, with reveal walls under its armour caps.
   if(config.functionMode==='equipment'){
    hullTriangleMesh(armor,row.backingTriangles,surfacePaintTone(paint,.52),30);const recess=surfaceRecess(ship,patch,row.recessDepth);
-   for(const e of row.boundary){const a=recess.pointAt(e.a),b=recess.pointAt(e.b),sn=C.norm(C.cross(n,C.sub(e.b,e.a)));hullQuad(armor,[e.a,e.b,b,a],sn,surfacePaintTone(paint,.85),30);}
+   for(const e of row.revealBoundary||row.boundary){const a=recess.pointAt(e.a),b=recess.pointAt(e.b),sn=C.norm(C.cross(n,C.sub(e.b,e.a)));hullQuad(armor,[e.a,e.b,b,a],sn,surfacePaintTone(paint,.85),30);}
   }else if(config.functionMode==='armor'&&thickness===0){const lift=C.mul(n,.012);hullTriangleMesh(armor,row.triangles.map((q,i)=>q+lift[i%3]),col,30);}
   if(thickness>0){const lift=C.mul(n,thickness+.01),T=row.triangles.map((q,i)=>q+lift[i%3]);hullTriangleMesh(armor,T,col,30);for(const e of row.boundary){const a=C.add(e.a,lift),b=C.add(e.b,lift),sn=C.norm(C.cross(C.sub(b,a),n));hullQuad(armor,[e.a,e.b,b,a],sn,col,30);}}
   if(config.functionMode==='equipment'){

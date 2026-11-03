@@ -15,7 +15,7 @@ function equip(s,p,allocation={weapons:25,cooling:25,sensors:25,habitation:25},e
  assert.equal(result.ok,true,result.why);return result;
 }
 
-// Decode transient reservation cells only to verify legacy geometry invariants.
+// Decode bounded geometric reservations to verify physical containment.
 // Runtime occupancy and saved designs continue to use bounded face adapters.
 const logicalParts=s=>C.surfaceWorkingShip(s).parts.filter(p=>p._surfaceAdapter).flatMap(p=>p._surfaceAdapter.cells.map(r=>({id:r[0],k:p.k,c:r.slice(4,7),room:r.slice(7,10),d:Math.cbrt(r[7]*r[8]*r[9]),surfaceNormal:r.slice(10,13),yaw:r[13],surfacePoint:r.slice(14,17),surfaceFootprint:r.slice(17,19),surfaceDepth:r[19],surfaceExposure:r[20],surfaceUnplaced:!!r[3],surfacePatch:p.surfacePatch,surfaceRole:p.surfaceRole,surfaceCell:r[26]})));
 const generatedFits=s=>C.surfaceDerivedFits(s),roleParts=s=>C.surfaceWorkingShip(s).parts.filter(p=>p._surfaceAdapter);
@@ -80,7 +80,7 @@ test('aggregate composite mirroring and repeated reload retain equipment shares,
  const placed=C.assemblyPlace(dst,template,[250,70,90],{mirror:true});assert.equal(placed.groups.length,2);const hosts=placed.parts.filter(q=>q.k==='struct');assert.equal(hosts.length,2);
  for(const host of hosts){const q=dst.surfaces.patches.find(q=>q.id.startsWith('p'+host.id+':')&&q.functionMode==='equipment');assert.ok(q);assert.deepEqual(plain(q.allocation),plain(C.surfaceAllocation({cooling:20,sensors:30,habitation:40})));assert.equal(q.battery.count,2);}
  const sourceCount=owned(s).filter(q=>!q.surfaceUnplaced).length;for(const host of hosts)assert.equal(owned(dst).filter(q=>q.surfacePatch.startsWith('p'+host.id+':')&&!q.surfaceUnplaced).length,sourceCount,'a translated/mirrored identical host must keep all physical devices installed');
- const A=hosts.find(q=>q.c[2]>0),B=hosts.find(q=>q.c[2]<0);for(const a of owned(dst).filter(q=>q.surfacePatch.startsWith('p'+A.id+':'))){const b=owned(dst).find(q=>q.surfacePatch.startsWith('p'+B.id+':')&&q.surfaceCell===a.surfaceCell);assert.ok(b,a.surfaceCell);assert.ok(Array.isArray(a.surfaceNormal||a.n)&&Array.isArray(b.surfaceNormal||b.n),a.surfaceCell+' mirrored devices must retain their face normals');assert.ok(C.len(C.sub(b.surfacePoint,C.mirrorP(a.surfacePoint)))<1e-4);assert.ok(C.dot(b.surfaceNormal||b.n,C.mirrorP(a.surfaceNormal||a.n))>.999);}
+ const A=hosts.find(q=>q.c[2]>0),B=hosts.find(q=>q.c[2]<0);for(const a of owned(dst).filter(q=>q.surfacePatch.startsWith('p'+A.id+':'))){const b=owned(dst).find(q=>q.surfacePatch.startsWith('p'+B.id+':')&&(a.surfaceCell.startsWith('area:')?q.k===a.k&&q.surfaceRole===a.surfaceRole&&C.len(C.sub(q.surfacePoint,C.mirrorP(a.surfacePoint)))<1e-4&&q.room.every((v,i)=>Math.abs(v-a.room[i])<1e-5):q.surfaceCell===a.surfaceCell));assert.ok(b,a.surfaceCell);assert.ok(Array.isArray(a.surfaceNormal||a.n)&&Array.isArray(b.surfaceNormal||b.n),a.surfaceCell+' mirrored devices must retain their face normals');assert.ok(C.len(C.sub(b.surfacePoint,C.mirrorP(a.surfacePoint)))<1e-4);assert.ok(C.dot(b.surfaceNormal||b.n,C.mirrorP(a.surfaceNormal||a.n))>.999);}
  const before=identity(dst),loaded=C.deserialize(C.serialize(dst));C.surfaceSync(loaded);C.surfaceSync(loaded);const again=C.deserialize(C.serialize(loaded));C.surfaceSync(again);
  assert.deepEqual(identity(again),before);assert.deepEqual(plain(again.surfaces),plain(loaded.surfaces));
 });
@@ -96,9 +96,9 @@ test('zero allocations remove real capabilities and sensors consume physical roo
 test('thin habitation rooms missed by the volume sampler reserve living capacity without crediting it twice',()=>{
  const s=fixture();s.parts[0].s=[2000,1000,800];s.parts[0].c=[1000,400,0];delete s.surfaces;assert.equal(C.enableSurfaceMode(s,true).ok,true);const p=face(s,'top');
  equip(s,p,shares('habitation'),{equipment:{kind:'hdis',depth:.2}});const rooms=logicalParts(s).filter(q=>q.surfacePatch===p.id);assert.ok(rooms.length>0);
- // The v4 ledger reserves the declared box volume. Rebuilding a Float32 mesh
- // at y = 800 m rounds a 0.2 m room to 0.200012 m and invents 0.2 m³ here.
- const physical=rooms.reduce((n,q)=>n+q.room.reduce((a,b)=>a*b),0),h=C.habitationSpace(s),S=C.computeStats(s),row=S.surface.patches.find(q=>q.id===p.id);assert.ok(Math.abs(physical-256*8*8*.2)<1e-8);
+ // The face ledger reserves exact area times depth. A Float32 mesh at
+ // y = 800 m rounds a0.2m room to0.200012m and must not set its capacity.
+ const physical=rooms.reduce((n,q)=>n+q.room.reduce((a,b)=>a*b),0),h=C.habitationSpace(s),S=C.computeStats(s),row=S.surface.patches.find(q=>q.id===p.id);assert.ok(Math.abs(physical-p.exposedArea*.2)<1e-6);assert.ok(physical>256*64*.2,'the existing full face replaces the obsolete256-device ceiling');
  assert.ok(physical>0);assert.ok(h.explicitVolume>0,'thin real rooms must remain visible in allocated living capacity even when no volume sample intersects them');
  assert.ok(Math.abs(h.explicitVolume-physical)<physical*1e-8);assert.ok(Math.abs(h.freeVolume+h.explicitVolume-h.volume)<h.volume*1e-10);
  assert.equal(S.explicitHabitationVolume,h.explicitVolume);assert.ok(S.explicitCrewCapacity>0);assert.ok(row.habitationCapacity>0);assert.ok(Math.abs(row.physicalHabitationVolume-physical)<physical*1e-8);
@@ -122,11 +122,12 @@ test('global fit capacity rejects a new equipment layout atomically instead of s
  assert.equal(result.ok,false);assert.match(result.why,/上限|限界|limit|capacity/i);assert.deepEqual(plain(C.serialize(s)),before,'failed allocation may not leave a new config, partial devices or consumed IDs');
 });
 
-test('global part capacity rejects newly allocated physical equipment without mutating the old face',()=>{
+test('native part limits remain atomic for legacy device layouts while area facilities keep bounded shared adapters',()=>{
  const s=fixture(),p=face(s);assert.equal(C.setSurfaceConfig(s,p.id,{functionMode:'armor',armor:{material:'light',thickness:.6}}).ok,true);
  for(let i=s.parts.length;i<C.DESIGN_LIMITS.parts;i++)s.parts.push({id:s.nextId++,k:'sensor',c:[1000+i*10,0,0],d:1});
- const before=plain(C.serialize(s)),result=C.setSurfaceConfig(s,p.id,{functionMode:'equipment',allocation:shares('cooling'),equipment:{kind:'hdis',depth:2}});
+ const before=plain(C.serialize(s)),result=C.setSurfaceConfig(s,p.id,{functionMode:'legacy',battery:{weapon:'none',count:0},equipment:{kind:'hdis',count:2,depth:2}});
  assert.equal(result.ok,false);assert.match(result.why,/上限|限界|limit|capacity/i);assert.deepEqual(plain(C.serialize(s)),before);assert.equal(C.surfaceConfig(s,p.id).functionMode,'armor');
+ const modern=C.setSurfaceConfig(s,p.id,{functionMode:'equipment',allocation:shares('cooling'),equipment:{kind:'hdis',depth:2}});assert.equal(modern.ok,true,modern.why);assert.equal(s.parts.length,C.DESIGN_LIMITS.parts);assert.deepEqual(plain(C.serialize(s).parts),before.parts,'applying a function cannot duplicate or displace native hardware');assert.ok(roleParts(s).length>0&&roleParts(s).length<=3);const active=roleParts(s).filter(q=>!q.surfaceUnplaced).reduce((n,q)=>n+C.partVolume(q),0);assert.ok(Math.abs(active-p.exposedArea*2)<1e-6,'a source-object budget does not truncate paid physical area capacity');
 });
 
 test('opposite thin-plate faces and adjacent corners cannot install two devices in the same internal volume',()=>{
@@ -140,12 +141,12 @@ test('opposite thin-plate faces and adjacent corners cannot install two devices 
 });
 
 test('one Apply releases earlier-face depth reservations for later faces without requiring a second synchronization',()=>{
- const changes=[{functionMode:'armor'},{allocation:shares('cooling'),battery:{weapon:'none'},equipment:{limit:0}},{equipment:{depth:.2}}];
+ const changes=[{functionMode:'armor'},{remove:true},{equipment:{depth:.2}}];
  for(const change of changes){
   const s=fixture();s.parts[0].s=[40,40,4];s.parts[0].c=[40,2,0];delete s.surfaces;assert.equal(C.enableSurfaceMode(s,true).ok,true);
   const ordered=s.surfaces.patches.filter(q=>/:top:|:bottom:/.test(q.id)),a=ordered[0],b=ordered[1],count=id=>logicalParts(s).filter(q=>q.surfacePatch===id&&!q.surfaceUnplaced).length;
   assert.equal(C.setSurfaceConfig(s,[b.id,a.id],{functionMode:'equipment',allocation:shares('cooling'),equipment:{kind:'hdis',depth:3}}).ok,true);assert.ok(count(a.id)>0);assert.equal(count(b.id),0);
-  assert.equal(C.setSurfaceConfig(s,a.id,change).ok,true);assert.ok(count(b.id)>0,'free space from '+JSON.stringify(change)+' must be available in the same Apply');
+  assert.equal((change.remove?C.surfaceRemoveConfig(s,a.id):C.setSurfaceConfig(s,a.id,change)).ok,true);assert.ok(count(b.id)>0,'free space from '+JSON.stringify(change)+' must be available in the same Apply');
   const once=identity(s);C.surfaceSync(s);assert.deepEqual(identity(s),once,'a second sync may not be needed to converge the physical design');
   const loaded=C.deserialize(C.serialize(s));C.surfaceSync(loaded);assert.deepEqual(identity(loaded),once);assert.deepEqual(plain(loaded.surfaces.patches.map(q=>q.id)),plain(s.surfaces.patches.map(q=>q.id)),'input selection order must not reorder persisted reservation ownership');
  }
@@ -153,11 +154,11 @@ test('one Apply releases earlier-face depth reservations for later faces without
 
 test('partial overlap with an independent native room blocks placement even when the candidate center is outside it',()=>{
  const s=fixture(),p=face(s);equip(s,p,shares('cooling'));const seed=logicalParts(s).find(q=>q.surfacePatch===p.id&&!q.surfaceUnplaced);assert.ok(seed);
- const native={id:s.nextId++,k:'sensor',c:C.add(seed.c,C.mul(p.u,6)),room:seed.room.slice(),d:seed.d,surfaceNormal:seed.surfaceNormal.slice(),yaw:seed.yaw};
+ const native={id:s.nextId++,k:'hdis',c:C.add(seed.c,C.mul(p.u,6)),room:[4,4,Math.min(1,seed.room[2])],d:1,surfaceNormal:seed.surfaceNormal.slice(),yaw:seed.yaw};
  const bounds=C.partAABB(native);assert.ok(seed.c.some((n,i)=>n<bounds[i]||n>bounds[i+3]),'the candidate center must defeat a center-inside-box collision test');assert.equal(C.overlapParts(seed,native),true,'the real native volumes still overlap at their edges');
  assert.equal(C.setSurfaceConfig(s,p.id,{functionMode:'armor'}).ok,true);s.parts.push(native);const nativeBefore=plain(C.serialize(s)).parts.find(q=>q.id===native.id);
  equip(s,p,shares('cooling'));const active=logicalParts(s).filter(q=>q.surfacePatch===p.id&&!q.surfaceUnplaced);assert.ok(active.length>0);assert.ok(active.every(q=>!C.overlapParts(q,native)),'no installed device may share physical volume with the independent native sensor');
  assert.deepEqual(plain(C.serialize(s)).parts.find(q=>q.id===native.id),nativeBefore,'allocation must preserve the independent native part and its placement');assert.equal(native.surfacePatch,undefined);
- assert.ok(s.parts.length<=C.DESIGN_LIMITS.parts);assert.ok(s.fits.length<=C.DESIGN_LIMITS.fits);assert.ok(active.length<=256);assert.ok(C.surfaceReport(s).warnings.some(w=>/既存設備と内部容積/.test(w.text)),'blocked native volume needs a visible placement diagnosis');
+ assert.ok(s.parts.length<=C.DESIGN_LIMITS.parts);assert.ok(s.fits.length<=C.DESIGN_LIMITS.fits);assert.ok(active.length<=256);assert.ok(C.surfaceReport(s).warnings.some(w=>/既存|保守|occupied|collision/i.test(w.text)),'blocked native volume needs a visible placement diagnosis');
  const once=identity(s);C.surfaceSync(s);assert.deepEqual(identity(s),once);
 });

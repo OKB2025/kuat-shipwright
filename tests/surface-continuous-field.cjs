@@ -4,14 +4,17 @@ for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core
 const {C,G}=vm.runInContext('({C:Core,G:Gfx})',cx),plain=x=>JSON.parse(JSON.stringify(x,(k,v)=>k.startsWith('_')?undefined:v)),roles=['weapons','cooling','sensors','habitation'];
 const only=k=>Object.fromEntries(roles.map(r=>[r,r===k?100:0]));
 function fixture({allocation={weapons:25,cooling:25,sensors:25,habitation:25},face='port',rotate=false,hole=false,foil=false}={}){
- const ship=C.newShip({L:160,W:100,H:60,assembly:true},'Continuous machinery acceptance');ship.parts=[];ship.fits=[];ship.armor={hull:0,cit:0};ship.detail=1;
+ let ship=C.newShip({L:160,W:100,H:60,assembly:true},'Continuous machinery acceptance');ship.parts=[];ship.fits=[];ship.armor={hull:0,cit:0};ship.detail=1;
  const body=C.placePart(ship,foil?'wing':'struct',[70,30,0],foil?[80,40,6]:[112,48,32],foil?{}:{form:'box',...(rotate?{yaw:27,pitch:19,roll:11}:{})},false);
  if(foil)body.wing=C.normalizeWing({...body.wing,foil:true,axis:'x',open:10,stow:50});
  if(hole)ship.solidCuts.push(C.normalizeSolidCut({id:ship.nextId++,shape:'box',c:[81,30,9],s:[5,7,80],structures:true}));
  const patch=C.surfacePatches(ship).find(p=>p.host==='p'+body.id&&p.face===(foil?'top':face));assert.ok(patch?.exposed);
  const density=Object.fromEntries(roles.filter(k=>k!=='weapons').map(k=>[k,allocation[k]||0])),pureGuns=allocation.weapons>0&&!Object.values(density).some(n=>n>0);
  assert.equal(C.setSurfaceConfig(ship,patch.id,{functionMode:'equipment',allocation:density,battery:{weapon:'pd',count:allocation.weapons>0?2:0,spacing:.5},equipment:{kind:'hdis',depth:foil?.6:2,...(pureGuns?{limit:0}:{})},style:{kind:'machinery',density:.75,seed:137}}).ok,true);
- return {ship,body,patch:C.surfacePatches(ship).find(p=>p.id===patch.id)};
+ // Preserve a real pre-area count-v1 design for the pure-gun compatibility
+ // case. Area-v1 intentionally allocates all nonweapon area and ignores limit.
+ if(pureGuns){const saved=C.serialize(ship),cfg=saved.surfaces.patches.find(q=>q.id===patch.id);delete cfg.equipment.capacityModel;delete cfg.aggregate;cfg.equipment.count=0;cfg.equipment.limit=0;ship=C.deserialize(saved);}
+ return {ship,body:ship.parts.find(q=>q.id===body.id),patch:C.surfacePatches(ship).find(p=>p.id===patch.id)};
 }
 const row=(s,p,opt)=>G.surfaceVisualPlan(s,opt).find(q=>q.id===p.id),pieces=r=>[...(r.field||[]),...r.devices.flatMap(d=>d.hardware||[])];
 function projectedBox(q,p){
@@ -81,9 +84,9 @@ test('field and hardware index ranges have one real owner and move with an artic
  const asset=G.fleetGeometry(ship),foil=asset.foils.find(q=>q.id===body.id);assert.ok(foil);for(const kind of ['surfaceArmor','surfaceDevices','surfaceDetail']){const moving=foil.meshes.filter(name=>foil.kinds[name]===kind);assert.equal(moving.length,1,kind+' must have one moving partition');assert.equal(asset.meshes[moving[0]].geo.ni,raw[kind].ni);assert.equal(asset.meshes[kind]?.geo.ni||0,0,kind+' must not remain as a stationary duplicate');}
 });
 
-test('constrained partitions refine the whole face without leaving enormous unrefined plates',()=>{
+test('constrained structural budgets retain occupied bays without enormous unrefined plates',()=>{
  const {ship,patch}=fixture({allocation:only('cooling')}),before=C.publicJSON(ship);
- for(const maxField of [96,240]){const r=row(ship,patch,{maxField,maxDetails:0}),bodies=r.field.filter(q=>q.feature==='service-housing');assert.ok(bodies.length>=8);assert.ok(r.field.length<=maxField);
+ for(const maxField of [96,240]){const r=row(ship,patch,{maxField,maxDetails:0}),bodies=r.field.filter(q=>['stratum-machinery','stratum-core'].includes(q.feature));assert.ok(bodies.length>=8);assert.ok(r.field.length<=maxField);
   for(const q of bodies){const b=projectedBox(q,patch);assert.ok((b[2]-b[0])*(b[3]-b[1])<patch.area*.18,'budget leaves a broad untouched wall region as one huge plate');}
  }
  assert.equal(C.publicJSON(ship),before);
@@ -95,10 +98,12 @@ test('a bounded field budget covers every eligible face instead of starving late
  assert.equal(C.setSurfaceConfig(ship,patches.map(p=>p.id),{functionMode:'equipment',allocation:only('cooling'),equipment:{kind:'hdis',depth:2},style:{kind:'machinery',density:.8,seed:193}}).ok,true);
  const stats=()=>{const S=C.computeStats(ship);return plain({native:functional(ship),mass:S.mass,power:S.power,crew:S.crew,sensors:S.sens,habitation:S.explicitHabitationVolume});},before=stats(),blueprint=C.publicJSON(ship),maxField=240,maxDetails=48,plan=G.surfaceVisualPlan(ship,{detail:2,maxField,maxDetails});
  const eligible=C.surfaceReport(ship).patches.filter(p=>p.config.functionMode==='equipment'&&p.exposed&&(p.exposedArea??p.area)>0);assert.equal(eligible.length,12);assert.ok(plan.reduce((n,p)=>n+(p.field?.length||0),0)<=maxField);assert.ok(plan.reduce((n,p)=>n+p.boxes.length,0)<=maxDetails);
- for(const p of eligible){const r=plan.find(q=>q.id===p.id);assert.ok(r?.field?.length>0,p.id+' was starved by earlier faces');const bounds=r.field.map(q=>projectedBox(q,r.patch)),min=r.patch._min,max=r.patch._max,width=max[0]-min[0],height=max[1]-min[1],quadrants=new Set();let covered=0;
+ for(const p of eligible){const r=plan.find(q=>q.id===p.id);assert.ok(r?.field?.length>0,p.id+' was starved by earlier faces');const bounds=r.field.map(q=>projectedBox(q,r.patch)),min=r.patch._min,max=r.patch._max,width=max[0]-min[0],height=max[1]-min[1],quadrants=new Set();
   const extent=[Math.min(...bounds.map(b=>b[0])),Math.min(...bounds.map(b=>b[1])),Math.max(...bounds.map(b=>b[2])),Math.max(...bounds.map(b=>b[3]))];assert.ok(extent[2]-extent[0]>=width*.5&&extent[3]-extent[1]>=height*.5,p.id+' field stays in one corner');
-  for(let x=0;x<8;x++)for(let y=0;y<8;y++){const u=min[0]+(x+.5)*width/8,v=min[1]+(y+.5)*height/8;if(bounds.some(b=>u>=b[0]&&u<=b[2]&&v>=b[1]&&v<=b[3])){covered++;quadrants.add((x<4?0:1)+(y<4?0:2));}}
-  assert.ok(quadrants.size>=3,p.id+' field fails to reach enough independent face regions');assert.ok(covered>=16,p.id+' budget produced only a sparse run or a corner rectangle');
+  // A layered structure deliberately contains voids. Measure long structural
+  // courses reaching independent regions, rather than mosaic-era solid fill.
+  for(const b of bounds)for(let x=0;x<2;x++)for(let y=0;y<2;y++){const a=[min[0]+x*width/2,min[1]+y*height/2,min[0]+(x+1)*width/2,min[1]+(y+1)*height/2];if(Math.min(b[2],a[2])>Math.max(b[0],a[0])+1e-5&&Math.min(b[3],a[3])>Math.max(b[1],a[1])+1e-5)quadrants.add(x+y*2);}
+  const longCourses=bounds.filter((b,i)=>r.field[i].stratum&&b[2]-b[0]>width*.5&&b[3]-b[1]<height*.12);assert.ok(longCourses.length>=3,p.id+' needs repeated connected floors across its width');assert.ok(quadrants.size>=3,p.id+' field fails to reach enough independent face regions');
  }
  assert.equal(C.publicJSON(ship),blueprint);assert.deepEqual(stats(),before,'fairer neutral distribution may not alter native IDs or functional statistics');
 });

@@ -9088,4 +9088,30 @@ Object.assign(root.KS_EN.messages,{
 "未配置の面設備を保管しています。質量と費用は維持され、能力には加算されません。": "Unplaced surface equipment is retained in storage. Its mass and cost are preserved without adding operational capability."
 });
 // </surface-face-aggregate-catalog>
+// <surface-layered-structure-catalog>
+Object.assign(root.KS_EN.messages,{
+"機材構造面": "Machinery Structure Surface",
+"機材構造面の面積配分": "Machinery Structure Area Allocation",
+"外面を選び、装甲で覆う面か機材構造面を設定します。機材構造面は薄い連続床と機材が積み重なった構造を露出させ、面全体で編集します。散熱・センサー・居住区を100%で配分し、砲列は砲座基数で別に設定します。透視で見える内部の面は選べません。": "Select an exterior surface and choose an armor cover or a machinery structure surface. A machinery structure surface exposes stacked machinery and thin continuous decks, edited as a whole face. Allocate 100% among cooling, sensors, and quarters; set battery mount counts separately. Internal surfaces revealed by X-ray view cannot be selected.",
+"面全体に、配分に応じた散熱・探知・居住機能を持たせます。薄い連続床と機材が層状に重なる外観を、比率と配置シードから生成します。設備の内部深さは機能用の容積を決める設定で、外観の凹凸の奥行きとは別に扱います。": "The whole surface provides cooling, sensing, and habitation according to its allocation. Shares and the placement seed generate layered machinery and thin continuous decks. Internal equipment depth determines functional volume, separately from the visual relief depth.",
+"構造の凹凸の奥行き（m、0＝自動）": "Structural Relief Depth (m, 0 = Auto)",
+"外観の凹凸だけを変え、設備の容積や性能には影響しません。0は構造の外形内の空間に合わせて自動調整します。同じ比率と配置シードから同じ外観を再現します。": "Changes visual relief only, without changing equipment volume or capability. Zero adjusts the depth automatically to the space inside the structure's outer envelope. The same shares and placement seed reproduce the same appearance.",
+"細部ディテール密度は、配管やグリルなどの追加装飾だけを調整します。機材構造面の機能は、100%の面積配分と有効な内部容積から計算します。": "Detail density adjusts secondary decoration such as pipes and grilles. Machinery structure capability is calculated from the 100% area allocation and usable internal volume.",
+"選択した面の用途が異なります。装甲面か機材構造面を選ぶと、共通の設定を編集できます。": "The selected surfaces have different functions. Choose an armor surface or a machinery structure surface to edit their shared settings.",
+"比率式の機材構造面へ切り替える": "Convert to Allocated Machinery Structure",
+"機材構造面の自動設定": "Automatic Machinery Structure Surfaces",
+"対象を機材構造面に一括設定": "Configure Targets as Machinery Structures",
+"機材構造面を自動設定": "Configure Machinery Structure Surfaces Automatically",
+"機材構造面を生成中…": "Generating machinery structure surfaces…",
+"機材構造面を自動設定できませんでした": "Could not configure machinery structure surfaces automatically",
+"機材構造面を自動設定できませんでした：{0}": "Could not configure machinery structure surfaces automatically: {0}"
+});
+Object.assign(root.KS_EN.messages,{
+"設備機能は有効面積・内部深さ・配分で計算します。": "Equipment capability is calculated from usable area, internal depth, and allocation shares.",
+"旧設計の設備容量を保持しています。見た目の変更では容量を変えません。機能の配分・内部深さ・散熱方式を変えるか、面積方式への更新を適用すると容量を再計算します。質量・費用・能力は適用後の表示で確認でき、元に戻す操作で戻せます。": "The legacy equipment capacity is preserved. Visual edits do not change it. Changing functional shares, internal depth, or cooling type, or applying the area-based upgrade, recalculates capacity. Review mass, cost, and capability after applying; Undo restores the previous state.",
+"面積方式へ更新": "Upgrade to Area-Based Capacity",
+"兵装・既存機材・他の面の占有範囲を保守的に予約しています": "The occupied space of weapons, existing equipment, and other surfaces is reserved conservatively.",
+"形状が複雑なため一部の面積を確保できません。面を分割すると利用範囲を増やせます": "Some area could not be reserved because of the complex shape. Splitting the surface can increase the usable region."
+});
+// </surface-layered-structure-catalog>
 })(typeof window==="undefined"?globalThis:window);

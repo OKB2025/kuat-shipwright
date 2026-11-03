@@ -14,7 +14,7 @@ function setup(){
 }
 
 test('real geometry and stats handlers reuse the returned reports without recomputing the surface report on the interface',()=>{
- const {run}=setup();run('renderPanel();localReports=0;onEngineGeometry(geometryMessage())');assert.equal(run('localReports'),0);assert.equal(run('surfaceReportForEditor()===geometryReport'),true);assert.match(run('panelHTML'),/data-surface-pick=/);assert.match(run('panelHTML'),/data-surface-action="auto-equipment" >対象を機材面に一括設定/);
+ const {run}=setup();run('renderPanel();localReports=0;onEngineGeometry(geometryMessage())');assert.equal(run('localReports'),0);assert.equal(run('surfaceReportForEditor()===geometryReport'),true);assert.match(run('panelHTML'),/data-surface-pick=/);assert.match(run('panelHTML'),/data-surface-action="auto-equipment" >対象を機材構造面に一括設定/);
  assert.equal(run('ship.surfaces?.version'),run('workerShip.surfaces.version'));assert.deepEqual(JSON.parse(run('JSON.stringify(ship.surfaces)')),JSON.parse(run('JSON.stringify(workerShip.surfaces)')),'the same current-generation adoption includes worker-compiled face data');assert.ok(run('ship.surfaces.patches.some(p=>p.aggregate)'));assert.equal(run('ship.parts.some(p=>p.surfacePatch)||ship.fits.some(f=>f.surfacePatch)'),false);
  run('onEngineStats({gen:1,stats:{surface:statsReport}})');assert.equal(run('surfaceReportForEditor()===statsReport'),true,'fresh common statistics take precedence over the earlier geometry report');assert.equal(run('localReports'),0);assert.ok(run('renders')>=2);
  run('eng.gen++;surfaceReportForEditor()');assert.equal(run('localReports'),1,'a new design generation invalidates both returned reports');

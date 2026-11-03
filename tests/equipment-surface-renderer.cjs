@@ -39,7 +39,7 @@ test('detail quality changes only bounded service subdetails and stable installe
 test('shared field and local working faces stay inside the actual patch on all six faces and rotated walls',()=>{
  for(const [face,options]of [['fore',{}],['aft',{}],['top',{}],['bottom',{}],['port',{}],['stbd',{yaw:27}]]){
   const {ship,patch}=fixture({weapons:0,cooling:34,sensors:33,habitation:33},face,options),ranges={},mesh=G.meshSurfaceLayers(ship,ranges),plan=row(ship,patch.id);assert.ok(plan.devices.length>0,face);
-  for(const p of [...plan.field,...plan.boxes,...plan.devices.flatMap(d=>d.hardware)])for(const [x,y]of [[p.bounds[0],p.bounds[1]],[p.bounds[2],p.bounds[1]],[p.bounds[2],p.bounds[3]],[p.bounds[0],p.bounds[3]]]){const point=C.add(patch.center,C.add(C.mul(patch.u,x),C.mul(patch.v,y))),hit=C.rayTris(patch.triangles,C.add(point,C.mul(patch.normal,100)),C.mul(patch.normal,-1));assert.ok(hit,face+' field footprint must remain on the semantic patch');}
+  for(const p of [...plan.field,...plan.boxes,...plan.devices.flatMap(d=>d.hardware)])for(const [x,y]of [[p.bounds[0],p.bounds[1]],[p.bounds[2],p.bounds[1]],[p.bounds[2],p.bounds[3]],[p.bounds[0],p.bounds[3]]]){const point=C.add(patch.center,C.add(C.mul(plan.frame?.u||patch.u,x),C.mul(plan.frame?.v||patch.v,y))),hit=C.rayTris(patch.triangles,C.add(point,C.mul(patch.normal,100)),C.mul(patch.normal,-1));assert.ok(hit,face+' field footprint must remain on the semantic patch');}
   assert.ok(plan.field.some(p=>p.size[0]>8),'shared courses can span simulation-cell boundaries');
  }
 });
