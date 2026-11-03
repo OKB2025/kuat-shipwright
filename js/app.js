@@ -13299,7 +13299,9 @@ function gdStyle() {
 .gnd-top{display:flex;align-items:center;gap:5px;flex-wrap:wrap;min-height:34px}.gnd-top .gnd-t{flex:1;min-width:150px}.gnd-top small{display:block;color:var(--muted);font-size:10.5px;line-height:1.25}.gnd-top .gnd-b{min-height:34px;padding:3px 8px}
 .gnd .btn{width:auto;margin:0}.gnd-b{display:inline-flex;align-items:center;justify-content:center;min-height:38px;min-width:40px;padding:4px 10px;border-radius:8px;border:1px solid #34505e;background:#12212b;color:#dbe8ee;font:inherit;font-size:12.5px;cursor:pointer}
 .gnd-b[aria-pressed=true]{background:#2a4a5c;border-color:#68c2db;color:#fff}.gnd-b.pri{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}.gnd-b:disabled{opacity:.45;cursor:default}.gnd-b.warn{border-color:#a37a2c}
-.gnd-map{position:relative;flex:1;min-height:0;border-radius:8px;overflow:hidden;background:#0b161d;touch-action:none}.gnd-map canvas{position:absolute;inset:0;width:100%;height:100%}
+.gnd-main{flex:1;min-height:0;display:flex;flex-direction:column;gap:6px}.gnd-ctl{display:flex;flex-direction:column;gap:5px;min-width:0}
+.gnd-side .gnd-main{flex-direction:row}.gnd-side .gnd-ctl{width:min(300px,38%);overflow-y:auto}.gnd-side .gnd-orders{flex-wrap:wrap}.gnd-side .gnd-units{flex-direction:column;overflow-x:hidden;overflow-y:auto;flex:1}.gnd-side .gnd-u{max-width:none;width:100%}.gnd-side .gnd-top .gnd-t small{display:none}.gnd-side .gnd-top h2{font-size:13px}
+.gnd-map{position:relative;flex:1;min-height:0;min-width:0;border-radius:8px;overflow:hidden;background:#0b161d;touch-action:none}.gnd-map canvas{position:absolute;inset:0;width:100%;height:100%}
 .gnd-banner{position:absolute;left:8px;right:8px;top:8px;padding:8px 10px;border-radius:8px;background:rgba(8,14,19,.84);border:1px solid #2b4250;font-size:12.5px;pointer-events:none}
 .gnd-drill{position:absolute;right:8px;top:8px;width:min(240px,46%);padding:6px 8px;border-radius:8px;background:rgba(8,14,19,.82);border:1px solid #2b4250;font-size:11.5px;pointer-events:none}.gnd-drill ol{margin:2px 0 0;padding-left:18px}.gnd-drill li.done{color:var(--ok);text-decoration:line-through}
 .gnd-orders{display:flex;gap:5px;overflow-x:auto;padding-bottom:2px}.gnd-units{display:flex;gap:5px;overflow-x:auto;padding-bottom:2px;min-height:44px}
@@ -13376,7 +13378,7 @@ function gdDesignRender() {
  else if (tab === 'crew') body = `<div class="gnd-grid">${inp('crew', d.crew, ...GD.VD_LIMITS.crew, 1, '乗員 (名)')}${inp('troops', d.troops, ...GD.VD_LIMITS.troops, 1, '兵員 (名)')}<label>リアクター<select data-gdf="reactorAuto"><option value="1" ${d.reactor == null ? 'selected' : ''}>自動（必要量の110%）</option><option value="0" ${d.reactor == null ? '' : 'selected'}>出力を指定</option></select></label>${d.reactor == null ? '' : inp('reactor', d.reactor, ...GD.VD_LIMITS.reactor, .1, '出力 (MW)')}<label>陣営<select data-gdf="faction"><option value="neutral">指定なし</option>${Object.entries(R.FACTIONS).map(([k, f]) => `<option value="${k}" ${d.faction === k ? 'selected' : ''}>${esc(f.name)}</option>`).join('')}</select></label></div>
   <p class="note">必要出力：駆動 ${num(s.power.drive, 1)} MW ＋ 兵装 ${num(s.power.weapons, 1)} MW ＋ シールド ${num(s.power.shield, 1)} MW。乗員0の機体はドロイド制御です。</p>`;
  else body = gdSavesHTML();
- el.innerHTML = `<header class="gnd-top"><div class="gnd-t"><h2>ウォーカー・車両設計</h2><small>${esc(GD.PLATFORMS[d.platform].name)} · ${esc(GD.DRIVES[d.drive].name)}</small></div><input type="text" data-gdf="name" value="${esc(d.name)}" maxlength="${GD.VD_LIMITS.name}" aria-label="名称" translate="no" style="flex:1;min-width:120px">
+ el.innerHTML = `<header class="gnd-top"><div class="gnd-t"><h2>ウォーカー・車両設計</h2><small>${esc(GD.PLATFORMS[d.platform].name)} · ${esc(GD.DRIVES[d.drive].name)}</small></div><input type="text" data-gdf="name" value="${esc(d.name)}" maxlength="${GD.VD_LIMITS.name}" aria-label="名称" style="flex:1;min-width:120px">
   <button type="button" class="gnd-b pri" data-gd="save">保存</button><button type="button" class="gnd-b" data-gd="try">地上戦で試す</button><button type="button" class="gnd-b" data-gd="close">閉じる</button></header>
   <div class="gnd-dz"><div style="display:flex;flex-direction:column;gap:6px;min-height:0"><div class="gnd-prev">${gdPreviewSVG(s)}</div>${gdStatsHTML(s)}</div>
   <div style="display:flex;flex-direction:column;gap:6px;min-height:0"><nav class="gnd-tabs" aria-label="設計の項目">${tabs.map(([k, n]) => `<button type="button" class="gnd-b" data-gd="tab:${k}" aria-pressed="${tab === k}">${n}</button>`).join('')}</nav><div class="gnd-body">${body}</div></div></div>`;
@@ -13425,12 +13427,16 @@ function gdBattle(cfg, opt = {}) {
  try { b = opt.battle || GD.createBattle(cfg); } catch (e) { toast(esc(e.message || '地上戦を始められません')); gdClose(); return null; }
  GV.b = b;GV.spectate = !!opt.spectate;GV.done = opt.done || null;GV.title = opt.title || '';GV.drill = !!opt.drill;GV.sel.clear();GV.cmd = 'move';GV.paused = false;GV.speed = 4;GV.z = 1;GV.pan = [0, 0];GV.resultShown = false;
  el.innerHTML = `<header class="gnd-top"><div class="gnd-t"><h2 data-gv="title"></h2><small data-gv="sub"></small></div><span data-gv="speed"></span><button type="button" class="gnd-b" data-gv="zoom" aria-label="拡大">拡大</button>${GV.spectate ? '' : '<button type="button" class="gnd-b" data-gv="auto">自動で決着</button>'}<button type="button" class="gnd-b" data-gv="quit">${GV.spectate ? '閉じる' : '終了'}</button></header>
-  <div class="gnd-map" data-gv="map"><canvas></canvas><div class="gnd-banner" data-gv="banner" hidden></div><div class="gnd-drill" data-gv="drill" hidden></div><div class="gnd-sheet" data-gv="sheet" hidden></div></div>
-  ${GV.spectate ? '<p class="note" data-gv="spec">艦隊戦の進行にあわせて自動で戦われています（観戦）。</p>' : `<div class="gnd-sel" data-gv="selinfo"></div><div class="gnd-orders" data-gv="orders"></div><div class="gnd-units" data-gv="units"></div>`}`;
+  <div class="gnd-main"><div class="gnd-map" data-gv="map"><canvas></canvas><div class="gnd-banner" data-gv="banner" hidden></div><div class="gnd-drill" data-gv="drill" hidden></div><div class="gnd-sheet" data-gv="sheet" hidden></div></div>
+  <div class="gnd-ctl">${GV.spectate ? '<p class="note" data-gv="spec">艦隊戦の進行にあわせて自動で戦われています（観戦）。</p>' : `<div class="gnd-sel" data-gv="selinfo"></div><div class="gnd-orders" data-gv="orders"></div><div class="gnd-units" data-gv="units"></div>`}</div></div>`;
+ gdLayout();
  const cv = el.querySelector('canvas');GV.ctx = I18N?.canvas ? I18N.canvas(cv.getContext('2d')) : cv.getContext('2d');
  gdBindMap(el.querySelector('[data-gv="map"]'));gdHud(true);GV.last = performance.now();cancelAnimationFrame(GV.raf);GV.raf = requestAnimationFrame(gdLoop);
  return b;
 }
+// A short screen (a phone on its side, or turned by KSRotate) puts the orders and units in a column beside the map.
+function gdLayout() { const el = GV.el;if (el) el.classList.toggle('gnd-side', window.innerHeight < 560 && window.innerWidth > window.innerHeight); }
+window.addEventListener('resize', () => { if (GV.mode === 'battle') gdLayout(); });
 function gdLoop(now) {
  const b = GV.b;if (!b || GV.mode !== 'battle') return;const dt = Math.min(.25, (now - GV.last) / 1000);GV.last = now;
  if (!GV.spectate && !GV.paused && b.phase === 'battle' && !b.result) GD.step(b, dt * GV.speed);
@@ -13535,7 +13541,8 @@ function gdTap(px, py) {
 }
 function gdBindMap(box) {
  let down = null;
- box.addEventListener('pointerdown', e => { down = {x: e.clientX, y: e.clientY, pan: [...GV.pan], moved: false}; box.setPointerCapture?.(e.pointerId); });
+ // Only the map itself takes taps and drags (the result sheet's buttons above it keep their own clicks).
+ box.addEventListener('pointerdown', e => { if (e.target.tagName !== 'CANVAS') return; down = {x: e.clientX, y: e.clientY, pan: [...GV.pan], moved: false}; if (GV.z > 1) box.setPointerCapture?.(e.pointerId); });
  box.addEventListener('pointermove', e => { if (!down) return; const dx = e.clientX - down.x, dy = e.clientY - down.y; if (Math.hypot(dx, dy) > 8) down.moved = true; if (down.moved && GV.z > 1) { GV.pan = [down.pan[0] + dx, down.pan[1] + dy]; } });
  box.addEventListener('pointerup', e => { if (!down) return; const r = box.getBoundingClientRect(), d = down; down = null; if (!d.moved) gdTap(e.clientX - r.left, e.clientY - r.top); });
  box.addEventListener('pointercancel', () => { down = null; });
