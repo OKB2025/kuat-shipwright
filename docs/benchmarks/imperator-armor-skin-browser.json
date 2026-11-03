@@ -1,0 +1,2432 @@
+{
+  "baseline": {
+    "commit": "dec1ed6662daead735909eef1e096b880b538f14",
+    "url": "http://127.0.0.1:8004",
+    "immutableArchive": "/workspace/scratch/browser/armor-baseline",
+    "sourceHashes": {
+      "js/engine.js": "2b81ddf076e73b2f0b0be2928d58e97d0200d775e2b38eb2531bcf28df72ee52",
+      "js/gfx.js": "acc2e7e0f686b63833d76d3c103ada17735f7fbfea2c5b9c68009faf3ccf81cc",
+      "js/core.js": "7e0da3bd9c8a00bf82dce1c6780094c4dae387c15db44979e9bf63fa26bf367d",
+      "js/app.js": "2a3e3331552941eef10fb917896ab781d13458daa5e5b2174471deafee86157f"
+    }
+  },
+  "final": {
+    "url": "http://127.0.0.1:8000",
+    "sourceHashes": {
+      "js/gfx.js": "d4ae5825ab9015f14a697a1b3fcf4296063a913705cbab1611afb032257f3c55",
+      "js/core.js": "7e0da3bd9c8a00bf82dce1c6780094c4dae387c15db44979e9bf63fa26bf367d",
+      "js/engine.js": "2b81ddf076e73b2f0b0be2928d58e97d0200d775e2b38eb2531bcf28df72ee52",
+      "js/app.js": "2a3e3331552941eef10fb917896ab781d13458daa5e5b2174471deafee86157f"
+    },
+    "onDiskSourceMatchesExecutedHTTP": {
+      "js/gfx.js": true,
+      "js/core.js": true,
+      "js/engine.js": true,
+      "js/app.js": true
+    }
+  },
+  "environment": {
+    "browser": "154.0.8037.57",
+    "backend": "Chromium headless WebGL1, ANGLE SwiftShader",
+    "args": [
+      "--no-sandbox",
+      "--use-angle=swiftshader",
+      "--enable-unsafe-swiftshader"
+    ],
+    "devicePixelRatio": 1,
+    "notes": [
+      "Software GPU results measure this environment; input handlers and avoided synchronous calculations are separate from hardware frame rate.",
+      "No Node tests or concurrent browser validation ran during final warmed input cases.",
+      "Trusted header click plus500ms initialized audio before measured input in both cases.",
+      "Screenshots are actual rendered canvas captures. Underbelly uses declared downward key [0.3,-0.8,-0.5] to expose armor; all other wide views use normal studio key.",
+      "Shallow armor edge relief is material shading. Physical armor thickness and geometry are unchanged."
+    ]
+  },
+  "scene": {
+    "name": "same seeded nine-part stepped wedge with sideequipment and explicit .25m armor on nine exposed top/bottom faces",
+    "fixtureSHA256": "a279cb45e68c2a1948d624106ee8ab53c5b83b276ab38dcea37cd2c404a83108",
+    "sourceFixtureIdentical": true,
+    "fixture": {
+      "armorFaces": 9,
+      "armorConfigOK": true,
+      "parts": 9,
+      "equipmentFaces": 27,
+      "configOK": true
+    },
+    "nativePartsBefore": 9,
+    "nativePartsAfter": 9,
+    "nativeFitsBefore": 0,
+    "nativeFitsAfter": 0,
+    "nativeIds": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "totalTrianglesBefore": 111407,
+    "totalTrianglesAfter": 111407,
+    "bufferChecks": [
+      {
+        "name": "hull",
+        "baseline": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "final": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "positionIdentical": true,
+        "normalIdentical": true,
+        "indexIdentical": true,
+        "uvIdentical": true,
+        "colorBufferIdentical": true
+      },
+      {
+        "name": "refHull",
+        "baseline": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "final": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "positionIdentical": true,
+        "normalIdentical": true,
+        "indexIdentical": true,
+        "uvIdentical": true,
+        "colorBufferIdentical": true
+      },
+      {
+        "name": "keel",
+        "baseline": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "final": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "positionIdentical": true,
+        "normalIdentical": true,
+        "indexIdentical": true,
+        "uvIdentical": true,
+        "colorBufferIdentical": true
+      },
+      {
+        "name": "struct",
+        "baseline": {
+          "vertices": 11312,
+          "triangles": 4120
+        },
+        "final": {
+          "vertices": 11312,
+          "triangles": 4120
+        },
+        "positionIdentical": true,
+        "normalIdentical": true,
+        "indexIdentical": true,
+        "uvIdentical": true,
+        "colorBufferIdentical": false
+      },
+      {
+        "name": "plate",
+        "baseline": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "final": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "positionIdentical": true,
+        "normalIdentical": true,
+        "indexIdentical": true,
+        "uvIdentical": true,
+        "colorBufferIdentical": true
+      },
+      {
+        "name": "gen",
+        "baseline": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "final": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "positionIdentical": true,
+        "normalIdentical": true,
+        "indexIdentical": true,
+        "uvIdentical": true,
+        "colorBufferIdentical": true
+      },
+      {
+        "name": "shield",
+        "baseline": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "final": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "positionIdentical": true,
+        "normalIdentical": true,
+        "indexIdentical": true,
+        "uvIdentical": true,
+        "colorBufferIdentical": true
+      },
+      {
+        "name": "hyper",
+        "baseline": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "final": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "positionIdentical": true,
+        "normalIdentical": true,
+        "indexIdentical": true,
+        "uvIdentical": true,
+        "colorBufferIdentical": true
+      },
+      {
+        "name": "interior",
+        "baseline": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "final": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "positionIdentical": true,
+        "normalIdentical": true,
+        "indexIdentical": true,
+        "uvIdentical": true,
+        "colorBufferIdentical": true
+      },
+      {
+        "name": "engine",
+        "baseline": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "final": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "positionIdentical": true,
+        "normalIdentical": true,
+        "indexIdentical": true,
+        "uvIdentical": true,
+        "colorBufferIdentical": true
+      },
+      {
+        "name": "plant",
+        "baseline": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "final": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "positionIdentical": true,
+        "normalIdentical": true,
+        "indexIdentical": true,
+        "uvIdentical": true,
+        "colorBufferIdentical": true
+      },
+      {
+        "name": "nozzle",
+        "baseline": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "final": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "positionIdentical": true,
+        "normalIdentical": true,
+        "indexIdentical": true,
+        "uvIdentical": true,
+        "colorBufferIdentical": true
+      },
+      {
+        "name": "hangar",
+        "baseline": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "final": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "positionIdentical": true,
+        "normalIdentical": true,
+        "indexIdentical": true,
+        "uvIdentical": true,
+        "colorBufferIdentical": true
+      },
+      {
+        "name": "refStruct",
+        "baseline": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "final": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "positionIdentical": true,
+        "normalIdentical": true,
+        "indexIdentical": true,
+        "uvIdentical": true,
+        "colorBufferIdentical": true
+      },
+      {
+        "name": "refEngine",
+        "baseline": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "final": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "positionIdentical": true,
+        "normalIdentical": true,
+        "indexIdentical": true,
+        "uvIdentical": true,
+        "colorBufferIdentical": true
+      },
+      {
+        "name": "refPlant",
+        "baseline": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "final": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "positionIdentical": true,
+        "normalIdentical": true,
+        "indexIdentical": true,
+        "uvIdentical": true,
+        "colorBufferIdentical": true
+      },
+      {
+        "name": "surfaceArmor",
+        "baseline": {
+          "vertices": 20209,
+          "triangles": 6969
+        },
+        "final": {
+          "vertices": 20209,
+          "triangles": 6969
+        },
+        "positionIdentical": true,
+        "normalIdentical": true,
+        "indexIdentical": true,
+        "uvIdentical": true,
+        "colorBufferIdentical": false
+      },
+      {
+        "name": "surfaceDevices",
+        "baseline": {
+          "vertices": 289532,
+          "triangles": 99716
+        },
+        "final": {
+          "vertices": 289532,
+          "triangles": 99716
+        },
+        "positionIdentical": true,
+        "normalIdentical": true,
+        "indexIdentical": true,
+        "uvIdentical": true,
+        "colorBufferIdentical": false
+      },
+      {
+        "name": "surfaceDetail",
+        "baseline": {
+          "vertices": 1204,
+          "triangles": 602
+        },
+        "final": {
+          "vertices": 1204,
+          "triangles": 602
+        },
+        "positionIdentical": true,
+        "normalIdentical": true,
+        "indexIdentical": true,
+        "uvIdentical": true,
+        "colorBufferIdentical": false
+      },
+      {
+        "name": "hatchOpen",
+        "baseline": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "final": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "positionIdentical": true,
+        "normalIdentical": true,
+        "indexIdentical": true,
+        "uvIdentical": true,
+        "colorBufferIdentical": true
+      },
+      {
+        "name": "hatchRay",
+        "baseline": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "final": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "positionIdentical": true,
+        "normalIdentical": true,
+        "indexIdentical": true,
+        "uvIdentical": true,
+        "colorBufferIdentical": true
+      },
+      {
+        "name": "refHatches",
+        "baseline": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "final": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "positionIdentical": true,
+        "normalIdentical": true,
+        "indexIdentical": true,
+        "uvIdentical": true,
+        "colorBufferIdentical": true
+      },
+      {
+        "name": "fits",
+        "baseline": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "final": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "positionIdentical": true,
+        "normalIdentical": true,
+        "indexIdentical": true,
+        "uvIdentical": true,
+        "colorBufferIdentical": true
+      },
+      {
+        "name": "refFits",
+        "baseline": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "final": {
+          "vertices": 0,
+          "triangles": 0
+        },
+        "positionIdentical": true,
+        "normalIdentical": true,
+        "indexIdentical": true,
+        "uvIdentical": true,
+        "colorBufferIdentical": true
+      }
+    ],
+    "geometryHashes": {
+      "baseline": {
+        "hull": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "refHull": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "keel": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "struct": {
+          "pos": "6588df4d9c00cd58fac0f8f9e94a7171bd4a2a28cca3b979a43679ee9268a0cc",
+          "nor": "991816f9444bdb1c0459219113248cfe5d121bec695d325bf020f4679d106d0b",
+          "uv": "49d4dcaba79f62bedc2b131888af8ce771aa5e22e2f08b18387822e6ae92a42d",
+          "col": "23995ea4ab7cab484c59fc873f249dd75de206e4d3ed53be7fc1c922232c04df",
+          "idx": "913cfc01cf784347925a4255521b47bed4c676996d1f9ece63178b5f5d9f3618"
+        },
+        "plate": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "gen": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "shield": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "hyper": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "interior": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "engine": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "plant": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "nozzle": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "hangar": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "refStruct": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "refEngine": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "refPlant": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "surfaceArmor": {
+          "pos": "c38d70be6d3d16ec6835f003698d117d19274600b9f71cc0063cb35dc748ab65",
+          "nor": "513bce5e05bd017367baf3e1292ada95ea605eb908bf97874edfa4fd8e888183",
+          "uv": "c42b0c248855e1de41706751e74fb96f9dc233994caab3140bb4d8ec3f02a4f5",
+          "col": "9efed66a4740e64d44f3293412f84c418f89feded9fbf7162a1de4c7e1309cb7",
+          "idx": "237f0a95f836de41851e137a19835cc6fe31e1692dde33d48f69058e96efc337"
+        },
+        "surfaceDevices": {
+          "pos": "e1bea42560cffe337277baf797a88e13064add4d9de152f237bed5506b378db7",
+          "nor": "a9e85df25abdd738dc2def34ef4ed50099273ac3d4a860ab73fcf6356d4690d3",
+          "uv": "57f2eac9edfe1bc76f5ad1d0a4fe5615b2d7a679d769a4369d11b4b622a8f4ed",
+          "col": "1186e61210fb5e9485357ece0c6f1cd907f33e2b46d5c493bf6df9ae3593980b",
+          "idx": "6b4b099a0e0695b6e40a1b03df959fa3c8ae7345c8c48b4ee51993db649bbd0f"
+        },
+        "surfaceDetail": {
+          "pos": "71ba0b6d8534afdafb73895eef5eba59f2d69aaadc114b90c7c16ba94a29acb9",
+          "nor": "3a02c080e726c0ac8e221acdbdf620f0bfcc74f716419902eee7c9a7be99a297",
+          "uv": "453c6f16d0bd76656cfc08ef038767fdf3fd53871f898813935cc6afe982ec3b",
+          "col": "a6a0912fd1b6edf24952e16efe9e18380c0b8a102407819ff9660cd8aff7e64f",
+          "idx": "d525f621e7d918f79f7d326eeadf3e0912a52ab12dc344fc3cc5c16d0b5dffd6"
+        },
+        "hatchOpen": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "hatchRay": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "refHatches": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "fits": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "refFits": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      "final": {
+        "hull": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "refHull": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "keel": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "struct": {
+          "pos": "6588df4d9c00cd58fac0f8f9e94a7171bd4a2a28cca3b979a43679ee9268a0cc",
+          "nor": "991816f9444bdb1c0459219113248cfe5d121bec695d325bf020f4679d106d0b",
+          "uv": "49d4dcaba79f62bedc2b131888af8ce771aa5e22e2f08b18387822e6ae92a42d",
+          "col": "7e1c55d849d3d0673fdbb114c4f9b23ddebac951522d9878d99e18d1c261ad48",
+          "idx": "913cfc01cf784347925a4255521b47bed4c676996d1f9ece63178b5f5d9f3618"
+        },
+        "plate": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "gen": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "shield": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "hyper": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "interior": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "engine": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "plant": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "nozzle": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "hangar": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "refStruct": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "refEngine": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "refPlant": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "surfaceArmor": {
+          "pos": "c38d70be6d3d16ec6835f003698d117d19274600b9f71cc0063cb35dc748ab65",
+          "nor": "513bce5e05bd017367baf3e1292ada95ea605eb908bf97874edfa4fd8e888183",
+          "uv": "c42b0c248855e1de41706751e74fb96f9dc233994caab3140bb4d8ec3f02a4f5",
+          "col": "812b8a62b7ccf98cd79e938e168b4ce3f431861123a60ddf113b3ca4c02f3662",
+          "idx": "237f0a95f836de41851e137a19835cc6fe31e1692dde33d48f69058e96efc337"
+        },
+        "surfaceDevices": {
+          "pos": "e1bea42560cffe337277baf797a88e13064add4d9de152f237bed5506b378db7",
+          "nor": "a9e85df25abdd738dc2def34ef4ed50099273ac3d4a860ab73fcf6356d4690d3",
+          "uv": "57f2eac9edfe1bc76f5ad1d0a4fe5615b2d7a679d769a4369d11b4b622a8f4ed",
+          "col": "27f9e949cfc022322b0b899b02d548e244ea693bbbe6e94d893cffcf8d77158a",
+          "idx": "6b4b099a0e0695b6e40a1b03df959fa3c8ae7345c8c48b4ee51993db649bbd0f"
+        },
+        "surfaceDetail": {
+          "pos": "71ba0b6d8534afdafb73895eef5eba59f2d69aaadc114b90c7c16ba94a29acb9",
+          "nor": "3a02c080e726c0ac8e221acdbdf620f0bfcc74f716419902eee7c9a7be99a297",
+          "uv": "453c6f16d0bd76656cfc08ef038767fdf3fd53871f898813935cc6afe982ec3b",
+          "col": "b5fd981e6637b8c6049b09bb6ce0fd986c4041cb4155540d3cb6ad66a38bedc2",
+          "idx": "d525f621e7d918f79f7d326eeadf3e0912a52ab12dc344fc3cc5c16d0b5dffd6"
+        },
+        "hatchOpen": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "hatchRay": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "refHatches": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "fits": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "refFits": {
+          "pos": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "nor": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "uv": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "col": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "idx": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    }
+  },
+  "visualAssessment": {
+    "result": "Broad multi-scale plates with long and notched/L-shaped seams replace fine uniform grid. Gray variation and narrow highlighted/recessed edges are visible on deck, underside and inclined/vertical faces. No black tile blocks or false diagonal moire network seen in the chosen grazing images at either resolution.",
+    "grazingVariants": [
+      {
+        "tag": "armor-final",
+        "viewport": {
+          "width": 1440,
+          "height": 960
+        },
+        "webgl": {
+          "canvasWidth": 1440,
+          "canvasHeight": 960,
+          "derivatives": true,
+          "error": 0,
+          "shaderChecks": [
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            }
+          ]
+        },
+        "noDerivatives": false,
+        "fixtureSHA256": "a279cb45e68c2a1948d624106ee8ab53c5b83b276ab38dcea37cd2c404a83108",
+        "sourceHashes": {
+          "js/gfx.js": "d4ae5825ab9015f14a697a1b3fcf4296063a913705cbab1611afb032257f3c55",
+          "js/core.js": "7e0da3bd9c8a00bf82dce1c6780094c4dae387c15db44979e9bf63fa26bf367d",
+          "js/engine.js": "2b81ddf076e73b2f0b0be2928d58e97d0200d775e2b38eb2531bcf28df72ee52",
+          "js/app.js": "2a3e3331552941eef10fb917896ab781d13458daa5e5b2174471deafee86157f"
+        },
+        "errors": [],
+        "images": [
+          "armor-final-overview.png",
+          "armor-final-topdeck.png",
+          "armor-final-top-grazing.png",
+          "armor-final-underside.png",
+          "armor-final-slope.png",
+          "armor-final-machinery.png"
+        ]
+      },
+      {
+        "tag": "armor-final-half",
+        "viewport": {
+          "width": 720,
+          "height": 480
+        },
+        "webgl": {
+          "canvasWidth": 720,
+          "canvasHeight": 480,
+          "derivatives": true,
+          "error": 0,
+          "shaderChecks": [
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            }
+          ]
+        },
+        "noDerivatives": false,
+        "fixtureSHA256": "a279cb45e68c2a1948d624106ee8ab53c5b83b276ab38dcea37cd2c404a83108",
+        "sourceHashes": {
+          "js/gfx.js": "d4ae5825ab9015f14a697a1b3fcf4296063a913705cbab1611afb032257f3c55",
+          "js/engine.js": "2b81ddf076e73b2f0b0be2928d58e97d0200d775e2b38eb2531bcf28df72ee52",
+          "js/core.js": "7e0da3bd9c8a00bf82dce1c6780094c4dae387c15db44979e9bf63fa26bf367d",
+          "js/app.js": "2a3e3331552941eef10fb917896ab781d13458daa5e5b2174471deafee86157f"
+        },
+        "errors": [],
+        "images": [
+          "armor-final-half-top-grazing.png",
+          "armor-final-half-slope.png"
+        ]
+      },
+      {
+        "tag": "armor-final-fallback",
+        "viewport": {
+          "width": 1440,
+          "height": 960
+        },
+        "webgl": {
+          "canvasWidth": 1440,
+          "canvasHeight": 960,
+          "derivatives": false,
+          "error": 0,
+          "shaderChecks": [
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            }
+          ]
+        },
+        "noDerivatives": true,
+        "fixtureSHA256": "a279cb45e68c2a1948d624106ee8ab53c5b83b276ab38dcea37cd2c404a83108",
+        "sourceHashes": {
+          "js/gfx.js": "d4ae5825ab9015f14a697a1b3fcf4296063a913705cbab1611afb032257f3c55",
+          "js/core.js": "7e0da3bd9c8a00bf82dce1c6780094c4dae387c15db44979e9bf63fa26bf367d",
+          "js/engine.js": "2b81ddf076e73b2f0b0be2928d58e97d0200d775e2b38eb2531bcf28df72ee52",
+          "js/app.js": "2a3e3331552941eef10fb917896ab781d13458daa5e5b2174471deafee86157f"
+        },
+        "errors": [],
+        "images": [
+          "armor-final-fallback-top-grazing.png",
+          "armor-final-fallback-slope.png"
+        ]
+      },
+      {
+        "tag": "armor-final-fallback-half",
+        "viewport": {
+          "width": 720,
+          "height": 480
+        },
+        "webgl": {
+          "canvasWidth": 720,
+          "canvasHeight": 480,
+          "derivatives": false,
+          "error": 0,
+          "shaderChecks": [
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            },
+            {
+              "ok": true,
+              "log": ""
+            }
+          ]
+        },
+        "noDerivatives": true,
+        "fixtureSHA256": "a279cb45e68c2a1948d624106ee8ab53c5b83b276ab38dcea37cd2c404a83108",
+        "sourceHashes": {
+          "js/gfx.js": "d4ae5825ab9015f14a697a1b3fcf4296063a913705cbab1611afb032257f3c55",
+          "js/engine.js": "2b81ddf076e73b2f0b0be2928d58e97d0200d775e2b38eb2531bcf28df72ee52",
+          "js/core.js": "7e0da3bd9c8a00bf82dce1c6780094c4dae387c15db44979e9bf63fa26bf367d",
+          "js/app.js": "2a3e3331552941eef10fb917896ab781d13458daa5e5b2174471deafee86157f"
+        },
+        "errors": [],
+        "images": [
+          "armor-final-fallback-half-top-grazing.png",
+          "armor-final-fallback-half-slope.png"
+        ]
+      }
+    ],
+    "mainErrors": [],
+    "controlsErrors": []
+  },
+  "materialControls": {
+    "controls": [
+      {
+        "kind": "armor",
+        "coded": false,
+        "nativeParts": 1,
+        "nativeFits": 0,
+        "fixtureSHA256": "07deaf0286b31f7b3526233076d1def781da3d5dd6c6c8581b41f2ea9dddf2f1",
+        "fixtureIdentical": true,
+        "geometryCountsIdentical": true,
+        "glError": 0,
+        "unlitSamples": [
+          [
+            139,
+            143,
+            147,
+            255
+          ],
+          [
+            144,
+            149,
+            152,
+            255
+          ],
+          [
+            150,
+            154,
+            157,
+            255
+          ],
+          [
+            139,
+            143,
+            146,
+            255
+          ],
+          [
+            132,
+            135,
+            138,
+            255
+          ],
+          [
+            138,
+            142,
+            145,
+            255
+          ],
+          [
+            139,
+            143,
+            146,
+            255
+          ],
+          [
+            145,
+            149,
+            152,
+            255
+          ],
+          [
+            139,
+            143,
+            146,
+            255
+          ],
+          [
+            144,
+            148,
+            151,
+            255
+          ],
+          [
+            141,
+            146,
+            149,
+            255
+          ],
+          [
+            147,
+            151,
+            155,
+            255
+          ],
+          [
+            146,
+            150,
+            153,
+            255
+          ],
+          [
+            138,
+            142,
+            145,
+            255
+          ],
+          [
+            149,
+            153,
+            157,
+            255
+          ]
+        ],
+        "unlitPixelMaxDifference": 13,
+        "medianRedGreenRatio": 0.972027972027972,
+        "medianGreenBlueRatio": 0.9794520547945206
+      },
+      {
+        "kind": "inclined",
+        "coded": false,
+        "nativeParts": 1,
+        "nativeFits": 0,
+        "fixtureSHA256": "afb15e1dd24e85eea0c09ac619e47a4d1228c9d66bc86b5b5a72f82e5dcf9713",
+        "fixtureIdentical": true,
+        "geometryCountsIdentical": true,
+        "glError": 0,
+        "unlitSamples": [
+          [
+            136,
+            140,
+            143,
+            255
+          ],
+          [
+            139,
+            143,
+            147,
+            255
+          ],
+          [
+            144,
+            148,
+            152,
+            255
+          ],
+          [
+            142,
+            146,
+            149,
+            255
+          ],
+          [
+            139,
+            143,
+            147,
+            255
+          ],
+          [
+            146,
+            150,
+            153,
+            255
+          ],
+          [
+            141,
+            145,
+            149,
+            255
+          ],
+          [
+            137,
+            141,
+            144,
+            255
+          ],
+          [
+            141,
+            146,
+            149,
+            255
+          ],
+          [
+            132,
+            135,
+            138,
+            255
+          ],
+          [
+            137,
+            141,
+            144,
+            255
+          ],
+          [
+            144,
+            148,
+            152,
+            255
+          ],
+          [
+            145,
+            149,
+            152,
+            255
+          ],
+          [
+            149,
+            153,
+            157,
+            255
+          ],
+          [
+            144,
+            148,
+            152,
+            255
+          ]
+        ],
+        "unlitPixelMaxDifference": 13,
+        "medianRedGreenRatio": 0.9726027397260274,
+        "medianGreenBlueRatio": 0.9782608695652174
+      },
+      {
+        "kind": "plate",
+        "coded": false,
+        "nativeParts": 1,
+        "nativeFits": 0,
+        "fixtureSHA256": "cf318444aaaa877ec15c4d818b83ef9115c354f1da30fe21d624b4e228a18c0e",
+        "fixtureIdentical": true,
+        "geometryCountsIdentical": true,
+        "glError": 0,
+        "unlitSamples": [
+          [
+            144,
+            148,
+            152,
+            255
+          ],
+          [
+            146,
+            150,
+            153,
+            255
+          ],
+          [
+            139,
+            143,
+            147,
+            255
+          ],
+          [
+            144,
+            148,
+            152,
+            255
+          ],
+          [
+            145,
+            149,
+            152,
+            255
+          ],
+          [
+            148,
+            153,
+            156,
+            255
+          ],
+          [
+            139,
+            143,
+            146,
+            255
+          ],
+          [
+            137,
+            141,
+            144,
+            255
+          ],
+          [
+            142,
+            146,
+            149,
+            255
+          ],
+          [
+            139,
+            143,
+            146,
+            255
+          ],
+          [
+            141,
+            145,
+            149,
+            255
+          ],
+          [
+            148,
+            152,
+            155,
+            255
+          ],
+          [
+            146,
+            150,
+            153,
+            255
+          ],
+          [
+            141,
+            145,
+            149,
+            255
+          ],
+          [
+            148,
+            152,
+            155,
+            255
+          ]
+        ],
+        "unlitPixelMaxDifference": 8,
+        "medianRedGreenRatio": 0.9726027397260274,
+        "medianGreenBlueRatio": 0.9794520547945206
+      },
+      {
+        "kind": "paint",
+        "coded": false,
+        "nativeParts": 1,
+        "nativeFits": 0,
+        "fixtureSHA256": "96ef442c1ae3ee326f015a9a639f8da60034b53af49093d3d1ac15cf6b21b271",
+        "fixtureIdentical": true,
+        "geometryCountsIdentical": true,
+        "glError": 0,
+        "unlitSamples": [
+          [
+            143,
+            59,
+            43,
+            255
+          ],
+          [
+            148,
+            62,
+            44,
+            255
+          ],
+          [
+            153,
+            64,
+            46,
+            255
+          ],
+          [
+            142,
+            59,
+            43,
+            255
+          ],
+          [
+            139,
+            58,
+            42,
+            255
+          ],
+          [
+            141,
+            59,
+            42,
+            255
+          ],
+          [
+            142,
+            59,
+            43,
+            255
+          ],
+          [
+            148,
+            62,
+            44,
+            255
+          ],
+          [
+            142,
+            59,
+            43,
+            255
+          ],
+          [
+            147,
+            61,
+            44,
+            255
+          ],
+          [
+            145,
+            60,
+            43,
+            255
+          ],
+          [
+            150,
+            63,
+            45,
+            255
+          ],
+          [
+            149,
+            62,
+            45,
+            255
+          ],
+          [
+            146,
+            61,
+            44,
+            255
+          ],
+          [
+            152,
+            64,
+            46,
+            255
+          ]
+        ],
+        "unlitPixelMaxDifference": 11,
+        "medianRedGreenRatio": 2.396551724137931,
+        "medianGreenBlueRatio": 1.3863636363636365
+      },
+      {
+        "kind": "coded",
+        "coded": true,
+        "nativeParts": 1,
+        "nativeFits": 0,
+        "fixtureSHA256": "cf318444aaaa877ec15c4d818b83ef9115c354f1da30fe21d624b4e228a18c0e",
+        "fixtureIdentical": true,
+        "geometryCountsIdentical": true,
+        "glError": 0,
+        "unlitSamples": [
+          [
+            73,
+            101,
+            131,
+            255
+          ],
+          [
+            73,
+            102,
+            132,
+            255
+          ],
+          [
+            75,
+            104,
+            135,
+            255
+          ],
+          [
+            75,
+            104,
+            135,
+            255
+          ],
+          [
+            75,
+            104,
+            135,
+            255
+          ],
+          [
+            74,
+            103,
+            134,
+            255
+          ],
+          [
+            64,
+            90,
+            116,
+            255
+          ],
+          [
+            73,
+            101,
+            131,
+            255
+          ],
+          [
+            74,
+            103,
+            133,
+            255
+          ],
+          [
+            75,
+            104,
+            135,
+            255
+          ],
+          [
+            76,
+            105,
+            137,
+            255
+          ],
+          [
+            74,
+            102,
+            133,
+            255
+          ],
+          [
+            75,
+            104,
+            135,
+            255
+          ],
+          [
+            69,
+            96,
+            124,
+            255
+          ],
+          [
+            75,
+            104,
+            135,
+            255
+          ]
+        ],
+        "unlitPixelMaxDifference": 15,
+        "medianRedGreenRatio": 0.7211538461538461,
+        "medianGreenBlueRatio": 0.7703703703703704
+      },
+      {
+        "kind": "solar",
+        "coded": false,
+        "nativeParts": 1,
+        "nativeFits": 0,
+        "fixtureSHA256": "051f0491c559666dac22867c453421bf9ef9b6dd881c9f58c5280be2ad2d2c34",
+        "fixtureIdentical": true,
+        "geometryCountsIdentical": true,
+        "glError": 0,
+        "unlitSamples": [
+          [
+            29,
+            36,
+            47,
+            255
+          ],
+          [
+            129,
+            135,
+            142,
+            255
+          ],
+          [
+            29,
+            35,
+            47,
+            255
+          ],
+          [
+            28,
+            35,
+            46,
+            255
+          ],
+          [
+            29,
+            35,
+            47,
+            255
+          ],
+          [
+            28,
+            35,
+            46,
+            255
+          ],
+          [
+            29,
+            36,
+            47,
+            255
+          ],
+          [
+            129,
+            135,
+            142,
+            255
+          ],
+          [
+            29,
+            35,
+            47,
+            255
+          ],
+          [
+            29,
+            35,
+            47,
+            255
+          ],
+          [
+            29,
+            36,
+            47,
+            255
+          ],
+          [
+            28,
+            35,
+            46,
+            255
+          ],
+          [
+            29,
+            35,
+            47,
+            255
+          ],
+          [
+            29,
+            35,
+            47,
+            255
+          ],
+          [
+            29,
+            36,
+            47,
+            255
+          ]
+        ],
+        "unlitPixelMaxDifference": 0,
+        "medianRedGreenRatio": 0.8285714285714286,
+        "medianGreenBlueRatio": 0.7608695652173914
+      },
+      {
+        "kind": "machinery",
+        "coded": false,
+        "nativeParts": 1,
+        "nativeFits": 0,
+        "fixtureSHA256": "1f20ad45c6f51e1b3786dcc1635e9a3a92f069d3957f8c1ed0893365d62be902",
+        "fixtureIdentical": true,
+        "geometryCountsIdentical": true,
+        "glError": 0,
+        "unlitSamples": [
+          [
+            148,
+            152,
+            155,
+            255
+          ],
+          [
+            96,
+            98,
+            100,
+            255
+          ],
+          [
+            104,
+            107,
+            109,
+            255
+          ],
+          [
+            148,
+            152,
+            155,
+            255
+          ],
+          [
+            85,
+            88,
+            90,
+            255
+          ],
+          [
+            104,
+            107,
+            109,
+            255
+          ],
+          [
+            174,
+            179,
+            183,
+            255
+          ],
+          [
+            146,
+            150,
+            153,
+            255
+          ],
+          [
+            104,
+            107,
+            109,
+            255
+          ],
+          [
+            174,
+            179,
+            183,
+            255
+          ],
+          [
+            167,
+            172,
+            176,
+            255
+          ],
+          [
+            87,
+            89,
+            91,
+            255
+          ],
+          [
+            174,
+            179,
+            183,
+            255
+          ],
+          [
+            165,
+            169,
+            173,
+            255
+          ],
+          [
+            87,
+            89,
+            91,
+            255
+          ]
+        ],
+        "unlitPixelMaxDifference": 0,
+        "medianRedGreenRatio": 0.9720670391061452,
+        "medianGreenBlueRatio": 0.9781420765027322
+      }
+    ],
+    "solarScreenshotByteIdentical": true,
+    "machineryInteriorPixels": {
+      "region": "inner200x60m of240x80m equipmentface (generatedgeometrycontrol)",
+      "pixels": 102429,
+      "pixelsChanged": 0,
+      "pixelsChangedOverOne": 0,
+      "maxChannelDifference": 0,
+      "meanChannelDifference": 0,
+      "maskPolygon": [
+        [
+          873.6722545322496,
+          325.25698787102596
+        ],
+        [
+          298.7377196019565,
+          300.8514750518374
+        ],
+        [
+          290.4149071097112,
+          484.55121763219034
+        ],
+        [
+          880.5231087138774,
+          492.3230495570352
+        ]
+      ]
+    },
+    "scopeProbes": {
+      "surfaceArmor-252": {
+        "sha256": "de6f3e0f5a2a8bb15b8cb2f7f2fb1be98ee2816a001898183f0bc55dc0839dce",
+        "centerRGBA": [
+          150,
+          62,
+          45,
+          255
+        ],
+        "baselinePixelSHA256": "2f7c6eecd544a467a2ac32abb140e140f0df50853ff5b2563cad139af0eb0b0f",
+        "identical": false
+      },
+      "surfaceDevices-253": {
+        "sha256": "96a8aeecf9b062ea34f2eccd4e34219d4aebf4834cb725fd692fbed989d9cc90",
+        "centerRGBA": [
+          180,
+          75,
+          54,
+          255
+        ],
+        "baselinePixelSHA256": "96a8aeecf9b062ea34f2eccd4e34219d4aebf4834cb725fd692fbed989d9cc90",
+        "identical": true
+      },
+      "struct-254": {
+        "sha256": "3335f3ca70f42d13d807d69f7b65c0d87a234c4f6b8de50a07fdfa723a1e2da9",
+        "centerRGBA": [
+          153,
+          64,
+          46,
+          255
+        ],
+        "baselinePixelSHA256": "3335f3ca70f42d13d807d69f7b65c0d87a234c4f6b8de50a07fdfa723a1e2da9",
+        "identical": true
+      },
+      "refHull-255": {
+        "sha256": "51e5f533ce857c1e31790089a67c9a62f8dd1c09837d67168d5e467814cd405f",
+        "centerRGBA": [
+          214,
+          87,
+          62,
+          255
+        ],
+        "baselinePixelSHA256": "51e5f533ce857c1e31790089a67c9a62f8dd1c09837d67168d5e467814cd405f",
+        "identical": true
+      },
+      "gen-255": {
+        "sha256": "bd8b7ab2287297d46c2ac65d6dcba9766cf4aebb13f93240bcb460afc0014f65",
+        "centerRGBA": [
+          142,
+          59,
+          43,
+          255
+        ],
+        "baselinePixelSHA256": "bd8b7ab2287297d46c2ac65d6dcba9766cf4aebb13f93240bcb460afc0014f65",
+        "identical": true
+      }
+    },
+    "scopeNotes": [
+      "Actual imported-reference, solar, habitation and instrument probe images are byte-identical.",
+      "Byte252 newly reserves machinery backing/reveals, intentionally excluding these from armor. The artificial upward byte252 baseline probe uses a formerly unused marker and differs; actual generated machinery fixture remains pixel-identical inside its face.",
+      "Custom paint and coded plate palette retain their RGB hue ratios while grayscale armor material changes local brightness."
+    ],
+    "customPaintRGB": [
+      180,
+      75,
+      54
+    ],
+    "codedPlateRGB": [
+      92,
+      128,
+      166
+    ],
+    "actualWebGLInvariance": {
+      "alternateTriangulation": {
+        "pixels": 209655,
+        "changedOverOne": 0,
+        "maxChannelDifference": 1,
+        "meanChannelDifference": 0.0038619001057292536,
+        "interior": {
+          "pixels": 204987,
+          "changedOverOne": 0,
+          "maxChannelDifference": 1,
+          "meanChannelDifference": 0.003946591735085639
+        }
+      },
+      "semanticSubdivision": {
+        "pixels": 209672,
+        "changedOverOne": 17,
+        "maxChannelDifference": 143,
+        "meanChannelDifference": 0.011519579788113498,
+        "interior": {
+          "pixels": 204987,
+          "changedOverOne": 0,
+          "maxChannelDifference": 1,
+          "meanChannelDifference": 0.005574337234393726
+        }
+      },
+      "fleetVsNative": {
+        "pixels": 209655,
+        "changedOverOne": 0,
+        "maxChannelDifference": 0,
+        "meanChannelDifference": 0,
+        "interior": {
+          "pixels": 204987,
+          "changedOverOne": 0,
+          "maxChannelDifference": 0,
+          "meanChannelDifference": 0
+        }
+      },
+      "fleetRotation60": {
+        "pixels": 209655,
+        "changedOverOne": 0,
+        "maxChannelDifference": 0,
+        "meanChannelDifference": 0,
+        "interior": {
+          "pixels": 204987,
+          "changedOverOne": 0,
+          "maxChannelDifference": 0,
+          "meanChannelDifference": 0
+        }
+      },
+      "scope": {
+        "surfaceArmor-252": {
+          "sha256": "de6f3e0f5a2a8bb15b8cb2f7f2fb1be98ee2816a001898183f0bc55dc0839dce",
+          "centerRGBA": [
+            150,
+            62,
+            45,
+            255
+          ]
+        },
+        "surfaceDevices-253": {
+          "sha256": "96a8aeecf9b062ea34f2eccd4e34219d4aebf4834cb725fd692fbed989d9cc90",
+          "centerRGBA": [
+            180,
+            75,
+            54,
+            255
+          ]
+        },
+        "struct-254": {
+          "sha256": "3335f3ca70f42d13d807d69f7b65c0d87a234c4f6b8de50a07fdfa723a1e2da9",
+          "centerRGBA": [
+            153,
+            64,
+            46,
+            255
+          ]
+        },
+        "refHull-255": {
+          "sha256": "51e5f533ce857c1e31790089a67c9a62f8dd1c09837d67168d5e467814cd405f",
+          "centerRGBA": [
+            214,
+            87,
+            62,
+            255
+          ]
+        },
+        "gen-255": {
+          "sha256": "bd8b7ab2287297d46c2ac65d6dcba9766cf4aebb13f93240bcb460afc0014f65",
+          "centerRGBA": [
+            142,
+            59,
+            43,
+            255
+          ]
+        }
+      },
+      "glError": 0,
+      "derivatives": true
+    },
+    "errors": []
+  },
+  "interactions": {
+    "slider": {
+      "fixture": {
+        "parts": 32,
+        "faces": 32,
+        "ok": true
+      },
+      "mode": "worker",
+      "handlerMs": {
+        "median": 0.8999999985098839,
+        "max": 7.700000002980232,
+        "samples": [
+          7.700000002980232,
+          0.6999999992549419,
+          1.300000000745058,
+          0.8000000007450581,
+          1.2999999970197678,
+          0.8999999985098839,
+          0.9000000022351742,
+          0.8999999985098839,
+          0.8000000007450581,
+          0.8999999985098839,
+          0.6999999992549419,
+          0.6999999992549419
+        ]
+      },
+      "actualInputs": [
+        80,
+        82,
+        84,
+        86,
+        88,
+        90,
+        92,
+        94,
+        96,
+        98,
+        100,
+        102
+      ],
+      "synchronousSurfaceQueries": 0,
+      "duringInputLongTasks": [],
+      "allObservedLongTasks": [
+        {
+          "start": 7972.300000000745,
+          "duration": 69
+        }
+      ],
+      "inputPhaseMs": 799.4000000022352,
+      "raf": {
+        "timestamps": [
+          8057.5,
+          8074.1,
+          8257.5,
+          8557.4,
+          8624.1,
+          8640.8,
+          8840.8
+        ],
+        "medianIntervalMs": 125.05000000000018,
+        "maxIntervalMs": 299.89999999999964,
+        "observedCadenceHz": 7.65990042129453
+      },
+      "editorDrawsDuringInput": 3,
+      "finalPartCenter": [
+        102,
+        50,
+        -150
+      ],
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 12,
+        "lastFrame": 11090.7,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 204
+      },
+      "errors": []
+    },
+    "drag": {
+      "fixture": {
+        "parts": 32,
+        "faces": 32,
+        "ok": true
+      },
+      "mode": "worker",
+      "handlerMs": {
+        "median": 0.4000000022351742,
+        "max": 4.300000000745058,
+        "samples": [
+          0.19999999925494194,
+          0.09999999776482582,
+          4.300000000745058,
+          0.5,
+          0.5,
+          0.5,
+          0.6000000014901161,
+          0.6000000014901161,
+          0.6999999992549419,
+          0.8000000007450581,
+          0.6000000014901161,
+          0.29999999701976776,
+          0.29999999701976776,
+          0.3999999985098839,
+          0.30000000074505806,
+          0.4000000022351742,
+          0.20000000298023224,
+          0.4000000022351742,
+          0.10000000149011612,
+          0.4000000022351742
+        ]
+      },
+      "actualInputs": [
+        {
+          "x": 663,
+          "y": 429.0999755859375,
+          "buttons": 1
+        },
+        {
+          "x": 666,
+          "y": 428.6999816894531,
+          "buttons": 1
+        },
+        {
+          "x": 669,
+          "y": 428.29998779296875,
+          "buttons": 1
+        },
+        {
+          "x": 672,
+          "y": 427.8999938964844,
+          "buttons": 1
+        },
+        {
+          "x": 675,
+          "y": 427.5,
+          "buttons": 1
+        },
+        {
+          "x": 678,
+          "y": 427.0999755859375,
+          "buttons": 1
+        },
+        {
+          "x": 681,
+          "y": 426.6999816894531,
+          "buttons": 1
+        },
+        {
+          "x": 684,
+          "y": 426.29998779296875,
+          "buttons": 1
+        },
+        {
+          "x": 687,
+          "y": 425.8999938964844,
+          "buttons": 1
+        },
+        {
+          "x": 690,
+          "y": 425.5,
+          "buttons": 1
+        },
+        {
+          "x": 693,
+          "y": 425.0999755859375,
+          "buttons": 1
+        },
+        {
+          "x": 696,
+          "y": 424.6999816894531,
+          "buttons": 1
+        },
+        {
+          "x": 699,
+          "y": 424.29998779296875,
+          "buttons": 1
+        },
+        {
+          "x": 702,
+          "y": 423.8999938964844,
+          "buttons": 1
+        },
+        {
+          "x": 705,
+          "y": 423.5,
+          "buttons": 1
+        },
+        {
+          "x": 708,
+          "y": 423.0999755859375,
+          "buttons": 1
+        },
+        {
+          "x": 711,
+          "y": 422.6999816894531,
+          "buttons": 1
+        },
+        {
+          "x": 714,
+          "y": 422.29998779296875,
+          "buttons": 1
+        },
+        {
+          "x": 717,
+          "y": 421.8999938964844,
+          "buttons": 1
+        },
+        {
+          "x": 720,
+          "y": 421.5,
+          "buttons": 1
+        }
+      ],
+      "synchronousSurfaceQueries": 1,
+      "duringInputLongTasks": [],
+      "allObservedLongTasks": [
+        {
+          "start": 11895.29999999702,
+          "duration": 101
+        },
+        {
+          "start": 13954.79999999702,
+          "duration": 65
+        }
+      ],
+      "inputPhaseMs": 3659.39999999851,
+      "raf": {
+        "timestamps": [
+          8268.2,
+          8284.8,
+          8484.9,
+          8501.5,
+          8518.2,
+          8534.8,
+          8784.9,
+          8801.5,
+          8818.2,
+          8984.8,
+          9001.6,
+          9201.5,
+          9218.1,
+          9384.8,
+          9401.5,
+          9584.8,
+          9601.5,
+          9784.8,
+          9801.5,
+          9818.1,
+          10001.5,
+          10018.1,
+          10201.5,
+          10218.1,
+          10234.8,
+          10418.1,
+          10434.8,
+          10618.1,
+          10634.8,
+          10651.4,
+          10818.1,
+          10834.8,
+          11018.2,
+          11034.8,
+          11251.5,
+          11268.1,
+          11434.7,
+          11451.4,
+          11634.7,
+          11651.4,
+          11684.8,
+          11834.7
+        ],
+        "medianIntervalMs": 16.700000000000728,
+        "maxIntervalMs": 250.10000000000036,
+        "observedCadenceHz": 11.49586429272396
+      },
+      "editorDrawsDuringInput": 18,
+      "finalPartCenter": [
+        67.11629376121886,
+        50,
+        -145.7946690774525
+      ],
+      "renderHealth": {
+        "mode": "webgl",
+        "lost": false,
+        "error": null,
+        "frames": 29,
+        "lastFrame": 13968,
+        "failures": 0,
+        "recoveries": 1,
+        "automaticRetries": 0,
+        "loops": 225
+      },
+      "errors": []
+    }
+  },
+  "images": {
+    "armor-baseline-overview.png": {
+      "path": "/workspace/scratch/browser/armor-baseline-overview.png",
+      "sha256": "cf6260dea5c84ec283b857b191b76ca2eec1199be0499c4c3df144a2a6304327"
+    },
+    "armor-baseline-topdeck.png": {
+      "path": "/workspace/scratch/browser/armor-baseline-topdeck.png",
+      "sha256": "6db75b8a7a32e5071efc9b9d11bd1e598534216f7165f126f4671ef2b8a39080"
+    },
+    "armor-baseline-top-grazing.png": {
+      "path": "/workspace/scratch/browser/armor-baseline-top-grazing.png",
+      "sha256": "9210c12e02adc9264c296cb796f980660f27f70b30578b4723be97f56c1af72f"
+    },
+    "armor-baseline-underside.png": {
+      "path": "/workspace/scratch/browser/armor-baseline-underside.png",
+      "sha256": "8ee8a5de97cd4a78490d9b5564fb4ecb9b3b7719b06cc229db9c7f4a180ca25b"
+    },
+    "armor-baseline-slope.png": {
+      "path": "/workspace/scratch/browser/armor-baseline-slope.png",
+      "sha256": "e748b6c6884a66a61305b09645a77650439a6090f60bfd0e410c578a692166cd"
+    },
+    "armor-final-overview.png": {
+      "path": "/workspace/scratch/browser/armor-final-overview.png",
+      "sha256": "f754b9a05610d5e88602288154207a5a772dccf33935f1a813e1b7afb178b268"
+    },
+    "armor-final-topdeck.png": {
+      "path": "/workspace/scratch/browser/armor-final-topdeck.png",
+      "sha256": "8429d4c404e3c5bf141f70868e468132efff9efacee752833ee740e7c34a1f9c"
+    },
+    "armor-final-top-grazing.png": {
+      "path": "/workspace/scratch/browser/armor-final-top-grazing.png",
+      "sha256": "c21ae9a27c51054617baea641008658ce6d3222d83d2ede3be8d938fd36bd04d"
+    },
+    "armor-final-underside.png": {
+      "path": "/workspace/scratch/browser/armor-final-underside.png",
+      "sha256": "3eb009000beafc4ce436f2e9ed9005dccef095e437070e4b56d319246318f22c"
+    },
+    "armor-final-slope.png": {
+      "path": "/workspace/scratch/browser/armor-final-slope.png",
+      "sha256": "ed05689e43b1d6293bdc695d07e3bf85ac6a2028df21e7d3264130a5ea1db8d2"
+    },
+    "armor-controls-baseline-close-armor-closeup.png": {
+      "path": "/workspace/scratch/browser/armor-controls-baseline-close-armor-closeup.png",
+      "sha256": "a43a15cb6d77ee7bdfca573c4462c1adea13355f1cffa10c6c51cdf59058edc5"
+    },
+    "armor-controls-final-armor-closeup.png": {
+      "path": "/workspace/scratch/browser/armor-controls-final-armor-closeup.png",
+      "sha256": "bae0eace4b4904997f1ba01825e3af48ba5774a96335cda50864d90db35721e1"
+    },
+    "armor-controls-final-inclined-grazing.png": {
+      "path": "/workspace/scratch/browser/armor-controls-final-inclined-grazing.png",
+      "sha256": "117ec276004514260a80354ed28bbb8aa5166de830161b3f768ee30527d6d5c0"
+    },
+    "armor-controls-final-plate-front.png": {
+      "path": "/workspace/scratch/browser/armor-controls-final-plate-front.png",
+      "sha256": "55d49359d9f358dcdca44a3167132fddea87558031b3350fa9895f7496bbcde5"
+    },
+    "armor-controls-final-paint-front.png": {
+      "path": "/workspace/scratch/browser/armor-controls-final-paint-front.png",
+      "sha256": "4d8529cdd83cd735b62753b4805fb07829495b50170d49f4f8a7819a7c96f662"
+    },
+    "armor-controls-final-coded-front.png": {
+      "path": "/workspace/scratch/browser/armor-controls-final-coded-front.png",
+      "sha256": "8be87793b4d98ea03d2f867bc3114587ccb823ef0cb35fe3c1c05ede3ffbf545"
+    },
+    "armor-controls-baseline-solar-front.png": {
+      "path": "/workspace/scratch/browser/armor-controls-baseline-solar-front.png",
+      "sha256": "f7085783caa148e867b1ba7aa3cc7f0f3fe5d8f8050c9a6f7a37dbe6067cd6d6"
+    },
+    "armor-controls-final-solar-front.png": {
+      "path": "/workspace/scratch/browser/armor-controls-final-solar-front.png",
+      "sha256": "f7085783caa148e867b1ba7aa3cc7f0f3fe5d8f8050c9a6f7a37dbe6067cd6d6"
+    },
+    "armor-controls-baseline-machinery-front.png": {
+      "path": "/workspace/scratch/browser/armor-controls-baseline-machinery-front.png",
+      "sha256": "28721700e92f0431aaccf2ba0e8467aca4221597424dfebe63f493b8ff721179"
+    },
+    "armor-controls-final-machinery-front.png": {
+      "path": "/workspace/scratch/browser/armor-controls-final-machinery-front.png",
+      "sha256": "dd3a7b2457a773defdaa5766fd1f11fc0e5fe5583118fe737db984af10cdb694"
+    },
+    "armor-final-machinery.png": {
+      "path": "/workspace/scratch/browser/armor-final-machinery.png",
+      "sha256": "7b23b3c84ed00794f3743b033e154503db0de5d16d9b692a1dab00c21d84e42c"
+    },
+    "armor-final-half-top-grazing.png": {
+      "path": "/workspace/scratch/browser/armor-final-half-top-grazing.png",
+      "sha256": "d989c683cfb752ced689a0817be359fdf35db641a2a0c2f55093c9200d47df5f"
+    },
+    "armor-final-half-slope.png": {
+      "path": "/workspace/scratch/browser/armor-final-half-slope.png",
+      "sha256": "b3104c699836dc775d516e11951b62fafc7770e45464fb3d4cb57131eac668b4"
+    },
+    "armor-final-fallback-top-grazing.png": {
+      "path": "/workspace/scratch/browser/armor-final-fallback-top-grazing.png",
+      "sha256": "ba7d0923359eade4609624a47e240aa11f5c2ff37de4bcf9f40269107a5f9aa3"
+    },
+    "armor-final-fallback-slope.png": {
+      "path": "/workspace/scratch/browser/armor-final-fallback-slope.png",
+      "sha256": "ed05689e43b1d6293bdc695d07e3bf85ac6a2028df21e7d3264130a5ea1db8d2"
+    },
+    "armor-final-fallback-half-top-grazing.png": {
+      "path": "/workspace/scratch/browser/armor-final-fallback-half-top-grazing.png",
+      "sha256": "ac3b187f1bbeff2ccde01a852fec5eeb617486421d13d7b7df7ecd47c6d21a3a"
+    },
+    "armor-final-fallback-half-slope.png": {
+      "path": "/workspace/scratch/browser/armor-final-fallback-half-slope.png",
+      "sha256": "b3104c699836dc775d516e11951b62fafc7770e45464fb3d4cb57131eac668b4"
+    }
+  }
+}

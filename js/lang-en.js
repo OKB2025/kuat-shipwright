@@ -9181,4 +9181,12 @@ Object.assign(root.KS_EN.messages,{
 "ルクレハルク級の非武装貨物船型。船体・環状船体・推進はルクレハルク級と同じで、四連レーザー砲台と防衛砲を降ろし、その砲座が占めていた容積を貨物倉に戻している（トラクター・ビームは荷役用に残す）。環状船体の上陸艇格納甲板は貨物倉。艦載機・地上部隊は持たない。艦隊戦では補給船団の大型輸送船として使われる。": "The unarmed cargo freighter version of the Lucrehulk class. Hull, ring and drive are the Lucrehulk's; the quad laser batteries and defence guns are removed and the volume their mounts took is returned to the holds (the tractor beams stay for cargo handling). The ring's landing-ship decks are cargo holds. It carries no small craft or ground forces. In fleet battles it sails as the big transport of supply convoys."
 });
 // </strat-catalog>
+Object.assign(root.KS_EN.messages,{
+ "機材構造面の外観参考：": "Machinery Surface Visual Reference: ",
+ "艦橋と側面トレンチの拡大画像を参考に、大小の機器状の凹凸、奥まった空間、短い桁と発光点が入り組む面を手続き生成しています。": "Close-up images of the bridge and side trenches inform procedurally generated surfaces with machinery of varied sizes, recessed cavities, short beams and clustered lights."
+});
+Object.assign(root.KS_EN.messages,{
+ "装甲板・機材構造面の外観参考：": "Armor and Machinery Surface Visual Reference: ",
+ "甲板・外板・艦橋・側面トレンチの拡大画像を参考に、装甲板の継ぎ目と浅い段差、大小の機器状の凹凸、張り出しと発光点を手続き生成しています。": "Close-up images of the decks, hull, bridge and side trenches inform procedurally generated armor seams and shallow stepped edges, varied machinery relief, projections and clustered lights."
+});
 })(typeof window==="undefined"?globalThis:window);
