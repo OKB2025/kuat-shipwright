@@ -10016,7 +10016,7 @@ function voyBindSetup() {
   if (t.dataset.sqload != null) { const f = voyFindShip(s.editing), q = f?.sh.air[+t.dataset.sqload], c = q && R.CRAFT[q.craft]; if (!c) return; const v = t.value; if (v === 'auto') delete q.load; else { const p = voyLoadPresets(c).find(x => x.id === v); if (p) q.load = p.load; } voyOrbatSheet(); voyObChanged(); return; }
   if (t.dataset.sql != null) { const f = voyFindShip(s.editing), [i, j] = t.dataset.sql.split('.').map(Number), q = f?.sh.air[i], c = q && R.CRAFT[q.craft]; if (!c?.stations?.[j]) return; const L = C.normalizeLoad(c.stations, Array.isArray(q.load) ? q.load : c.load, c.load); if (t.dataset.sqlk === 'k' && C.ORDNANCE[t.value]) { L[j] = {k: t.value, n: C.storeCapacity(C.FITS[c.stations[j].fit].store, t.value)}; } else L[j] = {...L[j], n: +t.value || 0}; q.load = C.normalizeLoad(c.stations, L, c.load); voyOrbatSheet(); voyObChanged(); return; }
   if (t.dataset.sq != null) { const f = voyFindShip(s.editing), q = f?.sh.air[+t.dataset.sq]; if (!q) return; const k = t.dataset.sqk; if (k === 'craft') { if(t.value.startsWith('dsn:')){await voyPickEmbarkedDesign(t.value.slice(4),q);return;}if(!R.CRAFT[t.value])return;if(t.value===q.craft&&q.design){VOY_EMBARK_PICKS.set(q,{});return;}VOY_EMBARK_PICKS.set(q,{});q.craft=t.value;delete q.load;delete q.design;q.name=`${R.ROLE_NAME[R.CRAFT[q.craft].role]}中隊`; } else if(['n','wingNo','groupNo'].includes(k))q[k]=C.clamp(Math.round(+t.value||1),1,k==='n'?R.RULES.maxSquadSize:99); voyOrbatSheet(); voyObChanged(); return; }
-  if (t.dataset.co) { const f = voyFindShip(s.editing), [ri, bi, ci] = t.dataset.co.split('.').map(Number), c = f?.sh.ground?.[ri]?.battalions?.[bi]?.companies?.[ci]; if (!c) return; if (t.dataset.cok) c.troops = C.clamp(Math.round(+t.value || 0), 0, 600); else { c.vehicles = c.vehicles || {}; c.vehicles[t.dataset.cov] = C.clamp(Math.round(+t.value || 0), 0, 40); } voyOrbatSheet(); voyObChanged(); return; }
+  if (t.dataset.co) { const f = voyFindShip(s.editing), [ri, bi, ci] = t.dataset.co.split('.').map(Number), c = f?.sh.ground?.[ri]?.battalions?.[bi]?.companies?.[ci]; if (!c) return; if (t.dataset.cok) c.troops = C.clamp(Math.round(+t.value || 0), 0, 600); else { c.vehicles = c.vehicles || {}; const vk = t.dataset.cov; c.vehicles[vk] = C.clamp(Math.round(+t.value || 0), 0, 40); if (R.VEHICLES[vk]?.design) { c.vdesigns = c.vdesigns || {}; c.vdesigns[vk] = R.VEHICLES[vk].design; } } voyOrbatSheet(); voyObChanged(); return; }
  });
  root.addEventListener('click', async e => {
   const b = e.target.closest('button');if (!b || b.disabled) return;const s = voy.setup, d = b.dataset;if (!s) return;
@@ -10597,6 +10597,7 @@ function voyTgOpsCard(g) {
   <ul class="vs-ships">${us.map(u => `<li><label>${voy.split ? `<input type="checkbox" data-vsplit="${u.id}" ${voy.splitSel?.has(u.id) ? 'checked' : ''}>` : ''}<b>${u.id === g.flag ? '旗 ' : ''}${esc(u.name)}</b></label>${voyCrewHTML(u)}<small>${voyUnitState(u,true)}</small></li>`).join('')}</ul>
   ${dest != null ? `<div class="vs-jump"><p>→ <b>${esc(S.systems[dest].name)}</b>　今回の停止まで <b>${eta == null ? '—' : voyClock(eta)}</b></p><div class="vs-route">${voyRouteHTML(from, dest)}</div><div class="vs-acts"><button type="button" class="btn sm primary" data-vact="jump" ${eta == null || !free ? 'disabled' : ''}>ジャンプ</button><button type="button" class="btn sm ghost" data-vact="nodest">取消</button></div></div>` : ''}
   <div class="vs-acts">${free ? `<button type="button" class="btn sm" data-vact="pickdest" aria-pressed="${voy.cmd?.type === 'jump'}">ジャンプ先を選ぶ</button>` : ''}${g.spool || g.waitJump ? '<button type="button" class="btn sm ghost" data-vact="cancel">発進を取り消す</button>' : ''}${free && us.length > 1 ? `<button type="button" class="btn sm ghost" data-vact="split" aria-pressed="${!!voy.split}">${voy.split ? '分割を確定' : '任務群を分割'}</button>` : ''}${voyMergeButtons(g)}${g.sys != null && w.battles.has(g.sys) ? `<button type="button" class="btn sm warn" data-vgo="tac:${g.sys}">戦術図</button>` : ''}</div>
+  ${voyLandingHTML(g)}
   ${g.spool ? '<p class="note">ジャンプにはリアクターの全出力が要ります。発進準備中は砲撃できず、被弾している間は準備が止まります。</p>' : ''}</div>`;
 }
 function voyCtgOpsCard(c) {
@@ -11044,6 +11045,7 @@ function voySidebarClick(e) {
  if (d.vscuttle) { const id = d.vscuttle, u = w.units.get(id); if (voy.scuttleArm === id && performance.now() < (voy.scuttleAt || 0)) { voy.scuttleArm = null; const r = R.orderScuttle(w, id); toast(r.ok ? `${esc(u?.name || '')}：乗員を退艦させて自沈させました` : esc(r.why)); if (r.ok) voy.sel.units = voy.sel.units.filter(x => x !== id); } else { voy.scuttleArm = id; voy.scuttleAt = performance.now() + 4000; toast('もう一度押すと自沈させます'); } voyRenderSide(); return; }
  if (d.vact) {
   const g = voySelGroup(), c = g ? null : voySelCtg();
+  if ((d.vact === 'land' || d.vact === 'landview') && g) { voyLandingAct(d.vact, g); return; }
   if (d.vact === 'pickdest') { voy.cmd = voy.cmd?.type === 'jump' ? null : {type: 'jump'}; voyRenderSide(); return; }
   if (d.vact === 'nodest') { if(g?.navigation?.waiting)g.navigation=null;voy.sel.dest = null; voy.cmd = null; voyRenderSide(); return; }
   if (d.vact === 'jump' && g) { const dest = voy.sel.dest??g.navigation?.final, r = R.orderJump(w, g.id, dest); toast(r.ok ? `${esc(g.name)}：${esc(w.sector.systems[r.next].name)}へジャンプ（今回の停止まで ${voyClock(r.eta)}）` : esc(r.why)); voy.sel.dest = null; voy.cmd = null; voyRenderSide(); return; }
@@ -12966,7 +12968,7 @@ function msFleetPanel(st) {
 }
 function msHereHTML(st, key) {
  const tgs = voyObTgs(st.ob).filter(t => t.ships.length && msAt(st, t.id) === key), fs = st.foes.filter(f => f.sys === key);
- return `${tgs.length ? `<p class="gm-mission"><b>自軍</b>${tgs.map(t => esc(t.name)).join('・')}</p>` : ''}${fs.length ? `<p class="gm-mission"><b>敵</b>${fs.map(f => esc(msFoeName(f))).join('・')}</p>` : ''}`;
+ return `${tgs.length ? `<p class="gm-mission"><b>自軍</b>${tgs.map(t => esc(t.name)).join('・')}</p>` : ''}${fs.length ? `<p class="gm-mission"><b>敵</b>${fs.map(f => esc(msFoeName(f))).join('・')}</p>` : ''}${msLandingHTML(st, key)}`;
 }
 function msPatrolPanel(st) {
  const tgs = voyObTgs(st.ob).filter(t => t.ships.length);
@@ -13195,6 +13197,8 @@ function msBattleDone(w, how) {
  if (foeLine) lines.push(foeLine);if (sunk.length) lines.push(`撃沈された艦：${sunk.join('・')}`);if (taken.length) lines.push(`拿捕された艦：${taken.join('・')}`);if (lost.length) lines.push(`放棄した航行不能艦：${lost.join('・')}`);
  if (dock.length) lines.push(`ドック入り：${dock.join('・')}`);if (prizes.length) lines.push(`拿捕艦（改装ののち加入）：${prizes.join('・')}`);
  msLog(st, `${msSysName(b.sys)}で${b.foeName}と交戦：${title}（撃沈 ${foeSunk}・損失 ${sunk.length + taken.length + lost.length}）`);
+ // v26 PLAN-007 With the enemy's fleet gone, a landing may follow: the system's card offers it.
+ if (msLandingInfo(st, b.sys).can && !st.foes.some(x => x.sys === b.sys)) { lines.push(`${msSysName(b.sys)}の制宙権を確保。星系の「揚陸作戦」で地上戦を行えます`); msUI.sel = b.sys; }
  msUI.report = {title: `艦隊戦 · ${title}`, cls: win ? 'win' : lose || how === 'withdraw' ? 'lose' : '', lines, fresh: true};
  st.active = null;msSave();
 }
@@ -13220,6 +13224,7 @@ document.addEventListener('click', e => {
  if (a.startsWith('foe:')) { msUI.tab = 'battle'; msUI.foe = a.slice(4); msSideRender(); const f = MS.foes.find(x => x.id === msUI.foe); if (f) gmCenter('msn', f.sys); return; }
  if (a === 'patrol') { msPatrolStart(); return; }
  if (a === 'go') { msBattleGo(); return; }
+ if (a.startsWith('land:') || a.startsWith('landauto:')) { msLandingStart(a.slice(a.indexOf(':') + 1), a.startsWith('landauto:')); return; }
  if (a.startsWith('wait:')) { msWait(a.slice(5) === 'dock' ? 'dock' : '6h'); return; }
 });
 document.addEventListener('change', e => {
@@ -13229,6 +13234,400 @@ document.addEventListener('change', e => {
 });
 // (tests) the mission from outside
 window.__msn = {get st() { return MS; }, ui: msUI, save: msSave, advance: (dt, keep) => { if (MS) { msAdvance(MS, dt, keep); msSave(); msScreenRender(); } }, spawn: () => MS && msSpawnFoe(MS), repairSecs: msRepairSecs, damage: msDamageOf, jumpSecs: msJumpSeconds, owners: msOwners, side: msSideDir, ownStart: msOwnStart, reload: () => { msLoaded = false; msLoading = null; MS = null; msLoad(); return msLoading; }, flush: () => msWrite()};
+
+// ============================================================
+// v26 PLAN-007 / PLAN-008 ground combat: the walker and combat-vehicle designer, the ground battle view (a 2D
+// top-down map with tap orders), the drill (PLAN-025 stage 7), landings in missions and in the fleet battle.
+// The rules are Ground's (core.js); this is the screen. The view is a full-screen layer of its own (no popup over
+// the 3D view); phone first: the map fills the screen, the orders and units are a strip along the bottom.
+// ============================================================
+const GD = window.Ground || (typeof Ground !== 'undefined' ? Ground : null);
+const GV = {el: null, mode: null, b: null, ctx: null, sel: new Set(), multi: false, cmd: 'move', speed: 4, paused: false, raf: 0, last: 0, hudT: 0, z: 1, pan: [0, 0], spectate: false, done: null, setup: null, design: null, dtab: 'body', saves: null, toastHome: null, drill: false};
+const GD_KEY = 'yard.vehicles', GD_SPEEDS = [1, 4, 16];
+// ---------- the players' vehicle designs: this browser (or the account's store, as the ship designs) ----------
+const VStore = {
+ async list() { await Store.init(); if (Store.db) { const q = await Store.col().get(); return q.docs.filter(d => d.exists).map(d => ({id: d.id, ...d.data()})).filter(d => d.kind === 'vehicle').map(d => { try { return {...GD.normalizeVehicleDesign(JSON.parse(d.data)), id: d.id, savedAt: d.savedAt}; } catch (e) { return null; } }).filter(Boolean); }
+  try { return (JSON.parse(LS.get(GD_KEY) || '[]') || []).map(d => { const n = GD.normalizeVehicleDesign(d); return n && n.id ? {...n, savedAt: d.savedAt || 0} : null; }).filter(Boolean); } catch (e) { return []; } },
+ async save(d) { await Store.init(); const rec = {...GD.normalizeVehicleDesign(d), savedAt: Date.now()};
+  if (Store.db) { await Store.col().doc(rec.id).set({kind: 'vehicle', name: rec.name, savedAt: rec.savedAt, data: JSON.stringify(rec)}); return 'cloud'; }
+  const all = await this.list(), i = all.findIndex(x => x.id === rec.id);if (i >= 0) all[i] = rec; else all.unshift(rec);
+  if (!LS.set(GD_KEY, JSON.stringify(all))) throw new Error('このブラウザでは保存できません。書き出しを使ってください。');return 'local'; },
+ async remove(id) { await Store.init(); if (Store.db) { await Store.col().doc(id).delete(); return; } LS.set(GD_KEY, JSON.stringify((await this.list()).filter(x => x.id !== id))); }
+};
+// Saved designs are registered as vehicle types, so the order of battle's companies can take them.
+async function gdRegisterSaved() { if (!GD) return []; try { const list = await VStore.list(); GV.saves = list; for (const d of list) GD.registerVehicleDesign(d); return list; } catch (e) { return []; } }
+const gdNewId = () => 'vd-' + Date.now().toString(36) + Math.floor(Math.random() * 1e4).toString(36);
+function gdBlank(platform = 'walker') { return GD.normalizeVehicleDesign(platform === 'walker' ? {platform, name: '新型ウォーカー', drive: 'legs2', body: {L: 6, W: 4, H: 3.5, form: 'box'}, legH: 5.5, armor: {front: 12, side: 8, rear: 6}, weapons: [{k: 'claserH', scale: .9, count: 1, mount: 'chin'}, {k: 'cturret', count: 1, mount: 'chin'}], crew: 2}
+ : {platform, name: '新型戦闘車両', drive: 'repulsor', body: {L: 9, W: 6, H: 2.5, form: 'wedge'}, armor: {front: 20, side: 14, rear: 10}, weapons: [{k: 'claserH', count: 2, mount: 'turret'}, {k: 'cmsl', scale: .9, count: 2, mount: 'hull'}], crew: 2}); }
+
+// ---------- the layer ----------
+function gdStyle() {
+ if ($('#gnd-css')) return;const s = document.createElement('style');s.id = 'gnd-css';
+ s.textContent = `.gnd{position:fixed;inset:0;z-index:66;display:flex;flex-direction:column;background:#071017;color:var(--fg);font-family:var(--font-ui,system-ui);padding:max(6px,var(--sa-top,0px)) max(8px,var(--sa-right,0px)) max(6px,var(--sa-bottom,0px)) max(8px,var(--sa-left,0px));gap:6px}
+.gnd[hidden]{display:none}.gnd h2{font-size:15px;margin:0}.gnd h3{font-size:13px;margin:8px 0 4px;color:#cfe0e6}.gnd .note{font-size:11.5px;color:var(--muted);margin:4px 0}.gnd .bad{color:var(--bad)}.gnd .warn{color:var(--warn)}.gnd .ok{color:var(--ok)}
+.gnd-top{display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-height:36px}.gnd-top .gnd-t{flex:1;min-width:120px}.gnd-top small{display:block;color:var(--muted);font-size:11px}
+.gnd .btn{width:auto;margin:0}.gnd-b{display:inline-flex;align-items:center;justify-content:center;min-height:38px;min-width:40px;padding:4px 10px;border-radius:8px;border:1px solid #34505e;background:#12212b;color:#dbe8ee;font:inherit;font-size:12.5px;cursor:pointer}
+.gnd-b[aria-pressed=true]{background:#2a4a5c;border-color:#68c2db;color:#fff}.gnd-b.pri{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}.gnd-b:disabled{opacity:.45;cursor:default}.gnd-b.warn{border-color:#a37a2c}
+.gnd-map{position:relative;flex:1;min-height:0;border-radius:8px;overflow:hidden;background:#0b161d;touch-action:none}.gnd-map canvas{position:absolute;inset:0;width:100%;height:100%}
+.gnd-banner{position:absolute;left:8px;right:8px;top:8px;padding:8px 10px;border-radius:8px;background:rgba(8,14,19,.84);border:1px solid #2b4250;font-size:12.5px;pointer-events:none}
+.gnd-drill{position:absolute;right:8px;top:8px;width:min(240px,46%);padding:6px 8px;border-radius:8px;background:rgba(8,14,19,.82);border:1px solid #2b4250;font-size:11.5px;pointer-events:none}.gnd-drill ol{margin:2px 0 0;padding-left:18px}.gnd-drill li.done{color:var(--ok);text-decoration:line-through}
+.gnd-orders{display:flex;gap:5px;overflow-x:auto;padding-bottom:2px}.gnd-units{display:flex;gap:5px;overflow-x:auto;padding-bottom:2px;min-height:44px}
+.gnd-u{flex:0 0 auto;max-width:150px;text-align:left;display:flex;flex-direction:column;align-items:flex-start;padding:3px 8px;min-height:40px}.gnd-u b{font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:134px}.gnd-u small{font-size:10.5px;color:var(--muted)}.gnd-u i{display:block;height:3px;background:#5fc48a;border-radius:2px;margin-top:2px}
+.gnd-sel{font-size:11.5px;color:#cfe0e6;min-height:16px}
+.gnd-sheet{position:absolute;left:8px;right:8px;bottom:8px;max-height:70%;overflow:auto;padding:10px 12px;border-radius:10px;background:rgba(9,16,22,.96);border:1px solid #35505f}.gnd-sheet ul{margin:4px 0;padding-left:18px;font-size:12.5px}.gnd-acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.gnd-body{flex:1;min-height:0;overflow:auto}.gnd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px}.gnd-grid label{display:flex;flex-direction:column;font-size:11.5px;color:var(--muted);gap:2px}
+.gnd input,.gnd select{font:inherit;font-size:13px;color:#eef4f7;background:#14232c;border:1px solid #34505e;border-radius:6px;padding:6px;min-height:36px;min-width:0}.gnd input[type=checkbox]{min-height:0}
+.gnd-tabs{display:flex;gap:4px;overflow-x:auto}.gnd-dz{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:8px;flex:1;min-height:0}
+.gnd-prev{background:#0b161d;border-radius:8px;border:1px solid #21303a;min-height:150px}.gnd-prev svg{width:100%;height:100%;display:block}
+.gnd-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:4px 8px;font-size:12px}.gnd-stats div{display:flex;flex-direction:column}.gnd-stats span{color:var(--muted);font-size:10.5px}.gnd-stats b{font-size:13px}
+.gnd-wrow{display:grid;grid-template-columns:minmax(0,2fr) 64px 56px minmax(0,1.3fr) 40px;gap:4px;align-items:center;margin:3px 0}
+.gnd-list{display:flex;flex-direction:column;gap:4px}.gnd-row{display:flex;gap:6px;align-items:center;justify-content:space-between;padding:6px 8px;border:1px solid #23343f;border-radius:8px;background:#0e1a21}.gnd-row div{min-width:0}.gnd-row small{display:block;color:var(--muted);font-size:11px}
+@media (max-width:720px){.gnd-dz{grid-template-columns:1fr;grid-auto-rows:auto}.gnd-prev{min-height:130px;max-height:30vh}.gnd-drill{width:48%;font-size:10.5px}}`;
+ document.head.appendChild(s);
+}
+function gdOpen(mode) {
+ if (!GD) { toast('地上戦を読み込めません'); return null; }
+ gdStyle();let el = $('#gndView');if (!el) { el = document.createElement('section'); el.id = 'gndView'; el.className = 'gnd'; el.setAttribute('aria-label', '地上戦'); document.body.appendChild(el); }
+ el.hidden = false;GV.el = el;GV.mode = mode;const t = $('#toast');if (t && t.parentElement !== el) { GV.toastHome = GV.toastHome || t.parentElement; el.appendChild(t); }
+ return el;
+}
+function gdClose() {
+ cancelAnimationFrame(GV.raf);GV.raf = 0;const el = GV.el;if (el) { el.hidden = true; el.innerHTML = ''; }
+ const t = $('#toast');if (t && GV.toastHome) GV.toastHome.appendChild(t);GV.b = null;GV.mode = null;GV.sel.clear();
+}
+const gdF = f => R.FACTIONS[f]?.name || '惑星防衛軍';
+const gdT = s => { s = Math.max(0, Math.round(s)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+
+// ---------- PLAN-008 the designer ----------
+async function gdDesigner(d = null) {
+ const el = gdOpen('design');if (!el) return;
+ GV.design = GD.normalizeVehicleDesign(d || GV.design || gdBlank('walker'));if (!GV.design.id) GV.design.id = gdNewId();
+ if (!GV.saves) await gdRegisterSaved();gdDesignRender();
+}
+function gdPreviewSVG(s) {
+ const d = s.design, {L, W, H, form} = d.body, walker = d.platform === 'walker', Ht = s.dims[2], clear = Ht - H, D = GD.DRIVES[d.drive];
+ // Side view (left) and top view (right) to one scale, with a 1.8 m figure.
+ const span = Math.max(L * 2 + 8, Ht * 1.6 + 2), k = 300 / span, gy = 150, x0 = 14;
+ const body = (x, y, l, h) => form === 'wedge' ? `M${x} ${y + h} L${x + l} ${y + h} L${x + l} ${y + h * .25} L${x + l * .2} ${y} L${x} ${y + h * .35} Z` : form === 'round' ? `M${x + l * .15} ${y} L${x + l * .85} ${y} Q${x + l} ${y} ${x + l} ${y + h / 2} Q${x + l} ${y + h} ${x + l * .85} ${y + h} L${x + l * .15} ${y + h} Q${x} ${y + h} ${x} ${y + h / 2} Q${x} ${y} ${x + l * .15} ${y} Z` : `M${x} ${y} h${l} v${h} h${-l} Z`;
+ const by = gy - Ht * k, bh = H * k, bl = L * k;let g = '';
+ if (walker) { const n = Math.min(3, D.legs / 2), kn = clear * k; for (let i = 0; i < n; i++) { const lx = x0 + bl * (n === 1 ? .5 : .2 + .6 * i / (n - 1)); g += `<path d="M${lx} ${by + bh} l${-kn * .18} ${kn * .5} l${kn * .12} ${kn * .5}" stroke="#9fb6c6" stroke-width="${Math.max(1.5, W * k * .12)}" fill="none" stroke-linecap="round"/>`; } }
+ else if (D.hover) g += `<path d="M${x0 + bl * .1} ${gy - 1} h${bl * .8}" stroke="#68c2db" stroke-width="2" opacity=".7"/>`;
+ else if (d.drive === 'tracks') g += `<rect x="${x0}" y="${gy - clear * k - bh * .28}" width="${bl}" height="${bh * .28 + clear * k}" rx="${Math.min(8, bh * .2)}" fill="#26333b" stroke="#566a75"/>`;
+ else for (let i = 0; i < 4; i++) g += `<circle cx="${x0 + bl * (.15 + .7 * i / 3)}" cy="${gy - Math.max(2, clear * k + bh * .12)}" r="${Math.max(2, clear * k + bh * .14)}" fill="#26333b" stroke="#566a75"/>`;
+ g += `<path d="${body(x0, by, bl, bh)}" fill="#3a4c57" stroke="#9fb6c6" stroke-width="1"/>`;
+ for (const w of d.weapons) { const len = Math.max(4, (C.FITS[w.k]?.fm || 2) * w.scale * k), y = w.mount === 'turret' ? by - 3 : w.mount === 'chin' ? by + bh * .8 : by + bh * .45, x = w.mount === 'hull' || w.mount === 'chin' ? x0 + bl : x0 + bl * .6;
+  if (w.mount === 'turret') g += `<rect x="${x0 + bl * .45}" y="${by - 6}" width="${bl * .3}" height="6" rx="2" fill="#4b606c"/>`;g += `<path d="M${x} ${y} h${len}" stroke="#f0a03a" stroke-width="2"/>`; }
+ g += `<path d="M${x0 + bl + 18} ${gy} v${-1.8 * k}" stroke="#dbe5e8" stroke-width="1.5"/><circle cx="${x0 + bl + 18}" cy="${gy - 1.8 * k - 2}" r="2" fill="#dbe5e8"/>`;
+ const tx = x0 + bl + 34, ty = 40, tw = W * k, top = form === 'wedge' ? `M${tx} ${ty + tw / 2} L${tx + bl * .3} ${ty} L${tx + bl} ${ty} L${tx + bl} ${ty + tw} L${tx + bl * .3} ${ty + tw} Z` : form === 'round' ? `M${tx} ${ty + tw / 2} Q${tx} ${ty} ${tx + bl * .2} ${ty} L${tx + bl * .8} ${ty} Q${tx + bl} ${ty} ${tx + bl} ${ty + tw / 2} Q${tx + bl} ${ty + tw} ${tx + bl * .8} ${ty + tw} L${tx + bl * .2} ${ty + tw} Q${tx} ${ty + tw} ${tx} ${ty + tw / 2} Z` : `M${tx} ${ty} h${bl} v${tw} h${-bl} Z`;
+ g += `<path d="${top}" fill="#3a4c57" stroke="#9fb6c6" stroke-width="1"/>`;if (d.weapons.some(w => w.mount === 'turret')) g += `<circle cx="${tx + bl * .55}" cy="${ty + tw / 2}" r="${Math.min(tw * .35, bl * .2)}" fill="#4b606c" stroke="#9fb6c6"/>`;
+ return `<svg viewBox="0 0 ${Math.max(330, tx + bl + 10)} 160" role="img" aria-label="側面図と平面図"><path d="M0 ${gy} H${Math.max(330, tx + bl + 10)}" stroke="#2c3b44"/>${g}<text x="6" y="14" fill="#8fa2ab" font-size="10">側面図・平面図（人物 1.8 m）</text></svg>`;
+}
+function gdStatsHTML(s) {
+ const cell = (k, v) => `<div><span>${k}</span><b>${v}</b></div>`;
+ return `<div class="gnd-stats">${cell('全長×全幅×全高', `${num(s.dims[0], 1)}×${num(s.dims[1], 1)}×${num(s.dims[2], 1)} m`)}${cell('質量', `${num(s.mass, 1)} t`)}${cell('最高速度', `${num(s.speed)} km/h`)}${cell('耐久', num(s.hp))}${cell('装甲 前/側/後', `${num(s.armor.front)}/${num(s.armor.side)}/${num(s.armor.rear)} cm`)}
+  ${cell('対装甲火力', num(s.firepower.at, 1))}${cell('対歩兵火力', num(s.firepower.ai, 1))}${cell('対空', num(s.firepower.aa, 1))}${cell('最大射程', `${num(s.range)} m`)}${cell('視認距離', `${num(s.sight)} m`)}
+  ${cell('出力／必要', `${num(s.power.supply, 1)}／${num(s.power.demand, 1)} MW`)}${cell('乗員・兵員', `${s.crew}・${s.troops} 名`)}${cell('建造費', fCr(s.cost.total))}${cell('格納サイズ', num(s.size, 3))}</div>
+  ${s.warnings.map(w => `<p class="note ${w.lv === 'bad' ? 'bad' : w.lv === 'warn' ? 'warn' : ''}">${esc(w.text)}</p>`).join('')}`;
+}
+function gdDesignRender() {
+ const el = GV.el;if (!el || GV.mode !== 'design') return;const d = GV.design, s = GD.vehicleStats(d), tab = GV.dtab, walker = d.platform === 'walker';
+ const inp = (f, v, a, b, st = .1, lab) => `<label>${lab}<input type="number" data-gdf="${f}" value="${v}" min="${a}" max="${b}" step="${st}"></label>`;
+ const tabs = [['body', '車体'], ['drive', '走行'], ['armor', '装甲'], ['arms', '武装'], ['crew', '乗員・動力'], ['saves', '設計図']];
+ let body = '';
+ if (tab === 'body') body = `<div class="gnd-acts" role="group" aria-label="種類">${Object.entries(GD.PLATFORMS).map(([k, p]) => `<button type="button" class="gnd-b" data-gd="plat:${k}" aria-pressed="${d.platform === k}">${esc(p.name)}</button>`).join('')}</div><p class="note">${esc(GD.PLATFORMS[d.platform].note)}</p>
+  <div class="gnd-grid"><label>車体の形<select data-gdf="form">${Object.entries(GD.BODY_FORMS).map(([k, f]) => `<option value="${k}" ${d.body.form === k ? 'selected' : ''}>${esc(f.name)}</option>`).join('')}</select></label>${inp('L', d.body.L, ...GD.VD_LIMITS.L, .1, '車体の全長 (m)')}${inp('W', d.body.W, ...GD.VD_LIMITS.W, .1, '車体の全幅 (m)')}${inp('H', d.body.H, ...GD.VD_LIMITS.H, .1, '車体の高さ (m)')}${walker ? inp('legH', d.legH, ...GD.VD_LIMITS.legH, .1, '脚の高さ (m)') : ''}</div>`;
+ else if (tab === 'drive') body = `<div class="gnd-list">${Object.entries(GD.DRIVES).filter(([, x]) => x.platform === d.platform).map(([k, x]) => `<button type="button" class="gnd-b gnd-row" data-gd="drive:${k}" aria-pressed="${d.drive === k}"><div><b>${esc(x.name)}</b><small>基準 ${x.base} km/h · 森林・市街 ×${x.rough} · 丘陵 ×${x.slope} · 水域 ${x.water ? '×' + x.water : '不可'}</small></div></button>`).join('')}</div><p class="note">速度は駆動方式の基準に、動力の充足、質量、（ウォーカーは）脚の長さを掛けて決まります。</p>`;
+ else if (tab === 'armor') body = `<div class="gnd-grid">${inp('front', d.armor.front, ...GD.VD_LIMITS.armor, .5, '前面装甲 (cm)')}${inp('side', d.armor.side, ...GD.VD_LIMITS.armor, .5, '側面装甲 (cm)')}${inp('rear', d.armor.rear, ...GD.VD_LIMITS.armor, .5, '後面装甲 (cm)')}<label>偏向シールド<select data-gdf="shield"><option value="0" ${d.shield ? '' : 'selected'}>なし</option><option value="1" ${d.shield ? 'selected' : ''}>あり（被害 -30%）</option></select></label></div><p class="note">弾が装甲を貫けば全損害、貫けなければ損害は大きく減ります。装甲は質量を増やし、速度を落とします。上面は側面と前面の薄い方の半分です。</p>`;
+ else if (tab === 'arms') body = `${d.weapons.map((w, i) => { const g = s.weapons[i]; return `<div class="gnd-wrow"><select data-gdw="${i}.k" aria-label="武装">${Object.keys(GD.VWEAPONS).map(k => `<option value="${k}" ${w.k === k ? 'selected' : ''}>${esc(C.FITS[k].name)}</option>`).join('')}</select><input type="number" data-gdw="${i}.scale" value="${w.scale}" min="${GD.VD_LIMITS.scale[0]}" max="${GD.VD_LIMITS.scale[1]}" step=".05" aria-label="倍率"><input type="number" data-gdw="${i}.count" value="${w.count}" min="1" max="${GD.VD_LIMITS.count}" step="1" aria-label="門数"><select data-gdw="${i}.mount" aria-label="取付位置">${Object.entries(GD.MOUNTS).map(([k, m]) => `<option value="${k}" ${w.mount === k ? 'selected' : ''}>${esc(m.name)}</option>`).join('')}</select><button type="button" class="gnd-b" data-gd="wdel:${i}" aria-label="削除">✕</button></div><p class="note">貫徹 ${g.pen} cm · 損害 ${g.dmg} · 射程 ${num(g.range)} m${g.ammo ? ` · 弾数 ${g.ammo}/門` : ''}${g.ion ? ' · イオン（ドロイド・機械に有効）' : ''} · ${num(g.mw, 2)} MW</p>`; }).join('') || '<p class="note">武装がありません。</p>'}
+  <div class="gnd-acts"><button type="button" class="gnd-b" data-gd="wadd" ${d.weapons.length >= GD.VD_LIMITS.weapons ? 'disabled' : ''}>武装を追加</button></div><p class="note">艦船・艦載機の設計と同じ兵装を、倍率で小型化・大型化して載せます（長さは倍率、質量・威力は倍率の3乗）。列：兵装・倍率・門数・取付位置。</p>`;
+ else if (tab === 'crew') body = `<div class="gnd-grid">${inp('crew', d.crew, ...GD.VD_LIMITS.crew, 1, '乗員 (名)')}${inp('troops', d.troops, ...GD.VD_LIMITS.troops, 1, '兵員 (名)')}<label>リアクター<select data-gdf="reactorAuto"><option value="1" ${d.reactor == null ? 'selected' : ''}>自動（必要量の110%）</option><option value="0" ${d.reactor == null ? '' : 'selected'}>出力を指定</option></select></label>${d.reactor == null ? '' : inp('reactor', d.reactor, ...GD.VD_LIMITS.reactor, .1, '出力 (MW)')}<label>陣営<select data-gdf="faction"><option value="neutral">指定なし</option>${Object.entries(R.FACTIONS).map(([k, f]) => `<option value="${k}" ${d.faction === k ? 'selected' : ''}>${esc(f.name)}</option>`).join('')}</select></label></div>
+  <p class="note">必要出力：駆動 ${num(s.power.drive, 1)} MW ＋ 兵装 ${num(s.power.weapons, 1)} MW ＋ シールド ${num(s.power.shield, 1)} MW。乗員0の機体はドロイド制御です。</p>`;
+ else body = gdSavesHTML();
+ el.innerHTML = `<header class="gnd-top"><div class="gnd-t"><h2>ウォーカー・車両設計</h2><small>${esc(GD.PLATFORMS[d.platform].name)} · ${esc(GD.DRIVES[d.drive].name)}</small></div><input type="text" data-gdf="name" value="${esc(d.name)}" maxlength="${GD.VD_LIMITS.name}" aria-label="名称" translate="no" style="flex:1;min-width:120px">
+  <button type="button" class="gnd-b pri" data-gd="save">保存</button><button type="button" class="gnd-b" data-gd="try">地上戦で試す</button><button type="button" class="gnd-b" data-gd="close">閉じる</button></header>
+  <div class="gnd-dz"><div style="display:flex;flex-direction:column;gap:6px;min-height:0"><div class="gnd-prev">${gdPreviewSVG(s)}</div>${gdStatsHTML(s)}</div>
+  <div style="display:flex;flex-direction:column;gap:6px;min-height:0"><nav class="gnd-tabs" aria-label="設計の項目">${tabs.map(([k, n]) => `<button type="button" class="gnd-b" data-gd="tab:${k}" aria-pressed="${tab === k}">${n}</button>`).join('')}</nav><div class="gnd-body">${body}</div></div></div>`;
+}
+function gdSavesHTML() {
+ const saves = GV.saves || [];
+ return `<div class="gnd-acts"><button type="button" class="gnd-b" data-gd="new:walker">新規ウォーカー</button><button type="button" class="gnd-b" data-gd="new:vehicle">新規戦闘車両</button><button type="button" class="gnd-b" data-gd="saveas">別名で保存</button><button type="button" class="gnd-b" data-gd="export">書き出し</button><label class="gnd-b">読み込み<input type="file" accept=".json,application/json" data-gdfile hidden></label></div>
+  <h3>保存した設計</h3><div class="gnd-list">${saves.map(x => `<div class="gnd-row"><div><b translate="no">${esc(x.name)}</b><small>${esc(GD.PLATFORMS[x.platform].name)} · ${esc(GD.DRIVES[x.drive].name)}</small></div><span class="gnd-acts" style="margin:0"><button type="button" class="gnd-b" data-gd="open:${esc(x.id)}">開く</button><button type="button" class="gnd-b warn" data-gd="del:${esc(x.id)}">削除</button></span></div>`).join('') || '<p class="note">まだありません。</p>'}</div>
+  <h3>作例（既存の車両種別から）</h3><div class="gnd-list">${GD.EXAMPLE_KEYS.map(k => { const e = GD.exampleDesign(k); return `<div class="gnd-row"><div><b>${esc(e.name)}</b><small>${esc(GD.PLATFORMS[e.platform].name)} · ${esc(GD.DRIVES[e.drive].name)} · 全長 ${num(e.body.L, 1)} m</small></div><button type="button" class="gnd-b" data-gd="ex:${k}">複製して編集</button></div>`; }).join('')}</div>
+  <p class="note">作例は公式の寸法・乗員を使った汎用の形状で、武装と装甲は役割からの推定です。複製すると自分の設計として編集・保存できます。保存した設計は艦隊編成の中隊の車両に加えられ、地上戦に出せます。</p>`;
+}
+function gdSet(path, v) {
+ const d = GV.design;
+ if (['L', 'W', 'H', 'form'].includes(path)) d.body[path] = path === 'form' ? v : +v;
+ else if (['front', 'side', 'rear'].includes(path)) d.armor[path] = +v;
+ else if (path === 'shield') d.shield = v === '1';
+ else if (path === 'reactorAuto') d.reactor = v === '1' ? null : (GD.vehicleStats(d).power.supply || 1);
+ else if (path === 'name' || path === 'faction') d[path] = v;
+ else d[path] = +v;
+ GV.design = {...GD.normalizeVehicleDesign(d), id: d.id};
+}
+async function gdDesignAction(a, btn) {
+ const d = GV.design;
+ if (a === 'close') { gdClose(); return; }
+ if (a.startsWith('tab:')) { GV.dtab = a.slice(4); gdDesignRender(); return; }
+ if (a.startsWith('plat:')) { const p = a.slice(5); if (p !== d.platform) { const keep = {...d, platform: p, drive: null}; if (p === 'walker') keep.legH = d.body.H * 1.4; GV.design = {...GD.normalizeVehicleDesign(keep), id: d.id}; } gdDesignRender(); return; }
+ if (a.startsWith('drive:')) { d.drive = a.slice(6); GV.design = {...GD.normalizeVehicleDesign(d), id: d.id}; gdDesignRender(); return; }
+ if (a === 'wadd') { d.weapons.push({k: 'cturret', scale: 1, count: 1, mount: 'turret'}); GV.design = {...GD.normalizeVehicleDesign(d), id: d.id}; gdDesignRender(); return; }
+ if (a.startsWith('wdel:')) { d.weapons.splice(+a.slice(5), 1); gdDesignRender(); return; }
+ if (a === 'save' || a === 'saveas') { if (a === 'saveas') d.id = gdNewId(); try { const where = await VStore.save(d); await gdRegisterSaved(); GD.registerVehicleDesign(d); toast(where === 'cloud' ? '保存しました（あなたのアカウント）' : '保存しました（この端末）'); } catch (e) { toast(esc(e.message || '保存できませんでした')); } gdDesignRender(); return; }
+ if (a === 'export') { voyDownload((d.name || 'vehicle').replace(/[\\/:*?"<>|]/g, '_') + '.ks-vehicle.json', JSON.stringify(GD.normalizeVehicleDesign(d), null, 1)); return; }
+ if (a.startsWith('new:')) { GV.design = {...gdBlank(a.slice(4)), id: gdNewId()}; GV.dtab = 'body'; gdDesignRender(); return; }
+ if (a.startsWith('ex:')) { const e = GD.exampleDesign(a.slice(3)); GV.design = {...e, id: gdNewId(), name: e.name + '（改）'}; delete GV.design.example; GV.dtab = 'body'; gdDesignRender(); return; }
+ if (a.startsWith('open:')) { const x = (GV.saves || []).find(v => v.id === a.slice(5)); if (x) { GV.design = GD.normalizeVehicleDesign(x); GV.dtab = 'body'; gdDesignRender(); } return; }
+ if (a.startsWith('del:')) { if (btn.dataset.sure !== '1') { btn.dataset.sure = '1'; btn.textContent = T('本当に削除'); return; } await VStore.remove(a.slice(4)); await gdRegisterSaved(); gdDesignRender(); return; }
+ if (a === 'try') { const key = GD.registerVehicleDesign(d); gdDrillSetup({extra: {[key]: 2}}); }
+}
+
+// ---------- the battle view ----------
+const GD_COL = {own: '#68c2db', foe: '#ec6a5c', ownSoft: 'rgba(104,194,219,.18)', foeSoft: 'rgba(236,106,92,.18)'};
+// Ground colours by planet kind: [open, woods/blocks, hills, water] (lava on volcanic worlds).
+const GD_PAL = {0: ['#2b3136', '#3d454c', '#4a4f53', '#1d3a4f'], 1: ['#34402f', '#3e4a44', '#5a5a4a', '#1e3d55'], 2: ['#33452c', '#203a22', '#5d5a3c', '#1f4562'], 3: ['#3a3640', '#4a4452', '#5a5260', '#2a2440'], 4: ['#a9b8c4', '#7d909b', '#c8d4dc', '#5d86a3'],
+ 5: ['#4a4038', '#3c3a30', '#6a5a48', '#2a3a48'], 6: ['#a08a5c', '#7a6a48', '#b89c66', '#3a6a80'], 7: ['#3a302c', '#2c2a26', '#504038', '#b4501e'], 8: ['#2c4426', '#18301a', '#4a5a34', '#1e4a52'], 9: ['#3c5a40', '#2a4a30', '#5a6a48', '#1d4a72']};
+function gdBattle(cfg, opt = {}) {
+ const el = gdOpen('battle');if (!el) return null;let b;
+ try { b = opt.battle || GD.createBattle(cfg); } catch (e) { toast(esc(e.message || '地上戦を始められません')); gdClose(); return null; }
+ GV.b = b;GV.spectate = !!opt.spectate;GV.done = opt.done || null;GV.title = opt.title || '';GV.drill = !!opt.drill;GV.sel.clear();GV.cmd = 'move';GV.paused = false;GV.speed = 4;GV.z = 1;GV.pan = [0, 0];GV.resultShown = false;
+ el.innerHTML = `<header class="gnd-top"><div class="gnd-t"><h2 data-gv="title"></h2><small data-gv="sub"></small></div><span data-gv="speed"></span><button type="button" class="gnd-b" data-gv="zoom" aria-label="拡大">拡大</button>${GV.spectate ? '' : '<button type="button" class="gnd-b" data-gv="auto">自動で決着</button>'}<button type="button" class="gnd-b" data-gv="quit">${GV.spectate ? '閉じる' : '終了'}</button></header>
+  <div class="gnd-map" data-gv="map"><canvas></canvas><div class="gnd-banner" data-gv="banner" hidden></div><div class="gnd-drill" data-gv="drill" hidden></div><div class="gnd-sheet" data-gv="sheet" hidden></div></div>
+  ${GV.spectate ? '<p class="note" data-gv="spec">艦隊戦の進行にあわせて自動で戦われています（観戦）。</p>' : `<div class="gnd-sel" data-gv="selinfo"></div><div class="gnd-orders" data-gv="orders"></div><div class="gnd-units" data-gv="units"></div>`}`;
+ const cv = el.querySelector('canvas');GV.ctx = I18N?.canvas ? I18N.canvas(cv.getContext('2d')) : cv.getContext('2d');
+ gdBindMap(el.querySelector('[data-gv="map"]'));gdHud(true);GV.last = performance.now();cancelAnimationFrame(GV.raf);GV.raf = requestAnimationFrame(gdLoop);
+ return b;
+}
+function gdLoop(now) {
+ const b = GV.b;if (!b || GV.mode !== 'battle') return;const dt = Math.min(.25, (now - GV.last) / 1000);GV.last = now;
+ if (!GV.spectate && !GV.paused && b.phase === 'battle' && !b.result) GD.step(b, dt * GV.speed);
+ gdDraw();if (now - GV.hudT > 250) { GV.hudT = now; gdHud(); }
+ if (b.result && !GV.resultShown && !GV.spectate) { GV.resultShown = true; gdResult(); }
+ GV.raf = requestAnimationFrame(gdLoop);
+}
+function gdView(cv) {
+ const r = cv.getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1), W = Math.max(1, r.width), H = Math.max(1, r.height);
+ if (cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)) { cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+ const M = GD.MAP, k = Math.min(W / M.W, H / M.H) * GV.z, ox = (W - M.W * k) / 2 + GV.pan[0], oy = (H - M.H * k) / 2 + GV.pan[1];
+ return {W, H, dpr, k, ox, oy, sx: x => ox + x * k, sy: y => oy + y * k, wx: px => (px - ox) / k, wy: py => (py - oy) / k};
+}
+function gdUnitVisible(b, u) { return u.side === 0 || b.sides[0].vis.has(u.id) || GV.spectate || !!b.result; }
+function gdDraw() {
+ const b = GV.b, ctx = GV.ctx, cv = ctx?.canvas;if (!b || !cv) return;const V = gdView(cv), m = b.map, pal = GD_PAL[m.kind] || GD_PAL[2];GV.v = V;
+ ctx.setTransform(V.dpr, 0, 0, V.dpr, 0, 0);ctx.fillStyle = '#05090c';ctx.fillRect(0, 0, V.W, V.H);
+ const cs = m.cell * V.k;
+ for (let r = 0; r < m.rows; r++) for (let c = 0; c < m.cols; c++) { const t = m.t[r * m.cols + c], x = V.sx(c * m.cell), y = V.sy(r * m.cell); ctx.fillStyle = pal[t]; ctx.fillRect(x, y, cs + .6, cs + .6);
+  if (t === 1) { ctx.fillStyle = 'rgba(0,0,0,.22)'; if (m.urban) { ctx.fillRect(x + cs * .15, y + cs * .15, cs * .3, cs * .3); ctx.fillRect(x + cs * .55, y + cs * .5, cs * .3, cs * .35); } else for (const [a, d] of [[.25, .3], [.7, .25], [.45, .7]]) { ctx.beginPath(); ctx.arc(x + cs * a, y + cs * d, cs * .16, 0, 7); ctx.fill(); } }
+  if (t === 2) { ctx.strokeStyle = 'rgba(255,255,255,.12)'; ctx.beginPath(); ctx.arc(x + cs / 2, y + cs / 2, cs * .34, 0, 7); ctx.stroke(); } }
+ // the landing zone
+ const A = b.sides.find(s => s.role === 'attack');
+ if (A?.lift) { const y0 = V.sy(m.H - GD.LZ_ROWS * m.cell); ctx.setLineDash([6, 5]); ctx.strokeStyle = A.id === 0 ? GD_COL.own : GD_COL.foe; ctx.lineWidth = 1.2; ctx.strokeRect(V.sx(Math.max(0, A.lz - 350)), y0 + 2, 700 * V.k, GD.LZ_ROWS * cs - 4); ctx.setLineDash([]);
+  ctx.fillStyle = A.id === 0 ? GD_COL.ownSoft : GD_COL.foeSoft; ctx.fillRect(V.sx(Math.max(0, A.lz - 350)), y0 + 2, 700 * V.k, GD.LZ_ROWS * cs - 4); }
+ // objectives
+ for (const o of m.objectives) { const x = V.sx(o.pos[0]), y = V.sy(o.pos[1]), R0 = GD.OBJ_RADIUS * V.k, col = o.owner === 0 ? GD_COL.own : o.owner === 1 ? GD_COL.foe : '#c9c9c9';
+  ctx.beginPath(); ctx.arc(x, y, R0, 0, 7); ctx.fillStyle = o.owner === 0 ? GD_COL.ownSoft : o.owner === 1 ? GD_COL.foeSoft : 'rgba(255,255,255,.06)'; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = col; ctx.stroke();
+  if (o.prog > 0 && o.by != null && o.by !== 'contested') { ctx.beginPath(); ctx.arc(x, y, R0 + 4, -Math.PI / 2, -Math.PI / 2 + o.prog * Math.PI * 2); ctx.strokeStyle = o.by === 0 ? GD_COL.own : GD_COL.foe; ctx.lineWidth = 3; ctx.stroke(); }
+  ctx.fillStyle = '#fff'; ctx.font = `bold ${Math.max(11, Math.min(16, R0 * .5))}px system-ui`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('ABC'[o.id], x, y); }
+ // fire and air strikes
+ for (const f of b.fx) { const age = b.time - f.t, a = Math.max(0, 1 - age / 2.5);
+  if (f.k === 'air') { ctx.beginPath(); ctx.arc(V.sx(f.at[0]), V.sy(f.at[1]), (70 + age * 30) * V.k, 0, 7); ctx.fillStyle = `rgba(255,170,60,${.35 * a})`; ctx.fill(); continue; }
+  if (!gdUnitVisible(b, {side: f.side, id: null}) && f.side !== 0 && !GV.spectate) { /* the muzzle gives the shooter away: shown */ }
+  ctx.strokeStyle = f.side === 0 ? `rgba(120,220,255,${.55 * a})` : `rgba(255,120,100,${.55 * a})`; ctx.lineWidth = f.k === 'h' ? 2 : 1; ctx.beginPath(); ctx.moveTo(V.sx(f.a[0]), V.sy(f.a[1])); ctx.lineTo(V.sx(f.z[0]), V.sy(f.z[1])); ctx.stroke(); }
+ for (const a of b.airs) { const x = V.sx(a.at[0]), y = V.sy(a.at[1]); ctx.strokeStyle = a.side === 0 ? GD_COL.own : GD_COL.foe; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.arc(x, y, 70 * V.k, 0, 7); ctx.stroke(); ctx.setLineDash([]); }
+ // units (ghosts of enemies last seen)
+ for (const [id, s] of b.sides[0].seen) { if (b.sides[0].vis.has(id) || GV.spectate || b.result) continue; const u = b.units.find(x => x.id === id); if (!u || u.n <= 0 || b.time - s.t > 120) continue; ctx.globalAlpha = .35; gdUnit(ctx, V, u, s.pos); ctx.globalAlpha = 1; }
+ for (const u of b.units) { if (!u.landed || u.n <= 0 || !gdUnitVisible(b, u)) continue; gdUnit(ctx, V, u, u.pos); }
+ // the selection's orders
+ for (const id of GV.sel) { const u = b.units.find(x => x.id === id); if (!u || u.n <= 0 || !u.landed) continue; const to = u.order.type === 'move' ? u.order.to : u.order.type === 'capture' ? m.objectives[u.order.obj]?.pos : u.order.type === 'attack' ? b.units.find(x => x.id === u.order.target)?.pos : null;
+  if (to) { ctx.strokeStyle = u.order.type === 'attack' ? 'rgba(255,140,120,.8)' : 'rgba(150,230,255,.7)'; ctx.setLineDash([5, 4]); ctx.beginPath(); ctx.moveTo(V.sx(u.pos[0]), V.sy(u.pos[1])); ctx.lineTo(V.sx(to[0]), V.sy(to[1])); ctx.stroke(); ctx.setLineDash([]); } }
+}
+function gdUnit(ctx, V, u, p) {
+ const x = V.sx(p[0]), y = V.sy(p[1]), own = u.side === 0, col = own ? GD_COL.own : GD_COL.foe, sel = GV.sel.has(u.id);
+ const w = u.kind === 'inf' ? 18 : u.kind === 'fort' ? 16 : 20, h = u.kind === 'inf' ? 12 : 14;
+ ctx.fillStyle = 'rgba(6,12,16,.85)';ctx.strokeStyle = sel ? '#fff' : col;ctx.lineWidth = sel ? 2.4 : 1.6;ctx.fillRect(x - w / 2, y - h / 2, w, h);ctx.strokeRect(x - w / 2, y - h / 2, w, h);
+ ctx.strokeStyle = col;ctx.lineWidth = 1.4;ctx.beginPath();
+ if (u.kind === 'inf') { ctx.moveTo(x - w / 2, y - h / 2); ctx.lineTo(x + w / 2, y + h / 2); ctx.moveTo(x + w / 2, y - h / 2); ctx.lineTo(x - w / 2, y + h / 2); }
+ else if (u.kind === 'fort') { ctx.moveTo(x - 5, y + 4); ctx.lineTo(x, y - 4); ctx.lineTo(x + 5, y + 4); ctx.closePath(); }
+ else if (u.prof?.platform === 'walker') { ctx.moveTo(x - 6, y + 4); ctx.lineTo(x - 3, y - 3); ctx.lineTo(x, y + 4); ctx.lineTo(x + 3, y - 3); ctx.lineTo(x + 6, y + 4); }
+ else ctx.ellipse(x, y, 7, 3.6, 0, 0, 7);
+ ctx.stroke();
+ // strength
+ const f = u.n0 > 0 ? (u.n + (u.kind !== 'inf' && u.n > 0 ? u.hp / u.hpEach - 1 : 0)) / u.n0 : 0;ctx.fillStyle = f > .6 ? '#5fc48a' : f > .3 ? '#e7b34d' : '#ec6a5c';ctx.fillRect(x - w / 2, y + h / 2 + 2, w * Math.max(0, Math.min(1, f)), 2.5);
+ if (u.kind === 'veh' && u.n > 1) { ctx.fillStyle = '#fff'; ctx.font = '9px system-ui'; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom'; ctx.fillText('×' + u.n, x + w / 2 + 1, y - h / 2 + 2); }
+ if (u.dig > .5 && !u.moving) { ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.beginPath(); ctx.arc(x, y, w * .75, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke(); }
+}
+function gdShortName(u) { const n = u.name || '';const m = /([A-D]中隊（[^）]*）|第\d+中隊)/.exec(n);const v = u.kind === 'veh' ? (R.VEHICLES[u.key]?.name || u.key) : '';return (u.kind === 'veh' ? v : m ? m[1] : n).slice(0, 22); }
+function gdHud(full) {
+ const b = GV.b, el = GV.el;if (!b || !el) return;const own = b.sides[0], foe = b.sides[1], q = s => el.querySelector(`[data-gv="${s}"]`);
+ q('title').textContent = GV.title || `${b.planet.name || '惑星'}の地上戦`;
+ q('sub').textContent = `自軍 ${gdF(own.faction)} · 敵軍 ${gdF(foe.faction)} · ${gdT(b.time)} / ${gdT(b.timeLimit)} · 目標 ${b.map.objectives.map(o => o.owner === 0 ? '■' : o.owner === 1 ? '□' : '－').join('')}${own.air.sorties ? ` · 航空支援 残り ${own.air.sorties - own.air.used}` : ''}`;
+ const sp = q('speed');if (sp && !GV.spectate && (full || sp.dataset.k !== `${GV.paused}${GV.speed}`)) { sp.dataset.k = `${GV.paused}${GV.speed}`; sp.innerHTML = `<button type="button" class="gnd-b" data-gv="pause" aria-pressed="${GV.paused}" aria-label="一時停止">${GV.paused ? '▶' : 'Ⅱ'}</button>${GD_SPEEDS.map(v => `<button type="button" class="gnd-b" data-gv="spd:${v}" aria-pressed="${!GV.paused && GV.speed === v}">${v}×</button>`).join('')}`; }
+ const ban = q('banner'), att = b.sides.find(s => s.role === 'attack'), mineAttack = att?.id === 0 && !GV.spectate;
+ if (b.phase === 'deploy' && mineAttack) { ban.hidden = false; ban.innerHTML = `${esc(T('降下地点：画面下部の帯をタップして決め、「作戦開始」を押します。'))}`; }
+ else if (GV.cmd === 'air' && !GV.spectate) { ban.hidden = false; ban.textContent = T('航空攻撃の地点をタップ（味方も巻き込みます）'); }
+ else if (GV.cmd === 'attack' && !GV.spectate) { ban.hidden = false; ban.textContent = T('攻撃する敵部隊をタップ'); }
+ else if (GV.cmd === 'capture' && !GV.spectate) { ban.hidden = false; ban.textContent = T('奪取する目標（A・B・C）をタップ'); }
+ else ban.hidden = true;
+ const dr = q('drill');if (dr) { if (GV.drill) { const st = gdDrillState(b); dr.hidden = false; dr.innerHTML = `<b>${esc(T('演習の手順'))}</b><ol>${GD.DRILL_STEPS.map(([k, t]) => `<li class="${st[k] ? 'done' : ''}">${esc(T(t))}</li>`).join('')}</ol>`; } else dr.hidden = true; }
+ if (GV.spectate) { const sp2 = q('spec'); if (sp2 && b.result) sp2.textContent = GD.resultText(b); return; }
+ const sel = [...GV.sel].map(id => b.units.find(u => u.id === id)).filter(u => u && u.n + u.pending > 0), si = q('selinfo');
+ si.textContent = sel.length === 1 ? `${sel[0].name} · ${sel[0].kind === 'inf' ? `${sel[0].n} 名` : `${sel[0].n} 両`}${sel[0].pending ? `（未着 ${sel[0].pending}）` : ''} · ${GD.ORDER_TYPES[sel[0].order.type] || ''}${sel[0].kind === 'veh' ? ` · ${num(sel[0].prof.speed)} km/h · 射程 ${num(sel[0].prof.range)} m` : ''}` : sel.length ? `${sel.length} 部隊を選択中` : T('部隊をタップして選び、地図をタップして移動。敵をタップで攻撃。');
+ const or = q('orders'), dep = b.phase === 'deploy' && mineAttack, k = `${b.phase}|${GV.cmd}|${sel.length}|${GV.multi}|${own.air.used}|${b.time >= own.air.ready}|${!!b.result}`;
+ if (or && (full || or.dataset.k !== k)) { or.dataset.k = k; const has = sel.length > 0;
+  or.innerHTML = dep ? `<button type="button" class="gnd-b pri" data-gv="start">作戦開始</button><button type="button" class="gnd-b" data-gv="auto">自動で決着</button>` : b.phase === 'deploy' ? `<button type="button" class="gnd-b pri" data-gv="start">作戦開始</button>` :
+   `<button type="button" class="gnd-b" data-gv="cmd:move" aria-pressed="${GV.cmd === 'move'}" ${has ? '' : 'disabled'}>移動</button><button type="button" class="gnd-b" data-gv="cmd:attack" aria-pressed="${GV.cmd === 'attack'}" ${has ? '' : 'disabled'}>攻撃</button><button type="button" class="gnd-b" data-gv="hold" ${has ? '' : 'disabled'}>待機</button><button type="button" class="gnd-b" data-gv="cmd:capture" aria-pressed="${GV.cmd === 'capture'}" ${has ? '' : 'disabled'}>目標奪取</button>
+   <button type="button" class="gnd-b" data-gv="cmd:air" aria-pressed="${GV.cmd === 'air'}" ${own.air.used < own.air.sorties && b.time >= own.air.ready ? '' : 'disabled'}>航空支援</button><button type="button" class="gnd-b" data-gv="all">全部隊</button><button type="button" class="gnd-b" data-gv="multi" aria-pressed="${GV.multi}">複数選択</button>`; }
+ const un = q('units');if (un) { const list = b.units.filter(u => u.side === 0 && (u.n > 0 || u.pending > 0)), k2 = list.map(u => `${u.id}${u.n}${u.pending}${GV.sel.has(u.id)}${u.landed}`).join('|');
+  if (full || un.dataset.k !== k2) { un.dataset.k = k2; un.innerHTML = list.map(u => `<button type="button" class="gnd-b gnd-u" data-gvu="${u.id}" aria-pressed="${GV.sel.has(u.id)}"><b>${esc(gdShortName(u))}</b><small>${u.kind === 'inf' ? `${u.n} 名` : `${u.n} 両`}${u.pending ? ` · 未着 ${u.pending}` : ''}</small><i style="width:${Math.round(100 * Math.min(1, (u.n + u.pending) / Math.max(1, u.n0)))}%"></i></button>`).join('') || `<p class="note">${esc(T('部隊がありません'))}</p>`; } }
+}
+function gdDrillState(b) { const o = b.orders || {};return {deploy: !!o.deploy || b.phase === 'battle', move: !!o.move, attack: !!o.attack, vehicle: !!o.vehicle, air: !!o.air, capture: b.map.objectives.some(x => x.owner === 0)}; }
+function gdPick(b, px, py) {
+ const V = GV.v;if (!V) return null;let best = null, bd = 24;
+ for (const u of b.units) { if (!u.landed || u.n <= 0 || !gdUnitVisible(b, u)) continue; const d = Math.hypot(V.sx(u.pos[0]) - px, V.sy(u.pos[1]) - py); if (d < bd) { bd = d; best = u; } }
+ return best;
+}
+function gdTap(px, py) {
+ const b = GV.b, V = GV.v;if (!b || !V || GV.spectate || b.result) return;const x = V.wx(px), y = V.wy(py), att = b.sides.find(s => s.role === 'attack');
+ if (b.phase === 'deploy') { if (att?.id === 0) { GD.deploy(b, 0, x); gdHud(true); } return; }
+ if (GV.cmd === 'air') { if (GD.airStrike(b, 0, [x, y])) toast(T('航空攻撃を要請しました（約20秒後に到着）')); GV.cmd = 'move'; gdHud(true); return; }
+ const u = gdPick(b, px, py), ids = [...GV.sel];
+ if (u && u.side === 0) { if (GV.multi) { if (GV.sel.has(u.id)) GV.sel.delete(u.id); else GV.sel.add(u.id); } else { GV.sel.clear(); GV.sel.add(u.id); } if (GV.cmd !== 'move') GV.cmd = 'move'; gdHud(true); return; }
+ if (!ids.length) return;
+ if (u && u.side !== 0) { GD.order(b, ids, {type: 'attack', target: u.id}); GV.cmd = 'move'; gdHud(true); return; }
+ const obj = b.map.objectives.find(o => Math.hypot(o.pos[0] - x, o.pos[1] - y) < GD.OBJ_RADIUS);
+ if (GV.cmd === 'capture' || obj && GV.cmd !== 'attack') { if (obj) { GD.order(b, ids, {type: 'capture', obj: obj.id}); GV.cmd = 'move'; } gdHud(true); return; }
+ if (GV.cmd === 'attack') return;
+ GD.order(b, ids, {type: 'move', to: [x, y]});gdHud(true);
+}
+function gdBindMap(box) {
+ let down = null;
+ box.addEventListener('pointerdown', e => { down = {x: e.clientX, y: e.clientY, pan: [...GV.pan], moved: false}; box.setPointerCapture?.(e.pointerId); });
+ box.addEventListener('pointermove', e => { if (!down) return; const dx = e.clientX - down.x, dy = e.clientY - down.y; if (Math.hypot(dx, dy) > 8) down.moved = true; if (down.moved && GV.z > 1) { GV.pan = [down.pan[0] + dx, down.pan[1] + dy]; } });
+ box.addEventListener('pointerup', e => { if (!down) return; const r = box.getBoundingClientRect(), d = down; down = null; if (!d.moved) gdTap(e.clientX - r.left, e.clientY - r.top); });
+ box.addEventListener('pointercancel', () => { down = null; });
+ box.addEventListener('wheel', e => { e.preventDefault(); GV.z = Math.max(1, Math.min(3, GV.z * (e.deltaY < 0 ? 1.2 : 1 / 1.2))); if (GV.z === 1) GV.pan = [0, 0]; }, {passive: false});
+}
+function gdResult() {
+ const b = GV.b, r = b.result, el = GV.el;if (!r || !el) return;const sh = el.querySelector('[data-gv="sheet"]');if (!sh) return;const own = r.sides[0], foe = r.sides[1], win = r.winner === 0;
+ const veh = v => Object.entries(v).map(([k, n]) => `${R.VEHICLES[k]?.name || k} ${n}`).join('・') || 'なし';
+ sh.hidden = false;sh.innerHTML = `<h2 class="${win ? 'ok' : 'bad'}">${win ? '勝利' : '敗北'} · ${esc(GD.REASONS[r.reason] || '')}</h2><ul><li>${esc(gdF(b.sides[0].faction))}：戦死・損失 ${num(own.troopsLost)} 名 · 車両 ${esc(veh(own.vehiclesLost))}</li><li>${esc(gdF(b.sides[1].faction))}：戦死・損失 ${num(foe.troopsLost)} 名 · 車両 ${esc(veh(foe.vehiclesLost))}</li><li>戦闘時間 ${gdT(r.time)} · 目標 ${r.objectives.map(o => o === 0 ? '確保' : '未確保').join('・')}</li>${b.sides[0].stranded.length ? `<li>降ろせなかった部隊 ${b.sides[0].stranded.length}（揚陸艇の貨物室に入らない、または揚陸艇がない）</li>` : ''}</ul>
+  <div class="gnd-acts"><button type="button" class="gnd-b pri" data-gv="finish">${GV.done ? '結果を確定して戻る' : '閉じる'}</button><button type="button" class="gnd-b" data-gv="look">戦場を見る</button></div>`;
+}
+function gdFinish() { const b = GV.b, done = GV.done;gdClose();if (done && b) done(b); }
+document.addEventListener('click', e => {
+ const t = e.target.closest?.('[data-gv],[data-gvu],[data-gd],[data-gnd]');if (!t || t.disabled) return;
+ if (t.dataset.gnd) { e.preventDefault(); const a = t.dataset.gnd; if (a === 'design') gdDesigner(); else if (a === 'drill') gdDrillSetup(); return; }
+ if (t.dataset.gd) { gdDesignAction(t.dataset.gd, t); return; }
+ if (t.dataset.gdsetup) return;
+ const b = GV.b;if (!b && t.dataset.gv !== 'setupclose') return;
+ if (t.dataset.gvu) { const id = t.dataset.gvu; if (GV.multi) { if (GV.sel.has(id)) GV.sel.delete(id); else GV.sel.add(id); } else { GV.sel.clear(); GV.sel.add(id); } gdHud(true); return; }
+ const a = t.dataset.gv;
+ if (a === 'start') { GD.start(b); gdHud(true); return; }
+ if (a === 'pause') { GV.paused = !GV.paused; gdHud(true); return; }
+ if (a?.startsWith('spd:')) { GV.speed = +a.slice(4) || 4; GV.paused = false; gdHud(true); return; }
+ if (a === 'zoom') { GV.z = GV.z >= 3 ? 1 : GV.z + 1; if (GV.z === 1) GV.pan = [0, 0]; t.textContent = T(GV.z === 1 ? '拡大' : '縮小'); return; }
+ if (a?.startsWith('cmd:')) { const c = a.slice(4); GV.cmd = GV.cmd === c ? 'move' : c; gdHud(true); return; }
+ if (a === 'hold') { GD.order(b, [...GV.sel], {type: 'hold'}); gdHud(true); return; }
+ if (a === 'all') { GV.sel = new Set(b.units.filter(u => u.side === 0 && u.n > 0 && u.landed && u.kind !== 'fort').map(u => u.id)); gdHud(true); return; }
+ if (a === 'multi') { GV.multi = !GV.multi; gdHud(true); return; }
+ if (a === 'auto') { if (!b.result) { GD.autoResolve(b); } gdHud(true); return; }
+ if (a === 'quit') { if (GV.spectate || b.result) { gdFinish(); return; } if (t.dataset.sure !== '1') { t.dataset.sure = '1'; t.textContent = T('撤退する'); toast(T('もう一度押すと撤退します（揚陸部隊は敗北扱い）')); return; } GD.withdraw(b, 0); gdHud(true); return; }
+ if (a === 'finish') { gdFinish(); return; }
+ if (a === 'look') { const sh = GV.el.querySelector('[data-gv="sheet"]'); if (sh) { sh.innerHTML = `<div class="gnd-acts" style="margin:0"><button type="button" class="gnd-b pri" data-gv="finish">${GV.done ? '結果を確定して戻る' : '閉じる'}</button></div>`; } return; }
+});
+
+// ---------- the drill and the sandbox ground battle (PLAN-025 stage 7) ----------
+function gdDrillSetup(opt = {}) {
+ const el = gdOpen('setup');if (!el) return;GV.setup = {faction: opt.faction || GV.setup?.faction || 'republic', kind: opt.kind ?? GV.setup?.kind ?? 2, seed: GV.setup?.seed ?? 24, extra: {...(GV.setup?.extra || {}), ...(opt.extra || {})}};
+ gdRegisterSaved().then(gdSetupRender);gdSetupRender();
+}
+const GD_KINDS = {2: '温帯（草原と森）', 8: '密林', 6: '砂漠', 4: '氷原', 5: '岩石', 0: '都市惑星', 7: '火山', 9: '海と島'};
+function gdSetupRender() {
+ const el = GV.el, s = GV.setup;if (!el || GV.mode !== 'setup') return;const saves = (GV.saves || []).map(d => ({d, key: GD.registerVehicleDesign(d)}));
+ for (const k of Object.keys(s.extra)) if (!R.VEHICLES[k]) delete s.extra[k];
+ el.innerHTML = `<header class="gnd-top"><div class="gnd-t"><h2>地上戦演習</h2><small>大隊を揚陸艇で降ろし、仮想敵が守る3つの目標を奪う</small></div><button type="button" class="gnd-b" data-gnd="design">ウォーカー・車両設計</button><button type="button" class="gnd-b" data-gdsx="close">閉じる</button></header>
+  <div class="gnd-body"><div class="gnd-grid"><label>陣営<select data-gds="faction">${Object.entries(R.FACTIONS).map(([k, f]) => `<option value="${k}" ${s.faction === k ? 'selected' : ''}>${esc(f.name)}</option>`).join('')}</select></label><label>地形<select data-gds="kind">${Object.entries(GD_KINDS).map(([k, n]) => `<option value="${k}" ${+k === +s.kind ? 'selected' : ''}>${esc(n)}</option>`).join('')}</select></label><label>乱数シード<input type="number" data-gds="seed" value="${s.seed}" min="1" max="999999"></label></div>
+  <h3>自作のウォーカー・車両を加える</h3><div class="gnd-list">${saves.map(({d, key}) => `<div class="gnd-row"><div><b translate="no">${esc(d.name)}</b><small>${esc(GD.PLATFORMS[d.platform].name)} · ${esc(GD.DRIVES[d.drive].name)}</small></div><label style="flex-direction:row;align-items:center;gap:6px">両数<input type="number" data-gdx="${key}" value="${s.extra[key] || 0}" min="0" max="8" style="width:64px"></label></div>`).join('') || '<p class="note">保存した設計はまだありません。「ウォーカー・車両設計」で作れます。</p>'}${Object.keys(s.extra).filter(k => !saves.some(x => x.key === k) && s.extra[k] > 0).map(k => `<div class="gnd-row"><div><b translate="no">${esc(R.VEHICLES[k].name)}</b><small>設計中の機体</small></div><label style="flex-direction:row;align-items:center;gap:6px">両数<input type="number" data-gdx="${k}" value="${s.extra[k]}" min="0" max="8" style="width:64px"></label></div>`).join('')}</div>
+  <p class="note">演習部隊：${esc(R.REGIMENT_TEMPLATES[s.faction].name)}の1個大隊（4個中隊と所属車両）。LAAT/i 12機・LAAT/c 2機で降下し、航空支援は3回。仮想敵は3個中隊・戦車2両・陣地1か所。手順（展開・移動・攻撃・車両への命令・航空支援・目標奪取）を順に試します。</p>
+  <div class="gnd-acts"><button type="button" class="gnd-b pri" data-gdsx="play">演習を始める</button><button type="button" class="gnd-b" data-gdsx="auto">自動で決着</button></div></div>`;
+}
+document.addEventListener('change', e => {
+ const t = e.target;if (!t?.dataset || !GV.el?.contains(t)) return;
+ if (t.dataset.gdf) { gdSet(t.dataset.gdf, t.value); gdDesignRender(); return; }
+ if (t.dataset.gdw) { const [i, f] = t.dataset.gdw.split('.'), w = GV.design.weapons[+i]; if (!w) return; w[f] = f === 'k' || f === 'mount' ? t.value : +t.value; if (f === 'k') w.scale = GD.VWEAPONS[t.value]; GV.design = {...GD.normalizeVehicleDesign(GV.design), id: GV.design.id}; gdDesignRender(); return; }
+ if (t.dataset.gds) { GV.setup[t.dataset.gds] = t.dataset.gds === 'faction' ? t.value : Math.round(+t.value || 0); gdSetupRender(); return; }
+ if (t.dataset.gdx) { GV.setup.extra[t.dataset.gdx] = Math.max(0, Math.min(8, Math.round(+t.value || 0))); return; }
+ if ('gdfile' in t.dataset && t.files?.[0]) { t.files[0].text().then(txt => { const d = GD.normalizeVehicleDesign(JSON.parse(txt)); if (!d) throw new Error(); GV.design = {...d, id: gdNewId()}; GV.dtab = 'body'; gdDesignRender(); toast(T('設計を読み込みました')); }).catch(() => toast(T('ウォーカー・車両の設計ファイルではありません'))); }
+});
+document.addEventListener('click', e => {
+ const t = e.target.closest?.('[data-gdsx]');if (!t) return;const a = t.dataset.gdsx, s = GV.setup;
+ if (a === 'close') { gdClose(); return; }
+ const cfg = GD.drillConfig({faction: s.faction, kind: s.kind, seed: s.seed, extra: s.extra, planetName: GD_KINDS[s.kind] + 'の演習場'});
+ const b = gdBattle(cfg, {drill: true, title: '地上戦演習'});if (b && a === 'auto') { GD.autoResolve(b); }
+});
+
+// ---------- PLAN-007 landings in a mission ----------
+// After the enemy's fleets have left a system (or been destroyed there), task groups in it whose ships carry
+// regiments can land them on a world the player's side does not hold. Its garrison is the holder's (a world held
+// by no one has its own defence force). Won, the world is held (st.held); the companies' losses go back to the ships.
+function msLandingInfo(st, sys) {
+ const g = Galaxy.BY[sys];if (!g || !GD) return {can: false};
+ const owner = st.held?.[sys] ?? msOwners(st.era)[sys] ?? null, tgs = voyObTgs(st.ob).filter(t => msAt(st, t.id) === sys), ships = tgs.flatMap(t => msReadyShips(t)).filter(sh => (sh.ground || []).length);
+ const troops = ships.reduce((n, sh) => n + sh.ground.reduce((m, r) => m + R.regimentTotals(r).troops, 0), 0);
+ const why = g.v?.k === 3 ? '地表のない惑星です' : owner === st.faction ? '自軍の惑星です' : st.foes.some(f => f.sys === sys) ? '敵艦隊がいます（制宙権がありません）' : !tgs.length ? '' : !troops ? '陸戦部隊を搭載した艦がいません' : '';
+ return {can: !why && !!tgs.length && troops > 0, why, owner, tgs, ships, troops};
+}
+function msLandingHTML(st, sys) {
+ const L = msLandingInfo(st, sys);if (!L.tgs?.length && !st.held?.[sys]) return '';
+ if (st.held?.[sys] === st.faction) return `<p class="gm-mission"><b>地上</b>${esc(T('確保した惑星'))}</p>`;
+ return `<p class="gm-mission"><b>地上</b>${L.can ? `陸戦兵力 ${num(L.troops)} 名 · ${esc(L.owner ? gdF(L.owner) : '独立勢力')}の守備隊` : esc(L.why || '')}</p>${L.can ? `<button type="button" class="btn sm" data-msn="land:${esc(sys)}">揚陸作戦</button> <button type="button" class="btn sm ghost" data-msn="landauto:${esc(sys)}">自動で決着</button>` : ''}`;
+}
+function msLandingForces(st, L) {
+ const forces = [], lift = {troops: 0, size: 0, boxes: []};let air = 0;
+ for (const sh of L.ships) { const d = voyShipDesign(sh); forces.push(...GD.forcesFromRegiments(sh.ground, st.faction, sh.id));
+  const lf = d && voyHasStow(d) ? voyStow(sh, d).lift : null; if (lf) { lift.troops += lf.troops; lift.size += lf.vehicleSize; for (const bx of lf.boxes || []) if (!lift.boxes.some(x => x.every((v, i) => v === bx[i]))) lift.boxes.push(bx); } else { lift.troops += 200; lift.size += 2; }
+  for (const q of sh.air || []) { const c = R.CRAFT[q.craft]; if (c && (c.role === 'bomber' || c.role === 'gunship' || c.role === 'transport' && c.strike >= 12)) air += q.n || 0; } }
+ return {forces, lift, air: Math.min(12, Math.ceil(air / 4))};
+}
+function msLandingStart(sys, auto) {
+ const st = MS;if (!st) return;const L = msLandingInfo(st, sys);if (!L.can) { toast(esc(L.why || '揚陸できません')); return; }
+ const F = msLandingForces(st, L), g = Galaxy.BY[sys], foe = L.owner && R.FACTIONS[L.owner] ? L.owner : 'neutral';
+ if (!(F.lift.troops > 0)) { toast('揚陸艇がありません'); return; }
+ const cfg = {seed: (Math.random() * 1e6) | 0, planet: {kind: g.v?.k ?? 2, name: msSysName(sys)}, sides: [{faction: st.faction, name: gdF(st.faction), ai: false, role: 'attack', forces: F.forces, air: {sorties: F.air}, lift: F.lift}, {faction: foe, name: foe === 'neutral' ? `${msSysName(sys)}防衛軍` : gdF(foe), ai: true, role: 'defend', forces: GD.garrison(foe, g.pop || 2)}]};
+ const done = b => msLandingDone(st, sys, L, b);
+ const b = gdBattle(cfg, {title: `${msSysName(sys)}揚陸作戦`, done});if (b && auto) GD.autoResolve(b);
+}
+function msLandingDone(st, sys, L, b) {
+ const r = b.result;if (!r) return;msAdvance(st, Math.round(b.time));let lost = 0;
+ for (const sh of L.ships) { const x = GD.applyLosses(b, 0, sh.ground, sh.id); lost += x.troops; }
+ const win = r.winner === 0;if (win) { st.held = st.held || {}; st.held[sys] = st.faction; }
+ st.stats.landings = (st.stats.landings || 0) + 1;if (win) st.stats.taken = (st.stats.taken || 0) + 1;
+ msLog(st, `${msSysName(sys)}への揚陸作戦：${win ? '惑星を確保' : '撃退された'}（損害 ${lost} 名）`);
+ msUI.report = {title: `揚陸作戦 · ${win ? '勝利' : '敗北'}`, cls: win ? 'win' : 'lose', lines: [`${msSysName(sys)} · 地上戦 ${gdT(b.time)} · ${GD.REASONS[r.reason] || ''}`, `自軍の損害 ${lost} 名 · 敵の損害 ${r.sides[1].troopsLost} 名`], fresh: true};
+ msSave();msScreenRender();
+}
+
+// ---------- PLAN-007 landings in the fleet battle ----------
+function voyLandingHTML(g) {
+ const w = voy.w;if (!GD || !w || g.sys == null || g.transit) return '';const s = w.sector.systems[g.sys];if (!s || !(s.pop > 0)) return '';
+ const L = GD.landingAt(w, g.sys);
+ if (L && !L.done) { const b = L.b, mine = b.units.filter(u => u.side === 0).reduce((n, u) => n + u.n, 0), foe = b.units.filter(u => u.side === 1).reduce((n, u) => n + u.n, 0);
+  return `<div class="vs-jump"><p>${esc(s.name)}の地上戦 · ${gdT(b.time)} · 目標 ${b.map.objectives.map(o => o.owner === L.side ? '■' : '□').join('')} · 自軍 ${num(mine)} · 敵軍 ${num(foe)}</p><div class="vs-acts"><button type="button" class="btn sm" data-vact="landview">地上戦を見る</button></div></div>`; }
+ if (s.held === 0) return `<p class="vs-sub">${esc(s.name)}：${esc(T('確保した惑星'))}${L?.b ? ` · <button type="button" class="btn sm ghost" data-vact="landview">地上戦の結果</button>` : ''}</p>`;
+ // (the check packs every ship's hangars: kept for a few seconds of battle time)
+ const ck = `${g.id}|${g.sys}|${Math.floor(w.time / 5)}|${g.units.length}`;if (GV.lcK !== ck) { GV.lcK = ck; GV.lc = GD.landingCheck(w, g.id); }
+ const c = GV.lc;
+ if (c.ok) return `<div class="vs-acts"><button type="button" class="btn sm" data-vact="land">揚陸作戦（陸戦兵力 ${num(c.troops)} 名）</button></div>`;
+ return c.why === 'enemy' || c.why === 'troops' ? `<p class="vs-sub">揚陸：${esc(GD.LANDING_WHY[c.why])}</p>` : '';
+}
+function voyLandingAct(a, g) {
+ const w = voy.w;if (!w || !g) return;
+ if (a === 'land') { const r = GD.orderLanding(w, g.id); toast(r.ok ? `${esc(w.sector.systems[g.sys].name)}へ揚陸作戦を開始しました` : esc(GD.LANDING_WHY[r.why] || '揚陸できません')); voyRenderSide(); return; }
+ if (a === 'landview') { const L = GD.landingAt(w, g.sys); if (L) gdBattle(null, {battle: L.b, spectate: true, title: `${w.sector.systems[L.sys].name}の地上戦`}); }
+}
+// (tests) the ground screens from outside
+window.__gnd = {GV, open: gdDesigner, drill: gdDrillSetup, battle: gdBattle, close: gdClose, landingInfo: msLandingInfo, landingStart: msLandingStart, saves: () => VStore.list(), register: gdRegisterSaved};
+setTimeout(() => { gdRegisterSaved(); }, 2500);
 
 window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
 })();

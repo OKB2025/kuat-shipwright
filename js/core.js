@@ -15413,6 +15413,8 @@ followTick(w,dt);raidTick(w, dt);hatchTick(w, dt);
  for (const u of w.units.values()) if (alive(u) && !(u.sys != null && w.battles.has(u.sys))) { C.swDecay(u, dt, null); (u.p.sw||[]).forEach((sw, i) => { const x = u.sw?.[i]; if (!x) return; if (x.st === 'cool') { x.t -= dt; if (x.t <= 0) { x.st = 'charge'; x.c = 0; } return; } if (x.st === 'charge')C.superweaponCharge(u,i,dt); }); }
  for (const s of w.squads.values()) if (s.state === 'docked' && s.t > 0 && !w.battles.has(s.sys)) s.t -= dt;
  squadSystemsTick(w, dt);craftIdle(w, dt);driftTick(w, dt);supplyTick(w, dt);rearTick(w);
+ // v26 PLAN-007 landings in progress are fought out on the fleet battle's clock (Ground.landingTick).
+ if (w.landings?.length && groundHooks.landing) groundHooks.landing(w, dt);
  checkResult(w);
 }
 // The fleet battle ends when one side has lost three quarters of its fighting
@@ -15849,7 +15851,10 @@ function makeRegiment(faction, name) {
  const tpl = REGIMENT_TEMPLATES[faction] || REGIMENT_TEMPLATES.empire;
  return {name, faction, battalions: Array.from({length: REGIMENT_BATTALIONS}, (_, b) => ({name: `第${b + 1}大隊`, companies: tpl.companies.map((type, c) => ({name: `${'ABCD'[c]}中隊（${COMPANY_TYPES[type]}）`, type, troops: COMPANY_TROOPS, vehicles: {...(tpl.vehicles[type] || {})}}))}))};
 }
-function regimentTotals(r) { const t = {troops: 0, vehicles: {}, size: 0}; for (const b of r.battalions || []) for (const c of b.companies || []) { t.troops += c.troops || 0; for (const [k, n] of Object.entries(c.vehicles || {})) { if (!VEHICLES[k]) continue; t.vehicles[k] = (t.vehicles[k] || 0) + n; t.size += VEHICLES[k].size * n; } } return t; }
+// v26 PLAN-008 Hooks the ground module (Ground, defined after Rts) fills: register a player's vehicle design from the
+// snapshot a company keeps (c.vdesigns), and fight out the fleet battle's landings.
+const groundHooks = {register: null, landing: null};
+function regimentTotals(r) { const t = {troops: 0, vehicles: {}, size: 0}; for (const b of r.battalions || []) for (const c of b.companies || []) { t.troops += c.troops || 0; for (const [k, n] of Object.entries(c.vehicles || {})) { if (!VEHICLES[k] && c.vdesigns?.[k] && groundHooks.register) groundHooks.register(c.vdesigns[k]); if (!VEHICLES[k]) continue; t.vehicles[k] = (t.vehicles[k] || 0) + n; t.size += VEHICLES[k].size * n; } } return t; }
 function airTotals(list) { let n = 0, size = 0, crew = 0, fight = 0; for (const q of list || []) { const c = CRAFT[q.craft]; if (!c) continue; n += q.n; size += q.n * c.size; crew += q.n * c.crew; if (!c.stay) fight += q.n; } return {n, size, crew, fight}; }
 
 // ---------- PLAN-002 costs of ships, craft and fleets ----------
@@ -16002,5 +16007,650 @@ return {routeItinerary,jumpEstimate,normalizeJumpNavigation,CAMPAIGN_FORMAT, CAM
  orderScuttle, orderRecover, recoverCheck, rearSeconds, SUPPLY, supplyAt, supplyLines, supplyNeeds, unitSupplyOf, alive, fighting, pdToward, effectiveOrder, groupOrder, tractorReach, tractorOk, registerDesignCraft, craftStores, squadStores, squadRelease, rearmSquad, squadSystemsTick, squadLaserK, squadArmed, squadSlots, craftDown,
  squadFireArc,ctgFormationInfo,
  craftFormation, defaultAir, troopRoom, defaultGround, makeRegiment, regimentTotals, fleetGroundRows, airTotals, battleTick, sectorGal, sideBearing, sideStarts,
- wingHyper, raidCheck, orderRaid, recallRaid, raidMapPos, followMapPos, CRAFT_HYPER, wingOrder, airCtlOf, airCtlCap, airCtlUsed, mouthsOf, opsDone, runGoal};
+ wingHyper, raidCheck, orderRaid, recallRaid, raidMapPos, followMapPos, CRAFT_HYPER, wingOrder, airCtlOf, airCtlCap, airCtlUsed, mouthsOf, opsDone, runGoal, groundHooks, logEvent: event};
+})();
+
+/* ============================================================
+   ground — v26 PLAN-007 / PLAN-008: walker and combat-vehicle designs, and the
+   ground battle. A design is the shared design record (spec §2.1) with platform
+   'walker' or 'vehicle': a body box, a drive (legs, tracks, wheels or repulsors),
+   armour on three faces, the weapon fittings of the ship and craft designer
+   (Core.FITS through Core.fitSpec at a small scale), crew, troops and a reactor.
+   Its movement and combat rules are its own, as §2.1 allows; its cost is quoted
+   with the ships' shared cost model (Core.quoteCostBOM). Every number not taken
+   from the films or sourcebooks is a game assumption, marked provisional.
+   The ground battle is a 2D top-down skirmish on a planetary map 3 × 2 km of
+   100 m cells (open ground, woods or built-up blocks, hills, water), with three
+   objectives. Units are the companies and vehicle platoons of the regiments the
+   ships carry (Rts regiments) and the players' own designs; the attackers come
+   down in sorties of the landing craft that carry them (Core.stowLoad's lift),
+   the defenders are dug in round the objectives. Line of sight over hills and
+   through woods, cover, suppression, air strikes from the fleet's bombers and
+   gunships, and victory by objectives or losses. Every random draw comes from
+   the battle's seed (Rts.rng), so a battle replays exactly (auto-resolve is the
+   same simulation with both sides under AI).
+   ============================================================ */
+const Ground = (() => {
+'use strict';
+const C = Core, R = Rts;
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v)), hyp = Math.hypot;
+const r1 = v => Math.round(v * 10) / 10, r2 = v => Math.round(v * 100) / 100;
+const str = (v, n, d = '') => (typeof v === 'string' ? v.replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, n) : '') || d;
+const num = (v, a, b, d) => v !== null && v !== '' && v !== undefined && Number.isFinite(+v) ? clamp(+v, a, b) : d;
+function fnv(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619); return (h >>> 0).toString(36); }
+
+// ---------- PLAN-008 walker and vehicle designs ----------
+const VD_FORMAT = 'ks-vehicle', VD_VERSION = 1;
+const PLATFORMS = Object.freeze({walker: {name: 'ウォーカー', note: '脚で歩く。悪路と斜面に強く、背が高いので遠くまで見えるが目立つ'}, vehicle: {name: '戦闘車両', note: '無限軌道・装輪・リパルサーで走る。平地では速いが悪路で遅くなる'}});
+// Drives. base: top speed on open ground (km/h) at full power; frac: share of the rest of the mass the running gear
+// weighs; kw: the drive's power per tonne (kW/t); rough / slope: speed in woods or built-up blocks / on hills; water:
+// speed over water (0: cannot cross). All provisional except the walkers' bases, from the canon AT-ST (90 km/h) and AT-AT (60).
+const DRIVES = Object.freeze({
+ legs2: {platform: 'walker', name: '二脚', legs: 2, base: 90, frac: .28, kw: 30, rough: 1, slope: .95, water: .4},
+ legs4: {platform: 'walker', name: '四脚', legs: 4, base: 60, frac: .34, kw: 25, rough: 1, slope: .9, water: .5},
+ legs6: {platform: 'walker', name: '六脚（多脚）', legs: 6, base: 50, frac: .38, kw: 22, rough: 1, slope: 1, water: .5},
+ tracks: {platform: 'vehicle', name: '無限軌道', base: 70, frac: .2, kw: 18, rough: .7, slope: .8, water: 0},
+ wheels: {platform: 'vehicle', name: '装輪', base: 100, frac: .1, kw: 14, rough: .45, slope: .6, water: 0},
+ repulsor: {platform: 'vehicle', name: 'リパルサー（浮上）', base: 160, frac: .12, kw: 35, rough: .8, slope: .75, water: .9, hover: true}
+});
+const BODY_FORMS = Object.freeze({box: {name: '箱形', fill: .8, area: 1}, wedge: {name: '楔形', fill: .6, area: .88}, round: {name: '円筒・卵形', fill: .55, area: .85}});
+const MOUNTS = Object.freeze({turret: {name: '旋回砲塔', arc: 360}, chin: {name: '機首下砲架', arc: 120}, hull: {name: '車体固定', arc: 40}, side: {name: '側面砲架', arc: 180}});
+// The fittings a vehicle may carry, at the scale each starts from (Core.fitSpec: length × scale, mass and energy × scale³).
+const VWEAPONS = Object.freeze({claser: 1, claserH: 1, cion: 1, cturret: 1, cmsl: 1, ctorp: 1, pd: .5, ltl: .3});
+const VD_LIMITS = Object.freeze({L: [1.5, 160], W: [.8, 40], H: [.6, 40], legH: [0, 40], armor: [0, 80], weapons: 8, count: 12, scale: [.1, 2], crew: [0, 80], troops: [0, 300], reactor: [.02, 2000], name: 40});
+// Provisional material constants: durasteel armour 7.8 t/m³ (steel), the body's frame and systems 0.18 t/m³ of its
+// volume, a reactor 0.5 t and 0.3 m³ per MW, a crewman or trooper aboard 0.12 t; an energy weapon draws 2,000 MW
+// per TT of bolt energy (a fighter laser cannon 1 MW); a deflector 0.002 MW per m² of surface.
+const VD_K = Object.freeze({armorDensity: 7.8, bodyDensity: .18, reactorT: .5, reactorM3: .3, personT: .12, weaponMW: 2000, shieldMW: .002, topArmor: .5});
+const SIDES3 = ['front', 'side', 'rear'];
+
+function normalizeVehicleDesign(raw) {
+ if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+ if (raw.format && raw.format !== VD_FORMAT) return null;
+ const platform = raw.platform === 'walker' ? 'walker' : 'vehicle';
+ let drive = Object.hasOwn(DRIVES, raw.drive) ? raw.drive : null;
+ if (!drive || DRIVES[drive].platform !== platform) drive = platform === 'walker' ? 'legs4' : 'tracks';
+ const b = raw.body && typeof raw.body === 'object' ? raw.body : {}, L = r2(num(b.L, ...VD_LIMITS.L, 8)), W = r2(num(b.W, ...VD_LIMITS.W, 4)), H = r2(num(b.H, ...VD_LIMITS.H, 3));
+ const form = Object.hasOwn(BODY_FORMS, b.form) ? b.form : 'box', legH = platform === 'walker' ? r2(num(raw.legH, ...VD_LIMITS.legH, r1(H * 1.4))) : 0;
+ const a = raw.armor && typeof raw.armor === 'object' ? raw.armor : {}, armor = {};
+ for (const k of SIDES3) armor[k] = r1(num(a[k], ...VD_LIMITS.armor, k === 'front' ? 15 : k === 'side' ? 10 : 6));
+ const weapons = (Array.isArray(raw.weapons) ? raw.weapons : []).filter(x => x && Object.hasOwn(VWEAPONS, x.k) && C.FITS[x.k]).slice(0, VD_LIMITS.weapons)
+  .map(x => ({k: x.k, scale: r2(num(x.scale, ...VD_LIMITS.scale, VWEAPONS[x.k])), count: Math.round(num(x.count, 1, VD_LIMITS.count, 1)), mount: Object.hasOwn(MOUNTS, x.mount) ? x.mount : 'turret'}));
+ const id = typeof raw.id === 'string' && /^[A-Za-z0-9_-]{1,48}$/.test(raw.id) ? raw.id : null;
+ return {format: VD_FORMAT, version: VD_VERSION, ...(id ? {id} : {}), name: str(raw.name, VD_LIMITS.name, platform === 'walker' ? '新型ウォーカー' : '新型戦闘車両'), platform,
+  faction: Object.hasOwn(R.FACTIONS, raw.faction) ? raw.faction : 'neutral', body: {L, W, H, form}, legH, drive, armor, weapons,
+  crew: Math.round(num(raw.crew, ...VD_LIMITS.crew, 2)), troops: Math.round(num(raw.troops, ...VD_LIMITS.troops, 0)),
+  reactor: raw.reactor == null || raw.reactor === 'auto' ? null : r2(num(raw.reactor, ...VD_LIMITS.reactor, 1)), shield: raw.shield === true,
+  ...(typeof raw.example === 'string' && /^[a-z0-9]{1,20}$/.test(raw.example) ? {example: raw.example} : {})};
+}
+// One weapon fitting on the ground (provisional): its armour penetration (cm of durasteel) and damage grow with the
+// cube root of the bolt energy (a fighter's laser cannon, 0.5 GT: 17 cm, 1 km), so the scale works as in the
+// designer; ion bolts disable droids and machines and pass armour but do little to people; missiles and torpedoes
+// from a launcher's bore. rof: shots a second; ai: effect on infantry; aa: anti-air (the fitting's own).
+function groundWeapon(k, scale = 1) {
+ const f = C.FITS[k];if (!f) return null;const s = C.fitSpec({k, scale}), E = s.tt || s.ion || 0;
+ let pen, dmg, range, rof, ai, mw, ammo = 0;
+ if (f.store) { const bore = (f.store.bore || .3) * scale;pen = clamp(Math.round(190 * bore), 5, 150);dmg = Math.round(pen * .9);range = clamp(Math.round(6000 * bore), 600, 3000);rof = .1;ai = .8;mw = .05;ammo = f.store.slots || 6; }
+ else { const e = Math.cbrt(Math.max(1e-9, E) / 1e-3);pen = clamp(Math.round(22 * e), 1, 250);dmg = Math.max(1, Math.round(18 * e));range = clamp(Math.round(1200 * e), 300, 9000);rof = f.cycle && f.cycle < .4 ? .5 : .25;ai = clamp(1.6 - pen / 50, .3, 1.5);mw = E * VD_K.weaponMW; }
+ const ion = !!s.ion;if (ion) { ai = .1; }
+ return {k, scale, name: f.name, short: f.short || f.name, pen: ion ? 0 : pen, dmg, range, rof: r2(rof), ai: r2(ai), aa: r2(s.aa || 0), ion, ammo, mw: r2(mw), mass: r2(s.mass), cost: Math.round(C.fitBuildCost({k}, s))};
+}
+function vehicleStats(raw) {
+ const d = normalizeVehicleDesign(raw);if (!d) return null;
+ const {L, W, H, form} = d.body, D = DRIVES[d.drive], F = BODY_FORMS[form], walker = d.platform === 'walker';
+ const clear = walker ? d.legH : D.hover ? .8 : .5, Htot = r2(H + clear), V = L * W * H * F.fill;
+ const faces = {front: W * H * F.area, side: 2 * L * H * F.area, rear: W * H * F.area, top: 2 * L * W * F.area};
+ const armorM3 = (faces.front * d.armor.front + faces.side * d.armor.side + faces.rear * d.armor.rear + faces.top * Math.min(d.armor.side, d.armor.front) * VD_K.topArmor) / 100;
+ const weapons = d.weapons.map(w => ({...groundWeapon(w.k, w.scale), count: w.count, mount: w.mount}));
+ const wMass = weapons.reduce((n, w) => n + w.mass * w.count, 0), wMW = weapons.reduce((n, w) => n + w.mw * w.count, 0);
+ const people = d.crew + d.troops, body = V * VD_K.bodyDensity, armor = armorM3 * VD_K.armorDensity, base = body + armor + wMass + people * VD_K.personT;
+ const gear = base * D.frac, area = faces.front + faces.side + faces.rear + faces.top, shieldMW = d.shield ? area * VD_K.shieldMW : 0;
+ // The reactor: as set, or (auto) the smallest that runs everything at once with a tenth to spare.
+ let reactor = d.reactor ?? .05, mass = base + gear + reactor * VD_K.reactorT, driveMW = mass * D.kw / 1000;
+ if (d.reactor == null) for (let i = 0; i < 6; i++) { reactor = Math.max(.05, r2((driveMW + wMW + shieldMW) * 1.1)); mass = base + gear + reactor * VD_K.reactorT; driveMW = mass * D.kw / 1000; }
+ const demand = driveMW + wMW + shieldMW, ratio = demand > 0 ? reactor / demand : 1, feed = clamp(ratio, 0, 1);
+ // Speed: the drive's base, slowed by too little power and by mass; a walker's stride grows with its legs.
+ const speed = walker ? D.base * Math.sqrt(feed) * clamp(Math.sqrt(Math.max(.1, d.legH) / 8), .45, 1.3) * clamp(Math.pow(200 / Math.max(1, mass), .15), .5, 1.15)
+  : D.base * Math.sqrt(feed) * clamp(Math.pow(60 / Math.max(.5, mass), .1), .55, 1.15);
+ const hp = Math.round(20 + 8 * Math.pow(V, 2 / 3)), cap = 1 + .4 * feed;
+ const at = weapons.reduce((n, w) => n + w.count * w.dmg * w.rof * Math.min(1, w.pen / 30), 0), ai = weapons.reduce((n, w) => n + w.count * w.rof * w.ai, 0), aa = weapons.reduce((n, w) => n + w.count * w.aa, 0);
+ const parts = [{k: 'gen', volume: reactor * VD_K.reactorM3}];
+ if (D.hover) parts.push({k: 'repulsor', volume: mass * .002});else if (walker) parts.push({k: 'landingGear', volume: gear * .004});else parts.push({k: 'engine', volume: mass * .003});
+ if (d.shield) parts.push({k: 'localShield', volume: area * .001});
+ const q = C.quoteCostBOM({hullVolume: V, armorVolume: armorM3, parts, fits: [], crew: d.crew}), wCost = weapons.reduce((n, w) => n + w.cost * w.count, 0);
+ const cost = {build: q.build + wCost, crew: q.crew, total: q.total + wCost, by: {...q.by, weapons: (q.by.weapons || 0) + wCost}};
+ const dims = [r2(L), r2(W), Htot], warnings = [];
+ if (ratio < .999) warnings.push({lv: 'bad', text: `動力が不足しています（${r2(reactor)} MW／必要 ${r2(demand)} MW）。速度と射撃が落ちます。`});
+ if (!weapons.length) warnings.push({lv: 'warn', text: '武装がありません。輸送・偵察にしか使えません。'});
+ if (!d.crew) warnings.push({lv: 'info', text: '乗員0：ドロイド制御の機体として扱います。'});
+ if (walker && d.legH < H * .5) warnings.push({lv: 'warn', text: '脚が車体に比べて短く、歩幅が小さいため遅くなります。'});
+ if (!C.CRAFT_TYPES || !Object.keys(C.CRAFT_TYPES).some(t => { const l = C.craftLift(t); return l?.box && C.boxFits(dims, l.box); })) warnings.push({lv: 'warn', text: 'どの揚陸艇の貨物室にも入りません。地上へ降ろせません。'});
+ return {design: d, platform: d.platform, drive: d.drive, dims, volume: r1(V), mass: r1(mass), armor: {...d.armor}, armorM3: r2(armorM3), hp, speed: r1(speed), speedMs: speed / 3.6, power: {supply: r2(reactor), demand: r2(demand), drive: r2(driveMW), weapons: r2(wMW), shield: r2(shieldMW), ratio: r2(ratio), auto: d.reactor == null},
+  weapons, firepower: {at: r1(at * cap), ai: r1(ai * cap), aa: r1(aa)}, range: weapons.length ? Math.max(...weapons.map(w => w.range)) : 0, sight: Math.round(clamp(600 + Htot * 45, 600, 2500)), profile: r2(clamp(Math.cbrt(L * W * Htot) / 4, .35, 3)),
+  crew: d.crew, troops: d.troops, shield: d.shield ? Math.round(area * .05) : 0, cost, size: C.vehicleStowSize(dims), rough: D.rough, slope: D.slope, water: D.water, warnings};
+}
+// The built-in vehicle types as example designs: their official dimensions, crew and troops (Core.VEHICLE_TYPES), a
+// drive and an armament after their role. Generic procedural bodies; armour and weapon scales are game estimates.
+// [platform drive, body share of the height (walkers) , armour front/side/rear cm, weapons [fit, scale, count, mount]]
+const EXAMPLE_SPECS = Object.freeze({
+ atat: ['legs4', .42, [40, 25, 15], [['claserH', 1.6, 2, 'chin'], ['claser', 1.4, 2, 'chin']]],
+ atst: ['legs2', .38, [12, 8, 6], [['claserH', .9, 1, 'chin'], ['cturret', 1, 1, 'chin'], ['cmsl', .9, 1, 'side']]],
+ atte: ['legs6', .55, [25, 18, 14], [['ltl', .3, 1, 'turret'], ['cturret', 1, 6, 'side']]],
+ atrt: ['legs2', .45, [3, 2, 2], [['cturret', .6, 1, 'chin']]],
+ og9: ['legs4', .45, [20, 15, 10], [['claserH', 1.4, 1, 'turret'], ['cturret', 1, 1, 'chin']]],
+ lm432: ['legs6', .5, [10, 8, 6], [['cturret', .8, 2, 'turret']]],
+ spha: ['legs6', .6, [20, 15, 12], [['ltl', .6, 1, 'hull']]],
+ tx130: ['repulsor', 0, [20, 14, 10], [['claserH', 1, 2, 'turret'], ['cmsl', .9, 2, 'hull']]],
+ juggernaut: ['wheels', 0, [30, 20, 15], [['claserH', .8, 2, 'turret'], ['cturret', 1, 2, 'side'], ['cmsl', .9, 1, 'turret']]],
+ aat: ['repulsor', 0, [25, 15, 10], [['ltl', .25, 1, 'turret'], ['claser', 1.2, 2, 'hull'], ['ctorp', .9, 2, 'hull']]],
+ mtt: ['repulsor', 0, [30, 20, 15], [['cturret', 1, 4, 'side']]],
+ ig227: ['wheels', 0, [15, 10, 8], [['ctorp', 1, 6, 'turret'], ['cturret', .8, 2, 'chin']]],
+ t2b: ['repulsor', 0, [12, 8, 6], [['claserH', .9, 2, 'turret']]],
+ t47: ['repulsor', 0, [5, 4, 3], [['claser', 1, 2, 'hull']]],
+ itt: ['repulsor', 0, [15, 10, 8], [['cturret', .8, 2, 'turret']]],
+ apc: ['wheels', 0, [12, 8, 6], [['cturret', .8, 1, 'turret']]],
+ speeder: ['repulsor', 0, [1, 1, 1], [['claser', .4, 1, 'hull']]],
+ barc: ['repulsor', 0, [1, 1, 1], [['cturret', .6, 1, 'hull']]]
+});
+function exampleDesign(key) {
+ const t = C.VEHICLE_TYPES[key], e = EXAMPLE_SPECS[key];if (!t || !e) return null;
+ const [drive, share, arm, wps] = e, walker = DRIVES[drive].platform === 'walker', [L, W, Ht] = t.dims;
+ const H = walker ? Math.max(.6, Ht * share) : Math.max(.6, Ht - (DRIVES[drive].hover ? .8 : .5));
+ return normalizeVehicleDesign({id: 'ex-' + key, example: key, name: t.name, platform: walker ? 'walker' : 'vehicle', faction: R.FACTIONS[t.side] ? t.side : 'neutral', drive,
+  body: {L, W, H, form: walker ? 'box' : drive === 'repulsor' ? 'wedge' : 'box'}, legH: walker ? Math.max(0, Ht - H) : 0, armor: {front: arm[0], side: arm[1], rear: arm[2]},
+  weapons: wps.map(([k, scale, count, mount]) => ({k, scale, count, mount})), crew: t.crew || 0, troops: t.troops || 0});
+}
+const EXAMPLE_KEYS = Object.freeze(Object.keys(EXAMPLE_SPECS).filter(k => C.VEHICLE_TYPES[k]));
+// The players' designs ride in the regiments like the built-in types: registered in Rts.VEHICLES under a key made from
+// the whole design, so a changed design is a new type and a saved company keeps the one it was given (its snapshot
+// rides in the company's vdesigns, as squadrons keep their craft's snapshot).
+function vehicleKey(d) { const n = normalizeVehicleDesign(d);return n ? 'vd' + fnv(JSON.stringify({...n, id: undefined, name: n.name})) : null; }
+function registerVehicleDesign(raw) {
+ const d = normalizeVehicleDesign(raw);if (!d) return null;const key = vehicleKey(d);if (R.VEHICLES[key]) return key;
+ const s = vehicleStats(d);R.VEHICLES[key] = {name: d.name, side: 'any', size: s.size, crew: d.crew, note: '自作設計', dims: s.dims, design: d, custom: true};
+ return key;
+}
+R.groundHooks.register = registerVehicleDesign;
+const PROFILE_CACHE = new Map();
+// The ground profile of a vehicle type (built-in, or a registered design).
+function vehicleProfile(key) {
+ if (PROFILE_CACHE.has(key)) return PROFILE_CACHE.get(key);
+ const v = R.VEHICLES[key];let s = v?.design ? vehicleStats(v.design) : exampleDesign(key) ? vehicleStats(exampleDesign(key)) : null;
+ if (!s && (v || C.VEHICLE_TYPES[key])) { const dims = v?.dims || C.VEHICLE_TYPES[key].dims;s = vehicleStats({platform: 'vehicle', drive: 'tracks', name: v?.name || key, body: {L: dims[0], W: dims[1], H: Math.max(.6, dims[2] - .5)}, crew: v?.crew || 2, weapons: [{k: 'cturret', count: 1}]}); }
+ if (s) s.key = key;PROFILE_CACHE.set(key, s);return s;
+}
+
+// ---------- the battlefield ----------
+// 3,000 × 2,000 m of 100 m cells. 0 open, 1 woods (or built-up blocks on a city world), 2 hills, 3 water (or lava).
+const MAP = Object.freeze({W: 3000, H: 2000, cell: 100}), COLS = MAP.W / MAP.cell, ROWS = MAP.H / MAP.cell;
+const TERRAIN = Object.freeze([{name: '平地'}, {name: '森林・市街'}, {name: '丘陵'}, {name: '水域'}]);
+// By planet kind (Galaxy's v.k / the sector planets' kind): shares of woods (or blocks), hills and water. Provisional.
+const PLANET_TERRAIN = Object.freeze({0: [.3, .05, 0, true], 1: [.18, .08, .02, true], 2: [.2, .12, .05], 3: [.22, .02, .1, true], 4: [.03, .15, .02], 5: [.02, .22, 0], 6: [0, .14, 0], 7: [.04, .18, .08], 8: [.36, .08, .06], 9: [.12, .06, .22]});
+const OBJ_RADIUS = 150, CAPTURE_S = 30, HOLD_WIN_S = 60, HILL_M = 25, WOOD_M = 15, LZ_ROWS = 4;
+const RULES = Object.freeze({tick: 1, visEvery: 2, aiEvery: 8, timeLimit: 3600, sortie: 240, airDelay: 20, airCooldown: 45, airRadius: 70, attackBreak: .15, defendBreak: .1, maxUnits: 120});
+// (timeLimit: an hour of battle; infantry advance at a steady jog of 8 km/h, droids a little slower — provisional)
+// Infantry companies (game estimates): blaster fire (kill chance per trooper and volley at short range), and the
+// anti-armour teams (one launcher per platoon of 36, the clone RPS-6 class) firing every 8 s.
+const INFANTRY = Object.freeze({trooper: {range: 450, acc: .012, sight: 800, speed: 2.2, at: {pen: 30, dmg: 28, range: 350, per: 36}},
+ droid: {range: 400, acc: .008, sight: 700, speed: 2, at: {pen: 25, dmg: 24, range: 300, per: 48}}});
+const FORT = Object.freeze({name: '防御陣地', hp: 400, armor: {front: 30, side: 30, rear: 30}, weapons: [['ltl', .3, 1], ['cturret', 1, 2]], sight: 1000});
+const ORDER_TYPES = Object.freeze({move: '移動', attack: '攻撃', hold: '待機・陣地構築', capture: '目標奪取'});
+
+function noiseField(rand, gx, gy) {
+ const g = Array.from({length: (gx + 1) * (gy + 1)}, () => rand());
+ return (x, y) => { const fx = x * gx, fy = y * gy, i = Math.min(gx - 1, Math.floor(fx)), j = Math.min(gy - 1, Math.floor(fy)), u = fx - i, v = fy - j, s = t => t * t * (3 - 2 * t), a = g[j * (gx + 1) + i], b = g[j * (gx + 1) + i + 1], c = g[(j + 1) * (gx + 1) + i], d = g[(j + 1) * (gx + 1) + i + 1];
+  return (a * (1 - s(u)) + b * s(u)) * (1 - s(v)) + (c * (1 - s(u)) + d * s(u)) * s(v); };
+}
+function makeMap(seed, kind = 2) {
+ const rand = R.rng((seed >>> 0) * 31 + 7), p = PLANET_TERRAIN[kind] || PLANET_TERRAIN[2], t = new Uint8Array(COLS * ROWS);
+ const layers = [noiseField(rand, 6, 4), noiseField(rand, 5, 4), noiseField(rand, 4, 3)], fine = noiseField(rand, 15, 10);
+ const val = (L, c, r) => L((c + .5) / COLS, (r + .5) / ROWS) * .8 + fine((c + .5) / COLS, (r + .5) / ROWS) * .2;
+ // Each layer takes exactly its share of the cells (its highest values): water first, then hills, then woods.
+ const mark = (L, share, code) => { if (!(share > 0)) return; const cells = []; for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (!t[r * COLS + c]) cells.push([val(L, c, r), r * COLS + c]); cells.sort((a, b) => b[0] - a[0] || a[1] - b[1]); const n = Math.round(share * COLS * ROWS); for (let i = 0; i < n && i < cells.length; i++) t[cells[i][1]] = code; };
+ mark(layers[2], p[2], 3);mark(layers[0], p[1], 2);mark(layers[1], p[0], 1);
+ // The landing zone (the southern rows) is clear of water and woods.
+ for (let r = ROWS - LZ_ROWS; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (t[r * COLS + c] === 3 || t[r * COLS + c] === 1) t[r * COLS + c] = 0;
+ // Three objectives in the northern two thirds, one in each third of the width, on dry ground.
+ const objectives = [0, 1, 2].map(i => { let best = null; for (let k = 0; k < 24; k++) { const c = Math.floor(COLS * (i + .2 + rand() * .6) / 3), r = 2 + Math.floor(rand() * (ROWS * .5)); const v = t[r * COLS + c]; if (v === 3) continue; const sc = (v === 2 ? 2 : v === 1 ? 1 : 0) + rand(); if (!best || sc > best.sc) best = {c, r, sc}; } best ||= {c: Math.floor(COLS * (i + .5) / 3), r: 4};
+  for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) { const r = best.r + dr, c = best.c + dc; if (r >= 0 && r < ROWS && c >= 0 && c < COLS && t[r * COLS + c] === 3) t[r * COLS + c] = 0; }
+  return {id: i, name: '目標' + 'ABC'[i], pos: [(best.c + .5) * MAP.cell, (best.r + .5) * MAP.cell], owner: null, prog: 0, by: null}; });
+ return {kind, urban: !!p[3], cols: COLS, rows: ROWS, cell: MAP.cell, W: MAP.W, H: MAP.H, t, objectives};
+}
+const cellOf = (m, x, y) => { const c = clamp(Math.floor(x / m.cell), 0, m.cols - 1), r = clamp(Math.floor(y / m.cell), 0, m.rows - 1);return r * m.cols + c; };
+const terrainAt = (m, x, y) => m.t[cellOf(m, x, y)];
+// Line of sight between two points with eye heights ha, hb (m above their ground): hills stand HILL_M above the
+// plain and block a line that passes below their tops; woods (blocks) stand WOOD_M and block after 100 m inside them.
+// Units on a hill see from its top. Cached by cell pair and eye class (the map does not change).
+const eyeClass = h => h < 3 ? 0 : h < 6 ? 1 : h < 13 ? 2 : 3, EYE = [2, 4.5, 10, 18];
+function los(b, a, z, ha, hb) {
+ const m = b.map, ca = cellOf(m, a[0], a[1]), cz = cellOf(m, z[0], z[1]), ea = eyeClass(ha), ez = eyeClass(hb), key = (ca * 4 + ea) * 4096 + cz * 4 + ez;
+ let v = b.los.get(key);if (v !== undefined) return v;
+ const xa = (ca % m.cols + .5) * m.cell, ya = (Math.floor(ca / m.cols) + .5) * m.cell, xz = (cz % m.cols + .5) * m.cell, yz = (Math.floor(cz / m.cols) + .5) * m.cell;
+ const za = EYE[ea] + (m.t[ca] === 2 ? HILL_M : 0), zz = EYE[ez] + (m.t[cz] === 2 ? HILL_M : 0), d = hyp(xz - xa, yz - ya), n = Math.ceil(d / 50);
+ let woods = 0;v = true;
+ for (let i = 1; i < n; i++) { const f = i / n, c = cellOf(m, xa + (xz - xa) * f, ya + (yz - ya) * f);if (c === ca || c === cz) continue; const h = za + (zz - za) * f, t = m.t[c];
+  if (t === 2 && h < HILL_M) { v = false; break; } if (t === 1 && h < WOOD_M + (m.t[c] === 2 ? HILL_M : 0)) { woods += 50; if (woods > 100) { v = false; break; } } }
+ b.los.set(key, v);return v;
+}
+
+// ---------- forces ----------
+// Unit specs: {kind:'inf', name, troops, droid?, src?} | {kind:'veh', name?, key, n, src?} | {kind:'fort', name?}.
+// src points back to the company the unit came from, so losses can be written back to the regiment.
+const PLATOON = 4;
+function forcesFromRegiments(regiments, faction, tag = null) {
+ const out = [], droid = faction === 'cis';
+ (regiments || []).forEach((r, ri) => (r?.battalions || []).forEach((bt, bi) => (bt?.companies || []).forEach((c, ci) => {
+  const src = {tag, ri, bi, ci}, nm = [r.name, bt.name, c.name].filter(Boolean).join(' · ');
+  if ((c.troops || 0) > 0) out.push({kind: 'inf', name: nm, troops: Math.floor(c.troops), droid, src});
+  for (const [k, n0] of Object.entries(c.vehicles || {})) { if (!(n0 > 0)) continue; if (!R.VEHICLES[k] && c.vdesigns?.[k]) registerVehicleDesign(c.vdesigns[k]); if (!R.VEHICLES[k]) continue; let n = Math.floor(n0);
+   while (n > 0) { const k2 = Math.min(PLATOON, n);out.push({kind: 'veh', name: `${nm} · ${R.VEHICLES[k].name}`, key: k, n: k2, src}); n -= k2; } }
+ })));
+ return out;
+}
+// A planet's garrison: companies by its population (provisional: 2 + 2 per level), the faction's regiment make-up
+// and vehicles (half for a small world), and a strongpoint at each objective on a world of population 3 or more.
+function garrison(faction, pop = 2, opt = {}) {
+ const tpl = R.REGIMENT_TEMPLATES[faction], n = 2 + 2 * clamp(Math.round(pop || 0), 0, 5), out = [], droid = faction === 'cis';
+ const vk = Object.hasOwn(R.FACTIONS, faction) ? faction : null;
+ for (let i = 0; i < n; i++) {
+  const type = tpl ? tpl.companies[i % tpl.companies.length] : 'infantry', name = `${vk ? R.FACTIONS[vk].short : '惑星'}守備隊 第${i + 1}中隊`;
+  out.push({kind: 'inf', name, troops: R.COMPANY_TROOPS, droid});
+  const v = tpl?.vehicles?.[type];if (v) for (const [k, c] of Object.entries(v)) { const m = pop >= 3 ? c : Math.ceil(c / 2); if (m > 0 && R.VEHICLES[k]) out.push({kind: 'veh', name: `${name} · ${R.VEHICLES[k].name}`, key: k, n: m}); }
+ }
+ if (pop >= 3 && opt.forts !== false) for (let i = 0; i < 3; i++) out.push({kind: 'fort', name: `${FORT.name}（目標${'ABC'[i]}）`, obj: i});
+ return out;
+}
+
+// ---------- the battle ----------
+// cfg: {seed, planet:{kind, name}, timeLimit?, sides:[{faction, name?, ai, role:'attack'|'defend', forces:[spec], air:{sorties}, lift:{troops, size, boxes?}}]}
+// The attacker lands from its lift in sorties of RULES.sortie seconds; a lift of null means already landed (a drill).
+function createBattle(cfg) {
+ const seed = (cfg.seed >>> 0) || 1, map = makeMap(seed, cfg.planet?.kind ?? 2), rand = R.rng(seed * 7919 + 13);
+ const b = {version: 1, seed, rand, time: 0, acc: 0, map, planet: {kind: map.kind, name: str(cfg.planet?.name, 40, '')}, los: new Map(), units: [], nextId: 1, sides: [], airs: [], fx: [], log: [], result: null,
+  paths: new Map(), phase: 'deploy', timeLimit: num(cfg.timeLimit, 300, 86400, RULES.timeLimit), timers: {vis: 0, ai: 0}, orders: {}, holdT: 0};
+ (cfg.sides || []).slice(0, 2).forEach((s, i) => {
+  const role = s.role === 'defend' ? 'defend' : 'attack', lift = s.lift == null || role === 'defend' ? null : {troops: Math.max(0, +s.lift?.troops || 0), size: Math.max(0, +s.lift?.size || 0), boxes: Array.isArray(s.lift?.boxes) ? s.lift.boxes : null};
+  b.sides.push({id: i, faction: s.faction || 'neutral', name: str(s.name, 40, R.FACTIONS[s.faction]?.name || '惑星防衛軍'), ai: !!s.ai, role, lift, lz: MAP.W / 2, nextSortie: 0, sorties: 0,
+   air: {sorties: Math.max(0, Math.floor(+s.air?.sorties || 0)), used: 0, lost: 0, ready: 0}, vis: new Set(), seen: new Map(), spot: new Map(), initial: 0, lost: {troops: 0, vehicles: {}}, stranded: []});
+ });
+ if (b.sides.length < 2) throw new Error('two sides are needed');
+ b.sides.forEach((sd, i) => {
+  let n = 0;
+  for (const spec of cfg.sides[i].forces || []) {
+   if (n >= RULES.maxUnits) { sd.stranded.push(spec); continue; }
+   const u = makeUnit(b, sd, spec);if (!u) continue;
+   if (sd.lift && u.kind === 'veh' && sd.lift.boxes && !sd.lift.boxes.some(bx => C.boxFits(u.prof.dims, bx))) { sd.stranded.push(spec); b.units.pop(); continue; }
+   if (sd.lift && u.kind === 'inf' && !(sd.lift.troops > 0)) { sd.stranded.push(spec); b.units.pop(); continue; }
+   if (sd.lift && u.kind === 'veh' && !(sd.lift.size > 0)) { sd.stranded.push(spec); b.units.pop(); continue; }
+   n++;
+  }
+ });
+ // Defenders stand round the objectives (strongpoints on them); a side without lift starts in its landing zone.
+ for (const sd of b.sides) {
+  const own = b.units.filter(u => u.side === sd.id);
+  if (sd.role === 'defend') own.forEach((u, k) => { const o = map.objectives[u.obj ?? k % 3], a = rand() * Math.PI * 2, r = u.kind === 'fort' ? 0 : 90 + rand() * 160; place(b, u, [o.pos[0] + Math.cos(a) * r, o.pos[1] + Math.sin(a) * r]); u.landed = true; u.order = {type: 'capture', obj: o.id}; u.dig = u.kind === 'inf' ? .6 : .3; });
+  else if (!sd.lift) own.forEach((u, k) => { place(b, u, lzPoint(b, sd, k)); u.landed = true; });
+  sd.initial = own.reduce((s, u) => s + unitValue(u, u.n0), 0);
+ }
+ for (const o of map.objectives) o.owner = b.sides.find(s => s.role === 'defend')?.id ?? null;
+ return b;
+}
+function makeUnit(b, sd, spec) {
+ if (!spec || typeof spec !== 'object') return null;let u;
+ const base = {id: 'u' + b.nextId++, side: sd.id, src: spec.src || null, name: str(spec.name, 80, ''), pos: [0, 0], heading: sd.role === 'defend' ? Math.PI / 2 : -Math.PI / 2, order: {type: 'hold'}, cd: [0, 0], sup: 0, dig: 0, landed: false, moving: false, kills: 0, obj: spec.obj};
+ if (spec.kind === 'inf') { const n = Math.max(0, Math.floor(spec.troops || 0));if (!n) return null; const P = spec.droid ? INFANTRY.droid : INFANTRY.trooper;
+  u = {...base, kind: 'inf', droid: !!spec.droid, n: 0, n0: n, pending: n, hpEach: 1, hp: 1, P, eye: 2, sight: P.sight, name: base.name || (spec.droid ? 'バトル・ドロイド中隊' : '歩兵中隊')}; }
+ else if (spec.kind === 'veh') { const prof = vehicleProfile(spec.key), n = Math.max(0, Math.floor(spec.n || 0));if (!prof || !n) return null;
+  u = {...base, kind: 'veh', key: spec.key, prof, n: 0, n0: n, pending: n, hpEach: prof.hp, hp: prof.hp, eye: prof.dims[2], sight: prof.sight, cd: prof.weapons.map(() => 0), ammo: prof.weapons.map(w => w.ammo ? w.ammo * w.count * n : Infinity), name: base.name || R.VEHICLES[spec.key]?.name || spec.key}; }
+ else if (spec.kind === 'fort') { const weapons = FORT.weapons.map(([k, s, c]) => ({...groundWeapon(k, s), count: c})), prof = {hp: FORT.hp, armor: FORT.armor, weapons, dims: [12, 12, 4], speedMs: 0, profile: 1.2, sight: FORT.sight, rough: 0, slope: 0, water: 0};
+  u = {...base, kind: 'fort', key: 'fort', prof, n: 0, n0: 1, pending: 1, hpEach: FORT.hp, hp: FORT.hp, eye: 4, sight: FORT.sight, cd: weapons.map(() => 0), ammo: weapons.map(() => Infinity), name: base.name || FORT.name}; }
+ else return null;
+ if (sd.role === 'defend' || !sd.lift) { u.n = u.n0; u.pending = 0; }
+ b.units.push(u);return u;
+}
+function place(b, u, p) { u.pos = [clamp(p[0], 10, MAP.W - 10), clamp(p[1], 10, MAP.H - 10)]; if (!passable(b, u, u.pos)) { for (let k = 1; k < 12; k++) { const q = [u.pos[0] + 60 * k * Math.cos(k), u.pos[1] + 60 * k * Math.sin(k)]; if (q[0] > 0 && q[0] < MAP.W && q[1] > 0 && q[1] < MAP.H && passable(b, u, q)) { u.pos = q; break; } } } }
+function lzPoint(b, sd, k) { const y0 = MAP.H - LZ_ROWS * MAP.cell + 60, a = (k * 0.618034) % 1, r = (k * 0.381966 + .2) % 1;return [clamp(sd.lz + (a - .5) * 700, 30, MAP.W - 30), y0 + r * (LZ_ROWS * MAP.cell - 120)]; }
+const unitValue = (u, n = u.n) => u.kind === 'inf' ? n : u.kind === 'fort' ? 40 * n : n * clamp(u.hpEach / 8, 3, 80);
+const unitAlive = u => u.n > 0;
+const onField = u => u.landed && u.n > 0;
+function speedOf(b, u, p) {
+ const t = terrainAt(b.map, p[0], p[1]);
+ if (u.kind === 'fort') return 0;
+ if (u.kind === 'inf') return t === 3 ? 0 : u.P.speed * (t === 0 ? 1 : .7) * (1 - u.sup * .5);
+ const s = u.prof.speedMs;return t === 3 ? s * u.prof.water : t === 1 ? s * u.prof.rough : t === 2 ? s * u.prof.slope : s;
+}
+const passable = (b, u, p) => speedOf(b, u, p) > 0 || u.kind === 'fort';
+// Routes over the cell grid (A*, eight neighbours, time by the unit's speed on each terrain), cached per battle by
+// the unit's mobility class and the start and goal cells.
+const mobility = u => u.kind === 'inf' ? 'inf' : `${u.prof.rough},${u.prof.slope},${u.prof.water}`;
+function cellSpeed(u, t) { if (u.kind === 'inf') return t === 3 ? 0 : t === 0 ? 1 : .7; return t === 3 ? u.prof.water : t === 1 ? u.prof.rough : t === 2 ? u.prof.slope : 1; }
+function route(b, u, from, to) {
+ const m = b.map, s0 = cellOf(m, from[0], from[1]), g = cellOf(m, to[0], to[1]), key = mobility(u) + '|' + s0 + '|' + g;
+ if (b.paths.has(key)) return b.paths.get(key);
+ const N = m.cols * m.rows, cost = new Float64Array(N).fill(Infinity), prev = new Int32Array(N).fill(-1), heap = [], done = new Uint8Array(N);
+ const h = c => hyp(c % m.cols - g % m.cols, Math.floor(c / m.cols) - Math.floor(g / m.cols));
+ const push = (c, f) => { heap.push([f, c]); let i = heap.length - 1; while (i > 0) { const p = (i - 1) >> 1; if (heap[p][0] <= heap[i][0]) break; [heap[p], heap[i]] = [heap[i], heap[p]]; i = p; } };
+ const pop = () => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let i = 0; for (;;) { const l = 2 * i + 1, r = l + 1; let k = i; if (l < heap.length && heap[l][0] < heap[k][0]) k = l; if (r < heap.length && heap[r][0] < heap[k][0]) k = r; if (k === i) break; [heap[k], heap[i]] = [heap[i], heap[k]]; i = k; } } return top; };
+ cost[s0] = 0;push(s0, h(s0));
+ while (heap.length) { const [, c] = pop(); if (done[c]) continue; done[c] = 1; if (c === g) break; const cx = c % m.cols, cy = Math.floor(c / m.cols);
+  for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { if (!dx && !dy) continue; const x = cx + dx, y = cy + dy; if (x < 0 || y < 0 || x >= m.cols || y >= m.rows) continue; const n = y * m.cols + x, v = cellSpeed(u, m.t[n]); if (!(v > 0) || done[n]) continue;
+   if (dx && dy && (!(cellSpeed(u, m.t[cy * m.cols + x]) > 0) || !(cellSpeed(u, m.t[y * m.cols + cx]) > 0))) continue;
+   const nc = cost[c] + (dx && dy ? 1.4142 : 1) / v; if (nc < cost[n]) { cost[n] = nc; prev[n] = c; push(n, nc + h(n)); } } }
+ let path = null;
+ if (Number.isFinite(cost[g])) { path = []; for (let c = g; c !== s0 && c >= 0; c = prev[c]) path.push([(c % m.cols + .5) * m.cell, (Math.floor(c / m.cols) + .5) * m.cell]); path.reverse(); }
+ if (b.paths.size > 4000) b.paths.clear();b.paths.set(key, path);return path;
+}
+
+// ---------- orders ----------
+function order(b, ids, o) {
+ if (!o || !ORDER_TYPES[o.type]) return 0;let k = 0;const list = (Array.isArray(ids) ? ids : [ids]).map(id => b.units.find(u => u.id === id)).filter(u => u && unitAlive(u) && u.kind !== 'fort');
+ const n = list.length;
+ list.forEach((u, i) => {
+  const off = n > 1 ? (i - (n - 1) / 2) * 70 : 0;
+  if (o.type === 'move' && Array.isArray(o.to)) u.order = {type: 'move', to: [clamp(o.to[0] + off, 10, MAP.W - 10), clamp(o.to[1], 10, MAP.H - 10)]};
+  else if (o.type === 'attack') { const t = b.units.find(x => x.id === o.target); if (!t || t.side === u.side) return; u.order = {type: 'attack', target: t.id}; }
+  else if (o.type === 'hold') u.order = {type: 'hold'};
+  else if (o.type === 'capture') { const ob = b.map.objectives[o.obj]; if (!ob) return; u.order = {type: 'capture', obj: ob.id, off: [off, (i % 2) * 50 - 25]}; }
+  else return;
+  if (o.type !== 'hold') u.dig = 0;k++;
+ });
+ if (k) b.orders[o.type] = (b.orders[o.type] || 0) + 1;
+ if (k && list.some(u => u.kind === 'veh')) b.orders.vehicle = (b.orders.vehicle || 0) + 1;
+ return k;
+}
+// The landing zone for the attacker's next sorties (x along the southern edge), and the start of the battle.
+function deploy(b, side, x) { const sd = b.sides[side];if (!sd || sd.role !== 'attack') return false;sd.lz = clamp(+x || MAP.W / 2, 350, MAP.W - 350);b.orders.deploy = (b.orders.deploy || 0) + 1;return true; }
+function start(b) { if (b.phase === 'deploy') { b.phase = 'battle'; logB(b, '戦闘開始'); } }
+// An air strike: the side's next sortie of bombers or gunships, over `at` after RULES.airDelay seconds.
+function airStrike(b, side, at) {
+ const sd = b.sides[side], A = sd?.air;if (!A || b.result || A.used >= A.sorties || b.time < A.ready || !Array.isArray(at)) return false;
+ A.used++;A.ready = b.time + RULES.airCooldown;b.airs.push({side, at: [clamp(at[0], 0, MAP.W), clamp(at[1], 0, MAP.H)], t: b.time + RULES.airDelay});
+ if (!sd.ai) b.orders.air = (b.orders.air || 0) + 1;logB(b, `${sd.name}：航空攻撃を要請`, side);return true;
+}
+function logB(b, text, side = null) { b.log.push({t: Math.round(b.time), text, side}); if (b.log.length > 200) b.log.splice(0, b.log.length - 200); }
+
+// ---------- the simulation ----------
+function step(b, dt) {
+ if (b.result || b.phase !== 'battle') return 0;b.acc += dt;let n = 0;
+ while (b.acc >= RULES.tick && !b.result && n < 20000) { b.acc -= RULES.tick; tick(b, RULES.tick); n++; }
+ return n;
+}
+function tick(b, dt) {
+ b.time += dt;
+ landTick(b);
+ if ((b.timers.vis -= dt) <= 0) { b.timers.vis = RULES.visEvery; visibility(b); }
+ if ((b.timers.ai -= dt) <= 0) { b.timers.ai = RULES.aiEvery; for (const sd of b.sides) if (sd.ai) think(b, sd); }
+ for (const u of b.units) if (onField(u)) moveUnit(b, u, dt);
+ for (const u of b.units) if (onField(u)) fireUnit(b, u, dt);
+ airTick(b);
+ for (const u of b.units) { if (u.sup > 0) u.sup = Math.max(0, u.sup - dt * .04); if (onField(u) && !u.moving && (u.order.type === 'hold' || u.order.type === 'capture')) u.dig = Math.min(1, u.dig + dt / 60); }
+ objectivesTick(b, dt);
+ b.fx = b.fx.filter(f => b.time - f.t < 3);
+ checkEnd(b);
+}
+// Sorties of the landing craft: each brings down as many troops and vehicles (by hangar size units) as its lift
+// carries, in the order of the force list; a company or platoon appears with its first men or vehicles and grows.
+function landTick(b) {
+ for (const sd of b.sides) {
+  if (!sd.lift || b.time < sd.nextSortie) continue;const wait = b.units.filter(u => u.side === sd.id && u.pending > 0);if (!wait.length) continue;
+  let T = sd.lift.troops, S = sd.lift.size, k = 0;
+  for (const u of wait) {
+   let m = 0;if (u.kind === 'inf') { m = Math.min(u.pending, Math.floor(T)); T -= m; } else { const sz = Math.max(.001, R.VEHICLES[u.key]?.size || u.prof.size || 1); m = Math.min(u.pending, Math.floor((S + 1e-9) / sz)); S -= m * sz; }
+   if (m <= 0) continue;if (!u.landed) { place(b, u, lzPoint(b, sd, b.units.indexOf(u))); u.landed = true; }
+   u.pending -= m;u.n += m;k++;
+  }
+  sd.sorties++;sd.nextSortie = b.time + RULES.sortie;if (k) logB(b, `${sd.name}：揚陸艇 第${sd.sorties}波が着地`, sd.id);
+ }
+}
+function visibility(b) {
+ for (const sd of b.sides) {
+  const mine = b.units.filter(u => u.side === sd.id && onField(u)), vis = new Set();
+  for (const e of b.units) { if (e.side === sd.id || !onField(e)) continue; for (const u of mine) { const d = hyp(e.pos[0] - u.pos[0], e.pos[1] - u.pos[1]); if (d > u.sight * (e.kind === 'inf' && e.dig > .5 && !e.moving ? .75 : 1)) continue; if (d < 150 || los(b, u.pos, e.pos, u.eye, e.eye)) { vis.add(e.id); sd.seen.set(e.id, {pos: [...e.pos], t: b.time}); break; } } }
+  // A unit that fired in the last 6 s gives itself away to those it fired at.
+  for (const [id, t] of sd.spot) { if (b.time - t > 6) { sd.spot.delete(id); continue; } const e = b.units.find(x => x.id === id); if (e && onField(e) && !vis.has(id)) { vis.add(id); sd.seen.set(id, {pos: [...e.pos], t: b.time}); } }
+  sd.vis = vis;
+ }
+}
+function moveUnit(b, u, dt) {
+ const o = u.order;let to = null, stopAt = 0;
+ if (o.type === 'move') to = o.to;
+ else if (o.type === 'capture') { const ob = b.map.objectives[o.obj]; if (ob) to = [ob.pos[0] + (o.off?.[0] || 0), ob.pos[1] + (o.off?.[1] || 0)]; stopAt = 20; }
+ else if (o.type === 'attack') { const t = b.units.find(x => x.id === o.target);if (!t || !onField(t)) { u.order = {type: 'hold'}; u.moving = false; return; }
+  const sd = b.sides[u.side], seen = sd.vis.has(t.id), d = hyp(t.pos[0] - u.pos[0], t.pos[1] - u.pos[1]), rng = maxRange(u, t);
+  if (seen && d <= rng * .85) { u.moving = false; return; } to = seen ? t.pos : sd.seen.get(t.id)?.pos || t.pos; }
+ if (!to) { u.moving = false; return; }
+ const dx = to[0] - u.pos[0], dy = to[1] - u.pos[1], d = hyp(dx, dy);
+ if (d <= Math.max(5, stopAt)) { u.moving = false; if (o.type === 'move') u.order = {type: 'hold'}; return; }
+ let sp = speedOf(b, u, u.pos) || speedOf(b, u, to) * .5;if (!(sp > 0)) { u.moving = false; return; }
+ // An attacking AI's vehicles keep pace with its infantry on the way to an objective.
+ const sd = b.sides[u.side];if (sd.ai && sd.role === 'attack' && u.kind === 'veh' && o.type === 'capture' && b.units.some(x => x.side === u.side && x.kind === 'inf' && onField(x))) sp = Math.min(sp, 2);
+ // Follow the route to the goal's cell (recomputed when the goal moves to another cell), then go straight in.
+ const gk = cellOf(b.map, to[0], to[1]);if (u.pathTo !== gk || !u.path) { const p = route(b, u, u.pos, to); u.path = p ? p.slice(0, -1) : []; u.pathTo = gk; }
+ while (u.path.length && hyp(u.path[0][0] - u.pos[0], u.path[0][1] - u.pos[1]) < 40) u.path.shift();
+ const aim = u.path.length ? u.path[0] : to, ax = aim[0] - u.pos[0], ay = aim[1] - u.pos[1];
+ const st = Math.min(u.path.length ? hyp(ax, ay) : d, sp * dt), h = Math.atan2(ay, ax);
+ for (const a of [0, .5, -.5, 1, -1, 1.6, -1.6]) { const q = [u.pos[0] + Math.cos(h + a) * st, u.pos[1] + Math.sin(h + a) * st]; if (q[0] < 0 || q[1] < 0 || q[0] > MAP.W || q[1] > MAP.H || !passable(b, u, q)) continue; u.pos = q; u.heading = h + a; u.moving = true; return; }
+ u.moving = false;
+}
+function maxRange(u, t) {
+ if (u.kind === 'inf') return t?.kind === 'inf' || !t ? u.P.range : u.P.at.range;
+ let r = 0;for (const w of u.prof.weapons) if (!t || t.kind === 'inf' ? w.ai > .2 || w.pen > 0 : w.pen > 0 || w.ion) r = Math.max(r, w.range);return r || 300;
+}
+const coverOf = (b, u) => { const t = terrainAt(b.map, u.pos[0], u.pos[1]);if (u.kind === 'inf') return (t === 1 ? .5 : t === 2 ? .6 : 1) * (1 - .3 * u.dig);return (t === 1 ? .8 : 1) * (1 - .15 * u.dig); };
+// The armour face a shot strikes: from the bearing of the shooter off the target's heading.
+function faceOf(t, from) { const a = Math.atan2(from[1] - t.pos[1], from[0] - t.pos[0]) - t.heading, c = Math.cos(a);return c > .5 ? 'front' : c < -.5 ? 'rear' : 'side'; }
+function pickTarget(b, u, range, want) {
+ const sd = b.sides[u.side], o = u.order.type === 'attack' ? u.order.target : null;let best = null, bs = -Infinity;
+ for (const e of b.units) {
+  if (e.side === u.side || !onField(e) || !sd.vis.has(e.id)) continue;const d = hyp(e.pos[0] - u.pos[0], e.pos[1] - u.pos[1]);if (d > range) continue;
+  let s = -d / 1000;if (e.id === o) s += 10;
+  if (want === 'at') s += e.kind === 'inf' ? -3 : 2;else if (want === 'ai') s += e.kind === 'inf' ? 2 : -1;
+  if (s > bs) { bs = s; best = e; }
+ }
+ return best;
+}
+function hitVehicle(b, t, w, from, k = 1) {
+ if (!onField(t)) return;const arm = t.prof.armor[faceOf(t, from)] || 0;let dmg;
+ if (w.ion) dmg = t.kind === 'fort' ? 0 : w.dmg * .6;else dmg = w.pen >= arm ? w.dmg : w.dmg * Math.pow(w.pen / Math.max(1, arm), 3) * .5;
+ if (t.prof.shield > 0) dmg *= .7;
+ t.hp -= dmg * k;while (t.hp <= 0 && t.n > 0) { t.n--; t.hp += t.hpEach; const sd = b.sides[t.side]; if (t.kind === 'veh') sd.lost.vehicles[t.key] = (sd.lost.vehicles[t.key] || 0) + 1; if (t.n <= 0) { logB(b, `${t.name}が全滅`, t.side); t.hp = 0; } }
+}
+function killInf(b, t, kills) {
+ if (!onField(t) || !(kills > 0)) return 0;const k = Math.min(t.n, kills);t.n -= k;b.sides[t.side].lost.troops += k;t.sup = Math.min(1, t.sup + .05 + k / Math.max(10, t.n0) * 2);
+ if (t.n <= 0) logB(b, `${t.name}が壊滅`, t.side);return k;
+}
+// Stochastic rounding from the battle's own generator.
+const sround = (b, x) => { const f = Math.floor(x);return f + (b.rand() < x - f ? 1 : 0); };
+function fireUnit(b, u, dt) {
+ for (let i = 0; i < u.cd.length; i++) u.cd[i] -= dt;
+ const spot = t => b.sides[t.side].spot.set(u.id, b.time);
+ const accMove = u.moving ? (u.kind === 'inf' ? .6 : .7) : 1, sup = 1 - u.sup * .6;
+ if (u.kind === 'inf') {
+  if (u.cd[0] <= 0) { const t = pickTarget(b, u, u.P.range, 'ai'); if (t) { u.cd[0] = 3; const d = hyp(t.pos[0] - u.pos[0], t.pos[1] - u.pos[1]), acc = u.P.acc * (1 - .6 * d / u.P.range) * accMove * sup;
+    spot(t);if (t.kind === 'inf') { const k = killInf(b, t, sround(b, u.n * acc * coverOf(b, t))); u.kills += k; t.sup = Math.min(1, t.sup + .1 * Math.min(1, u.n / 72)); b.fx.push({t: b.time, a: [...u.pos], z: [...t.pos], k: 'b', side: u.side}); }
+    else if (t.kind === 'veh' && t.prof.armor.side < 4) { hitVehicle(b, t, {pen: 3, dmg: 4}, u.pos, sround(b, u.n * acc * .5)); } } }
+  if (u.cd[1] <= 0) { const t = pickTarget(b, u, u.P.at.range, 'at'); if (t && t.kind !== 'inf') { u.cd[1] = 8; const shots = sround(b, u.n / u.P.at.per), p = .45 * clamp(t.prof.profile, .3, 2) * accMove * sup;
+    spot(t);for (let s = 0; s < shots; s++) if (b.rand() < p) hitVehicle(b, t, u.P.at, u.pos); if (shots) b.fx.push({t: b.time, a: [...u.pos], z: [...t.pos], k: 'r', side: u.side}); } }
+  return;
+ }
+ u.prof.weapons.forEach((w, i) => {
+  if (u.cd[i] > 0 || !(u.ammo[i] > 0)) return;const t = pickTarget(b, u, w.range, w.pen >= 15 || w.ion ? 'at' : 'ai');if (!t) return;
+  // Launchers (with magazines) keep their rounds for vehicles and strongpoints.
+  if (w.ammo && t.kind === 'inf' && u.ammo[i] < w.ammo * w.count * u.n0 * .5) return;
+  u.cd[i] = 1 / Math.max(.05, w.rof);const d = hyp(t.pos[0] - u.pos[0], t.pos[1] - u.pos[1]), acc = clamp(.55 * Math.exp(-d / 700), .03, .55) * accMove * sup;
+  const shots = Math.min(u.ammo[i], w.count * u.n);u.ammo[i] -= w.ammo ? shots : 0;spot(t);
+  if (t.kind === 'inf') { const k = killInf(b, t, sround(b, shots * clamp(.9 * Math.exp(-d / 450), .02, .9) * accMove * sup * w.ai * .3 * (1 + w.pen / 80) * coverOf(b, t) * (t.droid && w.ion ? 4 : 1))); u.kills += k; t.sup = Math.min(1, t.sup + .03 * shots); }
+  else { const p = acc * clamp(t.prof.profile, .3, 2) * coverOf(b, t);let hits = 0;for (let s = 0; s < shots; s++) if (b.rand() < p) hits++;if (hits) hitVehicle(b, t, w, u.pos, hits); }
+  b.fx.push({t: b.time, a: [...u.pos], z: [...t.pos], k: w.pen >= 60 ? 'h' : 'l', side: u.side});
+ });
+}
+// Air strikes arrive over their point; enemy anti-air within 1.5 km may shoot the flight down first (half the bombs).
+function airTick(b) {
+ const due = b.airs.filter(a => a.t <= b.time);if (!due.length) return;b.airs = b.airs.filter(a => a.t > b.time);
+ for (const a of due) {
+  const sd = b.sides[a.side];let aa = 0;for (const e of b.units) if (e.side !== a.side && onField(e) && e.kind !== 'inf' && hyp(e.pos[0] - a.at[0], e.pos[1] - a.at[1]) < 1500) aa += e.prof.weapons.reduce((n, w) => n + w.aa * w.count, 0) * e.n;
+  const downed = b.rand() < Math.min(.5, aa * .03), k = downed ? .5 : 1;if (downed) { sd.air.lost++; logB(b, `${sd.name}：攻撃機が対空砲火で撃墜された`, a.side); }
+  const bomb = {pen: 60, dmg: 50, ion: false};
+  for (const t of b.units) { if (!onField(t)) continue; const d = hyp(t.pos[0] - a.at[0], t.pos[1] - a.at[1]); if (d > RULES.airRadius + (t.kind === 'inf' ? 60 : 0)) continue;
+   if (t.kind === 'inf') { killInf(b, t, sround(b, 12 * k * coverOf(b, t) * (1 - d / (RULES.airRadius + 60)))); t.sup = 1; }
+   else { let hits = 0; for (let s = 0; s < 4; s++) if (b.rand() < .5 * k) hits++; if (hits) hitVehicle(b, t, bomb, [t.pos[0], t.pos[1] - 1], hits); } }
+  b.fx.push({t: b.time, at: [...a.at], k: 'air', side: a.side});
+ }
+}
+function objectivesTick(b, dt) {
+ for (const o of b.map.objectives) {
+  const here = [0, 0];for (const u of b.units) if (onField(u) && hyp(u.pos[0] - o.pos[0], u.pos[1] - o.pos[1]) < OBJ_RADIUS) here[u.side] += unitValue(u);
+  const s = here[0] > 0 && !here[1] ? 0 : here[1] > 0 && !here[0] ? 1 : null;
+  if (s == null || s === o.owner) { if (s === o.owner) o.prog = 0; o.by = here[0] && here[1] ? 'contested' : null; continue; }
+  o.by = s;o.prog += dt / CAPTURE_S;if (o.prog >= 1) { o.owner = s; o.prog = 0; o.by = null; logB(b, `${b.sides[s].name}が${o.name}を確保`, s); }
+ }
+}
+function strength(b, side, withPending = true) { return b.units.filter(u => u.side === side).reduce((n, u) => n + unitValue(u, u.n + (withPending ? u.pending : 0)), 0); }
+function checkEnd(b) {
+ const A = b.sides.find(s => s.role === 'attack'), D = b.sides.find(s => s.role === 'defend');if (!A || !D) return;
+ const sa = strength(b, A.id), sdv = strength(b, D.id), held = b.map.objectives.every(o => o.owner === A.id);
+ b.holdT = held ? b.holdT + RULES.tick : 0;let winner = null, reason = '';
+ if (A.initial > 0 && sa <= A.initial * RULES.attackBreak) { winner = D.id; reason = 'repulsed'; }
+ else if (D.initial <= 0 || sdv <= D.initial * RULES.defendBreak) { winner = A.id; reason = 'annihilation'; }
+ else if (b.holdT >= HOLD_WIN_S) { winner = A.id; reason = 'objectives'; }
+ else if (b.time >= b.timeLimit) { winner = D.id; reason = 'time'; }
+ if (winner != null) finish(b, winner, reason);
+}
+// The end of a battle: its winner, the reason, and each side's losses.
+function finish(b, winner, reason) {
+ if (b.result) return;
+ b.result = {winner, reason, time: b.time, objectives: b.map.objectives.map(o => o.owner), sides: b.sides.map(sd => ({troopsLost: sd.lost.troops, vehiclesLost: {...sd.lost.vehicles}, strength: strength(b, sd.id), initial: sd.initial, airLost: sd.air.lost,
+  troopsLeft: b.units.filter(u => u.side === sd.id && u.kind === 'inf').reduce((n, u) => n + u.n + u.pending, 0)}))};
+ logB(b, resultText(b));
+}
+// A side gives up the field (the player's 撤退): the other side wins.
+function withdraw(b, side) { if (b.result || !b.sides[side]) return false;finish(b, b.sides.find(s => s.id !== side).id, 'withdraw');return true; }
+const REASONS = Object.freeze({objectives: '全目標を確保', annihilation: '守備隊が壊滅', repulsed: '揚陸部隊を撃退', time: '制限時間まで守り抜いた', withdraw: '撤退'});
+function resultText(b) { const r = b.result;return r ? `${b.sides[r.winner].name}の勝利（${REASONS[r.reason] || r.reason}）` : ''; }
+
+// ---------- AI ----------
+// Attackers make for the nearest objective they do not hold (vehicles lead, infantry follows), taking on what they
+// see on the way; defenders hold their objectives and counter-attack an enemy close to one with their vehicles.
+// Both call air strikes on the largest group of enemies they can see.
+function think(b, sd) {
+ const mine = b.units.filter(u => u.side === sd.id && onField(u) && u.kind !== 'fort'), objs = b.map.objectives, vis = b.units.filter(e => sd.vis.has(e.id) && onField(e));
+ if (sd.role === 'attack') {
+  // One objective at a time for the whole force: the one not yet held nearest the force's centre.
+  const todo = objs.filter(o => o.owner !== sd.id), cx = mine.reduce((n, u) => n + u.pos[0], 0) / Math.max(1, mine.length), cy = mine.reduce((n, u) => n + u.pos[1], 0) / Math.max(1, mine.length);
+  const focus = (todo.length ? todo : objs).slice().sort((p, q) => hyp(p.pos[0] - cx, p.pos[1] - cy) - hyp(q.pos[0] - cx, q.pos[1] - cy))[0];
+  for (const u of mine) {
+   if (u.order.type === 'attack' && b.units.find(x => x.id === u.order.target && onField(x))) continue;
+   const near = vis.filter(e => hyp(e.pos[0] - u.pos[0], e.pos[1] - u.pos[1]) < maxRange(u, e) * 1.2).sort((p, q) => hyp(p.pos[0] - u.pos[0], p.pos[1] - u.pos[1]) - hyp(q.pos[0] - u.pos[0], q.pos[1] - u.pos[1]))[0];
+   if (near && (u.kind === 'veh' || near.kind === 'inf')) { u.order = {type: 'attack', target: near.id}; u.dig = 0; continue; }
+   const goal = focus;
+   if (goal && !(u.order.type === 'capture' && u.order.obj === goal.id)) { const k = mine.indexOf(u); u.order = {type: 'capture', obj: goal.id, off: [((k % 5) - 2) * 45, (Math.floor(k / 5) % 3 - 1) * 45]}; u.dig = 0; }
+  }
+ } else {
+  for (const u of mine) {
+   const home = objs[u.obj ?? 0] || objs[0], threat = vis.filter(e => hyp(e.pos[0] - home.pos[0], e.pos[1] - home.pos[1]) < 700).sort((p, q) => hyp(p.pos[0] - u.pos[0], p.pos[1] - u.pos[1]) - hyp(q.pos[0] - u.pos[0], q.pos[1] - u.pos[1]))[0];
+   if (threat && u.kind === 'veh') { if (u.order.type !== 'attack' || u.order.target !== threat.id) { u.order = {type: 'attack', target: threat.id}; u.dig = 0; } continue; }
+   if (home.owner !== sd.id || u.order.type === 'attack' && !threat) { if (!(u.order.type === 'capture' && u.order.obj === home.id)) u.order = {type: 'capture', obj: home.id, off: [((mine.indexOf(u) % 4) - 1.5) * 60, 40]}; }
+  }
+ }
+ const A = sd.air;
+ if (A.used < A.sorties && b.time >= A.ready && vis.length) {
+  let best = null, bs = 0;for (const e of vis) { let s = 0; for (const f of vis) if (hyp(f.pos[0] - e.pos[0], f.pos[1] - e.pos[1]) < RULES.airRadius + 40) s += unitValue(f); if (b.units.some(m => m.side === sd.id && onField(m) && hyp(m.pos[0] - e.pos[0], m.pos[1] - e.pos[1]) < 200)) s *= .1; if (s > bs) { bs = s; best = e; } }
+  if (best && bs >= 20) airStrike(b, sd.id, [...best.pos]);
+ }
+}
+// Auto-resolve: the same battle with both sides under AI, to its end (or maxTime), at the simulation's own tick.
+function autoResolve(b, maxTime = Infinity) {
+ for (const sd of b.sides) sd.ai = true;start(b);
+ const end = Math.min(b.timeLimit + 1, maxTime);while (!b.result && b.time < end) step(b, 60);
+ return b.result;
+}
+
+// ---------- losses written back to the regiments ----------
+// Infantry: the company keeps the troops still alive (and those never landed); vehicles: its count less those lost.
+// Units of other tags (other ships) are left alone. Returns the totals written.
+function applyLosses(b, side, regiments, tag = null) {
+ const out = {troops: 0, vehicles: {}};
+ for (const u of b.units) {
+  if (u.side !== side || !u.src || u.src.tag !== tag) continue;const c = regiments?.[u.src.ri]?.battalions?.[u.src.bi]?.companies?.[u.src.ci];if (!c) continue;
+  if (u.kind === 'inf') { const lost = Math.max(0, u.n0 - u.n - u.pending); c.troops = Math.max(0, (c.troops || 0) - lost); out.troops += lost; }
+  else if (u.kind === 'veh') { const lost = Math.max(0, u.n0 - u.n - u.pending); if (lost) { c.vehicles[u.key] = Math.max(0, (c.vehicles[u.key] || 0) - lost); out.vehicles[u.key] = (out.vehicles[u.key] || 0) + lost; } }
+ }
+ return out;
+}
+// A battle's state without its caches and generator (for tests and saves of a result).
+function summary(b) { return {time: b.time, phase: b.phase, result: b.result, objectives: b.map.objectives.map(o => ({owner: o.owner, prog: r2(o.prog)})), units: b.units.map(u => ({id: u.id, side: u.side, kind: u.kind, n: u.n, pending: u.pending, pos: u.pos.map(Math.round), order: u.order.type}))}; }
+
+// ---------- the drill (PLAN-025 stage 7: 陸戦部隊の演習) ----------
+// A clone battalion lands from LAAT/i gunships and LAAT/c carriers against a training force of battle droids holding
+// three objectives; the player's own vehicle designs may join it. Its steps are the essential ground operations.
+const DRILL_STEPS = Object.freeze([['deploy', '降下地点を決めて展開する'], ['move', '部隊を移動させる'], ['attack', '敵部隊を攻撃する'], ['vehicle', 'ウォーカー・車両に命令する'], ['air', '航空支援を要請する'], ['capture', '目標を奪取する']]);
+function drillConfig(opt = {}) {
+ const faction = Object.hasOwn(R.FACTIONS, opt.faction) ? opt.faction : 'republic', foe = faction === 'cis' ? 'republic' : 'cis';
+ const reg = R.makeRegiment(faction, `第1${R.REGIMENT_TEMPLATES[faction].name}（演習）`);reg.battalions = reg.battalions.slice(0, 1);
+ const forces = forcesFromRegiments([reg], faction, 'drill');
+ for (const [k, n] of Object.entries(opt.extra || {})) if (R.VEHICLES[k] && n > 0) forces.push({kind: 'veh', key: k, n: Math.min(8, Math.floor(n)), name: R.VEHICLES[k].name});
+ const lift = liftOf([['laat', 12], ['laatc', 2]]);
+ const droid = foe === 'cis', tank = foe === 'cis' ? 'aat' : 'tx130', opfor = [0, 1, 2].map(i => ({kind: 'inf', name: `仮想敵 第${i + 1}中隊`, troops: R.COMPANY_TROOPS, droid, obj: i}));
+ opfor.push({kind: 'veh', key: tank, n: 1, name: `仮想敵 ${R.VEHICLES[tank].name}`, obj: 0}, {kind: 'veh', key: tank, n: 1, name: `仮想敵 ${R.VEHICLES[tank].name}`, obj: 2}, {kind: 'fort', name: '演習用陣地', obj: 1});
+ return {seed: opt.seed ?? 24, planet: {kind: opt.kind ?? 2, name: opt.planetName || '演習場'}, timeLimit: 3000,
+  sides: [{faction, name: R.FACTIONS[faction].name + '（演習部隊）', ai: false, role: 'attack', forces, air: {sorties: 3}, lift}, {faction: foe, name: '仮想敵部隊', ai: true, role: 'defend', forces: opfor, air: {sorties: 0}}]};
+}
+// The lift of a set of transports [[craft type, count], ...]: troops and vehicle size per sortie, and the holds.
+function liftOf(list) {
+ const out = {troops: 0, size: 0, boxes: []};
+ for (const [t, n] of list) { const L = C.craftLift(t); if (!L || !(n > 0)) continue; out.troops += L.troops * n; out.size += L.size * n; if (L.box && !out.boxes.some(x => x.every((v, i) => v === L.box[i]))) out.boxes.push(L.box); }
+ out.size = r2(out.size);return out;
+}
+
+// ---------- the fleet battle's landings (Rts) ----------
+// A task group in a system with an inhabited world and no enemy ship able to fight there (space superiority) may land
+// the regiments its ships carry. The landing is fought out (auto-resolved) as the fleet battle goes on, at the fleet
+// battle's clock; the attacker's bombers and gunships docked in the group fly its air strikes. A world taken is held
+// by its side (sector system .held) and named in the battle's events.
+function landingDefender(w, sys, side) {
+ const s = w.sector.systems[sys];const other = w.sides.find(sd => sd.id !== side && sd.home?.includes(sys));
+ return other ? other.faction : s?.held != null && s.held !== side ? w.sides[s.held]?.faction || 'neutral' : 'neutral';
+}
+function landingCheck(w, groupId) {
+ const g = w.groups.get(groupId);if (!g) return {ok: false, why: 'group'};
+ const sys = g.sys;if (sys == null || g.transit) return {ok: false, why: 'transit'};
+ const s = w.sector.systems[sys];if (!s || !(s.pop > 0) || [3].includes(s.planet?.kind)) return {ok: false, why: 'planet'};
+ if (s.held === g.side) return {ok: false, why: 'held'};
+ if ((w.landings || []).some(L => L.sys === sys && !L.done)) return {ok: false, why: 'busy'};
+ if (R.systemUnits(w, sys).some(u => u.side !== g.side && R.fighting(u))) return {ok: false, why: 'enemy'};
+ const units = g.units.map(id => w.units.get(id)).filter(u => R.fighting(u) && Array.isArray(u.ground) && u.ground.length);
+ const troops = units.reduce((n, u) => n + u.ground.reduce((m, r) => m + R.regimentTotals(r).troops, 0), 0);if (!units.length || !(troops > 0)) return {ok: false, why: 'troops'};
+ const lift = {troops: 0, size: 0, boxes: []};
+ for (const u of units) { const d = w.designs.get(u.design), air = [...w.squads.values()].filter(q => q.home === u.id && q.state === 'docked').map(q => ({craft: q.craft, n: q.n})), st = d?.info?.stow ? R.shipStow(d.info, air, [], u.ground) : null, L = st?.lift;
+  if (L) { lift.troops += L.troops; lift.size += L.vehicleSize; for (const bx of L.boxes || []) if (!lift.boxes.some(x => x.every((v, i) => v === bx[i]))) lift.boxes.push(bx); }
+  else { lift.troops += 200; lift.size += 2; } }
+ if (!(lift.troops > 0)) return {ok: false, why: 'lift'};
+ return {ok: true, sys, units, troops, lift};
+}
+const LANDING_WHY = Object.freeze({group: '任務群がありません', transit: '航行中です', planet: '揚陸できる有人惑星がありません', held: 'すでに確保した惑星です', busy: 'この星系では揚陸作戦が進行中です', enemy: '星系内に戦闘可能な敵艦がいます（制宙権がありません）', troops: '陸戦部隊を搭載した艦がありません', lift: '揚陸艇がありません'});
+function orderLanding(w, groupId) {
+ const c = landingCheck(w, groupId);if (!c.ok) return c;const g = w.groups.get(groupId), s = w.sector.systems[c.sys], faction = w.sides[g.side].faction, foe = landingDefender(w, c.sys, g.side);
+ const forces = [];for (const u of c.units) forces.push(...forcesFromRegiments(u.ground, faction, u.id));
+ let air = 0;for (const sq of w.squads.values()) { if (sq.side !== g.side || sq.state !== 'docked' || !c.units.some(u => u.id === sq.home)) continue; const cr = R.CRAFT[sq.craft]; if (cr && (cr.role === 'bomber' || cr.role === 'gunship' || cr.role === 'transport' && cr.strike > 0) && cr.strike >= 12) air += sq.n; }
+ const seed = ((w.seed || 1) * 131 + c.sys * 17 + Math.round(w.time)) >>> 0;
+ const b = createBattle({seed, planet: {kind: s.planet?.kind ?? 2, name: s.name}, sides: [{faction, name: w.sides[g.side].name, ai: true, role: 'attack', forces, air: {sorties: Math.min(12, Math.ceil(air / 4))}, lift: c.lift}, {faction: foe, name: foe === 'neutral' ? `${s.name}防衛軍` : R.FACTIONS[foe].name, ai: true, role: 'defend', forces: garrison(foe, s.pop || 1), air: {sorties: 0}}]});
+ start(b);const L = {id: 'L' + (w.nextId++), sys: c.sys, side: g.side, group: g.id, units: c.units.map(u => u.id), b, t0: w.time, acc: 0, done: false};
+ (w.landings ||= []).push(L);R.logEvent(w, `${s.name}へ揚陸作戦を開始（${g.name}、陸戦兵力 ${c.troops} 名）`, {side: g.side, sys: c.sys});
+ return {ok: true, landing: L};
+}
+function landingTick(w, dt) {
+ for (const L of w.landings || []) {
+  if (L.done) continue;L.acc += dt;if (L.acc < 2) continue;step(L.b, L.acc);L.acc = 0;
+  if (!L.b.result) continue;L.done = true;const r = L.b.result, s = w.sector.systems[L.sys], won = r.winner === 0;
+  for (const id of L.units) { const u = w.units.get(id); if (u?.ground) applyLosses(L.b, 0, u.ground, id); }
+  if (won) s.held = L.side;
+  R.logEvent(w, `${s.name}の地上戦：${won ? '惑星を確保' : '揚陸部隊は撃退された'}（${resultText(L.b)}・損害 ${r.sides[0].troopsLost} 名）`, {side: L.side, sys: L.sys, landing: true});
+ }
+}
+R.groundHooks.landing = landingTick;
+const landingAt = (w, sys) => (w.landings || []).filter(L => L.sys === sys).slice(-1)[0] || null;
+
+return {VD_FORMAT, VD_VERSION, PLATFORMS, DRIVES, BODY_FORMS, MOUNTS, VWEAPONS, VD_LIMITS, VD_K, EXAMPLE_KEYS, normalizeVehicleDesign, groundWeapon, vehicleStats, exampleDesign, vehicleKey, registerVehicleDesign, vehicleProfile,
+ MAP, TERRAIN, PLANET_TERRAIN, RULES, INFANTRY, FORT, ORDER_TYPES, REASONS, OBJ_RADIUS, LZ_ROWS, makeMap, terrainAt, los, forcesFromRegiments, garrison, createBattle, order, deploy, start, airStrike, step, autoResolve, withdraw, applyLosses, summary, strength, resultText, unitValue,
+ DRILL_STEPS, drillConfig, liftOf, LANDING_WHY, landingCheck, orderLanding, landingTick, landingAt, landingDefender};
 })();
