@@ -1,4 +1,5 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test');
+const {primarySurfaceLayers}=require('./helpers/surface-geometry.cjs');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=vm.createContext({console});
 for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/gfx.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});
 const {C,G}=vm.runInContext('({C:Core,G:Gfx})',cx),plain=x=>JSON.parse(JSON.stringify(x));
@@ -10,45 +11,64 @@ function fixture({width=120,rotated=false,cut=false}={}){
  const result=C.setSurfaceConfig(ship,patch.id,{functionMode:'equipment',allocation:{cooling:100,sensors:0,habitation:0},equipment:{kind:'hdis',depth:1,limit:0},battery:{weapon:'pd',count:0},style:{depth:4,density:.7,seed:37}});assert.equal(result.ok,true,result.why);
  return {ship,host,patch};
 }
-function mesh(ship,opt={}){return G.meshSurfaceLayers(ship,{}, {detail:0,maxDetails:0,...opt});}
+function mesh(ship,opt={}){return primarySurfaceLayers(G,ship,{detail:0,maxDetails:0,...opt});}
 function triangles(g){const out=[];for(let i=0;i<g.ni;i+=3)out.push([0,1,2].map(j=>Array.from(g.pos.slice(g.idx[i+j]*3,g.idx[i+j]*3+3))));return out;}
-function coverage(rows){rows.sort((a,b)=>a[0]-b[0]);let sum=0,end=-Infinity;for(const [a,b]of rows)if(b>end){sum+=b-Math.max(a,end);end=b;}return sum;}
-// Observe emitted triangle coordinates, never the generator's feature names or
-// row.strata. A decorative shelf stripe or renamed mosaic cannot satisfy the
-// full-width area/depth requirement below.
-function horizontalGroups(g){const groups=new Map();for(const tri of triangles(g)){const n=C.cross(C.sub(tri[1],tri[0]),C.sub(tri[2],tri[0])),area=C.len(n)/2;if(!area||Math.abs(n[1])<area*2*.999999)continue;const key=tri[0][1].toFixed(3),q=groups.get(key)||{y:tri[0][1],area:0,intervals:[],zs:[]};q.area+=area;q.intervals.push([Math.min(...tri.map(p=>p[0])),Math.max(...tri.map(p=>p[0]))]);q.zs.push(...tri.map(p=>p[2]));groups.set(key,q);}return [...groups.values()].map(q=>({...q,coverage:coverage(q.intervals),depth:Math.max(...q.zs)-Math.min(...q.zs)})).sort((a,b)=>a.y-b.y);}
-function slabLevels(g,width,depth=4){const groups=horizontalGroups(g).filter(q=>q.coverage>width*.85&&q.area>width*depth*.20&&q.depth>depth*.25),out=[];for(const q of groups){const last=out.at(-1);if(last&&q.y-last.at(-1).y<.55)last.push(q);else out.push([q]);}return out;}
+// Inspect emitted positions and owner ranges, rather than accepting feature
+// names as evidence that closed part models have become one face mesh.
+function neutral(ship,host,opt={}){const ranges={},m=G.meshSurfaceLayers(ship,ranges,{detail:0,maxDetails:0,...opt}),g=m.surfaceDevices,T=[];for(const [name,start,count,meta]of ranges[host.id]||[])if(name==='surfaceDevices'&&!meta?.projection)for(let i=start;i<start+count;i+=3){if(g.col[g.idx[i]*4+3]===253)continue;T.push([0,1,2].map(j=>Array.from(g.pos.slice(g.idx[i+j]*3,g.idx[i+j]*3+3))));}return T;}
+function projectedArea(T,n){return T.reduce((a,t)=>a+C.dot(C.cross(C.sub(t[1],t[0]),C.sub(t[2],t[0])),n)/2,0);}
 function geometry(g){return {pos:Array.from(g.pos.slice(0,g.n*3)),idx:Array.from(g.idx.slice(0,g.ni))};}
 function conservativeInside(host,p){return C.inPart(host,p)||C.inPart(host,C.add(p,C.mul(C.norm(C.sub(host.c,p)),3e-4)));}
+function clipRect(poly,B){for(const [axis,limit,sign]of [[0,B[0],1],[0,B[2],-1],[1,B[1],1],[1,B[3],-1]]){const out=[];for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length],da=(a[axis]-limit)*sign,db=(b[axis]-limit)*sign;if(da>=-1e-9)out.push(a);if((da<0)!==(db<0)){const t=da/(da-db);out.push(a.map((x,j)=>x+(b[j]-x)*t));}}poly=out;if(!poly.length)break;}return poly;}
+function area2(poly){return Math.abs(poly.reduce((sum,a,i)=>{const b=poly[(i+1)%poly.length];return sum+a[0]*b[1]-a[1]*b[0];},0))/2;}
 
-test('the actual face mesh has deep continuous thin floor slabs at cosmetic detail zero',()=>{
- const {ship}=fixture(),low=mesh(ship),high=mesh(ship,{detail:2,maxDetails:1800}),levels=slabLevels(low.surfaceDevices,120);assert.ok(levels.length>=6,'a wall needs repeated deep, nearly full-width floors rather than separate equipment tiles');
- for(const level of levels){assert.ok(level.length>=2,'each floor must have real upper and lower faces');const thickness=level.at(-1).y-level[0].y;assert.ok(thickness>.08&&thickness<.5,'floor slabs must be thin relative to their several-metre pitch');}
- assert.deepEqual(levels.map(q=>q.map(p=>[p.y,p.area,p.coverage,p.depth])),slabLevels(high.surfaceDevices,120).map(q=>q.map(p=>[p.y,p.area,p.coverage,p.depth])),'detail settings must retain the structural floor geometry');assert.equal(low.surfaceDetail.ni,0);assert.ok(high.surfaceDetail.ni>0);const source=G.meshParts(ship,{coded:false}).g.struct,T=triangles(source).flat(2),Y=levels[3][0].y,hit=C.rayTris(T,[100,Y,-60],[0,0,1]);if(hit)assert.ok(hit.p[2]>-21.001,'the original outer wall cannot cover the generated floor strata');
+test('the actual relief is one continuous outward-facing surface at cosmetic detail zero',()=>{
+ const {ship,host,patch}=fixture(),low=mesh(ship),high=mesh(ship,{detail:2,maxDetails:1800}),T=neutral(ship,host),edges=new Map(),key=p=>p.map(x=>x.toFixed(4)).join(',');
+ assert.ok(T.length>20&&T.length<1200,'coarse face facets must replace the many closed boxes');
+ for(const t of T){assert.ok(C.dot(C.norm(C.cross(C.sub(t[1],t[0]),C.sub(t[2],t[0]))),patch.normal)>.05,'there must be no box backs or perpendicular shelves');for(let j=0;j<3;j++){const a=t[j],b=t[(j+1)%3],k=[key(a),key(b)].sort().join('|'),q=edges.get(k);if(q)q.count++;else edges.set(k,{a,b,count:1});}}
+ const external=e=>[0,1].some(k=>Math.abs(e.a[k]-e.b[k])<.001&&[Math.min(...patch.polygon.map(p=>p[k])),Math.max(...patch.polygon.map(p=>p[k]))].some(v=>Math.abs(v-e.a[k])<.001));
+ assert.ok([...edges.values()].some(e=>e.count===2),'adjacent facets must share actual edges');for(const e of edges.values()){assert.ok(e.count<=2,'skin triangles cannot overlap');if(e.count===1)assert.ok(external(e),'an unmatched edge inside the face would leave a crack');}
+ assert.ok(Math.abs(projectedArea(T,patch.normal)-patch.exposedArea)<patch.exposedArea*.0002,'surface coverage must equal the exposed face once');assert.deepEqual(neutral(ship,host,{detail:2,maxDetails:1800}),T,'detail settings must retain the structural skin');assert.equal(low.surfaceDetail.ni,0);assert.ok(high.surfaceDetail.ni>0);
+ const source=G.meshParts(ship,{coded:false}).g.struct,hit=C.rayTris(triangles(source).flat(2),[100,50,-60],[0,0,1]);if(hit)assert.ok(hit.p[2]>-21.001,'the original outer wall cannot cover the face relief');
 });
 
-test('floors resume on both sides of a real opening and no emitted triangle bridges its empty volume',()=>{
- const {ship,host}=fixture({cut:true}),m=mesh(ship),groups=horizontalGroups(m.surfaceDevices),insideOpening=groups.filter(q=>q.y>44.3&&q.y<55.7&&q.area>100&&q.coverage>100&&q.depth>1);assert.ok(insideOpening.length>=4,'several real floors must pass the opening height');
- for(const q of insideOpening){assert.ok(q.intervals.some(([a,b])=>b<=108.001&&b-a>10),'the port side of a cut course must remain');assert.ok(q.intervals.some(([a,b])=>a>=115.999&&b-a>10),'the other side of a cut course must remain');}
- for(const g of [m.surfaceDevices,m.surfaceDetail])for(const tri of triangles(g)){for(const p of tri)assert.ok(conservativeInside(host,p),'real machinery vertices must remain in their own pierced host');const cy=tri.reduce((n,p)=>n+p[1],0)/3;if(tri.every(p=>p[1]>44.001&&p[1]<55.999))assert.ok(Math.max(...tri.map(p=>p[0]))<=108.001||Math.min(...tri.map(p=>p[0]))>=115.999,'a triangle may not span the opening even when its corners lie outside the hole');}
+test('the continuous face reaches both sides of an opening without bridging its empty volume',()=>{
+ const {ship,host,patch}=fixture({cut:true}),m=mesh(ship),T=neutral(ship,host),opening=[108.0002,44.0002,115.9998,55.9998];
+ assert.ok(T.some(t=>t.every(p=>p[0]<108))&&T.some(t=>t.every(p=>p[0]>116)),'machinery must remain on both sides of the opening');
+ for(const g of [m.surfaceDevices,m.surfaceDetail])for(const tri of triangles(g)){for(const p of tri)assert.ok(conservativeInside(host,p),'relief vertices must remain in their pierced host');assert.ok(area2(clipRect(tri.map(p=>[p[0],p[1]]),opening))<.0002,'no triangle may cross an opening even when its corners are outside the hole');}
+ assert.ok(Math.abs(projectedArea(T,patch.normal)-patch.exposedArea)<patch.exposedArea*.0002,'clipping the opening must retain all surrounding face coverage');
 });
 
-test('tilted tapered walls retain world-horizontal floors inside the actual host envelope',()=>{
- const {ship,host}=fixture({rotated:true}),m=mesh(ship),row=G.surfaceVisualPlan(ship,{detail:0,maxDetails:0}).find(q=>q.host==='p'+host.id&&q.config.functionMode==='equipment');assert.ok(row);
- for(const g of [m.surfaceDevices,m.surfaceDetail]){assert.ok(g.n>0||g===m.surfaceDetail);for(let i=0;i<g.n;i++)assert.ok(conservativeInside(host,Array.from(g.pos.slice(i*3,i*3+3))),'a stratum or its equipment protrudes through its sloped host');}
- const floors=horizontalGroups(m.surfaceDevices).filter(q=>q.area>15&&q.depth>1);assert.ok(floors.length>=6,'sloped faces need real world-horizontal slab surfaces, not slanted rectangular facade tiles');
+test('tilted tapered walls retain forward-facing relief inside their actual host envelope',()=>{
+ const {ship,host,patch}=fixture({rotated:true}),m=mesh(ship),T=neutral(ship,host);assert.ok(T.length>20);
+ for(const g of [m.surfaceDevices,m.surfaceDetail]){assert.ok(g.n>0||g===m.surfaceDetail);for(let i=0;i<g.n;i++)assert.ok(conservativeInside(host,Array.from(g.pos.slice(i*3,i*3+3))),'face relief protrudes through its sloped host');}
+ for(const t of T)assert.ok(C.dot(C.norm(C.cross(C.sub(t[1],t[0]),C.sub(t[2],t[0]))),patch.normal)>.05,'sloped faces need tangent relief instead of world-horizontal slabs');
+ assert.ok(Math.abs(projectedArea(T,patch.normal)-patch.exposedArea)<patch.exposedArea*.0002,'the tilted face must retain its complete projected area');
 });
 
-test('semantic split and merge preserve floor phase and do not add an artificial full-height wall divider',()=>{
- const {ship,patch}=fixture(),before=mesh(ship),old=slabLevels(before.surfaceDevices,120).map(q=>q.map(p=>p.y)),result=C.surfaceSplit(ship,patch.id,'u',.43);assert.equal(result.ok,true,result.why);const after=mesh(ship),levels=slabLevels(after.surfaceDevices,120).map(q=>q.map(p=>p.y));assert.deepEqual(levels,old,'a split must not restart floor heights from each child center');
- const patches=C.surfacePatches(ship).filter(p=>result.ids.includes(p.id)),range=patches.map(p=>p.triangles).flatMap(T=>Array.from(T).filter((_,i)=>i%3===0)),seam=40+120*.43;
- const dividers=triangles(after.surfaceArmor).filter(tri=>tri.every(p=>Math.abs(p[0]-seam)<.002)&&Math.max(...tri.map(p=>p[2]))-Math.min(...tri.map(p=>p[2]))>1);const dividerArea=dividers.reduce((sum,t)=>sum+C.len(C.cross(C.sub(t[1],t[0]),C.sub(t[2],t[0])))/2,0);assert.ok(dividerArea<.01,'an editable partition cannot insert a physical wall through continuous machinery');
- assert.ok(range.length>0);const merged=C.surfaceMerge(ship,result.ids);assert.equal(merged.ok,true,merged.why);assert.deepEqual(slabLevels(mesh(ship).surfaceDevices,120).map(q=>q.map(p=>p.y)),old);
+test('semantic split and merge preserve relief height and omit an artificial wall divider',()=>{
+ const {ship,host,patch}=fixture(),before=neutral(ship,host).flat(2),points=[];for(const x of [48,64,88,91.6,110,136,152])for(const y of [39,47,58])points.push([x,y,-60]);
+ const heights=T=>points.map(p=>{const hit=C.rayTris(T,p,[0,0,1]);assert.ok(hit,'every test ray must reach the face');return hit.p[2];}),old=heights(before),result=C.surfaceSplit(ship,patch.id,'u',.43);assert.equal(result.ok,true,result.why);
+ const after=mesh(ship),actual=heights(neutral(ship,host).flat(2));for(let i=0;i<old.length;i++)assert.ok(Math.abs(actual[i]-old[i])<.0001,'a semantic split must not restart the coarse relief phase');
+ const seam=40+120*.43,dividers=triangles(after.surfaceArmor).filter(tri=>tri.every(p=>Math.abs(p[0]-seam)<.002)&&Math.max(...tri.map(p=>p[2]))-Math.min(...tri.map(p=>p[2]))>1),dividerArea=dividers.reduce((sum,t)=>sum+C.len(C.cross(C.sub(t[1],t[0]),C.sub(t[2],t[0])))/2,0);assert.ok(dividerArea<.01,'an editable partition cannot insert a physical wall');
+ const merged=C.surfaceMerge(ship,result.ids);assert.equal(merged.ok,true,merged.why);const restored=heights(neutral(ship,host).flat(2));for(let i=0;i<old.length;i++)assert.ok(Math.abs(restored[i]-old[i])<.0001);
 });
 
-test('floor coverage survives wider faces and bounded draw budgets while paint/save/seed remain independent of capacity',()=>{
- for(const width of [120,480]){const {ship,host,patch}=fixture({width}),initial=C.publicJSON(ship),before=C.computeStats(ship),m=mesh(ship,{maxField:180}),levels=slabLevels(m.surfaceDevices,width);assert.ok(levels.length>=6,'a bounded renderer may simplify floors but must not leave most of a wide face blank');assert.ok(G.surfaceVisualPlan(ship,{detail:0,maxDetails:0,maxField:180}).find(q=>q.id===patch.id).field.length<=180);
-  const geo=geometry(m.surfaceDevices);host.paint='#b04020';assert.deepEqual(geometry(mesh(ship,{maxField:180}).surfaceDevices),geo,'repaint changes color only');const painted=mesh(ship,{maxField:180}).surfaceDevices;for(let i=0;i<painted.n;i++){const c=Array.from(painted.col.slice(i*4,i*4+3));assert.ok(Math.abs(c[0]/176-c[1]/64)<.025&&Math.abs(c[0]/176-c[2]/32)<.04,'neutral machinery must inherit the parent material hue');}
-  const restored=C.deserialize(C.serialize(ship));assert.deepEqual(geometry(mesh(restored,{maxField:180}).surfaceDevices),geo,'save/reload preserves actual floor and equipment geometry');C.setSurfaceConfig(ship,patch.id,{style:{seed:99,density:0}});assert.notDeepEqual(geometry(mesh(ship,{maxField:180}).surfaceDevices),geo,'a changed seed must still affect the uneven mechanical landscape');assert.ok(slabLevels(mesh(ship,{maxField:180}).surfaceDevices,width).length>=6);const final=C.computeStats(ship);for(const k of ['mass','cost','crew','sensorVolume','explicitHabitationVolume','dissipatorPower'])assert.equal(final[k],before[k],k+' cannot depend on drawing budget, material or seed');assert.ok(initial.length>0);
+test('wide faces retain full coverage within a coarse budget independently of paint, save and capacity',()=>{
+ for(const width of [120,480]){const {ship,host,patch}=fixture({width}),initial=C.publicJSON(ship),before=C.computeStats(ship),m=mesh(ship,{maxField:180}),T=neutral(ship,host,{maxField:180});assert.ok(Math.abs(projectedArea(T,patch.normal)-patch.exposedArea)<patch.exposedArea*.0002,'the bounded renderer cannot leave a wide face blank');assert.ok(T.length<width*10,'a wide surface needs broad facets instead of dense part meshes');assert.ok(G.surfaceVisualPlan(ship,{detail:0,maxDetails:0,maxField:180}).find(q=>q.id===patch.id).field.length<=180);
+  const geo=geometry(m.surfaceDevices);host.paint='#b04020';assert.deepEqual(geometry(mesh(ship,{maxField:180}).surfaceDevices),geo,'repaint changes color only');const painted=mesh(ship,{maxField:180}).surfaceDevices;for(let i=0;i<painted.n;i++){if(painted.col[i*4+3]===253)continue;const c=Array.from(painted.col.slice(i*4,i*4+3));assert.ok(Math.abs(c[0]/176-c[1]/64)<.025&&Math.abs(c[0]/176-c[2]/32)<.04,'neutral machinery must inherit the parent material hue');}
+  const restored=C.deserialize(C.serialize(ship));assert.deepEqual(geometry(mesh(restored,{maxField:180}).surfaceDevices),geo,'save/reload preserves actual relief');C.setSurfaceConfig(ship,patch.id,{style:{seed:99,density:0}});assert.notDeepEqual(geometry(mesh(ship,{maxField:180}).surfaceDevices),geo,'the seed must affect the mechanical landscape');assert.ok(Math.abs(projectedArea(neutral(ship,host,{maxField:180}),patch.normal)-patch.exposedArea)<patch.exposedArea*.0002);const final=C.computeStats(ship);for(const k of ['mass','cost','crew','sensorVolume','explicitHabitationVolume','dissipatorPower'])assert.equal(final[k],before[k],k+' cannot depend on drawing budget, material or seed');assert.ok(initial.length>0);
  }
+});
+
+test('a constrained multi-face budget preserves relief heights when one face is split',()=>{
+ const {ship,host,patch}=fixture();ship.hull.L=500;
+ const other=C.placePart(ship,'struct',[300,50,0],[120,50,32],{form:'box'},false),otherPatch=C.surfacePatches(ship).find(p=>p.host==='p'+other.id&&p.face==='port');assert.ok(otherPatch?.exposed);
+ assert.equal(C.setSurfaceConfig(ship,otherPatch.id,{functionMode:'equipment',allocation:{cooling:100,sensors:0,habitation:0},equipment:{kind:'hdis',depth:1},battery:{count:0},style:{depth:4,density:0,seed:37}}).ok,true);
+ const opt={maxField:120},origins=[];for(const x of [48,64,88,91.6,110,136,152])for(const y of [39,47,58])origins.push([x,y,-60]);
+ const sample=()=>{const T=neutral(ship,host,opt).flat(2);return origins.map(o=>{const hit=C.rayTris(T,o,[0,0,1]);assert.ok(hit,'the coarsened skin must cover every ray');return hit.p[2];});};
+ const resourceTotals=()=>ship.surfaces.patches.reduce((s,q)=>{for(const r of q.aggregate?.cells||[]){s.volume+=r[21];s.cost+=r[22];}return s;},{volume:0,cost:0}),old=sample(),resources=resourceTotals(),nativeIds=ship.parts.map(p=>p.id);
+ const split=C.surfaceSplit(ship,patch.id,'u',.43);assert.equal(split.ok,true,split.why);
+ const after=sample();for(let i=0;i<old.length;i++)assert.ok(Math.abs(after[i]-old[i])<.00002,'splitting one face must not reallocate its common grid budget or restart its relief');
+ assert.deepEqual(ship.parts.map(p=>p.id),nativeIds,'the mesh budget cannot materialize scenery parts');assert.equal(ship.fits.length,0);const next=resourceTotals();for(const k of ['volume','cost'])assert.ok(Math.abs(next[k]-resources[k])<=Math.max(1e-7,Math.abs(resources[k])*1e-9),k+' must remain extensive across the semantic split');
 });

@@ -26,8 +26,5 @@ Where the time goes when a design is opened, flown or shown in a fleet battle, a
 - **Trial of the drawing board**: the engine reuses the figures the editor already has (same design, no edit since).
 - **Warm-up**: the fleet-battle setup screen prepares its sortie's models, the mission patrol panel its flagship (with
   figures) and escorts, one at a time and only while that screen is open; `fleetAsset` shares requests in flight.
-- **English catalog**: `js/lang-en.js` is not a page script any more. `js/i18n.js` loads it (address from the
-  page's `data-catalog`) when English is chosen or is the browser's language; in Japanese nothing is downloaded,
-  compiled or walked (no DOM observer).
 
 Tests: `tests/load-cache.cjs`.

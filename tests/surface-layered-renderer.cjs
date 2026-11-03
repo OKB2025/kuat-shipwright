@@ -1,4 +1,5 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test');
+const {primarySurfaceLayers}=require('./helpers/surface-geometry.cjs');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=vm.createContext({console});
 for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/gfx.js'])vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),cx,{filename:f});
 const {C,G}=vm.runInContext('({C:Core,G:Gfx})',cx),plain=q=>JSON.parse(JSON.stringify(q));
@@ -12,28 +13,31 @@ function fixture({depth=0,rotated=false,foil=false,count=0}={}){
 }
 function row(ship,patch,opt={}){return G.surfaceVisualPlan(ship,opt).find(q=>q.id===patch.id);}
 function triangles(g){const out=[];for(let i=0;i<g.ni;i+=3)out.push([0,1,2].map(j=>Array.from(g.pos.slice(g.idx[i+j]*3,g.idx[i+j]*3+3))));return out;}
-function horizontal(g){return triangles(g).filter(t=>{const n=C.cross(C.sub(t[1],t[0]),C.sub(t[2],t[0]));return C.len(n)>1e-6&&Math.abs(n[1])/C.len(n)>1-1e-7;});}
+function neutralTriangles(ship,host,opt={}){const ranges={},g=G.meshSurfaceLayers(ship,ranges,{detail:0,maxDetails:0,...opt}).surfaceDevices,out=[];for(const [name,start,count,meta]of ranges[host.id]||[])if(name==='surfaceDevices'&&!meta?.projection)for(let i=start;i<start+count;i+=3){if(g.col[g.idx[i]*4+3]===253)continue;out.push([0,1,2].map(j=>Array.from(g.pos.slice(g.idx[i+j]*3,g.idx[i+j]*3+3))));}return out;}
+function projectedArea(T,n){return T.reduce((a,t)=>a+C.dot(C.cross(C.sub(t[1],t[0]),C.sub(t[2],t[0])),n)/2,0);}
 function inside(host,p){return C.inPart(host,p)||C.inPart(host,C.add(p,C.mul(C.norm(C.sub(host.c,p)),3e-4)));}
 
-test('automatic structural relief is deeper than functional rooms and contains real horizontal floors and occupied bays',()=>{
- const {ship,host,patch}=fixture(),before=C.publicJSON(ship),r=row(ship,patch,{detail:0,maxDetails:0}),m=G.meshSurfaceLayers(ship,{}, {detail:0,maxDetails:0});
- assert.equal(r.functionalDepth,1);assert.ok(r.visualDepth>=6,'visual structure must not be limited to one-metre functional cells');
- const flat=horizontal(m.surfaceDevices),levels=new Set(flat.filter(t=>C.len(C.cross(C.sub(t[1],t[0]),C.sub(t[2],t[0])))/2>10).map(t=>t[0][1].toFixed(3)));assert.ok(levels.size>12,'floors require actual horizontal surfaces at repeated levels');
- const masses=r.field.filter(q=>q.feature==='stratum-machinery'||q.feature==='stratum-core');assert.ok(masses.length>20);assert.ok(masses.some(q=>q.size[1]>r.layerPitch*1.5),'occasional machinery cores must span several storeys');
- assert.ok(masses.filter(q=>C.dot(C.sub(q.center,patch.center),patch.normal)+q.size[2]/2>-r.visualDepth*.25).length>masses.length*.5,'most storeys need near-front machinery, not an empty louver');
- assert.ok(!r.field.some(q=>q.feature==='service-housing'),'the attached housing mosaic must be replaced');
+test('automatic relief combines shallow machinery masses with broad horizontal runs',()=>{
+ const {ship,host,patch}=fixture(),before=C.publicJSON(ship),r=row(ship,patch,{detail:0,maxDetails:0}),T=neutralTriangles(ship,host),m=primarySurfaceLayers(G,ship,{detail:0,maxDetails:0});
+ assert.equal(r.functionalDepth,1);assert.ok(r.visualDepth>0&&r.visualDepth<=4,'automatic relief must remain shallow compared with the forty-metre face');
+ assert.ok(T.length>20&&T.length<1200,'a simple face must use a coarse skin rather than thousands of tiny parts');
+ const broad=T.filter(t=>C.dot(C.norm(C.cross(C.sub(t[1],t[0]),C.sub(t[2],t[0]))),patch.normal)>.9);assert.ok(projectedArea(broad,patch.normal)>patch.exposedArea*.5,'broad front facets must occupy most of the face rather than thin edge detail');
+ const elongated=T.filter(t=>{const xs=t.map(p=>C.dot(p,r.frame.u)),ys=t.map(p=>C.dot(p,r.frame.v));return Math.max(...xs)-Math.min(...xs)>2*(Math.max(...ys)-Math.min(...ys));});assert.ok(projectedArea(elongated,patch.normal)>patch.exposedArea*.25,'horizontal beams must remain substantial alongside compact cabinets and upright machinery');
+ for(const t of T){const n=C.norm(C.cross(C.sub(t[1],t[0]),C.sub(t[2],t[0])));assert.ok(C.dot(n,patch.normal)>.05,'closed boxes or perpendicular shelves must not replace the skin');}
+ assert.ok(Math.abs(projectedArea(T,patch.normal)-patch.exposedArea)<patch.exposedArea*.0002,'the connected skin must cover the complete exposed face exactly once');
  for(let i=0;i<m.surfaceDevices.n;i++)assert.ok(inside(host,Array.from(m.surfaceDevices.pos.slice(i*3,i*3+3))));assert.equal(C.publicJSON(ship),before);
 });
 
 test('explicit visual depth, cosmetic density and draw budgets do not alter the saved functional source',()=>{
  const {ship,patch}=fixture({depth:4}),before=C.publicJSON(ship),low=row(ship,patch,{detail:0,maxDetails:0}),high=row(ship,patch,{detail:2,maxDetails:1800});assert.equal(low.visualDepth,4);assert.deepEqual(plain(low.field),plain(high.field));assert.equal(low.boxes.length,0);assert.ok(high.boxes.length>0);assert.equal(C.publicJSON(ship),before);
- const bounded=row(ship,patch,{maxField:160,maxDetails:0});assert.ok(bounded.field.length<=160);assert.ok(new Set(bounded.strata.map(q=>q.level)).size>8);assert.equal(C.publicJSON(ship),before);
+ const bounded=row(ship,patch,{maxField:160,maxDetails:0});assert.ok(bounded.field.length<=160);assert.ok(neutralTriangles(ship,ship.parts[0],{maxField:160}).length<1200);assert.deepEqual(plain(low.reliefFaces),plain(high.reliefFaces),'cosmetic detail must not retessellate the structural face');assert.equal(C.publicJSON(ship),before);
  const saved=JSON.parse(C.publicJSON(ship)),source={parts:saved.parts,fits:saved.fits};assert.equal(C.setSurfaceConfig(ship,patch.id,{style:{depth:12,density:0}}).ok,true);const deeper=row(ship,patch,{detail:0,maxDetails:0});assert.equal(deeper.visualDepth,12);const changed=JSON.parse(C.publicJSON(ship));assert.deepEqual({parts:changed.parts,fits:changed.fits},source);assert.equal(deeper.functionalDepth,1);
 });
 
-test('tilted walls keep actual slab tops horizontal and all machine vertices inside their own tapered host',()=>{
- const {ship,host}=fixture({depth:5,rotated:true}),m=G.meshSurfaceLayers(ship,{}, {detail:0,maxDetails:0}),floors=horizontal(m.surfaceDevices).filter(t=>C.len(C.cross(C.sub(t[1],t[0]),C.sub(t[2],t[0])))/2>10);assert.ok(floors.length>12);
- for(const g of [m.surfaceDevices,m.surfaceDetail])for(let i=0;i<g.n;i++)assert.ok(inside(host,Array.from(g.pos.slice(i*3,i*3+3))),'a layered structure vertex escaped its actual host');
+test('tilted walls keep their relief along the face and inside their tapered host',()=>{
+ const {ship,host,patch}=fixture({depth:5,rotated:true}),m=primarySurfaceLayers(G,ship,{detail:0,maxDetails:0}),T=neutralTriangles(ship,host);assert.ok(T.length>20);
+ for(const t of T){const n=C.norm(C.cross(C.sub(t[1],t[0]),C.sub(t[2],t[0])));assert.ok(C.dot(n,patch.normal)>.05,'facets must follow the tilted wall instead of projecting world-horizontal slabs');}
+ for(const g of [m.surfaceDevices,m.surfaceDetail])for(let i=0;i<g.n;i++)assert.ok(inside(host,Array.from(g.pos.slice(i*3,i*3+3))),'a face relief vertex escaped its actual host');
 });
 
 test('semantic siblings share floor levels and omit their artificial recessed divider',()=>{
@@ -45,5 +49,25 @@ test('semantic siblings share floor levels and omit their artificial recessed di
 
 test('layered surfaces retain foil ownership exactly once and share cached whole-face meshes',()=>{
  const {ship,host,patch}=fixture({depth:2,foil:true}),before=C.publicJSON(ship),first=G.meshSurfaceLayers(ship,{}),again=G.meshSurfaceLayers(ship,{}),asset=G.fleetGeometry(ship,{trial:true}),foil=asset.foils.find(q=>q.id===host.id);assert.ok(foil);assert.ok(row(ship,patch).strata.length>3,'horizontal equipment faces must retain the structural band fallback');assert.equal(first.surfaceDevices,again.surfaceDevices);
- for(const kind of ['surfaceDevices','surfaceDetail']){const names=foil.meshes.filter(n=>foil.kinds[n]===kind);assert.equal(names.length,1,kind);assert.equal(asset.meshes[names[0]].geo.ni,first[kind].ni,kind);assert.equal(asset.meshes[kind]?.geo.ni||0,0,kind+' must not retain a stationary duplicate');}assert.equal(C.publicJSON(ship),before);
+ for(const kind of ['surfaceDevices','surfaceDetail']){const names=foil.meshes.filter(n=>foil.kinds[n]===kind);assert.equal(names.length,first[kind].ni?1:0,kind);if(first[kind].ni)assert.equal(asset.meshes[names[0]].geo.ni,first[kind].ni,kind);assert.equal(asset.meshes[kind]?.geo.ni||0,0,kind+' must not retain a stationary duplicate');}assert.equal(C.publicJSON(ship),before);
+});
+
+
+// Reconstruct connected flat front regions from emitted triangles. These are
+// geometric measurements, independent of the procedural feature names.
+function frontRegions(T,patch){
+ const flat=T.filter(t=>C.dot(C.norm(C.cross(C.sub(t[1],t[0]),C.sub(t[2],t[0]))),patch.normal)>.9999),parents=flat.map((_,i)=>i),edges=new Map(),key=p=>p.map(x=>x.toFixed(4)).join(','),find=i=>parents[i]===i?i:parents[i]=find(parents[i]);
+ for(let i=0;i<flat.length;i++)for(let j=0;j<3;j++){const edge=[key(flat[i][j]),key(flat[i][(j+1)%3])].sort().join('|'),other=edges.get(edge);if(other==null)edges.set(edge,i);else parents[find(i)]=find(other);}
+ const groups=new Map();for(let i=0;i<flat.length;i++){const id=find(i);if(!groups.has(id))groups.set(id,[]);groups.get(id).push(flat[i]);}
+ const limits=axis=>[Math.min(...patch.polygon.map(p=>C.dot(p,axis))),Math.max(...patch.polygon.map(p=>C.dot(p,axis)))],[u0,u1]=limits(patch.u),[v0,v1]=limits(patch.v);
+ return [...groups.values()].map(tris=>{const ps=tris.flat(),us=ps.map(p=>C.dot(p,patch.u)),vs=ps.map(p=>C.dot(p,patch.v)),loU=Math.min(...us),hiU=Math.max(...us),loV=Math.min(...vs),hiV=Math.max(...vs);return {w:hiU-loU,h:hiV-loV,area:projectedArea(tris,patch.normal),height:C.dot(ps[0],patch.normal),boundary:Math.min(Math.abs(loU-u0),Math.abs(hiU-u1),Math.abs(loV-v0),Math.abs(hiV-v1))<.002};}).filter(r=>r.area>2);
+}
+
+test('emitted machinery has upright cabinets, horizontal beams, cavities and smaller nested relief',()=>{
+ const {ship,host,patch}=fixture({depth:4}),T=neutralTriangles(ship,host),regions=frontRegions(T,patch),lo=Math.min(...regions.map(r=>r.height)),hi=Math.max(...regions.map(r=>r.height)),raised=regions.filter(r=>!r.boundary&&r.height>hi-(hi-lo)*.35),interior=regions.filter(r=>!r.boundary);
+ assert.ok(raised.some(r=>r.w/r.h<1.15&&r.h>6),'a machinery facade needs actual upright or compact masses, not only long horizontal planks');
+ assert.ok(raised.some(r=>r.w/r.h>3&&r.w>20),'long horizontal equipment beams must coexist with compact masses');
+ assert.ok(interior.some(r=>r.height<lo+(hi-lo)*.35&&r.area>20),'the connected skin must include substantial recessed machinery cavities');
+ const small=interior.filter(r=>r.area>=4&&r.area<=60),large=interior.filter(r=>r.area>=200);assert.ok(small.length>=2&&large.length>=2,'medium nested surfaces and large equipment masses must both exist in the emitted mesh');
+ assert.ok(Math.max(...large.map(r=>r.area))>8*Math.min(...small.map(r=>r.area)),'the machinery needs distinct visible scales rather than translated copies of one cabinet');
 });

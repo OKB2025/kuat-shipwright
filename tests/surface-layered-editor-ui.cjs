@@ -18,9 +18,9 @@ function resources(run){return plain(run(`(()=>{const s=C.computeStats(ship);ret
 
 test('the real editor presents exposed machinery structure with distinct visual and functional depths in Japanese and English',()=>{
  const {run,cx}=fixture(),before=run('C.publicJSON(ship)'),html=run('surfaceEditorHTML()');
- assert.match(html,/<option value="equipment" selected>機材構造面<\/option>/);assert.doesNotMatch(html,/機材搭載面/);assert.match(html,/装甲で覆う面/);assert.match(html,/薄い連続床と機材が積み重なった構造/);
+ assert.match(html,/<option value="equipment" selected>機材構造面<\/option>/);assert.doesNotMatch(html,/機材搭載面/);assert.match(html,/装甲で覆う面/);assert.match(html,/横方向に広がる粗いローポリの凹凸面と発光点/);
  const relief=html.match(/<input type="number" data-surface-field="style.depth"[^>]*>/)?.[0];assert.ok(relief);assert.match(relief,/value="0"/);assert.match(relief,/min="0"/);assert.match(relief,new RegExp('max="'+run('C.SURFACE_LIMITS.styleDepth')+'"'));assert.match(relief,/step="0\.1"/);
- assert.match(html,/構造の凹凸の奥行き（m、0＝自動）/);assert.match(html,/data-surface-visual-depth/);assert.match(html,/設備の内部深さは機能用の容積を決める設定/);assert.match(html,/外観の凹凸だけを変え、設備の容積や性能には影響しません/);assert.match(html,/追加装飾だけを調整/);assert.match(html,/同じ比率と配置シードから同じ外観/);
+ assert.match(html,/構造の凹凸の奥行き（m、0＝自動）/);assert.match(html,/data-surface-visual-depth/);assert.match(html,/設備の内部深さは機能用の容積を決める設定/);assert.match(html,/外観の凹凸だけを変え、設備の容積や性能には影響しません/);assert.match(html,/面上の追加の凹凸だけを調整/);assert.match(html,/同じ比率と配置シードから同じ外観/);
  assert.match(html,/data-surface-field="equipment.depth" value="2"/);assert.match(html,/data-surface-allocation-total>100%/);assert.match(html,/data-surface-field="battery.count" value="2"/);assert.doesNotMatch(html,/data-surface-field="equipment.count"/);assert.match(html,/機材構造面の自動設定/);assert.match(html,/対象を機材構造面に一括設定/);
  translated(cx,html);assert.equal(run('C.publicJSON(ship)'),before,'rendering the layer controls cannot edit the design');
 });

@@ -11,13 +11,20 @@ const YardEngine = (() => {
 'use strict';
 const C = Core, G = Gfx;
 const now = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
-const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
 let post = () => {};
 let shipGen = 0, lastStats = null; // v13 LOAD the editor's latest figures, for a trial flight of the same design
 let ship = null, hullKey = '', lastInfo = null, lastOverlap = '', view = {coded: false, habitation: false};
 const queue = [];
 let running = false;
+let wakeStats = null;
+function waitForStats(ms) {
+  return new Promise(resolve => {
+    const done = () => { clearTimeout(timer); if (wakeStats === done) wakeStats = null; resolve(); };
+    const timer = setTimeout(done, ms);
+    wakeStats = done;
+  });
+}
 
 // ---------- transfer helpers ----------
 function geoOut(g, transfer) {
@@ -67,6 +74,11 @@ function packCaches(s) {
   }
   // Pick geometry: the exact objects the editor's ray casts and section queries use.
   out.geoProxy = {hull: conv(C.hullGeo(s)), ref: conv(C.referenceHullGeometry(s))};
+  // Face picking and outlines use the same completed exposure survey as the
+  // mesh. Keep it in the worker snapshot so pointer events never clip all the
+  // ship's faces again. Configurations remain the editor's current settings.
+  out.geoProxy.surfaces = C.surfacePatches(s).map(({config, exposedTriangles, ...p}) => ({...conv(p), exposedTriangles: conv(exposedTriangles)}));
+  out.geoProxy.surfacePartitions = JSON.stringify(s.surfaces?.partitions || null);
   return out;
 }
 
@@ -156,7 +168,8 @@ async function handleUpdate(job) {
   // Stats wait for a short quiet period so continuous edits keep the
   // geometry responsive. A newer edit cancels this run.
   const delay = job.statsDelay == null ? 220 : job.statsDelay;
-  if (delay > 0) await sleep(delay);
+  if (queue.some(j => j.type === 'update')) return;
+  if (delay > 0) await waitForStats(delay);
   if (queue.some(j => j.type === 'update')) return;
   const t1 = now();
   const S = C.computeStats(ship);
@@ -437,6 +450,8 @@ function receive(msg) {
     const old = queue.find(j => j.type === 'update');
     if (old) { old.what = Array.from(new Set([...(old.what || []), ...(msg.what || [])])); old.reset = old.reset || msg.reset; Object.assign(old, {gen: msg.gen, state: msg.state, view: msg.view || old.view, stats: msg.stats, statsDelay: msg.statsDelay}); }
     else queue.push(msg);
+    // An edit should not wait for the previous generation's stats debounce.
+    if (wakeStats) wakeStats();
   } else queue.push(msg);
   pump();
 }

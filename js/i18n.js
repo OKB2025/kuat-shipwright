@@ -6,38 +6,26 @@ let saved;try{saved=root.localStorage?.getItem(storageKey);}catch(_){}
 let language=supported.has(saved)?saved:/^ja\b/i.test(root.navigator?.language||'ja')?'ja':'en';
 const cache=new Map(),originals=new WeakMap(),attributes=new WeakMap(),contexts=new WeakSet();
 const hasJapanese=/[\u3040-\u30ff\u3400-\u9fff]/,escapeRE=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-// v13 LOAD The English catalog (js/lang-en.js, 0.9 MB) is compiled on first use and, on a published page, fetched
-// only when English is chosen or is the browser's language: a Japanese session neither downloads nor walks it.
-let catalog=null,exact={},terms={},patterns=[],termRE=null;
+// The English catalog (js/lang-en.js, ~0.9 MB) is only fetched by the page when English is chosen; in Japanese the
+// page starts without it and it is loaded the first time the player switches. The lookup tables are built from
+// whichever catalog is present and rebuilt once if it arrives later.
+let preparedFor=null,exact={},terms={},patterns=[],termRE=null;
 function prepare(){
- const c=root.KS_EN;if(!c)return false;if(c===catalog)return true;
- catalog=c;exact=c.messages||{};terms=c.terms||{};
+ if(preparedFor===root.KS_EN)return;preparedFor=root.KS_EN;
+ const catalog=root.KS_EN||{};exact=catalog.messages||{};terms=catalog.terms||{};
  patterns=Object.entries(exact).filter(([s])=>/\{\d+\}/.test(s)&&s.replace(/\{\d+\}/g,'').trim().length>=2).map(([s,to])=>{
   const order=[],parts=s.split(/(\{\d+\})/);return {re:new RegExp('^'+parts.map((p,i)=>/^\{\d+\}$/.test(p)?(order.push(+p.slice(1,-1)),parts[i-1]?.endsWith('第')?'(\\d+)':'(.*?)'):escapeRE(p)).join('')+'$'),to,order,weight:s.replace(/\{\d+\}/g,'').length};
  }).sort((a,b)=>b.weight-a.weight);
  const termKeys=Object.keys(terms).sort((a,b)=>b.length-a.length);termRE=termKeys.length?new RegExp(termKeys.map(escapeRE).join('|'),'g'):null;
- englishMemo.clear();cache.clear();return true;
+ englishMemo.clear();cache.clear();
 }
-// The catalog's address: the page names it (data-catalog, with the catalog's own version stamp), else next to this script.
-const catalogSrc=(()=>{try{const el=root.document?.currentScript,c=el?.dataset?.catalog;if(c)return new URL(c,root.document.baseURI).href;const s=el?.src||'';return /i18n\.js/.test(s)?s.replace(/i18n\.js/,'lang-en.js'):null;}catch(_){return null;}})();
 let catalogLoad=null;
 function loadCatalog(){
- if(root.KS_EN)return Promise.resolve(true);
- const doc=root.document;if(!catalogSrc||!doc)return Promise.resolve(false);
- if(!catalogLoad)catalogLoad=new Promise(resolve=>{const el=doc.createElement('script');el.src=catalogSrc;el.onload=()=>resolve(!!root.KS_EN);el.onerror=()=>{catalogLoad=null;el.remove();resolve(false);};(doc.head||doc.documentElement).appendChild(el);})
-  .then(ok=>{if(ok&&language==='en'){cache.clear();refresh();announce();}return ok;});
- return catalogLoad;
+ if(root.KS_EN||!root.document)return Promise.resolve();
+ return catalogLoad||(catalogLoad=new Promise(resolve=>{const s=root.document.createElement('script');s.src=root.KS_EN_SRC||'js/lang-en.js';s.onload=s.onerror=()=>{s.remove();if(!root.KS_EN)catalogLoad=null;resolve();};(root.document.head||root.document.documentElement).appendChild(s);}));
 }
-// English at start: while the page is still parsing, the catalog is written in as the next script so the first
-// paint is already English (as when it was a page script); otherwise it is loaded and the page re-translated.
-if(language==='en'&&!root.KS_EN&&catalogSrc){
- let written=false;try{if(root.document.readyState==='loading'){root.document.write('<script src="'+catalogSrc.replace(/"/g,'&quot;')+'"><\/script>');written=true;}}catch(_){}
- if(!written)setTimeout(loadCatalog,0);
-}
-// Translations are pure functions of the source text: remember them (bounded), since the same labels are
-// translated over and over by the DOM observer and every canvas frame.
 const englishMemo=new Map();
-function english(value,depth=0){if(!prepare())return String(value??'');if(depth)return englishRaw(value,depth);const k=String(value??'');let v=englishMemo.get(k);if(v===undefined){v=englishRaw(k,0);if(englishMemo.size>20000)englishMemo.clear();englishMemo.set(k,v);}return v;}
+function english(value,depth=0){prepare();if(depth)return englishRaw(value,depth);const k=String(value??'');let v=englishMemo.get(k);if(v===undefined){v=englishRaw(k,0);if(englishMemo.size>20000)englishMemo.clear();englishMemo.set(k,v);}return v;}
 function englishRaw(value,depth=0){
  const s=String(value??'');if(!hasJapanese.test(s))return s;
  if(Object.hasOwn(exact,s))return exact[s];
@@ -56,7 +44,7 @@ function englishRaw(value,depth=0){
  if(depth<8&&s.includes(' · ')){const out=s.split(' · ').map(p=>english(p,depth+1)).join(' · ');if(consider(out))return out;}
  return partial;
 }
-function t(value){const s=String(value??'');if(language==='ja'||!hasJapanese.test(s))return s;if(!prepare())return s;if(cache.has(s))return cache.get(s);const out=english(s);if(cache.size>=4096)cache.clear();cache.set(s,out);return out;}
+function t(value){const s=String(value??'');if(language==='ja'||!hasJapanese.test(s))return s;if(cache.has(s))return cache.get(s);const out=english(s);if(cache.size>=4096)cache.clear();cache.set(s,out);return out;}
 const skip='script,style,[translate="no"],[data-l10n-skip],[contenteditable]:not([contenteditable="false"])';
 function ignored(n){return !!(n.nodeType===1?n:n.parentElement)?.closest?.(skip);}
 function textNode(n){if(ignored(n)||n.parentElement?.closest('textarea'))return;const prev=originals.get(n),current=n.nodeValue,source=prev&&current===prev.shown?prev.source:current,shown=t(source);originals.set(n,{source,shown});if(current!==shown)n.nodeValue=shown;}
@@ -74,20 +62,18 @@ function sourceText(n){if(!n)return '';if(n.nodeType===3){const r=originals.get(
 function sourceHTML(el){if(!el)return '';const copy=el.cloneNode(true);function restore(from,to){if(from.nodeType===3){to.nodeValue=sourceText(from);return;}const rec=attributes.get(from);if(rec)for(const [name,v]of Object.entries(rec))if(from.getAttribute(name)===v.shown)to.setAttribute(name,v.source);for(let i=0;i<from.childNodes.length;i++)restore(from.childNodes[i],to.childNodes[i]);}restore(el,copy);return copy.innerHTML;}
 function canvas(ctx){if(!ctx||contexts.has(ctx))return ctx;contexts.add(ctx);for(const key of ['fillText','strokeText','measureText']){const original=ctx[key];if(typeof original==='function')ctx[key]=function(text,...args){return original.call(this,t(text),...args);};}return ctx;}
 let observer;
-// v13 LOAD In Japanese the page is shown as written: no observer and no walks, except one walk to put the Japanese
-// back after English was shown.
-let shownEnglish=false;
-function watch(){if(observer&&language==='en'&&root.document?.documentElement)observer.observe(root.document.documentElement,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:attrNames});}
-function refresh(){const doc=root.document;if(!doc)return;observer?.disconnect();doc.documentElement.lang=language;if(language==='en'||shownEnglish){localize(doc.documentElement);shownEnglish=language==='en'&&prepare();}for(const el of doc.querySelectorAll('[data-language]'))el.value=language;watch();}
+function watch(){if(observer&&root.document?.documentElement)observer.observe(root.document.documentElement,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:attrNames});}
+function refresh(){const doc=root.document;if(!doc)return;observer?.disconnect();doc.documentElement.lang=language;localize(doc.documentElement);for(const el of doc.querySelectorAll('[data-language]'))el.value=language;watch();}
 function announce(){root.dispatchEvent?.(new root.CustomEvent('ks-language-change',{detail:{language}}));}
-function setLanguage(value){if(!supported.has(value))return false;language=value;cache.clear();try{root.localStorage?.setItem(storageKey,value);}catch(_){}if(value==='en')loadCatalog();refresh();announce();return true;}
-root.KSI18n={t,english,setLanguage,loadCatalog,localize,sourceText,sourceHTML,canvas,refresh,get language(){return language;},get locale(){return language==='en'?'en-US':'ja-JP';}};
+function apply(){refresh();announce();if(language==='en'&&!root.KS_EN)loadCatalog().then(()=>{if(language==='en'&&root.KS_EN){cache.clear();refresh();announce();}});}
+function setLanguage(value){if(!supported.has(value))return false;language=value;cache.clear();try{root.localStorage?.setItem(storageKey,value);}catch(_){}apply();return true;}
+root.KSI18n={t,english,setLanguage,localize,sourceText,sourceHTML,canvas,refresh,get language(){return language;},get locale(){return language==='en'?'en-US':'ja-JP';}};
 if(root.document){
  const init=()=>{
   if(root.MutationObserver)observer=new root.MutationObserver(records=>{observer.disconnect();const nodes=new Set();for(const r of records){if(r.type==='childList')for(const n of r.addedNodes)nodes.add(n);else nodes.add(r.target);}for(const n of nodes)if(n.isConnected)localize(n);watch();});
-  root.document.addEventListener('change',e=>{if(e.target.matches?.('[data-language]'))setLanguage(e.target.value);});refresh();
+  root.document.addEventListener('change',e=>{if(e.target.matches?.('[data-language]'))setLanguage(e.target.value);});refresh();if(language==='en'&&!root.KS_EN)apply();
  };
  if(root.document.readyState==='loading')root.document.addEventListener('DOMContentLoaded',init,{once:true});else init();
- root.addEventListener('storage',e=>{if(e.key===storageKey&&supported.has(e.newValue)){language=e.newValue;cache.clear();if(language==='en')loadCatalog();refresh();announce();}});
+ root.addEventListener('storage',e=>{if(e.key===storageKey&&supported.has(e.newValue)){language=e.newValue;cache.clear();apply();}});
 }
 })(typeof window==='undefined'?globalThis:window);

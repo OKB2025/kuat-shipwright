@@ -1,7 +1,7 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test'),{performance}=require('node:perf_hooks');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..'));
 const read=f=>fs.readFileSync(path.join(root,f),'utf8'),plain=x=>JSON.parse(JSON.stringify(x));
-// v13 LOAD loading paths: the engine's disk cache of built designs, lite fleet models, the lazy English catalog.
+// v13 LOAD loading paths: the engine's disk cache of built designs and lite fleet models.
 
 // A minimal IndexedDB (one database, object stores keyed by 'id', asynchronous callbacks, structured clones),
 // shared between engine instances as a browser profile shares it between visits.
@@ -65,13 +65,4 @@ test('a trial of the design on the drawing board reuses the figures the editor a
  e.request({type:'update',gen:1,state:C.publicJSON(ship),what:['all'],reset:true,stats:true,statsDelay:0});
  const r=await e.request({type:'fleet',design:C.serialize(ship),trial:true});assert.equal(r.src,'editor');assert.ok(r.stats&&r.profile);
  const plainRun=await engine(fakeIDB()).request({type:'fleet',design:C.serialize(ship),trial:true});assert.equal(plainRun.src,'built');assert.deepEqual(plain(r.profile),plain(plainRun.profile));
-});
-
-test('Japanese mode neither loads nor needs the English catalog; English compiles it when it arrives',()=>{
- const c=vm.createContext({navigator:{language:'ja-JP'}});vm.runInContext(read('js/i18n.js'),c);
- assert.equal(c.KSI18n.language,'ja');assert.equal(c.KS_EN,undefined);assert.equal(c.KSI18n.t('メニュー'),'メニュー');
- c.KSI18n.setLanguage('en');assert.equal(c.KSI18n.t('メニュー'),'メニュー','no catalog yet: shown as written');
- vm.runInContext(read('js/lang-en.js'),c);assert.equal(c.KSI18n.t('メニュー'),'Menu');
- const html=read('index.html');assert.doesNotMatch(html,/<script[^>]+src="js\/lang-en\.js/);
- const m=html.match(/<script src="js\/i18n\.js[^"]*" data-catalog="([^"?]+)/);assert.ok(m&&fs.existsSync(path.join(root,m[1])),'the page names the catalog file');
 });
