@@ -1,0 +1,3125 @@
+{
+  "started": "2026-11-03T02:29:15.289Z",
+  "source": {
+    "js/core.js": "54f0d25129ac7f089981a30a46bdbca2bba8c3f02129bb6c296ad203dde995d1",
+    "js/app.js": "d65bb0ec30c247ce4e507ccfb0a8ffa8181cc73456f3d7c2537212b17bbda5dc",
+    "js/gfx.js": "da8961c7407ba0a0397aa936bf778a057f4c3eb864e495b6b31995fd881c9e26",
+    "js/lang-en.js": "8a17347dff09ded30698e501fab87c6c30d446f8eea0574d8cee3d3237cb75e9"
+  },
+  "allocation": {
+    "weapons": 5,
+    "cooling": 35,
+    "sensors": 15,
+    "habitation": 45
+  },
+  "scope": "Targeted visual follow-up only: continuous irregular machinery morphology, all configured trench/terrace/fore/aft faces, rolezero patterns, PC+390×844 emulatedtouch cosmetic edit, publicsave/reload and rendererpurity. Prior117+31 browser reports retained unchanged; no physicalphone/gamepad/FPS/combat claims.",
+  "shots": [
+    "images/surface-equipment-trench.jpg",
+    "images/surface-equipment-detail.jpg",
+    "images/surface-equipment-fore.jpg",
+    "images/surface-equipment-aft.jpg",
+    "images/surface-equipment-mobile.jpg",
+    "images/surface-equipment-editor.jpg"
+  ],
+  "zero": {
+    "weapons": {
+      "nativeByRole": {
+        "weapons": 0,
+        "cooling": 97,
+        "sensors": 54,
+        "habitation": 89
+      },
+      "totals": {
+        "area": 141248,
+        "exposedArea": 61024,
+        "occupiedArea": 15360,
+        "volume": 46080,
+        "mass": 78190.07999999999,
+        "requested": 0,
+        "installed": 0,
+        "barrels": 0,
+        "equipment": 240,
+        "orphans": 0
+      },
+      "visual": {
+        "keys": [
+          "id",
+          "host",
+          "patch",
+          "config",
+          "triangles",
+          "boundary",
+          "boxes",
+          "devices"
+        ],
+        "byFeature": {
+          "service-housing": 4915,
+          "service-junction": 2079,
+          "service-brace": 699,
+          "service-conduit": 222,
+          "service-shelf": 36,
+          "service-detail": 1800,
+          "cooling-recess": 148,
+          "cooling-grille": 906,
+          "sensor-array": 54,
+          "window-recess": 140,
+          "habitation-window": 619,
+          "sensor-element": 112
+        },
+        "byRole": {
+          "cooling": 1054,
+          "sensors": 166,
+          "habitation": 759
+        },
+        "featureCount": 11730,
+        "sizeRange": {
+          "min": 0.014693911014677721,
+          "max": 143.7,
+          "unique": 3354
+        },
+        "longestConduit": 143.7,
+        "samples": [
+          {
+            "feature": "service-housing",
+            "role": null,
+            "type": "box",
+            "size": [
+              3.1527959479125633,
+              2.0050414828740166,
+              0.5011729793064297
+            ]
+          },
+          {
+            "feature": "service-junction",
+            "role": null,
+            "type": "pipe",
+            "size": [
+              0.62,
+              1.563932356641733,
+              0.62
+            ]
+          },
+          {
+            "feature": "service-housing",
+            "role": null,
+            "type": "box",
+            "size": [
+              2.4961946631902077,
+              1.9567227334059218,
+              0.49606080198660496
+            ]
+          },
+          {
+            "feature": "service-junction",
+            "role": null,
+            "type": "pipe",
+            "size": [
+              0.62,
+              1.5262437320566191,
+              0.62
+            ]
+          },
+          {
+            "feature": "service-junction",
+            "role": null,
+            "type": "pipe",
+            "size": [
+              0.44639999999999996,
+              1.1599452363630305,
+              0.44639999999999996
+            ]
+          },
+          {
+            "feature": "service-housing",
+            "role": null,
+            "type": "box",
+            "size": [
+              3.376976002992887,
+              1.7983438238112857,
+              0.2041456962376833
+            ]
+          },
+          {
+            "feature": "service-housing",
+            "role": null,
+            "type": "box",
+            "size": [
+              1.4858694413168703,
+              1.0025828994776222,
+              0.22581109572201968
+            ]
+          },
+          {
+            "feature": "service-housing",
+            "role": null,
+            "type": "box",
+            "size": [
+              4.497882568158553,
+              1.8768224809187088,
+              0.30970915876328947
+            ]
+          },
+          {
+            "feature": "service-junction",
+            "role": null,
+            "type": "pipe",
+            "size": [
+              2.94,
+              0.5196004017374836,
+              0.5196004017374836
+            ]
+          },
+          {
+            "feature": "service-junction",
+            "role": null,
+            "type": "pipe",
+            "size": [
+              2.2344,
+              0.37411228925098816,
+              0.37411228925098816
+            ]
+          },
+          {
+            "feature": "service-housing",
+            "role": null,
+            "type": "box",
+            "size": [
+              2.7521876167919137,
+              2.551633081623774,
+              0.18885440159589054
+            ]
+          },
+          {
+            "feature": "service-junction",
+            "role": null,
+            "type": "pipe",
+            "size": [
+              0.62,
+              1.9902738036665437,
+              0.62
+            ]
+          }
+        ]
+      },
+      "visualFaces": [
+        {
+          "id": "p2:port:0:cctl1g",
+          "host": "p2",
+          "face": "port",
+          "features": 2139,
+          "field": 1421,
+          "micro": 307,
+          "roles": {
+            "cooling": 217,
+            "sensors": 21,
+            "habitation": 173
+          }
+        },
+        {
+          "id": "p2:fore:0:cctl1g",
+          "host": "p2",
+          "face": "fore",
+          "features": 1225,
+          "field": 818,
+          "micro": 189,
+          "roles": {
+            "cooling": 130,
+            "sensors": 10,
+            "habitation": 78
+          }
+        },
+        {
+          "id": "p2:stbd:0:cctl1g",
+          "host": "p2",
+          "face": "stbd",
+          "features": 2144,
+          "field": 1422,
+          "micro": 307,
+          "roles": {
+            "cooling": 196,
+            "sensors": 38,
+            "habitation": 181
+          }
+        },
+        {
+          "id": "p2:aft:0:cctl1g",
+          "host": "p2",
+          "face": "aft",
+          "features": 1208,
+          "field": 837,
+          "micro": 189,
+          "roles": {
+            "cooling": 113,
+            "sensors": 22,
+            "habitation": 47
+          }
+        },
+        {
+          "id": "p4:port:0:cctl1g",
+          "host": "p4",
+          "face": "port",
+          "features": 1130,
+          "field": 731,
+          "micro": 168,
+          "roles": {
+            "cooling": 113,
+            "sensors": 16,
+            "habitation": 102
+          }
+        },
+        {
+          "id": "p4:fore:0:cctl1g",
+          "host": "p4",
+          "face": "fore",
+          "features": 653,
+          "field": 444,
+          "micro": 105,
+          "roles": {
+            "cooling": 67,
+            "sensors": 9,
+            "habitation": 28
+          }
+        },
+        {
+          "id": "p4:stbd:0:cctl1g",
+          "host": "p4",
+          "face": "stbd",
+          "features": 1079,
+          "field": 738,
+          "micro": 168,
+          "roles": {
+            "cooling": 78,
+            "sensors": 17,
+            "habitation": 78
+          }
+        },
+        {
+          "id": "p4:aft:0:cctl1g",
+          "host": "p4",
+          "face": "aft",
+          "features": 623,
+          "field": 440,
+          "micro": 105,
+          "roles": {
+            "cooling": 48,
+            "sensors": 10,
+            "habitation": 20
+          }
+        },
+        {
+          "id": "p5:port:0:cctl1g",
+          "host": "p5",
+          "face": "port",
+          "features": 470,
+          "field": 336,
+          "micro": 80,
+          "roles": {
+            "cooling": 20,
+            "sensors": 10,
+            "habitation": 24
+          }
+        },
+        {
+          "id": "p5:fore:0:cctl1g",
+          "host": "p5",
+          "face": "fore",
+          "features": 297,
+          "field": 215,
+          "micro": 51,
+          "roles": {
+            "cooling": 21,
+            "sensors": 4,
+            "habitation": 6
+          }
+        },
+        {
+          "id": "p5:stbd:0:cctl1g",
+          "host": "p5",
+          "face": "stbd",
+          "features": 477,
+          "field": 339,
+          "micro": 80,
+          "roles": {
+            "cooling": 38,
+            "sensors": 5,
+            "habitation": 15
+          }
+        },
+        {
+          "id": "p5:aft:0:cctl1g",
+          "host": "p5",
+          "face": "aft",
+          "features": 285,
+          "field": 210,
+          "micro": 51,
+          "roles": {
+            "cooling": 13,
+            "sensors": 4,
+            "habitation": 7
+          }
+        }
+      ],
+      "mesh": {
+        "surfaceArmor": 420,
+        "surfaceDevices": 443592,
+        "surfaceDetail": 64800
+      },
+      "glError": 0,
+      "renderer": "WebGL 1.0 (OpenGL ES 2.0 Chromium)",
+      "error": null
+    },
+    "cooling": {
+      "nativeByRole": {
+        "weapons": 14,
+        "cooling": 0,
+        "sensors": 76,
+        "habitation": 144
+      },
+      "totals": {
+        "area": 141248,
+        "exposedArea": 61024,
+        "occupiedArea": 15214,
+        "volume": 42466.799999999996,
+        "mass": 73983.2,
+        "requested": 14,
+        "installed": 14,
+        "barrels": 28,
+        "equipment": 220,
+        "orphans": 0
+      },
+      "visual": {
+        "keys": [
+          "id",
+          "host",
+          "patch",
+          "config",
+          "triangles",
+          "boundary",
+          "boxes",
+          "devices"
+        ],
+        "byFeature": {
+          "service-housing": 4403,
+          "service-brace": 615,
+          "service-junction": 1903,
+          "service-conduit": 255,
+          "service-shelf": 64,
+          "service-detail": 1800,
+          "sensor-array": 76,
+          "window-recess": 229,
+          "habitation-window": 1019,
+          "sensor-element": 152
+        },
+        "byRole": {
+          "sensors": 228,
+          "habitation": 1248
+        },
+        "featureCount": 10516,
+        "sizeRange": {
+          "min": 0.025,
+          "max": 143.7,
+          "unique": 3157
+        },
+        "longestConduit": 143.7,
+        "samples": [
+          {
+            "feature": "service-housing",
+            "role": null,
+            "type": "box",
+            "size": [
+              2.8515991256962305,
+              2.855086403693046,
+              0.2212764220684767
+            ]
+          },
+          {
+            "feature": "service-brace",
+            "role": null,
+            "type": "box",
+            "size": [
+              2.1672153355291353,
+              0.24499999999999997,
+              0.14
+            ]
+          },
+          {
+            "feature": "service-housing",
+            "role": null,
+            "type": "box",
+            "size": [
+              3.334657678662274,
+              2.27208766406426,
+              0.33704622140154245
+            ]
+          },
+          {
+            "feature": "service-junction",
+            "role": null,
+            "type": "pipe",
+            "size": [
+              2.667726142929819,
+              0.6004540615357801,
+              0.6004540615357801
+            ]
+          },
+          {
+            "feature": "service-junction",
+            "role": null,
+            "type": "pipe",
+            "size": [
+              2.0274718686266624,
+              0.43232692430576164,
+              0.43232692430576164
+            ]
+          },
+          {
+            "feature": "service-housing",
+            "role": null,
+            "type": "box",
+            "size": [
+              3.8633490807896713,
+              1.5491154874883752,
+              0.3915988989546895
+            ]
+          },
+          {
+            "feature": "service-housing",
+            "role": null,
+            "type": "box",
+            "size": [
+              1.68,
+              1.2358434968730192,
+              0.28977440593065695
+            ]
+          },
+          {
+            "feature": "service-housing",
+            "role": null,
+            "type": "box",
+            "size": [
+              2.8421400398217656,
+              2.954143953591464,
+              0.35947793036699294
+            ]
+          },
+          {
+            "feature": "service-junction",
+            "role": null,
+            "type": "pipe",
+            "size": [
+              0.62,
+              2.3042322838013423,
+              0.62
+            ]
+          },
+          {
+            "feature": "service-housing",
+            "role": null,
+            "type": "box",
+            "size": [
+              6.049619636817647,
+              1.1665185299614937,
+              0.3089723704755306
+            ]
+          },
+          {
+            "feature": "service-housing",
+            "role": null,
+            "type": "box",
+            "size": [
+              1.68,
+              0.6354625364536699,
+              0.20822258764179424
+            ]
+          },
+          {
+            "feature": "service-housing",
+            "role": null,
+            "type": "box",
+            "size": [
+              2.6031871371374056,
+              2.780117186578351,
+              0.2933268548361957
+            ]
+          }
+        ]
+      },
+      "visualFaces": [
+        {
+          "id": "p2:port:0:cctl1g",
+          "host": "p2",
+          "face": "port",
+          "features": 1838,
+          "field": 1251,
+          "micro": 307,
+          "roles": {
+            "sensors": 32,
+            "habitation": 248
+          }
+        },
+        {
+          "id": "p2:fore:0:cctl1g",
+          "host": "p2",
+          "face": "fore",
+          "features": 1059,
+          "field": 731,
+          "micro": 189,
+          "roles": {
+            "sensors": 19,
+            "habitation": 120
+          }
+        },
+        {
+          "id": "p2:stbd:0:cctl1g",
+          "host": "p2",
+          "face": "stbd",
+          "features": 1893,
+          "field": 1267,
+          "micro": 307,
+          "roles": {
+            "sensors": 45,
+            "habitation": 274
+          }
+        },
+        {
+          "id": "p2:aft:0:cctl1g",
+          "host": "p2",
+          "face": "aft",
+          "features": 1046,
+          "field": 737,
+          "micro": 189,
+          "roles": {
+            "sensors": 27,
+            "habitation": 93
+          }
+        },
+        {
+          "id": "p4:port:0:cctl1g",
+          "host": "p4",
+          "face": "port",
+          "features": 1039,
+          "field": 679,
+          "micro": 168,
+          "roles": {
+            "sensors": 21,
+            "habitation": 171
+          }
+        },
+        {
+          "id": "p4:fore:0:cctl1g",
+          "host": "p4",
+          "face": "fore",
+          "features": 550,
+          "field": 388,
+          "micro": 105,
+          "roles": {
+            "sensors": 13,
+            "habitation": 44
+          }
+        },
+        {
+          "id": "p4:stbd:0:cctl1g",
+          "host": "p4",
+          "face": "stbd",
+          "features": 1003,
+          "field": 691,
+          "micro": 168,
+          "roles": {
+            "sensors": 23,
+            "habitation": 121
+          }
+        },
+        {
+          "id": "p4:aft:0:cctl1g",
+          "host": "p4",
+          "face": "aft",
+          "features": 574,
+          "field": 396,
+          "micro": 105,
+          "roles": {
+            "sensors": 15,
+            "habitation": 58
+          }
+        },
+        {
+          "id": "p5:port:0:cctl1g",
+          "host": "p5",
+          "face": "port",
+          "features": 481,
+          "field": 336,
+          "micro": 80,
+          "roles": {
+            "sensors": 14,
+            "habitation": 51
+          }
+        },
+        {
+          "id": "p5:fore:0:cctl1g",
+          "host": "p5",
+          "face": "fore",
+          "features": 298,
+          "field": 215,
+          "micro": 51,
+          "roles": {
+            "sensors": 8,
+            "habitation": 24
+          }
+        },
+        {
+          "id": "p5:stbd:0:cctl1g",
+          "host": "p5",
+          "face": "stbd",
+          "features": 462,
+          "field": 339,
+          "micro": 80,
+          "roles": {
+            "sensors": 6,
+            "habitation": 37
+          }
+        },
+        {
+          "id": "p5:aft:0:cctl1g",
+          "host": "p5",
+          "face": "aft",
+          "features": 273,
+          "field": 210,
+          "micro": 51,
+          "roles": {
+            "sensors": 5,
+            "habitation": 7
+          }
+        }
+      ],
+      "mesh": {
+        "surfaceArmor": 420,
+        "surfaceDevices": 396300,
+        "surfaceDetail": 64800
+      },
+      "glError": 0,
+      "renderer": "WebGL 1.0 (OpenGL ES 2.0 Chromium)",
+      "error": null
+    },
+    "sensors": {
+      "nativeByRole": {
+        "weapons": 8,
+        "cooling": 117,
+        "sensors": 0,
+        "habitation": 113
+      },
+      "totals": {
+        "area": 141248,
+        "exposedArea": 61024,
+        "occupiedArea": 15368,
+        "volume": 44289.6,
+        "mass": 80612.48000000004,
+        "requested": 8,
+        "installed": 8,
+        "barrels": 16,
+        "equipment": 230,
+        "orphans": 0
+      },
+      "visual": {
+        "keys": [
+          "id",
+          "host",
+          "patch",
+          "config",
+          "triangles",
+          "boundary",
+          "boxes",
+          "devices"
+        ],
+        "byFeature": {
+          "service-housing": 4634,
+          "service-brace": 645,
+          "service-junction": 2001,
+          "service-conduit": 239,
+          "service-shelf": 51,
+          "service-detail": 1800,
+          "cooling-recess": 179,
+          "cooling-grille": 1098,
+          "window-recess": 177,
+          "habitation-window": 783
+        },
+        "byRole": {
+          "cooling": 1277,
+          "habitation": 960
+        },
+        "featureCount": 11607,
+        "sizeRange": {
+          "min": 0.014693911014677721,
+          "max": 143.7,
+          "unique": 3269
+        },
+        "longestConduit": 143.7,
+        "samples": [
+          {
+            "feature": "service-housing",
+            "role": null,
+            "type": "box",
+            "size": [
+              2.8515991256962305,
+              2.855086403693046,
+              0.2212764220684767
+            ]
+          },
+          {
+            "feature": "service-brace",
+            "role": null,
+            "type": "box",
+            "size": [
+              2.1672153355291353,
+              0.24499999999999997,
+              0.14
+            ]
+          },
+          {
+            "feature": "service-housing",
+            "role": null,
+            "type": "box",
+            "size": [
+              3.334657678662274,
+              2.27208766406426,
+              0.33704622140154245
+            ]
+          },
+          {
+            "feature": "service-junction",
+            "role": null,
+            "type": "pipe",
+            "size": [
+              2.667726142929819,
+              0.6004540615357801,
+              0.6004540615357801
+            ]
+          },
+          {
+            "feature": "service-junction",
+            "role": null,
+            "type": "pipe",
+            "size": [
+              2.0274718686266624,
+              0.43232692430576164,
+              0.43232692430576164
+            ]
+          },
+          {
+            "feature": "service-housing",
+            "role": null,
+            "type": "box",
+            "size": [
+              3.8633490807896713,
+              1.5491154874883752,
+              0.3915988989546895
+            ]
+          },
+          {
+            "feature": "service-housing",
+            "role": null,
+            "type": "box",
+            "size": [
+              1.68,
+              1.2358434968730192,
+              0.28977440593065695
+            ]
+          },
+          {
+            "feature": "service-housing",
+            "role": null,
+            "type": "box",
+            "size": [
+              2.8421400398217656,
+              2.954143953591464,
+              0.35947793036699294
+            ]
+          },
+          {
+            "feature": "service-junction",
+            "role": null,
+            "type": "pipe",
+            "size": [
+              0.62,
+              2.3042322838013423,
+              0.62
+            ]
+          },
+          {
+            "feature": "service-housing",
+            "role": null,
+            "type": "box",
+            "size": [
+              6.049619636817647,
+              1.1665185299614937,
+              0.3089723704755306
+            ]
+          },
+          {
+            "feature": "service-housing",
+            "role": null,
+            "type": "box",
+            "size": [
+              1.68,
+              0.6354625364536699,
+              0.20822258764179424
+            ]
+          },
+          {
+            "feature": "service-housing",
+            "role": null,
+            "type": "box",
+            "size": [
+              2.6031871371374056,
+              2.780117186578351,
+              0.2933268548361957
+            ]
+          }
+        ]
+      },
+      "visualFaces": [
+        {
+          "id": "p2:port:0:cctl1g",
+          "host": "p2",
+          "face": "port",
+          "features": 2070,
+          "field": 1318,
+          "micro": 307,
+          "roles": {
+            "cooling": 251,
+            "habitation": 194
+          }
+        },
+        {
+          "id": "p2:fore:0:cctl1g",
+          "host": "p2",
+          "face": "fore",
+          "features": 1207,
+          "field": 782,
+          "micro": 189,
+          "roles": {
+            "cooling": 144,
+            "habitation": 92
+          }
+        },
+        {
+          "id": "p2:stbd:0:cctl1g",
+          "host": "p2",
+          "face": "stbd",
+          "features": 2091,
+          "field": 1325,
+          "micro": 307,
+          "roles": {
+            "cooling": 240,
+            "habitation": 219
+          }
+        },
+        {
+          "id": "p2:aft:0:cctl1g",
+          "host": "p2",
+          "face": "aft",
+          "features": 1220,
+          "field": 791,
+          "micro": 189,
+          "roles": {
+            "cooling": 174,
+            "habitation": 66
+          }
+        },
+        {
+          "id": "p4:port:0:cctl1g",
+          "host": "p4",
+          "face": "port",
+          "features": 1093,
+          "field": 679,
+          "micro": 168,
+          "roles": {
+            "cooling": 122,
+            "habitation": 124
+          }
+        },
+        {
+          "id": "p4:fore:0:cctl1g",
+          "host": "p4",
+          "face": "fore",
+          "features": 658,
+          "field": 444,
+          "micro": 105,
+          "roles": {
+            "cooling": 72,
+            "habitation": 37
+          }
+        },
+        {
+          "id": "p4:stbd:0:cctl1g",
+          "host": "p4",
+          "face": "stbd",
+          "features": 1032,
+          "field": 691,
+          "micro": 168,
+          "roles": {
+            "cooling": 84,
+            "habitation": 89
+          }
+        },
+        {
+          "id": "p4:aft:0:cctl1g",
+          "host": "p4",
+          "face": "aft",
+          "features": 658,
+          "field": 440,
+          "micro": 105,
+          "roles": {
+            "cooling": 62,
+            "habitation": 51
+          }
+        },
+        {
+          "id": "p5:port:0:cctl1g",
+          "host": "p5",
+          "face": "port",
+          "features": 491,
+          "field": 336,
+          "micro": 80,
+          "roles": {
+            "cooling": 37,
+            "habitation": 38
+          }
+        },
+        {
+          "id": "p5:fore:0:cctl1g",
+          "host": "p5",
+          "face": "fore",
+          "features": 311,
+          "field": 215,
+          "micro": 51,
+          "roles": {
+            "cooling": 21,
+            "habitation": 24
+          }
+        },
+        {
+          "id": "p5:stbd:0:cctl1g",
+          "host": "p5",
+          "face": "stbd",
+          "features": 490,
+          "field": 339,
+          "micro": 80,
+          "roles": {
+            "cooling": 52,
+            "habitation": 19
+          }
+        },
+        {
+          "id": "p5:aft:0:cctl1g",
+          "host": "p5",
+          "face": "aft",
+          "features": 286,
+          "field": 210,
+          "micro": 51,
+          "roles": {
+            "cooling": 18,
+            "habitation": 7
+          }
+        }
+      ],
+      "mesh": {
+        "surfaceArmor": 420,
+        "surfaceDevices": 433692,
+        "surfaceDetail": 64800
+      },
+      "glError": 0,
+      "renderer": "WebGL 1.0 (OpenGL ES 2.0 Chromium)",
+      "error": null
+    },
+    "habitation": {
+      "nativeByRole": {
+        "weapons": 20,
+        "cooling": 120,
+        "sensors": 92,
+        "habitation": 0
+      },
+      "totals": {
+        "area": 141248,
+        "exposedArea": 61024,
+        "occupiedArea": 15188,
+        "volume": 41027.99999999999,
+        "mass": 85344.31999999996,
+        "requested": 20,
+        "installed": 20,
+        "barrels": 40,
+        "equipment": 212,
+        "orphans": 0
+      },
+      "visual": {
+        "keys": [
+          "id",
+          "host",
+          "patch",
+          "config",
+          "triangles",
+          "boundary",
+          "boxes",
+          "devices"
+        ],
+        "byFeature": {
+          "service-housing": 4213,
+          "service-brace": 604,
+          "service-junction": 1787,
+          "service-conduit": 267,
+          "service-shelf": 70,
+          "service-detail": 1800,
+          "cooling-recess": 183,
+          "cooling-grille": 1124,
+          "sensor-array": 92,
+          "sensor-element": 172
+        },
+        "byRole": {
+          "cooling": 1307,
+          "sensors": 264
+        },
+        "featureCount": 10312,
+        "sizeRange": {
+          "min": 0.014693911014677721,
+          "max": 143.7,
+          "unique": 3128
+        },
+        "longestConduit": 143.7,
+        "samples": [
+          {
+            "feature": "service-housing",
+            "role": null,
+            "type": "box",
+            "size": [
+              2.8515991256962305,
+              2.855086403693046,
+              0.2212764220684767
+            ]
+          },
+          {
+            "feature": "service-brace",
+            "role": null,
+            "type": "box",
+            "size": [
+              2.1672153355291353,
+              0.24499999999999997,
+              0.14
+            ]
+          },
+          {
+            "feature": "service-housing",
+            "role": null,
+            "type": "box",
+            "size": [
+              3.334657678662274,
+              2.27208766406426,
+              0.33704622140154245
+            ]
+          },
+          {
+            "feature": "service-junction",
+            "role": null,
+            "type": "pipe",
+            "size": [
+              2.667726142929819,
+              0.6004540615357801,
+              0.6004540615357801
+            ]
+          },
+          {
+            "feature": "service-junction",
+            "role": null,
+            "type": "pipe",
+            "size": [
+              2.0274718686266624,
+              0.43232692430576164,
+              0.43232692430576164
+            ]
+          },
+          {
+            "feature": "service-housing",
+            "role": null,
+            "type": "box",
+            "size": [
+              3.8633490807896713,
+              1.5491154874883752,
+              0.3915988989546895
+            ]
+          },
+          {
+            "feature": "service-housing",
+            "role": null,
+            "type": "box",
+            "size": [
+              1.68,
+              1.2358434968730192,
+              0.28977440593065695
+            ]
+          },
+          {
+            "feature": "service-housing",
+            "role": null,
+            "type": "box",
+            "size": [
+              2.8421400398217656,
+              2.954143953591464,
+              0.35947793036699294
+            ]
+          },
+          {
+            "feature": "service-junction",
+            "role": null,
+            "type": "pipe",
+            "size": [
+              0.62,
+              2.3042322838013423,
+              0.62
+            ]
+          },
+          {
+            "feature": "service-housing",
+            "role": null,
+            "type": "box",
+            "size": [
+              6.049619636817647,
+              1.1665185299614937,
+              0.3089723704755306
+            ]
+          },
+          {
+            "feature": "service-housing",
+            "role": null,
+            "type": "box",
+            "size": [
+              1.68,
+              0.6354625364536699,
+              0.20822258764179424
+            ]
+          },
+          {
+            "feature": "service-housing",
+            "role": null,
+            "type": "box",
+            "size": [
+              2.6031871371374056,
+              2.780117186578351,
+              0.2933268548361957
+            ]
+          }
+        ]
+      },
+      "visualFaces": [
+        {
+          "id": "p2:port:0:cctl1g",
+          "host": "p2",
+          "face": "port",
+          "features": 1819,
+          "field": 1200,
+          "micro": 307,
+          "roles": {
+            "cooling": 273,
+            "sensors": 39
+          }
+        },
+        {
+          "id": "p2:fore:0:cctl1g",
+          "host": "p2",
+          "face": "fore",
+          "features": 1091,
+          "field": 731,
+          "micro": 189,
+          "roles": {
+            "cooling": 150,
+            "sensors": 21
+          }
+        },
+        {
+          "id": "p2:stbd:0:cctl1g",
+          "host": "p2",
+          "face": "stbd",
+          "features": 1828,
+          "field": 1219,
+          "micro": 307,
+          "roles": {
+            "cooling": 251,
+            "sensors": 51
+          }
+        },
+        {
+          "id": "p2:aft:0:cctl1g",
+          "host": "p2",
+          "face": "aft",
+          "features": 1136,
+          "field": 737,
+          "micro": 189,
+          "roles": {
+            "cooling": 174,
+            "sensors": 36
+          }
+        },
+        {
+          "id": "p4:port:0:cctl1g",
+          "host": "p4",
+          "face": "port",
+          "features": 936,
+          "field": 622,
+          "micro": 168,
+          "roles": {
+            "cooling": 123,
+            "sensors": 23
+          }
+        },
+        {
+          "id": "p4:fore:0:cctl1g",
+          "host": "p4",
+          "face": "fore",
+          "features": 579,
+          "field": 388,
+          "micro": 105,
+          "roles": {
+            "cooling": 72,
+            "sensors": 14
+          }
+        },
+        {
+          "id": "p4:stbd:0:cctl1g",
+          "host": "p4",
+          "face": "stbd",
+          "features": 911,
+          "field": 637,
+          "micro": 168,
+          "roles": {
+            "cooling": 78,
+            "sensors": 28
+          }
+        },
+        {
+          "id": "p4:aft:0:cctl1g",
+          "host": "p4",
+          "face": "aft",
+          "features": 582,
+          "field": 396,
+          "micro": 105,
+          "roles": {
+            "cooling": 62,
+            "sensors": 19
+          }
+        },
+        {
+          "id": "p5:port:0:cctl1g",
+          "host": "p5",
+          "face": "port",
+          "features": 426,
+          "field": 295,
+          "micro": 80,
+          "roles": {
+            "cooling": 37,
+            "sensors": 14
+          }
+        },
+        {
+          "id": "p5:fore:0:cctl1g",
+          "host": "p5",
+          "face": "fore",
+          "features": 295,
+          "field": 215,
+          "micro": 51,
+          "roles": {
+            "cooling": 21,
+            "sensors": 8
+          }
+        },
+        {
+          "id": "p5:stbd:0:cctl1g",
+          "host": "p5",
+          "face": "stbd",
+          "features": 417,
+          "field": 291,
+          "micro": 80,
+          "roles": {
+            "cooling": 40,
+            "sensors": 6
+          }
+        },
+        {
+          "id": "p5:aft:0:cctl1g",
+          "host": "p5",
+          "face": "aft",
+          "features": 292,
+          "field": 210,
+          "micro": 51,
+          "roles": {
+            "cooling": 26,
+            "sensors": 5
+          }
+        }
+      ],
+      "mesh": {
+        "surfaceArmor": 420,
+        "surfaceDevices": 386772,
+        "surfaceDetail": 64800
+      },
+      "glError": 0,
+      "renderer": "WebGL 1.0 (OpenGL ES 2.0 Chromium)",
+      "error": null
+    }
+  },
+  "baseline": {
+    "nativeByRole": {
+      "weapons": 8,
+      "cooling": 94,
+      "sensors": 50,
+      "habitation": 86
+    },
+    "totals": {
+      "area": 141248,
+      "exposedArea": 61024,
+      "occupiedArea": 15368,
+      "volume": 44289.6,
+      "mass": 79717.75999999998,
+      "requested": 8,
+      "installed": 8,
+      "barrels": 16,
+      "equipment": 230,
+      "orphans": 0
+    },
+    "visual": {
+      "keys": [
+        "id",
+        "host",
+        "patch",
+        "config",
+        "triangles",
+        "boundary",
+        "boxes",
+        "devices"
+      ],
+      "byFeature": {
+        "service-housing": 4634,
+        "service-brace": 645,
+        "service-junction": 2001,
+        "service-conduit": 239,
+        "service-shelf": 51,
+        "service-detail": 1800,
+        "cooling-recess": 143,
+        "cooling-grille": 881,
+        "sensor-array": 50,
+        "window-recess": 134,
+        "habitation-window": 588,
+        "sensor-element": 98
+      },
+      "byRole": {
+        "cooling": 1024,
+        "sensors": 148,
+        "habitation": 722
+      },
+      "featureCount": 11264,
+      "sizeRange": {
+        "min": 0.014693911014677721,
+        "max": 143.7,
+        "unique": 3270
+      },
+      "longestConduit": 143.7,
+      "samples": [
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            2.8515991256962305,
+            2.855086403693046,
+            0.2212764220684767
+          ]
+        },
+        {
+          "feature": "service-brace",
+          "role": null,
+          "type": "box",
+          "size": [
+            2.1672153355291353,
+            0.24499999999999997,
+            0.14
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            3.334657678662274,
+            2.27208766406426,
+            0.33704622140154245
+          ]
+        },
+        {
+          "feature": "service-junction",
+          "role": null,
+          "type": "pipe",
+          "size": [
+            2.667726142929819,
+            0.6004540615357801,
+            0.6004540615357801
+          ]
+        },
+        {
+          "feature": "service-junction",
+          "role": null,
+          "type": "pipe",
+          "size": [
+            2.0274718686266624,
+            0.43232692430576164,
+            0.43232692430576164
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            3.8633490807896713,
+            1.5491154874883752,
+            0.3915988989546895
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            1.68,
+            1.2358434968730192,
+            0.28977440593065695
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            2.8421400398217656,
+            2.954143953591464,
+            0.35947793036699294
+          ]
+        },
+        {
+          "feature": "service-junction",
+          "role": null,
+          "type": "pipe",
+          "size": [
+            0.62,
+            2.3042322838013423,
+            0.62
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            6.049619636817647,
+            1.1665185299614937,
+            0.3089723704755306
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            1.68,
+            0.6354625364536699,
+            0.20822258764179424
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            2.6031871371374056,
+            2.780117186578351,
+            0.2933268548361957
+          ]
+        }
+      ]
+    },
+    "visualFaces": [
+      {
+        "id": "p2:port:0:cctl1g",
+        "host": "p2",
+        "face": "port",
+        "features": 2010,
+        "field": 1318,
+        "micro": 307,
+        "roles": {
+          "cooling": 200,
+          "sensors": 16,
+          "habitation": 169
+        }
+      },
+      {
+        "id": "p2:fore:0:cctl1g",
+        "host": "p2",
+        "face": "fore",
+        "features": 1184,
+        "field": 782,
+        "micro": 189,
+        "roles": {
+          "cooling": 130,
+          "sensors": 5,
+          "habitation": 78
+        }
+      },
+      {
+        "id": "p2:stbd:0:cctl1g",
+        "host": "p2",
+        "face": "stbd",
+        "features": 2015,
+        "field": 1325,
+        "micro": 307,
+        "roles": {
+          "cooling": 191,
+          "sensors": 34,
+          "habitation": 158
+        }
+      },
+      {
+        "id": "p2:aft:0:cctl1g",
+        "host": "p2",
+        "face": "aft",
+        "features": 1184,
+        "field": 791,
+        "micro": 189,
+        "roles": {
+          "cooling": 130,
+          "sensors": 18,
+          "habitation": 56
+        }
+      },
+      {
+        "id": "p4:port:0:cctl1g",
+        "host": "p4",
+        "face": "port",
+        "features": 1047,
+        "field": 679,
+        "micro": 168,
+        "roles": {
+          "cooling": 96,
+          "sensors": 16,
+          "habitation": 88
+        }
+      },
+      {
+        "id": "p4:fore:0:cctl1g",
+        "host": "p4",
+        "face": "fore",
+        "features": 653,
+        "field": 444,
+        "micro": 105,
+        "roles": {
+          "cooling": 67,
+          "sensors": 9,
+          "habitation": 28
+        }
+      },
+      {
+        "id": "p4:stbd:0:cctl1g",
+        "host": "p4",
+        "face": "stbd",
+        "features": 1000,
+        "field": 691,
+        "micro": 168,
+        "roles": {
+          "cooling": 64,
+          "sensors": 17,
+          "habitation": 60
+        }
+      },
+      {
+        "id": "p4:aft:0:cctl1g",
+        "host": "p4",
+        "face": "aft",
+        "features": 642,
+        "field": 440,
+        "micro": 105,
+        "roles": {
+          "cooling": 54,
+          "sensors": 10,
+          "habitation": 33
+        }
+      },
+      {
+        "id": "p5:port:0:cctl1g",
+        "host": "p5",
+        "face": "port",
+        "features": 470,
+        "field": 336,
+        "micro": 80,
+        "roles": {
+          "cooling": 20,
+          "sensors": 10,
+          "habitation": 24
+        }
+      },
+      {
+        "id": "p5:fore:0:cctl1g",
+        "host": "p5",
+        "face": "fore",
+        "features": 297,
+        "field": 215,
+        "micro": 51,
+        "roles": {
+          "cooling": 21,
+          "sensors": 4,
+          "habitation": 6
+        }
+      },
+      {
+        "id": "p5:stbd:0:cctl1g",
+        "host": "p5",
+        "face": "stbd",
+        "features": 477,
+        "field": 339,
+        "micro": 80,
+        "roles": {
+          "cooling": 38,
+          "sensors": 5,
+          "habitation": 15
+        }
+      },
+      {
+        "id": "p5:aft:0:cctl1g",
+        "host": "p5",
+        "face": "aft",
+        "features": 285,
+        "field": 210,
+        "micro": 51,
+        "roles": {
+          "cooling": 13,
+          "sensors": 4,
+          "habitation": 7
+        }
+      }
+    ],
+    "mesh": {
+      "surfaceArmor": 420,
+      "surfaceDevices": 424620,
+      "surfaceDetail": 64800
+    },
+    "glError": 0,
+    "renderer": "WebGL 1.0 (OpenGL ES 2.0 Chromium)",
+    "error": null
+  },
+  "publicBefore": "84bc968797a5f77a2bc1cad518fee7347872275ae5e3426f16e3f5e91c4b7866",
+  "buildProbe": {
+    "scope": "Bounded warm CPU builds in actual Chromium; mesh build includes its internal plan generation; no isolated/GPU/FPS/battle claim.",
+    "runs": [
+      {
+        "name": "micro-off",
+        "opt": {
+          "detail": 0,
+          "maxDetails": 0
+        },
+        "planBuildMs": 239.70000000298023,
+        "meshBuildWithPlanMs": 594.6999999955297,
+        "baseField": 7570,
+        "micro": 0,
+        "workingFaceFeatures": 1894,
+        "indices": {
+          "surfaceArmor": 420,
+          "surfaceDevices": 424620,
+          "surfaceDetail": 0
+        },
+        "vertices": {
+          "surfaceArmor": 332,
+          "surfaceDevices": 310212,
+          "surfaceDetail": 0
+        },
+        "nativeByRole": {
+          "weapons": 8,
+          "cooling": 94,
+          "sensors": 50,
+          "habitation": 86
+        }
+      },
+      {
+        "name": "medium",
+        "opt": {
+          "detail": 0.5,
+          "maxDetails": 400
+        },
+        "planBuildMs": 371.3999999985099,
+        "meshBuildWithPlanMs": 367.5,
+        "baseField": 7570,
+        "micro": 400,
+        "workingFaceFeatures": 1894,
+        "indices": {
+          "surfaceArmor": 420,
+          "surfaceDevices": 424620,
+          "surfaceDetail": 14400
+        },
+        "vertices": {
+          "surfaceArmor": 332,
+          "surfaceDevices": 310212,
+          "surfaceDetail": 9600
+        },
+        "nativeByRole": {
+          "weapons": 8,
+          "cooling": 94,
+          "sensors": 50,
+          "habitation": 86
+        }
+      },
+      {
+        "name": "near",
+        "opt": {
+          "detail": 1,
+          "maxDetails": 1800
+        },
+        "planBuildMs": 265.40000000596046,
+        "meshBuildWithPlanMs": 388,
+        "baseField": 7570,
+        "micro": 1800,
+        "workingFaceFeatures": 1894,
+        "indices": {
+          "surfaceArmor": 420,
+          "surfaceDevices": 424620,
+          "surfaceDetail": 64800
+        },
+        "vertices": {
+          "surfaceArmor": 332,
+          "surfaceDevices": 310212,
+          "surfaceDetail": 43200
+        },
+        "nativeByRole": {
+          "weapons": 8,
+          "cooling": 94,
+          "sensors": 50,
+          "habitation": 86
+        }
+      },
+      {
+        "name": "high",
+        "opt": {
+          "detail": 2,
+          "maxDetails": 1800
+        },
+        "planBuildMs": 417.8999999985099,
+        "meshBuildWithPlanMs": 566.8000000044703,
+        "baseField": 7570,
+        "micro": 1800,
+        "workingFaceFeatures": 1894,
+        "indices": {
+          "surfaceArmor": 420,
+          "surfaceDevices": 424620,
+          "surfaceDetail": 64800
+        },
+        "vertices": {
+          "surfaceArmor": 332,
+          "surfaceDevices": 310212,
+          "surfaceDetail": 43200
+        },
+        "nativeByRole": {
+          "weapons": 8,
+          "cooling": 94,
+          "sensors": 50,
+          "habitation": 86
+        }
+      }
+    ],
+    "nativeBefore": {
+      "weapons": 8,
+      "cooling": 94,
+      "sensors": 50,
+      "habitation": 86
+    },
+    "nativeAfter": {
+      "weapons": 8,
+      "cooling": 94,
+      "sensors": 50,
+      "habitation": 86
+    },
+    "coreUnchanged": true
+  },
+  "medium": "images/surface-equipment-trench.jpg",
+  "detail": "images/surface-equipment-detail.jpg",
+  "fore": "images/surface-equipment-fore.jpg",
+  "aft": "images/surface-equipment-aft.jpg",
+  "reload": {
+    "publicAfter": "84bc968797a5f77a2bc1cad518fee7347872275ae5e3426f16e3f5e91c4b7866",
+    "nativeIdsStable": true
+  },
+  "pc": {
+    "nativeByRole": {
+      "weapons": 8,
+      "cooling": 94,
+      "sensors": 50,
+      "habitation": 86
+    },
+    "totals": {
+      "area": 141248,
+      "exposedArea": 61024,
+      "occupiedArea": 15368,
+      "volume": 44289.6,
+      "mass": 79717.75999999998,
+      "requested": 8,
+      "installed": 8,
+      "barrels": 16,
+      "equipment": 230,
+      "orphans": 0
+    },
+    "visual": {
+      "keys": [
+        "id",
+        "host",
+        "patch",
+        "config",
+        "triangles",
+        "boundary",
+        "boxes",
+        "devices"
+      ],
+      "byFeature": {
+        "service-housing": 4649,
+        "service-junction": 1977,
+        "service-brace": 659,
+        "service-conduit": 240,
+        "service-shelf": 51,
+        "service-detail": 1800,
+        "cooling-recess": 140,
+        "cooling-grille": 855,
+        "sensor-array": 50,
+        "window-recess": 135,
+        "habitation-window": 584,
+        "sensor-element": 102
+      },
+      "byRole": {
+        "cooling": 995,
+        "sensors": 152,
+        "habitation": 719
+      },
+      "featureCount": 11242,
+      "sizeRange": {
+        "min": 0.014693911014677721,
+        "max": 143.7,
+        "unique": 3257
+      },
+      "longestConduit": 143.7,
+      "samples": [
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            2.183257082636735,
+            3.355480675721967,
+            0.47624891757965093
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            0.9606331163601635,
+            1.4469894072167362,
+            0.29158044851152226
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            3.298304051365272,
+            2.521626702032733,
+            0.41162826310843226
+          ]
+        },
+        {
+          "feature": "service-junction",
+          "role": null,
+          "type": "pipe",
+          "size": [
+            0.62,
+            1.966868827585532,
+            0.62
+          ]
+        },
+        {
+          "feature": "service-junction",
+          "role": null,
+          "type": "pipe",
+          "size": [
+            0.44639999999999996,
+            1.4948203089650043,
+            0.44639999999999996
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            2.201954863980519,
+            3.217827768590342,
+            0.20213337935507297
+          ]
+        },
+        {
+          "feature": "service-junction",
+          "role": null,
+          "type": "pipe",
+          "size": [
+            0.5216113086394933,
+            2.5099056595004665,
+            0.5216113086394933
+          ]
+        },
+        {
+          "feature": "service-junction",
+          "role": null,
+          "type": "pipe",
+          "size": [
+            0.3755601422204352,
+            1.9075283012203545,
+            0.3755601422204352
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            3.6862100558320785,
+            1.746242585111592,
+            0.31692169908434153
+          ]
+        },
+        {
+          "feature": "service-brace",
+          "role": null,
+          "type": "box",
+          "size": [
+            2.8015196424323796,
+            0.24499999999999997,
+            0.14
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            4.063672486316211,
+            2.1053926541774493,
+            0.2222201501391828
+          ]
+        },
+        {
+          "feature": "service-junction",
+          "role": null,
+          "type": "pipe",
+          "size": [
+            2.94,
+            0.5400436371469879,
+            0.5400436371469879
+          ]
+        }
+      ]
+    },
+    "visualFaces": [
+      {
+        "id": "p2:port:0:cctl1g",
+        "host": "p2",
+        "face": "port",
+        "features": 1988,
+        "field": 1324,
+        "micro": 307,
+        "roles": {
+          "cooling": 171,
+          "sensors": 20,
+          "habitation": 166
+        }
+      },
+      {
+        "id": "p2:fore:0:cctl1g",
+        "host": "p2",
+        "face": "fore",
+        "features": 1184,
+        "field": 782,
+        "micro": 189,
+        "roles": {
+          "cooling": 130,
+          "sensors": 5,
+          "habitation": 78
+        }
+      },
+      {
+        "id": "p2:stbd:0:cctl1g",
+        "host": "p2",
+        "face": "stbd",
+        "features": 2015,
+        "field": 1325,
+        "micro": 307,
+        "roles": {
+          "cooling": 191,
+          "sensors": 34,
+          "habitation": 158
+        }
+      },
+      {
+        "id": "p2:aft:0:cctl1g",
+        "host": "p2",
+        "face": "aft",
+        "features": 1184,
+        "field": 791,
+        "micro": 189,
+        "roles": {
+          "cooling": 130,
+          "sensors": 18,
+          "habitation": 56
+        }
+      },
+      {
+        "id": "p4:port:0:cctl1g",
+        "host": "p4",
+        "face": "port",
+        "features": 1047,
+        "field": 679,
+        "micro": 168,
+        "roles": {
+          "cooling": 96,
+          "sensors": 16,
+          "habitation": 88
+        }
+      },
+      {
+        "id": "p4:fore:0:cctl1g",
+        "host": "p4",
+        "face": "fore",
+        "features": 653,
+        "field": 444,
+        "micro": 105,
+        "roles": {
+          "cooling": 67,
+          "sensors": 9,
+          "habitation": 28
+        }
+      },
+      {
+        "id": "p4:stbd:0:cctl1g",
+        "host": "p4",
+        "face": "stbd",
+        "features": 1000,
+        "field": 691,
+        "micro": 168,
+        "roles": {
+          "cooling": 64,
+          "sensors": 17,
+          "habitation": 60
+        }
+      },
+      {
+        "id": "p4:aft:0:cctl1g",
+        "host": "p4",
+        "face": "aft",
+        "features": 642,
+        "field": 440,
+        "micro": 105,
+        "roles": {
+          "cooling": 54,
+          "sensors": 10,
+          "habitation": 33
+        }
+      },
+      {
+        "id": "p5:port:0:cctl1g",
+        "host": "p5",
+        "face": "port",
+        "features": 470,
+        "field": 336,
+        "micro": 80,
+        "roles": {
+          "cooling": 20,
+          "sensors": 10,
+          "habitation": 24
+        }
+      },
+      {
+        "id": "p5:fore:0:cctl1g",
+        "host": "p5",
+        "face": "fore",
+        "features": 297,
+        "field": 215,
+        "micro": 51,
+        "roles": {
+          "cooling": 21,
+          "sensors": 4,
+          "habitation": 6
+        }
+      },
+      {
+        "id": "p5:stbd:0:cctl1g",
+        "host": "p5",
+        "face": "stbd",
+        "features": 477,
+        "field": 339,
+        "micro": 80,
+        "roles": {
+          "cooling": 38,
+          "sensors": 5,
+          "habitation": 15
+        }
+      },
+      {
+        "id": "p5:aft:0:cctl1g",
+        "host": "p5",
+        "face": "aft",
+        "features": 285,
+        "field": 210,
+        "micro": 51,
+        "roles": {
+          "cooling": 13,
+          "sensors": 4,
+          "habitation": 7
+        }
+      }
+    ],
+    "mesh": {
+      "surfaceArmor": 420,
+      "surfaceDevices": 422844,
+      "surfaceDetail": 64800
+    },
+    "glError": 0,
+    "renderer": "WebGL 1.0 (OpenGL ES 2.0 Chromium)",
+    "error": null
+  },
+  "mobile": {
+    "viewport": {
+      "width": 844,
+      "height": 390,
+      "scrollWidth": 390
+    },
+    "nativeByRole": {
+      "weapons": 8,
+      "cooling": 94,
+      "sensors": 50,
+      "habitation": 86
+    },
+    "totals": {
+      "area": 141248,
+      "exposedArea": 61024,
+      "occupiedArea": 15368,
+      "volume": 44289.6,
+      "mass": 79717.75999999998,
+      "requested": 8,
+      "installed": 8,
+      "barrels": 16,
+      "equipment": 230,
+      "orphans": 0
+    },
+    "visual": {
+      "keys": [
+        "id",
+        "host",
+        "patch",
+        "config",
+        "triangles",
+        "boundary",
+        "boxes",
+        "devices"
+      ],
+      "byFeature": {
+        "service-housing": 4621,
+        "service-junction": 1981,
+        "service-brace": 676,
+        "service-conduit": 238,
+        "service-shelf": 51,
+        "service-detail": 1800,
+        "cooling-recess": 140,
+        "cooling-grille": 872,
+        "sensor-array": 50,
+        "window-recess": 134,
+        "habitation-window": 584,
+        "sensor-element": 108
+      },
+      "byRole": {
+        "cooling": 1012,
+        "sensors": 158,
+        "habitation": 718
+      },
+      "featureCount": 11255,
+      "sizeRange": {
+        "min": 0.014693911014677721,
+        "max": 143.7,
+        "unique": 3254
+      },
+      "longestConduit": 143.7,
+      "samples": [
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            2.6034245208813123,
+            2.6807486049552898,
+            0.36021186079829937
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            1.1455067891877775,
+            2.0881627740556343,
+            0.22438166389008984
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            2.593205030972455,
+            2.5762613838788773,
+            0.3836283957026899
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            1.1410102136278801,
+            2.016537197238311,
+            0.2015189748792909
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            3.2795299503860234,
+            1.6940305440922536,
+            0.232469945717603
+          ]
+        },
+        {
+          "feature": "service-junction",
+          "role": null,
+          "type": "pipe",
+          "size": [
+            2.623623960308819,
+            0.550130573762011,
+            0.550130573762011
+          ]
+        },
+        {
+          "feature": "service-junction",
+          "role": null,
+          "type": "pipe",
+          "size": [
+            1.9939542098347025,
+            0.39609401310864795,
+            0.39609401310864795
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            2.8482752023777587,
+            2.587073921896297,
+            0.1883471322618425
+          ]
+        },
+        {
+          "feature": "service-brace",
+          "role": null,
+          "type": "box",
+          "size": [
+            2.1646891538070965,
+            0.24499999999999997,
+            0.14
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            4.16785813678656,
+            1.524284072133475,
+            0.2707661602087319
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            1.68,
+            0.6178898201043714,
+            0.23061494629830123
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            1.0711020991303166,
+            5.580018265976655,
+            0.42434488715603946
+          ]
+        }
+      ]
+    },
+    "visualFaces": [
+      {
+        "id": "p2:port:0:cctl1g",
+        "host": "p2",
+        "face": "port",
+        "features": 2001,
+        "field": 1315,
+        "micro": 307,
+        "roles": {
+          "cooling": 188,
+          "sensors": 26,
+          "habitation": 165
+        }
+      },
+      {
+        "id": "p2:fore:0:cctl1g",
+        "host": "p2",
+        "face": "fore",
+        "features": 1184,
+        "field": 782,
+        "micro": 189,
+        "roles": {
+          "cooling": 130,
+          "sensors": 5,
+          "habitation": 78
+        }
+      },
+      {
+        "id": "p2:stbd:0:cctl1g",
+        "host": "p2",
+        "face": "stbd",
+        "features": 2015,
+        "field": 1325,
+        "micro": 307,
+        "roles": {
+          "cooling": 191,
+          "sensors": 34,
+          "habitation": 158
+        }
+      },
+      {
+        "id": "p2:aft:0:cctl1g",
+        "host": "p2",
+        "face": "aft",
+        "features": 1184,
+        "field": 791,
+        "micro": 189,
+        "roles": {
+          "cooling": 130,
+          "sensors": 18,
+          "habitation": 56
+        }
+      },
+      {
+        "id": "p4:port:0:cctl1g",
+        "host": "p4",
+        "face": "port",
+        "features": 1047,
+        "field": 679,
+        "micro": 168,
+        "roles": {
+          "cooling": 96,
+          "sensors": 16,
+          "habitation": 88
+        }
+      },
+      {
+        "id": "p4:fore:0:cctl1g",
+        "host": "p4",
+        "face": "fore",
+        "features": 653,
+        "field": 444,
+        "micro": 105,
+        "roles": {
+          "cooling": 67,
+          "sensors": 9,
+          "habitation": 28
+        }
+      },
+      {
+        "id": "p4:stbd:0:cctl1g",
+        "host": "p4",
+        "face": "stbd",
+        "features": 1000,
+        "field": 691,
+        "micro": 168,
+        "roles": {
+          "cooling": 64,
+          "sensors": 17,
+          "habitation": 60
+        }
+      },
+      {
+        "id": "p4:aft:0:cctl1g",
+        "host": "p4",
+        "face": "aft",
+        "features": 642,
+        "field": 440,
+        "micro": 105,
+        "roles": {
+          "cooling": 54,
+          "sensors": 10,
+          "habitation": 33
+        }
+      },
+      {
+        "id": "p5:port:0:cctl1g",
+        "host": "p5",
+        "face": "port",
+        "features": 470,
+        "field": 336,
+        "micro": 80,
+        "roles": {
+          "cooling": 20,
+          "sensors": 10,
+          "habitation": 24
+        }
+      },
+      {
+        "id": "p5:fore:0:cctl1g",
+        "host": "p5",
+        "face": "fore",
+        "features": 297,
+        "field": 215,
+        "micro": 51,
+        "roles": {
+          "cooling": 21,
+          "sensors": 4,
+          "habitation": 6
+        }
+      },
+      {
+        "id": "p5:stbd:0:cctl1g",
+        "host": "p5",
+        "face": "stbd",
+        "features": 477,
+        "field": 339,
+        "micro": 80,
+        "roles": {
+          "cooling": 38,
+          "sensors": 5,
+          "habitation": 15
+        }
+      },
+      {
+        "id": "p5:aft:0:cctl1g",
+        "host": "p5",
+        "face": "aft",
+        "features": 285,
+        "field": 210,
+        "micro": 51,
+        "roles": {
+          "cooling": 13,
+          "sensors": 4,
+          "habitation": 7
+        }
+      }
+    ],
+    "mesh": {
+      "surfaceArmor": 420,
+      "surfaceDevices": 423072,
+      "surfaceDetail": 64800
+    },
+    "glError": 0,
+    "renderer": "WebGL 1.0 (OpenGL ES 2.0 Chromium)",
+    "error": null
+  },
+  "mobileShot": "images/surface-equipment-mobile.jpg",
+  "restored": {
+    "nativeByRole": {
+      "weapons": 8,
+      "cooling": 94,
+      "sensors": 50,
+      "habitation": 86
+    },
+    "totals": {
+      "area": 141248,
+      "exposedArea": 61024,
+      "occupiedArea": 15368,
+      "volume": 44289.6,
+      "mass": 79717.76000000001,
+      "requested": 8,
+      "installed": 8,
+      "barrels": 16,
+      "equipment": 230,
+      "orphans": 0
+    },
+    "visual": {
+      "keys": [
+        "id",
+        "host",
+        "patch",
+        "config",
+        "triangles",
+        "boundary",
+        "boxes",
+        "devices"
+      ],
+      "byFeature": {
+        "service-housing": 4634,
+        "service-brace": 645,
+        "service-junction": 2001,
+        "service-conduit": 239,
+        "service-shelf": 51,
+        "service-detail": 1800,
+        "cooling-recess": 143,
+        "cooling-grille": 881,
+        "sensor-array": 50,
+        "window-recess": 134,
+        "habitation-window": 588,
+        "sensor-element": 98
+      },
+      "byRole": {
+        "cooling": 1024,
+        "sensors": 148,
+        "habitation": 722
+      },
+      "featureCount": 11264,
+      "sizeRange": {
+        "min": 0.014693911014677721,
+        "max": 143.7,
+        "unique": 3270
+      },
+      "longestConduit": 143.7,
+      "samples": [
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            2.8515991256962305,
+            2.855086403693046,
+            0.2212764220684767
+          ]
+        },
+        {
+          "feature": "service-brace",
+          "role": null,
+          "type": "box",
+          "size": [
+            2.1672153355291353,
+            0.24499999999999997,
+            0.14
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            3.334657678662274,
+            2.27208766406426,
+            0.33704622140154245
+          ]
+        },
+        {
+          "feature": "service-junction",
+          "role": null,
+          "type": "pipe",
+          "size": [
+            2.667726142929819,
+            0.6004540615357801,
+            0.6004540615357801
+          ]
+        },
+        {
+          "feature": "service-junction",
+          "role": null,
+          "type": "pipe",
+          "size": [
+            2.0274718686266624,
+            0.43232692430576164,
+            0.43232692430576164
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            3.8633490807896713,
+            1.5491154874883752,
+            0.3915988989546895
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            1.68,
+            1.2358434968730192,
+            0.28977440593065695
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            2.8421400398217656,
+            2.954143953591464,
+            0.35947793036699294
+          ]
+        },
+        {
+          "feature": "service-junction",
+          "role": null,
+          "type": "pipe",
+          "size": [
+            0.62,
+            2.3042322838013423,
+            0.62
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            6.049619636817647,
+            1.1665185299614937,
+            0.3089723704755306
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            1.68,
+            0.6354625364536699,
+            0.20822258764179424
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            2.6031871371374056,
+            2.780117186578351,
+            0.2933268548361957
+          ]
+        }
+      ]
+    },
+    "visualFaces": [
+      {
+        "id": "p2:port:0:cctl1g",
+        "host": "p2",
+        "face": "port",
+        "features": 2010,
+        "field": 1318,
+        "micro": 307,
+        "roles": {
+          "cooling": 200,
+          "sensors": 16,
+          "habitation": 169
+        }
+      },
+      {
+        "id": "p2:fore:0:cctl1g",
+        "host": "p2",
+        "face": "fore",
+        "features": 1184,
+        "field": 782,
+        "micro": 189,
+        "roles": {
+          "cooling": 130,
+          "sensors": 5,
+          "habitation": 78
+        }
+      },
+      {
+        "id": "p2:stbd:0:cctl1g",
+        "host": "p2",
+        "face": "stbd",
+        "features": 2015,
+        "field": 1325,
+        "micro": 307,
+        "roles": {
+          "cooling": 191,
+          "sensors": 34,
+          "habitation": 158
+        }
+      },
+      {
+        "id": "p2:aft:0:cctl1g",
+        "host": "p2",
+        "face": "aft",
+        "features": 1184,
+        "field": 791,
+        "micro": 189,
+        "roles": {
+          "cooling": 130,
+          "sensors": 18,
+          "habitation": 56
+        }
+      },
+      {
+        "id": "p4:port:0:cctl1g",
+        "host": "p4",
+        "face": "port",
+        "features": 1047,
+        "field": 679,
+        "micro": 168,
+        "roles": {
+          "cooling": 96,
+          "sensors": 16,
+          "habitation": 88
+        }
+      },
+      {
+        "id": "p4:fore:0:cctl1g",
+        "host": "p4",
+        "face": "fore",
+        "features": 653,
+        "field": 444,
+        "micro": 105,
+        "roles": {
+          "cooling": 67,
+          "sensors": 9,
+          "habitation": 28
+        }
+      },
+      {
+        "id": "p4:stbd:0:cctl1g",
+        "host": "p4",
+        "face": "stbd",
+        "features": 1000,
+        "field": 691,
+        "micro": 168,
+        "roles": {
+          "cooling": 64,
+          "sensors": 17,
+          "habitation": 60
+        }
+      },
+      {
+        "id": "p4:aft:0:cctl1g",
+        "host": "p4",
+        "face": "aft",
+        "features": 642,
+        "field": 440,
+        "micro": 105,
+        "roles": {
+          "cooling": 54,
+          "sensors": 10,
+          "habitation": 33
+        }
+      },
+      {
+        "id": "p5:port:0:cctl1g",
+        "host": "p5",
+        "face": "port",
+        "features": 470,
+        "field": 336,
+        "micro": 80,
+        "roles": {
+          "cooling": 20,
+          "sensors": 10,
+          "habitation": 24
+        }
+      },
+      {
+        "id": "p5:fore:0:cctl1g",
+        "host": "p5",
+        "face": "fore",
+        "features": 297,
+        "field": 215,
+        "micro": 51,
+        "roles": {
+          "cooling": 21,
+          "sensors": 4,
+          "habitation": 6
+        }
+      },
+      {
+        "id": "p5:stbd:0:cctl1g",
+        "host": "p5",
+        "face": "stbd",
+        "features": 477,
+        "field": 339,
+        "micro": 80,
+        "roles": {
+          "cooling": 38,
+          "sensors": 5,
+          "habitation": 15
+        }
+      },
+      {
+        "id": "p5:aft:0:cctl1g",
+        "host": "p5",
+        "face": "aft",
+        "features": 285,
+        "field": 210,
+        "micro": 51,
+        "roles": {
+          "cooling": 13,
+          "sensors": 4,
+          "habitation": 7
+        }
+      }
+    ],
+    "mesh": {
+      "surfaceArmor": 420,
+      "surfaceDevices": 424620,
+      "surfaceDetail": 64800
+    },
+    "glError": 0,
+    "renderer": "WebGL 1.0 (OpenGL ES 2.0 Chromium)",
+    "error": null
+  },
+  "errors": [],
+  "consoleErrors": [],
+  "editor": {
+    "nativeByRole": {
+      "weapons": 25,
+      "cooling": 27,
+      "sensors": 27,
+      "habitation": 27
+    },
+    "totals": {
+      "area": 37120,
+      "exposedArea": 37120,
+      "occupiedArea": 7209,
+      "volume": 15957.000000000007,
+      "mass": 52122.64,
+      "requested": 25,
+      "installed": 25,
+      "barrels": 50,
+      "equipment": 81,
+      "orphans": 0
+    },
+    "visual": {
+      "keys": [
+        "id",
+        "host",
+        "patch",
+        "config",
+        "triangles",
+        "boundary",
+        "boxes",
+        "devices"
+      ],
+      "byFeature": {
+        "service-housing": 1362,
+        "service-brace": 202,
+        "service-junction": 617,
+        "service-conduit": 36,
+        "service-shelf": 14,
+        "service-detail": 1800,
+        "cooling-recess": 39,
+        "cooling-grille": 231,
+        "sensor-array": 27,
+        "sensor-element": 38,
+        "window-recess": 48,
+        "habitation-window": 203
+      },
+      "byRole": {
+        "cooling": 270,
+        "sensors": 65,
+        "habitation": 251
+      },
+      "featureCount": 4617,
+      "sizeRange": {
+        "min": 0.015574663280887762,
+        "max": 82.6718259625948,
+        "unique": 1626
+      },
+      "longestConduit": 82.6718259625948,
+      "samples": [
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            2.1576089917110393,
+            5.633288722913489,
+            0.20814885845407843
+          ]
+        },
+        {
+          "feature": "service-brace",
+          "role": null,
+          "type": "box",
+          "size": [
+            1.63978283370039,
+            0.2993325909419153,
+            0.14
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            4.330621966243953,
+            2.675150547249654,
+            0.3149379112198949
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            1.9054736651473394,
+            1.9993448941910283,
+            0.262783265192993
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            2.8305130385934265,
+            3.55199720576644,
+            0.3886965309642255
+          ]
+        },
+        {
+          "feature": "service-junction",
+          "role": null,
+          "type": "pipe",
+          "size": [
+            0.62,
+            2.770557820497823,
+            0.62
+          ]
+        },
+        {
+          "feature": "service-junction",
+          "role": null,
+          "type": "pipe",
+          "size": [
+            0.44639999999999996,
+            2.1056239435783457,
+            0.44639999999999996
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            4.309077117075947,
+            2.67502853489357,
+            0.24255902379751207
+          ]
+        },
+        {
+          "feature": "service-junction",
+          "role": null,
+          "type": "pipe",
+          "size": [
+            0.62,
+            2.0865222572169846,
+            0.62
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            2.1524760763849446,
+            4.824501801076473,
+            0.47738432971760636
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            0.9470894736093757,
+            2.071551683397192,
+            0.23130088067613544
+          ]
+        },
+        {
+          "feature": "service-housing",
+          "role": null,
+          "type": "box",
+          "size": [
+            1.9469999831327927,
+            4.145027440561394,
+            0.31106225255876785
+          ]
+        }
+      ]
+    },
+    "visualFaces": [
+      {
+        "id": "p1:top:0:cctl1g",
+        "host": "p1",
+        "face": "top",
+        "features": 4617,
+        "field": 2231,
+        "micro": 1800,
+        "roles": {
+          "cooling": 270,
+          "sensors": 65,
+          "habitation": 251
+        }
+      }
+    ],
+    "mesh": {
+      "surfaceArmor": 168,
+      "surfaceDevices": 127416,
+      "surfaceDetail": 64800
+    },
+    "glError": 0,
+    "renderer": "WebGL 1.0 (OpenGL ES 2.0 Chromium)",
+    "error": null
+  },
+  "editorShot": "images/surface-equipment-editor.jpg",
+  "editorErrors": [],
+  "editorConsoleErrors": [],
+  "result": "PASS",
+  "browserClosed": true,
+  "finished": "2026-11-03T02:33:37.355Z",
+  "sourceAfter": {
+    "js/core.js": "54f0d25129ac7f089981a30a46bdbca2bba8c3f02129bb6c296ad203dde995d1",
+    "js/app.js": "d65bb0ec30c247ce4e507ccfb0a8ffa8181cc73456f3d7c2537212b17bbda5dc",
+    "js/gfx.js": "da8961c7407ba0a0397aa936bf778a057f4c3eb864e495b6b31995fd881c9e26",
+    "js/lang-en.js": "8a17347dff09ded30698e501fab87c6c30d446f8eea0574d8cee3d3237cb75e9"
+  },
+  "assertions": 69,
+  "sizes": {
+    "images/surface-equipment-trench.jpg": 105909,
+    "images/surface-equipment-detail.jpg": 102785,
+    "images/surface-equipment-fore.jpg": 83056,
+    "images/surface-equipment-aft.jpg": 79727,
+    "images/surface-equipment-mobile.jpg": 63215,
+    "images/surface-equipment-editor.jpg": 159668
+  },
+  "saveNormalization": "After public import, Core.surfaceSync reconstructs derived native surface rooms and exposure flags before blueprint equality is compared; camera and renderer purity are checked against the exact serialized live blueprint.",
+  "measurementNotes": [
+    "Warm CPU plan/mesh builds in Chromium, with the 27-case final renderer test process sharing the execution environment.",
+    "Software WebGL and screenshot readback do not establish hardware GPU performance, browser FPS, 100-ship rendering or combat performance."
+  ]
+}
