@@ -98,8 +98,10 @@ test('gamepad nudges unrestricted precision number fields through the same valid
  const run=setup();run(`const events=[];focused={tagName:'INPUT',type:'number',step:'any',min:'0',max:'1.5e18',value:'1e18',dataset:{engineStep:'1e16'},stepUp(){throw Error('step any');},dispatchEvent(e){events.push(e.type);if(e.type==='change')engineSpecAction('ratedInputW',this.value);}};`);
  assert.equal(run('adjustFocused("right")'),true);assert.deepEqual(plain(run('events')),['input','change']);assert.deepEqual(plain(run('ship.parts.map(p=>p.ratedInputW)')),[1.01e18,1.01e18,1.01e18]);assert.equal(run('undoStack.length'),1);run('undo()');assert.equal(run('ship.parts[0].ratedInputW'),1e18);
 });
-test('worker statistics refresh retains the propulsion card in the performance tab and desktop sidebar',()=>{
- const run=setup();run(`C.propulsionPreview=(ship,stats)=>stats.propulsion;S={propulsion:{ratedInputW:3e18,ratedThrustN:1.5e9,actualInputW:1e18,actualThrustN:5e8,wasteHeatW:5e16,engines:[]}};st.tab='spec';const main={innerHTML:''},side={innerHTML:''},$=s=>s==='#specSide'?side:s==='#panel .spec-wrap'?main:null,fleet={mode:'design'},isWide=()=>true,trialCardHTML=()=>'',specHTML=()=>'<p>Legacy performance</p>',compactSpec=()=>{};`);
+test('worker statistics refresh shows performance without repeating the 系統 propulsion card',()=>{
+ const run=setup();run(`C.propulsionPreview=(ship,stats)=>stats.propulsion;S={propulsion:{ratedInputW:3e18,ratedThrustN:1.5e9,actualInputW:1e18,actualThrustN:5e8,wasteHeatW:5e16,engines:[]}};st.tab='spec';const main={innerHTML:''},side={innerHTML:''},$=s=>s==='#specSide'?side:s==='#panel .spec-wrap'?main:null,fleet={mode:'design'},isWide=()=>true,trialCardHTML=()=>'',specHTML=(S,o={})=>'<p>Legacy performance'+(o.warnings===false?'':' with warnings')+'</p>',specExtrasHTML=()=>'<div class="spec-carry"></div>',compactSpec=()=>{};`);
  const a=app.indexOf('function renderSpecTargets()'),b=app.indexOf('const isWide =',a);run(app.slice(a,b));run('renderSpecTargets()');
- assert.match(run('main.innerHTML'),/id="propulsion-preview"/);assert.match(run('side.innerHTML'),/id="propulsion-preview-side"/);assert.doesNotMatch(run('side.innerHTML'),/data-heat-preset/);assert.match(run('main.innerHTML'),/熱平衡未解決/);
+ // The propulsion diagnosis lives in 系統 only; 性能 carries the summary, the carry section and (in the tab) the warnings.
+ for(const html of [run('main.innerHTML'),run('side.innerHTML')]){assert.doesNotMatch(html,/propulsion-preview/);assert.match(html,/spec-carry/);}
+ assert.match(run('main.innerHTML'),/with warnings/);assert.doesNotMatch(run('side.innerHTML'),/with warnings/,'the sidebar leaves the warnings to the 点検 bar');
 });
