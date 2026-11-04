@@ -127,6 +127,14 @@ test('a fleet battle landing needs space superiority and takes the world when wo
   assert.ok(R.regimentTotals(reg).troops <= c.troops, 'the regiment carries its losses');
 });
 
+test('landings still under way when the fleet battle ends are fought out at once', () => {
+  const {G, R, D} = runtime(), acc = plain(D.acclamator), reg = R.makeRegiment('republic', 'R');
+  const w = R.createWorld({mode: 'test', sensors: false, region: 'kuat', seed: 13, designs: [acc], sides: [{faction: 'republic'}, {faction: 'cis', ai: true}], fleets: [[{design: 'acclamator', ground: [reg], air: [{craft: 'laat', n: 12}]}], []]});
+  const g = [...w.groups.values()][0], r = G.orderLanding(w, g.id);assert.ok(r.ok);
+  w.mode = 'fleet';R.step(w, 1);assert.ok(w.result, 'a side without ships ends the fleet battle');
+  assert.ok(r.landing.done && r.landing.b.result, 'the landing is resolved with it');assert.ok(w.events.some(e => e.landing));
+});
+
 test('ground combat labels translate to English', () => {
   const {G, R, I} = runtime(true), jp = /[぀-ヿ㐀-鿿]/, ok = s => { const o = I.t(s); assert.doesNotMatch(o, jp, s + ' => ' + o); return o; };
   for (const x of [...Object.values(G.PLATFORMS).flatMap(p => [p.name, p.note]), ...Object.values(G.DRIVES).map(d => d.name), ...Object.values(G.BODY_FORMS).map(f => f.name), ...Object.values(G.MOUNTS).map(m => m.name),

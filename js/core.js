@@ -15512,6 +15512,8 @@ followTick(w,dt);raidTick(w, dt);hatchTick(w, dt);
  // v26 PLAN-007 landings in progress are fought out on the fleet battle's clock (Ground.landingTick).
  if (w.landings?.length && groundHooks.landing) groundHooks.landing(w, dt);
  checkResult(w);
+ // (a fleet battle that ends leaves its landings to be fought out at once: the world's clock stops with it)
+ if (w.result && w.landings?.length && groundHooks.landing) groundHooks.landing(w, Infinity);
 }
 // The fleet battle ends when one side has lost three quarters of its fighting
 // value (sunk, disabled or fled) or has no ship left able to fight.
@@ -16738,7 +16740,9 @@ function orderLanding(w, groupId) {
 }
 function landingTick(w, dt) {
  for (const L of w.landings || []) {
-  if (L.done) continue;L.acc += dt;if (L.acc < 2) continue;step(L.b, L.acc);L.acc = 0;
+  if (L.done) continue;
+  if (dt === Infinity) { while (!L.b.result && L.b.time <= L.b.timeLimit + 1) step(L.b, 60); }
+  else { L.acc += dt; if (L.acc < 2) continue; step(L.b, L.acc); L.acc = 0; }
   if (!L.b.result) continue;L.done = true;const r = L.b.result, s = w.sector.systems[L.sys], won = r.winner === 0;
   for (const id of L.units) { const u = w.units.get(id); if (u?.ground) applyLosses(L.b, 0, u.ground, id); }
   if (won) s.held = L.side;
