@@ -179,6 +179,14 @@ test('a stale result cannot move a unit without a finite valid descriptor', () =
   delete u.p.propulsion;assert.equal(C.propulsionMotion(u).acc,0);
 });
 
+test('a legacy combined acceleration remains only an upper bound on real powered movement',()=>{
+ const p=profile();delete p.propulsion;p.mass=1000;p.accel=.2;
+ const model=C.legacyPropulsionProfile(p,1000);assert.equal(model.legacyMovementCapSource,'profile.accel');assert.equal(model.ratedAccelMps2,500);assert.equal(model.legacyUpperMovementCapMps2,.2/C.FLEET_RULES.accelScale);
+ const u=C.fleetUnit('legacy-cap','legacy',p);for(const throttle of [1,.5]){C.allocateShipPower(u,C.fleetSystems(u),{throttle},0,'balanced');assert.equal(u.propulsion.actualInputW,1e18*throttle);assert.equal(C.propulsionMotion(u).acc,.2);}
+ u.mods[0]=0;C.allocateShipPower(u,C.fleetSystems(u),{throttle:1},0,'balanced');assert.equal(u.propulsion.actualInputW,0);assert.equal(C.propulsionMotion(u).acc,0);
+ delete p.accel;assert.equal(C.legacyPropulsionProfile(p,1000).accelerationLimitMps2,500);for(const invalid of [NaN,Infinity,-1]){p.accel=invalid;assert.equal(C.legacyPropulsionProfile(p,1000),null);}
+});
+
 test('stationary turning keeps requesting engine power until the heading is reached', () => {
   const u=unit();u.yaw=1;u.order={...u.order,type:'move',point:[0,0,0]};
   const b=C.fleetBattle([u],false);let yaw=u.yaw;
@@ -265,4 +273,46 @@ test('aircraft foil deployment controls the connected local cooling capacity', (
     assert.equal(s.drive.fo.d[0],foil);assert.equal(s.drive.ht.cap,foil?1e17:1e16);
   }
   assert.equal(C.cleanCraftPowerProfile(p).foils.length,1);
+});
+
+test('boarding resistance uses this tick\'s actual force without legacy capability multipliers', () => {
+  const attacker=unit(),target=unit();attacker.p.trac=1;target.info={mass:1000};
+  target.mods[1]=.25;target.engF=.25;
+  target.propulsion={actualInputW:2.5e17,actualThrustN:1.25e8,forceVector:[1.25e8,0,0],actualAccelMps2:125};
+  const strain=1.25e8*C.FLEET_RULES.accelScale/1000/R.BOARD.projHold;
+  assert.ok(Math.abs(R.boardStrain(attacker,target)-strain)<1e-12);
+  target.p.accel=1e12;assert.ok(Math.abs(R.boardStrain(attacker,target)-strain)<1e-12);
+  target.propulsion={actualInputW:0,actualThrustN:0,forceVector:[0,0,0],actualAccelMps2:0};
+  assert.equal(R.boardStrain(attacker,target),0);
+  delete target.propulsion;assert.equal(R.boardStrain(attacker,target),0);
+});
+
+test('a healthy hostile tractor target requests real resistance power while its motion is constrained', () => {
+  const a={key:'resistance-attacker',p:{...profile(),trac:1},info:{mass:1000,hyper:null,capital:false,sensor:0}},
+    b={key:'resistance-target',p:profile(),info:{mass:1000,hyper:null,capital:false,sensor:0}};
+  const w=R.createWorld({mode:'test',region:'kuat',seed:13,sensors:false,convoyMode:false,designs:[a,b],
+    sides:[{faction:'empire',ai:false},{faction:'rebel',ai:false}],fleets:[[{design:a.key}],[{design:b.key}]]});
+  const attacker=[...w.units.values()].find(u=>u.side===0),target=[...w.units.values()].find(u=>u.side===1);
+  target.sys=attacker.sys;w.groups.get(target.group).sys=attacker.sys;
+  attacker.order={...attacker.order,type:'hold',fire:false};target.order={...target.order,type:'hold',fire:false};
+  attacker.pos=[0,0,0];target.pos=[0,0,8000];attacker.velocity=target.velocity=[0,0,0];target.maneuver=0;
+  attacker.tractor={target:target.id,mode:'capture',lock:true,off:[0,0,8000],dyaw:0,phase:'fight',strain:0,t:0};target.towedBy=attacker.id;
+  R.tick(w,.25);
+  assert.ok(target.propulsion.actualInputW>0,'resistance consumes allocated electrical input');
+  assert.ok(R.boardStrain(attacker,target)>0);
+  target.mods[0]=0;R.tick(w,.25);
+  assert.equal(target.propulsion.actualInputW,0);assert.equal(R.boardStrain(attacker,target),0);
+});
+
+test('the LH-3210 convoy freighter receives finite propulsion without an aircraft catalog entry', () => {
+  const design=vm.runInContext('YardFleetData.designs.lh3210',context);
+  assert.ok(design);assert.equal(R.CRAFT.lh3210,undefined);
+  const w=R.createWorld({mode:'test',region:'kuat',seed:13,sensors:false,convoyMode:false,designs:[design],
+    sides:[{faction:'cis',ai:false},{faction:'rebel',ai:false}],fleets:[[{design:design.key}],[]]});
+  const u=[...w.units.values()][0];u.order={...u.order,type:'move',point:C.add(u.pos,[50000,0,0])};
+  const before=u.velocity.slice();R.peaceTick(w,u.sys,.25);
+  assert.ok(u.p.propulsion.massKg>0&&Number.isFinite(u.p.propulsion.massKg));
+  assert.ok(u.propulsion.actualInputW>0&&u.propulsion.actualInputW<=u.p.grid.P*(1+1e-12));
+  const dv=Math.hypot(...u.velocity.map((v,i)=>v-before[i]));
+  assert.ok(dv>0&&dv<=C.propulsionMotion(u).acc*.25+1e-8);
 });

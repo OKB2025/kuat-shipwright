@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
   "status": "PASS",
-  "date": "2026-11-04T09:19:47.875Z",
+  "date": "2026-11-04T09:47:01.215Z",
   "browser": "Chromium (real headless browser, software WebGL)",
   "url": "http://127.0.0.1:8765",
   "sourceSha256": {
-    "js/core.js": "6ba975f8d81c89ffe3dcc02bde4d434d14a3bd7470745b243068e9ccd60ea67f",
-    "js/app.js": "0c3f462eb1c175017e106cf395da40e27dcbe638359796c96340ea188faa6681",
+    "js/core.js": "0cfb4a03206bfe38df994bb7c71ddd9fae086729dee910a3241b8032038fde33",
+    "js/app.js": "58dbca160bb80ae62c69e47b8942bec17ae757cc72b1a88dfd7f29a90dc57eb0",
     "js/gfx.js": "00e3eeb2a41f46ad87123867849111ac6108dcff41dc831b62db5aaf216d0500",
-    "js/lang-en.js": "69821c344f122ccc96c5fde60b080178805cef797bff4f1c6f6f516a1ede7e0c",
-    "index.html": "5fc39f9cb669ccce5106f2300325e8ceb4b65b229389fc2c1cbfc12bb1a73972"
+    "js/lang-en.js": "f0a90ba606bbf1607c0cda46cfd0a0980ad18f7e285385b60c93910f96ad7bb2",
+    "index.html": "24067548ce5d09186a06d8ac09215c571744512d96b0e4af11c80a91502ba14c"
   },
   "scope": {
     "measured": [
