@@ -7,11 +7,11 @@ function setup(){
  const context=vm.createContext({console,C});
  vm.runInContext(`
  let ship=C.newShip({L:20,W:12,H:8},'Aero UI');ship.parts=[];ship.nextId=1;
- const st={part:'gen',sel:null,surfaceMode:'horizontal',ve:{target:null}},listeners={},undoStack=[],redoStack=[];let dragSnap=null,dragLabel='',lastOp='';
+ const st={part:'gen',sel:null,surfaceMode:'horizontal',ve:{target:null}},listeners={},undoStack=[],redoStack=[];let dragSnap=null,dragLabel='',lastOp='',engineKicks=0;
  const num=(v,d=0)=>Number(v).toFixed(d),esc=String,rgb=v=>v.join(','),fmtM=v=>v+' m',fPct=v=>Math.round(v*100)+'%',fW=v=>v+' W',fMass=v=>v+' t',deg=v=>v+'°';
  const activeEquipment=()=>null,craftDesign=()=>C.isCraft(ship),selItem=()=>ship.parts.find(p=>p.id===st.sel?.id),editSel=fn=>fn(selItem());
  const panel={addEventListener:(type,fn)=>(listeners[type]||=[]).push(fn)},$=s=>s==='#panel'?panel:null;
- const snap=()=>JSON.stringify(C.serialize(ship)),restore=s=>{ship=C.deserialize(JSON.parse(s));},sndEdit=()=>{},sndUI=()=>{},toast=()=>{},touch=()=>{},scheduleStats=()=>{},updateUndo=()=>{},autosave=()=>{},rememberPick=()=>{},renderPanel=()=>{},updateHint=()=>{};
+ const snap=()=>JSON.stringify(C.serialize(ship)),restore=s=>{ship=C.deserialize(JSON.parse(s));},sndEdit=()=>{},sndUI=()=>{},toast=()=>{},touch=()=>{},kickEngine=()=>{engineKicks++;},scheduleStats=()=>{},updateUndo=()=>{},autosave=()=>{},rememberPick=()=>{},renderPanel=()=>{},updateHint=()=>{};
  const blockedHullControl=()=>false,editCockpitEquipment=()=>{},cockpitEquipmentHTML=()=>'';
  const veOpen=target=>{st.ve.target=target;};
  const surfaceControls=()=>'<div data-test-orientation></div>',foilPivotControls=()=>'<div data-test-pivot></div>',foilDiagramSVG=()=>'<svg></svg>',basePartEditor=()=>'',structureControls=()=>'<div data-test-structure-materials></div>',engineControls=()=>'',sensorBandControls=()=>'',superweaponControls=()=>'';
@@ -117,7 +117,7 @@ test('copying a panel into placement keeps its measured outline and chosen spar 
 test('solar rib and folding controls create one normal undo transaction and persist',()=>{
  const run=setup();run("selectAeroPart('solarPanel');installPreview()");const before=plain(run('C.serialize(ship).parts[0]'));
  run("input('aeroPanelFold',48,-80,80);input('aeroPanelFold',52,-80,80);change('aeroPanelFold')");
- assert.equal(run('undoStack.length'),1);assert.equal(run('selItem().panelFold'),52);assert.equal(run('selItem().k'),'solarPanel');
+ assert.equal(run('undoStack.length'),1);assert.equal(run('engineKicks'),1,'the completed drag schedules one engine refresh');assert.equal(run('selItem().panelFold'),52);assert.equal(run('selItem().k'),'solarPanel');
  assert.deepEqual(plain(run('selItem().s')),before.s);assert.deepEqual(plain(run('selItem().outline')),before.outline);
  assert.equal(run('C.deserialize(C.serialize(ship)).parts[0].panelFold'),52);
  run('undo()');assert.equal(run('selItem().panelFold'),before.panelFold);run('redo()');assert.equal(run('selItem().panelFold'),52);
