@@ -13,6 +13,7 @@ const C = Core, G = Gfx;
 const now = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
 
 let post = () => {};
+let shipGen = 0, lastStats = null; // v13 LOAD the editor's latest figures, for a trial flight of the same design
 let ship = null, hullKey = '', lastInfo = null, lastOverlap = '', view = {coded: false, habitation: false};
 const queue = [];
 let running = false;
@@ -110,10 +111,14 @@ function geometryPass(job, flags) {
   return out;
 }
 
+// v13 LOAD The public state a build has just derived the ship to: when the editor sends that same state back to
+// open it, the compartments and mounts are already settled and are not derived a second time (2–3 s for an ISD).
+let settledState = null;
 function applyState(job) {
+  shipGen++;
   if (job.reset || !ship) {
-    if (!(ship && C.publicJSON(ship) === job.state)) { ship = JSON.parse(job.state); hullKey = ''; lastInfo = null; lastOverlap = ''; }
-  } else C.patchShip(ship, JSON.parse(job.state));
+    if (!(ship && C.publicJSON(ship) === job.state)) { ship = JSON.parse(job.state); hullKey = ''; lastInfo = null; lastOverlap = ''; settledState = null; }
+  } else { C.patchShip(ship, JSON.parse(job.state)); settledState = null; }
 }
 function deriveState(job) {
   const what = new Set(job.what || []);
@@ -129,9 +134,9 @@ function deriveState(job) {
   if(any('parts','fits')&&(ship.surfaces?.patches||[]).some(p=>p.id.startsWith('hull:')&&p.functionMode==='equipment')){flags.hull=true;hullKey='';}
   const sync = job.reset || any('hull', 'all', 'parts', 'fits', 'hatches');
   const mount = job.reset || any('hull', 'all', 'parts', 'hatches');
-  const t0 = now();
-  if (sync) C.syncCompartments(ship);
-  if (mount) { C.remount(ship); C.syncCompartments(ship); }
+  const t0 = now(), settled = settledState !== null && settledState === job.state; settledState = null;
+  if (sync && !settled) C.syncCompartments(ship);
+  if (mount && !settled) { C.remount(ship); C.syncCompartments(ship); }
   return {flags, syncMs: now() - t0, touched: sync || mount};
 }
 function finishGeometry(job, out) {
@@ -170,6 +175,7 @@ async function handleUpdate(job) {
   const S = C.computeStats(ship);
   lastInfo = S.info;
   const profile = C.fleetProfile(S, ship.name, ship);
+  lastStats = {S, profile, gen: shipGen};
   const msg = {type: 'stats', gen: job.gen, stats: S.surface?{...S,surface:surfaceReportOut(S.surface)}:S, profile, statsMs: now() - t1};
   const transfer = [];
   if (overlapSig(S.info) !== lastOverlap) {
@@ -180,12 +186,100 @@ async function handleUpdate(job) {
   post(msg, transfer);
 }
 
-function handleBuild(job) {
+// ---------- v13 LOAD persistent cache of built designs ----------
+// Building a large example takes 10–30 s and its performance figures up to 15 s more, on every visit. What a
+// build produces (the design's public state, its stats, fleet profile and serialized form; 0.1–0.5 MB) is kept in
+// IndexedDB, so a design built once loads again in seconds: only its compartments and meshes are re-derived.
+// (Measured on the example ISD in a phone-sized browser: worker fleet build 7.5 s -> 0.07 s on a repeat visit.)
+// Meshes are 2–30 MB a ship; they are stored only where making them took long on this device (a Venator's, with
+// its sliding hangar doors, 12 s here), under a budget of their own. Records are keyed by the example key or a
+// hash of the serialized design and stamped with a SHA-256 of the sources this engine runs (reference and model
+// data, core, gfx, engine; read back from the HTTP cache once per session): any change of code or data drops the
+// old records. Without IndexedDB, fetch or those files (a blob or file:// worker), or on any storage error, the
+// cache is off and designs are built as before. Limits (provisional): builds 120 records / 60 MB,
+// meshes 24 records / 200 MB (kept when they took 1.5 s or more); the least recently used go first.
+let BUILD = null;
+const DISK = {open: null, db: null, off: typeof indexedDB === 'undefined' || typeof fetch === 'undefined', MAX: 120, BYTES: 60e6, GEO_MAX: 24, GEO_BYTES: 200e6, GEO_MS: 1500, hits: 0, puts: 0};
+// The files the engine was built from: next to the worker script, or as the page lists them for an inline engine.
+function engineSources() {
+  try {
+    if (typeof importScripts === 'function' && self.location && /\/worker\.js(\?|$)/.test(self.location.href)) return ['../data/reference.js', '../data/imperial2.js', 'core.js', 'gfx.js', 'engine.js'].map(u => new URL(u, self.location.href).href);
+    const F = typeof window !== 'undefined' && window.KS_FILES;
+    if (F && F.engine && /^https?:/.test(location.protocol)) return [F.data[0], F.data[2], F.core, F.gfx, F.engine].map(u => new URL(u, document.baseURI).href);
+  } catch (e) {}
+  return null;
+}
+async function buildStamp() {
+  const urls = engineSources(); if (!urls || !(typeof crypto !== 'undefined' && crypto.subtle)) return null;
+  const parts = await Promise.all(urls.map(u => fetch(u, {cache: 'force-cache'}).then(r => { if (!r.ok) throw new Error(u); return r.arrayBuffer(); })));
+  const sums = await Promise.all(parts.map(b => crypto.subtle.digest('SHA-256', b)));
+  const all = new Uint8Array(sums.length * 32); sums.forEach((h, i) => all.set(new Uint8Array(h), i * 32));
+  return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', all)).slice(0, 10), x => x.toString(16).padStart(2, '0')).join('');
+}
+function diskOpen() {
+  if (DISK.off) return Promise.resolve(null);
+  if (!DISK.open) DISK.open = buildStamp().catch(() => null).then((stamp) => new Promise((resolve) => {
+    if (!stamp) { DISK.off = true; resolve(null); return; } BUILD = stamp;
+    let done = false; const fin = (db) => { if (done) { if (db && db !== DISK.db) try { db.close(); } catch (e) {} return; } done = true; if (!db) DISK.off = true; DISK.db = db; resolve(db); };
+    setTimeout(() => fin(null), 4000);
+    try {
+      const rq = indexedDB.open('ks-built', 1);
+      rq.onupgradeneeded = () => { try { const db = rq.result; db.createObjectStore('rec', {keyPath: 'id'}); db.createObjectStore('meta', {keyPath: 'id'}); } catch (e) {} };
+      rq.onsuccess = () => { const db = rq.result; db.onversionchange = () => { try { db.close(); } catch (e) {} DISK.off = true; DISK.db = null; }; fin(db); diskTrim(db); };
+      rq.onerror = () => fin(null); rq.onblocked = () => fin(null);
+    } catch (e) { fin(null); }
+  }));
+  return DISK.open;
+}
+const idbRun = (db, mode, fn) => new Promise((resolve) => {
+  try { const tx = db.transaction(['rec', 'meta'], mode); let out = null; fn(tx.objectStore('rec'), tx.objectStore('meta'), (v) => { out = v; }); tx.oncomplete = () => resolve(out); tx.onerror = tx.onabort = (e) => { if (e && e.preventDefault) e.preventDefault(); resolve(null); }; } catch (e) { resolve(null); }
+});
+async function diskGet(id, depth = 0) {
+  const db = await diskOpen(); if (!db) return null;
+  const r = await idbRun(db, 'readwrite', (rec, meta, set) => { const q = rec.get(id); q.onsuccess = () => { const v = q.result; set(v || null); if (v && v.v === BUILD) meta.put({id, v: BUILD, at: Date.now(), size: v.size || 0, geo: !!v.geometry}); }; });
+  if (!r || r.v !== BUILD) return null;
+  if (r.alias) return depth ? null : diskGet(r.alias, 1);
+  DISK.hits++; return r;
+}
+// The record is copied into the store at once (meshes are handed to the editor right after, which empties them).
+function diskPut(r) {
+  const db = DISK.db; if (!db || DISK.off) return;
+  try {
+    r.v = BUILD;
+    if (!r.size) r.size = (r.state ? r.state.length : 0) + (r.serial || r.stats || r.profile ? JSON.stringify([r.serial || 0, r.stats || 0, r.profile || 0]).length : 0) + 100;
+    const tx = db.transaction(['rec', 'meta'], 'readwrite');
+    tx.objectStore('rec').put(r); tx.objectStore('meta').put({id: r.id, v: BUILD, at: Date.now(), size: r.size, geo: !!r.geometry});
+    tx.oncomplete = () => { DISK.puts++; diskTrim(db); }; tx.onerror = tx.onabort = (e) => { if (e && e.preventDefault) e.preventDefault(); };
+  } catch (e) { /* not cached */ }
+}
+// Meshes as the engine sends them; their size in bytes.
+function geoBytes(g) { let n = 0; for (const m of Object.values(g.meshes)) { const x = m.geo; if (x) for (const k of ['pos', 'nor', 'uv', 'col', 'idx']) if (x[k]) n += x[k].byteLength; } return n; }
+// Records of other builds go at once; then the oldest until each kind is within its limits.
+let trimming = false;
+async function diskTrim(db) {
+  if (trimming) return; trimming = true;
+  try {
+    const all = await idbRun(db, 'readonly', (rec, meta, set) => { const q = meta.getAll(); q.onsuccess = () => set(q.result || []); });
+    if (!all) return;
+    const drop = all.filter(m => m.v !== BUILD).map(m => m.id), keep = all.filter(m => m.v === BUILD).sort((a, b) => b.at - a.at);
+    const used = {r: [0, 0], g: [0, 0]};
+    for (const m of keep) { const u = used[m.geo ? 'g' : 'r']; u[0]++; u[1] += m.size || 0; if (m.geo ? u[0] > DISK.GEO_MAX || u[1] > DISK.GEO_BYTES : u[0] > DISK.MAX || u[1] > DISK.BYTES) drop.push(m.id); }
+    if (drop.length) await idbRun(db, 'readwrite', (rec, meta) => { for (const id of drop) { rec.delete(id); meta.delete(id); } });
+  } finally { trimming = false; }
+}
+
+async function handleBuild(job) {
   const t0 = now();
-  const b = C.buildDesign(job.key);
-  ship = b; hullKey = ''; lastInfo = null; lastOverlap = '';
-  C.syncCompartments(ship); C.remount(ship); C.syncCompartments(ship);
-  post({type: 'built', id: job.id, key: job.key, state: C.publicJSON(ship), ms: now() - t0});
+  // v13 LOAD A design built on an earlier visit comes from the disk cache; its state is already mounted, so only its
+  // compartments are re-derived (see rehydrate). The editor's reset with this same state then derives nothing again.
+  let b = null, src = 'built';
+  const disk = await diskGet('k:' + job.key);
+  if (disk && disk.state) { try { b = JSON.parse(disk.state); C.syncCompartments(b); src = 'disk'; } catch (e) { b = null; } }
+  if (!b) { b = C.buildDesign(job.key); C.syncCompartments(b); C.remount(b); C.syncCompartments(b); }
+  ship = b; shipGen++; hullKey = ''; lastInfo = null; lastOverlap = '';
+  const state = settledState = C.publicJSON(ship);
+  post({type: 'built', id: job.id, key: job.key, state, ms: now() - t0, src});
+  if (src === 'built') diskPut({id: 'k:' + job.key, state});
 }
 
 let trialHold = null;
@@ -242,27 +336,79 @@ function handleTrialRays(job) {
 // a large example takes tens of seconds. Very large designs are not kept.
 const fleetBuilt = new Map(), FLEET_KEEP = 4;
 const designHash = (s) => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return (h >>> 0).toString(36) + ':' + s.length; };
+// A built design from its public state (what the editor holds): the same steps as opening it in the designer.
+// A stored state is already mounted, so its compartments alone are re-derived. Checked against the build on the
+// old tree: identical meshes and profile for gozanti, cr90 and venator; the ISD's profile within 1e-6 relative and
+// meshes within float noise (hull 7 cm, a hangar face 2 m), as when a saved draft is reopened.
+function rehydrate(state, paint) { const d = JSON.parse(state); if (paint) d.paint = paint; C.syncCompartments(d); if (paint) { C.remount(d); C.syncCompartments(d); } return d; }
+const recShip = (rec) => rec.d || (rec.d = rehydrate(rec.state, rec.paint));
+// job.lite: the caller has the fleet profile already (the precomputed examples of a fleet battle) and needs only the
+// 3D model, so the performance figures (seconds for a large ship) are left until a request needs them; a design
+// with configured surfaces still gets its profile (its model is centred by it). job.statsOnly: the figures of a
+// design whose model the caller already has. A record holds the built ship (d) only once something needs it.
 function handleCraftPrice(job){
  const d=C.deserialize(job.design);C.syncCompartments(d);C.remount(d);C.syncCompartments(d);
  const stats=C.computeStats(d);post({type:'craftPrice',id:job.id,price:{...C.designCost(stats),costBy:stats.costBy,crewCount:stats.crew,version:C.COST_MODEL.version}});
 }
-function handleFleet(job) {
+// (A plain function: the fleet job itself waits on the disk cache.)
+function handleFleet(job) { return fleetJob(job); }
+async function fleetJob(job) {
   const t0 = now();
-  const dkey = job.key ? 'k:' + job.key + (job.paint ? '#' + job.paint : '') : 'd:' + designHash(JSON.stringify(job.design));
-  let hit = fleetBuilt.get(dkey), d, stats, profile, serial;
-  if (hit) { ({d, stats, profile, serial} = hit); fleetBuilt.delete(dkey); fleetBuilt.set(dkey, hit); }
+  const djson = job.key ? '' : JSON.stringify(job.design), dkey = job.key ? 'k:' + job.key + (job.paint ? '#' + job.paint : '') : 'd:' + designHash(djson);
+  let rec = fleetBuilt.get(dkey), src = rec ? 'memory' : '', save = false;
+  if (rec) { fleetBuilt.delete(dkey); fleetBuilt.set(dkey, rec); }
   else {
-    d = job.key ? C.buildDesign(job.key) : C.deserialize(job.design);if (job.paint) d.paint = job.paint;
-    C.syncCompartments(d); C.remount(d); C.syncCompartments(d);
-    stats = C.computeStats(d); profile = C.fleetProfile(stats, d.name, d); serial = C.serialize(d);
-    if (d.parts.length + d.fits.length < 3000) { const rec = {d, stats, profile, serial}; fleetBuilt.set(dkey, rec); fleetBuilt.set('d:' + designHash(JSON.stringify(serial)), rec); while (fleetBuilt.size > FLEET_KEEP * 2) fleetBuilt.delete(fleetBuilt.keys().next().value); }
+    rec = null;
+    // v13 LOAD The design on the drawing board (a trial flight): its figures are already computed here. A copy of
+    // the editor's ship is flown, so later edits do not reach the cached one.
+    if (djson && ship && lastStats && lastStats.gen === shipGen && JSON.stringify(C.serialize(ship)) === djson) {
+      try { const state = C.publicJSON(ship); rec = {d: rehydrate(state), state, stats: lastStats.S, profile: lastStats.profile, serial: job.design}; src = 'editor'; save = true; } catch (e) { rec = null; }
+    }
+    // v13 LOAD the disk cache: the record of this design, or (a repainted example) the plain example's build.
+    if (!rec) {
+      const disk = (await diskGet(dkey)) || (job.key && job.paint ? await diskGet('k:' + job.key) : null);
+      if (disk && disk.state) {
+        const own = disk.id === dkey;
+        rec = {d: null, state: disk.state, paint: own ? null : job.paint, stats: own && disk.profile ? disk.stats : null, profile: own ? disk.profile || null : null, serial: own ? disk.serial || null : null};
+        src = 'disk'; save = !(own && rec.stats && rec.serial);
+        if (!own) { try { recShip(rec); rec.state = C.publicJSON(rec.d); rec.paint = null; } catch (e) { rec = null; } }
+      }
+    }
+    if (!rec) {
+      const d = job.key ? C.buildDesign(job.key) : C.deserialize(job.design); if (job.paint) d.paint = job.paint;
+      C.syncCompartments(d); C.remount(d); C.syncCompartments(d);
+      rec = {d, state: C.publicJSON(d), stats: null, profile: null, serial: null}; src = 'built'; save = true;
+    }
+    if (!rec.serial) rec.serial = C.serialize(recShip(rec));
+    rec.alias = 'd:' + designHash(JSON.stringify(rec.serial)); rec.surfaces = !!rec.serial.surfaces;
+    const big = rec.d ? rec.d.parts.length + rec.d.fits.length >= 3000 : rec.state.length > 4e6;
+    if (!big) { fleetBuilt.set(dkey, rec); fleetBuilt.set(rec.alias, rec); while (fleetBuilt.size > FLEET_KEEP * 2) fleetBuilt.delete(fleetBuilt.keys().next().value); }
   }
-  const transfer = [];
-  const geometry = G.fleetGeometry(d, {trial: !!job.trial, ...(profile.surface?.offset ? {center: profile.surface.offset} : {})});
-  for (const m of Object.values(geometry.meshes)) { m.geo = geoOut(m.geo, transfer); }
-  // A trial keeps its ship here so turret rays can be tested against it.
-  if (job.trial) {const rays=trialSurfaceShip(d);trialHold={ship:rays,ctx:C.turretRayContext(rays),fits:new Map(rays.fits.map(f=>[f.id,f]))};}
-  post({type: 'fleet', id: job.id, stats, profile, geometry, design: serial, ms: now() - t0, cached: !!hit}, transfer);
+  const lite = !!job.lite && !rec.surfaces;
+  if (!lite && !rec.stats) { const d = recShip(rec); rec.stats = C.computeStats(d); rec.profile = C.fleetProfile(rec.stats, d.name, d); save = true; }
+  const {stats, profile, serial} = rec;
+  if (job.statsOnly) post({type: 'fleet', id: job.id, stats, profile, design: serial, ms: now() - t0, src});
+  else {
+    // Meshes that took long to make come from the disk cache (see above); others are made again.
+    const transfer = [], gid = 'g|' + dkey + (job.trial ? '|t' : '|m');
+    const stored = DISK.db ? await diskGet(gid) : null;
+    let geometry = stored && stored.geometry || null;
+    if (geometry) { for (const m of Object.values(geometry.meshes)) if (m.geo) for (const k of ['pos', 'nor', 'uv', 'col', 'idx']) if (m.geo[k]) transfer.push(m.geo[k].buffer); }
+    else {
+      const tg = now(); geometry = G.fleetGeometry(recShip(rec), {trial: !!job.trial, ...(profile?.surface?.offset ? {center: profile.surface.offset} : {})});
+      for (const m of Object.values(geometry.meshes)) { m.geo = geoOut(m.geo, transfer); }
+      const gms = now() - tg;
+      if (gms >= DISK.GEO_MS) { const size = geoBytes(geometry); if (size < DISK.GEO_BYTES / 4) diskPut({id: gid, geometry, size, ms: Math.round(gms)}); }
+    }
+    post({type: 'fleet', id: job.id, stats: lite ? null : stats, profile: lite ? null : profile, geometry, design: serial, ms: now() - t0, cached: src === 'memory', src, geoCached: !!stored}, transfer);
+  }
+  // After the reply, so the loading screen does not wait for them: the trial keeps its ship here so turret rays can
+  // be tested against it (ray requests queue behind this and answer once it is ready), and the build goes to disk.
+  if (job.trial && !job.statsOnly) { const rays = trialSurfaceShip(recShip(rec)); trialHold = {ship: rays, ctx: C.turretRayContext(rays), fits: new Map(rays.fits.map(f => [f.id, f]))}; }
+  if (save) {
+    diskPut({id: dkey, state: rec.state, stats: rec.stats, profile: rec.profile, serial});
+    if (rec.alias !== dkey) diskPut({id: rec.alias, alias: dkey});
+  }
 }
 
 function handleOp(job) {
@@ -284,8 +430,8 @@ async function pump() {
       const job = queue.shift();
       try {
         if (job.type === 'update') await handleUpdate(job);
-        else if (job.type === 'build') handleBuild(job);
-        else if (job.type === 'fleet') handleFleet(job);
+        else if (job.type === 'build') await handleBuild(job);
+        else if (job.type === 'fleet') await handleFleet(job);
         else if (job.type === 'craftPrice') handleCraftPrice(job);
         else if (job.type === 'trialRays') handleTrialRays(job);
         else if (job.type === 'trialEnd') trialHold = null;
@@ -322,7 +468,7 @@ function connectInline(deliver) {
   post = (msg) => { const m = copy(msg); setTimeout(() => deliver(m), 0); };
   return (msg) => { const m = copy(msg); setTimeout(() => receive(m), 0); };
 }
-return {listenWorker, connectInline, packCaches};
+return {listenWorker, connectInline, packCaches, disk: DISK};
 })();
 if (typeof self !== 'undefined' && typeof window === 'undefined' && typeof importScripts === 'function' && self.__ksWorker) YardEngine.listenWorker(self);
 

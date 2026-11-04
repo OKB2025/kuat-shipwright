@@ -6466,14 +6466,18 @@ async function trialStart(opts={}){
  if(trial.on||trial.busy||!view||fleet.mode!=='design')return;if(!opts.design&&!ship)return;
  if(!opts.design){const f=trialFigures(trialProfile());if(!f.ok){toast('加速度が 0 G のため公試を行えません');return;}}
  trial.busy=true;loadShow(opts.rts?.spectate?'3D視点の準備中…（この星系の艦の3Dモデル）':opts.battle||opts.rts?'艦隊戦の準備中…（旗艦の砲塔と射界を計算）':opts.patrol?'パトロールの準備中…（砲塔の旋回軸と射界を計算）':'公試の準備中…（砲塔の旋回軸と射界を計算）',opts.rts?.spectate?'3D視点':opts.rts?'操艦準備':opts.battle?'艦隊戦':opts.patrol?'パトロール':'公試');
- let a=null;try{const data=opts.design||C.serialize(ship),key='trial-'+fleetHash(JSON.stringify(data)),r=await YardEngineClient.request('fleet',{design:data,trial:true});a={key,design:r.design,stats:r.stats,p:r.profile,geometry:r.geometry};if(view)view.loadFleet(key,r.geometry);
-  if(opts.escorts?.length){$('#lsText').textContent='随伴艦の3Dモデルを準備中…';for(const k of opts.escorts)await fleetAsset(k);}}
+ // v13 LOAD A ship of a fleet battle that is an example flies with the battle's precomputed profile; its figures
+ // (seconds for a large ship) follow in the background (turret charge, hyperdrive class, craft systems).
+ const exKey=opts.rts&&opts.design?opts.rts.w?.units?.get(opts.rts.uid)?.design:null,ex=exKey?fleetExampleData(exKey):null;
+ let a=null;try{const data=opts.design||C.serialize(ship),key='trial-'+fleetHash(JSON.stringify(data)),r=await YardEngineClient.request('fleet',{design:data,trial:true,lite:!!ex});a={key,design:r.design,stats:r.stats||null,p:r.profile||ex?.p,geometry:r.geometry};if(view)view.loadFleet(key,r.geometry);
+  if(!a.stats)YardEngineClient.request('fleet',{design:data,statsOnly:true}).then(r=>{a.stats=r.stats;if(trial.asset!==a)return;for(const t of trial.turrets)if(t.cap)t.charge=Math.max(t.charge||0,C.clamp(r.stats?.chargeInfo?.[t.id]?.ratio??0,0,1));}).catch(e=>console.warn('trial figures',e));
+  if(opts.escorts?.length){$('#lsText').textContent='随伴艦の3Dモデルを準備中…';for(const k of opts.escorts)await fleetAsset(k,{lite:true});}}
  catch(e){console.error(e);toast('公試を開始できません：'+esc(e.message||e));}finally{trial.busy=false;hideBusyOverlay();}
  if(!a||trial.on||fleet.mode!=='design'){loadHide();return;}
  if(!(a.p.accel>0&&a.p.maxSpeed>0)){loadHide();toast('加速度が 0 G のため公試を行えません');return;}
  trial.paused=false;trial.rts=opts.rts||null;trial.spectate=!!opts.rts?.spectate;trial.specCam='chase';trial.frameMs=0;trial.scaleAt=0;if(view)view.renderScale=1;trial.mode=opts.battle||opts.rts?'battle':'trial';trial.battlePlan=opts.battle||null;trial.returnTo=opts.returnTo||null;trial.escortKeys=!opts.battle&&!opts.rts?(opts.escorts||[]).filter(k=>fleet.assets.has(k)):[];if(opts.system&&SYSTEMS[opts.system])trial.sysKey=opts.system;trial.sysKey=trial.sysKey||'coruscant';
  if(trial.rts){SYSTEMS.rts=voySysDesc(trial.rts.w,trial.rts.sys);trial.sysKey='rts';}
- trial.asset=a;trial.p=a.p;trial.craft=!!a.geometry.eyes?.craft;trial.turrets=(a.geometry.turrets||[]).map(trialTurretState);for(const t of trial.turrets)t.charge=t.cap?C.clamp(a.stats.chargeInfo?.[t.id]?.ratio??0,0,1):1;trial.launchers=(a.geometry.launchers||[]).map(l=>({...l,reload:0,queue:0,next:0}));trial.designCamera={cam:JSON.parse(JSON.stringify(view.cam)),off:[...view.off]};
+ trial.asset=a;trial.p=a.p;trial.craft=!!a.geometry.eyes?.craft;trial.turrets=(a.geometry.turrets||[]).map(trialTurretState);for(const t of trial.turrets)t.charge=t.cap?C.clamp(a.stats?.chargeInfo?.[t.id]?.ratio??0,0,1):1;trial.launchers=(a.geometry.launchers||[]).map(l=>({...l,reload:0,queue:0,next:0}));trial.designCamera={cam:JSON.parse(JSON.stringify(view.cam)),off:[...view.off]};
  closeSheet();hideInspect();clearHover();if(dragSnap)endDrag();
  view.off=[0,0,0];view.cam={...view.cam,target:[0,0,0],ortho:false};trialReset();
  trial.on=true;trial.startedAt=performance.now();trial.shotAt=0;document.body.classList.add('trial-on');const hud=$('#trialHud');hud.hidden=false;hud.classList.toggle('spectate',!!trial.spectate);if(trial.spectate){hud.innerHTML=voySpectateHudHTML();voySpectateHudUpdate(true);}else{hud.innerHTML=trialHudHTML();trialBindHud(hud);trialHudUpdate(true);}
@@ -8350,8 +8354,17 @@ function fleetHash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCode
 // voyage's list of saves, or read from the store; a design saved again since it
 // was prepared is served from its latest save under the old key as well.
 function findSave(list,source){const id=source.slice(5),a=list||[];return a.find(r=>r.id===id)||a.find(r=>source==='save:'+r.id+'-'+r.savedAt)||a.find(r=>source.startsWith('save:'+r.id+'-')&&/^\d+$/.test(source.slice(6+r.id.length)))||null;}
-async function fleetAsset(source){
- if(fleet.assets.has(source))return fleet.assets.get(source);
+// v13 LOAD opts.lite: only the 3D model is wanted (a fleet battle's units carry the precomputed profiles of the
+// examples), so the engine skips the performance figures of an example; a later caller that needs them gets them.
+// A design already on its way to the engine is not asked for twice (a warm-up and the screen that needs it).
+async function fleetAsset(source,opts={}){
+ const q=fleetPending.get(source);if(q)return opts.lite?q:q.then(a=>fleetAssetStats(a));
+ const p=fleetAssetLoad(source,opts);fleetPending.set(source,p);p.then(()=>fleetPending.delete(source),()=>fleetPending.delete(source));return p;
+}
+const fleetExampleData=k=>{const b=String(k||'').split('#')[0];return typeof YardFleetData!=='undefined'&&Object.hasOwn(YardFleetData.designs||{},b)?YardFleetData.designs[b]:null;};
+const fleetPending=new Map();
+async function fleetAssetLoad(source,opts={}){
+ if(fleet.assets.has(source)){const a=fleet.assets.get(source);return a.stats||opts.lite?a:fleetAssetStats(a);}
  let payload=null,key=source,alias=null;
  if(source==='current'){const data=C.serialize(ship);key='draft-'+fleetHash(JSON.stringify(data));payload={design:data};}
  // An embarked design is a snapshot, independent of the current draft or the source save.
@@ -8371,11 +8384,14 @@ async function fleetAsset(source){
  let asset=fleet.assets.get(key);
  if(!asset){
   // Stats and meshes for fleet ships are prepared by the engine in the background.
-  const r=await YardEngineClient.request('fleet',payload);asset={key,design:r.design,stats:r.stats,p:r.profile,geometry:r.geometry};if(view)view.loadFleet(key,r.geometry);fleet.assets.set(key,asset);
- }
+  const ex=opts.lite&&payload?.key?fleetExampleData(key):null;if(ex)payload.lite=true;
+  const r=await YardEngineClient.request('fleet',payload);asset={key,design:r.design,stats:r.stats||null,p:r.profile||ex?.p,geometry:r.geometry,payload};if(view)view.loadFleet(key,r.geometry);fleet.assets.set(key,asset);
+ }else if(!asset.stats&&!opts.lite)await fleetAssetStats(asset);
  if(alias){fleet.assets.set(alias,asset);if(view)view.loadFleet(alias,asset.geometry);}
  return asset;
 }
+// The figures of an asset first prepared for its model only (the engine has the design built, in memory or on disk).
+async function fleetAssetStats(a){if(a.stats||!a.payload)return a;const r=await YardEngineClient.request('fleet',{...a.payload,lite:false,statsOnly:true});a.stats=r.stats;a.p=r.profile||a.p;return a;}
 async function fleetAdd(source=fleet.source,team=fleet.team){
  if(fleet.busy||!fleetCanRefit())return;if(fleetUnits().length>=C.FLEET_RULES.maxShips){toast('一度に並べられるのは12隻までです');return;}
  fleet.busy=true;fleetRender();await new Promise(r=>setTimeout(r,25));
@@ -9947,6 +9963,7 @@ function voyHistHTML(key) { const b = Galaxy.BATTLES[key], t = !b && R.REGIONS[k
 // Choosing a theatre puts the two sides that fought there on either side (they can be changed after).
 function voyRegionSides(s) { const d = R.REGIONS[s.region], h = d?.theater ? d : null; if (!h || !R.FACTIONS[h.own] || !R.FACTIONS[h.foe]) return; if (s.own !== h.own) { s.own = h.own; if (!s.ownOb) s.sel = {}; voyEnsureDesigns(voySideOb(s, 0)); } s.foe = h.foe; }
 function voyRenderSetup() {
+ try { setTimeout(() => { try { voyPrewarmSetup(); } catch (e) {} }, 0); } catch (e) { /* headless section tests */ }
  const s = voy.setup, tab = ['sortie', 'scenario'].includes(s.tab) && !voy.msn ? s.tab : 'orbat', ob = voyEdOb(s), sortie = voySortieShips(s), cap = VOY_SCALES[s.scale], t = voyShipsTotals(sortie);
  // Ships whose design cannot be prepared (a saved design since deleted, say) stay behind.
  const costs = voyCostCheck(s), ready = sortie.some(voyShipDesign) && !voy.pending.size && !voyCraftPricesBlocked(), ok = ready && t.people <= cap.people && t.supply <= cap.supply && sortie.length <= VOY_SHIP_CAP && !costs.some(c => c.over) && (voy.msn || voyFoeTgs(s).some(x => x.ships.some(voyShipDesign)));
@@ -10361,9 +10378,39 @@ async function voyStartBattle() {
  // The battle opens in 3D on our lead task group; the maps are under 「命令」.
  if (voyCan3D()) voyEnter3D().then(ok => { if (ok) toast('「命令」で作戦図・戦術図を開いて命令します'); voyWarm(keys); });else voyWarm(keys);
 }
+// v13 LOAD The battle's units carry the examples' precomputed profiles: only their 3D models are prepared here.
+const LITE = {lite: true};
+// v13 LOAD Models the next screen will open with are prepared while the player is still choosing: on the setup of a
+// fleet battle its sortie (the lead task group first; the 3D view opens on it), on a mission's patrol panel the chosen
+// task group's flagship (with its figures, which its flight needs) and escorts. One at a time, only while that
+// screen is open; the battle or patrol then finds them ready (or already on their way: fleetAsset shares them).
+const voyPre = {tag: null, list: [], busy: false};
+function voyPrewarm(tag, list) { voyPre.tag = tag; voyPre.list = list; if (!voyPre.busy) voyPrewarmRun(); }
+function voyPrewarmOpen(tag) {
+ if (trial.on || fleet.mode !== 'design') return false;
+ if (tag === 'setup') return !voy.w && voy.screen === 'setup' && !$('#voyage').hidden;
+ if (tag === 'patrol') return !!MS && titleState.panel === 'msn' && msUI.tab === 'patrol' && titleVisible();
+ return false;
+}
+async function voyPrewarmRun() {
+ voyPre.busy = true;
+ try {
+  // a moment's pause: the screen settles (and a quick change of mind costs nothing) before the engine is given work
+  await new Promise(r => setTimeout(r, 400));
+  while (voyPre.list.length && voyPrewarmOpen(voyPre.tag)) {
+   const it = voyPre.list.shift(), a = fleet.assets.get(it.k);if (a && (!it.stats || a.stats)) continue;
+   try { await fleetAsset(it.k, it.stats ? {} : LITE); } catch (e) { console.warn('prewarm', it.k, e && e.message); }
+  }
+ } finally { voyPre.busy = false; }
+}
+function voyPrewarmSetup() {
+ const s = voy.setup;if (!s || voy.w) return;const keys = [];
+ for (const t of voySortieTgs(s)) for (const sh of t.ships) for (const x of [sh, ...(sh.carried || [])]) { const d = voyShipDesign(x);if (d && !keys.includes(d.key)) keys.push(d.key); }
+ voyPrewarm('setup', keys.slice(0, 16).map(k => ({k})));
+}
 // The 3D models of every design in the battle are built in the background, so
 // that flying a ship later does not wait for them.
-async function voyWarm(keys) { for (const k of keys) { if (!voy.w) return; try { await fleetAsset(k); } catch (e) { console.warn('model not ready', k, e.message); } } }
+async function voyWarm(keys) { for (const k of keys) { if (!voy.w) return; try { await fleetAsset(k, LITE); } catch (e) { console.warn('model not ready', k, e.message); } } }
 function voyNote(text, sys) { const t = voy.w?.time || 0; if (voy.notes.some(n => n.text === text && t - n.t < 30)) return; voy.notes.unshift({t, text, sys}); voy.notes = voy.notes.slice(0, 6); voyRenderLog(); }
 
 // ---------- the clock and the main loop ----------
@@ -11542,8 +11589,8 @@ async function voyPilot(id) {
  loadShow(`${u.name}の3Dモデルと砲塔を準備中…`, '操艦準備');voy.loading = true;
  try {
   const keys = [...new Set([...R.systemUnits(w, u.sys), ...[...w.units.values()].filter(x => x.status === 'carried' && x.sys === u.sys)].map(x => x.design))];
-  for (const k of keys) await fleetAsset(k);
-  const a = await fleetAsset(u.design);if (!a?.design) throw new Error('設計を準備できません');
+  for (const k of keys) await fleetAsset(k, LITE);
+  const a = await fleetAsset(u.design, LITE);if (!a?.design) throw new Error('設計を準備できません');
   voy.pilot = {uid: id, sys: u.sys};$('#voyage').hidden = true;voyToast(false);
   await trialStart({design: a.design, rts: {w, sys: u.sys, uid: id}, returnTo: 'voyage'});
   voy.loading = false;
@@ -11860,7 +11907,7 @@ function voyCraftWant(mk, d) { if (fleet.assets.has(mk)) return; const q = voy.c
 function voyCraftLoad() {
  const q = voy.cfWant;if (!q?.size || voy.cfBusy) return;voy.cfLoad = voy.cfLoad || new Set();
  let best = null, bd = Infinity;for (const [mk, d] of q) { if (fleet.assets.has(mk) || voy.cfLoad.has(mk)) { q.delete(mk); continue; } if (d < bd) { bd = d; best = mk; } }
- if (!best) return;voy.cfLoad.add(best);q.delete(best);voy.cfBusy = true;fleetAsset(best).catch(e => console.warn('craft model', best, e)).finally(() => { voy.cfBusy = false; });
+ if (!best) return;voy.cfLoad.add(best);q.delete(best);voy.cfBusy = true;fleetAsset(best, LITE).catch(e => console.warn('craft model', best, e)).finally(() => { voy.cfBusy = false; });
 }
 // A craft that dropped out of its squadron: if the battle shot it down, the bolt that got it comes in from the
 // squadron or ship that did, and it blows up when the bolt arrives; one landed or flown out of sight just goes.
@@ -12086,8 +12133,8 @@ async function voySpectate(sys, followId) {
  $('#voyage').hidden = false;voyToast(true);voy.orders = false;voy.loading = true;
  loadShow('3D視点の準備中…（この星系の艦の3Dモデル）', `${w.sector.systems[sys]?.name || ''}星系`);
  try {
-  for (const k of [...new Set([...R.systemUnits(w, sys), ...[...w.units.values()].filter(x => x.status === 'carried' && x.sys === sys)].map(x => x.design))]) await fleetAsset(k);
-  const a = await fleetAsset(first.design);if (!a?.design) throw new Error('設計を準備できません');
+  for (const k of [...new Set([...R.systemUnits(w, sys), ...[...w.units.values()].filter(x => x.status === 'carried' && x.sys === sys)].map(x => x.design))]) await fleetAsset(k, LITE);
+  const a = await fleetAsset(first.design, LITE);if (!a?.design) throw new Error('設計を準備できません');
   voy.pilot = {uid: null, sys, spectate: true};$('#voyage').hidden = true;voyToast(false);
   await trialStart({design: a.design, rts: {w, sys, uid: first.id, spectate: true}, returnTo: 'voyage'});
   voy.loading = false;
@@ -12620,7 +12667,7 @@ async function voyPatrol(source) {
  try {
   if (source === 'current') { if (!ship) throw new Error('設計中の艦がありません'); await waitStats(); await trialStart(opt); }
   else if (source.startsWith('save:')) { await loadSaved(source.slice(5)); if (!ship) throw new Error('保存した設計を開けません'); await waitStats(); await trialStart(opt); }
-  else { const a = await fleetAsset(source); await trialStart({...opt, design: a.design}); }
+  else { const a = await fleetAsset(source, LITE); await trialStart({...opt, design: a.design}); }
   if (!trial.on) throw new Error('パトロールを開始できませんでした');
  } catch (e) { console.error(e); loadHide(); toast('艦を準備できません：' + esc(e.message || e)); showTitle('missions'); }
 }
@@ -12661,7 +12708,7 @@ function patrolReset() {
 // The ships' 3D models are prepared one at a time in the background (never while the guns are firing or
 // in a fight, when the engine is wanted for the line-of-fire checks).
 const patrolLoads = new Map();
-function patrolLoad(k) { if (fleet.assets.has(k)) return Promise.resolve(fleet.assets.get(k)); let q = patrolLoads.get(k); if (!q) { q = fleetAsset(k).catch(e => { console.warn('patrol: cannot prepare', k, e); return null; }).finally(() => patrolLoads.delete(k)); patrolLoads.set(k, q); } return q; }
+function patrolLoad(k) { if (fleet.assets.has(k)) return Promise.resolve(fleet.assets.get(k)); let q = patrolLoads.get(k); if (!q) { q = fleetAsset(k, LITE).catch(e => { console.warn('patrol: cannot prepare', k, e); return null; }).finally(() => patrolLoads.delete(k)); patrolLoads.set(k, q); } return q; }
 function patrolLoadPump(P) { if (P.loading || !P.queue.length || trial.fire || trial.fireKey || trial.battle && !trial.battle.result) return; const k = P.queue.shift(); if (fleet.assets.has(k)) return; P.loading = k; patrolLoad(k).then(a => { if (!a) P.failed.add(k); if (P.loading === k) P.loading = null; }); }
 function patrolStep(dt, tunnel) {
  const P = trial.pat;if (!P || !trial.asset) return;
@@ -13305,6 +13352,7 @@ function msPatrolPanel(st) {
  h += `<div class="ms-list">${tgs.map(t => { const r = msReadyShips(t).length; return `<button type="button" class="ms-pick" data-msn="tg:${t.id}" aria-pressed="${t === sel}" ${r ? '' : 'disabled'}><b>${esc(t.name)}</b><span>${msTgLine(st, t)}</span></button>`; }).join('') || '<p class="muted">任務群がありません。</p>'}</div>`;
  if (sel) {
   const ready = msReadyShips(sel), from = msAt(st, sel.id), hc = msHyper(ready.slice(0, 1 + ESCORT_SLOTS.length));
+  try { voyPrewarm('patrol', ready.slice(0, 1 + ESCORT_SLOTS.length).map((sh, i) => ({k: sh.src, stats: i === 0}))); } catch (e) { /* headless section tests */ }
   h += `<div class="ms-detail"><h4>${msSeg(`${esc(sel.name)} · ${esc(msSysName(from))}から`)}</h4><ul class="ms-ships">${sel.ships.map(sh => { const d = voyShipDesign(sh), i = ready.indexOf(sh); return `<li class="${sh.dock ? 'dock' : ''}"><b>${i === 0 ? '旗艦 ' : ''}${esc(sh.name)}</b><small>${msSeg(`${d ? esc(voyShort(d.name)) + ' · ' + fLen(d.info.len) : '準備中…'}${sh.dock ? ' · ' + esc(msDockText(st, sh)) : i > 0 ? ' · 僚艦' : ''}`)}</small></li>`; }).join('')}</ul>
   <p class="note">ハイパードライブ クラス ${num(hc, 1)}（任務群でいちばん遅い艦）。</p><div class="ms-go"><button type="button" class="btn primary" data-msn="patrol">${esc(msSysName(from))}からパトロールに出る</button></div>
   <p class="note">旗艦（任務群の先頭の出撃可能艦）を操艦し、僚艦は隊形を組んで続きます。星図でほかの星系へジャンプでき、ハイパースペースの航行時間は実際の時間です（「スキップ」で到着の数秒前まで進められます）。民間船が行き交い、ときおり敵艦が現れます。敵艦隊のいる星系では敵の哨戒艦がすぐに来ます。「帰還」でパトロールを終え、損傷した艦はドックに入ります。</p></div>`;
@@ -13343,8 +13391,8 @@ async function msPatrolStart() {
  loadShow('パトロールの準備中…（大型艦は時間がかかります）', 'パトロール');hideTitle();
  let a = null;
  try {
-  voy.saves = await Store.list().catch(() => voy.saves || []);a = await fleetAsset(flag.src);
-  for (const sh of escorts) { try { await fleetAsset(sh.src); } catch (e) { console.warn('mission: escort not ready', sh.src, e); } }
+  voy.saves = await Store.list().catch(() => voy.saves || []);a = await fleetAsset(flag.src, LITE);
+  for (const sh of escorts) { try { await fleetAsset(sh.src, LITE); } catch (e) { console.warn('mission: escort not ready', sh.src, e); } }
   escorts = escorts.filter(sh => fleet.assets.has(sh.src));
   trial.msnPatrol = {tg: t.id, flag: flag.id, escorts: escorts.map(sh => sh.id), faction: st.faction, foe: st.foe, era: st.era, hc: msHyper([flag, ...escorts]), from, sys: from, acc: 0, last: null, tun: 0, jumps: 0, units: {}, fates: {}, lastB: null, me: null, stats: null};
   await trialStart({returnTo: 'title', system: from, escorts: escorts.map(sh => sh.src), patrol: true, design: a.design});

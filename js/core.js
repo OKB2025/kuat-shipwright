@@ -20182,9 +20182,15 @@ function rayBVH(bvh, o, d, maxT) {
   const i = hit, n = norm(cross([T[i + 3] - T[i], T[i + 4] - T[i + 1], T[i + 5] - T[i + 2]], [T[i + 6] - T[i], T[i + 7] - T[i + 1], T[i + 8] - T[i + 2]]));
   return {t: best, n, p: add(o, mul(d, best))};
 }
+// v13 LOAD While every fitting is remounted (13 rays each; 2,200 fittings on an Executor) the hull and the structures
+// stay as they are: ship._rayLock remembers the hull mesh and each structure's triangles for the pass, instead of
+// re-deriving their cache keys (JSON of the hull, shape signatures) for every structure on every ray. They are the
+// triangles rayPart would test (packing, clip, sensor skin, room shape or structure mesh), so the hits are identical
+// (checked on whole example builds; Executor remount 83 s -> 12 s, ISD 0.7 -> 0.2 s).
+const lockedRayTris = (p) => p._packing ? p._packing.tris : p._clip ? p._clip.tris : p.k === 'sensor' && p.skinSize ? structTriangles(sensorShape(p)) : p.room ? structTriangles(roomShape(p)) : structTriangles(p);
 function rayEnv(ship, o, d, opts) {
   opts = opts || {};
-  const g = referenceHullGeometry(ship)||hullGeo(ship);
+  const lock = ship._rayLock, g = lock ? lock.env || (lock.env = referenceHullGeometry(ship) || hullGeo(ship)) : referenceHullGeometry(ship)||hullGeo(ship);
   if (!g.bvh) g.bvh = buildBVH(g.tris);
   let best = rayBVH(g.bvh, o, d, opts.maxT);
   if (best) best.kind = 'hull';
@@ -20192,7 +20198,9 @@ function rayEnv(ship, o, d, opts) {
     if (opts.structOnly && !isShapePart(pt)) continue;
     if (opts.skip && opts.skip === pt) continue;
     if (opts.skipSet && opts.skipSet.has(pt)) continue;
-    const h = rayPart(o, d, pt);
+    let h;
+    if (lock && isShapePart(pt) && !pt._surfaceAdapter) { let T = lock.tris.get(pt); if (!T) { T = lockedRayTris(pt); lock.tris.set(pt, T); } h = pt.form==='reference'?rayReferenceMesh(T,o,d):rayTris(T, o, d); }
+    else h = rayPart(o, d, pt);
     if (h && (!best || h.t < best.t) && (opts.maxT == null || h.t < opts.maxT)) { best = h; best.kind = 'part'; best.part = pt; }
   }
   return best;
@@ -20496,8 +20504,8 @@ function fitClash(ship, f) {
 function remount(ship) {
   if(ship._client)return;
   // Mounting never changes the hull, so one locked cache serves every fitting.
-  syncAviationSurfaces(ship);const old=ship._lockedCache;ship._lockedCache=cache(ship);
-  try{for (const f of ship.fits) mountFit(ship, f);}finally{if(old)ship._lockedCache=old;else delete ship._lockedCache;}
+  syncAviationSurfaces(ship);const old=ship._lockedCache;ship._lockedCache=cache(ship);ship._rayLock={env:null,tris:new Map()};
+  try{for (const f of ship.fits) mountFit(ship, f);}finally{if(old)ship._lockedCache=old;else delete ship._lockedCache;delete ship._rayLock;}
 }
 function removeItem(ship, listName, id, mirror) {
   const list = ship[listName], it = list.find(q => q.id === id); if (!it) return;
@@ -21211,9 +21219,25 @@ const STRUCTURAL_MATERIAL_CACHE=new WeakMap();
 const STRUCTURAL_VOLUME_CACHE=new WeakMap();
 function structuralMaterialOrder(a,b){const density=p=>p.plate?K.armorDens:K.structDens*(p.light?.25:1);return density(b)-density(a)||a.id-b.id;}
 function structuralMeshVolume(T){if(!T.length)return 0;const cached=STRUCTURAL_VOLUME_CACHE.get(T);if(cached!==undefined)return cached;const b=solidMeshBounds(T),o=[0,1,2].map(i=>(b[i]+b[i+3])/2);let value=0;for(let i=0;i<T.length;i+=9){const a=sub(Array.from(T.slice(i,i+3)),o),b=sub(Array.from(T.slice(i+3,i+6)),o),c=sub(Array.from(T.slice(i+6,i+9)),o);value+=dot(a,cross(b,c));}const result=Math.abs(value/6);STRUCTURAL_VOLUME_CACHE.set(T,result);return result;}
+// v13 LOAD A clip asks for the coplanar section of the same accumulated mesh once per plane of the other solid,
+// and each ask walked every triangle (planes x triangles: most of a Gozanti's 100 s of figures). The triangles are
+// binned once per mesh by their unit normal (cells of 1e-3): a triangle can pass the test below only if its normal
+// is within 4.5e-4 of n per component, i.e. in n's cell or a neighbour, so only those 27 cells are walked, in the
+// original order and with the unchanged test, giving the identical section.
+const COPLANAR_BINS=new WeakMap(),COPLANAR_CELL=1e3;
+function coplanarBins(T){
+ let bins=COPLANAR_BINS.get(T);if(bins)return bins;bins=new Map();
+ for(let i=0;i<T.length;i+=9){const ax=T[i+3]-T[i],ay=T[i+4]-T[i+1],az=T[i+5]-T[i+2],bx=T[i+6]-T[i],by=T[i+7]-T[i+1],bz=T[i+8]-T[i+2],raw=[ay*bz-az*by,az*bx-ax*bz,ax*by-ay*bx];if(len(raw)<1e-12)continue;const m=norm(raw),key=Math.floor(m[0]*COPLANAR_CELL)+','+Math.floor(m[1]*COPLANAR_CELL)+','+Math.floor(m[2]*COPLANAR_CELL);let list=bins.get(key);if(!list)bins.set(key,list=[]);list.push(i);}
+ COPLANAR_BINS.set(T,bins);return bins;
+}
+function coplanarCandidates(T,n){
+ const bins=coplanarBins(T),c=n.map(x=>Math.floor(x*COPLANAR_CELL)),out=[];
+ for(let x=-1;x<=1;x++)for(let y=-1;y<=1;y++)for(let z=-1;z<=1;z++){const list=bins.get((c[0]+x)+','+(c[1]+y)+','+(c[2]+z));if(list)for(const i of list)out.push(i);}
+ return out.sort((a,b)=>a-b);
+}
 function structuralCoplanarSection(T,n,d,u,v,origin,eps){
  const edges=new Map(),pointKey=p=>p.map(x=>Math.round(x/eps)).join(','),n0=n[0],n1=n[1],n2=n[2],tolerance=eps*4;
- for(let i=0;i<T.length;i+=9){
+ for(const i of coplanarCandidates(T,n)){
   if(Math.abs(n0*T[i]+n1*T[i+1]+n2*T[i+2]-d)>tolerance||Math.abs(n0*T[i+3]+n1*T[i+4]+n2*T[i+5]-d)>tolerance||Math.abs(n0*T[i+6]+n1*T[i+7]+n2*T[i+8]-d)>tolerance)continue;
   const ax=T[i+3]-T[i],ay=T[i+4]-T[i+1],az=T[i+5]-T[i+2],bx=T[i+6]-T[i],by=T[i+7]-T[i+1],bz=T[i+8]-T[i+2],raw=[ay*bz-az*by,az*bx-ax*bz,ax*by-ay*bx];
   if(len(raw)<1e-12||dot(norm(raw),n)<1-1e-7)continue;
@@ -21303,10 +21327,11 @@ function engineSkinMesh(p){
   const m={key,T,b,u,t0,t1,rad,pos,uv,idx,skinAsset:appearance.skinAsset};SKIN_MESH.set(p,m);return m;
 }
 const REFERENCE_RAY_BVHS=new WeakMap();
+function rayReferenceMesh(T,o,d){let tree=REFERENCE_RAY_BVHS.get(T);if(!tree){tree=buildBVH(T);REFERENCE_RAY_BVHS.set(T,tree);}return rayBVH(tree,o,d);}
 function v3RayPart(o,d,pt,skipSkin=false){
   if(isShapePart(pt)){
     const T=structTriangles(pt);
-    if(pt.form==='reference'){let tree=REFERENCE_RAY_BVHS.get(T);if(!tree){tree=buildBVH(T);REFERENCE_RAY_BVHS.set(T,tree);}return rayBVH(tree,o,d);}
+    if(pt.form==='reference')return rayReferenceMesh(T,o,d);
     return rayTris(T,o,d);
   }
   if(pt.k==='engine'&&!skipSkin){const m=engineSkinMesh(pt);if(m){const inside=o.every((v,i)=>v>=m.b[i]&&v<=m.b[i+3]),cyl=v3RayPart(o,d,pt,true);if(!inside&&!rayAABB(o,d,m.b))return cyl;const h=rayTris(m.T,o,d);return h&&(!cyl||h.t<cyl.t)?h:cyl;}}
