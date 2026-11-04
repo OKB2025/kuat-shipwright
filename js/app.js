@@ -10181,7 +10181,9 @@ async function voyStartBattle() {
  if(voyProfilesStale(required)&&!await voyRequireProfiles(required)||voy.setup!==s)return;
  const designs = [...new Set(voy.designs.values())].map(d => ({key: d.key, name: d.name, p: d.p, info: d.info}));
  voy.w = R.scenarioWorld(sc, designs, voyShipDesign, {formations: voyFormStore()});voy.w.onHit = voyOnHit;
- const keys = [...new Set([...voy.w.units.values()].map(u => u.design).concat(voyConvoyKeys(voy.w)))];
+ // v26 with the supply ships and escorts the sides' convoys may bring in (their models are warmed with the fleet's)
+ const kit = sd => R.CONVOY_KIT?.[sd.faction] || R.CONVOY_KIT?.any, convoyKeys = (voy.w.sides || []).flatMap(sd => kit(sd) ? [...kit(sd).ships, ...kit(sd).escorts, kit(sd).big].filter(x => x && voy.w.designs?.has(x)) : []);
+ const keys = [...new Set([...voy.w.units.values()].map(u => u.design).concat(convoyKeys))];
  voy.speed = 4;voy.seenEv = 0;voy.notes = [];voy.sel = {group: null, ctg: null, sys: null, dest: null, units: [], wing: null, foe: null};voy.cmd = null;voy.ops.fitted = false;voy.tac = {sys: null, c: [0, 0], mpp: 300, fitted: false};voy.result = null;voy.resultDismissed = false;
  const first = [...voy.w.ctgs.values()].find(c => c.side === 0);if (first) voy.sel.ctg = first.id;
  voyShow('ops');voyNote(`作戦開始：${voy.w.sector.name}。敵艦隊（${R.FACTIONS[s.foe].name}）の位置は不明です。任務群を航路に沿ってジャンプさせて探してください。`);
@@ -10189,8 +10191,6 @@ async function voyStartBattle() {
  // The battle opens in 3D on our lead task group; the maps are under 「命令」.
  if (voyCan3D()) voyEnter3D().then(ok => { if (ok) toast('「命令」で作戦図・戦術図を開いて命令します'); voyWarm(keys); });else voyWarm(keys);
 }
-// v26 The supply ships and escorts the sides' convoys may bring in (their models are warmed with the fleet's).
-const voyConvoyKeys = w => w.sides.flatMap(sd => { const k = R.CONVOY_KIT[sd.faction] || R.CONVOY_KIT.any; return [...k.ships, ...k.escorts, k.big].filter(x => x && w.designs.has(x)); });
 // The 3D models of every design in the battle are built in the background, so
 // that flying a ship later does not wait for them.
 async function voyWarm(keys) { for (const k of keys) { if (!voy.w) return; try { await fleetAsset(k); } catch (e) { console.warn('model not ready', k, e.message); } } }
