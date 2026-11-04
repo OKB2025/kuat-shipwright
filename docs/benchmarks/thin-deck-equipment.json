@@ -1,0 +1,76 @@
+{
+  "baselineGfxSHA256": "0d3af1930118b39bf147211be3700cc5a8f4bf76a9e138a7a091a24f8deb5eb2",
+  "finalGfxSHA256": "49307fb58b3362c92d4d0c354d4858e836ce354965131eea1cb1df306be00ee4",
+  "byteAccounting": {
+    "vertexBytes": 27,
+    "indexBytes": 4,
+    "scope": "Used portions of emitted typed arrays, excluding spare capacity, JS objects, textures, and renderer bookkeeping."
+  },
+  "corrections": [
+    "Corrected packed geometry byte accounting: Float32 positions (12), Int8 normals (3), Float32 UVs (8), Uint8 colors (4) = 27 bytes per vertex, plus Uint32 indices (12 bytes per triangle). Earlier counts incorrectly treated normals as Float32 (36 bytes per vertex). Recalculated from preserved mesh counts; no geometry or timing rerun."
+  ],
+  "fixtures": [
+    {
+      "kind": "box",
+      "sameFixture": true,
+      "equipmentFaces": 2,
+      "nativeParts": 1,
+      "surfaceDevicesTrianglesBefore": 8215,
+      "surfaceDevicesTrianglesAfter": 5080,
+      "surfaceDevicesReductionPct": 38.16189896530736,
+      "meshBytesBefore": 718635,
+      "meshBytesAfter": 428646,
+      "meshBytesReductionPct": 40.352752092508716,
+      "functionalValuesUnchanged": true,
+      "savedSourceUnchanged": true
+    },
+    {
+      "kind": "wedge",
+      "sameFixture": true,
+      "equipmentFaces": 1,
+      "nativeParts": 1,
+      "surfaceDevicesTrianglesBefore": 2849,
+      "surfaceDevicesTrianglesAfter": 1885,
+      "surfaceDevicesReductionPct": 33.836433836433834,
+      "meshBytesBefore": 244416,
+      "meshBytesAfter": 154926,
+      "meshBytesReductionPct": 36.61380597014925,
+      "functionalValuesUnchanged": true,
+      "savedSourceUnchanged": true
+    },
+    {
+      "kind": "stacked",
+      "sameFixture": true,
+      "equipmentFaces": 17,
+      "nativeParts": 6,
+      "surfaceDevicesTrianglesBefore": 30037,
+      "surfaceDevicesTrianglesAfter": 25581,
+      "surfaceDevicesReductionPct": 14.835036787961508,
+      "meshBytesBefore": 2913702,
+      "meshBytesAfter": 2503236,
+      "meshBytesReductionPct": 14.087439278278968,
+      "functionalValuesUnchanged": true,
+      "savedSourceUnchanged": true
+    },
+    {
+      "kind": "terraces",
+      "sameFixture": true,
+      "equipmentFaces": 17,
+      "nativeParts": 6,
+      "surfaceDevicesTrianglesBefore": 35060,
+      "surfaceDevicesTrianglesAfter": 23486,
+      "surfaceDevicesReductionPct": 33.011979463776385,
+      "meshBytesBefore": 3213522,
+      "meshBytesAfter": 2141946,
+      "meshBytesReductionPct": 33.34584297229022,
+      "functionalValuesUnchanged": true,
+      "savedSourceUnchanged": true
+    }
+  ],
+  "notes": [
+    "Timings were recorded while other tests ran; do not claim measured loading speedup or regression.",
+    "Browser/WebGL validation could not run: local Chromium socket restrictions, cloud browser local file policy and no reachable preview server.",
+    "Offline previews rasterize actual emitted triangles, without the actual material shader, textures or shadows. They are not application screenshots.",
+    "Stacked is a narrow/tall overlapping geometry stress fixture. Terraces is the properly proportioned broad horizontal deck fixture."
+  ]
+}
