@@ -38,6 +38,10 @@ changes below reproduce the former arithmetic exactly; the digests match bit for
 5. **Builtins as locals** at the top of Core, Galaxy, Rts and Ground. In Node's vm contexts (the tests and the
    data scripts) every free global lookup goes through the context's interceptor, about ten times slower than the
    arithmetic around it; in a page or worker these are the same objects.
+6. **After an edit** (exact reuse): `structuralMaterial` keeps the accumulated boundary of the last ship at some
+   steps (32 MB at most, provisional) and resumes from the last stored step before the first changed structure;
+   `surfacePatches` keeps each patch's exposed triangles under the identities of its host mesh, occluders and
+   earlier coincident structures, so only the patches an edited part can reach are clipped again.
 
 ## Timings
 
@@ -63,6 +67,7 @@ of the Gozanti the figures take about half the time of a fresh computation (vm 2
 
 ## Remaining
 
-The first join pass (the accumulated boundary against a small solid) and the simplification of the planes that do
-need full sections dominate what is left. A content-keyed cache across ship objects and the reuse of the union
-prefix after an edit of one structure (both exact) are the next steps if editing large designs needs it.
+The first join pass (the accumulated boundary against a small solid), the planes that do need their full section
+and allocation (GC is 15–20 % of the time) dominate what is left; the ISD's designer open is bound by geometry, not
+figures. `tests/example-figures-regression.cjs` builds every example and takes about 12 minutes in the vm
+(KS_FIGURES_KEYS=key,… runs some).
