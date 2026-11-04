@@ -26,7 +26,7 @@ section('const tv=','function trialProfile(');
 section('const TRIAL_PILOT_CYCLE=','// opts.design');
 section('const trialBarrel=','function trialAim(');
 section('function trialCraftSystemsSpec()','function trialReset()');
-section('function trialGunnery(dt)','// Missiles leave');
+section('function trialShotGeometry(','// Missiles leave');
 const near=(a,b,eps=1e-8)=>assert.ok(Math.abs(a-b)<eps,`${a} != ${b}`),vector=(a,b)=>a.forEach((x,i)=>near(x,b[i]));
 
 test('fixed pilot guns fire down the actual barrel even with the reticle to the side or behind',()=>{
