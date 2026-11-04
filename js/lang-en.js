@@ -9157,7 +9157,20 @@ Object.assign(root.KS_EN.messages,{
  "小型両用TL": "Small Dual-Purpose TL",
  "小型両用砲の威力・連射間隔はゲーム用設定": "Dual-purpose gun energy and firing interval are game settings",
  "2門×2.5 TT、0.2秒間隔の小型両用砲。艦載機・ミサイルの迎撃と対艦射撃を兼ねる。": "A small twin dual-purpose gun firing 2.5 TT per barrel every 0.2 seconds. Engages ships and intercepts craft and missiles.",
- "砲塔の標準寸法はDBY-827（140 TT）とインペリアルI級8連装（350 TT）のモデルを基準に、一斉射威力と門数に応じて補正します。同じ門数では威力8倍で寸法2倍です。小型両用砲は2門×2.5 TTで、迎撃と対艦射撃を兼ねます。": "Standard turret dimensions use the DBY-827 (140 TT) and Imperial I eight-barrel turret (350 TT) as references, scaled by salvo energy and barrel count. With the same barrel count, eight times the energy doubles each dimension. The small dual-purpose gun fires 2 x 2.5 TT and serves both interception and anti-ship roles."
+ "砲塔の標準寸法はDBY-827（140 TT）と8連装ターボレーザー（320 TT）のモデルを基準に、一斉射威力と門数に応じて補正します。同じ門数では威力8倍で寸法2倍です。小型両用砲は2門×2.5 TTで、迎撃と対艦射撃を兼ねます。": "Standard turret dimensions use the DBY-827 (140 TT) and octuple turbolaser (320 TT) models as references, scaled by salvo energy and barrel count. With the same barrel count, eight times the energy doubles each dimension. The small dual-purpose gun fires 2 x 2.5 TT and serves both interception and anti-ship roles."
 });
 // </weapon-output-sizing-catalog>
+// <unified-turbolaser-catalog>
+Object.assign(root.KS_EN.messages,{
+ "2連装重ターボレーザー": "Twin Heavy Turbolaser",
+ "重TL連装350TT": "Twin Heavy TL 350 TT",
+ "8連装ターボレーザー": "Octuple Turbolaser",
+ "8連装TL": "Octuple TL",
+ "2連装40TTターボレーザー側面砲": "Twin 40 TT Broadside Turbolaser",
+ "2門×175 TT。合計350 TTの連装重ターボレーザー。": "2 barrels x 175 TT. Twin heavy turbolaser with a 350 TT salvo.",
+ "8門×40 TT。合計320 TTの八連装ターボレーザー。連装重砲と共通の砲室・旋回台へ8本の砲身を備える。上面・下面・トレンチ壁へ取り付けられます。": "8 barrels x 40 TT. Octuple turbolaser with a 320 TT salvo. Eight barrels share the twin heavy turret's gunhouse and traversing platform. Mounts on upper/lower surfaces and trench walls.",
+ "2連装重ターボレーザーは2門×175 TTで合計350 TT、8連装ターボレーザーは8門×40 TTで合計320 TTです。DBY-827は2門×70 TTを維持しています。": "The twin heavy turbolaser fires 2 barrels x 175 TT for a 350 TT salvo; the octuple turbolaser fires 8 barrels x 40 TT for 320 TT. The DBY-827 retains 2 barrels x 70 TT.",
+ "「配置 → 武装」で<b>2連装重ターボレーザー</b>を選んであります。<b>甲板の左右の縁</b>を艦尾から艦首へ2〜3か所タップしてください。左右対称なので1回で両舷に付きます。": "A <b>Twin Heavy Turbolaser</b> is selected under Place → Weapons. Tap two or three locations along the <b>deck edges</b>, working from stern to bow. Left/Right Symmetry installs guns on both sides with each tap."
+});
+// </unified-turbolaser-catalog>
 })(typeof window==="undefined"?globalThis:window);

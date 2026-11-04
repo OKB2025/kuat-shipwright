@@ -32,11 +32,11 @@ test('every rotatable procedural and reference turret exposes the same precise p
  for(const key of keys){run(`st.fit=${JSON.stringify(key)}`);const fresh=run('weaponYawControls()');assert.match(fresh,/data-sl="newGunYaw"/);assert.match(fresh,/step="any"/);assert.match(fresh,/min="-180" max="180"/);
   run(`ship.fits=[{id:1,k:${JSON.stringify(key)},p:[250,60,60],a:2,ped:0,base:0,assetYaw:32.125}];st.sel={list:'fits',id:1}`);const selected=run('baseFitEditor()');assert.match(selected,/data-sl="gunYaw"/);assert.match(selected,/value="32\.125"/);
  }
- for(const key of ['casemate40','casemateMid','claser','ctorp','msl','cpylon','bridge'])if(C.FITS[key]){run(`st.fit=${JSON.stringify(key)}`);assert.equal(run('weaponYawControls()'),'');assert.equal(run(`weaponYawControls({k:${JSON.stringify(key)}})`),'');}
+ for(const key of ['casemateMid','claser','ctorp','msl','cpylon','bridge'])if(C.FITS[key]){run(`st.fit=${JSON.stringify(key)}`);assert.equal(run('weaponYawControls()'),'');assert.equal(run(`weaponYawControls({k:${JSON.stringify(key)}})`),'');}
 });
 
 test('actual placement keeps the requested yaw for procedural, craft and reference turret families',()=>{
- const run=setup();for(const key of ['htl','ion','pd','triple40','quad200','xx9','nk7','cturret','oct40','refVen','refISD','refIon','refSide','refISDh','refIonH']){
+ const run=setup();for(const key of ['htl','stl','ion','pd','triple40','quad200','xx9','nk7','cturret','oct40','refVen','refSide']){
   run(`ship.fits=[];st.fit=${JSON.stringify(key)};input('newGunYaw',-42.125);install()`);assert.equal(run('selItem().assetYaw'),-42.125,key);assert.equal(run('selItem().float'),false,key);
   const p=plain(run('C.deserialize(C.serialize(ship)).fits[0]'));assert.equal(p.assetYaw,-42.125,key);assert.equal(p.k,key);
  }
