@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "date": "2026-11-04T09:15:58.507Z",
+  "machine": {
+    "platform": "linux",
+    "architecture": "x64",
+    "node": "v24.22.1",
+    "cpuModel": "AMD EPYC 9V74 80-Core Processor",
+    "logicalCpus": 5
+  },
+  "sourceSha256": {
+    "data/reference.js": "c46d01c28ed08d965c773a79137bc726512010de095f44272b6d5711657e8310",
+    "data/imperial2.js": "585e8fddf3a65ffa54bc24b870bbfcf2bc55ae816dbfb5db1d6473e078c2f6f9",
+    "data/fleet.js": "cf094bec6abb2ff947740ba29884d6e60067512811c51723242f31e8a2e8b157",
+    "js/core.js": "6ba975f8d81c89ffe3dcc02bde4d434d14a3bd7470745b243068e9ccd60ea67f"
+  },
+  "configuration": {
+    "logicalShips": 110,
+    "uniqueDesigns": 1,
+    "enginesPerShip": 1,
+    "ticks": 20,
+    "stepSeconds": 0.25,
+    "simulatedSeconds": 5,
+    "cpuExclusive": false
+  },
+  "profileBuildMs": 1661.3752570000001,
+  "powerAndHeat": {
+    "samplesMs": [
+      26.6508630000003,
+      13.91470900000013,
+      13.897934000000078,
+      9.107106999999814,
+      8.721251999999822,
+      6.804058000000168,
+      5.860888000000159,
+      8.695988999999827,
+      10.593988999999965,
+      6.988816999999926,
+      5.813877000000048,
+      8.897959000000355,
+      10.49581900000021,
+      8.748983999999837,
+      8.46853800000008,
+      11.020526000000245,
+      10.209936000000198,
+      7.979878999999983,
+      6.39400599999999,
+      5.953458999999839
+    ],
+    "totalMs": 195.21858900000097,
+    "medianMs": 8.721251999999822,
+    "p95Ms": 13.91470900000013
+  },
+  "powerAndPropulsion": {
+    "totalMs": 172.47495700000036,
+    "medianMs": 7.346519000000171,
+    "p95Ms": 13.66461100000015
+  },
+  "heatNetwork": {
+    "totalMs": 22.52244200000132,
+    "medianMs": 0.6876509999997324,
+    "p95Ms": 1.8471190000000206
+  },
+  "purePropulsionResolution": {
+    "samplesMs": [
+      0.47383799999988696,
+      0.43441800000027797,
+      0.4462659999999232,
+      0.5233929999999418,
+      0.4762110000001485,
+      0.4698520000001736,
+      0.40245999999979176,
+      0.31538700000010067,
+      0.3324539999998706,
+      0.34954000000016094,
+      0.3676070000001346,
+      0.4249840000002223,
+      0.3144360000001143,
+      0.40198899999995774,
+      0.3604459999996834,
+      0.3186319999999796,
+      0.3573310000001584,
+      0.31757100000004357,
+      0.42676699999992707,
+      0.40536400000019057
+    ],
+    "totalMs": 7.9189460000006875,
+    "medianMs": 0.40198899999995774,
+    "p95Ms": 0.4762110000001485
+  },
+  "activity": {
+    "propulsionInputJ": 8.459680697586577e+22,
+    "propulsionWasteHeatJ": 4.2298403487931894e+21
+  },
+  "runtimeGeometryCalls": {
+    "enginePaths": 0,
+    "surfacePatches": 0,
+    "resolveEngineSpec": 0,
+    "machineryGeometry": 0,
+    "fleetModules": 0
+  },
+  "scope": {
+    "measured": [
+      "shared fleet power allocation",
+      "actual-input propulsion resolution",
+      "local heat accumulation and thermal-network stepping",
+      "110 independent runtime states sharing one compiled ship profile"
+    ],
+    "notMeasured": [
+      "GPU/browser frame rate",
+      "collisions, weapons targeting and damage",
+      "110 distinct design/profile compilations",
+      "long-running memory growth"
+    ]
+  }
+}

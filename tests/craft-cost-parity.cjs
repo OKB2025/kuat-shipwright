@@ -15,7 +15,9 @@ const sum = object => Object.values(object).reduce((a, b) => a+b, 0);
 test('equipment installation fees remain when a unit is small and apply to every design origin', () => {
   for (const key of ['gen', 'engine', 'hyper', 'lifeSupport', 'navComputer', 'maneuver']) {
     const unit = {k: key, d: 1};
-    assert.equal(C.partBuildCost(unit, .01), C.COST_INSTALL[key]+.01*C.PARTS[key].cost);
+    const machinery = key === 'engine' ? C.resolveEngineSpec(unit).cost : 0;
+    assert.ok(Math.abs(C.partBuildCost(unit, .01)-(C.COST_INSTALL[key]+.01*C.PARTS[key].cost+machinery))<1e-8);
+    if(key === 'engine')assert.ok(machinery>0,'rated machinery is charged in addition to its retained installation fee');
     assert.equal(C.partBuildCost({...unit, reference: 'craft_xwing'}, .01), C.partBuildCost(unit, .01));
     assert.equal(C.partBuildCost(unit, 0), 0);
     assert.ok(C.partBuildCost(unit, 1) > C.partBuildCost(unit, .01));

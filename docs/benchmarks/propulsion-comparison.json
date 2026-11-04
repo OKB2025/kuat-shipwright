@@ -1,0 +1,5028 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "date": "2026-11-04T09:01:42.902Z",
+  "baselineRevision": "dd9ef12",
+  "sourceSha256": {
+    "data/reference.js": "c46d01c28ed08d965c773a79137bc726512010de095f44272b6d5711657e8310",
+    "data/imperial2.js": "585e8fddf3a65ffa54bc24b870bbfcf2bc55ae816dbfb5db1d6473e078c2f6f9",
+    "data/fleet.js": "cf094bec6abb2ff947740ba29884d6e60067512811c51723242f31e8a2e8b157",
+    "js/core.js": "eedade5ae1cb2d4846ccb7fa41c8e0187417fb092fffc3d2255453b5e8eab533"
+  },
+  "coefficients": {
+    "PROPULSION": {
+      "version": 1,
+      "standardWattsPerNewton": 2000000000,
+      "wasteFraction": 0.05,
+      "referenceInputDensity": 340000000000000000,
+      "referencePower": 1000000000000000000,
+      "referenceVolume": 1,
+      "ratingCost": 2,
+      "densityCost": 20,
+      "maxInputW": 1e+32
+    },
+    "DRIVE_PROFILES": {
+      "standard": {
+        "name": "標準入力機関",
+        "wattsPerNewton": 2000000000
+      },
+      "legacy-internal": {
+        "name": "移行済み内蔵タービン",
+        "wattsPerNewton": 2330706322.054385,
+        "legacy": true
+      },
+      "legacy-exposed": {
+        "name": "移行済み露出タービン",
+        "wattsPerNewton": 5414612084.07102,
+        "legacy": true
+      }
+    },
+    "MACHINERY_GRADES": {
+      "standard": {
+        "name": "標準機関",
+        "allowedInputDensityWPerM3": 340000000000000000,
+        "costMultiplier": 1
+      },
+      "dense": {
+        "name": "高密度機関",
+        "allowedInputDensityWPerM3": 3400000000000000000,
+        "costMultiplier": 1.8
+      },
+      "advanced": {
+        "name": "超高密度機関",
+        "allowedInputDensityWPerM3": 34000000000000000000,
+        "costMultiplier": 3.5
+      },
+      "legacy-refit": {
+        "name": "旧式機関・改修要確認",
+        "allowedInputDensityWPerM3": 3.4e+24,
+        "costMultiplier": 3.5,
+        "legacy": true
+      }
+    },
+    "reactorWasteFraction": 0.04,
+    "engineWasteFraction": 0.05,
+    "battleAccelerationScale": 0.002
+  },
+  "cases": [
+    {
+      "kind": "generic",
+      "key": null,
+      "before": {
+        "massTonnes": 653285.6219082517,
+        "cost": 2361178,
+        "powerW": 7.403639574372988e+22,
+        "engineDemandW": 153812376319756270000,
+        "ratedThrustN": 76906188159.87813,
+        "availableThrustN": 76906188159.87813,
+        "freeAccelerationMS2": 117.72215028280378,
+        "designAccelerationMS2": 25.475192402954118,
+        "battleAccelerationMS2": 0.05095038480590823,
+        "maxSpeedMS": 74.71187116666962,
+        "mglt": 3.7,
+        "coolingCapacityW": 2.5511147185997974e+23,
+        "engineRows": [
+          {
+            "id": 2,
+            "shape": {
+              "id": 2,
+              "k": "engine",
+              "c": [
+                -4,
+                40,
+                0
+              ],
+              "d": 12,
+              "nozzleLength": 4,
+              "bodyLength": 24,
+              "bodyRadius": 0.46,
+              "reactor": 1,
+              "dir": [
+                -1,
+                0,
+                0
+              ]
+            },
+            "nozzleVolumeM3": 452.3893421169302,
+            "ratedInputW": 153812376319756270000,
+            "ratedThrustN": 76906188159.87813,
+            "wattsPerNewton": 2000000000.0000002,
+            "partCost": 9309.55736846772
+          }
+        ],
+        "runtime": [
+          {
+            "mode": "cruise",
+            "actualInputW": 692155693438903100000,
+            "actualThrustN": null,
+            "legacyEngF": 1,
+            "legacyThrustMultiplier": 1,
+            "wasteHeatW": 34607784671945160000,
+            "note": "Old runtime did not resolve N from actual W."
+          },
+          {
+            "mode": "balanced",
+            "actualInputW": 692155693438903100000,
+            "actualThrustN": null,
+            "legacyEngF": 1,
+            "legacyThrustMultiplier": 1,
+            "wasteHeatW": 34607784671945160000,
+            "note": "Old runtime did not resolve N from actual W."
+          },
+          {
+            "mode": "weapons",
+            "actualInputW": 692155693438903100000,
+            "actualThrustN": null,
+            "legacyEngF": 1,
+            "legacyThrustMultiplier": 1,
+            "wasteHeatW": 34607784671945160000,
+            "note": "Old runtime did not resolve N from actual W."
+          },
+          {
+            "mode": "shields",
+            "actualInputW": 692155693438903100000,
+            "actualThrustN": null,
+            "legacyEngF": 1,
+            "legacyThrustMultiplier": 1,
+            "wasteHeatW": 34607784671945160000,
+            "note": "Old runtime did not resolve N from actual W."
+          }
+        ]
+      },
+      "after": {
+        "planning": {
+          "ratedAccelerationMS2": 117.7221502828038,
+          "acceptanceLimitedAccelerationMS2": 25.47519240295412,
+          "maximumAccelerationMS2": 25.47519240295412,
+          "structuralLimitMS2": 135797.2847989562,
+          "inertialSupportTonnes": 141371.6694115407
+        },
+        "massTonnes": 653285.6219082517,
+        "cost": 2361485,
+        "powerW": 7.403639574372988e+22,
+        "engineDemandW": 153812376319756270000,
+        "ratedThrustN": 76906188159.87814,
+        "availableThrustN": 26917165855.957344,
+        "freeAccelerationMS2": 41.20275259898132,
+        "designAccelerationMS2": 8.91631734103394,
+        "battleAccelerationMS2": 0.050950384805908244,
+        "maxSpeedMS": 76.752719759333,
+        "mglt": 3.8,
+        "coolingCapacityW": 2.5506302096143902e+23,
+        "engineRows": [
+          {
+            "id": 2,
+            "shape": {
+              "id": 2,
+              "k": "engine",
+              "c": [
+                -4,
+                40,
+                0
+              ],
+              "d": 12,
+              "nozzleLength": 4,
+              "bodyLength": 24,
+              "bodyRadius": 0.46,
+              "reactor": 1,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "propulsionMigration": {
+                "version": 1,
+                "previous": {
+                  "id": 2,
+                  "k": "engine",
+                  "c": [
+                    -4,
+                    40,
+                    0
+                  ],
+                  "d": 12,
+                  "nozzleLength": 4,
+                  "bodyLength": 24,
+                  "bodyRadius": 0.46,
+                  "reactor": 1,
+                  "dir": [
+                    -1,
+                    0,
+                    0
+                  ]
+                },
+                "baselineThrustN": 76906188159.87813,
+                "baselineInputW": 153812376319756270000
+              },
+              "propulsionModelVersion": 1,
+              "ratedInputW": 153812376319756270000,
+              "driveProfileId": "standard",
+              "machineryLengthM": 24,
+              "machineryRadiusM": 5.5200000000000005,
+              "machineryOffsetM": 2,
+              "machineryFeedRadiusM": 3.4799999999999995,
+              "machineryGradeId": "standard",
+              "legacyCoolingInputW": 153812376319756270000
+            },
+            "nozzleVolumeM3": 452.3893421169302,
+            "version": 1,
+            "machineryId": 2,
+            "ratedInputW": 153812376319756270000,
+            "driveProfileId": "standard",
+            "machineryGradeId": "standard",
+            "wattsPerNewton": 2000000000,
+            "ratedThrustN": 76906188159.87814,
+            "effectiveMachineryVolumeM3": 1829.0478937366024,
+            "machineryVolumeM3": 1829.0478937366024,
+            "machineryLengthM": 24,
+            "machineryRadiusM": 5.5200000000000005,
+            "machineryDiameterM": 11.040000000000001,
+            "machineryOffsetM": 2,
+            "maxInputW": 621876283870444800000,
+            "maxRatedInputW": 621876283870444800000,
+            "inputDensityWPerM3": 84094231127829890,
+            "allowedInputDensityWPerM3": 340000000000000000,
+            "cost": 307.62475263951256,
+            "powerNode": "p2",
+            "heatNode": "p2",
+            "reactorId": 1,
+            "domain": "p1",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 153812376319756270000,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "partCost": 9617.182121107233
+          }
+        ],
+        "runtime": [
+          {
+            "mode": "cruise",
+            "actualInputW": 153812376319756270000,
+            "actualThrustN": 76906188159.87814,
+            "wasteHeatW": 7690618815987814000,
+            "outputRatio": 1,
+            "physicalAccelerationMS2": 25.475192402954125,
+            "battleAccelerationMS2": 0.05095038480590825,
+            "power": {
+              "P": 7.403639574372988e+22,
+              "fixed": 153989972839506300000,
+              "coolingReserved": 0,
+              "cooling": 0,
+              "drawNonCooling": 307802349159262600000,
+              "draw": 307802349159262600000,
+              "eng": 153812376319756270000,
+              "sh": 0,
+              "wpn": 0,
+              "wantEng": 153812376319756270000,
+              "wantSh": 0,
+              "wantWpn": 0,
+              "domains": [
+                {
+                  "id": "main",
+                  "availableW": 5.922911659498391e+22,
+                  "drawW": 307802349159269300000
+                }
+              ],
+              "weaponInputs": {},
+              "weaponInputRemainingJ": {}
+            }
+          },
+          {
+            "mode": "balanced",
+            "actualInputW": 153812376319756270000,
+            "actualThrustN": 76906188159.87814,
+            "wasteHeatW": 7690618815987814000,
+            "outputRatio": 1,
+            "physicalAccelerationMS2": 25.475192402954125,
+            "battleAccelerationMS2": 0.05095038480590825,
+            "power": {
+              "P": 7.403639574372988e+22,
+              "fixed": 153989972839506300000,
+              "coolingReserved": 0,
+              "cooling": 0,
+              "drawNonCooling": 307802349159262600000,
+              "draw": 307802349159262600000,
+              "eng": 153812376319756270000,
+              "sh": 0,
+              "wpn": 0,
+              "wantEng": 153812376319756270000,
+              "wantSh": 0,
+              "wantWpn": 0,
+              "domains": [
+                {
+                  "id": "main",
+                  "availableW": 7.403639574372988e+22,
+                  "drawW": 307802349159269300000
+                }
+              ],
+              "weaponInputs": {},
+              "weaponInputRemainingJ": {}
+            }
+          },
+          {
+            "mode": "weapons",
+            "actualInputW": 153812376319756270000,
+            "actualThrustN": 76906188159.87814,
+            "wasteHeatW": 7690618815987814000,
+            "outputRatio": 1,
+            "physicalAccelerationMS2": 25.475192402954125,
+            "battleAccelerationMS2": 0.05095038480590825,
+            "power": {
+              "P": 7.403639574372988e+22,
+              "fixed": 153989972839506300000,
+              "coolingReserved": 0,
+              "cooling": 0,
+              "drawNonCooling": 307802349159262600000,
+              "draw": 307802349159262600000,
+              "eng": 153812376319756270000,
+              "sh": 0,
+              "wpn": 0,
+              "wantEng": 153812376319756270000,
+              "wantSh": 0,
+              "wantWpn": 0,
+              "domains": [
+                {
+                  "id": "main",
+                  "availableW": 8.884367489247585e+22,
+                  "drawW": 307802349159269300000
+                }
+              ],
+              "weaponInputs": {},
+              "weaponInputRemainingJ": {}
+            }
+          },
+          {
+            "mode": "shields",
+            "actualInputW": 153812376319756270000,
+            "actualThrustN": 76906188159.87814,
+            "wasteHeatW": 7690618815987814000,
+            "outputRatio": 1,
+            "physicalAccelerationMS2": 25.475192402954125,
+            "battleAccelerationMS2": 0.05095038480590825,
+            "power": {
+              "P": 7.403639574372988e+22,
+              "fixed": 153989972839506300000,
+              "coolingReserved": 0,
+              "cooling": 0,
+              "drawNonCooling": 307802349159262600000,
+              "draw": 307802349159262600000,
+              "eng": 153812376319756270000,
+              "sh": 0,
+              "wpn": 0,
+              "wantEng": 153812376319756270000,
+              "wantSh": 0,
+              "wantWpn": 0,
+              "domains": [
+                {
+                  "id": "main",
+                  "availableW": 8.884367489247585e+22,
+                  "drawW": 307802349159269300000
+                }
+              ],
+              "weaponInputs": {},
+              "weaponInputRemainingJ": {}
+            }
+          }
+        ],
+        "preview": {
+          "engines": [
+            {
+              "id": 2,
+              "machineryId": 2,
+              "requestedInputW": 53834331711914690000,
+              "actualInputW": 53834331711914690000,
+              "actualThrustN": 26917165855.957344,
+              "wasteHeatW": 2691716585595734500,
+              "direction": [
+                1,
+                0,
+                0
+              ],
+              "reasons": []
+            }
+          ],
+          "totalRequestedInputW": 53834331711914690000,
+          "totalActualInputW": 53834331711914690000,
+          "totalThrustN": 26917165855.957344,
+          "wasteHeatW": 2691716585595734500,
+          "forceVector": [
+            26917165855.957344,
+            0,
+            0
+          ],
+          "accelerationVector": [
+            41.20275259898132,
+            0,
+            0
+          ],
+          "freeAccelerationMps2": 41.20275259898132,
+          "ratedThrustN": 76906188159.87814,
+          "outputRatio": 0.3499999999999999,
+          "valid": true,
+          "version": 1,
+          "ratedInputW": 153812376319756270000,
+          "ratedAccelMps2": 117.7221502828038,
+          "actualInputW": 53834331711914690000,
+          "actualThrustN": 26917165855.957344,
+          "actualAccelMps2": 8.91631734103394,
+          "cappedAccelerationMps2": 8.91631734103394,
+          "accelerationMps2": 8.91631734103394,
+          "power": {
+            "engines": 53834331711914690000,
+            "shields": 0,
+            "weapons": 0,
+            "fixed": 153989972839506300000,
+            "cooling": 0,
+            "granted": {
+              "fixed:hotel": 153989972839506300000,
+              "engine:2": 53834331711914690000
+            },
+            "P": 7.403639574372988e+22,
+            "draw": 207824304551421020000,
+            "load": 0.002807055941388416,
+            "short": false,
+            "sources": [
+              {
+                "id": "p1",
+                "domain": "main",
+                "availableW": 8.884367489247585e+22,
+                "drawW": 207824304551420230000
+              }
+            ],
+            "domains": [
+              {
+                "id": "main",
+                "availableW": 8.884367489247585e+22,
+                "drawW": 207824304551420230000
+              }
+            ]
+          },
+          "preset": "combat"
+        },
+        "thermalPresets": {
+          "cruise": {
+            "name": "通常航行",
+            "gen": 168455440074353400000,
+            "out": 168455440074353400000,
+            "cap": 2.5506302096143902e+23,
+            "used": 168455440074339580000,
+            "margin": 1514.1275392997607,
+            "stored": 0,
+            "endurance": 61.9722410431153,
+            "over": [],
+            "overCount": 0,
+            "sig": {
+              "nu": 8679280340908259000,
+              "ir": 158763577026992050000,
+              "em": 1012582706439297000
+            }
+          },
+          "combat": {
+            "name": "戦闘",
+            "gen": 164994661607158840000,
+            "out": 164994661607158840000,
+            "cap": 2.5506302096143902e+23,
+            "used": 164994661607145000000,
+            "margin": 1545.8865061266458,
+            "stored": 0,
+            "endurance": 63.27211459827582,
+            "over": [],
+            "overCount": 0,
+            "sig": {
+              "nu": 6602813260591526000,
+              "ir": 157621520132817800000,
+              "em": 770328213735678100
+            }
+          },
+          "max": {
+            "name": "最大出力",
+            "gen": 164994661607158840000,
+            "out": 164994661607158840000,
+            "cap": 2.5506302096143902e+23,
+            "used": 164994661607145000000,
+            "margin": 1545.8865061266458,
+            "stored": 0,
+            "endurance": 63.27211459827582,
+            "over": [],
+            "overCount": 0,
+            "sig": {
+              "nu": 6602813260591526000,
+              "ir": 157621520132817800000,
+              "em": 770328213735678100
+            }
+          }
+        }
+      },
+      "ratios": {
+        "mass": 1,
+        "cost": 1.0001300198460261,
+        "partRatedThrust": 1.0000000000000002,
+        "designAcceleration": 0.35,
+        "maxSpeed": 1.0273162559148143
+      },
+      "elapsedMs": 1469.90109
+    },
+    {
+      "kind": "internalISD",
+      "key": "imperial",
+      "before": {
+        "massTonnes": 37627330.96427113,
+        "cost": 190091994,
+        "powerW": 1e+25,
+        "engineDemandW": 1.8372697465714035e+24,
+        "ratedThrustN": 788288824373186,
+        "availableThrustN": 788288824373186,
+        "freeAccelerationMS2": 20949.90009048748,
+        "designAccelerationMS2": 19852.758245476463,
+        "battleAccelerationMS2": 39.70551649095293,
+        "maxSpeedMS": 1214.9480104149693,
+        "mglt": 60.7,
+        "coolingCapacityW": 1.076357063003742e+25,
+        "engineRows": [
+          {
+            "id": 20,
+            "shape": {
+              "id": 20,
+              "k": "engine",
+              "c": [
+                45.22955505583701,
+                109.003,
+                -213.65
+              ],
+              "d": 94.8,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 15,
+              "label": "主イオン機関・ベル型ノズル",
+              "bodyLength": 157.36266451697242,
+              "bodyRadius": 0.5,
+              "nozzleLength": 52.45911011167402,
+              "skinAsset": "isdh_engine_main",
+              "skinAnchor": [
+                45.22955505583701,
+                109.003,
+                0
+              ],
+              "skinDiameter": 94.8,
+              "engineLength": 143.05381941403073,
+              "equipmentId": "internalTurbine"
+            },
+            "nozzleVolumeM3": 370277.6299145517,
+            "ratedInputW": 5.125073786866799e+23,
+            "ratedThrustN": 219893589268224,
+            "wattsPerNewton": 2330706322.0543847,
+            "partCost": 1488610.5196582067
+          },
+          {
+            "id": 21,
+            "shape": {
+              "id": 21,
+              "k": "engine",
+              "c": [
+                45.22955505583701,
+                109.003,
+                0
+              ],
+              "d": 94.8,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 15,
+              "label": "主イオン機関・ベル型ノズル",
+              "bodyLength": 157.36266451697242,
+              "bodyRadius": 0.5,
+              "nozzleLength": 52.45911011167402,
+              "skinAsset": "isdh_engine_main",
+              "skinAnchor": [
+                45.22955505583701,
+                109.003,
+                0
+              ],
+              "skinDiameter": 94.8,
+              "engineLength": 143.05381941403073,
+              "equipmentId": "internalTurbine"
+            },
+            "nozzleVolumeM3": 370277.6299145517,
+            "ratedInputW": 5.125073786866799e+23,
+            "ratedThrustN": 219893589268224,
+            "wattsPerNewton": 2330706322.0543847,
+            "partCost": 1488610.5196582067
+          },
+          {
+            "id": 22,
+            "shape": {
+              "id": 22,
+              "k": "engine",
+              "c": [
+                45.22955505583701,
+                109.003,
+                213.65
+              ],
+              "d": 94.8,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 15,
+              "label": "主イオン機関・ベル型ノズル",
+              "bodyLength": 157.36266451697242,
+              "bodyRadius": 0.5,
+              "nozzleLength": 52.45911011167402,
+              "skinAsset": "isdh_engine_main",
+              "skinAnchor": [
+                45.22955505583701,
+                109.003,
+                0
+              ],
+              "skinDiameter": 94.8,
+              "engineLength": 143.05381941403073,
+              "equipmentId": "internalTurbine"
+            },
+            "nozzleVolumeM3": 370277.6299145517,
+            "ratedInputW": 5.125073786866799e+23,
+            "ratedThrustN": 219893589268224,
+            "wattsPerNewton": 2330706322.0543847,
+            "partCost": 1488610.5196582067
+          },
+          {
+            "id": 23,
+            "shape": {
+              "id": 23,
+              "k": "engine",
+              "c": [
+                44.815,
+                76.367,
+                -109.639
+              ],
+              "d": 51.66,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 15,
+              "label": "上下二段の補助イオン機関",
+              "bodyLength": 118.08,
+              "bodyRadius": 0.5,
+              "nozzleLength": 25.83,
+              "skinAsset": "isdh_engine_aux",
+              "skinAnchor": [
+                44.815,
+                76.367,
+                109.639
+              ],
+              "skinDiameter": 51.66,
+              "engineLength": 106.6041064575,
+              "equipmentId": "internalTurbine"
+            },
+            "nozzleVolumeM3": 54140.60333975759,
+            "ratedInputW": 7.49369026278409e+22,
+            "ratedThrustN": 32152014142128.51,
+            "wattsPerNewton": 2330706322.054384,
+            "partCost": 224062.41335903035
+          },
+          {
+            "id": 24,
+            "shape": {
+              "id": 24,
+              "k": "engine",
+              "c": [
+                44.815,
+                141.633,
+                -109.639
+              ],
+              "d": 51.66,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 15,
+              "label": "上下二段の補助イオン機関",
+              "bodyLength": 118.08,
+              "bodyRadius": 0.5,
+              "nozzleLength": 25.83,
+              "skinAsset": "isdh_engine_aux",
+              "skinAnchor": [
+                44.815,
+                76.367,
+                109.639
+              ],
+              "skinDiameter": 51.66,
+              "engineLength": 106.6041064575,
+              "equipmentId": "internalTurbine"
+            },
+            "nozzleVolumeM3": 54140.60333975759,
+            "ratedInputW": 7.49369026278409e+22,
+            "ratedThrustN": 32152014142128.51,
+            "wattsPerNewton": 2330706322.054384,
+            "partCost": 224062.41335903035
+          },
+          {
+            "id": 25,
+            "shape": {
+              "id": 25,
+              "k": "engine",
+              "c": [
+                44.815,
+                76.367,
+                109.639
+              ],
+              "d": 51.66,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 15,
+              "label": "上下二段の補助イオン機関",
+              "bodyLength": 118.08,
+              "bodyRadius": 0.5,
+              "nozzleLength": 25.83,
+              "skinAsset": "isdh_engine_aux",
+              "skinAnchor": [
+                44.815,
+                76.367,
+                109.639
+              ],
+              "skinDiameter": 51.66,
+              "engineLength": 106.6041064575,
+              "equipmentId": "internalTurbine"
+            },
+            "nozzleVolumeM3": 54140.60333975759,
+            "ratedInputW": 7.49369026278409e+22,
+            "ratedThrustN": 32152014142128.51,
+            "wattsPerNewton": 2330706322.054384,
+            "partCost": 224062.41335903035
+          },
+          {
+            "id": 26,
+            "shape": {
+              "id": 26,
+              "k": "engine",
+              "c": [
+                44.815,
+                141.633,
+                109.639
+              ],
+              "d": 51.66,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 15,
+              "label": "上下二段の補助イオン機関",
+              "bodyLength": 118.08,
+              "bodyRadius": 0.5,
+              "nozzleLength": 25.83,
+              "skinAsset": "isdh_engine_aux",
+              "skinAnchor": [
+                44.815,
+                76.367,
+                109.639
+              ],
+              "skinDiameter": 51.66,
+              "engineLength": 106.6041064575,
+              "equipmentId": "internalTurbine"
+            },
+            "nozzleVolumeM3": 54140.60333975759,
+            "ratedInputW": 7.49369026278409e+22,
+            "ratedThrustN": 32152014142128.51,
+            "wattsPerNewton": 2330706322.054384,
+            "partCost": 224062.41335903035
+          }
+        ],
+        "runtime": [
+          {
+            "mode": "cruise",
+            "actualInputW": 7.989652171460945e+24,
+            "actualThrustN": null,
+            "legacyEngF": 0.9663677658862776,
+            "legacyThrustMultiplier": 0.9663677658862776,
+            "wasteHeatW": 3.994826085730473e+23,
+            "note": "Old runtime did not resolve N from actual W."
+          },
+          {
+            "mode": "balanced",
+            "actualInputW": 8.267713859571315e+24,
+            "actualThrustN": null,
+            "legacyEngF": 1,
+            "legacyThrustMultiplier": 1,
+            "wasteHeatW": 4.133856929785658e+23,
+            "note": "Old runtime did not resolve N from actual W."
+          },
+          {
+            "mode": "weapons",
+            "actualInputW": 8.267713859571315e+24,
+            "actualThrustN": null,
+            "legacyEngF": 1,
+            "legacyThrustMultiplier": 1,
+            "wasteHeatW": 4.133856929785658e+23,
+            "note": "Old runtime did not resolve N from actual W."
+          },
+          {
+            "mode": "shields",
+            "actualInputW": 8.267713859571315e+24,
+            "actualThrustN": null,
+            "legacyEngF": 1,
+            "legacyThrustMultiplier": 1,
+            "wasteHeatW": 4.133856929785658e+23,
+            "note": "Old runtime did not resolve N from actual W."
+          }
+        ]
+      },
+      "after": {
+        "planning": {
+          "ratedAccelerationMS2": 20949.899147905828,
+          "acceptanceLimitedAccelerationMS2": 19852.757213663084,
+          "maximumAccelerationMS2": 19852.757213663084,
+          "structuralLimitMS2": 19852.757213663084,
+          "inertialSupportTonnes": 40377633.73952818
+        },
+        "massTonnes": 37627332.6572068,
+        "cost": 244521033,
+        "powerW": 1e+25,
+        "engineDemandW": 1.8372697465714035e+24,
+        "ratedThrustN": 788288824373185.9,
+        "availableThrustN": 275901088530615.06,
+        "freeAccelerationMS2": 7332.4647017670395,
+        "designAccelerationMS2": 7332.4647017670395,
+        "battleAccelerationMS2": 39.70551442732617,
+        "maxSpeedMS": 1257.7930320173896,
+        "mglt": 62.9,
+        "coolingCapacityW": 1.0442048212220287e+25,
+        "engineRows": [
+          {
+            "id": 20,
+            "shape": {
+              "id": 20,
+              "k": "engine",
+              "c": [
+                45.22955505583701,
+                109.003,
+                -213.65
+              ],
+              "d": 94.8,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 15,
+              "label": "主イオン機関・ベル型ノズル",
+              "bodyLength": 157.36266451697242,
+              "bodyRadius": 0.5,
+              "nozzleLength": 52.45911011167402,
+              "skinAsset": "isdh_engine_main",
+              "skinAnchor": [
+                45.22955505583701,
+                109.003,
+                0
+              ],
+              "skinDiameter": 94.8,
+              "engineLength": 143.05381941403073,
+              "equipmentId": "internalTurbine",
+              "propulsionMigration": {
+                "version": 1,
+                "previous": {
+                  "id": 20,
+                  "k": "engine",
+                  "c": [
+                    45.22955505583701,
+                    109.003,
+                    -213.65
+                  ],
+                  "d": 94.8,
+                  "dir": [
+                    -1,
+                    0,
+                    0
+                  ],
+                  "reactor": 15,
+                  "label": "主イオン機関・ベル型ノズル",
+                  "bodyLength": 157.36266451697242,
+                  "bodyRadius": 0.5,
+                  "nozzleLength": 52.45911011167402,
+                  "skinAsset": "isdh_engine_main",
+                  "skinAnchor": [
+                    45.22955505583701,
+                    109.003,
+                    0
+                  ],
+                  "skinDiameter": 94.8,
+                  "engineLength": 143.05381941403073,
+                  "equipmentId": "internalTurbine"
+                },
+                "baselineThrustN": 219893589268224,
+                "baselineInputW": 5.125073786866799e+23
+              },
+              "propulsionModelVersion": 1,
+              "ratedInputW": 5.125073786866799e+23,
+              "driveProfileId": "legacy-internal",
+              "machineryLengthM": 157.36266451697242,
+              "machineryRadiusM": 47.4,
+              "machineryOffsetM": 26.22955505583701,
+              "machineryFeedRadiusM": 27.491999999999997,
+              "machineryGradeId": "dense",
+              "legacyCoolingInputW": 5.125073786866799e+23
+            },
+            "nozzleVolumeM3": 370277.6299145517,
+            "version": 1,
+            "machineryId": 20,
+            "ratedInputW": 5.125073786866799e+23,
+            "driveProfileId": "legacy-internal",
+            "machineryGradeId": "dense",
+            "wattsPerNewton": 2330706322.054385,
+            "ratedThrustN": 219893589268223.97,
+            "effectiveMachineryVolumeM3": 884288.6777313655,
+            "machineryVolumeM3": 884288.6777313655,
+            "machineryLengthM": 157.36266451697242,
+            "machineryRadiusM": 47.4,
+            "machineryDiameterM": 94.8,
+            "machineryOffsetM": 26.22955505583701,
+            "maxInputW": 3.006581504286643e+24,
+            "maxRatedInputW": 3.006581504286643e+24,
+            "inputDensityWPerM3": 579570214561055900,
+            "allowedInputDensityWPerM3": 3400000000000000000,
+            "cost": 17650385.927123323,
+            "powerNode": "p20",
+            "heatNode": "p20",
+            "reactorId": 15,
+            "domain": "p15",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 5.125073786866799e+23,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "partCost": 19138996.44678153
+          },
+          {
+            "id": 21,
+            "shape": {
+              "id": 21,
+              "k": "engine",
+              "c": [
+                45.22955505583701,
+                109.003,
+                0
+              ],
+              "d": 94.8,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 15,
+              "label": "主イオン機関・ベル型ノズル",
+              "bodyLength": 157.36266451697242,
+              "bodyRadius": 0.5,
+              "nozzleLength": 52.45911011167402,
+              "skinAsset": "isdh_engine_main",
+              "skinAnchor": [
+                45.22955505583701,
+                109.003,
+                0
+              ],
+              "skinDiameter": 94.8,
+              "engineLength": 143.05381941403073,
+              "equipmentId": "internalTurbine",
+              "propulsionMigration": {
+                "version": 1,
+                "previous": {
+                  "id": 21,
+                  "k": "engine",
+                  "c": [
+                    45.22955505583701,
+                    109.003,
+                    0
+                  ],
+                  "d": 94.8,
+                  "dir": [
+                    -1,
+                    0,
+                    0
+                  ],
+                  "reactor": 15,
+                  "label": "主イオン機関・ベル型ノズル",
+                  "bodyLength": 157.36266451697242,
+                  "bodyRadius": 0.5,
+                  "nozzleLength": 52.45911011167402,
+                  "skinAsset": "isdh_engine_main",
+                  "skinAnchor": [
+                    45.22955505583701,
+                    109.003,
+                    0
+                  ],
+                  "skinDiameter": 94.8,
+                  "engineLength": 143.05381941403073,
+                  "equipmentId": "internalTurbine"
+                },
+                "baselineThrustN": 219893589268224,
+                "baselineInputW": 5.125073786866799e+23
+              },
+              "propulsionModelVersion": 1,
+              "ratedInputW": 5.125073786866799e+23,
+              "driveProfileId": "legacy-internal",
+              "machineryLengthM": 157.36266451697242,
+              "machineryRadiusM": 47.4,
+              "machineryOffsetM": 26.22955505583701,
+              "machineryFeedRadiusM": 27.491999999999997,
+              "machineryGradeId": "dense",
+              "legacyCoolingInputW": 5.125073786866799e+23
+            },
+            "nozzleVolumeM3": 370277.6299145517,
+            "version": 1,
+            "machineryId": 21,
+            "ratedInputW": 5.125073786866799e+23,
+            "driveProfileId": "legacy-internal",
+            "machineryGradeId": "dense",
+            "wattsPerNewton": 2330706322.054385,
+            "ratedThrustN": 219893589268223.97,
+            "effectiveMachineryVolumeM3": 884288.6777313655,
+            "machineryVolumeM3": 884288.6777313655,
+            "machineryLengthM": 157.36266451697242,
+            "machineryRadiusM": 47.4,
+            "machineryDiameterM": 94.8,
+            "machineryOffsetM": 26.22955505583701,
+            "maxInputW": 3.006581504286643e+24,
+            "maxRatedInputW": 3.006581504286643e+24,
+            "inputDensityWPerM3": 579570214561055900,
+            "allowedInputDensityWPerM3": 3400000000000000000,
+            "cost": 17650385.927123323,
+            "powerNode": "p21",
+            "heatNode": "p21",
+            "reactorId": 15,
+            "domain": "p15",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 5.125073786866799e+23,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "partCost": 19138996.44678153
+          },
+          {
+            "id": 22,
+            "shape": {
+              "id": 22,
+              "k": "engine",
+              "c": [
+                45.22955505583701,
+                109.003,
+                213.65
+              ],
+              "d": 94.8,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 15,
+              "label": "主イオン機関・ベル型ノズル",
+              "bodyLength": 157.36266451697242,
+              "bodyRadius": 0.5,
+              "nozzleLength": 52.45911011167402,
+              "skinAsset": "isdh_engine_main",
+              "skinAnchor": [
+                45.22955505583701,
+                109.003,
+                0
+              ],
+              "skinDiameter": 94.8,
+              "engineLength": 143.05381941403073,
+              "equipmentId": "internalTurbine",
+              "propulsionMigration": {
+                "version": 1,
+                "previous": {
+                  "id": 22,
+                  "k": "engine",
+                  "c": [
+                    45.22955505583701,
+                    109.003,
+                    213.65
+                  ],
+                  "d": 94.8,
+                  "dir": [
+                    -1,
+                    0,
+                    0
+                  ],
+                  "reactor": 15,
+                  "label": "主イオン機関・ベル型ノズル",
+                  "bodyLength": 157.36266451697242,
+                  "bodyRadius": 0.5,
+                  "nozzleLength": 52.45911011167402,
+                  "skinAsset": "isdh_engine_main",
+                  "skinAnchor": [
+                    45.22955505583701,
+                    109.003,
+                    0
+                  ],
+                  "skinDiameter": 94.8,
+                  "engineLength": 143.05381941403073,
+                  "equipmentId": "internalTurbine"
+                },
+                "baselineThrustN": 219893589268224,
+                "baselineInputW": 5.125073786866799e+23
+              },
+              "propulsionModelVersion": 1,
+              "ratedInputW": 5.125073786866799e+23,
+              "driveProfileId": "legacy-internal",
+              "machineryLengthM": 157.36266451697242,
+              "machineryRadiusM": 47.4,
+              "machineryOffsetM": 26.22955505583701,
+              "machineryFeedRadiusM": 27.491999999999997,
+              "machineryGradeId": "dense",
+              "legacyCoolingInputW": 5.125073786866799e+23
+            },
+            "nozzleVolumeM3": 370277.6299145517,
+            "version": 1,
+            "machineryId": 22,
+            "ratedInputW": 5.125073786866799e+23,
+            "driveProfileId": "legacy-internal",
+            "machineryGradeId": "dense",
+            "wattsPerNewton": 2330706322.054385,
+            "ratedThrustN": 219893589268223.97,
+            "effectiveMachineryVolumeM3": 884288.6777313655,
+            "machineryVolumeM3": 884288.6777313655,
+            "machineryLengthM": 157.36266451697242,
+            "machineryRadiusM": 47.4,
+            "machineryDiameterM": 94.8,
+            "machineryOffsetM": 26.22955505583701,
+            "maxInputW": 3.006581504286643e+24,
+            "maxRatedInputW": 3.006581504286643e+24,
+            "inputDensityWPerM3": 579570214561055900,
+            "allowedInputDensityWPerM3": 3400000000000000000,
+            "cost": 17650385.927123323,
+            "powerNode": "p22",
+            "heatNode": "p22",
+            "reactorId": 15,
+            "domain": "p15",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 5.125073786866799e+23,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "partCost": 19138996.44678153
+          },
+          {
+            "id": 23,
+            "shape": {
+              "id": 23,
+              "k": "engine",
+              "c": [
+                44.815,
+                76.367,
+                -109.639
+              ],
+              "d": 51.66,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 15,
+              "label": "上下二段の補助イオン機関",
+              "bodyLength": 118.08,
+              "bodyRadius": 0.5,
+              "nozzleLength": 25.83,
+              "skinAsset": "isdh_engine_aux",
+              "skinAnchor": [
+                44.815,
+                76.367,
+                109.639
+              ],
+              "skinDiameter": 51.66,
+              "engineLength": 106.6041064575,
+              "equipmentId": "internalTurbine",
+              "propulsionMigration": {
+                "version": 1,
+                "previous": {
+                  "id": 23,
+                  "k": "engine",
+                  "c": [
+                    44.815,
+                    76.367,
+                    -109.639
+                  ],
+                  "d": 51.66,
+                  "dir": [
+                    -1,
+                    0,
+                    0
+                  ],
+                  "reactor": 15,
+                  "label": "上下二段の補助イオン機関",
+                  "bodyLength": 118.08,
+                  "bodyRadius": 0.5,
+                  "nozzleLength": 25.83,
+                  "skinAsset": "isdh_engine_aux",
+                  "skinAnchor": [
+                    44.815,
+                    76.367,
+                    109.639
+                  ],
+                  "skinDiameter": 51.66,
+                  "engineLength": 106.6041064575,
+                  "equipmentId": "internalTurbine"
+                },
+                "baselineThrustN": 32152014142128.51,
+                "baselineInputW": 7.49369026278409e+22
+              },
+              "propulsionModelVersion": 1,
+              "ratedInputW": 7.49369026278409e+22,
+              "driveProfileId": "legacy-internal",
+              "machineryLengthM": 118.08,
+              "machineryRadiusM": 25.83,
+              "machineryOffsetM": 12.915,
+              "machineryFeedRadiusM": 14.981399999999997,
+              "machineryGradeId": "dense",
+              "legacyCoolingInputW": 7.49369026278409e+22
+            },
+            "nozzleVolumeM3": 54140.60333975759,
+            "version": 1,
+            "machineryId": 23,
+            "ratedInputW": 7.49369026278409e+22,
+            "driveProfileId": "legacy-internal",
+            "machineryGradeId": "dense",
+            "wattsPerNewton": 2330706322.054385,
+            "ratedThrustN": 32152014142128.5,
+            "effectiveMachineryVolumeM3": 197042.92116826974,
+            "machineryVolumeM3": 197042.92116826974,
+            "machineryLengthM": 118.08,
+            "machineryRadiusM": 25.83,
+            "machineryDiameterM": 51.66,
+            "machineryOffsetM": 12.915,
+            "maxInputW": 6.699459319721172e+23,
+            "maxRatedInputW": 6.699459319721172e+23,
+            "inputDensityWPerM3": 380307509569687360,
+            "allowedInputDensityWPerM3": 3400000000000000000,
+            "cost": 369468.78096280625,
+            "powerNode": "p23",
+            "heatNode": "p23",
+            "reactorId": 15,
+            "domain": "p15",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 7.49369026278409e+22,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "partCost": 593531.1943218366
+          },
+          {
+            "id": 24,
+            "shape": {
+              "id": 24,
+              "k": "engine",
+              "c": [
+                44.815,
+                141.633,
+                -109.639
+              ],
+              "d": 51.66,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 15,
+              "label": "上下二段の補助イオン機関",
+              "bodyLength": 118.08,
+              "bodyRadius": 0.5,
+              "nozzleLength": 25.83,
+              "skinAsset": "isdh_engine_aux",
+              "skinAnchor": [
+                44.815,
+                76.367,
+                109.639
+              ],
+              "skinDiameter": 51.66,
+              "engineLength": 106.6041064575,
+              "equipmentId": "internalTurbine",
+              "propulsionMigration": {
+                "version": 1,
+                "previous": {
+                  "id": 24,
+                  "k": "engine",
+                  "c": [
+                    44.815,
+                    141.633,
+                    -109.639
+                  ],
+                  "d": 51.66,
+                  "dir": [
+                    -1,
+                    0,
+                    0
+                  ],
+                  "reactor": 15,
+                  "label": "上下二段の補助イオン機関",
+                  "bodyLength": 118.08,
+                  "bodyRadius": 0.5,
+                  "nozzleLength": 25.83,
+                  "skinAsset": "isdh_engine_aux",
+                  "skinAnchor": [
+                    44.815,
+                    76.367,
+                    109.639
+                  ],
+                  "skinDiameter": 51.66,
+                  "engineLength": 106.6041064575,
+                  "equipmentId": "internalTurbine"
+                },
+                "baselineThrustN": 32152014142128.51,
+                "baselineInputW": 7.49369026278409e+22
+              },
+              "propulsionModelVersion": 1,
+              "ratedInputW": 7.49369026278409e+22,
+              "driveProfileId": "legacy-internal",
+              "machineryLengthM": 118.08,
+              "machineryRadiusM": 25.83,
+              "machineryOffsetM": 12.915,
+              "machineryFeedRadiusM": 14.981399999999997,
+              "machineryGradeId": "dense",
+              "legacyCoolingInputW": 7.49369026278409e+22
+            },
+            "nozzleVolumeM3": 54140.60333975759,
+            "version": 1,
+            "machineryId": 24,
+            "ratedInputW": 7.49369026278409e+22,
+            "driveProfileId": "legacy-internal",
+            "machineryGradeId": "dense",
+            "wattsPerNewton": 2330706322.054385,
+            "ratedThrustN": 32152014142128.5,
+            "effectiveMachineryVolumeM3": 197042.92116826974,
+            "machineryVolumeM3": 197042.92116826974,
+            "machineryLengthM": 118.08,
+            "machineryRadiusM": 25.83,
+            "machineryDiameterM": 51.66,
+            "machineryOffsetM": 12.915,
+            "maxInputW": 6.699459319721172e+23,
+            "maxRatedInputW": 6.699459319721172e+23,
+            "inputDensityWPerM3": 380307509569687360,
+            "allowedInputDensityWPerM3": 3400000000000000000,
+            "cost": 369468.78096280625,
+            "powerNode": "p24",
+            "heatNode": "p24",
+            "reactorId": 15,
+            "domain": "p15",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 7.49369026278409e+22,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "partCost": 593531.1943218366
+          },
+          {
+            "id": 25,
+            "shape": {
+              "id": 25,
+              "k": "engine",
+              "c": [
+                44.815,
+                76.367,
+                109.639
+              ],
+              "d": 51.66,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 15,
+              "label": "上下二段の補助イオン機関",
+              "bodyLength": 118.08,
+              "bodyRadius": 0.5,
+              "nozzleLength": 25.83,
+              "skinAsset": "isdh_engine_aux",
+              "skinAnchor": [
+                44.815,
+                76.367,
+                109.639
+              ],
+              "skinDiameter": 51.66,
+              "engineLength": 106.6041064575,
+              "equipmentId": "internalTurbine",
+              "propulsionMigration": {
+                "version": 1,
+                "previous": {
+                  "id": 25,
+                  "k": "engine",
+                  "c": [
+                    44.815,
+                    76.367,
+                    109.639
+                  ],
+                  "d": 51.66,
+                  "dir": [
+                    -1,
+                    0,
+                    0
+                  ],
+                  "reactor": 15,
+                  "label": "上下二段の補助イオン機関",
+                  "bodyLength": 118.08,
+                  "bodyRadius": 0.5,
+                  "nozzleLength": 25.83,
+                  "skinAsset": "isdh_engine_aux",
+                  "skinAnchor": [
+                    44.815,
+                    76.367,
+                    109.639
+                  ],
+                  "skinDiameter": 51.66,
+                  "engineLength": 106.6041064575,
+                  "equipmentId": "internalTurbine"
+                },
+                "baselineThrustN": 32152014142128.51,
+                "baselineInputW": 7.49369026278409e+22
+              },
+              "propulsionModelVersion": 1,
+              "ratedInputW": 7.49369026278409e+22,
+              "driveProfileId": "legacy-internal",
+              "machineryLengthM": 118.08,
+              "machineryRadiusM": 25.83,
+              "machineryOffsetM": 12.915,
+              "machineryFeedRadiusM": 14.981399999999997,
+              "machineryGradeId": "dense",
+              "legacyCoolingInputW": 7.49369026278409e+22
+            },
+            "nozzleVolumeM3": 54140.60333975759,
+            "version": 1,
+            "machineryId": 25,
+            "ratedInputW": 7.49369026278409e+22,
+            "driveProfileId": "legacy-internal",
+            "machineryGradeId": "dense",
+            "wattsPerNewton": 2330706322.054385,
+            "ratedThrustN": 32152014142128.5,
+            "effectiveMachineryVolumeM3": 197042.92116826974,
+            "machineryVolumeM3": 197042.92116826974,
+            "machineryLengthM": 118.08,
+            "machineryRadiusM": 25.83,
+            "machineryDiameterM": 51.66,
+            "machineryOffsetM": 12.915,
+            "maxInputW": 6.699459319721172e+23,
+            "maxRatedInputW": 6.699459319721172e+23,
+            "inputDensityWPerM3": 380307509569687360,
+            "allowedInputDensityWPerM3": 3400000000000000000,
+            "cost": 369468.78096280625,
+            "powerNode": "p25",
+            "heatNode": "p25",
+            "reactorId": 15,
+            "domain": "p15",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 7.49369026278409e+22,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "partCost": 593531.1943218366
+          },
+          {
+            "id": 26,
+            "shape": {
+              "id": 26,
+              "k": "engine",
+              "c": [
+                44.815,
+                141.633,
+                109.639
+              ],
+              "d": 51.66,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 15,
+              "label": "上下二段の補助イオン機関",
+              "bodyLength": 118.08,
+              "bodyRadius": 0.5,
+              "nozzleLength": 25.83,
+              "skinAsset": "isdh_engine_aux",
+              "skinAnchor": [
+                44.815,
+                76.367,
+                109.639
+              ],
+              "skinDiameter": 51.66,
+              "engineLength": 106.6041064575,
+              "equipmentId": "internalTurbine",
+              "propulsionMigration": {
+                "version": 1,
+                "previous": {
+                  "id": 26,
+                  "k": "engine",
+                  "c": [
+                    44.815,
+                    141.633,
+                    109.639
+                  ],
+                  "d": 51.66,
+                  "dir": [
+                    -1,
+                    0,
+                    0
+                  ],
+                  "reactor": 15,
+                  "label": "上下二段の補助イオン機関",
+                  "bodyLength": 118.08,
+                  "bodyRadius": 0.5,
+                  "nozzleLength": 25.83,
+                  "skinAsset": "isdh_engine_aux",
+                  "skinAnchor": [
+                    44.815,
+                    76.367,
+                    109.639
+                  ],
+                  "skinDiameter": 51.66,
+                  "engineLength": 106.6041064575,
+                  "equipmentId": "internalTurbine"
+                },
+                "baselineThrustN": 32152014142128.51,
+                "baselineInputW": 7.49369026278409e+22
+              },
+              "propulsionModelVersion": 1,
+              "ratedInputW": 7.49369026278409e+22,
+              "driveProfileId": "legacy-internal",
+              "machineryLengthM": 118.08,
+              "machineryRadiusM": 25.83,
+              "machineryOffsetM": 12.915,
+              "machineryFeedRadiusM": 14.981399999999997,
+              "machineryGradeId": "dense",
+              "legacyCoolingInputW": 7.49369026278409e+22
+            },
+            "nozzleVolumeM3": 54140.60333975759,
+            "version": 1,
+            "machineryId": 26,
+            "ratedInputW": 7.49369026278409e+22,
+            "driveProfileId": "legacy-internal",
+            "machineryGradeId": "dense",
+            "wattsPerNewton": 2330706322.054385,
+            "ratedThrustN": 32152014142128.5,
+            "effectiveMachineryVolumeM3": 197042.92116826974,
+            "machineryVolumeM3": 197042.92116826974,
+            "machineryLengthM": 118.08,
+            "machineryRadiusM": 25.83,
+            "machineryDiameterM": 51.66,
+            "machineryOffsetM": 12.915,
+            "maxInputW": 6.699459319721172e+23,
+            "maxRatedInputW": 6.699459319721172e+23,
+            "inputDensityWPerM3": 380307509569687360,
+            "allowedInputDensityWPerM3": 3400000000000000000,
+            "cost": 369468.78096280625,
+            "powerNode": "p26",
+            "heatNode": "p26",
+            "reactorId": 15,
+            "domain": "p15",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 7.49369026278409e+22,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "partCost": 593531.1943218366
+          }
+        ],
+        "runtime": [
+          {
+            "mode": "cruise",
+            "actualInputW": 1.8372697465714035e+24,
+            "actualThrustN": 788288824373185.9,
+            "wasteHeatW": 9.186348732857019e+22,
+            "outputRatio": 1,
+            "physicalAccelerationMS2": 19852.757213663084,
+            "battleAccelerationMS2": 39.70551442732617,
+            "power": {
+              "P": 1e+25,
+              "fixed": 1.0347829645073065e+22,
+              "coolingReserved": 0,
+              "cooling": 0,
+              "drawNonCooling": 2.0742308969212524e+24,
+              "draw": 2.0742308969212524e+24,
+              "eng": 1.8372697465714035e+24,
+              "sh": 2.2661332070477592e+23,
+              "wpn": 0,
+              "wantEng": 1.8372697465714035e+24,
+              "wantSh": 8.644995826796288e+23,
+              "wantWpn": 0,
+              "domains": [
+                {
+                  "id": "main",
+                  "availableW": 8.000000000000002e+24,
+                  "drawW": 2.0742308969212532e+24
+                }
+              ],
+              "weaponInputs": {},
+              "weaponInputRemainingJ": {}
+            }
+          },
+          {
+            "mode": "balanced",
+            "actualInputW": 1.8372697465714035e+24,
+            "actualThrustN": 788288824373185.9,
+            "wasteHeatW": 9.186348732857019e+22,
+            "outputRatio": 1,
+            "physicalAccelerationMS2": 19852.757213663084,
+            "battleAccelerationMS2": 39.70551442732617,
+            "power": {
+              "P": 1e+25,
+              "fixed": 1.0347829645073065e+22,
+              "coolingReserved": 0,
+              "cooling": 0,
+              "drawNonCooling": 2.1254048536593184e+24,
+              "draw": 2.1254048536593184e+24,
+              "eng": 1.8372697465714035e+24,
+              "sh": 2.77787277442842e+23,
+              "wpn": 0,
+              "wantEng": 1.8372697465714035e+24,
+              "wantSh": 8.644995826796288e+23,
+              "wantWpn": 0,
+              "domains": [
+                {
+                  "id": "main",
+                  "availableW": 1e+25,
+                  "drawW": 2.1254048536593187e+24
+                }
+              ],
+              "weaponInputs": {},
+              "weaponInputRemainingJ": {}
+            }
+          },
+          {
+            "mode": "weapons",
+            "actualInputW": 1.8372697465714035e+24,
+            "actualThrustN": 788288824373185.9,
+            "wasteHeatW": 9.186348732857019e+22,
+            "outputRatio": 1,
+            "physicalAccelerationMS2": 19852.757213663084,
+            "battleAccelerationMS2": 39.70551442732617,
+            "power": {
+              "P": 1e+25,
+              "fixed": 1.0347829645073065e+22,
+              "coolingReserved": 0,
+              "cooling": 0,
+              "drawNonCooling": 2.1765788103973847e+24,
+              "draw": 2.1765788103973847e+24,
+              "eng": 1.8372697465714035e+24,
+              "sh": 3.289612341809081e+23,
+              "wpn": 0,
+              "wantEng": 1.8372697465714035e+24,
+              "wantSh": 8.644995826796288e+23,
+              "wantWpn": 0,
+              "domains": [
+                {
+                  "id": "main",
+                  "availableW": 1.2e+25,
+                  "drawW": 2.1765788103973806e+24
+                }
+              ],
+              "weaponInputs": {},
+              "weaponInputRemainingJ": {}
+            }
+          },
+          {
+            "mode": "shields",
+            "actualInputW": 1.8372697465714035e+24,
+            "actualThrustN": 788288824373185.9,
+            "wasteHeatW": 9.186348732857019e+22,
+            "outputRatio": 1,
+            "physicalAccelerationMS2": 19852.757213663084,
+            "battleAccelerationMS2": 39.70551442732617,
+            "power": {
+              "P": 1e+25,
+              "fixed": 1.0347829645073065e+22,
+              "coolingReserved": 0,
+              "cooling": 0,
+              "drawNonCooling": 2.1765788103973847e+24,
+              "draw": 2.1765788103973847e+24,
+              "eng": 1.8372697465714035e+24,
+              "sh": 3.289612341809081e+23,
+              "wpn": 0,
+              "wantEng": 1.8372697465714035e+24,
+              "wantSh": 8.644995826796288e+23,
+              "wantWpn": 0,
+              "domains": [
+                {
+                  "id": "main",
+                  "availableW": 1.2e+25,
+                  "drawW": 2.1765788103973806e+24
+                }
+              ],
+              "weaponInputs": {},
+              "weaponInputRemainingJ": {}
+            }
+          }
+        ],
+        "preview": {
+          "engines": [
+            {
+              "id": 20,
+              "machineryId": 20,
+              "requestedInputW": 1.7937758254033797e+23,
+              "actualInputW": 1.7937758254033797e+23,
+              "actualThrustN": 76962756243878.39,
+              "wasteHeatW": 8.968879127016899e+21,
+              "direction": [
+                1,
+                0,
+                0
+              ],
+              "reasons": []
+            },
+            {
+              "id": 21,
+              "machineryId": 21,
+              "requestedInputW": 1.7937758254033797e+23,
+              "actualInputW": 1.7937758254033797e+23,
+              "actualThrustN": 76962756243878.39,
+              "wasteHeatW": 8.968879127016899e+21,
+              "direction": [
+                1,
+                0,
+                0
+              ],
+              "reasons": []
+            },
+            {
+              "id": 22,
+              "machineryId": 22,
+              "requestedInputW": 1.7937758254033797e+23,
+              "actualInputW": 1.7937758254033797e+23,
+              "actualThrustN": 76962756243878.39,
+              "wasteHeatW": 8.968879127016899e+21,
+              "direction": [
+                1,
+                0,
+                0
+              ],
+              "reasons": []
+            },
+            {
+              "id": 23,
+              "machineryId": 23,
+              "requestedInputW": 2.6227915919744314e+22,
+              "actualInputW": 2.6227915919744314e+22,
+              "actualThrustN": 11253204949744.975,
+              "wasteHeatW": 1.3113957959872157e+21,
+              "direction": [
+                1,
+                0,
+                0
+              ],
+              "reasons": []
+            },
+            {
+              "id": 24,
+              "machineryId": 24,
+              "requestedInputW": 2.6227915919744314e+22,
+              "actualInputW": 2.6227915919744314e+22,
+              "actualThrustN": 11253204949744.975,
+              "wasteHeatW": 1.3113957959872157e+21,
+              "direction": [
+                1,
+                0,
+                0
+              ],
+              "reasons": []
+            },
+            {
+              "id": 25,
+              "machineryId": 25,
+              "requestedInputW": 2.6227915919744314e+22,
+              "actualInputW": 2.6227915919744314e+22,
+              "actualThrustN": 11253204949744.975,
+              "wasteHeatW": 1.3113957959872157e+21,
+              "direction": [
+                1,
+                0,
+                0
+              ],
+              "reasons": []
+            },
+            {
+              "id": 26,
+              "machineryId": 26,
+              "requestedInputW": 2.6227915919744314e+22,
+              "actualInputW": 2.6227915919744314e+22,
+              "actualThrustN": 11253204949744.975,
+              "wasteHeatW": 1.3113957959872157e+21,
+              "direction": [
+                1,
+                0,
+                0
+              ],
+              "reasons": []
+            }
+          ],
+          "totalRequestedInputW": 6.430444112999912e+23,
+          "totalActualInputW": 6.430444112999912e+23,
+          "totalThrustN": 275901088530615.06,
+          "wasteHeatW": 3.215222056499955e+22,
+          "forceVector": [
+            275901088530615.06,
+            0,
+            0
+          ],
+          "accelerationVector": [
+            7332.4647017670395,
+            0,
+            0
+          ],
+          "freeAccelerationMps2": 7332.4647017670395,
+          "ratedThrustN": 788288824373185.9,
+          "outputRatio": 0.35000000000000003,
+          "valid": true,
+          "version": 1,
+          "ratedInputW": 1.8372697465714035e+24,
+          "ratedAccelMps2": 20949.899147905828,
+          "actualInputW": 6.430444112999912e+23,
+          "actualThrustN": 275901088530615.06,
+          "actualAccelMps2": 7332.4647017670395,
+          "cappedAccelerationMps2": 7332.4647017670395,
+          "accelerationMps2": 7332.4647017670395,
+          "power": {
+            "engines": 6.430444112999912e+23,
+            "shields": 3.034741819789608e+23,
+            "weapons": 1.4685639182244338e+24,
+            "fixed": 1.0347829645073065e+22,
+            "cooling": 0,
+            "granted": {
+              "fixed:p67": 132309540647613760000,
+              "fixed:p68": 132309564611730050000,
+              "fixed:p69": 618692943869033600000,
+              "fixed:hotel": 9.464517595944687e+21,
+              "shields:183": 1.4077834411322458e+23,
+              "shields:189": 1.0958746876255752e+22,
+              "shields:192": 1.4077834411322473e+23,
+              "shields:198": 1.0958746876255752e+22,
+              "weapons:0": 2.0664868289515985e+21,
+              "weapons:1": 2.0664868289515985e+21,
+              "weapons:2": 65950413369870250,
+              "weapons:3": 65801995202916680,
+              "weapons:4": 65950413369870250,
+              "weapons:5": 65801995202916680,
+              "weapons:6": 2.0664868289515985e+21,
+              "weapons:7": 2.0664868289515985e+21,
+              "weapons:8": 2.0664868289515985e+21,
+              "weapons:9": 2.0664868289515985e+21,
+              "weapons:10": 2.0664868289515985e+21,
+              "weapons:11": 2.0664868289515985e+21,
+              "weapons:12": 65950413369870250,
+              "weapons:13": 65801995202916680,
+              "weapons:14": 2632573323080689000,
+              "weapons:15": 2638511162895084000,
+              "weapons:16": 2632573323080689000,
+              "weapons:17": 2638511162895084000,
+              "weapons:18": 2632573323080689000,
+              "weapons:19": 2638511162895084000,
+              "weapons:20": 2880482340007677400,
+              "weapons:21": 2886979345266070000,
+              "weapons:22": 3.619580836335534e+22,
+              "weapons:23": 3.619580836335534e+22,
+              "weapons:24": 3.619580836335534e+22,
+              "weapons:25": 3.619580836335534e+22,
+              "weapons:26": 3.1029591290976347e+22,
+              "weapons:27": 3.1029591290976347e+22,
+              "weapons:28": 3.1029591290976347e+22,
+              "weapons:29": 219564225576107380000,
+              "weapons:30": 219564225576107380000,
+              "weapons:31": 659253739439221500,
+              "weapons:32": 660740703949387600,
+              "weapons:33": 659253739439221500,
+              "weapons:34": 660740703949387600,
+              "weapons:35": 659253739439221500,
+              "weapons:36": 660740703949387600,
+              "weapons:37": 659253739439221500,
+              "weapons:38": 660740703949387600,
+              "weapons:39": 659253739439221500,
+              "weapons:40": 660740703949387600,
+              "weapons:41": 659253739439221500,
+              "weapons:42": 660740703949387600,
+              "weapons:43": 659253739439221500,
+              "weapons:44": 660740703949387600,
+              "weapons:45": 659253739439221500,
+              "weapons:46": 660740703949387600,
+              "weapons:47": 659253739439221500,
+              "weapons:48": 660740703949387600,
+              "weapons:49": 659253739439221500,
+              "weapons:50": 660740703949387600,
+              "weapons:51": 659253739439221500,
+              "weapons:52": 660740703949387600,
+              "weapons:53": 2.070361491755883e+22,
+              "weapons:54": 2.070361491755883e+22,
+              "weapons:55": 2.070361491755883e+22,
+              "weapons:56": 2.070361491755883e+22,
+              "weapons:57": 2.070361491755883e+22,
+              "weapons:58": 2.070361491755883e+22,
+              "weapons:59": 2.070361491755883e+22,
+              "weapons:60": 2.070361491755883e+22,
+              "weapons:61": 2.070361491755883e+22,
+              "weapons:62": 2.070361491755883e+22,
+              "weapons:63": 2.070361491755883e+22,
+              "weapons:64": 2.070361491755883e+22,
+              "weapons:65": 2.070361491755883e+22,
+              "weapons:66": 2.070361491755883e+22,
+              "weapons:67": 2.070361491755883e+22,
+              "weapons:68": 2.070361491755883e+22,
+              "weapons:69": 2.070361491755883e+22,
+              "weapons:70": 2.070361491755883e+22,
+              "weapons:71": 2.070361491755883e+22,
+              "weapons:72": 2.070361491755883e+22,
+              "weapons:73": 2.070361491755883e+22,
+              "weapons:74": 2.070361491755883e+22,
+              "weapons:75": 2.070361491755883e+22,
+              "weapons:76": 2.070361491755883e+22,
+              "weapons:77": 2.070361491755883e+22,
+              "weapons:78": 2.070361491755883e+22,
+              "weapons:79": 2.070361491755883e+22,
+              "weapons:80": 2.070361491755883e+22,
+              "weapons:81": 2.070361491755883e+22,
+              "weapons:82": 2.070361491755883e+22,
+              "weapons:83": 2.070361491755883e+22,
+              "weapons:84": 2.070361491755883e+22,
+              "weapons:85": 659253739439221500,
+              "weapons:86": 5.453139343351415e+21,
+              "weapons:87": 659253739439221500,
+              "weapons:88": 660740703949387600,
+              "weapons:89": 659253739439221500,
+              "weapons:90": 660740703949387600,
+              "weapons:91": 330655025894656300,
+              "weapons:92": 331400827183598000,
+              "weapons:93": 1.0384096315481782e+22,
+              "weapons:94": 1.0384096315481782e+22,
+              "weapons:95": 1.0384096315481782e+22,
+              "weapons:96": 1.0384096315481782e+22,
+              "weapons:97": 1.0384096315481782e+22,
+              "weapons:98": 1.0384096315481782e+22,
+              "weapons:99": 1.0384096315481782e+22,
+              "weapons:100": 1.0384096315481782e+22,
+              "weapons:101": 1.0384096315481782e+22,
+              "weapons:102": 1.0384096315481782e+22,
+              "weapons:103": 1.0384096315481782e+22,
+              "weapons:104": 1.0384096315481782e+22,
+              "weapons:105": 1.0384096315481782e+22,
+              "weapons:106": 1.0384096315481782e+22,
+              "weapons:107": 1.0384096315481782e+22,
+              "weapons:108": 1.0384096315481782e+22,
+              "weapons:109": 1.0384096315481782e+22,
+              "weapons:110": 1.0384096315481782e+22,
+              "weapons:111": 1.0384096315481782e+22,
+              "weapons:112": 1.0384096315481782e+22,
+              "weapons:113": 1.0384096315481782e+22,
+              "weapons:114": 1.0384096315481782e+22,
+              "weapons:115": 1.0384096315481782e+22,
+              "weapons:116": 1.0384096315481782e+22,
+              "weapons:117": 1.0384096315481782e+22,
+              "weapons:118": 1.0384096315481782e+22,
+              "weapons:119": 1.0384096315481782e+22,
+              "weapons:120": 1.0384096315481782e+22,
+              "weapons:121": 330655025894656300,
+              "weapons:122": 331400827183598000,
+              "weapons:123": 330655025894656300,
+              "weapons:124": 331400827183598000,
+              "weapons:125": 330655025894656300,
+              "weapons:126": 331400827183598000,
+              "weapons:127": 330655025894656300,
+              "weapons:128": 331400827183598000,
+              "weapons:129": 330655025894656300,
+              "weapons:130": 331400827183598000,
+              "weapons:131": 1.0384096315481782e+22,
+              "weapons:132": 1.0384096315481782e+22,
+              "weapons:133": 330655025894656300,
+              "weapons:134": 331400827183598000,
+              "weapons:135": 330655025894656300,
+              "weapons:136": 331400827183598000,
+              "weapons:137": 1.0384096315481782e+22,
+              "weapons:138": 1.0384096315481782e+22,
+              "weapons:139": 1.0384096315481782e+22,
+              "weapons:140": 1.0384096315481782e+22,
+              "weapons:141": 1.0384096315481782e+22,
+              "weapons:142": 1.0384096315481782e+22,
+              "weapons:143": 1.0384096315481782e+22,
+              "weapons:144": 1.0384096315481782e+22,
+              "weapons:145": 1.0384096315481782e+22,
+              "weapons:146": 1.0384096315481782e+22,
+              "weapons:147": 1.0384096315481782e+22,
+              "weapons:148": 1.0384096315481782e+22,
+              "weapons:149": 1.0384096315481782e+22,
+              "weapons:150": 1.0384096315481782e+22,
+              "weapons:151": 89986983898537870000,
+              "weapons:152": 90189951956857620000,
+              "weapons:153": 89986983898537870000,
+              "weapons:154": 90189951956857620000,
+              "weapons:155": 89986983898537870000,
+              "weapons:156": 90189951956857620000,
+              "weapons:157": 2e+22,
+              "weapons:158": 2e+22,
+              "weapons:159": 2e+22,
+              "weapons:160": 2e+22,
+              "weapons:161": 65801995202916680,
+              "weapons:162": 65950413369870250,
+              "weapons:163": 2.0664868289515985e+21,
+              "weapons:164": 2.0664868289515985e+21,
+              "weapons:165": 2.0664868289515985e+21,
+              "weapons:166": 2.0664868289515985e+21,
+              "weapons:167": 65801995202916680,
+              "weapons:168": 65950413369870250,
+              "engine:20": 1.7937758254033797e+23,
+              "engine:21": 1.7937758254033797e+23,
+              "engine:22": 1.7937758254033797e+23,
+              "engine:23": 2.6227915919744314e+22,
+              "engine:24": 2.6227915919744314e+22,
+              "engine:25": 2.6227915919744314e+22,
+              "engine:26": 2.6227915919744314e+22
+            },
+            "P": 1e+25,
+            "draw": 2.425430341148459e+24,
+            "load": 0.24254303411484585,
+            "short": false,
+            "sources": [
+              {
+                "id": "p15",
+                "domain": "main",
+                "availableW": 1.1329052567212023e+25,
+                "drawW": 2.1175032886708555e+24
+              },
+              {
+                "id": "p28",
+                "domain": "main",
+                "availableW": 3.6390369235958105e+23,
+                "drawW": 883312049128388700000
+              },
+              {
+                "id": "p33",
+                "domain": "main",
+                "availableW": 1.535218702141983e+23,
+                "drawW": 1.535218702141983e+23
+              },
+              {
+                "id": "p42",
+                "domain": "main",
+                "availableW": 1.535218702141983e+23,
+                "drawW": 1.535218702141983e+23
+              }
+            ],
+            "domains": [
+              {
+                "id": "main",
+                "availableW": 1.2e+25,
+                "drawW": 2.4254303411483804e+24
+              }
+            ]
+          },
+          "preset": "combat"
+        },
+        "thermalPresets": {
+          "cruise": {
+            "name": "通常航行",
+            "gen": 1.870228381853556e+23,
+            "out": 1.870228381853556e+23,
+            "cap": 1.0442048212220287e+25,
+            "used": 1.8702283818535574e+23,
+            "margin": 55.83301116343516,
+            "stored": 0,
+            "endurance": 975.482090873585,
+            "over": [],
+            "overCount": 0,
+            "sig": {
+              "nu": 1.0600500512416948e+23,
+              "ir": 6.865058246336648e+22,
+              "em": 1.2367250597819776e+22
+            }
+          },
+          "combat": {
+            "name": "戦闘",
+            "gen": 2.9058218050935863e+24,
+            "out": 1.6570769541186781e+24,
+            "cap": 1.0442048212220287e+25,
+            "used": 1.6570769541186781e+24,
+            "margin": 0.5702610363835815,
+            "stored": 1.2487448509749082e+24,
+            "endurance": 62.78341944931725,
+            "over": [
+              {
+                "name": "中TL三連 #98",
+                "k": "weapon",
+                "gen": 3.1380000000000005e+21,
+                "stored": 1.6251231548584745e+21,
+                "t": 81.09908446383412
+              },
+              {
+                "name": "中TL三連 #99",
+                "k": "weapon",
+                "gen": 3.1380000000000005e+21,
+                "stored": 1.6251231548584745e+21,
+                "t": 81.09908446383412
+              },
+              {
+                "name": "小型両用TL #53",
+                "k": "weapon",
+                "gen": 2.6150000000000003e+22,
+                "stored": 1.3542692957153953e+22,
+                "t": 81.09908446383413
+              },
+              {
+                "name": "小型両用TL #58",
+                "k": "weapon",
+                "gen": 2.6150000000000003e+22,
+                "stored": 1.3542692957153953e+22,
+                "t": 81.09908446383413
+              },
+              {
+                "name": "小型両用TL #59",
+                "k": "weapon",
+                "gen": 2.6150000000000003e+22,
+                "stored": 1.3542692957153953e+22,
+                "t": 81.09908446383413
+              },
+              {
+                "name": "小型両用TL #60",
+                "k": "weapon",
+                "gen": 2.6150000000000003e+22,
+                "stored": 1.3542692957153953e+22,
+                "t": 81.09908446383413
+              },
+              {
+                "name": "小型両用TL #61",
+                "k": "weapon",
+                "gen": 2.6150000000000003e+22,
+                "stored": 1.3542692957153953e+22,
+                "t": 81.09908446383413
+              },
+              {
+                "name": "小型両用TL #62",
+                "k": "weapon",
+                "gen": 2.6150000000000003e+22,
+                "stored": 1.3542692957153953e+22,
+                "t": 81.09908446383413
+              }
+            ],
+            "overCount": 101,
+            "sig": {
+              "nu": 9.880374746841633e+23,
+              "ir": 5.5376844072136337e+23,
+              "em": 1.1527103871315204e+23
+            }
+          },
+          "max": {
+            "name": "最大出力",
+            "gen": 2.9357360751699003e+24,
+            "out": 1.712072958654092e+24,
+            "cap": 1.0442048212220287e+25,
+            "used": 1.712072958654092e+24,
+            "margin": 0.5831835406236268,
+            "stored": 1.2236631165158082e+24,
+            "endurance": 62.143675236066514,
+            "over": [
+              {
+                "name": "中TL三連 #98",
+                "k": "weapon",
+                "gen": 3.1380000000000005e+21,
+                "stored": 1.6251231548584745e+21,
+                "t": 81.09908446383412
+              },
+              {
+                "name": "中TL三連 #99",
+                "k": "weapon",
+                "gen": 3.1380000000000005e+21,
+                "stored": 1.6251231548584745e+21,
+                "t": 81.09908446383412
+              },
+              {
+                "name": "小型両用TL #58",
+                "k": "weapon",
+                "gen": 2.6150000000000003e+22,
+                "stored": 1.3542692957153953e+22,
+                "t": 81.09908446383413
+              },
+              {
+                "name": "小型両用TL #59",
+                "k": "weapon",
+                "gen": 2.6150000000000003e+22,
+                "stored": 1.3542692957153953e+22,
+                "t": 81.09908446383413
+              },
+              {
+                "name": "小型両用TL #60",
+                "k": "weapon",
+                "gen": 2.6150000000000003e+22,
+                "stored": 1.3542692957153953e+22,
+                "t": 81.09908446383413
+              },
+              {
+                "name": "小型両用TL #61",
+                "k": "weapon",
+                "gen": 2.6150000000000003e+22,
+                "stored": 1.3542692957153953e+22,
+                "t": 81.09908446383413
+              },
+              {
+                "name": "小型両用TL #62",
+                "k": "weapon",
+                "gen": 2.6150000000000003e+22,
+                "stored": 1.3542692957153953e+22,
+                "t": 81.09908446383413
+              },
+              {
+                "name": "小型両用TL #63",
+                "k": "weapon",
+                "gen": 2.6150000000000003e+22,
+                "stored": 1.3542692957153953e+22,
+                "t": 81.09908446383413
+              }
+            ],
+            "overCount": 99,
+            "sig": {
+              "nu": 1.0210350774054125e+24,
+              "ir": 5.7191712221804954e+23,
+              "em": 1.1912075903063117e+23
+            }
+          }
+        }
+      },
+      "ratios": {
+        "mass": 1.0000000449921806,
+        "cost": 1.286329991361972,
+        "partRatedThrust": 0.9999999999999999,
+        "designAcceleration": 0.3693423659877475,
+        "maxSpeed": 1.0352649012428001
+      },
+      "elapsedMs": 74403.57099000001
+    },
+    {
+      "kind": "exposedVenator",
+      "key": "venator",
+      "before": {
+        "massTonnes": 6864581.1229165485,
+        "cost": 37489032,
+        "powerW": 3.6e+24,
+        "engineDemandW": 1.0799999999999998e+24,
+        "ratedThrustN": 199460272172996.16,
+        "availableThrustN": 199460272172996.16,
+        "freeAccelerationMS2": 29056.43747250985,
+        "designAccelerationMS2": 17792.3908401993,
+        "battleAccelerationMS2": 35.5847816803986,
+        "maxSpeedMS": 1202.6391913877376,
+        "mglt": 60.1,
+        "coolingCapacityW": 3.171695586827768e+24,
+        "engineRows": [
+          {
+            "id": 21,
+            "shape": {
+              "id": 21,
+              "k": "engine",
+              "c": [
+                53,
+                42,
+                -54
+              ],
+              "d": 48,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 20,
+              "label": "主機関・長い内舷ノズル",
+              "bodyLength": 176,
+              "bodyRadius": 0.36,
+              "nozzleLength": 24,
+              "skinAsset": "ven_inner_port",
+              "skinAnchor": [
+                53,
+                42,
+                -54
+              ],
+              "skinDiameter": 48,
+              "engineLength": 220.754793,
+              "equipmentId": "exposedTurbine"
+            },
+            "nozzleVolumeM3": 43429.3768432253,
+            "ratedInputW": 2.6769081813780854e+23,
+            "ratedThrustN": 49438595781462.336,
+            "wattsPerNewton": 5414612084.07102,
+            "partCost": 181217.5073729012
+          },
+          {
+            "id": 22,
+            "shape": {
+              "id": 22,
+              "k": "engine",
+              "c": [
+                112,
+                50,
+                -106
+              ],
+              "d": 45,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 20,
+              "label": "主機関・外舷ノズル",
+              "bodyLength": 140,
+              "bodyRadius": 0.36,
+              "nozzleLength": 24,
+              "skinAsset": "ven_outer_port",
+              "skinAnchor": [
+                112,
+                50,
+                -106
+              ],
+              "skinDiameter": 45,
+              "engineLength": 153.571357,
+              "equipmentId": "exposedTurbine"
+            },
+            "nozzleVolumeM3": 38170.35074111599,
+            "ratedInputW": 2.352751331289333e+23,
+            "ratedThrustN": 43451890823550.88,
+            "wattsPerNewton": 5414612084.07102,
+            "partCost": 160181.40296446395
+          },
+          {
+            "id": 23,
+            "shape": {
+              "id": 23,
+              "k": "engine",
+              "c": [
+                164,
+                87,
+                -41
+              ],
+              "d": 21,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 20,
+              "label": "上段補助スラスター",
+              "bodyLength": 86,
+              "bodyRadius": 0.36,
+              "nozzleLength": 10,
+              "skinAsset": "ven_upper_port",
+              "skinAnchor": [
+                164,
+                87,
+                -41
+              ],
+              "skinDiameter": 21,
+              "engineLength": 109.117692,
+              "equipmentId": "exposedTurbine"
+            },
+            "nozzleVolumeM3": 3463.6059005827474,
+            "ratedInputW": 2.1349039857995803e+22,
+            "ratedThrustN": 3942856759914.8027,
+            "wattsPerNewton": 5414612084.071021,
+            "partCost": 21354.42360233099
+          },
+          {
+            "id": 24,
+            "shape": {
+              "id": 24,
+              "k": "engine",
+              "c": [
+                189,
+                71,
+                -74
+              ],
+              "d": 18,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 20,
+              "label": "上段外舷スラスター",
+              "bodyLength": 64,
+              "bodyRadius": 0.36,
+              "nozzleLength": 10,
+              "skinAsset": "ven_aux_port",
+              "skinAnchor": [
+                189,
+                71,
+                -74
+              ],
+              "skinDiameter": 18,
+              "engineLength": 76.437264,
+              "equipmentId": "exposedTurbine"
+            },
+            "nozzleVolumeM3": 2544.690049407732,
+            "ratedInputW": 1.5685008875262218e+22,
+            "ratedThrustN": 2896792721570.0586,
+            "wattsPerNewton": 5414612084.07102,
+            "partCost": 17678.76019763093
+          },
+          {
+            "id": 37,
+            "shape": {
+              "id": 37,
+              "k": "engine",
+              "c": [
+                53,
+                42,
+                54
+              ],
+              "d": 48,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 20,
+              "label": "主機関・長い内舷ノズル",
+              "bodyLength": 176,
+              "bodyRadius": 0.36,
+              "nozzleLength": 24,
+              "skinAsset": "ven_inner_stbd",
+              "skinAnchor": [
+                53,
+                42,
+                54
+              ],
+              "skinDiameter": 48,
+              "engineLength": 220.754793,
+              "equipmentId": "exposedTurbine"
+            },
+            "nozzleVolumeM3": 43429.3768432253,
+            "ratedInputW": 2.6769081813780854e+23,
+            "ratedThrustN": 49438595781462.336,
+            "wattsPerNewton": 5414612084.07102,
+            "partCost": 181217.5073729012
+          },
+          {
+            "id": 38,
+            "shape": {
+              "id": 38,
+              "k": "engine",
+              "c": [
+                112,
+                50,
+                106
+              ],
+              "d": 45,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 20,
+              "label": "主機関・外舷ノズル",
+              "bodyLength": 140,
+              "bodyRadius": 0.36,
+              "nozzleLength": 24,
+              "skinAsset": "ven_outer_stbd",
+              "skinAnchor": [
+                112,
+                50,
+                106
+              ],
+              "skinDiameter": 45,
+              "engineLength": 153.571357,
+              "equipmentId": "exposedTurbine"
+            },
+            "nozzleVolumeM3": 38170.35074111599,
+            "ratedInputW": 2.352751331289333e+23,
+            "ratedThrustN": 43451890823550.88,
+            "wattsPerNewton": 5414612084.07102,
+            "partCost": 160181.40296446395
+          },
+          {
+            "id": 39,
+            "shape": {
+              "id": 39,
+              "k": "engine",
+              "c": [
+                164,
+                87,
+                41
+              ],
+              "d": 21,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 20,
+              "label": "上段補助スラスター",
+              "bodyLength": 86,
+              "bodyRadius": 0.36,
+              "nozzleLength": 10,
+              "skinAsset": "ven_upper_stbd",
+              "skinAnchor": [
+                164,
+                87,
+                41
+              ],
+              "skinDiameter": 21,
+              "engineLength": 109.117692,
+              "equipmentId": "exposedTurbine"
+            },
+            "nozzleVolumeM3": 3463.6059005827474,
+            "ratedInputW": 2.1349039857995803e+22,
+            "ratedThrustN": 3942856759914.8027,
+            "wattsPerNewton": 5414612084.071021,
+            "partCost": 21354.42360233099
+          },
+          {
+            "id": 40,
+            "shape": {
+              "id": 40,
+              "k": "engine",
+              "c": [
+                189,
+                71,
+                74
+              ],
+              "d": 18,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 20,
+              "label": "上段外舷スラスター",
+              "bodyLength": 64,
+              "bodyRadius": 0.36,
+              "nozzleLength": 10,
+              "skinAsset": "ven_aux_stbd",
+              "skinAnchor": [
+                189,
+                71,
+                74
+              ],
+              "skinDiameter": 18,
+              "engineLength": 76.437264,
+              "equipmentId": "exposedTurbine"
+            },
+            "nozzleVolumeM3": 2544.690049407732,
+            "ratedInputW": 1.5685008875262218e+22,
+            "ratedThrustN": 2896792721570.0586,
+            "wattsPerNewton": 5414612084.07102,
+            "partCost": 17678.76019763093
+          }
+        ],
+        "runtime": [
+          {
+            "mode": "cruise",
+            "actualInputW": 2.877876885792562e+24,
+            "actualThrustN": null,
+            "legacyEngF": 0.8689241804929235,
+            "legacyThrustMultiplier": 0.8689241804929235,
+            "wasteHeatW": 1.4389384428962812e+23,
+            "note": "Old runtime did not resolve N from actual W."
+          },
+          {
+            "mode": "balanced",
+            "actualInputW": 3.3119999999999996e+24,
+            "actualThrustN": null,
+            "legacyEngF": 1,
+            "legacyThrustMultiplier": 1,
+            "wasteHeatW": 1.6559999999999997e+23,
+            "note": "Old runtime did not resolve N from actual W."
+          },
+          {
+            "mode": "weapons",
+            "actualInputW": 3.3119999999999996e+24,
+            "actualThrustN": null,
+            "legacyEngF": 1,
+            "legacyThrustMultiplier": 1,
+            "wasteHeatW": 1.6559999999999997e+23,
+            "note": "Old runtime did not resolve N from actual W."
+          },
+          {
+            "mode": "shields",
+            "actualInputW": 3.3119999999999996e+24,
+            "actualThrustN": null,
+            "legacyEngF": 1,
+            "legacyThrustMultiplier": 1,
+            "wasteHeatW": 1.6559999999999997e+23,
+            "note": "Old runtime did not resolve N from actual W."
+          }
+        ]
+      },
+      "after": {
+        "planning": {
+          "ratedAccelerationMS2": 29056.437472509857,
+          "acceptanceLimitedAccelerationMS2": 17792.390840199303,
+          "maximumAccelerationMS2": 17792.390840199303,
+          "structuralLimitMS2": 40376.27148209222,
+          "inertialSupportTonnes": 4203450.970503143
+        },
+        "massTonnes": 6864581.1229165485,
+        "cost": 590734997,
+        "powerW": 3.6e+24,
+        "engineDemandW": 1.0799999999999998e+24,
+        "ratedThrustN": 199460272172996.2,
+        "availableThrustN": 69811095260548.66,
+        "freeAccelerationMS2": 10169.753115378448,
+        "designAccelerationMS2": 6227.336794069755,
+        "battleAccelerationMS2": 35.584781680398606,
+        "maxSpeedMS": 1201.220804842893,
+        "mglt": 60.1,
+        "coolingCapacityW": 3.060095586827768e+24,
+        "engineRows": [
+          {
+            "id": 21,
+            "shape": {
+              "id": 21,
+              "k": "engine",
+              "c": [
+                53,
+                42,
+                -54
+              ],
+              "d": 48,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 20,
+              "label": "主機関・長い内舷ノズル",
+              "bodyLength": 176,
+              "bodyRadius": 0.36,
+              "nozzleLength": 24,
+              "skinAsset": "ven_inner_port",
+              "skinAnchor": [
+                53,
+                42,
+                -54
+              ],
+              "skinDiameter": 48,
+              "engineLength": 220.754793,
+              "equipmentId": "exposedTurbine",
+              "propulsionMigration": {
+                "version": 1,
+                "previous": {
+                  "id": 21,
+                  "k": "engine",
+                  "c": [
+                    53,
+                    42,
+                    -54
+                  ],
+                  "d": 48,
+                  "dir": [
+                    -1,
+                    0,
+                    0
+                  ],
+                  "reactor": 20,
+                  "label": "主機関・長い内舷ノズル",
+                  "bodyLength": 176,
+                  "bodyRadius": 0.36,
+                  "nozzleLength": 24,
+                  "skinAsset": "ven_inner_port",
+                  "skinAnchor": [
+                    53,
+                    42,
+                    -54
+                  ],
+                  "skinDiameter": 48,
+                  "engineLength": 220.754793,
+                  "equipmentId": "exposedTurbine"
+                },
+                "baselineThrustN": 49438595781462.336,
+                "baselineInputW": 2.6769081813780854e+23
+              },
+              "propulsionModelVersion": 1,
+              "ratedInputW": 2.6769081813780854e+23,
+              "driveProfileId": "legacy-exposed",
+              "machineryLengthM": 176,
+              "machineryRadiusM": 17.28,
+              "machineryOffsetM": 12,
+              "machineryFeedRadiusM": 13.919999999999998,
+              "machineryGradeId": "dense",
+              "legacyCoolingInputW": 2.6769081813780854e+23
+            },
+            "nozzleVolumeM3": 43429.3768432253,
+            "version": 1,
+            "machineryId": 21,
+            "ratedInputW": 2.6769081813780854e+23,
+            "driveProfileId": "legacy-exposed",
+            "machineryGradeId": "dense",
+            "wattsPerNewton": 5414612084.07102,
+            "ratedThrustN": 49438595781462.34,
+            "effectiveMachineryVolumeM3": 131442.50421226973,
+            "machineryVolumeM3": 131442.50421226973,
+            "machineryLengthM": 176,
+            "machineryRadiusM": 17.28,
+            "machineryDiameterM": 34.56,
+            "machineryOffsetM": 12,
+            "maxInputW": 4.469045143217171e+23,
+            "maxRatedInputW": 4.469045143217171e+23,
+            "inputDensityWPerM3": 2036562067514386700,
+            "allowedInputDensityWPerM3": 3400000000000000000,
+            "cost": 118783952.30001013,
+            "powerNode": "p21",
+            "heatNode": "p21",
+            "reactorId": 20,
+            "domain": "p20",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 2.6769081813780854e+23,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "partCost": 118965169.80738303
+          },
+          {
+            "id": 22,
+            "shape": {
+              "id": 22,
+              "k": "engine",
+              "c": [
+                112,
+                50,
+                -106
+              ],
+              "d": 45,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 20,
+              "label": "主機関・外舷ノズル",
+              "bodyLength": 140,
+              "bodyRadius": 0.36,
+              "nozzleLength": 24,
+              "skinAsset": "ven_outer_port",
+              "skinAnchor": [
+                112,
+                50,
+                -106
+              ],
+              "skinDiameter": 45,
+              "engineLength": 153.571357,
+              "equipmentId": "exposedTurbine",
+              "propulsionMigration": {
+                "version": 1,
+                "previous": {
+                  "id": 22,
+                  "k": "engine",
+                  "c": [
+                    112,
+                    50,
+                    -106
+                  ],
+                  "d": 45,
+                  "dir": [
+                    -1,
+                    0,
+                    0
+                  ],
+                  "reactor": 20,
+                  "label": "主機関・外舷ノズル",
+                  "bodyLength": 140,
+                  "bodyRadius": 0.36,
+                  "nozzleLength": 24,
+                  "skinAsset": "ven_outer_port",
+                  "skinAnchor": [
+                    112,
+                    50,
+                    -106
+                  ],
+                  "skinDiameter": 45,
+                  "engineLength": 153.571357,
+                  "equipmentId": "exposedTurbine"
+                },
+                "baselineThrustN": 43451890823550.88,
+                "baselineInputW": 2.352751331289333e+23
+              },
+              "propulsionModelVersion": 1,
+              "ratedInputW": 2.352751331289333e+23,
+              "driveProfileId": "legacy-exposed",
+              "machineryLengthM": 140,
+              "machineryRadiusM": 16.2,
+              "machineryOffsetM": 12,
+              "machineryFeedRadiusM": 13.049999999999999,
+              "machineryGradeId": "dense",
+              "legacyCoolingInputW": 2.352751331289333e+23
+            },
+            "nozzleVolumeM3": 38170.35074111599,
+            "version": 1,
+            "machineryId": 22,
+            "ratedInputW": 2.352751331289333e+23,
+            "driveProfileId": "legacy-exposed",
+            "machineryGradeId": "dense",
+            "wattsPerNewton": 5414612084.07102,
+            "ratedThrustN": 43451890823550.88,
+            "effectiveMachineryVolumeM3": 91895.39423576205,
+            "machineryVolumeM3": 91895.39423576205,
+            "machineryLengthM": 140,
+            "machineryRadiusM": 16.2,
+            "machineryDiameterM": 32.4,
+            "machineryOffsetM": 12,
+            "maxInputW": 3.12444340401591e+23,
+            "maxRatedInputW": 3.12444340401591e+23,
+            "inputDensityWPerM3": 2560249456303801300,
+            "allowedInputDensityWPerM3": 3400000000000000000,
+            "cost": 141919358.5931126,
+            "powerNode": "p22",
+            "heatNode": "p22",
+            "reactorId": 20,
+            "domain": "p20",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 2.352751331289333e+23,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "partCost": 142079539.99607706
+          },
+          {
+            "id": 23,
+            "shape": {
+              "id": 23,
+              "k": "engine",
+              "c": [
+                164,
+                87,
+                -41
+              ],
+              "d": 21,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 20,
+              "label": "上段補助スラスター",
+              "bodyLength": 86,
+              "bodyRadius": 0.36,
+              "nozzleLength": 10,
+              "skinAsset": "ven_upper_port",
+              "skinAnchor": [
+                164,
+                87,
+                -41
+              ],
+              "skinDiameter": 21,
+              "engineLength": 109.117692,
+              "equipmentId": "exposedTurbine",
+              "propulsionMigration": {
+                "version": 1,
+                "previous": {
+                  "id": 23,
+                  "k": "engine",
+                  "c": [
+                    164,
+                    87,
+                    -41
+                  ],
+                  "d": 21,
+                  "dir": [
+                    -1,
+                    0,
+                    0
+                  ],
+                  "reactor": 20,
+                  "label": "上段補助スラスター",
+                  "bodyLength": 86,
+                  "bodyRadius": 0.36,
+                  "nozzleLength": 10,
+                  "skinAsset": "ven_upper_port",
+                  "skinAnchor": [
+                    164,
+                    87,
+                    -41
+                  ],
+                  "skinDiameter": 21,
+                  "engineLength": 109.117692,
+                  "equipmentId": "exposedTurbine"
+                },
+                "baselineThrustN": 3942856759914.8027,
+                "baselineInputW": 2.1349039857995803e+22
+              },
+              "propulsionModelVersion": 1,
+              "ratedInputW": 2.1349039857995803e+22,
+              "driveProfileId": "legacy-exposed",
+              "machineryLengthM": 86,
+              "machineryRadiusM": 7.56,
+              "machineryOffsetM": 5,
+              "machineryFeedRadiusM": 6.09,
+              "machineryGradeId": "dense",
+              "legacyCoolingInputW": 2.1349039857995803e+22
+            },
+            "nozzleVolumeM3": 3463.6059005827474,
+            "version": 1,
+            "machineryId": 23,
+            "ratedInputW": 2.1349039857995803e+22,
+            "driveProfileId": "legacy-exposed",
+            "machineryGradeId": "dense",
+            "wattsPerNewton": 5414612084.07102,
+            "ratedThrustN": 3942856759914.803,
+            "effectiveMachineryVolumeM3": 12293.561628873058,
+            "machineryVolumeM3": 12293.561628873058,
+            "machineryLengthM": 86,
+            "machineryRadiusM": 7.56,
+            "machineryDiameterM": 15.12,
+            "machineryOffsetM": 5,
+            "maxInputW": 4.17981095381684e+22,
+            "maxRatedInputW": 4.17981095381684e+22,
+            "inputDensityWPerM3": 1736603313384361700,
+            "allowedInputDensityWPerM3": 3400000000000000000,
+            "cost": 7544241.241844424,
+            "powerNode": "p23",
+            "heatNode": "p23",
+            "reactorId": 20,
+            "domain": "p20",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 2.1349039857995803e+22,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "partCost": 7565595.6654467555
+          },
+          {
+            "id": 24,
+            "shape": {
+              "id": 24,
+              "k": "engine",
+              "c": [
+                189,
+                71,
+                -74
+              ],
+              "d": 18,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 20,
+              "label": "上段外舷スラスター",
+              "bodyLength": 64,
+              "bodyRadius": 0.36,
+              "nozzleLength": 10,
+              "skinAsset": "ven_aux_port",
+              "skinAnchor": [
+                189,
+                71,
+                -74
+              ],
+              "skinDiameter": 18,
+              "engineLength": 76.437264,
+              "equipmentId": "exposedTurbine",
+              "propulsionMigration": {
+                "version": 1,
+                "previous": {
+                  "id": 24,
+                  "k": "engine",
+                  "c": [
+                    189,
+                    71,
+                    -74
+                  ],
+                  "d": 18,
+                  "dir": [
+                    -1,
+                    0,
+                    0
+                  ],
+                  "reactor": 20,
+                  "label": "上段外舷スラスター",
+                  "bodyLength": 64,
+                  "bodyRadius": 0.36,
+                  "nozzleLength": 10,
+                  "skinAsset": "ven_aux_port",
+                  "skinAnchor": [
+                    189,
+                    71,
+                    -74
+                  ],
+                  "skinDiameter": 18,
+                  "engineLength": 76.437264,
+                  "equipmentId": "exposedTurbine"
+                },
+                "baselineThrustN": 2896792721570.0586,
+                "baselineInputW": 1.5685008875262218e+22
+              },
+              "propulsionModelVersion": 1,
+              "ratedInputW": 1.5685008875262218e+22,
+              "driveProfileId": "legacy-exposed",
+              "machineryLengthM": 64,
+              "machineryRadiusM": 6.4799999999999995,
+              "machineryOffsetM": 5,
+              "machineryFeedRadiusM": 5.22,
+              "machineryGradeId": "dense",
+              "legacyCoolingInputW": 1.5685008875262218e+22
+            },
+            "nozzleVolumeM3": 2544.690049407732,
+            "version": 1,
+            "machineryId": 24,
+            "ratedInputW": 1.5685008875262218e+22,
+            "driveProfileId": "legacy-exposed",
+            "machineryGradeId": "dense",
+            "wattsPerNewton": 5414612084.07102,
+            "ratedThrustN": 2896792721570.0586,
+            "effectiveMachineryVolumeM3": 6721.491692672881,
+            "machineryVolumeM3": 6721.491692672881,
+            "machineryLengthM": 64,
+            "machineryRadiusM": 6.4799999999999995,
+            "machineryDiameterM": 12.959999999999999,
+            "machineryOffsetM": 5,
+            "maxInputW": 2.2853071755087794e+22,
+            "maxRatedInputW": 2.2853071755087794e+22,
+            "inputDensityWPerM3": 2333560702360235500,
+            "allowedInputDensityWPerM3": 3400000000000000000,
+            "cost": 8375430.342947587,
+            "powerNode": "p24",
+            "heatNode": "p24",
+            "reactorId": 20,
+            "domain": "p20",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 1.5685008875262218e+22,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "partCost": 8393109.103145218
+          },
+          {
+            "id": 37,
+            "shape": {
+              "id": 37,
+              "k": "engine",
+              "c": [
+                53,
+                42,
+                54
+              ],
+              "d": 48,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 20,
+              "label": "主機関・長い内舷ノズル",
+              "bodyLength": 176,
+              "bodyRadius": 0.36,
+              "nozzleLength": 24,
+              "skinAsset": "ven_inner_stbd",
+              "skinAnchor": [
+                53,
+                42,
+                54
+              ],
+              "skinDiameter": 48,
+              "engineLength": 220.754793,
+              "equipmentId": "exposedTurbine",
+              "propulsionMigration": {
+                "version": 1,
+                "previous": {
+                  "id": 37,
+                  "k": "engine",
+                  "c": [
+                    53,
+                    42,
+                    54
+                  ],
+                  "d": 48,
+                  "dir": [
+                    -1,
+                    0,
+                    0
+                  ],
+                  "reactor": 20,
+                  "label": "主機関・長い内舷ノズル",
+                  "bodyLength": 176,
+                  "bodyRadius": 0.36,
+                  "nozzleLength": 24,
+                  "skinAsset": "ven_inner_stbd",
+                  "skinAnchor": [
+                    53,
+                    42,
+                    54
+                  ],
+                  "skinDiameter": 48,
+                  "engineLength": 220.754793,
+                  "equipmentId": "exposedTurbine"
+                },
+                "baselineThrustN": 49438595781462.336,
+                "baselineInputW": 2.6769081813780854e+23
+              },
+              "propulsionModelVersion": 1,
+              "ratedInputW": 2.6769081813780854e+23,
+              "driveProfileId": "legacy-exposed",
+              "machineryLengthM": 176,
+              "machineryRadiusM": 17.28,
+              "machineryOffsetM": 12,
+              "machineryFeedRadiusM": 13.919999999999998,
+              "machineryGradeId": "dense",
+              "legacyCoolingInputW": 2.6769081813780854e+23
+            },
+            "nozzleVolumeM3": 43429.3768432253,
+            "version": 1,
+            "machineryId": 37,
+            "ratedInputW": 2.6769081813780854e+23,
+            "driveProfileId": "legacy-exposed",
+            "machineryGradeId": "dense",
+            "wattsPerNewton": 5414612084.07102,
+            "ratedThrustN": 49438595781462.34,
+            "effectiveMachineryVolumeM3": 131442.50421226973,
+            "machineryVolumeM3": 131442.50421226973,
+            "machineryLengthM": 176,
+            "machineryRadiusM": 17.28,
+            "machineryDiameterM": 34.56,
+            "machineryOffsetM": 12,
+            "maxInputW": 4.469045143217171e+23,
+            "maxRatedInputW": 4.469045143217171e+23,
+            "inputDensityWPerM3": 2036562067514386700,
+            "allowedInputDensityWPerM3": 3400000000000000000,
+            "cost": 118783952.30001013,
+            "powerNode": "p37",
+            "heatNode": "p37",
+            "reactorId": 20,
+            "domain": "p20",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 2.6769081813780854e+23,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "partCost": 118965169.80738303
+          },
+          {
+            "id": 38,
+            "shape": {
+              "id": 38,
+              "k": "engine",
+              "c": [
+                112,
+                50,
+                106
+              ],
+              "d": 45,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 20,
+              "label": "主機関・外舷ノズル",
+              "bodyLength": 140,
+              "bodyRadius": 0.36,
+              "nozzleLength": 24,
+              "skinAsset": "ven_outer_stbd",
+              "skinAnchor": [
+                112,
+                50,
+                106
+              ],
+              "skinDiameter": 45,
+              "engineLength": 153.571357,
+              "equipmentId": "exposedTurbine",
+              "propulsionMigration": {
+                "version": 1,
+                "previous": {
+                  "id": 38,
+                  "k": "engine",
+                  "c": [
+                    112,
+                    50,
+                    106
+                  ],
+                  "d": 45,
+                  "dir": [
+                    -1,
+                    0,
+                    0
+                  ],
+                  "reactor": 20,
+                  "label": "主機関・外舷ノズル",
+                  "bodyLength": 140,
+                  "bodyRadius": 0.36,
+                  "nozzleLength": 24,
+                  "skinAsset": "ven_outer_stbd",
+                  "skinAnchor": [
+                    112,
+                    50,
+                    106
+                  ],
+                  "skinDiameter": 45,
+                  "engineLength": 153.571357,
+                  "equipmentId": "exposedTurbine"
+                },
+                "baselineThrustN": 43451890823550.88,
+                "baselineInputW": 2.352751331289333e+23
+              },
+              "propulsionModelVersion": 1,
+              "ratedInputW": 2.352751331289333e+23,
+              "driveProfileId": "legacy-exposed",
+              "machineryLengthM": 140,
+              "machineryRadiusM": 16.2,
+              "machineryOffsetM": 12,
+              "machineryFeedRadiusM": 13.049999999999999,
+              "machineryGradeId": "dense",
+              "legacyCoolingInputW": 2.352751331289333e+23
+            },
+            "nozzleVolumeM3": 38170.35074111599,
+            "version": 1,
+            "machineryId": 38,
+            "ratedInputW": 2.352751331289333e+23,
+            "driveProfileId": "legacy-exposed",
+            "machineryGradeId": "dense",
+            "wattsPerNewton": 5414612084.07102,
+            "ratedThrustN": 43451890823550.88,
+            "effectiveMachineryVolumeM3": 91895.39423576205,
+            "machineryVolumeM3": 91895.39423576205,
+            "machineryLengthM": 140,
+            "machineryRadiusM": 16.2,
+            "machineryDiameterM": 32.4,
+            "machineryOffsetM": 12,
+            "maxInputW": 3.12444340401591e+23,
+            "maxRatedInputW": 3.12444340401591e+23,
+            "inputDensityWPerM3": 2560249456303801300,
+            "allowedInputDensityWPerM3": 3400000000000000000,
+            "cost": 141919358.5931126,
+            "powerNode": "p38",
+            "heatNode": "p38",
+            "reactorId": 20,
+            "domain": "p20",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 2.352751331289333e+23,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "partCost": 142079539.99607706
+          },
+          {
+            "id": 39,
+            "shape": {
+              "id": 39,
+              "k": "engine",
+              "c": [
+                164,
+                87,
+                41
+              ],
+              "d": 21,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 20,
+              "label": "上段補助スラスター",
+              "bodyLength": 86,
+              "bodyRadius": 0.36,
+              "nozzleLength": 10,
+              "skinAsset": "ven_upper_stbd",
+              "skinAnchor": [
+                164,
+                87,
+                41
+              ],
+              "skinDiameter": 21,
+              "engineLength": 109.117692,
+              "equipmentId": "exposedTurbine",
+              "propulsionMigration": {
+                "version": 1,
+                "previous": {
+                  "id": 39,
+                  "k": "engine",
+                  "c": [
+                    164,
+                    87,
+                    41
+                  ],
+                  "d": 21,
+                  "dir": [
+                    -1,
+                    0,
+                    0
+                  ],
+                  "reactor": 20,
+                  "label": "上段補助スラスター",
+                  "bodyLength": 86,
+                  "bodyRadius": 0.36,
+                  "nozzleLength": 10,
+                  "skinAsset": "ven_upper_stbd",
+                  "skinAnchor": [
+                    164,
+                    87,
+                    41
+                  ],
+                  "skinDiameter": 21,
+                  "engineLength": 109.117692,
+                  "equipmentId": "exposedTurbine"
+                },
+                "baselineThrustN": 3942856759914.8027,
+                "baselineInputW": 2.1349039857995803e+22
+              },
+              "propulsionModelVersion": 1,
+              "ratedInputW": 2.1349039857995803e+22,
+              "driveProfileId": "legacy-exposed",
+              "machineryLengthM": 86,
+              "machineryRadiusM": 7.56,
+              "machineryOffsetM": 5,
+              "machineryFeedRadiusM": 6.09,
+              "machineryGradeId": "dense",
+              "legacyCoolingInputW": 2.1349039857995803e+22
+            },
+            "nozzleVolumeM3": 3463.6059005827474,
+            "version": 1,
+            "machineryId": 39,
+            "ratedInputW": 2.1349039857995803e+22,
+            "driveProfileId": "legacy-exposed",
+            "machineryGradeId": "dense",
+            "wattsPerNewton": 5414612084.07102,
+            "ratedThrustN": 3942856759914.803,
+            "effectiveMachineryVolumeM3": 12293.561628873058,
+            "machineryVolumeM3": 12293.561628873058,
+            "machineryLengthM": 86,
+            "machineryRadiusM": 7.56,
+            "machineryDiameterM": 15.12,
+            "machineryOffsetM": 5,
+            "maxInputW": 4.17981095381684e+22,
+            "maxRatedInputW": 4.17981095381684e+22,
+            "inputDensityWPerM3": 1736603313384361700,
+            "allowedInputDensityWPerM3": 3400000000000000000,
+            "cost": 7544241.241844424,
+            "powerNode": "p39",
+            "heatNode": "p39",
+            "reactorId": 20,
+            "domain": "p20",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 2.1349039857995803e+22,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "partCost": 7565595.6654467555
+          },
+          {
+            "id": 40,
+            "shape": {
+              "id": 40,
+              "k": "engine",
+              "c": [
+                189,
+                71,
+                74
+              ],
+              "d": 18,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 20,
+              "label": "上段外舷スラスター",
+              "bodyLength": 64,
+              "bodyRadius": 0.36,
+              "nozzleLength": 10,
+              "skinAsset": "ven_aux_stbd",
+              "skinAnchor": [
+                189,
+                71,
+                74
+              ],
+              "skinDiameter": 18,
+              "engineLength": 76.437264,
+              "equipmentId": "exposedTurbine",
+              "propulsionMigration": {
+                "version": 1,
+                "previous": {
+                  "id": 40,
+                  "k": "engine",
+                  "c": [
+                    189,
+                    71,
+                    74
+                  ],
+                  "d": 18,
+                  "dir": [
+                    -1,
+                    0,
+                    0
+                  ],
+                  "reactor": 20,
+                  "label": "上段外舷スラスター",
+                  "bodyLength": 64,
+                  "bodyRadius": 0.36,
+                  "nozzleLength": 10,
+                  "skinAsset": "ven_aux_stbd",
+                  "skinAnchor": [
+                    189,
+                    71,
+                    74
+                  ],
+                  "skinDiameter": 18,
+                  "engineLength": 76.437264,
+                  "equipmentId": "exposedTurbine"
+                },
+                "baselineThrustN": 2896792721570.0586,
+                "baselineInputW": 1.5685008875262218e+22
+              },
+              "propulsionModelVersion": 1,
+              "ratedInputW": 1.5685008875262218e+22,
+              "driveProfileId": "legacy-exposed",
+              "machineryLengthM": 64,
+              "machineryRadiusM": 6.4799999999999995,
+              "machineryOffsetM": 5,
+              "machineryFeedRadiusM": 5.22,
+              "machineryGradeId": "dense",
+              "legacyCoolingInputW": 1.5685008875262218e+22
+            },
+            "nozzleVolumeM3": 2544.690049407732,
+            "version": 1,
+            "machineryId": 40,
+            "ratedInputW": 1.5685008875262218e+22,
+            "driveProfileId": "legacy-exposed",
+            "machineryGradeId": "dense",
+            "wattsPerNewton": 5414612084.07102,
+            "ratedThrustN": 2896792721570.0586,
+            "effectiveMachineryVolumeM3": 6721.491692672881,
+            "machineryVolumeM3": 6721.491692672881,
+            "machineryLengthM": 64,
+            "machineryRadiusM": 6.4799999999999995,
+            "machineryDiameterM": 12.959999999999999,
+            "machineryOffsetM": 5,
+            "maxInputW": 2.2853071755087794e+22,
+            "maxRatedInputW": 2.2853071755087794e+22,
+            "inputDensityWPerM3": 2333560702360235500,
+            "allowedInputDensityWPerM3": 3400000000000000000,
+            "cost": 8375430.342947587,
+            "powerNode": "p40",
+            "heatNode": "p40",
+            "reactorId": 20,
+            "domain": "p20",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 1.5685008875262218e+22,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "partCost": 8393109.103145218
+          }
+        ],
+        "runtime": [
+          {
+            "mode": "cruise",
+            "actualInputW": 1.0799999999999998e+24,
+            "actualThrustN": 199460272172996.2,
+            "wasteHeatW": 5.399999999999999e+22,
+            "outputRatio": 1,
+            "physicalAccelerationMS2": 17792.390840199303,
+            "battleAccelerationMS2": 35.584781680398606,
+            "power": {
+              "P": 3.6e+24,
+              "fixed": 2.1231142074376247e+21,
+              "coolingReserved": 0,
+              "cooling": 0,
+              "drawNonCooling": 1.3027302041922953e+24,
+              "draw": 1.3027302041922953e+24,
+              "eng": 1.0799999999999998e+24,
+              "sh": 2.20607089984858e+23,
+              "wpn": 0,
+              "wantEng": 1.0799999999999998e+24,
+              "wantSh": 2.20607089984858e+23,
+              "wantWpn": 0,
+              "domains": [
+                {
+                  "id": "main",
+                  "availableW": 2.88e+24,
+                  "drawW": 1.3027302041922953e+24
+                }
+              ],
+              "weaponInputs": {},
+              "weaponInputRemainingJ": {}
+            }
+          },
+          {
+            "mode": "balanced",
+            "actualInputW": 1.0799999999999998e+24,
+            "actualThrustN": 199460272172996.2,
+            "wasteHeatW": 5.399999999999999e+22,
+            "outputRatio": 1,
+            "physicalAccelerationMS2": 17792.390840199303,
+            "battleAccelerationMS2": 35.584781680398606,
+            "power": {
+              "P": 3.6e+24,
+              "fixed": 2.1231142074376247e+21,
+              "coolingReserved": 0,
+              "cooling": 0,
+              "drawNonCooling": 1.3027302041922953e+24,
+              "draw": 1.3027302041922953e+24,
+              "eng": 1.0799999999999998e+24,
+              "sh": 2.20607089984858e+23,
+              "wpn": 0,
+              "wantEng": 1.0799999999999998e+24,
+              "wantSh": 2.20607089984858e+23,
+              "wantWpn": 0,
+              "domains": [
+                {
+                  "id": "main",
+                  "availableW": 3.6e+24,
+                  "drawW": 1.302730204192295e+24
+                }
+              ],
+              "weaponInputs": {},
+              "weaponInputRemainingJ": {}
+            }
+          },
+          {
+            "mode": "weapons",
+            "actualInputW": 1.0799999999999998e+24,
+            "actualThrustN": 199460272172996.2,
+            "wasteHeatW": 5.399999999999999e+22,
+            "outputRatio": 1,
+            "physicalAccelerationMS2": 17792.390840199303,
+            "battleAccelerationMS2": 35.584781680398606,
+            "power": {
+              "P": 3.6e+24,
+              "fixed": 2.1231142074376247e+21,
+              "coolingReserved": 0,
+              "cooling": 0,
+              "drawNonCooling": 1.3027302041922953e+24,
+              "draw": 1.3027302041922953e+24,
+              "eng": 1.0799999999999998e+24,
+              "sh": 2.20607089984858e+23,
+              "wpn": 0,
+              "wantEng": 1.0799999999999998e+24,
+              "wantSh": 2.20607089984858e+23,
+              "wantWpn": 0,
+              "domains": [
+                {
+                  "id": "main",
+                  "availableW": 4.32e+24,
+                  "drawW": 1.302730204192295e+24
+                }
+              ],
+              "weaponInputs": {},
+              "weaponInputRemainingJ": {}
+            }
+          },
+          {
+            "mode": "shields",
+            "actualInputW": 1.0799999999999998e+24,
+            "actualThrustN": 199460272172996.2,
+            "wasteHeatW": 5.399999999999999e+22,
+            "outputRatio": 1,
+            "physicalAccelerationMS2": 17792.390840199303,
+            "battleAccelerationMS2": 35.584781680398606,
+            "power": {
+              "P": 3.6e+24,
+              "fixed": 2.1231142074376247e+21,
+              "coolingReserved": 0,
+              "cooling": 0,
+              "drawNonCooling": 1.3027302041922953e+24,
+              "draw": 1.3027302041922953e+24,
+              "eng": 1.0799999999999998e+24,
+              "sh": 2.20607089984858e+23,
+              "wpn": 0,
+              "wantEng": 1.0799999999999998e+24,
+              "wantSh": 2.20607089984858e+23,
+              "wantWpn": 0,
+              "domains": [
+                {
+                  "id": "main",
+                  "availableW": 4.32e+24,
+                  "drawW": 1.302730204192295e+24
+                }
+              ],
+              "weaponInputs": {},
+              "weaponInputRemainingJ": {}
+            }
+          }
+        ],
+        "preview": {
+          "engines": [
+            {
+              "id": 21,
+              "machineryId": 21,
+              "requestedInputW": 9.369178634823299e+22,
+              "actualInputW": 9.369178634823299e+22,
+              "actualThrustN": 17303508523511.818,
+              "wasteHeatW": 4.6845893174116494e+21,
+              "direction": [
+                1,
+                0,
+                0
+              ],
+              "reasons": []
+            },
+            {
+              "id": 22,
+              "machineryId": 22,
+              "requestedInputW": 8.234629659512664e+22,
+              "actualInputW": 8.234629659512664e+22,
+              "actualThrustN": 15208161788242.809,
+              "wasteHeatW": 4.1173148297563325e+21,
+              "direction": [
+                1,
+                0,
+                0
+              ],
+              "reasons": []
+            },
+            {
+              "id": 23,
+              "machineryId": 23,
+              "requestedInputW": 7.472163950298531e+21,
+              "actualInputW": 7.472163950298531e+21,
+              "actualThrustN": 1379999865970.1812,
+              "wasteHeatW": 373608197514926560000,
+              "direction": [
+                1,
+                0,
+                0
+              ],
+              "reasons": []
+            },
+            {
+              "id": 24,
+              "machineryId": 24,
+              "requestedInputW": 5.489753106341776e+21,
+              "actualInputW": 5.489753106341776e+21,
+              "actualThrustN": 1013877452549.5205,
+              "wasteHeatW": 274487655317088830000,
+              "direction": [
+                1,
+                0,
+                0
+              ],
+              "reasons": []
+            },
+            {
+              "id": 37,
+              "machineryId": 37,
+              "requestedInputW": 9.369178634823299e+22,
+              "actualInputW": 9.369178634823299e+22,
+              "actualThrustN": 17303508523511.818,
+              "wasteHeatW": 4.6845893174116494e+21,
+              "direction": [
+                1,
+                0,
+                0
+              ],
+              "reasons": []
+            },
+            {
+              "id": 38,
+              "machineryId": 38,
+              "requestedInputW": 8.234629659512664e+22,
+              "actualInputW": 8.234629659512664e+22,
+              "actualThrustN": 15208161788242.809,
+              "wasteHeatW": 4.1173148297563325e+21,
+              "direction": [
+                1,
+                0,
+                0
+              ],
+              "reasons": []
+            },
+            {
+              "id": 39,
+              "machineryId": 39,
+              "requestedInputW": 7.472163950298531e+21,
+              "actualInputW": 7.472163950298531e+21,
+              "actualThrustN": 1379999865970.1812,
+              "wasteHeatW": 373608197514926560000,
+              "direction": [
+                1,
+                0,
+                0
+              ],
+              "reasons": []
+            },
+            {
+              "id": 40,
+              "machineryId": 40,
+              "requestedInputW": 5.489753106341776e+21,
+              "actualInputW": 5.489753106341776e+21,
+              "actualThrustN": 1013877452549.5205,
+              "wasteHeatW": 274487655317088830000,
+              "direction": [
+                1,
+                0,
+                0
+              ],
+              "reasons": []
+            }
+          ],
+          "totalRequestedInputW": 3.779999999999999e+23,
+          "totalActualInputW": 3.779999999999999e+23,
+          "totalThrustN": 69811095260548.66,
+          "wasteHeatW": 1.8899999999999995e+22,
+          "forceVector": [
+            69811095260548.66,
+            0,
+            0
+          ],
+          "accelerationVector": [
+            10169.753115378448,
+            0,
+            0
+          ],
+          "freeAccelerationMps2": 10169.753115378448,
+          "ratedThrustN": 199460272172996.2,
+          "outputRatio": 0.35,
+          "valid": true,
+          "version": 1,
+          "ratedInputW": 1.0799999999999998e+24,
+          "ratedAccelMps2": 29056.437472509857,
+          "actualInputW": 3.779999999999999e+23,
+          "actualThrustN": 69811095260548.66,
+          "actualAccelMps2": 6227.336794069755,
+          "cappedAccelerationMps2": 6227.336794069755,
+          "accelerationMps2": 6227.336794069755,
+          "power": {
+            "engines": 3.779999999999999e+23,
+            "shields": 2.20607089984858e+23,
+            "weapons": 1.1873706547564915e+24,
+            "fixed": 2.1231142074376247e+21,
+            "cooling": 0,
+            "granted": {
+              "fixed:hotel": 2.1231142074376247e+21,
+              "shields:81": 1.10303544992429e+23,
+              "shields:93": 1.10303544992429e+23,
+              "weapons:0": 7609561537020266,
+              "weapons:1": 20258436958133356,
+              "weapons:2": 7609561537020266,
+              "weapons:3": 20258436958133356,
+              "weapons:4": 7609561537020266,
+              "weapons:5": 20258436958133356,
+              "weapons:6": 7.074239312685991e+21,
+              "weapons:7": 9.188908058068599e+21,
+              "weapons:8": 9.188908058068599e+21,
+              "weapons:9": 9.1889080580686e+21,
+              "weapons:10": 1.609494677046078e+23,
+              "weapons:11": 1.609494677046078e+23,
+              "weapons:12": 1.609494677046078e+23,
+              "weapons:13": 354839184844804600,
+              "weapons:14": 133286226296870610,
+              "weapons:15": 1.609494677046078e+23,
+              "weapons:16": 1.609494677046078e+23,
+              "weapons:17": 1.609494677046078e+23,
+              "weapons:18": 203217445736275230,
+              "weapons:19": 76333414168234540,
+              "weapons:24": 4298587092053921300,
+              "weapons:25": 1614653838636487700,
+              "weapons:26": 1614653838636487700,
+              "weapons:27": 1614653838636487700,
+              "weapons:28": 2e+22,
+              "weapons:29": 2e+22,
+              "weapons:30": 9.1889080580686e+21,
+              "weapons:31": 9.188908058068599e+21,
+              "weapons:32": 20258436958133356,
+              "weapons:33": 7609561537020266,
+              "weapons:34": 20258436958133356,
+              "weapons:35": 7609561537020266,
+              "weapons:36": 20258436958133356,
+              "weapons:37": 7609561537020266,
+              "weapons:38": 20258436958133356,
+              "weapons:39": 7609561537020266,
+              "weapons:40": 9.188908058068599e+21,
+              "weapons:41": 9.188908058068599e+21,
+              "weapons:42": 9.188908058068599e+21,
+              "weapons:43": 9.188908058068599e+21,
+              "weapons:44": 9.1889080580686e+21,
+              "weapons:45": 9.188908058068599e+21,
+              "weapons:46": 9.1889080580686e+21,
+              "weapons:47": 9.188908058068599e+21,
+              "weapons:48": 20258436958133356,
+              "weapons:49": 7609561537020266,
+              "weapons:50": 20258436958133356,
+              "weapons:51": 7609561537020266,
+              "weapons:52": 20258436958133356,
+              "weapons:53": 7609561537020266,
+              "weapons:54": 20258436958133356,
+              "weapons:55": 7609561537020266,
+              "weapons:56": 20258436958133356,
+              "weapons:57": 7609561537020266,
+              "weapons:58": 20258436958133356,
+              "weapons:59": 7609561537020266,
+              "weapons:60": 20258436958133356,
+              "weapons:61": 7609561537020266,
+              "weapons:62": 20258436958133356,
+              "weapons:63": 7609561537020266,
+              "weapons:64": 9.188908058068599e+21,
+              "weapons:65": 9.188908058068599e+21,
+              "weapons:66": 9.188908058068599e+21,
+              "weapons:67": 9.188908058068599e+21,
+              "weapons:68": 9.188908058068599e+21,
+              "weapons:69": 9.188908058068599e+21,
+              "weapons:70": 20258436958133356,
+              "weapons:71": 7609561537020266,
+              "engine:21": 9.369178634823299e+22,
+              "engine:22": 8.234629659512664e+22,
+              "engine:23": 7.472163950298531e+21,
+              "engine:24": 5.489753106341776e+21,
+              "engine:37": 9.369178634823299e+22,
+              "engine:38": 8.234629659512664e+22,
+              "engine:39": 7.472163950298531e+21,
+              "engine:40": 5.489753106341776e+21
+            },
+            "P": 3.6e+24,
+            "draw": 1.788100858948787e+24,
+            "load": 0.4966946830413298,
+            "short": false,
+            "sources": [
+              {
+                "id": "p20",
+                "domain": "main",
+                "availableW": 3.164268828895034e+24,
+                "drawW": 1.3330226806819193e+24
+              },
+              {
+                "id": "p27",
+                "domain": "main",
+                "availableW": 5.778655855524829e+23,
+                "drawW": 3.0801382570802556e+23
+              },
+              {
+                "id": "p43",
+                "domain": "main",
+                "availableW": 5.778655855524829e+23,
+                "drawW": 1.4706435255884437e+23
+              }
+            ],
+            "domains": [
+              {
+                "id": "main",
+                "availableW": 4.32e+24,
+                "drawW": 1.7881008589487895e+24
+              }
+            ]
+          },
+          "preset": "combat"
+        },
+        "thermalPresets": {
+          "cruise": {
+            "name": "通常航行",
+            "gen": 1.3553444937058682e+23,
+            "out": 1.3553444937058682e+23,
+            "cap": 3.060095586827768e+24,
+            "used": 1.355344493705868e+23,
+            "margin": 22.577991064549664,
+            "stored": 0,
+            "endurance": 612.21687167346,
+            "over": [],
+            "overCount": 0,
+            "sig": {
+              "nu": 8.004680109788952e+22,
+              "ir": 4.614885481127685e+22,
+              "em": 9.338793461420443e+21
+            }
+          },
+          "combat": {
+            "name": "戦闘",
+            "gen": 1.254395977730771e+24,
+            "out": 7.250123556770607e+23,
+            "cap": 3.060095586827768e+24,
+            "used": 7.250123556770607e+23,
+            "margin": 0.5779772643951103,
+            "stored": 5.2938362205371015e+23,
+            "endurance": 66.14855123160697,
+            "over": [
+              {
+                "name": "DBY-827 #87",
+                "k": "weapon",
+                "gen": 1.352449321407752e+23,
+                "stored": 7.733430789585801e+22,
+                "t": 73.45106336972586
+              },
+              {
+                "name": "小型両用TL #133",
+                "k": "weapon",
+                "gen": 2.231598859701616e+22,
+                "stored": 1.1974805696138088e+22,
+                "t": 80.99374999146472
+              },
+              {
+                "name": "小型両用TL #78",
+                "k": "weapon",
+                "gen": 2.117389533683387e+22,
+                "stored": 1.0832712435955797e+22,
+                "t": 82.09426857813169
+              },
+              {
+                "name": "DBY-827 #82",
+                "k": "weapon",
+                "gen": 1.1857381388626964e+23,
+                "stored": 6.066318964135245e+22,
+                "t": 82.09426857813169
+              },
+              {
+                "name": "DBY-827 #84",
+                "k": "weapon",
+                "gen": 1.1857381388626964e+23,
+                "stored": 6.066318964135245e+22,
+                "t": 82.09426857813169
+              },
+              {
+                "name": "DBY-827 #88",
+                "k": "weapon",
+                "gen": 1.1857381388626964e+23,
+                "stored": 6.066318964135245e+22,
+                "t": 82.09426857813169
+              },
+              {
+                "name": "DBY-827 #89",
+                "k": "weapon",
+                "gen": 1.1857381388626964e+23,
+                "stored": 6.066318964135245e+22,
+                "t": 82.09426857813169
+              },
+              {
+                "name": "牽引 #116",
+                "k": "weapon",
+                "gen": 4.0485459535055196e+21,
+                "stored": 2.071264328098623e+21,
+                "t": 82.09426857813169
+              }
+            ],
+            "overCount": 31,
+            "sig": {
+              "nu": 4.337335448817732e+23,
+              "ir": 2.4067656389241293e+23,
+              "em": 5.060224690287352e+22
+            }
+          },
+          "max": {
+            "name": "最大出力",
+            "gen": 1.3986094549395247e+24,
+            "out": 8.100726302213638e+23,
+            "cap": 3.060095586827768e+24,
+            "used": 8.100726302213638e+23,
+            "margin": 0.579198594261177,
+            "stored": 5.8853682471816095e+23,
+            "endurance": 59.32783902224763,
+            "over": [
+              {
+                "name": "小型両用TL #78",
+                "k": "weapon",
+                "gen": 2.2279338537782715e+22,
+                "stored": 1.1938155636904644e+22,
+                "t": 74.49254568250907
+              },
+              {
+                "name": "DBY-827 #82",
+                "k": "weapon",
+                "gen": 1.2476429581158318e+23,
+                "stored": 6.685367156666599e+22,
+                "t": 74.49254568250907
+              },
+              {
+                "name": "DBY-827 #84",
+                "k": "weapon",
+                "gen": 1.2476429581158318e+23,
+                "stored": 6.685367156666599e+22,
+                "t": 74.49254568250907
+              },
+              {
+                "name": "DBY-827 #88",
+                "k": "weapon",
+                "gen": 1.2476429581158318e+23,
+                "stored": 6.685367156666599e+22,
+                "t": 74.49254568250907
+              },
+              {
+                "name": "DBY-827 #89",
+                "k": "weapon",
+                "gen": 1.2476429581158318e+23,
+                "stored": 6.685367156666599e+22,
+                "t": 74.49254568250907
+              },
+              {
+                "name": "牽引 #116",
+                "k": "weapon",
+                "gen": 4.259911766306446e+21,
+                "stored": 2.2826301408995495e+21,
+                "t": 74.49254568250907
+              },
+              {
+                "name": "牽引 #117",
+                "k": "weapon",
+                "gen": 4.259911766306446e+21,
+                "stored": 2.2826301408995495e+21,
+                "t": 74.49254568250907
+              },
+              {
+                "name": "小型両用TL #128",
+                "k": "weapon",
+                "gen": 2.2279338537782715e+22,
+                "stored": 1.1938155636904644e+22,
+                "t": 74.49254568250907
+              }
+            ],
+            "overCount": 34,
+            "sig": {
+              "nu": 4.847697096083545e+23,
+              "ir": 2.6874645449203268e+23,
+              "em": 5.655646612097467e+22
+            }
+          }
+        }
+      },
+      "ratios": {
+        "mass": 1,
+        "cost": 15.757542019223116,
+        "partRatedThrust": 1.0000000000000002,
+        "designAcceleration": 0.35000000000000003,
+        "maxSpeed": 0.998820605086711
+      },
+      "elapsedMs": 155901.87400399998
+    },
+    {
+      "kind": "smallcraft",
+      "key": "craft_xwing",
+      "before": {
+        "massTonnes": 23.588422538859724,
+        "cost": 177922,
+        "powerW": 12317805341863060000,
+        "engineDemandW": 1634256498397410300,
+        "ratedThrustN": 817128249.1987052,
+        "availableThrustN": 817128249.1987052,
+        "freeAccelerationMS2": 34641.07224010265,
+        "designAccelerationMS2": 34641.07224010265,
+        "battleAccelerationMS2": 69.2821444802053,
+        "maxSpeedMS": 2038,
+        "mglt": 101.9,
+        "coolingCapacityW": 850560692804381800000,
+        "engineRows": [
+          {
+            "id": 31,
+            "shape": {
+              "id": 31,
+              "k": "engine",
+              "c": [
+                2.145,
+                2.832585332884771,
+                1.4275950100516046
+              ],
+              "d": 0.6,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 30,
+              "tw": 32,
+              "label": "右舷上機関 4L4 核融合推進機関",
+              "nozzleLength": 4.25,
+              "bodyLength": 0.15,
+              "bodyRadius": 0.52
+            },
+            "nozzleVolumeM3": 1.201659189998096,
+            "ratedInputW": 408564124599352600,
+            "ratedThrustN": 204282062.2996763,
+            "wattsPerNewton": 2000000000,
+            "partCost": 7504.806636759992
+          },
+          {
+            "id": 32,
+            "shape": {
+              "id": 32,
+              "k": "engine",
+              "c": [
+                2.145,
+                2.832585332884771,
+                -1.4275950100516046
+              ],
+              "d": 0.6,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 30,
+              "tw": 31,
+              "label": "右舷上機関 4L4 核融合推進機関",
+              "nozzleLength": 4.25,
+              "bodyLength": 0.15,
+              "bodyRadius": 0.52
+            },
+            "nozzleVolumeM3": 1.201659189998096,
+            "ratedInputW": 408564124599352600,
+            "ratedThrustN": 204282062.2996763,
+            "wattsPerNewton": 2000000000,
+            "partCost": 7504.806636759992
+          },
+          {
+            "id": 33,
+            "shape": {
+              "id": 33,
+              "k": "engine",
+              "c": [
+                2.145,
+                0.8314146671152286,
+                1.4275950100516046
+              ],
+              "d": 0.6,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 30,
+              "tw": 34,
+              "label": "右舷下機関 4L4 核融合推進機関",
+              "nozzleLength": 4.25,
+              "bodyLength": 0.15,
+              "bodyRadius": 0.52
+            },
+            "nozzleVolumeM3": 1.201659189998096,
+            "ratedInputW": 408564124599352600,
+            "ratedThrustN": 204282062.2996763,
+            "wattsPerNewton": 2000000000,
+            "partCost": 7504.806636759992
+          },
+          {
+            "id": 34,
+            "shape": {
+              "id": 34,
+              "k": "engine",
+              "c": [
+                2.145,
+                0.8314146671152286,
+                -1.4275950100516046
+              ],
+              "d": 0.6,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 30,
+              "tw": 33,
+              "label": "右舷下機関 4L4 核融合推進機関",
+              "nozzleLength": 4.25,
+              "bodyLength": 0.15,
+              "bodyRadius": 0.52
+            },
+            "nozzleVolumeM3": 1.201659189998096,
+            "ratedInputW": 408564124599352600,
+            "ratedThrustN": 204282062.2996763,
+            "wattsPerNewton": 2000000000,
+            "partCost": 7504.806636759992
+          }
+        ],
+        "runtime": [
+          {
+            "mode": "cruise",
+            "actualInputW": 7354154242788346000,
+            "actualThrustN": null,
+            "legacyEngF": 1,
+            "legacyThrustMultiplier": 1,
+            "wasteHeatW": 367707712139417340,
+            "note": "Old runtime did not resolve N from actual W."
+          },
+          {
+            "mode": "balanced",
+            "actualInputW": 1040648469467062300,
+            "actualThrustN": null,
+            "legacyEngF": 0.14150484679969097,
+            "legacyThrustMultiplier": 0.14150484679969097,
+            "wasteHeatW": 52032423473353120,
+            "note": "Old runtime did not resolve N from actual W."
+          },
+          {
+            "mode": "weapons",
+            "actualInputW": 3504209537839673300,
+            "actualThrustN": null,
+            "legacyEngF": 0.4764938866051093,
+            "legacyThrustMultiplier": 0.4764938866051093,
+            "wasteHeatW": 175210476891983680,
+            "note": "Old runtime did not resolve N from actual W."
+          },
+          {
+            "mode": "shields",
+            "actualInputW": 3504209537839673300,
+            "actualThrustN": null,
+            "legacyEngF": 0.4764938866051093,
+            "legacyThrustMultiplier": 0.4764938866051093,
+            "wasteHeatW": 175210476891983680,
+            "note": "Old runtime did not resolve N from actual W."
+          }
+        ]
+      },
+      "after": {
+        "planning": {
+          "ratedAccelerationMS2": 34641.07224010264,
+          "acceptanceLimitedAccelerationMS2": 34641.07224010264,
+          "maximumAccelerationMS2": 34641.07224010264,
+          "structuralLimitMS2": 174067.79563429786,
+          "inertialSupportTonnes": 48.99376575126354
+        },
+        "massTonnes": 23.588422538859724,
+        "cost": 188341,
+        "powerW": 12317805341863060000,
+        "engineDemandW": 1634256498397410300,
+        "ratedThrustN": 817128249.1987052,
+        "availableThrustN": 285994887.2195468,
+        "freeAccelerationMS2": 12124.375284035925,
+        "designAccelerationMS2": 12124.375284035925,
+        "battleAccelerationMS2": 69.28214448020529,
+        "maxSpeedMS": 2038,
+        "mglt": 101.9,
+        "coolingCapacityW": 850421781002018100000,
+        "engineRows": [
+          {
+            "id": 31,
+            "shape": {
+              "id": 31,
+              "k": "engine",
+              "c": [
+                2.145,
+                2.832585332884771,
+                1.4275950100516046
+              ],
+              "d": 0.6,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 30,
+              "tw": 32,
+              "label": "右舷上機関 4L4 核融合推進機関",
+              "nozzleLength": 4.25,
+              "bodyLength": 0.15,
+              "bodyRadius": 0.52,
+              "propulsionMigration": {
+                "version": 1,
+                "previous": {
+                  "id": 31,
+                  "k": "engine",
+                  "c": [
+                    2.145,
+                    2.832585332884771,
+                    1.4275950100516046
+                  ],
+                  "d": 0.6,
+                  "dir": [
+                    -1,
+                    0,
+                    0
+                  ],
+                  "reactor": 30,
+                  "tw": 32,
+                  "label": "右舷上機関 4L4 核融合推進機関",
+                  "nozzleLength": 4.25,
+                  "bodyLength": 0.15,
+                  "bodyRadius": 0.52
+                },
+                "baselineThrustN": 204282062.2996763,
+                "baselineInputW": 408564124599352600
+              },
+              "propulsionModelVersion": 1,
+              "ratedInputW": 408564124599352600,
+              "driveProfileId": "standard",
+              "machineryLengthM": 0.15,
+              "machineryRadiusM": 0.312,
+              "machineryOffsetM": 2.125,
+              "machineryFeedRadiusM": 0.174,
+              "machineryGradeId": "advanced",
+              "legacyCoolingInputW": 408564124599352600
+            },
+            "nozzleVolumeM3": 1.201659189998096,
+            "version": 1,
+            "machineryId": 31,
+            "ratedInputW": 408564124599352600,
+            "driveProfileId": "standard",
+            "machineryGradeId": "advanced",
+            "wattsPerNewton": 2000000000,
+            "ratedThrustN": 204282062.2996763,
+            "effectiveMachineryVolumeM3": 0.03652045061926817,
+            "machineryVolumeM3": 0.03652045061926817,
+            "machineryLengthM": 0.15,
+            "machineryRadiusM": 0.312,
+            "machineryDiameterM": 0.624,
+            "machineryOffsetM": 2.125,
+            "maxInputW": 1241695321055117600,
+            "maxRatedInputW": 1241695321055117600,
+            "inputDensityWPerM3": 11187269534505535000,
+            "allowedInputDensityWPerM3": 34000000000000000000,
+            "cost": 2604.9192917531664,
+            "powerNode": "p31",
+            "heatNode": "p31",
+            "reactorId": 30,
+            "domain": "p30",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 408564124599352600,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "partCost": 10109.725928513159
+          },
+          {
+            "id": 32,
+            "shape": {
+              "id": 32,
+              "k": "engine",
+              "c": [
+                2.145,
+                2.832585332884771,
+                -1.4275950100516046
+              ],
+              "d": 0.6,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 30,
+              "tw": 31,
+              "label": "右舷上機関 4L4 核融合推進機関",
+              "nozzleLength": 4.25,
+              "bodyLength": 0.15,
+              "bodyRadius": 0.52,
+              "propulsionMigration": {
+                "version": 1,
+                "previous": {
+                  "id": 32,
+                  "k": "engine",
+                  "c": [
+                    2.145,
+                    2.832585332884771,
+                    -1.4275950100516046
+                  ],
+                  "d": 0.6,
+                  "dir": [
+                    -1,
+                    0,
+                    0
+                  ],
+                  "reactor": 30,
+                  "tw": 31,
+                  "label": "右舷上機関 4L4 核融合推進機関",
+                  "nozzleLength": 4.25,
+                  "bodyLength": 0.15,
+                  "bodyRadius": 0.52
+                },
+                "baselineThrustN": 204282062.2996763,
+                "baselineInputW": 408564124599352600
+              },
+              "propulsionModelVersion": 1,
+              "ratedInputW": 408564124599352600,
+              "driveProfileId": "standard",
+              "machineryLengthM": 0.15,
+              "machineryRadiusM": 0.312,
+              "machineryOffsetM": 2.125,
+              "machineryFeedRadiusM": 0.174,
+              "machineryGradeId": "advanced",
+              "legacyCoolingInputW": 408564124599352600
+            },
+            "nozzleVolumeM3": 1.201659189998096,
+            "version": 1,
+            "machineryId": 32,
+            "ratedInputW": 408564124599352600,
+            "driveProfileId": "standard",
+            "machineryGradeId": "advanced",
+            "wattsPerNewton": 2000000000,
+            "ratedThrustN": 204282062.2996763,
+            "effectiveMachineryVolumeM3": 0.03652045061926817,
+            "machineryVolumeM3": 0.03652045061926817,
+            "machineryLengthM": 0.15,
+            "machineryRadiusM": 0.312,
+            "machineryDiameterM": 0.624,
+            "machineryOffsetM": 2.125,
+            "maxInputW": 1241695321055117600,
+            "maxRatedInputW": 1241695321055117600,
+            "inputDensityWPerM3": 11187269534505535000,
+            "allowedInputDensityWPerM3": 34000000000000000000,
+            "cost": 2604.9192917531664,
+            "powerNode": "p32",
+            "heatNode": "p32",
+            "reactorId": 30,
+            "domain": "p30",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 408564124599352600,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "partCost": 10109.725928513159
+          },
+          {
+            "id": 33,
+            "shape": {
+              "id": 33,
+              "k": "engine",
+              "c": [
+                2.145,
+                0.8314146671152286,
+                1.4275950100516046
+              ],
+              "d": 0.6,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 30,
+              "tw": 34,
+              "label": "右舷下機関 4L4 核融合推進機関",
+              "nozzleLength": 4.25,
+              "bodyLength": 0.15,
+              "bodyRadius": 0.52,
+              "propulsionMigration": {
+                "version": 1,
+                "previous": {
+                  "id": 33,
+                  "k": "engine",
+                  "c": [
+                    2.145,
+                    0.8314146671152286,
+                    1.4275950100516046
+                  ],
+                  "d": 0.6,
+                  "dir": [
+                    -1,
+                    0,
+                    0
+                  ],
+                  "reactor": 30,
+                  "tw": 34,
+                  "label": "右舷下機関 4L4 核融合推進機関",
+                  "nozzleLength": 4.25,
+                  "bodyLength": 0.15,
+                  "bodyRadius": 0.52
+                },
+                "baselineThrustN": 204282062.2996763,
+                "baselineInputW": 408564124599352600
+              },
+              "propulsionModelVersion": 1,
+              "ratedInputW": 408564124599352600,
+              "driveProfileId": "standard",
+              "machineryLengthM": 0.15,
+              "machineryRadiusM": 0.312,
+              "machineryOffsetM": 2.125,
+              "machineryFeedRadiusM": 0.174,
+              "machineryGradeId": "advanced",
+              "legacyCoolingInputW": 408564124599352600
+            },
+            "nozzleVolumeM3": 1.201659189998096,
+            "version": 1,
+            "machineryId": 33,
+            "ratedInputW": 408564124599352600,
+            "driveProfileId": "standard",
+            "machineryGradeId": "advanced",
+            "wattsPerNewton": 2000000000,
+            "ratedThrustN": 204282062.2996763,
+            "effectiveMachineryVolumeM3": 0.03652045061926817,
+            "machineryVolumeM3": 0.03652045061926817,
+            "machineryLengthM": 0.15,
+            "machineryRadiusM": 0.312,
+            "machineryDiameterM": 0.624,
+            "machineryOffsetM": 2.125,
+            "maxInputW": 1241695321055117600,
+            "maxRatedInputW": 1241695321055117600,
+            "inputDensityWPerM3": 11187269534505535000,
+            "allowedInputDensityWPerM3": 34000000000000000000,
+            "cost": 2604.9192917531664,
+            "powerNode": "p33",
+            "heatNode": "p33",
+            "reactorId": 30,
+            "domain": "p30",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 408564124599352600,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "partCost": 10109.725928513159
+          },
+          {
+            "id": 34,
+            "shape": {
+              "id": 34,
+              "k": "engine",
+              "c": [
+                2.145,
+                0.8314146671152286,
+                -1.4275950100516046
+              ],
+              "d": 0.6,
+              "dir": [
+                -1,
+                0,
+                0
+              ],
+              "reactor": 30,
+              "tw": 33,
+              "label": "右舷下機関 4L4 核融合推進機関",
+              "nozzleLength": 4.25,
+              "bodyLength": 0.15,
+              "bodyRadius": 0.52,
+              "propulsionMigration": {
+                "version": 1,
+                "previous": {
+                  "id": 34,
+                  "k": "engine",
+                  "c": [
+                    2.145,
+                    0.8314146671152286,
+                    -1.4275950100516046
+                  ],
+                  "d": 0.6,
+                  "dir": [
+                    -1,
+                    0,
+                    0
+                  ],
+                  "reactor": 30,
+                  "tw": 33,
+                  "label": "右舷下機関 4L4 核融合推進機関",
+                  "nozzleLength": 4.25,
+                  "bodyLength": 0.15,
+                  "bodyRadius": 0.52
+                },
+                "baselineThrustN": 204282062.2996763,
+                "baselineInputW": 408564124599352600
+              },
+              "propulsionModelVersion": 1,
+              "ratedInputW": 408564124599352600,
+              "driveProfileId": "standard",
+              "machineryLengthM": 0.15,
+              "machineryRadiusM": 0.312,
+              "machineryOffsetM": 2.125,
+              "machineryFeedRadiusM": 0.174,
+              "machineryGradeId": "advanced",
+              "legacyCoolingInputW": 408564124599352600
+            },
+            "nozzleVolumeM3": 1.201659189998096,
+            "version": 1,
+            "machineryId": 34,
+            "ratedInputW": 408564124599352600,
+            "driveProfileId": "standard",
+            "machineryGradeId": "advanced",
+            "wattsPerNewton": 2000000000,
+            "ratedThrustN": 204282062.2996763,
+            "effectiveMachineryVolumeM3": 0.03652045061926817,
+            "machineryVolumeM3": 0.03652045061926817,
+            "machineryLengthM": 0.15,
+            "machineryRadiusM": 0.312,
+            "machineryDiameterM": 0.624,
+            "machineryOffsetM": 2.125,
+            "maxInputW": 1241695321055117600,
+            "maxRatedInputW": 1241695321055117600,
+            "inputDensityWPerM3": 11187269534505535000,
+            "allowedInputDensityWPerM3": 34000000000000000000,
+            "cost": 2604.9192917531664,
+            "powerNode": "p34",
+            "heatNode": "p34",
+            "reactorId": 30,
+            "domain": "p30",
+            "direction": [
+              1,
+              0,
+              0
+            ],
+            "legacyCoolingInputW": 408564124599352600,
+            "valid": true,
+            "issues": [],
+            "reasons": [],
+            "partCost": 10109.725928513159
+          }
+        ],
+        "runtime": [
+          {
+            "mode": "cruise",
+            "actualInputW": 1634256498397410300,
+            "actualThrustN": 817128249.1987052,
+            "wasteHeatW": 81712824919870510,
+            "outputRatio": 1,
+            "physicalAccelerationMS2": 34641.07224010264,
+            "battleAccelerationMS2": 69.28214448020529,
+            "power": {
+              "P": 12317805341863060000,
+              "fixed": 25419063929610170,
+              "coolingReserved": 0,
+              "cooling": 0,
+              "drawNonCooling": 9854244273490448000,
+              "draw": 9854244273490448000,
+              "eng": 1634256498397410300,
+              "sh": 8194568711163428000,
+              "wpn": 0,
+              "wantEng": 1634256498397410300,
+              "wantSh": 11251737808466387000,
+              "wantWpn": 0,
+              "domains": [
+                {
+                  "id": "main",
+                  "availableW": 9854244273490448000,
+                  "drawW": 9854244273490448000
+                }
+              ],
+              "weaponInputs": {},
+              "weaponInputRemainingJ": {}
+            }
+          },
+          {
+            "mode": "balanced",
+            "actualInputW": 1040648469467062300,
+            "actualThrustN": 520324234.7335311,
+            "wasteHeatW": 52032423473353120,
+            "outputRatio": 0.6367718105986093,
+            "physicalAccelerationMS2": 22058.458291407384,
+            "battleAccelerationMS2": 44.11691658281477,
+            "power": {
+              "P": 12317805341863060000,
+              "fixed": 25419063929610170,
+              "coolingReserved": 0,
+              "cooling": 0,
+              "drawNonCooling": 12317805341863060000,
+              "draw": 12317805341863060000,
+              "eng": 1040648469467062300,
+              "sh": 11251737808466387000,
+              "wpn": 0,
+              "wantEng": 1634256498397410300,
+              "wantSh": 11251737808466387000,
+              "wantWpn": 0,
+              "domains": [
+                {
+                  "id": "main",
+                  "availableW": 12317805341863060000,
+                  "drawW": 12317805341863060000
+                }
+              ],
+              "weaponInputs": {},
+              "weaponInputRemainingJ": {}
+            }
+          },
+          {
+            "mode": "weapons",
+            "actualInputW": 1634256498397410300,
+            "actualThrustN": 817128249.1987052,
+            "wasteHeatW": 81712824919870510,
+            "outputRatio": 1,
+            "physicalAccelerationMS2": 34641.07224010264,
+            "battleAccelerationMS2": 69.28214448020529,
+            "power": {
+              "P": 12317805341863060000,
+              "fixed": 25419063929610170,
+              "coolingReserved": 0,
+              "cooling": 0,
+              "drawNonCooling": 12911413370793406000,
+              "draw": 12911413370793406000,
+              "eng": 1634256498397410300,
+              "sh": 11251737808466387000,
+              "wpn": 0,
+              "wantEng": 1634256498397410300,
+              "wantSh": 11251737808466387000,
+              "wantWpn": 0,
+              "domains": [
+                {
+                  "id": "main",
+                  "availableW": 14781366410235670000,
+                  "drawW": 12911413370793406000
+                }
+              ],
+              "weaponInputs": {},
+              "weaponInputRemainingJ": {}
+            }
+          },
+          {
+            "mode": "shields",
+            "actualInputW": 1634256498397410300,
+            "actualThrustN": 817128249.1987052,
+            "wasteHeatW": 81712824919870510,
+            "outputRatio": 1,
+            "physicalAccelerationMS2": 34641.07224010264,
+            "battleAccelerationMS2": 69.28214448020529,
+            "power": {
+              "P": 12317805341863060000,
+              "fixed": 25419063929610170,
+              "coolingReserved": 0,
+              "cooling": 0,
+              "drawNonCooling": 12911413370793406000,
+              "draw": 12911413370793406000,
+              "eng": 1634256498397410300,
+              "sh": 11251737808466387000,
+              "wpn": 0,
+              "wantEng": 1634256498397410300,
+              "wantSh": 11251737808466387000,
+              "wantWpn": 0,
+              "domains": [
+                {
+                  "id": "main",
+                  "availableW": 14781366410235670000,
+                  "drawW": 12911413370793406000
+                }
+              ],
+              "weaponInputs": {},
+              "weaponInputRemainingJ": {}
+            }
+          }
+        ],
+        "preview": {
+          "engines": [
+            {
+              "id": 31,
+              "machineryId": 31,
+              "requestedInputW": 142997443609773390,
+              "actualInputW": 142997443609773390,
+              "actualThrustN": 71498721.8048867,
+              "wasteHeatW": 7149872180488670,
+              "direction": [
+                1,
+                0,
+                0
+              ],
+              "reasons": []
+            },
+            {
+              "id": 32,
+              "machineryId": 32,
+              "requestedInputW": 142997443609773390,
+              "actualInputW": 142997443609773390,
+              "actualThrustN": 71498721.8048867,
+              "wasteHeatW": 7149872180488670,
+              "direction": [
+                1,
+                0,
+                0
+              ],
+              "reasons": []
+            },
+            {
+              "id": 33,
+              "machineryId": 33,
+              "requestedInputW": 142997443609773390,
+              "actualInputW": 142997443609773390,
+              "actualThrustN": 71498721.8048867,
+              "wasteHeatW": 7149872180488670,
+              "direction": [
+                1,
+                0,
+                0
+              ],
+              "reasons": []
+            },
+            {
+              "id": 34,
+              "machineryId": 34,
+              "requestedInputW": 142997443609773390,
+              "actualInputW": 142997443609773390,
+              "actualThrustN": 71498721.8048867,
+              "wasteHeatW": 7149872180488670,
+              "direction": [
+                1,
+                0,
+                0
+              ],
+              "reasons": []
+            }
+          ],
+          "totalRequestedInputW": 571989774439093570,
+          "totalActualInputW": 571989774439093570,
+          "totalThrustN": 285994887.2195468,
+          "wasteHeatW": 28599488721954680,
+          "forceVector": [
+            285994887.2195468,
+            0,
+            0
+          ],
+          "accelerationVector": [
+            12124.375284035925,
+            0,
+            0
+          ],
+          "freeAccelerationMps2": 12124.375284035925,
+          "ratedThrustN": 817128249.1987052,
+          "outputRatio": 0.35,
+          "valid": true,
+          "version": 1,
+          "ratedInputW": 1634256498397410300,
+          "ratedAccelMps2": 34641.07224010264,
+          "actualInputW": 571989774439093570,
+          "actualThrustN": 285994887.2195468,
+          "actualAccelMps2": 12124.375284035925,
+          "cappedAccelerationMps2": 12124.375284035925,
+          "accelerationMps2": 12124.375284035925,
+          "power": {
+            "engines": 571989774439093570,
+            "shields": 11251737808466387000,
+            "weapons": 1396837845469979600,
+            "fixed": 25419063929610170,
+            "cooling": 0,
+            "granted": {
+              "fixed:hotel": 25419063929610170,
+              "shields:15": 11251737808466387000,
+              "weapons:0": 348875000000000000,
+              "weapons:1": 348875000000000000,
+              "weapons:2": 348875000000000000,
+              "weapons:3": 348875000000000000,
+              "weapons:4": 668922734989741.2,
+              "weapons:5": 668922734989741.2,
+              "engine:31": 142997443609773390,
+              "engine:32": 142997443609773390,
+              "engine:33": 142997443609773390,
+              "engine:34": 142997443609773390
+            },
+            "P": 12317805341863060000,
+            "draw": 13245984492305072000,
+            "load": 1.0753526399128521,
+            "short": false,
+            "sources": [
+              {
+                "id": "p30",
+                "domain": "main",
+                "availableW": 14781366410235670000,
+                "drawW": 13245984492305068000
+              }
+            ],
+            "domains": [
+              {
+                "id": "main",
+                "availableW": 14781366410235670000,
+                "drawW": 13245984492305068000
+              }
+            ]
+          },
+          "preset": "combat"
+        },
+        "thermalPresets": {
+          "cruise": {
+            "name": "通常航行",
+            "gen": 3123097922977868000,
+            "out": 3123097922977868000,
+            "cap": 850421781002018100000,
+            "used": 3123097922977859600,
+            "margin": 272.30070973603756,
+            "stored": 0,
+            "endurance": 93.77922949784615,
+            "over": [],
+            "overCount": 0,
+            "sig": {
+              "nu": 1858607315428954000,
+              "ir": 1047653087415526900,
+              "em": 216837520133378020
+            },
+            "stow": {
+              "cap": 850164986358836200000,
+              "out": 3123097922977868000,
+              "margin": 272.2184854031748,
+              "stored": 0,
+              "overCount": 0,
+              "over": [],
+              "sig": {
+                "nu": 1858607315428954000,
+                "ir": 1047653087415526900,
+                "em": 216837520133378020
+              }
+            }
+          },
+          "combat": {
+            "name": "戦闘",
+            "gen": 4837113108864932000,
+            "out": 4837113108864932000,
+            "cap": 850421781002018100000,
+            "used": 4837113108864924000,
+            "margin": 175.81184517754156,
+            "stored": 0,
+            "endurance": 60.54886670448671,
+            "over": [],
+            "overCount": 0,
+            "sig": {
+              "nu": 2887016426961194000,
+              "ir": 1613278098758258400,
+              "em": 336818583145472600
+            },
+            "stow": {
+              "cap": 850164986358836200000,
+              "out": 4837113108864932000,
+              "margin": 175.75875676769823,
+              "stored": 0,
+              "overCount": 0,
+              "over": [],
+              "sig": {
+                "nu": 2887016426961194000,
+                "ir": 1613278098758258400,
+                "em": 336818583145472600
+              }
+            }
+          },
+          "max": {
+            "name": "最大出力",
+            "gen": 4874581736251178000,
+            "out": 4874581736251178000,
+            "cap": 850421781002018100000,
+            "used": 4874581736251170000,
+            "margin": 174.4604618438585,
+            "stored": 0,
+            "endurance": 60.08345591686196,
+            "over": [],
+            "overCount": 0,
+            "sig": {
+              "nu": 2908664967228802000,
+              "ir": 1626475381959858200,
+              "em": 339441387062509800
+            },
+            "stow": {
+              "cap": 850164986358836200000,
+              "out": 4874581736251178000,
+              "margin": 174.40778149976413,
+              "stored": 0,
+              "overCount": 0,
+              "over": [],
+              "sig": {
+                "nu": 2908664967228802000,
+                "ir": 1622678561051385300,
+                "em": 338741972684633200
+              }
+            }
+          }
+        }
+      },
+      "ratios": {
+        "mass": 1,
+        "cost": 1.0585593687121322,
+        "partRatedThrust": 1,
+        "designAcceleration": 0.3499999999999999,
+        "maxSpeed": 1
+      },
+      "elapsedMs": 19090.951082999993
+    }
+  ],
+  "scope": {
+    "fixtures": "Exact saved legacy shapes, equipment and cargo; current migration applied directly to cloned public design data; one stats/profile build per design.",
+    "steadyState": "Thermal equilibrium is not inferred from installed rating; sustained output remains undetermined.",
+    "runtime": "Full throttle; cold healthy initial modules; no shots requested; cruise/balanced/weapons/shields allocation modes.",
+    "sourcesChangedDuringRun": true,
+    "snapshot": "Each design uses the immutable VM source loaded at start; source hashes identify that exact calculation, including when later unrelated edits occur."
+  }
+}

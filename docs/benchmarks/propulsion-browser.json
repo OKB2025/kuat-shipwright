@@ -1,0 +1,180 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "date": "2026-11-04T09:19:47.875Z",
+  "browser": "Chromium (real headless browser, software WebGL)",
+  "url": "http://127.0.0.1:8765",
+  "sourceSha256": {
+    "js/core.js": "6ba975f8d81c89ffe3dcc02bde4d434d14a3bd7470745b243068e9ccd60ea67f",
+    "js/app.js": "0c3f462eb1c175017e106cf395da40e27dcbe638359796c96340ea188faa6681",
+    "js/gfx.js": "00e3eeb2a41f46ad87123867849111ac6108dcff41dc831b62db5aaf216d0500",
+    "js/lang-en.js": "69821c344f122ccc96c5fde60b080178805cef797bff4f1c6f6f516a1ede7e0c",
+    "index.html": "5fc39f9cb669ccce5106f2300325e8ceb4b65b229389fc2c1cbfc12bb1a73972"
+  },
+  "scope": {
+    "measured": [
+      "Japanese/English desktop and mobile page rendering",
+      "actual DOM nozzle edit",
+      "rating and machinery persistence",
+      "Undo/Redo",
+      "shared designer propulsion preview and fleet runtime W/N parity",
+      "native shared-machinery select/link/unlink in Japanese desktop case",
+      "WebGL context creation"
+    ],
+    "notMeasured": [
+      "physical phone/gamepad input",
+      "long-running combat visuals",
+      "browser frame-rate target"
+    ]
+  },
+  "cases": [
+    {
+      "language": "ja",
+      "device": "desktop",
+      "status": "PASS",
+      "nozzleChangePreservesRatingAndMachinery": true,
+      "undoRedo": true,
+      "sharedMachinerySelector": {
+        "status": "PASS",
+        "linkToExistingOwner": true,
+        "unlinkPreservesLocalMachine": true
+      },
+      "errors": [],
+      "previewText": "実給電による推進能力\n戦闘\n通常航行\n戦闘\n最大出力\n定格入力\n1.5×10²⁰ W\n定格推力\n7.7×10¹⁰ N\n計画最大加速度（定格・無制限）\n117.589 m/s²\n推進への実入力\n5.4×10¹⁹ W\n実推力\n2.7×10¹⁰ N\n推進廃熱\n2.7×10¹⁸ W\n無制限時の実加速度\n41.156 m/s²\n構造・慣性制限後の実加速度\n8.896 m/s²\n持続運転能力\n未判定（熱平衡未解決）\n\n冷間・健全時の瞬間プレビューです。選択した運転条件の給電を共通配分で計算します。持続能力は給電と熱輸送・散逸の熱平衡が必要です。戦闘用の加速度倍率は物理値と別です。",
+      "generation": {
+        "design": 4,
+        "geometry": 4,
+        "statistics": 4
+      },
+      "massTonnes": 654022.8751642328,
+      "modelMassKg": 654022875.1642329,
+      "runtime": {
+        "actualInputW": 53834331711914690000,
+        "actualThrustN": 26917165855.957344,
+        "wasteHeatW": 2691716585595734500
+      },
+      "preview": {
+        "ratedInputW": 153812376319756270000,
+        "actualInputW": 53834331711914690000,
+        "actualThrustN": 26917165855.957344,
+        "wasteHeatW": 2691716585595734500
+      },
+      "renderer": true,
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "pageWidth": 1440,
+      "profileEngineCount": 1,
+      "screenshot": "propulsion-ja-desktop.png"
+    },
+    {
+      "language": "ja",
+      "device": "mobile",
+      "status": "PASS",
+      "nozzleChangePreservesRatingAndMachinery": true,
+      "undoRedo": true,
+      "sharedMachinerySelector": null,
+      "errors": [],
+      "previewText": "実給電による推進能力\n戦闘\n通常航行\n戦闘\n最大出力\n定格入力\n1.5×10²⁰ W\n定格推力\n7.7×10¹⁰ N\n計画最大加速度（定格・無制限）\n117.589 m/s²\n推進への実入力\n5.4×10¹⁹ W\n実推力\n2.7×10¹⁰ N\n推進廃熱\n2.7×10¹⁸ W\n無制限時の実加速度\n41.156 m/s²\n構造・慣性制限後の実加速度\n8.896 m/s²\n持続運転能力\n未判定（熱平衡未解決）\n\n冷間・健全時の瞬間プレビューです。選択した運転条件の給電を共通配分で計算します。持続能力は給電と熱輸送・散逸の熱平衡が必要です。戦闘用の加速度倍率は物理値と別です。",
+      "generation": {
+        "design": 4,
+        "geometry": 4,
+        "statistics": 4
+      },
+      "massTonnes": 654022.8751642328,
+      "modelMassKg": 654022875.1642329,
+      "runtime": {
+        "actualInputW": 53834331711914690000,
+        "actualThrustN": 26917165855.957344,
+        "wasteHeatW": 2691716585595734500
+      },
+      "preview": {
+        "ratedInputW": 153812376319756270000,
+        "actualInputW": 53834331711914690000,
+        "actualThrustN": 26917165855.957344,
+        "wasteHeatW": 2691716585595734500
+      },
+      "renderer": true,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "pageWidth": 390,
+      "profileEngineCount": 1,
+      "screenshot": "propulsion-ja-mobile.png"
+    },
+    {
+      "language": "en",
+      "device": "desktop",
+      "status": "PASS",
+      "nozzleChangePreservesRatingAndMachinery": true,
+      "undoRedo": true,
+      "sharedMachinerySelector": null,
+      "errors": [],
+      "previewText": "Propulsion from Allocated Power\nCombat\nCruise\nCombat\nMaximum Output\nRated Input\n1.5×10²⁰ W\nRated Thrust\n7.7×10¹⁰ N\nPlanned Maximum Acceleration (Rated, Unlimited)\n117.589 m/s²\nActual Propulsion Input\n5.4×10¹⁹ W\nActual Thrust\n2.7×10¹⁰ N\nPropulsion Waste Heat\n2.7×10¹⁸ W\nActual Acceleration before Limits\n41.156 m/s²\nActual Acceleration after Structural & Inertial Limits\n8.896 m/s²\nSustainable Performance\nUnknown (Thermal Equilibrium Unsolved)\n\nThis is an instantaneous preview with cold, healthy equipment. The shared allocator supplies power for the selected operating condition. Sustainable performance requires equilibrium across power, heat transport and dissipation. Combat acceleration scaling is separate from physical values.",
+      "generation": {
+        "design": 4,
+        "geometry": 4,
+        "statistics": 4
+      },
+      "massTonnes": 654022.8751642328,
+      "modelMassKg": 654022875.1642329,
+      "runtime": {
+        "actualInputW": 53834331711914690000,
+        "actualThrustN": 26917165855.957344,
+        "wasteHeatW": 2691716585595734500
+      },
+      "preview": {
+        "ratedInputW": 153812376319756270000,
+        "actualInputW": 53834331711914690000,
+        "actualThrustN": 26917165855.957344,
+        "wasteHeatW": 2691716585595734500
+      },
+      "renderer": true,
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "pageWidth": 1440,
+      "profileEngineCount": 1,
+      "screenshot": "propulsion-en-desktop.png"
+    },
+    {
+      "language": "en",
+      "device": "mobile",
+      "status": "PASS",
+      "nozzleChangePreservesRatingAndMachinery": true,
+      "undoRedo": true,
+      "sharedMachinerySelector": null,
+      "errors": [],
+      "previewText": "Propulsion from Allocated Power\nCombat\nCruise\nCombat\nMaximum Output\nRated Input\n1.5×10²⁰ W\nRated Thrust\n7.7×10¹⁰ N\nPlanned Maximum Acceleration (Rated, Unlimited)\n117.589 m/s²\nActual Propulsion Input\n5.4×10¹⁹ W\nActual Thrust\n2.7×10¹⁰ N\nPropulsion Waste Heat\n2.7×10¹⁸ W\nActual Acceleration before Limits\n41.156 m/s²\nActual Acceleration after Structural & Inertial Limits\n8.896 m/s²\nSustainable Performance\nUnknown (Thermal Equilibrium Unsolved)\n\nThis is an instantaneous preview with cold, healthy equipment. The shared allocator supplies power for the selected operating condition. Sustainable performance requires equilibrium across power, heat transport and dissipation. Combat acceleration scaling is separate from physical values.",
+      "generation": {
+        "design": 4,
+        "geometry": 4,
+        "statistics": 4
+      },
+      "massTonnes": 654022.8751642328,
+      "modelMassKg": 654022875.1642329,
+      "runtime": {
+        "actualInputW": 53834331711914690000,
+        "actualThrustN": 26917165855.957344,
+        "wasteHeatW": 2691716585595734500
+      },
+      "preview": {
+        "ratedInputW": 153812376319756270000,
+        "actualInputW": 53834331711914690000,
+        "actualThrustN": 26917165855.957344,
+        "wasteHeatW": 2691716585595734500
+      },
+      "renderer": true,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "pageWidth": 390,
+      "profileEngineCount": 1,
+      "screenshot": "propulsion-en-mobile.png"
+    }
+  ]
+}
