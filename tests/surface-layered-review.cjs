@@ -25,7 +25,7 @@ function area2(poly){return Math.abs(poly.reduce((sum,a,i)=>{const b=poly[(i+1)%
 test('the actual relief is one continuous outward-facing surface at cosmetic detail zero',()=>{
  const {ship,host,patch}=fixture(),low=mesh(ship),high=mesh(ship,{detail:2,maxDetails:1800}),T=neutral(ship,host),edges=new Map(),key=p=>p.map(x=>x.toFixed(4)).join(',');
  assert.ok(T.length>20&&T.length<1200,'coarse face facets must replace the many closed boxes');
- for(const t of T){assert.ok(C.dot(C.norm(C.cross(C.sub(t[1],t[0]),C.sub(t[2],t[0]))),patch.normal)>.05,'there must be no box backs or perpendicular shelves');for(let j=0;j<3;j++){const a=t[j],b=t[(j+1)%3],k=[key(a),key(b)].sort().join('|'),q=edges.get(k);if(q)q.count++;else edges.set(k,{a,b,count:1});}}
+ for(const t of T){assert.ok(C.dot(C.norm(C.cross(C.sub(t[1],t[0]),C.sub(t[2],t[0]))),patch.normal)>0,'thin plate tops and undersides may be nearly perpendicular but cannot face backward');for(let j=0;j<3;j++){const a=t[j],b=t[(j+1)%3],k=[key(a),key(b)].sort().join('|'),q=edges.get(k);if(q)q.count++;else edges.set(k,{a,b,count:1});}}
  const external=e=>[0,1].some(k=>Math.abs(e.a[k]-e.b[k])<.001&&[Math.min(...patch.polygon.map(p=>p[k])),Math.max(...patch.polygon.map(p=>p[k]))].some(v=>Math.abs(v-e.a[k])<.001));
  assert.ok([...edges.values()].some(e=>e.count===2),'adjacent facets must share actual edges');for(const e of edges.values()){assert.ok(e.count<=2,'skin triangles cannot overlap');if(e.count===1)assert.ok(external(e),'an unmatched edge inside the face would leave a crack');}
  assert.ok(Math.abs(projectedArea(T,patch.normal)-patch.exposedArea)<patch.exposedArea*.0002,'surface coverage must equal the exposed face once');assert.deepEqual(neutral(ship,host,{detail:2,maxDetails:1800}),T,'detail settings must retain the structural skin');assert.equal(low.surfaceDetail.ni,0);assert.ok(high.surfaceDetail.ni>0);
@@ -42,7 +42,7 @@ test('the continuous face reaches both sides of an opening without bridging its 
 test('tilted tapered walls retain forward-facing relief inside their actual host envelope',()=>{
  const {ship,host,patch}=fixture({rotated:true}),m=mesh(ship),T=neutral(ship,host);assert.ok(T.length>20);
  for(const g of [m.surfaceDevices,m.surfaceDetail]){assert.ok(g.n>0||g===m.surfaceDetail);for(let i=0;i<g.n;i++)assert.ok(conservativeInside(host,Array.from(g.pos.slice(i*3,i*3+3))),'face relief protrudes through its sloped host');}
- for(const t of T)assert.ok(C.dot(C.norm(C.cross(C.sub(t[1],t[0]),C.sub(t[2],t[0]))),patch.normal)>.05,'sloped faces need tangent relief instead of world-horizontal slabs');
+ for(const t of T)assert.ok(C.dot(C.norm(C.cross(C.sub(t[1],t[0]),C.sub(t[2],t[0]))),patch.normal)>0,'sloped faces need host-aligned relief');
  assert.ok(Math.abs(projectedArea(T,patch.normal)-patch.exposedArea)<patch.exposedArea*.0002,'the tilted face must retain its complete projected area');
 });
 
