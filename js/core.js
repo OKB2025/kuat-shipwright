@@ -21076,6 +21076,8 @@ const STRUCT_SHAPES = {box:'直方体',trap:'台形',wedge:'楔形',cylinder:'�
 const PLATE = {def: 1.0, min: 0.2, max: 6};
 const plateThickness = p => clamp(Number.isFinite(p?.plateT) ? p.plateT : PLATE.def, PLATE.min, PLATE.max);
 // v21.2 The side a player's design serves (any = every side's fleets may take it).
+// FACTION-001 Factions the player makes join this list when the app registers them (Rts.registerFaction); a design keeps
+// a made faction's id ('u_…') even where that faction is not known (the worker, another device) and is then 全陣営 there.
 const DESIGN_FACTIONS={any:'全陣営',empire:'銀河帝国',republic:'銀河共和国',cis:'独立星系連合',rebel:'反乱同盟'};
 const GROUPS = {craft:'操縦・搭乗（小型艇）',power:'動力・推進',support:'防御・船体維持',air:'航空・輸送',command:'指揮',shape:'構造'};
 // Compact placement sizes (min, max, default, metres). Every hull can use the full catalogue.
@@ -22442,7 +22444,7 @@ function deserialize(o){
   migrateLegacyPropulsion(s);adoptEquipment(s);
   for(const p of s.parts)if(isSuperweapon(p)){const q=o.parts.find(q=>q.id===p.id);if(q&&(q.reactor===0||s.parts.some(r=>r.id===q.reactor&&isReactor(r))))p.reactor=q.reactor;if(q&&['beam','pulse'].includes(q.fireMode))p.fireMode=q.fireMode;normalizeSuperweapon(p);}
   for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(h.tw==null)delete h.tw;if(q.portal){h.portal=true;h.face=Object.hasOwn(AVIATION_SURFACE_FACES,q.face)?q.face:'top';if(q.surface)h.surface=true;h.open=finite(q.open,0,1,1);h.aperture=finite(q.aperture,.1,1,.85);if(q.sill!=null)h.sill=finite(q.sill,0,1,.5);if(s.parts.some(p=>p.id===q.bay&&p.k==='hangar'))h.bay=q.bay;else if(Array.isArray(q.cut)&&q.cut.length===6&&q.cut.every(Number.isFinite))h.cut=q.cut.map(v=>clamp(v,-DESIGN_LIMITS.coordinate,DESIGN_LIMITS.coordinate));}}
-  s.paint=['republic','neutral','dark','cis'].includes(o.paint)?o.paint:'neutral';if(DESIGN_FACTIONS[o.faction])s.faction=o.faction;s.detail=finite(o.detail,0,2,1);if(o.reference)s.reference=String(o.reference).slice(0,80);for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.motion==='fixed')h.motion='fixed';else if(q.motion==='slide'||isSlidingHatch(s,h))h.motion='slide';}if(REFERENCE_ASSETS[o.hullSkin?.asset]?.kind==='hull'&&o.hullSkin.base?.hull){const b=o.hullSkin.base,valid=[b.hull.L,b.hull.W,b.hull.H].every(v=>Number.isFinite(v)&&v>0&&v<=4000)&&Array.isArray(b.hull.stations)&&b.hull.stations.length>=2&&b.hull.stations.length<=64&&b.hull.stations.every(a=>Array.isArray(a)&&a.length>=3&&a.every(Number.isFinite))&&Array.isArray(b.trenches)&&b.trenches.length<=30&&Array.isArray(b.cuts)&&b.cuts.length<=50;if(valid){s.hullSkin=JSON.parse(JSON.stringify(o.hullSkin));s.hullSkin.enabled=!!o.hullSkin.enabled;}}for(const f of s.fits){const q=o.fits.find(q=>q.id===f.id);if(q.localMount)f.localMount=true;if(Array.isArray(q.tilt)&&q.tilt.length===3&&q.tilt.every(Number.isFinite)&&len(q.tilt)>.5&&FITS[f.k].cat==='w'&&!FITS[f.k].casemate&&!f.localMount){f.tilt=norm(q.tilt);if(!f.n)f.n=f.tilt.slice();}if(typeof q.batteryZone==='string')f.batteryZone=q.batteryZone.slice(0,40);if(FITS[f.k].window){f.commandEnabled=q.commandEnabled!==false;if(q.commandDepth!=null)f.commandDepth=finite(q.commandDepth,2,200,12);if(q.commandHeight!=null)f.commandHeight=finite(q.commandHeight,2,80,8);}if(q.mount==='ext'&&FITS[f.k]?.msl)f.mount='ext';if(Number.isFinite(q.chargeSalvos))f.chargeSalvos=finite(q.chargeSalvos,1,20,1);if(Number.isFinite(q.chargeDepth))f.chargeDepth=finite(q.chargeDepth,1,500,10);if(Number.isFinite(q.chargeScale))f.chargeScale=finite(q.chargeScale,.25,4,1);if(Number.isFinite(q.assetYaw))f.assetYaw=finite(q.assetYaw,-180,180,0);standardFit(f);if(Number.isInteger(q.mountAxis)&&q.mountAxis>=0&&q.mountAxis<=5)f.mountAxis=q.mountAxis;if(Number.isFinite(q.mountOffset))f.mountOffset=finite(q.mountOffset,-50,50,0);if(REFERENCE_ASSETS[q.skinAsset])f.skinAsset=q.skinAsset;}for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.referenceMouth)h.referenceMouth=true;if(REFERENCE_ASSETS[q.skinAsset]){h.skinAsset=q.skinAsset;if(Array.isArray(q.skinBayAnchor)&&q.skinBayAnchor.length===3&&q.skinBayAnchor.every(Number.isFinite))h.skinBayAnchor=q.skinBayAnchor.slice();}}migrateAviationSurfaces(s,o);migrateAviation(s,o);
+  s.paint=['republic','neutral','dark','cis'].includes(o.paint)?o.paint:'neutral';if(DESIGN_FACTIONS[o.faction]||/^u_[a-z0-9]{2,20}$/.test(o.faction||''))s.faction=o.faction;s.detail=finite(o.detail,0,2,1);if(o.reference)s.reference=String(o.reference).slice(0,80);for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.motion==='fixed')h.motion='fixed';else if(q.motion==='slide'||isSlidingHatch(s,h))h.motion='slide';}if(REFERENCE_ASSETS[o.hullSkin?.asset]?.kind==='hull'&&o.hullSkin.base?.hull){const b=o.hullSkin.base,valid=[b.hull.L,b.hull.W,b.hull.H].every(v=>Number.isFinite(v)&&v>0&&v<=4000)&&Array.isArray(b.hull.stations)&&b.hull.stations.length>=2&&b.hull.stations.length<=64&&b.hull.stations.every(a=>Array.isArray(a)&&a.length>=3&&a.every(Number.isFinite))&&Array.isArray(b.trenches)&&b.trenches.length<=30&&Array.isArray(b.cuts)&&b.cuts.length<=50;if(valid){s.hullSkin=JSON.parse(JSON.stringify(o.hullSkin));s.hullSkin.enabled=!!o.hullSkin.enabled;}}for(const f of s.fits){const q=o.fits.find(q=>q.id===f.id);if(q.localMount)f.localMount=true;if(Array.isArray(q.tilt)&&q.tilt.length===3&&q.tilt.every(Number.isFinite)&&len(q.tilt)>.5&&FITS[f.k].cat==='w'&&!FITS[f.k].casemate&&!f.localMount){f.tilt=norm(q.tilt);if(!f.n)f.n=f.tilt.slice();}if(typeof q.batteryZone==='string')f.batteryZone=q.batteryZone.slice(0,40);if(FITS[f.k].window){f.commandEnabled=q.commandEnabled!==false;if(q.commandDepth!=null)f.commandDepth=finite(q.commandDepth,2,200,12);if(q.commandHeight!=null)f.commandHeight=finite(q.commandHeight,2,80,8);}if(q.mount==='ext'&&FITS[f.k]?.msl)f.mount='ext';if(Number.isFinite(q.chargeSalvos))f.chargeSalvos=finite(q.chargeSalvos,1,20,1);if(Number.isFinite(q.chargeDepth))f.chargeDepth=finite(q.chargeDepth,1,500,10);if(Number.isFinite(q.chargeScale))f.chargeScale=finite(q.chargeScale,.25,4,1);if(Number.isFinite(q.assetYaw))f.assetYaw=finite(q.assetYaw,-180,180,0);standardFit(f);if(Number.isInteger(q.mountAxis)&&q.mountAxis>=0&&q.mountAxis<=5)f.mountAxis=q.mountAxis;if(Number.isFinite(q.mountOffset))f.mountOffset=finite(q.mountOffset,-50,50,0);if(REFERENCE_ASSETS[q.skinAsset])f.skinAsset=q.skinAsset;}for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.referenceMouth)h.referenceMouth=true;if(REFERENCE_ASSETS[q.skinAsset]){h.skinAsset=q.skinAsset;if(Array.isArray(q.skinBayAnchor)&&q.skinBayAnchor.length===3&&q.skinBayAnchor.every(Number.isFinite))h.skinBayAnchor=q.skinBayAnchor.slice();}}migrateAviationSurfaces(s,o);migrateAviation(s,o);
   // Old window rows on a model bridge repeat the role the body now carries.
   for(const p of s.parts){const q=o.parts.find(q=>q.id===p.id);if(bridgeBodyRole(p)){if(['bridge','air','hangar','combat'].includes(q.commandRole))p.commandRole=q.commandRole;if(q.commandEnabled===false)p.commandEnabled=false;}}
   const dropped=new Set(s.fits.filter(f=>f.legacyWindow&&bridgeBodyRole(s.parts.find(p=>p.id===f.host))===FITS[f.k].role).map(f=>f.id));
@@ -32190,8 +32192,24 @@ const ERAS = {
  gcw: {key: 'gcw', name: '銀河内戦', short: '内戦', factions: ['empire', 'rebel'], note: '帝国がコアから銀河を治め、反乱同盟は辺境から現れる'},
  cw: {key: 'cw', name: 'クローン戦争', short: 'クローン戦争', factions: ['republic', 'cis'], note: '銀河共和国と独立星系連合が戦線を挟んで向き合う'}};
 const ERA_OF = {republic: 'cw', cis: 'cw', empire: 'gcw', rebel: 'gcw'};
-// The era a battle or mission between these factions belongs to (the first faction that has one decides).
-function eraOf(...fs) { for (const f of fs.flat()) if (ERA_OF[f]) return ERA_OF[f]; return 'gcw'; }
+// FACTION-001 Factions the player makes (Rts.registerFaction) live on the map too: the eras they exist in, their home
+// system (their capital: where their ships come from and the one system the map gives them) and colour. id → {eras,
+// home, col, name, short}. Filled by setCustomPower; nothing here is saved (the app keeps the definitions).
+const CUSTOM = {};
+const erasOf = f => CUSTOM[f]?.eras?.length ? CUSTOM[f].eras : ERA_OF[f] ? [ERA_OF[f]] : null;
+// The era a battle or mission between these factions belongs to: one all of them exist in (a made faction may exist
+// in both), else the first faction's (as before: the first faction that has one decides).
+function eraOf(...fs) {
+ const sets = fs.flat().map(erasOf).filter(Boolean);if (!sets.length) return 'gcw';
+ return sets[0].find(e => sets.every(x => x.includes(e))) || sets[0][0];
+}
+function setCustomPower(id, o) {
+ if (!o) { delete CUSTOM[id]; delete POWERS[id]; }
+ else { const eras = (o.eras || []).filter(e => ERAS[e]); CUSTOM[id] = {eras: eras.length ? eras : ['gcw'], home: BY[o.home] ? o.home : null, col: o.col || '#8a96a8', name: o.name || id, short: o.short || o.name || id};
+  POWERS[id] = {name: CUSTOM[id].name, short: CUSTOM[id].short, col: CUSTOM[id].col, custom: true}; }
+ bearCache.clear();
+}
+const customPowers = () => Object.entries(CUSTOM).map(([id, o]) => ({id, ...o}));
 const POWERS = {
  republic: {name: '銀河共和国', short: '共和国', col: '#5b8fe8'}, cis: {name: '独立星系連合', short: '分離主義勢力', col: '#d8505e'},
  hutt: {name: 'ハット・スペース', short: 'ハット', col: '#4fb565'}, contested: {name: '係争宙域', short: '係争', col: '#e8a23a'},
@@ -32218,7 +32236,7 @@ const ALLEGIANCE = {
   christophsis: 'contested', ryloth: 'contested', quell: 'contested', ringovinda: 'contested', jabiim: 'contested',
   mandalore: 'neutral', toydaria: 'neutral', florrum: 'neutral', dathomir: 'neutral', nalhutta: 'hutt', teth: 'hutt', tatooine: 'hutt'},
  gcw: {kamino: 'empire', exegol: null, csilla: null}};
-function allegiance(era, key) { const s = BY[key];if (!s) return null; const o = ALLEGIANCE[era] || {}; return key in o ? o[key] : territoryAt(era, s.at); }
+function allegiance(era, key) { const s = BY[key];if (!s) return null; for (const [id, c] of Object.entries(CUSTOM)) if (c.home === key && c.eras.includes(era)) return id; const o = ALLEGIANCE[era] || {}; return key in o ? o[key] : territoryAt(era, s.at); }
 // The direction (a unit vector in grid coordinates, y down) from a point toward a faction's own space in an era: where
 // its ships come from when nothing else says (a fleet at the start of a battle, ships back from the yards). In the
 // Clone Wars, toward the bulk of its territory near the point, or, deep inside it, from its capital; in the Civil War
@@ -32229,13 +32247,16 @@ function factionBearing(era, faction, at) {
  if (!at || !faction) return null;if (!ERAS[era]) era = eraOf(faction);
  const key = era + '|' + faction + '|' + at[0].toFixed(3) + ',' + at[1].toFixed(3);if (bearCache.has(key)) return bearCache.get(key);
  const unit = (x, y) => { const l = Math.hypot(x, y); return l > 1e-6 ? [x / l, y / l] : null; };
- const cap = BY[CAPITAL[faction]], toCap = cap ? [cap.at[0] - at[0], cap.at[1] - at[1]] : null, dc = toCap ? Math.hypot(toCap[0], toCap[1]) : 0;
+ const cap = BY[CUSTOM[faction]?.home || CAPITAL[faction]], toCap = cap ? [cap.at[0] - at[0], cap.at[1] - at[1]] : null, dc = toCap ? Math.hypot(toCap[0], toCap[1]) : 0;
  let out = null;
  if (era === 'cw' && CODE_OF[faction]) {
   const want = CODE_OF[faction], g = terrGrid(), C = TERR_CW.cell;let vx = 0, vy = 0, ws = 0;
   for (let j = 0; j < g.length; j++) for (let i = 0; i < g[j].length; i++) { if (g[j][i] !== want) continue; const x = (i + .5) * C - at[0], y = (j + .5) * C - at[1], d = Math.hypot(x, y); if (d < .2) continue; const w = Math.exp(-d / 1.6); vx += w * x / d; vy += w * y / d; ws += w; }
   const m = Math.hypot(vx, vy);
   out = (m > .3 * ws || !toCap || dc < .3) ? unit(vx, vy) || (toCap && unit(toCap[0], toCap[1])) : unit(toCap[0], toCap[1]);
+ } else if (CUSTOM[faction]) {
+  // (a made faction comes from its home system; standing on it, from the frontier beyond)
+  out = toCap && dc > .3 ? unit(toCap[0], toCap[1]) : unit(at[0] - BANDS.c[0], at[1] - BANDS.c[1]) || [1, 0];
  } else if (faction === 'empire' || faction === 'republic') {
   out = toCap && dc > .3 ? unit(toCap[0], toCap[1]) : unit(BANDS.c[0] - at[0], BANDS.c[1] - at[1]) || [1, 0];
  } else if (faction === 'rebel' || faction === 'cis') out = unit(at[0] - BANDS.c[0], at[1] - BANDS.c[1]) || [1, 0];
@@ -32395,7 +32416,7 @@ function theaterDef(key) {
 }
 for (const b of Object.values(BATTLES)) b.ek = b.era === ERAS.cw.name ? 'cw' : 'gcw';
 return {COLS, ROWS, REGIONS, BANDS, ZONES, REGION_LABELS, SYSTEMS: SYS, BY, ROUTES, ROUTE_BY, LINKS, EDGES, ADJ, BATTLES, LINK_SLOW, grid, hash, path, itinerary:(a,b)=>Core.navigationItinerary(path(a,b)), legPts, pathPts, bandAt, sectorDef,
- ERAS, POWERS, eraOf, territoryAt, allegiance, factionBearing, factionSide, territoryLoops, THEATERS, THEATER_BY, theaterBox, theaterDef};
+ ERAS, POWERS, eraOf, erasOf, setCustomPower, customPowers, territoryAt, allegiance, factionBearing, factionSide, territoryLoops, THEATERS, THEATER_BY, theaterBox, theaterDef};
 })();
 
 /* ============================================================
@@ -32660,6 +32681,97 @@ const AI_STRATEGY = {
 };
 const AIR_DOCTRINES = {faction: '陣営の既定', standard: '標準（爆撃機は最大の敵艦へ）', strip: 'イオン砲でシールドを剥ぎ、航空攻撃で撃沈'};
 const strategyOf = (w, side) => AI_STRATEGY[w.sides[side]?.strategy] || AI_STRATEGY.balanced;
+// ---------- FACTION-001 factions the player makes ----------
+// A made faction is chosen like the four of the films everywhere a faction is chosen (the designer's 所属陣営, the
+// mission's navy, either side of the sandbox fleet battle) and the AI fights it with its own doctrine. Its definition
+// (normalizeFactionDef) is registered into the same tables the built-in factions use — FACTIONS, CRAFT_MIX, DOCTRINE,
+// REGIMENT_TEMPLATES, Core's DESIGN_FACTIONS and the galaxy's POWERS — so code that reads those tables (and the voyage's
+// fleet doctrine, filled by the app from def.fleet) reads a made faction as it reads the Empire. What the tables do not
+// hold (bolt colour, gun sounds, droid stowage) follows its base: the built-in faction it was copied from (factionBase).
+// The app keeps the definitions (localStorage, with JSON export); a scenario or a mission carries those it uses.
+// Ids are 'u_' and letters/digits, so they never meet a built-in key; an unknown id falls back (factionDef).
+const FACTION_FORMAT = 'ks-factions', FACTION_VERSION = 1, FACTION_ID = /^u_[a-z0-9]{2,20}$/;
+const BUILTIN_FACTIONS = ['empire', 'rebel', 'republic', 'cis'];
+// The usual enemies of the four (who a new battle or mission offers first).
+const FACTION_REL = {empire: {enemies: ['rebel'], allies: []}, rebel: {enemies: ['empire'], allies: []}, republic: {enemies: ['cis'], allies: []}, cis: {enemies: ['republic'], allies: []}};
+const FACTION_PAINTS = ['', 'neutral', 'republic', 'dark', 'cis'];   // '' = each design keeps its own paint
+const FACTION_NAMES = ['imperial', 'rn', 'roman', 'rebel', 'cis'];  // ship-name pools (the voyage's VOY_SHIPNAMES)
+const FACTION_EMBLEMS = ['star', 'ring', 'chevron', 'cog', 'diamond', 'wing', 'cross', 'hex', 'crescent', 'none'];
+const FACTION_HOME = {empire: 'coruscant', republic: 'coruscant', cis: 'raxus', rebel: 'yavin'};
+const isCustomFaction = id => typeof id === 'string' && FACTION_ID.test(id) && !!FACTIONS[id]?.custom;
+const factionBase = id => FACTIONS[id]?.base || (BUILTIN_FACTIONS.includes(id) ? id : 'empire');
+const hexCol = (v, d) => typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v) ? v.toLowerCase() : d;
+const keyList = (v, n, ok) => (Array.isArray(v) ? v : []).filter(k => typeof k === 'string' && k.length <= 80 && (!ok || ok(k))).slice(0, n);
+// A definition as stored, with every field checked and missing ones taken from its base faction.
+function normalizeFactionDef(o) {
+ if (!o || typeof o !== 'object') return null;
+ const id = typeof o.id === 'string' && FACTION_ID.test(o.id) ? o.id : null;if (!id) return null;
+ const base = BUILTIN_FACTIONS.includes(o.base) ? o.base : 'empire', b = FACTIONS[base], tpl = REGIMENT_TEMPLATES[base];
+ const name = (typeof o.name === 'string' ? o.name.trim().slice(0, 40) : '') || '新しい陣営';
+ const eras = keyList(o.eras, 2, e => !!Galaxy.ERAS[e]).filter((e, i, l) => l.indexOf(e) === i);
+ const g = o.ground && typeof o.ground === 'object' ? o.ground : {}, comps = keyList(g.companies, 4, k => !!COMPANY_TYPES[k]);
+ const veh = {};for (const [type, m] of Object.entries(g.vehicles && typeof g.vehicles === 'object' ? g.vehicles : tpl.vehicles)) { if (!COMPANY_TYPES[type] || !m || typeof m !== 'object') continue; const row = {}; for (const [k, n] of Object.entries(m)) if (VEHICLES[k] && +n > 0) row[k] = clamp(Math.round(+n), 1, 12); if (Object.keys(row).length) veh[type] = row; }
+ const craft = keyList(o.craft, 6, k => !!CRAFT[k] && !CRAFT[k].design), fl = o.fleet && typeof o.fleet === 'object' ? o.fleet : {};
+ const rel = k => keyList(o[k], 16, x => x !== id && (BUILTIN_FACTIONS.includes(x) || FACTION_ID.test(x))).filter((x, i, l) => l.indexOf(x) === i);
+ const allies = rel('allies'), enemies = rel('enemies').filter(x => !allies.includes(x));
+ return {id, v: FACTION_VERSION, name, nameEn: str(o.nameEn, 40).trim(), short: (str(o.short, 16).trim() || name.slice(0, 6)), shortEn: str(o.shortEn, 16).trim(),
+  color: hexCol(o.color, b.color), emblem: FACTION_EMBLEMS.includes(o.emblem) ? o.emblem : 'star', paint: FACTION_PAINTS.includes(o.paint) ? o.paint : '',
+  eras: eras.length ? eras : [Galaxy.eraOf(base)], home: Galaxy.BY[o.home] ? o.home : FACTION_HOME[base], base, names: FACTION_NAMES.includes(o.names) ? o.names : {empire: 'imperial', republic: 'rn', rebel: 'rebel', cis: 'cis'}[base],
+  fleet: {caps: keyList(fl.caps, 12), escorts: keyList(fl.escorts, 12), recon: keyList(fl.recon, 12), perTg: Number.isFinite(+fl.perTg) && +fl.perTg >= 3 ? clamp(Math.round(+fl.perTg), 3, 6) : 0},
+  craft: craft.length ? craft : CRAFT_MIX[base].slice(), ground: {name: str(g.name, 30).trim() || tpl.name, companies: comps.length === 4 ? comps : tpl.companies.slice(), vehicles: veh},
+  air: o.air === 'strip' ? 'strip' : o.air === 'standard' ? 'standard' : DOCTRINE[base] ? 'strip' : 'standard', strategy: AI_STRATEGY[o.strategy] ? o.strategy : 'balanced', allies, enemies};
+}
+// The definition of any faction, made or built in (a built-in one is assembled from its tables, as the starting point
+// of a copy); an unknown id gives null.
+function factionDef(id) {
+ if (isCustomFaction(id)) return FACTIONS[id].def;
+ if (!BUILTIN_FACTIONS.includes(id)) return null;const f = FACTIONS[id], tpl = REGIMENT_TEMPLATES[id];
+ return {id, v: FACTION_VERSION, name: f.name, nameEn: '', short: f.short, shortEn: '', color: f.color, emblem: 'none', paint: '', eras: [Galaxy.eraOf(id)], home: FACTION_HOME[id], base: id, names: {empire: 'imperial', republic: 'rn', rebel: 'rebel', cis: 'cis'}[id],
+  fleet: {caps: [], escorts: [], recon: [], perTg: 0}, craft: CRAFT_MIX[id].slice(), ground: {name: tpl.name, companies: tpl.companies.slice(), vehicles: JSON.parse(JSON.stringify(tpl.vehicles))}, air: DOCTRINE[id] ? 'strip' : 'standard', strategy: 'balanced', ...JSON.parse(JSON.stringify(FACTION_REL[id]))};
+}
+// Enter a definition into the tables (again, after an edit). Returns the normalized definition, or null.
+function registerFaction(raw) {
+ const d = normalizeFactionDef(raw);if (!d) return null;
+ FACTIONS[d.id] = {name: d.name, short: d.short, color: d.color, custom: true, base: d.base, def: d};
+ CRAFT_MIX[d.id] = d.craft.slice();
+ if (d.air === 'strip') DOCTRINE[d.id] = {...DOCTRINE.rebel}; else delete DOCTRINE[d.id];
+ REGIMENT_TEMPLATES[d.id] = {name: d.ground.name, companies: d.ground.companies.slice(), vehicles: JSON.parse(JSON.stringify(d.ground.vehicles))};
+ FACTION_REL[d.id] = {allies: d.allies.slice(), enemies: d.enemies.slice()};
+ if (C.DESIGN_FACTIONS) C.DESIGN_FACTIONS[d.id] = d.name;
+ Galaxy.setCustomPower(d.id, {eras: d.eras, home: d.home, col: d.color, name: d.name, short: d.short});
+ return d;
+}
+function unregisterFaction(id) {
+ if (!isCustomFaction(id)) return false;
+ for (const t of [FACTIONS, CRAFT_MIX, DOCTRINE, REGIMENT_TEMPLATES, FACTION_REL]) delete t[id];
+ if (C.DESIGN_FACTIONS) delete C.DESIGN_FACTIONS[id];Galaxy.setCustomPower(id, null);return true;
+}
+const customFactions = () => Object.values(FACTIONS).filter(f => f.custom).map(f => f.def);
+// A faction id as stored somewhere (a scenario side, a design, a mission): kept when known, else the fallback.
+const factionOr = (id, fallback = 'empire') => FACTIONS[id] ? id : fallback;
+// How two factions stand: 'enemy' when either names the other an enemy, else 'ally' when either names it an ally.
+function factionRelation(a, b) {
+ if (!a || !b || a === b) return 'self';const ra = FACTION_REL[a] || {}, rb = FACTION_REL[b] || {};
+ if (ra.enemies?.includes(b) || rb.enemies?.includes(a)) return 'enemy';if (ra.allies?.includes(b) || rb.allies?.includes(a)) return 'ally';return 'neutral';
+}
+// The opponent a new battle or mission offers first: the faction's first named enemy that exists, else one that names
+// it an enemy, else (a made faction with no enemies) its base's usual enemy; never an ally.
+function rivalOf(id) {
+ const known = Object.keys(FACTIONS), own = (FACTION_REL[id]?.enemies || []).find(x => FACTIONS[x] && x !== id);if (own) return own;
+ const back = known.find(x => x !== id && FACTION_REL[x]?.enemies?.includes(id));if (back) return back;
+ const b = FACTION_REL[factionBase(id)]?.enemies?.[0];if (b && b !== id && factionRelation(id, b) !== 'ally') return b;
+ return known.find(x => x !== id && factionRelation(id, x) !== 'ally') || 'rebel';
+}
+// A file of definitions (export) and reading one (import: definitions checked one by one, bad ones left out).
+const factionsJSON = list => JSON.stringify({format: FACTION_FORMAT, version: FACTION_VERSION, factions: (list || customFactions()).map(normalizeFactionDef).filter(Boolean)}, null, 1);
+function factionsFromJSON(text) {
+ let raw;try { raw = typeof text === 'string' ? JSON.parse(text) : text; } catch (e) { throw new Error('JSON を読めません'); }
+ const list = Array.isArray(raw) ? raw : raw && raw.format === FACTION_FORMAT ? raw.factions : raw && FACTION_ID.test(raw.id || '') ? [raw] : null;
+ if (!Array.isArray(list)) throw new Error('陣営の形式ではありません');
+ return list.slice(0, 64).map(normalizeFactionDef).filter(Boolean);
+}
+// Vehicles a faction may field: any side's, its own (a made faction's: its base's and those its regiment template uses).
+function vehicleServes(k, faction) { const v = VEHICLES[k];if (!v) return false;if (v.side === 'any' || v.side === faction || v.side === factionBase(faction)) return true; return Object.values(REGIMENT_TEMPLATES[faction]?.vehicles || {}).some(m => k in m); }
 const shieldFrac = t => t && t.shieldMax > 0 ? Math.max(0, t.shield) / t.shieldMax : 0;
 
 // ---------- ground forces ----------
@@ -32879,7 +32991,7 @@ function normalizeDeploy(d, sector) { d = d || {}; const sys = Number.isInteger(
 function createWorld(opts) {
  const sector = opts.sector || makeSector(opts.region || 'kuat', opts.seed || 13);
  const w = {seed: opts.seed || 13, rand: rng((opts.seed || 13) * 7919 + 17), time: 0, acc: 0, nextId: 1, sector, mode: opts.mode || 'fleet',
-  sides: (opts.sides || [{faction: 'empire', ai: false}, {faction: 'rebel', ai: true}]).map((s, i) => ({id: i, faction: s.faction, name: s.name || FACTIONS[s.faction]?.name || ('陣営' + i), ai: !!s.ai, strategy: AI_STRATEGY[s.strategy] ? s.strategy : 'balanced', air: AIR_DOCTRINES[s.air] ? s.air : 'faction', want: Number.isInteger(s.start) ? s.start : null, contacts: new Map(), seen: new Map(), start: null, lost: 0, captured: 0, initial: 0, ended: null})),
+  sides: (opts.sides || [{faction: 'empire', ai: false}, {faction: 'rebel', ai: true}]).map((s, i) => ({id: i, faction: s.faction, name: s.name || FACTIONS[s.faction]?.name || ('陣営' + i), ai: !!s.ai, strategy: AI_STRATEGY[s.strategy] ? s.strategy : FACTIONS[s.faction]?.def?.strategy || 'balanced', air: AIR_DOCTRINES[s.air] ? s.air : 'faction', want: Number.isInteger(s.start) ? s.start : null, contacts: new Map(), seen: new Map(), start: null, lost: 0, captured: 0, initial: 0, ended: null})),
   units: new Map(), groups: new Map(), ctgs: new Map(), squads: new Map(), wings: new Map(), airGroups: new Map(), missiles: [], battles: new Map(), events: [], designs: new Map(), timers: {ai: 0, det: 0, tac: 0}, result: null, victory: normalizeVictory(opts.victory)};
  for (const d of opts.designs || []) w.designs.set(d.key, d);
  // v25 tactical sensors (SENS-004): on unless a test or an old scenario turns them off
@@ -33764,7 +33876,8 @@ const BOARD = {shieldMax: .25, recover: .4, projHold: 3e5, breakSec: 20, reel: 1
  wreck: ['reactor', 'engine', 'shield', 'hyper', 'bridge', 'hangar', 'fire', 'battery'], aiOdds: 2, aiMin: 144, aiStrain: .8, holdResult: 900};
 const BOARD_PHASE = {close: '接近中', reel: '牽引中', dock: '強制接舷中', fight: '艦内戦闘', back: '撤収中'};
 const BOARD_GOAL = {capture: '拿捕', sabotage: '破壊工作'};
-const boardFac = (w, u) => w.sides[u?.origSide ?? u?.side]?.faction;
+// (a made faction boards with its base faction's troops and droids, FACTION-001)
+const boardFac = (w, u) => { const f = w.sides[u?.origSide ?? u?.side]?.faction; return isCustomFaction(f) ? factionBase(f) : f; };
 const boardDroid = (w, u) => boardFac(w, u) === 'cis';
 // Tractor projectors: modules of the fit trc (named by its short name in the generated profiles); their intact share.
 function tracShare(u,holding=false) {
@@ -34800,7 +34913,9 @@ const CONVOY_KIT = {
  cis: {ships: ['reptransport'], standIn: 'DH-オムニ（代役）', big: 'lh3210', escorts: ['munificent']},
  any: {ships: ['reptransport', 'gr75', 'heraklon'], escorts: ['arquitens', 'nebulonb', 'munificent']}
 };
-const convoyKitOf = (w, side) => { const f = w.sides[side]?.faction, k = CONVOY_KIT[f] || CONVOY_KIT.any, has = key => w.designs.has(key);
+// FACTION-001 a made faction's convoys are its base faction's (convoyKit)
+const convoyKit = f => CONVOY_KIT[f] || CONVOY_KIT[factionBase(f)] || CONVOY_KIT.any;
+const convoyKitOf = (w, side) => { const f = w.sides[side]?.faction, k = convoyKit(f), has = key => w.designs.has(key);
  const ships = k.ships.filter(has), escorts = k.escorts.filter(has);return ships.length ? {ships, escorts, big: k.big && has(k.big) ? k.big : null, standIn: k.standIn || null} : null; };
 const cargoOf = d => Math.round(Math.max((d?.info?.cargo || 0) * CONVOY.tPerM3, (d?.p?.len || d?.info?.len || 50) * CONVOY.tPerM));
 // What the ships of a system lack, less what is already there or on its way.
@@ -34933,7 +35048,8 @@ const AI_FACTION = {
 const onTheWay = g => !!(g?.navigation && g.navigation.final != null && g.navigation.final !== g.sys);
 const etaAll = (w, gid, dest) => jumpEstimate(w, gid, dest)?.total ?? null;
 function aiContinue(w, side) { for (const g of w.groups.values()) { if (g.side !== side || g.convoy || !onTheWay(g) || g.transit || g.spool || g.waitJump || g.sys == null || w.battles.has(g.sys) || w.time - (g.arrivedAt ?? -1e9) < RULES.aiLaneWait) continue; orderJump(w, g.id, g.navigation.final); } }
-const aiPlan = (w, side) => ({...AI_PLAN, ...(AI_FACTION[w.sides[side]?.faction] || {})});
+// (a made faction plans with its base faction's temper, FACTION-001)
+const aiPlan = (w, side) => { const f = w.sides[side]?.faction; return {...AI_PLAN, ...(AI_FACTION[f] || AI_FACTION[factionBase(f)] || {})}; };
 const groupStrength = (w, g) => { let n = 0; for (const id of g.units) { const u = w.units.get(id); if (fighting(u)) n += unitStrength(u); } return n; };
 // What a side can tell of the enemy in a system: ships it holds at 放射源検知 or better in full, faint returns at half.
 function seenStrength(w, side, us) { let n = 0; for (const u of us) { if (u.side === side || !fighting(u)) continue; const st = contactStage(w, side, u); if (st >= 2) n += unitStrength(u); else if (st >= 1) n += unitStrength(u) * .5; } return n; }
@@ -35109,7 +35225,7 @@ function aiStrategic(w, side) {
  }
  if (own && raiders.length) aiRaidMoves(w, side, A, P, ctx, {main, raiders, fresh, foeMain, bodyJump, busy, here, strength, onlyRaiders: true});
  // Alliance doctrine: its carriers strike across systems even when it is the stronger.
- if (own && doctrineOf(w, side) && sd.faction === 'rebel') aiRaidWings(w, side, A, P, ctx, main, foeMain);
+ if (own && doctrineOf(w, side) && factionBase(sd.faction) === 'rebel') aiRaidWings(w, side, A, P, ctx, main, foeMain);
  }
  // Carriers in battle send their wings: fighters to cover the fleet, bombers at the biggest enemy.
  for (const wing of w.wings.values()) { if (wing.side !== side) continue; const home = w.units.get(wing.home); if (!home || !alive(home) || !w.battles.has(home.sys)) { wing.auto = null; continue; } aiWing(w, wing, home); }
@@ -35682,7 +35798,7 @@ function shipStow(info, air, carried, ground) {
 }
 // Troop space in the free volume left after the crew: soldiers by the head;
 // the Separatists' battle droids are stored deactivated, DROID_STORE_M3 each.
-function troopRoom(info, faction) { return faction === 'cis' ? (info.droidCap ?? info.troopCap ?? 0) : (info.troopCap || 0); }
+function troopRoom(info, faction) { return factionBase(faction) === 'cis' ? (info.droidCap ?? info.troopCap ?? 0) : (info.troopCap || 0); }
 function defaultGround(info, faction) {
  const tpl = REGIMENT_TEMPLATES[faction] || REGIMENT_TEMPLATES.empire, per = COMPANY_TROOPS * BATTALION_COMPANIES * REGIMENT_BATTALIONS, n = Math.floor(troopRoom(info, faction) / per);
  return Array.from({length: n}, (_, i) => makeRegiment(faction, `第${i + 1}${tpl.name}`));
@@ -35693,7 +35809,7 @@ function defaultGround(info, faction) {
 // recon companies (to the infantry when it has none).
 function canonGround(rows, faction, room = Infinity) {
  const want = (rows || []).filter(r => r.kind === 'troops' || r.kind === 'droids').reduce((n, r) => n + Math.max(0, Math.floor(r.count || 0)), 0), troops = Math.min(want, Math.floor(room));
- const veh = {};for (const r of rows || []) { const v = VEHICLES[r.type]; if (r.kind === 'vehicle' && v && (v.side === 'any' || v.side === faction) && r.count > 0) veh[r.type] = (veh[r.type] || 0) + Math.floor(r.count); }
+ const veh = {};for (const r of rows || []) { const v = VEHICLES[r.type]; if (r.kind === 'vehicle' && v && vehicleServes(r.type, faction) && r.count > 0) veh[r.type] = (veh[r.type] || 0) + Math.floor(r.count); }
  if (!(troops > 0) && !Object.keys(veh).length) return [];
  const tpl = REGIMENT_TEMPLATES[faction] || REGIMENT_TEMPLATES.empire, nc = Math.max(1, Math.ceil(troops / COMPANY_TROOPS)), out = [], all = [];
  for (let c = 0; c < nc; c++) {
@@ -35795,7 +35911,7 @@ function normalizeFleet(ob) {
  return out;
 }
 function normalizeSide(sd, i, sector) {
- sd = sd && typeof sd === 'object' ? sd : {};const faction = FACTIONS[sd.faction] ? sd.faction : i % 2 ? 'rebel' : 'empire', fleet = normalizeFleet(sd.fleet), ids = new Set(fleet.ctgs.flatMap(c => c.tgs.map(t => t.id)));
+ sd = sd && typeof sd === 'object' ? sd : {};const faction = factionOr(sd.faction, i % 2 ? 'rebel' : 'empire'), fleet = normalizeFleet(sd.fleet), ids = new Set(fleet.ctgs.flatMap(c => c.tgs.map(t => t.id)));
  const sel = {}, deploy = {};for (const [k, v] of Object.entries(sd.sel || {})) if (ids.has(k) && v === false) sel[k] = false;
  for (const [k, v] of Object.entries(sd.deploy || {})) if (ids.has(k)) { const d = normalizeDeploy(v, sector); if (d.sys != null || d.heading != null || d.speed > 0) deploy[k] = d; }
  return {faction, label: str(sd.label, 40), control: SIDE_CONTROL[sd.control] ? sd.control : i ? 'ai' : 'player', strategy: AI_STRATEGY[sd.strategy] ? sd.strategy : 'balanced', air: AIR_DOCTRINES[sd.air] ? sd.air : 'faction',
@@ -35808,8 +35924,16 @@ function normalizeScenario(raw) {
  const region = REGIONS[raw.region] ? raw.region : 'kuat', seed = Number.isFinite(+raw.seed) ? Math.abs(Math.round(+raw.seed)) % 2147483647 : 1;
  const sides = (Array.isArray(raw.sides) ? raw.sides : []).slice(0, SCENARIO_SIDES[1]);while (sides.length < SCENARIO_SIDES[0]) sides.push({});
  const cl = raw.costLimit || {}, v = Math.round(+cl.value);
- return {format: SCENARIO_FORMAT, version: SCENARIO_VERSION, name: str(raw.name, 60), region, seed, seedFixed: raw.seedFixed !== false, scale: str(raw.scale, 16, 'standard'),
+ // FACTION-001 The made factions its sides use travel with it; one this device does not know is entered (registerFaction,
+ // not saved: the app keeps it when the scenario is loaded), so the side keeps its faction and doctrine. A side whose
+ // faction is nowhere to be found falls back to the Empire / the Alliance (normalizeSide).
+ const factions = (Array.isArray(raw.factions) ? raw.factions : []).slice(0, SCENARIO_SIDES[1]).map(normalizeFactionDef).filter(Boolean);
+ for (const d of factions) if (!FACTIONS[d.id]) registerFaction(d);
+ const out = {format: SCENARIO_FORMAT, version: SCENARIO_VERSION, name: str(raw.name, 60), region, seed, seedFixed: raw.seedFixed !== false, scale: str(raw.scale, 16, 'standard'),
   formations: (Array.isArray(raw.formations) ? raw.formations : []).slice(0, 64).map(normalizeFormation).filter(Boolean), victory: normalizeVictory(raw.victory), costLimit: {on: !!cl.on, value: Number.isFinite(v) && v > 0 ? Math.min(v, 1e15) : 0}, sides: sides.map((sd, i) => normalizeSide(sd, i, null))};
+ const used = new Set(out.sides.map(sd => sd.faction)), defs = [...used].filter(isCustomFaction).map(factionDef);
+ if (defs.length) out.factions = defs.map(d => JSON.parse(JSON.stringify(d)));
+ return out;
 }
 const scenarioJSON = sc => JSON.stringify(normalizeScenario(sc), null, 1);
 function scenarioFromJSON(text) { let raw; try { raw = JSON.parse(String(text)); } catch (e) { throw new Error('JSON を読めません'); } return normalizeScenario(raw); }
@@ -35841,7 +35965,7 @@ function scenarioWorld(raw, designs, designOf, extra = {}) {
  const sector = makeSector(sc.region, sc.seed), sides = sc.sides.map((sd, i) => normalizeSide(sd, i, sector));
  const fleets = sides.map(sd => battleOrbat(sd.fleet, scenarioPick(sd), of, sd.deploy)), keys = new Set(fleets.flatMap(o => o.ctgs.flatMap(c => c.tgs.flatMap(t => t.ships.flatMap(x => [x.design, ...x.carried.map(y => y.design)])))));
  // v26 the supply ships and escorts the sides' convoys are made of
- for (const sd of sides) { const k = CONVOY_KIT[sd.faction] || CONVOY_KIT.any; for (const x of [...k.ships, ...k.escorts, k.big]) if (x) keys.add(x); }
+ for (const sd of sides) { const k = convoyKit(sd.faction); for (const x of [...k.ships, ...k.escorts, k.big]) if (x) keys.add(x); }
  return createWorld({seed: sc.seed, region: sc.region, sector, formations: [...(extra.formations || []), ...sc.formations], designs: list.filter(d => keys.has(d.key)), victory: sc.victory, sides: sides.map(sd => ({faction: sd.faction, name: sd.label || undefined, ai: sd.control === 'ai', strategy: sd.strategy, air: sd.air, start: sd.start})), fleets});
 }
 
@@ -35866,7 +35990,8 @@ function normalizeCampaign(raw) {
 // The one transition so far: a stage finished moves the campaign to the next (the events that finish them come with PLAN-019..025).
 function campaignAdvance(st) { const i = CAMPAIGN_STAGES.indexOf(st.stage);if (i < 0 || i >= CAMPAIGN_STAGES.length - 1) return st;if (!st.done.includes(st.stage)) st.done.push(st.stage);st.stage = CAMPAIGN_STAGES[i + 1];st.step = 0;return st; }
 
-return {routeItinerary,jumpEstimate,normalizeJumpNavigation,CAMPAIGN_FORMAT, CAMPAIGN_VERSION, CAMPAIGN_SLOTS, CAMPAIGN_STAGES, campaignNew, normalizeCampaign, campaignAdvance, AI_STRATEGY, AIR_DOCTRINES, VICTORY_DEFAULT, normalizeVictory, normalizeDeploy, CRAFT_COST, craftPrice, craftCost, shipCost, fleetCost, SCENARIO_FORMAT, SCENARIO_VERSION, SCENARIO_SIDES, SIDE_CONTROL, normalizeFleet, normalizeSide, normalizeScenario, scenarioJSON, scenarioFromJSON, battleOrbat, scenarioPick, scenarioCosts, scenarioWorld, checkResult, canonGround, DOCTRINE, doctrineOf, shieldFrac, doctrineTarget, aiWing, RULES, TICK, CRAFT, CRAFT_MIX, ROLE_NAME, FACTIONS, SIDE_OF, VEHICLES, COMPANY_TYPES, REGIMENT_TEMPLATES, COMPANY_TROOPS, CAPITAL_LENGTH, MAP_LY, GRID_COLS, SECTOR_DEFS, REGIONS, LANE, KIND_NAME, APPROACH, APPROACH_NAME, FORMATIONS, formationKnown, formationName, SLOT_ROLES, SLOT_SIZES, normalizeFormation, groupSlots, formationCheck, formationTemplate, TF, TURN_MODES, SPEEDS, taskForceInfo, slotError, sustainSpeed, deployGroup, groupStations, WING_PHASE, sensorTick, contactOf, contactStage, searchOrder, foilTick, unitSig, unitSens, unitSigma, EMIT_MODES, FOIL_MODES,
+return {routeItinerary,jumpEstimate,normalizeJumpNavigation,convoyKit, aiPlan, FACTION_FORMAT, FACTION_VERSION, FACTION_ID, BUILTIN_FACTIONS, FACTION_REL, FACTION_PAINTS, FACTION_NAMES, FACTION_EMBLEMS, FACTION_HOME, isCustomFaction, factionBase, normalizeFactionDef, factionDef, registerFaction, unregisterFaction, customFactions, factionOr, factionRelation, rivalOf, factionsJSON, factionsFromJSON, vehicleServes,
+ CAMPAIGN_FORMAT, CAMPAIGN_VERSION, CAMPAIGN_SLOTS, CAMPAIGN_STAGES, campaignNew, normalizeCampaign, campaignAdvance, AI_STRATEGY, AIR_DOCTRINES, VICTORY_DEFAULT, normalizeVictory, normalizeDeploy, CRAFT_COST, craftPrice, craftCost, shipCost, fleetCost, SCENARIO_FORMAT, SCENARIO_VERSION, SCENARIO_SIDES, SIDE_CONTROL, normalizeFleet, normalizeSide, normalizeScenario, scenarioJSON, scenarioFromJSON, battleOrbat, scenarioPick, scenarioCosts, scenarioWorld, checkResult, canonGround, DOCTRINE, doctrineOf, shieldFrac, doctrineTarget, aiWing, RULES, TICK, CRAFT, CRAFT_MIX, ROLE_NAME, FACTIONS, SIDE_OF, VEHICLES, COMPANY_TYPES, REGIMENT_TEMPLATES, COMPANY_TROOPS, CAPITAL_LENGTH, MAP_LY, GRID_COLS, SECTOR_DEFS, REGIONS, LANE, KIND_NAME, APPROACH, APPROACH_NAME, FORMATIONS, formationKnown, formationName, SLOT_ROLES, SLOT_SIZES, normalizeFormation, groupSlots, formationCheck, formationTemplate, TF, TURN_MODES, SPEEDS, taskForceInfo, slotError, sustainSpeed, deployGroup, groupStations, WING_PHASE, sensorTick, contactOf, contactStage, searchOrder, foilTick, unitSig, unitSens, unitSigma, EMIT_MODES, FOIL_MODES,
  stowBays, shipStow, stir, peaceTick, formationOffsets, formationGaps, pendingWarp, jumpSequence, JUMP_STAGGER, rng, makeSector, sysDistance, routePath, routeCost, pathSeconds, tripSeconds, designInfo, unitDemand, createWorld, normalizeOrbat, makeUnit, makeGroup, makeCtg, ctgOf, addSquad, step, tick,
  detect, orderJump, cancelJump, etaTo, groupMapPos, orderUnit, orderGroup, orderCtg, orderCtgJump, orderTractor, BOARD, BOARD_PHASE, BOARD_GOAL, boardOk, boardOdds, boardDefault, boardParty, boardStrain, boardInfo, orderBoard, orderBoardRecall, groundTrim, orderWing, splitGroup, mergeGroups, systemUnits, unitStruct, unitStrength, unitHyper, carriedOf, launchCarried, recoverCarried, orderCarried, groupHyper, groupDisabled, groupStay, requestConvoy, convoyPlan, convoysFor, CONVOY, CONVOY_KIT, TF_ROLES, AI_PLAN, AI_FACTION,
  orderScuttle, orderRecover, recoverCheck, rearSeconds, SUPPLY, supplyAt, supplyLines, supplyNeeds, unitSupplyOf, alive, fighting, pdToward, effectiveOrder, groupOrder, tractorReach, tractorOk, registerDesignCraft, craftStores, squadStores, squadRelease, rearmSquad, squadSystemsTick, squadLaserK, squadArmed, squadSlots, craftDown,
@@ -36103,7 +36228,7 @@ function los(b, a, z, ha, hb) {
 // src points back to the company the unit came from, so losses can be written back to the regiment.
 const PLATOON = 4;
 function forcesFromRegiments(regiments, faction, tag = null) {
- const out = [], droid = faction === 'cis';
+ const out = [], droid = R.factionBase(faction) === 'cis';   // (a made faction's troops are its base's: droids for a Separatist base)
  (regiments || []).forEach((r, ri) => (r?.battalions || []).forEach((bt, bi) => (bt?.companies || []).forEach((c, ci) => {
   const src = {tag, ri, bi, ci}, nm = [r.name, bt.name, c.name].filter(Boolean).join(' · ');
   if ((c.troops || 0) > 0) out.push({kind: 'inf', name: nm, troops: Math.floor(c.troops), droid, src});
@@ -36115,7 +36240,7 @@ function forcesFromRegiments(regiments, faction, tag = null) {
 // A planet's garrison: companies by its population (provisional: 2 + 2 per level), the faction's regiment make-up
 // and vehicles (half for a small world), and a strongpoint at each objective on a world of population 3 or more.
 function garrison(faction, pop = 2, opt = {}) {
- const tpl = R.REGIMENT_TEMPLATES[faction], n = 2 + 2 * clamp(Math.round(pop || 0), 0, 5), out = [], droid = faction === 'cis';
+ const tpl = R.REGIMENT_TEMPLATES[faction], n = 2 + 2 * clamp(Math.round(pop || 0), 0, 5), out = [], droid = R.factionBase(faction) === 'cis';
  const vk = Object.hasOwn(R.FACTIONS, faction) ? faction : null;
  for (let i = 0; i < n; i++) {
   const type = tpl ? tpl.companies[i % tpl.companies.length] : 'infantry', name = `${vk ? R.FACTIONS[vk].short : '惑星'}守備隊 第${i + 1}中隊`;
@@ -36450,7 +36575,7 @@ function summary(b) { return {time: b.time, phase: b.phase, result: b.result, ob
 // three objectives; the player's own vehicle designs may join it. Its steps are the essential ground operations.
 const DRILL_STEPS = Object.freeze([['deploy', '降下地点を決めて展開する'], ['move', '部隊を移動させる'], ['attack', '敵部隊を攻撃する'], ['vehicle', 'ウォーカー・車両に命令する'], ['air', '航空支援を要請する'], ['capture', '目標を奪取する']]);
 function drillConfig(opt = {}) {
- const faction = Object.hasOwn(R.FACTIONS, opt.faction) ? opt.faction : 'republic', foe = faction === 'cis' ? 'republic' : 'cis';
+ const faction = Object.hasOwn(R.FACTIONS, opt.faction) ? opt.faction : 'republic', foe = R.factionBase(faction) === 'cis' ? 'republic' : 'cis';
  const reg = R.makeRegiment(faction, `第1${R.REGIMENT_TEMPLATES[faction].name}（演習）`);reg.battalions = reg.battalions.slice(0, 1);
  const forces = forcesFromRegiments([reg], faction, 'drill');
  for (const [k, n] of Object.entries(opt.extra || {})) if (R.VEHICLES[k] && n > 0) forces.push({kind: 'veh', key: k, n: Math.min(8, Math.floor(n)), name: R.VEHICLES[k].name});
