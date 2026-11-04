@@ -2,33 +2,33 @@
   "schemaVersion": 1,
   "status": "PASS",
   "sequentialConditions": true,
-  "totalElapsedMs": 358783,
-  "date": "2026-11-04T17:29:04.631Z",
+  "totalElapsedMs": 105942,
+  "date": "2026-11-04T21:28:16.977Z",
   "browser": "Chromium headless with software WebGL",
   "url": "http://127.0.0.1:8765",
   "sourceSha256": {
     "data/reference.js": "a6fbb40e306391f04b765985d97dafe512ba0d9ad21b479d70d47384ef7f6a8b",
     "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
-    "data/fleet.js": "11d815b08f919e70c8901ed02d9363074317770acc291221ae1edea654428759",
-    "js/core.js": "aab2eebcc31443abcbaaab6f387ca868ccebba6a8821bc95fd261cf3812516ff",
-    "js/app.js": "cc8008621c0ccb088be976dcc32b7e196c64fcf5edc8120fcf53ff4aa2b9c02f",
-    "js/gfx.js": "51201ee7b0481cbae701db97f9991c3ba5583768a04b43fcc5ffaabaec197904",
-    "js/lang-en.js": "e4ee98db39b7971354c97e988a58c0eb5dfc2b3d8e32e13efd4f04edaeadf28c",
-    "js/engine.js": "0aeed1c24ec820844375952e9096520fd4e6f22f09fea840b3e8f3cd72d40373",
-    "index.html": "28473872bfe4860a17d341e68f1dab8d5829fdbbaaf4595b94e5246ffdd0fa8b"
+    "data/fleet.js": "c0341142b0b1b07f3f55b6e56e3445c33990f88e9d522a093f0e9319b6b7e416",
+    "js/core.js": "85a8deceabf8fc184281c23d658061e748fbc4f895d16fb495b42674ca1ce513",
+    "js/app.js": "64cd0762fbf608cce5b66103557441a9def930ff882b5b16b08563b48f0a4ed3",
+    "js/gfx.js": "cb96f6b647868d8090f41ed95a2310650b09b884bbd76033c56938d487ccbe3e",
+    "js/lang-en.js": "f4725c881d9385dc490f44d33af8c3a464cee00d8d50b3e751e8670aeb77b70e",
+    "js/engine.js": "ae431a0d3b61b19b15b1f3635159b7d5664a82eaf844ac8029ef2fa6da122a3e",
+    "index.html": "02d65b6d5ca204b7cd9405fda9b2b71fd9f3b1c45d4f3bec469ee97fb43d4300"
   },
   "blueprintSha256": "9b0ca5868ad6ceaf6e0834f67ab808cad6361bdd0bd7597b1ec0d259a27487a5",
   "buildTimings": {
     "sourceSha256": {
-      "js/core.js": "aab2eebcc31443abcbaaab6f387ca868ccebba6a8821bc95fd261cf3812516ff",
+      "js/core.js": "85a8deceabf8fc184281c23d658061e748fbc4f895d16fb495b42674ca1ce513",
       "data/reference.js": "a6fbb40e306391f04b765985d97dafe512ba0d9ad21b479d70d47384ef7f6a8b",
       "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd"
     },
-    "buildMs": 2148.098197,
-    "statsMs": 111420.521527,
-    "mass": 438555.10543267045,
+    "buildMs": 479.790581,
+    "statsMs": 9267.846286,
+    "mass": 438555.10543221864,
     "cost": 2798328,
-    "accel": 4.788270385161784e-46
+    "accel": 4.7882703851716495e-46
   },
   "scope": {
     "conditions": [
@@ -68,8 +68,8 @@
       "status": "PASS",
       "loading": "native title-menu example button and worker build",
       "exampleButtonText": "アークワイテンス級軽クルーザー\n325 m · 護衛・哨戒",
-      "readyMs": 91889,
-      "totalElapsedMs": 273313,
+      "readyMs": 29589,
+      "totalElapsedMs": 80434,
       "weaponCardText": "500GT 4連装中型ターボレーザー\n2.0 TT・17.8×14.1×5.8 m",
       "launcherCardText": "震盪ミサイル発射管\n25TT／1.2秒・弾倉 6 発・口径 0.22 m・1.2×0.45×0.45 m",
       "nativeEditProof": {
@@ -89,7 +89,7 @@
         "geometry": 1,
         "statistics": 1
       },
-      "massTonnes": 438555.10543267045,
+      "massTonnes": 438555.10543221864,
       "cost": 2798328,
       "workerMode": "worker",
       "renderer": true,
@@ -2024,8 +2024,8 @@
       "status": "PASS",
       "loading": "generated native blueprint deserialized through __yard API",
       "exampleButtonText": "Arquitens-class Light Cruiser\n325 m · Escort / Patrol",
-      "readyMs": 79857,
-      "totalElapsedMs": 85014,
+      "readyMs": 20221,
+      "totalElapsedMs": 25179,
       "weaponCardText": "500 GT Quad Medium Turbolaser\n2.0 TT / 17.8×14.1×5.8 m",
       "launcherCardText": "Concussion Missile Tube\n25TT／1.2秒・弾倉 6 発・口径 0.22 m・1.2×0.45×0.45 m",
       "nativeEditProof": null,
@@ -2035,7 +2035,7 @@
         "geometry": 1,
         "statistics": 1
       },
-      "massTonnes": 438555.10543267045,
+      "massTonnes": 438555.10543221864,
       "cost": 2798328,
       "workerMode": "worker",
       "renderer": true,

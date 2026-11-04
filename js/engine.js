@@ -194,27 +194,18 @@ async function handleUpdate(job) {
 // Meshes are 2–30 MB a ship; they are stored only where making them took long on this device (a Venator's, with
 // its sliding hangar doors, 12 s here), under a budget of their own. Records are keyed by the example key or a
 // hash of the serialized design and stamped with a SHA-256 of the sources this engine runs (reference and model
-// data, core, gfx, engine; read back from the HTTP cache once per session): any change of code or data drops the
-// old records. Without IndexedDB, fetch or those files (a blob or file:// worker), or on any storage error, the
+// data, core, gfx, engine; hashed from the exact startup snapshot): any change of code or data drops the
+// old records. Without IndexedDB or a verified startup snapshot, or on any storage error, the
 // cache is off and designs are built as before. Limits (provisional): builds 120 records / 60 MB,
 // meshes 24 records / 200 MB (kept when they took 1.5 s or more); the least recently used go first.
 let BUILD = null;
-const DISK = {open: null, db: null, off: typeof indexedDB === 'undefined' || typeof fetch === 'undefined', MAX: 120, BYTES: 60e6, GEO_MAX: 24, GEO_BYTES: 200e6, GEO_MS: 1500, hits: 0, puts: 0};
-// The files the engine was built from: next to the worker script, or as the page lists them for an inline engine.
-function engineSources() {
-  try {
-    if (typeof importScripts === 'function' && self.location && /\/worker\.js(\?|$)/.test(self.location.href)) return ['../data/reference.js', '../data/imperial2.js', 'core.js', 'gfx.js', 'engine.js'].map(u => new URL(u, self.location.href).href);
-    const F = typeof window !== 'undefined' && window.KS_FILES;
-    if (F && F.engine && /^https?:/.test(location.protocol)) return [F.data[0], F.data[2], F.core, F.gfx, F.engine].map(u => new URL(u, document.baseURI).href);
-  } catch (e) {}
-  return null;
-}
+const DISK = {open: null, db: null, off: typeof indexedDB === 'undefined', MAX: 120, BYTES: 60e6, GEO_MAX: 24, GEO_BYTES: 200e6, GEO_MS: 1500, hits: 0, puts: 0};
+// The bootstrap computes this from the exact blobs executed on both threads.
+// Never refetch unversioned source URLs here: force-cache can hash older bytes
+// than the running code and incorrectly accept geometry from another release.
 async function buildStamp() {
-  const urls = engineSources(); if (!urls || !(typeof crypto !== 'undefined' && crypto.subtle)) return null;
-  const parts = await Promise.all(urls.map(u => fetch(u, {cache: 'force-cache'}).then(r => { if (!r.ok) throw new Error(u); return r.arrayBuffer(); })));
-  const sums = await Promise.all(parts.map(b => crypto.subtle.digest('SHA-256', b)));
-  const all = new Uint8Array(sums.length * 32); sums.forEach((h, i) => all.set(new Uint8Array(h), i * 32));
-  return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', all)).slice(0, 10), x => x.toString(16).padStart(2, '0')).join('');
+  const stamp = typeof globalThis !== 'undefined' && globalThis.KS_SOURCE_STAMP;
+  return typeof stamp === 'string' && /^[a-f0-9]{20}$/.test(stamp) ? stamp : null;
 }
 function diskOpen() {
   if (DISK.off) return Promise.resolve(null);

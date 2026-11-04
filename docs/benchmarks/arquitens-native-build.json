@@ -2,15 +2,15 @@
   "schemaVersion": 1,
   "representation": "native-parametric-parts",
   "sourceSha256": {
-    "js/core.js": "aab2eebcc31443abcbaaab6f387ca868ccebba6a8821bc95fd261cf3812516ff",
+    "js/core.js": "85a8deceabf8fc184281c23d658061e748fbc4f895d16fb495b42674ca1ce513",
     "data/reference.js": "a6fbb40e306391f04b765985d97dafe512ba0d9ad21b479d70d47384ef7f6a8b",
     "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd"
   },
-  "buildMs": 2148.098197,
-  "statsMs": 111420.521527,
-  "mass": 438555.10543267045,
+  "buildMs": 479.790581,
+  "statsMs": 9267.846286,
+  "mass": 438555.10543221864,
   "cost": 2798328,
-  "accel": 4.788270385161784e-46,
+  "accel": 4.7882703851716495e-46,
   "profileVersion": 6,
   "structureCount": 75,
   "structureForms": [

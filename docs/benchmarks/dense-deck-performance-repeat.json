@@ -1,0 +1,183 @@
+{
+  "notes": "Fresh deserialization before each measured build; only fleetGeometry is timed. Shared container can contend. Same process, ABBA order mitigates systematic order differences.",
+  "results": [
+    {
+      "kind": "box",
+      "order": "source updated updated source ×4, after2 warmups per version",
+      "sourceMedian": 38.97637499999996,
+      "updatedMedian": 38.09751100000017,
+      "ratio": 0.9774513663725836,
+      "samples": [
+        {
+          "label": "source",
+          "ms": 42.823814000000084,
+          "triangles": 6056
+        },
+        {
+          "label": "updated",
+          "ms": 38.09751100000017,
+          "triangles": 6979
+        },
+        {
+          "label": "updated",
+          "ms": 42.25183100000004,
+          "triangles": 6979
+        },
+        {
+          "label": "source",
+          "ms": 38.56316300000003,
+          "triangles": 6056
+        },
+        {
+          "label": "source",
+          "ms": 37.653542000000016,
+          "triangles": 6056
+        },
+        {
+          "label": "updated",
+          "ms": 33.751442,
+          "triangles": 6979
+        },
+        {
+          "label": "updated",
+          "ms": 31.526068000000123,
+          "triangles": 6979
+        },
+        {
+          "label": "source",
+          "ms": 41.73407199999997,
+          "triangles": 6056
+        },
+        {
+          "label": "source",
+          "ms": 38.97637499999996,
+          "triangles": 6056
+        },
+        {
+          "label": "updated",
+          "ms": 37.5851990000001,
+          "triangles": 6979
+        },
+        {
+          "label": "updated",
+          "ms": 37.540030000000115,
+          "triangles": 6979
+        },
+        {
+          "label": "source",
+          "ms": 37.49003599999992,
+          "triangles": 6056
+        },
+        {
+          "label": "source",
+          "ms": 45.62973800000009,
+          "triangles": 6056
+        },
+        {
+          "label": "updated",
+          "ms": 53.807023999999956,
+          "triangles": 6979
+        },
+        {
+          "label": "updated",
+          "ms": 44.50955399999998,
+          "triangles": 6979
+        },
+        {
+          "label": "source",
+          "ms": 37.43963000000008,
+          "triangles": 6056
+        }
+      ]
+    },
+    {
+      "kind": "terraces",
+      "order": "source updated updated source ×4, after2 warmups per version",
+      "sourceMedian": 234.28951600000073,
+      "updatedMedian": 253.35339899999963,
+      "ratio": 1.0813689119576262,
+      "samples": [
+        {
+          "label": "source",
+          "ms": 179.02716299999975,
+          "triangles": 24582
+        },
+        {
+          "label": "updated",
+          "ms": 263.9424960000006,
+          "triangles": 24185
+        },
+        {
+          "label": "updated",
+          "ms": 253.35339899999963,
+          "triangles": 24185
+        },
+        {
+          "label": "source",
+          "ms": 217.50979499999994,
+          "triangles": 24582
+        },
+        {
+          "label": "source",
+          "ms": 225.78053700000055,
+          "triangles": 24582
+        },
+        {
+          "label": "updated",
+          "ms": 241.64496899999995,
+          "triangles": 24185
+        },
+        {
+          "label": "updated",
+          "ms": 256.3597890000001,
+          "triangles": 24185
+        },
+        {
+          "label": "source",
+          "ms": 234.28951600000073,
+          "triangles": 24582
+        },
+        {
+          "label": "source",
+          "ms": 250.79782700000032,
+          "triangles": 24582
+        },
+        {
+          "label": "updated",
+          "ms": 259.6096770000004,
+          "triangles": 24185
+        },
+        {
+          "label": "updated",
+          "ms": 185.10413100000005,
+          "triangles": 24185
+        },
+        {
+          "label": "source",
+          "ms": 256.94205599999987,
+          "triangles": 24582
+        },
+        {
+          "label": "source",
+          "ms": 243.41056600000047,
+          "triangles": 24582
+        },
+        {
+          "label": "updated",
+          "ms": 202.18353899999966,
+          "triangles": 24185
+        },
+        {
+          "label": "updated",
+          "ms": 235.83330600000045,
+          "triangles": 24185
+        },
+        {
+          "label": "source",
+          "ms": 190.60085600000093,
+          "triangles": 24582
+        }
+      ]
+    }
+  ]
+}

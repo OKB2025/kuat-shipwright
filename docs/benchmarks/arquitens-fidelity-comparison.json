@@ -2,13 +2,13 @@
   "schemaVersion": 1,
   "geometryInputMode": "current Core/Gfx blueprint geometry",
   "status": "MEASURED",
-  "date": "2026-11-04T17:21:54.933Z",
+  "date": "2026-11-04T21:26:25.629Z",
   "sourceSha256": {
     "data/reference.js": "a6fbb40e306391f04b765985d97dafe512ba0d9ad21b479d70d47384ef7f6a8b",
     "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
-    "data/fleet.js": "11d815b08f919e70c8901ed02d9363074317770acc291221ae1edea654428759",
-    "js/core.js": "aab2eebcc31443abcbaaab6f387ca868ccebba6a8821bc95fd261cf3812516ff",
-    "js/gfx.js": "51201ee7b0481cbae701db97f9991c3ba5583768a04b43fcc5ffaabaec197904"
+    "data/fleet.js": "c0341142b0b1b07f3f55b6e56e3445c33990f88e9d522a093f0e9319b6b7e416",
+    "js/core.js": "85a8deceabf8fc184281c23d658061e748fbc4f895d16fb495b42674ca1ce513",
+    "js/gfx.js": "cb96f6b647868d8090f41ed95a2310650b09b884bbd76033c56938d487ccbe3e"
   },
   "stl": {
     "path": "assets/source/arquitens.stl",
@@ -702,7 +702,7 @@
     }
   ],
   "meanIouGain": 0.13031328254848729,
-  "totalElapsedMs": 5975,
+  "totalElapsedMs": 2243,
   "scope": {
     "compared": "STL hull with original gun components and inner nozzle funnels removed against game-generated native structural hull; three fixed orthographic projections.",
     "limitations": [

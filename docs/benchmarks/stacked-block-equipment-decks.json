@@ -1,0 +1,130 @@
+{
+  "baseline": "ab307e95ece8947d53e04fb4e097c89a6eb7355b5737f2bd6f8722a2807e636c",
+  "updated": "2724580afcf2e464141fa47a635dfaed297c24636b3560b844a33cc13074c30e",
+  "results": [
+    {
+      "kind": "box",
+      "fixtureEqual": true,
+      "triangles": [
+        5463,
+        6056
+      ],
+      "triangleDeltaPct": 10.85484166209043,
+      "geometryBytes": [
+        433323,
+        488364
+      ],
+      "bytesDeltaPct": 12.702072126335317,
+      "medianCpuMs": [
+        32.84375399999999,
+        58.396690000000035
+      ],
+      "functionalEqual": true,
+      "parts": [
+        1,
+        1
+      ],
+      "fits": [
+        0,
+        0
+      ],
+      "saveStable": true
+    },
+    {
+      "kind": "wedge",
+      "fixtureEqual": true,
+      "triangles": [
+        1920,
+        2141
+      ],
+      "triangleDeltaPct": 11.510416666666657,
+      "geometryBytes": [
+        154530,
+        174921
+      ],
+      "bytesDeltaPct": 13.195496020190255,
+      "medianCpuMs": [
+        94.2798600000001,
+        114.53060300000016
+      ],
+      "functionalEqual": true,
+      "parts": [
+        1,
+        1
+      ],
+      "fits": [
+        0,
+        0
+      ],
+      "saveStable": true
+    },
+    {
+      "kind": "stacked",
+      "fixtureEqual": true,
+      "triangles": [
+        21556,
+        18351
+      ],
+      "triangleDeltaPct": -14.868250139172389,
+      "geometryBytes": [
+        1880724,
+        1581903
+      ],
+      "bytesDeltaPct": -15.888615235409343,
+      "medianCpuMs": [
+        823.3248999999996,
+        1331.0492110000014
+      ],
+      "functionalEqual": true,
+      "parts": [
+        6,
+        6
+      ],
+      "fits": [
+        0,
+        0
+      ],
+      "saveStable": true
+    },
+    {
+      "kind": "terraces",
+      "fixtureEqual": true,
+      "triangles": [
+        24841,
+        24582
+      ],
+      "triangleDeltaPct": -1.0426311340123173,
+      "geometryBytes": [
+        2056467,
+        2028978
+      ],
+      "bytesDeltaPct": -1.3367099982640185,
+      "medianCpuMs": [
+        280.50478699999985,
+        328.8530929999979
+      ],
+      "functionalEqual": true,
+      "parts": [
+        6,
+        6
+      ],
+      "fits": [
+        0,
+        0
+      ],
+      "saveStable": true
+    }
+  ],
+  "measuredUpdatedHash": "b13d49ccca4f9fb1d4e05c8358ffd91c715e17ce0aab5d794165a202d6d37113",
+  "hashNote": "Final source differs from measured source only by one verified descriptive comment; geometry is unchanged.",
+  "byteAccounting": "Counts occupied typed-array ranges using each array BYTES_PER_ELEMENT, including Int8Array normals. Excludes spare capacity, textures, GPU overhead, and JS objects.",
+  "baselineCommit": "5ea2e7e",
+  "finalGfxSHA256": "2724580afcf2e464141fa47a635dfaed297c24636b3560b844a33cc13074c30e",
+  "notes": [
+    "The final source differs from the measured source by one explanatory comment only.",
+    "CPU timings were recorded with concurrent tests; these are observations, not an FPS or full-application loading-speed benchmark.",
+    "Used geometry byte counts use Int8 normals:27 bytes per vertex plus4 bytes per index.",
+    "No new texture memory, assets or draw batches.",
+    "Small-fixture geometry increases are a deliberate bounded tradeoff for thicker shorter blocks; no universal performance improvement is claimed."
+  ]
+}

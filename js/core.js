@@ -10,6 +10,10 @@ Object.assign(YardReferenceData.assets,YardImperial2Data.assets);
    ============================================================ */
 const Core = (() => {
 'use strict';
+// v13 PERF Builtins as locals. In Node's vm contexts (the tests, the fleet-data and price scripts) every free global
+// lookup goes through the context's interceptor, about ten times slower than the arithmetic of the geometry loops;
+// in a page or worker these are the same objects, so nothing changes there.
+const {Math,Number,Object,Array,JSON,Map,Set,WeakMap,Float32Array,Float64Array,Int32Array,Uint8Array,Uint16Array,Uint32Array,Int8Array,ArrayBuffer,String}=globalThis,Infinity=globalThis.Infinity;
 const TT = 4.184e21, G0 = 9.80665, ISD_W = 1.0e25;
 // Shared editor / persistence limits, including 19 km dreadnoughts.
 const DESIGN_LIMITS=Object.freeze({length:30000,width:10000,height:5000,coordinate:60000,partSize:30000,diameter:3000,engineDiameter:1600,engineLength:10000,parts:1400,fits:2400});
@@ -21326,6 +21330,8 @@ const STRUCT_SHAPES = {box:'直方体',trap:'台形',wedge:'楔形',cylinder:'�
 const PLATE = {def: 1.0, min: 0.2, max: 6};
 const plateThickness = p => clamp(Number.isFinite(p?.plateT) ? p.plateT : PLATE.def, PLATE.min, PLATE.max);
 // v21.2 The side a player's design serves (any = every side's fleets may take it).
+// FACTION-001 Factions the player makes join this list when the app registers them (Rts.registerFaction); a design keeps
+// a made faction's id ('u_…') even where that faction is not known (the worker, another device) and is then 全陣営 there.
 const DESIGN_FACTIONS={any:'全陣営',empire:'銀河帝国',republic:'銀河共和国',cis:'独立星系連合',rebel:'反乱同盟'};
 const GROUPS = {craft:'操縦・搭乗（小型艇）',power:'動力・推進',support:'防御・船体維持',air:'航空・輸送',command:'指揮',shape:'構造'};
 // Compact placement sizes (min, max, default, metres). Every hull can use the full catalogue.
@@ -21467,22 +21473,25 @@ function structVolume(pt){let v=0;const T=structTriangles(pt);for(let i=0;i<T.le
 // Independently installed wings, panels and equipment are not fused hardware.
 const STRUCTURAL_MATERIAL_CACHE=new WeakMap();
 const STRUCTURAL_VOLUME_CACHE=new WeakMap();
+// Memory for the reused union prefix (provisional: 32 MB, one ship at a time).
+const STRUCTURAL_PREFIX={owner:null},STRUCTURAL_PREFIX_BYTES=32e6;
 function structuralMaterialOrder(a,b){const density=p=>p.plate?K.armorDens:K.structDens*(p.light?.25:1);return density(b)-density(a)||a.id-b.id;}
-function structuralMeshVolume(T){if(!T.length)return 0;const cached=STRUCTURAL_VOLUME_CACHE.get(T);if(cached!==undefined)return cached;const b=solidMeshBounds(T),o=[0,1,2].map(i=>(b[i]+b[i+3])/2);let value=0;for(let i=0;i<T.length;i+=9){const ax=T[i]-o[0],ay=T[i+1]-o[1],az=T[i+2]-o[2],bx=T[i+3]-o[0],by=T[i+4]-o[1],bz=T[i+5]-o[2],cx=T[i+6]-o[0],cy=T[i+7]-o[1],cz=T[i+8]-o[2];value+=ax*(by*cz-bz*cy)+ay*(bz*cx-bx*cz)+az*(bx*cy-by*cx);}const result=Math.abs(value/6);STRUCTURAL_VOLUME_CACHE.set(T,result);return result;}
+function structuralMeshVolume(T){if(!T.length)return 0;const cached=STRUCTURAL_VOLUME_CACHE.get(T);if(cached!==undefined)return cached;const b=solidMeshBounds(T),o=[0,1,2].map(i=>(b[i]+b[i+3])/2);let value=0;const o0=o[0],o1=o[1],o2=o[2];for(let i=0;i<T.length;i+=9){/* dot(a,cross(b,c)) about o, the same operations without the temporary arrays */const a0=T[i]-o0,a1=T[i+1]-o1,a2=T[i+2]-o2,b0=T[i+3]-o0,b1=T[i+4]-o1,b2=T[i+5]-o2,c0=T[i+6]-o0,c1=T[i+7]-o1,c2=T[i+8]-o2;value+=a0*(b1*c2-b2*c1)+a1*(b2*c0-b0*c2)+a2*(b0*c1-b1*c0);}const result=Math.abs(value/6);STRUCTURAL_VOLUME_CACHE.set(T,result);return result;}
 // v13 LOAD A clip asks for the coplanar section of the same accumulated mesh once per plane of the other solid,
 // and each ask walked every triangle (planes x triangles: most of a Gozanti's 100 s of figures). The triangles are
 // binned once per mesh by their unit normal (cells of 1e-3): a triangle can pass the test below only if its normal
 // is within 4.5e-4 of n per component, i.e. in n's cell or a neighbour, so only those 27 cells are walked, in the
 // original order and with the unchanged test, giving the identical section.
-const COPLANAR_BINS=new WeakMap(),COPLANAR_CELL=1e3;
+const COPLANAR_BINS=new WeakMap(),COPLANAR_CELL=1e3,coplanarKey=(x,y,z)=>((x+2048)*4096+(y+2048))*4096+(z+2048);
 function coplanarBins(T){
  let bins=COPLANAR_BINS.get(T);if(bins)return bins;bins=new Map();
- for(let i=0;i<T.length;i+=9){const ax=T[i+3]-T[i],ay=T[i+4]-T[i+1],az=T[i+5]-T[i+2],bx=T[i+6]-T[i],by=T[i+7]-T[i+1],bz=T[i+8]-T[i+2],raw=[ay*bz-az*by,az*bx-ax*bz,ax*by-ay*bx];if(len(raw)<1e-12)continue;const m=norm(raw),key=Math.floor(m[0]*COPLANAR_CELL)+','+Math.floor(m[1]*COPLANAR_CELL)+','+Math.floor(m[2]*COPLANAR_CELL);let list=bins.get(key);if(!list)bins.set(key,list=[]);list.push(i);}
+ // v13 PERF: norm() and the cell indices in scalars; the three indices (|i| ≤ 1000) packed into one exact number.
+ for(let i=0;i<T.length;i+=9){const ax=T[i+3]-T[i],ay=T[i+4]-T[i+1],az=T[i+5]-T[i+2],bx=T[i+6]-T[i],by=T[i+7]-T[i+1],bz=T[i+8]-T[i+2],r0=ay*bz-az*by,r1=az*bx-ax*bz,r2=ax*by-ay*bx,l=Math.hypot(r0,r1,r2);if(l<1e-12)continue;const unit=Math.abs(l-1)<1e-12,key=coplanarKey(Math.floor((unit?r0:r0/l)*COPLANAR_CELL),Math.floor((unit?r1:r1/l)*COPLANAR_CELL),Math.floor((unit?r2:r2/l)*COPLANAR_CELL));let list=bins.get(key);if(!list)bins.set(key,list=[]);list.push(i);}
  COPLANAR_BINS.set(T,bins);return bins;
 }
 function coplanarCandidates(T,n){
  const bins=coplanarBins(T),c=n.map(x=>Math.floor(x*COPLANAR_CELL)),out=[];
- for(let x=-1;x<=1;x++)for(let y=-1;y<=1;y++)for(let z=-1;z<=1;z++){const list=bins.get((c[0]+x)+','+(c[1]+y)+','+(c[2]+z));if(list)for(const i of list)out.push(i);}
+ for(let x=-1;x<=1;x++)for(let y=-1;y<=1;y++)for(let z=-1;z<=1;z++){const list=bins.get(coplanarKey(c[0]+x,c[1]+y,c[2]+z));if(list)for(const i of list)out.push(i);}
  return out.sort((a,b)=>a-b);
 }
 function structuralCoplanarSection(T,n,d,u,v,origin,eps){
@@ -21496,23 +21505,74 @@ function structuralCoplanarSection(T,n,d,u,v,origin,eps){
  }
  const segments=solidSimplifySegments([...edges.values()],eps).filter(e=>Math.abs(e[1][0]-e[0][0])>eps*.05);return {edges:segments,events:segments.flatMap(e=>[e[0][0],e[1][0]])};
 }
+// v13 PERF Each plane of a solid used to be sliced through the whole other (accumulated) surface, though most of the
+// solid's triangles lie well inside or well outside it. Against a large surface the full section is now made only for
+// a plane with a triangle near that surface. For any other triangle the section is sliced just over the triangle's
+// u-range (plus a margin): when no edge comes within STRUCTURAL_FAR_EPS × eps of it, every slab of the full
+// computation either holds an interval covering the triangle or none touching it, so surfaceExposeTriangle would
+// return it whole or drop it whole; which one is the even-odd count of the edges below it, checked in every gap
+// between edge ends over the triangle (all must agree, the counts must be even), else the triangle takes the full
+// path, as do thin triangles. surfaceExposedTriangles defers every occluding mesh the same way.
+const STRUCTURAL_DEFER_TRIS=256,STRUCTURAL_FAR_EPS=1000;
+// sources: [{T, d}] sliced over the window only, or [{section}] already complete (their edges are used as they are).
+function surfaceFarVerdict(P,plane,sources){
+ const {u,v,origin,eps}=plane,Q=P.map(p=>[dot(sub(p,origin),u),dot(sub(p,origin),v)]),u0=Math.min(Q[0][0],Q[1][0],Q[2][0]),u1=Math.max(Q[0][0],Q[1][0],Q[2][0]),v0=Math.min(Q[0][1],Q[1][1],Q[2][1]),v1=Math.max(Q[0][1],Q[1][1],Q[2][1]),M=eps*STRUCTURAL_FAR_EPS;
+ if(u1-u0<=M||v1-v0<=M)return 0;
+ const near=e=>Math.max(e[0][0],e[1][0])>=u0-M&&Math.min(e[0][0],e[1][0])<=u1+M&&Math.max(e[0][1],e[1][1])>=v0-M&&Math.min(e[0][1],e[1][1])<=v1+M,lists=[];
+ const box=[0,1,2].map(a=>Math.min(P[0][a],P[1][a],P[2][a])-M).concat([0,1,2].map(a=>Math.max(P[0][a],P[1][a],P[2][a])+M));
+ for(const q of sources){let edges;
+  // A mesh whose box misses the triangle's (grown by the margin) has no edge near it and cannot hold it.
+  if(q.b&&[0,1,2].some(a=>q.b[a]>box[a+3]||q.b[a+3]<box[a]))continue;
+  if(q.section)edges=q.section.edges;else{const sliced=solidSliceSegments(q.T,{n:plane.n,d:q.d},u,v,origin,eps,u0-M*2,u1+M*2);if(sliced.some(near))return 0;edges=sliced.filter(e=>Math.abs(e[1][0]-e[0][0])>eps*.05);}if(edges.some(near))return 0;lists.push(edges);}
+ const sides=Q.map((p,i)=>[p,Q[(i+1)%3]]);let inside=false;
+ for(const list of lists){let state=null;
+  // Between consecutive edge ends the count is constant, and the full section's edges end only where these do (merging
+  // a chain removes inner nodes), so one abscissa per gap covers every slab surfaceExposeTriangle would use.
+  const ends=[u0,u1];for(const e of list)for(const p of e)if(p[0]>u0&&p[0]<u1)ends.push(p[0]);ends.sort((a,b)=>a-b);
+  for(let k=0;k+1<ends.length;k++){if(!(ends[k+1]>ends[k]))continue;const x=(ends[k]+ends[k+1])/2;if(!(x>ends[k]&&x<ends[k+1]))return 0;
+   const span=sides.filter(e=>x>Math.min(e[0][0],e[1][0])&&x<Math.max(e[0][0],e[1][0])).map(e=>solidSegmentY(e,x));if(span.length<2)return 0;const y=(Math.min(...span)+Math.max(...span))/2;
+   let crossings=0,below=0;for(const e of list)if(x>Math.min(e[0][0],e[1][0])&&x<Math.max(e[0][0],e[1][0])){crossings++;if(solidSegmentY(e,x)<y)below++;}
+   if(crossings%2)return 0;const odd=below%2===1;if(state===null)state=odd;else if(state!==odd)return 0;}
+  if(state)inside=true;}
+ return inside?-1:1;
+}
 function structuralClipBoundary(T,other,coplanar=false,onlyCoplanar=false,keepInside=false){
  if(!T.length||!other.length)return keepInside?new Float64Array():T;const a=solidMeshBounds(T),b=solidMeshBounds(other),pad=1e-6;if([0,1,2].some(i=>a[i+3]<b[i]-pad||a[i]>b[i+3]+pad))return keepInside?new Float64Array():T;
- const mesh={T:other,sections:new Map()},planes=new Map(),out=[],trianglePad=Math.max(pad,4e-8,...a.map(x=>Math.abs(x)*1.2e-7));
+ // v13 PERF The output is written into a growing typed buffer (kept triangles copied as they are), and T itself is
+ // returned when no triangle was dropped or cut, as the former element-wise comparison found.
+ let buf=new Float64Array(T.length+1024),size=0,changed=false;const room=k=>{if(size+k>buf.length){const next=new Float64Array(Math.max(buf.length*2,size+k));next.set(buf.subarray(0,size));buf=next;}},keep=i=>{room(9);for(let j=0;j<9;j++)buf[size+j]=T[i+j];size+=9;};
+ const mesh={T:other,sections:new Map()},planes=new Map(),trianglePad=Math.max(pad,4e-8,...a.map(x=>Math.abs(x)*1.2e-7)),lazy=!onlyCoplanar&&other.length>=9*STRUCTURAL_DEFER_TRIS;
  for(let i=0;i<T.length;i+=9){
   // A distant component of the accumulated union cannot meet this solid.
   // Retain it directly without constructing plane sections for its triangles.
-  if(Math.max(T[i],T[i+3],T[i+6])<b[0]-trianglePad||Math.min(T[i],T[i+3],T[i+6])>b[3]+trianglePad||Math.max(T[i+1],T[i+4],T[i+7])<b[1]-trianglePad||Math.min(T[i+1],T[i+4],T[i+7])>b[4]+trianglePad||Math.max(T[i+2],T[i+5],T[i+8])<b[2]-trianglePad||Math.min(T[i+2],T[i+5],T[i+8])>b[5]+trianglePad){if(!keepInside)for(let j=0;j<9;j++)out.push(T[i+j]);continue;}
-  const P=[0,3,6].map(j=>Array.from(T.slice(i+j,i+j+3))),raw=cross(sub(P[1],P[0]),sub(P[2],P[0]));if(len(raw)<1e-12)continue;const n=norm(raw),d=dot(n,P[0]),key=n.map(x=>Math.round(x*1e8)).join(',')+'|'+Math.round(d*1e5);let plane=planes.get(key);
-  if(!plane){const f=frameAxis(n),u=f.v,v=f.w,origin=mul(n,d),eps=Math.max(1e-8,Math.max(...P.flat().map(Math.abs))*3e-8),sections=[];let minimum=0,maximum=0;for(let a=0;a<3;a++){minimum+=n[a]*(n[a]<0?b[a+3]:b[a]);maximum+=n[a]*(n[a]<0?b[a]:b[a+3]);}if(maximum>=d-eps*4&&minimum<=d+eps*5){if(!onlyCoplanar){const s=surfaceExposurePlane(mesh,n,d+eps*4,u,v,origin,key,eps);if(s.edges.length)sections.push(s);}if(coplanar){const s=structuralCoplanarSection(other,n,d,u,v,origin,eps);if(s.edges.length)sections.push(s);}}plane={n,u,v,origin,eps,sections,crossings:surfaceExposureCrossings(sections,eps)};planes.set(key,plane);}
-  if(!plane.sections.length){if(!keepInside)out.push(...P[0],...P[1],...P[2]);}else surfaceExposeTriangle(P,plane,plane.sections,out,keepInside);
- }return out.length===T.length&&out.every((v,i)=>v===T[i])?T:Float64Array.from(out);
+  if(Math.max(T[i],T[i+3],T[i+6])<b[0]-trianglePad||Math.min(T[i],T[i+3],T[i+6])>b[3]+trianglePad||Math.max(T[i+1],T[i+4],T[i+7])<b[1]-trianglePad||Math.min(T[i+1],T[i+4],T[i+7])>b[4]+trianglePad||Math.max(T[i+2],T[i+5],T[i+8])<b[2]-trianglePad||Math.min(T[i+2],T[i+5],T[i+8])>b[5]+trianglePad){if(keepInside)changed=true;else keep(i);continue;}
+  const P=[0,3,6].map(j=>Array.from(T.slice(i+j,i+j+3))),raw=cross(sub(P[1],P[0]),sub(P[2],P[0]));if(len(raw)<1e-12){changed=true;continue;}const n=norm(raw),d=dot(n,P[0]),key=n.map(x=>Math.round(x*1e8)).join(',')+'|'+Math.round(d*1e5);let plane=planes.get(key);
+  if(!plane){const f=frameAxis(n),u=f.v,v=f.w,origin=mul(n,d),eps=Math.max(1e-8,Math.max(...P.flat().map(Math.abs))*3e-8),sections=[];let minimum=0,maximum=0,deferred=false,cop=null;for(let a=0;a<3;a++){minimum+=n[a]*(n[a]<0?b[a+3]:b[a]);maximum+=n[a]*(n[a]<0?b[a]:b[a+3]);}if(maximum>=d-eps*4&&minimum<=d+eps*5){if(!onlyCoplanar){if(lazy)deferred=true;else{const s=surfaceExposurePlane(mesh,n,d+eps*4,u,v,origin,key,eps);if(s.edges.length)sections.push(s);}}if(coplanar){const s=structuralCoplanarSection(other,n,d,u,v,origin,eps);if(s.edges.length){sections.push(s);cop=s;}}}plane={n,u,v,origin,eps,sections,crossings:deferred?null:surfaceExposureCrossings(sections,eps),deferred,cop,d,key};planes.set(key,plane);}
+  if(plane.deferred){const verdict=surfaceFarVerdict(P,plane,[{T:other,d:plane.d+plane.eps*4},...(plane.cop?[{section:plane.cop}]:[])]);if(verdict>0){if(keepInside)changed=true;else keep(i);continue;}if(verdict<0){if(keepInside)keep(i);else changed=true;continue;}
+   // Near the other surface: the plane's full section, exactly as it was computed before.
+   const s=surfaceExposurePlane(mesh,plane.n,plane.d+plane.eps*4,plane.u,plane.v,plane.origin,plane.key,plane.eps);plane.sections=[...(s.edges.length?[s]:[]),...(plane.cop?[plane.cop]:[])];plane.crossings=surfaceExposureCrossings(plane.sections,plane.eps);plane.deferred=false;}
+  if(!plane.sections.length){if(keepInside)changed=true;else keep(i);continue;}const piece=[];surfaceExposeTriangle(P,plane,plane.sections,piece,keepInside);
+  if(piece.length===9&&piece.every((x,j)=>x===T[i+j])){keep(i);continue;}changed=true;room(piece.length);for(let j=0;j<piece.length;j++)buf[size+j]=piece[j];size+=piece.length;
+ }return changed?buf.slice(0,size):T;
 }
 function structuralJoinBoundary(a,b){if(!a.length)return b;if(!b.length)return a;const first=structuralClipBoundary(a,b),second=structuralClipBoundary(b,a,true);if(!first.length)return second;if(!second.length)return first;const out=new Float64Array(first.length+second.length);out.set(first);out.set(second,first.length);return out;}
 function structuralMaterial(ship){
  const bulk=p=>p.k==='struct'&&!p.plate,g=hullGeo(ship),hull=g.materialTris||g.tris,parts=ship.parts.filter(isShapePart).slice().sort((a,b)=>(bulk(b)?1:0)-(bulk(a)?1:0)||structuralMaterialOrder(a,b)),entries=parts.map(p=>{const T=structTriangles(p);return {p,bulk:bulk(p),T:p._solidGeometry?.material||(p._apertures?.length?p._pierced?.material:T)||T};}),old=STRUCTURAL_MATERIAL_CACHE.get(ship);
  if(old?.hull===hull&&old.entries.length===entries.length&&entries.every((e,i)=>e.p===old.entries[i].p&&e.T===old.entries[i].T&&e.bulk===old.entries[i].bulk))return old;
- let boundary=hull,previous=structuralMeshVolume(boundary),extension=0;const volumes=new Map(),envelopeVolumes=new Map();for(const {p,T,bulk}of entries){const V=partVolume(p),joined=structuralJoinBoundary(boundary,T),next=structuralMeshVolume(joined),added=clamp(next-previous,0,V),volume=added<Math.max(1e-8,V*1e-10)?0:added;envelopeVolumes.set(p.id,volume);if(bulk)volumes.set(p.id,volume);extension+=volume;boundary=joined;previous=next;}
+ // v13 PERF An edit of one structure keeps the union of the structures before it in the order: the last ship
+ // computed keeps the accumulated boundary at some steps (STRUCTURAL_PREFIX_BYTES at most; the stride doubles when
+ // full) with every step's volume, and a later computation of the same ship (or its surface working copy) resumes
+ // from the last stored step before the first changed entry. Resuming replays the same values in the same order.
+ const owner=ship._surfaceSource||ship,prior=STRUCTURAL_PREFIX.owner===owner?STRUCTURAL_PREFIX:null;let same=0;
+ if(prior?.hull===hull)while(same<entries.length&&same<prior.entries.length&&entries[same].p===prior.entries[same].p&&entries[same].T===prior.entries[same].T&&entries[same].bulk===prior.entries[same].bulk)same++;
+ let start=0,stride=prior?prior.stride:1;const stored=new Map();if(prior)for(const [j,cp] of prior.stored)if(j<=same){stored.set(j,cp);if(j>start)start=j;}
+ const resume=stored.get(start);let boundary=resume?resume.boundary:hull,previous=resume?resume.previous:structuralMeshVolume(boundary),extension=0;if(!resume)stored.set(0,{boundary,previous});
+ const volumes=new Map(),envelopeVolumes=new Map(),steps=[];
+ for(let i=0;i<start;i++){const {p,bulk}=entries[i],volume=prior.steps[i];steps.push(volume);envelopeVolumes.set(p.id,volume);if(bulk)volumes.set(p.id,volume);extension+=volume;}
+ let bytes=0;for(const cp of stored.values())bytes+=cp.boundary.length*8;
+ for(let i=start;i<entries.length;i++){const {p,T,bulk}=entries[i],V=partVolume(p),joined=structuralJoinBoundary(boundary,T),next=structuralMeshVolume(joined),added=clamp(next-previous,0,V),volume=added<Math.max(1e-8,V*1e-10)?0:added;steps.push(volume);envelopeVolumes.set(p.id,volume);if(bulk)volumes.set(p.id,volume);extension+=volume;boundary=joined;previous=next;
+  if((i+1)%stride===0){stored.set(i+1,{boundary,previous});bytes+=boundary.length*8;while(bytes>STRUCTURAL_PREFIX_BYTES&&stored.size>1){stride*=2;bytes=0;for(const [j,cp] of stored){if(j%stride){stored.delete(j);continue;}bytes+=cp.boundary.length*8;}}}}
+ Object.assign(STRUCTURAL_PREFIX,{owner,hull,entries,steps,stored,stride});
  const result={hull,entries,volumes,envelopeVolumes,extension,boundary};STRUCTURAL_MATERIAL_CACHE.set(ship,result);return result;
 }
 function structuralCoincidentTriangles(ship,patch,T){
@@ -22124,9 +22184,19 @@ function surfaceExposureMeshes(ship,hosts){
 function surfaceExposurePlane(mesh,n,d,u,v,origin,key,eps){
  const cached=mesh.sections.get(key);if(cached)return cached;const segments=solidSliceSegments(mesh.T,{n,d},u,v,origin,eps),edges=segments.filter(e=>Math.abs(e[1][0]-e[0][0])>eps*.05),events=edges.flatMap(e=>[e[0][0],e[1][0]]),result={edges,events};mesh.sections.set(key,result);return result;
 }
-function surfaceExposureCrossings(sections,eps){const events=[];for(let a=0;a<sections.length;a++)for(let b=a+1;b<sections.length;b++)for(const x of sections[a].edges)for(const y of sections[b].edges){if(Math.max(x[0][0],x[1][0])<Math.min(y[0][0],y[1][0])-eps||Math.max(y[0][0],y[1][0])<Math.min(x[0][0],x[1][0])-eps||Math.max(x[0][1],x[1][1])<Math.min(y[0][1],y[1][1])-eps||Math.max(y[0][1],y[1][1])<Math.min(x[0][1],x[1][1])-eps)continue;const at=solidSegmentCrossX(x,y,eps);if(at!=null)events.push(at);}return events;}
+// v13 PERF: the same pair test, but each edge of the first section only meets the edges of the second whose u-range
+// starts before its own ends (sorted once per pair of sections; the others fail the test's first clause). The events
+// are only ever sorted and filtered by surfaceExposeTriangle, so their order does not matter.
+function surfaceExposureCrossings(sections,eps){const events=[];for(let a=0;a<sections.length;a++)for(let b=a+1;b<sections.length;b++){
+ const ys=sections[b].edges.map(y=>({y,lo:Math.min(y[0][0],y[1][0])})).sort((p,q)=>p.lo-q.lo),lows=ys.map(q=>q.lo);
+ for(const x of sections[a].edges){const mx=Math.max(x[0][0],x[1][0]);let lo=0,hi=lows.length;while(lo<hi){const m=(lo+hi)>>1;if(!(mx<lows[m]-eps))lo=m+1;else hi=m;}
+  for(let k=0;k<lo;k++){const y=ys[k].y;if(Math.max(x[0][0],x[1][0])<Math.min(y[0][0],y[1][0])-eps||Math.max(y[0][0],y[1][0])<Math.min(x[0][0],x[1][0])-eps||Math.max(x[0][1],x[1][1])<Math.min(y[0][1],y[1][1])-eps||Math.max(y[0][1],y[1][1])<Math.min(x[0][1],x[1][1])-eps)continue;const at=solidSegmentCrossX(x,y,eps);if(at!=null)events.push(at);}}
+}return events;}
 function surfaceExposeTriangle(points,plane,sections,out,keepInside=false){
  const {n,u,v,origin,eps,crossings}=plane,P=points.map(p=>[dot(sub(p,origin),u),dot(sub(p,origin),v)]),bounds=[Math.min(...P.map(p=>p[0])),Math.max(...P.map(p=>p[0]))],edges=P.map((p,i)=>[p,P[(i+1)%3]]),events=P.map(p=>p[0]);
+ // v13 PERF: an edge whose u-range misses the triangle's can neither cross it inside (bounds) nor span a slab there,
+ // so each section is reduced to the edges over the triangle once, in their order (identical events and hits).
+ sections=sections.map(section=>({events:section.events,edges:section.edges.filter(e=>!(Math.max(e[0][0],e[1][0])<bounds[0]||Math.min(e[0][0],e[1][0])>bounds[1]))})).filter(section=>section.edges.length);
  for(const section of sections){for(const x of section.events)if(x>bounds[0]+eps&&x<bounds[1]-eps)events.push(x);for(const a of section.edges)for(const b of edges){const x=solidSegmentCrossX(a,b,eps);if(x!=null&&x>bounds[0]+eps&&x<bounds[1]-eps)events.push(x);}}
  for(const x of crossings)if(x>bounds[0]+eps&&x<bounds[1]-eps)events.push(x);events.sort((a,b)=>a-b);const xs=events.filter((x,i)=>!i||x-events[i-1]>eps*.1),hits=(list,x)=>list.filter(e=>x>Math.min(e[0][0],e[1][0])&&x<Math.max(e[0][0],e[1][0])).map(edge=>({edge,y:solidSegmentY(edge,x)})).sort((a,b)=>a.y-b.y),result=[];let removed=false;
  for(let i=0;i+1<xs.length;i++){const a=xs[i],b=xs[i+1];if(b-a<=eps*.1)continue;const x=(a+b)/2,subject=hits(edges,x);if(subject.length<2)continue;const lo=subject[0],hi=subject.at(-1),intervals=[];
@@ -22138,18 +22208,17 @@ function surfaceExposeTriangle(points,plane,sections,out,keepInside=false){
  }if(keepInside)out.push(...result);else if(removed)out.push(...result);else out.push(...points[0],...points[1],...points[2]);
 }
 function surfaceExposedTriangles(T,host,meshes){
- if(!T.length)return [];const out=[],planes=new Map(),localPlanes=new Map(),probe=1e-6,bounds=solidMeshBounds(T),candidates=meshes.filter(m=>m.part!==host&&[0,1,2].every(i=>m.b[i]<=bounds[i+3]+probe&&m.b[i+3]>=bounds[i]-probe));if(!candidates.length)return T;
- for(let i=0;i<T.length;i+=9){const points=[0,3,6].map(j=>Array.from(T.slice(i+j,i+j+3))),raw=cross(sub(points[1],points[0]),sub(points[2],points[0]));if(len(raw)<1e-10)continue;const n=norm(raw),d=dot(n,points[0]),key=n.map(x=>Math.round(x*1e8)).join(',')+'|'+Math.round(d*1e5);let base=planes.get(key);
-  // Preserve the original first-triangle basis, epsilon, candidate order and
-  // shared plane-section cache provenance before performing any local cull.
-  if(!base){const fr=frameAxis(n),u=fr.v,v=fr.w,origin=mul(n,d),eps=Math.max(1e-8,Math.max(...points.flat().map(Math.abs))*2e-10),members=[];
-   for(const mesh of candidates){const low=mesh.b.slice(0,3).map((x,j)=>(x+mesh.b[j+3])/2),half=mesh.b.slice(0,3).map((x,j)=>(mesh.b[j+3]-x)/2),distance=dot(n,low)-d,extent=half.reduce((s,x,j)=>s+x*Math.abs(n[j]),0);if(distance+extent<=eps||distance-extent>eps)continue;const section=surfaceExposurePlane(mesh,n,d,u,v,origin,key+'|out',eps);if(section.edges.length)members.push({mesh,section});}
-   base={n,u,v,origin,eps,members};planes.set(key,base);
+ if(!T.length)return [];const out=[],planes=new Map(),probe=1e-6,bounds=solidMeshBounds(T),candidates=meshes.filter(m=>m.part!==host&&[0,1,2].every(i=>m.b[i]<=bounds[i+3]+probe&&m.b[i+3]>=bounds[i]-probe));if(!candidates.length)return T;
+ for(let i=0;i<T.length;i+=9){const points=[0,3,6].map(j=>Array.from(T.slice(i+j,i+j+3))),raw=cross(sub(points[1],points[0]),sub(points[2],points[0]));if(len(raw)<1e-10)continue;const n=norm(raw),d=dot(n,points[0]),key=n.map(x=>Math.round(x*1e8)).join(',')+'|'+Math.round(d*1e5);let plane=planes.get(key);
+  if(!plane){const fr=frameAxis(n),u=fr.v,v=fr.w,origin=mul(n,d),eps=Math.max(1e-8,Math.max(...points.flat().map(Math.abs))*2e-10),sources=[];
+   for(const mesh of candidates){const low=mesh.b.slice(0,3).map((x,j)=>(x+mesh.b[j+3])/2),half=mesh.b.slice(0,3).map((x,j)=>(mesh.b[j+3]-x)/2),distance=dot(n,low)-d,extent=half.reduce((s,x,j)=>s+x*Math.abs(n[j]),0);if(distance+extent<=eps||distance-extent>eps)continue;
+    // v13 PERF A mesh not yet sliced at this plane waits until a triangle of the plane comes near it (surfaceFarVerdict).
+    sources.push(mesh.sections.has(key+'|out')?{mesh,section:surfaceExposurePlane(mesh,n,d,u,v,origin,key+'|out',eps)}:{mesh});
+   }const deferred=sources.some(q=>!q.section),sections=deferred?null:sources.map(q=>q.section).filter(q=>q.edges.length);plane={n,u,v,origin,eps,d,key,sources,deferred,sections,crossings:deferred?null:surfaceExposureCrossings(sections,eps)};planes.set(key,plane);
   }
-  const b=[0,1,2].map(a=>Math.min(...points.map(p=>p[a]))).concat([0,1,2].map(a=>Math.max(...points.map(p=>p[a])))),pad=Math.max(2e-5,...b.map(v=>Math.abs(v)*3e-7)),members=base.members.filter(({mesh})=>[0,1,2].every(a=>mesh.b[a]<=b[a+3]+pad&&mesh.b[a+3]>=b[a]-pad));
-  if(!members.length){out.push(...points[0],...points[1],...points[2]);continue;}
-  const localKey=key+'|'+members.map(({mesh})=>mesh.index).join(',');let plane=localPlanes.get(localKey);if(!plane){const sections=members.map(m=>m.section);plane={...base,sections,crossings:surfaceExposureCrossings(sections,base.eps)};localPlanes.set(localKey,plane);}
-  const U=points.map(p=>dot(sub(p,plane.origin),plane.u)),umin=Math.min(...U),umax=Math.max(...U),relevant=plane.sections.filter(s=>s.edges.some(e=>Math.max(e[0][0],e[1][0])>=umin-plane.eps&&Math.min(e[0][0],e[1][0])<=umax+plane.eps));surfaceExposeTriangle(points,plane,relevant,out);
+  if(plane.deferred){const verdict=surfaceFarVerdict(points,plane,plane.sources.map(q=>q.section?{section:q.section,b:q.mesh.b}:{T:q.mesh.T,d:plane.d,b:q.mesh.b}));if(verdict>0){out.push(...points[0],...points[1],...points[2]);continue;}if(verdict<0)continue;
+   for(const q of plane.sources)if(!q.section)q.section=surfaceExposurePlane(q.mesh,plane.n,plane.d,plane.u,plane.v,plane.origin,plane.key+'|out',plane.eps);plane.sections=plane.sources.map(q=>q.section).filter(q=>q.edges.length);plane.crossings=surfaceExposureCrossings(plane.sections,plane.eps);plane.deferred=false;}
+  if(!plane.sections.length){out.push(...points[0],...points[1],...points[2]);continue;}const U=points.map(p=>dot(sub(p,plane.origin),plane.u)),umin=Math.min(...U),umax=Math.max(...U),relevant=plane.sections.filter(s=>s.edges.some(e=>Math.max(e[0][0],e[1][0])>=umin-plane.eps&&Math.min(e[0][0],e[1][0])<=umax+plane.eps));surfaceExposeTriangle(points,plane,relevant,out);
  }return out.length===T.length&&out.every((v,i)=>v===T[i])?T:out;
 }
 function surfaceVisibleUV(p){const T=p.exposedTriangles??p.triangles,old=surfaceExposureUV.get(T);if(old)return old;const origin=p._origin||p.center,triangles=[];for(let i=0;i<T.length;i+=9){const points=[0,3,6].map(j=>{const q=sub(Array.from(T.slice(i+j,i+j+3)),origin);return [dot(q,p.u),dot(q,p.v)];});triangles.push({points,b:[Math.min(...points.map(p=>p[0])),Math.min(...points.map(p=>p[1])),Math.max(...points.map(p=>p[0])),Math.max(...points.map(p=>p[1]))]});}surfaceExposureUV.set(T,triangles);return triangles;}
@@ -22159,6 +22228,8 @@ function surfaceExposureCurrent(ship,key){
  for(const q of ship.surfaces?.patches||[]){const rows=(q.aggregate?.cells||[]).filter(r=>!r[3]),guns=(q.aggregate?.guns||[]).filter(r=>!r[18]);if(!rows.length&&!guns.length)continue;const p=patches.get(q.id);if(!p?.exposed){valid=false;break;}if(p.exposedArea>=p.area-Math.max(1e-5,p.area*1e-8))continue;for(const r of [...rows.map(r=>({point:r.slice(14,17),size:r.slice(17,19)})),...guns.map(r=>({point:r.slice(9,12),size:r.slice(12,14)}))]){const d=sub(r.point,p._origin||p.center),u=dot(d,p.u),v=dot(d,p.v),rect=[u-r.size[0]/2,v-r.size[1]/2,u+r.size[0]/2,v+r.size[1]/2];if(surfaceVisibleArea(p,rect)<r.size[0]*r.size[1]-Math.max(1e-5,r.size[0]*r.size[1]*1e-6)){valid=false;break;}}if(!valid)break;
  }surfaceExposureValidation.set(ship,{key,ledger,valid});return valid;
 }
+const SURFACE_EXPOSED_MEMO=new WeakMap(),SURFACE_MESH_IDS=new WeakMap();let surfaceMeshNext=1;
+function surfaceMeshId(T){if(!T||typeof T!=='object')return '0';let id=SURFACE_MESH_IDS.get(T);if(!id){id=surfaceMeshNext++;SURFACE_MESH_IDS.set(T,id);}return id;}
 function surfacePatches(ship,structuralOnly=false){
  // The editor uses the last complete survey from the geometry worker. Moving
  // a structure invalidates exposure across the whole ship; rebuilding that
@@ -22187,7 +22258,15 @@ function surfacePatches(ship,structuralOnly=false){
    for(const leaf of partition.leaves){let tris=[];const [a,b,c,d]=leaf.range,lo=[min[0]+(max[0]-min[0])*a,min[1]+(max[1]-min[1])*b],hi=[min[0]+(max[0]-min[0])*c,min[1]+(max[1]-min[1])*d];for(let i=0;i<g.triangles.length;i+=9){let poly=[g.triangles.slice(i,i+3),g.triangles.slice(i+3,i+6),g.triangles.slice(i+6,i+9)];for(const [axis,sign,lim]of [[u,-1,-lo[0]],[u,1,hi[0]],[v,-1,-lo[1]],[v,1,hi[1]]])poly=clipGeneral(poly,mul(axis,sign),dot(mul(axis,sign),center)+lim);if(poly.length>=3)triangulateFan(poly,tris);}if(!tris.length)continue;const poly=[[lo[0],lo[1]],[hi[0],lo[1]],[hi[0],hi[1]],[lo[0],hi[1]]].map(p=>surfaceAdd(surfaceAdd(center,u,p[0]),v,p[1])),lc=mul(poly.reduce((s,p)=>surfaceAdd(s,p),[0,0,0]),.25),area=solidMeshArea(tris);out.push({...base,id:leaf.id,range:leaf.range.slice(),center:lc,polygon:poly,triangles:tris,area,exposedArea:base.exposedArea*area/base.area,_min:lo,_max:hi,_origin:center});}
   }
  }
- for(const p of out){p.exposedTriangles=structuralCoincidentTriangles(ship,p,surfaceExposedTriangles(p.triangles,p._part,meshes));p.exposedArea=Math.min(p.area,solidMeshArea(p.exposedTriangles));p.exposed=p.exposedArea>Math.max(1e-7,p.area*1e-10);}
+ // v13 PERF A patch's exposed triangles depend only on its host mesh and range, the meshes that can occlude it and
+ // the earlier structures sharing its sheets. Kept per host mesh and patch under the identities of those meshes, so
+ // after an edit only the patches the edited parts can reach are clipped again.
+ const hostT=new Map(hosts.map(h=>[h.host,h.T])),priorIds=new Map();
+ for(const p of out){const T0=hostT.get(p.host),b=solidMeshBounds(p.triangles),probe=1e-6,cands=meshes.filter(m=>m.part!==p._part&&[0,1,2].every(i=>m.b[i]<=b[i+3]+probe&&m.b[i+3]>=b[i]-probe)).map(m=>surfaceMeshId(m.T)).join(',');
+  let prior='';if(p._part?.k==='struct'){const k=p._part.id;if(!priorIds.has(k))priorIds.set(k,(ship.hull.assembly?'a':surfaceMeshId(hullGeo(ship).tris))+':'+ship.parts.filter(q=>q.k==='struct'&&structuralMaterialOrder(q,p._part)<0).sort(structuralMaterialOrder).map(q=>surfaceMeshId(structTriangles(q))).join(','));prior=priorIds.get(k);}
+  const sig=[p.id,p.range.join(','),p.triangles.length,cands,prior].join('|');let memo=T0&&SURFACE_EXPOSED_MEMO.get(T0);if(T0&&!memo)SURFACE_EXPOSED_MEMO.set(T0,memo=new Map());const hit=memo?.get(p.id);
+  if(hit?.sig===sig&&hit.n===p.triangles.length&&hit.triangles.every((x,i)=>x===p.triangles[i]))p.exposedTriangles=hit.value;else{p.exposedTriangles=structuralCoincidentTriangles(ship,p,surfaceExposedTriangles(p.triangles,p._part,meshes));memo?.set(p.id,{sig,n:p.triangles.length,triangles:p.triangles,value:p.exposedTriangles});}
+  p.exposedArea=Math.min(p.area,solidMeshArea(p.exposedTriangles));p.exposed=p.exposedArea>Math.max(1e-7,p.area*1e-10);}
  (structuralOnly?surfaceStructuralCache:surfaceCache).set(ship,{key,patches:out});return out.map(p=>({...p,config:surfaceConfig(ship,p.id)}));
 }
 function surfacePick(ship,o,d){let best=null;for(const p of surfacePatches(ship)){if(!p.exposed)continue;const h=rayTris(p.exposedTriangles??p.triangles,o,d);if(!h||best&&h.t>=best.distance||p.exposedTriangles==null&&surfaceBlocked(ship,h.p,h.n,p._part))continue;best={...p,point:h.p,distance:h.t};}return best;}
@@ -22741,7 +22820,7 @@ function deserialize(o){
   migrateLegacyPropulsion(s);adoptEquipment(s);
   for(const p of s.parts)if(isSuperweapon(p)){const q=o.parts.find(q=>q.id===p.id);if(q&&(q.reactor===0||s.parts.some(r=>r.id===q.reactor&&isReactor(r))))p.reactor=q.reactor;if(q&&['beam','pulse'].includes(q.fireMode))p.fireMode=q.fireMode;normalizeSuperweapon(p);}
   for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(h.tw==null)delete h.tw;if(q.portal){h.portal=true;h.face=Object.hasOwn(AVIATION_SURFACE_FACES,q.face)?q.face:'top';if(q.surface)h.surface=true;h.open=finite(q.open,0,1,1);h.aperture=finite(q.aperture,.1,1,.85);if(q.sill!=null)h.sill=finite(q.sill,0,1,.5);if(s.parts.some(p=>p.id===q.bay&&p.k==='hangar'))h.bay=q.bay;else if(Array.isArray(q.cut)&&q.cut.length===6&&q.cut.every(Number.isFinite))h.cut=q.cut.map(v=>clamp(v,-DESIGN_LIMITS.coordinate,DESIGN_LIMITS.coordinate));}}
-  s.paint=['republic','neutral','dark','cis'].includes(o.paint)?o.paint:'neutral';if(DESIGN_FACTIONS[o.faction])s.faction=o.faction;s.detail=finite(o.detail,0,2,1);if(o.reference)s.reference=String(o.reference).slice(0,80);for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.motion==='fixed')h.motion='fixed';else if(q.motion==='slide'||isSlidingHatch(s,h))h.motion='slide';}if(REFERENCE_ASSETS[o.hullSkin?.asset]?.kind==='hull'&&o.hullSkin.base?.hull){const b=o.hullSkin.base,valid=[b.hull.L,b.hull.W,b.hull.H].every(v=>Number.isFinite(v)&&v>0&&v<=4000)&&Array.isArray(b.hull.stations)&&b.hull.stations.length>=2&&b.hull.stations.length<=64&&b.hull.stations.every(a=>Array.isArray(a)&&a.length>=3&&a.every(Number.isFinite))&&Array.isArray(b.trenches)&&b.trenches.length<=30&&Array.isArray(b.cuts)&&b.cuts.length<=50;if(valid){s.hullSkin=JSON.parse(JSON.stringify(o.hullSkin));s.hullSkin.enabled=!!o.hullSkin.enabled;}}for(const f of s.fits){const q=o.fits.find(q=>q.id===f.id);if(q.localMount)f.localMount=true;if(Array.isArray(q.tilt)&&q.tilt.length===3&&q.tilt.every(Number.isFinite)&&len(q.tilt)>.5&&FITS[f.k].cat==='w'&&!FITS[f.k].casemate&&!f.localMount){f.tilt=norm(q.tilt);if(!f.n)f.n=f.tilt.slice();}if(typeof q.batteryZone==='string')f.batteryZone=q.batteryZone.slice(0,40);if(FITS[f.k].window){f.commandEnabled=q.commandEnabled!==false;if(q.commandDepth!=null)f.commandDepth=finite(q.commandDepth,2,200,12);if(q.commandHeight!=null)f.commandHeight=finite(q.commandHeight,2,80,8);}if(q.mount==='ext'&&FITS[f.k]?.msl)f.mount='ext';if(isConcussionLauncher(f)&&Number.isFinite(q.launchPitch))f.launchPitch=finite(q.launchPitch,-90,90,0);if(q.legacyMissileMount==='vls'||q.legacyMissileMount==='vls-orphan')f.legacyMissileMount=q.legacyMissileMount;if(Number.isFinite(q.chargeSalvos))f.chargeSalvos=finite(q.chargeSalvos,1,20,1);if(Number.isFinite(q.chargeDepth))f.chargeDepth=finite(q.chargeDepth,1,500,10);if(Number.isFinite(q.chargeScale))f.chargeScale=finite(q.chargeScale,.25,4,1);if(Number.isFinite(q.assetYaw))f.assetYaw=finite(q.assetYaw,-180,180,0);standardFit(f);if(Number.isInteger(q.mountAxis)&&q.mountAxis>=0&&q.mountAxis<=5)f.mountAxis=q.mountAxis;if(Number.isFinite(q.mountOffset))f.mountOffset=finite(q.mountOffset,-50,50,0);if(REFERENCE_ASSETS[q.skinAsset])f.skinAsset=q.skinAsset;}for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.referenceMouth)h.referenceMouth=true;if(REFERENCE_ASSETS[q.skinAsset]){h.skinAsset=q.skinAsset;if(Array.isArray(q.skinBayAnchor)&&q.skinBayAnchor.length===3&&q.skinBayAnchor.every(Number.isFinite))h.skinBayAnchor=q.skinBayAnchor.slice();}}migrateAviationSurfaces(s,o);migrateAviation(s,o);
+  s.paint=['republic','neutral','dark','cis'].includes(o.paint)?o.paint:'neutral';if(DESIGN_FACTIONS[o.faction]||/^u_[a-z0-9]{2,20}$/.test(o.faction||''))s.faction=o.faction;s.detail=finite(o.detail,0,2,1);if(o.reference)s.reference=String(o.reference).slice(0,80);for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.motion==='fixed')h.motion='fixed';else if(q.motion==='slide'||isSlidingHatch(s,h))h.motion='slide';}if(REFERENCE_ASSETS[o.hullSkin?.asset]?.kind==='hull'&&o.hullSkin.base?.hull){const b=o.hullSkin.base,valid=[b.hull.L,b.hull.W,b.hull.H].every(v=>Number.isFinite(v)&&v>0&&v<=4000)&&Array.isArray(b.hull.stations)&&b.hull.stations.length>=2&&b.hull.stations.length<=64&&b.hull.stations.every(a=>Array.isArray(a)&&a.length>=3&&a.every(Number.isFinite))&&Array.isArray(b.trenches)&&b.trenches.length<=30&&Array.isArray(b.cuts)&&b.cuts.length<=50;if(valid){s.hullSkin=JSON.parse(JSON.stringify(o.hullSkin));s.hullSkin.enabled=!!o.hullSkin.enabled;}}for(const f of s.fits){const q=o.fits.find(q=>q.id===f.id);if(q.localMount)f.localMount=true;if(Array.isArray(q.tilt)&&q.tilt.length===3&&q.tilt.every(Number.isFinite)&&len(q.tilt)>.5&&FITS[f.k].cat==='w'&&!FITS[f.k].casemate&&!f.localMount){f.tilt=norm(q.tilt);if(!f.n)f.n=f.tilt.slice();}if(typeof q.batteryZone==='string')f.batteryZone=q.batteryZone.slice(0,40);if(FITS[f.k].window){f.commandEnabled=q.commandEnabled!==false;if(q.commandDepth!=null)f.commandDepth=finite(q.commandDepth,2,200,12);if(q.commandHeight!=null)f.commandHeight=finite(q.commandHeight,2,80,8);}if(q.mount==='ext'&&FITS[f.k]?.msl)f.mount='ext';if(isConcussionLauncher(f)&&Number.isFinite(q.launchPitch))f.launchPitch=finite(q.launchPitch,-90,90,0);if(q.legacyMissileMount==='vls'||q.legacyMissileMount==='vls-orphan')f.legacyMissileMount=q.legacyMissileMount;if(Number.isFinite(q.chargeSalvos))f.chargeSalvos=finite(q.chargeSalvos,1,20,1);if(Number.isFinite(q.chargeDepth))f.chargeDepth=finite(q.chargeDepth,1,500,10);if(Number.isFinite(q.chargeScale))f.chargeScale=finite(q.chargeScale,.25,4,1);if(Number.isFinite(q.assetYaw))f.assetYaw=finite(q.assetYaw,-180,180,0);standardFit(f);if(Number.isInteger(q.mountAxis)&&q.mountAxis>=0&&q.mountAxis<=5)f.mountAxis=q.mountAxis;if(Number.isFinite(q.mountOffset))f.mountOffset=finite(q.mountOffset,-50,50,0);if(REFERENCE_ASSETS[q.skinAsset])f.skinAsset=q.skinAsset;}for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.referenceMouth)h.referenceMouth=true;if(REFERENCE_ASSETS[q.skinAsset]){h.skinAsset=q.skinAsset;if(Array.isArray(q.skinBayAnchor)&&q.skinBayAnchor.length===3&&q.skinBayAnchor.every(Number.isFinite))h.skinBayAnchor=q.skinBayAnchor.slice();}}migrateAviationSurfaces(s,o);migrateAviation(s,o);
   // Old window rows on a model bridge repeat the role the body now carries.
   for(const p of s.parts){const q=o.parts.find(q=>q.id===p.id);if(bridgeBodyRole(p)){if(['bridge','air','hangar','combat'].includes(q.commandRole))p.commandRole=q.commandRole;if(q.commandEnabled===false)p.commandEnabled=false;}}
   const dropped=new Set(s.fits.filter(f=>f.legacyWindow&&bridgeBodyRole(s.parts.find(p=>p.id===f.host))===FITS[f.k].role).map(f=>f.id));
@@ -26970,10 +27049,12 @@ function mc30Build(opt={}){
   casemateRows(s,'casemateLight',12,[[.5,[200,300]],[.42,[200,300]],[.58,[200,300]]],16,{zone:'beam-tl'});
   casemateRows(s,'casemateIonL',16,[[.34,[200,320]],[.66,[200,320]],[.27,[200,320]],[.73,[200,320]]],16,{zone:'beam-ion'});
   spread('trc',2,'bottom','bow-tractor',[330,348],[0]);
-  // Point defence on the dorsal turret blocks and along the spine and bow.
-  spread('pd',4,'top','block-pd',[208.25,219.45],[5.5]);
-  spread('pd',4,'top','spine-pd',[100,110,122,134],[0]);
-  spread('pd',2,'bottom','bow-pd',[362,374],[0]);
+  // Full-size dual-purpose guns need charging space in the broad head: the narrow
+  // spine, integrity plant and bow tips cannot contain their banks. Keep the ten
+  // guns directly on existing dorsal blocks, shoulders and the forward underside.
+  spread('pd',4,'top','block-pd',[219.45,285],[5.5]);
+  spread('pd',4,'top','spine-pd',[198,232.85],[17]);
+  spread('pd',2,'bottom','bow-pd',[290,310],[0]);
  });}finally{delete s._lockedCache;}
  if(opt.stage==='fitted'){delete s._building;return s;}
  s.groundForces=normalizeGroundForces(MC30C_GROUND);
@@ -27536,7 +27617,9 @@ function munificentBuild(opt={}){
   spread('ltl',20,'top','dorsal-light',range(290,700,16),[0]);
   // 38 point-defence laser cannons: lower mast and transceiver mast, wings, stern
   spread('pd',14,'beam','mast-pd',range(188,238,14),[20,38,56,165,180]);
-  spread('pd',24,'top','wing-pd',range(295,365,14),[Z(60),Z(100),Z(140),Z(170),Z(40)]);
+  // The full-size dual-purpose gun banks fit below the thick inner-wing/neck
+  // junction, not inside the thin outboard panels; no extra gun platforms are added.
+  spread('pd',24,'top','wing-pd',range(295,379,14),[Z(16),Z(28)]);
  });}finally{delete s._lockedCache;}
  if(opt.stage==='fitted'){delete s._building;return s;}
 
@@ -30694,30 +30777,89 @@ function solidMeshArea(T){let area=0;for(let i=0;i<T.length;i+=9){const ux=T[i+3
 // Join collinear slice edges before capping. This avoids copying all of the
 // hull's longitudinal subdivisions into an otherwise flat rectangular cut.
 function solidSimplifySegments(segments,eps){
- const nodes=[],index=new Map(),node=p=>{const k=p.map(v=>Math.round(v/eps)).join(',');let i=index.get(k);if(i==null){i=nodes.length;index.set(k,i);nodes.push({p,edges:new Set()});}return i;};
- for(const [a,b] of segments){const i=node(a),j=node(b);if(i!==j){nodes[i].edges.add(j);nodes[j].edges.add(i);}}
- const queue=nodes.map((_,i)=>i);for(let k=0;k<queue.length;k++){
-  const i=queue[k],n=nodes[i];if(n.edges.size!==2)continue;const [a,b]=Array.from(n.edges),A=nodes[a].p,B=nodes[b].p,P=n.p,u=[A[0]-P[0],A[1]-P[1]],v=[B[0]-P[0],B[1]-P[1]],lu=Math.hypot(...u),lv=Math.hypot(...v);
-  if(u[0]*v[0]+u[1]*v[1]>=0||Math.abs(u[0]*v[1]-u[1]*v[0])>eps*(lu+lv))continue;
-  nodes[a].edges.delete(i);nodes[b].edges.delete(i);n.edges.clear();nodes[a].edges.add(b);nodes[b].edges.add(a);queue.push(a,b);
+ const n=segments.length,flat=new Float64Array(n*4);for(let i=0;i<n;i++){const [a,b]=segments[i];flat[i*4]=a[0];flat[i*4+1]=a[1];flat[i*4+2]=b[0];flat[i*4+3]=b[1];}
+ return solidSimplifyFlat(flat,n,eps);
+}
+// v13 PERF: the same merge on segments stored flat ([ax, ay, bx, by] each), without the temporary arrays, string keys
+// and Sets: points are merged on the same rounded grid (Math.round(c/eps) per coordinate), keyed by the two integers
+// while they fit in 26 bits (else by their joined string, as before); each node's neighbour list keeps the insertion
+// order the Set had, so the queue, the merges and the output order are unchanged.
+// The integer pairs go to an open-addressing table (stamped per call, so it is reused without clearing).
+const SOLID_KEY_LIMIT=33554432,SOLID_NODE_TABLE={size:0,mask:0,gen:0,stamp:null,kx:null,ky:null,id:null,cap:0};
+function solidSimplifyFlat(flat,count,eps){
+ const text=new Map(),H=SOLID_NODE_TABLE,need=count*2+2;
+ if(H.size<count*4+16){let size=1024;while(size<count*4+16)size*=2;Object.assign(H,{size,mask:size-1,gen:0,stamp:new Int32Array(size),kx:new Int32Array(size),ky:new Int32Array(size),id:new Int32Array(size)});}
+ if(H.cap<need){let cap=1024;while(cap<need)cap*=2;Object.assign(H,{cap,px:new Float64Array(cap),py:new Float64Array(cap),deg:new Int32Array(cap),adj:new Int32Array(cap*4)});}
+ if(++H.gen>2e9){H.stamp.fill(0);H.gen=1;}const gen=H.gen,stamp=H.stamp,KX=H.kx,KY=H.ky,ID=H.id,mask=H.mask,PX=H.px,PY=H.py,DEG=H.deg,ADJ=H.adj;let nodes=0;
+ // Neighbour lists in insertion order: four inline slots per node, an array once a node has more (DEG −1).
+ const over=new Map(),list=i=>DEG[i]<0?over.get(i):null,degree=i=>DEG[i]<0?over.get(i).length:DEG[i],at=(i,k)=>DEG[i]<0?over.get(i)[k]:ADJ[i*4+k];
+ const has=(i,j)=>{const l=list(i);if(l)return l.includes(j);for(let k=0;k<DEG[i];k++)if(ADJ[i*4+k]===j)return true;return false;};
+ const link=(i,j)=>{if(has(i,j))return;const l=list(i);if(l){l.push(j);return;}const d=DEG[i];if(d<4){ADJ[i*4+d]=j;DEG[i]=d+1;}else{over.set(i,[ADJ[i*4],ADJ[i*4+1],ADJ[i*4+2],ADJ[i*4+3],j]);DEG[i]=-1;}};
+ const unlink=(i,j)=>{const l=list(i);if(l){const k=l.indexOf(j);if(k>=0)l.splice(k,1);return;}const d=DEG[i];for(let k=0;k<d;k++)if(ADJ[i*4+k]===j){for(let m=k;m+1<d;m++)ADJ[i*4+m]=ADJ[i*4+m+1];DEG[i]=d-1;return;}};
+ const add=(x,y)=>{const i=nodes++;PX[i]=x;PY[i]=y;DEG[i]=0;return i;};
+ const node=(x,y)=>{const kx=Math.round(x/eps),ky=Math.round(y/eps);
+  if(Math.abs(kx)<SOLID_KEY_LIMIT&&Math.abs(ky)<SOLID_KEY_LIMIT){let h=(Math.imul(kx|0,-1640531535)^Math.imul(ky|0,-2048144777))&mask;
+   while(stamp[h]===gen){if(KX[h]===kx&&KY[h]===ky)return ID[h];h=(h+1)&mask;}stamp[h]=gen;KX[h]=kx;KY[h]=ky;return ID[h]=add(x,y);}
+  const key=kx+','+ky;let i=text.get(key);if(i===undefined){i=add(x,y);text.set(key,i);}return i;};
+ for(let s=0;s<count;s++){const i=node(flat[s*4],flat[s*4+1]),j=node(flat[s*4+2],flat[s*4+3]);if(i!==j){link(i,j);link(j,i);}}
+ const queue=[];for(let i=0;i<nodes;i++)queue.push(i);for(let k=0;k<queue.length;k++){
+  const i=queue[k];if(degree(i)!==2)continue;const a=at(i,0),b=at(i,1),u0=PX[a]-PX[i],u1=PY[a]-PY[i],v0=PX[b]-PX[i],v1=PY[b]-PY[i],lu=Math.hypot(u0,u1),lv=Math.hypot(v0,v1);
+  if(u0*v0+u1*v1>=0||Math.abs(u0*v1-u1*v0)>eps*(lu+lv))continue;
+  unlink(a,i);unlink(b,i);if(DEG[i]<0)over.delete(i);DEG[i]=0;link(a,b);link(b,a);queue.push(a,b);
  }
- const out=[];nodes.forEach((n,i)=>{for(const j of n.edges)if(j>i)out.push([n.p,nodes[j].p]);});return out;
+ const P=new Array(nodes),pt=i=>P[i]||(P[i]=[PX[i],PY[i]]),out=[];for(let i=0;i<nodes;i++){const d=degree(i);for(let k=0;k<d;k++){const j=at(i,k);if(j>i)out.push([pt(i),pt(j)]);}}return out;
+}
+// v13 PERF: a plane meets few of a mesh's triangles, but every slice walked them all (once per plane of the other
+// solid in structuralMaterial / surfacePatches). Boxes over runs of SOLID_SLICE_LEAF consecutive triangles, kept in
+// a binary tree, skip runs that lie wholly on one side of the plane (or outside the asked u-range). The skip test
+// has a margin of 1e-10 of the coordinates' size, far above the rounding of the per-vertex distances, so a skipped
+// triangle is one the exact test below rejects as well; the others are walked in their original order with the
+// unchanged arithmetic, giving the identical segments. Meshes are immutable typed arrays (as solidMeshBounds assumes).
+const SOLID_SLICE_INDEX=new WeakMap(),SOLID_SLICE_LEAF=16;
+function solidSliceIndex(T){
+ if(!ArrayBuffer.isView(T)||T.length<9*SOLID_SLICE_LEAF*4)return null;const old=SOLID_SLICE_INDEX.get(T);if(old?.length===T.length)return old;
+ const tris=Math.floor(T.length/9),leaves=Math.ceil(tris/SOLID_SLICE_LEAF);let size=1;while(size<leaves)size*=2;
+ const B=new Float64Array(size*12);for(let k=0;k<size*2;k++){B[k*6]=B[k*6+1]=B[k*6+2]=Infinity;B[k*6+3]=B[k*6+4]=B[k*6+5]=-Infinity;}
+ for(let t=0;t<tris;t++){const o=(size+Math.floor(t/SOLID_SLICE_LEAF))*6;for(let j=t*9;j<t*9+9;j+=3)for(let a=0;a<3;a++){const x=T[j+a];if(x<B[o+a])B[o+a]=x;if(x>B[o+a+3])B[o+a+3]=x;}}
+ for(let k=size-1;k>=1;k--)for(let a=0;a<3;a++){B[k*6+a]=Math.min(B[k*12+a],B[k*12+6+a]);B[k*6+a+3]=Math.max(B[k*12+a+3],B[k*12+9+a]);}
+ const ix={length:T.length,tris,size,B};SOLID_SLICE_INDEX.set(T,ix);return ix;
 }
 // Slice from the side that remains after subtraction. Treat vertices exactly
 // on the plane as lying on the cutter side, which also handles coplanar faces.
-function solidSliceSegments(T,plane,u,v,origin,eps,umin=-Infinity,umax=Infinity){
- const segments=[],project=p=>[dot(sub(p,origin),u),dot(sub(p,origin),v)],n=plane.n,d=plane.d;
- const n0=n[0],n1=n[1],n2=n[2];
- for(let i=0;i<T.length;i+=9){
+let SOLID_SLICE_BUFFER=new Float64Array(4096);
+function solidSliceSegments(T,plane,u,v,origin,eps,umin=-Infinity,umax=Infinity){const count=solidSliceRaw(T,plane,u,v,origin,eps,umin,umax);return solidSimplifyFlat(SOLID_SLICE_BUFFER,count,eps);}
+// The unmerged segments into SOLID_SLICE_BUFFER ([au, av, bu, bv] each); returns their count.
+function solidSliceRaw(T,plane,u,v,origin,eps,umin=-Infinity,umax=Infinity){
+ // v13 PERF: the arithmetic of the former per-triangle code, in scalars (same operations in the same order:
+ // t = clamp(d_k/(d_k-d_j)), lerp, Math.hypot of the difference, dot(sub(p, origin), u|v)), into a flat buffer.
+ const n=plane.n,d=plane.d,n0=n[0],n1=n[1],n2=n[2],o0=origin[0],o1=origin[1],o2=origin[2],u0=u[0],u1=u[1],u2=u[2],v0=v[0],v1=v[1],v2=v[2];
+ let buf=SOLID_SLICE_BUFFER,count=0;const P=[0,0,0,0,0,0];
+ const tri=i=>{
   // Inline distances: this loop runs once per cutter face over the whole hull.
-  const d0=T[i]*n0+T[i+1]*n1+T[i+2]*n2-d,d1=T[i+3]*n0+T[i+4]*n1+T[i+5]*n2-d,d2=T[i+6]*n0+T[i+7]*n1+T[i+8]*n2-d,s0=d0>eps,s1=d1>eps,s2=d2>eps;if(s0===s1&&s1===s2)continue;
-  const ds=[d0,d1,d2],side=[s0,s1,s2];
-  const pts=[];for(let k=0;k<3;k++){const j=(k+1)%3;if(side[k]===side[j])continue;const a=i+k*3,b=i+j*3,t=clamp(ds[k]/(ds[k]-ds[j]),0,1);pts.push([lerp(T[a],T[b],t),lerp(T[a+1],T[b+1],t),lerp(T[a+2],T[b+2],t)]);}
-  if(pts.length!==2||len(sub(pts[1],pts[0]))<=eps)continue;const seg=pts.map(project);
+  const d0=T[i]*n0+T[i+1]*n1+T[i+2]*n2-d,d1=T[i+3]*n0+T[i+4]*n1+T[i+5]*n2-d,d2=T[i+6]*n0+T[i+7]*n1+T[i+8]*n2-d,s0=d0>eps,s1=d1>eps,s2=d2>eps;if(s0===s1&&s1===s2)return;
+  let m=0;
+  for(let k=0;k<3;k++){const j=k===2?0:k+1,sk=k===0?s0:k===1?s1:s2,sj=j===0?s0:j===1?s1:s2;if(sk===sj)continue;const dk=k===0?d0:k===1?d1:d2,dj=j===0?d0:j===1?d1:d2,a=i+k*3,b=i+j*3,t=clamp(dk/(dk-dj),0,1);if(m<6){P[m]=T[a]+(T[b]-T[a])*t;P[m+1]=T[a+1]+(T[b+1]-T[a+1])*t;P[m+2]=T[a+2]+(T[b+2]-T[a+2])*t;}m+=3;}
+  if(m!==6||Math.hypot(P[3]-P[0],P[4]-P[1],P[5]-P[2])<=eps)return;
+  const ax=P[0]-o0,ay=P[1]-o1,az=P[2]-o2,bx=P[3]-o0,by=P[4]-o1,bz=P[5]-o2,au=ax*u0+ay*u1+az*u2,bu=bx*u0+by*u1+bz*u2;
   // Only segments spanning the face's u-range can bound or count toward its intervals.
-  if(Math.max(seg[0][0],seg[1][0])<umin||Math.min(seg[0][0],seg[1][0])>umax)continue;segments.push(seg);
+  if(Math.max(au,bu)<umin||Math.min(au,bu)>umax)return;
+  if(count*4+4>buf.length){const next=new Float64Array(buf.length*2);next.set(buf);buf=SOLID_SLICE_BUFFER=next;}
+  buf[count*4]=au;buf[count*4+1]=ax*v0+ay*v1+az*v2;buf[count*4+2]=bu;buf[count*4+3]=bx*v0+by*v1+bz*v2;count++;
+ };
+ const ix=solidSliceIndex(T);
+ if(!ix)for(let i=0;i<T.length;i+=9)tri(i);
+ else{
+  const {B,size,tris}=ix,ou=dot(origin,u),bounded=umin>-Infinity||umax<Infinity,stack=[1];
+  while(stack.length){
+   const k=stack.pop(),o=k*6,x0=B[o],y0=B[o+1],z0=B[o+2],x1=B[o+3],y1=B[o+4],z1=B[o+5];if(!(x0<=x1))continue;
+   const lo=n0*(n0<0?x1:x0)+n1*(n1<0?y1:y0)+n2*(n2<0?z1:z0),hi=n0*(n0<0?x0:x1)+n1*(n1<0?y0:y1)+n2*(n2<0?z0:z1),ax=Math.max(Math.abs(x0),Math.abs(x1)),ay=Math.max(Math.abs(y0),Math.abs(y1)),az=Math.max(Math.abs(z0),Math.abs(z1)),scale=Math.abs(n0)*ax+Math.abs(n1)*ay+Math.abs(n2)*az+Math.abs(d)+Math.abs(eps),margin=scale*1e-10;
+   if(hi-d+margin<=eps||lo-d-margin>eps)continue;
+   if(bounded){const ulo=u0*(u0<0?x1:x0)+u1*(u1<0?y1:y0)+u2*(u2<0?z1:z0)-ou,uhi=u0*(u0<0?x0:x1)+u1*(u1<0?y0:y1)+u2*(u2<0?z0:z1)-ou,um=(Math.abs(u0)*ax+Math.abs(u1)*ay+Math.abs(u2)*az+Math.abs(ou))*1e-10;if(uhi+um<umin||ulo-um>umax)continue;}
+   if(k<size){stack.push(k*2+1,k*2);continue;}
+   const first=(k-size)*SOLID_SLICE_LEAF,last=Math.min(tris,first+SOLID_SLICE_LEAF);for(let t=first;t<last;t++)tri(t*9);
+  }
  }
- return solidSimplifySegments(segments,eps);
+ return count;
 }
 function solidSegmentY(edge,x){const [a,b]=edge;return a[1]+(b[1]-a[1])*(x-a[0])/(b[0]-a[0]);}
 function solidSegmentCrossX(a,b,eps){
@@ -32419,6 +32561,7 @@ if (typeof module !== 'undefined') module.exports = Core;
    ============================================================ */
 const Galaxy = (() => {
 'use strict';
+const {Math,Number,Object,Array,JSON,Map,Set,WeakMap,Float32Array,Float64Array,Int32Array,Uint8Array,Uint16Array,Uint32Array,Int8Array,ArrayBuffer,String}=globalThis,Infinity=globalThis.Infinity; // v13 PERF see Core
 const COLS = 'CDEFGHIJKLMNOPQRSTU', ROWS = 21;
 const grid = at => `${COLS[Math.max(0, Math.min(COLS.length - 1, Math.floor(at[0])))]}-${Math.max(1, Math.min(ROWS, Math.floor(at[1]) + 1))}`;
 const hash = s => { let h = 2166136261; for (const ch of String(s)) { h ^= ch.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
@@ -32627,8 +32770,24 @@ const ERAS = {
  gcw: {key: 'gcw', name: '銀河内戦', short: '内戦', factions: ['empire', 'rebel'], note: '帝国がコアから銀河を治め、反乱同盟は辺境から現れる'},
  cw: {key: 'cw', name: 'クローン戦争', short: 'クローン戦争', factions: ['republic', 'cis'], note: '銀河共和国と独立星系連合が戦線を挟んで向き合う'}};
 const ERA_OF = {republic: 'cw', cis: 'cw', empire: 'gcw', rebel: 'gcw'};
-// The era a battle or mission between these factions belongs to (the first faction that has one decides).
-function eraOf(...fs) { for (const f of fs.flat()) if (ERA_OF[f]) return ERA_OF[f]; return 'gcw'; }
+// FACTION-001 Factions the player makes (Rts.registerFaction) live on the map too: the eras they exist in, their home
+// system (their capital: where their ships come from and the one system the map gives them) and colour. id → {eras,
+// home, col, name, short}. Filled by setCustomPower; nothing here is saved (the app keeps the definitions).
+const CUSTOM = {};
+const erasOf = f => CUSTOM[f]?.eras?.length ? CUSTOM[f].eras : ERA_OF[f] ? [ERA_OF[f]] : null;
+// The era a battle or mission between these factions belongs to: one all of them exist in (a made faction may exist
+// in both), else the first faction's (as before: the first faction that has one decides).
+function eraOf(...fs) {
+ const sets = fs.flat().map(erasOf).filter(Boolean);if (!sets.length) return 'gcw';
+ return sets[0].find(e => sets.every(x => x.includes(e))) || sets[0][0];
+}
+function setCustomPower(id, o) {
+ if (!o) { delete CUSTOM[id]; delete POWERS[id]; }
+ else { const eras = (o.eras || []).filter(e => ERAS[e]); CUSTOM[id] = {eras: eras.length ? eras : ['gcw'], home: BY[o.home] ? o.home : null, col: o.col || '#8a96a8', name: o.name || id, short: o.short || o.name || id};
+  POWERS[id] = {name: CUSTOM[id].name, short: CUSTOM[id].short, col: CUSTOM[id].col, custom: true}; }
+ bearCache.clear();
+}
+const customPowers = () => Object.entries(CUSTOM).map(([id, o]) => ({id, ...o}));
 const POWERS = {
  republic: {name: '銀河共和国', short: '共和国', col: '#5b8fe8'}, cis: {name: '独立星系連合', short: '分離主義勢力', col: '#d8505e'},
  hutt: {name: 'ハット・スペース', short: 'ハット', col: '#4fb565'}, contested: {name: '係争宙域', short: '係争', col: '#e8a23a'},
@@ -32655,7 +32814,7 @@ const ALLEGIANCE = {
   christophsis: 'contested', ryloth: 'contested', quell: 'contested', ringovinda: 'contested', jabiim: 'contested',
   mandalore: 'neutral', toydaria: 'neutral', florrum: 'neutral', dathomir: 'neutral', nalhutta: 'hutt', teth: 'hutt', tatooine: 'hutt'},
  gcw: {kamino: 'empire', exegol: null, csilla: null}};
-function allegiance(era, key) { const s = BY[key];if (!s) return null; const o = ALLEGIANCE[era] || {}; return key in o ? o[key] : territoryAt(era, s.at); }
+function allegiance(era, key) { const s = BY[key];if (!s) return null; for (const [id, c] of Object.entries(CUSTOM)) if (c.home === key && c.eras.includes(era)) return id; const o = ALLEGIANCE[era] || {}; return key in o ? o[key] : territoryAt(era, s.at); }
 // The direction (a unit vector in grid coordinates, y down) from a point toward a faction's own space in an era: where
 // its ships come from when nothing else says (a fleet at the start of a battle, ships back from the yards). In the
 // Clone Wars, toward the bulk of its territory near the point, or, deep inside it, from its capital; in the Civil War
@@ -32666,13 +32825,16 @@ function factionBearing(era, faction, at) {
  if (!at || !faction) return null;if (!ERAS[era]) era = eraOf(faction);
  const key = era + '|' + faction + '|' + at[0].toFixed(3) + ',' + at[1].toFixed(3);if (bearCache.has(key)) return bearCache.get(key);
  const unit = (x, y) => { const l = Math.hypot(x, y); return l > 1e-6 ? [x / l, y / l] : null; };
- const cap = BY[CAPITAL[faction]], toCap = cap ? [cap.at[0] - at[0], cap.at[1] - at[1]] : null, dc = toCap ? Math.hypot(toCap[0], toCap[1]) : 0;
+ const cap = BY[CUSTOM[faction]?.home || CAPITAL[faction]], toCap = cap ? [cap.at[0] - at[0], cap.at[1] - at[1]] : null, dc = toCap ? Math.hypot(toCap[0], toCap[1]) : 0;
  let out = null;
  if (era === 'cw' && CODE_OF[faction]) {
   const want = CODE_OF[faction], g = terrGrid(), C = TERR_CW.cell;let vx = 0, vy = 0, ws = 0;
   for (let j = 0; j < g.length; j++) for (let i = 0; i < g[j].length; i++) { if (g[j][i] !== want) continue; const x = (i + .5) * C - at[0], y = (j + .5) * C - at[1], d = Math.hypot(x, y); if (d < .2) continue; const w = Math.exp(-d / 1.6); vx += w * x / d; vy += w * y / d; ws += w; }
   const m = Math.hypot(vx, vy);
   out = (m > .3 * ws || !toCap || dc < .3) ? unit(vx, vy) || (toCap && unit(toCap[0], toCap[1])) : unit(toCap[0], toCap[1]);
+ } else if (CUSTOM[faction]) {
+  // (a made faction comes from its home system; standing on it, from the frontier beyond)
+  out = toCap && dc > .3 ? unit(toCap[0], toCap[1]) : unit(at[0] - BANDS.c[0], at[1] - BANDS.c[1]) || [1, 0];
  } else if (faction === 'empire' || faction === 'republic') {
   out = toCap && dc > .3 ? unit(toCap[0], toCap[1]) : unit(BANDS.c[0] - at[0], BANDS.c[1] - at[1]) || [1, 0];
  } else if (faction === 'rebel' || faction === 'cis') out = unit(at[0] - BANDS.c[0], at[1] - BANDS.c[1]) || [1, 0];
@@ -32832,7 +32994,7 @@ function theaterDef(key) {
 }
 for (const b of Object.values(BATTLES)) b.ek = b.era === ERAS.cw.name ? 'cw' : 'gcw';
 return {COLS, ROWS, REGIONS, BANDS, ZONES, REGION_LABELS, SYSTEMS: SYS, BY, ROUTES, ROUTE_BY, LINKS, EDGES, ADJ, BATTLES, LINK_SLOW, grid, hash, path, itinerary:(a,b)=>Core.navigationItinerary(path(a,b)), legPts, pathPts, bandAt, sectorDef,
- ERAS, POWERS, eraOf, territoryAt, allegiance, factionBearing, factionSide, territoryLoops, THEATERS, THEATER_BY, theaterBox, theaterDef};
+ ERAS, POWERS, eraOf, erasOf, setCustomPower, customPowers, territoryAt, allegiance, factionBearing, factionSide, territoryLoops, THEATERS, THEATER_BY, theaterBox, theaterDef};
 })();
 
 /* ============================================================
@@ -32846,6 +33008,7 @@ return {COLS, ROWS, REGIONS, BANDS, ZONES, REGION_LABELS, SYSTEMS: SYS, BY, ROUT
    ============================================================ */
 const Rts = (() => {
 'use strict';
+const {Math,Number,Object,Array,JSON,Map,Set,WeakMap,Float32Array,Float64Array,Int32Array,Uint8Array,Uint16Array,Uint32Array,Int8Array,ArrayBuffer,String}=globalThis,Infinity=globalThis.Infinity; // v13 PERF see Core
 const C = Core, TT = C.TT;
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v, hyp = Math.hypot;
 const add = (a, b, k = 1) => [a[0] + b[0] * k, a[1] + b[1] * k, a[2] + b[2] * k], sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
@@ -33097,6 +33260,97 @@ const AI_STRATEGY = {
 };
 const AIR_DOCTRINES = {faction: '陣営の既定', standard: '標準（爆撃機は最大の敵艦へ）', strip: 'イオン砲でシールドを剥ぎ、航空攻撃で撃沈'};
 const strategyOf = (w, side) => AI_STRATEGY[w.sides[side]?.strategy] || AI_STRATEGY.balanced;
+// ---------- FACTION-001 factions the player makes ----------
+// A made faction is chosen like the four of the films everywhere a faction is chosen (the designer's 所属陣営, the
+// mission's navy, either side of the sandbox fleet battle) and the AI fights it with its own doctrine. Its definition
+// (normalizeFactionDef) is registered into the same tables the built-in factions use — FACTIONS, CRAFT_MIX, DOCTRINE,
+// REGIMENT_TEMPLATES, Core's DESIGN_FACTIONS and the galaxy's POWERS — so code that reads those tables (and the voyage's
+// fleet doctrine, filled by the app from def.fleet) reads a made faction as it reads the Empire. What the tables do not
+// hold (bolt colour, gun sounds, droid stowage) follows its base: the built-in faction it was copied from (factionBase).
+// The app keeps the definitions (localStorage, with JSON export); a scenario or a mission carries those it uses.
+// Ids are 'u_' and letters/digits, so they never meet a built-in key; an unknown id falls back (factionDef).
+const FACTION_FORMAT = 'ks-factions', FACTION_VERSION = 1, FACTION_ID = /^u_[a-z0-9]{2,20}$/;
+const BUILTIN_FACTIONS = ['empire', 'rebel', 'republic', 'cis'];
+// The usual enemies of the four (who a new battle or mission offers first).
+const FACTION_REL = {empire: {enemies: ['rebel'], allies: []}, rebel: {enemies: ['empire'], allies: []}, republic: {enemies: ['cis'], allies: []}, cis: {enemies: ['republic'], allies: []}};
+const FACTION_PAINTS = ['', 'neutral', 'republic', 'dark', 'cis'];   // '' = each design keeps its own paint
+const FACTION_NAMES = ['imperial', 'rn', 'roman', 'rebel', 'cis'];  // ship-name pools (the voyage's VOY_SHIPNAMES)
+const FACTION_EMBLEMS = ['star', 'ring', 'chevron', 'cog', 'diamond', 'wing', 'cross', 'hex', 'crescent', 'none'];
+const FACTION_HOME = {empire: 'coruscant', republic: 'coruscant', cis: 'raxus', rebel: 'yavin'};
+const isCustomFaction = id => typeof id === 'string' && FACTION_ID.test(id) && !!FACTIONS[id]?.custom;
+const factionBase = id => FACTIONS[id]?.base || (BUILTIN_FACTIONS.includes(id) ? id : 'empire');
+const hexCol = (v, d) => typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v) ? v.toLowerCase() : d;
+const keyList = (v, n, ok) => (Array.isArray(v) ? v : []).filter(k => typeof k === 'string' && k.length <= 80 && (!ok || ok(k))).slice(0, n);
+// A definition as stored, with every field checked and missing ones taken from its base faction.
+function normalizeFactionDef(o) {
+ if (!o || typeof o !== 'object') return null;
+ const id = typeof o.id === 'string' && FACTION_ID.test(o.id) ? o.id : null;if (!id) return null;
+ const base = BUILTIN_FACTIONS.includes(o.base) ? o.base : 'empire', b = FACTIONS[base], tpl = REGIMENT_TEMPLATES[base];
+ const name = (typeof o.name === 'string' ? o.name.trim().slice(0, 40) : '') || '新しい陣営';
+ const eras = keyList(o.eras, 2, e => !!Galaxy.ERAS[e]).filter((e, i, l) => l.indexOf(e) === i);
+ const g = o.ground && typeof o.ground === 'object' ? o.ground : {}, comps = keyList(g.companies, 4, k => !!COMPANY_TYPES[k]);
+ const veh = {};for (const [type, m] of Object.entries(g.vehicles && typeof g.vehicles === 'object' ? g.vehicles : tpl.vehicles)) { if (!COMPANY_TYPES[type] || !m || typeof m !== 'object') continue; const row = {}; for (const [k, n] of Object.entries(m)) if (VEHICLES[k] && +n > 0) row[k] = clamp(Math.round(+n), 1, 12); if (Object.keys(row).length) veh[type] = row; }
+ const craft = keyList(o.craft, 6, k => !!CRAFT[k] && !CRAFT[k].design), fl = o.fleet && typeof o.fleet === 'object' ? o.fleet : {};
+ const rel = k => keyList(o[k], 16, x => x !== id && (BUILTIN_FACTIONS.includes(x) || FACTION_ID.test(x))).filter((x, i, l) => l.indexOf(x) === i);
+ const allies = rel('allies'), enemies = rel('enemies').filter(x => !allies.includes(x));
+ return {id, v: FACTION_VERSION, name, nameEn: str(o.nameEn, 40).trim(), short: (str(o.short, 16).trim() || name.slice(0, 6)), shortEn: str(o.shortEn, 16).trim(),
+  color: hexCol(o.color, b.color), emblem: FACTION_EMBLEMS.includes(o.emblem) ? o.emblem : 'star', paint: FACTION_PAINTS.includes(o.paint) ? o.paint : '',
+  eras: eras.length ? eras : [Galaxy.eraOf(base)], home: Galaxy.BY[o.home] ? o.home : FACTION_HOME[base], base, names: FACTION_NAMES.includes(o.names) ? o.names : {empire: 'imperial', republic: 'rn', rebel: 'rebel', cis: 'cis'}[base],
+  fleet: {caps: keyList(fl.caps, 12), escorts: keyList(fl.escorts, 12), recon: keyList(fl.recon, 12), perTg: Number.isFinite(+fl.perTg) && +fl.perTg >= 3 ? clamp(Math.round(+fl.perTg), 3, 6) : 0},
+  craft: craft.length ? craft : CRAFT_MIX[base].slice(), ground: {name: str(g.name, 30).trim() || tpl.name, companies: comps.length === 4 ? comps : tpl.companies.slice(), vehicles: veh},
+  air: o.air === 'strip' ? 'strip' : o.air === 'standard' ? 'standard' : DOCTRINE[base] ? 'strip' : 'standard', strategy: AI_STRATEGY[o.strategy] ? o.strategy : 'balanced', allies, enemies};
+}
+// The definition of any faction, made or built in (a built-in one is assembled from its tables, as the starting point
+// of a copy); an unknown id gives null.
+function factionDef(id) {
+ if (isCustomFaction(id)) return FACTIONS[id].def;
+ if (!BUILTIN_FACTIONS.includes(id)) return null;const f = FACTIONS[id], tpl = REGIMENT_TEMPLATES[id];
+ return {id, v: FACTION_VERSION, name: f.name, nameEn: '', short: f.short, shortEn: '', color: f.color, emblem: 'none', paint: '', eras: [Galaxy.eraOf(id)], home: FACTION_HOME[id], base: id, names: {empire: 'imperial', republic: 'rn', rebel: 'rebel', cis: 'cis'}[id],
+  fleet: {caps: [], escorts: [], recon: [], perTg: 0}, craft: CRAFT_MIX[id].slice(), ground: {name: tpl.name, companies: tpl.companies.slice(), vehicles: JSON.parse(JSON.stringify(tpl.vehicles))}, air: DOCTRINE[id] ? 'strip' : 'standard', strategy: 'balanced', ...JSON.parse(JSON.stringify(FACTION_REL[id]))};
+}
+// Enter a definition into the tables (again, after an edit). Returns the normalized definition, or null.
+function registerFaction(raw) {
+ const d = normalizeFactionDef(raw);if (!d) return null;
+ FACTIONS[d.id] = {name: d.name, short: d.short, color: d.color, custom: true, base: d.base, def: d};
+ CRAFT_MIX[d.id] = d.craft.slice();
+ if (d.air === 'strip') DOCTRINE[d.id] = {...DOCTRINE.rebel}; else delete DOCTRINE[d.id];
+ REGIMENT_TEMPLATES[d.id] = {name: d.ground.name, companies: d.ground.companies.slice(), vehicles: JSON.parse(JSON.stringify(d.ground.vehicles))};
+ FACTION_REL[d.id] = {allies: d.allies.slice(), enemies: d.enemies.slice()};
+ if (C.DESIGN_FACTIONS) C.DESIGN_FACTIONS[d.id] = d.name;
+ Galaxy.setCustomPower(d.id, {eras: d.eras, home: d.home, col: d.color, name: d.name, short: d.short});
+ return d;
+}
+function unregisterFaction(id) {
+ if (!isCustomFaction(id)) return false;
+ for (const t of [FACTIONS, CRAFT_MIX, DOCTRINE, REGIMENT_TEMPLATES, FACTION_REL]) delete t[id];
+ if (C.DESIGN_FACTIONS) delete C.DESIGN_FACTIONS[id];Galaxy.setCustomPower(id, null);return true;
+}
+const customFactions = () => Object.values(FACTIONS).filter(f => f.custom).map(f => f.def);
+// A faction id as stored somewhere (a scenario side, a design, a mission): kept when known, else the fallback.
+const factionOr = (id, fallback = 'empire') => FACTIONS[id] ? id : fallback;
+// How two factions stand: 'enemy' when either names the other an enemy, else 'ally' when either names it an ally.
+function factionRelation(a, b) {
+ if (!a || !b || a === b) return 'self';const ra = FACTION_REL[a] || {}, rb = FACTION_REL[b] || {};
+ if (ra.enemies?.includes(b) || rb.enemies?.includes(a)) return 'enemy';if (ra.allies?.includes(b) || rb.allies?.includes(a)) return 'ally';return 'neutral';
+}
+// The opponent a new battle or mission offers first: the faction's first named enemy that exists, else one that names
+// it an enemy, else (a made faction with no enemies) its base's usual enemy; never an ally.
+function rivalOf(id) {
+ const known = Object.keys(FACTIONS), own = (FACTION_REL[id]?.enemies || []).find(x => FACTIONS[x] && x !== id);if (own) return own;
+ const back = known.find(x => x !== id && FACTION_REL[x]?.enemies?.includes(id));if (back) return back;
+ const b = FACTION_REL[factionBase(id)]?.enemies?.[0];if (b && b !== id && factionRelation(id, b) !== 'ally') return b;
+ return known.find(x => x !== id && factionRelation(id, x) !== 'ally') || 'rebel';
+}
+// A file of definitions (export) and reading one (import: definitions checked one by one, bad ones left out).
+const factionsJSON = list => JSON.stringify({format: FACTION_FORMAT, version: FACTION_VERSION, factions: (list || customFactions()).map(normalizeFactionDef).filter(Boolean)}, null, 1);
+function factionsFromJSON(text) {
+ let raw;try { raw = typeof text === 'string' ? JSON.parse(text) : text; } catch (e) { throw new Error('JSON を読めません'); }
+ const list = Array.isArray(raw) ? raw : raw && raw.format === FACTION_FORMAT ? raw.factions : raw && FACTION_ID.test(raw.id || '') ? [raw] : null;
+ if (!Array.isArray(list)) throw new Error('陣営の形式ではありません');
+ return list.slice(0, 64).map(normalizeFactionDef).filter(Boolean);
+}
+// Vehicles a faction may field: any side's, its own (a made faction's: its base's and those its regiment template uses).
+function vehicleServes(k, faction) { const v = VEHICLES[k];if (!v) return false;if (v.side === 'any' || v.side === faction || v.side === factionBase(faction)) return true; return Object.values(REGIMENT_TEMPLATES[faction]?.vehicles || {}).some(m => k in m); }
 const shieldFrac = t => t && t.shieldMax > 0 ? Math.max(0, t.shield) / t.shieldMax : 0;
 
 // ---------- ground forces ----------
@@ -33316,7 +33570,7 @@ function normalizeDeploy(d, sector) { d = d || {}; const sys = Number.isInteger(
 function createWorld(opts) {
  const sector = opts.sector || makeSector(opts.region || 'kuat', opts.seed || 13);
  const w = {seed: opts.seed || 13, rand: rng((opts.seed || 13) * 7919 + 17), time: 0, acc: 0, nextId: 1, sector, mode: opts.mode || 'fleet',
-  sides: (opts.sides || [{faction: 'empire', ai: false}, {faction: 'rebel', ai: true}]).map((s, i) => ({id: i, faction: s.faction, name: s.name || FACTIONS[s.faction]?.name || ('陣営' + i), ai: !!s.ai, strategy: AI_STRATEGY[s.strategy] ? s.strategy : 'balanced', air: AIR_DOCTRINES[s.air] ? s.air : 'faction', want: Number.isInteger(s.start) ? s.start : null, contacts: new Map(), seen: new Map(), start: null, lost: 0, captured: 0, initial: 0, ended: null})),
+  sides: (opts.sides || [{faction: 'empire', ai: false}, {faction: 'rebel', ai: true}]).map((s, i) => ({id: i, faction: s.faction, name: s.name || FACTIONS[s.faction]?.name || ('陣営' + i), ai: !!s.ai, strategy: AI_STRATEGY[s.strategy] ? s.strategy : FACTIONS[s.faction]?.def?.strategy || 'balanced', air: AIR_DOCTRINES[s.air] ? s.air : 'faction', want: Number.isInteger(s.start) ? s.start : null, contacts: new Map(), seen: new Map(), start: null, lost: 0, captured: 0, initial: 0, ended: null})),
   units: new Map(), groups: new Map(), ctgs: new Map(), squads: new Map(), wings: new Map(), airGroups: new Map(), missiles: [], battles: new Map(), events: [], designs: new Map(), timers: {ai: 0, det: 0, tac: 0}, result: null, victory: normalizeVictory(opts.victory)};
  for (const d of opts.designs || []) w.designs.set(d.key, d);
  // v25 tactical sensors (SENS-004): on unless a test or an old scenario turns them off
@@ -34201,7 +34455,8 @@ const BOARD = {shieldMax: .25, recover: .4, projHold: 3e5, breakSec: 20, reel: 1
  wreck: ['reactor', 'engine', 'shield', 'hyper', 'bridge', 'hangar', 'fire', 'battery'], aiOdds: 2, aiMin: 144, aiStrain: .8, holdResult: 900};
 const BOARD_PHASE = {close: '接近中', reel: '牽引中', dock: '強制接舷中', fight: '艦内戦闘', back: '撤収中'};
 const BOARD_GOAL = {capture: '拿捕', sabotage: '破壊工作'};
-const boardFac = (w, u) => w.sides[u?.origSide ?? u?.side]?.faction;
+// (a made faction boards with its base faction's troops and droids, FACTION-001)
+const boardFac = (w, u) => { const f = w.sides[u?.origSide ?? u?.side]?.faction; return isCustomFaction(f) ? factionBase(f) : f; };
 const boardDroid = (w, u) => boardFac(w, u) === 'cis';
 // Tractor projectors: modules of the fit trc (named by its short name in the generated profiles); their intact share.
 function tracShare(u,holding=false) {
@@ -35238,7 +35493,9 @@ const CONVOY_KIT = {
  cis: {ships: ['reptransport'], standIn: 'DH-オムニ（代役）', big: 'lh3210', escorts: ['munificent']},
  any: {ships: ['reptransport', 'gr75', 'heraklon'], escorts: ['arquitens', 'nebulonb', 'munificent']}
 };
-const convoyKitOf = (w, side) => { const f = w.sides[side]?.faction, k = CONVOY_KIT[f] || CONVOY_KIT.any, has = key => w.designs.has(key);
+// FACTION-001 a made faction's convoys are its base faction's (convoyKit)
+const convoyKit = f => CONVOY_KIT[f] || CONVOY_KIT[factionBase(f)] || CONVOY_KIT.any;
+const convoyKitOf = (w, side) => { const f = w.sides[side]?.faction, k = convoyKit(f), has = key => w.designs.has(key);
  const ships = k.ships.filter(has), escorts = k.escorts.filter(has);return ships.length ? {ships, escorts, big: k.big && has(k.big) ? k.big : null, standIn: k.standIn || null} : null; };
 const cargoOf = d => Math.round(Math.max((d?.info?.cargo || 0) * CONVOY.tPerM3, (d?.p?.len || d?.info?.len || 50) * CONVOY.tPerM));
 // What the ships of a system lack, less what is already there or on its way.
@@ -35371,7 +35628,8 @@ const AI_FACTION = {
 const onTheWay = g => !!(g?.navigation && g.navigation.final != null && g.navigation.final !== g.sys);
 const etaAll = (w, gid, dest) => jumpEstimate(w, gid, dest)?.total ?? null;
 function aiContinue(w, side) { for (const g of w.groups.values()) { if (g.side !== side || g.convoy || !onTheWay(g) || g.transit || g.spool || g.waitJump || g.sys == null || w.battles.has(g.sys) || w.time - (g.arrivedAt ?? -1e9) < RULES.aiLaneWait) continue; orderJump(w, g.id, g.navigation.final); } }
-const aiPlan = (w, side) => ({...AI_PLAN, ...(AI_FACTION[w.sides[side]?.faction] || {})});
+// (a made faction plans with its base faction's temper, FACTION-001)
+const aiPlan = (w, side) => { const f = w.sides[side]?.faction; return {...AI_PLAN, ...(AI_FACTION[f] || AI_FACTION[factionBase(f)] || {})}; };
 const groupStrength = (w, g) => { let n = 0; for (const id of g.units) { const u = w.units.get(id); if (fighting(u)) n += unitStrength(u); } return n; };
 // What a side can tell of the enemy in a system: ships it holds at 放射源検知 or better in full, faint returns at half.
 function seenStrength(w, side, us) { let n = 0; for (const u of us) { if (u.side === side || !fighting(u)) continue; const st = contactStage(w, side, u); if (st >= 2) n += unitStrength(u); else if (st >= 1) n += unitStrength(u) * .5; } return n; }
@@ -35547,7 +35805,7 @@ function aiStrategic(w, side) {
  }
  if (own && raiders.length) aiRaidMoves(w, side, A, P, ctx, {main, raiders, fresh, foeMain, bodyJump, busy, here, strength, onlyRaiders: true});
  // Alliance doctrine: its carriers strike across systems even when it is the stronger.
- if (own && doctrineOf(w, side) && sd.faction === 'rebel') aiRaidWings(w, side, A, P, ctx, main, foeMain);
+ if (own && doctrineOf(w, side) && factionBase(sd.faction) === 'rebel') aiRaidWings(w, side, A, P, ctx, main, foeMain);
  }
  // Carriers in battle send their wings: fighters to cover the fleet, bombers at the biggest enemy.
  for (const wing of w.wings.values()) { if (wing.side !== side) continue; const home = w.units.get(wing.home); if (!home || !alive(home) || !w.battles.has(home.sys)) { wing.auto = null; continue; } aiWing(w, wing, home); }
@@ -36120,7 +36378,7 @@ function shipStow(info, air, carried, ground) {
 }
 // Troop space in the free volume left after the crew: soldiers by the head;
 // the Separatists' battle droids are stored deactivated, DROID_STORE_M3 each.
-function troopRoom(info, faction) { return faction === 'cis' ? (info.droidCap ?? info.troopCap ?? 0) : (info.troopCap || 0); }
+function troopRoom(info, faction) { return factionBase(faction) === 'cis' ? (info.droidCap ?? info.troopCap ?? 0) : (info.troopCap || 0); }
 function defaultGround(info, faction) {
  const tpl = REGIMENT_TEMPLATES[faction] || REGIMENT_TEMPLATES.empire, per = COMPANY_TROOPS * BATTALION_COMPANIES * REGIMENT_BATTALIONS, n = Math.floor(troopRoom(info, faction) / per);
  return Array.from({length: n}, (_, i) => makeRegiment(faction, `第${i + 1}${tpl.name}`));
@@ -36131,7 +36389,7 @@ function defaultGround(info, faction) {
 // recon companies (to the infantry when it has none).
 function canonGround(rows, faction, room = Infinity) {
  const want = (rows || []).filter(r => r.kind === 'troops' || r.kind === 'droids').reduce((n, r) => n + Math.max(0, Math.floor(r.count || 0)), 0), troops = Math.min(want, Math.floor(room));
- const veh = {};for (const r of rows || []) { const v = VEHICLES[r.type]; if (r.kind === 'vehicle' && v && (v.side === 'any' || v.side === faction) && r.count > 0) veh[r.type] = (veh[r.type] || 0) + Math.floor(r.count); }
+ const veh = {};for (const r of rows || []) { const v = VEHICLES[r.type]; if (r.kind === 'vehicle' && v && vehicleServes(r.type, faction) && r.count > 0) veh[r.type] = (veh[r.type] || 0) + Math.floor(r.count); }
  if (!(troops > 0) && !Object.keys(veh).length) return [];
  const tpl = REGIMENT_TEMPLATES[faction] || REGIMENT_TEMPLATES.empire, nc = Math.max(1, Math.ceil(troops / COMPANY_TROOPS)), out = [], all = [];
  for (let c = 0; c < nc; c++) {
@@ -36233,7 +36491,7 @@ function normalizeFleet(ob) {
  return out;
 }
 function normalizeSide(sd, i, sector) {
- sd = sd && typeof sd === 'object' ? sd : {};const faction = FACTIONS[sd.faction] ? sd.faction : i % 2 ? 'rebel' : 'empire', fleet = normalizeFleet(sd.fleet), ids = new Set(fleet.ctgs.flatMap(c => c.tgs.map(t => t.id)));
+ sd = sd && typeof sd === 'object' ? sd : {};const faction = factionOr(sd.faction, i % 2 ? 'rebel' : 'empire'), fleet = normalizeFleet(sd.fleet), ids = new Set(fleet.ctgs.flatMap(c => c.tgs.map(t => t.id)));
  const sel = {}, deploy = {};for (const [k, v] of Object.entries(sd.sel || {})) if (ids.has(k) && v === false) sel[k] = false;
  for (const [k, v] of Object.entries(sd.deploy || {})) if (ids.has(k)) { const d = normalizeDeploy(v, sector); if (d.sys != null || d.heading != null || d.speed > 0) deploy[k] = d; }
  return {faction, label: str(sd.label, 40), control: SIDE_CONTROL[sd.control] ? sd.control : i ? 'ai' : 'player', strategy: AI_STRATEGY[sd.strategy] ? sd.strategy : 'balanced', air: AIR_DOCTRINES[sd.air] ? sd.air : 'faction',
@@ -36246,8 +36504,16 @@ function normalizeScenario(raw) {
  const region = REGIONS[raw.region] ? raw.region : 'kuat', seed = Number.isFinite(+raw.seed) ? Math.abs(Math.round(+raw.seed)) % 2147483647 : 1;
  const sides = (Array.isArray(raw.sides) ? raw.sides : []).slice(0, SCENARIO_SIDES[1]);while (sides.length < SCENARIO_SIDES[0]) sides.push({});
  const cl = raw.costLimit || {}, v = Math.round(+cl.value);
- return {format: SCENARIO_FORMAT, version: SCENARIO_VERSION, name: str(raw.name, 60), region, seed, seedFixed: raw.seedFixed !== false, scale: str(raw.scale, 16, 'standard'),
+ // FACTION-001 The made factions its sides use travel with it; one this device does not know is entered (registerFaction,
+ // not saved: the app keeps it when the scenario is loaded), so the side keeps its faction and doctrine. A side whose
+ // faction is nowhere to be found falls back to the Empire / the Alliance (normalizeSide).
+ const factions = (Array.isArray(raw.factions) ? raw.factions : []).slice(0, SCENARIO_SIDES[1]).map(normalizeFactionDef).filter(Boolean);
+ for (const d of factions) if (!FACTIONS[d.id]) registerFaction(d);
+ const out = {format: SCENARIO_FORMAT, version: SCENARIO_VERSION, name: str(raw.name, 60), region, seed, seedFixed: raw.seedFixed !== false, scale: str(raw.scale, 16, 'standard'),
   formations: (Array.isArray(raw.formations) ? raw.formations : []).slice(0, 64).map(normalizeFormation).filter(Boolean), victory: normalizeVictory(raw.victory), costLimit: {on: !!cl.on, value: Number.isFinite(v) && v > 0 ? Math.min(v, 1e15) : 0}, sides: sides.map((sd, i) => normalizeSide(sd, i, null))};
+ const used = new Set(out.sides.map(sd => sd.faction)), defs = [...used].filter(isCustomFaction).map(factionDef);
+ if (defs.length) out.factions = defs.map(d => JSON.parse(JSON.stringify(d)));
+ return out;
 }
 const scenarioJSON = sc => JSON.stringify(normalizeScenario(sc), null, 1);
 function scenarioFromJSON(text) { let raw; try { raw = JSON.parse(String(text)); } catch (e) { throw new Error('JSON を読めません'); } return normalizeScenario(raw); }
@@ -36279,7 +36545,7 @@ function scenarioWorld(raw, designs, designOf, extra = {}) {
  const sector = makeSector(sc.region, sc.seed), sides = sc.sides.map((sd, i) => normalizeSide(sd, i, sector));
  const fleets = sides.map(sd => battleOrbat(sd.fleet, scenarioPick(sd), of, sd.deploy)), keys = new Set(fleets.flatMap(o => o.ctgs.flatMap(c => c.tgs.flatMap(t => t.ships.flatMap(x => [x.design, ...x.carried.map(y => y.design)])))));
  // v26 the supply ships and escorts the sides' convoys are made of
- for (const sd of sides) { const k = CONVOY_KIT[sd.faction] || CONVOY_KIT.any; for (const x of [...k.ships, ...k.escorts, k.big]) if (x) keys.add(x); }
+ for (const sd of sides) { const k = convoyKit(sd.faction); for (const x of [...k.ships, ...k.escorts, k.big]) if (x) keys.add(x); }
  return createWorld({seed: sc.seed, region: sc.region, sector, formations: [...(extra.formations || []), ...sc.formations], designs: list.filter(d => keys.has(d.key)), victory: sc.victory, sides: sides.map(sd => ({faction: sd.faction, name: sd.label || undefined, ai: sd.control === 'ai', strategy: sd.strategy, air: sd.air, start: sd.start})), fleets});
 }
 
@@ -36304,7 +36570,7 @@ function normalizeCampaign(raw) {
 // The one transition so far: a stage finished moves the campaign to the next (the events that finish them come with PLAN-019..025).
 function campaignAdvance(st) { const i = CAMPAIGN_STAGES.indexOf(st.stage);if (i < 0 || i >= CAMPAIGN_STAGES.length - 1) return st;if (!st.done.includes(st.stage)) st.done.push(st.stage);st.stage = CAMPAIGN_STAGES[i + 1];st.step = 0;return st; }
 
-return {routeItinerary,jumpEstimate,normalizeJumpNavigation,CAMPAIGN_FORMAT, CAMPAIGN_VERSION, CAMPAIGN_SLOTS, CAMPAIGN_STAGES, campaignNew, normalizeCampaign, campaignAdvance, AI_STRATEGY, AIR_DOCTRINES, VICTORY_DEFAULT, normalizeVictory, normalizeDeploy, CRAFT_COST, craftPrice, craftCost, shipCost, fleetCost, SCENARIO_FORMAT, SCENARIO_VERSION, SCENARIO_SIDES, SIDE_CONTROL, normalizeFleet, normalizeSide, normalizeScenario, scenarioJSON, scenarioFromJSON, battleOrbat, scenarioPick, scenarioCosts, scenarioWorld, checkResult, canonGround, DOCTRINE, doctrineOf, shieldFrac, doctrineTarget, aiWing, RULES, TICK, CRAFT, CRAFT_MIX, ROLE_NAME, FACTIONS, SIDE_OF, VEHICLES, COMPANY_TYPES, REGIMENT_TEMPLATES, COMPANY_TROOPS, CAPITAL_LENGTH, MAP_LY, GRID_COLS, SECTOR_DEFS, REGIONS, LANE, KIND_NAME, APPROACH, APPROACH_NAME, FORMATIONS, formationKnown, formationName, SLOT_ROLES, SLOT_SIZES, normalizeFormation, groupSlots, formationCheck, formationTemplate, TF, TURN_MODES, SPEEDS, taskForceInfo, slotError, sustainSpeed, deployGroup, groupStations, WING_PHASE, sensorTick, contactOf, contactStage, searchOrder, foilTick, unitSig, unitSens, unitSigma, EMIT_MODES, FOIL_MODES,
+return {routeItinerary,jumpEstimate,normalizeJumpNavigation,convoyKit, aiPlan, FACTION_FORMAT, FACTION_VERSION, FACTION_ID, BUILTIN_FACTIONS, FACTION_REL, FACTION_PAINTS, FACTION_NAMES, FACTION_EMBLEMS, FACTION_HOME, isCustomFaction, factionBase, normalizeFactionDef, factionDef, registerFaction, unregisterFaction, customFactions, factionOr, factionRelation, rivalOf, factionsJSON, factionsFromJSON, vehicleServes, CAMPAIGN_FORMAT, CAMPAIGN_VERSION, CAMPAIGN_SLOTS, CAMPAIGN_STAGES, campaignNew, normalizeCampaign, campaignAdvance, AI_STRATEGY, AIR_DOCTRINES, VICTORY_DEFAULT, normalizeVictory, normalizeDeploy, CRAFT_COST, craftPrice, craftCost, shipCost, fleetCost, SCENARIO_FORMAT, SCENARIO_VERSION, SCENARIO_SIDES, SIDE_CONTROL, normalizeFleet, normalizeSide, normalizeScenario, scenarioJSON, scenarioFromJSON, battleOrbat, scenarioPick, scenarioCosts, scenarioWorld, checkResult, canonGround, DOCTRINE, doctrineOf, shieldFrac, doctrineTarget, aiWing, RULES, TICK, CRAFT, CRAFT_MIX, ROLE_NAME, FACTIONS, SIDE_OF, VEHICLES, COMPANY_TYPES, REGIMENT_TEMPLATES, COMPANY_TROOPS, CAPITAL_LENGTH, MAP_LY, GRID_COLS, SECTOR_DEFS, REGIONS, LANE, KIND_NAME, APPROACH, APPROACH_NAME, FORMATIONS, formationKnown, formationName, SLOT_ROLES, SLOT_SIZES, normalizeFormation, groupSlots, formationCheck, formationTemplate, TF, TURN_MODES, SPEEDS, taskForceInfo, slotError, sustainSpeed, deployGroup, groupStations, WING_PHASE, sensorTick, contactOf, contactStage, searchOrder, foilTick, unitSig, unitSens, unitSigma, EMIT_MODES, FOIL_MODES,
  stowBays, shipStow, stir, peaceTick, formationOffsets, formationGaps, pendingWarp, jumpSequence, JUMP_STAGGER, rng, makeSector, sysDistance, routePath, routeCost, pathSeconds, tripSeconds, designInfo, unitDemand, createWorld, normalizeOrbat, makeUnit, makeGroup, makeCtg, ctgOf, addSquad, step, tick,
  detect, orderJump, cancelJump, etaTo, groupMapPos, orderUnit, orderGroup, orderCtg, orderCtgJump, orderTractor, BOARD, BOARD_PHASE, BOARD_GOAL, boardOk, boardOdds, boardDefault, boardParty, boardStrain, boardInfo, orderBoard, orderBoardRecall, groundTrim, orderWing, splitGroup, mergeGroups, systemUnits, unitStruct, unitStrength, unitHyper, carriedOf, launchCarried, recoverCarried, orderCarried, groupHyper, groupDisabled, groupStay, requestConvoy, convoyPlan, convoysFor, CONVOY, CONVOY_KIT, TF_ROLES, AI_PLAN, AI_FACTION,
  orderScuttle, orderRecover, recoverCheck, rearSeconds, SUPPLY, supplyAt, supplyLines, supplyNeeds, unitSupplyOf, alive, fighting, pdToward, effectiveOrder, groupOrder, tractorReach, tractorOk, registerDesignCraft, craftStores, squadStores, squadRelease, rearmSquad, squadSystemsTick, squadLaserK, squadArmed, squadSlots, craftDown,
@@ -36335,6 +36601,7 @@ return {routeItinerary,jumpEstimate,normalizeJumpNavigation,CAMPAIGN_FORMAT, CAM
    ============================================================ */
 const Ground = (() => {
 'use strict';
+const {Math,Number,Object,Array,JSON,Map,Set,WeakMap,Float32Array,Float64Array,Int32Array,Uint8Array,Uint16Array,Uint32Array,Int8Array,ArrayBuffer,String}=globalThis,Infinity=globalThis.Infinity; // v13 PERF see Core
 const C = Core, R = Rts;
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v)), hyp = Math.hypot;
 const r1 = v => Math.round(v * 10) / 10, r2 = v => Math.round(v * 100) / 100;
@@ -36541,7 +36808,7 @@ function los(b, a, z, ha, hb) {
 // src points back to the company the unit came from, so losses can be written back to the regiment.
 const PLATOON = 4;
 function forcesFromRegiments(regiments, faction, tag = null) {
- const out = [], droid = faction === 'cis';
+ const out = [], droid = R.factionBase(faction) === 'cis';   // (a made faction's troops are its base's: droids for a Separatist base)
  (regiments || []).forEach((r, ri) => (r?.battalions || []).forEach((bt, bi) => (bt?.companies || []).forEach((c, ci) => {
   const src = {tag, ri, bi, ci}, nm = [r.name, bt.name, c.name].filter(Boolean).join(' · ');
   if ((c.troops || 0) > 0) out.push({kind: 'inf', name: nm, troops: Math.floor(c.troops), droid, src});
@@ -36553,7 +36820,7 @@ function forcesFromRegiments(regiments, faction, tag = null) {
 // A planet's garrison: companies by its population (provisional: 2 + 2 per level), the faction's regiment make-up
 // and vehicles (half for a small world), and a strongpoint at each objective on a world of population 3 or more.
 function garrison(faction, pop = 2, opt = {}) {
- const tpl = R.REGIMENT_TEMPLATES[faction], n = 2 + 2 * clamp(Math.round(pop || 0), 0, 5), out = [], droid = faction === 'cis';
+ const tpl = R.REGIMENT_TEMPLATES[faction], n = 2 + 2 * clamp(Math.round(pop || 0), 0, 5), out = [], droid = R.factionBase(faction) === 'cis';
  const vk = Object.hasOwn(R.FACTIONS, faction) ? faction : null;
  for (let i = 0; i < n; i++) {
   const type = tpl ? tpl.companies[i % tpl.companies.length] : 'infantry', name = `${vk ? R.FACTIONS[vk].short : '惑星'}守備隊 第${i + 1}中隊`;
@@ -36888,7 +37155,7 @@ function summary(b) { return {time: b.time, phase: b.phase, result: b.result, ob
 // three objectives; the player's own vehicle designs may join it. Its steps are the essential ground operations.
 const DRILL_STEPS = Object.freeze([['deploy', '降下地点を決めて展開する'], ['move', '部隊を移動させる'], ['attack', '敵部隊を攻撃する'], ['vehicle', 'ウォーカー・車両に命令する'], ['air', '航空支援を要請する'], ['capture', '目標を奪取する']]);
 function drillConfig(opt = {}) {
- const faction = Object.hasOwn(R.FACTIONS, opt.faction) ? opt.faction : 'republic', foe = faction === 'cis' ? 'republic' : 'cis';
+ const faction = Object.hasOwn(R.FACTIONS, opt.faction) ? opt.faction : 'republic', foe = R.factionBase(faction) === 'cis' ? 'republic' : 'cis';
  const reg = R.makeRegiment(faction, `第1${R.REGIMENT_TEMPLATES[faction].name}（演習）`);reg.battalions = reg.battalions.slice(0, 1);
  const forces = forcesFromRegiments([reg], faction, 'drill');
  for (const [k, n] of Object.entries(opt.extra || {})) if (R.VEHICLES[k] && n > 0) forces.push({kind: 'veh', key: k, n: Math.min(8, Math.floor(n)), name: R.VEHICLES[k].name});

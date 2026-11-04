@@ -14,12 +14,15 @@ function fakeIDB(){
  const db={transaction(){const tx={objectStore:store};later(()=>later(()=>tx.oncomplete?.()));return tx;},close(){}};
  return {stores,open(){const rq={};later(()=>{if(!stores.size){rq.result={createObjectStore:store};rq.onupgradeneeded?.();}rq.result=db;rq.onsuccess?.();});return rq;}};
 }
-function engine(idb,files={}){
+function engine(idb,files={},options={}){
+ const sources=['data/reference.js','data/imperial2.js','js/core.js','js/gfx.js','js/engine.js'];
+ const hash=b=>require('node:crypto').createHash('sha256').update(b).digest();
+ const stamp=hash(Buffer.concat(sources.map(f=>hash(files[f]??read(f))))).toString('hex').slice(0,20);
  const cx=vm.createContext({console,performance,setTimeout,clearTimeout,structuredClone,URL,crypto:globalThis.crypto,importScripts(){},
-  ...(idb?{indexedDB:idb}:{}),
-  fetch:async u=>{const rel=path.relative('/app',new URL(u).pathname),t=files[rel]??read(rel);return {ok:true,arrayBuffer:async()=>new TextEncoder().encode(t).buffer};}});
+  ...(idb?{indexedDB:idb}:{}),KS_SOURCE_STAMP:options.noStamp?null:stamp,
+  fetch:async()=>{throw new Error('disk identity must use loaded bytes, never refetch sources');}});
  cx.self=cx;cx.self.location={href:'http://x/app/js/worker.js'};
- for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/gfx.js'])vm.runInContext(read(f),cx,{filename:f});
+ for(const f of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/gfx.js'])vm.runInContext(files[f]??read(f),cx,{filename:f});
  const source=read('js/engine.js');vm.runInContext(source.slice(0,source.indexOf('/* Interface-side connection')),cx,{filename:'js/engine.js'});
  const {C,E}=vm.runInContext('({C:Core,E:YardEngine})',cx),pending=[];
  const scope={postMessage(m){const i=pending.findIndex(p=>p.id===m.id);if(i<0)return;const p=pending.splice(i,1)[0];m.type==='error'?p.reject(Error(m.message)):p.resolve(m);}};
@@ -65,4 +68,19 @@ test('a trial of the design on the drawing board reuses the figures the editor a
  e.request({type:'update',gen:1,state:C.publicJSON(ship),what:['all'],reset:true,stats:true,statsDelay:0});
  const r=await e.request({type:'fleet',design:C.serialize(ship),trial:true});assert.equal(r.src,'editor');assert.ok(r.stats&&r.profile);
  const plainRun=await engine(fakeIDB()).request({type:'fleet',design:C.serialize(ship),trial:true});assert.equal(plainRun.src,'built');assert.deepEqual(plain(r.profile),plain(plainRun.profile));
+});
+
+
+test('without a verified startup snapshot no persistent records are read or overwritten',async()=>{
+ const idb=fakeIDB();await engine(idb).request({type:'fleet',key:'gozanti',lite:true});await settle();
+ const before=structuredClone([...idb.stores.get('rec')]);
+ const e=engine(idb,{}, {noStamp:true}),r=await e.request({type:'fleet',key:'gozanti',lite:true});await settle();
+ assert.equal(r.src,'built');assert.equal(e.E.disk.off,true);
+ assert.deepEqual([...idb.stores.get('rec')],before);
+});
+
+test('a gfx-only source change invalidates prior persistent geometry identity',async()=>{
+ const idb=fakeIDB();await engine(idb).request({type:'fleet',key:'gozanti',lite:true});await settle();
+ const r=await engine(idb,{'js/gfx.js':read('js/gfx.js')+'\n// new renderer release\n'}).request({type:'fleet',key:'gozanti',lite:true});
+ assert.equal(r.src,'built');
 });
