@@ -1,0 +1,178 @@
+{
+  "schemaVersion": 1,
+  "source": "User-supplied turret photographs, measured independently of procedural geometry",
+  "sourceFiles": [
+    {
+      "name": "1-写真1.jpg",
+      "sha256": "3a973604ad89abfd97308b51a60063eae8ea1cadc155f977ae20be48ed5b16d4"
+    },
+    {
+      "name": "2-写真2.jpg",
+      "sha256": "45dea2603a9f194d7a9df680b1c1bc684117da0f95064b130d845832a7cefe78"
+    },
+    {
+      "name": "3-写真3.jpg",
+      "sha256": "badc90e277a1e4f2bb5e26e1c47662ef6e0ad228cc6d21ff52f31a434acbfdd3"
+    }
+  ],
+  "coordinateConvention": "Image pixels, origin upper left; case bounds exclude the blank display plinth/cylinder. Side photograph has perspective and posed gun elevation. Distances are approximate.",
+  "anchor": {
+    "photo": 1,
+    "asset": "isd_heavy_octuple",
+    "feature": "intrinsic round gun platform horizontal diameter",
+    "pixelEndpoints": [
+      [
+        880,
+        162
+      ],
+      [
+        1126,
+        162
+      ]
+    ],
+    "pixelSpan": 246,
+    "metres": 40,
+    "pixelUncertainty": 8
+  },
+  "profile40": {
+    "single40": {
+      "photo": 1,
+      "caseBoundsPixels": [
+        145,
+        100,
+        270,
+        151
+      ],
+      "caseFloorYPixels": 151,
+      "barrelRootPixels": [
+        214,
+        112
+      ],
+      "barrelTipPixels": [
+        56,
+        112
+      ],
+      "barrelPixelUncertainty": 7,
+      "casePixelUncertainty": 8,
+      "wheelDiameterPixels": 29,
+      "wheelPixelUncertainty": 5,
+      "physicalTargetsM": {
+        "caseLength": 20.2,
+        "caseHeight": 8.1,
+        "barrelLength": 25.7,
+        "wholeLength": 34.6
+      },
+      "relativeTolerance": 0.13
+    },
+    "twin40Dome": {
+      "photo": 1,
+      "caseBoundsPixels": [
+        291,
+        92,
+        462,
+        175
+      ],
+      "caseFloorYPixels": 175,
+      "barrelRootPixels": [
+        358,
+        83
+      ],
+      "barrelTipPixels": [
+        272,
+        59
+      ],
+      "barrelPixelUncertainty": 7,
+      "casePixelUncertainty": 8,
+      "wheelDiameterPixels": null,
+      "wheelPixelUncertainty": 5,
+      "physicalTargetsM": {
+        "hemisphereDiameter": 27.5,
+        "barrelLength": 14.6,
+        "wholeLength": 31.0
+      },
+      "relativeTolerance": 0.13
+    },
+    "twin40": {
+      "photo": 1,
+      "caseBoundsPixels": [
+        526,
+        38,
+        655,
+        114
+      ],
+      "caseFloorYPixels": 114,
+      "barrelRootPixels": [
+        559,
+        37
+      ],
+      "barrelTipPixels": [
+        482,
+        18
+      ],
+      "barrelPixelUncertainty": 7,
+      "casePixelUncertainty": 8,
+      "wheelDiameterPixels": 39,
+      "wheelPixelUncertainty": 5,
+      "physicalTargetsM": {
+        "caseLength": 21.0,
+        "wheelDiameter": 6.5,
+        "barrelLength": 13.0,
+        "wholeLength": 29.0
+      },
+      "relativeTolerance": 0.13
+    },
+    "triple40": {
+      "photo": 1,
+      "caseBoundsPixels": [
+        707,
+        44,
+        862,
+        120
+      ],
+      "caseFloorYPixels": 120,
+      "barrelRootPixels": [
+        750,
+        47
+      ],
+      "barrelTipPixels": [
+        682,
+        44
+      ],
+      "barrelPixelUncertainty": 7,
+      "casePixelUncertainty": 8,
+      "wheelDiameterPixels": 39,
+      "wheelPixelUncertainty": 5,
+      "physicalTargetsM": {
+        "caseLength": 24.0,
+        "wheelDiameter": 6.5,
+        "barrelLength": 12.5,
+        "wholeLength": 28.5
+      },
+      "relativeTolerance": 0.13
+    }
+  },
+  "perspective70": {
+    "photo": 3,
+    "method": "Ratio of projected widths; uncertainty includes perspective. Display cylinders excluded.",
+    "tripleMainCaseWidthPixels": 417,
+    "tripleFrontPodWidthPixels": 335,
+    "podToCaseProjectedWidthRatio": 0.8033573141486811,
+    "ratioTolerance": 0.12,
+    "dbyProjectedCaseWidthPixels": 285,
+    "tripleToDbyCaseProjectedWidthRatio": 1.4631578947368422,
+    "physicalTargetsM": {
+      "mainCaseWidth": 24,
+      "mainCaseLength": 19.5,
+      "frontPodWidth": 18,
+      "frontPodDepth": 7.5,
+      "wholeLengthRange": [
+        37,
+        39
+      ],
+      "height": "same as native DBY anchor"
+    },
+    "sideQuad": {
+      "form": "Rear carrier with separate top and bottom rails, open side gap and rear bulkhead; front square four-gun DBY mechanism. No closed box covering the carrier air gap."
+    }
+  }
+}

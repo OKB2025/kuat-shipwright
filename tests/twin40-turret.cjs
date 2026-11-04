@@ -6,17 +6,41 @@ const fitting=(k='twin40',extra={})=>({id:1,k,p:[31,-7,19],a:2,ped:0,base:0,low:
 function data(k='twin40'){const d=C.FITS[k];assert.ok(d);const a=C.REFERENCE_ASSETS[d.asset];assert.ok(a);return {d,a,m:C.decodeReference(d.asset)};}
 const point=(a,m,i)=>[0,1,2].map(k=>m.pos[i*3+k]*a.size[k]+a.c[k]);
 function bounds(a,m,first,count){const b=[Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity];for(let i=first;i<first+count;i++)point(a,m,i).forEach((v,k)=>{b[k]=Math.min(b[k],v);b[k+3]=Math.max(b[k+3],v);});return b;}
+function featureRows(a,name){const labels=a.photoGeometryFeaturesM?.[name]?.componentLabels;assert.ok(labels?.length,`actual ${name} components must be identified`);return labels.flatMap(label=>{const rows=a.components.filter(row=>row.label===label);assert.ok(rows.length,`${name}: ${label}`);return rows;});}
+function surfaceTriangles(a,m,row){const out=[];for(let i=row.firstIndex;i<row.firstIndex+row.indices;i+=3)out.push(Array.from(m.idx.subarray(i,i+3),j=>point(a,m,j)));return out;}
+function pointOnTriangle(p,[a,b,c],eps){
+ const u=C.sub(b,a),v=C.sub(c,a),n=C.cross(u,v),nn=C.dot(n,n);if(nn<1e-16)return false;
+ const w=C.sub(p,a);if(Math.abs(C.dot(w,n))/Math.sqrt(nn)>eps)return false;
+ const uu=C.dot(u,u),uv=C.dot(u,v),vv=C.dot(v,v),wu=C.dot(w,u),wv=C.dot(w,v),den=uv*uv-uu*vv;if(Math.abs(den)<1e-16)return false;
+ const s=(uv*wv-vv*wu)/den,t=(uv*wu-uu*wv)/den,tolerance=eps/Math.max(.01,Math.sqrt(Math.max(uu,vv)));
+ return s>=-tolerance&&t>=-tolerance&&s+t<=1+tolerance;
+}
+function segmentCrossesTriangle(a,b,[p,q,r],eps){
+ const direction=C.sub(b,a),u=C.sub(q,p),v=C.sub(r,p),h=C.cross(direction,v),det=C.dot(u,h);if(Math.abs(det)<1e-12)return false;
+ const s=C.sub(a,p),inv=1/det,x=C.dot(s,h)*inv;if(x<0||x>1)return false;
+ const cross=C.cross(s,u),y=C.dot(direction,cross)*inv;if(y<0||x+y>1)return false;
+ const t=C.dot(v,cross)*inv,tolerance=eps/Math.max(.01,C.len(direction));return t>=-tolerance&&t<=1+tolerance;
+}
+function surfacesTouch(a,m,left,right,eps=.01){
+ const A=bounds(a,m,left.firstVertex,left.vertices),B=bounds(a,m,right.firstVertex,right.vertices);if([0,1,2].some(k=>A[k]>B[k+3]+eps||B[k]>A[k+3]+eps))return false;
+ const trianglesA=surfaceTriangles(a,m,left),trianglesB=surfaceTriangles(a,m,right);
+ for(const x of trianglesA)for(const y of trianglesB){
+  if(x.some(p=>pointOnTriangle(p,y,eps))||y.some(p=>pointOnTriangle(p,x,eps)))return true;
+  for(let i=0;i<3;i++)if(segmentCrossesTriangle(x[i],x[(i+1)%3],y,eps)||segmentCrossesTriangle(y[i],y[(i+1)%3],x,eps))return true;
+ }
+ return false;
+}
 
 test('the two photographed 40 TT twins have distinct houses while DBY-827 remains a 70 TT twin',()=>{
  const box=data(),dome=data('twin40Dome');assert.equal(box.d.asset,'family_twin40_box');assert.equal(dome.d.asset,'family_twin40_dome');
  for(const {d,a}of [box,dome]){assert.equal(d.barrels,2);assert.equal(d.boltTT,40);assert.equal(d.tt,80);near(d.power*d.cycle/C.TT,80,1e-9);near(C.weaponModelScale(d.key),1,1e-12);assert.equal(a.noSupportPedestal,true);}
- near(box.a.size[0],22.6768196158,.01);near(dome.a.size[0],31.4644851825,.01);assert.notEqual(dome.a.turretCompartment.volumeM3,box.a.turretCompartment.volumeM3,'different closed houses at the same salvo energy retain their own physical room');
+ for(const {d,a}of [box,dome])for(const [i,key]of ['fm','hm','wm'].entries())near(a.size[i],d[key],.001);assert.notEqual(dome.a.turretCompartment.volumeM3,box.a.turretCompartment.volumeM3,'different closed houses at the same salvo energy retain their own physical room');
  assert.equal(C.FITS.refVen.tt,140);assert.equal(C.FITS.refVen.boltTT,70);near(C.FITS.refVen.fm,28.861991732993026,.003);assert.equal(C.FITS.refSide,undefined);assert.equal(C.canonicalWeaponKind('refSide'),'twin40');
 });
 
 test('the box twin carries two complete source DBY circles entirely outside its case',()=>{
  const {a,m}=data(),source=data('refVen'),lookup=new Map(source.a.sourceVertexIndices.map((old,i)=>[old,i]));assert.equal(a.drivePivots.length,2);const caseSide=Math.max(...a.turretCompartment.convexes.flatMap(q=>q.verticesM.map(p=>Math.abs(p[2]))));
- for(const drive of a.drivePivots){assert.ok([1,3].includes(drive.sourceComponent));assert.equal(drive.vertices,256);assert.equal(drive.indices,666);assert.equal(drive.completeSourceComponent,true);const wanted=new Set(drive.sourceVertexIndices),sourceFaces=[];for(let i=0;i<source.m.idx.length;i+=3){const ids=Array.from(source.m.idx.subarray(i,i+3),v=>source.a.sourceVertexIndices[v]);if(ids.some(v=>wanted.has(v))){assert.ok(ids.every(v=>wanted.has(v)),'a complete original circular-base component cannot cut across any source face');sourceFaces.push(ids.sort((a,b)=>a-b).join(','));}}assert.equal(sourceFaces.length,222);const S=drive.sourceVertexIndices.map(i=>point(source.a,source.m,lookup.get(i))),T=S.map((_,i)=>point(a,m,drive.firstVertex+i)),d=S.map(p=>C.sub(p,S[0]));let j=1,k=2,l=3;for(let i=1;i<S.length;i++)if(C.len(d[i])>C.len(d[j]))j=i;for(let i=1;i<S.length;i++)if(C.len(C.cross(d[j],d[i]))>C.len(C.cross(d[j],d[k])))k=i;const n=C.cross(d[j],d[k]);for(let i=1;i<S.length;i++)if(Math.abs(C.dot(n,d[i]))>Math.abs(C.dot(n,d[l])))l=i;const physicalScale=C.len(C.sub(T[j],T[0]))/C.len(d[j]);assert.ok(physicalScale>0&&physicalScale<1,'the complete40-class circle is uniformly sized from its DBY source');for(let i=0;i<S.length;i++)for(const anchor of [0,j,k,l])near(C.len(C.sub(T[i],T[anchor])),C.len(C.sub(S[i],S[anchor]))*physicalScale,.005);
+ for(const drive of a.drivePivots){assert.ok([1,3].includes(drive.sourceComponent));assert.equal(drive.vertices,256);assert.equal(drive.indices,666);assert.equal(drive.completeSourceComponent,true);const wanted=new Set(drive.sourceVertexIndices),sourceFaces=[];for(let i=0;i<source.m.idx.length;i+=3){const ids=Array.from(source.m.idx.subarray(i,i+3),v=>source.a.sourceVertexIndices[v]);if(ids.some(v=>wanted.has(v))){assert.ok(ids.every(v=>wanted.has(v)),'a complete original circular-base component cannot cut across any source face');sourceFaces.push(ids.sort((a,b)=>a-b).join(','));}}assert.equal(sourceFaces.length,222);const S=drive.sourceVertexIndices.map(i=>point(source.a,source.m,lookup.get(i))),T=S.map((_,i)=>point(a,m,drive.firstVertex+i)),d=S.map(p=>C.sub(p,S[0]));let j=1,k=2,l=3;for(let i=1;i<S.length;i++)if(C.len(d[i])>C.len(d[j]))j=i;for(let i=1;i<S.length;i++)if(C.len(C.cross(d[j],d[i]))>C.len(C.cross(d[j],d[k])))k=i;const n=C.cross(d[j],d[k]);for(let i=1;i<S.length;i++)if(Math.abs(C.dot(n,d[i]))>Math.abs(C.dot(n,d[l])))l=i;const physicalScale=C.len(C.sub(T[j],T[0]))/C.len(d[j]);assert.ok(physicalScale>0&&Number.isFinite(physicalScale),'the complete40-class circle is uniformly sized from its DBY source');for(let i=0;i<S.length;i++)for(const anchor of [0,j,k,l])near(C.len(C.sub(T[i],T[anchor])),C.len(C.sub(S[i],S[anchor]))*physicalScale,.005);
   const key=ids=>ids.sort((a,b)=>a-b).join(','),faces=(mesh,row,map)=>{const out=[];for(let i=row.firstIndex;i<row.firstIndex+row.indices;i+=3)out.push(key(Array.from(mesh.idx.subarray(i,i+3),map)));return out.sort();};assert.deepEqual(faces(m,drive,i=>drive.sourceVertexIndices[i-drive.firstVertex]),sourceFaces.sort(),'every original circular-base face remains intact');
   const Y=T.map(p=>p[1]);assert.ok(Math.min(...Y)<drive.centerM[1]-drive.radiusM*.8&&Math.max(...Y)>drive.centerM[1]+drive.radiusM*.8,'the whole upper and lower circle are present');const clearance=Math.min(...T.map(p=>Math.abs(p[2])))-caseSide;assert.ok(clearance>.15,'the complete base remains outside the central case wall');near(clearance,drive.caseSideClearanceM,.003);const barrel=a.barrelCenters.find(b=>b.muzzle[2]*drive.centerM[2]>0);assert.ok(barrel);near(barrel.muzzle[2],drive.centerM[2],.01);assert.ok(barrel.root[1]>drive.centerM[1]+barrel.outerRadiusM*.5);
  }
@@ -34,10 +58,34 @@ test('both regular twin models retain direct placement, heading, save roundtrips
  }
 });
 
-test('the shared rear upper machinery foundation gains one closed twin-specific hood without duplicate room credit',()=>{
- const twin=data(),triple=data('triple40'),A=twin.a,B=triple.a;assert.equal(A.sharedCase.sourceFoundationGeometrySha256,B.sharedCase.geometrySha256);for(const key of ['upperSourceComponent','lowerSourceComponent','upperUnitScaleXY','upperUnitScaleZ','upperCaseRearXM','upperCaseBottomYM','upperCaseRoofYM'])near(A.sharedCase[key],B.sharedCase[key],1e-12);assert.equal(B.sharedCase.upperSourceComponent,2);assert.equal(B.sharedCase.lowerSourceComponent,11);assert.equal(B.sharedCase.sourceFourPortConversion,3);assert.equal(B.sharedCase.integralRearCaseWall,true);
- const inside=(a,p)=>a.turretCompartment.convexes.some(q=>q.faces.every(([ia,ib,ic])=>C.dot(C.norm(C.cross(C.sub(q.verticesM[ib],q.verticesM[ia]),C.sub(q.verticesM[ic],q.verticesM[ia]))),C.sub(p,q.verticesM[ia]))<=.003)),foundation=B.sharedCase.meshRange,F=Array.from({length:foundation.vertices},(_,i)=>point(B,triple.m,foundation.firstVertex+i)),hoodRange=A.turretCompartment.convexes[0].sourceMeshRange,casePoints=Array.from({length:hoodRange.vertices},(_,i)=>point(A,twin.m,hoodRange.firstVertex+i));for(const axis of [0,2]){near(Math.min(...F.map(p=>p[axis])),Math.min(...casePoints.map(p=>p[axis])),.003);near(Math.max(...F.map(p=>p[axis])),Math.max(...casePoints.map(p=>p[axis])),.003);}
- const passage=A.centralEnclosure.axleClearanceBoundsM;let witnesses=0;for(const q of B.turretCompartment.convexes){const p=C.mul(q.verticesM.reduce((s,v)=>C.add(s,v),[0,0,0]),1/q.verticesM.length);if(p.every((v,i)=>v>=passage[0][i]&&v<=passage[1][i])||p[1]<A.centralEnclosure.bearingFloorYM)continue;assert.ok(inside(A,p),'the actual foundation room remains inside the new hood');witnesses++;}assert.ok(witnesses>=5);
- const upperRange=B.turretCompartment.convexes.find(q=>q.conservative).sourceMeshRange,upper=Array.from({length:upperRange.vertices},(_,i)=>point(B,triple.m,upperRange.firstVertex+i)),lower={turretCompartment:{convexes:[B.turretCompartment.convexes[0]]}};assert.ok(upper.some(p=>inside(lower,p)),'the rear upper pod joins the actual lower case through an integral wall');const hood=[A.elevationPivot[0],A.centralEnclosure.roofYM-.2,0];assert.ok(inside(A,hood));assert.ok(!inside(B,hood),'the extra upper enclosure is specific to the twin');assert.equal(A.centralEnclosure.coveredFoundationSurfacesOmitted,true);near(B.turretCompartment.volumeM3,969.332276911,.1);near(A.turretCompartment.volumeM3,1706.555865682,.1);
- const bare=C.newShip({assembly:true,L:100,W:100,H:50},'Hood room union');bare.parts=[];bare.fits=[fitting()];const room=C.turretCompartmentProjection(bare,bare.fits[0]);near(room.housingVolume,1706.555865682,.1);assert.ok(room.housingVolume<1706.555865682+969.332276911-500,'covered foundation volume cannot be credited a second time');
+test('the related angular houses credit their closed exterior once without adding a hidden second foundation',()=>{
+ const twin=data(),triple=data('triple40');assert.equal(twin.a.sharedCase.key,triple.a.sharedCase.key);
+ assert.equal(twin.a.centralEnclosure.closedExterior,true);assert.ok(twin.a.components.some(row=>row.label===twin.a.centralEnclosure.fittedMechanicalCover),'the external-drive case has a real fitted cover');
+ const cellVolume=poly=>{let v=0;for(const face of poly.faces)for(let i=1;i+1<face.length;i++)v+=C.dot(poly.verticesM[face[0]],C.cross(poly.verticesM[face[i]],poly.verticesM[face[i+1]]))/6;return Math.abs(v);};
+ for(const {a,m}of [twin,triple]){
+  const labels=new Set(a.photoGeometryFeaturesM.case.componentLabels),cases=a.components.filter(row=>labels.has(row.label));assert.ok(cases.length>=2);
+  assert.ok(cases.every(row=>row.firstIndex+row.indices<=a.elevationIndexStart),'the closed equipment case remains fixed while the guns elevate');
+  const independentCellVolume=a.turretCompartment.convexes.reduce((sum,cell)=>sum+cellVolume(cell),0);assert.ok(independentCellVolume>0);
+  const bare=C.newShip({assembly:true,L:100,W:100,H:50},'Actual gunhouse room');bare.parts=[];const f=fitting(a.catalogKind);bare.fits=[f];
+  const q=C.turretCompartmentProjection(bare,f);near(q.housingVolume,a.turretCompartment.volumeM3,.2);near(q.housingVolume,independentCellVolume,.2); // Any overlapping duplicate foundation would inflate the cell sum without changing the actual union.
+  near(q.externalVolume,q.housingVolume,.2);near(q.embeddedVolume,0,.0001);
+ }
+});
+
+test('the twins and triple share the same physical main case and every triple barrel connects through a real cradle',()=>{
+ const A=data(),B=data('triple40'),left=featureRows(A.a,'mainCase'),right=featureRows(B.a,'mainCase');
+ const points=(a,m,rows)=>rows.flatMap(row=>Array.from({length:row.vertices},(_,i)=>point(a,m,row.firstVertex+i))),P=points(A.a,A.m,left),Q=points(B.a,B.m,right);
+ assert.equal(P.length,Q.length,'the common case must share actual surface topology');for(let i=0;i<P.length;i++)for(let k=0;k<3;k++)near(P[i][k],Q[i][k],.003);
+ const exteriorVolume=(a,m,rows)=>rows.reduce((sum,row)=>{let v=0;for(let i=row.firstIndex;i<row.firstIndex+row.indices;i+=3){const [p,q,r]=Array.from(m.idx.subarray(i,i+3),j=>point(a,m,j));v+=C.dot(p,C.cross(q,r))/6;}return sum+Math.abs(v);},0);
+ near(exteriorVolume(A.a,A.m,left),exteriorVolume(B.a,B.m,right),.1);
+ // The same outer case does not imply equal usable capacitor volume: the
+ // internal three-gun cradle may occupy space that the external twin does not.
+ const axle=featureRows(B.a,'axle'),cradle=featureRows(B.a,'cradle'),receiver=featureRows(B.a,'receiver');assert.ok(axle.every(row=>row.firstIndex+row.indices<=B.a.elevationIndexStart),'the bearing axle stays fixed in the main case');assert.ok(cradle.every(row=>row.firstIndex>=B.a.elevationIndexStart),'the complete cradle elevates with the guns');
+ const cradlePoints=points(B.a,B.m,cradle),receiverPoints=points(B.a,B.m,receiver),span=(points,k)=>Math.max(...points.map(p=>p[k]))-Math.min(...points.map(p=>p[k]));
+ assert.ok(span(cradlePoints,2)>=span(receiverPoints,2)*.75&&span(cradlePoints,0)>span(Q,0)*.3&&span(cradlePoints,1)>1,'the three-gun support is a broad mechanical cradle, not a thin post');
+ const nodes=[...right,...axle,...cradle,...receiver,...B.a.barrelCenters],cradleStart=right.length+axle.length,edges=nodes.map(()=>[]);
+ for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++)if(surfacesTouch(B.a,B.m,nodes[i],nodes[j])){edges[i].push(j);edges[j].push(i);}
+ const reached=new Set(right.map((_,i)=>i)),queue=[...reached];for(let i=0;i<queue.length;i++)for(const j of edges[queue[i]])if(!reached.has(j)){reached.add(j);queue.push(j);}
+ assert.ok(cradle.some((_,i)=>reached.has(cradleStart+i)),'the cradle must physically meet the shared case');
+ for(let i=cradleStart+cradle.length;i<nodes.length;i++)assert.ok(reached.has(i),'each receiver and barrel must have actual triangle contact back to the common case');
 });

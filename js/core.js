@@ -23286,7 +23286,8 @@ function completeReferenceArmament(ship){
   // The former 60 NK-7 positions now use spherical 4x40 TT ion turrets: 20 a side on the dorsal plating
   // (from the heavy battery deck to the bow) and 10 a side under the hull.
   // (none over the forward deck armour at x 1,105 m; the ventral row keeps clear of the lower point defence)
-  for(const x of [565,610,655,700,745,790,835,880,925,970,1015,1060,1150,1195,1240,1285,1330,1375,1420,1460])for(const sg of [-1,1])hull('quad40Ion',x,sg*.78,false);
+  // Keep the forward dorsal ion pair clear of the longer twin40 trench housing.
+  for(const x of [565,610,655,700,745,790,835,880,925,970,1015,1060,1150,1195,1240,1285,1330,1385,1420,1460])for(const sg of [-1,1])hull('quad40Ion',x,sg*.78,false);
   for(const x of [300,380,520,600,740,830,920,1010,1100,1250])for(const sg of [-1,1])hull('quad40Ion',x,sg*.72,true);
   // Ten Q7 tractor beam projectors: the forward pursuit array at the bow (six, under the prow) and four
   // "near the hangar bay opening" (canon), beside the attack hangar's sides.
