@@ -20,3 +20,11 @@ for(const key of keys)test(`${key}: computeStats figures match the recorded ones
  // A second call (the editor's, after a no-op) is served from the caches and must agree as well.
  assert.deepEqual(figuresDiff(recorded[key],figuresDigest(C.computeStats(s))),[],key+' (repeat)');
 });
+// After an edit of one structure the figures reuse the union of the structures before it (structuralMaterial) and
+// the patches the edit cannot reach (surfacePatches); they must equal those of a fresh ship given the same edit.
+for(const [key,which] of [['gozanti','last'],['gozanti','first'],['craft_tie_ln','last']])test(`${key}: figures after moving the ${which} structure equal a fresh computation`,()=>{
+ const make=()=>{const s=C.buildDesign(key);C.syncCompartments(s);C.remount(s);C.syncCompartments(s);return s;};
+ const edit=s=>{const list=s.parts.filter(p=>p.k==='struct'&&!p.plate).sort((a,b)=>a.id-b.id),p=which==='first'?list[0]:list.at(-1);p.c=[p.c[0]+.75,p.c[1],p.c[2]];C.syncCompartments(s);};
+ const a=make();C.computeStats(a);edit(a);const incremental=figuresDigest(C.computeStats(a));
+ const b=make();edit(b);assert.deepEqual(figuresDiff(figuresDigest(C.computeStats(b)),incremental,1e-12),[]);
+});

@@ -21221,6 +21221,7 @@ function structVolume(pt){let v=0;const T=structTriangles(pt);for(let i=0;i<T.le
 // Independently installed wings, panels and equipment are not fused hardware.
 const STRUCTURAL_MATERIAL_CACHE=new WeakMap();
 const STRUCTURAL_VOLUME_CACHE=new WeakMap();
+const STRUCTURAL_PREFIX={owner:null},STRUCTURAL_PREFIX_BYTES=64e6;
 function structuralMaterialOrder(a,b){const density=p=>p.plate?K.armorDens:K.structDens*(p.light?.25:1);return density(b)-density(a)||a.id-b.id;}
 function structuralMeshVolume(T){if(!T.length)return 0;const cached=STRUCTURAL_VOLUME_CACHE.get(T);if(cached!==undefined)return cached;const b=solidMeshBounds(T),o=[0,1,2].map(i=>(b[i]+b[i+3])/2);let value=0;const o0=o[0],o1=o[1],o2=o[2];for(let i=0;i<T.length;i+=9){/* dot(a,cross(b,c)) about o, the same operations without the temporary arrays */const a0=T[i]-o0,a1=T[i+1]-o1,a2=T[i+2]-o2,b0=T[i+3]-o0,b1=T[i+4]-o1,b2=T[i+5]-o2,c0=T[i+6]-o0,c1=T[i+7]-o1,c2=T[i+8]-o2;value+=a0*(b1*c2-b2*c1)+a1*(b2*c0-b0*c2)+a2*(b0*c1-b1*c0);}const result=Math.abs(value/6);STRUCTURAL_VOLUME_CACHE.set(T,result);return result;}
 // v13 LOAD A clip asks for the coplanar section of the same accumulated mesh once per plane of the other solid,
@@ -21301,7 +21302,20 @@ function structuralJoinBoundary(a,b){if(!a.length)return b;if(!b.length)return a
 function structuralMaterial(ship){
  const bulk=p=>p.k==='struct'&&!p.plate,g=hullGeo(ship),hull=g.materialTris||g.tris,parts=ship.parts.filter(isShapePart).slice().sort((a,b)=>(bulk(b)?1:0)-(bulk(a)?1:0)||structuralMaterialOrder(a,b)),entries=parts.map(p=>{const T=structTriangles(p);return {p,bulk:bulk(p),T:p._solidGeometry?.material||(p._apertures?.length?p._pierced?.material:T)||T};}),old=STRUCTURAL_MATERIAL_CACHE.get(ship);
  if(old?.hull===hull&&old.entries.length===entries.length&&entries.every((e,i)=>e.p===old.entries[i].p&&e.T===old.entries[i].T&&e.bulk===old.entries[i].bulk))return old;
- let boundary=hull,previous=structuralMeshVolume(boundary),extension=0;const volumes=new Map(),envelopeVolumes=new Map();for(const {p,T,bulk}of entries){const V=partVolume(p),joined=structuralJoinBoundary(boundary,T),next=structuralMeshVolume(joined),added=clamp(next-previous,0,V),volume=added<Math.max(1e-8,V*1e-10)?0:added;envelopeVolumes.set(p.id,volume);if(bulk)volumes.set(p.id,volume);extension+=volume;boundary=joined;previous=next;}
+ // v13 PERF An edit of one structure keeps the union of the structures before it in the order: the last ship
+ // computed keeps the accumulated boundary at some steps (STRUCTURAL_PREFIX_BYTES at most; the stride doubles when
+ // full) with every step's volume, and a later computation of the same ship (or its surface working copy) resumes
+ // from the last stored step before the first changed entry. Resuming replays the same values in the same order.
+ const owner=ship._surfaceSource||ship,prior=STRUCTURAL_PREFIX.owner===owner?STRUCTURAL_PREFIX:null;let same=0;
+ if(prior?.hull===hull)while(same<entries.length&&same<prior.entries.length&&entries[same].p===prior.entries[same].p&&entries[same].T===prior.entries[same].T&&entries[same].bulk===prior.entries[same].bulk)same++;
+ let start=0,stride=prior?prior.stride:1;const stored=new Map();if(prior)for(const [j,cp] of prior.stored)if(j<=same){stored.set(j,cp);if(j>start)start=j;}
+ const resume=stored.get(start);let boundary=resume?resume.boundary:hull,previous=resume?resume.previous:structuralMeshVolume(boundary),extension=0;if(!resume)stored.set(0,{boundary,previous});
+ const volumes=new Map(),envelopeVolumes=new Map(),steps=[];
+ for(let i=0;i<start;i++){const {p,bulk}=entries[i],volume=prior.steps[i];steps.push(volume);envelopeVolumes.set(p.id,volume);if(bulk)volumes.set(p.id,volume);extension+=volume;}
+ let bytes=0;for(const cp of stored.values())bytes+=cp.boundary.length*8;
+ for(let i=start;i<entries.length;i++){const {p,T,bulk}=entries[i],V=partVolume(p),joined=structuralJoinBoundary(boundary,T),next=structuralMeshVolume(joined),added=clamp(next-previous,0,V),volume=added<Math.max(1e-8,V*1e-10)?0:added;steps.push(volume);envelopeVolumes.set(p.id,volume);if(bulk)volumes.set(p.id,volume);extension+=volume;boundary=joined;previous=next;
+  if((i+1)%stride===0){stored.set(i+1,{boundary,previous});bytes+=boundary.length*8;while(bytes>STRUCTURAL_PREFIX_BYTES&&stored.size>1){stride*=2;bytes=0;for(const [j,cp] of stored){if(j%stride){stored.delete(j);continue;}bytes+=cp.boundary.length*8;}}}}
+ Object.assign(STRUCTURAL_PREFIX,{owner,hull,entries,steps,stored,stride});
  const result={hull,entries,volumes,envelopeVolumes,extension,boundary};STRUCTURAL_MATERIAL_CACHE.set(ship,result);return result;
 }
 function structuralCoincidentTriangles(ship,patch,T){
@@ -21947,6 +21961,8 @@ function surfaceExposureCurrent(ship,key){
  for(const q of ship.surfaces?.patches||[]){const rows=(q.aggregate?.cells||[]).filter(r=>!r[3]),guns=(q.aggregate?.guns||[]).filter(r=>!r[18]);if(!rows.length&&!guns.length)continue;const p=patches.get(q.id);if(!p?.exposed){valid=false;break;}if(p.exposedArea>=p.area-Math.max(1e-5,p.area*1e-8))continue;for(const r of [...rows.map(r=>({point:r.slice(14,17),size:r.slice(17,19)})),...guns.map(r=>({point:r.slice(9,12),size:r.slice(12,14)}))]){const d=sub(r.point,p._origin||p.center),u=dot(d,p.u),v=dot(d,p.v),rect=[u-r.size[0]/2,v-r.size[1]/2,u+r.size[0]/2,v+r.size[1]/2];if(surfaceVisibleArea(p,rect)<r.size[0]*r.size[1]-Math.max(1e-5,r.size[0]*r.size[1]*1e-6)){valid=false;break;}}if(!valid)break;
  }surfaceExposureValidation.set(ship,{key,ledger,valid});return valid;
 }
+const SURFACE_EXPOSED_MEMO=new WeakMap(),SURFACE_MESH_IDS=new WeakMap();let surfaceMeshNext=1;
+function surfaceMeshId(T){if(!T||typeof T!=='object')return '0';let id=SURFACE_MESH_IDS.get(T);if(!id){id=surfaceMeshNext++;SURFACE_MESH_IDS.set(T,id);}return id;}
 function surfacePatches(ship,structuralOnly=false){
  // The editor uses the last complete survey from the geometry worker. Moving
  // a structure invalidates exposure across the whole ship; rebuilding that
@@ -21975,7 +21991,15 @@ function surfacePatches(ship,structuralOnly=false){
    for(const leaf of partition.leaves){let tris=[];const [a,b,c,d]=leaf.range,lo=[min[0]+(max[0]-min[0])*a,min[1]+(max[1]-min[1])*b],hi=[min[0]+(max[0]-min[0])*c,min[1]+(max[1]-min[1])*d];for(let i=0;i<g.triangles.length;i+=9){let poly=[g.triangles.slice(i,i+3),g.triangles.slice(i+3,i+6),g.triangles.slice(i+6,i+9)];for(const [axis,sign,lim]of [[u,-1,-lo[0]],[u,1,hi[0]],[v,-1,-lo[1]],[v,1,hi[1]]])poly=clipGeneral(poly,mul(axis,sign),dot(mul(axis,sign),center)+lim);if(poly.length>=3)triangulateFan(poly,tris);}if(!tris.length)continue;const poly=[[lo[0],lo[1]],[hi[0],lo[1]],[hi[0],hi[1]],[lo[0],hi[1]]].map(p=>surfaceAdd(surfaceAdd(center,u,p[0]),v,p[1])),lc=mul(poly.reduce((s,p)=>surfaceAdd(s,p),[0,0,0]),.25),area=solidMeshArea(tris);out.push({...base,id:leaf.id,range:leaf.range.slice(),center:lc,polygon:poly,triangles:tris,area,exposedArea:base.exposedArea*area/base.area,_min:lo,_max:hi,_origin:center});}
   }
  }
- for(const p of out){p.exposedTriangles=structuralCoincidentTriangles(ship,p,surfaceExposedTriangles(p.triangles,p._part,meshes));p.exposedArea=Math.min(p.area,solidMeshArea(p.exposedTriangles));p.exposed=p.exposedArea>Math.max(1e-7,p.area*1e-10);}
+ // v13 PERF A patch's exposed triangles depend only on its host mesh and range, the meshes that can occlude it and
+ // the earlier structures sharing its sheets. Kept per host mesh and patch under the identities of those meshes, so
+ // after an edit only the patches the edited parts can reach are clipped again.
+ const hostT=new Map(hosts.map(h=>[h.host,h.T])),priorIds=new Map();
+ for(const p of out){const T0=hostT.get(p.host),b=solidMeshBounds(p.triangles),probe=1e-6,cands=meshes.filter(m=>m.part!==p._part&&[0,1,2].every(i=>m.b[i]<=b[i+3]+probe&&m.b[i+3]>=b[i]-probe)).map(m=>surfaceMeshId(m.T)).join(',');
+  let prior='';if(p._part?.k==='struct'){const k=p._part.id;if(!priorIds.has(k))priorIds.set(k,(ship.hull.assembly?'a':surfaceMeshId(hullGeo(ship).tris))+':'+ship.parts.filter(q=>q.k==='struct'&&structuralMaterialOrder(q,p._part)<0).sort(structuralMaterialOrder).map(q=>surfaceMeshId(structTriangles(q))).join(','));prior=priorIds.get(k);}
+  const sig=[p.id,p.range.join(','),p.triangles.length,cands,prior].join('|');let memo=T0&&SURFACE_EXPOSED_MEMO.get(T0);if(T0&&!memo)SURFACE_EXPOSED_MEMO.set(T0,memo=new Map());const hit=memo?.get(p.id);
+  if(hit?.sig===sig&&hit.n===p.triangles.length&&hit.triangles.every((x,i)=>x===p.triangles[i]))p.exposedTriangles=hit.value;else{p.exposedTriangles=structuralCoincidentTriangles(ship,p,surfaceExposedTriangles(p.triangles,p._part,meshes));memo?.set(p.id,{sig,n:p.triangles.length,triangles:p.triangles,value:p.exposedTriangles});}
+  p.exposedArea=Math.min(p.area,solidMeshArea(p.exposedTriangles));p.exposed=p.exposedArea>Math.max(1e-7,p.area*1e-10);}
  (structuralOnly?surfaceStructuralCache:surfaceCache).set(ship,{key,patches:out});return out.map(p=>({...p,config:surfaceConfig(ship,p.id)}));
 }
 function surfacePick(ship,o,d){let best=null;for(const p of surfacePatches(ship)){if(!p.exposed)continue;const h=rayTris(p.exposedTriangles??p.triangles,o,d);if(!h||best&&h.t>=best.distance||p.exposedTriangles==null&&surfaceBlocked(ship,h.p,h.n,p._part))continue;best={...p,point:h.p,distance:h.t};}return best;}
