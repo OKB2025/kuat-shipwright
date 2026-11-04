@@ -2115,23 +2115,27 @@ function surfaceEquipmentField(ship,patch,cells,style,detail,extraBudget,fieldBu
  // Thin overlapping deck ledges carry the silhouette. The space between
  // them is a single recessed machinery panel, detailed by a shared texture,
  // not hundreds of individually tessellated cabinets, fins and pipes.
- const reliefFaces=[],skinBuckets=new Map(),gridSeed=patch.baseId||patch.id,targetCells=Math.max(4,Math.floor((base?.fieldBudget??fieldBudget)/16));let gridHeight=pitch,gridWidth=gridHeight*6;
+ const reliefFaces=[],skinBuckets=new Map(),gridSeed=patch.baseId||patch.id,targetCells=Math.max(4,Math.floor((base?.fieldBudget??fieldBudget)/28));let gridHeight=pitch,gridWidth=gridHeight*12;
  const axisAt=(i,axis)=>i*(axis?gridHeight:gridWidth);
  const axisIndex=(x,axis)=>Math.floor(x/(axis?gridHeight:gridWidth));
  const gridCells=()=> (axisIndex(base?.maxU??hi[0]+worldU,0)-axisIndex(base?.minU??lo[0]+worldU,0)+1)*(axisIndex(base?.maxV??hi[1]+worldV,1)-axisIndex(base?.minV??lo[1]+worldV,1)+1);
- for(let step=0;step<80&&gridCells()>targetCells;step++){const scale=Math.max(1.08,Math.sqrt(gridCells()/targetCells));gridHeight*=scale;gridWidth=gridHeight*6;}
- const terrain=new Map(),deckHeight=(i,j)=>.72+(surfaceSeed(gridSeed+'|deck|'+Math.floor(i/2)+'|'+j,style.seed)%1000)/1000*.23;
+ for(let step=0;step<80&&gridCells()>targetCells;step++){const scale=Math.max(1.08,Math.sqrt(gridCells()/targetCells));gridHeight*=scale;gridWidth=gridHeight*12;}
+ const terrain=new Map();
  const bary=(T,x,y)=>{const [a,b,c]=T,det=(b[1]-c[1])*(a[0]-c[0])+(c[0]-b[0])*(a[1]-c[1]);if(Math.abs(det)<1e-14)return null;const A=((b[1]-c[1])*(x-c[0])+(c[0]-b[0])*(y-c[1]))/det,B=((c[1]-a[1])*(x-c[0])+(a[0]-c[0])*(y-c[1]))/det,D=1-A-B;if(Math.min(A,B,D)<-1e-6)return null;return a[2]*A+b[2]*B+c[2]*D;};
  const terrainCell=(i,j)=>{const key=i+'|'+j,old=terrain.get(key);if(old)return old;
-  const x0=axisAt(i,0),x1=axisAt(i+1,0),y0=axisAt(j,1),y1=axisAt(j+1,1),H=y1-y0,ys=[0,.01,.015,.055,.06,1].map(t=>y0+H*t),left=deckHeight(i,j),right=deckHeight(i+1,j),back=.50,shapes=[];
-  const level=(x,k)=>k===2||k===3?(x?right:left):back;
-  for(let k=0;k<ys.length-1;k++){
-   const p=[[x0,ys[k],level(0,k)],[x1,ys[k],level(1,k)],[x1,ys[k+1],level(1,k+1)],[x0,ys[k+1],level(0,k+1)]],machinery=k===0||k===4,tone=machinery?.75:k===1?.64:k===2?.86:.98;
-   shapes.push({points:[p[0],p[1],p[2]],tone,machinery},{points:[p[0],p[2],p[3]],tone,machinery});
-  }
-  // Sparse existing round housings retain a silhouette but are seated in the
-  // deck shoulder. Their bounded geometry is independent of device counts.
-  const tops=[{bounds:[x0,y0-H*.305,x1,y0+H*.375],height:.84,kind:'deck-shoulder'}],cell={shapes,tops,bounds:[x0,y0,x1,y1]};terrain.set(key,cell);return cell;
+  // Each plate owns its seeded position, thickness and setback. Cell edges
+  // remain on the common recessed backing, so semantic splits and clipped
+  // holes cannot restart a pattern or open cracks between adjacent plates.
+  const r=rng(surfaceSeed(gridSeed+'|staggered-deck|'+key,style.seed)),x0=axisAt(i,0),x1=axisAt(i+1,0),y0=axisAt(j,1),y1=axisAt(j+1,1),W=x1-x0,H=y1-y0,back=.30,peak=.62+r()*.36,
+   width=W*(.88+r()*.09),thickness=H*(.10+r()*.055),cx=x0+width/2+W*.01+r()*(W-width-W*.02),cy=y0+H*(.22+r()*.56),bevelX=Math.min(W*.006,.18),bevelY=H*.004,
+   left=cx-width/2,right=cx+width/2,bottom=cy-thickness/2,top=cy+thickness/2,shapes=[],rect=(l,b,r,t,z)=>[[l,b,z],[r,b,z],[r,t,z],[l,t,z]],
+   boundary=rect(x0,y0,x1,y1,back),shoulder=rect(left-bevelX,bottom-bevelY,right+bevelX,top+bevelY,back),front=rect(left,bottom,right,top,peak);
+  const quad=(p,tone,machinery=false)=>shapes.push({points:[p[0],p[1],p[2]],tone,machinery},{points:[p[0],p[2],p[3]],tone,machinery});
+  // Four large texture-backed polygons replace all small machinery models.
+  // The narrow bevels are the actual upper, lower and end faces of each plate.
+  for(let k=0;k<4;k++){const next=(k+1)%4;quad([boundary[k],boundary[next],shoulder[next],shoulder[k]],.75,true);quad([shoulder[k],shoulder[next],front[next],front[k]],k===0?.62:k===2?.98:.78);}
+  quad(front,.86);
+  const tops=[{bounds:[left,cy-H*.34,right,cy+H*.34],height:peak,kind:'deck-shoulder'}],cell={shapes,tops,bounds:[x0,y0,x1,y1]};terrain.set(key,cell);return cell;
  };
  const gridAt=(x,y)=>{const X=x+worldU,Y=y+worldV,cell=terrainCell(axisIndex(X,0),axisIndex(Y,1));for(const shape of cell.shapes){const h=bary(shape.points,X,Y);if(h!=null)return h;}return .075;};
  const hostCenter=patch._part?.c||[ship.hull.L/2,ship.hull.H/2,0],safePoints=new Map();

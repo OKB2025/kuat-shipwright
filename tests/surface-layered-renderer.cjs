@@ -60,7 +60,7 @@ function frontRegions(T,patch){
  for(let i=0;i<flat.length;i++)for(let j=0;j<3;j++){const edge=[key(flat[i][j]),key(flat[i][(j+1)%3])].sort().join('|'),other=edges.get(edge);if(other==null)edges.set(edge,i);else parents[find(i)]=find(other);}
  const groups=new Map();for(let i=0;i<flat.length;i++){const id=find(i);if(!groups.has(id))groups.set(id,[]);groups.get(id).push(flat[i]);}
  const limits=axis=>[Math.min(...patch.polygon.map(p=>C.dot(p,axis))),Math.max(...patch.polygon.map(p=>C.dot(p,axis)))],[u0,u1]=limits(patch.u),[v0,v1]=limits(patch.v);
- return [...groups.values()].map(tris=>{const ps=tris.flat(),us=ps.map(p=>C.dot(p,patch.u)),vs=ps.map(p=>C.dot(p,patch.v)),loU=Math.min(...us),hiU=Math.max(...us),loV=Math.min(...vs),hiV=Math.max(...vs);return {w:hiU-loU,h:hiV-loV,area:projectedArea(tris,patch.normal),height:C.dot(ps[0],patch.normal),boundary:Math.min(Math.abs(loU-u0),Math.abs(hiU-u1),Math.abs(loV-v0),Math.abs(hiV-v1))<.002};}).filter(r=>r.area>2);
+ return [...groups.values()].map(tris=>{const ps=tris.flat(),us=ps.map(p=>C.dot(p,patch.u)),vs=ps.map(p=>C.dot(p,patch.v)),loU=Math.min(...us),hiU=Math.max(...us),loV=Math.min(...vs),hiV=Math.max(...vs);return {loU,hiU,loV,hiV,w:hiU-loU,h:hiV-loV,area:projectedArea(tris,patch.normal),height:C.dot(ps[0],patch.normal),boundary:Math.min(Math.abs(loU-u0),Math.abs(hiU-u1),Math.abs(loV-v0),Math.abs(hiV-v1))<.002};}).filter(r=>r.area>2);
 }
 
 test('thin deck edges overlap recessed texture-backed machinery bays instead of cabinet terrain',()=>{
@@ -77,4 +77,18 @@ test('thin deck edges overlap recessed texture-backed machinery bays instead of 
  assert.ok(bands>=3,'several real ledges must remain readable at cosmetic detail zero');assert.ok(raised.filter(Boolean).length<samples.length*.3,'deck edges must be thin compared with the open machinery bays');
  assert.ok(Array.from(g.col.slice(0,g.n*4)).some((x,i)=>i%4===3&&x===250),'actual emitted machinery triangles use the shared texture material');
  assert.ok(Array.from(g.col.slice(0,g.n*4)).some((x,i)=>i%4===3&&x===249),'actual deck triangles retain plain host-colored material');
+});
+
+test('deck plates are thicker, staggered and set back independently without retiming on reload',()=>{
+ const {ship,host,patch}=fixture({depth:4}),T=neutralTriangles(ship,host),r=row(ship,patch),regions=frontRegions(T,patch),back=Math.min(...regions.map(q=>q.height)),plates=regions.filter(q=>!q.boundary&&q.height>back+.12&&q.w>q.h*3);
+ assert.ok(plates.length>=4,'actual separate plate fronts must replace uninterrupted face-wide rails');
+ const median=xs=>xs.sort((a,b)=>a-b)[Math.floor(xs.length/2)];assert.ok(median(plates.map(q=>q.h))>=r.layerPitch*.09,'deck thickness must visibly exceed the old four-percent-pitch lip');
+ const unique=xs=>new Set(xs.map(x=>x.toFixed(1))).size;
+ assert.ok(unique(plates.map(q=>q.height))>=3,'neighboring plates must have several actual fore/aft setbacks');
+ assert.ok(unique(plates.map(q=>q.w))>=3,'plate runs need different lengths rather than copies of one strip');
+ assert.ok(plates.some((a,i)=>plates.slice(i+1).some(b=>Math.min(a.hiU,b.hiU)-Math.max(a.loU,b.loU)>Math.min(a.w,b.w)*.5&&Math.abs(a.height-b.height)>.15&&(a.hiV<b.loV||b.hiV<a.loV))),'stacked plates must overlap in plan with different fore/aft setbacks');
+ // Front rectangles are recovered from the emitted positions, not feature labels.
+ const fronts=r.reliefFaces.filter(q=>!q.machinery).flatMap(q=>Array.from({length:q.triangles.length/9},(_,i)=>[0,3,6].map(j=>q.triangles.slice(i*9+j,i*9+j+3)))).filter(t=>C.dot(C.norm(C.cross(C.sub(t[1],t[0]),C.sub(t[2],t[0]))),patch.normal)>.9999);
+ const starts=fronts.map(t=>Math.min(...t.map(p=>C.dot(p,r.frame.u))));assert.ok(unique(starts)>=5,'longitudinal start positions must vary across stacked rows');
+ const before=C.publicJSON(ship);neutralTriangles(ship,host);assert.equal(C.publicJSON(ship),before,'rendering cannot change the saved design');const loaded=C.deserialize(C.serialize(ship));assert.deepEqual(neutralTriangles(loaded,loaded.parts.find(p=>p.id===host.id)),T,'seeded overlaps must be identical after saving and loading');
 });
