@@ -17,7 +17,7 @@ test('procedural and referenced surface weapons render only their shallow wall p
   for(const point of points){const q=C.sub(point,p.point);assert.ok(C.dot(q,p.normal)>=-.001&&C.dot(q,p.normal)<=p.lip+.001,weapon+' has exterior barrel or turret geometry');assert.ok(Math.abs(C.dot(q,p.u))<=p.width/2+.001);assert.ok(Math.abs(C.dot(q,p.v))<=p.height/2+.001);}
   assert.equal(G.meshReferenceFits(ship,null,C.surfaceDerivedFits(ship).filter(q=>q.surfacePatch)).ni,0,'referenced turret must not be drawn as a second body');
   const manual={...f,id:ship.nextId++,p:C.add(f.p,[0,30,0]),surfacePatch:undefined,surfaceCell:undefined,surfacePoint:undefined,surfaceUnplaced:undefined};ship.fits.push(manual);
-  assert.equal(C.surfaceBatteryGeometry(manual),null);assert.ok((C.FITS[weapon].asset?G.meshReferenceFits(ship,null,[manual]):G.meshFits(ship,q=>q.id===manual.id)).ni>0,weapon+' independent gun was hidden');
+  assert.equal(C.surfaceBatteryGeometry(manual),null);assert.ok((C.FITS[weapon].asset&&!C.REFERENCE_ASSETS[C.FITS[weapon].asset].plainMetal?G.meshReferenceFits(ship,null,[manual]):G.meshFits(ship,q=>q.id===manual.id)).ni>0,weapon+' independent gun was hidden');
  }
 });
 

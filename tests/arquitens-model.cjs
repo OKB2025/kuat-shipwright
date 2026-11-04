@@ -49,7 +49,7 @@ test('the four main batteries are matching port/starboard pairs on the dorsal an
 });
 
 test('existing secondary armament and the three installed drives remain functional on the new model',()=>{
- const {s,S,p}=calculated();assert.equal(s.fits.filter(f=>f.k==='pd').length,8);assert.equal(s.fits.filter(f=>f.k==='msl').length,4);assert.equal(s.fits.filter(f=>f.k==='trc').length,1);
+ const {s,S,p}=calculated();assert.equal(s.fits.filter(f=>f.k==='pd').length,8);assert.equal(s.fits.filter(f=>f.k==='cmsl').length,4);assert.equal(s.fits.filter(f=>f.k==='trc').length,1);
  assert.ok(s.fits.every(f=>!f.float),'replacing the hull cannot strand the mounted weapons');
  const engines=s.parts.filter(p=>p.k==='engine');assert.equal(engines.length,3);assert.equal(p.propulsion.engines.length,3);
  for(const e of engines){assert.ok(s.parts.some(q=>q.id===e.reactor&&['gen','aux'].includes(q.k)));assert.equal(C.resolveEngineSpec(e,s).valid,true);}

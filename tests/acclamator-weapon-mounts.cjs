@@ -9,9 +9,9 @@ const C=vm.runInContext('Core',cx),near=(a,b,e=1e-5)=>assert.ok(Math.abs(a-b)<=e
 let staged;
 function fitted(){return staged||(staged=C.SHIP_EXAMPLES.acclamator._testBuild({stage:'fitted'}));}
 function assertMissiles(s){
- const missiles=s.fits.filter(f=>f.k==='msl');assert.equal(missiles.length,4,'the reference design needs all four bow launch tubes');
+ const missiles=s.fits.filter(f=>f.k==='cmsl');assert.equal(missiles.length,4,'the reference design needs all four bow launch tubes');
  for(const f of missiles){
-  assert.equal(f.float,false);assert.equal(f._onPlate,undefined);assert.equal(f.mount,'ext');assert.equal(C.fitHasPedestal(f),false);
+  assert.equal(f.float,false);assert.equal(f._onPlate,undefined);assert.equal(C.missileMount(f),'ext');assert.equal(C.fitHasPedestal(f),false);
   for(const k of ['ped','base','low','slope'])near(f[k],0);assert.deepEqual(plain(C.fitOrigin(f)),plain(f.p));
   const roof=C.rayEnv(s,[f.p[0],500,f.p[2]],[0,-1,0],{maxT:1000,structOnly:true});assert.ok(roof);assert.ok(f.p[1]>20,'a column station at Y=0 must first resolve the actual dorsal deck');
   near(C.len(C.sub(roof.p,f.p)),0,.002);assert.ok(!roof.part?.plate);
@@ -22,7 +22,7 @@ function assertMissiles(s){
 
 test('Acclamator station columns install all bow launchers directly on the dorsal hull without lift',()=>{
  const s=fitted();assert.equal(s.fits.filter(f=>f.k==='quad200').length,12);assert.equal(s.fits.filter(f=>f.k==='pd').length,24);assertMissiles(s);
- const before=plain(s.fits.filter(f=>f.k==='msl').map(f=>f.p));C.remount(s);assertMissiles(s);assert.deepEqual(plain(s.fits.filter(f=>f.k==='msl').map(f=>f.p)),before);
+ const before=plain(s.fits.filter(f=>f.k==='cmsl').map(f=>f.p));C.remount(s);assertMissiles(s);assert.deepEqual(plain(s.fits.filter(f=>f.k==='cmsl').map(f=>f.p)),before);
 });
 
 test('interactive external launchers retain their local attachment ray beneath an overhang',()=>{
@@ -48,13 +48,19 @@ test('preset columns resolve dorsal, ventral and beam faces while local mounts, 
 });
 
 test('Arquitens fitted presets install all four flush prong launchers',()=>{
- const s=C.SHIP_EXAMPLES.arquitens._testBuild({stage:'fitted'}),launchers=s.fits.filter(f=>f.k==='msl');assert.equal(launchers.length,4);
- for(const f of launchers){assert.equal(f.float,false);assert.equal(f.mount,'ext');for(const k of ['ped','base','low','slope'])near(f[k],0);const roof=C.rayEnv(s,[f.p[0],500,f.p[2]],[0,-1,0],{maxT:1000,structOnly:true});assert.ok(roof);near(C.len(C.sub(roof.p,f.p)),0,.002);}
+ const s=C.SHIP_EXAMPLES.arquitens._testBuild({stage:'fitted'}),launchers=s.fits.filter(f=>f.k==='cmsl');assert.equal(launchers.length,4);
+ for(const f of launchers){assert.equal(f.float,false);assert.equal(C.missileMount(f),'ext');for(const k of ['ped','base','low','slope'])near(f[k],0);const roof=C.rayEnv(s,[f.p[0],500,f.p[2]],[0,-1,0],{maxT:1000,structOnly:true});assert.ok(roof);near(C.len(C.sub(roof.p,f.p)),0,.002);}
 });
 
-test('MC30c fitted presets retain two flush torpedo tubes and six external launchers',()=>{
- const s=C.SHIP_EXAMPLES.mc30c._testBuild({stage:'fitted'}),launchers=s.fits.filter(f=>f.k==='msl');assert.equal(launchers.length,8);assert.equal(launchers.filter(f=>f.mount==='ext').length,6);
+test('MC30c presets migrate two flush torpedo tubes into surface VLS and retain six external launchers',()=>{
+ const s=C.SHIP_EXAMPLES.mc30c._testBuild({stage:'fitted'}),launchers=s.fits.filter(f=>f.k==='cmsl'),pending=launchers.filter(f=>f.legacyMissileMount==='vls'),external=launchers.filter(f=>!f.legacyMissileMount);assert.equal(launchers.length,8);assert.equal(pending.length,2);assert.equal(external.length,6);assert.ok(external.every(f=>C.missileMount(f)==='ext'));
  for(const f of launchers){assert.equal(f.float,false);for(const k of ['ped','base','low','slope'])near(f[k],0);const roof=C.rayEnv(s,[f.p[0],1000,f.p[2]],[0,-1,0],{maxT:2000,structOnly:true});assert.ok(roof);near(C.len(C.sub(roof.p,f.p)),0,.002);}
+ const originalIds=launchers.map(f=>f.id).sort((a,b)=>a-b),pendingIds=pending.map(f=>f.id).sort((a,b)=>a-b);
+ C.migrateLegacyConcussionVLS(s);
+ const native=s.fits.filter(f=>C.isConcussionLauncher(f)),vls=C.surfaceDerivedFits(s).filter(f=>C.isConcussionLauncher(f));
+ assert.equal(native.length,6);assert.ok(native.every(f=>C.missileMount(f)==='ext'&&!f.float));assert.equal(vls.length,2);assert.deepEqual(vls.map(f=>f.id).sort((a,b)=>a-b),pendingIds);
+ for(const f of vls){assert.ok(C.isSurfaceVLS(f));assert.equal(C.missileMount(f),'vls');assert.equal(f.float,false);assert.equal(f.surfaceUnplaced,false);assert.equal(s.surfaces.patches.find(q=>q.id===f.surfacePatch)?.functionMode,'equipment');}
+ const migratedIds=[...native,...vls].map(f=>f.id).sort((a,b)=>a-b);assert.deepEqual(plain(migratedIds),plain(originalIds),'migration retains all eight launcher IDs without replacement or duplication');
 });
 
 test('the full Acclamator builder and current fleet profile complete with four usable launchers',()=>{

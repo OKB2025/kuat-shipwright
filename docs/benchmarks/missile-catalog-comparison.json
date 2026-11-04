@@ -1,0 +1,3011 @@
+{
+  "baseline": "9955078",
+  "modelVersionBefore": 11,
+  "modelVersionAfter": 11,
+  "modelSignatureBefore": "1473ftn",
+  "modelSignatureAfter": "l4qlh3",
+  "entryCount": 12,
+  "summary": {
+    "arc170": {
+      "totalBefore": 225030,
+      "totalAfter": 225030,
+      "profileVersionBefore": 4,
+      "profileVersionAfter": 5,
+      "moduleCount": 50,
+      "canonicalLaunchers": [],
+      "fixedDeltaW": 0,
+      "weaponDeltaW": 0,
+      "profileDifferenceCount": 1
+    },
+    "awing": {
+      "totalBefore": 160054,
+      "totalAfter": 160054,
+      "profileVersionBefore": 4,
+      "profileVersionAfter": 5,
+      "moduleCount": 35,
+      "canonicalLaunchers": [
+        {
+          "fit": 27,
+          "stock": 6,
+          "tt": 25,
+          "cycle": 1.2,
+          "launchPowerW": 1000000000000000
+        },
+        {
+          "fit": 28,
+          "stock": 6,
+          "tt": 25,
+          "cycle": 1.2,
+          "launchPowerW": 1000000000000000
+        }
+      ],
+      "fixedDeltaW": 2000000000000000,
+      "weaponDeltaW": -2000000000000000,
+      "profileDifferenceCount": 61
+    },
+    "btlb": {
+      "totalBefore": 202851,
+      "totalAfter": 202851,
+      "profileVersionBefore": 4,
+      "profileVersionAfter": 5,
+      "moduleCount": 41,
+      "canonicalLaunchers": [],
+      "fixedDeltaW": 0,
+      "weaponDeltaW": 0,
+      "profileDifferenceCount": 1
+    },
+    "hyena": {
+      "totalBefore": 210146,
+      "totalAfter": 210146,
+      "profileVersionBefore": 4,
+      "profileVersionAfter": 5,
+      "moduleCount": 46,
+      "canonicalLaunchers": [
+        {
+          "fit": 31,
+          "stock": 6,
+          "tt": 25,
+          "cycle": 1.2,
+          "launchPowerW": 1000000000000000
+        },
+        {
+          "fit": 32,
+          "stock": 6,
+          "tt": 25,
+          "cycle": 1.2,
+          "launchPowerW": 1000000000000000
+        }
+      ],
+      "fixedDeltaW": 2000000000000000,
+      "weaponDeltaW": -2000000000000000,
+      "profileDifferenceCount": 75
+    },
+    "tie_in": {
+      "totalBefore": 110120,
+      "totalAfter": 110120,
+      "profileVersionBefore": 4,
+      "profileVersionAfter": 5,
+      "moduleCount": 34,
+      "canonicalLaunchers": [],
+      "fixedDeltaW": 0,
+      "weaponDeltaW": 0,
+      "profileDifferenceCount": 1
+    },
+    "tie_ln": {
+      "totalBefore": 99082,
+      "totalAfter": 99082,
+      "profileVersionBefore": 4,
+      "profileVersionAfter": 5,
+      "moduleCount": 28,
+      "canonicalLaunchers": [],
+      "fixedDeltaW": 0,
+      "weaponDeltaW": 0,
+      "profileDifferenceCount": 1
+    },
+    "tie_sa": {
+      "totalBefore": 138742,
+      "totalAfter": 138742,
+      "profileVersionBefore": 4,
+      "profileVersionAfter": 5,
+      "moduleCount": 35,
+      "canonicalLaunchers": [],
+      "fixedDeltaW": 0,
+      "weaponDeltaW": 0,
+      "profileDifferenceCount": 1
+    },
+    "v19": {
+      "totalBefore": 171459,
+      "totalAfter": 171459,
+      "profileVersionBefore": 4,
+      "profileVersionAfter": 5,
+      "moduleCount": 40,
+      "canonicalLaunchers": [
+        {
+          "fit": 27,
+          "stock": 6,
+          "tt": 25,
+          "cycle": 1.2,
+          "launchPowerW": 1000000000000000
+        },
+        {
+          "fit": 28,
+          "stock": 6,
+          "tt": 25,
+          "cycle": 1.2,
+          "launchPowerW": 1000000000000000
+        }
+      ],
+      "fixedDeltaW": 2000000000000000,
+      "weaponDeltaW": -2000000000000000,
+      "profileDifferenceCount": 80
+    },
+    "vulture": {
+      "totalBefore": 144544,
+      "totalAfter": 144544,
+      "profileVersionBefore": 4,
+      "profileVersionAfter": 5,
+      "moduleCount": 38,
+      "canonicalLaunchers": [
+        {
+          "fit": 26,
+          "stock": 6,
+          "tt": 25,
+          "cycle": 1.2,
+          "launchPowerW": 1000000000000000
+        }
+      ],
+      "fixedDeltaW": 1000000000000000,
+      "weaponDeltaW": -1000000000000000,
+      "profileDifferenceCount": 60
+    },
+    "vwing": {
+      "totalBefore": 238213,
+      "totalAfter": 238213,
+      "profileVersionBefore": 4,
+      "profileVersionAfter": 5,
+      "moduleCount": 43,
+      "canonicalLaunchers": [],
+      "fixedDeltaW": 0,
+      "weaponDeltaW": 0,
+      "profileDifferenceCount": 1
+    },
+    "xwing": {
+      "totalBefore": 189341,
+      "totalAfter": 189341,
+      "profileVersionBefore": 4,
+      "profileVersionAfter": 5,
+      "moduleCount": 44,
+      "canonicalLaunchers": [],
+      "fixedDeltaW": 0,
+      "weaponDeltaW": 0,
+      "profileDifferenceCount": 1
+    },
+    "z95": {
+      "totalBefore": 141315,
+      "totalAfter": 141315,
+      "profileVersionBefore": 4,
+      "profileVersionAfter": 5,
+      "moduleCount": 35,
+      "canonicalLaunchers": [
+        {
+          "fit": 32,
+          "stock": 6,
+          "tt": 25,
+          "cycle": 1.2,
+          "launchPowerW": 1000000000000000
+        },
+        {
+          "fit": 33,
+          "stock": 6,
+          "tt": 25,
+          "cycle": 1.2,
+          "launchPowerW": 1000000000000000
+        }
+      ],
+      "fixedDeltaW": 2000000000000000,
+      "weaponDeltaW": -2000000000000000,
+      "profileDifferenceCount": 78
+    }
+  },
+  "costDifferences": [],
+  "signatureDifferences": [
+    {
+      "path": "entries.arc170.signature",
+      "before": "125vf9",
+      "after": "1anm7oa"
+    },
+    {
+      "path": "entries.awing.signature",
+      "before": "1naytq9",
+      "after": "1qr8yu6"
+    },
+    {
+      "path": "entries.btlb.signature",
+      "before": "n4kt8g",
+      "after": "1xtfqcx"
+    },
+    {
+      "path": "entries.hyena.signature",
+      "before": "y2b6c8",
+      "after": "l1pucx"
+    },
+    {
+      "path": "entries.tie_in.signature",
+      "before": "7wbz0j",
+      "after": "1mvoq5s"
+    },
+    {
+      "path": "entries.tie_ln.signature",
+      "before": "k7wvpn",
+      "after": "oa5y88"
+    },
+    {
+      "path": "entries.tie_sa.signature",
+      "before": "14c8qne",
+      "after": "1xvie6b"
+    },
+    {
+      "path": "entries.v19.signature",
+      "before": "1hwhxno",
+      "after": "1cedld9"
+    },
+    {
+      "path": "entries.vulture.signature",
+      "before": "1b1fpty",
+      "after": "1g8tb7f"
+    },
+    {
+      "path": "entries.vwing.signature",
+      "before": "1extdrf",
+      "after": "1w8b208"
+    },
+    {
+      "path": "entries.xwing.signature",
+      "before": "1hu934",
+      "after": "7t63ld"
+    },
+    {
+      "path": "entries.z95.signature",
+      "before": "zm9oif",
+      "after": "1muedbg"
+    },
+    {
+      "path": "modelSignature",
+      "before": "1473ftn",
+      "after": "l4qlh3"
+    }
+  ],
+  "profileDifferences": [
+    {
+      "path": "entries.arc170.powerProfile.profileVersion",
+      "before": 4,
+      "after": 5
+    },
+    {
+      "path": "entries.awing.powerProfile.grid.Dw",
+      "before": 1675600000000000000,
+      "after": 1673600000000000000
+    },
+    {
+      "path": "entries.awing.powerProfile.grid.fixed",
+      "before": 16380263776155636,
+      "after": 18380263776155636
+    },
+    {
+      "path": "entries.awing.powerProfile.grid.fixedLoads.1",
+      "after": {
+        "id": "f27",
+        "port": "f27",
+        "domain": "main",
+        "weight": 1000000000000000
+      }
+    },
+    {
+      "path": "entries.awing.powerProfile.grid.fixedLoads.2",
+      "after": {
+        "id": "f28",
+        "port": "f28",
+        "domain": "main",
+        "weight": 1000000000000000
+      }
+    },
+    {
+      "path": "entries.awing.powerProfile.grid.powerPaths.10.cap",
+      "before": 862119146113454.5,
+      "after": 967382304008191.4
+    },
+    {
+      "path": "entries.awing.powerProfile.grid.powerPaths.11.cap",
+      "before": 862119146113454.5,
+      "after": 967382304008191.4
+    },
+    {
+      "path": "entries.awing.powerProfile.grid.powerPaths.12.cap",
+      "before": 862119146113454.5,
+      "after": 967382304008191.4
+    },
+    {
+      "path": "entries.awing.powerProfile.grid.powerPaths.13.cap",
+      "before": 862119146113454.5,
+      "after": 967382304008191.4
+    },
+    {
+      "path": "entries.awing.powerProfile.grid.powerPaths.14.cap",
+      "before": 862119146113454.5,
+      "after": 967382304008191.4
+    },
+    {
+      "path": "entries.awing.powerProfile.grid.powerPaths.15.cap",
+      "before": 862119146113454.5,
+      "after": 967382304008191.4
+    },
+    {
+      "path": "entries.awing.powerProfile.grid.powerPaths.16.cap",
+      "before": 862119146113454.5,
+      "after": 967382304008191.4
+    },
+    {
+      "path": "entries.awing.powerProfile.grid.powerPaths.17.cap",
+      "before": 862119146113454.5,
+      "after": 967382304008191.4
+    },
+    {
+      "path": "entries.awing.powerProfile.grid.powerPaths.18.cap",
+      "before": 862119146113454.5,
+      "after": 967382304008191.4
+    },
+    {
+      "path": "entries.awing.powerProfile.grid.powerPaths.19.cap",
+      "before": 862119146113454.5,
+      "after": 967382304008191.4
+    },
+    {
+      "path": "entries.awing.powerProfile.grid.powerPaths.20.cap",
+      "before": 862119146113454.5,
+      "after": 967382304008191.4
+    },
+    {
+      "path": "entries.awing.powerProfile.grid.powerPaths.21.cap",
+      "before": 862119146113454.5,
+      "after": 967382304008191.4
+    },
+    {
+      "path": "entries.awing.powerProfile.grid.powerPaths.22.cap",
+      "before": 862119146113454.5,
+      "after": 967382304008191.4
+    },
+    {
+      "path": "entries.awing.powerProfile.grid.powerPaths.23.cap",
+      "before": 862119146113454.5,
+      "after": 967382304008191.4
+    },
+    {
+      "path": "entries.awing.powerProfile.grid.powerPaths.24.cap",
+      "before": 862119146113454.5,
+      "after": 967382304008191.4
+    },
+    {
+      "path": "entries.awing.powerProfile.grid.powerPaths.25.cap",
+      "before": 862119146113454.5,
+      "after": 967382304008191.4
+    },
+    {
+      "path": "entries.awing.powerProfile.grid.powerPaths.26.cap",
+      "before": 862119146113454.5,
+      "after": 967382304008191.4
+    },
+    {
+      "path": "entries.awing.powerProfile.grid.powerPaths.27.cap",
+      "before": 862119146113454.5,
+      "after": 967382304008191.4
+    },
+    {
+      "path": "entries.awing.powerProfile.grid.powerPaths.8.cap",
+      "before": 16380263776155638,
+      "after": 18380263776155636
+    },
+    {
+      "path": "entries.awing.powerProfile.grid.powerPaths.9.cap",
+      "before": 862119146113454.5,
+      "after": 967382304008191.4
+    },
+    {
+      "path": "entries.awing.powerProfile.heat.dis.5.cap",
+      "before": 523000000000000000,
+      "after": 522375746001432300
+    },
+    {
+      "path": "entries.awing.powerProfile.heat.dis.6.cap",
+      "before": 625000000000000,
+      "after": 624253998567677.2
+    },
+    {
+      "path": "entries.awing.powerProfile.heat.ln.4.cap",
+      "before": 523000000000000000,
+      "after": 522375746001432300
+    },
+    {
+      "path": "entries.awing.powerProfile.heat.ln.5.cap",
+      "before": 625000000000000,
+      "after": 624253998567677.2
+    },
+    {
+      "path": "entries.awing.powerProfile.heat.src.6.st",
+      "before": 982815826569338200,
+      "after": 1102815826569338100
+    },
+    {
+      "path": "entries.awing.powerProfile.modules.2.ammo0",
+      "after": 6
+    },
+    {
+      "path": "entries.awing.powerProfile.modules.2.band",
+      "before": "close"
+    },
+    {
+      "path": "entries.awing.powerProfile.modules.2.cycle",
+      "after": 1.2
+    },
+    {
+      "path": "entries.awing.powerProfile.modules.2.k",
+      "before": "weapon",
+      "after": "launcher"
+    },
+    {
+      "path": "entries.awing.powerProfile.modules.2.launchDir",
+      "after": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "path": "entries.awing.powerProfile.modules.2.launchPowerW",
+      "after": 1000000000000000
+    },
+    {
+      "path": "entries.awing.powerProfile.modules.2.missileKind",
+      "after": "cmsl"
+    },
+    {
+      "path": "entries.awing.powerProfile.modules.2.mount",
+      "after": "ext"
+    },
+    {
+      "path": "entries.awing.powerProfile.modules.2.muzzle",
+      "after": [
+        1.912,
+        -0.7796452211129877,
+        0.7
+      ]
+    },
+    {
+      "path": "entries.awing.powerProfile.modules.2.salvo",
+      "after": 1
+    },
+    {
+      "path": "entries.awing.powerProfile.modules.2.share",
+      "before": 0,
+      "after": 0.5
+    },
+    {
+      "path": "entries.awing.powerProfile.modules.2.size",
+      "before": 0,
+      "after": 1
+    },
+    {
+      "path": "entries.awing.powerProfile.modules.2.stock",
+      "before": 0,
+      "after": 6
+    },
+    {
+      "path": "entries.awing.powerProfile.modules.2.tt",
+      "after": 25
+    },
+    {
+      "path": "entries.awing.powerProfile.modules.2.w",
+      "before": 0.648,
+      "after": 1.0368000000000002
+    },
+    {
+      "path": "entries.awing.powerProfile.modules.3.ammo0",
+      "after": 6
+    },
+    {
+      "path": "entries.awing.powerProfile.modules.3.band",
+      "before": "close"
+    },
+    {
+      "path": "entries.awing.powerProfile.modules.3.cycle",
+      "after": 1.2
+    },
+    {
+      "path": "entries.awing.powerProfile.modules.3.k",
+      "before": "weapon",
+      "after": "launcher"
+    },
+    {
+      "path": "entries.awing.powerProfile.modules.3.launchDir",
+      "after": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "path": "entries.awing.powerProfile.modules.3.launchPowerW",
+      "after": 1000000000000000
+    },
+    {
+      "path": "entries.awing.powerProfile.modules.3.missileKind",
+      "after": "cmsl"
+    },
+    {
+      "path": "entries.awing.powerProfile.modules.3.mount",
+      "after": "ext"
+    },
+    {
+      "path": "entries.awing.powerProfile.modules.3.muzzle",
+      "after": [
+        1.912,
+        -0.7796452211129877,
+        -0.7
+      ]
+    },
+    {
+      "path": "entries.awing.powerProfile.modules.3.salvo",
+      "after": 1
+    },
+    {
+      "path": "entries.awing.powerProfile.modules.3.share",
+      "before": 0,
+      "after": 0.5
+    },
+    {
+      "path": "entries.awing.powerProfile.modules.3.size",
+      "before": 0,
+      "after": 1
+    },
+    {
+      "path": "entries.awing.powerProfile.modules.3.stock",
+      "before": 0,
+      "after": 6
+    },
+    {
+      "path": "entries.awing.powerProfile.modules.3.tt",
+      "after": 25
+    },
+    {
+      "path": "entries.awing.powerProfile.modules.3.w",
+      "before": 0.648,
+      "after": 1.0368000000000002
+    },
+    {
+      "path": "entries.awing.powerProfile.modules.34.w",
+      "before": 6.649009692675349,
+      "after": 7.115569692675348
+    },
+    {
+      "path": "entries.awing.powerProfile.profileVersion",
+      "before": 4,
+      "after": 5
+    },
+    {
+      "path": "entries.btlb.powerProfile.profileVersion",
+      "before": 4,
+      "after": 5
+    },
+    {
+      "path": "entries.hyena.powerProfile.grid.Dw",
+      "before": 3352200000000000000,
+      "after": 3350200000000000000
+    },
+    {
+      "path": "entries.hyena.powerProfile.grid.fixed",
+      "before": 26573630179670040,
+      "after": 28573630179670040
+    },
+    {
+      "path": "entries.hyena.powerProfile.grid.fixedLoads.1",
+      "after": {
+        "id": "f31",
+        "port": "f31",
+        "domain": "main",
+        "weight": 1000000000000000
+      }
+    },
+    {
+      "path": "entries.hyena.powerProfile.grid.fixedLoads.2",
+      "after": {
+        "id": "f32",
+        "port": "f32",
+        "domain": "main",
+        "weight": 1000000000000000
+      }
+    },
+    {
+      "path": "entries.hyena.powerProfile.grid.powerPaths.17.cap",
+      "before": 26573630179670040,
+      "after": 28573630179670040
+    },
+    {
+      "path": "entries.hyena.powerProfile.grid.powerPaths.18.cap",
+      "before": 1660851886229377.5,
+      "after": 1785851886229377.5
+    },
+    {
+      "path": "entries.hyena.powerProfile.grid.powerPaths.19.cap",
+      "before": 1660851886229377.5,
+      "after": 1785851886229377.5
+    },
+    {
+      "path": "entries.hyena.powerProfile.grid.powerPaths.20.cap",
+      "before": 1660851886229377.5,
+      "after": 1785851886229377.5
+    },
+    {
+      "path": "entries.hyena.powerProfile.grid.powerPaths.21.cap",
+      "before": 1660851886229377.5,
+      "after": 1785851886229377.5
+    },
+    {
+      "path": "entries.hyena.powerProfile.grid.powerPaths.22.cap",
+      "before": 1660851886229377.5,
+      "after": 1785851886229377.5
+    },
+    {
+      "path": "entries.hyena.powerProfile.grid.powerPaths.23.cap",
+      "before": 1660851886229377.5,
+      "after": 1785851886229377.5
+    },
+    {
+      "path": "entries.hyena.powerProfile.grid.powerPaths.24.cap",
+      "before": 1660851886229377.5,
+      "after": 1785851886229377.5
+    },
+    {
+      "path": "entries.hyena.powerProfile.grid.powerPaths.25.cap",
+      "before": 1660851886229377.5,
+      "after": 1785851886229377.5
+    },
+    {
+      "path": "entries.hyena.powerProfile.grid.powerPaths.26.cap",
+      "before": 1660851886229377.5,
+      "after": 1785851886229377.5
+    },
+    {
+      "path": "entries.hyena.powerProfile.grid.powerPaths.27.cap",
+      "before": 1660851886229377.5,
+      "after": 1785851886229377.5
+    },
+    {
+      "path": "entries.hyena.powerProfile.grid.powerPaths.28.cap",
+      "before": 1660851886229377.5,
+      "after": 1785851886229377.5
+    },
+    {
+      "path": "entries.hyena.powerProfile.grid.powerPaths.29.cap",
+      "before": 1660851886229377.5,
+      "after": 1785851886229377.5
+    },
+    {
+      "path": "entries.hyena.powerProfile.grid.powerPaths.30.cap",
+      "before": 1660851886229377.5,
+      "after": 1785851886229377.5
+    },
+    {
+      "path": "entries.hyena.powerProfile.grid.powerPaths.31.cap",
+      "before": 1660851886229377.5,
+      "after": 1785851886229377.5
+    },
+    {
+      "path": "entries.hyena.powerProfile.grid.powerPaths.32.cap",
+      "before": 1660851886229377.5,
+      "after": 1785851886229377.5
+    },
+    {
+      "path": "entries.hyena.powerProfile.grid.powerPaths.33.cap",
+      "before": 1660851886229377.5,
+      "after": 1785851886229377.5
+    },
+    {
+      "path": "entries.hyena.powerProfile.heat.dis.13.cap",
+      "before": 337099059005672600,
+      "after": 336849133583561700
+    },
+    {
+      "path": "entries.hyena.powerProfile.heat.dis.14.cap",
+      "before": 337099059005672600,
+      "after": 336849133583561700
+    },
+    {
+      "path": "entries.hyena.powerProfile.heat.dis.15.cap",
+      "before": 201181104682306.4,
+      "after": 201031948904011.53
+    },
+    {
+      "path": "entries.hyena.powerProfile.heat.ln.24.cap",
+      "before": 337099059005672600,
+      "after": 336849133583561700
+    },
+    {
+      "path": "entries.hyena.powerProfile.heat.ln.25.cap",
+      "before": 506305094030611840,
+      "after": 505930205897445500
+    },
+    {
+      "path": "entries.hyena.powerProfile.heat.ln.26.cap",
+      "before": 506305094030611840,
+      "after": 505930205897445500
+    },
+    {
+      "path": "entries.hyena.powerProfile.heat.ln.27.cap",
+      "before": 337099059005672600,
+      "after": 336849133583561700
+    },
+    {
+      "path": "entries.hyena.powerProfile.heat.ln.28.cap",
+      "before": 506305094030611840,
+      "after": 505930205897445500
+    },
+    {
+      "path": "entries.hyena.powerProfile.heat.ln.29.cap",
+      "before": 506305094030611840,
+      "after": 505930205897445500
+    },
+    {
+      "path": "entries.hyena.powerProfile.heat.ln.30.cap",
+      "before": 201181104682306.4,
+      "after": 201031948904011.53
+    },
+    {
+      "path": "entries.hyena.powerProfile.heat.ln.31.cap",
+      "before": 302163460271312.9,
+      "after": 301939726603870.6
+    },
+    {
+      "path": "entries.hyena.powerProfile.heat.ln.32.cap",
+      "before": 302163460271312.9,
+      "after": 301939726603870.6
+    },
+    {
+      "path": "entries.hyena.powerProfile.heat.ln.33.cap",
+      "before": 39860445269505060,
+      "after": 42860445269505060
+    },
+    {
+      "path": "entries.hyena.powerProfile.heat.ln.34.cap",
+      "before": 39860445269505060,
+      "after": 42860445269505060
+    },
+    {
+      "path": "entries.hyena.powerProfile.heat.ln.35.cap",
+      "before": 39860445269505060,
+      "after": 42860445269505060
+    },
+    {
+      "path": "entries.hyena.powerProfile.heat.ln.36.cap",
+      "before": 39860445269505060,
+      "after": 42860445269505060
+    },
+    {
+      "path": "entries.hyena.powerProfile.heat.src.0.st",
+      "before": 1351149795219216600,
+      "after": 1351149795219216400
+    },
+    {
+      "path": "entries.hyena.powerProfile.heat.src.1.st",
+      "before": 1351149795219216600,
+      "after": 1351149795219216400
+    },
+    {
+      "path": "entries.hyena.powerProfile.heat.src.10.sh",
+      "before": 0.000440179,
+      "after": 0.000440155
+    },
+    {
+      "path": "entries.hyena.powerProfile.heat.src.11.st",
+      "before": 1594417810780202500,
+      "after": 1714417810780202500
+    },
+    {
+      "path": "entries.hyena.powerProfile.heat.src.8.st",
+      "before": 17045531253141300000,
+      "after": 17046467919845930000
+    },
+    {
+      "path": "entries.hyena.powerProfile.heat.src.9.st",
+      "before": 17016516858199388000,
+      "after": 17017455191494758000
+    },
+    {
+      "path": "entries.hyena.powerProfile.modules.45.w",
+      "before": 24.880709816265405,
+      "after": 25.3472698162654
+    },
+    {
+      "path": "entries.hyena.powerProfile.modules.6.ammo0",
+      "after": 6
+    },
+    {
+      "path": "entries.hyena.powerProfile.modules.6.band",
+      "before": "close"
+    },
+    {
+      "path": "entries.hyena.powerProfile.modules.6.cycle",
+      "after": 1.2
+    },
+    {
+      "path": "entries.hyena.powerProfile.modules.6.k",
+      "before": "weapon",
+      "after": "launcher"
+    },
+    {
+      "path": "entries.hyena.powerProfile.modules.6.launchDir",
+      "after": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "path": "entries.hyena.powerProfile.modules.6.launchPowerW",
+      "after": 1000000000000000
+    },
+    {
+      "path": "entries.hyena.powerProfile.modules.6.missileKind",
+      "after": "cmsl"
+    },
+    {
+      "path": "entries.hyena.powerProfile.modules.6.mount",
+      "after": "ext"
+    },
+    {
+      "path": "entries.hyena.powerProfile.modules.6.muzzle",
+      "after": [
+        4.301999961853028,
+        0.4486473159793487,
+        0.45
+      ]
+    },
+    {
+      "path": "entries.hyena.powerProfile.modules.6.salvo",
+      "after": 1
+    },
+    {
+      "path": "entries.hyena.powerProfile.modules.6.share",
+      "before": 0,
+      "after": 0.5
+    },
+    {
+      "path": "entries.hyena.powerProfile.modules.6.size",
+      "before": 0,
+      "after": 1
+    },
+    {
+      "path": "entries.hyena.powerProfile.modules.6.stock",
+      "before": 0,
+      "after": 6
+    },
+    {
+      "path": "entries.hyena.powerProfile.modules.6.tt",
+      "after": 25
+    },
+    {
+      "path": "entries.hyena.powerProfile.modules.6.w",
+      "before": 0.648,
+      "after": 1.0368000000000002
+    },
+    {
+      "path": "entries.hyena.powerProfile.modules.7.ammo0",
+      "after": 6
+    },
+    {
+      "path": "entries.hyena.powerProfile.modules.7.band",
+      "before": "close"
+    },
+    {
+      "path": "entries.hyena.powerProfile.modules.7.cycle",
+      "after": 1.2
+    },
+    {
+      "path": "entries.hyena.powerProfile.modules.7.k",
+      "before": "weapon",
+      "after": "launcher"
+    },
+    {
+      "path": "entries.hyena.powerProfile.modules.7.launchDir",
+      "after": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "path": "entries.hyena.powerProfile.modules.7.launchPowerW",
+      "after": 1000000000000000
+    },
+    {
+      "path": "entries.hyena.powerProfile.modules.7.missileKind",
+      "after": "cmsl"
+    },
+    {
+      "path": "entries.hyena.powerProfile.modules.7.mount",
+      "after": "ext"
+    },
+    {
+      "path": "entries.hyena.powerProfile.modules.7.muzzle",
+      "after": [
+        4.301999961853028,
+        0.4486473159793487,
+        -0.45
+      ]
+    },
+    {
+      "path": "entries.hyena.powerProfile.modules.7.salvo",
+      "after": 1
+    },
+    {
+      "path": "entries.hyena.powerProfile.modules.7.share",
+      "before": 0,
+      "after": 0.5
+    },
+    {
+      "path": "entries.hyena.powerProfile.modules.7.size",
+      "before": 0,
+      "after": 1
+    },
+    {
+      "path": "entries.hyena.powerProfile.modules.7.stock",
+      "before": 0,
+      "after": 6
+    },
+    {
+      "path": "entries.hyena.powerProfile.modules.7.tt",
+      "after": 25
+    },
+    {
+      "path": "entries.hyena.powerProfile.modules.7.w",
+      "before": 0.648,
+      "after": 1.0368000000000002
+    },
+    {
+      "path": "entries.hyena.powerProfile.profileVersion",
+      "before": 4,
+      "after": 5
+    },
+    {
+      "path": "entries.tie_in.powerProfile.profileVersion",
+      "before": 4,
+      "after": 5
+    },
+    {
+      "path": "entries.tie_ln.powerProfile.profileVersion",
+      "before": 4,
+      "after": 5
+    },
+    {
+      "path": "entries.tie_sa.powerProfile.profileVersion",
+      "before": 4,
+      "after": 5
+    },
+    {
+      "path": "entries.v19.powerProfile.grid.Dw",
+      "before": 1675600000000000000,
+      "after": 1673600000000000000
+    },
+    {
+      "path": "entries.v19.powerProfile.grid.fixed",
+      "before": 16202532422957864,
+      "after": 18202532422957864
+    },
+    {
+      "path": "entries.v19.powerProfile.grid.fixedLoads.1",
+      "after": {
+        "id": "f27",
+        "port": "f27",
+        "domain": "main",
+        "weight": 1000000000000000
+      }
+    },
+    {
+      "path": "entries.v19.powerProfile.grid.fixedLoads.2",
+      "after": {
+        "id": "f28",
+        "port": "f28",
+        "domain": "main",
+        "weight": 1000000000000000
+      }
+    },
+    {
+      "path": "entries.v19.powerProfile.grid.powerPaths.10.cap",
+      "before": 953090142526933.1,
+      "after": 1070737201350462.6
+    },
+    {
+      "path": "entries.v19.powerProfile.grid.powerPaths.11.cap",
+      "before": 953090142526933.1,
+      "after": 1070737201350462.6
+    },
+    {
+      "path": "entries.v19.powerProfile.grid.powerPaths.12.cap",
+      "before": 953090142526933.1,
+      "after": 1070737201350462.6
+    },
+    {
+      "path": "entries.v19.powerProfile.grid.powerPaths.13.cap",
+      "before": 953090142526933.1,
+      "after": 1070737201350462.6
+    },
+    {
+      "path": "entries.v19.powerProfile.grid.powerPaths.14.cap",
+      "before": 953090142526933.1,
+      "after": 1070737201350462.6
+    },
+    {
+      "path": "entries.v19.powerProfile.grid.powerPaths.15.cap",
+      "before": 953090142526933.1,
+      "after": 1070737201350462.6
+    },
+    {
+      "path": "entries.v19.powerProfile.grid.powerPaths.16.cap",
+      "before": 953090142526933.1,
+      "after": 1070737201350462.6
+    },
+    {
+      "path": "entries.v19.powerProfile.grid.powerPaths.17.cap",
+      "before": 953090142526933.1,
+      "after": 1070737201350462.6
+    },
+    {
+      "path": "entries.v19.powerProfile.grid.powerPaths.18.cap",
+      "before": 953090142526933.1,
+      "after": 1070737201350462.6
+    },
+    {
+      "path": "entries.v19.powerProfile.grid.powerPaths.19.cap",
+      "before": 953090142526933.1,
+      "after": 1070737201350462.6
+    },
+    {
+      "path": "entries.v19.powerProfile.grid.powerPaths.20.cap",
+      "before": 953090142526933.1,
+      "after": 1070737201350462.6
+    },
+    {
+      "path": "entries.v19.powerProfile.grid.powerPaths.21.cap",
+      "before": 953090142526933.1,
+      "after": 1070737201350462.6
+    },
+    {
+      "path": "entries.v19.powerProfile.grid.powerPaths.22.cap",
+      "before": 953090142526933.1,
+      "after": 1070737201350462.6
+    },
+    {
+      "path": "entries.v19.powerProfile.grid.powerPaths.23.cap",
+      "before": 953090142526933.1,
+      "after": 1070737201350462.6
+    },
+    {
+      "path": "entries.v19.powerProfile.grid.powerPaths.24.cap",
+      "before": 953090142526933.1,
+      "after": 1070737201350462.6
+    },
+    {
+      "path": "entries.v19.powerProfile.grid.powerPaths.25.cap",
+      "before": 953090142526933.1,
+      "after": 1070737201350462.6
+    },
+    {
+      "path": "entries.v19.powerProfile.grid.powerPaths.26.cap",
+      "before": 953090142526933.1,
+      "after": 1070737201350462.6
+    },
+    {
+      "path": "entries.v19.powerProfile.grid.powerPaths.9.cap",
+      "before": 16202532422957864,
+      "after": 18202532422957864
+    },
+    {
+      "path": "entries.v19.powerProfile.heat.dis.12.cap",
+      "before": 261500000000000000,
+      "after": 261187873000716160
+    },
+    {
+      "path": "entries.v19.powerProfile.heat.dis.13.cap",
+      "before": 261500000000000000,
+      "after": 261187873000716160
+    },
+    {
+      "path": "entries.v19.powerProfile.heat.dis.14.cap",
+      "before": 312500000000000,
+      "after": 312126999283838.6
+    },
+    {
+      "path": "entries.v19.powerProfile.heat.dis.15.cap",
+      "before": 312500000000000,
+      "after": 312126999283838.6
+    },
+    {
+      "path": "entries.v19.powerProfile.heat.ln.18.cap",
+      "before": 261500000000000000,
+      "after": 261187873000716160
+    },
+    {
+      "path": "entries.v19.powerProfile.heat.ln.19.cap",
+      "before": 392250000000000000,
+      "after": 391781809501074240
+    },
+    {
+      "path": "entries.v19.powerProfile.heat.ln.20.cap",
+      "before": 392250000000000000,
+      "after": 391781809501074240
+    },
+    {
+      "path": "entries.v19.powerProfile.heat.ln.21.cap",
+      "before": 261500000000000000,
+      "after": 261187873000716160
+    },
+    {
+      "path": "entries.v19.powerProfile.heat.ln.22.cap",
+      "before": 392250000000000000,
+      "after": 391781809501074240
+    },
+    {
+      "path": "entries.v19.powerProfile.heat.ln.23.cap",
+      "before": 392250000000000000,
+      "after": 391781809501074240
+    },
+    {
+      "path": "entries.v19.powerProfile.heat.ln.24.cap",
+      "before": 312500000000000,
+      "after": 312126999283838.6
+    },
+    {
+      "path": "entries.v19.powerProfile.heat.ln.25.cap",
+      "before": 468750000000000,
+      "after": 468190498925757.94
+    },
+    {
+      "path": "entries.v19.powerProfile.heat.ln.26.cap",
+      "before": 468750000000000,
+      "after": 468190498925757.94
+    },
+    {
+      "path": "entries.v19.powerProfile.heat.ln.27.cap",
+      "before": 312500000000000,
+      "after": 312126999283838.6
+    },
+    {
+      "path": "entries.v19.powerProfile.heat.ln.28.cap",
+      "before": 468750000000000,
+      "after": 468190498925757.94
+    },
+    {
+      "path": "entries.v19.powerProfile.heat.ln.29.cap",
+      "before": 468750000000000,
+      "after": 468190498925757.94
+    },
+    {
+      "path": "entries.v19.powerProfile.heat.ln.30.cap",
+      "before": 24303798634436796,
+      "after": 27303798634436796
+    },
+    {
+      "path": "entries.v19.powerProfile.heat.ln.31.cap",
+      "before": 24303798634436796,
+      "after": 27303798634436796
+    },
+    {
+      "path": "entries.v19.powerProfile.heat.ln.32.cap",
+      "before": 24303798634436796,
+      "after": 27303798634436796
+    },
+    {
+      "path": "entries.v19.powerProfile.heat.ln.33.cap",
+      "before": 24303798634436796,
+      "after": 27303798634436796
+    },
+    {
+      "path": "entries.v19.powerProfile.heat.ln.34.cap",
+      "before": 24303798634436796,
+      "after": 27303798634436796
+    },
+    {
+      "path": "entries.v19.powerProfile.heat.src.10.st",
+      "before": 972151945377471900,
+      "after": 1092151945377471900
+    },
+    {
+      "path": "entries.v19.powerProfile.heat.src.6.st",
+      "before": 10774479801538023000,
+      "after": 10775362154479200000
+    },
+    {
+      "path": "entries.v19.powerProfile.heat.src.7.st",
+      "before": 10774479801538023000,
+      "after": 10775362154479200000
+    },
+    {
+      "path": "entries.v19.powerProfile.heat.src.8.sh",
+      "before": 0.000695122,
+      "after": 0.000695065
+    },
+    {
+      "path": "entries.v19.powerProfile.heat.src.9.sh",
+      "before": 0.000695122,
+      "after": 0.000695065
+    },
+    {
+      "path": "entries.v19.powerProfile.modules.2.ammo0",
+      "after": 6
+    },
+    {
+      "path": "entries.v19.powerProfile.modules.2.band",
+      "before": "close"
+    },
+    {
+      "path": "entries.v19.powerProfile.modules.2.cycle",
+      "after": 1.2
+    },
+    {
+      "path": "entries.v19.powerProfile.modules.2.k",
+      "before": "weapon",
+      "after": "launcher"
+    },
+    {
+      "path": "entries.v19.powerProfile.modules.2.launchDir",
+      "after": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "path": "entries.v19.powerProfile.modules.2.launchPowerW",
+      "after": 1000000000000000
+    },
+    {
+      "path": "entries.v19.powerProfile.modules.2.missileKind",
+      "after": "cmsl"
+    },
+    {
+      "path": "entries.v19.powerProfile.modules.2.mount",
+      "after": "ext"
+    },
+    {
+      "path": "entries.v19.powerProfile.modules.2.muzzle",
+      "after": [
+        1.237,
+        2.6626500606536867,
+        0.625
+      ]
+    },
+    {
+      "path": "entries.v19.powerProfile.modules.2.salvo",
+      "after": 1
+    },
+    {
+      "path": "entries.v19.powerProfile.modules.2.share",
+      "before": 0,
+      "after": 0.5
+    },
+    {
+      "path": "entries.v19.powerProfile.modules.2.size",
+      "before": 0,
+      "after": 1
+    },
+    {
+      "path": "entries.v19.powerProfile.modules.2.stock",
+      "before": 0,
+      "after": 6
+    },
+    {
+      "path": "entries.v19.powerProfile.modules.2.tt",
+      "after": 25
+    },
+    {
+      "path": "entries.v19.powerProfile.modules.2.w",
+      "before": 0.648,
+      "after": 1.0368000000000002
+    },
+    {
+      "path": "entries.v19.powerProfile.modules.3.ammo0",
+      "after": 6
+    },
+    {
+      "path": "entries.v19.powerProfile.modules.3.band",
+      "before": "close"
+    },
+    {
+      "path": "entries.v19.powerProfile.modules.3.cycle",
+      "after": 1.2
+    },
+    {
+      "path": "entries.v19.powerProfile.modules.3.k",
+      "before": "weapon",
+      "after": "launcher"
+    },
+    {
+      "path": "entries.v19.powerProfile.modules.3.launchDir",
+      "after": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "path": "entries.v19.powerProfile.modules.3.launchPowerW",
+      "after": 1000000000000000
+    },
+    {
+      "path": "entries.v19.powerProfile.modules.3.missileKind",
+      "after": "cmsl"
+    },
+    {
+      "path": "entries.v19.powerProfile.modules.3.mount",
+      "after": "ext"
+    },
+    {
+      "path": "entries.v19.powerProfile.modules.3.muzzle",
+      "after": [
+        1.237,
+        2.6626500606536867,
+        -0.625
+      ]
+    },
+    {
+      "path": "entries.v19.powerProfile.modules.3.salvo",
+      "after": 1
+    },
+    {
+      "path": "entries.v19.powerProfile.modules.3.share",
+      "before": 0,
+      "after": 0.5
+    },
+    {
+      "path": "entries.v19.powerProfile.modules.3.size",
+      "before": 0,
+      "after": 1
+    },
+    {
+      "path": "entries.v19.powerProfile.modules.3.stock",
+      "before": 0,
+      "after": 6
+    },
+    {
+      "path": "entries.v19.powerProfile.modules.3.tt",
+      "after": 25
+    },
+    {
+      "path": "entries.v19.powerProfile.modules.3.w",
+      "before": 0.648,
+      "after": 1.0368000000000002
+    },
+    {
+      "path": "entries.v19.powerProfile.modules.39.w",
+      "before": 11.366256207077809,
+      "after": 11.832816207077808
+    },
+    {
+      "path": "entries.v19.powerProfile.profileVersion",
+      "before": 4,
+      "after": 5
+    },
+    {
+      "path": "entries.vulture.powerProfile.grid.Dw",
+      "before": 3350200000000000000,
+      "after": 3349200000000000000
+    },
+    {
+      "path": "entries.vulture.powerProfile.grid.fixed",
+      "before": 15738438781802650,
+      "after": 16738438781802650
+    },
+    {
+      "path": "entries.vulture.powerProfile.grid.fixedLoads.1",
+      "after": {
+        "id": "f26",
+        "port": "f26",
+        "domain": "main",
+        "weight": 1000000000000000
+      }
+    },
+    {
+      "path": "entries.vulture.powerProfile.grid.powerPaths.13.cap",
+      "before": 15738438781802650,
+      "after": 16738438781802650
+    },
+    {
+      "path": "entries.vulture.powerProfile.grid.powerPaths.14.cap",
+      "before": 983652423862665.6,
+      "after": 1046152423862665.6
+    },
+    {
+      "path": "entries.vulture.powerProfile.grid.powerPaths.15.cap",
+      "before": 983652423862665.6,
+      "after": 1046152423862665.6
+    },
+    {
+      "path": "entries.vulture.powerProfile.grid.powerPaths.16.cap",
+      "before": 983652423862665.6,
+      "after": 1046152423862665.6
+    },
+    {
+      "path": "entries.vulture.powerProfile.grid.powerPaths.17.cap",
+      "before": 983652423862665.6,
+      "after": 1046152423862665.6
+    },
+    {
+      "path": "entries.vulture.powerProfile.grid.powerPaths.18.cap",
+      "before": 983652423862665.6,
+      "after": 1046152423862665.6
+    },
+    {
+      "path": "entries.vulture.powerProfile.grid.powerPaths.19.cap",
+      "before": 983652423862665.6,
+      "after": 1046152423862665.6
+    },
+    {
+      "path": "entries.vulture.powerProfile.grid.powerPaths.20.cap",
+      "before": 983652423862665.6,
+      "after": 1046152423862665.6
+    },
+    {
+      "path": "entries.vulture.powerProfile.grid.powerPaths.21.cap",
+      "before": 983652423862665.6,
+      "after": 1046152423862665.6
+    },
+    {
+      "path": "entries.vulture.powerProfile.grid.powerPaths.22.cap",
+      "before": 983652423862665.6,
+      "after": 1046152423862665.6
+    },
+    {
+      "path": "entries.vulture.powerProfile.grid.powerPaths.23.cap",
+      "before": 983652423862665.6,
+      "after": 1046152423862665.6
+    },
+    {
+      "path": "entries.vulture.powerProfile.grid.powerPaths.24.cap",
+      "before": 983652423862665.6,
+      "after": 1046152423862665.6
+    },
+    {
+      "path": "entries.vulture.powerProfile.grid.powerPaths.25.cap",
+      "before": 983652423862665.6,
+      "after": 1046152423862665.6
+    },
+    {
+      "path": "entries.vulture.powerProfile.grid.powerPaths.26.cap",
+      "before": 983652423862665.6,
+      "after": 1046152423862665.6
+    },
+    {
+      "path": "entries.vulture.powerProfile.grid.powerPaths.27.cap",
+      "before": 983652423862665.6,
+      "after": 1046152423862665.6
+    },
+    {
+      "path": "entries.vulture.powerProfile.grid.powerPaths.28.cap",
+      "before": 983652423862665.6,
+      "after": 1046152423862665.6
+    },
+    {
+      "path": "entries.vulture.powerProfile.grid.powerPaths.29.cap",
+      "before": 983652423862665.6,
+      "after": 1046152423862665.6
+    },
+    {
+      "path": "entries.vulture.powerProfile.heat.dis.10.cap",
+      "before": 58961851371743790,
+      "after": 58836888682949096
+    },
+    {
+      "path": "entries.vulture.powerProfile.heat.dis.11.cap",
+      "before": 35209513538602.52,
+      "after": 35134891128000.176
+    },
+    {
+      "path": "entries.vulture.powerProfile.heat.dis.9.cap",
+      "before": 58961851371743790,
+      "after": 58836888682949096
+    },
+    {
+      "path": "entries.vulture.powerProfile.heat.ln.12.cap",
+      "before": 58961851371743790,
+      "after": 58836888682949096
+    },
+    {
+      "path": "entries.vulture.powerProfile.heat.ln.13.cap",
+      "before": 94481526699434530,
+      "after": 94294082666242500
+    },
+    {
+      "path": "entries.vulture.powerProfile.heat.ln.14.cap",
+      "before": 94481526699434530,
+      "after": 94294082666242500
+    },
+    {
+      "path": "entries.vulture.powerProfile.heat.ln.15.cap",
+      "before": 58961851371743790,
+      "after": 58836888682949096
+    },
+    {
+      "path": "entries.vulture.powerProfile.heat.ln.16.cap",
+      "before": 94481526699434530,
+      "after": 94294082666242500
+    },
+    {
+      "path": "entries.vulture.powerProfile.heat.ln.17.cap",
+      "before": 94481526699434530,
+      "after": 94294082666242500
+    },
+    {
+      "path": "entries.vulture.powerProfile.heat.ln.18.cap",
+      "before": 35209513538602.52,
+      "after": 35134891128000.176
+    },
+    {
+      "path": "entries.vulture.powerProfile.heat.ln.19.cap",
+      "before": 56420355129245.51,
+      "after": 56308421513341.984
+    },
+    {
+      "path": "entries.vulture.powerProfile.heat.ln.20.cap",
+      "before": 56420355129245.51,
+      "after": 56308421513341.984
+    },
+    {
+      "path": "entries.vulture.powerProfile.heat.ln.21.cap",
+      "before": 23607658172703976,
+      "after": 25107658172703976
+    },
+    {
+      "path": "entries.vulture.powerProfile.heat.ln.22.cap",
+      "before": 23607658172703976,
+      "after": 25107658172703976
+    },
+    {
+      "path": "entries.vulture.powerProfile.heat.ln.23.cap",
+      "before": 23607658172703976,
+      "after": 25107658172703976
+    },
+    {
+      "path": "entries.vulture.powerProfile.heat.ln.24.cap",
+      "before": 23607658172703976,
+      "after": 25107658172703976
+    },
+    {
+      "path": "entries.vulture.powerProfile.heat.src.4.sh",
+      "before": 0.482746,
+      "after": 0.48165
+    },
+    {
+      "path": "entries.vulture.powerProfile.heat.src.4.st",
+      "before": 3416648522061571000,
+      "after": 3401666415417172500
+    },
+    {
+      "path": "entries.vulture.powerProfile.heat.src.5.sh",
+      "before": 0.516966,
+      "after": 0.518063
+    },
+    {
+      "path": "entries.vulture.powerProfile.heat.src.5.st",
+      "before": 3658845935967152000,
+      "after": 3658836989289352000
+    },
+    {
+      "path": "entries.vulture.powerProfile.heat.src.6.sh",
+      "before": 0.000288275,
+      "after": 0.000287621
+    },
+    {
+      "path": "entries.vulture.powerProfile.heat.src.6.st",
+      "before": 2040277392846991.2,
+      "after": 2031330715046681
+    },
+    {
+      "path": "entries.vulture.powerProfile.heat.src.7.st",
+      "before": 944306326908159000,
+      "after": 1004306326908159000
+    },
+    {
+      "path": "entries.vulture.powerProfile.modules.37.w",
+      "before": 10.47767571713553,
+      "after": 10.710955717135533
+    },
+    {
+      "path": "entries.vulture.powerProfile.modules.6.ammo0",
+      "after": 6
+    },
+    {
+      "path": "entries.vulture.powerProfile.modules.6.band",
+      "before": "close"
+    },
+    {
+      "path": "entries.vulture.powerProfile.modules.6.cycle",
+      "after": 1.2
+    },
+    {
+      "path": "entries.vulture.powerProfile.modules.6.k",
+      "before": "weapon",
+      "after": "launcher"
+    },
+    {
+      "path": "entries.vulture.powerProfile.modules.6.launchDir",
+      "after": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "path": "entries.vulture.powerProfile.modules.6.launchPowerW",
+      "after": 1000000000000000
+    },
+    {
+      "path": "entries.vulture.powerProfile.modules.6.missileKind",
+      "after": "cmsl"
+    },
+    {
+      "path": "entries.vulture.powerProfile.modules.6.mount",
+      "after": "ext"
+    },
+    {
+      "path": "entries.vulture.powerProfile.modules.6.muzzle",
+      "after": [
+        0.03199998092651368,
+        -0.3545038542725488,
+        0
+      ]
+    },
+    {
+      "path": "entries.vulture.powerProfile.modules.6.salvo",
+      "after": 1
+    },
+    {
+      "path": "entries.vulture.powerProfile.modules.6.share",
+      "before": 0,
+      "after": 1
+    },
+    {
+      "path": "entries.vulture.powerProfile.modules.6.size",
+      "before": 0,
+      "after": 1
+    },
+    {
+      "path": "entries.vulture.powerProfile.modules.6.stock",
+      "before": 0,
+      "after": 6
+    },
+    {
+      "path": "entries.vulture.powerProfile.modules.6.tt",
+      "after": 25
+    },
+    {
+      "path": "entries.vulture.powerProfile.modules.6.w",
+      "before": 0.648,
+      "after": 1.0368000000000002
+    },
+    {
+      "path": "entries.vulture.powerProfile.profileVersion",
+      "before": 4,
+      "after": 5
+    },
+    {
+      "path": "entries.vwing.powerProfile.profileVersion",
+      "before": 4,
+      "after": 5
+    },
+    {
+      "path": "entries.xwing.powerProfile.profileVersion",
+      "before": 4,
+      "after": 5
+    },
+    {
+      "path": "entries.z95.powerProfile.grid.Dw",
+      "before": 3014480000000000000,
+      "after": 3012480000000000000
+    },
+    {
+      "path": "entries.z95.powerProfile.grid.fixed",
+      "before": 22590622592056412,
+      "after": 24590622592056412
+    },
+    {
+      "path": "entries.z95.powerProfile.grid.fixedLoads.1",
+      "after": {
+        "id": "f32",
+        "port": "f32",
+        "domain": "main",
+        "weight": 1000000000000000
+      }
+    },
+    {
+      "path": "entries.z95.powerProfile.grid.fixedLoads.2",
+      "after": {
+        "id": "f33",
+        "port": "f33",
+        "domain": "main",
+        "weight": 1000000000000000
+      }
+    },
+    {
+      "path": "entries.z95.powerProfile.grid.powerPaths.10.cap",
+      "before": 1328860152473906.5,
+      "after": 1446507211297436
+    },
+    {
+      "path": "entries.z95.powerProfile.grid.powerPaths.11.cap",
+      "before": 1328860152473906.5,
+      "after": 1446507211297436
+    },
+    {
+      "path": "entries.z95.powerProfile.grid.powerPaths.12.cap",
+      "before": 1328860152473906.5,
+      "after": 1446507211297436
+    },
+    {
+      "path": "entries.z95.powerProfile.grid.powerPaths.13.cap",
+      "before": 1328860152473906.5,
+      "after": 1446507211297436
+    },
+    {
+      "path": "entries.z95.powerProfile.grid.powerPaths.14.cap",
+      "before": 1328860152473906.5,
+      "after": 1446507211297436
+    },
+    {
+      "path": "entries.z95.powerProfile.grid.powerPaths.15.cap",
+      "before": 1328860152473906.5,
+      "after": 1446507211297436
+    },
+    {
+      "path": "entries.z95.powerProfile.grid.powerPaths.16.cap",
+      "before": 1328860152473906.5,
+      "after": 1446507211297436
+    },
+    {
+      "path": "entries.z95.powerProfile.grid.powerPaths.17.cap",
+      "before": 1328860152473906.5,
+      "after": 1446507211297436
+    },
+    {
+      "path": "entries.z95.powerProfile.grid.powerPaths.18.cap",
+      "before": 1328860152473906.5,
+      "after": 1446507211297436
+    },
+    {
+      "path": "entries.z95.powerProfile.grid.powerPaths.19.cap",
+      "before": 1328860152473906.5,
+      "after": 1446507211297436
+    },
+    {
+      "path": "entries.z95.powerProfile.grid.powerPaths.20.cap",
+      "before": 1328860152473906.5,
+      "after": 1446507211297436
+    },
+    {
+      "path": "entries.z95.powerProfile.grid.powerPaths.21.cap",
+      "before": 1328860152473906.5,
+      "after": 1446507211297436
+    },
+    {
+      "path": "entries.z95.powerProfile.grid.powerPaths.22.cap",
+      "before": 1328860152473906.5,
+      "after": 1446507211297436
+    },
+    {
+      "path": "entries.z95.powerProfile.grid.powerPaths.23.cap",
+      "before": 1328860152473906.5,
+      "after": 1446507211297436
+    },
+    {
+      "path": "entries.z95.powerProfile.grid.powerPaths.24.cap",
+      "before": 1328860152473906.5,
+      "after": 1446507211297436
+    },
+    {
+      "path": "entries.z95.powerProfile.grid.powerPaths.7.cap",
+      "before": 22590622592056412,
+      "after": 24590622592056412
+    },
+    {
+      "path": "entries.z95.powerProfile.grid.powerPaths.8.cap",
+      "before": 1328860152473906.5,
+      "after": 1446507211297436
+    },
+    {
+      "path": "entries.z95.powerProfile.grid.powerPaths.9.cap",
+      "before": 1328860152473906.5,
+      "after": 1446507211297436
+    },
+    {
+      "path": "entries.z95.powerProfile.heat.dis.7.cap",
+      "before": 523000000000000000,
+      "after": 522653008147342200
+    },
+    {
+      "path": "entries.z95.powerProfile.heat.dis.8.cap",
+      "before": 418400000000000000,
+      "after": 418122406517873700
+    },
+    {
+      "path": "entries.z95.powerProfile.heat.dis.9.cap",
+      "before": 625000000000000,
+      "after": 624585334784108.8
+    },
+    {
+      "path": "entries.z95.powerProfile.heat.ln.12.cap",
+      "before": 523000000000000000,
+      "after": 522653008147342200
+    },
+    {
+      "path": "entries.z95.powerProfile.heat.ln.13.cap",
+      "before": 784500000000000000,
+      "after": 783979512221013200
+    },
+    {
+      "path": "entries.z95.powerProfile.heat.ln.14.cap",
+      "before": 784500000000000000,
+      "after": 783979512221013200
+    },
+    {
+      "path": "entries.z95.powerProfile.heat.ln.15.cap",
+      "before": 418400000000000000,
+      "after": 418122406517873700
+    },
+    {
+      "path": "entries.z95.powerProfile.heat.ln.16.cap",
+      "before": 627600000000000000,
+      "after": 627183609776810600
+    },
+    {
+      "path": "entries.z95.powerProfile.heat.ln.17.cap",
+      "before": 627600000000000000,
+      "after": 627183609776810600
+    },
+    {
+      "path": "entries.z95.powerProfile.heat.ln.18.cap",
+      "before": 625000000000000,
+      "after": 624585334784108.8
+    },
+    {
+      "path": "entries.z95.powerProfile.heat.ln.19.cap",
+      "before": 937500000000000,
+      "after": 936878002176163.1
+    },
+    {
+      "path": "entries.z95.powerProfile.heat.ln.20.cap",
+      "before": 937500000000000,
+      "after": 936878002176163.1
+    },
+    {
+      "path": "entries.z95.powerProfile.heat.ln.21.cap",
+      "before": 33885933888084616,
+      "after": 36885933888084616
+    },
+    {
+      "path": "entries.z95.powerProfile.heat.ln.22.cap",
+      "before": 33885933888084616,
+      "after": 36885933888084616
+    },
+    {
+      "path": "entries.z95.powerProfile.heat.src.0.sh",
+      "before": 0.504071,
+      "after": 0.50443
+    },
+    {
+      "path": "entries.z95.powerProfile.heat.src.0.st",
+      "before": 3553830737005250600,
+      "after": 3557580641232220700
+    },
+    {
+      "path": "entries.z95.powerProfile.heat.src.1.sh",
+      "before": 0.495929,
+      "after": 0.49557
+    },
+    {
+      "path": "entries.z95.powerProfile.heat.src.1.st",
+      "before": 3496423978418377700,
+      "after": 3495091529704172000
+    },
+    {
+      "path": "entries.z95.powerProfile.heat.src.4.sh",
+      "before": 0.999207,
+      "after": 0.999136
+    },
+    {
+      "path": "entries.z95.powerProfile.heat.src.5.sh",
+      "before": 0.0007922,
+      "after": 0.000862274
+    },
+    {
+      "path": "entries.z95.powerProfile.heat.src.5.st",
+      "before": 19903171211565510,
+      "after": 21665244933125012
+    },
+    {
+      "path": "entries.z95.powerProfile.heat.src.6.sh",
+      "before": 0.00000118338,
+      "after": 0.00000128805
+    },
+    {
+      "path": "entries.z95.powerProfile.heat.src.6.st",
+      "before": 29731075543089.01,
+      "after": 32363236336527.57
+    },
+    {
+      "path": "entries.z95.powerProfile.heat.src.7.st",
+      "before": 1355437355523384800,
+      "after": 1475437355523384800
+    },
+    {
+      "path": "entries.z95.powerProfile.modules.3.ammo0",
+      "after": 6
+    },
+    {
+      "path": "entries.z95.powerProfile.modules.3.band",
+      "before": "close"
+    },
+    {
+      "path": "entries.z95.powerProfile.modules.3.cycle",
+      "after": 1.2
+    },
+    {
+      "path": "entries.z95.powerProfile.modules.3.k",
+      "before": "weapon",
+      "after": "launcher"
+    },
+    {
+      "path": "entries.z95.powerProfile.modules.3.launchDir",
+      "after": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "path": "entries.z95.powerProfile.modules.3.launchPowerW",
+      "after": 1000000000000000
+    },
+    {
+      "path": "entries.z95.powerProfile.modules.3.missileKind",
+      "after": "cmsl"
+    },
+    {
+      "path": "entries.z95.powerProfile.modules.3.mount",
+      "after": "ext"
+    },
+    {
+      "path": "entries.z95.powerProfile.modules.3.muzzle",
+      "after": [
+        -3.1579999999999995,
+        -0.9650000184774398,
+        0.6
+      ]
+    },
+    {
+      "path": "entries.z95.powerProfile.modules.3.salvo",
+      "after": 1
+    },
+    {
+      "path": "entries.z95.powerProfile.modules.3.share",
+      "before": 0,
+      "after": 0.5
+    },
+    {
+      "path": "entries.z95.powerProfile.modules.3.size",
+      "before": 0,
+      "after": 1
+    },
+    {
+      "path": "entries.z95.powerProfile.modules.3.stock",
+      "before": 0,
+      "after": 6
+    },
+    {
+      "path": "entries.z95.powerProfile.modules.3.tt",
+      "after": 25
+    },
+    {
+      "path": "entries.z95.powerProfile.modules.3.w",
+      "before": 0.648,
+      "after": 1.0368000000000002
+    },
+    {
+      "path": "entries.z95.powerProfile.modules.34.w",
+      "before": 11.177821658842513,
+      "after": 11.644381658842514
+    },
+    {
+      "path": "entries.z95.powerProfile.modules.4.ammo0",
+      "after": 6
+    },
+    {
+      "path": "entries.z95.powerProfile.modules.4.band",
+      "before": "close"
+    },
+    {
+      "path": "entries.z95.powerProfile.modules.4.cycle",
+      "after": 1.2
+    },
+    {
+      "path": "entries.z95.powerProfile.modules.4.k",
+      "before": "weapon",
+      "after": "launcher"
+    },
+    {
+      "path": "entries.z95.powerProfile.modules.4.launchDir",
+      "after": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "path": "entries.z95.powerProfile.modules.4.launchPowerW",
+      "after": 1000000000000000
+    },
+    {
+      "path": "entries.z95.powerProfile.modules.4.missileKind",
+      "after": "cmsl"
+    },
+    {
+      "path": "entries.z95.powerProfile.modules.4.mount",
+      "after": "ext"
+    },
+    {
+      "path": "entries.z95.powerProfile.modules.4.muzzle",
+      "after": [
+        -3.1579999999999995,
+        -0.9650000184774398,
+        -0.6
+      ]
+    },
+    {
+      "path": "entries.z95.powerProfile.modules.4.salvo",
+      "after": 1
+    },
+    {
+      "path": "entries.z95.powerProfile.modules.4.share",
+      "before": 0,
+      "after": 0.5
+    },
+    {
+      "path": "entries.z95.powerProfile.modules.4.size",
+      "before": 0,
+      "after": 1
+    },
+    {
+      "path": "entries.z95.powerProfile.modules.4.stock",
+      "before": 0,
+      "after": 6
+    },
+    {
+      "path": "entries.z95.powerProfile.modules.4.tt",
+      "after": 25
+    },
+    {
+      "path": "entries.z95.powerProfile.modules.4.w",
+      "before": 0.648,
+      "after": 1.0368000000000002
+    },
+    {
+      "path": "entries.z95.powerProfile.profileVersion",
+      "before": 4,
+      "after": 5
+    }
+  ],
+  "craftHeatDifferences": [
+    {
+      "path": "entries.awing.heat.down",
+      "before": 0.0232,
+      "after": 0.0246
+    },
+    {
+      "path": "entries.hyena.heat.down",
+      "before": 0.0581,
+      "after": 0.0605
+    },
+    {
+      "path": "entries.v19.heat.down",
+      "before": 0.0606,
+      "after": 0.0642
+    },
+    {
+      "path": "entries.vulture.heat.down",
+      "before": 0.122,
+      "after": 0.127
+    },
+    {
+      "path": "entries.z95.heat.down",
+      "before": 0.0617,
+      "after": 0.0647
+    }
+  ],
+  "remainingDifferences": [],
+  "checks": [
+    {
+      "name": "12 craft entries",
+      "pass": true
+    },
+    {
+      "name": "same craft keys",
+      "pass": true
+    },
+    {
+      "name": "arc170 profileVersion5",
+      "pass": true
+    },
+    {
+      "name": "arc170 module count preserved",
+      "pass": true,
+      "details": {
+        "before": 50,
+        "after": 50
+      }
+    },
+    {
+      "name": "arc170 canonical launcher count",
+      "pass": true,
+      "details": {
+        "expected": 0,
+        "actual": 0
+      }
+    },
+    {
+      "name": "arc170 no missile aggregate",
+      "pass": true
+    },
+    {
+      "name": "arc170 propulsion descriptor unchanged",
+      "pass": true
+    },
+    {
+      "name": "arc170 nonmissile profile only version changed",
+      "pass": true
+    },
+    {
+      "name": "arc170 electronics moved from weapons to fixed once",
+      "pass": true,
+      "details": {
+        "launchPowerW": 0,
+        "fixedDeltaW": 0,
+        "weaponDeltaW": 0
+      }
+    },
+    {
+      "name": "arc170 fixed load weights conserve budget",
+      "pass": true,
+      "details": {
+        "fixedLoadsW": 37884383780655560,
+        "fixedW": 37884383780655560,
+        "coolingW": 0
+      }
+    },
+    {
+      "name": "awing profileVersion5",
+      "pass": true
+    },
+    {
+      "name": "awing module count preserved",
+      "pass": true,
+      "details": {
+        "before": 35,
+        "after": 35
+      }
+    },
+    {
+      "name": "awing canonical launcher count",
+      "pass": true,
+      "details": {
+        "expected": 2,
+        "actual": 2
+      }
+    },
+    {
+      "name": "awing no missile aggregate",
+      "pass": true
+    },
+    {
+      "name": "awing propulsion descriptor unchanged",
+      "pass": true
+    },
+    {
+      "name": "awing launcher 27 once and canonical",
+      "pass": true,
+      "details": {
+        "matching": 1,
+        "k": "launcher",
+        "tt": 25,
+        "salvo": 1,
+        "cycle": 1.2,
+        "stock": 6,
+        "ammo0": 6,
+        "launchPowerW": 1000000000000000
+      }
+    },
+    {
+      "name": "awing launcher 27 fixed budget once",
+      "pass": true,
+      "details": {
+        "reservation": [
+          {
+            "id": "f27",
+            "port": "f27",
+            "domain": "main",
+            "weight": 1000000000000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "awing launcher 27 finite origin+direction",
+      "pass": true
+    },
+    {
+      "name": "awing launcher 28 once and canonical",
+      "pass": true,
+      "details": {
+        "matching": 1,
+        "k": "launcher",
+        "tt": 25,
+        "salvo": 1,
+        "cycle": 1.2,
+        "stock": 6,
+        "ammo0": 6,
+        "launchPowerW": 1000000000000000
+      }
+    },
+    {
+      "name": "awing launcher 28 fixed budget once",
+      "pass": true,
+      "details": {
+        "reservation": [
+          {
+            "id": "f28",
+            "port": "f28",
+            "domain": "main",
+            "weight": 1000000000000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "awing launcher 28 finite origin+direction",
+      "pass": true
+    },
+    {
+      "name": "awing electronics moved from weapons to fixed once",
+      "pass": true,
+      "details": {
+        "launchPowerW": 2000000000000000,
+        "fixedDeltaW": 2000000000000000,
+        "weaponDeltaW": -2000000000000000
+      }
+    },
+    {
+      "name": "awing fixed load weights conserve budget",
+      "pass": true,
+      "details": {
+        "fixedLoadsW": 18380263776155636,
+        "fixedW": 18380263776155636,
+        "coolingW": 0
+      }
+    },
+    {
+      "name": "btlb profileVersion5",
+      "pass": true
+    },
+    {
+      "name": "btlb module count preserved",
+      "pass": true,
+      "details": {
+        "before": 41,
+        "after": 41
+      }
+    },
+    {
+      "name": "btlb canonical launcher count",
+      "pass": true,
+      "details": {
+        "expected": 0,
+        "actual": 0
+      }
+    },
+    {
+      "name": "btlb no missile aggregate",
+      "pass": true
+    },
+    {
+      "name": "btlb propulsion descriptor unchanged",
+      "pass": true
+    },
+    {
+      "name": "btlb nonmissile profile only version changed",
+      "pass": true
+    },
+    {
+      "name": "btlb electronics moved from weapons to fixed once",
+      "pass": true,
+      "details": {
+        "launchPowerW": 0,
+        "fixedDeltaW": 0,
+        "weaponDeltaW": 0
+      }
+    },
+    {
+      "name": "btlb fixed load weights conserve budget",
+      "pass": true,
+      "details": {
+        "fixedLoadsW": 56684741446013420,
+        "fixedW": 56684741446013420,
+        "coolingW": 0
+      }
+    },
+    {
+      "name": "hyena profileVersion5",
+      "pass": true
+    },
+    {
+      "name": "hyena module count preserved",
+      "pass": true,
+      "details": {
+        "before": 46,
+        "after": 46
+      }
+    },
+    {
+      "name": "hyena canonical launcher count",
+      "pass": true,
+      "details": {
+        "expected": 2,
+        "actual": 2
+      }
+    },
+    {
+      "name": "hyena no missile aggregate",
+      "pass": true
+    },
+    {
+      "name": "hyena propulsion descriptor unchanged",
+      "pass": true
+    },
+    {
+      "name": "hyena launcher 31 once and canonical",
+      "pass": true,
+      "details": {
+        "matching": 1,
+        "k": "launcher",
+        "tt": 25,
+        "salvo": 1,
+        "cycle": 1.2,
+        "stock": 6,
+        "ammo0": 6,
+        "launchPowerW": 1000000000000000
+      }
+    },
+    {
+      "name": "hyena launcher 31 fixed budget once",
+      "pass": true,
+      "details": {
+        "reservation": [
+          {
+            "id": "f31",
+            "port": "f31",
+            "domain": "main",
+            "weight": 1000000000000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "hyena launcher 31 finite origin+direction",
+      "pass": true
+    },
+    {
+      "name": "hyena launcher 32 once and canonical",
+      "pass": true,
+      "details": {
+        "matching": 1,
+        "k": "launcher",
+        "tt": 25,
+        "salvo": 1,
+        "cycle": 1.2,
+        "stock": 6,
+        "ammo0": 6,
+        "launchPowerW": 1000000000000000
+      }
+    },
+    {
+      "name": "hyena launcher 32 fixed budget once",
+      "pass": true,
+      "details": {
+        "reservation": [
+          {
+            "id": "f32",
+            "port": "f32",
+            "domain": "main",
+            "weight": 1000000000000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "hyena launcher 32 finite origin+direction",
+      "pass": true
+    },
+    {
+      "name": "hyena electronics moved from weapons to fixed once",
+      "pass": true,
+      "details": {
+        "launchPowerW": 2000000000000000,
+        "fixedDeltaW": 2000000000000000,
+        "weaponDeltaW": -2000000000000000
+      }
+    },
+    {
+      "name": "hyena fixed load weights conserve budget",
+      "pass": true,
+      "details": {
+        "fixedLoadsW": 28573630179670040,
+        "fixedW": 28573630179670040,
+        "coolingW": 0
+      }
+    },
+    {
+      "name": "tie_in profileVersion5",
+      "pass": true
+    },
+    {
+      "name": "tie_in module count preserved",
+      "pass": true,
+      "details": {
+        "before": 34,
+        "after": 34
+      }
+    },
+    {
+      "name": "tie_in canonical launcher count",
+      "pass": true,
+      "details": {
+        "expected": 0,
+        "actual": 0
+      }
+    },
+    {
+      "name": "tie_in no missile aggregate",
+      "pass": true
+    },
+    {
+      "name": "tie_in propulsion descriptor unchanged",
+      "pass": true
+    },
+    {
+      "name": "tie_in nonmissile profile only version changed",
+      "pass": true
+    },
+    {
+      "name": "tie_in electronics moved from weapons to fixed once",
+      "pass": true,
+      "details": {
+        "launchPowerW": 0,
+        "fixedDeltaW": 0,
+        "weaponDeltaW": 0
+      }
+    },
+    {
+      "name": "tie_in fixed load weights conserve budget",
+      "pass": true,
+      "details": {
+        "fixedLoadsW": 21135216054766330,
+        "fixedW": 21135216054766330,
+        "coolingW": 0
+      }
+    },
+    {
+      "name": "tie_ln profileVersion5",
+      "pass": true
+    },
+    {
+      "name": "tie_ln module count preserved",
+      "pass": true,
+      "details": {
+        "before": 28,
+        "after": 28
+      }
+    },
+    {
+      "name": "tie_ln canonical launcher count",
+      "pass": true,
+      "details": {
+        "expected": 0,
+        "actual": 0
+      }
+    },
+    {
+      "name": "tie_ln no missile aggregate",
+      "pass": true
+    },
+    {
+      "name": "tie_ln propulsion descriptor unchanged",
+      "pass": true
+    },
+    {
+      "name": "tie_ln nonmissile profile only version changed",
+      "pass": true
+    },
+    {
+      "name": "tie_ln electronics moved from weapons to fixed once",
+      "pass": true,
+      "details": {
+        "launchPowerW": 0,
+        "fixedDeltaW": 0,
+        "weaponDeltaW": 0
+      }
+    },
+    {
+      "name": "tie_ln fixed load weights conserve budget",
+      "pass": true,
+      "details": {
+        "fixedLoadsW": 17671191295729384,
+        "fixedW": 17671191295729384,
+        "coolingW": 0
+      }
+    },
+    {
+      "name": "tie_sa profileVersion5",
+      "pass": true
+    },
+    {
+      "name": "tie_sa module count preserved",
+      "pass": true,
+      "details": {
+        "before": 35,
+        "after": 35
+      }
+    },
+    {
+      "name": "tie_sa canonical launcher count",
+      "pass": true,
+      "details": {
+        "expected": 0,
+        "actual": 0
+      }
+    },
+    {
+      "name": "tie_sa no missile aggregate",
+      "pass": true
+    },
+    {
+      "name": "tie_sa propulsion descriptor unchanged",
+      "pass": true
+    },
+    {
+      "name": "tie_sa nonmissile profile only version changed",
+      "pass": true
+    },
+    {
+      "name": "tie_sa electronics moved from weapons to fixed once",
+      "pass": true,
+      "details": {
+        "launchPowerW": 0,
+        "fixedDeltaW": 0,
+        "weaponDeltaW": 0
+      }
+    },
+    {
+      "name": "tie_sa fixed load weights conserve budget",
+      "pass": true,
+      "details": {
+        "fixedLoadsW": 49563360330518440,
+        "fixedW": 49563360330518440,
+        "coolingW": 0
+      }
+    },
+    {
+      "name": "v19 profileVersion5",
+      "pass": true
+    },
+    {
+      "name": "v19 module count preserved",
+      "pass": true,
+      "details": {
+        "before": 40,
+        "after": 40
+      }
+    },
+    {
+      "name": "v19 canonical launcher count",
+      "pass": true,
+      "details": {
+        "expected": 2,
+        "actual": 2
+      }
+    },
+    {
+      "name": "v19 no missile aggregate",
+      "pass": true
+    },
+    {
+      "name": "v19 propulsion descriptor unchanged",
+      "pass": true
+    },
+    {
+      "name": "v19 launcher 27 once and canonical",
+      "pass": true,
+      "details": {
+        "matching": 1,
+        "k": "launcher",
+        "tt": 25,
+        "salvo": 1,
+        "cycle": 1.2,
+        "stock": 6,
+        "ammo0": 6,
+        "launchPowerW": 1000000000000000
+      }
+    },
+    {
+      "name": "v19 launcher 27 fixed budget once",
+      "pass": true,
+      "details": {
+        "reservation": [
+          {
+            "id": "f27",
+            "port": "f27",
+            "domain": "main",
+            "weight": 1000000000000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "v19 launcher 27 finite origin+direction",
+      "pass": true
+    },
+    {
+      "name": "v19 launcher 28 once and canonical",
+      "pass": true,
+      "details": {
+        "matching": 1,
+        "k": "launcher",
+        "tt": 25,
+        "salvo": 1,
+        "cycle": 1.2,
+        "stock": 6,
+        "ammo0": 6,
+        "launchPowerW": 1000000000000000
+      }
+    },
+    {
+      "name": "v19 launcher 28 fixed budget once",
+      "pass": true,
+      "details": {
+        "reservation": [
+          {
+            "id": "f28",
+            "port": "f28",
+            "domain": "main",
+            "weight": 1000000000000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "v19 launcher 28 finite origin+direction",
+      "pass": true
+    },
+    {
+      "name": "v19 electronics moved from weapons to fixed once",
+      "pass": true,
+      "details": {
+        "launchPowerW": 2000000000000000,
+        "fixedDeltaW": 2000000000000000,
+        "weaponDeltaW": -2000000000000000
+      }
+    },
+    {
+      "name": "v19 fixed load weights conserve budget",
+      "pass": true,
+      "details": {
+        "fixedLoadsW": 18202532422957864,
+        "fixedW": 18202532422957864,
+        "coolingW": 0
+      }
+    },
+    {
+      "name": "vulture profileVersion5",
+      "pass": true
+    },
+    {
+      "name": "vulture module count preserved",
+      "pass": true,
+      "details": {
+        "before": 38,
+        "after": 38
+      }
+    },
+    {
+      "name": "vulture canonical launcher count",
+      "pass": true,
+      "details": {
+        "expected": 1,
+        "actual": 1
+      }
+    },
+    {
+      "name": "vulture no missile aggregate",
+      "pass": true
+    },
+    {
+      "name": "vulture propulsion descriptor unchanged",
+      "pass": true
+    },
+    {
+      "name": "vulture launcher 26 once and canonical",
+      "pass": true,
+      "details": {
+        "matching": 1,
+        "k": "launcher",
+        "tt": 25,
+        "salvo": 1,
+        "cycle": 1.2,
+        "stock": 6,
+        "ammo0": 6,
+        "launchPowerW": 1000000000000000
+      }
+    },
+    {
+      "name": "vulture launcher 26 fixed budget once",
+      "pass": true,
+      "details": {
+        "reservation": [
+          {
+            "id": "f26",
+            "port": "f26",
+            "domain": "main",
+            "weight": 1000000000000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "vulture launcher 26 finite origin+direction",
+      "pass": true
+    },
+    {
+      "name": "vulture electronics moved from weapons to fixed once",
+      "pass": true,
+      "details": {
+        "launchPowerW": 1000000000000000,
+        "fixedDeltaW": 1000000000000000,
+        "weaponDeltaW": -1000000000000000
+      }
+    },
+    {
+      "name": "vulture fixed load weights conserve budget",
+      "pass": true,
+      "details": {
+        "fixedLoadsW": 16738438781802650,
+        "fixedW": 16738438781802650,
+        "coolingW": 0
+      }
+    },
+    {
+      "name": "vwing profileVersion5",
+      "pass": true
+    },
+    {
+      "name": "vwing module count preserved",
+      "pass": true,
+      "details": {
+        "before": 43,
+        "after": 43
+      }
+    },
+    {
+      "name": "vwing canonical launcher count",
+      "pass": true,
+      "details": {
+        "expected": 0,
+        "actual": 0
+      }
+    },
+    {
+      "name": "vwing no missile aggregate",
+      "pass": true
+    },
+    {
+      "name": "vwing propulsion descriptor unchanged",
+      "pass": true
+    },
+    {
+      "name": "vwing nonmissile profile only version changed",
+      "pass": true
+    },
+    {
+      "name": "vwing electronics moved from weapons to fixed once",
+      "pass": true,
+      "details": {
+        "launchPowerW": 0,
+        "fixedDeltaW": 0,
+        "weaponDeltaW": 0
+      }
+    },
+    {
+      "name": "vwing fixed load weights conserve budget",
+      "pass": true,
+      "details": {
+        "fixedLoadsW": 15273978238234222,
+        "fixedW": 15273978238234222,
+        "coolingW": 0
+      }
+    },
+    {
+      "name": "xwing profileVersion5",
+      "pass": true
+    },
+    {
+      "name": "xwing module count preserved",
+      "pass": true,
+      "details": {
+        "before": 44,
+        "after": 44
+      }
+    },
+    {
+      "name": "xwing canonical launcher count",
+      "pass": true,
+      "details": {
+        "expected": 0,
+        "actual": 0
+      }
+    },
+    {
+      "name": "xwing no missile aggregate",
+      "pass": true
+    },
+    {
+      "name": "xwing propulsion descriptor unchanged",
+      "pass": true
+    },
+    {
+      "name": "xwing nonmissile profile only version changed",
+      "pass": true
+    },
+    {
+      "name": "xwing electronics moved from weapons to fixed once",
+      "pass": true,
+      "details": {
+        "launchPowerW": 0,
+        "fixedDeltaW": 0,
+        "weaponDeltaW": 0
+      }
+    },
+    {
+      "name": "xwing fixed load weights conserve budget",
+      "pass": true,
+      "details": {
+        "fixedLoadsW": 25419063929610170,
+        "fixedW": 25419063929610170,
+        "coolingW": 0
+      }
+    },
+    {
+      "name": "z95 profileVersion5",
+      "pass": true
+    },
+    {
+      "name": "z95 module count preserved",
+      "pass": true,
+      "details": {
+        "before": 35,
+        "after": 35
+      }
+    },
+    {
+      "name": "z95 canonical launcher count",
+      "pass": true,
+      "details": {
+        "expected": 2,
+        "actual": 2
+      }
+    },
+    {
+      "name": "z95 no missile aggregate",
+      "pass": true
+    },
+    {
+      "name": "z95 propulsion descriptor unchanged",
+      "pass": true
+    },
+    {
+      "name": "z95 launcher 32 once and canonical",
+      "pass": true,
+      "details": {
+        "matching": 1,
+        "k": "launcher",
+        "tt": 25,
+        "salvo": 1,
+        "cycle": 1.2,
+        "stock": 6,
+        "ammo0": 6,
+        "launchPowerW": 1000000000000000
+      }
+    },
+    {
+      "name": "z95 launcher 32 fixed budget once",
+      "pass": true,
+      "details": {
+        "reservation": [
+          {
+            "id": "f32",
+            "port": "f32",
+            "domain": "main",
+            "weight": 1000000000000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "z95 launcher 32 finite origin+direction",
+      "pass": true
+    },
+    {
+      "name": "z95 launcher 33 once and canonical",
+      "pass": true,
+      "details": {
+        "matching": 1,
+        "k": "launcher",
+        "tt": 25,
+        "salvo": 1,
+        "cycle": 1.2,
+        "stock": 6,
+        "ammo0": 6,
+        "launchPowerW": 1000000000000000
+      }
+    },
+    {
+      "name": "z95 launcher 33 fixed budget once",
+      "pass": true,
+      "details": {
+        "reservation": [
+          {
+            "id": "f33",
+            "port": "f33",
+            "domain": "main",
+            "weight": 1000000000000000
+          }
+        ]
+      }
+    },
+    {
+      "name": "z95 launcher 33 finite origin+direction",
+      "pass": true
+    },
+    {
+      "name": "z95 electronics moved from weapons to fixed once",
+      "pass": true,
+      "details": {
+        "launchPowerW": 2000000000000000,
+        "fixedDeltaW": 2000000000000000,
+        "weaponDeltaW": -2000000000000000
+      }
+    },
+    {
+      "name": "z95 fixed load weights conserve budget",
+      "pass": true,
+      "details": {
+        "fixedLoadsW": 24590622592056412,
+        "fixedW": 24590622592056412,
+        "coolingW": 0
+      }
+    }
+  ],
+  "failedChecks": [],
+  "blockSHA256": "39c46ab8e3566cb41bf6fbb7ff1646f15f55f459fcf540f2ebc04a77742ea9be"
+}

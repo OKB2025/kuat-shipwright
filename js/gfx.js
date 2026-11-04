@@ -550,27 +550,61 @@ function surfaceRenderFits(ship){const derived=C.surfaceDerivedFits?.(ship);if(!
 // behind the shallow lip; the shared Core geometry owns the actual muzzle.
 function surfaceBatteryMesh(g,f,ship){
  const p=C.surfaceBatteryGeometry?.(f);if(!p||f.float||f.surfaceUnplaced)return;
+ if(p.vls){
+  // A VLS belongs to the equipment face: six shallow deck hatches, with no
+  // freestanding launcher body above the ship's silhouette.
+  const rt=C.cross(p.u,p.normal),M=[...p.u,...p.normal,...rt],w=p.width,h=p.height,lip=p.lip,paint=surfaceHostPaint(ship,{host:f.surfacePatch.split(':')[0]});
+  box(g,M,p.point,0,lip*.18,0,w,lip*.36,h,surfacePaintTone(paint,.86));
+  for(const x of [-w/3,0,w/3])for(const z of [-h/4,h/4]){
+   box(g,M,p.point,x,lip*.48,z,w*.29,lip*.20,h*.42,FC.ring);
+   box(g,M,p.point,x,lip*.61,z,w*.25,lip*.10,h*.35,FC.dark);
+   box(g,M,p.point,x,lip*.68,z,w*.014,lip*.025,h*.34,FC.ring);
+  }
+  return;
+ }
  const {point,normal:n,u,v,width:w,height:h}=p,lip=Math.max(.025,C.dot(C.sub(p.mouth,point),n)),rim=Math.min(w*.08,h*.11,.18),back=Math.min(.018,lip*.30),paint=surfaceHostPaint(ship,{host:f.surfacePatch.split(':')[0]}),at=(x,y,z)=>C.add(point,C.add(C.add(C.mul(u,x),C.mul(v,y)),C.mul(n,z))),outer=[[-w/2,-h/2],[w/2,-h/2],[w/2,h/2],[-w/2,h/2]],inner=[[-w/2+rim,-h/2+rim],[w/2-rim,-h/2+rim],[w/2-rim,h/2-rim],[-w/2+rim,h/2-rim]];
  quad(g,inner.map(([x,y])=>at(x,y,back)),n,UV_WHITE,[15,20,26],255);
  for(let i=0;i<4;i++){const j=(i+1)%4,a=at(...outer[i],lip),b=at(...outer[j],lip),c=at(...inner[j],back),d=at(...inner[i],back),sn=C.norm(C.cross(C.sub(b,a),C.sub(d,a)));quad(g,[a,b,c,d],sn,UV_WHITE,surfacePaintTone(paint,.86),255);}
  const rows=p.barrels>4?2:1,per=Math.ceil(Math.min(16,p.barrels||1)/rows),iw=w-rim*2,ih=h-rim*2,r=Math.max(.025,Math.min(.13,iw/(per*3.1),ih/(rows*3.2)));
  for(let i=0;i<Math.min(16,p.barrels||1);i++){const x=(i%per-(per-1)/2)*iw/per*.86,y=(Math.floor(i/per)-(rows-1)/2)*ih/(rows+1);axisFrustum(g,at(x,y,back+.002),at(x,y,back+.008),r*1.30,r*1.30,[69,78,86],true,false,8);axisFrustum(g,at(x,y,back+.009),at(x,y,back+.011),r,r,[8,12,17],true,false,8);}
 }
-// v22 A craft's launch tubes and pylons fly in the trial with their default stores (the お任せ loadout): each
-// press of the missile button fires one round from every station still loaded, along the bow.
+// Compact concussion launchers are shared by ships and aircraft. Craft keep
+// their selected stores; individual pods and surface VLS use the same Core
+// descriptor, including their actual muzzle and launch direction.
 function craftLaunchers(model){
- if(!C.craftLoadout||!C.isCraft(model))return [];const L=C.craftLoadout(model);if(!L?.stations?.length)return [];const ld=C.normalizeLoad(L.stations,L.load,L.load),out=[];
- for(const f of surfaceRenderFits(model)){const d=C.FITS[f.k];if(!d?.store||f.float)continue;const i=L.stations.findIndex(st=>st.fit===f.k),q=ld[i],o=C.ORDNANCE[q?.k];if(!o?.guided||!(q.n>0))continue;
+ const craft=!!C.isCraft(model),L=craft&&C.craftLoadout?C.craftLoadout(model):null,ld=L?.stations?.length?C.normalizeLoad(L.stations,L.load,L.load):[],out=[];
+ for(const f of surfaceRenderFits(model)){const d=C.FITS[f.k];if(!d||f.float)continue;
+  if(C.isConcussionLauncher(f)){
+   let launcher=C.missileLauncherSpec(f);if(!launcher)continue;
+   const i=craft?(L?.stations||[]).findIndex(st=>C.isConcussionLauncher(st.fit)):-1;
+   if(i>=0){const q=ld[i],o=C.ORDNANCE[q?.k];if(!o?.guided||!(q.n>0))continue;launcher={...launcher,tt:o.tt,ion:!!o.ion,kind:q.k,ammo:q.n,ammo0:q.n};}
+   out.push(launcher);continue;
+  }
+  if(!craft||!d.store)continue;const i=(L?.stations||[]).findIndex(st=>st.fit===f.k),q=ld[i],o=C.ORDNANCE[q?.k];if(!o?.guided||!(q.n>0))continue;
   const fr=C.fitFrameOf(f);out.push({id:f.id,origin:C.add(C.fitOrigin(f),C.mul(fr.up,d.hm*.5)),axis:fr.fw,salvo:1,cycle:1.2,tt:o.tt,ion:!!o.ion,kind:q.k,ammo:q.n,ammo0:q.n});}
  return out;
+}
+function concussionLauncherMesh(g,f){
+ const p=C.launcherGeometry(f),[L,h,W]=p.bodySize,M=[...p.bodyFrame.fw,...p.bodyFrame.up,...p.bodyFrame.rt];
+ // The body remains the aircraft's compact twin-mouth launch tube. Only the
+ // hinge frame changes; supports stay in the fixed mounting frame.
+ box(g,M,p.bodyCenter,0,0,0,L,h,W,FC.body);
+ for(const z of [-W*.22,W*.22])cyl(g,M,p.bodyCenter,L*.49,0,z,W*.18,W*.18,L*.04,0,FC.dark,10);
+ if(Math.abs(p.pitchDeg)>1e-9){
+  const B=[...p.baseFrame.fw,...p.baseFrame.up,...p.baseFrame.rt],t=p.baseThickness,pivotY=C.dot(C.sub(p.pivot,p.baseOrigin),p.baseFrame.up),height=Math.max(0,pivotY-t);
+  box(g,B,p.baseOrigin,0,t/2,0,L*.5,t,W*1.35,FC.ped);
+  for(const z of [-W*.6,W*.6])box(g,B,p.baseOrigin,0,t+height/2,z,L*.16,height,W*.15,FC.ring);
+  const axle=C.mul(p.baseFrame.rt,W*.675);axisFrustum(g,C.sub(p.pivot,axle),C.add(p.pivot,axle),W*.12,W*.12,FC.dark,true,false,12);
+ }
 }
 // v21 Starfighter and small-craft weapons, in the fitting's frame (x to the bow, y up from the mount).
 function craftWeaponMesh(g,f){
  const d=C.fitSpec(f),M=frameM(f),o=C.fitOrigin(f),L=d.fm,W=d.wm,h=d.hm,k=f.k,B=FC.barrel,D=FC.dark,R=FC.ring,Bd=FC.body;
+ if(C.isConcussionLauncher(f)){concussionLauncherMesh(g,f);return;}
  if(k==='claser'||k==='claserH'){box(g,M,o,-L*.22,h*.5,0,L*.36,h*.9,W,Bd);cyl(g,M,o,L*.2,h*.5,0,W*.3,W*.24,L*.62,0,B,8);for(const q of [.02,.24])cyl(g,M,o,L*q,h*.5,0,W*.42,W*.42,L*.05,0,R,8);cyl(g,M,o,L*.5,h*.5,0,W*.34,W*.34,L*.06,0,D,8);return;}
  if(k==='cion'){box(g,M,o,-L*.18,h*.5,0,L*.5,h,W,Bd);cyl(g,M,o,L*.22,h*.5,0,W*.36,W*.3,L*.5,0,B,10);for(const q of [.08,.2,.32])cyl(g,M,o,L*q,h*.5,0,W*.47,W*.47,L*.04,0,R,10);return;}
  if(k==='cturret'){cyl(g,M,o,0,h*.15,0,W*.5,W*.46,h*.3,1,D,10);domeL(g,M,o,0,h*.3,0,W*.42,h*.5,Bd,12,3);for(const zz of [-W*.14,W*.14])cyl(g,M,o,L*.38,h*.55,zz,W*.06,W*.05,L*.6,0,B,6);return;}
- if(k==='ctorp'||k==='cmsl'){box(g,M,o,0,h*.5,0,L,h,W,Bd);for(const zz of (k==='ctorp'?[0]:[-W*.22,W*.22]))cyl(g,M,o,L*.49,h*.5,zz,W*(k==='ctorp'?.32:.18),W*(k==='ctorp'?.32:.18),L*.04,0,D,10);return;}
+ if(k==='ctorp'){box(g,M,o,0,h*.5,0,L,h,W,Bd);cyl(g,M,o,L*.49,h*.5,0,W*.32,W*.32,L*.04,0,D,10);return;}
  if(k==='cbomb'){box(g,M,o,0,h*.5,0,L,h,W,D);box(g,M,o,0,h*.02,0,L*.92,h*.06,W*.9,R);box(g,M,o,0,h*.03,0,L*.02,h*.07,W*.92,D);return;}
  // v22 A wing pylon: the streamlined pylon and its ejector rack, with the stores it carries by default (two thin
  // missiles side by side, or one torpedo or bomb) hanging under it at their true size (C.ORDNANCE).
@@ -593,6 +627,7 @@ function meshFits(ship, filter, ranges, only) {
     }
     // Command pods are the bridge drum mesh, drawn with the model fittings.
     if(C.FITS[f.k].window)return;
+    if(C.isConcussionLauncher(f)){if(!FIT_SKIP_BODY?.has(f.id))concussionLauncherMesh(g,f);return;}
     // v21 Craft weapons sit flush on their mount (no pedestal): barrels and launchers along the bow.
     if(C.FITS[f.k].craft){if(!FIT_SKIP_BODY?.has(f.id))craftWeaponMesh(g,f);return;}
     const d = C.fitSpec(f), M = frameM(f), o = C.fitOrigin(f), L = d.fm, W = d.wm, h = d.hm, k = f.k;
@@ -631,7 +666,7 @@ function meshFits(ship, filter, ranges, only) {
     // Weapons after the turret kit: hexagonal bases, wedge housings with a
     // mantlet and sleeved barrels, ion domes with coiled barrels, angled
     // missile boxes, dish projectors and ball-mounted point defence.
-    if (k === 'msl' || k === 'itl') {
+    if (k === 'itl') {
       // v18 VLS: a flush armoured deck plate over the cells, two rows of hatches.
       if (C.missileMount(f) === 'vls') {
         box(g, M, o, 0, h * 0.2, 0, L * 0.94, h * 0.4, W * 0.94, FC.body);
@@ -2673,7 +2708,7 @@ function fleetGeometry(ship,opts){
  for(const row of surfaceVisualPlan(model)){const owner=/^p\d+$/.test(row.host)?owners.get(+row.host.slice(1)):null;if(owner==null)continue;for(const item of row.devices){if(owners.has(item.id))continue;owners.set(item.id,owner);foils[owner].partIds.push(item.id);}}
  put('hull',meshHull(model));const parts=meshParts(model,{coded:false});for(const name of ['struct','plate','surfaceArmor','surfaceDevices','surfaceDetail','refStruct','gen','shield','hyper','engine','refEngine','nozzle','hangar'])if(parts.g[name]&&(!name.startsWith('surface')||parts.g[name].ni))put(name,parts.g[name]);
  const h=meshHatches(model);put('hatchOpen',h.open);put('hatchRay',h.ray);put('refHatches',meshReferenceHatches(model));put('refHull',meshReferenceHull(model));
- const surfaceTurrets=!!model.surfaces,ranges=parts.ranges,turrets=opts?.trial||surfaceTurrets?trialTurrets(model,put,ranges):null,launchers=opts?.trial?[...surfaceRenderFits(model).filter(f=>C.FITS[f.k].msl&&!f.float).map(f=>{const d=C.fitSpec(f),up=C.fitUp(f),port=C.surfaceBatteryGeometry?.(f);return {id:f.id,origin:port?port.mouth:C.add(C.fitOrigin(f),C.mul(up,d.hm)),axis:port?port.normal:up,salvo:8,cycle:20,tt:(d.msl||80)/8,ion:!!C.FITS[f.k].ionMsl};}),...craftLaunchers(model)]:null,targetRadius=C.clamp(ship.hull.L*.05,40,500);if(!turrets){put('fits',meshFits(model,null,ranges));put('refFits',meshReferenceFits(model,ranges));}else{put('trialTarget',trialTargetMesh(targetRadius),'fits',.6);for(const t of turrets){const owner=owners.get(t.id);if(owner!=null)t.foilId=foils[owner].id;}}
+ const surfaceTurrets=!!model.surfaces,ranges=parts.ranges,turrets=opts?.trial||surfaceTurrets?trialTurrets(model,put,ranges):null,launchers=opts?.trial?[...surfaceRenderFits(model).filter(f=>C.FITS[f.k].msl&&!C.isConcussionLauncher(f)&&!f.float).map(f=>{const d=C.fitSpec(f),up=C.fitUp(f),port=C.surfaceBatteryGeometry?.(f);return {id:f.id,origin:port?port.mouth:C.add(C.fitOrigin(f),C.mul(up,d.hm)),axis:port?port.normal:up,salvo:8,cycle:20,tt:(d.msl||80)/8,ion:!!C.FITS[f.k].ionMsl};}),...craftLaunchers(model)]:null,targetRadius=C.clamp(ship.hull.L*.05,40,500);if(!turrets){put('fits',meshFits(model,null,ranges));put('refFits',meshReferenceFits(model,ranges));}else{put('trialTarget',trialTargetMesh(targetRadius),'fits',.6);for(const t of turrets){const owner=owners.get(t.id);if(owner!=null)t.foilId=foils[owner].id;}}
  for(const hatch of model.hatches){const spec=C.slidingHatchSpec(model,hatch);if(!spec)continue;
   if(hatch.k==='ray'){const name='slideRay_'+hatch.id;put(name,meshHatches({...model,hatches:[{...hatch,_rayOnly:true,_rayInset:5}]}).ray,'ray',1);rays.push({name});}
   if(hatch.skinAsset){for(const side of [-1,1]){const name='refSlideDoor_'+hatch.id+'_'+(side<0?'l':'r');put(name,meshReferenceHatches({...model,_referenceDoorOnly:true,hatches:[{...hatch,open:0,_doorDetached:false,_slideSide:side}]}),'reference',0);doors.push({name,axis:spec.slideAxis,side,travel:spec.travel});}}

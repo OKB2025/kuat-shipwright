@@ -48,7 +48,7 @@ test('one canonical catalog describes the heavy twin, octuple and generic ion gu
   assert.equal(C.FITS.refSide.name, '2連装40TTターボレーザー側面砲');
   assert.equal(C.FITS.refSide.tt, 80);
   for (const legacy of Object.keys(aliases)) assert.equal(C.FITS[legacy], undefined, `${legacy} is migration input only`);
-  assert.equal(C.FLEET_PROFILE_VERSION, 3, 'old cached fleet profiles must rebuild after catalog output changes');
+  assert.equal(C.FLEET_PROFILE_VERSION, 5, 'old cached fleet profiles must rebuild after catalog output changes');
 });
 
 test('canonical kind lookup and standard fitting migrate every retired id without disturbing mount state', () => {

@@ -1,31 +1,42 @@
 {
   "schemaVersion": 1,
   "status": "PASS",
-  "date": "2026-11-04T10:44:24.145Z",
+  "date": "2026-11-04T11:36:53.911Z",
   "browser": "Chromium headless with software WebGL",
   "url": "http://127.0.0.1:8765",
   "sourceSha256": {
     "data/reference.js": "d16894719f5537b74c56ee6caffb868c09adbaeec69388fdd5ef7c58fff8352e",
-    "data/fleet.js": "e6f848e94c14718f71bb9ba0e37b365d0f3b29b2cfdb060ba7ebb1f9e2a5e17d",
-    "js/core.js": "905892dfb40c3cebe5b506683940aa029d970f68c6c5dcb1a65015be027d9963",
-    "js/app.js": "91bd2f40fe5f2017c24cf2382b97fc2f32d630d5bb7d55a9f277093c955c3c48",
-    "js/gfx.js": "57d759e697423316b3e75bd6c123f760f3496e766a0f490447ae03ba67e6481c",
-    "js/lang-en.js": "73f4f3726268bd2a5eb9ce03e7827db5f86fc7306719955e2d5645e274eb066b",
+    "data/fleet.js": "09a84921edc4158bc9bc5e1687a0880254cb9641beb98fdbe9aec93c9da552b9",
+    "js/core.js": "fcdfb5aee9d2d102c9d8219483557abb3a4a864f46dc9249d3d29607766a5960",
+    "js/app.js": "f148a524428322de7c208f0c3c212b527c265278de4f5680cfea1ec9445313b3",
+    "js/gfx.js": "20534e021ca0463b4b8238919959b3a8d30f4f51c3d0378df3596bc630e35465",
+    "js/lang-en.js": "a065432239e6c0d5799fc6929db8b0bf61243e5d2bad5bbe69accc30a5ec7318",
     "js/engine.js": "3cc555e507af6815398c2b8f019c4013261d757217351652968842e017fb5207",
-    "index.html": "c62f212224fc74da17bd9ae0758f849eb5e9b95657c42b794fc7168bc88c7380"
+    "index.html": "eca99ad792ed30d074407229e5987d2804d82e37055ffa809247a1c1a9bccdc0"
   },
-  "blueprintSha256": "8ec64b9a7fe942b1f167b418d0344459b6005d2c5113eb454f93cdcc2de564ef",
+  "blueprintSha256": "67780d40c8c50844ec653d362cd62a595541e8c0e1a5f7cec5df26d3cf534e96",
   "buildTimings": null,
   "scope": {
+    "conditions": [
+      {
+        "language": "ja",
+        "device": "desktop"
+      },
+      {
+        "language": "en",
+        "device": "mobile"
+      }
+    ],
     "verified": [
       "native desktop example selection",
       "mobile blueprint loading through debug API",
       "ordinary plain-metal editable reference hull draw routing",
       "four complete quad turret draw ranges",
-      "English weapon catalog label",
+      "four canonical compact concussion launchers with 1.2m bodies",
+      "English weapon catalogue labels",
       "three connected ISD nozzle assets",
-      "desktop and mobile layout without horizontal overflow",
-      "full ship and dorsal/ventral turret/engine screenshots"
+      "requested viewport layout without horizontal overflow",
+      "full ship screenshots and the listed turret, engine and bow close views"
     ],
     "notVerified": [
       "physical mobile device",
@@ -41,16 +52,17 @@
       "status": "PASS",
       "loading": "native title-menu example button and worker build",
       "exampleButtonText": "アークワイテンス級軽クルーザー\n325 m · 護衛・哨戒",
-      "readyMs": 18960,
+      "readyMs": 17283,
       "weaponCardText": "500GT 4連装中型ターボレーザー\n2.0 TT・17.8×14.1×5.8 m",
+      "launcherCardText": "震盪ミサイル発射管\n25TT／1.2秒・弾倉 6 発・口径 0.22 m・1.2×0.45×0.45 m",
       "errors": [],
       "generation": {
         "design": 1,
         "geometry": 1,
         "statistics": 1
       },
-      "massTonnes": 424890.2643829685,
-      "cost": 3328452,
+      "massTonnes": 422493.46438296844,
+      "cost": 2745452,
       "workerMode": "worker",
       "renderer": true,
       "webglError": 0,
@@ -185,6 +197,84 @@
         "missiles": 4,
         "tractor": 1
       },
+      "compactLaunchers": [
+        {
+          "id": 33,
+          "kind": "cmsl",
+          "float": false,
+          "surfaceVLS": false,
+          "bodySize": [
+            1.2,
+            0.45,
+            0.45
+          ],
+          "pitch": 0,
+          "ranges": [
+            [
+              "fits",
+              1093488,
+              276
+            ]
+          ]
+        },
+        {
+          "id": 34,
+          "kind": "cmsl",
+          "float": false,
+          "surfaceVLS": false,
+          "bodySize": [
+            1.2,
+            0.45,
+            0.45
+          ],
+          "pitch": 0,
+          "ranges": [
+            [
+              "fits",
+              1093764,
+              276
+            ]
+          ]
+        },
+        {
+          "id": 35,
+          "kind": "cmsl",
+          "float": false,
+          "surfaceVLS": false,
+          "bodySize": [
+            1.2,
+            0.45,
+            0.45
+          ],
+          "pitch": 0,
+          "ranges": [
+            [
+              "fits",
+              1094040,
+              276
+            ]
+          ]
+        },
+        {
+          "id": 36,
+          "kind": "cmsl",
+          "float": false,
+          "surfaceVLS": false,
+          "bodySize": [
+            1.2,
+            0.45,
+            0.45
+          ],
+          "pitch": 0,
+          "ranges": [
+            [
+              "fits",
+              1094316,
+              276
+            ]
+          ]
+        }
+      ],
       "engines": [
         {
           "id": 4,
@@ -291,7 +381,8 @@
       "extraScreenshots": [
         "arquitens-turret-dorsal-browser.png",
         "arquitens-turret-ventral-browser.png",
-        "arquitens-engines-browser.png"
+        "arquitens-engines-browser.png",
+        "arquitens-launchers-bow-browser.png"
       ]
     },
     {
@@ -300,16 +391,17 @@
       "status": "PASS",
       "loading": "generated native blueprint deserialized through __yard API",
       "exampleButtonText": "Arquitens-class Light Cruiser\n325 m · Escort / Patrol",
-      "readyMs": 16509,
+      "readyMs": 16288,
       "weaponCardText": "500 GT Quad Medium Turbolaser\n2.0 TT / 17.8×14.1×5.8 m",
+      "launcherCardText": "Concussion Missile Tube\n25TT／1.2秒・弾倉 6 発・口径 0.22 m・1.2×0.45×0.45 m",
       "errors": [],
       "generation": {
         "design": 1,
         "geometry": 1,
         "statistics": 1
       },
-      "massTonnes": 424890.2643829685,
-      "cost": 3328452,
+      "massTonnes": 422493.46438296844,
+      "cost": 2745452,
       "workerMode": "worker",
       "renderer": true,
       "webglError": 0,
@@ -444,6 +536,84 @@
         "missiles": 4,
         "tractor": 1
       },
+      "compactLaunchers": [
+        {
+          "id": 33,
+          "kind": "cmsl",
+          "float": false,
+          "surfaceVLS": false,
+          "bodySize": [
+            1.2,
+            0.45,
+            0.45
+          ],
+          "pitch": 0,
+          "ranges": [
+            [
+              "fits",
+              1093488,
+              276
+            ]
+          ]
+        },
+        {
+          "id": 34,
+          "kind": "cmsl",
+          "float": false,
+          "surfaceVLS": false,
+          "bodySize": [
+            1.2,
+            0.45,
+            0.45
+          ],
+          "pitch": 0,
+          "ranges": [
+            [
+              "fits",
+              1093764,
+              276
+            ]
+          ]
+        },
+        {
+          "id": 35,
+          "kind": "cmsl",
+          "float": false,
+          "surfaceVLS": false,
+          "bodySize": [
+            1.2,
+            0.45,
+            0.45
+          ],
+          "pitch": 0,
+          "ranges": [
+            [
+              "fits",
+              1094040,
+              276
+            ]
+          ]
+        },
+        {
+          "id": 36,
+          "kind": "cmsl",
+          "float": false,
+          "surfaceVLS": false,
+          "bodySize": [
+            1.2,
+            0.45,
+            0.45
+          ],
+          "pitch": 0,
+          "ranges": [
+            [
+              "fits",
+              1094316,
+              276
+            ]
+          ]
+        }
+      ],
       "engines": [
         {
           "id": 4,

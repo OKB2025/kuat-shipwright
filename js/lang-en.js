@@ -9633,4 +9633,29 @@ Object.assign(root.KS_EN.terms,{
  "添付された新しいアーキテンスSTLを全長325 m・全幅約144.28 m・全高約63.62 mとして使用する。船体と艦橋・エンジンカウリングは通常の選択・編集可能な構造物で、元の4基の固定主砲を除去し、左右に縦2門ずつを持つ500GT 4連装中型ターボレーザーへ置換した。1門500 GT（0.5 TT）、1基4門・一斉射2 TT、全艦4基16門。砲塔の全長約17.83 m・全高約5.81 m・全幅約14.10 mは添付モデルの主砲に合わせ、小型両用ターボレーザーの砲室と砲身を参考にした。主砲2基は上面、2基は下面に元モデルの位置・向きで配置する。既存の小型両用砲8基、外付けミサイル発射機4基、トラクタービーム1基を新しい甲板へ配置する。3基のポッド機関はそれぞれ専用炉へ接続し、ノズルは共通ISDベル型に統一する。船内には主反応炉、クラス2ハイパードライブ、慣性・構造維持、シールド、燃料、艦橋とCIC、貨物を持つ。兵員100名を保持し、航空隊は搭載しない。武装の連射間隔・質量・費用と内部設備の構成はゲーム用仮定。": "The new supplied Arquitens STL is scaled uniformly to 325 m long, about 144.28 m wide and 63.62 m high. Its hull, bridge and engine cowlings form an ordinary selectable structure. The four static main turrets are removed and replaced with 500 GT quad medium turbolasers, each with two vertical barrels on either side: 500 GT (0.5 TT) per barrel, a 2 TT salvo per turret, four turrets and sixteen barrels overall. The 17.83 m length, 5.81 m height and 14.10 m width follow the supplied main guns, using the small dual-purpose turret housing and barrels as references. Two main turrets occupy the original dorsal stations and two the ventral stations. Eight small dual-purpose turrets, four external missile launchers and one tractor beam occupy the new decks. Each of the three drives has its own reactor and the standard ISD bell nozzle. The interior includes a main reactor, class 2 hyperdrive, inertial compensation, structural integrity, shields, fuel, bridge, CIC and cargo. It carries 100 troops and no aircraft. Weapon cycle, mass, cost and internal layout are game assumptions."
 });
 // </arquitens-model>
+// <compact-missile-launchers>
+Object.assign(root.KS_EN.terms,{
+ "ミサイルの発射角": "Missile Launch Angle",
+ "選択した発射装置の発射角": "Selected Launcher Angles",
+ "発射角（取付面から上下）": "Launch Pitch Relative to Mount",
+ "発射角（取付面から上下） 数値": "Launch Pitch Relative to Mount Value",
+ "ミサイル発射角を変更": "Change Missile Launch Angle",
+ "支持台は発射角に合わせて自動生成します。": "Supports are generated automatically to match the launch angle.",
+ "取付面に沿う向きを0°として、上向き・下向きの発射角を変えます。角度に合わせて支持台を自動生成し、発射口と選択範囲も追従します。": "Zero degrees follows the mounting surface. Adjust the launch angle upward or downward; supports, launch mouths and selectable bounds follow the angle automatically.",
+ "先頭の発射装置の値を表示しています。変更した角度を、選択した小型発射装置と対の装備へまとめて適用します。": "The first launcher is shown. A changed angle applies to the selected compact launchers and their linked counterparts.",
+ "震盪ミサイルVLS（器材面）": "Concussion Missile VLS (Equipment Surface)",
+ "表面兵装（砲列・VLS）": "Surface Weapons (Batteries & VLS)",
+ "兵装の定義": "Weapon Definition",
+ "要求するVLS基数": "Requested VLS Cells",
+ "震盪ミサイルVLSは器材面に埋め込む共通の発射セルです。1基6発を基準に、面積と内部容積に収まる分だけ搭載します。個別の小型発射装置は「配置 → 武装」から設置できます。": "Concussion missile VLS cells are embedded in equipment surfaces. Each cell holds up to six rounds, within the available area and internal volume. Place individual compact launchers under Place → Weapons.",
+ "発射装置の容量は艦と航空機で共通です。搭載弾は射撃ごとに減り、補給時に再装填します。航空機の弾種・搭載数は編成画面の中隊ごとに選べます。弾の質量だけ機体が重くなります。": "Ships and aircraft use the same launcher capacity. Each shot consumes a loaded round, and supply replenishes it. Aircraft ammunition types and quantities are selected per squadron in fleet setup; loaded rounds add their mass to the craft."
+});
+Object.assign(root.KS_EN.terms,{
+ "残弾なし": "No Ammunition",
+ "発射中": "Launching",
+ "ミサイル発射装置に給電されていません": "The missile launchers have no power",
+ "航空機・艦艇で共通の小型震盪ミサイル発射管と6発の弾倉。上下の発射角に合わせて支持台を自動生成します。器材面へ配置すると面に沿うVLSハッチになります。口径0.22 m、1発25 TT。": "A compact concussion missile launch tube and six-round magazine shared by aircraft and ships. Supports follow the selected upward or downward launch angle. On equipment surfaces it becomes a flush VLS hatch. Caliber 0.22 m; 25 TT per round.",
+ "旧VLSの装備面を再選択してください": "Reselect the equipment surface for the legacy VLS"
+});
+// </compact-missile-launchers>
 })(typeof window==="undefined"?globalThis:window);

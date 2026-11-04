@@ -107,7 +107,7 @@ test('aircraft weapons, fixed launchers, missiles, tractors and bridge equipment
   const excluded = {
     claser: [2.6, .32, .32], claserH: [3.6, .5, .5], cion: [1.8, .55, .55],
     cturret: [1.3, .7, 1.3], ctorp: [1.4, .5, .5], cmsl: [1.2, .45, .45],
-    cbomb: [2.4, .7, 1.2], cpylon: [1.2, .2, .16], msl: [12, 3, 12],
+    cbomb: [2.4, .7, 1.2], cpylon: [1.2, .2, .16], msl: [1.2, .45, .45],
     itl: [12, 3, 12], trc: [16, 8, 16], brS: [34, 22, 26]
   };
   for (const [k, expected] of Object.entries(excluded)) {
