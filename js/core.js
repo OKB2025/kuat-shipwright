@@ -1482,6 +1482,14 @@ function surfaceBatteryGeometry(f){
  return {embedded:true,casemate:!!d.casemate,point,wallPoint,surfacePoint:wallPoint.slice(),armorOffset,normal,dir:normal.slice(),u,v,width,height,depth,lip,mouth,origin:mouth.slice(),pivot:mouth.slice(),bounds,barrels:Math.max(1,d.barrels||1)};
 }
 function surfaceBatteryInArc(port,dir){return dot(dir,port.normal)>=Math.cos(65*Math.PI/180)&&Math.abs(dot(dir,port.v))<=Math.sin(20*Math.PI/180);}
+// Built-in stations specify a ray column rather than a seated point. Resolve
+// their exterior face before a flush launcher's intentionally local mount probe.
+// Explicit local mounts and interactive placement retain their chosen surface.
+function presetStationPoint(ship,kind,p,axis,options={}){
+ if(fitHasPedestal(kind)||options.localMount)return p.slice();
+ const up=AXES[axis],reach=Math.max(ship.hull.L,ship.hull.H,ship.hull.W,200)*2;
+ return rayEnv(ship,add(p,mul(up,reach)),mul(up,-1),{maxT:reach*2,structOnly:true})?.p.slice()||p.slice();
+}
 function baseMountFit(ship, f) {
   normalizeFitMount(f);
   const d = fitSpec(f), fr = fitFrameOf(f), R = d.r, flush=d.cat==='w'&&!fitHasPedestal(f),big = f.localMount||d.casemate||flush ? Math.max(2,Math.min(6,R*.25)) : Math.max(ship.hull.H, ship.hull.W, 200) * 2;
@@ -5324,7 +5332,7 @@ const ACC_GROUND=[{id:'ground-1',name:'クローン・トルーパーと支援�
 // Weapon placement with ground and step checks (as for the measured Mon Calamari ships); the
 // Acclamator's guns are all below the charging-plant threshold.
 function accMountKit(s,opt={}){
- const tryMount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:p.slice(),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':(f.base-f.low)>(o.maxStep??fitSpec(f).fm*.6)?'steep':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(v=>Math.round(v*10)/10).join(','),why||'ok',f.p.map(v=>Math.round(v*10)/10).join(',')]);if(why){s.nextId--;return null;}return f;};
+ const tryMount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:presetStationPoint(s,kind,p,axis,o),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':(f.base-f.low)>(o.maxStep??fitSpec(f).fm*.6)?'steep':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(v=>Math.round(v*10)/10).join(','),why||'ok',f.p.map(v=>Math.round(v*10)/10).join(',')]);if(why){s.nextId--;return null;}return f;};
  const clearOf=(f,list)=>list.every(g=>Math.hypot(f.p[0]-g.p[0],f.p[1]-g.p[1],f.p[2]-g.p[2])>=(fitSpec(f).fm+fitSpec(g).fm)*.5+1.5);
  // n fittings over candidate stations [x, |z|]: mirrored pairs on the dorsal ('top') or ventral ('bottom') surface.
  const pairs=(kind,n,mode,zone,stations,o={})=>{let got=0;
@@ -5458,7 +5466,7 @@ function arqMountKit(s,opt={}){
   for(const cd of [3,4,6,8,10,13]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
    for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
    if(ok){f.chargeDepth=cd;return true;}}return false;};
- const tryMount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:p.slice(),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':(f.base-f.low)>(o.maxStep??fitSpec(f).fm*.6)?'steep':!plantFits(f)?'plant':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(v=>Math.round(v*10)/10).join(','),why||'ok',f.p.map(v=>Math.round(v*10)/10).join(',')]);if(why){s.nextId--;return null;}return f;};
+ const tryMount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:presetStationPoint(s,kind,p,axis,o),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':(f.base-f.low)>(o.maxStep??fitSpec(f).fm*.6)?'steep':!plantFits(f)?'plant':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(v=>Math.round(v*10)/10).join(','),why||'ok',f.p.map(v=>Math.round(v*10)/10).join(',')]);if(why){s.nextId--;return null;}return f;};
  const clearOf=(f,list)=>list.every(g=>Math.hypot(f.p[0]-g.p[0],f.p[1]-g.p[1],f.p[2]-g.p[2])>=(fitSpec(f).fm+fitSpec(g).fm)*.5+1.5);
  const spread=(kind,n,mode,zone,xs,offs,o={})=>{let got=0;const far=Math.max(s.hull.H,s.hull.W,200);
   for(const off of offs)for(const x of xs){if(got>=n)break;
@@ -7125,7 +7133,7 @@ function hhPlateXY(s,label,pts,z0,z1,opt={},mirror=false){
 }
 // Weapon placement with ground and step checks (as for the Acclamator).
 function hhMountKit(s,opt={}){
- const tryMount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:p.slice(),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':(f.base-f.low)>(o.maxStep??fitSpec(f).fm*.6)?'steep':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(v=>Math.round(v*10)/10).join(','),why||'ok',f.p.map(v=>Math.round(v*10)/10).join(',')]);if(why){s.nextId--;throw new Error('作例の砲座が不正です: '+kind+' '+zone+' '+why);}s.fits.push(f);return f;};
+ const tryMount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:presetStationPoint(s,kind,p,axis,o),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':(f.base-f.low)>(o.maxStep??fitSpec(f).fm*.6)?'steep':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(v=>Math.round(v*10)/10).join(','),why||'ok',f.p.map(v=>Math.round(v*10)/10).join(',')]);if(why){s.nextId--;throw new Error('作例の砲座が不正です: '+kind+' '+zone+' '+why);}s.fits.push(f);return f;};
  return {tryMount};
 }
 function hhBuild(opt={}){
@@ -7378,7 +7386,7 @@ function lucrehulkBuild(opt={}){
    if(ok){f.chargeDepth=cd;return true;}}return false;};
  // One fitting cast onto the outermost surface along its axis. Armour plates take
  // no fittings, so a probe that lands on a plate (or finds no surface) is refused.
- const tryMount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:p.slice(),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':!plantFits(f)?'plant':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(Math.round).join(','),why||'ok',f.p.map(Math.round).join(',')]);if(why){s.nextId--;return null;}return f;};
+ const tryMount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:presetStationPoint(s,kind,p,axis,o),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':!plantFits(f)?'plant':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(Math.round).join(','),why||'ok',f.p.map(Math.round).join(',')]);if(why){s.nextId--;return null;}return f;};
  const clearOf=(f,list)=>list.every(g=>Math.hypot(f.p[0]-g.p[0],f.p[1]-g.p[1],f.p[2]-g.p[2])>=((FITS[f.k]?.fm||10)+(FITS[g.k]?.fm||10))*.5+2);
  // n fittings over candidate stations: dorsal ('top') and ventral ('bottom') rows
  // take |z| offsets and mount as mirrored pairs (0 = centreline); 'beam' rows take
@@ -7485,7 +7493,7 @@ function mc30MountKit(s,opt={}){
   for(const cd of [4,6,8,10,13,16]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
    for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
    if(ok){f.chargeDepth=cd;return true;}}return false;};
- const tryMount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:p.slice(),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':(f.base-f.low)>(o.maxStep??fitSpec(f).fm*.6)?'steep':!plantFits(f)?'plant':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(v=>Math.round(v*10)/10).join(','),why||'ok',f.p.map(v=>Math.round(v*10)/10).join(',')]);if(why){s.nextId--;return null;}return f;};
+ const tryMount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:presetStationPoint(s,kind,p,axis,o),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':(f.base-f.low)>(o.maxStep??fitSpec(f).fm*.6)?'steep':!plantFits(f)?'plant':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(v=>Math.round(v*10)/10).join(','),why||'ok',f.p.map(v=>Math.round(v*10)/10).join(',')]);if(why){s.nextId--;return null;}return f;};
  const clearOf=(f,list)=>list.every(g=>Math.hypot(f.p[0]-g.p[0],f.p[1]-g.p[1],f.p[2]-g.p[2])>=(fitSpec(f).fm+fitSpec(g).fm)*.5+1.5);
  // n fittings over candidate stations: dorsal ('top') and ventral ('bottom') rows take |z|
  // offsets and mount as mirrored pairs (0 = centreline); 'beam' rows take heights and
@@ -7647,7 +7655,7 @@ function mc75MountKit(s,opt={}){
    for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
    if(ok){f.chargeDepth=cd;return true;}}return false;};
  // One fitting cast onto the outermost surface along its axis.
- const tryMount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:p.slice(),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':(f.base-f.low)>(o.maxStep??FITS[kind].fm*.6)?'steep':!plantFits(f)?'plant':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(Math.round).join(','),why||'ok',f.p.map(Math.round).join(',')]);if(why){s.nextId--;return null;}return f;};
+ const tryMount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:presetStationPoint(s,kind,p,axis,o),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':(f.base-f.low)>(o.maxStep??FITS[kind].fm*.6)?'steep':!plantFits(f)?'plant':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(Math.round).join(','),why||'ok',f.p.map(Math.round).join(',')]);if(why){s.nextId--;return null;}return f;};
  const clearOf=(f,list)=>list.every(g=>Math.hypot(f.p[0]-g.p[0],f.p[1]-g.p[1],f.p[2]-g.p[2])>=((FITS[f.k]?.fm||10)+(FITS[g.k]?.fm||10))*.5+3);
  // n fittings over candidate stations: dorsal ('top') and ventral ('bottom') rows take |z|
  // offsets and mount as mirrored pairs (0 = centreline); 'beam' rows take heights and
@@ -7776,7 +7784,7 @@ function hoMountKit(s,opt={}){
    for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
    if(ok){f.chargeDepth=cd;return true;}}return false;};
  // One fitting cast onto the outermost surface along its axis.
- const tryMount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:p.slice(),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':(f.base-f.low)>(o.maxStep??FITS[kind].fm*.6)?'steep':!plantFits(f)?'plant':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(Math.round).join(','),why||'ok',f.p.map(Math.round).join(',')]);if(why){s.nextId--;return null;}return f;};
+ const tryMount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:presetStationPoint(s,kind,p,axis,o),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':(f.base-f.low)>(o.maxStep??FITS[kind].fm*.6)?'steep':!plantFits(f)?'plant':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(Math.round).join(','),why||'ok',f.p.map(Math.round).join(',')]);if(why){s.nextId--;return null;}return f;};
  const clearOf=(f,list)=>list.every(g=>Math.hypot(f.p[0]-g.p[0],f.p[1]-g.p[1],f.p[2]-g.p[2])>=((FITS[f.k]?.fm||10)+(FITS[g.k]?.fm||10))*.5+3);
  // n fittings over candidate stations: dorsal ('top') and ventral ('bottom') rows take |z|
  // offsets and mount as mirrored pairs (0 = centreline); 'beam' rows take heights and
@@ -7923,7 +7931,7 @@ function libMountKit(s,opt={}){
    for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
    if(ok){f.chargeDepth=cd;return true;}}return false;};
  // One fitting cast onto the outermost surface along its axis.
- const tryMount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:p.slice(),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':(f.base-f.low)>(o.maxStep??FITS[kind].fm*.6)?'steep':!plantFits(f)?'plant':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(Math.round).join(','),why||'ok',f.p.map(Math.round).join(',')]);if(why){s.nextId--;return null;}return f;};
+ const tryMount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:presetStationPoint(s,kind,p,axis,o),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':(f.base-f.low)>(o.maxStep??FITS[kind].fm*.6)?'steep':!plantFits(f)?'plant':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(Math.round).join(','),why||'ok',f.p.map(Math.round).join(',')]);if(why){s.nextId--;return null;}return f;};
  const clearOf=(f,list)=>list.every(g=>Math.hypot(f.p[0]-g.p[0],f.p[1]-g.p[1],f.p[2]-g.p[2])>=((FITS[f.k]?.fm||10)+(FITS[g.k]?.fm||10))*.5+3);
  // n fittings over candidate stations: dorsal ('top') and ventral ('bottom') rows take |z|
  // offsets and mount as mirrored pairs (0 = centreline); 'beam' rows take heights and
@@ -8130,7 +8138,7 @@ function munificentBuild(opt={}){
    if(ok){f.chargeDepth=cd;return true;}}return false;};
  // One fitting cast onto the outermost surface along its axis. Armour plates take
  // no fittings, so a probe that lands on a plate (or finds no surface) is refused.
- const tryMount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:p.slice(),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':!plantFits(f)?'plant':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(Math.round).join(','),why||'ok',f.p.map(Math.round).join(',')]);if(why){s.nextId--;return null;}return f;};
+ const tryMount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:presetStationPoint(s,kind,p,axis,o),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':!plantFits(f)?'plant':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(Math.round).join(','),why||'ok',f.p.map(Math.round).join(',')]);if(why){s.nextId--;return null;}return f;};
  const clearOf=(f,list)=>list.every(g=>Math.hypot(f.p[0]-g.p[0],f.p[1]-g.p[1],f.p[2]-g.p[2])>=((FITS[f.k]?.fm||10)+(FITS[g.k]?.fm||10))*.5+2);
  // n fittings over candidate stations: dorsal ('top') and ventral ('bottom') rows
  // take |z| offsets and mount as mirrored pairs (0 = centreline); 'beam' rows take
@@ -8369,7 +8377,7 @@ function onaMountKit(s,opt={}){
   for(const cd of [3,4,6,8,10,13]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
    for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
    if(ok){f.chargeDepth=cd;return true;}}return false;};
- const tryMount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:p.slice(),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':(f.base-f.low)>(o.maxStep??fitSpec(f).fm*.6)?'steep':!plantFits(f)?'plant':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(v=>Math.round(v*10)/10).join(','),why||'ok',f.p.map(v=>Math.round(v*10)/10).join(',')]);if(why){s.nextId--;return null;}return f;};
+ const tryMount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:presetStationPoint(s,kind,p,axis,o),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':(f.base-f.low)>(o.maxStep??fitSpec(f).fm*.6)?'steep':!plantFits(f)?'plant':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(v=>Math.round(v*10)/10).join(','),why||'ok',f.p.map(v=>Math.round(v*10)/10).join(',')]);if(why){s.nextId--;return null;}return f;};
  const clearOf=(f,list)=>list.every(g=>Math.hypot(f.p[0]-g.p[0],f.p[1]-g.p[1],f.p[2]-g.p[2])>=(fitSpec(f).fm+fitSpec(g).fm)*.5+1.5);
  // n fittings over candidate stations [x, |z|]: mirrored pairs on the dorsal ('top') or ventral ('bottom') surface.
  const pairs=(kind,n,mode,zone,stations,o={})=>{let got=0;
@@ -8605,7 +8613,7 @@ function providenceBuild(opt={}){
    if(ok){f.chargeDepth=cd;return true;}}return false;};
  // One fitting cast onto the outermost surface along its axis. Armour plates take
  // no fittings, so a probe that lands on a plate (or finds no surface) is refused.
- const tryMount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:p.slice(),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':!plantFits(f)?'plant':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(Math.round).join(','),why||'ok',f.p.map(Math.round).join(',')]);if(why){s.nextId--;return null;}return f;};
+ const tryMount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:presetStationPoint(s,kind,p,axis,o),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':!plantFits(f)?'plant':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(Math.round).join(','),why||'ok',f.p.map(Math.round).join(',')]);if(why){s.nextId--;return null;}return f;};
  const clearOf=(f,list)=>list.every(g=>Math.hypot(f.p[0]-g.p[0],f.p[1]-g.p[1],f.p[2]-g.p[2])>=((FITS[f.k]?.fm||10)+(FITS[g.k]?.fm||10))*.5+2);
  // n fittings over candidate stations: dorsal ('top') and ventral ('bottom') rows
  // take |z| offsets and mount as mirrored pairs (0 = centreline); 'beam' rows take
@@ -8777,7 +8785,7 @@ function recusantBuild(opt={}){
    if(ok){f.chargeDepth=cd;return true;}}return false;};
  // One fitting cast onto the outermost surface along its axis. Armour plates take
  // no fittings, so a probe that lands on a plate (or finds no surface) is refused.
- const tryMount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:p.slice(),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':!plantFits(f)?'plant':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(Math.round).join(','),why||'ok',f.p.map(Math.round).join(',')]);if(why){s.nextId--;return null;}return f;};
+ const tryMount=(kind,p,axis,zone,o={})=>{const f={id:s.nextId++,k:kind,p:presetStationPoint(s,kind,p,axis,o),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':!plantFits(f)?'plant':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(Math.round).join(','),why||'ok',f.p.map(Math.round).join(',')]);if(why){s.nextId--;return null;}return f;};
  const clearOf=(f,list)=>list.every(g=>Math.hypot(f.p[0]-g.p[0],f.p[1]-g.p[1],f.p[2]-g.p[2])>=((FITS[f.k]?.fm||10)+(FITS[g.k]?.fm||10))*.5+2);
  // n fittings over candidate stations: dorsal ('top') and ventral ('bottom') rows
  // take |z| offsets and mount as mirrored pairs (0 = centreline); 'beam' rows take
@@ -9055,7 +9063,7 @@ function subjMountKit(s,opt={}){
   for(const cd of [10,13,16,20,24,28,33,38,44]){const c=sub(f.p,mul(up,cd+(f.mountOffset||0)));let ok=true;
    for(const a of [-.5,0,.5])for(const b of [-.5,0,.5])for(const e of [-.5,0,.5]){const pt=add(c,add(mul(up,a*depth),add(mul(fr.v,b*side),mul(fr.w,e*side))));if(!insideOriginalEnvelope(s,pt)||solidList.some(o=>pt.every((v,i)=>v>=o.b[i]&&v<=o.b[i+3])&&inPart(o.p,pt))){ok=false;break;}}
    if(ok){f.chargeDepth=cd;return true;}}return false;};
- const tryMount=(kind,p,axis,zone,o={})=>{const {soft,maxStep,...fo}=o,f={id:s.nextId++,k:kind,p:p.slice(),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...fo};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':(f.base-f.low)>(o.maxStep??fitSpec(f).fm*.6)?'steep':!plantFits(f)?'plant':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(v=>Math.round(v)).join(','),why||'ok',f.p.map(v=>Math.round(v)).join(',')]);if(why){s.nextId--;return null;}return f;};
+ const tryMount=(kind,p,axis,zone,o={})=>{const {soft,maxStep,...fo}=o,f={id:s.nextId++,k:kind,p:presetStationPoint(s,kind,p,axis,o),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...fo};mountFit(s,f);const why=f._onPlate?'plate':f.float?'float':(f.base-f.low)>(o.maxStep??fitSpec(f).fm*.6)?'steep':!plantFits(f)?'plant':'';if(opt.dbg)opt.dbg.push([kind,zone,p.map(v=>Math.round(v)).join(','),why||'ok',f.p.map(v=>Math.round(v)).join(',')]);if(why){s.nextId--;return null;}return f;};
  const clearOf=(f,list)=>list.every(g=>Math.hypot(f.p[0]-g.p[0],f.p[1]-g.p[1],f.p[2]-g.p[2])>=(fitSpec(f).fm+fitSpec(g).fm)*.5+2);
  const spread=(kind,n,mode,zone,xs,offs,o={})=>{let got=0;const far=2000;
   for(const off of offs)for(const x of xs){if(got>=n)break;
