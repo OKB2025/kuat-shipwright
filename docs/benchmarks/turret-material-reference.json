@@ -1,0 +1,188 @@
+{
+  "schemaVersion": 1,
+  "status": "MEASURED_MATERIAL_PREVIEW",
+  "measuredAt": "2026-11-04T22:49:56.407Z",
+  "scope": "Material-only comparison on the existing geometry before the new photo-proportion reconstruction. This is not final-geometry visual approval.",
+  "texture": {
+    "ownerFile": "data/textures.js",
+    "ownerFileSha256": "2672e1dc8b62332323e64404afbf06a7ba4cdfd8a7a79dfecc0a93141de48354",
+    "atlasProperty": "YardReferenceData.atlas",
+    "atlasMediaType": "image/jpeg",
+    "atlasWidth": 2048,
+    "atlasHeight": 2048,
+    "atlasPayloadSha256": "b5028c0a8010d3cef02f62b8f610e01e94f7f67a8ef4c59d0eed7fd527c42cfa",
+    "maskProperty": "YardReferenceData.mask",
+    "maskPayloadSha256": "054f71d8d1bd5e92561556c573346a90b2c791963128c052d3eec08e6c1f9115",
+    "upload": "Renderer constructor uploads the reference atlas and mask without changing authored UVs; UV coordinates use (texel + 0.5) / 2048."
+  },
+  "sourceModels": [
+    {
+      "sourceAsset": "isd_heavy_octuple_original",
+      "sourceFile": "assets/source/isd-heavy-octuple-original.json",
+      "sourceFileSha256": "35314355cfee9e7eb9050973e8700a44aae529b0882d317d0433c74566e37307",
+      "packedGeometrySha256": "51255c7a3d9c99088e8fd6afd3b1dd963672ae3e00f1bbe4c31c2bc777ee28e8",
+      "renderAnchor": "isd_heavy_octuple",
+      "renderHalfColorBytes": [
+        143,
+        150,
+        155
+      ],
+      "measuredPaintComponent": 11
+    },
+    {
+      "sourceAsset": "ven_turret",
+      "registrationFile": "data/reference.js",
+      "registrationFileSha256AtMeasurement": "a6fbb40e306391f04b765985d97dafe512ba0d9ad21b479d70d47384ef7f6a8b",
+      "packedGeometrySha256": "8067fdea252e9627a92f4934eb33d446139fa5fce755e172d2bb4358b14506dc",
+      "renderAnchor": "ven_turret70_native",
+      "renderHalfColorBytes": [
+        128,
+        128,
+        128
+      ],
+      "measuredPaintComponent": 0
+    }
+  ],
+  "measurementMethod": {
+    "target": "Triangle-area-weighted RGB at centroid UVs of large upward-facing original gunhouse roof triangles.",
+    "sourceTriangleSelection": [
+      {
+        "source": "isd_heavy_octuple_original",
+        "component": 11,
+        "normalYGreaterThan": 0.99,
+        "areaM2AtLeast": 1
+      },
+      {
+        "source": "ven_turret",
+        "component": 0,
+        "normalYGreaterThan": 0.99,
+        "areaM2AtLeast": 0.5
+      }
+    ],
+    "paintSample": "Rasterize the union of selected source UV triangles at u * W, v * H; erode coverage by 2 pixels with a 5\u00d75 minimum filter and exclude nonzero emission. Minimize squared RGB target error plus 0.5 times the sum of RGB channel variances in the local 5\u00d75 neighborhood. Final samples use exact texel-center UVs.",
+    "studioPhotoTintUsed": false,
+    "centroidSampling": "PIL nearest RGB texel at round(u * (W - 1)), round(v * (H - 1)); centroid UV is the mean of the three authored triangle UVs."
+  },
+  "paintMeasurements": {
+    "isd_heavy_octuple_original": {
+      "flatPaintTargetRGB": [
+        127,
+        126.00000000000001,
+        124.00000000000001
+      ],
+      "paint": {
+        "score": 2.0224,
+        "pixel": [
+          94,
+          314
+        ],
+        "uv": [
+          0.046142578125,
+          0.153564453125
+        ],
+        "RGB": [
+          127,
+          126,
+          124
+        ],
+        "patchVariance": 4.0448,
+        "patchMean": [
+          128.32,
+          127.12,
+          125.72
+        ]
+      },
+      "trianglesSelected": 2,
+      "maskRGB": [
+        0,
+        0,
+        0
+      ]
+    },
+    "ven_turret": {
+      "flatPaintTargetRGB": [
+        141.70892178109418,
+        133.8030881842461,
+        128.3318776860538
+      ],
+      "paint": {
+        "score": 4.073887153393656,
+        "pixel": [
+          1738,
+          1070
+        ],
+        "uv": [
+          0.848876953125,
+          0.522705078125
+        ],
+        "RGB": [
+          141,
+          134,
+          128
+        ],
+        "patchVariance": 6.8448,
+        "patchMean": [
+          142.72,
+          135.32,
+          129.12
+        ]
+      },
+      "trianglesSelected": 40,
+      "maskRGB": [
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  "preview": {
+    "status": "PASS",
+    "readyMs": 1859,
+    "totalElapsedMs": 33725,
+    "javascriptErrors": [],
+    "webglError": 0,
+    "sourceSha256": {
+      "data/reference.js": "a6fbb40e306391f04b765985d97dafe512ba0d9ad21b479d70d47384ef7f6a8b",
+      "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
+      "data/fleet.js": "c0341142b0b1b07f3f55b6e56e3445c33990f88e9d522a093f0e9319b6b7e416",
+      "js/core.js": "85a8deceabf8fc184281c23d658061e748fbc4f895d16fb495b42674ca1ce513",
+      "js/app.js": "64cd0762fbf608cce5b66103557441a9def930ff882b5b16b08563b48f0a4ed3",
+      "js/gfx.js": "dbb88a2c889d9409478d1e9a416bda6e2848ff53d5467b8938851883bf33cb44",
+      "js/lang-en.js": "f4725c881d9385dc490f44d33af8c3a464cee00d8d50b3e751e8670aeb77b70e",
+      "js/engine.js": "ae431a0d3b61b19b15b1f3635159b7d5664a82eaf844ac8029ef2fa6da122a3e",
+      "index.html": "02d65b6d5ca204b7cd9405fda9b2b71fd9f3b1c45d4f3bec469ee97fb43d4300"
+    },
+    "geometrySourceFilesEqualToBefore": [
+      "js/core.js",
+      "data/reference.js",
+      "data/imperial2.js"
+    ],
+    "originalAnchorImages": [
+      {
+        "catalogKind": "oct40",
+        "renderAsset": "isd_heavy_octuple",
+        "beforeFile": "docs/images/weapon-family-detail-oct40.png",
+        "beforeGitCommit": "e14a979dcb32dd551b924a39e1e5b62b3d8e9541",
+        "beforeSha256": "9136e8aeb3d8c1a6472df83d52f3b31a4f00e24ff1eda6e70f73ecf42625f27e",
+        "afterPreviewFilename": "weapon-family-detail-oct40.png",
+        "afterSha256": "9136e8aeb3d8c1a6472df83d52f3b31a4f00e24ff1eda6e70f73ecf42625f27e",
+        "byteIdentical": true
+      },
+      {
+        "catalogKind": "refVen",
+        "renderAsset": "ven_turret70_native",
+        "beforeFile": "docs/images/weapon-family-detail-refVen.png",
+        "beforeGitCommit": "e14a979dcb32dd551b924a39e1e5b62b3d8e9541",
+        "beforeSha256": "2556fe862248e7f56a52a16a6cefde75ec5e445c5152f519960053c835f998cd",
+        "afterPreviewFilename": "weapon-family-detail-refVen.png",
+        "afterSha256": "2556fe862248e7f56a52a16a6cefde75ec5e445c5152f519960053c835f998cd",
+        "byteIdentical": true
+      }
+    ],
+    "visualFindings": [
+      "Derived 40 TT armor uses the existing octuple reference paint and color scale.",
+      "Derived 70 TT armor and source machinery use the existing native DBY paint and color scale.",
+      "Copied mechanical components retain source UVs; generated armor no longer stretches generic fitting patches into triangle fans."
+    ]
+  }
+}

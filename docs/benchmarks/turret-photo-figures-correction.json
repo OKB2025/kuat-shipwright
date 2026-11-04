@@ -1,0 +1,403 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "date": "2026-11-04T23:41:58.469Z",
+  "scope": "Only Imperial and Venator built-in examples use the seven updated photo-family types. Six derivative geometries change; the spherical ion geometry and compartment data stay unchanged while its shading is corrected. The other37 fixture records are retained verbatim; this does not claim a new cold physics pass of all39.",
+  "sourceSha256": {
+    "js/core.js": "0daeebb6f6c5db2d6900d870cf8df7a6f7c1ad38a786d3b145d2d7b1835322f4",
+    "data/reference.js": "85f385358a1e1ec51fe7add23cfe6dee413e1a39df1ddd089d6316408e416828",
+    "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
+    "data/fleet.js": "c0341142b0b1b07f3f55b6e56e3445c33990f88e9d522a093f0e9319b6b7e416",
+    "js/app.js": "64cd0762fbf608cce5b66103557441a9def930ff882b5b16b08563b48f0a4ed3",
+    "js/gfx.js": "f779b1cc185ef875664e5dfbea81d1bc9a4313c8cb0e42cd5d630df68336cfeb",
+    "js/lang-en.js": "f4725c881d9385dc490f44d33af8c3a464cee00d8d50b3e751e8670aeb77b70e",
+    "js/engine.js": "ae431a0d3b61b19b15b1f3635159b7d5664a82eaf844ac8029ef2fa6da122a3e",
+    "index.html": "bb84edb0296a60c3c9239e4f469a826efba274d83ba932ddd5d60b402f110960"
+  },
+  "photoMeasurementsSha256": "de537caef4b4c57d51201b543f89bde43fd49b7fc2aaebb2fa176dd22e4d6205",
+  "baselineFixtureSha256": "f225173bbd128929a8acd7807f1f3f4a21d9182832513469e4cbfbb8855b05f6",
+  "updatedFixtureSha256": "57949be13efa062d12bee05e9c544559cdc314014abb79a9ac34f649d30aa87a",
+  "changedExampleKeys": [
+    "imperial",
+    "venator"
+  ],
+  "preservedExampleCount": 37,
+  "preservedRecordSha256": {
+    "acclamator": "21ce381356339c1ed379837fb6f901a7375102387855630c27c35c696e8736ff",
+    "arquitens": "2cefb86d3a5ec8e1a19c01304f64713ddba5b53f543b3e091d6137637f4b6b92",
+    "cr90": "047f5fcb849a341d7d315d16ec4ed9045980ab612da75eac7ee383e4769f4f9b",
+    "craft_arc170": "fcf81b299d26c07b0189a372f320df5269de9d5257df6519cdc717c61a0a6d39",
+    "craft_awing": "35bb58e9976bb7ccaa483e89feeba0ac4274568e98a9d6065852178673ef2ecd",
+    "craft_btlb": "1124ba44a79439e5c0e336c8d1a256faafd61c622a70c7322e106354368b8654",
+    "craft_hyena": "bc2dce84992ec4bfbf3b7f9a14f0fca3fae3f8779110501047e19856dead1aca",
+    "craft_tie_in": "36c84b124ae2e4d35608feb87828f86558ef5c14465e9cda0c335cf9ef40f8db",
+    "craft_tie_ln": "a75aa77a6eefabf0f182825855de0d6ef19e5a8fe7cd3b6c2a1381b491867a07",
+    "craft_tie_sa": "c8a15d9a7cbd1706f7bd71548fcccb6a4e2749bc4d772c47007f1e4657eddc03",
+    "craft_v19": "088f128eb6d6a135a593ca163ee120264227d710118e2401fea7cad414f0ed7e",
+    "craft_vulture": "f39410caa7b8a0d711a22992f6a0fb5269e980b5bc8dd6b8a28b69fe5c71efc3",
+    "craft_vwing": "b991d0feadc26225f2598800ce7015adbc5ec41e4fd165e02d811935d26b47df",
+    "craft_xwing": "62c5230a5f6bfec6912c69b4eaa379e863a7977de593418931e7b4ac9459c482",
+    "craft_z95": "88615f1c91055906d72b5456a2a90b659d5d48d4788dce77c4368eb4b800c6da",
+    "dreadnaught": "464a5e92026b931db9ca7cb28e00a6fc61fa534460cef860e3240b2f861bc99a",
+    "executor": "431fd9ba0691d95335d1c4e7629e66396405718a73e502637174edd8f1f47f1d",
+    "gozanti": "bc4b8e5092bb43f16e34bc07124531ba3d929b659cbeee3153c26af37105977f",
+    "gr75": "fdd500663ec99b01cbd09d863aa5ae4aea0b59169757ee890eb87ffccd9b47c3",
+    "hammerhead": "c3d431b5b6988b6fb772fcb15c99c9c9bf5c7ad7349c439d4a69a625d702464a",
+    "heraklon": "b2c5bd119fc7113cd99fc0278cf894eed94bd03287c78a1b3b076eb6a22344ef",
+    "lh3210": "c92179b18fee3b33a7886a77778bd64e9bbcb9074bb9d44310b2883ef85b7083",
+    "lucrehulk": "a104d69733283160e8fd6e6fd44156d38bf7b752d6378788470e358335dde8ce",
+    "mandator2": "1388c13063e19317b808417a83461fdd8a6ee10d338c6d13dbd1ef6476b172df",
+    "mc30c": "b41861faa7eb5230e64ae367f72090b8dc331e549ca506bc319ddb7e464d5ce2",
+    "mc75": "2a5a698c0fc928de69a4aa02af755c12af5690325ecf78e284bfd9304633058d",
+    "mc80home": "d94e1e50858f9d919a55cc294a628e3fb315db594b4f8dd125534d38f825a175",
+    "mc80liberty": "a6912e53c1fef2da35f498d91a531dbb23c2a3e5b6d1b0b8c96373f1568cd47c",
+    "munificent": "7287b5a296ab8431372c0ee56f2ac4f2bd4bd4f3f3dcdb126697a131290835e9",
+    "nebulonb": "0f66d12d3da9ce49b9eb014ee749ac606e46733935d200fae7a63ffd7845f0af",
+    "onager": "597996f006ff03a281a0f910b5e780743cefafd6f9b40686c84c5b700542e872",
+    "providence": "2f91c72fecf36c9759542fc4fdd00ebe38637ac7dabba1b8e804076a5103edc0",
+    "providenceDn": "7f2d77bb92b8e6b43dd94a15c773e9269c28358fd1a28465a3488bd568ba23e4",
+    "recusant": "6202b821e670682c7945647b57e76fa7202fbcc47be89121599347b27905cf2a",
+    "recusantDn": "85386c15a88f79bbdc347e270d0824aa5a4709d3bfe1396dee38b82e0cedb639",
+    "reptransport": "5958e8a08ec8c6aa0f34ba447e840f4a951822033933fc4bb44e7dac4f788caf",
+    "subjugator": "24a8aff3e04b39d5c0c04aed1229d82b8af672a8b5119b30ac3f1edd33909fc2"
+  },
+  "verification": {
+    "tolerance": 1e-9,
+    "captured": 2,
+    "updatedRecordsMatchCaptured": true,
+    "other37RecordsUnchanged": true,
+    "noFloatingFits": true,
+    "nominalHardwareAndOutputsUnchanged": true
+  },
+  "examples": {
+    "imperial": {
+      "buildMs": 35679,
+      "statsMs": 7894,
+      "fitCount": 166,
+      "floatFits": 0,
+      "kinds": {
+        "pd": 22,
+        "oct40": 6,
+        "ion": 2,
+        "podAir": 1,
+        "htl": 4,
+        "triple40": 3,
+        "mtl": 2,
+        "twin40": 60,
+        "quad40Ion": 56,
+        "trc": 10
+      },
+      "changedFields": [
+        "aEff",
+        "aThrust",
+        "aa",
+        "aaArc",
+        "accelG",
+        "actualAccelMps2",
+        "alpha",
+        "alphaBest",
+        "alphaMean",
+        "alphaRate",
+        "arcEff",
+        "autoCrewCapacity",
+        "autoHabitationVolume",
+        "bandRate",
+        "chargeInfo",
+        "chargingVolume",
+        "crewAboard",
+        "crewCapacity",
+        "droidCapacity",
+        "feedBranchVolume",
+        "feedInfo",
+        "feedLength",
+        "feedShare",
+        "feedVolume",
+        "fitInfo",
+        "freeAccelerationMps2",
+        "ground",
+        "habit",
+        "habitableVolume",
+        "hp",
+        "hyperClass",
+        "ionMean",
+        "ionRate",
+        "mass",
+        "personCapacity",
+        "ratedAccelMps2",
+        "thrustG",
+        "troopVolume",
+        "unassignedVolume",
+        "warnings",
+        "$warnings",
+        "chargingExternalVolume",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarChanges": {
+        "aEff": {
+          "before": 7239.279877216537,
+          "after": 7239.282483679923
+        },
+        "aThrust": {
+          "before": 7239.279877216537,
+          "after": 7239.282483679923
+        },
+        "aa": {
+          "before": 122.47199999999985,
+          "after": 122.88088888888875
+        },
+        "accelG": {
+          "before": 738.2011061082569,
+          "after": 738.2013718935542
+        },
+        "actualAccelMps2": {
+          "before": 7239.279877216537,
+          "after": 7239.282483679923
+        },
+        "alphaBest": {
+          "before": 3964.000000000003,
+          "after": 4115.111111111113
+        },
+        "alphaMean": {
+          "before": 3022.6148148148163,
+          "after": 3108.5407407407415
+        },
+        "arcEff": {
+          "before": 0.5114046857260816,
+          "after": 0.5308998750014338
+        },
+        "autoCrewCapacity": {
+          "before": 19759,
+          "after": 19768
+        },
+        "autoHabitationVolume": {
+          "before": 52994745.872070305,
+          "after": 53023928.000854485
+        },
+        "chargingExternalVolume": {
+          "before": 213016.80125517384,
+          "after": 217604.78422425894
+        },
+        "chargingHousingVolume": {
+          "before": 257547.17375788,
+          "after": 257293.3054097952
+        },
+        "chargingOccupiedVolume": {
+          "before": 141599.7600242926,
+          "after": 142461.7896314268
+        },
+        "chargingVolume": {
+          "before": 90676.82624212008,
+          "after": 90930.69459020485
+        },
+        "crewAboard": {
+          "before": 19759,
+          "after": 19768
+        },
+        "crewCapacity": {
+          "before": 19759,
+          "after": 19768
+        },
+        "droidCapacity": {
+          "before": 196,
+          "after": 97
+        },
+        "feedBranchVolume": {
+          "before": 28865024.149575092,
+          "after": 28883948.338599812
+        },
+        "feedLength": {
+          "before": 385.33193531190864,
+          "after": 385.5845626557598
+        },
+        "feedShare": {
+          "before": 0.5544277247777385,
+          "after": 0.5544794902327363
+        },
+        "feedVolume": {
+          "before": 29381756.37902639,
+          "after": 29400680.56805111
+        },
+        "freeAccelerationMps2": {
+          "before": 7239.279877216537,
+          "after": 7239.282483679923
+        },
+        "habit": {
+          "before": 0.7717756425279275,
+          "after": 0.7721271775642528
+        },
+        "habitableVolume": {
+          "before": 23612989.493043914,
+          "after": 23623247.432803374
+        },
+        "hp": {
+          "before": 123101.00363914427,
+          "after": 123100.92766981071
+        },
+        "hyperClass": {
+          "before": 1.8596930631177049,
+          "after": 1.8596923935455634
+        },
+        "ionMean": {
+          "before": 4291.111111111111,
+          "after": 4282.222222222223
+        },
+        "mass": {
+          "before": 38111675.91391666,
+          "after": 38111662.19201977
+        },
+        "personCapacity": {
+          "before": 19759,
+          "after": 19768
+        },
+        "ratedAccelMps2": {
+          "before": 20683.656792047248,
+          "after": 20683.664239085494
+        },
+        "thrustG": {
+          "before": 738.2011061082569,
+          "after": 738.2013718935542
+        },
+        "troopVolume": {
+          "before": 984.4930439144373,
+          "after": 487.4328033737838
+        },
+        "turretIntrusionVolume": {
+          "before": 50922.93378217252,
+          "after": 51531.09504122196
+        },
+        "unassignedVolume": {
+          "before": 52994745.872070305,
+          "after": 53023928.000854485
+        }
+      },
+      "unchangedNominalFields": [
+        "cost",
+        "chargingCount",
+        "chargingHardwareMass",
+        "chargingHardwareCost",
+        "chargingTotalVolume",
+        "ionTot",
+        "heavyAlpha",
+        "weaponCrew"
+      ],
+      "beforeRecordSha256": "13d33c721ee485012c4302537c7a2af9239d737ac003b13ddc107162f416ad0c",
+      "afterRecordSha256": "b480e2a64109e31b9cfb6f9694d6fa9b200cb47fbe5325c454d77d9b3fd9b8d6",
+      "reason": "Photographed twin/triple case geometry changes room capacity, hull occupation and rays; the original 166 fittings and nominal outputs remain. The two forward ion stations move from x1375 to1385 to retain their original inventory."
+    },
+    "venator": {
+      "buildMs": 32307,
+      "statsMs": 16750,
+      "fitCount": 73,
+      "floatFits": 0,
+      "kinds": {
+        "podHangar": 1,
+        "pd": 52,
+        "refVen": 8,
+        "twin40": 2,
+        "cmsl": 4,
+        "trc": 6
+      },
+      "changedFields": [
+        "aa",
+        "aaArc",
+        "alpha",
+        "alphaBest",
+        "alphaMean",
+        "alphaRate",
+        "arcEff",
+        "bandRate",
+        "chargeInfo",
+        "fitInfo",
+        "chargingExternalVolume",
+        "chargingOccupiedVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarChanges": {
+        "aa": {
+          "before": 185.28888888888878,
+          "after": 185.05185185185175
+        },
+        "alphaBest": {
+          "before": 901.8419473886498,
+          "after": 955.1752807219831
+        },
+        "alphaMean": {
+          "before": 420.94156478858616,
+          "after": 444.6374827267518
+        },
+        "arcEff": {
+          "before": 0.6594495505531135,
+          "after": 0.6984482274254914
+        },
+        "chargingExternalVolume": {
+          "before": 10025.934528202273,
+          "after": 10832.916180858843
+        },
+        "chargingOccupiedVolume": {
+          "before": 17538.532492146114,
+          "after": 17669.907250794135
+        },
+        "turretIntrusionVolume": {
+          "before": 1124.1415247493815,
+          "after": 1255.5162833974032
+        }
+      },
+      "unchangedNominalFields": [
+        "cost",
+        "chargingCount",
+        "chargingHardwareMass",
+        "chargingHardwareCost",
+        "chargingTotalVolume",
+        "ionTot",
+        "heavyAlpha",
+        "weaponCrew"
+      ],
+      "beforeRecordSha256": "ed3110c738dfc4ad8afc6e0bec17b753defc5c1387081c7300ce7dd8b3e670bf",
+      "afterRecordSha256": "9d8dfa9c90357b46e9e61f9cd43c3a9f5c8cf9a3a2d99db46b29be69d94861b7",
+      "reason": "Two wall-mounted40TT twins receive the photographed shared case; mounting inventory and nominal outputs remain, while real housing intrusion and firing rays change."
+    }
+  },
+  "inventoryRegression": {
+    "beforeImperialFitCount": 166,
+    "afterImperialFitCount": 166,
+    "beforeImperialIonQuads": 56,
+    "afterImperialIonQuads": 56,
+    "relocatedDorsalPair": {
+      "beforeX": 1375,
+      "afterX": 1385,
+      "why": "The photographed external twin case needs more separation; relocate the authored ion pair rather than silently dropping it."
+    },
+    "permanentTest": "tests/weapon-family-models.cjs: photo-sized cases retain the original Imperial inventory and its forward dorsal ion pair"
+  },
+  "regression": {
+    "status": "PASS",
+    "command": "KS_FIGURES_KEYS=imperial,venator node --test tests/example-figures-regression.cjs",
+    "tests": 6,
+    "passed": 6,
+    "failed": 0,
+    "durationMs": 73667.082132,
+    "verified": [
+      "live Imperial and Venator figures match their updated records on cold and cached requests",
+      "all buildable examples still have a recorded fixture",
+      "incremental first/last Gozanti and last TIE structure edits match fresh computation"
+    ]
+  },
+  "permanentInventoryGuard": {
+    "status": "PASS",
+    "suite": "tests/weapon-family-models.cjs",
+    "inventory": {
+      "imperialFits": 166,
+      "imperialTwins40": 60,
+      "imperialIonQuads40": 56,
+      "venatorFits": 73
+    },
+    "forwardDorsalPair": {
+      "floating": false,
+      "clash": false,
+      "allocationPending": false,
+      "chargedTT": 160
+    }
+  }
+}

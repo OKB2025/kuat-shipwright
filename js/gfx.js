@@ -622,7 +622,7 @@ function meshFits(ship, filter, ranges, only) {
       if(f.float)return;
       const d=C.fitSpec(f),ph=(f.base||0)+(f.ped||0)-(f.low||0);
       if(!d.casemate&&!f.localMount&&f.mountAxis==null&&ph>0.3&&C.fitHasPedestal(f)&&!FIT_SKIP_PED?.has(f.id))pedestal(g,frameM(f),C.fitOrigin(f),ph,d.r*.72*(f.pedSize||1),f.pedShape,FC.ped,d.r*.8);
-      if(plainFitAsset(f)&&!FIT_SKIP_BODY?.has(f.id))appendPlainFit(g,f);
+      if(plainFitAsset(f)&&!familyReferenceAsset(f)&&!FIT_SKIP_BODY?.has(f.id))appendPlainFit(g,f);
       return;
     }
     // Command pods are the bridge drum mesh, drawn with the model fittings.
@@ -2590,6 +2590,7 @@ function arcPaintBands(p,g){
 const REF_ONE=[128,128,128];
 function refTone(id,base=WHITE){const f=C.REFERENCE_TONE[id]||[1,1,1];return [0,1,2].map(i=>Math.max(0,Math.min(255,Math.round(base[i]/255*128*f[i]))));}
 function plainFitAsset(f){return C.REFERENCE_ASSETS[f.skinAsset||C.FITS[f.k]?.asset]?.plainMetal;}
+function familyReferenceAsset(f){const a=C.REFERENCE_ASSETS[f.skinAsset||C.FITS[f.k]?.asset];return a?.plainMetal&&a.nativeCalibration==='imperial-photo-family'?a:null;}
 // The supplied FBX has no texture atlas. Keep its indexed normals and geometry,
 // but render it with the ordinary fitting metal in the editor and fleet alike.
 const PLAIN_FIT_CACHE=new WeakMap();
@@ -2600,6 +2601,30 @@ function appendPlainFit(g,f){
   // so triangle interiors cannot sample the separate dark window band.
   for(let i=0;i<mesh.n;i++){mesh.uv[i*2]=UV_WHITE[0]+C.clamp(mesh.uv[i*2],0,1)*(UV_WHITE[2]-UV_WHITE[0]);mesh.uv[i*2+1]=UV_WHITE[1]+C.clamp(mesh.uv[i*2+1],0,1)*(UV_WHITE[3]-UV_WHITE[1]);}
   item={key,mesh};PLAIN_FIT_CACHE.set(f,item);}
+ appendGeo(g,item.mesh);
+}
+// Derived turret pieces keep the same authored material as their source guns.
+// Their generated armor panels use one quiet paint sample instead of stretching
+// the generic fitting atlas across every triangle fan.
+const FAMILY_REFERENCE_CACHE=new WeakMap();
+// Interior, non-emissive texels matching the area-weighted large roof panels
+// of the existing normal octuple and DBY-827, respectively (2048px atlas).
+const FAMILY_PAINT_UV={isd_heavy_octuple:[.046142578125,.153564453125],ven_turret70_native:[.848876953125,.522705078125]};
+function familyMaterialAnchor(a){return a.materialReference||(a.derivedFrom==='ven_turret'?'ven_turret70_native':'isd_heavy_octuple');}
+function appendFamilyReference(g,f){
+ const a=familyReferenceAsset(f),id=f.skinAsset||C.FITS[f.k].asset,key=JSON.stringify([f,C.fitSpec(f)],(k,v)=>k.startsWith('_')?undefined:v);let item=FAMILY_REFERENCE_CACHE.get(f);
+ if(!item||item.key!==key){const anchor=familyMaterialAnchor(a),paintUV=FAMILY_PAINT_UV[anchor],mesh=new Geo(a.n),raw=C.decodeReference(id);appendReference(mesh,id,v=>C.referenceFitPoint(f,v),null,refTone(anchor));
+  for(let i=0;i<mesh.n;i++){mesh.uv[i*2]=paintUV[0];mesh.uv[i*2+1]=paintUV[1];}
+  for(const part of a.components||[]){if(!part.sourceVertexIndices||part.sourceVertexIndices.length!==part.vertices)continue;const source=part.sourceAsset==='ven_turret'?'ven_turret70_native':'isd_heavy_octuple',color=refTone(source);
+   for(let i=part.firstVertex;i<part.firstVertex+part.vertices;i++){mesh.uv[i*2]=raw.uv[i*2];mesh.uv[i*2+1]=raw.uv[i*2+1];mesh.col.set(color,i*4);}}
+  for(const part of a.components||[]){if(part.normalMode!=='sphere'||!Array.isArray(part.normalCenterM)||part.normalCenterM.length!==3||!part.normalCenterM.every(Number.isFinite))continue;
+   const c=part.normalCenterM.map((v,k)=>(v-a.c[k])/a.size[k]),center=C.referenceFitPoint(f,c),up=C.norm(C.sub(C.referenceFitPoint(f,[c[0],c[1]+1/a.size[1],c[2]]),center)),eps=Math.max(.002,(a.maxQuantizationErrorM||0)*3);
+   for(let i=part.firstVertex;i<part.firstVertex+part.vertices;i++){const v=Array.from(raw.pos.subarray(i*3,i*3+3)),n0=Array.from(mesh.nor.subarray(i*3,i*3+3));
+    // The cap has its own duplicated vertices: preserve its hard lower rim,
+    // while the coincident vertices on the curved dome receive radial normals.
+    if(Number.isFinite(part.floorYM)&&Math.abs(v[1]*a.size[1]+a.c[1]-part.floorYM)<=eps&&C.dot(n0,up)<-63.5)continue;
+    const n=C.norm(C.sub(C.referenceFitPoint(f,v),center));for(let j=0;j<3;j++)mesh.nor[i*3+j]=n[j]*127;}}
+  item={key,mesh};FAMILY_REFERENCE_CACHE.set(f,item);}
  appendGeo(g,item.mesh);
 }
 function appendReference(g,id,point,filter,color=WHITE,cuts=[],skinPatches=[]){
@@ -2643,8 +2668,8 @@ function meshReferenceParts(ship,ranges,only,opt={}){
  return {refStruct,refEngine,refPlant};
 }
 function meshReferenceFits(ship,ranges,only){
-  const g=new Geo(16);for(const f of only||surfaceRenderFits(ship)){const d=C.FITS[f.k];if(embeddedSurfaceFit(f)||!(d.asset||d.pod)||f.float||plainFitAsset(f))continue;const before=g.ni;
-  if(d.pod)appendReference(g,C.POD_ASSET,v=>C.podPoint(f,v));else appendReference(g,f.skinAsset||d.asset,v=>C.referenceFitPoint(f,v));
+  const g=new Geo(16);for(const f of only||surfaceRenderFits(ship)){const d=C.FITS[f.k];if(embeddedSurfaceFit(f)||!(d.asset||d.pod)||f.float||plainFitAsset(f)&&!familyReferenceAsset(f))continue;const before=g.ni;
+  if(familyReferenceAsset(f))appendFamilyReference(g,f);else if(d.pod)appendReference(g,C.POD_ASSET,v=>C.podPoint(f,v));else appendReference(g,f.skinAsset||d.asset,v=>C.referenceFitPoint(f,v));
   if(ranges&&g.ni>before)(ranges[f.id]||(ranges[f.id]=[])).push(['refFits',before,g.ni-before]);
  }return g;
 }
@@ -2801,7 +2826,7 @@ function trialTurrets(model,put,ranges){
  for(const f of list)if(!poses.has(f.id))poses.set(f.id,mirroredTurretPose(f,list,poses)||(()=>{const fr=C.fitFrameOf(f);return {pivot:C.fitOrigin(f),axis:fr.up,fw:fr.fw};})());
  for(const f of list){
   const d=C.fitSpec(f),spec=C.FITS[f.k],pose=poses.get(f.id),axis=C.norm(pose.axis),fw=C.norm(C.sub(pose.fw,C.mul(axis,C.dot(pose.fw,axis)))),rot=turning.has(f.id);
-  let mesh=null,bodyMesh=null,authored=null;const g=C.authoredTurretGeometry?.(f);if(rot){if(spec.asset&&(!plainFitAsset(f)||g)){const plain=plainFitAsset(f),geo=plain?new Geo(16):meshReferenceFits(model,null,[f]),tex=plain?'fits':'reference',emi=plain?.6:null;if(plain)appendPlainFit(geo,f);mesh=(plain?'tur_':'refTur_')+f.id;const split=g?.indexStart;
+  let mesh=null,bodyMesh=null,authored=null;const g=C.authoredTurretGeometry?.(f);if(rot){if(spec.asset&&(!plainFitAsset(f)||g)){const plain=plainFitAsset(f)&&!familyReferenceAsset(f),geo=plain?new Geo(16):meshReferenceFits(model,null,[f]),tex=plain?'fits':'reference',emi=plain?.6:null;if(plain)appendPlainFit(geo,f);mesh=(plain?'tur_':'refTur_')+f.id;const split=g?.indexStart;
    if(Number.isInteger(split)&&split>=0&&split<geo.ni&&split%3===0){authored=g;bodyMesh=(plain?'turBody_':'refTurBody_')+f.id;put(bodyMesh,geoIndices(geo,geo.idx.subarray(0,split)),tex,emi);put(mesh,geoIndices(geo,geo.idx.subarray(split,geo.ni)),tex,emi);}else put(mesh,geo,tex,emi);
   }else{mesh='tur_'+f.id;FIT_SKIP_PED=all;try{put(mesh,meshFits(model,x=>x===f),'fits',.6);}finally{FIT_SKIP_PED=null;}}}
   const embedded=C.surfaceBatteryGeometry?.(f);out.push({id:f.id,k:f.k,name:spec.short||spec.name,mesh,...(authored?{authored,bodyMesh,bodyPivot:authored.yawPivot}:{}),pivot:authored?.elevationPivot||pose.pivot,axis:authored?.axis||axis,fw:authored?.fw||fw,origin:authored?.elevationPivot||C.turretOrigin(f),mount:C.fitUp(f),r:d.r,hm:embedded?embedded.height:d.hm,embedded:!!embedded,fixed:!!spec.fixed,portWidth:embedded?.width,portHeight:embedded?.height,port:embedded?{width:embedded.width,height:embedded.height,depth:embedded.depth}:undefined,casemate:embedded?false:!!(spec.casemate||spec.fixed),barrels:spec.barrels||(spec.fixed?1:TRIAL_BARRELS[f.k]||2),cycle:spec.cycle||2.5,tt:d.tt||0,ion:!!d.ion&&!d.tt,rate:C.turretRate(f),power:d.power||0,cap:C.needsCapacitor(f)});

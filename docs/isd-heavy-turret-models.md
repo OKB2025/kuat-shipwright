@@ -61,19 +61,40 @@ shape. Source barrel caps are retained; the converter does not invent new
 recessed bores on the 40 TT barrels. Rendering, muzzle positions, picking,
 mechanical limits, and line-of-fire checks share the same motion transform.
 
-The nine-model [weapon family](turret-family-and-compartments.md) derives its
-other 40 TT guns from the complete normal-octuple gun and drive components.
+The nine-model [weapon family](turret-family-and-compartments.md) uses the
+normal-octuple barrel and machinery components together with complete circular
+DBY drive assemblies for its other 40 TT guns.
+The [independent photo measurements](../assets/source/turret-photo-measurements.json)
+record source-image hashes, pixel landmarks and uncertainty. House dimensions,
+wheel diameters and barrel lengths are read separately: the single retains its
+long barrel above a taller case, the central twin uses a broad hemisphere, and
+the box twin and triple use the same 22.5 m long, 13 m wide fixed outer
+case, from Y0.4 m to Y11.4 m. The triple has a broad moving armored hood and
+cradle connected to the cross-shaft, receiver and barrels. Its hood fills the
+central opening at zero elevation. The two variants reserve different internal
+mechanism space, so the usable charging rooms are about 2,360.400 m³ for the
+twin and 884.709 m³ for the triple despite their identical fixed case. Display
+plinths are excluded from the measurements and the generated models.
+
 The 70 TT family uses the original DBY-827 source geometry and its full-length
 12.87965 m barrels. The triple has the same 9.997709 m overall height as the
-DBY twin. Its closed hexagonal rear house reaches maximum width at 77% of the
-house length from rear to front and tapers toward the rear. A complete,
-detailed 3-gun pod projects 9 m ahead of the rear house; the barrel roots are
-clustered at lateral offsets of −3.2, 0, and +3.2 m. The house and forward pod
-provide 5,416.385980 m³ of usable space, sufficient for the standard 210 TT
-salvo's 4,200 m³ bank. Whole-mesh checks at −10°, 0°, 20°, 55°, and 85° permit
-the normal −10° to +85° elevation range. The wall-only quad retains ±20° pitch
-and ±65° traverse. The [current family document](turret-family-and-compartments.md)
-contains dimensions, volumes, and the accepted model views.
+DBY twin. Its compact hexagonal rear house is 19.5 m long and 24 m wide,
+with its maximum width about 69% of the way from rear to front. It has armor
+belts, inspection panels and three rows of roof mechanisms. An 18 m wide,
+7.5 m deep complete 3-gun pod projects ahead of it, with barrel roots at
+lateral offsets of −3, 0 and +3 m. Whole-mesh
+checks at −10°, 0°, 20°, 55°, and 85° permit the normal −10° to +85° elevation
+range. The wall-only quad uses separate upper and lower carrier rails, a rear
+bulkhead and a square moving four-gun assembly. The carrier's open side gap is
+not credited as usable room. It retains ±20° pitch and ±65° traverse. The
+[current family document](turret-family-and-compartments.md) contains final
+dimensions, closed volumes and production-renderer comparison views.
+
+New 40 TT case faces use paint sampled from the existing normal octuple; new
+70 TT case faces use the DBY-827 paint. Copied mechanical components retain
+their source UVs and colors. The original anchors and global lighting remain
+unchanged. Smooth analytic normals apply only to the generated hemisphere and
+ion sphere; angular armor creases and source-component shading are retained.
 
 ## Regeneration and checks
 
@@ -81,6 +102,7 @@ contains dimensions, volumes, and the accepted model views.
 python3 scripts/build-turret-family.py --check
 python3 scripts/build-isd-heavy-turrets.py --check
 node --test tests/isd-heavy-turret-models.cjs tests/weapon-family-models.cjs \
+  tests/turret-photo-proportions.cjs tests/weapon-plain-metal-uv.cjs \
   tests/weapon-output-sizing.cjs tests/turret-compartment-volume.cjs
 ```
 

@@ -8,6 +8,12 @@
 
 全9種類の寸法、形状と写真の読み取り条件は [砲塔系列と砲室区画](turret-family-and-compartments.md) と生成マニフェストを参照。新規配置時は支持台を自動生成しない。既存設計の明示的な手動砲座は保持する。
 
+[写真の測定記録](../assets/source/turret-photo-measurements.json) に基づき、砲室長・高さ、円形基部の直径、砲身長を独立に調整する。40TT単装の長い砲身、半球型連装の広い砲室、箱型連装・3連装の上部機構の比率をそれぞれ保持する。40TT系列の砲身長は写真中の各形式に従い、70TT系列の9門は共通のDBY-827砲身長を使う。写真1の円盤直径を基準にした読み取りには約13%の許容差があり、斜視写真の投影比には透視の不確かさも含む。
+
+箱型40TT連装と3連装は同じ22.5 m × 13 mの固定外殻を使う。3連装の幅広い可動装甲フードと揺架は横軸から受筒・砲身へつながり、0度で中央開口を埋める。可動機構のために確保する空間に従って、充電設備へ使える容積を決める。
+
+新しい砲室の塗装は40TT系では既存8連装、70TT系ではDBY-827を基準にし、流用部品の元の色とテクスチャ座標を保持する。元の8連装とDBY-827の形状・材質は維持する。
+
 500GT×4の `quad500` は、添付アーキテンスの主砲に合わせた17.8304 × 5.8065 × 14.1041 mの個別基準。1門0.5 TT、4門合計2 TT、倍率1、`calibration: user-supplied-arquitens-stl` を保持する。
 
 ## 系列以外の出力換算
@@ -69,6 +75,7 @@ Vtarget = E × ((1 - t) × ρ2 + t × ρ8)
 
 ```sh
 node --test tests/weapon-output-sizing.cjs tests/weapon-family-models.cjs \
+  tests/turret-photo-proportions.cjs tests/weapon-plain-metal-uv.cjs \
   tests/weapon-flush-bounds-core.cjs tests/turret-rotation-core.cjs \
   tests/turret-rotation-transform.cjs tests/weapon-catalog-migration.cjs
 ```

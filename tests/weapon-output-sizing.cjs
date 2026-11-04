@@ -34,8 +34,14 @@ function meshBounds(geo) {
   return result;
 }
 function referenceBounds(f) {
-  const asset = C.REFERENCE_ASSETS[C.FITS[f.k].asset];
-  return meshBounds(asset?.plainMetal ? G.meshFits({fits: [f]}) : G.meshReferenceFits({fits: [f]}));
+  // Photo derivatives retain plainMetal source metadata while their copied
+  // machinery now correctly uses the reference atlas. Inspect both actual
+  // render outputs rather than guessing a material route from that old flag.
+  const meshes = [G.meshFits({fits: [f]}), G.meshReferenceFits({fits: [f]})].filter(g => g.ni > 0);
+  assert.ok(meshes.length > 0, 'the renderer emitted the fitting');
+  const boxes = meshes.map(meshBounds);
+  return [0, 1, 2].map(a => Math.min(...boxes.map(b => b[a])))
+    .concat([0, 1, 2].map(a => Math.max(...boxes.map(b => b[a+3]))));
 }
 const span = bounds => [0, 1, 2].map(axis => bounds[axis+3]-bounds[axis]);
 
@@ -53,14 +59,18 @@ test('DBY-827 and the canonical eight-barrel turret retain their authored size a
 });
 
 test('the photographed family and medium quad retain their own native size anchors', () => {
-  const cases=[['quad500',4,2,17.8304],['single40',1,40,35.4094161263],['quad40Ion',4,160,23.9074143364],['twin40Dome',2,80,31.4644851825],['twin40',2,80,22.6768196158],['triple40',3,120,23.7435456225],['oct40',8,320,40],['refVen',2,140,28.861991733],['triple70',3,210,47.8296528633],['quad70Side',4,280,35.8796528633]];
-  for(const [k,barrels,volleyTT,length]of cases){
+  const cases=[['quad500',4,2],['single40',1,40],['quad40Ion',4,160],['twin40Dome',2,80],['twin40',2,80],['triple40',3,120],['oct40',8,320],['refVen',2,140],['triple70',3,210],['quad70Side',4,280]];
+  for(const [k,barrels,volleyTT]of cases){
+    // Independent photograph-ratio tests cover the chosen proportions. Here
+    // the packed rendered mesh must agree with its published native size.
+    const length=k==='quad500'?17.8304:C.REFERENCE_ASSETS[C.FITS[k].asset].size[0];
     const f=fitting(k,k==='quad70Side'?{a:4}:{}),sizing=C.weaponSizing(f),rendered=span(referenceBounds(f));
     assert.equal(C.FITS[k].barrels,barrels);near(sizing.volleyTT,volleyTT,`${k} explicit salvo`);near(C.weaponModelScale(f),1,`${k} native photo scale`);near(sizing.factor,1,`${k} native sizing factor`);near(sizing.targetVolume,sizing.sourceVolume,`${k} native target volume`);near(rendered[k==='quad70Side'?2:0],length,`${k} photographed forward length`);
     for(let axis=0;axis<3;axis++)near(sizing.sourceSize[axis],[C.FITS[k].fm,C.FITS[k].hm,C.FITS[k].wm][axis],`${k} canonical native axis${axis}`);
     if(k!=='quad500')assert.match(sizing.calibration,/photo/i,`${k} is explicitly calibrated to the family photograph`);
   }
-  near(C.FITS.twin40.fm/C.FITS.oct40.fm,22.6768196158/40,'40 TT twin-to-octuple photo ratio');near(C.FITS.refVen.tt,140,'DBY-827 remains a 140 TT salvo');near(C.FITS[C.canonicalWeaponKind('refSide')].tt,80,'legacy side-twin inventory keeps its80 TT salvo');
+  const photo=JSON.parse(fs.readFileSync(path.join(root,'assets/source/turret-photo-measurements.json'),'utf8')),twinPhoto=photo.profile40.twin40;
+  near(C.FITS.twin40.fm/C.FITS.oct40.fm,twinPhoto.physicalTargetsM.wholeLength/photo.anchor.metres,'40 TT twin-to-octuple measured photo ratio',twinPhoto.relativeTolerance);near(C.FITS.refVen.tt,140,'DBY-827 remains a 140 TT salvo');near(C.FITS[C.canonicalWeaponKind('refSide')].tt,80,'legacy side-twin inventory keeps its80 TT salvo');
 });
 
 test('unlisted conventional weapons retain their established salvo/barrel density calibration', () => {

@@ -262,6 +262,12 @@ def finish(m, kind, title, output, pivot, barrels, split, drives_meta, scale, **
     for row in drives_meta:
         row['centerM'] = [v*scale for v in row['centerM']]
         row['radiusM'] *= scale
+        for key in ['caseOuterSideM', 'innerFaceAbsZM', 'outerFaceAbsZM',
+                    'caseSideClearanceM', 'uniformSourceScale']:
+            if key in row:row[key] *= scale
+    for row in m.components:
+        if 'normalCenterM' in row:row['normalCenterM']=[v*scale for v in row['normalCenterM']]
+        if 'floorYM' in row:row['floorYM']*=scale
     pivot = [v*scale for v in pivot]
     low, high = bounds(m.points)
     size = [high[k]-low[k] for k in range(3)]
@@ -291,6 +297,14 @@ def finish(m, kind, title, output, pivot, barrels, split, drives_meta, scale, **
                                     'excludes': ['barrels', 'cradles', 'drive gears', 'bearing rings', 'display stands']},
              'components': m.components, 'maxQuantizationErrorM': error,
              'data': base64.b64encode(packed).decode('ascii'), **extra}
+    if 'photoFeatureComponents' in extra:
+        features={}
+        for key,labels in extra['photoFeatureComponents'].items():
+            selected=[row for row in m.components if row['label'] in labels]
+            vertices=[p for row in selected for p in m.points[row['firstVertex']:row['firstVertex']+row['vertices']]]
+            if not vertices:raise ValueError('Empty photo feature '+key)
+            features[key]={'componentLabels':labels,'boundsM':bounds(vertices)}
+        asset['photoGeometryFeaturesM']=features
     original_id=extra.get('derivedFrom')
     if original_id:
         original=sources()[original_id]['asset']
@@ -571,98 +585,227 @@ def full_dby_outboard40_drives(m,pivot,scale,case_half_width=5.1,clearance=.20):
     return rows,centers
 
 
+DEFAULT_FORTY_SCALE=OCTUPLE_LENGTH_M/34.56475644
+
+
+def physical40_barrel(m,root,length,label):
+    src=sources()['isd_heavy_octuple_original'];lo,hi=bounds([src['points'][i] for i in src['groups'][15]])
+    return source_barrel(m,'isd_heavy_octuple_original',15,root,length/(hi[0]-lo[0]),
+                         OCTUPLE_LENGTH_M/src['asset']['size'][0],label)
+
+
+def complete_photo_drives(m,pivot,case_half_width,diameter,label,clearance=.20):
+    src=sources()['ven_turret'];rows=[];centers=[]
+    for component,sign in [(1,-1),(3,1)]:
+        lo,hi=bounds([src['points'][i] for i in src['groups'][component]])
+        c=[(lo[k]+hi[k])/2 for k in range(3)];unit=diameter/max(hi[0]-lo[0],hi[1]-lo[1])
+        half_depth=(hi[2]-lo[2])*unit/2;z=sign*(case_half_width+clearance+half_depth)
+        xf=lambda p,c=c,z=z,u=unit:[pivot[0]+(p[0]-c[0])*u,pivot[1]+(p[1]-c[1])*u,z+(p[2]-c[2])*u]
+        row=source_part(m,'ven_turret',component,xf,label+(' port' if sign<0 else ' starboard'))
+        row.update(centerM=[pivot[0],pivot[1],z],axis=[0,0,1],radiusM=diameter/2,
+                   completeSourceComponent=True,uniformSourceScale=unit,caseOuterSideM=case_half_width,
+                   innerFaceAbsZM=case_half_width+clearance,outerFaceAbsZM=abs(z)+half_depth,
+                   caseSideClearanceM=clearance)
+        rows.append(row);centers.append(z)
+        m.cylinder([pivot[0],pivot[1],sign*(abs(z)+half_depth+.06)],diameter*.105,.14,2,
+                   label+' central hexagonal axle bolt',6)
+        m.cylinder([pivot[0],pivot[1],sign*(case_half_width+.12)],.43,.32,2,label+' connecting axle',32)
+    return rows,centers
+
+
+def photo_roof_detail(m,low,high,label='original normal40 roof inspection hatch'):
+    return source_part(m,'isd_heavy_octuple_original',9,
+                       source_transform('isd_heavy_octuple_original',9,low,high),label)
+
+
+def photo_receiver(m,root,z,width=1.3,label='photo40 angular recoil cradle'):
+    # The visible breech is a stepped, bevelled receiver, not a scaled solid
+    # wedge covering the entire equipment case between the wheels.
+    x,y=root
+    m.prism([[x-5.0,y-2.0],[x+.6,y-2.0],[x+1.4,y-1.1],
+             [x+1.1,y+.6],[x-.8,y+1.1],[x-4.2,y+1.1],[x-5.0,y+.3]],
+            z-width,z+width,label)
+    photo_roof_detail(m,[x-4.0,y+.98,z-width*.68],[x-1.5,y+1.25,z+width*.68],label+' roof service rail')
+    ribs(m,x-1.4,4,.50,y+.65,z-width*.82,z+width*.82,.12)
+
+
+def finish_photo40(m,kind,title,pivot,barrels,split,drive,scale,features,**extra):
+    # All four photo40 gunhouses reuse complete DBY circular drive assemblies.
+    # Preserve this second source's attribution alongside the normal40 parent.
+    extra.setdefault('additionalSourceAssets',['ven_turret'])
+    extra.setdefault('additionalSourceReferences',[{k:v for k,v in sources()['ven_turret']['asset'].items()
+                     if k in ['source','sourceUrl','authorUrl','license','licenseUrl']}])
+    return finish(m,kind,title,40,pivot,barrels,split,drive,scale/DEFAULT_FORTY_SCALE,
+                  derivedFrom='isd_heavy_octuple_original',materialReference='isd_heavy_octuple',
+                  photoMeasurements='assets/source/turret-photo-measurements.json',
+                  photoFeatureComponents=features,barrelCrossSectionPreservedFrom='isd_heavy_octuple_original',
+                  **extra)
+
+
 def build_single40(scale):
-    m=Mesh();thin_turntable(m,3.4)
-    machinery_house(m,[-11.5,.38,-3.2],[.7,4.1,3.2])
-    isd_roof_details(m,[-9.8,4.1,-1.45],[-4.8,4.4,1.45])
-    pivot=[-6.7,3.15,0];d=isd_drives(m,pivot,2.05,1.05)
-    split=m.mark();isd_receiver(m,pivot,.38,.9)
-    b=[source_barrel(m,'isd_heavy_octuple_original',15,[-7.0,4.42,0],1.85,1.0,'40TT single source barrel')]
-    return finish(m,'single40','40TT 単装ターボレーザー',40,pivot,b,split,d,scale,
-                  derivedFrom='isd_heavy_octuple_original',derivation='one-barrel original normal octuple rear-mounted pod above resized central machinery')
+    m=Mesh();thin_turntable(m,4.3)
+    lower=m.prism([[-10.1,.4],[10.1,.4],[10.1,2.9],[8.0,4.1],[-8.5,4.8],[-10.1,3.5]],
+                  -3.8,3.8,'single40 lower armored gunhouse',True)
+    hood=m.prism([[-10.1,4.8],[-10.1,5.2],[-6.8,8.1],[-2.5,8.1],[.8,4.8]],
+                 -3.0,3.0,'single40 raised rear breech case',True)
+    photo_roof_detail(m,[-8.6,7.8,-1.5],[-5.1,8.25,1.5])
+    pivot=[-2.7,3.5,0];d,z=complete_photo_drives(m,pivot,3.8,4.5,'single40 complete circular trunnion')
+    split=m.mark();root=[-1.2,6.2,0]
+    photo_receiver(m,root[:2],0,1.15,'single40 angular recoil cradle')
+    b=[physical40_barrel(m,root,25.7,'40TT single photo-length source barrel')]
+    return finish_photo40(m,'single40','40TT 単装ターボレーザー',pivot,b,split,d,scale,
+                         {'case':[lower['label'],hood['label']],'wheel':[d[0]['label']]},
+                         derivation='photo1 single with full-height angular rear case, compact trunnion and long slender barrel')
 
 
 def build_dome40(scale):
-    m=Mesh();thin_turntable(m,7.8);m.dome(7.65,.4,'hemispherical combined bearing gunhouse',True,40,14)
-    pivot=[-2.6,6.65,0];d=isd_drives(m,pivot,1.8,.82)
-    split=m.mark();isd_receiver(m,pivot,.72,1)
-    b=[source_barrel(m,'isd_heavy_octuple_original',15,[-2.9,7.95,z],1.58,1.0,'40TT central twin source barrel') for z in [-.95,.95]]
-    return finish(m,'twin40Dome','40TT 半球型2連装ターボレーザー',40,pivot,b,split,d,scale,
-                  derivedFrom='isd_heavy_octuple_original',derivation='two circular bearing and gun assemblies combined centrally in a hemisphere')
+    m=Mesh();thin_turntable(m,13.75)
+    dome=m.dome(13.75,.4,'hemispherical combined bearing gunhouse',True,64,24)
+    dome.update(normalMode='sphere',normalCenterM=[0,.4,0],floorYM=.4)
+    pivot=[.5,12.6,0];d,z=complete_photo_drives(m,pivot,1.7,4.5,'dome40 central circular bearing')
+    split=m.mark()
+    photo_receiver(m,[2.5,15.1],0,2.1,'dome40 central twin recoil cradle')
+    b=[physical40_barrel(m,[2.5,15.1,z],14.6,'40TT dome photo-length source barrel') for z in [-1.0,1.0]]
+    return finish_photo40(m,'twin40Dome','40TT 半球型2連装ターボレーザー',pivot,b,split,d,scale,
+                         {'case':[dome['label']],'hemisphere':[dome['label']],'wheel':[d[0]['label']]},
+                         derivation='photo1 broad hemisphere with the complete compact bearing and twin-gun mechanism centered in its crown')
+
+
+def split_convex_axis(cell,axis,limit):
+    if cell is None:return None,None
+    V,F=cell;lo=min(p[axis] for p in V);hi=max(p[axis] for p in V)
+    if hi<=limit+1e-9:return cell,None
+    if lo>=limit-1e-9:return None,cell
+    return clipped_convex(V,F,axis,limit),clipped_convex(V,F,axis,limit,False)
+
+
+def convex_without_box(cell,low,high):
+    remaining=cell;pieces=[]
+    for axis in range(3):
+        below,remaining=split_convex_axis(remaining,axis,low[axis])
+        if below is not None:pieces.append(below)
+        remaining,above=split_convex_axis(remaining,axis,high[axis])
+        if above is not None:pieces.append(above)
+    return pieces
+
+
+def clip_skin_polygon(poly,axis,limit,lower):
+    if not poly:return []
+    distance=lambda p:(p[axis]-limit)*(1 if lower else -1)
+    out=[]
+    for a,b in zip(poly,poly[1:]+poly[:1]):
+        da,db=distance(a),distance(b);inside_a=da<=1e-9;inside_b=db<=1e-9
+        if inside_a:out.append(a)
+        if inside_a!=inside_b:
+            t=da/(da-db);out.append([a[k]+(b[k]-a[k])*t for k in range(3)])
+    return out
+
+
+def common_photo40_case(m):
+    # Both mounts have the SAME fixed armor frame and side profile. The centre
+    # is a real recoil bay, not an opaque roof intersected by the moving gun.
+    start=m.mark();thin_turntable(m,6.3);raw=Mesh()
+    raw.prism([[-11.25,.4],[11.25,.4],[11.25,3.6],[9.25,5.2],[-9.65,5.2],[-11.25,3.8]],
+              -6.5,6.5,'photo40 common lower equipment case',True)
+    raw.prism([[-11.25,5.2],[-11.25,9.9],[-9.75,11.4],[-2.4,11.4],[.5,9.6],[.5,5.2]],
+              -5.5,5.5,'photo40 common rear armored hood',True)
+    raw.prism([[.5,5.2],[9.25,5.2],[7.65,7.0],[.5,9.6]],
+              -5.5,5.5,'photo40 common forward sloped hood',True)
+    bay_low,bay_high=[-9.9,.7,-4.9],[6.2,11.6,4.9];labels=[]
+    for source in raw.compartments:
+        for i,(V,F) in enumerate(convex_without_box((source['verticesM'],source['faces']),bay_low,bay_high)):
+            row=m.convex(V,F,source['label']+' frame cell '+str(i),True);labels.append(row['label'])
+    for sign in [-1,1]:
+        z0,z1=sorted([sign*4.95,sign*5.45])
+        photo_roof_detail(m,[-8.8,11.28,z0],[-5.0,11.7,z1],
+                          'photo40 common shoulder service hatch')
+        z=sign*5.56
+        m.prism([[-8.9,7.4],[-1.6,7.4],[-1.6,8.2],[-8.2,8.8]],
+                min(z,z+sign*.20),max(z,z+sign*.20),'photo40 common side armor belt')
+    common_mesh={'points':m.points[start[0]:],'uvs':m.uvs[start[0]:],'indices':m.indices[start[1]:]}
+    return {'raw':raw,'labels':labels,'bayLow':bay_low,'bayHigh':bay_high,
+            'shared':{'key':'photo40-identical-angular-case-frame',
+              'boundsM':[[-11.25,.4,-6.5],[11.25,11.4,6.5]],
+              'geometrySha256':hashlib.sha256(json.dumps(common_mesh,separators=(',',':')).encode()).hexdigest(),
+              'meshRange':{'firstVertex':start[0],'vertices':len(m.points)-start[0],
+                           'firstIndex':start[1],'indices':len(m.indices)-start[1]},
+              'recoilBayBoundsM':[bay_low,bay_high]}}
+
+
+def restore_twin_case_cover(m,context):
+    # Close the centre of the external-gun version with a fitted machinery
+    # cover. The central-gun version instead fills this bay with its moving hood.
+    raw=context['raw'];start=m.mark()
+    for i in range(0,len(raw.indices),3):
+        poly=[raw.points[v] for v in raw.indices[i:i+3]]
+        for axis in range(3):
+            poly=clip_skin_polygon(poly,axis,context['bayLow'][axis],False)
+            poly=clip_skin_polygon(poly,axis,context['bayHigh'][axis],True)
+        if len(poly)>=3:m.face(poly)
+    return m.record(start,'twin40 fitted central machinery cover')
 
 
 def build_box40(scale):
-    # The triple's source case remains the construction foundation. Its covered
-    # surfaces are internal to the requested wider twin-specific enclosure and
-    # are omitted from rendering, avoiding coplanar duplicate faces.
-    foundation=Mesh();context=common40_rear_case(foundation,scale)
-    upper_low,upper_high=context['sourceUpperBounds'];pivot=[context['pivot'][0],(upper_low[1]+upper_high[1])/2,0]
-    m=Mesh();thin_turntable(m,4.8)
-    profile=[[-10.6,.38],[5.1,.38],[4.0,4.1],[-5.0,9.5],[-9.8,9.5],[-10.6,9.15]]
-    V,F=convex_hull([[x,y,z] for z in [-5.1,5.1] for x,y in profile])
-    center=[sum(p[k] for p in V)/len(V) for k in range(3)]
-    planes=[]
-    for a,b,c in F:
-        n=cross(sub(V[b],V[a]),sub(V[c],V[a]));length=math.sqrt(dot(n,n))
-        if length>1e-9:planes.append(([v/length for v in n],V[a]))
-    for row in foundation.components:
-        if row['label'] in ['intrinsic bearing ring','bearing race lip']:continue
-        for p in foundation.points[row['firstVertex']:row['firstVertex']+row['vertices']]:
-            if any(dot(n,sub(p,a))>.002 for n,a in planes):raise ValueError('Twin central enclosure does not contain its source case foundation')
-    enclosure=m.convex(V,F,'integrated full-width twin40 central armored enclosure')
-    # Exact union: the enclosure contains the old foundation, so reserve it only
-    # once. Its bottom bearing race and cross-shaft clearance are excluded.
-    usable=clipped_convex(V,F,1,.50,False)
-    xmin,xmax=pivot[0]-.48,pivot[0]+.48;ymin,ymax=pivot[1]-.48,pivot[1]+.48
-    rear=clipped_convex(*usable,0,xmin);front=clipped_convex(*usable,0,xmax,False)
-    middle=clipped_convex(*usable,0,xmin,False);middle=clipped_convex(*middle,0,xmax)
-    lower=clipped_convex(*middle,1,ymin);upper=clipped_convex(*middle,1,ymax,False)
-    for label,(vertices,faces) in [('rear case',rear),('forward sloped case',front),('below axle',lower),('above axle',upper)]:
-        m.compartments.append({'label':'twin40 central enclosure '+label,'verticesM':vertices,'faces':faces,
-            'volumeM3':triangle_volume(vertices,faces),'conservative':True,
-            'sourceMeshRange':{k:enclosure[k] for k in ['firstVertex','vertices','firstIndex','indices']},
-            'excludesMechanicalClearance':True})
-    shared=json.loads(json.dumps(context['shared']))
-    shared['sourceFoundationGeometrySha256']=shared.pop('geometrySha256');shared.pop('meshRange',None)
-    shared['enclosedFoundationCaseVolumeM3']=shared['caseVolumeM3'];shared['caseVolumeM3']=sum(c['volumeM3'] for c in m.compartments)*scale**3
-    shared['foundationEntirelyContained']=True
-    d,z_centers=full_dby_outboard40_drives(m,pivot,scale)
-    split=m.mark()
-    for z in z_centers:isd_receiver(m,pivot,.28,1.15,z)
-    barrel_scale=normal40_barrel_scale()
-    b=[source_barrel(m,'isd_heavy_octuple_original',15,[pivot[0]-.3,pivot[1]+1.62,z],
-                     barrel_scale,barrel_scale,'40TT external single source barrel') for z in z_centers]
-    references=[{k:v for k,v in sources()['ven_turret']['asset'].items() if k in ['source','sourceUrl','license','licenseUrl']}]
-    return finish(m,'twin40','40TT 2連装重ターボレーザー',40,pivot,b,split,d,scale,
-                  derivedFrom='isd_heavy_octuple_original',additionalSourceAssets=['ven_turret'],additionalSourceReferences=references,
-                  sharedCase=shared,externalMounts=True,internalBarrels=0,fullCircularBases=True,
-                  centralEnclosure={'closedExterior':True,'coveredFoundationSurfacesOmitted':True,'foundationEntirelyContained':True,
-                    'halfWidthM':5.1*scale,'roofYM':9.5*scale,'caseExteriorVolumeM3':triangle_volume(V,F)*scale**3,
-                    'usableCaseVolumeM3':sum(c['volumeM3'] for c in m.compartments)*scale**3,
-                    'axleClearanceBoundsM':[[xmin*scale,ymin*scale,-5.1*scale],[xmax*scale,ymax*scale,5.1*scale]],
-                    'bearingFloorYM':.50*scale},
-                  barrelPhysicalProfilePreservedFrom='isd_heavy_octuple_original',
-                  outboardTrunnions={'caseHalfWidthM':5.1*scale,'minimumClearanceM':.20*scale,'completeSourceComponents':[1,3]},
-                  derivation='triple40 case foundation enclosed by a full-width angular central shell with a forward sloping fairing; two complete full-circle DBY trunnions and original40 barrels remain wholly outside both sides')
+    m=Mesh();context=common_photo40_case(m);cover=restore_twin_case_cover(m,context)
+    # External recoil mechanisms leave usable space within the enclosed case.
+    # Exclude their real cross-shaft tunnel, rather than the triple's swept bay.
+    m.compartments=[]
+    for source in context['raw'].compartments:
+        for i,(V,F) in enumerate(convex_without_box((source['verticesM'],source['faces']),
+                                                  [1.7,6.8,-6.6],[3.3,8.4,6.6])):
+            m.compartments.append({'label':source['label']+' usable external-drive room '+str(i),
+                'verticesM':V,'faces':F,'volumeM3':triangle_volume(V,F),'conservative':True,
+                'sourceMeshRange':{'firstVertex':0,'vertices':len(m.points),'firstIndex':0,'indices':len(m.indices)}})
+    pivot=[2.5,7.6,0];d,z_centers=complete_photo_drives(m,pivot,6.5,6.5,'twin40 external complete circular trunnion')
+    axle=m.cylinder(pivot,.70,17.2,2,'twin40 fixed cross-case drive shaft',48)
+    split=m.mark();b=[];receivers=[]
+    for z in z_centers:
+        before=len(m.components)
+        photo_receiver(m,[5.5,12.5],z,1.45,'twin40 external single recoil cradle')
+        receivers.extend(r['label'] for r in m.components[before:])
+        b.append(physical40_barrel(m,[5.5,12.5,z],13.0,'40TT external photo-length source barrel'))
+    return finish_photo40(m,'twin40','40TT 2連装重ターボレーザー',pivot,b,split,d,scale,
+                         {'case':context['labels'],'mainCase':context['labels'],'wheel':[d[0]['label']],
+                          'receiver':receivers,'axle':[axle['label']]},
+                         externalMounts=True,internalBarrels=0,fullCircularBases=True,
+                         sharedCase=context['shared'],
+                         mechanicalClearance={'verifiedElevationDegrees':[-10,0,25,55,85],
+                           'caseMeshComponents':context['labels'],
+                           'legalContactComponents':[axle['label']],
+                           'method':'moving external gun mechanisms versus the closed shared case'},
+                         centralEnclosure={'closedExterior':True,'fittedMechanicalCover':cover['label'],
+                           'halfWidthM':6.5*scale/DEFAULT_FORTY_SCALE,'roofYM':11.4*scale/DEFAULT_FORTY_SCALE},
+                         outboardTrunnions={'caseHalfWidthM':6.5*scale/DEFAULT_FORTY_SCALE,
+                           'minimumClearanceM':.20*scale/DEFAULT_FORTY_SCALE,'completeSourceComponents':[1,3]},
+                         derivation='one shared angular case with a fitted central cover and two fully external, axle-connected single-gun mechanisms')
 
 
 def build_triple40(scale):
-    m=Mesh();context=common40_rear_case(m,scale);pivot=context['pivot']
-    d=large_normal40_mantlet(m,context)
+    m=Mesh();context=common_photo40_case(m);pivot=[-3.0,7.1,0]
+    d,z=complete_photo_drives(m,pivot,5.0,6.5,'triple40 complete circular bearing')
+    axle=m.cylinder(pivot,.70,14.2,2,'triple40 fixed cross-case drive shaft',48)
     split=m.mark()
-    source_part(m,'isd_heavy_octuple_original',3,context['transform'],'complete source front receiver converted from four ports to three')
-    source=sources()['isd_heavy_octuple_original'];source_barrel_group=source['groups'][15]
-    lo,hi=bounds([source['points'][i] for i in source_barrel_group])
-    # The three tubes retain the original normal octuple physical profile;
-    # only their positions and the four-to-three receiver width change.
-    original_center=[lo[0],(lo[1]+hi[1])/2,(lo[2]+hi[2])/2]
-    root=context['transform'](original_center);barrel_scale=normal40_barrel_scale()
-    b=[source_barrel(m,'isd_heavy_octuple_original',15,[root[0],root[1],z],barrel_scale,barrel_scale,
-                     '40TT complete upper three-port source barrel') for z in [-1.47,0,1.47]]
-    return finish(m,'triple40','40TT 3連装ターボレーザー',40,pivot,b,split,d,scale,
-                  derivedFrom='isd_heavy_octuple_original',sharedCase=context['shared'],completeUpperGunUnit=True,
-                  upperUnitSourceComponents=[2,3,8,4],barrelPhysicalProfilePreservedFrom='isd_heavy_octuple_original',
-                  derivation='one complete large original normal40 four-barrel gun pod, including rear armored case and large circular mantlet, converted to three barrels and mounted on the rear equipment case')
+    hood=m.prism([[-9.0,6.5],[-9.0,9.8],[-7.7,11.3],[-2.4,11.3],[5.0,10.3],[5.0,6.5]],
+                 -4.6,4.6,'triple40 moving armored rear gun hood')
+    cradle=m.prism([[-5.5,6.8],[-1.0,6.8],[5.0,10.2],[5.0,11.3],[-1.0,11.3],[-5.5,9.0]],
+                   -4.5,4.5,'triple40 broad axle-connected angular cradle')
+    receiver=m.prism([[-1.5,10.3],[4.4,10.3],[5.0,10.8],[5.0,12.2],[3.9,13.2],[-1.5,13.2]],
+                    -4.25,4.25,'triple40 three-port angular recoil receiver')
+    ribs(m,-.8,5,.65,13.2,-3.5,3.5,.15)
+    photo_roof_detail(m,[-7.2,11.17,-2.7],[-3.6,11.6,2.7],
+                      'triple40 moving rear hood inspection hatch')
+    b=[physical40_barrel(m,[4.0,11.9,z],12.5,'40TT triple photo-length source barrel') for z in [-2.5,0,2.5]]
+    return finish_photo40(m,'triple40','40TT 3連装ターボレーザー',pivot,b,split,d,scale,
+                         {'case':context['labels'],'mainCase':context['labels'],'wheel':[d[0]['label']],
+                          'cradle':[hood['label'],cradle['label']],'receiver':[receiver['label']],
+                          'axle':[axle['label']]},
+                         sharedCase=context['shared'],completeUpperGunUnit=True,
+                         mechanicalClearance={'verifiedElevationDegrees':[-10,0,25,55,85],
+                           'method':'actual moving hood, cradle, receiver and barrel triangles against the shared fixed closed case cells',
+                           'caseMeshComponents':context['labels'],'legalContactComponents':[axle['label']]},
+                         recoilBay={'actualOpening':True,'boundsM':[context['bayLow'],context['bayHigh']],
+                           'stowedMovingHoodFillsBay':True,'mechanismSpaceCreditedAsChargingRoom':False},
+                         derivation='the same outer case as the twin; a broad axle-connected moving armored hood and cradle fill the centre and carry all three elevated barrels')
 
 
 def anchor_compartment(source_id,scale):
@@ -758,83 +901,131 @@ def clipped_convex(vertices,faces,axis,limit,lower=True):
 
 
 def build_triple70(scale):
-    m=Mesh();source=sources()['ven_turret']
-    source_height=bounds(source['points'])[1][1]
-    roof_y=source_height-.35
-    # The six-sided armored rear body flares toward its front shoulders.
-    # The front face is vertical so the separate gun pod joins it flush.
-    base=[[-11.2,-7],[9.5,-14],[15.7,-9.2],[15.7,9.2],[9.5,14],[-11.2,7]]
-    roof=[[-10.4,-5.9],[9.7,-12],[15.7,-7.8],[15.7,7.8],[9.7,12],[-10.4,5.9]]
-    vertices,faces=convex_hull([[x,0,z] for x,z in base]+[[x,roof_y,z] for x,z in roof])
-    left=clipped_convex(vertices,faces,2,-7.6)
-    right=clipped_convex(vertices,faces,2,7.6,False)
-    center=clipped_convex(vertices,faces,2,-7.6,False);center=clipped_convex(*center,2,7.6)
-    rear=clipped_convex(*center,0,14.0)
-    front=clipped_convex(*center,0,14.0,False)
+    m=Mesh();source=sources()['ven_turret'];height=bounds(source['points'])[1][1]
+    roof_y=height-.85
+    # Photo3: a compact six-sided warship gunhouse, broad front shoulders and
+    # narrower rear, with the front mechanism taking most of its front width.
+    base=[[-9.75,-6.4],[3.8,-12],[9.75,-9.1],[9.75,9.1],[3.8,12],[-9.75,6.4]]
+    roof=[[-9.15,-5.6],[3.9,-10.8],[9.75,-8.4],[9.75,8.4],[3.9,10.8],[-9.15,5.6]]
+    V,F=convex_hull([[x,0,z] for x,z in base]+[[x,roof_y,z] for x,z in roof])
+    left=clipped_convex(V,F,2,-9.3);right=clipped_convex(V,F,2,9.3,False)
+    center=clipped_convex(V,F,2,-9.3,False);center=clipped_convex(*center,2,9.3)
+    rear=clipped_convex(*center,0,8.0);front=clipped_convex(*center,0,8.0,False)
     floor=clipped_convex(*front,1,.08)
+    main=[]
     for label,cell in [('port sloped armored cheek',left),('starboard sloped armored cheek',right),
                        ('enclosed hexagonal rear gunhouse',rear),('front socket lower armor',floor)]:
-        m.convex(*cell,'triple70 '+label,True)
-    source_part(m,'ven_turret',0,source_transform('ven_turret',0,[-8.8,roof_y,-5.8],[1.2,source_height,5.8]),'DBY main roof mechanical deck')
+        main.append(m.convex(*cell,'triple70 '+label,True))
+    # Photo3 has three distinct longitudinal machinery/recoil covers, not
+    # a flattened copy of the complete DBY body spread across the roof.
+    for z in [-3.8,0,3.8]:
+        m.prism([[-7.0,roof_y],[-6.2,roof_y+.65],[3.6,roof_y+.65],[4.8,roof_y]],
+                z-.85,z+.85,'triple70 longitudinal roof mechanism cover')
+        source_part(m,'ven_turret',0,
+                    source_transform('ven_turret',0,[-6.2,roof_y-.9,z-.60],[-1.2,roof_y+.75,z+.60]),
+                    'DBY roof recoil service mechanism')
+        m.box([.3,roof_y+.65,z-.55],[2.4,roof_y+.79,z+.55],
+              'triple70 individual roof inspection hatch')
+        for side in [-1,1]:
+            m.cylinder([-1.0,roof_y+.28,z+side*.98],.13,8.0,0,
+                       'triple70 roof service conduit',24)
+    def side_width(x,y):
+        t=y/roof_y;back=-9.75*(1-t)-9.15*t;shoulder=3.8*(1-t)+3.9*t
+        rear=6.4*(1-t)+5.6*t;wide=12*(1-t)+10.8*t
+        return rear+(x-back)/(shoulder-back)*(wide-rear)
+    def side_panel(x0,x1,y0,y1,sign,offset,thickness,label):
+        pts=[[x,y,sign*(side_width(x,y)+offset)] for x,y in [(x0,y0),(x1,y0),(x1,y1),(x0,y1)]]
+        V=pts+[[x,y,z+sign*thickness] for x,y,z in pts]
+        return m.convex(V,[[3,2,1,0],[4,5,6,7],[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7]],label)
     for sign in [-1,1]:
-        m.prism([[2.8,roof_y-.02],[3.8,source_height],[9.2,source_height],[11.2,roof_y-.04]],
-                min(sign*3.2,sign*6.7),max(sign*3.2,sign*6.7),'main roof receiver armor')
-    pivot=[20.2,6.25,0]
-    # These are forward horizontal case cheeks and bearing axles, not floor
-    # pedestals. They connect the moving front unit to the main hexagonal case.
+        for x in [-6.5,-3.4,-.3]:
+            side_panel(x,x+2.1,2.1,4.5,sign,.04,.10,'triple70 recessed side service panel')
+            for v in [.25,.78,1.31,1.84]:
+                side_panel(x+v,x+v+.12,2.3,4.3,sign,.14,.19,'triple70 vertical ventilation frame')
+        side_panel(-6.8,2.4,5.1,5.65,sign,.04,.20,'triple70 side armor belt')
+    pivot=[14.0,6.25,0]
     for sign in [-1,1]:
-        m.prism([[14.8,4.3],[19.6,4.9],[21.0,5.3],[21.0,7.2],[19.6,7.7],[14.8,8.0]],
-                min(sign*7.65,sign*8.15),max(sign*7.65,sign*8.15),'integral forward gun-pod bearing cheek')
-        m.cylinder([pivot[0],pivot[1],sign*7.45],.63,1.6,2,'forward pod trunnion axle',48)
-    split=m.mark()
-    pod_low,pod_high=[15.7,2.5,-7.4],[24.7,source_height,7.4]
+        m.prism([[8.0,4.7],[13.5,4.9],[14.6,5.3],[14.6,7.3],[13.5,7.7],[8.0,7.9]],
+                min(sign*9.3,sign*9.75),max(sign*9.3,sign*9.75),'integral forward gun-pod bearing cheek')
+        m.cylinder([pivot[0],pivot[1],sign*8.9],.63,1.3,2,'forward pod trunnion axle',48)
+    split=m.mark();pod_low,pod_high=[9.75,2.6,-9.0],[17.25,height,9.0]
     xf=source_transform('ven_turret',0,pod_low,pod_high)
     pod=source_part(m,'ven_turret',0,xf,'complete detailed DBY common front gun pod')
-    # The pod's real case moves with its barrels; its own bank cells must not
-    # be mistaken for a fixed obstruction during articulation verification.
-    original_cells=json.loads(ANCHOR_COMPARTMENTS.read_text())['ven_turret']['convexes']
-    for index,cell in enumerate(original_cells):
-        V=[xf(p) for p in cell['verticesM']];F=cell['faces']
-        m.compartments.append({'label':'moving front DBY gunhouse cell '+str(index),
-            'verticesM':V,'faces':F,'volumeM3':triangle_volume(V,F),'movesWithGun':True,
-            'conservative':True,'sourceAsset':'ven_turret','sourceComponent':0,
-            'sourceCompartmentCell':index,'sourceMeshRange':{k:pod[k] for k in ['firstVertex','vertices','firstIndex','indices']}})
-    d=dby_drives(m,pivot,6.8,1.0)
-    m.prism([[20.5,4.3],[23.2,4.3],[23.75,4.9],[23.75,7.7],[23.2,8.2],[20.5,8.2]],
-            -6.4,6.4,'wide detailed front three-gun receiver')
-    b=[source_barrel(m,'ven_turret',2,[23.75,6.25,z],1,1,'70TT full-profile forward DBY barrel') for z in [-3.2,0,3.2]]
+    for i,c in enumerate(json.loads(ANCHOR_COMPARTMENTS.read_text())['ven_turret']['convexes']):
+        vertices=[xf(p) for p in c['verticesM']];faces=c['faces']
+        m.compartments.append({'label':'moving front DBY gunhouse cell '+str(i),'verticesM':vertices,
+            'faces':faces,'volumeM3':triangle_volume(vertices,faces),'movesWithGun':True,
+            'conservative':True,'sourceAsset':'ven_turret','sourceComponent':0,'sourceCompartmentCell':i,
+            'sourceMeshRange':{k:pod[k] for k in ['firstVertex','vertices','firstIndex','indices']}})
+    d=dby_drives(m,pivot,7.8,1.0)
+    m.prism([[14.1,4.4],[17.8,4.4],[18.3,5.0],[18.3,7.7],[17.8,8.3],[14.1,8.3]],
+            -7.3,7.3,'wide detailed front three-gun receiver')
+    ribs(m,14.4,5,.57,8.3,-6.5,6.5,.16)
+    b=[source_barrel(m,'ven_turret',2,[16.25,6.25,z],1,1,'70TT full-profile forward DBY barrel') for z in [-3.0,0,3.0]]
     return finish(m,'triple70','70TT 3連装重ターボレーザー',70,pivot,b,split,d,scale,
-                  derivedFrom='ven_turret',caseStyle='closed-battleship-hexagonal-forward-pod',
+                  derivedFrom='ven_turret',materialReference='ven_turret70_native',
+                  photoMeasurements='assets/source/turret-photo-measurements.json',
+                  photoFeatureComponents={'mainCase':[r['label'] for r in main],'frontPod':[pod['label']]},
+                  caseStyle='closed-battleship-hexagonal-forward-pod',
                   barrelPhysicalProfilePreservedFrom='ven_turret',barrelSourceAxialScale=1.0,
                   jointLimits={'yaw':None,'lo':-10*math.pi/180,'hi':85*math.pi/180},
                   mechanicalClearance={'verifiedElevationDegrees':[-10,0,20,55,85],
                     'method':'actual moving triangle versus fixed closed case half-space intersection',
-                    'reason':'the complete front gun pod projects ahead of the main case and clears its roof at standard elevation'},
-                  caseMaximumWidthStationFraction=(9.5+11.2)/(15.7+11.2),caseMaximumWidthXM=9.5*scale,
+                    'reason':'a wide front pod clears the compact rear case through its central open socket'},
+                  caseMaximumWidthStationFraction=(3.8+9.75)/19.5,caseMaximumWidthXM=3.8*scale,
                   caseFootprintVerticesM=[[x*scale,0,z*scale] for x,z in base],
-                  mainCaseHeightM=source_height*scale,frontGunhouseElevates=True,
-                  frontPod={'rearXM':15.7*scale,'mainCaseFrontXM':15.7*scale,
+                  mainCaseHeightM=height*scale,frontGunhouseElevates=True,
+                  frontPod={'rearXM':9.75*scale,'mainCaseFrontXM':9.75*scale,
                     'caseBoundsM':[[v*scale for v in p] for p in [pod_low,pod_high]],
-                    'bodyDepthFractionOfMainCase':9/(15.7+11.2),
-                    'barrelRootZM':[-3.2*scale,0,3.2*scale],'rootSideMarginM':(6.4-3.2-.912)*scale,
-                    'completeSourceBodyComponent':0,'movingMeshRange':{k:pod[k] for k in ['firstVertex','vertices','firstIndex','indices']}},
-                  derivation='DBY-height closed hexagonal rear case with forward shoulders; a complete detailed common three-gun pod projects wholly ahead of its front face, with inset full-length DBY barrels')
+                    'bodyDepthFractionOfMainCase':7.5/19.5,'barrelRootZM':[-3*scale,0,3*scale],
+                    'rootSideMarginM':(7.3-3-.912)*scale,'completeSourceBodyComponent':0,
+                    'movingMeshRange':{k:pod[k] for k in ['firstVertex','vertices','firstIndex','indices']}},
+                  derivation='photo3 compact forward-wide hexagonal warship case, broad DBY front gun pod and centrally inset three full-length DBY barrels')
 
 
 def build_quad70_side(scale):
-    m=Mesh()
-    # Fixed surrounding case follows the DBY central housing's convex outline;
-    # the complete square four-port assembly below belongs to BOTH gimbals.
-    bevel_house(m,[[0,0],[0,9],[2,11.6],[18.8,11.6],[22.0,9.4],[22,1.7],[20.4,0]],18,'broadside fixed armored case')
-    source_part(m,'ven_turret',0,source_transform('ven_turret',0,[.6,.7,-7.8],[18.0,11.9,7.8]),'resized DBY rear machinery')
-    split=m.mark();pivot=[20.0,6.0,0]
-    m.prism([[18.9,1.1],[18.9,10.9],[23.9,10.9],[25.1,9.8],[25.1,2.2],[23.9,1.1]],-6.3,6.3,'square common four-port DBY gimbal base')
-    b=[]
-    for y in [3.7,8.3]:
-        for z in [-2.5,2.5]:b.append(source_barrel(m,'ven_turret',2,[23.0,y,z],1,1,'70TT four-port DBY barrel'))
+    m=Mesh();frame=[]
+    frame.append(m.prism([[0,0],[2.8,0],[2.8,10.9],[1.6,12.0],[0,12.0]],
+                         -6.8,6.8,'broadside carrier rear bulkhead',True))
+    frame.append(m.box([2.8,11.1,-6.8],[14.3,12.0,6.8],'broadside carrier upper rail',True))
+    frame.append(m.box([2.8,0,-6.8],[14.3,.9,6.8],'broadside carrier lower rail',True))
+    frame.append(m.box([2.8,2.1,-4.6],[9.0,8.6,4.6],'broadside carrier rear service block',True))
+    # The gap between rails is real empty space, not a transparent material on
+    # a solid box and never credited as usable internal charging-room volume.
+    for sign in [-1,1]:
+        for x in [3.5,5.1,6.7]:
+            m.prism([[x,2.9],[x+.7,2.9],[x+.7,7.5],[x,7.5]],
+                    min(sign*4.61,sign*4.76),max(sign*4.61,sign*4.76),'broadside rear service vent frame')
+    m.cylinder([5.1,12.9,0],1.18,3.6,1,'broadside rear raised vent pipe',48)
+    m.cylinder([5.1,11.2,0],1.55,.4,1,'broadside vent pipe mounting collar',48)
+    m.cylinder([13.0,6.0,0],1.25,8.0,0,'broadside fixed traverse shaft',48)
+    split=m.mark();pivot=[18.0,6.0,0]
+    body=source_part(m,'ven_turret',0,
+                    source_transform('ven_turret',0,[14.0,1.2,-6.2],[21.8,10.8,6.2]),
+                    'broadside complete square DBY gimbal body')
+    body_xf=source_transform('ven_turret',0,[14.0,1.2,-6.2],[21.8,10.8,6.2])
+    for i,c in enumerate(json.loads(ANCHOR_COMPARTMENTS.read_text())['ven_turret']['convexes']):
+        vertices=[body_xf(p) for p in c['verticesM']];faces=c['faces']
+        m.compartments.append({'label':'moving square DBY gunhouse cell '+str(i),'verticesM':vertices,
+            'faces':faces,'volumeM3':triangle_volume(vertices,faces),'movesWithGun':True,
+            'conservative':True,'sourceAsset':'ven_turret','sourceComponent':0,'sourceCompartmentCell':i,
+            'sourceMeshRange':{k:body[k] for k in ['firstVertex','vertices','firstIndex','indices']}})
+    ring=[[1.4,-5.0],[1.4,5.0],[2.5,6.2],[9.5,6.2],[10.6,5.0],[10.6,-5.0],[9.5,-6.2],[2.5,-6.2]]
+    V=[[x,y,z] for x in [20.2,22.0] for y,z in ring];n=len(ring)
+    F=[list(range(n-1,-1,-1)),list(range(n,n*2))]+[[i,(i+1)%n,(i+1)%n+n,i+n]for i in range(n)]
+    plate=m.convex(V,F,'broadside square chamfered four-port receiver')
+    dby_drives(m,pivot,6.0,.80)
+    ribs(m,15.6,5,.8,10.8,-4.5,4.5,.15)
+    b=[source_barrel(m,'ven_turret',2,[21.5,y,z],1,1,'70TT four-port DBY barrel')
+       for y in [3.7,8.3] for z in [-2.5,2.5]]
     return finish(m,'quad70Side','70TT 4連装舷側重ターボレーザー',70,pivot,b,split,[],scale,
-                  derivedFrom='ven_turret',derivation='four DBY barrels on one square common base; entire base traverses and elevates inside a fixed broadside case',
+                  derivedFrom='ven_turret',materialReference='ven_turret70_native',
+                  photoMeasurements='assets/source/turret-photo-measurements.json',
+                  photoFeatureComponents={'case':[r['label'] for r in frame],'frontPod':[body['label'],plate['label']]},
+                  derivation='photo3 open-sided C carrier with separate rails and service block, supporting one detailed square DBY four-gun gimbal',
                   housingFixed=True,traversePivot=[v*scale for v in pivot],
+                  carrier={'style':'open-C-frame','airGapBoundsM':[[9.05*scale,7.4*scale,-6.75*scale],[13.9*scale,11.05*scale,6.75*scale]],
+                           'airGapCreditedAsCompartment':False,'closedCompartmentLabels':[r['label'] for r in frame]},
                   jointLimits={'yaw':65*math.pi/180,'lo':-20*math.pi/180,'hi':20*math.pi/180},
                   mounting={'kind':'broadside-only','normal':[1,0,0],'up':[0,1,0],'rearFaceX':0,'requiresVerticalSurface':True})
 
@@ -857,11 +1048,12 @@ def spherical_house(m,center,radius,label):
 def build_quad40_ion(scale):
     m=Mesh();split=m.mark();pivot=[0,2.5,0]
     sphere=spherical_house(m,pivot,7.5,'spherical four-port ion gunhouse')
+    sphere.update(normalMode='sphere',normalCenterM=pivot[:])
     b=[]
     for y in [1.35,3.65]:
         for z in [-1.15,1.15]:b.append(source_barrel(m,'isd_heavy_octuple_original',15,[5.4,y,z],.55,1.0,'40TT spherical ion source barrel'))
     return finish(m,'quad40Ion','40TT 4連装イオン砲',40,pivot,b,split,[],scale,
-                  derivedFrom='isd_heavy_octuple_original',weaponRole='ion',gunhouseElevates=True,
+                  derivedFrom='isd_heavy_octuple_original',materialReference='isd_heavy_octuple',weaponRole='ion',gunhouseElevates=True,
                   sphereRadiusM=7.5*scale,sphereCenterM=[0,2.5*scale,0],
                   sphereMeshRange={k:sphere[k] for k in ['firstVertex','vertices','firstIndex','indices']},
                   mountEmbedding={'diameterBelowMountFraction':1/3,'centerHeightRadiusRatio':1/3,'analyticCapVolumeFraction':7/27},
@@ -984,7 +1176,9 @@ def validate(assets):
             # derivatives reuse those same complete components, not fake holes.
             if not math.isfinite(center) and recess is not None:
                 raise ValueError(key+': missing source bore floor '+barrel['label'])
-        clearance=moving_case_clearance(points,indices,asset,[-10,0,20,55,85]) if key=='family_triple70' else None
+        angles=([-10,0,20,55,85] if key=='family_triple70' else
+                [-10,0,25,55,85] if key in ['family_twin40_box','family_triple40'] else None)
+        clearance=moving_case_clearance(points,indices,asset,angles) if angles else None
         result[key]={'closedConvexes':len(asset['turretCompartment']['convexes']),
                      'physicalBarrels':len(asset['barrelCenters']),
                      'recessedSourceBarrels':sum(b['muzzleStyle']=='source-recessed' for b in asset['barrelCenters']),

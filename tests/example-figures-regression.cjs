@@ -3,6 +3,8 @@
 // compared, within floating-point tolerance, with the digest initially recorded from origin/main 7a63e61.
 // Intentional weapon-family, charging-room and native Arquitens changes were reconciled on integration
 // with main 43b1dca; docs/benchmarks/weapon-family-figures-integration.json records that audit.
+// Later photo-proportion corrections update only Imperial and Venator; the other37 records remain
+// unchanged. See docs/benchmarks/turret-photo-figures-correction.json for their scoped capture/audit.
 // See tests/helpers/figures-digest.cjs; scripts/capture-example-figures.cjs records new ones when a change
 // is meant to alter the figures. KS_FIGURES_KEYS=key,key limits the run to some ships.
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test');
