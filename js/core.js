@@ -21260,7 +21260,7 @@ function structuralCoplanarSection(T,n,d,u,v,origin,eps){
 // computation either holds an interval covering the triangle or none touching it, so surfaceExposeTriangle would
 // return it whole or drop it whole; which one is the even-odd count of the edges below it, checked in every gap
 // between edge ends over the triangle (all must agree, the counts must be even), else the triangle takes the full
-// path, as do thin triangles. surfaceExposedTriangles defers its large meshes the same way.
+// path, as do thin triangles. surfaceExposedTriangles defers every occluding mesh the same way.
 const STRUCTURAL_DEFER_TRIS=256,STRUCTURAL_FAR_EPS=1000;
 // sources: [{T, d}] sliced over the window only, or [{section}] already complete (their edges are used as they are).
 function surfaceFarVerdict(P,plane,sources){

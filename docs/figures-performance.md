@@ -41,8 +41,25 @@ changes below reproduce the former arithmetic exactly; the digests match bit for
 
 ## Timings
 
-See the report in the PR / branch notes for the per-example table (Node vm as the tests run it, Node main context as
-a browser worker runs it) and the browser loading paths.
+This container (2 vCPU, Node 22). "Worker-like" runs the sources in Node's main context, as a page or worker does;
+"vm" is how the tests and data scripts run them (the base column of that run was partly measured while other jobs
+ran, so its ratios are approximate). First `computeStats` after build, seconds:
+
+| example | worker-like before → after | vm before → after |
+|---|---:|---:|
+| Gozanti | 11.0 → 3.6 | 37.5 → 4.4 |
+| CR90 | 162.6 → 22.0 | 454 → 31.5 |
+| Imperial | 9.1 → 4.7 | 73.6 → 6.7 |
+| Venator | 23.0 → 11.0 | 104 → 20.2 |
+| MC80 Home One | 71.3 → 17.9 | 328 → 28.4 |
+| Munificent | 51.7 → 14.4 | 172 → 22.9 |
+| Executor | 91.0 → 38.1 | 306 → 55.6 |
+| all 39 examples (vm) | | 4284 → 548 |
+
+Browser (headless Chromium, software GL, phone viewport, fresh profile): title → designer with figures shown,
+Gozanti 16.2 → 8.0 s, ISD 29.6 → 24.7 s (ISD is geometry-bound); designer → trial unchanged (it reuses the
+figures, ~2 s / ~9–10 s); a cold fleet build of the Venator in the worker 39–45 → 32 s. After moving one structure
+of the Gozanti the figures take about half the time of a fresh computation (vm 2.0 vs 4.1 s).
 
 ## Remaining
 
