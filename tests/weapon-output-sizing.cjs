@@ -52,21 +52,26 @@ test('DBY-827 and the canonical eight-barrel turret retain their authored size a
   }
 });
 
-test('weapon volume follows salvo energy and interpolates the two anchor volume densities by barrel count', () => {
-  const twinDensity = volume(span(referenceBounds(fitting('refVen'))))/140;
-  const octupleDensity = volume(span(referenceBounds(fitting('oct40'))))/320;
-  for (const k of ['pd', 'ltl', 'mtl', 'htl', 'stl', 'utl', 'ion', 'ionL', 'triple40', 'quad200', 'oct40', 'xx9', 'nk7']) {
-    const f = fitting(k), d = C.FITS[k], sizing = C.weaponSizing(f);
-    const blend = Math.min(1, Math.max(0, (d.barrels-2)/6));
-    const salvo = Math.max(d.tt || 0, d.ion || 0);
-    const target = salvo*(twinDensity*(1-blend)+octupleDensity*blend);
-    near(sizing.anchorBlend, blend, `${k} barrel interpolation`);
-    near(sizing.volleyTT, salvo, `${k} salvo energy`);
-    near(sizing.sourceVolume, volume(Array.from(sizing.sourceSize)), `${k} source volume`);
-    near(sizing.targetVolume, target, `${k} target volume`);
-    near(C.weaponModelScale(f), Math.cbrt(target/sizing.sourceVolume), `${k} cube-root scale`);
-    near(volume(dimensions(d)), target, `${k} canonical envelope volume`);
-    for (let axis = 0; axis < 3; axis++) near(dimensions(d)[axis], sizing.sourceSize[axis]*sizing.factor, `${k} preserved aspect axis ${axis}`);
+test('the photographed family and medium quad retain their own native size anchors', () => {
+  const cases=[['quad500',4,2,17.8304],['single40',1,40,35.4094161263],['quad40Ion',4,160,23.9074143364],['twin40Dome',2,80,31.4644851825],['twin40',2,80,22.6768196158],['triple40',3,120,23.7435456225],['oct40',8,320,40],['refVen',2,140,28.861991733],['triple70',3,210,47.8296528633],['quad70Side',4,280,35.8796528633]];
+  for(const [k,barrels,volleyTT,length]of cases){
+    const f=fitting(k,k==='quad70Side'?{a:4}:{}),sizing=C.weaponSizing(f),rendered=span(referenceBounds(f));
+    assert.equal(C.FITS[k].barrels,barrels);near(sizing.volleyTT,volleyTT,`${k} explicit salvo`);near(C.weaponModelScale(f),1,`${k} native photo scale`);near(sizing.factor,1,`${k} native sizing factor`);near(sizing.targetVolume,sizing.sourceVolume,`${k} native target volume`);near(rendered[k==='quad70Side'?2:0],length,`${k} photographed forward length`);
+    for(let axis=0;axis<3;axis++)near(sizing.sourceSize[axis],[C.FITS[k].fm,C.FITS[k].hm,C.FITS[k].wm][axis],`${k} canonical native axis${axis}`);
+    if(k!=='quad500')assert.match(sizing.calibration,/photo/i,`${k} is explicitly calibrated to the family photograph`);
+  }
+  near(C.FITS.twin40.fm/C.FITS.oct40.fm,22.6768196158/40,'40 TT twin-to-octuple photo ratio');near(C.FITS.refVen.tt,140,'DBY-827 remains a 140 TT salvo');near(C.FITS[C.canonicalWeaponKind('refSide')].tt,80,'legacy side-twin inventory keeps its80 TT salvo');
+});
+
+test('unlisted conventional weapons retain their established salvo/barrel density calibration', () => {
+  // The photographed octuple has a new independent40m case. Legacy generic
+  // guns keep the prior calibration, retained in the unchanged350TT source.
+  const twinDensity=28.861991732993026*9.997709224590754*16.2580849216165/140;
+  const octupleDensity=volume(Array.from(C.REFERENCE_ASSETS.isd_heavy_twin.size))/320;
+  for(const k of ['pd','ltl','mtl','stl','utl','ion','ionL','quad200']){
+    const f=fitting(k),d=C.FITS[k],sizing=C.weaponSizing(f),blend=Math.min(1,Math.max(0,(d.barrels-2)/6)),salvo=Math.max(d.tt||0,d.ion||0),target=salvo*(twinDensity*(1-blend)+octupleDensity*blend);
+    near(sizing.anchorBlend,blend,`${k} barrel interpolation`);near(sizing.volleyTT,salvo,`${k} salvo energy`);near(sizing.sourceVolume,volume(Array.from(sizing.sourceSize)),`${k} source volume`);near(sizing.targetVolume,target,`${k} retained target volume`);near(C.weaponModelScale(f),Math.cbrt(target/sizing.sourceVolume),`${k} cube-root scale`);near(volume(dimensions(d)),target,`${k} canonical envelope volume`);
+    for(let axis=0;axis<3;axis++)near(dimensions(d)[axis],sizing.sourceSize[axis]*sizing.factor,`${k} preserved aspect axis${axis}`);
   }
 });
 
@@ -89,8 +94,7 @@ test('point defense is the uploaded twin small dual-purpose turbolaser with expl
 test('resizing conventional weapons does not alter their energy, cycle, crew or price', () => {
   for (const [k, salvo, cycle, mass, crew, cost] of [
     ['ltl', .08, .5, 900, 6, 80e3], ['mtl', .6, .2, 2400, 10, 200e3],
-    ['htl', 140, 1, 6000, 18, 500e3], ['xx9', 80, 4, 2400, 10, 400e3],
-    ['nk7', 40, 4, 1500, 8, 350e3]
+    ['htl', 140, 1, 6000, 18, 500e3]
   ]) {
     const d = C.FITS[k];
     near(Math.max(d.tt || 0, d.ion || 0), salvo, `${k} unchanged salvo`);
@@ -107,7 +111,7 @@ test('aircraft weapons, fixed launchers, missiles, tractors and bridge equipment
   const excluded = {
     claser: [2.6, .32, .32], claserH: [3.6, .5, .5], cion: [1.8, .55, .55],
     cturret: [1.3, .7, 1.3], ctorp: [1.4, .5, .5], cmsl: [1.2, .45, .45],
-    cbomb: [2.4, .7, 1.2], cpylon: [1.2, .2, .16], msl: [12, 3, 12],
+    cbomb: [2.4, .7, 1.2], cpylon: [1.2, .2, .16], msl: [1.2, .45, .45],
     itl: [12, 3, 12], trc: [16, 8, 16], brS: [34, 22, 26]
   };
   for (const [k, expected] of Object.entries(excluded)) {
@@ -117,7 +121,7 @@ test('aircraft weapons, fixed launchers, missiles, tractors and bridge equipment
 });
 
 test('imported gun rendering, selection and collision use the same scaled geometry for every mount frame', () => {
-  for (const k of ['pd', 'refVen', 'oct40', 'stl']) {
+  for (const k of ['pd', 'refVen', 'oct40', 'stl', 'quad500', 'twin40']) {
     for (const a of [0, 1, 2, 3, 4, 5]) {
       for (const tilt of [null, C.norm([.2, .9, -.3])]) {
         const f = fitting(k, {a, p: [31, -7, 9], assetYaw: 37, ...(tilt ? {tilt} : {})});
@@ -174,7 +178,7 @@ test('small procedural guns scale every body vertex uniformly while explicit ped
         }
       }
 
-      const lifted = {...f, base: 2, ped: 3, low: -1};
+      const lifted = {...f, base: 0, ped: 3, low: 0, pedShape: 'trap'};
       const oldLiftedOrigin = originalCore.fitOrigin(lifted), liftedOrigin = C.fitOrigin(lifted);
       assert.deepEqual(plain(liftedOrigin), plain(oldLiftedOrigin), `${k} explicit mounting height is unchanged`);
       const oldLifted = originalGfx.meshFits({fits: [lifted]}), newLifted = G.meshFits({fits: [lifted]});
@@ -193,7 +197,7 @@ test('small procedural guns scale every body vertex uniformly while explicit ped
         const newHeight = C.dot(C.sub(newPoint, liftedOrigin), up);
         lower = Math.min(lower, newHeight); upper = Math.max(upper, newHeight);
       }
-      near(lower, -6, `${k} support still fills six metres down from the mount`);
+      near(lower, -3, `${k} explicitly requested support fills three metres below the mount`);
       near(upper, 0, `${k} support still meets the mounting origin`);
       for (let vertex = 0; vertex < after.n; vertex++) {
         for (let axis = 0; axis < 3; axis++) {
@@ -207,7 +211,7 @@ test('small procedural guns scale every body vertex uniformly while explicit ped
 test('standard-size normalization and save reload retain calibration without a manual fitting scale', () => {
   const ship = C.newShip({L: 240, W: 200, H: 140, assembly: true}, 'Calibrated weapon sizes');
   ship.parts = [];
-  ship.fits = ['pd', 'ltl', 'refVen', 'oct40', 'stl'].map((k, index) => fitting(k, {id: index+1, p: [40+index*40, 60, 0], float: true, scale: 3}));
+  ship.fits = ['pd', 'ltl', 'refVen', 'oct40', 'stl', 'quad500', 'twin40'].map((k, index) => fitting(k, {id: index+1, p: [40+index*40, 60, 0], float: true, scale: 3}));
   const loaded = C.deserialize(C.serialize(ship));
   for (const f of loaded.fits) {
     assert.equal(Object.hasOwn(f, 'scale'), false, `${f.k} obsolete manual scale is normalized`);

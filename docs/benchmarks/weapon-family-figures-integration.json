@@ -1,0 +1,6346 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "date": "2026-11-04T21:27:35.749708+00:00",
+  "baseline": {
+    "mainCommit": "43b1dca00862334d21620ae4bda0f77886f800d3",
+    "recordedPhysicsOrigin": "7a63e61",
+    "sha256": "149590c348e9984d6ede12bb8cc5e3dbde404890a17b187fec5d0337f9530a1b"
+  },
+  "updatedFixture": {
+    "path": "tests/helpers/example-figures.json",
+    "sha256": "f225173bbd128929a8acd7807f1f3f4a21d9182832513469e4cbfbb8855b05f6",
+    "entries": 39
+  },
+  "verification": {
+    "captured": 39,
+    "expected": 39,
+    "tolerance": 1e-09,
+    "updatedRecordsMatchCaptured": true,
+    "mismatches": [],
+    "preservedOldTopLevelFields": 6269,
+    "schemaOnlyOldPhysicsPreserved": [
+      "craft_arc170",
+      "craft_btlb",
+      "craft_tie_in",
+      "craft_tie_ln",
+      "craft_tie_sa",
+      "craft_vwing",
+      "craft_xwing",
+      "heraklon"
+    ],
+    "intentionallyChangedExamples": [
+      "acclamator",
+      "arquitens",
+      "cr90",
+      "craft_awing",
+      "craft_hyena",
+      "craft_v19",
+      "craft_vulture",
+      "craft_z95",
+      "dreadnaught",
+      "executor",
+      "gozanti",
+      "gr75",
+      "hammerhead",
+      "imperial",
+      "lh3210",
+      "lucrehulk",
+      "mandator2",
+      "mc30c",
+      "mc75",
+      "mc80home",
+      "mc80liberty",
+      "munificent",
+      "nebulonb",
+      "onager",
+      "providence",
+      "providenceDn",
+      "recusant",
+      "recusantDn",
+      "reptransport",
+      "subjugator",
+      "venator"
+    ]
+  },
+  "capturePhases": [
+    {
+      "sourceSha256": {
+        "js/core.js": "318d73c0754c4cc088eeaf9c8f2a9343ee0c8f7fad111e340b0ba2803c842e8d",
+        "data/reference.js": "a6fbb40e306391f04b765985d97dafe512ba0d9ad21b479d70d47384ef7f6a8b",
+        "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
+        "data/fleet.js": "c0341142b0b1b07f3f55b6e56e3445c33990f88e9d522a093f0e9319b6b7e416",
+        "js/app.js": "64cd0762fbf608cce5b66103557441a9def930ff882b5b16b08563b48f0a4ed3",
+        "js/gfx.js": "cb96f6b647868d8090f41ed95a2310650b09b884bbd76033c56938d487ccbe3e",
+        "js/lang-en.js": "f4725c881d9385dc490f44d33af8c3a464cee00d8d50b3e751e8670aeb77b70e",
+        "js/engine.js": "ae431a0d3b61b19b15b1f3635159b7d5664a82eaf844ac8029ef2fa6da122a3e",
+        "index.html": "a4b392921c463a0d66f10db7174018c063040064fbe81c90184aa45038b051a5"
+      },
+      "keys": [
+        "acclamator",
+        "arquitens",
+        "cr90",
+        "craft_arc170",
+        "craft_awing",
+        "craft_btlb",
+        "craft_hyena",
+        "craft_tie_in",
+        "craft_tie_ln",
+        "craft_tie_sa",
+        "craft_v19",
+        "craft_vulture",
+        "craft_vwing",
+        "craft_xwing",
+        "craft_z95",
+        "dreadnaught",
+        "executor",
+        "gozanti",
+        "gr75",
+        "hammerhead",
+        "heraklon",
+        "imperial",
+        "lh3210",
+        "lucrehulk",
+        "mandator2",
+        "mc75",
+        "mc80home",
+        "mc80liberty",
+        "nebulonb",
+        "onager",
+        "providence",
+        "providenceDn",
+        "recusant",
+        "recusantDn",
+        "reptransport",
+        "subjugator",
+        "venator"
+      ]
+    },
+    {
+      "sourceSha256": {
+        "js/core.js": "85a8deceabf8fc184281c23d658061e748fbc4f895d16fb495b42674ca1ce513",
+        "data/reference.js": "a6fbb40e306391f04b765985d97dafe512ba0d9ad21b479d70d47384ef7f6a8b",
+        "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
+        "data/fleet.js": "c0341142b0b1b07f3f55b6e56e3445c33990f88e9d522a093f0e9319b6b7e416"
+      },
+      "keys": [
+        "mc30c",
+        "munificent"
+      ]
+    }
+  ],
+  "captureScopeGuard": {
+    "firstPhaseExamples": 37,
+    "firstPhaseCoreSha256": "318d73c0754c4cc088eeaf9c8f2a9343ee0c8f7fad111e340b0ba2803c842e8d",
+    "secondPhaseExamples": [
+      "mc30c",
+      "munificent"
+    ],
+    "secondPhaseCoreSha256": "85a8deceabf8fc184281c23d658061e748fbc4f895d16fb495b42674ca1ce513",
+    "reviewedSourceDelta": "Exactly four station calls plus comments within mc30Build and munificentBuild; no global helper, other builder, hull geometry or weapon-model changes."
+  },
+  "legacyVLSMergeComparison": {
+    "status": "PASS",
+    "comparedKeys": [
+      "rawFits",
+      "rawFloat",
+      "surfaceMode",
+      "surfacePatches",
+      "aggregateGunCount",
+      "aggregateUnplaced",
+      "aggregateErrorCount",
+      "aggregateErrors",
+      "effectiveFits",
+      "effectiveFloat",
+      "effectiveUnplaced",
+      "orphans",
+      "cmsl"
+    ],
+    "differentKeys": [],
+    "effectiveFloat": {
+      "premerge": 16,
+      "merged": 16
+    },
+    "effectiveUnplaced": {
+      "premerge": 16,
+      "merged": 16
+    },
+    "orphanIds": [
+      111,
+      112,
+      115,
+      116,
+      119,
+      120,
+      125,
+      126,
+      129,
+      130,
+      133,
+      134,
+      137,
+      138,
+      141,
+      142
+    ],
+    "premergeCoreSha256": "aab2eebcc31443abcbaaab6f387ca868ccebba6a8821bc95fd261cf3812516ff",
+    "mergedCoreSha256": "318d73c0754c4cc088eeaf9c8f2a9343ee0c8f7fad111e340b0ba2803c842e8d",
+    "note": "The 16 unplaced legacy VLS panels and their IDs/flags already existed before merging main; this audit does not clear those engineering warnings."
+  },
+  "scope": {
+    "verified": [
+      "Each captured live computeStats digest was compared with the pre-PR fixture before updating.",
+      "Old top-level fields within the original 1e-9 tolerance remain byte-for-byte unchanged in the fixture.",
+      "New charging-ledger scalars are zero on all eight schema-only controls.",
+      "Only MC30c and Munificent builder placement changes are allowed between capture phases."
+    ],
+    "notClaimed": [
+      "Every example has zero engineering warnings or zero orphaned legacy VLS panels.",
+      "A full second 39-ship physics pass."
+    ]
+  },
+  "examples": {
+    "acclamator": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": false,
+      "reason": "Weapon housing/charging, point-defence and retired gun catalog migration, default pedestal removal, and compact missiles where present.",
+      "changedExistingFields": [
+        "MGLT",
+        "aEff",
+        "aStruct",
+        "aThrust",
+        "accelG",
+        "actualAccelMps2",
+        "actualInputW",
+        "actualThrustN",
+        "alpha",
+        "alphaBest",
+        "alphaMean",
+        "alphaRate",
+        "alphaTot",
+        "autoCrewCapacity",
+        "bandRate",
+        "bareStructAccel",
+        "chargeInfo",
+        "chargingCount",
+        "cost",
+        "costBy",
+        "crew",
+        "crewAboard",
+        "crewBase",
+        "crewCapacity",
+        "draw",
+        "droidCapacity",
+        "feedBranchVolume",
+        "feedDemand",
+        "feedInfo",
+        "feedLength",
+        "feedShare",
+        "feedVolume",
+        "freeAccelerationMps2",
+        "ground",
+        "habit",
+        "habitableVolume",
+        "heat",
+        "hp",
+        "hyperClass",
+        "info",
+        "mass",
+        "maximumAccelMps2",
+        "mslSalvo",
+        "personCapacity",
+        "propulsion",
+        "ratedAccelMps2",
+        "rc",
+        "structG",
+        "thrust",
+        "thrustG",
+        "troopCapacity",
+        "troopVolume",
+        "warnings",
+        "weaponBudget",
+        "weaponCrew",
+        "$warnings"
+      ],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {
+        "MGLT": {
+          "before": 0,
+          "after": 31
+        },
+        "aEff": {
+          "before": 0,
+          "after": 9083.953769843336
+        },
+        "aStruct": {
+          "before": 159093.29228138516,
+          "after": 159592.32500941257
+        },
+        "aThrust": {
+          "before": 0,
+          "after": 9083.953769843336
+        },
+        "accelG": {
+          "before": 0,
+          "after": 926.3054937051222
+        },
+        "actualAccelMps2": {
+          "before": 0,
+          "after": 9083.953769843336
+        },
+        "actualInputW": {
+          "before": 0,
+          "after": 3.1501864655282023e+22
+        },
+        "actualThrustN": {
+          "before": 0,
+          "after": 15750932327641.012
+        },
+        "alphaBest": {
+          "before": 129.6,
+          "after": 5.045176068668278
+        },
+        "alphaMean": {
+          "before": 64.88888888888887,
+          "after": 2.5537310964864126
+        },
+        "alphaTot": {
+          "before": 129.6,
+          "after": 5.045176068668278
+        },
+        "autoCrewCapacity": {
+          "before": 16335,
+          "after": 16338
+        },
+        "bareStructAccel": {
+          "before": 12237.945560106551,
+          "after": 12276.332693031736
+        },
+        "chargingCount": {
+          "before": 0,
+          "after": 36
+        },
+        "cost": {
+          "before": 4107970254,
+          "after": 4107387354
+        },
+        "crew": {
+          "before": 2412,
+          "after": 2348
+        },
+        "crewAboard": {
+          "before": 2412,
+          "after": 2348
+        },
+        "crewBase": {
+          "before": 2412,
+          "after": 2348
+        },
+        "crewCapacity": {
+          "before": 16335,
+          "after": 16338
+        },
+        "droidCapacity": {
+          "before": 541190,
+          "after": 543799
+        },
+        "feedBranchVolume": {
+          "before": 614473.3059390184,
+          "after": 613869.4057698788
+        },
+        "feedDemand": {
+          "before": 2.715231999999999e+24,
+          "after": 2.711232003999999e+24
+        },
+        "feedLength": {
+          "before": 226.30600476829187,
+          "after": 226.41714352154685
+        },
+        "feedShare": {
+          "before": 0.16216505462318095,
+          "after": 0.16200567991484302
+        },
+        "feedVolume": {
+          "before": 614473.3059390184,
+          "after": 613869.4057698788
+        },
+        "freeAccelerationMps2": {
+          "before": 0,
+          "after": 9083.953769843336
+        },
+        "habit": {
+          "before": 6.772388059701493,
+          "after": 6.958262350936968
+        },
+        "habitableVolume": {
+          "before": 3174711.160263366,
+          "after": 3175315.060432506
+        },
+        "hp": {
+          "before": 4633.269528779081,
+          "after": 4633.387585899088
+        },
+        "hyperClass": {
+          "before": 0.5792173980229574,
+          "after": 0.5784329810269379
+        },
+        "mass": {
+          "before": 1736280.5531971648,
+          "after": 1733929.1597817824
+        },
+        "maximumAccelMps2": {
+          "before": 30472.9446897395,
+          "after": 30514.269262364935
+        },
+        "mslSalvo": {
+          "before": 320,
+          "after": 1666.6666666666667
+        },
+        "personCapacity": {
+          "before": 16335,
+          "after": 16338
+        },
+        "ratedAccelMps2": {
+          "before": 30472.9446897395,
+          "after": 30514.269262364935
+        },
+        "rc": {
+          "before": 0.028018916745135545,
+          "after": 0.7208090887069584
+        },
+        "structG": {
+          "before": 16223.000951536475,
+          "after": 16273.88812789409
+        },
+        "thrust": {
+          "before": 0,
+          "after": 15750932327641.012
+        },
+        "thrustG": {
+          "before": 0,
+          "after": 926.3054937051222
+        },
+        "troopCapacity": {
+          "before": 13923,
+          "after": 13990
+        },
+        "troopVolume": {
+          "before": 2705953.325525375,
+          "after": 2718995.2445267006
+        },
+        "weaponBudget": {
+          "before": 7.607785935172785e+22,
+          "after": 7.607785535172785e+22
+        },
+        "weaponCrew": {
+          "before": 352,
+          "after": 288
+        }
+      }
+    },
+    "arquitens": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": false,
+      "reason": "Native hull changed to 75 editable structures, with rebuilt batteries and engineering layout.",
+      "changedExistingFields": [
+        "VS",
+        "Veng",
+        "Vgen",
+        "aStruct",
+        "aa",
+        "aaArc",
+        "airCtl",
+        "alpha",
+        "alphaBest",
+        "alphaMean",
+        "alphaRate",
+        "alphaTot",
+        "arcEff",
+        "area",
+        "armorMass",
+        "autoCrewCapacity",
+        "autoHabitationVolume",
+        "bandRate",
+        "bareStructAccel",
+        "cargoCapacity",
+        "chargeInfo",
+        "chargingCount",
+        "chargingVolume",
+        "commandVolume",
+        "coreRate",
+        "cost",
+        "costBy",
+        "craftSystems",
+        "crew",
+        "crewAboard",
+        "crewBase",
+        "crewCapacity",
+        "dims",
+        "draw",
+        "droidCapacity",
+        "effectiveMachineryVolumeM3",
+        "engineVolume",
+        "envelopeVolume",
+        "feedBranchVolume",
+        "feedDemand",
+        "feedInfo",
+        "feedLength",
+        "feedShare",
+        "feedVolume",
+        "fitInfo",
+        "frac",
+        "fuelHours",
+        "ground",
+        "habit",
+        "habitableVolume",
+        "heat",
+        "hp",
+        "hullArea",
+        "hullVolume",
+        "hyperClass",
+        "info",
+        "integritySupport",
+        "mass",
+        "maximumAccelMps2",
+        "mslSalvo",
+        "pedVol",
+        "personCapacity",
+        "power",
+        "propulsion",
+        "protectedFrac",
+        "ratedAccelMps2",
+        "ratedThrustN",
+        "rc",
+        "reactorSplit",
+        "rm",
+        "sens",
+        "sensorVolume",
+        "shieldCapacity",
+        "shieldP",
+        "shieldPct",
+        "skin",
+        "structG",
+        "supportVolumes",
+        "troopCapacity",
+        "troopVolume",
+        "unassignedVolume",
+        "ventEng",
+        "volume",
+        "vuln",
+        "warnings",
+        "weakAt",
+        "weaponBudget",
+        "weaponCrew",
+        "xISD",
+        "ybox",
+        "$warnings"
+      ],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {
+        "VS": {
+          "before": 5.8522234843497944,
+          "after": 5.88178757826753
+        },
+        "Veng": {
+          "before": 8080.569004114646,
+          "after": 8016.942769887957
+        },
+        "Vgen": {
+          "before": 7964.264626084873,
+          "after": 4533.64544836482
+        },
+        "aStruct": {
+          "before": 213521.4699788341,
+          "after": 243026.3948733807
+        },
+        "aa": {
+          "before": 39.05185185185185,
+          "after": 33.48148148148148
+        },
+        "airCtl": {
+          "before": 2,
+          "after": 1
+        },
+        "alphaBest": {
+          "before": 22.577777777777783,
+          "after": 23.555555555555554
+        },
+        "alphaMean": {
+          "before": 20.73333333333333,
+          "after": 20.37037037037037
+        },
+        "alphaTot": {
+          "before": 42.4,
+          "after": 48
+        },
+        "arcEff": {
+          "before": 0.5324947589098534,
+          "after": 0.4907407407407407
+        },
+        "area": {
+          "before": 78732.74514892077,
+          "after": 100005.22337480196
+        },
+        "armorMass": {
+          "before": 130545.25917482807,
+          "after": 162612.9235321739
+        },
+        "autoCrewCapacity": {
+          "before": 3374,
+          "after": 4643
+        },
+        "autoHabitationVolume": {
+          "before": 399995.7533986095,
+          "after": 559883.5286962619
+        },
+        "bareStructAccel": {
+          "before": 16424.728459910315,
+          "after": 44896.494395532456
+        },
+        "cargoCapacity": {
+          "before": 739.2,
+          "after": 576
+        },
+        "chargingCount": {
+          "before": 0,
+          "after": 12
+        },
+        "chargingVolume": {
+          "before": 0,
+          "after": 766.3654928757022
+        },
+        "commandVolume": {
+          "before": 2160,
+          "after": 1224
+        },
+        "coreRate": {
+          "before": 1,
+          "after": 0.5306264107296864
+        },
+        "cost": {
+          "before": 3029351,
+          "after": 2798328
+        },
+        "crew": {
+          "before": 324,
+          "after": 183
+        },
+        "crewAboard": {
+          "before": 324,
+          "after": 183
+        },
+        "crewBase": {
+          "before": 324,
+          "after": 183
+        },
+        "crewCapacity": {
+          "before": 3374,
+          "after": 4643
+        },
+        "droidCapacity": {
+          "before": 61003,
+          "after": 89204
+        },
+        "effectiveMachineryVolumeM3": {
+          "before": 29408.96153817512,
+          "after": 29177.395979581554
+        },
+        "engineVolume": {
+          "before": 29916.98773242929,
+          "after": 29432.12456312352
+        },
+        "envelopeVolume": {
+          "before": 469848.18268627673,
+          "after": 598176.1617356635
+        },
+        "feedBranchVolume": {
+          "before": 62575.97313914785,
+          "after": 95562.62791475053
+        },
+        "feedDemand": {
+          "before": 9.11008e+23,
+          "after": 1.0241600040000001e+24
+        },
+        "feedLength": {
+          "before": 68.68871968099937,
+          "after": 93.30829903678854
+        },
+        "feedShare": {
+          "before": 0.15644159371059307,
+          "after": 0.1706830492714735
+        },
+        "feedVolume": {
+          "before": 62575.97313914785,
+          "after": 95562.62791475053
+        },
+        "fuelHours": {
+          "before": 393.6825026514228,
+          "after": 691.5828918439473
+        },
+        "habit": {
+          "before": 10.41358024691358,
+          "after": 25.371584699453553
+        },
+        "habitableVolume": {
+          "before": 337419.78025946167,
+          "after": 464320.9007815114
+        },
+        "hp": {
+          "before": 755.5250633335597,
+          "after": 1618.3331748013395
+        },
+        "hullArea": {
+          "before": 45157.88316755897,
+          "after": 100005.22337480196
+        },
+        "hullVolume": {
+          "before": 327669.8513553179,
+          "after": 588209.4806077798
+        },
+        "hyperClass": {
+          "before": 2.007649854710976,
+          "after": 2.995857091137633
+        },
+        "integritySupport": {
+          "before": 311040,
+          "after": 161280.00000000006
+        },
+        "mass": {
+          "before": 293894.22356238187,
+          "after": 438555.10543221864
+        },
+        "maximumAccelMps2": {
+          "before": 16328.112579309873,
+          "after": 8062.883692739337
+        },
+        "mslSalvo": {
+          "before": 320,
+          "after": 1666.6666666666667
+        },
+        "pedVol": {
+          "before": 1352.340040484502,
+          "after": 0
+        },
+        "personCapacity": {
+          "before": 3374,
+          "after": 4643
+        },
+        "power": {
+          "before": 4.17088834077582e+22,
+          "after": 2.3742718040613077e+22
+        },
+        "protectedFrac": {
+          "before": 0.5164980818251087,
+          "after": 0.5555286640584485
+        },
+        "ratedAccelMps2": {
+          "before": 16328.112579309873,
+          "after": 10855.996762196577
+        },
+        "ratedThrustN": {
+          "before": 4798737968735.436,
+          "after": 4760952804616.943
+        },
+        "rc": {
+          "before": 0.005987896005212102,
+          "after": 0
+        },
+        "rm": {
+          "before": 1,
+          "after": 0.7429745336059942
+        },
+        "sensorVolume": {
+          "before": 65.44984694978736,
+          "after": 24.429024474314232
+        },
+        "shieldCapacity": {
+          "before": 6.888496962571036e+23,
+          "after": 3.6552184185714164e+23
+        },
+        "shieldP": {
+          "before": 3.149309805956831e+22,
+          "after": 2.122616509343668e+22
+        },
+        "shieldPct": {
+          "before": 1,
+          "after": 0.5306264107296864
+        },
+        "structG": {
+          "before": 21773.13047562971,
+          "after": 24781.795503396235
+        },
+        "troopCapacity": {
+          "before": 3050,
+          "after": 4460
+        },
+        "troopVolume": {
+          "before": 305019.78025946167,
+          "after": 446020.9007815114
+        },
+        "unassignedVolume": {
+          "before": 399995.7533986095,
+          "after": 559883.5286962619
+        },
+        "ventEng": {
+          "before": 8080.569004114646,
+          "after": 8016.942769887957
+        },
+        "volume": {
+          "before": 460761.6201478415,
+          "after": 588209.4806077798
+        },
+        "vuln": {
+          "before": 0.2175758631787011,
+          "after": 0.2000121011736982
+        },
+        "weakAt": {
+          "before": 159.79166666666669,
+          "after": 59.583333333333336
+        },
+        "weaponBudget": {
+          "before": 5.455021163916267e+21,
+          "after": 0
+        },
+        "weaponCrew": {
+          "before": 204,
+          "after": 140
+        },
+        "xISD": {
+          "before": 0.004170888340775819,
+          "after": 0.0023742718040613074
+        }
+      }
+    },
+    "cr90": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": false,
+      "reason": "Weapon housing/charging, point-defence and retired gun catalog migration, default pedestal removal, and compact missiles where present.",
+      "changedExistingFields": [
+        "aStruct",
+        "aa",
+        "aaArc",
+        "alpha",
+        "alphaBest",
+        "alphaMean",
+        "alphaRate",
+        "arcEff",
+        "autoCrewCapacity",
+        "autoHabitationVolume",
+        "bandRate",
+        "bareStructAccel",
+        "chargeInfo",
+        "chargingCount",
+        "chargingVolume",
+        "cost",
+        "costBy",
+        "crewCapacity",
+        "droidCapacity",
+        "feedBranchVolume",
+        "feedInfo",
+        "feedLength",
+        "feedShare",
+        "feedVolume",
+        "fitInfo",
+        "ground",
+        "habit",
+        "habitableVolume",
+        "heat",
+        "hp",
+        "hyperClass",
+        "info",
+        "mass",
+        "maximumAccelMps2",
+        "pedVol",
+        "personCapacity",
+        "ratedAccelMps2",
+        "structG",
+        "troopCapacity",
+        "troopVolume",
+        "unassignedVolume"
+      ],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {
+        "aStruct": {
+          "before": 181262.6988341011,
+          "after": 181267.07811532065
+        },
+        "aa": {
+          "before": 23.525925925925925,
+          "after": 22.459259259259255
+        },
+        "alphaBest": {
+          "before": 14.204444444444444,
+          "after": 13.093333333333334
+        },
+        "alphaMean": {
+          "before": 11.343703703703703,
+          "after": 10.788148148148146
+        },
+        "arcEff": {
+          "before": 0.6650020807324178,
+          "after": 0.6129837702871411
+        },
+        "autoCrewCapacity": {
+          "before": 204,
+          "after": 197
+        },
+        "autoHabitationVolume": {
+          "before": 38475.354732278225,
+          "after": 37985.066682169556
+        },
+        "bareStructAccel": {
+          "before": 13943.284525700083,
+          "after": 13943.621393486203
+        },
+        "chargingCount": {
+          "before": 0,
+          "after": 8
+        },
+        "chargingVolume": {
+          "before": 0,
+          "after": 410.38274643777254
+        },
+        "cost": {
+          "before": 17792120,
+          "after": 17792547
+        },
+        "crewCapacity": {
+          "before": 204,
+          "after": 197
+        },
+        "droidCapacity": {
+          "before": 2078,
+          "after": 1923
+        },
+        "feedBranchVolume": {
+          "before": 17981.9936489293,
+          "after": 18265.14078080131
+        },
+        "feedLength": {
+          "before": 40.42324707755083,
+          "after": 41.05975750539451
+        },
+        "feedShare": {
+          "before": 0.4673639469747012,
+          "after": 0.48085056513472146
+        },
+        "feedVolume": {
+          "before": 17981.9936489293,
+          "after": 18265.14078080131
+        },
+        "habit": {
+          "before": 2.01980198019802,
+          "after": 1.9504950495049505
+        },
+        "habitableVolume": {
+          "before": 20493.361083348926,
+          "after": 19719.925901368246
+        },
+        "hp": {
+          "before": 151.1187003281094,
+          "after": 151.590583919515
+        },
+        "hyperClass": {
+          "before": 2.1362229676377,
+          "after": 2.139550641380232
+        },
+        "mass": {
+          "before": 56292.42519699464,
+          "after": 56380.11399543436
+        },
+        "maximumAccelMps2": {
+          "before": 36735.35011260002,
+          "after": 36678.21509666342
+        },
+        "pedVol": {
+          "before": 331.7268545016501,
+          "after": 0
+        },
+        "personCapacity": {
+          "before": 204,
+          "after": 197
+        },
+        "ratedAccelMps2": {
+          "before": 36735.35011260002,
+          "after": 36678.21509666342
+        },
+        "structG": {
+          "before": 18483.65128092683,
+          "after": 18484.097843332907
+        },
+        "troopCapacity": {
+          "before": 103,
+          "after": 96
+        },
+        "troopVolume": {
+          "before": 10393.361083348926,
+          "after": 9619.925901368246
+        },
+        "unassignedVolume": {
+          "before": 38475.354732278225,
+          "after": 37985.066682169556
+        }
+      }
+    },
+    "craft_arc170": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": true,
+      "reason": "All existing physics and summary fields retained; only seven zero-valued charging-ledger scalars added.",
+      "changedExistingFields": [],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {}
+    },
+    "craft_awing": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": false,
+      "reason": "Unified compact concussion launchers change weapon power demand, heating and available propulsion; underlying craft prices and geometry are retained.",
+      "changedExistingFields": [
+        "MGLT",
+        "aEff",
+        "aThrust",
+        "accelG",
+        "actualAccelMps2",
+        "actualInputW",
+        "actualThrustN",
+        "draw",
+        "extCount",
+        "freeAccelerationMps2",
+        "heat",
+        "propulsion",
+        "rc",
+        "thrust",
+        "thrustG",
+        "warnings",
+        "weaponBudget",
+        "$warnings"
+      ],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {
+        "MGLT": {
+          "before": 60,
+          "after": 56
+        },
+        "aEff": {
+          "before": 17520.0799715796,
+          "after": 16386.387808623367
+        },
+        "aThrust": {
+          "before": 17520.0799715796,
+          "after": 16386.387808623367
+        },
+        "accelG": {
+          "before": 1786.55095996896,
+          "after": 1670.9465320597114
+        },
+        "actualAccelMps2": {
+          "before": 17520.0799715796,
+          "after": 16386.387808623367
+        },
+        "actualInputW": {
+          "before": 357952883166850750,
+          "after": 334790410220829200
+        },
+        "actualThrustN": {
+          "before": 178976441.58342537,
+          "after": 167395205.1104146
+        },
+        "extCount": {
+          "before": 0,
+          "after": 2
+        },
+        "freeAccelerationMps2": {
+          "before": 17520.0799715796,
+          "after": 16386.387808623367
+        },
+        "rc": {
+          "before": 0.5263488181252495,
+          "after": 0.5257827913782672
+        },
+        "thrust": {
+          "before": 178976441.58342537,
+          "after": 167395205.1104146
+        },
+        "thrustG": {
+          "before": 1786.55095996896,
+          "after": 1670.9465320597114
+        },
+        "weaponBudget": {
+          "before": 881950079650668000,
+          "after": 879950079650668000
+        }
+      }
+    },
+    "craft_btlb": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": true,
+      "reason": "All existing physics and summary fields retained; only seven zero-valued charging-ledger scalars added.",
+      "changedExistingFields": [],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {}
+    },
+    "craft_hyena": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": false,
+      "reason": "Unified compact concussion launchers change weapon power demand, heating and available propulsion; underlying craft prices and geometry are retained.",
+      "changedExistingFields": [
+        "draw",
+        "extCount",
+        "heat",
+        "propulsion",
+        "rc",
+        "weaponBudget"
+      ],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {
+        "extCount": {
+          "before": 0,
+          "after": 2
+        },
+        "rc": {
+          "before": 0.5348853474860471,
+          "after": 0.5346076836734306
+        },
+        "weaponBudget": {
+          "before": 1793042661842727200,
+          "after": 1791042661842727200
+        }
+      }
+    },
+    "craft_tie_in": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": true,
+      "reason": "All existing physics and summary fields retained; only seven zero-valued charging-ledger scalars added.",
+      "changedExistingFields": [],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {}
+    },
+    "craft_tie_ln": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": true,
+      "reason": "All existing physics and summary fields retained; only seven zero-valued charging-ledger scalars added.",
+      "changedExistingFields": [],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {}
+    },
+    "craft_tie_sa": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": true,
+      "reason": "All existing physics and summary fields retained; only seven zero-valued charging-ledger scalars added.",
+      "changedExistingFields": [],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {}
+    },
+    "craft_v19": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": false,
+      "reason": "Unified compact concussion launchers change weapon power demand, heating and available propulsion; underlying craft prices and geometry are retained.",
+      "changedExistingFields": [
+        "MGLT",
+        "aEff",
+        "aThrust",
+        "accelG",
+        "actualAccelMps2",
+        "actualInputW",
+        "actualThrustN",
+        "draw",
+        "extCount",
+        "freeAccelerationMps2",
+        "heat",
+        "propulsion",
+        "rc",
+        "thrust",
+        "thrustG",
+        "weaponBudget"
+      ],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {
+        "MGLT": {
+          "before": 57,
+          "after": 41
+        },
+        "aEff": {
+          "before": 16900.273656644626,
+          "after": 12066.823367082214
+        },
+        "aThrust": {
+          "before": 16900.273656644626,
+          "after": 12066.823367082214
+        },
+        "accelG": {
+          "before": 1723.3483051444302,
+          "after": 1230.4735426554648
+        },
+        "actualAccelMps2": {
+          "before": 16900.273656644626,
+          "after": 12066.823367082214
+        },
+        "actualInputW": {
+          "before": 414505661705454300,
+          "after": 295957728618715140
+        },
+        "actualThrustN": {
+          "before": 207252830.85272714,
+          "after": 147978864.30935758
+        },
+        "extCount": {
+          "before": 0,
+          "after": 2
+        },
+        "freeAccelerationMps2": {
+          "before": 16900.273656644626,
+          "after": 12066.823367082214
+        },
+        "rc": {
+          "before": 0.8055007842008559,
+          "after": 0.8052683520596046
+        },
+        "thrust": {
+          "before": 207252830.85272714,
+          "after": 147978864.30935758
+        },
+        "thrustG": {
+          "before": 1723.3483051444302,
+          "after": 1230.4735426554648
+        },
+        "weaponBudget": {
+          "before": 1349697114006954200,
+          "after": 1347697114006954200
+        }
+      }
+    },
+    "craft_vulture": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": false,
+      "reason": "Unified compact concussion launchers change weapon power demand, heating and available propulsion; underlying craft prices and geometry are retained.",
+      "changedExistingFields": [
+        "draw",
+        "extCount",
+        "heat",
+        "propulsion",
+        "rc",
+        "weaponBudget"
+      ],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {
+        "extCount": {
+          "before": 0,
+          "after": 1
+        },
+        "rc": {
+          "before": 0.10194234197183046,
+          "after": 0.10167420102532736
+        },
+        "weaponBudget": {
+          "before": 341527234074026400,
+          "after": 340527234074026400
+        }
+      }
+    },
+    "craft_vwing": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": true,
+      "reason": "All existing physics and summary fields retained; only seven zero-valued charging-ledger scalars added.",
+      "changedExistingFields": [],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {}
+    },
+    "craft_xwing": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": true,
+      "reason": "All existing physics and summary fields retained; only seven zero-valued charging-ledger scalars added.",
+      "changedExistingFields": [],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {}
+    },
+    "craft_z95": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": false,
+      "reason": "Unified compact concussion launchers change weapon power demand, heating and available propulsion; underlying craft prices and geometry are retained.",
+      "changedExistingFields": [
+        "draw",
+        "extCount",
+        "heat",
+        "propulsion",
+        "weaponBudget"
+      ],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {
+        "extCount": {
+          "before": 0,
+          "after": 2
+        },
+        "weaponBudget": {
+          "before": 3813842230287290400,
+          "after": 3811842230287290400
+        }
+      }
+    },
+    "dreadnaught": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": false,
+      "reason": "Weapon housing/charging, point-defence and retired gun catalog migration, default pedestal removal, and compact missiles where present.",
+      "changedExistingFields": [
+        "aStruct",
+        "aa",
+        "aaArc",
+        "alpha",
+        "alphaBest",
+        "alphaMean",
+        "alphaRate",
+        "arcEff",
+        "autoCrewCapacity",
+        "autoHabitationVolume",
+        "bandRate",
+        "bareStructAccel",
+        "chargeInfo",
+        "chargingCount",
+        "chargingVolume",
+        "cost",
+        "costBy",
+        "crewCapacity",
+        "droidCapacity",
+        "feedShare",
+        "fitInfo",
+        "ground",
+        "habit",
+        "habitableVolume",
+        "hp",
+        "hyperClass",
+        "info",
+        "mass",
+        "maximumAccelMps2",
+        "pedVol",
+        "personCapacity",
+        "ratedAccelMps2",
+        "structG",
+        "troopCapacity",
+        "troopVolume",
+        "unassignedVolume",
+        "warnings",
+        "$warnings"
+      ],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {
+        "aStruct": {
+          "before": 38419.032043216765,
+          "after": 38449.257973757594
+        },
+        "aa": {
+          "before": 77.09629629629627,
+          "after": 73.36296296296294
+        },
+        "alphaBest": {
+          "before": 91.7555555555555,
+          "after": 89.19999999999995
+        },
+        "alphaMean": {
+          "before": 64.99629629629628,
+          "after": 63.451851851851835
+        },
+        "arcEff": {
+          "before": 0.23770869314910759,
+          "after": 0.23108808290155433
+        },
+        "autoCrewCapacity": {
+          "before": 14253,
+          "after": 14240
+        },
+        "autoHabitationVolume": {
+          "before": 2152692.830175381,
+          "after": 2151322.997003141
+        },
+        "bareStructAccel": {
+          "before": 2955.3101571705206,
+          "after": 2957.6352287505842
+        },
+        "chargingCount": {
+          "before": 10,
+          "after": 40
+        },
+        "chargingVolume": {
+          "before": 6399.999999999997,
+          "after": 7677.956866094429
+        },
+        "cost": {
+          "before": 9351000,
+          "after": 9352320
+        },
+        "crewCapacity": {
+          "before": 14253,
+          "after": 14240
+        },
+        "droidCapacity": {
+          "before": 275490,
+          "after": 275216
+        },
+        "feedShare": {
+          "before": 0.29482204594833994,
+          "after": 0.29500977090596386
+        },
+        "habit": {
+          "before": 10.797727272727272,
+          "after": 10.787878787878787
+        },
+        "habitableVolume": {
+          "before": 1518031.525684753,
+          "after": 1516661.6925125127
+        },
+        "hp": {
+          "before": 3484.899141290522,
+          "after": 3485.4211757976454
+        },
+        "hyperClass": {
+          "before": 2.1032546839928337,
+          "after": 2.1018643230454646
+        },
+        "mass": {
+          "before": 1479678.8492674162,
+          "after": 1478700.7044415295
+        },
+        "maximumAccelMps2": {
+          "before": 7807.256490050787,
+          "after": 7812.420907378226
+        },
+        "pedVol": {
+          "before": 4612.170986577306,
+          "after": 0
+        },
+        "personCapacity": {
+          "before": 14253,
+          "after": 14240
+        },
+        "ratedAccelMps2": {
+          "before": 7807.256490050787,
+          "after": 7812.420907378226
+        },
+        "structG": {
+          "before": 3917.650986138668,
+          "after": 3920.733173281151
+        },
+        "troopCapacity": {
+          "before": 12933,
+          "after": 12920
+        },
+        "troopVolume": {
+          "before": 1377450.0265466408,
+          "after": 1376080.1933744005
+        },
+        "unassignedVolume": {
+          "before": 2152692.830175381,
+          "after": 2151322.997003141
+        }
+      }
+    },
+    "executor": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": false,
+      "reason": "Weapon housing/charging, point-defence and retired gun catalog migration, default pedestal removal, and compact missiles where present.",
+      "changedExistingFields": [
+        "aEff",
+        "aStruct",
+        "aThrust",
+        "aa",
+        "aaArc",
+        "accelG",
+        "actualAccelMps2",
+        "alpha",
+        "alphaBest",
+        "alphaMean",
+        "alphaRate",
+        "alphaTot",
+        "arcEff",
+        "autoCrew",
+        "autoCrewCapacity",
+        "bandRate",
+        "bareStructAccel",
+        "chargeInfo",
+        "chargingCount",
+        "chargingVolume",
+        "cost",
+        "costBy",
+        "crew",
+        "crewAboard",
+        "crewBase",
+        "crewCapacity",
+        "draw",
+        "droidCapacity",
+        "extCount",
+        "feedBranchVolume",
+        "feedCount",
+        "feedDemand",
+        "feedInfo",
+        "feedLength",
+        "feedShare",
+        "feedVolume",
+        "fitInfo",
+        "floatFits",
+        "freeAccelerationMps2",
+        "ground",
+        "habit",
+        "habitableVolume",
+        "heat",
+        "hp",
+        "hyperClass",
+        "info",
+        "ionBest",
+        "ionMean",
+        "ionRate",
+        "mass",
+        "maximumAccelMps2",
+        "mslSalvo",
+        "pedVol",
+        "personCapacity",
+        "propulsion",
+        "ratedAccelMps2",
+        "structG",
+        "thrustG",
+        "troopCapacity",
+        "troopVolume",
+        "vlsCount",
+        "vlsInfo",
+        "vlsVolume",
+        "warnings",
+        "weaponCrew",
+        "$warnings"
+      ],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {
+        "aEff": {
+          "before": 2557.7474706714156,
+          "after": 2557.9236631833846
+        },
+        "aStruct": {
+          "before": 12285.438320018646,
+          "after": 12285.664298573443
+        },
+        "aThrust": {
+          "before": 2557.7474706714156,
+          "after": 2557.9236631833846
+        },
+        "aa": {
+          "before": 2244.475555555554,
+          "after": 2233.3881481481353
+        },
+        "accelG": {
+          "before": 260.81765645469306,
+          "after": 260.83562309079906
+        },
+        "actualAccelMps2": {
+          "before": 2557.7474706714156,
+          "after": 2557.9236631833846
+        },
+        "alphaBest": {
+          "before": 53318.986666666875,
+          "after": 51510.7758910416
+        },
+        "alphaMean": {
+          "before": 49681.746666666564,
+          "after": 46273.95481986916
+        },
+        "alphaTot": {
+          "before": 106330.00000000128,
+          "after": 106310.20086267944
+        },
+        "arcEff": {
+          "before": 0.501448195868205,
+          "after": 0.4845327680038712
+        },
+        "autoCrew": {
+          "before": 4894409,
+          "after": 4892491
+        },
+        "autoCrewCapacity": {
+          "before": 310183,
+          "after": 310191
+        },
+        "bareStructAccel": {
+          "before": 945.0337169245113,
+          "after": 945.0510998902649
+        },
+        "chargingCount": {
+          "before": 850,
+          "after": 2100
+        },
+        "chargingVolume": {
+          "before": 2799999.9999999967,
+          "after": 2120308.5621852376
+        },
+        "cost": {
+          "before": 297075974895,
+          "after": 297057346749
+        },
+        "crew": {
+          "before": 257601,
+          "after": 257500
+        },
+        "crewAboard": {
+          "before": 257601,
+          "after": 257500
+        },
+        "crewBase": {
+          "before": 5152010,
+          "after": 5149991
+        },
+        "crewCapacity": {
+          "before": 310183,
+          "after": 310191
+        },
+        "droidCapacity": {
+          "before": 500589718,
+          "after": 501626895
+        },
+        "extCount": {
+          "before": 4,
+          "after": 0
+        },
+        "feedBranchVolume": {
+          "before": 1868689963.2062008,
+          "after": 1868311740.9310405
+        },
+        "feedCount": {
+          "before": 2225,
+          "after": 2100
+        },
+        "feedDemand": {
+          "before": 6.127044399999738e+26,
+          "after": 6.1257943999997525e+26
+        },
+        "feedLength": {
+          "before": 3049.9043930647545,
+          "after": 3049.9093161388455
+        },
+        "feedShare": {
+          "before": 0.11234421382915365,
+          "after": 0.11232147539474654
+        },
+        "feedVolume": {
+          "before": 1868689963.2062008,
+          "after": 1868311740.9310405
+        },
+        "floatFits": {
+          "before": 0,
+          "after": 125
+        },
+        "freeAccelerationMps2": {
+          "before": 2557.7474706714156,
+          "after": 2557.9236631833846
+        },
+        "habit": {
+          "before": 1.2041218784088572,
+          "after": 1.2046252427184465
+        },
+        "habitableVolume": {
+          "before": 14764921146.022732,
+          "after": 14765299368.297894
+        },
+        "hp": {
+          "before": 27215395.83023918,
+          "after": 27215488.82350655
+        },
+        "hyperClass": {
+          "before": 2.228816649092107,
+          "after": 2.228663125822521
+        },
+        "ionBest": {
+          "before": 18200.000000000036,
+          "after": 17811.111111111142
+        },
+        "ionMean": {
+          "before": 16832.407407407405,
+          "after": 16586.11111111111
+        },
+        "mass": {
+          "before": 7161310543.04285,
+          "after": 7160817264.329442
+        },
+        "maximumAccelMps2": {
+          "before": 7307.849916204048,
+          "after": 7308.353323381102
+        },
+        "mslSalvo": {
+          "before": 10000,
+          "after": 0
+        },
+        "pedVol": {
+          "before": 990961.2554253028,
+          "after": 0
+        },
+        "personCapacity": {
+          "before": 310183,
+          "after": 310191
+        },
+        "ratedAccelMps2": {
+          "before": 7307.849916204048,
+          "after": 7308.353323381102
+        },
+        "structG": {
+          "before": 1252.7660638463335,
+          "after": 1252.7891072459447
+        },
+        "thrustG": {
+          "before": 260.81765645469306,
+          "after": 260.83562309079906
+        },
+        "troopCapacity": {
+          "before": 52582,
+          "after": 52691
+        },
+        "troopVolume": {
+          "before": 2502948592.6733627,
+          "after": 2508134479.6233044
+        },
+        "vlsCount": {
+          "before": 121,
+          "after": 0
+        },
+        "vlsVolume": {
+          "before": 435599.9999999991,
+          "after": 0
+        },
+        "weaponCrew": {
+          "before": 46100,
+          "after": 44100
+        }
+      }
+    },
+    "gozanti": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": false,
+      "reason": "Weapon housing/charging, point-defence and retired gun catalog migration, default pedestal removal, and compact missiles where present.",
+      "changedExistingFields": [
+        "aStruct",
+        "autoHabitationVolume",
+        "bareStructAccel",
+        "chargeInfo",
+        "chargingCount",
+        "chargingVolume",
+        "cost",
+        "costBy",
+        "feedBranchVolume",
+        "feedInfo",
+        "feedLength",
+        "feedVolume",
+        "hp",
+        "hyperClass",
+        "info",
+        "mass",
+        "maximumAccelMps2",
+        "pedVol",
+        "ratedAccelMps2",
+        "structG",
+        "unassignedVolume",
+        "warnings",
+        "weakAt",
+        "$warnings"
+      ],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {
+        "aStruct": {
+          "before": 1190841.579558069,
+          "after": 1209886.4086968096
+        },
+        "autoHabitationVolume": {
+          "before": 2849.116299496665,
+          "after": 2722.3784614902715
+        },
+        "bareStructAccel": {
+          "before": 91603.19842754376,
+          "after": 93068.18528436996
+        },
+        "chargingCount": {
+          "before": 0,
+          "after": 2
+        },
+        "chargingVolume": {
+          "before": 0,
+          "after": 191.59137321888628
+        },
+        "cost": {
+          "before": 226578,
+          "after": 226778
+        },
+        "feedBranchVolume": {
+          "before": 4037.6628687534144,
+          "after": 4322.812473892591
+        },
+        "feedLength": {
+          "before": 19.300491724442708,
+          "after": 20.663539550155782
+        },
+        "feedVolume": {
+          "before": 4037.6628687534144,
+          "after": 4322.812473892591
+        },
+        "hp": {
+          "before": 10.95496733747797,
+          "after": 11.074012513546638
+        },
+        "hyperClass": {
+          "before": 1.6688577612488025,
+          "after": 1.6415320881063482
+        },
+        "mass": {
+          "before": 5629.01844537149,
+          "after": 5536.849584895348
+        },
+        "maximumAccelMps2": {
+          "before": 8265.782798239814,
+          "after": 8403.37869456602
+        },
+        "pedVol": {
+          "before": 552.2504716932083,
+          "after": 0
+        },
+        "ratedAccelMps2": {
+          "before": 8265.782798239814,
+          "after": 8403.37869456602
+        },
+        "structG": {
+          "before": 121432.04657636084,
+          "after": 123374.07868097766
+        },
+        "unassignedVolume": {
+          "before": 2849.116299496665,
+          "after": 2722.3784614902715
+        },
+        "weakAt": {
+          "before": 29.241666666666664,
+          "after": 29.77333333333333
+        }
+      }
+    },
+    "gr75": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": false,
+      "reason": "Weapon housing/charging, point-defence and retired gun catalog migration, default pedestal removal, and compact missiles where present.",
+      "changedExistingFields": [
+        "aStruct",
+        "aa",
+        "aaArc",
+        "alpha",
+        "alphaMean",
+        "alphaRate",
+        "autoCrewCapacity",
+        "autoHabitationVolume",
+        "bandRate",
+        "bareStructAccel",
+        "chargeInfo",
+        "chargingCount",
+        "chargingVolume",
+        "cost",
+        "costBy",
+        "crewAboard",
+        "crewCapacity",
+        "droidCapacity",
+        "feedBranchVolume",
+        "feedInfo",
+        "feedLength",
+        "feedShare",
+        "feedVolume",
+        "fitInfo",
+        "ground",
+        "habit",
+        "habitableVolume",
+        "hp",
+        "hyperClass",
+        "info",
+        "mass",
+        "maximumAccelMps2",
+        "pedVol",
+        "personCapacity",
+        "ratedAccelMps2",
+        "structG",
+        "troopVolume",
+        "unassignedVolume",
+        "warnings",
+        "$warnings"
+      ],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {
+        "aStruct": {
+          "before": 1201631.0910356792,
+          "after": 1215831.0735018894
+        },
+        "aa": {
+          "before": 20.622222222222227,
+          "after": 21.333333333333336
+        },
+        "alphaMean": {
+          "before": 10.74074074074074,
+          "after": 11.111111111111109
+        },
+        "autoCrewCapacity": {
+          "before": 18,
+          "after": 16
+        },
+        "autoHabitationVolume": {
+          "before": 10373.054784245198,
+          "after": 9944.376125171792
+        },
+        "bareStructAccel": {
+          "before": 92433.1608488984,
+          "after": 93525.46719245303
+        },
+        "chargingCount": {
+          "before": 0,
+          "after": 4
+        },
+        "chargingVolume": {
+          "before": 0,
+          "after": 383.18274643777255
+        },
+        "cost": {
+          "before": 757960,
+          "after": 758360
+        },
+        "crewAboard": {
+          "before": 18,
+          "after": 16
+        },
+        "crewCapacity": {
+          "before": 18,
+          "after": 16
+        },
+        "droidCapacity": {
+          "before": 19,
+          "after": 5
+        },
+        "feedBranchVolume": {
+          "before": 8473.706133436182,
+          "after": 8317.746584154713
+        },
+        "feedLength": {
+          "before": 20.252643722361814,
+          "after": 19.87989145352465
+        },
+        "feedShare": {
+          "before": 0.8168959202168888,
+          "after": 0.8364271905504803
+        },
+        "feedVolume": {
+          "before": 8473.706133436182,
+          "after": 8317.746584154713
+        },
+        "habit": {
+          "before": 0.6428571428571429,
+          "after": 0.5714285714285714
+        },
+        "habitableVolume": {
+          "before": 1899.3486508090155,
+          "after": 1626.6295410170787
+        },
+        "hp": {
+          "before": 32.4215094896461,
+          "after": 32.58336244119008
+        },
+        "hyperClass": {
+          "before": 4.459591685991306,
+          "after": 4.434034813073808
+        },
+        "mass": {
+          "before": 15042.099118432832,
+          "after": 14955.89638000954
+        },
+        "maximumAccelMps2": {
+          "before": 6554.235541111531,
+          "after": 6592.012818886086
+        },
+        "pedVol": {
+          "before": 692.2060266424621,
+          "after": 0
+        },
+        "personCapacity": {
+          "before": 18,
+          "after": 16
+        },
+        "ratedAccelMps2": {
+          "before": 6554.235541111531,
+          "after": 6592.012818886086
+        },
+        "structG": {
+          "before": 122532.2705547439,
+          "after": 123980.26578922359
+        },
+        "troopVolume": {
+          "before": 99.34865080901545,
+          "after": 26.629541017078736
+        },
+        "unassignedVolume": {
+          "before": 10373.054784245198,
+          "after": 9944.376125171792
+        }
+      }
+    },
+    "hammerhead": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": false,
+      "reason": "Weapon housing/charging, point-defence and retired gun catalog migration, default pedestal removal, and compact missiles where present.",
+      "changedExistingFields": [
+        "aStruct",
+        "autoCrewCapacity",
+        "autoHabitationVolume",
+        "bareStructAccel",
+        "chargeInfo",
+        "chargingCount",
+        "chargingVolume",
+        "cost",
+        "costBy",
+        "crewAboard",
+        "crewCapacity",
+        "droidCapacity",
+        "feedBranchVolume",
+        "feedInfo",
+        "feedLength",
+        "feedShare",
+        "feedVolume",
+        "ground",
+        "habit",
+        "habitableVolume",
+        "hp",
+        "hyperClass",
+        "info",
+        "mass",
+        "maximumAccelMps2",
+        "pedVol",
+        "personCapacity",
+        "propulsion",
+        "ratedAccelMps2",
+        "structG",
+        "troopVolume",
+        "unassignedVolume",
+        "warnings",
+        "$warnings"
+      ],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {
+        "aStruct": {
+          "before": 89180.10306863811,
+          "after": 89168.63259533433
+        },
+        "autoCrewCapacity": {
+          "before": 31,
+          "after": 28
+        },
+        "autoHabitationVolume": {
+          "before": 18980.818841575216,
+          "after": 18818.711873322627
+        },
+        "bareStructAccel": {
+          "before": 6860.007928356778,
+          "after": 6859.125584256487
+        },
+        "chargingCount": {
+          "before": 0,
+          "after": 3
+        },
+        "chargingVolume": {
+          "before": 0,
+          "after": 193.19137321888627
+        },
+        "cost": {
+          "before": 11759066,
+          "after": 11759267
+        },
+        "crewAboard": {
+          "before": 31,
+          "after": 28
+        },
+        "crewCapacity": {
+          "before": 31,
+          "after": 28
+        },
+        "droidCapacity": {
+          "before": 6,
+          "after": 18
+        },
+        "feedBranchVolume": {
+          "before": 15849.190814632217,
+          "after": 15928.454141278547
+        },
+        "feedLength": {
+          "before": 75.51928863312455,
+          "after": 75.89696785429335
+        },
+        "feedShare": {
+          "before": 0.8350109100623445,
+          "after": 0.8464157509026267
+        },
+        "feedVolume": {
+          "before": 15849.190814632217,
+          "after": 15928.454141278547
+        },
+        "habit": {
+          "before": 0.9393939393939394,
+          "after": 0.8484848484848485
+        },
+        "habitableVolume": {
+          "before": 3131.628026942999,
+          "after": 2890.2577320440796
+        },
+        "hp": {
+          "before": 82.81185580142468,
+          "after": 82.92909808532812
+        },
+        "hyperClass": {
+          "before": 2.907244257875136,
+          "after": 2.9074279233076767
+        },
+        "mass": {
+          "before": 42121.962169119965,
+          "after": 42124.62322808682
+        },
+        "maximumAccelMps2": {
+          "before": 19790.12724564065,
+          "after": 19788.877081448627
+        },
+        "pedVol": {
+          "before": 229.4480842951787,
+          "after": 0
+        },
+        "personCapacity": {
+          "before": 31,
+          "after": 28
+        },
+        "ratedAccelMps2": {
+          "before": 19790.12724564065,
+          "after": 19788.877081448627
+        },
+        "structG": {
+          "before": 9093.839697413297,
+          "after": 9092.670034653458
+        },
+        "troopVolume": {
+          "before": 31.628026942998986,
+          "after": 90.2577320440796
+        },
+        "unassignedVolume": {
+          "before": 18980.818841575216,
+          "after": 18818.711873322627
+        }
+      }
+    },
+    "heraklon": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": true,
+      "reason": "All existing physics and summary fields retained; only seven zero-valued charging-ledger scalars added.",
+      "changedExistingFields": [],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {}
+    },
+    "imperial": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": false,
+      "reason": "Weapon housing/charging, point-defence and retired gun catalog migration, default pedestal removal, and compact missiles where present.",
+      "changedExistingFields": [
+        "aEff",
+        "aStruct",
+        "aThrust",
+        "aa",
+        "aaArc",
+        "accelG",
+        "actualAccelMps2",
+        "alpha",
+        "alphaBest",
+        "alphaMean",
+        "alphaRate",
+        "arcEff",
+        "autoCrewCapacity",
+        "autoHabitationVolume",
+        "bandRate",
+        "bareStructAccel",
+        "chargeInfo",
+        "chargingCount",
+        "chargingVolume",
+        "cls",
+        "cost",
+        "costBy",
+        "crew",
+        "crewAboard",
+        "crewBase",
+        "crewCapacity",
+        "draw",
+        "droidCapacity",
+        "feedBranchVolume",
+        "feedCellDraw",
+        "feedCellInfo",
+        "feedCellShare",
+        "feedChargeVolume",
+        "feedCount",
+        "feedDemand",
+        "feedInfo",
+        "feedLength",
+        "feedShare",
+        "feedVolume",
+        "fitInfo",
+        "freeAccelerationMps2",
+        "ground",
+        "habit",
+        "habitableVolume",
+        "heat",
+        "heavyAlpha",
+        "hp",
+        "hyperClass",
+        "info",
+        "ionBest",
+        "ionMean",
+        "ionRate",
+        "ionTot",
+        "mass",
+        "maximumAccelMps2",
+        "pedVol",
+        "personCapacity",
+        "propulsion",
+        "ratedAccelMps2",
+        "rc",
+        "structG",
+        "thrustG",
+        "troopCapacity",
+        "troopVolume",
+        "unassignedVolume",
+        "warnings",
+        "weaponCrew",
+        "$warnings"
+      ],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {
+        "aEff": {
+          "before": 7332.465031670617,
+          "after": 7239.279877216537
+        },
+        "aStruct": {
+          "before": 19852.758245476463,
+          "after": 18679.28217972409
+        },
+        "aThrust": {
+          "before": 7332.465031670617,
+          "after": 7239.279877216537
+        },
+        "aa": {
+          "before": 125.91170370370348,
+          "after": 122.47199999999985
+        },
+        "accelG": {
+          "before": 747.7033473888246,
+          "after": 738.2011061082569
+        },
+        "actualAccelMps2": {
+          "before": 7332.465031670617,
+          "after": 7239.279877216537
+        },
+        "alphaBest": {
+          "before": 3608.9333333333334,
+          "after": 3964.000000000003
+        },
+        "alphaMean": {
+          "before": 2622.266666666667,
+          "after": 3022.6148148148163
+        },
+        "arcEff": {
+          "before": 0.46559672480820175,
+          "after": 0.5114046857260816
+        },
+        "autoCrewCapacity": {
+          "before": 38582,
+          "after": 19759
+        },
+        "autoHabitationVolume": {
+          "before": 52878017.35693359,
+          "after": 52994745.872070305
+        },
+        "bareStructAccel": {
+          "before": 1527.1352496520356,
+          "after": 1436.867859978776
+        },
+        "chargingCount": {
+          "before": 135,
+          "after": 155
+        },
+        "chargingVolume": {
+          "before": 214800,
+          "after": 90676.82624212008
+        },
+        "cost": {
+          "before": 244521027,
+          "after": 263251451
+        },
+        "crew": {
+          "before": 23575,
+          "after": 25602
+        },
+        "crewAboard": {
+          "before": 23575,
+          "after": 19759
+        },
+        "crewBase": {
+          "before": 23575,
+          "after": 25602
+        },
+        "crewCapacity": {
+          "before": 38582,
+          "after": 19759
+        },
+        "droidCapacity": {
+          "before": 3586771,
+          "after": 196
+        },
+        "feedBranchVolume": {
+          "before": 6155555.223934888,
+          "after": 28865024.149575092
+        },
+        "feedCellDraw": {
+          "before": 1.5172117076966357e+25,
+          "after": 3.830666666666665e+25
+        },
+        "feedCellShare": {
+          "before": 0.610084846536067,
+          "after": 0.5113725845343569
+        },
+        "feedChargeVolume": {
+          "before": 616479.0847989904,
+          "after": 516732.2294512978
+        },
+        "feedCount": {
+          "before": 169,
+          "after": 165
+        },
+        "feedDemand": {
+          "before": 2.486886400000006e+25,
+          "after": 7.490950399999982e+25
+        },
+        "feedLength": {
+          "before": 247.52056322053454,
+          "after": 385.33193531190864
+        },
+        "feedShare": {
+          "before": 0.12806899061706029,
+          "after": 0.5544277247777385
+        },
+        "feedVolume": {
+          "before": 6772034.308733879,
+          "after": 29381756.37902639
+        },
+        "freeAccelerationMps2": {
+          "before": 7332.465031670617,
+          "after": 7239.279877216537
+        },
+        "habit": {
+          "before": 1.6365641569459173,
+          "after": 0.7717756425279275
+        },
+        "habitableVolume": {
+          "before": 46105983.048199706,
+          "after": 23612989.493043914
+        },
+        "heavyAlpha": {
+          "before": 10740,
+          "after": 17300
+        },
+        "hp": {
+          "before": 122847.90352349533,
+          "after": 123101.00363914427
+        },
+        "hyperClass": {
+          "before": 1.8360590212811194,
+          "after": 1.8596930631177049
+        },
+        "ionBest": {
+          "before": 2222.222222222219,
+          "after": 5742.222222222225
+        },
+        "ionMean": {
+          "before": 1465.925925925924,
+          "after": 4291.111111111111
+        },
+        "ionTot": {
+          "before": 3099.999999999997,
+          "after": 9660
+        },
+        "mass": {
+          "before": 37627330.96427113,
+          "after": 38111675.91391666
+        },
+        "maximumAccelMps2": {
+          "before": 19852.758245476463,
+          "after": 18679.28217972409
+        },
+        "pedVol": {
+          "before": 122690.64995761041,
+          "after": 0
+        },
+        "personCapacity": {
+          "before": 38582,
+          "after": 19759
+        },
+        "ratedAccelMps2": {
+          "before": 20949.900090487477,
+          "after": 20683.656792047248
+        },
+        "rc": {
+          "before": 0.3410734061205372,
+          "after": 0.11323140186361998
+        },
+        "structG": {
+          "before": 2024.41794552436,
+          "after": 1904.756688545435
+        },
+        "thrustG": {
+          "before": 747.7033473888246,
+          "after": 738.2011061082569
+        },
+        "troopCapacity": {
+          "before": 15007,
+          "after": 0
+        },
+        "troopVolume": {
+          "before": 17933858.048199706,
+          "after": 984.4930439144373
+        },
+        "unassignedVolume": {
+          "before": 52878017.35693359,
+          "after": 52994745.872070305
+        },
+        "weaponCrew": {
+          "before": 3136,
+          "after": 5152
+        }
+      }
+    },
+    "lh3210": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": false,
+      "reason": "Default fitting pedestals removed: 21691.83461313494 m3, with exactly 0.3 t/m3 mass and related acceleration/hyperdrive changes.",
+      "changedExistingFields": [
+        "aEff",
+        "aThrust",
+        "accelG",
+        "actualAccelMps2",
+        "freeAccelerationMps2",
+        "hyperClass",
+        "mass",
+        "maximumAccelMps2",
+        "pedVol",
+        "ratedAccelMps2",
+        "thrustG"
+      ],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {
+        "aEff": {
+          "before": 4620.992219897032,
+          "after": 4621.095033872291
+        },
+        "aThrust": {
+          "before": 4620.992219897032,
+          "after": 4621.095033872291
+        },
+        "accelG": {
+          "before": 471.21006866738713,
+          "after": 471.2205527751364
+        },
+        "actualAccelMps2": {
+          "before": 4620.992219897032,
+          "after": 4621.095033872291
+        },
+        "freeAccelerationMps2": {
+          "before": 4620.992219897032,
+          "after": 4621.095033872291
+        },
+        "hyperClass": {
+          "before": 2.85364361444223,
+          "after": 2.8535801241998033
+        },
+        "mass": {
+          "before": 292489505.29981756,
+          "after": 292482997.74943364
+        },
+        "maximumAccelMps2": {
+          "before": 13202.834913991517,
+          "after": 13203.128668206547
+        },
+        "pedVol": {
+          "before": 21691.83461313494,
+          "after": 0
+        },
+        "ratedAccelMps2": {
+          "before": 13202.834913991517,
+          "after": 13203.128668206547
+        },
+        "thrustG": {
+          "before": 471.21006866738713,
+          "after": 471.2205527751364
+        }
+      }
+    },
+    "lucrehulk": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": false,
+      "reason": "Weapon housing/charging, point-defence and retired gun catalog migration, default pedestal removal, and compact missiles where present.",
+      "changedExistingFields": [
+        "aEff",
+        "aStruct",
+        "aThrust",
+        "aa",
+        "aaArc",
+        "accelG",
+        "actualAccelMps2",
+        "alpha",
+        "alphaBest",
+        "alphaMean",
+        "alphaRate",
+        "arcEff",
+        "bandRate",
+        "bareStructAccel",
+        "chargeInfo",
+        "chargingCount",
+        "chargingVolume",
+        "cost",
+        "costBy",
+        "fitInfo",
+        "freeAccelerationMps2",
+        "hp",
+        "hyperClass",
+        "info",
+        "mass",
+        "maximumAccelMps2",
+        "pedVol",
+        "ratedAccelMps2",
+        "structG",
+        "thrustG"
+      ],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {
+        "aEff": {
+          "before": 4951.926516331229,
+          "after": 4952.039720069173
+        },
+        "aStruct": {
+          "before": 98607.71440459279,
+          "after": 98612.40233627161
+        },
+        "aThrust": {
+          "before": 4951.926516331229,
+          "after": 4952.039720069173
+        },
+        "aa": {
+          "before": 62.04444444444445,
+          "after": 60.62222222222222
+        },
+        "accelG": {
+          "before": 504.95597541782666,
+          "after": 504.9675189865217
+        },
+        "actualAccelMps2": {
+          "before": 4951.926516331229,
+          "after": 4952.039720069173
+        },
+        "alphaBest": {
+          "before": 34.53333333333333,
+          "after": 33.64444444444444
+        },
+        "alphaMean": {
+          "before": 24.548148148148147,
+          "after": 24.074074074074076
+        },
+        "arcEff": {
+          "before": 0.644278606965174,
+          "after": 0.6276948590381424
+        },
+        "bareStructAccel": {
+          "before": 7585.208800353291,
+          "after": 7585.5694104824315
+        },
+        "chargingCount": {
+          "before": 0,
+          "after": 46
+        },
+        "chargingVolume": {
+          "before": 0,
+          "after": 1055.1827464377707
+        },
+        "cost": {
+          "before": 7156268219,
+          "after": 7156269291
+        },
+        "freeAccelerationMps2": {
+          "before": 4951.926516331229,
+          "after": 4952.039720069173
+        },
+        "hp": {
+          "before": 1149931.0197352117,
+          "after": 1149932.2739752128
+        },
+        "hyperClass": {
+          "before": 2.6629363132121138,
+          "after": 2.6628754384288724
+        },
+        "mass": {
+          "before": 272942606.06139857,
+          "after": 272936366.58736426
+        },
+        "maximumAccelMps2": {
+          "before": 14148.361475232085,
+          "after": 14148.684914483352
+        },
+        "pedVol": {
+          "before": 22406.246780805144,
+          "after": 0
+        },
+        "ratedAccelMps2": {
+          "before": 14148.361475232085,
+          "after": 14148.684914483352
+        },
+        "structG": {
+          "before": 10055.188510306047,
+          "after": 10055.66654629987
+        },
+        "thrustG": {
+          "before": 504.95597541782666,
+          "after": 504.9675189865217
+        }
+      }
+    },
+    "mandator2": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": false,
+      "reason": "Weapon housing/charging, point-defence and retired gun catalog migration, default pedestal removal, and compact missiles where present.",
+      "changedExistingFields": [
+        "aEff",
+        "aStruct",
+        "aThrust",
+        "aa",
+        "aaArc",
+        "accelG",
+        "actualAccelMps2",
+        "alpha",
+        "alphaBest",
+        "alphaMean",
+        "alphaRate",
+        "arcEff",
+        "autoCrew",
+        "bandRate",
+        "bareStructAccel",
+        "chargeInfo",
+        "chargingCount",
+        "chargingVolume",
+        "cost",
+        "costBy",
+        "crew",
+        "crewAboard",
+        "crewBase",
+        "draw",
+        "droidCapacity",
+        "feedBranchVolume",
+        "feedCount",
+        "feedDemand",
+        "feedInfo",
+        "feedLength",
+        "feedShare",
+        "feedVolume",
+        "fitInfo",
+        "floatFits",
+        "freeAccelerationMps2",
+        "ground",
+        "habit",
+        "habitableVolume",
+        "heat",
+        "hp",
+        "hyperClass",
+        "info",
+        "mass",
+        "maximumAccelMps2",
+        "mslSalvo",
+        "pedVol",
+        "propulsion",
+        "ratedAccelMps2",
+        "rc",
+        "structG",
+        "thrustG",
+        "troopCapacity",
+        "troopVolume",
+        "vlsCount",
+        "vlsInfo",
+        "vlsVolume",
+        "warnings",
+        "weaponCrew",
+        "$warnings"
+      ],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {
+        "aEff": {
+          "before": 4132.148937330817,
+          "after": 4133.021022857653
+        },
+        "aStruct": {
+          "before": 10941.44328408191,
+          "after": 10941.956651173072
+        },
+        "aThrust": {
+          "before": 4132.148937330817,
+          "after": 4133.021022857653
+        },
+        "aa": {
+          "before": 269.7285925925929,
+          "after": 271.0722962962966
+        },
+        "accelG": {
+          "before": 421.36192658357515,
+          "after": 421.450854558657
+        },
+        "actualAccelMps2": {
+          "before": 4132.148937330817,
+          "after": 4133.021022857653
+        },
+        "alphaBest": {
+          "before": 73517.77777777775,
+          "after": 71917.77777777775
+        },
+        "alphaMean": {
+          "before": 34133.888888888905,
+          "after": 32721.29629629631
+        },
+        "arcEff": {
+          "before": 0.9898717891177831,
+          "after": 0.9683287704022856
+        },
+        "autoCrew": {
+          "before": 888124,
+          "after": 888094
+        },
+        "bareStructAccel": {
+          "before": 841.6494833909161,
+          "after": 841.6889731671594
+        },
+        "chargingCount": {
+          "before": 71,
+          "after": 129
+        },
+        "chargingVolume": {
+          "before": 1521600.0000000002,
+          "after": 1520481.589431677
+        },
+        "cost": {
+          "before": 132643293544,
+          "after": 132643000644
+        },
+        "crew": {
+          "before": 46744,
+          "after": 46742
+        },
+        "crewAboard": {
+          "before": 46744,
+          "after": 46742
+        },
+        "crewBase": {
+          "before": 934868,
+          "after": 934836
+        },
+        "droidCapacity": {
+          "before": 326376129,
+          "after": 326384070
+        },
+        "feedBranchVolume": {
+          "before": 446518124.8426491,
+          "after": 446517399.08591896
+        },
+        "feedCount": {
+          "before": 137,
+          "after": 135
+        },
+        "feedDemand": {
+          "before": 3.245075199999989e+26,
+          "after": 3.24505519999999e+26
+        },
+        "feedLength": {
+          "before": 1375.9869874283675,
+          "after": 1375.993231443091
+        },
+        "feedShare": {
+          "before": 0.14936756709017995,
+          "after": 0.14936732431276276
+        },
+        "feedVolume": {
+          "before": 446518124.8426491,
+          "after": 446517399.08591896
+        },
+        "floatFits": {
+          "before": 0,
+          "after": 2
+        },
+        "freeAccelerationMps2": {
+          "before": 4132.148937330817,
+          "after": 4133.021022857653
+        },
+        "habit": {
+          "before": 2.791310114667123,
+          "after": 2.7914295494416157
+        },
+        "habitableVolume": {
+          "before": 2542873304.2422605,
+          "after": 2542874029.9989905
+        },
+        "hp": {
+          "before": 4756839.641240322,
+          "after": 4756832.236405548
+        },
+        "hyperClass": {
+          "before": 1.8736011716036882,
+          "after": 1.8732058335553734
+        },
+        "mass": {
+          "before": 1333043411.5637312,
+          "after": 1332762133.5689085
+        },
+        "maximumAccelMps2": {
+          "before": 10941.44328408191,
+          "after": 10941.956651173072
+        },
+        "mslSalvo": {
+          "before": 160,
+          "after": 0
+        },
+        "pedVol": {
+          "before": 927103.0455829572,
+          "after": 0
+        },
+        "ratedAccelMps2": {
+          "before": 11806.139820945193,
+          "after": 11808.631493879011
+        },
+        "rc": {
+          "before": 0.41858550457622995,
+          "after": 0.4185880844121882
+        },
+        "structG": {
+          "before": 1115.7167110156793,
+          "after": 1115.769059890286
+        },
+        "thrustG": {
+          "before": 421.36192658357515,
+          "after": 421.450854558657
+        },
+        "troopCapacity": {
+          "before": 83733,
+          "after": 83735
+        },
+        "troopVolume": {
+          "before": 1631880647.224062,
+          "after": 1631920350.9312038
+        },
+        "vlsCount": {
+          "before": 2,
+          "after": 0
+        },
+        "vlsVolume": {
+          "before": 7200.000000000001,
+          "after": 0
+        },
+        "weaponCrew": {
+          "before": 7388,
+          "after": 7356
+        }
+      }
+    },
+    "mc30c": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": false,
+      "reason": "Localized station layout repair for the new full-size point-defence model; original native structures and weapon counts are preserved. Weapon housing/charging and default pedestal changes then update engineering figures.",
+      "changedExistingFields": [
+        "aStruct",
+        "aa",
+        "aaArc",
+        "alpha",
+        "alphaMean",
+        "alphaRate",
+        "armorAvg",
+        "armorHull",
+        "armorMass",
+        "autoCrewCapacity",
+        "autoHabitationVolume",
+        "bandRate",
+        "bareStructAccel",
+        "chargeInfo",
+        "chargingCount",
+        "chargingVolume",
+        "cost",
+        "costBy",
+        "craftSystems",
+        "crew",
+        "crewAboard",
+        "crewBase",
+        "crewCapacity",
+        "dims",
+        "draw",
+        "droidCapacity",
+        "feedBranchVolume",
+        "feedDemand",
+        "feedInfo",
+        "feedLength",
+        "feedShare",
+        "feedVolume",
+        "fitInfo",
+        "ground",
+        "habit",
+        "habitableVolume",
+        "heat",
+        "hp",
+        "hyperClass",
+        "info",
+        "mass",
+        "maximumAccelMps2",
+        "mslSalvo",
+        "pedVol",
+        "personCapacity",
+        "propulsion",
+        "ratedAccelMps2",
+        "rc",
+        "skin",
+        "structG",
+        "troopCapacity",
+        "troopVolume",
+        "unassignedVolume",
+        "vlsInfo",
+        "vlsVolume",
+        "warnings",
+        "weakAt",
+        "weaponBudget",
+        "weaponCrew",
+        "ybox",
+        "$warnings"
+      ],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "surface",
+        "surfaceMode",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {
+        "aStruct": {
+          "before": 75841.85553664782,
+          "after": 136001.423741898
+        },
+        "aa": {
+          "before": 56.60444444444445,
+          "after": 52.87111111111112
+        },
+        "alphaMean": {
+          "before": 28.296296296296294,
+          "after": 26.351851851851848
+        },
+        "armorAvg": {
+          "before": 0.2,
+          "after": 0.24406166447671804
+        },
+        "armorHull": {
+          "before": 0.2,
+          "after": 0.24406166447671804
+        },
+        "armorMass": {
+          "before": 81898.00161652129,
+          "after": 97890.92429898054
+        },
+        "autoCrewCapacity": {
+          "before": 841,
+          "after": 1234
+        },
+        "autoHabitationVolume": {
+          "before": 164163.00902022858,
+          "after": 169887.27362751352
+        },
+        "bareStructAccel": {
+          "before": 5833.988887434448,
+          "after": 10461.647980146001
+        },
+        "chargingCount": {
+          "before": 28,
+          "after": 38
+        },
+        "chargingVolume": {
+          "before": 268.8000000000001,
+          "after": 1226.7568660944316
+        },
+        "cost": {
+          "before": 159212937,
+          "after": 158102249
+        },
+        "crew": {
+          "before": 451,
+          "after": 323
+        },
+        "crewAboard": {
+          "before": 451,
+          "after": 323
+        },
+        "crewBase": {
+          "before": 451,
+          "after": 323
+        },
+        "crewCapacity": {
+          "before": 841,
+          "after": 1234
+        },
+        "droidCapacity": {
+          "before": 7807,
+          "after": 18224
+        },
+        "feedBranchVolume": {
+          "before": 80026.29885463545,
+          "after": 46463.76572563105
+        },
+        "feedDemand": {
+          "before": 1.1662995199999997e+24,
+          "after": 1.158299528e+24
+        },
+        "feedLength": {
+          "before": 68.61556356864098,
+          "after": 40.11377420299792
+        },
+        "feedShare": {
+          "before": 0.48748070184784686,
+          "after": 0.2734976242393837
+        },
+        "feedVolume": {
+          "before": 80026.29885463545,
+          "after": 46463.76572563105
+        },
+        "habit": {
+          "before": 1.8647450110864745,
+          "after": 3.820433436532508
+        },
+        "habitableVolume": {
+          "before": 84136.71016559313,
+          "after": 123423.50790188248
+        },
+        "hp": {
+          "before": 309.52983472709207,
+          "after": 318.1931422601839
+        },
+        "hyperClass": {
+          "before": 1.0848650935086603,
+          "after": 1.1331930747566048
+        },
+        "mass": {
+          "before": 168295.7507490065,
+          "after": 175792.8984911297
+        },
+        "maximumAccelMps2": {
+          "before": 17479.020161755154,
+          "after": 16733.581650501295
+        },
+        "mslSalvo": {
+          "before": 640,
+          "after": 3333.333333333333
+        },
+        "pedVol": {
+          "before": 2788.4130987292265,
+          "after": 0
+        },
+        "personCapacity": {
+          "before": 841,
+          "after": 1234
+        },
+        "ratedAccelMps2": {
+          "before": 17479.020161755154,
+          "after": 16733.581650501295
+        },
+        "rc": {
+          "before": 0.016176219459321135,
+          "after": 0.016287936466399394
+        },
+        "structG": {
+          "before": 7733.716971304964,
+          "after": 13868.285677769474
+        },
+        "troopCapacity": {
+          "before": 390,
+          "after": 911
+        },
+        "troopVolume": {
+          "before": 39036.71016559313,
+          "after": 91123.50790188248
+        },
+        "unassignedVolume": {
+          "before": 164163.00902022858,
+          "after": 169887.27362751352
+        },
+        "vlsVolume": {
+          "before": 7200.000000000001,
+          "after": 1.2960000000000003
+        },
+        "weakAt": {
+          "before": 304,
+          "after": 240.66666666666666
+        },
+        "weaponBudget": {
+          "before": 1.8866316990820894e+22,
+          "after": 1.886630899082091e+22
+        },
+        "weaponCrew": {
+          "before": 380,
+          "after": 252
+        }
+      }
+    },
+    "mc75": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": false,
+      "reason": "Weapon housing/charging, retired gun migration, default pedestal removal and compatibility equipment-surface VLS migration.",
+      "changedExistingFields": [
+        "aEff",
+        "aStruct",
+        "aThrust",
+        "aa",
+        "aaArc",
+        "accelG",
+        "actualAccelMps2",
+        "alpha",
+        "alphaBest",
+        "alphaMean",
+        "alphaRate",
+        "arcEff",
+        "armorAvg",
+        "armorHull",
+        "armorMass",
+        "autoCrewCapacity",
+        "autoHabitationVolume",
+        "bandRate",
+        "bareStructAccel",
+        "chargeInfo",
+        "chargingCount",
+        "chargingVolume",
+        "cost",
+        "costBy",
+        "craftSystems",
+        "crew",
+        "crewAboard",
+        "crewBase",
+        "crewCapacity",
+        "dims",
+        "draw",
+        "droidCapacity",
+        "feedBranchVolume",
+        "feedCount",
+        "feedDemand",
+        "feedInfo",
+        "feedLength",
+        "feedShare",
+        "feedVolume",
+        "fitInfo",
+        "floatFits",
+        "freeAccelerationMps2",
+        "ground",
+        "habit",
+        "habitableVolume",
+        "heat",
+        "hp",
+        "hyperClass",
+        "info",
+        "mass",
+        "maximumAccelMps2",
+        "mslSalvo",
+        "pedVol",
+        "personCapacity",
+        "propulsion",
+        "ratedAccelMps2",
+        "rc",
+        "skin",
+        "structG",
+        "thrustG",
+        "troopCapacity",
+        "troopVolume",
+        "unassignedVolume",
+        "vlsCount",
+        "vlsInfo",
+        "vlsVolume",
+        "warnings",
+        "weaponBudget",
+        "weaponCrew",
+        "$warnings"
+      ],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "surface",
+        "surfaceMode",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {
+        "aEff": {
+          "before": 5181.020918574128,
+          "after": 5291.645913088953
+        },
+        "aStruct": {
+          "before": 49207.55837762625,
+          "after": 50146.62932570288
+        },
+        "aThrust": {
+          "before": 5181.020918574128,
+          "after": 5291.645913088953
+        },
+        "aa": {
+          "before": 106.42962962962962,
+          "after": 105.36296296296295
+        },
+        "accelG": {
+          "before": 528.3171030447837,
+          "after": 539.59771309152
+        },
+        "actualAccelMps2": {
+          "before": 5181.020918574128,
+          "after": 5291.645913088953
+        },
+        "alphaBest": {
+          "before": 125.111111111111,
+          "after": 124.55555555555546
+        },
+        "alphaMean": {
+          "before": 90.55555555555553,
+          "after": 89.99999999999996
+        },
+        "arcEff": {
+          "before": 0.2584940312213037,
+          "after": 0.2573461891643708
+        },
+        "armorAvg": {
+          "before": 0.6,
+          "after": 0.5754876925169352
+        },
+        "armorHull": {
+          "before": 0.6,
+          "after": 0.5754876925169352
+        },
+        "armorMass": {
+          "before": 3213465.938541034,
+          "after": 3093917.9892513235
+        },
+        "autoCrewCapacity": {
+          "before": 16298,
+          "after": 16376
+        },
+        "autoHabitationVolume": {
+          "before": 11212720.468537135,
+          "after": 11260766.40519932
+        },
+        "bareStructAccel": {
+          "before": 3785.1967982789424,
+          "after": 3857.433025054068
+        },
+        "chargingCount": {
+          "before": 28,
+          "after": 48
+        },
+        "chargingVolume": {
+          "before": 17920,
+          "after": 19835.913732188856
+        },
+        "cost": {
+          "before": 13871377137,
+          "after": 13869127139
+        },
+        "crew": {
+          "before": 5664,
+          "after": 5470
+        },
+        "crewAboard": {
+          "before": 5664,
+          "after": 5470
+        },
+        "crewBase": {
+          "before": 5664,
+          "after": 5470
+        },
+        "crewCapacity": {
+          "before": 16298,
+          "after": 16376
+        },
+        "droidCapacity": {
+          "before": 1334540,
+          "after": 1368651
+        },
+        "feedBranchVolume": {
+          "before": 986084.3818087535,
+          "after": 985300.5154883307
+        },
+        "feedCount": {
+          "before": 66,
+          "after": 57
+        },
+        "feedDemand": {
+          "before": 5.972863999999998e+24,
+          "after": 5.960864003e+24
+        },
+        "feedLength": {
+          "before": 165.09406238092032,
+          "after": 165.2949161384064
+        },
+        "feedShare": {
+          "before": 0.0879433661595064,
+          "after": 0.08749853074240116
+        },
+        "feedVolume": {
+          "before": 986084.3818087535,
+          "after": 985300.5154883307
+        },
+        "floatFits": {
+          "before": 0,
+          "after": 9
+        },
+        "freeAccelerationMps2": {
+          "before": 5181.020918574128,
+          "after": 5291.645913088953
+        },
+        "habit": {
+          "before": 2.8774717514124295,
+          "after": 2.993784277879342
+        },
+        "habitableVolume": {
+          "before": 10226636.086728381,
+          "after": 10275465.889710989
+        },
+        "hp": {
+          "before": 16328.771844215487,
+          "after": 16193.272015317967
+        },
+        "hyperClass": {
+          "before": 1.0148344879140305,
+          "after": 0.9936187713859735
+        },
+        "mass": {
+          "before": 7041138.03627881,
+          "after": 6893938.871891262
+        },
+        "maximumAccelMps2": {
+          "before": 14802.91691021179,
+          "after": 15118.988323111294
+        },
+        "mslSalvo": {
+          "before": 960,
+          "after": 1250
+        },
+        "pedVol": {
+          "before": 3600.5444153901767,
+          "after": 0
+        },
+        "personCapacity": {
+          "before": 16298,
+          "after": 16376
+        },
+        "ratedAccelMps2": {
+          "before": 14802.91691021179,
+          "after": 15118.988323111294
+        },
+        "rc": {
+          "before": 0.3004235478611902,
+          "after": 0.3010283393099356
+        },
+        "structG": {
+          "before": 5017.774507872337,
+          "after": 5113.533094961366
+        },
+        "thrustG": {
+          "before": 528.3171030447837,
+          "after": 539.59771309152
+        },
+        "troopCapacity": {
+          "before": 10634,
+          "after": 10906
+        },
+        "troopVolume": {
+          "before": 6672702.6720162295,
+          "after": 6843259.714132693
+        },
+        "unassignedVolume": {
+          "before": 11212720.468537135,
+          "after": 11260766.40519932
+        },
+        "vlsCount": {
+          "before": 12,
+          "after": 3
+        },
+        "vlsVolume": {
+          "before": 43200.00000000001,
+          "after": 1.9440000000000004
+        },
+        "weaponBudget": {
+          "before": 1.7943889937723794e+24,
+          "after": 1.7943889907723794e+24
+        },
+        "weaponCrew": {
+          "before": 832,
+          "after": 640
+        }
+      }
+    },
+    "mc80home": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": false,
+      "reason": "Weapon housing/charging, point-defence and retired gun catalog migration, default pedestal removal, and compact missiles where present.",
+      "changedExistingFields": [
+        "aEff",
+        "aStruct",
+        "aThrust",
+        "aa",
+        "aaArc",
+        "accelG",
+        "actualAccelMps2",
+        "alpha",
+        "alphaBest",
+        "alphaMean",
+        "alphaRate",
+        "arcEff",
+        "autoCrewCapacity",
+        "autoHabitationVolume",
+        "bandRate",
+        "bareStructAccel",
+        "chargeInfo",
+        "chargingCount",
+        "chargingVolume",
+        "cost",
+        "costBy",
+        "crewCapacity",
+        "dims",
+        "droidCapacity",
+        "feedBranchVolume",
+        "feedInfo",
+        "feedLength",
+        "feedShare",
+        "feedVolume",
+        "fitInfo",
+        "freeAccelerationMps2",
+        "ground",
+        "habit",
+        "habitableVolume",
+        "heat",
+        "hp",
+        "hyperClass",
+        "info",
+        "mass",
+        "maximumAccelMps2",
+        "pedVol",
+        "personCapacity",
+        "ratedAccelMps2",
+        "structG",
+        "thrustG",
+        "troopCapacity",
+        "troopVolume",
+        "unassignedVolume",
+        "warnings",
+        "ybox",
+        "$warnings"
+      ],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {
+        "aEff": {
+          "before": 4898.5072254232,
+          "after": 4900.723042213049
+        },
+        "aStruct": {
+          "before": 121889.90688766915,
+          "after": 121937.38001189045
+        },
+        "aThrust": {
+          "before": 4898.5072254232,
+          "after": 4900.723042213049
+        },
+        "aa": {
+          "before": 123.52592592592589,
+          "after": 118.01481481481478
+        },
+        "accelG": {
+          "before": 499.50872371535644,
+          "after": 499.7346741459162
+        },
+        "actualAccelMps2": {
+          "before": 4898.5072254232,
+          "after": 4900.723042213049
+        },
+        "alphaBest": {
+          "before": 226.11111111111114,
+          "after": 221.11111111111123
+        },
+        "alphaMean": {
+          "before": 149.25925925925927,
+          "after": 146.38888888888894
+        },
+        "arcEff": {
+          "before": 0.21575487701441903,
+          "after": 0.2109838846480069
+        },
+        "autoCrewCapacity": {
+          "before": 25323,
+          "after": 25266
+        },
+        "autoHabitationVolume": {
+          "before": 21222847.16470101,
+          "after": 21213998.781476203
+        },
+        "bareStructAccel": {
+          "before": 9376.146683666857,
+          "after": 9379.798462453111
+        },
+        "chargingCount": {
+          "before": 65,
+          "after": 89
+        },
+        "chargingVolume": {
+          "before": 41600,
+          "after": 43899.096478626714
+        },
+        "cost": {
+          "before": 15548825570,
+          "after": 15548827970
+        },
+        "crewCapacity": {
+          "before": 25323,
+          "after": 25266
+        },
+        "droidCapacity": {
+          "before": 2280953,
+          "after": 2272430
+        },
+        "feedBranchVolume": {
+          "before": 2256759.0321116005,
+          "after": 2290524.008515704
+        },
+        "feedLength": {
+          "before": 199.12954527187557,
+          "after": 202.10886397706025
+        },
+        "feedShare": {
+          "before": 0.10633629948884353,
+          "after": 0.10797228905828733
+        },
+        "feedVolume": {
+          "before": 2256759.0321116005,
+          "after": 2290524.008515704
+        },
+        "freeAccelerationMps2": {
+          "before": 4898.5072254232,
+          "after": 4900.723042213049
+        },
+        "habit": {
+          "before": 2.508221077654517,
+          "after": 2.5025752773375594
+        },
+        "habitableVolume": {
+          "before": 18966088.13258941,
+          "after": 18923474.7729605
+        },
+        "hp": {
+          "before": 29459.785480943683,
+          "after": 29462.34994205528
+        },
+        "hyperClass": {
+          "before": 0.9990328989235597,
+          "after": 0.9985811953990025
+        },
+        "mass": {
+          "before": 10193387.122088116,
+          "after": 10188778.275977857
+        },
+        "maximumAccelMps2": {
+          "before": 15103.359163806623,
+          "after": 15110.191097552603
+        },
+        "pedVol": {
+          "before": 18887.59887600265,
+          "after": 0
+        },
+        "personCapacity": {
+          "before": 25323,
+          "after": 25266
+        },
+        "ratedAccelMps2": {
+          "before": 15103.359163806623,
+          "after": 15110.191097552603
+        },
+        "structG": {
+          "before": 12429.311425172627,
+          "after": 12434.152336617546
+        },
+        "thrustG": {
+          "before": 499.50872371535644,
+          "after": 499.7346741459162
+        },
+        "troopCapacity": {
+          "before": 15227,
+          "after": 15170
+        },
+        "troopVolume": {
+          "before": 11404766.639322666,
+          "after": 11362153.279693754
+        },
+        "unassignedVolume": {
+          "before": 21222847.16470101,
+          "after": 21213998.781476203
+        }
+      }
+    },
+    "mc80liberty": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": false,
+      "reason": "Weapon housing/charging, point-defence and retired gun catalog migration, default pedestal removal, and compact missiles where present.",
+      "changedExistingFields": [
+        "aEff",
+        "aStruct",
+        "aThrust",
+        "aa",
+        "aaArc",
+        "accelG",
+        "actualAccelMps2",
+        "alpha",
+        "alphaBest",
+        "alphaMean",
+        "alphaRate",
+        "arcEff",
+        "autoCrewCapacity",
+        "bandRate",
+        "bareStructAccel",
+        "chargeInfo",
+        "chargingCount",
+        "chargingVolume",
+        "cost",
+        "costBy",
+        "crewCapacity",
+        "dims",
+        "droidCapacity",
+        "feedBranchVolume",
+        "feedInfo",
+        "feedLength",
+        "feedShare",
+        "feedVolume",
+        "fitInfo",
+        "freeAccelerationMps2",
+        "ground",
+        "habit",
+        "habitableVolume",
+        "heat",
+        "hp",
+        "hyperClass",
+        "info",
+        "mass",
+        "maximumAccelMps2",
+        "pedVol",
+        "personCapacity",
+        "propulsion",
+        "ratedAccelMps2",
+        "structG",
+        "thrustG",
+        "troopCapacity",
+        "troopVolume",
+        "warnings",
+        "ybox",
+        "$warnings"
+      ],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {
+        "aEff": {
+          "before": 5874.83449075506,
+          "after": 5878.3885134517095
+        },
+        "aStruct": {
+          "before": 188502.91754510856,
+          "after": 188828.11077695334
+        },
+        "aThrust": {
+          "before": 5874.83449075506,
+          "after": 5878.3885134517095
+        },
+        "aa": {
+          "before": 97.67703703703702,
+          "after": 105.32148148148144
+        },
+        "accelG": {
+          "before": 599.0663978784866,
+          "after": 599.428807334993
+        },
+        "actualAccelMps2": {
+          "before": 5874.83449075506,
+          "after": 5878.3885134517095
+        },
+        "alphaBest": {
+          "before": 299.99999999999955,
+          "after": 304.44444444444406
+        },
+        "alphaMean": {
+          "before": 180.27777777777757,
+          "after": 184.2592592592591
+        },
+        "arcEff": {
+          "before": 0.181159420289855,
+          "after": 0.18384326355340844
+        },
+        "autoCrewCapacity": {
+          "before": 22586,
+          "after": 21887
+        },
+        "bareStructAccel": {
+          "before": 14500.224426546813,
+          "after": 14525.239290534872
+        },
+        "chargingCount": {
+          "before": 68,
+          "after": 92
+        },
+        "chargingVolume": {
+          "before": 43519.99999999996,
+          "after": 45819.09647862668
+        },
+        "cost": {
+          "before": 21136158911,
+          "after": 21136161311
+        },
+        "crewCapacity": {
+          "before": 22586,
+          "after": 21887
+        },
+        "droidCapacity": {
+          "before": 2085523,
+          "after": 1998708
+        },
+        "feedBranchVolume": {
+          "before": 1957529.0075800626,
+          "after": 2391601.4247225313
+        },
+        "feedLength": {
+          "before": 166.81423429524224,
+          "after": 203.80446923629177
+        },
+        "feedShare": {
+          "before": 0.12239815422652028,
+          "after": 0.14953934214922815
+        },
+        "feedVolume": {
+          "before": 1957529.0075800626,
+          "after": 2391601.4247225313
+        },
+        "freeAccelerationMps2": {
+          "before": 5874.83449075506,
+          "after": 5878.3885134517095
+        },
+        "habit": {
+          "before": 3.890113675508095,
+          "after": 3.769720978298312
+        },
+        "habitableVolume": {
+          "before": 14035596.215185106,
+          "after": 13601523.798042636
+        },
+        "hp": {
+          "before": 31002.89737365699,
+          "after": 31005.552100558412
+        },
+        "hyperClass": {
+          "before": 1.0278635048370162,
+          "after": 1.0272420674793308
+        },
+        "mass": {
+          "before": 9707487.20155885,
+          "after": 9701618.139015125
+        },
+        "maximumAccelMps2": {
+          "before": 16785.24140215732,
+          "after": 16795.395752719174
+        },
+        "pedVol": {
+          "before": 23035.81423028273,
+          "after": 0
+        },
+        "personCapacity": {
+          "before": 22586,
+          "after": 21887
+        },
+        "ratedAccelMps2": {
+          "before": 16785.24140215732,
+          "after": 16795.395752719174
+        },
+        "structG": {
+          "before": 19221.948121438876,
+          "after": 19255.10860252516
+        },
+        "thrustG": {
+          "before": 599.0663978784866,
+          "after": 599.428807334993
+        },
+        "troopCapacity": {
+          "before": 16780,
+          "after": 16081
+        },
+        "troopVolume": {
+          "before": 10427616.127602601,
+          "after": 9993543.710460132
+        }
+      }
+    },
+    "munificent": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": false,
+      "reason": "Localized station layout repair for the new full-size point-defence model; original native structures and weapon counts are preserved. Weapon housing/charging and default pedestal changes then update engineering figures.",
+      "changedExistingFields": [
+        "aStruct",
+        "aa",
+        "aaArc",
+        "alpha",
+        "alphaBest",
+        "alphaMean",
+        "alphaRate",
+        "arcEff",
+        "autoCrewCapacity",
+        "autoHabitationVolume",
+        "bandRate",
+        "bareStructAccel",
+        "chargeInfo",
+        "chargingCount",
+        "chargingVolume",
+        "cost",
+        "costBy",
+        "craftSystems",
+        "crew",
+        "crewAboard",
+        "crewBase",
+        "crewCapacity",
+        "droidCapacity",
+        "feedBranchVolume",
+        "feedInfo",
+        "feedLength",
+        "feedShare",
+        "feedVolume",
+        "fitInfo",
+        "ground",
+        "habit",
+        "habitableVolume",
+        "heat",
+        "hp",
+        "hyperClass",
+        "info",
+        "ionBest",
+        "ionMean",
+        "ionRate",
+        "mass",
+        "maximumAccelMps2",
+        "pedVol",
+        "personCapacity",
+        "propulsion",
+        "ratedAccelMps2",
+        "structG",
+        "troopCapacity",
+        "troopVolume",
+        "unassignedVolume",
+        "warnings",
+        "$warnings"
+      ],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {
+        "aStruct": {
+          "before": 122912.14654023769,
+          "after": 123110.34661564362
+        },
+        "aa": {
+          "before": 187.70192592592608,
+          "after": 173.19111111111118
+        },
+        "alphaBest": {
+          "before": 509.82222222222185,
+          "after": 362.20444444444456
+        },
+        "alphaMean": {
+          "before": 360.3377777777776,
+          "after": 275.5274074074074
+        },
+        "arcEff": {
+          "before": 0.5619733490103848,
+          "after": 0.39925533999608026
+        },
+        "autoCrewCapacity": {
+          "before": 18411,
+          "after": 18271
+        },
+        "autoHabitationVolume": {
+          "before": 5864136.936672953,
+          "after": 5870251.782279494
+        },
+        "bareStructAccel": {
+          "before": 10649.63806498874,
+          "after": 10646.05320012955
+        },
+        "chargingCount": {
+          "before": 4,
+          "after": 88
+        },
+        "chargingVolume": {
+          "before": 28000.000000000004,
+          "after": 31242.618269859908
+        },
+        "cost": {
+          "before": 269870638,
+          "after": 269874782
+        },
+        "crew": {
+          "before": 1853,
+          "after": 1854
+        },
+        "crewAboard": {
+          "before": 1853,
+          "after": 1854
+        },
+        "crewBase": {
+          "before": 1853,
+          "after": 1854
+        },
+        "crewCapacity": {
+          "before": 18411,
+          "after": 18271
+        },
+        "droidCapacity": {
+          "before": 818445,
+          "after": 811434
+        },
+        "feedBranchVolume": {
+          "before": 1313978.6427877205,
+          "after": 1354901.3755358842
+        },
+        "feedLength": {
+          "before": 129.17424843231834,
+          "after": 133.1972691073923
+        },
+        "feedShare": {
+          "before": 0.22407025227709174,
+          "after": 0.2308080514750525
+        },
+        "feedVolume": {
+          "before": 1313978.6427877205,
+          "after": 1354901.3755358842
+        },
+        "habit": {
+          "before": 9.935779816513762,
+          "after": 9.854908306364617
+        },
+        "habitableVolume": {
+          "before": 4550158.293885233,
+          "after": 4515350.40674361
+        },
+        "hp": {
+          "before": 12561.000561188986,
+          "after": 12565.843921188953
+        },
+        "hyperClass": {
+          "before": 1.2952361230723402,
+          "after": 1.2924769749644347
+        },
+        "ionBest": {
+          "before": 466.66666666666663,
+          "after": 388.8888888888889
+        },
+        "ionMean": {
+          "before": 298.1481481481481,
+          "after": 220.37037037037035
+        },
+        "mass": {
+          "before": 5481283.585131135,
+          "after": 5469607.201988783
+        },
+        "maximumAccelMps2": {
+          "before": 17504.036619379174,
+          "after": 17541.403806922608
+        },
+        "pedVol": {
+          "before": 45135.14380785209,
+          "after": 0
+        },
+        "personCapacity": {
+          "before": 18411,
+          "after": 18271
+        },
+        "ratedAccelMps2": {
+          "before": 17504.036619379174,
+          "after": 17541.403806922608
+        },
+        "structG": {
+          "before": 12533.550859899935,
+          "after": 12553.761642930422
+        },
+        "troopCapacity": {
+          "before": 16558,
+          "after": 16417
+        },
+        "troopVolume": {
+          "before": 4092225.88395661,
+          "after": 4057170.8665344003
+        },
+        "unassignedVolume": {
+          "before": 5864136.936672953,
+          "after": 5870251.782279494
+        }
+      }
+    },
+    "nebulonb": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": false,
+      "reason": "Weapon housing/charging, point-defence and retired gun catalog migration, default pedestal removal, and compact missiles where present.",
+      "changedExistingFields": [
+        "aStruct",
+        "aa",
+        "aaArc",
+        "alpha",
+        "alphaBest",
+        "alphaMean",
+        "alphaRate",
+        "arcEff",
+        "autoCrewCapacity",
+        "autoHabitationVolume",
+        "bandRate",
+        "bareStructAccel",
+        "chargeInfo",
+        "chargingCount",
+        "chargingVolume",
+        "cost",
+        "costBy",
+        "craftSystems",
+        "crew",
+        "crewAboard",
+        "crewBase",
+        "crewCapacity",
+        "droidCapacity",
+        "feedBranchVolume",
+        "feedInfo",
+        "feedLength",
+        "feedShare",
+        "feedVolume",
+        "fitInfo",
+        "ground",
+        "habit",
+        "habitableVolume",
+        "hp",
+        "hyperClass",
+        "info",
+        "mass",
+        "maximumAccelMps2",
+        "pedVol",
+        "personCapacity",
+        "ratedAccelMps2",
+        "structG",
+        "troopVolume",
+        "unassignedVolume",
+        "warnings",
+        "weakAt",
+        "$warnings"
+      ],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {
+        "aStruct": {
+          "before": 197060.82020240143,
+          "after": 199407.34482088257
+        },
+        "aa": {
+          "before": 52.844444444444434,
+          "after": 44.08888888888889
+        },
+        "alphaBest": {
+          "before": 51.111111111111114,
+          "after": 43.33333333333333
+        },
+        "alphaMean": {
+          "before": 28.714814814814815,
+          "after": 24.1037037037037
+        },
+        "arcEff": {
+          "before": 0.7605820105820106,
+          "after": 0.6448412698412699
+        },
+        "autoCrewCapacity": {
+          "before": 184,
+          "after": 161
+        },
+        "autoHabitationVolume": {
+          "before": 215714.3423760243,
+          "after": 213603.25895419487
+        },
+        "bareStructAccel": {
+          "before": 15158.524630953956,
+          "after": 15339.026524683275
+        },
+        "chargingCount": {
+          "before": 0,
+          "after": 24
+        },
+        "chargingVolume": {
+          "before": 0,
+          "after": 1293.5482393133186
+        },
+        "cost": {
+          "before": 35895640,
+          "after": 35896984
+        },
+        "crew": {
+          "before": 381,
+          "after": 382
+        },
+        "crewAboard": {
+          "before": 184,
+          "after": 161
+        },
+        "crewBase": {
+          "before": 381,
+          "after": 382
+        },
+        "crewCapacity": {
+          "before": 184,
+          "after": 161
+        },
+        "droidCapacity": {
+          "before": 18,
+          "after": 11
+        },
+        "feedBranchVolume": {
+          "before": 197222.75421669346,
+          "after": 197445.13351175605
+        },
+        "feedLength": {
+          "before": 136.40854918488932,
+          "after": 136.56235718300158
+        },
+        "feedShare": {
+          "before": 0.9142774284006714,
+          "after": 0.924354499451229
+        },
+        "feedVolume": {
+          "before": 197222.75421669346,
+          "after": 197445.13351175605
+        },
+        "habit": {
+          "before": 0.48293963254593175,
+          "after": 0.4214659685863874
+        },
+        "habitableVolume": {
+          "before": 18491.58815933083,
+          "after": 16158.125442438817
+        },
+        "hp": {
+          "before": 759.1642831689246,
+          "after": 760.727163168925
+        },
+        "hyperClass": {
+          "before": 2.20422231556033,
+          "after": 2.1805423030288837
+        },
+        "mass": {
+          "before": 244651.07967820604,
+          "after": 242022.78733595245
+        },
+        "maximumAccelMps2": {
+          "before": 11460.695154163526,
+          "after": 11585.154745932372
+        },
+        "pedVol": {
+          "before": 10768.9744741789,
+          "after": 0
+        },
+        "personCapacity": {
+          "before": 184,
+          "after": 161
+        },
+        "ratedAccelMps2": {
+          "before": 11460.695154163526,
+          "after": 11585.154745932372
+        },
+        "structG": {
+          "before": 20094.61133031172,
+          "after": 20333.89025007343
+        },
+        "troopVolume": {
+          "before": 91.58815933082951,
+          "after": 58.12544243881712
+        },
+        "unassignedVolume": {
+          "before": 215714.3423760243,
+          "after": 213603.25895419487
+        },
+        "weakAt": {
+          "before": 157.5,
+          "after": 155
+        }
+      }
+    },
+    "onager": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": false,
+      "reason": "Weapon housing/charging, point-defence and retired gun catalog migration, default pedestal removal, and compact missiles where present.",
+      "changedExistingFields": [
+        "aStruct",
+        "aa",
+        "aaArc",
+        "alpha",
+        "alphaBest",
+        "alphaMean",
+        "alphaRate",
+        "arcEff",
+        "autoCrewCapacity",
+        "autoHabitationVolume",
+        "bandRate",
+        "bareStructAccel",
+        "chargeInfo",
+        "chargingCount",
+        "chargingVolume",
+        "cost",
+        "costBy",
+        "crewCapacity",
+        "droidCapacity",
+        "feedBranchVolume",
+        "feedInfo",
+        "feedLength",
+        "feedShare",
+        "feedVolume",
+        "fitInfo",
+        "ground",
+        "habit",
+        "habitableVolume",
+        "hp",
+        "hyperClass",
+        "info",
+        "mass",
+        "maximumAccelMps2",
+        "pedVol",
+        "personCapacity",
+        "ratedAccelMps2",
+        "structG",
+        "troopCapacity",
+        "troopVolume",
+        "unassignedVolume"
+      ],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {
+        "aStruct": {
+          "before": 41596.176578328814,
+          "after": 41605.386451530816
+        },
+        "aa": {
+          "before": 106.1185185185185,
+          "after": 104.01481481481477
+        },
+        "alphaBest": {
+          "before": 2590,
+          "after": 2309.999999999999
+        },
+        "alphaMean": {
+          "before": 2100.3703703703704,
+          "after": 1985.3703703703698
+        },
+        "arcEff": {
+          "before": 0.6023255813953489,
+          "after": 0.5372093023255812
+        },
+        "autoCrewCapacity": {
+          "before": 15058,
+          "after": 15107
+        },
+        "autoHabitationVolume": {
+          "before": 17141861.34796724,
+          "after": 17162702.51677936
+        },
+        "bareStructAccel": {
+          "before": 3199.7058906406783,
+          "after": 3200.4143424254476
+        },
+        "chargingCount": {
+          "before": 30,
+          "after": 50
+        },
+        "chargingVolume": {
+          "before": 84000,
+          "after": 57722.13866336009
+        },
+        "cost": {
+          "before": 23806744395,
+          "after": 23806746395
+        },
+        "crewCapacity": {
+          "before": 15058,
+          "after": 15107
+        },
+        "droidCapacity": {
+          "before": 1061081,
+          "after": 1068279
+        },
+        "feedBranchVolume": {
+          "before": 6103216.174865767,
+          "after": 6088067.399222362
+        },
+        "feedLength": {
+          "before": 310.3624839747042,
+          "after": 309.592134129122
+        },
+        "feedShare": {
+          "before": 0.3560416252923148,
+          "after": 0.35472661681750156
+        },
+        "feedVolume": {
+          "before": 6103216.174865767,
+          "after": 6088067.399222362
+        },
+        "habit": {
+          "before": 1.925329241784938,
+          "after": 1.9315944252653114
+        },
+        "habitableVolume": {
+          "before": 11038645.173101474,
+          "after": 11074635.117556997
+        },
+        "hp": {
+          "before": 31262.716538756657,
+          "after": 31287.15173951623
+        },
+        "hyperClass": {
+          "before": 1.7423576124838773,
+          "after": 1.7421531958903405
+        },
+        "mass": {
+          "before": 11421816.827928651,
+          "after": 11420476.799411407
+        },
+        "maximumAccelMps2": {
+          "before": 12899.351475106056,
+          "after": 12900.865028273249
+        },
+        "pedVol": {
+          "before": 20913.814731642193,
+          "after": 0
+        },
+        "personCapacity": {
+          "before": 15058,
+          "after": 15107
+        },
+        "ratedAccelMps2": {
+          "before": 12899.351475106056,
+          "after": 12900.865028273249
+        },
+        "structG": {
+          "before": 4241.629565481466,
+          "after": 4242.568711183821
+        },
+        "troopCapacity": {
+          "before": 7237,
+          "after": 7286
+        },
+        "troopVolume": {
+          "before": 5305408.261518499,
+          "after": 5341398.205974022
+        },
+        "unassignedVolume": {
+          "before": 17141861.34796724,
+          "after": 17162702.51677936
+        }
+      }
+    },
+    "providence": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": false,
+      "reason": "Weapon housing/charging, retired gun migration, default pedestal removal and compatibility equipment-surface VLS migration.",
+      "changedExistingFields": [
+        "aEff",
+        "aStruct",
+        "aThrust",
+        "aa",
+        "aaArc",
+        "accelG",
+        "accuracy",
+        "actualAccelMps2",
+        "alpha",
+        "alphaBest",
+        "alphaMean",
+        "alphaRate",
+        "alphaTot",
+        "arcEff",
+        "armorAvg",
+        "armorHull",
+        "armorMass",
+        "autoCrewCapacity",
+        "autoHabitationVolume",
+        "aviation",
+        "bandRate",
+        "bareStructAccel",
+        "chargeInfo",
+        "chargingCount",
+        "chargingVolume",
+        "cost",
+        "costBy",
+        "craftSystems",
+        "crew",
+        "crewAboard",
+        "crewBase",
+        "crewCapacity",
+        "draw",
+        "droidCapacity",
+        "feedBranchVolume",
+        "feedCount",
+        "feedDemand",
+        "feedInfo",
+        "feedLength",
+        "feedShare",
+        "feedVolume",
+        "fitInfo",
+        "floatFits",
+        "freeAccelerationMps2",
+        "ground",
+        "habit",
+        "habitableVolume",
+        "heat",
+        "hp",
+        "hyperClass",
+        "info",
+        "mass",
+        "maximumAccelMps2",
+        "mslSalvo",
+        "pedVol",
+        "personCapacity",
+        "propulsion",
+        "ratedAccelMps2",
+        "rc",
+        "sens",
+        "sensor",
+        "skin",
+        "structG",
+        "thrustG",
+        "troopCapacity",
+        "troopVolume",
+        "unassignedVolume",
+        "view",
+        "vlsCount",
+        "vlsInfo",
+        "vlsVolume",
+        "warnings",
+        "weaponBudget",
+        "weaponCrew",
+        "$warnings"
+      ],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "surface",
+        "surfaceMode",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {
+        "aEff": {
+          "before": 7225.9579488898535,
+          "after": 7397.635514840657
+        },
+        "aStruct": {
+          "before": 62982.125291095916,
+          "after": 64549.68333667376
+        },
+        "aThrust": {
+          "before": 7255.873567560691,
+          "after": 7397.635514840657
+        },
+        "aa": {
+          "before": 102.69333333333333,
+          "after": 102.56000000000002
+        },
+        "accelG": {
+          "before": 736.8426474779719,
+          "after": 754.3488872184342
+        },
+        "accuracy": {
+          "before": 0.8809203266131903,
+          "after": 0.883836993279857
+        },
+        "actualAccelMps2": {
+          "before": 7225.9579488898535,
+          "after": 7397.635514840657
+        },
+        "alphaBest": {
+          "before": 1999.0755555555547,
+          "after": 1782.7555555555546
+        },
+        "alphaMean": {
+          "before": 959.02074074074,
+          "after": 972.4570370370369
+        },
+        "alphaTot": {
+          "before": 2023.6799999999967,
+          "after": 2021.199999999999
+        },
+        "arcEff": {
+          "before": 0.98784173167475,
+          "after": 0.8820282780306529
+        },
+        "armorAvg": {
+          "before": 0.826015952213144,
+          "after": 0.8115856974129256
+        },
+        "armorHull": {
+          "before": 0.65,
+          "after": 0.635569745199782
+        },
+        "armorMass": {
+          "before": 4429745.262012963,
+          "after": 4366956.091195824
+        },
+        "autoCrewCapacity": {
+          "before": 7808,
+          "after": 6163
+        },
+        "autoHabitationVolume": {
+          "before": 6557187.938802089,
+          "after": 6711180.927526734
+        },
+        "bareStructAccel": {
+          "before": 4844.77886854584,
+          "after": 4965.3602566672125
+        },
+        "chargingCount": {
+          "before": 16,
+          "after": 74
+        },
+        "chargingVolume": {
+          "before": 53200,
+          "after": 41216.453207193146
+        },
+        "cost": {
+          "before": 435715674,
+          "after": 430397513
+        },
+        "crew": {
+          "before": 6229,
+          "after": 5679
+        },
+        "crewAboard": {
+          "before": 6229,
+          "after": 5679
+        },
+        "crewBase": {
+          "before": 6229,
+          "after": 5679
+        },
+        "crewCapacity": {
+          "before": 7808,
+          "after": 6163
+        },
+        "droidCapacity": {
+          "before": 155445,
+          "after": 47696
+        },
+        "feedBranchVolume": {
+          "before": 2714973.247232555,
+          "after": 3678338.5057244794
+        },
+        "feedCount": {
+          "before": 112,
+          "after": 96
+        },
+        "feedDemand": {
+          "before": 1.2529434240000005e+25,
+          "after": 1.2495434257999975e+25
+        },
+        "feedLength": {
+          "before": 216.68761695281057,
+          "after": 294.374603537247
+        },
+        "feedShare": {
+          "before": 0.4140453609948756,
+          "after": 0.5480910953595844
+        },
+        "feedVolume": {
+          "before": 2714973.247232555,
+          "after": 3678338.5057244794
+        },
+        "floatFits": {
+          "before": 0,
+          "after": 16
+        },
+        "freeAccelerationMps2": {
+          "before": 7255.873567560691,
+          "after": 7397.635514840657
+        },
+        "habit": {
+          "before": 1.2534917322202601,
+          "after": 1.0852262722310266
+        },
+        "habitableVolume": {
+          "before": 3842214.6915695337,
+          "after": 3032842.4218022544
+        },
+        "hp": {
+          "before": 13757.638687273806,
+          "after": 13641.628162571498
+        },
+        "hyperClass": {
+          "before": 1.8462727148034297,
+          "after": 1.8108923267408743
+        },
+        "mass": {
+          "before": 7658104.32263447,
+          "after": 7511350.97434205
+        },
+        "maximumAccelMps2": {
+          "before": 20645.594139685298,
+          "after": 21136.10147097331
+        },
+        "mslSalvo": {
+          "before": 2720,
+          "after": 7500.000000000002
+        },
+        "pedVol": {
+          "before": 43618.598334386574,
+          "after": 0
+        },
+        "personCapacity": {
+          "before": 7808,
+          "after": 6163
+        },
+        "ratedAccelMps2": {
+          "before": 20731.067335887692,
+          "after": 21136.10147097331
+        },
+        "rc": {
+          "before": 0.22931268226905904,
+          "after": 0.23031915739542308
+        },
+        "sensor": {
+          "before": 0.9454866474662579,
+          "after": 0.9538199807995913
+        },
+        "structG": {
+          "before": 6422.389428713773,
+          "after": 6582.235864099745
+        },
+        "thrustG": {
+          "before": 739.8931916159638,
+          "after": 754.3488872184342
+        },
+        "troopCapacity": {
+          "before": 1579,
+          "after": 484
+        },
+        "troopVolume": {
+          "before": 777229.0984448702,
+          "after": 238484.87109508412
+        },
+        "unassignedVolume": {
+          "before": 6557187.938802089,
+          "after": 6711180.927526734
+        },
+        "view": {
+          "before": 0.536941428516616,
+          "after": 0.5577747618499493
+        },
+        "vlsCount": {
+          "before": 34,
+          "after": 18
+        },
+        "vlsVolume": {
+          "before": 122400.00000000001,
+          "after": 11.663999999999998
+        },
+        "weaponBudget": {
+          "before": 2.87315817288819e+24,
+          "after": 2.8731581548881896e+24
+        },
+        "weaponCrew": {
+          "before": 1792,
+          "after": 1248
+        }
+      }
+    },
+    "providenceDn": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": false,
+      "reason": "Weapon housing/charging, retired gun migration, default pedestal removal and compatibility equipment-surface VLS migration.",
+      "changedExistingFields": [
+        "aEff",
+        "aStruct",
+        "aThrust",
+        "aa",
+        "aaArc",
+        "accelG",
+        "actualAccelMps2",
+        "alpha",
+        "alphaBest",
+        "alphaMean",
+        "alphaRate",
+        "arcEff",
+        "armorAvg",
+        "armorHull",
+        "armorMass",
+        "autoCrewCapacity",
+        "autoHabitationVolume",
+        "bandRate",
+        "bareStructAccel",
+        "chargeInfo",
+        "chargingCount",
+        "chargingVolume",
+        "cost",
+        "costBy",
+        "craftSystems",
+        "crew",
+        "crewAboard",
+        "crewBase",
+        "crewCapacity",
+        "dims",
+        "draw",
+        "droidCapacity",
+        "feedBranchVolume",
+        "feedCount",
+        "feedDemand",
+        "feedInfo",
+        "feedLength",
+        "feedShare",
+        "feedVolume",
+        "fitInfo",
+        "floatFits",
+        "freeAccelerationMps2",
+        "ground",
+        "habit",
+        "habitableVolume",
+        "heat",
+        "hp",
+        "hyperClass",
+        "info",
+        "ionMean",
+        "ionRate",
+        "mass",
+        "maximumAccelMps2",
+        "mslSalvo",
+        "pedVol",
+        "personCapacity",
+        "propulsion",
+        "ratedAccelMps2",
+        "rc",
+        "skin",
+        "structG",
+        "thrustG",
+        "troopCapacity",
+        "troopVolume",
+        "unassignedVolume",
+        "vlsCount",
+        "vlsInfo",
+        "vlsVolume",
+        "warnings",
+        "weaponCrew",
+        "ybox",
+        "$warnings"
+      ],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "surface",
+        "surfaceMode",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {
+        "aEff": {
+          "before": 6167.204596104808,
+          "after": 6308.472841924947
+        },
+        "aStruct": {
+          "before": 27774.599126736375,
+          "after": 28166.328707697885
+        },
+        "aThrust": {
+          "before": 6694.679685490496,
+          "after": 6770.9209465874865
+        },
+        "aa": {
+          "before": 70.12325925925926,
+          "after": 67.96266666666666
+        },
+        "accelG": {
+          "before": 628.8798515400068,
+          "after": 643.2852036041816
+        },
+        "actualAccelMps2": {
+          "before": 6167.204596104808,
+          "after": 6308.472841924947
+        },
+        "alphaBest": {
+          "before": 7331.1111111111095,
+          "after": 6954.44444444444
+        },
+        "alphaMean": {
+          "before": 4507.195555555556,
+          "after": 4064.0888888888876
+        },
+        "arcEff": {
+          "before": 0.7541550537304043,
+          "after": 0.7154071660046375
+        },
+        "armorAvg": {
+          "before": 2.1266288315611774,
+          "after": 2.0926751643462733
+        },
+        "armorHull": {
+          "before": 1.9500000000000002,
+          "after": 1.916046332785096
+        },
+        "armorMass": {
+          "before": 41660638.236982964,
+          "after": 41070968.41756304
+        },
+        "autoCrewCapacity": {
+          "before": 16607,
+          "after": 16730
+        },
+        "autoHabitationVolume": {
+          "before": 53038887.995428585,
+          "after": 53305750.324965335
+        },
+        "bareStructAccel": {
+          "before": 2136.507625133567,
+          "after": 2166.6406698229143
+        },
+        "chargingCount": {
+          "before": 50,
+          "after": 74
+        },
+        "chargingVolume": {
+          "before": 207200,
+          "after": 171224.4784122148
+        },
+        "cost": {
+          "before": 3367731377,
+          "after": 3360386745
+        },
+        "crew": {
+          "before": 11822,
+          "after": 11272
+        },
+        "crewAboard": {
+          "before": 11822,
+          "after": 11272
+        },
+        "crewBase": {
+          "before": 38193,
+          "after": 37643
+        },
+        "crewCapacity": {
+          "before": 16607,
+          "after": 16730
+        },
+        "droidCapacity": {
+          "before": 2187106,
+          "after": 2494643
+        },
+        "feedBranchVolume": {
+          "before": 15090164.314663315,
+          "after": 15076089.343283804
+        },
+        "feedCount": {
+          "before": 118,
+          "after": 99
+        },
+        "feedDemand": {
+          "before": 4.484347328000004e+25,
+          "after": 4.480947329499998e+25
+        },
+        "feedLength": {
+          "before": 336.5074828267921,
+          "after": 336.44870681767327
+        },
+        "feedShare": {
+          "before": 0.2845113252744653,
+          "after": 0.28282294595566426
+        },
+        "feedVolume": {
+          "before": 15090164.314663315,
+          "after": 15076089.343283804
+        },
+        "floatFits": {
+          "before": 0,
+          "after": 19
+        },
+        "freeAccelerationMps2": {
+          "before": 6694.679685490496,
+          "after": 6770.9209465874865
+        },
+        "habit": {
+          "before": 1.4047538487565556,
+          "after": 1.484208658623137
+        },
+        "habitableVolume": {
+          "before": 37948723.68076527,
+          "after": 38229660.98168153
+        },
+        "hp": {
+          "before": 114650.67827570156,
+          "after": 114129.89016729518
+        },
+        "hyperClass": {
+          "before": 1.9956723605509583,
+          "after": 1.9732008860344092
+        },
+        "ionMean": {
+          "before": 362.962962962963,
+          "after": 350
+        },
+        "mass": {
+          "before": 66353906.84270206,
+          "after": 65606755.07763096
+        },
+        "maximumAccelMps2": {
+          "before": 17620.584560299456,
+          "after": 18024.208119785566
+        },
+        "mslSalvo": {
+          "before": 2720,
+          "after": 6250.000000000001
+        },
+        "pedVol": {
+          "before": 290183.40098158177,
+          "after": 0
+        },
+        "personCapacity": {
+          "before": 16607,
+          "after": 16730
+        },
+        "ratedAccelMps2": {
+          "before": 19127.656244258564,
+          "after": 19345.48841882139
+        },
+        "rc": {
+          "before": 0.5044001643879298,
+          "after": 0.5047828868199038
+        },
+        "structG": {
+          "before": 2832.220903849569,
+          "after": 2872.166204330519
+        },
+        "thrustG": {
+          "before": 682.6673415988637,
+          "after": 690.4417866027121
+        },
+        "troopCapacity": {
+          "before": 4785,
+          "after": 5458
+        },
+        "troopVolume": {
+          "before": 10935531.929357368,
+          "after": 12473215.589880664
+        },
+        "unassignedVolume": {
+          "before": 53038887.995428585,
+          "after": 53305750.324965335
+        },
+        "vlsCount": {
+          "before": 34,
+          "after": 15
+        },
+        "vlsVolume": {
+          "before": 122399.99999999854,
+          "after": 9.719999999999999
+        },
+        "weaponCrew": {
+          "before": 3016,
+          "after": 2472
+        }
+      }
+    },
+    "recusant": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": false,
+      "reason": "Weapon housing/charging, point-defence and retired gun catalog migration, default pedestal removal, and compact missiles where present.",
+      "changedExistingFields": [
+        "aStruct",
+        "aa",
+        "aaArc",
+        "alpha",
+        "alphaBest",
+        "alphaMean",
+        "alphaRate",
+        "alphaTot",
+        "arcEff",
+        "autoCrewCapacity",
+        "autoHabitationVolume",
+        "aviation",
+        "bandRate",
+        "bareStructAccel",
+        "chargeInfo",
+        "chargingCount",
+        "chargingVolume",
+        "cost",
+        "costBy",
+        "crewAboard",
+        "crewCapacity",
+        "dims",
+        "draw",
+        "droidCapacity",
+        "feedBranchVolume",
+        "feedInfo",
+        "feedLength",
+        "feedShare",
+        "feedVolume",
+        "fitInfo",
+        "ground",
+        "habit",
+        "habitableVolume",
+        "heat",
+        "hp",
+        "hyperClass",
+        "info",
+        "mass",
+        "maximumAccelMps2",
+        "pedVol",
+        "personCapacity",
+        "propulsion",
+        "ratedAccelMps2",
+        "rc",
+        "structG",
+        "troopVolume",
+        "unassignedVolume",
+        "warnings",
+        "ybox",
+        "$warnings"
+      ],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {
+        "aStruct": {
+          "before": 130937.09080226712,
+          "after": 131094.8209235068
+        },
+        "aa": {
+          "before": 316.3288888888894,
+          "after": 299.910518518519
+        },
+        "alphaBest": {
+          "before": 751.5999999999984,
+          "after": 622.2187363090112
+        },
+        "alphaMean": {
+          "before": 645.4199999999997,
+          "after": 480.4177769653467
+        },
+        "alphaTot": {
+          "before": 1228.6000000000008,
+          "after": 1180.7021566952797
+        },
+        "arcEff": {
+          "before": 0.6117532150415089,
+          "after": 0.5269904291955959
+        },
+        "autoCrewCapacity": {
+          "before": 1647,
+          "after": 1298
+        },
+        "autoHabitationVolume": {
+          "before": 3989986.5871396293,
+          "after": 3989214.2320124246
+        },
+        "bareStructAccel": {
+          "before": 10072.083907866701,
+          "after": 10084.216994115908
+        },
+        "chargingCount": {
+          "before": 17,
+          "after": 118
+        },
+        "chargingVolume": {
+          "before": 18392,
+          "after": 19231.80541064552
+        },
+        "cost": {
+          "before": 344766490,
+          "after": 344771712
+        },
+        "crewAboard": {
+          "before": 1647,
+          "after": 1298
+        },
+        "crewCapacity": {
+          "before": 1647,
+          "after": 1298
+        },
+        "droidCapacity": {
+          "before": 77,
+          "after": 82
+        },
+        "feedBranchVolume": {
+          "before": 2992067.062383787,
+          "after": 3202647.692669089
+        },
+        "feedLength": {
+          "before": 291.00723969166836,
+          "after": 311.48822714087146
+        },
+        "feedShare": {
+          "before": 0.749894015189851,
+          "after": 0.8028266987941284
+        },
+        "feedVolume": {
+          "before": 2992067.062383787,
+          "after": 3202647.692669089
+        },
+        "habit": {
+          "before": 0.6339491916859122,
+          "after": 0.4996150885296382
+        },
+        "habitableVolume": {
+          "before": 997919.5247558425,
+          "after": 786566.5393433357
+        },
+        "hp": {
+          "before": 13114.350672519193,
+          "after": 13119.60200818547
+        },
+        "hyperClass": {
+          "before": 2.236647832741554,
+          "after": 2.231209124231993
+        },
+        "mass": {
+          "before": 4418638.76773147,
+          "after": 4407894.25627332
+        },
+        "maximumAccelMps2": {
+          "before": 23532.36841196215,
+          "after": 23647.231404777503
+        },
+        "pedVol": {
+          "before": 43147.02417073227,
+          "after": 0
+        },
+        "personCapacity": {
+          "before": 1647,
+          "after": 1298
+        },
+        "ratedAccelMps2": {
+          "before": 24826.654032734154,
+          "after": 24887.170518206232
+        },
+        "rc": {
+          "before": 0.1630794391894183,
+          "after": 0.1806886989547576
+        },
+        "structG": {
+          "before": 13351.867437123496,
+          "after": 13367.951433313803
+        },
+        "troopVolume": {
+          "before": 385.8309718212113,
+          "after": 410.6592391099548
+        },
+        "unassignedVolume": {
+          "before": 3989986.5871396293,
+          "after": 3989214.2320124246
+        }
+      }
+    },
+    "recusantDn": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": false,
+      "reason": "Weapon housing/charging, point-defence and retired gun catalog migration, default pedestal removal, and compact missiles where present.",
+      "changedExistingFields": [
+        "Vacc",
+        "Vhang",
+        "aStruct",
+        "aa",
+        "aaArc",
+        "alpha",
+        "alphaBest",
+        "alphaMean",
+        "alphaRate",
+        "alphaTot",
+        "arcEff",
+        "autoCrewCapacity",
+        "aviation",
+        "bandRate",
+        "bareStructAccel",
+        "chargeInfo",
+        "chargingCount",
+        "chargingVolume",
+        "cls",
+        "cost",
+        "costBy",
+        "crewCapacity",
+        "draw",
+        "droidCapacity",
+        "feedBranchVolume",
+        "feedInfo",
+        "feedLength",
+        "feedShare",
+        "feedVolume",
+        "fitInfo",
+        "frac",
+        "ground",
+        "habit",
+        "habitableVolume",
+        "heat",
+        "hp",
+        "hyperClass",
+        "info",
+        "mass",
+        "maximumAccelMps2",
+        "overlap",
+        "pedVol",
+        "personCapacity",
+        "propulsion",
+        "ratedAccelMps2",
+        "rc",
+        "storageCapacity",
+        "structG",
+        "supportVolumes",
+        "troopCapacity",
+        "troopVolume",
+        "vehicleSizeCapacity",
+        "warnings",
+        "$warnings"
+      ],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {
+        "Vacc": {
+          "before": 5562988.324556809,
+          "after": 2314398.873668598
+        },
+        "Vhang": {
+          "before": 5562988.324556809,
+          "after": 4494212.773675298
+        },
+        "aStruct": {
+          "before": 63055.21676201576,
+          "after": 63076.13349226369
+        },
+        "aa": {
+          "before": 303.2011851851857,
+          "after": 283.1398518518522
+        },
+        "alphaBest": {
+          "before": 4503.3511111111075,
+          "after": 3013.3333333333317
+        },
+        "alphaMean": {
+          "before": 2880.924444444445,
+          "after": 2143.6914306215226
+        },
+        "alphaTot": {
+          "before": 7160.399999999996,
+          "after": 7141.240862678109
+        },
+        "arcEff": {
+          "before": 0.628924516941946,
+          "after": 0.4219621479345077
+        },
+        "autoCrewCapacity": {
+          "before": 3412,
+          "after": 3363
+        },
+        "bareStructAccel": {
+          "before": 4850.401289385828,
+          "after": 4852.010268635669
+        },
+        "chargingCount": {
+          "before": 54,
+          "after": 144
+        },
+        "chargingVolume": {
+          "before": 137159.99999999994,
+          "after": 119499.63570610377
+        },
+        "cost": {
+          "before": 2172397457,
+          "after": 2172403122
+        },
+        "crewCapacity": {
+          "before": 3412,
+          "after": 3363
+        },
+        "droidCapacity": {
+          "before": 1496466,
+          "after": 1470035
+        },
+        "feedBranchVolume": {
+          "before": 22366458.456882775,
+          "after": 22498613.337099954
+        },
+        "feedLength": {
+          "before": 639.2251241545669,
+          "after": 643.0020618345895
+        },
+        "feedShare": {
+          "before": 0.7071394593650068,
+          "after": 0.7113176769728313
+        },
+        "feedVolume": {
+          "before": 22366458.456882775,
+          "after": 22498613.337099954
+        },
+        "habit": {
+          "before": 5.201219512195122,
+          "after": 5.126524390243903
+        },
+        "habitableVolume": {
+          "before": 9263028.712405283,
+          "after": 9130873.832188103
+        },
+        "hp": {
+          "before": 107810.72941637973,
+          "after": 107823.96626226236
+        },
+        "hyperClass": {
+          "before": 2.4299911838776738,
+          "after": 2.426013831989957
+        },
+        "mass": {
+          "before": 38404805.953439616,
+          "after": 38341945.87869129
+        },
+        "maximumAccelMps2": {
+          "before": 17972.210305113596,
+          "after": 18031.188040037257
+        },
+        "overlap": {
+          "before": 0,
+          "after": 3
+        },
+        "pedVol": {
+          "before": 222163.18260984562,
+          "after": 0
+        },
+        "personCapacity": {
+          "before": 3412,
+          "after": 3363
+        },
+        "ratedAccelMps2": {
+          "before": 20602.126634072283,
+          "after": 20635.902990240786
+        },
+        "rc": {
+          "before": 0.38984639302405577,
+          "after": 0.394363821765621
+        },
+        "storageCapacity": {
+          "before": 792,
+          "after": 640
+        },
+        "structG": {
+          "before": 6429.8426845065105,
+          "after": 6431.97559740214
+        },
+        "troopCapacity": {
+          "before": 2756,
+          "after": 2707
+        },
+        "troopVolume": {
+          "before": 7482332.251574468,
+          "after": 7350177.371357288
+        },
+        "vehicleSizeCapacity": {
+          "before": 792.5022043152244,
+          "after": 640.2446530539975
+        }
+      }
+    },
+    "reptransport": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": false,
+      "reason": "Weapon housing/charging, point-defence and retired gun catalog migration, default pedestal removal, and compact missiles where present.",
+      "changedExistingFields": [
+        "autoCrewCapacity",
+        "autoHabitationVolume",
+        "chargeInfo",
+        "chargingCount",
+        "chargingVolume",
+        "cost",
+        "costBy",
+        "crewCapacity",
+        "droidCapacity",
+        "feedShare",
+        "ground",
+        "habit",
+        "habitableVolume",
+        "hp",
+        "hyperClass",
+        "info",
+        "mass",
+        "maximumAccelMps2",
+        "pedVol",
+        "personCapacity",
+        "ratedAccelMps2",
+        "troopCapacity",
+        "troopVolume",
+        "unassignedVolume"
+      ],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {
+        "autoCrewCapacity": {
+          "before": 80,
+          "after": 79
+        },
+        "autoHabitationVolume": {
+          "before": 9659.441805720826,
+          "after": 9564.099642936015
+        },
+        "chargingCount": {
+          "before": 0,
+          "after": 1
+        },
+        "chargingVolume": {
+          "before": 0,
+          "after": 95.79568660944312
+        },
+        "cost": {
+          "before": 136389,
+          "after": 136489
+        },
+        "crewCapacity": {
+          "before": 80,
+          "after": 79
+        },
+        "droidCapacity": {
+          "before": 1418,
+          "after": 1398
+        },
+        "feedShare": {
+          "before": 0.16247154249576462,
+          "after": 0.1640911814404479
+        },
+        "habit": {
+          "before": 8,
+          "after": 7.9
+        },
+        "habitableVolume": {
+          "before": 8090.057395897289,
+          "after": 7994.715233112478
+        },
+        "hp": {
+          "before": 15.810194859185817,
+          "after": 15.850558309898261
+        },
+        "hyperClass": {
+          "before": 1.0921462111742766,
+          "after": 1.0953332194353758
+        },
+        "mass": {
+          "before": 7367.5675788477865,
+          "after": 7389.066988448584
+        },
+        "maximumAccelMps2": {
+          "before": 21714.25663374607,
+          "after": 21651.076302822617
+        },
+        "pedVol": {
+          "before": 37.01167181287357,
+          "after": 0
+        },
+        "personCapacity": {
+          "before": 80,
+          "after": 79
+        },
+        "ratedAccelMps2": {
+          "before": 21714.25663374607,
+          "after": 21651.076302822617
+        },
+        "troopCapacity": {
+          "before": 70,
+          "after": 69
+        },
+        "troopVolume": {
+          "before": 7090.057395897289,
+          "after": 6994.715233112478
+        },
+        "unassignedVolume": {
+          "before": 9659.441805720826,
+          "after": 9564.099642936015
+        }
+      }
+    },
+    "subjugator": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": false,
+      "reason": "Weapon housing/charging, point-defence and retired gun catalog migration, default pedestal removal, and compact missiles where present.",
+      "changedExistingFields": [
+        "aEff",
+        "aStruct",
+        "aThrust",
+        "aa",
+        "aaArc",
+        "accelG",
+        "actualAccelMps2",
+        "alpha",
+        "alphaBest",
+        "alphaMean",
+        "alphaRate",
+        "arcEff",
+        "autoCrewCapacity",
+        "autoHabitationVolume",
+        "bandRate",
+        "bareStructAccel",
+        "chargeInfo",
+        "chargingCount",
+        "chargingVolume",
+        "cost",
+        "costBy",
+        "crew",
+        "crewAboard",
+        "crewBase",
+        "crewCapacity",
+        "dims",
+        "draw",
+        "droidCapacity",
+        "envelopeVolume",
+        "feedBranchVolume",
+        "feedDemand",
+        "feedInfo",
+        "feedLength",
+        "feedShare",
+        "feedVolume",
+        "fitInfo",
+        "freeAccelerationMps2",
+        "ground",
+        "habit",
+        "habitableVolume",
+        "heat",
+        "hp",
+        "hyperClass",
+        "info",
+        "mass",
+        "maximumAccelMps2",
+        "mslSalvo",
+        "pedVol",
+        "personCapacity",
+        "propulsion",
+        "ratedAccelMps2",
+        "rc",
+        "structG",
+        "thrustG",
+        "troopCapacity",
+        "troopVolume",
+        "unassignedVolume",
+        "warnings",
+        "weaponCrew",
+        "ybox",
+        "$warnings"
+      ],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {
+        "aEff": {
+          "before": 5990.917499517863,
+          "after": 5991.534032993923
+        },
+        "aStruct": {
+          "before": 5990.917499517863,
+          "after": 5991.534032993923
+        },
+        "aThrust": {
+          "before": 7430.537634811294,
+          "after": 7430.95438731822
+        },
+        "aa": {
+          "before": 2023.1481481481587,
+          "after": 1980.7703703703787
+        },
+        "accelG": {
+          "before": 610.9035704871554,
+          "after": 610.9664394052936
+        },
+        "actualAccelMps2": {
+          "before": 5990.917499517863,
+          "after": 5991.534032993923
+        },
+        "alphaBest": {
+          "before": 4625.097777777745,
+          "after": 4571.182222222189
+        },
+        "alphaMean": {
+          "before": 3623.7200000000025,
+          "after": 3505.8081481481513
+        },
+        "arcEff": {
+          "before": 0.22206154108785042,
+          "after": 0.21947293173718996
+        },
+        "autoCrewCapacity": {
+          "before": 72737,
+          "after": 72782
+        },
+        "autoHabitationVolume": {
+          "before": 822423698.1470671,
+          "after": 822696837.8674747
+        },
+        "bareStructAccel": {
+          "before": 460.8398076552202,
+          "after": 460.88723330722485
+        },
+        "chargingCount": {
+          "before": 520,
+          "after": 1140
+        },
+        "chargingVolume": {
+          "before": 376000,
+          "after": 396082.4245978928
+        },
+        "cost": {
+          "before": 3141650941887,
+          "after": 3141649524947
+        },
+        "crew": {
+          "before": 19054,
+          "after": 18897
+        },
+        "crewAboard": {
+          "before": 19054,
+          "after": 18897
+        },
+        "crewBase": {
+          "before": 319550,
+          "after": 319393
+        },
+        "crewCapacity": {
+          "before": 72737,
+          "after": 72782
+        },
+        "droidCapacity": {
+          "before": 102649023,
+          "after": 103034098
+        },
+        "envelopeVolume": {
+          "before": 1044486290.8383875,
+          "after": 1044759430.558795
+        },
+        "feedBranchVolume": {
+          "before": 127011805.43721709,
+          "after": 126860575.84738393
+        },
+        "feedDemand": {
+          "before": 1.2093412799999838e+26,
+          "after": 1.2092412800999836e+26
+        },
+        "feedLength": {
+          "before": 1050.2560984044044,
+          "after": 1049.09233529387
+        },
+        "feedShare": {
+          "before": 0.15443597469695558,
+          "after": 0.1542008793618573
+        },
+        "feedVolume": {
+          "before": 127011805.43721709,
+          "after": 126860575.84738393
+        },
+        "freeAccelerationMps2": {
+          "before": 7430.537634811294,
+          "after": 7430.95438731822
+        },
+        "habit": {
+          "before": 3.8174136664217486,
+          "after": 3.85151082182357
+        },
+        "habitableVolume": {
+          "before": 695411892.70985,
+          "after": 695836262.0200907
+        },
+        "hp": {
+          "before": 1355981.0562293383,
+          "after": 1356016.859643375
+        },
+        "hyperClass": {
+          "before": 1.9656958862586347,
+          "after": 1.9655856435299417
+        },
+        "mass": {
+          "before": 378315651.8690556,
+          "after": 378294434.67566323
+        },
+        "maximumAccelMps2": {
+          "before": 5990.917499517863,
+          "after": 5991.534032993923
+        },
+        "mslSalvo": {
+          "before": 800,
+          "after": 4166.666666666666
+        },
+        "pedVol": {
+          "before": 106982.72262423925,
+          "after": 0
+        },
+        "personCapacity": {
+          "before": 72737,
+          "after": 72782
+        },
+        "ratedAccelMps2": {
+          "before": 21230.107528032262,
+          "after": 21231.298249480624
+        },
+        "rc": {
+          "before": 0.7007445146673954,
+          "after": 0.7008024636909904
+        },
+        "structG": {
+          "before": 610.9035704871554,
+          "after": 610.9664394052936
+        },
+        "thrustG": {
+          "before": 757.7039697359745,
+          "after": 757.7464666647857
+        },
+        "troopCapacity": {
+          "before": 53683,
+          "after": 53885
+        },
+        "troopVolume": {
+          "before": 513245117.0469239,
+          "after": 515170493.1682846
+        },
+        "unassignedVolume": {
+          "before": 822423698.1470671,
+          "after": 822696837.8674747
+        },
+        "weaponCrew": {
+          "before": 14104,
+          "after": 13944
+        }
+      }
+    },
+    "venator": {
+      "status": "MATCH_CAPTURE",
+      "schemaOnly": false,
+      "reason": "Weapon housing/charging, point-defence and retired gun catalog migration, default pedestal removal, and compact missiles where present.",
+      "changedExistingFields": [
+        "VS",
+        "Vacc",
+        "Vhang",
+        "aEff",
+        "aStruct",
+        "aThrust",
+        "aa",
+        "aaArc",
+        "accelG",
+        "actualAccelMps2",
+        "alpha",
+        "alphaBest",
+        "alphaMean",
+        "alphaRate",
+        "alphaTot",
+        "arcEff",
+        "autoCrewCapacity",
+        "autoHabitationVolume",
+        "aviation",
+        "aviationVolume",
+        "bandRate",
+        "bareStructAccel",
+        "chargeInfo",
+        "chargingCount",
+        "chargingVolume",
+        "cls",
+        "cost",
+        "costBy",
+        "craftSystems",
+        "crew",
+        "crewAboard",
+        "crewBase",
+        "crewCapacity",
+        "draw",
+        "droidCapacity",
+        "extCount",
+        "feedBranchVolume",
+        "feedCellShare",
+        "feedChargeVolume",
+        "feedDemand",
+        "feedInfo",
+        "feedLength",
+        "feedShare",
+        "feedVolume",
+        "fitInfo",
+        "flightVolume",
+        "frac",
+        "freeAccelerationMps2",
+        "ground",
+        "habit",
+        "habitableVolume",
+        "heat",
+        "hp",
+        "hullArea",
+        "hyperClass",
+        "info",
+        "mass",
+        "maximumAccelMps2",
+        "mslSalvo",
+        "pedVol",
+        "personCapacity",
+        "propulsion",
+        "ratedAccelMps2",
+        "rc",
+        "serviceCapacity",
+        "structG",
+        "supportVolumes",
+        "thrustG",
+        "troopCapacity",
+        "troopVolume",
+        "unassignedVolume",
+        "vehicleSizeCapacity",
+        "vlsCount",
+        "vlsInfo",
+        "vlsVolume",
+        "volume",
+        "warnings",
+        "weakAt",
+        "weaponBudget",
+        "weaponCrew",
+        "$warnings"
+      ],
+      "addedFields": [
+        "chargingExternalVolume",
+        "chargingHardwareCost",
+        "chargingHardwareMass",
+        "chargingHousingVolume",
+        "chargingOccupiedVolume",
+        "chargingTotalVolume",
+        "turretIntrusionVolume"
+      ],
+      "scalarDeltas": {
+        "VS": {
+          "before": 31.24313380056635,
+          "after": 31.24368519089351
+        },
+        "Vacc": {
+          "before": 5943604.940478654,
+          "after": 5943591.114871246
+        },
+        "Vhang": {
+          "before": 5943604.940478654,
+          "after": 5943591.114871246
+        },
+        "aEff": {
+          "before": 6227.336794069755,
+          "after": 6233.445512137564
+        },
+        "aStruct": {
+          "before": 40376.27148209222,
+          "after": 40244.024491766686
+        },
+        "aThrust": {
+          "before": 10169.753115378448,
+          "after": 10174.739912216362
+        },
+        "aa": {
+          "before": 186.65925925925916,
+          "after": 185.28888888888878
+        },
+        "accelG": {
+          "before": 635.0116292586924,
+          "after": 635.634545144118
+        },
+        "actualAccelMps2": {
+          "before": 6227.336794069755,
+          "after": 6233.445512137564
+        },
+        "alphaBest": {
+          "before": 1176.6666666666665,
+          "after": 901.8419473886498
+        },
+        "alphaMean": {
+          "before": 532.4074074074075,
+          "after": 420.94156478858616
+        },
+        "alphaTot": {
+          "before": 1540,
+          "after": 1367.5677641030002
+        },
+        "arcEff": {
+          "before": 0.764069264069264,
+          "after": 0.6594495505531135
+        },
+        "autoCrewCapacity": {
+          "before": 11042,
+          "after": 11236
+        },
+        "autoHabitationVolume": {
+          "before": 10154847.037577575,
+          "after": 10292677.296770245
+        },
+        "aviationVolume": {
+          "before": 6696530.655482297,
+          "after": 6597208.412247295
+        },
+        "bareStructAccel": {
+          "before": 3105.867037084017,
+          "after": 3095.6941916743604
+        },
+        "chargingCount": {
+          "before": 10,
+          "after": 62
+        },
+        "chargingVolume": {
+          "before": 25600,
+          "after": 16414.390967396732
+        },
+        "cost": {
+          "before": 590734997,
+          "after": 590640338
+        },
+        "crew": {
+          "before": 8676,
+          "after": 8624
+        },
+        "crewAboard": {
+          "before": 8676,
+          "after": 8624
+        },
+        "crewBase": {
+          "before": 8676,
+          "after": 8624
+        },
+        "crewCapacity": {
+          "before": 11042,
+          "after": 11236
+        },
+        "droidCapacity": {
+          "before": 258836,
+          "after": 285741
+        },
+        "extCount": {
+          "before": 0,
+          "after": 4
+        },
+        "feedBranchVolume": {
+          "before": 3861201.304174699,
+          "after": 3892846.869818683
+        },
+        "feedCellShare": {
+          "before": 0.5222815275680031,
+          "after": 0.5224729318386008
+        },
+        "feedChargeVolume": {
+          "before": 254843.37055349644,
+          "after": 254936.76483777183
+        },
+        "feedDemand": {
+          "before": 1.0918720000000011e+25,
+          "after": 1.0914720004000015e+25
+        },
+        "feedLength": {
+          "before": 353.6313143092501,
+          "after": 356.6602595753291
+        },
+        "feedShare": {
+          "before": 0.4053280821953249,
+          "after": 0.40298393848974495
+        },
+        "feedVolume": {
+          "before": 4116044.674728195,
+          "after": 4147783.6346564544
+        },
+        "flightVolume": {
+          "before": 2105211.175773798,
+          "after": 2105230.020196817
+        },
+        "freeAccelerationMps2": {
+          "before": 10169.753115378448,
+          "after": 10174.739912216362
+        },
+        "habit": {
+          "before": 1.272706316274781,
+          "after": 1.3028756957328387
+        },
+        "habitableVolume": {
+          "before": 6038802.36284938,
+          "after": 6144893.66211379
+        },
+        "hp": {
+          "before": 17132.960468785644,
+          "after": 17187.664267115222
+        },
+        "hullArea": {
+          "before": 765611.4632816805,
+          "after": 765597.82037667
+        },
+        "hyperClass": {
+          "before": 0.9529083431495344,
+          "after": 0.9524413080849098
+        },
+        "mass": {
+          "before": 6864581.1229165485,
+          "after": 6861216.685915435
+        },
+        "maximumAccelMps2": {
+          "before": 17792.390840199303,
+          "after": 17809.84432039304
+        },
+        "mslSalvo": {
+          "before": 320,
+          "after": 1666.6666666666667
+        },
+        "pedVol": {
+          "before": 6412.009000569344,
+          "after": 0
+        },
+        "personCapacity": {
+          "before": 11042,
+          "after": 11236
+        },
+        "ratedAccelMps2": {
+          "before": 29056.437472509857,
+          "after": 29070.685463475325
+        },
+        "rc": {
+          "before": 0.2746906043755771,
+          "after": 0.4104406927980131
+        },
+        "serviceCapacity": {
+          "before": 501,
+          "after": 435
+        },
+        "structG": {
+          "before": 4117.233864988781,
+          "after": 4103.748424973532
+        },
+        "thrustG": {
+          "before": 1037.02621337342,
+          "after": 1037.5347251320648
+        },
+        "troopCapacity": {
+          "before": 2366,
+          "after": 2612
+        },
+        "troopVolume": {
+          "before": 1294180.383557639,
+          "after": 1428708.7901207097
+        },
+        "unassignedVolume": {
+          "before": 10154847.037577575,
+          "after": 10292677.296770245
+        },
+        "vehicleSizeCapacity": {
+          "before": 546.8168081767016,
+          "after": 546.8121540106997
+        },
+        "vlsCount": {
+          "before": 4,
+          "after": 0
+        },
+        "vlsVolume": {
+          "before": 14400.000000000002,
+          "after": 0
+        },
+        "volume": {
+          "before": 17231142.074376248,
+          "after": 17231446.175915048
+        },
+        "weakAt": {
+          "before": 596.925,
+          "after": 634.8249999999999
+        },
+        "weaponBudget": {
+          "before": 2.999269795807704e+24,
+          "after": 2.9992697613975503e+24
+        },
+        "weaponCrew": {
+          "before": 776,
+          "after": 744
+        }
+      }
+    }
+  },
+  "targetedRegression": {
+    "status": "PASS",
+    "tests": 12,
+    "failures": 0,
+    "examples": [
+      "arquitens",
+      "craft_arc170",
+      "craft_awing",
+      "gozanti",
+      "heraklon",
+      "lh3210",
+      "mc30c",
+      "munificent"
+    ],
+    "recordCoverageCheck": true,
+    "incrementalEditCases": [
+      "gozanti:last",
+      "gozanti:first",
+      "craft_tie_ln:last"
+    ],
+    "sourceSha256": {
+      "js/core.js": "85a8deceabf8fc184281c23d658061e748fbc4f895d16fb495b42674ca1ce513",
+      "data/reference.js": "a6fbb40e306391f04b765985d97dafe512ba0d9ad21b479d70d47384ef7f6a8b",
+      "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
+      "data/fleet.js": "c0341142b0b1b07f3f55b6e56e3445c33990f88e9d522a093f0e9319b6b7e416"
+    },
+    "command": "KS_FIGURES_KEYS=arquitens,craft_arc170,craft_awing,gozanti,heraklon,lh3210,mc30c,munificent node --test tests/example-figures-regression.cjs",
+    "durationMs": 99128.93962
+  }
+}

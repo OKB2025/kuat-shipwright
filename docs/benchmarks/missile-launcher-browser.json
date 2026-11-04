@@ -1,0 +1,242 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "date": "2026-11-04T21:25:59.088Z",
+  "browser": "Chromium headless with software WebGL",
+  "language": "en",
+  "device": "mobile viewport",
+  "url": "http://127.0.0.1:8765",
+  "sourceSha256": {
+    "data/reference.js": "a6fbb40e306391f04b765985d97dafe512ba0d9ad21b479d70d47384ef7f6a8b",
+    "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
+    "data/fleet.js": "c0341142b0b1b07f3f55b6e56e3445c33990f88e9d522a093f0e9319b6b7e416",
+    "js/core.js": "85a8deceabf8fc184281c23d658061e748fbc4f895d16fb495b42674ca1ce513",
+    "js/app.js": "64cd0762fbf608cce5b66103557441a9def930ff882b5b16b08563b48f0a4ed3",
+    "js/gfx.js": "cb96f6b647868d8090f41ed95a2310650b09b884bbd76033c56938d487ccbe3e",
+    "js/lang-en.js": "f4725c881d9385dc490f44d33af8c3a464cee00d8d50b3e751e8670aeb77b70e",
+    "js/engine.js": "ae431a0d3b61b19b15b1f3635159b7d5664a82eaf844ac8029ef2fa6da122a3e",
+    "index.html": "02d65b6d5ca204b7cd9405fda9b2b71fd9f3b1c45d4f3bec469ee97fb43d4300"
+  },
+  "controlText": "Missile Launch Angle\n0°\nLaunch Pitch Relative to Mount\n\nZero degrees follows the mounting surface. Adjust the launch angle upward or downward; supports, launch mouths and selectable bounds follow the angle automatically.",
+  "nativePitchEdit": true,
+  "undoRedo": true,
+  "states": {
+    "before": {
+      "id": 4,
+      "kind": "cmsl",
+      "float": false,
+      "pitch": 0,
+      "bodySize": [
+        1.2,
+        0.45,
+        0.45
+      ],
+      "supportHeight": 0,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "baseOrigin": [
+        3,
+        2,
+        -1.5
+      ],
+      "bounds": [
+        2.4,
+        2,
+        -1.725,
+        3.612,
+        2.45,
+        -1.275
+      ],
+      "meshIndices": 276,
+      "minimumDrawnHeightOverDeck": 0
+    },
+    "raised": {
+      "id": 4,
+      "kind": "cmsl",
+      "float": false,
+      "pitch": 45,
+      "bodySize": [
+        1.2,
+        0.45,
+        0.45
+      ],
+      "supportHeight": 0.6633630944789017,
+      "axis": [
+        0.7071067811865476,
+        0.7071067811865475,
+        0
+      ],
+      "baseOrigin": [
+        3,
+        2,
+        -1.5
+      ],
+      "bounds": [
+        2.4166369055210986,
+        2,
+        -1.80375,
+        3.5918483758531403,
+        3.255211470332042,
+        -1.19625
+      ],
+      "meshIndices": 528,
+      "minimumDrawnHeightOverDeck": 0
+    },
+    "undone": {
+      "id": 4,
+      "kind": "cmsl",
+      "float": false,
+      "pitch": 0,
+      "bodySize": [
+        1.2,
+        0.45,
+        0.45
+      ],
+      "supportHeight": 0,
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "baseOrigin": [
+        3,
+        2,
+        -1.5
+      ],
+      "bounds": [
+        2.4,
+        2,
+        -1.725,
+        3.612,
+        2.45,
+        -1.275
+      ],
+      "meshIndices": 276,
+      "minimumDrawnHeightOverDeck": 0
+    },
+    "redone": {
+      "id": 4,
+      "kind": "cmsl",
+      "float": false,
+      "pitch": 45,
+      "bodySize": [
+        1.2,
+        0.45,
+        0.45
+      ],
+      "supportHeight": 0.6633630944789017,
+      "axis": [
+        0.7071067811865476,
+        0.7071067811865475,
+        0
+      ],
+      "baseOrigin": [
+        3,
+        2,
+        -1.5
+      ],
+      "bounds": [
+        2.4166369055210986,
+        2,
+        -1.80375,
+        3.5918483758531403,
+        3.255211470332042,
+        -1.19625
+      ],
+      "meshIndices": 528,
+      "minimumDrawnHeightOverDeck": 0
+    }
+  },
+  "generation": {
+    "design": 4,
+    "geometry": 4,
+    "statistics": 4
+  },
+  "renderer": true,
+  "webglError": 0,
+  "pageWidth": 390,
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "external": [
+    {
+      "id": 4,
+      "kind": "cmsl",
+      "pitch": 45,
+      "float": false,
+      "bodySize": [
+        1.2,
+        0.45,
+        0.45
+      ],
+      "ammo": 6
+    },
+    {
+      "id": 5,
+      "kind": "cmsl",
+      "pitch": -35,
+      "float": false,
+      "bodySize": [
+        1.2,
+        0.45,
+        0.45
+      ],
+      "ammo": 6
+    }
+  ],
+  "vls": {
+    "count": 1,
+    "id": 2,
+    "surfacePatch": "p1:top:0:cctl1g",
+    "vls": true,
+    "normal": [
+      0,
+      1,
+      0
+    ],
+    "axis": [
+      0,
+      1,
+      0
+    ],
+    "point": [
+      1.6999999999999997,
+      2,
+      2.175
+    ],
+    "ammo": 6,
+    "depth": 1.2000000000000002,
+    "supportHeight": 0,
+    "magazineCells": 1,
+    "magazineCapacityRatio": 1,
+    "drawIndices": 684,
+    "hatchesFromDrawBoxes": 6,
+    "maximumDrawnHeightOverDeck": 0.013849973678588867
+  },
+  "errors": [],
+  "screenshots": [
+    "missile-launcher-angle-mobile.png",
+    "missile-launcher-demo-mobile.png",
+    "missile-vls-mobile.png"
+  ],
+  "scope": {
+    "fixture": "Core APIs configure an 8×6×2m box platform in a 100m assembly envelope, two compact external pods and one equipment-surface VLS; native DOM edits the selected pod angle.",
+    "verified": [
+      "native pitch edit, Undo and Redo",
+      "real updated support mesh and deck clearance",
+      "canonical 1.2m body on a ship hull",
+      "six actual shallow VLS hatch assemblies, six rounds and normal launch direction",
+      "English labels, WebGL and no horizontal overflow"
+    ],
+    "notVerified": [
+      "physical phone/gamepad input",
+      "live firing",
+      "GPU frame-rate target",
+      "native surface-configuration workflow"
+    ]
+  }
+}

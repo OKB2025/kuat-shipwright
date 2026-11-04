@@ -79,11 +79,11 @@ test('weapon picking and both drag gates require visible geometry rather than an
  for(const [kind,ray]of Object.entries(plain(rays))){run(`previewRay=${JSON.stringify(ray)}`);assert.equal(!!run('fitHit(previewRay.o,previewRay.d)'),kind==='hit');assert.equal(run('dragItemStart(0,0)'),kind==='hit');assert.equal(!!run('dragSelStart(0,0,previewRay)'),kind==='hit');}
 });
 
-test('a visible barrel tip beyond both Core bounds and padded drag bounds remains selectable and draggable',()=>{
+test('accurate native bounds contain an extremal visible muzzle while both drag gates accept its actual geometry',()=>{
  const run=setup();run("st.ped=0;install('htl');ship._geoProxy=true");
- const ray=run(`(()=>{const f=selItem(),g=Gfx.meshFits({fits:[f]}),b=C.fitAABB(f),pad=Math.max(2,.06*Math.max(b[3]-b[0],b[4]-b[1],b[5]-b[2])),padded=b.map((v,i)=>v+(i<3?-pad:pad)),d=[0,-1,0];for(let i=0;i<g.ni;i+=3){const p=[0,1,2].map(a=>(g.pos[g.idx[i]*3+a]+g.pos[g.idx[i+1]*3+a]+g.pos[g.idx[i+2]*3+a])/3),o=[p[0],b[4]+50,p[2]];if(C.rayAABB(o,d,padded))continue;if(Gfx.rayFit(o,d,f))return {o,d};}return null;})()`);
- assert.ok(ray,'use an actual emitted triangle outside the old radius and its drag padding');run(`previewRay=${JSON.stringify(plain(ray))}`);
- assert.equal(run('C.rayAABB(previewRay.o,previewRay.d,C.fitAABB(selItem()))'),null);
+ const ray=run(`(()=>{const f=selItem(),meshes=[Gfx.meshFits({fits:[f]}),Gfx.meshReferenceFits({fits:[f]})],T=meshes.flatMap(g=>Array.from(g.idx.slice(0,g.ni)).flatMap(k=>Array.from(g.pos.slice(k*3,k*3+3)))),b=C.fitAABB(f),authored=C.authoredTurretGeometry(f),fw=authored.fw;let tip=null;for(let i=0;i<T.length;i+=9){const points=[0,3,6].map(j=>T.slice(i+j,i+j+3)),p=[0,1,2].map(a=>(points[0][a]+points[1][a]+points[2][a])/3),score=C.dot(p,fw);if(C.len(C.cross(C.sub(points[1],points[0]),C.sub(points[2],points[0])))>1e-8&&(!tip||score>tip.score))tip={p,score};}if(!tip)return null;return {o:C.add(tip.p,C.mul(fw,25)),d:C.mul(fw,-1),tip:tip.p,score:tip.score,muzzle:Math.max(...authored.muzzles.map(p=>C.dot(p,fw))),bounds:b,inside:T.every((v,i)=>v>=b[i%3]-.002&&v<=b[i%3+3]+.002)};})()`);
+ assert.ok(ray,'use the foremost nondegenerate triangle of the actual emitted weapon');assert.equal(ray.inside,true,'native bounds include every authored vertex');assert.ok(Math.abs(ray.score-ray.muzzle)<.002,'the selected visible lip lies on the actual muzzle plane');run(`previewRay=${JSON.stringify(plain(ray))}`);
+ assert.ok(run('C.rayAABB(previewRay.o,previewRay.d,C.fitAABB(selItem()))'),'the real muzzle is inside the corrected native bounds');
  assert.equal(run('fitHit(previewRay.o,previewRay.d).fit.id'),run('selItem().id'));assert.equal(run('dragItemStart(0,0)'),true);assert.ok(run('dragSelStart(0,0,previewRay)'));
 });
 

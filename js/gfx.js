@@ -550,27 +550,61 @@ function surfaceRenderFits(ship){const derived=C.surfaceDerivedFits?.(ship);if(!
 // behind the shallow lip; the shared Core geometry owns the actual muzzle.
 function surfaceBatteryMesh(g,f,ship){
  const p=C.surfaceBatteryGeometry?.(f);if(!p||f.float||f.surfaceUnplaced)return;
+ if(p.vls){
+  // A VLS belongs to the equipment face: six shallow deck hatches, with no
+  // freestanding launcher body above the ship's silhouette.
+  const rt=C.cross(p.u,p.normal),M=[...p.u,...p.normal,...rt],w=p.width,h=p.height,lip=p.lip,paint=surfaceHostPaint(ship,{host:f.surfacePatch.split(':')[0]});
+  box(g,M,p.point,0,lip*.18,0,w,lip*.36,h,surfacePaintTone(paint,.86));
+  for(const x of [-w/3,0,w/3])for(const z of [-h/4,h/4]){
+   box(g,M,p.point,x,lip*.48,z,w*.29,lip*.20,h*.42,FC.ring);
+   box(g,M,p.point,x,lip*.61,z,w*.25,lip*.10,h*.35,FC.dark);
+   box(g,M,p.point,x,lip*.68,z,w*.014,lip*.025,h*.34,FC.ring);
+  }
+  return;
+ }
  const {point,normal:n,u,v,width:w,height:h}=p,lip=Math.max(.025,C.dot(C.sub(p.mouth,point),n)),rim=Math.min(w*.08,h*.11,.18),back=Math.min(.018,lip*.30),paint=surfaceHostPaint(ship,{host:f.surfacePatch.split(':')[0]}),at=(x,y,z)=>C.add(point,C.add(C.add(C.mul(u,x),C.mul(v,y)),C.mul(n,z))),outer=[[-w/2,-h/2],[w/2,-h/2],[w/2,h/2],[-w/2,h/2]],inner=[[-w/2+rim,-h/2+rim],[w/2-rim,-h/2+rim],[w/2-rim,h/2-rim],[-w/2+rim,h/2-rim]];
  quad(g,inner.map(([x,y])=>at(x,y,back)),n,UV_WHITE,[15,20,26],255);
  for(let i=0;i<4;i++){const j=(i+1)%4,a=at(...outer[i],lip),b=at(...outer[j],lip),c=at(...inner[j],back),d=at(...inner[i],back),sn=C.norm(C.cross(C.sub(b,a),C.sub(d,a)));quad(g,[a,b,c,d],sn,UV_WHITE,surfacePaintTone(paint,.86),255);}
  const rows=p.barrels>4?2:1,per=Math.ceil(Math.min(16,p.barrels||1)/rows),iw=w-rim*2,ih=h-rim*2,r=Math.max(.025,Math.min(.13,iw/(per*3.1),ih/(rows*3.2)));
  for(let i=0;i<Math.min(16,p.barrels||1);i++){const x=(i%per-(per-1)/2)*iw/per*.86,y=(Math.floor(i/per)-(rows-1)/2)*ih/(rows+1);axisFrustum(g,at(x,y,back+.002),at(x,y,back+.008),r*1.30,r*1.30,[69,78,86],true,false,8);axisFrustum(g,at(x,y,back+.009),at(x,y,back+.011),r,r,[8,12,17],true,false,8);}
 }
-// v22 A craft's launch tubes and pylons fly in the trial with their default stores (the お任せ loadout): each
-// press of the missile button fires one round from every station still loaded, along the bow.
+// Compact concussion launchers are shared by ships and aircraft. Craft keep
+// their selected stores; individual pods and surface VLS use the same Core
+// descriptor, including their actual muzzle and launch direction.
 function craftLaunchers(model){
- if(!C.craftLoadout||!C.isCraft(model))return [];const L=C.craftLoadout(model);if(!L?.stations?.length)return [];const ld=C.normalizeLoad(L.stations,L.load,L.load),out=[];
- for(const f of surfaceRenderFits(model)){const d=C.FITS[f.k];if(!d?.store||f.float)continue;const i=L.stations.findIndex(st=>st.fit===f.k),q=ld[i],o=C.ORDNANCE[q?.k];if(!o?.guided||!(q.n>0))continue;
+ const craft=!!C.isCraft(model),L=craft&&C.craftLoadout?C.craftLoadout(model):null,ld=L?.stations?.length?C.normalizeLoad(L.stations,L.load,L.load):[],out=[];
+ for(const f of surfaceRenderFits(model)){const d=C.FITS[f.k];if(!d||f.float)continue;
+  if(C.isConcussionLauncher(f)){
+   let launcher=C.missileLauncherSpec(f);if(!launcher)continue;
+   const i=craft?(L?.stations||[]).findIndex(st=>C.isConcussionLauncher(st.fit)):-1;
+   if(i>=0){const q=ld[i],o=C.ORDNANCE[q?.k];if(!o?.guided||!(q.n>0))continue;launcher={...launcher,tt:o.tt,ion:!!o.ion,kind:q.k,ammo:q.n,ammo0:q.n};}
+   out.push(launcher);continue;
+  }
+  if(!craft||!d.store)continue;const i=(L?.stations||[]).findIndex(st=>st.fit===f.k),q=ld[i],o=C.ORDNANCE[q?.k];if(!o?.guided||!(q.n>0))continue;
   const fr=C.fitFrameOf(f);out.push({id:f.id,origin:C.add(C.fitOrigin(f),C.mul(fr.up,d.hm*.5)),axis:fr.fw,salvo:1,cycle:1.2,tt:o.tt,ion:!!o.ion,kind:q.k,ammo:q.n,ammo0:q.n});}
  return out;
+}
+function concussionLauncherMesh(g,f){
+ const p=C.launcherGeometry(f),[L,h,W]=p.bodySize,M=[...p.bodyFrame.fw,...p.bodyFrame.up,...p.bodyFrame.rt];
+ // The body remains the aircraft's compact twin-mouth launch tube. Only the
+ // hinge frame changes; supports stay in the fixed mounting frame.
+ box(g,M,p.bodyCenter,0,0,0,L,h,W,FC.body);
+ for(const z of [-W*.22,W*.22])cyl(g,M,p.bodyCenter,L*.49,0,z,W*.18,W*.18,L*.04,0,FC.dark,10);
+ if(Math.abs(p.pitchDeg)>1e-9){
+  const B=[...p.baseFrame.fw,...p.baseFrame.up,...p.baseFrame.rt],t=p.baseThickness,pivotY=C.dot(C.sub(p.pivot,p.baseOrigin),p.baseFrame.up),height=Math.max(0,pivotY-t);
+  box(g,B,p.baseOrigin,0,t/2,0,L*.5,t,W*1.35,FC.ped);
+  for(const z of [-W*.6,W*.6])box(g,B,p.baseOrigin,0,t+height/2,z,L*.16,height,W*.15,FC.ring);
+  const axle=C.mul(p.baseFrame.rt,W*.675);axisFrustum(g,C.sub(p.pivot,axle),C.add(p.pivot,axle),W*.12,W*.12,FC.dark,true,false,12);
+ }
 }
 // v21 Starfighter and small-craft weapons, in the fitting's frame (x to the bow, y up from the mount).
 function craftWeaponMesh(g,f){
  const d=C.fitSpec(f),M=frameM(f),o=C.fitOrigin(f),L=d.fm,W=d.wm,h=d.hm,k=f.k,B=FC.barrel,D=FC.dark,R=FC.ring,Bd=FC.body;
+ if(C.isConcussionLauncher(f)){concussionLauncherMesh(g,f);return;}
  if(k==='claser'||k==='claserH'){box(g,M,o,-L*.22,h*.5,0,L*.36,h*.9,W,Bd);cyl(g,M,o,L*.2,h*.5,0,W*.3,W*.24,L*.62,0,B,8);for(const q of [.02,.24])cyl(g,M,o,L*q,h*.5,0,W*.42,W*.42,L*.05,0,R,8);cyl(g,M,o,L*.5,h*.5,0,W*.34,W*.34,L*.06,0,D,8);return;}
  if(k==='cion'){box(g,M,o,-L*.18,h*.5,0,L*.5,h,W,Bd);cyl(g,M,o,L*.22,h*.5,0,W*.36,W*.3,L*.5,0,B,10);for(const q of [.08,.2,.32])cyl(g,M,o,L*q,h*.5,0,W*.47,W*.47,L*.04,0,R,10);return;}
  if(k==='cturret'){cyl(g,M,o,0,h*.15,0,W*.5,W*.46,h*.3,1,D,10);domeL(g,M,o,0,h*.3,0,W*.42,h*.5,Bd,12,3);for(const zz of [-W*.14,W*.14])cyl(g,M,o,L*.38,h*.55,zz,W*.06,W*.05,L*.6,0,B,6);return;}
- if(k==='ctorp'||k==='cmsl'){box(g,M,o,0,h*.5,0,L,h,W,Bd);for(const zz of (k==='ctorp'?[0]:[-W*.22,W*.22]))cyl(g,M,o,L*.49,h*.5,zz,W*(k==='ctorp'?.32:.18),W*(k==='ctorp'?.32:.18),L*.04,0,D,10);return;}
+ if(k==='ctorp'){box(g,M,o,0,h*.5,0,L,h,W,Bd);cyl(g,M,o,L*.49,h*.5,0,W*.32,W*.32,L*.04,0,D,10);return;}
  if(k==='cbomb'){box(g,M,o,0,h*.5,0,L,h,W,D);box(g,M,o,0,h*.02,0,L*.92,h*.06,W*.9,R);box(g,M,o,0,h*.03,0,L*.02,h*.07,W*.92,D);return;}
  // v22 A wing pylon: the streamlined pylon and its ejector rack, with the stores it carries by default (two thin
  // missiles side by side, or one torpedo or bomb) hanging under it at their true size (C.ORDNANCE).
@@ -593,6 +627,7 @@ function meshFits(ship, filter, ranges, only) {
     }
     // Command pods are the bridge drum mesh, drawn with the model fittings.
     if(C.FITS[f.k].window)return;
+    if(C.isConcussionLauncher(f)){if(!FIT_SKIP_BODY?.has(f.id))concussionLauncherMesh(g,f);return;}
     // v21 Craft weapons sit flush on their mount (no pedestal): barrels and launchers along the bow.
     if(C.FITS[f.k].craft){if(!FIT_SKIP_BODY?.has(f.id))craftWeaponMesh(g,f);return;}
     const d = C.fitSpec(f), M = frameM(f), o = C.fitOrigin(f), L = d.fm, W = d.wm, h = d.hm, k = f.k;
@@ -631,7 +666,7 @@ function meshFits(ship, filter, ranges, only) {
     // Weapons after the turret kit: hexagonal bases, wedge housings with a
     // mantlet and sleeved barrels, ion domes with coiled barrels, angled
     // missile boxes, dish projectors and ball-mounted point defence.
-    if (k === 'msl' || k === 'itl') {
+    if (k === 'itl') {
       // v18 VLS: a flush armoured deck plate over the cells, two rows of hatches.
       if (C.missileMount(f) === 'vls') {
         box(g, M, o, 0, h * 0.2, 0, L * 0.94, h * 0.4, W * 0.94, FC.body);
@@ -711,16 +746,18 @@ function meshFits(ship, filter, ranges, only) {
 // bounds. Empty space in a ring or between barrels is not selectable. A small
 // LRU invalidates immediately after a pose or load edit.
 const FIT_RAY_CACHE=new Map(),FIT_RAY_BOUNDS=new WeakMap();
+// Core's box ray query reports entry surfaces; inside origins still need the exact mesh test.
+const fitRayStartsInside=(o,b)=>o.every((v,a)=>v>=b[a]&&v<=b[a+3]);
 function rayFit(o,d,f){
  if(!f||!C.FITS[f.k])return null;
- const key=JSON.stringify([f,C.fitSpec(f),f._store],(k,v)=>k.startsWith('_')?undefined:v),known=FIT_RAY_BOUNDS.get(f);if(known?.key===key&&!C.rayAABB(o,d,known.bounds))return null;let item=FIT_RAY_CACHE.get(f);
+ const key=JSON.stringify([f,C.fitSpec(f),f._store],(k,v)=>k.startsWith('_')?undefined:v),known=FIT_RAY_BOUNDS.get(f);if(known?.key===key&&!fitRayStartsInside(o,known.bounds)&&!C.rayAABB(o,d,known.bounds))return null;let item=FIT_RAY_CACHE.get(f);
  if(!item||item.key!==key){const model={fits:[f],parts:[],paint:'imperial'},skipBody=FIT_SKIP_BODY,skipPed=FIT_SKIP_PED;let meshes;
   try{FIT_SKIP_BODY=FIT_SKIP_PED=null;meshes=[meshFits(model,null,null,[f]),meshReferenceFits(model,null,[f])];}finally{FIT_SKIP_BODY=skipBody;FIT_SKIP_PED=skipPed;}
   const T=new Float32Array(meshes.reduce((n,g)=>n+g.ni*3,0)),bounds=[Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity];let cursor=0;
   for(const g of meshes)for(let i=0;i<g.ni;i++){const k=g.idx[i]*3;for(let a=0;a<3;a++){const v=g.pos[k+a];T[cursor++]=v;bounds[a]=Math.min(bounds[a],v);bounds[a+3]=Math.max(bounds[a+3],v);}}
   item={key,T,bounds};FIT_RAY_BOUNDS.set(f,{key,bounds});FIT_RAY_CACHE.delete(f);FIT_RAY_CACHE.set(f,item);while(FIT_RAY_CACHE.size>48)FIT_RAY_CACHE.delete(FIT_RAY_CACHE.keys().next().value);
  }else{FIT_RAY_CACHE.delete(f);FIT_RAY_CACHE.set(f,item);}
- if(!item.T.length||!C.rayAABB(o,d,item.bounds))return null;return C.rayTris(item.T,o,d);
+ if(!item.T.length||!fitRayStartsInside(o,item.bounds)&&!C.rayAABB(o,d,item.bounds))return null;return C.rayTris(item.T,o,d);
 }
 
 // ---------- WebGL ----------
@@ -1537,7 +1574,7 @@ class Renderer {
     const sht = this.shTile, SH = this.sh; if (sht && SH && sht.M && !this.unitScl) { gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, SH.t); gl.uniform1i(p.u.uShadow, 2); gl.uniformMatrix4fv(p.u.uShM, false, sht.M); gl.uniform4fv(p.u.uShTile, sht.uv); gl.uniform4f(p.u.uShK, 1, 1 / SH.size, sht.bias, sht.noff); } else gl.uniform4f(p.u.uShK, 0, 0, 0, 0);
     gl.uniform3fv(p.u.uEye, m.eye); gl.uniform1f(p.u.uAlpha, alpha);
     gl.uniform1f(p.u.uPaint,this.paint==='dark'?2:this.paint==='republic'?1:0);gl.uniform1f(p.u.uRefHull,name==='refHull'&&!this.sourceRed?1:0);gl.uniform1f(p.u.uHullLength,this.hullLength||1600);
-    gl.uniform1f(p.u.uReference, REFERENCE_SHADED.has(source)||source.startsWith('refTur_')?1:source==='refEngine'?2:0);
+    gl.uniform1f(p.u.uReference, REFERENCE_SHADED.has(source)||source.startsWith('refTur_')||source.startsWith('refTurBody_')?1:source==='refEngine'?2:0);
     gl.uniform1f(p.u.uSkinScale,source==='surfaceArmor'?30:source==='struct'||source==='hull'||source==='preview'?48:source==='plate'?64:0);
     // v18 Drive nozzles burn in the design's engine colour, brighter with thrust.
     const drive=source==='nozzle'||source==='refEngine',tint=drive?this.engineTint:null;gl.uniform4fv(p.u.uEmiTint,tint?[tint[0]/255,tint[1]/255,tint[2]/255,1]:[1,1,1,0]);
@@ -1835,6 +1872,12 @@ function meshOnePart(out,p,ship,opt,glow){
       if(!equipmentSkinPatches(ship,'p'+p.id).length)triangleMesh(out.struct,C.aeroPanelRibs(p),[154,161,169],48,254);return;
     }
     if(k==='wing'){hullTriangleMesh(out.struct,equipmentSkinTriangles(ship,'p'+p.id,C.structTriangles(p)),opt.coded?d.col:p.paint?hex(p.paint):STRUCT_PAINT,36);return;}
+    if(k==='struct'&&p.form==='reference'&&C.REFERENCE_ASSETS[p.skinAsset]?.plainMetal){
+      const tone=opt.coded?d.col:p.paint?hex(p.paint):STRUCT_PAINT;
+      if(!opt.preview&&ship.solidCuts?.some(c=>ship.hull.assembly||c.structures))hullTriangleMesh(out.struct,equipmentSkinTriangles(ship,'p'+p.id,C.structTriangles(p)),tone);
+      else appendReference(out.struct,p.skinAsset,v=>C.referencePartPoint(p,v),null,tone,opt.preview?[]:ship.hatches.filter(h=>h.portal&&!h.referenceMouth).map(h=>C.openingBounds(ship,h)).filter(Boolean),opt.preview?[]:equipmentSkinPatches(ship,'p'+p.id));
+      return;
+    }
     if(k==='struct'&&(p.form==='reference'&&C.REFERENCE_ASSETS[p.skinAsset]||(p.form==='ellipsoid'&&ship.hullSkin?.enabled)))return;
     if(k==='sensor'&&p.skinAsset)return;
     if(k==='struct'&&p.plate){hullTriangleMesh(out.plate,equipmentSkinTriangles(ship,'p'+p.id,C.structTriangles(p)),opt.coded?PLATE_CODED:p.paint?hex(p.paint):ship.paint==='dark'?PLATE_DARK:ship.paint==='cis'?PLATE_CIS:PLATE_PAINT,64);if(p.bands)structureBands(p,out.plate,equipmentSkinTriangles(ship,'p'+p.id,C.structTriangles(p)));if(p.stripes&&p.form==='shell')shellStripes(p,out.plate);return;}
@@ -2552,7 +2595,11 @@ function plainFitAsset(f){return C.REFERENCE_ASSETS[f.skinAsset||C.FITS[f.k]?.as
 const PLAIN_FIT_CACHE=new WeakMap();
 function appendPlainFit(g,f){
  const key=JSON.stringify([f,C.fitSpec(f)],(k,v)=>k.startsWith('_')?undefined:v);let item=PLAIN_FIT_CACHE.get(f);
- if(!item||item.key!==key){const id=f.skinAsset||C.FITS[f.k].asset,mesh=new Geo(C.REFERENCE_ASSETS[id].n);appendReference(mesh,id,v=>C.referenceFitPoint(f,v),null,FC.body);item={key,mesh};PLAIN_FIT_CACHE.set(f,item);}
+ if(!item||item.key!==key){const id=f.skinAsset||C.FITS[f.k].asset,mesh=new Geo(C.REFERENCE_ASSETS[id].n);appendReference(mesh,id,v=>C.referenceFitPoint(f,v),null,FC.body);
+  // These models have no fitting atlas. Keep their UVs within its metal panel,
+  // so triangle interiors cannot sample the separate dark window band.
+  for(let i=0;i<mesh.n;i++){mesh.uv[i*2]=UV_WHITE[0]+C.clamp(mesh.uv[i*2],0,1)*(UV_WHITE[2]-UV_WHITE[0]);mesh.uv[i*2+1]=UV_WHITE[1]+C.clamp(mesh.uv[i*2+1],0,1)*(UV_WHITE[3]-UV_WHITE[1]);}
+  item={key,mesh};PLAIN_FIT_CACHE.set(f,item);}
  appendGeo(g,item.mesh);
 }
 function appendReference(g,id,point,filter,color=WHITE,cuts=[],skinPatches=[]){
@@ -2592,7 +2639,7 @@ function meshReferenceParts(ship,ranges,only,opt={}){
   const size=p.skinSize||a.size,scale=p.d/Math.max(...size),r=(p.yaw||0)*Math.PI/180;
   appendReference(refStruct,p.skinAsset,v=>{const x=v[0]*size[0]*scale,z=v[2]*size[2]*scale;return C.add(p.c,[x*Math.cos(r)-z*Math.sin(r),v[1]*size[1]*scale,x*Math.sin(r)+z*Math.cos(r)]);});
  };
- for(const p of only||ship.parts){const a=C.REFERENCE_ASSETS[(p.k==='engine'?C.engineAppearance(p):p)?.skinAsset];if(!a)continue;const before=geoMarks(out);one(p,a);if(ranges)markRanges(ranges,p.id,before,out);}
+ for(const p of only||ship.parts){const a=C.REFERENCE_ASSETS[(p.k==='engine'?C.engineAppearance(p):p)?.skinAsset];if(!a||p.k==='struct'&&a.plainMetal)continue;const before=geoMarks(out);one(p,a);if(ranges)markRanges(ranges,p.id,before,out);}
  return {refStruct,refEngine,refPlant};
 }
 function meshReferenceFits(ship,ranges,only){
@@ -2642,7 +2689,7 @@ function foilTransform(foil,d){
 }
 function fleetTurretList(asset,unit){
  if(unit.turrets)return unit.turrets;if(!asset.surfaceTurrets)return [];
- return (asset.turrets||[]).filter(t=>t.mesh).map(t=>{const foil=asset.foils?.find(f=>f.id===t.foilId),X=foil?foilTransform(foil,unit.foils?.[foil.id]):null;return {mesh:t.mesh,pivot:X?X.point(t.pivot):t.pivot,rot:X?X.rot:MAT3_I};});
+ return (asset.turrets||[]).filter(t=>t.mesh).flatMap(t=>{const foil=asset.foils?.find(f=>f.id===t.foilId),X=foil?foilTransform(foil,unit.foils?.[foil.id]):null,part=(mesh,pivot)=>({mesh,pivot:X?X.point(pivot):pivot,restPivot:pivot,rot:X?X.rot:MAT3_I});return t.bodyMesh?[part(t.bodyMesh,t.bodyPivot),part(t.mesh,t.pivot)]:[part(t.mesh,t.pivot)];});
 }
 function mat3Point(R,v){return [R[0]*v[0]+R[3]*v[1]+R[6]*v[2],R[1]*v[0]+R[4]*v[1]+R[7]*v[2],R[2]*v[0]+R[5]*v[1]+R[8]*v[2]];}
 function fleetFoilPose(asset,unit,foil,center=asset.center){
@@ -2677,7 +2724,7 @@ function fleetGeometry(ship,opts){
  for(const row of surfaceVisualPlan(model)){const owner=/^p\d+$/.test(row.host)?owners.get(+row.host.slice(1)):null;if(owner==null)continue;for(const item of row.devices){if(owners.has(item.id))continue;owners.set(item.id,owner);foils[owner].partIds.push(item.id);}}
  put('hull',meshHull(model));const parts=meshParts(model,{coded:false});for(const name of ['struct','plate','surfaceArmor','surfaceDevices','surfaceDetail','refStruct','gen','shield','hyper','engine','refEngine','nozzle','hangar'])if(parts.g[name]&&(!name.startsWith('surface')||parts.g[name].ni))put(name,parts.g[name]);
  const h=meshHatches(model);put('hatchOpen',h.open);put('hatchRay',h.ray);put('refHatches',meshReferenceHatches(model));put('refHull',meshReferenceHull(model));
- const surfaceTurrets=!!model.surfaces,ranges=parts.ranges,turrets=opts?.trial||surfaceTurrets?trialTurrets(model,put,ranges):null,launchers=opts?.trial?[...surfaceRenderFits(model).filter(f=>C.FITS[f.k].msl&&!f.float).map(f=>{const d=C.fitSpec(f),up=C.fitUp(f),port=C.surfaceBatteryGeometry?.(f);return {id:f.id,origin:port?port.mouth:C.add(C.fitOrigin(f),C.mul(up,d.hm)),axis:port?port.normal:up,salvo:8,cycle:20,tt:(d.msl||80)/8,ion:!!C.FITS[f.k].ionMsl};}),...craftLaunchers(model)]:null,targetRadius=C.clamp(ship.hull.L*.05,40,500);if(!turrets){put('fits',meshFits(model,null,ranges));put('refFits',meshReferenceFits(model,ranges));}else{put('trialTarget',trialTargetMesh(targetRadius),'fits',.6);for(const t of turrets){const owner=owners.get(t.id);if(owner!=null)t.foilId=foils[owner].id;}}
+ const surfaceTurrets=!!model.surfaces,ranges=parts.ranges,turrets=opts?.trial||surfaceTurrets?trialTurrets(model,put,ranges):null,launchers=opts?.trial?[...surfaceRenderFits(model).filter(f=>C.FITS[f.k].msl&&!C.isConcussionLauncher(f)&&!f.float).map(f=>{const d=C.fitSpec(f),up=C.fitUp(f),port=C.surfaceBatteryGeometry?.(f);return {id:f.id,origin:port?port.mouth:C.add(C.fitOrigin(f),C.mul(up,d.hm)),axis:port?port.normal:up,salvo:8,cycle:20,tt:(d.msl||80)/8,ion:!!C.FITS[f.k].ionMsl};}),...craftLaunchers(model)]:null,targetRadius=C.clamp(ship.hull.L*.05,40,500);if(!turrets){put('fits',meshFits(model,null,ranges));put('refFits',meshReferenceFits(model,ranges));}else{put('trialTarget',trialTargetMesh(targetRadius),'fits',.6);for(const t of turrets){const owner=owners.get(t.id);if(owner!=null)t.foilId=foils[owner].id;}}
  for(const hatch of model.hatches){const spec=C.slidingHatchSpec(model,hatch);if(!spec)continue;
   if(hatch.k==='ray'){const name='slideRay_'+hatch.id;put(name,meshHatches({...model,hatches:[{...hatch,_rayOnly:true,_rayInset:5}]}).ray,'ray',1);rays.push({name});}
   if(hatch.skinAsset){for(const side of [-1,1]){const name='refSlideDoor_'+hatch.id+'_'+(side<0?'l':'r');put(name,meshReferenceHatches({...model,_referenceDoorOnly:true,hatches:[{...hatch,open:0,_doorDetached:false,_slideSide:side}]}),'reference',0);doors.push({name,axis:spec.slideAxis,side,travel:spec.travel});}}
@@ -2754,8 +2801,10 @@ function trialTurrets(model,put,ranges){
  for(const f of list)if(!poses.has(f.id))poses.set(f.id,mirroredTurretPose(f,list,poses)||(()=>{const fr=C.fitFrameOf(f);return {pivot:C.fitOrigin(f),axis:fr.up,fw:fr.fw};})());
  for(const f of list){
   const d=C.fitSpec(f),spec=C.FITS[f.k],pose=poses.get(f.id),axis=C.norm(pose.axis),fw=C.norm(C.sub(pose.fw,C.mul(axis,C.dot(pose.fw,axis)))),rot=turning.has(f.id);
-  let mesh=null;if(rot){if(spec.asset&&!plainFitAsset(f)){mesh='refTur_'+f.id;put(mesh,meshReferenceFits(model,null,[f]),'reference',null);}else{mesh='tur_'+f.id;FIT_SKIP_PED=all;try{put(mesh,meshFits(model,x=>x===f),'fits',.6);}finally{FIT_SKIP_PED=null;}}}
-  const embedded=C.surfaceBatteryGeometry?.(f);out.push({id:f.id,k:f.k,name:spec.short||spec.name,mesh,pivot:pose.pivot,axis,fw,origin:C.turretOrigin(f),mount:C.fitUp(f),r:d.r,hm:embedded?embedded.height:d.hm,embedded:!!embedded,fixed:!!spec.fixed,portWidth:embedded?.width,portHeight:embedded?.height,port:embedded?{width:embedded.width,height:embedded.height,depth:embedded.depth}:undefined,casemate:embedded?false:!!(spec.casemate||spec.fixed),barrels:spec.barrels||(spec.fixed?1:TRIAL_BARRELS[f.k]||2),cycle:spec.cycle||2.5,tt:d.tt||0,ion:!!d.ion&&!d.tt,rate:C.turretRate(f),power:d.power||0,cap:C.needsCapacitor(f)});
+  let mesh=null,bodyMesh=null,authored=null;const g=C.authoredTurretGeometry?.(f);if(rot){if(spec.asset&&(!plainFitAsset(f)||g)){const plain=plainFitAsset(f),geo=plain?new Geo(16):meshReferenceFits(model,null,[f]),tex=plain?'fits':'reference',emi=plain?.6:null;if(plain)appendPlainFit(geo,f);mesh=(plain?'tur_':'refTur_')+f.id;const split=g?.indexStart;
+   if(Number.isInteger(split)&&split>=0&&split<geo.ni&&split%3===0){authored=g;bodyMesh=(plain?'turBody_':'refTurBody_')+f.id;put(bodyMesh,geoIndices(geo,geo.idx.subarray(0,split)),tex,emi);put(mesh,geoIndices(geo,geo.idx.subarray(split,geo.ni)),tex,emi);}else put(mesh,geo,tex,emi);
+  }else{mesh='tur_'+f.id;FIT_SKIP_PED=all;try{put(mesh,meshFits(model,x=>x===f),'fits',.6);}finally{FIT_SKIP_PED=null;}}}
+  const embedded=C.surfaceBatteryGeometry?.(f);out.push({id:f.id,k:f.k,name:spec.short||spec.name,mesh,...(authored?{authored,bodyMesh,bodyPivot:authored.yawPivot}:{}),pivot:authored?.elevationPivot||pose.pivot,axis:authored?.axis||axis,fw:authored?.fw||fw,origin:authored?.elevationPivot||C.turretOrigin(f),mount:C.fitUp(f),r:d.r,hm:embedded?embedded.height:d.hm,embedded:!!embedded,fixed:!!spec.fixed,portWidth:embedded?.width,portHeight:embedded?.height,port:embedded?{width:embedded.width,height:embedded.height,depth:embedded.depth}:undefined,casemate:embedded?false:!!(spec.casemate||spec.fixed),barrels:spec.barrels||(spec.fixed?1:TRIAL_BARRELS[f.k]||2),cycle:spec.cycle||2.5,tt:d.tt||0,ion:!!d.ion&&!d.tt,rate:C.turretRate(f),power:d.power||0,cap:C.needsCapacitor(f)});
  }
  return out;
 }
@@ -2836,7 +2885,7 @@ Renderer.prototype.drawFleet=function(m,opt){
   if(lod||u.wreck){if(u.wreck&&!lod){gl.disable(gl.CULL_FACE);this.drawMesh('fits',m,1);this.drawMesh('refFits',m,1);}this.unitScl=null;this.unitFlash=0;this.clip=this.clipLo=this.seam=null;this.char=0;gl.enable(gl.CULL_FACE);continue;}
   const open=opt.mode==='review'?0:C.clamp(u.hatchOpen??0,0,1);for(const door of a.doors||[]){const delta=[0,0,0];delta[door.axis]=door.side*door.travel*open;const q=rv(delta);this.off=[u.pos[0]+q[0],u.pos[1]+q[1],u.pos[2]+q[2]];this.drawMesh(door.name,m,1,0);}this.off=u.pos;
   gl.enable(gl.POLYGON_OFFSET_FILL);gl.polygonOffset(-1,-2);this.drawMesh('hatchOpen',m,1);gl.disable(gl.POLYGON_OFFSET_FILL);shields.push({u,a,names:['hatchRay',...(open>0?(a.rays||[]).map(r=>r.name):[])]});gl.disable(gl.CULL_FACE);this.drawMesh('fits',m,1);this.drawMesh('refFits',m,1);
-  if(!lod&&sx<1.02){for(const t of fleetTurretList(a,u)){const q=rv([t.pivot[0]-a.center[0],t.pivot[1]-a.center[1],t.pivot[2]-a.center[2]]);this.off=[u.pos[0]+q[0],u.pos[1]+q[1],u.pos[2]+q[2]];this.modelCenter=(a.turrets||[]).find(rest=>rest.mesh===t.mesh)?.pivot||t.pivot;this.modelRot=mat3Mul(R,t.rot);this.drawMesh(t.mesh,m,1);}this.off=u.pos;this.modelCenter=center;this.modelRot=u.rot||null;}
+  if(!lod&&sx<1.02){for(const t of fleetTurretList(a,u)){const q=rv([t.pivot[0]-a.center[0],t.pivot[1]-a.center[1],t.pivot[2]-a.center[2]]);this.off=[u.pos[0]+q[0],u.pos[1]+q[1],u.pos[2]+q[2]];this.modelCenter=t.restPivot||(a.turrets||[]).find(rest=>rest.mesh===t.mesh)?.pivot||t.pivot;this.modelRot=mat3Mul(R,t.rot);this.drawMesh(t.mesh,m,1);}this.off=u.pos;this.modelCenter=center;this.modelRot=u.rot||null;}
   this.unitScl=null;this.unitFlash=0;this.clip=this.clipLo=this.seam=null;this.char=0;
   this.shTile=null;for(const t of u.targets||[]){this.off=t.pos;this.modelCenter=[0,0,0];this.modelRot=t.rot||MAT3_I;this.drawMesh('trialTarget',m,1);}
   gl.enable(gl.CULL_FACE);
@@ -2925,7 +2974,7 @@ class CompatRenderer {
    for(const name of names)this.rasterMesh(a.meshes[name]?.geo,name,name==='hatchRay'?.5:1,null,base);
    if(!lod)for(const e of a.extra||[])this.rasterMesh(e.geo,e.name.startsWith('ref')?'refFits':'hull',1,null,base);
    for(const foil of a.foils||[]){const pose=fleetFoilPose(a,unit,foil,center);for(const name of foil.meshes){const source=foil.kinds?.[name]||name;if(names.includes(source))this.rasterMesh(a.meshes[name]?.geo,source,1,null,pose);}}
-   if(!lod)for(const t of fleetTurretList(a,unit)){const v=C.sub(t.pivot,a.center),rest=(a.turrets||[]).find(q=>q.mesh===t.mesh)?.pivot||t.pivot;
+   if(!lod)for(const t of fleetTurretList(a,unit)){const v=C.sub(t.pivot,a.center),rest=t.restPivot||(a.turrets||[]).find(q=>q.mesh===t.mesh)?.pivot||t.pivot;
     this.rasterMesh(a.meshes[t.mesh]?.geo,t.mesh.startsWith('ref')?'refFits':'fits',1,null,{off:C.add(unit.pos,mat3Point(R,v)),center:rest,rot:mat3Mul(R,t.rot)});
    }
    for(const t of unit.targets||[])this.rasterMesh(a.meshes.trialTarget?.geo,'fits',1,null,{off:t.pos,center:[0,0,0],rot:t.rot||MAT3_I});

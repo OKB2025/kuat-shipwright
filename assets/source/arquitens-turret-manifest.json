@@ -1,0 +1,260 @@
+{
+  "title": "500GT 4連装中型ターボレーザー砲塔",
+  "kind": "fit",
+  "plainMetal": true,
+  "source": "Turret-Small-1.fbx (user supplied), photo-guided raised quad mount",
+  "derivedFrom": "pd_turret_small",
+  "n": 24273,
+  "faces": 30868,
+  "indexBytes": 2,
+  "c": [
+    3.2393335398782006,
+    2.90325,
+    -9.110530283518159e-06
+  ],
+  "size": [
+    17.8304,
+    5.8065,
+    14.104100000000003
+  ],
+  "mount": [
+    0,
+    0,
+    0
+  ],
+  "forward": [
+    1,
+    0,
+    0
+  ],
+  "up": [
+    0,
+    1,
+    0
+  ],
+  "barrels": 4,
+  "layout": "two raised parallel vertical barrels on each side",
+  "bounds": [
+    [
+      -5.6758664601218,
+      0.0,
+      -7.052059110530284
+    ],
+    [
+      12.154533539878202,
+      5.8065,
+      7.052040889469717
+    ]
+  ],
+  "sourcePackedSha256": "96c0ea7ef0d1aa6bbbccb160d5b4f6dd4cd1c8caf548ef9796b0ffd443540ca2",
+  "sourceHousingVertices": 21401,
+  "sourceHousingFaces": 25356,
+  "housingVertices": 21545,
+  "housingFaces": 25428,
+  "barrelVertices": 682,
+  "barrelFaces": 1360,
+  "barrelCenters": [
+    {
+      "side": "left",
+      "row": "lower",
+      "firstVertex": 21545,
+      "vertices": 682,
+      "firstIndex": 76284,
+      "indices": 4080,
+      "faces": 1360,
+      "centerM": [
+        5.501872317879787,
+        4.0,
+        -4.223469501636919
+      ],
+      "root": [
+        -1.150788904118627,
+        4.0,
+        -4.223469501636919
+      ],
+      "muzzle": [
+        12.154533539878202,
+        4.0,
+        -4.223469501636919
+      ],
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "outerRadiusM": 0.17,
+      "boreRadiusM": 0.115,
+      "muzzleRecessM": 0.45,
+      "exposedStartX": 2.45,
+      "breechRadiusM": 0.46
+    },
+    {
+      "side": "left",
+      "row": "upper",
+      "firstVertex": 22227,
+      "vertices": 682,
+      "firstIndex": 80364,
+      "indices": 4080,
+      "faces": 1360,
+      "centerM": [
+        5.501872317879787,
+        5.1,
+        -4.223469501636919
+      ],
+      "root": [
+        -1.150788904118627,
+        5.1,
+        -4.223469501636919
+      ],
+      "muzzle": [
+        12.154533539878202,
+        5.1,
+        -4.223469501636919
+      ],
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "outerRadiusM": 0.17,
+      "boreRadiusM": 0.115,
+      "muzzleRecessM": 0.45,
+      "exposedStartX": 2.45,
+      "breechRadiusM": 0.46
+    },
+    {
+      "side": "right",
+      "row": "lower",
+      "firstVertex": 22909,
+      "vertices": 682,
+      "firstIndex": 84444,
+      "indices": 4080,
+      "faces": 1360,
+      "centerM": [
+        5.501872317879787,
+        4.0,
+        4.223451280576352
+      ],
+      "root": [
+        -1.150788904118627,
+        4.0,
+        4.223451280576352
+      ],
+      "muzzle": [
+        12.154533539878202,
+        4.0,
+        4.223451280576352
+      ],
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "outerRadiusM": 0.17,
+      "boreRadiusM": 0.115,
+      "muzzleRecessM": 0.45,
+      "exposedStartX": 2.45,
+      "breechRadiusM": 0.46
+    },
+    {
+      "side": "right",
+      "row": "upper",
+      "firstVertex": 23591,
+      "vertices": 682,
+      "firstIndex": 88524,
+      "indices": 4080,
+      "faces": 1360,
+      "centerM": [
+        5.501872317879787,
+        5.1,
+        4.223451280576352
+      ],
+      "root": [
+        -1.150788904118627,
+        5.1,
+        4.223451280576352
+      ],
+      "muzzle": [
+        12.154533539878202,
+        5.1,
+        4.223451280576352
+      ],
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "outerRadiusM": 0.17,
+      "boreRadiusM": 0.115,
+      "muzzleRecessM": 0.45,
+      "exposedStartX": 2.45,
+      "breechRadiusM": 0.46
+    }
+  ],
+  "axisScale": [
+    1.9811555555555556,
+    1.8437210849746009,
+    2.4615115845212037
+  ],
+  "barrelRadialScale": 1.0,
+  "elevationPivot": [
+    0.686205931991976,
+    3.6411128570774585,
+    -9.11053028307407e-06
+  ],
+  "elevationAxis": [
+    0,
+    0,
+    1
+  ],
+  "barrelAxis": [
+    1,
+    0,
+    0
+  ],
+  "muzzlePoints": [
+    [
+      12.154533539878202,
+      4.0,
+      -4.223469501636919
+    ],
+    [
+      12.154533539878202,
+      5.1,
+      -4.223469501636919
+    ],
+    [
+      12.154533539878202,
+      4.0,
+      4.223451280576352
+    ],
+    [
+      12.154533539878202,
+      5.1,
+      4.223451280576352
+    ]
+  ],
+  "elevationVertexStart": 21401,
+  "elevationIndexStart": 76068,
+  "elevationRanges": [
+    {
+      "firstVertex": 21401,
+      "vertexCount": 2872
+    }
+  ],
+  "drivePivots": [
+    [
+      0.686205931991976,
+      3.6411128570774585,
+      -2.456905795356017
+    ],
+    [
+      0.686205931991976,
+      3.6411128570774585,
+      2.456887574295451
+    ]
+  ],
+  "maxQuantizationErrorM": 0.00016482353762490922,
+  "modifications": "Original PD housing and turntable faces retained. New physically connected raised pair cradles carry four long, constant-diameter barrels with stepped breeches and real recessed circular muzzles, based on the supplied photographs. The entire appended cradle/barrel group elevates about the original side-drive axis.",
+  "packedSha256": "75088ceac2938a1bcd86d09142ff4d0a4882bff09a2dd479a7db4dcfa9f323d1"
+}

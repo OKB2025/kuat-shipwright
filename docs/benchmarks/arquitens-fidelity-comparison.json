@@ -1,0 +1,714 @@
+{
+  "schemaVersion": 1,
+  "geometryInputMode": "current Core/Gfx blueprint geometry",
+  "status": "MEASURED",
+  "date": "2026-11-04T21:26:25.629Z",
+  "sourceSha256": {
+    "data/reference.js": "a6fbb40e306391f04b765985d97dafe512ba0d9ad21b479d70d47384ef7f6a8b",
+    "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
+    "data/fleet.js": "c0341142b0b1b07f3f55b6e56e3445c33990f88e9d522a093f0e9319b6b7e416",
+    "js/core.js": "85a8deceabf8fc184281c23d658061e748fbc4f895d16fb495b42674ca1ce513",
+    "js/gfx.js": "cb96f6b647868d8090f41ed95a2310650b09b884bbd76033c56938d487ccbe3e"
+  },
+  "stl": {
+    "path": "assets/source/arquitens.stl",
+    "sha256": "e0c6b655ffe0690dd5ddc835f17fa5caf57e671760307576b20c75792ee8f108",
+    "triangles": 214690,
+    "axisMapping": [
+      "source_y_max - source_y",
+      "source_z - source_z_min",
+      "source_x_center - source_x"
+    ],
+    "uniformScale": 1.9714110594575842,
+    "hullTriangles": 184340,
+    "hullTrianglesSha256": "1701616a5e995de170176251a524941b1a414868729286d5635cf34cb86e5711",
+    "hullExtraction": {
+      "source": "arquitens.stl",
+      "source_sha256": "e0c6b655ffe0690dd5ddc835f17fa5caf57e671760307576b20c75792ee8f108",
+      "sourceTriangles": 214690,
+      "triangleCount": 184340,
+      "componentCount": 1015,
+      "removedGunTriangles": 23420,
+      "removedInnerNozzleTriangles": 6930,
+      "format": "Little-endian Float32, triangle-major XYZ",
+      "coordinates": "Metres: X stern 0 to bow 325; Y up; Z starboard.",
+      "bounds": [
+        [
+          0,
+          0,
+          -72.1380746717107
+        ],
+        [
+          325,
+          63.61912598673755,
+          72.1380746717107
+        ]
+      ],
+      "payload_sha256": "1701616a5e995de170176251a524941b1a414868729286d5635cf34cb86e5711",
+      "scope": "Offline hull/cowling/detail comparison only. Source guns and inner nozzle funnels excluded. Never registered in the runtime."
+    }
+  },
+  "current": {
+    "blueprintSha256": "9b0ca5868ad6ceaf6e0834f67ab808cad6361bdd0bd7597b1ec0d259a27487a5",
+    "visibleMeshGroups": [
+      {
+        "name": "hull",
+        "triangles": 0
+      },
+      {
+        "name": "struct",
+        "triangles": 46107
+      },
+      {
+        "name": "refStruct",
+        "triangles": 0
+      },
+      {
+        "name": "refHull",
+        "triangles": 0
+      }
+    ],
+    "structures": [
+      {
+        "id": 1,
+        "label": "主船体の舷側帯",
+        "form": "loft"
+      },
+      {
+        "id": 2,
+        "label": "艦首の突起",
+        "form": "loft"
+      },
+      {
+        "id": 3,
+        "label": "艦首の突起",
+        "form": "loft"
+      },
+      {
+        "id": 4,
+        "label": "艦首分岐部の閉塞ブロック",
+        "form": "loft"
+      },
+      {
+        "id": 5,
+        "label": "艦首スリットの内壁",
+        "form": "loft"
+      },
+      {
+        "id": 6,
+        "label": "艦首スリットの内壁",
+        "form": "loft"
+      },
+      {
+        "id": 7,
+        "label": "艦首突起の傾斜上面",
+        "form": "shell"
+      },
+      {
+        "id": 8,
+        "label": "艦首突起の傾斜上面",
+        "form": "shell"
+      },
+      {
+        "id": 9,
+        "label": "主船体の中央稜線",
+        "form": "loft"
+      },
+      {
+        "id": 10,
+        "label": "主船体の側部甲板",
+        "form": "loft"
+      },
+      {
+        "id": 11,
+        "label": "主船体の側部甲板",
+        "form": "loft"
+      },
+      {
+        "id": 12,
+        "label": "主船体の傾斜装甲",
+        "form": "shell"
+      },
+      {
+        "id": 13,
+        "label": "主船体の傾斜装甲",
+        "form": "shell"
+      },
+      {
+        "id": 14,
+        "label": "腹部の中央船殻",
+        "form": "loft"
+      },
+      {
+        "id": 15,
+        "label": "腹部キールの平行稜材",
+        "form": "loft"
+      },
+      {
+        "id": 16,
+        "label": "腹部キールの平行稜材",
+        "form": "loft"
+      },
+      {
+        "id": 17,
+        "label": "後部腹面キール",
+        "form": "loft"
+      },
+      {
+        "id": 18,
+        "label": "後部背面スパイン",
+        "form": "loft"
+      },
+      {
+        "id": 19,
+        "label": "前部背面スパイン",
+        "form": "loft"
+      },
+      {
+        "id": 20,
+        "label": "背面第一機器ハッチ",
+        "form": "chamfer"
+      },
+      {
+        "id": 21,
+        "label": "背面第一ハッチの上部カバー",
+        "form": "chamfer"
+      },
+      {
+        "id": 22,
+        "label": "背面第二機器ハッチ",
+        "form": "chamfer"
+      },
+      {
+        "id": 23,
+        "label": "背面第三機器ハッチ",
+        "form": "chamfer"
+      },
+      {
+        "id": 24,
+        "label": "艦橋の斜塔",
+        "form": "loft"
+      },
+      {
+        "id": 25,
+        "label": "艦橋の翼状ヘッド",
+        "form": "loft"
+      },
+      {
+        "id": 26,
+        "label": "艦橋の窓帯",
+        "form": "loft"
+      },
+      {
+        "id": 27,
+        "label": "艦橋の上部マスト",
+        "form": "chamfer"
+      },
+      {
+        "id": 28,
+        "label": "艦橋マストの頂部",
+        "form": "ellipsoid"
+      },
+      {
+        "id": 29,
+        "label": "機関架後端の上側曲桁",
+        "form": "loft"
+      },
+      {
+        "id": 30,
+        "label": "機関架後端の上側曲桁",
+        "form": "loft"
+      },
+      {
+        "id": 31,
+        "label": "機関架後端の下側曲桁",
+        "form": "loft"
+      },
+      {
+        "id": 32,
+        "label": "機関架後端の下側曲桁",
+        "form": "loft"
+      },
+      {
+        "id": 33,
+        "label": "機関間の連結フェアリング",
+        "form": "loft"
+      },
+      {
+        "id": 34,
+        "label": "機関間の連結フェアリング",
+        "form": "loft"
+      },
+      {
+        "id": 35,
+        "label": "機関間の排気環",
+        "form": "arc"
+      },
+      {
+        "id": 36,
+        "label": "機関間の排気環",
+        "form": "arc"
+      },
+      {
+        "id": 37,
+        "label": "機関間の排気環",
+        "form": "arc"
+      },
+      {
+        "id": 38,
+        "label": "機関間の排気環",
+        "form": "arc"
+      },
+      {
+        "id": 39,
+        "label": "後部の斜行翼板",
+        "form": "outline"
+      },
+      {
+        "id": 40,
+        "label": "後部の斜行翼板",
+        "form": "outline"
+      },
+      {
+        "id": 41,
+        "label": "後部頸部の縦リブ",
+        "form": "chamfer"
+      },
+      {
+        "id": 42,
+        "label": "後部頸部の縦リブ",
+        "form": "chamfer"
+      },
+      {
+        "id": 43,
+        "label": "後部頸部の縦リブ",
+        "form": "chamfer"
+      },
+      {
+        "id": 44,
+        "label": "後部頸部の縦リブ",
+        "form": "chamfer"
+      },
+      {
+        "id": 45,
+        "label": "後部頸部の縦リブ",
+        "form": "chamfer"
+      },
+      {
+        "id": 46,
+        "label": "後部頸部の縦リブ",
+        "form": "chamfer"
+      },
+      {
+        "id": 47,
+        "label": "後部頸部の縦リブ",
+        "form": "chamfer"
+      },
+      {
+        "id": 48,
+        "label": "後部頸部の縦リブ",
+        "form": "chamfer"
+      },
+      {
+        "id": 49,
+        "label": "中央推進ポッド",
+        "form": "roundloft"
+      },
+      {
+        "id": 50,
+        "label": "中央推進ポッドの開口外周",
+        "form": "arc"
+      },
+      {
+        "id": 51,
+        "label": "中央ポッドの背面点検帯",
+        "form": "chamfer"
+      },
+      {
+        "id": 52,
+        "label": "中央ポッドの側面点検帯",
+        "form": "chamfer"
+      },
+      {
+        "id": 53,
+        "label": "中央ポッドの側面点検帯",
+        "form": "chamfer"
+      },
+      {
+        "id": 54,
+        "label": "右舷推進ポッド",
+        "form": "roundloft"
+      },
+      {
+        "id": 55,
+        "label": "右舷推進ポッドの開口外周",
+        "form": "arc"
+      },
+      {
+        "id": 56,
+        "label": "右舷ポッドの背面点検帯",
+        "form": "chamfer"
+      },
+      {
+        "id": 57,
+        "label": "右舷ポッドの側面点検帯",
+        "form": "chamfer"
+      },
+      {
+        "id": 58,
+        "label": "右舷ポッドの側面点検帯",
+        "form": "chamfer"
+      },
+      {
+        "id": 59,
+        "label": "左舷推進ポッド",
+        "form": "roundloft"
+      },
+      {
+        "id": 60,
+        "label": "左舷推進ポッドの開口外周",
+        "form": "arc"
+      },
+      {
+        "id": 61,
+        "label": "左舷ポッドの背面点検帯",
+        "form": "chamfer"
+      },
+      {
+        "id": 62,
+        "label": "左舷ポッドの側面点検帯",
+        "form": "chamfer"
+      },
+      {
+        "id": 63,
+        "label": "左舷ポッドの側面点検帯",
+        "form": "chamfer"
+      },
+      {
+        "id": 64,
+        "label": "中央舷側の丸形ブリスター",
+        "form": "ellipsoid"
+      },
+      {
+        "id": 65,
+        "label": "中央舷側の丸形ブリスター",
+        "form": "ellipsoid"
+      },
+      {
+        "id": 66,
+        "label": "前部舷側の丸形ブリスター",
+        "form": "ellipsoid"
+      },
+      {
+        "id": 67,
+        "label": "前部舷側の丸形ブリスター",
+        "form": "ellipsoid"
+      },
+      {
+        "id": 68,
+        "label": "舷側の上縁装甲",
+        "form": "loft"
+      },
+      {
+        "id": 69,
+        "label": "舷側の上縁装甲",
+        "form": "loft"
+      },
+      {
+        "id": 70,
+        "label": "外板の横断リブ",
+        "form": "shell"
+      },
+      {
+        "id": 71,
+        "label": "外板の横断リブ",
+        "form": "shell"
+      },
+      {
+        "id": 72,
+        "label": "外板の横断リブ",
+        "form": "shell"
+      },
+      {
+        "id": 73,
+        "label": "外板の横断リブ",
+        "form": "shell"
+      },
+      {
+        "id": 74,
+        "label": "外板の横断リブ",
+        "form": "shell"
+      },
+      {
+        "id": 75,
+        "label": "外板の横断リブ",
+        "form": "shell"
+      }
+    ],
+    "importedWholeHull": false
+  },
+  "previous": {
+    "blueprintSha256": "b788af54cd0519b2a4d866304c5dc42e89f175fe7cc76a934b6d8db2c9afde53",
+    "visibleMeshGroups": [
+      {
+        "name": "hull",
+        "triangles": 0
+      },
+      {
+        "name": "struct",
+        "triangles": 14209
+      },
+      {
+        "name": "refStruct",
+        "triangles": 0
+      },
+      {
+        "name": "refHull",
+        "triangles": 0
+      }
+    ],
+    "structures": [
+      {
+        "id": 1,
+        "label": "中央船体",
+        "form": "loft"
+      },
+      {
+        "id": 2,
+        "label": "艦首突起",
+        "form": "loft"
+      },
+      {
+        "id": 3,
+        "label": "艦首突起",
+        "form": "loft"
+      },
+      {
+        "id": 4,
+        "label": "舷側張出し甲板",
+        "form": "loft"
+      },
+      {
+        "id": 5,
+        "label": "舷側張出し甲板",
+        "form": "loft"
+      },
+      {
+        "id": 6,
+        "label": "背部中央構造",
+        "form": "loft"
+      },
+      {
+        "id": 7,
+        "label": "艦橋支持塔",
+        "form": "loft"
+      },
+      {
+        "id": 8,
+        "label": "艦橋上部",
+        "form": "chamfer"
+      },
+      {
+        "id": 9,
+        "label": "艦橋の窓帯",
+        "form": "chamfer"
+      },
+      {
+        "id": 10,
+        "label": "腹部キール",
+        "form": "loft"
+      },
+      {
+        "id": 11,
+        "label": "機関支持板",
+        "form": "outline"
+      },
+      {
+        "id": 12,
+        "label": "機関支持板",
+        "form": "outline"
+      },
+      {
+        "id": 13,
+        "label": "機関横桁",
+        "form": "chamfer"
+      },
+      {
+        "id": 14,
+        "label": "機関横桁",
+        "form": "chamfer"
+      },
+      {
+        "id": 15,
+        "label": "中央推進ポッド",
+        "form": "roundloft"
+      },
+      {
+        "id": 16,
+        "label": "中央推進ポッド後端リング",
+        "form": "arc"
+      },
+      {
+        "id": 17,
+        "label": "右舷推進ポッド",
+        "form": "roundloft"
+      },
+      {
+        "id": 18,
+        "label": "右舷推進ポッド後端リング",
+        "form": "arc"
+      },
+      {
+        "id": 19,
+        "label": "左舷推進ポッド",
+        "form": "roundloft"
+      },
+      {
+        "id": 20,
+        "label": "左舷推進ポッド後端リング",
+        "form": "arc"
+      },
+      {
+        "id": 21,
+        "label": "上面主砲座",
+        "form": "chamfer"
+      },
+      {
+        "id": 22,
+        "label": "上面主砲座",
+        "form": "chamfer"
+      },
+      {
+        "id": 23,
+        "label": "下面主砲座",
+        "form": "chamfer"
+      },
+      {
+        "id": 24,
+        "label": "下面主砲座",
+        "form": "chamfer"
+      }
+    ],
+    "importedWholeHull": false
+  },
+  "measurements": [
+    {
+      "view": "top",
+      "axes": [
+        0,
+        2
+      ],
+      "verticalFlipped": false,
+      "boundsM": [
+        -8,
+        -80.13807678222656,
+        333,
+        80.13807678222656
+      ],
+      "raster": {
+        "width": 1200,
+        "height": 564,
+        "pixelsPerM": 3.5190615835777126,
+        "alphaThreshold": 128
+      },
+      "previous": {
+        "iou": 0.8977231092727012,
+        "intersectionPixels": 338131,
+        "unionPixels": 376654,
+        "sourceOnlyPixels": 30958,
+        "nativeOnlyPixels": 7565
+      },
+      "current": {
+        "iou": 0.9702631817914737,
+        "intersectionPixels": 363284,
+        "unionPixels": 374418,
+        "sourceOnlyPixels": 5805,
+        "nativeOnlyPixels": 5329
+      },
+      "iouGain": 0.07254007251877259,
+      "image": "arquitens-fidelity-top.png"
+    },
+    {
+      "view": "side",
+      "axes": [
+        0,
+        1
+      ],
+      "verticalFlipped": true,
+      "boundsM": [
+        -8,
+        -8,
+        333,
+        71.61912536621094
+      ],
+      "raster": {
+        "width": 1200,
+        "height": 280,
+        "pixelsPerM": 3.5190615835777126,
+        "alphaThreshold": 128
+      },
+      "previous": {
+        "iou": 0.7402041209320239,
+        "intersectionPixels": 96097,
+        "unionPixels": 129825,
+        "sourceOnlyPixels": 28036,
+        "nativeOnlyPixels": 5692
+      },
+      "current": {
+        "iou": 0.9433221278697405,
+        "intersectionPixels": 118419,
+        "unionPixels": 125534,
+        "sourceOnlyPixels": 5714,
+        "nativeOnlyPixels": 1401
+      },
+      "iouGain": 0.20311800693771653,
+      "image": "arquitens-fidelity-side.png"
+    },
+    {
+      "view": "front",
+      "axes": [
+        2,
+        1
+      ],
+      "verticalFlipped": true,
+      "boundsM": [
+        -80.13807678222656,
+        -8,
+        80.13807678222656,
+        71.61912536621094
+      ],
+      "raster": {
+        "width": 1200,
+        "height": 596,
+        "pixelsPerM": 7.487077605199918,
+        "alphaThreshold": 128
+      },
+      "previous": {
+        "iou": 0.8038862641161558,
+        "intersectionPixels": 223236,
+        "unionPixels": 277696,
+        "sourceOnlyPixels": 44743,
+        "nativeOnlyPixels": 9717
+      },
+      "current": {
+        "iou": 0.9191680323051286,
+        "intersectionPixels": 265862,
+        "unionPixels": 289242,
+        "sourceOnlyPixels": 2117,
+        "nativeOnlyPixels": 21263
+      },
+      "iouGain": 0.11528176818897273,
+      "image": "arquitens-fidelity-front.png"
+    }
+  ],
+  "meanIouGain": 0.13031328254848729,
+  "totalElapsedMs": 2243,
+  "scope": {
+    "compared": "STL hull with original gun components and inner nozzle funnels removed against game-generated native structural hull; three fixed orthographic projections.",
+    "limitations": [
+      "Projected silhouette overlap does not measure 3D volume, interior structure, surface detail or material fidelity.",
+      "The source reference excludes 23,420 gun triangles and 6,930 inner nozzle-funnel triangles; native independent guns and nozzles are likewise excluded.",
+      "Source is used only as a QA reference and is never inserted into the game design."
+    ]
+  }
+}

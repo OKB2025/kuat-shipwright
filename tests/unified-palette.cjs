@@ -23,6 +23,7 @@ section('function seg(','function silhouette(');
 section('function partCard(','function fitBtn(');
 section('function basePartEditor()','function baseFitEditor(');
 section('const PED_SHAPES =','const TEMPLATE_SKIP =');
+section('function launcherCanPitch(','function weaponMountControls(');
 section('function baseRenderPanel()','function sizeOut(');
 section('function unalignedPartPreview(','function notchBox(');
 section('let paletteShip=null;','// v23 Item selection');

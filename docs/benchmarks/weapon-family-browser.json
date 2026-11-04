@@ -1,0 +1,4669 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "date": "2026-11-04T21:25:41.270Z",
+  "sourceSha256": {
+    "data/reference.js": "a6fbb40e306391f04b765985d97dafe512ba0d9ad21b479d70d47384ef7f6a8b",
+    "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
+    "data/fleet.js": "c0341142b0b1b07f3f55b6e56e3445c33990f88e9d522a093f0e9319b6b7e416",
+    "js/core.js": "85a8deceabf8fc184281c23d658061e748fbc4f895d16fb495b42674ca1ce513",
+    "js/app.js": "64cd0762fbf608cce5b66103557441a9def930ff882b5b16b08563b48f0a4ed3",
+    "js/gfx.js": "cb96f6b647868d8090f41ed95a2310650b09b884bbd76033c56938d487ccbe3e",
+    "js/lang-en.js": "f4725c881d9385dc490f44d33af8c3a464cee00d8d50b3e751e8670aeb77b70e",
+    "js/engine.js": "ae431a0d3b61b19b15b1f3635159b7d5664a82eaf844ac8029ef2fa6da122a3e",
+    "index.html": "02d65b6d5ca204b7cd9405fda9b2b71fd9f3b1c45d4f3bec469ee97fb43d4300"
+  },
+  "url": "http://127.0.0.1:8765",
+  "readyMs": 2440,
+  "totalElapsedMs": 34932,
+  "config": {
+    "models": [
+      {
+        "id": "single40",
+        "label": "40 TT single",
+        "barrels": 1,
+        "boltTT": 40
+      },
+      {
+        "id": "quad40Ion",
+        "label": "40 TT ion quad",
+        "barrels": 4,
+        "boltTT": 40,
+        "damageKind": "ion"
+      },
+      {
+        "id": "twin40Dome",
+        "label": "40 TT twin · dome",
+        "barrels": 2,
+        "boltTT": 40
+      },
+      {
+        "id": "twin40",
+        "label": "40 TT twin · box",
+        "barrels": 2,
+        "boltTT": 40
+      },
+      {
+        "id": "triple40",
+        "label": "40 TT triple",
+        "barrels": 3,
+        "boltTT": 40
+      },
+      {
+        "id": "oct40",
+        "label": "40 TT octuple",
+        "barrels": 8,
+        "boltTT": 40
+      },
+      {
+        "id": "refVen",
+        "label": "DBY 70 TT twin",
+        "barrels": 2,
+        "boltTT": 70
+      },
+      {
+        "id": "triple70",
+        "label": "70 TT triple",
+        "barrels": 3,
+        "boltTT": 70
+      },
+      {
+        "id": "quad70Side",
+        "label": "70 TT quad · side",
+        "barrels": 4,
+        "boltTT": 70,
+        "wallOnly": true,
+        "maxElevationDeg": 20
+      }
+    ],
+    "bodyInfoSelector": "[data-turret-compartment]"
+  },
+  "catalog": {
+    "single40": "40 TT Single Turbolaser\n40 TT / 35.4×7.9×5.7 m",
+    "quad40Ion": "40 TT Quad Ion Cannon\nAgainst Shields 160 TT · 23.9×17.4×17.4 m",
+    "twin40Dome": "40 TT Twin Dome Turbolaser\n80 TT / 31.5×18.1×9.9 m",
+    "twin40": "40 TT Twin Heavy Turbolaser\n80 TT / 22.7×17.8×11.4 m",
+    "triple40": "40 TT Triple Turbolaser\n120 TT / 23.7×11.8×10.4 m",
+    "oct40": "ISD 40 TT Octuple Turbolaser\n320 TT / 40×40×10.6 m",
+    "refVen": "DBY-827 70 TT Twin Heavy Turbolaser\n140 TT / 28.9×16.3×10 m",
+    "triple70": "70 TT Triple Heavy Turbolaser\n210 TT / 47.8×28×10 m",
+    "quad70Side": "70 TT Quad Broadside Heavy Turbolaser\n280 TT / 35.9×18×11.9 m"
+  },
+  "hiddenLegacyPalette": {
+    "htl": 0,
+    "refSide": 0,
+    "xx9": 0,
+    "nk7": 0
+  },
+  "fixture": {
+    "L": 445.7729783422592,
+    "W": 59.999823093067505,
+    "deckY": 20,
+    "models": [
+      {
+        "kind": "single40",
+        "label": "40 TT single",
+        "id": 2,
+        "rejectedDeck": null,
+        "origin": [
+          32.70470806312996,
+          20,
+          0
+        ],
+        "bounds": [
+          19.396354486315342,
+          20,
+          -3.934643666188669,
+          54.80577061257526,
+          25.739742517204977,
+          3.934643666188669
+        ]
+      },
+      {
+        "kind": "quad40Ion",
+        "label": "40 TT ion quad",
+        "id": 3,
+        "rejectedDeck": null,
+        "origin": [
+          76.363123294454,
+          20,
+          0
+        ],
+        "bounds": [
+          67.68376226609664,
+          14.213759314428426,
+          -8.679361028357357,
+          91.59117660248482,
+          31.572481371143144,
+          8.679361028357357
+        ]
+      },
+      {
+        "kind": "twin40Dome",
+        "label": "40 TT twin · dome",
+        "id": 4,
+        "rejectedDeck": null,
+        "origin": [
+          118.0490730538776,
+          20,
+          0
+        ],
+        "bounds": [
+          109.02253758438596,
+          20,
+          -9.026535469491652,
+          140.48702276684497,
+          29.861890500190867,
+          9.026535469491652
+        ]
+      },
+      {
+        "kind": "twin40",
+        "label": "40 TT twin · box",
+        "id": 5,
+        "rejectedDeck": null,
+        "origin": [
+          159.11972545301398,
+          20,
+          0
+        ],
+        "bounds": [
+          146.85289519960224,
+          20,
+          -8.881670515348096,
+          169.529714815416,
+          31.410107540676517,
+          8.8816677871525
+        ]
+      },
+      {
+        "kind": "triple40",
+        "label": "40 TT triple",
+        "id": 6,
+        "rejectedDeck": null,
+        "origin": [
+          196.3299080721553,
+          20,
+          0
+        ],
+        "bounds": [
+          183.56393191440142,
+          20,
+          -5.901965499283003,
+          207.30747753687027,
+          30.449505367398956,
+          5.901965499283003
+        ]
+      },
+      {
+        "kind": "oct40",
+        "label": "40 TT octuple",
+        "id": 7,
+        "rejectedDeck": null,
+        "origin": [
+          242.2016808833897,
+          20,
+          0
+        ],
+        "bounds": [
+          222.20181803782492,
+          20,
+          -19.999628938908536,
+          262.2018180378249,
+          30.568947548408055,
+          20.00019415415897
+        ]
+      },
+      {
+        "kind": "refVen",
+        "label": "DBY 70 TT twin",
+        "id": 8,
+        "rejectedDeck": null,
+        "origin": [
+          290.63267674952107,
+          20,
+          0
+        ],
+        "bounds": [
+          277.60924143967424,
+          20,
+          -8.127121280529693,
+          306.4712331719369,
+          29.99770910749268,
+          8.130963182044656
+        ]
+      },
+      {
+        "kind": "triple70",
+        "label": "70 TT triple",
+        "id": 9,
+        "rejectedDeck": null,
+        "origin": [
+          342.97849904730407,
+          20,
+          0
+        ],
+        "bounds": [
+          331.7784990473041,
+          20,
+          -14,
+          379.6081519106075,
+          29.99770910749268,
+          14
+        ]
+      },
+      {
+        "kind": "quad70Side",
+        "label": "70 TT quad · side",
+        "id": 11,
+        "rejectedDeck": {
+          "error": "この砲は左右の舷側面に配置してください",
+          "mutated": false
+        },
+        "origin": [
+          398.8331519106075,
+          20,
+          0
+        ],
+        "bounds": [
+          389.8331519106075,
+          20,
+          0,
+          407.8331519106075,
+          31.9,
+          35.87965286330343
+        ]
+      }
+    ]
+  },
+  "renderer": true,
+  "webglError": 0,
+  "pageWidth": 1680,
+  "generation": {
+    "design": 1,
+    "geometry": 1,
+    "statistics": 1
+  },
+  "models": [
+    {
+      "id": 2,
+      "kind": "single40",
+      "asset": "family_single40",
+      "float": false,
+      "pedestalHeight": 0,
+      "base": 0,
+      "low": 0,
+      "pedestalAllowed": true,
+      "barrels": 1,
+      "boltTT": 40,
+      "volleyTT": 40,
+      "ionVolleyTT": 0,
+      "powerW": 1.6736e+23,
+      "cycleSeconds": 1,
+      "powerVolleyTT": 40.00000000000001,
+      "modelScale": 1,
+      "manualScale": null,
+      "size": [
+        35.40941612625992,
+        5.739742517204978,
+        7.869287332377338
+      ],
+      "assetSize": [
+        35.40941612625992,
+        5.739742517204978,
+        7.869287332377338
+      ],
+      "assetBounds": [
+        [
+          -13.308353576814616,
+          0,
+          -3.934643666188669
+        ],
+        [
+          22.101062549445306,
+          5.739742517204978,
+          3.934643666188669
+        ]
+      ],
+      "elevationPivot": [
+        -7.753562518665906,
+        3.64533163191009,
+        0
+      ],
+      "sphereMeshRange": null,
+      "triangles": 756,
+      "drawnIndices": 2268,
+      "drawOutsideBounds": 0,
+      "chargeInfo": {
+        "required": 800,
+        "plannedVolume": 800,
+        "housingVolume": 369.5525874666537,
+        "externalVolume": 369.5525874666537,
+        "embeddedVolume": 0,
+        "externalUsed": 369.5525874666537,
+        "embeddedUsed": 0,
+        "housingUsed": 369.5525874666537,
+        "internalRequired": 430.4474125333463,
+        "internalVolume": 430.4474125333463,
+        "internalOccupiedVolume": 430.4474125333463,
+        "volume": 800,
+        "ratio": 1,
+        "capacityRatio": 1,
+        "storedTT": 40,
+        "allocationPending": false,
+        "id": -200002,
+        "blocked": false
+      },
+      "authored": {
+        "asset": "family_single40",
+        "yawPivot": [
+          32.70470806312996,
+          20,
+          0
+        ],
+        "elevationPivot": [
+          24.95114554446405,
+          23.64533163191009,
+          0
+        ],
+        "elevationAxis": [
+          0,
+          0,
+          0.9999999999999999
+        ],
+        "axis": [
+          0,
+          1,
+          0
+        ],
+        "fw": [
+          1,
+          0,
+          0
+        ],
+        "muzzles": [
+          [
+            54.80577061257526,
+            25.11503676604527,
+            0
+          ]
+        ],
+        "vertexStart": 934,
+        "indexStart": 1860,
+        "housingFixed": false,
+        "limits": {
+          "yaw": null,
+          "lo": -0.17453292519943295,
+          "hi": 1.4835298641951802
+        }
+      },
+      "physicalBarrels": [
+        {
+          "axialLengthM": 30.201640712919612,
+          "side": null,
+          "row": null,
+          "range": {
+            "firstVertex": 1022,
+            "vertices": 101,
+            "firstIndex": 2016,
+            "indices": 252
+          },
+          "muzzle": [
+            22.101062549445306,
+            5.11503676604527,
+            0
+          ],
+          "worldMuzzle": [
+            54.80577061257526,
+            25.11503676604527,
+            0
+          ],
+          "muzzleRayHit": [
+            54.80572079121778,
+            25.11503676604527,
+            0
+          ],
+          "muzzleRayErrorM": 6.513680432362889e-06
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "kind": "quad40Ion",
+      "asset": "family_quad40_ion",
+      "float": false,
+      "pedestalHeight": 0,
+      "base": 0,
+      "low": 0,
+      "pedestalAllowed": true,
+      "barrels": 4,
+      "boltTT": 40,
+      "volleyTT": 0,
+      "ionVolleyTT": 160,
+      "powerW": 6.6944e+23,
+      "cycleSeconds": 1,
+      "powerVolleyTT": 160.00000000000003,
+      "modelScale": 1,
+      "manualScale": null,
+      "size": [
+        23.907414336388186,
+        17.35872205671472,
+        17.358722056714715
+      ],
+      "assetSize": [
+        23.907414336388186,
+        17.35872205671472,
+        17.358722056714715
+      ],
+      "assetBounds": [
+        [
+          -8.679361028357357,
+          -5.786240685571572,
+          -8.679361028357357
+        ],
+        [
+          15.228053308030827,
+          11.572481371143144,
+          8.679361028357357
+        ]
+      ],
+      "elevationPivot": [
+        0,
+        2.893120342785786,
+        0
+      ],
+      "sphereMeshRange": {
+        "firstVertex": 0,
+        "vertices": 2800,
+        "firstIndex": 0,
+        "indices": 4080
+      },
+      "triangles": 1696,
+      "drawnIndices": 5088,
+      "drawOutsideBounds": 0,
+      "chargeInfo": {
+        "required": 3200,
+        "plannedVolume": 3200,
+        "housingVolume": 2706.779551238921,
+        "externalVolume": 2006.4790581252892,
+        "embeddedVolume": 700.300493113632,
+        "externalUsed": 2006.4790581252892,
+        "embeddedUsed": 700.300493113632,
+        "housingUsed": 2706.779551238921,
+        "internalRequired": 493.22044876107884,
+        "internalVolume": 493.22044876107884,
+        "internalOccupiedVolume": 1193.5209418747108,
+        "volume": 3200,
+        "ratio": 1,
+        "capacityRatio": 1,
+        "storedTT": 160,
+        "allocationPending": false,
+        "id": -200003,
+        "blocked": false
+      },
+      "authored": {
+        "asset": "family_quad40_ion",
+        "yawPivot": [
+          76.363123294454,
+          20,
+          0
+        ],
+        "elevationPivot": [
+          76.363123294454,
+          22.893120342785785,
+          0
+        ],
+        "elevationAxis": [
+          0,
+          0,
+          1
+        ],
+        "axis": [
+          0,
+          1,
+          0
+        ],
+        "fw": [
+          1,
+          0,
+          0
+        ],
+        "muzzles": [
+          [
+            91.59117660248482,
+            21.562284985104323,
+            -1.3308353576814616
+          ],
+          [
+            91.59117660248482,
+            21.562284985104323,
+            1.3308353576814616
+          ],
+          [
+            91.59117660248482,
+            24.223955700467247,
+            -1.3308353576814616
+          ],
+          [
+            91.59117660248482,
+            24.223955700467247,
+            1.3308353576814616
+          ]
+        ],
+        "vertexStart": 0,
+        "indexStart": 0,
+        "housingFixed": false,
+        "limits": {
+          "yaw": null,
+          "lo": -0.17453292519943295,
+          "hi": 1.4835298641951802
+        }
+      },
+      "physicalBarrels": [
+        {
+          "axialLengthM": 8.978961198980734,
+          "side": null,
+          "row": null,
+          "range": {
+            "firstVertex": 2800,
+            "vertices": 101,
+            "firstIndex": 4080,
+            "indices": 252
+          },
+          "muzzle": [
+            15.228053308030827,
+            1.5622849851043246,
+            -1.3308353576814616
+          ],
+          "worldMuzzle": [
+            91.59117660248482,
+            21.562284985104323,
+            -1.3308353576814616
+          ],
+          "muzzleRayHit": [
+            91.5911732462873,
+            21.562284985104323,
+            -1.3308353576814616
+          ],
+          "muzzleRayErrorM": 1.3392056985139789e-05
+        },
+        {
+          "axialLengthM": 8.978961198980734,
+          "side": null,
+          "row": null,
+          "range": {
+            "firstVertex": 2901,
+            "vertices": 101,
+            "firstIndex": 4332,
+            "indices": 252
+          },
+          "muzzle": [
+            15.228053308030827,
+            1.5622849851043246,
+            1.3308353576814616
+          ],
+          "worldMuzzle": [
+            91.59117660248482,
+            21.562284985104323,
+            1.3308353576814616
+          ],
+          "muzzleRayHit": [
+            91.59117326456321,
+            21.562284985104323,
+            1.3308353576814616
+          ],
+          "muzzleRayErrorM": 1.3410332897478838e-05
+        },
+        {
+          "axialLengthM": 8.978961198980734,
+          "side": null,
+          "row": null,
+          "range": {
+            "firstVertex": 3002,
+            "vertices": 101,
+            "firstIndex": 4584,
+            "indices": 252
+          },
+          "muzzle": [
+            15.228053308030827,
+            4.223955700467248,
+            -1.3308353576814616
+          ],
+          "worldMuzzle": [
+            91.59117660248482,
+            24.223955700467247,
+            -1.3308353576814616
+          ],
+          "muzzleRayHit": [
+            91.59114981915387,
+            24.223955700467247,
+            -1.3308353576814616
+          ],
+          "muzzleRayErrorM": 1.0035076442704849e-05
+        },
+        {
+          "axialLengthM": 8.978961198980734,
+          "side": null,
+          "row": null,
+          "range": {
+            "firstVertex": 3103,
+            "vertices": 101,
+            "firstIndex": 4836,
+            "indices": 252
+          },
+          "muzzle": [
+            15.228053308030827,
+            4.223955700467248,
+            1.3308353576814616
+          ],
+          "worldMuzzle": [
+            91.59117660248482,
+            24.223955700467247,
+            1.3308353576814616
+          ],
+          "muzzleRayHit": [
+            91.5911498652734,
+            24.223955700467247,
+            1.3308353576814616
+          ],
+          "muzzleRayErrorM": 9.98895691850521e-06
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "kind": "twin40Dome",
+      "asset": "family_twin40_dome",
+      "float": false,
+      "pedestalHeight": 0,
+      "base": 0,
+      "low": 0,
+      "pedestalAllowed": true,
+      "barrels": 2,
+      "boltTT": 40,
+      "volleyTT": 80,
+      "ionVolleyTT": 0,
+      "powerW": 3.3472e+23,
+      "cycleSeconds": 1,
+      "powerVolleyTT": 80.00000000000001,
+      "modelScale": 1,
+      "manualScale": null,
+      "size": [
+        31.464485182459008,
+        9.861890500190865,
+        18.053070938983304
+      ],
+      "assetSize": [
+        31.464485182459008,
+        9.861890500190865,
+        18.053070938983304
+      ],
+      "assetBounds": [
+        [
+          -9.026535469491652,
+          0,
+          -9.026535469491652
+        ],
+        [
+          22.437949712967356,
+          9.861890500190865,
+          9.026535469491652
+        ]
+      ],
+      "elevationPivot": [
+        -3.0088451564972174,
+        7.695700111810191,
+        0
+      ],
+      "sphereMeshRange": null,
+      "triangles": 1934,
+      "drawnIndices": 5802,
+      "drawOutsideBounds": 0,
+      "chargeInfo": {
+        "required": 1600,
+        "plannedVolume": 1600,
+        "housingVolume": 1442.6714169660129,
+        "externalVolume": 1442.6714169660129,
+        "embeddedVolume": 0,
+        "externalUsed": 1442.6714169660129,
+        "embeddedUsed": 0,
+        "housingUsed": 1442.6714169660129,
+        "internalRequired": 157.32858303398712,
+        "internalVolume": 157.3285830339871,
+        "internalOccupiedVolume": 157.3285830339871,
+        "volume": 1600,
+        "ratio": 1,
+        "capacityRatio": 1,
+        "storedTT": 80,
+        "allocationPending": false,
+        "id": -200004,
+        "blocked": false
+      },
+      "authored": {
+        "asset": "family_twin40_dome",
+        "yawPivot": [
+          118.0490730538776,
+          20,
+          0
+        ],
+        "elevationPivot": [
+          115.04022789738039,
+          27.69570011181019,
+          0
+        ],
+        "elevationAxis": [
+          0,
+          0,
+          1
+        ],
+        "axis": [
+          0,
+          1,
+          0
+        ],
+        "fw": [
+          1,
+          0,
+          0
+        ],
+        "muzzles": [
+          [
+            140.48702276684497,
+            29.200122690058798,
+            -1.0993857302585985
+          ],
+          [
+            140.48702276684497,
+            29.200122690058798,
+            1.0993857302585985
+          ]
+        ],
+        "vertexStart": 3120,
+        "indexStart": 5142,
+        "housingFixed": false,
+        "limits": {
+          "yaw": null,
+          "lo": -0.17453292519943295,
+          "hi": 1.4835298641951802
+        }
+      },
+      "physicalBarrels": [
+        {
+          "axialLengthM": 25.794040746459885,
+          "side": null,
+          "row": null,
+          "range": {
+            "firstVertex": 3208,
+            "vertices": 101,
+            "firstIndex": 5298,
+            "indices": 252
+          },
+          "muzzle": [
+            22.437949712967356,
+            9.2001226900588,
+            -1.0993857302585985
+          ],
+          "worldMuzzle": [
+            140.48702276684497,
+            29.200122690058798,
+            -1.0993857302585985
+          ],
+          "muzzleRayHit": [
+            140.4869946364079,
+            29.200122690058798,
+            -1.0993857302585985
+          ],
+          "muzzleRayErrorM": 1.998273046410759e-05
+        },
+        {
+          "axialLengthM": 25.794040746459885,
+          "side": null,
+          "row": null,
+          "range": {
+            "firstVertex": 3309,
+            "vertices": 101,
+            "firstIndex": 5550,
+            "indices": 252
+          },
+          "muzzle": [
+            22.437949712967356,
+            9.2001226900588,
+            1.0993857302585985
+          ],
+          "worldMuzzle": [
+            140.48702276684497,
+            29.200122690058798,
+            1.0993857302585985
+          ],
+          "muzzleRayHit": [
+            140.48699456107275,
+            29.200122690058798,
+            1.0993857302585985
+          ],
+          "muzzleRayErrorM": 1.9907395312657172e-05
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "kind": "twin40",
+      "asset": "family_twin40_box",
+      "float": false,
+      "pedestalHeight": 0,
+      "base": 0,
+      "low": 0,
+      "pedestalAllowed": true,
+      "barrels": 2,
+      "boltTT": 40,
+      "volleyTT": 80,
+      "ionVolleyTT": 0,
+      "powerW": 3.3472e+23,
+      "cycleSeconds": 1,
+      "powerVolleyTT": 80.00000000000001,
+      "modelScale": 1,
+      "manualScale": null,
+      "size": [
+        22.67681961581377,
+        11.410107540676517,
+        17.763338302500596
+      ],
+      "assetSize": [
+        22.67681961581377,
+        11.410107540676517,
+        17.763338302500596
+      ],
+      "assetBounds": [
+        [
+          -12.266830253411733,
+          0,
+          -8.881670515348096
+        ],
+        [
+          10.409989362402035,
+          11.410107540676517,
+          8.8816677871525
+        ]
+      ],
+      "elevationPivot": [
+        -8.255227089462508,
+        8.80783515522366,
+        0
+      ],
+      "sphereMeshRange": null,
+      "triangles": 1552,
+      "drawnIndices": 4656,
+      "drawOutsideBounds": 0,
+      "chargeInfo": {
+        "required": 1600,
+        "plannedVolume": 1600,
+        "housingVolume": 1706.5558691441674,
+        "externalVolume": 1706.5558691441674,
+        "embeddedVolume": 0,
+        "externalUsed": 1600,
+        "embeddedUsed": 0,
+        "housingUsed": 1600,
+        "internalRequired": 0,
+        "internalVolume": 0,
+        "internalOccupiedVolume": 0,
+        "volume": 1600,
+        "ratio": 1,
+        "capacityRatio": 1,
+        "storedTT": 80,
+        "allocationPending": false,
+        "id": null,
+        "blocked": false
+      },
+      "authored": {
+        "asset": "family_twin40_box",
+        "yawPivot": [
+          159.11972545301398,
+          20,
+          0
+        ],
+        "elevationPivot": [
+          150.8644983635515,
+          28.80783515522366,
+          0
+        ],
+        "elevationAxis": [
+          0,
+          0,
+          1
+        ],
+        "axis": [
+          0,
+          1,
+          0
+        ],
+        "fw": [
+          1,
+          0,
+          0
+        ],
+        "muzzles": [
+          [
+            169.529714815416,
+            30.68257713734885,
+            -7.507542821026982
+          ],
+          [
+            169.529714815416,
+            30.68257713734885,
+            7.507541456929182
+          ]
+        ],
+        "vertexStart": 1820,
+        "indexStart": 3840,
+        "housingFixed": false,
+        "limits": {
+          "yaw": null,
+          "lo": -0.17453292519943295,
+          "hi": 1.4835298641951802
+        }
+      },
+      "physicalBarrels": [
+        {
+          "axialLengthM": 19.012235571303513,
+          "side": null,
+          "row": null,
+          "range": {
+            "firstVertex": 1996,
+            "vertices": 101,
+            "firstIndex": 4152,
+            "indices": 252
+          },
+          "muzzle": [
+            10.409989362402035,
+            10.682577137348849,
+            -7.5075428210269814
+          ],
+          "worldMuzzle": [
+            169.529714815416,
+            30.68257713734885,
+            -7.507542821026982
+          ],
+          "muzzleRayHit": [
+            169.52967909005142,
+            30.68257713734885,
+            -7.507542821026982
+          ],
+          "muzzleRayErrorM": 2.6179026235695346e-07
+        },
+        {
+          "axialLengthM": 19.012235571303513,
+          "side": null,
+          "row": null,
+          "range": {
+            "firstVertex": 2097,
+            "vertices": 101,
+            "firstIndex": 4404,
+            "indices": 252
+          },
+          "muzzle": [
+            10.409989362402035,
+            10.682577137348849,
+            7.507541456929182
+          ],
+          "worldMuzzle": [
+            169.529714815416,
+            30.68257713734885,
+            7.507541456929182
+          ],
+          "muzzleRayHit": [
+            169.52967931499302,
+            30.68257713734885,
+            7.507541456929182
+          ],
+          "muzzleRayErrorM": 3.6848661011390504e-08
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "kind": "triple40",
+      "asset": "family_triple40",
+      "float": false,
+      "pedestalHeight": 0,
+      "base": 0,
+      "low": 0,
+      "pedestalAllowed": true,
+      "barrels": 3,
+      "boltTT": 40,
+      "volleyTT": 120,
+      "ionVolleyTT": 0,
+      "powerW": 5.0208e+23,
+      "cycleSeconds": 1,
+      "powerVolleyTT": 120,
+      "modelScale": 1,
+      "manualScale": null,
+      "size": [
+        23.74354562246883,
+        10.449505367398958,
+        11.803930998566006
+      ],
+      "assetSize": [
+        23.74354562246883,
+        10.449505367398958,
+        11.803930998566006
+      ],
+      "assetBounds": [
+        [
+          -12.765976157753862,
+          0,
+          -5.901965499283003
+        ],
+        [
+          10.977569464714966,
+          10.449505367398958,
+          5.901965499283003
+        ]
+      ],
+      "elevationPivot": [
+        -8.255227089462508,
+        5.034029396447267,
+        0
+      ],
+      "sphereMeshRange": null,
+      "triangles": 924,
+      "drawnIndices": 2772,
+      "drawOutsideBounds": 0,
+      "chargeInfo": {
+        "required": 2400,
+        "plannedVolume": 2400,
+        "housingVolume": 969.3322769111645,
+        "externalVolume": 969.3322769111645,
+        "embeddedVolume": 0,
+        "externalUsed": 969.3322769111645,
+        "embeddedUsed": 0,
+        "housingUsed": 969.3322769111645,
+        "internalRequired": 1430.6677230888354,
+        "internalVolume": 1430.6677230888354,
+        "internalOccupiedVolume": 1430.6677230888354,
+        "volume": 2400,
+        "ratio": 1,
+        "capacityRatio": 1,
+        "storedTT": 120,
+        "allocationPending": false,
+        "id": -200006,
+        "blocked": false
+      },
+      "authored": {
+        "asset": "family_triple40",
+        "yawPivot": [
+          196.3299080721553,
+          20,
+          0
+        ],
+        "elevationPivot": [
+          188.07468098269277,
+          25.034029396447266,
+          0
+        ],
+        "elevationAxis": [
+          0,
+          0,
+          1
+        ],
+        "axis": [
+          0,
+          1,
+          0
+        ],
+        "fw": [
+          1,
+          0,
+          0
+        ],
+        "muzzles": [
+          [
+            207.30747753687027,
+            29.11304913001161,
+            -1.7011547615580422
+          ],
+          [
+            207.30747753687027,
+            29.11304913001161,
+            0
+          ],
+          [
+            207.30747753687027,
+            29.11304913001161,
+            1.7011547615580422
+          ]
+        ],
+        "vertexStart": 990,
+        "indexStart": 1968,
+        "housingFixed": false,
+        "limits": {
+          "yaw": null,
+          "lo": -0.17453292519943295,
+          "hi": 1.4835298641951802
+        }
+      },
+      "physicalBarrels": [
+        {
+          "axialLengthM": 19.012372841461204,
+          "side": null,
+          "row": null,
+          "range": {
+            "firstVertex": 1022,
+            "vertices": 101,
+            "firstIndex": 2016,
+            "indices": 252
+          },
+          "muzzle": [
+            10.977569464714966,
+            9.113049130011609,
+            -1.7011547615580422
+          ],
+          "worldMuzzle": [
+            207.30747753687027,
+            29.11304913001161,
+            -1.7011547615580422
+          ],
+          "muzzleRayHit": [
+            207.30742993288325,
+            29.11304913001161,
+            -1.7011547615580422
+          ],
+          "muzzleRayErrorM": 1.2140412678718349e-05
+        },
+        {
+          "axialLengthM": 19.012372841461204,
+          "side": null,
+          "row": null,
+          "range": {
+            "firstVertex": 1123,
+            "vertices": 101,
+            "firstIndex": 2268,
+            "indices": 252
+          },
+          "muzzle": [
+            10.977569464714966,
+            9.113049130011609,
+            0
+          ],
+          "worldMuzzle": [
+            207.30747753687027,
+            29.11304913001161,
+            0
+          ],
+          "muzzleRayHit": [
+            207.30743343273306,
+            29.11304913001161,
+            0
+          ],
+          "muzzleRayErrorM": 8.64056286786763e-06
+        },
+        {
+          "axialLengthM": 19.012372841461204,
+          "side": null,
+          "row": null,
+          "range": {
+            "firstVertex": 1224,
+            "vertices": 101,
+            "firstIndex": 2520,
+            "indices": 252
+          },
+          "muzzle": [
+            10.977569464714966,
+            9.113049130011609,
+            1.7011547615580422
+          ],
+          "worldMuzzle": [
+            207.30747753687027,
+            29.11304913001161,
+            1.7011547615580422
+          ],
+          "muzzleRayHit": [
+            207.30743007196742,
+            29.11304913001161,
+            1.7011547615580422
+          ],
+          "muzzleRayErrorM": 1.2001328514088527e-05
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "kind": "oct40",
+      "asset": "isd_heavy_octuple",
+      "float": false,
+      "pedestalHeight": 0,
+      "base": 0,
+      "low": 0,
+      "pedestalAllowed": true,
+      "barrels": 8,
+      "boltTT": 40,
+      "volleyTT": 320,
+      "ionVolleyTT": 0,
+      "powerW": 1.33888e+24,
+      "cycleSeconds": 1,
+      "powerVolleyTT": 320.00000000000006,
+      "modelScale": 1,
+      "manualScale": null,
+      "size": [
+        40,
+        10.568947548408056,
+        39.999823093067505
+      ],
+      "assetSize": [
+        40,
+        10.568947548408056,
+        39.999823093067505
+      ],
+      "assetBounds": [
+        [
+          -19.999862845564778,
+          0,
+          -19.999628938908533
+        ],
+        [
+          20.000137154435226,
+          10.568947548408056,
+          20.00019415415897
+        ]
+      ],
+      "elevationPivot": [
+        -5.725309955373725,
+        3.8824738193985713,
+        0
+      ],
+      "sphereMeshRange": null,
+      "triangles": 1104,
+      "drawnIndices": 3312,
+      "drawOutsideBounds": 0,
+      "chargeInfo": {
+        "required": 6400,
+        "plannedVolume": 6400,
+        "housingVolume": 534.642858999773,
+        "externalVolume": 534.642858999773,
+        "embeddedVolume": 0,
+        "externalUsed": 534.642858999773,
+        "embeddedUsed": 0,
+        "housingUsed": 534.642858999773,
+        "internalRequired": 5865.357141000227,
+        "internalVolume": 5865.357141000226,
+        "internalOccupiedVolume": 5865.357141000226,
+        "volume": 6399.999999999999,
+        "ratio": 0.9999999999999999,
+        "capacityRatio": 0.9999999999999999,
+        "storedTT": 320,
+        "allocationPending": false,
+        "id": -200007,
+        "blocked": false
+      },
+      "authored": {
+        "asset": "isd_heavy_octuple",
+        "yawPivot": [
+          242.2016808833897,
+          20,
+          0
+        ],
+        "elevationPivot": [
+          236.476370928016,
+          23.88247381939857,
+          0
+        ],
+        "elevationAxis": [
+          0,
+          0,
+          1
+        ],
+        "axis": [
+          0,
+          1,
+          0
+        ],
+        "fw": [
+          1,
+          0,
+          0
+        ],
+        "muzzles": [
+          [
+            255.73352773690326,
+            28.406677515729264,
+            -10.795006277560518
+          ],
+          [
+            255.73352773690326,
+            28.406677515729264,
+            -8.908302786431427
+          ],
+          [
+            255.73352773690326,
+            28.406677515729264,
+            -7.0215992953023365
+          ],
+          [
+            255.73352773690326,
+            28.406677515729264,
+            -5.134590611114181
+          ],
+          [
+            255.73352773690326,
+            28.406838794914215,
+            5.135766212482744
+          ],
+          [
+            255.73352773690326,
+            28.406838794914215,
+            7.0227748966708985
+          ],
+          [
+            255.73352773690326,
+            28.406838794914215,
+            8.909478387799991
+          ],
+          [
+            255.73352773690326,
+            28.406838794914215,
+            10.796181878929083
+          ]
+        ],
+        "vertexStart": 452,
+        "indexStart": 984,
+        "housingFixed": false,
+        "limits": {
+          "yaw": null,
+          "lo": -0.17453292519943295,
+          "hi": 1.4835298641951802
+        }
+      },
+      "physicalBarrels": [
+        {
+          "axialLengthM": 19.012390971183777,
+          "side": null,
+          "row": null,
+          "range": {
+            "firstVertex": 628,
+            "vertices": 101,
+            "firstIndex": 1296,
+            "indices": 252
+          },
+          "muzzle": [
+            13.531846853513539,
+            8.406677515729262,
+            -10.79500627756052
+          ],
+          "worldMuzzle": [
+            255.73352773690326,
+            28.406677515729264,
+            -10.795006277560518
+          ],
+          "muzzleRayHit": [
+            255.7334848920346,
+            28.406677515729264,
+            -10.795006277560518
+          ],
+          "muzzleRayErrorM": 7.381294324204646e-06
+        },
+        {
+          "axialLengthM": 19.012390971183777,
+          "side": null,
+          "row": null,
+          "range": {
+            "firstVertex": 729,
+            "vertices": 101,
+            "firstIndex": 1548,
+            "indices": 252
+          },
+          "muzzle": [
+            13.531846853513539,
+            8.406677515729262,
+            -8.908302786431427
+          ],
+          "worldMuzzle": [
+            255.73352773690326,
+            28.406677515729264,
+            -8.908302786431427
+          ],
+          "muzzleRayHit": [
+            255.73348489074536,
+            28.406677515729264,
+            -8.908302786431427
+          ],
+          "muzzleRayErrorM": 7.382583561366118e-06
+        },
+        {
+          "axialLengthM": 19.012390971183777,
+          "side": null,
+          "row": null,
+          "range": {
+            "firstVertex": 830,
+            "vertices": 101,
+            "firstIndex": 1800,
+            "indices": 252
+          },
+          "muzzle": [
+            13.531846853513539,
+            8.406677515729262,
+            -7.0215992953023365
+          ],
+          "worldMuzzle": [
+            255.73352773690326,
+            28.406677515729264,
+            -7.0215992953023365
+          ],
+          "muzzleRayHit": [
+            255.73348491971657,
+            28.406677515729264,
+            -7.0215992953023365
+          ],
+          "muzzleRayErrorM": 7.353612346605587e-06
+        },
+        {
+          "axialLengthM": 19.012390971183777,
+          "side": null,
+          "row": null,
+          "range": {
+            "firstVertex": 931,
+            "vertices": 101,
+            "firstIndex": 2052,
+            "indices": 252
+          },
+          "muzzle": [
+            13.531846853513539,
+            8.406677515729262,
+            -5.134590611114181
+          ],
+          "worldMuzzle": [
+            255.73352773690326,
+            28.406677515729264,
+            -5.134590611114181
+          ],
+          "muzzleRayHit": [
+            255.7334438762545,
+            28.406677515729264,
+            -5.134590611114181
+          ],
+          "muzzleRayErrorM": 7.255906780301302e-06
+        },
+        {
+          "axialLengthM": 19.012390971183777,
+          "side": null,
+          "row": null,
+          "range": {
+            "firstVertex": 1032,
+            "vertices": 101,
+            "firstIndex": 2304,
+            "indices": 252
+          },
+          "muzzle": [
+            13.531846853513539,
+            8.406838794914217,
+            5.135766212482745
+          ],
+          "worldMuzzle": [
+            255.73352773690326,
+            28.406838794914215,
+            5.135766212482744
+          ],
+          "muzzleRayHit": [
+            255.73345286700177,
+            28.406838794914215,
+            5.135766212482744
+          ],
+          "muzzleRayErrorM": 7.178644210625862e-06
+        },
+        {
+          "axialLengthM": 19.012390971183777,
+          "side": null,
+          "row": null,
+          "range": {
+            "firstVertex": 1133,
+            "vertices": 101,
+            "firstIndex": 2556,
+            "indices": 252
+          },
+          "muzzle": [
+            13.531846853513539,
+            8.406838794914217,
+            7.022774896670899
+          ],
+          "worldMuzzle": [
+            255.73352773690326,
+            28.406838794914215,
+            7.0227748966708985
+          ],
+          "muzzleRayHit": [
+            255.73338508312702,
+            28.406838794914215,
+            7.0227748966708985
+          ],
+          "muzzleRayErrorM": 7.271261722507916e-06
+        },
+        {
+          "axialLengthM": 19.012390971183777,
+          "side": null,
+          "row": null,
+          "range": {
+            "firstVertex": 1234,
+            "vertices": 101,
+            "firstIndex": 2808,
+            "indices": 252
+          },
+          "muzzle": [
+            13.531846853513539,
+            8.406838794914217,
+            8.909478387799991
+          ],
+          "worldMuzzle": [
+            255.73352773690326,
+            28.406838794914215,
+            8.909478387799991
+          ],
+          "muzzleRayHit": [
+            255.73352036944686,
+            28.406838794914215,
+            8.909478387799991
+          ],
+          "muzzleRayErrorM": 7.36745639073888e-06
+        },
+        {
+          "axialLengthM": 19.012390971183777,
+          "side": null,
+          "row": null,
+          "range": {
+            "firstVertex": 1335,
+            "vertices": 101,
+            "firstIndex": 3060,
+            "indices": 252
+          },
+          "muzzle": [
+            13.531846853513539,
+            8.406838794914217,
+            10.796181878929083
+          ],
+          "worldMuzzle": [
+            255.73352773690326,
+            28.406838794914215,
+            10.796181878929083
+          ],
+          "muzzleRayHit": [
+            255.73352029387488,
+            28.406838794914215,
+            10.796181878929083
+          ],
+          "muzzleRayErrorM": 7.443028380293981e-06
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "kind": "refVen",
+      "asset": "ven_turret70_native",
+      "float": false,
+      "pedestalHeight": 0,
+      "base": 0,
+      "low": 0,
+      "pedestalAllowed": true,
+      "barrels": 2,
+      "boltTT": 70,
+      "volleyTT": 140,
+      "ionVolleyTT": 0,
+      "powerW": 5.8576e+23,
+      "cycleSeconds": 1,
+      "powerVolleyTT": 140,
+      "modelScale": 1,
+      "manualScale": null,
+      "size": [
+        28.861991732262666,
+        9.997709107492678,
+        16.25808446257435
+      ],
+      "assetSize": [
+        28.861991732262666,
+        9.997709107492678,
+        16.25808446257435
+      ],
+      "assetBounds": [
+        [
+          -13.02343530984682,
+          0,
+          -8.127121280529693
+        ],
+        [
+          15.838556422415849,
+          9.997709107492678,
+          8.130963182044656
+        ]
+      ],
+      "elevationPivot": [
+        -0.4148995445542817,
+        4.403239031199898,
+        0.0019219341471665707
+      ],
+      "sphereMeshRange": null,
+      "triangles": 5572,
+      "drawnIndices": 16716,
+      "drawOutsideBounds": 0,
+      "chargeInfo": {
+        "required": 2800,
+        "plannedVolume": 2800,
+        "housingVolume": 939.7925022942994,
+        "externalVolume": 939.7925022942994,
+        "embeddedVolume": 0,
+        "externalUsed": 939.7925022942994,
+        "embeddedUsed": 0,
+        "housingUsed": 939.7925022942994,
+        "internalRequired": 1860.2074977057005,
+        "internalVolume": 1860.2074977057002,
+        "internalOccupiedVolume": 1860.2074977057002,
+        "volume": 2799.9999999999995,
+        "ratio": 0.9999999999999999,
+        "capacityRatio": 0.9999999999999999,
+        "storedTT": 139.99999999999997,
+        "allocationPending": false,
+        "id": -200008,
+        "blocked": false
+      },
+      "authored": {
+        "asset": "ven_turret70_native",
+        "yawPivot": [
+          290.63267674952107,
+          20,
+          0
+        ],
+        "elevationPivot": [
+          290.2177772049668,
+          24.4032390311999,
+          0.0019219341471665707
+        ],
+        "elevationAxis": [
+          0.005228999819337332,
+          0,
+          0.9999863286869923
+        ],
+        "axis": [
+          0,
+          1,
+          0
+        ],
+        "fw": [
+          0.9999861774392684,
+          -0.0005499995854947315,
+          -0.005228999028431302
+        ],
+        "muzzles": [
+          [
+            306.40620871698604,
+            24.40205877112618,
+            -6.039509018798145
+          ],
+          [
+            306.4685037852319,
+            24.402038228286205,
+            5.873711490208386
+          ]
+        ],
+        "vertexStart": 2995,
+        "indexStart": 9624,
+        "housingFixed": false,
+        "limits": {
+          "yaw": null,
+          "lo": -0.17453292519943295,
+          "hi": 1.4835298641951802
+        }
+      },
+      "physicalBarrels": [
+        {
+          "axialLengthM": 12.880076017847163,
+          "side": null,
+          "row": null,
+          "range": {
+            "firstVertex": 2995,
+            "vertices": 1272,
+            "firstIndex": 9624,
+            "indices": 3546
+          },
+          "muzzle": [
+            15.773531967464963,
+            4.402058771126177,
+            -6.039509018798145
+          ],
+          "worldMuzzle": [
+            306.40620871698604,
+            24.40205877112618,
+            -6.039509018798145
+          ],
+          "muzzleRayHit": [
+            305.12286334366996,
+            24.402764620306193,
+            -6.032798314328813
+          ],
+          "muzzleRayErrorM": 0.00014559926729799857
+        },
+        {
+          "axialLengthM": 12.880060933411519,
+          "side": null,
+          "row": null,
+          "range": {
+            "firstVertex": 4267,
+            "vertices": 1272,
+            "firstIndex": 13170,
+            "indices": 3546
+          },
+          "muzzle": [
+            15.835827035710857,
+            4.402038228286204,
+            5.873711490208386
+          ],
+          "worldMuzzle": [
+            306.4685037852319,
+            24.402038228286205,
+            5.873711490208386
+          ],
+          "muzzleRayHit": [
+            305.1854091396068,
+            24.402743939564186,
+            5.880420883604743
+          ],
+          "muzzleRayErrorM": 0.00010513188936003106
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "kind": "triple70",
+      "asset": "family_triple70",
+      "float": false,
+      "pedestalHeight": 0,
+      "base": 0,
+      "low": 0,
+      "pedestalAllowed": true,
+      "barrels": 3,
+      "boltTT": 70,
+      "volleyTT": 210,
+      "ionVolleyTT": 0,
+      "powerW": 8.7864e+23,
+      "cycleSeconds": 1,
+      "powerVolleyTT": 210,
+      "modelScale": 1,
+      "manualScale": null,
+      "size": [
+        47.82965286330342,
+        9.997709107492678,
+        28
+      ],
+      "assetSize": [
+        47.82965286330342,
+        9.997709107492678,
+        28
+      ],
+      "assetBounds": [
+        [
+          -11.2,
+          0,
+          -14
+        ],
+        [
+          36.62965286330343,
+          9.997709107492678,
+          14
+        ]
+      ],
+      "elevationPivot": [
+        20.2,
+        6.25,
+        0
+      ],
+      "sphereMeshRange": null,
+      "triangles": 10104,
+      "drawnIndices": 30312,
+      "drawOutsideBounds": 0,
+      "chargeInfo": {
+        "required": 4200,
+        "plannedVolume": 4200,
+        "housingVolume": 5416.386212167215,
+        "externalVolume": 5416.386212167215,
+        "embeddedVolume": 0,
+        "externalUsed": 4200,
+        "embeddedUsed": 0,
+        "housingUsed": 4200,
+        "internalRequired": 0,
+        "internalVolume": 0,
+        "internalOccupiedVolume": 0,
+        "volume": 4200,
+        "ratio": 1,
+        "capacityRatio": 1,
+        "storedTT": 210,
+        "allocationPending": false,
+        "id": null,
+        "blocked": false
+      },
+      "authored": {
+        "asset": "family_triple70",
+        "yawPivot": [
+          342.97849904730407,
+          20,
+          0
+        ],
+        "elevationPivot": [
+          363.17849904730406,
+          26.25,
+          0
+        ],
+        "elevationAxis": [
+          0,
+          0,
+          1
+        ],
+        "axis": [
+          0,
+          1,
+          0
+        ],
+        "fw": [
+          1,
+          0,
+          0
+        ],
+        "muzzles": [
+          [
+            379.6081519106075,
+            26.25,
+            -3.2
+          ],
+          [
+            379.6081519106075,
+            26.25,
+            0
+          ],
+          [
+            379.6081519106075,
+            26.25,
+            3.2
+          ]
+        ],
+        "vertexStart": 3557,
+        "indexStart": 9990,
+        "housingFixed": false,
+        "limits": {
+          "yaw": null,
+          "lo": -0.17453292519943295,
+          "hi": 1.4835298641951802
+        }
+      },
+      "physicalBarrels": [
+        {
+          "axialLengthM": 12.879965266640678,
+          "side": null,
+          "row": null,
+          "range": {
+            "firstVertex": 6588,
+            "vertices": 1272,
+            "firstIndex": 19674,
+            "indices": 3546
+          },
+          "muzzle": [
+            36.62965286330343,
+            6.25,
+            -3.2
+          ],
+          "worldMuzzle": [
+            379.6081519106075,
+            26.25,
+            -3.2
+          ],
+          "muzzleRayHit": [
+            378.3250427246094,
+            26.25,
+            -3.2
+          ],
+          "muzzleRayErrorM": 0.0001083274152051672
+        },
+        {
+          "axialLengthM": 12.879965266640678,
+          "side": null,
+          "row": null,
+          "range": {
+            "firstVertex": 7860,
+            "vertices": 1272,
+            "firstIndex": 23220,
+            "indices": 3546
+          },
+          "muzzle": [
+            36.62965286330343,
+            6.25,
+            0
+          ],
+          "worldMuzzle": [
+            379.6081519106075,
+            26.25,
+            0
+          ],
+          "muzzleRayHit": [
+            378.3250427246094,
+            26.25,
+            0
+          ],
+          "muzzleRayErrorM": 0.0001083274152051672
+        },
+        {
+          "axialLengthM": 12.879965266640678,
+          "side": null,
+          "row": null,
+          "range": {
+            "firstVertex": 9132,
+            "vertices": 1272,
+            "firstIndex": 26766,
+            "indices": 3546
+          },
+          "muzzle": [
+            36.62965286330343,
+            6.25,
+            3.2
+          ],
+          "worldMuzzle": [
+            379.6081519106075,
+            26.25,
+            3.2
+          ],
+          "muzzleRayHit": [
+            378.3250427246094,
+            26.25,
+            3.2
+          ],
+          "muzzleRayErrorM": 0.0001083274152051672
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "kind": "quad70Side",
+      "asset": "family_quad70_side",
+      "float": false,
+      "pedestalHeight": 0,
+      "base": 0,
+      "low": 0,
+      "pedestalAllowed": true,
+      "barrels": 4,
+      "boltTT": 70,
+      "volleyTT": 280,
+      "ionVolleyTT": 0,
+      "powerW": 1.17152e+24,
+      "cycleSeconds": 1,
+      "powerVolleyTT": 280,
+      "modelScale": 1,
+      "manualScale": null,
+      "size": [
+        35.87965286330343,
+        11.9,
+        18
+      ],
+      "assetSize": [
+        35.87965286330343,
+        11.9,
+        18
+      ],
+      "assetBounds": [
+        [
+          0,
+          0,
+          -9
+        ],
+        [
+          35.87965286330343,
+          11.9,
+          9
+        ]
+      ],
+      "elevationPivot": [
+        20,
+        6,
+        0
+      ],
+      "sphereMeshRange": null,
+      "triangles": 7536,
+      "drawnIndices": 22608,
+      "drawOutsideBounds": 0,
+      "chargeInfo": {
+        "required": 5600,
+        "plannedVolume": 5600,
+        "housingVolume": 4458.96,
+        "externalVolume": 4458.96,
+        "embeddedVolume": 0,
+        "externalUsed": 4458.96,
+        "embeddedUsed": 0,
+        "housingUsed": 4458.96,
+        "internalRequired": 1141.04,
+        "internalVolume": 1141.04,
+        "internalOccupiedVolume": 1141.04,
+        "volume": 5600,
+        "ratio": 1,
+        "capacityRatio": 1,
+        "storedTT": 280,
+        "allocationPending": false,
+        "id": -200011,
+        "blocked": false
+      },
+      "authored": {
+        "asset": "family_quad70_side",
+        "yawPivot": [
+          398.8331519106075,
+          26,
+          20
+        ],
+        "elevationPivot": [
+          398.8331519106075,
+          26,
+          20
+        ],
+        "elevationAxis": [
+          -1,
+          0,
+          0
+        ],
+        "axis": [
+          0,
+          1,
+          0
+        ],
+        "fw": [
+          0,
+          0,
+          1
+        ],
+        "muzzles": [
+          [
+            401.3331519106075,
+            23.7,
+            35.87965286330343
+          ],
+          [
+            396.3331519106075,
+            23.7,
+            35.87965286330343
+          ],
+          [
+            401.3331519106075,
+            28.3,
+            35.87965286330343
+          ],
+          [
+            396.3331519106075,
+            28.3,
+            35.87965286330343
+          ]
+        ],
+        "vertexStart": 2525,
+        "indexStart": 8364,
+        "housingFixed": true,
+        "limits": {
+          "yaw": 1.1344640137963142,
+          "lo": -0.3490658503988659,
+          "hi": 0.3490658503988659
+        }
+      },
+      "physicalBarrels": [
+        {
+          "axialLengthM": 12.879706739500332,
+          "side": null,
+          "row": null,
+          "range": {
+            "firstVertex": 2561,
+            "vertices": 1272,
+            "firstIndex": 8424,
+            "indices": 3546
+          },
+          "muzzle": [
+            35.87965286330343,
+            3.7,
+            -2.5
+          ],
+          "worldMuzzle": [
+            401.3331519106075,
+            23.7,
+            35.87965286330343
+          ],
+          "muzzleRayHit": [
+            401.3331519106075,
+            23.7,
+            34.596282958984375
+          ],
+          "muzzleRayErrorM": 0.00015239090575391856
+        },
+        {
+          "axialLengthM": 12.879706739500332,
+          "side": null,
+          "row": null,
+          "range": {
+            "firstVertex": 3833,
+            "vertices": 1272,
+            "firstIndex": 11970,
+            "indices": 3546
+          },
+          "muzzle": [
+            35.87965286330343,
+            3.7,
+            2.5
+          ],
+          "worldMuzzle": [
+            396.3331519106075,
+            23.7,
+            35.87965286330343
+          ],
+          "muzzleRayHit": [
+            396.3331519106075,
+            23.7,
+            34.596282958984375
+          ],
+          "muzzleRayErrorM": 0.00015239090575391856
+        },
+        {
+          "axialLengthM": 12.879706739500332,
+          "side": null,
+          "row": null,
+          "range": {
+            "firstVertex": 5105,
+            "vertices": 1272,
+            "firstIndex": 15516,
+            "indices": 3546
+          },
+          "muzzle": [
+            35.87965286330343,
+            8.3,
+            -2.5
+          ],
+          "worldMuzzle": [
+            401.3331519106075,
+            28.3,
+            35.87965286330343
+          ],
+          "muzzleRayHit": [
+            401.3331519106075,
+            28.3,
+            34.596282958984375
+          ],
+          "muzzleRayErrorM": 0.00015239090575391856
+        },
+        {
+          "axialLengthM": 12.879706739500332,
+          "side": null,
+          "row": null,
+          "range": {
+            "firstVertex": 6377,
+            "vertices": 1272,
+            "firstIndex": 19062,
+            "indices": 3546
+          },
+          "muzzle": [
+            35.87965286330343,
+            8.3,
+            2.5
+          ],
+          "worldMuzzle": [
+            396.3331519106075,
+            28.3,
+            35.87965286330343
+          ],
+          "muzzleRayHit": [
+            396.3331519106075,
+            28.3,
+            34.596282958984375
+          ],
+          "muzzleRayErrorM": 0.00015239090575391856
+        }
+      ]
+    }
+  ],
+  "nativeCanvasSelection": [
+    {
+      "kind": "single40",
+      "id": 2,
+      "pixel": [
+        516.0081477364431,
+        600.8052939069211
+      ],
+      "nativeCanvasClick": true,
+      "compartment": {
+        "text": "Gunhouse & Charge Banks\n1 Times min · 10 m · 100%\n\n40 TT × 1 Barrels × 1 Salvos = 40 TT\n\nRequired Bank Volume\n800.0 m³\nPlanned Bank Volume\n800.0 m³\nGunhouse Volume\n369.6 m³\nExternal Gunhouse Volume\n369.6 m³\nEmbedded Gunhouse Volume\n0.0 m³\nBanks Housed in Gunhouse\n369.6 m³\nAdditional Interior Bank Required\n430.4 m³\nAdditional Interior Bank Installed\n430.4 m³\nTotal Interior Volume Occupied\n430.4 m³\nTotal Bank Volume\n800.0 m³\n\nCharge Capacity 100% · Interior Compartment 8.2 × 6.5 × 8.2 m\n\nStored Salvos\n1 Times min\nDepth Inward from Mounting Surface\nCharger Compartment Volume\n\nUse the gunhouse as a weapon compartment and add interior banks only for the shortfall. Embedded gunhouse volume occupies interior space and cannot be shared with other compartments. Capacity density: 0.05 TT/m³. Recharge estimate: No Power.",
+        "rows": [
+          {
+            "key": "required",
+            "text": "800.0 m³"
+          },
+          {
+            "key": "plannedVolume",
+            "text": "800.0 m³"
+          },
+          {
+            "key": "housingVolume",
+            "text": "369.6 m³"
+          },
+          {
+            "key": "externalVolume",
+            "text": "369.6 m³"
+          },
+          {
+            "key": "embeddedVolume",
+            "text": "0.0 m³"
+          },
+          {
+            "key": "housingUsed",
+            "text": "369.6 m³"
+          },
+          {
+            "key": "internalRequired",
+            "text": "430.4 m³"
+          },
+          {
+            "key": "internalVolume",
+            "text": "430.4 m³"
+          },
+          {
+            "key": "internalOccupiedVolume",
+            "text": "430.4 m³"
+          },
+          {
+            "key": "volume",
+            "text": "800.0 m³"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "quad40Ion",
+      "id": 3,
+      "pixel": [
+        597.5380128839755,
+        593.6663671448653
+      ],
+      "nativeCanvasClick": true,
+      "compartment": {
+        "text": "Gunhouse & Charge Banks\n1 Times min · 10 m · 100%\n\n40 TT × 4 Barrels × 1 Salvos = 160 TT\n\nRequired Bank Volume\n3,200.0 m³\nPlanned Bank Volume\n3,200.0 m³\nGunhouse Volume\n2,706.8 m³\nExternal Gunhouse Volume\n2,006.5 m³\nEmbedded Gunhouse Volume\n700.3 m³\nBanks Housed in Gunhouse\n2,706.8 m³\nAdditional Interior Bank Required\n493.2 m³\nAdditional Interior Bank Installed\n493.2 m³\nTotal Interior Volume Occupied\n1,193.5 m³\nTotal Bank Volume\n3,200.0 m³\n\nCharge Capacity 100% · Interior Compartment 16.3 × 1.8 × 16.3 m\n\nStored Salvos\n1 Times min\nDepth Inward from Mounting Surface\nCharger Compartment Volume\nAutomatically Merge while Preserving Volume\n\n2 Compartments · Total 1,193.5 / 1,193.5 m³\n\nThis Compartment 493.2 / 493.2 m³ · 100%\n\nRepositioning Radius 14.3 × 5.7 × 14.3 m\n\nEach function's volume is accounted for separately. Fits into nearby connected space while avoiding reactors, engines and launch openings. Inspect the resulting shape in X-ray view.\n\nUse the gunhouse as a weapon compartment and add interior banks only for the shortfall. Embedded gunhouse volume occupies interior space and cannot be shared with other compartments. Capacity density: 0.05 TT/m³. Recharge estimate: No Power.",
+        "rows": [
+          {
+            "key": "required",
+            "text": "3,200.0 m³"
+          },
+          {
+            "key": "plannedVolume",
+            "text": "3,200.0 m³"
+          },
+          {
+            "key": "housingVolume",
+            "text": "2,706.8 m³"
+          },
+          {
+            "key": "externalVolume",
+            "text": "2,006.5 m³"
+          },
+          {
+            "key": "embeddedVolume",
+            "text": "700.3 m³"
+          },
+          {
+            "key": "housingUsed",
+            "text": "2,706.8 m³"
+          },
+          {
+            "key": "internalRequired",
+            "text": "493.2 m³"
+          },
+          {
+            "key": "internalVolume",
+            "text": "493.2 m³"
+          },
+          {
+            "key": "internalOccupiedVolume",
+            "text": "1,193.5 m³"
+          },
+          {
+            "key": "volume",
+            "text": "3,200.0 m³"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "twin40Dome",
+      "id": 4,
+      "pixel": [
+        670.4210930687951,
+        589.8953476170227
+      ],
+      "nativeCanvasClick": true,
+      "compartment": {
+        "text": "Gunhouse & Charge Banks\n1 Times min · 10 m · 100%\n\n40 TT × 2 Barrels × 1 Salvos = 80 TT\n\nRequired Bank Volume\n1,600.0 m³\nPlanned Bank Volume\n1,600.0 m³\nGunhouse Volume\n1,442.7 m³\nExternal Gunhouse Volume\n1,442.7 m³\nEmbedded Gunhouse Volume\n0.0 m³\nBanks Housed in Gunhouse\n1,442.7 m³\nAdditional Interior Bank Required\n157.3 m³\nAdditional Interior Bank Installed\n157.3 m³\nTotal Interior Volume Occupied\n157.3 m³\nTotal Bank Volume\n1,600.0 m³\n\nCharge Capacity 100% · Interior Compartment 11.5 × 1.2 × 11.5 m\n\nStored Salvos\n1 Times min\nDepth Inward from Mounting Surface\nCharger Compartment Volume\n\nUse the gunhouse as a weapon compartment and add interior banks only for the shortfall. Embedded gunhouse volume occupies interior space and cannot be shared with other compartments. Capacity density: 0.05 TT/m³. Recharge estimate: No Power.",
+        "rows": [
+          {
+            "key": "required",
+            "text": "1,600.0 m³"
+          },
+          {
+            "key": "plannedVolume",
+            "text": "1,600.0 m³"
+          },
+          {
+            "key": "housingVolume",
+            "text": "1,442.7 m³"
+          },
+          {
+            "key": "externalVolume",
+            "text": "1,442.7 m³"
+          },
+          {
+            "key": "embeddedVolume",
+            "text": "0.0 m³"
+          },
+          {
+            "key": "housingUsed",
+            "text": "1,442.7 m³"
+          },
+          {
+            "key": "internalRequired",
+            "text": "157.3 m³"
+          },
+          {
+            "key": "internalVolume",
+            "text": "157.3 m³"
+          },
+          {
+            "key": "internalOccupiedVolume",
+            "text": "157.3 m³"
+          },
+          {
+            "key": "volume",
+            "text": "1,600.0 m³"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "twin40",
+      "id": 5,
+      "pixel": [
+        744.6901046057005,
+        579.2240500436974
+      ],
+      "nativeCanvasClick": true,
+      "compartment": {
+        "text": "Gunhouse & Charge Banks\n1 Times min · 100%\n\n40 TT × 2 Barrels × 1 Salvos = 80 TT\n\nRequired Bank Volume\n1,600.0 m³\nPlanned Bank Volume\n1,600.0 m³\nGunhouse Volume\n1,706.6 m³\nExternal Gunhouse Volume\n1,706.6 m³\nEmbedded Gunhouse Volume\n0.0 m³\nBanks Housed in Gunhouse\n1,600.0 m³\nAdditional Interior Bank Required\n0.0 m³\nAdditional Interior Bank Installed\n0.0 m³\nTotal Interior Volume Occupied\n0.0 m³\nTotal Bank Volume\n1,600.0 m³\n\nCharge Capacity 100%\n\nStored Salvos\n1 Times min\nCharger Compartment Volume\n\nUse the gunhouse as a weapon compartment and add interior banks only for the shortfall. Embedded gunhouse volume occupies interior space and cannot be shared with other compartments. Capacity density: 0.05 TT/m³. Recharge estimate: No Power.",
+        "rows": [
+          {
+            "key": "required",
+            "text": "1,600.0 m³"
+          },
+          {
+            "key": "plannedVolume",
+            "text": "1,600.0 m³"
+          },
+          {
+            "key": "housingVolume",
+            "text": "1,706.6 m³"
+          },
+          {
+            "key": "externalVolume",
+            "text": "1,706.6 m³"
+          },
+          {
+            "key": "embeddedVolume",
+            "text": "0.0 m³"
+          },
+          {
+            "key": "housingUsed",
+            "text": "1,600.0 m³"
+          },
+          {
+            "key": "internalRequired",
+            "text": "0.0 m³"
+          },
+          {
+            "key": "internalVolume",
+            "text": "0.0 m³"
+          },
+          {
+            "key": "internalOccupiedVolume",
+            "text": "0.0 m³"
+          },
+          {
+            "key": "volume",
+            "text": "1,600.0 m³"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "triple40",
+      "id": 6,
+      "pixel": [
+        811.9993474005972,
+        572.4350642428086
+      ],
+      "nativeCanvasClick": true,
+      "compartment": {
+        "text": "Gunhouse & Charge Banks\n1 Times min · 10 m · 100%\n\n40 TT × 3 Barrels × 1 Salvos = 120 TT\n\nRequired Bank Volume\n2,400.0 m³\nPlanned Bank Volume\n2,400.0 m³\nGunhouse Volume\n969.3 m³\nExternal Gunhouse Volume\n969.3 m³\nEmbedded Gunhouse Volume\n0.0 m³\nBanks Housed in Gunhouse\n969.3 m³\nAdditional Interior Bank Required\n1,430.7 m³\nAdditional Interior Bank Installed\n1,430.7 m³\nTotal Interior Volume Occupied\n1,430.7 m³\nTotal Bank Volume\n2,400.0 m³\n\nCharge Capacity 100% · Interior Compartment 14.1 × 7.2 × 14.1 m\n\nStored Salvos\n1 Times min\nDepth Inward from Mounting Surface\nCharger Compartment Volume\n\nUse the gunhouse as a weapon compartment and add interior banks only for the shortfall. Embedded gunhouse volume occupies interior space and cannot be shared with other compartments. Capacity density: 0.05 TT/m³. Recharge estimate: No Power.",
+        "rows": [
+          {
+            "key": "required",
+            "text": "2,400.0 m³"
+          },
+          {
+            "key": "plannedVolume",
+            "text": "2,400.0 m³"
+          },
+          {
+            "key": "housingVolume",
+            "text": "969.3 m³"
+          },
+          {
+            "key": "externalVolume",
+            "text": "969.3 m³"
+          },
+          {
+            "key": "embeddedVolume",
+            "text": "0.0 m³"
+          },
+          {
+            "key": "housingUsed",
+            "text": "969.3 m³"
+          },
+          {
+            "key": "internalRequired",
+            "text": "1,430.7 m³"
+          },
+          {
+            "key": "internalVolume",
+            "text": "1,430.7 m³"
+          },
+          {
+            "key": "internalOccupiedVolume",
+            "text": "1,430.7 m³"
+          },
+          {
+            "key": "volume",
+            "text": "2,400.0 m³"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "oct40",
+      "id": 7,
+      "pixel": [
+        897.5537911455674,
+        561.3665866646663
+      ],
+      "nativeCanvasClick": true,
+      "compartment": {
+        "text": "Gunhouse & Charge Banks\n1 Times min · 10 m · 100%\n\n40 TT × 8 Barrels × 1 Salvos = 320 TT\n\nRequired Bank Volume\n6,400.0 m³\nPlanned Bank Volume\n6,400.0 m³\nGunhouse Volume\n534.6 m³\nExternal Gunhouse Volume\n534.6 m³\nEmbedded Gunhouse Volume\n0.0 m³\nBanks Housed in Gunhouse\n534.6 m³\nAdditional Interior Bank Required\n5,865.4 m³\nAdditional Interior Bank Installed\n5,865.4 m³\nTotal Interior Volume Occupied\n5,865.4 m³\nTotal Bank Volume\n6,400.0 m³\n\nCharge Capacity 100% · Interior Compartment 23.1 × 11.0 × 23.1 m\n\nStored Salvos\n1 Times min\nDepth Inward from Mounting Surface\nCharger Compartment Volume\n\nUse the gunhouse as a weapon compartment and add interior banks only for the shortfall. Embedded gunhouse volume occupies interior space and cannot be shared with other compartments. Capacity density: 0.05 TT/m³. Recharge estimate: No Power.",
+        "rows": [
+          {
+            "key": "required",
+            "text": "6,400.0 m³"
+          },
+          {
+            "key": "plannedVolume",
+            "text": "6,400.0 m³"
+          },
+          {
+            "key": "housingVolume",
+            "text": "534.6 m³"
+          },
+          {
+            "key": "externalVolume",
+            "text": "534.6 m³"
+          },
+          {
+            "key": "embeddedVolume",
+            "text": "0.0 m³"
+          },
+          {
+            "key": "housingUsed",
+            "text": "534.6 m³"
+          },
+          {
+            "key": "internalRequired",
+            "text": "5,865.4 m³"
+          },
+          {
+            "key": "internalVolume",
+            "text": "5,865.4 m³"
+          },
+          {
+            "key": "internalOccupiedVolume",
+            "text": "5,865.4 m³"
+          },
+          {
+            "key": "volume",
+            "text": "6,400.0 m³"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "refVen",
+      "id": 8,
+      "pixel": [
+        978.599181920496,
+        538.845729335621
+      ],
+      "nativeCanvasClick": true,
+      "compartment": {
+        "text": "Gunhouse & Charge Banks\n1 Times min · 10 m · 100%\n\n70 TT × 2 Barrels × 1 Salvos = 140 TT\n\nRequired Bank Volume\n2,800.0 m³\nPlanned Bank Volume\n2,800.0 m³\nGunhouse Volume\n939.8 m³\nExternal Gunhouse Volume\n939.8 m³\nEmbedded Gunhouse Volume\n0.0 m³\nBanks Housed in Gunhouse\n939.8 m³\nAdditional Interior Bank Required\n1,860.2 m³\nAdditional Interior Bank Installed\n1,860.2 m³\nTotal Interior Volume Occupied\n1,860.2 m³\nTotal Bank Volume\n2,800.0 m³\n\nCharge Capacity 100% · Interior Compartment 15.3 × 8.0 × 15.3 m\n\nStored Salvos\n1 Times min\nDepth Inward from Mounting Surface\nCharger Compartment Volume\n\nUse the gunhouse as a weapon compartment and add interior banks only for the shortfall. Embedded gunhouse volume occupies interior space and cannot be shared with other compartments. Capacity density: 0.05 TT/m³. Recharge estimate: No Power.",
+        "rows": [
+          {
+            "key": "required",
+            "text": "2,800.0 m³"
+          },
+          {
+            "key": "plannedVolume",
+            "text": "2,800.0 m³"
+          },
+          {
+            "key": "housingVolume",
+            "text": "939.8 m³"
+          },
+          {
+            "key": "externalVolume",
+            "text": "939.8 m³"
+          },
+          {
+            "key": "embeddedVolume",
+            "text": "0.0 m³"
+          },
+          {
+            "key": "housingUsed",
+            "text": "939.8 m³"
+          },
+          {
+            "key": "internalRequired",
+            "text": "1,860.2 m³"
+          },
+          {
+            "key": "internalVolume",
+            "text": "1,860.2 m³"
+          },
+          {
+            "key": "internalOccupiedVolume",
+            "text": "1,860.2 m³"
+          },
+          {
+            "key": "volume",
+            "text": "2,800.0 m³"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "triple70",
+      "id": 9,
+      "pixel": [
+        1083.1756575778054,
+        530.8744328438836
+      ],
+      "nativeCanvasClick": true,
+      "compartment": {
+        "text": "Gunhouse & Charge Banks\n1 Times min · 100%\n\n70 TT × 3 Barrels × 1 Salvos = 210 TT\n\nRequired Bank Volume\n4,200.0 m³\nPlanned Bank Volume\n4,200.0 m³\nGunhouse Volume\n5,416.4 m³\nExternal Gunhouse Volume\n5,416.4 m³\nEmbedded Gunhouse Volume\n0.0 m³\nBanks Housed in Gunhouse\n4,200.0 m³\nAdditional Interior Bank Required\n0.0 m³\nAdditional Interior Bank Installed\n0.0 m³\nTotal Interior Volume Occupied\n0.0 m³\nTotal Bank Volume\n4,200.0 m³\n\nCharge Capacity 100%\n\nStored Salvos\n1 Times min\nCharger Compartment Volume\n\nUse the gunhouse as a weapon compartment and add interior banks only for the shortfall. Embedded gunhouse volume occupies interior space and cannot be shared with other compartments. Capacity density: 0.05 TT/m³. Recharge estimate: No Power.",
+        "rows": [
+          {
+            "key": "required",
+            "text": "4,200.0 m³"
+          },
+          {
+            "key": "plannedVolume",
+            "text": "4,200.0 m³"
+          },
+          {
+            "key": "housingVolume",
+            "text": "5,416.4 m³"
+          },
+          {
+            "key": "externalVolume",
+            "text": "5,416.4 m³"
+          },
+          {
+            "key": "embeddedVolume",
+            "text": "0.0 m³"
+          },
+          {
+            "key": "housingUsed",
+            "text": "4,200.0 m³"
+          },
+          {
+            "key": "internalRequired",
+            "text": "0.0 m³"
+          },
+          {
+            "key": "internalVolume",
+            "text": "0.0 m³"
+          },
+          {
+            "key": "internalOccupiedVolume",
+            "text": "0.0 m³"
+          },
+          {
+            "key": "volume",
+            "text": "4,200.0 m³"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "quad70Side",
+      "id": 11,
+      "pixel": [
+        1194.7929909295863,
+        518.3680901574405
+      ],
+      "nativeCanvasClick": true,
+      "compartment": {
+        "text": "Gunhouse & Charge Banks\n1 Times min · 10 m · 100%\n\n70 TT × 4 Barrels × 1 Salvos = 280 TT\n\nRequired Bank Volume\n5,600.0 m³\nPlanned Bank Volume\n5,600.0 m³\nGunhouse Volume\n4,459.0 m³\nExternal Gunhouse Volume\n4,459.0 m³\nEmbedded Gunhouse Volume\n0.0 m³\nBanks Housed in Gunhouse\n4,459.0 m³\nAdditional Interior Bank Required\n1,141.0 m³\nAdditional Interior Bank Installed\n1,141.0 m³\nTotal Interior Volume Occupied\n1,141.0 m³\nTotal Bank Volume\n5,600.0 m³\n\nCharge Capacity 100% · Interior Compartment 21.6 × 2.4 × 21.6 m\n\nStored Salvos\n1 Times min\nDepth Inward from Mounting Surface\nCharger Compartment Volume\n\nUse the gunhouse as a weapon compartment and add interior banks only for the shortfall. Embedded gunhouse volume occupies interior space and cannot be shared with other compartments. Capacity density: 0.05 TT/m³. Recharge estimate: No Power.",
+        "rows": [
+          {
+            "key": "required",
+            "text": "5,600.0 m³"
+          },
+          {
+            "key": "plannedVolume",
+            "text": "5,600.0 m³"
+          },
+          {
+            "key": "housingVolume",
+            "text": "4,459.0 m³"
+          },
+          {
+            "key": "externalVolume",
+            "text": "4,459.0 m³"
+          },
+          {
+            "key": "embeddedVolume",
+            "text": "0.0 m³"
+          },
+          {
+            "key": "housingUsed",
+            "text": "4,459.0 m³"
+          },
+          {
+            "key": "internalRequired",
+            "text": "1,141.0 m³"
+          },
+          {
+            "key": "internalVolume",
+            "text": "1,141.0 m³"
+          },
+          {
+            "key": "internalOccupiedVolume",
+            "text": "1,141.0 m³"
+          },
+          {
+            "key": "volume",
+            "text": "5,600.0 m³"
+          }
+        ]
+      }
+    }
+  ],
+  "bodyInfoText": "Gunhouse & Charge Banks\n1 Times min · 10 m · 100%\n\n70 TT × 4 Barrels × 1 Salvos = 280 TT\n\nRequired Bank Volume\n5,600.0 m³\nPlanned Bank Volume\n5,600.0 m³\nGunhouse Volume\n4,459.0 m³\nExternal Gunhouse Volume\n4,459.0 m³\nEmbedded Gunhouse Volume\n0.0 m³\nBanks Housed in Gunhouse\n4,459.0 m³\nAdditional Interior Bank Required\n1,141.0 m³\nAdditional Interior Bank Installed\n1,141.0 m³\nTotal Interior Volume Occupied\n1,141.0 m³\nTotal Bank Volume\n5,600.0 m³\n\nCharge Capacity 100% · Interior Compartment 21.6 × 2.4 × 21.6 m\n\nStored Salvos\n1 Times min\nDepth Inward from Mounting Surface\nCharger Compartment Volume\n\nUse the gunhouse as a weapon compartment and add interior banks only for the shortfall. Embedded gunhouse volume occupies interior space and cannot be shared with other compartments. Capacity density: 0.05 TT/m³. Recharge estimate: No Power.",
+  "ionNativeBodyInfoText": "Gunhouse & Charge Banks\n1 Times min · 10 m · 100%\n\n40 TT × 4 Barrels × 1 Salvos = 160 TT\n\nRequired Bank Volume\n3,200.0 m³\nPlanned Bank Volume\n3,200.0 m³\nGunhouse Volume\n2,706.8 m³\nExternal Gunhouse Volume\n2,006.5 m³\nEmbedded Gunhouse Volume\n700.3 m³\nBanks Housed in Gunhouse\n2,706.8 m³\nAdditional Interior Bank Required\n493.2 m³\nAdditional Interior Bank Installed\n493.2 m³\nTotal Interior Volume Occupied\n1,193.5 m³\nTotal Bank Volume\n3,200.0 m³\n\nCharge Capacity 100% · Interior Compartment 16.3 × 1.8 × 16.3 m\n\nStored Salvos\n1 Times min\nDepth Inward from Mounting Surface\nCharger Compartment Volume\nAutomatically Merge while Preserving Volume\n\n2 Compartments · Total 1,193.5 / 1,193.5 m³\n\nThis Compartment 493.2 / 493.2 m³ · 100%\n\nRepositioning Radius 14.3 × 5.7 × 14.3 m\n\nEach function's volume is accounted for separately. Fits into nearby connected space while avoiding reactors, engines and launch openings. Inspect the resulting shape in X-ray view.\n\nUse the gunhouse as a weapon compartment and add interior banks only for the shortfall. Embedded gunhouse volume occupies interior space and cannot be shared with other compartments. Capacity density: 0.05 TT/m³. Recharge estimate: No Power.",
+  "ionEmbedding": {
+    "radiusM": 8.67936102835736,
+    "mount": [
+      76.363123294454,
+      20,
+      0
+    ],
+    "worldLowerSphereY": 14.213759314428426,
+    "sphereCenterAboveMountM": 2.8931203427857852,
+    "embeddedHeightFraction": 0.3333333333333333,
+    "embeddedVolume": 700.300493113632,
+    "wholeSphereMoving": true
+  },
+  "poseMeshes": [
+    {
+      "id": 2,
+      "kind": "single40",
+      "authored": true,
+      "bodyMesh": "turBody_2",
+      "movingMesh": "tur_2",
+      "staticIndices": 1860,
+      "movingIndices": 408,
+      "staticBounds": [
+        19.39635467529297,
+        20,
+        -3.9346437454223633,
+        36.63961410522461,
+        25.675016403198242,
+        3.9346437454223633
+      ],
+      "movingBounds": [
+        21.13083839416504,
+        24.41288948059082,
+        -1.4968361854553223,
+        54.80577087402344,
+        25.739742279052734,
+        1.4968361854553223
+      ]
+    },
+    {
+      "id": 3,
+      "kind": "quad40Ion",
+      "authored": true,
+      "bodyMesh": "turBody_3",
+      "movingMesh": "tur_3",
+      "staticIndices": 0,
+      "movingIndices": 5088,
+      "staticBounds": null,
+      "movingBounds": [
+        67.68376159667969,
+        14.213759422302246,
+        -8.679361343383789,
+        91.59117889404297,
+        31.572481155395508,
+        8.679361343383789
+      ]
+    },
+    {
+      "id": 4,
+      "kind": "twin40Dome",
+      "authored": true,
+      "bodyMesh": "turBody_4",
+      "movingMesh": "tur_4",
+      "staticIndices": 5142,
+      "movingIndices": 660,
+      "staticBounds": [
+        109.02253723144531,
+        20,
+        -9.026535034179688,
+        127.07577514648438,
+        29.315914154052734,
+        9.026535034179688
+      ],
+      "movingBounds": [
+        111.22013854980469,
+        28.548566818237305,
+        -2.836116075515747,
+        140.48703002929688,
+        29.86189079284668,
+        2.836116075515747
+      ]
+    },
+    {
+      "id": 5,
+      "kind": "twin40",
+      "authored": true,
+      "bodyMesh": "turBody_5",
+      "movingMesh": "tur_5",
+      "staticIndices": 3840,
+      "movingIndices": 816,
+      "staticBounds": [
+        146.85289001464844,
+        20,
+        -8.881670951843262,
+        165.02182006835938,
+        31.27569007873535,
+        8.881668090820312
+      ],
+      "movingBounds": [
+        147.04425048828125,
+        29.78857421875,
+        -8.610336303710938,
+        169.5297088623047,
+        31.410106658935547,
+        8.610333442687988
+      ]
+    },
+    {
+      "id": 6,
+      "kind": "triple40",
+      "authored": true,
+      "bodyMesh": "turBody_6",
+      "movingMesh": "tur_6",
+      "staticIndices": 1968,
+      "movingIndices": 804,
+      "staticBounds": [
+        183.56393432617188,
+        20,
+        -5.901965618133545,
+        202.2317352294922,
+        30.449504852294922,
+        5.901965618133545
+      ],
+      "movingBounds": [
+        187.4476318359375,
+        27.83728790283203,
+        -3.1019272804260254,
+        207.30747985839844,
+        29.84054183959961,
+        3.1019272804260254
+      ]
+    },
+    {
+      "id": 7,
+      "kind": "oct40",
+      "authored": true,
+      "bodyMesh": "refTurBody_7",
+      "movingMesh": "refTur_7",
+      "staticIndices": 984,
+      "movingIndices": 2328,
+      "staticBounds": [
+        222.20181274414062,
+        20,
+        -19.9996280670166,
+        262.2018127441406,
+        30.568946838378906,
+        20.000194549560547
+      ],
+      "movingBounds": [
+        232.02725219726562,
+        26.247310638427734,
+        -12.552308082580566,
+        255.7335205078125,
+        29.888994216918945,
+        12.552263259887695
+      ]
+    },
+    {
+      "id": 8,
+      "kind": "refVen",
+      "authored": true,
+      "bodyMesh": "refTurBody_8",
+      "movingMesh": "refTur_8",
+      "staticIndices": 9624,
+      "movingIndices": 7092,
+      "staticBounds": [
+        277.6092529296875,
+        20,
+        -8.127120971679688,
+        297.9740905761719,
+        29.997709274291992,
+        8.130963325500488
+      ],
+      "movingBounds": [
+        293.5218200683594,
+        23.501760482788086,
+        -6.887892723083496,
+        306.4712219238281,
+        25.31542205810547,
+        6.847325801849365
+      ]
+    },
+    {
+      "id": 9,
+      "kind": "triple70",
+      "authored": true,
+      "bodyMesh": "turBody_9",
+      "movingMesh": "tur_9",
+      "staticIndices": 9990,
+      "movingIndices": 20322,
+      "staticBounds": [
+        331.77850341796875,
+        20,
+        -14,
+        363.9787902832031,
+        29.997709274291992,
+        14
+      ],
+      "movingBounds": [
+        358.6784973144531,
+        22.500038146972656,
+        -7.399926662445068,
+        379.608154296875,
+        29.997709274291992,
+        7.399926662445068
+      ]
+    },
+    {
+      "id": 11,
+      "kind": "quad70Side",
+      "authored": true,
+      "bodyMesh": "turBody_11",
+      "movingMesh": "tur_11",
+      "staticIndices": 8364,
+      "movingIndices": 14244,
+      "staticBounds": [
+        389.8331604003906,
+        20,
+        0,
+        407.8331604003906,
+        31.899999618530273,
+        22.000186920166016
+      ],
+      "movingBounds": [
+        392.533203125,
+        21.10007667541504,
+        18.900165557861328,
+        405.1330871582031,
+        30.899980545043945,
+        35.87965393066406
+      ]
+    }
+  ],
+  "renderedPoses": [
+    {
+      "requestedElevationDegrees": 0,
+      "webglError": 0,
+      "turrets": [
+        {
+          "id": 2,
+          "kind": "single40",
+          "authored": true,
+          "staticIndices": 1860,
+          "movingIndices": 408,
+          "muzzles": [
+            [
+              54.80577061257526,
+              25.11503676604527,
+              0
+            ]
+          ],
+          "direction": [
+            1,
+            0,
+            0
+          ],
+          "housingFixed": false,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 0,
+          "elevationReference": "source rest pose"
+        },
+        {
+          "id": 3,
+          "kind": "quad40Ion",
+          "authored": true,
+          "staticIndices": 0,
+          "movingIndices": 5088,
+          "muzzles": [
+            [
+              91.59117660248482,
+              21.562284985104323,
+              -1.3308353576814616
+            ],
+            [
+              91.59117660248482,
+              21.562284985104323,
+              1.3308353576814616
+            ],
+            [
+              91.59117660248482,
+              24.223955700467247,
+              -1.3308353576814616
+            ],
+            [
+              91.59117660248482,
+              24.223955700467247,
+              1.3308353576814616
+            ]
+          ],
+          "direction": [
+            1,
+            0,
+            0
+          ],
+          "housingFixed": false,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 0,
+          "elevationReference": "source rest pose"
+        },
+        {
+          "id": 4,
+          "kind": "twin40Dome",
+          "authored": true,
+          "staticIndices": 5142,
+          "movingIndices": 660,
+          "muzzles": [
+            [
+              140.48702276684497,
+              29.200122690058798,
+              -1.0993857302585985
+            ],
+            [
+              140.48702276684497,
+              29.200122690058798,
+              1.0993857302585985
+            ]
+          ],
+          "direction": [
+            1,
+            0,
+            0
+          ],
+          "housingFixed": false,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 0,
+          "elevationReference": "source rest pose"
+        },
+        {
+          "id": 5,
+          "kind": "twin40",
+          "authored": true,
+          "staticIndices": 3840,
+          "movingIndices": 816,
+          "muzzles": [
+            [
+              169.529714815416,
+              30.68257713734885,
+              -7.507542821026982
+            ],
+            [
+              169.529714815416,
+              30.68257713734885,
+              7.507541456929182
+            ]
+          ],
+          "direction": [
+            1,
+            0,
+            0
+          ],
+          "housingFixed": false,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 0,
+          "elevationReference": "source rest pose"
+        },
+        {
+          "id": 6,
+          "kind": "triple40",
+          "authored": true,
+          "staticIndices": 1968,
+          "movingIndices": 804,
+          "muzzles": [
+            [
+              207.30747753687027,
+              29.11304913001161,
+              -1.7011547615580422
+            ],
+            [
+              207.30747753687027,
+              29.11304913001161,
+              0
+            ],
+            [
+              207.30747753687027,
+              29.11304913001161,
+              1.7011547615580422
+            ]
+          ],
+          "direction": [
+            1,
+            0,
+            0
+          ],
+          "housingFixed": false,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 0,
+          "elevationReference": "source rest pose"
+        },
+        {
+          "id": 7,
+          "kind": "oct40",
+          "authored": true,
+          "staticIndices": 984,
+          "movingIndices": 2328,
+          "muzzles": [
+            [
+              255.73352773690326,
+              28.406677515729264,
+              -10.795006277560518
+            ],
+            [
+              255.73352773690326,
+              28.406677515729264,
+              -8.908302786431427
+            ],
+            [
+              255.73352773690326,
+              28.406677515729264,
+              -7.0215992953023365
+            ],
+            [
+              255.73352773690326,
+              28.406677515729264,
+              -5.134590611114181
+            ],
+            [
+              255.73352773690326,
+              28.406838794914215,
+              5.135766212482744
+            ],
+            [
+              255.73352773690326,
+              28.406838794914215,
+              7.0227748966708985
+            ],
+            [
+              255.73352773690326,
+              28.406838794914215,
+              8.909478387799991
+            ],
+            [
+              255.73352773690326,
+              28.406838794914215,
+              10.796181878929083
+            ]
+          ],
+          "direction": [
+            1,
+            0,
+            0
+          ],
+          "housingFixed": false,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 0,
+          "elevationReference": "source rest pose"
+        },
+        {
+          "id": 8,
+          "kind": "refVen",
+          "authored": true,
+          "staticIndices": 9624,
+          "movingIndices": 7092,
+          "muzzles": [
+            [
+              306.40620871698604,
+              24.40205877112618,
+              -6.039509018798146
+            ],
+            [
+              306.4685037852319,
+              24.402038228286205,
+              5.873711490208386
+            ]
+          ],
+          "direction": [
+            0.9999861774392684,
+            -0.0005499995854947315,
+            -0.005228999028431302
+          ],
+          "housingFixed": false,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 0,
+          "elevationReference": "source rest pose"
+        },
+        {
+          "id": 9,
+          "kind": "triple70",
+          "authored": true,
+          "staticIndices": 9990,
+          "movingIndices": 20322,
+          "muzzles": [
+            [
+              379.6081519106075,
+              26.25,
+              -3.2
+            ],
+            [
+              379.6081519106075,
+              26.25,
+              0
+            ],
+            [
+              379.6081519106075,
+              26.25,
+              3.2
+            ]
+          ],
+          "direction": [
+            1,
+            0,
+            0
+          ],
+          "housingFixed": false,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 0,
+          "elevationReference": "source rest pose"
+        },
+        {
+          "id": 11,
+          "kind": "quad70Side",
+          "authored": true,
+          "staticIndices": 8364,
+          "movingIndices": 14244,
+          "muzzles": [
+            [
+              401.3331519106075,
+              23.7,
+              35.87965286330343
+            ],
+            [
+              396.3331519106075,
+              23.7,
+              35.87965286330343
+            ],
+            [
+              401.3331519106075,
+              28.3,
+              35.87965286330343
+            ],
+            [
+              396.3331519106075,
+              28.3,
+              35.87965286330343
+            ]
+          ],
+          "direction": [
+            0,
+            0,
+            1
+          ],
+          "housingFixed": true,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 0,
+          "elevationReference": "source rest pose"
+        }
+      ]
+    },
+    {
+      "requestedElevationDegrees": 25,
+      "webglError": 0,
+      "turrets": [
+        {
+          "id": 2,
+          "kind": "single40",
+          "authored": true,
+          "staticIndices": 1860,
+          "movingIndices": 408,
+          "muzzles": [
+            [
+              51.387500493693224,
+              37.59444659083002,
+              0
+            ]
+          ],
+          "direction": [
+            0.9063077870366499,
+            0.4226182617406994,
+            0
+          ],
+          "housingFixed": false,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 24.999999999999996,
+          "elevationReference": "source rest pose"
+        },
+        {
+          "id": 3,
+          "kind": "quad40Ion",
+          "authored": true,
+          "staticIndices": 0,
+          "movingIndices": 5088,
+          "muzzles": [
+            [
+              90.72686191445796,
+              28.122627313590066,
+              -1.3308353576814616
+            ],
+            [
+              90.72686191445796,
+              28.122627313590066,
+              1.3308353576814616
+            ],
+            [
+              89.60199126340515,
+              30.534920209450895,
+              -1.3308353576814616
+            ],
+            [
+              89.60199126340515,
+              30.534920209450895,
+              1.3308353576814616
+            ]
+          ],
+          "direction": [
+            0.9063077870366499,
+            0.42261826174069944,
+            0
+          ],
+          "housingFixed": false,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 25,
+          "elevationReference": "source rest pose"
+        },
+        {
+          "id": 4,
+          "kind": "twin40Dome",
+          "authored": true,
+          "staticIndices": 5142,
+          "movingIndices": 660,
+          "muzzles": [
+            [
+              137.46705978775753,
+              39.81345022407593,
+              -1.0993857302585985
+            ],
+            [
+              137.46705978775753,
+              39.81345022407593,
+              1.0993857302585985
+            ]
+          ],
+          "direction": [
+            0.9063077870366499,
+            0.42261826174069944,
+            0
+          ],
+          "housingFixed": false,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 25,
+          "elevationReference": "source rest pose"
+        },
+        {
+          "id": 5,
+          "kind": "twin40",
+          "authored": true,
+          "staticIndices": 3840,
+          "movingIndices": 816,
+          "muzzles": [
+            [
+              166.98862918290283,
+              38.395189744209134,
+              -7.507542821026982
+            ],
+            [
+              166.98862918290283,
+              38.395189744209134,
+              7.507541456929182
+            ]
+          ],
+          "direction": [
+            0.9063077870366499,
+            0.42261826174069944,
+            0
+          ],
+          "housingFixed": false,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 25,
+          "elevationReference": "source rest pose"
+        },
+        {
+          "id": 6,
+          "kind": "triple40",
+          "authored": true,
+          "staticIndices": 1968,
+          "movingIndices": 804,
+          "muzzles": [
+            [
+              203.78164603683052,
+              36.8590077925918,
+              -1.7011547615580422
+            ],
+            [
+              203.78164603683052,
+              36.8590077925918,
+              0
+            ],
+            [
+              203.78164603683052,
+              36.8590077925918,
+              1.7011547615580422
+            ]
+          ],
+          "direction": [
+            0.9063077870366499,
+            0.42261826174069944,
+            0
+          ],
+          "housingFixed": false,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 25,
+          "elevationReference": "source rest pose"
+        },
+        {
+          "id": 7,
+          "kind": "oct40",
+          "authored": true,
+          "staticIndices": 984,
+          "movingIndices": 2328,
+          "muzzles": [
+            [
+              252.01727099819223,
+              36.12122099616308,
+              -10.795006277560518
+            ],
+            [
+              252.01727099819223,
+              36.12122099616308,
+              -8.908302786431427
+            ],
+            [
+              252.01727099819223,
+              36.12122099616308,
+              -7.0215992953023365
+            ],
+            [
+              252.01727099819223,
+              36.12122099616308,
+              -5.134590611114181
+            ],
+            [
+              252.01720283866345,
+              36.121367164744285,
+              5.135766212482744
+            ],
+            [
+              252.01720283866345,
+              36.121367164744285,
+              7.0227748966708985
+            ],
+            [
+              252.01720283866345,
+              36.121367164744285,
+              8.909478387799991
+            ],
+            [
+              252.01720283866345,
+              36.121367164744285,
+              10.796181878929083
+            ]
+          ],
+          "direction": [
+            0.9063077870366499,
+            0.42261826174069944,
+            0
+          ],
+          "housingFixed": false,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 25,
+          "elevationReference": "source rest pose"
+        },
+        {
+          "id": 8,
+          "kind": "refVen",
+          "authored": true,
+          "staticIndices": 9624,
+          "movingIndices": 7092,
+          "muzzles": [
+            [
+              304.887059251324,
+              31.256953387507615,
+              -6.031565277915284
+            ],
+            [
+              304.9493630022891,
+              31.256934764596693,
+              5.88165518568869
+            ]
+          ],
+          "direction": [
+            0.9065276962332439,
+            0.42211972891257454,
+            -0.004740297965904265
+          ],
+          "housingFixed": false,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 25,
+          "elevationReference": "source rest pose"
+        },
+        {
+          "id": 9,
+          "kind": "triple70",
+          "authored": true,
+          "staticIndices": 9990,
+          "movingIndices": 20322,
+          "muzzles": [
+            [
+              378.06882137562496,
+              33.1934713340924,
+              -3.2
+            ],
+            [
+              378.06882137562496,
+              33.1934713340924,
+              0
+            ],
+            [
+              378.06882137562496,
+              33.1934713340924,
+              3.2
+            ]
+          ],
+          "direction": [
+            0.9063077870366499,
+            0.42261826174069944,
+            0
+          ],
+          "housingFixed": false,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 25,
+          "elevationReference": "source rest pose"
+        },
+        {
+          "id": 11,
+          "kind": "quad70Side",
+          "authored": true,
+          "staticIndices": 8364,
+          "movingIndices": 14244,
+          "muzzles": [
+            [
+              401.3331519106075,
+              29.269868120461314,
+              35.70863894593709
+            ],
+            [
+              396.3331519106075,
+              29.269868120461314,
+              35.70863894593709
+            ],
+            [
+              401.3331519106075,
+              33.592454176076494,
+              34.13534628663901
+            ],
+            [
+              396.3331519106075,
+              33.592454176076494,
+              34.13534628663901
+            ]
+          ],
+          "direction": [
+            0,
+            0.3420201433256687,
+            0.9396926207859084
+          ],
+          "housingFixed": true,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 20,
+          "elevationReference": "source rest pose"
+        }
+      ]
+    },
+    {
+      "requestedElevationDegrees": 0,
+      "webglError": 0,
+      "turrets": [
+        {
+          "id": 2,
+          "kind": "single40",
+          "authored": true,
+          "staticIndices": 1860,
+          "movingIndices": 408,
+          "muzzles": [
+            [
+              54.80577061257526,
+              25.11503676604527,
+              0
+            ]
+          ],
+          "direction": [
+            1,
+            0,
+            0
+          ],
+          "housingFixed": false,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 0,
+          "elevationReference": "source rest pose"
+        },
+        {
+          "id": 3,
+          "kind": "quad40Ion",
+          "authored": true,
+          "staticIndices": 0,
+          "movingIndices": 5088,
+          "muzzles": [
+            [
+              91.59117660248482,
+              21.562284985104323,
+              -1.3308353576814616
+            ],
+            [
+              91.59117660248482,
+              21.562284985104323,
+              1.3308353576814616
+            ],
+            [
+              91.59117660248482,
+              24.223955700467247,
+              -1.3308353576814616
+            ],
+            [
+              91.59117660248482,
+              24.223955700467247,
+              1.3308353576814616
+            ]
+          ],
+          "direction": [
+            1,
+            0,
+            0
+          ],
+          "housingFixed": false,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 0,
+          "elevationReference": "source rest pose"
+        },
+        {
+          "id": 4,
+          "kind": "twin40Dome",
+          "authored": true,
+          "staticIndices": 5142,
+          "movingIndices": 660,
+          "muzzles": [
+            [
+              140.48702276684497,
+              29.200122690058798,
+              -1.0993857302585985
+            ],
+            [
+              140.48702276684497,
+              29.200122690058798,
+              1.0993857302585985
+            ]
+          ],
+          "direction": [
+            1,
+            0,
+            0
+          ],
+          "housingFixed": false,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 0,
+          "elevationReference": "source rest pose"
+        },
+        {
+          "id": 5,
+          "kind": "twin40",
+          "authored": true,
+          "staticIndices": 3840,
+          "movingIndices": 816,
+          "muzzles": [
+            [
+              169.529714815416,
+              30.68257713734885,
+              -7.507542821026982
+            ],
+            [
+              169.529714815416,
+              30.68257713734885,
+              7.507541456929182
+            ]
+          ],
+          "direction": [
+            1,
+            0,
+            0
+          ],
+          "housingFixed": false,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 0,
+          "elevationReference": "source rest pose"
+        },
+        {
+          "id": 6,
+          "kind": "triple40",
+          "authored": true,
+          "staticIndices": 1968,
+          "movingIndices": 804,
+          "muzzles": [
+            [
+              207.30747753687027,
+              29.11304913001161,
+              -1.7011547615580422
+            ],
+            [
+              207.30747753687027,
+              29.11304913001161,
+              0
+            ],
+            [
+              207.30747753687027,
+              29.11304913001161,
+              1.7011547615580422
+            ]
+          ],
+          "direction": [
+            1,
+            0,
+            0
+          ],
+          "housingFixed": false,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 0,
+          "elevationReference": "source rest pose"
+        },
+        {
+          "id": 7,
+          "kind": "oct40",
+          "authored": true,
+          "staticIndices": 984,
+          "movingIndices": 2328,
+          "muzzles": [
+            [
+              255.73352773690326,
+              28.406677515729264,
+              -10.795006277560518
+            ],
+            [
+              255.73352773690326,
+              28.406677515729264,
+              -8.908302786431427
+            ],
+            [
+              255.73352773690326,
+              28.406677515729264,
+              -7.0215992953023365
+            ],
+            [
+              255.73352773690326,
+              28.406677515729264,
+              -5.134590611114181
+            ],
+            [
+              255.73352773690326,
+              28.406838794914215,
+              5.135766212482744
+            ],
+            [
+              255.73352773690326,
+              28.406838794914215,
+              7.0227748966708985
+            ],
+            [
+              255.73352773690326,
+              28.406838794914215,
+              8.909478387799991
+            ],
+            [
+              255.73352773690326,
+              28.406838794914215,
+              10.796181878929083
+            ]
+          ],
+          "direction": [
+            1,
+            0,
+            0
+          ],
+          "housingFixed": false,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 0,
+          "elevationReference": "source rest pose"
+        },
+        {
+          "id": 8,
+          "kind": "refVen",
+          "authored": true,
+          "staticIndices": 9624,
+          "movingIndices": 7092,
+          "muzzles": [
+            [
+              306.40620871698604,
+              24.40205877112618,
+              -6.039509018798146
+            ],
+            [
+              306.4685037852319,
+              24.402038228286205,
+              5.873711490208386
+            ]
+          ],
+          "direction": [
+            0.9999861774392684,
+            -0.0005499995854947315,
+            -0.005228999028431302
+          ],
+          "housingFixed": false,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 0,
+          "elevationReference": "source rest pose"
+        },
+        {
+          "id": 9,
+          "kind": "triple70",
+          "authored": true,
+          "staticIndices": 9990,
+          "movingIndices": 20322,
+          "muzzles": [
+            [
+              379.6081519106075,
+              26.25,
+              -3.2
+            ],
+            [
+              379.6081519106075,
+              26.25,
+              0
+            ],
+            [
+              379.6081519106075,
+              26.25,
+              3.2
+            ]
+          ],
+          "direction": [
+            1,
+            0,
+            0
+          ],
+          "housingFixed": false,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 0,
+          "elevationReference": "source rest pose"
+        },
+        {
+          "id": 11,
+          "kind": "quad70Side",
+          "authored": true,
+          "staticIndices": 8364,
+          "movingIndices": 14244,
+          "muzzles": [
+            [
+              401.3331519106075,
+              23.7,
+              35.87965286330343
+            ],
+            [
+              396.3331519106075,
+              23.7,
+              35.87965286330343
+            ],
+            [
+              401.3331519106075,
+              28.3,
+              35.87965286330343
+            ],
+            [
+              396.3331519106075,
+              28.3,
+              35.87965286330343
+            ]
+          ],
+          "direction": [
+            0,
+            0,
+            1
+          ],
+          "housingFixed": true,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 0,
+          "elevationReference": "source rest pose"
+        }
+      ],
+      "view": "mounted-ion-close",
+      "fixtureVisible": true,
+      "wholeSphereMoving": true
+    },
+    {
+      "requestedElevationDegrees": 25,
+      "webglError": 0,
+      "turrets": [
+        {
+          "id": 2,
+          "kind": "single40",
+          "authored": true,
+          "staticIndices": 1860,
+          "movingIndices": 408,
+          "muzzles": [
+            [
+              51.387500493693224,
+              37.59444659083002,
+              0
+            ]
+          ],
+          "direction": [
+            0.9063077870366499,
+            0.4226182617406994,
+            0
+          ],
+          "housingFixed": false,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 24.999999999999996,
+          "elevationReference": "source rest pose"
+        },
+        {
+          "id": 3,
+          "kind": "quad40Ion",
+          "authored": true,
+          "staticIndices": 0,
+          "movingIndices": 5088,
+          "muzzles": [
+            [
+              90.72686191445796,
+              28.122627313590066,
+              -1.3308353576814616
+            ],
+            [
+              90.72686191445796,
+              28.122627313590066,
+              1.3308353576814616
+            ],
+            [
+              89.60199126340515,
+              30.534920209450895,
+              -1.3308353576814616
+            ],
+            [
+              89.60199126340515,
+              30.534920209450895,
+              1.3308353576814616
+            ]
+          ],
+          "direction": [
+            0.9063077870366499,
+            0.42261826174069944,
+            0
+          ],
+          "housingFixed": false,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 25,
+          "elevationReference": "source rest pose"
+        },
+        {
+          "id": 4,
+          "kind": "twin40Dome",
+          "authored": true,
+          "staticIndices": 5142,
+          "movingIndices": 660,
+          "muzzles": [
+            [
+              137.46705978775753,
+              39.81345022407593,
+              -1.0993857302585985
+            ],
+            [
+              137.46705978775753,
+              39.81345022407593,
+              1.0993857302585985
+            ]
+          ],
+          "direction": [
+            0.9063077870366499,
+            0.42261826174069944,
+            0
+          ],
+          "housingFixed": false,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 25,
+          "elevationReference": "source rest pose"
+        },
+        {
+          "id": 5,
+          "kind": "twin40",
+          "authored": true,
+          "staticIndices": 3840,
+          "movingIndices": 816,
+          "muzzles": [
+            [
+              166.98862918290283,
+              38.395189744209134,
+              -7.507542821026982
+            ],
+            [
+              166.98862918290283,
+              38.395189744209134,
+              7.507541456929182
+            ]
+          ],
+          "direction": [
+            0.9063077870366499,
+            0.42261826174069944,
+            0
+          ],
+          "housingFixed": false,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 25,
+          "elevationReference": "source rest pose"
+        },
+        {
+          "id": 6,
+          "kind": "triple40",
+          "authored": true,
+          "staticIndices": 1968,
+          "movingIndices": 804,
+          "muzzles": [
+            [
+              203.78164603683052,
+              36.8590077925918,
+              -1.7011547615580422
+            ],
+            [
+              203.78164603683052,
+              36.8590077925918,
+              0
+            ],
+            [
+              203.78164603683052,
+              36.8590077925918,
+              1.7011547615580422
+            ]
+          ],
+          "direction": [
+            0.9063077870366499,
+            0.42261826174069944,
+            0
+          ],
+          "housingFixed": false,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 25,
+          "elevationReference": "source rest pose"
+        },
+        {
+          "id": 7,
+          "kind": "oct40",
+          "authored": true,
+          "staticIndices": 984,
+          "movingIndices": 2328,
+          "muzzles": [
+            [
+              252.01727099819223,
+              36.12122099616308,
+              -10.795006277560518
+            ],
+            [
+              252.01727099819223,
+              36.12122099616308,
+              -8.908302786431427
+            ],
+            [
+              252.01727099819223,
+              36.12122099616308,
+              -7.0215992953023365
+            ],
+            [
+              252.01727099819223,
+              36.12122099616308,
+              -5.134590611114181
+            ],
+            [
+              252.01720283866345,
+              36.121367164744285,
+              5.135766212482744
+            ],
+            [
+              252.01720283866345,
+              36.121367164744285,
+              7.0227748966708985
+            ],
+            [
+              252.01720283866345,
+              36.121367164744285,
+              8.909478387799991
+            ],
+            [
+              252.01720283866345,
+              36.121367164744285,
+              10.796181878929083
+            ]
+          ],
+          "direction": [
+            0.9063077870366499,
+            0.42261826174069944,
+            0
+          ],
+          "housingFixed": false,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 25,
+          "elevationReference": "source rest pose"
+        },
+        {
+          "id": 8,
+          "kind": "refVen",
+          "authored": true,
+          "staticIndices": 9624,
+          "movingIndices": 7092,
+          "muzzles": [
+            [
+              304.887059251324,
+              31.256953387507615,
+              -6.031565277915284
+            ],
+            [
+              304.9493630022891,
+              31.256934764596693,
+              5.88165518568869
+            ]
+          ],
+          "direction": [
+            0.9065276962332439,
+            0.42211972891257454,
+            -0.004740297965904265
+          ],
+          "housingFixed": false,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 25,
+          "elevationReference": "source rest pose"
+        },
+        {
+          "id": 9,
+          "kind": "triple70",
+          "authored": true,
+          "staticIndices": 9990,
+          "movingIndices": 20322,
+          "muzzles": [
+            [
+              378.06882137562496,
+              33.1934713340924,
+              -3.2
+            ],
+            [
+              378.06882137562496,
+              33.1934713340924,
+              0
+            ],
+            [
+              378.06882137562496,
+              33.1934713340924,
+              3.2
+            ]
+          ],
+          "direction": [
+            0.9063077870366499,
+            0.42261826174069944,
+            0
+          ],
+          "housingFixed": false,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 25,
+          "elevationReference": "source rest pose"
+        },
+        {
+          "id": 11,
+          "kind": "quad70Side",
+          "authored": true,
+          "staticIndices": 8364,
+          "movingIndices": 14244,
+          "muzzles": [
+            [
+              401.3331519106075,
+              29.269868120461314,
+              35.70863894593709
+            ],
+            [
+              396.3331519106075,
+              29.269868120461314,
+              35.70863894593709
+            ],
+            [
+              401.3331519106075,
+              33.592454176076494,
+              34.13534628663901
+            ],
+            [
+              396.3331519106075,
+              33.592454176076494,
+              34.13534628663901
+            ]
+          ],
+          "direction": [
+            0,
+            0.3420201433256687,
+            0.9396926207859084
+          ],
+          "housingFixed": true,
+          "bodyRotation": [
+            1,
+            0,
+            0,
+            0,
+            1,
+            0,
+            0,
+            0,
+            1
+          ],
+          "effectiveElevationDegrees": 20,
+          "elevationReference": "source rest pose"
+        }
+      ],
+      "view": "mounted-ion-close",
+      "fixtureVisible": true,
+      "wholeSphereMoving": true
+    }
+  ],
+  "detailViews": [
+    {
+      "kind": "twin40",
+      "webglError": 0,
+      "size": [
+        22.67681961581377,
+        11.410107540676517,
+        17.763338302500596
+      ],
+      "requestedElevationDegrees": 0,
+      "image": "weapon-family-detail-twin40.png"
+    },
+    {
+      "kind": "triple40",
+      "webglError": 0,
+      "size": [
+        23.74354562246883,
+        10.449505367398958,
+        11.803930998566006
+      ],
+      "requestedElevationDegrees": 0,
+      "image": "weapon-family-detail-triple40.png"
+    },
+    {
+      "kind": "oct40",
+      "webglError": 0,
+      "size": [
+        40,
+        10.568947548408056,
+        39.999823093067505
+      ],
+      "requestedElevationDegrees": 0,
+      "image": "weapon-family-detail-oct40.png"
+    },
+    {
+      "kind": "refVen",
+      "webglError": 0,
+      "size": [
+        28.861991732262666,
+        9.997709107492678,
+        16.25808446257435
+      ],
+      "requestedElevationDegrees": 0,
+      "image": "weapon-family-detail-refVen.png"
+    },
+    {
+      "kind": "triple70",
+      "webglError": 0,
+      "size": [
+        47.82965286330342,
+        9.997709107492678,
+        28
+      ],
+      "requestedElevationDegrees": 0,
+      "image": "weapon-family-detail-triple70.png"
+    },
+    {
+      "kind": "quad70Side",
+      "webglError": 0,
+      "size": [
+        35.87965286330343,
+        11.9,
+        18
+      ],
+      "requestedElevationDegrees": 0,
+      "image": "weapon-family-detail-quad70Side.png"
+    }
+  ],
+  "errors": [],
+  "screenshots": [
+    "weapon-family-editor-body.png",
+    "weapon-family-ion-editor.png",
+    "weapon-family-strip-0deg.png",
+    "weapon-family-strip-25deg.png",
+    "weapon-family-ion-embedded-0deg.png",
+    "weapon-family-ion-embedded-25deg.png",
+    "weapon-family-detail-twin40.png",
+    "weapon-family-detail-triple40.png",
+    "weapon-family-detail-oct40.png",
+    "weapon-family-detail-refVen.png",
+    "weapon-family-detail-triple70.png",
+    "weapon-family-detail-quad70Side.png"
+  ],
+  "scope": {
+    "verified": [
+      "all configured native palette entries in reference-photo order",
+      "retired refSide/xx9/nk7 and hidden legacy catalogue duplicates are absent",
+      "per-barrel output and exact physical draw ranges",
+      "all70TT barrel lengths match an original DBY barrel within20mm",
+      "no default generated pedestals or stand triangles; manual pedestal capability is retained",
+      "every authored physical muzzle ray, preserving each source cap/recess style",
+      "actual native canvas selection and body-compartment information",
+      "wall-only mounting rejects deck and accepts vertical beam",
+      "same-scale production-renderer pose strips with QA platform/beam meshes hidden",
+      "whole moving ion sphere and four barrels with lower 1/3 height embedded in native structure"
+    ],
+    "notVerified": [
+      "powered combat or sustained firing",
+      "automatic combat target tracking",
+      "complete-ship engineering inspection",
+      "physical mobile or GPU frame rate"
+    ]
+  },
+  "evidenceState": "FINAL_MERGED_SOURCE",
+  "visualReview": {
+    "status": "PASS",
+    "reviewed": [
+      "fresh nine-model 25-degree lineup",
+      "mounted ion sphere at 25 degrees",
+      "all six individual model detail views",
+      "native ten-row gunhouse information card"
+    ],
+    "findings": "The fresh lineup is visually unchanged and clean. All twelve output PNGs are byte-identical to the previously reviewed images. No dark atlas triangle artifacts or mesh tears; original normal octuple and DBY source materials, twin40 central hood and full exterior circles, triple40 upper pod, and triple70 projecting forward pod remain intact."
+  }
+}

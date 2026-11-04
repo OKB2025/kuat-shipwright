@@ -1,0 +1,129 @@
+{
+  "baseline": "035ff68",
+  "baselineModelVersion": 11,
+  "modelVersion": 11,
+  "baselineModelSignature": "sarn9t",
+  "modelSignature": "1473ftn",
+  "entryCount": 12,
+  "totals": {
+    "arc170": {
+      "before": 225030,
+      "after": 225030
+    },
+    "awing": {
+      "before": 160054,
+      "after": 160054
+    },
+    "btlb": {
+      "before": 202851,
+      "after": 202851
+    },
+    "hyena": {
+      "before": 210146,
+      "after": 210146
+    },
+    "tie_in": {
+      "before": 110120,
+      "after": 110120
+    },
+    "tie_ln": {
+      "before": 99082,
+      "after": 99082
+    },
+    "tie_sa": {
+      "before": 138742,
+      "after": 138742
+    },
+    "v19": {
+      "before": 171459,
+      "after": 171459
+    },
+    "vulture": {
+      "before": 144544,
+      "after": 144544
+    },
+    "vwing": {
+      "before": 238213,
+      "after": 238213
+    },
+    "xwing": {
+      "before": 189341,
+      "after": 189341
+    },
+    "z95": {
+      "before": 141315,
+      "after": 141315
+    }
+  },
+  "powerProfileHashBefore": "6725608a476ed054c9bdf9ea5e55fbe7307fde32e7d90ffef297d484535c6f1a",
+  "powerProfileHashAfter": "6725608a476ed054c9bdf9ea5e55fbe7307fde32e7d90ffef297d484535c6f1a",
+  "allowedDifferences": [
+    {
+      "path": "entries.arc170.signature",
+      "before": "16zmquf",
+      "after": "125vf9"
+    },
+    {
+      "path": "entries.awing.signature",
+      "before": "z4m8cj",
+      "after": "1naytq9"
+    },
+    {
+      "path": "entries.btlb.signature",
+      "before": "eorir0",
+      "after": "n4kt8g"
+    },
+    {
+      "path": "entries.hyena.signature",
+      "before": "1narq90",
+      "after": "y2b6c8"
+    },
+    {
+      "path": "entries.tie_in.signature",
+      "before": "1lwegal",
+      "after": "7wbz0j"
+    },
+    {
+      "path": "entries.tie_ln.signature",
+      "before": "fejpgl",
+      "after": "k7wvpn"
+    },
+    {
+      "path": "entries.tie_sa.signature",
+      "before": "1qe732m",
+      "after": "14c8qne"
+    },
+    {
+      "path": "entries.v19.signature",
+      "before": "14k9e28",
+      "after": "1hwhxno"
+    },
+    {
+      "path": "entries.vulture.signature",
+      "before": "srzbka",
+      "after": "1b1fpty"
+    },
+    {
+      "path": "entries.vwing.signature",
+      "before": "1icyft1",
+      "after": "1extdrf"
+    },
+    {
+      "path": "entries.xwing.signature",
+      "before": "nplxyk",
+      "after": "1hu934"
+    },
+    {
+      "path": "entries.z95.signature",
+      "before": "ajrz3l",
+      "after": "zm9oif"
+    },
+    {
+      "path": "modelSignature",
+      "before": "sarn9t",
+      "after": "1473ftn"
+    }
+  ],
+  "actualDifferences": [],
+  "blockSHA256": "91d59e7765fa5bafa5d37bcf88eacd8fbafae53a492af243a69edbd4961cfeaf"
+}

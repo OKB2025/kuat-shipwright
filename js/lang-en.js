@@ -9620,6 +9620,206 @@ Object.assign(root.KS_EN.messages,{
  "「配置 → 武装」で<b>2連装重ターボレーザー</b>を選んであります。<b>甲板の左右の縁</b>を艦尾から艦首へ2〜3か所タップしてください。左右対称なので1回で両舷に付きます。": "A <b>Twin Heavy Turbolaser</b> is selected under Place → Weapons. Tap two or three locations along the <b>deck edges</b>, working from stern to bow. Left/Right Symmetry installs guns on both sides with each tap."
 });
 // </unified-turbolaser-catalog>
+// <arquitens-model>
+Object.assign(root.KS_EN.terms,{
+ "500GT 4連装中型ターボレーザー": "500 GT Quad Medium Turbolaser",
+ "500GT 4連装中型TL": "500 GT Quad Medium TL",
+ "アーキテンス船体（添付STL）": "Arquitens Hull (Supplied STL)",
+ "砲種・1門500 GT・寸法はユーザー指定と添付arquitens.stl": "Type and 500 GT per barrel specified by the user; dimensions measured from the supplied arquitens.stl",
+ "連射間隔・質量・乗員・費用はゲーム用仮定": "Firing interval, mass, crew and cost are game assumptions",
+ "左右に縦2門ずつ、計4門の中型砲塔。1門500 GT（0.5 TT）、一斉射2 TT。添付アーキテンスの砲塔寸法を保持し、小型両用ターボレーザーを参考にした砲室と砲身を使う。": "Four medium guns in two vertical pairs, one on each side. Each barrel fires 500 GT (0.5 TT), for a 2 TT salvo. Dimensions match the supplied Arquitens turret, with the small dual-purpose turbolaser as the reference for its housing and barrels.",
+ "ユーザー提供の arquitens.stl（Blender 2.90.1 書き出し）": "User-supplied arquitens.stl (exported from Blender 2.90.1)",
+ "ユーザー提供の arquitens.stl を全長325 mへ等比変換。作者・ライセンス表記は添付データに含まれない。": "The user-supplied arquitens.stl is scaled uniformly to 325 m. The attachment includes no author or license metadata.",
+ "添付された新しいアーキテンスSTLを全長325 m・全幅約144.28 m・全高約63.62 mとして使用する。船体と艦橋・エンジンカウリングは通常の選択・編集可能な構造物で、元の4基の固定主砲を除去し、左右に縦2門ずつを持つ500GT 4連装中型ターボレーザーへ置換した。1門500 GT（0.5 TT）、1基4門・一斉射2 TT、全艦4基16門。砲塔の全長約17.83 m・全高約5.81 m・全幅約14.10 mは添付モデルの主砲に合わせ、小型両用ターボレーザーの砲室と砲身を参考にした。主砲2基は上面、2基は下面に元モデルの位置・向きで配置する。既存の小型両用砲8基、外付けミサイル発射機4基、トラクタービーム1基を新しい甲板へ配置する。3基のポッド機関はそれぞれ専用炉へ接続し、ノズルは共通ISDベル型に統一する。船内には主反応炉、クラス2ハイパードライブ、慣性・構造維持、シールド、燃料、艦橋とCIC、貨物を持つ。兵員100名を保持し、航空隊は搭載しない。武装の連射間隔・質量・費用と内部設備の構成はゲーム用仮定。": "The new supplied Arquitens STL is scaled uniformly to 325 m long, about 144.28 m wide and 63.62 m high. Its hull, bridge and engine cowlings form an ordinary selectable structure. The four static main turrets are removed and replaced with 500 GT quad medium turbolasers, each with two vertical barrels on either side: 500 GT (0.5 TT) per barrel, a 2 TT salvo per turret, four turrets and sixteen barrels overall. The 17.83 m length, 5.81 m height and 14.10 m width follow the supplied main guns, using the small dual-purpose turret housing and barrels as references. Two main turrets occupy the original dorsal stations and two the ventral stations. Eight small dual-purpose turrets, four external missile launchers and one tractor beam occupy the new decks. Each of the three drives has its own reactor and the standard ISD bell nozzle. The interior includes a main reactor, class 2 hyperdrive, inertial compensation, structural integrity, shields, fuel, bridge, CIC and cargo. It carries 100 troops and no aircraft. Weapon cycle, mass, cost and internal layout are game assumptions."
+});
+// </arquitens-model>
+// <compact-missile-launchers>
+Object.assign(root.KS_EN.terms,{
+ "ミサイルの発射角": "Missile Launch Angle",
+ "選択した発射装置の発射角": "Selected Launcher Angles",
+ "発射角（取付面から上下）": "Launch Pitch Relative to Mount",
+ "発射角（取付面から上下） 数値": "Launch Pitch Relative to Mount Value",
+ "ミサイル発射角を変更": "Change Missile Launch Angle",
+ "支持台は発射角に合わせて自動生成します。": "Supports are generated automatically to match the launch angle.",
+ "取付面に沿う向きを0°として、上向き・下向きの発射角を変えます。角度に合わせて支持台を自動生成し、発射口と選択範囲も追従します。": "Zero degrees follows the mounting surface. Adjust the launch angle upward or downward; supports, launch mouths and selectable bounds follow the angle automatically.",
+ "先頭の発射装置の値を表示しています。変更した角度を、選択した小型発射装置と対の装備へまとめて適用します。": "The first launcher is shown. A changed angle applies to the selected compact launchers and their linked counterparts.",
+ "震盪ミサイルVLS（器材面）": "Concussion Missile VLS (Equipment Surface)",
+ "表面兵装（砲列・VLS）": "Surface Weapons (Batteries & VLS)",
+ "兵装の定義": "Weapon Definition",
+ "要求するVLS基数": "Requested VLS Cells",
+ "震盪ミサイルVLSは器材面に埋め込む共通の発射セルです。1基6発を基準に、面積と内部容積に収まる分だけ搭載します。個別の小型発射装置は「配置 → 武装」から設置できます。": "Concussion missile VLS cells are embedded in equipment surfaces. Each cell holds up to six rounds, within the available area and internal volume. Place individual compact launchers under Place → Weapons.",
+ "発射装置の容量は艦と航空機で共通です。搭載弾は射撃ごとに減り、補給時に再装填します。航空機の弾種・搭載数は編成画面の中隊ごとに選べます。弾の質量だけ機体が重くなります。": "Ships and aircraft use the same launcher capacity. Each shot consumes a loaded round, and supply replenishes it. Aircraft ammunition types and quantities are selected per squadron in fleet setup; loaded rounds add their mass to the craft."
+});
+Object.assign(root.KS_EN.terms,{
+ "残弾なし": "No Ammunition",
+ "発射中": "Launching",
+ "ミサイル発射装置に給電されていません": "The missile launchers have no power",
+ "航空機・艦艇で共通の小型震盪ミサイル発射管と6発の弾倉。上下の発射角に合わせて支持台を自動生成します。器材面へ配置すると面に沿うVLSハッチになります。口径0.22 m、1発25 TT。": "A compact concussion missile launch tube and six-round magazine shared by aircraft and ships. Supports follow the selected upward or downward launch angle. On equipment surfaces it becomes a flush VLS hatch. Caliber 0.22 m; 25 TT per round.",
+ "旧VLSの装備面を再選択してください": "Reselect the equipment surface for the legacy VLS"
+});
+// </compact-missile-launchers>
+// <arquitens-native-example>
+Object.assign(root.KS_EN.terms,{
+ "ゲーム内パーツによる再現作例": "Reconstruction with In-Game Parts",
+ "ユーザー提供の arquitens.stl を形状資料として参照": "User-supplied arquitens.stl used as a shape reference",
+ "参考STLの作者・ライセンスは不明": "Reference STL author and license unknown",
+ "添付モデルを参考に、通常の断面ロフト・構造物・装備を組み合わせて再現した作例。": "A worked example built from standard section lofts, structures and equipment, using the supplied model as a shape reference.",
+ "中央船体": "Main Hull",
+ "艦首突起": "Bow Prong",
+ "舷側張出し甲板": "Side Shoulder Deck",
+ "背部中央構造": "Dorsal Spine",
+ "艦橋支持塔": "Bridge Tower",
+ "艦橋上部": "Bridge Head",
+ "艦橋の窓帯": "Bridge Window Band",
+ "腹部キール": "Ventral Keel",
+ "機関支持板": "Engine Support Plate",
+ "機関横桁": "Engine Crossbeam",
+ "上面主砲座": "Dorsal Main Gun Seat",
+ "下面主砲座": "Ventral Main Gun Seat",
+ "中央推進ポッド後端リング": "Center Drive Pod Rear Collar",
+ "右舷推進ポッド後端リング": "Starboard Drive Pod Rear Collar",
+ "左舷推進ポッド後端リング": "Port Drive Pod Rear Collar",
+ "全長325 m・全幅144 m・高さ64 mの組立式作例。中央船体、二股の艦首、舷側甲板、階段状の艦橋、3基の推進ポッドを24個の通常構造物で組み立てる。各部は断面ロフト、丸断面ロフト、切隅箱、輪郭板、開口リングとして選択・移動・寸法変更でき、通常の設計図へ保存できる。主砲は左右に縦2門ずつを持つ500GT 4連装中型ターボレーザーで、1門500 GT（0.5 TT）、1基4門・一斉射2 TT、全艦4基16門。上面2基・下面2基を独立した砲座へ配置する。小型両用砲8基、航空機と共通の小型震盪ミサイル発射管4基、トラクタービーム1基を搭載する。3基の機関はそれぞれ専用炉へ接続し、共通ISDベル型ノズルを使う。船内に主反応炉、ハイパードライブ、慣性・構造維持、シールド、燃料、艦橋とCIC、貨物を持つ。兵員100名、航空隊なし。武装と設備の性能はゲーム用仮定。": "A 325 m long, 144 m wide, 64 m high assembly example. Twenty-four ordinary structures form the main hull, forked bow, shoulder decks, stepped bridge and three drive pods. Section lofts, round lofts, chamfered boxes, outline plates and open rings can be selected, moved, resized and saved in a normal blueprint. Four 500 GT quad medium turbolasers have vertical pairs on the left and right: 0.5 TT per barrel, 2 TT per turret, sixteen barrels total. Two independent gun seats face upward and two downward. Eight small dual-purpose turrets, four compact aircraft-type concussion missile tubes and one tractor beam complete the armament. Each of the three drives uses its own reactor and a standard ISD bell nozzle. Interior equipment includes a main reactor, hyperdrive, inertial compensation, structural integrity, shields, fuel, bridge, CIC and cargo. Carries 100 troops and no aircraft. Equipment performance is a game assumption."
+});
+// </arquitens-native-example>
+// <photo-reference-turrets>
+Object.assign(root.KS_EN.terms,{
+ "40TT 2連装重ターボレーザー": "40 TT Twin Heavy Turbolaser",
+ "重TL連装80TT": "Heavy Twin TL 80 TT",
+ "DBY-827を基に砲身を駆動軸の上へ移した連装重砲。1門40 TT、一斉射80 TT。外観寸法は参考写真による。": "A DBY-827-derived heavy twin with barrels raised above the elevation drive. 40 TT per barrel, 80 TT per salvo. Native dimensions follow the reference photos.",
+ "ユーザー指定40 TT×2・参考写真とDBY-827": "User-specified 2×40 TT; reference photos and DBY-827",
+ "左右に縦2門ずつ、計4門の中型砲塔。1門500 GT（0.5 TT）、一斉射2 TT。参考写真に合わせ、円形駆動部の上に長く細い平行砲身と揺架を持つ。寸法は添付アーキテンスの主砲に合わせる。": "A medium turret with two vertically stacked barrels on each side: 0.5 TT per barrel, 2 TT per salvo. Long, slender parallel tubes and a cradle sit above the circular drives, following the reference photos. Native dimensions follow the supplied Arquitens main battery."
+});
+// </photo-reference-turrets>
+// <photo-reference-weapon-family>
+Object.assign(root.KS_EN.terms,{
+ "40TT 単装ターボレーザー": "40 TT Single Turbolaser",
+ "40TT ドーム型2連装ターボレーザー": "40 TT Twin Dome Turbolaser",
+ "40TT 2連装重ターボレーザー": "40 TT Twin Heavy Turbolaser",
+ "40TT 3連装ターボレーザー": "40 TT Triple Turbolaser",
+ "ISD 40TT 8連装ターボレーザー": "ISD 40 TT Octuple Turbolaser",
+ "DBY-827 70TT 2連装重ターボレーザー": "DBY-827 70 TT Twin Heavy Turbolaser",
+ "70TT 3連装重ターボレーザー": "70 TT Triple Heavy Turbolaser",
+ "70TT 4連装舷側重ターボレーザー": "70 TT Quad Broadside Heavy Turbolaser",
+ "ユーザー指定の口径・門数、ISDと兵装系列の参考画像": "User-specified barrel output and count; ISD and weapon-family reference images",
+ "左右の舷側面に配置する固定砲室。4門×70 TT、合計280 TT。砲室内の揺架が左右±65度・上下±20度に動く。": "A fixed gunhouse mounted on either broadside: 4 × 70 TT, 280 TT total. Its internal cradle traverses ±65° and elevates ±20°.",
+ "参考画像に合わせた砲塔本体を直接配置し、外殻内を武装区画として使う。支持台は付けない。": "Place the photo-reference turret directly on the surface. Its gunhouse provides weapon compartment volume, with no support pedestal.",
+ "砲室・充電装置": "Gunhouse & Charge Banks",
+ "充電装置の必要容積": "Required Bank Volume",
+ "確保する装置容積": "Planned Bank Volume",
+ "砲室の容積": "Gunhouse Volume",
+ "船外の砲室容積": "External Gunhouse Volume",
+ "船内に埋まる砲室容積": "Embedded Gunhouse Volume",
+ "砲室内に確保した装置": "Banks Housed in Gunhouse",
+ "船内に追加する装置容積": "Additional Interior Bank Required",
+ "船内に追加した装置容積": "Additional Interior Bank Installed",
+ "船内で占有する総容積": "Total Interior Volume Occupied",
+ "装置の合計容積": "Total Bank Volume",
+ "充電容量": "Charge Capacity",
+ "船内区画": "Interior Compartment",
+ "舷側面に合わせる": "Align with Broadside",
+ "武装充電装置": "Weapon Charge Banks",
+ "追加装置": "Additional Banks",
+ "船内占有": "Interior Occupancy",
+ "面に直接設置": "Mount Directly on Surface",
+ "この砲は左右の舷側面に配置してください": "Place this weapon on a port or starboard side wall.",
+ "左右の舷側面に直接取り付けます。艦首・艦尾・甲板・船底には配置できません。砲室は壁に固定され、砲身と揺架だけが射界内で動きます。": "Mount directly on a port or starboard side wall. Bow, stern, deck and underside mounting is unavailable. The gunhouse remains fixed while the barrels and cradle move within their firing arc.",
+ "砲室全体を武装区画として使い、不足分だけ船内に装置を追加します。船体・構造物に埋まる砲室も船内の占有容積に含め、他の区画と重複利用しません。容量密度": "Use the gunhouse as a weapon compartment and add interior banks only for the shortfall. Embedded gunhouse volume occupies interior space and cannot be shared with other compartments. Capacity density",
+ "砲室を武装区画として使い、不足分だけ船内に装置を追加します。船体に埋まる砲室も武装が占有し、他の区画と重複利用しません。兵装用電力": "Use the gunhouse as a weapon compartment and add interior banks only for the shortfall. Embedded gunhouse space is reserved for this weapon. Weapon power",
+ "主船体の舷側帯": "Main Hull Side Belt",
+ "艦首の突起": "Bow Prong",
+ "艦首分岐部の閉塞ブロック": "Bow Fork Junction Block",
+ "艦首スリットの内壁": "Bow Slit Inner Wall",
+ "艦首突起の傾斜上面": "Bow Prong Sloped Roof",
+ "主船体の中央稜線": "Main Hull Central Crown",
+ "主船体の側部甲板": "Main Hull Side Deck",
+ "主船体の傾斜装甲": "Main Hull Sloped Armor",
+ "腹部の中央船殻": "Central Ventral Hull",
+ "腹部キールの平行稜材": "Ventral Keel Parallel Ribs",
+ "後部腹面キール": "Aft Ventral Keel",
+ "後部背面スパイン": "Aft Dorsal Spine",
+ "前部背面スパイン": "Forward Dorsal Spine",
+ "背面第一機器ハッチ": "First Dorsal Equipment Hatch",
+ "背面第一ハッチの上部カバー": "First Dorsal Hatch Cover",
+ "背面第二機器ハッチ": "Second Dorsal Equipment Hatch",
+ "背面第三機器ハッチ": "Third Dorsal Equipment Hatch",
+ "艦橋の斜塔": "Swept Bridge Tower",
+ "艦橋の翼状ヘッド": "Bridge Wing Head",
+ "艦橋の上部マスト": "Upper Bridge Mast",
+ "艦橋マストの頂部": "Bridge Mast Tip",
+ "機関架後端の上側曲桁": "Upper Aft Machinery Girder",
+ "機関架後端の下側曲桁": "Lower Aft Machinery Girder",
+ "機関間の連結フェアリング": "Inter-engine Connecting Fairing",
+ "機関間の排気環": "Inter-engine Exhaust Ring",
+ "後部の斜行翼板": "Swept Aft Wing Panel",
+ "後部頸部の縦リブ": "Aft Neck Longitudinal Rib",
+ "中央推進ポッドの開口外周": "Central Drive Pod Aperture Rim",
+ "中央ポッドの背面点検帯": "Central Pod Dorsal Access Strip",
+ "中央ポッドの側面点検帯": "Central Pod Side Access Strip",
+ "右舷推進ポッド": "Starboard Drive Pod",
+ "右舷推進ポッドの開口外周": "Starboard Drive Pod Aperture Rim",
+ "右舷ポッドの背面点検帯": "Starboard Pod Dorsal Access Strip",
+ "右舷ポッドの側面点検帯": "Starboard Pod Side Access Strip",
+ "左舷推進ポッド": "Port Drive Pod",
+ "左舷推進ポッドの開口外周": "Port Drive Pod Aperture Rim",
+ "左舷ポッドの背面点検帯": "Port Pod Dorsal Access Strip",
+ "左舷ポッドの側面点検帯": "Port Pod Side Access Strip",
+ "中央舷側の丸形ブリスター": "Central Side Round Blister",
+ "前部舷側の丸形ブリスター": "Forward Side Round Blister",
+ "舷側の上縁装甲": "Side Upper Edge Armor",
+ "外板の横断リブ": "Hull Transverse Rib",
+ "中央推進ポッドのイオン・ドライブ用反応炉": "Central Drive Pod Reactor",
+ "右舷推進ポッドのイオン・ドライブ用反応炉": "Starboard Drive Pod Reactor",
+ "左舷推進ポッドのイオン・ドライブ用反応炉": "Port Drive Pod Reactor",
+ "全長325 m・全幅144 m・高さ64 mの組立式作例。元モデルの中央稜線、二股の艦首、舷側甲板、翼状の艦橋、腹部キール、3基の推進ポッドと開口部を75個の通常構造物で組み立てる。各部は断面ロフト、丸断面ロフト、切隅箱、輪郭板、開口リングとして選択・移動・寸法変更でき、通常の設計図へ保存できる。主砲は左右に縦2門ずつを持つ500GT 4連装中型ターボレーザーで、1門500 GT（0.5 TT）、1基4門・一斉射2 TT、全艦4基16門。上面2基・下面2基を船体の甲板へ直接配置する。小型両用砲8基、航空機と共通の小型震盪ミサイル発射管4基、トラクタービーム1基を搭載する。3基の機関はそれぞれ専用炉へ接続し、共通ISDベル型ノズルを使う。船内に主反応炉、ハイパードライブ、慣性・構造維持、シールド、燃料、艦橋とCIC、貨物を持つ。兵員100名、航空隊なし。武装と設備の性能はゲーム用仮定。": "An editable 325 m × 144 m × 64 m example. Seventy-five ordinary structures reproduce the source model’s central crown, forked bow, side decks, swept bridge, ventral keel and three drive pods with open apertures. Sections, round lofts, chamfered boxes, outline panels and open rings can be selected, moved, resized and saved in a normal blueprint. Four medium quad turrets each carry two vertical barrel pairs: 500 GT (0.5 TT) per barrel, 2 TT per turret, sixteen barrels total. Two turrets mount directly on the upper decks and two on the underside. Eight small dual-purpose turrets, four shared aircraft-type concussion missile launchers and one tractor beam complete the armament. Each drive has its own reactor and the standard ISD bell nozzle. Interior equipment includes the main reactor, hyperdrive, inertial compensation, structural integrity, shields, fuel, bridge, CIC and cargo. Carries 100 troops and no aircraft. Equipment performance is a game assumption."
+});
+// </photo-reference-weapon-family>
+Object.assign(root.KS_EN.messages,{
+ "砲室全体を武装区画として使い、不足分だけ船内に装置を追加します。船体・構造物に埋まる砲室も船内の占有容積に含め、他の区画と重複利用しません。容量密度 {0} TT/m³。再充電の目安 {1}。": "Use the gunhouse as a weapon compartment and add interior banks only for the shortfall. Embedded gunhouse volume occupies interior space and cannot be shared with other compartments. Capacity density: {0} TT/m³. Recharge estimate: {1}.",
+ "砲室を武装区画として使い、不足分だけ船内に装置を追加します。船体に埋まる砲室も武装が占有し、他の区画と重複利用しません。兵装用電力 {0}。": "Use the gunhouse as a weapon compartment and add interior banks only for the shortfall. Embedded gunhouse space is reserved for this weapon. Weapon power: {0}.",
+ "{0}門×{1} TT。参考画像に合わせた砲塔本体を直接配置し、外殻内を武装区画として使う。支持台は付けない。": "{0} barrels × {1} TT. Mount the photo-reference turret directly on the surface. Its gunhouse provides weapon compartment volume, with no support pedestal.",
+ "「面に合わせる」では斜めの面にも面の傾きに沿って傾けて据え付け、射界はその面の外向き半球になります。垂直に立てるときは「上面に配置」「下面に配置」。下面を選ぶと船底へ視点を切り替えます。船体・構造物の下面をタップして搭載。砲塔は下向き、充電装置は取付面の船内側に配置されます。射界は取付面の外向き半球です。「トレンチ内」では溝の床・内壁に局所固定し、外甲板へ移しません。「側壁ケースメイト」は砲口を壁の外向きにして、背面の船内に充電装置を確保します。": "Align with Surface follows the selected surface slope, with a firing arc in its outward hemisphere. Use Upper Surface or Underside for vertical mounting; Underside also moves the camera below the ship. Tap the underside of a hull or structure to mount a downward-facing turret, with charge banks inside the mounting surface. In Trench keeps the mount on its local floor or inner wall. Side Casemate points the muzzle outward and reserves charge-bank space behind the wall."
+});
+// <revised-photo-family>
+Object.assign(root.KS_EN.terms,{
+ "40TT 4連装イオン砲": "40 TT Quad Ion Cannon",
+ "40 TTの単装砲。3連装40TTの砲室と後方の砲基部を使い、砲身を1門にまとめる。": "A 40 TT single gun using the triple 40 TT gunhouse and its rear-mounted gun cradle, with one barrel.",
+ "球状の砲室に4門をまとめたイオン砲。1門40 TT相当、合計160 TT。砲室内を武装区画として使う。": "Four ion barrels in a spherical gunhouse: 40 TT equivalent per barrel, 160 TT total. The gunhouse provides weapon compartment volume.",
+ "40 TTの2連装砲。張り出した円形の砲基部と2門の砲身を中央へまとめ、半球状の砲室に収める。": "A 40 TT twin with its circular gun pivot and both barrels brought together at the center of a hemispherical gunhouse.",
+ "40 TTの2連装砲。DBY-827のように円形の砲基部を砲室の左右へ張り出す。": "A 40 TT twin with circular gun pivots projecting from both sides of the gunhouse, like the DBY-827.",
+ "40 TTの3連装砲。中央の器材部の上に3門の砲基部を載せ、上から見て後方に配置する。": "A 40 TT triple with a complete three-barrel cradle mounted toward the rear on top of the central machinery housing.",
+ "既存のISD 8連装モデルの形状を保ち、参考画像を基準に寸法だけを調整。8門×40 TT、合計320 TT。": "The original ISD octuple model, preserving its shape and adjusting only its size to the reference images. 8 × 40 TT, 320 TT total.",
+ "既存のDBY-827モデルの形状を保ち、参考画像を基準に寸法だけを調整。2門×70 TT、合計140 TT。": "The original DBY-827 model, preserving its shape and adjusting only its size to the reference images. 2 × 70 TT, 140 TT total.",
+ "DBY-827を基に、円形の砲基部と3門の砲身を中央へ並べ、六角形の砲室に収める。3門×70 TT、合計210 TT。": "A DBY-827 derivative with a central circular cradle and three barrels enclosed in a hexagonal gunhouse. 3 × 70 TT, 210 TT total.",
+ "左右の舷側面に配置する4連装砲。DBY-827の砲基部を四角い1基へまとめ、4門と基部が一緒に左右±65度・上下±20度に動く。4門×70 TT、合計280 TT。": "A broadside-only quad with the DBY-827 gun bases combined into one square cradle. The cradle and all four barrels move together through ±65° traverse and ±20° elevation. 4 × 70 TT, 280 TT total."
+});
+// </revised-photo-family>
+Object.assign(root.KS_EN.terms,{
+ "写真に基づく40TT・70TT系列と球形イオン砲は、それぞれの基準寸法を使います。ISDの8連装とDBY-827は元モデルの形状を保ち、サイズだけを調整します。ほかの通常砲は従来の出力比による寸法換算を使います。小型両用砲は2門×2.5 TTです。": "The photo-reference 40 TT and 70 TT family and spherical ion cannon use their own reference dimensions. The original ISD octuple and DBY-827 keep their shapes, with size adjustments only. Other ordinary guns retain the existing output-based sizing. Small dual-purpose guns carry 2 × 2.5 TT.",
+ "写真系列の40 TT・70 TTと球形4連装イオン砲はユーザー指定。175 TTとアクラメイターの200 GTは指定表を参照。連射間隔、命中率・射程・損傷効果はゲーム用仮定です。給電が不足すると連続火力が低下します。": "The photo-reference 40 TT and 70 TT guns and spherical quad ion cannon are user-specified. The workbook supplies the 175 TT and Acclamator 200 GT values. Firing interval, accuracy, range and damage effects are game assumptions. Insufficient power reduces sustained fire."
+});
+Object.assign(root.KS_EN.terms,{
+ "球状の砲室の高さ約1/3を取付面に埋め込み、4門と球体が一体で旋回・照準する。1門40 TT相当、合計160 TT。砲室内を武装区画として使う。": "A spherical gunhouse embedded about one-third of its height below the mounting surface. The whole ball and all four barrels turn and aim together. 40 TT equivalent per barrel, 160 TT total. The gunhouse provides weapon compartment volume."
+});
+Object.assign(root.KS_EN.terms,{
+ "DBY-827の円形砲基部と3門を、傾斜した装甲と屋根を持つ軍艦型の六角砲室へ収める。前面に3門×70 TT、合計210 TT。": "A battleship-style hexagonal gunhouse with sloped armor and a roof, enclosing a DBY-827-derived circular cradle and three forward-facing barrels. 3 × 70 TT, 210 TT total."
+});
+Object.assign(root.KS_EN.terms,{
+ "DBY-827の円形砲基部と3門を、前方が幅広い低い軍艦型の六角砲室へ収める。前面に3門×70 TT、合計210 TT。装甲ケース内で俯角10度・仰角55度まで照準する。": "A low battleship-style hexagonal gunhouse, widest toward the front, enclosing a DBY-827-derived circular cradle and three forward-facing barrels. 3 × 70 TT, 210 TT total. The armored case allows −10° to +55° elevation."
+});
+Object.assign(root.KS_EN.terms,{
+ "DBY-827の円形砲基部と3門を、前方が幅広い低い軍艦型の六角砲室へ収める。前面に3門×70 TT、合計210 TT。装甲ケース内で俯角10度・仰角20度まで照準する。": "A low battleship-style hexagonal gunhouse, widest toward the front, enclosing a DBY-827-derived circular cradle and three forward-facing barrels. 3 × 70 TT, 210 TT total. The compact armored case allows −10° to +20° elevation."
+});
+Object.assign(root.KS_EN.terms,{
+ "40TT 3連装と共通の砲室を使う連装砲。完全な円形砲基部と砲身を、ケースの左右の外側へ1門ずつ取り付ける。2門×40 TT。": "A 40 TT twin using the same gunhouse as the 40 TT triple. One complete circular gun base and barrel mount fully outside each side of the case. 2 × 40 TT.",
+ "40 TTの3連装砲。8連装の片側ユニットを3門へ組み替え、後部ケースと大きな円形砲基部ごと、器材ケースの後方上面へ載せる。": "A 40 TT triple made from one four-gun unit of the octuple, including its rear casing and large circular gun base, mounted on the rear upper surface of the machinery case.",
+ "DBY-827と同じ長さの砲身3門と円形砲基部を、前方が幅広い低い軍艦型の六角砲室へ収める。3門×70 TT、合計210 TT。俯角10度・仰角20度まで照準する。": "Three barrels with the same length as the DBY-827 and a circular cradle, enclosed in a low battleship-style hexagonal gunhouse that is widest toward the front. 3 × 70 TT, 210 TT total. Elevation: −10° to +20°.",
+ "左右の舷側面に配置する4連装砲。DBY-827と同じ長さの砲身4門と四角い砲基部が、一体で左右±65度・上下±20度に動く。4門×70 TT、合計280 TT。": "A broadside-only quad with four full-length DBY-827 barrels and one square gun base moving together through ±65° traverse and ±20° elevation. 4 × 70 TT, 280 TT total."
+});
+Object.assign(root.KS_EN.terms,{
+ "40TT 3連装を基に中央の砲室を左右の基部間まで広げ、前面を傾斜装甲でつないだ連装砲。完全な円形砲基部と砲身を、ケースの左右の外側へ1門ずつ取り付ける。2門×40 TT。": "A 40 TT triple-derived twin with an enlarged central gunhouse between the side bases and a sloped armored front. One complete circular gun base and barrel mount fully outside each side. 2 × 40 TT.",
+ "DBY-827と同じ長さの砲身3門を中央へまとめ、大きな砲基部ごと六角砲室の前へ張り出す。高さはDBY-827とほぼ同じ。3門×70 TT、合計210 TT。": "Three full-length DBY-827 barrels clustered at the center of a large gun cradle projecting ahead of a hexagonal gunhouse. Overall height is close to the DBY-827. 3 × 70 TT, 210 TT total."
+});
 // <faction-catalog> FACTION-001 the player's own factions (faction editor, lists, galaxy map)
 Object.assign(root.KS_EN.terms,{
 "新しい陣営": "New Faction",

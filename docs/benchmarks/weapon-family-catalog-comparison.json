@@ -1,0 +1,724 @@
+{
+  "baseline": "3816c09d6b8f08a6e6fb3066b683e0424e6ff8e9",
+  "oldVersion": 11,
+  "currentVersion": 12,
+  "oldSignature": "1ab8eam",
+  "currentSignature": "14gzduj",
+  "oldEntries": 12,
+  "currentEntries": 12,
+  "numericCounts": {
+    "old": 9896,
+    "current": 9896
+  },
+  "numericDifferences": 122,
+  "rows": [
+    {
+      "name": "arc170",
+      "oldTotal": 225030,
+      "currentTotal": 225030,
+      "oldSignature": "45rz6p",
+      "currentSignature": "nyqxln",
+      "numericDifferences": 16
+    },
+    {
+      "name": "awing",
+      "oldTotal": 160054,
+      "currentTotal": 160054,
+      "oldSignature": "cgilx",
+      "currentSignature": "wf78bj",
+      "numericDifferences": 14
+    },
+    {
+      "name": "btlb",
+      "oldTotal": 202851,
+      "currentTotal": 202851,
+      "oldSignature": "edx57c",
+      "currentSignature": "byz5te",
+      "numericDifferences": 20
+    },
+    {
+      "name": "hyena",
+      "oldTotal": 210146,
+      "currentTotal": 210146,
+      "oldSignature": "1rnkoyg",
+      "currentSignature": "axkkc2",
+      "numericDifferences": 7
+    },
+    {
+      "name": "tie_in",
+      "oldTotal": 110120,
+      "currentTotal": 110120,
+      "oldSignature": "1kbx2vf",
+      "currentSignature": "u9dwr9",
+      "numericDifferences": 7
+    },
+    {
+      "name": "tie_ln",
+      "oldTotal": 99082,
+      "currentTotal": 99082,
+      "oldSignature": "1inoglf",
+      "currentSignature": "1gtts19",
+      "numericDifferences": 7
+    },
+    {
+      "name": "tie_sa",
+      "oldTotal": 138742,
+      "currentTotal": 138742,
+      "oldSignature": "1y2ewa6",
+      "currentSignature": "oqhjvk",
+      "numericDifferences": 7
+    },
+    {
+      "name": "v19",
+      "oldTotal": 171459,
+      "currentTotal": 171459,
+      "oldSignature": "b2fsw4",
+      "currentSignature": "19bep32",
+      "numericDifferences": 7
+    },
+    {
+      "name": "vulture",
+      "oldTotal": 144544,
+      "currentTotal": 144544,
+      "oldSignature": "ozo4p2",
+      "currentSignature": "1wqpgmw",
+      "numericDifferences": 7
+    },
+    {
+      "name": "vwing",
+      "oldTotal": 238213,
+      "currentTotal": 238213,
+      "oldSignature": "3u6h9f",
+      "currentSignature": "c99ij1",
+      "numericDifferences": 22
+    },
+    {
+      "name": "xwing",
+      "oldTotal": 189341,
+      "currentTotal": 189341,
+      "oldSignature": "1rsan14",
+      "currentSignature": "1pdcnn6",
+      "numericDifferences": 1
+    },
+    {
+      "name": "z95",
+      "oldTotal": 141315,
+      "currentTotal": 141315,
+      "oldSignature": "1310kuv",
+      "currentSignature": "130zh5d",
+      "numericDifferences": 7
+    }
+  ],
+  "differences": [
+    {
+      "path": "arc170.powerProfile.D",
+      "old": 0.003080420262310727,
+      "current": 0.0030804202741593163
+    },
+    {
+      "path": "arc170.powerProfile.grid.Ds",
+      "old": 12888478377508082000,
+      "current": 12888478427082580000
+    },
+    {
+      "path": "arc170.powerProfile.grid.powerPaths.7.cap",
+      "old": 12888478377508082000,
+      "current": 12888478427082580000
+    },
+    {
+      "path": "arc170.powerProfile.propulsion.massKg",
+      "old": 34256.5478746147,
+      "current": 34256.54790362576
+    },
+    {
+      "path": "arc170.powerProfile.propulsion.ratedAccelMps2",
+      "old": 35078.23363861388,
+      "current": 35078.23360890695
+    },
+    {
+      "path": "arc170.powerProfile.propulsion.structuralAccelerationLimitMps2",
+      "old": 685256.2178240644,
+      "current": 685256.2172229727
+    },
+    {
+      "path": "arc170.powerProfile.propulsion.accelerationLimitMps2",
+      "old": 35078.23363861388,
+      "current": 35078.23360890695
+    },
+    {
+      "path": "arc170.powerProfile.profileVersion",
+      "old": 5,
+      "current": 6
+    },
+    {
+      "path": "arc170.powerProfile.heat.dis.8.cap",
+      "old": 966635878313106100000,
+      "current": 966635882031193300000
+    },
+    {
+      "path": "arc170.powerProfile.heat.ln.7.cap",
+      "old": 79583257342768900,
+      "current": 79583255483725220
+    },
+    {
+      "path": "arc170.powerProfile.heat.ln.8.cap",
+      "old": 79583257342768900,
+      "current": 79583255483725220
+    },
+    {
+      "path": "arc170.powerProfile.heat.ln.10.cap",
+      "old": 79583257342768900,
+      "current": 79583255483725220
+    },
+    {
+      "path": "arc170.powerProfile.heat.ln.11.cap",
+      "old": 79583257342768900,
+      "current": 79583255483725220
+    },
+    {
+      "path": "arc170.powerProfile.heat.ln.13.cap",
+      "old": 8699722904817957000,
+      "current": 8699722938280741000
+    },
+    {
+      "path": "arc170.powerProfile.heat.ln.14.cap",
+      "old": 8699722904817957000,
+      "current": 8699722938280741000
+    },
+    {
+      "path": "arc170.powerProfile.heat.ln.35.cap",
+      "old": 966635878313106100000,
+      "current": 966635882031193300000
+    },
+    {
+      "path": "awing.powerProfile.D",
+      "old": 0.0006204957003878776,
+      "current": 0.0006204957012070208
+    },
+    {
+      "path": "awing.powerProfile.grid.Ds",
+      "old": 2596154010422879700,
+      "current": 2596154013850175000
+    },
+    {
+      "path": "awing.powerProfile.grid.powerPaths.6.cap",
+      "old": 1298077005211439900,
+      "current": 1298077006925087500
+    },
+    {
+      "path": "awing.powerProfile.grid.powerPaths.7.cap",
+      "old": 1298077005211439900,
+      "current": 1298077006925087500
+    },
+    {
+      "path": "awing.powerProfile.propulsion.massKg",
+      "old": 10215.50368912437,
+      "current": 10215.503690126854
+    },
+    {
+      "path": "awing.powerProfile.propulsion.ratedAccelMps2",
+      "old": 50057.37134737028,
+      "current": 50057.37134245798
+    },
+    {
+      "path": "awing.powerProfile.propulsion.structuralAccelerationLimitMps2",
+      "old": 208235.95363920068,
+      "current": 208235.95360974132
+    },
+    {
+      "path": "awing.powerProfile.propulsion.accelerationLimitMps2",
+      "old": 50057.37134737028,
+      "current": 50057.37134245798
+    },
+    {
+      "path": "awing.powerProfile.profileVersion",
+      "old": 5,
+      "current": 6
+    },
+    {
+      "path": "awing.powerProfile.heat.src.3.st",
+      "old": 46730772187611830000,
+      "current": 46730772249303150000
+    },
+    {
+      "path": "awing.powerProfile.heat.dis.0.cap",
+      "old": 194711550781715970000,
+      "current": 194711551038763100000
+    },
+    {
+      "path": "awing.powerProfile.heat.dis.4.cap",
+      "old": 1168269304690295800,
+      "current": 1168269306232578600
+    },
+    {
+      "path": "awing.powerProfile.heat.ln.3.cap",
+      "old": 1168269304690295800,
+      "current": 1168269306232578600
+    },
+    {
+      "path": "awing.powerProfile.heat.ln.6.cap",
+      "old": 194711550781715970000,
+      "current": 194711551038763100000
+    },
+    {
+      "path": "btlb.powerProfile.D",
+      "old": 0.0033263739601390612,
+      "current": 0.0033263739609844575
+    },
+    {
+      "path": "btlb.powerProfile.grid.Ds",
+      "old": 13917548649221833000,
+      "current": 13917548652758970000
+    },
+    {
+      "path": "btlb.powerProfile.grid.powerPaths.8.cap",
+      "old": 13917548649221833000,
+      "current": 13917548652758970000
+    },
+    {
+      "path": "btlb.powerProfile.propulsion.massKg",
+      "old": 47818.81952920099,
+      "current": 47818.819530582114
+    },
+    {
+      "path": "btlb.powerProfile.propulsion.ratedAccelMps2",
+      "old": 31450.86495094488,
+      "current": 31450.864950036506
+    },
+    {
+      "path": "btlb.powerProfile.propulsion.structuralAccelerationLimitMps2",
+      "old": 389312.6339366744,
+      "current": 389312.6339268137
+    },
+    {
+      "path": "btlb.powerProfile.propulsion.accelerationLimitMps2",
+      "old": 31450.86495094488,
+      "current": 31450.864950036506
+    },
+    {
+      "path": "btlb.powerProfile.profileVersion",
+      "old": 5,
+      "current": 6
+    },
+    {
+      "path": "btlb.powerProfile.heat.dis.2.cap",
+      "old": 1.0438161486916372e+21,
+      "current": 1.0438161489569226e+21
+    },
+    {
+      "path": "btlb.powerProfile.heat.dis.8.cap",
+      "old": 6262896892149825000,
+      "current": 6262896893741536000
+    },
+    {
+      "path": "btlb.powerProfile.heat.ln.1.cap",
+      "old": 475628979000575800,
+      "current": 475628979098558100
+    },
+    {
+      "path": "btlb.powerProfile.heat.ln.2.cap",
+      "old": 475628979000575800,
+      "current": 475628979098558100
+    },
+    {
+      "path": "btlb.powerProfile.heat.ln.4.cap",
+      "old": 475628979000575800,
+      "current": 475628979098558100
+    },
+    {
+      "path": "btlb.powerProfile.heat.ln.5.cap",
+      "old": 475628979000575800,
+      "current": 475628979098558100
+    },
+    {
+      "path": "btlb.powerProfile.heat.ln.13.cap",
+      "old": 594049120790887400,
+      "current": 594049120913265000
+    },
+    {
+      "path": "btlb.powerProfile.heat.ln.14.cap",
+      "old": 594049120790887400,
+      "current": 594049120913265000
+    },
+    {
+      "path": "btlb.powerProfile.heat.ln.15.cap",
+      "old": 6262896892149825000,
+      "current": 6262896893741536000
+    },
+    {
+      "path": "btlb.powerProfile.heat.ln.16.cap",
+      "old": 9394345338224736000,
+      "current": 9394345340612305000
+    },
+    {
+      "path": "btlb.powerProfile.heat.ln.17.cap",
+      "old": 9394345338224736000,
+      "current": 9394345340612305000
+    },
+    {
+      "path": "btlb.powerProfile.heat.ln.26.cap",
+      "old": 1.0438161486916372e+21,
+      "current": 1.0438161489569226e+21
+    },
+    {
+      "path": "hyena.powerProfile.propulsion.massKg",
+      "old": 26444.04136173766,
+      "current": 26444.041363705626
+    },
+    {
+      "path": "hyena.powerProfile.propulsion.ratedAccelMps2",
+      "old": 24338.513669632535,
+      "current": 24338.513667821262
+    },
+    {
+      "path": "hyena.powerProfile.propulsion.structuralAccelerationLimitMps2",
+      "old": 2271393.3967274455,
+      "current": 2271393.396597226
+    },
+    {
+      "path": "hyena.powerProfile.propulsion.accelerationLimitMps2",
+      "old": 24338.513669632535,
+      "current": 24338.513667821262
+    },
+    {
+      "path": "hyena.powerProfile.profileVersion",
+      "old": 5,
+      "current": 6
+    },
+    {
+      "path": "hyena.powerProfile.heat.dis.4.cap",
+      "old": 730887489167124500000,
+      "current": 730887489668439700000
+    },
+    {
+      "path": "hyena.powerProfile.heat.ln.37.cap",
+      "old": 730887489167124500000,
+      "current": 730887489668439700000
+    },
+    {
+      "path": "tie_in.powerProfile.propulsion.massKg",
+      "old": 17401.374849124077,
+      "current": 17401.374855688187
+    },
+    {
+      "path": "tie_in.powerProfile.propulsion.ratedAccelMps2",
+      "old": 42080.082853177744,
+      "current": 42080.08283730438
+    },
+    {
+      "path": "tie_in.powerProfile.propulsion.structuralAccelerationLimitMps2",
+      "old": 801554.6343573097,
+      "current": 801554.634318876
+    },
+    {
+      "path": "tie_in.powerProfile.propulsion.accelerationLimitMps2",
+      "old": 42080.082853177744,
+      "current": 42080.08283730438
+    },
+    {
+      "path": "tie_in.powerProfile.profileVersion",
+      "old": 5,
+      "current": 6
+    },
+    {
+      "path": "tie_in.powerProfile.heat.dis.6.cap",
+      "old": 811756435686521600000,
+      "current": 811756438207197300000
+    },
+    {
+      "path": "tie_in.powerProfile.heat.ln.21.cap",
+      "old": 811756435686521600000,
+      "current": 811756438207197300000
+    },
+    {
+      "path": "tie_ln.powerProfile.propulsion.massKg",
+      "old": 10348.813921901889,
+      "current": 10348.81393338855
+    },
+    {
+      "path": "tie_ln.powerProfile.propulsion.ratedAccelMps2",
+      "old": 39358.291055650334,
+      "current": 39358.29101196462
+    },
+    {
+      "path": "tie_ln.powerProfile.propulsion.structuralAccelerationLimitMps2",
+      "old": 1656863.0822870878,
+      "current": 1656863.07990408
+    },
+    {
+      "path": "tie_ln.powerProfile.propulsion.accelerationLimitMps2",
+      "old": 39358.291055650334,
+      "current": 39358.29101196462
+    },
+    {
+      "path": "tie_ln.powerProfile.profileVersion",
+      "old": 5,
+      "current": 6
+    },
+    {
+      "path": "tie_ln.powerProfile.heat.dis.2.cap",
+      "old": 813889332262397700000,
+      "current": 813889338138067000000
+    },
+    {
+      "path": "tie_ln.powerProfile.heat.ln.14.cap",
+      "old": 813889332262397700000,
+      "current": 813889338138067000000
+    },
+    {
+      "path": "tie_sa.powerProfile.propulsion.massKg",
+      "old": 48384.45563112804,
+      "current": 48384.45564004294
+    },
+    {
+      "path": "tie_sa.powerProfile.propulsion.ratedAccelMps2",
+      "old": 24904.633450444413,
+      "current": 24904.6334458557
+    },
+    {
+      "path": "tie_sa.powerProfile.propulsion.structuralAccelerationLimitMps2",
+      "old": 2056177.6673574557,
+      "current": 2056177.6669313654
+    },
+    {
+      "path": "tie_sa.powerProfile.propulsion.accelerationLimitMps2",
+      "old": 24904.633450444413,
+      "current": 24904.6334458557
+    },
+    {
+      "path": "tie_sa.powerProfile.profileVersion",
+      "old": 5,
+      "current": 6
+    },
+    {
+      "path": "tie_sa.powerProfile.heat.dis.6.cap",
+      "old": 1.0166067553859735e+21,
+      "current": 1.0166067566084105e+21
+    },
+    {
+      "path": "tie_sa.powerProfile.heat.ln.24.cap",
+      "old": 1.0166067553859735e+21,
+      "current": 1.0166067566084105e+21
+    },
+    {
+      "path": "v19.powerProfile.propulsion.massKg",
+      "old": 12263.282539880189,
+      "current": 12263.28256075832
+    },
+    {
+      "path": "v19.powerProfile.propulsion.ratedAccelMps2",
+      "old": 48286.49616184179,
+      "current": 48286.49607963445
+    },
+    {
+      "path": "v19.powerProfile.propulsion.structuralAccelerationLimitMps2",
+      "old": 968864.6321584986,
+      "current": 968864.6300203231
+    },
+    {
+      "path": "v19.powerProfile.propulsion.accelerationLimitMps2",
+      "old": 48286.49616184179,
+      "current": 48286.49607963445
+    },
+    {
+      "path": "v19.powerProfile.profileVersion",
+      "old": 5,
+      "current": 6
+    },
+    {
+      "path": "v19.powerProfile.heat.dis.5.cap",
+      "old": 354712737196737360000,
+      "current": 354712739201544160000
+    },
+    {
+      "path": "v19.powerProfile.heat.ln.35.cap",
+      "old": 354712737196737360000,
+      "current": 354712739201544160000
+    },
+    {
+      "path": "vulture.powerProfile.propulsion.massKg",
+      "old": 9170.436834225151,
+      "current": 9170.436834500408
+    },
+    {
+      "path": "vulture.powerProfile.propulsion.ratedAccelMps2",
+      "old": 7640.400478869665,
+      "current": 7640.400478640333
+    },
+    {
+      "path": "vulture.powerProfile.propulsion.structuralAccelerationLimitMps2",
+      "old": 230127.04608636303,
+      "current": 230127.046071686
+    },
+    {
+      "path": "vulture.powerProfile.propulsion.accelerationLimitMps2",
+      "old": 7640.400478869665,
+      "current": 7640.400478640333
+    },
+    {
+      "path": "vulture.powerProfile.profileVersion",
+      "old": 5,
+      "current": 6
+    },
+    {
+      "path": "vulture.powerProfile.heat.dis.4.cap",
+      "old": 194543132533992820000,
+      "current": 194543132835835380000
+    },
+    {
+      "path": "vulture.powerProfile.heat.ln.25.cap",
+      "old": 194543132533992820000,
+      "current": 194543132835835380000
+    },
+    {
+      "path": "vwing.powerProfile.D",
+      "old": 0.0007685253824254619,
+      "current": 0.0007685253840458654
+    },
+    {
+      "path": "vwing.powerProfile.grid.Ds",
+      "old": 3215510200068132400,
+      "current": 3215510206847900700
+    },
+    {
+      "path": "vwing.powerProfile.grid.powerPaths.7.cap",
+      "old": 1534544308458474200,
+      "current": 1534544311693996500
+    },
+    {
+      "path": "vwing.powerProfile.grid.powerPaths.8.cap",
+      "old": 840482945804829000,
+      "current": 840482947576952200
+    },
+    {
+      "path": "vwing.powerProfile.grid.powerPaths.9.cap",
+      "old": 840482945804829000,
+      "current": 840482947576952200
+    },
+    {
+      "path": "vwing.powerProfile.propulsion.massKg",
+      "old": 8910.129243721763,
+      "current": 8910.129245176287
+    },
+    {
+      "path": "vwing.powerProfile.propulsion.ratedAccelMps2",
+      "old": 50982.937098464754,
+      "current": 50982.9370901421
+    },
+    {
+      "path": "vwing.powerProfile.propulsion.structuralAccelerationLimitMps2",
+      "old": 125594.1671982033,
+      "current": 125594.16715452005
+    },
+    {
+      "path": "vwing.powerProfile.propulsion.accelerationLimitMps2",
+      "old": 50982.937098464754,
+      "current": 50982.9370901421
+    },
+    {
+      "path": "vwing.powerProfile.profileVersion",
+      "old": 5,
+      "current": 6
+    },
+    {
+      "path": "vwing.powerProfile.heat.dis.4.cap",
+      "old": 241163265005109900000,
+      "current": 241163265513592520000
+    },
+    {
+      "path": "vwing.powerProfile.heat.ln.16.cap",
+      "old": 14741015297936432,
+      "current": 14741015114855910
+    },
+    {
+      "path": "vwing.powerProfile.heat.ln.17.cap",
+      "old": 14741015297936432,
+      "current": 14741015114855910
+    },
+    {
+      "path": "vwing.powerProfile.heat.ln.19.cap",
+      "old": 26200259418686570,
+      "current": 26200259093284470
+    },
+    {
+      "path": "vwing.powerProfile.heat.ln.20.cap",
+      "old": 26200259418686570,
+      "current": 26200259093284470
+    },
+    {
+      "path": "vwing.powerProfile.heat.ln.22.cap",
+      "old": 1035817408209470000,
+      "current": 1035817410393447600
+    },
+    {
+      "path": "vwing.powerProfile.heat.ln.23.cap",
+      "old": 1035817408209470000,
+      "current": 1035817410393447600
+    },
+    {
+      "path": "vwing.powerProfile.heat.ln.25.cap",
+      "old": 567325988418259460,
+      "current": 567325989614442600
+    },
+    {
+      "path": "vwing.powerProfile.heat.ln.26.cap",
+      "old": 567325988418259460,
+      "current": 567325989614442600
+    },
+    {
+      "path": "vwing.powerProfile.heat.ln.28.cap",
+      "old": 567325988418259460,
+      "current": 567325989614442600
+    },
+    {
+      "path": "vwing.powerProfile.heat.ln.29.cap",
+      "old": 567325988418259460,
+      "current": 567325989614442600
+    },
+    {
+      "path": "vwing.powerProfile.heat.ln.40.cap",
+      "old": 241163265005109900000,
+      "current": 241163265513592520000
+    },
+    {
+      "path": "xwing.powerProfile.profileVersion",
+      "old": 5,
+      "current": 6
+    },
+    {
+      "path": "z95.powerProfile.propulsion.massKg",
+      "old": 19021.62107446748,
+      "current": 19021.621074569008
+    },
+    {
+      "path": "z95.powerProfile.propulsion.ratedAccelMps2",
+      "old": 32596.765644399693,
+      "current": 32596.765644225703
+    },
+    {
+      "path": "z95.powerProfile.propulsion.structuralAccelerationLimitMps2",
+      "old": 383020.8420359168,
+      "current": 383020.8420327561
+    },
+    {
+      "path": "z95.powerProfile.propulsion.accelerationLimitMps2",
+      "old": 32596.765644399693,
+      "current": 32596.765644225703
+    },
+    {
+      "path": "z95.powerProfile.profileVersion",
+      "old": 5,
+      "current": 6
+    },
+    {
+      "path": "z95.powerProfile.heat.dis.2.cap",
+      "old": 673327963894564900000,
+      "current": 673327963920594800000
+    },
+    {
+      "path": "z95.powerProfile.heat.ln.23.cap",
+      "old": 673327963894564900000,
+      "current": 673327963920594800000
+    }
+  ]
+}

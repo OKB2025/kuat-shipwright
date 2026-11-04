@@ -1,8 +1,10 @@
 // v13 PERF The design figures of every example ship (mass, volumes, surfaces and armour, the power and heat
 // ledger, propulsion, warnings ...) must stay what they were before the computeStats speed-ups: each is
-// compared, within floating-point tolerance, with the digest recorded from origin/main 7a63e61 (see
-// tests/helpers/figures-digest.cjs; scripts/capture-example-figures.cjs records new ones when a change is
-// meant to alter the figures). KS_FIGURES_KEYS=key,key limits the run to some ships.
+// compared, within floating-point tolerance, with the digest initially recorded from origin/main 7a63e61.
+// Intentional weapon-family, charging-room and native Arquitens changes were reconciled on integration
+// with main 43b1dca; docs/benchmarks/weapon-family-figures-integration.json records that audit.
+// See tests/helpers/figures-digest.cjs; scripts/capture-example-figures.cjs records new ones when a change
+// is meant to alter the figures. KS_FIGURES_KEYS=key,key limits the run to some ships.
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test');
 const {figuresDigest,figuresDiff}=require('./helpers/figures-digest.cjs');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),context=vm.createContext({console});

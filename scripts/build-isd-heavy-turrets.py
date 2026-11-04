@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""Build textured twin/eight-barrel turrets from the deployed LarsH ISD mesh.
+"""Build the legacy 350 TT twin and the photograph-calibrated ISD octuple.
 
 Run from any directory; only the Python standard library is required:
 
     python scripts/build-isd-heavy-turrets.py
 
-The original packed six-barrel asset remains the reproducible source. Whole
-connected barrels are removed, the housing is levelled, and copies of each
-chamber's middle barrel supply the two variants. No housing faces or UVs change.
+The legacy twin retains the original LarsH housing and complete source barrels.
+The eight-barrel gun keeps its existing normal turret geometry and uses
+build-turret-family.py's uniform photographic size adjustment.
+Legacy house compartment metadata is shared with the runtime registration.
 """
 
 import argparse
@@ -17,6 +18,10 @@ import json
 import math
 from pathlib import Path
 import struct
+import sys
+sys.dont_write_bytecode = True
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from turret_compartment_metadata import attach_compartment
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -247,7 +252,7 @@ def build(reference):
         'octupleToTwinRadialRatio': OCTUPLE_RADIAL_RATIO,
     }
     variants = {}
-    for count, key in [(2, 'isd_heavy_twin'), (8, 'isd_heavy_octuple')]:
+    for count, key in [(2, 'isd_heavy_twin')]:
         out_pos, out_uv = [local[i] for i in housing], [uvs[i] for i in housing]
         mapping = {index: i for i, index in enumerate(housing)}
         out_idx = [mapping[i] for face in housing_faces for i in face]
@@ -270,13 +275,14 @@ def build(reference):
                     out_uv.append(uvs[index])
                 out_idx.extend(mapping[i] for face in faces for i in face)
         variants[key] = pack_asset(out_pos, out_uv, out_idx, count, metadata)
-    # Repacking both variants uses the same housing bounds, so all shared
-    # housing positions and UV fields must remain byte-identical.
-    twin, octuple = variants.values()
-    twin_bytes, octuple_bytes = [base64.b64decode(a['data']) for a in [twin, octuple]]
-    assert twin['size'] == octuple['size'] and twin['c'] == octuple['c']
-    assert twin_bytes[:628 * 6] == octuple_bytes[:628 * 6]
-    assert twin_bytes[twin['n'] * 6:twin['n'] * 6 + 628 * 4] == octuple_bytes[octuple['n'] * 6:octuple['n'] * 6 + 628 * 4]
+    # The photographed ISD octuple is a different closed house, rather than
+    # an eight-barrel copy of the legacy 350 TT twin chassis.
+    import importlib.util
+    spec = importlib.util.spec_from_file_location('turret_family', ROOT / 'scripts/build-turret-family.py')
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    variants['isd_heavy_twin'] = attach_compartment('isd_heavy_twin', variants['isd_heavy_twin'])
+    variants['isd_heavy_octuple'] = module.build()['isd_heavy_octuple']
     return variants
 
 

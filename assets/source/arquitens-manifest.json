@@ -1,0 +1,267 @@
+{
+  "source": "arquitens.stl",
+  "source_sha256": "e0c6b655ffe0690dd5ddc835f17fa5caf57e671760307576b20c75792ee8f108",
+  "source_header": "Exported from Blender-2.90.1",
+  "source_triangles": 214690,
+  "source_unique_vertices": 109695,
+  "source_bounds": [
+    [
+      -1470.65771484375,
+      -96.94400787353516,
+      -11.045992851257324
+    ],
+    [
+      -1397.4735107421875,
+      67.91252899169922,
+      21.224864959716797
+    ]
+  ],
+  "uniform_scale": 1.9714110594575842,
+  "axis_mapping": [
+    "source_y_max - source_y",
+    "source_z - source_z_min",
+    "source_x_center - source_x"
+  ],
+  "asset_key": "arq_hull",
+  "asset_center_m": [
+    162.5,
+    31.809562993368775,
+    0.0
+  ],
+  "asset_size_m": [
+    325.0,
+    63.61912598673755,
+    144.2761493434214
+  ],
+  "render_vertices": 213438,
+  "render_triangles": 184340,
+  "render_smoothing_angle_degrees": 30,
+  "packed_sha256": "01c4542a8bed1af54ec9833959cd089b9626ac879ed25e6b73d6b45344bc6e9e",
+  "removed_gun_triangles": 23420,
+  "gun_mounts": [
+    {
+      "name": "dorsal-starboard",
+      "source_centered_bounds_m": [
+        [
+          -35.48576,
+          -21.65877,
+          -0.88081
+        ],
+        [
+          -21.3817,
+          -3.82839,
+          4.92567
+        ]
+      ],
+      "component_count": 38,
+      "triangle_count": 5855,
+      "mount_m": [
+        173.2522,
+        30.928756993368776,
+        28.4337
+      ],
+      "normal": [
+        0,
+        1,
+        0
+      ],
+      "forward": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "dorsal-port",
+      "source_centered_bounds_m": [
+        [
+          21.38146,
+          -21.65877,
+          -0.88081
+        ],
+        [
+          35.48576,
+          -3.82839,
+          4.92567
+        ]
+      ],
+      "component_count": 38,
+      "triangle_count": 5855,
+      "mount_m": [
+        173.2522,
+        30.928756993368776,
+        -28.4337
+      ],
+      "normal": [
+        0,
+        1,
+        0
+      ],
+      "forward": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "ventral-starboard",
+      "source_centered_bounds_m": [
+        [
+          -31.05466,
+          -86.50289,
+          -19.73268
+        ],
+        [
+          -16.9506,
+          -68.6725,
+          -13.9262
+        ]
+      ],
+      "component_count": 38,
+      "triangle_count": 5855,
+      "mount_m": [
+        238.09629999999999,
+        17.883358993368773,
+        24.0026
+      ],
+      "normal": [
+        0,
+        -1,
+        0
+      ],
+      "forward": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "ventral-port",
+      "source_centered_bounds_m": [
+        [
+          16.95036,
+          -86.50289,
+          -19.73268
+        ],
+        [
+          31.05466,
+          -68.6725,
+          -13.9262
+        ]
+      ],
+      "component_count": 38,
+      "triangle_count": 5855,
+      "mount_m": [
+        238.09629999999999,
+        17.883358993368773,
+        -24.0026
+      ],
+      "normal": [
+        0,
+        -1,
+        0
+      ],
+      "forward": [
+        1,
+        0,
+        0
+      ]
+    }
+  ],
+  "removed_bell_triangles": 6930,
+  "engine_bores": [
+    {
+      "name": "starboard",
+      "mouth_m": [
+        0,
+        21.776239971157235,
+        55.432003159736624
+      ],
+      "bore_radius_m": 9.25,
+      "depth_m": 14,
+      "removed_triangles": 2310
+    },
+    {
+      "name": "center",
+      "mouth_m": [
+        0,
+        21.776226875101578,
+        0.5579580243619194
+      ],
+      "bore_radius_m": 9.25,
+      "depth_m": 14,
+      "removed_triangles": 2310
+    },
+    {
+      "name": "port",
+      "mouth_m": [
+        0,
+        21.776223341440225,
+        -55.43189382220738
+      ],
+      "bore_radius_m": 9.25,
+      "depth_m": 14,
+      "removed_triangles": 2310
+    }
+  ],
+  "collision_voxel_size_m": 0.55,
+  "collision_union_triangles": 860064,
+  "collision_triangles": 15000,
+  "collision_nonmanifold_edges": 0,
+  "collision_probes": {
+    "bow_slot": {
+      "point": [
+        300,
+        22,
+        0
+      ],
+      "inside": false
+    },
+    "amidships": {
+      "point": [
+        170,
+        20,
+        0
+      ],
+      "inside": true
+    },
+    "stern_center": {
+      "point": [
+        25,
+        21.8,
+        0
+      ],
+      "inside": true
+    },
+    "stern_starboard": {
+      "point": [
+        25,
+        21.8,
+        55.9
+      ],
+      "inside": true
+    },
+    "stern_port": {
+      "point": [
+        25,
+        21.8,
+        -55.9
+      ],
+      "inside": true
+    },
+    "outside": {
+      "point": [
+        180,
+        50,
+        60
+      ],
+      "inside": false
+    }
+  },
+  "blender_version": "4.3.2",
+  "notes": [
+    "Original STL has no supplied author/license metadata.",
+    "Source engine cowling/outer lips remain; measured interior funnels are removed only from the render mesh.",
+    "Game starboard is positive Z; port is negative Z."
+  ]
+}

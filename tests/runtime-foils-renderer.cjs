@@ -25,7 +25,7 @@ function fixture() {
     {id: 2, k: 'struct', form: 'box', c: [50, 15, 23], s: [4, 4, 4]},
     {id: 3, k: 'struct', form: 'box', c: [10, 10, 0], s: [10, 10, 10]},
   ];
-  ship.fits = ['claser', 'cturret', 'msl'].map((k, i) => ({id: 5+i, k, p: [45+i*5, 16, 20], n: [0, 1, 0], a: 2, base: 0, ped: 0, low: 0, host: 1}));
+  ship.fits = ['claser', 'cturret', 'cmsl'].map((k, i) => ({id: 5+i, k, p: [45+i*5, 16, 20], n: [0, 1, 0], a: 2, base: 0, ped: 0, low: 0, host: 1}));
   ship.nextId = 10;
   return ship;
 }

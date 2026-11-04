@@ -11,7 +11,7 @@ for (const file of ['data/reference.js', 'data/imperial2.js', 'data/fleet.js', '
 }
 const C = vm.runInContext('Core', context);
 const plain = value => JSON.parse(JSON.stringify(value));
-const aliases = {refISD: 'stl', refISDh: 'oct40', refIon: 'ion', refIonH: 'ion', casemate40: 'oct40'};
+const aliases = {refISD: 'stl', refISDh: 'oct40', refIon: 'ion', refIonH: 'ion', casemate40: 'oct40', refSide:'twin40', xx9:'twin40', nk7:'quad40Ion'};
 const fit = (k, id = 1, extra = {}) => ({id, k, p: [30+id*50, 60, 20], a: 2, ped: 0, base: 0, low: 0, float: false, ...extra});
 function blueprint(fits) {
   const ship = C.newShip({L: 600, W: 400, H: 120, plan: 'rect', sec: 'rect'}, 'Legacy weapons');
@@ -44,11 +44,11 @@ test('one canonical catalog describes the heavy twin, octuple and generic ion gu
   assert.equal(C.FITS.htl.barrels, 2);
   assert.equal(C.FITS.htl.tt, 140);
   assert.equal(C.FITS.refVen.tt, 140);
-  assert.equal(C.FITS.refVen.asset, 'ven_turret');
-  assert.equal(C.FITS.refSide.name, '2連装40TTターボレーザー側面砲');
-  assert.equal(C.FITS.refSide.tt, 80);
+  assert.equal(C.FITS.refVen.asset, 'ven_turret70_native');
+  assert.equal(C.FITS.htl.asset,C.FITS.refVen.asset,'legacy140TT inventory adopts the same native DBY appearance');
+  assert.equal(C.FITS.refSide,undefined);assert.equal(C.FITS[C.canonicalWeaponKind('refSide')].tt,80);
   for (const legacy of Object.keys(aliases)) assert.equal(C.FITS[legacy], undefined, `${legacy} is migration input only`);
-  assert.equal(C.FLEET_PROFILE_VERSION, 3, 'old cached fleet profiles must rebuild after catalog output changes');
+  assert.ok(C.FLEET_PROFILE_VERSION>=6,'cached profiles from before native compartment accounting must rebuild');
 });
 
 test('canonical kind lookup and standard fitting migrate every retired id without disturbing mount state', () => {
@@ -68,9 +68,9 @@ test('canonical kind lookup and standard fitting migrate every retired id withou
     for (const field of ['surfacePatch', 'surfaceCell', 'surfacePoint']) delete ordinary[field];
     const standard = C.standardFit(fit(legacy, 2, ordinary));
     assert.equal(standard.k, canonical, `${legacy} is canonical before its dimensions are resolved`);
-    for (const field of Object.keys(ordinary)) assert.deepEqual(plain(standard[field]), ordinary[field], `${legacy} retains ${field}`);
+    for(const field of Object.keys(ordinary))assert.deepEqual(plain(standard[field]),['base','low','slope'].includes(field)?0:ordinary[field],`${legacy} retains explicit settings and clears automatic rise ${field}`);
   }
-  for (const k of ['stl', 'oct40', 'ion', 'htl', 'refVen', 'refSide', 'unknown']) assert.equal(C.canonicalWeaponKind(k), k);
+  for (const k of ['stl', 'oct40', 'ion', 'htl', 'refVen', 'quad40Ion', 'unknown']) assert.equal(C.canonicalWeaponKind(k), k);
   const frozen = Object.freeze(fit('refISD'));
   const migrated = C.migrateWeaponFit(frozen);
   assert.equal(frozen.k, 'refISD');
@@ -90,6 +90,15 @@ test('retired model skins and pose overrides cannot restore obsolete weapon geom
   }
   const custom = fit('stl', 1, {skinAsset: 'ven_turret', mountAxis: 4, mountOffset: 3});
   assert.deepEqual(plain(C.migrateWeaponFit(custom)), plain(custom), 'an unrelated authored skin remains explicit design content');
+});
+
+test('photo-family remapping cannot resurrect old DBY source skins or support offsets',()=>{
+  for(const [kind,skinAsset]of [['refVen','ven_turret_3'],['htl','ven_turret'],['twin40','dby_twin40_raised']]){
+    const original=Object.freeze(fit(kind,73,{skinAsset,mountAxis:4,mountOffset:8,assetYaw:17,tw:74,chargeSalvos:2})),migrated=C.migrateWeaponFit(original);
+    assert.equal(original.skinAsset,skinAsset);assert.equal(migrated.k,kind);assert.equal(migrated.id,73);assert.equal(migrated.tw,74);assert.equal(migrated.chargeSalvos,2);assert.deepEqual(plain(migrated.p),plain(original.p));
+    assert.equal(migrated.skinAsset,undefined,'new family uses its native case instead of an old source mesh');assert.equal(migrated.mountOffset,undefined,'old support offsets cannot raise the replacement case');
+    assert.deepEqual(plain(C.migrateWeaponFit(migrated)),plain(migrated));
+  }
 });
 
 test('blueprint loading migrates before filtering and repeated saves retain all placements and mirror links', () => {
