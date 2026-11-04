@@ -38,14 +38,74 @@ const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a
 const len = (a) => Math.hypot(a[0], a[1], a[2]);
 const norm = (a) => { const l = len(a) || 1; return Math.abs(l-1)<1e-12?a.slice():[a[0] / l, a[1] / l, a[2] / l]; };
 
+// Retired catalogue entries remain readable in saves, never as duplicate weapons.
+const LEGACY_WEAPON_KINDS=Object.freeze({refISD:'stl',refISDh:'oct40',refIon:'ion',refIonH:'ion',casemate40:'oct40'});
+const canonicalWeaponKind=k=>Object.hasOwn(LEGACY_WEAPON_KINDS,k)?LEGACY_WEAPON_KINDS[k]:k;
+const retiredWeaponSkin=id=>typeof id==='string'&&/^(?:isd_turret(?:_\d+)?|isdh_turret|isd2_octuple|isd2_casemate)$/.test(id);
+function weaponFitNeedsMigration(f){return !!f&&typeof f==='object'&&(canonicalWeaponKind(f.k)!==f.k||(['stl','oct40','ion'].includes(f.k)&&retiredWeaponSkin(f.skinAsset)));}
+function migrateWeaponFit(f){
+ if(!weaponFitNeedsMigration(f))return f;
+ const previous=f.k,k=canonicalWeaponKind(previous),retiredSkin=retiredWeaponSkin(f.skinAsset),sourcePose=retiredSkin||k!==previous&&!f.skinAsset;
+ if(Object.isFrozen(f))f={...f};f.k=k;
+ if(retiredSkin)delete f.skinAsset;
+ if(sourcePose){
+  // Source-ship mounting axes become the ordinary mount orientation. Keep the
+  // seated point, pedestal, saved normal and heading; discard source mesh poses.
+  if(!f.tilt&&Number.isInteger(f.mountAxis)&&f.mountAxis>=0&&f.mountAxis<6)f.a=f.mountAxis;
+  for(const key of ['mountAxis','mountOffset','skinAnchor','skinSize','skinAxial','skinDiameter'])delete f[key];
+ }
+ return f;
+}
+function migrateWeaponSurfaces(value){
+ if(!value||!Array.isArray(value.patches))return value;let changed=false;
+ const patches=value.patches.map(p=>{
+  if(!p||typeof p!=='object')return p;let out=p;
+  const weapon=canonicalWeaponKind(p.battery?.weapon);
+  if(weapon!==p.battery?.weapon){out={...out,battery:{...p.battery,weapon}};changed=true;}
+  const guns=p.aggregate?.guns;if(Array.isArray(guns)){
+   let migrated=false;const next=guns.map(r=>{if(!Array.isArray(r)||canonicalWeaponKind(r[1])===r[1])return r;const q=r.slice();q[1]=canonicalWeaponKind(r[1]);migrated=true;return q;});
+   if(migrated||out!==p){out={...out,aggregate:{...p.aggregate,guns:next,signature:'',...(p.aggregate.manifestKey!=null?{manifestKey:''}:{})}};changed=true;}
+  }
+  return out;
+ });
+ return changed?{...value,patches}:value;
+}
+// Work on public containers only: model meshes and derived caches can be huge.
+// Copy changed rows so imported templates and immutable embarked blueprints stay intact.
+function migrateWeaponDesign(value,seen=new WeakMap()){
+ if(!value||typeof value!=='object')return value;if(seen.has(value))return seen.get(value);
+ if(Array.isArray(value)){seen.set(value,value);let changed=false;const out=value.map(v=>{const q=migrateWeaponDesign(v,seen);changed||=q!==v;return q;});seen.set(value,changed?out:value);return changed?out:value;}
+ let out=weaponFitNeedsMigration(value)?migrateWeaponFit({...value}):value;seen.set(value,out);const put=(key,next)=>{if(next===value[key])return;if(out===value)out={...value};out[key]=next;seen.set(value,out);};
+ if(Array.isArray(value.fits)){let changed=false;const fits=value.fits.map(f=>{if(!weaponFitNeedsMigration(f))return f;changed=true;return migrateWeaponFit({...f});});if(changed)put('fits',fits);}
+ if(value.surfaces)put('surfaces',migrateWeaponSurfaces(value.surfaces));
+ for(const key of ['blueprint','design','craft','template','snapshot','airWings','air','carried','templates','children','assets','designs','yard','ctgs','tgs','ships','fleet','fleets','setup','own','foe','sides','squadrons','squads','loadPreset','complement','manifest']){
+  const child=value[key];if(child&&typeof child==='object'){
+   if(['assets','designs'].includes(key)&&!Array.isArray(child)){let next=child;for(const [id,v]of Object.entries(child)){const q=migrateWeaponDesign(v,seen);if(q!==v){if(next===child)next={...child};next[id]=q;}}put(key,next);}
+   else put(key,migrateWeaponDesign(child,seen));
+  }
+ }
+ if(Array.isArray(value.fireArcs)){let changed=false;const arcs=value.fireArcs.map(a=>{const k=canonicalWeaponKind(a?.k);if(k===a?.k)return a;changed=true;return {...a,k};});if(changed)put('fireArcs',arcs);}
+ // The lightweight transport pass leaves combat recomputation to snapshot
+ // validation, while retaining evidence that an older cached rating is stale.
+ if(value.craft&&value.blueprint&&out.blueprint!==value.blueprint)put('weaponProfileVersion',0);
+ return out;
+}
+function adoptWeaponFits(ship){
+ if(!ship||typeof ship!=='object')return ship;
+ if(Object.isFrozen(ship)||Object.isFrozen(ship.fits))return migrateWeaponDesign(ship);
+ if(Array.isArray(ship.fits))for(let i=0;i<ship.fits.length;i++)ship.fits[i]=migrateWeaponFit(ship.fits[i]);
+ if(ship.surfaces)ship.surfaces=migrateWeaponSurfaces(ship.surfaces);return ship;
+}
+
 // Public state is every field without a leading underscore; underscore fields
 // are derived caches. The editor and the background engine exchange public
 // state and patch it into their own objects in place, so keyed caches survive.
 const PUBLIC_LISTS=new Set(['parts','fits','hatches','cuts','subs','trenches','solidCuts','airWings','groundForces']);
 const publicReplacer=(k,v)=>k&&k[0]==='_'?undefined:v;
-const publicJSON=v=>{v=v?._surfaceSource||v;if(v?.hull&&Array.isArray(v.parts)&&Array.isArray(v.fits)&&v.surfaces&&!v._surfaceWorking&&!v._surfaceCompiling)surfaceSync(v);return JSON.stringify(v,publicReplacer);};
+const publicJSON=v=>{v=v?._surfaceSource||v;if(v?.hull&&Array.isArray(v.parts)&&Array.isArray(v.fits)){v=adoptWeaponFits(v);if(v.surfaces&&!v._surfaceWorking&&!v._surfaceCompiling)surfaceSync(v);}return JSON.stringify(migrateWeaponDesign(v),publicReplacer);};
 function patchItem(old,item){for(const k of Object.keys(old))if(k[0]!=='_')delete old[k];for(const k of Object.keys(item))if(k[0]!=='_')old[k]=item[k];return old;}
 function patchShip(ship,src,only){
+  adoptWeaponFits(ship);src=migrateWeaponDesign(src);
   if(!only)for(const k of Object.keys(ship))if(k[0]!=='_'&&!Object.hasOwn(src,k))delete ship[k];
   for(const k of only||Object.keys(src)){
     if(k[0]==='_'||!Object.hasOwn(src,k))continue;
@@ -114,10 +174,10 @@ function navigationItinerary(route){
 // training, COST_K.crew cr a head. Every side's figures come from here (fleet organisation, scenario cost limits,
 // later the campaign's budget requests).
 const COST_K = {crew: 1000};
-const COST_MODEL=Object.freeze({version:10,hull:0.6,armor:30,wingInstall:1800,wingArea:18});
+const COST_MODEL=Object.freeze({version:11,hull:0.6,armor:30,wingInstall:1800,wingArea:18});
 const COST_INSTALL=Object.freeze({gen:18000,aux:6000,engine:7500,hyper:20000,shield:12000,localShield:4000,fuel:2000,battery:2500,inertial:7000,integrity:4000,repulsor:3500,sensor:3000,scanner:4000,firecontrol:6000,cockpit:6000,astromech:6000,droidbrain:5000,automation:6000,command:8000,lifeSupport:2500,ejectSeat:1500,navComputer:4500,targetComputer:4000,maneuver:3000,laserGas:2000,landingGear:2500,habitat:2000});
 const COST_MOUNT_INSTALL=Object.freeze({claser:3500,claserH:5000,cion:4500,cturret:4500,ctorp:5500,cmsl:4000,cbomb:3500,cpylon:1250,weapon:750,command:1500});
-function partBuildCost(p,volume){if(p?._surfaceAdapter)return p._surfaceAdapter.cost;const d=PARTS[p?.k];if(!d)return 0;const V=Number.isFinite(volume)?Math.max(0,volume):partVolume(p),light=p.k==='struct'&&p.light&&!p.plate?.25:1,area=isWing(p)?Array.isArray(p.s)?partArea(p):6*Math.pow(V,2/3):0;return V>0?V*(d.cost||0)*light+(p.id<0?0:COST_INSTALL[p.k]||0)+(isWing(p)?COST_MODEL.wingInstall+area*COST_MODEL.wingArea:0):0;}
+function partBuildCost(p,volume){if(p?._surfaceAdapter)return p._surfaceAdapter.cost;const d=PARTS[p?.k];if(!d)return 0;const V=Number.isFinite(volume)?Math.max(0,volume):partVolume(p),light=p.k==='struct'&&p.light&&!p.plate?.25:1,area=isWing(p)?Array.isArray(p.s)?partArea(p):6*Math.pow(V,2/3):0;return V>0?V*(d.cost||0)*light+(p.id<0?0:COST_INSTALL[p.k]||0)+(isWing(p)?COST_MODEL.wingInstall+area*COST_MODEL.wingArea:0)+(p.k==='engine'&&(p.machineryId==null||p.machineryId===p.id)?resolveEngineSpec(p).cost:0):0;}
 function fitBuildCost(f,spec){const d=spec||FITS[f?.k];return d?Math.max(0,d.cost||0)+(COST_MOUNT_INSTALL[f.k]??COST_MOUNT_INSTALL[d.cat==='w'?'weapon':'command']):0;}
 function costBreakdown(total,source){
  const keys=Object.keys(COST_CATS).filter(k=>k!=='crew'),raw=keys.map(k=>Number.isFinite(source?.[k])?Math.max(0,source[k]):0),sum=raw.reduce((a,b)=>a+b,0),target=Number.isFinite(total)?Math.max(0,Math.round(total)):0;
@@ -126,23 +186,23 @@ function costBreakdown(total,source){
  return Object.fromEntries(Object.entries(by).filter(([,v])=>v>0));
 }
 function costSignature(value){const text=JSON.stringify(value,(key,v)=>v&&typeof v==='object'&&!Array.isArray(v)?Object.fromEntries(Object.keys(v).sort().map(k=>[k,v[k]])):v);let h=2166136261;for(let i=0;i<text.length;i++)h=Math.imul(h^text.charCodeAt(i),16777619);return (h>>>0).toString(36);}
-function costModelSignature(){return costSignature({model:COST_MODEL,systems:CRAFT_SYSTEMS,wing:WING,wingSection:AERO_WING_SECTION,wingPlanforms:WING_PLANFORM_PRESETS,wingMesh:'point-tip-v1',solar:SOLAR,solarPresets:SOLAR_PANEL_PRESETS,heat:HEAT,surface:{version:SURFACE_VERSION,materials:SURFACE_MATERIALS},energy:ENERGY_MODEL,crew:COST_K.crew,install:COST_INSTALL,mount:COST_MOUNT_INSTALL,categories:COST_KIND,parts:Object.fromEntries(Object.entries(PARTS).map(([k,d])=>[k,{cost:d.cost||0,group:d.group||''}])),fits:Object.fromEntries(Object.entries(FITS).map(([k,d])=>[k,{cost:d.cost||0,cat:d.cat||''}]))});}
+function costModelSignature(){return costSignature({model:COST_MODEL,propulsion:{model:PROPULSION,profiles:DRIVE_PROFILES,grades:MACHINERY_GRADES},systems:CRAFT_SYSTEMS,wing:WING,wingSection:AERO_WING_SECTION,wingPlanforms:WING_PLANFORM_PRESETS,wingMesh:'point-tip-v1',solar:SOLAR,solarPresets:SOLAR_PANEL_PRESETS,heat:HEAT,surface:{version:SURFACE_VERSION,materials:SURFACE_MATERIALS},energy:ENERGY_MODEL,crew:COST_K.crew,install:COST_INSTALL,mount:COST_MOUNT_INSTALL,categories:COST_KIND,parts:Object.fromEntries(Object.entries(PARTS).map(([k,d])=>[k,{cost:d.cost||0,group:d.group||''}])),fits:Object.fromEntries(Object.entries(FITS).map(([k,d])=>[k,{cost:d.cost||0,cat:d.cat||''}]))});}
 // BEGIN GENERATED CRAFT PRICES — scripts/update-craft-costs.cjs
 const CRAFT_PRICE_CATALOG={
- "modelVersion": 10,
- "modelSignature": "1w24no",
+ "modelVersion": 11,
+ "modelSignature": "sarn9t",
  "entries": {
   "arc170": {
    "reference": "craft_arc170",
-   "signature": "pu1gwd",
-   "build": 210055,
+   "signature": "16zmquf",
+   "build": 222030,
    "crew": 3000,
-   "total": 213055,
+   "total": 225030,
    "by": {
     "hull": 20,
     "armor": 29,
     "power": 59266,
-    "drive": 47030,
+    "drive": 59005,
     "defense": 16503,
     "command": 32505,
     "weapons": 34201,
@@ -179,23 +239,1920 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.00193,
-    "upS": 0.00193,
-    "down": 0.017,
+    "up": 0.000766,
+    "upS": 0.000766,
+    "down": 0.0312,
     "T": 0
+   },
+   "powerProfile": {
+    "name": "ARC-170",
+    "modules": [
+     {
+      "k": "weapon",
+      "fit": 39,
+      "name": "重レーザー",
+      "w": 2.16,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.5015,
+      "stock": 0,
+      "at": 0.688,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.75,
+      "z": 0.93,
+      "r": 0.142,
+      "share": 0.20023157390401658,
+      "domain": "main",
+      "port": "f39",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 40,
+      "name": "重レーザー",
+      "w": 2.16,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.5015,
+      "stock": 0,
+      "at": 0.688,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.75,
+      "z": -0.93,
+      "r": 0.142,
+      "share": 0.20023157390401658,
+      "domain": "main",
+      "port": "f40",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 41,
+      "name": "旋回砲塔",
+      "w": 2.028,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.7508,
+      "stock": 0,
+      "at": 0.152,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.71,
+      "z": 0,
+      "r": 0.051,
+      "share": 0.2997684260959834,
+      "domain": "main",
+      "port": "f41",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 42,
+      "name": "旋回砲塔",
+      "w": 2.028,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.7508,
+      "stock": 0,
+      "at": 0.152,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.14,
+      "z": 0,
+      "r": 0.051,
+      "share": 0.2997684260959834,
+      "domain": "main",
+      "port": "f42",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 43,
+      "name": "魚雷発射管",
+      "w": 0.84,
+      "hits": 1,
+      "crew": 0,
+      "size": 0,
+      "stock": 0,
+      "at": 0.767,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.66,
+      "z": 0,
+      "r": 0.055,
+      "share": 0,
+      "domain": "main",
+      "port": "f43",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "操縦士席（前席）",
+      "w": 0.8591350335259493,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.7963282878380625,
+      "at": 0.622,
+      "part": 24,
+      "y": 0.29,
+      "z": 0,
+      "r": 0.036,
+      "share": 0.23457699237242263,
+      "domain": "main",
+      "port": "p24",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "副操縦士・前方射手席（中席）",
+      "w": 0.9354665015329808,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.9047786842338602,
+      "at": 0.433,
+      "part": 25,
+      "y": 0.58,
+      "z": 0,
+      "r": 0.038,
+      "share": 0.26652357545462074,
+      "domain": "main",
+      "port": "p25",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "後部射手席（後席）",
+      "w": 0.7860517130936855,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.696909970321336,
+      "at": 0.212,
+      "part": 26,
+      "y": 0.6,
+      "z": 0,
+      "r": 0.035,
+      "share": 0.20529101789936366,
+      "domain": "main",
+      "port": "p26",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "アストロメク・ソケット",
+      "w": 0.21281387009229719,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.09817477042468103,
+      "at": 0.307,
+      "part": 27,
+      "y": 0.86,
+      "z": 0,
+      "r": 0.018,
+      "share": 0.02891965879498924,
+      "domain": "main",
+      "port": "p27",
+      "powerConnected": true
+     },
+     {
+      "k": "reactor",
+      "name": "右舷反応炉",
+      "w": 1.2732738493087792,
+      "hits": 1,
+      "crew": 0.0007183775201208657,
+      "size": 1.4367550402417315,
+      "at": 0.551,
+      "part": 28,
+      "y": 0.02,
+      "z": 0.21,
+      "r": 0.044,
+      "share": 0.5,
+      "domain": "main",
+      "port": "p28",
+      "powerConnected": true
+     },
+     {
+      "k": "reactor",
+      "name": "左舷反応炉",
+      "w": 1.2732738493087792,
+      "hits": 1,
+      "crew": 0.0007183775201208657,
+      "size": 1.4367550402417315,
+      "at": 0.551,
+      "part": 29,
+      "y": 0.02,
+      "z": -0.21,
+      "r": 0.044,
+      "share": 0.5,
+      "domain": "main",
+      "port": "p29",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "右舷IGP-440a イオン・タービン",
+      "w": 2.320250794710102,
+      "hits": 1,
+      "crew": 0.0014137166941154068,
+      "size": 3.5342917352885173,
+      "at": 0.303,
+      "part": 30,
+      "y": 0.02,
+      "z": 0.21,
+      "r": 0.06,
+      "share": 0.4815698341701677,
+      "domain": "main",
+      "port": "p30",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "左舷IGP-440a イオン・タービン",
+      "w": 2.320250794710102,
+      "hits": 1,
+      "crew": 0.0014137166941154068,
+      "size": 3.5342917352885173,
+      "at": 0.303,
+      "part": 31,
+      "y": 0.02,
+      "z": -0.21,
+      "r": 0.06,
+      "share": 0.4815698341701677,
+      "domain": "main",
+      "port": "p31",
+      "powerConnected": true
+     },
+     {
+      "k": "shield",
+      "name": "偏向シールド発生器",
+      "w": 0.649629514953459,
+      "hits": 1,
+      "crew": 0.00020943951023931953,
+      "size": 0.5235987755982988,
+      "at": 0.315,
+      "part": 32,
+      "y": 0.06,
+      "z": 0,
+      "r": 0.032,
+      "share": 1,
+      "domain": "main",
+      "port": "p32",
+      "powerConnected": true
+     },
+     {
+      "k": "hyper",
+      "name": "ハイパードライブ",
+      "w": 0.30862107659456256,
+      "hits": 1,
+      "crew": 0.000051435104628031273,
+      "size": 0.17145034876010426,
+      "at": 0.441,
+      "part": 33,
+      "y": 0.06,
+      "z": 0.07,
+      "r": 0.022,
+      "share": 1,
+      "domain": "main",
+      "port": "p33",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "前部リパルサーリフト",
+      "w": 0.18339743369871353,
+      "hits": 1,
+      "crew": 0.000015707963267948967,
+      "size": 0.07853981633974483,
+      "at": 0.755,
+      "part": 34,
+      "y": -0.46,
+      "z": 0,
+      "r": 0.017,
+      "share": 0.023135727035991392,
+      "domain": "main",
+      "port": "p34",
+      "powerConnected": true
+     },
+     {
+      "k": "fuel",
+      "name": "右舷反応物タンク",
+      "w": 0.2508841602456276,
+      "hits": 1,
+      "crew": 0.00002513274122871835,
+      "size": 0.12566370614359174,
+      "at": 0.268,
+      "part": 35,
+      "y": 0.06,
+      "z": 0.08,
+      "r": 0.02,
+      "share": 0.5,
+      "domain": "main",
+      "port": "p35",
+      "powerConnected": true
+     },
+     {
+      "k": "fuel",
+      "name": "左舷反応物タンク",
+      "w": 0.2508841602456276,
+      "hits": 1,
+      "crew": 0.00002513274122871835,
+      "size": 0.12566370614359174,
+      "at": 0.268,
+      "part": 36,
+      "y": 0.06,
+      "z": -0.08,
+      "r": 0.02,
+      "share": 0.5,
+      "domain": "main",
+      "port": "p36",
+      "powerConnected": true
+     },
+     {
+      "k": "battery",
+      "name": "パワーセル",
+      "w": 0.16000000000000003,
+      "hits": 1,
+      "crew": 0.000012800000000000005,
+      "size": 0.06400000000000002,
+      "at": 0.488,
+      "part": 37,
+      "y": 0.03,
+      "z": 0.08,
+      "r": 0.016,
+      "share": 1,
+      "domain": "main",
+      "port": "p37",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "慣性補償装置",
+      "w": 0.2935462967926265,
+      "hits": 1,
+      "crew": 0.00003180862561759666,
+      "size": 0.1590431280879833,
+      "at": 0.724,
+      "part": 38,
+      "y": -0.1,
+      "z": 0,
+      "r": 0.021,
+      "share": 0.04684984724788257,
+      "domain": "main",
+      "port": "p38",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "生命維持装置",
+      "w": 0.2916,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.15746400000000002,
+      "at": 0.551,
+      "part": 44,
+      "y": -0.36,
+      "z": 0,
+      "r": 0.021,
+      "share": 0.046384678393394684,
+      "domain": "main",
+      "port": "p44",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "射出座席機構 1",
+      "w": 0.08410000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.024388999999999997,
+      "at": 0.622,
+      "part": 45,
+      "y": -0.13,
+      "z": 0,
+      "r": 0.011,
+      "share": 0.007184346398773705,
+      "domain": "main",
+      "port": "p45",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "射出座席機構 2",
+      "w": 0.08410000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.024388999999999997,
+      "at": 0.433,
+      "part": 46,
+      "y": 0.14,
+      "z": 0,
+      "r": 0.011,
+      "share": 0.007184346398773705,
+      "domain": "main",
+      "port": "p46",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "射出座席機構 3",
+      "w": 0.08410000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.024388999999999997,
+      "at": 0.212,
+      "part": 47,
+      "y": 0.2,
+      "z": 0,
+      "r": 0.011,
+      "share": 0.007184346398773705,
+      "domain": "main",
+      "port": "p47",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "航法コンピューター",
+      "w": 0.048400000000000006,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.010648,
+      "at": 0.527,
+      "part": 48,
+      "y": -0.36,
+      "z": 0,
+      "r": 0.009,
+      "share": 0.003136615706020846,
+      "domain": "main",
+      "port": "p48",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "照準コンピューター",
+      "w": 0.08410000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.024388999999999997,
+      "at": 0.551,
+      "part": 49,
+      "y": -0.57,
+      "z": 0,
+      "r": 0.011,
+      "share": 0.007184346398773705,
+      "domain": "main",
+      "port": "p49",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 1",
+      "w": 0.05290000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.012167,
+      "at": 0.551,
+      "part": 50,
+      "y": -0.36,
+      "z": -0.03,
+      "r": 0.009,
+      "share": 0.003584072435683287,
+      "domain": "main",
+      "port": "p50",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 2",
+      "w": 0.05290000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.012167,
+      "at": 0.551,
+      "part": 51,
+      "y": -0.36,
+      "z": 0.03,
+      "r": 0.009,
+      "share": 0.003584072435683287,
+      "domain": "main",
+      "port": "p51",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 3",
+      "w": 0.05290000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.012167,
+      "at": 0.551,
+      "part": 52,
+      "y": -0.19,
+      "z": 0,
+      "r": 0.009,
+      "share": 0.003584072435683287,
+      "domain": "main",
+      "port": "p52",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 4",
+      "w": 0.05290000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.012167,
+      "at": 0.576,
+      "part": 53,
+      "y": -0.36,
+      "z": 0,
+      "r": 0.009,
+      "share": 0.003584072435683287,
+      "domain": "main",
+      "port": "p53",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "レーザーガス供給槽 1",
+      "w": 0.21160000000000004,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.097336,
+      "at": 0.5,
+      "part": 54,
+      "y": -0.36,
+      "z": 0,
+      "r": 0.018,
+      "share": 0.028672579485466296,
+      "domain": "main",
+      "port": "p54",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "レーザーガス供給槽 2",
+      "w": 0.21160000000000004,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.097336,
+      "at": 0.551,
+      "part": 55,
+      "y": -0.02,
+      "z": 0,
+      "r": 0.018,
+      "share": 0.028672579485466296,
+      "domain": "main",
+      "port": "p55",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "着陸脚機構 1",
+      "w": 0.13690000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.050653,
+      "at": 0.592,
+      "part": 56,
+      "y": -0.49,
+      "z": 0,
+      "r": 0.015,
+      "share": 0.014921017595517836,
+      "domain": "main",
+      "port": "p56",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "着陸脚機構 2",
+      "w": 0.13690000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.050653,
+      "at": 0.592,
+      "part": 57,
+      "y": -0.22,
+      "z": 0,
+      "r": 0.015,
+      "share": 0.014921017595517836,
+      "domain": "main",
+      "port": "p57",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "着陸脚機構 3",
+      "w": 0.13690000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.050653,
+      "at": 0.51,
+      "part": 58,
+      "y": -0.09,
+      "z": 0,
+      "r": 0.015,
+      "share": 0.014921017595517836,
+      "domain": "main",
+      "port": "p58",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.2635005800740432,
+      "hits": 1,
+      "crew": 0.00002705218564390238,
+      "size": 0.13526092821951188,
+      "at": 0.488,
+      "part": -30,
+      "machineryOwner": 30,
+      "y": 0.02,
+      "z": 0.21,
+      "r": 0.02,
+      "share": 0.018430165829832344,
+      "domain": "main",
+      "port": "p30",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.2635005800740432,
+      "hits": 1,
+      "crew": 0.00002705218564390238,
+      "size": 0.13526092821951188,
+      "at": 0.488,
+      "part": -31,
+      "machineryOwner": 31,
+      "y": 0.02,
+      "z": -0.21,
+      "r": 0.02,
+      "share": 0.018430165829832344,
+      "domain": "main",
+      "port": "p31",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "右舷主翼（内翼）",
+      "w": 2.2662585444497383,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.9108812842340624,
+      "at": 0.407,
+      "part": 9,
+      "ext": 1,
+      "y": -0.08,
+      "z": 0.47,
+      "r": 0.038,
+      "share": 0.2607973952656535,
+      "domain": "main",
+      "port": "p9",
+      "powerConnected": false
+     },
+     {
+      "k": "dissipator",
+      "name": "左舷主翼（内翼）",
+      "w": 2.2969661635217924,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.9108809919985327,
+      "at": 0.407,
+      "part": 10,
+      "ext": 1,
+      "y": -0.08,
+      "z": -0.47,
+      "r": 0.038,
+      "share": 0.26079731159474456,
+      "domain": "main",
+      "port": "p10",
+      "powerConnected": false
+     },
+     {
+      "k": "dissipator",
+      "name": "右舷主翼（翼端・赤）",
+      "w": 1.3632280774043888,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.315989584344352,
+      "at": 0.471,
+      "part": 11,
+      "ext": 1,
+      "y": -0.2,
+      "z": 0.85,
+      "r": 0.027,
+      "share": 0.09047200985952789,
+      "domain": "main",
+      "port": "p11",
+      "powerConnected": false
+     },
+     {
+      "k": "dissipator",
+      "name": "左舷主翼（翼端・赤）",
+      "w": 1.3632280578359433,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.3159895775405474,
+      "at": 0.471,
+      "part": 12,
+      "ext": 1,
+      "y": -0.2,
+      "z": -0.85,
+      "r": 0.027,
+      "share": 0.09047200791150838,
+      "domain": "main",
+      "port": "p12",
+      "powerConnected": false
+     },
+     {
+      "k": "dissipator",
+      "name": "右舷上部Sフォイル（放熱板）",
+      "w": 1.190912065328697,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.26724687481262693,
+      "at": 0.449,
+      "part": 13,
+      "ext": 1,
+      "y": 0.36,
+      "z": 0.51,
+      "r": 0.025,
+      "share": 0.07651632550846185,
+      "domain": "main",
+      "port": "p13",
+      "powerConnected": false
+     },
+     {
+      "k": "dissipator",
+      "name": "左舷上部Sフォイル（放熱板）",
+      "w": 1.1360309066103496,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.2672467271790622,
+      "at": 0.449,
+      "part": 14,
+      "ext": 1,
+      "y": 0.36,
+      "z": -0.51,
+      "r": 0.025,
+      "share": 0.0765162832390138,
+      "domain": "main",
+      "port": "p14",
+      "powerConnected": false
+     },
+     {
+      "k": "dissipator",
+      "name": "右舷下部Sフォイル（放熱板）",
+      "w": 1.112050506027025,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.25222138784736126,
+      "at": 0.449,
+      "part": 15,
+      "ext": 1,
+      "y": -0.53,
+      "z": 0.5,
+      "r": 0.025,
+      "share": 0.07221432926486313,
+      "domain": "main",
+      "port": "p15",
+      "powerConnected": false
+     },
+     {
+      "k": "dissipator",
+      "name": "左舷下部Sフォイル（放熱板）",
+      "w": 1.149689224417812,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.2522214161078879,
+      "at": 0.449,
+      "part": 16,
+      "ext": 1,
+      "y": -0.53,
+      "z": -0.5,
+      "r": 0.025,
+      "share": 0.0722143373562268,
+      "domain": "main",
+      "port": "p16",
+      "powerConnected": false
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（後部）",
+      "w": 0.3655863585407202,
+      "hits": 1,
+      "crew": 0,
+      "size": 3.804942381624483,
+      "at": 0.17,
+      "y": 0.17,
+      "z": 0,
+      "r": 0.061,
+      "share": 0.09616519174041296,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（中央後部）",
+      "w": 0.9787318476920824,
+      "hits": 1,
+      "crew": 0,
+      "size": 16.66704822380295,
+      "at": 0.394,
+      "y": 0.02,
+      "z": 0,
+      "r": 0.1,
+      "share": 0.4212389380530973,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（中央前部）",
+      "w": 0.9221615993761764,
+      "hits": 1,
+      "crew": 0,
+      "size": 15.243112731293175,
+      "at": 0.587,
+      "y": -0.11,
+      "z": 0,
+      "r": 0.098,
+      "share": 0.3852507374631268,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（前部）",
+      "w": 0.368570757610118,
+      "hits": 1,
+      "crew": 0,
+      "size": 3.8516287912149676,
+      "at": 0.844,
+      "y": -0.34,
+      "z": 0,
+      "r": 0.062,
+      "share": 0.09734513274336282,
+      "domain": "main"
+     },
+     {
+      "k": "hull",
+      "name": "船体構造",
+      "w": 22.833476590665736,
+      "hits": null,
+      "crew": 0,
+      "size": 1,
+      "share": 1,
+      "domain": "main"
+     }
+    ],
+    "energyModel": {
+     "version": 0,
+     "eta": 0.75
+    },
+    "D": 0.003080420262310727,
+    "shieldBuffer": 0.0731817485234382,
+    "wCap": 0,
+    "crewNeed": 3,
+    "crewMax": 3,
+    "hp": 1,
+    "len": 12.71,
+    "width": 20.430400848388672,
+    "height": 3.8475,
+    "grid": {
+     "P": 15048582957095907000,
+     "fixed": 37884383780655560,
+     "cooling": 0,
+     "De": 2403318379996192000,
+     "Ds": 12888478377508082000,
+     "Dw": 7699560000000000000,
+     "domains": [
+      {
+       "id": "main",
+       "P": 15048582957095907000,
+       "reactors": [
+        9,
+        10
+       ],
+       "sources": [
+        {
+         "moduleIndex": 9,
+         "P": 7524291478547954000
+        },
+        {
+         "moduleIndex": 10,
+         "P": 7524291478547954000
+        }
+       ],
+       "modules": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49
+       ],
+       "protection": 1
+      }
+     ],
+     "powerPaths": [
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "f39",
+       "cap": 2510400000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p29",
+       "to": "f40",
+       "cap": 2510400000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p37",
+       "to": "f41",
+       "cap": 1338880000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p37",
+       "to": "f42",
+       "cap": 1338880000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p37",
+       "to": "f43",
+       "cap": 1000000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p30",
+       "cap": 1201659189998096000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p29",
+       "to": "p31",
+       "cap": 1201659189998096000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p32",
+       "cap": 12888478377508082000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "hotel",
+       "cap": 37884383780655560,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p24",
+       "cap": 1515375351226222.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p25",
+       "cap": 1515375351226222.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p26",
+       "cap": 1515375351226222.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p27",
+       "cap": 1515375351226222.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p33",
+       "cap": 1515375351226222.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p34",
+       "cap": 1515375351226222.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p35",
+       "cap": 1515375351226222.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p29",
+       "to": "p36",
+       "cap": 1515375351226222.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p37",
+       "cap": 1515375351226222.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p38",
+       "cap": 1515375351226222.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p44",
+       "cap": 1515375351226222.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p45",
+       "cap": 1515375351226222.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p46",
+       "cap": 1515375351226222.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p47",
+       "cap": 1515375351226222.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p48",
+       "cap": 1515375351226222.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p49",
+       "cap": 1515375351226222.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p29",
+       "to": "p50",
+       "cap": 1515375351226222.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p51",
+       "cap": 1515375351226222.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p52",
+       "cap": 1515375351226222.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p53",
+       "cap": 1515375351226222.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p54",
+       "cap": 1515375351226222.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p55",
+       "cap": 1515375351226222.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p56",
+       "cap": 1515375351226222.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p57",
+       "cap": 1515375351226222.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p58",
+       "cap": 1515375351226222.5,
+       "auto": true,
+       "ok": true
+      }
+     ],
+     "trunks": [
+      {
+       "port": "p37",
+       "moduleIndex": 18
+      }
+     ],
+     "fixedLoads": [
+      {
+       "id": "hotel",
+       "port": "hotel",
+       "weight": 37884383780655560,
+       "domain": "main"
+      }
+     ],
+     "coolingLoads": []
+    },
+    "propulsion": {
+     "version": 1,
+     "engines": [
+      {
+       "version": 1,
+       "id": 30,
+       "machineryId": 30,
+       "ratedInputW": 1201659189998096000,
+       "driveProfileId": "standard",
+       "machineryGradeId": "advanced",
+       "wattsPerNewton": 2000000000,
+       "ratedThrustN": 600829594.999048,
+       "effectiveMachineryVolumeM3": 0.13526092821951174,
+       "machineryVolumeM3": 0.13526092821951174,
+       "machineryLengthM": 0.2,
+       "machineryRadiusM": 0.52,
+       "machineryDiameterM": 1.04,
+       "machineryOffsetM": 2.25,
+       "maxInputW": 4598871559463399400,
+       "maxRatedInputW": 4598871559463399400,
+       "inputDensityWPerM3": 8884008159754396000,
+       "allowedInputDensityWPerM3": 34000000000000000000,
+       "cost": 5987.5124571529,
+       "powerNode": "p30",
+       "heatNode": "p30",
+       "reactorId": 28,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 1201659189998096000,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 11,
+       "machineryModuleIndex": 35,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 4598871559463399400
+      },
+      {
+       "version": 1,
+       "id": 31,
+       "machineryId": 31,
+       "ratedInputW": 1201659189998096000,
+       "driveProfileId": "standard",
+       "machineryGradeId": "advanced",
+       "wattsPerNewton": 2000000000,
+       "ratedThrustN": 600829594.999048,
+       "effectiveMachineryVolumeM3": 0.13526092821951174,
+       "machineryVolumeM3": 0.13526092821951174,
+       "machineryLengthM": 0.2,
+       "machineryRadiusM": 0.52,
+       "machineryDiameterM": 1.04,
+       "machineryOffsetM": 2.25,
+       "maxInputW": 4598871559463399400,
+       "maxRatedInputW": 4598871559463399400,
+       "inputDensityWPerM3": 8884008159754396000,
+       "allowedInputDensityWPerM3": 34000000000000000000,
+       "cost": 5987.5124571529,
+       "powerNode": "p31",
+       "heatNode": "p31",
+       "reactorId": 29,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 1201659189998096000,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 12,
+       "machineryModuleIndex": 36,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 4598871559463399400
+      }
+     ],
+     "massKg": 34256.5478746147,
+     "ratedThrustN": 1201659189.998096,
+     "ratedAccelMps2": 35078.23363861388,
+     "structuralAccelerationLimitMps2": 685256.2178240644,
+     "inertialFactor": 1,
+     "accelerationLimitMps2": 35078.23363861388
+    },
+    "profileVersion": 4,
+    "heat": {
+     "v": 1,
+     "src": [
+      {
+       "k": "reactor",
+       "id": "p28",
+       "n": "右舷反応炉 #28",
+       "g": "high",
+       "sh": 0.708657,
+       "st": 21669959458218107000,
+       "m": [
+        9
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "reactor",
+       "id": "p29",
+       "n": "左舷反応炉 #29",
+       "g": "high",
+       "sh": 0.291343,
+       "st": 8908942055995432000,
+       "m": [
+        10
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p30",
+       "n": "右舷IGP-440a イオン・タービン #30",
+       "g": "high",
+       "sh": 0.375,
+       "st": 2162986541996572400,
+       "m": [
+        11,
+        35
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p31",
+       "n": "左舷IGP-440a イオン・タービン #31",
+       "g": "high",
+       "sh": 0.625,
+       "st": 3604977569994288000,
+       "m": [
+        12,
+        36
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "shield",
+       "id": "p32",
+       "n": "シールド（艦尾区画）",
+       "g": "high",
+       "sh": 1,
+       "st": 161842777028584000000,
+       "m": [
+        13
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f39",
+       "n": "武装（艦首区画）",
+       "g": "high",
+       "sh": 0.499849,
+       "st": 37656000000000000000,
+       "m": [
+        0
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f40",
+       "n": "武装（艦首区画）",
+       "g": "high",
+       "sh": 0.499849,
+       "st": 37656000000000000000,
+       "m": [
+        1
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f41",
+       "n": "武装（艦尾区画）",
+       "g": "high",
+       "sh": 0.000301616,
+       "st": 22722144763805990,
+       "m": [
+        2,
+        3
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f43",
+       "n": "武装（艦首区画）",
+       "g": "high",
+       "sh": 1.12637e-7,
+       "st": 8485504587343.897,
+       "m": [
+        4
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "hotel",
+       "id": "hotel",
+       "n": "生活・電子設備",
+       "g": "low",
+       "sh": 1,
+       "st": 2273063026839333600,
+       "m": [],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1
+      }
+     ],
+     "dis": [
+      {
+       "id": "p9",
+       "n": "右舷主翼（内翼） #9",
+       "k": "wing",
+       "g": "high",
+       "cap": 92624674457815180,
+       "m": 37,
+       "sec": 3,
+       "src": -1
+      },
+      {
+       "id": "p10",
+       "n": "左舷主翼（内翼） #10",
+       "k": "wing",
+       "g": "high",
+       "cap": 94768764144338690,
+       "m": 38,
+       "sec": 3,
+       "src": -1
+      },
+      {
+       "id": "p11",
+       "n": "右舷主翼（翼端・赤） #11",
+       "k": "wing",
+       "g": "high",
+       "cap": 56302108139799160,
+       "m": 39,
+       "sec": 3,
+       "src": -1
+      },
+      {
+       "id": "p12",
+       "n": "左舷主翼（翼端・赤） #12",
+       "k": "wing",
+       "g": "high",
+       "cap": 56302108139799170,
+       "m": 40,
+       "sec": 3,
+       "src": -1
+      },
+      {
+       "id": "p13",
+       "n": "右舷上部Sフォイル（放熱板） #13",
+       "k": "wing",
+       "g": "high",
+       "cap": 58346944951915280,
+       "m": 41,
+       "sec": 3,
+       "src": -1
+      },
+      {
+       "id": "p14",
+       "n": "左舷上部Sフォイル（放熱板） #14",
+       "k": "wing",
+       "g": "high",
+       "cap": 54220569778512504,
+       "m": 42,
+       "sec": 3,
+       "src": -1
+      },
+      {
+       "id": "p15",
+       "n": "右舷下部Sフォイル（放熱板） #15",
+       "k": "wing",
+       "g": "high",
+       "cap": 56198646940734390,
+       "m": 43,
+       "sec": 3,
+       "src": -1
+      },
+      {
+       "id": "p16",
+       "n": "左舷下部Sフォイル（放熱板） #16",
+       "k": "wing",
+       "g": "high",
+       "cap": 59165935499205170,
+       "m": 44,
+       "sec": 3,
+       "src": -1
+      },
+      {
+       "id": "skin",
+       "n": "外殻からの放熱",
+       "k": "skin",
+       "g": "low",
+       "cap": 966635878313106100000,
+       "m": -1,
+       "sec": -1,
+       "src": -1
+      },
+      {
+       "id": "int:p28",
+       "n": "右舷反応炉 #28（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 361165990970301800,
+       "m": -1,
+       "sec": -1,
+       "src": 0
+      },
+      {
+       "id": "int:p29",
+       "n": "左舷反応炉 #29（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 361165990970301800,
+       "m": -1,
+       "sec": -1,
+       "src": 1
+      },
+      {
+       "id": "int:p30",
+       "n": "右舷IGP-440a イオン・タービン #30（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 60082959499904800,
+       "m": -1,
+       "sec": -1,
+       "src": 2
+      },
+      {
+       "id": "int:p31",
+       "n": "左舷IGP-440a イオン・タービン #31（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 60082959499904800,
+       "m": -1,
+       "sec": -1,
+       "src": 3
+      },
+      {
+       "id": "int:p32",
+       "n": "シールド（艦尾区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 5406124549420330000,
+       "m": -1,
+       "sec": -1,
+       "src": 4
+      },
+      {
+       "id": "int:f39",
+       "n": "武装（艦首区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 784500000000000000,
+       "m": -1,
+       "sec": -1,
+       "src": 5
+      },
+      {
+       "id": "int:f40",
+       "n": "武装（艦首区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 784500000000000000,
+       "m": -1,
+       "sec": -1,
+       "src": 6
+      },
+      {
+       "id": "int:f41",
+       "n": "武装（艦尾区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 836800000000000000,
+       "m": -1,
+       "sec": -1,
+       "src": 7
+      },
+      {
+       "id": "int:f43",
+       "n": "武装（艦首区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 312500000000000,
+       "m": -1,
+       "sec": -1,
+       "src": 8
+      }
+     ],
+     "ln": [
+      {
+       "s": 0,
+       "d": 9,
+       "cap": 361165990970301800,
+       "sec": -1
+      },
+      {
+       "s": 0,
+       "d": 0,
+       "cap": 632040484198028000,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 6,
+       "cap": 632040484198028000,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 10,
+       "cap": 361165990970301800,
+       "sec": -1
+      },
+      {
+       "s": 1,
+       "d": 1,
+       "cap": 632040484198028000,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 7,
+       "cap": 632040484198028000,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 11,
+       "cap": 60082959499904800,
+       "sec": -1
+      },
+      {
+       "s": 2,
+       "d": 0,
+       "cap": 79583257342768900,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 6,
+       "cap": 79583257342768900,
+       "sec": 2
+      },
+      {
+       "s": 3,
+       "d": 12,
+       "cap": 60082959499904800,
+       "sec": -1
+      },
+      {
+       "s": 3,
+       "d": 1,
+       "cap": 79583257342768900,
+       "sec": 1
+      },
+      {
+       "s": 3,
+       "d": 7,
+       "cap": 79583257342768900,
+       "sec": 2
+      },
+      {
+       "s": 4,
+       "d": 13,
+       "cap": 5406124549420330000,
+       "sec": -1
+      },
+      {
+       "s": 4,
+       "d": 0,
+       "cap": 8699722904817957000,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 1,
+       "cap": 8699722904817957000,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 14,
+       "cap": 784500000000000000,
+       "sec": -1
+      },
+      {
+       "s": 5,
+       "d": 2,
+       "cap": 1176750000000000000,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 6,
+       "cap": 1176750000000000000,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 15,
+       "cap": 784500000000000000,
+       "sec": -1
+      },
+      {
+       "s": 6,
+       "d": 3,
+       "cap": 1176750000000000000,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 7,
+       "cap": 1176750000000000000,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 16,
+       "cap": 836800000000000000,
+       "sec": -1
+      },
+      {
+       "s": 7,
+       "d": 0,
+       "cap": 1255200000000000000,
+       "sec": 0
+      },
+      {
+       "s": 7,
+       "d": 1,
+       "cap": 1255200000000000000,
+       "sec": 0
+      },
+      {
+       "s": 8,
+       "d": 17,
+       "cap": 312500000000000,
+       "sec": -1
+      },
+      {
+       "s": 8,
+       "d": 6,
+       "cap": 468750000000000,
+       "sec": 4
+      },
+      {
+       "s": 8,
+       "d": 7,
+       "cap": 468750000000000,
+       "sec": 4
+      },
+      {
+       "s": 9,
+       "d": 6,
+       "cap": 56826575670983340,
+       "sec": 3
+      },
+      {
+       "s": 9,
+       "d": 7,
+       "cap": 56826575670983340,
+       "sec": 3
+      },
+      {
+       "s": 9,
+       "d": 0,
+       "cap": 56826575670983340,
+       "sec": 3
+      },
+      {
+       "s": 9,
+       "d": 1,
+       "cap": 56826575670983340,
+       "sec": 3
+      },
+      {
+       "s": 9,
+       "d": 4,
+       "cap": 56826575670983340,
+       "sec": 3
+      },
+      {
+       "s": 9,
+       "d": 5,
+       "cap": 56826575670983340,
+       "sec": 3
+      },
+      {
+       "s": 9,
+       "d": 2,
+       "cap": 56826575670983340,
+       "sec": 3
+      },
+      {
+       "s": 9,
+       "d": 3,
+       "cap": 56826575670983340,
+       "sec": 3
+      },
+      {
+       "s": 9,
+       "d": 8,
+       "cap": 966635878313106100000,
+       "sec": -1
+      }
+     ]
+    }
    }
   },
   "awing": {
    "reference": "craft_awing",
-   "signature": "1qe028x",
-   "build": 155333,
+   "signature": "z4m8cj",
+   "build": 159054,
    "crew": 1000,
-   "total": 156333,
+   "total": 160054,
    "by": {
     "hull": 9,
     "armor": 3,
     "power": 22507,
-    "drive": 47012,
+    "drive": 50733,
     "defense": 25501,
     "command": 14501,
     "weapons": 21800,
@@ -232,23 +2189,1253 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.00262,
-    "upS": 0.00262,
-    "down": 0.0205,
+    "up": 0.00169,
+    "upS": 0.00169,
+    "down": 0.0232,
     "T": 0
+   },
+   "powerProfile": {
+    "name": "RZ-1 Aウイング",
+    "modules": [
+     {
+      "k": "weapon",
+      "fit": 25,
+      "name": "レーザー砲",
+      "w": 0.9984000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.0005,
+      "stock": 0,
+      "at": 0.435,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.02,
+      "z": 0.9,
+      "r": 0.188,
+      "share": 0.5,
+      "domain": "main",
+      "port": "f25",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 26,
+      "name": "レーザー砲",
+      "w": 0.9984000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.0005,
+      "stock": 0,
+      "at": 0.435,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.02,
+      "z": -0.9,
+      "r": 0.188,
+      "share": 0.5,
+      "domain": "main",
+      "port": "f26",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 27,
+      "name": "ミサイル発射管",
+      "w": 0.648,
+      "hits": 1,
+      "crew": 0,
+      "size": 0,
+      "stock": 0,
+      "at": 0.688,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.46,
+      "z": 0.28,
+      "r": 0.087,
+      "share": 0,
+      "domain": "main",
+      "port": "f27",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 28,
+      "name": "ミサイル発射管",
+      "w": 0.648,
+      "hits": 1,
+      "crew": 0,
+      "size": 0,
+      "stock": 0,
+      "at": 0.688,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.46,
+      "z": -0.28,
+      "r": 0.087,
+      "share": 0,
+      "domain": "main",
+      "port": "f28",
+      "powerConnected": true
+     },
+     {
+      "k": "reactor",
+      "name": "核融合炉",
+      "w": 0.8148952635576191,
+      "hits": 1,
+      "crew": 0.00036780929030188347,
+      "size": 0.735618580603767,
+      "at": 0.29,
+      "part": 14,
+      "y": -0.08,
+      "z": 0,
+      "r": 0.065,
+      "share": 1,
+      "domain": "main",
+      "port": "p14",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "右舷主推進機関",
+      "w": 1.3127013700754067,
+      "hits": 1,
+      "crew": 0.000601601484314035,
+      "size": 1.5040037107850872,
+      "at": 0.273,
+      "part": 15,
+      "y": -0.13,
+      "z": 0.48,
+      "r": 0.083,
+      "share": 0.39480234296622074,
+      "domain": "main",
+      "port": "p15",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "右舷主推進機関",
+      "w": 1.3127013700754067,
+      "hits": 1,
+      "crew": 0.000601601484314035,
+      "size": 1.5040037107850872,
+      "at": 0.273,
+      "part": 16,
+      "y": -0.13,
+      "z": -0.48,
+      "r": 0.083,
+      "share": 0.39480234296622074,
+      "domain": "main",
+      "port": "p16",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "操縦席",
+      "w": 0.5498464214566077,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.4077200833730881,
+      "at": 0.514,
+      "part": 17,
+      "y": 0.04,
+      "z": 0,
+      "r": 0.054,
+      "share": 0.5842216798061506,
+      "domain": "main",
+      "port": "p17",
+      "powerConnected": true
+     },
+     {
+      "k": "shield",
+      "name": "偏向シールド発生器",
+      "w": 0.13746160536415195,
+      "hits": 1,
+      "crew": 0.00002038600416865441,
+      "size": 0.050965010421636016,
+      "at": 0.623,
+      "part": 18,
+      "y": -0.12,
+      "z": 0.42,
+      "r": 0.027,
+      "share": 0.5,
+      "domain": "main",
+      "port": "p18",
+      "powerConnected": true
+     },
+     {
+      "k": "shield",
+      "name": "偏向シールド発生器",
+      "w": 0.13746160536415195,
+      "hits": 1,
+      "crew": 0.00002038600416865441,
+      "size": 0.050965010421636016,
+      "at": 0.623,
+      "part": 19,
+      "y": -0.12,
+      "z": -0.42,
+      "r": 0.027,
+      "share": 0.5,
+      "domain": "main",
+      "port": "p19",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "右舷慣性補償装置",
+      "w": 0.10769650179907586,
+      "hits": 1,
+      "crew": 0.000007068583470577035,
+      "size": 0.035342917352885174,
+      "at": 0.667,
+      "part": 20,
+      "y": -0.13,
+      "z": 0.22,
+      "r": 0.024,
+      "share": 0.05064282920362862,
+      "domain": "main",
+      "port": "p20",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "左舷慣性補償装置",
+      "w": 0.10769650179907586,
+      "hits": 1,
+      "crew": 0.000007068583470577035,
+      "size": 0.035342917352885174,
+      "at": 0.667,
+      "part": 21,
+      "y": -0.13,
+      "z": -0.22,
+      "r": 0.024,
+      "share": 0.05064282920362862,
+      "domain": "main",
+      "port": "p21",
+      "powerConnected": true
+     },
+     {
+      "k": "fuel",
+      "name": "反応物タンク",
+      "w": 0.13560434437211016,
+      "hits": 1,
+      "crew": 0.000009987123045761957,
+      "size": 0.04993561522880978,
+      "at": 0.667,
+      "part": 22,
+      "y": -0.13,
+      "z": 0,
+      "r": 0.027,
+      "share": 1,
+      "domain": "main",
+      "port": "p22",
+      "powerConnected": true
+     },
+     {
+      "k": "hyper",
+      "name": "ハイパードライブ",
+      "w": 0.18118016807540183,
+      "hits": 1,
+      "crew": 0.000023135944938096667,
+      "size": 0.07711981646032223,
+      "at": 0.775,
+      "part": 23,
+      "y": -0.13,
+      "z": 0,
+      "r": 0.031,
+      "share": 1,
+      "domain": "main",
+      "port": "p23",
+      "powerConnected": true
+     },
+     {
+      "k": "battery",
+      "name": "パワーセル",
+      "w": 0.06760000000000001,
+      "hits": 1,
+      "crew": 0.0000035152000000000002,
+      "size": 0.017576,
+      "at": 0.862,
+      "part": 24,
+      "y": -0.13,
+      "z": 0,
+      "r": 0.019,
+      "share": 1,
+      "domain": "main",
+      "port": "p24",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "生命維持装置",
+      "w": 0.13690000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.050653,
+      "at": 0.696,
+      "part": 29,
+      "y": -0.13,
+      "z": -0.1,
+      "r": 0.027,
+      "share": 0.07258063056987549,
+      "domain": "main",
+      "port": "p29",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "射出座席機構 1",
+      "w": 0.08410000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.024388999999999997,
+      "at": 0.456,
+      "part": 30,
+      "y": -0.33,
+      "z": -0.16,
+      "r": 0.021,
+      "share": 0.03494697251828506,
+      "domain": "main",
+      "port": "p30",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "航法コンピューター",
+      "w": 0.048400000000000006,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.010648,
+      "at": 0.696,
+      "part": 31,
+      "y": 0.09,
+      "z": 0,
+      "r": 0.016,
+      "share": 0.015257508031272267,
+      "domain": "main",
+      "port": "p31",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "照準コンピューター",
+      "w": 0.07290000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.019683000000000003,
+      "at": 0.668,
+      "part": 32,
+      "y": 0.09,
+      "z": 0,
+      "r": 0.02,
+      "share": 0.02820375005442638,
+      "domain": "main",
+      "port": "p32",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 1",
+      "w": 0.032400000000000005,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0058319999999999995,
+      "at": 0.696,
+      "part": 33,
+      "y": 0.09,
+      "z": -0.05,
+      "r": 0.013,
+      "share": 0.008356666682793,
+      "domain": "main",
+      "port": "p33",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 2",
+      "w": 0.032400000000000005,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0058319999999999995,
+      "at": 0.696,
+      "part": 34,
+      "y": 0.09,
+      "z": 0.05,
+      "r": 0.013,
+      "share": 0.008356666682793,
+      "domain": "main",
+      "port": "p34",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 3",
+      "w": 0.032400000000000005,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0058319999999999995,
+      "at": 0.714,
+      "part": 35,
+      "y": 0.09,
+      "z": 0,
+      "r": 0.013,
+      "share": 0.008356666682793,
+      "domain": "main",
+      "port": "p35",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 4",
+      "w": 0.032400000000000005,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0058319999999999995,
+      "at": 0.677,
+      "part": 36,
+      "y": 0.09,
+      "z": -0.05,
+      "r": 0.013,
+      "share": 0.008356666682793,
+      "domain": "main",
+      "port": "p36",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "レーザーガス供給槽 1",
+      "w": 0.07840000000000003,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.021952000000000006,
+      "at": 0.639,
+      "part": 37,
+      "y": 0.09,
+      "z": 0,
+      "r": 0.02,
+      "share": 0.03145499777446365,
+      "domain": "main",
+      "port": "p37",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "レーザーガス供給槽 2",
+      "w": 0.07840000000000003,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.021952000000000006,
+      "at": 0.639,
+      "part": 38,
+      "y": 0.09,
+      "z": -0.08,
+      "r": 0.02,
+      "share": 0.03145499777446365,
+      "domain": "main",
+      "port": "p38",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "着陸脚機構 1",
+      "w": 0.06250000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.015625,
+      "at": 0.67,
+      "part": 39,
+      "y": 0.09,
+      "z": 0.07,
+      "r": 0.018,
+      "share": 0.022389046110878025,
+      "domain": "main",
+      "port": "p39",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "着陸脚機構 2",
+      "w": 0.06250000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.015625,
+      "at": 0.721,
+      "part": 40,
+      "y": -0.06,
+      "z": 0,
+      "r": 0.018,
+      "share": 0.022389046110878025,
+      "domain": "main",
+      "port": "p40",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "着陸脚機構 3",
+      "w": 0.06250000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.015625,
+      "at": 0.721,
+      "part": 41,
+      "y": -0.06,
+      "z": 0.07,
+      "r": 0.018,
+      "share": 0.022389046110878025,
+      "domain": "main",
+      "port": "p41",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.5435633532695409,
+      "hits": 1,
+      "crew": 0.00008015031793174438,
+      "size": 0.4007515896587218,
+      "at": 0.402,
+      "part": -15,
+      "machineryOwner": 15,
+      "y": -0.11,
+      "z": 0.32,
+      "r": 0.053,
+      "share": 0.10519765703377922,
+      "domain": "main",
+      "port": "p15",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.5435633532695409,
+      "hits": 1,
+      "crew": 0.00008015031793174438,
+      "size": 0.4007515896587218,
+      "at": 0.402,
+      "part": -16,
+      "machineryOwner": 16,
+      "y": -0.11,
+      "z": -0.32,
+      "r": 0.053,
+      "share": 0.10519765703377922,
+      "domain": "main",
+      "port": "p16",
+      "powerConnected": true
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（後部）",
+      "w": 0.20238865260717764,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.567264693281299,
+      "at": 0.18,
+      "y": -0.01,
+      "z": 0,
+      "r": 0.084,
+      "share": 0.16942508710801393,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（中央後部）",
+      "w": 0.3430678002938401,
+      "hits": 1,
+      "crew": 0,
+      "size": 3.4588605120359777,
+      "at": 0.384,
+      "y": -0.02,
+      "z": 0,
+      "r": 0.11,
+      "share": 0.373911149825784,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（中央前部）",
+      "w": 0.33164989494658825,
+      "hits": 1,
+      "crew": 0,
+      "size": 3.287629793618355,
+      "at": 0.602,
+      "y": -0.11,
+      "z": 0,
+      "r": 0.108,
+      "share": 0.35540069686411146,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（前部）",
+      "w": 0.14360461479988076,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.9367327536964063,
+      "at": 0.822,
+      "y": -0.11,
+      "z": 0,
+      "r": 0.071,
+      "share": 0.10126306620209059,
+      "domain": "main"
+     },
+     {
+      "k": "hull",
+      "name": "船体構造",
+      "w": 6.649009692675349,
+      "hits": null,
+      "crew": 0,
+      "size": 1,
+      "share": 1,
+      "domain": "main"
+     }
+    ],
+    "energyModel": {
+     "version": 0,
+     "eta": 0.75
+    },
+    "D": 0.0006204957003878776,
+    "shieldBuffer": 0.014246437348554762,
+    "wCap": 0,
+    "crewNeed": 1,
+    "crewMax": 1,
+    "hp": 1,
+    "len": 6.9,
+    "width": 4.957405736643938,
+    "height": 2.3886074314359576,
+    "grid": {
+     "P": 3852437237016554000,
+     "fixed": 16380263776155636,
+     "cooling": 0,
+     "De": 1022722523333859300,
+     "Ds": 2596154010422879700,
+     "Dw": 1675600000000000000,
+     "domains": [
+      {
+       "id": "main",
+       "P": 3852437237016554000,
+       "reactors": [
+        4
+       ],
+       "sources": [
+        {
+         "moduleIndex": 4,
+         "P": 3852437237016554000
+        }
+       ],
+       "modules": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34
+       ],
+       "protection": 1
+      }
+     ],
+     "powerPaths": [
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "f25",
+       "cap": 836800000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "f26",
+       "cap": 836800000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "f27",
+       "cap": 1000000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "f28",
+       "cap": 1000000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p15",
+       "cap": 511361261666929660,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p16",
+       "cap": 511361261666929660,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p18",
+       "cap": 1298077005211439900,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p19",
+       "cap": 1298077005211439900,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "hotel",
+       "cap": 16380263776155638,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p17",
+       "cap": 862119146113454.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p20",
+       "cap": 862119146113454.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p21",
+       "cap": 862119146113454.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p22",
+       "cap": 862119146113454.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p23",
+       "cap": 862119146113454.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p24",
+       "cap": 862119146113454.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p29",
+       "cap": 862119146113454.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p30",
+       "cap": 862119146113454.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p31",
+       "cap": 862119146113454.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p32",
+       "cap": 862119146113454.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p33",
+       "cap": 862119146113454.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p34",
+       "cap": 862119146113454.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p35",
+       "cap": 862119146113454.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p36",
+       "cap": 862119146113454.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p37",
+       "cap": 862119146113454.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p38",
+       "cap": 862119146113454.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p39",
+       "cap": 862119146113454.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p40",
+       "cap": 862119146113454.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p41",
+       "cap": 862119146113454.5,
+       "auto": true,
+       "ok": true
+      }
+     ],
+     "trunks": [],
+     "fixedLoads": [
+      {
+       "id": "hotel",
+       "port": "hotel",
+       "weight": 16380263776155636,
+       "domain": "main"
+      }
+     ],
+     "coolingLoads": []
+    },
+    "propulsion": {
+     "version": 1,
+     "engines": [
+      {
+       "version": 1,
+       "id": 15,
+       "machineryId": 15,
+       "ratedInputW": 511361261666929660,
+       "driveProfileId": "standard",
+       "machineryGradeId": "advanced",
+       "wattsPerNewton": 2000000000,
+       "ratedThrustN": 255680630.83346483,
+       "effectiveMachineryVolumeM3": 0.07678424742701133,
+       "machineryVolumeM3": 0.07678424742701133,
+       "machineryLengthM": 0.15,
+       "machineryRadiusM": 0.4524,
+       "machineryDiameterM": 0.9048,
+       "machineryOffsetM": 1.265,
+       "maxInputW": 2610664412518385000,
+       "maxRatedInputW": 2610664412518385000,
+       "inputDensityWPerM3": 6659715746423294000,
+       "allowedInputDensityWPerM3": 34000000000000000000,
+       "cost": 1860.5603880463996,
+       "powerNode": "p15",
+       "heatNode": "p15",
+       "reactorId": 14,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 511361261666929660,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 5,
+       "machineryModuleIndex": 28,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 2610664412518385000
+      },
+      {
+       "version": 1,
+       "id": 16,
+       "machineryId": 16,
+       "ratedInputW": 511361261666929660,
+       "driveProfileId": "standard",
+       "machineryGradeId": "advanced",
+       "wattsPerNewton": 2000000000,
+       "ratedThrustN": 255680630.83346483,
+       "effectiveMachineryVolumeM3": 0.07678424742701133,
+       "machineryVolumeM3": 0.07678424742701133,
+       "machineryLengthM": 0.15,
+       "machineryRadiusM": 0.4524,
+       "machineryDiameterM": 0.9048,
+       "machineryOffsetM": 1.265,
+       "maxInputW": 2610664412518385000,
+       "maxRatedInputW": 2610664412518385000,
+       "inputDensityWPerM3": 6659715746423294000,
+       "allowedInputDensityWPerM3": 34000000000000000000,
+       "cost": 1860.5603880463996,
+       "powerNode": "p16",
+       "heatNode": "p16",
+       "reactorId": 14,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 511361261666929660,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 6,
+       "machineryModuleIndex": 29,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 2610664412518385000
+      }
+     ],
+     "massKg": 10215.50368912437,
+     "ratedThrustN": 511361261.66692966,
+     "ratedAccelMps2": 50057.37134737028,
+     "structuralAccelerationLimitMps2": 208235.95363920068,
+     "inertialFactor": 1,
+     "accelerationLimitMps2": 50057.37134737028
+    },
+    "profileVersion": 4,
+    "heat": {
+     "v": 1,
+     "src": [
+      {
+       "k": "reactor",
+       "id": "p14",
+       "n": "核融合炉 #14",
+       "g": "high",
+       "sh": 1,
+       "st": 11095019242607675000,
+       "m": [
+        4
+       ],
+       "pc": [],
+       "sec": 2,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p15",
+       "n": "右舷主推進機関 #15",
+       "g": "high",
+       "sh": 0.5,
+       "st": 1534083785000789000,
+       "m": [
+        5,
+        28
+       ],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p16",
+       "n": "右舷主推進機関 #16",
+       "g": "high",
+       "sh": 0.5,
+       "st": 1534083785000789000,
+       "m": [
+        6,
+        29
+       ],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "shield",
+       "id": "p18",
+       "n": "シールド（艦首区画）",
+       "g": "high",
+       "sh": 1,
+       "st": 46730772187611830000,
+       "m": [
+        8,
+        9
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f25",
+       "n": "武装（前部区画）",
+       "g": "high",
+       "sh": 0.998806,
+       "st": 25104000000000000000,
+       "m": [
+        0,
+        1
+       ],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f27",
+       "n": "武装（艦首区画）",
+       "g": "high",
+       "sh": 0.0011936,
+       "st": 30000000000000000,
+       "m": [
+        2,
+        3
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "hotel",
+       "id": "hotel",
+       "n": "生活・電子設備",
+       "g": "low",
+       "sh": 1,
+       "st": 982815826569338200,
+       "m": [],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1
+      }
+     ],
+     "dis": [
+      {
+       "id": "skin",
+       "n": "外殻からの放熱",
+       "k": "skin",
+       "g": "low",
+       "cap": 194711550781715970000,
+       "m": -1,
+       "sec": -1,
+       "src": -1
+      },
+      {
+       "id": "int:p14",
+       "n": "核融合炉 #14（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 184916987376794600,
+       "m": -1,
+       "sec": -1,
+       "src": 0
+      },
+      {
+       "id": "int:p15",
+       "n": "右舷主推進機関 #15（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 25568063083346484,
+       "m": -1,
+       "sec": -1,
+       "src": 1
+      },
+      {
+       "id": "int:p16",
+       "n": "右舷主推進機関 #16（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 25568063083346484,
+       "m": -1,
+       "sec": -1,
+       "src": 2
+      },
+      {
+       "id": "int:p18",
+       "n": "シールド（艦首区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 1168269304690295800,
+       "m": -1,
+       "sec": -1,
+       "src": 3
+      },
+      {
+       "id": "int:f25",
+       "n": "武装（前部区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 523000000000000000,
+       "m": -1,
+       "sec": -1,
+       "src": 4
+      },
+      {
+       "id": "int:f27",
+       "n": "武装（艦首区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 625000000000000,
+       "m": -1,
+       "sec": -1,
+       "src": 5
+      }
+     ],
+     "ln": [
+      {
+       "s": 0,
+       "d": 1,
+       "cap": 184916987376794600,
+       "sec": -1
+      },
+      {
+       "s": 1,
+       "d": 2,
+       "cap": 25568063083346484,
+       "sec": -1
+      },
+      {
+       "s": 2,
+       "d": 3,
+       "cap": 25568063083346484,
+       "sec": -1
+      },
+      {
+       "s": 3,
+       "d": 4,
+       "cap": 1168269304690295800,
+       "sec": -1
+      },
+      {
+       "s": 4,
+       "d": 5,
+       "cap": 523000000000000000,
+       "sec": -1
+      },
+      {
+       "s": 5,
+       "d": 6,
+       "cap": 625000000000000,
+       "sec": -1
+      },
+      {
+       "s": 6,
+       "d": 0,
+       "cap": 194711550781715970000,
+       "sec": -1
+      }
+     ]
+    }
    }
   },
   "btlb": {
    "reference": "craft_btlb",
-   "signature": "qe3orr",
-   "build": 199775,
+   "signature": "eorir0",
+   "build": 200851,
    "crew": 2000,
-   "total": 201775,
+   "total": 202851,
    "by": {
     "hull": 60,
     "armor": 21,
     "power": 63448,
-    "drive": 47038,
+    "drive": 48114,
     "defense": 15004,
     "command": 20503,
     "weapons": 36700,
@@ -285,26 +3472,1596 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.000674,
-    "upS": 0.000674,
-    "down": 0.0172,
+    "up": 0,
+    "upS": 0,
+    "down": 0.0435,
     "T": 0
+   },
+   "powerProfile": {
+    "name": "BTL-B Yウイング・スターファイター",
+    "modules": [
+     {
+      "k": "weapon",
+      "fit": 21,
+      "name": "レーザー砲",
+      "w": 0.9984000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.0005,
+      "stock": 0,
+      "at": 0.983,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.13,
+      "z": 0.1,
+      "r": 0.058,
+      "share": 0.36358020204956754,
+      "domain": "main",
+      "port": "f21",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 22,
+      "name": "レーザー砲",
+      "w": 0.9984000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.0005,
+      "stock": 0,
+      "at": 0.983,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.13,
+      "z": -0.1,
+      "r": 0.058,
+      "share": 0.36358020204956754,
+      "domain": "main",
+      "port": "f22",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 23,
+      "name": "旋回砲塔",
+      "w": 2.028,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.7508,
+      "stock": 0,
+      "at": 0.789,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.66,
+      "z": 0,
+      "r": 0.029,
+      "share": 0.27283959590086493,
+      "domain": "main",
+      "port": "f23",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 24,
+      "name": "魚雷発射管",
+      "w": 0.84,
+      "hits": 1,
+      "crew": 0,
+      "size": 0,
+      "stock": 0,
+      "at": 0.757,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.47,
+      "z": 0.05,
+      "r": 0.031,
+      "share": 0,
+      "domain": "main",
+      "port": "f24",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 25,
+      "name": "魚雷発射管",
+      "w": 0.84,
+      "hits": 1,
+      "crew": 0,
+      "size": 0,
+      "stock": 0,
+      "at": 0.757,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.47,
+      "z": -0.05,
+      "r": 0.031,
+      "share": 0,
+      "domain": "main",
+      "port": "f25",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 26,
+      "name": "爆弾倉",
+      "w": 3.456,
+      "hits": 1,
+      "crew": 0,
+      "size": 0,
+      "stock": 0,
+      "at": 0.49,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.57,
+      "z": 0,
+      "r": 0.053,
+      "share": 0,
+      "domain": "main",
+      "port": "f26",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "操縦席（操縦士・後部銃手）",
+      "w": 1.0150461171147795,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.0226538585904275,
+      "at": 0.846,
+      "part": 9,
+      "y": 0.22,
+      "z": 0,
+      "r": 0.022,
+      "share": 0.5227935464170073,
+      "domain": "main",
+      "port": "p9",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "アストロメク・ソケット",
+      "w": 0.3486891415710139,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.2059006108348058,
+      "at": 0.733,
+      "part": 10,
+      "y": 0.47,
+      "z": 0,
+      "r": 0.013,
+      "share": 0.10525898831118319,
+      "domain": "main",
+      "port": "p10",
+      "powerConnected": true
+     },
+     {
+      "k": "reactor",
+      "name": "ナセル反応炉",
+      "w": 1.0968469562317524,
+      "hits": 1,
+      "crew": 0.0005751732549947313,
+      "size": 1.1503465099894625,
+      "at": 0.147,
+      "part": 11,
+      "y": -0.05,
+      "z": 0.8,
+      "r": 0.023,
+      "share": 0.30778929672177086,
+      "domain": "main",
+      "port": "p11",
+      "powerConnected": true
+     },
+     {
+      "k": "reactor",
+      "name": "ナセル反応炉",
+      "w": 1.0968469562317524,
+      "hits": 1,
+      "crew": 0.0005751732549947313,
+      "size": 1.1503465099894625,
+      "at": 0.147,
+      "part": 12,
+      "y": -0.05,
+      "z": -0.8,
+      "r": 0.023,
+      "share": 0.30778929672177086,
+      "domain": "main",
+      "port": "p12",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "イオン・ジェット・エンジン",
+      "w": 2.694645787168439,
+      "hits": 1,
+      "crew": 0.001769344982501772,
+      "size": 4.42336245625443,
+      "at": 0.062,
+      "part": 13,
+      "y": -0.05,
+      "z": 0.8,
+      "r": 0.037,
+      "share": 0.4012934820935442,
+      "domain": "main",
+      "port": "p13",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "イオン・ジェット・エンジン",
+      "w": 2.694645787168439,
+      "hits": 1,
+      "crew": 0.001769344982501772,
+      "size": 4.42336245625443,
+      "at": 0.062,
+      "part": 14,
+      "y": -0.05,
+      "z": -0.8,
+      "r": 0.037,
+      "share": 0.4012934820935442,
+      "domain": "main",
+      "port": "p14",
+      "powerConnected": true
+     },
+     {
+      "k": "reactor",
+      "name": "主反応炉",
+      "w": 1.2720828604817953,
+      "hits": 1,
+      "crew": 0.0007183775201208657,
+      "size": 1.4367550402417315,
+      "at": 0.49,
+      "part": 15,
+      "y": 0.06,
+      "z": 0,
+      "r": 0.025,
+      "share": 0.3844214065564583,
+      "domain": "main",
+      "port": "p15",
+      "powerConnected": true
+     },
+     {
+      "k": "shield",
+      "name": "チェンパット偏向シールド発生器",
+      "w": 0.7155466090210101,
+      "hits": 1,
+      "crew": 0.0002424524130407923,
+      "size": 0.6061310326019808,
+      "at": 0.592,
+      "part": 16,
+      "y": -0.03,
+      "z": 0,
+      "r": 0.019,
+      "share": 1,
+      "domain": "main",
+      "port": "p16",
+      "powerConnected": true
+     },
+     {
+      "k": "hyper",
+      "name": "ハイパードライブ",
+      "w": 0.5386093150840523,
+      "hits": 1,
+      "crew": 0.00011875220230569416,
+      "size": 0.3958406743523139,
+      "at": 0.414,
+      "part": 17,
+      "y": 0.06,
+      "z": 0,
+      "r": 0.016,
+      "share": 1,
+      "domain": "main",
+      "port": "p17",
+      "powerConnected": true
+     },
+     {
+      "k": "fuel",
+      "name": "反応物タンク",
+      "w": 0.5285883119415928,
+      "hits": 1,
+      "crew": 0.00007696902001294993,
+      "size": 0.38484510006474965,
+      "at": 0.69,
+      "part": 18,
+      "y": 0.09,
+      "z": 0,
+      "r": 0.016,
+      "share": 1,
+      "domain": "main",
+      "port": "p18",
+      "powerConnected": true
+     },
+     {
+      "k": "battery",
+      "name": "パワーセル",
+      "w": 0.24976615619106007,
+      "hits": 1,
+      "crew": 0.000025,
+      "size": 0.125,
+      "at": 0.784,
+      "part": 19,
+      "y": 0.13,
+      "z": 0,
+      "r": 0.011,
+      "share": 1,
+      "domain": "main",
+      "port": "p19",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "慣性補償装置",
+      "w": 0.2988377635417063,
+      "hits": 1,
+      "crew": 0.00003267256359733386,
+      "size": 0.16336281798666927,
+      "at": 0.646,
+      "part": 20,
+      "y": 0.06,
+      "z": 0,
+      "r": 0.012,
+      "share": 0.08351313227883843,
+      "domain": "main",
+      "port": "p20",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "生命維持装置",
+      "w": 0.22089999999999999,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.10382299999999998,
+      "at": 0.904,
+      "part": 27,
+      "y": 0.19,
+      "z": 0,
+      "r": 0.01,
+      "share": 0.05307562662939236,
+      "domain": "main",
+      "port": "p27",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "射出座席機構 1",
+      "w": 0.08410000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.024388999999999997,
+      "at": 0.819,
+      "part": 28,
+      "y": -0.32,
+      "z": 0.01,
+      "r": 0.006,
+      "share": 0.012467964303326338,
+      "domain": "main",
+      "port": "p28",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "射出座席機構 2",
+      "w": 0.08410000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.024388999999999997,
+      "at": 0.819,
+      "part": 29,
+      "y": -0.19,
+      "z": -0.01,
+      "r": 0.006,
+      "share": 0.012467964303326338,
+      "domain": "main",
+      "port": "p29",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "航法コンピューター",
+      "w": 0.048400000000000006,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.010648,
+      "at": 0.891,
+      "part": 30,
+      "y": 0.19,
+      "z": 0,
+      "r": 0.005,
+      "share": 0.005443391852959074,
+      "domain": "main",
+      "port": "p30",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "照準コンピューター",
+      "w": 0.09610000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.029791,
+      "at": 0.904,
+      "part": 31,
+      "y": -0.08,
+      "z": 0,
+      "r": 0.007,
+      "share": 0.01522953481325167,
+      "domain": "main",
+      "port": "p31",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 1",
+      "w": 0.06760000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.017576,
+      "at": 0.904,
+      "part": 32,
+      "y": 0.19,
+      "z": -0.07,
+      "r": 0.006,
+      "share": 0.008985072803118773,
+      "domain": "main",
+      "port": "p32",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 2",
+      "w": 0.06760000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.017576,
+      "at": 0.904,
+      "part": 33,
+      "y": 0.19,
+      "z": 0.07,
+      "r": 0.006,
+      "share": 0.008985072803118773,
+      "domain": "main",
+      "port": "p33",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 3",
+      "w": 0.06760000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.017576,
+      "at": 0.92,
+      "part": 34,
+      "y": 0.19,
+      "z": 0,
+      "r": 0.006,
+      "share": 0.008985072803118773,
+      "domain": "main",
+      "port": "p34",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 4",
+      "w": 0.06760000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.017576,
+      "at": 0.888,
+      "part": 35,
+      "y": 0.08,
+      "z": 0,
+      "r": 0.006,
+      "share": 0.008985072803118773,
+      "domain": "main",
+      "port": "p35",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "レーザーガス供給槽 1",
+      "w": 0.11560000000000004,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.03930400000000001,
+      "at": 0.883,
+      "part": 36,
+      "y": 0.19,
+      "z": -0.05,
+      "r": 0.008,
+      "share": 0.020092700355813627,
+      "domain": "main",
+      "port": "p36",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "レーザーガス供給槽 2",
+      "w": 0.11560000000000004,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.03930400000000001,
+      "at": 0.883,
+      "part": 37,
+      "y": 0.19,
+      "z": 0.05,
+      "r": 0.008,
+      "share": 0.020092700355813627,
+      "domain": "main",
+      "port": "p37",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "着陸脚機構 1",
+      "w": 0.1764,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.07408799999999999,
+      "at": 0.904,
+      "part": 38,
+      "y": 0.01,
+      "z": -0.12,
+      "r": 0.009,
+      "share": 0.03787471972220434,
+      "domain": "main",
+      "port": "p38",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "着陸脚機構 2",
+      "w": 0.1764,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.07408799999999999,
+      "at": 0.904,
+      "part": 39,
+      "y": 0.01,
+      "z": 0.12,
+      "r": 0.009,
+      "share": 0.03787471972220434,
+      "domain": "main",
+      "port": "p39",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "着陸脚機構 3",
+      "w": 0.1764,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.07408799999999999,
+      "at": 0.93,
+      "part": 40,
+      "y": 0.01,
+      "z": 0,
+      "r": 0.009,
+      "share": 0.03787471972220434,
+      "domain": "main",
+      "port": "p40",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 1.057850190811474,
+      "hits": 1,
+      "crew": 0.00021760368656735085,
+      "size": 1.0880184328367541,
+      "at": 0.115,
+      "part": -13,
+      "machineryOwner": 13,
+      "y": -0.05,
+      "z": 0.8,
+      "r": 0.023,
+      "share": 0.09870651790645577,
+      "domain": "main",
+      "port": "p13",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 1.057850190811474,
+      "hits": 1,
+      "crew": 0.00021760368656735085,
+      "size": 1.0880184328367541,
+      "at": 0.115,
+      "part": -14,
+      "machineryOwner": 14,
+      "y": -0.05,
+      "z": -0.8,
+      "r": 0.023,
+      "share": 0.09870651790645577,
+      "domain": "main",
+      "port": "p14",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "主翼（ナセル支持）",
+      "w": 6.277787174254002,
+      "hits": 1,
+      "crew": 0,
+      "size": 4.316761933923713,
+      "at": 0.39,
+      "part": 3,
+      "ext": 1,
+      "y": 0.03,
+      "z": 0.51,
+      "r": 0.036,
+      "share": 0.5,
+      "domain": "main",
+      "port": "p3",
+      "powerConnected": false
+     },
+     {
+      "k": "dissipator",
+      "name": "主翼（ナセル支持）",
+      "w": 6.277787174254003,
+      "hits": 1,
+      "crew": 0,
+      "size": 4.316761933923714,
+      "at": 0.39,
+      "part": 4,
+      "ext": 1,
+      "y": 0.03,
+      "z": -0.51,
+      "r": 0.036,
+      "share": 0.5000000000000001,
+      "domain": "main",
+      "port": "p4",
+      "powerConnected": false
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（後部）",
+      "w": 1.1688388715049227,
+      "hits": 1,
+      "crew": 0,
+      "size": 21.75179396122326,
+      "at": 0.147,
+      "y": -0.06,
+      "z": 0,
+      "r": 0.062,
+      "share": 0.15929203539823006,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（中央後部）",
+      "w": 2.198959019355815,
+      "hits": 1,
+      "crew": 0,
+      "size": 56.129195181188955,
+      "at": 0.391,
+      "y": -0.03,
+      "z": 0,
+      "r": 0.085,
+      "share": 0.4110435103244837,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（中央前部）",
+      "w": 1.9378995312709577,
+      "hits": 1,
+      "crew": 0,
+      "size": 46.43655551096794,
+      "at": 0.593,
+      "y": -0.01,
+      "z": 0,
+      "r": 0.08,
+      "share": 0.34006268436578163,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（前部）",
+      "w": 0.7964704436678528,
+      "hits": 1,
+      "crew": 0,
+      "size": 12.235384103188084,
+      "at": 0.825,
+      "y": 0.15,
+      "z": 0,
+      "r": 0.051,
+      "share": 0.08960176991150441,
+      "domain": "main"
+     },
+     {
+      "k": "hull",
+      "name": "船体構造",
+      "w": 26.42927661460674,
+      "hits": null,
+      "crew": 0,
+      "size": 1,
+      "share": 1,
+      "domain": "main"
+     }
+    ],
+    "energyModel": {
+     "version": 0,
+     "eta": 0.75
+    },
+    "D": 0.0033263739601390612,
+    "shieldBuffer": 0.08471702163444517,
+    "wCap": 0,
+    "crewNeed": 2,
+    "crewMax": 2,
+    "hp": 1,
+    "len": 22.450000762939453,
+    "width": 10.015999794006348,
+    "height": 3.2699700689315803,
+    "grid": {
+     "P": 19573029363657180000,
+     "fixed": 56684741446013420,
+     "cooling": 0,
+     "De": 3007886470253012000,
+     "Ds": 13917548649221833000,
+     "Dw": 3015480000000000000,
+     "domains": [
+      {
+       "id": "main",
+       "P": 19573029363657180000,
+       "reactors": [
+        8,
+        9,
+        12
+       ],
+       "sources": [
+        {
+         "moduleIndex": 8,
+         "P": 6024368942554613000
+        },
+        {
+         "moduleIndex": 9,
+         "P": 6024368942554613000
+        },
+        {
+         "moduleIndex": 12,
+         "P": 7524291478547954000
+        }
+       ],
+       "modules": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40
+       ],
+       "protection": 1
+      }
+     ],
+     "powerPaths": [
+      {
+       "kind": "power",
+       "from": "p19",
+       "to": "f21",
+       "cap": 836800000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p19",
+       "to": "f22",
+       "cap": 836800000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p19",
+       "to": "f23",
+       "cap": 1338880000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p19",
+       "to": "f24",
+       "cap": 1000000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p19",
+       "to": "f25",
+       "cap": 1000000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "f26",
+       "cap": 1000000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p11",
+       "to": "p13",
+       "cap": 1503943235126506000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p12",
+       "to": "p14",
+       "cap": 1503943235126506000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p16",
+       "cap": 13917548649221833000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "hotel",
+       "cap": 56684741446013420,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p9",
+       "cap": 2895164146190124.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p10",
+       "cap": 2831030384201226.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p17",
+       "cap": 2831030384201226.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p18",
+       "cap": 2831030384201226.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p19",
+       "cap": 2831030384201226.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p20",
+       "cap": 2831030384201226.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p27",
+       "cap": 2831030384201226.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p28",
+       "cap": 2831030384201226.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p29",
+       "cap": 2831030384201226.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p30",
+       "cap": 2831030384201226.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p31",
+       "cap": 2831030384201226.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p32",
+       "cap": 2831030384201226.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p33",
+       "cap": 2831030384201226.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p34",
+       "cap": 2831030384201226.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p35",
+       "cap": 2831030384201226.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p36",
+       "cap": 2831030384201226.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p37",
+       "cap": 2831030384201226.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p38",
+       "cap": 2831030384201226.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p39",
+       "cap": 2831030384201226.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p40",
+       "cap": 2831030384201226.5,
+       "auto": true,
+       "ok": true
+      }
+     ],
+     "trunks": [
+      {
+       "port": "p19",
+       "moduleIndex": 16
+      }
+     ],
+     "fixedLoads": [
+      {
+       "id": "hotel",
+       "port": "hotel",
+       "weight": 56684741446013420,
+       "domain": "main"
+      }
+     ],
+     "coolingLoads": []
+    },
+    "propulsion": {
+     "version": 1,
+     "engines": [
+      {
+       "version": 1,
+       "id": 13,
+       "machineryId": 13,
+       "ratedInputW": 1503943235126506000,
+       "driveProfileId": "standard",
+       "machineryGradeId": "dense",
+       "wattsPerNewton": 2000000000,
+       "ratedThrustN": 751971617.563253,
+       "effectiveMachineryVolumeM3": 0.8587445810800362,
+       "machineryVolumeM3": 0.8587445810800362,
+       "machineryLengthM": 0.4959999999999999,
+       "machineryRadiusM": 0.8320000000000001,
+       "machineryDiameterM": 1.6640000000000001,
+       "machineryOffsetM": 1.1,
+       "maxInputW": 2919731575672123000,
+       "maxRatedInputW": 2919731575672123000,
+       "inputDensityWPerM3": 1751327773428286000,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "cost": 538.0918177644897,
+       "powerNode": "p13",
+       "heatNode": "p13",
+       "reactorId": 11,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 1503943235126506000,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 10,
+       "machineryModuleIndex": 32,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 2919731575672123000
+      },
+      {
+       "version": 1,
+       "id": 14,
+       "machineryId": 14,
+       "ratedInputW": 1503943235126506000,
+       "driveProfileId": "standard",
+       "machineryGradeId": "dense",
+       "wattsPerNewton": 2000000000,
+       "ratedThrustN": 751971617.563253,
+       "effectiveMachineryVolumeM3": 0.8587445810800362,
+       "machineryVolumeM3": 0.8587445810800362,
+       "machineryLengthM": 0.4959999999999999,
+       "machineryRadiusM": 0.8320000000000001,
+       "machineryDiameterM": 1.6640000000000001,
+       "machineryOffsetM": 1.1,
+       "maxInputW": 2919731575672123000,
+       "maxRatedInputW": 2919731575672123000,
+       "inputDensityWPerM3": 1751327773428286000,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "cost": 538.0918177644897,
+       "powerNode": "p14",
+       "heatNode": "p14",
+       "reactorId": 12,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 1503943235126506000,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 11,
+       "machineryModuleIndex": 33,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 2919731575672123000
+      }
+     ],
+     "massKg": 47818.81952920099,
+     "ratedThrustN": 1503943235.126506,
+     "ratedAccelMps2": 31450.86495094488,
+     "structuralAccelerationLimitMps2": 389312.6339366744,
+     "inertialFactor": 1,
+     "accelerationLimitMps2": 31450.86495094488
+    },
+    "profileVersion": 4,
+    "heat": {
+     "v": 1,
+     "src": [
+      {
+       "k": "reactor",
+       "id": "p11",
+       "n": "ナセル反応炉 #11",
+       "g": "high",
+       "sh": 0.124943,
+       "st": 3609463764303614500,
+       "m": [
+        8
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "reactor",
+       "id": "p12",
+       "n": "ナセル反応炉 #12",
+       "g": "high",
+       "sh": 0.124943,
+       "st": 3609463764303614500,
+       "m": [
+        9
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p13",
+       "n": "イオン・ジェット・エンジン #13",
+       "g": "high",
+       "sh": 0.5,
+       "st": 4511829705379518000,
+       "m": [
+        10,
+        32
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p14",
+       "n": "イオン・ジェット・エンジン #14",
+       "g": "high",
+       "sh": 0.5,
+       "st": 4511829705379518000,
+       "m": [
+        11,
+        33
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "reactor",
+       "id": "p15",
+       "n": "主反応炉 #15",
+       "g": "high",
+       "sh": 0.750114,
+       "st": 21669959458218107000,
+       "m": [
+        12
+       ],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "shield",
+       "id": "p16",
+       "n": "シールド（艦首区画）",
+       "g": "high",
+       "sh": 1,
+       "st": 161504370590607540000,
+       "m": [
+        13
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f21",
+       "n": "武装（艦首区画）",
+       "g": "high",
+       "sh": 0.738974,
+       "st": 42465455763018390,
+       "m": [
+        0,
+        1,
+        2,
+        3,
+        4
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f26",
+       "n": "武装（前部区画）",
+       "g": "high",
+       "sh": 0.261026,
+       "st": 15000000000000000,
+       "m": [
+        5
+       ],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "hotel",
+       "id": "hotel",
+       "n": "生活・電子設備",
+       "g": "low",
+       "sh": 1,
+       "st": 3401084486760805400,
+       "m": [],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1
+      }
+     ],
+     "dis": [
+      {
+       "id": "p3",
+       "n": "主翼（ナセル支持） #3",
+       "k": "wing",
+       "g": "high",
+       "cap": 108547887067231790,
+       "m": 34,
+       "sec": 3,
+       "src": -1
+      },
+      {
+       "id": "p4",
+       "n": "主翼（ナセル支持） #4",
+       "k": "wing",
+       "g": "high",
+       "cap": 108547887067231790,
+       "m": 35,
+       "sec": 3,
+       "src": -1
+      },
+      {
+       "id": "skin",
+       "n": "外殻からの放熱",
+       "k": "skin",
+       "g": "low",
+       "cap": 1.0438161486916372e+21,
+       "m": -1,
+       "sec": -1,
+       "src": -1
+      },
+      {
+       "id": "int:p11",
+       "n": "ナセル反応炉 #11（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 289169709242621440,
+       "m": -1,
+       "sec": -1,
+       "src": 0
+      },
+      {
+       "id": "int:p12",
+       "n": "ナセル反応炉 #12（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 289169709242621440,
+       "m": -1,
+       "sec": -1,
+       "src": 1
+      },
+      {
+       "id": "int:p13",
+       "n": "イオン・ジェット・エンジン #13（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 75197161756325300,
+       "m": -1,
+       "sec": -1,
+       "src": 2
+      },
+      {
+       "id": "int:p14",
+       "n": "イオン・ジェット・エンジン #14（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 75197161756325300,
+       "m": -1,
+       "sec": -1,
+       "src": 3
+      },
+      {
+       "id": "int:p15",
+       "n": "主反応炉 #15（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 361165990970301760,
+       "m": -1,
+       "sec": -1,
+       "src": 4
+      },
+      {
+       "id": "int:p16",
+       "n": "シールド（艦首区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 6262896892149825000,
+       "m": -1,
+       "sec": -1,
+       "src": 5
+      },
+      {
+       "id": "int:f21",
+       "n": "武装（艦首区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 942025000000000000,
+       "m": -1,
+       "sec": -1,
+       "src": 6
+      },
+      {
+       "id": "int:f26",
+       "n": "武装（前部区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 312500000000000,
+       "m": -1,
+       "sec": -1,
+       "src": 7
+      }
+     ],
+     "ln": [
+      {
+       "s": 0,
+       "d": 3,
+       "cap": 289169709242621440,
+       "sec": -1
+      },
+      {
+       "s": 0,
+       "d": 0,
+       "cap": 475628979000575800,
+       "sec": 0
+      },
+      {
+       "s": 0,
+       "d": 1,
+       "cap": 475628979000575800,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 4,
+       "cap": 289169709242621440,
+       "sec": -1
+      },
+      {
+       "s": 1,
+       "d": 1,
+       "cap": 475628979000575800,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 0,
+       "cap": 475628979000575800,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 5,
+       "cap": 75197161756325300,
+       "sec": -1
+      },
+      {
+       "s": 2,
+       "d": 0,
+       "cap": 112795742634487940,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 1,
+       "cap": 112795742634487940,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 6,
+       "cap": 75197161756325300,
+       "sec": -1
+      },
+      {
+       "s": 3,
+       "d": 1,
+       "cap": 112795742634487940,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 0,
+       "cap": 112795742634487940,
+       "sec": 0
+      },
+      {
+       "s": 4,
+       "d": 7,
+       "cap": 361165990970301760,
+       "sec": -1
+      },
+      {
+       "s": 4,
+       "d": 0,
+       "cap": 594049120790887400,
+       "sec": 3
+      },
+      {
+       "s": 4,
+       "d": 1,
+       "cap": 594049120790887400,
+       "sec": 3
+      },
+      {
+       "s": 5,
+       "d": 8,
+       "cap": 6262896892149825000,
+       "sec": -1
+      },
+      {
+       "s": 5,
+       "d": 0,
+       "cap": 9394345338224736000,
+       "sec": 3
+      },
+      {
+       "s": 5,
+       "d": 1,
+       "cap": 9394345338224736000,
+       "sec": 3
+      },
+      {
+       "s": 6,
+       "d": 9,
+       "cap": 942025000000000000,
+       "sec": -1
+      },
+      {
+       "s": 6,
+       "d": 0,
+       "cap": 1413037500000000000,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 1,
+       "cap": 1413037500000000000,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 10,
+       "cap": 312500000000000,
+       "sec": -1
+      },
+      {
+       "s": 7,
+       "d": 0,
+       "cap": 468750000000000,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 1,
+       "cap": 468750000000000,
+       "sec": 3
+      },
+      {
+       "s": 8,
+       "d": 0,
+       "cap": 85027112169020130,
+       "sec": 3
+      },
+      {
+       "s": 8,
+       "d": 1,
+       "cap": 85027112169020130,
+       "sec": 3
+      },
+      {
+       "s": 8,
+       "d": 2,
+       "cap": 1.0438161486916372e+21,
+       "sec": -1
+      }
+     ]
+    }
    }
   },
   "hyena": {
    "reference": "craft_hyena",
-   "signature": "1g7pdbx",
-   "build": 207622,
+   "signature": "1narq90",
+   "build": 210146,
    "crew": 0,
-   "total": 207622,
+   "total": 210146,
    "by": {
     "hull": 20,
     "armor": 11,
-    "power": 85974,
-    "drive": 42015,
+    "power": 85975,
+    "drive": 44539,
     "command": 13501,
     "weapons": 49100,
-    "systems": 17001
+    "systems": 17000
    },
    "detailed": true,
    "systems": {
@@ -336,26 +5093,1984 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.0019,
-    "upS": 0.0019,
-    "down": 0.0486,
+    "up": 0,
+    "upS": 0,
+    "down": 0.0581,
     "T": 0
+   },
+   "powerProfile": {
+    "name": "ハイエナ級ボマー",
+    "modules": [
+     {
+      "k": "weapon",
+      "fit": 25,
+      "name": "レーザー砲",
+      "w": 0.9984000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.0005,
+      "stock": 0,
+      "at": 0.754,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.41,
+      "z": 0.93,
+      "r": 0.105,
+      "share": 0.25,
+      "domain": "main",
+      "port": "f25",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 26,
+      "name": "レーザー砲",
+      "w": 0.9984000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.0005,
+      "stock": 0,
+      "at": 0.754,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.41,
+      "z": -0.93,
+      "r": 0.105,
+      "share": 0.25,
+      "domain": "main",
+      "port": "f26",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 27,
+      "name": "レーザー砲",
+      "w": 0.9984000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.0005,
+      "stock": 0,
+      "at": 0.754,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.29,
+      "z": 0.93,
+      "r": 0.105,
+      "share": 0.25,
+      "domain": "main",
+      "port": "f27",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 28,
+      "name": "レーザー砲",
+      "w": 0.9984000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.0005,
+      "stock": 0,
+      "at": 0.754,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.29,
+      "z": -0.93,
+      "r": 0.105,
+      "share": 0.25,
+      "domain": "main",
+      "port": "f28",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 29,
+      "name": "魚雷発射管",
+      "w": 0.84,
+      "hits": 1,
+      "crew": 0,
+      "size": 0,
+      "stock": 0,
+      "at": 0.644,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.17,
+      "z": 0.56,
+      "r": 0.056,
+      "share": 0,
+      "domain": "main",
+      "port": "f29",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 30,
+      "name": "魚雷発射管",
+      "w": 0.84,
+      "hits": 1,
+      "crew": 0,
+      "size": 0,
+      "stock": 0,
+      "at": 0.644,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.17,
+      "z": -0.56,
+      "r": 0.056,
+      "share": 0,
+      "domain": "main",
+      "port": "f30",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 31,
+      "name": "ミサイル発射管",
+      "w": 0.648,
+      "hits": 1,
+      "crew": 0,
+      "size": 0,
+      "stock": 0,
+      "at": 0.797,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.13,
+      "z": 0.1,
+      "r": 0.048,
+      "share": 0,
+      "domain": "main",
+      "port": "f31",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 32,
+      "name": "ミサイル発射管",
+      "w": 0.648,
+      "hits": 1,
+      "crew": 0,
+      "size": 0,
+      "stock": 0,
+      "at": 0.797,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.13,
+      "z": -0.1,
+      "r": 0.048,
+      "share": 0,
+      "domain": "main",
+      "port": "f32",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 33,
+      "name": "爆弾倉",
+      "w": 3.456,
+      "hits": 1,
+      "crew": 0,
+      "size": 0,
+      "stock": 0,
+      "at": 0.475,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.36,
+      "z": -0.23,
+      "r": 0.097,
+      "share": 0,
+      "domain": "main",
+      "port": "f33",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "ドロイド・ブレイン（中央処理装置）",
+      "w": 0.25,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.125,
+      "at": 0.604,
+      "part": 13,
+      "y": 0.32,
+      "z": 0.23,
+      "r": 0.02,
+      "share": 0.243753204070736,
+      "domain": "main",
+      "port": "p13",
+      "powerConnected": true
+     },
+     {
+      "k": "battery",
+      "name": "パワーセル",
+      "w": 0.16000000000000003,
+      "hits": 1,
+      "crew": 0.000012800000000000005,
+      "size": 0.06400000000000002,
+      "at": 0.475,
+      "part": 14,
+      "y": 0.66,
+      "z": 0.23,
+      "r": 0.016,
+      "share": 1,
+      "domain": "main",
+      "port": "p14",
+      "powerConnected": true
+     },
+     {
+      "k": "fuel",
+      "name": "燃料",
+      "w": 0.18492257922385902,
+      "hits": 1,
+      "crew": 0.00001590431280879833,
+      "size": 0.07952156404399165,
+      "at": 0.604,
+      "part": 15,
+      "y": 0.09,
+      "z": -0.23,
+      "r": 0.017,
+      "share": 1,
+      "domain": "main",
+      "port": "p15",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "慣性補償装置",
+      "w": 0.18632017867622785,
+      "hits": 1,
+      "crew": 0.000016084954386379744,
+      "size": 0.08042477193189872,
+      "at": 0.612,
+      "part": 16,
+      "y": 0.06,
+      "z": 0,
+      "r": 0.017,
+      "share": 0.15683036676046808,
+      "domain": "main",
+      "port": "p16",
+      "powerConnected": true
+     },
+     {
+      "k": "reactor",
+      "name": "反応炉",
+      "w": 0.20372381588940477,
+      "hits": 1,
+      "crew": 0.000045976161287735434,
+      "size": 0.09195232257547087,
+      "at": 0.702,
+      "part": 17,
+      "y": 0.06,
+      "z": 0.84,
+      "r": 0.018,
+      "share": 0.21212531163635667,
+      "domain": "main",
+      "port": "p17",
+      "powerConnected": true
+     },
+     {
+      "k": "reactor",
+      "name": "反応炉",
+      "w": 0.20372381588940477,
+      "hits": 1,
+      "crew": 0.000045976161287735434,
+      "size": 0.09195232257547087,
+      "at": 0.702,
+      "part": 18,
+      "y": 0.06,
+      "z": -0.84,
+      "r": 0.018,
+      "share": 0.21212531163635667,
+      "domain": "main",
+      "port": "p18",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "推進機関",
+      "w": 0.7764947053007195,
+      "hits": 1,
+      "crew": 0.00027369555198074287,
+      "size": 0.6842388799518571,
+      "at": 0.597,
+      "part": 19,
+      "y": 0.06,
+      "z": 0.84,
+      "r": 0.035,
+      "share": 0.16609004020120063,
+      "domain": "main",
+      "port": "p19",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "推進機関",
+      "w": 0.7764947053007195,
+      "hits": 1,
+      "crew": 0.00027369555198074287,
+      "size": 0.6842388799518571,
+      "at": 0.597,
+      "part": 20,
+      "y": 0.06,
+      "z": -0.84,
+      "r": 0.035,
+      "share": 0.16609004020120063,
+      "domain": "main",
+      "port": "p20",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "主推進機関",
+      "w": 1.1347120516098514,
+      "hits": 1,
+      "crew": 0.0004834911093874692,
+      "size": 1.208727773468673,
+      "at": 0.453,
+      "part": 21,
+      "y": 0.26,
+      "z": 0.23,
+      "r": 0.043,
+      "share": 0.29340286027278206,
+      "domain": "main",
+      "port": "p21",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "主推進機関",
+      "w": 1.1347120516098514,
+      "hits": 1,
+      "crew": 0.0004834911093874692,
+      "size": 1.208727773468673,
+      "at": 0.453,
+      "part": 22,
+      "y": 0.09,
+      "z": -0.23,
+      "r": 0.043,
+      "share": 0.29340286027278206,
+      "domain": "main",
+      "port": "p22",
+      "powerConnected": true
+     },
+     {
+      "k": "reactor",
+      "name": "主反応炉",
+      "w": 0.24971758554810963,
+      "hits": 1,
+      "crew": 0.00006239412449539568,
+      "size": 0.12478824899079136,
+      "at": 0.556,
+      "part": 23,
+      "y": 0.26,
+      "z": 0.23,
+      "r": 0.02,
+      "share": 0.2878746883636434,
+      "domain": "main",
+      "port": "p23",
+      "powerConnected": true
+     },
+     {
+      "k": "reactor",
+      "name": "主反応炉",
+      "w": 0.24971758554810963,
+      "hits": 1,
+      "crew": 0.00006239412449539568,
+      "size": 0.12478824899079136,
+      "at": 0.556,
+      "part": 24,
+      "y": 0.09,
+      "z": -0.23,
+      "r": 0.02,
+      "share": 0.2878746883636434,
+      "domain": "main",
+      "port": "p24",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "航法コンピューター",
+      "w": 0.048400000000000006,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.010648,
+      "at": 0.639,
+      "part": 34,
+      "y": 0.19,
+      "z": 0.23,
+      "r": 0.009,
+      "share": 0.020763872935561575,
+      "domain": "main",
+      "port": "p34",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "照準コンピューター",
+      "w": 0.1225,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.04287499999999999,
+      "at": 0.617,
+      "part": 35,
+      "y": 0.08,
+      "z": 0.23,
+      "r": 0.014,
+      "share": 0.08360734899626243,
+      "domain": "main",
+      "port": "p35",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 1",
+      "w": 0.0441,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.009260999999999998,
+      "at": 0.629,
+      "part": 36,
+      "y": 0.38,
+      "z": 0.23,
+      "r": 0.008,
+      "share": 0.018059187383192687,
+      "domain": "main",
+      "port": "p36",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 2",
+      "w": 0.0441,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.009260999999999998,
+      "at": 0.629,
+      "part": 37,
+      "y": 0.29,
+      "z": 0.23,
+      "r": 0.008,
+      "share": 0.018059187383192687,
+      "domain": "main",
+      "port": "p37",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 3",
+      "w": 0.0441,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.009260999999999998,
+      "at": 0.629,
+      "part": 38,
+      "y": 0.29,
+      "z": 0.2,
+      "r": 0.008,
+      "share": 0.018059187383192687,
+      "domain": "main",
+      "port": "p38",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 4",
+      "w": 0.0441,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.009260999999999998,
+      "at": 0.629,
+      "part": 39,
+      "y": 0.29,
+      "z": 0.27,
+      "r": 0.008,
+      "share": 0.018059187383192687,
+      "domain": "main",
+      "port": "p39",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "レーザーガス供給槽 1",
+      "w": 0.1225,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.04287499999999999,
+      "at": 0.362,
+      "part": 40,
+      "y": 0.44,
+      "z": 0.23,
+      "r": 0.014,
+      "share": 0.08360734899626243,
+      "domain": "main",
+      "port": "p40",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "レーザーガス供給槽 2",
+      "w": 0.1225,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.04287499999999999,
+      "at": 0.362,
+      "part": 41,
+      "y": 0.14,
+      "z": 0.23,
+      "r": 0.014,
+      "share": 0.08360734899626243,
+      "domain": "main",
+      "port": "p41",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "歩行脚支持機構 1",
+      "w": 0.10240000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.032768000000000005,
+      "at": 0.559,
+      "part": 42,
+      "y": 0.11,
+      "z": -0.33,
+      "r": 0.013,
+      "share": 0.06389843992791903,
+      "domain": "main",
+      "port": "p42",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "歩行脚支持機構 2",
+      "w": 0.10240000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.032768000000000005,
+      "at": 0.559,
+      "part": 43,
+      "y": 0.11,
+      "z": -0.14,
+      "r": 0.013,
+      "share": 0.06389843992791903,
+      "domain": "main",
+      "port": "p43",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "歩行脚支持機構 3",
+      "w": 0.10240000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.032768000000000005,
+      "at": 0.559,
+      "part": 44,
+      "y": -0.16,
+      "z": -0.23,
+      "r": 0.013,
+      "share": 0.06389843992791903,
+      "domain": "main",
+      "port": "p44",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "歩行脚支持機構 4",
+      "w": 0.10240000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.032768000000000005,
+      "at": 0.326,
+      "part": 45,
+      "y": 0.3,
+      "z": 0.23,
+      "r": 0.013,
+      "share": 0.06389843992791903,
+      "domain": "main",
+      "port": "p45",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.14426537933702477,
+      "hits": 1,
+      "crew": 0.000010959056821829991,
+      "size": 0.05479528410914995,
+      "at": 0.679,
+      "part": -19,
+      "machineryOwner": 19,
+      "y": 0.06,
+      "z": 0.84,
+      "r": 0.015,
+      "share": 0.013300838650334029,
+      "domain": "main",
+      "port": "p19",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.14426537933702477,
+      "hits": 1,
+      "crew": 0.000010959056821829991,
+      "size": 0.05479528410914995,
+      "at": 0.679,
+      "part": -20,
+      "machineryOwner": 20,
+      "y": 0.06,
+      "z": -0.84,
+      "r": 0.015,
+      "share": 0.013300838650334029,
+      "domain": "main",
+      "port": "p20",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.23246380601013306,
+      "hits": 1,
+      "crew": 0.000022416252590106824,
+      "size": 0.1120812629505341,
+      "at": 0.531,
+      "part": -21,
+      "machineryOwner": 21,
+      "y": 0.26,
+      "z": 0.23,
+      "r": 0.019,
+      "share": 0.027206260875683265,
+      "domain": "main",
+      "port": "p21",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.23246380601013306,
+      "hits": 1,
+      "crew": 0.000022416252590106824,
+      "size": 0.1120812629505341,
+      "at": 0.531,
+      "part": -22,
+      "machineryOwner": 22,
+      "y": 0.09,
+      "z": -0.23,
+      "r": 0.019,
+      "share": 0.027206260875683265,
+      "domain": "main",
+      "port": "p22",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "上翼",
+      "w": 4.906219462469175,
+      "hits": 1,
+      "crew": 0,
+      "size": 2.273458685302641,
+      "at": 0.566,
+      "part": 3,
+      "ext": 1,
+      "y": 0.64,
+      "z": 0.84,
+      "r": 0.053,
+      "share": 0.2158152389897356,
+      "domain": "main",
+      "port": "p3",
+      "powerConnected": false
+     },
+     {
+      "k": "dissipator",
+      "name": "上翼",
+      "w": 4.906219462469175,
+      "hits": 1,
+      "crew": 0,
+      "size": 2.273458685302641,
+      "at": 0.566,
+      "part": 4,
+      "ext": 1,
+      "y": 0.64,
+      "z": -0.84,
+      "r": 0.053,
+      "share": 0.2158152389897356,
+      "domain": "main",
+      "port": "p4",
+      "powerConnected": false
+     },
+     {
+      "k": "dissipator",
+      "name": "下翼",
+      "w": 5.973953440790414,
+      "hits": 1,
+      "crew": 0,
+      "size": 2.9936825414824826,
+      "at": 0.5,
+      "part": 5,
+      "ext": 1,
+      "y": -0.58,
+      "z": 0.84,
+      "r": 0.058,
+      "share": 0.2841847610102644,
+      "domain": "main",
+      "port": "p5",
+      "powerConnected": false
+     },
+     {
+      "k": "dissipator",
+      "name": "下翼",
+      "w": 5.973953440790414,
+      "hits": 1,
+      "crew": 0,
+      "size": 2.9936825414824826,
+      "at": 0.5,
+      "part": 6,
+      "ext": 1,
+      "y": -0.58,
+      "z": -0.84,
+      "r": 0.058,
+      "share": 0.2841847610102644,
+      "domain": "main",
+      "port": "p6",
+      "powerConnected": false
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（後部）",
+      "w": 0.17517704521480412,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.2620568151546032,
+      "at": 0.162,
+      "y": -0.23,
+      "z": 0,
+      "r": 0.044,
+      "share": 0.04709240099892972,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（中央後部）",
+      "w": 0.673457142059238,
+      "hits": 1,
+      "crew": 0,
+      "size": 9.513231296051744,
+      "at": 0.404,
+      "y": 0.1,
+      "z": 0.02,
+      "r": 0.085,
+      "share": 0.3549768105601142,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（中央前部）",
+      "w": 0.7824199894604229,
+      "hits": 1,
+      "crew": 0,
+      "size": 11.913051452141177,
+      "at": 0.606,
+      "y": 0.11,
+      "z": 0.01,
+      "r": 0.092,
+      "share": 0.44452372458080625,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（前部）",
+      "w": 0.38495226523147164,
+      "hits": 1,
+      "crew": 0,
+      "size": 4.111245685730904,
+      "at": 0.824,
+      "y": 0.03,
+      "z": 0,
+      "r": 0.064,
+      "share": 0.15340706386014985,
+      "domain": "main"
+     },
+     {
+      "k": "hull",
+      "name": "船体構造",
+      "w": 24.880709816265405,
+      "hits": null,
+      "crew": 0,
+      "size": 1,
+      "share": 1,
+      "domain": "main"
+     }
+    ],
+    "energyModel": {
+     "version": 0,
+     "eta": 0.75
+    },
+    "D": 0,
+    "shieldBuffer": 0,
+    "wCap": 0,
+    "crewNeed": 0,
+    "crewMax": 0,
+    "hp": 1,
+    "len": 12.420000076293945,
+    "width": 9.32800026702881,
+    "height": 3.3390000800136477,
+    "grid": {
+     "P": 2270142355536483300,
+     "fixed": 26573630179670040,
+     "cooling": 0,
+     "De": 1287217324325960700,
+     "Ds": 0,
+     "Dw": 3352200000000000000,
+     "domains": [
+      {
+       "id": "main",
+       "P": 2270142355536483300,
+       "reactors": [
+        13,
+        14,
+        19,
+        20
+       ],
+       "sources": [
+        {
+         "moduleIndex": 13,
+         "P": 481554654627069250
+        },
+        {
+         "moduleIndex": 14,
+         "P": 481554654627069250
+        },
+        {
+         "moduleIndex": 19,
+         "P": 653516523141172400
+        },
+        {
+         "moduleIndex": 20,
+         "P": 653516523141172400
+        }
+       ],
+       "modules": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45
+       ],
+       "protection": 1
+      }
+     ],
+     "powerPaths": [
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "f25",
+       "cap": 481554654627069250,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "f25",
+       "cap": 355245345372930750,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "f26",
+       "cap": 481554654627069250,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "f26",
+       "cap": 355245345372930750,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "f27",
+       "cap": 652516523141172400,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "f27",
+       "cap": 184283476858827650,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p24",
+       "to": "f28",
+       "cap": 650516523141172400,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "f28",
+       "cap": 186283476858827650,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "f29",
+       "cap": 1000000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p24",
+       "to": "f30",
+       "cap": 1000000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "f31",
+       "cap": 1000000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p24",
+       "to": "f32",
+       "cap": 1000000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p24",
+       "to": "f33",
+       "cap": 1000000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p19",
+       "cap": 232641219183631400,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p20",
+       "cap": 232641219183631400,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "p21",
+       "cap": 410967442979348860,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p24",
+       "to": "p22",
+       "cap": 410967442979348860,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p24",
+       "to": "hotel",
+       "cap": 26573630179670040,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "p13",
+       "cap": 1660851886229377.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "p14",
+       "cap": 1660851886229377.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p24",
+       "to": "p15",
+       "cap": 1660851886229377.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p24",
+       "to": "p16",
+       "cap": 1660851886229377.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "p34",
+       "cap": 1660851886229377.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "p35",
+       "cap": 1660851886229377.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "p36",
+       "cap": 1660851886229377.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "p37",
+       "cap": 1660851886229377.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "p38",
+       "cap": 1660851886229377.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "p39",
+       "cap": 1660851886229377.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "p40",
+       "cap": 1660851886229377.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "p41",
+       "cap": 1660851886229377.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p24",
+       "to": "p42",
+       "cap": 1660851886229377.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p24",
+       "to": "p43",
+       "cap": 1660851886229377.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p24",
+       "to": "p44",
+       "cap": 1660851886229377.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "p45",
+       "cap": 1660851886229377.5,
+       "auto": true,
+       "ok": true
+      }
+     ],
+     "trunks": [
+      {
+       "port": "p14",
+       "moduleIndex": 10
+      }
+     ],
+     "fixedLoads": [
+      {
+       "id": "hotel",
+       "port": "hotel",
+       "weight": 26573630179670040,
+       "domain": "main"
+      }
+     ],
+     "coolingLoads": []
+    },
+    "propulsion": {
+     "version": 1,
+     "engines": [
+      {
+       "version": 1,
+       "id": 19,
+       "machineryId": 19,
+       "ratedInputW": 232641219183631400,
+       "driveProfileId": "standard",
+       "machineryGradeId": "advanced",
+       "wattsPerNewton": 2000000000,
+       "ratedThrustN": 116320609.5918157,
+       "effectiveMachineryVolumeM3": 0.0547952841091501,
+       "machineryVolumeM3": 0.0547952841091501,
+       "machineryLengthM": 0.18600000000000044,
+       "machineryRadiusM": 0.3432,
+       "machineryDiameterM": 0.6864,
+       "machineryOffsetM": 1,
+       "maxInputW": 1863039659711103200,
+       "maxRatedInputW": 1863039659711103200,
+       "inputDensityWPerM3": 4245643087098864600,
+       "allowedInputDensityWPerM3": 34000000000000000000,
+       "cost": 507.7659650564044,
+       "powerNode": "p19",
+       "heatNode": "p19",
+       "reactorId": 17,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 232641219183631400,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 15,
+       "machineryModuleIndex": 33,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 1863039659711103200
+      },
+      {
+       "version": 1,
+       "id": 20,
+       "machineryId": 20,
+       "ratedInputW": 232641219183631400,
+       "driveProfileId": "standard",
+       "machineryGradeId": "advanced",
+       "wattsPerNewton": 2000000000,
+       "ratedThrustN": 116320609.5918157,
+       "effectiveMachineryVolumeM3": 0.0547952841091501,
+       "machineryVolumeM3": 0.0547952841091501,
+       "machineryLengthM": 0.18600000000000044,
+       "machineryRadiusM": 0.3432,
+       "machineryDiameterM": 0.6864,
+       "machineryOffsetM": 1,
+       "maxInputW": 1863039659711103200,
+       "maxRatedInputW": 1863039659711103200,
+       "inputDensityWPerM3": 4245643087098864600,
+       "allowedInputDensityWPerM3": 34000000000000000000,
+       "cost": 507.7659650564044,
+       "powerNode": "p20",
+       "heatNode": "p20",
+       "reactorId": 18,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 232641219183631400,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 16,
+       "machineryModuleIndex": 34,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 1863039659711103200
+      },
+      {
+       "version": 1,
+       "id": 21,
+       "machineryId": 21,
+       "ratedInputW": 410967442979348860,
+       "driveProfileId": "standard",
+       "machineryGradeId": "advanced",
+       "wattsPerNewton": 2000000000,
+       "ratedThrustN": 205483721.48967442,
+       "effectiveMachineryVolumeM3": 0.11208126295053404,
+       "machineryVolumeM3": 0.11208126295053404,
+       "machineryLengthM": 0.20460000000000003,
+       "machineryRadiusM": 0.468,
+       "machineryDiameterM": 0.936,
+       "machineryOffsetM": 0.95,
+       "maxInputW": 3810762940318157300,
+       "maxRatedInputW": 3810762940318157300,
+       "inputDensityWPerM3": 3666691757039937000,
+       "allowedInputDensityWPerM3": 34000000000000000000,
+       "cost": 753.9777823505945,
+       "powerNode": "p21",
+       "heatNode": "p21",
+       "reactorId": 23,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 410967442979348860,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 17,
+       "machineryModuleIndex": 35,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 3810762940318157300
+      },
+      {
+       "version": 1,
+       "id": 22,
+       "machineryId": 22,
+       "ratedInputW": 410967442979348860,
+       "driveProfileId": "standard",
+       "machineryGradeId": "advanced",
+       "wattsPerNewton": 2000000000,
+       "ratedThrustN": 205483721.48967442,
+       "effectiveMachineryVolumeM3": 0.11208126295053404,
+       "machineryVolumeM3": 0.11208126295053404,
+       "machineryLengthM": 0.20460000000000003,
+       "machineryRadiusM": 0.468,
+       "machineryDiameterM": 0.936,
+       "machineryOffsetM": 0.95,
+       "maxInputW": 3810762940318157300,
+       "maxRatedInputW": 3810762940318157300,
+       "inputDensityWPerM3": 3666691757039937000,
+       "allowedInputDensityWPerM3": 34000000000000000000,
+       "cost": 753.9777823505945,
+       "powerNode": "p22",
+       "heatNode": "p22",
+       "reactorId": 24,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 410967442979348860,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 18,
+       "machineryModuleIndex": 36,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 3810762940318157300
+      }
+     ],
+     "massKg": 26444.04136173766,
+     "ratedThrustN": 643608662.1629802,
+     "ratedAccelMps2": 24338.513669632535,
+     "structuralAccelerationLimitMps2": 2271393.3967274455,
+     "inertialFactor": 1,
+     "accelerationLimitMps2": 24338.513669632535
+    },
+    "profileVersion": 4,
+    "heat": {
+     "v": 1,
+     "src": [
+      {
+       "k": "reactor",
+       "id": "p17",
+       "n": "反応炉 #17",
+       "g": "high",
+       "sh": 0.208944,
+       "st": 1351149795219216600,
+       "m": [
+        13
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "reactor",
+       "id": "p18",
+       "n": "反応炉 #18",
+       "g": "high",
+       "sh": 0.208944,
+       "st": 1351149795219216600,
+       "m": [
+        14
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p19",
+       "n": "推進機関 #19",
+       "g": "high",
+       "sh": 0.180732,
+       "st": 697923657550894200,
+       "m": [
+        15,
+        33
+       ],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p20",
+       "n": "推進機関 #20",
+       "g": "high",
+       "sh": 0.180732,
+       "st": 697923657550894200,
+       "m": [
+        16,
+        34
+       ],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p21",
+       "n": "主推進機関 #21",
+       "g": "high",
+       "sh": 0.319268,
+       "st": 1232902328938046700,
+       "m": [
+        17,
+        35
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p22",
+       "n": "主推進機関 #22",
+       "g": "high",
+       "sh": 0.319268,
+       "st": 1232902328938046700,
+       "m": [
+        18,
+        36
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "reactor",
+       "id": "p23",
+       "n": "主反応炉 #23",
+       "g": "high",
+       "sh": 0.291056,
+       "st": 1882127586646576600,
+       "m": [
+        19
+       ],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "reactor",
+       "id": "p24",
+       "n": "主反応炉 #24",
+       "g": "high",
+       "sh": 0.291056,
+       "st": 1882127586646576600,
+       "m": [
+        20
+       ],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f25",
+       "n": "武装（艦首区画）",
+       "g": "high",
+       "sh": 0.500206,
+       "st": 17045531253141300000,
+       "m": [
+        0,
+        2,
+        4,
+        6
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f26",
+       "n": "武装（艦首区画）",
+       "g": "high",
+       "sh": 0.499354,
+       "st": 17016516858199388000,
+       "m": [
+        1,
+        3,
+        5,
+        7
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f33",
+       "n": "武装（艦尾区画）",
+       "g": "high",
+       "sh": 0.000440179,
+       "st": 15000000000000000,
+       "m": [
+        8
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "hotel",
+       "id": "hotel",
+       "n": "生活・電子設備",
+       "g": "low",
+       "sh": 1,
+       "st": 1594417810780202500,
+       "m": [],
+       "pc": [],
+       "sec": 2,
+       "sw": -1,
+       "gen": -1
+      }
+     ],
+     "dis": [
+      {
+       "id": "p3",
+       "n": "上翼 #3",
+       "k": "wing",
+       "g": "high",
+       "cap": 68952759896907220,
+       "m": 37,
+       "sec": 3,
+       "src": -1
+      },
+      {
+       "id": "p4",
+       "n": "上翼 #4",
+       "k": "wing",
+       "g": "high",
+       "cap": 68952759896907220,
+       "m": 38,
+       "sec": 3,
+       "src": -1
+      },
+      {
+       "id": "p5",
+       "n": "下翼 #5",
+       "k": "wing",
+       "g": "high",
+       "cap": 81177624878048780,
+       "m": 39,
+       "sec": 2,
+       "src": -1
+      },
+      {
+       "id": "p6",
+       "n": "下翼 #6",
+       "k": "wing",
+       "g": "high",
+       "cap": 81177624878048780,
+       "m": 40,
+       "sec": 2,
+       "src": -1
+      },
+      {
+       "id": "skin",
+       "n": "外殻からの放熱",
+       "k": "skin",
+       "g": "low",
+       "cap": 730887489167124500000,
+       "m": -1,
+       "sec": -1,
+       "src": -1
+      },
+      {
+       "id": "int:p17",
+       "n": "反応炉 #17（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 23114623422099324,
+       "m": -1,
+       "sec": -1,
+       "src": 0
+      },
+      {
+       "id": "int:p18",
+       "n": "反応炉 #18（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 23114623422099324,
+       "m": -1,
+       "sec": -1,
+       "src": 1
+      },
+      {
+       "id": "int:p19",
+       "n": "推進機関 #19（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 11632060959181570,
+       "m": -1,
+       "sec": -1,
+       "src": 2
+      },
+      {
+       "id": "int:p20",
+       "n": "推進機関 #20（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 11632060959181570,
+       "m": -1,
+       "sec": -1,
+       "src": 3
+      },
+      {
+       "id": "int:p21",
+       "n": "主推進機関 #21（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 20548372148967444,
+       "m": -1,
+       "sec": -1,
+       "src": 4
+      },
+      {
+       "id": "int:p22",
+       "n": "主推進機関 #22（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 20548372148967444,
+       "m": -1,
+       "sec": -1,
+       "src": 5
+      },
+      {
+       "id": "int:p23",
+       "n": "主反応炉 #23（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 31368793110776270,
+       "m": -1,
+       "sec": -1,
+       "src": 6
+      },
+      {
+       "id": "int:p24",
+       "n": "主反応炉 #24（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 31368793110776270,
+       "m": -1,
+       "sec": -1,
+       "src": 7
+      },
+      {
+       "id": "int:f25",
+       "n": "武装（艦首区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 337099059005672600,
+       "m": -1,
+       "sec": -1,
+       "src": 8
+      },
+      {
+       "id": "int:f26",
+       "n": "武装（艦首区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 337099059005672600,
+       "m": -1,
+       "sec": -1,
+       "src": 9
+      },
+      {
+       "id": "int:f33",
+       "n": "武装（艦尾区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 201181104682306.4,
+       "m": -1,
+       "sec": -1,
+       "src": 10
+      }
+     ],
+     "ln": [
+      {
+       "s": 0,
+       "d": 5,
+       "cap": 23114623422099324,
+       "sec": -1
+      },
+      {
+       "s": 0,
+       "d": 0,
+       "cap": 40450590988673810,
+       "sec": 4
+      },
+      {
+       "s": 0,
+       "d": 2,
+       "cap": 40450590988673810,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 6,
+       "cap": 23114623422099324,
+       "sec": -1
+      },
+      {
+       "s": 1,
+       "d": 1,
+       "cap": 40450590988673810,
+       "sec": 4
+      },
+      {
+       "s": 1,
+       "d": 3,
+       "cap": 40450590988673810,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 7,
+       "cap": 11632060959181570,
+       "sec": -1
+      },
+      {
+       "s": 2,
+       "d": 0,
+       "cap": 17448091438772356,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 2,
+       "cap": 17448091438772356,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 8,
+       "cap": 11632060959181570,
+       "sec": -1
+      },
+      {
+       "s": 3,
+       "d": 1,
+       "cap": 17448091438772356,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 3,
+       "cap": 17448091438772356,
+       "sec": 3
+      },
+      {
+       "s": 4,
+       "d": 9,
+       "cap": 20548372148967444,
+       "sec": -1
+      },
+      {
+       "s": 4,
+       "d": 2,
+       "cap": 30822558223451170,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 0,
+       "cap": 30822558223451170,
+       "sec": 2
+      },
+      {
+       "s": 5,
+       "d": 10,
+       "cap": 20548372148967444,
+       "sec": -1
+      },
+      {
+       "s": 5,
+       "d": 3,
+       "cap": 30822558223451170,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 1,
+       "cap": 30822558223451170,
+       "sec": 2
+      },
+      {
+       "s": 6,
+       "d": 11,
+       "cap": 31368793110776270,
+       "sec": -1
+      },
+      {
+       "s": 6,
+       "d": 0,
+       "cap": 54895387943858470,
+       "sec": 3
+      },
+      {
+       "s": 6,
+       "d": 2,
+       "cap": 54895387943858470,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 12,
+       "cap": 31368793110776270,
+       "sec": -1
+      },
+      {
+       "s": 7,
+       "d": 1,
+       "cap": 54895387943858470,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 3,
+       "cap": 54895387943858470,
+       "sec": 3
+      },
+      {
+       "s": 8,
+       "d": 13,
+       "cap": 337099059005672600,
+       "sec": -1
+      },
+      {
+       "s": 8,
+       "d": 0,
+       "cap": 506305094030611840,
+       "sec": 4
+      },
+      {
+       "s": 8,
+       "d": 2,
+       "cap": 506305094030611840,
+       "sec": 4
+      },
+      {
+       "s": 9,
+       "d": 14,
+       "cap": 337099059005672600,
+       "sec": -1
+      },
+      {
+       "s": 9,
+       "d": 1,
+       "cap": 506305094030611840,
+       "sec": 4
+      },
+      {
+       "s": 9,
+       "d": 3,
+       "cap": 506305094030611840,
+       "sec": 4
+      },
+      {
+       "s": 10,
+       "d": 15,
+       "cap": 201181104682306.4,
+       "sec": -1
+      },
+      {
+       "s": 10,
+       "d": 3,
+       "cap": 302163460271312.9,
+       "sec": 1
+      },
+      {
+       "s": 10,
+       "d": 1,
+       "cap": 302163460271312.9,
+       "sec": 3
+      },
+      {
+       "s": 11,
+       "d": 2,
+       "cap": 39860445269505060,
+       "sec": 2
+      },
+      {
+       "s": 11,
+       "d": 3,
+       "cap": 39860445269505060,
+       "sec": 2
+      },
+      {
+       "s": 11,
+       "d": 0,
+       "cap": 39860445269505060,
+       "sec": 3
+      },
+      {
+       "s": 11,
+       "d": 1,
+       "cap": 39860445269505060,
+       "sec": 3
+      },
+      {
+       "s": 11,
+       "d": 4,
+       "cap": 730887489167124500000,
+       "sec": -1
+      }
+     ]
+    }
    }
   },
   "tie_in": {
    "reference": "craft_tie_in",
-   "signature": "90wzce",
-   "build": 108115,
+   "signature": "1lwegal",
+   "build": 109120,
    "crew": 1000,
-   "total": 109115,
+   "total": 110120,
    "by": {
     "hull": 16,
     "armor": 8,
     "power": 33471,
-    "drive": 27017,
+    "drive": 28023,
     "defense": 1500,
     "command": 14502,
-    "weapons": 19601,
+    "weapons": 19600,
     "systems": 12000,
     "crew": 1000
    },
@@ -389,23 +7104,1437 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.00446,
-    "upS": 0.00446,
-    "down": 0.0361,
+    "up": 0.00452,
+    "upS": 0.00452,
+    "down": 0.0384,
     "T": 0
+   },
+   "powerProfile": {
+    "name": "TIE/in インターセプター",
+    "modules": [
+     {
+      "k": "weapon",
+      "fit": 37,
+      "name": "レーザー砲",
+      "w": 0.9984000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.0005,
+      "stock": 0,
+      "at": 0.907,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.34,
+      "z": 0.93,
+      "r": 0.143,
+      "share": 0.25,
+      "domain": "main",
+      "port": "f37",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 38,
+      "name": "レーザー砲",
+      "w": 0.9984000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.0005,
+      "stock": 0,
+      "at": 0.907,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.34,
+      "z": 0.93,
+      "r": 0.143,
+      "share": 0.25,
+      "domain": "main",
+      "port": "f38",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 39,
+      "name": "レーザー砲",
+      "w": 0.9984000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.0005,
+      "stock": 0,
+      "at": 0.907,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.34,
+      "z": -0.93,
+      "r": 0.143,
+      "share": 0.25,
+      "domain": "main",
+      "port": "f39",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 40,
+      "name": "レーザー砲",
+      "w": 0.9984000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.0005,
+      "stock": 0,
+      "at": 0.907,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.34,
+      "z": -0.93,
+      "r": 0.143,
+      "share": 0.25,
+      "domain": "main",
+      "port": "f40",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "操縦席",
+      "w": 0.8741414753213742,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.817283234436282,
+      "at": 0.313,
+      "part": 31,
+      "y": 0.28,
+      "z": 0,
+      "r": 0.051,
+      "share": 0.7332166204610195,
+      "domain": "main",
+      "port": "p31",
+      "powerConnected": true
+     },
+     {
+      "k": "reactor",
+      "name": "I-a3a 太陽イオン化反応炉",
+      "w": 0.65875616000904,
+      "hits": 1,
+      "crew": 0.000267335749250128,
+      "size": 0.534671498500256,
+      "at": 0.434,
+      "part": 32,
+      "y": -0.03,
+      "z": 0,
+      "r": 0.044,
+      "share": 1,
+      "domain": "main",
+      "port": "p32",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "P-s5.6 イオン・エンジン",
+      "w": 1.6677111065966115,
+      "hits": 1,
+      "crew": 0.0008614721122474642,
+      "size": 2.1536802806186603,
+      "at": 0.299,
+      "part": 33,
+      "y": -0.03,
+      "z": 0.16,
+      "r": 0.071,
+      "share": 0.4163023834957037,
+      "domain": "main",
+      "port": "p33",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "P-s5.6 イオン・エンジン",
+      "w": 1.6677111065966115,
+      "hits": 1,
+      "crew": 0.0008614721122474642,
+      "size": 2.1536802806186603,
+      "at": 0.299,
+      "part": 34,
+      "y": -0.03,
+      "z": -0.16,
+      "r": 0.071,
+      "share": 0.4163023834957037,
+      "domain": "main",
+      "port": "p34",
+      "powerConnected": true
+     },
+     {
+      "k": "fuel",
+      "name": "燃料タンク",
+      "w": 0.15620841248566977,
+      "hits": 1,
+      "crew": 0.000012347715765669329,
+      "size": 0.06173857882834664,
+      "at": 0.34,
+      "part": 35,
+      "y": -0.35,
+      "z": 0,
+      "r": 0.022,
+      "share": 1,
+      "domain": "main",
+      "port": "p35",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "慣性補償器",
+      "w": 0.14456364674440614,
+      "hits": 1,
+      "crew": 0.000010993061013441406,
+      "size": 0.054965305067207024,
+      "at": 0.26,
+      "part": 36,
+      "y": -0.3,
+      "z": 0,
+      "r": 0.021,
+      "share": 0.04931151591747049,
+      "domain": "main",
+      "port": "p36",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "射出座席機構 1",
+      "w": 0.08410000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.024388999999999997,
+      "at": 0.313,
+      "part": 41,
+      "y": -0.18,
+      "z": 0,
+      "r": 0.016,
+      "share": 0.021880321781907266,
+      "domain": "main",
+      "port": "p41",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "航法コンピューター",
+      "w": 0.048400000000000006,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.010648,
+      "at": 0.337,
+      "part": 42,
+      "y": 0.24,
+      "z": 0.14,
+      "r": 0.012,
+      "share": 0.00955273550919466,
+      "domain": "main",
+      "port": "p42",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "照準コンピューター",
+      "w": 0.07290000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.019683000000000003,
+      "at": 0.337,
+      "part": 43,
+      "y": 0.24,
+      "z": 0.18,
+      "r": 0.015,
+      "share": 0.017658385896645243,
+      "domain": "main",
+      "port": "p43",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 1",
+      "w": 0.032400000000000005,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0058319999999999995,
+      "at": 0.323,
+      "part": 44,
+      "y": 0.24,
+      "z": 0.14,
+      "r": 0.01,
+      "share": 0.005232114339746737,
+      "domain": "main",
+      "port": "p44",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 2",
+      "w": 0.032400000000000005,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0058319999999999995,
+      "at": 0.337,
+      "part": 45,
+      "y": 0.2,
+      "z": 0.14,
+      "r": 0.01,
+      "share": 0.005232114339746737,
+      "domain": "main",
+      "port": "p45",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 3",
+      "w": 0.032400000000000005,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0058319999999999995,
+      "at": 0.337,
+      "part": 46,
+      "y": 0.28,
+      "z": 0.14,
+      "r": 0.01,
+      "share": 0.005232114339746737,
+      "domain": "main",
+      "port": "p46",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 4",
+      "w": 0.032400000000000005,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0058319999999999995,
+      "at": 0.35,
+      "part": 47,
+      "y": 0.24,
+      "z": 0.14,
+      "r": 0.01,
+      "share": 0.005232114339746737,
+      "domain": "main",
+      "port": "p47",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "レーザーガス供給槽 1",
+      "w": 0.1225,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.04287499999999999,
+      "at": 0.31,
+      "part": 48,
+      "y": 0.24,
+      "z": 0.19,
+      "r": 0.019,
+      "share": 0.038464832358820526,
+      "domain": "main",
+      "port": "p48",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "レーザーガス供給槽 2",
+      "w": 0.1225,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.04287499999999999,
+      "at": 0.39,
+      "part": 49,
+      "y": 0.24,
+      "z": 0.14,
+      "r": 0.019,
+      "share": 0.038464832358820526,
+      "domain": "main",
+      "port": "p49",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "翼端着陸支持機構 1",
+      "w": 0.11560000000000004,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.03930400000000001,
+      "at": 0.363,
+      "part": 50,
+      "y": 0.24,
+      "z": 0.19,
+      "r": 0.019,
+      "share": 0.03526114917856753,
+      "domain": "main",
+      "port": "p50",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "翼端着陸支持機構 2",
+      "w": 0.11560000000000004,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.03930400000000001,
+      "at": 0.389,
+      "part": 51,
+      "y": 0.24,
+      "z": 0.03,
+      "r": 0.019,
+      "share": 0.03526114917856753,
+      "domain": "main",
+      "port": "p51",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.5723437568138443,
+      "hits": 1,
+      "crew": 0.00008659950715941374,
+      "size": 0.4329975357970687,
+      "at": 0.394,
+      "part": -33,
+      "machineryOwner": 33,
+      "y": -0.03,
+      "z": 0.13,
+      "r": 0.041,
+      "share": 0.08369761650429636,
+      "domain": "main",
+      "port": "p33",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.5723437568138443,
+      "hits": 1,
+      "crew": 0.00008659950715941374,
+      "size": 0.4329975357970687,
+      "at": 0.394,
+      "part": -34,
+      "machineryOwner": 34,
+      "y": -0.03,
+      "z": -0.13,
+      "r": 0.041,
+      "share": 0.08369761650429636,
+      "domain": "main",
+      "port": "p34",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "翼中央パネル",
+      "w": 2.106778814353525,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.4212002960205246,
+      "at": 0.126,
+      "part": 3,
+      "ext": 1,
+      "y": 0,
+      "z": 0.88,
+      "r": 0.062,
+      "share": 0.10131830864636401,
+      "domain": "main",
+      "port": "p3",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "翼中央パネル",
+      "w": 2.106778814353525,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.4212002960205246,
+      "at": 0.126,
+      "part": 4,
+      "ext": 1,
+      "y": 0,
+      "z": -0.88,
+      "r": 0.062,
+      "share": 0.10131830864636401,
+      "domain": "main",
+      "port": "p4",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "上翼板",
+      "w": 5.292707162799864,
+      "hits": 1,
+      "crew": 0,
+      "size": 2.7961708270315655,
+      "at": 0.489,
+      "part": 7,
+      "ext": 1,
+      "y": 0.69,
+      "z": 0.66,
+      "r": 0.077,
+      "share": 0.19934086678310944,
+      "domain": "main",
+      "port": "p7",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "上翼板",
+      "w": 5.29270719640971,
+      "hits": 1,
+      "crew": 0,
+      "size": 2.796170853666008,
+      "at": 0.489,
+      "part": 8,
+      "ext": 1,
+      "y": 0.69,
+      "z": -0.66,
+      "r": 0.077,
+      "share": 0.19934086868189646,
+      "domain": "main",
+      "port": "p8",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "下翼板",
+      "w": 4.300323945400555,
+      "hits": 1,
+      "crew": 0,
+      "size": 2.7961702180575654,
+      "at": 0.489,
+      "part": 17,
+      "ext": 1,
+      "y": -0.69,
+      "z": 0.66,
+      "r": 0.077,
+      "share": 0.1993408233689504,
+      "domain": "main",
+      "port": "p17",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "下翼板",
+      "w": 4.631118102858414,
+      "hits": 1,
+      "crew": 0,
+      "size": 2.796170225132339,
+      "at": 0.489,
+      "part": 18,
+      "ext": 1,
+      "y": -0.69,
+      "z": -0.66,
+      "r": 0.077,
+      "share": 0.19934082387331567,
+      "domain": "main",
+      "port": "p18",
+      "powerConnected": true
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（後部）",
+      "w": 0.7668847610504688,
+      "hits": 1,
+      "crew": 0,
+      "size": 11.560011689557632,
+      "at": 0.146,
+      "y": 0.01,
+      "z": 0,
+      "r": 0.124,
+      "share": 0.2717842323651452,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（中央後部）",
+      "w": 1.168327770890997,
+      "hits": 1,
+      "crew": 0,
+      "size": 21.73752834245061,
+      "at": 0.351,
+      "y": 0,
+      "z": 0,
+      "r": 0.153,
+      "share": 0.5110650069156293,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（中央前部）",
+      "w": 0.5113806096010209,
+      "hits": 1,
+      "crew": 0,
+      "size": 6.294764635026294,
+      "at": 0.607,
+      "y": 0,
+      "z": 0,
+      "r": 0.101,
+      "share": 0.1479944674965422,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（前部）",
+      "w": 0.30794163239666494,
+      "hits": 1,
+      "crew": 0,
+      "size": 2.9414788014141555,
+      "at": 0.864,
+      "y": 0,
+      "z": 0,
+      "r": 0.079,
+      "share": 0.06915629322268325,
+      "domain": "main"
+     },
+     {
+      "k": "hull",
+      "name": "船体構造",
+      "w": 22.562116938897688,
+      "hits": null,
+      "crew": 0,
+      "size": 1,
+      "share": 1,
+      "domain": "main"
+     }
+    ],
+    "energyModel": {
+     "version": 0,
+     "eta": 0.75
+    },
+    "D": 0,
+    "shieldBuffer": 0,
+    "wCap": 0,
+    "crewNeed": 1,
+    "crewMax": 1,
+    "hp": 1,
+    "len": 9.120000004768372,
+    "width": 8.887999732971192,
+    "height": 7.078812837600708,
+    "grid": {
+     "P": 2837506652648493600,
+     "fixed": 21135216054766330,
+     "cooling": 0,
+     "De": 1464502590820689000,
+     "Ds": 0,
+     "Dw": 3347200000000000000,
+     "domains": [
+      {
+       "id": "main",
+       "P": 2837506652648493600,
+       "reactors": [
+        5
+       ],
+       "sources": [
+        {
+         "moduleIndex": 23,
+         "P": 1938000000000000
+        },
+        {
+         "moduleIndex": 24,
+         "P": 1938000000000000
+        },
+        {
+         "moduleIndex": 25,
+         "P": 8388507615769092
+        },
+        {
+         "moduleIndex": 26,
+         "P": 8388507615769092
+        },
+        {
+         "moduleIndex": 27,
+         "P": 8388507615769092
+        },
+        {
+         "moduleIndex": 28,
+         "P": 8388507615769092
+        },
+        {
+         "moduleIndex": 5,
+         "P": 2800076622185417000
+        }
+       ],
+       "modules": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33
+       ],
+       "protection": 1
+      }
+     ],
+     "powerPaths": [
+      {
+       "kind": "power",
+       "from": "p7",
+       "to": "f37",
+       "cap": 8388507615769092,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p3",
+       "to": "f37",
+       "cap": 1938000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "f37",
+       "cap": 826473492384230900,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "f38",
+       "cap": 8388507615769092,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "f38",
+       "cap": 318718145032724500,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "f38",
+       "cap": 1506804053472153.8,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p3",
+       "to": "f38",
+       "cap": 348117494718552.44,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p7",
+       "to": "f38",
+       "cap": 1506804053472153.8,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "f38",
+       "cap": 502969896148180740,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p4",
+       "to": "f38",
+       "cap": 348117494718552.44,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "f38",
+       "cap": 1506804053472153.8,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p8",
+       "to": "f38",
+       "cap": 1506804053472153.8,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p8",
+       "to": "f39",
+       "cap": 8388507615769092,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p4",
+       "to": "f39",
+       "cap": 1938000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "f39",
+       "cap": 826473492384230900,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "f40",
+       "cap": 8388507615769092,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "f40",
+       "cap": 828411492384230900,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p33",
+       "cap": 732251295410344400,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p34",
+       "cap": 732251295410344400,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "hotel",
+       "cap": 21135216054766330,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p31",
+       "cap": 1509658289626166.2,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p35",
+       "cap": 1509658289626166.2,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p36",
+       "cap": 1509658289626166.2,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p41",
+       "cap": 1509658289626166.2,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p42",
+       "cap": 1509658289626166.2,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p43",
+       "cap": 1509658289626166.2,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p44",
+       "cap": 1509658289626166.2,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p45",
+       "cap": 1509658289626166.2,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p46",
+       "cap": 1509658289626166.2,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p47",
+       "cap": 1509658289626166.2,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p48",
+       "cap": 1509658289626166.2,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p49",
+       "cap": 1509658289626166.2,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p50",
+       "cap": 1509658289626166.2,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p51",
+       "cap": 1509658289626166.2,
+       "auto": true,
+       "ok": true
+      }
+     ],
+     "trunks": [],
+     "fixedLoads": [
+      {
+       "id": "hotel",
+       "port": "hotel",
+       "weight": 21135216054766330,
+       "domain": "main"
+      }
+     ],
+     "coolingLoads": []
+    },
+    "propulsion": {
+     "version": 1,
+     "engines": [
+      {
+       "version": 1,
+       "id": 33,
+       "machineryId": 33,
+       "ratedInputW": 732251295410344400,
+       "driveProfileId": "standard",
+       "machineryGradeId": "dense",
+       "wattsPerNewton": 2000000000,
+       "ratedThrustN": 366125647.70517224,
+       "effectiveMachineryVolumeM3": 0.2585909503181481,
+       "machineryVolumeM3": 0.2585909503181481,
+       "machineryLengthM": 0.15,
+       "machineryRadiusM": 0.8302200000000001,
+       "machineryDiameterM": 1.6604400000000001,
+       "machineryOffsetM": 0.7305,
+       "maxInputW": 879209231081703600,
+       "maxRatedInputW": 879209231081703600,
+       "inputDensityWPerM3": 2831697298414524400,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "cost": 502.61140679378065,
+       "powerNode": "p33",
+       "heatNode": "p33",
+       "reactorId": 32,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 732251295410344400,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 6,
+       "machineryModuleIndex": 21,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 879209231081703600
+      },
+      {
+       "version": 1,
+       "id": 34,
+       "machineryId": 34,
+       "ratedInputW": 732251295410344400,
+       "driveProfileId": "standard",
+       "machineryGradeId": "dense",
+       "wattsPerNewton": 2000000000,
+       "ratedThrustN": 366125647.70517224,
+       "effectiveMachineryVolumeM3": 0.2585909503181481,
+       "machineryVolumeM3": 0.2585909503181481,
+       "machineryLengthM": 0.15,
+       "machineryRadiusM": 0.8302200000000001,
+       "machineryDiameterM": 1.6604400000000001,
+       "machineryOffsetM": 0.7305,
+       "maxInputW": 879209231081703600,
+       "maxRatedInputW": 879209231081703600,
+       "inputDensityWPerM3": 2831697298414524400,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "cost": 502.61140679378065,
+       "powerNode": "p34",
+       "heatNode": "p34",
+       "reactorId": 32,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 732251295410344400,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 7,
+       "machineryModuleIndex": 22,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 879209231081703600
+      }
+     ],
+     "massKg": 17401.374849124077,
+     "ratedThrustN": 732251295.4103445,
+     "ratedAccelMps2": 42080.082853177744,
+     "structuralAccelerationLimitMps2": 801554.6343573097,
+     "inertialFactor": 1,
+     "accelerationLimitMps2": 42080.082853177744
+    },
+    "profileVersion": 4,
+    "heat": {
+     "v": 1,
+     "src": [
+      {
+       "k": "reactor",
+       "id": "p32",
+       "n": "I-a3a 太陽イオン化反応炉 #32",
+       "g": "high",
+       "sh": 1,
+       "st": 8064220671894001000,
+       "m": [
+        5
+       ],
+       "pc": [],
+       "sec": 2,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p33",
+       "n": "P-s5.6 イオン・エンジン #33",
+       "g": "high",
+       "sh": 0.5,
+       "st": 2196753886231033300,
+       "m": [
+        6,
+        21
+       ],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p34",
+       "n": "P-s5.6 イオン・エンジン #34",
+       "g": "high",
+       "sh": 0.5,
+       "st": 2196753886231033300,
+       "m": [
+        7,
+        22
+       ],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f37",
+       "n": "武装（艦首区画）",
+       "g": "high",
+       "sh": 0.5,
+       "st": 25104000000000000000,
+       "m": [
+        0,
+        1
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f39",
+       "n": "武装（艦首区画）",
+       "g": "high",
+       "sh": 0.5,
+       "st": 25104000000000000000,
+       "m": [
+        2,
+        3
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "hotel",
+       "id": "hotel",
+       "n": "生活・電子設備",
+       "g": "low",
+       "sh": 1,
+       "st": 1268112963285979600,
+       "m": [],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1
+      }
+     ],
+     "dis": [
+      {
+       "id": "p3",
+       "n": "翼中央パネル #3",
+       "k": "solar",
+       "g": "high",
+       "cap": 5383333333333333,
+       "m": 23,
+       "sec": 0,
+       "src": -1
+      },
+      {
+       "id": "p4",
+       "n": "翼中央パネル #4",
+       "k": "solar",
+       "g": "high",
+       "cap": 5383333333333333,
+       "m": 24,
+       "sec": 0,
+       "src": -1
+      },
+      {
+       "id": "p7",
+       "n": "上翼板 #7",
+       "k": "solar",
+       "g": "high",
+       "cap": 58253525109507590,
+       "m": 25,
+       "sec": 2,
+       "src": -1
+      },
+      {
+       "id": "p8",
+       "n": "上翼板 #8",
+       "k": "solar",
+       "g": "high",
+       "cap": 58253525109507590,
+       "m": 26,
+       "sec": 2,
+       "src": -1
+      },
+      {
+       "id": "p17",
+       "n": "下翼板 #17",
+       "k": "solar",
+       "g": "high",
+       "cap": 40777467576655310,
+       "m": 27,
+       "sec": 2,
+       "src": -1
+      },
+      {
+       "id": "p18",
+       "n": "下翼板 #18",
+       "k": "solar",
+       "g": "high",
+       "cap": 46602820087606060,
+       "m": 28,
+       "sec": 2,
+       "src": -1
+      },
+      {
+       "id": "skin",
+       "n": "外殻からの放熱",
+       "k": "skin",
+       "g": "low",
+       "cap": 811756435686521600000,
+       "m": -1,
+       "sec": -1,
+       "src": -1
+      },
+      {
+       "id": "int:p32",
+       "n": "I-a3a 太陽イオン化反応炉 #32（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 136200319327127710,
+       "m": -1,
+       "sec": -1,
+       "src": 0
+      },
+      {
+       "id": "int:p33",
+       "n": "P-s5.6 イオン・エンジン #33（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 36612564770517224,
+       "m": -1,
+       "sec": -1,
+       "src": 1
+      },
+      {
+       "id": "int:p34",
+       "n": "P-s5.6 イオン・エンジン #34（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 36612564770517224,
+       "m": -1,
+       "sec": -1,
+       "src": 2
+      },
+      {
+       "id": "int:f37",
+       "n": "武装（艦首区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 422984095890428300,
+       "m": -1,
+       "sec": -1,
+       "src": 3
+      },
+      {
+       "id": "int:f39",
+       "n": "武装（艦首区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 422984095890428300,
+       "m": -1,
+       "sec": -1,
+       "src": 4
+      }
+     ],
+     "ln": [
+      {
+       "s": 0,
+       "d": 7,
+       "cap": 136200319327127710,
+       "sec": -1
+      },
+      {
+       "s": 0,
+       "d": 4,
+       "cap": 238350558822473470,
+       "sec": 2
+      },
+      {
+       "s": 0,
+       "d": 5,
+       "cap": 238350558822473470,
+       "sec": 2
+      },
+      {
+       "s": 1,
+       "d": 8,
+       "cap": 36612564770517224,
+       "sec": -1
+      },
+      {
+       "s": 1,
+       "d": 0,
+       "cap": 54918847155775840,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 4,
+       "cap": 54918847155775840,
+       "sec": 2
+      },
+      {
+       "s": 2,
+       "d": 9,
+       "cap": 36612564770517224,
+       "sec": -1
+      },
+      {
+       "s": 2,
+       "d": 1,
+       "cap": 54918847155775840,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 5,
+       "cap": 54918847155775840,
+       "sec": 2
+      },
+      {
+       "s": 3,
+       "d": 10,
+       "cap": 422984095890428300,
+       "sec": -1
+      },
+      {
+       "s": 3,
+       "d": 2,
+       "cap": 644774660787353100,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 4,
+       "cap": 644774660787353100,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 11,
+       "cap": 422984095890428300,
+       "sec": -1
+      },
+      {
+       "s": 4,
+       "d": 3,
+       "cap": 644774660787353100,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 5,
+       "cap": 644774660787353100,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 4,
+       "cap": 31702824082149492,
+       "sec": 3
+      },
+      {
+       "s": 5,
+       "d": 5,
+       "cap": 31702824082149492,
+       "sec": 3
+      },
+      {
+       "s": 5,
+       "d": 2,
+       "cap": 31702824082149492,
+       "sec": 3
+      },
+      {
+       "s": 5,
+       "d": 3,
+       "cap": 31702824082149492,
+       "sec": 3
+      },
+      {
+       "s": 5,
+       "d": 0,
+       "cap": 31702824082149492,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 1,
+       "cap": 31702824082149492,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 6,
+       "cap": 811756435686521600000,
+       "sec": -1
+      }
+     ]
+    }
    }
   },
   "tie_ln": {
    "reference": "craft_tie_ln",
-   "signature": "ac5870",
-   "build": 94225,
+   "signature": "fejpgl",
+   "build": 98082,
    "crew": 1000,
-   "total": 95225,
+   "total": 99082,
    "by": {
     "hull": 8,
     "armor": 6,
     "power": 27400,
-    "drive": 27010,
+    "drive": 30867,
     "defense": 1500,
     "command": 14501,
     "weapons": 11800,
@@ -442,23 +8571,1111 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.00367,
-    "upS": 0.00367,
-    "down": 0.0488,
+    "up": 0.00381,
+    "upS": 0.00381,
+    "down": 0.0514,
     "T": 0
+   },
+   "powerProfile": {
+    "name": "TIE/ln 制宙戦闘機",
+    "modules": [
+     {
+      "k": "weapon",
+      "fit": 48,
+      "name": "レーザー砲",
+      "w": 0.9984000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.0005,
+      "stock": 0,
+      "at": 0.477,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.28,
+      "z": 0.1,
+      "r": 0.18,
+      "share": 0.5,
+      "domain": "main",
+      "port": "f48",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 49,
+      "name": "レーザー砲",
+      "w": 0.9984000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.0005,
+      "stock": 0,
+      "at": 0.477,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.28,
+      "z": -0.1,
+      "r": 0.18,
+      "share": 0.5,
+      "domain": "main",
+      "port": "f49",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "操縦席",
+      "w": 0.6367018876058852,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.5080473683642538,
+      "at": 0.509,
+      "part": 42,
+      "y": 0.17,
+      "z": 0,
+      "r": 0.055,
+      "share": 0.7272592641926459,
+      "domain": "main",
+      "port": "p42",
+      "powerConnected": true
+     },
+     {
+      "k": "reactor",
+      "name": "I-a2b 太陽イオン化反応炉",
+      "w": 0.4054337802824538,
+      "hits": 1,
+      "crew": 0.00012907730836110484,
+      "size": 0.2581546167222097,
+      "at": 0.498,
+      "part": 43,
+      "y": -0.2,
+      "z": 0,
+      "r": 0.044,
+      "share": 1,
+      "domain": "main",
+      "port": "p43",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "P-s4 イオン・エンジン",
+      "w": 1.1279727192309104,
+      "hits": 1,
+      "crew": 0.00047919015343409507,
+      "size": 1.1979753835852376,
+      "at": 0.488,
+      "part": 44,
+      "y": -0.03,
+      "z": 0.15,
+      "r": 0.073,
+      "share": 0.4334858528990787,
+      "domain": "main",
+      "port": "p44",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "P-s4 イオン・エンジン",
+      "w": 1.1279727192309104,
+      "hits": 1,
+      "crew": 0.00047919015343409507,
+      "size": 1.1979753835852376,
+      "at": 0.488,
+      "part": 45,
+      "y": -0.03,
+      "z": -0.15,
+      "r": 0.073,
+      "share": 0.4334858528990787,
+      "domain": "main",
+      "port": "p45",
+      "powerConnected": true
+     },
+     {
+      "k": "fuel",
+      "name": "燃料タンク",
+      "w": 0.12161554605285707,
+      "hits": 1,
+      "crew": 0.000008482300164692441,
+      "size": 0.042411500823462206,
+      "at": 0.388,
+      "part": 46,
+      "y": 0.07,
+      "z": 0,
+      "r": 0.024,
+      "share": 1,
+      "domain": "main",
+      "port": "p46",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "慣性補償器",
+      "w": 0.1071957287973567,
+      "hits": 1,
+      "crew": 0.000007019339005732015,
+      "size": 0.03509669502866007,
+      "at": 0.404,
+      "part": 47,
+      "y": -0.12,
+      "z": 0,
+      "r": 0.023,
+      "share": 0.05024019056395709,
+      "domain": "main",
+      "port": "p47",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "射出座席機構 1",
+      "w": 0.08410000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.024388999999999997,
+      "at": 0.509,
+      "part": 50,
+      "y": 0.1,
+      "z": -0.19,
+      "r": 0.02,
+      "share": 0.034912347349622494,
+      "domain": "main",
+      "port": "p50",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "航法コンピューター",
+      "w": 0.048400000000000006,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.010648,
+      "at": 0.55,
+      "part": 51,
+      "y": 0.11,
+      "z": 0.2,
+      "r": 0.015,
+      "share": 0.015242391019671996,
+      "domain": "main",
+      "port": "p51",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "照準コンピューター",
+      "w": 0.0441,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.009260999999999998,
+      "at": 0.55,
+      "part": 52,
+      "y": 0.11,
+      "z": 0.15,
+      "r": 0.015,
+      "share": 0.013256929304393534,
+      "domain": "main",
+      "port": "p52",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 1",
+      "w": 0.032400000000000005,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0058319999999999995,
+      "at": 0.533,
+      "part": 53,
+      "y": 0.11,
+      "z": 0.15,
+      "r": 0.012,
+      "share": 0.00834838696719826,
+      "domain": "main",
+      "port": "p53",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 2",
+      "w": 0.032400000000000005,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0058319999999999995,
+      "at": 0.55,
+      "part": 54,
+      "y": 0.14,
+      "z": 0.15,
+      "r": 0.012,
+      "share": 0.00834838696719826,
+      "domain": "main",
+      "port": "p54",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 3",
+      "w": 0.032400000000000005,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0058319999999999995,
+      "at": 0.568,
+      "part": 55,
+      "y": 0.11,
+      "z": 0.15,
+      "r": 0.012,
+      "share": 0.00834838696719826,
+      "domain": "main",
+      "port": "p55",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 4",
+      "w": 0.032400000000000005,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0058319999999999995,
+      "at": 0.533,
+      "part": 56,
+      "y": 0.11,
+      "z": 0.19,
+      "r": 0.012,
+      "share": 0.00834838696719826,
+      "domain": "main",
+      "port": "p56",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "レーザーガス供給槽 1",
+      "w": 0.07840000000000003,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.021952000000000006,
+      "at": 0.523,
+      "part": 57,
+      "y": 0.16,
+      "z": 0.21,
+      "r": 0.019,
+      "share": 0.03142383242522913,
+      "domain": "main",
+      "port": "p57",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "レーザーガス供給槽 2",
+      "w": 0.07840000000000003,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.021952000000000006,
+      "at": 0.496,
+      "part": 58,
+      "y": 0.11,
+      "z": 0.21,
+      "r": 0.019,
+      "share": 0.03142383242522913,
+      "domain": "main",
+      "port": "p58",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "翼端着陸支持機構 1",
+      "w": 0.07840000000000003,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.021952000000000006,
+      "at": 0.605,
+      "part": 59,
+      "y": 0.11,
+      "z": 0.09,
+      "r": 0.019,
+      "share": 0.03142383242522913,
+      "domain": "main",
+      "port": "p59",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "翼端着陸支持機構 2",
+      "w": 0.07840000000000003,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.021952000000000006,
+      "at": 0.496,
+      "part": 60,
+      "y": 0.16,
+      "z": 0.21,
+      "r": 0.019,
+      "share": 0.03142383242522913,
+      "domain": "main",
+      "port": "p60",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.32328929792223654,
+      "hits": 1,
+      "crew": 0.000036763511590594954,
+      "size": 0.18381755795297475,
+      "at": 0.57,
+      "part": -44,
+      "machineryOwner": 44,
+      "y": -0.09,
+      "z": 0.1,
+      "r": 0.039,
+      "share": 0.06651414710092128,
+      "domain": "main",
+      "port": "p44",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.32328929792223654,
+      "hits": 1,
+      "crew": 0.000036763511590594954,
+      "size": 0.18381755795297475,
+      "at": 0.57,
+      "part": -45,
+      "machineryOwner": 45,
+      "y": -0.09,
+      "z": -0.1,
+      "r": 0.039,
+      "share": 0.06651414710092128,
+      "domain": "main",
+      "port": "p45",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "太陽電池翼",
+      "w": 3.734946409251041,
+      "hits": 1,
+      "crew": 0,
+      "size": 7.218160956792428,
+      "at": 0.5,
+      "part": 1,
+      "y": 0,
+      "z": 0.91,
+      "r": 0.133,
+      "share": 0.5,
+      "domain": "main",
+      "port": "p1",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "太陽電池翼",
+      "w": 3.734946409251041,
+      "hits": 1,
+      "crew": 0,
+      "size": 7.218160956792428,
+      "at": 0.5,
+      "part": 2,
+      "y": 0,
+      "z": -0.91,
+      "r": 0.133,
+      "share": 0.5,
+      "domain": "main",
+      "port": "p2",
+      "powerConnected": true
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（後部）",
+      "w": 0.40432020565559806,
+      "hits": 1,
+      "crew": 0,
+      "size": 4.425387243488632,
+      "at": 0.157,
+      "y": 0,
+      "z": 0,
+      "r": 0.113,
+      "share": 0.1340140395660498,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（中央後部）",
+      "w": 0.7475986882346526,
+      "hits": 1,
+      "crew": 0,
+      "size": 11.126687926485703,
+      "at": 0.386,
+      "y": 0.01,
+      "z": 0,
+      "r": 0.154,
+      "share": 0.33694958519463947,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（中央前部）",
+      "w": 0.8312015575138089,
+      "hits": 1,
+      "crew": 0,
+      "size": 13.044355731997442,
+      "at": 0.594,
+      "y": 0,
+      "z": 0,
+      "r": 0.163,
+      "share": 0.395022335673261,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（前部）",
+      "w": 0.40432020565559806,
+      "hits": 1,
+      "crew": 0,
+      "size": 4.425387243488632,
+      "at": 0.843,
+      "y": 0,
+      "z": 0,
+      "r": 0.113,
+      "share": 0.1340140395660498,
+      "domain": "main"
+     },
+     {
+      "k": "hull",
+      "name": "船体構造",
+      "w": 9.988442671563952,
+      "hits": null,
+      "crew": 0,
+      "size": 1,
+      "share": 1,
+      "domain": "main"
+     }
+    ],
+    "energyModel": {
+     "version": 0,
+     "eta": 0.75
+    },
+    "D": 0,
+    "shieldBuffer": 0,
+    "wCap": 0,
+    "crewNeed": 1,
+    "crewMax": 1,
+    "hp": 1,
+    "len": 7.240000009536743,
+    "width": 6.559999942779541,
+    "height": 8.345999956130981,
+    "grid": {
+     "P": 1412528615566401500,
+     "fixed": 17671191295729384,
+     "cooling": 0,
+     "De": 814623260837961600,
+     "Ds": 0,
+     "Dw": 1673600000000000000,
+     "domains": [
+      {
+       "id": "main",
+       "P": 1412528615566401500,
+       "reactors": [
+        3
+       ],
+       "sources": [
+        {
+         "moduleIndex": 21,
+         "P": 30285964800000000
+        },
+        {
+         "moduleIndex": 22,
+         "P": 30285964800000000
+        },
+        {
+         "moduleIndex": 3,
+         "P": 1351956685966401500
+        }
+       ],
+       "modules": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27
+       ],
+       "protection": 1
+      }
+     ],
+     "powerPaths": [
+      {
+       "kind": "power",
+       "from": "p43",
+       "to": "f48",
+       "cap": 836800000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p43",
+       "to": "f49",
+       "cap": 515156685966401540,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p2",
+       "to": "f49",
+       "cap": 30285964800000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p1",
+       "to": "f49",
+       "cap": 30285964800000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p43",
+       "to": "f49",
+       "cap": 249876143966101470,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p2",
+       "to": "f49",
+       "cap": 5597620233748489,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p1",
+       "to": "f49",
+       "cap": 5597620233748489,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p43",
+       "to": "p44",
+       "cap": 407311630418980800,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p43",
+       "to": "p45",
+       "cap": 407311630418980800,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p43",
+       "to": "hotel",
+       "cap": 17671191295729384,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p43",
+       "to": "p42",
+       "cap": 1262227949694956,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p43",
+       "to": "p46",
+       "cap": 1262227949694956,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p43",
+       "to": "p47",
+       "cap": 1262227949694956,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p43",
+       "to": "p50",
+       "cap": 1262227949694956,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p43",
+       "to": "p51",
+       "cap": 1262227949694956,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p43",
+       "to": "p52",
+       "cap": 1262227949694956,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p43",
+       "to": "p53",
+       "cap": 1262227949694956,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p43",
+       "to": "p54",
+       "cap": 1262227949694956,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p43",
+       "to": "p55",
+       "cap": 1262227949694956,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p43",
+       "to": "p56",
+       "cap": 1262227949694956,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p43",
+       "to": "p57",
+       "cap": 1262227949694956,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p43",
+       "to": "p58",
+       "cap": 1262227949694956,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p43",
+       "to": "p59",
+       "cap": 1262227949694956,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p43",
+       "to": "p60",
+       "cap": 1262227949694956,
+       "auto": true,
+       "ok": true
+      }
+     ],
+     "trunks": [],
+     "fixedLoads": [
+      {
+       "id": "hotel",
+       "port": "hotel",
+       "weight": 17671191295729384,
+       "domain": "main"
+      }
+     ],
+     "coolingLoads": []
+    },
+    "propulsion": {
+     "version": 1,
+     "engines": [
+      {
+       "version": 1,
+       "id": 44,
+       "machineryId": 44,
+       "ratedInputW": 407311630418980800,
+       "driveProfileId": "standard",
+       "machineryGradeId": "advanced",
+       "wattsPerNewton": 2000000000,
+       "ratedThrustN": 203655815.2094904,
+       "effectiveMachineryVolumeM3": 0.04807026609204595,
+       "machineryVolumeM3": 0.04807026609204595,
+       "machineryLengthM": 0.15,
+       "machineryRadiusM": 0.357952,
+       "machineryDiameterM": 0.715904,
+       "machineryOffsetM": 0.8415,
+       "maxInputW": 1634389047129562000,
+       "maxRatedInputW": 1634389047129562000,
+       "inputDensityWPerM3": 8473255164409783000,
+       "allowedInputDensityWPerM3": 34000000000000000000,
+       "cost": 1928.3600681196735,
+       "powerNode": "p44",
+       "heatNode": "p44",
+       "reactorId": 43,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 407311630418980800,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 4,
+       "machineryModuleIndex": 19,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 1634389047129562000
+      },
+      {
+       "version": 1,
+       "id": 45,
+       "machineryId": 45,
+       "ratedInputW": 407311630418980800,
+       "driveProfileId": "standard",
+       "machineryGradeId": "advanced",
+       "wattsPerNewton": 2000000000,
+       "ratedThrustN": 203655815.2094904,
+       "effectiveMachineryVolumeM3": 0.04807026609204595,
+       "machineryVolumeM3": 0.04807026609204595,
+       "machineryLengthM": 0.15,
+       "machineryRadiusM": 0.357952,
+       "machineryDiameterM": 0.715904,
+       "machineryOffsetM": 0.8415,
+       "maxInputW": 1634389047129562000,
+       "maxRatedInputW": 1634389047129562000,
+       "inputDensityWPerM3": 8473255164409783000,
+       "allowedInputDensityWPerM3": 34000000000000000000,
+       "cost": 1928.3600681196735,
+       "powerNode": "p45",
+       "heatNode": "p45",
+       "reactorId": 43,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 407311630418980800,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 5,
+       "machineryModuleIndex": 20,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 1634389047129562000
+      }
+     ],
+     "massKg": 10348.813921901889,
+     "ratedThrustN": 407311630.4189808,
+     "ratedAccelMps2": 39358.291055650334,
+     "structuralAccelerationLimitMps2": 1656863.0822870878,
+     "inertialFactor": 1,
+     "accelerationLimitMps2": 39358.291055650334
+    },
+    "profileVersion": 4,
+    "heat": {
+     "v": 1,
+     "src": [
+      {
+       "k": "reactor",
+       "id": "p43",
+       "n": "I-a2b 太陽イオン化反応炉 #43",
+       "g": "high",
+       "sh": 1,
+       "st": 3893635255583236000,
+       "m": [
+        3
+       ],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p44",
+       "n": "P-s4 イオン・エンジン #44",
+       "g": "high",
+       "sh": 0.5,
+       "st": 1221934891256942300,
+       "m": [
+        4,
+        19
+       ],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p45",
+       "n": "P-s4 イオン・エンジン #45",
+       "g": "high",
+       "sh": 0.5,
+       "st": 1221934891256942300,
+       "m": [
+        5,
+        20
+       ],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f48",
+       "n": "武装（艦尾区画）",
+       "g": "high",
+       "sh": 1,
+       "st": 25104000000000000000,
+       "m": [
+        0,
+        1
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "hotel",
+       "id": "hotel",
+       "n": "生活・電子設備",
+       "g": "low",
+       "sh": 1,
+       "st": 1060271477743763100,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1
+      }
+     ],
+     "dis": [
+      {
+       "id": "p1",
+       "n": "太陽電池翼 #1",
+       "k": "solar",
+       "g": "high",
+       "cap": 63095760000000000,
+       "m": 21,
+       "sec": 1,
+       "src": -1
+      },
+      {
+       "id": "p2",
+       "n": "太陽電池翼 #2",
+       "k": "solar",
+       "g": "high",
+       "cap": 63095760000000000,
+       "m": 22,
+       "sec": 1,
+       "src": -1
+      },
+      {
+       "id": "skin",
+       "n": "外殻からの放熱",
+       "k": "skin",
+       "g": "low",
+       "cap": 813889332262397700000,
+       "m": -1,
+       "sec": -1,
+       "src": -1
+      },
+      {
+       "id": "int:p43",
+       "n": "I-a2b 太陽イオン化反応炉 #43（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 67801373547187280,
+       "m": -1,
+       "sec": -1,
+       "src": 0
+      },
+      {
+       "id": "int:p44",
+       "n": "P-s4 イオン・エンジン #44（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 20365581520949040,
+       "m": -1,
+       "sec": -1,
+       "src": 1
+      },
+      {
+       "id": "int:p45",
+       "n": "P-s4 イオン・エンジン #45（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 20365581520949040,
+       "m": -1,
+       "sec": -1,
+       "src": 2
+      },
+      {
+       "id": "int:f48",
+       "n": "武装（艦尾区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 419340786845988100,
+       "m": -1,
+       "sec": -1,
+       "src": 3
+      }
+     ],
+     "ln": [
+      {
+       "s": 0,
+       "d": 3,
+       "cap": 67801373547187280,
+       "sec": -1
+      },
+      {
+       "s": 0,
+       "d": 0,
+       "cap": 118652403707577730,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 1,
+       "cap": 118652403707577730,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 4,
+       "cap": 20365581520949040,
+       "sec": -1
+      },
+      {
+       "s": 1,
+       "d": 0,
+       "cap": 30548372281423560,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 1,
+       "cap": 30548372281423560,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 5,
+       "cap": 20365581520949040,
+       "sec": -1
+      },
+      {
+       "s": 2,
+       "d": 1,
+       "cap": 30548372281423560,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 0,
+       "cap": 30548372281423560,
+       "sec": 1
+      },
+      {
+       "s": 3,
+       "d": 6,
+       "cap": 419340786845988100,
+       "sec": -1
+      },
+      {
+       "s": 3,
+       "d": 0,
+       "cap": 629011180268982100,
+       "sec": 1
+      },
+      {
+       "s": 3,
+       "d": 1,
+       "cap": 629011180268982100,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 0,
+       "cap": 26506786943594076,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 1,
+       "cap": 26506786943594076,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 2,
+       "cap": 813889332262397700000,
+       "sec": -1
+      }
+     ]
+    }
    }
   },
   "tie_sa": {
    "reference": "craft_tie_sa",
-   "signature": "6izlyy",
-   "build": 132267,
+   "signature": "1qe732m",
+   "build": 137742,
    "crew": 1000,
-   "total": 133267,
+   "total": 138742,
    "by": {
     "hull": 61,
-    "armor": 29,
-    "power": 52845,
-    "drive": 27029,
+    "armor": 28,
+    "power": 52846,
+    "drive": 32504,
     "defense": 1500,
     "command": 14502,
     "weapons": 24300,
@@ -495,23 +9712,1407 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.00274,
-    "upS": 0.00274,
-    "down": 0.0549,
+    "up": 0.000714,
+    "upS": 0.000714,
+    "down": 0.0854,
     "T": 0
+   },
+   "powerProfile": {
+    "name": "TIE/sa ボマー",
+    "modules": [
+     {
+      "k": "weapon",
+      "fit": 42,
+      "name": "レーザー砲",
+      "w": 0.9984000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.0005,
+      "stock": 0,
+      "at": 0.743,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.47,
+      "z": 0.34,
+      "r": 0.165,
+      "share": 0.5,
+      "domain": "main",
+      "port": "f42",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 43,
+      "name": "レーザー砲",
+      "w": 0.9984000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.0005,
+      "stock": 0,
+      "at": 0.743,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.42,
+      "z": 0.22,
+      "r": 0.165,
+      "share": 0.5,
+      "domain": "main",
+      "port": "f43",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 44,
+      "name": "魚雷発射管",
+      "w": 0.84,
+      "hits": 1,
+      "crew": 0,
+      "size": 0,
+      "stock": 0,
+      "at": 0.797,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.41,
+      "z": -0.26,
+      "r": 0.089,
+      "share": 0,
+      "domain": "main",
+      "port": "f44",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 45,
+      "name": "爆弾倉",
+      "w": 3.456,
+      "hits": 1,
+      "crew": 0,
+      "size": 0,
+      "stock": 0,
+      "at": 0.57,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.4,
+      "z": -0.2,
+      "r": 0.152,
+      "share": 0,
+      "domain": "main",
+      "port": "f45",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "操縦席",
+      "w": 0.9354665015329808,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.9047786842338602,
+      "at": 0.787,
+      "part": 35,
+      "y": 0,
+      "z": 0.34,
+      "r": 0.061,
+      "share": 0.6273805793808002,
+      "domain": "main",
+      "port": "p35",
+      "powerConnected": true
+     },
+     {
+      "k": "reactor",
+      "name": "太陽イオン化反応炉（操縦席ポッド）",
+      "w": 0.7860517130936855,
+      "hits": 1,
+      "crew": 0.000348454985160668,
+      "size": 0.696909970321336,
+      "at": 0.446,
+      "part": 36,
+      "y": 0,
+      "z": 0.34,
+      "r": 0.056,
+      "share": 0.5,
+      "domain": "main",
+      "port": "p36",
+      "powerConnected": true
+     },
+     {
+      "k": "reactor",
+      "name": "太陽イオン化反応炉（兵装ポッド）",
+      "w": 0.7860517130936855,
+      "hits": 1,
+      "crew": 0.000348454985160668,
+      "size": 0.696909970321336,
+      "at": 0.446,
+      "part": 37,
+      "y": 0,
+      "z": -0.34,
+      "r": 0.056,
+      "share": 0.5,
+      "domain": "main",
+      "port": "p37",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "イオン・エンジン",
+      "w": 2.3245455686518484,
+      "hits": 1,
+      "crew": 0.0014176436849323943,
+      "size": 3.5441092123309854,
+      "at": 0.225,
+      "part": 38,
+      "y": 0,
+      "z": 0.34,
+      "r": 0.096,
+      "share": 0.4314540216970391,
+      "domain": "main",
+      "port": "p38",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "イオン・エンジン",
+      "w": 2.3245455686518484,
+      "hits": 1,
+      "crew": 0.0014176436849323943,
+      "size": 3.5441092123309854,
+      "at": 0.225,
+      "part": 39,
+      "y": 0,
+      "z": -0.34,
+      "r": 0.096,
+      "share": 0.4314540216970391,
+      "domain": "main",
+      "port": "p39",
+      "powerConnected": true
+     },
+     {
+      "k": "fuel",
+      "name": "燃料タンク",
+      "w": 0.2736349786189284,
+      "hits": 1,
+      "crew": 0.00002862776305583699,
+      "size": 0.14313881527918496,
+      "at": 0.597,
+      "part": 40,
+      "y": 0,
+      "z": -0.34,
+      "r": 0.033,
+      "share": 1,
+      "domain": "main",
+      "port": "p40",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "慣性補償器",
+      "w": 0.278865059306339,
+      "hits": 1,
+      "crew": 0.00002945243112740431,
+      "size": 0.14726215563702155,
+      "at": 0.597,
+      "part": 41,
+      "y": 0,
+      "z": 0.34,
+      "r": 0.033,
+      "share": 0.10211272450859381,
+      "domain": "main",
+      "port": "p41",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "射出座席機構 1",
+      "w": 0.08410000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.024388999999999997,
+      "at": 0.787,
+      "part": 46,
+      "y": -0.3,
+      "z": 0.34,
+      "r": 0.018,
+      "share": 0.016911522361377163,
+      "domain": "main",
+      "port": "p46",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "航法コンピューター",
+      "w": 0.048400000000000006,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.010648,
+      "at": 0.667,
+      "part": 47,
+      "y": 0.02,
+      "z": 0.34,
+      "r": 0.014,
+      "share": 0.0073834060479701525,
+      "domain": "main",
+      "port": "p47",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "照準コンピューター",
+      "w": 0.07290000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.019683000000000003,
+      "at": 0.667,
+      "part": 48,
+      "y": -0.05,
+      "z": 0.34,
+      "r": 0.017,
+      "share": 0.013648345345811094,
+      "domain": "main",
+      "port": "p48",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 1",
+      "w": 0.06760000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.017576,
+      "at": 0.667,
+      "part": 49,
+      "y": 0.02,
+      "z": 0.3,
+      "r": 0.016,
+      "share": 0.012187335152058923,
+      "domain": "main",
+      "port": "p49",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 2",
+      "w": 0.06760000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.017576,
+      "at": 0.667,
+      "part": 50,
+      "y": 0.02,
+      "z": 0.38,
+      "r": 0.016,
+      "share": 0.012187335152058923,
+      "domain": "main",
+      "port": "p50",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 3",
+      "w": 0.06760000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.017576,
+      "at": 0.667,
+      "part": 51,
+      "y": 0.09,
+      "z": 0.34,
+      "r": 0.016,
+      "share": 0.012187335152058923,
+      "domain": "main",
+      "port": "p51",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 4",
+      "w": 0.06760000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.017576,
+      "at": 0.69,
+      "part": 52,
+      "y": 0.02,
+      "z": 0.34,
+      "r": 0.016,
+      "share": 0.012187335152058923,
+      "domain": "main",
+      "port": "p52",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "レーザーガス供給槽 1",
+      "w": 0.07840000000000003,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.021952000000000006,
+      "at": 0.667,
+      "part": 53,
+      "y": -0.05,
+      "z": 0.3,
+      "r": 0.018,
+      "share": 0.015221687600022618,
+      "domain": "main",
+      "port": "p53",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "レーザーガス供給槽 2",
+      "w": 0.07840000000000003,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.021952000000000006,
+      "at": 0.667,
+      "part": 54,
+      "y": -0.05,
+      "z": 0.38,
+      "r": 0.018,
+      "share": 0.015221687600022618,
+      "domain": "main",
+      "port": "p54",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "翼端着陸支持機構 1",
+      "w": 0.23040000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.110592,
+      "at": 0.625,
+      "part": 55,
+      "y": 0.14,
+      "z": 0.34,
+      "r": 0.03,
+      "share": 0.0766853532735833,
+      "domain": "main",
+      "port": "p55",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "翼端着陸支持機構 2",
+      "w": 0.23040000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.110592,
+      "at": 0.667,
+      "part": 56,
+      "y": -0.22,
+      "z": 0.34,
+      "r": 0.03,
+      "share": 0.0766853532735833,
+      "domain": "main",
+      "port": "p56",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.6818722806531524,
+      "hits": 1,
+      "crew": 0.00011261196834658259,
+      "size": 0.5630598417329129,
+      "at": 0.341,
+      "part": -38,
+      "machineryOwner": 38,
+      "y": 0,
+      "z": 0.34,
+      "r": 0.052,
+      "share": 0.06854597830296091,
+      "domain": "main",
+      "port": "p38",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.6818722806531524,
+      "hits": 1,
+      "crew": 0.00011261196834658259,
+      "size": 0.5630598417329129,
+      "at": 0.341,
+      "part": -39,
+      "machineryOwner": 39,
+      "y": 0,
+      "z": -0.34,
+      "r": 0.052,
+      "share": 0.06854597830296091,
+      "domain": "main",
+      "port": "p39",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "翼中央部",
+      "w": 10.854995531047145,
+      "hits": 1,
+      "crew": 0,
+      "size": 8.67326819489074,
+      "at": 0.5,
+      "part": 11,
+      "ext": 1,
+      "y": 0,
+      "z": 0.94,
+      "r": 0.13,
+      "share": 0.27478582581235805,
+      "domain": "main",
+      "port": "p11",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "翼中央部",
+      "w": 10.854995531047143,
+      "hits": 1,
+      "crew": 0,
+      "size": 8.673268194890738,
+      "at": 0.5,
+      "part": 12,
+      "ext": 1,
+      "y": 0,
+      "z": -0.94,
+      "r": 0.13,
+      "share": 0.274785825812358,
+      "domain": "main",
+      "port": "p12",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "上翼板",
+      "w": 3.8816659639805944,
+      "hits": 1,
+      "crew": 0,
+      "size": 3.5543002726601136,
+      "at": 0.5,
+      "part": 15,
+      "ext": 1,
+      "y": 0.68,
+      "z": 0.78,
+      "r": 0.097,
+      "share": 0.11260707194357687,
+      "domain": "main",
+      "port": "p15",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "上翼板",
+      "w": 5.046165753174774,
+      "hits": 1,
+      "crew": 0,
+      "size": 3.554300272660115,
+      "at": 0.5,
+      "part": 16,
+      "ext": 1,
+      "y": 0.68,
+      "z": -0.78,
+      "r": 0.097,
+      "share": 0.11260707194357691,
+      "domain": "main",
+      "port": "p16",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "下翼板",
+      "w": 5.434333324425259,
+      "hits": 1,
+      "crew": 0,
+      "size": 3.5543012290568283,
+      "at": 0.5,
+      "part": 25,
+      "ext": 1,
+      "y": -0.68,
+      "z": 0.78,
+      "r": 0.097,
+      "share": 0.11260710224406513,
+      "domain": "main",
+      "port": "p25",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "下翼板",
+      "w": 4.2698333263341315,
+      "hits": 1,
+      "crew": 0,
+      "size": 3.5543012290568265,
+      "at": 0.5,
+      "part": 26,
+      "ext": 1,
+      "y": -0.68,
+      "z": -0.78,
+      "r": 0.097,
+      "share": 0.11260710224406507,
+      "domain": "main",
+      "port": "p26",
+      "powerConnected": true
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（後部）",
+      "w": 0.6081778854618484,
+      "hits": 1,
+      "crew": 0,
+      "size": 8.164113764736234,
+      "at": 0.156,
+      "y": 0,
+      "z": 0,
+      "r": 0.127,
+      "share": 0.10013947001394699,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（中央後部）",
+      "w": 1.1643619458336665,
+      "hits": 1,
+      "crew": 0,
+      "size": 21.626942034162003,
+      "at": 0.38,
+      "y": 0,
+      "z": 0,
+      "r": 0.176,
+      "share": 0.26527196652719665,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（中央前部）",
+      "w": 1.649136764060085,
+      "hits": 1,
+      "crew": 0,
+      "size": 36.45424614170525,
+      "at": 0.621,
+      "y": -0.01,
+      "z": 0,
+      "r": 0.2,
+      "share": 0.4471408647140865,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（前部）",
+      "w": 0.9237345208892407,
+      "hits": 1,
+      "crew": 0,
+      "size": 15.282129386915738,
+      "at": 0.829,
+      "y": 0,
+      "z": 0,
+      "r": 0.157,
+      "share": 0.18744769874476988,
+      "domain": "main"
+     },
+     {
+      "k": "hull",
+      "name": "船体構造",
+      "w": 36.687903726305706,
+      "hits": null,
+      "crew": 0,
+      "size": 1,
+      "share": 1,
+      "domain": "main"
+     }
+    ],
+    "energyModel": {
+     "version": 0,
+     "eta": 0.75
+    },
+    "D": 0,
+    "shieldBuffer": 0,
+    "wCap": 0,
+    "crewNeed": 1,
+    "crewMax": 1,
+    "hp": 1,
+    "len": 7.900000095367432,
+    "width": 9.460000038146973,
+    "height": 5.591440558433533,
+    "grid": {
+     "P": 7354377344558333000,
+     "fixed": 49563360330518440,
+     "cooling": 0,
+     "De": 2409994264385070000,
+     "Ds": 0,
+     "Dw": 1675600000000000000,
+     "domains": [
+      {
+       "id": "main",
+       "P": 7354377344558333000,
+       "reactors": [
+        5,
+        6
+       ],
+       "sources": [
+        {
+         "moduleIndex": 24,
+         "P": 10407921600000002
+        },
+        {
+         "moduleIndex": 25,
+         "P": 10407921600000002
+        },
+        {
+         "moduleIndex": 26,
+         "P": 8530324693203418
+        },
+        {
+         "moduleIndex": 27,
+         "P": 8530324693203418
+        },
+        {
+         "moduleIndex": 28,
+         "P": 8530324693203418
+        },
+        {
+         "moduleIndex": 29,
+         "P": 8530324693203418
+        },
+        {
+         "moduleIndex": 5,
+         "P": 3649720101292759600
+        },
+        {
+         "moduleIndex": 6,
+         "P": 3649720101292759600
+        }
+       ],
+       "modules": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34
+       ],
+       "protection": 1
+      }
+     ],
+     "powerPaths": [
+      {
+       "kind": "power",
+       "from": "p11",
+       "to": "f42",
+       "cap": 10407921600000002,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p36",
+       "to": "f42",
+       "cap": 826392078400000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p36",
+       "to": "f43",
+       "cap": 836800000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p12",
+       "to": "f44",
+       "cap": 1000000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p36",
+       "to": "f45",
+       "cap": 1000000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p36",
+       "to": "p38",
+       "cap": 1204997132192535000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p37",
+       "to": "p39",
+       "cap": 1204997132192535000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p36",
+       "to": "hotel",
+       "cap": 49563360330518440,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p36",
+       "to": "p35",
+       "cap": 3540240023608460,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p37",
+       "to": "p40",
+       "cap": 3540240023608460,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p36",
+       "to": "p41",
+       "cap": 3540240023608460,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p36",
+       "to": "p46",
+       "cap": 3540240023608460,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p36",
+       "to": "p47",
+       "cap": 3540240023608460,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p36",
+       "to": "p48",
+       "cap": 3540240023608460,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p36",
+       "to": "p49",
+       "cap": 3540240023608460,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p36",
+       "to": "p50",
+       "cap": 3540240023608460,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p36",
+       "to": "p51",
+       "cap": 3540240023608460,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p36",
+       "to": "p52",
+       "cap": 3540240023608460,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p36",
+       "to": "p53",
+       "cap": 3540240023608460,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p36",
+       "to": "p54",
+       "cap": 3540240023608460,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p36",
+       "to": "p55",
+       "cap": 3540240023608460,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p36",
+       "to": "p56",
+       "cap": 3540240023608460,
+       "auto": true,
+       "ok": true
+      }
+     ],
+     "trunks": [],
+     "fixedLoads": [
+      {
+       "id": "hotel",
+       "port": "hotel",
+       "weight": 49563360330518440,
+       "domain": "main"
+      }
+     ],
+     "coolingLoads": []
+    },
+    "propulsion": {
+     "version": 1,
+     "engines": [
+      {
+       "version": 1,
+       "id": 38,
+       "machineryId": 38,
+       "ratedInputW": 1204997132192535000,
+       "driveProfileId": "standard",
+       "machineryGradeId": "advanced",
+       "wattsPerNewton": 2000000000,
+       "ratedThrustN": 602498566.0962675,
+       "effectiveMachineryVolumeM3": 0.2742579143444949,
+       "machineryVolumeM3": 0.2742579143444949,
+       "machineryLengthM": 0.15,
+       "machineryRadiusM": 0.855,
+       "machineryDiameterM": 1.71,
+       "machineryOffsetM": 0.625,
+       "maxInputW": 9324769087712827000,
+       "maxRatedInputW": 9324769087712827000,
+       "inputDensityWPerM3": 4393664026333038000,
+       "allowedInputDensityWPerM3": 34000000000000000000,
+       "cost": 2737.380569535454,
+       "powerNode": "p38",
+       "heatNode": "p38",
+       "reactorId": 36,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 1204997132192535000,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 7,
+       "machineryModuleIndex": 22,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 9324769087712827000
+      },
+      {
+       "version": 1,
+       "id": 39,
+       "machineryId": 39,
+       "ratedInputW": 1204997132192535000,
+       "driveProfileId": "standard",
+       "machineryGradeId": "advanced",
+       "wattsPerNewton": 2000000000,
+       "ratedThrustN": 602498566.0962675,
+       "effectiveMachineryVolumeM3": 0.2742579143444949,
+       "machineryVolumeM3": 0.2742579143444949,
+       "machineryLengthM": 0.15,
+       "machineryRadiusM": 0.855,
+       "machineryDiameterM": 1.71,
+       "machineryOffsetM": 0.625,
+       "maxInputW": 9324769087712827000,
+       "maxRatedInputW": 9324769087712827000,
+       "inputDensityWPerM3": 4393664026333038000,
+       "allowedInputDensityWPerM3": 34000000000000000000,
+       "cost": 2737.380569535454,
+       "powerNode": "p39",
+       "heatNode": "p39",
+       "reactorId": 37,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 1204997132192535000,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 8,
+       "machineryModuleIndex": 23,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 9324769087712827000
+      }
+     ],
+     "massKg": 48384.45563112804,
+     "ratedThrustN": 1204997132.192535,
+     "ratedAccelMps2": 24904.633450444413,
+     "structuralAccelerationLimitMps2": 2056177.6673574557,
+     "inertialFactor": 1,
+     "accelerationLimitMps2": 24904.633450444413
+    },
+    "profileVersion": 4,
+    "heat": {
+     "v": 1,
+     "src": [
+      {
+       "k": "reactor",
+       "id": "p36",
+       "n": "太陽イオン化反応炉（操縦席ポッド） #36",
+       "g": "high",
+       "sh": 0.707791,
+       "st": 7005006170215329000,
+       "m": [
+        5
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "reactor",
+       "id": "p37",
+       "n": "太陽イオン化反応炉（兵装ポッド） #37",
+       "g": "high",
+       "sh": 0.292209,
+       "st": 2891993117262084000,
+       "m": [
+        6
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p38",
+       "n": "イオン・エンジン #38",
+       "g": "high",
+       "sh": 0.5,
+       "st": 3614991396577605000,
+       "m": [
+        7,
+        22
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p39",
+       "n": "イオン・エンジン #39",
+       "g": "high",
+       "sh": 0.5,
+       "st": 3614991396577605000,
+       "m": [
+        8,
+        23
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f42",
+       "n": "武装（艦首区画）",
+       "g": "high",
+       "sh": 0.998806,
+       "st": 25104000000000000000,
+       "m": [
+        0,
+        1
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f44",
+       "n": "武装（艦首区画）",
+       "g": "high",
+       "sh": 0.0011936,
+       "st": 30000000000000000,
+       "m": [
+        2,
+        3
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "hotel",
+       "id": "hotel",
+       "n": "生活・電子設備",
+       "g": "low",
+       "sh": 1,
+       "st": 2973801619831106600,
+       "m": [],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1
+      }
+     ],
+     "dis": [
+      {
+       "id": "p11",
+       "n": "翼中央部 #11",
+       "k": "solar",
+       "g": "high",
+       "cap": 68147105714285730,
+       "m": 24,
+       "sec": 1,
+       "src": -1
+      },
+      {
+       "id": "p12",
+       "n": "翼中央部 #12",
+       "k": "solar",
+       "g": "high",
+       "cap": 68147105714285730,
+       "m": 25,
+       "sec": 1,
+       "src": -1
+      },
+      {
+       "id": "p15",
+       "n": "上翼板 #15",
+       "k": "solar",
+       "g": "high",
+       "cap": 23695346370009496,
+       "m": 26,
+       "sec": 1,
+       "src": -1
+      },
+      {
+       "id": "p16",
+       "n": "上翼板 #16",
+       "k": "solar",
+       "g": "high",
+       "cap": 41466856147516620,
+       "m": 27,
+       "sec": 1,
+       "src": -1
+      },
+      {
+       "id": "p25",
+       "n": "下翼板 #25",
+       "k": "solar",
+       "g": "high",
+       "cap": 47390692740018990,
+       "m": 28,
+       "sec": 1,
+       "src": -1
+      },
+      {
+       "id": "p26",
+       "n": "下翼板 #26",
+       "k": "solar",
+       "g": "high",
+       "cap": 29619182962511870,
+       "m": 29,
+       "sec": 1,
+       "src": -1
+      },
+      {
+       "id": "skin",
+       "n": "外殻からの放熱",
+       "k": "skin",
+       "g": "low",
+       "cap": 1.0166067553859735e+21,
+       "m": -1,
+       "sec": -1,
+       "src": -1
+      },
+      {
+       "id": "int:p36",
+       "n": "太陽イオン化反応炉（操縦席ポッド） #36（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 82703152494311780,
+       "m": -1,
+       "sec": -1,
+       "src": 0
+      },
+      {
+       "id": "int:p37",
+       "n": "太陽イオン化反応炉（兵装ポッド） #37（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 82703152494311780,
+       "m": -1,
+       "sec": -1,
+       "src": 1
+      },
+      {
+       "id": "int:p38",
+       "n": "イオン・エンジン #38（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 60249856609626750,
+       "m": -1,
+       "sec": -1,
+       "src": 2
+      },
+      {
+       "id": "int:p39",
+       "n": "イオン・エンジン #39（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 60249856609626750,
+       "m": -1,
+       "sec": -1,
+       "src": 3
+      },
+      {
+       "id": "int:f42",
+       "n": "武装（艦首区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 523000000000000000,
+       "m": -1,
+       "sec": -1,
+       "src": 4
+      },
+      {
+       "id": "int:f44",
+       "n": "武装（艦首区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 625000000000000,
+       "m": -1,
+       "sec": -1,
+       "src": 5
+      }
+     ],
+     "ln": [
+      {
+       "s": 0,
+       "d": 7,
+       "cap": 82703152494311780,
+       "sec": -1
+      },
+      {
+       "s": 0,
+       "d": 2,
+       "cap": 124054728741467660,
+       "sec": 0
+      },
+      {
+       "s": 0,
+       "d": 4,
+       "cap": 124054728741467660,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 8,
+       "cap": 82703152494311780,
+       "sec": -1
+      },
+      {
+       "s": 1,
+       "d": 3,
+       "cap": 124054728741467660,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 5,
+       "cap": 124054728741467660,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 9,
+       "cap": 60249856609626750,
+       "sec": -1
+      },
+      {
+       "s": 2,
+       "d": 2,
+       "cap": 90374784914440130,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 4,
+       "cap": 90374784914440130,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 10,
+       "cap": 60249856609626750,
+       "sec": -1
+      },
+      {
+       "s": 3,
+       "d": 3,
+       "cap": 90374784914440130,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 5,
+       "cap": 90374784914440130,
+       "sec": 0
+      },
+      {
+       "s": 4,
+       "d": 11,
+       "cap": 523000000000000000,
+       "sec": -1
+      },
+      {
+       "s": 4,
+       "d": 4,
+       "cap": 784500000000000000,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 0,
+       "cap": 784500000000000000,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 12,
+       "cap": 625000000000000,
+       "sec": -1
+      },
+      {
+       "s": 5,
+       "d": 5,
+       "cap": 937500000000000,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 1,
+       "cap": 937500000000000,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 4,
+       "cap": 74345040495777660,
+       "sec": 1
+      },
+      {
+       "s": 6,
+       "d": 5,
+       "cap": 74345040495777660,
+       "sec": 1
+      },
+      {
+       "s": 6,
+       "d": 0,
+       "cap": 74345040495777660,
+       "sec": 1
+      },
+      {
+       "s": 6,
+       "d": 1,
+       "cap": 74345040495777660,
+       "sec": 1
+      },
+      {
+       "s": 6,
+       "d": 2,
+       "cap": 74345040495777660,
+       "sec": 1
+      },
+      {
+       "s": 6,
+       "d": 3,
+       "cap": 74345040495777660,
+       "sec": 1
+      },
+      {
+       "s": 6,
+       "d": 6,
+       "cap": 1.0166067553859735e+21,
+       "sec": -1
+      }
+     ]
+    }
    }
   },
   "v19": {
    "reference": "craft_v19",
-   "signature": "7ldnp2",
-   "build": 157947,
+   "signature": "14k9e28",
+   "build": 170459,
    "crew": 1000,
-   "total": 158947,
+   "total": 171459,
    "by": {
     "hull": 4,
     "armor": 14,
-    "power": 68613,
-    "drive": 34514,
+    "power": 68612,
+    "drive": 47027,
     "defense": 1500,
     "command": 14501,
     "weapons": 21800,
@@ -548,23 +11149,1718 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.0028,
-    "upS": 0.0028,
-    "down": 0.0434,
+    "up": 0,
+    "upS": 0,
+    "down": 0.0606,
     "T": 0
+   },
+   "powerProfile": {
+    "name": "V-19 トレント",
+    "modules": [
+     {
+      "k": "weapon",
+      "fit": 25,
+      "name": "レーザー砲",
+      "w": 0.9984000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.0005,
+      "stock": 0,
+      "at": 0.55,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.32,
+      "z": 0.95,
+      "r": 0.2,
+      "share": 0.5,
+      "domain": "main",
+      "port": "f25",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 26,
+      "name": "レーザー砲",
+      "w": 0.9984000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.0005,
+      "stock": 0,
+      "at": 0.55,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.32,
+      "z": -0.95,
+      "r": 0.2,
+      "share": 0.5,
+      "domain": "main",
+      "port": "f26",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 27,
+      "name": "ミサイル発射管",
+      "w": 0.648,
+      "hits": 1,
+      "crew": 0,
+      "size": 0,
+      "stock": 0,
+      "at": 0.604,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.83,
+      "z": 0.09,
+      "r": 0.1,
+      "share": 0,
+      "domain": "main",
+      "port": "f27",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 28,
+      "name": "ミサイル発射管",
+      "w": 0.648,
+      "hits": 1,
+      "crew": 0,
+      "size": 0,
+      "stock": 0,
+      "at": 0.604,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.83,
+      "z": -0.09,
+      "r": 0.1,
+      "share": 0,
+      "domain": "main",
+      "port": "f28",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "操縦席",
+      "w": 0.649629514953459,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.5235987755982988,
+      "at": 0.433,
+      "part": 15,
+      "y": 0.83,
+      "z": 0,
+      "r": 0.067,
+      "share": 0.6622838705884894,
+      "domain": "main",
+      "port": "p15",
+      "powerConnected": true
+     },
+     {
+      "k": "reactor",
+      "name": "右舷ナセル反応炉",
+      "w": 0.26608824932493685,
+      "hits": 1,
+      "crew": 0.00006862913871522024,
+      "size": 0.13725827743044047,
+      "at": 0.637,
+      "part": 16,
+      "y": 0.72,
+      "z": 0.28,
+      "r": 0.043,
+      "share": 0.403740712903981,
+      "domain": "main",
+      "port": "p16",
+      "powerConnected": true
+     },
+     {
+      "k": "reactor",
+      "name": "左舷ナセル反応炉",
+      "w": 0.26608824932493685,
+      "hits": 1,
+      "crew": 0.00006862913871522024,
+      "size": 0.13725827743044047,
+      "at": 0.637,
+      "part": 17,
+      "y": 0.72,
+      "z": -0.28,
+      "r": 0.043,
+      "share": 0.403740712903981,
+      "domain": "main",
+      "port": "p17",
+      "powerConnected": true
+     },
+     {
+      "k": "reactor",
+      "name": "腹部ポッド反応炉",
+      "w": 0.16240737873836475,
+      "hits": 1,
+      "crew": 0.000032724923474893676,
+      "size": 0.06544984694978735,
+      "at": 0.633,
+      "part": 18,
+      "y": -0.43,
+      "z": 0,
+      "r": 0.034,
+      "share": 0.19251857419203802,
+      "domain": "main",
+      "port": "p18",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "右舷ナセル・イオンエンジン",
+      "w": 1.3870820263169998,
+      "hits": 1,
+      "crew": 0.0006534512719466771,
+      "size": 1.6336281798666925,
+      "at": 0.279,
+      "part": 19,
+      "y": 0.72,
+      "z": 0.28,
+      "r": 0.098,
+      "share": 0.459716341747253,
+      "domain": "main",
+      "port": "p19",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "左舷ナセル・イオンエンジン",
+      "w": 1.3870820263169998,
+      "hits": 1,
+      "crew": 0.0006534512719466771,
+      "size": 1.6336281798666925,
+      "at": 0.279,
+      "part": 20,
+      "y": 0.72,
+      "z": -0.28,
+      "r": 0.098,
+      "share": 0.459716341747253,
+      "domain": "main",
+      "port": "p20",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "腹部イオンエンジン",
+      "w": 0.35998277194310346,
+      "hits": 1,
+      "crew": 0.00008639379797371933,
+      "size": 0.2159844949342983,
+      "at": 0.483,
+      "part": 21,
+      "y": -0.43,
+      "z": 0,
+      "r": 0.05,
+      "share": 0.0607798047983147,
+      "domain": "main",
+      "port": "p21",
+      "powerConnected": true
+     },
+     {
+      "k": "fuel",
+      "name": "反応物タンク",
+      "w": 0.2508841602456276,
+      "hits": 1,
+      "crew": 0.00002513274122871835,
+      "size": 0.12566370614359174,
+      "at": 0.5,
+      "part": 22,
+      "y": 0.59,
+      "z": 0,
+      "r": 0.042,
+      "share": 1,
+      "domain": "main",
+      "port": "p22",
+      "powerConnected": true
+     },
+     {
+      "k": "battery",
+      "name": "パワーセル",
+      "w": 0.09000000000000001,
+      "hits": 1,
+      "crew": 0.0000054,
+      "size": 0.027,
+      "at": 0.375,
+      "part": 23,
+      "y": 0.61,
+      "z": 0,
+      "r": 0.025,
+      "share": 1,
+      "domain": "main",
+      "port": "p23",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "慣性補償装置",
+      "w": 0.10769650179907586,
+      "hits": 1,
+      "crew": 0.000007068583470577035,
+      "size": 0.035342917352885174,
+      "at": 0.658,
+      "part": 24,
+      "y": 0.66,
+      "z": 0,
+      "r": 0.027,
+      "share": 0.044704161264723034,
+      "domain": "main",
+      "port": "p24",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "生命維持装置",
+      "w": 0.13690000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.050653,
+      "at": 0.6,
+      "part": 29,
+      "y": 0.67,
+      "z": 0,
+      "r": 0.031,
+      "share": 0.06406941051110385,
+      "domain": "main",
+      "port": "p29",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "射出座席機構 1",
+      "w": 0.08410000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.024388999999999997,
+      "at": 0.399,
+      "part": 30,
+      "y": 0.59,
+      "z": 0,
+      "r": 0.024,
+      "share": 0.03084889054854227,
+      "domain": "main",
+      "port": "p30",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "航法コンピューター",
+      "w": 0.048400000000000006,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.010648,
+      "at": 0.6,
+      "part": 31,
+      "y": 0.74,
+      "z": 0,
+      "r": 0.018,
+      "share": 0.013468325333588015,
+      "domain": "main",
+      "port": "p31",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "照準コンピューター",
+      "w": 0.07290000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.019683000000000003,
+      "at": 0.537,
+      "part": 32,
+      "y": 0.72,
+      "z": 0,
+      "r": 0.023,
+      "share": 0.02489641693660903,
+      "domain": "main",
+      "port": "p32",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 1",
+      "w": 0.032400000000000005,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0058319999999999995,
+      "at": 0.558,
+      "part": 33,
+      "y": 0.72,
+      "z": 0,
+      "r": 0.015,
+      "share": 0.007376716129365637,
+      "domain": "main",
+      "port": "p33",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 2",
+      "w": 0.032400000000000005,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0058319999999999995,
+      "at": 0.642,
+      "part": 34,
+      "y": 0.72,
+      "z": 0,
+      "r": 0.015,
+      "share": 0.007376716129365637,
+      "domain": "main",
+      "port": "p34",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 3",
+      "w": 0.032400000000000005,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0058319999999999995,
+      "at": 0.558,
+      "part": 35,
+      "y": 0.72,
+      "z": -0.02,
+      "r": 0.015,
+      "share": 0.007376716129365637,
+      "domain": "main",
+      "port": "p35",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 4",
+      "w": 0.032400000000000005,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0058319999999999995,
+      "at": 0.558,
+      "part": 36,
+      "y": 0.72,
+      "z": 0.02,
+      "r": 0.015,
+      "share": 0.007376716129365637,
+      "domain": "main",
+      "port": "p36",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "レーザーガス供給槽 1",
+      "w": 0.07840000000000003,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.021952000000000006,
+      "at": 0.6,
+      "part": 37,
+      "y": 0.78,
+      "z": -0.09,
+      "r": 0.023,
+      "share": 0.027766404744827593,
+      "domain": "main",
+      "port": "p37",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "レーザーガス供給槽 2",
+      "w": 0.07840000000000003,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.021952000000000006,
+      "at": 0.6,
+      "part": 38,
+      "y": 0.78,
+      "z": 0.09,
+      "r": 0.023,
+      "share": 0.027766404744827593,
+      "domain": "main",
+      "port": "p38",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "着陸脚機構 1",
+      "w": 0.07290000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.019683000000000003,
+      "at": 0.537,
+      "part": 39,
+      "y": 0.72,
+      "z": -0.03,
+      "r": 0.023,
+      "share": 0.02489641693660903,
+      "domain": "main",
+      "port": "p39",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "着陸脚機構 2",
+      "w": 0.07290000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.019683000000000003,
+      "at": 0.537,
+      "part": 40,
+      "y": 0.72,
+      "z": 0.03,
+      "r": 0.023,
+      "share": 0.02489641693660903,
+      "domain": "main",
+      "port": "p40",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "着陸脚機構 3",
+      "w": 0.07290000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.019683000000000003,
+      "at": 0.569,
+      "part": 41,
+      "y": 0.78,
+      "z": -0.09,
+      "r": 0.023,
+      "share": 0.02489641693660903,
+      "domain": "main",
+      "port": "p41",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.09528590609878643,
+      "hits": 1,
+      "crew": 0.000005882649836765743,
+      "size": 0.029413249183828715,
+      "at": 0.567,
+      "part": -19,
+      "machineryOwner": 19,
+      "y": 0.72,
+      "z": 0.28,
+      "r": 0.026,
+      "share": 0.008277129080127349,
+      "domain": "main",
+      "port": "p19",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.09528590609878643,
+      "hits": 1,
+      "crew": 0.000005882649836765743,
+      "size": 0.029413249183828715,
+      "at": 0.567,
+      "part": -20,
+      "machineryOwner": 20,
+      "y": 0.72,
+      "z": -0.28,
+      "r": 0.026,
+      "share": 0.008277129080127349,
+      "domain": "main",
+      "port": "p20",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.0509176898394435,
+      "hits": 1,
+      "crew": 0.000002297910092486619,
+      "size": 0.011489550462433095,
+      "at": 0.584,
+      "part": -21,
+      "machineryOwner": 21,
+      "y": -0.43,
+      "z": 0,
+      "r": 0.019,
+      "share": 0.0032332535469247465,
+      "domain": "main",
+      "port": "p21",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "右舷主翼（Sフォイル・付け根）",
+      "w": 1.0773357902054004,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.26122736070900443,
+      "at": 0.404,
+      "part": 5,
+      "ext": 1,
+      "y": 0.54,
+      "z": 0.4,
+      "r": 0.053,
+      "share": 0.10000353054351693,
+      "domain": "main",
+      "port": "p5",
+      "powerConnected": false
+     },
+     {
+      "k": "dissipator",
+      "name": "左舷主翼（Sフォイル・付け根）",
+      "w": 1.0773357117154987,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.26122733216120675,
+      "at": 0.404,
+      "part": 6,
+      "ext": 1,
+      "y": 0.54,
+      "z": -0.4,
+      "r": 0.053,
+      "share": 0.1000035196147974,
+      "domain": "main",
+      "port": "p6",
+      "powerConnected": false
+     },
+     {
+      "k": "dissipator",
+      "name": "右舷主翼（Sフォイル）",
+      "w": 2.215259458511551,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.6345341746585051,
+      "at": 0.426,
+      "part": 7,
+      "ext": 1,
+      "y": -0.02,
+      "z": 0.74,
+      "r": 0.072,
+      "share": 0.24291352002386107,
+      "domain": "main",
+      "port": "p7",
+      "powerConnected": false
+     },
+     {
+      "k": "dissipator",
+      "name": "左舷主翼（Sフォイル）",
+      "w": 2.215259365467241,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.6345341346813863,
+      "at": 0.426,
+      "part": 8,
+      "ext": 1,
+      "y": -0.02,
+      "z": -0.74,
+      "r": 0.072,
+      "share": 0.24291350471974815,
+      "domain": "main",
+      "port": "p8",
+      "powerConnected": false
+     },
+     {
+      "k": "dissipator",
+      "name": "腹部Sフォイル（垂直安定板）",
+      "w": 2.2571071300089995,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.8206583806794776,
+      "at": 0.474,
+      "part": 9,
+      "ext": 1,
+      "y": -0.17,
+      "z": 0,
+      "r": 0.078,
+      "share": 0.31416592509807645,
+      "domain": "main",
+      "port": "p9",
+      "powerConnected": false
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（後部）",
+      "w": 0.07124096025380762,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.3273088576871985,
+      "at": 0.195,
+      "y": 0.81,
+      "z": 0,
+      "r": 0.057,
+      "share": 0.04391891891891891,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（中央後部）",
+      "w": 0.35318490239938855,
+      "hits": 1,
+      "crew": 0,
+      "size": 3.612986236777922,
+      "at": 0.392,
+      "y": 0.37,
+      "z": 0,
+      "r": 0.128,
+      "share": 0.48479729729729726,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（中央前部）",
+      "w": 0.34160375090135064,
+      "hits": 1,
+      "crew": 0,
+      "size": 3.4367430057155843,
+      "at": 0.596,
+      "y": 0.3,
+      "z": 0,
+      "r": 0.126,
+      "share": 0.46114864864864863,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（前部）",
+      "w": 0.026802894665920476,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.07553281331243042,
+      "at": 0.763,
+      "y": 0.69,
+      "z": 0,
+      "r": 0.035,
+      "share": 0.010135135135135134,
+      "domain": "main"
+     },
+     {
+      "k": "hull",
+      "name": "船体構造",
+      "w": 11.366256207077809,
+      "hits": null,
+      "crew": 0,
+      "size": 1,
+      "share": 1,
+      "domain": "main"
+     }
+    ],
+    "energyModel": {
+     "version": 0,
+     "eta": 0.75
+    },
+    "D": 0,
+    "shieldBuffer": 0,
+    "wCap": 0,
+    "crewNeed": 1,
+    "crewMax": 1,
+    "hp": 1,
+    "len": 6,
+    "width": 13.33307933807373,
+    "height": 5.850300121307373,
+    "grid": {
+     "P": 1780405308135366400,
+     "fixed": 16202532422957864,
+     "cooling": 0,
+     "De": 1184301890587012400,
+     "Ds": 0,
+     "Dw": 1675600000000000000,
+     "domains": [
+      {
+       "id": "main",
+       "P": 1780405308135366400,
+       "reactors": [
+        5,
+        6,
+        7
+       ],
+       "sources": [
+        {
+         "moduleIndex": 5,
+         "P": 718822108364604800
+        },
+        {
+         "moduleIndex": 6,
+         "P": 718822108364604800
+        },
+        {
+         "moduleIndex": 7,
+         "P": 342761091406156860
+        }
+       ],
+       "modules": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39
+       ],
+       "protection": 1
+      }
+     ],
+     "powerPaths": [
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "f25",
+       "cap": 717822108364604800,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "f25",
+       "cap": 118977891635395200,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "f26",
+       "cap": 717822108364604800,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "f26",
+       "cap": 118977891635395200,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "f27",
+       "cap": 1000000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "f28",
+       "cap": 1000000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p19",
+       "cap": 555433581154675460,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p20",
+       "cap": 555433581154675460,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p21",
+       "cap": 73434728277661420,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "hotel",
+       "cap": 16202532422957864,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p15",
+       "cap": 953090142526933.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p22",
+       "cap": 953090142526933.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p23",
+       "cap": 953090142526933.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p24",
+       "cap": 953090142526933.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p29",
+       "cap": 953090142526933.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p30",
+       "cap": 953090142526933.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p31",
+       "cap": 953090142526933.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p32",
+       "cap": 953090142526933.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p33",
+       "cap": 953090142526933.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p34",
+       "cap": 953090142526933.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p35",
+       "cap": 953090142526933.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p36",
+       "cap": 953090142526933.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p37",
+       "cap": 953090142526933.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p38",
+       "cap": 953090142526933.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p39",
+       "cap": 953090142526933.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p40",
+       "cap": 953090142526933.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p41",
+       "cap": 953090142526933.1,
+       "auto": true,
+       "ok": true
+      }
+     ],
+     "trunks": [
+      {
+       "port": "p23",
+       "moduleIndex": 12
+      }
+     ],
+     "fixedLoads": [
+      {
+       "id": "hotel",
+       "port": "hotel",
+       "weight": 16202532422957864,
+       "domain": "main"
+      }
+     ],
+     "coolingLoads": []
+    },
+    "propulsion": {
+     "version": 1,
+     "engines": [
+      {
+       "version": 1,
+       "id": 19,
+       "machineryId": 19,
+       "ratedInputW": 555433581154675460,
+       "driveProfileId": "standard",
+       "machineryGradeId": "advanced",
+       "wattsPerNewton": 2000000000,
+       "ratedThrustN": 277716790.57733774,
+       "effectiveMachineryVolumeM3": 0.029413249183828732,
+       "machineryVolumeM3": 0.029413249183828732,
+       "machineryLengthM": 0.15,
+       "machineryRadiusM": 0.27999999999999997,
+       "machineryDiameterM": 0.5599999999999999,
+       "machineryOffsetM": 1.625,
+       "maxInputW": 1000050472250176900,
+       "maxRatedInputW": 1000050472250176900,
+       "inputDensityWPerM3": 18883788651953836000,
+       "allowedInputDensityWPerM3": 34000000000000000000,
+       "cost": 6128.5221053105115,
+       "powerNode": "p19",
+       "heatNode": "p19",
+       "reactorId": 16,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 555433581154675460,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 8,
+       "machineryModuleIndex": 27,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 1000050472250176900
+      },
+      {
+       "version": 1,
+       "id": 20,
+       "machineryId": 20,
+       "ratedInputW": 555433581154675460,
+       "driveProfileId": "standard",
+       "machineryGradeId": "advanced",
+       "wattsPerNewton": 2000000000,
+       "ratedThrustN": 277716790.57733774,
+       "effectiveMachineryVolumeM3": 0.029413249183828732,
+       "machineryVolumeM3": 0.029413249183828732,
+       "machineryLengthM": 0.15,
+       "machineryRadiusM": 0.27999999999999997,
+       "machineryDiameterM": 0.5599999999999999,
+       "machineryOffsetM": 1.625,
+       "maxInputW": 1000050472250176900,
+       "maxRatedInputW": 1000050472250176900,
+       "inputDensityWPerM3": 18883788651953836000,
+       "allowedInputDensityWPerM3": 34000000000000000000,
+       "cost": 6128.5221053105115,
+       "powerNode": "p20",
+       "heatNode": "p20",
+       "reactorId": 17,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 555433581154675460,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 9,
+       "machineryModuleIndex": 28,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 1000050472250176900
+      },
+      {
+       "version": 1,
+       "id": 21,
+       "machineryId": 21,
+       "ratedInputW": 73434728277661420,
+       "driveProfileId": "standard",
+       "machineryGradeId": "advanced",
+       "wattsPerNewton": 2000000000,
+       "ratedThrustN": 36717364.138830714,
+       "effectiveMachineryVolumeM3": 0.011489550462433098,
+       "machineryVolumeM3": 0.011489550462433098,
+       "machineryLengthM": 0.15,
+       "machineryRadiusM": 0.175,
+       "machineryDiameterM": 0.35,
+       "machineryOffsetM": 0.55,
+       "maxInputW": 390644715722725300,
+       "maxRatedInputW": 390644715722725300,
+       "inputDensityWPerM3": 6391436159122838000,
+       "allowedInputDensityWPerM3": 34000000000000000000,
+       "cost": 255.2910051374741,
+       "powerNode": "p21",
+       "heatNode": "p21",
+       "reactorId": 18,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 73434728277661420,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 10,
+       "machineryModuleIndex": 29,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 390644715722725300
+      }
+     ],
+     "massKg": 12263.282539880189,
+     "ratedThrustN": 592150945.2935061,
+     "ratedAccelMps2": 48286.49616184179,
+     "structuralAccelerationLimitMps2": 968864.6321584986,
+     "inertialFactor": 1,
+     "accelerationLimitMps2": 48286.49616184179
+    },
+    "profileVersion": 4,
+    "heat": {
+     "v": 1,
+     "src": [
+      {
+       "k": "reactor",
+       "id": "p16",
+       "n": "右舷ナセル反応炉 #16",
+       "g": "high",
+       "sh": 0.479586,
+       "st": 2070207672090061800,
+       "m": [
+        5
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "reactor",
+       "id": "p17",
+       "n": "左舷ナセル反応炉 #17",
+       "g": "high",
+       "sh": 0.479586,
+       "st": 2070207672090061800,
+       "m": [
+        6
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "reactor",
+       "id": "p18",
+       "n": "腹部ポッド反応炉 #18",
+       "g": "high",
+       "sh": 0.0408287,
+       "st": 176243347866387460,
+       "m": [
+        7
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p19",
+       "n": "右舷ナセル・イオンエンジン #19",
+       "g": "high",
+       "sh": 0.468997,
+       "st": 1666300743464026600,
+       "m": [
+        8,
+        27
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p20",
+       "n": "左舷ナセル・イオンエンジン #20",
+       "g": "high",
+       "sh": 0.468997,
+       "st": 1666300743464026600,
+       "m": [
+        9,
+        28
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p21",
+       "n": "腹部イオンエンジン #21",
+       "g": "high",
+       "sh": 0.0620068,
+       "st": 220304184832984300,
+       "m": [
+        10,
+        29
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f25",
+       "n": "武装（艦首区画）",
+       "g": "high",
+       "sh": 0.499305,
+       "st": 10774479801538023000,
+       "m": [
+        0
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f26",
+       "n": "武装（艦首区画）",
+       "g": "high",
+       "sh": 0.499305,
+       "st": 10774479801538023000,
+       "m": [
+        1
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f27",
+       "n": "武装（艦首区画）",
+       "g": "high",
+       "sh": 0.000695122,
+       "st": 15000000000000000,
+       "m": [
+        2
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f28",
+       "n": "武装（艦首区画）",
+       "g": "high",
+       "sh": 0.000695122,
+       "st": 15000000000000000,
+       "m": [
+        3
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "hotel",
+       "id": "hotel",
+       "n": "生活・電子設備",
+       "g": "low",
+       "sh": 1,
+       "st": 972151945377471900,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      }
+     ],
+     "dis": [
+      {
+       "id": "p5",
+       "n": "右舷主翼（Sフォイル・付け根） #5",
+       "k": "wing",
+       "g": "high",
+       "cap": 24556372880710910,
+       "m": 30,
+       "sec": 2,
+       "src": -1
+      },
+      {
+       "id": "p6",
+       "n": "左舷主翼（Sフォイル・付け根） #6",
+       "k": "wing",
+       "g": "high",
+       "cap": 24556372880710910,
+       "m": 31,
+       "sec": 2,
+       "src": -1
+      },
+      {
+       "id": "p7",
+       "n": "右舷主翼（Sフォイル） #7",
+       "k": "wing",
+       "g": "high",
+       "cap": 72940876158797020,
+       "m": 32,
+       "sec": 2,
+       "src": -1
+      },
+      {
+       "id": "p8",
+       "n": "左舷主翼（Sフォイル） #8",
+       "k": "wing",
+       "g": "high",
+       "cap": 72940876158797020,
+       "m": 33,
+       "sec": 2,
+       "src": -1
+      },
+      {
+       "id": "p9",
+       "n": "腹部Sフォイル（垂直安定板） #9",
+       "k": "wing",
+       "g": "high",
+       "cap": 71171758369703260,
+       "m": 34,
+       "sec": 3,
+       "src": -1
+      },
+      {
+       "id": "skin",
+       "n": "外殻からの放熱",
+       "k": "skin",
+       "g": "low",
+       "cap": 354712737196737360000,
+       "m": -1,
+       "sec": -1,
+       "src": -1
+      },
+      {
+       "id": "int:p16",
+       "n": "右舷ナセル反応炉 #16（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 34503461201501028,
+       "m": -1,
+       "sec": -1,
+       "src": 0
+      },
+      {
+       "id": "int:p17",
+       "n": "左舷ナセル反応炉 #17（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 34503461201501028,
+       "m": -1,
+       "sec": -1,
+       "src": 1
+      },
+      {
+       "id": "int:p18",
+       "n": "腹部ポッド反応炉 #18（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 16452532387495530,
+       "m": -1,
+       "sec": -1,
+       "src": 2
+      },
+      {
+       "id": "int:p19",
+       "n": "右舷ナセル・イオンエンジン #19（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 27771679057733776,
+       "m": -1,
+       "sec": -1,
+       "src": 3
+      },
+      {
+       "id": "int:p20",
+       "n": "左舷ナセル・イオンエンジン #20（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 27771679057733776,
+       "m": -1,
+       "sec": -1,
+       "src": 4
+      },
+      {
+       "id": "int:p21",
+       "n": "腹部イオンエンジン #21（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 3671736413883071.5,
+       "m": -1,
+       "sec": -1,
+       "src": 5
+      },
+      {
+       "id": "int:f25",
+       "n": "武装（艦首区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 261500000000000000,
+       "m": -1,
+       "sec": -1,
+       "src": 6
+      },
+      {
+       "id": "int:f26",
+       "n": "武装（艦首区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 261500000000000000,
+       "m": -1,
+       "sec": -1,
+       "src": 7
+      },
+      {
+       "id": "int:f27",
+       "n": "武装（艦首区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 312500000000000,
+       "m": -1,
+       "sec": -1,
+       "src": 8
+      },
+      {
+       "id": "int:f28",
+       "n": "武装（艦首区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 312500000000000,
+       "m": -1,
+       "sec": -1,
+       "src": 9
+      }
+     ],
+     "ln": [
+      {
+       "s": 0,
+       "d": 6,
+       "cap": 34503461201501028,
+       "sec": -1
+      },
+      {
+       "s": 0,
+       "d": 0,
+       "cap": 60381057102626800,
+       "sec": 4
+      },
+      {
+       "s": 0,
+       "d": 4,
+       "cap": 60381057102626800,
+       "sec": 4
+      },
+      {
+       "s": 1,
+       "d": 7,
+       "cap": 34503461201501028,
+       "sec": -1
+      },
+      {
+       "s": 1,
+       "d": 1,
+       "cap": 60381057102626800,
+       "sec": 4
+      },
+      {
+       "s": 1,
+       "d": 4,
+       "cap": 60381057102626800,
+       "sec": 4
+      },
+      {
+       "s": 2,
+       "d": 8,
+       "cap": 16452532387495530,
+       "sec": -1
+      },
+      {
+       "s": 2,
+       "d": 4,
+       "cap": 28791931678117176,
+       "sec": 4
+      },
+      {
+       "s": 2,
+       "d": 0,
+       "cap": 28791931678117176,
+       "sec": 4
+      },
+      {
+       "s": 3,
+       "d": 9,
+       "cap": 27771679057733776,
+       "sec": -1
+      },
+      {
+       "s": 3,
+       "d": 0,
+       "cap": 41657518586600664,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 4,
+       "cap": 41657518586600664,
+       "sec": 2
+      },
+      {
+       "s": 4,
+       "d": 10,
+       "cap": 27771679057733776,
+       "sec": -1
+      },
+      {
+       "s": 4,
+       "d": 1,
+       "cap": 41657518586600664,
+       "sec": 0
+      },
+      {
+       "s": 4,
+       "d": 4,
+       "cap": 41657518586600664,
+       "sec": 2
+      },
+      {
+       "s": 5,
+       "d": 11,
+       "cap": 3671736413883071.5,
+       "sec": -1
+      },
+      {
+       "s": 5,
+       "d": 4,
+       "cap": 5507604620824608,
+       "sec": 3
+      },
+      {
+       "s": 5,
+       "d": 0,
+       "cap": 5507604620824608,
+       "sec": 3
+      },
+      {
+       "s": 6,
+       "d": 12,
+       "cap": 261500000000000000,
+       "sec": -1
+      },
+      {
+       "s": 6,
+       "d": 2,
+       "cap": 392250000000000000,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 0,
+       "cap": 392250000000000000,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 13,
+       "cap": 261500000000000000,
+       "sec": -1
+      },
+      {
+       "s": 7,
+       "d": 3,
+       "cap": 392250000000000000,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 1,
+       "cap": 392250000000000000,
+       "sec": 3
+      },
+      {
+       "s": 8,
+       "d": 14,
+       "cap": 312500000000000,
+       "sec": -1
+      },
+      {
+       "s": 8,
+       "d": 0,
+       "cap": 468750000000000,
+       "sec": 4
+      },
+      {
+       "s": 8,
+       "d": 4,
+       "cap": 468750000000000,
+       "sec": 4
+      },
+      {
+       "s": 9,
+       "d": 15,
+       "cap": 312500000000000,
+       "sec": -1
+      },
+      {
+       "s": 9,
+       "d": 1,
+       "cap": 468750000000000,
+       "sec": 4
+      },
+      {
+       "s": 9,
+       "d": 4,
+       "cap": 468750000000000,
+       "sec": 4
+      },
+      {
+       "s": 10,
+       "d": 4,
+       "cap": 24303798634436796,
+       "sec": 4
+      },
+      {
+       "s": 10,
+       "d": 0,
+       "cap": 24303798634436796,
+       "sec": 3
+      },
+      {
+       "s": 10,
+       "d": 1,
+       "cap": 24303798634436796,
+       "sec": 3
+      },
+      {
+       "s": 10,
+       "d": 2,
+       "cap": 24303798634436796,
+       "sec": 3
+      },
+      {
+       "s": 10,
+       "d": 3,
+       "cap": 24303798634436796,
+       "sec": 3
+      },
+      {
+       "s": 10,
+       "d": 5,
+       "cap": 354712737196737360000,
+       "sec": -1
+      }
+     ]
+    }
    }
   },
   "vulture": {
    "reference": "craft_vulture",
-   "signature": "96mpev",
-   "build": 144429,
+   "signature": "srzbka",
+   "build": 144544,
    "crew": 0,
-   "total": 144429,
+   "total": 144544,
    "by": {
     "hull": 2,
     "armor": 1,
     "power": 48324,
-    "drive": 27002,
+    "drive": 27117,
     "command": 13500,
     "weapons": 38600,
     "systems": 17000
@@ -601,21 +12897,1527 @@ const CRAFT_PRICE_CATALOG={
    "heat": {
     "up": 0,
     "upS": 0,
-    "down": 0.113,
+    "down": 0.122,
     "T": 0
+   },
+   "powerProfile": {
+    "name": "ヴァルチャー級ドロイド・スターファイター",
+    "modules": [
+     {
+      "k": "weapon",
+      "fit": 20,
+      "name": "レーザー砲",
+      "w": 0.9984000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.0005,
+      "stock": 0,
+      "at": 0.886,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.37,
+      "z": 0.85,
+      "r": 0.187,
+      "share": 0.25,
+      "domain": "main",
+      "port": "f20",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 21,
+      "name": "レーザー砲",
+      "w": 0.9984000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.0005,
+      "stock": 0,
+      "at": 0.886,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.37,
+      "z": -0.85,
+      "r": 0.187,
+      "share": 0.25,
+      "domain": "main",
+      "port": "f21",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 22,
+      "name": "レーザー砲",
+      "w": 0.9984000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.0005,
+      "stock": 0,
+      "at": 0.886,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.37,
+      "z": 0.85,
+      "r": 0.187,
+      "share": 0.25,
+      "domain": "main",
+      "port": "f22",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 23,
+      "name": "レーザー砲",
+      "w": 0.9984000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.0005,
+      "stock": 0,
+      "at": 0.886,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.37,
+      "z": -0.85,
+      "r": 0.187,
+      "share": 0.25,
+      "domain": "main",
+      "port": "f23",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 24,
+      "name": "魚雷発射管",
+      "w": 0.84,
+      "hits": 1,
+      "crew": 0,
+      "size": 0,
+      "stock": 0,
+      "at": 0.51,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.15,
+      "z": 0.12,
+      "r": 0.101,
+      "share": 0,
+      "domain": "main",
+      "port": "f24",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 25,
+      "name": "魚雷発射管",
+      "w": 0.84,
+      "hits": 1,
+      "crew": 0,
+      "size": 0,
+      "stock": 0,
+      "at": 0.51,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.15,
+      "z": -0.12,
+      "r": 0.101,
+      "share": 0,
+      "domain": "main",
+      "port": "f25",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 26,
+      "name": "ミサイル発射管",
+      "w": 0.648,
+      "hits": 1,
+      "crew": 0,
+      "size": 0,
+      "stock": 0,
+      "at": 0.417,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.13,
+      "z": 0,
+      "r": 0.086,
+      "share": 0,
+      "domain": "main",
+      "port": "f26",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "ドロイド・ブレイン",
+      "w": 0.11560000000000004,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.03930400000000001,
+      "at": 0.237,
+      "part": 12,
+      "y": 0.33,
+      "z": 0,
+      "r": 0.024,
+      "share": 0.15292821872516119,
+      "domain": "main",
+      "port": "p12",
+      "powerConnected": true
+     },
+     {
+      "k": "battery",
+      "name": "パワーセル",
+      "w": 0.040000000000000015,
+      "hits": 1,
+      "crew": 0.0000016000000000000006,
+      "size": 0.008000000000000002,
+      "at": 0.323,
+      "part": 13,
+      "y": 0.21,
+      "z": 0,
+      "r": 0.014,
+      "share": 1,
+      "domain": "main",
+      "port": "p13",
+      "powerConnected": true
+     },
+     {
+      "k": "fuel",
+      "name": "固形燃料スラグ",
+      "w": 0.0627210400614069,
+      "hits": 1,
+      "crew": 0.0000031415926535897938,
+      "size": 0.015707963267948967,
+      "at": 0.395,
+      "part": 14,
+      "y": 0.16,
+      "z": 0,
+      "r": 0.018,
+      "share": 1,
+      "domain": "main",
+      "port": "p14",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "慣性補償装置",
+      "w": 0.07998126082715985,
+      "hits": 1,
+      "crew": 0.000004523893421169302,
+      "size": 0.02261946710584651,
+      "at": 0.151,
+      "part": 15,
+      "y": 0.13,
+      "z": 0,
+      "r": 0.02,
+      "share": 0.088010248651778,
+      "domain": "main",
+      "port": "p15",
+      "powerConnected": true
+     },
+     {
+      "k": "reactor",
+      "name": "反応炉",
+      "w": 0.11459464643779016,
+      "hits": 1,
+      "crew": 0.000019396193043263377,
+      "size": 0.038792386086526756,
+      "at": 0.478,
+      "part": 16,
+      "y": 0,
+      "z": 0.86,
+      "r": 0.024,
+      "share": 0.5,
+      "domain": "main",
+      "port": "p16",
+      "powerConnected": true
+     },
+     {
+      "k": "reactor",
+      "name": "反応炉",
+      "w": 0.11459464643779016,
+      "hits": 1,
+      "crew": 0.000019396193043263377,
+      "size": 0.038792386086526756,
+      "at": 0.478,
+      "part": 17,
+      "y": 0,
+      "z": -0.86,
+      "r": 0.024,
+      "share": 0.5,
+      "domain": "main",
+      "port": "p17",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "推進機関",
+      "w": 0.34888702616969863,
+      "hits": 1,
+      "crew": 0.00008243036468195043,
+      "size": 0.20607591170487607,
+      "at": 0.355,
+      "part": 18,
+      "y": 0,
+      "z": 0.86,
+      "r": 0.042,
+      "share": 0.45283084838461274,
+      "domain": "main",
+      "port": "p18",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "推進機関",
+      "w": 0.34888702616969863,
+      "hits": 1,
+      "crew": 0.00008243036468195043,
+      "size": 0.20607591170487607,
+      "at": 0.355,
+      "part": 19,
+      "y": 0,
+      "z": -0.86,
+      "r": 0.042,
+      "share": 0.45283084838461274,
+      "domain": "main",
+      "port": "p19",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "航法コンピューター",
+      "w": 0.048400000000000006,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.010648,
+      "at": 0.487,
+      "part": 27,
+      "y": 0,
+      "z": 0,
+      "r": 0.016,
+      "share": 0.04143038044436993,
+      "domain": "main",
+      "port": "p27",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "照準コンピューター",
+      "w": 0.10240000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.032768000000000005,
+      "at": 0.176,
+      "part": 28,
+      "y": 0.41,
+      "z": 0,
+      "r": 0.023,
+      "share": 0.1274972489106982,
+      "domain": "main",
+      "port": "p28",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 1",
+      "w": 0.032400000000000005,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0058319999999999995,
+      "at": 0.144,
+      "part": 29,
+      "y": 0.41,
+      "z": 0,
+      "r": 0.013,
+      "share": 0.022691771107397205,
+      "domain": "main",
+      "port": "p29",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 2",
+      "w": 0.032400000000000005,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0058319999999999995,
+      "at": 0.144,
+      "part": 30,
+      "y": 0.29,
+      "z": 0,
+      "r": 0.013,
+      "share": 0.022691771107397205,
+      "domain": "main",
+      "port": "p30",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 3",
+      "w": 0.032400000000000005,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0058319999999999995,
+      "at": 0.126,
+      "part": 31,
+      "y": 0.29,
+      "z": 0,
+      "r": 0.013,
+      "share": 0.022691771107397205,
+      "domain": "main",
+      "port": "p31",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 4",
+      "w": 0.032400000000000005,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0058319999999999995,
+      "at": 0.144,
+      "part": 32,
+      "y": 0.29,
+      "z": -0.06,
+      "r": 0.013,
+      "share": 0.022691771107397205,
+      "domain": "main",
+      "port": "p32",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "レーザーガス供給槽 1",
+      "w": 0.1225,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.04287499999999999,
+      "at": 0.249,
+      "part": 33,
+      "y": 0.17,
+      "z": -0.12,
+      "r": 0.025,
+      "share": 0.1668226485304621,
+      "domain": "main",
+      "port": "p33",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "レーザーガス供給槽 2",
+      "w": 0.1225,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.04287499999999999,
+      "at": 0.249,
+      "part": 34,
+      "y": 0.17,
+      "z": 0.12,
+      "r": 0.025,
+      "share": 0.1668226485304621,
+      "domain": "main",
+      "port": "p34",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "歩行脚支持機構 1",
+      "w": 0.048400000000000006,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.010648,
+      "at": 0.487,
+      "part": 35,
+      "y": 0,
+      "z": -0.08,
+      "r": 0.016,
+      "share": 0.04143038044436993,
+      "domain": "main",
+      "port": "p35",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "歩行脚支持機構 2",
+      "w": 0.048400000000000006,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.010648,
+      "at": 0.487,
+      "part": 36,
+      "y": 0,
+      "z": 0.08,
+      "r": 0.016,
+      "share": 0.04143038044436993,
+      "domain": "main",
+      "port": "p36",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "歩行脚支持機構 3",
+      "w": 0.048400000000000006,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.010648,
+      "at": 0.487,
+      "part": 37,
+      "y": 0,
+      "z": -0.15,
+      "r": 0.016,
+      "share": 0.04143038044436993,
+      "domain": "main",
+      "port": "p37",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "歩行脚支持機構 4",
+      "w": 0.048400000000000006,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.010648,
+      "at": 0.487,
+      "part": 38,
+      "y": 0,
+      "z": 0.15,
+      "r": 0.016,
+      "share": 0.04143038044436993,
+      "domain": "main",
+      "port": "p38",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.07723832732450704,
+      "hits": 1,
+      "crew": 0.000004293181861687301,
+      "size": 0.021465909308436507,
+      "at": 0.446,
+      "part": -18,
+      "machineryOwner": 18,
+      "y": 0,
+      "z": 0.86,
+      "r": 0.02,
+      "share": 0.04716915161538727,
+      "domain": "main",
+      "port": "p18",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.07723832732450704,
+      "hits": 1,
+      "crew": 0.000004293181861687301,
+      "size": 0.021465909308436507,
+      "at": 0.446,
+      "part": -19,
+      "machineryOwner": 19,
+      "y": 0,
+      "z": -0.86,
+      "r": 0.02,
+      "share": 0.04716915161538727,
+      "domain": "main",
+      "port": "p19",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "上翼",
+      "w": 2.0935804733291814,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.5911244695841429,
+      "at": 0.481,
+      "part": 4,
+      "ext": 1,
+      "y": 0.58,
+      "z": 0.88,
+      "r": 0.06,
+      "share": 0.2500000009543655,
+      "domain": "main",
+      "port": "p4",
+      "powerConnected": false
+     },
+     {
+      "k": "dissipator",
+      "name": "上翼",
+      "w": 2.0935804733291814,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.5911244695841429,
+      "at": 0.481,
+      "part": 5,
+      "ext": 1,
+      "y": 0.58,
+      "z": -0.88,
+      "r": 0.06,
+      "share": 0.2500000009543655,
+      "domain": "main",
+      "port": "p5",
+      "powerConnected": false
+     },
+     {
+      "k": "dissipator",
+      "name": "下翼",
+      "w": 2.0935804626729633,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.5911244650709526,
+      "at": 0.481,
+      "part": 6,
+      "ext": 1,
+      "y": -0.58,
+      "z": 0.88,
+      "r": 0.06,
+      "share": 0.24999999904563452,
+      "domain": "main",
+      "port": "p6",
+      "powerConnected": false
+     },
+     {
+      "k": "dissipator",
+      "name": "下翼",
+      "w": 2.0935804626729633,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.5911244650709526,
+      "at": 0.481,
+      "part": 7,
+      "ext": 1,
+      "y": -0.58,
+      "z": -0.88,
+      "r": 0.06,
+      "share": 0.24999999904563452,
+      "domain": "main",
+      "port": "p7",
+      "powerConnected": false
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（後部）",
+      "w": 0.13451523593404205,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.849220223453282,
+      "at": 0.173,
+      "y": 0.12,
+      "z": 0,
+      "r": 0.068,
+      "share": 0.16883116883116883,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（中央後部）",
+      "w": 0.2813314269023268,
+      "hits": 1,
+      "crew": 0,
+      "size": 2.568564552783311,
+      "at": 0.378,
+      "y": 0.07,
+      "z": 0,
+      "r": 0.098,
+      "share": 0.5106493506493506,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（中央前部）",
+      "w": 0.16981779102181124,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.2045862246521937,
+      "at": 0.594,
+      "y": 0.01,
+      "z": 0,
+      "r": 0.076,
+      "share": 0.23948051948051946,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（前部）",
+      "w": 0.08246423527752052,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.4076257072575753,
+      "at": 0.845,
+      "y": 0,
+      "z": 0,
+      "r": 0.053,
+      "share": 0.08103896103896102,
+      "domain": "main"
+     },
+     {
+      "k": "hull",
+      "name": "船体構造",
+      "w": 10.47767571713553,
+      "hits": null,
+      "crew": 0,
+      "size": 1,
+      "share": 1,
+      "domain": "main"
+     }
+    ],
+    "energyModel": {
+     "version": 0,
+     "eta": 0.75
+    },
+    "D": 0,
+    "shieldBuffer": 0,
+    "wCap": 0,
+    "crewNeed": 0,
+    "crewMax": 0,
+    "hp": 1,
+    "len": 6.960000038146973,
+    "width": 4.008000095367432,
+    "height": 1.758999959565699,
+    "grid": {
+     "P": 406311739841589500,
+     "fixed": 15738438781802650,
+     "cooling": 0,
+     "De": 140131619959315710,
+     "Ds": 0,
+     "Dw": 3350200000000000000,
+     "domains": [
+      {
+       "id": "main",
+       "P": 406311739841589500,
+       "reactors": [
+        11,
+        12
+       ],
+       "sources": [
+        {
+         "moduleIndex": 11,
+         "P": 203155869920794750
+        },
+        {
+         "moduleIndex": 12,
+         "P": 203155869920794750
+        }
+       ],
+       "modules": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37
+       ],
+       "protection": 1
+      }
+     ],
+     "powerPaths": [
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "f20",
+       "cap": 203155869920794750,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p13",
+       "to": "f20",
+       "cap": 633644130079205200,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "f21",
+       "cap": 203155869920794750,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p13",
+       "to": "f21",
+       "cap": 633644130079205200,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p13",
+       "to": "f22",
+       "cap": 63045073174923010,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "f22",
+       "cap": 773754926825077000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "f23",
+       "cap": 805277463412538500,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "f23",
+       "cap": 31522536587461504,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p13",
+       "to": "f24",
+       "cap": 1000000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p13",
+       "to": "f25",
+       "cap": 1000000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p13",
+       "to": "f26",
+       "cap": 1000000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p18",
+       "cap": 70065809979657860,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p19",
+       "cap": 70065809979657860,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "hotel",
+       "cap": 15738438781802650,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p12",
+       "cap": 983652423862665.6,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p13",
+       "cap": 983652423862665.6,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p14",
+       "cap": 983652423862665.6,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p15",
+       "cap": 983652423862665.6,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p27",
+       "cap": 983652423862665.6,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p28",
+       "cap": 983652423862665.6,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p29",
+       "cap": 983652423862665.6,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p30",
+       "cap": 983652423862665.6,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p31",
+       "cap": 983652423862665.6,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p32",
+       "cap": 983652423862665.6,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p33",
+       "cap": 983652423862665.6,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p34",
+       "cap": 983652423862665.6,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p35",
+       "cap": 983652423862665.6,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p36",
+       "cap": 983652423862665.6,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p37",
+       "cap": 983652423862665.6,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p38",
+       "cap": 983652423862665.6,
+       "auto": true,
+       "ok": true
+      }
+     ],
+     "trunks": [
+      {
+       "port": "p13",
+       "moduleIndex": 8
+      }
+     ],
+     "fixedLoads": [
+      {
+       "id": "hotel",
+       "port": "hotel",
+       "weight": 15738438781802650,
+       "domain": "main"
+      }
+     ],
+     "coolingLoads": []
+    },
+    "propulsion": {
+     "version": 1,
+     "engines": [
+      {
+       "version": 1,
+       "id": 18,
+       "machineryId": 18,
+       "ratedInputW": 70065809979657860,
+       "driveProfileId": "standard",
+       "machineryGradeId": "dense",
+       "wattsPerNewton": 2000000000,
+       "ratedThrustN": 35032904.98982893,
+       "effectiveMachineryVolumeM3": 0.021465909308436518,
+       "machineryVolumeM3": 0.021465909308436518,
+       "machineryLengthM": 0.15,
+       "machineryRadiusM": 0.23920000000000002,
+       "machineryDiameterM": 0.47840000000000005,
+       "machineryOffsetM": 0.62,
+       "maxInputW": 72984091648684160,
+       "maxRatedInputW": 72984091648684160,
+       "inputDensityWPerM3": 3264050405361614000,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "cost": 57.4084789285157,
+       "powerNode": "p18",
+       "heatNode": "p18",
+       "reactorId": 16,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 70065809979657860,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 13,
+       "machineryModuleIndex": 27,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 72984091648684160
+      },
+      {
+       "version": 1,
+       "id": 19,
+       "machineryId": 19,
+       "ratedInputW": 70065809979657860,
+       "driveProfileId": "standard",
+       "machineryGradeId": "dense",
+       "wattsPerNewton": 2000000000,
+       "ratedThrustN": 35032904.98982893,
+       "effectiveMachineryVolumeM3": 0.021465909308436518,
+       "machineryVolumeM3": 0.021465909308436518,
+       "machineryLengthM": 0.15,
+       "machineryRadiusM": 0.23920000000000002,
+       "machineryDiameterM": 0.47840000000000005,
+       "machineryOffsetM": 0.62,
+       "maxInputW": 72984091648684160,
+       "maxRatedInputW": 72984091648684160,
+       "inputDensityWPerM3": 3264050405361614000,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "cost": 57.4084789285157,
+       "powerNode": "p19",
+       "heatNode": "p19",
+       "reactorId": 17,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 70065809979657860,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 14,
+       "machineryModuleIndex": 28,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 72984091648684160
+      }
+     ],
+     "massKg": 9170.436834225151,
+     "ratedThrustN": 70065809.97965786,
+     "ratedAccelMps2": 7640.400478869665,
+     "structuralAccelerationLimitMps2": 230127.04608636303,
+     "inertialFactor": 1,
+     "accelerationLimitMps2": 7640.400478869665
+    },
+    "profileVersion": 4,
+    "heat": {
+     "v": 1,
+     "src": [
+      {
+       "k": "reactor",
+       "id": "p16",
+       "n": "反応炉 #16",
+       "g": "high",
+       "sh": 0.5,
+       "st": 585088905371888900,
+       "m": [
+        11
+       ],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "reactor",
+       "id": "p17",
+       "n": "反応炉 #17",
+       "g": "high",
+       "sh": 0.5,
+       "st": 585088905371888900,
+       "m": [
+        12
+       ],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p18",
+       "n": "推進機関 #18",
+       "g": "high",
+       "sh": 0.5,
+       "st": 210197429938973570,
+       "m": [
+        13,
+        27
+       ],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p19",
+       "n": "推進機関 #19",
+       "g": "high",
+       "sh": 0.5,
+       "st": 210197429938973570,
+       "m": [
+        14,
+        28
+       ],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f20",
+       "n": "武装（艦首区画）",
+       "g": "high",
+       "sh": 0.482746,
+       "st": 3416648522061571000,
+       "m": [
+        0,
+        2,
+        4
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f21",
+       "n": "武装（艦首区画）",
+       "g": "high",
+       "sh": 0.516966,
+       "st": 3658845935967152000,
+       "m": [
+        1,
+        3,
+        5
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f26",
+       "n": "武装（中央区画）",
+       "g": "high",
+       "sh": 0.000288275,
+       "st": 2040277392846991.2,
+       "m": [
+        6
+       ],
+       "pc": [],
+       "sec": 2,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "hotel",
+       "id": "hotel",
+       "n": "生活・電子設備",
+       "g": "low",
+       "sh": 1,
+       "st": 944306326908159000,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      }
+     ],
+     "dis": [
+      {
+       "id": "p4",
+       "n": "上翼 #4",
+       "k": "wing",
+       "g": "high",
+       "cap": 22042481767955796,
+       "m": 29,
+       "sec": 3,
+       "src": -1
+      },
+      {
+       "id": "p5",
+       "n": "上翼 #5",
+       "k": "wing",
+       "g": "high",
+       "cap": 22042481767955796,
+       "m": 30,
+       "sec": 3,
+       "src": -1
+      },
+      {
+       "id": "p6",
+       "n": "下翼 #6",
+       "k": "wing",
+       "g": "high",
+       "cap": 22042481767955796,
+       "m": 31,
+       "sec": 3,
+       "src": -1
+      },
+      {
+       "id": "p7",
+       "n": "下翼 #7",
+       "k": "wing",
+       "g": "high",
+       "cap": 22042481767955796,
+       "m": 32,
+       "sec": 3,
+       "src": -1
+      },
+      {
+       "id": "skin",
+       "n": "外殻からの放熱",
+       "k": "skin",
+       "g": "low",
+       "cap": 194543132533992820000,
+       "m": -1,
+       "sec": -1,
+       "src": -1
+      },
+      {
+       "id": "int:p16",
+       "n": "反応炉 #16（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 9751481756198148,
+       "m": -1,
+       "sec": -1,
+       "src": 0
+      },
+      {
+       "id": "int:p17",
+       "n": "反応炉 #17（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 9751481756198148,
+       "m": -1,
+       "sec": -1,
+       "src": 1
+      },
+      {
+       "id": "int:p18",
+       "n": "推進機関 #18（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 3503290498982893,
+       "m": -1,
+       "sec": -1,
+       "src": 2
+      },
+      {
+       "id": "int:p19",
+       "n": "推進機関 #19（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 3503290498982893,
+       "m": -1,
+       "sec": -1,
+       "src": 3
+      },
+      {
+       "id": "int:f20",
+       "n": "武装（艦首区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 58961851371743790,
+       "m": -1,
+       "sec": -1,
+       "src": 4
+      },
+      {
+       "id": "int:f21",
+       "n": "武装（艦首区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 58961851371743790,
+       "m": -1,
+       "sec": -1,
+       "src": 5
+      },
+      {
+       "id": "int:f26",
+       "n": "武装（中央区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 35209513538602.52,
+       "m": -1,
+       "sec": -1,
+       "src": 6
+      }
+     ],
+     "ln": [
+      {
+       "s": 0,
+       "d": 5,
+       "cap": 9751481756198148,
+       "sec": -1
+      },
+      {
+       "s": 0,
+       "d": 0,
+       "cap": 17065093073346760,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 2,
+       "cap": 17065093073346760,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 6,
+       "cap": 9751481756198148,
+       "sec": -1
+      },
+      {
+       "s": 1,
+       "d": 1,
+       "cap": 17065093073346760,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 3,
+       "cap": 17065093073346760,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 7,
+       "cap": 3503290498982893,
+       "sec": -1
+      },
+      {
+       "s": 2,
+       "d": 0,
+       "cap": 5254935748474340,
+       "sec": 2
+      },
+      {
+       "s": 2,
+       "d": 2,
+       "cap": 5254935748474340,
+       "sec": 2
+      },
+      {
+       "s": 3,
+       "d": 8,
+       "cap": 3503290498982893,
+       "sec": -1
+      },
+      {
+       "s": 3,
+       "d": 1,
+       "cap": 5254935748474340,
+       "sec": 2
+      },
+      {
+       "s": 3,
+       "d": 3,
+       "cap": 5254935748474340,
+       "sec": 2
+      },
+      {
+       "s": 4,
+       "d": 9,
+       "cap": 58961851371743790,
+       "sec": -1
+      },
+      {
+       "s": 4,
+       "d": 0,
+       "cap": 94481526699434530,
+       "sec": 4
+      },
+      {
+       "s": 4,
+       "d": 2,
+       "cap": 94481526699434530,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 10,
+       "cap": 58961851371743790,
+       "sec": -1
+      },
+      {
+       "s": 5,
+       "d": 1,
+       "cap": 94481526699434530,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 3,
+       "cap": 94481526699434530,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 11,
+       "cap": 35209513538602.52,
+       "sec": -1
+      },
+      {
+       "s": 6,
+       "d": 2,
+       "cap": 56420355129245.51,
+       "sec": 2
+      },
+      {
+       "s": 6,
+       "d": 3,
+       "cap": 56420355129245.51,
+       "sec": 2
+      },
+      {
+       "s": 7,
+       "d": 2,
+       "cap": 23607658172703976,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 3,
+       "cap": 23607658172703976,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 0,
+       "cap": 23607658172703976,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 1,
+       "cap": 23607658172703976,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 4,
+       "cap": 194543132533992820000,
+       "sec": -1
+      }
+     ]
+    }
    }
   },
   "vwing": {
    "reference": "craft_vwing",
-   "signature": "1ee9xdl",
-   "build": 227869,
+   "signature": "1icyft1",
+   "build": 237213,
    "crew": 1000,
-   "total": 228869,
+   "total": 238213,
    "by": {
     "hull": 7,
     "armor": 3,
     "power": 104046,
-    "drive": 27011,
+    "drive": 36355,
     "defense": 37501,
     "command": 20501,
     "weapons": 14800,
@@ -652,23 +14454,1828 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.00282,
-    "upS": 0.00282,
-    "down": 0.0199,
+    "up": 0.00168,
+    "upS": 0.00168,
+    "down": 0.0324,
     "T": 0
+   },
+   "powerProfile": {
+    "name": "Vウイング",
+    "modules": [
+     {
+      "k": "weapon",
+      "fit": 30,
+      "name": "旋回砲塔",
+      "w": 2.028,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.7508,
+      "stock": 0,
+      "at": 0.283,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.05,
+      "z": 0.77,
+      "r": 0.082,
+      "share": 0.5,
+      "domain": "main",
+      "port": "f30",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 31,
+      "name": "旋回砲塔",
+      "w": 2.028,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.7508,
+      "stock": 0,
+      "at": 0.283,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.05,
+      "z": -0.77,
+      "r": 0.082,
+      "share": 0.5,
+      "domain": "main",
+      "port": "f31",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "操縦席",
+      "w": 0.5261999071123018,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.3817035074111599,
+      "at": 0.437,
+      "part": 13,
+      "y": 0.27,
+      "z": 0,
+      "r": 0.046,
+      "share": 0.5424763392151596,
+      "domain": "main",
+      "port": "p13",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "アストロメク・ソケット",
+      "w": 0.15804711728933235,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.06283185307179587,
+      "at": 0.278,
+      "part": 14,
+      "y": 0.41,
+      "z": 0,
+      "r": 0.025,
+      "share": 0.08929651674323615,
+      "domain": "main",
+      "port": "p14",
+      "powerConnected": true
+     },
+     {
+      "k": "reactor",
+      "name": "上部機関用反応炉",
+      "w": 0.16240737873836475,
+      "hits": 1,
+      "crew": 0.000032724923474893676,
+      "size": 0.06544984694978735,
+      "at": 0.348,
+      "part": 15,
+      "y": 0.25,
+      "z": 0,
+      "r": 0.026,
+      "share": 0.09075754231479652,
+      "domain": "main",
+      "port": "p15",
+      "powerConnected": true
+     },
+     {
+      "k": "reactor",
+      "name": "下部機関用反応炉",
+      "w": 0.3752260078371179,
+      "hits": 1,
+      "crew": 0.00011492364805851942,
+      "size": 0.22984729611703883,
+      "at": 0.589,
+      "part": 16,
+      "y": 0.06,
+      "z": 0,
+      "r": 0.039,
+      "share": 0.31872306316144094,
+      "domain": "main",
+      "port": "p16",
+      "powerConnected": true
+     },
+     {
+      "k": "reactor",
+      "name": "補助反応炉（機首）",
+      "w": 0.24971758554810963,
+      "hits": 1,
+      "crew": 0.00006239412449539568,
+      "size": 0.12478824899079136,
+      "at": 0.703,
+      "part": 17,
+      "y": 0.07,
+      "z": 0,
+      "r": 0.032,
+      "share": 0.1730405083584066,
+      "domain": "main",
+      "port": "p17",
+      "powerConnected": true
+     },
+     {
+      "k": "reactor",
+      "name": "右舷補助反応炉",
+      "w": 0.28297861671372676,
+      "hits": 1,
+      "crew": 0.00007526627679470427,
+      "size": 0.15053255358940854,
+      "at": 0.43,
+      "part": 18,
+      "y": 0.09,
+      "z": 0.27,
+      "r": 0.034,
+      "share": 0.20873944308267797,
+      "domain": "main",
+      "port": "p18",
+      "powerConnected": true
+     },
+     {
+      "k": "reactor",
+      "name": "左舷補助反応炉",
+      "w": 0.28297861671372676,
+      "hits": 1,
+      "crew": 0.00007526627679470427,
+      "size": 0.15053255358940854,
+      "at": 0.43,
+      "part": 19,
+      "y": 0.09,
+      "z": -0.27,
+      "r": 0.034,
+      "share": 0.20873944308267797,
+      "domain": "main",
+      "port": "p19",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "上部イオン・エンジン",
+      "w": 0.9745795931196701,
+      "hits": 1,
+      "crew": 0.0003848451000647497,
+      "size": 0.9621127501618741,
+      "at": 0.158,
+      "part": 20,
+      "y": 0.23,
+      "z": 0,
+      "r": 0.062,
+      "share": 0.3509383237078667,
+      "domain": "main",
+      "port": "p20",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "下部イオン・エンジン",
+      "w": 1.4300002380159278,
+      "hits": 1,
+      "crew": 0.0006840126852807986,
+      "size": 1.7100317132019964,
+      "at": 0.266,
+      "part": 21,
+      "y": -0.01,
+      "z": 0,
+      "r": 0.076,
+      "share": 0.6237477497491136,
+      "domain": "main",
+      "port": "p21",
+      "powerConnected": true
+     },
+     {
+      "k": "shield",
+      "name": "偏向シールド投射機（機首）",
+      "w": 0.1965129282734214,
+      "hits": 1,
+      "crew": 0.000034845498516066795,
+      "size": 0.087113746290167,
+      "at": 0.791,
+      "part": 22,
+      "y": 0.07,
+      "z": 0,
+      "r": 0.028,
+      "share": 0.47723198278953033,
+      "domain": "main",
+      "port": "p22",
+      "powerConnected": true
+     },
+     {
+      "k": "shield",
+      "name": "右舷偏向シールド投射機",
+      "w": 0.13154997677807545,
+      "hits": 1,
+      "crew": 0.000019085175370557998,
+      "size": 0.047712938426394985,
+      "at": 0.544,
+      "part": 23,
+      "y": 0.05,
+      "z": 0.21,
+      "r": 0.023,
+      "share": 0.2613840086052348,
+      "domain": "main",
+      "port": "p23",
+      "powerConnected": true
+     },
+     {
+      "k": "shield",
+      "name": "左舷偏向シールド投射機",
+      "w": 0.13154997677807545,
+      "hits": 1,
+      "crew": 0.000019085175370557998,
+      "size": 0.047712938426394985,
+      "at": 0.544,
+      "part": 24,
+      "y": 0.05,
+      "z": -0.21,
+      "r": 0.023,
+      "share": 0.2613840086052348,
+      "domain": "main",
+      "port": "p24",
+      "powerConnected": true
+     },
+     {
+      "k": "fuel",
+      "name": "右舷反応物タンク",
+      "w": 0.11553314360685428,
+      "hits": 1,
+      "crew": 0.000007853981633974484,
+      "size": 0.039269908169872414,
+      "at": 0.291,
+      "part": 25,
+      "y": 0.15,
+      "z": 0.25,
+      "r": 0.022,
+      "share": 0.5,
+      "domain": "main",
+      "port": "p25",
+      "powerConnected": true
+     },
+     {
+      "k": "fuel",
+      "name": "左舷反応物タンク",
+      "w": 0.11553314360685428,
+      "hits": 1,
+      "crew": 0.000007853981633974484,
+      "size": 0.039269908169872414,
+      "at": 0.291,
+      "part": 26,
+      "y": 0.15,
+      "z": -0.25,
+      "r": 0.022,
+      "share": 0.5,
+      "domain": "main",
+      "port": "p26",
+      "powerConnected": true
+     },
+     {
+      "k": "battery",
+      "name": "パワーセル",
+      "w": 0.06250000000000001,
+      "hits": 1,
+      "crew": 0.000003125,
+      "size": 0.015625,
+      "at": 0.532,
+      "part": 27,
+      "y": 0.19,
+      "z": 0,
+      "r": 0.016,
+      "share": 1,
+      "domain": "main",
+      "port": "p27",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "右舷慣性補償装置",
+      "w": 0.08614710632792984,
+      "hits": 1,
+      "crew": 0.00000275266999074664,
+      "size": 0.0137633499537332,
+      "at": 0.203,
+      "part": 28,
+      "y": 0.12,
+      "z": 0.22,
+      "r": 0.015,
+      "share": 0.019560448236059437,
+      "domain": "main",
+      "port": "p28",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "左舷慣性補償装置",
+      "w": 0.08591562598932198,
+      "hits": 1,
+      "crew": 0.0000027415826638573215,
+      "size": 0.013707913319286606,
+      "at": 0.203,
+      "part": 29,
+      "y": 0.12,
+      "z": -0.22,
+      "r": 0.015,
+      "share": 0.01948166179074495,
+      "domain": "main",
+      "port": "p29",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "生命維持装置",
+      "w": 0.13690000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.050653,
+      "at": 0.491,
+      "part": 32,
+      "y": 0.11,
+      "z": -0.21,
+      "r": 0.023,
+      "share": 0.07198795263012063,
+      "domain": "main",
+      "port": "p32",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "射出座席機構 1",
+      "w": 0.08410000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.024388999999999997,
+      "at": 0.488,
+      "part": 33,
+      "y": 0.06,
+      "z": 0.17,
+      "r": 0.018,
+      "share": 0.03466160299875648,
+      "domain": "main",
+      "port": "p33",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "航法コンピューター",
+      "w": 0.048400000000000006,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.010648,
+      "at": 0.518,
+      "part": 34,
+      "y": 0.18,
+      "z": 0,
+      "r": 0.014,
+      "share": 0.015132918476803437,
+      "domain": "main",
+      "port": "p34",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "照準コンピューター",
+      "w": 0.0441,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.009260999999999998,
+      "at": 0.52,
+      "part": 35,
+      "y": 0.19,
+      "z": -0.06,
+      "r": 0.013,
+      "share": 0.01316171656777579,
+      "domain": "main",
+      "port": "p35",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 1",
+      "w": 0.032400000000000005,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0058319999999999995,
+      "at": 0.541,
+      "part": 36,
+      "y": 0.16,
+      "z": 0,
+      "r": 0.011,
+      "share": 0.008288427926062889,
+      "domain": "main",
+      "port": "p36",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 2",
+      "w": 0.032400000000000005,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0058319999999999995,
+      "at": 0.541,
+      "part": 37,
+      "y": 0.16,
+      "z": -0.05,
+      "r": 0.011,
+      "share": 0.008288427926062889,
+      "domain": "main",
+      "port": "p37",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 3",
+      "w": 0.032400000000000005,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0058319999999999995,
+      "at": 0.541,
+      "part": 38,
+      "y": 0.16,
+      "z": 0.05,
+      "r": 0.011,
+      "share": 0.008288427926062889,
+      "domain": "main",
+      "port": "p38",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 4",
+      "w": 0.032400000000000005,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0058319999999999995,
+      "at": 0.509,
+      "part": 39,
+      "y": 0.2,
+      "z": 0.05,
+      "r": 0.011,
+      "share": 0.008288427926062889,
+      "domain": "main",
+      "port": "p39",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "レーザーガス供給槽 1",
+      "w": 0.10890000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.035937000000000004,
+      "at": 0.498,
+      "part": 40,
+      "y": 0.13,
+      "z": 0.19,
+      "r": 0.021,
+      "share": 0.05107359985921161,
+      "domain": "main",
+      "port": "p40",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "レーザーガス供給槽 2",
+      "w": 0.10890000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.035937000000000004,
+      "at": 0.481,
+      "part": 41,
+      "y": 0.02,
+      "z": -0.19,
+      "r": 0.021,
+      "share": 0.05107359985921161,
+      "domain": "main",
+      "port": "p41",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "着陸脚機構 1",
+      "w": 0.057600000000000005,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.013824,
+      "at": 0.536,
+      "part": 42,
+      "y": 0.12,
+      "z": 0,
+      "r": 0.015,
+      "share": 0.019646643972889812,
+      "domain": "main",
+      "port": "p42",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "着陸脚機構 2",
+      "w": 0.057600000000000005,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.013824,
+      "at": 0.536,
+      "part": 43,
+      "y": 0.12,
+      "z": -0.07,
+      "r": 0.015,
+      "share": 0.019646643972889812,
+      "domain": "main",
+      "port": "p43",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "着陸脚機構 3",
+      "w": 0.057600000000000005,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.013824,
+      "at": 0.536,
+      "part": 44,
+      "y": 0.12,
+      "z": 0.07,
+      "r": 0.015,
+      "share": 0.019646643972889812,
+      "domain": "main",
+      "port": "p44",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.08179933418364857,
+      "hits": 1,
+      "crew": 0.000004679017275872266,
+      "size": 0.02339508637936133,
+      "at": 0.32,
+      "part": -20,
+      "machineryOwner": 20,
+      "y": 0.22,
+      "z": 0,
+      "r": 0.018,
+      "share": 0.008533544946361483,
+      "domain": "main",
+      "port": "p20",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.12839004084009487,
+      "hits": 1,
+      "crew": 0.000009200829887228748,
+      "size": 0.04600414943614374,
+      "at": 0.546,
+      "part": -21,
+      "machineryOwner": 21,
+      "y": -0.03,
+      "z": 0,
+      "r": 0.023,
+      "share": 0.016780381596658164,
+      "domain": "main",
+      "port": "p21",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "右舷上部翼（放熱板）",
+      "w": 0.5404707706242026,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.09268867220008098,
+      "at": 0.256,
+      "part": 1,
+      "ext": 1,
+      "y": 0.53,
+      "z": 0.68,
+      "r": 0.029,
+      "share": 0.23030243590345398,
+      "domain": "main",
+      "port": "p1",
+      "powerConnected": false
+     },
+     {
+      "k": "dissipator",
+      "name": "左舷上部翼（放熱板）",
+      "w": 0.551849038739347,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.09268865610160332,
+      "at": 0.256,
+      "part": 2,
+      "ext": 1,
+      "y": 0.53,
+      "z": -0.68,
+      "r": 0.029,
+      "share": 0.23030239590375898,
+      "domain": "main",
+      "port": "p2",
+      "powerConnected": false
+     },
+     {
+      "k": "dissipator",
+      "name": "右舷下部翼（放熱板）",
+      "w": 0.6257528683883717,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.10854385277046785,
+      "at": 0.268,
+      "part": 3,
+      "ext": 1,
+      "y": -0.49,
+      "z": 0.68,
+      "r": 0.03,
+      "share": 0.2696976135489702,
+      "domain": "main",
+      "port": "p3",
+      "powerConnected": false
+     },
+     {
+      "k": "dissipator",
+      "name": "左舷下部翼（放熱板）",
+      "w": 0.6257527772738093,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.10854382906320469,
+      "at": 0.268,
+      "part": 4,
+      "ext": 1,
+      "y": -0.49,
+      "z": -0.68,
+      "r": 0.03,
+      "share": 0.2696975546438168,
+      "domain": "main",
+      "port": "p4",
+      "powerConnected": false
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（後部）",
+      "w": 0.2808591591987035,
+      "hits": 1,
+      "crew": 0,
+      "size": 2.562099539948031,
+      "at": 0.167,
+      "y": 0.16,
+      "z": 0,
+      "r": 0.087,
+      "share": 0.31443298969072164,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（中央後部）",
+      "w": 0.38146398910990903,
+      "hits": 1,
+      "crew": 0,
+      "size": 4.0554908929232045,
+      "at": 0.336,
+      "y": 0.1,
+      "z": 0,
+      "r": 0.101,
+      "share": 0.497709049255441,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（中央前部）",
+      "w": 0.18098917001475479,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.3253848257654661,
+      "at": 0.599,
+      "y": 0.09,
+      "z": 0,
+      "r": 0.07,
+      "share": 0.16265750286368844,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（前部）",
+      "w": 0.05220861184428464,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.2053413110340863,
+      "at": 0.825,
+      "y": 0.1,
+      "z": 0,
+      "r": 0.037,
+      "share": 0.02520045819014891,
+      "domain": "main"
+     },
+     {
+      "k": "hull",
+      "name": "船体構造",
+      "w": 8.223967633599566,
+      "hits": null,
+      "crew": 0,
+      "size": 1,
+      "share": 1,
+      "domain": "main"
+     }
+    ],
+    "energyModel": {
+     "version": 0,
+     "eta": 0.75
+    },
+    "D": 0.0007685253824254619,
+    "shieldBuffer": 0.02551298707898365,
+    "wCap": 0,
+    "crewNeed": 1,
+    "crewMax": 1,
+    "hp": 1,
+    "len": 7.9,
+    "width": 4.91999993739142,
+    "height": 5.881752014160156,
+    "grid": {
+     "P": 3776667841194673000,
+     "fixed": 15273978238234222,
+     "cooling": 0,
+     "De": 908529117543716000,
+     "Ds": 3215510200068132400,
+     "Dw": 2677760000000000000,
+     "domains": [
+      {
+       "id": "main",
+       "P": 3776667841194673000,
+       "reactors": [
+        4,
+        5,
+        6,
+        7,
+        8
+       ],
+       "sources": [
+        {
+         "moduleIndex": 4,
+         "P": 342761091406156860
+        },
+        {
+         "moduleIndex": 5,
+         "P": 1203711142888873000
+        },
+        {
+         "moduleIndex": 6,
+         "P": 653516523141172400
+        },
+        {
+         "moduleIndex": 7,
+         "P": 788339541879235800
+        },
+        {
+         "moduleIndex": 8,
+         "P": 788339541879235800
+        }
+       ],
+       "modules": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42
+       ],
+       "protection": 1
+      }
+     ],
+     "powerPaths": [
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "f30",
+       "cap": 342761091406156860,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "f30",
+       "cap": 996118908593843200,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "f31",
+       "cap": 207592234295029760,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "f31",
+       "cap": 788339541879235800,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p19",
+       "to": "f31",
+       "cap": 342948223825734400,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p20",
+       "cap": 327118335055037200,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p21",
+       "cap": 581410782488678800,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p22",
+       "cap": 1534544308458474200,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p23",
+       "cap": 840482945804829000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p24",
+       "cap": 840482945804829000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "hotel",
+       "cap": 15273978238234222,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p13",
+       "cap": 763698911911711.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p14",
+       "cap": 763698911911711.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p25",
+       "cap": 763698911911711.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p26",
+       "cap": 763698911911711.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p27",
+       "cap": 763698911911711.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p28",
+       "cap": 763698911911711.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p29",
+       "cap": 763698911911711.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p19",
+       "to": "p32",
+       "cap": 763698911911711.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p33",
+       "cap": 763698911911711.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p34",
+       "cap": 763698911911711.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p35",
+       "cap": 763698911911711.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p36",
+       "cap": 763698911911711.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p37",
+       "cap": 763698911911711.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p38",
+       "cap": 763698911911711.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p39",
+       "cap": 763698911911711.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p40",
+       "cap": 763698911911711.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p19",
+       "to": "p41",
+       "cap": 763698911911711.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p42",
+       "cap": 763698911911711.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p43",
+       "cap": 763698911911711.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p44",
+       "cap": 763698911911711.1,
+       "auto": true,
+       "ok": true
+      }
+     ],
+     "trunks": [],
+     "fixedLoads": [
+      {
+       "id": "hotel",
+       "port": "hotel",
+       "weight": 15273978238234222,
+       "domain": "main"
+      }
+     ],
+     "coolingLoads": []
+    },
+    "propulsion": {
+     "version": 1,
+     "engines": [
+      {
+       "version": 1,
+       "id": 20,
+       "machineryId": 20,
+       "ratedInputW": 327118335055037200,
+       "driveProfileId": "standard",
+       "machineryGradeId": "advanced",
+       "wattsPerNewton": 2000000000,
+       "ratedThrustN": 163559167.5275186,
+       "effectiveMachineryVolumeM3": 0.016544952665903664,
+       "machineryVolumeM3": 0.016544952665903664,
+       "machineryLengthM": 0.15,
+       "machineryRadiusM": 0.21,
+       "machineryDiameterM": 0.42,
+       "machineryOffsetM": 1.25,
+       "maxInputW": 562528390640724540,
+       "maxRatedInputW": 562528390640724540,
+       "inputDensityWPerM3": 19771488118498670000,
+       "allowedInputDensityWPerM3": 34000000000000000000,
+       "cost": 3785.12882704966,
+       "powerNode": "p20",
+       "heatNode": "p20",
+       "reactorId": 15,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 327118335055037200,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 9,
+       "machineryModuleIndex": 32,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 562528390640724540
+      },
+      {
+       "version": 1,
+       "id": 21,
+       "machineryId": 21,
+       "ratedInputW": 581410782488678800,
+       "driveProfileId": "standard",
+       "machineryGradeId": "advanced",
+       "wattsPerNewton": 2000000000,
+       "ratedThrustN": 290705391.2443394,
+       "effectiveMachineryVolumeM3": 0.035340288614635,
+       "machineryVolumeM3": 0.035340288614635,
+       "machineryLengthM": 0.3028495335971314,
+       "machineryRadiusM": 0.216,
+       "machineryDiameterM": 0.432,
+       "machineryOffsetM": 2.1,
+       "maxInputW": 1201569812897590000,
+       "maxRatedInputW": 1201569812897590000,
+       "inputDensityWPerM3": 16451783652041454000,
+       "allowedInputDensityWPerM3": 34000000000000000000,
+       "cost": 5559.242270129321,
+       "powerNode": "p21",
+       "heatNode": "p21",
+       "reactorId": 16,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 581410782488678800,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 10,
+       "machineryModuleIndex": 33,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 1201569812897590000
+      }
+     ],
+     "massKg": 8910.129243721763,
+     "ratedThrustN": 454264558.771858,
+     "ratedAccelMps2": 50982.937098464754,
+     "structuralAccelerationLimitMps2": 125594.1671982033,
+     "inertialFactor": 1,
+     "accelerationLimitMps2": 50982.937098464754
+    },
+    "profileVersion": 4,
+    "heat": {
+     "v": 1,
+     "src": [
+      {
+       "k": "reactor",
+       "id": "p15",
+       "n": "上部機関用反応炉 #15",
+       "g": "high",
+       "sh": 0.109065,
+       "st": 987151943249731800,
+       "m": [
+        4
+       ],
+       "pc": [],
+       "sec": 2,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "reactor",
+       "id": "p16",
+       "n": "下部機関用反応炉 #16",
+       "g": "high",
+       "sh": 0.383015,
+       "st": 3466688091519954400,
+       "m": [
+        5
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "reactor",
+       "id": "p17",
+       "n": "補助反応炉（機首） #17",
+       "g": "high",
+       "sh": 0.207946,
+       "st": 1882127586646576600,
+       "m": [
+        6
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "reactor",
+       "id": "p18",
+       "n": "右舷補助反応炉 #18",
+       "g": "high",
+       "sh": 0.209038,
+       "st": 1892014900510166300,
+       "m": [
+        7
+       ],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "reactor",
+       "id": "p19",
+       "n": "左舷補助反応炉 #19",
+       "g": "high",
+       "sh": 0.090937,
+       "st": 823075737181762600,
+       "m": [
+        8
+       ],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p20",
+       "n": "上部イオン・エンジン #20",
+       "g": "high",
+       "sh": 0.483928,
+       "st": 981355005165111600,
+       "m": [
+        9,
+        32
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p21",
+       "n": "下部イオン・エンジン #21",
+       "g": "high",
+       "sh": 0.516072,
+       "st": 1046539408479621800,
+       "m": [
+        10,
+        33
+       ],
+       "pc": [],
+       "sec": 1,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "shield",
+       "id": "p22",
+       "n": "シールド（艦首区画）",
+       "g": "high",
+       "sh": 0.354306,
+       "st": 14115956899849322000,
+       "m": [
+        11
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "shield",
+       "id": "p23",
+       "n": "シールド（艦首区画）",
+       "g": "high",
+       "sh": 0.322847,
+       "st": 12862614539055720000,
+       "m": [
+        12
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "shield",
+       "id": "p24",
+       "n": "シールド（艦首区画）",
+       "g": "high",
+       "sh": 0.322847,
+       "st": 12862614539055720000,
+       "m": [
+        13
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f30",
+       "n": "武装（中央区画）",
+       "g": "high",
+       "sh": 0.5,
+       "st": 20083200000000004000,
+       "m": [
+        0
+       ],
+       "pc": [],
+       "sec": 2,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f31",
+       "n": "武装（中央区画）",
+       "g": "high",
+       "sh": 0.5,
+       "st": 20083200000000000000,
+       "m": [
+        1
+       ],
+       "pc": [],
+       "sec": 2,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "hotel",
+       "id": "hotel",
+       "n": "生活・電子設備",
+       "g": "low",
+       "sh": 1,
+       "st": 916438694294053400,
+       "m": [],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1
+      }
+     ],
+     "dis": [
+      {
+       "id": "p1",
+       "n": "右舷上部翼（放熱板） #1",
+       "k": "wing",
+       "g": "high",
+       "cap": 17617270153410932,
+       "m": 34,
+       "sec": 1,
+       "src": -1
+      },
+      {
+       "id": "p2",
+       "n": "左舷上部翼（放熱板） #2",
+       "k": "wing",
+       "g": "high",
+       "cap": 18214465751831650,
+       "m": 35,
+       "sec": 1,
+       "src": -1
+      },
+      {
+       "id": "p3",
+       "n": "右舷下部翼（放熱板） #3",
+       "k": "wing",
+       "g": "high",
+       "cap": 22062540926413260,
+       "m": 36,
+       "sec": 1,
+       "src": -1
+      },
+      {
+       "id": "p4",
+       "n": "左舷下部翼（放熱板） #4",
+       "k": "wing",
+       "g": "high",
+       "cap": 22062540926413260,
+       "m": 37,
+       "sec": 1,
+       "src": -1
+      },
+      {
+       "id": "skin",
+       "n": "外殻からの放熱",
+       "k": "skin",
+       "g": "low",
+       "cap": 241163265005109900000,
+       "m": -1,
+       "sec": -1,
+       "src": -1
+      },
+      {
+       "id": "int:p15",
+       "n": "上部機関用反応炉 #15（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 16452532387495530,
+       "m": -1,
+       "sec": -1,
+       "src": 0
+      },
+      {
+       "id": "int:p16",
+       "n": "下部機関用反応炉 #16（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 57778134858665900,
+       "m": -1,
+       "sec": -1,
+       "src": 1
+      },
+      {
+       "id": "int:p17",
+       "n": "補助反応炉（機首） #17（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 31368793110776276,
+       "m": -1,
+       "sec": -1,
+       "src": 2
+      },
+      {
+       "id": "int:p18",
+       "n": "右舷補助反応炉 #18（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 37840298010203320,
+       "m": -1,
+       "sec": -1,
+       "src": 3
+      },
+      {
+       "id": "int:p19",
+       "n": "左舷補助反応炉 #19（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 37840298010203320,
+       "m": -1,
+       "sec": -1,
+       "src": 4
+      },
+      {
+       "id": "int:p20",
+       "n": "上部イオン・エンジン #20（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 16355916752751860,
+       "m": -1,
+       "sec": -1,
+       "src": 5
+      },
+      {
+       "id": "int:p21",
+       "n": "下部イオン・エンジン #21（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 29070539124433940,
+       "m": -1,
+       "sec": -1,
+       "src": 6
+      },
+      {
+       "id": "int:p22",
+       "n": "シールド（艦首区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 646658036312768900,
+       "m": -1,
+       "sec": -1,
+       "src": 7
+      },
+      {
+       "id": "int:p23",
+       "n": "シールド（艦首区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 354180096522921500,
+       "m": -1,
+       "sec": -1,
+       "src": 8
+      },
+      {
+       "id": "int:p24",
+       "n": "シールド（艦首区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 354180096522921500,
+       "m": -1,
+       "sec": -1,
+       "src": 9
+      },
+      {
+       "id": "int:f30",
+       "n": "武装（中央区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 418400000000000000,
+       "m": -1,
+       "sec": -1,
+       "src": 10
+      },
+      {
+       "id": "int:f31",
+       "n": "武装（中央区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 418400000000000000,
+       "m": -1,
+       "sec": -1,
+       "src": 11
+      }
+     ],
+     "ln": [
+      {
+       "s": 0,
+       "d": 5,
+       "cap": 16452532387495530,
+       "sec": -1
+      },
+      {
+       "s": 0,
+       "d": 0,
+       "cap": 28791931678117170,
+       "sec": 2
+      },
+      {
+       "s": 0,
+       "d": 1,
+       "cap": 28791931678117170,
+       "sec": 2
+      },
+      {
+       "s": 1,
+       "d": 6,
+       "cap": 57778134858665900,
+       "sec": -1
+      },
+      {
+       "s": 1,
+       "d": 0,
+       "cap": 101111736002665310,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 1,
+       "cap": 101111736002665310,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 7,
+       "cap": 31368793110776276,
+       "sec": -1
+      },
+      {
+       "s": 2,
+       "d": 0,
+       "cap": 54895387943858470,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 1,
+       "cap": 54895387943858470,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 8,
+       "cap": 37840298010203320,
+       "sec": -1
+      },
+      {
+       "s": 3,
+       "d": 0,
+       "cap": 66220521517855800,
+       "sec": 2
+      },
+      {
+       "s": 3,
+       "d": 2,
+       "cap": 66220521517855800,
+       "sec": 2
+      },
+      {
+       "s": 4,
+       "d": 9,
+       "cap": 37840298010203320,
+       "sec": -1
+      },
+      {
+       "s": 4,
+       "d": 1,
+       "cap": 66220521517855800,
+       "sec": 2
+      },
+      {
+       "s": 4,
+       "d": 3,
+       "cap": 66220521517855800,
+       "sec": 2
+      },
+      {
+       "s": 5,
+       "d": 10,
+       "cap": 16355916752751860,
+       "sec": -1
+      },
+      {
+       "s": 5,
+       "d": 0,
+       "cap": 14741015297936432,
+       "sec": 0
+      },
+      {
+       "s": 5,
+       "d": 1,
+       "cap": 14741015297936432,
+       "sec": 0
+      },
+      {
+       "s": 6,
+       "d": 11,
+       "cap": 29070539124433940,
+       "sec": -1
+      },
+      {
+       "s": 6,
+       "d": 2,
+       "cap": 26200259418686570,
+       "sec": 1
+      },
+      {
+       "s": 6,
+       "d": 3,
+       "cap": 26200259418686570,
+       "sec": 1
+      },
+      {
+       "s": 7,
+       "d": 12,
+       "cap": 646658036312768900,
+       "sec": -1
+      },
+      {
+       "s": 7,
+       "d": 0,
+       "cap": 1035817408209470000,
+       "sec": 4
+      },
+      {
+       "s": 7,
+       "d": 1,
+       "cap": 1035817408209470000,
+       "sec": 4
+      },
+      {
+       "s": 8,
+       "d": 13,
+       "cap": 354180096522921500,
+       "sec": -1
+      },
+      {
+       "s": 8,
+       "d": 0,
+       "cap": 567325988418259460,
+       "sec": 3
+      },
+      {
+       "s": 8,
+       "d": 2,
+       "cap": 567325988418259460,
+       "sec": 3
+      },
+      {
+       "s": 9,
+       "d": 14,
+       "cap": 354180096522921500,
+       "sec": -1
+      },
+      {
+       "s": 9,
+       "d": 1,
+       "cap": 567325988418259460,
+       "sec": 3
+      },
+      {
+       "s": 9,
+       "d": 3,
+       "cap": 567325988418259460,
+       "sec": 3
+      },
+      {
+       "s": 10,
+       "d": 15,
+       "cap": 418400000000000000,
+       "sec": -1
+      },
+      {
+       "s": 10,
+       "d": 0,
+       "cap": 627600000000000000,
+       "sec": 1
+      },
+      {
+       "s": 10,
+       "d": 2,
+       "cap": 627600000000000000,
+       "sec": 1
+      },
+      {
+       "s": 11,
+       "d": 16,
+       "cap": 418400000000000000,
+       "sec": -1
+      },
+      {
+       "s": 11,
+       "d": 1,
+       "cap": 627600000000000000,
+       "sec": 1
+      },
+      {
+       "s": 11,
+       "d": 3,
+       "cap": 627600000000000000,
+       "sec": 1
+      },
+      {
+       "s": 12,
+       "d": 2,
+       "cap": 22910967357351332,
+       "sec": 3
+      },
+      {
+       "s": 12,
+       "d": 3,
+       "cap": 22910967357351332,
+       "sec": 3
+      },
+      {
+       "s": 12,
+       "d": 0,
+       "cap": 22910967357351332,
+       "sec": 3
+      },
+      {
+       "s": 12,
+       "d": 1,
+       "cap": 22910967357351332,
+       "sec": 3
+      },
+      {
+       "s": 12,
+       "d": 4,
+       "cap": 241163265005109900000,
+       "sec": -1
+      }
+     ]
+    }
    }
   },
   "xwing": {
    "reference": "craft_xwing",
-   "signature": "1i1gxv7",
-   "build": 177922,
+   "signature": "nplxyk",
+   "build": 188341,
    "crew": 1000,
-   "total": 178922,
+   "total": 189341,
    "by": {
     "hull": 19,
     "armor": 13,
     "power": 31264,
-    "drive": 62021,
+    "drive": 72440,
     "defense": 13502,
     "command": 20502,
     "weapons": 33600,
@@ -705,23 +16312,1805 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.000615,
-    "upS": 0.00129,
-    "down": 0.0158,
+    "up": 0,
+    "upS": 0.000528,
+    "down": 0.017,
     "T": 1
+   },
+   "powerProfile": {
+    "name": "T-65B Xウイング",
+    "modules": [
+     {
+      "k": "weapon",
+      "fit": 42,
+      "name": "レーザー砲",
+      "w": 0.9984000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.0005,
+      "stock": 0,
+      "at": 0.575,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.83,
+      "z": 0.94,
+      "r": 0.097,
+      "share": 0.25,
+      "domain": "main",
+      "port": "f42",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 43,
+      "name": "レーザー砲",
+      "w": 0.9984000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.0005,
+      "stock": 0,
+      "at": 0.575,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.83,
+      "z": -0.94,
+      "r": 0.097,
+      "share": 0.25,
+      "domain": "main",
+      "port": "f43",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 44,
+      "name": "レーザー砲",
+      "w": 0.9984000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.0005,
+      "stock": 0,
+      "at": 0.575,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.83,
+      "z": 0.94,
+      "r": 0.097,
+      "share": 0.25,
+      "domain": "main",
+      "port": "f44",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 45,
+      "name": "レーザー砲",
+      "w": 0.9984000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.0005,
+      "stock": 0,
+      "at": 0.575,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.83,
+      "z": -0.94,
+      "r": 0.097,
+      "share": 0.25,
+      "domain": "main",
+      "port": "f45",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 46,
+      "name": "魚雷発射管",
+      "w": 0.84,
+      "hits": 1,
+      "crew": 0,
+      "size": 0,
+      "stock": 0,
+      "at": 0.672,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.04,
+      "z": 0.1,
+      "r": 0.052,
+      "share": 0,
+      "domain": "main",
+      "port": "f46",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 47,
+      "name": "魚雷発射管",
+      "w": 0.84,
+      "hits": 1,
+      "crew": 0,
+      "size": 0,
+      "stock": 0,
+      "at": 0.672,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.04,
+      "z": -0.1,
+      "r": 0.052,
+      "share": 0,
+      "domain": "main",
+      "port": "f47",
+      "powerConnected": true
+     },
+     {
+      "k": "reactor",
+      "name": "核融合炉",
+      "w": 1.7686163544607918,
+      "hits": 1,
+      "crew": 0.001176035574917254,
+      "size": 2.352071149834508,
+      "at": 0.19,
+      "part": 30,
+      "y": -0.08,
+      "z": 0,
+      "r": 0.05,
+      "share": 1,
+      "domain": "main",
+      "port": "p30",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "右舷上機関 4L4 核融合推進機関",
+      "w": 1.1302838999798248,
+      "hits": 1,
+      "crew": 0.0004806636759992384,
+      "size": 1.201659189998096,
+      "at": 0.16,
+      "part": 31,
+      "y": 0.54,
+      "z": 0.24,
+      "r": 0.04,
+      "share": 0.20298385528325666,
+      "domain": "main",
+      "port": "p31",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "右舷上機関 4L4 核融合推進機関",
+      "w": 1.1302838999798248,
+      "hits": 1,
+      "crew": 0.0004806636759992384,
+      "size": 1.201659189998096,
+      "at": 0.16,
+      "part": 32,
+      "y": 0.54,
+      "z": -0.24,
+      "r": 0.04,
+      "share": 0.20298385528325666,
+      "domain": "main",
+      "port": "p32",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "右舷下機関 4L4 核融合推進機関",
+      "w": 1.1302838999798248,
+      "hits": 1,
+      "crew": 0.0004806636759992384,
+      "size": 1.201659189998096,
+      "at": 0.16,
+      "part": 33,
+      "y": -0.54,
+      "z": 0.24,
+      "r": 0.04,
+      "share": 0.20298385528325666,
+      "domain": "main",
+      "port": "p33",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "右舷下機関 4L4 核融合推進機関",
+      "w": 1.1302838999798248,
+      "hits": 1,
+      "crew": 0.0004806636759992384,
+      "size": 1.201659189998096,
+      "at": 0.16,
+      "part": 34,
+      "y": -0.54,
+      "z": -0.24,
+      "r": 0.04,
+      "share": 0.20298385528325666,
+      "domain": "main",
+      "port": "p34",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "操縦席",
+      "w": 0.7860517130936855,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.696909970321336,
+      "at": 0.474,
+      "part": 35,
+      "y": 0.25,
+      "z": 0,
+      "r": 0.033,
+      "share": 0.5627014247494188,
+      "domain": "main",
+      "port": "p35",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "アストロメク・ソケット",
+      "w": 0.22677493598531082,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.10799224746714915,
+      "at": 0.354,
+      "part": 36,
+      "y": 0.5,
+      "z": 0,
+      "r": 0.018,
+      "share": 0.08719546871117025,
+      "domain": "main",
+      "port": "p36",
+      "powerConnected": true
+     },
+     {
+      "k": "fuel",
+      "name": "反応物タンク",
+      "w": 0.2926758844396627,
+      "hits": 1,
+      "crew": 0.00003166725394818512,
+      "size": 0.1583362697409256,
+      "at": 0.108,
+      "part": 37,
+      "y": -0.08,
+      "z": 0,
+      "r": 0.02,
+      "share": 1,
+      "domain": "main",
+      "port": "p37",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "慣性補償装置",
+      "w": 0.21840691745130233,
+      "hits": 1,
+      "crew": 0.000020414069063026475,
+      "size": 0.10207034531513237,
+      "at": 0.474,
+      "part": 38,
+      "y": -0.11,
+      "z": 0,
+      "r": 0.017,
+      "share": 0.08241398628148133,
+      "domain": "main",
+      "port": "p38",
+      "powerConnected": true
+     },
+     {
+      "k": "shield",
+      "name": "偏向シールド発生器",
+      "w": 0.48046598925957823,
+      "hits": 1,
+      "crew": 0.00013321525712478065,
+      "size": 0.33303814281195154,
+      "at": 0.597,
+      "part": 39,
+      "y": 0.08,
+      "z": 0,
+      "r": 0.026,
+      "share": 1,
+      "domain": "main",
+      "port": "p39",
+      "powerConnected": true
+     },
+     {
+      "k": "hyper",
+      "name": "ハイパードライブ（GBk-585）",
+      "w": 0.30550540219016253,
+      "hits": 1,
+      "crew": 0.000050658181539135404,
+      "size": 0.16886060513045137,
+      "at": 0.72,
+      "part": 40,
+      "y": 0.08,
+      "z": 0,
+      "r": 0.021,
+      "share": 1,
+      "domain": "main",
+      "port": "p40",
+      "powerConnected": true
+     },
+     {
+      "k": "battery",
+      "name": "パワーセル",
+      "w": 0.1764,
+      "hits": 1,
+      "crew": 0.000014817599999999999,
+      "size": 0.07408799999999999,
+      "at": 0.802,
+      "part": 41,
+      "y": 0.08,
+      "z": 0,
+      "r": 0.016,
+      "share": 1,
+      "domain": "main",
+      "port": "p41",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "生命維持装置",
+      "w": 0.13690000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.050653,
+      "at": 0.545,
+      "part": 48,
+      "y": 0.09,
+      "z": 0,
+      "r": 0.014,
+      "share": 0.04089841799033263,
+      "domain": "main",
+      "port": "p48",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "射出座席機構 1",
+      "w": 0.08410000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.024388999999999997,
+      "at": 0.474,
+      "part": 49,
+      "y": -0.16,
+      "z": -0.07,
+      "r": 0.011,
+      "share": 0.019692249548224634,
+      "domain": "main",
+      "port": "p49",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "航法コンピューター",
+      "w": 0.048400000000000006,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.010648,
+      "at": 0.522,
+      "part": 50,
+      "y": 0.09,
+      "z": 0,
+      "r": 0.008,
+      "share": 0.008597444470437325,
+      "domain": "main",
+      "port": "p50",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "照準コンピューター",
+      "w": 0.09610000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.029791,
+      "at": 0.545,
+      "part": 51,
+      "y": -0.14,
+      "z": 0,
+      "r": 0.012,
+      "share": 0.024053950809428848,
+      "domain": "main",
+      "port": "p51",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 1",
+      "w": 0.040000000000000015,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.008000000000000002,
+      "at": 0.545,
+      "part": 52,
+      "y": 0.09,
+      "z": -0.05,
+      "r": 0.007,
+      "share": 0.006459387280568991,
+      "domain": "main",
+      "port": "p52",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 2",
+      "w": 0.040000000000000015,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.008000000000000002,
+      "at": 0.545,
+      "part": 53,
+      "y": 0.09,
+      "z": 0.05,
+      "r": 0.007,
+      "share": 0.006459387280568991,
+      "domain": "main",
+      "port": "p53",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 3",
+      "w": 0.040000000000000015,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.008000000000000002,
+      "at": 0.545,
+      "part": 54,
+      "y": 0.24,
+      "z": 0,
+      "r": 0.007,
+      "share": 0.006459387280568991,
+      "domain": "main",
+      "port": "p54",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 4",
+      "w": 0.040000000000000015,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.008000000000000002,
+      "at": 0.524,
+      "part": 55,
+      "y": 0.02,
+      "z": 0,
+      "r": 0.007,
+      "share": 0.006459387280568991,
+      "domain": "main",
+      "port": "p55",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "レーザーガス供給槽 1",
+      "w": 0.1225,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.04287499999999999,
+      "at": 0.526,
+      "part": 56,
+      "y": 0.35,
+      "z": 0,
+      "r": 0.013,
+      "share": 0.03461827870679942,
+      "domain": "main",
+      "port": "p56",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "レーザーガス供給槽 2",
+      "w": 0.1225,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.04287499999999999,
+      "at": 0.526,
+      "part": 57,
+      "y": -0.04,
+      "z": -0.08,
+      "r": 0.013,
+      "share": 0.03461827870679942,
+      "domain": "main",
+      "port": "p57",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "着陸脚機構 1",
+      "w": 0.10240000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.032768000000000005,
+      "at": 0.545,
+      "part": 58,
+      "y": 0.09,
+      "z": -0.08,
+      "r": 0.012,
+      "share": 0.026457650301210587,
+      "domain": "main",
+      "port": "p58",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "着陸脚機構 2",
+      "w": 0.10240000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.032768000000000005,
+      "at": 0.545,
+      "part": 59,
+      "y": 0.09,
+      "z": 0.08,
+      "r": 0.012,
+      "share": 0.026457650301210587,
+      "domain": "main",
+      "port": "p59",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "着陸脚機構 3",
+      "w": 0.10240000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.032768000000000005,
+      "at": 0.545,
+      "part": 60,
+      "y": 0.33,
+      "z": 0,
+      "r": 0.012,
+      "share": 0.026457650301210587,
+      "domain": "main",
+      "port": "p60",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.4340850680748681,
+      "hits": 1,
+      "crew": 0.00005719950442777241,
+      "size": 0.28599752213886204,
+      "at": 0.276,
+      "part": -31,
+      "machineryOwner": 31,
+      "y": 0.32,
+      "z": 0.16,
+      "r": 0.025,
+      "share": 0.04831060264707562,
+      "domain": "main",
+      "port": "p31",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.4340850680748681,
+      "hits": 1,
+      "crew": 0.00005719950442777241,
+      "size": 0.28599752213886204,
+      "at": 0.276,
+      "part": -32,
+      "machineryOwner": 32,
+      "y": 0.32,
+      "z": -0.16,
+      "r": 0.025,
+      "share": 0.04831060264707562,
+      "domain": "main",
+      "port": "p32",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.4184350344650479,
+      "hits": 1,
+      "crew": 0.00005413424139810133,
+      "size": 0.2706712069905066,
+      "at": 0.277,
+      "part": -33,
+      "machineryOwner": 33,
+      "y": -0.38,
+      "z": 0.16,
+      "r": 0.024,
+      "share": 0.04572168678641109,
+      "domain": "main",
+      "port": "p33",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.4184350344650479,
+      "hits": 1,
+      "crew": 0.00005413424139810133,
+      "size": 0.2706712069905066,
+      "at": 0.277,
+      "part": -34,
+      "machineryOwner": 34,
+      "y": -0.38,
+      "z": -0.16,
+      "r": 0.024,
+      "share": 0.04572168678641109,
+      "domain": "main",
+      "port": "p34",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "右舷上翼（Sフォイル）",
+      "w": 2.590080450307613,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.8601874022640921,
+      "at": 0.199,
+      "part": 2,
+      "ext": 1,
+      "y": 0.29,
+      "z": 0.53,
+      "r": 0.035,
+      "share": 0.2500000118331241,
+      "domain": "main",
+      "port": "p2",
+      "powerConnected": false
+     },
+     {
+      "k": "dissipator",
+      "name": "右舷上翼（Sフォイル）",
+      "w": 2.6311928752361275,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.8601874203239543,
+      "at": 0.199,
+      "part": 3,
+      "ext": 1,
+      "y": 0.29,
+      "z": -0.53,
+      "r": 0.035,
+      "share": 0.25000001708194053,
+      "domain": "main",
+      "port": "p3",
+      "powerConnected": false
+     },
+     {
+      "k": "dissipator",
+      "name": "右舷下翼（Sフォイル）",
+      "w": 2.631192631652971,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.8601873008759479,
+      "at": 0.199,
+      "part": 16,
+      "ext": 1,
+      "y": -0.29,
+      "z": 0.53,
+      "r": 0.035,
+      "share": 0.24999998236624604,
+      "domain": "main",
+      "port": "p16",
+      "powerConnected": false
+     },
+     {
+      "k": "dissipator",
+      "name": "右舷下翼（Sフォイル）",
+      "w": 2.5900802906589644,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.8601873227331139,
+      "at": 0.199,
+      "part": 17,
+      "ext": 1,
+      "y": -0.29,
+      "z": -0.53,
+      "r": 0.035,
+      "share": 0.24999998871868945,
+      "domain": "main",
+      "port": "p17",
+      "powerConnected": false
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（後部）",
+      "w": 1.0355592545973724,
+      "hits": 1,
+      "crew": 0,
+      "size": 18.139509641219448,
+      "at": 0.183,
+      "y": 0,
+      "z": 0,
+      "r": 0.098,
+      "share": 0.513469387755102,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（中央後部）",
+      "w": 0.8515099995930012,
+      "hits": 1,
+      "crew": 0,
+      "size": 13.525325948699397,
+      "at": 0.321,
+      "y": 0.02,
+      "z": 0,
+      "r": 0.089,
+      "share": 0.38285714285714284,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（中央前部）",
+      "w": 0.30593002799882746,
+      "hits": 1,
+      "crew": 0,
+      "size": 2.912703455903282,
+      "at": 0.603,
+      "y": 0.1,
+      "z": 0,
+      "r": 0.053,
+      "share": 0.08244897959183674,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（前部）",
+      "w": 0.12380079186901091,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.7498048500345081,
+      "at": 0.834,
+      "y": 0.08,
+      "z": 0,
+      "r": 0.034,
+      "share": 0.021224489795918365,
+      "domain": "main"
+     },
+     {
+      "k": "hull",
+      "name": "船体構造",
+      "w": 17.995031594276107,
+      "hits": null,
+      "crew": 0,
+      "size": 1,
+      "share": 1,
+      "domain": "main"
+     }
+    ],
+    "energyModel": {
+     "version": 0,
+     "eta": 0.75
+    },
+    "D": 0.0023273845119412004,
+    "shieldBuffer": 0.04654769023882401,
+    "wCap": 0,
+    "crewNeed": 1,
+    "crewMax": 1,
+    "hp": 1,
+    "len": 13.4,
+    "width": 11.720273971557617,
+    "height": 3.731052106612937,
+    "foils": [
+     {
+      "id": 2,
+      "n": "右舷上翼（Sフォイル）",
+      "T": 1,
+      "sec": -1,
+      "jam": 0.5
+     },
+     {
+      "id": 3,
+      "n": "右舷上翼（Sフォイル）",
+      "T": 1,
+      "sec": -1,
+      "jam": 0.5
+     },
+     {
+      "id": 16,
+      "n": "右舷下翼（Sフォイル）",
+      "T": 1,
+      "sec": -1,
+      "jam": 0.5
+     },
+     {
+      "id": 17,
+      "n": "右舷下翼（Sフォイル）",
+      "T": 1,
+      "sec": -1,
+      "jam": 0.5
+     }
+    ],
+    "grid": {
+     "P": 12317805341863060000,
+     "fixed": 25419063929610170,
+     "cooling": 0,
+     "De": 1634256498397410300,
+     "Ds": 11251737808466387000,
+     "Dw": 3349200000000000000,
+     "domains": [
+      {
+       "id": "main",
+       "P": 12317805341863060000,
+       "reactors": [
+        6
+       ],
+       "sources": [
+        {
+         "moduleIndex": 6,
+         "P": 12317805341863060000
+        }
+       ],
+       "modules": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43
+       ],
+       "protection": 1
+      }
+     ],
+     "powerPaths": [
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "f42",
+       "cap": 836800000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "f43",
+       "cap": 836800000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "f44",
+       "cap": 836800000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "f45",
+       "cap": 836800000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p41",
+       "to": "f46",
+       "cap": 1000000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p41",
+       "to": "f47",
+       "cap": 1000000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p31",
+       "cap": 408564124599352600,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p32",
+       "cap": 408564124599352600,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p33",
+       "cap": 408564124599352600,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p34",
+       "cap": 408564124599352600,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p39",
+       "cap": 11251737808466387000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "hotel",
+       "cap": 25419063929610170,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p35",
+       "cap": 1337845469979482.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p36",
+       "cap": 1337845469979482.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p37",
+       "cap": 1337845469979482.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p38",
+       "cap": 1337845469979482.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p40",
+       "cap": 1337845469979482.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p41",
+       "cap": 1337845469979482.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p48",
+       "cap": 1337845469979482.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p49",
+       "cap": 1337845469979482.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p50",
+       "cap": 1337845469979482.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p51",
+       "cap": 1337845469979482.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p52",
+       "cap": 1337845469979482.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p53",
+       "cap": 1337845469979482.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p54",
+       "cap": 1337845469979482.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p55",
+       "cap": 1337845469979482.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p56",
+       "cap": 1337845469979482.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p57",
+       "cap": 1337845469979482.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p58",
+       "cap": 1337845469979482.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p59",
+       "cap": 1337845469979482.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p60",
+       "cap": 1337845469979482.5,
+       "auto": true,
+       "ok": true
+      }
+     ],
+     "trunks": [
+      {
+       "port": "p41",
+       "moduleIndex": 17
+      }
+     ],
+     "fixedLoads": [
+      {
+       "id": "hotel",
+       "port": "hotel",
+       "weight": 25419063929610170,
+       "domain": "main"
+      }
+     ],
+     "coolingLoads": []
+    },
+    "propulsion": {
+     "version": 1,
+     "engines": [
+      {
+       "version": 1,
+       "id": 31,
+       "machineryId": 31,
+       "ratedInputW": 408564124599352600,
+       "driveProfileId": "standard",
+       "machineryGradeId": "advanced",
+       "wattsPerNewton": 2000000000,
+       "ratedThrustN": 204282062.2996763,
+       "effectiveMachineryVolumeM3": 0.03652045061926817,
+       "machineryVolumeM3": 0.03652045061926817,
+       "machineryLengthM": 0.15,
+       "machineryRadiusM": 0.312,
+       "machineryDiameterM": 0.624,
+       "machineryOffsetM": 2.125,
+       "maxInputW": 1241695321055117600,
+       "maxRatedInputW": 1241695321055117600,
+       "inputDensityWPerM3": 11187269534505535000,
+       "allowedInputDensityWPerM3": 34000000000000000000,
+       "cost": 2604.9192917531664,
+       "powerNode": "p31",
+       "heatNode": "p31",
+       "reactorId": 30,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 408564124599352600,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 7,
+       "machineryModuleIndex": 31,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 1241695321055117600
+      },
+      {
+       "version": 1,
+       "id": 32,
+       "machineryId": 32,
+       "ratedInputW": 408564124599352600,
+       "driveProfileId": "standard",
+       "machineryGradeId": "advanced",
+       "wattsPerNewton": 2000000000,
+       "ratedThrustN": 204282062.2996763,
+       "effectiveMachineryVolumeM3": 0.03652045061926817,
+       "machineryVolumeM3": 0.03652045061926817,
+       "machineryLengthM": 0.15,
+       "machineryRadiusM": 0.312,
+       "machineryDiameterM": 0.624,
+       "machineryOffsetM": 2.125,
+       "maxInputW": 1241695321055117600,
+       "maxRatedInputW": 1241695321055117600,
+       "inputDensityWPerM3": 11187269534505535000,
+       "allowedInputDensityWPerM3": 34000000000000000000,
+       "cost": 2604.9192917531664,
+       "powerNode": "p32",
+       "heatNode": "p32",
+       "reactorId": 30,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 408564124599352600,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 8,
+       "machineryModuleIndex": 32,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 1241695321055117600
+      },
+      {
+       "version": 1,
+       "id": 33,
+       "machineryId": 33,
+       "ratedInputW": 408564124599352600,
+       "driveProfileId": "standard",
+       "machineryGradeId": "advanced",
+       "wattsPerNewton": 2000000000,
+       "ratedThrustN": 204282062.2996763,
+       "effectiveMachineryVolumeM3": 0.03652045061926817,
+       "machineryVolumeM3": 0.03652045061926817,
+       "machineryLengthM": 0.15,
+       "machineryRadiusM": 0.312,
+       "machineryDiameterM": 0.624,
+       "machineryOffsetM": 2.125,
+       "maxInputW": 1241695321055117600,
+       "maxRatedInputW": 1241695321055117600,
+       "inputDensityWPerM3": 11187269534505535000,
+       "allowedInputDensityWPerM3": 34000000000000000000,
+       "cost": 2604.9192917531664,
+       "powerNode": "p33",
+       "heatNode": "p33",
+       "reactorId": 30,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 408564124599352600,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 9,
+       "machineryModuleIndex": 33,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 1241695321055117600
+      },
+      {
+       "version": 1,
+       "id": 34,
+       "machineryId": 34,
+       "ratedInputW": 408564124599352600,
+       "driveProfileId": "standard",
+       "machineryGradeId": "advanced",
+       "wattsPerNewton": 2000000000,
+       "ratedThrustN": 204282062.2996763,
+       "effectiveMachineryVolumeM3": 0.03652045061926817,
+       "machineryVolumeM3": 0.03652045061926817,
+       "machineryLengthM": 0.15,
+       "machineryRadiusM": 0.312,
+       "machineryDiameterM": 0.624,
+       "machineryOffsetM": 2.125,
+       "maxInputW": 1241695321055117600,
+       "maxRatedInputW": 1241695321055117600,
+       "inputDensityWPerM3": 11187269534505535000,
+       "allowedInputDensityWPerM3": 34000000000000000000,
+       "cost": 2604.9192917531664,
+       "powerNode": "p34",
+       "heatNode": "p34",
+       "reactorId": 30,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 408564124599352600,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 10,
+       "machineryModuleIndex": 34,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 1241695321055117600
+      }
+     ],
+     "massKg": 23588.422538859726,
+     "ratedThrustN": 817128249.1987052,
+     "ratedAccelMps2": 34641.07224010264,
+     "structuralAccelerationLimitMps2": 174067.79563429786,
+     "inertialFactor": 1,
+     "accelerationLimitMps2": 34641.07224010264
+    },
+    "profileVersion": 4,
+    "heat": {
+     "v": 1,
+     "src": [
+      {
+       "k": "reactor",
+       "id": "p30",
+       "n": "核融合炉 #30",
+       "g": "high",
+       "sh": 1,
+       "st": 35475279384565610000,
+       "m": [
+        6
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p31",
+       "n": "右舷上機関 4L4 核融合推進機関 #31",
+       "g": "high",
+       "sh": 0.25,
+       "st": 780486352100296800,
+       "m": [
+        7,
+        31
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p32",
+       "n": "右舷上機関 4L4 核融合推進機関 #32",
+       "g": "high",
+       "sh": 0.25,
+       "st": 780486352100296800,
+       "m": [
+        8,
+        32
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p33",
+       "n": "右舷下機関 4L4 核融合推進機関 #33",
+       "g": "high",
+       "sh": 0.25,
+       "st": 780486352100296800,
+       "m": [
+        9,
+        33
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p34",
+       "n": "右舷下機関 4L4 核融合推進機関 #34",
+       "g": "high",
+       "sh": 0.25,
+       "st": 780486352100296800,
+       "m": [
+        10,
+        34
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "shield",
+       "id": "p39",
+       "n": "シールド（艦首区画）",
+       "g": "high",
+       "sh": 1,
+       "st": 202531280552394950000,
+       "m": [
+        15
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f42",
+       "n": "武装（艦首区画）",
+       "g": "high",
+       "sh": 0.5,
+       "st": 25114033841024848000,
+       "m": [
+        0,
+        2,
+        4
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f43",
+       "n": "武装（艦首区画）",
+       "g": "high",
+       "sh": 0.5,
+       "st": 25114033841024848000,
+       "m": [
+        1,
+        3,
+        5
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "hotel",
+       "id": "hotel",
+       "n": "生活・電子設備",
+       "g": "low",
+       "sh": 1,
+       "st": 1525143835776610000,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      }
+     ],
+     "dis": [
+      {
+       "id": "p2",
+       "n": "右舷上翼（Sフォイル） #2",
+       "k": "wing",
+       "g": "high",
+       "cap": 97577204545454540,
+       "m": 35,
+       "sec": 1,
+       "src": -1,
+       "fo": 0,
+       "cs": 0.35,
+       "sh": 0.6
+      },
+      {
+       "id": "p3",
+       "n": "右舷上翼（Sフォイル） #3",
+       "k": "wing",
+       "g": "high",
+       "cap": 99957136363636370,
+       "m": 36,
+       "sec": 1,
+       "src": -1,
+       "fo": 1,
+       "cs": 0.35,
+       "sh": 0.6
+      },
+      {
+       "id": "p16",
+       "n": "右舷下翼（Sフォイル） #16",
+       "k": "wing",
+       "g": "high",
+       "cap": 99957136363636370,
+       "m": 37,
+       "sec": 1,
+       "src": -1,
+       "fo": 2,
+       "cs": 0.35,
+       "sh": 0.6
+      },
+      {
+       "id": "p17",
+       "n": "右舷下翼（Sフォイル） #17",
+       "k": "wing",
+       "g": "high",
+       "cap": 97577204545454540,
+       "m": 38,
+       "sec": 1,
+       "src": -1,
+       "fo": 3,
+       "cs": 0.35,
+       "sh": 0.6
+      },
+      {
+       "id": "skin",
+       "n": "外殻からの放熱",
+       "k": "skin",
+       "g": "low",
+       "cap": 843880335634978800000,
+       "m": -1,
+       "sec": -1,
+       "src": -1
+      },
+      {
+       "id": "int:p30",
+       "n": "核融合炉 #30（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 591254656409426800,
+       "m": -1,
+       "sec": -1,
+       "src": 0
+      },
+      {
+       "id": "int:p31",
+       "n": "右舷上機関 4L4 核融合推進機関 #31（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 20428206229967628,
+       "m": -1,
+       "sec": -1,
+       "src": 1
+      },
+      {
+       "id": "int:p32",
+       "n": "右舷上機関 4L4 核融合推進機関 #32（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 20428206229967628,
+       "m": -1,
+       "sec": -1,
+       "src": 2
+      },
+      {
+       "id": "int:p33",
+       "n": "右舷下機関 4L4 核融合推進機関 #33（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 20428206229967628,
+       "m": -1,
+       "sec": -1,
+       "src": 3
+      },
+      {
+       "id": "int:p34",
+       "n": "右舷下機関 4L4 核融合推進機関 #34（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 20428206229967628,
+       "m": -1,
+       "sec": -1,
+       "src": 4
+      },
+      {
+       "id": "int:p39",
+       "n": "シールド（艦首区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 4426784203891817500,
+       "m": -1,
+       "sec": -1,
+       "src": 5
+      },
+      {
+       "id": "int:f42",
+       "n": "武装（艦首区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 523312500000000000,
+       "m": -1,
+       "sec": -1,
+       "src": 6
+      },
+      {
+       "id": "int:f43",
+       "n": "武装（艦首区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 523312500000000000,
+       "m": -1,
+       "sec": -1,
+       "src": 7
+      }
+     ],
+     "ln": [
+      {
+       "s": 0,
+       "d": 5,
+       "cap": 591254656409426800,
+       "sec": -1
+      },
+      {
+       "s": 0,
+       "d": 2,
+       "cap": 1034695648716496900,
+       "sec": 1
+      },
+      {
+       "s": 0,
+       "d": 3,
+       "cap": 1034695648716496900,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 6,
+       "cap": 20428206229967628,
+       "sec": -1
+      },
+      {
+       "s": 1,
+       "d": 0,
+       "cap": 19512158802507420,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 2,
+       "cap": 19512158802507420,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 7,
+       "cap": 20428206229967628,
+       "sec": -1
+      },
+      {
+       "s": 2,
+       "d": 1,
+       "cap": 19512158802507420,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 3,
+       "cap": 19512158802507420,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 8,
+       "cap": 20428206229967628,
+       "sec": -1
+      },
+      {
+       "s": 3,
+       "d": 2,
+       "cap": 19512158802507420,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 0,
+       "cap": 19512158802507420,
+       "sec": 0
+      },
+      {
+       "s": 4,
+       "d": 9,
+       "cap": 20428206229967628,
+       "sec": -1
+      },
+      {
+       "s": 4,
+       "d": 3,
+       "cap": 19512158802507420,
+       "sec": 0
+      },
+      {
+       "s": 4,
+       "d": 1,
+       "cap": 19512158802507420,
+       "sec": 0
+      },
+      {
+       "s": 5,
+       "d": 10,
+       "cap": 4426784203891817500,
+       "sec": -1
+      },
+      {
+       "s": 5,
+       "d": 0,
+       "cap": 7594923020714811000,
+       "sec": 3
+      },
+      {
+       "s": 5,
+       "d": 1,
+       "cap": 7594923020714811000,
+       "sec": 3
+      },
+      {
+       "s": 6,
+       "d": 11,
+       "cap": 523312500000000000,
+       "sec": -1
+      },
+      {
+       "s": 6,
+       "d": 0,
+       "cap": 784968750000000000,
+       "sec": 3
+      },
+      {
+       "s": 6,
+       "d": 2,
+       "cap": 784968750000000000,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 12,
+       "cap": 523312500000000000,
+       "sec": -1
+      },
+      {
+       "s": 7,
+       "d": 1,
+       "cap": 784968750000000000,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 3,
+       "cap": 784968750000000000,
+       "sec": 3
+      },
+      {
+       "s": 8,
+       "d": 2,
+       "cap": 38128595894415250,
+       "sec": 3
+      },
+      {
+       "s": 8,
+       "d": 3,
+       "cap": 38128595894415250,
+       "sec": 3
+      },
+      {
+       "s": 8,
+       "d": 0,
+       "cap": 38128595894415250,
+       "sec": 3
+      },
+      {
+       "s": 8,
+       "d": 1,
+       "cap": 38128595894415250,
+       "sec": 3
+      },
+      {
+       "s": 8,
+       "d": 4,
+       "cap": 843880335634978800000,
+       "sec": -1
+      }
+     ]
+    }
    }
   },
   "z95": {
    "reference": "craft_z95",
-   "signature": "kp7pty",
-   "build": 132863,
+   "signature": "ajrz3l",
+   "build": 140315,
    "crew": 1000,
-   "total": 133863,
+   "total": 141315,
    "by": {
     "hull": 20,
     "armor": 10,
     "power": 45616,
-    "drive": 27015,
+    "drive": 34467,
     "defense": 1500,
     "command": 14501,
     "weapons": 27200,
@@ -758,10 +18147,1378 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.00405,
-    "upS": 0.00405,
-    "down": 0.0332,
+    "up": 0,
+    "upS": 0,
+    "down": 0.0617,
     "T": 0
+   },
+   "powerProfile": {
+    "name": "Z-95 ヘッドハンター",
+    "modules": [
+     {
+      "k": "weapon",
+      "fit": 29,
+      "name": "レーザー砲",
+      "w": 0.9984000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.0005,
+      "stock": 0,
+      "at": 0.311,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.01,
+      "z": 0.96,
+      "r": 0.078,
+      "share": 0.4998001798381457,
+      "domain": "main",
+      "port": "f29",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 30,
+      "name": "レーザー砲",
+      "w": 0.9984000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.0005,
+      "stock": 0,
+      "at": 0.311,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.01,
+      "z": -0.96,
+      "r": 0.078,
+      "share": 0.4998001798381457,
+      "domain": "main",
+      "port": "f30",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 31,
+      "name": "イオン砲",
+      "w": 1.1880000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0008,
+      "stock": 0,
+      "at": 0.693,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "long",
+      "y": -0.45,
+      "z": 0,
+      "r": 0.054,
+      "share": 0.00039964032370866224,
+      "domain": "main",
+      "port": "f31",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 32,
+      "name": "ミサイル発射管",
+      "w": 0.648,
+      "hits": 1,
+      "crew": 0,
+      "size": 0,
+      "stock": 0,
+      "at": 0.275,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.62,
+      "z": 0.07,
+      "r": 0.036,
+      "share": 0,
+      "domain": "main",
+      "port": "f32",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 33,
+      "name": "ミサイル発射管",
+      "w": 0.648,
+      "hits": 1,
+      "crew": 0,
+      "size": 0,
+      "stock": 0,
+      "at": 0.275,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": -0.62,
+      "z": -0.07,
+      "r": 0.036,
+      "share": 0,
+      "domain": "main",
+      "port": "f33",
+      "powerConnected": true
+     },
+     {
+      "k": "reactor",
+      "name": "右舷ナセル核融合炉",
+      "w": 0.5498464214566077,
+      "hits": 1,
+      "crew": 0.00020386004168654407,
+      "size": 0.4077200833730881,
+      "at": 0.355,
+      "part": 21,
+      "y": -0.22,
+      "z": 0.34,
+      "r": 0.022,
+      "share": 0.5,
+      "domain": "main",
+      "port": "p21",
+      "powerConnected": true
+     },
+     {
+      "k": "reactor",
+      "name": "右舷ナセル核融合炉",
+      "w": 0.5498464214566077,
+      "hits": 1,
+      "crew": 0.00020386004168654407,
+      "size": 0.4077200833730881,
+      "at": 0.355,
+      "part": 22,
+      "y": -0.22,
+      "z": -0.34,
+      "r": 0.022,
+      "share": 0.5,
+      "domain": "main",
+      "port": "p22",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "右舷主推進機関",
+      "w": 1.4926640711148789,
+      "hits": 1,
+      "crew": 0.0007294627345188127,
+      "size": 1.8236568362970318,
+      "at": 0.121,
+      "part": 23,
+      "y": -0.22,
+      "z": 0.34,
+      "r": 0.036,
+      "share": 0.4267454114761047,
+      "domain": "main",
+      "port": "p23",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "右舷主推進機関",
+      "w": 1.4926640711148789,
+      "hits": 1,
+      "crew": 0.0007294627345188127,
+      "size": 1.8236568362970318,
+      "at": 0.121,
+      "part": 24,
+      "y": -0.22,
+      "z": -0.34,
+      "r": 0.036,
+      "share": 0.4267454114761047,
+      "domain": "main",
+      "port": "p24",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "操縦席",
+      "w": 0.649629514953459,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.5235987755982988,
+      "at": 0.451,
+      "part": 25,
+      "y": -0.03,
+      "z": 0,
+      "r": 0.024,
+      "share": 0.5966076748711365,
+      "domain": "main",
+      "port": "p25",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "慣性補償装置",
+      "w": 0.20321616979895832,
+      "hits": 1,
+      "crew": 0.000018321768355735675,
+      "size": 0.09160884177867837,
+      "at": 0.263,
+      "part": 26,
+      "y": -0.03,
+      "z": 0,
+      "r": 0.013,
+      "share": 0.10438247879545406,
+      "domain": "main",
+      "port": "p26",
+      "powerConnected": true
+     },
+     {
+      "k": "fuel",
+      "name": "反応物タンク",
+      "w": 0.07661299323322698,
+      "hits": 1,
+      "crew": 0.000004241150082346221,
+      "size": 0.021205750411731103,
+      "at": 0.185,
+      "part": 27,
+      "y": -0.07,
+      "z": 0,
+      "r": 0.008,
+      "share": 1,
+      "domain": "main",
+      "port": "p27",
+      "powerConnected": true
+     },
+     {
+      "k": "battery",
+      "name": "パワーセル",
+      "w": 0.16000000000000003,
+      "hits": 1,
+      "crew": 0.000012800000000000005,
+      "size": 0.06400000000000002,
+      "at": 0.609,
+      "part": 28,
+      "y": -0.24,
+      "z": 0,
+      "r": 0.012,
+      "share": 1,
+      "domain": "main",
+      "port": "p28",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "生命維持装置",
+      "w": 0.13690000000000002,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.050653,
+      "at": 0.52,
+      "part": 34,
+      "y": -0.19,
+      "z": 0,
+      "r": 0.011,
+      "share": 0.05771588850779174,
+      "domain": "main",
+      "port": "p34",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "射出座席機構 1",
+      "w": 0.08410000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.024388999999999997,
+      "at": 0.427,
+      "part": 35,
+      "y": -0.44,
+      "z": -0.05,
+      "r": 0.009,
+      "share": 0.02778972232279495,
+      "domain": "main",
+      "port": "p35",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "航法コンピューター",
+      "w": 0.048400000000000006,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.010648,
+      "at": 0.501,
+      "part": 36,
+      "y": -0.19,
+      "z": 0,
+      "r": 0.007,
+      "share": 0.012132722263853403,
+      "domain": "main",
+      "port": "p36",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "照準コンピューター",
+      "w": 0.08410000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.024388999999999997,
+      "at": 0.52,
+      "part": 37,
+      "y": -0.19,
+      "z": -0.05,
+      "r": 0.009,
+      "share": 0.02778972232279495,
+      "domain": "main",
+      "port": "p37",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 1",
+      "w": 0.03610000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0068590000000000005,
+      "at": 0.52,
+      "part": 38,
+      "y": -0.42,
+      "z": 0,
+      "r": 0.006,
+      "share": 0.007815396507115938,
+      "domain": "main",
+      "port": "p38",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 2",
+      "w": 0.03610000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0068590000000000005,
+      "at": 0.52,
+      "part": 39,
+      "y": -0.19,
+      "z": -0.03,
+      "r": 0.006,
+      "share": 0.007815396507115938,
+      "domain": "main",
+      "port": "p39",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 3",
+      "w": 0.03610000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0068590000000000005,
+      "at": 0.52,
+      "part": 40,
+      "y": -0.19,
+      "z": 0.03,
+      "r": 0.006,
+      "share": 0.007815396507115938,
+      "domain": "main",
+      "port": "p40",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "姿勢制御スラスター 4",
+      "w": 0.03610000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.0068590000000000005,
+      "at": 0.52,
+      "part": 41,
+      "y": 0.03,
+      "z": 0,
+      "r": 0.006,
+      "share": 0.007815396507115938,
+      "domain": "main",
+      "port": "p41",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "レーザーガス供給槽 1",
+      "w": 0.07840000000000003,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.021952000000000006,
+      "at": 0.543,
+      "part": 42,
+      "y": -0.19,
+      "z": 0,
+      "r": 0.008,
+      "share": 0.02501291502029583,
+      "domain": "main",
+      "port": "p42",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "レーザーガス供給槽 2",
+      "w": 0.07840000000000003,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.021952000000000006,
+      "at": 0.496,
+      "part": 43,
+      "y": -0.36,
+      "z": 0,
+      "r": 0.008,
+      "share": 0.02501291502029583,
+      "domain": "main",
+      "port": "p43",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "着陸脚機構 1",
+      "w": 0.09000000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.027,
+      "at": 0.52,
+      "part": 44,
+      "y": -0.19,
+      "z": 0.05,
+      "r": 0.009,
+      "share": 0.030764791615706413,
+      "domain": "main",
+      "port": "p44",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "着陸脚機構 2",
+      "w": 0.09000000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.027,
+      "at": 0.52,
+      "part": 45,
+      "y": 0.16,
+      "z": 0,
+      "r": 0.009,
+      "share": 0.030764791615706413,
+      "domain": "main",
+      "port": "p45",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "着陸脚機構 3",
+      "w": 0.09000000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.027,
+      "at": 0.495,
+      "part": 46,
+      "y": -0.19,
+      "z": -0.03,
+      "r": 0.009,
+      "share": 0.030764791615706413,
+      "domain": "main",
+      "port": "p46",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.4610408367186762,
+      "hits": 1,
+      "crew": 0.00006260933453959729,
+      "size": 0.3130466726979864,
+      "at": 0.285,
+      "part": -23,
+      "machineryOwner": 23,
+      "y": -0.22,
+      "z": 0.34,
+      "r": 0.02,
+      "share": 0.07325458852389526,
+      "domain": "main",
+      "port": "p23",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.4610408367186762,
+      "hits": 1,
+      "crew": 0.00006260933453959729,
+      "size": 0.3130466726979864,
+      "at": 0.285,
+      "part": -24,
+      "machineryOwner": 24,
+      "y": -0.22,
+      "z": -0.34,
+      "r": 0.02,
+      "share": 0.07325458852389526,
+      "domain": "main",
+      "port": "p24",
+      "powerConnected": true
+     },
+     {
+      "k": "dissipator",
+      "name": "右舷主翼",
+      "w": 2.272601975805852,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.1059784588604271,
+      "at": 0.284,
+      "part": 7,
+      "ext": 1,
+      "y": -0.22,
+      "z": 0.53,
+      "r": 0.031,
+      "share": 0.5000000018614136,
+      "domain": "main",
+      "port": "p7",
+      "powerConnected": false
+     },
+     {
+      "k": "dissipator",
+      "name": "右舷主翼",
+      "w": 2.2726019645251796,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.105978450625694,
+      "at": 0.284,
+      "part": 8,
+      "ext": 1,
+      "y": -0.22,
+      "z": -0.53,
+      "r": 0.031,
+      "share": 0.4999999981385865,
+      "domain": "main",
+      "port": "p8",
+      "powerConnected": false
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（後部）",
+      "w": 0.8988004078892026,
+      "hits": 1,
+      "crew": 0,
+      "size": 14.667564364465346,
+      "at": 0.172,
+      "y": -0.09,
+      "z": 0,
+      "r": 0.073,
+      "share": 0.35523210070810385,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（中央後部）",
+      "w": 1.171667202111192,
+      "hits": 1,
+      "crew": 0,
+      "size": 21.830793472692605,
+      "at": 0.345,
+      "y": -0.13,
+      "z": 0,
+      "r": 0.083,
+      "share": 0.5287175452399684,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（中央前部）",
+      "w": 0.3694786929932789,
+      "hits": 1,
+      "crew": 0,
+      "size": 3.865869677455982,
+      "at": 0.586,
+      "y": -0.21,
+      "z": 0,
+      "r": 0.047,
+      "share": 0.09362706530291107,
+      "domain": "main"
+     },
+     {
+      "k": "quarters",
+      "name": "居住空間（前部）",
+      "w": 0.1424911848468549,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.9258595446008026,
+      "at": 0.833,
+      "y": -0.21,
+      "z": 0,
+      "r": 0.029,
+      "share": 0.022423288749016522,
+      "domain": "main"
+     },
+     {
+      "k": "hull",
+      "name": "船体構造",
+      "w": 11.177821658842513,
+      "hits": null,
+      "crew": 0,
+      "size": 1,
+      "share": 1,
+      "domain": "main"
+     }
+    ],
+    "energyModel": {
+     "version": 0,
+     "eta": 0.75
+    },
+    "D": 0,
+    "shieldBuffer": 0,
+    "wCap": 0,
+    "crewNeed": 1,
+    "crewMax": 1,
+    "hp": 1,
+    "len": 16.74,
+    "width": 16.6200008392334,
+    "height": 2.38000003695488,
+    "grid": {
+     "P": 4270463179918040000,
+     "fixed": 22590622592056412,
+     "cooling": 0,
+     "De": 1240086648681981400,
+     "Ds": 0,
+     "Dw": 3014480000000000000,
+     "domains": [
+      {
+       "id": "main",
+       "P": 4270463179918040000,
+       "reactors": [
+        5,
+        6
+       ],
+       "sources": [
+        {
+         "moduleIndex": 5,
+         "P": 2135231589959020000
+        },
+        {
+         "moduleIndex": 6,
+         "P": 2135231589959020000
+        }
+       ],
+       "modules": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34
+       ],
+       "protection": 1
+      }
+     ],
+     "powerPaths": [
+      {
+       "kind": "power",
+       "from": "p21",
+       "to": "f29",
+       "cap": 836800000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p22",
+       "to": "f30",
+       "cap": 836800000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "f31",
+       "cap": 1338880000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "f32",
+       "cap": 1000000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "f33",
+       "cap": 1000000000000000,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p21",
+       "to": "p23",
+       "cap": 620043324340990700,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p22",
+       "to": "p24",
+       "cap": 620043324340990700,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p21",
+       "to": "hotel",
+       "cap": 22590622592056412,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p21",
+       "to": "p25",
+       "cap": 1328860152473906.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p21",
+       "to": "p26",
+       "cap": 1328860152473906.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p21",
+       "to": "p27",
+       "cap": 1328860152473906.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p21",
+       "to": "p28",
+       "cap": 1328860152473906.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p21",
+       "to": "p34",
+       "cap": 1328860152473906.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p22",
+       "to": "p35",
+       "cap": 1328860152473906.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p21",
+       "to": "p36",
+       "cap": 1328860152473906.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p22",
+       "to": "p37",
+       "cap": 1328860152473906.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p21",
+       "to": "p38",
+       "cap": 1328860152473906.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p22",
+       "to": "p39",
+       "cap": 1328860152473906.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p21",
+       "to": "p40",
+       "cap": 1328860152473906.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p21",
+       "to": "p41",
+       "cap": 1328860152473906.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p21",
+       "to": "p42",
+       "cap": 1328860152473906.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p21",
+       "to": "p43",
+       "cap": 1328860152473906.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p21",
+       "to": "p44",
+       "cap": 1328860152473906.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p21",
+       "to": "p45",
+       "cap": 1328860152473906.5,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p22",
+       "to": "p46",
+       "cap": 1328860152473906.5,
+       "auto": true,
+       "ok": true
+      }
+     ],
+     "trunks": [
+      {
+       "port": "p28",
+       "moduleIndex": 12
+      }
+     ],
+     "fixedLoads": [
+      {
+       "id": "hotel",
+       "port": "hotel",
+       "weight": 22590622592056412,
+       "domain": "main"
+      }
+     ],
+     "coolingLoads": []
+    },
+    "propulsion": {
+     "version": 1,
+     "engines": [
+      {
+       "version": 1,
+       "id": 23,
+       "machineryId": 23,
+       "ratedInputW": 620043324340990700,
+       "driveProfileId": "standard",
+       "machineryGradeId": "advanced",
+       "wattsPerNewton": 2000000000,
+       "ratedThrustN": 310021662.17049533,
+       "effectiveMachineryVolumeM3": 0.05859503410469249,
+       "machineryVolumeM3": 0.05859503410469249,
+       "machineryLengthM": 0.15,
+       "machineryRadiusM": 0.3952,
+       "machineryDiameterM": 0.7904,
+       "machineryOffsetM": 2.0100000000000002,
+       "maxInputW": 1992231159559544600,
+       "maxRatedInputW": 1992231159559544600,
+       "inputDensityWPerM3": 10581840830285234000,
+       "allowedInputDensityWPerM3": 34000000000000000000,
+       "cost": 3726.17483961428,
+       "powerNode": "p23",
+       "heatNode": "p23",
+       "reactorId": 21,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 620043324340990700,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 7,
+       "machineryModuleIndex": 26,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 1992231159559544600
+      },
+      {
+       "version": 1,
+       "id": 24,
+       "machineryId": 24,
+       "ratedInputW": 620043324340990700,
+       "driveProfileId": "standard",
+       "machineryGradeId": "advanced",
+       "wattsPerNewton": 2000000000,
+       "ratedThrustN": 310021662.17049533,
+       "effectiveMachineryVolumeM3": 0.05859503410469249,
+       "machineryVolumeM3": 0.05859503410469249,
+       "machineryLengthM": 0.15,
+       "machineryRadiusM": 0.3952,
+       "machineryDiameterM": 0.7904,
+       "machineryOffsetM": 2.0100000000000002,
+       "maxInputW": 1992231159559544600,
+       "maxRatedInputW": 1992231159559544600,
+       "inputDensityWPerM3": 10581840830285234000,
+       "allowedInputDensityWPerM3": 34000000000000000000,
+       "cost": 3726.17483961428,
+       "powerNode": "p24",
+       "heatNode": "p24",
+       "reactorId": 22,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 620043324340990700,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 8,
+       "machineryModuleIndex": 27,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 1992231159559544600
+      }
+     ],
+     "massKg": 19021.62107446748,
+     "ratedThrustN": 620043324.3409907,
+     "ratedAccelMps2": 32596.765644399693,
+     "structuralAccelerationLimitMps2": 383020.8420359168,
+     "inertialFactor": 1,
+     "accelerationLimitMps2": 32596.765644399693
+    },
+    "profileVersion": 4,
+    "heat": {
+     "v": 1,
+     "src": [
+      {
+       "k": "reactor",
+       "id": "p21",
+       "n": "右舷ナセル核融合炉 #21",
+       "g": "high",
+       "sh": 0.504071,
+       "st": 3553830737005250600,
+       "m": [
+        5
+       ],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "reactor",
+       "id": "p22",
+       "n": "右舷ナセル核融合炉 #22",
+       "g": "high",
+       "sh": 0.495929,
+       "st": 3496423978418377700,
+       "m": [
+        6
+       ],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p23",
+       "n": "右舷主推進機関 #23",
+       "g": "high",
+       "sh": 0.5,
+       "st": 1860129973022972200,
+       "m": [
+        7,
+        26
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "engine",
+       "id": "p24",
+       "n": "右舷主推進機関 #24",
+       "g": "high",
+       "sh": 0.5,
+       "st": 1860129973022972200,
+       "m": [
+        8,
+        27
+       ],
+       "pc": [],
+       "sec": 0,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f29",
+       "n": "武装（前部区画）",
+       "g": "high",
+       "sh": 0.999207,
+       "st": 25104000000000000000,
+       "m": [
+        0,
+        1
+       ],
+       "pc": [],
+       "sec": 3,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f31",
+       "n": "武装（艦首区画）",
+       "g": "high",
+       "sh": 0.0007922,
+       "st": 19903171211565510,
+       "m": [
+        2
+       ],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "weapon",
+       "id": "f32",
+       "n": "武装（中央区画）",
+       "g": "high",
+       "sh": 0.00000118338,
+       "st": 29731075543089.01,
+       "m": [
+        3,
+        4
+       ],
+       "pc": [],
+       "sec": 2,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "hotel",
+       "id": "hotel",
+       "n": "生活・電子設備",
+       "g": "low",
+       "sh": 1,
+       "st": 1355437355523384800,
+       "m": [],
+       "pc": [],
+       "sec": 4,
+       "sw": -1,
+       "gen": -1
+      }
+     ],
+     "dis": [
+      {
+       "id": "p7",
+       "n": "右舷主翼 #7",
+       "k": "wing",
+       "g": "high",
+       "cap": 116692875000000000,
+       "m": 28,
+       "sec": 2,
+       "src": -1
+      },
+      {
+       "id": "p8",
+       "n": "右舷主翼 #8",
+       "k": "wing",
+       "g": "high",
+       "cap": 116692875000000000,
+       "m": 29,
+       "sec": 2,
+       "src": -1
+      },
+      {
+       "id": "skin",
+       "n": "外殻からの放熱",
+       "k": "skin",
+       "g": "low",
+       "cap": 673327963894564900000,
+       "m": -1,
+       "sec": -1,
+       "src": -1
+      },
+      {
+       "id": "int:p21",
+       "n": "右舷ナセル核融合炉 #21（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 85409263598360800,
+       "m": -1,
+       "sec": -1,
+       "src": 0
+      },
+      {
+       "id": "int:p22",
+       "n": "右舷ナセル核融合炉 #22（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 85409263598360800,
+       "m": -1,
+       "sec": -1,
+       "src": 1
+      },
+      {
+       "id": "int:p23",
+       "n": "右舷主推進機関 #23（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 31002166217049536,
+       "m": -1,
+       "sec": -1,
+       "src": 2
+      },
+      {
+       "id": "int:p24",
+       "n": "右舷主推進機関 #24（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 31002166217049536,
+       "m": -1,
+       "sec": -1,
+       "src": 3
+      },
+      {
+       "id": "int:f29",
+       "n": "武装（前部区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 523000000000000000,
+       "m": -1,
+       "sec": -1,
+       "src": 4
+      },
+      {
+       "id": "int:f31",
+       "n": "武装（艦首区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 418400000000000000,
+       "m": -1,
+       "sec": -1,
+       "src": 5
+      },
+      {
+       "id": "int:f32",
+       "n": "武装（中央区画）（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 625000000000000,
+       "m": -1,
+       "sec": -1,
+       "src": 6
+      }
+     ],
+     "ln": [
+      {
+       "s": 0,
+       "d": 3,
+       "cap": 85409263598360800,
+       "sec": -1
+      },
+      {
+       "s": 0,
+       "d": 0,
+       "cap": 128113895397541200,
+       "sec": 3
+      },
+      {
+       "s": 0,
+       "d": 1,
+       "cap": 128113895397541200,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 4,
+       "cap": 85409263598360800,
+       "sec": -1
+      },
+      {
+       "s": 1,
+       "d": 1,
+       "cap": 128113895397541200,
+       "sec": 3
+      },
+      {
+       "s": 1,
+       "d": 0,
+       "cap": 128113895397541200,
+       "sec": 3
+      },
+      {
+       "s": 2,
+       "d": 5,
+       "cap": 31002166217049536,
+       "sec": -1
+      },
+      {
+       "s": 2,
+       "d": 0,
+       "cap": 46503249325574300,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 1,
+       "cap": 46503249325574300,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 6,
+       "cap": 31002166217049536,
+       "sec": -1
+      },
+      {
+       "s": 3,
+       "d": 1,
+       "cap": 46503249325574300,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 0,
+       "cap": 46503249325574300,
+       "sec": 0
+      },
+      {
+       "s": 4,
+       "d": 7,
+       "cap": 523000000000000000,
+       "sec": -1
+      },
+      {
+       "s": 4,
+       "d": 0,
+       "cap": 784500000000000000,
+       "sec": 3
+      },
+      {
+       "s": 4,
+       "d": 1,
+       "cap": 784500000000000000,
+       "sec": 3
+      },
+      {
+       "s": 5,
+       "d": 8,
+       "cap": 418400000000000000,
+       "sec": -1
+      },
+      {
+       "s": 5,
+       "d": 0,
+       "cap": 627600000000000000,
+       "sec": 4
+      },
+      {
+       "s": 5,
+       "d": 1,
+       "cap": 627600000000000000,
+       "sec": 4
+      },
+      {
+       "s": 6,
+       "d": 9,
+       "cap": 625000000000000,
+       "sec": -1
+      },
+      {
+       "s": 6,
+       "d": 0,
+       "cap": 937500000000000,
+       "sec": 2
+      },
+      {
+       "s": 6,
+       "d": 1,
+       "cap": 937500000000000,
+       "sec": 2
+      },
+      {
+       "s": 7,
+       "d": 0,
+       "cap": 33885933888084616,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 1,
+       "cap": 33885933888084616,
+       "sec": 3
+      },
+      {
+       "s": 7,
+       "d": 2,
+       "cap": 673327963894564900000,
+       "sec": -1
+      }
+     ]
+    }
    }
   }
  }
@@ -1462,12 +20219,13 @@ function fitTilt(n) {
   const u = norm(n); let best = -2; for (const x of AXES) best = Math.max(best, dot(x, u));
   return best >= TILT_MIN ? null : u;
 }
-function isSurfaceBattery(f){return !!(f&&typeof f==='object'&&typeof f.surfacePatch==='string'&&f.surfacePatch&&FITS[f.k]?.cat==='w');}
-function fitUp(f) { return isSurfaceBattery(f)?norm(f.n||f.tilt||AXES[f.mountAxis??f.a]||[0,1,0]):f.tilt || AXES[f.mountAxis ?? f.a]; }
-function fitCanRotate(f) { const d=FITS[typeof f==='string'?f:f?.k];return !!(d?.cat==='w'&&!d.casemate&&!d.fixed&&(d.tt>0||d.ion>0)); }
-function fitHasPedestal(f){const d=FITS[typeof f==='string'?f:f?.k];return !!d&&!(d.cat==='w'&&(d.craft||d.fixed||d.msl||typeof f==='object'&&isSurfaceBattery(f)));}
-function normalizeFitMount(f){if(f&&FITS[f.k]?.cat==='w'&&!fitHasPedestal(f)){f.ped=0;f.base=0;f.low=0;f.slope=0;delete f.pedShape;delete f.pedSize;}return f;}
+function isSurfaceBattery(f){return !!(f&&typeof f==='object'&&typeof f.surfacePatch==='string'&&f.surfacePatch&&FITS[canonicalWeaponKind(f.k)]?.cat==='w');}
+function fitUp(f) { f=migrateWeaponFit(f);return isSurfaceBattery(f)?norm(f.n||f.tilt||AXES[f.mountAxis??f.a]||[0,1,0]):f.tilt || AXES[f.mountAxis ?? f.a]; }
+function fitCanRotate(f) { const d=FITS[canonicalWeaponKind(typeof f==='string'?f:f?.k)];return !!(d?.cat==='w'&&!d.casemate&&!d.fixed&&(d.tt>0||d.ion>0)); }
+function fitHasPedestal(f){const d=FITS[canonicalWeaponKind(typeof f==='string'?f:f?.k)];return !!d&&!(d.cat==='w'&&(d.craft||d.fixed||d.msl||typeof f==='object'&&isSurfaceBattery(f)));}
+function normalizeFitMount(f){f=migrateWeaponFit(f);if(f&&FITS[f.k]?.cat==='w'&&!fitHasPedestal(f)){f.ped=0;f.base=0;f.low=0;f.slope=0;delete f.pedShape;delete f.pedSize;}return f;}
 function fitFrameOf(f) {
+  f=migrateWeaponFit(f);
   const surface=isSurfaceBattery(f),base=fitFrame(f.a),up=surface?fitUp(f):f.tilt||base.up;
   let fw=f.tilt||surface?sub(base.fw,mul(up,dot(base.fw,up))):base.fw;
   if (len(fw) < 1e-3) fw = sub(base.rt, mul(up, dot(base.rt, up)));
@@ -1827,12 +20585,11 @@ function baseComputeStats(ship) {
     if(a.k==='vls'&&b.k==='vls')continue;
     if(overlapParts(a,b)){invalid.add(a.id);invalid.add(b.id);}
   }
-  const demands=new Map();for(const e of ship.parts.filter(p=>p.k==='engine'&&!invalid.has(p.id))){const r=reactorFor(ship,e);if(r)demands.set(r.id,(demands.get(r.id)||0)+nozzleDemand(e));}
   let crew = 0, cost = 0, hpSum = 0;const costBy = {hull: 0, armor: 0, power: 0, drive: 0, defense: 0, hangar: 0, command: 0, weapons: 0, systems: 0};   // PLAN-002 the build cost by category (costCategory)
   let Vgen = 0, Vsh = 0, Vhyp = 0, Veng = 0, ventEng = 0, engN = 0, Vhang = 0, Vstruct = 0, structOut = 0, Vint = 0;
   let reactorOutput=0,availableThrust=0,engineDemand=0,shieldCapacity=0,hyperEffectiveVolume=0;
   let exposedArea = 0, critExp = 0, critN = 0, critProt = 0, genExpFrac = 0, floating = 0, overlap = 0, citArea = 0, plateA = 0, plateAT = 0, plateM = 0;
-  const info = {}, hangars = [];
+  const info = {}, hangars = [],countedMachinery=new Set();
   for (const pt of physical) {
     const d = PARTS[pt.k], V = partVolume(pt), materialV=pt.k==='struct'&&!pt.plate?(material.volumes.get(pt.id)??V):V,materialRatio=V>0?materialV/V:0,vs = volSamples(pt);
     let inH = 0, inE = 0, newHull = 0;
@@ -1881,10 +20638,10 @@ function baseComputeStats(ship) {
     else if (pt.k === 'hangar'||pt.k==='service') { if(pt.k==='hangar')Vhang += V; hangars.push({pt, b: ab, expF, A, acc: false, doors: new Set()}); }
     else if (pt.k === 'engine') {
       engN++; Veng += V;
-      const source=reactorFor(ship,pt),path=enginePaths(ship).find(r=>r.nozzle===pt.id);
+      const spec=resolveEngineSpec(pt,ship),source=ship.parts.find(r=>isReactor(r)&&r.id===spec.reactorId),path=enginePaths(ship).find(r=>r.nozzle===spec.machineryId);
       let ok=!!source&&engineVented(ship,pt)&&!invalid.has(source.id)&&(!path||!invalid.has(path.id));
       info[pt.id].vent=ok;info[pt.id].reactor=source?.id||null;
-      if(ok){const cap=reactorPower(source),rate=Math.min(1,cap/Math.max(1,demands.get(source.id)));ventEng+=V;availableThrust+=nozzleThrust(pt)*rate;engineDemand+=nozzleDemand(pt)*rate;info[pt.id].powerRatio=rate;}
+      if(ok){ventEng+=V;if(!countedMachinery.has(spec.machineryId)){countedMachinery.add(spec.machineryId);availableThrust+=spec.ratedThrustN;engineDemand+=spec.valid?spec.ratedInputW:0;}info[pt.id].powerRatio=1;}
     }
   }
   const solids=occupied;
@@ -2008,7 +20765,7 @@ function baseComputeStats(ship) {
   const coreNeed=Ds+.35*De+Dh+Dr,coreRate=coreNeed>0?Math.min(1,P/coreNeed):1,weaponBudget=Math.max(0,P-coreNeed),rc=Dw>0?Math.min(1,weaponBudget/Dw):1;
   const needM = De + 0.5 * Ds + Dh + Dr, rm = needM > 0 ? Math.min(1, P / needM) : 1;
   const jumpOK = hyperEffectiveVolume > 0 && P >= Dj + Dh + 0.3 * Ds;
-  const aThrust = M > 0 ? rm * thrust / (M * 1000) : 0;
+  const aThrust = M > 0 ? thrust / (M * 1000) : 0;
   let mAft = 0, worst = Infinity, worstX = null, cut = false;
   for (let k = 0; k + 1 < nb; k++) {
     mAft += bins[k];
@@ -2548,10 +21305,11 @@ const SKIN_MESH=new WeakMap();
 function engineSkinMesh(p){
   if(p?.k!=='engine')return null;
   const appearance=engineAppearance(p),a=REFERENCE_ASSETS[appearance.skinAsset];if(!a)return null;
-  const key=JSON.stringify([appearance.c,appearance.d,appearance.dir,appearance.skinAsset,appearance.skinAnchor,appearance.skinDiameter,appearance.skinAxial,appearance.nozzleLength,appearance.bodyLength,appearance.engineLength,appearance.equipmentId,appearance._bellOnly]),old=SKIN_MESH.get(p);if(old&&old.key===key)return old;
+  const key=JSON.stringify([appearance.c,appearance.d,appearance.dir,appearance.skinAsset,appearance.skinAnchor,appearance.skinDiameter,appearance.skinAxial,appearance.nozzleLength,appearance.bodyLength,appearance.engineLength,appearance.machineryLengthM,appearance.machineryRadiusM,appearance.machineryOffsetM,appearance.machineryId,appearance.equipmentId,appearance._bellOnly]),old=SKIN_MESH.get(p);if(old&&old.key===key)return old;
   const dd=decodeReference(appearance.skinAsset);if(!dd)return null;
   let pos,uv=dd.uv,idx=dd.idx;
-  if(appearance._bellOnly){
+  const invalidBody=appearance.machineryLengthM!=null&&(!Number.isFinite(appearance.machineryLengthM)||appearance.machineryLengthM<=0||appearance.machineryLengthM>DESIGN_LIMITS.engineLength||!Number.isFinite(appearance.machineryRadiusM)||appearance.machineryRadiusM<=0||appearance.machineryRadiusM>DESIGN_LIMITS.engineDiameter);
+  if(appearance._bellOnly||((appearance.machineryId!=null&&appearance.machineryId!==appearance.id||invalidBody)&&sourceEngine(appearance))){
     const source=sourceEngine(appearance),collar=(source.anchor[0]+source.nozzleLength/2-a.c[0])/a.size[0],vertices=[],points=[],tex=[],indices=[],mapped=new Map();
     for(let i=0;i<dd.pos.length;i+=3)vertices.push([dd.pos[i],dd.pos[i+1],dd.pos[i+2],dd.uv[i/3*2],dd.uv[i/3*2+1]]);
     const index=v=>{if(mapped.has(v))return mapped.get(v);const k=points.length/3;mapped.set(v,k);points.push(...referenceEnginePoint(appearance,v.slice(0,3),a));tex.push(v[3],v[4]);return k;};
@@ -2585,7 +21343,7 @@ function overlapParts(a,b){
 }
 function conflicts(ship,pt,ignore=[]){return allOccupied(ship).filter(q=>q.id!==pt.id&&!ignore.includes(q.id)&&!isShapePart(q)&&!(pt.k==='engine'&&q.k==='machinery'&&q.nozzle===pt.id)&&overlapParts(pt,q));}
 function engineVented(ship,e){const m=partDims(e),u=norm(e.dir||[-1,0,0]),p=add(e.c,mul(u,m.l/2+Math.max(1,m.rad*.2)));if(inEnv(ship,p))return false;return !ship.parts.some(q=>q!==e&&!isShapePart(q)&&inPart(q,p));}
-function mirrorPart(p,ship){const q=JSON.parse(JSON.stringify(p,(k,v)=>k.startsWith('_')?undefined:v));q.c=mirrorP(p.c);delete q._geom;if(q.dir)q.dir=mirrorP(q.dir);if(q.yaw)q.yaw=-q.yaw;if(q.surfaceNormal)q.surfaceNormal=mirrorP(q.surfaceNormal);if(q.roll)q.roll=-q.roll;if(q.angles)[q.angles[2],q.angles[3]]=[q.angles[3],q.angles[2]];if(q.offsetZ)q.offsetZ=-q.offsetZ;if(q.form==='arc')q.arcStart=((-(p.arcStart??30)-(p.arcSweep??300)+540)%360)-180;if(q.form==='shell')q.shellFlip=!p.shellFlip;if(q.loft)q.loft=q.loft.map(a=>a.length>4?[...a.slice(0,4),-a[4]]:a);if(q.outline)q.outline=q.outline.map(a=>[a[0],-a[1]]);if(q.k==='wing'&&(q.wingTipSide===1||q.wingTipSide===-1))q.wingTipSide=-q.wingTipSide;if(q.mesh)q.mesh=mirrorStructMesh(p.mesh);if(q.wing?.pivot)q.wing.pivot=mirrorP(q.wing.pivot);if(q.wing?.members)mirrorWingMembers(q.wing,ship,'tw');if(q.reactor){const r=ship.parts.find(x=>x.id===q.reactor);if(r?.tw)q.reactor=r.tw;}if(q.aviationSurfaces){const a=q.aviationSurfaces;[a.port,a.stbd]=[a.stbd||'none',a.port||'none'];}mirrorEquipment(p,q);return q;}
+function mirrorPart(p,ship){const q=JSON.parse(JSON.stringify(p,(k,v)=>k.startsWith('_')?undefined:v));q.c=mirrorP(p.c);delete q._geom;if(q.dir)q.dir=mirrorP(q.dir);if(q.yaw)q.yaw=-q.yaw;if(q.surfaceNormal)q.surfaceNormal=mirrorP(q.surfaceNormal);if(q.roll)q.roll=-q.roll;if(q.angles)[q.angles[2],q.angles[3]]=[q.angles[3],q.angles[2]];if(q.offsetZ)q.offsetZ=-q.offsetZ;if(q.form==='arc')q.arcStart=((-(p.arcStart??30)-(p.arcSweep??300)+540)%360)-180;if(q.form==='shell')q.shellFlip=!p.shellFlip;if(q.loft)q.loft=q.loft.map(a=>a.length>4?[...a.slice(0,4),-a[4]]:a);if(q.outline)q.outline=q.outline.map(a=>[a[0],-a[1]]);if(q.k==='wing'&&(q.wingTipSide===1||q.wingTipSide===-1))q.wingTipSide=-q.wingTipSide;if(q.mesh)q.mesh=mirrorStructMesh(p.mesh);if(q.wing?.pivot)q.wing.pivot=mirrorP(q.wing.pivot);if(q.wing?.members)mirrorWingMembers(q.wing,ship,'tw');if(q.reactor){const r=ship.parts.find(x=>x.id===q.reactor);if(r?.tw)q.reactor=r.tw;}if(q.machineryId!=null){const owner=ship.parts.find(x=>x.id===q.machineryId);if(owner?.tw)q.machineryId=owner.tw;}if(q.aviationSurfaces){const a=q.aviationSurfaces;[a.port,a.stbd]=[a.stbd||'none',a.port||'none'];}mirrorEquipment(p,q);return q;}
 function v3PlacePart(ship,k,c,size,opts={},mirror=false){
   if(!Object.hasOwn(PARTS,k)||(k==='machinery'||k==='capacitor'||k==='vls'))throw new Error('配置できない部品です');
   if(ship.parts.length+(mirror&&Math.abs(c[2])>1?2:1)>DESIGN_LIMITS.parts)throw new Error('区画数の上限は'+DESIGN_LIMITS.parts+'個です');
@@ -2618,7 +21376,7 @@ function engineeringStats(ship,S){
   for(const r of routes)for(const p of real){if(p.id===r.reactor||p.id===r.nozzle)continue;if(overlapParts(r,p)){bad.add(p.id);if(info[p.id])info[p.id].overlap=true;}}
   const volumes={};for(const p of real)if(!info[p.id]?.overlap)volumes[p.k]=(volumes[p.k]||0)+partVolume(p);
   const v=k=>volumes[k]||0;
-  S.engineVolume=routes.reduce((n,p)=>n+partVolume(p),0);S.engineLinks=routes.length;S.engineConflicts=bad.size;S.unconnected=real.filter(p=>p.k==='engine'&&!reactorFor(ship,p)).length;
+  S.engineVolume=routes.reduce((n,p)=>n+partVolume(p),0);S.effectiveMachineryVolumeM3=real.filter(p=>p.k==='engine'&&(p.machineryId==null||p.machineryId===p.id)).reduce((n,p)=>n+resolveEngineSpec(p,ship).effectiveMachineryVolumeM3,0);S.engineLinks=routes.length;S.engineConflicts=bad.size;S.unconnected=real.filter(p=>p.k==='engine'&&!reactorFor(ship,p)).length;
   S.fuelVolume=v('fuel');S.fuelHours=S.power>0?v('fuel')*1.2e25/(S.power*.25)/3600:0;
   // v21 A craft's reactor feeds itself (no separate pumps at this size).
   S.supplyRatio=S.Vgen>0?(isCraft(ship)?1:Math.min(1,v('pump')*70/S.Vgen)):0;
@@ -2639,6 +21397,9 @@ function engineeringStats(ship,S){
   if(S.integritySupport<S.mass)S.warnings.push({lv:'warn',text:'構造維持装置の対応質量が不足しています。'});
   if(S.slots>S.serviceCapacity)S.warnings.push({lv:'warn',text:`航空整備能力 ${S.serviceCapacity} 機分／搭載 ${Math.floor(S.slots)} 機。`});
   if(S.slots>0&&!S.airControl)S.warnings.push({lv:'info',text:'航空指揮ポッド（航空指揮所）を設置すると艦載機の管制を分担できます。'});
+  S.propulsion=propulsionProfile(ship,S);S.ratedThrustN=S.propulsion.ratedThrustN;S.ratedAccelMps2=S.propulsion.ratedAccelMps2;S.maximumAccelMps2=S.propulsion.accelerationLimitMps2;
+  for(const e of S.propulsion.engines)for(const issue of e.issues)S.warnings.push({lv:issue==='legacy-refit-required'?'warn':'bad',code:issue,text:`機関 #${e.id}: ${issue}`,targets:[{list:'parts',id:e.id}]});
+  S.fuelReferenceLoadFraction=.25;S.fuelHoursBasis='fixed-quarter-reactor-reference';
   return S;
 }
 
@@ -2650,7 +21411,7 @@ function v3SurfSamples(pt,inflate=0){
   return baseSurfSamples(pt,inflate);
 }
 function mountFit(ship,f){
-  normalizeFitMount(f);
+  f=migrateWeaponFit(f);normalizeFitMount(f);
   if(FITS[f.k]?.asset)return normalizeFitMount(mountReferenceFit(ship,f));
   if(!FITS[f.k]?.window)return baseMountFit(ship,f);
   let p=f.p,n=f.n||AXES[f.a],host=f.host?ship.parts.find(q=>q.id===f.host):null,h=null;
@@ -2679,6 +21440,7 @@ function craftFitBounds(f){
  return [-L*.5,0,-W*.5,L*.5,h,W*.5];
 }
 function fitAABB(f){
+  f=migrateWeaponFit(f);
   const port=surfaceBatteryGeometry(f);if(port)return port.bounds;
   if(FITS[f.k]?.asset)return referenceFitAABB(f);
   if(FITS[f.k]?.craft){const b=craftFitBounds(f),fr=fitFrameOf(f),o=fitOrigin(f),P=[];for(const x of [b[0],b[3]])for(const y of [b[1],b[4]])for(const z of [b[2],b[5]])P.push(add(o,add(add(mul(fr.fw,x),mul(fr.up,y)),mul(fr.rt,z))));return [0,1,2].map(i=>Math.min(...P.map(p=>p[i]))).concat([0,1,2].map(i=>Math.max(...P.map(p=>p[i]))));}
@@ -2687,6 +21449,7 @@ function fitAABB(f){
   return sub(c,e).concat(add(c,e));
 }
 function placeFit(ship,k,p,n,ped,mirror,options={}){
+  k=canonicalWeaponKind(k);
   if(FITS[k]?.casemate){if(Math.abs(n[1])>.65)return {err:'ケースメイト砲はトレンチ内壁・船体や構造の側壁に配置してください'};options={...options,localMount:true};}
   if(!FITS[k]?.window)return basePlaceFit(ship,k,p,n,ped,mirror,options);
   if(ship.fits.length+(mirror?2:1)>DESIGN_LIMITS.fits)return {err:'装備数の上限は'+DESIGN_LIMITS.fits+'基です'};
@@ -2700,7 +21463,7 @@ function placeFit(ship,k,p,n,ped,mirror,options={}){
 }
 function v3ComputeStats(ship){return engineeringStats(ship,baseComputeStats(ship));}
 function v3Serialize(ship){
-  const o={format:'starship-yard',v:3};for(const k of ['name','hull','keel','cuts','trenches','solidCuts','subs','parts','hatches','fits','armor','nextId','shieldTarget'])o[k]=ship[k];if(ship.systemsVersion===1||ship.parts.some(p=>CRAFT_SYSTEM_KEYS.includes(p.k)))o.systemsVersion=1;o.airWings=[];
+  const o={format:'starship-yard',v:3,propulsionModelVersion:PROPULSION_MODEL_VERSION};for(const k of ['name','hull','keel','cuts','trenches','solidCuts','subs','parts','hatches','fits','armor','nextId','shieldTarget'])o[k]=ship[k];if(ship.systemsVersion===1||ship.parts.some(p=>CRAFT_SYSTEM_KEYS.includes(p.k)))o.systemsVersion=1;o.airWings=[];
   // Old performance multipliers have no place in new saves. Physical
   // dimensions and positions survive unchanged, including on legacy imports.
   return JSON.parse(JSON.stringify(o,(k,v)=>k.startsWith('_')||LEGACY_PERFORMANCE_FACTORS.has(k)||k==='aircraftType'||k==='berths'?undefined:v));
@@ -2738,7 +21501,7 @@ function v3Deserialize(o){
   s.nextId=mx+1;return s;
 }
 function buildDesign(key){
-  const finish=s=>{dedicateAeroParts(s);s.hullLocked=true;if(CRAFT_SYSTEM_RECIPES[key])installCraftSystems(s,CRAFT_SYSTEM_RECIPES[key]);const out=initializeAviation(s,key);settleMissileMounts(out);return out;};
+  const finish=s=>{dedicateAeroParts(s);s.hullLocked=true;if(CRAFT_SYSTEM_RECIPES[key])installCraftSystems(s,CRAFT_SYSTEM_RECIPES[key]);const out=initializeAviation(s,key);settleMissileMounts(out);migrateLegacyPropulsion(out);return out;};
   if(Object.hasOwn(SHIP_EXAMPLES,key)){const s=SHIP_EXAMPLES[key].build();s.reference=s.reference||key;return finish(s);}
   if(Object.hasOwn(DREADNOUGHT_EXAMPLES,key))return finish(dreadnoughtDesign(key));
   if(['venator','imperial'].includes(key))return finish(referenceDesign(key));
@@ -2840,14 +21603,14 @@ function enginePaths(ship){
   const paths=[];
   const segment=(a,b,r0,r1)=>({a,b,r0,r1,l:len(sub(b,a)),...frameAxis(sub(b,a))});
   for(const e of ps.filter(p=>p.k==='engine')){
-    const r=reactorFor(ship,e);if(!r)continue;
-    const dir=norm(e.dir||[-1,0,0]),b=sub(e.c,mul(dir,partDims(e).l/2)),d=len(sub(b,r.c));
-    // v21 A craft's drives are short: the floors scale down with the hull.
-    const mn=isCraft(ship)?.15:2,bl=parametricEngine(e)?Math.max(mn,e.bodyLength):clamp(e.bodyLength??e.d*2.2,mn,Math.max(mn,d*.62)),joint=sub(b,mul(dir,bl));
-    const u=norm(sub(joint,r.c)),a=add(r.c,mul(u,r.d*.49));if(len(sub(a,b))<mn/2)continue;
-    const rad=e.d*(e.bodyRadius??.52),segments=[segment(a,joint,Math.min(r.d*.2,e.d*.29),rad*.78),segment(joint,b,rad*.78,rad)].filter(s=>s.l>.1);
+    if(e.machineryId!=null&&e.machineryId!==e.id)continue;
+    const r=reactorFor(ship,e);
+    const m=machineryGeometry(e,ship),dir=m.dir,b=m.b,mn=isCraft(ship)?.15:2,bl=m.length,joint=sub(b,mul(dir,bl));
+    if(!(m.volume>0)||!Number.isFinite(m.volume)||m.length>DESIGN_LIMITS.engineLength||m.radius>DESIGN_LIMITS.engineDiameter||!Number.isFinite(m.offset)||Math.abs(m.offset)>DESIGN_LIMITS.coordinate||!m.b.every(Number.isFinite))continue;
+    const u=r?norm(sub(joint,r.c)):dir,a=r?add(r.c,mul(u,r.d*.49)):joint;
+    const rad=m.radius,connectionSegments=r&&len(sub(a,b))>=mn/2?[segment(a,joint,Math.min(r.d*.2,e.machineryFeedRadiusM??e.d*.29),rad*.78)].filter(s=>s.l>.1):[],machinerySegment=segment(joint,b,rad*.78,rad),segments=[...connectionSegments,machinerySegment];
     const seg=segment(a,b,segments[0].r0,rad);
-    paths.push({id:-e.id,k:'machinery',c:mul(add(a,b),.5),d:e.d,seg,segments,reactor:r.id,nozzle:e.id});
+    paths.push({id:-e.id,k:'machinery',c:mul(add(a,b),.5),d:e.d,seg,segments,machinerySegment,connectionSegments,effectiveMachineryVolumeM3:m.volume,reactor:r?.id??null,nozzle:e.id});
   }
   ship._engines4={key,paths};return paths;
 }
@@ -2858,7 +21621,17 @@ function unclippedInPart(p,q){if(p.k==='sensor'&&p.skinSize)return inStruct(sens
 function partAABB(p){if(p._surfaceAdapter)return p._surfaceAdapter.bounds.slice();if(p._packing)return p._packing.bounds.slice();if(p.k==='sensor'&&p.skinSize)return v3PartAABB(sensorShape(p));if(p.room)return v3PartAABB(roomShape(p));if(p.segments){const b=p.segments.map(seg=>v3PartAABB({...p,segments:null,seg}));return [0,1,2].map(i=>Math.min(...b.map(x=>x[i]))).concat([3,4,5].map(i=>Math.max(...b.map(x=>x[i]))));}return v3PartAABB(p);}
 function unclippedVolSamples(p){if(p.k==='sensor'&&p.skinSize)return v3VolSamples(sensorShape(p));if(p.room)return v3VolSamples(roomShape(p));if(p.segments)return p.segments.flatMap(seg=>v3VolSamples({...p,segments:null,seg}));if(isShapePart(p)&&p._apertures?.some(m=>m.slide)){const T=structTriangles(p),b=solidMeshBounds(p._solidGeometry?.material||p._pierced?.material||T);if(!b.every(Number.isFinite))return [];return VOL_S.map(u=>[0,1,2].map(a=>(b[a]+b[a+3])/2+u[a]*(b[a+3]-b[a])/2)).filter(q=>inStruct(p,q));}return v3VolSamples(p);}
 function unclippedSurfSamples(p,e=0){if(p.k==='sensor'&&p.skinSize)return v3SurfSamples(sensorShape(p),e);if(p.room)return v3SurfSamples(roomShape(p),e);if(p.segments)return p.segments.flatMap(seg=>v3SurfSamples({...p,segments:null,seg},e));return v3SurfSamples(p,e);}
-function unclippedRayPart(o,d,p){if(p.k==='sensor'&&p.skinSize)return rayTris(structTriangles(sensorShape(p)),o,d);if(p.room)return rayTris(structTriangles(roomShape(p)),o,d);return v3RayPart(o,d,p);}
+function rayRouteSegment(o,d,s){
+ if(!(s.l>1e-8))return null;
+ const q=sub(o,s.a),x=dot(q,s.u),dx=dot(d,s.u),radial=sub(q,mul(s.u,x)),dr=sub(d,mul(s.u,dx)),slope=(s.r1-s.r0)/s.l,r=s.r0+slope*x;
+ const A=dot(dr,dr)-(slope*dx)**2,B=2*(dot(radial,dr)-r*slope*dx),Cc=dot(radial,radial)-r*r,roots=[];
+ if(Math.abs(A)<1e-12){if(Math.abs(B)>1e-12)roots.push(-Cc/B);}else{const delta=B*B-4*A*Cc;if(delta>=0){const h=Math.sqrt(delta);roots.push((-B-h)/(2*A),(-B+h)/(2*A));}}
+ let best=null;
+ for(const t of roots.sort((a,b)=>a-b)){const at=x+dx*t;if(t<1e-6||at<0||at>s.l)continue;const p=add(o,mul(d,t)),v=sub(sub(p,s.a),mul(s.u,at)),n=norm(sub(v,mul(s.u,slope*(s.r0+slope*at))));best={t,p,n};break;}
+ if(Math.abs(dx)>1e-12)for(const [at,radius,sign]of [[0,s.r0,-1],[s.l,s.r1,1]]){const t=(at-x)/dx;if(t<1e-6||best&&t>=best.t)continue;const p=add(o,mul(d,t)),v=sub(sub(p,s.a),mul(s.u,at));if(dot(v,v)<=radius*radius+1e-7)best={t,p,n:mul(s.u,sign)};}
+ return best;
+}
+function unclippedRayPart(o,d,p){if(p.k==='sensor'&&p.skinSize)return rayTris(structTriangles(sensorShape(p)),o,d);if(p.room)return rayTris(structTriangles(roomShape(p)),o,d);if(p.k==='machinery'){let best=null;for(const s of p.segments||[p.seg]){const h=rayRouteSegment(o,d,s);if(h&&(!best||h.t<best.t))best=h;}return best;}return v3RayPart(o,d,p);}
 // Project a separate, level gun deck from a hull or superstructure wall.
 // The root overlaps the host; the tapped height is the top of the new deck.
 function canPlaceSponson(hit){
@@ -2885,10 +21658,10 @@ function placePart(ship,k,c,size,opt={},mirror=false){
   const old=ship._building;ship._building=true;let p;
   try{p=v3PlacePart(ship,k,c,size,opt,mirror);}finally{ship._building=old;}
   const made=ship.parts.filter(q=>q.id===p.id||q.id===p.tw);
-  for(const q of made){for(const a of ['sponson','autoFit','engineLength','equipmentId','customEquipment','arcBands','bands','bandPaint','stripes','shellCurve','shellThick','shellFlip','arcInner','arcStart','arcSweep','label','length','corner','aftWidth','foreWidth','paint','bodyLength','bodyRadius','ribSpacing','nozzleLength','throatRatio','wallInset','ridge','deckSlope','skin','skinAsset','skinAxial','skinAnchor','skinDiameter','skinSize','airRole','pitch','roll','surfaceNormal','panelFrame','panelRib','panelFold','panelKnee','panelSparX','panelBracing','wingTipSide'])if(opt[a]!=null)q[a]=opt[a];if(isShapePart(q)&&opt.plate){q.plate=true;q.plateT=plateThickness(opt);}if(isShapePart(q)&&opt.light&&!opt.plate)q.light=true;if(isShapePart(q)&&opt.wing){const w=normalizeWing(opt.wing);if(w){if(opt.id!=null&&opt.id!==q.id)delete w.members;if(q!==p){if(w.pivot)w.pivot=mirrorP(w.pivot);if(w.members)mirrorWingMembers(w,ship,'tw');}q.wing=w;}}if((q.k==='sensor'||q.k==='scanner')&&Object.hasOwn(SENSOR_BANDS,opt.band)&&opt.band!=='multi')q.band=opt.band;if(opt.outline)q.outline=opt.outline.map(a=>[a[0],a[1]*(q===p?1:-1)]);if(opt.loft)q.loft=opt.loft.map(a=>a.length>4?[...a.slice(0,4),a[4]*(q===p?1:-1)]:a.slice());if(q!==p&&q.form==='arc')q.arcStart=((-(p.arcStart??30)-(p.arcSweep??300)+540)%360)-180;if(q!==p&&q.form==='shell')q.shellFlip=!opt.shellFlip;if(opt.surfaceNormal)q.surfaceNormal=q===p?opt.surfaceNormal.slice():mirrorP(opt.surfaceNormal);if(q!==p&&opt.roll!=null)q.roll=-opt.roll;if(q!==p&&q.k==='wing'&&(opt.wingTipSide===1||opt.wingTipSide===-1))q.wingTipSide=-opt.wingTipSide;if(opt.room)setRoomSize(q,opt.room);if(opt.yaw!=null&&!isShapePart(q))q.yaw=q===p?opt.yaw:-opt.yaw;}
+  for(const q of made){for(const a of ['propulsionModelVersion','ratedInputW','driveProfileId','machineryGradeId','machineryLengthM','machineryRadiusM','machineryOffsetM','machineryFeedRadiusM','machineryId','legacyCoolingInputW','feedCapacityW','propulsionMigration','sponson','autoFit','engineLength','equipmentId','customEquipment','arcBands','bands','bandPaint','stripes','shellCurve','shellThick','shellFlip','arcInner','arcStart','arcSweep','label','length','corner','aftWidth','foreWidth','paint','bodyLength','bodyRadius','ribSpacing','nozzleLength','throatRatio','wallInset','ridge','deckSlope','skin','skinAsset','skinAxial','skinAnchor','skinDiameter','skinSize','airRole','pitch','roll','surfaceNormal','panelFrame','panelRib','panelFold','panelKnee','panelSparX','panelBracing','wingTipSide'])if(opt[a]!=null)q[a]=opt[a];if(isShapePart(q)&&opt.plate){q.plate=true;q.plateT=plateThickness(opt);}if(isShapePart(q)&&opt.light&&!opt.plate)q.light=true;if(isShapePart(q)&&opt.wing){const w=normalizeWing(opt.wing);if(w){if(opt.id!=null&&opt.id!==q.id)delete w.members;if(q!==p){if(w.pivot)w.pivot=mirrorP(w.pivot);if(w.members)mirrorWingMembers(w,ship,'tw');}q.wing=w;}}if((q.k==='sensor'||q.k==='scanner')&&Object.hasOwn(SENSOR_BANDS,opt.band)&&opt.band!=='multi')q.band=opt.band;if(opt.outline)q.outline=opt.outline.map(a=>[a[0],a[1]*(q===p?1:-1)]);if(opt.loft)q.loft=opt.loft.map(a=>a.length>4?[...a.slice(0,4),a[4]*(q===p?1:-1)]:a.slice());if(q!==p&&q.form==='arc')q.arcStart=((-(p.arcStart??30)-(p.arcSweep??300)+540)%360)-180;if(q!==p&&q.form==='shell')q.shellFlip=!opt.shellFlip;if(opt.surfaceNormal)q.surfaceNormal=q===p?opt.surfaceNormal.slice():mirrorP(opt.surfaceNormal);if(q!==p&&opt.roll!=null)q.roll=-opt.roll;if(q!==p&&q.k==='wing'&&(opt.wingTipSide===1||opt.wingTipSide===-1))q.wingTipSide=-opt.wingTipSide;if(opt.room)setRoomSize(q,opt.room);if(opt.yaw!=null&&!isShapePart(q))q.yaw=q===p?opt.yaw:-opt.yaw;}
   for(const q of made){normalizeAeroPart(q);enforceEquipment(q);normalizeSuperweapon(q);if(isShapePart(q))q._solidCutShip=ship;if(q.k==='cockpit'){if(Number.isFinite(opt.seats))q.seats=clamp(Math.round(opt.seats),1,20);if(opt.suit===true)q.suit=true;}}
   if(made.length===2&&equipmentSpec(p)){const q=made.find(q=>q!==p),id=q.id,tw=q.tw;Object.assign(q,mirrorPart(p,ship),{id,tw});}
-  for(const q of made)if(isInternal(q))q._envelope=ship;
+  for(const q of made){if(!old&&q.k==='engine')initializeEngineSpec(q,ship,false);if(isInternal(q))q._envelope=ship;}
   if(!old&&!opt.allowOverlap&&!isShapeKind(k)&&made.some(q=>hardConflicts(ship,q,made.map(x=>x.id)).length||(made.length>1&&!flexibleCompartment(ship,made[0])&&!flexibleCompartment(ship,made[1])&&overlapParts(made[0],made[1])))){
     ship.parts=ship.parts.filter(q=>!made.includes(q));ship.nextId-=made.length;throw new Error('機関・区画の占有範囲と干渉します。位置か大きさを変えてください');
   }
@@ -3048,6 +21821,7 @@ const surfaceProxyIds=new WeakMap();let surfaceProxyNext=1;
 function surfaceProxyKey(ship){if(!ship._client)return 'local';const hull=ship._geoProxy?.hull;if(!hull||typeof hull!=='object')return 'client-pending';let id=surfaceProxyIds.get(hull);if(!id){id=surfaceProxyNext++;surfaceProxyIds.set(hull,id);}return 'client:'+id;}
 function surfaceHash(v){const s=typeof v==='string'?v:JSON.stringify(v);let h=2166136261;for(let i=0;i<s.length;i++)h=Math.imul(h^s.charCodeAt(i),16777619);return(h>>>0).toString(36);}
 function normalizeSurfaces(value){
+ value=migrateWeaponSurfaces(value);
  if(!value||typeof value!=='object')return undefined;const records=[],used=new Set(),number=(v,lo,hi,d)=>Number.isFinite(v)?clamp(v,lo,hi):d;
  if(Array.isArray(value.patches)&&value.patches.length>SURFACE_MAX)throw new Error('表面パッチは512件までです');
  if(Array.isArray(value.partitions)&&value.partitions.length>SURFACE_MAX)throw new Error('表面分割グループは512件までです');
@@ -3321,6 +22095,7 @@ function surfaceAreaCompile(ship,p,config,guns,reserved){
  for(const [role,id]of owner)if(!aliases.some(a=>a[0]===id))aliases.push([id,role,0,...p.center]);for(const r of inactive)if(!aliases.some(a=>a[0]===r[0]))aliases.push([r[0],r[1],1,...r.slice(14,17)]);return result;
 }
 function surfaceNormalizeAggregate(a){
+ if(a&&Array.isArray(a.guns))a={...a,guns:a.guns.map(r=>Array.isArray(r)&&canonicalWeaponKind(r[1])!==r[1]?[r[0],canonicalWeaponKind(r[1]),...r.slice(2)]:r)};
  if(!a||typeof a!=='object')return undefined;const area=a.version===2&&a.capacityModel===SURFACE_AREA_MODEL;
  const valid=r=>Array.isArray(r)&&r.length>=27&&r.slice(0,26).every(Number.isFinite)&&Number.isInteger(r[0])&&r[0]>0&&SURFACE_CELL_KINDS[r[2]]&&typeof r[26]==='string',raw=(Array.isArray(a.cells)?a.cells:[]).filter(valid),inventory=area?raw.filter(r=>r[30]!==1).slice(0,SURFACE_DEVICE_MAX):raw.slice(0,SURFACE_DEVICE_MAX),regions=area?raw.filter(r=>r[30]===1).slice(0,SURFACE_AREA_REGIONS):[];
  const cells=[...inventory,...regions].map(r=>{const continuum=area&&r[30]===1,c=r.slice(0,continuum?31:29);c[27]=Object.hasOwn(SENSOR_BANDS,r[27])?r[27]:'multi';c[28]=r[28]===0?0:1;for(const i of [7,8,9])c[i]=clamp(c[i],continuum?1e-6:.02,DESIGN_LIMITS.partSize);c[3]=c[3]?1:0;c[20]=clamp(c[20],0,1);if(continuum)return surfaceAreaResource(c);c[21]=clamp(c[21],0,c[7]*c[8]*c[9]);c[22]=partBuildCost({id:c[0],k:SURFACE_CELL_KINDS[c[2]]},c[21]);c[23]=Math.max(0,c[23]);c[24]=clamp(Math.cbrt(c[21]/AA_CHANNELS.podRef),.05,3);c[25]=clamp(Math.cbrt(c[21]/AA_CHANNELS.podRef),.3,2);return c;});
@@ -3341,8 +22116,9 @@ function surfaceTransformAggregate(a,point,vector){if(!a)return;for(const r of a
 function surfaceEncodeCell(q){const V=partVolume(q),room=q.room||[q.d,q.d,q.d],n=q.surfaceNormal||[0,1,0],pt=q.surfacePoint||q.c,k=SURFACE_CELL_KINDS.indexOf(q.k),role=SURFACE_ROLES.indexOf(q.surfaceRole||'cooling');return [q.id,role,k,q.surfaceUnplaced?1:0,...q.c,...room,...n,q.yaw||0,...pt,...(q.surfaceFootprint||room.slice(0,2)),q.surfaceDepth||room[2],q.surfaceExposure??1,V,partBuildCost(q,V),partArea(q),clamp(Math.cbrt(V/AA_CHANNELS.podRef),.05,3),clamp(Math.cbrt(V/AA_CHANNELS.podRef),.3,2),q.surfaceCell||'e0',Object.hasOwn(SENSOR_BANDS,q.band)?q.band:'multi',/通信/.test(q.label||'')&&!/センサー|標的|追跡|走査|索敵/.test(q.label||'')?0:1];}
 function surfaceDecodeCell(r,patch){return {id:r[0],k:SURFACE_CELL_KINDS[r[2]],c:r.slice(4,7),room:r.slice(7,10),d:Math.cbrt(r[7]*r[8]*r[9]),surfaceNormal:r.slice(10,13),yaw:r[13],surfacePoint:r.slice(14,17),surfaceFootprint:r.slice(17,19),surfaceDepth:r[19],surfaceExposure:r[20],surfaceUnplaced:r[3]!==0,surfacePatch:patch,surfaceRole:SURFACE_ROLES[r[1]],surfaceCell:r[26],band:r[27]||'multi',...(r[28]===0?{label:'通信'}:{})};}
 function surfaceEncodeGun(f){const d=fitSpec(f);return [f.id,f.k,...f.p,f.a,...(f.n||AXES[f.a]||[0,1,0]),...(f.surfacePoint||f.p),...(f.surfaceFootprint||[d.fm,d.wm]),f.surfaceDepth||.2,f.surfaceArmorOffset||0,f.assetYaw||0,f.frameFlip?1:0,f.surfaceUnplaced?1:0,f.scale||1,f.surfaceCell||'w0'];}
-function surfaceDecodeGun(r,patch,host){const q={id:r[0],k:r[1],p:r.slice(2,5),a:r[5],n:r.slice(6,9),tilt:r.slice(6,9),surfacePoint:r.slice(9,12),surfaceFootprint:r.slice(12,14),surfaceDepth:r[14],surfaceArmorOffset:r[15],assetYaw:r[16],frameFlip:!!r[17],surfaceUnplaced:!!r[18],scale:r[19],surfaceCell:r[20],surfacePatch:patch,surfaceRole:'weapons',localMount:true,ped:0,base:0,low:0,slope:0,float:!!r[18]};if(host)q.host=host.id;return q;}
+function surfaceDecodeGun(r,patch,host){const q={id:r[0],k:canonicalWeaponKind(r[1]),p:r.slice(2,5),a:r[5],n:r.slice(6,9),tilt:r.slice(6,9),surfacePoint:r.slice(9,12),surfaceFootprint:r.slice(12,14),surfaceDepth:r[14],surfaceArmorOffset:r[15],assetYaw:r[16],frameFlip:!!r[17],surfaceUnplaced:!!r[18],scale:r[19],surfaceCell:r[20],surfacePatch:patch,surfaceRole:'weapons',localMount:true,ped:0,base:0,low:0,slope:0,float:!!r[18]};if(host)q.host=host.id;return q;}
 function surfaceSync(ship){
+ ship=adoptWeaponFits(ship);
  if(!ship?.surfaces||ship._surfaceWorking||ship._surfaceCompiling||ship._surfaceRenderOnly)return;
  if(ship.surfaces.version<SURFACE_VERSION)ship.surfaces=normalizeSurfaces(ship.surfaces);surfaceReserveIds(ship);
  const configs=ship.surfaces.patches||[],materialized=[...ship.parts,...ship.fits].some(q=>q.surfacePatch);
@@ -3507,9 +22283,13 @@ function surfaceFleetFire(u,t,d){const query=surfaceFireQuery(u,t);let gun=0,ion
 function surfacePowerStep(u,s,t,raw,dt,chargingW,volley=1){
  surfaceCapacitorSync(u);
  const mounts=u.p.surface.mounts||[],banks=surfaceBanks(u),factor=weaponInputFactor(u.p),state=mounts.map(m=>surfaceMountState(u,m)),domain=m=>u.p.modules?.[m.module]?.domain||'main',domains=u.p.grid?.domains||[{id:'main',P:u.p.grid?.P||0}],limits=new Map(domains.map(d=>[d.id,Math.max(0,powerDomainWatts(u,d.id))*dt/TT/factor])),cellLimits=mounts.map((m,i)=>Math.max(0,m.power)*state[i].operable*state[i].capacitorK*dt/TT/factor);let charge=Math.max(0,chargingW)*dt/TT/factor;
- const distribute=()=>{for(let pass=0;pass<4&&charge>1e-12;pass++){const weights=mounts.map((m,i)=>banks[m.id]<state[i].effectiveCapacity-1e-9&&(limits.get(domain(m))||0)>1e-12&&cellLimits[i]>1e-12?m.power*state[i].operable:0),sum=weights.reduce((a,b)=>a+b,0);if(!(sum>0))break;let spent=0;for(let i=0;i<mounts.length;i++){const m=mounts[i],name=domain(m),n=Math.min(Math.max(0,state[i].effectiveCapacity-banks[m.id]),charge*weights[i]/sum,limits.get(name)||0,cellLimits[i]);banks[m.id]+=n;limits.set(name,Math.max(0,(limits.get(name)||0)-n));cellLimits[i]-=n;spent+=n;}charge-=spent;if(!(spent>0))break;}};distribute();
+ // Grants already share their source and trunk with propulsion and cooling.
+ // A full bank cannot lend its unused grant to a different electrical branch,
+ // and repeated calls consume the same finite joule ledger.
+ const grants=u.pw?.weaponInputs,moduleLimits=grants?new Map(Object.entries(u.pw.weaponInputRemainingJ||(u.pw.weaponInputRemainingJ=Object.fromEntries(Object.entries(grants).map(([id,W])=>[id,Number.isFinite(W)?Math.max(0,W)*Math.max(0,dt):0])))).map(([id,J])=>[+id,Number.isFinite(J)?Math.max(0,J)/TT/factor:0])):null;
+ const distribute=()=>{for(let pass=0;pass<4&&charge>1e-12;pass++){const weights=mounts.map((m,i)=>banks[m.id]<state[i].effectiveCapacity-1e-9&&(limits.get(domain(m))||0)>1e-12&&cellLimits[i]>1e-12&&(!moduleLimits||(moduleLimits.get(m.module)||0)>1e-12)?m.power*state[i].operable:0),sum=weights.reduce((a,b)=>a+b,0);if(!(sum>0))break;let spent=0;for(let i=0;i<mounts.length;i++){const m=mounts[i],name=domain(m),n=Math.min(Math.max(0,state[i].effectiveCapacity-banks[m.id]),charge*weights[i]/sum,limits.get(name)||0,cellLimits[i],moduleLimits?moduleLimits.get(m.module)||0:Infinity);banks[m.id]+=n;limits.set(name,Math.max(0,(limits.get(name)||0)-n));cellLimits[i]-=n;if(moduleLimits)moduleLimits.set(m.module,Math.max(0,(moduleLimits.get(m.module)||0)-n));spent+=n;}charge-=spent;if(!(spent>0))break;}};distribute();
  let spent=0,gun=0,ion=0;const cells=[];if(t&&raw>0&&dt>0){const d=len(sub(t.pos,u.pos));for(let i=0;i<mounts.length;i++){const m=mounts[i],wanted=(u.dualDefense&&m.dualPurpose?0:m.gun+m.ion)*surfaceMountArc(u,t,m,d)*state[i].operable*dt*Math.max(0,volley),amount=(banks[m.id]||0)+1e-9>=Math.max(1e-9,m.boltTT||0)?Math.min(Math.max(0,banks[m.id]),Math.max(0,wanted)):0,total=m.gun+m.ion;banks[m.id]-=amount;spent+=amount;if(total>0&&amount>0){const g=amount*m.gun/total/dt,i=amount*m.ion/total/dt;gun+=g;ion+=i;cells.push({fit:m.id,module:m.module,energy:amount,gun:g,ion:i});}}}
- distribute();u.energy=mounts.reduce((n,m)=>n+Math.max(0,banks[m.id]||0),0);u.surfaceLastFire={spent,gun,ion,cells,charged:Math.max(0,chargingW)*dt/TT/factor-charge,unusedInputTT:charge*factor};return raw>0&&dt>0?clamp(spent*factor/(raw*dt),0,1):0;
+ distribute();if(moduleLimits)for(const [mi,left] of moduleLimits)u.pw.weaponInputRemainingJ[mi]=left*TT*factor;u.energy=mounts.reduce((n,m)=>n+Math.max(0,banks[m.id]||0),0);u.surfaceLastFire={spent,gun,ion,cells,charged:Math.max(0,chargingW)*dt/TT/factor-charge,unusedInputTT:charge*factor};return raw>0&&dt>0?clamp(spent*factor/(raw*dt),0,1):0;
 }
 function surfaceRayHit(u,from,aim){const shell=surfaceShellBVH(u.p);if(!shell)return null;const a=hullLocal(u,from),b=hullLocal(u,aim||u.pos),d=norm(sub(b,a)),t=surfaceCachedRay(shell,a,d);return t==null?null:surfaceAdd(a,d,t);}
 // One armour load algorithm serves the semantic patches and the legacy derived
@@ -3555,11 +22335,14 @@ function surfaceSplit(ship,id,axis='u',at=.5){const p=surfacePatches(ship).find(
 function surfaceMergeBands(aggregates){const totals=Object.fromEntries(Object.keys(SENSOR_BANDS).map(k=>[k,0]));let aperture=0;for(const a of aggregates){const amount=(a.cells||[]).filter(r=>r[1]===2&&!r[3]).reduce((n,r)=>n+r[24],0);aperture+=amount;const mix=surfaceAreaBands(a);for(const k in totals)totals[k]+=amount*(mix[k]||0);}if(aperture>0)for(const k in totals)totals[k]/=aperture;else totals.multi=1;return totals;}
 function surfaceMerge(ship,ids){const patches=surfacePatches(ship),a=ids.map(id=>patches.find(q=>q.id===id));if(a.length<2||a.some(q=>!q||q.baseId!==a[0].baseId))return {ok:false,why:'同じ元の面にある隣接パッチを選んでください'};const r=[Math.min(...a.map(q=>q.range[0])),Math.min(...a.map(q=>q.range[1])),Math.max(...a.map(q=>q.range[2])),Math.max(...a.map(q=>q.range[3]))],sum=a.reduce((n,q)=>n+(q.range[2]-q.range[0])*(q.range[3]-q.range[1]),0);if(Math.abs(sum-(r[2]-r[0])*(r[3]-r[1]))>1e-5)return {ok:false,why:'長方形に連続したパッチだけ結合できます'};const configs=a.map(q=>surfaceConfig(ship,q.id)),q=configs[0];if(configs.some(c=>c.functionMode!==q.functionMode||JSON.stringify(c.allocation)!==JSON.stringify(q.allocation)||JSON.stringify(c.armor)!==JSON.stringify(q.armor)||c.battery.weapon!==q.battery.weapon||c.equipment.kind!==q.equipment.kind||c.equipment.depth!==q.equipment.depth||c.equipment.capacityModel!==q.equipment.capacityModel||c.battery.spacing!==q.battery.spacing||c.battery.angle!==q.battery.angle||c.battery.reversed!==q.battery.reversed||c.powerDomain!==q.powerDomain))return {ok:false,why:'材質・兵装・設備が一致する面を選んでください'};const aggregates=configs.every(c=>c.aggregate)?configs.map(c=>c.aggregate):null;if(aggregates&&((surfaceIsArea(q)?aggregates.reduce((n,a)=>n+a.cells.filter(r=>r[30]===1).length,0)>SURFACE_AREA_REGIONS||aggregates.reduce((n,a)=>n+a.cells.filter(r=>r[30]!==1).length,0)>SURFACE_DEVICE_MAX:aggregates.reduce((n,a)=>n+a.cells.length,0)>SURFACE_DEVICE_MAX)||aggregates.reduce((n,a)=>n+a.guns.length,0)>SURFACE_DEVICE_MAX||configs.reduce((n,c)=>n+c.battery.count,0)>SURFACE_DEVICE_MAX))return {ok:false,why:'結合すると面の設備上限を超えます。設定を整理してから結合してください。'};const group=ship.surfaces.partitions.find(p=>p.baseId===a[0].baseId),id=a[0].baseId+'/r'+r.map(n=>Math.round(n*1e6).toString(36)).join('.');group.leaves=group.leaves.filter(q=>!ids.includes(q.id));group.leaves.push({id,range:r});ship.surfaces.patches=ship.surfaces.patches.filter(q=>!ids.includes(q.id));ship.surfaces.patches.push({...JSON.parse(JSON.stringify(q)),id,...(aggregates?{aggregate:{version:surfaceIsArea(q)?2:1,...(surfaceIsArea(q)?{capacityModel:SURFACE_AREA_MODEL,aliases:aggregates.flatMap(a=>a.aliases||[]),sensorMix:surfaceMergeBands(aggregates)}:{}),signature:'',cells:aggregates.flatMap(a=>a.cells),guns:aggregates.flatMap(a=>a.guns),errors:[...new Set(aggregates.flatMap(a=>a.errors||[]))],requested:configs.reduce((n,c)=>n+c.battery.count,0),requestedEquipment:aggregates.reduce((n,a)=>n+(a.requestedEquipment||0),0),demand:Object.fromEntries(SURFACE_ROLES.map(k=>[k,{requested:aggregates.reduce((n,a)=>n+(a.demand?.[k]?.requested||0),0),budgetArea:aggregates.reduce((n,a)=>n+(a.demand?.[k]?.budgetArea||0),0)}]))}}:{}),battery:{...q.battery,count:configs.reduce((n,q)=>n+q.battery.count,0)},equipment:{...q.equipment,count:configs.reduce((n,q)=>n+q.equipment.count,0),...(aggregates?{limit:Math.min(SURFACE_DEVICE_MAX,configs.reduce((n,c)=>n+(c.equipment.limit??SURFACE_DEVICE_MAX),0))}:{})}});if(aggregates){const merged=ship.surfaces.patches.find(q=>q.id===id),counts={};for(const r of merged.aggregate.cells){const prefix=merged.functionMode==='legacy'?'e':SURFACE_ROLES[r[1]][0];r[26]=prefix+(counts[prefix]||0);counts[prefix]=(counts[prefix]||0)+1;}merged.aggregate.guns.forEach((r,i)=>r[20]=(merged.functionMode==='legacy'?'b':'w')+i);surfaceStampPartition(ship);}else surfaceSync(ship);surfaceInvalidate(ship);return {ok:true,ids:[id],report:surfaceReport(ship)};}
 function computeStats(ship){if(!ship._surfaceWorking){surfaceSync(ship);const work=surfaceWorkingShip(ship);if(work!==ship)return computeStats(work);}return withFrozenStructures(()=>{
+ migrateLegacyPropulsion(ship);
  surfaceSync(ship);
  clearDesignLoadouts(ship);syncCompartments(ship);ship._lockedCache=cache(ship);
  try{
   const s=v3ComputeStats(ship);s.sensorVolume=ship.parts.filter(p=>(p.k==='sensor'||p.k==='scanner')&&!p.surfaceUnplaced&&!s.info?.[p.id]?.overlap).reduce((n,p)=>n+partVolume(p),0);
   for(const stage of [outfittingStats,superweaponStats,groundingStats,layoutStats,hatchMotionStats,solarStats,craftSystemsStats,heatStats,wingStats,sensorSuite,shapeStats,surfaceStats])stage(ship,s);
+  s.propulsion=propulsionPreview(ship,s,'combat');s.actualThrustN=s.propulsion.actualThrustN;s.actualInputW=s.propulsion.actualInputW;s.actualAccelMps2=s.propulsion.actualAccelMps2;s.freeAccelerationMps2=s.propulsion.freeAccelerationMps2;
+  s.thrust=s.actualThrustN;s.aThrust=s.freeAccelerationMps2;s.aEff=s.actualAccelMps2;s.accelG=s.aEff/G0;s.thrustG=s.aThrust/G0;s.structLimited=s.aThrust>s.aStruct;s.MGLT=Math.round(s.accelG/30);
   return s;
  }finally{delete ship._lockedCache;}
 });}
@@ -3614,9 +22397,9 @@ function normalizeGroups(list,ship){
  const keep=out.filter(g=>leaves(g)>0),kept=new Set(keep.map(g=>g.id));for(const g of keep)g.groups=g.groups.filter(x=>kept.has(x));
  return {groups:keep,nextId:next};
 }
-function serialize(ship){if(ship._surfaceSource)return serialize(ship._surfaceSource);surfaceSync(ship);const o=v3Serialize(ship);o.groundForces=[];if(ship.surfaces)o.surfaces=normalizeSurfaces(ship.surfaces);if(Array.isArray(ship.groups)&&ship.groups.length){const g=normalizeGroups(ship.groups,ship).groups;if(g.length){o.groups=g;o.nextId=Math.max(o.nextId||1,...g.map(x=>x.id+1));}}for(const k of ['paint','lights','engineGlow','hullBands','detail','reference','hullSkin','autoHabitation','hullLocked','shipClass','faction'])if(ship[k]!=null)o[k]=JSON.parse(JSON.stringify(ship[k]));const links=normalizeLinks(ship.links);if(links)o.links=links;return clearDesignLoadouts(o);}
+function serialize(ship){ship=migrateWeaponDesign(ship);if(ship._surfaceSource)return serialize(ship._surfaceSource);migrateLegacyPropulsion(ship);surfaceSync(ship);const o=v3Serialize(ship);o.groundForces=[];if(ship.surfaces)o.surfaces=normalizeSurfaces(ship.surfaces);if(Array.isArray(ship.groups)&&ship.groups.length){const g=normalizeGroups(ship.groups,ship).groups;if(g.length){o.groups=g;o.nextId=Math.max(o.nextId||1,...g.map(x=>x.id+1));}}for(const k of ['paint','lights','engineGlow','hullBands','detail','reference','hullSkin','autoHabitation','hullLocked','shipClass','faction'])if(ship[k]!=null)o[k]=JSON.parse(JSON.stringify(ship[k]));const links=normalizeLinks(ship.links);if(links)o.links=links;return clearDesignLoadouts(o);}
 function deserialize(o){
-  o=migrateAeroParts(migrateExternalDissipators(o));
+  o=migrateWeaponDesign(migrateAeroParts(migrateExternalDissipators(o)));
   const s=v3Deserialize(o),finite=(v,lo,hi,d)=>Number.isFinite(v)?clamp(v,lo,hi):d;
   if(o.surfaces)s.surfaces=normalizeSurfaces(o.surfaces);surfaceReserveIds(s);
   if(Array.isArray(o.hull?.stations)&&o.hull.stations.length>=2&&o.hull.stations.length<=32){const a=o.hull.stations.map((p,i)=>{const r=[finite(p?.[0],0,1,i/(o.hull.stations.length-1)),finite(p?.[1],.005,1.5,1),finite(p?.[2],.005,1.5,1)];if(p?.length>3)r.push(finite(p[3],-.5,.8,0));if(p?.length>4)r.push(finite(p[4],0,.98,.52));if(p?.length>5)r.push(finite(p[5],0,.98,0));if(p?.length>6)r.push(finite(p[6],.02,.98,.13));if(p?.length>7)r.push(finite(p[7],.2,.8,.5));return r;}).sort((a,b)=>a[0]-b[0]);if(a.some((p,i)=>i&&p[0]-a[i-1][0]<.001))throw new Error('船体断面の位置が重複しています');a[0][0]=0;a.at(-1)[0]=1;s.hull.stations=a;}
@@ -3655,7 +22438,8 @@ function deserialize(o){
     if(q.corner!=null)p.corner=finite(q.corner,0,.45,.12);if(q.length!=null)p.length=finite(q.length,.1,DESIGN_LIMITS.partSize,p.d*1.5);if(q.bodyLength!=null)p.bodyLength=finite(q.bodyLength,.1,DESIGN_LIMITS.engineLength,p.d*2.2);if(q.bodyRadius!=null)p.bodyRadius=finite(q.bodyRadius,.3,.8,.52);if(q.yaw!=null)p.yaw=finite(q.yaw,-180,180,0);if(p.dir&&len(p.dir)<.1)p.dir=[-1,0,0];if(/^#[0-9a-f]{6}$/i.test(q.paint))p.paint=q.paint;if(q.ribSpacing!=null)p.ribSpacing=finite(q.ribSpacing,0,100,12);
   }
   for(const p of s.parts){const q=o.parts.find(q=>q.id===p.id);if(q.customEquipment===true)p.customEquipment=true;if(typeof q.autoFit==='boolean')p.autoFit=q.autoFit;if(((Object.hasOwn(EQUIPMENT,q.equipmentId)&&EQUIPMENT[q.equipmentId].k===p.k)||(p.k==='engine'&&Object.hasOwn(LEGACY_ENGINES,q.equipmentId))))p.equipmentId=q.equipmentId;}
-  adoptEquipment(s);
+  for(const p of s.parts)if(p.k==='engine'){const q=o.parts.find(q=>q.id===p.id);for(const key of ['propulsionModelVersion','ratedInputW','driveProfileId','machineryGradeId','machineryLengthM','machineryRadiusM','machineryOffsetM','machineryFeedRadiusM','machineryId','legacyCoolingInputW','feedCapacityW'])if(Object.hasOwn(q,key))p[key]=q[key];if(q.propulsionMigration&&typeof q.propulsionMigration==='object')p.propulsionMigration=JSON.parse(JSON.stringify(q.propulsionMigration));}
+  migrateLegacyPropulsion(s);adoptEquipment(s);
   for(const p of s.parts)if(isSuperweapon(p)){const q=o.parts.find(q=>q.id===p.id);if(q&&(q.reactor===0||s.parts.some(r=>r.id===q.reactor&&isReactor(r))))p.reactor=q.reactor;if(q&&['beam','pulse'].includes(q.fireMode))p.fireMode=q.fireMode;normalizeSuperweapon(p);}
   for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(h.tw==null)delete h.tw;if(q.portal){h.portal=true;h.face=Object.hasOwn(AVIATION_SURFACE_FACES,q.face)?q.face:'top';if(q.surface)h.surface=true;h.open=finite(q.open,0,1,1);h.aperture=finite(q.aperture,.1,1,.85);if(q.sill!=null)h.sill=finite(q.sill,0,1,.5);if(s.parts.some(p=>p.id===q.bay&&p.k==='hangar'))h.bay=q.bay;else if(Array.isArray(q.cut)&&q.cut.length===6&&q.cut.every(Number.isFinite))h.cut=q.cut.map(v=>clamp(v,-DESIGN_LIMITS.coordinate,DESIGN_LIMITS.coordinate));}}
   s.paint=['republic','neutral','dark','cis'].includes(o.paint)?o.paint:'neutral';if(DESIGN_FACTIONS[o.faction])s.faction=o.faction;s.detail=finite(o.detail,0,2,1);if(o.reference)s.reference=String(o.reference).slice(0,80);for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.motion==='fixed')h.motion='fixed';else if(q.motion==='slide'||isSlidingHatch(s,h))h.motion='slide';}if(REFERENCE_ASSETS[o.hullSkin?.asset]?.kind==='hull'&&o.hullSkin.base?.hull){const b=o.hullSkin.base,valid=[b.hull.L,b.hull.W,b.hull.H].every(v=>Number.isFinite(v)&&v>0&&v<=4000)&&Array.isArray(b.hull.stations)&&b.hull.stations.length>=2&&b.hull.stations.length<=64&&b.hull.stations.every(a=>Array.isArray(a)&&a.length>=3&&a.every(Number.isFinite))&&Array.isArray(b.trenches)&&b.trenches.length<=30&&Array.isArray(b.cuts)&&b.cuts.length<=50;if(valid){s.hullSkin=JSON.parse(JSON.stringify(o.hullSkin));s.hullSkin.enabled=!!o.hullSkin.enabled;}}for(const f of s.fits){const q=o.fits.find(q=>q.id===f.id);if(q.localMount)f.localMount=true;if(Array.isArray(q.tilt)&&q.tilt.length===3&&q.tilt.every(Number.isFinite)&&len(q.tilt)>.5&&FITS[f.k].cat==='w'&&!FITS[f.k].casemate&&!f.localMount){f.tilt=norm(q.tilt);if(!f.n)f.n=f.tilt.slice();}if(typeof q.batteryZone==='string')f.batteryZone=q.batteryZone.slice(0,40);if(FITS[f.k].window){f.commandEnabled=q.commandEnabled!==false;if(q.commandDepth!=null)f.commandDepth=finite(q.commandDepth,2,200,12);if(q.commandHeight!=null)f.commandHeight=finite(q.commandHeight,2,80,8);}if(q.mount==='ext'&&FITS[f.k]?.msl)f.mount='ext';if(Number.isFinite(q.chargeSalvos))f.chargeSalvos=finite(q.chargeSalvos,1,20,1);if(Number.isFinite(q.chargeDepth))f.chargeDepth=finite(q.chargeDepth,1,500,10);if(Number.isFinite(q.chargeScale))f.chargeScale=finite(q.chargeScale,.25,4,1);if(Number.isFinite(q.assetYaw))f.assetYaw=finite(q.assetYaw,-180,180,0);standardFit(f);if(Number.isInteger(q.mountAxis)&&q.mountAxis>=0&&q.mountAxis<=5)f.mountAxis=q.mountAxis;if(Number.isFinite(q.mountOffset))f.mountOffset=finite(q.mountOffset,-50,50,0);if(REFERENCE_ASSETS[q.skinAsset])f.skinAsset=q.skinAsset;}for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.referenceMouth)h.referenceMouth=true;if(REFERENCE_ASSETS[q.skinAsset]){h.skinAsset=q.skinAsset;if(Array.isArray(q.skinBayAnchor)&&q.skinBayAnchor.length===3&&q.skinBayAnchor.every(Number.isFinite))h.skinBayAnchor=q.skinBayAnchor.slice();}}migrateAviationSurfaces(s,o);migrateAviation(s,o);
@@ -3802,8 +22586,9 @@ function surfSamples(p,e=0){
 }
 function rayPart(o,d,p){if(p._surfaceAdapter)return surfaceAdapterRay(p,o,d);return p._packing?rayTris(p._packing.tris,o,d):p._clip?rayTris(p._clip.tris,o,d):unclippedRayPart(o,d,p);}
 // v21.1 Every weapon and fitting has its standard size: no scale, and a bridge pod its standard diameter and height.
-function standardFit(f){const d=FITS[f.k];if(!d)return f;delete f.scale;if(d.window){f.width=d.fm;f.height=d.wm;}return normalizeFitMount(f);}
+function standardFit(f){f=migrateWeaponFit(f);const d=FITS[f.k];if(!d)return f;delete f.scale;if(d.window){f.width=d.fm;f.height=d.wm;}return normalizeFitMount(f);}
 function syncCompartments(ship){
+ ship=adoptWeaponFits(ship);
  if(ship._client)return;
  for(const p of ship.parts)if(isSuperweapon(p))normalizeSuperweapon(p);
  for(const f of ship.fits)standardFit(f);
@@ -3982,8 +22767,115 @@ const SHIP_REFERENCE={
 const PART_RATINGS=Object.freeze({});
 const LEGACY_PERFORMANCE_FACTORS=new Set(['reactorFactor','genFactor','thrustFactor','driveFactor','hyperFactor','shieldLoadFactor']);
 function reactorPower(p){return isReactor(p)?partVolume(p)*REACTOR_POWER_DENSITY:0;}
-function nozzleThrust(p){return parametricEngine(p)?engineRating(p,'thrust'):partVolume(p)*K.engN;}
-function nozzleDemand(p){return parametricEngine(p)?engineRating(p,'power'):nozzleThrust(p)*K.engWperN;}
+// Input ratings describe machinery acceptance, never reactor generation. These
+// finite densities and prices are provisional game coefficients, not canon.
+const PROPULSION_MODEL_VERSION=1;
+const PROPULSION=Object.freeze({version:PROPULSION_MODEL_VERSION,standardWattsPerNewton:2e9,wasteFraction:.05,referenceInputDensity:3.4e17,referencePower:1e18,referenceVolume:1,ratingCost:2,densityCost:20,maxInputW:1e32});
+const DRIVE_PROFILES=Object.freeze({
+ standard:Object.freeze({name:'標準入力機関',wattsPerNewton:2e9}),
+ 'legacy-internal':Object.freeze({name:'移行済み内蔵タービン',wattsPerNewton:2330706322.054385,legacy:true}),
+ 'legacy-exposed':Object.freeze({name:'移行済み露出タービン',wattsPerNewton:5414612084.07102,legacy:true})
+});
+const PROPULSION_PROFILES=DRIVE_PROFILES;
+const MACHINERY_GRADES=Object.freeze({
+ standard:Object.freeze({name:'標準機関',allowedInputDensityWPerM3:3.4e17,costMultiplier:1}),
+ dense:Object.freeze({name:'高密度機関',allowedInputDensityWPerM3:3.4e18,costMultiplier:1.8}),
+ advanced:Object.freeze({name:'超高密度機関',allowedInputDensityWPerM3:3.4e19,costMultiplier:3.5}),
+ 'legacy-refit':Object.freeze({name:'旧式機関・改修要確認',allowedInputDensityWPerM3:3.4e24,costMultiplier:3.5,legacy:true})
+});
+function legacyEngineValues(p){
+ if(p?.k!=='engine')return {thrust:0,power:0,profile:'standard'};
+ const old=LEGACY_ENGINES[p?.equipmentId],style=equipmentSpec(p)?.engineStyle||(old?old.assets[0].startsWith('ven_')?'exposed':'internal':null);
+ if(style){const x=old?{...p,equipmentId:style==='exposed'?'exposedTurbine':'internalTurbine'}:p;return {thrust:engineRating(x,'thrust'),power:engineRating(x,'power'),profile:'legacy-'+style};}
+ const thrust=partVolume(p)*K.engN;return {thrust,power:thrust*K.engWperN,profile:'standard'};
+}
+function machineryGeometry(p,ship){
+ if(p?.k!=='engine')return {length:0,radius:0,volume:0,offset:0,dir:[-1,0,0],b:[0,0,0]};
+ const dir=Array.isArray(p?.dir)&&p.dir.length===3&&p.dir.every(Number.isFinite)&&len(p.dir)>1e-9?norm(p.dir):[-1,0,0],r=ship&&reactorFor(ship,p),b=sub(p.c||[0,0,0],mul(dir,Number.isFinite(p.machineryOffsetM)?p.machineryOffsetM:partDims(p).l/2)),distance=r?len(sub(b,r.c)):Infinity,mn=ship&&isCraft(ship)?.15:2;
+ const length=p.machineryLengthM??(parametricEngine(p)?Math.max(mn,p.bodyLength||mn):clamp(p.bodyLength??p.d*2.2,mn,Math.max(mn,distance*.62))),radius=p.machineryRadiusM??p.d*(p.bodyRadius??.52);
+ // Only the final body segment is effective machinery. Reactor feed length
+ // remains occupied hardware and never creates additional input capacity.
+ const volume=Number.isFinite(length)&&Number.isFinite(radius)&&length>0&&radius>0?Math.PI*length*radius*radius*(.78*.78+.78+1)/3:0;
+ return {length,radius,volume,offset:p.machineryOffsetM??partDims(p).l/2,dir,b};
+}
+function resolveEngineSpec(part,ship){
+ const owner=part?.machineryId!=null&&part.machineryId!==part.id&&ship?ship.parts?.find(p=>p.k==='engine'&&p.id===part.machineryId):null,p=owner||part||{},m=machineryGeometry(p,ship),legacy=p.propulsionModelVersion==null||p.propulsionModelVersion===0?legacyEngineValues(p):null,profileId=legacy?.profile||p.driveProfileId,profile=DRIVE_PROFILES[profileId],gradeId=p.machineryGradeId||(legacy?'legacy-refit':'standard'),grade=MACHINERY_GRADES[gradeId],rating=legacy?.power??p.ratedInputW,issues=[];
+ if(part?.k!=='engine')issues.push('invalid-engine');
+ if(part?.machineryId!=null&&part.machineryId!==part.id&&ship&&(!owner||owner.machineryId!=null&&owner.machineryId!==owner.id))issues.push('invalid-machinery-reference');
+ if(!legacy&&p.propulsionModelVersion!==PROPULSION_MODEL_VERSION)issues.push('invalid-model-version');
+ if(!profile||!Number.isFinite(profile.wattsPerNewton)||profile.wattsPerNewton<=0)issues.push('invalid-drive-profile');
+ if(!grade)issues.push('invalid-machinery-grade');
+ if(!Number.isFinite(rating)||rating<0||rating>PROPULSION.maxInputW)issues.push('invalid-rated-input');
+ if(!(m.volume>0)||!Number.isFinite(m.volume)||m.length>DESIGN_LIMITS.engineLength||m.radius>DESIGN_LIMITS.engineDiameter)issues.push('invalid-machinery-shape');
+ if(!Number.isFinite(m.offset)||Math.abs(m.offset)>DESIGN_LIMITS.coordinate)issues.push('invalid-machinery-position');
+ if(!Array.isArray(part?.c)||part.c.length!==3||!part.c.every(Number.isFinite)||!Array.isArray(part?.dir||[-1,0,0])||(part?.dir&&(part.dir.length!==3||!part.dir.every(Number.isFinite)||len(part.dir)<1e-9)))issues.push('invalid-engine-position');
+ const nozzleLength=part?.k==='engine'?part.nozzleLength??partDims(part).l:0;if(!Number.isFinite(part?.d)||part.d<=0||!Number.isFinite(nozzleLength)||nozzleLength<=0)issues.push('invalid-nozzle-shape');
+ const maxInputW=Math.min(PROPULSION.maxInputW,m.volume*(grade?.allowedInputDensityWPerM3||0)),ratedInputW=Number.isFinite(rating)&&rating>=0?Math.min(PROPULSION.maxInputW,rating):0;
+ if(ratedInputW>maxInputW*(1+1e-12))issues.push('machinery-density-exceeded');
+ if(grade?.legacy)issues.push('legacy-refit-required');
+ const valid=issues.every(x=>x==='legacy-refit-required'),wattsPerNewton=profile?.wattsPerNewton||PROPULSION.standardWattsPerNewton,x=m.volume>0?ratedInputW/(PROPULSION.referenceInputDensity*m.volume):0,upgradeCost=(PROPULSION.ratingCost*ratedInputW/PROPULSION.referencePower+PROPULSION.densityCost*m.volume*Math.max(0,x-1)**2)*(grade?.costMultiplier||1),direction=mul(machineryGeometry(part||p,ship).dir,-1),reactor=ship?reactorFor(ship,p):null;
+ return {version:PROPULSION_MODEL_VERSION,id:part?.id,machineryId:owner?.id??part?.machineryId??part?.id,ratedInputW,driveProfileId:profileId,machineryGradeId:gradeId,wattsPerNewton,ratedThrustN:valid?ratedInputW/wattsPerNewton:0,effectiveMachineryVolumeM3:m.volume,machineryVolumeM3:m.volume,machineryLengthM:m.length,machineryRadiusM:m.radius,machineryDiameterM:m.radius*2,machineryOffsetM:m.offset,maxInputW,maxRatedInputW:maxInputW,inputDensityWPerM3:m.volume>0?ratedInputW/m.volume:0,allowedInputDensityWPerM3:grade?.allowedInputDensityWPerM3||0,cost:Number.isFinite(upgradeCost)?upgradeCost:0,powerNode:'p'+(owner?.id??part?.id),heatNode:'p'+(owner?.id??part?.id),reactorId:reactor?.id??p.reactor??null,domain:p.powerDomain||'p'+(reactor?.id??p.reactor??0),direction,legacyCoolingInputW:Number.isFinite(p.legacyCoolingInputW)?Math.max(0,p.legacyCoolingInputW):0,valid,issues,reasons:issues};
+}
+function initializeEngineSpec(p,ship,legacy=false){
+ if(p?.k!=='engine'||p.propulsionModelVersion!=null&&p.propulsionModelVersion!==0)return p;
+ const old=legacyEngineValues(p),m=machineryGeometry(p,ship);
+ if(legacy)p.propulsionMigration={version:1,previous:JSON.parse(JSON.stringify(p,publicReplacer)),baselineThrustN:old.thrust,baselineInputW:old.power};
+ p.propulsionModelVersion=PROPULSION_MODEL_VERSION;p.ratedInputW=Number.isFinite(old.power)&&old.power>=0?old.power:0;p.driveProfileId=legacy?old.profile:'standard';p.machineryLengthM=m.length;p.machineryRadiusM=m.radius;p.machineryOffsetM=m.offset;p.machineryFeedRadiusM=p.d*.29;
+ const density=m.volume>0?p.ratedInputW/m.volume:Infinity;p.machineryGradeId=Object.entries(MACHINERY_GRADES).find(([,g])=>!g.legacy&&density<=g.allowedInputDensityWPerM3*(1+1e-12))?.[0]||'legacy-refit';
+ if(legacy)p.legacyCoolingInputW=p.ratedInputW;return p;
+}
+function migrateLegacyPropulsion(value,seen=new WeakSet()){
+ if(!value||typeof value!=='object'||seen.has(value))return value;seen.add(value);
+ if(Object.isFrozen(value)||Object.isFrozen(value.parts)||value.parts?.some(p=>Object.isFrozen(p)))value=JSON.parse(JSON.stringify(value,publicReplacer));
+ if(Array.isArray(value)){for(let i=0;i<value.length;i++)value[i]=migrateLegacyPropulsion(value[i],seen);return value;}
+ if(Array.isArray(value.parts)){for(const p of value.parts)if(p?.k==='engine')initializeEngineSpec(p,value,true);value.propulsionModelVersion=PROPULSION_MODEL_VERSION;}
+ else if(value.k==='engine')initializeEngineSpec(value,null,true);
+ for(const key of ['blueprint','design','craft','template','snapshot','airWings','air','carried','templates','children','assets','designs','yard','ctgs','tgs','ships','fleet','fleets','setup','own','foe','sides','squadrons','squads','loadPreset','complement','manifest']){const child=value[key];if(child&&typeof child==='object'){if(['assets','designs'].includes(key)&&!Array.isArray(child)){const next=Object.isFrozen(child)?{...child}:child;for(const [id,q]of Object.entries(child))next[id]=migrateLegacyPropulsion(q,seen);value[key]=next;}else value[key]=migrateLegacyPropulsion(child,seen);}}
+ return value;
+}
+function updateEngineSpec(part,patch={},ship){
+ if(part?.k!=='engine')return {ok:false,issues:['invalid-engine'],reasons:['invalid-engine']};
+ const q={...part};initializeEngineSpec(q,ship,false);
+ for(const key of ['ratedInputW','driveProfileId','machineryGradeId','machineryLengthM','machineryRadiusM','machineryOffsetM','nozzleLength'])if(Object.hasOwn(patch,key))q[key]=patch[key];
+ if(Object.hasOwn(patch,'machineryDiameterM'))q.machineryRadiusM=patch.machineryDiameterM/2;
+ const before=resolveEngineSpec(part,ship),spec=resolveEngineSpec(q,ship),issues=spec.issues.filter(x=>x!=='legacy-refit-required');
+ if(Object.hasOwn(patch,'nozzleLength')&&(!Number.isFinite(q.nozzleLength)||q.nozzleLength<=0||q.nozzleLength>DESIGN_LIMITS.engineDiameter))issues.push('invalid-nozzle-length');
+ if(DRIVE_PROFILES[q.driveProfileId]?.legacy&&q.driveProfileId!==part.driveProfileId)issues.push('migration-profile-read-only');
+ if(q.machineryGradeId==='legacy-refit'&&q.machineryGradeId!==part.machineryGradeId)issues.push('migration-grade-read-only');
+ if(q.machineryGradeId==='legacy-refit'&&q.ratedInputW>before.ratedInputW)issues.push('legacy-refit-upgrade-required');
+ if(issues.length)return {ok:false,issues,reasons:issues,spec};Object.assign(part,q);return {ok:true,issues:spec.issues,reasons:spec.issues,spec};
+}
+function getEngineInputLimit(spec,state={}){
+ state={available:spec?.available,connected:spec?.connected,outletAvailable:spec?.outletAvailable,pathCapacityW:spec?.pathCapacityW,...state};
+ const reasons=[...(spec?.valid===false?spec.issues||['invalid-engine']:[])],finiteFraction=v=>Number.isFinite(v)?clamp(v,0,1):v==null?1:0,rated=Number.isFinite(spec?.ratedInputW)&&spec.ratedInputW>=0?spec.ratedInputW:0,thermal=finiteFraction(state.thermalLimit),damage=finiteFraction(state.damageLimit),path=state.pathCapacityW==null?Infinity:Number.isFinite(state.pathCapacityW)?Math.max(0,state.pathCapacityW):0;
+ const ratingOK=Number.isFinite(spec?.ratedInputW)&&spec.ratedInputW>=0&&spec.ratedInputW<=PROPULSION.maxInputW,coefficientOK=Number.isFinite(spec?.wattsPerNewton)&&spec.wattsPerNewton>0&&Number.isFinite(rated/spec.wattsPerNewton),off=!ratingOK||!coefficientOK||spec?.valid===false||state.available===false||state.connected===false||state.outletAvailable===false;
+ if(!ratingOK)reasons.push('invalid-rated-input');if(!coefficientOK)reasons.push('invalid-drive-profile');
+ if(state.available===false)reasons.push('unavailable');if(state.connected===false)reasons.push('unconnected');if(state.outletAvailable===false)reasons.push('outlet-blocked');if(thermal<1)reasons.push('overheat');if(damage<1)reasons.push('damaged');if(path<rated*thermal*damage)reasons.push('feed-capacity');
+ return {inputLimitW:off?0:Math.min(path,rated*thermal*damage),reasons};
+}
+function buildPropulsionRequests(specs,states={},throttle=1){
+ const get=id=>states instanceof Map?states.get(id):states?.[id],out=[];
+ for(const value of specs||[]){const spec=value?.k==='engine'?resolveEngineSpec(value):value,state=get(spec.id)||{},limit=getEngineInputLimit(spec,state),u=state.throttle??throttle,t=Number.isFinite(u)?clamp(u,0,1):0,rating=Number.isFinite(spec.ratedInputW)?Math.max(0,spec.ratedInputW):0;out.push({id:spec.id,port:spec.powerNode,domain:spec.domain,moduleIndex:spec.moduleIndex,machineryId:spec.machineryId??spec.id,spec,requestedInputW:Math.min(t*rating,limit.inputLimitW),inputLimitW:limit.inputLimitW,reasons:limit.reasons});}
+ // A shared engine accepts input once. Outlet shares split that same input
+ // at resolution; a second nozzle cannot duplicate the upstream demand.
+ const groups=new Map();for(const q of out){const g=groups.get(q.machineryId)||[];g.push(q);groups.set(q.machineryId,g);}for(const g of groups.values())if(g.length>1){const cap=Math.max(...g.map(q=>q.requestedInputW)),sum=g.reduce((n,q)=>n+q.requestedInputW,0);for(const q of g)q.requestedInputW=sum>0?cap*q.requestedInputW/sum:0;}
+ return out;
+}
+function resolvePropulsion(requests,actualInputs={},massKg){
+ let totalRequestedInputW=0,totalActualInputW=0,totalThrustN=0,ratedThrustN=0,wasteHeatW=0,forceVector=[0,0,0];const engines=[],rated=new Set(),finiteMass=Number.isFinite(massKg)&&massKg>0;
+ for(let i=0;i<(requests||[]).length;i++){const r=requests[i],s=r.spec||{},raw=actualInputs instanceof Map?actualInputs.get(r.id):Array.isArray(actualInputs)?actualInputs[i]:actualInputs?.[r.id],given=typeof raw==='object'?raw?.actualInputW:raw,request=Number.isFinite(r.requestedInputW)?Math.max(0,r.requestedInputW):0,C=s.wattsPerNewton,ok=s.valid!==false&&Number.isFinite(C)&&C>0&&finiteMass,actualInputW=ok&&Number.isFinite(given)?clamp(given,0,request):0,actualThrustN=actualInputW/(Number.isFinite(C)&&C>0?C:1),heat=actualInputW*PROPULSION.wasteFraction,direction=Array.isArray(s.direction)&&s.direction.length===3&&s.direction.every(Number.isFinite)&&len(s.direction)>1e-9?norm(s.direction):[0,0,0];
+  if(!rated.has(r.machineryId??r.id)){rated.add(r.machineryId??r.id);ratedThrustN+=Number.isFinite(s.ratedThrustN)?Math.max(0,s.ratedThrustN):Number.isFinite(C)&&C>0?Math.max(0,s.ratedInputW||0)/C:0;}
+  totalRequestedInputW+=request;totalActualInputW+=actualInputW;totalThrustN+=actualThrustN;wasteHeatW+=heat;forceVector=add(forceVector,mul(direction,actualThrustN));engines.push({id:r.id,machineryId:r.machineryId??r.id,requestedInputW:request,actualInputW,actualThrustN,wasteHeatW:heat,direction,reasons:[...(r.reasons||[]),...(!finiteMass?['invalid-mass']:[]),...(actualInputW+request*1e-12<request?['power-shortage']:[])]});
+ }
+ const accelerationVector=finiteMass?mul(forceVector,1/massKg):[0,0,0];return {engines,totalRequestedInputW,totalActualInputW,totalThrustN,wasteHeatW,forceVector,accelerationVector,freeAccelerationMps2:len(accelerationVector),ratedThrustN,outputRatio:ratedThrustN>0?totalThrustN/ratedThrustN:0,valid:finiteMass};
+}
+function propulsionProfile(ship,S={}){
+ const parts=ship?.parts||[],paths=enginePaths(ship),mods=fleetModules(ship,S),engines=parts.filter(p=>p.k==='engine').map(p=>{const spec=resolveEngineSpec(p,ship),source=parts.find(r=>isReactor(r)&&r.id===spec.reactorId),path=paths.find(r=>r.nozzle===spec.machineryId),moduleIndex=mods.findIndex(m=>m.part===p.id||m.id==='p'+p.id),machineryModuleIndex=mods.findIndex(m=>m.part===-spec.machineryId),available=spec.valid&&!!source&&engineVented(ship,p)&&!S.info?.[p.id]?.overlap&&!S.info?.[source?.id]?.overlap&&!S.info?.[path?.id]?.overlap;return {...spec,moduleIndex,machineryModuleIndex,available,connected:!!source,outletAvailable:engineVented(ship,p),pathCapacityW:Number.isFinite(p.feedCapacityW)?Math.max(0,p.feedCapacityW):spec.maxInputW};}),unique=new Map();for(const e of engines)if(!unique.has(e.machineryId))unique.set(e.machineryId,e);
+ const ratedThrustN=[...unique.values()].reduce((n,e)=>n+e.ratedThrustN,0),massKg=Number.isFinite(S.mass)&&S.mass>0?S.mass*1000:0,ratedAccelMps2=massKg>0?ratedThrustN/massKg:0,inertialFactor=S.inertialSupport==null?1:clamp(S.inertialSupport/Math.max(1,S.mass),0,1),structuralAccelerationLimitMps2=Number.isFinite(S.aStruct)?Math.max(0,S.aStruct):1e9,accelerationLimitMps2=Math.min(structuralAccelerationLimitMps2,ratedAccelMps2)*inertialFactor;
+ return {version:PROPULSION_MODEL_VERSION,engines,massKg,ratedThrustN,ratedAccelMps2,structuralAccelerationLimitMps2,inertialFactor,accelerationLimitMps2};
+}
+function nozzleThrust(p){return resolveEngineSpec(p).ratedThrustN;}
+function nozzleDemand(p){const s=resolveEngineSpec(p);return s.valid?s.ratedInputW:0;}
 function shieldLoad(p){return partVolume(p)*SHIELD_ENERGY_DENSITY;}
 function hyperCapacity(p){return partVolume(p);}
 function partRatingKeys(){return [];}
@@ -4105,14 +22997,14 @@ const calibers={
  ltl:{barrels:4,boltTT:.02,cycle:.5,evidence:'ゲーム用仮定',desc:'4門×20 GT。小型艦と艦載機に向く速射の軽砲。'},
  mtl:{barrels:3,boltTT:.2,cycle:.2,evidence:'指定表 Ships!S51など',source:STATS_SOURCE,desc:'3門×200 GT。三連装の中型砲。'},
  htl:{barrels:2,boltTT:70,cycle:1,evidence:'作者明記',source:WEAPON_NOTES.secutor,desc:'2門×70 TT。連装の重ターボレーザー。'},
- stl:{barrels:2,boltTT:175,cycle:1,evidence:'指定表 Ships!S35',source:STATS_SOURCE,desc:'2門×175 TT。インペリアル級の主砲と同じ口径の重砲。'},
+ stl:{barrels:2,boltTT:175,cycle:1,name:'2連装重ターボレーザー',short:'重TL連装350TT',evidence:'指定表 Ships!S35',source:STATS_SOURCE,desc:'2門×175 TT。合計350 TTの連装重ターボレーザー。'},
  utl:{barrels:2,boltTT:720,cycle:1,evidence:'作者明記',source:WEAPON_NOTES.bellator,desc:'2門×720 TT。ドレッドノート級の超重砲。'},
  ion:{barrels:2,boltTT:175,cycle:1,evidence:'指定表 Ships!S35',source:STATS_SOURCE,desc:'2門×175 TT相当のイオン砲。'}
 };
 for(const [k,s] of Object.entries(calibers)){const d=FITS[k];Object.assign(d,s);if(k==='ion')d.ion=s.barrels*s.boltTT;else d.tt=s.barrels*s.boltTT;d.power=(d.tt||d.ion||0)*TT/s.cycle;d.rateEvidence='連射間隔はゲーム用仮定';}
 // v19 A light twin ion cannon for frigates and corvettes (the rebels strip shields with ion fire).
 FITS.ionL={...FITS.ion,key:'ionL',aa:.8,name:'軽イオン砲（連装）',short:'軽イオン砲',fm:9,wm:9,hm:6,r:(FITS.ion.r||10)*.4,barrels:2,boltTT:.12,ion:.24,cycle:.5,power:.24*TT/.5,mass:700,crew:4,cost:90e3,evidence:'ゲーム用仮定',desc:'2門×120 GT相当の軽イオン砲。小型艦がシールドを剥ぐための速射砲。'};
-FITS.oct40={...FITS.stl,key:'oct40',name:'8連装重ターボレーザー',short:'8連装重TL',barrels:8,boltTT:40,tt:320,cycle:1,power:320*TT,evidence:'作者明記（口径）',source:WEAPON_NOTES.secutor,desc:'8門×40 TT。八連装の重ターボレーザー。',fm:30,wm:30,hm:13,r:15};
+FITS.oct40={...FITS.stl,key:'oct40',name:'8連装ターボレーザー',short:'8連装TL',barrels:8,boltTT:40,tt:320,cycle:1,power:320*TT,evidence:'作者明記（口径）',source:WEAPON_NOTES.secutor,desc:'8門×40 TT。八連装の重ターボレーザー。',fm:30,wm:30,hm:13,r:15};
 FITS.triple40={...FITS.htl,key:'triple40',name:'三連40 TTターボレーザー',short:'三連40 TT',barrels:3,boltTT:40,tt:120,power:120*TT,source:STATS_SOURCE,evidence:'指定表 Ships!S34–S35',desc:'3門×40 TT。ISDの9基27門の補助重砲を構成します。',fm:20,wm:20,hm:9,r:10};
 FITS.quad200={...FITS.ltl,key:'quad200',name:'四連200 GTターボレーザー',short:'四連200 GT',barrels:4,boltTT:.2,tt:.8,cycle:.2,power:.8*TT/.2,source:STATS_SOURCE,evidence:'指定表 Ships!S51',desc:'4門×200 GT。アクラメイターIの12基48門の中型砲。'};
 // v22 The Imperial I-class Star Destroyer's two named secondary weapons. Canon (Rogue One: The Ultimate
@@ -4123,10 +23015,10 @@ FITS.quad200={...FITS.ltl,key:'quad200',name:'四連200 GTターボレーザー'
 // of the Death Star's surface towers in A New Hope (Wookieepedia: "XX-9 heavy turbolaser battery"), so it
 // is a twin turret. Neither source gives an energy, so the calibre is a game setting placed on the existing
 // scale: the XX-9 fires the 40 TT bolt of the reference workbook's ISD auxiliary heavy guns (oct40,
-// triple40), below the 70 TT twin heavy turret (htl) and the 175 TT main battery (stl, refISDh), so it is a
+// triple40), below the 70 TT twin heavy turret (htl) and the 175 TT main battery (stl), so it is a
 // long-range gun. The WEG stat blocks give the ion cannons 3D damage and 50 range units against the
 // turbolaser batteries' 5D and 75, so the NK-7 is lighter: a twin ion cannon of 2×20 TT equivalent, half
-// the XX-9 and far below the 2×175 TT heavy ion turret (ion, refIonH); like every ion gun it reaches the
+// the XX-9 and far below the 2×175 TT heavy ion turret (ion); like every ion gun it reaches the
 // long band. Both recharge for 4 s between volleys (the heavy mounts take 1 s): the canon ISD carries all
 // 120 spread round its hull together with its crew and troops (about 40,000 berths), and at a faster cycle
 // their power conduits (FEED_FLUX), sized to the peak draw, would take the free volume the berths need.
@@ -4134,7 +23026,7 @@ FITS.quad200={...FITS.ltl,key:'quad200',name:'四連200 GTターボレーザー'
 FITS.xx9={cat:'w',key:'xx9',name:'XX-9 重ターボレーザー砲台（連装）',short:'XX-9',fm:16,wm:16,hm:9,r:8,barrels:2,boltTT:40,tt:80,cycle:4,power:20*TT,aa:.3,mass:2400,crew:10,cost:400e3,source:'https://starwars.fandom.com/wiki/XX-9_heavy_turbolaser_battery',evidence:'名称・搭載数は正史とレジェンズ（ISD-I に60基）・威力はゲーム用設定（指定表の40 TT級）',rateEvidence:'連射間隔はゲーム用仮定',desc:'タイム&バック社 XX-9 重ターボレーザー砲台。2門×40 TT の連装砲塔で長射程、4秒ごとに斉射。インペリアルI級スター・デストロイヤーの標準兵装（60基）で、デス・スター表面の砲塔にも使われた（『新たなる希望』）。'};
 FITS.nk7={cat:'w',key:'nk7',name:'NK-7 イオン砲（連装）',short:'NK-7',fm:14,wm:14,hm:8,r:7,barrels:2,boltTT:20,ion:40,cycle:4,power:10*TT,aa:.4,mass:1500,crew:8,cost:350e3,source:'https://starwars.fandom.com/wiki/NK-7_ion_cannon',evidence:'名称・搭載数は正史とレジェンズ（ISD-I に60基）・威力はゲーム用設定（WEG の威力比で XX-9 の半分）',rateEvidence:'連射間隔はゲーム用仮定',desc:'ボーステル社 NK-7 イオン砲。2門×20 TT 相当の連装イオン砲で4秒ごとに斉射し、シールドと電装を麻痺させる（船体への損害は小さい）。インペリアルI級スター・デストロイヤーの標準兵装（60基）。重イオン砲塔（2門×175 TT 相当）よりずっと軽い。'};
 for(const k of ['msl','itl','trc']){FITS[k].evidence='ゲーム用仮定';/* assumption noted in evidence only */}
-function fitSpec(f){const d=FITS[f.k],s=f.scale||1;if(s===1)return d;const k=s*s*s;return {...d,fm:d.fm*s,wm:d.wm*s,hm:d.hm*s,r:d.r*s,mass:d.mass*k,crew:Math.ceil(d.crew*k),cost:d.cost*k,tt:d.tt?d.tt*k:undefined,ion:d.ion?d.ion*k:undefined,power:d.power*k,aa:d.aa?d.aa*s*s:undefined};}
+function fitSpec(f){f=migrateWeaponFit(f);const d=FITS[f.k],s=f.scale||1;if(s===1)return d;const k=s*s*s;return {...d,fm:d.fm*s,wm:d.wm*s,hm:d.hm*s,r:d.r*s,mass:d.mass*k,crew:Math.ceil(d.crew*k),cost:d.cost*k,tt:d.tt?d.tt*k:undefined,ion:d.ion?d.ion*k:undefined,power:d.power*k,aa:d.aa?d.aa*s*s:undefined};}
 
 // Licensed mesh skins and reusable modules. Internal systems remain independent.
 const REFERENCE_ASSETS=YardReferenceData.assets;
@@ -4144,7 +23036,7 @@ const REFERENCE_ASSETS=YardReferenceData.assets;
 // their average tones differ (warm turrets, dark engine bells). Each factor
 // brings an asset's mean texture colour to one shared neutral hull grey;
 // engines keep half of their extra darkness. Measured from the atlas.
-const REFERENCE_TONE=Object.freeze({"bridge_pod":[1.064,1.108,1.132],"ven_hull":[0.98,1.009,1.04],"ven_tower_port":[0.965,0.998,1.036],"ven_tower_stbd":[0.965,0.998,1.036],"ven_bridge_port":[0.941,0.973,1.013],"ven_bridge_stbd":[0.941,0.973,1.013],"ven_spine":[0.945,0.978,1.013],"ven_outer_port":[1.131,1.142,1.153],"ven_outer_stbd":[1.131,1.142,1.153],"ven_inner_port":[1.127,1.138,1.148],"ven_inner_stbd":[1.127,1.138,1.148],"ven_upper_port":[1.13,1.141,1.151],"ven_upper_stbd":[1.13,1.141,1.151],"ven_aux_port":[1.098,1.109,1.119],"ven_aux_stbd":[1.098,1.109,1.119],"ven_turret":[1.097,1.173,1.236],"ven_turret_0":[1.097,1.173,1.236],"ven_turret_1":[1.097,1.173,1.236],"ven_turret_2":[1.097,1.173,1.236],"ven_turret_3":[1.097,1.173,1.236],"ven_turret_4":[1.097,1.173,1.236],"ven_turret_5":[1.097,1.173,1.236],"ven_turret_6":[1.097,1.173,1.236],"ven_turret_7":[1.097,1.173,1.236],"ven_side_gun":[0.952,0.961,0.969],"ven_side_port":[0.952,0.961,0.969],"ven_side_stbd":[0.952,0.961,0.969],"isd_hull":[1.037,1.081,1.107],"isd_support":[1.052,1.094,1.12],"isd_citadel":[1.082,1.131,1.161],"isd_bridge":[1.064,1.108,1.132],"isd_engine_0":[1.032,1.087,1.122],"isd_engine_1":[1.042,1.096,1.131],"isd_engine_3":[1.042,1.101,1.136],"isd_engine_4":[1.042,1.101,1.136],"isd_mast":[1.128,1.186,1.224],"isd_sensor_port":[1.017,1.062,1.087],"isd_engine_2":[1.032,1.087,1.122],"isd_engine_5":[1.042,1.101,1.136],"isd_engine_6":[1.042,1.101,1.136],"isd_sensor_stbd":[1.017,1.062,1.087],"isd_turret":[1.118,1.173,1.208],"isd_turret_0":[1.118,1.173,1.208],"isd_turret_1":[1.118,1.173,1.208],"isd_turret_2":[1.118,1.173,1.208],"isd_turret_3":[1.118,1.173,1.208],"isd_turret_4":[1.118,1.173,1.205],"isd_turret_5":[1.118,1.173,1.205],"isd_turret_6":[1.118,1.173,1.205],"isd_turret_7":[1.118,1.173,1.205],"isd2_octuple":[0.877,0.886,0.894],"isd2_casemate":[0.877,0.886,0.894],"isdh_turret":[1.208,1.217,1.196],"isdh_bridge":[1.172,1.172,1.142],"exe_bridge":[1.172,1.172,1.142],"exe_sensor_port":[1.155,1.162,1.141],"exe_sensor_stbd":[1.155,1.162,1.141],"isdh_sensor_port":[1.155,1.162,1.141],"isdh_sensor_stbd":[1.155,1.162,1.141],"isdh_mast":[1.193,1.201,1.182],"isdh_engine_main":[1.048,1.055,1.035],"isdh_engine_aux":[1.102,1.107,1.085]});
+const REFERENCE_TONE=Object.freeze({"bridge_pod":[1.064,1.108,1.132],"ven_hull":[0.98,1.009,1.04],"ven_tower_port":[0.965,0.998,1.036],"ven_tower_stbd":[0.965,0.998,1.036],"ven_bridge_port":[0.941,0.973,1.013],"ven_bridge_stbd":[0.941,0.973,1.013],"ven_spine":[0.945,0.978,1.013],"ven_outer_port":[1.131,1.142,1.153],"ven_outer_stbd":[1.131,1.142,1.153],"ven_inner_port":[1.127,1.138,1.148],"ven_inner_stbd":[1.127,1.138,1.148],"ven_upper_port":[1.13,1.141,1.151],"ven_upper_stbd":[1.13,1.141,1.151],"ven_aux_port":[1.098,1.109,1.119],"ven_aux_stbd":[1.098,1.109,1.119],"ven_turret":[1.097,1.173,1.236],"ven_turret_0":[1.097,1.173,1.236],"ven_turret_1":[1.097,1.173,1.236],"ven_turret_2":[1.097,1.173,1.236],"ven_turret_3":[1.097,1.173,1.236],"ven_turret_4":[1.097,1.173,1.236],"ven_turret_5":[1.097,1.173,1.236],"ven_turret_6":[1.097,1.173,1.236],"ven_turret_7":[1.097,1.173,1.236],"ven_side_gun":[0.952,0.961,0.969],"ven_side_port":[0.952,0.961,0.969],"ven_side_stbd":[0.952,0.961,0.969],"isd_hull":[1.037,1.081,1.107],"isd_support":[1.052,1.094,1.12],"isd_citadel":[1.082,1.131,1.161],"isd_bridge":[1.064,1.108,1.132],"isd_engine_0":[1.032,1.087,1.122],"isd_engine_1":[1.042,1.096,1.131],"isd_engine_3":[1.042,1.101,1.136],"isd_engine_4":[1.042,1.101,1.136],"isd_mast":[1.128,1.186,1.224],"isd_sensor_port":[1.017,1.062,1.087],"isd_engine_2":[1.032,1.087,1.122],"isd_engine_5":[1.042,1.101,1.136],"isd_engine_6":[1.042,1.101,1.136],"isd_sensor_stbd":[1.017,1.062,1.087],"isd_heavy_twin":[1.118,1.173,1.208],"isd_heavy_octuple":[1.118,1.173,1.208],"isd_turret":[1.118,1.173,1.208],"isd_turret_0":[1.118,1.173,1.208],"isd_turret_1":[1.118,1.173,1.208],"isd_turret_2":[1.118,1.173,1.208],"isd_turret_3":[1.118,1.173,1.208],"isd_turret_4":[1.118,1.173,1.205],"isd_turret_5":[1.118,1.173,1.205],"isd_turret_6":[1.118,1.173,1.205],"isd_turret_7":[1.118,1.173,1.205],"isd2_octuple":[0.877,0.886,0.894],"isd2_casemate":[0.877,0.886,0.894],"isdh_turret":[1.208,1.217,1.196],"isdh_bridge":[1.172,1.172,1.142],"exe_bridge":[1.172,1.172,1.142],"exe_sensor_port":[1.155,1.162,1.141],"exe_sensor_stbd":[1.155,1.162,1.141],"isdh_sensor_port":[1.155,1.162,1.141],"isdh_sensor_stbd":[1.155,1.162,1.141],"isdh_mast":[1.193,1.201,1.182],"isdh_engine_main":[1.048,1.055,1.035],"isdh_engine_aux":[1.102,1.107,1.085]});
 function decodeReference(id){
  const a=REFERENCE_ASSETS[id];if(!a)return null;if(a._decoded)return a._decoded;
  // Identical meshes are stored once; a copy names its source with dataFrom.
@@ -4173,6 +23065,9 @@ function inReferenceStructure(p,q){
 }
 function engineAxialScales(p,a){
  const source=sourceEngine(p),spec=equipmentSpec(p);if(!source)return [1,1];
+ // Saved machinery dimensions are absolute. A bell edit must never scale the
+ // source turbine body through its former diameter-relative size law.
+ if(p.machineryLengthM!=null){const baseline=engineBaseline(spec?.engineStyle||(source.assets[0].startsWith('ven_')?'exposed':'internal'),source.d,'body'),length=Number.isFinite(p.machineryLengthM)&&p.machineryLengthM>0&&p.machineryLengthM<=DESIGN_LIMITS.engineLength?p.machineryLengthM:baseline;return [(p.nozzleLength||source.nozzleLength)/source.nozzleLength,length/baseline];}
  if(!spec?.engineStyle)return p.skinAxial?[p.skinAxial[1]*p.d/p.skinAxial[0],p.skinAxial[2]*p.d/p.skinAxial[0]]:[p.d/(p.skinDiameter||p.d),p.d/(p.skinDiameter||p.d)];
  const nscale=p.nozzleLength/source.nozzleLength,lo=a.c[0]-a.size[0]/2-(p.skinAnchor||a.c)[0],hi=lo+a.size[0];
  const targetLength=a.size[0]*p.engineLength/engineBaseline(spec.engineStyle,source.d,'length');
@@ -4181,20 +23076,22 @@ function engineAxialScales(p,a){
 }
 function referenceEnginePoint(p,v,a){
  const q=v.map((n,i)=>n*a.size[i]+a.c[i]-(p.skinAnchor||a.c)[i]),scale=p.d/(p.skinDiameter||p.d),u=mul(norm(p.dir||[-1,0,0]),-1),source=sourceEngine(p);
- let axial=q[0]*scale;
- if(source&&(parametricEngine(p)||p.skinAxial)){const [ns,bs]=engineAxialScales(p,a),collar=source.nozzleLength/2;axial=q[0]<=collar?q[0]*ns:collar*ns+(q[0]-collar)*bs;}
+ let axial=q[0]*scale,radial=scale;
+ if(source&&(parametricEngine(p)||p.skinAxial||p.machineryLengthM!=null)){const [ns,bs]=engineAxialScales(p,a),collar=source.nozzleLength/2,body=q[0]>collar;axial=body?(Number.isFinite(p.machineryOffsetM)&&Math.abs(p.machineryOffsetM)<=DESIGN_LIMITS.coordinate?p.machineryOffsetM:collar*ns)+(q[0]-collar)*bs:q[0]*ns;if(body&&Number.isFinite(p.machineryRadiusM)&&p.machineryRadiusM>0&&p.machineryRadiusM<=DESIGN_LIMITS.engineDiameter)radial=p.machineryRadiusM/(source.d*source.bodyRadius);}
  let z=norm(cross(u,[0,1,0]));if(len(z)<.01)z=[0,0,1];const y=norm(cross(z,u));
- return add(p.c,add(mul(u,axial),mul(add(mul(y,q[1]),mul(z,q[2])),scale)));
+ return add(p.c,add(mul(u,axial),mul(add(mul(y,q[1]),mul(z,q[2])),radial)));
 }
 // Find the hull/structure wall along the turbine axis. A missing shell leaves
 // the engine visible; it is never hidden merely because it has an internal style.
 function engineHullEntry(ship,p){
  if(equipmentSpec(p)?.engineStyle!=='internal')return null;
+ if(p.machineryLengthM!=null&&(!Number.isFinite(p.machineryLengthM)||p.machineryLengthM<=0||p.machineryLengthM>DESIGN_LIMITS.engineLength)||p.machineryOffsetM!=null&&(!Number.isFinite(p.machineryOffsetM)||Math.abs(p.machineryOffsetM)>DESIGN_LIMITS.coordinate))return null;
  const u=mul(norm(p.dir||[-1,0,0]),-1),point=t=>add(p.c,mul(u,t));
- const begin=p.nozzleLength/2,end=begin+p.bodyLength;
+ const collar=p.nozzleLength/2,offset=Number.isFinite(p.machineryOffsetM)?p.machineryOffsetM:collar,bodyLength=Number.isFinite(p.machineryLengthM)?p.machineryLengthM:p.bodyLength,begin=Math.min(collar,offset),end=Math.max(collar,offset+bodyLength);
+ if(!Number.isFinite(bodyLength)||!(bodyLength>0)||bodyLength>DESIGN_LIMITS.engineLength||!Number.isFinite(begin)||!Number.isFinite(end)||Math.abs(begin)>DESIGN_LIMITS.coordinate||Math.abs(end)>DESIGN_LIMITS.coordinate||!Array.isArray(p.c)||p.c.some(v=>!Number.isFinite(v)||Math.abs(v)>DESIGN_LIMITS.coordinate))return null;
  const inside=t=>insideOriginalEnvelope(ship,point(t));
  if(inside(begin))return begin;
- const steps=Math.max(16,Math.ceil(p.bodyLength/4));let prev=begin;
+ const steps=Math.max(16,Math.ceil((end-begin)/4));let prev=begin;
  for(let i=1;i<=steps;i++){const t=lerp(begin,end,i/steps);if(inside(t)){let lo=prev,hi=t;for(let j=0;j<18;j++){const mid=(lo+hi)/2;if(inside(mid))hi=mid;else lo=mid;}return (lo+hi)/2;}prev=t;}
  return null;
 }
@@ -4225,10 +23122,10 @@ function attachReferenceSkin(ship){
  for(const e of engines){let asset;if(ven){const sg=e.c[2]<0?'port':'stbd',z=Math.abs(e.c[2]);asset='ven_'+(e.d>40?(z<80?'inner':'outer'):z<55?'upper':'aux')+'_'+sg;}else{const src=LEGACY_ENGINES[e.d>70?'isdhMain':'isdhAux'];asset=src.assets[0];e.skinAsset=asset;e.skinAnchor=src.anchor.slice();e.skinDiameter=src.d;continue;}e.skinAsset=asset;e.skinAnchor=e.c.slice();e.skinDiameter=e.d;if(ven)e.bodyRadius=.36;}
  // Heataker's eight heavy mounts stand in the wells of the battery decks; the
  // forward pair are the ion batteries. They keep the level, bow-facing pose.
- if(!ven)for(let i=0;i<4;i++)for(const sg of [-1,1]){const x=281.76+62.36*i,z=sg*215.58,h=rayEnv(ship,[x,900,z],[0,-1,0],{structOnly:true});if(!h)throw new Error('作例の主砲座がありません');const r=placeFit(ship,i===3?'refIonH':'refISDh',h.p,h.n,0,false);if(!r.fit)throw new Error('作例の主砲座: '+r.err);}
+ if(!ven)for(let i=0;i<4;i++)for(const sg of [-1,1]){const x=281.76+62.36*i,z=sg*215.58,h=rayEnv(ship,[x,900,z],[0,-1,0],{structOnly:true});if(!h)throw new Error('作例の主砲座がありません');const r=placeFit(ship,i===3?'ion':'oct40',h.p,h.n,0,false);if(!r.fit)throw new Error('作例の主砲座: '+r.err);}
  // Preserve every source turret, including its individual pose and mount height.
  const idsGun=ven?Array.from({length:8},(_,i)=>prefix+'_turret_'+i):[];if(ven)idsGun.push('ven_side_port','ven_side_stbd');
- for(const id of idsGun){const a=REFERENCE_ASSETS[id];if(!a)continue;const type=ven?(id.includes('side')?'refSide':'refVen'):(a.c[0]>450?'refIon':'refISD'),p=[a.c[0],a.c[1]-a.size[1]/2,a.c[2]],mountAxis=id.includes('side')?(a.c[2]<0?5:4):2,up=AXES[mountAxis],h=rayEnv(ship,add(p,mul(up,1200)),mul(up,-1),{structOnly:true});
+ for(const id of idsGun){const a=REFERENCE_ASSETS[id];if(!a)continue;const type=ven?(id.includes('side')?'refSide':'refVen'):(a.c[0]>450?'ion':'stl'),p=[a.c[0],a.c[1]-a.size[1]/2,a.c[2]],mountAxis=id.includes('side')?(a.c[2]<0?5:4):2,up=AXES[mountAxis],h=rayEnv(ship,add(p,mul(up,1200)),mul(up,-1),{structOnly:true});
   ship.fits.push({id:ship.nextId++,k:type,p:p.slice(),a:2,ped:0,base:0,low:0,float:false,skinAsset:id,assetYaw:0,mountAxis,mountOffset:h?dot(sub(p,h.p),up):0});
  }
  if(ven){const top=ship.hatches.find(h=>h.face==='top'),flight=ship.parts.find(p=>p.id===top?.bay);if(top&&flight){const bottom=openBay(ship,flight,'bottom','open');bottom.motion='slide';bottom.open=0;top.motion='slide';top.open=0;}}
@@ -4236,16 +23133,8 @@ function attachReferenceSkin(ship){
 
  delete ship._building;remount(ship);
 }
-for(const [key,base,asset,name] of [['refVen','htl','ven_turret','DBY-827 連装重ターボレーザー'],['refISD','stl','isd_turret','6連装重ターボレーザー'],['refIon','ion','isd_turret','ISD-I 重イオン連装'],['refSide','mtl','ven_side_gun','ヴェネター舷側砲'],['refISDh','stl','isdh_turret','ISD-I 八連装重ターボレーザー砲塔'],['refIonH','ion','isdh_turret','ISD-I 八連装重イオン砲塔']]){const a=REFERENCE_ASSETS[asset];FITS[key]={...FITS[base],key,name,short:name,asset,fm:a.size[0],wm:a.size[2],hm:a.size[1],r:Math.max(a.size[0],a.size[2])/2};}
+for(const [key,base,asset,name] of [['refVen','htl','ven_turret','DBY-827 連装重ターボレーザー'],['refSide','mtl','ven_side_gun','2連装40TTターボレーザー側面砲']]){const a=REFERENCE_ASSETS[asset];FITS[key]={...FITS[base],key,name,short:name,asset,fm:a.size[0],wm:a.size[2],hm:a.size[1],r:Math.max(a.size[0],a.size[2])/2};}
 Object.assign(FITS.refVen,{short:'DBY-827',source:null,evidence:'名称は指定設定・性能は従来設定',desc:'DBY-827 連装重ターボレーザー。2門×70 TT。'});
-// Correct the displayed barrel count without tripling existing designs' damage,
-// electrical demand or charging rooms. This is a game conversion, not a new
-// per-barrel energy claimed by the reference workbook.
-Object.assign(FITS.refISD,{short:'6連装重TL',barrels:6,boltTT:FITS.refISD.tt/6,source:null,evidence:'連装数は指定設定・砲身威力はゲーム用換算',desc:'6門で合計350 TT（1門あたり約58.33 TT）。'});
-// Heataker's ISD-I mount: two four-barrel housings on one turntable. The total
-// stays the 2×175 TT of the reference battery; the barrel split is a conversion.
-Object.assign(FITS.refISDh,{short:'8連装重TL',barrels:8,boltTT:FITS.refISDh.tt/8,source:null,evidence:'砲身数はモデル準拠・砲身威力はゲーム用換算',desc:'8門で合計350 TT（1門あたり43.75 TT）。2基の4連装砲室を1つの旋回台に載せたインペリアルI級の重砲塔。'});
-Object.assign(FITS.refIonH,{short:'8連装重イオン',barrels:8,boltTT:FITS.refIonH.ion/8,source:null,evidence:'砲身数はモデル準拠・砲身威力はゲーム用換算',desc:'8門で合計350 TT相当のイオン砲。重砲塔と同じ旋回台の前部砲塔。'});
 
 function sensorShape(p){return memoShape(p,'_sensorShape',sensorShapeRaw);}
 function sensorShapeRaw(p){const a=p.skinSize||[p.d,p.d,p.d],scale=p.d/Math.max(...a);return {k:'struct',form:'ellipsoid',c:p.c,s:[a[0]*scale,a[2]*scale,a[1]*scale],yaw:p.yaw||0};}
@@ -4341,7 +23230,7 @@ function equipmentOptions(id){
 }
 function enforceEquipment(p){
  const d=equipmentSpec(p);if(!d)return;
- if(d.k==='engine')resizeEngine(p,p.d,p.engineLength);
+ if(d.k==='engine'&&p.propulsionModelVersion!==PROPULSION_MODEL_VERSION)resizeEngine(p,p.d,p.engineLength);
  if(!d.assets.includes(p.skinAsset)){
   const defaults=equipmentOptions(d.id);p.skinAsset=defaults.skinAsset;
   if(d.k==='engine')p.skinAnchor=defaults.skinAnchor;
@@ -4354,6 +23243,7 @@ function vmirrorPoint(ship,p){const y0=vmirrorPlane(ship,p[0]);return [p[0],2*y0
 function vmirrorPart(p,ship){
  const q=JSON.parse(JSON.stringify(p,(k,v)=>k.startsWith('_')?undefined:v));delete q.tw;delete q.vt;
  q.c=vmirrorPoint(ship,p.c);if(q.dir)q.dir=[q.dir[0],-q.dir[1],q.dir[2]];
+ for(const key of ['reactor','machineryId'])if(q[key]!=null){const owner=ship.parts.find(x=>x.id===q[key]);if(owner?.vt)q[key]=owner.vt;}
  if(q.wing?.pivot)q.wing.pivot=vmirrorPoint(ship,q.wing.pivot);if(q.wing?.members)mirrorWingMembers(q.wing,ship,'vt');
  // X-axis rotation changes sense across the horizontal symmetry plane.
  // Y rotates about the reflected axis; Z's sense already follows its vertical side.
@@ -4403,12 +23293,14 @@ for(const id of ['isdhMain','isdhAux']){const e=LEGACY_ENGINES[id];e.nozzleLengt
 
 function resizeEngine(p,diam=p.d,length=p.engineLength){
  const d=equipmentSpec(p);if(!d?.engineStyle)return p;
+ const independent=p.propulsionModelVersion===PROPULSION_MODEL_VERSION,bodyLength=p.bodyLength,bodyRadius=p.bodyRadius;
  p.d=Number.isFinite(diam)?clamp(diam,6,DESIGN_LIMITS.engineDiameter):d.d;
  const baseLength=engineBaseline(d.engineStyle,p.d,'length');
  p.engineLength=d.engineStyle==='exposed'?(Number.isFinite(length)?clamp(length,engineBaseline('exposed',p.d,'nozzleLength')*1.5,DESIGN_LIMITS.engineLength):baseLength):baseLength;
  p.nozzleLength=engineBaseline(d.engineStyle,p.d,'nozzleLength');
  p.bodyLength=engineBaseline(d.engineStyle,p.d,'body')*(d.engineStyle==='exposed'?p.engineLength/baseLength:1);
  p.bodyRadius=d.bodyRadius;
+ if(independent){p.bodyLength=bodyLength;p.bodyRadius=bodyRadius;}
  delete p.thrustFactor;delete p.driveFactor;return p;
 }
 function engineRating(p,key){
@@ -5118,11 +24010,10 @@ const DREADNOUGHT_EXAMPLES={
 // Keep the old ISD-II builder and model provenance available to saved designs;
 // only the Executor remains in the public example catalog.
 DESIGNS.executor={name:DREADNOUGHT_EXAMPLES.executor.name,hull:{L:DREADNOUGHT_EXAMPLES.executor.length}};
-{
- const a=REFERENCE_ASSETS.isd2_octuple;
- Object.assign(FITS.oct40,{name:'8連装重ターボレーザー',asset:'isd2_octuple',fm:a.size[0],wm:a.size[2],hm:a.size[1],r:Math.max(a.size[0],a.size[2])/2,source:STATS_SOURCE,evidence:'指定表 Ships!S34',desc:'8門×40 TT。独立した砲塔・旋回台・装甲囲い。上面・下面・トレンチ壁へ取り付けられます。'});
+for(const [key,asset]of [['stl','isd_heavy_twin'],['oct40','isd_heavy_octuple']]){
+ const a=REFERENCE_ASSETS[asset];Object.assign(FITS[key],{asset,fm:a.size[0],wm:a.size[2],hm:a.size[1],r:Math.max(a.size[0],a.size[2])/2});
 }
-if(REFERENCE_ASSETS.isd2_casemate){const a=REFERENCE_ASSETS.isd2_casemate;FITS.casemate40={...FITS.oct40,key:'casemate40',name:'八連装ケースメイト重砲',short:'舷側ケースメイト砲',asset:'isd2_casemate',casemate:true,r:Math.max(a.size[1],a.size[2])/2,fm:a.size[0],wm:a.size[2],hm:a.size[1],desc:'8門×40 TT。側壁に砲口を外向きに装着。左右±65°・上下±20°の範囲から船体の遮蔽を差し引きます。充電装置は壁の内側です。'};}
+Object.assign(FITS.oct40,{source:STATS_SOURCE,evidence:'指定表 Ships!S34',desc:'8門×40 TT。合計320 TTの八連装ターボレーザー。連装重砲と共通の砲室・旋回台へ8本の砲身を備える。上面・下面・トレンチ壁へ取り付けられます。'});
 // Casemate guns set into a wall: an armoured port flush with the plating, a
 // ball mantlet and twin barrels. The gun house and its charging gear sit inside
 // the hull; only the port and the barrels show. Short ranged (the broadside
@@ -5138,15 +24029,15 @@ FITS.casemateIon={...CASEMATE_BASE,key:'casemateIon',name:'連装ケースメイ
 FITS.casemateIonL={...CASEMATE_BASE,key:'casemateIonL',name:'連装ケースメイト軽イオン砲',short:'ケースメイト軽イオン',boltTT:.12,ion:.24,cycle:.5,power:.48*TT,fm:6,wm:5,hm:8,r:3,mass:300,crew:3,cost:50e3,aa:.8,desc:'壁に埋め込む連装の軽イオン砲（2門×120 GT 相当）。小型艦がシールドを剥ぐための速射砲。左右±65°・上下±20°、船体で遮蔽される方向は射撃不可。'};
 // Standard gun dimensions are calibrated to the actual rendered source models.
 // These measured local bounds avoid decoding meshes during Core initialization.
-const WEAPON_MODEL_SIZES={"isd2_octuple":[34.56475644,16.13737102,33.38837834],"ven_turret":[28.861991732993026,9.997709224590754,16.2580849216165],"isd_turret":[29.545964748520205,7.842183178014592,29.54586767618732],"ven_side_gun":[44.418119324749654,14.974964,37.91842155069308],"isdh_turret":[35.119098,9.432285,35.122421],"isd2_casemate":[21.54749502,3.70157903,14.88640329],"pd_turret_small":[9,3.1493375257895857,5.729853188053728]};
-function weaponSizing(f){return FITS[typeof f==='string'?f:f?.k]?.weaponSizing||null;}
+const WEAPON_MODEL_SIZES={"isd2_octuple":[34.56475644,16.13737102,33.38837834],"ven_turret":[28.861991732993026,9.997709224590754,16.2580849216165],"isd_turret":[29.545964748520205,7.842183178014592,29.54586767618732],"ven_side_gun":[44.418119324749654,14.974964,37.91842155069308],"isdh_turret":[35.119098,9.432285,35.122421],"isd2_casemate":[21.54749502,3.70157903,14.88640329],"pd_turret_small":[9,3.1493375257895857,5.729853188053728],"isd_heavy_twin":REFERENCE_ASSETS.isd_heavy_twin.size.slice(),"isd_heavy_octuple":REFERENCE_ASSETS.isd_heavy_octuple.size.slice()};
+function weaponSizing(f){return FITS[canonicalWeaponKind(typeof f==='string'?f:f?.k)]?.weaponSizing||null;}
 function weaponModelScale(f){return weaponSizing(f)?.factor??1;}
 function initializeWeaponSizing(){
- const dby=FITS.refVen,imperial=FITS.refISDh,volume=a=>a.reduce((n,v)=>n*v,1),densityA=volume(WEAPON_MODEL_SIZES[dby.asset])/dby.tt,densityB=volume(WEAPON_MODEL_SIZES[imperial.asset])/imperial.tt;
+ const dby=FITS.refVen,imperial=FITS.oct40,volume=a=>a.reduce((n,v)=>n*v,1),densityA=volume(WEAPON_MODEL_SIZES[dby.asset])/dby.tt,densityB=volume(WEAPON_MODEL_SIZES[imperial.asset])/imperial.tt;
  for(const d of Object.values(FITS)){
   const volleyTT=d.tt||d.ion||0;if(d.cat!=='w'||d.craft||d.fixed||d.msl||!d.barrels||!(volleyTT>0))continue;
   const sourceSize=d.asset?WEAPON_MODEL_SIZES[d.asset]:[d.fm,d.hm,d.wm];if(!sourceSize)continue;
-  const sourceVolume=volume(sourceSize),anchorBlend=clamp((d.barrels-2)/6,0,1),targetVolume=volleyTT*lerp(densityA,densityB,anchorBlend),factor=d.key==='refVen'||d.key==='refISDh'?1:Math.cbrt(targetVolume/sourceVolume);
+  const sourceVolume=volume(sourceSize),anchorBlend=clamp((d.barrels-2)/6,0,1),targetVolume=volleyTT*lerp(densityA,densityB,anchorBlend),factor=d.key==='refVen'||d.key==='oct40'?1:Math.cbrt(targetVolume/sourceVolume);
   d.weaponSizing=Object.freeze({factor,sourceSize:Object.freeze(sourceSize.slice()),sourceVolume,targetVolume,barrels:d.barrels,volleyTT,anchorBlend});
   d.fm=sourceSize[0]*factor;d.hm=sourceSize[1]*factor;d.wm=sourceSize[2]*factor;
   d.r=(d.asset?Math.max(sourceSize[d.casemate?1:0],sourceSize[2])/2:d.r)*factor;
@@ -7363,7 +26254,7 @@ function lucrehulkBuild(opt={}){
  // canon gives about 696 m), centred 413 m above the lowest point of the ring.
  // Everything else, the C-ring, aft block, arms, claws and towers, is structure.
  const st=[];for(let i=0;i<=24;i++){const t=(1-Math.cos(Math.PI*i/24))/2,r=Math.max(.005,Math.sqrt(Math.max(0,1-(2*t-1)**2)));st.push([+t.toFixed(5),+r.toFixed(4),+r.toFixed(4),+(413/L-.5).toFixed(4)]);}
- const s=newShip({L,W:L,H:L,sec:'ellipse',plan:'ellipse',bowW:1,bowH:1,stern:1,bowFree:true,stations:st,keel:'light'},'ルクレハルク級');
+ const s=newShip({L,W:L,H:L,sec:'ellipse',plan:'ellipse',bowW:1,bowH:1,stern:1,bowFree:true,stations:st,keel:'light'},opt.freighter?'LH-3210 型ルクレハルク級貨物船':'ルクレハルク級');
  s.hull.core=true;s.shipClass='battlecruiser';
  s._building=true;s.reference='lucrehulk';s.paint='cis';s.lights='warm';s.detail=1;s.armor={hull:.46,cit:.4};s.shieldTarget=1;
  const k=shipKit(s),part=(kind,label,c,d,o={})=>placePart(s,kind,c,d,{label,...o});
@@ -7465,13 +26356,23 @@ function lucrehulkBuild(opt={}){
   // main tractor beam generators and multiple tractor beam projectors on the forward arms
   spread('trc',6,'beam','arm-tractor',range(X(2860),X(3060),20),[470,430,510,390]);
  });}finally{delete s._lockedCache;}
+ // LH-3210 freighter (opt.freighter): the same hull unarmed — the quad laser batteries and the defence artillery come
+ // off (the tractor beams stay for cargo handling) and the volume their mounts took (footprint × height of each fit,
+ // fitSpec) goes back to the holds below.
+ let freed=0;if(opt.freighter){const gone=s.fits.filter(f=>f.k==='quad200'||f.k==='pd');for(const f of gone){const d=fitSpec(f);freed+=Math.max(0,(d.fm||0)*(d.wm||0)*(d.hm||0));}s.fits=s.fits.filter(f=>!gone.includes(f));}
  if(opt.stage==='fitted'){delete s._building;return s;}
 
  if(opt.stage==='shape'){delete s._building;return s;}
  for(const [kind,label,c,size,role,mirror] of D.rooms||[]){const o={room:size};if(typeof role==='string')o.airRole=role;placePart(s,kind,c,30,{label,...o},mirror===1||role===1);}
  // v20 The landing ships ride in the ring: C-9979 decks stacked fourteen high, with doors in the ring's underside.
+ if(opt.freighter){
+  // The freighter's ring holds cargo where the battleship's landing-ship decks are, each a quarter of the freed volume longer.
+  for(const [x,n] of [[322,'第1'],[552,'第2']])for(const sg of [1,-1])part('cargo',(sg>0?'右舷':'左舷')+'環状船体 貨物倉（'+n+'区画）',[x,402.5,sg*1005],30,{room:[216+freed/4/(400*395),400,395]});
+  s.airWings=[];s.groundForces=normalizeGroundForces([]);
+ }else{
  for(const [x,n] of [[322,'第1'],[552,'第2']])for(const sg of [1,-1]){const bay=part('hangar',(sg>0?'右舷':'左舷')+'環状船体 C-9979 上陸艇格納甲板（'+n+'区画）',[x,402.5,sg*1005],30,{room:[216,400,395],airRole:'storage'});openBay(s,bay,'bottom','open');}
  s.airWings=LUC_AIR.map(r=>({...r}));s.groundForces=normalizeGroundForces(LUC_GROUND);
+ }
  delete s._building;adoptEquipment(s,true);remount(s);calibrateReferenceRatings(s);syncCompartments(s);
  return s;
 
@@ -7484,6 +26385,17 @@ registerShipExample({
  note:'基本船体は直径 640 m の球形のコアシップ（モデルから実測、公式は約 696 m）で、C 字形の環状船体・艦尾ブロック・前部アームとドッキング・クロー・各種の塔はすべて構造物（全長 3,170 m）。コアシップの中心にドロイド制御コンピューター・コアと配電監視ステーション、下半分にコア中央球反応炉・発電機集合体、底部に着陸用リパルサーリフト、頂部に管制ブリッジ塔。艦尾背部の信号送信プラットフォームに予備制御信号送信塔・送信塔アンテナ・主／補助センサー・レクテナ・高エネルギー送信塔と防衛砲、前部アームにドロイド信号受信ステーション・前部管制塔・予備センサー・レクテナ・主トラクター・ビーム発生器とドッキング用トラクター・ビーム収納部、環状船体上部に偏向シールド発生器ハウジングと投射器。各アームの内側面に外側・中間・内側の 3 区画の主格納庫口、ドロイド・スターファイターのラック、地上部隊の補給物資庫、格納甲板床下の予備部品庫、貨物ベイ、大規模弾薬庫。環状船体の左右に C-9979 上陸艇の格納甲板 4 区画（14 段積み、下面に扉）。艦尾ブロックに左右の主反応炉と主推進機関スラスト・チャンバー。兵装は環状船体の赤道に沿った三連四連レーザー砲台 14 群（計 42 基）。ヴァルチャー 1,500 機、C-9979 上陸艇 50 隻、B1 バトル・ドロイド 13 万 9,000 体、MTT 550 両、AAT 6,250 両。MTT と AAT の大半は上陸艇 1 隻に AAT 114 両・MTT 11 両ずつ積んだまま格納し、1 回の降下で上陸艇 50 隻と MTT がドロイド全軍を降ろせる。ハイパードライブ・クラス 2、加速約 1,300 G はゲーム上の設定値。Sketchfab の 3D モデル（Professor E12^2 作、CC BY 4.0）を実測。',
  airWings:LUC_AIR,groundForces:LUC_GROUND,
  build:lucrehulkBuild
+});
+// v26 The unarmed LH-3210 cargo freighter of the Trade Federation (the same hull; the Separatists and, captured or bought,
+// the Alliance ran them as supply ships). Its holds are the convoy system's big deliveries (Rts CONVOY_KIT).
+registerShipExample({
+ key:'lh3210',name:'LH-3210 型ルクレハルク級貨物船',side:'独立星系連合',role:'貨物船（補給船）',length:3170,supplyShip:true,
+ title:'Lucrehulk',author:'Professor E12^2',authorUrl:'https://sketchfab.com/profanity2009',
+ source:'https://sketchfab.com/3d-models/lucrehulk-8bb11e0ad31e4b23b1783e10242c5115',license:'CC BY 4.0',
+ credit:'This work is based on "Lucrehulk" (https://sketchfab.com/3d-models/lucrehulk-8bb11e0ad31e4b23b1783e10242c5115) by Professor E12^2 (https://sketchfab.com/profanity2009) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',
+ note:'ルクレハルク級の非武装貨物船型。船体・環状船体・推進はルクレハルク級と同じで、四連レーザー砲台と防衛砲を降ろし、その砲座が占めていた容積を貨物倉に戻している（トラクター・ビームは荷役用に残す）。環状船体の上陸艇格納甲板は貨物倉。艦載機・地上部隊は持たない。艦隊戦では補給船団の大型輸送船として使われる。',
+ airWings:[],groundForces:[],
+ build:(opt={})=>lucrehulkBuild({...opt,freighter:true})
 });
 }
 
@@ -9337,7 +28249,7 @@ const electricalSourcePower=p=>isReactor(p)?reactorPower(p):p?.wing?.solar?solar
 function powerDomainGroups(ship){
  const owners=new Map();for(const p of ship.parts||[])owners.set('p'+p.id,p);for(const f of ship.fits||[])owners.set('f'+f.id,f);const parent=new Map();
  const find=x=>{if(!parent.has(x))parent.set(x,x);let y=x;while(parent.get(y)!==y)y=parent.get(y);return y;};for(const p of owners.values())find(powerDomainName(p));
- for(const l of ship.links||[]){const a=owners.get(l.from),b=owners.get(l.to);if(l.kind!=='power'||!a||!b||!(electricalSourcePower(a)>0)&&a.k!=='battery')continue;const x=find(powerDomainName(a)),y=find(powerDomainName(b));if(x!==y)parent.set(y,x);}
+ for(const l of ship.links||[]){const a=owners.get(l.from),b=owners.get(l.to);if(l.kind!=='power'||!a||!b)continue;const x=find(powerDomainName(a)),y=find(powerDomainName(b));if(x!==y)parent.set(y,x);}
  return {owners,of:p=>find(powerDomainName(p)),find};
 }
 function powerDomainProfile(ship,S,mods){
@@ -9345,12 +28257,14 @@ function powerDomainProfile(ship,S,mods){
  // Only explicit cross-domain power links join independent grids. Automatic
  // proximity never crosses an isolation boundary.
  const paths=S.heat?.powerPaths||[];
+ const reachable=new Set([...owners].filter(([,p])=>electricalSourcePower(p)>0).map(([port])=>port));for(let pass=0;pass<=paths.length;pass++){let changed=false;for(const l of paths)if(l.kind==='power'&&l.ok&&l.cap>0&&reachable.has(l.from)&&!reachable.has(l.to)){reachable.add(l.to);changed=true;}if(!changed)break;}
  const map=new Map(),get=id=>{id=find(id);if(!map.has(id))map.set(id,{id,P:0,reactors:[],sources:[],modules:[],protection:1});return map.get(id);};
  for(const p of ship.parts||[])if(electricalSourcePower(p)>0&&!S.info?.[p.id]?.overlap&&!p.surfaceUnplaced){const d=get(powerDomainName(p)),P=electricalSourcePower(p);d.P+=P;d.sources.push({moduleIndex:mods.findIndex(m=>m.part===p.id),P});}
  const generated=[...map.values()].reduce((a,d)=>a+d.P,0);if((S.power||0)>generated)get('main').P+=(S.power||0)-generated;
  for(let i=0;i<mods.length;i++){const m=mods[i],port=m.fit!=null?'f'+m.fit:m.part!=null?'p'+m.part:null,owner=owners.get(port),d=get(owner?powerDomainName(owner):'main');m.domain=d.id;d.modules.push(i);if(m.k==='reactor')d.reactors.push(i);
-  if(owner){m.port=port;if(owner.surfacePatch){m.surfacePatch=owner.surfacePatch;m.surfaceCell=owner.surfaceCell;}m.powerConnected=m.k==='reactor'||paths.some(l=>l.kind==='power'&&l.ok&&l.to===port&&owners.has(l.from)&&find(powerDomainName(owners.get(l.from)))===d.id);}
+  if(owner){m.port=port;if(owner.surfacePatch){m.surfacePatch=owner.surfacePatch;m.surfaceCell=owner.surfaceCell;}m.powerConnected=m.k==='reactor'||reachable.has(port);}
  }
+ for(const m of mods){const part=m.part!=null?owners.get('p'+m.part):null,ownerId=m.machineryOwner??(part?.k==='engine'&&part.machineryId!==part.id?part.machineryId:null),owner=ownerId!=null?mods.find(q=>q.k==='engine'&&q.part===ownerId):null;if(owner){m.domain=owner.domain;if(m.machineryOwner!=null)m.port=owner.port;m.powerConnected=owner.powerConnected;}}
  return [...map.values()];
 }
 function powerState(u){return u.gridState||(u.gridState={domains:{},local:{},last:null});}
@@ -9395,8 +28309,8 @@ function shieldReceive(u,packet={},ctx){
 function shieldStatus(u){return {defense:u?.shield||0,capacity:u?.shieldMax||0,transient:u?.shieldTransient||0,transientCapacity:(u?.shieldMax||0)*SHIELD_MODEL.transientShare,ledger:u?.shieldLedger?{...u.shieldLedger}:null,last:u?.lastShieldHit?{...u.lastShieldHit}:null};}
 function coolingPowerReserve(u,got,g,dt,supplyW=g?.P||0){
  const rated=Math.max(0,g?.cooling||0);if(!u||!(rated>0))return {fixed:Math.max(0,g?.fixed||0),reserved:0,draw:0};
- const fixed=Math.max(0,(g.fixed||0)-rated),reserved=Math.min(rated,Math.max(0,Math.min(g.fixed||0,got.draw||0)-fixed)),h=heatOf(u),c=h?(h.cooling||(h.cooling={reserveJ:0,reservedJ:0,inputJ:0,heatJ:0,reactorWasteJ:0,handledJ:0,lastDraw:0})):null;
- got.draw=Math.max(0,(got.draw||0)-reserved);got.load=supplyW>0?got.draw/supplyW:0;if(c){c.reserveJ+=reserved*Math.max(0,dt||0);c.reservedJ+=reserved*Math.max(0,dt||0);c.rated=rated;c.lastDraw=Math.min(c.lastDraw||0,reserved);}return {fixed,reserved,draw:c?.lastDraw||0};
+ const fixed=got.fixedGranted??Math.max(0,(g.fixed||0)-rated),reserved=got.coolingGranted??Math.min(rated,Math.max(0,Math.min(g.fixed||0,got.draw||0)-fixed)),h=heatOf(u),c=h?(h.cooling||(h.cooling={reserveJ:0,reservedJ:0,inputJ:0,heatJ:0,reactorWasteJ:0,handledJ:0,lastDraw:0})):null;
+ got.draw=Math.max(0,(got.draw||0)-reserved);got.load=supplyW>0?got.draw/supplyW:0;if(c){c.reserveJ+=reserved*Math.max(0,dt||0);c.reservedJ+=reserved*Math.max(0,dt||0);c.rated=rated;c.lastDraw=Math.min(c.lastDraw||0,reserved);if(got.coolingInputs?.length){c.reserveByNodeJ=c.reserveByNodeJ||{};c.reserveByNodeSourceJ=c.reserveByNodeSourceJ||{};for(const q of got.coolingInputs)if(q.id){c.reserveByNodeJ[q.id]=(c.reserveByNodeJ[q.id]||0)+Math.max(0,q.W||0)*Math.max(0,dt||0);const target=c.reserveByNodeSourceJ[q.id]||(c.reserveByNodeSourceJ[q.id]={});for(const [source,W]of Object.entries(q.sourceInputs||{}))target[source]=(target[source]||0)+Math.max(0,W)*Math.max(0,dt||0);}}c.sources=Object.fromEntries((got.propulsion?.power?.sources||[]).map(source=>[source.id,source]));}return {fixed,reserved,draw:c?.lastDraw||0};
 }
 function ionHitDomain(u,hit={}){
  const mods=u.p.modules||[],domains=u.p.grid?.domains||[{id:'main',P:u.p.grid?.P||0,modules:mods.map((_,i)=>i)}];let mi=Number.isInteger(hit.moduleIndex)?hit.moduleIndex:-1;
@@ -9416,19 +28330,17 @@ function ionOverload(u,energy,hit={},ctx){
  u.ionK=clamp(d.load/Math.max(1,gridLimit),0,1);const rec={incoming:energy,coupled,external,heat,domain:id,module:mi,scope,restart,pulseSeconds:ION_MODEL.pulseSeconds};u.lastIonHit=rec;return rec;
 }
 function fleetPowerStep(u,s,t,raw,dt,volley=1){
- const p=u.p,g=p.grid,o=u.order;
+ const p=u.p,g=p.grid,o=u.order||{power:'balanced'};
  const mode=o.power==='auto'||!POWER_MODES[o.power]?fleetAutoPower(u,t,raw>0):o.power,M=POWER_MODES[mode];u.mode=mode;
  const weapons=(p.modules||[]).map((m,i)=>({m,i})).filter(x=>x.m.k==='weapon'),physical=weapons.length?weapons.reduce((a,{m,i})=>a+(m.share||0)*Math.max(0,u.mods?.[i]??1),0):1,cap=(p.wCap||0)*physical,nominalShield=g?g.Ds*s.shield:0;
- if(!g){u.load=.7;u.engF=1;u.shF=1;u.pw=null;return raw>0?1:0;}
- const P=g.P*s.reactor*swPower(u)*heatLim(u,'reactor')*EMCON[emconOf(u)].P,regen=u.shield<u.shieldMax*.999||u.underFire||(u.bank||0)<(u.bankMax||0)*.999,man=u.out?0:clamp(u.maneuver||0,0,1);
- const full=Math.min(P*COMBAT.engineCap,g.De*COMBAT.engineDraw)*s.engine;
+ if(!g){u.load=0;u.engF=0;u.shF=0;u.pw=null;u.propulsion=solveShipPropulsion(p.propulsion||{engines:[],massKg:0},{throttle:0});return 0;}
+ const regen=u.shield<u.shieldMax*.999||u.underFire||(u.bank||0)<(u.bankMax||0)*.999,man=u.out?0:clamp(Math.max(u.maneuver||0,u._tractorResistance||0),0,1);
  // A disabled ship's shield generators fail with it: its shields fade.
  // v23 The heat network limits what an overheating system may draw (heatLim is 1 until its stores fill).
- const want={engines:u.out?0:full*(.06+.94*man)*heatLim(u,'engine'),shields:u.out?0:nominalShield*(regen?M.shields:1)*heatLim(u,'shield'),weapons:u.out?0:Math.min(g.Dw*s.weapon*M.weapons,TT*(raw+Math.max(0,cap-u.energy)/dt))*heatLim(u,'weapon')};
- const got=powerSplit(P,g.fixed,want,mode);let surfaceFire=null;
+ const want={throttle:man,shields:u.out?0:nominalShield*(regen?M.shields:1)*heatLim(u,'shield'),weapons:u.out?0:Math.min(g.Dw*s.weapon*M.weapons,TT*(raw+Math.max(0,cap-(u.energy||0))/Math.max(1e-9,dt)))*heatLim(u,'weapon'),deferHeat:true};
+ const {got,P,cooling}=allocateShipPower(u,s,want,dt,mode);let surfaceFire=null;
  if(p.surface?.mounts&&typeof surfacePowerStep==='function'){surfaceFire=surfacePowerStep(u,s,t,raw,dt,got.weapons,volley);const accepted=dt>0?(u.surfaceLastFire?.charged||0)*weaponInputFactor(p)*TT/dt:0;got.draw-=Math.max(0,got.weapons-accepted);got.weapons=Math.min(got.weapons,accepted);got.load=P>0?got.draw/P:0;}
- const cooling=coolingPowerReserve(u,got,g,dt,P);heatAccrue(u,got,cooling.fixed,dt);u.load=P>0?(got.draw+cooling.draw)/P:0;u.engF=P>0&&s.engine>0&&full>0?(want.engines>0?got.engines/want.engines:1):0;u.shF=nominalShield>0?got.shields/nominalShield:0;
- u.pw={P,fixed:Math.min(cooling.fixed,got.draw)+cooling.draw,coolingReserved:cooling.reserved,cooling:cooling.draw,drawNonCooling:got.draw,eng:got.engines,sh:got.shields,wpn:got.weapons,wantEng:want.engines,wantSh:want.shields,wantWpn:want.weapons};
+ heatAccrue(u,got,cooling.fixed,dt);u.load=P>0?(got.draw+cooling.draw)/P:0;u.shF=nominalShield>0?got.shields/nominalShield:0;u.pw.drawNonCooling=got.draw;u.pw.draw=got.draw+cooling.draw;u.pw.wpn=got.weapons;
  if(surfaceFire!=null)return surfaceFire;
  const eta=1/weaponInputFactor(p),avail=u.energy+got.weapons*dt/TT*eta,request=raw*eta*dt,spend=powerFactor(u,'weapon')>0?Math.min(avail,request):0,fire=request>0?spend/request:0,spill=Math.max(0,avail-spend-cap);u.energy=clamp(avail-spend,0,cap);if(spill>0){const h=heatOf(u);if(h)h.e.weapon+=spill*TT;u.capacitorLedger={releasedJ:(u.capacitorLedger?.releasedJ||0)+spill*TT};}return fire;
 }
@@ -9442,8 +28354,6 @@ const COMBAT={
  frame:.45,         // share of a penetrating hit taken by the section's frames
  through:.6,        // energy a shot keeps after passing through a module
  maxPath:3,         // modules one penetrating hit can pass through
- engineDraw:4.5,    // engines at full thrust draw this many times their rated demand…
- engineCap:.92,     // …up to this share of reactor output
  ionShield:1, ionHull:.1, ionDrain:0, ionBank:0, ionReactor:0, ionTau:20,
  bankRate:1,        // power cells feed the field at up to this many times the generator's rating
  fireGrow:.03, fireDC:.04, fireDmg:.5, fireCrew:.001, fireFrame:.08, fireSpread:.04,
@@ -9498,6 +28408,78 @@ function powerSplit(P,fixed,want,mode){
  for(const k of m.order){const g=Math.min(left,Math.max(0,want[k]||0));got[k]=g;left-=g;}
  const draw=Math.min(top,fixed)+got.engines+got.shields+got.weapons;return {...got,draw,load:P>0?draw/P:0,short:fixed>top};
 }
+// A single electrical ledger serves all consumers. Directed paths and source
+// limits are consumed once, including a trunk shared by several engines.
+const connectedPowerTopology=new WeakMap();
+function allocateConnectedPower({sources=[],links=[],loads=[],mode='balanced'}={}){
+ const positive=v=>Number.isFinite(v)&&v>0?v:0,M=POWER_MODES[mode]||POWER_MODES.balanced;
+ const source=sources.map(s=>({...s,powerW:positive(s.powerW),left:positive(s.powerW)*M.max})),granted=Object.fromEntries(loads.map(l=>[l.id,0])),funding=Object.fromEntries(loads.map(l=>[l.id,Object.create(null)])),domain=Object.create(null),sourceAt=new Map();
+ for(let i=0;i<source.length;i++){const s=source[i];if(!sourceAt.has(s.id))sourceAt.set(s.id,[]);sourceAt.get(s.id).push(i);domain[s.domain||'main']=(domain[s.domain||'main']||0)+s.left;}
+ let topology=connectedPowerTopology.get(links);if(!topology){const incoming=new Map(),edges=[];for(const l of links){if(l.ok===false||!l.from||!l.to)continue;const i=edges.length;edges.push(l);if(!incoming.has(l.to))incoming.set(l.to,[]);incoming.get(l.to).push(i);}topology={incoming,edges};connectedPowerTopology.set(links,topology);}
+ const {incoming,edges}=topology,left=edges.map(l=>l.cap==null?Infinity:positive(l.cap)),P=source.reduce((a,s)=>a+s.powerW,0);
+ const route=load=>{
+   let si=-1,path=[];
+   if(!links.length){si=source.findIndex(s=>s.left>0&&(s.domain||'main')===(load.domain||'main'));}
+   else if(load.port){const queue=[load.port],seen=new Set(queue),previous=new Map();for(let q=0;q<queue.length&&si<0;q++){const node=queue[q],ids=sourceAt.get(node)||[];si=ids.find(i=>source[i].left>0)??-1;if(si>=0){let at=node;while(previous.has(at)){const e=previous.get(at);path.push(e);at=edges[e].to;}break;}for(const e of incoming.get(node)||[]){const from=edges[e].from;if(!(left[e]>0)||seen.has(from))continue;seen.add(from);previous.set(from,e);queue.push(from);}}}
+   return si>=0?{si,path}:null;};
+ const order=['fixed','cooling',...M.order];for(const kind of order){const selected=loads.filter(l=>l.kind===kind&&positive(l.requestedInputW)>0),total=selected.reduce((a,l)=>a+positive(l.requestedInputW),0);if(!(total>0))continue;
+  // Proportional rounds avoid making an engine's ID decide which parallel
+  // branch receives all the remaining shared supply.
+  for(let round=0;round<Math.max(16,source.length+edges.length);round++){const offers=[],edgeDemand=new Float64Array(edges.length),sourceDemand=new Float64Array(source.length);for(const l of selected){const need=Math.max(0,positive(l.requestedInputW)-(granted[l.id]||0)),r=need>total*1e-12?route(l):null;if(!r)continue;offers.push({l,need,...r});sourceDemand[r.si]+=need;for(const e of r.path)edgeDemand[e]+=need;}let moved=0;for(const r of offers){let ratio=Math.min(1,source[r.si].left/Math.max(1e-30,sourceDemand[r.si]));for(const e of r.path)ratio=Math.min(ratio,left[e]/Math.max(1e-30,edgeDemand[e]));r.fed=r.need*ratio;}for(const r of offers){source[r.si].left=Math.max(0,source[r.si].left-r.fed);for(const e of r.path)left[e]=Math.max(0,left[e]-r.fed);granted[r.l.id]=(granted[r.l.id]||0)+r.fed;const id=source[r.si].id;funding[r.l.id][id]=(funding[r.l.id][id]||0)+r.fed;moved+=r.fed;}if(!(moved>Math.max(1e-12,total*1e-12)))break;}
+ }
+ const byKind={engines:0,shields:0,weapons:0,fixed:0,cooling:0};for(const l of loads)byKind[l.kind]=(byKind[l.kind]||0)+(granted[l.id]||0);const draw=Object.values(byKind).reduce((a,b)=>a+b,0);
+ return {...byKind,granted,funding,consumers:loads.map(l=>({id:l.id,kind:l.kind,grantedInputW:granted[l.id]||0})),P,draw,load:P>0?draw/P:0,short:byKind.fixed<loads.filter(l=>l.kind==='fixed').reduce((a,l)=>a+positive(l.requestedInputW),0),sources:source.map(s=>({id:s.id,moduleIndex:s.moduleIndex,reactor:s.reactor,domain:s.domain||'main',availableW:s.powerW*M.max,drawW:s.powerW*M.max-s.left})),domains:Object.entries(domain).map(([id,availableW])=>({id,availableW,drawW:source.filter(s=>(s.domain||'main')===id).reduce((a,s)=>a+s.powerW*M.max-s.left,0)}))};
+}
+function solveShipPropulsion(profile,context={}){
+ const states=Object.create(null);for(const e of profile?.engines||[])states[e.id]={available:e.available,connected:e.connected,outletAvailable:e.outletAvailable,pathCapacityW:e.pathCapacityW,...(context.states instanceof Map?context.states.get(e.id):context.states?.[e.id])};
+ if(!(Number.isFinite(profile?.massKg)&&profile.massKg>0))for(const state of Object.values(states))state.available=false;
+ const requests=buildPropulsionRequests(profile?.engines||[],states,context.throttle??1),loads=[...(context.otherLoads||[]),...requests.map(r=>({id:'engine:'+r.id,kind:'engines',port:r.spec.powerNode||'p'+r.id,domain:r.spec.domain||'main',requestedInputW:r.requestedInputW}))],power=allocateConnectedPower({sources:context.sources||[],links:context.links||[],loads,mode:context.mode||'balanced'}),inputs=Object.create(null);
+ for(const r of requests)inputs[r.id]=power.granted['engine:'+r.id]||0;const result=resolvePropulsion(requests,inputs,profile?.massKg),limit=Number.isFinite(profile?.accelerationLimitMps2)?Math.max(0,profile.accelerationLimitMps2):Infinity,hasSeparateLimit=Number.isFinite(profile?.structuralAccelerationLimitMps2)&&Number.isFinite(profile?.inertialFactor),actual=hasSeparateLimit?Math.min(result.freeAccelerationMps2||0,Math.max(0,profile.structuralAccelerationLimitMps2))*clamp(profile.inertialFactor,0,1):Math.min(result.freeAccelerationMps2||0,limit),ratedThrustN=profile?.ratedThrustN||0;
+ const machinery=new Map();for(const e of profile?.engines||[])if(!machinery.has(e.machineryId??e.id))machinery.set(e.machineryId??e.id,e);
+ return {...result,version:1,ratedInputW:[...machinery.values()].reduce((a,e)=>a+(Number.isFinite(e.ratedInputW)?Math.max(0,e.ratedInputW):0),0),ratedThrustN,ratedAccelMps2:profile?.ratedAccelMps2||0,actualInputW:result.totalActualInputW||0,actualThrustN:result.totalThrustN||0,actualAccelMps2:actual,cappedAccelerationMps2:actual,accelerationMps2:actual,outputRatio:ratedThrustN>0?clamp((result.totalThrustN||0)/ratedThrustN,0,1):0,power};
+}
+function propulsionModuleHeat(u,kind,index){const H=heatProfile(u.p),h=u.ht;if(!H||!h)return 1;const i=H.src.findIndex(s=>s.k===kind&&s.m?.includes(index));return i>=0?clamp(h.lm?.[i]??1,0,1):heatLim(u,kind);}
+function shipPowerSources(u,s={}){
+ const p=u.p,g=p.grid||{},mods=p.modules||[],domains=g.domains?.length?g.domains:[{id:'main',P:g.P||0}],out=[],em=EMCON[emconOf(u)].P;
+ for(const d of domains){let sources=d.sources;if(!sources?.length){const rs=mods.map((m,i)=>({m,i})).filter(x=>x.m.k==='reactor'&&(x.m.domain||'main')===d.id),total=rs.reduce((a,x)=>a+Math.max(0,x.m.size||x.m.share||1),0);sources=rs.length?rs.map(x=>({moduleIndex:x.i,P:(d.P||0)*Math.max(0,x.m.size||x.m.share||1)/total})):[{moduleIndex:-1,P:d.P||0}];}
+  for(let j=0;j<sources.length;j++){const x=sources[j],mi=x.moduleIndex??-1,m=mods[mi],id=m?.port||(m?.part!=null?'p'+m.part:'domain:'+d.id+':'+j),physical=mi>=0?clamp(u.mods?.[mi]??1,0,1):clamp(s.reactor??1,0,1),connected=mi>=0?powerFactor(u,m?.k||'reactor',mi):u.gridState?.domains?.[d.id]?.trip>0?0:1,thermal=mi>=0?propulsionModuleHeat(u,'reactor',mi):heatLim(u,'reactor');let factor=1;
+   if(u.down&&u.down.reason!=='ion-grid')factor*=u.down.black?0:m&&m.k==='reactor'&&m.reactorKind!=='aux'&&g.Paux>0?0:clamp(u.down.aux??1,0,1);
+   for(const o of u.over||[])if(o.r===m?.part)factor=Math.min(factor,1-o.k*Math.max(0,o.t)/Math.max(1e-9,o.T));let W=Math.max(0,x.P||0)*physical*connected*thermal*em*clamp(factor,0,1);
+   for(let k=0;k<(p.sw||[]).length;k++){const w=p.sw[k],state=u.sw?.[k];if(w.r===m?.part&&state?.st==='charge'&&state.c<1)W=Math.max(0,W-(w.chargeW>0?w.chargeW:SW_COMBAT[w.k].share*(w.Pshare||0)*(g.P||0))*swChargeRate(u,k));}
+   out.push({id,domain:d.id,powerW:W,moduleIndex:mi,reactor:m?m.k==='reactor':true});}
+ }return out;
+}
+function shipPowerLoads(u,want={}){
+ const p=u.p,g=p.grid||{},mods=p.modules||[],loads=[],add=(kind,total,rows)=>{if(!(total>0))return;const all=rows.reduce((a,r)=>a+Math.max(0,r.weight||0),0);if(!rows.length){loads.push({id:kind,kind,domain:'main',requestedInputW:total});return;}for(const r of rows)loads.push({id:kind+':'+r.id,kind,port:r.port,domain:r.domain||'main',requestedInputW:total*Math.max(0,r.weight||0)/Math.max(1e-30,all)});};
+ const rows=kind=>mods.map((m,i)=>({m,i})).filter(x=>x.m.k===kind).map(({m,i})=>({id:i,port:m.port||(m.part!=null?'p'+m.part:m.fit!=null?'f'+m.fit:null),domain:m.domain||'main',weight:Math.max(0,m.share||m.size||1)*(powerFactor(u,kind,i)>0?1:0)}));
+ add('fixed',Math.max(0,(g.fixed||0)-(g.cooling||0)),g.fixedLoads||[]);add('cooling',Math.max(0,g.cooling||0),g.coolingLoads||[]);add('shields',Math.max(0,want.shields||0),rows('shield'));add('weapons',Math.max(0,want.weapons||0),rows('weapon'));return loads;
+}
+function attachShipPowerProfile(out,ship,S){
+ const groups=powerDomainGroups(ship),owner=new Map((ship.parts||[]).map(p=>['p'+p.id,p])),net=S.heat?.net,mods=out.modules||[];for(const f of ship.fits||[])owner.set('f'+f.id,f);
+ out.grid=out.grid||{P:S.power||0,fixed:(S.draw?.hotel||0)+(S.draw?.ray||0),cooling:S.dissipatorPower||0,De:S.draw?.engines||0,Ds:S.draw?.shields||0,Dw:S.draw?.weapons||0};out.grid.domains=powerDomainProfile(ship,S,mods);out.grid.powerPaths=(S.heat?.powerPaths||[]).filter(l=>l.ok).map(l=>({...l}));
+ const downstream=new Set(out.grid.powerPaths.map(l=>l.from)),sourcePorts=new Set((ship.parts||[]).filter(p=>electricalSourcePower(p)>0).map(p=>'p'+p.id));out.grid.trunks=[...downstream].filter(port=>!sourcePorts.has(port)).map(port=>({port,moduleIndex:mods.findIndex(m=>m.port===port)})).filter(t=>t.moduleIndex>=0);
+ const row=(id,weight)=>({id,port:id,weight:Math.max(0,weight||0),domain:owner.has(id)?groups.of(owner.get(id)):'main'});out.grid.fixedLoads=(net?.src||[]).filter(s=>s.k==='hotel').map(s=>row(s.id,s.powerWeight??s.size??s.rated?.combat??1));out.grid.coolingLoads=(net?.dis||[]).filter(d=>d.power>0).map(d=>row(d.id,d.power));
+ out.propulsion=propulsionProfile(ship,S);for(const e of out.propulsion.engines){const m=mods[e.moduleIndex];if(m)e.domain=m.domain||'main';}return out;
+}
+const shipRuntimePowerPaths=new WeakMap();
+function shipPowerPaths(u){
+ const g=u.p.grid||{},paths=g.powerPaths||[],trunks=g.trunks||[];if(!trunks.length)return paths;const factors=trunks.map(t=>clamp(u.mods?.[t.moduleIndex]??1,0,1)*powerFactor(u,u.p.modules?.[t.moduleIndex]?.k,t.moduleIndex)),previous=shipRuntimePowerPaths.get(u);
+ if(previous&&previous.paths===paths&&factors.every((f,i)=>f===previous.factors[i]))return previous.links;const byPort=new Map(trunks.map((t,i)=>[t.port,factors[i]])),links=paths.map(l=>({...l,cap:(l.cap??Infinity)*(byPort.get(l.from)??1)}));shipRuntimePowerPaths.set(u,{paths,factors,links});return links;
+}
+function propulsionPreview(ship,S,preset='combat'){
+ const X=HEAT_PRESETS[preset]||HEAT_PRESETS.combat,M=POWER_MODES[X.mode],p={modules:fleetModules(ship,S),energyModel:{version:ship.surfaces?.mode==='strict'?1:0}};attachShipPowerProfile(p,ship,S);const u={p,mods:p.modules.map(()=>1),order:{emit:'normal'}};
+ const result=solveShipPropulsion(p.propulsion,{throttle:X.eng,sources:shipPowerSources(u,{reactor:1}),links:p.grid.powerPaths,mode:X.mode,otherLoads:shipPowerLoads(u,{shields:p.grid.Ds*X.sh,weapons:p.grid.Dw*M.weapons*X.wpn})});result.preset=preset;return result;
+}
+// Shared by fleet combat and the direct-control trial; weapon stores are spent
+// by their caller after this one allocation has charged them.
+function allocateShipPower(u,s={},want={},dt=0,mode='balanced'){
+ const p=u.p,g=p.grid||{},profile=p.propulsion||{engines:[],massKg:0,ratedThrustN:0,ratedAccelMps2:0},states=Object.create(null),H=heatProfile(p),h=heatOf(u);
+ for(const e of profile.engines||[]){const mi=e.moduleIndex??(p.modules||[]).findIndex(m=>m.k==='engine'&&m.part===e.id),owner=(p.modules||[]).findIndex(m=>m.k==='engine'&&m.part===e.machineryId),body=e.machineryModuleIndex??-1,hi=e.heatNode!=null?(H?.src.findIndex(s=>s.k==='engine'&&s.id===e.heatNode)??-1):-1,thermal=hi>=0?clamp(h?.lm?.[hi]??1,0,1):mi>=0?propulsionModuleHeat(u,'engine',mi):heatLim(u,'engine'),damage=mi>=0?clamp(u.mods?.[mi]??1,0,1):0;states[e.id]={damageLimit:body>=0?Math.min(damage,clamp(u.mods?.[body]??1,0,1)):damage,thermalLimit:thermal,available:!u.dead&&!u.out&&e.available!==false,connected:mi>=0&&powerFactor(u,'engine',mi)>0&&(owner<0||powerFactor(u,'engine',owner)>0)&&(body<0||powerFactor(u,'engine',body)>0),outletAvailable:e.outletAvailable!==false};}
+ const otherLoads=shipPowerLoads(u,want),propulsion=solveShipPropulsion(profile,{states,throttle:want.throttle??u.maneuver??0,sources:shipPowerSources(u,s),links:shipPowerPaths(u),mode,otherLoads}),power=propulsion.power,P=power.P,got={engines:power.engines,shields:power.shields,weapons:power.weapons,draw:power.draw,load:power.load,fixedGranted:power.fixed,coolingGranted:power.cooling,coolingInputs:otherLoads.filter(l=>l.kind==='cooling').map(l=>({id:l.port||l.id,W:power.granted[l.id]||0,sourceInputs:power.funding[l.id]})),propulsion,domains:power.domains};
+ const cooling=coolingPowerReserve(u,got,g,dt,P);u.propulsion=propulsion;u.engF=propulsion.outputRatio;u.load=P>0?(got.draw+cooling.draw)/P:0;u.pw={P,fixed:power.fixed+cooling.draw,coolingReserved:cooling.reserved,cooling:cooling.draw,drawNonCooling:got.draw,draw:got.draw+cooling.draw,eng:got.engines,sh:got.shields,wpn:got.weapons,wantEng:propulsion.totalRequestedInputW,wantSh:want.shields||0,wantWpn:want.weapons||0,domains:power.domains};
+ u.pw.weaponInputs=Object.fromEntries(otherLoads.filter(l=>l.kind==='weapons').map(l=>[l.id.slice('weapons:'.length),power.granted[l.id]||0]));u.pw.weaponInputRemainingJ=Object.fromEntries(Object.entries(u.pw.weaponInputs).map(([mi,W])=>[mi,W*Math.max(0,dt)]));
+ if(!want.deferHeat)heatAccrue(u,got,cooling.fixed,dt);return {got,P,propulsion,cooling};
+}
 // 'auto' runs balanced, turns to the shields when they run low and drives the
 // weapons to finish a target whose shields are down.
 const POWER_AUTO_NOTE='シールドが35%を切ると防御優先、射程内で機動が小さいとき（停止・定位置）と目標のシールドが落ちたときは兵装優先、それ以外は均衡で戦います。装甲を抜かれている間は炉を100%に抑えて炉心誘爆を避けます。全力機動中は推進が出力の大半を使います。';
@@ -9543,12 +28525,12 @@ function fleetModules(ship,S){
   mods.push(place({k,fit:f.id,name:d.short||d.name,w:s.fm*s.wm*1.2*(mm?mm.expose:1),hits:clamp(Math.round(Math.max(s.fm,s.wm)/24),1,4),crew:s.crew||0,size:k==='weapon'?(s.tt||0)+(s.ion||0)+(s.aa||0)*.5:1,stock:k==='launcher'?Math.round(mm.stock*MAGAZINE_MISSILES/120*cellK):0,mount:mm?missileMount(f):undefined,ion:k==='launcher'&&d.ionMsl?1:undefined,at:+clamp((f.p[0]-X0)/L,0,1).toFixed(3),pd:k==='weapon'&&weaponRoles(d).pointDefense,dualPurpose:k==='weapon'&&weaponRoles(d).dualPurpose,band:k==='weapon'?fitBand(d):undefined},f.p,Math.max(s.fm,s.wm)/2));}
  for(const f of intrinsicCommandFits(ship)){const d=FITS[f.k];if(!d||(d.role!=='bridge'&&d.role!=='combat')||(S.commandInfo?.[f.id]?.ratio??0)<=0)continue;mods.push(place({k:'bridge',name:d.short||d.name,w:(f.width||15)*(f.height||6)*1.2,hits:1,crew:d.crew||16,size:1,at:+clamp((f.p[0]-X0)/L,0,1).toFixed(3)},f.p,(f.width||15)/2));}
  for(const p of [...allOccupied(ship),...ship.parts.filter(isWing)]){
-  if(p.windowId!=null)continue;const V=partVolume(p);if(!(V>0)||(!isWing(p)&&!(V>1)))continue;const k=isWing(p)?p.wing.thermal==='low'&&!p.wing.solar?'radiator':'dissipator':MODULE_PART_KIND[p.k]||'other';
+  if(p.windowId!=null)continue;const V=partVolume(p);if(!(V>0))continue;const k=isWing(p)?p.wing.thermal==='low'&&!p.wing.solar?'radiator':'dissipator':MODULE_PART_KIND[p.k]||'other';
   let w=Math.pow(V,2/3)*((p._packing?.retained??p._clip?.retained??1)<.97?1.5:1);if(CRIT_MODULES.has(k))w*=protect;
   // v23 External dissipators stand out of the hull: they present more to fire and are as fragile as a turret.
   const ext=(isWing(p)||DISSIPATORS[p.k]?.ext)&&(S.info?.[p.id]?.exposed||0)>.2;if(ext)w*=1+2*(S.info[p.id].exposed||0);
   const credited=k==='quarters'?(commonHab.explicitByPart?.[p.id]??0):V;const m={k,name:partLabel(p),w:k==='quarters'?Math.pow(credited,2/3)*QUARTERS_WEIGHT:w,hits:clamp(Math.round(Math.cbrt(V)/22),1,5),crew:V*(PARTS[p.k]?.crew||0)/1000,size:credited,at:+clamp(((p.c?.[0]??X0+L/2)-X0)/L,0,1).toFixed(3)};
-  if((k==='capacitor'||k==='magazine')&&byFit.has(p.weaponId))m.link=byFit.get(p.weaponId);if(p.id>0)m.part=p.id;if(ext)m.ext=1;mods.push(place(m,p.c,Math.cbrt(V)/2));}
+  if((k==='capacitor'||k==='magazine')&&byFit.has(p.weaponId))m.link=byFit.get(p.weaponId);if(p.id>0||p.k==='machinery'&&p.id<0)m.part=p.id;if(p.k==='machinery')m.machineryOwner=-p.id;if(ext)m.ext=1;mods.push(place(m,p.c,Math.cbrt(V)/2));}
  // v19: the crew and troops live in the free volume; hits through it kill people
  // (living zones by quarter length, weighted lightly against the systems).
  const hab=habitationSpace(ship);if(hab.points?.length){const dv=hab.cell.reduce((a,b)=>a*b,1),zones=[0,1,2,3].map(()=>({n:0,c:[0,0,0]}));
@@ -9563,13 +28545,14 @@ function fleetModules(ship,S){
 // 1,230 G / 40 MGLT give the same power), and a little the engines' depth: a longer drive channel (depth over
 // bore, thrust-weighted, against 4) gives a faster exhaust. One MGLT is 20 m/s in battle (ISD 60 = 1,200 m/s).
 const MGLT={k:2.57,a:.42,depth:.05,ref:4,ms:20,cap:200};
-function engineDepthRatio(ship){if(!ship?.parts)return MGLT.ref;let T=0,r=0;for(const p of ship.parts){if(p.k!=='engine')continue;const t=nozzleThrust(p),dep=(p.engineLength??0)||((p.nozzleLength||0)+(p.bodyLength||0)),d=+p.d||1;if(!(t>0)||!(dep>0))continue;T+=t;r+=t*dep/d;}return T>0?r/T:MGLT.ref;}
+function engineDepthRatio(ship){return MGLT.ref;}
 function sublightMGLT(G,ratio=MGLT.ref){if(!(G>0))return 0;return Math.min(MGLT.cap,MGLT.k*Math.pow(G,MGLT.a)*Math.pow(clamp(ratio/MGLT.ref,.5,2),MGLT.depth));}
-const FLEET_PROFILE_VERSION=2;
+const FLEET_PROFILE_VERSION=4;
 function fleetProfile(S,name,ship){
  if(ship&&!ship._surfaceWorking&&!ship._surfaceCompiling&&ship.surfaces?.version===SURFACE_VERSION)return fleetProfile(S,name,surfaceWorkingShip(ship));
- const p=profile(S,name),accel=Math.max(0,S.accelG||0)*G0*FLEET_RULES.accelScale,dr=S.draw||{},mglt=S.craft?craftSpeed(S.accelG||0)/MGLT.ms:sublightMGLT(S.accelG||0,engineDepthRatio(ship));   // craft: the canon fighter scale (craftSpeed)
- const out={...p,profileVersion:FLEET_PROFILE_VERSION,embarkedSlots:Math.floor(S.slots||0),aviationSize:S.aviation?.usedSize||0,launch:S.launchPotential??p.launch,slidingHatches:S.slidingHatches||0,hatchOpenSeconds:S.slidingHatches?S.hatchOpenSeconds||4:0,hatchCloseSeconds:S.slidingHatches?S.hatchCloseSeconds||4:0,gunArcs:[...S.alphaRate],ionArcs:[...S.ionRate],aaArcs:[...(S.aaArc||[0,0,0,0,0,0])],accel,mglt:Math.round(mglt*10)/10,maxSpeed:accel>0?mglt*MGLT.ms:0,turnRate:accel>0?clamp(.11*Math.sqrt(Math.max(1,S.accelG)/3000)*Math.sqrt(1600/Math.max(100,p.len)),.015,.24)*(S.craftSystems?.turnK??1):0,width:S.dims[1],height:S.dims[2],power:S.xISD};
+ const model=ship?propulsionProfile(ship,S):S.propulsion,planningAcceleration=Math.max(0,Math.min(model?.ratedAccelMps2??S.ratedAccelMps2??0,model?.accelerationLimitMps2??S.maximumAccelMps2??0)),planningG=planningAcceleration/G0;
+ const p=profile({...S,accelG:planningG},name),accel=planningAcceleration*FLEET_RULES.accelScale,dr=S.draw||{},mglt=S.craft?craftSpeed(planningG)/MGLT.ms:sublightMGLT(planningG,engineDepthRatio(ship));   // craft: the canon fighter scale (craftSpeed)
+ const out={...p,profileVersion:FLEET_PROFILE_VERSION,embarkedSlots:Math.floor(S.slots||0),aviationSize:S.aviation?.usedSize||0,launch:S.launchPotential??p.launch,slidingHatches:S.slidingHatches||0,hatchOpenSeconds:S.slidingHatches?S.hatchOpenSeconds||4:0,hatchCloseSeconds:S.slidingHatches?S.hatchCloseSeconds||4:0,gunArcs:[...S.alphaRate],ionArcs:[...S.ionRate],aaArcs:[...(S.aaArc||[0,0,0,0,0,0])],accel,mglt:Math.round(mglt*10)/10,maxSpeed:accel>0?mglt*MGLT.ms:0,turnRate:accel>0?clamp(.11*Math.sqrt(Math.max(1,planningG)/3000)*Math.sqrt(1600/Math.max(100,p.len)),.015,.24)*(S.craftSystems?.turnK??1):0,width:S.dims[1],height:S.dims[2],power:S.xISD};
  if(S.craftSystems)out.systems=cleanCraftSystems(S.craftSystems);
  out.energyModel={version:ship?.surfaces?.mode==='strict'?1:0,eta:ENERGY_MODEL.eta,unit:ship?.surfaces?.mode==='strict'?'energy':'legacy-effect',assumption:true};
  // Power figures in watts; weapon energy in TT (one TT fired costs one TT stored).
@@ -9581,7 +28564,7 @@ function fleetProfile(S,name,ship){
  out.wCap=ship?ship.fits.filter(f=>FITS[f.k]?.cat==='w'&&!f.float).reduce((n,f)=>{const s=fitSpec(f);return n+(needsCapacitor(f)?S.chargeInfo?.[f.id]?.storedTT||0:(s.tt||0)+(s.ion||0));},0):(S.alphaTot||0)+(S.ionTot||0);
  if(S.bandRate)out.gunBands={long:[...S.bandRate.long],mid:[...S.bandRate.mid],close:[...S.bandRate.close]};
  if(ship){const dp={gunBands:Object.fromEntries(Object.keys(GUN_BANDS).map(k=>[k,Array(6).fill(0)])),gunArcs:Array(6).fill(0),aaArcs:Array(6).fill(0),aa:0};for(const f of ship.fits){const d=fitSpec(f);if(f.float||!weaponRoles(d).dualPurpose)continue;const arc=S.fitInfo?.[f.id];if(!Array.isArray(arc))continue;const cr=needsCapacitor(f)?S.chargeInfo?.[f.id]?.ratio||0:1,rate=(d.tt||0)*cr/(d.cycle||K.cycle),band=fitBand(d);for(let i=0;i<6;i++){dp.gunBands[band][i]+=rate*arc[i];dp.gunArcs[i]+=rate*arc[i];dp.aaArcs[i]+=(d.aa||0)*arc[i];}dp.aa+=(d.aa||0)*Math.min(1,arc.reduce((a,b)=>a+b,0)/6*1.6);}if(dp.aa>0)out.dualPurpose=dp;}
- if(ship){out.modules=fleetModules(ship,S);out.grid.domains=powerDomainProfile(ship,S,out.modules);const hs=hullSectionShares(ship);out.sections=hs.shares;out.sectionCuts=hs.cuts;
+ if(ship){out.modules=fleetModules(ship,S);attachShipPowerProfile(out,ship,S);const hs=hullSectionShares(ship);out.sections=hs.shares;out.sectionCuts=hs.cuts;
   // Armour zones: the exposed skin of each section and face with its thickness
   // (hull armour plus any plating over it).
   if(S.skin){const cuts=hs.cuts,sk=S.skin,n=HULL_SECTIONS*6,zA=new Array(n).fill(0),zT=new Array(n).fill(0);for(let i=0;i<sk.n;i++){const x=(i+.5)/sk.n;let si=0;while(si<cuts.length&&x>=cuts[si])si++;for(let f=0;f<6;f++){zA[si*6+f]+=sk.a[i*6+f];zT[si*6+f]+=sk.t[i*6+f];}}out.zA=zA.map(a=>Math.round(a));out.zT=zT.map((t,z)=>+((S.armorHull||0)+(zA[z]>0?t/zA[z]:0)).toFixed(2));}
@@ -9696,9 +28679,25 @@ function emptyDesignProfile(p){
  for(const key of ['airOrd','airIon','airWings','airWing','groundForces','air','ground','troops','vehicles','carried','complement','manifest'])delete q[key];
  return q;
 }
+// A combat-only legacy profile can retain its finite electrical plant and known
+// mass. It cannot supply editable machinery geometry or infer force from speed.
+function legacyPropulsionProfile(p,massTonnes){
+ const R=p?.grid?.De,modules=p?.modules,massKg=massTonnes*1000;
+ if(!Number.isFinite(R)||!(R>0)||R>PROPULSION.maxInputW||!Number.isFinite(massTonnes)||!(massTonnes>0)||!Number.isFinite(massKg)||!Array.isArray(modules))return null;
+ const hasLegacyUpperCap=Object.hasOwn(p,'accel')&&p.accel!==undefined,legacyUpperMovementCapMps2=hasLegacyUpperCap?p.accel/FLEET_RULES.accelScale:null;
+ if(hasLegacyUpperCap&&(!Number.isFinite(p.accel)||p.accel<0||!Number.isFinite(legacyUpperMovementCapMps2)))return null;
+ const known=modules.map((m,i)=>({m,i})).filter(({m})=>m?.k==='engine'),weight=m=>Number.isFinite(m.size)&&m.size>0?m.size:Number.isFinite(m.share)&&m.share>0?m.share:1,total=known.reduce((n,{m})=>n+weight(m),0);
+ if(!known.length||!Number.isFinite(total)||!(total>0))return null;
+ const engines=known.map(({m,i})=>{const ratedInputW=R*weight(m)/total,id='legacy-engine:'+i,node=m.port||(m.part!=null?'p'+m.part:id);return {version:PROPULSION_MODEL_VERSION,id,machineryId:id,moduleIndex:i,machineryModuleIndex:i,powerNode:node,heatNode:node,domain:m.domain||'main',ratedInputW,wattsPerNewton:PROPULSION.standardWattsPerNewton,ratedThrustN:ratedInputW/PROPULSION.standardWattsPerNewton,driveProfileId:'standard',direction:[1,0,0],pathCapacityW:ratedInputW,valid:true,available:true,connected:m.powerConnected!==false,outletAvailable:true,legacyReadOnly:true,requiresBlueprint:true,issues:['legacy-combat-profile-requires-blueprint']};});
+ const ratedThrustN=R/PROPULSION.standardWattsPerNewton,ratedAccelMps2=ratedThrustN/massKg;
+ // A saved combined movement cap remains an upper bound only. It never
+ // supplies force, electrical input, mass, or a second power multiplier.
+ return Number.isFinite(ratedAccelMps2)?{version:PROPULSION_MODEL_VERSION,engines,massKg,ratedThrustN,ratedAccelMps2,accelerationLimitMps2:Math.min(ratedAccelMps2,legacyUpperMovementCapMps2??Infinity),...(hasLegacyUpperCap?{legacyUpperMovementCapMps2,legacyMovementCapSource:'profile.accel'}:{}),legacyReadOnly:true,requiresBlueprint:true}:null;
+}
 function fleetUnit(id,key,p,team=0){
+ if(!p.propulsion){const propulsion=legacyPropulsionProfile(p,p.mass);if(propulsion)p={...p,propulsion};}
  const shield=Math.max(0,p.shieldBuffer??p.D*K.bufferS),bank=Math.max(0,p.reserve||0),mods=p.modules||[];
- return combatInit({id,key,name:p.name,team,p,pos:[0,0,0],yaw:0,velocity:[0,0,0],hp:p.hp,shield,shieldMax:shield,bank,bankMax:bank,armor:1,energy:p.wCap||0,load:0,engF:1,crew:p.crewMax??p.crewNeed??0,mods:mods.map(()=>1),ammo:mods.map(m=>m.stock||0),hitAcc:0,out:null,fate:null,air:0,launched:0,lost:0,hatchOpen:0,hatchTarget:0,queue:[],order:{type:'hold',fire:true,launch:false,power:'auto',aim:'auto'},dead:false});
+ return combatInit({id,key,name:p.name,team,p,pos:[0,0,0],yaw:0,velocity:[0,0,0],hp:p.hp,shield,shieldMax:shield,bank,bankMax:bank,armor:1,energy:p.wCap||0,load:0,engF:0,crew:p.crewMax??p.crewNeed??0,mods:mods.map(()=>1),ammo:mods.map(m=>m.stock||0),hitAcc:0,out:null,fate:null,air:0,launched:0,lost:0,hatchOpen:0,hatchTarget:0,queue:[],order:{type:'hold',fire:true,launch:false,power:'auto',aim:'auto'},dead:false});
 }
 function fleetFormation(units,form='line',gap=600,alt=true){
  if(!units.length)return units;gap=clamp(Number(gap)||0,0,10000);
@@ -10327,39 +29326,46 @@ function hullBoxGap(u,h,x,hx){
 // absent unit (still in hyperspace) takes no part at all.
 // v18 How hard a ship's drives burn, for the engine glow (0–1): the share of
 // full acceleration it is using, over a cruise floor that rises with speed.
-function engineLevel(u){if(!u||u.out||u.dead)return 0;const v=u.velocity?len(u.velocity):0,vm=u.p?.maxSpeed||FLEET_RULES.maxSpeed;return clamp(Math.max(clamp(u.maneuver||0,0,1),.16+.3*clamp(v/Math.max(1,vm),0,1)),0,1);}
+function engineLevel(u){return !u||u.out||u.dead?0:clamp(u.propulsion?.outputRatio??0,0,1);}
+// Physical acceleration arrives from the shared power solver. The tactical scale is applied only here.
+// A missing result never grants an unpowered unit its design acceleration.
+function propulsionMotion(u,load=1){
+ const model=u?.p?.propulsion,result=u?.propulsion,scale=FLEET_RULES.accelScale;
+ const valid=model?.version===PROPULSION_MODEL_VERSION&&Number.isFinite(model.massKg)&&model.massKg>0&&Number.isFinite(model.ratedAccelMps2)&&model.ratedAccelMps2>0,rated=valid?model.ratedAccelMps2:0,limit=Number.isFinite(model?.accelerationLimitMps2)?Math.max(0,model.accelerationLimitMps2):0,loadK=Number.isFinite(load)?Math.max(0,load):0;
+ const acc0=Math.min(rated,limit)*scale*loadK,actual=valid&&Number.isFinite(result?.actualAccelMps2)?Math.max(0,result.actualAccelMps2):0;
+ const live=!u?.out&&!u?.dead&&powerFactor(u,'engine')>0&&powerFactor(u,'reactor')>0&&heatLim(u,'engine')>0;
+ const acc=live?actual*scale*loadK:0;return {acc0,acc,turn:acc0>0?clamp(acc/acc0,0,1):0};
+}
 function fleetTick(b,dt,opts={}){
  const RULES=opts.rules||FLEET_RULES,DMG=RULES.damage??1;
  const alive=b.units.filter(u=>!u.dead&&!u.absent).sort((a,b)=>String(a.id).localeCompare(String(b.id))),before=alive.map(u=>({...u,pos:[...u.pos],velocity:[...u.velocity]})),byId=new Map(before.map(u=>[u.id,u])),sys=new Map(alive.map(u=>[u.id,fleetSystems(u)]));
+ for(const u of alive)if(u.maneuver===undefined)u.maneuver=u.order?.type==='hold'&&!(len(u.velocity||[0,0,0])>0)?0:1;
+ const moveFleet=()=>{
  for(const u of alive){const o=u.order,t=byId.get(o.target),old=byId.get(u.id),s=sys.get(u.id);
   if(u.manual)continue;
-  if(u.out){if(opts.gravity){u.velocity=[...old.velocity];u.pos=[...old.pos];if(hullFall(u,dt,()=>fleetRandom(b))&&!u.dead){u.dead=true;u.fate='fall';u.fire=(u.fire||[]).map(()=>0);b.events.push({time:b.time+dt,text:`${u.name}：大気圏に落下して喪失`,id:u.id,sunk:true});}}else{u.velocity=mul(old.velocity,Math.max(0,1-.03*dt));u.pos=add(old.pos,mul(u.velocity,dt));}u.maneuver=0;continue;}
+  if(u.out){if(opts.gravity){u.velocity=[...old.velocity];u.pos=[...old.pos];if(hullFall(u,dt,()=>fleetRandom(b))&&!u.dead){u.dead=true;u.fate='fall';u.fire=(u.fire||[]).map(()=>0);b.events.push({time:b.time+dt,text:`${u.name}：大気圏に落下して喪失`,id:u.id,sunk:true});}}else{u.velocity=[...old.velocity];u.pos=add(old.pos,mul(u.velocity,dt));}u.maneuver=0;continue;}
   if(powerFactor(u,'engine')<=0||powerFactor(u,'reactor')<=0){u.engF=0;u.maneuver=0;u.pos=add(old.pos,mul(old.velocity,dt));continue;}
-  // Courses are planned on the engines' rated thrust (acc0); the reactor share they get (engF) decides what they deliver.
-  const acc0=u.p.accel*s.engine*(.6+.4*fleetIntegrity(u)),acc=acc0*clamp(u.engF??1,0,1.2);let dest=o.type==='move'?o.point:o.type==='attack'&&t?t.pos:null;let want=[0,0,0];const v0=[...old.velocity];
+  const {acc0,acc,turn}=propulsionMotion(u),nominalTurn=u.p.turnRate||0,turnRate=nominalTurn*turn;let turnNeed=0,dest=o.type==='move'?o.point:o.type==='attack'&&t?t.pos:null;let want=[0,0,0];const v0=[...old.velocity],turnToward=yaw=>{const err=fleetAngle(yaw-u.yaw);turnNeed=Math.max(turnNeed,Math.abs(err)/Math.max(1e-9,nominalTurn*dt));u.yaw+=clamp(err,-turnRate*dt,turnRate*dt);};
   // v21.1 Escort: keep station on the threat side of the guarded ship; there, keep its pace, bow on the threat.
   let escHold=false;const G=o.type==='escort'?byId.get(o.target):null;
   if(G&&!G.dead&&G.team===u.team&&G!==old){const foes=before.filter(x=>x.team!==u.team&&!x.dead),th=escortThreat(G,foes),mates=before.filter(x=>x.order?.type==='escort'&&x.order.target===G.id&&!x.dead&&!x.out).sort((a,z)=>String(a.id).localeCompare(String(z.id)));
    dest=escortStation(old,G,th,Math.max(0,mates.findIndex(x=>x.id===u.id)),Math.max(1,mates.length));const dd=len(sub(dest,old.pos));
-   if(dd<Math.max(600,u.p.len*.6)){escHold=true;want=add(G.velocity||[0,0,0],mul(sub(dest,old.pos),.15));const aimAt=th||add(G.pos,mul([Math.cos(G.yaw),0,Math.sin(G.yaw)],1e4)),hb=Math.atan2(aimAt[2]-old.pos[2],aimAt[0]-old.pos[0]),hy=hb+(Math.abs(fleetAngle(u.yaw-hb-Math.PI/2))<Math.abs(fleetAngle(u.yaw-hb+Math.PI/2))?Math.PI/2:-Math.PI/2);u.yaw+=clamp(fleetAngle(hy-u.yaw),-u.p.turnRate*dt,u.p.turnRate*dt);dest=null;}}
+   if(dd<Math.max(600,u.p.len*.6)){escHold=true;want=add(G.velocity||[0,0,0],mul(sub(dest,old.pos),.15));const aimAt=th||add(G.pos,mul([Math.cos(G.yaw),0,Math.sin(G.yaw)],1e4)),hb=Math.atan2(aimAt[2]-old.pos[2],aimAt[0]-old.pos[0]),hy=hb+(Math.abs(fleetAngle(u.yaw-hb-Math.PI/2))<Math.abs(fleetAngle(u.yaw-hb+Math.PI/2))?Math.PI/2:-Math.PI/2);turnToward(hy);dest=null;}}
   // v21 A ready composite beam takes the helm: the bow turns onto its target.
   const swYaw=b.combat?swHeading(u,before.filter(x=>x.team!==u.team&&!x.dead)):null;
-  if(swYaw!=null&&!dest){const dy=clamp(fleetAngle(swYaw-u.yaw),-u.p.turnRate*dt,u.p.turnRate*dt);u.yaw+=dy;}
+  if(swYaw!=null&&!dest)turnToward(swYaw);
   if(dest){
    // Attacking ships close to the distance their guns favour; broadside ships turn their beam to the target there.
    // A ship never backs away to open the range (it could not fire while running): closer in, it holds where it is.
-   const delta=sub(dest,old.pos),d=len(delta),attack=o.type==='attack',floor=attack?(u.p.len+(t?.p.len||0))*.7:0,stop=attack?Math.min(fleetStandoff(u,t),Math.max(floor,d)):0,head=swYaw??(attack?fleetHeading(old,t,d,stop):null),yaw=head??Math.atan2(delta[2],delta[0]),err=fleetAngle(yaw-u.yaw),dy=clamp(err,-u.p.turnRate*dt,u.p.turnRate*dt);u.yaw+=dy;{const c=Math.cos(dy),sn=Math.sin(dy),x=v0[0],z=v0[2];v0[0]=x*c-z*sn;v0[2]=x*sn+z*c;}
+   const delta=sub(dest,old.pos),d=len(delta),attack=o.type==='attack',floor=attack?(u.p.len+(t?.p.len||0))*.7:0,stop=attack?Math.min(fleetStandoff(u,t),Math.max(floor,d)):0,head=swYaw??(attack?fleetHeading(old,t,d,stop):null),yaw=head??Math.atan2(delta[2],delta[0]),err=fleetAngle(yaw-u.yaw);turnToward(yaw);
    const signed=attack?d-stop:d,remaining=attack?Math.max(0,Math.abs(signed)-(head!=null?600:2500)):Math.max(0,signed),direction=attack&&signed<0&&head==null?-1:1,speed=Math.min(u.p.maxSpeed*(head!=null?.4:1),Math.sqrt((attack?1:2)*acc0*remaining))*Math.max(.08,Math.cos(err));
    if(d>1){want=mul(norm(delta),speed*direction);const hor=Math.hypot(want[0],want[2])*direction;want[0]=Math.cos(u.yaw)*hor;want[2]=Math.sin(u.yaw)*hor;}}
   want=hullAvoid(old,before,want);
-  const dv=sub(want,v0),n=len(dv),step=Math.min(n,acc*dt);u.velocity=add(v0,mul(dv,step/Math.max(1e-9,n)));u.pos=add(old.pos,mul(u.velocity,dt));u.pos[1]=clamp(u.pos[1],-15000,15000);
-  u.maneuver=acc0>0?clamp(n/(acc0*dt),0,1):0;
-  if(o.type==='move'&&len(sub(dest,u.pos))<Math.max(10,acc*dt*dt)&&len(u.velocity)<acc*dt*2){u.pos=[...dest];u.velocity=[0,0,0];}
+  const dv=sub(want,v0),n=len(dv),step=Math.min(n,acc*dt);u.velocity=add(v0,mul(dv,step/Math.max(1e-9,n)));u.pos=add(old.pos,mul(u.velocity,dt));
+  u.maneuver=acc0>0?clamp(Math.max(n/Math.max(1e-9,acc0*dt),turnNeed),0,1):0;
  }
- // Hulls that meet are pushed apart, and the impact damages both (v17).
- const contacts=opts.collide===false?[]:hullCollide(alive.filter(u=>!u.dead));
+ };
  const incoming=new Map(alive.map(u=>[u.id,combatIncoming()])),shots=[];b.bumps=[];
- for(const c of contacts){hullImpact(incoming.get(c.a.id),c.a,c.z,c);hullImpact(incoming.get(c.z.id),c.z,c.a,c);if(c.vn>HULL_HIT.min){b.bumps.push({a:c.a.id,z:c.z.id,point:c.point,vn:c.vn});if(c.vn>5)b.events.push({time:b.time+dt,text:`${c.a.name}と${c.z.name}が衝突（相対速度 ${Math.round(c.vn)} m/s）`,id:c.a.id});}}
  for(const [id,x] of opts.extra||[]){const inc=incoming.get(id),t=alive.find(v=>v.id===id);if(inc&&t)combatMerge(inc,t,x);}
  // This tactical model abstracts aircraft and missiles at their attacking ship.
  // Choose the shared battery's role from the common pre-step snapshot, before
@@ -10403,6 +29409,10 @@ function fleetTick(b,dt,opts={}){
   const miss=Math.max(0,1-hit);if(miss>0&&vk>0&&F.gun+F.ion>0)for(const {x,k} of fireStray(alive,u,t,distance)){const g2=(F.runtime?u.surfaceLastFire?.gun||0:F.gun*s.weapon*fire*vk)*miss*k,i2=(F.runtime?u.surfaceLastFire?.ion||0:F.ion*s.weapon*fire*vk)*miss*k;if(!(g2+i2>0))continue;combatAdd(incoming.get(x.id),x,u.pos,{sf:(g2+COMBAT.ionShield*i2)*hd,hull:(g2+COMBAT.ionHull*i2)*hd,ion:i2*hd},null,u.id);x.ffTaken=(x.ffTaken||0)+(g2+i2)*hd;shots.push({from:u.id,to:x.id,team:u.team,ion:i2>g2,gun:(g2+i2)*dt,msl:0,ff:true});}
   if(gun+ion+msl+imsl+fd+ord+iord>0)shots.push({from:u.id,to:t.id,team:u.team,ion:ion>gun,gun:(gun+ion)*dt,msl:msl*dt,imsl:imsl*dt,ord:(ord+iord)*dt,salvo:vk>1});
  }
+ // Current power allocation controls this tick's thrust; the thermal update follows motion and accrual once.
+ moveFleet();
+ const contacts=opts.collide===false?[]:hullCollide(alive.filter(u=>!u.dead));
+ for(const c of contacts){hullImpact(incoming.get(c.a.id),c.a,c.z,c);hullImpact(incoming.get(c.z.id),c.z,c.a,c);if(c.vn>HULL_HIT.min){b.bumps.push({a:c.a.id,z:c.z.id,point:c.point,vn:c.vn});if(c.vn>5)b.events.push({time:b.time+dt,text:`${c.a.name}と${c.z.name}が衝突（相対速度 ${Math.round(c.vn)} m/s）`,id:c.a.id});}}
  const time=b.time+dt,ctx={rand:()=>fleetRandom(b),time,damage:DMG,ev:(u,text)=>b.events.push({time,text:u.name+'：'+text,id:u.id}),sunk:(u,why)=>b.events.push({time,text:`${u.name}：撃沈（${why}）`,id:u.id,sunk:true}),out:(u,why)=>b.events.push({time,text:`${u.name}：戦闘不能（${why}）`,id:u.id}),hit:opts.onHit};
  // v21 Superweapons (a piloted ship's fire on command); stopped and overloaded reactors recover.
  for(const u of alive)swDecay(u,dt,ctx);
@@ -10884,22 +29894,24 @@ const CRAFT_ROLE_RTS={'爆撃機':'bomber','迎撃機':'interceptor','戦闘機'
 const CRAFT_FIRE=Object.freeze({fixedCone:8,defaultCycle:.12,cycles:Object.freeze({claser:.12,claserH:.18,cion:.22,cturret:.12})});
 function cleanCraftFireArcs(raw){
  if(!Array.isArray(raw))return null;const vec=(v,fallback)=>{if(!Array.isArray(v)||v.length!==3||!v.every(Number.isFinite))return fallback;if(Math.abs(Math.hypot(...v)-1)<1e-12)return v.slice();const scale=Math.max(...v.map(Math.abs));return scale>1e-8?norm(v.map(n=>n/scale)):fallback;};
- return raw.slice(0,128).filter(a=>a&&typeof a==='object'&&vec(a.dir,null)).map(a=>({fixed:!!a.fixed,dir:vec(a.dir,[1,0,0]),up:vec(a.up,[0,1,0]),...(Array.isArray(a.pos)&&a.pos.length===3&&a.pos.every(Number.isFinite)?{pos:a.pos.map(v=>clamp(v,-DESIGN_LIMITS.coordinate,DESIGN_LIMITS.coordinate))}:{}),...(typeof a.k==='string'&&FITS[a.k]?{k:a.k}:{}),gun:Number.isFinite(a.gun)?clamp(a.gun,0,1):0,aa:Number.isFinite(a.aa)?clamp(a.aa,0,1):0,cycle:Number.isFinite(a.cycle)?clamp(a.cycle,.03,10):CRAFT_FIRE.cycles[a.k]||FITS[a.k]?.cycle||CRAFT_FIRE.defaultCycle}));
+ return raw.slice(0,128).filter(a=>a&&typeof a==='object'&&vec(a.dir,null)).map(a=>{const k=canonicalWeaponKind(a.k);return {fixed:!!a.fixed,dir:vec(a.dir,[1,0,0]),up:vec(a.up,[0,1,0]),...(Array.isArray(a.pos)&&a.pos.length===3&&a.pos.every(Number.isFinite)?{pos:a.pos.map(v=>clamp(v,-DESIGN_LIMITS.coordinate,DESIGN_LIMITS.coordinate))}:{}),...(typeof k==='string'&&FITS[k]?{k}:{}),gun:Number.isFinite(a.gun)?clamp(a.gun,0,1):0,aa:Number.isFinite(a.aa)?clamp(a.aa,0,1):0,cycle:Number.isFinite(a.cycle)?clamp(a.cycle,.03,10):CRAFT_FIRE.cycles[k]||FITS[k]?.cycle||CRAFT_FIRE.defaultCycle};});
 }
 // Muzzles remain in blueprint coordinates, like fitOrigin; a renderer subtracts
 // its loaded model's centre. Weights are shares of the complete installed battery.
 function craftGunMounts(ship,S={}){
  const arcs=[];let gun=0,aa=0;for(const f of ship?.fits||[]){const spec=FITS[f.k];if(!spec||f.float||S.info?.[f.id]?.overlap)continue;const d=fitSpec(f);if(d.cat!=='w'||!(d.tt>0||d.ion>0))continue;
-  const fr=fitFrameOf(f),r=spec.asset?(f.assetYaw||0)*Math.PI/180:0,dir=norm(add(mul(fr.fw,Math.cos(r)),mul(fr.rt,Math.sin(r)))),g=Math.max(0,d.tt||0)+Math.max(0,d.ion||0)/3+Math.max(0,spec.aa||0)*(f.scale||1)**2,a=Math.max(0,spec.aa||0)*(f.scale||1)**2;
-  let pos;try{pos=add(fitOrigin(f),add(mul(fr.up,d.hm*.55),mul(dir,d.fm*.5)));}catch(e){pos=f.p||[0,0,0];}
-  arcs.push({fixed:!!spec.fixed,dir,up:fr.up.slice(),pos,k:f.k,gun:g,aa:a,cycle:CRAFT_FIRE.cycles[f.k]||spec.cycle||CRAFT_FIRE.defaultCycle});gun+=g;aa+=a;
+  const port=surfaceBatteryGeometry(f),fr=fitFrameOf(f),r=spec.asset?(f.assetYaw||0)*Math.PI/180:0,dir=port?port.normal.slice():norm(add(mul(fr.fw,Math.cos(r)),mul(fr.rt,Math.sin(r)))),g=Math.max(0,d.tt||0)+Math.max(0,d.ion||0)/3+Math.max(0,spec.aa||0)*(f.scale||1)**2,a=Math.max(0,spec.aa||0)*(f.scale||1)**2;
+  let pos;try{pos=port?port.mouth.slice():add(fitOrigin(f),add(mul(fr.up,d.hm*.55),mul(dir,d.fm*.5)));}catch(e){pos=f.p||[0,0,0];}
+  // Nonfixed fire-arc gates use up as the outward mounting normal.
+  arcs.push({fixed:!!spec.fixed,dir,up:port?port.normal.slice():fr.up.slice(),pos,k:f.k,gun:g,aa:a,cycle:CRAFT_FIRE.cycles[f.k]||spec.cycle||CRAFT_FIRE.defaultCycle});gun+=g;aa+=a;
  }
  for(const a of arcs){a.gun=gun>0?a.gun/gun:0;a.aa=aa>0?a.aa/aa:0;}return cleanCraftFireArcs(arcs);
 }
 function craftCombat(ship,S){
+ if(ship?.surfaces&&!ship._surfaceWorking&&!ship._surfaceCompiling)ship=surfaceWorkingShip(ship);
  if(!ship?.hull||!S||!Array.isArray(ship.fits))return null;let A=0,shipGun=false,armed=false;
  for(const f of ship.fits){if(!FITS[f.k])continue;const d=fitSpec(f);if(d.cat!=='w'||f.float||S.info?.[f.id]?.overlap)continue;A+=(FITS[f.k].aa||0)*(f.scale||1)**2;shipGun||=!d.craft&&!!(d.tt||d.ion||d.msl);armed||=!!(d.tt||d.ion||d.msl||d.store);}
- const G=Math.max(0,Number.isFinite(S.accelG)?S.accelG:0),small=!!S.craft,role=CRAFT_ROLE_RTS[S.cls?.role]||(ship.fits.some(f=>f.k==='cbomb')?'bomber':!armed||ship.parts.some(p=>p.k==='troopbay')?'transport':'fighter'),sh=(S.Vsh||0)>0&&(S.shieldPct||0)>0;
+ const planned=S.propulsion?Math.min(S.propulsion.ratedAccelMps2,S.propulsion.accelerationLimitMps2):S.maximumAccelMps2,planningG=Number.isFinite(planned)?planned/G0:S.accelG,G=Math.max(0,Number.isFinite(planningG)?planningG:0),small=!!S.craft,role=CRAFT_ROLE_RTS[S.cls?.role]||(ship.fits.some(f=>f.k==='cbomb')?'bomber':!armed||ship.parts.some(p=>p.k==='troopbay')?'transport':'fighter'),sh=(S.Vsh||0)>0&&(S.shieldPct||0)>0;
  // The same acceleration/nozzle-depth relation as fleetProfile, without rebuilding its battle geometry.
  const shipSpeed=g=>g>0?sublightMGLT(g,engineDepthRatio(ship))*MGLT.ms:0,speed=small?craftSpeed(G):Math.round(shipSpeed(G));
  const systems=cleanCraftSystems(S.craftSystems),fireK=systems?.fireK??1,turnK=systems?.turnK??1;
@@ -10910,11 +29922,38 @@ function craftCombat(ship,S){
  const strike=Math.round(gun+salvo),armor=clamp((.35+.17*Math.log(Math.max(.5,S.mass||0)))*(sh?1.3:1)*(small?1:Math.cbrt(Math.max(1,Math.max(...dims)/25))),.3,small?3:20);
  const Gl=G*(S.mass>0?S.mass/(S.mass+ordMass):1);
  return {name:ship.name||'設計機',role,roleName:S.cls?.role||'',speed,...(!small?{speedMode:'ship'}:{}),aa:Math.round(air*100)/100,strike,gun,armor:Math.round(armor*100)/100,crew:Math.round(S.crew??S.seats??0),dims,size:stowSize(dims),accelG:Math.round(G),shield:sh,hyper:S.jumpOK&&Number.isFinite(S.hyperClass)&&S.hyperClass>0?S.hyperClass:null,
-  heat:craftHeat(S),fireArcs:craftGunMounts(ship,S),...(systems?{systems}:{}),stations,load,canonLoad:!!Lo.canon&&Lo.stations.length===stations.length,ord,ordMass:Math.round(ordMass*1000)/1000,mass:Math.round((S.mass||0)*100)/100,cost:Math.round(S.cost||0),costBy:costBreakdown(S.cost||0,S.costBy),priceVersion:COST_MODEL.version,speedLoaded:small?craftSpeed(Gl):Math.round(shipSpeed(Gl)),accelLoaded:Math.round(Gl)};
+  heat:craftHeat(S),powerProfile:craftPowerProfile(ship,S),fireArcs:craftGunMounts(ship,S),...(systems?{systems}:{}),stations,load,canonLoad:!!Lo.canon&&Lo.stations.length===stations.length,ord,ordMass:Math.round(ordMass*1000)/1000,mass:Math.round((S.mass||0)*100)/100,cost:Math.round(S.cost||0),costBy:costBreakdown(S.cost||0,S.costBy),priceVersion:COST_MODEL.version,speedLoaded:small?craftSpeed(Gl):Math.round(shipSpeed(Gl)),accelLoaded:Math.round(Gl)};
+}
+// Aircraft retain the same connected electrical and local thermal model as their editable design.
+// Omit tactical hull geometry: this snapshot is reused by every squadron of the type.
+function craftPowerProfile(ship,S){
+ const p={name:ship.name||'設計機',modules:fleetModules(ship,S),energyModel:{version:ship.surfaces?.mode==='strict'?1:0,eta:ENERGY_MODEL.eta},D:Math.max(0,S.shieldP||0)/TT*K.deflect,shieldBuffer:Math.max(0,S.shieldCapacity||0)/TT,wCap:0,crewNeed:Math.max(0,S.crew||0),crewMax:Math.max(0,S.crewAboard??S.crew??0),hp:Math.max(1,S.hp||1),len:S.dims?.[0]||ship.hull.L,width:S.dims?.[1]||ship.hull.W,height:S.dims?.[2]||ship.hull.H};
+ if(S.wings?.some(x=>x.foil))p.foils=S.wings.filter(x=>x.foil).map(x=>({id:x.id,n:x.name||'S-foil',T:x.T,sec:-1,jam:Math.max(0,x.jamAt||0)}));
+ attachShipPowerProfile(p,ship,S);p.profileVersion=FLEET_PROFILE_VERSION;const H=heatProfileOf(p,S);if(H)p.heat=H;return p;
+}
+function cleanCraftPowerProfile(raw,blueprint=null){
+ if(!raw||typeof raw!=='object'||raw.propulsion?.version!==PROPULSION_MODEL_VERSION||!Array.isArray(raw.propulsion.engines)||!Array.isArray(raw.modules)||raw.modules.length>DESIGN_LIMITS.parts+DESIGN_LIMITS.fits)return null;
+ let count=0;const copy=(v,depth=0)=>{if(++count>200000||depth>16)throw new Error('power snapshot too large');if(v==null||typeof v==='boolean')return v;if(typeof v==='number')return Number.isFinite(v)&&Math.abs(v)<=1e40?v:null;if(typeof v==='string')return v.slice(0,200);if(Array.isArray(v))return v.slice(0,12000).map(q=>copy(q,depth+1));if(typeof v!=='object')return undefined;const q={};for(const k of Object.keys(v))if(!k.startsWith('_')&&!['__proto__','constructor','prototype'].includes(k))q[k]=copy(v[k],depth+1);return q;};
+ try{
+  const p={};for(const k of ['profileVersion','name','modules','grid','propulsion','heat','foils','energyModel','D','shieldBuffer','wCap','crewNeed','crewMax','hp','len','width','height'])if(Object.hasOwn(raw,k))p[k]=copy(raw[k]);
+  const descriptor=p.propulsion,mass=descriptor.massKg;descriptor.massKg=Number.isFinite(mass)&&mass>0?mass:0;descriptor.engines=descriptor.engines.slice(0,DESIGN_LIMITS.parts);
+  let canonical=null;if(blueprint){canonical=CRAFT_PROPULSION_BLUEPRINTS.get(blueprint);if(!canonical){const ship=deserialize(blueprint);canonical=new Map(ship.parts.filter(q=>q.k==='engine').map(q=>{const spec=resolveEngineSpec(q,ship);return [q.id,{spec,feedCap:Number.isFinite(q.feedCapacityW)?Math.max(0,q.feedCapacityW):spec.maxInputW,sourceExists:ship.parts.some(r=>isReactor(r)&&r.id===spec.reactorId),outletAvailable:engineVented(ship,q)}];}));CRAFT_PROPULSION_BLUEPRINTS.set(blueprint,canonical);}}
+  const unique=new Map(),outlets=new Set();for(const e of descriptor.engines){
+   const record=canonical?.get(e.id),ref=record?.spec,moduleOK=Number.isInteger(e.moduleIndex)&&p.modules[e.moduleIndex]?.k==='engine',canonicalOK=!canonical||!!ref&&moduleOK&&p.modules[e.moduleIndex]?.part===e.id&&!outlets.has(e.id);outlets.add(e.id);
+   if(ref){const path=e.pathCapacityW,flags={available:e.available!==false&&record.sourceExists&&record.outletAvailable,connected:e.connected!==false&&record.sourceExists,outletAvailable:e.outletAvailable!==false&&record.outletAvailable,domain:p.modules[e.moduleIndex]?.domain||'main'};Object.assign(e,ref,flags);e.pathCapacityW=Number.isFinite(path)?Math.max(0,Math.min(path,ref.maxInputW,record.feedCap)):0;}
+   const profile=DRIVE_PROFILES[e.driveProfileId],grade=MACHINERY_GRADES[e.machineryGradeId],L=e.machineryLengthM,r=e.machineryRadiusM,volume=Number.isFinite(L)&&L>0&&L<=DESIGN_LIMITS.engineLength&&Number.isFinite(r)&&r>0&&r<=DESIGN_LIMITS.engineDiameter?Math.PI*L*r*r*(.78*.78+.78+1)/3:0,cap=Math.min(PROPULSION.maxInputW,volume*(grade?.allowedInputDensityWPerM3||0));
+   const valid=!!profile&&!!grade&&Number.isFinite(e.ratedInputW)&&e.ratedInputW>=0&&e.ratedInputW<=cap*(1+1e-12)&&Number.isFinite(volume)&&volume>0&&Array.isArray(e.direction)&&e.direction.length===3&&e.direction.every(Number.isFinite)&&len(e.direction)>1e-9&&moduleOK&&canonicalOK;
+   e.valid=valid&&e.valid!==false;e.wattsPerNewton=profile?.wattsPerNewton||PROPULSION.standardWattsPerNewton;e.ratedInputW=valid?e.ratedInputW:0;e.ratedThrustN=e.valid?e.ratedInputW/e.wattsPerNewton:0;e.effectiveMachineryVolumeM3=e.machineryVolumeM3=volume;e.maxInputW=e.maxRatedInputW=cap;e.allowedInputDensityWPerM3=grade?.allowedInputDensityWPerM3||0;if(e.valid)e.direction=norm(e.direction);if(!unique.has(e.machineryId??e.id))unique.set(e.machineryId??e.id,e);
+  }
+  descriptor.ratedThrustN=[...unique.values()].reduce((n,e)=>n+e.ratedThrustN,0);descriptor.ratedAccelMps2=descriptor.massKg>0?descriptor.ratedThrustN/descriptor.massKg:0;descriptor.accelerationLimitMps2=Number.isFinite(descriptor.accelerationLimitMps2)?clamp(descriptor.accelerationLimitMps2,0,descriptor.ratedAccelMps2):0;
+  if(Object.hasOwn(descriptor,'inertialFactor'))descriptor.inertialFactor=Number.isFinite(descriptor.inertialFactor)?clamp(descriptor.inertialFactor,0,1):0;
+  if(Object.hasOwn(descriptor,'structuralAccelerationLimitMps2')){descriptor.structuralAccelerationLimitMps2=Number.isFinite(descriptor.structuralAccelerationLimitMps2)?Math.max(0,descriptor.structuralAccelerationLimitMps2):0;descriptor.accelerationLimitMps2=Math.min(descriptor.ratedAccelMps2,descriptor.structuralAccelerationLimitMps2)*(descriptor.inertialFactor??1);}
+  return p;
+ }catch(e){return null;}
 }
 // Only validated, immutable leaf blueprints are shared between repeated carrier normalization passes.
 // A nested carrier complement is deliberately not embedded again inside each embarked copy.
-const DESIGN_BLUEPRINTS=new WeakSet(),DESIGN_BLUEPRINT_KEYS=['format','v','name','hull','keel','cuts','trenches','solidCuts','subs','parts','hatches','fits','armor','nextId','shieldTarget','paint','lights','engineGlow','hullBands','detail','reference','hullSkin','autoHabitation','hullLocked','shipClass','faction','links','groups','systemsVersion'];
+const DESIGN_BLUEPRINTS=new WeakSet(),CRAFT_PROPULSION_BLUEPRINTS=new WeakMap(),DESIGN_BLUEPRINT_KEYS=['format','v','name','hull','keel','cuts','trenches','solidCuts','subs','parts','hatches','fits','armor','nextId','shieldTarget','paint','lights','engineGlow','hullBands','detail','reference','hullSkin','autoHabitation','hullLocked','shipClass','faction','links','groups','systemsVersion','surfaces'];
 function cleanDesignBlueprint(raw){
  if(!raw||typeof raw!=='object'||raw.format!=='starship-yard'||![2,3].includes(raw.v))return null;if(DESIGN_BLUEPRINTS.has(raw))return raw;
  if(!Array.isArray(raw.parts)||raw.parts.length>DESIGN_LIMITS.parts||!Array.isArray(raw.fits)||raw.fits.length>DESIGN_LIMITS.fits)return null;
@@ -10936,15 +29975,27 @@ function cleanDesignBlueprint(raw){
 function designCraftSnapshot(ship,S,ref=''){
  if(typeof ship==='string'){if(ship.length>16*1024*1024)return null;try{ship=JSON.parse(ship);}catch(e){return null;}}
  const craft=craftCombat(ship,S);if(!craft)return null;const raw={};for(const k of DESIGN_BLUEPRINT_KEYS)if(Object.hasOwn(ship,k))raw[k]=ship[k];raw.format='starship-yard';raw.v=ship.format==='starship-yard'?ship.v:3;
- const blueprint=cleanDesignBlueprint(raw);if(!blueprint)return null;return cleanDesignCraft({ref,name:ship.name,dims:craft.dims,craft,blueprint});
+ const blueprint=cleanDesignBlueprint(raw);if(!blueprint)return null;return cleanDesignCraft({ref,name:ship.name,dims:craft.dims,craft,blueprint,weaponProfileVersion:1});
+}
+function blueprintWeaponProfileAffected(blueprint){
+ const affected=kind=>{const k=canonicalWeaponKind(kind),d=FITS[k];return !!d&&d.cat==='w'&&!d.craft&&!d.fixed&&(k==='stl'||k==='oct40'||d.weaponSizing?.anchorBlend>0);};
+ if(Array.isArray(blueprint?.fits)&&blueprint.fits.some(f=>affected(f?.k)))return true;
+ return Array.isArray(blueprint?.surfaces?.patches)&&blueprint.surfaces.patches.some(p=>affected(p?.battery?.weapon)||Array.isArray(p?.aggregate?.guns)&&p.aggregate.guns.some(r=>Array.isArray(r)&&affected(r[1])));
 }
 // Legacy combat-only snapshots remain valid; newer ones also retain the complete model and build cost.
 function cleanDesignCraft(d){
- if(!d||typeof d!=='object')return null;const c=d.craft;if(!c||typeof c!=='object'||!Object.values(CRAFT_ROLE_RTS).includes(c.role))return null;
+ if(!d||typeof d!=='object')return null;let c=d.craft;if(!c||typeof c!=='object'||!Object.values(CRAFT_ROLE_RTS).includes(c.role))return null;
+ const needsWeaponRefresh=d.weaponProfileVersion===0||migrateWeaponDesign(d.blueprint)!==d.blueprint||d.weaponProfileVersion!==1&&blueprintWeaponProfileAffected(d.blueprint),blueprint=cleanDesignBlueprint(d.blueprint);let weaponProfileVersion=d.weaponProfileVersion===1?1:undefined;
+ if((needsWeaponRefresh||!c.powerProfile||c.powerProfile.profileVersion!==FLEET_PROFILE_VERSION)&&blueprint){
+  // A saved embarked model also owns cached combat figures. Rebuild them once
+  // for retired batteries or the changed heavy model / sizing anchor, including
+  // muzzle positions and cadence even when the saved weapon id stays the same.
+  try{const ship=deserialize(blueprint);syncCompartments(ship);remount(ship);syncCompartments(ship);const rebuilt=craftCombat(ship,computeStats(ship));if(!rebuilt)return null;c=needsWeaponRefresh?rebuilt:{...c,powerProfile:rebuilt.powerProfile};weaponProfileVersion=1;}catch(e){return null;}
+ }
  const str=(v,n)=>(typeof v==='string'?v:'').replace(/[\u0000-\u001f\u007f]/g,'').trim().slice(0,n),num=(v,lo,hi,def)=>Number.isFinite(v)?clamp(v,lo,hi):def;
  const stations=(Array.isArray(c.stations)?c.stations:[]).filter(st=>st&&FITS[st.fit]?.store&&Number.isInteger(st.count)&&st.count>=1&&st.count<=DESIGN_LIMITS.fits).slice(0,8).map(st=>({fit:st.fit,mount:FITS[st.fit].store.mount,count:st.count}));
- const load=normalizeLoad(stations,Array.isArray(c.load)?c.load:null),shipSpeed=c.speedMode==='ship',dims=cleanDims(d.dims)||cleanDims(c.dims),blueprint=cleanDesignBlueprint(d.blueprint),systems=cleanCraftSystems(c.systems),hasCost=Number.isFinite(c.cost)&&c.cost>=0,build=Math.round(num(c.cost,0,1e15,0));
- return {ref:str(d.ref,80),name:str(d.name,40)||'設計機',...(dims?{dims}:{}),...(blueprint?{blueprint}:{}),craft:{role:c.role,roleName:str(c.roleName,20),speed:shipSpeed?Math.round(num(c.speed,0,20000,0)):c.accelG>0&&Number.isFinite(c.accelG)?craftSpeed(c.accelG):Math.round(num(c.speed,500,3200,1500)),...(shipSpeed?{speedMode:'ship'}:{}),aa:Math.round(num(c.aa,0,2,1)*100)/100,strike:Math.round(num(c.strike,0,1e12,10)),gun:Math.round(num(c.gun,0,1e12,num(c.strike,0,1e12,10))),armor:Math.round(num(c.armor,.1,100,1)*100)/100,crew:Math.round(num(c.crew,0,1e9,1)),accelG:Math.round(num(c.accelG,0,20000,0)),shield:!!c.shield,hyper:Number.isFinite(c.hyper)&&c.hyper>0?c.hyper:null,stations,load,mass:num(c.mass,0,1e15,0)||null,...(hasCost?{cost:build,...(c.costBy&&typeof c.costBy==='object'?{costBy:costBreakdown(build,c.costBy)}:{}),...(Number.isFinite(c.priceVersion)?{priceVersion:Math.round(num(c.priceVersion,1,1e6,1))}:{})}:{}),...(systems?{systems}:{}),...(Array.isArray(c.fireArcs)?{fireArcs:cleanCraftFireArcs(c.fireArcs)}:{}),...(cleanCraftHeat(c.heat)?{heat:cleanCraftHeat(c.heat)}:{})}};
+ const load=normalizeLoad(stations,Array.isArray(c.load)?c.load:null),shipSpeed=c.speedMode==='ship',dims=cleanDims(d.dims)||cleanDims(c.dims),systems=cleanCraftSystems(c.systems),hasCost=Number.isFinite(c.cost)&&c.cost>=0,build=Math.round(num(c.cost,0,1e15,0)),powerProfile=cleanCraftPowerProfile(c.powerProfile,blueprint);
+ return {ref:str(d.ref,80),name:str(d.name,40)||'設計機',...(dims?{dims}:{}),...(blueprint?{blueprint}:{}),...(weaponProfileVersion!=null?{weaponProfileVersion}:{}),craft:{role:c.role,roleName:str(c.roleName,20),speed:shipSpeed?Math.round(num(c.speed,0,20000,0)):c.accelG>0&&Number.isFinite(c.accelG)?craftSpeed(c.accelG):Math.round(num(c.speed,500,3200,1500)),...(shipSpeed?{speedMode:'ship'}:{}),aa:Math.round(num(c.aa,0,2,1)*100)/100,strike:Math.round(num(c.strike,0,1e12,10)),gun:Math.round(num(c.gun,0,1e12,num(c.strike,0,1e12,10))),armor:Math.round(num(c.armor,.1,100,1)*100)/100,crew:Math.round(num(c.crew,0,1e9,1)),accelG:Math.round(num(c.accelG,0,20000,0)),shield:!!c.shield,hyper:Number.isFinite(c.hyper)&&c.hyper>0?c.hyper:null,stations,load,mass:num(c.mass,0,1e15,0)||null,...(hasCost?{cost:build,...(c.costBy&&typeof c.costBy==='object'?{costBy:costBreakdown(build,c.costBy)}:{}),...(Number.isFinite(c.priceVersion)?{priceVersion:Math.round(num(c.priceVersion,1,1e6,1))}:{})}:{}),...(systems?{systems}:{}),...(powerProfile?{powerProfile}:{}),...(Array.isArray(c.fireArcs)?{fireArcs:cleanCraftFireArcs(c.fireArcs)}:{}),...(cleanCraftHeat(c.heat)?{heat:cleanCraftHeat(c.heat)}:{})}};
 }
 function layoutStats(ship,S){
  const h=habitationSpace(ship);S.autoHabitationVolume=h.volume;S.unassignedVolume=h.volume;S.envelopeVolume=h.envelopeVolume;
@@ -11922,7 +30973,7 @@ function assemblyCapture(ship,ids,meta={}){
  const b=assemblyBounds(ship,ids),origin=Object.hasOwn(ASSEMBLY_ORIGINS,meta.origin)?meta.origin:'center',o=assemblyOriginPoint(b,origin),{links,ports}=assemblyLinks(ship,ids);
  const P=new Set(ids.parts),F=new Set(ids.fits),local=new Map();let n=1;for(const id of ids.parts)local.set('p'+id,n++);for(const id of ids.fits)local.set('f'+id,n++);
  for(const q of selection.surfaces?.patches||[]){for(const r of [...(q.aggregate?.cells||[]),...(q.aggregate?.aliases||[])])if(!local.has('p'+r[0]))local.set('p'+r[0],n++);for(const r of q.aggregate?.guns||[])if(!local.has('f'+r[0]))local.set('f'+r[0],n++);}const localMap={parts:new Map([...local].filter(([k])=>k[0]==='p').map(([k,v])=>[+k.slice(1),v])),fits:new Map([...local].filter(([k])=>k[0]==='f').map(([k,v])=>[+k.slice(1),v]))},surfaceData=surfaceMapSnapshot(selection.surfaces,localMap);
- const parts=selection.parts.map(p=>{const q=publicCopyOf(p);q.id=local.get('p'+p.id);q.c=sub(p.c,o);if(q.surfacePatch)q.surfacePatch=surfaceRemapPatchId(q.surfacePatch,localMap,false);if(q.wing?.pivot)q.wing.pivot=sub(q.wing.pivot,o);remapWingMembers(q.wing,id=>local.get('p'+id),id=>local.get('f'+id));for(const k of ['tw','vt','reactor']){if(q[k]==null)continue;if(P.has(q[k]))q[k]=local.get('p'+q[k]);else delete q[k];}return q;});
+ const parts=selection.parts.map(p=>{const q=publicCopyOf(p);q.id=local.get('p'+p.id);q.c=sub(p.c,o);if(q.surfacePatch)q.surfacePatch=surfaceRemapPatchId(q.surfacePatch,localMap,false);if(q.wing?.pivot)q.wing.pivot=sub(q.wing.pivot,o);remapWingMembers(q.wing,id=>local.get('p'+id),id=>local.get('f'+id));for(const k of ['tw','vt','reactor','machineryId']){if(q[k]==null)continue;if(P.has(q[k]))q[k]=local.get('p'+q[k]);else delete q[k];}return q;});
  const fits=selection.fits.map(f=>{const q=publicCopyOf(f);q.id=local.get('f'+f.id);q.p=sub(f.p,o);if(q.surfacePatch)q.surfacePatch=surfaceRemapPatchId(q.surfacePatch,localMap,false);for(const k of ['tw','vt']){if(q[k]==null)continue;if(F.has(q[k]))q[k]=local.get('f'+q[k]);else delete q[k];}if(q.host!=null){if(P.has(q.host))q.host=local.get('p'+q.host);else{delete q.host;delete q.local;delete q.localNormal;}}delete q.float;return q;});
  for(const [copies,originals]of [[parts,selection.parts],[fits,selection.fits]])copies.forEach((q,i)=>{if(originals[i].surfacePatch&&surfaceData?._ids.has(originals[i].surfacePatch))q.surfacePatch=surfaceData._ids.get(originals[i].surfacePatch);if(Array.isArray(q.surfacePoint))q.surfacePoint=sub(q.surfacePoint,o);if(q.powerDomain&&surfaceMappedHost(q.powerDomain,localMap))q.powerDomain=surfaceMappedHost(q.powerDomain,localMap);});
  // Edit groups wholly inside the selection come along (renumbered after the children).
@@ -11973,7 +31024,7 @@ function assemblyPlace(ship,tpl,at,opt={}){
  const made=[];
  const one=(mirrored)=>{
   const map=new Map(),parts=[],fits=[];for(const p of tpl.parts)map.set('p'+p.id,ship.nextId++);for(const f of tpl.fits)map.set('f'+f.id,ship.nextId++);
-  for(const src of tpl.parts){let q=publicCopyOf(src);q.c=add(at,src.c);if(q.wing?.pivot)q.wing.pivot=add(at,q.wing.pivot);const members=q.wing?.members;if(mirrored){const tmp={parts:[]};q=mirrorPart(q,tmp);if(members)q.wing.members=members;}remapWingMembers(q.wing,id=>map.get('p'+id),id=>map.get('f'+id));q.id=map.get('p'+src.id);for(const k of ['tw','vt','reactor']){if(q[k]==null)continue;const m=map.get('p'+q[k]);if(m!=null)q[k]=m;else delete q[k];}if(q.reactor==null&&src.reactor!=null)delete q.reactor;delete q.tw;parts.push(q);}
+  for(const src of tpl.parts){let q=publicCopyOf(src);q.c=add(at,src.c);if(q.wing?.pivot)q.wing.pivot=add(at,q.wing.pivot);const members=q.wing?.members;if(mirrored){const tmp={parts:[]};q=mirrorPart(q,tmp);if(members)q.wing.members=members;}remapWingMembers(q.wing,id=>map.get('p'+id),id=>map.get('f'+id));q.id=map.get('p'+src.id);for(const k of ['tw','vt','reactor','machineryId']){if(q[k]==null)continue;const m=map.get('p'+q[k]);if(m!=null)q[k]=m;else delete q[k];}if(q.reactor==null&&src.reactor!=null)delete q.reactor;delete q.tw;parts.push(q);}
   for(const src of tpl.fits){let q=publicCopyOf(src);q.p=add(at,src.p);if(mirrored)q=assemblyMirrorFit(q);q.id=map.get('f'+src.id);for(const k of ['vt']){if(q[k]==null)continue;const m=map.get('f'+q[k]);if(m!=null)q[k]=m;else delete q[k];}delete q.tw;if(q.host!=null){const m=map.get('p'+q.host);if(m!=null)q.host=m;else{delete q.host;delete q.local;delete q.localNormal;}}delete q.float;fits.push(q);}
   // Template-internal symmetric pairs stay paired inside one instance.
   for(const src of tpl.parts)if(src.tw!=null){const a=parts.find(p=>p.id===map.get('p'+src.id)),b=map.get('p'+src.tw);if(a&&b!=null)a.tw=b;}
@@ -12074,7 +31125,7 @@ function dissipatorCap(p,S,ex){if(isWing(p))return wingCap(p,S,ex);if(!DISSIPATO
 // g: {P, fixed, De, Ds, Dw}; sw: [{k, Pshare, n, E, chargeT}] (superweapons charging at 'combat'/'max').
 function heatLoads(g,pr,sw=[]){
  const X=HEAT_PRESETS[pr]||HEAT_PRESETS.combat,M=POWER_MODES[X.mode],P0=Math.max(0,g.P||0),swDraw=sw.map(w=>X.sw?SW_COMBAT[w.k].share*(w.Pshare||0)*P0/Math.max(1,w.n||1):0),swk=swDraw.reduce((a,b)=>a+b,0);
- const P=Math.max(0,P0-swk),full=Math.min(P*COMBAT.engineCap,(g.De||0)*COMBAT.engineDraw),want={engines:full*X.eng,shields:(g.Ds||0)*X.sh,weapons:(g.Dw||0)*M.weapons*X.wpn},got=powerSplit(P,g.fixed||0,want,X.mode);
+ const P=Math.max(0,P0-swk),want={engines:Math.max(0,g.De||0)*X.eng,shields:(g.Ds||0)*X.sh,weapons:(g.Dw||0)*M.weapons*X.wpn},got=powerSplit(P,g.fixed||0,want,X.mode);
  const shot=sw.map(w=>!g.strict&&X.sw&&w.chargeT>0&&Number.isFinite(w.chargeT)?HEAT.swShot*(w.E||0)*TT/(w.chargeT+SW_COMBAT[w.k].over.T):0);
  return {P,draw:got.draw,weapon:got.weapons,shield:got.shields,engine:got.engines,fixed:Math.min(g.fixed||0,got.draw),sw:swDraw,swShot:shot,want};
 }
@@ -12103,7 +31154,7 @@ function heatSolve(D,cap,L){
 }
 // Manual links (later: the designer's own paths): ship.links [{kind:'power'|'heat', from:'p12'|'f7', to:'p40', cap?}].
 // Loaded designs keep them; any manual heat link from a source replaces that source's auto-generated ones.
-function normalizeLinks(a){if(!Array.isArray(a))return undefined;const out=[];for(const l of a.slice(0,4000)){if(!l||!['power','heat'].includes(l.kind))continue;const ok=s=>typeof s==='string'&&/^[pf]-?\d{1,9}$/.test(s);if(!ok(l.from)||!ok(l.to))continue;const o={kind:l.kind,from:l.from,to:l.to};if(Number.isFinite(l.cap)&&l.cap>0)o.cap=+l.cap;out.push(o);}return out.length?out:undefined;}
+function normalizeLinks(a){if(!Array.isArray(a))return undefined;const out=[];for(const l of a.slice(0,4000)){if(!l||!['power','heat'].includes(l.kind))continue;const ok=s=>typeof s==='string'&&/^[pf]-?\d{1,9}$/.test(s);if(!ok(l.from)||!ok(l.to))continue;const o={kind:l.kind,from:l.from,to:l.to};if(Number.isFinite(l.cap)&&l.cap>=0)o.cap=+l.cap;out.push(o);}return out.length?out:undefined;}
 const heatSec=(x,X0,L,cuts)=>{const a=(x-X0)/L;let i=0;while(i<cuts.length&&a>=cuts[i])i++;return i;};
 // The ship's network (ENG-001/002/006): sources, dissipators (built-in, skin, parts, auto-assigned) and links,
 // with each source's waste at the three load presets. Ports are 'p<part id>' and 'f<fit id>'.
@@ -12120,7 +31171,7 @@ function heatNetwork(ship,S){
  for(const p of ship.parts){if(bad(p.id))continue;
   if(isReactor(p))addSrc('reactor','p'+p.id,partLabel(p)+' #'+p.id,p.c,reactorPower(p),{part:p.id});
   else if(p.k==='shield'||p.k==='localShield')addSrc('shield','p'+p.id,partLabel(p)+' #'+p.id,p.c,partVolume(p),{part:p.id});
-  else if(p.k==='engine'&&info[p.id]?.vent)addSrc('engine','p'+p.id,partLabel(p)+' #'+p.id,p.c,nozzleDemand(p)*(info[p.id].powerRatio??1),{part:p.id});}
+  else if(p.k==='engine'&&engineVented(ship,p)){const spec=resolveEngineSpec(p,ship),owner=ship.parts.find(q=>q.id===spec.machineryId)||p,source=ship.parts.find(q=>isReactor(q)&&q.id===spec.reactorId);if(spec.valid&&source&&!bad(source.id)&&!src.some(s=>s.k==='engine'&&s.id===spec.heatNode))addSrc('engine',spec.heatNode,partLabel(owner)+' #'+owner.id,owner.c,spec.ratedInputW,{part:owner.id,legacyCoolingW:spec.legacyCoolingInputW*HEAT.waste.engine});}}
  for(const f of ship.fits){const d=FITS[f.k];if(d?.cat!=='w'||f.float)continue;const P=fitSpec(f).power||0;if(P>0)addSrc('weapon','f'+f.id,(d.short||d.name)+' #'+f.id,f.p,P,{fit:f.id});}
  let localHotel=0;for(const p of ship.parts){const P=PARTS[p.k]?.power?partVolume(p)*PARTS[p.k].power:0;if(!(P>0)||bad(p.id))continue;localHotel+=P;addSrc('hotel','p'+p.id,partLabel(p)+' #'+p.id,p.c,P,{part:p.id});}
  addSrc('hotel','hotel','生活・電子設備',mid,Math.max(1,g.fixed-localHotel));
@@ -12139,7 +31190,7 @@ function heatNetwork(ship,S){
  for(const l of manual){if(l.kind!=='heat')continue;const s=portIx.get(l.from),d=disIx.get(l.to),ok=s!=null&&d!=null&&!(dis[d]?.grade==='low'&&src[s]?.grade==='high');
   links.push({kind:'heat',from:l.from,to:l.to,s:s??-1,d:d??-1,cap:l.cap??(s!=null?HEAT.linkK*Math.max(src[s].rated.max,src[s].size):0),auto:false,ok,why:ok?null:s==null||d==null?'missing':'grade'});if(s!=null)manualHeat.add(s);}
  src.forEach((s,i)=>{
-  const ic=(strict?0:HEAT.integral[s.k])*s.size;if(ic>0){dis.push({k:'integral',id:'int:'+s.id,name:s.name+'（内蔵冷却）',at:s.at,grade:s.grade,cap:ic,src:i,sec:-1});links.push({kind:'heat',from:s.id,to:'int:'+s.id,s:i,d:dis.length-1,cap:ic,auto:true,ok:true,dedicated:true});}
+  const ic=strict?0:s.k==='engine'?Math.max(0,s.legacyCoolingW||0):HEAT.integral[s.k]*s.size;if(ic>0){dis.push({k:'integral',id:'int:'+s.id,name:s.name+'（内蔵冷却）',at:s.at,grade:s.grade,cap:ic,src:i,sec:-1});links.push({kind:'heat',from:s.id,to:'int:'+s.id,s:i,d:dis.length-1,cap:ic,auto:true,ok:true,dedicated:true});}
   if(manualHeat.has(i))return;
   const cand=dis.map((d,j)=>({d,j})).filter(({d})=>d.part!=null&&(d.grade==='high'||s.grade==='low')).sort((a,b)=>len(sub(a.d.at,s.at))-len(sub(b.d.at,s.at))||a.j-b.j).slice(0,s.grade==='low'?Infinity:HEAT.autoLinks);
   // v25 sized on the heaviest load the source sees (s.size), not only on 'max': at 'max' shields can take all the power and a gun
@@ -12162,8 +31213,22 @@ function heatNetwork(ship,S){
  const consumers=[...ship.parts.filter(p=>!bad(p.id)&&!(electricalSourcePower(p)>0)&&!isShapePart(p)&&!src.some(s=>s.id==='p'+p.id)).map(p=>({owner:p,id:'p'+p.id,at:p.c,weight:Math.max(1,partVolume(p))})),...ship.fits.filter(f=>!f.float&&FITS[f.k]?.cat!=='w').map(f=>({owner:f,id:'f'+f.id,at:f.p,weight:Math.max(1,fitSpec(f).mass||1)}))],totalConsumer=consumers.reduce((a,p)=>a+p.weight,0);
  for(const c of consumers){if(links.some(l=>l.kind==='power'&&l.to===c.id))continue;const r=near(c.at,c.owner);links.push({kind:'power',from:r?'p'+r.id:null,to:c.id,cap:g.fixed*c.weight/Math.max(1,totalConsumer),auto:true,ok:!!r,why:r?null:'no-source'});}
  const allNodes=new Set([...src.map(s=>s.id),...dis.map(d=>d.id),...consumers.map(c=>c.id)]);
- for(const l of manual)if(l.kind==='power'){const ok=ship.parts.some(p=>'p'+p.id===l.from&&electricalSourcePower(p)>0||p.k==='battery'&&'p'+p.id===l.from)&&allNodes.has(l.to);links.push({kind:'power',from:l.from,to:l.to,cap:l.cap||0,auto:false,ok,why:ok?null:'missing'});}
+ const manualPowerTargets=new Set(manual.filter(l=>l.kind==='power').map(l=>l.to));for(let i=links.length-1;i>=0;i--)if(links[i].kind==='power'&&links[i].auto&&manualPowerTargets.has(links[i].to))links.splice(i,1);
+ for(const l of manual)if(l.kind==='power'){const ok=(allNodes.has(l.from)||ship.parts.some(p=>'p'+p.id===l.from&&electricalSourcePower(p)>0))&&allNodes.has(l.to);links.push({kind:'power',from:l.from,to:l.to,cap:l.cap??S.power??0,auto:false,ok,why:ok?null:'missing'});}
  for(const l of links){if(l.kind!=='heat'||l.sec!=null)continue;const a=src[l.s]?.at,b=dis[l.d]?.at;l.sec=l.dedicated||dis[l.d]?.k==='skin'?-1:a&&b?sec(mul(add(a,b),.5)):-1;}
+ // Designer loads use the same connected ledger as a cold runtime tick.
+ // In particular, a disconnected plant cannot size or heat another domain's
+ // engine, and the source's actual input fixes its local five-percent waste.
+ const profile=S.propulsion?.version===PROPULSION_MODEL_VERSION?S.propulsion:propulsionProfile(ship,S),powerLinks=links.filter(l=>l.kind==='power'),coolingRated=dis.reduce((a,d)=>a+Math.max(0,d.power||0),0);
+ for(const pr in HEAT_PRESETS){const X=HEAT_PRESETS[pr],mode=POWER_MODES[X.mode],engineRequests=buildPropulsionRequests(profile.engines,Object.fromEntries(profile.engines.map(e=>[e.id,{available:e.available,connected:e.connected,outletAvailable:e.outletAvailable,pathCapacityW:e.pathCapacityW}])),X.eng),loads=engineRequests.map(r=>({id:'engine:'+r.id,kind:'engines',port:r.spec.powerNode,domain:r.spec.domain,requestedInputW:r.requestedInputW}));
+  for(const [kind,total,k] of [['fixed',Math.max(0,g.fixed-coolingRated),'hotel'],['shields',g.Ds*X.sh,'shield'],['weapons',g.Dw*mode.weapons*X.wpn,'weapon']]){const rows=src.filter(s=>s.k===k),weight=rows.reduce((a,s)=>a+s.w,0);for(const s of rows)loads.push({id:kind+':'+s.id,kind,port:s.id,domain:domains.of(ship.parts.find(p=>p.id===s.part)||ship.fits.find(f=>f.id===s.fit)||{powerDomain:'main'}),requestedInputW:total*s.w/Math.max(1e-30,weight)});}
+  for(const d of dis)if(d.power>0)loads.push({id:'cooling:'+d.id,kind:'cooling',port:d.id,domain:domains.of(ship.parts.find(p=>p.id===d.part)||{powerDomain:'main'}),requestedInputW:d.power});
+  const sources=rs.map(r=>({id:'p'+r.id,domain:domains.of(r),powerW:Math.max(0,electricalSourcePower(r)-(X.sw?sws.filter(w=>w.reactor===r.id).reduce((a,w)=>a+Math.max(0,w.chargeW||SW_COMBAT[w.k].share*electricalSourcePower(r)/Math.max(1,sws.filter(v=>v.reactor===r.id).length)),0):0))})),power=allocateConnectedPower({sources,links:powerLinks,loads,mode:X.mode}),engineHeat=new Map();
+  for(const r of engineRequests)engineHeat.set(r.spec.heatNode,(engineHeat.get(r.spec.heatNode)||0)+HEAT.waste.engine*(power.granted['engine:'+r.id]||0));
+  W[pr]=heatWaste({draw:power.draw,weapon:power.weapons,shield:power.shields,engine:power.engines,fixed:power.fixed,sw:W[pr].sw.map(v=>v/Math.max(1e-30,HEAT.waste.sw)),swShot:swIn.map(()=>0)});
+  for(const s of src){if(s.k==='engine')s.rated[pr]=engineHeat.get(s.id)||0;else if(s.k==='reactor')s.rated[pr]=HEAT.waste.reactor*(power.sources.find(r=>r.id===s.id)?.drawW||0);else if(s.k==='weapon')s.rated[pr]=HEAT.waste.weapon*(power.granted['weapons:'+s.id]||0);else if(s.k==='shield')s.rated[pr]=HEAT.waste.shield*(power.granted['shields:'+s.id]||0);else if(s.k==='hotel')s.rated[pr]=HEAT.waste.hotel*(power.granted['fixed:'+s.id]||0);}
+ }
+ for(const s of src){s.size=Math.max(...HEAT_SIZING.map(pr=>s.rated[pr]||0));s.store=Math.max(1,HEAT.storeS*s.size);}
  return {src,dis,links,waste:W,g};
 }
 // The network at a load preset, in steady state: what each source makes, what its paths and dissipators take,
@@ -12197,6 +31262,7 @@ function heatStats(ship,S){
   draw:heatDrawLinks(ship,net),
   net:{src:net.src.map(s=>({k:s.k,id:s.id,name:s.name,grade:s.grade,sec:s.sec,part:s.part??null,fit:s.fit??null,sw:s.sw??null,gen:s.gen??null,rated:s.rated,size:s.size,store:s.store})),dis:net.dis.map(d=>({k:d.k,id:d.id,name:d.name,grade:d.grade,cap:d.cap,part:d.part??null,src:d.src??null,sec:d.sec??-1,ext:!!d.ext,exposed:d.exposed??0,legacy:!!d.legacy,...(d.fo>=0?{fo:d.fo,cs:d.cs,sh:d.sh}:{}),...(d.wing!=null?{wing:d.wing}:{})})),links:ht.filter(l=>l.ok&&l.s>=0&&l.d>=0).map(l=>({s:l.s,d:l.d,cap:l.cap,sec:l.sec??-1,dedicated:!!l.dedicated}))}};
  S.heat.powerPaths=pw.map(l=>({kind:'power',from:l.from,to:l.to,cap:l.cap,auto:l.auto,ok:l.ok}));
+ for(let i=0;i<net.src.length;i++)S.heat.net.src[i].powerWeight=net.src[i].w;
  for(let i=0;i<net.dis.length;i++)if(net.dis[i].power>0)S.heat.net.dis[i].power=net.dis[i].power;
  S.heat.mode=strict?'strict':'compat';S.heat.dissipatorPower=rated;
  const warn=(lv,text)=>S.warnings.push({lv,code:'heat',text,targets:[{tab:'systems',section:'heat'}]});
@@ -12222,14 +31288,15 @@ const HEAT_V=1,heatCache=new WeakMap();
 function heatGroup(p,net,modIx){
  const mods=p.modules||[],srcIx=[],groups=new Map(),src=[],dis=[],ln=[];
  const shKind={};for(const s of net.src)if(s.k!=='sw')shKind[s.k]=(shKind[s.k]||0)+(s.size||0);
- net.src.forEach((s,i)=>{const ex=net.links.filter(l=>l.s===i&&!l.dedicated).map(l=>l.d).sort((a,b)=>a-b).join(','),key=s.k==='sw'||s.k==='reactor'?s.k+'#'+i:s.k+'|'+s.sec+'|'+ex;
-  let G=groups.get(key);if(!G){G={k:s.k,n:s.k==='sw'||s.k==='reactor'||s.k==='hotel'?s.name:HEAT_KINDS[s.k]+'（'+(SECTION_NAMES[s.sec]||'艦内')+'）',g:s.grade,sh:0,st:0,m:[],pc:[],sec:s.sec,sw:s.sw??-1,gen:-1};groups.set(key,G);src.push(G);}
+ net.src.forEach((s,i)=>{const ex=net.links.filter(l=>l.s===i&&!l.dedicated).map(l=>l.d).sort((a,b)=>a-b).join(','),key=s.k==='sw'||s.k==='reactor'||s.k==='engine'?s.k+'#'+i:s.k+'|'+s.sec+'|'+ex;
+  let G=groups.get(key);if(!G){G={k:s.k,id:s.id,n:s.k==='sw'||s.k==='reactor'||s.k==='hotel'||s.k==='engine'?s.name:HEAT_KINDS[s.k]+'（'+(SECTION_NAMES[s.sec]||'艦内')+'）',g:s.grade,sh:0,st:0,m:[],pc:[],sec:s.sec,sw:s.sw??-1,gen:-1};groups.set(key,G);src.push(G);}
   srcIx[i]=src.indexOf(G);G.sh+=s.k==='sw'?1:(s.size||0)/Math.max(1e-30,shKind[s.k]||1);G.st+=s.store;
   const mi=modIx(s);if(mi>=0&&!G.m.includes(mi))G.m.push(mi);
+  if(s.k==='engine'){const body=mods.findIndex(m=>m.machineryOwner===s.part);if(body>=0&&!G.m.includes(body))G.m.push(body);}
   if(s.k==='weapon'&&mi>=0)mods.forEach((m,j)=>{if(m.k==='capacitor'&&m.link===mi&&!G.pc.includes(j))G.pc.push(j);});
   if(s.k==='sw'){G.gen=s.gen!=null?mods.findIndex(m=>m.k==='reactor'&&m.part===s.gen):-1;if(G.gen<0)G.gen=heatBiggest(mods,'reactor');}});
  const disIx=[],dmap=new Map();
- net.dis.forEach((d,j)=>{let key=d.k==='integral'||d.k==='legacy'?'int:'+srcIx[d.src]+':'+d.k:d.id;let D=dmap.get(key);if(!D){D={n:d.name,k:d.k,g:d.grade,cap:0,m:d.part!=null?mods.findIndex(m=>m.part===d.part&&(m.k==='dissipator'||m.k==='radiator')):-1,sec:d.sec??-1,src:d.src!=null?srcIx[d.src]:-1};if(d.fo>=0){D.fo=d.fo;D.cs=d.cs;D.sh=d.sh;}if(d.k==='integral')D.n=src[D.src]?.n+'（内蔵冷却）';dmap.set(key,D);dis.push(D);}D.cap+=d.cap;disIx[j]=dis.indexOf(D);});
+ net.dis.forEach((d,j)=>{let key=d.k==='integral'||d.k==='legacy'?'int:'+srcIx[d.src]+':'+d.k:d.id;let D=dmap.get(key);if(!D){D={id:d.id,n:d.name,k:d.k,g:d.grade,cap:0,m:d.part!=null?mods.findIndex(m=>m.part===d.part&&(m.k==='dissipator'||m.k==='radiator')):-1,sec:d.sec??-1,src:d.src!=null?srcIx[d.src]:-1};if(d.fo>=0){D.fo=d.fo;D.cs=d.cs;D.sh=d.sh;}if(d.k==='integral')D.n=src[D.src]?.n+'（内蔵冷却）';dmap.set(key,D);dis.push(D);}D.cap+=d.cap;disIx[j]=dis.indexOf(D);});
  for(let j=0;j<net.dis.length;j++){const D=dis[disIx[j]],source=net.dis[j];if(D&&source.power>0)D.power=(D.power||0)+source.power;}
  const lmap=new Map();for(const l of net.links){const s=srcIx[l.s],d=disIx[l.d];if(s==null||d==null)continue;const key=s+':'+d;let x=lmap.get(key);if(!x){x={s,d,cap:0,sec:l.sec??-1};lmap.set(key,x);ln.push(x);}x.cap+=l.cap;}
  for(const G of src)G.sh=+G.sh.toPrecision(6);
@@ -12272,11 +31339,21 @@ function heatProfile(p){
 function heatStagger(id){const s=String(id);let h=0;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))|0;return ((h>>>0)%997)/997*HEAT.dt;}
 function heatInit(u){
  const H=heatProfile(u.p);if(!H)return null;const n=H.src.length,nw=(u.p.sw||[]).length;
- return u.ht={t:heatStagger(u.id),last:null,e:{reactor:0,weapon:0,shield:0,engine:0,hotel:0},esw:new Array(nw).fill(0),st:new Array(n).fill(0),md:new Array(n).fill(0),mt:new Array(n).fill(0),lm:new Array(n).fill(1),lim:{reactor:1,weapon:1,shield:1,engine:1},swLim:new Array(nw).fill(1),emit:0,peak:0,n};
+ return u.ht={t:heatStagger(u.id),elapsed:0,last:null,e:{reactor:0,weapon:0,shield:0,engine:0,hotel:0},engineE:new Array(n).fill(0),reactorE:new Array(n).fill(0),esw:new Array(nw).fill(0),st:new Array(n).fill(0),md:new Array(n).fill(0),mt:new Array(n).fill(0),lm:new Array(n).fill(1),lim:{reactor:1,weapon:1,shield:1,engine:1},swLim:new Array(nw).fill(1),emit:0,peak:0,n};
 }
 const heatOf=u=>{const h=u.ht;if(h&&h.n===heatProfile(u.p)?.src.length)return h;return heatInit(u);};
+const reactorHeatIndex=new WeakMap();
+function reactorInputHeat(h,H,source,inputJ,direct=false){
+ if(!(inputJ>0)||source?.reactor===false)return 0;let index=reactorHeatIndex.get(H);if(!index){const ports=new Map(),modules=new Map(),rows=[];H.src.forEach((s,i)=>{if(s.k!=='reactor')return;rows.push(i);if(s.id!=null)ports.set(s.id,i);for(const m of s.m||[])modules.set(m,i);});index={ports,modules,rows};reactorHeatIndex.set(H,index);}if(!index.rows.length)return 0;
+ const i=index.ports.get(source?.id)??index.modules.get(source?.moduleIndex),Q=HEAT.waste.reactor*inputJ;if(i!=null){if(direct)h.st[i]+=Q;else{h.reactorE=h.reactorE||new Array(H.src.length).fill(0);h.reactorE[i]+=Q;}}
+ else if(direct){const total=index.rows.reduce((a,i)=>a+Math.max(0,H.src[i].sh||1),0);for(const i of index.rows)h.st[i]+=Q*Math.max(0,H.src[i].sh||1)/Math.max(1e-30,total);}else h.e.reactor+=Q;return Q;
+}
 // Every tick (fleetPowerStep): the energy each kind drew becomes waste in the stores' inflow (cheap; the solve is slow).
-function heatAccrue(u,got,fixed,dt){const h=heatOf(u);if(!h)return;const W=HEAT.waste,e=h.e;e.reactor+=W.reactor*got.draw*dt;e.weapon+=W.weapon*got.weapons*dt;e.shield+=W.shield*got.shields*dt;e.engine+=W.engine*got.engines*dt;e.hotel+=W.hotel*Math.min(fixed,got.draw)*dt;}
+function heatAccrue(u,got,fixed,dt){const h=heatOf(u);if(!h||!(dt>0)||!Number.isFinite(dt))return;const W=HEAT.waste,e=h.e,H=heatProfile(u.p),power=got.propulsion?.power;
+ if(power?.funding&&power.consumers){const sources=new Map(power.sources.map(s=>[s.id,s]));for(const load of power.consumers){if(load.kind==='cooling'||!(load.grantedInputW>0))continue;let ratio=1;if(load.kind==='weapons'){if(u.p.surface?.mounts&&u.pw?.weaponInputRemainingJ){const mi=load.id.slice('weapons:'.length),accepted=(u.pw.weaponInputs?.[mi]||0)-(u.pw.weaponInputRemainingJ[mi]||0)/dt;ratio=clamp(accepted/load.grantedInputW,0,1);}else ratio=power.weapons>0?clamp((got.weapons||0)/power.weapons,0,1):0;}else if(load.kind==='shields')ratio=power.shields>0?clamp((got.shields||0)/power.shields,0,1):0;else if(load.kind==='fixed')ratio=power.fixed>0?clamp((fixed||0)/power.fixed,0,1):0;for(const [id,W]of Object.entries(power.funding[load.id]||{}))reactorInputHeat(h,H,sources.get(id),W*ratio*dt);}}
+ else e.reactor+=W.reactor*Math.max(0,got.draw||0)*dt;e.weapon+=W.weapon*Math.max(0,got.weapons||0)*dt;e.shield+=W.shield*Math.max(0,got.shields||0)*dt;
+ if(got.propulsion?.engines){h.engineE=h.engineE||new Array(H.src.length).fill(0);for(const engine of got.propulsion.engines){const spec=u.p.propulsion?.engines?.find(s=>s.id===engine.id),i=H.src.findIndex(s=>s.k==='engine'&&(s.id===(spec?.heatNode||'p'+engine.id)||s.m?.includes(spec?.moduleIndex))),Q=Math.max(0,engine.wasteHeatW||0)*dt;if(i>=0)h.engineE[i]+=Q;else e.engine+=Q;}}
+ else e.engine+=W.engine*Math.max(0,got.engines||0)*dt;e.hotel+=W.hotel*Math.max(0,Math.min(fixed||0,got.draw||0))*dt;}
 const heatLim=(u,k)=>u.ht?.lim?.[k]??1,heatSwLim=(u,i)=>u.ht?.swLim?.[i]??1;
 // A superweapon's charge and its shot: the waste of the charge, and the share of the shot left in its generator's direct system.
 function heatSwCharge(u,i,dE){const h=heatOf(u);if(h&&dE>0)h.esw[i]=(h.esw[i]||0)+HEAT.waste.sw*dE;}
@@ -12287,24 +31364,28 @@ const HEAT_MODE=['稼働','出力制限','緊急停止中','停止','停止失�
 // The slow step (every HEAT.dt s of battle per ship, from combatResolve): spread the waste over the sources,
 // carry it through the paths that still stand to the dissipators that still work, fill or drain the stores,
 // and run each source's limiting, shutdown and failure.
-function heatTick(ctx,u,dt){
+function heatTick(ctx,u,dt,interval=null){
  const H=heatProfile(u.p);if(!H||u.dead)return;const h=heatOf(u);if(!h)return;
- h.t+=dt;if(h.t<HEAT.dt)return;let T=h.t;if(h.last!=null&&Number.isFinite(ctx?.time))T=Math.max(T,ctx.time-h.last);h.t=0;h.last=ctx?.time??null;
+ if(!(dt>0)||!Number.isFinite(dt))return;let T=interval;
+ if(T==null){h.t+=dt;h.elapsed=(h.elapsed||0)+dt;if(h.t<HEAT.dt)return;T=h.elapsed;h.t=0;h.elapsed=0;h.last=ctx?.time??null;}
+ if(T>HEAT.dt*(1+1e-9)){const count=Math.ceil(T/HEAT.dt),step=T/count,energy={...h.e},engineE=(h.engineE||[]).slice(),reactorE=(h.reactorE||[]).slice(),sw=h.esw.slice(),reserve=h.cooling?.reserveJ||0,reserveByNode=h.cooling?.reserveByNodeJ?{...h.cooling.reserveByNodeJ}:null,reserveBySource=h.cooling?.reserveByNodeSourceJ?Object.fromEntries(Object.entries(h.cooling.reserveByNodeSourceJ).map(([id,v])=>[id,{...v}])):null;for(let k=0;k<count;k++){h.e=Object.fromEntries(Object.entries(energy).map(([key,v])=>[key,v/count]));h.engineE=engineE.map(v=>v/count);h.reactorE=reactorE.map(v=>v/count);h.esw=sw.map(v=>v/count);if(h.cooling){h.cooling.reserveJ=reserve/count;if(reserveByNode)h.cooling.reserveByNodeJ=Object.fromEntries(Object.entries(reserveByNode).map(([id,v])=>[id,v/count]));if(reserveBySource)h.cooling.reserveByNodeSourceJ=Object.fromEntries(Object.entries(reserveBySource).map(([id,v])=>[id,Object.fromEntries(Object.entries(v).map(([source,J])=>[source,J/count]))]));}heatTick({...ctx,time:Number.isFinite(ctx?.time)?ctx.time-T+(k+1)*step:ctx?.time},u,step,step);}return;}
  const mods=u.mods||[],n=H.src.length,alive=new Float64Array(n),gen=new Float64Array(n),wsum={};
  for(let i=0;i<n;i++){const s=H.src[i];let a=1;if(s.m.length){a=0;for(const m of s.m)a+=Math.max(0,mods[m]??1);a/=s.m.length;}alive[i]=a;if(s.k!=='sw')wsum[s.k]=(wsum[s.k]||0)+s.sh*a*h.lm[i];}
- for(let i=0;i<n;i++){const s=H.src[i];gen[i]=s.k==='sw'?(h.esw[s.sw]||0)/T:wsum[s.k]>0?(h.e[s.k]||0)/T*s.sh*alive[i]*h.lm[i]/wsum[s.k]:0;}
+ const fallbackWeight={engine:0,reactor:0};for(const s of H.src)if(s.k in fallbackWeight)fallbackWeight[s.k]+=Math.max(0,s.sh||1);
+ for(let i=0;i<n;i++){const s=H.src[i],local=s.k==='engine'?h.engineE:s.k==='reactor'?h.reactorE:null,shared=s.k in fallbackWeight?(h.e[s.k]||0)/T*Math.max(0,s.sh||1)/Math.max(1e-30,fallbackWeight[s.k]):wsum[s.k]>0?(h.e[s.k]||0)/T*s.sh*alive[i]*h.lm[i]/wsum[s.k]:0;gen[i]=s.k==='sw'?(h.esw[s.sw]||0)/T:(local?.[i]||0)/T+shared;}
  const integ=fleetIntegrity(u),secOk=si=>si<0||!u.sec?.[si]||!u.secLost?.includes(si)&&u.sec[si].s>=u.sec[si].max*HEAT.linkBreak;
  // v25 an S-foil's deploy state masks the dissipators inside its wing (cs: stowed share); the emission mode closes
  // them down (low), or overdrives them and empties the stores faster (emergency, high) (WING-004, SENS-005)
  const em=EMCON[emconOf(u)],fd=u.fo?.d;
  const cap=H.dis.map(d=>d.cap*(d.m>=0?Math.max(0,mods[d.m]??1):d.k==='skin'?integ:d.k==='legacy'?(H.src[d.src]?.gen>=0?Math.max(0,mods[H.src[d.src].gen]??1):1):d.src>=0?alive[d.src]:1)*(secOk(d.sec)?1:0)*(d.fo>=0&&fd?d.cs+(1-d.cs)*(fd[d.fo]??1):1)*(d.k==='skin'?1:em.cap));
  const cooling=h.cooling,coolingRated=H.dis.reduce((a,d)=>a+Math.max(0,d.power||0),0),reservedW=cooling?Math.max(0,cooling.reserveJ||0)/Math.max(1e-9,T):0;
- for(let i=0;i<H.dis.length;i++){const d=H.dis[i];if(d.power>0)cap[i]*=(d.m>=0?powerFactor(u,u.p.modules[d.m]?.k,d.m):powerFactor(u,'reactor'))*clamp(reservedW/Math.max(1e-30,coolingRated),0,1);}
- const L=H.ln.map(l=>({s:l.s,d:l.d,cap:secOk(l.sec)?l.cap??Infinity:0})),D=Array.from(gen,(g,i)=>g+h.st[i]/(HEAT.drainS*em.drain)),r=heatSolve(D,cap,L);
+ for(let i=0;i<H.dis.length;i++){const d=H.dis[i];if(d.power>0){const node=d.id||(d.m>=0?u.p.modules[d.m]?.port:null),reserve=cooling?.reserveByNodeJ,localReserved=reserve&&node&&(Object.hasOwn(reserve,node)||!Object.hasOwn(reserve,'cooling'))?Math.max(0,reserve[node]||0)/Math.max(1e-9,T):null;cap[i]*=(d.m>=0?powerFactor(u,u.p.modules[d.m]?.k,d.m):powerFactor(u,'reactor'))*clamp(localReserved==null?reservedW/Math.max(1e-30,coolingRated):localReserved/d.power,0,1);}}
+ const L=H.ln.map(l=>({s:l.s,d:l.d,cap:secOk(l.sec)?l.cap??Infinity:0})),D=Array.from(gen,(g,i)=>Math.min(g+h.st[i]/(HEAT.drainS*em.drain),g+h.st[i]/T)),r=heatSolve(D,cap,L);
  let emit=0,peak=0;for(const v of r.used)emit+=v;h.emit=emit;h.band=emitBands(H.dis,r.used,fd);h.cap=cap.reduce((a,b)=>a+b,0);
- if(cooling){const electrical=H.dis.reduce((a,d,i)=>a+(d.power>0&&d.cap>0?r.used[i]*d.power/d.cap:0),0),input=Math.min(cooling.reserveJ||0,electrical*T),reactorHeat=(H.src.some(s=>s.k==='reactor')?HEAT.waste.reactor:0)*input;
-  for(const [kind,energy] of [['hotel',input],['reactor',reactorHeat]]){const total=H.src.reduce((a,s,i)=>a+(s.k===kind?Math.max(0,s.sh||1)*alive[i]:0),0);if(total>0)for(let i=0;i<n;i++)if(H.src[i].k===kind)h.st[i]+=energy*Math.max(0,H.src[i].sh||1)*alive[i]/total;}
-  cooling.inputJ+=input;cooling.heatJ+=input;cooling.reactorWasteJ+=reactorHeat;cooling.handledJ+=r.used.reduce((a,v,i)=>a+(H.dis[i].power>0?v*T:0),0);cooling.lastDraw=input/Math.max(1e-9,T);cooling.reserveJ=0;
+ if(cooling){const deviceInputs=H.dis.map((d,i)=>d.power>0&&d.cap>0?r.used[i]*d.power/d.cap*T:0),electrical=deviceInputs.reduce((a,J)=>a+J,0),input=Math.min(cooling.reserveJ||0,electrical),scale=electrical>0?input/electrical:0;let reactorHeat=0;
+  for(let j=0;j<H.dis.length;j++){const d=H.dis[j],J=deviceInputs[j]*scale,node=d.id||(d.m>=0?u.p.modules[d.m]?.port:null),bySource=cooling.reserveByNodeSourceJ?.[node]||cooling.reserveByNodeSourceJ?.cooling,reserved=Object.values(bySource||{}).reduce((a,v)=>a+v,0);if(reserved>0){for(const [id,reservedJ]of Object.entries(bySource))reactorHeat+=reactorInputHeat(h,H,cooling.sources?.[id],J*reservedJ/reserved,true);}else if(J>0)reactorHeat+=reactorInputHeat(h,H,null,J,true);}
+  const hotelTotal=H.src.reduce((a,s,i)=>a+(s.k==='hotel'?Math.max(0,s.sh||1)*alive[i]:0),0);if(hotelTotal>0)for(let i=0;i<n;i++)if(H.src[i].k==='hotel')h.st[i]+=input*Math.max(0,H.src[i].sh||1)*alive[i]/hotelTotal;
+  cooling.inputJ+=input;cooling.heatJ+=input;cooling.reactorWasteJ+=reactorHeat;cooling.handledJ+=r.used.reduce((a,v,i)=>a+(H.dis[i].power>0?v*T:0),0);cooling.lastDraw=input/Math.max(1e-9,T);cooling.reserveJ=0;if(cooling.reserveByNodeJ)cooling.reserveByNodeJ={};if(cooling.reserveByNodeSourceJ)cooling.reserveByNodeSourceJ={};
   if(u.pw){u.pw.cooling=cooling.lastDraw;u.pw.fixed=Math.max(0,(u.p.grid?.fixed||0)-(u.p.grid?.cooling||0))+cooling.lastDraw;u.pw.draw=(u.pw.drawNonCooling||0)+cooling.lastDraw;u.load=u.pw.P>0?u.pw.draw/u.pw.P:0;}}
  for(let i=0;i<n;i++){const s=H.src[i],C=Math.max(1,s.st);h.st[i]=Math.max(0,h.st[i]+(gen[i]-r.out[i])*T);const f=h.st[i]/C;peak=Math.max(peak,f);
   const name=s.n,ev=t=>ctx?.ev?.(u,`${name}：${t}`);let md=h.md[i];
@@ -12322,7 +31403,7 @@ function heatTick(ctx,u,dt){
  const lim={reactor:0,weapon:0,shield:0,engine:0},w={reactor:0,weapon:0,shield:0,engine:0};
  for(let i=0;i<n;i++){const s=H.src[i];if(s.k==='sw'){if(s.sw>=0)h.swLim[s.sw]=h.lm[i];continue;}if(!(s.k in lim))continue;lim[s.k]+=s.sh*alive[i]*h.lm[i];w[s.k]+=s.sh*alive[i];}
  for(const k in lim)h.lim[k]=w[k]>0?clamp(lim[k]/w[k],0,1):1;
- h.e={reactor:0,weapon:0,shield:0,engine:0,hotel:0};h.esw=h.esw.map(()=>0);
+ h.e={reactor:0,weapon:0,shield:0,engine:0,hotel:0};h.engineE=(h.engineE||[]).map(()=>0);h.reactorE=(h.reactorE||[]).map(()=>0);h.esw=h.esw.map(()=>0);
 }
 // The failure a too-late shutdown ends in (PLAN-017 / §10.4): a gun group burns out its weapon power compartments
 // (the capacitors that charge it; guns without one lose their own feed); a superweapon's direct system blows up
@@ -12870,11 +31951,12 @@ function foilStep(u,dt,want,ev){
 }
 function foilState(u){const s=u?.fo,F=u?.p?.foils;if(!s||!F?.length)return null;return F.map((f,i)=>({name:f.n,d:s.d[i],jam:s.jam[i],want:s.want[i]}));}
 
-return {canPlaceSponson,sponsonPreview,surfaceRenderClone,surfaceWorkingShip,surfaceDerivedFits,surfaceRenderFaces,surfaceRenderKey,navigationItinerary,isSurfaceBattery,surfaceBatteryGeometry,SURFACE_VERSION,SURFACE_MATERIALS,surfaceAllocation,surfaceAutoCandidates,autoConfigureSurfaces,surfaceSymmetryIds,surfaceInwardDepth,surfaceAllocationPlan,normalizeSurfaces,surfacePatches,surfaceConfig,setSurfaceConfig,enableSurfaceMode,surfaceReport,surfaceSync,surfacePick,surfaceSplit,surfaceMerge,surfaceProfile,ENERGY_MODEL,SHIELD_MODEL,ION_MODEL,weaponEnergy,weaponInputFactor,shieldReceive,shieldStatus,ionOverload,powerDomainProfile,powerFactor,powerStatus,powerTick,heatAccrue,heatLim,heatTick,superweaponCharge,SURFACE_LIMITS,surfaceBatteryStatus,surfaceFleetFire,surfacePowerStep,surfaceRayHit,surfaceHit,surfaceRemoveConfig,surfaceReassign,surfaceCarve,surfaceManualCharge,surfaceSpend,surfaceMountEnergy,armorLayerStep,surfacePatchAt,surfaceDomainAt,powerDomainWatts,superweaponDischarge,surfaceArmorStatus,surfaceArmorSync,surfaceArmorTick,coolingPowerReserve,
+return {allocateConnectedPower,solveShipPropulsion,allocateShipPower,attachShipPowerProfile,propulsionPreview,canPlaceSponson,sponsonPreview,surfaceRenderClone,surfaceWorkingShip,surfaceDerivedFits,surfaceRenderFaces,surfaceRenderKey,navigationItinerary,isSurfaceBattery,surfaceBatteryGeometry,SURFACE_VERSION,SURFACE_MATERIALS,surfaceAllocation,surfaceAutoCandidates,autoConfigureSurfaces,surfaceSymmetryIds,surfaceInwardDepth,surfaceAllocationPlan,normalizeSurfaces,surfacePatches,surfaceConfig,setSurfaceConfig,enableSurfaceMode,surfaceReport,surfaceSync,surfacePick,surfaceSplit,surfaceMerge,surfaceProfile,ENERGY_MODEL,SHIELD_MODEL,ION_MODEL,weaponEnergy,weaponInputFactor,shieldReceive,shieldStatus,ionOverload,powerDomainProfile,powerFactor,powerStatus,powerTick,heatAccrue,heatLim,heatTick,superweaponCharge,SURFACE_LIMITS,surfaceBatteryStatus,surfaceFleetFire,surfacePowerStep,surfaceRayHit,surfaceHit,surfaceRemoveConfig,surfaceReassign,surfaceCarve,surfaceManualCharge,surfaceSpend,surfaceMountEnergy,armorLayerStep,surfacePatchAt,surfaceDomainAt,powerDomainWatts,superweaponDischarge,surfaceArmorStatus,surfaceArmorSync,surfaceArmorTick,coolingPowerReserve,
+ PROPULSION_MODEL_VERSION,PROPULSION,DRIVE_PROFILES,PROPULSION_PROFILES,MACHINERY_GRADES,resolveEngineSpec,updateEngineSpec,migrateLegacyPropulsion,getEngineInputLimit,buildPropulsionRequests,resolvePropulsion,propulsionProfile,
  isShapeKind,isShapePart,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,WING_PLANFORM_PRESETS,wingPlanformPreset,wingTipSide,wingTipOffset,wingTipRange,wingShiftTip,AERO_WING_OUTLINE,AERO_WING_SECTION,AERO_PANEL_OUTLINE,SOLAR_PANEL_PRESETS,solarPanelPreset,solarPanelBraces,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT, craftHeat, cleanCraftHeat, squadFireK, squadHeatStep, SOLAR, solarPower, solarCap, solarArea, wingCap, WING, FOIL_AXES, WING_PARTS, normalizeWing, isWing, isFoil, foilHandles, wingPivot, wingMembers, wingMap, foilSweep, foilPose, foilAt, foilFrame, wingStats, EMIT, BANDS, BAND_NAMES, emitBands, EMCON, EMCON_LOW_MAX, emconOf, SENSOR_BANDS, sensorSuite, SENS, sensSNR, sensStageCap, foilInit, foilStep, foilState, HEAT, HEAT_PRESETS, HEAT_KINDS, HEAT_MODE, DISSIPATORS, dissipatorCap, heatLoads, heatWaste, heatSolve, heatNetwork, heatEvaluate, heatStats, heatProfile, heatProfileOf, heatLegacy, heatInit, heatTick, heatStatus, heatLim, heatSwLim, normalizeLinks, DESIGN_FACTIONS, ionDensity, ionReach, ionGlow, swRange, swFree, swAxis, MGLT, engineDepthRatio, sublightMGLT, AA_CHANNELS, ION_BOLT, ionDiam, ionArea, ionShare, ionPlan, ionStrike, ionBoltsStep, swMuzzle, weaponRoles, fleetDefense, fleetAim, modWorld, aimPoint, fireScreen, screenShare, escortThreat, escortStation, escortPick, SCREEN, aimHold, aimMark, modQ, exposedMod, standardFit, craftCombat, designCraftSnapshot, cleanDesignCraft, CRAFT_ROLE_RTS, ORDNANCE, ORDNANCE_EVIDENCE, STORE_MOUNTS, STORE_FITS, STORE_DEFAULT, storeCapacity, craftStations, CRAFT_LOADOUT, craftTypeOf, craftLoadout, normalizeLoad, craftOrdnance, ordnanceRuns, ordnanceSalvo, ordnanceSummary, VOLLEY, volleyMode, volleyStep, SUPERWEAPONS, SW_COMBAT, swPower, swChargeRate, swInArc, swHeading, swDecay, swOverload, swPulse, swIonWave, superweaponStep, isSuperweapon, superweaponAim, superweaponOpen, normalizeSuperweapon, superweaponStats, isCraft, partLimits, CRAFT_PART_SIZE, craftPart, craftFieldGain, TROOP_SEAT_M3, ENGINE_GLOWS, engineGlowOK, engineGlowRGB, engineLevel, MISSILE_MOUNTS, missileMount, missileCells, missileStatus, PLATE, plateThickness, shipSpan, HULL_SECTIONS, SECTION_NAMES, hullSectionShares, SHIP_LIGHT_KINDS, SHIP_EXAMPLES, registerShipExample, shipKit, SHELL_ROWS, structRows, shellSection, shellPoint, CIS_PAINT, fitTilt, fitUp, fitCanRotate, fitFrameOf, openingRimPoint, surfSamples, groundingStats, turretRayContext, turretClear, turretOrigin, turretRate, GROUND_LIMITS, GROUND_PRESETS, GROUND_KINDS, GROUND_VEHICLE_VOLUME, DROID_STORE_M3, CREW_M3_K, CREW_LIVING_M3, personVolume, RETIRED_PARTS, FEED_FLUX, CELL_ENERGY_DENSITY, CELL_DISCHARGE_S, feedConduits, normalizeGroundForces, groundStatus, planStations, bridgeBodyRole, podPoint, podDepth, intrinsicCommandFits, POD_ASSET, BRIDGE_BODY_COMMAND, REFERENCE_TONE, engineAppearance, engineSkinMesh, referenceFitYaw, rayTris, vmirrorPlane, vmirrorPoint, vmirrorPart, SHIP_CLASSES, shipClassFor, PUBLIC_LISTS, publicJSON, patchShip, patchItem, cache, AIRCRAFT_CLEARANCE, aircraftFitsBay, shipFitsBay, shipStowSize, CRAFT_TYPES, VEHICLE_TYPES, CRAFT_HINTS, VEHICLE_HINTS, craftDims, airWingDims, groundDims, stowSize, vehicleStowSize, VEHICLE_STOW_FACTOR, craftLift, boxFits, stowLoad, stowInit, stowRows, isCombatRow, COMBAT_ROLES, stowPack, stowPasses, stowStatus, aviationBays, hatchOpening, STOW_GAP, STOW_PASS, STOW_ANY_LENGTH, BUILTIN_COMPLEMENTS, builtinComplement, SHIP_STOW_CLEAR, SHIP_STOW_FACTOR, AVIATION_SIZE_VOLUME, AIR_WING_LIMITS, hangarCapacity, normalizeAirWings, aviationStatus, AVIATION_SURFACE_FACES, hatchAxes, aviationSurfaceContacts, setAviationSurfaceMode, syncAviationSurfaces, aviationHatchActive, isSlidingHatch, slidingHatchSpec, slidingHatchPanels, hatchOpenArea, ISD_HYPER_BASELINE, HYPER_CLASS_COEFFICIENT, HYPER_POWER_DENSITY, ISD_SHIELD_VOLUME, SHIELD_BUFFER_SECONDS, SHIELD_ENERGY_DENSITY, SHIELD_POWER_DENSITY, REACTOR_POWER_DENSITY, SOLID_CUT_SHAPES, SOLID_CUT_POLY_MAX, solidCutDisplayTriangles, solidCutVolume, solidCutConvexOK, convexHullFaces, solidCutThinWalls, SOLID_THIN_WALL_M, compiledSolidCut, STRUCT_MESH_LIMITS, meshTopology, MESH_IMPORT_UNITS, MESH_IMPORT_AXES, parseMeshFile, meshImportPart, simplifyMesh, ASSEMBLY_LIMITS, ASSEMBLY_MOUNTS, ASSEMBLY_ORIGINS, ASSEMBLY_CATEGORIES, assemblyLinks, assemblyCapture, normalizeAssemblyTemplate, assemblyPlace, assemblyIssues, assemblyMirrorFit, assemblyPreview, solidCutWorld, solidCutLocal, solidCutFromLocal, solidCutLocalVerts, solidCutToPoly, normalizeStructMesh, meshStructTriangles, inMeshStruct, mirrorStructMesh, structToMesh, refitStructMesh, meshEditCheck, meshMoveVertices, meshSetVertex, meshSplitEdge, meshCollapseVertex, meshExtrudeFace, meshLocalTris, normalizeSolidCut, mirrorSolidCut, solidCutTriangles, solidCutBounds, solidCutContains, solidCutsContain, applySolidCuts, solidPartCutContains, solidStructVolume, solidCutIntersectsShip, flexibleCompartment, hardConflicts, weaponChargeSpec, DREADNOUGHT_EXAMPLES, DESIGN_LIMITS, ALIGNMENTS, alignedPosition, alignPart, replacementShape, replacementOptions, replacePart, COMMAND_ROLES, commandCompartments, commandStatus, habitationSpace, inspectionTargets, planCutEdge, normalizePlanCut, structFrame, alignStructure, FLEET_RULES, POWER_MODES, POWER_AUTO_NOTE, fleetAutoPower, AIM_KINDS, MODULE_LABEL, FLEET_MIN_CREW, powerSplit, coreDetonation, fleetModules, fleetSystems, fleetCrewEff, fleetCrewRatio, fleetAutoAvail, fleetOutReason, AUTO_M3_PER_CREW, AUTO_W_PER_CREW, AUTO_MIN_HUMAN, fleetEffective, fleetProfile, fleetUnit, fleetIntegrity, trenchBattery, sideBattery, fleetFire, fleetReach, fleetStandoff, fleetHeading, fleetBroadside, fleetPowerStep, bandFireAt, fitBand, GUN_BANDS, COMBAT, combatInit, combatIncoming, combatAdd, combatMerge, combatResolve, combatZones, combatClone, combatZoneAt, COMBAT_FACE, unpackBits, fleetFormation, fleetBattle, fleetOrder, fleetArc, fleetTick, hullHalf, hullMass, hullLocal, AIR_CTL, HF, hullField, hullShape, hullCell, hullTB, hullIn, airMouths, hullOverlap, hullSegment, fireBlocker, fireStray, hullCollide, hullGrid, hullNear, hullAlong, hullAround, hullPairs, HULL_GRID, hullImpact, HULL_HIT, HULL_FALL, hullFall, hullCarve, hullAvoid, fleetCommit, fleetFinish, fleetSample, fleetFrame, normalizeBow, bowStation, engineHullEntry, ENGINE_BASELINES, engineBaseline, resizeEngine, parametricEngine, engineRating, sourceEngine, EQUIPMENT, equipmentSpec, equipmentOptions, enforceEquipment, customizeEquipment, adoptEquipment, HYPERDRIVE_REFERENCE, hyperCapacity, arcParameters, arcPoint, arcTriangles, inArc, SEPARATIST_EXAMPLES, STATS_SOURCE, SHIP_REFERENCE, PART_RATINGS, reactorPower, nozzleThrust, nozzleDemand, shieldLoad, partRatingKeys, validOutline, outlinePoints, outlineArea, outlineTriangles, AVIATION_ROLES, CHARGE_TT_M3, aircraftCapacity, aviationConnected, needsCapacitor, weaponCapacitors, refitReferenceInterior, clipReferenceBox, referenceEnginePoint, fitSpec, weaponSizing, weaponModelScale, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface, COST_CATS, COST_K, COST_MODEL, COST_INSTALL, COST_MOUNT_INSTALL, costCategory, partBuildCost, fitBuildCost, costBreakdown, costSignature, costModelSignature, CRAFT_PRICE_CATALOG, craftCatalogPrice, quoteCostBOM, designCost,
-   CRAFT_FIRE, cleanCraftFireArcs, craftGunMounts,
+   craftPowerProfile,cleanCraftPowerProfile,CRAFT_FIRE, cleanCraftFireArcs, craftGunMounts,
    surfaceCopyIdentity, surfaceCaptureConfig, surfaceCopySelection, surfacePasteConfig, surfaceRemapHosts,
-  fleetTargetCandidates, FLEET_PROFILE_VERSION, emptyDesignProfile,
+  propulsionMotion, legacyPropulsionProfile, fleetTargetCandidates, FLEET_PROFILE_VERSION, emptyDesignProfile, canonicalWeaponKind, migrateWeaponFit, migrateWeaponDesign,
   TT, G0, ISD_W, K, PARTS, FITS, HULLS, SECTIONS, KEELS, SECTORS, CLASSES, DESIGNS, AXES, AXNAME, ARMOR_MAX,
   newShip, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
   rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitHasPedestal, normalizeFitMount, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
@@ -13349,6 +32431,7 @@ const RULES = {
  hyperRate: .6,           // light years per second at hyperdrive class 1 on a trunk route (branch lines at half)
  minTrip: 20,             // shortest time in hyperspace
  minLeg: 8, hop: 15,      // shortest leg; re-plotting at each station passed
+ aiCraftWait: 150, aiLaneWait: 10, // v26 an AI group waits at most this long (s) for its craft before a jump; an AI group at a branch-line stop goes on after aiLaneWait
  detectLy: 90,            // long-range detection per unit of sensor rating
  wakeLy: 120,             // a reversion from hyperspace is felt this far away
  reportDelay: 120,        // inhabited worlds report fleets in their system after this long
@@ -13404,6 +32487,7 @@ const CRAFT = {
  uwing:    {name: 'UT-60D Uウイング', short: 'Uウイング', side: 'rebel', role: 'transport', speed: 1900, aa: .5, strike: 40, armor: 1.3, size: 1.8, crew: 2},
  c9979:    {name: 'C-9979 上陸艇', short: 'C-9979', side: 'cis', role: 'transport', speed: 780, aa: .4, strike: 30, armor: 6, size: 476, crew: 0, stay: true}   // droid-crewed, like the other Separatist craft
 };
+const BUILTIN_CRAFT=new WeakSet(Object.values(CRAFT));
 // v20 Sizes and shapes come from the craft types: official dimensions, the hangar size they take.
 for (const [k, c] of Object.entries(CRAFT)) { const d = C.craftDims(k); if (d) { c.dims = d; c.size = C.stowSize(d); } craftStores(c, C.craftLoadout(k)); }
 CRAFT.lambda.stay = true;
@@ -13485,6 +32569,33 @@ const squadArmed = s => (s.ammo || []).some(n => n > 1e-9);
 // Handling: a craft sheds its stores' mass as it fires them, and its speed rises by (mass at the canon load / mass now)^0.34.
 function squadMassK(s) { const c = CRAFT[s.craft], M = c?.mass;if (!(M > 0)) { s.spK = 1; return; } const left = (s.ldg || []).reduce((n, x, i) => n + (s.ammo?.[i] || 0) * x.mass, 0);s.spK = Math.pow((M + (c.ordMass || 0)) / (M + left), .34); }
 const sqSpeed = s => CRAFT[s.craft].speed * (s.spK || 1);
+function craftPowerOf(c){
+ if(!c)return null;if(c.powerProfile)return c.powerProfile;if(c._powerResolved)return null;c._powerResolved=true;
+ if(!BUILTIN_CRAFT.has(c))return null;
+ const key=Object.keys(CRAFT).find(k=>CRAFT[k]===c),catalog=C.craftCatalogPrice(key),reference=catalog?.reference||C.CRAFT_PRICE_CATALOG.entries[key]?.reference;
+ if(catalog?.powerProfile?.profileVersion===C.FLEET_PROFILE_VERSION){const p=C.cleanCraftPowerProfile(catalog.powerProfile);if(p){c.powerProfile=p;if(!(c.mass>0))c.mass=p.propulsion.massKg/1000;return p;}}
+ if(reference){try{const ship=C.buildDesign(reference),stats=C.computeStats(ship);c.powerProfile=C.craftPowerProfile(ship,stats);if(!(c.mass>0))c.mass=stats.mass;return c.powerProfile;}catch(e){return null;}}
+ // Older table-only aircraft have no editable electrical design. Their finite, fixed
+ // compatibility plant uses the existing speed/acceleration scale and the BOM's mass.
+ const bom=estimatedCraftBOM(c),massTonnes=c.mass>0?c.mass:bom.hullVolume*.2,speed=c.speed;
+ if(!(massTonnes>0)||!Number.isFinite(massTonnes)||!(speed>0)||!Number.isFinite(speed))return null;
+ const massKg=massTonnes*1000,a=3700*Math.pow(speed/2070,1/.34)*C.G0,wattsPerNewton=C.PROPULSION.standardWattsPerNewton,R=Math.min(C.PROPULSION.maxInputW,a*massKg*wattsPerNewton),thrust=R/wattsPerNewton,hotel=Math.max(0,c.systems?.power||0),weapons=Math.max(0,c.gun??c.strike??0)*C.TT;
+ const engine={id:2,machineryId:2,version:1,ratedInputW:R,ratedThrustN:thrust,driveProfileId:'standard',machineryGradeId:'legacy-refit',wattsPerNewton,moduleIndex:1,powerNode:'p2',heatNode:'p2',domain:'main',direction:[1,0,0],valid:true,available:true,connected:true,outletAvailable:true,pathCapacityW:R};
+ c.powerProfile={compatibility:'table-v1',legacyReadOnly:true,requiresBlueprint:true,name:c.name,hp:1,D:0,shieldBuffer:0,wCap:0,len:c.dims?.[0]||10,width:c.dims?.[1]||8,height:c.dims?.[2]||3,crewNeed:c.crew||0,crewMax:c.crew||0,energyModel:{version:0},modules:[{k:'reactor',part:1,port:'p1',domain:'main',size:1,share:1},{k:'engine',part:2,port:'p2',domain:'main',size:1,share:1}],grid:{P:R+hotel+weapons,fixed:hotel,cooling:0,De:R,Ds:0,Dw:weapons,Pgen:R+hotel+weapons,Paux:0},propulsion:{version:1,engines:[engine],massKg,ratedThrustN:thrust,ratedAccelMps2:thrust/massKg,accelerationLimitMps2:thrust/massKg}};c.mass=massTonnes;return c.powerProfile;
+}
+const SQUAD_POWER_TICKS=new WeakMap();
+function squadPropulsion(s,throttle,dt,prepare=false){
+ const craft=CRAFT[s.craft],profile=craftPowerOf(craft);if(!profile){s.propulsion=null;return {acc:0,acc0:0,turn:0};}
+ let u=s.drive;if(!u||u._profile!==profile){u=s.drive=C.fleetUnit(s.id+':drive',s.craft,profile,s.side);u._profile=profile;}
+ const left=(s.ldg||[]).reduce((n,x,i)=>n+(s.ammo?.[i]||0)*(x.mass||0),0),massKg=profile.propulsion.massKg+left*1000;
+ if(u.p===profile||u.p.propulsion.massKg!==massKg){const descriptor={...profile.propulsion,massKg,ratedAccelMps2:massKg>0?profile.propulsion.ratedThrustN/massKg:0};u.p={...profile,propulsion:descriptor};}
+ u.pos=s.pos;u.yaw=Math.atan2(s.h[2],s.h[0]);u.velocity=s.vel||[0,0,0];u.maneuver=Number.isFinite(throttle)?clamp(throttle,0,1):0;u.out=s.disabled||null;
+ const world=HULLS?.w,time=world?.time,cached=SQUAD_POWER_TICKS.get(u);if(world&&cached?.world===world&&cached.time===time)return C.propulsionMotion(u);
+ const wing=world?.wings?.get(s.wing),firing=s.weaponDemand===true||wing?.phase==='run'||!!wing?.engaged||(s.dogfight!=null&&Number.isFinite(time)&&s.dogfight>=time-Math.max(0,dt))||(s.strafeT>time),g=u.p.grid,weapons=firing?Math.max(0,g.Dw||0)*squadLaserK(s):0;
+ const allocation=C.allocateShipPower(u,C.fleetSystems(u),{throttle:u.maneuver,shields:craft.shield?g.Ds:0,weapons},dt,'balanced');s.weaponPowerK=weapons>0?clamp((allocation.got.weapons||0)/weapons,0,1):0;
+ const H=C.heatProfile(u.p),nf=Math.max(Math.min(C.DESIGN_LIMITS.parts,u.p.foils?.length||0),...(H?.dis||[]).map(d=>Number.isInteger(d.fo)&&d.fo>=0&&d.fo<C.DESIGN_LIMITS.parts?d.fo+1:0));if(nf>0){u.fo=u.fo||{d:new Array(nf).fill(0),jam:new Array(nf).fill(false),want:new Array(nf).fill(0)};for(let i=0;i<nf;i++)u.fo.d[i]=u.fo.want[i]=Number.isFinite(s.foil)?clamp(s.foil,0,1):0;}
+ const motion=C.propulsionMotion(u);if(dt>0){C.heatTick(null,u,dt);C.powerTick(u,dt);}if(prepare&&world)SQUAD_POWER_TICKS.set(u,{world,time});s.propulsion=u.propulsion;return motion;
+}
 // v21 Craft of the player's own design fly beside the types above: a carrier's air wing row carries the
 // design's snapshot (C.craftCombat), and the craft is entered here under its own key when the carrier
 // joins a fleet. The same design always gets the same key.
@@ -13498,7 +32609,7 @@ function registerDesignCraft(d) {
  const sig=JSON.stringify(snapshot,(key,value)=>value&&typeof value==='object'&&!Array.isArray(value)?Object.fromEntries(Object.keys(value).sort().map(k=>[k,value[k]])):value);
  let h=2166136261,h2=0;for(let i=0;i<sig.length;i++){h=Math.imul(h^sig.charCodeAt(i),16777619);h2=(Math.imul(h2,31)+sig.charCodeAt(i))|0;}
  const base='dsn'+(h>>>0).toString(36)+'_'+(h2>>>0).toString(36);let key=base,n=1;while(CRAFT[key]&&CRAFT[key]._signature!==sig)key=base+'_'+n++;
- if(!CRAFT[key]){const c=snapshot.craft;CRAFT[key]=craftStores({name:snapshot.name+'（設計機）',short:snapshot.name.slice(0,10),side:'design',ref:snapshot.ref||'',role:c.role,speed:c.speed,aa:c.aa,strike:c.strike,gun:c.gun??(c.stations?.length?undefined:c.strike),armor:c.armor,size:C.stowSize(dims),crew:c.crew,dims:dims.slice(),design:true,stay:false,mass:c.mass||undefined,cost:c.cost>0?c.cost+(c.crew||0)*C.COST_K.crew:undefined,hyper:c.hyper>0?c.hyper:undefined,heat:C.cleanCraftHeat(c.heat)||undefined,...(Array.isArray(c.fireArcs)?{fireArcs:C.cleanCraftFireArcs(c.fireArcs)}:{}),...(c.systems?{systems:c.systems}:{}),snapshot,blueprint:snapshot.blueprint,_signature:sig},{stations:c.stations||[],load:c.load||[]});}
+ if(!CRAFT[key]){const c=snapshot.craft;CRAFT[key]=craftStores({name:snapshot.name+'（設計機）',short:snapshot.name.slice(0,10),side:'design',ref:snapshot.ref||'',role:c.role,speed:c.speed,aa:c.aa,strike:c.strike,gun:c.gun??(c.stations?.length?undefined:c.strike),armor:c.armor,shield:!!c.shield,size:C.stowSize(dims),crew:c.crew,dims:dims.slice(),design:true,stay:false,mass:c.mass||undefined,cost:c.cost>0?c.cost+(c.crew||0)*C.COST_K.crew:undefined,hyper:c.hyper>0?c.hyper:undefined,heat:C.cleanCraftHeat(c.heat)||undefined,...(Array.isArray(c.fireArcs)?{fireArcs:C.cleanCraftFireArcs(c.fireArcs)}:{}),...(c.systems?{systems:c.systems}:{}),...(c.powerProfile?{powerProfile:c.powerProfile}:{}),snapshot,blueprint:snapshot.blueprint,_signature:sig},{stations:c.stations||[],load:c.load||[]});}
  // Old fleet saves kept only the old short key. Re-registering their carrier's
  // design rows restores those keys; aliases stay out of aircraft pickers.
  const c=snapshot.craft,legacySig=(snapshot.ref||'')+'|'+snapshot.name+'|'+[c.role,c.speed,c.aa,c.strike,c.armor,c.crew].join(',')+'|'+dims.join(',')+(c.hyper>0?'|h'+c.hyper:'');let legacyHash=0;
@@ -13721,7 +32832,7 @@ function designInfo(S, p, extra = {}) {
   vehicleCap: (S.vehicleSizeCapacity || 0) + Math.floor((S.cargoCapacity || 0) / 600), slotCap: S.slots || 0, mass: S.mass || 0, cost: S.cost || 0, ...(S.costBy ? {costBy: Object.fromEntries(Object.entries(S.costBy).map(([k, v]) => [k, Math.round(v)]))} : {}),
   hangarCap: S.aviation?.capacity || 0, bays: (S.aviation?.bays || []).map(b => [...b.dims, Math.floor(b.capacity * 100) / 100]).sort((a, b) => b[3] - a[3]).slice(0, 8),
   stow: {bays: (S.aviation?.bays || []).map(b => ({d: b.dims.map(v => Math.round(v * 10) / 10), cap: Math.floor(b.capacity * 100) / 100, c: b.connected ? 1 : 0, doors: (b.doors || []).map(o => o.map(v => Math.round(v * 10) / 10)), vol: Math.round(b.vol || 0)}))},
-  canLand: !!S.canLand, capital: p.len >= CAPITAL_LENGTH, ...extra};
+  canLand: !!S.canLand, capital: p.len >= CAPITAL_LENGTH, cargo: Math.round(S.cargoCapacity || 0), ...extra};   // v26 cargo: hold volume (m³), for supply ships
 }
 // Personnel and supplies a ship draws from the fleet's allowance: its crew,
 // pilots and embarked troops; provisions for them and stores by tonnage.
@@ -13730,7 +32841,7 @@ function unitDemand(info, air = 0, troops = 0) {
  return {people, supply: Math.round(people * .4 + (info.mass || 0) * .0005)};
 }
 function makeUnit(w, side, design, name, group) {
- const p = C.emptyDesignProfile(design.p), base = C.fleetUnit('u' + (w.nextId++), design.key, p, side);
+ let p = C.emptyDesignProfile(design.p);if(!p.propulsion){const propulsion=C.legacyPropulsionProfile(p,design.info?.mass);if(propulsion)p={...p,propulsion};}const base = C.fleetUnit('u' + (w.nextId++), design.key, p, side);
  // Hull sections, armour zones and fires come from the core's combat state (C.combatInit).
  const u = Object.assign(base, {name: name || p.name, side, team: side, design: design.key, info: design.info, group, sys: null, order: {type: 'group', fire: true, power: 'auto', aim: 'auto'}, jump: null, squads: [], status: 'ready', kills: 0, dmgDone: 0, arrived: 0});
  UNIT_WORLD.set(u,w);w.units.set(u.id, u); return u;
@@ -13773,6 +32884,8 @@ function createWorld(opts) {
  for (const d of opts.designs || []) w.designs.set(d.key, d);
  // v25 tactical sensors (SENS-004): on unless a test or an old scenario turns them off
  if (opts.sensors === false) w.sensors = false;
+ // v26 supply convoys (CONVOY): on when the sides' kit designs are in the battle, unless turned off (opts.convoyMode false)
+ if (opts.convoyMode === false) w.convoyMode = false;
  // v24 (FORM-008) the player's own formations used by this battle, copied in (a world never reads the browser's store)
  w.formTpls = {};for (const t of Array.isArray(opts.formations) ? opts.formations : Object.values(opts.formations || {})) { const n = normalizeFormation(t); if (n) w.formTpls[n.id] = n; }
  // The sides start at the two ends of the main route; home is the stations nearest by lane.
@@ -13787,9 +32900,9 @@ function createWorld(opts) {
    const home = sd.home[ci % sd.home.length] ?? sd.start, ctg = makeCtg(w, i, c.name || `第${ci + 1}合同任務群`);ctg.formation=formationKnown(w,c.formation)?c.formation:null;
    (c.tgs || []).forEach((t, ti) => {
     // SBOX A scenario may place a task group in a system of its own, facing a bearing at a speed (deployGroup).
-    const dp = normalizeDeploy(t.deploy, sector), g = makeGroup(w, i, t.name || `第${ci + 1}${ti + 1}任務群`, dp.sys ?? home);g.ctg = ctg.id;g.ctgFollow=!!ctg.formation;g.formation = formationKnown(w, t.formation) ? t.formation : 'abreast';if (TURN_MODES[t.turnMode]) g.turnMode = t.turnMode;if (t.autoForm != null) g.autoForm = !!t.autoForm;g.deploy = dp;
+    const dp = normalizeDeploy(t.deploy, sector), g = makeGroup(w, i, t.name || `第${ci + 1}${ti + 1}任務群`, dp.sys ?? home);g.ctg = ctg.id;g.ctgFollow=!!ctg.formation;g.formation = formationKnown(w, t.formation) ? t.formation : 'abreast';if (TF_ROLES[t.role]) g.role = t.role;if (TURN_MODES[t.turnMode]) g.turnMode = t.turnMode;if (t.autoForm != null) g.autoForm = !!t.autoForm;g.deploy = dp;
     const carry = [];
-    let flag = null;for (const e of t.ships || []) { const d = w.designs.get(e.design); if (!d) continue; const u = makeUnit(w, i, d, e.name, g.id); g.units.push(u.id);if (e.flag && !flag) flag = u.id; u.sys = g.sys; u.troops = e.troops || 0; u.ground = e.ground || null; for (const q of e.air || []) addSquad(w, u, q); for (const c of e.carried || []) carry.push([u, c]); }
+    let flag = null;for (const e of t.ships || []) { const d = w.designs.get(e.design); if (!d) continue; const u = makeUnit(w, i, d, e.name, g.id); g.units.push(u.id);if (e.flag && !flag) flag = u.id; u.sys = g.sys; u.troops = e.troops || 0; u.ground = e.ground || null; if (e.landers?.length) u.landers = e.landers; for (const q of e.air || []) addSquad(w, u, q); for (const c of e.carried || []) carry.push([u, c]); }
     if (!g.units.length) { w.groups.delete(g.id); return; }
     // The flagship the order of battle names (its first ship in the editor), else the largest.
     ctg.tgs.push(g.id);g.flag = flag || g.units.slice().sort((a, b) => w.units.get(b).p.len - w.units.get(a).p.len)[0];g.units.sort((a, b) => (b === g.flag) - (a === g.flag));
@@ -13845,6 +32958,13 @@ function addSquad(w, u, q) {
 // other, and closer than before); wedges and echelons step down a little as they go.
 // v24 (FORM-001〜010, AI-001) 斜行陣 (oblique: one straight line of bearing 45° off the course) joins them;
 // a player's own formations are templates, keyed 'tpl:<id>' (w.formTpls; normalizeFormation below).
+// v26 Task force roles (mission templates): a task force is the smallest combined-arms unit that can carry out a
+// mission. 主力 (battle line: capital ships and their support, a wing of the decisive battle), 護衛 (escort of carriers
+// and the fleet), 偵察 (reconnaissance: light pickets), 強行偵察 (reconnaissance in force: heavy enough to fight for
+// its information), 襲撃 (raiding: fast ships against the enemy's lines). The AI plans with them (aiSetup): recon
+// task forces scout, raiding ones raid, the rest form the main body and the detachment. Supply convoys are not a
+// role the player organizes: they are made up on request (requestConvoy).
+const TF_ROLES = {line: '主力', escort: '護衛', recon: '偵察', reconf: '強行偵察', raid: '襲撃'};
 const FORMATIONS = {abreast: '横陣', column: '単縦陣', oblique: '斜行陣', echelon: '梯陣', wedge: '楔形陣', ring: '輪形陣'};
 const formationKnown = (w, k) => !!(FORMATIONS[k] || (typeof k === 'string' && k.startsWith('tpl:') && w?.formTpls?.[k.slice(4)]));
 const formationName = (w, k) => FORMATIONS[k] || (typeof k === 'string' && k.startsWith('tpl:') ? w?.formTpls?.[k.slice(4)]?.name || '自作陣形' : '');
@@ -14026,7 +33146,14 @@ const inBattleGroup = (w, g) => g.units.some(id => { const u = w.units.get(id); 
 function orderJump(w, gid, dest) {
  const g = w.groups.get(gid);if (!g || g.transit || g.sys == null || dest == null || dest === g.sys || !w.sector.systems[dest]) return {ok: false, why: '移動できません'};
  if (g.spool?.left) return {ok: false, why: '艦が順にジャンプしている最中です'};
- const plan=routeItinerary(w.sector,g.sys,dest);if(!plan?.segments.length)return {ok:false,why:'航路がありません'};const route=plan.segments[0];dest=plan.next;
+ const plan=routeItinerary(w.sector,g.sys,dest);if(!plan?.segments.length)return {ok:false,why:'航路がありません'};const route=plan.segments[0];
+ // v26 An AI group out of battle whose craft are out calls them home and leaves when they are aboard (at most
+ // RULES.aiCraftWait s later): its carriers used to jump at once and leave whole wings behind.
+ if (w.sides[g.side].ai && !inBattleGroup(w, g)) { const away = [];for (const id of g.units) { const u = w.units.get(id); if (!alive(u)) continue; for (const sid of u.squads) { const q = w.squads.get(sid); if (q && !q.raid && !q.follow && q.n > 0 && (q.state === 'out' || q.state === 'return')) away.push(q); } }
+  const t0 = g.craftWait?.dest === dest ? g.craftWait.t0 : w.time;
+  if (away.length && w.time - t0 < RULES.aiCraftWait) { for (const q of away) if (q.state === 'out') q.state = 'return'; g.craftWait = {dest, t0}; g.waitJump = {dest, at: w.time + 10}; return {ok: true, eta: (etaTo(w, g.id, dest) ?? 0) + 10, deferred: true}; }
+  g.craftWait = null; }
+ dest=plan.next;
  // Carriers take their small ships back aboard for the jump when they are near.
  for (const id of [...g.units]) { const c = w.units.get(id); if (alive(c) && !c.out) recoverCarried(w, c.id, true); }
  const held = groupDisabled(w, g);
@@ -14270,7 +33397,7 @@ function updateBattles(w) {
   let sides = bySys.get(m.sys); if (!sides) bySys.set(m.sys, sides = new Set()); sides.add(m.side);
  }
  w.missiles = w.missiles.filter(m => m.n > 0 && m.life > 0);
- for (const [sys, sides] of bySys) if (sides.size > 1 && !w.battles.has(sys)) { w.battles.set(sys, {sys, t0: w.time, log: [], sides: [...sides]}); event(w, `${w.sector.systems[sys].name}で交戦開始`, {sys, battle: true}); }
+ for (const [sys, sides] of bySys) if (sides.size > 1 && !w.battles.has(sys)) { w.battles.set(sys, {sys, t0: w.time, log: [], sides: [...sides]}); event(w, `${w.sector.systems[sys].name}で交戦開始`, {sys, battle: true}); if ([...sides].some(i => w.sides[i]?.ai && w.sides[i].brain?.own)) w.timers.ai = Math.min(w.timers.ai, 3); }
  for (const [sys, b] of w.battles) { const sides = bySys.get(sys); if (!sides || sides.size < 2) { w.battles.delete(sys);stir(w, sys); const win = sides ? [...sides][0] : null; event(w, `${w.sector.systems[sys].name}の戦闘終結${win != null ? '：' + w.sides[win].name + 'が宙域を確保' : ''}`, {sys, battle: true, end: true, winner: win}); for (const s of w.squads.values()) if (s.sys === sys && s.state === 'out') s.state = 'return'; } }
 }
 const blog = (w, sys, text, u) => { const b = w.battles.get(sys); const e = {n: w.evN = (w.evN || 0) + 1, t: w.time, text, side: u?.side, id: u?.id}; if (b) { b.log.push(e); if (b.log.length > 120) b.log.shift(); } w.events.push({...e, sys, combat: true}); if (w.events.length > 400) w.events.shift(); };
@@ -14393,9 +33520,8 @@ const TF = {
 const TURN_MODES = {auto: '自動', hold: '陣形維持旋回', seq: '順次回頭', simul: '一斉回頭', form: '陣形転換旋回', fast: '最短時間優先', safe: '安全優先'};
 const SPEEDS = {full: 1, cruise: .7, slow: .4};
 const turnModeOf = g => { const k = TURN_MODES[g.turnMode] ? g.turnMode : 'auto'; return k !== 'auto' ? k : g.formation === 'column' ? 'seq' : 'hold'; };
-// How fast a ship can keep going (m/s): its rated top speed less engine and hull damage (the same factors as its
-// acceleration in moveShips) and less the reactor share its engines actually get (engS: engF smoothed over ~20 s).
-function sustainSpeed(u, s) { return (u.p.maxSpeed || 0) * clamp(s ? s.engine : 1, 0, 1) * (.6 + .4 * unitStruct(u)) * clamp(u.engS ?? 1, .35, 1); }
+// Formation planning uses the observed output; the speed limit remains a separate game rule.
+function sustainSpeed(u, s) { const m=C.propulsionMotion(u);return (u.p.maxSpeed || 0)*clamp(u.engS??(u.propulsion?m.turn:m.acc0>0?1:0),0,1); }
 const hdgVec = h => [Math.cos(h), 0, Math.sin(h)];
 // a world vector in a frame of heading h (the inverse of frameVec)
 const toLocal = (h, d) => { const c = Math.cos(h), s = Math.sin(h); return [d[0] * c + d[2] * s, d[1], -d[0] * s + d[2] * c]; };
@@ -14465,8 +33591,8 @@ function groupStations(w, sys, us, byId, sysOf, dt = 0) {
   // (a ship whose drives can no longer make TF.cripple of the others' median speed falls out of line too: it is not
   // allowed to stop the whole task force)
   const vs = m.map(u => sustainSpeed(u, sysOf.get(u.id) || C.fleetSystems(u))), vMed = vs.slice().sort((a, b) => a - b)[vs.length >> 1];
-  m.forEach((u, i) => { if (battle && unitStruct(u) < TF.breakOff || vs[i] < vMed * TF.cripple) { broken.add(u.id); return; } const s = sysOf.get(u.id) || C.fleetSystems(u), v = vs[i]; if (v < vSus) { vSus = v; slow = u.id; } acc = Math.min(acc, (u.p.accel || 1) * clamp(s.engine, .05, 1) * (.6 + .4 * unitStruct(u))); wmin = Math.min(wmin, u.p.turnRate || .05); });
-  if (!(vSus < Infinity)) { vSus = Math.min(...m.map(u => u.p.maxSpeed || 100)) * .5; acc = 5; wmin = .05; }
+  m.forEach((u, i) => { if (battle && unitStruct(u) < TF.breakOff || vs[i] < vMed * TF.cripple) { broken.add(u.id); return; } const motion=C.propulsionMotion(u),v = vs[i]; if (v < vSus) { vSus = v; slow = u.id; } acc = Math.min(acc,motion.acc0); wmin = Math.min(wmin,u.p.turnRate||0); });
+  if (!(vSus < Infinity)) { vSus=0;acc=0;wmin=0; }
   tf.vSus = vSus;tf.slow = slow;
   // the formation's centre and extent in its frame
   let cx = 0, cy = 0, cz = 0, x0 = Infinity, x1 = -Infinity, z0 = Infinity, z1 = -Infinity, rmax = 0;
@@ -14583,19 +33709,20 @@ function taskForceInfo(w, gid) {
 // carries it: a friendly ship to be towed out (also through hyperspace), or an
 // enemy ship whose shields are down, which boarders take after a while.
 const tractorReach = (u, t) => 2500 + (u.p.len + t.p.len) * .5;
-function tractorOk(u, t, mode) { if (!u || !t || u === t || !alive(u) || !alive(t) || u.out || !(u.p.trac > 0)) return false; if (mode === 'tow') return t.side === u.side && !!t.out; return t.side !== u.side && !!t.out && !(t.shield > 1); }
-function releaseTractor(w, u, why) { const tr = u.tractor;if (!tr) return;const t = w.units.get(tr.target);if (t && t.towedBy === u.id) t.towedBy = null;u.tractor = null;if (why && u.sys != null) blog(w, u.sys, `${u.name}：牽引ビームを解除（${why}）`, u); }
+function tractorOk(u, t, mode) { if (!u || !t || u === t || !alive(u) || !alive(t) || u.out || !(u.p.trac > 0)) return false; if (mode === 'tow') return t.side === u.side && !!t.out; return boardOk(u, t); }
+function releaseTractor(w, u, why) { const tr = u.tractor;if (!tr) return;const t = w.units.get(tr.target);if (tr.mode === 'capture') boardRelease(w, u, tr, t);if (t && t.towedBy === u.id) t.towedBy = null;u.tractor = null;if (why && u.sys != null) blog(w, u.sys, `${u.name}：牽引ビームを解除（${why}）`, u); }
 function captureShip(w, u, t) {
  const old = t.side, g = w.groups.get(u.group), og = w.groups.get(t.group);
  if (og) og.units = og.units.filter(x => x !== t.id);t.origSide = t.origSide ?? old;t.side = u.side;t.team = u.team;t.captured = true;t.order = {type: 'group', fire: false, power: 'auto', aim: 'auto'};
  if (g) { g.units.push(t.id); t.group = g.id; }
  for (const sid of t.squads) { const q = w.squads.get(sid); if (q && q.state === 'docked') { q.state = 'lost'; q.lostN = (q.lostN || 0) + q.n; q.n = 0; if (q.slots) q.slots.length = 0; } }
- w.sides[old].lost++;w.sides[u.side].captured = (w.sides[u.side].captured || 0) + 1;u.tractor.mode = 'tow';u.tractor.progress = 1;
+ w.sides[old].lost++;w.sides[u.side].captured = (w.sides[u.side].captured || 0) + 1;if (u.tractor?.target === t.id) { u.tractor.mode = 'tow'; u.tractor.progress = 1; }
  blog(w, u.sys, `${u.name}：${t.name}を拿捕`, u);event(w, `${t.name} を拿捕（${u.name}）`, {side: u.side, sys: u.sys, captured: true});
 }
 function tractorTick(w, u, dt) {
  const tr = u.tractor, t = w.units.get(tr?.target);if (!tr) return;
  if (!t || t.dead || u.dead || u.out || t.sys !== u.sys || u.sys == null) { releaseTractor(w, u, !t || t.dead ? '目標を失った' : '牽引艦が損傷'); return; }
+ if (!(tracShare(u)>0)) { releaseTractor(w,u,'トラクター・ビーム投射機の給電停止'); return; }
  if (!tr.lock) {
   if (!tractorOk(u, t, tr.mode)) { releaseTractor(w, u, '条件を満たさない'); return; }
   if (!w.battles.has(u.sys) || len(sub(t.pos, u.pos)) <= tractorReach(u, t)) { if (t.towedBy && t.towedBy !== u.id) { releaseTractor(w, u, '他艦が牽引中'); return; } tr.lock = true; t.towedBy = u.id; const c = Math.cos(-u.yaw), s = Math.sin(-u.yaw), d = sub(t.pos, u.pos); tr.off = [d[0] * c - d[2] * s, d[1], d[0] * s + d[2] * c]; if (!w.battles.has(u.sys)) tr.off = [-(u.p.len + t.p.len) * .45, 0, (u.p.width || u.p.len * .4) + 300]; tr.dyaw = t.yaw - u.yaw; blog(w, u.sys, `${u.name}：${t.name}を牽引ビームで捕捉`, u); }
@@ -14603,9 +33730,224 @@ function tractorTick(w, u, dt) {
  }
  t.pos = add(u.pos, frameVec([Math.cos(u.yaw), 0, Math.sin(u.yaw)], tr.off));t.velocity = [...u.velocity];t.yaw = u.yaw + (tr.dyaw || 0);
  if (tr.mode === 'capture' && t.side !== u.side) {
-  if (t.shield > 1 && !t.out) { releaseTractor(w, u, '目標が復旧'); return; }
-  const boarders = (u.troops || 0) + (u.crew || 0) * .04, defenders = (t.crew || 0) * .25, rate = clamp((boarders + 50) / (defenders + 100), .1, 3) / 90;
-  tr.progress = (tr.progress || 0) + rate * dt;if (tr.progress >= 1) captureShip(w, u, t);
+  boardTractor(w, u, t, tr, dt);
+ }
+}
+// ---------- v26 boarding: 接舷・移乗攻撃 ----------
+// The 'capture' tractor mode is a boarding action in four steps:
+//  1. lock — a ship with tractor projectors closes to reach and locks an enemy whose shields are down to
+//     BOARD.shieldMax of full (or that is disabled);
+//  2. reel in — the beam draws the enemy alongside, parallel, BOARD.gap off the hull (tr.off shrinks to dockOff),
+//     slower the heavier the enemy is; a ship whose engines still run pulls against the beam (boardStrain: thrust
+//     against the projectors' hold), and an overload kept up breaks the lock; so does the loss of the projectors,
+//     the reactor feeding them, or the enemy's shields coming back before it is alongside;
+//  3. forced docking — BOARD.dockSec to clamp on and cut through; boarding craft from the hangar (transports that
+//     carry troops) may cross before that, losing some to the enemy's point defence;
+//  4. the fight inside (boardFight, state on the target: t.boarding) — the party crosses through the tubes and
+//     fights compartment by compartment (the five hull sections, C.SECTION_NAMES) from the one it entered toward
+//     the bridge (to capture) or the reactor (to wreck). Only a front of BOARD.front men a corridor engages at a time
+//     (frontage, Lanchester's linear law inside a hull); defenders get BOARD.home in their own ship and more at the
+//     bridge. Organic crews surrender when the bridge falls or their losses pass 1 − BOARD.surrender; droid crews
+//     never surrender: more of them are armed but they fight poorly, the battle droids stored aboard are woken a
+//     few a second, and taking the bridge only ends it once its central control has been held BOARD.shutdown s.
+// Outcomes: capture (the ship changes side as before — captureShip — with its damage, its crew taken prisoner and
+// a prize crew from the survivors), sabotage (the modules of the compartments taken are wrecked, the party
+// withdraws) or repulse (the party falls back below BOARD.repulse of its strength, and goes home if still docked).
+// Every coefficient below is provisional (not set by the user or a source) and meant to be tuned:
+//  projHold: an ISD's ten projectors hold a CR90 (59,000 t × 66 m/s²) at about three quarters of its thrust;
+//  lethal / front: an even fight of 40 a side loses about one man every 2.5 s each — a company held in a corridor
+//  is spent in a few minutes; zoneSec: a compartment taken in 4 min at even odds, 1 min at 2 : 1;
+//  quality: stormtroopers 1, clone troopers 1.15, Rebel troopers 0.9, B1 battle droids 0.55, ship's crew 0.5.
+const BOARD = {shieldMax: .25, recover: .4, projHold: 3e5, breakSec: 20, reel: 150, gap: 40, dockSec: 45, cross: 6, tubeLen: 250, tubesMax: 6, craftTrip: 60,
+ front: 40, corridorLen: 200, lethal: .01, zoneSec: 240, home: 1.5, bridgeK: 1.5, crewArm: .3, crewQ: .5, droidArm: .6, droidQ: .35, wake: 25,
+ q: {empire: 1, republic: 1.15, rebel: .9, cis: .55}, surrender: .3, repulse: .3, shutdown: 20, crewParty: .05, prize: .5,
+ wreck: ['reactor', 'engine', 'shield', 'hyper', 'bridge', 'hangar', 'fire', 'battery'], aiOdds: 2, aiMin: 144, aiStrain: .8, holdResult: 900};
+const BOARD_PHASE = {close: '接近中', reel: '牽引中', dock: '強制接舷中', fight: '艦内戦闘', back: '撤収中'};
+const BOARD_GOAL = {capture: '拿捕', sabotage: '破壊工作'};
+const boardFac = (w, u) => w.sides[u?.origSide ?? u?.side]?.faction;
+const boardDroid = (w, u) => boardFac(w, u) === 'cis';
+// Tractor projectors: modules of the fit trc (named by its short name in the generated profiles); their intact share.
+function tracShare(u,holding=false) {
+ if(!u||u.dead||u.out||!(C.powerFactor(u,'reactor')>0))return 0;const ms=u.p.modules||[],fixed=u.p.grid?.fixedLoads||[],fixedWeight=fixed.reduce((a,r)=>a+Math.max(0,r.weight||0),0),fixedW=Math.max(0,(u.p.grid?.fixed||0)-(u.p.grid?.cooling||0)),systems=holding?C.fleetSystems(u):null,legacy=systems?.hasReactor?systems.reactor:1;let n=0,ok=0;
+ ms.forEach((m,i)=>{if(m.k!=='weapon'||m.name!==C.FITS.trc.short)return;n++;if(!((u.mods?.[i]??1)>0&&C.powerFactor(u,'weapon',i)>0))return;const port=m.port||(m.fit!=null?'f'+m.fit:m.part!=null?'p'+m.part:null),row=fixed.find(r=>r.port===port);if(row){const requested=fixedW*Math.max(0,row.weight||0)/Math.max(1e-30,fixedWeight),actual=u.propulsion?.power?.granted?.['fixed:'+row.id]||0;ok+=requested>0?clamp(actual/requested,0,1):0;}else ok+=holding?legacy:1;});return n?ok/n:u.p.trac>0?holding?legacy:1:0;
+}
+// What the projectors hold (t·m/s²) and what the enemy's engines pull with; strain = pull / hold.
+function boardStrain(u, t) {
+ const hold = (u.p.trac || 0) * BOARD.projHold * tracShare(u,true);
+ if (t.out || t.dead) return hold > 0 ? 0 : Infinity;const vector=t.propulsion?.forceVector,force=Array.isArray(vector)&&vector.length===3&&vector.every(Number.isFinite)?Math.hypot(...vector):0,pull=Number.isFinite(force)&&C.powerFactor(t,'engine')>0&&C.powerFactor(t,'reactor')>0?force*C.FLEET_RULES.accelScale/1000:0;
+ return hold > 0 ? pull / hold : Infinity;
+}
+function boardOk(u, t) {
+ if (!u || !t || u === t || !alive(u) || !alive(t) || u.out || u.sys == null || t.sys !== u.sys || !(u.p.trac > 0) || t.side === u.side || t.status === 'carried' || t.warp) return false;
+ if (!(tracShare(u) > 0) || t.towedBy && t.towedBy !== u.id) return false;if (t.boarding && t.boarding.by !== u.id) return false;
+ return !!t.out || shieldFrac(t) <= BOARD.shieldMax + 1e-9 || !(t.shieldMax > 0);
+}
+function tractorResistance(w){
+ for(const u of w.units.values()){u._tractorResistance=0;const captor=w.units.get(u.towedBy),tr=captor?.tractor;if(!u.dead&&!u.out&&u.sys!=null&&captor&&!captor.dead&&!captor.out&&captor.side!==u.side&&captor.sys===u.sys&&tr?.mode==='capture'&&tr.lock&&tr.target===u.id&&tracShare(captor)>0)u._tractorResistance=1;}
+}
+// The boarding party a ship can send: its embarked troops, or (with none) a share of its crew.
+function boardParty(w, u) { const tr = Math.floor(u.troops || 0);return tr > 0 ? {n: tr, crew: false} : {n: Math.floor((u.crew || 0) * BOARD.crewParty), crew: true}; }
+const boardQ = (w, u, crew) => crew ? (boardDroid(w, u) ? BOARD.droidQ : BOARD.crewQ) : BOARD.q[boardFac(w, u)] ?? 1;
+// The defence the enemy can put up (effective strength, home advantage included; stored droids at half).
+function boardDefence(w, t) { const d = boardDroid(w, t), q = BOARD.q[boardFac(w, t)] ?? 1;return ((t.crew || 0) * (d ? BOARD.droidArm * BOARD.droidQ : BOARD.crewArm * BOARD.crewQ) + (t.troops || 0) * q * (d ? .5 : 1)) * BOARD.home; }
+function boardOdds(w, u, t, n) { const p = boardParty(w, u), k = Math.min(n ?? p.n, p.n);return {n: k, crew: p.crew, att: k * boardQ(w, u, p.crew), def: boardDefence(w, t), odds: k * boardQ(w, u, p.crew) / Math.max(1, boardDefence(w, t)), strain: boardStrain(u, t)}; }
+// Troops to send when none is chosen: companies enough for 2.5 : 1, at most all of them.
+function boardDefault(w, u, t) { const p = boardParty(w, u), q = boardQ(w, u, p.crew), want = Math.ceil(boardDefence(w, t) * 2.5 / q / COMPANY_TROOPS) * COMPANY_TROOPS;return Math.max(1, Math.min(p.n, Math.max(COMPANY_TROOPS, want))); }
+const boardHW = u => (u.p.width || u.p.len * .4) / 2;
+// Section (0 stern … 4 bow) of a module of the given kinds, the bridge's for a capture.
+function boardGoalSec(t, kinds) { const ms = t.p.modules || [];for (const k of kinds) { const m = ms.filter(x => x.k === k && x.at != null).sort((a, b) => b.share - a.share)[0]; if (m) return clamp(Math.floor(m.at * C.HULL_SECTIONS), 0, C.HULL_SECTIONS - 1); } return C.HULL_SECTIONS - 1; }
+// Orders: send n troops (default boardDefault) with goal capture|sabotage; craft: use boarding craft if any.
+function orderBoard(w, id, target, opts = {}) {
+ const u = w.units.get(id), t = w.units.get(target);if (!u || w.sides[u.side].ai && !opts.ai) return {ok: false, why: '命令できません'};
+ if (!(u.p.trac > 0)) return {ok: false, why: 'トラクター・ビーム投射機がありません'};
+ if (!t || t.sys !== u.sys) return {ok: false, why: '目標が同じ星系にいません'};
+ if (t.side === u.side) return {ok: false, why: '移乗攻撃できるのは敵艦です'};
+ if (!boardOk(u, t)) return {ok: false, why: t.boarding && t.boarding.by !== u.id || t.towedBy && t.towedBy !== u.id ? 'ほかの艦が移乗攻撃・牽引しています' : !(tracShare(u) > 0) ? 'トラクター・ビーム投射機が損傷しています' : u.out ? '戦闘不能の艦は移乗攻撃できません' : `接舷できるのはシールドが ${Math.round(BOARD.shieldMax * 100)}% 以下の敵艦です`};
+ const p = boardParty(w, u), n = Math.min(p.n, Math.max(1, Math.floor(opts.n || boardDefault(w, u, t))));if (!(p.n > 0)) return {ok: false, why: '移乗させる兵員がいません'};
+ if (u.tractor?.mode === 'capture' && u.tractor.target === t.id) return {ok: false, why: 'すでに移乗攻撃中です'};
+ releaseTractor(w, u);
+ u.tractor = {target: t.id, mode: 'capture', lock: false, progress: 0, phase: 'close', t: 0, goal: BOARD_GOAL[opts.goal] ? opts.goal : 'capture', n, crew: p.crew, wait: 0, craft: opts.craft !== false, strain: 0};
+ return {ok: true, n, crew: p.crew};
+}
+// Recall: the party comes back (those still aboard the enemy fight their way out while docked).
+function orderBoardRecall(w, id) {
+ const u = w.units.get(id), tr = u?.tractor;if (!u || tr?.mode !== 'capture' || w.sides[u.side].ai) return {ok: false, why: '移乗攻撃していません'};
+ const t = w.units.get(tr.target), b = t?.boarding;if (b && b.by === u.id && b.phase === 'fight') { boardBack(w, t, b, '撤収命令'); return {ok: true}; }
+ if (!b) releaseTractor(w, u, '撤収命令');return {ok: true};
+}
+// The troops leave the attacker as the lock is made (they muster at the tubes and the boarding craft).
+function boardLocked(w, u, t, tr) {
+ const n = Math.min(tr.n || 0, tr.crew ? Math.floor((u.crew || 0) * BOARD.crewParty) : Math.floor(u.troops || 0));tr.n = n;
+ if (tr.crew) u.crew -= n; else { u.troops -= n; u.troopsSpent = (u.troopsSpent || 0) + n; }
+ tr.wait = n;tr.phase = 'reel';tr.t = 0;tr.at = w.time;tr.d0 = len(tr.off || [0, 0, 0]);
+ // Boarding craft: transports docked aboard that carry troops (C.craftLift), at most what the party needs.
+ let lift = 0;if (tr.craft) for (const sid of u.squads) { const q = w.squads.get(sid), c = q && CRAFT[q.craft]; if (q && q.state === 'docked' && q.n > 0 && c?.role === 'transport') lift += q.n * (C.craftLift(q.craft)?.troops || 0); }
+ tr.lift = Math.min(lift, n);
+ blog(w, u.sys, `${u.name}：${t.name}への移乗攻撃（${BOARD_GOAL[tr.goal]}）に ${n} 名を発進準備${tr.lift ? `（移乗艇 ${tr.lift} 名分）` : ''}`, u);
+}
+// Each tick while the beam holds: reel in, dock, cross, and the lock's strain.
+function boardTractor(w, u, t, tr, dt) {
+ if (!tr.phase || tr.phase === 'close') boardLocked(w, u, t, tr);
+ tr.t += dt;
+ // Projectors gone, or the enemy's engines overpower them long enough: the lock breaks.
+ const k = boardStrain(u, t);if (!(tracShare(u) > 0)) { releaseTractor(w, u, 'トラクター・ビーム投射機を喪失'); return; }
+ tr.strain = clamp((tr.strain || 0) + (k > 1 ? (k - 1) * dt / BOARD.breakSec : -dt / BOARD.breakSec), 0, 1);
+ if (tr.strain >= 1 || !Number.isFinite(k)) { releaseTractor(w, u, `${t.name}の推力で振り切られた`); return; }
+ if (tr.phase === 'reel') {
+  if (!t.out && shieldFrac(t) > BOARD.recover) { releaseTractor(w, u, '目標がシールドを回復'); return; }
+  const side = (tr.off?.[2] || 0) < 0 ? -1 : 1, dock = [0, 0, side * (boardHW(u) + boardHW(t) + BOARD.gap)], d = sub(dock, tr.off), l = len(d);
+  const v = BOARD.reel * clamp(1 - k, 0, 1) * tracShare(u) * clamp(Math.cbrt((u.info?.mass || 1) / Math.max(1, t.info?.mass || 1)), .25, 2);
+  if (l > 1) tr.off = add(tr.off, scale(d, Math.min(1, v * dt / l)));
+  tr.dyaw = (tr.dyaw || 0) * Math.max(0, 1 - dt * .1);
+  tr.progress = .05 + .15 * clamp(1 - len(sub(dock, tr.off)) / Math.max(1, tr.d0 || 1), 0, 1);
+  if (len(sub(dock, tr.off)) < 5) { tr.off = dock; tr.dyaw = 0; tr.phase = 'dock'; tr.t = 0; blog(w, u.sys, `${u.name}：${t.name}に強制接舷`, u); }
+ } else if (tr.phase === 'dock') { tr.progress = .2 + .1 * clamp(tr.t / BOARD.dockSec, 0, 1); if (tr.t >= BOARD.dockSec) { tr.phase = 'cross'; tr.t = 0; blog(w, u.sys, `${u.name}：移乗チューブを${t.name}に接続`, u); } }
+ // The party crosses: through the tubes once docked, by boarding craft from the lock (losses to point defence).
+ const b = t.boarding;
+ if (tr.wait > 0) {
+  let go = 0, lost = 0;
+  if (tr.phase === 'cross') go = Math.min(tr.wait, BOARD.cross * clamp(Math.floor(Math.min(u.p.len, t.p.len) / BOARD.tubeLen) + 1, 1, BOARD.tubesMax) * dt);
+  if (tr.lift > 0 && tr.phase !== 'cross') { const g = Math.min(tr.wait, tr.lift, tr.lift / BOARD.craftTrip * dt), pd = t.out ? .02 : clamp(.05 + (t.p.aa || 0) * C.fleetSystems(t).weapon / 400, 0, .4); go = g; lost = g * pd; }
+  if (go > 0) { tr.wait -= go; const nb = boardStart(w, u, t, tr); nb.aboard += go - lost; nb.lostA += lost; nb.crossed += go; }
+ }
+ if (b && b.by === u.id && b.phase === 'fight') tr.progress = .3 + .7 * clamp((b.comp + b.prog) / Math.max(1, b.need), 0, 1);
+}
+// The fight's state on the target, made when the first boarders reach it.
+function boardStart(w, u, t, tr) {
+ if (t.boarding && t.boarding.by === u.id) return t.boarding;
+ const droid = boardDroid(w, t), goal = tr.goal === 'sabotage' ? boardGoalSec(t, ['reactor', 'engine', 'bridge']) : boardGoalSec(t, ['bridge', 'reactor']);
+ const entry = clamp(Math.floor(C.HULL_SECTIONS / 2), 0, C.HULL_SECTIONS - 1), dir = goal >= entry ? 1 : -1, path = [];for (let s = entry; ; s += dir) { path.push(s); if (s === goal) break; }
+ const dC = (t.crew || 0) * (droid ? BOARD.droidArm : BOARD.crewArm), dT = droid ? 0 : t.troops || 0, dS = droid ? t.troops || 0 : 0;
+ t.boarding = {by: u.id, side: u.side, goal: tr.goal, crew: !!tr.crew, qA: boardQ(w, u, tr.crew), sent: tr.n, crossed: 0, aboard: 0, lostA: 0, lostD: 0, droid, qC: droid ? BOARD.droidQ : BOARD.crewQ, qT: BOARD.q[boardFac(w, t)] ?? 1,
+  dC, dT, dS, d0: dC + dT + dS, path, need: path.length, comp: 0, prog: 0, held: 0, phase: 'fight', t0: w.time, cut: false};
+ blog(w, u.sys, `${u.name}：移乗部隊が${t.name}の${C.SECTION_NAMES[entry]}に突入`, u);event(w, `${u.name} の移乗部隊が ${t.name} に突入`, {side: u.side, sys: u.sys});
+ return t.boarding;
+}
+// The fight inside, each tick (in battle or not) for every ship with boarders aboard.
+function boardFight(w, t, dt) {
+ const b = t.boarding, u = w.units.get(b.by);if (!b) return;
+ if (t.dead || !alive(t)) { t.boarding = null; if (u && u.sys != null) blog(w, u.sys, `${u.name}：移乗部隊 ${Math.round(b.aboard)} 名が${t.name}とともに失われた`, u); return; }
+ const docked = !!(u && alive(u) && u.tractor?.mode === 'capture' && u.tractor.target === t.id && u.tractor.lock && u.sys === t.sys);
+ if (!docked && !b.cut && b.crossed > 0) { b.cut = true; blog(w, t.sys, `${t.name}：移乗部隊の退路が断たれた`, t); }
+ // Stored battle droids wake a few a second once boarders are aboard.
+ if (b.dS > 0 && b.aboard > 0) { const k = Math.min(b.dS, BOARD.wake * dt); b.dS -= k; b.dT += k; }
+ const corr = clamp(Math.round(t.p.len / BOARD.corridorLen), 1, 12), F = BOARD.front * corr, sec = b.path[Math.min(b.comp, b.need - 1)], atBridge = b.goal !== 'sabotage' && b.comp === b.need - 1 ? BOARD.bridgeK : 1;
+ const home = BOARD.home * atBridge * (b.phase === 'back' ? .5 : 1), eA = Math.min(b.aboard, F) * b.qA, eT = Math.min(b.dT, F), eC = Math.min(b.dC, Math.max(0, F - eT)), eD = (eT * b.qT + eC * b.qC) * home;
+ // Losses: each side loses what the other's engaged front kills (BOARD.lethal a second per effective fighter).
+ const lA = Math.min(b.aboard, BOARD.lethal * eD * dt), lD = Math.min(b.dT + b.dC, BOARD.lethal * eA * dt), lT = Math.min(b.dT, lD * (eT + eC > 0 ? eT / (eT + eC) : 1)), lC = Math.min(b.dC, lD - lT);
+ b.aboard -= lA;b.lostA += lA;b.dT -= lT;b.dC -= lC;b.lostD += lT + lC;
+ t.troops = Math.max(0, (t.troops || 0) - lT);t.crew = Math.max(0, (t.crew || 0) - lC);
+ if (b.phase === 'back') {
+  // Withdrawing through the tubes; with no way back the rest are taken.
+  const go = docked ? Math.min(b.aboard, BOARD.cross * clamp(Math.floor(Math.min(u.p.len, t.p.len) / BOARD.tubeLen) + 1, 1, BOARD.tubesMax) * dt) : 0;
+  b.aboard -= go;boardReturn(u, b.crew, go);
+  if (b.aboard < .5 || !docked) boardEnd(w, t, b, docked ? 'back' : 'lost');
+  return;
+ }
+ const DT = b.dT + b.dC + b.dS, A = b.aboard + (docked && u ? u.tractor.wait || 0 : 0);
+ // Repulsed: the party (aboard and still to cross) is down to BOARD.repulse of those sent.
+ if (b.crossed > 0 && A < b.sent * BOARD.repulse && (u?.tractor?.wait || 0) < 1) { boardBack(w, t, b, '撃退された'); return; }
+ if (b.aboard <= 0) return;
+ // The push: compartments fall the faster the greater the whole party's weight against the defence (r² / zoneSec).
+ const r = DT > .5 ? b.aboard * b.qA / Math.max(1e-6, (b.dT * b.qT + b.dC * b.qC + b.dS * b.qT * .5) * home) : 10, rate = DT > .5 ? clamp(r, 0, 3) ** 2 / BOARD.zoneSec : 10 / BOARD.zoneSec;
+ if (b.comp < b.need) { b.prog += rate * dt; if (b.prog >= 1) { b.prog = 0; b.comp++; blog(w, t.sys, `${t.name}：移乗部隊が${C.SECTION_NAMES[sec]}を制圧（${b.comp}/${b.need}）`, u || t); } }
+ // Organic defenders give up when the bridge falls or their losses grow too heavy; droids hold out until shut down.
+ if (b.goal === 'sabotage') { if (b.comp >= b.need) boardSabotage(w, t, b); return; }
+ if (b.comp >= b.need) { if (!b.droid) { boardCapture(w, t, b, '艦橋を制圧、乗員が降伏'); return; } b.held += dt; if (b.held >= BOARD.shutdown) { boardCapture(w, t, b, '中央制御を掌握、ドロイドを停止'); return; } }
+ else if (!b.droid && b.d0 > 0 && b.dT + b.dC < b.d0 * BOARD.surrender) boardCapture(w, t, b, '守備隊が降伏');
+}
+function boardBack(w, t, b, why) { b.phase = 'back';blog(w, t.sys, `${t.name}：移乗部隊が撤収（${why}）`, w.units.get(b.by) || t);b.why = why;const u = w.units.get(b.by);if (u?.tractor?.target === t.id) { boardReturn(u, b.crew, u.tractor.wait || 0); u.tractor.wait = 0; } }
+// Troops (or crew) back aboard their ship; troopsSpent keeps those that did not come back (a mission's regiments shrink by it).
+function boardReturn(u, crew, n) { if (!u || !(n > 0)) return; if (crew) u.crew += n; else { u.troops = (u.troops || 0) + n; u.troopsSpent = Math.max(0, (u.troopsSpent || 0) - n); } }
+// Wrecked: every module of the kinds in BOARD.wreck in the compartments taken; then the party withdraws.
+function boardSabotage(w, t, b) {
+ const secs = new Set(b.path.slice(0, b.comp)), ms = t.p.modules || [];let n = 0;
+ ms.forEach((m, i) => { if (BOARD.wreck.includes(m.k) && m.at != null && secs.has(clamp(Math.floor(m.at * C.HULL_SECTIONS), 0, C.HULL_SECTIONS - 1)) && t.mods[i] > 0) { t.mods[i] = 0; n++; } });
+ b.wrecked = n;const why = C.fleetOutReason(t);if (why && !t.out) { t.out = why; t.order = {...t.order, type: 'hold'}; combatCtx(w, t.sys).out(t, why); }
+ event(w, `${t.name} の艦内で破壊工作（${n} 区画の設備を破壊）`, {side: b.side, sys: t.sys});boardBack(w, t, b, `破壊工作 ${n} 件を完了`);
+}
+function boardCapture(w, t, b, why) {
+ const u = w.units.get(b.by), s = Math.max(0, b.aboard), cm = t.p.crewMax ?? t.p.crewNeed ?? 0;
+ t.prisoners = Math.round((t.crew || 0) + (t.troops || 0));t.boarding = null;
+ // troops not yet across go back to their quarters
+ if (u?.tractor?.target === t.id && u.tractor.wait > 0) { boardReturn(u, b.crew, u.tractor.wait); u.tractor.wait = 0; }
+ if (u) captureShip(w, u, t);else { t.origSide = t.origSide ?? t.side; t.side = b.side; t.team = b.side; t.captured = true; }
+ // The prize crew: half the survivors work the ship, the rest garrison it.
+ t.crew = Math.min(cm, Math.round(s * BOARD.prize));t.troops = Math.max(0, Math.round(s - t.crew));
+ if (!t.out) { const o = C.fleetOutReason(t); if (o) { t.out = '回航要員不足'; t.order = {...t.order, type: 'hold'}; } }
+ blog(w, t.sys, `${t.name}：${why}（捕虜 ${t.prisoners} 名・移乗部隊の損失 ${Math.round(b.lostA)} 名）`, u || t);
+}
+function boardEnd(w, t, b, how) {
+ const u = w.units.get(b.by);t.boarding = null;
+ blog(w, t.sys, how === 'back' ? `${t.name}：移乗部隊が帰艦（損失 ${Math.round(b.lostA)} 名）` : `${t.name}：取り残された移乗部隊 ${Math.round(Math.max(0, b.aboard))} 名が捕虜に`, u || t);
+ if (how !== 'back' && u) event(w, `${u.name} の移乗攻撃は失敗（${t.name}）`, {side: u.side, sys: t.sys});
+ else if (u) event(w, `${u.name} の移乗部隊が ${t.name} から帰艦（${b.why || ''}）`, {side: u.side, sys: t.sys});
+ if (u?.tractor?.mode === 'capture' && u.tractor.target === t.id) releaseTractor(w, u, '移乗部隊を収容');
+}
+// The beam let go (ordered, broken, lost): troops still waiting go back to their quarters; boarders aboard are cut off.
+function boardRelease(w, u, tr, t) {
+ if (tr.wait > 0) { boardReturn(u, tr.crew, tr.wait); tr.wait = 0; }
+ const b = t?.boarding;if (b && b.by === u.id && b.phase !== 'back' && b.aboard > 0) { b.cut = true; }
+}
+// The battle's result waits for a boarding under way (from the lock, BOARD.holdResult s at most), so a prize taken
+// as the enemy breaks still counts.
+function boardPending(w) { for (const u of w.units.values()) { const tr = u.tractor; if (tr?.mode === 'capture' && tr.lock && alive(u) && w.time - (tr.at ?? w.time) < BOARD.holdResult) return true; if (u.boarding && alive(u) && w.time - u.boarding.t0 < BOARD.holdResult) return true; } return false; }
+function boardTick(w, dt) { for (const t of w.units.values()) if (t.boarding) boardFight(w, t, dt); }
+// What the UI shows of a boarding: from the attacker (u) or the boarded ship (t).
+function boardInfo(w, u) {
+ const tr = u?.tractor?.mode === 'capture' ? u.tractor : null, t = tr ? w.units.get(tr.target) : u?.boarding ? u : null, b = t?.boarding;
+ if (!tr && !b) return null;const by = b ? w.units.get(b.by) : u;
+ return {by: by?.id, target: t?.id, goal: (b || tr).goal, phase: b ? (b.phase === 'back' ? 'back' : 'fight') : tr.lock ? (tr.phase === 'cross' || tr.phase === 'dock' ? 'dock' : 'reel') : 'close', lock: !!tr?.lock, progress: tr?.progress || 0, strain: tr?.strain || 0,
+  sent: b ? b.sent : tr.n, wait: Math.round(tr?.wait || 0), aboard: Math.round(b?.aboard || 0), def: Math.round(b ? b.dT + b.dC : 0), stored: Math.round(b?.dS || 0), comp: b?.comp || 0, need: b?.need || 0, lostA: Math.round(b?.lostA || 0), lostD: Math.round(b?.lostD || 0), droid: !!b?.droid, cut: !!b?.cut, held: b?.held || 0, side: b?.side ?? u?.side};
+}
+// The AI boards with a ship that has troops and a tractor beam, when an enemy within a few beam reaches can be held
+// (engines below aiStrain of the hold) and its troops outweigh the defence by aiOdds.
+function aiBoarding(w, sys, us) {
+ for (const u of us) {
+  if (!w.sides[u.side]?.ai || !fighting(u) || u.manual || u.jump || u.tractor || !(u.p.trac > 0) || (u.troops || 0) < BOARD.aiMin) continue;
+  let best = null, bd = Infinity;
+  for (const t of us) { if (t.side === u.side || !boardOk(u, t) || t.boarding || t.towedBy) continue; const d = len(sub(t.pos, u.pos)); if (d > tractorReach(u, t) * 4 || d >= bd) continue; const o = boardOdds(w, u, t); if (o.strain > BOARD.aiStrain || o.odds < BOARD.aiOdds) continue; best = t; bd = d; }
+  if (best) { const r = orderBoard(w, u.id, best.id, {ai: true}); if (r.ok) blog(w, sys, `${u.name}：${best.name}に移乗攻撃を開始`, u); }
  }
 }
 // --- movement (as in the fleet model; arriving ships hang still for a moment after reversion).
@@ -14620,14 +33962,13 @@ function moveShips(w, sys, us, byId, sysOf, plan, inc, dt, peace = false) {
   if (u.warp) { if (!peace) { u.warp.t += dt; if (u.warp.t > 1) delete u.warp; } continue; }
   if (u.towedBy) continue;
   // Disabled: the planet pulls it down until it burns up (C.hullFall), unless a beam holds it.
-  if (u.out) { if (!peace && C.hullFall(u, dt, w.rand)) lostToGravity(w, sys, u); continue; }
+  if (u.out) { u.engF=0;u.maneuver=0;if(peace)u.pos=add(u.pos,u.velocity||[0,0,0],dt);else if(C.hullFall(u,dt,w.rand))lostToGravity(w,sys,u);continue; }
   if(C.powerFactor(u,'engine')<=0||C.powerFactor(u,'reactor')<=0){u.engF=0;u.maneuver=0;u.pos=add(u.pos,u.velocity||[0,0,0],dt);continue;}
-  // Courses are planned on the engines' rated thrust (acc0); the reactor share they actually get (engF) decides what they deliver.
   const load = u.tractor?.lock ? (() => { const t = byId.get(u.tractor.target); return t ? u.info.mass / Math.max(1, u.info.mass + (t.info?.mass || 0)) : 1; })() : 1;
-  const acc0 = u.p.accel * s.engine * (.6 + .4 * unitStruct(u)) * load, acc = acc0 * clamp(u.engF ?? 1, 0, 1.2);
+  const {acc0,acc,turn}=C.propulsionMotion(u,load),turnRate=(u.p.turnRate||0)*turn;
   let dest = null, head = null, speedCap = u.p.maxSpeed, near = 2000, attack = false, steer = null;
   // v24 the engines' share of the reactor, smoothed (a task force paces itself on what its ships can keep up)
-  u.engS = (u.engS ?? 1) + (clamp(u.engF ?? 1, 0, 1) - (u.engS ?? 1)) * Math.min(1, dt / 20);
+  u.engS = (u.engS ?? turn) + (turn - (u.engS ?? turn)) * Math.min(1, dt / 20);
   if (u.jump) {
    // Spooling the hyperdrive: no fire. v21.2 The ship comes round onto its hyperspace vector — the bearing, on the
    // galaxy map, of the next system on its route, the way it is seen to go — and gathers way along it.
@@ -14640,7 +33981,7 @@ function moveShips(w, sys, us, byId, sysOf, plan, inc, dt, peace = false) {
   } else {
    const pl = plan.get(u.id), o = effectiveOrder(u, w);
    if (pl) {
-    dest = pl.dest;speedCap = Math.max(1, pl.cap);attack = pl.attack;near = pl.near || near;
+    dest = pl.dest;speedCap = Math.max(0, pl.cap);attack = pl.attack;near = pl.near || near;
     const t = pl.target, dd = len(sub(dest, u.pos)), fs = hyp(pl.ff[0], pl.ff[2]);
     // v24 With its task force under way a ship steers for its moving station: the station's own velocity plus a
     // correction that closes the gap over about TF.tau seconds (no faster than it could stop), within its own top speed.
@@ -14655,23 +33996,22 @@ function moveShips(w, sys, us, byId, sysOf, plan, inc, dt, peace = false) {
     // v21.1 Escort: station between the guarded ship's bridge and the threat; there, its pace and broadside on.
     if (o.type === 'escort' && t && t.side === u.side && alive(t) && !t.warp) {
      const th = C.escortThreat(t, us.filter(x => x.side !== u.side && !x.warp)), mates = us.filter(x => alive(x) && !x.out && effectiveOrder(x, w).type === 'escort' && effectiveOrder(x, w).target === t.id && !plan.get(x.id)).sort((a, z) => String(a.id).localeCompare(String(z.id)));
-     dest = C.escortStation(u, t, th, Math.max(0, mates.indexOf(u)), Math.max(1, mates.length));speedCap = Math.max(u.p.maxSpeed, 1);
+     dest = C.escortStation(u, t, th, Math.max(0, mates.indexOf(u)), Math.max(1, mates.length));speedCap = Math.max(0,u.p.maxSpeed||0);
      if (len(sub(dest, u.pos)) < Math.max(600, u.p.len * .6)) { const a = th || add(t.pos, [Math.cos(t.yaw) * 1e4, 0, Math.sin(t.yaw) * 1e4]), hb = Math.atan2(a[2] - u.pos[2], a[0] - u.pos[0]); head = hb + (Math.abs(angle(u.yaw - hb - Math.PI / 2)) < Math.abs(angle(u.yaw - hb + Math.PI / 2)) ? Math.PI / 2 : -Math.PI / 2); }
     }
    }
   }
   // v21 A ready composite beam takes the helm: the bow turns onto its target (the beam is fixed dead ahead).
   if (!peace && !u.out) { const sy = C.swHeading(u, us.filter(x => x.side !== u.side && !x.warp && !x.dead)); if (sy != null) { head = sy; if (!dest) dest = [...u.pos]; } }
-  let want = [0, 0, 0], turned = 0;
+  let want = [0, 0, 0], turned = 0, turnNeed = 0;
   // A ship blocked from its target by one of its own climbs or dives off the line of fire.
   if (dest && u.dodge && w.time < u.dodge.until) dest = [dest[0], clamp(dest[1] + u.dodge.dy, -15000, 15000), dest[2]];
   if (dest && steer && !(u.dodge && w.time < u.dodge.until)) {
-   const err = angle(head - u.yaw), dy = clamp(err, -u.p.turnRate * dt, u.p.turnRate * dt);u.yaw += dy;turned = dy;u.broadside = false;C.hullCarve(u, dy);
+   const err = angle(head - u.yaw), dy = clamp(err, -turnRate * dt, turnRate * dt);turnNeed=Math.abs(err)/Math.max(1e-9,(u.p.turnRate||0)*dt);u.yaw += dy;turned = dy;u.broadside = false;
    const hs = hyp(steer[0], steer[2]) * Math.max(.08, Math.cos(err));want = [Math.cos(u.yaw) * hs, steer[1], Math.sin(u.yaw) * hs];
   } else if (dest) {
-   const delta = sub(dest, u.pos), d = len(delta), yaw = head ?? Math.atan2(delta[2], delta[0]), err = angle(yaw - u.yaw), dy = clamp(err, -u.p.turnRate * dt, u.p.turnRate * dt);u.yaw += dy;turned = dy;u.broadside = head != null && attack;
-   // What the ship carries turns with its bow (it does not slide sideways through a turn).
-   C.hullCarve(u, dy);
+   const delta = sub(dest, u.pos), d = len(delta), yaw = head ?? Math.atan2(delta[2], delta[0]), err = angle(yaw - u.yaw), dy = clamp(err, -turnRate * dt, turnRate * dt);turnNeed=Math.abs(err)/Math.max(1e-9,(u.p.turnRate||0)*dt);u.yaw += dy;turned = dy;u.broadside = head != null && attack;
+   // The bow can lead a turn; changing the velocity still spends the actual thrust budget below.
    const remaining = Math.max(0, d - (attack ? 400 : Math.max(10, Math.min(150, (u.p.len || 100) * .06))));
    // Closing on a ship that may be closing too, plan to stop with half the deceleration.
    const speed = Math.min(speedCap * (u.broadside && d < near ? .4 : 1), Math.sqrt((attack ? 1 : 2) * acc0 * remaining)) * Math.max(.08, Math.cos(err));
@@ -14682,13 +34022,9 @@ function moveShips(w, sys, us, byId, sysOf, plan, inc, dt, peace = false) {
    }
   }
   want = C.hullAvoid(u, clearOf, want);
-  u.turnK = clamp(turned / Math.max(1e-6, u.p.turnRate * dt), -1, 1);
-  const y0 = u.pos[1], dv = sub(want, u.velocity), n = len(dv), step = Math.min(n, acc * dt);u.velocity = add(u.velocity, scale(dv, step / Math.max(1e-9, n)));u.pos = add(u.pos, u.velocity, dt);
-  // The battle is fought in a band of altitude; a ship that went below it (to take a falling ship in tow) climbs back on its own.
-  const tow = u.tractor ? w.units.get(u.tractor.target) : null, floor = tow ? Math.min(-15000, tow.pos[1] - 3000) : y0 < -15000 ? y0 : -15000;
-  u.pos[1] = clamp(u.pos[1], floor, 15000);if (u.pos[1] < -15000 && !tow && u.velocity[1] < 40) u.velocity[1] = Math.min(u.velocity[1] + acc * dt, 40);
-  u.maneuver = acc0 > 0 ? clamp(n / (acc0 * dt), 0, 1) : 0;
-  const o = effectiveOrder(u, w);if (u.order.type === 'move' && o.point && len(sub(o.point, u.pos)) < Math.max(10, acc * dt * dt) && len(u.velocity) < acc * dt * 2) { u.pos = [...o.point]; u.velocity = [0, 0, 0]; }
+  u.turnK = clamp(turned / Math.max(1e-6, (u.p.turnRate||0) * dt), -1, 1);
+  const dv = sub(want, u.velocity), n = len(dv), step = Math.min(n, acc * dt);u.velocity = add(u.velocity, scale(dv, step / Math.max(1e-9, n)));u.pos = add(u.pos, u.velocity, dt);
+  u.maneuver = acc0 > 0 ? clamp(Math.max(n / Math.max(1e-9,acc0 * dt),turnNeed), 0, 1) : 0;
  }
  // Hulls that meet are pushed apart, and the impact damages both (C.hullCollide).
 
@@ -14702,24 +34038,24 @@ function moveShips(w, sys, us, byId, sysOf, plan, inc, dt, peace = false) {
 function stir(w, sys) { if (sys == null) return; w.stir = w.stir || new Map(); const r = w.stir.get(sys); if (r) r.still = 0; else w.stir.set(sys, {t0: w.time, still: 0}); }
 function peaceTick(w, sys, dt) {
  const us = systemUnits(w, sys);if (!us.length) return false;
+ for(const u of us)if(!u.manual){if(u.maneuver===undefined)u.maneuver=effectiveOrder(u,w).type==='hold'&&!(len(u.velocity||[0,0,0])>0)?0:1;C.fleetPowerStep(u,C.fleetSystems(u),null,0,dt);u._peacePowerTime=w.time;}
  const byId = new Map(us.map(u => [u.id, u])), sysOf = new Map(us.map(u => [u.id, C.fleetSystems(u)])), inc = new Map(us.map(u => [u.id, C.combatIncoming()])), plan = groupStations(w, sys, us, byId, sysOf, dt);
  const contacts = moveShips(w, sys, us, byId, sysOf, plan, inc, dt, true);
  if (contacts.length) { const ctx = combatCtx(w, sys), hit = new Set(); for (const c of contacts) { hit.add(c.a); hit.add(c.z); } for (const u of hit) applyDamage(w, sys, u, inc.get(u.id), dt, sysOf.get(u.id), ctx); }
  // Still unsettled: a ship under way (moving), or one short of its station or of the point ordered (far).
  let moving = false, far = false;
- for (const u of us) { if (!alive(u) || u.out || u.manual || u.towedBy) continue; if (u.warp || len(u.velocity || [0, 0, 0]) > .5) { moving = true; break; } const pl = plan.get(u.id), o = effectiveOrder(u, w), d = pl ? pl.dest : o.type === 'move' ? o.point : null; if(o.type==='course')far=true;if (d && len(sub(d, u.pos)) > Math.max(40, Math.min(220, (u.p.len || 100) * .1))) far = true; }
+ for (const u of us) { if (!alive(u) || u.manual || u.towedBy) continue; if (u.warp || len(u.velocity || [0, 0, 0]) > 1e-9) { moving = true; break; } if(u.out)continue;const pl = plan.get(u.id), o = effectiveOrder(u, w), d = pl ? pl.dest : o.type === 'move' ? o.point : null; if(o.type==='course')far=true;if (d && len(sub(d, u.pos)) > Math.max(40, Math.min(220, (u.p.len || 100) * .1))) far = true; }
  return {moving, far};
 }
 function peaceMoves(w, dt) {
  if (!w.stir?.size) return;
  // A system is settled when no ship moves: at once if all are on their marks, after a few seconds at rest if some cannot close on theirs.
- for (const [sys, r] of [...w.stir]) { if (w.battles.has(sys) || w.time - r.t0 > 1800) { w.stir.delete(sys); continue; } const st = peaceTick(w, sys, dt); if (!st || !st.moving && !st.far) { w.stir.delete(sys); continue; } r.still = st.moving ? 0 : r.still + dt; if (r.still > 5) w.stir.delete(sys); }
+ for (const [sys, r] of [...w.stir]) { if (w.battles.has(sys)) { w.stir.delete(sys); continue; } const st = peaceTick(w, sys, dt); if (!st || !st.moving && !st.far) { w.stir.delete(sys); continue; } r.still = st.moving ? 0 : r.still + dt; if (r.still > 5) w.stir.delete(sys); }
 }
 function battleTick(w, sys, dt) {
  const us = systemUnits(w, sys), byId = new Map(us.map(u => [u.id, u])), sysOf = new Map(us.map(u => [u.id, C.fleetSystems(u)]));
+ for(const u of us)if(u.maneuver===undefined)u.maneuver=effectiveOrder(u,w).type==='hold'&&!(len(u.velocity||[0,0,0])>0)?0:1;
  const DMG = RULES.damage, inc = new Map(us.map(u => [u.id, C.combatIncoming()])), plan = groupStations(w, sys, us, byId, sysOf, dt);
- moveShips(w, sys, us, byId, sysOf, plan, inc, dt);
- for (const u of us) if (u.tractor) tractorTick(w, u, dt);
  // v25 sensors and contacts, then the S-foils (SENS-004, WING-004)
  sensorTick(w, sys, us);foilTick(w, sys, us, dt);
  // --- gunnery and power
@@ -14762,6 +34098,9 @@ function battleTick(w, sys, dt) {
   const miss = Math.max(0, 1 - hit);
   if (miss > 0 && vk > 0 && F.gun + F.ion > 0) for (const {x, k} of C.fireStray(lof, u, t, distance)) { const g2 = (F.runtime?u.surfaceLastFire?.gun||0:F.gun*s.weapon*fire*vk)*miss*k, i2 = (F.runtime?u.surfaceLastFire?.ion||0:F.ion*s.weapon*fire*vk)*miss*k; if (!(g2 + i2 > 0)) continue; C.combatAdd(inc.get(x.id), x, u.pos, {sf: (g2 + C.COMBAT.ionShield * i2) * hd, hull: (g2 + C.COMBAT.ionHull * i2) * hd, ion: i2 * hd}, null, u.id); x.ffTaken = (x.ffTaken || 0) + (g2 + i2) * hd; if (u.lastShot) u.lastShot.ff = {to: x.id, gun: (g2 + i2) * dt}; if (w.time - (x.ffLog || -99) > 20) { x.ffLog = w.time; blog(w, sys, `${x.name}：味方の${u.name}の流れ弾を受けた`, x); } }
  }
+ // Use the allocation just made for this tick; thrust, heat and weapon recharge share it once.
+ moveShips(w, sys, us, byId, sysOf, plan, inc, dt);
+ for (const u of us) if (u.tractor) tractorTick(w, u, dt);
  // --- missiles: launch, flight, point defence, impact
  for (const u of us) {
   if (u.manual || u.out || u.warp || u.jump || u.order.fire===false || !(u.p.msl > 0 || u.p.imsl > 0)) continue;const o = effectiveOrder(u, w), want = commandedTarget(w,u,o);
@@ -14850,6 +34189,8 @@ function craftTick(w, sys, us, byId, sysOf, inc, dt) {
  for (const s of sq) squadSlots(s);
  if (w.craftRuns?.length && w.time - w.craftRuns[0].t > 10) w.craftRuns = w.craftRuns.filter(x => w.time - x.t <= 10);
  hullsFor(w, sys, us);
+ // Allocate each airborne craft once before its guns and steering share this tick's plant.
+ for(const s of sq)if((s.state==='out'||s.state==='return')&&s.n>0&&!s.ops)squadPropulsion(s,s.throttle==null?s.drive?.maneuver??1:s.throttle,dt,true);
  const wings = new Map();for (const s of sq) { const wg = w.wings.get(s.wing); if (!wg) continue; let a = wings.get(wg.id); if (!a) wings.set(wg.id, a = {wing: wg, list: []}); a.list.push(s); }
  // Where each wing's aircraft are (for wings hunting each other); squadrons still in a hatch mouth not yet.
  const centres = [];
@@ -14909,7 +34250,7 @@ function craftTick(w, sys, us, byId, sysOf, inc, dt) {
     for (const s of out) { const dd = len(sub(t.pos, s.pos)),gate=r.lineReady&&dd<Math.max(3000,t.p.len*.6+2200)?squadFireArc(s,t,'gun'):0;
      if (!s.fired && dd < Math.max(3000, t.p.len * .6)) { s.fired = true; squadRelease(w, sys, s, t, false, aimK); }
      if(!(gate>0))s.strafeT=null;
-     if (r.lineReady&&!s.runShot && gate>0 && dd < Math.max(3000,t.p.len*.6+2200)) { const c2=CRAFT[s.craft],tt=s.n*(c2.gun??c2.strike)*RULES.damage*C.squadFireK(s)*squadLaserK(s)*gate,x=inc.get(t.id);
+     if (r.lineReady&&!s.runShot && gate>0 && dd < Math.max(3000,t.p.len*.6+2200)) { const c2=CRAFT[s.craft],tt=s.n*(c2.gun??c2.strike)*RULES.damage*C.squadFireK(s)*squadLaserK(s)*(s.weaponPowerK??1)*gate,x=inc.get(t.id);
       if(tt>0){s.runShot=true;s.strafeT=w.time+C.CRAFT_HEAT.strafeS;if(x)C.combatAdd(x,t,s.pos,{sf:.7*tt,hull:.7*tt,direct:.3*tt},aimK,s.home);s.dmg=(s.dmg||0)+tt;(w.craftRuns||(w.craftRuns=[])).push({sys,t:w.time,sq:s.id,to:t.id,n:s.n,ord:[...(s.relG||[])]});s.relG=null;}
      }
      if(r.lineReady&&!s.ran&&(dd<Math.max(900,t.p.len*.45)||dd<Math.max(1800,t.p.len*.6)&&dot(sub(s.pos,t.pos),r.dir)>0||w.time>=r.until)){const rel=squadRelease(w,sys,s,t,true,aimK);s.ran=true;s.runs=(s.runs||0)+1;
@@ -14945,7 +34286,7 @@ function craftTick(w, sys, us, byId, sysOf, inc, dt) {
  // Firing/heat/visual markers belong to the attacker; kill credit belongs to the damage received by its victim.
  const air = sq.filter(s => (s.state === 'out'||s.state==='return'&&['spool','wait'].includes(s.follow?.phase)) && s.n > 0), N = air.length, DFC = 1500, cells = new Map(), near = new Map(), bySq = new Map(), key = (i, j, k) => ((i & 1023) << 20) | ((j & 1023) << 10) | (k & 1023);
  const P = new Float64Array(N * 3), side = new Int8Array(N), soft = new Float64Array(N), cellOf = new Int32Array(N), loss = new Float64Array(N), pdL = new Float64Array(N), pdTop = new Float64Array(N), pdBy = new Array(N).fill(null), dfBy = new Array(N).fill(null), dfTop = new Float64Array(N), val = new Float64Array(N), previous = air.map(s=>s.dfFoe);
- for (let n = 0; n < N; n++) { const s = air[n], c = CRAFT[s.craft], x = s.pos[0], y = s.pos[1], z = s.pos[2], kk = key(Math.floor(x / DFC), Math.floor(y / DFC), Math.floor(z / DFC));P[n * 3] = x;P[n * 3 + 1] = y;P[n * 3 + 2] = z;side[n] = s.side;soft[n] = 1 / c.armor;cellOf[n] = kk;val[n] = s.state==='out'?s.n * c.aa * C.squadFireK(s) * squadLaserK(s,'aa'):0;let e = cells.get(kk);if(!e)cells.set(kk,e=[]);e.push(n);bySq.set(s.id,n);s.dfFoe=null; }
+ for (let n = 0; n < N; n++) { const s = air[n], c = CRAFT[s.craft], x = s.pos[0], y = s.pos[1], z = s.pos[2], kk = key(Math.floor(x / DFC), Math.floor(y / DFC), Math.floor(z / DFC));P[n * 3] = x;P[n * 3 + 1] = y;P[n * 3 + 2] = z;side[n] = s.side;soft[n] = 1 / c.armor;cellOf[n] = kk;val[n] = s.state==='out'?s.n * c.aa * C.squadFireK(s) * squadLaserK(s,'aa') * (s.weaponPowerK??1):0;let e = cells.get(kk);if(!e)cells.set(kk,e=[]);e.push(n);bySq.set(s.id,n);s.dfFoe=null; }
  for (let n = 0; n < N; n++) {
   if(!(val[n]>0))continue;
   const s=air[n],i=Math.floor(P[n*3]/DFC),j=Math.floor(P[n*3+1]/DFC),k=Math.floor(P[n*3+2]/DFC),nk=cellOf[n]+':'+side[n];let candidates=near.get(nk);
@@ -15039,11 +34380,13 @@ function steerWing(out, goal, hd, dt, tight = 1) {
  for (const s of out) { const k = s.slot ?? 0, row = Math.ceil(k / 2), sg = k % 2 ? 1 : -1, off = add(scale(hd, -row * 420 * tight), right, sg * row * 520 * tight), g = add(goal, off), lag = len(sub(g, s.pos)); steer(s, g, Math.min(sqSpeed(s), vmin * (lag > 1500 ? 1.15 : 1)), dt, true); }
 }
 function steer(s, goal, speed, dt, flyThrough = false) {
- if(!(dt>0))return;const d = sub(goal, s.pos), l = len(d);if (l < 1&&!flyThrough) {s.vel=[0,0,0];return;}let want=l>=1?scale(d,1/l):s.h.slice();if (HULLS) want = hullSteer(s, want, speed, goal, l);
- const c = clamp(dot(s.h, want), -1, 1), ang = Math.acos(c), maxA = 1.3 * dt * (CRAFT[s.craft]?.systems?.turnK??1);
+ if(!(dt>0))return;const d = sub(goal, s.pos), l = len(d),profile=craftPowerOf(CRAFT[s.craft]),descriptor=profile?.propulsion;
+ let want=l>=1?scale(d,1/l):s.h.slice();if (HULLS) want = hullSteer(s, want, speed, goal, l);
+ let v=l<1&&!flyThrough?0:flyThrough?speed:Math.min(speed,l/dt);if(HULLS)v=Math.min(v,hullFree(s,v*dt)/dt);
+ const before=s.vel||[0,0,0],rated=descriptor?Math.min(descriptor.ratedAccelMps2,descriptor.accelerationLimitMps2)*C.FLEET_RULES.accelScale:0,change=len(sub(scale(want,v),before)),ang=Math.acos(clamp(dot(s.h,want),-1,1)),request=rated>0?clamp(Math.max(change/(rated*dt),ang/Math.max(1e-9,1.3*dt)),0,1):0;
+ const motion=squadPropulsion(s,s.throttle==null?request:Number.isFinite(s.throttle)?clamp(s.throttle,0,1):0,dt),maxA=1.3*dt*(CRAFT[s.craft]?.systems?.turnK??1)*motion.turn;
  if (ang > 1e-4) { const turn=Math.min(ang,maxA);let axis=C.cross(s.h,want);if(len(axis)<1e-8)axis=C.cross(s.h,Math.abs(s.h[1])<.9?[0,1,0]:[1,0,0]);axis=norm(axis);s.h=norm(add(scale(s.h,Math.cos(turn)),C.cross(axis,s.h),Math.sin(turn))); }
- let v = flyThrough?speed:Math.min(speed, l / dt);if (HULLS) v = Math.min(v, hullFree(s, v * dt) / dt);
- const p0 = s.pos;s.vel = scale(s.h, v);s.pos = add(s.pos, s.vel, dt);if (HULLS) hullContact(s, p0);
+ const dv=sub(scale(s.h,v),before),n=len(dv),step=Math.min(n,motion.acc*dt),p0=s.pos;s.vel=add(before,scale(dv,step/Math.max(1e-9,n)));s.pos=add(s.pos,s.vel,dt);if(HULLS)hullContact(s,p0);
 }
 // ---------- craft and hulls (v23) ----------
 // Craft fly round the ships of their system (the battle's, or HULLS set for the system they are in): they look ahead
@@ -15210,6 +34553,7 @@ function combatCtx(w, sys) {
 }
 // A ship lost for good: logged, counted, and its craft aboard lost with it.
 function shipLost(w, sys, u, text, ev) {
+ if (u.cargo > 0) { const sp = w.sides[u.side]?.supply; if (sp) sp.lostTotal += u.cargo; u.cargo = 0; }   // v26 a supply ship takes its cargo with it
  blog(w, sys, text, u);event(w, ev || text, {side: u.side, sys, sunk: true});w.sides[u.side].lost++;
  for (const id of u.squads) { const s = w.squads.get(id); if (s && s.state === 'docked') { s.state = 'lost'; s.lostN = (s.lostN || 0) + s.n; s.n = 0; s.slots = []; } }
  // v23 ...and the craft of a squadron still inside as it launched or already in as it landed.
@@ -15283,8 +34627,10 @@ function orderRecover(w, id) {
  return {ok: true, eta: dur};
 }
 // Back from the yards: hull, systems, plating, crew and magazines restored.
-function rearTick(w) {
+function rearTick(w, dt = 0) {
  for (const u of w.units.values()) {
+  // v26 Yards fed through harassed depots work slower (SUPPLY.rearSlow): the ship's return slips.
+  if (u.status === 'rear' && !u.dead && dt > 0) { const dp = w.sides[u.side]?.supply?.depot || 0; if (dp > 0) u.rear.back += dt * SUPPLY.rearSlow * dp; }
   if (u.status !== 'rear' || u.dead || w.time < u.rear.back) continue;
   const p = u.p, sd = w.sides[u.side], home = sd.start;C.combatInit(u);
   u.mods = u.mods.map(() => 1);u.ammo = (p.modules || []).map(m => m.stock || 0);u.crew = p.crewMax ?? p.crewNeed ?? 0;u.out = null;u.fate = null;u.fateHint = null;u.fall = null;u.load = 0;u.energy = p.wCap || 0;
@@ -15307,14 +34653,25 @@ function aiDisposeDisabled(w, u) { if (!u || !alive(u) || !u.out || u.towedBy) r
 // nothing. Out of battle, ships draw on it to reload missiles, make good lost
 // craft, mend sections, systems and plating, and — in a home system, where the
 // yards are — to replace destroyed systems and lost crew.
-const SUPPLY = {rate: .02 / 60, step: 1, lines: 5, missile: 1.5, craft: 12, crew: .25, repair: .3, intake: .003, lineCost: 1500};
+const SUPPLY = {rate: .02 / 60, step: 1, lines: 5, missile: 1.5, craft: 12, crew: .25, repair: .3, intake: .003, lineCost: 1500,
+ // v26 Interdiction (provisional values). The convoys of the fleet train run the lanes, so enemy forces working a
+ // system the line passes through (or one lane away from it) harass it: each system of the line has a harassment
+ // level h (0-1) that climbs toward its threat — 1 with enemy ships or raiding craft in the system, adj with enemy
+ // ships one lane away — in about harassUp seconds and dies away in about harassDown seconds once the threat is gone.
+ // A convoy loses cut × h of its load in every harassed system it passes (the materiel is spent from the train's
+ // capacity all the same), so a ship at the end of a harassed line gets less, and repairs and replenishment slow.
+ // The yards behind the home systems (rear repair, rearTick) slow by rearSlow × the harassment of the home systems
+ // (the depots): a home system held by the enemy counts as fully harassed.
+ adj: .35, harassUp: 90, harassDown: 600, cut: .6, rearSlow: .8};
 const unitSupplyOf = u => u.supplyBase ?? (u.supplyBase = Math.max(50, unitDemand(u.info || {}, 0, 0).supply));
 const modWeight = new WeakMap();
 function modTotal(p) { let t = modWeight.get(p); if (t == null) { t = 0; for (const m of p.modules || []) if (m.k !== 'hull') t += m.w || 0; t = Math.max(1e-9, t); modWeight.set(p, t); } return t; }
 function supplyInit(w) {
  for (const sd of w.sides) {
   let cap = 0;for (const u of w.units.values()) { if (u.side !== sd.id || u.dead) continue; const air = airTotals(u.squads.map(id => w.squads.get(id)).filter(Boolean).map(s => ({craft: s.craft, n: s.n0}))).crew; cap += unitDemand(u.info || {}, air, u.troops || 0).supply; }
-  sd.supply = {cap, rate: cap * SUPPLY.rate, lines: new Map(), foe: new Set(), want: 0, flow: 0, ratio: 1, need: 0, acc: 0};
+  sd.supply = {cap, rate: cap * SUPPLY.rate, lines: new Map(), foe: new Set(), want: 0, flow: 0, ratio: 1, need: 0, acc: 0, harass: new Map(), lost: 0, lostTotal: 0, cut: 0, depot: 0};
+  // v26 convoys (CONVOY): the depot store (an hour of the train's capacity, half full at the start) and the dumps.
+  const sp = sd.supply;sp.convoy = w.convoyMode !== false && !!convoyKitOf(w, sd.id);sp.storeMax = sp.rate * 3600 * CONVOY.storeHours;sp.store = sp.storeMax * .5;sp.dump = new Map();
  }
  supplyLines(w);
 }
@@ -15364,27 +34721,228 @@ function supplyGive(w, u, nd, t) {
  if (u.out) { const why = C.fleetOutReason(u);
   if (!why) { u.out = null; u.fall = null; u.order = {...u.order, type: 'group'}; blog(w, u.sys, `${u.name}：修理を終えて戦列に復帰`, u); event(w, `${u.name} が修理を終えて戦列に復帰`, {side: u.side, sys: u.sys}); } }
 }
+// v26 Convoy mode: the depot store fills at the train's capacity (less the depots' harassment); ships in a home
+// system draw on the store, others on their system's dump; a dump where the enemy holds the system is lost.
+function supplyConvoyStep(w, sd, asks, st, need, want) {
+ const sp = sd.supply;sp.store = Math.min(sp.storeMax, sp.store + sp.rate * st * (1 - SUPPLY.cut * sp.depot));
+ for (const [x, v] of sp.dump) { let mine = false, foe = false; for (const u of w.units.values()) { if (u.sys !== x || !fighting(u)) continue; if (u.side === sd.id) mine = true; else foe = true; if (mine) break; } if (foe && !mine) { sp.dump.delete(x); sp.lostTotal += v; event(w, `${w.sector.systems[x].name}の補給集積所を敵に奪われた（資材 ${Math.round(v)} t）`, {side: sd.id, sys: x}); } else if (v < 1) sp.dump.delete(x); }
+ const by = new Map();for (const a of asks) { let l = by.get(a.pool); if (!l) by.set(a.pool, l = {list: [], want: 0}); l.list.push(a); l.want += a.take; }
+ let got = 0;
+ for (const [pool, l] of by) { const have = pool === 'store' ? sp.store : sp.dump.get(pool) || 0, r = l.want > have ? have / l.want : 1; for (const a of l.list) { supplyGive(w, a.u, a.nd, a.take * r); got += a.take * r; } if (pool === 'store') sp.store = Math.max(0, have - l.want * r); else sp.dump.set(pool, Math.max(0, have - l.want * r)); }
+ const k = Math.min(1, st / 8);sp.want += (want / st - sp.want) * k;sp.flow += (got / st - sp.flow) * k;sp.ratio += ((want > 0 ? got / want : 1) - sp.ratio) * k;sp.need = need;
+ sp.lost += (0 - sp.lost) * k;
+}
+// v26 Interdiction: each line system's harassment level moves toward the enemy threat there (SUPPLY above).
+function supplyHarass(w, sd, st) {
+ const sp = sd.supply, S = w.sector, h = sp.harass || (sp.harass = new Map()), threat = new Map(), foe = new Set();
+ for (const u of w.units.values()) if (u.side !== sd.id && fighting(u) && u.sys != null && !pendingWarp(u)) foe.add(u.sys);
+ for (const q of w.squads.values()) if (q.side !== sd.id && q.raid && q.sys != null && q.state === 'out' && q.n > 0) foe.add(q.sys);
+ for (const x of foe) { threat.set(x, 1); for (const ei of S.systems[x].links) { const e = S.edges[ei], y = e.a === x ? e.b : e.a; if ((threat.get(y) || 0) < SUPPLY.adj) threat.set(y, SUPPLY.adj); } }
+ const up = Math.min(1, st / SUPPLY.harassUp), down = Math.min(1, st / SUPPLY.harassDown);
+ for (const [x, t] of threat) { if (!sp.lines.has(x) && !sd.home.includes(x)) continue; const v = h.get(x) || 0; if (t > v) h.set(x, v + (t - v) * up); }
+ for (const [x, v] of h) { const t = threat.get(x) || 0; if (t < v) { const n = v - (v - t) * down; if (n < .01) h.delete(x); else h.set(x, n); } }
+ // The depots: the home systems' mean harassment, one held by the enemy counting in full.
+ sp.depot = sd.home.length ? sd.home.reduce((n, x) => n + (sp.foe.has(x) ? 1 : h.get(x) || 0), 0) / sd.home.length : 0;
+}
+// The share of a convoy's load that reaches a ship in system sys, along its line from home.
+function supplyReach(sp, sys, memo) {
+ if (memo.has(sys)) return memo.get(sys);let f = 1, x = sys, n = 0;
+ while (x != null && x >= 0 && n++ < 64) { const v = sp.harass.get(x); if (v) f *= 1 - SUPPLY.cut * v; const ln = sp.lines.get(x); if (!ln || ln.prev < 0) break; x = ln.prev; }
+ memo.set(sys, f);return f;
+}
 function supplyTick(w, dt) {
  if ((w.timers.sup = (w.timers.sup ?? 0) - dt) <= 0) { w.timers.sup = SUPPLY.lines; supplyLines(w); }
  for (const sd of w.sides) {
   const sp = sd.supply;if (!sp) continue;sp.acc += dt;if (sp.acc < SUPPLY.step) continue;const st = sp.acc;sp.acc = 0;
-  const asks = [];let want = 0, need = 0;
+  supplyHarass(w, sd, st);const memo = new Map();
+  const asks = [];let want = 0, need = 0, got = 0, lost = 0;
   for (const u of w.units.values()) {
    if (u.side !== sd.id) continue;if (!alive(u) || u.sys == null || u.jump) { u.supplyNeed = null; continue; }
    const ln = sp.lines.get(u.sys), nd = supplyNeeds(w, u, ln);u.supplyNeed = nd;if (!nd.total) continue;need += nd.total;
+   if (sp.convoy) { if (w.battles.has(u.sys) || u.convoy) continue; const pool = ln?.home ? 'store' : sp.dump.has(u.sys) ? u.sys : null; if (pool == null) continue; const take = Math.min(nd.total, Math.max(5, unitSupplyOf(u) * SUPPLY.intake) * st); asks.push({u, nd, take, pool}); want += take; continue; }
    if (!ln || w.battles.has(u.sys)) continue;
    const take = Math.min(nd.total, Math.max(5, unitSupplyOf(u) * SUPPLY.intake) * st);asks.push({u, nd, take});want += take / ln.eff;
   }
+  if (sp.convoy) { supplyConvoyStep(w, sd, asks, st, need, want); continue; }
   const avail = sp.rate * st, r = want > avail ? avail / want : 1;
-  for (const a of asks) supplyGive(w, a.u, a.nd, a.take * r);
-  const k = Math.min(1, st / 8);sp.want += (want / st - sp.want) * k;sp.flow += (Math.min(want, avail) / st - sp.flow) * k;sp.ratio += ((want > 0 ? r : 1) - sp.ratio) * k;sp.need = need;
+  for (const a of asks) { const f = sp.harass.size ? supplyReach(sp, a.u.sys, memo) : 1, t = a.take * r; supplyGive(w, a.u, a.nd, t * f); got += t * f; lost += t * (1 - f); }
+  // flow: what reaches the ships (t/s); lost: what the enemy intercepts on the way; cut: its share of what was sent.
+  const k = Math.min(1, st / 8);sp.want += (want / st - sp.want) * k;sp.flow += (got / st - sp.flow) * k;sp.ratio += ((want > 0 ? r : 1) - sp.ratio) * k;sp.need = need;
+  sp.lost += (lost / st - sp.lost) * k;sp.lostTotal += lost;sp.cut += ((got + lost > 0 ? lost / (got + lost) : 0) - sp.cut) * k;
  }
 }
+
+// ---------- supply convoys (v26) ----------
+// Materiel reaches the fleet in supply ships. A side's home systems are its depots: the fleet train's capacity
+// (SUPPLY.rate, slowed by harassment of the depots) fills the depot store, ships in a home system draw on it
+// directly (the yards), and every other system gets only what a convoy has brought there (sp.dump, by system).
+// A convoy is called on request — by a task group's card (requestConvoy) or automatically when the ships of a
+// system lack more than CONVOY.autoNeed tonnes — and is made up for the job: enough supply ships for the cargo
+// (the faction's kit, CONVOY_KIT; the big LH-3210 freighter for large deliveries where the faction has it) and an
+// escort sized to the cargo and to the enemy known along the way. It leaves from the depot nearest the fleet, goes
+// along the lanes — under the lane rule, so it drops out at every branch-line system, where it can be seen and
+// caught — holds short of a stop where a stronger enemy is known (turning back after CONVOY.holdMax s), unloads
+// for CONVOY.unload s and goes home, where its ships stand down. A supply ship lost takes its cargo with it, and a
+// dump left where the enemy holds the system is lost too. Without the kit's designs in the battle (an old world)
+// the side keeps the abstract train of v17 (with v26 interdiction by harassment, supplyHarass).
+// Cargo: the design's hold volume (designInfo cargo, m³) at CONVOY.tPerM3, at least CONVOY.tPerM per metre of hull
+// (small transports' holds are not modelled in full; provisional). A load more than CONVOY.bigShips of the kit's
+// ordinary supply ships could carry goes in the big freighter where the kit has one (LH-3210). Convoy ships are not counted in the side's fighting strength (checkResult).
+// Kits (user's list, 2026-10-29): Empire/Republic — Heraklon or the Republic transport, escorts Arquitens/Gozanti;
+// Alliance — GR-75 (and LH-3210 freighters), escorts Nebulon-B/MC30c; Separatists — the DH-Omni support vessel,
+// which has no model in the game: the generic Republic-pattern transport hull sails in its place (named as a
+// stand-in), with LH-3210 freighters for big loads, escorts Munificent. A faction without a kit uses CONVOY_KIT.any.
+const CONVOY = {autoNeed: 300, autoEvery: 30, step: 5, maxShips: 8, escortPer: .6, escortMin: 2, escortMax: 6, holdMax: 900, unload: 60, tPerM3: .35, tPerM: 25, storeHours: 1, bigShips: 2, threat: 1.2, maxOut: 3};
+const CONVOY_KIT = {
+ empire: {ships: ['heraklon', 'reptransport'], escorts: ['arquitens', 'gozanti']},
+ republic: {ships: ['reptransport', 'heraklon'], escorts: ['arquitens', 'gozanti']},
+ rebel: {ships: ['gr75'], big: 'lh3210', escorts: ['nebulonb', 'mc30c']},
+ cis: {ships: ['reptransport'], standIn: 'DH-オムニ（代役）', big: 'lh3210', escorts: ['munificent']},
+ any: {ships: ['reptransport', 'gr75', 'heraklon'], escorts: ['arquitens', 'nebulonb', 'munificent']}
+};
+const convoyKitOf = (w, side) => { const f = w.sides[side]?.faction, k = CONVOY_KIT[f] || CONVOY_KIT.any, has = key => w.designs.has(key);
+ const ships = k.ships.filter(has), escorts = k.escorts.filter(has);return ships.length ? {ships, escorts, big: k.big && has(k.big) ? k.big : null, standIn: k.standIn || null} : null; };
+const cargoOf = d => Math.round(Math.max((d?.info?.cargo || 0) * CONVOY.tPerM3, (d?.p?.len || d?.info?.len || 50) * CONVOY.tPerM));
+// What the ships of a system lack, less what is already there or on its way.
+function convoyNeed(w, side, sys) {
+ const sp = w.sides[side].supply;let need = 0;for (const u of w.units.values()) if (u.side === side && u.sys === sys && alive(u) && !u.convoy) need += u.supplyNeed?.total || 0;
+ need -= sp.dump?.get(sys) || 0;for (const cv of w.convoys?.values() || []) if (cv.side === side && cv.phase !== 'back' && (cv.sys === sys || w.groups.get(cv.to)?.sys === sys)) need -= cv.cargo;
+ return Math.max(0, need);
+}
+// The convoy a request would bring (or why there is none): from the depot nearest the group by lane.
+function convoyPlan(w, gid) {
+ const g = w.groups.get(gid);if (!g) return {ok: false, why: '任務群がありません'};const sd = w.sides[g.side], sp = sd.supply, kit = convoyKitOf(w, g.side);
+ if (!sp?.convoy || !kit) return {ok: false, why: 'この戦闘では補給船団を使えません'};
+ const sys = g.sys ?? g.transit?.to;if (sys == null) return {ok: false, why: '任務群の位置が定まりません'};
+ if (sd.home.includes(sys)) return {ok: false, why: '母港では工廠から直接補給を受けます'};
+ if (!sp.lines.has(sys)) return {ok: false, why: '補給線が届いていません（敵のいる星系を越えられません）'};
+ const out = [...(w.convoys?.values() || [])].filter(c => c.side === g.side && c.phase !== 'back');if (out.length >= CONVOY.maxOut) return {ok: false, why: `補給船団がすべて出払っています（${CONVOY.maxOut} 個）`};
+ const need = convoyNeed(w, g.side, sys);if (need < 1) return {ok: false, why: '補給の必要がありません'};
+ const from = sd.home.filter(h => !sp.foe.has(h)).sort((a, b) => routeCost(w.sector, a, sys) - routeCost(w.sector, b, sys))[0];if (from == null) return {ok: false, why: '母港が使えません'};
+ const load = Math.min(need * 1.1, sp.store);if (load < Math.min(need, 50)) return {ok: false, why: '母港の補給品が足りません'};
+ // Supply ships: one big freighter for a big load where the kit has one, else the kit's ships in turn.
+ const ships = [];let room = 0;
+ if (kit.big && load > CONVOY.bigShips * cargoOf(w.designs.get(kit.ships[0]))) { const d = w.designs.get(kit.big); ships.push(kit.big); room += cargoOf(d); }
+ for (let i = 0; room < load && ships.length < CONVOY.maxShips; i++) { const k = kit.ships[i % kit.ships.length]; ships.push(k); room += cargoOf(w.designs.get(k)); }
+ // Escorts: for the number of supply ships, and more for enemy strength known along the way (contacts on the route).
+ const route = routePath(w.sector, from, sys), on = new Set(route?.path || []);let threat = 0;for (const c of sd.contacts.values()) if (on.has(c.sys)) threat = Math.max(threat, c.strength);
+ const escK = kit.escorts.map(k => w.designs.get(k)).filter(Boolean), each = escK.length ? escK.reduce((n, d) => n + unitStrength(C.fleetUnit('x', d.key, d.p, 0)), 0) / escK.length : 1;
+ const nEsc = escK.length ? clamp(Math.max(CONVOY.escortMin, Math.ceil(ships.length * CONVOY.escortPer), Math.ceil(threat * CONVOY.threat / Math.max(1, each))), 0, CONVOY.escortMax) : 0;
+ const hc = Math.max(...ships.concat(kit.escorts.slice(0, nEsc ? kit.escorts.length : 0)).map(k => w.designs.get(k)?.info?.hyper ?? 2));
+ const plan = routeItinerary(w.sector, from, sys), eta = plan?.segments.length ? plan.segments.reduce((n, r) => n + pathSeconds(r, hc) + 8, 0) + RULES.aiLaneWait * (plan.segments.length - 1) : 8;
+ return {ok: true, from, sys, load: Math.min(load, room), ships, escorts: Array.from({length: nEsc}, (_, i) => kit.escorts[i % kit.escorts.length]), eta, standIn: kit.standIn};
+}
+function requestConvoy(w, gid, auto = false) {
+ const pl = convoyPlan(w, gid);if (!pl.ok) return pl;const g = w.groups.get(gid), side = g.side, sd = w.sides[side], sp = sd.supply;
+ w.convoys = w.convoys || new Map();w.convoyN = (w.convoyN || 0) + 1;
+ const cg = makeGroup(w, side, `補給船団 ${w.convoyN}`, pl.from);cg.convoy = 'c' + w.convoyN;cg.formation = 'column';cg.order = {type: 'hold'};
+ let left = pl.load, n = 0;
+ for (const k of pl.ships) { const d = w.designs.get(k), u = makeUnit(w, side, d, pl.standIn && k !== CONVOY_KIT.cis.big ? `${pl.standIn} ${w.convoyN}-${++n}` : `補給船 ${w.convoyN}-${++n}`, cg.id); u.sys = pl.from; u.convoy = cg.convoy; u.cargo = Math.min(left, cargoOf(d)); left -= u.cargo; cg.units.push(u.id); }
+ n = 0;for (const k of pl.escorts) { const d = w.designs.get(k), u = makeUnit(w, side, d, `船団護衛 ${w.convoyN}-${++n}`, cg.id); u.sys = pl.from; u.convoy = cg.convoy; cg.units.push(u.id); }
+ cg.flag = cg.units[cg.units.length - 1];deployGroup(w, cg, null);
+ sp.store -= pl.load - Math.max(0, left);
+ const cv = {id: cg.convoy, gid: cg.id, side, to: gid, sys: pl.sys, home: pl.from, cargo: pl.load - Math.max(0, left), phase: 'out', t0: w.time, hold: 0, eta: w.time + pl.eta, ships: pl.ships.length, escorts: pl.escorts.length};
+ w.convoys.set(cv.id, cv);orderJump(w, cg.id, pl.sys);
+ event(w, `${cg.name}：${w.sector.systems[pl.from].name}から${w.sector.systems[pl.sys].name}へ（${g.name}の${auto ? '自動要請' : '要請'}・補給船 ${cv.ships} 隻・護衛 ${cv.escorts} 隻・資材 ${Math.round(cv.cargo)} t・到着まで約 ${Math.max(1, Math.round(pl.eta / 60))} 分）`, {side, sys: pl.from});
+ return {ok: true, id: cv.id, eta: pl.eta, cargo: cv.cargo, ships: cv.ships, escorts: cv.escorts};
+}
+// The convoys on their way to a task group (for its card).
+function convoysFor(w, gid) { return [...(w.convoys?.values() || [])].filter(c => c.to === gid && c.phase !== 'back').map(c => { const g = w.groups.get(c.gid); return {...c, name: g?.name || '', left: g ? etaAll(w, g.id, c.sys) : null}; }); }
+function convoyTick(w, dt) {
+ if ((w.timers.cv = (w.timers.cv ?? 0) - dt) > 0) return;w.timers.cv = CONVOY.step;
+ const S = w.sector;
+ for (const cv of [...(w.convoys?.values() || [])]) {
+  const g = w.groups.get(cv.gid), sd = w.sides[cv.side], sp = sd.supply, us = g ? g.units.map(id => w.units.get(id)).filter(alive) : [];
+  cv.cargo = us.reduce((n, u) => n + (u.cargo || 0), 0);
+  if (!g || !us.some(u => u.cargo > 0 || cv.phase === 'back')) { if (g && us.length && cv.phase !== 'back') { cv.phase = 'back'; orderJump(w, g.id, cv.home); } else { w.convoys.delete(cv.id); if (g) disbandConvoy(w, g); } continue; }
+  if (g.transit || g.spool) continue;
+  const here = g.sys, battle = here != null && w.battles.has(here);
+  if (battle) { // in a fight it runs for the depot if the escort cannot hold
+   const sys = systemUnits(w, here), ours = sys.filter(u => u.side === cv.side && fighting(u)).reduce((n, u) => n + unitStrength(u), 0), theirs = seenStrength(w, cv.side, sys);
+   if (theirs > ours && !g.spool) orderJump(w, g.id, cv.home);
+   continue; }
+  if (cv.phase === 'back') { if (here === cv.home) { sp.store += cv.cargo; w.convoys.delete(cv.id); disbandConvoy(w, g); } else if (w.time - (g.arrivedAt ?? -1e9) >= RULES.aiLaneWait) orderJump(w, g.id, cv.home); continue; }
+  if (cv.phase === 'unload') { if (w.time >= cv.t) { for (const u of us) { if (u.cargo > 0) { sp.dump.set(here, (sp.dump.get(here) || 0) + u.cargo); u.cargo = 0; } } event(w, `${g.name} が ${S.systems[here].name}で資材 ${Math.round(cv.cargo)} t を引き渡し`, {side: cv.side, sys: here}); cv.phase = 'back'; orderJump(w, g.id, cv.home); } continue; }
+  // Out: follow the group it serves if it has moved on (along our lines).
+  const tg = w.groups.get(cv.to), want = tg && (tg.sys ?? tg.transit?.to);if (want != null && want !== cv.sys && sp.lines.has(want) && !sd.home.includes(want)) cv.sys = want;
+  if (here === cv.sys) { cv.phase = 'unload'; cv.t = w.time + CONVOY.unload; continue; }
+  // The next jump: held short while a stronger enemy is known at its stop or the destination is cut off.
+  const route = routePath(S, here, cv.sys), hop = route ? routeItinerary(S, here, cv.sys)?.next ?? null : null, es = us.filter(u => !u.cargo).reduce((n, u) => n + unitStrength(u), 0);
+  const blocked = !route || !sp.lines.has(cv.sys) || [...sd.contacts.values()].some(c => (c.sys === hop || c.sys === cv.sys) && c.strength > es);
+  if (blocked) { cv.hold += CONVOY.step; if (cv.hold > CONVOY.holdMax) { cv.phase = 'back'; orderJump(w, g.id, cv.home); event(w, `${g.name}：航路上の敵のため引き返す`, {side: cv.side, sys: here}); } continue; }
+  cv.hold = 0;if (w.time - (g.arrivedAt ?? -1e9) >= RULES.aiLaneWait) orderJump(w, g.id, cv.sys);
+ }
+ // Automatic requests: each side's groups (not convoys) whose system lacks more than CONVOY.autoNeed.
+ if ((w.timers.cva = (w.timers.cva ?? 0) - CONVOY.step) > 0) return;w.timers.cva = CONVOY.autoEvery;
+ for (const sd of w.sides) { if (!sd.supply?.convoy || sd.autoConvoy === false) continue; const done = new Set();
+  for (const g of w.groups.values()) { if (g.side !== sd.id || g.convoy || g.noAutoConvoy || g.sys == null || g.transit || done.has(g.sys) || sd.home.includes(g.sys) || w.battles.has(g.sys)) continue; if (!g.units.some(id => fighting(w.units.get(id)))) continue;
+   done.add(g.sys);if (convoyNeed(w, sd.id, g.sys) >= CONVOY.autoNeed) requestConvoy(w, g.id, true); } }
+}
+// Home again (or with nothing left to do), a convoy's ships stand down: they leave the battle area.
+function disbandConvoy(w, g) { for (const id of g.units) { const u = w.units.get(id); if (u && !u.dead) { u.status = 'withdrawn'; u.sys = null; for (const sid of u.squads) { const q = w.squads.get(sid); if (q) q.sys = null; } } } w.groups.delete(g.id); }
 
 // ---------- AI ----------
 // The opposing commander splits its fleet into a main body, a detachment and
 // scouts; scouts search systems not seen lately, and the main body moves to
 // strike any group it can outmatch, gathering the detachment to arrive together.
+// v26 (an outnumbered AI used to do little but run) The commander weighs the correlation of forces from what its
+// side has detected — the strategic contacts, remembered for two hours (aiForces), never the enemy's true order of
+// battle — and fights one of two ways:
+//  battle  stronger, or not yet knowing better: as before, a concentrated main body that strikes enemy groups it
+//          outmatches and sweeps toward the enemy, a detachment and scouts. Small enemy groups working our supply
+//          lines are hunted by the detachment, so raiders do not draw the whole fleet off after them.
+//  raid    weaker (below plan.inferior of the enemy's estimated strength): it disperses to make the enemy disperse.
+//          Raiding groups of its fastest hyperdrive escorts (aiDisperse) work the enemy's presumed supply lines (the
+//          lanes from the enemy's home systems to its groups), its home systems (the depots) and isolated groups,
+//          keeping clear of its main body and slipping away from any stronger force to their next target; their
+//          presence harasses the lines (SUPPLY.adj/cut: the enemy's repairs and replenishment fall). Carriers send
+//          wings whose craft have hyperdrives on cross-system strikes at the same targets (orderRaid). The rest stay
+//          concentrated as the main body, which strikes enemy groups it outmatches locally (detachments sent after
+//          the raiders: defeat in detail) and keeps clear of the enemy main body until the odds improve — moving
+//          off at most plan.relocMax times an hour, then standing.
+// Withdrawal is tactical only, in both: a group breaks off a battle that is lost locally (below the strategy's
+// retreat share of the enemy it can see there) once it has fought plan.minFight s, or at once when overwhelmed;
+// a group that has broken off plan.stand times within the hour stands and fights (no endless flight).
+// Brains made by aiSetup carry own: true; one set up by hand (a tutorial, a test) keeps the old behaviour.
+// Provisional values, tunable; a faction's doctrine adjusts them (AI_FACTION).
+const AI_PLAN = {
+ inferior: .8, superior: 1.2,    // our strength / the enemy's estimated strength: below inferior → raid; above superior → battle again
+ memory: 7200,                   // s a contact counts toward the estimate (fading to 0.7 of it by then: a fleet not seen is not a fleet gone)
+ raidShare: .3,                  // share of our ships (not capital ships) detached as raiders, fastest hyperdrives first
+ raidSize: 3,                    // ships to a raiding group
+ raidDwell: 300,                 // s a raiding group works a system with nothing to fight before it moves on
+ raidOdds: 1.3,                  // a raiding group takes on an enemy group it outmatches this much
+ mainOdds: 1.25,                 // the main body strikes an enemy group it outmatches this much (local superiority)
+ relocate: 600, relocMax: 2,     // the main body moves off from the enemy main body at most this often (s) and this many times an hour
+ stand: 2, minFight: 60, overwhelm: .2, // a group stands after this many withdrawals in an hour; a battle lasts this long before breaking off, unless below this share of the enemy
+ wingRaid: 900, wingOdds: .35,   // s between one wing's cross-system strikes; it strikes groups below this share of our main body (not the enemy main body)
+ learnAt: 20000,                 // damage dealt and taken (both sides) before the side trusts its experience (aiQuality)
+ hunt: .35                       // battle mode: enemy groups below this share of our strength on our lines are the detachment's to hunt
+};
+// Doctrine flavour: the Alliance lives by raids and carrier strikes; the Separatists raid with their frigates; the
+// Empire seeks the decisive battle and turns to raiding only when badly outmatched.
+const AI_FACTION = {
+ rebel: {inferior: .95, raidShare: .45, wingRaid: 600, wingOdds: .6},
+ cis: {raidShare: .35},
+ republic: {raidShare: .25},
+ empire: {inferior: .65, raidShare: .2, relocMax: 1}
+};
+// v26 With the lane rule (navigation itineraries) a group stopped at a branch-line system on its way somewhere is
+// still on the way (onTheWay); an AI commander re-issues the next jump from there after RULES.aiLaneWait
+// (aiContinue). ETAs for planning are the whole trip, stops included (etaAll).
+const onTheWay = g => !!(g?.navigation && g.navigation.final != null && g.navigation.final !== g.sys);
+const etaAll = (w, gid, dest) => jumpEstimate(w, gid, dest)?.total ?? null;
+function aiContinue(w, side) { for (const g of w.groups.values()) { if (g.side !== side || g.convoy || !onTheWay(g) || g.transit || g.spool || g.waitJump || g.sys == null || w.battles.has(g.sys) || w.time - (g.arrivedAt ?? -1e9) < RULES.aiLaneWait) continue; orderJump(w, g.id, g.navigation.final); } }
+const aiPlan = (w, side) => ({...AI_PLAN, ...(AI_FACTION[w.sides[side]?.faction] || {})});
+const groupStrength = (w, g) => { let n = 0; for (const id of g.units) { const u = w.units.get(id); if (fighting(u)) n += unitStrength(u); } return n; };
+// What a side can tell of the enemy in a system: ships it holds at 放射源検知 or better in full, faint returns at half.
+function seenStrength(w, side, us) { let n = 0; for (const u of us) { if (u.side === side || !fighting(u)) continue; const st = contactStage(w, side, u); if (st >= 2) n += unitStrength(u); else if (st >= 1) n += unitStrength(u) * .5; } return n; }
+// v26 How far the nearest enemy ship this side can see is from its nearest ship in a system (m).
+function aiGap(w, side, us) { let d = Infinity; for (const a of us) { if (a.side !== side || !fighting(a)) continue; for (const b of us) { if (b.side === side || !fighting(b) || contactStage(w, side, b) < 2) continue; const x = a.pos[0] - b.pos[0], y = a.pos[1] - b.pos[1], z = a.pos[2] - b.pos[2], q = x * x + y * y + z * z; if (q < d) d = q; } } return Math.sqrt(d); }
+// v26 Experience: how the side's ships have actually fared, damage dealt over damage taken in its battles so far,
+// corrects the paper strengths (square root, between 0.5 and 2, once enough has been fought: P.learnAt).
+function aiQuality(w, side, P) { let out = 0, inn = 0; for (const u of w.units.values()) { if (u.side === side) out += u.dmgDone || 0; else inn += u.dmgDone || 0; } return out + inn < P.learnAt ? 1 : clamp(Math.sqrt((out + 1) / (inn + 1)), .5, 2); }
+const lanesOf = (S, x) => S.systems[x].links.map(ei => { const e = S.edges[ei]; return e.a === x ? e.b : e.a; });
 function aiWithdrawUnit(w, u) {
  const g = w.groups.get(u.group);if (!g) return;const safe = safeSystem(w, u.side, u.sys);if (safe == null) return;
  // A lone damaged ship leaves in a group of its own.
@@ -15401,39 +34959,145 @@ function aiSetup(w, side) {
  const gs = [...w.groups.values()].filter(g => g.side === side && g.units.some(id => alive(w.units.get(id)))), us = gs.flatMap(g => g.units).map(id => w.units.get(id)).filter(alive);
  // Fast small ships with long-range sensors scout alone; the task groups keep their formations
  // and form a main body (about two thirds of the strength) and a detachment.
- const scouts = us.filter(u => !u.info.capital && u.info.hyper != null && u.info.hyper <= 2).sort((a, b) => (a.info.hyper - b.info.hyper) || (b.info.sensor - a.info.sensor)).slice(0, Math.max(1, Math.round(us.length * .1)));
- const sc = scouts.map(u => { const g = w.groups.get(u.group); if (g) { g.units = g.units.filter(x => x !== u.id); if (g.flag === u.id) g.flag = g.units[0] || null; } const h = makeGroup(w, side, `${u.name} 偵察隊`, u.sys); h.units = [u.id]; h.flag = u.id; u.group = h.id; return h.id; });
- const tgs = gs.filter(g => g.units.length).sort((a, b) => strength(b) - strength(a)), main = [], det = [];let sm = 0, sdt = 0;
- for (const g of tgs) { if (sm <= sdt * 2) { main.push(g.id); sm += strength(g); } else { det.push(g.id); sdt += strength(g); } }
+ // v26 Task forces with a role keep it: reconnaissance task forces scout, raiding ones raid; with a reconnaissance
+ // task force there are no single-ship scouts.
+ const byRole = r => gs.filter(g => g.role === r && !g.convoy).map(g => g.id), recon = byRole('recon'), raid0 = byRole('raid'), reconf = byRole('reconf');
+ const scouts = recon.length ? [] : us.filter(u => !u.info.capital && u.info.hyper != null && u.info.hyper <= 2 && !raid0.includes(u.group)).sort((a, b) => (a.info.hyper - b.info.hyper) || (b.info.sensor - a.info.sensor)).slice(0, Math.max(1, Math.round(us.length * .1)));
+ const sc = recon.concat(scouts.map(u => { const g = w.groups.get(u.group); if (g) { g.units = g.units.filter(x => x !== u.id); if (g.flag === u.id) g.flag = g.units[0] || null; } const h = makeGroup(w, side, `${u.name} 偵察隊`, u.sys); h.units = [u.id]; h.flag = u.id; u.group = h.id; return h.id; }));
+ const tgs = gs.filter(g => g.units.length && !recon.includes(g.id) && !raid0.includes(g.id) && !g.convoy).sort((a, b) => strength(b) - strength(a)), main = [], det = [];let sm = 0, sdt = 0;
+ // (a reconnaissance-in-force task force is the detachment's)
+ for (const g of tgs) { if (reconf.includes(g.id)) { det.push(g.id); sdt += strength(g); } else if (sm <= sdt * 2) { main.push(g.id); sm += strength(g); } else { det.push(g.id); sdt += strength(g); } }
  for (const g of gs) if (!g.units.length) w.groups.delete(g.id);
- sd.brain = {main, det, scouts: sc, plan: null};
+ sd.brain = {main, det, scouts: sc, raiders: raid0.slice(), plan: null, own: true, mode: 'battle', foe: new Map(), fled: new Map(), fights: new Map(), raid: new Map(), wingT: new Map(), reloc: []};
+}
+// v26 The enemy's strength as this side knows it: every enemy group it has a contact on, the older the less (a
+// contact fades to 0.7 by plan.memory and is then forgotten), and none it has seen destroyed.
+function aiForces(w, side, A, P) {
+ const sd = w.sides[side];
+ for (const c of sd.contacts.values()) { const o = A.foe.get(c.gid); if (!o || c.time >= o.t) A.foe.set(c.gid, {s: c.strength, t: c.time, sys: c.sys, transit: c.transit, side: w.groups.get(c.gid)?.side}); }
+ let est = 0;
+ for (const [gid, o] of A.foe) { const g = w.groups.get(gid), age = w.time - o.t; if (!g || !g.units.some(id => fighting(w.units.get(id))) || age > P.memory) { A.foe.delete(gid); continue; } est += o.s * (1 - .3 * age / P.memory); }
+ return est;
+}
+// v26 Raiders: escorts with a hyperdrive (no capital ships), the fastest first, plan.raidShare of our ships, in groups
+// of plan.raidSize, taken from the main body and the detachment (a task group left without ships is dissolved).
+function aiDisperse(w, side, A, P) {
+ const gs = A.main.concat(A.det).map(id => w.groups.get(id)).filter(g => g && g.sys != null && !g.transit && !g.spool && !w.battles.has(g.sys));
+ const all = gs.flatMap(g => g.units.map(id => w.units.get(id))).filter(fighting), want = Math.round(all.length * P.raidShare);
+ const pool = all.filter(u => !u.info?.capital && unitHyper(u) != null && unitStruct(u) > .6).sort((a, b) => unitHyper(a) - unitHyper(b) || (b.p.maxSpeed || 0) - (a.p.maxSpeed || 0)).slice(0, want);
+ if (pool.length < 1) return;
+ // Ships of one system go together.
+ const bySys = new Map();for (const u of pool) { let a = bySys.get(u.sys); if (!a) bySys.set(u.sys, a = []); a.push(u); }
+ for (const list of bySys.values()) for (let i = 0; i < list.length; i += P.raidSize) {
+  const part = list.slice(i, i + P.raidSize), lead = part[0], h = makeGroup(w, side, `${lead.name} 襲撃隊`, lead.sys);
+  for (const u of part) { const g = w.groups.get(u.group); if (g) { g.units = g.units.filter(x => x !== u.id); if (g.flag === u.id) g.flag = g.units.find(x => fighting(w.units.get(x))) || g.units[0] || null; } h.units.push(u.id); u.group = h.id; }
+  h.flag = lead.id;h.formation = 'column';A.raiders.push(h.id);
+ }
+ for (const g of gs) if (!g.units.length) { w.groups.delete(g.id); A.main = A.main.filter(x => x !== g.id); A.det = A.det.filter(x => x !== g.id); }
+}
+// v26 Where the enemy's supply is presumed to run: the lanes from each enemy side's home (its start, known) to every
+// group of it this side has fresh contact on, weighted by that group's strength; its home systems are the depots.
+function aiEnemyLines(w, side, A) {
+ const S = w.sector, line = new Map(), depot = new Set();let tot = 0;
+ for (const sd of w.sides) if (sd.id !== side) for (const h of sd.home || []) depot.add(h);
+ for (const o of A.foe.values()) { if (w.time - o.t > 1800 || o.side == null) continue; const st = w.sides[o.side]?.start, r = st != null ? routePath(S, st, o.sys) : null; if (!r) continue; tot += o.s; for (const x of r.path) line.set(x, (line.get(x) || 0) + o.s); }
+ if (tot > 0) for (const [x, v] of line) line.set(x, v / tot);
+ return {line, depot};
+}
+// v26 The next system for a raiding group: the most valuable on the enemy's presumed lines, its depots or an enemy
+// group it outmatches, not held by a stronger enemy group, not within a lane of the enemy main body, and not another
+// raider's (they spread out); the nearer the better.
+function aiRaidTarget(w, side, A, P, g, ctx, avoid = null) {
+ const S = w.sector, rs = groupStrength(w, g), from = g.sys;let best = null, bv = .4;
+ const taken = new Set([...A.raid.entries()].filter(([id]) => id !== g.id && w.groups.get(id)).map(([, r]) => r.sys));
+ for (const x of S.systems) {
+  if (x.id === from || x.id === avoid) continue;const fo = ctx.foeAt.get(x.id) || 0;
+  if (fo > rs / P.raidOdds || ctx.nearMain.has(x.id)) continue;
+  let v = 2 * (ctx.lines.line.get(x.id) || 0) + (ctx.lines.depot.has(x.id) ? 1.2 : 0) + (fo > 0 ? 2.5 * (1 - fo * P.raidOdds / Math.max(1, rs)) + .5 : 0) + (x.inhabited ? .1 : 0) + (ctx.convoyAt?.has(x.id) ? 2.5 : 0);
+  if (taken.has(x.id)) v -= 1.5;if (v <= bv) continue;
+  const eta = etaAll(w, g.id, x.id);if (eta == null) continue;const sc = v - eta / 900;if (sc > bv) { bv = sc; best = x.id; }
+ }
+ return best;
 }
 function aiStrategic(w, side) {
  const sd = w.sides[side];aiSetup(w, side);const A = sd.brain, S = w.sector;
  for (const g of [...w.groups.values()]) if (g.side === side && g.sys != null && !w.battles.has(g.sys)) for (const u of groupDisabled(w, g)) aiDisposeDisabled(w, u);
  const live = id => { const g = w.groups.get(id); return g && g.units.some(u => alive(w.units.get(u))) ? g : null; }, body = ids => (Array.isArray(ids) ? ids : ids ? [ids] : []).map(live).filter(Boolean);
- const strength = g => g.units.map(id => w.units.get(id)).filter(fighting).reduce((n, u) => n + unitStrength(u), 0);
- const busy = gs => gs.some(g => g.transit || g.spool || g.waitJump), here = gs => { const n = new Map(); for (const g of gs) if (g.sys != null) n.set(g.sys, (n.get(g.sys) || 0) + g.units.length); return [...n.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null; };
+ const strength = g => groupStrength(w, g);
+ const busy = gs => gs.some(g => g.transit || g.spool || g.waitJump || onTheWay(g)), here = gs => { const n = new Map(); for (const g of gs) if (g.sys != null) n.set(g.sys, (n.get(g.sys) || 0) + g.units.length); return [...n.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? null; };
  // A body jumps together: groups that would arrive first wait for the slowest.
- const bodyJump = (gs, dest) => { const etas = gs.filter(g => !g.transit && !g.spool && !g.waitJump && g.sys != null && g.sys !== dest).map(g => ({g, eta: etaTo(w, g.id, dest)})).filter(x => x.eta != null); if (!etas.length) return false; const last = Math.max(...etas.map(x => x.eta)); for (const x of etas) { if (last - x.eta > 45) x.g.waitJump = {dest, at: w.time + last - x.eta}; else orderJump(w, x.g.id, dest); } return true; };
+ const bodyJump = (gs, dest) => { const etas = gs.filter(g => !g.transit && !g.spool && !g.waitJump && g.sys != null && g.sys !== dest).map(g => ({g, eta: etaAll(w, g.id, dest)})).filter(x => x.eta != null); if (!etas.length) return false; const last = Math.max(...etas.map(x => x.eta)); for (const x of etas) { if (last - x.eta > 45) x.g.waitJump = {dest, at: w.time + last - x.eta}; else orderJump(w, x.g.id, dest); } return true; };
  const contacts = [...sd.contacts.values()].filter(c => !c.transit).sort((a, b) => b.time - a.time);
  // Scouts: the nearest system (by lane) not seen for the longest.
- for (const id of A.scouts || []) { const g = live(id); if (!g || g.transit || g.spool || w.battles.has(g.sys) || w.time - (g.arrivedAt ?? -1e9) < RULES.dwell * .6) continue; const stale = S.systems.filter(s => s.id !== g.sys).map(s => ({s, age: w.time - (sd.seen.get(s.id) ?? -1e9), d: routeCost(S, g.sys, s.id)})).filter(x => x.d < Infinity).sort((a, b) => (b.age > 600) - (a.age > 600) || a.d - b.d)[0]; if (stale) orderJump(w, g.id, stale.s.id); }
- const main = body(A.main), det = body(A.det), mine = main.concat(det);
- // Break off a battle going badly; otherwise join or reinforce battles where our ships fight.
- for (const [sys] of w.battles) { if (!sidePresent(w, side, sys)) continue; const us = systemUnits(w, sys), ours = us.filter(u => u.side === side && fighting(u)).reduce((n, u) => n + unitStrength(u), 0), theirs = us.filter(u => u.side !== side && fighting(u)).reduce((n, u) => n + unitStrength(u), 0);
-  const there = mine.filter(g => g.sys === sys && !g.spool && !g.transit);
-  if (ours < theirs * strategyOf(w, side).retreat && theirs > 0) { const safe = safeSystem(w, side, sys); if (safe != null) for (const g of there) { orderJump(w, g.id, safe); event(w, `${g.name} が撤退を開始`, {side}); } continue; }
-  for (const g of mine) if (!g.transit && !g.spool && !g.waitJump && g.sys !== sys && !w.battles.has(g.sys)) { const eta = etaTo(w, g.id, sys); if (eta != null && eta < 900) orderJump(w, g.id, sys); } }
+ for (const id of A.scouts || []) { const g = live(id); if (!g || g.transit || g.spool || onTheWay(g) || w.battles.has(g.sys) || w.time - (g.arrivedAt ?? -1e9) < RULES.dwell * .6) continue; const stale = S.systems.filter(s => s.id !== g.sys).map(s => ({s, age: w.time - (sd.seen.get(s.id) ?? -1e9), d: routeCost(S, g.sys, s.id)})).filter(x => x.d < Infinity).sort((a, b) => (b.age > 600) - (a.age > 600) || a.d - b.d)[0]; if (stale) orderJump(w, g.id, stale.s.id); }
+ const P = aiPlan(w, side), own = !!A.own;if (own) aiContinue(w, side);
+ if (own) { A.raiders = (A.raiders || []).filter(id => live(id)); for (const [id] of A.raid) if (!live(id)) A.raid.delete(id); }
+ let main = body(A.main), det = body(A.det);const raiders = own ? body(A.raiders) : [];let mine = main.concat(det);
+ // v26 The correlation of forces, from what this side knows.
+ if (own) {
+  const ours = mine.concat(raiders).reduce((n, g) => n + strength(g), 0), est = aiForces(w, side, A, P), ratio = est > 0 ? ours * aiQuality(w, side, P) / est : Infinity;A.ratio = ratio;
+  if (A.mode !== 'raid' && ratio < P.inferior) { A.mode = 'raid'; A.main = A.main.concat(A.det); A.det = []; aiDisperse(w, side, A, P); event(w, `${sd.name}：劣勢と判断し、通商破壊と各個撃破に転じる`, {side, ai: true}); }
+  else if (A.mode === 'raid' && ratio > P.superior) { A.mode = 'battle'; const role = id => w.groups.get(id)?.role === 'raid'; A.det = A.det.concat(A.raiders.filter(id => !role(id))); A.raiders = A.raiders.filter(role); for (const [id] of A.raid) if (!role(id)) A.raid.delete(id); event(w, `${sd.name}：戦力の優位を回復し、艦隊決戦に転じる`, {side, ai: true}); }
+  // Raiders are made (again) once the groups are out of hyperspace and out of battle, and when all have been lost.
+  if (A.mode === 'raid' && !body(A.raiders).some(g => g.role !== 'raid') && w.time - (A.dispersedAt ?? -1e9) > 1800) { aiDisperse(w, side, A, P); if (A.raiders.length) A.dispersedAt = w.time; }
+  main = body(A.main); det = body(A.det); mine = main.concat(det);
+ }
+ const raid = own && A.mode === 'raid', fresh = contacts.filter(c => w.time - c.time < 900), strat = strategyOf(w, side);
+ // The enemy main body: its strongest group known (where it is, or where it was seen heading).
+ const foeMain = own ? [...A.foe.values()].filter(o => w.time - o.t < 1800).sort((a, b) => b.s - a.s)[0] || null : null;
+ const ctx = own ? {foeAt: new Map(), nearMain: new Set(), lines: aiEnemyLines(w, side, A)} : null;
+ if (own) { ctx.convoyAt = new Set(); for (const c of sd.contacts.values()) if (w.time - c.time < 900 && w.groups.get(c.gid)?.convoy) ctx.convoyAt.add(c.sys);
+  for (const c of fresh) ctx.foeAt.set(c.sys, (ctx.foeAt.get(c.sys) || 0) + c.strength); if (foeMain) { ctx.nearMain.add(foeMain.sys); for (const y of lanesOf(S, foeMain.sys)) ctx.nearMain.add(y); } }
+ // Break off a battle lost locally; otherwise join or reinforce battles where our ships fight.
+ for (const [k, f] of A.fights || []) if (!w.battles.has(k)) A.fights.delete(k);
+ for (const [sys] of w.battles) { if (!sidePresent(w, side, sys)) continue; const us = systemUnits(w, sys), ours = us.filter(u => u.side === side && fighting(u)).reduce((n, u) => n + unitStrength(u), 0), theirs = own ? seenStrength(w, side, us) : us.filter(u => u.side !== side && fighting(u)).reduce((n, u) => n + unitStrength(u), 0);
+  const there = mine.concat(raiders).filter(g => g.sys === sys && !g.spool && !g.transit);
+  if (!own) { if (ours < theirs * strat.retreat && theirs > 0) { const safe = safeSystem(w, side, sys); if (safe != null) for (const g of there) { orderJump(w, g.id, safe); event(w, `${g.name} が撤退を開始`, {side}); } continue; } }
+  else {
+   let f = A.fights.get(sys);if (!f) A.fights.set(sys, f = {t0: w.time, s0: ours});
+   // Raid mode: the main body does not accept battle with a clearly stronger force (the enemy main body, met before
+   // the odds improve): it leaves as soon as it sees it, before the guns close (it drops out RULES.arrive away).
+   // (only while the enemy is still out of gun range: a group spooling under fire is silent and stuck — it fights)
+   const q = aiQuality(w, side, P), age = w.time - f.t0, over = theirs > 0 && ours < theirs * P.overwhelm, avoid = raid && theirs > ours * q * P.mainOdds && age < P.minFight && aiGap(w, side, us) > RULES.range, lost = avoid || (theirs > 0 && ours < theirs * strat.retreat && (age >= P.minFight || over || ours < f.s0 * .7));
+   let left = false;
+   for (const g of there) {
+    const isRaider = A.raiders.includes(g.id), gs = strength(g);
+    // Raiders do not stand against anything stronger: they slip away to their next target.
+    if (isRaider) { if (theirs > ours && (age >= 20 || theirs > ours * 2)) { const nx = aiRaidTarget(w, side, A, P, g, ctx, sys) ?? safeSystem(w, side, sys); if (nx != null && orderJump(w, g.id, nx).ok) { A.raid.set(g.id, {sys: nx, at: w.time}); event(w, `${g.name} が離脱：次の目標 ${S.systems[nx].name}へ`, {side, ai: true}); } } continue; }
+    if (!lost) continue;
+    const fled = (A.fled.get(g.id) || []).filter(t => w.time - t < 3600);A.fled.set(g.id, fled);
+    if (fled.length >= P.stand && !over) continue;   // no endless flight: it has broken off enough this hour, it stands
+    const safe = raid && A.rally != null && A.rally !== sys && !ctx.nearMain.has(A.rally) ? A.rally : safeSystem(w, side, sys);
+    if (safe != null && orderJump(w, g.id, safe).ok) { fled.push(w.time); left = true; event(w, `${g.name} が撤退を開始`, {side}); }
+    void gs;
+   }
+   if (left || lost) continue;
+  }
+  if (raid) {
+   // Raid: the main body joins a fight only where its arrival gives local superiority.
+   const add = main.filter(g => !g.transit && !g.spool && !g.waitJump && g.sys !== sys && !w.battles.has(g.sys)), s = add.reduce((n, g) => n + strength(g), 0);
+   if (add.length && (ours + s) * aiQuality(w, side, P) > theirs * P.mainOdds) for (const g of add) { const eta = etaAll(w, g.id, sys); if (eta != null && eta < 900) orderJump(w, g.id, sys); }
+   continue;
+  }
+  for (const g of mine) if (!g.transit && !g.spool && !g.waitJump && g.sys !== sys && !w.battles.has(g.sys)) { const eta = etaAll(w, g.id, sys); if (eta != null && eta < 900) orderJump(w, g.id, sys); } }
+ if ([...w.battles.keys()].some(sys => sidePresent(w, side, sys))) A.lastBattle = w.time;
+ if (raid) { aiRaidMoves(w, side, A, P, ctx, {main, raiders, fresh, foeMain, bodyJump, busy, here, strength}); aiRaidWings(w, side, A, P, ctx, main, foeMain); }
+ else {
  // Strike the nearest fresh contact we outmatch, the whole fleet arriving together.
  // A commander kept from battle for an hour grows bolder about the odds.
- if ([...w.battles.keys()].some(sys => sidePresent(w, side, sys))) A.lastBattle = w.time;
- const fresh = contacts.filter(c => w.time - c.time < 900), ours = mine.reduce((n, g) => n + strength(g), 0), odds = w.time - (A.lastBattle ?? 0) > 3600 ? strategyOf(w, side).bold : strategyOf(w, side).odds;
+ const ours = mine.reduce((n, g) => n + strength(g), 0), odds = w.time - (A.lastBattle ?? 0) > 3600 ? strat.bold : strat.odds;
  const danger = new Set(fresh.filter(c => c.strength * odds >= ours).map(c => c.sys)), at = here(main), idle = main.length && !busy(main) && at != null && !w.battles.has(at);
+ // v26 Small enemy groups on our own supply lines (raiders) are the detachment's: it hunts the nearest it outmatches,
+ // and the main body is not drawn off after them.
+ let hunt = null;
+ if (own && det.length && sd.supply) { const ds = det.reduce((n, g) => n + strength(g), 0), dat = here(det);
+  if (dat != null && !busy(det) && !det.some(g => w.battles.has(g.sys))) { hunt = fresh.filter(c => c.strength < ours * P.hunt && ds > c.strength * odds && (sd.supply.lines.has(c.sys) || sd.home.includes(c.sys) || lanesOf(S, c.sys).some(y => sd.supply.lines.has(y)))).map(c => ({c, eta: etaAll(w, det[0].id, c.sys)})).filter(x => x.eta != null && x.eta < 1800).sort((a, b) => a.eta - b.eta)[0]?.c || null;
+   if (hunt && hunt.sys !== dat) bodyJump(det, hunt.sys); } }
+ const pack = hunt ? main : mine;
  if (fresh.length && idle) {
-  const lead = main.find(g => g.sys === at), prey = fresh.filter(c => c.sys !== at && ours > c.strength * odds).map(c => ({c, eta: etaTo(w, lead.id, c.sys)})).filter(x => x.eta != null).sort((a, b) => a.eta - b.eta)[0];
-  if (prey) { bodyJump(mine.filter(g => !w.battles.has(g.sys)), prey.c.sys); A.plan = {sys: prey.c.sys, at: w.time}; }
-  else if (det.length && !busy(det) && here(det) !== at) bodyJump(det, at);
+  const lead = main.find(g => g.sys === at), prey = fresh.filter(c => c.sys !== at && c !== hunt && ours > c.strength * odds).map(c => ({c, eta: etaAll(w, lead.id, c.sys)})).filter(x => x.eta != null).sort((a, b) => a.eta - b.eta)[0];
+  if (prey) { bodyJump(pack.filter(g => !w.battles.has(g.sys)), prey.c.sys); A.plan = {sys: prey.c.sys, at: w.time}; }
+  else if (!hunt && det.length && !busy(det) && here(det) !== at) bodyJump(det, at);
  }
  // Nothing to strike: the main body sweeps along the lanes toward the enemy's end,
  // through the systems not seen for longest and round any force too strong for it;
@@ -15441,10 +35105,76 @@ function aiStrategic(w, side) {
  if (idle && !(A.plan && w.time - A.plan.at < RULES.dwell) && w.time - Math.max(...main.map(g => g.arrivedAt ?? -1e9)) > RULES.dwell) {
   const far = w.sides.find(x => x.id !== side), goal = far ? far.start : at;
   const cand = S.systems.filter(x => x.id !== at && !danger.has(x.id)).map(x => { const d = routeCost(S, at, x.id), toward = routeCost(S, x.id, goal) < routeCost(S, at, goal) - 20, seen = sd.seen.get(x.id), age = seen == null ? 1e9 : w.time - seen; return {x, score: (toward ? 0 : 120) + d + (age < 3600 ? 350 : 0) - (x.inhabited ? 30 : 0) - (x.trunk ? 20 : 0)}; }).filter(c => c.score < Infinity).sort((a, b) => a.score - b.score)[0];
-  if (cand) { bodyJump(main, cand.x.id); A.moved = w.time; if (det.length && !busy(det) && !det.some(g => w.battles.has(g.sys))) { const near = S.systems.filter(x => x.id !== cand.x.id && routeCost(S, x.id, cand.x.id) < 160).sort((a, b) => (w.time - (sd.seen.get(b.id) ?? -1e9)) - (w.time - (sd.seen.get(a.id) ?? -1e9)))[0]; bodyJump(det, (near || cand.x).id); } }
+  if (cand) { bodyJump(main, cand.x.id); A.moved = w.time; if (!hunt && det.length && !busy(det) && !det.some(g => w.battles.has(g.sys))) { const near = S.systems.filter(x => x.id !== cand.x.id && routeCost(S, x.id, cand.x.id) < 160).sort((a, b) => (w.time - (sd.seen.get(b.id) ?? -1e9)) - (w.time - (sd.seen.get(a.id) ?? -1e9)))[0]; bodyJump(det, (near || cand.x).id); } }
+ }
+ if (own && raiders.length) aiRaidMoves(w, side, A, P, ctx, {main, raiders, fresh, foeMain, bodyJump, busy, here, strength, onlyRaiders: true});
+ // Alliance doctrine: its carriers strike across systems even when it is the stronger.
+ if (own && doctrineOf(w, side) && sd.faction === 'rebel') aiRaidWings(w, side, A, P, ctx, main, foeMain);
  }
  // Carriers in battle send their wings: fighters to cover the fleet, bombers at the biggest enemy.
  for (const wing of w.wings.values()) { if (wing.side !== side) continue; const home = w.units.get(wing.home); if (!home || !alive(home) || !w.battles.has(home.sys)) { wing.auto = null; continue; } aiWing(w, wing, home); }
+}
+// v26 Raid mode: the raiding groups and the main body.
+function aiRaidMoves(w, side, A, P, ctx, o) {
+ const S = w.sector, sd = w.sides[side], {main, raiders, fresh, foeMain, bodyJump, busy, here, strength} = o;
+ // Raiders: on to a new target when they have none, when theirs has gone quiet for plan.raidDwell, or when a stronger
+ // enemy group is there or heading there.
+ for (const g of raiders) {
+  if (g.transit || g.spool || g.waitJump || onTheWay(g) || g.sys == null || w.battles.has(g.sys)) continue;
+  const r = A.raid.get(g.id), rs = strength(g), at = g.sys;
+  const threat = [...sd.contacts.values()].some(c => c.sys === at && c.strength > rs && (c.transit ? c.eta == null || c.eta - w.time < 600 : true));
+  if (r && r.sys !== at && !threat) { if (orderJump(w, g.id, r.sys).ok) continue; }
+  if (r && r.sys === at && !threat && w.time - (g.arrivedAt ?? r.at) < P.raidDwell) continue;
+  const nx = aiRaidTarget(w, side, A, P, g, ctx, at);
+  if (nx != null && orderJump(w, g.id, nx).ok) A.raid.set(g.id, {sys: nx, at: w.time});
+  else if (threat) { const safe = safeSystem(w, side, at); if (safe != null) orderJump(w, g.id, safe); }
+ }
+ if (o.onlyRaiders || !main.length || busy(main)) return;
+ // (not while its carriers' strike wings are forming up to jump: they would be left behind)
+ if ([...w.wings.values()].some(x => x.side === side && x.raid?.phase === 'launch' && main.some(g => g.units.includes(x.home)))) return;
+ const at = here(main);if (at == null || w.battles.has(at)) return;
+ // (strength on paper, corrected by experience: aiQuality)
+ const ms = main.reduce((n, g) => n + strength(g), 0) * aiQuality(w, side, P), lead = main.find(g => g.sys === at) || main[0];
+ // Defeat in detail: the nearest enemy group the main body outmatches, not the enemy main body nor one within a lane of it.
+ const prey = fresh.filter(c => c.sys !== at && ms > c.strength * P.mainOdds && !(foeMain && foeMain.s * P.mainOdds >= ms && ctx.nearMain.has(c.sys))).map(c => ({c, eta: etaAll(w, lead.id, c.sys)})).filter(x => x.eta != null && x.eta < 1500).sort((a, b) => a.eta - b.eta)[0];
+ if (prey) { if (bodyJump(main, prey.c.sys)) { A.plan = {sys: prey.c.sys, at: w.time}; A.rally = at; } return; }
+ // Keep clear of the enemy main body while it is the stronger: move off when it is within a lane or heading here,
+ // at most plan.relocMax times an hour (then stand), to a system clear of it, on our lines where we can, near the
+ // raiders' work so that the groups the enemy sends after them come within reach.
+ const threatened = foeMain && foeMain.s * P.mainOdds > ms && (ctx.nearMain.has(at) || [...sd.contacts.values()].some(c => c.transit && c.sys === at && c.strength * P.mainOdds > ms));
+ A.reloc = (A.reloc || []).filter(t => w.time - t < 3600);
+ if (threatened && A.reloc.length < P.relocMax && w.time - (A.reloc[A.reloc.length - 1] ?? -1e9) >= P.relocate) {
+  const work = [...A.raid.values()].map(r => r.sys), lines = sd.supply?.lines;
+  const best = S.systems.filter(x => x.id !== at && !ctx.nearMain.has(x.id) && !((ctx.foeAt.get(x.id) || 0) * P.mainOdds > ms)).map(x => { const d = routeCost(S, at, x.id); if (!(d < Infinity)) return null; const wk = work.length ? Math.min(...work.map(y => routeCost(S, x.id, y))) : 0; return {x, sc: d + .5 * wk - (lines?.has(x.id) ? 80 : 0)}; }).filter(Boolean).sort((a, b) => a.sc - b.sc)[0];
+  if (best && bodyJump(main, best.x.id)) { A.reloc.push(w.time); A.rally = best.x.id; event(w, `${main[0].name} ほか主力：敵主力を避けて ${S.systems[best.x.id].name}へ移動`, {side, ai: true}); }
+  return;
+ }
+ // Otherwise it waits where it is, mending on our lines: if cut off from them for long it moves back onto them.
+ A.rally = at;
+ if (sd.supply && !sd.supply.lines.has(at) && w.time - Math.max(...main.map(g => g.arrivedAt ?? -1e9)) > RULES.dwell) {
+  const back = S.systems.filter(x => sd.supply.lines.has(x.id) && !ctx.nearMain.has(x.id) && !(ctx.foeAt.get(x.id) > 0)).map(x => ({x, d: routeCost(S, at, x.id)})).filter(c => c.d < Infinity).sort((a, b) => a.d - b.d)[0];
+  if (back) bodyJump(main, back.x.id);
+ }
+}
+// v26 Cross-system strikes by AI carriers: a wing whose craft have hyperdrives (only those squadrons go) strikes an
+// enemy group within reach that is not the enemy main body and below plan.wingOdds of our main body, on the enemy's
+// presumed lines or at its depots by preference; one strike per wing every plan.wingRaid s, carriers not in battle.
+function aiRaidWings(w, side, A, P, ctx, main, foeMain) {
+ const sd = w.sides[side], ms = main.reduce((n, g) => n + groupStrength(w, g), 0) || 1;
+ const targets = [...A.foe.entries()].filter(([gid, o]) => !o.transit && w.time - o.t < 900 && o.s < ms * P.wingOdds && !(foeMain && o === foeMain && foeMain.s > ms * P.wingOdds)).map(([gid, o]) => ({gid, o, v: 1 + 2 * (ctx.lines.line.get(o.sys) || 0) + (ctx.lines.depot.has(o.sys) ? 1 : 0) - o.s / ms}));
+ if (!targets.length) return;
+ for (const wing of w.wings.values()) {
+  if (wing.side !== side || wing.raid) continue;const home = w.units.get(wing.home);
+  const hg = home && w.groups.get(home.group);
+  if (!home || !fighting(home) || home.sys == null || home.jump || w.battles.has(home.sys) || !hg || hg.spool || hg.transit || hg.waitJump || onTheWay(hg) || w.time - (A.wingT.get(wing.id) ?? -1e9) < P.wingRaid) continue;
+  if (!raidSquadsOf(w, wing).some(s => CRAFT[s.craft]?.hyper > 0)) continue;
+  let best = null, bv = -Infinity;
+  for (const t of targets) { if (t.o.sys === home.sys) continue; const c = raidCheck(w, wing.id, t.o.sys, true); if (!c.ok) { if (c.ctl || c.nohyper) break; continue; } const v = t.v - c.eta / 1200; if (v > bv) { bv = v; best = {t, c}; } }
+  if (!best) continue;
+  const tg = w.groups.get(best.t.gid), aim = tg ? tg.units.map(id => w.units.get(id)).filter(fighting).sort((a, b) => (b.p.len || 0) - (a.p.len || 0))[0] : null;
+  if (orderRaid(w, wing.id, best.t.o.sys, aim && known(w, side, aim, 2) ? aim.id : null, true).ok) A.wingT.set(wing.id, w.time);
+ }
+ void sd;
 }
 // Fighters contest the airspace between the fleets, intercept incoming attack
 // formations and cover outbound strikes. With the air clear they join the attack.
@@ -15521,33 +35251,41 @@ function tick(w, dt) {
 followTick(w,dt);raidTick(w, dt);hatchTick(w, dt);
  updateBattles(w);
  if ((w.timers.det -= dt) <= 0) { w.timers.det = RULES.detectEvery; detect(w); }
- if ((w.timers.tac -= dt) <= 0) { w.timers.tac = RULES.aiTactical; for (const [sys] of w.battles) { tacticalOrders(w, sys, systemUnits(w, sys)); doctrineWings(w, sys); } }
+ if ((w.timers.tac -= dt) <= 0) { w.timers.tac = RULES.aiTactical; for (const [sys] of w.battles) { tacticalOrders(w, sys, systemUnits(w, sys)); doctrineWings(w, sys); aiBoarding(w, sys, systemUnits(w, sys)); } }
  if ((w.timers.ai -= dt) <= 0) { w.timers.ai = RULES.aiStrategic; for (const sd of w.sides) if (sd.ai) aiStrategic(w, sd.id); }
+ tractorResistance(w);
  carriedTick(w);
  for (const [sys] of w.battles) battleTick(w, sys, dt);
  peaceMoves(w, dt);
+ for (const u of w.units.values()) if (alive(u)&&!u.manual&&u.sys!=null&&!w.battles.has(u.sys)&&u._peacePowerTime!==w.time){C.fleetPowerStep(u,C.fleetSystems(u),null,0,dt);u._peacePowerTime=w.time;}
  for (const u of w.units.values()) if (u.tractor && alive(u) && u.sys != null && !w.battles.has(u.sys)) tractorTick(w, u, dt);
+ boardTick(w, dt);
  // Out of battle, shields recharge and docked craft rearm.
- for (const u of w.units.values()) if (alive(u) && u.sys != null && !w.battles.has(u.sys)) {const s=C.fleetSystems(u);if(!u.manual)C.fleetPowerStep(u,s,null,0,dt);C.combatResolve(combatCtx(w,u.sys),u,C.combatIncoming(),dt,s);if (u.warp) { u.warp.t += dt; if (u.warp.t > 1) delete u.warp; } }
+ for (const u of w.units.values()) if (alive(u) && u.sys != null && !w.battles.has(u.sys)) {const s=C.fleetSystems(u);if(!u.manual&&u._peacePowerTime!==w.time)C.fleetPowerStep(u,s,null,0,dt);C.combatResolve(combatCtx(w,u.sys),u,C.combatIncoming(),dt,s);if (u.warp) { u.warp.t += dt; if (u.warp.t > 1) delete u.warp; } }
  // v21.2 Out of battle (in a system or in hyperspace) superweapons keep charging and reactors recover.
  for (const u of w.units.values()) if (alive(u) && !(u.sys != null && w.battles.has(u.sys))) { C.swDecay(u, dt, null); (u.p.sw||[]).forEach((sw, i) => { const x = u.sw?.[i]; if (!x) return; if (x.st === 'cool') { x.t -= dt; if (x.t <= 0) { x.st = 'charge'; x.c = 0; } return; } if (x.st === 'charge')C.superweaponCharge(u,i,dt); }); }
  for (const s of w.squads.values()) if (s.state === 'docked' && s.t > 0 && !w.battles.has(s.sys)) s.t -= dt;
- squadSystemsTick(w, dt);craftIdle(w, dt);driftTick(w, dt);supplyTick(w, dt);rearTick(w);
+ squadSystemsTick(w, dt);craftIdle(w, dt);driftTick(w, dt);supplyTick(w, dt);convoyTick(w, dt);rearTick(w, dt);
+ // v26 PLAN-007 landings in progress are fought out on the fleet battle's clock (Ground.landingTick).
+ if (w.landings?.length && groundHooks.landing) groundHooks.landing(w, dt);
  checkResult(w);
+ // (a fleet battle that ends leaves its landings to be fought out at once: the world's clock stops with it)
+ if (w.result && w.landings?.length && groundHooks.landing) groundHooks.landing(w, Infinity);
 }
 // The fleet battle ends when one side has lost three quarters of its fighting
 // value (sunk, disabled or fled) or has no ship left able to fight.
 function checkResult(w) {
  if (w.mode !== 'fleet' || w.result) return;
+ if (boardPending(w)) return;   // v26 a boarding under way is fought out first
  // Ships at the yards count for half of what they will bring back.
  const rear = u => u.status === 'rear' && !u.dead, aboard = u => u.status === 'carried' && !u.dead;
  // Ships docked in a carrier are its strength still.
- const now = w.sides.map(sd => [...w.units.values()].filter(u => u.side === sd.id && (fighting(u) || rear(u) || aboard(u))).reduce((n, u) => n + unitStrength(u) * (rear(u) ? .5 : 1), 0));
+ const now = w.sides.map(sd => [...w.units.values()].filter(u => u.side === sd.id && !u.convoy && (fighting(u) || rear(u) || aboard(u))).reduce((n, u) => n + unitStrength(u) * (rear(u) ? .5 : 1), 0));
  w.sides.forEach((sd, i) => sd.now = now[i]);
  // SBOX The victory conditions (w.victory): a side is broken below breakAt of its fighting value at the start (0.25 as
  // before; 0 = to the last ship), or with no ship left able to fight. The last side unbroken wins (any number of sides).
  // With a time limit, when it runs out the side keeping the largest share of its strength wins (a draw within 5 points).
- const V = w.victory || VICTORY_DEFAULT, broken = w.sides.map((sd, i) => now[i] < sd.initial * V.breakAt || ![...w.units.values()].some(u => u.side === sd.id && (fighting(u) || rear(u))));
+ const V = w.victory || VICTORY_DEFAULT, broken = w.sides.map((sd, i) => now[i] < sd.initial * V.breakAt || ![...w.units.values()].some(u => u.side === sd.id && !u.convoy && (fighting(u) || rear(u))));
  const standing = w.sides.filter((sd, i) => !broken[i]);let winner = null, reason = 'break';
  if (standing.length <= 1 && broken.some(Boolean)) winner = standing.length ? standing[0].id : -1;
  else if (V.timeLimit > 0 && w.time >= V.timeLimit) { reason = 'time'; const share = w.sides.map((sd, i) => broken[i] ? -1 : sd.initial > 0 ? now[i] / sd.initial : 0), best = Math.max(...share), lead = share.filter(x => x > best - .05).length; winner = lead > 1 ? -1 : share.indexOf(best); }
@@ -15617,9 +35355,11 @@ function orderCtgJump(w, cid, dest, together = true) {
  for (const x of etas) { if (together && last - x.eta > 30) { x.g.waitJump = {dest, at: w.time + (last - x.eta)}; n++; continue; } const r = orderJump(w, x.g.id, dest); if (r.ok) n++; }
  return {ok: n > 0, eta: last, n};
 }
-function orderTractor(w, id, mode, target) {
+function orderTractor(w, id, mode, target, opts) {
  const u = w.units.get(id), t = w.units.get(target);if (!u || w.sides[u.side].ai) return {ok: false, why: '命令できません'};
  if (mode === 'release') { releaseTractor(w, u, '命令'); return {ok: true}; }
+ // v26 拿捕 is a boarding action (orderBoard: lock, reel in, dock, fight inside)
+ if (mode === 'capture') return orderBoard(w, id, target, opts);
  if (!(u.p.trac > 0)) return {ok: false, why: 'トラクター・ビーム投射機がありません'};
  if (!t || t.sys !== u.sys) return {ok: false, why: '目標が同じ星系にいません'};
  if (!tractorOk(u, t, mode)) return {ok: false, why: mode === 'tow' ? '牽引できるのは戦闘不能の味方艦です' : '拿捕できるのはシールドを失った戦闘不能の敵艦です'};
@@ -15719,11 +35459,12 @@ function followMapPos(w,s){
 // wherever that is by then; craft whose carrier is gone are lost.
 const raidSquadsOf = (w, wing) => wing.squads.map(id => w.squads.get(id)).filter(s => s && s.n > 0 && !CRAFT[s.craft]?.stay);
 function wingHyper(w, wing) { const sq = raidSquadsOf(w, wing);if (!sq.length) return null;let worst = 0;for (const s of sq) { const h = CRAFT[s.craft]?.hyper; if (!(h > 0)) return null; worst = Math.max(worst, h); } return worst; }
-function raidCheck(w, id, to) {
+function raidCheck(w, id, to, hyperOnly = false) {
  const wing = w.wings.get(id), home = wing && w.units.get(wing.home), S = w.sector.systems;
  if (!wing || !home || !alive(home)) return {ok: false, why: '母艦がありません'};
  if (wing.raid) return {ok: false, why: '星系間攻撃に出撃中です'};
- const sq = raidSquadsOf(w, wing), hc = wingHyper(w, wing);
+ // v26 hyperOnly (the AI's strikes): only the wing's squadrons whose craft have a hyperdrive go; the rest stay aboard.
+ const sq = raidSquadsOf(w, wing).filter(s => !hyperOnly || CRAFT[s.craft]?.hyper > 0), hc = hyperOnly ? (sq.length ? Math.max(...sq.map(s => CRAFT[s.craft].hyper)) : null) : wingHyper(w, wing);
  if (!sq.length) return {ok: false, why: '出撃できる中隊がありません'};
  if (hc == null) return {ok: false, why: 'ハイパードライブを持たない機体がいます', nohyper: true};
  if (home.sys == null || home.jump || home.out) return {ok: false, why: home.out ? '母艦が航行不能です' : '母艦が移動中です', hc};
@@ -15738,8 +35479,8 @@ function raidCheck(w, id, to) {
  const rate = Math.max(.05, home.p.launch || 1), launch = Math.max(0, ...sq.map(s => s.t > 0 ? s.t : 0)) + sq.reduce((n, s) => n + s.n * CRAFT[s.craft].size, 0) / rate + RULES.raidForm, trip = pathSeconds(route, hc);
  return {ok: true, hc, route, ly: route.ly, launch, trip, eta: launch + trip, squads: sq.map(s => s.id)};
 }
-function orderRaid(w, id, to, target = null) {
- const c = raidCheck(w, id, to);if (!c.ok) return c;
+function orderRaid(w, id, to, target = null, hyperOnly = false) {
+ const c = raidCheck(w, id, to, hyperOnly);if (!c.ok) return c;
  const wing = w.wings.get(id), home = w.units.get(wing.home), S = w.sector.systems;
  wing.raid = {to, from: home.sys, phase: 'launch', go: w.time + c.launch, hc: c.hc, route: c.route, trip: c.trip, target: target && w.units.get(target)?.side !== wing.side ? target : null, squads: c.squads, order: null, t0: w.time};
  wing.phase = 'form';
@@ -15969,7 +35710,12 @@ function makeRegiment(faction, name) {
  const tpl = REGIMENT_TEMPLATES[faction] || REGIMENT_TEMPLATES.empire;
  return {name, faction, battalions: Array.from({length: REGIMENT_BATTALIONS}, (_, b) => ({name: `第${b + 1}大隊`, companies: tpl.companies.map((type, c) => ({name: `${'ABCD'[c]}中隊（${COMPANY_TYPES[type]}）`, type, troops: COMPANY_TROOPS, vehicles: {...(tpl.vehicles[type] || {})}}))}))};
 }
-function regimentTotals(r) { const t = {troops: 0, vehicles: {}, size: 0}; for (const b of r.battalions || []) for (const c of b.companies || []) { t.troops += c.troops || 0; for (const [k, n] of Object.entries(c.vehicles || {})) { if (!VEHICLES[k]) continue; t.vehicles[k] = (t.vehicles[k] || 0) + n; t.size += VEHICLES[k].size * n; } } return t; }
+// v26 PLAN-008 Hooks the ground module (Ground, defined after Rts) fills: register a player's vehicle design from the
+// snapshot a company keeps (c.vdesigns), and fight out the fleet battle's landings.
+const groundHooks = {register: null, landing: null};
+// v26 Troops lost (boarding): taken from the companies, the last first; vehicles stay.
+function groundTrim(rows, n) { let left = Math.round(n || 0);for (const r of [...(rows || [])].reverse()) for (const b of [...(r.battalions || [])].reverse()) for (const c of [...(b.companies || [])].reverse()) { if (left <= 0) return rows; const k = Math.min(c.troops || 0, left); c.troops = (c.troops || 0) - k; left -= k; } return rows; }
+function regimentTotals(r) { const t = {troops: 0, vehicles: {}, size: 0}; for (const b of r.battalions || []) for (const c of b.companies || []) { t.troops += c.troops || 0; for (const [k, n] of Object.entries(c.vehicles || {})) { if (!VEHICLES[k] && c.vdesigns?.[k] && groundHooks.register) groundHooks.register(c.vdesigns[k]); if (!VEHICLES[k]) continue; t.vehicles[k] = (t.vehicles[k] || 0) + n; t.size += VEHICLES[k].size * n; } } return t; }
 function airTotals(list) { let n = 0, size = 0, crew = 0, fight = 0; for (const q of list || []) { const c = CRAFT[q.craft]; if (!c) continue; n += q.n; size += q.n * c.size; crew += q.n * c.crew; if (!c.stay) fight += q.n; } return {n, size, crew, fight}; }
 
 // ---------- PLAN-002 costs of ships, craft and fleets ----------
@@ -16042,7 +35788,7 @@ function normalizeFleet(ob) {
    ground: fleetGroundRows(sh), carried: Array.isArray(sh.carried) ? sh.carried.filter(x => x && (typeof x.src === 'string' || typeof x.key === 'string')).slice(0, 60).map(x => ({src: str(x.src, 80) || str(x.key, 80), key: str(x.key, 80) || str(x.src, 80), name: str(x.name, 48)})) : []}; };
  for (const c of Array.isArray(ob?.ctgs) ? ob.ctgs.slice(0, 40) : []) {
   const ctg = {id: uid(c?.id), ...named(c, `第${out.ctgs.length + 1}合同任務群`), ...(FORMATIONS[c?.formation]||/^tpl:[\w-]{1,40}$/.test(c?.formation||'')?{formation:c.formation}:{}), tgs: []};
-  for (const t of Array.isArray(c?.tgs) ? c.tgs.slice(0, 40) : []) ctg.tgs.push({id: uid(t?.id), ...named(t, `第${out.ctgs.length + 1}${ctg.tgs.length + 1}任務群`), formation: FORMATIONS[t?.formation] || /^tpl:[\w-]{1,40}$/.test(t?.formation || '') ? t.formation : 'abreast', ships: (Array.isArray(t?.ships) ? t.ships.slice(0, 40) : []).map(shipRow).filter(Boolean), ...(TURN_MODES[t?.turnMode] ? {turnMode: t.turnMode} : {}), ...(t?.autoForm != null ? {autoForm: !!t.autoForm} : {})});
+  for (const t of Array.isArray(c?.tgs) ? c.tgs.slice(0, 40) : []) ctg.tgs.push({id: uid(t?.id), ...named(t, `第${out.ctgs.length + 1}${ctg.tgs.length + 1}任務群`), formation: FORMATIONS[t?.formation] || /^tpl:[\w-]{1,40}$/.test(t?.formation || '') ? t.formation : 'abreast', ...(TF_ROLES[t?.role] ? {role: t.role} : {}), ships: (Array.isArray(t?.ships) ? t.ships.slice(0, 40) : []).map(shipRow).filter(Boolean), ...(TURN_MODES[t?.turnMode] ? {turnMode: t.turnMode} : {}), ...(t?.autoForm != null ? {autoForm: !!t.autoForm} : {})});
   out.ctgs.push(ctg);
  }
  const nums = [...used].map(x => /^o(\d+)$/.exec(x)).filter(Boolean).map(m => +m[1]);out.next = Math.max(out.next, ...nums, 1);
@@ -16073,13 +35819,15 @@ function scenarioFromJSON(text) { let raw; try { raw = JSON.parse(String(text));
 const designDims = d => [d.p?.len || d.info?.len || 0, d.p?.width || 0, d.p?.height || 0];
 function battleOrbat(ob, pick, designOf, deploy = {}) {
  const sel = pick ? new Set(pick) : null;
- return {ctgs: (ob?.ctgs || []).map(c => ({name: c.name,...(c.formation?{formation:c.formation}:{}), tgs: (c.tgs || []).filter(t => (!sel || sel.has(t.id)) && t.ships?.length).map(t => ({name: t.name, formation: t.formation, ...(t.turnMode ? {turnMode: t.turnMode} : {}), ...(t.autoForm != null ? {autoForm: t.autoForm} : {}), deploy: deploy[t.id] || null, ships: t.ships.map((sh, si) => {
+ return {ctgs: (ob?.ctgs || []).map(c => ({name: c.name,...(c.formation?{formation:c.formation}:{}), tgs: (c.tgs || []).filter(t => (!sel || sel.has(t.id)) && t.ships?.length).map(t => ({name: t.name, formation: t.formation, ...(t.role ? {role: t.role} : {}), ...(t.turnMode ? {turnMode: t.turnMode} : {}), ...(t.autoForm != null ? {autoForm: t.autoForm} : {}), deploy: deploy[t.id] || null, ships: t.ships.map((sh, si) => {
   const d = designOf(sh);if (!d) return null;
   // Older explicit fleet rows may carry only a short design key. Their carrier's
   // reference preset can restore its model without assigning any preset aircraft.
   if((sh.air||[]).some(q=>!q?.design&&typeof q?.craft==='string'&&/^dsn[a-z0-9]+$/.test(q.craft)&&!CRAFT[q.craft]))for(const q of d.loadPreset?.air||d.air||[])if(q?.design)registerDesignCraft(designWithDims(q.design,q.dims));
   const air=(sh.air||[]).map(q=>normalizeSquadRow(q)).filter(Boolean),ground=fleetGroundRows(sh);const st = d.info?.stow ? shipStow(d.info, air, (sh.carried || []).map(x => { const d2 = designOf(x); return d2 ? {dims: designDims(d2)} : {dims: null}; }), ground) : null;
   return {design: d.key, name: sh.name, flag: si === 0, air: air.map((q, i) => ({...q, n: st ? Math.min(q.n, st.wings[i]?.deployable ?? q.n) : q.n, groupName: q.groupName||`${c.name} 第${q.groupNo}飛行団`})).filter(q => q.n > 0 && !CRAFT[q.craft]?.stay), ground, troops: ground.reduce((n, r) => n + regimentTotals(r).troops, 0),
+   // v26 PLAN-007 the landing craft stay aboard in the fleet battle but carry its landings (Ground.landingCheck)
+   landers: ground.length ? air.map((q, i) => ({craft: q.craft, n: st ? Math.min(q.n, st.wings[i]?.deployable ?? q.n) : q.n})).filter(q => q.n > 0 && CRAFT[q.craft]?.stay) : [],
    carried: (sh.carried || []).map((x, i) => { const d2 = designOf(x); return d2 && (!st || st.carried[i]?.embarked) ? {design: d2.key, name: `${sh.name}搭載艦 ${x.name}`} : null; }).filter(Boolean)};
  }).filter(Boolean)}))})).filter(c => c.tgs.length)};
 }
@@ -16092,6 +35840,8 @@ function scenarioWorld(raw, designs, designOf, extra = {}) {
  const of = designOf || (sh => by.get(sh.key) || by.get(sh.src) || null);
  const sector = makeSector(sc.region, sc.seed), sides = sc.sides.map((sd, i) => normalizeSide(sd, i, sector));
  const fleets = sides.map(sd => battleOrbat(sd.fleet, scenarioPick(sd), of, sd.deploy)), keys = new Set(fleets.flatMap(o => o.ctgs.flatMap(c => c.tgs.flatMap(t => t.ships.flatMap(x => [x.design, ...x.carried.map(y => y.design)])))));
+ // v26 the supply ships and escorts the sides' convoys are made of
+ for (const sd of sides) { const k = CONVOY_KIT[sd.faction] || CONVOY_KIT.any; for (const x of [...k.ships, ...k.escorts, k.big]) if (x) keys.add(x); }
  return createWorld({seed: sc.seed, region: sc.region, sector, formations: [...(extra.formations || []), ...sc.formations], designs: list.filter(d => keys.has(d.key)), victory: sc.victory, sides: sides.map(sd => ({faction: sd.faction, name: sd.label || undefined, ai: sd.control === 'ai', strategy: sd.strategy, air: sd.air, start: sd.start})), fleets});
 }
 
@@ -16118,9 +35868,656 @@ function campaignAdvance(st) { const i = CAMPAIGN_STAGES.indexOf(st.stage);if (i
 
 return {routeItinerary,jumpEstimate,normalizeJumpNavigation,CAMPAIGN_FORMAT, CAMPAIGN_VERSION, CAMPAIGN_SLOTS, CAMPAIGN_STAGES, campaignNew, normalizeCampaign, campaignAdvance, AI_STRATEGY, AIR_DOCTRINES, VICTORY_DEFAULT, normalizeVictory, normalizeDeploy, CRAFT_COST, craftPrice, craftCost, shipCost, fleetCost, SCENARIO_FORMAT, SCENARIO_VERSION, SCENARIO_SIDES, SIDE_CONTROL, normalizeFleet, normalizeSide, normalizeScenario, scenarioJSON, scenarioFromJSON, battleOrbat, scenarioPick, scenarioCosts, scenarioWorld, checkResult, canonGround, DOCTRINE, doctrineOf, shieldFrac, doctrineTarget, aiWing, RULES, TICK, CRAFT, CRAFT_MIX, ROLE_NAME, FACTIONS, SIDE_OF, VEHICLES, COMPANY_TYPES, REGIMENT_TEMPLATES, COMPANY_TROOPS, CAPITAL_LENGTH, MAP_LY, GRID_COLS, SECTOR_DEFS, REGIONS, LANE, KIND_NAME, APPROACH, APPROACH_NAME, FORMATIONS, formationKnown, formationName, SLOT_ROLES, SLOT_SIZES, normalizeFormation, groupSlots, formationCheck, formationTemplate, TF, TURN_MODES, SPEEDS, taskForceInfo, slotError, sustainSpeed, deployGroup, groupStations, WING_PHASE, sensorTick, contactOf, contactStage, searchOrder, foilTick, unitSig, unitSens, unitSigma, EMIT_MODES, FOIL_MODES,
  stowBays, shipStow, stir, peaceTick, formationOffsets, formationGaps, pendingWarp, jumpSequence, JUMP_STAGGER, rng, makeSector, sysDistance, routePath, routeCost, pathSeconds, tripSeconds, designInfo, unitDemand, createWorld, normalizeOrbat, makeUnit, makeGroup, makeCtg, ctgOf, addSquad, step, tick,
- detect, orderJump, cancelJump, etaTo, groupMapPos, orderUnit, orderGroup, orderCtg, orderCtgJump, orderTractor, orderWing, splitGroup, mergeGroups, systemUnits, unitStruct, unitStrength, unitHyper, carriedOf, launchCarried, recoverCarried, orderCarried, groupHyper, groupDisabled, groupStay,
+ detect, orderJump, cancelJump, etaTo, groupMapPos, orderUnit, orderGroup, orderCtg, orderCtgJump, orderTractor, BOARD, BOARD_PHASE, BOARD_GOAL, boardOk, boardOdds, boardDefault, boardParty, boardStrain, boardInfo, orderBoard, orderBoardRecall, groundTrim, orderWing, splitGroup, mergeGroups, systemUnits, unitStruct, unitStrength, unitHyper, carriedOf, launchCarried, recoverCarried, orderCarried, groupHyper, groupDisabled, groupStay, requestConvoy, convoyPlan, convoysFor, CONVOY, CONVOY_KIT, TF_ROLES, AI_PLAN, AI_FACTION,
  orderScuttle, orderRecover, recoverCheck, rearSeconds, SUPPLY, supplyAt, supplyLines, supplyNeeds, unitSupplyOf, alive, fighting, pdToward, effectiveOrder, groupOrder, tractorReach, tractorOk, registerDesignCraft, craftStores, squadStores, squadRelease, rearmSquad, squadSystemsTick, squadLaserK, squadArmed, squadSlots, craftDown,
- squadFireArc,ctgFormationInfo,
+ squadFireArc,ctgFormationInfo,steer,squadPropulsion,craftPowerOf,
  craftFormation, defaultAir, troopRoom, defaultGround, makeRegiment, regimentTotals, fleetGroundRows, airTotals, battleTick, sectorGal, sideBearing, sideStarts,
- wingHyper, raidCheck, orderRaid, recallRaid, raidMapPos, followMapPos, CRAFT_HYPER, wingOrder, airCtlOf, airCtlCap, airCtlUsed, mouthsOf, opsDone, runGoal};
+ wingHyper, raidCheck, orderRaid, recallRaid, raidMapPos, followMapPos, CRAFT_HYPER, wingOrder, airCtlOf, airCtlCap, airCtlUsed, mouthsOf, opsDone, runGoal, groundHooks, logEvent: event};
+})();
+
+/* ============================================================
+   ground — v26 PLAN-007 / PLAN-008: walker and combat-vehicle designs, and the
+   ground battle. A design is the shared design record (spec §2.1) with platform
+   'walker' or 'vehicle': a body box, a drive (legs, tracks, wheels or repulsors),
+   armour on three faces, the weapon fittings of the ship and craft designer
+   (Core.FITS through Core.fitSpec at a small scale), crew, troops and a reactor.
+   Its movement and combat rules are its own, as §2.1 allows; its cost is quoted
+   with the ships' shared cost model (Core.quoteCostBOM). Every number not taken
+   from the films or sourcebooks is a game assumption, marked provisional.
+   The ground battle is a 2D top-down skirmish on a planetary map 3 × 2 km of
+   100 m cells (open ground, woods or built-up blocks, hills, water), with three
+   objectives. Units are the companies and vehicle platoons of the regiments the
+   ships carry (Rts regiments) and the players' own designs; the attackers come
+   down in sorties of the landing craft that carry them (Core.stowLoad's lift),
+   the defenders are dug in round the objectives. Line of sight over hills and
+   through woods, cover, suppression, air strikes from the fleet's bombers and
+   gunships, and victory by objectives or losses. Every random draw comes from
+   the battle's seed (Rts.rng), so a battle replays exactly (auto-resolve is the
+   same simulation with both sides under AI).
+   ============================================================ */
+const Ground = (() => {
+'use strict';
+const C = Core, R = Rts;
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v)), hyp = Math.hypot;
+const r1 = v => Math.round(v * 10) / 10, r2 = v => Math.round(v * 100) / 100;
+const str = (v, n, d = '') => (typeof v === 'string' ? v.replace(/[\u0000-\u001f\u007f]/g, '').trim().slice(0, n) : '') || d;
+const num = (v, a, b, d) => v !== null && v !== '' && v !== undefined && Number.isFinite(+v) ? clamp(+v, a, b) : d;
+function fnv(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619); return (h >>> 0).toString(36); }
+
+// ---------- PLAN-008 walker and vehicle designs ----------
+const VD_FORMAT = 'ks-vehicle', VD_VERSION = 1;
+const PLATFORMS = Object.freeze({walker: {name: 'ウォーカー', note: '脚で歩く。悪路と斜面に強く、背が高いので遠くまで見えるが目立つ'}, vehicle: {name: '戦闘車両', note: '無限軌道・装輪・リパルサーで走る。平地では速いが悪路で遅くなる'}});
+// Drives. base: top speed on open ground (km/h) at full power; frac: share of the rest of the mass the running gear
+// weighs; kw: the drive's power per tonne (kW/t); rough / slope: speed in woods or built-up blocks / on hills; water:
+// speed over water (0: cannot cross). All provisional except the walkers' bases, from the canon AT-ST (90 km/h) and AT-AT (60).
+const DRIVES = Object.freeze({
+ legs2: {platform: 'walker', name: '二脚', legs: 2, base: 90, frac: .28, kw: 30, rough: 1, slope: .95, water: .4},
+ legs4: {platform: 'walker', name: '四脚', legs: 4, base: 60, frac: .34, kw: 25, rough: 1, slope: .9, water: .5},
+ legs6: {platform: 'walker', name: '六脚（多脚）', legs: 6, base: 50, frac: .38, kw: 22, rough: 1, slope: 1, water: .5},
+ tracks: {platform: 'vehicle', name: '無限軌道', base: 70, frac: .2, kw: 18, rough: .7, slope: .8, water: 0},
+ wheels: {platform: 'vehicle', name: '装輪', base: 100, frac: .1, kw: 14, rough: .45, slope: .6, water: 0},
+ repulsor: {platform: 'vehicle', name: 'リパルサー（浮上）', base: 160, frac: .12, kw: 35, rough: .8, slope: .75, water: .9, hover: true}
+});
+const BODY_FORMS = Object.freeze({box: {name: '箱形', fill: .8, area: 1}, wedge: {name: '楔形', fill: .6, area: .88}, round: {name: '円筒・卵形', fill: .55, area: .85}});
+const MOUNTS = Object.freeze({turret: {name: '旋回砲塔', arc: 360}, chin: {name: '機首下砲架', arc: 120}, hull: {name: '車体固定', arc: 40}, side: {name: '側面砲架', arc: 180}});
+// The fittings a vehicle may carry, at the scale each starts from (Core.fitSpec: length × scale, mass and energy × scale³).
+const VWEAPONS = Object.freeze({claser: 1, claserH: 1, cion: 1, cturret: 1, cmsl: 1, ctorp: 1, pd: .5, ltl: .3});
+const VD_LIMITS = Object.freeze({L: [1.5, 160], W: [.8, 40], H: [.6, 40], legH: [0, 40], armor: [0, 80], weapons: 8, count: 12, scale: [.1, 2], crew: [0, 80], troops: [0, 300], reactor: [.02, 2000], name: 40});
+// Provisional material constants: durasteel armour 7.8 t/m³ (steel), the body's frame and systems 0.18 t/m³ of its
+// volume, a reactor 0.5 t and 0.3 m³ per MW, a crewman or trooper aboard 0.12 t; an energy weapon draws 2,000 MW
+// per TT of bolt energy (a fighter laser cannon 1 MW); a deflector 0.002 MW per m² of surface.
+const VD_K = Object.freeze({armorDensity: 7.8, bodyDensity: .18, reactorT: .5, reactorM3: .3, personT: .12, weaponMW: 2000, shieldMW: .002, topArmor: .5});
+const SIDES3 = ['front', 'side', 'rear'];
+
+function normalizeVehicleDesign(raw) {
+ if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+ if (raw.format && raw.format !== VD_FORMAT) return null;
+ const platform = raw.platform === 'walker' ? 'walker' : 'vehicle';
+ let drive = Object.hasOwn(DRIVES, raw.drive) ? raw.drive : null;
+ if (!drive || DRIVES[drive].platform !== platform) drive = platform === 'walker' ? 'legs4' : 'tracks';
+ const b = raw.body && typeof raw.body === 'object' ? raw.body : {}, L = r2(num(b.L, ...VD_LIMITS.L, 8)), W = r2(num(b.W, ...VD_LIMITS.W, 4)), H = r2(num(b.H, ...VD_LIMITS.H, 3));
+ const form = Object.hasOwn(BODY_FORMS, b.form) ? b.form : 'box', legH = platform === 'walker' ? r2(num(raw.legH, ...VD_LIMITS.legH, r1(H * 1.4))) : 0;
+ const a = raw.armor && typeof raw.armor === 'object' ? raw.armor : {}, armor = {};
+ for (const k of SIDES3) armor[k] = r1(num(a[k], ...VD_LIMITS.armor, k === 'front' ? 15 : k === 'side' ? 10 : 6));
+ const weapons = (Array.isArray(raw.weapons) ? raw.weapons : []).filter(x => x && Object.hasOwn(VWEAPONS, x.k) && C.FITS[x.k]).slice(0, VD_LIMITS.weapons)
+  .map(x => ({k: x.k, scale: r2(num(x.scale, ...VD_LIMITS.scale, VWEAPONS[x.k])), count: Math.round(num(x.count, 1, VD_LIMITS.count, 1)), mount: Object.hasOwn(MOUNTS, x.mount) ? x.mount : 'turret'}));
+ const id = typeof raw.id === 'string' && /^[A-Za-z0-9_-]{1,48}$/.test(raw.id) ? raw.id : null;
+ return {format: VD_FORMAT, version: VD_VERSION, ...(id ? {id} : {}), name: str(raw.name, VD_LIMITS.name, platform === 'walker' ? '新型ウォーカー' : '新型戦闘車両'), platform,
+  faction: Object.hasOwn(R.FACTIONS, raw.faction) ? raw.faction : 'neutral', body: {L, W, H, form}, legH, drive, armor, weapons,
+  crew: Math.round(num(raw.crew, ...VD_LIMITS.crew, 2)), troops: Math.round(num(raw.troops, ...VD_LIMITS.troops, 0)),
+  reactor: raw.reactor == null || raw.reactor === 'auto' ? null : r2(num(raw.reactor, ...VD_LIMITS.reactor, 1)), shield: raw.shield === true,
+  ...(typeof raw.example === 'string' && /^[a-z0-9]{1,20}$/.test(raw.example) ? {example: raw.example} : {})};
+}
+// One weapon fitting on the ground (provisional): its armour penetration (cm of durasteel) and damage grow with the
+// cube root of the bolt energy (a fighter's laser cannon, 0.5 GT: 17 cm, 1 km), so the scale works as in the
+// designer; ion bolts disable droids and machines and pass armour but do little to people; missiles and torpedoes
+// from a launcher's bore. rof: shots a second; ai: effect on infantry; aa: anti-air (the fitting's own).
+function groundWeapon(k, scale = 1) {
+ const f = C.FITS[k];if (!f) return null;const s = C.fitSpec({k, scale}), E = s.tt || s.ion || 0;
+ let pen, dmg, range, rof, ai, mw, ammo = 0;
+ if (f.store) { const bore = (f.store.bore || .3) * scale;pen = clamp(Math.round(190 * bore), 5, 150);dmg = Math.round(pen * .9);range = clamp(Math.round(6000 * bore), 600, 3000);rof = .1;ai = .8;mw = .05;ammo = f.store.slots || 6; }
+ else { const e = Math.cbrt(Math.max(1e-9, E) / 1e-3);pen = clamp(Math.round(22 * e), 1, 250);dmg = Math.max(1, Math.round(18 * e));range = clamp(Math.round(1200 * e), 300, 9000);rof = f.cycle && f.cycle < .4 ? .5 : .25;ai = clamp(1.6 - pen / 50, .3, 1.5);mw = E * VD_K.weaponMW; }
+ const ion = !!s.ion;if (ion) { ai = .1; }
+ return {k, scale, name: f.name, short: f.short || f.name, pen: ion ? 0 : pen, dmg, range, rof: r2(rof), ai: r2(ai), aa: r2(s.aa || 0), ion, ammo, mw: r2(mw), mass: r2(s.mass), cost: Math.round(C.fitBuildCost({k}, s))};
+}
+function vehicleStats(raw) {
+ const d = normalizeVehicleDesign(raw);if (!d) return null;
+ const {L, W, H, form} = d.body, D = DRIVES[d.drive], F = BODY_FORMS[form], walker = d.platform === 'walker';
+ const clear = walker ? d.legH : D.hover ? .8 : .5, Htot = r2(H + clear), V = L * W * H * F.fill;
+ const faces = {front: W * H * F.area, side: 2 * L * H * F.area, rear: W * H * F.area, top: 2 * L * W * F.area};
+ const armorM3 = (faces.front * d.armor.front + faces.side * d.armor.side + faces.rear * d.armor.rear + faces.top * Math.min(d.armor.side, d.armor.front) * VD_K.topArmor) / 100;
+ const weapons = d.weapons.map(w => ({...groundWeapon(w.k, w.scale), count: w.count, mount: w.mount}));
+ const wMass = weapons.reduce((n, w) => n + w.mass * w.count, 0), wMW = weapons.reduce((n, w) => n + w.mw * w.count, 0);
+ const people = d.crew + d.troops, body = V * VD_K.bodyDensity, armor = armorM3 * VD_K.armorDensity, base = body + armor + wMass + people * VD_K.personT;
+ const gear = base * D.frac, area = faces.front + faces.side + faces.rear + faces.top, shieldMW = d.shield ? area * VD_K.shieldMW : 0;
+ // The reactor: as set, or (auto) the smallest that runs everything at once with a tenth to spare.
+ let reactor = d.reactor ?? .05, mass = base + gear + reactor * VD_K.reactorT, driveMW = mass * D.kw / 1000;
+ if (d.reactor == null) for (let i = 0; i < 6; i++) { reactor = Math.max(.05, r2((driveMW + wMW + shieldMW) * 1.1)); mass = base + gear + reactor * VD_K.reactorT; driveMW = mass * D.kw / 1000; }
+ const demand = driveMW + wMW + shieldMW, ratio = demand > 0 ? reactor / demand : 1, feed = clamp(ratio, 0, 1);
+ // Speed: the drive's base, slowed by too little power and by mass; a walker's stride grows with its legs.
+ const speed = walker ? D.base * Math.sqrt(feed) * clamp(Math.sqrt(Math.max(.1, d.legH) / 8), .45, 1.3) * clamp(Math.pow(200 / Math.max(1, mass), .15), .5, 1.15)
+  : D.base * Math.sqrt(feed) * clamp(Math.pow(60 / Math.max(.5, mass), .1), .55, 1.15);
+ const hp = Math.round(20 + 8 * Math.pow(V, 2 / 3)), cap = 1 + .4 * feed;
+ const at = weapons.reduce((n, w) => n + w.count * w.dmg * w.rof * Math.min(1, w.pen / 30), 0), ai = weapons.reduce((n, w) => n + w.count * w.rof * w.ai, 0), aa = weapons.reduce((n, w) => n + w.count * w.aa, 0);
+ const parts = [{k: 'gen', volume: reactor * VD_K.reactorM3}];
+ if (D.hover) parts.push({k: 'repulsor', volume: mass * .002});else if (walker) parts.push({k: 'landingGear', volume: gear * .004});else parts.push({k: 'engine', volume: mass * .003});
+ if (d.shield) parts.push({k: 'localShield', volume: area * .001});
+ const q = C.quoteCostBOM({hullVolume: V, armorVolume: armorM3, parts, fits: [], crew: d.crew}), wCost = weapons.reduce((n, w) => n + w.cost * w.count, 0);
+ const cost = {build: q.build + wCost, crew: q.crew, total: q.total + wCost, by: {...q.by, weapons: (q.by.weapons || 0) + wCost}};
+ const dims = [r2(L), r2(W), Htot], warnings = [];
+ if (ratio < .999) warnings.push({lv: 'bad', text: `動力が不足しています（${r2(reactor)} MW／必要 ${r2(demand)} MW）。速度と射撃が落ちます。`});
+ if (!weapons.length) warnings.push({lv: 'warn', text: '武装がありません。輸送・偵察にしか使えません。'});
+ if (!d.crew) warnings.push({lv: 'info', text: '乗員0：ドロイド制御の機体として扱います。'});
+ if (walker && d.legH < H * .5) warnings.push({lv: 'warn', text: '脚が車体に比べて短く、歩幅が小さいため遅くなります。'});
+ if (!C.CRAFT_TYPES || !Object.keys(C.CRAFT_TYPES).some(t => { const l = C.craftLift(t); return l?.box && C.boxFits(dims, l.box); })) warnings.push({lv: 'warn', text: 'どの揚陸艇の貨物室にも入りません。地上へ降ろせません。'});
+ return {design: d, platform: d.platform, drive: d.drive, dims, volume: r1(V), mass: r1(mass), armor: {...d.armor}, armorM3: r2(armorM3), hp, speed: r1(speed), speedMs: speed / 3.6, power: {supply: r2(reactor), demand: r2(demand), drive: r2(driveMW), weapons: r2(wMW), shield: r2(shieldMW), ratio: r2(ratio), auto: d.reactor == null},
+  weapons, firepower: {at: r1(at * cap), ai: r1(ai * cap), aa: r1(aa)}, range: weapons.length ? Math.max(...weapons.map(w => w.range)) : 0, sight: Math.round(clamp(600 + Htot * 45, 600, 2500)), profile: r2(clamp(Math.cbrt(L * W * Htot) / 4, .35, 3)),
+  crew: d.crew, troops: d.troops, shield: d.shield ? Math.round(area * .05) : 0, cost, size: C.vehicleStowSize(dims), rough: D.rough, slope: D.slope, water: D.water, warnings};
+}
+// The built-in vehicle types as example designs: their official dimensions, crew and troops (Core.VEHICLE_TYPES), a
+// drive and an armament after their role. Generic procedural bodies; armour and weapon scales are game estimates.
+// [platform drive, body share of the height (walkers) , armour front/side/rear cm, weapons [fit, scale, count, mount]]
+const EXAMPLE_SPECS = Object.freeze({
+ atat: ['legs4', .42, [40, 25, 15], [['claserH', 1.6, 2, 'chin'], ['claser', 1.4, 2, 'chin']]],
+ atst: ['legs2', .38, [12, 8, 6], [['claserH', .9, 1, 'chin'], ['cturret', 1, 1, 'chin'], ['cmsl', .9, 1, 'side']]],
+ atte: ['legs6', .55, [25, 18, 14], [['ltl', .3, 1, 'turret'], ['cturret', 1, 6, 'side']]],
+ atrt: ['legs2', .45, [3, 2, 2], [['cturret', .6, 1, 'chin']]],
+ og9: ['legs4', .45, [20, 15, 10], [['claserH', 1.4, 1, 'turret'], ['cturret', 1, 1, 'chin']]],
+ lm432: ['legs6', .5, [10, 8, 6], [['cturret', .8, 2, 'turret']]],
+ spha: ['legs6', .6, [20, 15, 12], [['ltl', .6, 1, 'hull']]],
+ tx130: ['repulsor', 0, [20, 14, 10], [['claserH', 1, 2, 'turret'], ['cmsl', .9, 2, 'hull']]],
+ juggernaut: ['wheels', 0, [30, 20, 15], [['claserH', .8, 2, 'turret'], ['cturret', 1, 2, 'side'], ['cmsl', .9, 1, 'turret']]],
+ aat: ['repulsor', 0, [25, 15, 10], [['ltl', .25, 1, 'turret'], ['claser', 1.2, 2, 'hull'], ['ctorp', .9, 2, 'hull']]],
+ mtt: ['repulsor', 0, [30, 20, 15], [['cturret', 1, 4, 'side']]],
+ ig227: ['wheels', 0, [15, 10, 8], [['ctorp', 1, 6, 'turret'], ['cturret', .8, 2, 'chin']]],
+ t2b: ['repulsor', 0, [12, 8, 6], [['claserH', .9, 2, 'turret']]],
+ t47: ['repulsor', 0, [5, 4, 3], [['claser', 1, 2, 'hull']]],
+ itt: ['repulsor', 0, [15, 10, 8], [['cturret', .8, 2, 'turret']]],
+ apc: ['wheels', 0, [12, 8, 6], [['cturret', .8, 1, 'turret']]],
+ speeder: ['repulsor', 0, [1, 1, 1], [['claser', .4, 1, 'hull']]],
+ barc: ['repulsor', 0, [1, 1, 1], [['cturret', .6, 1, 'hull']]]
+});
+function exampleDesign(key) {
+ const t = C.VEHICLE_TYPES[key], e = EXAMPLE_SPECS[key];if (!t || !e) return null;
+ const [drive, share, arm, wps] = e, walker = DRIVES[drive].platform === 'walker', [L, W, Ht] = t.dims;
+ const H = walker ? Math.max(.6, Ht * share) : Math.max(.6, Ht - (DRIVES[drive].hover ? .8 : .5));
+ return normalizeVehicleDesign({id: 'ex-' + key, example: key, name: t.name, platform: walker ? 'walker' : 'vehicle', faction: R.FACTIONS[t.side] ? t.side : 'neutral', drive,
+  body: {L, W, H, form: walker ? 'box' : drive === 'repulsor' ? 'wedge' : 'box'}, legH: walker ? Math.max(0, Ht - H) : 0, armor: {front: arm[0], side: arm[1], rear: arm[2]},
+  weapons: wps.map(([k, scale, count, mount]) => ({k, scale, count, mount})), crew: t.crew || 0, troops: t.troops || 0});
+}
+const EXAMPLE_KEYS = Object.freeze(Object.keys(EXAMPLE_SPECS).filter(k => C.VEHICLE_TYPES[k]));
+// The players' designs ride in the regiments like the built-in types: registered in Rts.VEHICLES under a key made from
+// the whole design, so a changed design is a new type and a saved company keeps the one it was given (its snapshot
+// rides in the company's vdesigns, as squadrons keep their craft's snapshot).
+function vehicleKey(d) { const n = normalizeVehicleDesign(d);return n ? 'vd' + fnv(JSON.stringify({...n, id: undefined, name: n.name})) : null; }
+function registerVehicleDesign(raw) {
+ const d = normalizeVehicleDesign(raw);if (!d) return null;const key = vehicleKey(d);if (R.VEHICLES[key]) return key;
+ const s = vehicleStats(d);R.VEHICLES[key] = {name: d.name, side: 'any', size: s.size, crew: d.crew, note: '自作設計', dims: s.dims, design: d, custom: true};
+ return key;
+}
+R.groundHooks.register = registerVehicleDesign;
+const PROFILE_CACHE = new Map();
+// The ground profile of a vehicle type (built-in, or a registered design).
+function vehicleProfile(key) {
+ if (PROFILE_CACHE.has(key)) return PROFILE_CACHE.get(key);
+ const v = R.VEHICLES[key];let s = v?.design ? vehicleStats(v.design) : exampleDesign(key) ? vehicleStats(exampleDesign(key)) : null;
+ if (!s && (v || C.VEHICLE_TYPES[key])) { const dims = v?.dims || C.VEHICLE_TYPES[key].dims;s = vehicleStats({platform: 'vehicle', drive: 'tracks', name: v?.name || key, body: {L: dims[0], W: dims[1], H: Math.max(.6, dims[2] - .5)}, crew: v?.crew || 2, weapons: [{k: 'cturret', count: 1}]}); }
+ if (s) s.key = key;PROFILE_CACHE.set(key, s);return s;
+}
+
+// ---------- the battlefield ----------
+// 3,000 × 2,000 m of 100 m cells. 0 open, 1 woods (or built-up blocks on a city world), 2 hills, 3 water (or lava).
+const MAP = Object.freeze({W: 3000, H: 2000, cell: 100}), COLS = MAP.W / MAP.cell, ROWS = MAP.H / MAP.cell;
+const TERRAIN = Object.freeze([{name: '平地'}, {name: '森林・市街'}, {name: '丘陵'}, {name: '水域'}]);
+// By planet kind (Galaxy's v.k / the sector planets' kind): shares of woods (or blocks), hills and water. Provisional.
+const PLANET_TERRAIN = Object.freeze({0: [.3, .05, 0, true], 1: [.18, .08, .02, true], 2: [.2, .12, .05], 3: [.22, .02, .1, true], 4: [.03, .15, .02], 5: [.02, .22, 0], 6: [0, .14, 0], 7: [.04, .18, .08], 8: [.36, .08, .06], 9: [.12, .06, .22]});
+const OBJ_RADIUS = 150, CAPTURE_S = 30, HOLD_WIN_S = 60, HILL_M = 25, WOOD_M = 15, LZ_ROWS = 4;
+const RULES = Object.freeze({tick: 1, visEvery: 2, aiEvery: 8, timeLimit: 3600, sortie: 240, airDelay: 20, airCooldown: 45, airRadius: 70, attackBreak: .15, defendBreak: .1, maxUnits: 120});
+// (timeLimit: an hour of battle; infantry advance at a steady jog of 8 km/h, droids a little slower — provisional)
+// Infantry companies (game estimates): blaster fire (kill chance per trooper and volley at short range), and the
+// anti-armour teams (one launcher per platoon of 36, the clone RPS-6 class) firing every 8 s.
+const INFANTRY = Object.freeze({trooper: {range: 450, acc: .012, sight: 800, speed: 2.2, at: {pen: 30, dmg: 28, range: 350, per: 36}},
+ droid: {range: 400, acc: .008, sight: 700, speed: 2, at: {pen: 25, dmg: 24, range: 300, per: 48}}});
+const FORT = Object.freeze({name: '防御陣地', hp: 400, armor: {front: 30, side: 30, rear: 30}, weapons: [['ltl', .3, 1], ['cturret', 1, 2]], sight: 1000});
+const ORDER_TYPES = Object.freeze({move: '移動', attack: '攻撃', hold: '待機・陣地構築', capture: '目標奪取'});
+
+function noiseField(rand, gx, gy) {
+ const g = Array.from({length: (gx + 1) * (gy + 1)}, () => rand());
+ return (x, y) => { const fx = x * gx, fy = y * gy, i = Math.min(gx - 1, Math.floor(fx)), j = Math.min(gy - 1, Math.floor(fy)), u = fx - i, v = fy - j, s = t => t * t * (3 - 2 * t), a = g[j * (gx + 1) + i], b = g[j * (gx + 1) + i + 1], c = g[(j + 1) * (gx + 1) + i], d = g[(j + 1) * (gx + 1) + i + 1];
+  return (a * (1 - s(u)) + b * s(u)) * (1 - s(v)) + (c * (1 - s(u)) + d * s(u)) * s(v); };
+}
+function makeMap(seed, kind = 2) {
+ const rand = R.rng((seed >>> 0) * 31 + 7), p = PLANET_TERRAIN[kind] || PLANET_TERRAIN[2], t = new Uint8Array(COLS * ROWS);
+ const layers = [noiseField(rand, 6, 4), noiseField(rand, 5, 4), noiseField(rand, 4, 3)], fine = noiseField(rand, 15, 10);
+ const val = (L, c, r) => L((c + .5) / COLS, (r + .5) / ROWS) * .8 + fine((c + .5) / COLS, (r + .5) / ROWS) * .2;
+ // Each layer takes exactly its share of the cells (its highest values): water first, then hills, then woods.
+ const mark = (L, share, code) => { if (!(share > 0)) return; const cells = []; for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (!t[r * COLS + c]) cells.push([val(L, c, r), r * COLS + c]); cells.sort((a, b) => b[0] - a[0] || a[1] - b[1]); const n = Math.round(share * COLS * ROWS); for (let i = 0; i < n && i < cells.length; i++) t[cells[i][1]] = code; };
+ mark(layers[2], p[2], 3);mark(layers[0], p[1], 2);mark(layers[1], p[0], 1);
+ // The landing zone (the southern rows) is clear of water and woods.
+ for (let r = ROWS - LZ_ROWS; r < ROWS; r++) for (let c = 0; c < COLS; c++) if (t[r * COLS + c] === 3 || t[r * COLS + c] === 1) t[r * COLS + c] = 0;
+ // Three objectives in the northern two thirds, one in each third of the width, on dry ground.
+ const objectives = [0, 1, 2].map(i => { let best = null; for (let k = 0; k < 24; k++) { const c = Math.floor(COLS * (i + .2 + rand() * .6) / 3), r = 2 + Math.floor(rand() * (ROWS * .5)); const v = t[r * COLS + c]; if (v === 3) continue; const sc = (v === 2 ? 2 : v === 1 ? 1 : 0) + rand(); if (!best || sc > best.sc) best = {c, r, sc}; } best ||= {c: Math.floor(COLS * (i + .5) / 3), r: 4};
+  for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) { const r = best.r + dr, c = best.c + dc; if (r >= 0 && r < ROWS && c >= 0 && c < COLS && t[r * COLS + c] === 3) t[r * COLS + c] = 0; }
+  return {id: i, name: '目標' + 'ABC'[i], pos: [(best.c + .5) * MAP.cell, (best.r + .5) * MAP.cell], owner: null, prog: 0, by: null}; });
+ return {kind, urban: !!p[3], cols: COLS, rows: ROWS, cell: MAP.cell, W: MAP.W, H: MAP.H, t, objectives};
+}
+const cellOf = (m, x, y) => { const c = clamp(Math.floor(x / m.cell), 0, m.cols - 1), r = clamp(Math.floor(y / m.cell), 0, m.rows - 1);return r * m.cols + c; };
+const terrainAt = (m, x, y) => m.t[cellOf(m, x, y)];
+// Line of sight between two points with eye heights ha, hb (m above their ground): hills stand HILL_M above the
+// plain and block a line that passes below their tops; woods (blocks) stand WOOD_M and block after 100 m inside them.
+// Units on a hill see from its top. Cached by cell pair and eye class (the map does not change).
+const eyeClass = h => h < 3 ? 0 : h < 6 ? 1 : h < 13 ? 2 : 3, EYE = [2, 4.5, 10, 18];
+function los(b, a, z, ha, hb) {
+ const m = b.map, ca = cellOf(m, a[0], a[1]), cz = cellOf(m, z[0], z[1]), ea = eyeClass(ha), ez = eyeClass(hb), key = (ca * 4 + ea) * 4096 + cz * 4 + ez;
+ let v = b.los.get(key);if (v !== undefined) return v;
+ const xa = (ca % m.cols + .5) * m.cell, ya = (Math.floor(ca / m.cols) + .5) * m.cell, xz = (cz % m.cols + .5) * m.cell, yz = (Math.floor(cz / m.cols) + .5) * m.cell;
+ const za = EYE[ea] + (m.t[ca] === 2 ? HILL_M : 0), zz = EYE[ez] + (m.t[cz] === 2 ? HILL_M : 0), d = hyp(xz - xa, yz - ya), n = Math.ceil(d / 50);
+ let woods = 0;v = true;
+ for (let i = 1; i < n; i++) { const f = i / n, c = cellOf(m, xa + (xz - xa) * f, ya + (yz - ya) * f);if (c === ca || c === cz) continue; const h = za + (zz - za) * f, t = m.t[c];
+  if (t === 2 && h < HILL_M) { v = false; break; } if (t === 1 && h < WOOD_M + (m.t[c] === 2 ? HILL_M : 0)) { woods += 50; if (woods > 100) { v = false; break; } } }
+ b.los.set(key, v);return v;
+}
+
+// ---------- forces ----------
+// Unit specs: {kind:'inf', name, troops, droid?, src?} | {kind:'veh', name?, key, n, src?} | {kind:'fort', name?}.
+// src points back to the company the unit came from, so losses can be written back to the regiment.
+const PLATOON = 4;
+function forcesFromRegiments(regiments, faction, tag = null) {
+ const out = [], droid = faction === 'cis';
+ (regiments || []).forEach((r, ri) => (r?.battalions || []).forEach((bt, bi) => (bt?.companies || []).forEach((c, ci) => {
+  const src = {tag, ri, bi, ci}, nm = [r.name, bt.name, c.name].filter(Boolean).join(' · ');
+  if ((c.troops || 0) > 0) out.push({kind: 'inf', name: nm, troops: Math.floor(c.troops), droid, src});
+  for (const [k, n0] of Object.entries(c.vehicles || {})) { if (!(n0 > 0)) continue; if (!R.VEHICLES[k] && c.vdesigns?.[k]) registerVehicleDesign(c.vdesigns[k]); if (!R.VEHICLES[k]) continue; let n = Math.floor(n0);
+   while (n > 0) { const k2 = Math.min(PLATOON, n);out.push({kind: 'veh', name: `${nm} · ${R.VEHICLES[k].name}`, key: k, n: k2, src}); n -= k2; } }
+ })));
+ return out;
+}
+// A planet's garrison: companies by its population (provisional: 2 + 2 per level), the faction's regiment make-up
+// and vehicles (half for a small world), and a strongpoint at each objective on a world of population 3 or more.
+function garrison(faction, pop = 2, opt = {}) {
+ const tpl = R.REGIMENT_TEMPLATES[faction], n = 2 + 2 * clamp(Math.round(pop || 0), 0, 5), out = [], droid = faction === 'cis';
+ const vk = Object.hasOwn(R.FACTIONS, faction) ? faction : null;
+ for (let i = 0; i < n; i++) {
+  const type = tpl ? tpl.companies[i % tpl.companies.length] : 'infantry', name = `${vk ? R.FACTIONS[vk].short : '惑星'}守備隊 第${i + 1}中隊`;
+  out.push({kind: 'inf', name, troops: R.COMPANY_TROOPS, droid});
+  const v = tpl?.vehicles?.[type];if (v) for (const [k, c] of Object.entries(v)) { const m = pop >= 3 ? c : Math.ceil(c / 2); if (m > 0 && R.VEHICLES[k]) out.push({kind: 'veh', name: `${name} · ${R.VEHICLES[k].name}`, key: k, n: m}); }
+ }
+ if (pop >= 3 && opt.forts !== false) for (let i = 0; i < 3; i++) out.push({kind: 'fort', name: `${FORT.name}（目標${'ABC'[i]}）`, obj: i});
+ return out;
+}
+
+// ---------- the battle ----------
+// cfg: {seed, planet:{kind, name}, timeLimit?, sides:[{faction, name?, ai, role:'attack'|'defend', forces:[spec], air:{sorties}, lift:{troops, size, boxes?}}]}
+// The attacker lands from its lift in sorties of RULES.sortie seconds; a lift of null means already landed (a drill).
+function createBattle(cfg) {
+ const seed = (cfg.seed >>> 0) || 1, map = makeMap(seed, cfg.planet?.kind ?? 2), rand = R.rng(seed * 7919 + 13);
+ const b = {version: 1, seed, rand, time: 0, acc: 0, map, planet: {kind: map.kind, name: str(cfg.planet?.name, 40, '')}, los: new Map(), units: [], nextId: 1, sides: [], airs: [], fx: [], log: [], result: null,
+  paths: new Map(), phase: 'deploy', timeLimit: num(cfg.timeLimit, 300, 86400, RULES.timeLimit), timers: {vis: 0, ai: 0}, orders: {}, holdT: 0};
+ (cfg.sides || []).slice(0, 2).forEach((s, i) => {
+  const role = s.role === 'defend' ? 'defend' : 'attack', lift = s.lift == null || role === 'defend' ? null : {troops: Math.max(0, +s.lift?.troops || 0), size: Math.max(0, +s.lift?.size || 0), boxes: Array.isArray(s.lift?.boxes) ? s.lift.boxes : null};
+  b.sides.push({id: i, faction: s.faction || 'neutral', name: str(s.name, 40, R.FACTIONS[s.faction]?.name || '惑星防衛軍'), ai: !!s.ai, role, lift, lz: MAP.W / 2, nextSortie: 0, sorties: 0,
+   air: {sorties: Math.max(0, Math.floor(+s.air?.sorties || 0)), used: 0, lost: 0, ready: 0}, vis: new Set(), seen: new Map(), spot: new Map(), initial: 0, lost: {troops: 0, vehicles: {}}, stranded: []});
+ });
+ if (b.sides.length < 2) throw new Error('two sides are needed');
+ b.sides.forEach((sd, i) => {
+  let n = 0;
+  for (const spec of cfg.sides[i].forces || []) {
+   if (n >= RULES.maxUnits) { sd.stranded.push(spec); continue; }
+   const u = makeUnit(b, sd, spec);if (!u) continue;
+   if (sd.lift && u.kind === 'veh' && sd.lift.boxes && !sd.lift.boxes.some(bx => C.boxFits(u.prof.dims, bx))) { sd.stranded.push(spec); b.units.pop(); continue; }
+   if (sd.lift && u.kind === 'inf' && !(sd.lift.troops > 0)) { sd.stranded.push(spec); b.units.pop(); continue; }
+   if (sd.lift && u.kind === 'veh' && !(sd.lift.size > 0)) { sd.stranded.push(spec); b.units.pop(); continue; }
+   n++;
+  }
+ });
+ // Defenders stand round the objectives (strongpoints on them); a side without lift starts in its landing zone.
+ for (const sd of b.sides) {
+  const own = b.units.filter(u => u.side === sd.id);
+  if (sd.role === 'defend') own.forEach((u, k) => { const o = map.objectives[u.obj ?? k % 3], a = rand() * Math.PI * 2, r = u.kind === 'fort' ? 0 : 90 + rand() * 160; place(b, u, [o.pos[0] + Math.cos(a) * r, o.pos[1] + Math.sin(a) * r]); u.landed = true; u.order = {type: 'capture', obj: o.id}; u.dig = u.kind === 'inf' ? .6 : .3; });
+  else if (!sd.lift) own.forEach((u, k) => { place(b, u, lzPoint(b, sd, k)); u.landed = true; });
+  sd.initial = own.reduce((s, u) => s + unitValue(u, u.n0), 0);
+ }
+ for (const o of map.objectives) o.owner = b.sides.find(s => s.role === 'defend')?.id ?? null;
+ return b;
+}
+function makeUnit(b, sd, spec) {
+ if (!spec || typeof spec !== 'object') return null;let u;
+ const base = {id: 'u' + b.nextId++, side: sd.id, src: spec.src || null, name: str(spec.name, 80, ''), pos: [0, 0], heading: sd.role === 'defend' ? Math.PI / 2 : -Math.PI / 2, order: {type: 'hold'}, cd: [0, 0], sup: 0, dig: 0, landed: false, moving: false, kills: 0, obj: spec.obj};
+ if (spec.kind === 'inf') { const n = Math.max(0, Math.floor(spec.troops || 0));if (!n) return null; const P = spec.droid ? INFANTRY.droid : INFANTRY.trooper;
+  u = {...base, kind: 'inf', droid: !!spec.droid, n: 0, n0: n, pending: n, hpEach: 1, hp: 1, P, eye: 2, sight: P.sight, name: base.name || (spec.droid ? 'バトル・ドロイド中隊' : '歩兵中隊')}; }
+ else if (spec.kind === 'veh') { const prof = vehicleProfile(spec.key), n = Math.max(0, Math.floor(spec.n || 0));if (!prof || !n) return null;
+  u = {...base, kind: 'veh', key: spec.key, prof, n: 0, n0: n, pending: n, hpEach: prof.hp, hp: prof.hp, eye: prof.dims[2], sight: prof.sight, cd: prof.weapons.map(() => 0), ammo: prof.weapons.map(w => w.ammo ? w.ammo * w.count * n : Infinity), name: base.name || R.VEHICLES[spec.key]?.name || spec.key}; }
+ else if (spec.kind === 'fort') { const weapons = FORT.weapons.map(([k, s, c]) => ({...groundWeapon(k, s), count: c})), prof = {hp: FORT.hp, armor: FORT.armor, weapons, dims: [12, 12, 4], speedMs: 0, profile: 1.2, sight: FORT.sight, rough: 0, slope: 0, water: 0};
+  u = {...base, kind: 'fort', key: 'fort', prof, n: 0, n0: 1, pending: 1, hpEach: FORT.hp, hp: FORT.hp, eye: 4, sight: FORT.sight, cd: weapons.map(() => 0), ammo: weapons.map(() => Infinity), name: base.name || FORT.name}; }
+ else return null;
+ if (sd.role === 'defend' || !sd.lift) { u.n = u.n0; u.pending = 0; }
+ b.units.push(u);return u;
+}
+function place(b, u, p) { u.pos = [clamp(p[0], 10, MAP.W - 10), clamp(p[1], 10, MAP.H - 10)]; if (!passable(b, u, u.pos)) { for (let k = 1; k < 12; k++) { const q = [u.pos[0] + 60 * k * Math.cos(k), u.pos[1] + 60 * k * Math.sin(k)]; if (q[0] > 0 && q[0] < MAP.W && q[1] > 0 && q[1] < MAP.H && passable(b, u, q)) { u.pos = q; break; } } } }
+function lzPoint(b, sd, k) { const y0 = MAP.H - LZ_ROWS * MAP.cell + 60, a = (k * 0.618034) % 1, r = (k * 0.381966 + .2) % 1;return [clamp(sd.lz + (a - .5) * 700, 30, MAP.W - 30), y0 + r * (LZ_ROWS * MAP.cell - 120)]; }
+const unitValue = (u, n = u.n) => u.kind === 'inf' ? n : u.kind === 'fort' ? 40 * n : n * clamp(u.hpEach / 8, 3, 80);
+const unitAlive = u => u.n > 0;
+const onField = u => u.landed && u.n > 0;
+function speedOf(b, u, p) {
+ const t = terrainAt(b.map, p[0], p[1]);
+ if (u.kind === 'fort') return 0;
+ if (u.kind === 'inf') return t === 3 ? 0 : u.P.speed * (t === 0 ? 1 : .7) * (1 - u.sup * .5);
+ const s = u.prof.speedMs;return t === 3 ? s * u.prof.water : t === 1 ? s * u.prof.rough : t === 2 ? s * u.prof.slope : s;
+}
+const passable = (b, u, p) => speedOf(b, u, p) > 0 || u.kind === 'fort';
+// Routes over the cell grid (A*, eight neighbours, time by the unit's speed on each terrain), cached per battle by
+// the unit's mobility class and the start and goal cells.
+const mobility = u => u.kind === 'inf' ? 'inf' : `${u.prof.rough},${u.prof.slope},${u.prof.water}`;
+function cellSpeed(u, t) { if (u.kind === 'inf') return t === 3 ? 0 : t === 0 ? 1 : .7; return t === 3 ? u.prof.water : t === 1 ? u.prof.rough : t === 2 ? u.prof.slope : 1; }
+function route(b, u, from, to) {
+ const m = b.map, s0 = cellOf(m, from[0], from[1]), g = cellOf(m, to[0], to[1]), key = mobility(u) + '|' + s0 + '|' + g;
+ if (b.paths.has(key)) return b.paths.get(key);
+ const N = m.cols * m.rows, cost = new Float64Array(N).fill(Infinity), prev = new Int32Array(N).fill(-1), heap = [], done = new Uint8Array(N);
+ const h = c => hyp(c % m.cols - g % m.cols, Math.floor(c / m.cols) - Math.floor(g / m.cols));
+ const push = (c, f) => { heap.push([f, c]); let i = heap.length - 1; while (i > 0) { const p = (i - 1) >> 1; if (heap[p][0] <= heap[i][0]) break; [heap[p], heap[i]] = [heap[i], heap[p]]; i = p; } };
+ const pop = () => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let i = 0; for (;;) { const l = 2 * i + 1, r = l + 1; let k = i; if (l < heap.length && heap[l][0] < heap[k][0]) k = l; if (r < heap.length && heap[r][0] < heap[k][0]) k = r; if (k === i) break; [heap[k], heap[i]] = [heap[i], heap[k]]; i = k; } } return top; };
+ cost[s0] = 0;push(s0, h(s0));
+ while (heap.length) { const [, c] = pop(); if (done[c]) continue; done[c] = 1; if (c === g) break; const cx = c % m.cols, cy = Math.floor(c / m.cols);
+  for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { if (!dx && !dy) continue; const x = cx + dx, y = cy + dy; if (x < 0 || y < 0 || x >= m.cols || y >= m.rows) continue; const n = y * m.cols + x, v = cellSpeed(u, m.t[n]); if (!(v > 0) || done[n]) continue;
+   if (dx && dy && (!(cellSpeed(u, m.t[cy * m.cols + x]) > 0) || !(cellSpeed(u, m.t[y * m.cols + cx]) > 0))) continue;
+   const nc = cost[c] + (dx && dy ? 1.4142 : 1) / v; if (nc < cost[n]) { cost[n] = nc; prev[n] = c; push(n, nc + h(n)); } } }
+ let path = null;
+ if (Number.isFinite(cost[g])) { path = []; for (let c = g; c !== s0 && c >= 0; c = prev[c]) path.push([(c % m.cols + .5) * m.cell, (Math.floor(c / m.cols) + .5) * m.cell]); path.reverse(); }
+ if (b.paths.size > 4000) b.paths.clear();b.paths.set(key, path);return path;
+}
+
+// ---------- orders ----------
+function order(b, ids, o) {
+ if (!o || !ORDER_TYPES[o.type]) return 0;let k = 0;const list = (Array.isArray(ids) ? ids : [ids]).map(id => b.units.find(u => u.id === id)).filter(u => u && unitAlive(u) && u.kind !== 'fort');
+ const n = list.length;
+ list.forEach((u, i) => {
+  const off = n > 1 ? (i - (n - 1) / 2) * 70 : 0;
+  if (o.type === 'move' && Array.isArray(o.to)) u.order = {type: 'move', to: [clamp(o.to[0] + off, 10, MAP.W - 10), clamp(o.to[1], 10, MAP.H - 10)]};
+  else if (o.type === 'attack') { const t = b.units.find(x => x.id === o.target); if (!t || t.side === u.side) return; u.order = {type: 'attack', target: t.id}; }
+  else if (o.type === 'hold') u.order = {type: 'hold'};
+  else if (o.type === 'capture') { const ob = b.map.objectives[o.obj]; if (!ob) return; u.order = {type: 'capture', obj: ob.id, off: [off, (i % 2) * 50 - 25]}; }
+  else return;
+  if (o.type !== 'hold') u.dig = 0;k++;
+ });
+ if (k) b.orders[o.type] = (b.orders[o.type] || 0) + 1;
+ if (k && list.some(u => u.kind === 'veh')) b.orders.vehicle = (b.orders.vehicle || 0) + 1;
+ return k;
+}
+// The landing zone for the attacker's next sorties (x along the southern edge), and the start of the battle.
+function deploy(b, side, x) { const sd = b.sides[side];if (!sd || sd.role !== 'attack') return false;sd.lz = clamp(+x || MAP.W / 2, 350, MAP.W - 350);b.orders.deploy = (b.orders.deploy || 0) + 1;return true; }
+function start(b) { if (b.phase === 'deploy') { b.phase = 'battle'; logB(b, '戦闘開始'); } }
+// An air strike: the side's next sortie of bombers or gunships, over `at` after RULES.airDelay seconds.
+function airStrike(b, side, at) {
+ const sd = b.sides[side], A = sd?.air;if (!A || b.result || A.used >= A.sorties || b.time < A.ready || !Array.isArray(at)) return false;
+ A.used++;A.ready = b.time + RULES.airCooldown;b.airs.push({side, at: [clamp(at[0], 0, MAP.W), clamp(at[1], 0, MAP.H)], t: b.time + RULES.airDelay});
+ if (!sd.ai) b.orders.air = (b.orders.air || 0) + 1;logB(b, `${sd.name}：航空攻撃を要請`, side);return true;
+}
+function logB(b, text, side = null) { b.log.push({t: Math.round(b.time), text, side}); if (b.log.length > 200) b.log.splice(0, b.log.length - 200); }
+
+// ---------- the simulation ----------
+function step(b, dt) {
+ if (b.result || b.phase !== 'battle') return 0;b.acc += dt;let n = 0;
+ while (b.acc >= RULES.tick && !b.result && n < 20000) { b.acc -= RULES.tick; tick(b, RULES.tick); n++; }
+ return n;
+}
+function tick(b, dt) {
+ b.time += dt;
+ landTick(b);
+ if ((b.timers.vis -= dt) <= 0) { b.timers.vis = RULES.visEvery; visibility(b); }
+ if ((b.timers.ai -= dt) <= 0) { b.timers.ai = RULES.aiEvery; for (const sd of b.sides) if (sd.ai) think(b, sd); }
+ for (const u of b.units) if (onField(u)) moveUnit(b, u, dt);
+ for (const u of b.units) if (onField(u)) fireUnit(b, u, dt);
+ airTick(b);
+ for (const u of b.units) { if (u.sup > 0) u.sup = Math.max(0, u.sup - dt * .04); if (onField(u) && !u.moving && (u.order.type === 'hold' || u.order.type === 'capture')) u.dig = Math.min(1, u.dig + dt / 60); }
+ objectivesTick(b, dt);
+ b.fx = b.fx.filter(f => b.time - f.t < 3);
+ checkEnd(b);
+}
+// Sorties of the landing craft: each brings down as many troops and vehicles (by hangar size units) as its lift
+// carries, in the order of the force list; a company or platoon appears with its first men or vehicles and grows.
+function landTick(b) {
+ for (const sd of b.sides) {
+  if (!sd.lift || b.time < sd.nextSortie) continue;const wait = b.units.filter(u => u.side === sd.id && u.pending > 0);if (!wait.length) continue;
+  let T = sd.lift.troops, S = sd.lift.size, k = 0;
+  for (const u of wait) {
+   let m = 0;if (u.kind === 'inf') { m = Math.min(u.pending, Math.floor(T)); T -= m; } else { const sz = Math.max(.001, R.VEHICLES[u.key]?.size || u.prof.size || 1); m = Math.min(u.pending, Math.floor((S + 1e-9) / sz)); S -= m * sz; }
+   if (m <= 0) continue;if (!u.landed) { place(b, u, lzPoint(b, sd, b.units.indexOf(u))); u.landed = true; }
+   u.pending -= m;u.n += m;k++;
+  }
+  sd.sorties++;sd.nextSortie = b.time + RULES.sortie;if (k) logB(b, `${sd.name}：揚陸艇 第${sd.sorties}波が着地`, sd.id);
+ }
+}
+function visibility(b) {
+ for (const sd of b.sides) {
+  const mine = b.units.filter(u => u.side === sd.id && onField(u)), vis = new Set();
+  for (const e of b.units) { if (e.side === sd.id || !onField(e)) continue; for (const u of mine) { const d = hyp(e.pos[0] - u.pos[0], e.pos[1] - u.pos[1]); if (d > u.sight * (e.kind === 'inf' && e.dig > .5 && !e.moving ? .75 : 1)) continue; if (d < 150 || los(b, u.pos, e.pos, u.eye, e.eye)) { vis.add(e.id); sd.seen.set(e.id, {pos: [...e.pos], t: b.time}); break; } } }
+  // A unit that fired in the last 6 s gives itself away to those it fired at.
+  for (const [id, t] of sd.spot) { if (b.time - t > 6) { sd.spot.delete(id); continue; } const e = b.units.find(x => x.id === id); if (e && onField(e) && !vis.has(id)) { vis.add(id); sd.seen.set(id, {pos: [...e.pos], t: b.time}); } }
+  sd.vis = vis;
+ }
+}
+function moveUnit(b, u, dt) {
+ const o = u.order;let to = null, stopAt = 0;
+ if (o.type === 'move') to = o.to;
+ else if (o.type === 'capture') { const ob = b.map.objectives[o.obj]; if (ob) to = [ob.pos[0] + (o.off?.[0] || 0), ob.pos[1] + (o.off?.[1] || 0)]; stopAt = 20; }
+ else if (o.type === 'attack') { const t = b.units.find(x => x.id === o.target);if (!t || !onField(t)) { u.order = {type: 'hold'}; u.moving = false; return; }
+  const sd = b.sides[u.side], seen = sd.vis.has(t.id), d = hyp(t.pos[0] - u.pos[0], t.pos[1] - u.pos[1]), rng = maxRange(u, t);
+  if (seen && d <= rng * .85) { u.moving = false; return; } to = seen ? t.pos : sd.seen.get(t.id)?.pos || t.pos; }
+ if (!to) { u.moving = false; return; }
+ const dx = to[0] - u.pos[0], dy = to[1] - u.pos[1], d = hyp(dx, dy);
+ if (d <= Math.max(5, stopAt)) { u.moving = false; if (o.type === 'move') u.order = {type: 'hold'}; return; }
+ let sp = speedOf(b, u, u.pos) || speedOf(b, u, to) * .5;if (!(sp > 0)) { u.moving = false; return; }
+ // An attacking AI's vehicles keep pace with its infantry on the way to an objective.
+ const sd = b.sides[u.side];if (sd.ai && sd.role === 'attack' && u.kind === 'veh' && o.type === 'capture' && b.units.some(x => x.side === u.side && x.kind === 'inf' && onField(x))) sp = Math.min(sp, 2);
+ // Follow the route to the goal's cell (recomputed when the goal moves to another cell), then go straight in.
+ const gk = cellOf(b.map, to[0], to[1]);if (u.pathTo !== gk || !u.path) { const p = route(b, u, u.pos, to); u.path = p ? p.slice(0, -1) : []; u.pathTo = gk; }
+ while (u.path.length && hyp(u.path[0][0] - u.pos[0], u.path[0][1] - u.pos[1]) < 40) u.path.shift();
+ const aim = u.path.length ? u.path[0] : to, ax = aim[0] - u.pos[0], ay = aim[1] - u.pos[1];
+ const st = Math.min(u.path.length ? hyp(ax, ay) : d, sp * dt), h = Math.atan2(ay, ax);
+ for (const a of [0, .5, -.5, 1, -1, 1.6, -1.6]) { const q = [u.pos[0] + Math.cos(h + a) * st, u.pos[1] + Math.sin(h + a) * st]; if (q[0] < 0 || q[1] < 0 || q[0] > MAP.W || q[1] > MAP.H || !passable(b, u, q)) continue; u.pos = q; u.heading = h + a; u.moving = true; return; }
+ u.moving = false;
+}
+function maxRange(u, t) {
+ if (u.kind === 'inf') return t?.kind === 'inf' || !t ? u.P.range : u.P.at.range;
+ let r = 0;for (const w of u.prof.weapons) if (!t || t.kind === 'inf' ? w.ai > .2 || w.pen > 0 : w.pen > 0 || w.ion) r = Math.max(r, w.range);return r || 300;
+}
+const coverOf = (b, u) => { const t = terrainAt(b.map, u.pos[0], u.pos[1]);if (u.kind === 'inf') return (t === 1 ? .5 : t === 2 ? .6 : 1) * (1 - .3 * u.dig);return (t === 1 ? .8 : 1) * (1 - .15 * u.dig); };
+// The armour face a shot strikes: from the bearing of the shooter off the target's heading.
+function faceOf(t, from) { const a = Math.atan2(from[1] - t.pos[1], from[0] - t.pos[0]) - t.heading, c = Math.cos(a);return c > .5 ? 'front' : c < -.5 ? 'rear' : 'side'; }
+function pickTarget(b, u, range, want) {
+ const sd = b.sides[u.side], o = u.order.type === 'attack' ? u.order.target : null;let best = null, bs = -Infinity;
+ for (const e of b.units) {
+  if (e.side === u.side || !onField(e) || !sd.vis.has(e.id)) continue;const d = hyp(e.pos[0] - u.pos[0], e.pos[1] - u.pos[1]);if (d > range) continue;
+  let s = -d / 1000;if (e.id === o) s += 10;
+  if (want === 'at') s += e.kind === 'inf' ? -3 : 2;else if (want === 'ai') s += e.kind === 'inf' ? 2 : -1;
+  if (s > bs) { bs = s; best = e; }
+ }
+ return best;
+}
+function hitVehicle(b, t, w, from, k = 1) {
+ if (!onField(t)) return;const arm = t.prof.armor[faceOf(t, from)] || 0;let dmg;
+ if (w.ion) dmg = t.kind === 'fort' ? 0 : w.dmg * .6;else dmg = w.pen >= arm ? w.dmg : w.dmg * Math.pow(w.pen / Math.max(1, arm), 3) * .5;
+ if (t.prof.shield > 0) dmg *= .7;
+ t.hp -= dmg * k;while (t.hp <= 0 && t.n > 0) { t.n--; t.hp += t.hpEach; const sd = b.sides[t.side]; if (t.kind === 'veh') sd.lost.vehicles[t.key] = (sd.lost.vehicles[t.key] || 0) + 1; if (t.n <= 0) { logB(b, `${t.name}が全滅`, t.side); t.hp = 0; } }
+}
+function killInf(b, t, kills) {
+ if (!onField(t) || !(kills > 0)) return 0;const k = Math.min(t.n, kills);t.n -= k;b.sides[t.side].lost.troops += k;t.sup = Math.min(1, t.sup + .05 + k / Math.max(10, t.n0) * 2);
+ if (t.n <= 0) logB(b, `${t.name}が壊滅`, t.side);return k;
+}
+// Stochastic rounding from the battle's own generator.
+const sround = (b, x) => { const f = Math.floor(x);return f + (b.rand() < x - f ? 1 : 0); };
+function fireUnit(b, u, dt) {
+ for (let i = 0; i < u.cd.length; i++) u.cd[i] -= dt;
+ const spot = t => b.sides[t.side].spot.set(u.id, b.time);
+ const accMove = u.moving ? (u.kind === 'inf' ? .6 : .7) : 1, sup = 1 - u.sup * .6;
+ if (u.kind === 'inf') {
+  if (u.cd[0] <= 0) { const t = pickTarget(b, u, u.P.range, 'ai'); if (t) { u.cd[0] = 3; const d = hyp(t.pos[0] - u.pos[0], t.pos[1] - u.pos[1]), acc = u.P.acc * (1 - .6 * d / u.P.range) * accMove * sup;
+    spot(t);if (t.kind === 'inf') { const k = killInf(b, t, sround(b, u.n * acc * coverOf(b, t))); u.kills += k; t.sup = Math.min(1, t.sup + .1 * Math.min(1, u.n / 72)); b.fx.push({t: b.time, a: [...u.pos], z: [...t.pos], k: 'b', side: u.side}); }
+    else if (t.kind === 'veh' && t.prof.armor.side < 4) { hitVehicle(b, t, {pen: 3, dmg: 4}, u.pos, sround(b, u.n * acc * .5)); } } }
+  if (u.cd[1] <= 0) { const t = pickTarget(b, u, u.P.at.range, 'at'); if (t && t.kind !== 'inf') { u.cd[1] = 8; const shots = sround(b, u.n / u.P.at.per), p = .45 * clamp(t.prof.profile, .3, 2) * accMove * sup;
+    spot(t);for (let s = 0; s < shots; s++) if (b.rand() < p) hitVehicle(b, t, u.P.at, u.pos); if (shots) b.fx.push({t: b.time, a: [...u.pos], z: [...t.pos], k: 'r', side: u.side}); } }
+  return;
+ }
+ u.prof.weapons.forEach((w, i) => {
+  if (u.cd[i] > 0 || !(u.ammo[i] > 0)) return;const t = pickTarget(b, u, w.range, w.pen >= 15 || w.ion ? 'at' : 'ai');if (!t) return;
+  // Launchers (with magazines) keep their rounds for vehicles and strongpoints.
+  if (w.ammo && t.kind === 'inf' && u.ammo[i] < w.ammo * w.count * u.n0 * .5) return;
+  u.cd[i] = 1 / Math.max(.05, w.rof);const d = hyp(t.pos[0] - u.pos[0], t.pos[1] - u.pos[1]), acc = clamp(.55 * Math.exp(-d / 700), .03, .55) * accMove * sup;
+  const shots = Math.min(u.ammo[i], w.count * u.n);u.ammo[i] -= w.ammo ? shots : 0;spot(t);
+  if (t.kind === 'inf') { const k = killInf(b, t, sround(b, shots * clamp(.9 * Math.exp(-d / 450), .02, .9) * accMove * sup * w.ai * .3 * (1 + w.pen / 80) * coverOf(b, t) * (t.droid && w.ion ? 4 : 1))); u.kills += k; t.sup = Math.min(1, t.sup + .03 * shots); }
+  else { const p = acc * clamp(t.prof.profile, .3, 2) * coverOf(b, t);let hits = 0;for (let s = 0; s < shots; s++) if (b.rand() < p) hits++;if (hits) hitVehicle(b, t, w, u.pos, hits); }
+  b.fx.push({t: b.time, a: [...u.pos], z: [...t.pos], k: w.pen >= 60 ? 'h' : 'l', side: u.side});
+ });
+}
+// Air strikes arrive over their point; enemy anti-air within 1.5 km may shoot the flight down first (half the bombs).
+function airTick(b) {
+ const due = b.airs.filter(a => a.t <= b.time);if (!due.length) return;b.airs = b.airs.filter(a => a.t > b.time);
+ for (const a of due) {
+  const sd = b.sides[a.side];let aa = 0;for (const e of b.units) if (e.side !== a.side && onField(e) && e.kind !== 'inf' && hyp(e.pos[0] - a.at[0], e.pos[1] - a.at[1]) < 1500) aa += e.prof.weapons.reduce((n, w) => n + w.aa * w.count, 0) * e.n;
+  const downed = b.rand() < Math.min(.5, aa * .03), k = downed ? .5 : 1;if (downed) { sd.air.lost++; logB(b, `${sd.name}：攻撃機が対空砲火で撃墜された`, a.side); }
+  const bomb = {pen: 60, dmg: 50, ion: false};
+  for (const t of b.units) { if (!onField(t)) continue; const d = hyp(t.pos[0] - a.at[0], t.pos[1] - a.at[1]); if (d > RULES.airRadius + (t.kind === 'inf' ? 60 : 0)) continue;
+   if (t.kind === 'inf') { killInf(b, t, sround(b, 12 * k * coverOf(b, t) * (1 - d / (RULES.airRadius + 60)))); t.sup = 1; }
+   else { let hits = 0; for (let s = 0; s < 4; s++) if (b.rand() < .5 * k) hits++; if (hits) hitVehicle(b, t, bomb, [t.pos[0], t.pos[1] - 1], hits); } }
+  b.fx.push({t: b.time, at: [...a.at], k: 'air', side: a.side});
+ }
+}
+function objectivesTick(b, dt) {
+ for (const o of b.map.objectives) {
+  const here = [0, 0];for (const u of b.units) if (onField(u) && hyp(u.pos[0] - o.pos[0], u.pos[1] - o.pos[1]) < OBJ_RADIUS) here[u.side] += unitValue(u);
+  const s = here[0] > 0 && !here[1] ? 0 : here[1] > 0 && !here[0] ? 1 : null;
+  if (s == null || s === o.owner) { if (s === o.owner) o.prog = 0; o.by = here[0] && here[1] ? 'contested' : null; continue; }
+  o.by = s;o.prog += dt / CAPTURE_S;if (o.prog >= 1) { o.owner = s; o.prog = 0; o.by = null; logB(b, `${b.sides[s].name}が${o.name}を確保`, s); }
+ }
+}
+function strength(b, side, withPending = true) { return b.units.filter(u => u.side === side).reduce((n, u) => n + unitValue(u, u.n + (withPending ? u.pending : 0)), 0); }
+function checkEnd(b) {
+ const A = b.sides.find(s => s.role === 'attack'), D = b.sides.find(s => s.role === 'defend');if (!A || !D) return;
+ const sa = strength(b, A.id), sdv = strength(b, D.id), held = b.map.objectives.every(o => o.owner === A.id);
+ b.holdT = held ? b.holdT + RULES.tick : 0;let winner = null, reason = '';
+ if (A.initial > 0 && sa <= A.initial * RULES.attackBreak) { winner = D.id; reason = 'repulsed'; }
+ else if (D.initial <= 0 || sdv <= D.initial * RULES.defendBreak) { winner = A.id; reason = 'annihilation'; }
+ else if (b.holdT >= HOLD_WIN_S) { winner = A.id; reason = 'objectives'; }
+ else if (b.time >= b.timeLimit) { winner = D.id; reason = 'time'; }
+ if (winner != null) finish(b, winner, reason);
+}
+// The end of a battle: its winner, the reason, and each side's losses.
+function finish(b, winner, reason) {
+ if (b.result) return;
+ b.result = {winner, reason, time: b.time, objectives: b.map.objectives.map(o => o.owner), sides: b.sides.map(sd => ({troopsLost: sd.lost.troops, vehiclesLost: {...sd.lost.vehicles}, strength: strength(b, sd.id), initial: sd.initial, airLost: sd.air.lost,
+  troopsLeft: b.units.filter(u => u.side === sd.id && u.kind === 'inf').reduce((n, u) => n + u.n + u.pending, 0)}))};
+ logB(b, resultText(b));
+}
+// A side gives up the field (the player's 撤退): the other side wins.
+function withdraw(b, side) { if (b.result || !b.sides[side]) return false;finish(b, b.sides.find(s => s.id !== side).id, 'withdraw');return true; }
+const REASONS = Object.freeze({objectives: '全目標を確保', annihilation: '守備隊が壊滅', repulsed: '揚陸部隊を撃退', time: '制限時間まで守り抜いた', withdraw: '撤退'});
+function resultText(b) { const r = b.result;return r ? `${b.sides[r.winner].name}の勝利（${REASONS[r.reason] || r.reason}）` : ''; }
+
+// ---------- AI ----------
+// Attackers make for the nearest objective they do not hold (vehicles lead, infantry follows), taking on what they
+// see on the way; defenders hold their objectives and counter-attack an enemy close to one with their vehicles.
+// Both call air strikes on the largest group of enemies they can see.
+function think(b, sd) {
+ const mine = b.units.filter(u => u.side === sd.id && onField(u) && u.kind !== 'fort'), objs = b.map.objectives, vis = b.units.filter(e => sd.vis.has(e.id) && onField(e));
+ if (sd.role === 'attack') {
+  // One objective at a time for the whole force: the one not yet held nearest the force's centre.
+  const todo = objs.filter(o => o.owner !== sd.id), cx = mine.reduce((n, u) => n + u.pos[0], 0) / Math.max(1, mine.length), cy = mine.reduce((n, u) => n + u.pos[1], 0) / Math.max(1, mine.length);
+  const focus = (todo.length ? todo : objs).slice().sort((p, q) => hyp(p.pos[0] - cx, p.pos[1] - cy) - hyp(q.pos[0] - cx, q.pos[1] - cy))[0];
+  for (const u of mine) {
+   if (u.order.type === 'attack' && b.units.find(x => x.id === u.order.target && onField(x))) continue;
+   const near = vis.filter(e => hyp(e.pos[0] - u.pos[0], e.pos[1] - u.pos[1]) < maxRange(u, e) * 1.2).sort((p, q) => hyp(p.pos[0] - u.pos[0], p.pos[1] - u.pos[1]) - hyp(q.pos[0] - u.pos[0], q.pos[1] - u.pos[1]))[0];
+   if (near && (u.kind === 'veh' || near.kind === 'inf')) { u.order = {type: 'attack', target: near.id}; u.dig = 0; continue; }
+   const goal = focus;
+   if (goal && !(u.order.type === 'capture' && u.order.obj === goal.id)) { const k = mine.indexOf(u); u.order = {type: 'capture', obj: goal.id, off: [((k % 5) - 2) * 45, (Math.floor(k / 5) % 3 - 1) * 45]}; u.dig = 0; }
+  }
+ } else {
+  for (const u of mine) {
+   const home = objs[u.obj ?? 0] || objs[0], threat = vis.filter(e => hyp(e.pos[0] - home.pos[0], e.pos[1] - home.pos[1]) < 700).sort((p, q) => hyp(p.pos[0] - u.pos[0], p.pos[1] - u.pos[1]) - hyp(q.pos[0] - u.pos[0], q.pos[1] - u.pos[1]))[0];
+   if (threat && u.kind === 'veh') { if (u.order.type !== 'attack' || u.order.target !== threat.id) { u.order = {type: 'attack', target: threat.id}; u.dig = 0; } continue; }
+   if (home.owner !== sd.id || u.order.type === 'attack' && !threat) { if (!(u.order.type === 'capture' && u.order.obj === home.id)) u.order = {type: 'capture', obj: home.id, off: [((mine.indexOf(u) % 4) - 1.5) * 60, 40]}; }
+  }
+ }
+ const A = sd.air;
+ if (A.used < A.sorties && b.time >= A.ready && vis.length) {
+  let best = null, bs = 0;for (const e of vis) { let s = 0; for (const f of vis) if (hyp(f.pos[0] - e.pos[0], f.pos[1] - e.pos[1]) < RULES.airRadius + 40) s += unitValue(f); if (b.units.some(m => m.side === sd.id && onField(m) && hyp(m.pos[0] - e.pos[0], m.pos[1] - e.pos[1]) < 200)) s *= .1; if (s > bs) { bs = s; best = e; } }
+  if (best && bs >= 20) airStrike(b, sd.id, [...best.pos]);
+ }
+}
+// Auto-resolve: the same battle with both sides under AI, to its end (or maxTime), at the simulation's own tick.
+function autoResolve(b, maxTime = Infinity) {
+ for (const sd of b.sides) sd.ai = true;start(b);
+ const end = Math.min(b.timeLimit + 1, maxTime);while (!b.result && b.time < end) step(b, 60);
+ return b.result;
+}
+
+// ---------- losses written back to the regiments ----------
+// Infantry: the company keeps the troops still alive (and those never landed); vehicles: its count less those lost.
+// Units of other tags (other ships) are left alone. Returns the totals written.
+function applyLosses(b, side, regiments, tag = null) {
+ const out = {troops: 0, vehicles: {}};
+ for (const u of b.units) {
+  if (u.side !== side || !u.src || u.src.tag !== tag) continue;const c = regiments?.[u.src.ri]?.battalions?.[u.src.bi]?.companies?.[u.src.ci];if (!c) continue;
+  if (u.kind === 'inf') { const lost = Math.max(0, u.n0 - u.n - u.pending); c.troops = Math.max(0, (c.troops || 0) - lost); out.troops += lost; }
+  else if (u.kind === 'veh') { const lost = Math.max(0, u.n0 - u.n - u.pending); if (lost) { c.vehicles[u.key] = Math.max(0, (c.vehicles[u.key] || 0) - lost); out.vehicles[u.key] = (out.vehicles[u.key] || 0) + lost; } }
+ }
+ return out;
+}
+// A battle's state without its caches and generator (for tests and saves of a result).
+function summary(b) { return {time: b.time, phase: b.phase, result: b.result, objectives: b.map.objectives.map(o => ({owner: o.owner, prog: r2(o.prog)})), units: b.units.map(u => ({id: u.id, side: u.side, kind: u.kind, n: u.n, pending: u.pending, pos: u.pos.map(Math.round), order: u.order.type}))}; }
+
+// ---------- the drill (PLAN-025 stage 7: 陸戦部隊の演習) ----------
+// A clone battalion lands from LAAT/i gunships and LAAT/c carriers against a training force of battle droids holding
+// three objectives; the player's own vehicle designs may join it. Its steps are the essential ground operations.
+const DRILL_STEPS = Object.freeze([['deploy', '降下地点を決めて展開する'], ['move', '部隊を移動させる'], ['attack', '敵部隊を攻撃する'], ['vehicle', 'ウォーカー・車両に命令する'], ['air', '航空支援を要請する'], ['capture', '目標を奪取する']]);
+function drillConfig(opt = {}) {
+ const faction = Object.hasOwn(R.FACTIONS, opt.faction) ? opt.faction : 'republic', foe = faction === 'cis' ? 'republic' : 'cis';
+ const reg = R.makeRegiment(faction, `第1${R.REGIMENT_TEMPLATES[faction].name}（演習）`);reg.battalions = reg.battalions.slice(0, 1);
+ const forces = forcesFromRegiments([reg], faction, 'drill');
+ for (const [k, n] of Object.entries(opt.extra || {})) if (R.VEHICLES[k] && n > 0) forces.push({kind: 'veh', key: k, n: Math.min(8, Math.floor(n)), name: R.VEHICLES[k].name});
+ const lift = liftOf([['laat', 12], ['laatc', 2]]);
+ const droid = foe === 'cis', tank = foe === 'cis' ? 'aat' : 'tx130', opfor = [0, 1, 2].map(i => ({kind: 'inf', name: `仮想敵 第${i + 1}中隊`, troops: R.COMPANY_TROOPS, droid, obj: i}));
+ opfor.push({kind: 'veh', key: tank, n: 1, name: `仮想敵 ${R.VEHICLES[tank].name}`, obj: 0}, {kind: 'veh', key: tank, n: 1, name: `仮想敵 ${R.VEHICLES[tank].name}`, obj: 2}, {kind: 'fort', name: '演習用陣地', obj: 1});
+ return {seed: opt.seed ?? 24, planet: {kind: opt.kind ?? 2, name: opt.planetName || '演習場'}, timeLimit: 3000,
+  sides: [{faction, name: R.FACTIONS[faction].name + '（演習部隊）', ai: false, role: 'attack', forces, air: {sorties: 3}, lift}, {faction: foe, name: '仮想敵部隊', ai: true, role: 'defend', forces: opfor, air: {sorties: 0}}]};
+}
+// The lift of a set of transports [[craft type, count], ...]: troops and vehicle size per sortie, and the holds.
+function liftOf(list) {
+ const out = {troops: 0, size: 0, boxes: []};
+ for (const [t, n] of list) { const L = C.craftLift(t); if (!L || !(n > 0)) continue; out.troops += L.troops * n; out.size += L.size * n; if (L.box && !out.boxes.some(x => x.every((v, i) => v === L.box[i]))) out.boxes.push(L.box); }
+ out.size = r2(out.size);return out;
+}
+
+// ---------- the fleet battle's landings (Rts) ----------
+// A task group in a system with an inhabited world and no enemy ship able to fight there (space superiority) may land
+// the regiments its ships carry. The landing is fought out (auto-resolved) as the fleet battle goes on, at the fleet
+// battle's clock; the attacker's bombers and gunships docked in the group fly its air strikes. A world taken is held
+// by its side (sector system .held) and named in the battle's events.
+function landingDefender(w, sys, side) {
+ const s = w.sector.systems[sys];const other = w.sides.find(sd => sd.id !== side && sd.home?.includes(sys));
+ return other ? other.faction : s?.held != null && s.held !== side ? w.sides[s.held]?.faction || 'neutral' : 'neutral';
+}
+function landingCheck(w, groupId) {
+ const g = w.groups.get(groupId);if (!g) return {ok: false, why: 'group'};
+ const sys = g.sys;if (sys == null || g.transit) return {ok: false, why: 'transit'};
+ const s = w.sector.systems[sys];if (!s || !(s.pop > 0) || [3].includes(s.planet?.kind)) return {ok: false, why: 'planet'};
+ if (s.held === g.side) return {ok: false, why: 'held'};
+ if ((w.landings || []).some(L => L.sys === sys && !L.done)) return {ok: false, why: 'busy'};
+ if (R.systemUnits(w, sys).some(u => u.side !== g.side && R.fighting(u))) return {ok: false, why: 'enemy'};
+ const units = g.units.map(id => w.units.get(id)).filter(u => R.fighting(u) && Array.isArray(u.ground) && u.ground.length);
+ const troops = units.reduce((n, u) => n + u.ground.reduce((m, r) => m + R.regimentTotals(r).troops, 0), 0);if (!units.length || !(troops > 0)) return {ok: false, why: 'troops'};
+ const lift = {troops: 0, size: 0, boxes: []};
+ for (const u of units) { const d = w.designs.get(u.design), air = [...[...w.squads.values()].filter(q => q.home === u.id && q.state === 'docked').map(q => ({craft: q.craft, n: q.n})), ...(u.landers || [])], st = d?.info?.stow ? R.shipStow(d.info, air, [], u.ground) : null, L = st?.lift;
+  if (L) { lift.troops += L.troops; lift.size += L.vehicleSize; for (const bx of L.boxes || []) if (!lift.boxes.some(x => x.every((v, i) => v === bx[i]))) lift.boxes.push(bx); }
+  else { lift.troops += 200; lift.size += 2; } }
+ if (!(lift.troops > 0)) return {ok: false, why: 'lift'};
+ return {ok: true, sys, units, troops, lift};
+}
+const LANDING_WHY = Object.freeze({group: '任務群がありません', transit: '航行中です', planet: '揚陸できる有人惑星がありません', held: 'すでに確保した惑星です', busy: 'この星系では揚陸作戦が進行中です', enemy: '星系内に戦闘可能な敵艦がいます（制宙権がありません）', troops: '陸戦部隊を搭載した艦がありません', lift: '揚陸艇がありません'});
+function orderLanding(w, groupId) {
+ const c = landingCheck(w, groupId);if (!c.ok) return c;const g = w.groups.get(groupId), s = w.sector.systems[c.sys], faction = w.sides[g.side].faction, foe = landingDefender(w, c.sys, g.side);
+ const forces = [];for (const u of c.units) forces.push(...forcesFromRegiments(u.ground, faction, u.id));
+ let air = 0;for (const sq of w.squads.values()) { if (sq.side !== g.side || sq.state !== 'docked' || !c.units.some(u => u.id === sq.home)) continue; const cr = R.CRAFT[sq.craft]; if (cr && (cr.role === 'bomber' || cr.role === 'gunship' || cr.role === 'transport' && cr.strike > 0) && cr.strike >= 12) air += sq.n; }
+ const seed = ((w.seed || 1) * 131 + c.sys * 17 + Math.round(w.time)) >>> 0;
+ const b = createBattle({seed, planet: {kind: s.planet?.kind ?? 2, name: s.name}, sides: [{faction, name: w.sides[g.side].name, ai: true, role: 'attack', forces, air: {sorties: Math.min(12, Math.ceil(air / 4))}, lift: c.lift}, {faction: foe, name: foe === 'neutral' ? `${s.name}防衛軍` : R.FACTIONS[foe].name, ai: true, role: 'defend', forces: garrison(foe, s.pop || 1), air: {sorties: 0}}]});
+ start(b);const L = {id: 'L' + (w.nextId++), sys: c.sys, side: g.side, group: g.id, units: c.units.map(u => u.id), b, t0: w.time, acc: 0, done: false};
+ (w.landings ||= []).push(L);R.logEvent(w, `${s.name}へ揚陸作戦を開始（${g.name}、陸戦兵力 ${c.troops} 名）`, {side: g.side, sys: c.sys});
+ return {ok: true, landing: L};
+}
+function landingTick(w, dt) {
+ for (const L of w.landings || []) {
+  if (L.done) continue;
+  if (dt === Infinity) { while (!L.b.result && L.b.time <= L.b.timeLimit + 1) step(L.b, 60); }
+  else { L.acc += dt; if (L.acc < 2) continue; step(L.b, L.acc); L.acc = 0; }
+  if (!L.b.result) continue;L.done = true;const r = L.b.result, s = w.sector.systems[L.sys], won = r.winner === 0;
+  for (const id of L.units) { const u = w.units.get(id); if (u?.ground) applyLosses(L.b, 0, u.ground, id); }
+  if (won) s.held = L.side;
+  R.logEvent(w, `${s.name}の地上戦：${won ? '惑星を確保' : '揚陸部隊は撃退された'}（${resultText(L.b)}・損害 ${r.sides[0].troopsLost} 名）`, {side: L.side, sys: L.sys, landing: true});
+ }
+}
+R.groundHooks.landing = landingTick;
+const landingAt = (w, sys) => (w.landings || []).filter(L => L.sys === sys).slice(-1)[0] || null;
+
+return {VD_FORMAT, VD_VERSION, PLATFORMS, DRIVES, BODY_FORMS, MOUNTS, VWEAPONS, VD_LIMITS, VD_K, EXAMPLE_KEYS, normalizeVehicleDesign, groundWeapon, vehicleStats, exampleDesign, vehicleKey, registerVehicleDesign, vehicleProfile,
+ MAP, TERRAIN, PLANET_TERRAIN, RULES, INFANTRY, FORT, ORDER_TYPES, REASONS, OBJ_RADIUS, LZ_ROWS, makeMap, terrainAt, los, forcesFromRegiments, garrison, createBattle, order, deploy, start, airStrike, step, autoResolve, withdraw, applyLosses, summary, strength, resultText, unitValue,
+ DRILL_STEPS, drillConfig, liftOf, LANDING_WHY, landingCheck, orderLanding, landingTick, landingAt, landingDefender};
 })();

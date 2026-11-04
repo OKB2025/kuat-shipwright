@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "auditRevision": "2736808388b51bcdbfd4cb01aa71e7e79ff14deb",
+  "baselineRevision": "dd9ef12",
+  "functions": [
+    {
+      "name": "nozzleThrust",
+      "unchanged": true,
+      "shaAudit273": "a492d0214dbc3870c5136190f846e958847e29489ceb53ba9225806778214ae5",
+      "shaBaselineDd9": "a492d0214dbc3870c5136190f846e958847e29489ceb53ba9225806778214ae5"
+    },
+    {
+      "name": "nozzleDemand",
+      "unchanged": true,
+      "shaAudit273": "3cfc6c438cc13a5e6e4dbf4054c18511feea0c3b756c8a5f81c2c7901b95dd33",
+      "shaBaselineDd9": "3cfc6c438cc13a5e6e4dbf4054c18511feea0c3b756c8a5f81c2c7901b95dd33"
+    },
+    {
+      "name": "engineBaseline",
+      "unchanged": true,
+      "shaAudit273": "1ca07801c4314af7e9f023dac0b15777c3825cf37d95816b079e0a060da8395f",
+      "shaBaselineDd9": "1ca07801c4314af7e9f023dac0b15777c3825cf37d95816b079e0a060da8395f"
+    },
+    {
+      "name": "engineRating",
+      "unchanged": true,
+      "shaAudit273": "bccd8b4fa54834496388627d26886445f0c7744ff9a051bc2e5a056c5a3a6b0b",
+      "shaBaselineDd9": "bccd8b4fa54834496388627d26886445f0c7744ff9a051bc2e5a056c5a3a6b0b"
+    },
+    {
+      "name": "resizeEngine",
+      "unchanged": true,
+      "shaAudit273": "f80c71a2ac0b3949a4d20712367726c11fb27fd75b078d8e31ab533a7a003fcb",
+      "shaBaselineDd9": "f80c71a2ac0b3949a4d20712367726c11fb27fd75b078d8e31ab533a7a003fcb"
+    },
+    {
+      "name": "enginePaths",
+      "unchanged": true,
+      "shaAudit273": "5e0dfe423cdac72d43f8fe75bd9ae3bae4e74e1b98c54363a134ce345fc7eef6",
+      "shaBaselineDd9": "5e0dfe423cdac72d43f8fe75bd9ae3bae4e74e1b98c54363a134ce345fc7eef6"
+    },
+    {
+      "name": "reactorFor",
+      "unchanged": true,
+      "shaAudit273": "722adfb45750bb517344c0a688710421aa4a7b6e44820b8939ab9185f3cb08df",
+      "shaBaselineDd9": "722adfb45750bb517344c0a688710421aa4a7b6e44820b8939ab9185f3cb08df"
+    },
+    {
+      "name": "engineVented",
+      "unchanged": true,
+      "shaAudit273": "2f13991d021587d85c6d95821e3cd063cf9685aa6362e5a48adc8c174ac6c2d8",
+      "shaBaselineDd9": "2f13991d021587d85c6d95821e3cd063cf9685aa6362e5a48adc8c174ac6c2d8"
+    },
+    {
+      "name": "engineeringStats",
+      "unchanged": true,
+      "shaAudit273": null,
+      "shaBaselineDd9": null
+    },
+    {
+      "name": "partBuildCost",
+      "unchanged": true,
+      "shaAudit273": "55092369cb807ea66f8315b36b650db98f54b850705d689782c2890511ab7a75",
+      "shaBaselineDd9": "55092369cb807ea66f8315b36b650db98f54b850705d689782c2890511ab7a75"
+    },
+    {
+      "name": "fleetPowerStep",
+      "unchanged": true,
+      "shaAudit273": "604997d6655eadb63339de480d812503a34d92fd122dc07dcb36fce9b0df0983",
+      "shaBaselineDd9": "604997d6655eadb63339de480d812503a34d92fd122dc07dcb36fce9b0df0983"
+    },
+    {
+      "name": "powerSplit",
+      "unchanged": true,
+      "shaAudit273": "a5d94ec657812d6b660f1a6b9e9e404d965f69f637224e6b090a22b76a084845",
+      "shaBaselineDd9": "a5d94ec657812d6b660f1a6b9e9e404d965f69f637224e6b090a22b76a084845"
+    },
+    {
+      "name": "heatNetwork",
+      "unchanged": true,
+      "shaAudit273": "65e09423cb50a0dd278852e7b205e834aed6e7f573e7053668f26b9d9744b94f",
+      "shaBaselineDd9": "65e09423cb50a0dd278852e7b205e834aed6e7f573e7053668f26b9d9744b94f"
+    },
+    {
+      "name": "heatLoads",
+      "unchanged": true,
+      "shaAudit273": "9cccfa6d67c1af9b6bdf5dc4d1621eab70882aa5c5b341aff04e4c014b88eff2",
+      "shaBaselineDd9": "9cccfa6d67c1af9b6bdf5dc4d1621eab70882aa5c5b341aff04e4c014b88eff2"
+    },
+    {
+      "name": "heatTick",
+      "unchanged": true,
+      "shaAudit273": "ec6688143205a2cfb624c2308615fd628e17fa9f7ca1cf74f0c4624d7c1a2792",
+      "shaBaselineDd9": "ec6688143205a2cfb624c2308615fd628e17fa9f7ca1cf74f0c4624d7c1a2792"
+    },
+    {
+      "name": "heatLim",
+      "unchanged": true,
+      "shaAudit273": "157b6f0b5cfdd26e7afb783ed3aa9ce6e17adad606306d4ac477cd0deb47b964",
+      "shaBaselineDd9": "157b6f0b5cfdd26e7afb783ed3aa9ce6e17adad606306d4ac477cd0deb47b964"
+    },
+    {
+      "name": "fleetProfile",
+      "unchanged": false,
+      "shaAudit273": "d44ca53550be57b37ca3b91e33f80904dc2baf440daef078ecb5b9a968ce6210",
+      "shaBaselineDd9": "b81cdba6f204ed83b66dd58cc5325bff3dca89ad811412bef89883a2c4ed0f67"
+    },
+    {
+      "name": "fleetSystems",
+      "unchanged": true,
+      "shaAudit273": "8261effa08afcd21f68bd9353bff4912cc928d2ff58848b4de530e7997f8db9e",
+      "shaBaselineDd9": "8261effa08afcd21f68bd9353bff4912cc928d2ff58848b4de530e7997f8db9e"
+    },
+    {
+      "name": "engineDepthRatio",
+      "unchanged": true,
+      "shaAudit273": "fadff2f0a43de0a529e820d2fe9ac0997247a1ef859fee4a9010fbcbc1406b5c",
+      "shaBaselineDd9": "fadff2f0a43de0a529e820d2fe9ac0997247a1ef859fee4a9010fbcbc1406b5c"
+    },
+    {
+      "name": "sublightMGLT",
+      "unchanged": true,
+      "shaAudit273": "cd2084af88dbb4b8536757ddf187be2f1e108c53dbc753740c87207d59c701bc",
+      "shaBaselineDd9": "cd2084af88dbb4b8536757ddf187be2f1e108c53dbc753740c87207d59c701bc"
+    }
+  ],
+  "note": "The only fleetProfile difference is surrounding dual-purpose weapon profile support; all propulsion laws, allocation, heat and systems functions audited here are identical."
+}

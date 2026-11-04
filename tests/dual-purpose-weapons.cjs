@@ -62,7 +62,7 @@ test('pure point defence stays automatic-only and unreachable threats do not div
 test('generated fleet profiles retain the dual-purpose rating and current revision through empty-complement sanitizing',()=>{
  const ship=C.newShip({L:100,W:40,H:20});ship.parts=[];ship.fits=[{id:1,k:'pd',p:[50,20,0],a:2,ped:0,base:0,low:0,float:false}];
  const p=C.fleetProfile(C.computeStats(ship),'Dual-purpose test',ship);assert.equal(p.profileVersion,C.FLEET_PROFILE_VERSION);assert.ok(p.dualPurpose?.aa>0);assert.ok(p.dualPurpose.gunBands.mid.some(n=>n>0));assert.ok(p.modules.some(m=>m.fit===1&&m.pd&&m.dualPurpose));
- assert.equal(C.emptyDesignProfile({profileVersion:C.FLEET_PROFILE_VERSION,dualPurpose:{aa:6},slots:12}).profileVersion,2);
+ assert.equal(C.emptyDesignProfile({profileVersion:C.FLEET_PROFILE_VERSION,dualPurpose:{aa:6},slots:12}).profileVersion,C.FLEET_PROFILE_VERSION);
  assert.equal(C.emptyDesignProfile({profileVersion:2,dualPurpose:{aa:6}}).dualPurpose.aa,6);
 });
 

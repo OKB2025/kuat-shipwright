@@ -23,7 +23,7 @@ test('automatic relief combines shallow machinery masses with broad horizontal r
  assert.ok(T.length>20&&T.length<1200,'a simple face must use a coarse skin rather than thousands of tiny parts');
  const broad=T.filter(t=>C.dot(C.norm(C.cross(C.sub(t[1],t[0]),C.sub(t[2],t[0]))),patch.normal)>.9);assert.ok(projectedArea(broad,patch.normal)>patch.exposedArea*.5,'broad front facets must occupy most of the face rather than thin edge detail');
  const elongated=T.filter(t=>{const xs=t.map(p=>C.dot(p,r.frame.u)),ys=t.map(p=>C.dot(p,r.frame.v));return Math.max(...xs)-Math.min(...xs)>2*(Math.max(...ys)-Math.min(...ys));});assert.ok(projectedArea(elongated,patch.normal)>patch.exposedArea*.25,'horizontal beams must remain substantial alongside compact cabinets and upright machinery');
- for(const t of T){const n=C.norm(C.cross(C.sub(t[1],t[0]),C.sub(t[2],t[0])));assert.ok(C.dot(n,patch.normal)>.05,'closed boxes or perpendicular shelves must not replace the skin');}
+ for(const t of T){const n=C.norm(C.cross(C.sub(t[1],t[0]),C.sub(t[2],t[0])));assert.ok(C.dot(n,patch.normal)>0,'the clipped plate skin must not introduce backward-facing facets');}
  assert.ok(Math.abs(projectedArea(T,patch.normal)-patch.exposedArea)<patch.exposedArea*.0002,'the connected skin must cover the complete exposed face exactly once');
  for(let i=0;i<m.surfaceDevices.n;i++)assert.ok(inside(host,Array.from(m.surfaceDevices.pos.slice(i*3,i*3+3))));assert.equal(C.publicJSON(ship),before);
 });
@@ -36,7 +36,7 @@ test('explicit visual depth, cosmetic density and draw budgets do not alter the 
 
 test('tilted walls keep their relief along the face and inside their tapered host',()=>{
  const {ship,host,patch}=fixture({depth:5,rotated:true}),m=primarySurfaceLayers(G,ship,{detail:0,maxDetails:0}),T=neutralTriangles(ship,host);assert.ok(T.length>20);
- for(const t of T){const n=C.norm(C.cross(C.sub(t[1],t[0]),C.sub(t[2],t[0])));assert.ok(C.dot(n,patch.normal)>.05,'facets must follow the tilted wall instead of projecting world-horizontal slabs');}
+ for(const t of T){const n=C.norm(C.cross(C.sub(t[1],t[0]),C.sub(t[2],t[0])));assert.ok(C.dot(n,patch.normal)>0,'facets must follow the tilted host frame');}
  for(const g of [m.surfaceDevices,m.surfaceDetail])for(let i=0;i<g.n;i++)assert.ok(inside(host,Array.from(g.pos.slice(i*3,i*3+3))),'a face relief vertex escaped its actual host');
 });
 
@@ -63,11 +63,18 @@ function frontRegions(T,patch){
  return [...groups.values()].map(tris=>{const ps=tris.flat(),us=ps.map(p=>C.dot(p,patch.u)),vs=ps.map(p=>C.dot(p,patch.v)),loU=Math.min(...us),hiU=Math.max(...us),loV=Math.min(...vs),hiV=Math.max(...vs);return {w:hiU-loU,h:hiV-loV,area:projectedArea(tris,patch.normal),height:C.dot(ps[0],patch.normal),boundary:Math.min(Math.abs(loU-u0),Math.abs(hiU-u1),Math.abs(loV-v0),Math.abs(hiV-v1))<.002};}).filter(r=>r.area>2);
 }
 
-test('emitted machinery has upright cabinets, horizontal beams, cavities and smaller nested relief',()=>{
- const {ship,host,patch}=fixture({depth:4}),T=neutralTriangles(ship,host),regions=frontRegions(T,patch),lo=Math.min(...regions.map(r=>r.height)),hi=Math.max(...regions.map(r=>r.height)),raised=regions.filter(r=>!r.boundary&&r.height>hi-(hi-lo)*.35),interior=regions.filter(r=>!r.boundary);
- assert.ok(raised.some(r=>r.w/r.h<1.15&&r.h>6),'a machinery facade needs actual upright or compact masses, not only long horizontal planks');
- assert.ok(raised.some(r=>r.w/r.h>3&&r.w>20),'long horizontal equipment beams must coexist with compact masses');
- assert.ok(interior.some(r=>r.height<lo+(hi-lo)*.35&&r.area>20),'the connected skin must include substantial recessed machinery cavities');
- const small=interior.filter(r=>r.area>=4&&r.area<=60),large=interior.filter(r=>r.area>=200);assert.ok(small.length>=2&&large.length>=2,'medium nested surfaces and large equipment masses must both exist in the emitted mesh');
- assert.ok(Math.max(...large.map(r=>r.area))>8*Math.min(...small.map(r=>r.area)),'the machinery needs distinct visible scales rather than translated copies of one cabinet');
+test('thin deck edges overlap recessed texture-backed machinery bays instead of cabinet terrain',()=>{
+ const {ship,host,patch}=fixture({depth:4}),T=neutralTriangles(ship,host),r=row(ship,patch),g=G.meshSurfaceLayers(ship,{}).surfaceDevices;
+ const dots=T.flat().map(p=>C.dot(p,patch.normal)),lo=Math.min(...dots),hi=Math.max(...dots);assert.ok(hi-lo>1,'deck edges must have actual depth above recessed machinery');
+ const normals=T.map(t=>C.norm(C.cross(C.sub(t[1],t[0]),C.sub(t[2],t[0]))));assert.ok(normals.some(n=>C.dot(n,r.frame.v)>.98)&&normals.some(n=>C.dot(n,r.frame.v)<-.98),'thin plates need real top and underside facets, not broad slanted ramps');
+ const faces=r.reliefFaces,area=q=>projectedArea(Array.from({length:q.triangles.length/9},(_,i)=>[0,3,6].map(j=>q.triangles.slice(i*9+j,i*9+j+3))),patch.normal);
+ assert.ok(faces.filter(q=>q.machinery).reduce((n,q)=>n+area(q),0)>patch.exposedArea*.6,'most of the facade must be flat, texture-backed gaps between decks');
+ const u=C.dot(patch.center,r.frame.u),vs=patch.polygon.map(p=>C.dot(p,r.frame.v)),low=Math.min(...vs),high=Math.max(...vs),samples=[];
+ for(let i=0;i<800;i++){
+  const p=C.add(C.add(C.mul(r.frame.u,u),C.mul(r.frame.v,low+(high-low)*(i+.5)/800)),C.mul(patch.normal,hi+10)),hit=C.rayTris(T.flat(2),p,C.mul(patch.normal,-1));assert.ok(hit);samples.push(C.dot(hit.p,patch.normal));
+ }
+ const raised=samples.map(h=>h>lo+(hi-lo)*.4),bands=raised.filter((q,i)=>q&&!raised[i-1]).length;
+ assert.ok(bands>=3,'several real ledges must remain readable at cosmetic detail zero');assert.ok(raised.filter(Boolean).length<samples.length*.3,'deck edges must be thin compared with the open machinery bays');
+ assert.ok(Array.from(g.col.slice(0,g.n*4)).some((x,i)=>i%4===3&&x===250),'actual emitted machinery triangles use the shared texture material');
+ assert.ok(Array.from(g.col.slice(0,g.n*4)).some((x,i)=>i%4===3&&x===249),'actual deck triangles retain plain host-colored material');
 });
