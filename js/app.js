@@ -3372,7 +3372,8 @@ async function saveCurrent() {
     // Capture both content and destination before compression/storage yields.
     // The editor can switch designs or undo in place while either is pending.
     const design = C.serialize(ship), id = ship.saveId;
-    const rec = {id, kind: 'ship', name: design.name, savedAt: Date.now(), cls: S.cls.role + '／' + S.cls.name, len: Math.round(S.hullLen)};
+    // (faction: its 所属陣営, read by the fleet screens without unpacking the design; FACTION-001)
+    const rec = {id, kind: 'ship', name: design.name, savedAt: Date.now(), cls: S.cls.role + '／' + S.cls.name, len: Math.round(S.hullLen), faction: design.faction || 'any'};
     const data = await pack(design);
     if (data.length > 2000000) throw new Error('設計が大きすぎて保存できません。書き出しを使ってください。');
     const where = await Store.save({...rec, data});
@@ -4789,7 +4790,9 @@ function renderPanel(){st.tab=legacyTab(st.tab);if(!nativeRender&&fleet.mode==='
     panel.insertAdjacentHTML('afterbegin',`<div class="pgroup"><h4>船体の組立</h4><label><input type="checkbox" data-assembly ${ship.hull.assembly?'checked':''}> 船体を独立した構造パーツで組み立てる</label><p class="note">有効時は一体船体を表示せず、配置した船殻だけを容積・質量・内部区画の境界に使います。環状船体や分離したポッドを作れます。長さ・幅・高さは設計範囲です。</p><label><input type="checkbox" data-corehull ${ship.hull.core?'checked':''}> 船体をコア船体にする</label><p class="note">ルクレハルク級の中央球体（コアシップ）のように、小さな船体の周りを構造物で大きく組む艦に使います。全長・艦種・損傷区画・艦隊戦での大きさを、構造物を含めた全体で計算します。</p></div>`);
     const rows=ship.hull.stations||C.planStations(ship.hull).map(t=>C.profileAt(ship.hull,t)),deckOK=ship.hull.sec!=='ellipse';
     panel.insertAdjacentHTML('afterbegin',`<div class="pgroup blueprint-card"><h4>船体断面・艦尾を設計</h4><p class="note">艦尾から艦首へ。肩の張り出し・舷側の切り込み・艦首の薄さを個別に作れます。幅・厚さ・上下位置は船体寸法に対する割合。甲板（上面）・船底（下面）の平らな幅は各断面の幅に対する割合です。舷側帯・帯位置は装甲楔形の舷側にある垂直帯の厚さと高さ位置（各断面の厚さに対する割合）で、断面ごとに変えられます。艦首の末端2断面は幅・厚さが同率で連動し、船体の幅：高さを保ちます（下のチェックで解除できます）。上の列で断面を選び、「＋」で次の断面との間に断面を追加します。菱形は上下が頂点です。装甲楔形も甲板・船底幅を0%にすれば尖ります。</p>${stationEditorHTML(rows,deckOK)}<label class="check"><input type="checkbox" data-bowlink ${ship.hull.bowFree?'':'checked'}> 艦首の末端2断面は幅と厚さを連動する（船体の幅：高さの比を保つ）</label>${ship.hull.sec!=='warship'?`<p class="note">${deckOK?'甲板・船底の幅を変えると、断面は今の形に近い「装甲楔形」へ切り替わります。':'楕円断面では甲板・船底の幅は使いません。'}</p>`:''}</div><div class="pgroup"><h4>甲板・舷側帯・艦尾位置</h4><div class="sliders">${slider('deckWidth','上甲板の幅',Math.round((ship.hull.deckWidth??.52)*100),0,98,1,Math.round((ship.hull.deckWidth??.52)*100)+'%')}${slider('keelWidth','船底の平坦幅',Math.round((ship.hull.keelWidth??0)*100),0,95,1,Math.round((ship.hull.keelWidth??0)*100)+'%')}${slider('hullStart','本体船殻の艦尾位置',Math.round((ship.hull.start||0)*1000)/10,0,60,.1,Math.round((ship.hull.start||0)*ship.hull.L)+' m')}${slider('chineHeight','舷側帯の上下位置',Math.round((ship.hull.chineHeight??.5)*100),20,80,1,Math.round((ship.hull.chineHeight??.5)*100)+'%')}${slider('belt','舷側帯の厚さ',Math.round((ship.hull.belt??.13)*100),2,45,1,Math.round((ship.hull.belt??.13)*100)+'%')}</div></div>`);
-    panel.insertAdjacentHTML('beforeend',`<div class="pgroup"><h4>所属陣営</h4>${seg('yardfaction',Object.entries(C.DESIGN_FACTIONS),ship.faction||'any')}<p class="note">編成画面の艦の一覧と、任務で使える陣営を決めます（全陣営ならどの艦隊にも加えられます）。</p></div>`);
+    // FACTION-001 the player's own factions are listed beside the four (Rts.registerFaction adds them); a made faction
+    // this device no longer has shows as unknown and the design serves every faction until one is chosen.
+    panel.insertAdjacentHTML('beforeend',`<div class="pgroup"><h4>所属陣営</h4>${seg('yardfaction',Object.entries(C.DESIGN_FACTIONS).map(([k,v])=>[k,R.isCustomFaction(k)?`<i class="swatch" style="background:${esc(R.FACTIONS[k].color)}"></i>${esc(v)}`:v]),ship.faction&&C.DESIGN_FACTIONS[ship.faction]?ship.faction:'any')}${ship.faction&&!C.DESIGN_FACTIONS[ship.faction]?'<p class="note bad">この設計の陣営はこの端末にありません（全陣営として扱います）。</p>':''}<p class="note">編成画面の艦の一覧・お任せ編成と、任務で使える陣営を決めます（全陣営ならどの艦隊にも加えられます）。</p><button type="button" class="btn sm ghost" data-facedit>陣営を作る・編集する</button></div>`);
     panel.insertAdjacentHTML('beforeend',`<div class="pgroup"><h4>外板スキン</h4>${seg('yardpaint',[['neutral','無塗装'],['republic','共和国の赤帯'],['dark','暗色'],['cis','分離主義の青灰色']],ship.paint||'neutral')}<p class="field-label">窓明かり（トレンチ・構造物の壁）</p>${seg('yardlights',[['white','白'],['blue','青'],['warm','暖色'],['off','消灯']],ship.lights||'white')}<p class="field-label">バーニア光（エンジン噴射の色）</p>${seg('yardengine',Object.entries(C.ENGINE_GLOWS).map(([k,v])=>[k,`<i class="swatch" style="background:rgb(${v.rgb.join(',')})"></i>${v.name}`]),C.ENGINE_GLOWS[ship.engineGlow||'blue']?ship.engineGlow||'blue':'')}<label class="engine-pick"><input type="color" data-yardenginecolor value="${engineHex(ship.engineGlow)}"><span>任意の色${ship.engineGlow&&!C.ENGINE_GLOWS[ship.engineGlow]?`（${ship.engineGlow}）`:''}</span></label><div class="sliders">${slider('yardDetail','トレンチ内の設備密度',ship.detail??1,0,2,.5,String(ship.detail??1))}</div><p class="note">スキンは塗装・装甲継ぎ目のみで、指揮能力は追加されません。指揮所は「配置 → 指揮・艦橋」から艦橋本体やポッドを配置します。</p></div>`);
   }
   if(st.tab==='mod'&&st.partTool==='place'&&C.PARTS[st.part].shape==='cube')panel.insertAdjacentHTML('beforeend',`<div class="pgroup"><h4>区画の寸法</h4><div class="sliders">${st.roomSize.map((v,i)=>metreSlider('newRoom'+i,['長さ','幅','高さ'][i],v,.02,Math.max(v,[ship.hull.L,ship.hull.W,ship.hull.H][i]))).join('')}</div><p class="note">立方体に限らず、飛行甲板・貨物甲板のような薄く長い区画を配置できます。</p></div>`);
@@ -4839,6 +4842,7 @@ function bindRealism(){
     if(d.dropstation){mutate('船体断面を削除',()=>{ensureStations().splice(+d.dropstation,1);C.normalizeBow(ship.hull);},'hull');renderPanel();}
     if(d.partskin){mutate('構造物のスキン',()=>editSel(p=>p.skin=d.partskin),'parts');renderPanel();}
     if(d.yardpaint){mutate('船体の塗装',()=>ship.paint=d.yardpaint,'all');renderPanel();}
+    if('facedit'in d){voyFactionOpen('design',ship?.faction);return;}
     if(d.yardfaction){mutate('所属陣営',()=>{if(d.yardfaction==='any')delete ship.faction;else ship.faction=d.yardfaction;},'none');renderPanel();}
     if(d.yardlights&&C.SHIP_LIGHT_KINDS.includes(d.yardlights)){mutate('窓明かり',()=>ship.lights=d.yardlights,'view');renderPanel();requestDraw();}
     if(d.yardengine){setEngineGlow(d.yardengine);return;}
@@ -7412,11 +7416,22 @@ function gmSetEra(ctx,era){
  const st=GMAP[ctx]||(GMAP[ctx]={cx:90,cy:100,z:1});if(!Galaxy.ERAS[era])era='gcw';st.era=era;const root=st.root;
  if(root){root.dataset.era=era;const b=root.querySelector('[data-gm-era]');if(b){b.textContent=Galaxy.ERAS[era].name;b.setAttribute('aria-label',`時代：${Galaxy.ERAS[era].name}（切り替え）`);}if(st.vb)gmLayout(ctx);}
  st.onEra?.(era);}
+// FACTION-001 The player's factions on the map: a territory disc (provisional radius GM_CF_R grid squares) round each
+// home system and the faction's emblem with its short name, shown in the eras it exists in.
+const GM_CF_R=1.1;
+function gmFactionMarks(){
+ let terr='',marks='';
+ for(const d of R.customFactions()){const s=Galaxy.BY[d.home];if(!s)continue;const [x,y]=gmP(s.at),cls=d.eras.map(e=>' e-'+e).join(''),col=esc(d.color),E=(FAC_EMBLEM_PATHS[d.emblem]||FAC_EMBLEM_PATHS.none)();
+  terr+=`<circle class="gm-cft${cls}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(GM_CF_R*GM_U).toFixed(1)}" fill="${col}" stroke="${col}"/>`;
+  marks+=`<g class="gm-k gm-cf${cls}" data-x="${x}" data-y="${y}" data-cf="${d.id}"><title>${esc(d.name)}（本拠地 ${esc(s.name)}）</title><g transform="translate(0 -17) scale(.75)" fill="${col}" stroke="${col}" stroke-width="0"><circle r="11" fill="#05080f" stroke-width="1.4"/>${E}</g><text class="gm-cf-n" y="-29" fill="${col}" translate="no">${esc(d.short)}</text></g>`;}
+ return {terr,marks};}
+function gmFactionLegend(){const l=R.customFactions().filter(d=>Galaxy.BY[d.home]);return l.length?`<div class="gm-cf-key" aria-hidden="true">${l.map(d=>`<span class="${d.eras.map(e=>'e-'+e).join(' ')}"><i style="background:${esc(d.color)}"></i><b translate="no">${esc(d.short)}</b></span>`).join('')}</div>`:'';}
 function galMapHTML(ctx){
  const st=GMAP[ctx]||(GMAP[ctx]={cx:90,cy:100,z:1}),bt=Galaxy.BATTLES,era=Galaxy.ERAS[st.era]?st.era:(st.era='gcw');
  const sys=Galaxy.SYSTEMS.map(s=>{const [x,y]=gmP(s.at),t=s.tier||3,al=Galaxy.allegiance('cw',s.key),ac=al&&al!=='neutral'?Galaxy.POWERS[al]?.col:null;return `<g class="gm-k gs t${t}${s.approx?' approx':''}" data-k="${s.key}" data-x="${x}" data-y="${y}">${bt[s.key]?`<path class="gs-bt e-${bt[s.key].ek}" d="M6.5 -11.5l3.6 3.6-3.6 3.6-3.6-3.6z"/>`:''}<circle class="gs-sel" r="11"/><circle class="gs-here" r="7.5"/>${ac?`<circle class="gs-al" r="${t===1?6.6:5.8}" stroke="${ac}"/>`:''}<circle class="gs-dot" r="${t===1?4.3:3.5}" fill="${GM_REG_COL[s.region]||'#cfd8e0'}"/><text class="gs-n">${esc(s.name)}</text><text class="gs-sub"></text></g>`;}).join('');
- return `<div class="gm" data-gm="${ctx}" data-era="${era}"><svg class="gm-svg" viewBox="${GM_BOX[0]} ${GM_BOX[1]} ${GM_BOX[2]-GM_BOX[0]} ${GM_BOX[3]-GM_BOX[1]}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="銀河図。地域の帯、五つの主要交易路と支線、主要な星系。ドラッグで移動、ピンチやボタンで拡大縮小、星系をタップで選択"><g class="gm-static">${gmStatic()}</g><path class="gm-path" d=""/><g class="gm-sys">${sys}</g></svg>
- <div class="gm-ctl"><button type="button" data-gm-zoom="in" aria-label="拡大">＋</button><button type="button" data-gm-zoom="out" aria-label="縮小">－</button><button type="button" data-gm-zoom="fit" aria-label="銀河全体">全体</button><button type="button" data-gm-zoom="sel" aria-label="選んだ星系へ">◎</button></div><button type="button" class="gm-era-btn" data-gm-era aria-label="時代：${Galaxy.ERAS[era].name}（切り替え）">${Galaxy.ERAS[era].name}</button>${GM_ERA_LEGEND()}</div>`;}
+ const cf=gmFactionMarks();
+ return `<div class="gm" data-gm="${ctx}" data-era="${era}"><svg class="gm-svg" viewBox="${GM_BOX[0]} ${GM_BOX[1]} ${GM_BOX[2]-GM_BOX[0]} ${GM_BOX[3]-GM_BOX[1]}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="銀河図。地域の帯、五つの主要交易路と支線、主要な星系。ドラッグで移動、ピンチやボタンで拡大縮小、星系をタップで選択"><g class="gm-static">${gmStatic()}</g><g class="gm-cfts">${cf.terr}</g><path class="gm-path" d=""/><g class="gm-sys">${sys}</g><g class="gm-cfs">${cf.marks}</g></svg>
+ <div class="gm-ctl"><button type="button" data-gm-zoom="in" aria-label="拡大">＋</button><button type="button" data-gm-zoom="out" aria-label="縮小">－</button><button type="button" data-gm-zoom="fit" aria-label="銀河全体">全体</button><button type="button" data-gm-zoom="sel" aria-label="選んだ星系へ">◎</button></div><button type="button" class="gm-era-btn" data-gm-era aria-label="時代：${Galaxy.ERAS[era].name}（切り替え）">${Galaxy.ERAS[era].name}</button>${GM_ERA_LEGEND()}${gmFactionLegend()}</div>`;}
 // The view: centre (map units) and zoom (1 = the whole galaxy); s map units per screen pixel.
 function gmApply(ctx){
  const st=GMAP[ctx],svg=st?.root?.querySelector('.gm-svg');if(!svg)return;const r=svg.getBoundingClientRect();if(r.width<20||r.height<20)return;
@@ -9284,7 +9299,7 @@ function sndPilotGun() { const k = String(trial.asset?.key || '').replace(/^craf
 // v22 The faction whose guns are heard (their batteries sound as the films give them): the fleet battle's side, else
 // the design's own (the examples carry theirs).
 function sndFac(u) {
- if (!u) return null; if (trial.rts && voy.w) return voy.w.sides[u.side]?.faction || null;
+ if (!u) return null; if (trial.rts && voy.w) { const f = voy.w.sides[u.side]?.faction; return f ? R.factionBase(f) : null; }   // (a made faction sounds as its base)
  const key = u.manual ? trial.asset?.key : u.key, d = key && typeof YardFleetData !== 'undefined' ? YardFleetData.designs?.[key] : null;
  return d ? d.faction || R.SIDE_OF[d.side] || null : null;
 }
@@ -9362,11 +9377,11 @@ function sndVoyEvent(e) {
 }
 function sndTick() {
  const A = snd();if (!A) return;
- const [scene, fac] = sndScene(), key = scene + '|' + (fac || '');
+ const [scene, fac0] = sndScene(), fac = fac0 && R.factionBase(fac0), key = scene + '|' + (fac || '');
  if (key !== SND.scene) { SND.scene = key; A.setMusic(scene, fac ? {faction: fac} : undefined); }
  // Battle intensity: guns heard in the last seconds (decaying), on a floor so a battle never sounds idle.
  SND.fire *= .7;if (scene === 'battle') A.setIntensity(Math.min(1, .25 + SND.fire / 10));
- const w = voy.w;if (w?.result && SND.result !== w.result) { SND.result = w.result; if (!sndClassic()) A.stinger(w.result.winner === 0 ? 'victory' : 'defeat', {faction: voy.setup?.own}); }
+ const w = voy.w;if (w?.result && SND.result !== w.result) { SND.result = w.result; if (!sndClassic()) A.stinger(w.result.winner === 0 ? 'victory' : 'defeat', {faction: voy.setup?.own && R.factionBase(voy.setup.own)}); }
 }
 // Mute from the top bar or the 3D view; the buttons show the state (pressed = sound off).
 function sndToggle() { const A = snd();if (!A) { toast('この端末では音を鳴らせません'); return; } A.settings.set({muted: !A.settings.get().muted}); sndButtons(); }
@@ -9551,6 +9566,8 @@ function voyExampleDesigns() {
 }
 function voyDesign(key) { const d = voy.designs.get(key);if (d) return d;const m = /^([A-Za-z0-9_]+)#(republic|neutral|dark|cis)$/.exec(key || '');if (!m) return null;const b = voy.designs.get(m[1]);return b ? voyRegister({...b, key, base: b.key, paint: m[2], faction: Object.entries(VOY_PAINT[b.key] || {}).find(([, p]) => p === m[2])?.[0] || b.faction}) : null; }
 function voyRegister(d) { voy.designs.set(d.key, d); return d; }
+// The examples are entered once (saved designs prepared first must not keep them out: FACTION-001 prepares those early).
+function voyEnsureExamples() { if (voy.exReady) return; for (const d of voyExampleDesigns()) if (!voy.designs.has(d.key)) voyRegister(d); voy.exReady = true; }
 function voyProfileStale(d) { return d?.src==='example'&&!!C.FLEET_PROFILE_VERSION&&d.p?.profileVersion!==C.FLEET_PROFILE_VERSION; }
 async function voyPrepare(source) {
  // source: 'current' | 'save:<id>' | example key
@@ -9565,8 +9582,9 @@ async function voyPrepare(source) {
    for(const [key,cached]of fleet.assets)if(cached===a){fleet.assets.delete(key);view?.fleetCache?.delete(key);}
    throw new Error('stale example fleet profile');
   }
-  const df = C.DESIGN_FACTIONS[a.design?.faction] && a.design.faction !== 'any' ? a.design.faction : null;
-  const example=previous?.src==='example',d = {...(example?previous:{}),key: a.key, name: p.name || S.name || '設計艦', faction: example?previous.faction:df || voy.setup?.own || 'empire', anyFaction: example?false:!df, side: example?previous.side:'自作艦', cls: S.cls?.name || '', p, info: R.designInfo(S, p), loadPreset: example?previous.loadPreset:source==='current'||source.startsWith('save:')?null:C.builtinComplement(source), src: source.startsWith('save:') ? 'save' : source === 'current' ? 'current' : 'example'};
+  // (a design of a made faction this device does not know serves every faction, as 全陣営 does)
+  const df = C.DESIGN_FACTIONS[a.design?.faction] && a.design.faction !== 'any' ? a.design.faction : null, sv = /^save:(.+)-\d+$/.exec(a.key);
+  const example=previous?.src==='example',d = {...(example?previous:{}),key: a.key, name: p.name || S.name || '設計艦', faction: example?previous.faction:df || voy.setup?.own || 'empire', anyFaction: example?false:!df, side: example?previous.side:'自作艦', cls: S.cls?.name || '', p, info: R.designInfo(S, p), loadPreset: example?previous.loadPreset:source==='current'||source.startsWith('save:')?null:C.builtinComplement(source), src: source.startsWith('save:') ? 'save' : source === 'current' ? 'current' : 'example', ...(sv ? {saveId: sv[1], craft: !!(a.design && C.isCraft(a.design))} : {})};
   voy.designs.set(source, d);voy.designs.set(a.key, d);return d;
  })();
  voy.pending.set(source, job);try { return await job; } finally { voy.pending.delete(source); }
@@ -9602,7 +9620,11 @@ const VOY_SHIPNAMES = {
  // Separatist ships carry the jargon of the corporations that built them, as the English words in katakana.
  cis: [...Object.values(VOY_CIS_RENAME), 'シナジー', 'レバレッジ', 'アービトラージ', 'ポートフォリオ', 'ベンチマーク', 'コンプライアンス', 'ガバナンス', 'ソリューション', 'イノベーション', 'スケーラビリティ', 'ディスラプション', 'パラダイム・シフト', 'コア・コンピタンス', 'バリュー・チェーン', 'サプライ・チェーン', 'アウトソーシング', 'ダウンサイジング', 'ライトサイジング', 'ゴールデン・パラシュート', 'ポイズン・ピル', 'ホワイト・ナイト', 'クラウン・ジュエル', 'ベア・ハグ', 'グリーンメール', 'ジャンク・ボンド', 'デリバティブ', 'ショート・セリング', 'マージン・コール', 'キャピタル・ゲイン', 'キャッシュ・フロー', 'ボトムライン', 'ステークホルダー', 'アセット・ストリッピング', 'フォース・マジュール', 'レバレッジド・バイアウト', 'ハイ・イールド', 'タックス・ヘイブン', 'ベイルアウト', 'モノポリー', 'カルテル', 'コングロマリット', 'ゴーイング・コンサーン', 'プライス・ウォー', 'スクイーズアウト', 'ゴールデン・シェア', 'リバース・マージャー', 'プロフィット・センター', 'マーケット・メイカー', 'ディープ・ディスカウント', 'テイク・プライベート']
 };
-function voyNamePool(f) { return f === 'empire' ? [...VOY_SHIPNAMES.imperial, ...VOY_SHIPNAMES.rn, ...VOY_SHIPNAMES.roman] : f === 'republic' ? [...VOY_SHIPNAMES.rn, ...VOY_SHIPNAMES.roman] : f === 'cis' ? VOY_SHIPNAMES.cis : VOY_SHIPNAMES.rebel; }
+function voyNamePool(f) {
+ // (a made faction draws from the pool it chose: imperial takes the Empire's whole list, as the Empire does)
+ // (typeof: the name pools are also run on their own, without the rules loaded)
+ const n = typeof Rts !== 'undefined' ? Rts.FACTIONS[f]?.def?.names : null;if (n) return n === 'imperial' ? [...VOY_SHIPNAMES.imperial, ...VOY_SHIPNAMES.rn, ...VOY_SHIPNAMES.roman] : VOY_SHIPNAMES[n] || VOY_SHIPNAMES.rebel;
+ return f === 'empire' ? [...VOY_SHIPNAMES.imperial, ...VOY_SHIPNAMES.rn, ...VOY_SHIPNAMES.roman] : f === 'republic' ? [...VOY_SHIPNAMES.rn, ...VOY_SHIPNAMES.roman] : f === 'cis' ? VOY_SHIPNAMES.cis : VOY_SHIPNAMES.rebel; }
 // Localized labels never replace the canonical saved name. A player edit is verbatim.
 function voyDisplayName(row) { return row.customName ? String(row.name || '') : T(row.name || ''); }
 function voyNameHTML(row) { return `<span translate="no">${esc(voyDisplayName(row))}</span>`; }
@@ -9750,19 +9772,42 @@ const VOY_SCALES = {
 };
 const VOY_SHIP_CAP = 60;   // ships a side (user decision 2026-10-29: 60 at most; was 120)
 const VOY_SHARED = {dreadnaught: ['empire', 'rebel', 'republic'], arquitens: ['empire', 'republic'], lh3210: ['cis', 'rebel']};
-const voyServes = (d, faction) => d.anyFaction || d.faction === faction || !!VOY_SHARED[(d.base || d.key)]?.includes(faction);
+const voyServes = (d, faction) => d.anyFaction || d.faction === faction || !!VOY_SHARED[(d.base || d.key)]?.includes(faction) || voyListed(faction, d);
+// FACTION-001 A made faction's fleet doctrine lists (line, escort, recon) make the designs in them its own, as VOY_SHARED
+// does for the classes the films' navies shared: examples by key, the player's saved designs as 'save:<id>'; so do the
+// classes of the task-force role templates it takes from its base (raiders, convoy escorts).
+const voyDocKeys = doc => doc ? [...(doc.caps || []), ...(doc.escorts || []), ...(doc.recon || [])] : [];
+function voyListed(faction, d) { if (!R.isCustomFaction(faction)) return false; const rt = VOY_ROLE_TF[faction], ks = [...voyDocKeys(VOY_FLEET_DOCTRINE[faction]), ...(rt ? ['recon', 'raid', 'escort', 'reconf'].flatMap(k => rt[k] || []) : [])], k = d.base || d.key; return ks.includes(k) || !!d.saveId && ks.includes('save:' + d.saveId); }
+// The player's saved ship designs as prepared for the fleet (aircraft designs fly from carriers instead), the current
+// save of each. They serve their 所属陣営 (or every faction, 全陣営) in the lists and in お任せ, like the examples.
+const voySaveKey = r => 'save:' + r.id + '-' + r.savedAt;
+function voyPlayerDesigns() { const live = new Set((voy.saves || []).map(voySaveKey)); return [...new Set(voy.designs.values())].filter(d => d.src === 'save' && d.saveId && !d.craft && live.has(d.key)); }
+const voyPool = () => [...voyExampleDesigns(), ...voyPlayerDesigns()];
+// Prepare every saved design (once; the engine computes its profile) so that it can join lists and お任せ fleets; the
+// screens are drawn again when new ones are in. voy.poolGen changes with the pool (the generated enemy is made again).
+voy.poolGen = 0;
+async function voyPrepareSaves() {
+ voyEnsureExamples();
+ const recs = (voy.saves || []).filter(r => r && r.id && r.kind === 'ship' && !voy.designs.has(voySaveKey(r)) && !voy.badSave?.has(voySaveKey(r)));if (!recs.length) return 0;
+ let n = 0;for (const r of recs) { try { await voyPrepare('save:' + r.id); n++; } catch (e) { (voy.badSave || (voy.badSave = new Set())).add(voySaveKey(r)); } }
+ if (n) { voy.poolGen++; if (voy.open && voy.screen === 'setup') voyRenderSetup(); }
+ return n;
+}
 // v21.2 Classes both sides fielded wear their side's paint: the Republic's red bands in the Clone Wars, the Empire's
 // grey after. A ship of such a class in another side's fleet is the same design under the key 'class#paint' (its 3D
 // model is built repainted; see fleetAsset).
 const VOY_PAINT = {arquitens: {republic: 'republic'}, dreadnaught: {republic: 'republic'}};
 function voyFactionDesign(d, faction) {
- const paint = VOY_PAINT[d?.base || d?.key]?.[faction];if (!d || !paint) return d;
+ // (a made faction may give the example classes it sails one paint of its own: its base style)
+ const cp = R.FACTIONS[faction]?.def?.paint, ex = d && !d.saveId && d.src === 'example' && /^[A-Za-z0-9_]+$/.test(d.base || d.key);
+ const paint = (ex && cp) || VOY_PAINT[d?.base || d?.key]?.[faction];if (!d || !paint) return d;
  const key = `${d.base || d.key}#${paint}`;let v = voyDesign(key);
  if (!v) { const b = voyDesign(d.base || d.key) || d;v = voyRegister({...b, key, base: b.key, faction, paint}); }
  return v;
 }
-// The usual opponents: the Empire and the Alliance, the Republic and the Separatists.
+// The usual opponents: the Empire and the Alliance, the Republic and the Separatists (a made faction: its first enemy, R.rivalOf).
 const VOY_RIVAL = {empire: 'rebel', rebel: 'empire', republic: 'cis', cis: 'republic'};
+const voyRival = f => R.isCustomFaction(f) || !VOY_RIVAL[f] ? R.rivalOf(f) : VOY_RIVAL[f];
 // A fleet of task groups: each two capital ships (classes in turn) with four escorts,
 // the heaviest ship leading; a navy without capital ships sails groups of six escorts.
 // Task groups are added while the allowance (crew and materials) lasts — or, with a
@@ -9789,7 +9834,8 @@ const VOY_ROLE_TF = {
  rebel: {seq: ['line', 'line', 'raid', 'recon', 'raid', 'escort', 'line', 'reconf'], recon: ['cr90', 'hammerhead', 'cr90', 'hammerhead'], raid: ['mc30c', 'mc30c', 'cr90', 'cr90'], escort: ['nebulonb', 'cr90', 'nebulonb', 'cr90'], reconf: ['mc75', 'mc30c', 'mc30c', 'nebulonb']}
 };
 function voyAutoOrbat(faction, scale, rand = Math.random, opt = {}) {
- const cap = VOY_SCALES[scale] || VOY_SCALES.standard, pool = voyExampleDesigns(), mine = pool.filter(d => voyServes(d, faction)), use = mine.length ? mine : pool;
+ // (a made faction with no designs of its own sails its base's; the player's saved designs join as the examples do)
+ const cap = VOY_SCALES[scale] || VOY_SCALES.standard, pool = voyPool(), mine = pool.filter(d => voyServes(d, faction)), mb = mine.length ? mine : pool.filter(d => voyServes(d, R.factionBase(faction))), use = mb.length ? mb : pool;
  const memo = new Map(), str = d => { if (!memo.has(d.key)) memo.set(d.key, R.unitStrength(C.fleetUnit('x', d.key, d.p, 0))); return memo.get(d.key); };
  const load = d => voyAutoLoad(d, faction), people = d => voyShipDemand({key: d.key, ...load(d)}).people;
  const normal = use.filter(d => d.info.len < 5000), best = Math.max(0, ...normal.map(str)), supers = cap.dread ? use.filter(d => d.info.len >= 5000).sort((a, b) => b.info.len - a.info.len) : [];
@@ -9798,18 +9844,25 @@ function voyAutoOrbat(faction, scale, rand = Math.random, opt = {}) {
  const esc0 = normal.filter(d => !d.info.capital).sort((a, b) => b.info.len - a.info.len);let escs = esc0.filter(d => str(d) >= best * .01).length ? esc0.filter(d => str(d) >= best * .01) : esc0;
  // v21.2 As the faction's fleets were made up on screen and in the sourcebooks (VOY_FLEET_DOCTRINE): its line ships two
  // to a task group, its escorts and auxiliaries round them; one-off ships (the Malevolence) stay out.
- { const doc = VOY_FLEET_DOCTRINE[faction], pick = ks => (ks || []).map(k => use.find(d => d.key === k)).filter(Boolean);
-  if (doc) { const c2 = pick(doc.caps).filter(d => d.info.len < 5000 && people(d) <= cap.people * .3), e2 = pick(doc.escorts); if (c2.length) caps.splice(0, caps.length, ...c2); if (e2.length) escs = e2; } }
+ // FACTION-001 The player's own designs for the faction (or 全陣営) sail beside the listed classes: line ships with the
+ // line, the rest with the escorts. A made faction's task forces by role follow its base's sequence (VOY_ROLE_TF, filled by
+ // voyFactionInstall), its reconnaissance task forces made of its own recon list.
+ const doc = VOY_FLEET_DOCTRINE[faction], pick = ks => (ks || []).map(k => use.find(d => d.key === k || !!d.saveId && k === 'save:' + d.saveId)).filter(Boolean);
+ if (doc) { const listed = voyDocKeys(doc), own = use.filter(d => d.saveId && !listed.includes('save:' + d.saveId) && d.info.len < 5000);
+  // (each list's first class leads, then the player's designs, then the rest: so that they sail even in a small fleet)
+  const mix = (a, b) => a.length ? [a[0], ...b, ...a.slice(1)] : b;
+  const c2 = mix(pick(doc.caps), own.filter(d => d.info.capital)).filter(d => d.info.len < 5000 && people(d) <= cap.people * .3), e2 = mix(pick(doc.escorts), own.filter(d => !d.info.capital));
+  if (c2.length) caps.splice(0, caps.length, ...c2); if (e2.length) escs = e2; }
  const limit = opt.target ? VOY_SHIP_CAP : Math.min(VOY_SHIP_CAP, opt.cap || 72);
  const ships = [], tgs = [], used = new Set(), tot = {people: 0, supply: 0, str: 0};let ci = 0, ei = 0, done = false;
- const take = d0 => { const d = voyFactionDesign(d0, faction), sh = {id: '', src: d.key, key: d.key, name: '', ...load(d)}, x = voyShipDemand(sh);
+ const take = d0 => { const d = voyFactionDesign(d0, faction), sh = {id: '', src: d.saveId ? 'save:' + d.saveId : d.key, key: d.key, name: '', ...load(d)}, x = voyShipDemand(sh);
   if (ships.length >= limit) return null;
   if (!opt.target && (tot.people + x.people > cap.people || tot.supply + x.supply > cap.supply)) return null;
   sh.name = voyNextName(faction, used, rand);used.add(sh.name);ships.push(sh);tot.people += x.people;tot.supply += x.supply;tot.str += str(d) + R.airTotals(sh.air).fight * 4;return sh; };
  const roles = [];
  for (let k = 0; k < 60 && !done; k++) {
   let plan = k === 0 ? supers.slice() : [];
-  const RT = VOY_ROLE_TF[faction], role0 = RT?.seq[k] || 'line', tpl = role0 !== 'line' ? (RT[role0] || []).map(key => use.find(d => d.key === key)).filter(Boolean) : [], role = tpl.length >= 2 ? role0 : 'line';
+  const RT = VOY_ROLE_TF[faction], role0 = RT?.seq[k] || 'line', tpl = role0 !== 'line' ? pick(RT[role0]) : [], role = tpl.length >= 2 ? role0 : 'line';
   if (role !== 'line') plan = tpl.slice(); else {
   for (let i = 0; i < (caps.length ? 2 : 0); i++) plan.push(caps[ci++ % caps.length]);
   // (the Empire lines up its big ships: more Star Destroyers to a group, fewer small escorts)
@@ -9833,7 +9886,7 @@ function voyAutoOrbat(faction, scale, rand = Math.random, opt = {}) {
 // The opponent first offered: the usual rival, unless its whole navy (as many ships as
 // the battle can carry) still falls well short of our fleet; then the next that can match it.
 function voyDefaultFoe(s) {
- const a = voyShipsStrength(voySortieShips(s)), order = [VOY_RIVAL[s.own], ...Object.keys(R.FACTIONS)].filter((f, i, l) => f && f !== s.own && l.indexOf(f) === i && voyExampleDesigns().some(d => voyServes(d, f)));
+ const pool = voyPool(), a = voyShipsStrength(voySortieShips(s)), order = [voyRival(s.own), ...Object.keys(R.FACTIONS)].filter((f, i, l) => f && f !== s.own && l.indexOf(f) === i && R.factionRelation(s.own, f) !== 'ally' && pool.some(d => voyServes(d, f) || R.isCustomFaction(f)));
  if (!(a > 0)) return order[0] || 'rebel';
  for (const f of order) { const b = voyShipsStrength(voyObShips(voyAutoOrbat(f, s.scale, R.rng(7), {target: a}))); if (b >= a * .85) return f; }
  return order[0];
@@ -9841,7 +9894,7 @@ function voyDefaultFoe(s) {
 // The enemy's order of battle for the chosen navy, allowance and seed (kept while they stay the same).
 function voyFoeOrbat(s) {
  if (s.foeMode === 'manual') return s.foeOb || (s.foeOb = {ctgs: [], next: 1});   // SBOX-001 edited by hand in the same editor
- const target = s.foeMode === 'same' ? 0 : Math.round(voyShipsStrength(voySortieShips(s))), k = `${s.foe}|${s.scale}|${s.seed}|${s.foeMode}|${target}`;
+ const target = s.foeMode === 'same' ? 0 : Math.round(voyShipsStrength(voySortieShips(s))), k = `${s.foe}|${s.scale}|${s.seed}|${s.foeMode}|${target}|${voy.poolGen}`;
  if (voy.foeOb?.k !== k) voy.foeOb = {k, ob: voyAutoOrbat(s.foe, s.scale, R.rng(s.seed), target > 0 ? {target} : {})};
  return voy.foeOb.ob;
 }
@@ -9881,7 +9934,8 @@ function voyScenarioOf(s, lean = false) {
   sides: [0, 1].map(i => ({faction: i ? s.foe : s.own, control: i ? 'ai' : 'player', strategy: s.ai[i].strategy, air: s.ai[i].air, start: s.start[i], auto: i && s.foeMode !== 'manual' ? s.foeMode : null, fleet: fleets[i], sel: voySideSel(s, i), deploy: s.deploy[i]}))});
 }
 // A loaded scenario fights as saved: its enemy fleet is kept as edited (manual), so the same seed gives the same battle.
-function voyApplyScenario(sc, s = voy.setup) {
+function voyApplyScenario(sc, s = voy.setup, keep = true) {
+ voyFactionsAdopt(sc.factions, keep);   // FACTION-001 the made factions it uses join this device's
  const [a, b] = sc.sides, has = ob => ob.ctgs.some(c => c.tgs.some(t => t.ships.length));
  Object.assign(s, {name: sc.name, region: sc.region, seed: sc.seed, seedFixed: sc.seedFixed, scale: VOY_SCALES[sc.scale] ? sc.scale : 'standard', victory: {...sc.victory}, costLimit: {...sc.costLimit}, own: a.faction, foe: b.faction,
   ownOb: a.fleet, sel: {...a.sel}, foeOb: has(b.fleet) || !b.auto ? b.fleet : null, foeSel: {...b.sel}, foeMode: has(b.fleet) || !b.auto ? 'manual' : b.auto, ai: sc.sides.slice(0, 2).map(x => ({strategy: x.strategy, air: x.air})), start: [a.start, b.start], deploy: [{...a.deploy}, {...b.deploy}], side: 0, editing: null});
@@ -9902,8 +9956,8 @@ async function voyStorePrime() { for (const k of [SCN_KEY, FLEETLIB_KEY]) if (!(
 function voyDraftSave() { const s = voy.setup;if (!s || voy.msn) return;try { voyStoreSave(SCN_DRAFT, {ownOb: !!s.ownOb, tab: s.tab, side: s.side, foeMode: s.foeMode, scenario: voyScenarioOf(s, true)}, false); } catch (e) { /* the draft is a convenience */ } }
 async function voyDraftLoad() {
  // Resolve stock carriers before restoring the draft so a reload can use their ready profiles.
- if(!voy.designs.size)for(const d of voyExampleDesigns())voyRegister(d);
- try { const d = await voyStoreLoad(SCN_DRAFT);if (!d?.scenario) return null;const s = voyNewSetup(), sc = R.normalizeScenario(d.scenario);voyApplyScenario(sc, s);
+ voyEnsureExamples();
+ try { const d = await voyStoreLoad(SCN_DRAFT);if (!d?.scenario) return null;const s = voyNewSetup(), sc = R.normalizeScenario(d.scenario);voyApplyScenario(sc, s, false);
   if (!d.ownOb) delete s.ownOb;if (d.foeMode && d.foeMode !== 'manual') { s.foeMode = d.foeMode; s.foeOb = null; }s.tab = ['orbat', 'sortie', 'scenario'].includes(d.tab) ? d.tab : 'orbat';s.side = d.side === 1 ? 1 : 0;return s; } catch (e) { return null; }
 }
 function voyLibRead(key) { const d = voy.store[key];return Array.isArray(d?.list) ? d.list : []; }
@@ -9919,12 +9973,13 @@ function voyOpen(screen = 'setup', tab, msn = null) {
  // v23 A mission opens the same screens on its own fleet and setup; the custom battle's are put back after.
  if (msn) { if (!voy.msn) voy.custom = voy.setup; voy.msn = msn; voy.setup = msn.setup; } else voyMsnLeave();
  if (voy.saves && !(fleet.saves || []).length) fleet.saves = voy.saves;
- if (!voy.designs.size) for (const d of voyExampleDesigns()) voyRegister(d);
+ voyEnsureExamples();
  // (the draft of the last session is read when the app starts: bindVoyage)
  if (!voy.setup) { voy.setup = voy.draft || null; voy.draft = null; if (!voy.setup) { voy.setup = voyNewSetup(); voy.setup.foe = voyDefaultFoe(voy.setup); } else if (voy.setup.foeMode === 'manual') voyEnsureDesigns(voy.setup.foeOb); }
  voyStorePrime().then(() => { if (voy.screen === 'setup' && !voy.msn) voyRenderSetup(); });
  voySetupFix(voy.setup);if (tab) voy.setup.tab = tab;
  voyShow(screen);voyEnsureDesigns(voySideOb(voy.setup, 0));if (!voy.msn && voy.setup.foeMode === 'manual') voyEnsureDesigns(voy.setup.foeOb);
+ voyPrepareSaves();   // FACTION-001 the player's designs join the lists and お任せ (drawn again when ready)
 }
 function voyMsnLeave() { if (!voy.msn) return; voy.msn = null; voy.setup = voy.custom || null; voy.custom = null; }
 function voyClose() {
@@ -9942,13 +9997,25 @@ function voyBar(label, v, max, fmt = x => num(Math.round(x))) {
  const over = v > max, f = max > 0 ? Math.min(1, v / max) : 0;
  return `<div class="vbar${over ? ' over' : ''}"><span>${label}</span><i><em style="width:${(f * 100).toFixed(1)}%"></em></i><b>${fmt(v)} / ${fmt(max)}</b></div>`;
 }
-function voyFactionOptions(cur) { return Object.entries(R.FACTIONS).map(([k, f]) => `<option value="${k}" ${k === cur ? 'selected' : ''}>${esc(f.name)}</option>`).join(''); }
+// FACTION-001 The four of the films, then the factions the player made (marked ★).
+// A faction's name for lists: a made faction shows its English name in English (else its name as typed, never translated).
+// A saved design's option label: its name as typed (data-l10n-skip keeps it whole), the length and note in the
+// display language (an option holds no markup to keep the name apart).
+const voyEnUI = () => typeof KSI18n !== 'undefined' && KSI18n.language === 'en';
+const voySaveLabel = (name, len, note = '') => voyEnUI() ? `${esc(name)} (${fLen(len)}${note ? ' · ' + esc(KSI18n.t(note)) : ''})` : `${esc(name)}（${fLen(len)}${note ? '・' + esc(note) : ''}）`;
+function voyFacName(k) { const f = R.FACTIONS[k];if (!f) return k;const en = f.custom && typeof KSI18n !== 'undefined' && KSI18n.language === 'en' ? f.def?.nameEn : '';return en || f.name; }
+const voyFacOpt = (k, cur) => { const f = R.FACTIONS[k]; return `<option value="${k}" ${k === cur ? 'selected' : ''}${f?.custom ? ' data-l10n-skip' : ''}>${f?.custom ? '★ ' : ''}${esc(voyFacName(k))}</option>`; };
+function voyFactionOptions(cur) { return Object.keys(R.FACTIONS).map(k => voyFacOpt(k, cur)).join(''); }
 function voyDesignOptions(faction) {
  // Super-heavy ships last, so the list opens on an ordinary class.
- const ex = voyExampleDesigns().sort((a, b) => (a.info.len >= 5000) - (b.info.len >= 5000) || b.info.len - a.info.len), by = {};for (const d of ex) (by[d.faction] || (by[d.faction] = [])).push(d);
- const order = Object.keys(by).sort((a, b) => (b === faction) - (a === faction));
- const groups = order.map(f => `<optgroup label="${esc(R.FACTIONS[f]?.name || f)}">${by[f].map(d => `<option value="${esc(d.key)}">${esc(voyShort(d.name))}（${fLen(d.info.len)}・${esc(examplePurpose(d.key, d.cls || ''))}）</option>`).join('')}</optgroup>`).join('');
- const saves = (voy.saves || []).map(r => `<option value="save:${esc(r.id)}">${esc(r.name)}（${fLen(r.len || 0)}${r.faction && r.faction !== 'any' ? '・' + esc(R.FACTIONS[r.faction]?.name || '') : ''}）</option>`).join('');
+ // FACTION-001 The chosen faction's group first: its examples, the classes it shares or lists, and the player's designs
+ // saved for it (or for every faction) — as お任せ uses them; then each faction's own examples and designs.
+ const lenSort = (a, b) => (a.info.len >= 5000) - (b.info.len >= 5000) || b.info.len - a.info.len, pool = voyPool().sort(lenSort), by = {};
+ for (const d of pool) if (!d.anyFaction) (by[d.faction] || (by[d.faction] = [])).push(d);
+ const mine = pool.filter(d => voyServes(d, faction)), order = Object.keys(by).filter(f => f !== faction);
+ const opt = d => d.saveId ? `<option value="save:${esc(d.saveId)}" data-l10n-skip>${voySaveLabel(d.name, d.info.len, '自作')}</option>` : `<option value="${esc(d.key)}">${esc(voyShort(d.name))}（${fLen(d.info.len)}・${esc(examplePurpose(d.key, d.cls || ''))}）</option>`;
+ const groups = (mine.length ? `<optgroup label="${esc(R.FACTIONS[faction]?.name || faction)}">${mine.map(opt).join('')}</optgroup>` : '') + order.map(f => `<optgroup label="${esc(R.FACTIONS[f]?.name || f)}">${by[f].map(opt).join('')}</optgroup>`).join('');
+ const saves = (voy.saves || []).map(r => `<option value="save:${esc(r.id)}" data-l10n-skip>${voySaveLabel(r.name, r.len || 0, r.faction && r.faction !== 'any' && R.FACTIONS[r.faction] ? voyFacName(r.faction) : '')}</option>`).join('');
  return `${groups}${saves ? `<optgroup label="保存した設計">${saves}</optgroup>` : ''}${ship ? `<optgroup label="設計中の艦"><option value="current">${esc(ship.name)}（${fLen(ship.hull.L)}）</option></optgroup>` : ''}`;
 }
 // v22 The battle areas, by region of the galaxy map (the two first ones under their own names).
@@ -9965,15 +10032,15 @@ function voyHistHTML(key) { const b = Galaxy.BATTLES[key], t = !b && R.REGIONS[k
 function voyRegionSides(s) { const d = R.REGIONS[s.region], h = d?.theater ? d : null; if (!h || !R.FACTIONS[h.own] || !R.FACTIONS[h.foe]) return; if (s.own !== h.own) { s.own = h.own; if (!s.ownOb) s.sel = {}; voyEnsureDesigns(voySideOb(s, 0)); } s.foe = h.foe; }
 function voyRenderSetup() {
  try { setTimeout(() => { try { voyPrewarmSetup(); } catch (e) {} }, 0); } catch (e) { /* headless section tests */ }
- const s = voy.setup, tab = ['sortie', 'scenario'].includes(s.tab) && !voy.msn ? s.tab : 'orbat', ob = voyEdOb(s), sortie = voySortieShips(s), cap = VOY_SCALES[s.scale], t = voyShipsTotals(sortie);
+ const s = voy.setup, tab = s.tab === 'faction' ? 'faction' : ['sortie', 'scenario'].includes(s.tab) && !voy.msn ? s.tab : 'orbat', ob = voyEdOb(s), sortie = voySortieShips(s), cap = VOY_SCALES[s.scale], t = voyShipsTotals(sortie);
  // Ships whose design cannot be prepared (a saved design since deleted, say) stay behind.
  const costs = voyCostCheck(s), ready = sortie.some(voyShipDesign) && !voy.pending.size && !voyCraftPricesBlocked(), ok = ready && t.people <= cap.people && t.supply <= cap.supply && sortie.length <= VOY_SHIP_CAP && !costs.some(c => c.over) && (voy.msn || voyFoeTgs(s).some(x => x.ships.some(voyShipDesign)));
- $('#voySetup').innerHTML = `<header class="voy-head"><div><span class="eyebrow">サンドボックス · 任務 · カスタム</span><h2>${tab === 'orbat' ? '艦隊編成' : tab === 'sortie' ? '出撃準備' : 'シナリオ'}</h2></div>
- <div class="seg voy-tabs" role="tablist"><button type="button" role="tab" data-voy="tab:orbat" aria-pressed="${tab === 'orbat'}">艦隊編成</button><button type="button" role="tab" data-voy="tab:sortie" aria-pressed="${tab === 'sortie'}">出撃準備</button><button type="button" role="tab" data-voy="tab:scenario" aria-pressed="${tab === 'scenario'}">シナリオ</button></div>
- <div class="voy-head-go"><button type="button" class="btn ghost" data-voy="back">任務マップへ</button><button type="button" class="btn primary" data-voy="start" ${ok ? '' : 'disabled'}>出撃</button></div></header>
+ $('#voySetup').innerHTML = `<header class="voy-head"><div><span class="eyebrow">サンドボックス · 任務 · カスタム</span><h2>${tab === 'orbat' ? '艦隊編成' : tab === 'sortie' ? '出撃準備' : tab === 'faction' ? '陣営' : 'シナリオ'}</h2></div>
+ <div class="seg voy-tabs" role="tablist"><button type="button" role="tab" data-voy="tab:orbat" aria-pressed="${tab === 'orbat'}">艦隊編成</button>${voy.msn ? '' : `<button type="button" role="tab" data-voy="tab:sortie" aria-pressed="${tab === 'sortie'}">出撃準備</button><button type="button" role="tab" data-voy="tab:scenario" aria-pressed="${tab === 'scenario'}">シナリオ</button>`}<button type="button" role="tab" data-voy="tab:faction" aria-pressed="${tab === 'faction'}">陣営</button></div>
+ <div class="voy-head-go">${voy.msn && tab === 'faction' ? '' : `<button type="button" class="btn ghost" data-voy="back">任務マップへ</button><button type="button" class="btn primary" data-voy="start" ${ok ? '' : 'disabled'}>出撃</button>`}</div></header>
  ${voyCraftPriceStatus()?`<p class="note" role="status">${esc(voyCraftPriceStatus())}</p>`:''}
- <div class="voy-setup ${tab}">${tab === 'orbat' ? voyOrbatHTML(s, ob) : tab === 'sortie' ? voySortieHTML(s, voySideOb(s, 0)) : voyScenarioHTML(s)}</div>`;
- if (voy.msn) msDecorateEditor();
+ <div class="voy-setup ${tab}">${tab === 'orbat' ? voyOrbatHTML(s, ob) : tab === 'sortie' ? voySortieHTML(s, voySideOb(s, 0)) : tab === 'faction' ? voyFactionHTML(s) : voyScenarioHTML(s)}</div>`;
+ if (voy.msn && tab !== 'faction') msDecorateEditor();
 }
 // Both sides' costs of what sails, and whether each is over the scenario's limit (when it is on).
 function voyCostCheck(s) { if (voy.msn) return []; return [voySortieShips(s), voyFoeTgs(s).flatMap(t => t.ships)].map(ships => { const c = voyFleetCost(ships); return {...c, over: !!(s.costLimit?.on && s.costLimit.value > 0 && c.total > s.costLimit.value)}; }); }
@@ -9982,7 +10049,7 @@ function voyCostLine(c) { return `<p class="vs-sub ob-cost"><span>費用 ${fCr(c
 function voySideSwitchHTML(s) { return voy.msn ? '' : `<div class="seg ob-sides" role="group" aria-label="編成する側">${[0, 1].map(i => `<button type="button" data-voy="side:${i}" aria-pressed="${voyEdSide(s) === i}">${i ? '敵軍' : '自軍'}<small>${esc(R.FACTIONS[i ? s.foe : s.own].name)}</small></button>`).join('')}</div>`; }
 function voyOrbatHTML(s, ob) {
  const side = voyEdSide(s), fac = voyEdFac(s), all = voyObShips(ob), t = voyShipsTotals(all), cost = voyFleetCost(all);
- const head = `<section class="voy-card voy-wide ob-head">${voySideSwitchHTML(s)}<div class="voy-card-head"><h3>${esc(R.FACTIONS[fac].name)}の艦隊</h3><div class="voy-row"><label>陣営<select data-voyset="${side ? 'foe' : 'own'}">${voyFactionOptions(fac)}</select></label>${side && s.foeMode !== 'manual' ? '' : `<button type="button" class="btn sm ghost" data-voy="auto">お任せ編成で作り直す</button><button type="button" class="btn sm" data-voy="ctgadd">合同任務群を追加</button>`}${side && s.foeMode === 'manual' ? '<button type="button" class="btn sm ghost" data-voy="foeauto">自動編成に戻す</button>' : ''}${!side && s.ownOb ? '<button type="button" class="btn sm ghost" data-voy="ownreset" title="シナリオから読み込んだ編成をやめ、この端末に保存された陣営の編成に戻す">端末の編成に戻す</button>' : ''}</div></div>
+ const head = `<section class="voy-card voy-wide ob-head">${voySideSwitchHTML(s)}<div class="voy-card-head"><h3>${esc(R.FACTIONS[fac].name)}の艦隊</h3><div class="voy-row"><label>陣営<select data-voyset="${side ? 'foe' : 'own'}">${voyFactionOptions(fac)}</select></label><button type="button" class="btn sm ghost" data-voy="facedit:${fac}" title="陣営を作る・編集する">陣営を編集</button>${side && s.foeMode !== 'manual' ? '' : `<button type="button" class="btn sm ghost" data-voy="auto">お任せ編成で作り直す</button><button type="button" class="btn sm" data-voy="ctgadd">合同任務群を追加</button>`}${side && s.foeMode === 'manual' ? '<button type="button" class="btn sm ghost" data-voy="foeauto">自動編成に戻す</button>' : ''}${!side && s.ownOb ? '<button type="button" class="btn sm ghost" data-voy="ownreset" title="シナリオから読み込んだ編成をやめ、この端末に保存された陣営の編成に戻す">端末の編成に戻す</button>' : ''}</div></div>
   <p class="note">合同任務群は任務群の集まり、任務群は${TG_MIN}〜${TG_MAX}隻（最大${TG_MAX}隻）。作戦図では任務群か合同任務群ごとにジャンプし、戦術図では任務群ごとに陣形と目標を指示します。艦名は自由に変えられます。${side ? '敵軍も自軍と同じ画面で編成します。' : !s.ownOb ? '編成はこの端末に陣営ごとに保存されます。' : 'いまの編成はシナリオから読み込んだものです。'}陣営と艦の設計は別々に選べます（どの陣営の艦も、保存した自作の設計も配備できます）。各任務群の先頭の艦が旗艦です。</p>
   <p class="vs-sub">${all.length} 隻 · 乗員 ${num(t.people)} 名 · 資材 ${num(Math.round(t.supply))} t</p>${voyCostLine(cost)}${voy.msn ? '' : voyFleetLibHTML(s)}</section>`;
  if (side && s.foeMode !== 'manual') return head + `<section class="voy-card voy-wide"><h3>自動編成</h3><p class="note">敵軍は${s.foeMode === 'same' ? '自軍と同じ編成枠（乗員数・資材）で' : '自軍とほぼ同じ推定戦力になるよう'}自動で編成されます（出撃準備の「敵の戦力」）。手で編成するときは、いまの自動編成を写して編集するか、空の艦隊から始めます。</p>
@@ -10007,8 +10074,8 @@ function voyTgHTML(s, ob, tg) {
  const n = tg.ships.length, warn = n && n < TG_MIN ? `（${TG_MIN}隻未満）` : '', full = n >= TG_MAX, tgs = voyObTgs(ob);
  return `<div class="ob-tg" data-tg="${tg.id}"><div class="ob-tg-head"><input class="ob-name" data-obname="tg" value="${esc(voyDisplayName(tg))}" aria-label="任務群の名前" maxlength="48"><label class="ob-form">役割<select data-obrole><option value="" ${tg.role ? '' : 'selected'}>未指定</option>${Object.entries(R.TF_ROLES).map(([k, v]) => `<option value="${k}" ${tg.role === k ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></label><label class="ob-form">陣形<select data-obform>${[...Object.entries(R.FORMATIONS), ...voyFormStore().map(t => ['tpl:' + t.id, t.name])].map(([k, v]) => `<option value="${esc(k)}" ${tg.formation === k ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></label><button type="button" class="btn sm ghost" data-vfedtg="${tg.id}" title="陣形エディターで編集">編集</button><b class="ob-count${warn ? ' warn' : ''}">${n} / ${TG_MAX} 隻${warn}</b><small class="ob-tgcost">費用 ${fCr(voyFleetCost(tg.ships).total)}</small><button type="button" class="btn sm ghost" data-ob="tgdel" aria-label="この任務群を解散">×</button><button type="button" class="btn sm ghost" data-ob="tgdup" title="同じ艦級・同じ搭載の任務群をこの合同任務群に追加">この任務群を複製</button></div>
   <ul class="ob-ships">${tg.ships.map((sh, i) => { const d = voyShipDesign(sh), air = R.airTotals(sh.air), troops = (sh.ground || []).reduce((k, r) => k + R.regimentTotals(r).troops, 0), dem = voyShipDemand(sh), st = d && voyHasStow(d) && (sh.air?.length || sh.carried?.length) ? voyStowShort(sh, d) : null;
-   return `<li class="ob-ship" data-ship="${sh.id}"><span class="ob-flag" title="${i ? '' : '旗艦（任務群の先頭）'}">${i ? '' : '旗'}</span><input class="ob-name" data-obname="ship" value="${esc(voyDisplayName(sh))}" aria-label="艦名" maxlength="48"><small class="ob-cls">${d ? `${esc(voyShort(d.name))} · ${fLen(d.info.len)} · 乗員 ${num(dem.people)} · 費用 ${fCr(voyCostOf(sh).total)}` : '準備中…'}</small>
-    <button type="button" class="ve-orbat${st && st.short ? ' warn' : ''}" data-ob="air"><span>航空</span><b>${air.n ? `${num(air.n)} 機` : d?.info.slotCap || d?.info.hangarCap ? '未搭載' : '—'}${sh.carried?.length ? ` ＋艦 ${sh.carried.length}` : ''}${st && st.short ? ` · ${num(st.short)} 入らず` : ''}</b></button><button type="button" class="ve-orbat" data-ob="ground"><span>陸戦</span><b>${troops ? `${num(troops)} ${voyEdFac(voy.setup) === 'cis' ? '体' : '名'}` : R.troopRoom(d?.info || {}, voyEdFac(voy.setup)) ? '未乗艦' : '—'}</b></button>
+   return `<li class="ob-ship" data-ship="${sh.id}"><span class="ob-flag" title="${i ? '' : '旗艦（任務群の先頭）'}">${i ? '' : '旗'}</span><input class="ob-name" data-obname="ship" value="${esc(voyDisplayName(sh))}" aria-label="艦名" maxlength="48"><small class="ob-cls">${d ? `${d.src === 'example' ? esc(voyShort(d.name)) : `<span data-l10n-skip>${esc(voyShort(d.name))}</span>`} · ${fLen(d.info.len)} · 乗員 ${num(dem.people)} · 費用 ${fCr(voyCostOf(sh).total)}` : '準備中…'}</small>
+    <button type="button" class="ve-orbat${st && st.short ? ' warn' : ''}" data-ob="air"><span>航空</span><b>${air.n ? `${num(air.n)} 機` : d?.info.slotCap || d?.info.hangarCap ? '未搭載' : '—'}${sh.carried?.length ? ` ＋艦 ${sh.carried.length}` : ''}${st && st.short ? ` · ${num(st.short)} 入らず` : ''}</b></button><button type="button" class="ve-orbat" data-ob="ground"><span>陸戦</span><b>${troops ? `${num(troops)} ${R.factionBase(voyEdFac(voy.setup)) === 'cis' ? '体' : '名'}` : R.troopRoom(d?.info || {}, voyEdFac(voy.setup)) ? '未乗艦' : '—'}</b></button>
     <label class="ob-move">所属<select data-obmove>${tgs.map(x => `<option value="${x.id}" ${x.id === tg.id ? 'selected' : ''} ${x.id !== tg.id && x.ships.length >= TG_MAX ? 'disabled' : ''} translate="no">${esc(voyDisplayName(x))}</option>`).join('')}</select></label>
     <span class="ob-ord">${i ? `<button type="button" class="btn sm ghost" data-ob="lead" title="任務群の先頭（旗艦）にする">旗艦に</button>` : ''}<button type="button" class="btn sm ghost" data-ob="shipdel" aria-label="艦を外す">×</button><button type="button" class="btn sm ghost" data-ob="shipdup" title="同じ艦級・同じ搭載の艦を、この任務群にもう1隻">この艦級を複製</button></span></li>`; }).join('') || '<li class="muted">艦がありません</li>'}</ul>
   <div class="voy-add"><select data-obadd aria-label="追加する艦">${voyDesignOptions(voyEdFac(s))}</select><button type="button" class="btn sm" data-ob="shipadd" ${full ? 'disabled' : ''}>${full ? `${TG_MAX}隻まで` : '艦を追加'}</button></div></div>`;
@@ -10187,7 +10254,7 @@ function voyOrbatSheet() {
  } else {
   const gs = (e.ground || []).map(r => R.regimentTotals(r)), troops = gs.reduce((n, x) => n + x.troops, 0), veh = gs.reduce((n, x) => n + x.size, 0), L = stow?.lift;
   const vehRows = stow ? stow.vehicles.map(v => `<li class="${v.unembarked || !v.landable ? 'bad' : ''}"><b>${esc(v.name)}</b> ${num(v.embarked)} / ${num(v.count)} 両${v.loaded ? `（輸送機に ${num(v.loaded)}）` : ''}${v.unembarked ? ` · ${num(v.unembarked)} 両入らず` : ''}${v.embarked && !v.landable ? ' · 積める輸送機なし' : ''}</li>`).join('') : '';
-  body = `${voyEdFac(voy.setup) === 'cis' ? voyBar('ドロイド格納（空き容積）', troops, R.troopRoom(d.info, 'cis'), x => num(Math.round(x)) + ' 体') : voyBar('兵員枠（空き容積から定員を除く）', troops, R.troopRoom(d.info, voyEdFac(voy.setup)), x => num(Math.round(x)) + ' 名')}${stow ? `<div class="vo-wing"><h4>車両と降下</h4>${vehRows ? `<ul class="vo-veh-fit">${vehRows}</ul>` : '<p class="muted">車両はありません。</p>'}<p class="note">${L && L.transports.length ? `1回の降下：兵員 ${num(L.troops)} 名${L.vehicleSize > 0 ? `・車両 ${num(L.vehicleSize, 1)} サイズ` : ''}（${Object.entries(L.transports.reduce((m, x) => { const k = R.CRAFT[x.type]?.name || x.name || x.type; m[k] = (m[k] || 0) + x.n; return m; }, {})).map(([k, n]) => `${esc(k)} ${num(n)} 機`).join('・')}）` : '輸送機（シャトル・揚陸艇）が搭載されていません。地上部隊は輸送機で降ろします（「航空隊」で輸送機の中隊を加えてください）。'}</p></div>` : voyBar('車両（車両区画・貨物区画）', veh, d.info.vehicleCap || 0, x => num(x, 1))}
+  body = `${R.factionBase(voyEdFac(voy.setup)) === 'cis' ? voyBar('ドロイド格納（空き容積）', troops, R.troopRoom(d.info, 'cis'), x => num(Math.round(x)) + ' 体') : voyBar('兵員枠（空き容積から定員を除く）', troops, R.troopRoom(d.info, voyEdFac(voy.setup)), x => num(Math.round(x)) + ' 名')}${stow ? `<div class="vo-wing"><h4>車両と降下</h4>${vehRows ? `<ul class="vo-veh-fit">${vehRows}</ul>` : '<p class="muted">車両はありません。</p>'}<p class="note">${L && L.transports.length ? `1回の降下：兵員 ${num(L.troops)} 名${L.vehicleSize > 0 ? `・車両 ${num(L.vehicleSize, 1)} サイズ` : ''}（${Object.entries(L.transports.reduce((m, x) => { const k = R.CRAFT[x.type]?.name || x.name || x.type; m[k] = (m[k] || 0) + x.n; return m; }, {})).map(([k, n]) => `${esc(k)} ${num(n)} 機`).join('・')}）` : '輸送機（シャトル・揚陸艇）が搭載されていません。地上部隊は輸送機で降ろします（「航空隊」で輸送機の中隊を加えてください）。'}</p></div>` : voyBar('車両（車両区画・貨物区画）', veh, d.info.vehicleCap || 0, x => num(x, 1))}
   ${(e.ground || []).map((r, ri) => { const t = R.regimentTotals(r); return `<details class="vo-reg"><summary><b>${esc(r.name)}</b><span>${num(t.troops)} 名${Object.keys(t.vehicles).length ? ' · ' + Object.entries(t.vehicles).map(([k, n]) => `${R.VEHICLES[k]?.name || k} ${n}`).join('・') : ''}</span><button type="button" class="btn sm ghost" data-regdel="${ri}" aria-label="連隊を外す">×</button></summary>
    ${r.battalions.map((b, bi) => `<div class="vo-bat"><h5>${esc(b.name)}</h5>${b.companies.map((c, ci) => `<div class="vo-co"><span>${esc(c.name)}</span><label>兵員<input type="number" data-co="${ri}.${bi}.${ci}" data-cok="troops" value="${c.troops}" min="0" max="600"></label>${voyVehicleSelect(ri, bi, ci, c, voyEdFac(voy.setup))}</div>`).join('')}</div>`).join('')}</details>`; }).join('') || '<p class="muted">連隊がありません。</p>'}
   <div class="voy-row"><button type="button" class="btn sm" data-vo="regadd">連隊を追加（${esc(R.REGIMENT_TEMPLATES[voyEdFac(voy.setup)]?.name || '連隊')}）</button><button type="button" class="btn sm ghost" data-vo="grdefault">お任せ（史実の陸戦隊）</button><button type="button" class="btn sm ghost" data-vo="grclear">すべて降ろす</button></div>
@@ -10245,7 +10312,7 @@ function voyCarriedEditHTML(e, d) {
   <p class="note">格納区画に全長・全幅・全高とも ${C.SHIP_STOW_CLEAR} m の余裕をもって入る艦を、艦載機と同じ「サイズ」で積めます（艦の外形の容積 × ${C.SHIP_STOW_FACTOR} ÷ 艦載機1機分の格納容積）。戦闘が始まると発進して任務群に加わり、ジャンプの前に近くにいれば収容されます。</p></div>`;
 }
 function voyVehicleSelect(ri, bi, ci, c, faction) {
- const ks = Object.entries(R.VEHICLES).filter(([, v]) => v.side === 'any' || v.side === faction || faction === 'empire' && v.side === 'empire').map(([k]) => k);
+ const ks = Object.keys(R.VEHICLES).filter(k => R.vehicleServes(k, faction));
  return `<span class="vo-veh">${ks.map(k => `<label title="${esc(R.VEHICLES[k].note)}">${esc(R.VEHICLES[k].name)}<input type="number" data-co="${ri}.${bi}.${ci}" data-cov="${k}" value="${c.vehicles?.[k] || 0}" min="0" max="40"></label>`).join('')}</span>`;
 }
 function voyObChanged(render = true) { voyOrbatSave(); voyDraftSave(); if (render) voyRenderSetup(); }
@@ -10257,11 +10324,15 @@ async function voyObAddShip(t, src) {
 function voyBindSetup() {
  const root = $('#voyage');
  root.addEventListener('change', async e => {
-  const t = e.target, s = voy.setup;if (!s || voy.screen !== 'setup' && !t.closest('#voySheet')) return;const ob = voyEdOb(s);
+  const t = e.target, s = voy.setup;if (!s || voy.screen !== 'setup' && !t.closest('#voySheet')) return;
+  if (t.dataset.fx != null || t.dataset.fxera || t.dataset.fxcraft != null || t.dataset.fxco != null || t.dataset.fxveh || t.dataset.fxadd) { voyFactionChange(t); return; }
+  const ob = voyEdOb(s);
   if (t.dataset.voyset) { const k = t.dataset.voyset;
    // (choosing to edit the enemy by hand starts from the fleet generated so far)
    if (k === 'foeMode' && t.value === 'manual' && s.foeMode !== 'manual' && !s.foeOb) s.foeOb = R.normalizeFleet(JSON.parse(JSON.stringify(voyFoeOrbat(s))));
    s[k] = t.value;
+   // (a made faction brings its AI posture)
+   if ((k === 'own' || k === 'foe') && R.isCustomFaction(t.value)) s.ai[k === 'foe' ? 1 : 0].strategy = R.factionDef(t.value).strategy;
    // The faction of a fleet loaded from a scenario, or of a hand-made enemy, is only its label; the player's own fleet otherwise is kept per faction.
    if (k === 'own' && !s.ownOb) { s.sel = {}; voyEnsureDesigns(voySideOb(s, 0)); if (s.foeMode !== 'manual') s.foe = voyDefaultFoe(s); }
    if (k === 'region') voyRegionSides(s);voyDraftSave();voyRenderSetup();return; }
@@ -10295,7 +10366,9 @@ function voyBindSetup() {
   const b = e.target.closest('button');if (!b || b.disabled) return;const s = voy.setup, d = b.dataset;if (!s) return;
   if (d.voy === 'back') { voyClose(); showTitle('missions'); return; }
   if (d.voy === 'map') { if (Galaxy.BY[s.region]) { mm.fleetSys = s.region; } mm.mode = 'fleet'; mmSave(); voyClose(); showTitle('missions'); return; }
-  if (d.voy?.startsWith('tab:')) { s.tab = d.voy.slice(4); voyDraftSave(); voyRenderSetup(); return; }
+  if (d.voy?.startsWith('tab:')) { s.tab = d.voy.slice(4); if (s.tab === 'faction' && !voyFac().draft && R.FACTIONS[voyEdFac(s)]?.custom) voyFactionPick(voyEdFac(s)); voyDraftSave(); voyRenderSetup(); return; }
+  if (d.voy?.startsWith('facedit:')) { const f = d.voy.slice(8); voyFac().from = null; if (R.isCustomFaction(f)) voyFactionPick(f); s.tab = 'faction'; voyRenderSetup(); return; }
+  if (d.fxb) { voyFactionClick(b); return; }
   if (d.voy?.startsWith('side:')) { s.side = +d.voy.slice(5) ? 1 : 0; s.editing = null; $('#voySheet').hidden = true; voyDraftSave(); voyRenderSetup(); return; }
   if (d.voy === 'auto') { const side = voyEdSide(s), f = voyEdFac(s), ob = voyAutoOrbat(f, s.scale, Math.random, {cap: 48}); if (side) { s.foeOb = ob; s.foeSel = {}; } else if (s.ownOb) { s.ownOb = ob; s.sel = {}; } else { voy.orbat.factions[s.own] = ob; s.sel = {}; } voyObChanged(); return; }
   if (d.voy === 'foemanual' || d.voy === 'foeempty') { s.foeOb = d.voy === 'foeempty' ? {ctgs: [{id: 'o2', name: '第1合同任務群', tgs: [{id: 'o3', name: '第11任務群', formation: 'abreast', ships: []}]}], next: 3} : R.normalizeFleet(JSON.parse(JSON.stringify(voyFoeOrbat(s)))); s.foeMode = 'manual'; s.foeSel = {}; voyObChanged(); return; }
@@ -10359,6 +10432,172 @@ function voyBindSetup() {
  });
 }
 
+// ---------- FACTION-001 the factions the player makes (陣営エディター) ----------
+// A made faction is defined once here and is then chosen like the Empire everywhere a faction is chosen: the designer's
+// 所属陣営, the mission's navy, either side of the fleet battle (player or AI). Its definition (Rts.normalizeFactionDef)
+// holds its names, colour, emblem, base paint, the eras it exists in, its home system on the galaxy map, its doctrine
+// (AI posture, air doctrine, the designs of its line / escort / recon task groups, its carriers' craft and its
+// regiments) and whom it counts as allies and enemies. Rts.registerFaction enters it into the shared faction tables;
+// voyFactionInstall adds the voyage's own tables (fleet doctrine). Kept in this browser (FACTION_KEY) with JSON export
+// and import; a scenario and a mission carry the definitions they use, so they open on a device that lacks them.
+const FACTION_KEY = 'yard.factions.v1';
+const FAC_PAINT_NAMES = {'': '各設計の塗装のまま', neutral: '無塗装', republic: '共和国の赤帯', dark: '暗色', cis: '分離主義の青灰色'};
+const FAC_NAME_POOLS = {imperial: '帝国式（艦名・英国海軍・ローマ軍団）', rn: '英国海軍式', roman: 'ローマ軍団式', rebel: '同盟式（理念の名）', cis: '企業用語（分離主義式）'};
+const FAC_REL_NAMES = [['enemy', '敵対'], ['neutral', '中立'], ['ally', '友好']];
+const FAC_LISTS = [['caps', '主力（戦列艦）'], ['escorts', '護衛'], ['recon', '偵察']];
+// Emblems are plain geometric glyphs drawn here (no real-world or film insignia), in the faction's colour.
+const FAC_EMBLEM_PATHS = {
+ star: () => { let d = ''; for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, r = i % 2 ? 3.8 : 9; d += (i ? 'L' : 'M') + (Math.cos(a) * r).toFixed(2) + ' ' + (Math.sin(a) * r).toFixed(2); } return `<path d="${d}Z"/>`; },
+ ring: () => '<circle r="8" fill="none" stroke-width="2.4"/><circle r="3.2"/>',
+ chevron: () => '<path d="M-8 -3L0 5L8 -3L8 -8L0 0L-8 -8Z"/><path d="M-8 3L0 9L8 3L8 0L0 6L-8 0Z" opacity=".7"/>',
+ cog: () => { let d = ''; for (let i = 0; i < 24; i++) { const a = i * Math.PI / 12, r = i % 2 ? 6.6 : 9; d += (i ? 'L' : 'M') + (Math.cos(a) * r).toFixed(2) + ' ' + (Math.sin(a) * r).toFixed(2); } return `<path fill-rule="evenodd" d="${d}ZM3.2 0A3.2 3.2 0 1 0 -3.2 0A3.2 3.2 0 1 0 3.2 0Z"/>`; },
+ diamond: () => '<path d="M0 -9.5L7 0L0 9.5L-7 0Z"/><path d="M0 -4.5L3.3 0L0 4.5L-3.3 0Z" fill="#0b1418"/>',
+ wing: () => '<path d="M-9.5 3L-2.5 -7L0 -2L2.5 -7L9.5 3L2.5 0.5L0 7L-2.5 0.5Z"/>',
+ cross: () => '<path d="M-2.6 -9H2.6V-2.6H9V2.6H2.6V9H-2.6V2.6H-9V-2.6H-2.6Z"/>',
+ hex: () => '<path fill-rule="evenodd" d="M0 -9.5L8.2 -4.75L8.2 4.75L0 9.5L-8.2 4.75L-8.2 -4.75ZM0 -5L4.3 -2.5L4.3 2.5L0 5L-4.3 2.5L-4.3 -2.5Z"/>',
+ crescent: () => '<path d="M3 -8.5A9 9 0 1 0 3 8.5A7 7 0 1 1 3 -8.5Z"/><circle cx="5.5" cy="0" r="2"/>',
+ none: () => '<circle r="8.5" fill="none" stroke-width="1.2" stroke-dasharray="2 2"/>'};
+function facEmblemSVG(emblem, col, size = 22) { const f = FAC_EMBLEM_PATHS[emblem] || FAC_EMBLEM_PATHS.none; return `<svg class="fac-emb" viewBox="-10 -10 20 20" width="${size}" height="${size}" aria-hidden="true"><g fill="${esc(col)}" stroke="${esc(col)}" stroke-width="0">${f()}</g></svg>`; }
+const facNew = () => 'u_' + Date.now().toString(36) + Math.floor(Math.random() * 1296).toString(36);
+// The voyage's own tables for a made faction: its fleet doctrine (the design lists お任せ draws from).
+function voyFactionInstall(raw) {
+ const d = R.registerFaction(raw);if (!d) return null;
+ VOY_FLEET_DOCTRINE[d.id] = {caps: d.fleet.caps.slice(), escorts: d.fleet.escorts.slice(), recon: d.fleet.recon.slice(), ...(d.fleet.perTg ? {perTg: d.fleet.perTg} : {}), custom: true};
+ // (task forces by role, VOY_ROLE_TF: the base's sequence, raiders and escorts, with the faction's own recon list as its
+ // reconnaissance task forces; the strategic AI's temper and convoys follow the base in Rts, factionBase)
+ { const b = VOY_ROLE_TF[d.base]; if (b) VOY_ROLE_TF[d.id] = {...JSON.parse(JSON.stringify(b)), ...(d.fleet.recon.length ? {recon: d.fleet.recon.slice()} : {})}; else delete VOY_ROLE_TF[d.id]; }
+ // The English name is the display name in English (a name without one stays as typed: user text is not translated).
+ try { const terms = window.KS_EN?.terms; if (terms) for (const [ja, en] of [[d.name, d.nameEn], [d.short, d.shortEn]]) if (ja && (!Object.hasOwn(terms, ja) || terms[ja + '\u0000fac'])) { terms[ja] = en || ja; terms[ja + '\u0000fac'] = 1; } } catch (e) { /* display only */ }
+ for (const k of Object.keys(msOwnerMemo)) delete msOwnerMemo[k];msSideMemo.clear();
+ return d;
+}
+function voyFactionUninstall(id) { if (!R.unregisterFaction(id)) return; delete VOY_FLEET_DOCTRINE[id]; delete VOY_ROLE_TF[id]; for (const k of Object.keys(msOwnerMemo)) delete msOwnerMemo[k]; msSideMemo.clear(); }
+function voyFactionsRead() { try { const raw = LS.get(FACTION_KEY); return raw ? R.factionsFromJSON(raw) : []; } catch (e) { return []; } }
+function voyFactionsWrite() { const ok = LS.set(FACTION_KEY, R.factionsJSON()); if (!ok) toast('このブラウザでは陣営を保存できません。JSON の書き出しを使ってください'); return ok; }
+// Definitions that arrive with a scenario, a mission or a file join this device's when it lacks them (kept, unless keep is false).
+// (one this device keeps already stays as it is here)
+function voyFactionsAdopt(defs, keep = true) {
+ const have = new Set(voyFactionsRead().map(y => y.id));let n = 0;
+ for (const d of defs || []) { const x = R.normalizeFactionDef(d); if (!x || have.has(x.id)) continue; voyFactionInstall(x); n++; }
+ if (n && keep) voyFactionsWrite();return n;
+}
+function voyFactionsBoot() { for (const d of voyFactionsRead()) voyFactionInstall(d); }
+// A built-in faction's fleet doctrine as the starting point of a copy (the examples it sails, as VOY_FLEET_DOCTRINE lists them).
+function voyFactionTemplate(from) {
+ const d = JSON.parse(JSON.stringify(R.factionDef(from) || R.factionDef('empire'))), doc = VOY_FLEET_DOCTRINE[from];
+ if (doc) d.fleet = {caps: [...new Set(doc.caps || [])], escorts: [...new Set(doc.escorts || [])], recon: [...new Set(doc.recon || [])], perTg: doc.perTg || 0};
+ // (the films' navies have no recon list: their smallest warships, two classes, start it)
+ if (!d.fleet.recon.length && !R.isCustomFaction(from)) d.fleet.recon = voyExampleDesigns().filter(x => x.faction === from && !x.info.capital && x.info.len >= 60).sort((a, b) => a.info.len - b.info.len).slice(0, 2).map(x => x.key);
+ return d;
+}
+const voyFac = () => voy.fac || (voy.fac = {draft: null, dirty: false, from: null});
+function voyFactionStart(from = 'empire') {
+ const t = voyFactionTemplate(from), F = voyFac(), n = R.customFactions().length + 1;
+ F.draft = {...t, id: facNew(), base: R.factionBase(from), name: `新しい陣営 ${n}`, nameEn: '', short: `新陣営${n}`, shortEn: '', color: '#3fb8a6', emblem: 'star', allies: [], enemies: R.isCustomFaction(from) ? t.enemies.slice() : [...(R.FACTION_REL[from]?.enemies || [])]};F.dirty = true;
+}
+function voyFactionPick(id) { const F = voyFac(), d = R.factionDef(id); F.draft = d && R.isCustomFaction(id) ? JSON.parse(JSON.stringify(d)) : null; F.dirty = false; }
+// The editor (a tab of the setup screen, opened from the designer, the mission and the fleet screens).
+function voyFactionHTML(s) {
+ const F = voyFac(), list = R.customFactions(), d = F.draft;
+ const head = `<section class="voy-card voy-wide fac-head"><div class="voy-card-head"><h3>陣営エディター</h3><div class="voy-row">${list.length ? `<select data-fx="pick" aria-label="編集する陣営"><option value="">— 陣営を選ぶ —</option>${list.map(x => `<option value="${x.id}" ${d?.id === x.id ? 'selected' : ''} data-l10n-skip>${esc(voyFacName(x.id))}</option>`).join('')}</select>` : ''}<label>元にする陣営<select data-fx="newfrom">${voyFactionOptions(F.newFrom || 'empire')}</select></label><button type="button" class="btn sm" data-fxb="new">新しい陣営</button>${F.from === 'design' ? '<button type="button" class="btn sm ghost" data-fxb="close">設計に戻る</button>' : `<button type="button" class="btn sm ghost" data-fxb="close">${voy.msn ? '艦隊編成に戻る' : '閉じる'}</button>`}</div></div>
+  <p class="note">自分の陣営を作り、銀河帝国や銀河共和国と同じように選べます（設計の所属陣営・任務・艦隊戦の両軍。AI も使えます）。元にする陣営のドクトリン（AI・艦隊の編成・艦載機・地上部隊）を写して始め、あとから変えられます。陣営はこの端末に保存され、シナリオや任務の保存データにも含まれます。</p>
+  <details class="sc-paste"><summary>JSON の書き出し・読み込み</summary><div class="voy-row"><button type="button" class="btn sm ghost" data-fxb="export" ${list.length ? '' : 'disabled'}>JSON を書き出す</button><button type="button" class="btn sm ghost" data-fxb="copy" ${list.length ? '' : 'disabled'}>JSON をコピー</button><label class="btn sm ghost sc-file">JSON ファイルを読み込む<input type="file" accept=".json,application/json" data-fx="file" hidden></label></div><textarea data-fx="paste" rows="3" aria-label="陣営の JSON"></textarea><button type="button" class="btn sm" data-fxb="paste">貼り付けた JSON を読み込む</button></details></section>`;
+ if (!d) return head + `<section class="voy-card voy-wide"><p class="muted">${list.length ? '編集する陣営を選ぶか、新しい陣営を作ってください。' : 'まだ自分の陣営はありません。「新しい陣営」で作れます。'}</p></section>`;
+ const known = R.isCustomFaction(d.id), designOpt = voyFactionDesignOptions(), others = Object.entries(R.FACTIONS).filter(([k]) => k !== d.id);
+ const chips = k => `<div class="fac-chips" data-fxlist="${k}">${d.fleet[k].map((x, i) => `<span class="fac-chip"><span${x.startsWith('save:') ? ' data-l10n-skip' : ''}>${esc(voyFactionDesignName(x))}</span><button type="button" class="btn sm ghost" data-fxb="ldel:${k}:${i}" aria-label="外す">×</button></span>`).join('') || '<span class="muted">なし</span>'}</div><div class="voy-row"><select data-fxadd="${k}" aria-label="加える設計">${designOpt}</select><button type="button" class="btn sm" data-fxb="ladd:${k}">加える</button></div>`;
+ const vehChips = type => `<div class="fac-chips">${Object.entries(d.ground.vehicles[type] || {}).map(([v, n]) => `<span class="fac-chip">${esc(R.VEHICLES[v]?.name || v)} ×${n}<button type="button" class="btn sm ghost" data-fxb="vdel:${type}:${v}" aria-label="外す">×</button></span>`).join('') || '<span class="muted">なし</span>'}<select data-fxveh="${type}" aria-label="加える車両"><option value="">＋ 車両</option>${Object.entries(R.VEHICLES).map(([k, v]) => `<option value="${k}">${esc(v.name)}</option>`).join('')}</select></div>`;
+ const types = [...new Set(d.ground.companies)].filter(t => t !== 'infantry');
+ return head + `<section class="voy-card voy-wide fac-card"><div class="voy-card-head"><h3 class="fac-title">${facEmblemSVG(d.emblem, d.color, 26)}<span translate="no">${esc(d.name)}</span></h3><div class="vs-acts"><button type="button" class="btn sm primary" data-fxb="save">${F.dirty || !known ? '保存' : '保存済み'}</button><button type="button" class="btn sm ghost" data-fxb="dup" ${known ? '' : 'disabled'}>複製</button><button type="button" class="btn sm ghost" data-fxb="del">${known ? '削除' : '破棄'}</button></div></div>
+  ${F.dirty ? '<p class="note">保存すると、この陣営がすべての陣営の一覧に入ります。</p>' : ''}
+  <div class="voy-row fac-names"><label>名前<input data-fx="name" maxlength="40" value="${esc(d.name)}"></label><label>英語名（任意）<input data-fx="nameEn" maxlength="40" value="${esc(d.nameEn)}" placeholder="English name"></label><label>略称<input data-fx="short" maxlength="16" value="${esc(d.short)}"></label><label>英語の略称（任意）<input data-fx="shortEn" maxlength="16" value="${esc(d.shortEn)}"></label><label>色<input type="color" data-fx="color" value="${esc(d.color)}"></label></div>
+  <p class="field-label">紋章</p><div class="seg fac-emblems" role="group" aria-label="紋章">${R.FACTION_EMBLEMS.map(k => `<button type="button" data-fxb="emblem:${k}" aria-pressed="${d.emblem === k}" aria-label="${k}">${facEmblemSVG(k, d.color, 22)}</button>`).join('')}</div>
+  <p class="field-label">基本スタイル（例の艦の塗装）</p><div class="seg" role="group" aria-label="基本スタイル">${R.FACTION_PAINTS.map(k => `<button type="button" data-fxb="paint:${k}" aria-pressed="${d.paint === k}">${esc(FAC_PAINT_NAMES[k])}</button>`).join('')}</div></section>
+  <section class="voy-card fac-card"><h3>時代と本拠地</h3><div class="voy-row">${Object.entries(Galaxy.ERAS).map(([k, e]) => `<label class="sc-check"><input type="checkbox" data-fxera="${k}" ${d.eras.includes(k) ? 'checked' : ''}>${esc(e.name)}</label>`).join('')}</div>
+   <div class="voy-row"><label>本拠地<select data-fx="home">${voyFactionHomeOptions(d.home)}</select></label></div><p class="note">本拠地は銀河図に紋章で示され、任務の母港になり、艦隊戦ではこの方角から艦隊が来ます。陣営はここに選んだ時代にだけ現れます（任務の時代は両軍がともにいる時代）。</p></section>
+  <section class="voy-card fac-card"><h3>ドクトリン</h3><div class="voy-row"><label>元にする陣営<select data-fx="base">${R.BUILTIN_FACTIONS.map(k => `<option value="${k}" ${d.base === k ? 'selected' : ''}>${esc(R.FACTIONS[k].name)}</option>`).join('')}</select></label><button type="button" class="btn sm ghost" data-fxb="copybase">この陣営のドクトリンを写す</button></div>
+   <div class="voy-row"><label>AIの方針<select data-fx="strategy">${Object.entries(R.AI_STRATEGY).map(([k, v]) => `<option value="${k}" ${d.strategy === k ? 'selected' : ''}>${esc(v.name)}</option>`).join('')}</select></label><label>航空ドクトリン<select data-fx="air"><option value="standard" ${d.air === 'standard' ? 'selected' : ''}>${esc(R.AIR_DOCTRINES.standard)}</option><option value="strip" ${d.air === 'strip' ? 'selected' : ''}>${esc(R.AIR_DOCTRINES.strip)}</option></select></label><label>艦名<select data-fx="names">${Object.entries(FAC_NAME_POOLS).map(([k, v]) => `<option value="${k}" ${d.names === k ? 'selected' : ''}>${esc(v)}</option>`).join('')}</select></label></div>
+   <p class="note">元にする陣営は、表のない部分（砲火の色・砲声・ドロイドの格納）にも使われます。</p></section>
+  <section class="voy-card voy-wide fac-card"><h3>艦隊の編成（お任せ編成）</h3>${FAC_LISTS.map(([k, name]) => `<p class="field-label">${esc(name)}</p>${chips(k)}`).join('')}
+   <div class="voy-row"><label>任務群あたりの主力艦<select data-fx="perTg"><option value="0" ${!d.fleet.perTg ? 'selected' : ''}>2隻（標準）</option>${[3, 4, 5, 6].map(n => `<option value="${n}" ${d.fleet.perTg === n ? 'selected' : ''}>${n}隻</option>`).join('')}</select></label></div>
+   <p class="note">お任せ編成は、戦列の任務群に主力の艦級を順に2隻ずつ、残りを護衛で埋めます。任務群の役割（戦列・偵察・襲撃・護衛・威力偵察）の順番と襲撃・護衛の艦級は元にする陣営のものを使い、偵察任務群はこの陣営の偵察の一覧から作ります。この陣営に所属させた自作の設計（全陣営の設計も）は、例の艦と同じく一覧とお任せ編成に加わります。</p></section>
+  <section class="voy-card fac-card"><h3>艦載機</h3><div class="voy-row fac-craft">${[0, 1, 2, 3, 4, 5].map(i => `<select data-fxcraft="${i}" aria-label="飛行隊 ${i + 1}"><option value="">—</option>${Object.entries(R.CRAFT).filter(([, c]) => !c.design).map(([k, c]) => `<option value="${k}" ${d.craft[i] === k ? 'selected' : ''}>${esc(c.name)}</option>`).join('')}</select>`).join('')}</div><p class="note">空母の格納庫を埋める飛行隊の機種（6個中隊で1個飛行隊）。設計に艦載機の定めがある艦はそちらを積みます。</p></section>
+  <section class="voy-card fac-card"><h3>地上部隊</h3><div class="voy-row"><label>連隊の名前<input data-fx="gname" maxlength="30" value="${esc(d.ground.name)}"></label></div><div class="voy-row">${d.ground.companies.map((t, i) => `<select data-fxco="${i}" aria-label="${'ABCD'[i]}中隊">${Object.entries(R.COMPANY_TYPES).map(([k, v]) => `<option value="${k}" ${t === k ? 'selected' : ''}>${'ABCD'[i]}：${esc(v)}</option>`).join('')}</select>`).join('')}</div>
+   ${types.map(t => `<p class="field-label">${esc(R.COMPANY_TYPES[t])}の車両</p>${vehChips(t)}`).join('')}</section>
+  <section class="voy-card voy-wide fac-card"><h3>友好・敵対</h3><div class="fac-rels">${others.map(([k, f]) => { const r = d.allies.includes(k) ? 'ally' : d.enemies.includes(k) ? 'enemy' : 'neutral'; return `<div class="fac-rel"><span${f.custom ? ' data-l10n-skip' : ''}>${f.custom ? '★ ' : ''}${esc(voyFacName(k))}</span><div class="seg" role="group" aria-label="${esc(f.name)}">${FAC_REL_NAMES.map(([v, n]) => `<button type="button" data-fxb="rel:${k}:${v}" aria-pressed="${r === v}">${n}</button>`).join('')}</div></div>`; }).join('')}</div>
+   <p class="note">新しい艦隊戦や任務では、最初の敵対陣営が相手に選ばれます（友好陣営は選ばれません）。</p></section>`;
+}
+function voyFactionHomeOptions(cur) {
+ const by = {};for (const s of Galaxy.SYSTEMS) (by[s.region] || (by[s.region] = [])).push(s);
+ return Object.keys(Galaxy.REGIONS).filter(r => by[r]).map(r => `<optgroup label="${esc(Galaxy.REGIONS[r].name)}">${by[r].sort((a, b) => (a.tier || 3) - (b.tier || 3) || a.name.localeCompare(b.name, 'ja')).map(s => `<option value="${s.key}" ${s.key === cur ? 'selected' : ''}>${esc(s.name)}（${Galaxy.grid(s.at)}）</option>`).join('')}</optgroup>`).join('');
+}
+// The designs a list may name: every example, and the player's saved ship designs ('save:<id>').
+function voyFactionDesignOptions() {
+ const ex = voyExampleDesigns().sort((a, b) => b.info.len - a.info.len), by = {};for (const d of ex) (by[d.faction] || (by[d.faction] = [])).push(d);
+ const own = voyPlayerDesigns();
+ return `<option value="">— 設計を選ぶ —</option>${Object.entries(by).map(([f, l]) => `<optgroup label="${esc(R.FACTIONS[f]?.name || f)}">${l.map(d => `<option value="${esc(d.key)}">${esc(voyShort(d.name))}（${fLen(d.info.len)}）</option>`).join('')}</optgroup>`).join('')}${own.length ? `<optgroup label="保存した設計">${own.map(d => `<option value="save:${esc(d.saveId)}" data-l10n-skip>${voySaveLabel(d.name, d.info.len)}</option>`).join('')}</optgroup>` : ''}`;
+}
+function voyFactionDesignName(k) { if (k.startsWith('save:')) { const id = k.slice(5), d = voyPlayerDesigns().find(x => x.saveId === id), r = (voy.saves || []).find(x => x.id === id); return d?.name || r?.name || '（保存した設計）'; } const d = voyDesign(k) || voyExampleDesigns().find(x => x.key === k); return d ? voyShort(d.name) : k; }
+function voyFactionChanged(render = true) { voyFac().dirty = true; if (render) voyRenderSetup(); }
+// Changes of the editor's fields (change events).
+function voyFactionChange(t) {
+ const F = voyFac(), d = F.draft, k = t.dataset.fx;
+ if (k === 'pick') { if (F.dirty && d && !F.sure) { F.sure = true; toast('保存していない変更があります。もう一度選ぶと破棄します'); voyRenderSetup(); return true; } F.sure = false; if (t.value) voyFactionPick(t.value); else F.draft = null; voyRenderSetup(); return true; }
+ if (k === 'newfrom') { F.newFrom = t.value; return true; }
+ if (k === 'file') { const f = t.files?.[0]; if (f) f.text().then(voyFactionImport).catch(err => toast('読み込めません：' + esc(err.message || err))); t.value = ''; return true; }
+ if (k === 'paste') return true;
+ if (!d) return false;
+ if (t.dataset.fxera) { d.eras = Object.keys(Galaxy.ERAS).filter(e => e === t.dataset.fxera ? t.checked : d.eras.includes(e)); if (!d.eras.length) d.eras = [t.dataset.fxera]; voyFactionChanged(); return true; }
+ if (t.dataset.fxcraft != null) { const c = d.craft.slice(); c[+t.dataset.fxcraft] = t.value; d.craft = c.filter(Boolean).length ? c.filter(Boolean) : d.craft; voyFactionChanged(); return true; }
+ if (t.dataset.fxco != null) { d.ground.companies[+t.dataset.fxco] = t.value; voyFactionChanged(); return true; }
+ if (t.dataset.fxveh) { const v = t.value, row = d.ground.vehicles[t.dataset.fxveh] || (d.ground.vehicles[t.dataset.fxveh] = {}); if (R.VEHICLES[v]) row[v] = Math.min(12, (row[v] || 0) + 1); voyFactionChanged(); return true; }
+ if (t.dataset.fxadd) return true;
+ if (['name', 'nameEn', 'short', 'shortEn'].includes(k)) { d[k] = t.value.trim().slice(0, k.startsWith('short') ? 16 : 40); if (k === 'name' && !d.name) d.name = '新しい陣営'; voyFactionChanged(k === 'name'); return true; }
+ if (k === 'gname') { d.ground.name = t.value.trim().slice(0, 30); voyFactionChanged(false); return true; }
+ if (k === 'color') { d.color = t.value; voyFactionChanged(); return true; }
+ if (k === 'perTg') { d.fleet.perTg = +t.value || 0; voyFactionChanged(false); return true; }
+ if (['home', 'base', 'strategy', 'air', 'names'].includes(k)) { d[k] = t.value; voyFactionChanged(k === 'base'); return true; }
+ return false;
+}
+// Buttons of the editor (click events).
+function voyFactionClick(b) {
+ const F = voyFac(), d = F.draft, [k, a, c] = b.dataset.fxb.split(':'), s = voy.setup;
+ if (k === 'new') { voyFactionStart(F.newFrom || 'empire'); voyRenderSetup(); return; }
+ if (k === 'close') { if (F.from === 'design') { F.from = null; voyClose(); requestDraw(); renderPanel(); return; } s.tab = 'orbat'; voyRenderSetup(); return; }
+ if (k === 'export') { if (!voyDownload('factions.json', R.factionsJSON())) toast('書き出せません'); return; }
+ if (k === 'copy') { navigator.clipboard?.writeText(R.factionsJSON()).then(() => toast('陣営の JSON をコピーしました'), () => toast('コピーできません')); return; }
+ if (k === 'paste') { const txt = $('#voySetup [data-fx="paste"]')?.value || ''; if (txt.trim()) voyFactionImport(txt); return; }
+ if (!d) return;
+ if (k === 'save') { const x = voyFactionInstall(d); if (!x) { toast('この陣営は保存できません'); return; } F.draft = JSON.parse(JSON.stringify(x)); F.dirty = false; voyFactionsWrite(); toast(`陣営「${esc(x.name)}」を保存しました`); voyRenderSetup(); return; }
+ if (k === 'dup') { F.draft = {...JSON.parse(JSON.stringify(d)), id: facNew(), name: (d.name + ' 2').slice(0, 40)}; F.dirty = true; voyRenderSetup(); return; }
+ if (k === 'del') {
+  if (!R.isCustomFaction(d.id)) { F.draft = null; F.dirty = false; voyRenderSetup(); return; }
+  if (!b.dataset.sure) { b.dataset.sure = '1'; b.textContent = '削除する'; return; }
+  voyFactionUninstall(d.id);voyFactionsWrite();toast(`陣営「${esc(d.name)}」を削除しました（この陣営の設計・編成は全陣営・既定の陣営として扱われます）`);
+  // (a setup that used it takes the usual sides again)
+  if (s && !R.FACTIONS[s.own]) s.own = 'empire';if (s && !R.FACTIONS[s.foe]) s.foe = voyRival(s.own);F.draft = null;F.dirty = false;voyRenderSetup();return;
+ }
+ if (k === 'emblem') { d.emblem = a; voyFactionChanged(); return; }
+ if (k === 'paint') { d.paint = a || ''; voyFactionChanged(); return; }
+ if (k === 'copybase') { const t = voyFactionTemplate(d.base); Object.assign(d, {fleet: t.fleet, craft: t.craft, ground: t.ground, air: t.air, strategy: t.strategy, names: t.names}); voyFactionChanged(); toast(`${esc(R.FACTIONS[d.base].name)}のドクトリンを写しました`); return; }
+ if (k === 'ladd') { const v = $(`#voySetup [data-fxadd="${a}"]`)?.value; if (!v) return; if (d.fleet[a].length >= 12) { toast('一覧は12件までです'); return; } d.fleet[a].push(v); voyFactionChanged(); return; }
+ if (k === 'ldel') { d.fleet[a].splice(+c, 1); voyFactionChanged(); return; }
+ if (k === 'vdel') { const row = d.ground.vehicles[a]; if (row) { delete row[c]; if (!Object.keys(row).length) delete d.ground.vehicles[a]; } voyFactionChanged(); return; }
+ if (k === 'rel') { d.allies = d.allies.filter(x => x !== a); d.enemies = d.enemies.filter(x => x !== a); if (c === 'ally') d.allies.push(a); if (c === 'enemy') d.enemies.push(a); voyFactionChanged(); return; }
+}
+function voyFactionImport(text) {
+ let defs;try { defs = R.factionsFromJSON(text); } catch (e) { toast(esc(e.message)); return 0; }
+ if (!defs.length) { toast('読み込める陣営がありません'); return 0; }
+ // (a faction already here under the same id is replaced by the file's)
+ for (const d of defs) voyFactionInstall(d);voyFactionsWrite();toast(`陣営 ${defs.length} 件を読み込みました`);
+ const F = voyFac();F.draft = JSON.parse(JSON.stringify(R.factionDef(defs[0].id)));F.dirty = false;if (voy.open && voy.screen === 'setup') voyRenderSetup();return defs.length;
+}
+// Opening the editor from elsewhere (the designer's 所属陣営, the mission's fleet screen).
+async function voyFactionOpen(from = null, id = null) {
+ const F = voyFac();F.from = from;if (id && R.isCustomFaction(id)) voyFactionPick(id);
+ if (from === 'design') { try { voy.saves = await Store.list(); } catch (e) { voy.saves = voy.saves || []; } voyOpen('setup', 'faction'); return; }
+ if (voy.setup) { voy.setup.tab = 'faction'; voyRenderSetup(); }
+}
+
 // ---------- starting a battle ----------
 // The order of battle as the battle model takes it: combined task groups of task groups of ships.
 function voyBattleOrbat(ob, tgs, faction) { return R.battleOrbat(ob, tgs.map(t => t.id), voyShipDesign); }
@@ -10370,7 +10609,7 @@ async function voyStartBattle() {
  const designs = [...new Set(voy.designs.values())].map(d => ({key: d.key, name: d.name, p: d.p, info: d.info}));
  voy.w = R.scenarioWorld(sc, designs, voyShipDesign, {formations: voyFormStore()});voy.w.onHit = voyOnHit;
  // v26 with the supply ships and escorts the sides' convoys may bring in (their models are warmed with the fleet's)
- const kit = sd => R.CONVOY_KIT?.[sd.faction] || R.CONVOY_KIT?.any, convoyKeys = (voy.w.sides || []).flatMap(sd => kit(sd) ? [...kit(sd).ships, ...kit(sd).escorts, kit(sd).big].filter(x => x && voy.w.designs?.has(x)) : []);
+ const kit = sd => R.convoyKit(sd.faction), convoyKeys = (voy.w.sides || []).flatMap(sd => kit(sd) ? [...kit(sd).ships, ...kit(sd).escorts, kit(sd).big].filter(x => x && voy.w.designs?.has(x)) : []);
  const keys = [...new Set([...voy.w.units.values()].map(u => u.design).concat(convoyKeys))];
  voy.speed = 4;voy.seenEv = 0;voy.notes = [];voy.sel = {group: null, ctg: null, sys: null, dest: null, units: [], wing: null, foe: null};voy.cmd = null;voy.ops.fitted = false;voy.tac = {sys: null, c: [0, 0], mpp: 300, fitted: false};voy.result = null;voy.resultDismissed = false;
  const first = [...voy.w.ctgs.values()].find(c => c.side === 0);if (first) voy.sel.ctg = first.id;
@@ -11631,7 +11870,7 @@ const VOY_CRAFT_MODEL = {tie_ln: 'craft_tie_ln', tie_in: 'craft_tie_in', tie_sa:
 // Bolt colours by faction: the Empire's green (its costlier blaster gas), the Rebellion's red, the clone-era
 // Republic's blue and the Separatists' red-orange, as on screen.
 const VOY_BOLT = {empire: [120, 255, 130], rebel: [255, 85, 65], republic: [120, 175, 255], cis: [255, 125, 70], neutral: [255, 200, 120]};
-const voyBoltCol = (w, side) => VOY_BOLT[w.sides[side]?.faction] || VOY_BOLT.neutral;
+const voyBoltCol = (w, side) => { const f = w.sides[side]?.faction; return VOY_BOLT[f] || (R.isCustomFaction(f) ? VOY_BOLT[R.factionBase(f)] : null) || VOY_BOLT.neutral; };
 const voyCraftModel = c => c ? R.CRAFT[c]?.blueprint ? c : VOY_CRAFT_MODEL[c] || (R.CRAFT[c]?.ref ? R.CRAFT[c].ref : null) : null;
 // v22 How many craft are drawn with their models each frame: the selected wing's (all of them, up to sel), the lead
 // of every wing (lead), then the nearest other craft (near). A phone draws fewer (each model costs about as much as
@@ -11658,7 +11897,7 @@ function craftFly(key) {
 }
 // The gun voice of a squadron: by its faction (TIE cannons, droid guns, the Rebels' and the Republic's lasers).
 const craftGunPitch = k => { const f = craftFly(k); return f === CRAFT_FLY.aw ? 1.15 : f === CRAFT_FLY.yw || f === CRAFT_FLY.tieb ? .9 : 1; };
-const craftGun = (w, s) => { const f = w?.sides?.[s.side]?.faction || R.CRAFT[s.craft]?.side; return f === 'empire' ? 'gun_tie' : f === 'cis' ? 'gun_droid' : craftFly(s.craft).gun; };
+const craftGun = (w, s) => { const f0 = w?.sides?.[s.side]?.faction, f = (f0 && R.factionBase(f0)) || R.CRAFT[s.craft]?.side; return f === 'empire' ? 'gun_tie' : f === 'cis' ? 'gun_droid' : craftFly(s.craft).gun; };
 // v22 What a craft releases on its attack run: the core's stores when it has them (Core.craftOrdnance → [{kind, n,
 // mount}]), else by type — proton torpedoes (ptorp), concussion missiles (cmsl), ion torpedoes (itorp), bombs.
 const CRAFT_ORD = {xwing: [{kind: 'ptorp', n: 6, mount: 'tube'}], ywing: [{kind: 'ptorp', n: 6, mount: 'tube'}, {kind: 'itorp', n: 2, mount: 'tube'}], btlb: [{kind: 'bomb', n: 12, mount: 'bay'}, {kind: 'ptorp', n: 4, mount: 'tube'}],
@@ -12520,9 +12759,9 @@ function vtutDisable() {
  (u.p.modules || []).forEach((m, i) => { if (m.k === 'reactor') u.mods[i] = 0; });u.out = '電源喪失';u.order = {...u.order, type: 'hold'};voyNote(`${u.name}：電源喪失で航行不能（チュートリアル）`);
 }
 async function voyTutStart() {
- hideTitle();if (!voy.designs.size) for (const d of voyExampleDesigns()) voyRegister(d);
+ hideTitle();
  voy.setup = voy.setup || voyNewSetup();
- const need = ['venator', 'dreadnaught', 'munificent'];if (need.some(k => !voyDesign(k))) { toast('作例の艦を準備できません'); showTitle('voyage'); return; }
+ const need = ['venator', 'dreadnaught', 'munificent'];if (need.some(k => !voy.designs.has(k))) voyEnsureExamples();if (need.some(k => !voyDesign(k))) { toast('作例の艦を準備できません'); showTitle('voyage'); return; }
  if(voyProfilesStale(need)&&!await voyRequireProfiles(need)){showTitle('voyage');return;}
  const air = R.defaultAir(voyDesign('venator').info, 'republic').slice(0, 4).map(q => ({...q, groupName: '第1合同任務群飛行団'}));
  const own = {ctgs: [{name: '第1合同任務群', tgs: [{name: '第11任務群', formation: 'abreast', ships: [{design: 'venator', name: 'アクィラ', air, troops: 0}, {design: 'dreadnaught', name: 'インヴィクタ', air: [], troops: 0}]}, {name: '第12任務群', formation: 'abreast', ships: [{design: 'dreadnaught', name: 'フォルティス', air: [], troops: 0}]}]}]};
@@ -12691,6 +12930,8 @@ const PATROL_CIV = {gr75: {tag: 'GR-75', role: '中型輸送船'}, heraklon: {ta
 const PATROL_TRAFFIC = {old: ['reptransport', 'gozanti', 'cr90', 'heraklon'], new: ['gozanti', 'cr90', 'gr75', 'heraklon']};
 // Who comes out of hyperspace against each side, and with what.
 const PATROL_ENEMY = {republic: 'cis', cis: 'republic', empire: 'rebel', rebel: 'empire'};
+// FACTION-001 A made faction met on patrol sails the example classes of its fleet doctrine lists, else its base's.
+function voyPatrolFoes(f) { const ks = voyDocKeys(VOY_FLEET_DOCTRINE[f]).filter(k => YardFleetData?.designs?.[k]); return ks.length ? [...new Set(ks)] : PATROL_FOES[R.factionBase(f)] || []; }
 const PATROL_FOES = {cis: ['munificent', 'recusant', 'providence'], republic: ['hammerhead', 'dreadnaught', 'acclamator', 'venator'], rebel: ['cr90', 'nebulonb', 'mc30c', 'mc75', 'mc80liberty'], empire: ['arquitens', 'dreadnaught', 'imperial']};
 const PATROL_NAMES = ['ブライト・ホープ', 'ケッセル・スター', 'コレリアン・ドリーム', 'スターダスト', 'ホワイト・ウィング', 'リバティ・トレーダー', 'メリディアン', 'ゴールデン・スター', 'エバーグリーン', 'フォーチュナ', 'ノーザン・ライト', 'シルバー・アロー', 'カーゴ・クイーン', 'ラッキー・スター', 'プログレス', 'セレニティ', 'ペイシェンス', 'ハーモニー', 'トレードウィンド', 'サザン・クロス', 'オーロラ', 'ペリディア', 'ドーントレス・トレーダー', 'ミッドリム・エクスプレス', 'アウターリム・パイオニア', 'ブルー・ハーバー'];
 // want: civilians about at once; first/again/mean: the enemy comes no sooner than first seconds into the
@@ -12703,8 +12944,8 @@ function patrolFaction() { if (trial.msnPatrol) return trial.msnPatrol.faction; 
 // the Core Worlds crowded and safe, the Outer Rim and Hutt Space thin and dangerous, the Unknown Regions all but empty).
 function patrolRegion() { const r = Galaxy.REGIONS[SYSTEMS[trial.sysKey]?.region] || {}; return {want: Math.max(1, Math.round(PATROL.want * (r.traffic ?? 1))), encK: 1 / Math.max(.3, r.threat ?? 1)}; }
 function patrolReset() {
- const fac = patrolFaction(), civ = PATROL_TRAFFIC[fac === 'republic' || fac === 'cis' ? 'old' : 'new'], rg = patrolRegion();
- trial.pat = {fac, foe: PATROL_ENEMY[fac] || 'rebel', civKeys: civ, queue: civ.filter(k => !fleet.assets.has(k)), loading: null, civ: [], uid: 1, names: new Set(), civNames: new Set(), failed: new Set(), seeded: false, nextCiv: 0, seen: 0, enc: 0, won: 0, sunk: 0, civHits: 0, civLost: 0, me: null, group: null, want: rg.want, encK: rg.encK, encAt: trial.t + (PATROL.first + patrolExp(PATROL.mean)) * rg.encK, alert: 0, alertText: ''};
+ const fac = patrolFaction(), fb = R.factionBase(fac), civ = PATROL_TRAFFIC[fb === 'republic' || fb === 'cis' ? 'old' : 'new'], rg = patrolRegion();
+ trial.pat = {fac, foe: (R.isCustomFaction(fac) ? voyRival(fac) : PATROL_ENEMY[fac]) || 'rebel', civKeys: civ, queue: civ.filter(k => !fleet.assets.has(k)), loading: null, civ: [], uid: 1, names: new Set(), civNames: new Set(), failed: new Set(), seeded: false, nextCiv: 0, seen: 0, enc: 0, won: 0, sunk: 0, civHits: 0, civLost: 0, me: null, group: null, want: rg.want, encK: rg.encK, encAt: trial.t + (PATROL.first + patrolExp(PATROL.mean)) * rg.encK, alert: 0, alertText: ''};
 }
 // The ships' 3D models are prepared one at a time in the background (never while the guns are firing or
 // in a fight, when the engine is wanted for the line-of-fire checks).
@@ -12831,7 +13072,7 @@ function patrolUnitStr(u) { try { return R.unitStrength(u); } catch (e) { return
 // A group of one to three warships of the other side, together somewhat weaker than the flagship and its
 // escorts (or, when even the smallest is stronger, the smallest alone), each with a name.
 function patrolPickGroup() {
- const P = trial.pat, pool = (PATROL_FOES[P.foe] || []).map(k => ({key: k, d: YardFleetData?.designs?.[k]})).filter(x => x.d);if (!pool.length) return [];
+ const P = trial.pat, pool = (PATROL_FOES[P.foe] || voyPatrolFoes(P.foe)).map(k => ({key: k, d: YardFleetData?.designs?.[k]})).filter(x => x.d);if (!pool.length) return [];
  const memo = new Map(), str = x => { if (!memo.has(x.key)) memo.set(x.key, patrolUnitStr(C.fleetUnit('x', x.key, x.d.p, 0))); return memo.get(x.key); };
  const own = patrolUnitStr(P.me || C.fleetUnit('me', trial.asset.key, trial.p, 0)) + (trial.escorts || []).reduce((n, e) => n + patrolUnitStr(e.unit || C.fleetUnit('x', e.key, e.p, 0)), 0);
  let best = null;
@@ -12979,6 +13220,8 @@ function bindVoyage() { voyDraftLoad().then(d => { if (!voy.setup) voy.draft = d
 // ============================================================
 const MS_KEY = 'yard.msn.v1', MS_CLOUD = 'mission-v1';
 const MS_HOME = {empire: 'coruscant', republic: 'coruscant', cis: 'saleucami', rebel: 'yavin'};
+// FACTION-001 A made faction's home port is its home system.
+const msHome = f => R.FACTIONS[f]?.def?.home || MS_HOME[f] || 'coruscant';
 // The era follows the two navies (Galaxy.eraOf): the Republic and the Separatists fight the Clone Wars (cw), the Empire
 // and the Alliance the civil war (gcw).
 const msEraOf = f => typeof Galaxy.eraOf === 'function' ? Galaxy.eraOf(f) : f === 'republic' || f === 'cis' ? 'cw' : 'gcw';
@@ -13032,7 +13275,7 @@ function msSideDir(sys, faction, era) {
  if (at && typeof Galaxy.factionBearing === 'function') d = Galaxy.factionBearing(era, faction, at);
  else if (at) { const own = msOwners(era);let best = null, bc = Infinity;
   for (const s of Galaxy.SYSTEMS) { if (s.key === sys || own[s.key] !== faction) continue; const p = Galaxy.path(sys, s.key); if (p && p.cost < bc) { bc = p.cost; best = s.key; } }
-  const to = best || (MS_HOME[faction] !== sys ? MS_HOME[faction] : null);d = to ? msWayDir(sys, to) : null; }
+  const to = best || (msHome(faction) !== sys ? msHome(faction) : null);d = to ? msWayDir(sys, to) : null; }
  msSideMemo.set(key, d);return d;
 }
 // Where a navy's fleet is said to come in from (for the notes): Galaxy.factionSide's name for that way.
@@ -13046,15 +13289,19 @@ function msOwnStart(S, ownDir) {
 }
 
 // ---------- the state ----------
-function msEnsureDesigns() { if (!voy.designs.size) for (const d of voyExampleDesigns()) voyRegister(d); }
-function msValid(st) { if (st && st.era === 'clone') st.era = 'cw'; if (st && st.era === 'civil') st.era = 'gcw'; return !!st && st.version === 1 && R.FACTIONS[st.faction] && st.ob && Array.isArray(st.ob.ctgs) && Array.isArray(st.foes); }
+function msEnsureDesigns() { voyEnsureExamples(); }
+function msValid(st) { if (st && st.era === 'clone') st.era = 'cw'; if (st && st.era === 'civil') st.era = 'gcw';
+ // (the made factions the mission uses come with it: entered for this session, kept on this device when it lacks them)
+ if (st && Array.isArray(st.factionDefs)) voyFactionsAdopt(st.factionDefs);
+ return !!st && st.version === 1 && R.FACTIONS[st.faction] && st.ob && Array.isArray(st.ob.ctgs) && Array.isArray(st.foes); }
 // Mission saves already own task-group locations. Optional itinerary metadata
 // is rebuilt from those locations and the shared graph, never trusted as an
 // alternate position or as permission to skip a mandatory stop.
 function msNavigationNormalize(st){const old=st.navigation||{},out={};for(const t of voyObTgs(st.ob)){const q=old[t.id],from=st.at?.[t.id]||st.home;if(q?.version!==1||!Galaxy.BY[q.final]||q.final===from)continue;const p=Galaxy.itinerary(from,q.final);if(p?.segments.length)out[t.id]={version:1,final:p.final,stop:from,remaining:p.stops.slice(),waiting:true};}st.navigation=out;return out;}
 function msNew(faction) {
- msEnsureDesigns();const foe = VOY_RIVAL[faction] || 'rebel';
- const st = {version: 1, faction, foe, era: msEraOf(faction), home: MS_HOME[faction] || 'coruscant', started: false, t: 0, foeNo: 0, nextFoe: 0, ob: null, at: {}, foes: [], log: [], active: null,
+ msEnsureDesigns();if (!R.FACTIONS[faction]) faction = 'empire';const foe = voyRival(faction) || 'rebel';
+ // (the era: one both navies exist in — a made faction may exist in both — else the player's)
+ const st = {version: 1, faction, foe, era: R.isCustomFaction(faction) || R.isCustomFaction(foe) ? Galaxy.eraOf([faction, foe]) : msEraOf(faction), home: msHome(faction), started: false, t: 0, foeNo: 0, nextFoe: 0, ob: null, at: {}, foes: [], log: [], active: null,
   stats: {battles: 0, won: 0, lost: 0, drawn: 0, sunk: 0, captured: 0, shipsLost: 0, patrols: 0, jumps: 0}, savedAt: 0};
  st.ob = msStartFleet(faction);
  return st;
@@ -13085,6 +13332,8 @@ async function msLoadAsync() {
 // Before writing: every ship knows its task group (a ship moved to a group in another system sails there), a ship
 // added (or duplicated) after the start goes through commissioning, and every task group has a place.
 function msNormalize(st) {
+ // FACTION-001 the definitions of the made factions it uses go with the save (an old save has none and needs none)
+ const defs = [...new Set([st.faction, st.foe, ...(st.foes || []).map(f => f.faction)])].filter(R.isCustomFaction).map(R.factionDef);if (defs.length) st.factionDefs = defs; else delete st.factionDefs;
  const tgs = voyObTgs(st.ob), ids = new Set(tgs.map(t => t.id));
  for (const k of Object.keys(st.at)) if (!ids.has(k)) delete st.at[k];
  for (const t of tgs) { if (!st.at[t.id] || !Galaxy.BY[st.at[t.id]]) st.at[t.id] = st.home;
@@ -13211,11 +13460,14 @@ function msTitleRender() {
  }
  msScreenRender();
 }
-function msNewClick(b) {
+async function msNewClick(b) {
  if (!msLoaded) { msLoad(); toast('保存された任務を確認中です'); return; }
  const cur = MS;
  if (cur && cur.started && !b.dataset.sure) { b.dataset.sure = '1'; const s = b.querySelector('span'); b.dataset.text = s.textContent; s.textContent = '保存中の任務は消えます。もう一度押すと新しい任務を始めます'; return; }
- delete b.dataset.sure;MS = msNew(cur?.faction || voy.setup?.own || 'empire');msLoaded = true;msUI.tab = 'fleet';msUI.report = null;msUI.tg = msUI.foe = null;msUI.pick = {};msSave();msOpenEditor();
+ delete b.dataset.sure;
+ // (the player's saved designs are prepared first, so that the starting fleet can sail those of its faction, FACTION-001)
+ try { voy.saves = await Store.list(); if (voy.saves.length) { toast('保存した設計を準備しています'); await voyPrepareSaves(); } } catch (e) { /* the examples suffice */ }
+ MS = msNew(cur?.faction || voy.setup?.own || 'empire');msLoaded = true;msUI.tab = 'fleet';msUI.report = null;msUI.tg = msUI.foe = null;msUI.pick = {};msSave();msOpenEditor();
 }
 function msContinue() {
  const st = msLoad();if (!st) return;msEnsureDesigns();voyEnsureDesigns(st.ob);
@@ -13229,10 +13481,10 @@ async function msOpenEditor() {
  const st = MS;if (!st) return;msEnsureDesigns();hideTitle();voy.saves = await Store.list().catch(() => []);
  voyOpen('setup', 'orbat', {st, setup: msSetupFor(st)});
 }
-function msFactionOptions(cur) { return Object.keys(MS_HOME).map(f => `<option value="${f}" ${f === cur ? 'selected' : ''}>${esc(R.FACTIONS[f].name)}（${msEraName(msEraOf(f))}・母港 ${esc(msSysName(MS_HOME[f]))}）</option>`).join(''); }
+function msFactionOptions(cur) { return [...Object.keys(MS_HOME), ...R.customFactions().map(d => d.id)].map(f => `<option value="${f}" ${f === cur ? 'selected' : ''}>${R.isCustomFaction(f) ? '★ ' : ''}${esc(voyFacName(f))}（${R.isCustomFaction(f) ? R.factionDef(f).eras.map(msEraName).join('／') : msEraName(msEraOf(f))}・母港 ${esc(msSysName(msHome(f)))}）</option>`).join(''); }
 function msEditorHeadHTML(st) {
  const all = voyObShips(st.ob), t = voyShipsTotals(all), dock = all.filter(sh => sh.dock).length;
- return `<section class="voy-card voy-wide ms-edit-head"><div class="voy-card-head"><h3>${esc(R.FACTIONS[st.faction].name)}の艦隊</h3><div class="voy-row">${st.started ? '' : `<label>陣営<select data-msnfac aria-label="陣営">${msFactionOptions(st.faction)}</select></label><button type="button" class="btn sm ghost" data-msn="auto">お任せ編成で作り直す</button>`}<button type="button" class="btn sm" data-voy="ctgadd">合同任務群を追加</button></div></div>
+ return `<section class="voy-card voy-wide ms-edit-head"><div class="voy-card-head"><h3>${esc(R.FACTIONS[st.faction].name)}の艦隊</h3><div class="voy-row">${st.started ? '' : `<label>陣営<select data-msnfac aria-label="陣営">${msFactionOptions(st.faction)}</select></label><button type="button" class="btn sm ghost" data-voy="facedit:${st.faction}" title="陣営を作る・編集する">陣営を編集</button><button type="button" class="btn sm ghost" data-msn="auto">お任せ編成で作り直す</button>`}<button type="button" class="btn sm" data-voy="ctgadd">合同任務群を追加</button></div></div>
   <p class="note">${st.started ? `母港は${esc(msSysName(st.home))}。修理中・改装中・就役準備中・回航中の艦は出撃できません（残り時間を表示）。新しく加えた艦は就役準備のあとに、別の星系にいる任務群へ移した艦は回航を終えてから出撃できます。` : `${msEraName(st.era)}。敵は${esc(R.FACTIONS[st.foe].name)}、母港は${esc(msSysName(st.home))}。「編成完了」で銀河図に出ます。`}任務群は${TG_MIN}〜${TG_MAX}隻、パトロールには任務群ひとつで出ます。艦名は自由に変えられます。編成は任務の保存データに記録されます。</p>
   <p class="vs-sub">${msSeg(`${all.length} 隻 · 出撃可 ${all.length - dock} 隻${dock ? ` · ドック・回航 ${dock} 隻` : ''} · 乗員 ${num(t.people)} 名 · 資材 ${num(Math.round(t.supply))} t`)}</p>${voyCostLine(voyFleetCost(all))}</section>`;
 }
@@ -13247,7 +13499,7 @@ function msDecorateEditor() {
  for (const sel of root.querySelectorAll('select[data-obmove]')) { const li = sel.closest('[data-ship]'), f = li && msFindShip(st, li.dataset.ship); if (!f) continue; const here = msAt(st, f.t.id); for (const o of sel.options) { const at = msAt(st, o.value); if (at !== here) o.textContent += `（${msSysName(at)}・回航）`; } }
 }
 function msSetFaction(f) {
- const st = MS;if (!st || st.started || !MS_HOME[f] || st.faction === f) return;
+ const st = MS;if (!st || st.started || !R.FACTIONS[f] || st.faction === f) return;
  const fresh = msNew(f);Object.assign(st, {faction: fresh.faction, foe: fresh.foe, era: fresh.era, home: fresh.home, ob: fresh.ob, at: {}});
  const s = msSetupFor(st);s.sel = {};s.editing = null;$('#voySheet').hidden = true;voyEnsureDesigns(st.ob);msSave();voyRenderSetup();
 }
@@ -13615,6 +13867,8 @@ document.addEventListener('change', e => {
 });
 // (tests) the mission from outside
 window.__msn = {get st() { return MS; }, ui: msUI, save: msSave, advance: (dt, keep) => { if (MS) { msAdvance(MS, dt, keep); msSave(); msScreenRender(); } }, spawn: () => MS && msSpawnFoe(MS), repairSecs: msRepairSecs, damage: msDamageOf, jumpSecs: msJumpSeconds, owners: msOwners, side: msSideDir, ownStart: msOwnStart, reload: () => { msLoaded = false; msLoading = null; MS = null; msLoad(); return msLoading; }, flush: () => msWrite()};
+// FACTION-001 the player's factions are entered before anything draws a faction list (the app starts after this file).
+voyFactionsBoot();
 
 // ============================================================
 // v26 PLAN-007 ground combat (v27: the players' walker and vehicle designer was retired): the ground battle view (a 2D

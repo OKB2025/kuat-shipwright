@@ -4,10 +4,10 @@ Where the time goes when a design is opened, flown or shown in a fleet battle, a
 
 ## Costs (example ships)
 - `buildDesign` of an example: ISD ~10–20 s, Venator ~18–30 s, Executor ~3 min (on the dev machine).
-- `computeStats` (figures): since the structural-material and exposed-surface work it dominates —
-  Gozanti ~85–110 s, mostly `structuralMaterial` (incremental union of every structure with the hull) and
-  `surfacePatches` / `exposedSurface`. Remaining hot spots: `solidSliceSegments` once per plane over the whole
-  accumulated mesh, and `solidSimplifySegments`.
+- `computeStats` (figures): since the structural-material and exposed-surface work it dominated (Gozanti ~85–110 s
+  on the dev machine before v13 PERF). The slice index, deferred plane sections and exact rewrites of
+  [figures-performance.md](figures-performance.md) cut it several-fold without changing a figure; an edit of one
+  structure reuses the union of the structures before it and the patches it cannot reach.
 - `fleetGeometry`: ~1 s for most ships; a Venator ~12 s (its sliding hangar doors make a fresh copy whose
   compartments are derived again).
 
@@ -27,4 +27,4 @@ Where the time goes when a design is opened, flown or shown in a fleet battle, a
 - **Warm-up**: the fleet-battle setup screen prepares its sortie's models, the mission patrol panel its flagship (with
   figures) and escorts, one at a time and only while that screen is open; `fleetAsset` shares requests in flight.
 
-Tests: `tests/load-cache.cjs`.
+Tests: `tests/load-cache.cjs`, `tests/example-figures-regression.cjs`.
