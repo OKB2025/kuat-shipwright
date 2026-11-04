@@ -9787,7 +9787,7 @@ const voyPool = () => [...voyExampleDesigns(), ...voyPlayerDesigns()];
 voy.poolGen = 0;
 async function voyPrepareSaves() {
  voyEnsureExamples();
- const recs = (voy.saves || []).filter(r => r && r.kind === 'ship' && !voy.designs.has(voySaveKey(r)) && !voy.badSave?.has(voySaveKey(r)));if (!recs.length) return 0;
+ const recs = (voy.saves || []).filter(r => r && r.id && r.kind === 'ship' && !voy.designs.has(voySaveKey(r)) && !voy.badSave?.has(voySaveKey(r)));if (!recs.length) return 0;
  let n = 0;for (const r of recs) { try { await voyPrepare('save:' + r.id); n++; } catch (e) { (voy.badSave || (voy.badSave = new Set())).add(voySaveKey(r)); } }
  if (n) { voy.poolGen++; if (voy.open && voy.screen === 'setup') voyRenderSetup(); }
  return n;
@@ -9848,7 +9848,9 @@ function voyAutoOrbat(faction, scale, rand = Math.random, opt = {}) {
  // voyFactionInstall), its reconnaissance task forces made of its own recon list.
  const doc = VOY_FLEET_DOCTRINE[faction], pick = ks => (ks || []).map(k => use.find(d => d.key === k || !!d.saveId && k === 'save:' + d.saveId)).filter(Boolean);
  if (doc) { const listed = voyDocKeys(doc), own = use.filter(d => d.saveId && !listed.includes('save:' + d.saveId) && d.info.len < 5000);
-  const c2 = [...pick(doc.caps), ...own.filter(d => d.info.capital)].filter(d => d.info.len < 5000 && people(d) <= cap.people * .3), e2 = [...pick(doc.escorts), ...own.filter(d => !d.info.capital)];
+  // (each list's first class leads, then the player's designs, then the rest: so that they sail even in a small fleet)
+  const mix = (a, b) => a.length ? [a[0], ...b, ...a.slice(1)] : b;
+  const c2 = mix(pick(doc.caps), own.filter(d => d.info.capital)).filter(d => d.info.len < 5000 && people(d) <= cap.people * .3), e2 = mix(pick(doc.escorts), own.filter(d => !d.info.capital));
   if (c2.length) caps.splice(0, caps.length, ...c2); if (e2.length) escs = e2; }
  const limit = opt.target ? VOY_SHIP_CAP : Math.min(VOY_SHIP_CAP, opt.cap || 72);
  const ships = [], tgs = [], used = new Set(), tot = {people: 0, supply: 0, str: 0};let ci = 0, ei = 0, done = false;
@@ -9996,6 +9998,10 @@ function voyBar(label, v, max, fmt = x => num(Math.round(x))) {
 }
 // FACTION-001 The four of the films, then the factions the player made (marked ★).
 // A faction's name for lists: a made faction shows its English name in English (else its name as typed, never translated).
+// A saved design's option label: its name as typed (data-l10n-skip keeps it whole), the length and note in the
+// display language (an option holds no markup to keep the name apart).
+const voyEnUI = () => typeof KSI18n !== 'undefined' && KSI18n.language === 'en';
+const voySaveLabel = (name, len, note = '') => voyEnUI() ? `${esc(name)} (${fLen(len)}${note ? ' · ' + esc(KSI18n.t(note)) : ''})` : `${esc(name)}（${fLen(len)}${note ? '・' + esc(note) : ''}）`;
 function voyFacName(k) { const f = R.FACTIONS[k];if (!f) return k;const en = f.custom && typeof KSI18n !== 'undefined' && KSI18n.language === 'en' ? f.def?.nameEn : '';return en || f.name; }
 const voyFacOpt = (k, cur) => { const f = R.FACTIONS[k]; return `<option value="${k}" ${k === cur ? 'selected' : ''}${f?.custom ? ' data-l10n-skip' : ''}>${f?.custom ? '★ ' : ''}${esc(voyFacName(k))}</option>`; };
 function voyFactionOptions(cur) { return Object.keys(R.FACTIONS).map(k => voyFacOpt(k, cur)).join(''); }
@@ -10006,9 +10012,9 @@ function voyDesignOptions(faction) {
  const lenSort = (a, b) => (a.info.len >= 5000) - (b.info.len >= 5000) || b.info.len - a.info.len, pool = voyPool().sort(lenSort), by = {};
  for (const d of pool) if (!d.anyFaction) (by[d.faction] || (by[d.faction] = [])).push(d);
  const mine = pool.filter(d => voyServes(d, faction)), order = Object.keys(by).filter(f => f !== faction);
- const opt = d => d.saveId ? `<option value="save:${esc(d.saveId)}" data-l10n-skip>${esc(d.name)}（${fLen(d.info.len)}・自作）</option>` : `<option value="${esc(d.key)}">${esc(voyShort(d.name))}（${fLen(d.info.len)}・${esc(examplePurpose(d.key, d.cls || ''))}）</option>`;
+ const opt = d => d.saveId ? `<option value="save:${esc(d.saveId)}" data-l10n-skip>${voySaveLabel(d.name, d.info.len, '自作')}</option>` : `<option value="${esc(d.key)}">${esc(voyShort(d.name))}（${fLen(d.info.len)}・${esc(examplePurpose(d.key, d.cls || ''))}）</option>`;
  const groups = (mine.length ? `<optgroup label="${esc(R.FACTIONS[faction]?.name || faction)}">${mine.map(opt).join('')}</optgroup>` : '') + order.map(f => `<optgroup label="${esc(R.FACTIONS[f]?.name || f)}">${by[f].map(opt).join('')}</optgroup>`).join('');
- const saves = (voy.saves || []).map(r => `<option value="save:${esc(r.id)}" data-l10n-skip>${esc(r.name)}（${fLen(r.len || 0)}${r.faction && r.faction !== 'any' ? '・' + esc(R.FACTIONS[r.faction]?.name || '') : ''}）</option>`).join('');
+ const saves = (voy.saves || []).map(r => `<option value="save:${esc(r.id)}" data-l10n-skip>${voySaveLabel(r.name, r.len || 0, r.faction && r.faction !== 'any' && R.FACTIONS[r.faction] ? voyFacName(r.faction) : '')}</option>`).join('');
  return `${groups}${saves ? `<optgroup label="保存した設計">${saves}</optgroup>` : ''}${ship ? `<optgroup label="設計中の艦"><option value="current">${esc(ship.name)}（${fLen(ship.hull.L)}）</option></optgroup>` : ''}`;
 }
 // v22 The battle areas, by region of the galaxy map (the two first ones under their own names).
@@ -10527,7 +10533,7 @@ function voyFactionHomeOptions(cur) {
 function voyFactionDesignOptions() {
  const ex = voyExampleDesigns().sort((a, b) => b.info.len - a.info.len), by = {};for (const d of ex) (by[d.faction] || (by[d.faction] = [])).push(d);
  const own = voyPlayerDesigns();
- return `<option value="">— 設計を選ぶ —</option>${Object.entries(by).map(([f, l]) => `<optgroup label="${esc(R.FACTIONS[f]?.name || f)}">${l.map(d => `<option value="${esc(d.key)}">${esc(voyShort(d.name))}（${fLen(d.info.len)}）</option>`).join('')}</optgroup>`).join('')}${own.length ? `<optgroup label="保存した設計">${own.map(d => `<option value="save:${esc(d.saveId)}" data-l10n-skip>${esc(d.name)}（${fLen(d.info.len)}）</option>`).join('')}</optgroup>` : ''}`;
+ return `<option value="">— 設計を選ぶ —</option>${Object.entries(by).map(([f, l]) => `<optgroup label="${esc(R.FACTIONS[f]?.name || f)}">${l.map(d => `<option value="${esc(d.key)}">${esc(voyShort(d.name))}（${fLen(d.info.len)}）</option>`).join('')}</optgroup>`).join('')}${own.length ? `<optgroup label="保存した設計">${own.map(d => `<option value="save:${esc(d.saveId)}" data-l10n-skip>${voySaveLabel(d.name, d.info.len)}</option>`).join('')}</optgroup>` : ''}`;
 }
 function voyFactionDesignName(k) { if (k.startsWith('save:')) { const id = k.slice(5), d = voyPlayerDesigns().find(x => x.saveId === id), r = (voy.saves || []).find(x => x.id === id); return d?.name || r?.name || '（保存した設計）'; } const d = voyDesign(k) || voyExampleDesigns().find(x => x.key === k); return d ? voyShort(d.name) : k; }
 function voyFactionChanged(render = true) { voyFac().dirty = true; if (render) voyRenderSetup(); }

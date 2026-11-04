@@ -9665,7 +9665,8 @@ Object.assign(root.KS_EN.terms,{
 "連隊の名前": "Regiment Name",
 "友好・敵対": "Allies & Enemies",
 "— 設計を選ぶ —": "— Choose a Design —",
-"（保存した設計）": "(Saved Design)"
+"（保存した設計）": "(Saved Design)",
+"自作": "custom"
 });
 Object.assign(root.KS_EN.messages,{
 "新しい陣営 {0}": "New Faction {0}",
