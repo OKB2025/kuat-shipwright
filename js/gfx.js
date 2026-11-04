@@ -1835,6 +1835,12 @@ function meshOnePart(out,p,ship,opt,glow){
       if(!equipmentSkinPatches(ship,'p'+p.id).length)triangleMesh(out.struct,C.aeroPanelRibs(p),[154,161,169],48,254);return;
     }
     if(k==='wing'){hullTriangleMesh(out.struct,equipmentSkinTriangles(ship,'p'+p.id,C.structTriangles(p)),opt.coded?d.col:p.paint?hex(p.paint):STRUCT_PAINT,36);return;}
+    if(k==='struct'&&p.form==='reference'&&C.REFERENCE_ASSETS[p.skinAsset]?.plainMetal){
+      const tone=opt.coded?d.col:p.paint?hex(p.paint):STRUCT_PAINT;
+      if(!opt.preview&&ship.solidCuts?.some(c=>ship.hull.assembly||c.structures))hullTriangleMesh(out.struct,equipmentSkinTriangles(ship,'p'+p.id,C.structTriangles(p)),tone);
+      else appendReference(out.struct,p.skinAsset,v=>C.referencePartPoint(p,v),null,tone,opt.preview?[]:ship.hatches.filter(h=>h.portal&&!h.referenceMouth).map(h=>C.openingBounds(ship,h)).filter(Boolean),opt.preview?[]:equipmentSkinPatches(ship,'p'+p.id));
+      return;
+    }
     if(k==='struct'&&(p.form==='reference'&&C.REFERENCE_ASSETS[p.skinAsset]||(p.form==='ellipsoid'&&ship.hullSkin?.enabled)))return;
     if(k==='sensor'&&p.skinAsset)return;
     if(k==='struct'&&p.plate){hullTriangleMesh(out.plate,equipmentSkinTriangles(ship,'p'+p.id,C.structTriangles(p)),opt.coded?PLATE_CODED:p.paint?hex(p.paint):ship.paint==='dark'?PLATE_DARK:ship.paint==='cis'?PLATE_CIS:PLATE_PAINT,64);if(p.bands)structureBands(p,out.plate,equipmentSkinTriangles(ship,'p'+p.id,C.structTriangles(p)));if(p.stripes&&p.form==='shell')shellStripes(p,out.plate);return;}
@@ -2582,7 +2588,7 @@ function meshReferenceParts(ship,ranges,only,opt={}){
   const size=p.skinSize||a.size,scale=p.d/Math.max(...size),r=(p.yaw||0)*Math.PI/180;
   appendReference(refStruct,p.skinAsset,v=>{const x=v[0]*size[0]*scale,z=v[2]*size[2]*scale;return C.add(p.c,[x*Math.cos(r)-z*Math.sin(r),v[1]*size[1]*scale,x*Math.sin(r)+z*Math.cos(r)]);});
  };
- for(const p of only||ship.parts){const a=C.REFERENCE_ASSETS[(p.k==='engine'?C.engineAppearance(p):p)?.skinAsset];if(!a)continue;const before=geoMarks(out);one(p,a);if(ranges)markRanges(ranges,p.id,before,out);}
+ for(const p of only||ship.parts){const a=C.REFERENCE_ASSETS[(p.k==='engine'?C.engineAppearance(p):p)?.skinAsset];if(!a||p.k==='struct'&&a.plainMetal)continue;const before=geoMarks(out);one(p,a);if(ranges)markRanges(ranges,p.id,before,out);}
  return {refStruct,refEngine,refPlant};
 }
 function meshReferenceFits(ship,ranges,only){

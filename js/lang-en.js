@@ -9620,4 +9620,17 @@ Object.assign(root.KS_EN.messages,{
  "「配置 → 武装」で<b>2連装重ターボレーザー</b>を選んであります。<b>甲板の左右の縁</b>を艦尾から艦首へ2〜3か所タップしてください。左右対称なので1回で両舷に付きます。": "A <b>Twin Heavy Turbolaser</b> is selected under Place → Weapons. Tap two or three locations along the <b>deck edges</b>, working from stern to bow. Left/Right Symmetry installs guns on both sides with each tap."
 });
 // </unified-turbolaser-catalog>
+// <arquitens-model>
+Object.assign(root.KS_EN.terms,{
+ "500GT 4連装中型ターボレーザー": "500 GT Quad Medium Turbolaser",
+ "500GT 4連装中型TL": "500 GT Quad Medium TL",
+ "アーキテンス船体（添付STL）": "Arquitens Hull (Supplied STL)",
+ "砲種・1門500 GT・寸法はユーザー指定と添付arquitens.stl": "Type and 500 GT per barrel specified by the user; dimensions measured from the supplied arquitens.stl",
+ "連射間隔・質量・乗員・費用はゲーム用仮定": "Firing interval, mass, crew and cost are game assumptions",
+ "左右に縦2門ずつ、計4門の中型砲塔。1門500 GT（0.5 TT）、一斉射2 TT。添付アーキテンスの砲塔寸法を保持し、小型両用ターボレーザーを参考にした砲室と砲身を使う。": "Four medium guns in two vertical pairs, one on each side. Each barrel fires 500 GT (0.5 TT), for a 2 TT salvo. Dimensions match the supplied Arquitens turret, with the small dual-purpose turbolaser as the reference for its housing and barrels.",
+ "ユーザー提供の arquitens.stl（Blender 2.90.1 書き出し）": "User-supplied arquitens.stl (exported from Blender 2.90.1)",
+ "ユーザー提供の arquitens.stl を全長325 mへ等比変換。作者・ライセンス表記は添付データに含まれない。": "The user-supplied arquitens.stl is scaled uniformly to 325 m. The attachment includes no author or license metadata.",
+ "添付された新しいアーキテンスSTLを全長325 m・全幅約144.28 m・全高約63.62 mとして使用する。船体と艦橋・エンジンカウリングは通常の選択・編集可能な構造物で、元の4基の固定主砲を除去し、左右に縦2門ずつを持つ500GT 4連装中型ターボレーザーへ置換した。1門500 GT（0.5 TT）、1基4門・一斉射2 TT、全艦4基16門。砲塔の全長約17.83 m・全高約5.81 m・全幅約14.10 mは添付モデルの主砲に合わせ、小型両用ターボレーザーの砲室と砲身を参考にした。主砲2基は上面、2基は下面に元モデルの位置・向きで配置する。既存の小型両用砲8基、外付けミサイル発射機4基、トラクタービーム1基を新しい甲板へ配置する。3基のポッド機関はそれぞれ専用炉へ接続し、ノズルは共通ISDベル型に統一する。船内には主反応炉、クラス2ハイパードライブ、慣性・構造維持、シールド、燃料、艦橋とCIC、貨物を持つ。兵員100名を保持し、航空隊は搭載しない。武装の連射間隔・質量・費用と内部設備の構成はゲーム用仮定。": "The new supplied Arquitens STL is scaled uniformly to 325 m long, about 144.28 m wide and 63.62 m high. Its hull, bridge and engine cowlings form an ordinary selectable structure. The four static main turrets are removed and replaced with 500 GT quad medium turbolasers, each with two vertical barrels on either side: 500 GT (0.5 TT) per barrel, a 2 TT salvo per turret, four turrets and sixteen barrels overall. The 17.83 m length, 5.81 m height and 14.10 m width follow the supplied main guns, using the small dual-purpose turret housing and barrels as references. Two main turrets occupy the original dorsal stations and two the ventral stations. Eight small dual-purpose turrets, four external missile launchers and one tractor beam occupy the new decks. Each of the three drives has its own reactor and the standard ISD bell nozzle. The interior includes a main reactor, class 2 hyperdrive, inertial compensation, structural integrity, shields, fuel, bridge, CIC and cargo. It carries 100 troops and no aircraft. Weapon cycle, mass, cost and internal layout are game assumptions."
+});
+// </arquitens-model>
 })(typeof window==="undefined"?globalThis:window);

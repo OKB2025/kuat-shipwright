@@ -1884,7 +1884,7 @@ const rgb = (c) => `rgb(${c[0]},${c[1]},${c[2]})`;
 
 // ---------- state ----------
 const PART_KEYS = Object.keys(C.PARTS).filter(k=>!['machinery','capacitor'].includes(k));
-const WEAPONS = ['refVen','stl','refSide','oct40','casemateMid','casemateLight','casemateIon','casemateIonL','triple40','quad200','pd', 'ltl', 'mtl', 'htl', 'xx9', 'utl', 'ionL', 'nk7', 'ion', 'msl', 'itl', 'trc'];
+const WEAPONS = ['refVen','stl','refSide','oct40','casemateMid','casemateLight','casemateIon','casemateIonL','triple40','quad200','quad500','pd', 'ltl', 'mtl', 'htl', 'xx9', 'utl', 'ionL', 'nk7', 'ion', 'msl', 'itl', 'trc'];
 const BRIDGES = ['podBridge','podAir','podHangar','podCombat'];
 // Every design uses the same catalogue. Compact hulls put smaller equipment first
 // and keep separate placement-size defaults, without hiding the ship equipment.

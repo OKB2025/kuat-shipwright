@@ -1,0 +1,113 @@
+{
+  "title": "500GT 4連装中型ターボレーザー砲塔",
+  "kind": "fit",
+  "plainMetal": true,
+  "source": "Turret-Small-1.fbx (user supplied), derived quad mount",
+  "derivedFrom": "pd_turret_small",
+  "n": 28697,
+  "faces": 32764,
+  "indexBytes": 2,
+  "c": [
+    3.2393335398781997,
+    2.90325,
+    -9.110530283518159e-06
+  ],
+  "size": [
+    17.8304,
+    5.8065,
+    14.104100000000003
+  ],
+  "mount": [
+    0,
+    0,
+    0
+  ],
+  "forward": [
+    1,
+    0,
+    0
+  ],
+  "up": [
+    0,
+    1,
+    0
+  ],
+  "barrels": 4,
+  "layout": "two vertical barrels on each side",
+  "bounds": [
+    [
+      -5.6758664601218,
+      0.0,
+      -7.052059110530284
+    ],
+    [
+      12.1545335398782,
+      5.8065,
+      7.052040889469717
+    ]
+  ],
+  "sourcePackedSha256": "96c0ea7ef0d1aa6bbbccb160d5b4f6dd4cd1c8caf548ef9796b0ffd443540ca2",
+  "housingVertices": 21401,
+  "housingFaces": 25356,
+  "barrelVertices": 1824,
+  "barrelFaces": 1852,
+  "barrelCenters": [
+    {
+      "side": "left",
+      "row": "lower",
+      "firstVertex": 21401,
+      "vertices": 1824,
+      "faces": 1852,
+      "centerM": [
+        5.501872317879786,
+        2.848268487755007,
+        -4.223469501636919
+      ]
+    },
+    {
+      "side": "left",
+      "row": "upper",
+      "firstVertex": 23225,
+      "vertices": 1824,
+      "faces": 1852,
+      "centerM": [
+        5.501872317879786,
+        4.433868620833164,
+        -4.223469501636919
+      ]
+    },
+    {
+      "side": "right",
+      "row": "lower",
+      "firstVertex": 25049,
+      "vertices": 1824,
+      "faces": 1852,
+      "centerM": [
+        5.501872317879786,
+        2.848268487755007,
+        4.223451280576352
+      ]
+    },
+    {
+      "side": "right",
+      "row": "upper",
+      "firstVertex": 26873,
+      "vertices": 1824,
+      "faces": 1852,
+      "centerM": [
+        5.501872317879786,
+        4.433868620833164,
+        4.223451280576352
+      ]
+    }
+  ],
+  "axisScale": [
+    1.9811555555555556,
+    1.8437210849746009,
+    2.4615115845212037
+  ],
+  "barrelRadialScale": 1.8437210849746009,
+  "maxQuantizationErrorM": 0.00011530492406254527,
+  "modifications": "Original housing and all its faces retained; each complete barrel copied into upper/lower rows at the two sides, including recessed muzzle geometry and original UVs. Native envelope follows supplied Arquitens STL.",
+  "packedSha256": "8a69ebf08235befc7cdef7f354f8bff7bce5d81d6d8b55e087288919ef8d2987"
+}
