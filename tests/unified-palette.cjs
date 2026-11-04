@@ -11,7 +11,7 @@ const panel={innerHTML:''},$=selector=>selector==='#panel'?panel:null;
 const esc=s=>String(s??''),num=(n,d=0)=>Number(n).toFixed(d),fmtM=n=>n+' m',rgb=c=>'rgb('+c.join(',')+')',sizeOut=(k,n)=>n+' m';
 const activeEquipment=()=>null,equipmentCard=id=>'<button data-equipment="'+id+'"></button>',partList=()=>'',markTabs=()=>{},renderPanelInfo=()=>{},updateHint=()=>{},refreshOverlay=()=>{};
 const findSel=()=>null,partInfoHTML=()=>'',selItem=()=>ship.parts[0],twinOfItem=()=>null;
-const fitBtn=(k,on,data)=>'<button data-'+data+'="'+k+'"></button>',PED_SHAPES=[['round','round']],storeCapText=()=>'';
+const fitBtn=(k,on,data)=>'<button data-'+data+'="'+k+'"></button>',storeCapText=()=>'';
 function reset(small=true){
  ship={name:'test',hull:small?{L:20,W:12,H:4}:{L:300,W:100,H:40},shipClass:small?'starfighter':'frigate',parts:[],fits:[],armor:{hull:.01,cit:0},keel:'std'};
  Object.assign(st,{tab:'mod',group:'power',part:'gen',partTool:'place',fit:'htl',fitTool:'place',bridge:'podBridge',bridgeTool:'place',bridgeMode:'body',size:{gen:110},sizeCraft:{},placeBy:Object.fromEntries(Object.keys(C.PARTS).map(k=>[k,'inside'])),structSize:[180,110,60],roomSize:[120,60,24],structForm:'trap',structTaper:0,structPlate:false,structLight:false,sel:null,ped:0,pedShape:'round',pedSize:1,engineDir:[-1,0,0],fill:[.2,.8]});
@@ -22,6 +22,7 @@ section('const CMD_LABEL =','const tabKey =');
 section('function seg(','function silhouette(');
 section('function partCard(','function fitBtn(');
 section('function basePartEditor()','function baseFitEditor(');
+section('const PED_SHAPES =','const TEMPLATE_SKIP =');
 section('function baseRenderPanel()','function sizeOut(');
 section('function unalignedPartPreview(','function notchBox(');
 section('let paletteShip=null;','// v23 Item selection');
@@ -65,6 +66,8 @@ test('small hull palette renders standard equipment and both weapon scales with 
  assert.match(run('panel.innerHTML'),/data-equipment=/);assert.doesNotMatch(run('panel.innerHTML'),/NaN|undefined/);
  run('st.part="pump";baseRenderPanel();');assert.match(run('panel.innerHTML'),/data-part="pump"/);assert.doesNotMatch(run('panel.innerHTML'),/NaN|undefined/);
  run('st.tab="arm";baseRenderPanel();');assert.match(run('panel.innerHTML'),/data-fit="htl"/);assert.match(run('panel.innerHTML'),/data-fit="claser"/);
+ assert.match(run('panel.innerHTML'),/data-sl="ped"[^>]*value="0"/);assert.doesNotMatch(run('panel.innerHTML'),/NaN|undefined/);
+ run('st.fit="claser";baseRenderPanel();');assert.doesNotMatch(run('panel.innerHTML'),/data-sl="ped"/);assert.match(run('panel.innerHTML'),/取付面に直接/);
 });
 
 test('room dimensions used for preview match the editable placement dimensions on either hull class',()=>{

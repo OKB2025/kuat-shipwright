@@ -4162,6 +4162,8 @@ root.KS_EN={
   "電源喪失": "Power Loss",
   "{0}：電源喪失で航行不能（チュートリアル）": "{0}: disabled by power loss (tutorial)",
   "作例の艦を準備できません": "Unable to prepare the example ships",
+  "艦艇の性能を更新中…": "Updating ship performance…",
+  "艦艇の性能を更新できません。もう一度出撃してください": "Unable to update ship performance. Try launching again.",
   "第1小艦隊": "Flotilla 1",
   "航行のチュートリアル": "Fleet Tutorial",
   "✓ できました。次の手順へ進みます…": "✓ Done. Moving to the next step…",
@@ -9189,4 +9191,28 @@ Object.assign(root.KS_EN.messages,{
  "装甲板・機材構造面の外観参考：": "Armor and Machinery Surface Visual Reference: ",
  "甲板・外板・艦橋・側面トレンチの拡大画像を参考に、装甲板の継ぎ目と浅い段差、大小の機器状の凹凸、張り出しと発光点を手続き生成しています。": "Close-up images of the decks, hull, bridge and side trenches inform procedurally generated armor seams and shallow stepped edges, varied machinery relief, projections and clustered lights."
 });
+// <weapon-sponson-catalog>
+Object.assign(root.KS_EN.messages,{
+ "張出し砲座": "Sponson Gun Platform",
+ "通常の構造物": "Standard Structure",
+ "壁に沿う長さ": "Length Along Wall",
+ "張出しの奥行き": "Platform Depth",
+ "砲座の厚さ": "Platform Thickness",
+ "艦側・構造物の壁をタップして、水平な張出し砲座を設置します。砲座は配置後も構造物として位置・寸法を調整できます。": "Tap a hull or structure wall to add a horizontal sponson gun platform. After placement, adjust its position and dimensions as a structure.",
+ "点防御を配置する": "Place Point Defense",
+ "張出し砲座を作る": "Create Sponson Gun Platform",
+ "艦側・構造物の壁に砲座を張り出し、その上へ武装を設置できます。": "Build a projecting platform on a hull or structure wall, then mount weapons on its deck.",
+ "船体・構造物の側面をタップしてください": "Tap a side wall of the hull or a structure",
+ "壁をタップして水平な張出し砲座を作る": "Tap a wall to create a horizontal sponson gun platform"
+});
+// </weapon-sponson-catalog>
+// <weapon-output-sizing-catalog>
+Object.assign(root.KS_EN.messages,{
+ "小型両用ターボレーザー（連装・点防御）": "Small Dual-Purpose Twin Turbolaser (Point Defense)",
+ "小型両用TL": "Small Dual-Purpose TL",
+ "小型両用砲の威力・連射間隔はゲーム用設定": "Dual-purpose gun energy and firing interval are game settings",
+ "2門×2.5 TT、0.2秒間隔の小型両用砲。艦載機・ミサイルの迎撃と対艦射撃を兼ねる。": "A small twin dual-purpose gun firing 2.5 TT per barrel every 0.2 seconds. Engages ships and intercepts craft and missiles.",
+ "砲塔の標準寸法はDBY-827（140 TT）とインペリアルI級8連装（350 TT）のモデルを基準に、一斉射威力と門数に応じて補正します。同じ門数では威力8倍で寸法2倍です。小型両用砲は2門×2.5 TTで、迎撃と対艦射撃を兼ねます。": "Standard turret dimensions use the DBY-827 (140 TT) and Imperial I eight-barrel turret (350 TT) as references, scaled by salvo energy and barrel count. With the same barrel count, eight times the energy doubles each dimension. The small dual-purpose gun fires 2 x 2.5 TT and serves both interception and anti-ship roles."
+});
+// </weapon-output-sizing-catalog>
 })(typeof window==="undefined"?globalThis:window);

@@ -25,7 +25,7 @@ section('const trialCol=', 'const trialWrap=');
 run(app.match(/const trialWrap=.*?;/)[0]);
 section('function trialCraftSystemsSpec()', 'function trialReset()');
 section('const TRIAL_PILOT_REFERENCE_CYCLE=', 'function trialTurretState(');
-section('function trialGunnery(dt)', '// Missiles leave');
+section('function trialShotGeometry(', '// Missiles leave');
 section('function trialDurText(', 'function trialHyperUpdate(');
 section('function trialRateBase(', 'function trialMaxRates(');
 run('reset();');
