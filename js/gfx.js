@@ -588,7 +588,6 @@ function meshFits(ship, filter, ranges, only) {
       if(f.float)return;
       const d=C.fitSpec(f),ph=(f.base||0)+(f.ped||0)-(f.low||0);
       if(!d.casemate&&!f.localMount&&f.mountAxis==null&&ph>0.3&&C.fitHasPedestal(f)&&!FIT_SKIP_PED?.has(f.id))pedestal(g,frameM(f),C.fitOrigin(f),ph,d.r*.72*(f.pedSize||1),f.pedShape,FC.ped,d.r*.8);
-      if(plainFitAsset(f)&&!FIT_SKIP_BODY?.has(f.id))appendPlainFit(g,f);
       return;
     }
     // Command pods are the bridge drum mesh, drawn with the model fittings.
@@ -2546,17 +2545,8 @@ function arcPaintBands(p,g){
 // a model's tone correction may brighten as well as darken its texture.
 const REF_ONE=[128,128,128];
 function refTone(id,base=WHITE){const f=C.REFERENCE_TONE[id]||[1,1,1];return [0,1,2].map(i=>Math.max(0,Math.min(255,Math.round(base[i]/255*128*f[i]))));}
-function plainFitAsset(f){return C.REFERENCE_ASSETS[f.skinAsset||C.FITS[f.k]?.asset]?.plainMetal;}
-// The supplied FBX has no texture atlas. Keep its indexed normals and geometry,
-// but render it with the ordinary fitting metal in the editor and fleet alike.
-const PLAIN_FIT_CACHE=new WeakMap();
-function appendPlainFit(g,f){
- const key=JSON.stringify([f,C.fitSpec(f)],(k,v)=>k.startsWith('_')?undefined:v);let item=PLAIN_FIT_CACHE.get(f);
- if(!item||item.key!==key){const id=f.skinAsset||C.FITS[f.k].asset,mesh=new Geo(C.REFERENCE_ASSETS[id].n);appendReference(mesh,id,v=>C.referenceFitPoint(f,v),null,FC.body);item={key,mesh};PLAIN_FIT_CACHE.set(f,item);}
- appendGeo(g,item.mesh);
-}
 function appendReference(g,id,point,filter,color=WHITE,cuts=[],skinPatches=[]){
- const a=C.REFERENCE_ASSETS[id],d=C.decodeReference(id);if(!a||!d)return;if(!a.plainMetal)color=refTone(id,color);
+ const a=C.REFERENCE_ASSETS[id],d=C.decodeReference(id);if(!a||!d)return;color=refTone(id,color);
  const pos=new Float32Array(d.pos.length),nor=new Float32Array(d.pos.length),indices=[];
  for(let i=0;i<d.pos.length;i+=3)pos.set(point([d.pos[i],d.pos[i+1],d.pos[i+2]],a),i);
  for(let i=0;i<d.idx.length;i+=3){const ids=[d.idx[i],d.idx[i+1],d.idx[i+2]];
@@ -2596,7 +2586,7 @@ function meshReferenceParts(ship,ranges,only,opt={}){
  return {refStruct,refEngine,refPlant};
 }
 function meshReferenceFits(ship,ranges,only){
-  const g=new Geo(16);for(const f of only||surfaceRenderFits(ship)){const d=C.FITS[f.k];if(embeddedSurfaceFit(f)||!(d.asset||d.pod)||f.float||plainFitAsset(f))continue;const before=g.ni;
+  const g=new Geo(16);for(const f of only||surfaceRenderFits(ship)){const d=C.FITS[f.k];if(embeddedSurfaceFit(f)||!(d.asset||d.pod)||f.float)continue;const before=g.ni;
   if(d.pod)appendReference(g,C.POD_ASSET,v=>C.podPoint(f,v));else appendReference(g,f.skinAsset||d.asset,v=>C.referenceFitPoint(f,v));
   if(ranges&&g.ni>before)(ranges[f.id]||(ranges[f.id]=[])).push(['refFits',before,g.ni-before]);
  }return g;
@@ -2754,7 +2744,7 @@ function trialTurrets(model,put,ranges){
  for(const f of list)if(!poses.has(f.id))poses.set(f.id,mirroredTurretPose(f,list,poses)||(()=>{const fr=C.fitFrameOf(f);return {pivot:C.fitOrigin(f),axis:fr.up,fw:fr.fw};})());
  for(const f of list){
   const d=C.fitSpec(f),spec=C.FITS[f.k],pose=poses.get(f.id),axis=C.norm(pose.axis),fw=C.norm(C.sub(pose.fw,C.mul(axis,C.dot(pose.fw,axis)))),rot=turning.has(f.id);
-  let mesh=null;if(rot){if(spec.asset&&!plainFitAsset(f)){mesh='refTur_'+f.id;put(mesh,meshReferenceFits(model,null,[f]),'reference',null);}else{mesh='tur_'+f.id;FIT_SKIP_PED=all;try{put(mesh,meshFits(model,x=>x===f),'fits',.6);}finally{FIT_SKIP_PED=null;}}}
+  let mesh=null;if(rot){if(spec.asset){mesh='refTur_'+f.id;put(mesh,meshReferenceFits(model,null,[f]),'reference',null);}else{mesh='tur_'+f.id;FIT_SKIP_PED=all;try{put(mesh,meshFits(model,x=>x===f),'fits',.6);}finally{FIT_SKIP_PED=null;}}}
   const embedded=C.surfaceBatteryGeometry?.(f);out.push({id:f.id,k:f.k,name:spec.short||spec.name,mesh,pivot:pose.pivot,axis,fw,origin:C.turretOrigin(f),mount:C.fitUp(f),r:d.r,hm:embedded?embedded.height:d.hm,embedded:!!embedded,fixed:!!spec.fixed,portWidth:embedded?.width,portHeight:embedded?.height,port:embedded?{width:embedded.width,height:embedded.height,depth:embedded.depth}:undefined,casemate:embedded?false:!!(spec.casemate||spec.fixed),barrels:spec.barrels||(spec.fixed?1:TRIAL_BARRELS[f.k]||2),cycle:spec.cycle||2.5,tt:d.tt||0,ion:!!d.ion&&!d.tt,rate:C.turretRate(f),power:d.power||0,cap:C.needsCapacitor(f)});
  }
  return out;
