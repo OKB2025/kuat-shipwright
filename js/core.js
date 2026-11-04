@@ -21221,7 +21221,8 @@ function structVolume(pt){let v=0;const T=structTriangles(pt);for(let i=0;i<T.le
 // Independently installed wings, panels and equipment are not fused hardware.
 const STRUCTURAL_MATERIAL_CACHE=new WeakMap();
 const STRUCTURAL_VOLUME_CACHE=new WeakMap();
-const STRUCTURAL_PREFIX={owner:null},STRUCTURAL_PREFIX_BYTES=64e6;
+// Memory for the reused union prefix (provisional: 32 MB, one ship at a time).
+const STRUCTURAL_PREFIX={owner:null},STRUCTURAL_PREFIX_BYTES=32e6;
 function structuralMaterialOrder(a,b){const density=p=>p.plate?K.armorDens:K.structDens*(p.light?.25:1);return density(b)-density(a)||a.id-b.id;}
 function structuralMeshVolume(T){if(!T.length)return 0;const cached=STRUCTURAL_VOLUME_CACHE.get(T);if(cached!==undefined)return cached;const b=solidMeshBounds(T),o=[0,1,2].map(i=>(b[i]+b[i+3])/2);let value=0;const o0=o[0],o1=o[1],o2=o[2];for(let i=0;i<T.length;i+=9){/* dot(a,cross(b,c)) about o, the same operations without the temporary arrays */const a0=T[i]-o0,a1=T[i+1]-o1,a2=T[i+2]-o2,b0=T[i+3]-o0,b1=T[i+4]-o1,b2=T[i+5]-o2,c0=T[i+6]-o0,c1=T[i+7]-o1,c2=T[i+8]-o2;value+=a0*(b1*c2-b2*c1)+a1*(b2*c0-b0*c2)+a2*(b0*c1-b1*c0);}const result=Math.abs(value/6);STRUCTURAL_VOLUME_CACHE.set(T,result);return result;}
 // v13 LOAD A clip asks for the coplanar section of the same accumulated mesh once per plane of the other solid,
@@ -30346,24 +30347,29 @@ function solidSimplifySegments(segments,eps){
 // while they fit in 26 bits (else by their joined string, as before); each node's neighbour list keeps the insertion
 // order the Set had, so the queue, the merges and the output order are unchanged.
 // The integer pairs go to an open-addressing table (stamped per call, so it is reused without clearing).
-const SOLID_KEY_LIMIT=33554432,SOLID_NODE_TABLE={size:0,mask:0,gen:0,stamp:null,kx:null,ky:null,id:null};
+const SOLID_KEY_LIMIT=33554432,SOLID_NODE_TABLE={size:0,mask:0,gen:0,stamp:null,kx:null,ky:null,id:null,cap:0};
 function solidSimplifyFlat(flat,count,eps){
- const px=[],py=[],adj=[],text=new Map(),H=SOLID_NODE_TABLE;
+ const text=new Map(),H=SOLID_NODE_TABLE,need=count*2+2;
  if(H.size<count*4+16){let size=1024;while(size<count*4+16)size*=2;Object.assign(H,{size,mask:size-1,gen:0,stamp:new Int32Array(size),kx:new Int32Array(size),ky:new Int32Array(size),id:new Int32Array(size)});}
- if(++H.gen>2e9){H.stamp.fill(0);H.gen=1;}const gen=H.gen,stamp=H.stamp,KX=H.kx,KY=H.ky,ID=H.id,mask=H.mask;
- const add=(x,y)=>{const i=px.length;px.push(x);py.push(y);adj.push([]);return i;};
+ if(H.cap<need){let cap=1024;while(cap<need)cap*=2;Object.assign(H,{cap,px:new Float64Array(cap),py:new Float64Array(cap),deg:new Int32Array(cap),adj:new Int32Array(cap*4)});}
+ if(++H.gen>2e9){H.stamp.fill(0);H.gen=1;}const gen=H.gen,stamp=H.stamp,KX=H.kx,KY=H.ky,ID=H.id,mask=H.mask,PX=H.px,PY=H.py,DEG=H.deg,ADJ=H.adj;let nodes=0;
+ // Neighbour lists in insertion order: four inline slots per node, an array once a node has more (DEG −1).
+ const over=new Map(),list=i=>DEG[i]<0?over.get(i):null,degree=i=>DEG[i]<0?over.get(i).length:DEG[i],at=(i,k)=>DEG[i]<0?over.get(i)[k]:ADJ[i*4+k];
+ const has=(i,j)=>{const l=list(i);if(l)return l.includes(j);for(let k=0;k<DEG[i];k++)if(ADJ[i*4+k]===j)return true;return false;};
+ const link=(i,j)=>{if(has(i,j))return;const l=list(i);if(l){l.push(j);return;}const d=DEG[i];if(d<4){ADJ[i*4+d]=j;DEG[i]=d+1;}else{over.set(i,[ADJ[i*4],ADJ[i*4+1],ADJ[i*4+2],ADJ[i*4+3],j]);DEG[i]=-1;}};
+ const unlink=(i,j)=>{const l=list(i);if(l){const k=l.indexOf(j);if(k>=0)l.splice(k,1);return;}const d=DEG[i];for(let k=0;k<d;k++)if(ADJ[i*4+k]===j){for(let m=k;m+1<d;m++)ADJ[i*4+m]=ADJ[i*4+m+1];DEG[i]=d-1;return;}};
+ const add=(x,y)=>{const i=nodes++;PX[i]=x;PY[i]=y;DEG[i]=0;return i;};
  const node=(x,y)=>{const kx=Math.round(x/eps),ky=Math.round(y/eps);
   if(Math.abs(kx)<SOLID_KEY_LIMIT&&Math.abs(ky)<SOLID_KEY_LIMIT){let h=(Math.imul(kx|0,-1640531535)^Math.imul(ky|0,-2048144777))&mask;
    while(stamp[h]===gen){if(KX[h]===kx&&KY[h]===ky)return ID[h];h=(h+1)&mask;}stamp[h]=gen;KX[h]=kx;KY[h]=ky;return ID[h]=add(x,y);}
   const key=kx+','+ky;let i=text.get(key);if(i===undefined){i=add(x,y);text.set(key,i);}return i;};
- const link=(i,j)=>{const e=adj[i];if(!e.includes(j))e.push(j);},unlink=(i,j)=>{const e=adj[i],k=e.indexOf(j);if(k>=0)e.splice(k,1);};
  for(let s=0;s<count;s++){const i=node(flat[s*4],flat[s*4+1]),j=node(flat[s*4+2],flat[s*4+3]);if(i!==j){link(i,j);link(j,i);}}
- const queue=px.map((_,i)=>i);for(let k=0;k<queue.length;k++){
-  const i=queue[k],e=adj[i];if(e.length!==2)continue;const a=e[0],b=e[1],u0=px[a]-px[i],u1=py[a]-py[i],v0=px[b]-px[i],v1=py[b]-py[i],lu=Math.hypot(u0,u1),lv=Math.hypot(v0,v1);
+ const queue=[];for(let i=0;i<nodes;i++)queue.push(i);for(let k=0;k<queue.length;k++){
+  const i=queue[k];if(degree(i)!==2)continue;const a=at(i,0),b=at(i,1),u0=PX[a]-PX[i],u1=PY[a]-PY[i],v0=PX[b]-PX[i],v1=PY[b]-PY[i],lu=Math.hypot(u0,u1),lv=Math.hypot(v0,v1);
   if(u0*v0+u1*v1>=0||Math.abs(u0*v1-u1*v0)>eps*(lu+lv))continue;
-  unlink(a,i);unlink(b,i);e.length=0;link(a,b);link(b,a);queue.push(a,b);
+  unlink(a,i);unlink(b,i);if(DEG[i]<0)over.delete(i);DEG[i]=0;link(a,b);link(b,a);queue.push(a,b);
  }
- const P=px.map((x,i)=>[x,py[i]]),out=[];for(let i=0;i<P.length;i++)for(const j of adj[i])if(j>i)out.push([P[i],P[j]]);return out;
+ const P=new Array(nodes),pt=i=>P[i]||(P[i]=[PX[i],PY[i]]),out=[];for(let i=0;i<nodes;i++){const d=degree(i);for(let k=0;k<d;k++){const j=at(i,k);if(j>i)out.push([pt(i),pt(j)]);}}return out;
 }
 // v13 PERF: a plane meets few of a mesh's triangles, but every slice walked them all (once per plane of the other
 // solid in structuralMaterial / surfacePatches). Boxes over runs of SOLID_SLICE_LEAF consecutive triangles, kept in
