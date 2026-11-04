@@ -1870,8 +1870,13 @@ function markRanges(ranges,id,before,out){for(const k in out){const n=out[k].ni-
 function meshHull(ship){
   if(ship.hullSkin?.enabled||ship.hull.assembly)return new Geo(16);
   const equipment=equipmentSkinPatches(ship,'hull');if(!equipment.length&&!ship.solidCuts?.length&&!ship.trenches?.some(t=>t.mode==='split')&&!ship.hull.stations?.length&&!ship.hatches.some(h=>h.portal)&&ship.hull.sec!=='warship')return v3MeshHull(ship);
+  const bayCaps=ship.hatches.filter(h=>h.portal&&h.bay).map(h=>({h,b:C.openingBounds(ship,h),bay:ship.parts.find(p=>p.id===h.bay&&p.k==='hangar')})).filter(q=>q.b&&q.bay);
   const T=equipmentSkinTriangles(ship,'hull',C.hullGeo(ship).tris),g=new Geo(T.length/3+100),openings=ship.hatches.map(h=>C.openingBounds(ship,h)).filter(Boolean),paint=ship.paint==='dark'?[103,116,129]:ship.paint==='cis'?HULL_CIS:[189,193,192];
   for(let i=0;i<T.length;i+=9){const tri=T.slice(i,i+9),p=[(T[i]+T[i+3]+T[i+6])/3,(T[i+1]+T[i+4]+T[i+7])/3,(T[i+2]+T[i+5]+T[i+8])/3],n=C.norm(C.cross(C.sub(Array.from(tri.slice(3,6)),Array.from(tri.slice(0,3))),C.sub(Array.from(tri.slice(6)),Array.from(tri.slice(0,3)))));
+    // Core closes the aperture at its sill for the material/volume model.
+    // In the rendered ship that cap lies inside the real bay: its clipped
+    // ceiling/walls below already close the room, so the extra sheet hides it.
+    if(bayCaps.some(({h,b,bay})=>{const axis=C.hatchAxes(h).axis,sign=h.n[axis],plane=b[axis+(sign>0?0:3)];return [0,3,6].every(j=>Math.abs(tri[j+axis]-plane)<.001)&&p.every((v,a)=>v>=b[a]-.001&&v<=b[a+3]+.001)&&C.inPart(bay,C.add(p,C.mul(h.n,.05)))&&C.inPart(bay,C.sub(p,C.mul(h.n,.05)));}))continue;
     let color=paint;
     if(openings.some(b=>p.every((v,a)=>v>=b[a]-.1&&v<=b[a+3]+.1)&&[0,1,2].some(a=>[b[a],b[a+3]].some(v=>Math.abs(T[i+a]-v)<.1&&Math.abs(T[i+3+a]-v)<.1&&Math.abs(T[i+6+a]-v)<.1))))color=[48,60,67];
     hullTriangleMesh(g,tri,color,42);
