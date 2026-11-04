@@ -2,7 +2,7 @@
 // A small Core-configured fixture with actual native pitch controls and Undo/Redo.
 const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),assert=require('node:assert/strict'),{chromium}=require('playwright');
 const root=path.resolve(__dirname,'..'),url=process.argv[2]||'http://127.0.0.1:8765',output=path.resolve(process.argv[3]||path.join(root,'docs/benchmarks/missile-launcher-browser.json')),imageRoot=path.join(root,'docs/images');
-const hash=data=>crypto.createHash('sha256').update(data).digest('hex'),sources=Object.fromEntries(['data/reference.js','data/fleet.js','js/core.js','js/app.js','js/gfx.js','js/lang-en.js','js/engine.js','index.html'].map(f=>[f,hash(fs.readFileSync(path.join(root,f)))]));
+const hash=data=>crypto.createHash('sha256').update(data).digest('hex'),sources=Object.fromEntries(['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/app.js','js/gfx.js','js/lang-en.js','js/engine.js','index.html'].map(f=>[f,hash(fs.readFileSync(path.join(root,f)))]));
 if(process.env.MISSILE_EXPECT_CORE)assert.equal(sources['js/core.js'],process.env.MISSILE_EXPECT_CORE,'source must match the final freeze');
 async function latest(page){await page.waitForFunction(()=>{const Y=window.__yard;return Y.ship?.name==='Compact launchers and flush VLS'&&Y.stats&&Y.eng.adoptedGen>=Y.eng.gen&&Y.eng.geoGen>=Y.eng.gen&&Y.eng.statsGen>=Y.eng.gen&&document.querySelector('#engineStatus')?.hidden;},null,{timeout:120000});}
 async function draw(page){await page.evaluate(async()=>{const Y=window.__yard;Y.draw();Y.kickLoop();await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));});}

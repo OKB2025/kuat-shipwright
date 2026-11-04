@@ -17,6 +17,10 @@ import json
 import math
 from pathlib import Path
 import struct
+import sys
+sys.dont_write_bytecode = True
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from turret_compartment_metadata import attach_compartment
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_ID = 'pd_turret_small'
@@ -249,7 +253,7 @@ def build(reference, size=TARGET_SIZE_M):
             'and real recessed circular muzzles, based on the supplied photographs. '
             'The entire appended cradle/barrel group elevates about the original side-drive axis.',
         'data':base64.b64encode(packed).decode('ascii')}
-    return asset
+    return attach_compartment(ASSET_ID, asset)
 
 
 def main():

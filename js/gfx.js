@@ -746,16 +746,18 @@ function meshFits(ship, filter, ranges, only) {
 // bounds. Empty space in a ring or between barrels is not selectable. A small
 // LRU invalidates immediately after a pose or load edit.
 const FIT_RAY_CACHE=new Map(),FIT_RAY_BOUNDS=new WeakMap();
+// Core's box ray query reports entry surfaces; inside origins still need the exact mesh test.
+const fitRayStartsInside=(o,b)=>o.every((v,a)=>v>=b[a]&&v<=b[a+3]);
 function rayFit(o,d,f){
  if(!f||!C.FITS[f.k])return null;
- const key=JSON.stringify([f,C.fitSpec(f),f._store],(k,v)=>k.startsWith('_')?undefined:v),known=FIT_RAY_BOUNDS.get(f);if(known?.key===key&&!C.rayAABB(o,d,known.bounds))return null;let item=FIT_RAY_CACHE.get(f);
+ const key=JSON.stringify([f,C.fitSpec(f),f._store],(k,v)=>k.startsWith('_')?undefined:v),known=FIT_RAY_BOUNDS.get(f);if(known?.key===key&&!fitRayStartsInside(o,known.bounds)&&!C.rayAABB(o,d,known.bounds))return null;let item=FIT_RAY_CACHE.get(f);
  if(!item||item.key!==key){const model={fits:[f],parts:[],paint:'imperial'},skipBody=FIT_SKIP_BODY,skipPed=FIT_SKIP_PED;let meshes;
   try{FIT_SKIP_BODY=FIT_SKIP_PED=null;meshes=[meshFits(model,null,null,[f]),meshReferenceFits(model,null,[f])];}finally{FIT_SKIP_BODY=skipBody;FIT_SKIP_PED=skipPed;}
   const T=new Float32Array(meshes.reduce((n,g)=>n+g.ni*3,0)),bounds=[Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity];let cursor=0;
   for(const g of meshes)for(let i=0;i<g.ni;i++){const k=g.idx[i]*3;for(let a=0;a<3;a++){const v=g.pos[k+a];T[cursor++]=v;bounds[a]=Math.min(bounds[a],v);bounds[a+3]=Math.max(bounds[a+3],v);}}
   item={key,T,bounds};FIT_RAY_BOUNDS.set(f,{key,bounds});FIT_RAY_CACHE.delete(f);FIT_RAY_CACHE.set(f,item);while(FIT_RAY_CACHE.size>48)FIT_RAY_CACHE.delete(FIT_RAY_CACHE.keys().next().value);
  }else{FIT_RAY_CACHE.delete(f);FIT_RAY_CACHE.set(f,item);}
- if(!item.T.length||!C.rayAABB(o,d,item.bounds))return null;return C.rayTris(item.T,o,d);
+ if(!item.T.length||!fitRayStartsInside(o,item.bounds)&&!C.rayAABB(o,d,item.bounds))return null;return C.rayTris(item.T,o,d);
 }
 
 // ---------- WebGL ----------
@@ -1572,7 +1574,7 @@ class Renderer {
     const sht = this.shTile, SH = this.sh; if (sht && SH && sht.M && !this.unitScl) { gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, SH.t); gl.uniform1i(p.u.uShadow, 2); gl.uniformMatrix4fv(p.u.uShM, false, sht.M); gl.uniform4fv(p.u.uShTile, sht.uv); gl.uniform4f(p.u.uShK, 1, 1 / SH.size, sht.bias, sht.noff); } else gl.uniform4f(p.u.uShK, 0, 0, 0, 0);
     gl.uniform3fv(p.u.uEye, m.eye); gl.uniform1f(p.u.uAlpha, alpha);
     gl.uniform1f(p.u.uPaint,this.paint==='dark'?2:this.paint==='republic'?1:0);gl.uniform1f(p.u.uRefHull,name==='refHull'&&!this.sourceRed?1:0);gl.uniform1f(p.u.uHullLength,this.hullLength||1600);
-    gl.uniform1f(p.u.uReference, REFERENCE_SHADED.has(source)||source.startsWith('refTur_')?1:source==='refEngine'?2:0);
+    gl.uniform1f(p.u.uReference, REFERENCE_SHADED.has(source)||source.startsWith('refTur_')||source.startsWith('refTurBody_')?1:source==='refEngine'?2:0);
     gl.uniform1f(p.u.uSkinScale,source==='surfaceArmor'?30:source==='struct'||source==='hull'||source==='preview'?48:source==='plate'?64:0);
     // v18 Drive nozzles burn in the design's engine colour, brighter with thrust.
     const drive=source==='nozzle'||source==='refEngine',tint=drive?this.engineTint:null;gl.uniform4fv(p.u.uEmiTint,tint?[tint[0]/255,tint[1]/255,tint[2]/255,1]:[1,1,1,0]);
@@ -2583,7 +2585,11 @@ function plainFitAsset(f){return C.REFERENCE_ASSETS[f.skinAsset||C.FITS[f.k]?.as
 const PLAIN_FIT_CACHE=new WeakMap();
 function appendPlainFit(g,f){
  const key=JSON.stringify([f,C.fitSpec(f)],(k,v)=>k.startsWith('_')?undefined:v);let item=PLAIN_FIT_CACHE.get(f);
- if(!item||item.key!==key){const id=f.skinAsset||C.FITS[f.k].asset,mesh=new Geo(C.REFERENCE_ASSETS[id].n);appendReference(mesh,id,v=>C.referenceFitPoint(f,v),null,FC.body);item={key,mesh};PLAIN_FIT_CACHE.set(f,item);}
+ if(!item||item.key!==key){const id=f.skinAsset||C.FITS[f.k].asset,mesh=new Geo(C.REFERENCE_ASSETS[id].n);appendReference(mesh,id,v=>C.referenceFitPoint(f,v),null,FC.body);
+  // These models have no fitting atlas. Keep their UVs within its metal panel,
+  // so triangle interiors cannot sample the separate dark window band.
+  for(let i=0;i<mesh.n;i++){mesh.uv[i*2]=UV_WHITE[0]+C.clamp(mesh.uv[i*2],0,1)*(UV_WHITE[2]-UV_WHITE[0]);mesh.uv[i*2+1]=UV_WHITE[1]+C.clamp(mesh.uv[i*2+1],0,1)*(UV_WHITE[3]-UV_WHITE[1]);}
+  item={key,mesh};PLAIN_FIT_CACHE.set(f,item);}
  appendGeo(g,item.mesh);
 }
 function appendReference(g,id,point,filter,color=WHITE,cuts=[],skinPatches=[]){
@@ -2786,7 +2792,7 @@ function trialTurrets(model,put,ranges){
  for(const f of list){
   const d=C.fitSpec(f),spec=C.FITS[f.k],pose=poses.get(f.id),axis=C.norm(pose.axis),fw=C.norm(C.sub(pose.fw,C.mul(axis,C.dot(pose.fw,axis)))),rot=turning.has(f.id);
   let mesh=null,bodyMesh=null,authored=null;const g=C.authoredTurretGeometry?.(f);if(rot){if(spec.asset&&(!plainFitAsset(f)||g)){const plain=plainFitAsset(f),geo=plain?new Geo(16):meshReferenceFits(model,null,[f]),tex=plain?'fits':'reference',emi=plain?.6:null;if(plain)appendPlainFit(geo,f);mesh=(plain?'tur_':'refTur_')+f.id;const split=g?.indexStart;
-   if(Number.isInteger(split)&&split>0&&split<geo.ni&&split%3===0){authored=g;bodyMesh=(plain?'turBody_':'refTurBody_')+f.id;put(bodyMesh,geoIndices(geo,geo.idx.subarray(0,split)),tex,emi);put(mesh,geoIndices(geo,geo.idx.subarray(split,geo.ni)),tex,emi);}else put(mesh,geo,tex,emi);
+   if(Number.isInteger(split)&&split>=0&&split<geo.ni&&split%3===0){authored=g;bodyMesh=(plain?'turBody_':'refTurBody_')+f.id;put(bodyMesh,geoIndices(geo,geo.idx.subarray(0,split)),tex,emi);put(mesh,geoIndices(geo,geo.idx.subarray(split,geo.ni)),tex,emi);}else put(mesh,geo,tex,emi);
   }else{mesh='tur_'+f.id;FIT_SKIP_PED=all;try{put(mesh,meshFits(model,x=>x===f),'fits',.6);}finally{FIT_SKIP_PED=null;}}}
   const embedded=C.surfaceBatteryGeometry?.(f);out.push({id:f.id,k:f.k,name:spec.short||spec.name,mesh,...(authored?{authored,bodyMesh,bodyPivot:authored.yawPivot}:{}),pivot:authored?.elevationPivot||pose.pivot,axis:authored?.axis||axis,fw:authored?.fw||fw,origin:authored?.elevationPivot||C.turretOrigin(f),mount:C.fitUp(f),r:d.r,hm:embedded?embedded.height:d.hm,embedded:!!embedded,fixed:!!spec.fixed,portWidth:embedded?.width,portHeight:embedded?.height,port:embedded?{width:embedded.width,height:embedded.height,depth:embedded.depth}:undefined,casemate:embedded?false:!!(spec.casemate||spec.fixed),barrels:spec.barrels||(spec.fixed?1:TRIAL_BARRELS[f.k]||2),cycle:spec.cycle||2.5,tt:d.tt||0,ion:!!d.ion&&!d.tt,rate:C.turretRate(f),power:d.power||0,cap:C.needsCapacitor(f)});
  }

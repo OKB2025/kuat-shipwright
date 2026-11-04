@@ -6,6 +6,19 @@ let built,stats,profile;
 const ship=()=>built||(built=C.buildDesign('arquitens'));
 function calculated(){const s=ship();stats||=C.computeStats(s);profile||=C.fleetProfile(stats,s.name,s);return {s,S:stats,p:profile};}
 const nativeShapes=s=>s.parts.filter(C.isShapePart),solidAt=(s,p)=>C.inHull(s,p)||nativeShapes(s).some(q=>C.inPart(q,p));
+// Measure the attached binary STL directly at selected weapon-free X/Z stations.
+// This compares physical surfaces rather than trusting recorded target dimensions.
+function sourceRoofAt(stations){
+ const raw=fs.readFileSync(path.join(root,'assets/source/arquitens.stl')),count=raw.readUInt32LE(80),lo=[Infinity,Infinity,Infinity],hi=[-Infinity,-Infinity,-Infinity];
+ for(let t=0;t<count;t++)for(let v=0;v<3;v++)for(let k=0;k<3;k++){const n=raw.readFloatLE(84+t*50+12+v*12+k*4);lo[k]=Math.min(lo[k],n);hi[k]=Math.max(hi[k],n);}
+ const scale=325/(hi[1]-lo[1]),mid=(lo[0]+hi[0])/2,out=stations.map(()=>-Infinity);
+ for(let t=0;t<count;t++){
+  const vertices=[];for(let v=0;v<3;v++){const o=84+t*50+12+v*12,x=raw.readFloatLE(o),y=raw.readFloatLE(o+4),z=raw.readFloatLE(o+8);vertices.push([(hi[1]-y)*scale,(z-lo[2])*scale,(mid-x)*scale]);}
+  const [a,b,c]=vertices,den=(b[2]-c[2])*(a[0]-c[0])+(c[0]-b[0])*(a[2]-c[2]);if(Math.abs(den)<1e-10)continue;
+  for(let i=0;i<stations.length;i++){const [x,z]=stations[i],u=((b[2]-c[2])*(x-c[0])+(c[0]-b[0])*(z-c[2]))/den,v=((c[2]-a[2])*(x-c[0])+(a[0]-c[0])*(z-c[2]))/den,w=1-u-v;if(Math.min(u,v,w)>=-1e-8)out[i]=Math.max(out[i],u*a[1]+v*b[1]+w*c[1]);}
+ }
+ return out;
+}
 
 test('the supplied STL remains source provenance rather than a required runtime hull',()=>{
  const source=fs.readFileSync(path.join(root,'assets/source/arquitens.stl')),manifest=JSON.parse(fs.readFileSync(path.join(root,'assets/source/arquitens-manifest.json'),'utf8')),sha=crypto.createHash('sha256').update(source).digest('hex');
@@ -16,7 +29,7 @@ test('the supplied STL remains source provenance rather than a required runtime 
 });
 
 test('the 325 m Arquitens is assembled from normal editable hull structures and equipment',()=>{
- const s=ship(),shapes=nativeShapes(s);near(s.hull.L,325,1e-9);near(s.hull.W,144,1);near(s.hull.H,64,1);assert.ok(shapes.length>4,'the fork, machinery pods and bridge are ordinary separate structures');
+ const s=ship(),shapes=nativeShapes(s);near(s.hull.L,325,1e-9);near(s.hull.W,144,1);near(s.hull.H,64,1);assert.equal(shapes.length,75,'the measured hull, ridge, machinery pods and swept bridge remain independent editable structures');assert.equal(s.parts.length,94);assert.equal(s.fits.length,17);assert.ok(!shapes.some(p=>/主砲座|支持台/.test(p.label||'')),'turrets sit on existing ship decks without artificial support blocks');
  for(const p of s.parts){assert.ok(C.PARTS[p.k],'each part is an ordinary game part');assert.notEqual(p.form,'reference');assert.notEqual(p.form,'mesh');}
  for(const p of shapes){assert.ok(!p.skinAsset,'the hull cannot depend on an imported asset');assert.ok(Array.isArray(p.c)&&p.c.length===3&&p.c.every(Number.isFinite));assert.ok(Array.isArray(p.s)&&p.s.length===3&&p.s.every(v=>Number.isFinite(v)&&v>0));const triangles=C.structTriangles(p);assert.ok(triangles.length>0);assert.ok(triangles.every(Number.isFinite),'editable parameters generate physical triangles');}
  const bounds=shapes.map(C.partAABB);assert.ok(Math.min(...bounds.map(b=>b[0]))<=1);assert.ok(Math.max(...bounds.map(b=>b[3]))>=324);assert.ok(Math.min(...bounds.map(b=>b[2]))<=-70&&Math.max(...bounds.map(b=>b[5]))>=70,'the three pods retain the broad stern silhouette');assert.ok(Math.max(...bounds.map(b=>b[4]))>=60,'the bridge is a real raised structure');
@@ -24,13 +37,18 @@ test('the 325 m Arquitens is assembled from normal editable hull structures and 
 
 test('physical volume and deck rays preserve the open fork, three separate stern pods and raised bridge',()=>{
  const s=ship(),down=[0,-1,0];
- for(const [p,inside]of [[[300,22,0],false],[[300,22,13],true],[[300,22,-13],true],[[170,22,0],true],[[124,58,0],true],[[124,58,30],false],[[180,50,60],false]])assert.equal(solidAt(s,p),inside,`physical hull at ${p}`);
- for(const x of [290,300,315])assert.equal(C.rayEnv(s,[x,100,0],down,{structOnly:true}),null,'the fork gap must not have an invisible hull or roof');
+ for(const [p,inside]of [[[300,22,0],false],[[300,22,13],true],[[300,22,-13],true],[[170,22,0],true],[[170,36,17],true],[[250,22,0],true],[[255,22,0],false],[[124,58,0],true],[[124,58,30],false],[[180,50,60],false]])assert.equal(solidAt(s,p),inside,`physical hull at ${p}`);
+ for(const x of [260,290,300,315])assert.equal(C.rayEnv(s,[x,100,0],down,{structOnly:true}),null,'the fork gap must not have an invisible hull or roof');
  for(const z of [-13,13]){const h=C.rayEnv(s,[300,100,z],down,{structOnly:true});assert.ok(h,'both fork arms have real selectable decks');assert.ok(h.p[1]>20);}
  for(const z of [-55.4,0,55.4]){assert.equal(solidAt(s,[22,21.8,z]),true,'each stern pod has physical volume');assert.ok(C.rayEnv(s,[22,100,z],down,{structOnly:true}));}
- for(const z of [-27.7,27.7]){assert.equal(solidAt(s,[22,21.8,z]),false,'the three pods are physically distinct');assert.equal(C.rayEnv(s,[22,100,z],down,{structOnly:true}),null);}
+ const aftGaps=sourceRoofAt([[2,-27.7],[2,27.7]]);for(const [i,z]of [-27.7,27.7].entries()){assert.equal(aftGaps[i],-Infinity,'the supplied STL has an actual open aft gap between the pods');assert.equal(solidAt(s,[2,21.8,z]),false,'the three aft pod rings remain distinct');assert.equal(C.rayEnv(s,[2,100,z],down,{structOnly:true}),null);assert.equal(solidAt(s,[22,21.8,z]),true,'the source inter-pod fairings connect the forward cowling bodies');}
  for(const z of [-55.4,0,55.4]){assert.equal(solidAt(s,[7,21.8,z]),false,'the rear structural rings leave an open engine aperture');assert.equal(solidAt(s,[7,35.8,z]),true,'each aperture has a real surrounding cowling wall');const h=C.rayEnv(s,[-20,21.8,z],[1,0,0],{structOnly:true});assert.ok(h&&h.p[0]>=13,'there is no static imported exhaust face across the aperture');}
- const bridge=C.rayEnv(s,[124,100,0],down,{structOnly:true}),body=C.rayEnv(s,[170,100,0],down,{structOnly:true});assert.ok(bridge&&body);assert.ok(bridge.p[1]>55&&bridge.p[1]>body.p[1]+15,'the bridge rises above the ordinary main hull');
+ const bridge=C.rayEnv(s,[124,100,0],down,{structOnly:true}),body=C.rayEnv(s,[170,100,0],down,{structOnly:true});assert.ok(bridge&&body);assert.ok(body.p[1]>=42&&body.p[1]<=45,'the elevated forward spine preserves the source centreline crown');assert.ok(bridge.p[1]>55&&bridge.p[1]>body.p[1]+10,'the swept bridge rises above the crowned main hull');
+});
+
+test('native bridge, crowned centreline, fork and round pods track the actual STL roof measurements',()=>{
+ const stations=[[170,0],[205,0],[124,0],[300,13],[300,-13],[22,55.432],[22,-55.432]],measured=sourceRoofAt(stations),s=ship();
+ for(let i=0;i<stations.length;i++){const [x,z]=stations[i],h=C.rayEnv(s,[x,100,z],[0,-1,0],{structOnly:true});assert.ok(h&&Number.isFinite(measured[i]),`both source and native hull have a roof at ${x},${z}`);near(h.p[1],measured[i],2);}
 });
 
 test('ordinary solid cuts change the actual example structure and can restore its selectable roof',()=>{
@@ -45,7 +63,7 @@ test('four independent main batteries form port/starboard pairs on the dorsal an
  const s=ship(),guns=s.fits.filter(f=>f.k==='quad500');assert.equal(guns.length,4);assert.equal(s.fits.filter(f=>f.k==='mtl').length,0,'old three-barrel substitute guns are retired in this example');
  const dorsal=guns.filter(f=>C.fitUp(f)[1]>.99),ventral=guns.filter(f=>C.fitUp(f)[1]<-.99);assert.equal(dorsal.length,2);assert.equal(ventral.length,2);
  for(const pair of [dorsal,ventral]){assert.ok(pair.some(f=>f.p[2]>0)&&pair.some(f=>f.p[2]<0));near(pair[0].p[0],pair[1].p[0]);near(pair[0].p[1],pair[1].p[1]);near(pair[0].p[2],-pair[1].p[2]);}
- for(const f of guns){assert.equal(f.float,false);assert.ok(C.fitCanRotate(f));near(C.fitSpec(f).tt,2,1e-12);near(C.fitSpec(f).boltTT,.5,1e-12);assert.equal(C.fitSpec(f).barrels,4);const up=C.fitUp(f),hit=C.rayEnv(s,C.add(f.p,C.mul(up,200)),C.mul(up,-1),{structOnly:true});assert.ok(hit,'each independent turret has a physical native mounting face');near(C.dot(C.sub(f.p,hit.p),up),0,.02);}
+ for(const f of guns){assert.equal(f.float,false);assert.equal(f.ped,0);assert.equal(f.base,0);assert.equal(f.low,0);assert.equal(f.mountOffset,undefined);const expected=f.a===2?[173.2522,32.18,28.4337]:[238.0963,17.88336,24.0026];near(f.p[0],expected[0],.005);near(f.p[1],expected[1],.005);near(Math.abs(f.p[2]),expected[2],.005);assert.ok(C.fitCanRotate(f));near(C.fitSpec(f).tt,2,1e-12);near(C.fitSpec(f).boltTT,.5,1e-12);assert.equal(C.fitSpec(f).barrels,4);const up=C.fitUp(f),hit=C.rayEnv(s,C.add(f.p,C.mul(up,200)),C.mul(up,-1),{structOnly:true});assert.ok(hit,'each independent turret has a physical native mounting face');near(C.dot(C.sub(f.p,hit.p),up),0,.02);}
  assert.equal(guns.reduce((n,f)=>n+C.fitSpec(f).barrels,0),16,'the example carries sixteen physical medium-gun barrels');
 });
 

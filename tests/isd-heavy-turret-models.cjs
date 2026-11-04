@@ -52,57 +52,31 @@ function bounds(asset, mesh, vertices) {
   return box;
 }
 
-test('the canonical twin and octuple preserve the same original housing, textures and normalized mounting frame', () => {
-  const twin = C.REFERENCE_ASSETS.isd_heavy_twin, octuple = C.REFERENCE_ASSETS.isd_heavy_octuple;
-  const a = C.decodeReference('isd_heavy_twin'), b = C.decodeReference('isd_heavy_octuple');
-  assert.deepEqual(plain(twin.size), plain(octuple.size));
-  assert.deepEqual(plain(twin.c), plain(octuple.c));
-  assert.equal(twin.housingVertices, octuple.housingVertices);
-  assert.equal(twin.housingFaces, octuple.housingFaces);
-  assert.ok(twin.housingVertices > 0 && twin.housingFaces > 0);
-  assert.deepEqual(Array.from(a.pos.slice(0, twin.housingVertices*3)), Array.from(b.pos.slice(0, octuple.housingVertices*3)));
-  assert.deepEqual(Array.from(a.uv.slice(0, twin.housingVertices*2)), Array.from(b.uv.slice(0, octuple.housingVertices*2)));
-  assert.deepEqual(Array.from(a.idx.slice(0, twin.housingFaces*3)), Array.from(b.idx.slice(0, octuple.housingFaces*3)));
-  for (const asset of [twin, octuple]) {
-    assert.equal(asset.derivedFrom, 'isd_turret');
-    assert.deepEqual(plain(asset.mount), [0, 0, 0]);
-    assert.deepEqual(plain(asset.forward), [1, 0, 0]);
-    assert.deepEqual(plain(asset.up), [0, 1, 0]);
-    const mesh = C.decodeReference(asset === twin ? 'isd_heavy_twin' : 'isd_heavy_octuple');
-    assert.equal(mesh.pos.length, asset.n*3);
-    assert.equal(mesh.idx.length, asset.faces*3);
-    assert.equal(components(mesh, 0, asset.housingVertices, 0, asset.housingFaces*3).length, asset.housingComponents);
-    const box = bounds(asset, mesh, Array.from({length: asset.n}, (_, i) => i));
-    near(box[1], 0);
-    near((box[0]+box[3])/2, 0);
-    near((box[2]+box[5])/2, 0);
-  }
+test('the retained 350 TT twin preserves its original housing, texture data and normalized mounting frame', () => {
+  const asset=C.REFERENCE_ASSETS.isd_heavy_twin,mesh=C.decodeReference('isd_heavy_twin');
+  assert.equal(asset.derivedFrom,'isd_turret');assert.equal(asset.barrels,2);assert.ok(asset.housingVertices>0&&asset.housingFaces>0);
+  assert.deepEqual(plain(asset.mount),[0,0,0]);assert.deepEqual(plain(asset.forward),[1,0,0]);assert.deepEqual(plain(asset.up),[0,1,0]);
+  assert.equal(mesh.pos.length,asset.n*3);assert.equal(mesh.idx.length,asset.faces*3);
+  assert.equal(components(mesh,0,asset.housingVertices,0,asset.housingFaces*3).length,asset.housingComponents);
+  const box=bounds(asset,mesh,Array.from({length:asset.n},(_,i)=>i));near(box[1],0);near((box[0]+box[3])/2,0);near((box[2]+box[5])/2,0);
+  assert.equal(C.FITS.stl.tt,350);assert.equal(C.FITS.stl.boltTT,175);
 });
 
-test('packed geometry contains two thick or eight thin connected barrels of the same length pointing along +X', () => {
-  const dimensions = [];
-  for (const [key, count] of [['isd_heavy_twin', 2], ['isd_heavy_octuple', 8]]) {
-    const asset = C.REFERENCE_ASSETS[key], mesh = C.decodeReference(key);
-    const barrels = components(mesh, asset.housingVertices, asset.n, asset.housingFaces*3, mesh.idx.length);
-    assert.equal(asset.barrels, count);
-    assert.equal(barrels.length, count, `${key} must contain the advertised physical barrels`);
-    const sizes = barrels.map(vertices => {
-      const box = bounds(asset, mesh, vertices), size = [0, 1, 2].map(axis => box[axis+3]-box[axis]);
-      assert.ok(size[0] > 10*size[1] || count === 2 && size[0] > 7*size[1], 'barrels run along the forward axis');
-      assert.ok(box[3] > Math.abs(box[0]), 'the muzzle projects in +X from its breech');
-      return size;
-    });
-    for (const size of sizes) for (let axis = 0; axis < 3; axis++) near(size[axis], sizes[0][axis], .002);
-    dimensions.push(sizes[0]);
-  }
-  near(dimensions[0][0], dimensions[1][0], 1e-6);
-  for (const axis of [1, 2]) near(dimensions[1][axis]/dimensions[0][axis], Math.cbrt(40/175), .001);
+test('the retained thick twin and size-corrected original octuple contain their actual two and eight full barrels', () => {
+  const twin=C.REFERENCE_ASSETS.isd_heavy_twin,mesh=C.decodeReference('isd_heavy_twin');
+  const barrels=components(mesh,twin.housingVertices,twin.n,twin.housingFaces*3,mesh.idx.length);assert.equal(barrels.length,2);
+  const sizes=barrels.map(vertices=>{const box=bounds(twin,mesh,vertices),size=[0,1,2].map(k=>box[k+3]-box[k]);assert.ok(size[0]>7*size[1]);assert.ok(box[3]>Math.abs(box[0]));return size;});
+  sizes[0].forEach((n,k)=>near(n,sizes[1][k],.002));
+  const oct=C.REFERENCE_ASSETS.isd_heavy_octuple,om=C.decodeReference('isd_heavy_octuple');assert.equal(oct.barrels,8);assert.equal(C.FITS.oct40.tt,320);near(oct.size[0],40,.05);near(oct.size[2],40*29.679456059608558/29.679587322727336,.005);
+  assert.notDeepEqual(plain(oct.size),plain(twin.size),'the native40m octuple retains its explicit size anchor');
+  for(const row of oct.barrelCenters){const group=components(om,row.firstVertex,row.firstVertex+row.vertices,row.firstIndex,row.firstIndex+row.indices);assert.equal(group.length,1,'each advertised octuple tube is a full connected physical barrel');}
+  for(const side of [-1,1]){const rows=oct.muzzlePoints.filter(p=>p[2]*side>0);assert.equal(rows.length,4);assert.equal(new Set(rows.map(p=>p[1].toFixed(3))).size,1);assert.equal(new Set(rows.map(p=>p[2].toFixed(3))).size,4);}
 });
 
 test('heavy models use the standardized physical pivot in editor, preview and trial turret geometry', () => {
   for (const k of kinds) {
     const asset = C.REFERENCE_ASSETS[C.FITS[k].asset];
-    assert.ok(asset, `${k} uses the shared-housing imported model`);
+    assert.ok(asset, `${k} uses its registered physical model`);
     for (const a of [0, 1, 2, 3, 4, 5]) {
       const f = {id: 1, k, p: [30, -7, 19], a, ped: 2, base: 1, low: -.5, assetYaw: 37.125};
       const pivot = asset.c.map((value, axis) => -value/asset.size[axis]);
@@ -116,7 +90,8 @@ test('heavy models use the standardized physical pivot in editor, preview and tr
     const fleet = G.fleetGeometry(ship, {trial: true}), turret = fleet.turrets.find(t => t.id === f.id);
     assert.ok(turret);
     assert.equal(turret.barrels, C.FITS[k].barrels);
-    assert.equal(fleet.meshes[turret.mesh].geo.ni, asset.faces*3);
-    turret.pivot.forEach((value, axis) => near(value, C.fitOrigin(f)[axis], 1e-6));
+    assert.equal(fleet.meshes[turret.mesh].geo.ni+(turret.bodyMesh?fleet.meshes[turret.bodyMesh].geo.ni:0),asset.faces*3);
+    const joint=C.authoredTurretGeometry(f),expected=joint?.elevationPivot||C.fitOrigin(f);
+    turret.pivot.forEach((value,axis)=>near(value,expected[axis],1e-6));
   }
 });

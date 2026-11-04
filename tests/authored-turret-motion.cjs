@@ -23,7 +23,7 @@ function triangles(g){const out=[];for(let i=0;i<g.ni;i+=3)out.push(Array.from(g
 test('both authored turrets partition their actual housing and moving barrels without losing triangles',()=>{
  const palette=vm.createContext({C,ship:C.newShip({L:100,W:50,H:40})});vm.runInContext(section('const PART_KEYS =','const partOffered ='),palette);assert.equal(vm.runInContext("weaponKeys().filter(k=>k==='twin40').length",palette),1,'the new twin is available from the ordinary weapon palette');
  for(const kind of ['quad500','twin40']){const {f,ship,geometry,t}=fixture(kind),a=C.REFERENCE_ASSETS[C.FITS[kind].asset],body=geometry.meshes[t.bodyMesh].geo,barrels=geometry.meshes[t.mesh].geo;
-  assert.equal(body.ni,t.authored.indexStart);assert.equal(body.ni+barrels.ni,a.faces*3);assert.deepEqual([...triangles(body),...triangles(barrels)].sort(),triangles(G.meshFits(ship)));
+  assert.equal(body.ni,t.authored.indexStart);assert.equal(body.ni+barrels.ni,a.faces*3);assert.deepEqual([...triangles(body),...triangles(barrels)].sort(),[G.meshFits(ship),G.meshReferenceFits(ship)].flatMap(triangles).sort());
   near(t.pivot,t.authored.elevationPivot);near(t.bodyPivot,C.fitOrigin(f));assert.ok(C.dot(C.sub(t.pivot,t.bodyPivot),C.fitUp(f))>0,'barrels use the elevated trunnion rather than the turntable floor');
  }
 });
@@ -78,4 +78,22 @@ test('WebGL and software render translated barrel pivots with a distinct yaw-onl
  r.loadFleet('native',geometry);r.drawFleet({VP,eye:r.eye()},{fleet:[unit]});
  const c=new G.CompatRenderer(canvas()),soft=[];c.matrices=()=>({VP});c.paintLines=()=>{};c.loadFleet('native',geometry);c.rasterMesh=(geo,name,alpha,clip,pose)=>{if(geo===geometry.meshes[t.mesh].geo||geo===geometry.meshes[t.bodyMesh].geo)soft.push(pose);};c.draw({fleet:[unit]});
  assert.equal(calls.length,2);assert.equal(soft.length,2);parts.forEach((part,i)=>{const call=calls.find(q=>q.name===part.mesh),expected=C.add(unit.pos,C.sub(part.pivot,geometry.center));near(call.center,part.restPivot);near(call.off,expected);near(soft[i].center,part.restPivot);near(soft[i].off,expected);near(call.rot,part.rot);near(soft[i].rot,part.rot);});
+});
+
+test('the side-mounted quad keeps its case fixed while its mantlet follows the shared mechanical limits',()=>{
+ const {t}=fixture('quad70Side',{a:4,assetYaw:0});assert.equal(t.authored.housingFixed,true);cx.turret=t;run('turret.yaw=.3;turret.el=.2;trialPoseTurret(turret)');
+ const posed=plain(run('turret.authoredPose')),parts=plain(run('trialTurretDrawParts(turret)')),limits=plain(run('trialLimits(turret)'));near(parts[0].rot,I);near(parts[0].pivot,parts[0].restPivot);assert.notDeepEqual(parts[1].rot,I);near(posed.fw,apply(parts[1].rot,t.authored.fw));
+ assert.equal(limits.yaw,t.authored.limits.yaw);assert.equal(limits.lo,t.authored.limits.lo);assert.equal(limits.hi,t.authored.limits.hi);assert.ok(Math.abs(limits.yaw-65*Math.PI/180)<1e-9);assert.ok(Math.abs(limits.hi-20*Math.PI/180)<1e-9);
+ run("turret._foilTransform=Gfx.foilTransform({pivot:[20,10,-3],axis:'x',open:0,stow:70,sg:1},.4);trialPoseTurret(turret)");near(plain(run('turret.bodyRot')),plain(run('turret._foilTransform.rot')));
+});
+
+test('the complete ion sphere and four barrels share one moving group with the lower third below the mount',()=>{
+ const {f,t,geometry}=fixture('quad40Ion'),a=C.REFERENCE_ASSETS[C.FITS.quad40Ion.asset],decoded=C.decodeReference(C.FITS.quad40Ion.asset),range=a.sphereMeshRange,moving=geometry.meshes[t.mesh].geo,body=geometry.meshes[t.bodyMesh].geo;
+ assert.equal(t.authored.indexStart,0);assert.equal(body.ni,0,'the whole ball must not be replaced with a static case or artificial neck');assert.equal(moving.ni,a.faces*3);assert.equal(t.ion,true);assert.equal(t.barrels,4);assert.ok(range?.vertices>0);
+ const sphere=Array.from({length:range.vertices},(_,i)=>{const k=range.firstVertex+i;return {source:Array.from(decoded.pos.slice(k*3,k*3+3)),local:[0,1,2].map(axis=>decoded.pos[k*3+axis]*a.size[axis]+a.c[axis])};}),bottom=Math.min(...sphere.map(q=>q.local[1])),top=Math.max(...sphere.map(q=>q.local[1])),mount=a.mount[1];
+ assert.ok(Math.abs((mount-bottom)/(top-bottom)-1/3)<.0002,'one third of the actual sphere diameter lies below the mounting plane');near(a.elevationPivot,a.sphereCenterM);assert.ok(Math.abs(top-bottom-2*a.sphereRadiusM)<.002);
+ const crown=sphere.reduce((best,q)=>q.local[1]>best.local[1]?q:best),rest=C.referenceFitPoint(f,crown.source);assert.ok(Array.from({length:moving.n},(_,i)=>C.len(C.sub(Array.from(moving.pos.slice(i*3,i*3+3)),rest))).some(d=>d<.002),'the actual sphere crown belongs to the moving renderer mesh');
+ cx.turret=t;run('turret.yaw=.4;turret.el=.35;trialPoseTurret(turret)');const posed=plain(run('turret.authoredPose')),draw=plain(run('trialTurretDrawParts(turret)')).find(q=>q.mesh===t.mesh),crownPos=C.add(draw.pivot,apply(draw.rot,C.sub(rest,draw.restPivot)));
+ assert.ok(C.len(C.sub(crownPos,rest))>a.sphereRadiusM*.1,'the visible sphere must elevate with its barrels');t.authored.muzzles.forEach((m,i)=>assert.ok(Math.abs(C.len(C.sub(m,rest))-C.len(C.sub(posed.muzzles[i],crownPos)))<.002,'sphere-to-muzzle distances remain rigid'));
+ assert.equal(plain(run('trialShotGeometry(turret,[1,0,0])')).muzzles.length,4);
 });

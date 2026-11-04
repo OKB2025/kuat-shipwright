@@ -20,6 +20,10 @@ import json
 from pathlib import Path
 import struct
 import sys
+sys.dont_write_bytecode = True
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from turret_compartment_metadata import attach_compartment
+import sys
 
 import bpy
 
@@ -101,6 +105,7 @@ def convert(source, length):
         'up': [0, 1, 0],
         'data': base64.b64encode(packed).decode('ascii'),
     }
+    attach_compartment('pd_turret_small', asset)
     metadata = {key: value for key, value in asset.items() if key != 'data'}
     metadata.update({
         'source_sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
