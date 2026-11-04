@@ -21265,38 +21265,46 @@ const STRUCTURAL_DEFER_TRIS=256,STRUCTURAL_FAR_EPS=1000;
 function surfaceFarVerdict(P,plane,sources){
  const {u,v,origin,eps}=plane,Q=P.map(p=>[dot(sub(p,origin),u),dot(sub(p,origin),v)]),u0=Math.min(Q[0][0],Q[1][0],Q[2][0]),u1=Math.max(Q[0][0],Q[1][0],Q[2][0]),v0=Math.min(Q[0][1],Q[1][1],Q[2][1]),v1=Math.max(Q[0][1],Q[1][1],Q[2][1]),M=eps*STRUCTURAL_FAR_EPS;
  if(u1-u0<=M||v1-v0<=M)return 0;
- const near=e=>Math.max(e[0][0],e[1][0])>=u0-M&&Math.min(e[0][0],e[1][0])<=u1+M&&Math.max(e[0][1],e[1][1])>=v0-M&&Math.min(e[0][1],e[1][1])<=v1+M,lists=[];
- const box=[0,1,2].map(a=>Math.min(P[0][a],P[1][a],P[2][a])-M).concat([0,1,2].map(a=>Math.max(P[0][a],P[1][a],P[2][a])+M));
- for(const q of sources){let edges;
+ const box=[0,1,2].map(a=>Math.min(P[0][a],P[1][a],P[2][a])-M).concat([0,1,2].map(a=>Math.max(P[0][a],P[1][a],P[2][a])+M)),lists=[];
+ // Segments as flat [au, av, bu, bv]; the sliced ones unmerged (merging changes neither the count of segments over a
+ // generic abscissa nor, beyond eps, their positions), all of them tested for nearness, the non-vertical ones counted.
+ const near=(F,i)=>Math.max(F[i],F[i+2])>=u0-M&&Math.min(F[i],F[i+2])<=u1+M&&Math.max(F[i+1],F[i+3])>=v0-M&&Math.min(F[i+1],F[i+3])<=v1+M;
+ for(const q of sources){
   // A mesh whose box misses the triangle's (grown by the margin) has no edge near it and cannot hold it.
   if(q.b&&[0,1,2].some(a=>q.b[a]>box[a+3]||q.b[a+3]<box[a]))continue;
-  if(q.section)edges=q.section.edges;else{const sliced=solidSliceSegments(q.T,{n:plane.n,d:q.d},u,v,origin,eps,u0-M*2,u1+M*2);if(sliced.some(near))return 0;edges=sliced.filter(e=>Math.abs(e[1][0]-e[0][0])>eps*.05);}if(edges.some(near))return 0;lists.push(edges);}
+  let F,n;if(q.section){n=q.section.edges.length;F=new Float64Array(n*4);q.section.edges.forEach((e,i)=>{F[i*4]=e[0][0];F[i*4+1]=e[0][1];F[i*4+2]=e[1][0];F[i*4+3]=e[1][1];});}
+  else{const count=solidSliceRaw(q.T,{n:plane.n,d:q.d},u,v,origin,eps,u0-M*2,u1+M*2),B=SOLID_SLICE_BUFFER;n=0;F=new Float64Array(count*4);for(let i=0;i<count*4;i+=4){if(near(B,i))return 0;if(Math.abs(B[i+2]-B[i])>eps*.05){F.set(B.subarray(i,i+4),n*4);n++;}}}
+  for(let i=0;i<n*4;i+=4)if(near(F,i))return 0;lists.push({F,n});}
  const sides=Q.map((p,i)=>[p,Q[(i+1)%3]]);let inside=false;
- for(const list of lists){let state=null;
-  // Between consecutive edge ends the count is constant, and the full section's edges end only where these do (merging
-  // a chain removes inner nodes), so one abscissa per gap covers every slab surfaceExposeTriangle would use.
-  const ends=[u0,u1];for(const e of list)for(const p of e)if(p[0]>u0&&p[0]<u1)ends.push(p[0]);ends.sort((a,b)=>a-b);
+ for(const {F,n} of lists){let state=null;
+  // Between consecutive segment ends the count is constant, and the full section's edges end only where these do
+  // (merging removes inner nodes), so one abscissa per gap covers every slab surfaceExposeTriangle would use.
+  const ends=[u0,u1];for(let i=0;i<n*4;i+=2)if(F[i]>u0&&F[i]<u1)ends.push(F[i]);ends.sort((a,b)=>a-b);
   for(let k=0;k+1<ends.length;k++){if(!(ends[k+1]>ends[k]))continue;const x=(ends[k]+ends[k+1])/2;if(!(x>ends[k]&&x<ends[k+1]))return 0;
    const span=sides.filter(e=>x>Math.min(e[0][0],e[1][0])&&x<Math.max(e[0][0],e[1][0])).map(e=>solidSegmentY(e,x));if(span.length<2)return 0;const y=(Math.min(...span)+Math.max(...span))/2;
-   let crossings=0,below=0;for(const e of list)if(x>Math.min(e[0][0],e[1][0])&&x<Math.max(e[0][0],e[1][0])){crossings++;if(solidSegmentY(e,x)<y)below++;}
+   let crossings=0,below=0;for(let i=0;i<n*4;i+=4){const a=F[i],c=F[i+2];if(x>Math.min(a,c)&&x<Math.max(a,c)){crossings++;if(F[i+1]+(F[i+3]-F[i+1])*(x-a)/(c-a)<y)below++;}}
    if(crossings%2)return 0;const odd=below%2===1;if(state===null)state=odd;else if(state!==odd)return 0;}
   if(state)inside=true;}
  return inside?-1:1;
 }
 function structuralClipBoundary(T,other,coplanar=false,onlyCoplanar=false){
  if(!T.length||!other.length)return T;const a=solidMeshBounds(T),b=solidMeshBounds(other),pad=1e-6;if([0,1,2].some(i=>a[i+3]<b[i]-pad||a[i]>b[i+3]+pad))return T;
- const mesh={T:other,sections:new Map()},planes=new Map(),out=[],trianglePad=Math.max(pad,4e-8,...a.map(x=>Math.abs(x)*1.2e-7)),lazy=!onlyCoplanar&&other.length>=9*STRUCTURAL_DEFER_TRIS;
+ // v13 PERF The output is written into a growing typed buffer (kept triangles copied as they are), and T itself is
+ // returned when no triangle was dropped or cut, as the former element-wise comparison found.
+ let buf=new Float64Array(T.length+1024),size=0,changed=false;const room=k=>{if(size+k>buf.length){const next=new Float64Array(Math.max(buf.length*2,size+k));next.set(buf.subarray(0,size));buf=next;}},keep=i=>{room(9);for(let j=0;j<9;j++)buf[size+j]=T[i+j];size+=9;};
+ const mesh={T:other,sections:new Map()},planes=new Map(),trianglePad=Math.max(pad,4e-8,...a.map(x=>Math.abs(x)*1.2e-7)),lazy=!onlyCoplanar&&other.length>=9*STRUCTURAL_DEFER_TRIS;
  for(let i=0;i<T.length;i+=9){
   // A distant component of the accumulated union cannot meet this solid.
   // Retain it directly without constructing plane sections for its triangles.
-  if(Math.max(T[i],T[i+3],T[i+6])<b[0]-trianglePad||Math.min(T[i],T[i+3],T[i+6])>b[3]+trianglePad||Math.max(T[i+1],T[i+4],T[i+7])<b[1]-trianglePad||Math.min(T[i+1],T[i+4],T[i+7])>b[4]+trianglePad||Math.max(T[i+2],T[i+5],T[i+8])<b[2]-trianglePad||Math.min(T[i+2],T[i+5],T[i+8])>b[5]+trianglePad){for(let j=0;j<9;j++)out.push(T[i+j]);continue;}
-  const P=[0,3,6].map(j=>Array.from(T.slice(i+j,i+j+3))),raw=cross(sub(P[1],P[0]),sub(P[2],P[0]));if(len(raw)<1e-12)continue;const n=norm(raw),d=dot(n,P[0]),key=n.map(x=>Math.round(x*1e8)).join(',')+'|'+Math.round(d*1e5);let plane=planes.get(key);
+  if(Math.max(T[i],T[i+3],T[i+6])<b[0]-trianglePad||Math.min(T[i],T[i+3],T[i+6])>b[3]+trianglePad||Math.max(T[i+1],T[i+4],T[i+7])<b[1]-trianglePad||Math.min(T[i+1],T[i+4],T[i+7])>b[4]+trianglePad||Math.max(T[i+2],T[i+5],T[i+8])<b[2]-trianglePad||Math.min(T[i+2],T[i+5],T[i+8])>b[5]+trianglePad){keep(i);continue;}
+  const P=[0,3,6].map(j=>Array.from(T.slice(i+j,i+j+3))),raw=cross(sub(P[1],P[0]),sub(P[2],P[0]));if(len(raw)<1e-12){changed=true;continue;}const n=norm(raw),d=dot(n,P[0]),key=n.map(x=>Math.round(x*1e8)).join(',')+'|'+Math.round(d*1e5);let plane=planes.get(key);
   if(!plane){const f=frameAxis(n),u=f.v,v=f.w,origin=mul(n,d),eps=Math.max(1e-8,Math.max(...P.flat().map(Math.abs))*3e-8),sections=[];let minimum=0,maximum=0,deferred=false,cop=null;for(let a=0;a<3;a++){minimum+=n[a]*(n[a]<0?b[a+3]:b[a]);maximum+=n[a]*(n[a]<0?b[a]:b[a+3]);}if(maximum>=d-eps*4&&minimum<=d+eps*5){if(!onlyCoplanar){if(lazy)deferred=true;else{const s=surfaceExposurePlane(mesh,n,d+eps*4,u,v,origin,key,eps);if(s.edges.length)sections.push(s);}}if(coplanar){const s=structuralCoplanarSection(other,n,d,u,v,origin,eps);if(s.edges.length){sections.push(s);cop=s;}}}plane={n,u,v,origin,eps,sections,crossings:deferred?null:surfaceExposureCrossings(sections,eps),deferred,cop,d,key};planes.set(key,plane);}
-  if(plane.deferred){const verdict=surfaceFarVerdict(P,plane,[{T:other,d:plane.d+plane.eps*4},...(plane.cop?[{section:plane.cop}]:[])]);if(verdict>0){out.push(...P[0],...P[1],...P[2]);continue;}if(verdict<0)continue;
+  if(plane.deferred){const verdict=surfaceFarVerdict(P,plane,[{T:other,d:plane.d+plane.eps*4},...(plane.cop?[{section:plane.cop}]:[])]);if(verdict>0){keep(i);continue;}if(verdict<0){changed=true;continue;}
    // Near the other surface: the plane's full section, exactly as it was computed before.
    const s=surfaceExposurePlane(mesh,plane.n,plane.d+plane.eps*4,plane.u,plane.v,plane.origin,plane.key,plane.eps);plane.sections=[...(s.edges.length?[s]:[]),...(plane.cop?[plane.cop]:[])];plane.crossings=surfaceExposureCrossings(plane.sections,plane.eps);plane.deferred=false;}
-  if(!plane.sections.length)out.push(...P[0],...P[1],...P[2]);else surfaceExposeTriangle(P,plane,plane.sections,out);
- }return out.length===T.length&&out.every((v,i)=>v===T[i])?T:Float64Array.from(out);
+  if(!plane.sections.length){keep(i);continue;}const piece=[];surfaceExposeTriangle(P,plane,plane.sections,piece);
+  if(piece.length===9&&piece.every((x,j)=>x===T[i+j])){keep(i);continue;}changed=true;room(piece.length);for(let j=0;j<piece.length;j++)buf[size+j]=piece[j];size+=piece.length;
+ }return changed?buf.slice(0,size):T;
 }
 function structuralJoinBoundary(a,b){if(!a.length)return b;if(!b.length)return a;const first=structuralClipBoundary(a,b),second=structuralClipBoundary(b,a,true);if(!first.length)return second;if(!second.length)return first;const out=new Float64Array(first.length+second.length);out.set(first);out.set(second,first.length);return out;}
 function structuralMaterial(ship){
@@ -30379,7 +30387,9 @@ function solidSliceIndex(T){
 // Slice from the side that remains after subtraction. Treat vertices exactly
 // on the plane as lying on the cutter side, which also handles coplanar faces.
 let SOLID_SLICE_BUFFER=new Float64Array(4096);
-function solidSliceSegments(T,plane,u,v,origin,eps,umin=-Infinity,umax=Infinity){
+function solidSliceSegments(T,plane,u,v,origin,eps,umin=-Infinity,umax=Infinity){const count=solidSliceRaw(T,plane,u,v,origin,eps,umin,umax);return solidSimplifyFlat(SOLID_SLICE_BUFFER,count,eps);}
+// The unmerged segments into SOLID_SLICE_BUFFER ([au, av, bu, bv] each); returns their count.
+function solidSliceRaw(T,plane,u,v,origin,eps,umin=-Infinity,umax=Infinity){
  // v13 PERF: the arithmetic of the former per-triangle code, in scalars (same operations in the same order:
  // t = clamp(d_k/(d_k-d_j)), lerp, Math.hypot of the difference, dot(sub(p, origin), u|v)), into a flat buffer.
  const n=plane.n,d=plane.d,n0=n[0],n1=n[1],n2=n[2],o0=origin[0],o1=origin[1],o2=origin[2],u0=u[0],u1=u[1],u2=u[2],v0=v[0],v1=v[1],v2=v[2];
@@ -30409,7 +30419,7 @@ function solidSliceSegments(T,plane,u,v,origin,eps,umin=-Infinity,umax=Infinity)
    const first=(k-size)*SOLID_SLICE_LEAF,last=Math.min(tris,first+SOLID_SLICE_LEAF);for(let t=first;t<last;t++)tri(t*9);
   }
  }
- return solidSimplifyFlat(buf,count,eps);
+ return count;
 }
 function solidSegmentY(edge,x){const [a,b]=edge;return a[1]+(b[1]-a[1])*(x-a[0])/(b[0]-a[0]);}
 function solidSegmentCrossX(a,b,eps){
