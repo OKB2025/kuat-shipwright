@@ -2120,11 +2120,11 @@ function surfaceEquipmentField(ship,patch,cells,style,detail,extraBudget,fieldBu
  // Irregular stacked deck blocks carry the silhouette. The space between
  // them is a single recessed machinery panel, detailed by a shared texture,
  // not hundreds of individually tessellated cabinets, fins and pipes.
- const reliefFaces=[],skinBuckets=new Map(),gridSeed=patch.baseId||patch.id,targetCells=Math.max(4,Math.floor((base?.fieldBudget??fieldBudget)/28));let gridHeight=pitch,gridWidth=gridHeight*6;
+ const reliefFaces=[],skinBuckets=new Map(),gridSeed=patch.baseId||patch.id,targetCells=Math.max(4,Math.floor((base?.fieldBudget??fieldBudget)/28));let gridHeight=pitch,gridWidth=gridHeight*4.5;
  const axisAt=(i,axis)=>i*(axis?gridHeight:gridWidth);
  const axisIndex=(x,axis)=>Math.floor(x/(axis?gridHeight:gridWidth));
  const gridCells=()=> (axisIndex(base?.maxU??hi[0]+worldU,0)-axisIndex(base?.minU??lo[0]+worldU,0)+1)*(axisIndex(base?.maxV??hi[1]+worldV,1)-axisIndex(base?.minV??lo[1]+worldV,1)+1);
- for(let step=0;step<80&&gridCells()>targetCells;step++){const scale=Math.max(1.08,Math.sqrt(gridCells()/targetCells));gridHeight*=scale;gridWidth=gridHeight*6;}
+ for(let step=0;step<80&&gridCells()>targetCells;step++){const scale=Math.max(1.08,Math.sqrt(gridCells()/targetCells));gridHeight*=scale;gridWidth=gridHeight*4.5;}
  const terrain=new Map(),lengthPhase=surfaceSeed(gridSeed+'|deck-length-phase',style.seed)%5;
  const bary=(T,x,y)=>{const [a,b,c]=T,det=(b[1]-c[1])*(a[0]-c[0])+(c[0]-b[0])*(a[1]-c[1]);if(Math.abs(det)<1e-14)return null;const A=((b[1]-c[1])*(x-c[0])+(c[0]-b[0])*(y-c[1]))/det,B=((c[1]-a[1])*(x-c[0])+(a[0]-c[0])*(y-c[1]))/det,D=1-A-B;if(Math.min(A,B,D)<-1e-6)return null;return a[2]*A+b[2]*B+c[2]*D;};
  const terrainCell=(i,j)=>{const key=i+'|'+j,old=terrain.get(key);if(old)return old;
@@ -2133,7 +2133,7 @@ function surfaceEquipmentField(ship,patch,cells,style,detail,extraBudget,fieldBu
   // holes cannot restart a pattern or open cracks between adjacent plates.
   const r=rng(surfaceSeed(gridSeed+'|staggered-deck|'+key,style.seed)),x0=axisAt(i,0),x1=axisAt(i+1,0),y0=axisAt(j,1),y1=axisAt(j+1,1),W=x1-x0,H=y1-y0,back=.04,peak=.28+r()*.70,
    category=((i+2*j+lengthPhase)%5+5)%5,
-   width=W*(category<2?.26+r()*.17:category<4?.48+r()*.20:.73+r()*.15),thickness=H*(.40+r()*.26),cx=x0+width/2+W*.01+r()*(W-width-W*.02),cy=y0+H*(.34+r()*.32),bevelX=Math.min(W*.006,.18),bevelY=H*.004,
+   width=W*(category<2?.45+r()*.20:category<4?.70+r()*.20:.92+r()*.06),thickness=H*(.78+r()*.18),cx=x0+width/2+W*.01+r()*(W-width-W*.02),cy=y0+H*.5+(r()-.5)*(H*.98-thickness),bevelX=Math.min(W*.006,.18),bevelY=H*.004,
    left=cx-width/2,right=cx+width/2,bottom=cy-thickness/2,top=cy+thickness/2,shapes=[],rect=(l,b,r,t,z)=>[[l,b,z],[r,b,z],[r,t,z],[l,t,z]],
    boundary=rect(x0,y0,x1,y1,back),shoulder=rect(left-bevelX,bottom-bevelY,right+bevelX,top+bevelY,back),front=rect(left,bottom,right,top,peak);
   const quad=(p,tone,machinery=false)=>shapes.push({points:[p[0],p[1],p[2]],tone,machinery},{points:[p[0],p[2],p[3]],tone,machinery});

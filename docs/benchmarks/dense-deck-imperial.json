@@ -1,0 +1,74 @@
+{
+  "baseline37-two": {
+    "p1": {
+      "frontCoverage": 0.27889501331580285,
+      "machineryCoverage": 0.7141348279889818,
+      "frontTriangles": 410,
+      "connectedNonSliverFrontFragments": 19,
+      "fragmentWidths": {
+        "min": 6.3027496337890625,
+        "median": 26.57355499267578,
+        "max": 43.93690586090088
+      },
+      "fragmentHeights": {
+        "min": 4.4824066162109375,
+        "median": 5.4933319091796875,
+        "max": 6.7735443115234375
+      }
+    },
+    "p6": {
+      "frontCoverage": 0.2964167780598104,
+      "machineryCoverage": 0.696423308632801,
+      "frontTriangles": 282,
+      "connectedNonSliverFrontFragments": 15,
+      "fragmentWidths": {
+        "min": 5.962432861328125,
+        "median": 18.375473022460938,
+        "max": 45.12633800506592
+      },
+      "fragmentHeights": {
+        "min": 1.043975830078125,
+        "median": 5.3291778564453125,
+        "max": 6.7726593017578125
+      }
+    },
+    "surfaceTriangles": 5420,
+    "surfaceUsedBytes": 639672
+  },
+  "current-two": {
+    "p1": {
+      "frontCoverage": 0.6108104915160738,
+      "machineryCoverage": 0.3766683645739719,
+      "frontTriangles": 571,
+      "connectedNonSliverFrontFragments": 30,
+      "fragmentWidths": {
+        "min": 3.8969573974609375,
+        "median": 24.753074645996094,
+        "max": 45.196380615234375
+      },
+      "fragmentHeights": {
+        "min": 2.1324462890625,
+        "median": 8.671104431152344,
+        "max": 9.746078491210938
+      }
+    },
+    "p6": {
+      "frontCoverage": 0.6347470391607838,
+      "machineryCoverage": 0.3527440632793303,
+      "frontTriangles": 453,
+      "connectedNonSliverFrontFragments": 22,
+      "fragmentWidths": {
+        "min": 5.32933235168457,
+        "median": 22.88397479057312,
+        "max": 43.722923278808594
+      },
+      "fragmentHeights": {
+        "min": 1.0199737548828125,
+        "median": 8.599822998046875,
+        "max": 9.86529541015625
+      }
+    },
+    "surfaceTriangles": 6382,
+    "surfaceUsedBytes": 754968
+  }
+}
