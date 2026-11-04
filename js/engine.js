@@ -327,7 +327,7 @@ function handleTrialRays(job) {
  const valid=a=>Array.isArray(a)||ArrayBuffer.isView(a)&&Number.isInteger(a.length),ids=valid(job.ids)?Array.from(job.ids).slice(0,C.DESIGN_LIMITS.fits):[],dirs=valid(job.dirs)?job.dirs:[],out=new Uint8Array(ids.length),held=trialHold,t=held&&trialRayPose(held,job.foils);
  if(t)for(let i=0;i<ids.length;i++){
   const dir=[dirs[i*3],dirs[i*3+1],dirs[i*3+2]],f=Number.isSafeInteger(ids[i])&&t.fits.get(ids[i]);
-  if(f&&dir.every(Number.isFinite)&&C.len(dir)>1e-8)out[i]=C.turretClear(t.ship,f,C.norm(dir),t.ctx)?1:0;
+  if(f&&dir.every(Number.isFinite)&&C.len(dir)>1e-8)out[i]=C.turretClear(t.ship,f,C.norm(dir),t.ctx,job.muzzles?.[i])?1:0;
  }
  post({type:'trialRays',id:job.id,clear:out,ready:!!t});
 }

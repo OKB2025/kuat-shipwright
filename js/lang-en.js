@@ -9682,4 +9682,13 @@ Object.assign(root.KS_EN.terms,{
  "全長325 m・全幅144 m・高さ64 mの組立式作例。中央船体、二股の艦首、舷側甲板、階段状の艦橋、3基の推進ポッドを24個の通常構造物で組み立てる。各部は断面ロフト、丸断面ロフト、切隅箱、輪郭板、開口リングとして選択・移動・寸法変更でき、通常の設計図へ保存できる。主砲は左右に縦2門ずつを持つ500GT 4連装中型ターボレーザーで、1門500 GT（0.5 TT）、1基4門・一斉射2 TT、全艦4基16門。上面2基・下面2基を独立した砲座へ配置する。小型両用砲8基、航空機と共通の小型震盪ミサイル発射管4基、トラクタービーム1基を搭載する。3基の機関はそれぞれ専用炉へ接続し、共通ISDベル型ノズルを使う。船内に主反応炉、ハイパードライブ、慣性・構造維持、シールド、燃料、艦橋とCIC、貨物を持つ。兵員100名、航空隊なし。武装と設備の性能はゲーム用仮定。": "A 325 m long, 144 m wide, 64 m high assembly example. Twenty-four ordinary structures form the main hull, forked bow, shoulder decks, stepped bridge and three drive pods. Section lofts, round lofts, chamfered boxes, outline plates and open rings can be selected, moved, resized and saved in a normal blueprint. Four 500 GT quad medium turbolasers have vertical pairs on the left and right: 0.5 TT per barrel, 2 TT per turret, sixteen barrels total. Two independent gun seats face upward and two downward. Eight small dual-purpose turrets, four compact aircraft-type concussion missile tubes and one tractor beam complete the armament. Each of the three drives uses its own reactor and a standard ISD bell nozzle. Interior equipment includes a main reactor, hyperdrive, inertial compensation, structural integrity, shields, fuel, bridge, CIC and cargo. Carries 100 troops and no aircraft. Equipment performance is a game assumption."
 });
 // </arquitens-native-example>
+// <photo-reference-turrets>
+Object.assign(root.KS_EN.terms,{
+ "40TT 2連装重ターボレーザー": "40 TT Twin Heavy Turbolaser",
+ "重TL連装80TT": "Heavy Twin TL 80 TT",
+ "DBY-827を基に砲身を駆動軸の上へ移した連装重砲。1門40 TT、一斉射80 TT。外観寸法は参考写真による。": "A DBY-827-derived heavy twin with barrels raised above the elevation drive. 40 TT per barrel, 80 TT per salvo. Native dimensions follow the reference photos.",
+ "ユーザー指定40 TT×2・参考写真とDBY-827": "User-specified 2×40 TT; reference photos and DBY-827",
+ "左右に縦2門ずつ、計4門の中型砲塔。1門500 GT（0.5 TT）、一斉射2 TT。参考写真に合わせ、円形駆動部の上に長く細い平行砲身と揺架を持つ。寸法は添付アーキテンスの主砲に合わせる。": "A medium turret with two vertically stacked barrels on each side: 0.5 TT per barrel, 2 TT per salvo. Long, slender parallel tubes and a cradle sit above the circular drives, following the reference photos. Native dimensions follow the supplied Arquitens main battery."
+});
+// </photo-reference-turrets>
 })(typeof window==="undefined"?globalThis:window);

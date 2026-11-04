@@ -1,0 +1,755 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "date": "2026-11-04T12:45:58.816Z",
+  "browser": "Chromium headless with software WebGL",
+  "language": "en",
+  "url": "http://127.0.0.1:8765",
+  "sourceSha256": {
+    "data/reference.js": "9f2522943419591a66e7c47c8973db53208322eb8bc67f63bcf623450c410764",
+    "data/fleet.js": "54ebc30ccc1bcf84b88fcb72d1a1c6c92f1ca67047abb4dedb732dd8ea4d3f8c",
+    "js/core.js": "9332602c527d7599dcc4268e6bb9e7605cceba2be217b0465be66fadb58d6c43",
+    "js/app.js": "7cf680b0214a9d1cde36c5c92d10dac3ff63d2081b44d910661bcd135540a4ed",
+    "js/gfx.js": "f9582f3b7faa13a39ea3b85fe244ad1a8af9fa17a68b6057248712ac544173b6",
+    "js/lang-en.js": "18ad6cb1067d973bed7fee517f0b9a84be02dd4dcc20a416f9e68ce4aed616cc",
+    "js/engine.js": "0aeed1c24ec820844375952e9096520fd4e6f22f09fea840b3e8f3cd72d40373",
+    "index.html": "680bbd28347b8655ae725338aed1351dd5518ff87add56bb02b2eb925f949fac"
+  },
+  "readyMs": 1783,
+  "totalElapsedMs": 18211,
+  "catalog": {
+    "quad500": "500 GT Quad Medium Turbolaser\n2.0 TT / 17.8×14.1×5.8 m",
+    "twin40": "40 TT Twin Heavy Turbolaser\n80 TT / 28.9×16.3×10 m"
+  },
+  "generation": {
+    "design": 1,
+    "geometry": 1,
+    "statistics": 1
+  },
+  "renderer": true,
+  "webglError": 0,
+  "pageWidth": 1680,
+  "viewport": {
+    "width": 1680,
+    "height": 1050
+  },
+  "nativePlatform": {
+    "parts": 1,
+    "form": "box",
+    "imported": false
+  },
+  "guns": [
+    {
+      "id": 2,
+      "kind": "quad500",
+      "float": false,
+      "asset": "arq_turret_quad500",
+      "barrels": 4,
+      "boltTT": 0.5,
+      "volleyTT": 2,
+      "size": [
+        17.8304,
+        5.8065,
+        14.104100000000003
+      ],
+      "nativeAssetSize": [
+        17.8304,
+        5.8065,
+        14.104100000000003
+      ],
+      "modelScale": 1,
+      "triangles": 30868,
+      "drawnIndices": 92604,
+      "outsideBounds": 0,
+      "fitBounds": [
+        24.3241335398782,
+        2,
+        -29.052059110530287,
+        42.1545335398782,
+        7.8065,
+        -14.947959110530283
+      ],
+      "elevationPivot": [
+        0.686205931991976,
+        3.6411128570774585,
+        -0.00000911053028307407
+      ],
+      "elevationVertexStart": 21401,
+      "elevationIndexStart": 76068,
+      "authored": {
+        "asset": "arq_turret_quad500",
+        "yawPivot": [
+          30,
+          2,
+          -22
+        ],
+        "elevationPivot": [
+          30.686205931991974,
+          5.6411128570774585,
+          -22.000009110530282
+        ],
+        "elevationAxis": [
+          0,
+          0,
+          1
+        ],
+        "axis": [
+          0,
+          1,
+          0
+        ],
+        "fw": [
+          1,
+          0,
+          0
+        ],
+        "muzzles": [
+          [
+            42.1545335398782,
+            6,
+            -26.22346950163692
+          ],
+          [
+            42.1545335398782,
+            7.1,
+            -26.22346950163692
+          ],
+          [
+            42.1545335398782,
+            6,
+            -17.776548719423648
+          ],
+          [
+            42.1545335398782,
+            7.1,
+            -17.776548719423648
+          ]
+        ],
+        "vertexStart": 21401,
+        "indexStart": 76068
+      },
+      "physicalBarrels": [
+        {
+          "side": "left",
+          "row": "lower",
+          "vertices": 682,
+          "indices": 4080,
+          "bounds": [
+            -1.150788771523167,
+            3.5399695894494654,
+            -4.683512102898028,
+            12.154533539878202,
+            4.459961190953851,
+            -3.7634266718765765
+          ],
+          "indicesInDeclaredRange": true,
+          "muzzle": [
+            12.154533539878202,
+            4,
+            -4.223469501636919
+          ],
+          "root": [
+            -1.150788904118627,
+            4,
+            -4.223469501636919
+          ],
+          "boreAboveDriveAxisM": 0.35888714292254154,
+          "outerDiameterM": 0.34,
+          "boreDiameterM": 0.23,
+          "recessM": 0.45,
+          "worldMuzzle": [
+            42.1545335398782,
+            6,
+            -26.22346950163692
+          ],
+          "boreRayHit": [
+            41.70450210571289,
+            6,
+            -26.22346950163692
+          ],
+          "boreRayErrorM": 0.000031434165308041884
+        },
+        {
+          "side": "left",
+          "row": "upper",
+          "vertices": 682,
+          "indices": 4080,
+          "bounds": [
+            -1.150788771523167,
+            4.640007788434625,
+            -4.683512102898028,
+            12.154533539878202,
+            5.559999303415418,
+            -3.7634266718765765
+          ],
+          "indicesInDeclaredRange": true,
+          "muzzle": [
+            12.154533539878202,
+            5.1,
+            -4.223469501636919
+          ],
+          "root": [
+            -1.150788904118627,
+            5.1,
+            -4.223469501636919
+          ],
+          "boreAboveDriveAxisM": 1.4588871429225412,
+          "outerDiameterM": 0.34,
+          "boreDiameterM": 0.23,
+          "recessM": 0.45,
+          "worldMuzzle": [
+            42.1545335398782,
+            7.1,
+            -26.22346950163692
+          ],
+          "boreRayHit": [
+            41.70450210571289,
+            7.1,
+            -26.22346950163692
+          ],
+          "boreRayErrorM": 0.000031434165308041884
+        },
+        {
+          "side": "right",
+          "row": "lower",
+          "vertices": 682,
+          "indices": 4080,
+          "bounds": [
+            -1.150788771523167,
+            3.5399695894494654,
+            3.7634084508160095,
+            12.154533539878202,
+            4.459961190953851,
+            4.683493881837462
+          ],
+          "indicesInDeclaredRange": true,
+          "muzzle": [
+            12.154533539878202,
+            4,
+            4.223451280576352
+          ],
+          "root": [
+            -1.150788904118627,
+            4,
+            4.223451280576352
+          ],
+          "boreAboveDriveAxisM": 0.35888714292254154,
+          "outerDiameterM": 0.34,
+          "boreDiameterM": 0.23,
+          "recessM": 0.45,
+          "worldMuzzle": [
+            42.1545335398782,
+            6,
+            -17.776548719423648
+          ],
+          "boreRayHit": [
+            41.70450210571289,
+            6,
+            -17.776548719423648
+          ],
+          "boreRayErrorM": 0.000031434165308041884
+        },
+        {
+          "side": "right",
+          "row": "upper",
+          "vertices": 682,
+          "indices": 4080,
+          "bounds": [
+            -1.150788771523167,
+            4.640007788434625,
+            3.7634084508160095,
+            12.154533539878202,
+            5.559999303415418,
+            4.683493881837462
+          ],
+          "indicesInDeclaredRange": true,
+          "muzzle": [
+            12.154533539878202,
+            5.1,
+            4.223451280576352
+          ],
+          "root": [
+            -1.150788904118627,
+            5.1,
+            4.223451280576352
+          ],
+          "boreAboveDriveAxisM": 1.4588871429225412,
+          "outerDiameterM": 0.34,
+          "boreDiameterM": 0.23,
+          "recessM": 0.45,
+          "worldMuzzle": [
+            42.1545335398782,
+            7.1,
+            -17.776548719423648
+          ],
+          "boreRayHit": [
+            41.70450210571289,
+            7.1,
+            -17.776548719423648
+          ],
+          "boreRayErrorM": 0.000031434165308041884
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "kind": "twin40",
+      "float": false,
+      "asset": "dby_twin40_raised",
+      "barrels": 2,
+      "boltTT": 40,
+      "volleyTT": 80,
+      "size": [
+        28.861991732262666,
+        9.997709107492678,
+        16.25808446257435
+      ],
+      "nativeAssetSize": [
+        28.861991732262666,
+        9.997709107492678,
+        16.25808446257435
+      ],
+      "modelScale": 1,
+      "triangles": 5692,
+      "drawnIndices": 17076,
+      "outsideBounds": 0,
+      "fitBounds": [
+        56.97656469015318,
+        2,
+        13.872878719470307,
+        85.83855642241585,
+        11.997709107492678,
+        30.130963182044656
+      ],
+      "elevationPivot": [
+        -0.4148995445542817,
+        4.403239031199898,
+        0
+      ],
+      "elevationVertexStart": 2995,
+      "elevationIndexStart": 9624,
+      "authored": {
+        "asset": "dby_twin40_raised",
+        "yawPivot": [
+          70,
+          2,
+          22
+        ],
+        "elevationPivot": [
+          69.58510045544571,
+          6.403239031199898,
+          22
+        ],
+        "elevationAxis": [
+          0,
+          0,
+          1
+        ],
+        "axis": [
+          0,
+          1,
+          0
+        ],
+        "fw": [
+          1,
+          0,
+          0
+        ],
+        "muzzles": [
+          [
+            85.83855642241585,
+            10.409,
+            16.05
+          ],
+          [
+            85.83855642241585,
+            10.409,
+            27.95
+          ]
+        ],
+        "vertexStart": 2995,
+        "indexStart": 9624
+      },
+      "physicalBarrels": [
+        {
+          "side": "left",
+          "row": null,
+          "vertices": 1272,
+          "indices": 3546,
+          "bounds": [
+            2.9587407129304806,
+            7.502706163671464,
+            -6.856384749940393,
+            15.838556422415849,
+            9.315298118320332,
+            -5.0435633525974355
+          ],
+          "indicesInDeclaredRange": true,
+          "muzzle": [
+            15.838556422415849,
+            8.409,
+            -5.95
+          ],
+          "root": [
+            2.9589035591124215,
+            8.409,
+            -5.95
+          ],
+          "boreAboveDriveAxisM": 4.005760968800103,
+          "outerDiameterM": 1.0428660741007951,
+          "boreDiameterM": 0.8374380220134257,
+          "recessM": 1.2832175134132981,
+          "worldMuzzle": [
+            85.83855642241585,
+            10.409,
+            16.05
+          ],
+          "boreRayHit": [
+            84.5551528930664,
+            10.409,
+            16.05
+          ],
+          "boreRayErrorM": 0.00018601593615130696
+        },
+        {
+          "side": "right",
+          "row": null,
+          "vertices": 1272,
+          "indices": 3546,
+          "bounds": [
+            2.9587407129304806,
+            7.502706163671464,
+            5.043683589363104,
+            15.838556422415849,
+            9.315298118320332,
+            6.856256908024686
+          ],
+          "indicesInDeclaredRange": true,
+          "muzzle": [
+            15.838556422415849,
+            8.409,
+            5.95
+          ],
+          "root": [
+            2.9589035591124215,
+            8.409,
+            5.95
+          ],
+          "boreAboveDriveAxisM": 4.005760968800103,
+          "outerDiameterM": 1.0428121733218492,
+          "boreDiameterM": 0.8374606986340595,
+          "recessM": 1.2832175134132981,
+          "worldMuzzle": [
+            85.83855642241585,
+            10.409,
+            27.95
+          ],
+          "boreRayHit": [
+            84.5551528930664,
+            10.409,
+            27.95
+          ],
+          "boreRayErrorM": 0.00018601593615130696
+        }
+      ]
+    }
+  ],
+  "lengthRatio": 1.6186956956805605,
+  "nativeCanvasSelection": [
+    {
+      "id": 2,
+      "kind": "quad500",
+      "pixel": [
+        812.2977942521745,
+        403.71614744485004
+      ],
+      "nativeCanvasClick": true
+    },
+    {
+      "id": 3,
+      "kind": "twin40",
+      "pixel": [
+        881.960613880182,
+        658.2445733245139
+      ],
+      "nativeCanvasClick": true
+    }
+  ],
+  "nativeYawEditAndUndo": true,
+  "poseGeometry": [
+    {
+      "id": 2,
+      "kind": "quad500",
+      "bodyMesh": "turBody_2",
+      "movingMesh": "tur_2",
+      "staticIndices": 76068,
+      "movingIndices": 16536,
+      "expectedStaticIndices": 76068,
+      "expectedMovingIndices": 16536,
+      "restPivot": [
+        30.686205931991974,
+        5.6411128570774585,
+        -22.000009110530282
+      ],
+      "raisedPivot": [
+        30.686205931991974,
+        5.6411128570774585,
+        -22.000009110530282
+      ],
+      "restMuzzles": [
+        [
+          42.1545335398782,
+          6,
+          -26.22346950163692
+        ],
+        [
+          42.1545335398782,
+          7.1,
+          -26.22346950163692
+        ],
+        [
+          42.1545335398782,
+          6,
+          -17.776548719423648
+        ],
+        [
+          42.1545335398782,
+          7.1,
+          -17.776548719423648
+        ]
+      ],
+      "raisedMuzzles": [
+        [
+          40.92836828680365,
+          10.813099748093244,
+          -26.22346950163692
+        ],
+        [
+          40.46348819888888,
+          11.810038313833559,
+          -26.22346950163692
+        ],
+        [
+          40.92836828680365,
+          10.813099748093244,
+          -17.776548719423648
+        ],
+        [
+          40.46348819888888,
+          11.810038313833559,
+          -17.776548719423648
+        ]
+      ],
+      "raisedDirection": [
+        0.9063077870366499,
+        0.42261826174069944,
+        0
+      ],
+      "muzzleRiseM": [
+        4.813099748093244,
+        4.710038313833559,
+        4.813099748093244,
+        4.710038313833559
+      ]
+    },
+    {
+      "id": 3,
+      "kind": "twin40",
+      "bodyMesh": "turBody_3",
+      "movingMesh": "tur_3",
+      "staticIndices": 9624,
+      "movingIndices": 7452,
+      "expectedStaticIndices": 9624,
+      "expectedMovingIndices": 7452,
+      "restPivot": [
+        69.58510045544571,
+        6.403239031199898,
+        22
+      ],
+      "raisedPivot": [
+        69.58510045544571,
+        6.403239031199898,
+        22
+      ],
+      "restMuzzles": [
+        [
+          85.83855642241585,
+          10.409,
+          16.05
+        ],
+        [
+          85.83855642241585,
+          10.409,
+          27.95
+        ]
+      ],
+      "raisedMuzzles": [
+        [
+          82.62282642698501,
+          16.902698698270825,
+          16.05
+        ],
+        [
+          82.62282642698501,
+          16.902698698270825,
+          27.95
+        ]
+      ],
+      "raisedDirection": [
+        0.9063077870366499,
+        0.42261826174069944,
+        0
+      ],
+      "muzzleRiseM": [
+        6.4936986982708245,
+        6.4936986982708245
+      ]
+    }
+  ],
+  "renderedPoses": [
+    {
+      "view": "isometric",
+      "elevationDegrees": 0,
+      "webglError": 0,
+      "uploadedMeshes": [
+        {
+          "name": "turBody_2",
+          "indices": 76068
+        },
+        {
+          "name": "tur_2",
+          "indices": 16536
+        },
+        {
+          "name": "turBody_3",
+          "indices": 9624
+        },
+        {
+          "name": "tur_3",
+          "indices": 7452
+        }
+      ]
+    },
+    {
+      "view": "front",
+      "elevationDegrees": 0,
+      "webglError": 0,
+      "uploadedMeshes": [
+        {
+          "name": "turBody_2",
+          "indices": 76068
+        },
+        {
+          "name": "tur_2",
+          "indices": 16536
+        },
+        {
+          "name": "turBody_3",
+          "indices": 9624
+        },
+        {
+          "name": "tur_3",
+          "indices": 7452
+        }
+      ]
+    },
+    {
+      "view": "side",
+      "elevationDegrees": 0,
+      "webglError": 0,
+      "uploadedMeshes": [
+        {
+          "name": "turBody_2",
+          "indices": 76068
+        },
+        {
+          "name": "tur_2",
+          "indices": 16536
+        },
+        {
+          "name": "turBody_3",
+          "indices": 9624
+        },
+        {
+          "name": "tur_3",
+          "indices": 7452
+        }
+      ]
+    },
+    {
+      "view": "side",
+      "elevationDegrees": 25,
+      "webglError": 0,
+      "uploadedMeshes": [
+        {
+          "name": "turBody_2",
+          "indices": 76068
+        },
+        {
+          "name": "tur_2",
+          "indices": 16536
+        },
+        {
+          "name": "turBody_3",
+          "indices": 9624
+        },
+        {
+          "name": "tur_3",
+          "indices": 7452
+        }
+      ]
+    },
+    {
+      "view": "isometric",
+      "elevationDegrees": 25,
+      "webglError": 0,
+      "uploadedMeshes": [
+        {
+          "name": "turBody_2",
+          "indices": 76068
+        },
+        {
+          "name": "tur_2",
+          "indices": 16536
+        },
+        {
+          "name": "turBody_3",
+          "indices": 9624
+        },
+        {
+          "name": "tur_3",
+          "indices": 7452
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "screenshots": [
+    "turret-comparison-editor.png",
+    "turret-comparison-isometric-0deg.png",
+    "turret-comparison-front-0deg.png",
+    "turret-comparison-side-0deg.png",
+    "turret-comparison-side-25deg.png",
+    "turret-comparison-isometric-25deg.png"
+  ],
+  "scope": {
+    "fixture": "Core APIs build one ordinary editable box platform with native-scale quad500 and twin40; real canvas clicks select each turret; native DOM edits yaw and Undo restores it. A labeled debug canvas uses the production fleet renderer and shared joint helper at 0° and 25°.",
+    "verified": [
+      "four and two complete physical barrel ranges",
+      "straight 0.34m quad tubes and recessed physical bores",
+      "authored muzzle points above actual drive pivots",
+      "draw range and physical selection bounds",
+      "native catalogue, canvas selection, yaw control and Undo",
+      "separate uploaded static housing and moving barrel groups",
+      "same-scale front, side and isometric views at the listed elevations",
+      "English labels, WebGL and no horizontal overflow"
+    ],
+    "notVerified": [
+      "powered combat or sustained firing",
+      "complete-ship engineering inspection",
+      "automatic combat target tracking",
+      "physical mobile device",
+      "GPU frame rate"
+    ]
+  }
+}

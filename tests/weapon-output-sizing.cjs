@@ -52,6 +52,24 @@ test('DBY-827 and the canonical eight-barrel turret retain their authored size a
   }
 });
 
+test('the photographed medium quad and raised 40 TT twin retain their own native size anchors', () => {
+  for (const [k, barrels, volleyTT, length] of [['quad500', 4, 2, 17.8304], ['twin40', 2, 80, 28.861991732993026]]) {
+    const f = fitting(k), sizing = C.weaponSizing(f), rendered = span(referenceBounds(f));
+    assert.equal(C.FITS[k].barrels, barrels);
+    near(sizing.volleyTT, volleyTT, `${k} explicit salvo`);
+    near(C.weaponModelScale(f), 1, `${k} native photo scale`);
+    near(sizing.factor, 1, `${k} native sizing factor`);
+    near(sizing.targetVolume, sizing.sourceVolume, `${k} native target volume`);
+    near(rendered[0], length, `${k} photographed length`);
+    for (let axis = 0; axis < 3; axis++) near(rendered[axis], sizing.sourceSize[axis], `${k} native mesh axis ${axis}`);
+  }
+  const twin = C.weaponSizing(fitting('twin40'));
+  assert.match(twin.calibration, /photo/i, 'the new twin is an explicit photo calibration');
+  near(C.FITS.twin40.fm/C.FITS.quad500.fm, 28.861991732993026/17.8304, 'photographed twin-to-quad length ratio');
+  near(C.FITS.refVen.tt, 140, 'the existing DBY-827 keeps its 140 TT salvo');
+  near(C.FITS.refSide.tt, 80, 'the existing side-mounted twin keeps its 80 TT salvo');
+});
+
 test('weapon volume follows salvo energy and interpolates the two anchor volume densities by barrel count', () => {
   const twinDensity = volume(span(referenceBounds(fitting('refVen'))))/140;
   const octupleDensity = volume(span(referenceBounds(fitting('oct40'))))/320;
@@ -117,7 +135,7 @@ test('aircraft weapons, fixed launchers, missiles, tractors and bridge equipment
 });
 
 test('imported gun rendering, selection and collision use the same scaled geometry for every mount frame', () => {
-  for (const k of ['pd', 'refVen', 'oct40', 'stl']) {
+  for (const k of ['pd', 'refVen', 'oct40', 'stl', 'quad500', 'twin40']) {
     for (const a of [0, 1, 2, 3, 4, 5]) {
       for (const tilt of [null, C.norm([.2, .9, -.3])]) {
         const f = fitting(k, {a, p: [31, -7, 9], assetYaw: 37, ...(tilt ? {tilt} : {})});
@@ -207,7 +225,7 @@ test('small procedural guns scale every body vertex uniformly while explicit ped
 test('standard-size normalization and save reload retain calibration without a manual fitting scale', () => {
   const ship = C.newShip({L: 240, W: 200, H: 140, assembly: true}, 'Calibrated weapon sizes');
   ship.parts = [];
-  ship.fits = ['pd', 'ltl', 'refVen', 'oct40', 'stl'].map((k, index) => fitting(k, {id: index+1, p: [40+index*40, 60, 0], float: true, scale: 3}));
+  ship.fits = ['pd', 'ltl', 'refVen', 'oct40', 'stl', 'quad500', 'twin40'].map((k, index) => fitting(k, {id: index+1, p: [40+index*40, 60, 0], float: true, scale: 3}));
   const loaded = C.deserialize(C.serialize(ship));
   for (const f of loaded.fits) {
     assert.equal(Object.hasOwn(f, 'scale'), false, `${f.k} obsolete manual scale is normalized`);

@@ -1,0 +1,213 @@
+{
+  "title": "40TT 2連装重ターボレーザー砲塔",
+  "kind": "fit",
+  "plainMetal": true,
+  "derivedFrom": "ven_turret",
+  "source": "A308 Digital",
+  "n": 5767,
+  "faces": 5692,
+  "indexBytes": 2,
+  "c": [
+    1.4075605562845146,
+    4.998854553746339,
+    0.0019209507574817763
+  ],
+  "size": [
+    28.861991732262666,
+    9.997709107492678,
+    16.25808446257435
+  ],
+  "mount": [
+    0,
+    0,
+    0
+  ],
+  "forward": [
+    1,
+    0,
+    0
+  ],
+  "up": [
+    0,
+    1,
+    0
+  ],
+  "barrels": 2,
+  "bounds": [
+    [
+      -13.02343530984682,
+      0.0,
+      -8.127121280529693
+    ],
+    [
+      15.838556422415849,
+      9.997709107492678,
+      8.130963182044656
+    ]
+  ],
+  "sourcePackedSha256": "8067fdea252e9627a92f4934eb33d446139fa5fce755e172d2bb4358b14506dc",
+  "sourceYawDeg": 89.7,
+  "sourceUp": [
+    0.02532,
+    0.99968,
+    0.00055
+  ],
+  "sourceBase": [
+    0.015,
+    -4.985,
+    1.401
+  ],
+  "sourceFloorCorrectionM": 7.730227407165557e-05,
+  "housingVertices": 2995,
+  "housingFaces": 3208,
+  "drivePivots": [
+    {
+      "firstVertex": 2483,
+      "vertices": 256,
+      "firstIndex": 8292,
+      "indices": 666,
+      "centerM": [
+        -0.4460931211941308,
+        4.403298057554341,
+        -6.1277433465102735
+      ],
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "radiusM": 3.590778216314114,
+      "boundsM": [
+        [
+          -4.046264385719648,
+          0.8125198412402268,
+          -8.127121280529693
+        ],
+        [
+          3.1540781433313865,
+          7.994076273868455,
+          -4.128365412490854
+        ]
+      ]
+    },
+    {
+      "firstVertex": 2739,
+      "vertices": 256,
+      "firstIndex": 8958,
+      "indices": 666,
+      "centerM": [
+        -0.38370596791443257,
+        4.403180004845455,
+        6.131587214804607
+      ],
+      "axis": [
+        0,
+        0,
+        1
+      ],
+      "radiusM": 3.59072168002573,
+      "boundsM": [
+        [
+          -3.983877264860437,
+          0.8124583248197252,
+          4.132211247564557
+        ],
+        [
+          3.2164653290315717,
+          7.993901684871185,
+          8.130963182044656
+        ]
+      ]
+    }
+  ],
+  "barrelCenters": [
+    {
+      "firstVertex": 2995,
+      "vertices": 1272,
+      "firstIndex": 9624,
+      "indices": 3546,
+      "side": "left",
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "muzzle": [
+        15.838556422415849,
+        8.409,
+        -5.95
+      ],
+      "root": [
+        2.9589035591124215,
+        8.409,
+        -5.95
+      ],
+      "boreHeightM": 8.409,
+      "boreRadiusM": 0.4187190110067128,
+      "outerRadiusM": 0.5214330370503976,
+      "muzzleRecessM": 1.2832175134132981
+    },
+    {
+      "firstVertex": 4267,
+      "vertices": 1272,
+      "firstIndex": 13170,
+      "indices": 3546,
+      "side": "right",
+      "axis": [
+        1,
+        0,
+        0
+      ],
+      "muzzle": [
+        15.838556422415849,
+        8.409,
+        5.95
+      ],
+      "root": [
+        2.9589035591124215,
+        8.409,
+        5.95
+      ],
+      "boreHeightM": 8.409,
+      "boreRadiusM": 0.41873034931702974,
+      "outerRadiusM": 0.5214060866609246,
+      "muzzleRecessM": 1.2832175134132981
+    }
+  ],
+  "elevationPivot": [
+    -0.4148995445542817,
+    4.403239031199898,
+    0
+  ],
+  "elevationAxis": [
+    0,
+    0,
+    1
+  ],
+  "barrelAxis": [
+    1,
+    0,
+    0
+  ],
+  "muzzlePoints": [
+    [
+      15.838556422415849,
+      8.409,
+      -5.95
+    ],
+    [
+      15.838556422415849,
+      8.409,
+      5.95
+    ]
+  ],
+  "elevationVertexStart": 2995,
+  "elevationIndexStart": 9624,
+  "cradleVertexStart": 5539,
+  "cradleIndexStart": 16716,
+  "nativeCalibration": "user-photo-relative-to-quad500",
+  "barrelRiseAbovePivotM": 4.005760968800103,
+  "maxQuantizationErrorM": 0.0002563235659995402,
+  "modifications": "Canonical DBY housing, turntable and circular drives retained with original UVs. Both complete recessed-muzzle barrel meshes are levelled along +X and raised above the mechanical drive axis; new armored cradles and ribs support their roots. The fixed housing precedes one contiguous elevating barrel/cradle partition.",
+  "packedSha256": "bbea3853de59eebcb02428fa6486e78010194b415b0f19aeea09a6e26e7acdd1"
+}

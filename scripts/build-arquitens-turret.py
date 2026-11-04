@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Derive the Arquitens quad 500 GT turret from the supplied small dual-purpose gun.
 
-Only Python's standard library is required. Each original barrel is copied twice
-vertically, preserving complete barrel triangles (including the recessed muzzle)
-and every original housing face. The native envelope is measured on the user's
-325 m Arquitens STL. Local +X is forward, +Y up, the turntable floor is Y=0.
+Only Python's standard library is required. The original turntable and drive
+housing retain every face; photo-guided raised cradles carry four long parallel
+barrels with stepped breeches and recessed circular muzzles. The native envelope
+is measured on the user's 325 m Arquitens STL. Local +X is forward, +Y up, the turntable floor is Y=0.
 
     python scripts/build-arquitens-turret.py --json-output /tmp/arq-quad500.json
     python scripts/build-arquitens-turret.py --write-registration
@@ -23,7 +23,6 @@ SOURCE_ID = 'pd_turret_small'
 ASSET_ID = 'arq_turret_quad500'
 # Full main-gun envelope after the source cruiser is scaled uniformly to 325 m.
 TARGET_SIZE_M = [17.8304, 5.8065, 14.1041]
-VERTICAL_PAIR_OFFSET_M = .43  # source-space: within the existing side trunnions
 PREFIX = 'Object.assign(YardReferenceData.assets,{"' + ASSET_ID + '":'
 
 
@@ -84,6 +83,52 @@ def components(points, indices):
     return sorted(result.values(), key=min)
 
 
+def append_box(points, uvs, indices, low, high):
+    """A small hard-edged cradle block; all faces stay in the moving group."""
+    x0, y0, z0 = low
+    x1, y1, z1 = high
+    corners = [(x0,y0,z0),(x1,y0,z0),(x1,y1,z0),(x0,y1,z0),
+               (x0,y0,z1),(x1,y0,z1),(x1,y1,z1),(x0,y1,z1)]
+    faces = [(0,3,2,1),(4,5,6,7),(0,1,5,4),(3,7,6,2),(0,4,7,3),(1,2,6,5)]
+    for face in faces:
+        first = len(points)
+        points.extend([list(corners[i]) for i in face])
+        uvs.extend([(0,0),(65535,0),(65535,65535),(0,65535)])
+        indices.extend([first,first+1,first+2,first,first+2,first+3])
+
+
+def append_barrel(points, uvs, indices, profile, y, z, segments=40):
+    """Revolve one closed X/r section, including a real recessed inner bore.
+
+    Outer walls run forward, turn inward across the annular muzzle, and return
+    along the inner wall to the recessed bore floor. No front disk fills it.
+    """
+    rings = []
+    x_min, x_max = min(p[0] for p in profile), max(p[0] for p in profile)
+    for x, radius in profile:
+        if radius == 0:
+            rings.append([len(points)])
+            points.append([x,y,z])
+            uvs.append((round((x-x_min)/(x_max-x_min)*65535),32768))
+        else:
+            ring = []
+            for k in range(segments):
+                t = 2*math.pi*k/segments
+                ring.append(len(points))
+                points.append([x,y+radius*math.cos(t),z+radius*math.sin(t)])
+                uvs.append((round((x-x_min)/(x_max-x_min)*65535),round(k/segments*65535)))
+            rings.append(ring)
+    for first, second in zip(rings, rings[1:]):
+        for k in range(segments):
+            j = (k+1) % segments
+            if len(first) == 1:
+                indices.extend([first[0],second[j],second[k]])
+            elif len(second) == 1:
+                indices.extend([first[k],first[j],second[0]])
+            else:
+                indices.extend([first[k],first[j],second[j],first[k],second[j],second[k]])
+
+
 def build(reference, size=TARGET_SIZE_M):
     source = registration_asset(reference, SOURCE_ID)
     points, uv, indices, source_data = decode(source)
@@ -91,86 +136,119 @@ def build(reference, size=TARGET_SIZE_M):
     barrels = []
     for group in groups:
         low, high = bounds([points[i] for i in group])
-        if len(group) == 1824 and high[0] - low[0] > 6 and high[1] - low[1] < .7:
+        if len(group) == 1824 and high[0]-low[0] > 6 and high[1]-low[1] < .7:
             barrels.append(group)
     if len(groups) != 63 or len(barrels) != 2:
         raise ValueError('PD source must retain 63 components and two intact barrels')
     barrel_set = {i for group in barrels for i in group}
     housing = [i for i in range(len(points)) if i not in barrel_set]
     housing_set = set(housing)
-    housing_faces = [indices[i:i + 3] for i in range(0, len(indices), 3)
-                     if indices[i] in housing_set]
+    housing_faces = [indices[i:i+3] for i in range(0,len(indices),3) if indices[i] in housing_set]
     if any(any(v not in housing_set for v in tri) for tri in housing_faces):
         raise ValueError('A barrel is attached to a housing triangle')
-    out_points = [points[i][:] for i in housing]
+    # Preserve every original housing face and the same native envelope. The
+    # high, long parallel tubes are new geometry informed by the user's photos.
+    factors = [size[k]/source['size'][k] for k in range(3)]
+    out_points = [[points[i][k]*factors[k] for k in range(3)] for i in housing]
     out_uv = [uv[i] for i in housing]
-    mapping = {v: i for i, v in enumerate(housing)}
+    mapping = {v:i for i,v in enumerate(housing)}
     out_indices = [mapping[i] for tri in housing_faces for i in tri]
+    source_housing_vertices = len(out_points)
+    source_housing_faces = len(out_indices)//3
+    sx, sy, sz = [size[k]/TARGET_SIZE_M[k] for k in range(3)]
+    radial_scale = min(sy,sz)
+    # The two original circular side bearings define the actual common axis.
+    drive_bounds = [bounds([points[i] for i in groups[j]]) for j in [3,4]]
+    drive_centres = [[(lo[k]+hi[k])/2*factors[k] for k in range(3)] for lo,hi in drive_bounds]
+    elevation_pivot = [(drive_centres[0][k]+drive_centres[1][k])/2 for k in range(3)]
+    elevation_vertex_start = len(out_points)
+    elevation_index_start = len(out_indices)
+    barrel_sides = []
+    for group in sorted(barrels,key=lambda g:sum(points[i][2] for i in g)/len(g)):
+        lo,hi = bounds([points[i] for i in group])
+        barrel_sides.append(('left' if lo[2]+hi[2] < 0 else 'right',(lo[2]+hi[2])/2*factors[2]))
+    # A bearing arm and two upright cheeks connect the raised pair to each side
+    # drive. The frame leaves a visible gap between the long exposed tubes.
+    for _,z in barrel_sides:
+        sg = 1 if z > 0 else -1
+        blocks = [([-.8,3.40,z/sz-.37],[ -.42,5.55,z/sz+.37]),
+                  ([1.42,3.40,z/sz-.37],[1.75,5.55,z/sz+.37]),
+                  ([.0,3.40,min(sg*2.95,z/sz-.37)],[1.42,3.78,max(sg*2.95,z/sz+.37)])]
+        for low,high in blocks:
+            append_box(out_points,out_uv,out_indices,
+                       [low[0]*sx,low[1]*sy,low[2]*sz],
+                       [high[0]*sx,high[1]*sy,high[2]*sz])
+    housing_vertices = len(out_points)
+    housing_face_count = len(out_indices)//3
+    base_low,_ = bounds(out_points)
+    muzzle_x = base_low[0]+size[0]
+    barrel_root = min(points[i][0] for i in barrels[0])*factors[0]
+    outer_radius = .17*radial_scale
+    bore_radius = .115*radial_scale
+    recess = .45*sx
+    # Constant-diameter exposed shanks replace the old needle-like final taper.
+    # The small breech steps and two narrow collars keep all four tubes legible.
+    profile = [(barrel_root,0),(barrel_root,.38*radial_scale),
+               (-.90*sx,.42*radial_scale),(1.35*sx,.42*radial_scale),
+               (1.35*sx,.46*radial_scale),(1.65*sx,.46*radial_scale),
+               (1.65*sx,.30*radial_scale),(2.05*sx,.30*radial_scale),
+               (2.05*sx,.27*radial_scale),(2.24*sx,.27*radial_scale),
+               (2.45*sx,outer_radius),(6.10*sx,outer_radius),
+               (6.10*sx,.19*radial_scale),(6.28*sx,.19*radial_scale),
+               (6.28*sx,outer_radius),(muzzle_x,outer_radius),
+               (muzzle_x,bore_radius),(muzzle_x-recess,bore_radius),
+               (muzzle_x-recess,0)]
     barrel_metadata = []
-    barrels.sort(key=lambda group: sum(points[i][2] for i in group) / len(group))
-    for group in barrels:
-        source_low, source_high = bounds([points[i] for i in group])
-        center = [(a + b) / 2 for a, b in zip(source_low, source_high)]
-        group_set = set(group)
-        faces = [indices[i:i + 3] for i in range(0, len(indices), 3)
-                 if indices[i] in group_set]
-        for row, shift in [('lower', -VERTICAL_PAIR_OFFSET_M),
-                           ('upper', VERTICAL_PAIR_OFFSET_M)]:
-            mapping = {}
-            first = len(out_points)
-            for i in group:
-                mapping[i] = len(out_points)
-                out_points.append([points[i][0], points[i][1] + shift, points[i][2]])
-                out_uv.append(uv[i])
-            out_indices.extend(mapping[i] for tri in faces for i in tri)
-            barrel_metadata.append({'side': 'left' if center[2] < 0 else 'right',
-                                    'row': row, 'firstVertex': first,
-                                    'vertices': len(group), 'faces': len(faces),
-                                    'sourceCenter': [center[0], center[1] + shift, center[2]]})
-    low, high = bounds(out_points)
-    native_size = [b - a for a, b in zip(low, high)]
-    factors = [target / span for target, span in zip(size, native_size)]
-    # The turntable and housing adapt to the measured box. Each circular tube
-    # retains the same radial scale in Y and Z instead of acquiring an oval bore.
-    for barrel in barrel_metadata:
-        z_center = barrel['sourceCenter'][2]
-        for i in range(barrel['firstVertex'], barrel['firstVertex'] + barrel['vertices']):
-            out_points[i][2] = z_center + (out_points[i][2] - z_center) * factors[1] / factors[2]
-    out_points = [[v * factors[k] for k, v in enumerate(p)] for p in out_points]
-    for barrel in barrel_metadata:
-        barrel['centerM'] = [v * factors[k] for k, v in enumerate(barrel.pop('sourceCenter'))]
-    low, high = bounds(out_points)
-    size = [b - a for a, b in zip(low, high)]
-    center = [(a + b) / 2 for a, b in zip(low, high)]
+    for side,z in barrel_sides:
+        for row,y in [('lower',4.0*sy),('upper',5.1*sy)]:
+            first_vertex,first_index = len(out_points),len(out_indices)
+            append_barrel(out_points,out_uv,out_indices,profile,y,z)
+            lo,hi = bounds(out_points[first_vertex:])
+            barrel_metadata.append({'side':side,'row':row,'firstVertex':first_vertex,
+                'vertices':len(out_points)-first_vertex,'firstIndex':first_index,
+                'indices':len(out_indices)-first_index,'faces':(len(out_indices)-first_index)//3,
+                'centerM':[(lo[k]+hi[k])/2 for k in range(3)],
+                'root':[barrel_root,y,z],'muzzle':[muzzle_x,y,z],'axis':[1,0,0],
+                'outerRadiusM':outer_radius,'boreRadiusM':bore_radius,'muzzleRecessM':recess,
+                'exposedStartX':2.45*sx,'breechRadiusM':.46*radial_scale})
+    low,high = bounds(out_points)
+    actual_size = [b-a for a,b in zip(low,high)]
+    if any(abs(actual_size[k]-size[k]) > .002 for k in range(3)):
+        raise ValueError('Photo geometry must retain the requested native envelope')
+    center = [(a+b)/2 for a,b in zip(low,high)]
     n = len(out_points)
     index_bytes = 2 if n < 65536 else 4
     packed = bytearray()
     for point in out_points:
         for k in range(3):
-            packed.extend(struct.pack('<h', round((point[k] - center[k]) / size[k] * 65532)))
+            packed.extend(struct.pack('<h',round((point[k]-center[k])/actual_size[k]*65532)))
     for pair in out_uv:
-        packed.extend(struct.pack('<HH', *pair))
+        packed.extend(struct.pack('<HH',*pair))
     for i in out_indices:
-        packed.extend(struct.pack('<H' if index_bytes == 2 else '<I', i))
-    max_error = max(math.dist(point, [struct.unpack_from('<h', packed, i * 6 + k * 2)[0]
-                                     / 65532 * size[k] + center[k] for k in range(3)])
-                    for i, point in enumerate(out_points))
-    asset = {'title': '500GT 4連装中型ターボレーザー砲塔', 'kind': 'fit',
-             'plainMetal': True, 'source': 'Turret-Small-1.fbx (user supplied), derived quad mount',
-             'derivedFrom': SOURCE_ID, 'n': n, 'faces': len(out_indices) // 3,
-             'indexBytes': index_bytes, 'c': center, 'size': size, 'mount': [0, 0, 0],
-             'forward': [1, 0, 0], 'up': [0, 1, 0], 'barrels': 4,
-             'layout': 'two vertical barrels on each side',
-             'bounds': [low, high], 'sourcePackedSha256': hashlib.sha256(source_data).hexdigest(),
-             'housingVertices': len(housing), 'housingFaces': len(housing_faces),
-             'barrelVertices': len(barrels[0]), 'barrelFaces': len(faces),
-             'barrelCenters': barrel_metadata, 'axisScale': factors,
-             'barrelRadialScale': factors[1],
-             'maxQuantizationErrorM': max_error,
-             'modifications': 'Original housing and all its faces retained; each complete barrel copied '
-                              'into upper/lower rows at the two sides, including recessed muzzle '
-                              'geometry and original UVs. Native envelope follows supplied Arquitens STL.',
-             'data': base64.b64encode(packed).decode('ascii')}
+        packed.extend(struct.pack('<H' if index_bytes == 2 else '<I',i))
+    max_error = max(math.dist(point,[struct.unpack_from('<h',packed,i*6+k*2)[0]
+                        /65532*actual_size[k]+center[k] for k in range(3)])
+                        for i,point in enumerate(out_points))
+    asset = {'title':'500GT 4連装中型ターボレーザー砲塔','kind':'fit','plainMetal':True,
+        'source':'Turret-Small-1.fbx (user supplied), photo-guided raised quad mount',
+        'derivedFrom':SOURCE_ID,'n':n,'faces':len(out_indices)//3,'indexBytes':index_bytes,
+        'c':center,'size':actual_size,'mount':[0,0,0],'forward':[1,0,0],'up':[0,1,0],
+        'barrels':4,'layout':'two raised parallel vertical barrels on each side',
+        'bounds':[low,high],'sourcePackedSha256':hashlib.sha256(source_data).hexdigest(),
+        'sourceHousingVertices':source_housing_vertices,'sourceHousingFaces':source_housing_faces,
+        'housingVertices':housing_vertices,'housingFaces':housing_face_count,
+        'barrelVertices':barrel_metadata[0]['vertices'],'barrelFaces':barrel_metadata[0]['faces'],
+        'barrelCenters':barrel_metadata,'axisScale':factors,'barrelRadialScale':radial_scale,
+        'elevationPivot':elevation_pivot,'elevationAxis':[0,0,1],'barrelAxis':[1,0,0],
+        'muzzlePoints':[row['muzzle'] for row in barrel_metadata],
+        'elevationVertexStart':elevation_vertex_start,'elevationIndexStart':elevation_index_start,
+        'elevationRanges':[{'firstVertex':elevation_vertex_start,'vertexCount':n-elevation_vertex_start}],
+        'drivePivots':drive_centres,'maxQuantizationErrorM':max_error,
+        'modifications':'Original PD housing and turntable faces retained. New physically connected '
+            'raised pair cradles carry four long, constant-diameter barrels with stepped breeches '
+            'and real recessed circular muzzles, based on the supplied photographs. '
+            'The entire appended cradle/barrel group elevates about the original side-drive axis.',
+        'data':base64.b64encode(packed).decode('ascii')}
     return asset
 
 

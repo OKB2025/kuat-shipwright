@@ -1,0 +1,296 @@
+{
+  "generatedAt": "2026-11-04T12:31:18.955Z",
+  "baselineCommit": "7cf51ce8592b44f2f7b2abc1e2780e11844f02cb",
+  "baselinePath": "/tmp/turret-photo-catalog-baseline.json",
+  "generatedPath": "/tmp/turret-photo-craft-prices.block.js",
+  "baseline": {
+    "modelVersion": 11,
+    "modelSignature": "l4qlh3",
+    "count": 12
+  },
+  "generated": {
+    "modelVersion": 11,
+    "modelSignature": "1ab8eam",
+    "count": 12
+  },
+  "signoffs": {
+    "expectedTwelveEntries": true,
+    "sameEntryKeys": true,
+    "modelVersionRemainsEleven": true,
+    "modelSignatureChanged": true,
+    "allEntrySignaturesChanged": true,
+    "pricesCrewAndBreakdownsUnchanged": true,
+    "systemsAndHeatUnchanged": true,
+    "propulsionUnchanged": true,
+    "powerProfilesUnchanged": true,
+    "allOtherEntryFieldsIdentical": true,
+    "profileVersionRemainsFive": true
+  },
+  "passed": true,
+  "entries": [
+    {
+      "key": "arc170",
+      "reference": "craft_arc170",
+      "baselineSignature": "1anm7oa",
+      "newSignature": "45rz6p",
+      "signatureChanged": true,
+      "payloadIdentical": true,
+      "fieldsIdentical": {
+        "reference": true,
+        "build": true,
+        "crew": true,
+        "total": true,
+        "by": true,
+        "detailed": true,
+        "systems": true,
+        "heat": true,
+        "powerProfile": true
+      },
+      "differencePaths": [
+        "signature"
+      ]
+    },
+    {
+      "key": "awing",
+      "reference": "craft_awing",
+      "baselineSignature": "1qr8yu6",
+      "newSignature": "cgilx",
+      "signatureChanged": true,
+      "payloadIdentical": true,
+      "fieldsIdentical": {
+        "reference": true,
+        "build": true,
+        "crew": true,
+        "total": true,
+        "by": true,
+        "detailed": true,
+        "systems": true,
+        "heat": true,
+        "powerProfile": true
+      },
+      "differencePaths": [
+        "signature"
+      ]
+    },
+    {
+      "key": "btlb",
+      "reference": "craft_btlb",
+      "baselineSignature": "1xtfqcx",
+      "newSignature": "edx57c",
+      "signatureChanged": true,
+      "payloadIdentical": true,
+      "fieldsIdentical": {
+        "reference": true,
+        "build": true,
+        "crew": true,
+        "total": true,
+        "by": true,
+        "detailed": true,
+        "systems": true,
+        "heat": true,
+        "powerProfile": true
+      },
+      "differencePaths": [
+        "signature"
+      ]
+    },
+    {
+      "key": "hyena",
+      "reference": "craft_hyena",
+      "baselineSignature": "l1pucx",
+      "newSignature": "1rnkoyg",
+      "signatureChanged": true,
+      "payloadIdentical": true,
+      "fieldsIdentical": {
+        "reference": true,
+        "build": true,
+        "crew": true,
+        "total": true,
+        "by": true,
+        "detailed": true,
+        "systems": true,
+        "heat": true,
+        "powerProfile": true
+      },
+      "differencePaths": [
+        "signature"
+      ]
+    },
+    {
+      "key": "tie_in",
+      "reference": "craft_tie_in",
+      "baselineSignature": "1mvoq5s",
+      "newSignature": "1kbx2vf",
+      "signatureChanged": true,
+      "payloadIdentical": true,
+      "fieldsIdentical": {
+        "reference": true,
+        "build": true,
+        "crew": true,
+        "total": true,
+        "by": true,
+        "detailed": true,
+        "systems": true,
+        "heat": true,
+        "powerProfile": true
+      },
+      "differencePaths": [
+        "signature"
+      ]
+    },
+    {
+      "key": "tie_ln",
+      "reference": "craft_tie_ln",
+      "baselineSignature": "oa5y88",
+      "newSignature": "1inoglf",
+      "signatureChanged": true,
+      "payloadIdentical": true,
+      "fieldsIdentical": {
+        "reference": true,
+        "build": true,
+        "crew": true,
+        "total": true,
+        "by": true,
+        "detailed": true,
+        "systems": true,
+        "heat": true,
+        "powerProfile": true
+      },
+      "differencePaths": [
+        "signature"
+      ]
+    },
+    {
+      "key": "tie_sa",
+      "reference": "craft_tie_sa",
+      "baselineSignature": "1xvie6b",
+      "newSignature": "1y2ewa6",
+      "signatureChanged": true,
+      "payloadIdentical": true,
+      "fieldsIdentical": {
+        "reference": true,
+        "build": true,
+        "crew": true,
+        "total": true,
+        "by": true,
+        "detailed": true,
+        "systems": true,
+        "heat": true,
+        "powerProfile": true
+      },
+      "differencePaths": [
+        "signature"
+      ]
+    },
+    {
+      "key": "v19",
+      "reference": "craft_v19",
+      "baselineSignature": "1cedld9",
+      "newSignature": "b2fsw4",
+      "signatureChanged": true,
+      "payloadIdentical": true,
+      "fieldsIdentical": {
+        "reference": true,
+        "build": true,
+        "crew": true,
+        "total": true,
+        "by": true,
+        "detailed": true,
+        "systems": true,
+        "heat": true,
+        "powerProfile": true
+      },
+      "differencePaths": [
+        "signature"
+      ]
+    },
+    {
+      "key": "vulture",
+      "reference": "craft_vulture",
+      "baselineSignature": "1g8tb7f",
+      "newSignature": "ozo4p2",
+      "signatureChanged": true,
+      "payloadIdentical": true,
+      "fieldsIdentical": {
+        "reference": true,
+        "build": true,
+        "crew": true,
+        "total": true,
+        "by": true,
+        "detailed": true,
+        "systems": true,
+        "heat": true,
+        "powerProfile": true
+      },
+      "differencePaths": [
+        "signature"
+      ]
+    },
+    {
+      "key": "vwing",
+      "reference": "craft_vwing",
+      "baselineSignature": "1w8b208",
+      "newSignature": "3u6h9f",
+      "signatureChanged": true,
+      "payloadIdentical": true,
+      "fieldsIdentical": {
+        "reference": true,
+        "build": true,
+        "crew": true,
+        "total": true,
+        "by": true,
+        "detailed": true,
+        "systems": true,
+        "heat": true,
+        "powerProfile": true
+      },
+      "differencePaths": [
+        "signature"
+      ]
+    },
+    {
+      "key": "xwing",
+      "reference": "craft_xwing",
+      "baselineSignature": "7t63ld",
+      "newSignature": "1rsan14",
+      "signatureChanged": true,
+      "payloadIdentical": true,
+      "fieldsIdentical": {
+        "reference": true,
+        "build": true,
+        "crew": true,
+        "total": true,
+        "by": true,
+        "detailed": true,
+        "systems": true,
+        "heat": true,
+        "powerProfile": true
+      },
+      "differencePaths": [
+        "signature"
+      ]
+    },
+    {
+      "key": "z95",
+      "reference": "craft_z95",
+      "baselineSignature": "1muedbg",
+      "newSignature": "1310kuv",
+      "signatureChanged": true,
+      "payloadIdentical": true,
+      "fieldsIdentical": {
+        "reference": true,
+        "build": true,
+        "crew": true,
+        "total": true,
+        "by": true,
+        "detailed": true,
+        "systems": true,
+        "heat": true,
+        "powerProfile": true
+      },
+      "differencePaths": [
+        "signature"
+      ]
+    }
+  ]
+}

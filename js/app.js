@@ -1884,7 +1884,7 @@ const rgb = (c) => `rgb(${c[0]},${c[1]},${c[2]})`;
 
 // ---------- state ----------
 const PART_KEYS = Object.keys(C.PARTS).filter(k=>!['machinery','capacitor'].includes(k));
-const WEAPONS = ['refVen','stl','refSide','oct40','casemateMid','casemateLight','casemateIon','casemateIonL','triple40','quad200','quad500','pd', 'ltl', 'mtl', 'htl', 'xx9', 'utl', 'ionL', 'nk7', 'ion', 'cmsl', 'itl', 'trc'];
+const WEAPONS = ['refVen','twin40','stl','refSide','oct40','casemateMid','casemateLight','casemateIon','casemateIonL','triple40','quad200','quad500','pd', 'ltl', 'mtl', 'htl', 'xx9', 'utl', 'ionL', 'nk7', 'ion', 'cmsl', 'itl', 'trc'];
 const BRIDGES = ['podBridge','podAir','podHangar','podCombat'];
 // Every design uses the same catalogue. Compact hulls put smaller equipment first
 // and keep separate placement-size defaults, without hiding the ship equipment.
@@ -6396,7 +6396,7 @@ function trialPoseFoilMounts(){
  for(const t of trial.turrets||[]){const f=F.find(f=>f.id===t.foilId);if(!f)continue;const b=trialFoilBase(t),d=ds[f.id]??1,X=Gfx.foilTransform(f,d);
   if(t._foilD!==d){t.clear=false;t.clearDir=null;t._foilD=d;}
   for(const k of ['pivot','origin'])if(b[k])t[k]=X.point(b[k]);for(const k of ['axis','fw','e2','mount'])if(b[k])t[k]=X.direction(b[k]);
-  t._foilRot=X.rot;if(t.mesh)t.rot=m3Mul(trialAxisMatrix(t.axis,t.yaw||0),X.rot);
+  t._foilRot=X.rot;t._foilTransform=X;if(t.mesh){if(t.authored)trialPoseTurret(t);else t.rot=m3Mul(trialAxisMatrix(t.axis,t.yaw||0),X.rot);}
  }
  for(const t of trial.launchers||[]){const f=F.find(f=>f.id===t.foilId);if(!f)continue;const b=trialFoilBase(t),X=Gfx.foilTransform(f,ds[f.id]??1);if(b.origin)t.origin=X.point(b.origin);if(b.axis)t.axis=X.direction(b.axis);}
 }
@@ -6599,8 +6599,20 @@ function trialStep(dt){
  if(Math.abs(trial.rudder)===2&&Math.abs(trial.vf)>.05*vmax&&Math.abs(Math.abs(trial.w[1])-max[1])<.03*max[1]){r.turn=2*Math.abs(trial.vf)/Math.abs(trial.w[1]);r.turnSpeed=trial.vf;}
 }
 // ---- gunnery ----
-const trialBarrel=(t,yaw,el)=>{const c=Math.cos(el),h=tv.add(tv.scale(t.fw,Math.cos(yaw)),t.e2,Math.sin(yaw));return tv.norm(tv.add(tv.scale(h,c),t.axis,Math.sin(el)));};
-const trialLimits=t=>t.pilot||t.embedded&&t.fixed?{yaw:0,lo:0,hi:0}:t.casemate||t.embedded&&C.FITS[t.k]?.casemate?{yaw:65*Math.PI/180,lo:-20*Math.PI/180,hi:20*Math.PI/180}:t.embedded?{yaw:Math.PI/2,lo:-Math.PI/2,hi:Math.PI/2}:{yaw:null,lo:-10*Math.PI/180,hi:85*Math.PI/180};
+function authoredTurretPose(g,yaw=0,elevation=0,X=null){
+ const p=C.aimAuthoredTurret(g,yaw,elevation);if(!X)return p;
+ return {...p,yawPivot:X.point(p.yawPivot),elevationPivot:X.point(p.elevationPivot),muzzles:p.muzzles.map(X.point),fw:X.direction(p.fw),yawRotation:m3Mul(X.rot,p.yawRotation),rotation:m3Mul(X.rot,p.rotation)};
+}
+function trialPoseTurret(t){
+ if(t.authored){const p=t.authoredPose=authoredTurretPose(t.authored,t.yaw||0,t.el||0,t._foilTransform);t.pivot=p.elevationPivot;t.rot=p.rotation;t.bodyPivot=p.yawPivot;t.bodyRot=p.yawRotation;return p;}
+ trialAxisMatrix(t.axis,t.yaw||0,t.rot);if(t._foilRot)t.rot=m3Mul(t.rot,t._foilRot);return null;
+}
+function trialTurretDrawParts(t){
+ if(!t.mesh)return [];if(!t.authored)return [{mesh:t.mesh,pivot:t.pivot,rot:t.rot}];
+ return [{mesh:t.bodyMesh,pivot:t.bodyPivot||t.authored.yawPivot,restPivot:t.authored.yawPivot,rot:t.bodyRot||t.rot},{mesh:t.mesh,pivot:t.pivot,restPivot:t.authored.elevationPivot,rot:t.rot}];
+}
+const trialBarrel=(t,yaw,el)=>{if(t.authored)return authoredTurretPose(t.authored,yaw,el,t._foilTransform).fw;const c=Math.cos(el),h=tv.add(tv.scale(t.fw,Math.cos(yaw)),t.e2,Math.sin(yaw));return tv.norm(tv.add(tv.scale(h,c),t.axis,Math.sin(el)));};
+const trialLimits=t=>t.pilot||t.embedded&&t.fixed?{yaw:0,lo:0,hi:0}:t.casemate||t.embedded&&C.FITS[t.k]?.casemate?{yaw:65*Math.PI/180,lo:-20*Math.PI/180,hi:20*Math.PI/180}:t.embedded?{yaw:Math.PI/2,lo:-Math.PI/2,hi:Math.PI/2}:t.authored?{yaw:null,...C.AUTHORED_TURRET_LIMITS}:{yaw:null,lo:-10*Math.PI/180,hi:85*Math.PI/180};
 function trialAim(){
  if(!view)return null;const eye=view.eye(),dir=tv.norm(tv.sub(view.cam.target,eye));let dist=Math.max(TRIAL_GUN.aim,trial.p.len*1.5),lock=null,best=Infinity;
  for(const t of trial.targets){if(!t.alive||t.ally)continue;const v=tv.sub(tv.sub(t.pos,trial.P),eye),d=tv.len(v),ang=Math.acos(C.clamp(tv.dot(v,dir)/d,-1,1)),cone=Math.atan((t.radius||trial.asset.geometry.targetRadius*1.6)/d)+.006;if(ang<cone&&ang<best){best=ang;lock=t;dist=d;}}
@@ -6731,6 +6743,7 @@ function trialSalvoPlan(dt){
 }
 function trialVolley(k){const m=k||(trial.volley==='salvo'?'stream':'salvo');trial.volley=m;const me=trial.battle?.me;if(me)me.order={...me.order,volley:m};toast(m==='salvo'?'射撃：斉射 — 同じ種類の主砲がそろって撃ちます':'射撃：連続射撃 — 各砲が装填しだい撃ちます');}
 function trialShotGeometry(t,bw){
+ if(t.authored){const p=authoredTurretPose(t.authored,t.yaw,t.el,t._foilTransform),muzzles=p.muzzles.map(m=>tv.add(trial.P,trialApply(trial.R,tv.sub(m,trial.asset.geometry.center))));return {side:[0,0,0],base:muzzles[0],spread:0,muzzles};}
  // Embedded barrels stay within their wall aperture even while their fire is
  // trained off-axis; the visible opening never moves out onto a turret arm.
  const side=trialApply(trial.R,t.embedded?t.e2:tv.norm(tv.cross(t.axis,t.bd))),base=tv.add(tv.add(trial.P,t.oW),bw,t.embedded?0:t.r*1.2),spread=t.embedded?Math.max(0,t.portWidth||0)*.6:t.r*.35;
@@ -6755,7 +6768,7 @@ function trialGunnery(dt){
   if(lim.yaw!=null&&Math.abs(ty)>lim.yaw){ty=Math.sign(ty)*lim.yaw;t.arc=false;}if(te<lim.lo||te>lim.hi){te=C.clamp(te,lim.lo,lim.hi);t.arc=false;}
   if(t.pd&&!t.pdTarget)t.arc=false;
   const sy=t.rateRad*dt,dy=trialWrap(ty-t.yaw);t.yaw=trialWrap(t.yaw+C.clamp(dy,-sy,sy));const se=t.rateRad*1.5*dt;t.el+=C.clamp(te-t.el,-se,se);if(t.pilot){t.yaw=0;t.el=0;}
-  if(t.mesh){trialAxisMatrix(t.axis,t.yaw,t.rot);if(t._foilRot)t.rot=m3Mul(t.rot,t._foilRot);}
+  if(t.mesh)trialPoseTurret(t);
   const err=Math.max(Math.abs(trialWrap(ty-t.yaw)),Math.abs(te-t.el));t.aimed=t.arc&&err<.018;t.laid=t.arc&&err<(t.pilot?.02:.005);
   // Point defence slews fast after small targets, so it accepts an older line-of-fire check.
   const bd=trialBarrel(t,t.yaw,t.el),ok=t.clear&&t.clearDir&&tv.dot(bd,t.clearDir)>(t.pd?.995:.9986),gasReady=trialCraftGasReady(t),unit=me||trial.systemsUnit||trial.swSolo,mi=trial.battle?.modIndex?.get(t.id)??unit?.p?.modules?.findIndex(m=>m.fit===t.id),online=!unit||!unit.dead&&!unit.out&&(typeof C.powerFactor!=='function'||C.powerFactor(unit,'weapon',mi)>0)&&(typeof C.heatLim!=='function'||C.heatLim(unit,'weapon')>0);t.gasStarved=!gasReady;t.ready=(t.pd?t.arc&&Math.max(Math.abs(trialWrap(ty-t.yaw)),Math.abs(te-t.el))<.03:t.aimed)&&ok&&t.charge>0&&!t.dead&&gasReady&&online;
@@ -6773,12 +6786,12 @@ function trialGunnery(dt){
   if(t.held||salvo&&!t.pd&&!t.pilot&&!salvo.has(t)){if(t.pilot)t.reload=Math.max(0,t.reload);continue;}
   for(let burst=0;t.firing&&(t.laid||t.pd)&&t.reload<=0&&burst<(t.pilot?4:1);burst++){
    const shotTT=t.power*t.cycle*t.charge/TT_J,cost=shotTT*(t.costK??1),cellUnit=me||trial.systemsUnit,cell=cellUnit?.p?.surface?.mounts&&typeof C.surfaceSpend==='function';if(en.E<cost||cell&&C.surfaceMountEnergy(cellUnit,t.id)+1e-9<cost){t.starved=true;if(t.pilot)t.reload=0;break;}if(!trialCraftGasTake(t,dt)){t.gasStarved=true;if(t.pilot)t.reload=0;break;}if(cell){const used=C.surfaceSpend(cellUnit,t.id,cost);if(!used.ok){t.starved=true;break;}en.E=cellUnit.energy;}else en.E-=cost;
-   t.reload=t.pilot?t.reload+t.cycle:t.cycle*(1+Math.random()*(salvo&&!t.pd?.01:.08));const bd=t.bd,n=Math.min(t.barrels,t.r>12?2:t.barrels>2?2:1),sc=t.pd?.009:.0012,g=()=>(Math.random()+Math.random()+Math.random()-1.5)*sc,bw=trialApply(R,tv.norm(tv.add(tv.add(bd,t.e2,g()),t.axis,g()))),{side,base,spread}=trialShotGeometry(t,bw);
-   if(t.pd){sndAt('point_defense',base,{gain:.45});trial.gun.pd=(trial.gun.pd||0)+t.barrels;for(let i=0;i<n;i++){const off=n>1?(i/(n-1)-.5)*spread:0,pos=tv.add(base,side,off);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(bw,spd),trial.V),life:TRIAL_PD.range*1.15/spd,len:Math.max(40,t.r*6),size:Math.max(3,t.r*.45),col:trialPdColor(),weight:0,tt:0,pd:true,target:t.pdTarget});}continue;}
+   t.reload=t.pilot?t.reload+t.cycle:t.cycle*(1+Math.random()*(salvo&&!t.pd?.01:.08));const bd=t.bd,n=t.authored?t.barrels:Math.min(t.barrels,t.r>12?2:t.barrels>2?2:1),sc=t.pd?.009:.0012,g=()=>(Math.random()+Math.random()+Math.random()-1.5)*sc,bw=trialApply(R,tv.norm(tv.add(tv.add(bd,t.e2,g()),t.axis,g()))),{side,base,spread,muzzles}=trialShotGeometry(t,bw);
+   if(t.pd){sndAt('point_defense',base,{gain:.45});trial.gun.pd=(trial.gun.pd||0)+t.barrels;for(let i=0;i<n;i++){const off=n>1?(i/(n-1)-.5)*spread:0,pos=muzzles?.[i]||tv.add(base,side,off);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(bw,spd),trial.V),life:TRIAL_PD.range*1.15/spd,len:Math.max(40,t.r*6),size:Math.max(3,t.r*.45),col:trialPdColor(),weight:0,tt:0,pd:true,target:t.pdTarget});}continue;}
    trial.gun.shots+=t.barrels;
    // (a pilot's guns: a fighter's laser, its bolts and flash sized like the other craft's)
    const pl=t.pilot,hv=t.k==='claserH',hitScale=pl?t.cycle/(TRIAL_PILOT_REFERENCE_CYCLE[t.k]||.5):1;sndAt(pl?sndPilotGun():sndGun(t),base,pl?{gain:.7,near:400,far:8000}:{gain:.85,near:2500,fac:sndFac(trial.battle?.me||{manual:true,side:0})});
-   for(let i=0;i<n;i++){const off=n>1?(i/(n-1)-.5)*spread:0,pos=tv.add(base,side,off);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(bw,spd),trial.V),life:Math.max(t.reach||TRIAL_GUN.range,trial.p.len*(t.band==='close'?1.2:3))/spd,len:pl?(hv?32:24):Math.max(70,t.r*9),size:pl?(hv?2.4:2):Math.max(5,t.r*.9),col:t.ion?[170,215,255]:color,weight:pl?2*hitScale/n:t.barrels/n,hitScale,tt:shotTT/n,ion:!!t.ion,pilot:pl});}
+   for(let i=0;i<n;i++){const off=n>1?(i/(n-1)-.5)*spread:0,pos=muzzles?.[i]||tv.add(base,side,off);trial.bolts.push({pos,prev:pos,vel:tv.add(tv.scale(bw,spd),trial.V),life:Math.max(t.reach||TRIAL_GUN.range,trial.p.len*(t.band==='close'?1.2:3))/spd,len:pl?(hv?32:24):Math.max(70,t.r*9),size:pl?(hv?2.4:2):Math.max(5,t.r*.9),col:t.ion?[170,215,255]:color,weight:pl?2*hitScale/n:t.barrels/n,hitScale,tt:shotTT/n,ion:!!t.ion,pilot:pl});}
    trial.fx.push({pos:base,vel:trial.V,life:.12,max:.12,size:pl?2.5:Math.max(6,t.r*1.6),col:[255,240,210]});
   }
  }
@@ -6829,9 +6842,9 @@ function trialMissiles(dt,lock){
 // The engine tests each barrel direction against the hull, structures and
 // other fittings; firing waits for a clear answer for the current direction.
 function trialRays(now){
- const ts=trial.turrets,ids=new Int32Array(ts.length),dirs=new Float32Array(ts.length*3),sent=ts.map(t=>trialBarrel(t,t.yaw,t.el));
+ const ts=trial.turrets,ids=new Int32Array(ts.length),dirs=new Float32Array(ts.length*3),sent=ts.map(t=>trialBarrel(t,t.yaw,t.el)),muzzles=ts.map(t=>t.authored?authoredTurretPose(t.authored,t.yaw,t.el,t._foilTransform).muzzles:null);
  ts.forEach((t,i)=>{ids[i]=t.id;dirs.set(sent[i],i*3);});trial.rays.busy=true;trial.rays.last=now;const asset=trial.asset,foils=trialFoilDeployments(),poseKey=JSON.stringify(foils);
- YardEngineClient.request('trialRays',{ids:Array.from(ids),dirs:Array.from(dirs),foils}).then(r=>{if(trial.asset!==asset||JSON.stringify(trialFoilDeployments())!==poseKey)return;const c=r.clear||[];ts.forEach((t,i)=>{t.clear=!!c[i];t.clearDir=sent[i];});}).catch(()=>{}).finally(()=>{trial.rays.busy=false;});
+ YardEngineClient.request('trialRays',{ids:Array.from(ids),dirs:Array.from(dirs),muzzles,foils}).then(r=>{if(trial.asset!==asset||JSON.stringify(trialFoilDeployments())!==poseKey)return;const c=r.clear||[];ts.forEach((t,i)=>{t.clear=!!c[i];t.clearDir=sent[i];});}).catch(()=>{}).finally(()=>{trial.rays.busy=false;});
 }
 function trialRenderSets(){
  // (v21.2 with the small craft's guns and the point defence firing at them: trial.cbolts)
@@ -6932,7 +6945,7 @@ function trialLoop(now){
  trialPoseFoilMounts();
  const d=trial.dust;view.setPoints('trialDust',d.pos,d.col,d.size);trialRenderSets();
  const me=trial.battle?.me,unit={key:trial.asset.key,foils:trialFoilDeployments(),pos:[0,0,0],yaw:0,rot:trial.R,glow:me?.out||!(trial.propulsion?.actualInputW>0)?0:glowOf('me',C.clamp(trial.propulsion.outputRatio||0,0,1)),hatchOpen:0,dead:!!me?.dead,noInner:trial.camMode==='cockpit'&&!!trialCockpitEye(),
-  turrets:trial.turrets.filter(t=>t.mesh).map(t=>({mesh:t.mesh,pivot:t.pivot,rot:t.rot})),targets:trial.targets.filter(t=>t.alive&&!t.ship).map(t=>({pos:tv.sub(t.pos,trial.P),rot:t.rot}))};
+  turrets:trial.turrets.flatMap(trialTurretDrawParts),targets:trial.targets.filter(t=>t.alive&&!t.ship).map(t=>({pos:tv.sub(t.pos,trial.P),rot:t.rot}))};
  // The stars stretch around the direction of travel; the tunnel covers them.
  const j=trial.jump,dir=j?.dir||trialCol(trial.R,0),hk=trialTunnelK(j);
  const hyper=tunnel?{dir,time:j.t,k:hk}:null,sky={dir,s:trialStreak(),k:1};
@@ -8081,6 +8094,11 @@ function swFxPoints(dt){
 function spaceSurfaceTurretPose(a,target,rest,mount,asset){
  const foil=asset.geometry.foils?.find(f=>f.id===rest.foilId),X=foil&&Gfx.foilTransform?Gfx.foilTransform(foil,unitFoilDeployments(a)?.[foil.id]??1):null,I=[1,0,0,0,1,0,0,0,1],pivot=X?X.point(rest.pivot):rest.pivot,base=rest.fw;
  const cache=trial.surfaceTurretPoses||(trial.surfaceTurretPoses=new Map()),key=a.id+':'+rest.id;let aim=mount.fixed?I:cache.get(key)?.aim||I;
+ if(rest.authored){
+  let [yaw,elevation]=cache.get(key)?.angles||[0,0];
+  if(!mount.fixed&&target&&C.powerFactor(a,'weapon',mount.module)>0&&(a.mods?.[mount.module]??1)>0){const R=spaceRotU(trial.battle.E,a),wp=tv.add(spaceWorld(a),trialApply(R,tv.sub(pivot,asset.geometry.center))),shipWant=tv.norm(trialApplyT(R,tv.sub(spaceWorld(target),wp))),want=X?trialApplyT(X.rot,shipWant):shipWant;[yaw,elevation]=C.authoredTurretAngles(rest.authored,want);elevation=C.clamp(elevation,C.AUTHORED_TURRET_LIMITS.lo,C.AUTHORED_TURRET_LIMITS.hi);}
+  const p=authoredTurretPose(rest.authored,yaw,elevation,X),pose={mesh:rest.mesh,pivot:p.elevationPivot,restPivot:rest.authored.elevationPivot,rot:p.rotation,bodyMesh:rest.bodyMesh,bodyPivot:p.yawPivot,bodyRestPivot:rest.authored.yawPivot,bodyRot:p.yawRotation,muzzles:p.muzzles,fw:p.fw,angles:[yaw,elevation],fit:mount.id};cache.set(key,pose);return pose;
+ }
  if(!mount.fixed&&target&&C.powerFactor(a,'weapon',mount.module)>0&&(a.mods?.[mount.module]??1)>0){
   const R=spaceRotU(trial.battle.E,a),wp=tv.add(spaceWorld(a),trialApply(R,tv.sub(pivot,asset.geometry.center))),shipWant=tv.norm(trialApplyT(R,tv.sub(spaceWorld(target),wp))),want=X?trialApplyT(X.rot,shipWant):shipWant,cross=C.cross(base,want),sin=tv.len(cross),cos=C.clamp(C.dot(base,want),-1,1);let axis=sin>1e-9?tv.scale(cross,1/sin):null;
   if(!axis&&cos<0)axis=tv.norm(C.cross(base,Math.abs(base[1])<.9?[0,1,0]:[0,0,1]));aim=axis?trialAxisMatrix(axis,Math.atan2(sin,cos)):I;
@@ -8089,16 +8107,17 @@ function spaceSurfaceTurretPose(a,target,rest,mount,asset){
 }
 function spaceSurfaceTurrets(a,target){
  if(!a.p?.surface)return undefined;const asset=a.key===trial.asset?.key?trial.asset:fleet.assets.get(a.key);if(!asset?.geometry?.turrets)return undefined;
- return asset.geometry.turrets.filter(t=>t.mesh).map(rest=>{const mount=a.p.surface.mounts.find(m=>m.id===rest.id);return mount?spaceSurfaceTurretPose(a,target,rest,mount,asset):{mesh:rest.mesh,pivot:rest.pivot,rot:[1,0,0,0,1,0,0,0,1]};});
+ return asset.geometry.turrets.filter(t=>t.mesh).flatMap(rest=>{const mount=a.p.surface.mounts.find(m=>m.id===rest.id),p=mount?spaceSurfaceTurretPose(a,target,rest,mount,asset):rest.authored?{mesh:rest.mesh,pivot:rest.pivot,restPivot:rest.authored.elevationPivot,rot:[1,0,0,0,1,0,0,0,1],bodyMesh:rest.bodyMesh,bodyPivot:rest.bodyPivot,bodyRestPivot:rest.authored.yawPivot,bodyRot:[1,0,0,0,1,0,0,0,1]}:{mesh:rest.mesh,pivot:rest.pivot,rot:[1,0,0,0,1,0,0,0,1]};return p.bodyMesh?[{mesh:p.bodyMesh,pivot:p.bodyPivot,restPivot:p.bodyRestPivot,rot:p.bodyRot},{mesh:p.mesh,pivot:p.pivot,restPivot:p.restPivot,rot:p.rot}]:[p];});
 }
 function spaceShotEmitter(a,t,index,ion=false){
  if(!a.p?.surface)return {pos:spaceHullPoint(a,.4),fixed:false};
  const cells=(a.surfaceLastFire?.cells||[]).filter(c=>c.energy>0&&(ion?c.ion>0:c.gun>0));if(!cells.length)return null;
  const cell=cells[index%cells.length],mount=a.p.surface.mounts.find(m=>m.id===cell.fit);if(!mount)return null;
  const asset=a.key===trial.asset?.key?trial.asset:typeof fleet!=='undefined'?fleet.assets.get(a.key):null,g=asset?.geometry,turret=g?.turrets?.find(q=>q.id===mount.id),foil=turret?.foilId!=null?g.foils?.find(f=>f.id===turret.foilId):null,offset=a.p.surface.offset||g?.center||[0,0,0];
- if(!mount.fixed&&turret?.mesh){const pose=spaceSurfaceTurretPose(a,t,turret,mount,asset),R=spaceRotU(trial.battle.E,a),relative=tv.add(tv.sub(turret.origin,turret.pivot),turret.fw,mount.barrelLength||0),muzzle=tv.add(pose.pivot,trialApply(pose.rot,relative));return {pos:tv.add(spaceWorld(a),trialApply(R,tv.sub(muzzle,g.center))),dir:tv.norm(trialApply(R,trialApply(pose.rot,turret.fw))),fixed:false,fit:mount.id,cell:mount.cell,unit:a.id};}
+ if(!mount.fixed&&turret?.mesh&&(!mount.authored||turret.authored)){const pose=spaceSurfaceTurretPose(a,t,turret,mount,asset),R=spaceRotU(trial.battle.E,a),relative=tv.add(tv.sub(turret.origin,turret.pivot),turret.fw,mount.barrelLength||0),muzzle=pose.muzzles?.[index%pose.muzzles.length]||tv.add(pose.pivot,trialApply(pose.rot,relative));return {pos:tv.add(spaceWorld(a),trialApply(R,tv.sub(muzzle,g.center))),dir:tv.norm(trialApply(R,pose.fw||trialApply(pose.rot,turret.fw))),fixed:false,fit:mount.id,cell:mount.cell,unit:a.id};}
  let posePoint=p=>p,poseDirection=v=>v;if(foil&&typeof Gfx!=='undefined'&&Gfx.foilTransform){const X=Gfx.foilTransform(foil,unitFoilDeployments(a)?.[foil.id]??1);posePoint=p=>tv.sub(X.point(tv.add(p,offset)),offset);poseDirection=v=>X.direction(v);}
  const R=spaceRotU(trial.battle.E,a),origin=spaceWorld(a),renderOffset=tv.sub(offset,g?.center||offset),world=p=>tv.add(origin,trialApply(R,tv.add(posePoint(p),renderOffset))),pivot=world(mount.pivot||mount.center),direction=mount.fixed?tv.norm(trialApply(R,poseDirection(mount.dir||[1,0,0]))):tv.norm(tv.sub(spaceWorld(t),pivot)),pos=mount.fixed?world(mount.muzzle||mount.center):tv.add(pivot,direction,mount.barrelLength||0);
+ if(mount.authored){let want=trialApplyT(R,direction);if(foil&&Gfx.foilTransform)want=trialApplyT(Gfx.foilTransform(foil,unitFoilDeployments(a)?.[foil.id]??1).rot,want);const [yaw,elevation]=mount.fixed?[0,0]:C.authoredTurretAngles(mount.authored,want),p=C.aimAuthoredTurret(mount.authored,yaw,C.clamp(elevation,C.AUTHORED_TURRET_LIMITS.lo,C.AUTHORED_TURRET_LIMITS.hi));return {pos:world(p.muzzles[index%p.muzzles.length]),dir:tv.norm(trialApply(R,poseDirection(p.fw))),fixed:!!mount.fixed,fit:mount.id,cell:mount.cell,unit:a.id};}
  return {pos,dir:direction,fixed:!!mount.fixed,fit:mount.id,cell:mount.cell,unit:a.id};
 }
 function spaceShots(shots){
