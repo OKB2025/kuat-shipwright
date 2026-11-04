@@ -24,7 +24,7 @@ function setup(){
  section('const trialBarrel=','function trialAim(');
  section('function trialCraftSystemsSpec()','function trialReset()');
  section('function trialPilotHit(','function trialThreatDown(');
- section('function trialGunnery(dt)','// Missiles leave');
+ section('function trialShotGeometry(','// Missiles leave');
  return run;
 }
 const near=(a,b,eps=1e-6)=>assert.ok(Math.abs(a-b)<eps,`${a} != ${b}`);
