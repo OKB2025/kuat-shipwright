@@ -9658,4 +9658,28 @@ Object.assign(root.KS_EN.terms,{
  "旧VLSの装備面を再選択してください": "Reselect the equipment surface for the legacy VLS"
 });
 // </compact-missile-launchers>
+// <arquitens-native-example>
+Object.assign(root.KS_EN.terms,{
+ "ゲーム内パーツによる再現作例": "Reconstruction with In-Game Parts",
+ "ユーザー提供の arquitens.stl を形状資料として参照": "User-supplied arquitens.stl used as a shape reference",
+ "参考STLの作者・ライセンスは不明": "Reference STL author and license unknown",
+ "添付モデルを参考に、通常の断面ロフト・構造物・装備を組み合わせて再現した作例。": "A worked example built from standard section lofts, structures and equipment, using the supplied model as a shape reference.",
+ "中央船体": "Main Hull",
+ "艦首突起": "Bow Prong",
+ "舷側張出し甲板": "Side Shoulder Deck",
+ "背部中央構造": "Dorsal Spine",
+ "艦橋支持塔": "Bridge Tower",
+ "艦橋上部": "Bridge Head",
+ "艦橋の窓帯": "Bridge Window Band",
+ "腹部キール": "Ventral Keel",
+ "機関支持板": "Engine Support Plate",
+ "機関横桁": "Engine Crossbeam",
+ "上面主砲座": "Dorsal Main Gun Seat",
+ "下面主砲座": "Ventral Main Gun Seat",
+ "中央推進ポッド後端リング": "Center Drive Pod Rear Collar",
+ "右舷推進ポッド後端リング": "Starboard Drive Pod Rear Collar",
+ "左舷推進ポッド後端リング": "Port Drive Pod Rear Collar",
+ "全長325 m・全幅144 m・高さ64 mの組立式作例。中央船体、二股の艦首、舷側甲板、階段状の艦橋、3基の推進ポッドを24個の通常構造物で組み立てる。各部は断面ロフト、丸断面ロフト、切隅箱、輪郭板、開口リングとして選択・移動・寸法変更でき、通常の設計図へ保存できる。主砲は左右に縦2門ずつを持つ500GT 4連装中型ターボレーザーで、1門500 GT（0.5 TT）、1基4門・一斉射2 TT、全艦4基16門。上面2基・下面2基を独立した砲座へ配置する。小型両用砲8基、航空機と共通の小型震盪ミサイル発射管4基、トラクタービーム1基を搭載する。3基の機関はそれぞれ専用炉へ接続し、共通ISDベル型ノズルを使う。船内に主反応炉、ハイパードライブ、慣性・構造維持、シールド、燃料、艦橋とCIC、貨物を持つ。兵員100名、航空隊なし。武装と設備の性能はゲーム用仮定。": "A 325 m long, 144 m wide, 64 m high assembly example. Twenty-four ordinary structures form the main hull, forked bow, shoulder decks, stepped bridge and three drive pods. Section lofts, round lofts, chamfered boxes, outline plates and open rings can be selected, moved, resized and saved in a normal blueprint. Four 500 GT quad medium turbolasers have vertical pairs on the left and right: 0.5 TT per barrel, 2 TT per turret, sixteen barrels total. Two independent gun seats face upward and two downward. Eight small dual-purpose turrets, four compact aircraft-type concussion missile tubes and one tractor beam complete the armament. Each of the three drives uses its own reactor and a standard ISD bell nozzle. Interior equipment includes a main reactor, hyperdrive, inertial compensation, structural integrity, shields, fuel, bridge, CIC and cargo. Carries 100 troops and no aircraft. Equipment performance is a game assumption."
+});
+// </arquitens-native-example>
 })(typeof window==="undefined"?globalThis:window);

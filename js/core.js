@@ -24674,51 +24674,72 @@ registerShipExample({
 }
 
 // ---- src/ships/arquitens.js ----
-// The supplied arquitens.stl is a selectable construction envelope, with a
-// closed collision mesh. Its static main guns and inner exhaust funnels are
-// removed from the render mesh; ordinary fittings and ISD bells replace them.
+// Native construction example based on the supplied Arquitens silhouette.
+// Hull, forked bow, bridge and drive pods use editable structure primitives;
+// standard independent quad turrets and ISD bells supply the equipment.
 {
 const ARQ_GROUND=[{id:'ground-1',name:'帝国宇宙軍兵とストームトルーパー',kind:'troops',count:100}];
 const ARQ_MAIN_MOUNTS=[
- {p:[173.2522,30.928756993368776,28.4337],a:2,name:'dorsal-starboard'},
- {p:[173.2522,30.928756993368776,-28.4337],a:2,name:'dorsal-port'},
- {p:[238.0963,17.883358993368773,24.0026],a:3,name:'ventral-starboard'},
- {p:[238.0963,17.883358993368773,-24.0026],a:3,name:'ventral-port'}
+ {p:[173.2522,34,28.4337],a:2,name:'dorsal-starboard'},
+ {p:[173.2522,34,-28.4337],a:2,name:'dorsal-port'},
+ {p:[238.0963,14,24.0026],a:3,name:'ventral-starboard'},
+ {p:[238.0963,14,-24.0026],a:3,name:'ventral-port'}
 ];
 function arqBuild(opt={}){
- const a=REFERENCE_ASSETS.arq_hull,L=325;
- const s=newShip({L,W:a.size[2],H:a.size[1],assembly:true,sec:'warship',plan:'rect',keel:'light'},'アークワイテンス級軽クルーザー');
+ // This is a construction example: every outer volume below is an ordinary,
+ // editable structure. The supplied STL only informed the silhouette.
+ const s=newShip({L:325,W:144,H:64,assembly:true,sec:'warship',plan:'rect',keel:'light'},'アークワイテンス級軽クルーザー');
  s.reference='arquitens';s._building=true;s.paint='neutral';s.lights='white';s.detail=1;s.armor={hull:.2,cit:.2};s.shieldTarget=1;
- placePart(s,'struct',a.c.slice(),[a.size[0],a.size[2],a.size[1]],{label:'アーキテンス船体（添付STL）',form:'reference',skinAsset:'arq_hull',paint:'#b5b9bd'},false);
- if(opt.stage==='hull'||opt.stage==='shape'){delete s._building;return s;}
+ const k=shipKit(s),plate={paint:'#b5b9bd'},dark={paint:'#747c84'},machinery={paint:'#8e969e'};
+ // Rows are the same length/width/height section controls available in the
+ // structure editor. Splitting the bow into two parts leaves a real open slot.
+ k.loftX('中央船体',[[50,-9,9,12,32],[80,-20,20,12,32],[112,-44,44,12,32],[142,-63,63,12,32],[174,-59,59,12,32],[220,-43,43,14,31],[258,-30,30,16,29],[266,-27,27,17,28]],{corner:.22,...plate});
+ k.loftX('艦首突起',[[258,6,31,16,29],[285,6,22,17,29],[302,5.5,17,18,28],[325,5,9,19,26]],{corner:.1,...plate},true);
+ if(opt.stage==='hull'){delete s._building;return s;}
+ // Broad, angular shoulders, the low dorsal spine and the stepped bridge.
+ k.loftX('舷側張出し甲板',[[126,35,58,22,30],[151,36,64,22,30],[184,33,56,21,29],[220,27,43,19,28]],{corner:.1,...plate},true);
+ k.loftX('背部中央構造',[[73,-7,7,30,33],[100,-11,11,30,38],[137,-13,13,30,38],[166,-11,11,30,35],[189,-7,7,30,33]],{corner:.1,...plate});
+ k.loftX('艦橋支持塔',[[100,-4,4,33,39],[113,-6,6,33,57],[127,-8,8,33,58],[139,-8,8,33,48]],{corner:.1,...plate});
+ k.box('艦橋上部',[110,55,-12.5],[139,62,12.5],{corner:.18,...plate});
+ k.box('艦橋の窓帯',[137.5,57,-10.5],[139.5,60,10.5],{corner:.08,skin:'plain',paint:'#374a59'});
+ k.loftX('腹部キール',[[55,-3.5,3.5,10,14],[72,-4.5,4.5,4,14],[126,-4.5,4.5,4,14],[151,-3,3,11,14]],{corner:.1,...dark});
+ // The transverse frame connects three separate drive pods to the narrow aft
+ // body. Each pod has a native annular rear lip instead of a closed end cap.
+ k.slab('機関支持板',[[34,9],[34,55.4],[60,55.4],[91,29],[112,29],[112,9]],18,24,{...dark},true);
+ k.box('機関横桁',[39,15,10],[47,29,55.4],{corner:.1,...machinery},true);
+ for(const [label,z] of [['中央',0],['右舷',55.4],['左舷',-55.4]]){
+  k.loftX(label+'推進ポッド',[[14,z-16.6,z+16.6,5.2,38.4],[39,z-16.6,z+16.6,5.2,38.4],[49,z-15,z+15,6.8,36.8],[58,z-8,z+8,13.8,29.8],[63,z-3,z+3,18.8,24.8]],{round:true,skin:'service',...machinery});
+  k.put(label+'推進ポッド後端リング',[7,21.8,z],[33.2,33.2,14],{form:'arc',arcInner:.62,arcStart:0,arcSweep:360,surfaceNormal:[-1,0,0],skin:'plain',...machinery});
+ }
+ // Simple flat sponsons make the four ordinary turrets easy to reproduce and
+ // move independently. The lower pair faces down from the forward shoulders.
+ k.box('上面主砲座',[163.2522,32,18.4337],[183.2522,34,38.4337],{corner:.08,...dark},true);
+ k.box('下面主砲座',[228.0963,14,14.0026],[248.0963,16,34.0026],{corner:.08,...dark},true);
+ if(opt.stage==='shape'){delete s._building;return s;}
  const part=(kind,label,c,d,o={},mirror=false)=>placePart(s,kind,c,d,{label,...o},mirror),room=(kind,label,c,size,o={},mirror=false)=>part(kind,label,c,30,{room:size,...o},mirror);
  part('gen','主反応炉',[175,22,0],16);
  const io=equipmentOptions('internalTurbine');
- // A dedicated reactor feeds each engine. The original cowling remains a
- // structural part, and the source funnel is replaced by the standard ISD bell.
- const drive=(label,z)=>{const r=part('aux',label+'用反応炉',[45.5,21.77623,z],11.5),e=placePart(s,'engine',[10,21.77623,z],18.95,{...io,label,d:18.95,reactor:r.id,dir:[-1,0,0]},false);resizeEngine(e,18.95);e.c[0]=-.6+e.nozzleLength/2;return e;};
- drive('中央推進ポッドのイオン・ドライブ',.55796);
- drive('右舷推進ポッドのイオン・ドライブ',55.432);
- drive('左舷推進ポッドのイオン・ドライブ',-55.43189);
+ const drive=(label,z)=>{const r=part('aux',label+'用反応炉',[45.5,21.8,z],11.5),e=placePart(s,'engine',[10,21.8,z],18.95,{...io,label,d:18.95,reactor:r.id,dir:[-1,0,0]},false);resizeEngine(e,18.95);e.c[0]=-.6+e.nozzleLength/2;return e;};
+ drive('中央推進ポッドのイオン・ドライブ',0);
+ drive('右舷推進ポッドのイオン・ドライブ',55.4);
+ drive('左舷推進ポッドのイオン・ドライブ',-55.4);
  part('hyper','ハイパードライブ',[205,23,0],8,{length:21.7,dir:[1,0,0]});
  part('inertial','慣性補償装置',[138,23,0],12,{length:24,dir:[1,0,0]});
- room('integrity','構造維持装置',[220,22,0],[14,8,8]);
+ room('integrity','構造維持装置',[228,22,0],[14,8,8]);
  part('shield','偏向シールド発生器',[190,23,25],10.4,{},true);
  part('fuel','反応物サイロ',[150,23,25],7,{length:16,dir:[1,0,0]},true);
  room('pump','反応物供給設備',[118,23,0],[12,8,6]);
- room('cargo','貨物・物資庫',[210,21,0],[18,10,8]);
- room('command','艦橋',[120,56,0],[10,10,4]);
+ room('cargo','貨物・物資庫',[207,22,21],[18,10,8]);
+ room('command','艦橋',[124,58.5,0],[10,12,4]);
  room('command','戦闘情報センター',[160,25,0],[14,12,5]);
- part('sensor','艦橋塔の走査・通信機器',[120,59,0],3);
+ part('sensor','艦橋塔の走査・通信機器',[118,62,0],3);
  if(opt.stage==='machinery'){delete s._building;return s;}
  syncAviationSurfaces(s);s._lockedCache=cache(s);
  try{withFrozenStructures(()=>{
-  // Preserve the four measured turntable positions and their dorsal/ventral
-  // orientation. Authored offsets retain the source seats through remounting.
-  for(const m of ARQ_MAIN_MOUNTS){const up=AXES[m.a],h=rayEnv(s,add(m.p,mul(up,300)),mul(up,-1),{structOnly:true});if(!h)throw new Error('アーキテンスの主砲座がありません');const f={id:s.nextId++,k:'quad500',p:m.p.slice(),a:m.a,mountAxis:m.a,mountOffset:dot(sub(m.p,h.p),up),ped:0,base:0,low:0,float:false,chargeDepth:8,batteryZone:m.name};mountFit(s,f);s.fits.push(f);}
-  const fit=(kind,x,z,axis,zone,o={})=>{const up=AXES[axis],start=[x,axis===3?-300:300,z],h=rayEnv(s,start,mul(up,-1),{structOnly:true});if(!h)throw new Error('アーキテンスの装備甲板がありません: '+zone);const f={id:s.nextId++,k:kind,p:h.p.slice(),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);if(f.float)throw new Error('アーキテンスの装備が浮いています: '+zone);s.fits.push(f);};
-  // Secondary defence, missile launchers and the tractor retain their existing
-  // roles; their positions follow the new model's decks rather than old seats.
+  const fit=(kind,x,z,axis,zone,o={})=>{const up=AXES[axis],start=[x,axis===3?-300:300,z],h=rayEnv(s,start,mul(up,-1),{structOnly:true});if(!h)throw new Error('アーキテンスの装備甲板がありません: '+zone);const f={id:s.nextId++,k:kind,p:h.p.slice(),a:axis,ped:0,base:0,low:0,float:false,batteryZone:zone,...o};mountFit(s,f);if(f.float)throw new Error('アーキテンスの装備が浮いています: '+zone);s.fits.push(f);return f;};
+  // Positions use measured X/Z stations, while their seat heights follow the
+  // player-editable pads instead of offsets into a reference collision mesh.
+  for(const m of ARQ_MAIN_MOUNTS)fit('quad500',m.p[0],m.p[2],m.a,m.name,{chargeDepth:8});
   for(const axis of [2,3])for(const x of [135,151])for(const z of [-19,19])fit('pd',x,z,axis,(axis===2?'dorsal':'ventral')+'-defence');
   for(const x of [285,302])for(const z of [-13,13])fit('cmsl',x,z,2,'bow-launcher',{mount:'ext'});
   fit('trc',220,0,3,'ventral-tractor');
@@ -24729,9 +24750,9 @@ function arqBuild(opt={}){
 }
 registerShipExample({
  key:'arquitens',name:'アークワイテンス級軽クルーザー',side:'銀河帝国',role:'軽クルーザー（護衛・哨戒）',length:325,
- title:'Arquitens',author:'不明（ユーザー提供の STL）',source:'ユーザー提供の arquitens.stl（Blender 2.90.1 書き出し）',license:'不明（出典未記載）',
- credit:'ユーザー提供の arquitens.stl を全長325 mへ等比変換。作者・ライセンス表記は添付データに含まれない。',
- note:'添付された新しいアーキテンスSTLを全長325 m・全幅約144.28 m・全高約63.62 mとして使用する。船体と艦橋・エンジンカウリングは通常の選択・編集可能な構造物で、元の4基の固定主砲を除去し、左右に縦2門ずつを持つ500GT 4連装中型ターボレーザーへ置換した。1門500 GT（0.5 TT）、1基4門・一斉射2 TT、全艦4基16門。砲塔の全長約17.83 m・全高約5.81 m・全幅約14.10 mは添付モデルの主砲に合わせ、小型両用ターボレーザーの砲室と砲身を参考にした。主砲2基は上面、2基は下面に元モデルの位置・向きで配置する。既存の小型両用砲8基、外付けミサイル発射機4基、トラクタービーム1基を新しい甲板へ配置する。3基のポッド機関はそれぞれ専用炉へ接続し、ノズルは共通ISDベル型に統一する。船内には主反応炉、クラス2ハイパードライブ、慣性・構造維持、シールド、燃料、艦橋とCIC、貨物を持つ。兵員100名を保持し、航空隊は搭載しない。武装の連射間隔・質量・費用と内部設備の構成はゲーム用仮定。',
+ title:'Arquitens',author:'ゲーム内パーツによる再現作例',source:'ユーザー提供の arquitens.stl を形状資料として参照',license:'参考STLの作者・ライセンスは不明',
+ credit:'添付モデルを参考に、通常の断面ロフト・構造物・装備を組み合わせて再現した作例。',
+ note:'全長325 m・全幅144 m・高さ64 mの組立式作例。中央船体、二股の艦首、舷側甲板、階段状の艦橋、3基の推進ポッドを24個の通常構造物で組み立てる。各部は断面ロフト、丸断面ロフト、切隅箱、輪郭板、開口リングとして選択・移動・寸法変更でき、通常の設計図へ保存できる。主砲は左右に縦2門ずつを持つ500GT 4連装中型ターボレーザーで、1門500 GT（0.5 TT）、1基4門・一斉射2 TT、全艦4基16門。上面2基・下面2基を独立した砲座へ配置する。小型両用砲8基、航空機と共通の小型震盪ミサイル発射管4基、トラクタービーム1基を搭載する。3基の機関はそれぞれ専用炉へ接続し、共通ISDベル型ノズルを使う。船内に主反応炉、ハイパードライブ、慣性・構造維持、シールド、燃料、艦橋とCIC、貨物を持つ。兵員100名、航空隊なし。武装と設備の性能はゲーム用仮定。',
  groundForces:ARQ_GROUND,
  build:arqBuild
 });

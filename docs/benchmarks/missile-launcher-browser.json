@@ -1,20 +1,20 @@
 {
   "schemaVersion": 1,
   "status": "PASS",
-  "date": "2026-11-04T11:39:50.876Z",
+  "date": "2026-11-04T12:10:44.290Z",
   "browser": "Chromium headless with software WebGL",
   "language": "en",
   "device": "mobile viewport",
   "url": "http://127.0.0.1:8765",
   "sourceSha256": {
-    "data/reference.js": "d16894719f5537b74c56ee6caffb868c09adbaeec69388fdd5ef7c58fff8352e",
-    "data/fleet.js": "09a84921edc4158bc9bc5e1687a0880254cb9641beb98fdbe9aec93c9da552b9",
-    "js/core.js": "fcdfb5aee9d2d102c9d8219483557abb3a4a864f46dc9249d3d29607766a5960",
+    "data/reference.js": "431377801bedfacde65c012d18a662277f4b793123b728b630ad5b698e07c6a2",
+    "data/fleet.js": "987c30786adb423d9d767634e3dd43f710e0de1cf86698bb4bcbcb908bd22334",
+    "js/core.js": "2eaf8790986fb12ab72473e0324ba9d7f881d4529a800b79da63eb4b13f1e2fc",
     "js/app.js": "f148a524428322de7c208f0c3c212b527c265278de4f5680cfea1ec9445313b3",
     "js/gfx.js": "20534e021ca0463b4b8238919959b3a8d30f4f51c3d0378df3596bc630e35465",
-    "js/lang-en.js": "a065432239e6c0d5799fc6929db8b0bf61243e5d2bad5bbe69accc30a5ec7318",
+    "js/lang-en.js": "ff68464a08df062e29e1f69c02511fc1ade7f837080390be241b3a3f5bc819d0",
     "js/engine.js": "3cc555e507af6815398c2b8f019c4013261d757217351652968842e017fb5207",
-    "index.html": "eca99ad792ed30d074407229e5987d2804d82e37055ffa809247a1c1a9bccdc0"
+    "index.html": "1059879c1872ddb7aa0b582daf33e483b294f80e6e01f1c7fe514e7ce95b149a"
   },
   "controlText": "Missile Launch Angle\n0°\nLaunch Pitch Relative to Mount\n\nZero degrees follows the mounting surface. Adjust the launch angle upward or downward; supports, launch mouths and selectable bounds follow the angle automatically.",
   "nativePitchEdit": true,
