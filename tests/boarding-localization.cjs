@@ -16,6 +16,7 @@ function scene(fa,fb,att,tgt,{dist=3000,out=true}={}){const w=R.createWorld({see
 const tick=(w,s,f)=>{for(let i=0;i<s/R.TICK;i++){R.tick(w,R.TICK);if(f&&f())return;}};
 
 test('the combat log and events of capture, repulse, droid shutdown, sabotage and a slipped beam translate',()=>{
+ translated('S0：牽引ビームを解除（トラクター・ビーム投射機の給電停止）');
  for(const [a,b,att,tgt,goal,n] of [['empire','rebel',['imperial',9700],['cr90',60],'capture',288],['empire','rebel',['arquitens',100],['nebulonb',75],'capture',100],['republic','cis',['venator',2304],['munificent',0],'capture',2304],['empire','rebel',['imperial',9700],['cr90',60],'sabotage',432]]){
   const {w,u,t}=scene(a,b,att,tgt);R.orderBoard(w,u.id,t.id,{n,goal});tick(w,3000,()=>!u.tractor&&!t.boarding&&w.time>60||t.captured&&w.time>200);
   assert.ok(w.events.some(e=>/移乗/.test(e.text)));for(const e of w.events)translated(e.text);}

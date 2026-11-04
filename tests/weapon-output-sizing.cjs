@@ -39,8 +39,8 @@ function referenceBounds(f) {
 }
 const span = bounds => [0, 1, 2].map(axis => bounds[axis+3]-bounds[axis]);
 
-test('DBY-827 and the Imperial I eight-barrel turret retain their authored size as independent anchors', () => {
-  for (const [k, barrels, volleyTT] of [['refVen', 2, 140], ['refISDh', 8, 350]]) {
+test('DBY-827 and the canonical eight-barrel turret retain their authored size as independent anchors', () => {
+  for (const [k, barrels, volleyTT] of [['refVen', 2, 140], ['oct40', 8, 320]]) {
     const f = fitting(k), sizing = C.weaponSizing(f), rendered = span(referenceBounds(f));
     near(C.weaponModelScale(f), 1, `${k} anchor scale`);
     near(sizing.factor, 1, `${k} sizing scale`);
@@ -54,8 +54,8 @@ test('DBY-827 and the Imperial I eight-barrel turret retain their authored size 
 
 test('weapon volume follows salvo energy and interpolates the two anchor volume densities by barrel count', () => {
   const twinDensity = volume(span(referenceBounds(fitting('refVen'))))/140;
-  const octupleDensity = volume(span(referenceBounds(fitting('refISDh'))))/350;
-  for (const k of ['pd', 'ltl', 'mtl', 'htl', 'stl', 'utl', 'ion', 'ionL', 'triple40', 'quad200', 'oct40', 'xx9', 'nk7', 'refISD', 'refIonH']) {
+  const octupleDensity = volume(span(referenceBounds(fitting('oct40'))))/320;
+  for (const k of ['pd', 'ltl', 'mtl', 'htl', 'stl', 'utl', 'ion', 'ionL', 'triple40', 'quad200', 'oct40', 'xx9', 'nk7']) {
     const f = fitting(k), d = C.FITS[k], sizing = C.weaponSizing(f);
     const blend = Math.min(1, Math.max(0, (d.barrels-2)/6));
     const salvo = Math.max(d.tt || 0, d.ion || 0);
@@ -99,8 +99,8 @@ test('resizing conventional weapons does not alter their energy, cycle, crew or 
     assert.equal(d.crew, crew, `${k} unchanged crew`);
     assert.equal(d.cost, cost, `${k} unchanged cost`);
   }
-  near(C.FITS.oct40.tt, 320, 'the separate Imperial II octuple keeps its 320 TT rating');
-  near(C.FITS.refISDh.tt, 350, 'the Imperial I anchor keeps its 350 TT rating');
+  near(C.FITS.oct40.tt, 320, 'the canonical octuple keeps its 320 TT rating');
+  near(C.FITS.stl.tt, 350, 'the canonical heavy twin keeps its 350 TT rating');
 });
 
 test('aircraft weapons, fixed launchers, missiles, tractors and bridge equipment keep their existing dimensions', () => {
@@ -117,7 +117,7 @@ test('aircraft weapons, fixed launchers, missiles, tractors and bridge equipment
 });
 
 test('imported gun rendering, selection and collision use the same scaled geometry for every mount frame', () => {
-  for (const k of ['pd', 'refVen', 'refISDh', 'oct40', 'refISD']) {
+  for (const k of ['pd', 'refVen', 'oct40', 'stl']) {
     for (const a of [0, 1, 2, 3, 4, 5]) {
       for (const tilt of [null, C.norm([.2, .9, -.3])]) {
         const f = fitting(k, {a, p: [31, -7, 9], assetYaw: 37, ...(tilt ? {tilt} : {})});
@@ -133,7 +133,7 @@ test('imported gun rendering, selection and collision use the same scaled geomet
 });
 
 test('model calibration preserves authored pose and mount origin while scaling the whole imported model', () => {
-  for (const k of ['pd', 'oct40', 'refISD', 'refIonH']) {
+  for (const k of ['pd', 'oct40', 'stl']) {
     const f = fitting(k), sizing = C.weaponSizing(f), rendered = span(referenceBounds(f));
     for (let axis = 0; axis < 3; axis++) near(rendered[axis], sizing.sourceSize[axis]*sizing.factor, `${k} complete mesh axis ${axis}`);
     const shift = [41, -5, 3], moved = {...f, p: shift};
@@ -161,7 +161,7 @@ test('small procedural guns scale every body vertex uniformly while explicit ped
     vm.runInContext(source, baseline, {filename: file});
   }
   const {C: originalCore, G: originalGfx} = vm.runInContext('({C: Core, G: Gfx})', baseline);
-  for (const k of ['ltl', 'casemateLight', 'stl']) {
+  for (const k of ['ltl', 'casemateLight', 'utl']) {
     for (const frame of [{a: 2}, {a: 4, tilt: C.norm([.2, .9, -.3])}]) {
       const f = fitting(k, {p: [13, -7, 11], assetYaw: 31, ...frame});
       const factor = C.weaponModelScale(f), origin = C.fitOrigin(f);
@@ -207,7 +207,7 @@ test('small procedural guns scale every body vertex uniformly while explicit ped
 test('standard-size normalization and save reload retain calibration without a manual fitting scale', () => {
   const ship = C.newShip({L: 240, W: 200, H: 140, assembly: true}, 'Calibrated weapon sizes');
   ship.parts = [];
-  ship.fits = ['pd', 'ltl', 'refVen', 'refISDh'].map((k, index) => fitting(k, {id: index+1, p: [40+index*40, 60, 0], float: true, scale: 3}));
+  ship.fits = ['pd', 'ltl', 'refVen', 'oct40', 'stl'].map((k, index) => fitting(k, {id: index+1, p: [40+index*40, 60, 0], float: true, scale: 3}));
   const loaded = C.deserialize(C.serialize(ship));
   for (const f of loaded.fits) {
     assert.equal(Object.hasOwn(f, 'scale'), false, `${f.k} obsolete manual scale is normalized`);

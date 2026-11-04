@@ -51,7 +51,7 @@ test('the lock breaks when the projectors are destroyed mid-docking, or when the
   (u.p.modules||[]).forEach((m,i)=>{if(m.name===C.FITS.trc.short)u.mods[i]=0;});run(w,5);
   assert.equal(u.tractor,null);assert.ok(!t.towedBy&&!t.captured);assert.equal(u.troops,9700,'the troops waiting go back to their quarters');}
  {const {w,u,t}=scene('empire','rebel',['arquitens',100],['cr90',60],{out:false,shield:.1,dist:1500});hurt(t,'shield',0);
-  assert.ok(R.boardStrain(u,t)>1);R.orderBoard(w,u.id,t.id);assert.ok(run(w,600,()=>!u.tractor));assert.ok(log(w).some(s=>s.includes('振り切られた')));}
+  C.allocateShipPower(t,C.fleetSystems(t),{throttle:1},0,'balanced');assert.ok(R.boardStrain(u,t)>1);R.orderBoard(w,u.id,t.id);assert.ok(run(w,600,()=>!u.tractor));assert.ok(log(w).some(s=>s.includes('振り切られた')));}
  {const {w,u,t}=scene('empire','rebel',['imperial',9700],['cr90',60],{out:false,shield:.8});const r=R.orderBoard(w,u.id,t.id);assert.ok(!r.ok);assert.match(r.why,/25%/);}
 });
 

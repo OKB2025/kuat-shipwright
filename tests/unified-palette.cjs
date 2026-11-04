@@ -34,6 +34,8 @@ test('all hull classes offer the same weapons, placeable parts, command rooms an
   const offered=plain(run('PART_KEYS.filter(partOffered).sort()')),weapons=plain(run('weaponKeys()'));
   assert.ok(offered.includes('cockpit'));assert.ok(offered.includes('command'));assert.ok(offered.includes('pump'));
   assert.ok(weapons.includes('claser'));assert.ok(weapons.includes('htl'));assert.equal(new Set(weapons).size,weapons.length);
+  for(const k of ['stl','oct40','ion','refVen','refSide'])assert.equal(weapons.filter(v=>v===k).length,1,k+' appears once');
+  for(const k of ['refISD','refISDh','refIon','refIonH','casemate40'])assert.equal(weapons.includes(k),false,k+' is migration input only');
   assert.deepEqual(plain(run('layoutGroups().find(g=>g[0]==="command")')),['command','指揮・艦橋']);
   run('openCommandMenu("body");craftPaletteGuard();');assert.equal(run('st.tab'),'bridge');assert.equal(run('st.bridgeMode'),'body');
   run('openCommandMenu("windows");craftPaletteGuard();');assert.equal(run('st.tab'),'bridge');assert.equal(run('st.bridgeMode'),'windows');
@@ -66,6 +68,8 @@ test('small hull palette renders standard equipment and both weapon scales with 
  assert.match(run('panel.innerHTML'),/data-equipment=/);assert.doesNotMatch(run('panel.innerHTML'),/NaN|undefined/);
  run('st.part="pump";baseRenderPanel();');assert.match(run('panel.innerHTML'),/data-part="pump"/);assert.doesNotMatch(run('panel.innerHTML'),/NaN|undefined/);
  run('st.tab="arm";baseRenderPanel();');assert.match(run('panel.innerHTML'),/data-fit="htl"/);assert.match(run('panel.innerHTML'),/data-fit="claser"/);
+ for(const k of ['stl','oct40','ion'])assert.equal(run('panel.innerHTML').split('data-fit="'+k+'"').length,2,k+' renders one button');
+ assert.doesNotMatch(run('panel.innerHTML'),/data-fit="(?:refISD|refISDh|refIon|refIonH|casemate40)"/);
  assert.match(run('panel.innerHTML'),/data-sl="ped"[^>]*value="0"/);assert.doesNotMatch(run('panel.innerHTML'),/NaN|undefined/);
  run('st.fit="claser";baseRenderPanel();');assert.doesNotMatch(run('panel.innerHTML'),/data-sl="ped"/);assert.match(run('panel.innerHTML'),/取付面に直接/);
 });
