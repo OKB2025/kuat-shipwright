@@ -21265,24 +21265,20 @@ const STRUCTURAL_DEFER_TRIS=256,STRUCTURAL_FAR_EPS=1000;
 function surfaceFarVerdict(P,plane,sources){
  const {u,v,origin,eps}=plane,Q=P.map(p=>[dot(sub(p,origin),u),dot(sub(p,origin),v)]),u0=Math.min(Q[0][0],Q[1][0],Q[2][0]),u1=Math.max(Q[0][0],Q[1][0],Q[2][0]),v0=Math.min(Q[0][1],Q[1][1],Q[2][1]),v1=Math.max(Q[0][1],Q[1][1],Q[2][1]),M=eps*STRUCTURAL_FAR_EPS;
  if(u1-u0<=M||v1-v0<=M)return 0;
- const box=[0,1,2].map(a=>Math.min(P[0][a],P[1][a],P[2][a])-M).concat([0,1,2].map(a=>Math.max(P[0][a],P[1][a],P[2][a])+M)),lists=[];
- // Segments as flat [au, av, bu, bv]; the sliced ones unmerged (merging changes neither the count of segments over a
- // generic abscissa nor, beyond eps, their positions), all of them tested for nearness, the non-vertical ones counted.
- const near=(F,i)=>Math.max(F[i],F[i+2])>=u0-M&&Math.min(F[i],F[i+2])<=u1+M&&Math.max(F[i+1],F[i+3])>=v0-M&&Math.min(F[i+1],F[i+3])<=v1+M;
- for(const q of sources){
+ const near=e=>Math.max(e[0][0],e[1][0])>=u0-M&&Math.min(e[0][0],e[1][0])<=u1+M&&Math.max(e[0][1],e[1][1])>=v0-M&&Math.min(e[0][1],e[1][1])<=v1+M,lists=[];
+ const box=[0,1,2].map(a=>Math.min(P[0][a],P[1][a],P[2][a])-M).concat([0,1,2].map(a=>Math.max(P[0][a],P[1][a],P[2][a])+M));
+ for(const q of sources){let edges;
   // A mesh whose box misses the triangle's (grown by the margin) has no edge near it and cannot hold it.
   if(q.b&&[0,1,2].some(a=>q.b[a]>box[a+3]||q.b[a+3]<box[a]))continue;
-  let F,n;if(q.section){n=q.section.edges.length;F=new Float64Array(n*4);q.section.edges.forEach((e,i)=>{F[i*4]=e[0][0];F[i*4+1]=e[0][1];F[i*4+2]=e[1][0];F[i*4+3]=e[1][1];});}
-  else{const count=solidSliceRaw(q.T,{n:plane.n,d:q.d},u,v,origin,eps,u0-M*2,u1+M*2),B=SOLID_SLICE_BUFFER;n=0;F=new Float64Array(count*4);for(let i=0;i<count*4;i+=4){if(near(B,i))return 0;if(Math.abs(B[i+2]-B[i])>eps*.05){F.set(B.subarray(i,i+4),n*4);n++;}}}
-  for(let i=0;i<n*4;i+=4)if(near(F,i))return 0;lists.push({F,n});}
+  if(q.section)edges=q.section.edges;else{const sliced=solidSliceSegments(q.T,{n:plane.n,d:q.d},u,v,origin,eps,u0-M*2,u1+M*2);if(sliced.some(near))return 0;edges=sliced.filter(e=>Math.abs(e[1][0]-e[0][0])>eps*.05);}if(edges.some(near))return 0;lists.push(edges);}
  const sides=Q.map((p,i)=>[p,Q[(i+1)%3]]);let inside=false;
- for(const {F,n} of lists){let state=null;
-  // Between consecutive segment ends the count is constant, and the full section's edges end only where these do
-  // (merging removes inner nodes), so one abscissa per gap covers every slab surfaceExposeTriangle would use.
-  const ends=[u0,u1];for(let i=0;i<n*4;i+=2)if(F[i]>u0&&F[i]<u1)ends.push(F[i]);ends.sort((a,b)=>a-b);
+ for(const list of lists){let state=null;
+  // Between consecutive edge ends the count is constant, and the full section's edges end only where these do (merging
+  // a chain removes inner nodes), so one abscissa per gap covers every slab surfaceExposeTriangle would use.
+  const ends=[u0,u1];for(const e of list)for(const p of e)if(p[0]>u0&&p[0]<u1)ends.push(p[0]);ends.sort((a,b)=>a-b);
   for(let k=0;k+1<ends.length;k++){if(!(ends[k+1]>ends[k]))continue;const x=(ends[k]+ends[k+1])/2;if(!(x>ends[k]&&x<ends[k+1]))return 0;
    const span=sides.filter(e=>x>Math.min(e[0][0],e[1][0])&&x<Math.max(e[0][0],e[1][0])).map(e=>solidSegmentY(e,x));if(span.length<2)return 0;const y=(Math.min(...span)+Math.max(...span))/2;
-   let crossings=0,below=0;for(let i=0;i<n*4;i+=4){const a=F[i],c=F[i+2];if(x>Math.min(a,c)&&x<Math.max(a,c)){crossings++;if(F[i+1]+(F[i+3]-F[i+1])*(x-a)/(c-a)<y)below++;}}
+   let crossings=0,below=0;for(const e of list)if(x>Math.min(e[0][0],e[1][0])&&x<Math.max(e[0][0],e[1][0])){crossings++;if(solidSegmentY(e,x)<y)below++;}
    if(crossings%2)return 0;const odd=below%2===1;if(state===null)state=odd;else if(state!==odd)return 0;}
   if(state)inside=true;}
  return inside?-1:1;
