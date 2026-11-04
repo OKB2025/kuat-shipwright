@@ -66,15 +66,16 @@ function frontRegions(T,patch){
 test('deck blocks overlap recessed texture-backed machinery bays instead of full-width rails',()=>{
  const {ship,host,patch}=fixture({depth:4}),T=neutralTriangles(ship,host),r=row(ship,patch),g=G.meshSurfaceLayers(ship,{}).surfaceDevices;
  const dots=T.flat().map(p=>C.dot(p,patch.normal)),lo=Math.min(...dots),hi=Math.max(...dots);assert.ok(hi-lo>1,'deck edges must have actual depth above recessed machinery');
- const normals=T.map(t=>C.norm(C.cross(C.sub(t[1],t[0]),C.sub(t[2],t[0]))));assert.ok(normals.some(n=>C.dot(n,r.frame.v)>.98)&&normals.some(n=>C.dot(n,r.frame.v)<-.98),'thin plates need real top and underside facets, not broad slanted ramps');
+ const normals=T.map(t=>C.norm(C.cross(C.sub(t[1],t[0]),C.sub(t[2],t[0]))));assert.ok(normals.some(n=>C.dot(n,r.frame.v)>.98)&&normals.some(n=>C.dot(n,r.frame.v)<-.98),'thick blocks need real top and underside facets, not broad slanted ramps');
  const faces=r.reliefFaces,area=q=>projectedArea(Array.from({length:q.triangles.length/9},(_,i)=>[0,3,6].map(j=>q.triangles.slice(i*9+j,i*9+j+3))),patch.normal);
- assert.ok(faces.filter(q=>q.machinery).reduce((n,q)=>n+area(q),0)>patch.exposedArea*.6,'most of the facade must be flat, texture-backed gaps between decks');
+ const machineryShare=faces.filter(q=>q.machinery).reduce((n,q)=>n+area(q),0)/patch.exposedArea;
+ assert.ok(machineryShare>.2&&machineryShare<.55,'machinery gaps must remain visible without dominating the stacked block facade');
  const u=C.dot(patch.center,r.frame.u),vs=patch.polygon.map(p=>C.dot(p,r.frame.v)),low=Math.min(...vs),high=Math.max(...vs),samples=[];
  for(let i=0;i<800;i++){
   const p=C.add(C.add(C.mul(r.frame.u,u),C.mul(r.frame.v,low+(high-low)*(i+.5)/800)),C.mul(patch.normal,hi+10)),hit=C.rayTris(T.flat(2),p,C.mul(patch.normal,-1));assert.ok(hit);samples.push(C.dot(hit.p,patch.normal));
  }
  const raised=samples.map(h=>h>lo+(hi-lo)*.4),bands=raised.filter((q,i)=>q&&!raised[i-1]).length;
- assert.ok(bands>=3,'several real ledges must remain readable at cosmetic detail zero');assert.ok(raised.filter(Boolean).length<samples.length*.65,'thicker deck blocks must still leave visible machinery gaps');
+ assert.ok(bands>=3,'several real ledges must remain readable at cosmetic detail zero');assert.ok(raised.filter(Boolean).length<samples.length*.95,'dense deck stacks must still leave visible machinery gaps');
  assert.ok(Array.from(g.col.slice(0,g.n*4)).some((x,i)=>i%4===3&&x===250),'actual emitted machinery triangles use the shared texture material');
  assert.ok(Array.from(g.col.slice(0,g.n*4)).some((x,i)=>i%4===3&&x===249),'actual deck triangles retain plain host-colored material');
 });
@@ -100,7 +101,7 @@ test('block stacks mix short and medium decks with substantial thickness and dep
  const widths=plates.map(q=>q.w),heights=plates.map(q=>q.h).sort((a,b)=>a-b),depths=plates.map(q=>q.height),longest=Math.max(...widths);
  assert.ok(longest<480*.65,'no interior deck may stretch nearly end to end across this face');
  assert.ok(widths.filter(w=>w<longest*.5).length>=2&&widths.some(w=>w>longest*.5&&w<longest*.8),'actual emitted geometry must include short and medium runs');
- assert.ok(heights[Math.floor(heights.length/2)]>=r.layerPitch*.38,'the median block must be substantially thicker than the earlier thin ledges');
+ assert.ok(heights[Math.floor(heights.length/2)]>=r.layerPitch*.72,'dense stacked blocks must nearly fill their vertical pitch instead of reading as isolated shelves');
  assert.ok(Math.max(...depths)-Math.min(...depths)>r.visualDepth*.42,'stacked blocks need substantial independent fore/aft steps');
  const auto=fixture(),autoRow=row(auto.ship,auto.patch);assert.ok(autoRow.visualDepth>4&&autoRow.visualDepth<=8,'automatic relief must show the requested deeper stack without exceeding its host budget');assert.equal(r.visualDepth,4,'an explicit visual depth remains authoritative');assert.equal(r.functionalDepth,1,'visual exaggeration must not enlarge functional reservations');
 });

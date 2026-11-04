@@ -1611,7 +1611,8 @@ window.KS_EN_SRC="js/lang-en.js?v=559abdbd1a";(function(){var l;try{l=localStora
    boot.js — title screen first, then the 3D assets, the engine
    and the editor. The background engine is started before the
    interface parses its own copy of the assets, so both load in
-   parallel. Sources live in text/plain blocks of this page.
+   parallel. Published sources are separate files; embedded pages
+   can instead provide text/plain source blocks.
    ============================================================ */
 (() => {
 'use strict';
@@ -1659,63 +1660,63 @@ if (splashEl) {
 }
 
 let workerReady;
-function startWorker(src) {
+function startWorker(src, stamp = null) {
   if (typeof Worker === 'undefined' || typeof Blob === 'undefined' || /[?&]inline\b/.test(location.search)) return Promise.reject(new Error('workers unavailable'));
   let url = null;
   try {
-    url = URL.createObjectURL(new Blob(['self.__ksWorker=true;\n', ...src.flatMap(s => [s, '\n'])], {type: 'text/javascript'}));
+    url = URL.createObjectURL(new Blob(['self.__ksWorker=true;self.KS_SOURCE_STAMP=' + JSON.stringify(stamp) + ';\n', ...src.flatMap(s => [s, '\n'])], {type: 'text/javascript'}));
     const w = new Worker(url);
     return new Promise((resolve, reject) => {
-      const t = setTimeout(() => reject(new Error('worker timeout')), 120000);
+      const t = setTimeout(() => { w.terminate(); reject(new Error('worker timeout')); }, 120000);
       w.onmessage = (e) => { if (e.data && e.data.type === 'ready') { clearTimeout(t); resolve(w); } };
-      w.onerror = (e) => { clearTimeout(t); if (e.preventDefault) e.preventDefault(); reject(new Error(e.message || 'worker error')); };
+      w.onerror = (e) => { clearTimeout(t); if (e.preventDefault) e.preventDefault(); w.terminate(); reject(new Error(e.message || 'worker error')); };
     }).finally(() => { if (url) URL.revokeObjectURL(url); });
   } catch (e) { if (url) URL.revokeObjectURL(url); return Promise.reject(e); }
 }
 
-// Published as a multi-file page: sources are separate files next to the page.
-// The worker loads its own copies (from the HTTP cache once the page has them);
-// if a file worker is refused, a worker is built from the fetched sources, and
-// failing that the editor runs the engine on the page itself.
+// Published as a multi-file page. Revalidate each source once, then run those
+// exact bytes on both threads. A separately loaded worker.js could keep an old
+// gfx.js in its HTTP cache even after the page has fetched the new renderer.
 const FILES = window.KS_FILES || null;
+const fallbackToken = Date.now().toString(36) + Math.random().toString(36).slice(2);
+const fallbackURL = (src) => {
+  if (!/^https?:/.test(location.protocol)) return src;
+  const u = new URL(src, document.baseURI); u.searchParams.set('_ksload', fallbackToken); return u.href;
+};
 const loadScript = (src) => new Promise((resolve, reject) => {
-  const s = document.createElement('script'); s.src = src; s.async = false;
+  // Only the compatibility path needs a fresh URL. Normal loads reuse HTTP
+  // cached bytes after conditional revalidation, including 304 responses.
+  const s = document.createElement('script'); s.src = fallbackURL(src); s.async = false;
   s.onload = () => resolve(); s.onerror = () => reject(new Error(src + ' を読み込めませんでした'));
   document.body.appendChild(s);
 });
-function waitReady(make) {
-  return new Promise((resolve, reject) => {
-    let w; try { w = make(); } catch (e) { reject(e); return; }
-    const t = setTimeout(() => { try { w.terminate(); } catch (e) {} reject(new Error('worker timeout')); }, 120000);
-    w.onmessage = (e) => { if (e.data && e.data.type === 'ready') { clearTimeout(t); resolve(w); } };
-    w.onerror = (e) => { clearTimeout(t); if (e.preventDefault) e.preventDefault(); try { w.terminate(); } catch (x) {} reject(new Error(e.message || 'worker error')); };
-  });
-}
-function startFileWorker(F) {
-  if (typeof Worker === 'undefined' || /[?&]inline\b/.test(location.search)) return Promise.reject(new Error('workers unavailable'));
-  return waitReady(() => new Worker(F.worker)).catch(async () => {
-    const texts = await Promise.all([...F.data, F.core, F.gfx, F.engine].map(u => fetch(u).then(r => { if (!r.ok) throw new Error(u); return r.text(); })));
-    return startWorker(texts);
-  });
+async function sourceStamp(blobs) {
+  if (typeof crypto === 'undefined' || !crypto.subtle) return null;
+  try {
+    const sums = await Promise.all(blobs.map(async b => crypto.subtle.digest('SHA-256', await b.arrayBuffer())));
+    const all = new Uint8Array(sums.length * 32); sums.forEach((h, i) => all.set(new Uint8Array(h), i * 32));
+    return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', all)).slice(0, 10), x => x.toString(16).padStart(2, '0')).join('');
+  } catch (e) { return null; } // Rendering still works without persistent caching.
 }
 // v20.5 For the loading bar the files are fetched (all at once, counting the bytes as they arrive) and each is
-// then run, in order, from a blob of the fetched bytes; where the page refuses blob scripts, from the file itself
-// (which the browser then has in its cache). Without fetch, or from a file:// page, they load as plain scripts.
+// then run, in order, from a blob of the fetched bytes. The worker shares those blobs.
+// Without fetch, from file://, or when blob scripts are refused, fresh plain scripts
+// run inline with persistent caching disabled because their source identity is unknown.
 async function fetchBlob(u, onBytes) {
-  const r = await fetch(u); if (!r.ok) throw new Error(u + ' (' + r.status + ')');
+  const r = await fetch(u, {cache: 'no-cache'}); if (!r.ok) throw new Error(u + ' (' + r.status + ')');
   if (!r.body || !r.body.getReader) { const b = await r.arrayBuffer(); onBytes(b.byteLength); return new Blob([b], {type: 'text/javascript'}); }
   const rd = r.body.getReader(), parts = [];
   for (;;) { const {done, value} = await rd.read(); if (done) break; parts.push(value); onBytes(value.byteLength); }
   return new Blob(parts, {type: 'text/javascript'});
 }
 let blobScripts = true;
-function runBlob(blob, u) {
-  if (!blobScripts || !window.URL || !URL.createObjectURL) return loadScript(u);
+function runBlob(blob, u, fallback) {
+  if (!blobScripts || !window.URL || !URL.createObjectURL) { fallback(); return loadScript(u); }
   const url = URL.createObjectURL(blob);
   return new Promise((resolve, reject) => {
     const s = document.createElement('script'); s.src = url; s.async = false;
     s.onload = () => { URL.revokeObjectURL(url); resolve(); };
-    s.onerror = () => { URL.revokeObjectURL(url); s.remove(); blobScripts = false; loadScript(u).then(resolve, reject); };
+    s.onerror = () => { URL.revokeObjectURL(url); s.remove(); blobScripts = false; fallback(); loadScript(u).then(resolve, reject); };
     document.body.appendChild(s);
   });
 }
@@ -1725,11 +1726,37 @@ async function bootFiles(F) {
     await frame();
     const list = [...F.data, F.core, F.gfx, F.engine, F.app], sz = F.sizes || {}, total = list.reduce((n, u) => n + (sz[u] || 0), 0);
     let got = 0; const counted = new Set(), add = (n) => { got += n; if (total) splashSet(.88 * Math.min(1, got / total)); };
-    const pre = total && window.fetch && !/^file:/.test(location.protocol) ? list.map((u) => fetchBlob(u, add).catch((e) => { console.warn('progress fetch', u, e && e.message); return null; })) : null;
+    const pre = window.fetch && !/^file:/.test(location.protocol) ? list.map((u) => fetchBlob(u, add).catch((e) => { console.warn('progress fetch', u, e && e.message); return null; })) : null;
+    let snapshotEnabled = !!pre;
+    window.KS_SOURCE_STAMP = null;
+    const inlineOnly = () => {
+      snapshotEnabled = false; window.KS_SOURCE_STAMP = null;
+      // Do not combine a verified worker snapshot with unverifiable script-tag
+      // fallbacks. The existing engine client will use its inline engine.
+      if (workerReady) workerReady.then(w => w.terminate(), () => {});
+      workerReady = Promise.reject(new Error('source snapshot unavailable'));
+      workerReady.catch(() => {});
+    };
+    const engineFiles = [F.data[0], F.data[2], F.core, F.gfx, F.engine];
+    const snapshot = pre ? Promise.all(engineFiles.map(u => pre[list.indexOf(u)])).then(async blobs => {
+      if (blobs.some(b => !b)) return null;
+      const stamp = await sourceStamp(blobs);
+      if (snapshotEnabled) window.KS_SOURCE_STAMP = stamp;
+      return {blobs, stamp};
+    }) : Promise.resolve(null);
+    workerReady = snapshot.then(s => {
+      if (!s || !snapshotEnabled) throw new Error('source snapshot unavailable');
+      return startWorker(s.blobs, s.stamp);
+    });
+    workerReady.catch(() => {});
     let i = 0;
-    const load = async (u) => { const k = i++, b = pre ? await pre[k] : null; await (b ? runBlob(b, u) : loadScript(u)); if (!b && !counted.has(u)) { counted.add(u); add(sz[u] || 0); } };
+    const load = async (u) => {
+      const k = i++, b = pre ? await pre[k] : null;
+      if (u === F.engine) await snapshot; // Set the identity before the engine runs.
+      if (b) await runBlob(b, u, inlineOnly); else { inlineOnly(); await loadScript(u); }
+      if (!b && !counted.has(u)) { counted.add(u); add(sz[u] || 0); }
+    };
     for (const u of F.data) await load(u);
-    workerReady = startFileWorker(F); workerReady.catch(() => {});
     status('設計計算を準備中…'); splashSet(null, '設計計算を準備中…');
     await load(F.core); await load(F.gfx); await load(F.engine); step('data', 'done');
     await frame();
