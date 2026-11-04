@@ -1,0 +1,59 @@
+{
+  "baselineCommit": "63be541",
+  "baselineGfxSHA256": "84db03ff3d8f580cb0ecc63cd175333b9b8f7d55b3494c01ed58514dd7549483",
+  "updatedGfxSHA256": "ab307e95ece8947d53e04fb4e097c89a6eb7355b5737f2bd6f8722a2807e636c",
+  "fixtures": [
+    {
+      "fixture": "box",
+      "fixtureSHA256": "a640f37624b0fedc41787373a7db22a30b0c10dcfe15466ac8d2e9d3605d788a",
+      "trianglesBefore": 5422,
+      "trianglesAfter": 5463,
+      "triangleChangePercent": 0.76,
+      "usedMeshBytesBefore": 428646,
+      "usedMeshBytesAfter": 433323,
+      "functionalValuesUnchanged": true,
+      "savedSourceUnchanged": true
+    },
+    {
+      "fixture": "wedge",
+      "fixtureSHA256": "7bfe121a9fc98412bfd8f820c1c8a8acf49a529ac7b03c7b15384dd700737bb1",
+      "trianglesBefore": 1926,
+      "trianglesAfter": 1920,
+      "triangleChangePercent": -0.31,
+      "usedMeshBytesBefore": 154926,
+      "usedMeshBytesAfter": 154530,
+      "functionalValuesUnchanged": true,
+      "savedSourceUnchanged": true
+    },
+    {
+      "fixture": "stacked",
+      "fixtureSHA256": "fd80dfcea56b5b3ad61eaa018f8440012472f506571d471a0ff06cf75944401c",
+      "trianglesBefore": 28252,
+      "trianglesAfter": 21556,
+      "triangleChangePercent": -23.7,
+      "usedMeshBytesBefore": 2503236,
+      "usedMeshBytesAfter": 1880724,
+      "functionalValuesUnchanged": true,
+      "savedSourceUnchanged": true
+    },
+    {
+      "fixture": "terraces",
+      "fixtureSHA256": "dfceb0a7f26446225adc7bc9b7a667541f8070cd04cd0545191946f6e1f3b1d0",
+      "trianglesBefore": 25770,
+      "trianglesAfter": 24841,
+      "triangleChangePercent": -3.6,
+      "usedMeshBytesBefore": 2141946,
+      "usedMeshBytesAfter": 2056467,
+      "functionalValuesUnchanged": true,
+      "savedSourceUnchanged": true
+    }
+  ],
+  "notes": [
+    "Compared with merged #33, not the older cabinet renderer.",
+    "Counts include all nonempty emitted meshes except the diagnostic trial target.",
+    "Used buffers only: 27 bytes per vertex and 4 bytes per index; no texture or spare allocation bytes.",
+    "No additional texture memory or draw batches.",
+    "Concurrent measurements are not an elapsed-time or FPS benchmark.",
+    "Actual browser/shader visual QA unavailable; offline emitted-geometry previews inspected."
+  ]
+}
