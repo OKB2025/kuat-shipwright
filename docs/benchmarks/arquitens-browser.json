@@ -1,0 +1,553 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "date": "2026-11-04T10:44:24.145Z",
+  "browser": "Chromium headless with software WebGL",
+  "url": "http://127.0.0.1:8765",
+  "sourceSha256": {
+    "data/reference.js": "d16894719f5537b74c56ee6caffb868c09adbaeec69388fdd5ef7c58fff8352e",
+    "data/fleet.js": "e6f848e94c14718f71bb9ba0e37b365d0f3b29b2cfdb060ba7ebb1f9e2a5e17d",
+    "js/core.js": "905892dfb40c3cebe5b506683940aa029d970f68c6c5dcb1a65015be027d9963",
+    "js/app.js": "91bd2f40fe5f2017c24cf2382b97fc2f32d630d5bb7d55a9f277093c955c3c48",
+    "js/gfx.js": "57d759e697423316b3e75bd6c123f760f3496e766a0f490447ae03ba67e6481c",
+    "js/lang-en.js": "73f4f3726268bd2a5eb9ce03e7827db5f86fc7306719955e2d5645e274eb066b",
+    "js/engine.js": "3cc555e507af6815398c2b8f019c4013261d757217351652968842e017fb5207",
+    "index.html": "c62f212224fc74da17bd9ae0758f849eb5e9b95657c42b794fc7168bc88c7380"
+  },
+  "blueprintSha256": "8ec64b9a7fe942b1f167b418d0344459b6005d2c5113eb454f93cdcc2de564ef",
+  "buildTimings": null,
+  "scope": {
+    "verified": [
+      "native desktop example selection",
+      "mobile blueprint loading through debug API",
+      "ordinary plain-metal editable reference hull draw routing",
+      "four complete quad turret draw ranges",
+      "English weapon catalog label",
+      "three connected ISD nozzle assets",
+      "desktop and mobile layout without horizontal overflow",
+      "full ship and dorsal/ventral turret/engine screenshots"
+    ],
+    "notVerified": [
+      "physical mobile device",
+      "GPU frame-rate target",
+      "continuous live battle firing",
+      "mobile native example rebuild timing"
+    ]
+  },
+  "cases": [
+    {
+      "language": "ja",
+      "device": "desktop",
+      "status": "PASS",
+      "loading": "native title-menu example button and worker build",
+      "exampleButtonText": "アークワイテンス級軽クルーザー\n325 m · 護衛・哨戒",
+      "readyMs": 18960,
+      "weaponCardText": "500GT 4連装中型ターボレーザー\n2.0 TT・17.8×14.1×5.8 m",
+      "errors": [],
+      "generation": {
+        "design": 1,
+        "geometry": 1,
+        "statistics": 1
+      },
+      "massTonnes": 424890.2643829685,
+      "cost": 3328452,
+      "workerMode": "worker",
+      "renderer": true,
+      "webglError": 0,
+      "pageWidth": 1440,
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "hull": {
+        "parts": 1,
+        "form": "reference",
+        "plainMetal": true,
+        "triangles": 184340,
+        "ranges": [
+          [
+            "struct",
+            0,
+            553020
+          ]
+        ],
+        "uploadedStructIndices": 553980,
+        "referenceStructIndices": 0
+      },
+      "weapon": {
+        "barrels": 4,
+        "boltTT": 0.5,
+        "volleyTT": 2,
+        "asset": "arq_turret_quad500",
+        "triangles": 32764,
+        "size": [
+          17.8304,
+          5.8065,
+          14.104100000000003
+        ],
+        "mounts": [
+          {
+            "id": 21,
+            "float": false,
+            "axis": 2,
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "origin": [
+              173.2522,
+              30.928756993368832,
+              28.4337
+            ],
+            "ranges": [
+              [
+                "fits",
+                0,
+                98292
+              ]
+            ],
+            "colliderSeatDistanceM": -1.222400960065631
+          },
+          {
+            "id": 22,
+            "float": false,
+            "axis": 2,
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "origin": [
+              173.2522,
+              30.928756993368776,
+              -28.4337
+            ],
+            "ranges": [
+              [
+                "fits",
+                98292,
+                98292
+              ]
+            ],
+            "colliderSeatDistanceM": -1.259667433110156
+          },
+          {
+            "id": 23,
+            "float": false,
+            "axis": 3,
+            "up": [
+              0,
+              -1,
+              0
+            ],
+            "origin": [
+              238.0963,
+              17.88335899336883,
+              24.0026
+            ],
+            "ranges": [
+              [
+                "fits",
+                196584,
+                98292
+              ]
+            ],
+            "colliderSeatDistanceM": -0.5752158742703131
+          },
+          {
+            "id": 24,
+            "float": false,
+            "axis": 3,
+            "up": [
+              0,
+              -1,
+              0
+            ],
+            "origin": [
+              238.0963,
+              17.883358993368773,
+              -24.0026
+            ],
+            "ranges": [
+              [
+                "fits",
+                294876,
+                98292
+              ]
+            ],
+            "colliderSeatDistanceM": -0.586090220605854
+          }
+        ]
+      },
+      "secondary": {
+        "pd": 8,
+        "missiles": 4,
+        "tractor": 1
+      },
+      "engines": [
+        {
+          "id": 4,
+          "reactor": 3,
+          "skinAsset": "isdh_engine_aux",
+          "range": [
+            [
+              "nozzle",
+              0,
+              96
+            ],
+            [
+              "refEngine",
+              0,
+              4800
+            ]
+          ]
+        },
+        {
+          "id": 6,
+          "reactor": 5,
+          "skinAsset": "isdh_engine_aux",
+          "range": [
+            [
+              "nozzle",
+              96,
+              96
+            ],
+            [
+              "refEngine",
+              4800,
+              4800
+            ]
+          ]
+        },
+        {
+          "id": 8,
+          "reactor": 7,
+          "skinAsset": "isdh_engine_aux",
+          "range": [
+            [
+              "nozzle",
+              192,
+              96
+            ],
+            [
+              "refEngine",
+              9600,
+              4800
+            ]
+          ]
+        }
+      ],
+      "engineProfile": [
+        {
+          "id": 4,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "outletAvailable": true
+        },
+        {
+          "id": 6,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "outletAvailable": true
+        },
+        {
+          "id": 8,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "outletAvailable": true
+        }
+      ],
+      "drawCalls": {
+        "hull": 1,
+        "struct": 1,
+        "plate": 1,
+        "refHull": 1,
+        "refStruct": 1,
+        "refHatches": 1,
+        "surfaceArmor": 1,
+        "surfaceDevices": 1,
+        "surfaceDetail": 1,
+        "gen": 1,
+        "shield": 1,
+        "hyper": 1,
+        "engine": 1,
+        "refEngine": 1,
+        "nozzle": 1,
+        "hangar": 1,
+        "preview": 1,
+        "previewRef": 1,
+        "hatchOpen": 1,
+        "fits": 1,
+        "refFits": 1,
+        "previewFits": 1,
+        "previewRefFits": 1,
+        "cutter": 1
+      },
+      "screenshot": "images/arquitens-desktop.png",
+      "extraScreenshots": [
+        "arquitens-turret-dorsal-browser.png",
+        "arquitens-turret-ventral-browser.png",
+        "arquitens-engines-browser.png"
+      ]
+    },
+    {
+      "language": "en",
+      "device": "mobile",
+      "status": "PASS",
+      "loading": "generated native blueprint deserialized through __yard API",
+      "exampleButtonText": "Arquitens-class Light Cruiser\n325 m · Escort / Patrol",
+      "readyMs": 16509,
+      "weaponCardText": "500 GT Quad Medium Turbolaser\n2.0 TT / 17.8×14.1×5.8 m",
+      "errors": [],
+      "generation": {
+        "design": 1,
+        "geometry": 1,
+        "statistics": 1
+      },
+      "massTonnes": 424890.2643829685,
+      "cost": 3328452,
+      "workerMode": "worker",
+      "renderer": true,
+      "webglError": 0,
+      "pageWidth": 390,
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "hull": {
+        "parts": 1,
+        "form": "reference",
+        "plainMetal": true,
+        "triangles": 184340,
+        "ranges": [
+          [
+            "struct",
+            0,
+            553020
+          ]
+        ],
+        "uploadedStructIndices": 553980,
+        "referenceStructIndices": 0
+      },
+      "weapon": {
+        "barrels": 4,
+        "boltTT": 0.5,
+        "volleyTT": 2,
+        "asset": "arq_turret_quad500",
+        "triangles": 32764,
+        "size": [
+          17.8304,
+          5.8065,
+          14.104100000000003
+        ],
+        "mounts": [
+          {
+            "id": 21,
+            "float": false,
+            "axis": 2,
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "origin": [
+              173.2522,
+              30.928756993368832,
+              28.4337
+            ],
+            "ranges": [
+              [
+                "fits",
+                0,
+                98292
+              ]
+            ],
+            "colliderSeatDistanceM": -1.222400960065631
+          },
+          {
+            "id": 22,
+            "float": false,
+            "axis": 2,
+            "up": [
+              0,
+              1,
+              0
+            ],
+            "origin": [
+              173.2522,
+              30.928756993368776,
+              -28.4337
+            ],
+            "ranges": [
+              [
+                "fits",
+                98292,
+                98292
+              ]
+            ],
+            "colliderSeatDistanceM": -1.259667433110156
+          },
+          {
+            "id": 23,
+            "float": false,
+            "axis": 3,
+            "up": [
+              0,
+              -1,
+              0
+            ],
+            "origin": [
+              238.0963,
+              17.88335899336883,
+              24.0026
+            ],
+            "ranges": [
+              [
+                "fits",
+                196584,
+                98292
+              ]
+            ],
+            "colliderSeatDistanceM": -0.5752158742703131
+          },
+          {
+            "id": 24,
+            "float": false,
+            "axis": 3,
+            "up": [
+              0,
+              -1,
+              0
+            ],
+            "origin": [
+              238.0963,
+              17.883358993368773,
+              -24.0026
+            ],
+            "ranges": [
+              [
+                "fits",
+                294876,
+                98292
+              ]
+            ],
+            "colliderSeatDistanceM": -0.586090220605854
+          }
+        ]
+      },
+      "secondary": {
+        "pd": 8,
+        "missiles": 4,
+        "tractor": 1
+      },
+      "engines": [
+        {
+          "id": 4,
+          "reactor": 3,
+          "skinAsset": "isdh_engine_aux",
+          "range": [
+            [
+              "nozzle",
+              0,
+              96
+            ],
+            [
+              "refEngine",
+              0,
+              4800
+            ]
+          ]
+        },
+        {
+          "id": 6,
+          "reactor": 5,
+          "skinAsset": "isdh_engine_aux",
+          "range": [
+            [
+              "nozzle",
+              96,
+              96
+            ],
+            [
+              "refEngine",
+              4800,
+              4800
+            ]
+          ]
+        },
+        {
+          "id": 8,
+          "reactor": 7,
+          "skinAsset": "isdh_engine_aux",
+          "range": [
+            [
+              "nozzle",
+              192,
+              96
+            ],
+            [
+              "refEngine",
+              9600,
+              4800
+            ]
+          ]
+        }
+      ],
+      "engineProfile": [
+        {
+          "id": 4,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "outletAvailable": true
+        },
+        {
+          "id": 6,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "outletAvailable": true
+        },
+        {
+          "id": 8,
+          "valid": true,
+          "available": true,
+          "connected": true,
+          "outletAvailable": true
+        }
+      ],
+      "drawCalls": {
+        "hull": 1,
+        "struct": 1,
+        "plate": 1,
+        "refHull": 1,
+        "refStruct": 1,
+        "refHatches": 1,
+        "surfaceArmor": 1,
+        "surfaceDevices": 1,
+        "surfaceDetail": 1,
+        "gen": 1,
+        "shield": 1,
+        "hyper": 1,
+        "engine": 1,
+        "refEngine": 1,
+        "nozzle": 1,
+        "hangar": 1,
+        "preview": 1,
+        "previewRef": 1,
+        "hatchOpen": 1,
+        "fits": 1,
+        "refFits": 1,
+        "previewFits": 1,
+        "previewRefFits": 1,
+        "cutter": 1
+      },
+      "screenshot": "images/arquitens-mobile.png",
+      "extraScreenshots": []
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+#!/usr/bin/env node
+// Real browser verification. Desktop opens the native example; mobile loads
+// the same generated blueprint through the development API to skip rebuilding.
+const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto'),assert=require('node:assert/strict');
+const {chromium}=require('playwright');
+const root=path.resolve(__dirname,'..'),url=process.argv[2]||'http://127.0.0.1:8765',blueprint=process.argv[3]||'/tmp/arquitens-current-blueprint.json',output=path.resolve(process.argv[4]||path.join(root,'docs/benchmarks/arquitens-browser.json'));
+const hash=data=>crypto.createHash('sha256').update(data).digest('hex'),sources=Object.fromEntries(['data/reference.js','data/fleet.js','js/core.js','js/app.js','js/gfx.js','js/lang-en.js','js/engine.js','index.html'].map(f=>[f,hash(fs.readFileSync(path.join(root,f)))]));
+const expectedCore=process.env.ARQUITENS_EXPECT_CORE;if(expectedCore)assert.equal(sources['js/core.js'],expectedCore,'source must match the final freeze');
+const cases=[],imageRoot=path.join(root,'docs/images');
+let foreground=Promise.resolve();
+async function enterForeground(page){const before=foreground;let release;foreground=new Promise(resolve=>{release=resolve;});await before;await page.bringToFront();return release;}
+async function exampleMenu(page){
+ await page.waitForFunction(()=>window.__yard?.eng.ready,null,{timeout:120000});
+ await page.locator('.tbig[data-title-mode="sandbox"]').click();await page.locator('.tbig[data-title-mode="design"]').click();await page.locator('[data-title="load"]').click();
+ const button=page.locator('[data-title-example="arquitens"]');await button.waitFor();return {button,text:await button.innerText()};
+}
+async function settleDraw(page){await page.evaluate(async()=>{window.__yard.draw();await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));});}
+(async()=>{
+ const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium',headless:true,args:['--no-sandbox','--disable-dev-shm-usage','--use-angle=swiftshader','--enable-webgl','--ignore-gpu-blocklist']});
+ try{
+  await Promise.all([['ja','desktop',1440,1000],['en','mobile',390,844]].map(async([language,device,width,height])=>{
+   const context=await browser.newContext({viewport:{width,height},locale:language==='ja'?'ja-JP':'en-US'}),page=await context.newPage(),errors=[];page.setDefaultTimeout(60000);
+   await page.addInitScript(lang=>localStorage.setItem('yard.language',lang),language);page.on('pageerror',e=>errors.push(String(e)));
+   await page.goto(url,{waitUntil:'domcontentloaded',timeout:60000});await page.waitForFunction(()=>!!window.__yard,null,{timeout:120000});
+   const menu=await exampleMenu(page),start=Date.now();if(language==='en')assert.match(menu.text,/Arquitens/i);
+   if(device==='desktop')await menu.button.click();
+   else{const raw=JSON.parse(fs.readFileSync(blueprint,'utf8'));await page.evaluate(raw=>{const Y=window.__yard;Y.setShip(Y.C.deserialize(raw));Y.st.coded=false;Y.st.view='normal';Y.st.tab='hull';Y.title.hide();Y.renderPanel();},raw);}
+   await page.waitForFunction(()=>{const Y=window.__yard;return Y.ship?.reference==='arquitens'&&Y.eng.geoGen>=Y.eng.gen&&Y.eng.statsGen>=Y.eng.gen&&Y.eng.adoptedGen>=Y.eng.gen&&Y.stats&&document.querySelector('#engineStatus')?.hidden;},null,{timeout:240000});
+   const readyMs=Date.now()-start;
+   const releaseForeground=await enterForeground(page);try{
+   await page.evaluate(()=>{window.__yard.draw();window.__yard.kickLoop();});
+   await page.locator('#tabs [data-tab="mod"]').click();await page.locator('[data-group="weapons"]').first().click();const card=page.locator('[data-fit="quad500"]').first();await card.waitFor();const weaponCardText=await card.innerText();assert.match(weaponCardText,/500/);if(language==='en')assert.match(weaponCardText,/Quad.*Medium/i);
+   await page.locator('#tabs [data-tab="hull"]').click();
+   const measured=await page.evaluate(async()=>{
+    const Y=window.__yard,C=Y.C,s=Y.ship,v=Y.view(),ms=Y.meshStore,h=s.parts.find(p=>p.k==='struct'&&p.form==='reference'&&p.skinAsset==='arq_hull'),a=C.REFERENCE_ASSETS.arq_hull,guns=s.fits.filter(f=>f.k==='quad500'),engines=s.parts.filter(p=>p.k==='engine'),asset=C.REFERENCE_ASSETS[C.FITS.quad500.asset];
+    const mounts=guns.map(f=>{const up=C.fitUp(f),origin=C.fitOrigin(f),hit=C.rayPart(C.add(origin,C.mul(up,100)),C.mul(up,-1),h);return {id:f.id,float:f.float,axis:f.a,up,origin,ranges:ms.fitRanges?.[f.id]||[],colliderSeatDistanceM:hit?C.dot(C.sub(origin,hit.p),up):null};});
+    const calls={},drawMesh=v.drawMesh;v.drawMesh=function(name,...args){calls[name]=(calls[name]||0)+1;return drawMesh.call(this,name,...args);};
+    try{Y.draw();Y.kickLoop();await new Promise(resolve=>setTimeout(resolve,1000));}finally{v.drawMesh=drawMesh;}
+    return {generation:{design:Y.eng.gen,geometry:Y.eng.geoGen,statistics:Y.eng.statsGen},massTonnes:Y.stats.mass,cost:Y.stats.cost,workerMode:Y.eng.mode,renderer:!!v.gl,webglError:v.gl?.getError(),pageWidth:document.documentElement.scrollWidth,viewport:{width:innerWidth,height:innerHeight},hull:{parts:s.parts.filter(p=>p.skinAsset==='arq_hull').length,form:h.form,plainMetal:a.plainMetal,triangles:a.faces,ranges:ms.ranges?.[h.id]||[],uploadedStructIndices:v.meshes.struct?.count||0,referenceStructIndices:v.meshes.refStruct?.count||0},weapon:{barrels:C.FITS.quad500.barrels,boltTT:C.FITS.quad500.boltTT,volleyTT:C.FITS.quad500.tt,asset:C.FITS.quad500.asset,triangles:asset.faces,size:asset.size,mounts},secondary:{pd:s.fits.filter(f=>f.k==='pd').length,missiles:s.fits.filter(f=>f.k==='msl').length,tractor:s.fits.filter(f=>f.k==='trc').length},engines:engines.map(e=>({id:e.id,reactor:e.reactor,skinAsset:C.engineAppearance(e).skinAsset,range:ms.ranges?.[e.id]||[]})),engineProfile:(Y.eng.profile?.propulsion?.engines||[]).map(e=>({id:e.id,valid:e.valid,available:e.available,connected:e.connected,outletAvailable:e.outletAvailable})),drawCalls:calls};
+   });
+   fs.writeFileSync(`/tmp/arquitens-browser-${device}-diagnostic.json`,JSON.stringify(measured,null,2)+'\n');
+   await settleDraw(page);fs.mkdirSync(imageRoot,{recursive:true});const screenshot=path.join(imageRoot,`arquitens-${device}.png`);await page.screenshot({path:screenshot,fullPage:true});
+   assert.ok(measured.renderer);assert.equal(measured.webglError,0);assert.equal(measured.pageWidth,width);assert.equal(measured.hull.parts,1);assert.equal(measured.hull.form,'reference');assert.equal(measured.hull.plainMetal,true);assert.equal(measured.hull.triangles,184340);assert.equal(measured.hull.ranges.filter(r=>r[0]==='struct').reduce((n,r)=>n+r[2],0),184340*3);assert.equal(measured.hull.referenceStructIndices,0);assert.ok(measured.drawCalls.struct>0&&measured.drawCalls.fits>0,'ordinary hull and weapons must be drawn');
+   assert.equal(measured.weapon.mounts.length,4);assert.equal(measured.weapon.barrels,4);assert.equal(measured.weapon.boltTT,.5);assert.equal(measured.weapon.volleyTT,2);for(const m of measured.weapon.mounts){assert.equal(m.float,false);assert.ok(m.ranges.some(r=>r[0]==='fits'&&r[2]===measured.weapon.triangles*3),'every quad has its complete real draw range');}
+   assert.deepEqual(measured.secondary,{pd:8,missiles:4,tractor:1});assert.equal(measured.engines.length,3);assert.equal(measured.engineProfile.length,3);for(const e of measured.engines){assert.match(e.skinAsset,/^isdh_engine_/);assert.ok(e.reactor>0);assert.ok(e.range.some(r=>r[0]==='refEngine'&&r[2]>0));}for(const e of measured.engineProfile)assert.ok(e.valid&&e.available&&e.connected&&e.outletAvailable,'all three drives must be connected and available');assert.deepEqual(errors,[]);
+   const extraScreenshots=[];
+   if(device==='desktop')for(const [name,kind]of [['turret-dorsal','dorsal'],['turret-ventral','ventral'],['engines','engines']]){
+    await page.evaluate(kind=>{const Y=window.__yard,C=Y.C,v=Y.view();let point;if(kind==='engines'){point=[0,21.77623,0];v.cam.th=Math.PI+.15;v.cam.ph=1.55;v.cam.r=195;}else{const f=Y.ship.fits.find(f=>f.k==='quad500'&&(kind==='dorsal'?C.fitUp(f)[1]>0:C.fitUp(f)[1]<0));point=C.fitOrigin(f);v.cam.th=.8;v.cam.ph=kind==='dorsal'?1.02:Math.PI-1.02;v.cam.r=65;}v.cam.ortho=false;v.cam.target=C.add(point,v.off);Y.draw();},kind);await settleDraw(page);const filename=`arquitens-${name}-browser.png`;await page.screenshot({path:path.join(imageRoot,filename),fullPage:true});extraScreenshots.push(filename);
+   }
+   assert.deepEqual(errors,[]);cases.push({language,device,status:'PASS',loading:device==='desktop'?'native title-menu example button and worker build':'generated native blueprint deserialized through __yard API',exampleButtonText:menu.text,readyMs,weaponCardText,errors,...measured,screenshot:path.relative(path.join(root,'docs'),screenshot),extraScreenshots});process.stderr.write(`${language} ${device}: PASS (${readyMs}ms load/geometry/statistics)\n`);await context.close();
+   }finally{releaseForeground();}
+  }));
+ }finally{await browser.close();}
+ for(const [file,sha]of Object.entries(sources))assert.equal(hash(fs.readFileSync(path.join(root,file))),sha,file+' changed during verification');
+ cases.sort((a,b)=>a.device.localeCompare(b.device));const buildReport='/tmp/arquitens-build-report.json',build=fs.existsSync(buildReport)?JSON.parse(fs.readFileSync(buildReport,'utf8')):null,result={schemaVersion:1,status:'PASS',date:new Date().toISOString(),browser:'Chromium headless with software WebGL',url,sourceSha256:sources,blueprintSha256:hash(fs.readFileSync(blueprint)),buildTimings:build?Object.fromEntries(['sourceSha256','buildMs','statsMs','mass','cost','accel'].map(k=>[k,build[k]])):null,scope:{verified:['native desktop example selection','mobile blueprint loading through debug API','ordinary plain-metal editable reference hull draw routing','four complete quad turret draw ranges','English weapon catalog label','three connected ISD nozzle assets','desktop and mobile layout without horizontal overflow','full ship and dorsal/ventral turret/engine screenshots'],notVerified:['physical mobile device','GPU frame-rate target','continuous live battle firing','mobile native example rebuild timing']},cases};
+ fs.mkdirSync(path.dirname(output),{recursive:true});fs.writeFileSync(output,JSON.stringify(result,null,2)+'\n');process.stdout.write(JSON.stringify({status:result.status,sourceSha256:sources,cases:cases.map(c=>({device:c.device,status:c.status,readyMs:c.readyMs,screenshot:c.screenshot}))},null,2)+'\n');
+})().catch(e=>{console.error(e);process.exitCode=1;});
