@@ -12758,9 +12758,9 @@ function vtutDisable() {
  (u.p.modules || []).forEach((m, i) => { if (m.k === 'reactor') u.mods[i] = 0; });u.out = '電源喪失';u.order = {...u.order, type: 'hold'};voyNote(`${u.name}：電源喪失で航行不能（チュートリアル）`);
 }
 async function voyTutStart() {
- hideTitle();voyEnsureExamples();
+ hideTitle();
  voy.setup = voy.setup || voyNewSetup();
- const need = ['venator', 'dreadnaught', 'munificent'];if (need.some(k => !voyDesign(k))) { toast('作例の艦を準備できません'); showTitle('voyage'); return; }
+ const need = ['venator', 'dreadnaught', 'munificent'];if (need.some(k => !voy.designs.has(k))) voyEnsureExamples();if (need.some(k => !voyDesign(k))) { toast('作例の艦を準備できません'); showTitle('voyage'); return; }
  if(voyProfilesStale(need)&&!await voyRequireProfiles(need)){showTitle('voyage');return;}
  const air = R.defaultAir(voyDesign('venator').info, 'republic').slice(0, 4).map(q => ({...q, groupName: '第1合同任務群飛行団'}));
  const own = {ctgs: [{name: '第1合同任務群', tgs: [{name: '第11任務群', formation: 'abreast', ships: [{design: 'venator', name: 'アクィラ', air, troops: 0}, {design: 'dreadnaught', name: 'インヴィクタ', air: [], troops: 0}]}, {name: '第12任務群', formation: 'abreast', ships: [{design: 'dreadnaught', name: 'フォルティス', air: [], troops: 0}]}]}]};
