@@ -28361,8 +28361,7 @@ function providenceBuild(opt={}){
   // 102 proton torpedo launchers; canon adds 12 heavy flak guns and tractor beam projectors (no count;
   // four kept). The quad turrets are twin heavy turrets (htl) under the hull, as the cross-section shows.
   spread('htl',14,'bottom','ventral-quad',range(330,1040,26),[60,45,75,30,88]);
-  // 2 ion cannons at the bow
-  spread('ion',2,'top','bow-ion',range(950,1050,8).reverse(),[18,24,12,30]);
+  // (the 2 bow ion cannons are left off, by the user's decision of 2026-11-06)
   // 34 dual laser cannons in dorsal and ventral turrets (light turbolaser turrets)
   spread('ltl',16,'top','dorsal-laser',range(540,1040,16),[20,34,48,8,60]);
   spread('ltl',18,'bottom','ventral-laser',range(300,1040,16),[15,98,22,105,8]);
@@ -28379,8 +28378,7 @@ function providenceBuild(opt={}){
   }else{
   // The canon dreadnought list. 14 heavy quad turbolasers, port and starboard under the hull.
   spread('stl',14,'bottom','ventral-quad',mr(330,1040,22),[M(60),M(45),M(75),M(30),M(88)]);
-  // 2 battleship heavy ion cannons at the bow
-  spread('ion',2,'top','bow-ion',mr(950,1050,8).reverse(),[M(18),M(24),M(12),M(30)]);
+  // (the 2 battleship heavy ion cannons at the bow are left off, by the user's decision of 2026-11-06)
   // 34 dual heavy laser cannons, dorsal and ventral
   spread('htl',16,'top','dorsal-laser',mr(540,1040,16),[M(20),M(34),M(48),M(8),M(60)]);
   spread('htl',18,'bottom','ventral-laser',mr(300,1040,16),[M(15),M(98),M(22),M(105),M(8)]);
