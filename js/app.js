@@ -1972,7 +1972,7 @@ const rgb = (c) => `rgb(${c[0]},${c[1]},${c[2]})`;
 
 // ---------- state ----------
 const PART_KEYS = Object.keys(C.PARTS).filter(k=>!['machinery','capacitor'].includes(k));
-const WEAPONS = ['single40','quad40Ion','twin40Dome','twin40','triple40','oct40','refVen','triple70','quad70Side','ion','stl','quad175','triple175','ball175TripleIon','ball175Quad','ball175QuadIon','ball720','utl','monCalPD','monCal34','monCal80','monCal200','monCal200Triple','monCal150Ion','single500','twin200','quad500','quad1Rapid','quad200','single200','twin200Fast','pd','cmsl','itl','trc'];
+const WEAPONS = ['single40','quad40Ion','twin40Dome','twin40','triple40','oct40','refVen','triple70','quad70Side','ion','stl','quad175','triple175','ball175TripleIon','ball175Quad','ball175QuadIon','ball720','utl','monCalPD','monCal34','monCal80','monCal200','monCal200Triple','monCal150Ion','single500','twin200','quad500','quad1Rapid','recProw','recTwin','recKeel','munBow','munTwin','quad200','single200','twin200Fast','pd','cmsl','itl','trc'];
 const BRIDGES = ['podBridge','podAir','podHangar','podCombat'];
 // Every design uses the same catalogue. Compact hulls put smaller equipment first
 // and keep separate placement-size defaults, without hiding the ship equipment.

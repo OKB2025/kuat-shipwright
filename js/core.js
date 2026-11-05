@@ -20696,6 +20696,9 @@ function fireArcs(ship, f, hf, obst) {
   hf = hf || heightfield(ship); obst = obst || obstacles(ship);
   if(authoredTurretGeometry(f)){
     const ctx={...turretRayContext(ship),hf,obst},offs=[-.55,0,.55];
+    // v22.1 A fixed mount (the Recusant's bow guns) bears where its bore points; the ship turns to aim it, so the
+    // sector it points into counts whole when the bore line is clear of the hull.
+    if(FITS[canonicalWeaponKind(f.k)]?.fixedMount){const g=authoredTurretGeometry(f);return SECTORS.map(S=>dot(S.d,g.fw)>.7&&turretClear(ship,f,g.fw,ctx)?1:0);}
     return SECTORS.map(S=>{let free=0;for(const a of offs)for(const b of offs){const dir=norm(add(S.d,add(mul(S.u,a),mul(S.v,b))));if(dot(dir,fitUp(f))>=0&&turretClear(ship,f,dir,ctx))free++;}return free/9;});
   }
   const d = fitSpec(f), fr = fitFrameOf(f),port=surfaceBatteryGeometry(f), o = port?port.mouth:d.casemate?casemateMuzzle(f):add(fitOrigin(f), mul(fr.up, d.hm * 0.7));
@@ -24690,10 +24693,42 @@ for(const [key,asset,name,short,barrels,boltTT,cycle,mass,crew,cost,aa,dualPurpo
  const c=REFERENCE_ASSETS.cis_rapid_quad1;
  FITS.quad1Rapid={...FITS.quad500,key:'quad1Rapid',asset:'cis_rapid_quad1',name:'CIS 1TT 4連装ラピッドファイア',short:'CIS 1TT 4連装速射砲',barrels:4,boltTT:1,tt:4,ion:0,cycle:.2,power:4*TT/.2,fm:c.size[0],hm:c.size[1],wm:c.size[2],r:Math.max(c.size[0],c.size[2])/2,mass:3200,crew:10,cost:300000,aa:.5,dualPurpose:false,nativeCalibration:'cis-photo-family',exposedSurfaceTurret:true,source:null,evidence:'ユーザー指定1TT×4・7枚目のCIS艦用4連装砲参考画像',rateEvidence:'連射間隔・質量・乗員・費用はゲーム用仮定',desc:'500GT4連装と同等以上の寸法のCIS用速射砲。左右の大きな円形砲基部に上下2門ずつを持ち、砲身・揺架が一体で俯仰する。1門1TT、一斉射4TT、連射間隔0.2秒。'};
 }
+// v22.1 The Recusant's three ventral bow guns, cut from the supplied model the example is measured from
+// ("Star Wars: The Clone Wars Recusant (S3E2 style)" by lolqeeeeeeeeee, CC BY-NC 4.0; scripts/build-recusant-guns.py):
+// the model's own triangles at the ship's scale, never resized by output. Outputs are the user's (2026-11-05): the
+// prow heavy turbolaser is an ordinary gun of 2 PT in one barrel on a fixed mount; the pod under the nose is a turning
+// twin of 360 TT a barrel; the two barrels in the nose keel above it are a fixed twin of 360 TT a barrel. Fixed mounts
+// fire along the bow (the ship aims them). Mass, crew and cost are provisional game settings.
+const RECUSANT_GUN_KEYS=Object.freeze(['recProw','recTwin','recKeel']);
+// Their cadence (user's rule, 2026-11-05: as fast as the crew still fits aboard the light destroyer): the conduits that
+// feed three guns of 2,000 + 720 + 720 TT a volley fill the hull at shorter intervals; at 15 s the example's crew just
+// fits (habitation 1.005; 14 s gives 0.98). Measured with the flank ball guns and point defence aboard.
+const RECUSANT_GUN_CYCLE=15;
+for(const [key,asset,name,short,barrels,boltTT,mass,crew,cost,desc] of [
+ ['recProw','rec_prow_heavy','艦首重ターボレーザー（固定・2PT）','艦首重TL 2PT',1,2000,60000,80,5e6,'レキューザント級の前部船体の下にある長大な固定砲。竜骨の砲架と左右の段付きケースの中央に砲身1門を持ち、艦首方向へ1発2 PT（2,000 TT）を撃つ。砲架は固定で、艦の向きで照準する。'],
+ ['recTwin','rec_twin_pod','艦首下2連装重ターボレーザー（360TT）','艦首下連装360TT',2,360,30000,45,2.5e6,'レキューザント級の艦首の下に吊り下がる砲塔。2門×360 TT、一斉射720 TT。砲塔ごと旋回する。'],
+ ['recKeel','rec_keel_twin','艦首竜骨固定2連装ターボレーザー（360TT）','艦首竜骨固定連装',2,360,26000,36,2.2e6,'レキューザント級の艦首竜骨に固定された2門。艦首下の連装砲塔の取付部の上から前方へ撃つ。2門×360 TT、一斉射720 TT。']]){
+ const a=REFERENCE_ASSETS[asset],volleyTT=barrels*boltTT;
+ FITS[key]={...FITS.stl,key,name,short,asset,barrels,boltTT,tt:volleyTT,ion:0,cycle:RECUSANT_GUN_CYCLE,power:volleyTT*TT/RECUSANT_GUN_CYCLE,mass,crew,cost,aa:.05,dualPurpose:false,fm:a.size[0],hm:a.size[1],wm:a.size[2],r:Math.max(a.size[0],a.size[2])/2,nativeCalibration:'recusant-source-model',fixedMount:!!a.fixedMount,catalogHidden:false,casemate:false,wallOnly:false,fixed:false,source:a.sourceUrl,evidence:'出力はユーザー指定、形状はレキューザント級の提供モデル（lolqeeeeeeeeee, CC BY-NC 4.0）',rateEvidence:'連射間隔・質量・乗員・費用はゲーム用仮定',desc};
+}
+// v22.1 The Munificent's bow gun and ventral twin turbolasers, cut from the supplied model the example is measured from
+// ("Munificent Class Star Frigate" by SomeGuyUsingBlender, CC BY 4.0; scripts/build-munificent-guns.py; the barrels keep
+// the model's radius profile at a lighter tessellation). Outputs are the user's (2026-11-05): the bow gun 2.5 PT a barrel
+// in two stacked barrels on a fixed mount, the ventral twins 50 TT a barrel. Mass, crew and cost are provisional.
+const MUNIFICENT_GUN_KEYS=Object.freeze(['munBow','munTwin']);
+// The bow gun's cadence follows the rule set for the Recusant's bow guns: as fast as the example's crew still fits
+// (1.6 s: habitation 1.49; 1.5 s gives 0.96), measured with the ion cannons and the flank twins left off.
+const MUNIFICENT_BOW_CYCLE=1.6;
+for(const [key,asset,name,short,barrels,boltTT,cycle,mass,crew,cost,aa,desc] of [
+ ['munBow','mun_bow_twin','艦首重ターボレーザー（固定・2.5PT×2）','艦首砲 2.5PT×2',2,2500,MUNIFICENT_BOW_CYCLE,120000,150,1.2e7,.02,'ミュニフィセント級の前部船体の下に吊るした円形の砲室と、上下に並ぶ長い砲身2門。艦首方向に固定され、1門2.5 PT、一斉射5 PT。艦の向きで照準する。'],
+ ['munTwin','mun_ventral_twin50','腹部2連装ターボレーザー（50TT）','腹部連装50TT',2,50,1,4000,12,350000,.3,'ミュニフィセント級の前部船体の下面、左右の縁に並ぶ連装砲塔。砲身は外側を向き、砲塔ごと旋回する。2門×50 TT、一斉射100 TT。']]){
+ const a=REFERENCE_ASSETS[asset],volleyTT=barrels*boltTT;
+ FITS[key]={...FITS.stl,key,name,short,asset,barrels,boltTT,tt:volleyTT,ion:0,cycle,power:volleyTT*TT/cycle,mass,crew,cost,aa,dualPurpose:false,fm:a.size[0],hm:a.size[1],wm:a.size[2],r:Math.max(a.size[0],a.size[2])/2,nativeCalibration:'munificent-source-model',fixedMount:!!a.fixedMount,catalogHidden:false,casemate:false,wallOnly:false,fixed:false,source:a.sourceUrl,evidence:'出力はユーザー指定、形状はミュニフィセント級の提供モデル（SomeGuyUsingBlender, CC BY 4.0）',rateEvidence:'質量・乗員・費用はゲーム用仮定',desc};
+}
 // Standard gun dimensions are calibrated to the actual rendered source models.
 // These measured local bounds avoid decoding meshes during Core initialization.
 const WEAPON_MODEL_SIZES={"isd2_octuple":[34.56475644,16.13737102,33.38837834],"ven_turret":[28.861991732993026,9.997709224590754,16.2580849216165],"isd_turret":[29.545964748520205,7.842183178014592,29.54586767618732],"ven_side_gun":[44.418119324749654,14.974964,37.91842155069308],"isdh_turret":[35.119098,9.432285,35.122421],"isd2_casemate":[21.54749502,3.70157903,14.88640329],"isd_heavy_twin":REFERENCE_ASSETS.isd_heavy_twin.size.slice(),"isd_heavy_octuple":REFERENCE_ASSETS.isd_heavy_octuple.size.slice()};
-for(const key of [...TURRET_FAMILY_KEYS,...LIGHT_TURRET_KEYS,...CAPITAL_TURRET_KEYS,...MON_CAL_TURRET_KEYS,'pd','quad1Rapid'])WEAPON_MODEL_SIZES[FITS[key].asset]=REFERENCE_ASSETS[FITS[key].asset].size.slice();
+for(const key of [...TURRET_FAMILY_KEYS,...LIGHT_TURRET_KEYS,...CAPITAL_TURRET_KEYS,...MON_CAL_TURRET_KEYS,...RECUSANT_GUN_KEYS,...MUNIFICENT_GUN_KEYS,'pd','quad1Rapid'])WEAPON_MODEL_SIZES[FITS[key].asset]=REFERENCE_ASSETS[FITS[key].asset].size.slice();
 function weaponSizing(f){return FITS[canonicalWeaponKind(typeof f==='string'?f:f?.k)]?.weaponSizing||null;}
 function weaponModelScale(f){return weaponSizing(f)?.factor??1;}
 function initializeWeaponSizing(){
@@ -27760,7 +27795,10 @@ function munificentBuild(opt={}){
  loft('keelFwd','前部腹部竜骨',MUN_PANEL,{corner:.35});
  loft('towerBase','司令塔基部',MUN_PANEL,{corner:.15});
  loft('tower','司令塔・長距離センサー',MUN_STEEL,{corner:.25});
- loft('domeFins','装甲殻下部の舷側装甲板',MUN_BLUE,{corner:.1,plate:true,plateT:.36},true);
+ // v22.1 The measured side plates under the shells dipped to ~90 m at every ventral turret (the sections caught the
+ // turret housings). The turrets are now the model's own fittings, so the plates keep their level between them (>= 98.5 m).
+ k.loftX('装甲殻下部の舷側装甲板',D.loft.domeFins.map(r=>{const y0=Math.max(r[3],98.5);return [r[0],r[1],r[2],y0,Math.max(r[4],y0+.5)];}),{paint:MUN_BLUE,corner:.1,plate:true,plateT:.36},true);
+ for(const zc of [41.1,65.0,88.9,112.8,136.6,160.5,184.4,208.3,232.2]){const x=(zc+420.46)*1.0282;k.box('腹部連装ターボレーザーの砲座',[x-6.5,97.5,57.5],[x+6.5,103,73.5],{paint:MUN_STEEL},true);}
  loft('neck','中央連結部',MUN_GREY,{corner:.2});
  // The broad wing: inner and outer planform plates (measured outline), thinner outboard.
  k.slab('中央翼（内翼）',[[289.4,0],[298.2,-100],[357.7,-100],[371.6,0],[357.7,100],[298.2,100]].map(([x,z])=>[x,Z(z)]),123,135.5,{paint:MUN_PLATE,bands:[[.46,.6]],bandPaint:CIS_PAINT.gold});
@@ -27833,12 +27871,19 @@ function munificentBuild(opt={}){
   // turbolaser cannons (13 a side), 20 light turbolaser turrets and 38 point-defence laser cannons. (The
   // canon article's later additions, 12 medium flak guns and 40 retractable twin light turbolasers, are
   // left out.) The twin turbolasers are medium turrets (mtl), as before.
-  // 2 heavy turbolaser cannons on the prow elevation mounts, ventral bow
-  spread('stl',2,'beam','prow-heavy',range(600,740,8).reverse(),[70,62,78,86,54]);
-  // 2 long-range ion cannons under the bow
-  spread('ion',2,'beam','bow-ion',range(560,740,8).reverse(),[70,62,78,86,54]);
-  // 26 twin turbolaser cannons on the flanks below the shells and on the keels
-  spread('mtl',26,'beam','twin',range(290,750,40),[82,64,72,56,46,92]);
+  // v22.1 The bow gun and the ventral twin turbolasers are the model's own (scripts/build-munificent-guns.py), hung at
+  // their places in the model (ship metres: x=(z+420.46)·1.0282, y=(y-2.46)·1.0282, z=x·1.0282·1.061); the mount
+  // plane is set to the model's height (mountOffset from the surface hit). The bow gun (2.5 PT × 2, fixed) stands for
+  // the two forward heavy turbolaser cannons of the list; the 18 ventral twins (9 a side, barrels outboard) for its
+  // twin turbolaser cannons.
+  const hang=(kind,x,y,z,o={})=>{const f={id:s.nextId++,k:kind,p:[x,0,z],a:3,mountAxis:3,mountOffset:0,ped:0,base:0,low:0,float:false,batteryZone:'ventral',...o};mountFit(s,f);
+   if(f.float||f._onPlate)throw new Error('作例の砲座が不足しています: '+kind+' '+x.toFixed(0)+','+z.toFixed(0));f.mountOffset=f.p[1]-y;f.p=[x,0,z];mountFit(s,f);s.fits.push(f);return f;};
+  hang('munBow',641.0,90.0,0);
+  // The ventral twins hang from small mounting blocks just under the armour plates (plates take no fittings).
+  for(const zc of [41.1,65.0,88.9,112.8,136.6,160.5,184.4,208.3,232.2])
+   for(const sg of [1,-1])hang('munTwin',(zc+420.46)*1.0282,97.5,sg*60*1.0282*1.061,{assetYaw:sg>0?-90:90,batteryZone:sg>0?'ventral-twin-stbd':'ventral-twin-port'});
+  // By the user's decision (2026-11-05) the two long-range ion cannons and the remaining 8 flank twin turbolasers of
+  // the list are left off: the model's bow gun and ventral twins take their place.
   // 20 light turbolaser turrets on top: the dorsal spine and the central neck
   spread('ltl',20,'top','dorsal-light',range(290,700,16),[0]);
   // 38 point-defence laser cannons: lower mast and transceiver mast, wings, stern
@@ -28426,8 +28471,12 @@ function recusantBuild(opt={}){
  loft('lowerShell','前部腹部の平滑装甲セグメント',REC_PLATE,{round:true,plate:true,plateT:.72});
  {const rows=[];for(let x=M(885);x<=M(1140);x+=M(15)){const b=sectionBase(s.hull,x);rows.push([x,-(b.hw+.8),b.hw+.8,b.ybot+b.h*.62,b.ybot+b.h+.8]);}
   k.loftX('艦首上部の平滑装甲セグメント',rows,{paint:REC_PLATE,corner:.35,plate:true,plateT:.72,bands:[[.5,.54],[.58,.62],[.66,.7]],bandPaint:CIS_PAINT.blue});}
- loft('noseKeel','艦首下部竜骨',REC_PANEL,{corner:.12});
- loft('vfinC','腹部中央安定翼',REC_STEEL,{corner:.08});
+ // v22.1 On the light destroyer the model's ventral bow guns are fittings (recProw, recTwin, recKeel below), so the
+ // nose keel stops at its own underside (the pod that hung from it is the twin gun) and the old ventral centre fin,
+ // which stood in for the prow gun, gives way to the gun's mount: a short keel strip the gun hangs from.
+ if(dn){loft('noseKeel','艦首下部竜骨',REC_PANEL,{corner:.12});loft('vfinC','腹部中央安定翼',REC_STEEL,{corner:.08});}
+ else{k.loftX('艦首下部竜骨',D.loft.noseKeel.map(r=>r[0]>1048&&r[0]<1090?[r[0],r[1],r[2],52.86,r[4]]:r),{paint:REC_PANEL,corner:.12});
+  k.loftX('艦首重ターボレーザーの砲架',[[846,-9,9,14,21],[870,-9.4,9.4,14,21],[940,-9.4,9.4,14,21],[966,-8,8,14,21]],{paint:REC_STEEL,corner:.12});}
  loft('vfinS','腹部舷側安定翼',REC_STEEL,{corner:.08},true);
  // ---- mid-ship: the hollow ribbed interior that shelters fighters (open through the keel) ----
  const dock=part('hangar','艦載機待機空洞（中央部の中空構造）',[M(735),M(41),0],M(30),{room:[M(290),Z(32),M(18)],airRole:'mixed'});
@@ -28480,8 +28529,13 @@ function recusantBuild(opt={}){
  syncAviationSurfaces(s);s._lockedCache=cache(s);
  try{withFrozenStructures(()=>{
   if(!dn){
-  // 1 prow heavy turbolaser cannon at the very front
-  spread('stl',1,'bottom','prow',range(1080,1170,6).reverse(),[0]);
+  // v22.1 The prow heavy turbolaser and the bow's twin guns are the model's own ventral guns (scripts/
+  // build-recusant-guns.py), each hung at its place in the model (ship metres: x=(z+93.83)·6.3229, y=(y+12.82)·6.3229):
+  // the fixed 2 PT prow gun under the forward hull, the turning 2×360 TT pod under the nose and the fixed 2×360 TT
+  // pair in the nose keel above it. The mount plane is set to the model's height (mountOffset from the surface hit).
+  for(const [kind,x,y] of [['recProw',906.9,14.29],['recTwin',1071.4,52.86],['recKeel',1095.7,60.32]]){
+   const f={id:s.nextId++,k:kind,p:[x,0,0],a:3,mountAxis:3,mountOffset:0,ped:0,base:0,low:0,float:false,batteryZone:'bow-ventral'};mountFit(s,f);
+   if(f.float)throw new Error('作例の砲座が不足しています: '+kind);f.mountOffset=f.p[1]-y;f.p=[x,0,0];mountFit(s,f);s.fits.push(f);}
   // 4 heavy turbolaser cannons on the forward flanks, below the smooth segments
   spread('htl',4,'beam','fwd-flank-heavy',range(860,1060,14),[66,72,60,78,54]);
   // v22 The canon list (Wookieepedia, "Recusant-class light destroyer", after the Revenge of the Sith
@@ -28490,16 +28544,22 @@ function recusantBuild(opt={}){
   // broadside casemates below) and 60 point-defence laser cannons. The six heavy turbolaser turrets are
   // medium turrets (mtl): as standard twin heavy turrets their power conduits fill the free volume and
   // the crew no longer fits (habitation 0.56), so the armament is lightened rather than the count cut.
-  // 6 heavy turbolaser turrets on the dorsal hump
-  spread('mtl',6,'top','dorsal-heavy',range(590,800,18),[Z(28),Z(20),Z(36),0]);
-  // 5 turbolaser cannons on the bow ridge
-  spread('mtl',5,'top','bow-ridge',range(850,1090,20),[0]);
+  // v22.1 With the model's three bow guns (above) the conduits leave no room for the crew, so by the user's decision
+  // (2026-11-05) only the flank guns stay: the 4 heavy turbolaser cannons, the 30 dual laser cannons and the
+  // broadside casemates. The 6 dorsal turrets, the 5 bow-ridge cannons and the 60 point-defence guns are left off,
+  // and the bow guns fire as fast as the remaining room allows (their cadence in FITS).
+  // Ball guns sunk into the round ports of the model's flank, per the user's marked view (2026-11-05): the 34 TT
+  // ball (6 m) in each of the eight 6 m ports along the lower side, and the ball point-defence mount (3.6 m) in the
+  // five smaller ports (about 4.2 m) above them, each side. Positions measured on the model's textured flank.
+  // The ports are 10.4 m apart, closer than spread()'s spacing rule (which counts the barrels), and their charging
+  // plant goes wherever the automatic allocation finds room (the hangar hollow sits behind them), so they mount one by
+  // one on the flank surface, refusing only a port that finds no wall.
+  const ports=(kind,zone,xs,y)=>{for(const x of xs)for(const [z,a] of [[400,4],[-400,5]]){const f={id:s.nextId++,k:kind,p:presetStationPoint(s,kind,[x,y,z],a),a,ped:0,base:0,low:0,float:false,batteryZone:zone+(z>0?'-stbd':'-port')};mountFit(s,f);if(f.float||f._onPlate)throw new Error('作例の砲座が不足しています: '+kind+' '+zone+' '+x);s.fits.push(f);}};
+  ports('monCal34','flank-ball',[682.7,693.1,703.5,713.8,724.2,734.2,745.0,755.3],50.71);
+  ports('monCalPD','flank-pd-upper',[655.4,665.2,675.1],81.88);
+  ports('monCalPD','flank-pd-mid',[692.7,747.7],77.71);
   // 30 dual laser cannons along the mid-ship flanks
   spread('ltl',30,'beam','laser',range(470,880,18),[34,48,80,92,62]);
-  // 60 point-defence laser cannons: ventral, dorsal and aft
-  spread('pd',24,'bottom','ventral-pd',range(470,1010,30),[Z(14),Z(30),Z(44)]);
-  spread('pd',24,'top','dorsal-pd',range(470,1080,32),[Z(40),Z(48),Z(30),Z(56)]);
-  spread('pd',12,'top','aft-pd',range(150,460,26),[Z(8),Z(20)]);
   // (the pod point-defence row of earlier versions is left off)
   }else{
   // The dreadnought: about three times the light destroyer's guns. v19.1: the
