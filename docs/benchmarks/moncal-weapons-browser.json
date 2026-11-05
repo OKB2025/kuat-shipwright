@@ -1,23 +1,23 @@
 {
   "schemaVersion": 1,
   "status": "PASS",
-  "date": "2026-11-05T12:39:44.195Z",
+  "date": "2026-11-05T12:55:20.508Z",
   "sourceSha256": {
     "data/reference.js": "4fa7586a61c2a9b5949b88e5cad7bd58d687805ee2dc58e2a9e90a21e4a63ea5",
-    "js/core.js": "31f964a313e892ef58c18a1d9b7ae150d763c9701f2e27642a2201fadcfbecd3",
+    "js/core.js": "761cca1651e83eb31fba067a0f28be2d8c49f44d1db584246a5a1abede1b0ab6",
     "js/gfx.js": "ad3ff55ec196f33f8ea7251d4dcbe00b29147b7b1f2dc52626abd66b262c3e65",
-    "js/app.js": "7863139a7916a36a2f18b8468bc70ea2ef5bec6f6e5919f5c2cf6a6eb0e0218d",
-    "js/lang-en.js": "b25d21fd95c54409755545881bf7d1f5414153a5621b7911f80fc6c9ddec9e61"
+    "js/app.js": "39bb94a8b3fec291c0624443b2d6553fce6d6da66b789e3af92cb3d43c21fd85",
+    "js/lang-en.js": "265620a6eb28a1788b5eb1ff325d83d50085968ad07d77f048b4d8d474e8dc39"
   },
   "sourceSha256After": {
     "data/reference.js": "4fa7586a61c2a9b5949b88e5cad7bd58d687805ee2dc58e2a9e90a21e4a63ea5",
-    "js/core.js": "2b5fdb30d50502220ed22b0594423990d51c316a28a9a2465c6bc5b295dabf8b",
+    "js/core.js": "761cca1651e83eb31fba067a0f28be2d8c49f44d1db584246a5a1abede1b0ab6",
     "js/gfx.js": "ad3ff55ec196f33f8ea7251d4dcbe00b29147b7b1f2dc52626abd66b262c3e65",
-    "js/app.js": "7863139a7916a36a2f18b8468bc70ea2ef5bec6f6e5919f5c2cf6a6eb0e0218d",
+    "js/app.js": "39bb94a8b3fec291c0624443b2d6553fce6d6da66b789e3af92cb3d43c21fd85",
     "js/lang-en.js": "265620a6eb28a1788b5eb1ff325d83d50085968ad07d77f048b4d8d474e8dc39"
   },
   "url": "http://127.0.0.1:8876",
-  "elapsedMs": 149304,
+  "elapsedMs": 60479,
   "models": [
     {
       "kind": "monCalPD",
@@ -490,26 +490,111 @@
   "rendered": [
     {
       "view": "moncal-ball-family",
-      "litPixels": 63070,
+      "litPixels": 36197,
       "pixels": 1350000,
+      "projectedBounds": [
+        {
+          "kind": "monCalPD",
+          "left": 1320.317637175089,
+          "right": 1375.8495027597528,
+          "top": 225.40080811595539,
+          "bottom": 279.2783372453414
+        },
+        {
+          "kind": "monCal34",
+          "left": 1181.1757215249818,
+          "right": 1273.7288308327552,
+          "top": 242.3267827718519,
+          "bottom": 332.12266465416184
+        },
+        {
+          "kind": "monCal80",
+          "left": 1021.2439659561496,
+          "right": 1144.6481116998475,
+          "top": 270.2541915816255,
+          "bottom": 389.98203409137204
+        },
+        {
+          "kind": "monCal200",
+          "left": 839.607716239756,
+          "right": 993.8628984193783,
+          "top": 305.00305931782356,
+          "bottom": 454.66286245500675
+        },
+        {
+          "kind": "monCal200Triple",
+          "left": 583.7114417923146,
+          "right": 830.5197332797106,
+          "top": 318.41655155876657,
+          "bottom": 557.8722365782596
+        },
+        {
+          "kind": "monCal150Ion",
+          "left": 407.2293940067757,
+          "right": 576.9100944043604,
+          "top": 429.72571523860097,
+          "bottom": 594.3514986895025
+        }
+      ],
       "webglError": 0
     },
     {
       "view": "moncal-pd-cis-comparison",
-      "litPixels": 89356,
+      "litPixels": 51272,
       "pixels": 1360000,
+      "projectedBounds": [
+        {
+          "kind": "pd",
+          "left": 1124.9358801543713,
+          "right": 1228.8518944382668,
+          "top": 281.83851547318045,
+          "bottom": 355.9153082902776
+        },
+        {
+          "kind": "quad1Rapid",
+          "left": 684.6074222773314,
+          "right": 1083.379567489028,
+          "top": 217.64808441570497,
+          "bottom": 514.0521043172339
+        },
+        {
+          "kind": "quad500",
+          "left": 353.84076669102063,
+          "right": 660.3584484827009,
+          "top": 398.8043503076841,
+          "bottom": 607.9055425259212
+        }
+      ],
       "webglError": 0
     },
     {
       "view": "moncal-pd-detail",
-      "litPixels": 166388,
+      "litPixels": 96820,
       "pixels": 935000,
+      "projectedBounds": [
+        {
+          "kind": "pd",
+          "left": 166.99011804535982,
+          "right": 933.0098819546402,
+          "top": 242.86194858141235,
+          "bottom": 788.9210874121636
+        }
+      ],
       "webglError": 0
     },
     {
       "view": "moncal-cis-detail",
-      "litPixels": 178939,
+      "litPixels": 106869,
       "pixels": 935000,
+      "projectedBounds": [
+        {
+          "kind": "quad1Rapid",
+          "left": 172.05659455619752,
+          "right": 927.9434054438025,
+          "top": 81.9956231699325,
+          "bottom": 643.8400542805903
+        }
+      ],
       "webglError": 0
     }
   ],

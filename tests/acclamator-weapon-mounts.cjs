@@ -57,8 +57,8 @@ test('MC30c presets migrate two flush torpedo tubes into surface VLS and retain 
  const bays=s.fits.filter(f=>f.k==='monCal34'||f.k==='monCal150Ion');assert.equal(bays.length,28);assert.equal(bays.filter(f=>f.k==='monCal34').length,12);assert.equal(bays.filter(f=>f.k==='monCal150Ion').length,16);
  for(let i=0;i<bays.length;i++){
   const f=bays[i],b=C.fitAABB(f);assert.equal(f.float,false);assert.equal(C.fitSpec(f).barrels,1);assert.ok(f.p[0]>=195&&f.p[0]<=368,'the migrated bays remain on the existing head');
-  assert.ok(bays.some(g=>g!==f&&Math.abs(g.p[0]-f.p[0])<1e-6&&Math.abs(g.p[2]+f.p[2])<1e-6),'every bay retains a matching opposite-side station');
-  for(const g of bays.slice(i+1)){const q=C.fitAABB(g);assert.ok([0,1,2].some(a=>b[a+3]+.49<=q[a]||q[a+3]+.49<=b[a]),'adjacent wall windows retain a physical gap');}
+  assert.ok(bays.some(g=>g!==f&&Math.abs(g.p[0]-f.p[0])<1e-6&&Math.abs(g.p[2]+f.p[2])<.1),'opposite spheres follow matching native hull faces within ten centimetres');
+  for(const g of bays.slice(i+1)){const q=C.fitAABB(g);assert.ok([0,1,2].some(a=>b[a+3]+.49<=q[a]||q[a+3]+.49<=b[a]),'adjacent spherical turrets retain a physical gap');}
  }
  for(const f of launchers){assert.equal(f.float,false);for(const k of ['ped','base','low','slope'])near(f[k],0);const roof=C.rayEnv(s,[f.p[0],1000,f.p[2]],[0,-1,0],{maxT:2000,structOnly:true});assert.ok(roof);near(C.len(C.sub(roof.p,f.p)),0,.002);}
  const originalIds=launchers.map(f=>f.id).sort((a,b)=>a-b),pendingIds=pending.map(f=>f.id).sort((a,b)=>a-b);
@@ -69,6 +69,13 @@ test('MC30c presets migrate two flush torpedo tubes into surface VLS and retain 
  const migratedIds=[...native,...vls].map(f=>f.id).sort((a,b)=>a-b);assert.deepEqual(plain(migratedIds),plain(originalIds),'migration retains all eight launcher IDs without replacement or duplication');
  const stats=C.computeStats(s),capacitors=C.weaponCapacitors(s);
  for(const f of bays){assert.ok(capacitors.some(p=>p.weaponId===f.id),'each bay owns actual charging hardware');assert.ok(stats.chargeInfo[f.id].ratio>1-1e-6,'the fitted bay has room for its full firing charge');assert.ok(stats.chargeInfo[f.id].internalVolume>0);}
+});
+
+test('MC30c spherical replacements retain clear native seats and full physically allocated firing charges',()=>{
+ const s=C.SHIP_EXAMPLES.mc30c._testBuild({stage:'fitted'}),guns=s.fits.filter(f=>['monCal34','monCal150Ion'].includes(f.k));assert.equal(guns.length,28);assert.equal(guns.filter(f=>f.k==='monCal34').length,12);assert.equal(guns.filter(f=>f.k==='monCal150Ion').length,16);
+ for(let i=0;i<guns.length;i++){const f=guns[i],b=C.fitAABB(f);assert.equal(f.float,false);assert.ok(C.isBallTurret(f));assert.ok(guns.some(g=>g!==f&&g.k===f.k&&Math.abs(g.p[0]-f.p[0])<1e-6&&Math.abs(g.p[2]+f.p[2])<.1),'opposite spherical mounts follow their actual hull faces');for(const g of guns.slice(i+1)){const q=C.fitAABB(g);assert.ok([0,1,2].some(a=>b[a+3]+.49<=q[a]||q[a+3]+.49<=b[a]),'adjacent spherical gun bounds retain a physical gap');}}
+ C.syncCompartments(s);const stats=C.computeStats(s),capacitors=C.weaponCapacitors(s);
+ for(const f of guns){const charge=stats.chargeInfo[f.id],volley=C.fitSpec(f).tt||C.fitSpec(f).ion;assert.ok(charge,f.k+' #'+f.id+' has a real charging allocation');assert.ok(charge.ratio>1-1e-6,f.k+' #'+f.id+' has its full firing charge');assert.equal(charge.blocked,false);near(charge.storedTT,volley);near(charge.storedTT,charge.volume*C.CHARGE_TT_M3);assert.ok(charge.housingUsed>0);if(charge.internalRequired>1e-5){assert.ok(charge.internalVolume>0);assert.ok(capacitors.some(p=>p.weaponId===f.id&&C.partVolume(p)>0),'missing housing volume is backed by physical internal equipment');}}
 });
 
 test('the full Acclamator builder and current fleet profile complete with four usable launchers',()=>{

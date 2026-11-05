@@ -27103,8 +27103,8 @@ registerShipExample({
 // and the large rounded head. The anhedral tail plane, fins, vanes, engine
 // pods, keel, dorsal ridge and turret blocks are ordinary structures
 // measured from the model.
-// v22 Mon Calamari batteries are recessed into the hull, so the 12 turbolasers and 16 light ion cannons
-// are casemates in the head's flanks (twin light casemates and twin light ion casemates), not turrets.
+// The retired twelve laser windows and sixteen light-ion windows are replaced
+// by native single-ball turrets, with separate charging plants inside the head.
 {
 const MC30C={"W":54.889,"H":30.0,"st":[[0.0,0.0364,0.03,0.5133,0.6,0.6,0.5,0.5],[0.05526,0.0364,0.03,0.5133,0.6,0.6,0.5,0.5],[0.05658,0.1115,0.2,0.3083,0.2076,0.2816,0.42,0.49],[0.075,0.1489,0.2667,0.3083,0.2239,0.2882,0.42,0.5],[0.11842,0.1704,0.3,0.3083,0.2751,0.3289,0.42,0.5],[0.12447,0.1138,0.2,0.3083,0.2683,0.3569,0.39,0.5],[0.12553,0.1305,0.2917,0.3375,0.98,0.6447,0.5,0.75],[0.23079,0.1497,0.3167,0.325,0.8193,0.7878,0.54,0.52],[0.26368,0.1734,0.35,0.3083,0.6738,0.7785,0.57,0.41],[0.27026,0.2448,0.3833,0.25,0.4708,0.6992,0.62,0.42],[0.31632,0.2448,0.3833,0.25,0.4708,0.6992,0.62,0.42],[0.32947,0.3368,0.475,0.2958,0.495,0.5112,0.37,0.39],[0.42816,0.4287,0.4333,0.35,0.4639,0.9017,0.64,0.39],[0.44395,0.4923,0.4333,0.35,0.4639,0.8629,0.18,0.57],[0.45184,0.6405,0.4333,0.35,0.3481,0.6503,0.09,0.56],[0.47158,0.7657,0.4333,0.35,0.3822,0.5665,0.1,0.33],[0.47553,0.8496,0.4333,0.35,0.3614,0.536,0.09,0.22],[0.47947,0.9066,0.4417,0.3542,0.2993,0.7865,0.02,0.2],[0.48342,0.9597,0.4667,0.3417,0.2804,0.9734,0.02,0.2],[0.48737,0.9882,0.525,0.3125,0.3032,0.98,0.02,0.2],[0.49132,1.0,0.6167,0.2667,0.313,0.969,0.2,0.2],[0.49526,1.0,0.6833,0.2333,0.3201,0.9647,0.23,0.25],[0.50316,1.0,0.6833,0.2333,0.3304,0.965,0.31,0.2],[0.51105,1.0,0.7333,0.2083,0.3348,0.9629,0.34,0.23],[0.66447,0.9867,0.925,0.0958,0.368,0.2448,0.3,0.38],[0.77632,0.9108,0.9167,0.0333,0.2913,0.2616,0.32,0.46],[0.92105,0.5885,0.675,0.0208,0.3583,0.278,0.24,0.44],[0.97368,0.3565,0.4583,0.0458,0.4059,0.3546,0.2,0.38],[0.99605,0.1463,0.1333,0.025,0.3221,0.1006,0.31,0.36],[1.0,0.0496,0.025,0.0208,0.3185,0.98,0.45,0.2]],"loft":{"engIn":[[168.67,8.8,14.49,11.1,16.79],[169.17,8.47,14.82,10.77,17.12],[174.67,8.31,14.98,10.61,17.28],[176.67,6.93,16.35,9.23,18.66],[190.67,6.99,16.3,9.29,18.6],[193.28,8.74,14.55,11.04,16.85]],"engOut":[[176.64,18.25,22.05,13.84,17.64],[178.14,18.04,22.26,13.62,17.85],[180.64,17.93,22.38,13.51,17.96],[181.64,17.15,23.15,12.74,18.74],[191.14,17.02,23.29,12.6,18.87],[193.01,18.21,22.09,13.8,17.68]],"keel":[[147.78,-3.15,3.15,14.82,19.32],[148.78,-4.13,4.13,13.84,19.32],[155.78,-4.48,4.48,12.73,19.32],[190.78,-4.48,4.48,9.02,19.32],[205.99,-4.48,4.48,9.02,19.32]],"ridge":[[193.12,-2.42,2.42,31.7,31.75],[194.12,-2.46,2.46,31.69,34.19],[200.12,-2.75,2.75,31.64,35.28],[208.12,-3.03,3.03,31.58,36.06],[248.12,-2.95,2.95,31.46,35.89],[265.12,-2.04,2.04,30.17,34.06],[268.69,-1.5,1.5,29.49,32.92]],"housing":[[21.42,-3.01,3.01,21.2,27.21],[22.42,-3.36,3.36,20.85,27.56],[27.42,-3.36,3.36,20.85,27.56],[29.92,-4.98,4.98,19.23,29.18],[44.42,-4.98,4.98,19.23,29.18],[47.42,-3.07,3.07,21.13,27.27]]}};
 const MC30C_GROUND=[{id:'ground-1',name:'同盟軍艦隊兵',kind:'troops',count:95}];
@@ -27228,8 +27228,8 @@ function mc30Build(opt={}){
  const {spread,range}=mc30MountKit(s,opt);
  syncAviationSurfaces(s);s._lockedCache=cache(s);
  try{withFrozenStructures(()=>{
-  // Stations are spaced for the standard mounts (missile boxes 12 m, medium turbolasers
-  // 18 m, light ion cannons and point defence 9 m, tractor projectors 16 m).
+  // Preserve the independent missile, tractor and point-defence stations before
+  // packing the larger spherical replacements on the head's flanks.
   // Two heavy proton torpedo launchers with cells below the forward deck.
   spread('msl',2,'top','bow-torpedo',[300,314],[0]);
   // Six cluster bomb launchers in external boxes on the forward deck: two pairs, then two
@@ -27251,7 +27251,11 @@ function mc30Build(opt={}){
    for(const y of ys)for(const x of xs){if(got>=total)break;const pair=[];
     for(const sg of [1,-1]){
      const h=rayEnv(s,[x,y,sg*500],[0,0,-sg],{structOnly:true});if(!h||h.part?.plate)break;
-     const f={id:s.nextId+pair.length,k:kind,p:h.p,a:sg>0?4:5,ped:0,base:0,low:0,float:false,localMount:true,chargeDepth:14,batteryZone:zone+(sg>0?'-stbd':'-port')};mountFit(s,f);if(f.float)break;
+     // Shallow anchors let the common allocator reshape banks into the free
+     // hull volume. The two port banks beside the forward machinery need a
+     // deeper anchor; full-size banks are retained for every gun.
+     const chargeDepth=kind==='monCal150Ion'&&sg<0&&x>=280&&x<=310?14:2;
+     const f={id:s.nextId+pair.length,k:kind,p:h.p,a:sg>0?4:5,ped:0,base:0,low:0,float:false,localMount:true,chargeDepth,batteryZone:zone+(sg>0?'-stbd':'-port')};mountFit(s,f);if(f.float)break;
      const b=fitAABB(f);if(!s.fits.concat(pair).every(g=>freeBox(b,fitAABB(g))))break;pair.push(f);
     }
     if(pair.length===2){s.fits.push(...pair);s.nextId+=2;got+=2;}
@@ -27433,6 +27437,10 @@ function monCalReferenceMounts(s,layout,projection){
     batteryZone:(a===2?'dorsal':'ventral')+'-moncal-'+kind+'-'+(i+1),referencePlan:pixel.slice()};
    mountFit(s,f);if(f.float)throw new Error('モン・カラマリ砲座が船体から離れています: '+kind+' '+(i+1));s.fits.push(f);pair.push(f);
   }
+  // The thin lobe tips cannot hold two opposing banks anchored at mid-depth.
+  // Reserve the full banks near their respective skins; the common allocator
+  // reshapes them into free internal volume without changing the marked seats.
+  if(kind==='monCal34'&&len(sub(pair[0].p,pair[1].p))<20)for(const f of pair)f.chargeDepth=2;
   pair[0].vt=pair[1].id;pair[1].vt=pair[0].id;
  }
 }

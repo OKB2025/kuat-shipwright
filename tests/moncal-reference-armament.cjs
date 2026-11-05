@@ -28,4 +28,8 @@ for(const [key,counts,scale]of plans){
    const geom=C.authoredTurretGeometry(f);assert.ok(geom);assert.equal(geom.muzzles.length,C.fitSpec(f).barrels);assert.ok(geom.muzzles.flat().every(Number.isFinite));
   }
  });
+ test(`${key} allocates the full firing charge for every diagram gun`,()=>{
+  const s=ship(key),stats=C.computeStats(s);for(const f of s.fits.filter(f=>f.referencePlan)){const charge=stats.chargeInfo[f.id],spec=C.fitSpec(f);assert.ok(charge);assert.ok(charge.ratio>1-1e-6,`${f.k} #${f.id} full charge`);assert.equal(charge.blocked,false);assert.ok(Math.abs(charge.storedTT-(spec.tt||spec.ion))<1e-5);
+  }
+ });
 }
