@@ -1,0 +1,692 @@
+{
+  "schemaVersion": 2,
+  "purpose": "Independent manual photograph measurements for the six user-specified GT turret models; display stands are excluded from authored models.",
+  "sourcePhotos": [
+    {
+      "userImageOrder": 1,
+      "filename": "1-写真1.jpg",
+      "sha256": "302de9d8f2430d6c8d0fd2f8be23d2e8b8c2f5aee6b49707420cc163a50185c9",
+      "widthPixels": 1280,
+      "heightPixels": 487,
+      "role": "Two-row common-scale lineup; first row is single500, twin200, quad500, quad200, then existing ion sphere"
+    },
+    {
+      "userImageOrder": 2,
+      "filename": "2-写真2.jpg",
+      "sha256": "aabf0c11b9077561dd6355be152e68c374504d806fc9a390e3fb6b6aad6b06e8",
+      "widthPixels": 1206,
+      "heightPixels": 673,
+      "role": "Oblique lineup; light models are at the right side of the photograph"
+    },
+    {
+      "userImageOrder": 3,
+      "filename": "4-写真4.jpg",
+      "sha256": "92769b8e920038c6010abf6dfdafd3ada8759e985f700893a723fe93ed144fd4",
+      "widthPixels": 1206,
+      "heightPixels": 937,
+      "role": "Side details: upper left single200, upper right twin200Fast, lower left single500, lower right twin200"
+    },
+    {
+      "userImageOrder": 4,
+      "filename": "5-写真5.jpg",
+      "sha256": "ad1a724e6a493ef280a729fc0272d6b6e8d5e79f4f93e0a3633ca0bdc57e882b",
+      "widthPixels": 800,
+      "heightPixels": 800,
+      "role": "Open single antiaircraft gun mechanism reference for single200"
+    },
+    {
+      "userImageOrder": 5,
+      "filename": "6-写真6.jpg",
+      "sha256": "6e6e75b4bb4141b64d5a80f2873ce7ecd028120668194c6351ef7335e9c690fd",
+      "widthPixels": 606,
+      "heightPixels": 378,
+      "role": "Enclosed high-angle twin gunhouse mechanism reference for twin200"
+    }
+  ],
+  "coordinateConvention": {
+    "pixels": "Original image pixels, origin at upper left; bounds are approximate inclusive extrema.",
+    "model": "Metres; +X is barrel forward, +Y is mounting normal/up, +Z is lateral.",
+    "physicalDimensions": "WholeLength is the rest-pose barrel-axis envelope. Ball diameter is the full physical sphere, including its embedded lower third."
+  },
+  "measurementMethod": "Visible silhouette and feature endpoints were read manually from the supplied photographs and checked with a non-black pixel mask. Dark painted edges and photographed perspective do not define exact CAD extrema. Targets are rounded to 0.1 m; they are not a power-density scaling law.",
+  "relativeTolerance": 0.1,
+  "anchor": {
+    "photo": 1,
+    "catalogKind": "oct40",
+    "physicalLengthM": 40.0,
+    "wholeLengthEndpointsPixels": [
+      [
+        934,
+        306
+      ],
+      [
+        1194,
+        306
+      ]
+    ],
+    "pixelSpan": 260,
+    "metresPerPixel": 0.15384615384615385,
+    "endpointUncertaintyPixels": 6,
+    "displayStandExcluded": true,
+    "note": "The lower-right existing eight-barrel Imperial turret is the established forty-metre anchor."
+  },
+  "crossCheck": {
+    "photo": 1,
+    "catalogKind": "single40",
+    "physicalLengthM": 34.6,
+    "wholeLengthEndpointsPixels": [
+      [
+        59,
+        278
+      ],
+      [
+        287,
+        278
+      ]
+    ],
+    "pixelSpan": 228,
+    "metresPerPixel": 0.15175438596491228,
+    "note": "The lower-left existing single40 agrees with the octuple scale to within about 2 percent."
+  },
+  "workingScales": {
+    "photo1": {
+      "metresPerPixel": 0.153,
+      "method": "Rounded common working scale between the two established model anchors."
+    },
+    "photo3": {
+      "metresPerPixel": 0.0417,
+      "method": "Transfer the same horizontal twin200 silhouette between photo1 (approximately156 px) and photo3 (approximately572 px).",
+      "sameFeaturePixelSpans": {
+        "photo1": 156,
+        "photo3": 572
+      },
+      "note": "The upper-right model is the user-designated vertical rapid twin200, not the 500 GT quad."
+    }
+  },
+  "models": {
+    "single500": {
+      "barrels": 1,
+      "boltGT": 500,
+      "photo": 1,
+      "sphereBoundsPixels": [
+        216,
+        57,
+        265,
+        94
+      ],
+      "barrelTipPixels": [
+        159,
+        25
+      ],
+      "sphereCenterPixels": [
+        239,
+        76
+      ],
+      "barrelPitchDegreesApprox": 33,
+      "physicalTargetsM": {
+        "wholeLength": 18.6,
+        "sphereDiameter": 7.2
+      },
+      "construction": "Small complete ball turret. Its sphere and barrel aim together, with the lower one-third of the diameter embedded into the host.",
+      "measurementNotes": "The pitched silhouette is not a horizontal rest-length measurement. Photo3 sphere diameter is approximately174 px; barrel tip to sphere center is approximately360 px, plus the sphere radius for the back extent.",
+      "barrelProfile": {
+        "photoId": "latest-full-sheet",
+        "axisRootPixels": [
+          207,
+          290
+        ],
+        "axisTipPixels": [
+          159,
+          257
+        ],
+        "rootMeaning": "Visible first long narrow-shaft neck after the enlarged recoil/breech, not the hidden complete assembly root or wheel center.",
+        "shaftStationFraction": 0.65,
+        "shaftEdgesPixels": [
+          [
+            174.0,
+            271.0
+          ],
+          [
+            177.5,
+            266.0
+          ]
+        ],
+        "muzzleEdgesPixels": [
+          [
+            159.0,
+            262.0
+          ],
+          [
+            164.0,
+            255.0
+          ]
+        ],
+        "muzzleStationDistanceBehindTipPixels": 3,
+        "metresPerPixel": 0.15384615384615385,
+        "uncertaintyPixels": 1,
+        "neckTransitionUncertaintyPixels": 3,
+        "muzzleAxisEndpointUncertaintyPixels": 1,
+        "visibleNeckToTipLengthPixels": 58.2,
+        "visibleNeckToTipLengthM": 8.96,
+        "shaftDiameterPixels": 6.1,
+        "shaftDiameterM": 0.94,
+        "muzzleDiameterPixels": 8.6,
+        "muzzleDiameterM": 1.32,
+        "samplingMethod": "Isolated contiguous foreground interval at60/255 maximum RGB intensity along a perpendicular to the photographed axis, with boundaries rounded to half a pixel. Neighboring barrels are excluded from the interval. Compression and antialiasing uncertainty is at least one pixel; no exact CAD bore diameter is inferred."
+      }
+    },
+    "twin200": {
+      "barrels": 2,
+      "boltGT": 200,
+      "photo": 1,
+      "wholeBoundsWithoutStandPixels": [
+        279,
+        47,
+        434,
+        92
+      ],
+      "photo3WholeBoundsWithoutStandPixels": [
+        608,
+        539,
+        1179,
+        703
+      ],
+      "physicalTargetsM": {
+        "wholeLength": 23.9,
+        "bodyHeight": 6.9
+      },
+      "construction": "Horizontal left/right twin in an enclosed high-angle gunhouse. The first and third photos establish proportions; photo5 establishes armored case and gun-port detailing.",
+      "barrelProfile": {
+        "photoId": "latest-full-sheet",
+        "axisRootPixels": [
+          355,
+          288
+        ],
+        "axisTipPixels": [
+          280,
+          288
+        ],
+        "rootMeaning": "Visible first long narrow-shaft neck after the enlarged recoil/breech, not the hidden complete assembly root or wheel center.",
+        "shaftStationFraction": 0.65,
+        "shaftEdgesPixels": [
+          [
+            306.0,
+            289.5
+          ],
+          [
+            306.0,
+            285.5
+          ]
+        ],
+        "muzzleEdgesPixels": [
+          [
+            283.0,
+            289.5
+          ],
+          [
+            283.0,
+            285.5
+          ]
+        ],
+        "muzzleStationDistanceBehindTipPixels": 3,
+        "metresPerPixel": 0.15384615384615385,
+        "uncertaintyPixels": 1,
+        "neckTransitionUncertaintyPixels": 3,
+        "muzzleAxisEndpointUncertaintyPixels": 1,
+        "visibleNeckToTipLengthPixels": 75.0,
+        "visibleNeckToTipLengthM": 11.54,
+        "shaftDiameterPixels": 4.0,
+        "shaftDiameterM": 0.62,
+        "muzzleDiameterPixels": 4.0,
+        "muzzleDiameterM": 0.62,
+        "samplingMethod": "Isolated contiguous foreground interval at60/255 maximum RGB intensity along a perpendicular to the photographed axis, with boundaries rounded to half a pixel. Neighboring barrels are excluded from the interval. Compression and antialiasing uncertainty is at least one pixel; no exact CAD bore diameter is inferred."
+      }
+    },
+    "quad500": {
+      "barrels": 4,
+      "boltGT": 500,
+      "photo": 1,
+      "wholeBoundsWithoutStandPixels": [
+        439,
+        15,
+        624,
+        77
+      ],
+      "physicalTargetsM": {
+        "wholeLength": 28.5,
+        "bodyHeight": 9.5,
+        "elevationBearingDiameter": 9.2
+      },
+      "construction": "User-supplied arquitens_turret.stl body with rebuilt round elevation bearings and two vertically stacked barrels on each side.",
+      "measurementNotes": "The new common-scale photograph gives a larger target than the previous17.8304 m quad. The display cylinder at y79..131 is excluded.",
+      "barrelProfile": {
+        "photoId": "latest-full-sheet",
+        "axisRootPixels": [
+          505,
+          261
+        ],
+        "axisTipPixels": [
+          444,
+          255
+        ],
+        "rootMeaning": "Visible first long narrow-shaft neck after the enlarged recoil/breech, not the hidden complete assembly root or wheel center.",
+        "shaftStationFraction": 0.65,
+        "shaftEdgesPixels": [
+          [
+            465.0,
+            260.0
+          ],
+          [
+            465.5,
+            254.0
+          ]
+        ],
+        "muzzleEdgesPixels": [
+          [
+            448.5,
+            259.0
+          ],
+          [
+            449.5,
+            251.0
+          ]
+        ],
+        "muzzleStationDistanceBehindTipPixels": 5,
+        "metresPerPixel": 0.15384615384615385,
+        "uncertaintyPixels": 1,
+        "neckTransitionUncertaintyPixels": 3,
+        "muzzleAxisEndpointUncertaintyPixels": 1,
+        "visibleNeckToTipLengthPixels": 61.3,
+        "visibleNeckToTipLengthM": 9.43,
+        "shaftDiameterPixels": 6.0,
+        "shaftDiameterM": 0.93,
+        "muzzleDiameterPixels": 8.1,
+        "muzzleDiameterM": 1.24,
+        "samplingMethod": "Isolated contiguous foreground interval at60/255 maximum RGB intensity along a perpendicular to the photographed axis, with boundaries rounded to half a pixel. Neighboring barrels are excluded from the interval. Compression and antialiasing uncertainty is at least one pixel; no exact CAD bore diameter is inferred.",
+        "secondBarrelAxisPixels": {
+          "axisRootPixels": [
+            500,
+            283
+          ],
+          "axisTipPixels": [
+            440,
+            277
+          ],
+          "note": "Lower trace is a perspective/elevation cross-check. A few pixels of projected horizontal offset do not indicate a native fore/aft barrel stagger."
+        },
+        "geometryDistinctions": {
+          "visibleThinShaftM": 9.3,
+          "newCompleteAssemblyRootToTipMApprox": 15.3,
+          "wheelForwardRimToTipMApprox": 13.8,
+          "note": "These are different intervals. Moving the source case and wheel must not turn complete assembly length into a thin-shaft length."
+        },
+        "barrelPairsAlignedInNativeFrame": true,
+        "closeupMuzzlePairs": {
+          "photoId": "latest-quad500-closeup",
+          "nearColumnUpperTipPixels": [
+            145,
+            301
+          ],
+          "nearColumnLowerTipPixels": [
+            145,
+            353
+          ],
+          "farColumnUpperTipPixels": [
+            280,
+            230
+          ],
+          "farColumnLowerTipPixels": [
+            280,
+            284
+          ],
+          "uncertaintyPixels": 3,
+          "interpretation": "The upper and lower tips in each column align in the controlling oblique close-up. The500 GT quad rebuild uses equal native rootX and tipX for both heights. Only twin200Fast is intentionally staggered."
+        }
+      },
+      "caseProfileMeasurements": {
+        "photoId": "latest-full-sheet",
+        "caseRearPointPixels": [
+          624,
+          278
+        ],
+        "elevationPivotPixels": [
+          556,
+          278
+        ],
+        "caseRearToPivotPixels": 68,
+        "caseRearToPivotM": 10.46,
+        "mainRearArmorVerticalBandPixels": [
+          262,
+          309
+        ],
+        "mainRearArmorHeightPixels": 47,
+        "mainRearArmorHeightMApprox": 7.2,
+        "completeRearMachineryVerticalBandPixels": [
+          249,
+          310
+        ],
+        "completeRearMachineryHeightMApprox": 9.4,
+        "uncertaintyPixels": 2,
+        "note": "The lower armor case excludes the raised roof/rear machinery. The complete assembly silhouette height must not be applied uniformly to the source armor case; the wheel diameter is an independent feature."
+      },
+      "caseNarrowing": {
+        "reference": "latest-quad500-case-trim",
+        "method": "clip both source STL lateral wings and cap the resulting actual cross-sections; translate each complete external gun assembly inward",
+        "clipPlanesNativeM": [
+          {
+            "axis": "z",
+            "value": -3.3
+          },
+          {
+            "axis": "z",
+            "value": 3.3
+          }
+        ],
+        "retainsAxialAndVerticalPositions": true,
+        "retainsMeasuredBarrelProfiles": true,
+        "interpretation": "The cut planes follow the inner edges of the two red marked regions in the dimensioned native top view."
+      }
+    },
+    "quad200": {
+      "barrels": 4,
+      "boltGT": 200,
+      "photo": 1,
+      "wholeBoundsWithoutStandPixels": [
+        681,
+        31,
+        807,
+        94
+      ],
+      "physicalTargetsM": {
+        "wholeLength": 19.5
+      },
+      "construction": "Uniformly smaller derivative of the current external-mount twin40 gunhouse; replace its two tubes with two central-height tubes per external circular mount, four total.",
+      "measurementNotes": "The two visible side-profile tubes are elevated. Their vertical projection is not the rest-pose body height; width and height follow the scaled twin40 body.",
+      "barrelProfile": {
+        "photoId": "latest-full-sheet",
+        "axisRootPixels": [
+          735,
+          279
+        ],
+        "axisTipPixels": [
+          685,
+          266
+        ],
+        "rootMeaning": "Visible first long narrow-shaft neck after the enlarged recoil/breech, not the hidden complete assembly root or wheel center.",
+        "shaftStationFraction": 0.65,
+        "shaftEdgesPixels": [
+          [
+            702.0,
+            271.5
+          ],
+          [
+            703.0,
+            268.5
+          ]
+        ],
+        "muzzleEdgesPixels": [
+          [
+            687.5,
+            267.5
+          ],
+          [
+            688.5,
+            264.5
+          ]
+        ],
+        "muzzleStationDistanceBehindTipPixels": 3,
+        "metresPerPixel": 0.15384615384615385,
+        "uncertaintyPixels": 1,
+        "neckTransitionUncertaintyPixels": 3,
+        "muzzleAxisEndpointUncertaintyPixels": 1,
+        "visibleNeckToTipLengthPixels": 51.7,
+        "visibleNeckToTipLengthM": 7.95,
+        "shaftDiameterPixels": 3.2,
+        "shaftDiameterM": 0.49,
+        "muzzleDiameterPixels": 3.2,
+        "muzzleDiameterM": 0.49,
+        "samplingMethod": "Isolated contiguous foreground interval at60/255 maximum RGB intensity along a perpendicular to the photographed axis, with boundaries rounded to half a pixel. Neighboring barrels are excluded from the interval. Compression and antialiasing uncertainty is at least one pixel; no exact CAD bore diameter is inferred.",
+        "secondBarrelAxisPixels": {
+          "axisRootPixels": [
+            732,
+            288
+          ],
+          "axisTipPixels": [
+            682,
+            277
+          ],
+          "note": "Lower tube has the same physical profile; this second trace is a perspective/blur cross-check."
+        }
+      }
+    },
+    "single200": {
+      "barrels": 1,
+      "boltGT": 200,
+      "photo": 3,
+      "wholeBoundsWithoutStandPixels": [
+        41,
+        142,
+        517,
+        237
+      ],
+      "physicalTargetsM": {
+        "wholeLength": 19.9,
+        "bodyHeight": 4.0
+      },
+      "construction": "Open antiaircraft-style gun, with a long barrel, exposed breech/recoil machinery and supporting elevation yoke. Photo4 is the mechanism detail reference.",
+      "measurementNotes": "The photographed cylinder beneath the yoke is a display stand and is excluded.",
+      "barrelProfile": {
+        "photoId": "latest-full-sheet",
+        "axisRootPixels": [
+          205,
+          178
+        ],
+        "axisTipPixels": [
+          125,
+          176
+        ],
+        "rootMeaning": "Visible first long narrow-shaft neck after the enlarged recoil/breech, not the hidden complete assembly root or wheel center.",
+        "shaftStationFraction": 0.65,
+        "shaftEdgesPixels": [
+          [
+            153.0,
+            178.5
+          ],
+          [
+            153.0,
+            174.5
+          ]
+        ],
+        "muzzleEdgesPixels": [
+          [
+            128.0,
+            177.5
+          ],
+          [
+            128.0,
+            173.0
+          ]
+        ],
+        "muzzleStationDistanceBehindTipPixels": 3,
+        "metresPerPixel": 0.15384615384615385,
+        "uncertaintyPixels": 1,
+        "neckTransitionUncertaintyPixels": 3,
+        "muzzleAxisEndpointUncertaintyPixels": 1,
+        "visibleNeckToTipLengthPixels": 80.0,
+        "visibleNeckToTipLengthM": 12.31,
+        "shaftDiameterPixels": 4.0,
+        "shaftDiameterM": 0.62,
+        "muzzleDiameterPixels": 4.5,
+        "muzzleDiameterM": 0.69,
+        "samplingMethod": "Isolated contiguous foreground interval at60/255 maximum RGB intensity along a perpendicular to the photographed axis, with boundaries rounded to half a pixel. Neighboring barrels are excluded from the interval. Compression and antialiasing uncertainty is at least one pixel; no exact CAD bore diameter is inferred."
+      }
+    },
+    "twin200Fast": {
+      "barrels": 2,
+      "boltGT": 200,
+      "photo": 3,
+      "wholeBoundsWithoutStandPixels": [
+        583,
+        9,
+        1201,
+        227
+      ],
+      "physicalTargetsM": {
+        "wholeLength": 25.8,
+        "bodyHeight": 9.1,
+        "elevationBearingDiameter": 7.8
+      },
+      "construction": "Enlarged single200 mechanism with two vertically stacked barrels staggered fore/aft. Both tubes and their common large elevation unit aim together.",
+      "measurementNotes": "The upper barrel tip is visibly aft of the lower tip. The photographed cylinder at y229..322 is a display stand and is excluded.",
+      "barrelProfile": {
+        "photoId": "latest-full-sheet",
+        "axisRootPixels": [
+          343,
+          163
+        ],
+        "axisTipPixels": [
+          280,
+          163
+        ],
+        "rootMeaning": "Visible first long narrow-shaft neck after the enlarged recoil/breech, not the hidden complete assembly root or wheel center.",
+        "shaftStationFraction": 0.65,
+        "shaftEdgesPixels": [
+          [
+            302.0,
+            164.5
+          ],
+          [
+            302.0,
+            160.5
+          ]
+        ],
+        "muzzleEdgesPixels": [
+          [
+            283.0,
+            165.0
+          ],
+          [
+            283.0,
+            160.0
+          ]
+        ],
+        "muzzleStationDistanceBehindTipPixels": 3,
+        "metresPerPixel": 0.15384615384615385,
+        "uncertaintyPixels": 1,
+        "neckTransitionUncertaintyPixels": 3,
+        "muzzleAxisEndpointUncertaintyPixels": 1,
+        "visibleNeckToTipLengthPixels": 63.0,
+        "visibleNeckToTipLengthM": 9.69,
+        "shaftDiameterPixels": 4.0,
+        "shaftDiameterM": 0.62,
+        "muzzleDiameterPixels": 5.0,
+        "muzzleDiameterM": 0.77,
+        "samplingMethod": "Isolated contiguous foreground interval at60/255 maximum RGB intensity along a perpendicular to the photographed axis, with boundaries rounded to half a pixel. Neighboring barrels are excluded from the interval. Compression and antialiasing uncertainty is at least one pixel; no exact CAD bore diameter is inferred.",
+        "secondBarrelAxisPixels": {
+          "axisRootPixels": [
+            335,
+            172
+          ],
+          "axisTipPixels": [
+            273,
+            172
+          ],
+          "note": "Lower tube projects forward; both tubes use one common physical profile. Its photographed narrow-shaft length is62 pixels, within one pixel of the upper tube."
+        }
+      }
+    }
+  },
+  "scope": {
+    "measured": [
+      "Common-scale side silhouette lengths",
+      "Ball diameter and approximate pitched barrel axis",
+      "Display stand boundaries",
+      "Feature correspondence across first and third photographs"
+    ],
+    "notMeasured": [
+      "Perspective-free CAD dimensions",
+      "Absolute bore diameter from photographs",
+      "Mechanism travel or firing cadence",
+      "Mass, crew or procurement cost",
+      "Exact third-dimensional widths from the side views"
+    ]
+  },
+  "latestReferencePhotos": [
+    {
+      "id": "latest-full-sheet",
+      "attachmentRelativePath": "38A0D74B-32BE-446E-A1C7-70E78A43478B/1-写真1.jpg",
+      "filename": "1-写真1.jpg",
+      "sha256": "a512e931c7f5dd8b8256d1fcb5ddb8080c14274606483f9035864ff36bab5f0d",
+      "widthPixels": 1280,
+      "heightPixels": 720,
+      "role": "Controlling common-scale barrel length and diameter reference for the six labeled GT models; the three additional unassigned guns at the top are outside this implementation."
+    },
+    {
+      "id": "latest-quad500-closeup",
+      "attachmentRelativePath": "296A3DC7-1679-44E4-BA0A-4CDD545722B0/1-写真1.jpg",
+      "filename": "1-写真1.jpg",
+      "sha256": "21e3f2332723767f1c81233e08991f932f8ae4fd6f0973caf8cbc3b56372ad4e",
+      "widthPixels": 1080,
+      "heightPixels": 881,
+      "role": "Controlling500 GT quad construction: large circular mechanisms remain external; four separate slim barrels in two vertical pairs."
+    },
+    {
+      "id": "latest-quad200-closeup",
+      "attachmentRelativePath": "296A3DC7-1679-44E4-BA0A-4CDD545722B0/2-写真2.jpg",
+      "filename": "2-写真2.jpg",
+      "sha256": "2053150892eeaec50ddafd696f584b7a3d1c33cf2037c9ffbac95c2441f2c5dd",
+      "widthPixels": 716,
+      "heightPixels": 1280,
+      "role": "Controlling200 GT quad construction: paired slim barrels on each external circular mount; cylindrical muzzle tips without a conspicuous flared collar."
+    },
+    {
+      "id": "latest-quad500-case-trim",
+      "attachmentRelativePath": "961BB617-09FC-4116-9CFE-BCECBD516098/1-写真1.jpg",
+      "filename": "1-写真1.jpg",
+      "sha256": "ab7a68115fceb0d814b391bd5fa7f9e3d643a5096669edd517a5d488b90e8e4a",
+      "widthPixels": 1135,
+      "heightPixels": 1280,
+      "role": "User-marked top view: remove the two flared lateral wings from the STL case, narrow the case and move the complete external gun mechanisms inward; retain the measured barrel profiles."
+    }
+  ],
+  "latestReferencePrecedence": {
+    "barrelProfiles": "latest-full-sheet",
+    "quad500Mounting": "latest-quad500-closeup",
+    "quad200Mounting": "latest-quad200-closeup",
+    "quad500Case": "latest-quad500-case-trim"
+  },
+  "latestBarrelAnchor": {
+    "photoId": "latest-full-sheet",
+    "catalogKind": "oct40",
+    "physicalLengthM": 40,
+    "wholeLengthEndpointsPixels": [
+      [
+        934,
+        538
+      ],
+      [
+        1194,
+        538
+      ]
+    ],
+    "pixelSpan": 260,
+    "metresPerPixel": 0.15384615384615385,
+    "endpointUncertaintyPixels": 6,
+    "secondaryCheck": {
+      "catalogKind": "single40",
+      "physicalLengthM": 34.6,
+      "wholeLengthEndpointsPixels": [
+        [
+          59,
+          510
+        ],
+        [
+          287,
+          510
+        ]
+      ],
+      "pixelSpan": 228
+    },
+    "note": "These are the same two established lower-row physical anchors as the earlier sheet, now shifted down by approximately232 pixels."
+  }
+}
