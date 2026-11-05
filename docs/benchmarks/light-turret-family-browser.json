@@ -1,0 +1,5158 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "date": "2026-11-05T01:49:06.022Z",
+  "sourceSha256": {
+    "data/reference.js": "90294dce9b3f9ada56a318ba50f2e6185994fed8babcca640861f5d6728fcc89",
+    "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
+    "data/fleet.js": "c4fdb044a7b449520bf65c29080a127356ad6a766d275b8296ec520ea9ba026a",
+    "js/core.js": "3f97bd08a2a80ea2d6481e718be55c9a6c0225e6c9a70a7be0a2d48fd25091b3",
+    "js/app.js": "e6f0459fea1e4a3828b6c97daf5a6059d1fd10187f81ffc7fc244ca9c641c391",
+    "js/gfx.js": "0f047a0d35d989710de2aadee0b3c80c7626c2f84f224b85d140dfd6c3856c96",
+    "js/lang-en.js": "bf76f0894b67cfdbbd243222de1e28ac16e306b8255c5b31cfe7badc6d4056ca",
+    "js/engine.js": "b99c045397665bbd0a063aebd6ba713e584ba8630e0a4e02e0a7123d21b30239",
+    "index.html": "145f1919e9894bc121b75727748426545d9b89effa42b304aa14cf3e59b9e22b"
+  },
+  "url": "http://127.0.0.1:8765",
+  "readyMs": 1807,
+  "totalElapsedMs": 38039,
+  "models": [
+    {
+      "kind": "single500",
+      "label": "500 GT ×1 · ball",
+      "barrels": 1,
+      "boltTT": 0.5
+    },
+    {
+      "kind": "twin200",
+      "label": "200 GT ×2 · horizontal",
+      "barrels": 2,
+      "boltTT": 0.2
+    },
+    {
+      "kind": "quad500",
+      "label": "500 GT ×4 · Arquitens",
+      "barrels": 4,
+      "boltTT": 0.5
+    },
+    {
+      "kind": "quad200",
+      "label": "200 GT ×4 · external drives",
+      "barrels": 4,
+      "boltTT": 0.2
+    },
+    {
+      "kind": "single200",
+      "label": "200 GT ×1 · anti-aircraft",
+      "barrels": 1,
+      "boltTT": 0.2
+    },
+    {
+      "kind": "twin200Fast",
+      "label": "200 GT ×2 · staggered rapid-fire",
+      "barrels": 2,
+      "boltTT": 0.2
+    }
+  ],
+  "catalog": {
+    "single500": "500 GT Single Turbolaser\n500 GT / 18.6×7.2×7.2 m",
+    "twin200": "200 GT Twin High-angle Turbolaser\n400 GT / 23.9×8.5×7 m",
+    "quad500": "500 GT Quad Medium Turbolaser\n2.0 TT / 28.5×11.8×9.2 m",
+    "quad200": "200 GT Quad Turbolaser\n800 GT / 19.3×13.6×7.6 m",
+    "single200": "200 GT Single Anti-aircraft Turbolaser\n200 GT / 20.5×3.9×4.3 m",
+    "twin200Fast": "200 GT Vertical Twin Rapid-fire Turbolaser\n400 GT / 25.8×7.6×9.1 m"
+  },
+  "catalogJa": {
+    "single500": "500GT 単装ターボレーザー\n500 GT・18.6×7.2×7.2 m",
+    "twin200": "200GT 2連装高角ターボレーザー\n400 GT・23.9×8.5×7 m",
+    "quad500": "500GT 4連装中型ターボレーザー\n2.0 TT・28.5×11.8×9.2 m",
+    "quad200": "200GT 4連装ターボレーザー\n800 GT・19.3×13.6×7.6 m",
+    "single200": "200GT 単装高射ターボレーザー\n200 GT・20.5×3.9×4.3 m",
+    "twin200Fast": "200GT 上下2連装速射ターボレーザー\n400 GT・25.8×7.6×9.1 m"
+  },
+  "bodyInfoJa": "砲室・充電装置\n1 回分 · 10 m · 100%\n\n200 GT × 2 門 × 1 斉射分 = 400 GT\n\n充電装置の必要容積\n8.0 m³\n確保する装置容積\n8.0 m³\n砲室の容積\n4.0 m³\n船外の砲室容積\n4.0 m³\n船内に埋まる砲室容積\n0.0 m³\n砲室内に確保した装置\n4.0 m³\n船内に追加する装置容積\n4.0 m³\n船内に追加した装置容積\n4.0 m³\n船内で占有する総容積\n4.0 m³\n装置の合計容積\n8.0 m³\n\n充電容量 100% · 船内区画 0.8 × 6.0 × 0.8 m\n\n蓄える斉射回数\n1 回分\n装備面から内側への深さ\n充電区画の容積\n\n砲室全体を武装区画として使い、不足分だけ船内に装置を追加します。船体・構造物に埋まる砲室も船内の占有容積に含め、他の区画と重複利用しません。容量密度 0.05 TT/m³。再充電の目安 給電なし。",
+  "fixture": {
+    "L": 332.6875,
+    "W": 75,
+    "deckY": 20,
+    "deckId": 1,
+    "models": [
+      {
+        "kind": "single500",
+        "label": "500 GT ×1 · ball",
+        "barrels": 1,
+        "boltTT": 0.5,
+        "id": 2,
+        "origin": [
+          24.3,
+          19.999999999999943,
+          0
+        ],
+        "bounds": [
+          20.7,
+          17.599999999999945,
+          -3.6,
+          39.3,
+          24.799999999999944,
+          3.6
+        ],
+        "hitPoint": [
+          24.3,
+          20,
+          0
+        ]
+      },
+      {
+        "kind": "twin200",
+        "label": "200 GT ×2 · horizontal",
+        "barrels": 2,
+        "boltTT": 0.2,
+        "id": 3,
+        "origin": [
+          63.55,
+          19.999999999999943,
+          0
+        ],
+        "bounds": [
+          55.349999999999994,
+          19.999999999999943,
+          -4.25,
+          79.25,
+          26.999999999999943,
+          4.25
+        ],
+        "hitPoint": [
+          63.55,
+          20,
+          0
+        ]
+      },
+      {
+        "kind": "quad500",
+        "label": "500 GT ×4 · Arquitens",
+        "barrels": 4,
+        "boltTT": 0.5,
+        "id": 4,
+        "origin": [
+          107.75,
+          19.999999999999943,
+          0
+        ],
+        "bounds": [
+          98.87925300598144,
+          19.999999999999943,
+          -5.895546875000001,
+          127.37925300598144,
+          29.199999999999942,
+          5.895546875000001
+        ],
+        "hitPoint": [
+          107.75,
+          20,
+          0
+        ]
+      },
+      {
+        "kind": "quad200",
+        "label": "200 GT ×4 · external drives",
+        "barrels": 4,
+        "boltTT": 0.2,
+        "id": 5,
+        "origin": [
+          149.66875,
+          19.999999999999943,
+          0
+        ],
+        "bounds": [
+          142.35625,
+          19.999999999999943,
+          -6.785880533189818,
+          161.69375,
+          27.604999999999944,
+          6.785878203935752
+        ],
+        "hitPoint": [
+          149.66875,
+          20,
+          0
+        ]
+      },
+      {
+        "kind": "single200",
+        "label": "200 GT ×1 · anti-aircraft",
+        "barrels": 1,
+        "boltTT": 0.2,
+        "id": 6,
+        "origin": [
+          187.6125,
+          19.999999999999943,
+          0
+        ],
+        "bounds": [
+          185.66250000000002,
+          19.999999999999943,
+          -1.95,
+          206.2125,
+          24.268499999999943,
+          1.95
+        ],
+        "hitPoint": [
+          187.6125,
+          20,
+          0
+        ]
+      },
+      {
+        "kind": "twin200Fast",
+        "label": "200 GT ×2 · staggered rapid-fire",
+        "barrels": 2,
+        "boltTT": 0.2,
+        "id": 7,
+        "origin": [
+          228.7875,
+          19.999999999999943,
+          0
+        ],
+        "bounds": [
+          224.8875,
+          19.999999999999943,
+          -3.8,
+          250.6875,
+          29.099999999999945,
+          3.8
+        ],
+        "hitPoint": [
+          228.7875,
+          20,
+          0
+        ]
+      },
+      {
+        "kind": "oct40",
+        "label": "ISD 40 TT ×8 · 40 m scale anchor",
+        "id": 8,
+        "origin": [
+          279.6875,
+          19.999999999999943,
+          0
+        ],
+        "bounds": [
+          259.6876371544352,
+          19.999999999999943,
+          -19.999628938908536,
+          299.6876371544352,
+          30.568947548407998,
+          20.00019415415897
+        ],
+        "hitPoint": [
+          279.6875,
+          20,
+          0
+        ]
+      }
+    ],
+    "method": "Editable native structure, rayEnv and Core.placeFit"
+  },
+  "measurements": {
+    "renderer": true,
+    "webglError": 0,
+    "models": [
+      {
+        "id": 2,
+        "kind": "single500",
+        "asset": "light_single500",
+        "float": false,
+        "ped": 0,
+        "base": 0,
+        "low": 0,
+        "barrels": 1,
+        "boltTT": 0.5,
+        "volleyTT": 0.5,
+        "cycleSeconds": 0.2,
+        "powerW": 1.0459999999999999e+22,
+        "powerVolleyTT": 0.5,
+        "scale": 1,
+        "size": [
+          18.6,
+          7.2,
+          7.2
+        ],
+        "bounds": [
+          [
+            -3.6,
+            -2.4000000000000004,
+            -3.6
+          ],
+          [
+            15,
+            4.8,
+            3.6
+          ]
+        ],
+        "worldBounds": [
+          20.7,
+          17.6,
+          -3.6,
+          39.3,
+          24.8,
+          3.6
+        ],
+        "origin": [
+          24.3,
+          20,
+          0
+        ],
+        "plainMetal": true,
+        "materialReference": "ven_turret70_native",
+        "nativeCalibration": "light-photo-family",
+        "noSupportPedestal": true,
+        "supportStandHeightM": 0,
+        "triangles": 2748,
+        "drawnIndices": 8244,
+        "drawOutsideBounds": 0,
+        "authored": {
+          "asset": "light_single500",
+          "yawPivot": [
+            24.3,
+            20,
+            0
+          ],
+          "elevationPivot": [
+            24.3,
+            21.2,
+            0
+          ],
+          "elevationAxis": [
+            0,
+            0,
+            1
+          ],
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "fw": [
+            1,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              39.3,
+              21.2,
+              0
+            ]
+          ],
+          "vertexStart": 0,
+          "indexStart": 0,
+          "housingFixed": false,
+          "limits": {
+            "yaw": null,
+            "lo": -0.17453292519943295,
+            "hi": 1.4835298641951802
+          }
+        },
+        "chargeInfo": {
+          "required": 10,
+          "plannedVolume": 10,
+          "housingVolume": 193.1510742763286,
+          "externalVolume": 143.17839354625903,
+          "embeddedVolume": 49.972680730069555,
+          "externalUsed": 10,
+          "embeddedUsed": 0,
+          "housingUsed": 10,
+          "internalRequired": 0,
+          "internalVolume": 0,
+          "internalOccupiedVolume": 49.972680730069555,
+          "volume": 10,
+          "ratio": 1,
+          "capacityRatio": 1,
+          "storedTT": 0.5,
+          "allocationPending": false,
+          "id": null,
+          "blocked": false
+        },
+        "sphereRadiusM": 3.6,
+        "sphereCenterM": [
+          0,
+          1.2,
+          0
+        ],
+        "sphereMeshRange": {
+          "firstVertex": 0,
+          "vertices": 2800,
+          "firstIndex": 0,
+          "indices": 4080
+        },
+        "quad500Layout": null,
+        "barrelsPhysical": [
+          {
+            "root": [
+              2.6,
+              1.2,
+              0
+            ],
+            "muzzle": [
+              15,
+              1.2,
+              0
+            ],
+            "worldMuzzle": [
+              39.3,
+              21.2,
+              0
+            ],
+            "axis": [
+              1,
+              0,
+              0
+            ],
+            "muzzleRayHit": [
+              38.49761199951172,
+              21.2,
+              0
+            ],
+            "muzzleRayErrorM": 0.00011199951171647626,
+            "muzzleRecessM": 0.8025,
+            "range": {
+              "firstVertex": 3088,
+              "vertices": 602,
+              "firstIndex": 4644,
+              "indices": 3600
+            },
+            "bounds": [
+              2.5999999076128004,
+              0.2904962897300717,
+              -0.909503710269928,
+              15,
+              2.109503710269928,
+              0.909503710269928
+            ]
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "kind": "twin200",
+        "asset": "light_twin200",
+        "float": false,
+        "ped": 0,
+        "base": 0,
+        "low": 0,
+        "barrels": 2,
+        "boltTT": 0.2,
+        "volleyTT": 0.4,
+        "cycleSeconds": 0.2,
+        "powerW": 8.368e+21,
+        "powerVolleyTT": 0.4,
+        "scale": 1,
+        "size": [
+          23.9,
+          7,
+          8.5
+        ],
+        "bounds": [
+          [
+            -8.2,
+            0,
+            -4.25
+          ],
+          [
+            15.7,
+            7,
+            4.25
+          ]
+        ],
+        "worldBounds": [
+          55.349999999999994,
+          20,
+          -4.25,
+          79.25,
+          27,
+          4.25
+        ],
+        "origin": [
+          63.55,
+          20,
+          0
+        ],
+        "plainMetal": true,
+        "materialReference": "ven_turret70_native",
+        "nativeCalibration": "light-photo-family",
+        "noSupportPedestal": true,
+        "supportStandHeightM": 0,
+        "triangles": 4328,
+        "drawnIndices": 12984,
+        "drawOutsideBounds": 0,
+        "authored": {
+          "asset": "light_twin200",
+          "yawPivot": [
+            63.55,
+            20,
+            0
+          ],
+          "elevationPivot": [
+            63.55,
+            24.4,
+            0
+          ],
+          "elevationAxis": [
+            0,
+            0,
+            1
+          ],
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "fw": [
+            1,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              79.25,
+              25.15,
+              -0.85
+            ],
+            [
+              79.25,
+              25.15,
+              0.85
+            ]
+          ],
+          "vertexStart": 3324,
+          "indexStart": 5952,
+          "housingFixed": false,
+          "limits": {
+            "yaw": null,
+            "lo": -0.17453292519943295,
+            "hi": 1.4835298641951802
+          }
+        },
+        "chargeInfo": {
+          "required": 8,
+          "plannedVolume": 8,
+          "housingVolume": 266.99806790475594,
+          "externalVolume": 266.99806790475594,
+          "embeddedVolume": 0,
+          "externalUsed": 8,
+          "embeddedUsed": 0,
+          "housingUsed": 8,
+          "internalRequired": 0,
+          "internalVolume": 0,
+          "internalOccupiedVolume": 0,
+          "volume": 8,
+          "ratio": 1,
+          "capacityRatio": 1,
+          "storedTT": 0.4,
+          "allocationPending": false,
+          "id": null,
+          "blocked": false
+        },
+        "sphereRadiusM": null,
+        "sphereCenterM": null,
+        "sphereMeshRange": null,
+        "quad500Layout": null,
+        "barrelsPhysical": [
+          {
+            "root": [
+              1.2,
+              5.15,
+              -0.85
+            ],
+            "muzzle": [
+              15.7,
+              5.15,
+              -0.85
+            ],
+            "worldMuzzle": [
+              79.25,
+              25.15,
+              -0.85
+            ],
+            "axis": [
+              1,
+              0,
+              0
+            ],
+            "muzzleRayHit": [
+              78.74232482910156,
+              25.15,
+              -0.85
+            ],
+            "muzzleRayErrorM": 0.00017517089843011036,
+            "muzzleRecessM": 0.5075000000000001,
+            "range": {
+              "firstVertex": 3504,
+              "vertices": 562,
+              "firstIndex": 6228,
+              "indices": 3360
+            },
+            "bounds": [
+              1.199966438114643,
+              4.63152351975441,
+              -1.368545077741146,
+              15.7,
+              5.668513000011444,
+              -0.3315326850861311
+            ]
+          },
+          {
+            "root": [
+              1.2,
+              5.15,
+              0.85
+            ],
+            "muzzle": [
+              15.7,
+              5.15,
+              0.85
+            ],
+            "worldMuzzle": [
+              79.25,
+              25.15,
+              0.85
+            ],
+            "axis": [
+              1,
+              0,
+              0
+            ],
+            "muzzleRayHit": [
+              78.74232482910156,
+              25.15,
+              0.85
+            ],
+            "muzzleRayErrorM": 0.00017517089843011036,
+            "muzzleRecessM": 0.5075000000000001,
+            "range": {
+              "firstVertex": 4090,
+              "vertices": 562,
+              "firstIndex": 9624,
+              "indices": 3360
+            },
+            "bounds": [
+              1.199966438114643,
+              4.63152351975441,
+              0.3315326850861311,
+              15.7,
+              5.668513000011444,
+              1.368545077741146
+            ]
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "kind": "quad500",
+        "asset": "arq_turret_quad500",
+        "float": false,
+        "ped": 0,
+        "base": 0,
+        "low": 0,
+        "barrels": 4,
+        "boltTT": 0.5,
+        "volleyTT": 2,
+        "cycleSeconds": 0.2,
+        "powerW": 4.1839999999999996e+22,
+        "powerVolleyTT": 2,
+        "scale": 1,
+        "size": [
+          28.5,
+          9.2,
+          11.791093750000002
+        ],
+        "bounds": [
+          [
+            -7.3890283584594725,
+            0,
+            -5.895546875000001
+          ],
+          [
+            21.110971641540527,
+            9.2,
+            5.895546875000001
+          ]
+        ],
+        "worldBounds": [
+          98.87925300598144,
+          20,
+          -5.895546875000001,
+          127.37925300598144,
+          29.2,
+          5.895546875000001
+        ],
+        "origin": [
+          107.75,
+          20,
+          0
+        ],
+        "plainMetal": true,
+        "materialReference": "ven_turret70_native",
+        "nativeCalibration": "light-photo-family",
+        "noSupportPedestal": true,
+        "supportStandHeightM": 0,
+        "triangles": 10442,
+        "drawnIndices": 31326,
+        "drawOutsideBounds": 0,
+        "authored": {
+          "asset": "arq_turret_quad500",
+          "yawPivot": [
+            107.75,
+            20,
+            0
+          ],
+          "elevationPivot": [
+            109.26828136444092,
+            24.9,
+            0
+          ],
+          "elevationAxis": [
+            0,
+            0,
+            1
+          ],
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "fw": [
+            1,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              127.37925300598144,
+              23.05,
+              -4.6605468750000005
+            ],
+            [
+              127.37925300598144,
+              26.75,
+              -4.6605468750000005
+            ],
+            [
+              127.37925300598144,
+              23.05,
+              4.6605468750000005
+            ],
+            [
+              127.37925300598144,
+              26.75,
+              4.6605468750000005
+            ]
+          ],
+          "vertexStart": 5860,
+          "indexStart": 6726,
+          "housingFixed": false,
+          "limits": {
+            "yaw": null,
+            "lo": -0.17453292519943295,
+            "hi": 1.4835298641951802
+          }
+        },
+        "chargeInfo": {
+          "required": 40,
+          "plannedVolume": 40,
+          "housingVolume": 110.96137007821146,
+          "externalVolume": 110.96137007821146,
+          "embeddedVolume": 0,
+          "externalUsed": 40,
+          "embeddedUsed": 0,
+          "housingUsed": 40,
+          "internalRequired": 0,
+          "internalVolume": 0,
+          "internalOccupiedVolume": 0,
+          "volume": 40,
+          "ratio": 1,
+          "capacityRatio": 1,
+          "storedTT": 2,
+          "allocationPending": false,
+          "id": null,
+          "blocked": false
+        },
+        "sphereRadiusM": null,
+        "sphereCenterM": null,
+        "sphereMeshRange": null,
+        "quad500Layout": {
+          "caseBounds": [
+            -7.389028358459473,
+            0,
+            -3.300073949596845,
+            9.155949738621711,
+            7.068748211860656,
+            3.300073949596845
+          ],
+          "caseLabels": [
+            "attached STL main gunhouse",
+            "source-derived lateral closure 0 -3.3",
+            "source-derived lateral closure 0 3.3"
+          ],
+          "barrelRootMarginsM": [
+            -1.3604729254031556,
+            -1.3604729254031556,
+            -1.3604729254031556,
+            -1.3604729254031556
+          ],
+          "driveCenters": [
+            [
+              3,
+              4.9,
+              -4.6605468750000005
+            ],
+            [
+              3,
+              4.9,
+              4.6605468750000005
+            ]
+          ],
+          "driveBounds": [
+            [
+              -1.2999646246433265,
+              0.6000245332717893,
+              -5.610539490142838,
+              7.299787790793925,
+              9.2,
+              -3.710491429101676
+            ],
+            [
+              -1.2999646246433265,
+              0.6000245332717893,
+              3.710491429101676,
+              7.299787790793925,
+              9.2,
+              5.610539490142838
+            ]
+          ],
+          "receiverBounds": [
+            3.299993705749511,
+            2.2000427961349485,
+            -5.5104992126440635,
+            7.299787790793925,
+            7.59998173713684,
+            5.5104992126440635
+          ]
+        },
+        "barrelsPhysical": [
+          {
+            "root": [
+              5.8,
+              3.05,
+              -4.6605468750000005
+            ],
+            "muzzle": [
+              21.110971641540527,
+              3.05,
+              -4.6605468750000005
+            ],
+            "worldMuzzle": [
+              127.37925300598144,
+              23.05,
+              -4.6605468750000005
+            ],
+            "axis": [
+              1,
+              0,
+              0
+            ],
+            "muzzleRayHit": [
+              126.67906188964844,
+              23.05,
+              -4.6605468750000005
+            ],
+            "muzzleRayErrorM": 0.00019111633301349684,
+            "muzzleRecessM": 0.7,
+            "range": {
+              "firstVertex": 11212,
+              "vertices": 602,
+              "firstIndex": 16926,
+              "indices": 3600
+            },
+            "bounds": [
+              5.799810685962438,
+              2.049966335296631,
+              -5.6605598045932135,
+              21.110971641540527,
+              4.049954205751419,
+              -3.660471466053278
+            ]
+          },
+          {
+            "root": [
+              5.8,
+              6.75,
+              -4.6605468750000005
+            ],
+            "muzzle": [
+              21.110971641540527,
+              6.75,
+              -4.6605468750000005
+            ],
+            "worldMuzzle": [
+              127.37925300598144,
+              26.75,
+              -4.6605468750000005
+            ],
+            "axis": [
+              1,
+              0,
+              0
+            ],
+            "muzzleRayHit": [
+              126.67906188964844,
+              26.75,
+              -4.6605468750000005
+            ],
+            "muzzleRayErrorM": 0.00019111633301349684,
+            "muzzleRecessM": 0.7,
+            "range": {
+              "firstVertex": 11814,
+              "vertices": 602,
+              "firstIndex": 20526,
+              "indices": 3600
+            },
+            "bounds": [
+              5.799810685962438,
+              5.750070190429687,
+              -5.6605598045932135,
+              21.110971641540527,
+              7.750057923793792,
+              -3.660471466053278
+            ]
+          },
+          {
+            "root": [
+              5.8,
+              3.05,
+              4.6605468750000005
+            ],
+            "muzzle": [
+              21.110971641540527,
+              3.05,
+              4.6605468750000005
+            ],
+            "worldMuzzle": [
+              127.37925300598144,
+              23.05,
+              4.6605468750000005
+            ],
+            "axis": [
+              1,
+              0,
+              0
+            ],
+            "muzzleRayHit": [
+              126.67906188964844,
+              23.05,
+              4.6605468750000005
+            ],
+            "muzzleRayErrorM": 0.00019111633301349684,
+            "muzzleRecessM": 0.7,
+            "range": {
+              "firstVertex": 12416,
+              "vertices": 602,
+              "firstIndex": 24126,
+              "indices": 3600
+            },
+            "bounds": [
+              5.799810685962438,
+              2.049966335296631,
+              3.660471466053278,
+              21.110971641540527,
+              4.049954205751419,
+              5.6605598045932135
+            ]
+          },
+          {
+            "root": [
+              5.8,
+              6.75,
+              4.6605468750000005
+            ],
+            "muzzle": [
+              21.110971641540527,
+              6.75,
+              4.6605468750000005
+            ],
+            "worldMuzzle": [
+              127.37925300598144,
+              26.75,
+              4.6605468750000005
+            ],
+            "axis": [
+              1,
+              0,
+              0
+            ],
+            "muzzleRayHit": [
+              126.67906188964844,
+              26.75,
+              4.6605468750000005
+            ],
+            "muzzleRayErrorM": 0.00019111633301349684,
+            "muzzleRecessM": 0.7,
+            "range": {
+              "firstVertex": 13018,
+              "vertices": 602,
+              "firstIndex": 27726,
+              "indices": 3600
+            },
+            "bounds": [
+              5.799810685962438,
+              5.750070190429687,
+              3.660471466053278,
+              21.110971641540527,
+              7.750057923793792,
+              5.6605598045932135
+            ]
+          }
+        ]
+      },
+      {
+        "id": 5,
+        "kind": "quad200",
+        "asset": "light_quad200",
+        "float": false,
+        "ped": 0,
+        "base": 0,
+        "low": 0,
+        "barrels": 4,
+        "boltTT": 0.2,
+        "volleyTT": 0.8,
+        "cycleSeconds": 0.2,
+        "powerW": 1.6736e+22,
+        "powerVolleyTT": 0.8,
+        "scale": 1,
+        "size": [
+          19.3375,
+          7.6049999999999995,
+          13.57175873712557
+        ],
+        "bounds": [
+          [
+            -7.3125,
+            0,
+            -6.785880533189819
+          ],
+          [
+            12.025,
+            7.6049999999999995,
+            6.785878203935752
+          ]
+        ],
+        "worldBounds": [
+          142.35625,
+          20,
+          -6.785880533189818,
+          161.69375,
+          27.605,
+          6.785878203935752
+        ],
+        "origin": [
+          149.66875,
+          20,
+          0
+        ],
+        "plainMetal": true,
+        "materialReference": "ven_turret70_native",
+        "nativeCalibration": "light-photo-family",
+        "noSupportPedestal": true,
+        "supportStandHeightM": 0,
+        "triangles": 6394,
+        "drawnIndices": 19182,
+        "drawOutsideBounds": 0,
+        "authored": {
+          "asset": "light_quad200",
+          "yawPivot": [
+            149.66875,
+            20,
+            0
+          ],
+          "elevationPivot": [
+            151.29375,
+            24.939999999999998,
+            0
+          ],
+          "elevationAxis": [
+            0,
+            0,
+            1
+          ],
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "fw": [
+            1,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              161.69375,
+              24.1925,
+              -5.528190266594908
+            ],
+            [
+              161.69375,
+              25.6875,
+              -5.528190266594908
+            ],
+            [
+              161.69375,
+              24.1925,
+              5.528189101967877
+            ],
+            [
+              161.69375,
+              25.6875,
+              5.528189101967877
+            ]
+          ],
+          "vertexStart": 3274,
+          "indexStart": 5622,
+          "housingFixed": false,
+          "limits": {
+            "yaw": null,
+            "lo": -0.17453292519943295,
+            "hi": 1.4835298641951802
+          }
+        },
+        "chargeInfo": {
+          "required": 16,
+          "plannedVolume": 16,
+          "housingVolume": 648.2248413882169,
+          "externalVolume": 648.2248413882169,
+          "embeddedVolume": 0,
+          "externalUsed": 16,
+          "embeddedUsed": 0,
+          "housingUsed": 16,
+          "internalRequired": 0,
+          "internalVolume": 0,
+          "internalOccupiedVolume": 0,
+          "volume": 16,
+          "ratio": 1,
+          "capacityRatio": 1,
+          "storedTT": 0.8,
+          "allocationPending": false,
+          "id": null,
+          "blocked": false
+        },
+        "sphereRadiusM": null,
+        "sphereCenterM": null,
+        "sphereMeshRange": null,
+        "quad500Layout": null,
+        "barrelsPhysical": [
+          {
+            "root": [
+              1.1916666666666667,
+              4.1925,
+              -5.528190266594909
+            ],
+            "muzzle": [
+              12.025,
+              4.1925,
+              -5.528190266594909
+            ],
+            "worldMuzzle": [
+              161.69375,
+              24.1925,
+              -5.528190266594908
+            ],
+            "axis": [
+              1,
+              0,
+              0
+            ],
+            "muzzleRayHit": [
+              161.2888946533203,
+              24.1925,
+              -5.528190266594908
+            ],
+            "muzzleRayErrorM": 0.0001446533203193212,
+            "muzzleRecessM": 0.405,
+            "range": {
+              "firstVertex": 3310,
+              "vertices": 562,
+              "firstIndex": 5682,
+              "indices": 3360
+            },
+            "bounds": [
+              1.1915501068811867,
+              3.7334501467505468,
+              -5.9870908475607205,
+              12.024999999999999,
+              4.651523097865283,
+              -5.069218338771083
+            ]
+          },
+          {
+            "root": [
+              1.1916666666666667,
+              5.6875,
+              -5.528190266594909
+            ],
+            "muzzle": [
+              12.025,
+              5.6875,
+              -5.528190266594909
+            ],
+            "worldMuzzle": [
+              161.69375,
+              25.6875,
+              -5.528190266594908
+            ],
+            "axis": [
+              1,
+              0,
+              0
+            ],
+            "muzzleRayHit": [
+              161.2888946533203,
+              25.6875,
+              -5.528190266594908
+            ],
+            "muzzleRayErrorM": 0.0001446533203193212,
+            "muzzleRecessM": 0.405,
+            "range": {
+              "firstVertex": 3872,
+              "vertices": 562,
+              "firstIndex": 9042,
+              "indices": 3360
+            },
+            "bounds": [
+              1.1915501068811867,
+              5.228524532318115,
+              -5.9870908475607205,
+              12.024999999999999,
+              6.146481362432241,
+              -5.069218338771083
+            ]
+          },
+          {
+            "root": [
+              1.1916666666666667,
+              4.1925,
+              5.528189101967876
+            ],
+            "muzzle": [
+              12.025,
+              4.1925,
+              5.528189101967876
+            ],
+            "worldMuzzle": [
+              161.69375,
+              24.1925,
+              5.528189101967877
+            ],
+            "axis": [
+              1,
+              0,
+              0
+            ],
+            "muzzleRayHit": [
+              161.2888946533203,
+              24.1925,
+              5.528189101967877
+            ],
+            "muzzleRayErrorM": 0.0001446533203193212,
+            "muzzleRecessM": 0.405,
+            "range": {
+              "firstVertex": 4470,
+              "vertices": 562,
+              "firstIndex": 12462,
+              "indices": 3360
+            },
+            "bounds": [
+              1.1915501068811867,
+              3.7334501467505468,
+              5.069216009517016,
+              12.024999999999999,
+              4.651523097865283,
+              5.987088518306653
+            ]
+          },
+          {
+            "root": [
+              1.1916666666666667,
+              5.6875,
+              5.528189101967876
+            ],
+            "muzzle": [
+              12.025,
+              5.6875,
+              5.528189101967876
+            ],
+            "worldMuzzle": [
+              161.69375,
+              25.6875,
+              5.528189101967877
+            ],
+            "axis": [
+              1,
+              0,
+              0
+            ],
+            "muzzleRayHit": [
+              161.2888946533203,
+              25.6875,
+              5.528189101967877
+            ],
+            "muzzleRayErrorM": 0.0001446533203193212,
+            "muzzleRecessM": 0.405,
+            "range": {
+              "firstVertex": 5032,
+              "vertices": 562,
+              "firstIndex": 15822,
+              "indices": 3360
+            },
+            "bounds": [
+              1.1915501068811867,
+              5.228524532318115,
+              5.069216009517016,
+              12.024999999999999,
+              6.146481362432241,
+              5.987088518306653
+            ]
+          }
+        ]
+      },
+      {
+        "id": 6,
+        "kind": "single200",
+        "asset": "light_single200",
+        "float": false,
+        "ped": 0,
+        "base": 0,
+        "low": 0,
+        "barrels": 1,
+        "boltTT": 0.2,
+        "volleyTT": 0.2,
+        "cycleSeconds": 0.2,
+        "powerW": 4.184e+21,
+        "powerVolleyTT": 0.2,
+        "scale": 1,
+        "size": [
+          20.549999999999997,
+          4.2684999999999995,
+          3.9
+        ],
+        "bounds": [
+          [
+            -4.15,
+            0,
+            -1.95
+          ],
+          [
+            16.4,
+            4.2684999999999995,
+            1.95
+          ]
+        ],
+        "worldBounds": [
+          185.66250000000002,
+          20,
+          -1.95,
+          206.2125,
+          24.2685,
+          1.95
+        ],
+        "origin": [
+          187.6125,
+          20,
+          0
+        ],
+        "plainMetal": true,
+        "materialReference": "ven_turret70_native",
+        "nativeCalibration": "light-photo-family",
+        "noSupportPedestal": true,
+        "supportStandHeightM": 0,
+        "triangles": 3384,
+        "drawnIndices": 10152,
+        "drawOutsideBounds": 0,
+        "authored": {
+          "asset": "light_single200",
+          "yawPivot": [
+            187.6125,
+            20,
+            0
+          ],
+          "elevationPivot": [
+            187.6125,
+            22.85,
+            0
+          ],
+          "elevationAxis": [
+            0,
+            0,
+            1
+          ],
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "fw": [
+            1,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              206.2125,
+              23.75,
+              0
+            ]
+          ],
+          "vertexStart": 2832,
+          "indexStart": 5508,
+          "housingFixed": false,
+          "limits": {
+            "yaw": null,
+            "lo": -0.17453292519943295,
+            "hi": 1.4835298641951802
+          }
+        },
+        "chargeInfo": {
+          "required": 4,
+          "plannedVolume": 4,
+          "housingVolume": 0.9052399999999848,
+          "externalVolume": 0.9052399999999848,
+          "embeddedVolume": 0,
+          "externalUsed": 0.9052399999999848,
+          "embeddedUsed": 0,
+          "housingUsed": 0.9052399999999848,
+          "internalRequired": 3.094760000000015,
+          "internalVolume": 3.0947600000000146,
+          "internalOccupiedVolume": 3.0947600000000146,
+          "volume": 3.9999999999999996,
+          "ratio": 0.9999999999999999,
+          "capacityRatio": 0.9999999999999999,
+          "storedTT": 0.19999999999999998,
+          "allocationPending": false,
+          "id": -200006,
+          "blocked": false
+        },
+        "sphereRadiusM": null,
+        "sphereCenterM": null,
+        "sphereMeshRange": null,
+        "quad500Layout": null,
+        "barrelsPhysical": [
+          {
+            "root": [
+              -0.8,
+              3.75,
+              0
+            ],
+            "muzzle": [
+              16.4,
+              3.75,
+              0
+            ],
+            "worldMuzzle": [
+              206.2125,
+              23.75,
+              0
+            ],
+            "axis": [
+              1,
+              0,
+              0
+            ],
+            "muzzleRayHit": [
+              205.61041259765625,
+              23.75,
+              0
+            ],
+            "muzzleRayErrorM": 0.00008740234375181899,
+            "muzzleRecessM": 0.602,
+            "range": {
+              "firstVertex": 3408,
+              "vertices": 602,
+              "firstIndex": 6552,
+              "indices": 3600
+            },
+            "bounds": [
+              -0.7999472707509998,
+              3.231467830151319,
+              -0.5184764966368675,
+              16.4,
+              4.2684999999999995,
+              0.5184764966368675
+            ]
+          }
+        ]
+      },
+      {
+        "id": 7,
+        "kind": "twin200Fast",
+        "asset": "light_twin200_fast",
+        "float": false,
+        "ped": 0,
+        "base": 0,
+        "low": 0,
+        "barrels": 2,
+        "boltTT": 0.2,
+        "volleyTT": 0.4,
+        "cycleSeconds": 0.1,
+        "powerW": 1.6736e+22,
+        "powerVolleyTT": 0.4,
+        "scale": 1,
+        "size": [
+          25.8,
+          9.1,
+          7.6
+        ],
+        "bounds": [
+          [
+            -5.5,
+            0,
+            -3.8
+          ],
+          [
+            20.3,
+            9.1,
+            3.8
+          ]
+        ],
+        "worldBounds": [
+          224.8875,
+          20,
+          -3.8,
+          250.6875,
+          29.1,
+          3.8
+        ],
+        "origin": [
+          228.7875,
+          20,
+          0
+        ],
+        "plainMetal": true,
+        "materialReference": "ven_turret70_native",
+        "nativeCalibration": "light-photo-family",
+        "noSupportPedestal": true,
+        "supportStandHeightM": 0,
+        "triangles": 4608,
+        "drawnIndices": 13824,
+        "drawOutsideBounds": 0,
+        "authored": {
+          "asset": "light_twin200_fast",
+          "yawPivot": [
+            228.7875,
+            20,
+            0
+          ],
+          "elevationPivot": [
+            228.7875,
+            24.8,
+            0
+          ],
+          "elevationAxis": [
+            0,
+            0,
+            0.9999999999999999
+          ],
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "fw": [
+            1,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              249.4875,
+              26.45,
+              0
+            ],
+            [
+              250.6875,
+              24.25,
+              0
+            ]
+          ],
+          "vertexStart": 2832,
+          "indexStart": 5508,
+          "housingFixed": false,
+          "limits": {
+            "yaw": null,
+            "lo": -0.17453292519943295,
+            "hi": 1.4835298641951802
+          }
+        },
+        "chargeInfo": {
+          "required": 8,
+          "plannedVolume": 8,
+          "housingVolume": 4.019400000000047,
+          "externalVolume": 4.019400000000047,
+          "embeddedVolume": 0,
+          "externalUsed": 4.019400000000047,
+          "embeddedUsed": 0,
+          "housingUsed": 4.019400000000047,
+          "internalRequired": 3.980599999999953,
+          "internalVolume": 3.980599999999953,
+          "internalOccupiedVolume": 3.980599999999953,
+          "volume": 8,
+          "ratio": 1,
+          "capacityRatio": 1,
+          "storedTT": 0.4,
+          "allocationPending": false,
+          "id": -200007,
+          "blocked": false
+        },
+        "sphereRadiusM": null,
+        "sphereCenterM": null,
+        "sphereMeshRange": null,
+        "quad500Layout": null,
+        "barrelsPhysical": [
+          {
+            "root": [
+              3.4,
+              6.45,
+              0
+            ],
+            "muzzle": [
+              19.1,
+              6.45,
+              0
+            ],
+            "worldMuzzle": [
+              249.4875,
+              26.45,
+              0
+            ],
+            "axis": [
+              1,
+              0,
+              0
+            ],
+            "muzzleRayHit": [
+              248.93789672851562,
+              26.45,
+              0
+            ],
+            "muzzleRayErrorM": 0.00010327148436317657,
+            "muzzleRecessM": 0.5495000000000001,
+            "range": {
+              "firstVertex": 3216,
+              "vertices": 602,
+              "firstIndex": 6180,
+              "indices": 3600
+            },
+            "bounds": [
+              3.4000000149011615,
+              5.931552544236183,
+              -0.518519201874733,
+              19.100000196695326,
+              6.968445873260498,
+              0.518519201874733
+            ]
+          },
+          {
+            "root": [
+              4.6,
+              4.25,
+              0
+            ],
+            "muzzle": [
+              20.3,
+              4.25,
+              0
+            ],
+            "worldMuzzle": [
+              250.6875,
+              24.25,
+              0
+            ],
+            "axis": [
+              1,
+              0,
+              0
+            ],
+            "muzzleRayHit": [
+              250.1378936767578,
+              24.25,
+              0
+            ],
+            "muzzleRayErrorM": 0.0001063232421927296,
+            "muzzleRecessM": 0.5495000000000001,
+            "range": {
+              "firstVertex": 4034,
+              "vertices": 602,
+              "firstIndex": 10188,
+              "indices": 3600
+            },
+            "bounds": [
+              4.600000010430813,
+              3.731538776308298,
+              -0.518519201874733,
+              20.3,
+              4.768432223983109,
+              0.518519201874733
+            ]
+          }
+        ]
+      },
+      {
+        "id": 8,
+        "kind": "oct40",
+        "asset": "isd_heavy_octuple",
+        "float": false,
+        "ped": 0,
+        "base": 0,
+        "low": 0,
+        "barrels": 8,
+        "boltTT": 40,
+        "volleyTT": 320,
+        "cycleSeconds": 1,
+        "powerW": 1.33888e+24,
+        "powerVolleyTT": 320.00000000000006,
+        "scale": 1,
+        "size": [
+          40,
+          10.568947548408056,
+          39.999823093067505
+        ],
+        "bounds": [
+          [
+            -19.999862845564778,
+            0,
+            -19.999628938908533
+          ],
+          [
+            20.000137154435226,
+            10.568947548408056,
+            20.00019415415897
+          ]
+        ],
+        "worldBounds": [
+          259.6876371544352,
+          20,
+          -19.999628938908536,
+          299.6876371544352,
+          30.568947548408055,
+          20.00019415415897
+        ],
+        "origin": [
+          279.6875,
+          20,
+          0
+        ],
+        "plainMetal": false,
+        "materialReference": null,
+        "nativeCalibration": "imperial-photo-family",
+        "noSupportPedestal": true,
+        "supportStandHeightM": 0,
+        "triangles": 1104,
+        "drawnIndices": 3312,
+        "drawOutsideBounds": 0,
+        "authored": {
+          "asset": "isd_heavy_octuple",
+          "yawPivot": [
+            279.6875,
+            20,
+            0
+          ],
+          "elevationPivot": [
+            273.96219004462625,
+            23.88247381939857,
+            0
+          ],
+          "elevationAxis": [
+            0,
+            0,
+            1
+          ],
+          "axis": [
+            0,
+            1,
+            0
+          ],
+          "fw": [
+            1,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              293.2193468535135,
+              28.406677515729264,
+              -10.795006277560518
+            ],
+            [
+              293.2193468535135,
+              28.406677515729264,
+              -8.908302786431427
+            ],
+            [
+              293.2193468535135,
+              28.406677515729264,
+              -7.0215992953023365
+            ],
+            [
+              293.2193468535135,
+              28.406677515729264,
+              -5.134590611114181
+            ],
+            [
+              293.2193468535135,
+              28.406838794914215,
+              5.135766212482744
+            ],
+            [
+              293.2193468535135,
+              28.406838794914215,
+              7.0227748966708985
+            ],
+            [
+              293.2193468535135,
+              28.406838794914215,
+              8.909478387799991
+            ],
+            [
+              293.2193468535135,
+              28.406838794914215,
+              10.796181878929083
+            ]
+          ],
+          "vertexStart": 452,
+          "indexStart": 984,
+          "housingFixed": false,
+          "limits": {
+            "yaw": null,
+            "lo": -0.17453292519943295,
+            "hi": 1.4835298641951802
+          }
+        },
+        "chargeInfo": {
+          "required": 6400,
+          "plannedVolume": 6400,
+          "housingVolume": 534.6428589997728,
+          "externalVolume": 534.6428589997728,
+          "embeddedVolume": 0,
+          "externalUsed": 534.6428589997728,
+          "embeddedUsed": 0,
+          "housingUsed": 534.6428589997728,
+          "internalRequired": 5865.357141000227,
+          "internalVolume": 5865.357141000226,
+          "internalOccupiedVolume": 5865.357141000226,
+          "volume": 6399.999999999999,
+          "ratio": 0.9999999999999999,
+          "capacityRatio": 0.9999999999999999,
+          "storedTT": 320,
+          "allocationPending": false,
+          "id": -200008,
+          "blocked": false
+        },
+        "sphereRadiusM": null,
+        "sphereCenterM": null,
+        "sphereMeshRange": null,
+        "quad500Layout": null,
+        "barrelsPhysical": [
+          {
+            "root": [
+              -5.480544039485302,
+              8.406677515729262,
+              -10.79500627756052
+            ],
+            "muzzle": [
+              13.531846853513539,
+              8.406677515729262,
+              -10.79500627756052
+            ],
+            "worldMuzzle": [
+              293.2193468535135,
+              28.406677515729264,
+              -10.795006277560518
+            ],
+            "axis": [
+              1,
+              0,
+              0
+            ],
+            "muzzleRayHit": [
+              293.219324727763,
+              28.406677515729264,
+              -10.795006277560518
+            ],
+            "muzzleRayErrorM": 0.000013337823816073069,
+            "muzzleRecessM": 0.00003546357433209756,
+            "range": {
+              "firstVertex": 628,
+              "vertices": 101,
+              "firstIndex": 1296,
+              "indices": 252
+            },
+            "bounds": [
+              -5.480543907309466,
+              7.67914710348074,
+              -11.522586561946785,
+              13.531847063874311,
+              9.13420792440175,
+              -10.06742546571023
+            ]
+          },
+          {
+            "root": [
+              -5.480544039485302,
+              8.406677515729262,
+              -8.908302786431427
+            ],
+            "muzzle": [
+              13.531846853513539,
+              8.406677515729262,
+              -8.908302786431427
+            ],
+            "worldMuzzle": [
+              293.2193468535135,
+              28.406677515729264,
+              -8.908302786431427
+            ],
+            "axis": [
+              1,
+              0,
+              0
+            ],
+            "muzzleRayHit": [
+              293.2193247264737,
+              28.406677515729264,
+              -8.908302786431427
+            ],
+            "muzzleRayErrorM": 0.000013336534493646468,
+            "muzzleRecessM": 0.00003546357433209756,
+            "range": {
+              "firstVertex": 729,
+              "vertices": 101,
+              "firstIndex": 1548,
+              "indices": 252
+            },
+            "bounds": [
+              -5.480543907309466,
+              7.67914710348074,
+              -9.635883189604426,
+              13.531847063874311,
+              9.13420792440175,
+              -8.180722689411683
+            ]
+          },
+          {
+            "root": [
+              -5.480544039485302,
+              8.406677515729262,
+              -7.0215992953023365
+            ],
+            "muzzle": [
+              13.531846853513539,
+              8.406677515729262,
+              -7.0215992953023365
+            ],
+            "worldMuzzle": [
+              293.2193468535135,
+              28.406677515729264,
+              -7.0215992953023365
+            ],
+            "axis": [
+              1,
+              0,
+              0
+            ],
+            "muzzleRayHit": [
+              293.2193247554512,
+              28.406677515729264,
+              -7.0215992953023365
+            ],
+            "muzzleRayErrorM": 0.000013365512018026493,
+            "muzzleRecessM": 0.00003546357433209756,
+            "range": {
+              "firstVertex": 830,
+              "vertices": 101,
+              "firstIndex": 1800,
+              "indices": 252
+            },
+            "bounds": [
+              -5.480543907309466,
+              7.67914710348074,
+              -7.749179817262067,
+              13.531847063874311,
+              9.13420792440175,
+              -6.294019317069323
+            ]
+          },
+          {
+            "root": [
+              -5.480544039485302,
+              8.406677515729262,
+              -5.134590611114181
+            ],
+            "muzzle": [
+              13.531846853513539,
+              8.406677515729262,
+              -5.134590611114181
+            ],
+            "worldMuzzle": [
+              293.2193468535135,
+              28.406677515729264,
+              -5.134590611114181
+            ],
+            "axis": [
+              1,
+              0,
+              0
+            ],
+            "muzzleRayHit": [
+              293.2192837027562,
+              28.406677515729264,
+              -5.134590611114181
+            ],
+            "muzzleRayErrorM": 0.000013453984593070345,
+            "muzzleRecessM": 0.00007660474195589788,
+            "range": {
+              "firstVertex": 931,
+              "vertices": 101,
+              "firstIndex": 2052,
+              "indices": 252
+            },
+            "bounds": [
+              -5.480543907309466,
+              7.67914710348074,
+              -5.862475848875896,
+              13.531847063874311,
+              9.13420792440175,
+              -4.4067052978419445
+            ]
+          },
+          {
+            "root": [
+              -5.480544039485302,
+              8.406838794914217,
+              5.135766212482745
+            ],
+            "muzzle": [
+              13.531846853513539,
+              8.406838794914217,
+              5.135766212482745
+            ],
+            "worldMuzzle": [
+              293.2193468535135,
+              28.406838794914215,
+              5.135766212482744
+            ],
+            "axis": [
+              1,
+              0,
+              0
+            ],
+            "muzzleRayHit": [
+              293.21929269565294,
+              28.406838794914215,
+              5.135766212482744
+            ],
+            "muzzleRayErrorM": 0.000013533396668208297,
+            "muzzleRecessM": 0.00006769125725992225,
+            "range": {
+              "firstVertex": 1032,
+              "vertices": 101,
+              "firstIndex": 2304,
+              "indices": 252
+            },
+            "bounds": [
+              -5.480543907309466,
+              7.6793083728219935,
+              4.407880861955495,
+              13.531847063874311,
+              9.134369193743005,
+              5.863651412989446
+            ]
+          },
+          {
+            "root": [
+              -5.480544039485302,
+              8.406838794914217,
+              7.022774896670899
+            ],
+            "muzzle": [
+              13.531846853513539,
+              8.406838794914217,
+              7.022774896670899
+            ],
+            "worldMuzzle": [
+              293.2193468535135,
+              28.406838794914215,
+              7.0227748966708985
+            ],
+            "axis": [
+              1,
+              0,
+              0
+            ],
+            "muzzleRayHit": [
+              293.2192248966479,
+              28.406838794914215,
+              7.0227748966708985
+            ],
+            "muzzleRayErrorM": 0.000013425648887732677,
+            "muzzleRecessM": 0.00013538251452014375,
+            "range": {
+              "firstVertex": 1133,
+              "vertices": 101,
+              "firstIndex": 2556,
+              "indices": 252
+            },
+            "bounds": [
+              -5.480543907309466,
+              7.6793083728219935,
+              6.294584532319759,
+              13.531847063874311,
+              9.134369193743005,
+              7.750965730238732
+            ]
+          },
+          {
+            "root": [
+              -5.480544039485302,
+              8.406838794914217,
+              8.909478387799991
+            ],
+            "muzzle": [
+              13.531846853513539,
+              8.406838794914217,
+              8.909478387799991
+            ],
+            "worldMuzzle": [
+              293.2193468535135,
+              28.406838794914215,
+              8.909478387799991
+            ],
+            "axis": [
+              1,
+              0,
+              0
+            ],
+            "muzzleRayHit": [
+              293.2193602131657,
+              28.406838794914215,
+              8.909478387799991
+            ],
+            "muzzleRayErrorM": 0.000013359652200506389,
+            "muzzleRecessM": 0,
+            "range": {
+              "firstVertex": 1234,
+              "vertices": 101,
+              "firstIndex": 2808,
+              "indices": 252
+            },
+            "bounds": [
+              -5.480543907309466,
+              7.6793083728219935,
+              8.181287904662119,
+              13.531847063874311,
+              9.134369193743005,
+              9.637669102581091
+            ]
+          },
+          {
+            "root": [
+              -5.480544039485302,
+              8.406838794914217,
+              10.796181878929083
+            ],
+            "muzzle": [
+              13.531846853513539,
+              8.406838794914217,
+              10.796181878929083
+            ],
+            "worldMuzzle": [
+              293.2193468535135,
+              28.406838794914215,
+              10.796181878929083
+            ],
+            "axis": [
+              1,
+              0,
+              0
+            ],
+            "muzzleRayHit": [
+              293.2193601375767,
+              28.406838794914215,
+              10.796181878929083
+            ],
+            "muzzleRayErrorM": 0.000013284063186347339,
+            "muzzleRecessM": 0,
+            "range": {
+              "firstVertex": 1335,
+              "vertices": 101,
+              "firstIndex": 3060,
+              "indices": 252
+            },
+            "bounds": [
+              -5.480543907309466,
+              7.6793083728219935,
+              10.067990680960666,
+              13.531847063874311,
+              9.134369193743005,
+              11.52437247492345
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "nativeSelection": [
+    {
+      "kind": "single500",
+      "id": 2,
+      "pixel": [
+        737.288705199225,
+        575.8964790931739
+      ],
+      "nativeCanvasClick": true,
+      "bodyInfo": "Gunhouse & Charge Banks\n1 Times min · 100%\n\n500 GT × 1 Barrels × 1 Salvos = 500 GT\n\nRequired Bank Volume\n10.0 m³\nPlanned Bank Volume\n10.0 m³\nGunhouse Volume\n193.2 m³\nExternal Gunhouse Volume\n143.2 m³\nEmbedded Gunhouse Volume\n50.0 m³\nBanks Housed in Gunhouse\n10.0 m³\nAdditional Interior Bank Required\n0.0 m³\nAdditional Interior Bank Installed\n0.0 m³\nTotal Interior Volume Occupied\n50.0 m³\nTotal Bank Volume\n10.0 m³\n\nCharge Capacity 100%\n\nStored Salvos\n1 Times min\nCharger Compartment Volume\n\nUse the gunhouse as a weapon compartment and add interior banks only for the shortfall. Embedded gunhouse volume occupies interior space and cannot be shared with other compartments. Capacity density: 0.05 TT/m³. Recharge estimate: No Power."
+    },
+    {
+      "kind": "twin200",
+      "id": 3,
+      "pixel": [
+        705.3327224531911,
+        627.9199136570298
+      ],
+      "nativeCanvasClick": true,
+      "bodyInfo": "Gunhouse & Charge Banks\n1 Times min · 100%\n\n200 GT × 2 Barrels × 1 Salvos = 400 GT\n\nRequired Bank Volume\n8.0 m³\nPlanned Bank Volume\n8.0 m³\nGunhouse Volume\n267.0 m³\nExternal Gunhouse Volume\n267.0 m³\nEmbedded Gunhouse Volume\n0.0 m³\nBanks Housed in Gunhouse\n8.0 m³\nAdditional Interior Bank Required\n0.0 m³\nAdditional Interior Bank Installed\n0.0 m³\nTotal Interior Volume Occupied\n0.0 m³\nTotal Bank Volume\n8.0 m³\n\nCharge Capacity 100%\n\nStored Salvos\n1 Times min\nCharger Compartment Volume\n\nUse the gunhouse as a weapon compartment and add interior banks only for the shortfall. Embedded gunhouse volume occupies interior space and cannot be shared with other compartments. Capacity density: 0.05 TT/m³. Recharge estimate: No Power."
+    },
+    {
+      "kind": "quad500",
+      "id": 4,
+      "pixel": [
+        661.2009663494405,
+        548.2388551786796
+      ],
+      "nativeCanvasClick": true,
+      "bodyInfo": "Gunhouse & Charge Banks\n1 Times min · 100%\n\n500 GT × 4 Barrels × 1 Salvos = 2.0 TT\n\nRequired Bank Volume\n40.0 m³\nPlanned Bank Volume\n40.0 m³\nGunhouse Volume\n111.0 m³\nExternal Gunhouse Volume\n111.0 m³\nEmbedded Gunhouse Volume\n0.0 m³\nBanks Housed in Gunhouse\n40.0 m³\nAdditional Interior Bank Required\n0.0 m³\nAdditional Interior Bank Installed\n0.0 m³\nTotal Interior Volume Occupied\n0.0 m³\nTotal Bank Volume\n40.0 m³\n\nCharge Capacity 100%\n\nStored Salvos\n1 Times min\nCharger Compartment Volume\n\nUse the gunhouse as a weapon compartment and add interior banks only for the shortfall. Embedded gunhouse volume occupies interior space and cannot be shared with other compartments. Capacity density: 0.05 TT/m³. Recharge estimate: No Power."
+    },
+    {
+      "kind": "quad200",
+      "id": 5,
+      "pixel": [
+        703.7141149444146,
+        666.9641329314376
+      ],
+      "nativeCanvasClick": true,
+      "bodyInfo": "Gunhouse & Charge Banks\n1 Times min · 100%\n\n200 GT × 4 Barrels × 1 Salvos = 800 GT\n\nRequired Bank Volume\n16.0 m³\nPlanned Bank Volume\n16.0 m³\nGunhouse Volume\n648.2 m³\nExternal Gunhouse Volume\n648.2 m³\nEmbedded Gunhouse Volume\n0.0 m³\nBanks Housed in Gunhouse\n16.0 m³\nAdditional Interior Bank Required\n0.0 m³\nAdditional Interior Bank Installed\n0.0 m³\nTotal Interior Volume Occupied\n0.0 m³\nTotal Bank Volume\n16.0 m³\n\nCharge Capacity 100%\n\nStored Salvos\n1 Times min\nCharger Compartment Volume\n\nUse the gunhouse as a weapon compartment and add interior banks only for the shortfall. Embedded gunhouse volume occupies interior space and cannot be shared with other compartments. Capacity density: 0.05 TT/m³. Recharge estimate: No Power."
+    },
+    {
+      "kind": "single200",
+      "id": 6,
+      "pixel": [
+        639.5145687682857,
+        540.358447145514
+      ],
+      "nativeCanvasClick": true,
+      "bodyInfo": "Gunhouse & Charge Banks\n1 Times min · 10 m · 100%\n\n200 GT × 1 Barrels × 1 Salvos = 200 GT\n\nRequired Bank Volume\n4.0 m³\nPlanned Bank Volume\n4.0 m³\nGunhouse Volume\n0.9 m³\nExternal Gunhouse Volume\n0.9 m³\nEmbedded Gunhouse Volume\n0.0 m³\nBanks Housed in Gunhouse\n0.9 m³\nAdditional Interior Bank Required\n3.1 m³\nAdditional Interior Bank Installed\n3.1 m³\nTotal Interior Volume Occupied\n3.1 m³\nTotal Bank Volume\n4.0 m³\n\nCharge Capacity 100% · Interior Compartment 0.6 × 9.3 × 0.6 m\n\nStored Salvos\n1 Times min\nDepth Inward from Mounting Surface\nCharger Compartment Volume\n\nUse the gunhouse as a weapon compartment and add interior banks only for the shortfall. Embedded gunhouse volume occupies interior space and cannot be shared with other compartments. Capacity density: 0.05 TT/m³. Recharge estimate: No Power."
+    },
+    {
+      "kind": "twin200Fast",
+      "id": 7,
+      "pixel": [
+        637.941274569578,
+        598.488467241264
+      ],
+      "nativeCanvasClick": true,
+      "bodyInfo": "Gunhouse & Charge Banks\n1 Times min · 10 m · 100%\n\n200 GT × 2 Barrels × 1 Salvos = 400 GT\n\nRequired Bank Volume\n8.0 m³\nPlanned Bank Volume\n8.0 m³\nGunhouse Volume\n4.0 m³\nExternal Gunhouse Volume\n4.0 m³\nEmbedded Gunhouse Volume\n0.0 m³\nBanks Housed in Gunhouse\n4.0 m³\nAdditional Interior Bank Required\n4.0 m³\nAdditional Interior Bank Installed\n4.0 m³\nTotal Interior Volume Occupied\n4.0 m³\nTotal Bank Volume\n8.0 m³\n\nCharge Capacity 100% · Interior Compartment 0.8 × 6.0 × 0.8 m\n\nStored Salvos\n1 Times min\nDepth Inward from Mounting Surface\nCharger Compartment Volume\n\nUse the gunhouse as a weapon compartment and add interior banks only for the shortfall. Embedded gunhouse volume occupies interior space and cannot be shared with other compartments. Capacity density: 0.05 TT/m³. Recharge estimate: No Power."
+    }
+  ],
+  "poseMeshes": [
+    {
+      "kind": "single500",
+      "id": 2,
+      "authored": true,
+      "bodyMesh": "refTurBody_2",
+      "movingMesh": "refTur_2",
+      "bodyIndices": 0,
+      "movingIndices": 8244,
+      "bodyTexture": "reference",
+      "movingTexture": "reference",
+      "bodyColors": null,
+      "movingColors": [
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "kind": "twin200",
+      "id": 3,
+      "authored": true,
+      "bodyMesh": "refTurBody_3",
+      "movingMesh": "refTur_3",
+      "bodyIndices": 5952,
+      "movingIndices": 7032,
+      "bodyTexture": "reference",
+      "movingTexture": "reference",
+      "bodyColors": [
+        128,
+        128,
+        128
+      ],
+      "movingColors": [
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "kind": "quad500",
+      "id": 4,
+      "authored": true,
+      "bodyMesh": "refTurBody_4",
+      "movingMesh": "refTur_4",
+      "bodyIndices": 6726,
+      "movingIndices": 24600,
+      "bodyTexture": "reference",
+      "movingTexture": "reference",
+      "bodyColors": [
+        128,
+        128,
+        128
+      ],
+      "movingColors": [
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "kind": "quad200",
+      "id": 5,
+      "authored": true,
+      "bodyMesh": "refTurBody_5",
+      "movingMesh": "refTur_5",
+      "bodyIndices": 5622,
+      "movingIndices": 13560,
+      "bodyTexture": "reference",
+      "movingTexture": "reference",
+      "bodyColors": [
+        128,
+        128,
+        128
+      ],
+      "movingColors": [
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "kind": "single200",
+      "id": 6,
+      "authored": true,
+      "bodyMesh": "refTurBody_6",
+      "movingMesh": "refTur_6",
+      "bodyIndices": 5508,
+      "movingIndices": 4644,
+      "bodyTexture": "reference",
+      "movingTexture": "reference",
+      "bodyColors": [
+        128,
+        128,
+        128
+      ],
+      "movingColors": [
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "kind": "twin200Fast",
+      "id": 7,
+      "authored": true,
+      "bodyMesh": "refTurBody_7",
+      "movingMesh": "refTur_7",
+      "bodyIndices": 5508,
+      "movingIndices": 8316,
+      "bodyTexture": "reference",
+      "movingTexture": "reference",
+      "bodyColors": [
+        128,
+        128,
+        128
+      ],
+      "movingColors": [
+        128,
+        128,
+        128
+      ]
+    },
+    {
+      "kind": "oct40",
+      "id": 8,
+      "authored": true,
+      "bodyMesh": "refTurBody_8",
+      "movingMesh": "refTur_8",
+      "bodyIndices": 984,
+      "movingIndices": 2328,
+      "bodyTexture": "reference",
+      "movingTexture": "reference",
+      "bodyColors": [
+        143,
+        150,
+        155
+      ],
+      "movingColors": [
+        143,
+        150,
+        155
+      ]
+    }
+  ],
+  "rendered": [
+    {
+      "id": "profile-row",
+      "kinds": [
+        "single500",
+        "twin200",
+        "quad500",
+        "quad200"
+      ],
+      "requestedElevationDegrees": 0,
+      "camera": {
+        "theta": -1.5707963267948966,
+        "phi": 1.5707963267948966,
+        "orthographic": true,
+        "worldWidthM": 128.05800000000002
+      },
+      "models": [
+        {
+          "kind": "single500",
+          "id": 2,
+          "size": [
+            18.599999999999998,
+            7.199999999999999,
+            7.2
+          ],
+          "origin": [
+            42.16875000000001,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              39.3,
+              21.2,
+              0
+            ]
+          ],
+          "muzzleCount": 1,
+          "elevationPivot": [
+            24.3,
+            21.2,
+            0
+          ],
+          "bodyPivot": [
+            24.3,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_2",
+          "staticMesh": "refTurBody_2",
+          "effectiveElevationDegrees": 0
+        },
+        {
+          "kind": "twin200",
+          "id": 3,
+          "size": [
+            23.900000000000006,
+            7,
+            8.5
+          ],
+          "origin": [
+            14.868750000000002,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              79.25,
+              25.15,
+              -0.85
+            ],
+            [
+              79.25,
+              25.15,
+              0.85
+            ]
+          ],
+          "muzzleCount": 2,
+          "elevationPivot": [
+            63.55,
+            24.4,
+            0
+          ],
+          "bodyPivot": [
+            63.55,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_3",
+          "staticMesh": "refTurBody_3",
+          "effectiveElevationDegrees": 0
+        },
+        {
+          "kind": "quad500",
+          "id": 4,
+          "size": [
+            28.5,
+            9.2,
+            11.791093750000002
+          ],
+          "origin": [
+            -20.96050300598144,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              127.37925300598144,
+              23.05,
+              -4.6605468750000005
+            ],
+            [
+              127.37925300598144,
+              26.75,
+              -4.6605468750000005
+            ],
+            [
+              127.37925300598144,
+              23.05,
+              4.6605468750000005
+            ],
+            [
+              127.37925300598144,
+              26.75,
+              4.6605468750000005
+            ]
+          ],
+          "muzzleCount": 4,
+          "elevationPivot": [
+            109.26828136444092,
+            24.9,
+            0
+          ],
+          "bodyPivot": [
+            107.75,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_4",
+          "staticMesh": "refTurBody_4",
+          "effectiveElevationDegrees": 0
+        },
+        {
+          "kind": "quad200",
+          "id": 5,
+          "size": [
+            19.337500000000006,
+            7.605,
+            13.57175873712557
+          ],
+          "origin": [
+            -49.85625,
+            0,
+            0.0000011646270330345487
+          ],
+          "muzzles": [
+            [
+              161.69375,
+              24.1925,
+              -5.528190266594908
+            ],
+            [
+              161.69375,
+              25.6875,
+              -5.528190266594908
+            ],
+            [
+              161.69375,
+              24.1925,
+              5.528189101967877
+            ],
+            [
+              161.69375,
+              25.6875,
+              5.528189101967877
+            ]
+          ],
+          "muzzleCount": 4,
+          "elevationPivot": [
+            151.29375,
+            24.939999999999998,
+            0
+          ],
+          "bodyPivot": [
+            149.66875,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_5",
+          "staticMesh": "refTurBody_5",
+          "effectiveElevationDegrees": 0
+        }
+      ],
+      "pixelCoverage": {
+        "litPixels": 64963,
+        "minimumLitPixels": 6845,
+        "pixelCount": 1140800,
+        "fraction": 0.05694512622720898
+      },
+      "webglError": 0,
+      "fixtureVisible": false,
+      "image": "light-turret-profile-row.png"
+    },
+    {
+      "id": "photo-grid",
+      "kinds": [
+        "single200",
+        "twin200Fast",
+        "single500",
+        "twin200",
+        "quad500",
+        "quad200"
+      ],
+      "requestedElevationDegrees": 0,
+      "camera": {
+        "theta": -1.5707963267948966,
+        "phi": 1.5707963267948966,
+        "orthographic": true,
+        "worldWidthM": 128.05800000000002
+      },
+      "models": [
+        {
+          "kind": "single200",
+          "id": 6,
+          "size": [
+            20.549999999999983,
+            4.2684999999999995,
+            3.9
+          ],
+          "origin": [
+            39.54375,
+            26,
+            0
+          ],
+          "muzzles": [
+            [
+              206.2125,
+              23.75,
+              0
+            ]
+          ],
+          "muzzleCount": 1,
+          "elevationPivot": [
+            187.6125,
+            22.85,
+            0
+          ],
+          "bodyPivot": [
+            187.6125,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_6",
+          "staticMesh": "refTurBody_6",
+          "effectiveElevationDegrees": 0
+        },
+        {
+          "kind": "twin200Fast",
+          "id": 7,
+          "size": [
+            25.80000000000001,
+            9.100000000000001,
+            7.6
+          ],
+          "origin": [
+            9.618750000000002,
+            26,
+            0
+          ],
+          "muzzles": [
+            [
+              249.4875,
+              26.45,
+              0
+            ],
+            [
+              250.6875,
+              24.25,
+              0
+            ]
+          ],
+          "muzzleCount": 2,
+          "elevationPivot": [
+            228.7875,
+            24.8,
+            0
+          ],
+          "bodyPivot": [
+            228.7875,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_7",
+          "staticMesh": "refTurBody_7",
+          "effectiveElevationDegrees": 0
+        },
+        {
+          "kind": "single500",
+          "id": 2,
+          "size": [
+            18.599999999999998,
+            7.199999999999999,
+            7.2
+          ],
+          "origin": [
+            42.16875000000001,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              39.3,
+              21.2,
+              0
+            ]
+          ],
+          "muzzleCount": 1,
+          "elevationPivot": [
+            24.3,
+            21.2,
+            0
+          ],
+          "bodyPivot": [
+            24.3,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_2",
+          "staticMesh": "refTurBody_2",
+          "effectiveElevationDegrees": 0
+        },
+        {
+          "kind": "twin200",
+          "id": 3,
+          "size": [
+            23.900000000000006,
+            7,
+            8.5
+          ],
+          "origin": [
+            14.868750000000002,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              79.25,
+              25.15,
+              -0.85
+            ],
+            [
+              79.25,
+              25.15,
+              0.85
+            ]
+          ],
+          "muzzleCount": 2,
+          "elevationPivot": [
+            63.55,
+            24.4,
+            0
+          ],
+          "bodyPivot": [
+            63.55,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_3",
+          "staticMesh": "refTurBody_3",
+          "effectiveElevationDegrees": 0
+        },
+        {
+          "kind": "quad500",
+          "id": 4,
+          "size": [
+            28.5,
+            9.2,
+            11.791093750000002
+          ],
+          "origin": [
+            -20.96050300598144,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              127.37925300598144,
+              23.05,
+              -4.6605468750000005
+            ],
+            [
+              127.37925300598144,
+              26.75,
+              -4.6605468750000005
+            ],
+            [
+              127.37925300598144,
+              23.05,
+              4.6605468750000005
+            ],
+            [
+              127.37925300598144,
+              26.75,
+              4.6605468750000005
+            ]
+          ],
+          "muzzleCount": 4,
+          "elevationPivot": [
+            109.26828136444092,
+            24.9,
+            0
+          ],
+          "bodyPivot": [
+            107.75,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_4",
+          "staticMesh": "refTurBody_4",
+          "effectiveElevationDegrees": 0
+        },
+        {
+          "kind": "quad200",
+          "id": 5,
+          "size": [
+            19.337500000000006,
+            7.605,
+            13.57175873712557
+          ],
+          "origin": [
+            -49.85625,
+            0,
+            0.0000011646270330345487
+          ],
+          "muzzles": [
+            [
+              161.69375,
+              24.1925,
+              -5.528190266594908
+            ],
+            [
+              161.69375,
+              25.6875,
+              -5.528190266594908
+            ],
+            [
+              161.69375,
+              24.1925,
+              5.528189101967877
+            ],
+            [
+              161.69375,
+              25.6875,
+              5.528189101967877
+            ]
+          ],
+          "muzzleCount": 4,
+          "elevationPivot": [
+            151.29375,
+            24.939999999999998,
+            0
+          ],
+          "bodyPivot": [
+            149.66875,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_5",
+          "staticMesh": "refTurBody_5",
+          "effectiveElevationDegrees": 0
+        }
+      ],
+      "pixelCoverage": {
+        "litPixels": 70287,
+        "minimumLitPixels": 10332,
+        "pixelCount": 1722000,
+        "fraction": 0.04081707317073171
+      },
+      "webglError": 0,
+      "fixtureVisible": false,
+      "image": "light-turret-photo-grid.png"
+    },
+    {
+      "id": "isometric-row",
+      "kinds": [
+        "single500",
+        "twin200",
+        "quad500",
+        "quad200"
+      ],
+      "requestedElevationDegrees": 0,
+      "camera": {
+        "theta": -1.03,
+        "phi": 1.05,
+        "orthographic": true,
+        "worldWidthM": 128.05800000000002
+      },
+      "models": [
+        {
+          "kind": "single500",
+          "id": 2,
+          "size": [
+            18.599999999999998,
+            7.199999999999999,
+            7.2
+          ],
+          "origin": [
+            42.16875000000001,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              39.3,
+              21.2,
+              0
+            ]
+          ],
+          "muzzleCount": 1,
+          "elevationPivot": [
+            24.3,
+            21.2,
+            0
+          ],
+          "bodyPivot": [
+            24.3,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_2",
+          "staticMesh": "refTurBody_2",
+          "effectiveElevationDegrees": 0
+        },
+        {
+          "kind": "twin200",
+          "id": 3,
+          "size": [
+            23.900000000000006,
+            7,
+            8.5
+          ],
+          "origin": [
+            14.868750000000002,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              79.25,
+              25.15,
+              -0.85
+            ],
+            [
+              79.25,
+              25.15,
+              0.85
+            ]
+          ],
+          "muzzleCount": 2,
+          "elevationPivot": [
+            63.55,
+            24.4,
+            0
+          ],
+          "bodyPivot": [
+            63.55,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_3",
+          "staticMesh": "refTurBody_3",
+          "effectiveElevationDegrees": 0
+        },
+        {
+          "kind": "quad500",
+          "id": 4,
+          "size": [
+            28.5,
+            9.2,
+            11.791093750000002
+          ],
+          "origin": [
+            -20.96050300598144,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              127.37925300598144,
+              23.05,
+              -4.6605468750000005
+            ],
+            [
+              127.37925300598144,
+              26.75,
+              -4.6605468750000005
+            ],
+            [
+              127.37925300598144,
+              23.05,
+              4.6605468750000005
+            ],
+            [
+              127.37925300598144,
+              26.75,
+              4.6605468750000005
+            ]
+          ],
+          "muzzleCount": 4,
+          "elevationPivot": [
+            109.26828136444092,
+            24.9,
+            0
+          ],
+          "bodyPivot": [
+            107.75,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_4",
+          "staticMesh": "refTurBody_4",
+          "effectiveElevationDegrees": 0
+        },
+        {
+          "kind": "quad200",
+          "id": 5,
+          "size": [
+            19.337500000000006,
+            7.605,
+            13.57175873712557
+          ],
+          "origin": [
+            -49.85625,
+            0,
+            0.0000011646270330345487
+          ],
+          "muzzles": [
+            [
+              161.69375,
+              24.1925,
+              -5.528190266594908
+            ],
+            [
+              161.69375,
+              25.6875,
+              -5.528190266594908
+            ],
+            [
+              161.69375,
+              24.1925,
+              5.528189101967877
+            ],
+            [
+              161.69375,
+              25.6875,
+              5.528189101967877
+            ]
+          ],
+          "muzzleCount": 4,
+          "elevationPivot": [
+            151.29375,
+            24.939999999999998,
+            0
+          ],
+          "bodyPivot": [
+            149.66875,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_5",
+          "staticMesh": "refTurBody_5",
+          "effectiveElevationDegrees": 0
+        }
+      ],
+      "pixelCoverage": {
+        "litPixels": 111960,
+        "minimumLitPixels": 7949,
+        "pixelCount": 1324800,
+        "fraction": 0.08451086956521739
+      },
+      "webglError": 0,
+      "fixtureVisible": false,
+      "image": "light-turret-isometric-row.png"
+    },
+    {
+      "id": "scale-anchor",
+      "kinds": [
+        "single200",
+        "twin200Fast",
+        "quad500",
+        "oct40"
+      ],
+      "requestedElevationDegrees": 0,
+      "camera": {
+        "theta": -1.5707963267948966,
+        "phi": 1.5707963267948966,
+        "orthographic": true,
+        "worldWidthM": 155.512
+      },
+      "models": [
+        {
+          "kind": "single200",
+          "id": 6,
+          "size": [
+            20.549999999999983,
+            4.2684999999999995,
+            3.9
+          ],
+          "origin": [
+            50.825,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              206.2125,
+              23.75,
+              0
+            ]
+          ],
+          "muzzleCount": 1,
+          "elevationPivot": [
+            187.6125,
+            22.85,
+            0
+          ],
+          "bodyPivot": [
+            187.6125,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_6",
+          "staticMesh": "refTurBody_6",
+          "effectiveElevationDegrees": 0
+        },
+        {
+          "kind": "twin200Fast",
+          "id": 7,
+          "size": [
+            25.80000000000001,
+            9.100000000000001,
+            7.6
+          ],
+          "origin": [
+            18.97500000000001,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              249.4875,
+              26.45,
+              0
+            ],
+            [
+              250.6875,
+              24.25,
+              0
+            ]
+          ],
+          "muzzleCount": 2,
+          "elevationPivot": [
+            228.7875,
+            24.8,
+            0
+          ],
+          "bodyPivot": [
+            228.7875,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_7",
+          "staticMesh": "refTurBody_7",
+          "effectiveElevationDegrees": 0
+        },
+        {
+          "kind": "quad500",
+          "id": 4,
+          "size": [
+            28.5,
+            9.2,
+            11.791093750000002
+          ],
+          "origin": [
+            -12.554253005981437,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              127.37925300598144,
+              23.05,
+              -4.6605468750000005
+            ],
+            [
+              127.37925300598144,
+              26.75,
+              -4.6605468750000005
+            ],
+            [
+              127.37925300598144,
+              23.05,
+              4.6605468750000005
+            ],
+            [
+              127.37925300598144,
+              26.75,
+              4.6605468750000005
+            ]
+          ],
+          "muzzleCount": 4,
+          "elevationPivot": [
+            109.26828136444092,
+            24.9,
+            0
+          ],
+          "bodyPivot": [
+            107.75,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_4",
+          "staticMesh": "refTurBody_4",
+          "effectiveElevationDegrees": 0
+        },
+        {
+          "kind": "oct40",
+          "id": 8,
+          "size": [
+            40,
+            10.568947548408055,
+            39.999823093067505
+          ],
+          "origin": [
+            -49.425137154435205,
+            0,
+            -0.00028260762521625793
+          ],
+          "muzzles": [
+            [
+              293.2193468535135,
+              28.406677515729264,
+              -10.795006277560518
+            ],
+            [
+              293.2193468535135,
+              28.406677515729264,
+              -8.908302786431427
+            ],
+            [
+              293.2193468535135,
+              28.406677515729264,
+              -7.0215992953023365
+            ],
+            [
+              293.2193468535135,
+              28.406677515729264,
+              -5.134590611114181
+            ],
+            [
+              293.2193468535135,
+              28.406838794914215,
+              5.135766212482744
+            ],
+            [
+              293.2193468535135,
+              28.406838794914215,
+              7.0227748966708985
+            ],
+            [
+              293.2193468535135,
+              28.406838794914215,
+              8.909478387799991
+            ],
+            [
+              293.2193468535135,
+              28.406838794914215,
+              10.796181878929083
+            ]
+          ],
+          "muzzleCount": 8,
+          "elevationPivot": [
+            273.96219004462625,
+            23.88247381939857,
+            0
+          ],
+          "bodyPivot": [
+            279.6875,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_8",
+          "staticMesh": "refTurBody_8",
+          "effectiveElevationDegrees": 0
+        }
+      ],
+      "pixelCoverage": {
+        "litPixels": 64125,
+        "minimumLitPixels": 7176,
+        "pixelCount": 1196000,
+        "fraction": 0.05361622073578595
+      },
+      "webglError": 0,
+      "fixtureVisible": false,
+      "image": "light-turret-scale-anchor.png"
+    },
+    {
+      "id": "pose-0deg",
+      "kinds": [
+        "single500",
+        "twin200",
+        "quad500",
+        "quad200",
+        "single200",
+        "twin200Fast"
+      ],
+      "requestedElevationDegrees": 0,
+      "camera": {
+        "theta": -1.03,
+        "phi": 1.05,
+        "orthographic": true,
+        "worldWidthM": 197.89000000000001
+      },
+      "models": [
+        {
+          "kind": "single500",
+          "id": 2,
+          "size": [
+            18.599999999999998,
+            7.199999999999999,
+            7.2
+          ],
+          "origin": [
+            73.34375,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              39.3,
+              21.2,
+              0
+            ]
+          ],
+          "muzzleCount": 1,
+          "elevationPivot": [
+            24.3,
+            21.2,
+            0
+          ],
+          "bodyPivot": [
+            24.3,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_2",
+          "staticMesh": "refTurBody_2",
+          "effectiveElevationDegrees": 0
+        },
+        {
+          "kind": "twin200",
+          "id": 3,
+          "size": [
+            23.900000000000006,
+            7,
+            8.5
+          ],
+          "origin": [
+            46.04375,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              79.25,
+              25.15,
+              -0.85
+            ],
+            [
+              79.25,
+              25.15,
+              0.85
+            ]
+          ],
+          "muzzleCount": 2,
+          "elevationPivot": [
+            63.55,
+            24.4,
+            0
+          ],
+          "bodyPivot": [
+            63.55,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_3",
+          "staticMesh": "refTurBody_3",
+          "effectiveElevationDegrees": 0
+        },
+        {
+          "kind": "quad500",
+          "id": 4,
+          "size": [
+            28.5,
+            9.2,
+            11.791093750000002
+          ],
+          "origin": [
+            10.21449699401856,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              127.37925300598144,
+              23.05,
+              -4.6605468750000005
+            ],
+            [
+              127.37925300598144,
+              26.75,
+              -4.6605468750000005
+            ],
+            [
+              127.37925300598144,
+              23.05,
+              4.6605468750000005
+            ],
+            [
+              127.37925300598144,
+              26.75,
+              4.6605468750000005
+            ]
+          ],
+          "muzzleCount": 4,
+          "elevationPivot": [
+            109.26828136444092,
+            24.9,
+            0
+          ],
+          "bodyPivot": [
+            107.75,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_4",
+          "staticMesh": "refTurBody_4",
+          "effectiveElevationDegrees": 0
+        },
+        {
+          "kind": "quad200",
+          "id": 5,
+          "size": [
+            19.337500000000006,
+            7.605,
+            13.57175873712557
+          ],
+          "origin": [
+            -18.681250000000006,
+            0,
+            0.0000011646270330345487
+          ],
+          "muzzles": [
+            [
+              161.69375,
+              24.1925,
+              -5.528190266594908
+            ],
+            [
+              161.69375,
+              25.6875,
+              -5.528190266594908
+            ],
+            [
+              161.69375,
+              24.1925,
+              5.528189101967877
+            ],
+            [
+              161.69375,
+              25.6875,
+              5.528189101967877
+            ]
+          ],
+          "muzzleCount": 4,
+          "elevationPivot": [
+            151.29375,
+            24.939999999999998,
+            0
+          ],
+          "bodyPivot": [
+            149.66875,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_5",
+          "staticMesh": "refTurBody_5",
+          "effectiveElevationDegrees": 0
+        },
+        {
+          "kind": "single200",
+          "id": 6,
+          "size": [
+            20.549999999999983,
+            4.2684999999999995,
+            3.9
+          ],
+          "origin": [
+            -52.59375,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              206.2125,
+              23.75,
+              0
+            ]
+          ],
+          "muzzleCount": 1,
+          "elevationPivot": [
+            187.6125,
+            22.85,
+            0
+          ],
+          "bodyPivot": [
+            187.6125,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_6",
+          "staticMesh": "refTurBody_6",
+          "effectiveElevationDegrees": 0
+        },
+        {
+          "kind": "twin200Fast",
+          "id": 7,
+          "size": [
+            25.80000000000001,
+            9.100000000000001,
+            7.6
+          ],
+          "origin": [
+            -84.44375,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              249.4875,
+              26.45,
+              0
+            ],
+            [
+              250.6875,
+              24.25,
+              0
+            ]
+          ],
+          "muzzleCount": 2,
+          "elevationPivot": [
+            228.7875,
+            24.8,
+            0
+          ],
+          "bodyPivot": [
+            228.7875,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_7",
+          "staticMesh": "refTurBody_7",
+          "effectiveElevationDegrees": 0
+        }
+      ],
+      "pixelCoverage": {
+        "litPixels": 59000,
+        "minimumLitPixels": 9384,
+        "pixelCount": 1564000,
+        "fraction": 0.037723785166240406
+      },
+      "webglError": 0,
+      "fixtureVisible": false,
+      "image": "light-turret-pose-0deg.png"
+    },
+    {
+      "id": "pose-25deg",
+      "kinds": [
+        "single500",
+        "twin200",
+        "quad500",
+        "quad200",
+        "single200",
+        "twin200Fast"
+      ],
+      "requestedElevationDegrees": 25,
+      "camera": {
+        "theta": -1.03,
+        "phi": 1.05,
+        "orthographic": true,
+        "worldWidthM": 197.89000000000001
+      },
+      "models": [
+        {
+          "kind": "single500",
+          "id": 2,
+          "size": [
+            18.599999999999998,
+            7.199999999999999,
+            7.2
+          ],
+          "origin": [
+            73.34375,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              37.894616805549745,
+              27.53927392611049,
+              0
+            ]
+          ],
+          "muzzleCount": 1,
+          "elevationPivot": [
+            24.3,
+            21.2,
+            0
+          ],
+          "bodyPivot": [
+            24.3,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_2",
+          "staticMesh": "refTurBody_2",
+          "effectiveElevationDegrees": 25
+        },
+        {
+          "kind": "twin200",
+          "id": 3,
+          "size": [
+            23.900000000000006,
+            7,
+            8.5
+          ],
+          "origin": [
+            46.04375,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              77.46206856016988,
+              31.714837549606468,
+              -0.85
+            ],
+            [
+              77.46206856016988,
+              31.714837549606468,
+              0.85
+            ]
+          ],
+          "muzzleCount": 2,
+          "elevationPivot": [
+            63.55,
+            24.4,
+            0
+          ],
+          "bodyPivot": [
+            63.55,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_3",
+          "staticMesh": "refTurBody_3",
+          "effectiveElevationDegrees": 25
+        },
+        {
+          "kind": "quad500",
+          "id": 4,
+          "size": [
+            28.5,
+            9.2,
+            11.791093750000002
+          ],
+          "origin": [
+            10.21449699401856,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              126.46423977818932,
+              30.87735794756515,
+              -4.6605468750000005
+            ],
+            [
+              124.90055220974874,
+              34.23069675960076,
+              -4.6605468750000005
+            ],
+            [
+              126.46423977818932,
+              30.87735794756515,
+              4.6605468750000005
+            ],
+            [
+              124.90055220974874,
+              34.23069675960076,
+              4.6605468750000005
+            ]
+          ],
+          "muzzleCount": 4,
+          "elevationPivot": [
+            109.26828136444092,
+            24.9,
+            0
+          ],
+          "bodyPivot": [
+            107.75,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_4",
+          "staticMesh": "refTurBody_4",
+          "effectiveElevationDegrees": 25
+        },
+        {
+          "kind": "quad200",
+          "id": 5,
+          "size": [
+            19.337500000000006,
+            7.605,
+            13.57175873712557
+          ],
+          "origin": [
+            -18.681250000000006,
+            0,
+            0.0000011646270330345487
+          ],
+          "muzzles": [
+            [
+              161.03525813583232,
+              28.65776485129338,
+              -5.528190266594908
+            ],
+            [
+              160.40344383452998,
+              30.012694992913172,
+              -5.528190266594908
+            ],
+            [
+              161.03525813583232,
+              28.65776485129338,
+              5.528189101967877
+            ],
+            [
+              160.40344383452998,
+              30.012694992913172,
+              5.528189101967877
+            ]
+          ],
+          "muzzleCount": 4,
+          "elevationPivot": [
+            151.29375,
+            24.939999999999998,
+            0
+          ],
+          "bodyPivot": [
+            149.66875,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_5",
+          "staticMesh": "refTurBody_5",
+          "effectiveElevationDegrees": 25
+        },
+        {
+          "kind": "single200",
+          "id": 6,
+          "size": [
+            20.549999999999983,
+            4.2684999999999995,
+            3.9
+          ],
+          "origin": [
+            -52.59375,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              204.08946840331507,
+              31.526376676709994,
+              0
+            ]
+          ],
+          "muzzleCount": 1,
+          "elevationPivot": [
+            187.6125,
+            22.85,
+            0
+          ],
+          "bodyPivot": [
+            187.6125,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_6",
+          "staticMesh": "refTurBody_6",
+          "effectiveElevationDegrees": 25
+        },
+        {
+          "kind": "twin200Fast",
+          "id": 7,
+          "size": [
+            25.80000000000001,
+            9.100000000000001,
+            7.6
+          ],
+          "origin": [
+            -84.44375,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              246.85075105978652,
+              35.043605866642956,
+              0
+            ],
+            [
+              248.86808058006002,
+              33.55687064925116,
+              0
+            ]
+          ],
+          "muzzleCount": 2,
+          "elevationPivot": [
+            228.7875,
+            24.8,
+            0
+          ],
+          "bodyPivot": [
+            228.7875,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_7",
+          "staticMesh": "refTurBody_7",
+          "effectiveElevationDegrees": 24.999999999999996
+        }
+      ],
+      "pixelCoverage": {
+        "litPixels": 55861,
+        "minimumLitPixels": 9384,
+        "pixelCount": 1564000,
+        "fraction": 0.03571675191815857
+      },
+      "webglError": 0,
+      "fixtureVisible": false,
+      "image": "light-turret-pose-25deg.png"
+    },
+    {
+      "id": "pose-55deg",
+      "kinds": [
+        "single500",
+        "twin200",
+        "quad500",
+        "quad200",
+        "single200",
+        "twin200Fast"
+      ],
+      "requestedElevationDegrees": 55,
+      "camera": {
+        "theta": -1.03,
+        "phi": 1.05,
+        "orthographic": true,
+        "worldWidthM": 197.89000000000001
+      },
+      "models": [
+        {
+          "kind": "single500",
+          "id": 2,
+          "size": [
+            18.599999999999998,
+            7.199999999999999,
+            7.2
+          ],
+          "origin": [
+            73.34375,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              32.90364654526569,
+              33.487280664334875,
+              0
+            ]
+          ],
+          "muzzleCount": 1,
+          "elevationPivot": [
+            24.3,
+            21.2,
+            0
+          ],
+          "bodyPivot": [
+            24.3,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_2",
+          "staticMesh": "refTurBody_2",
+          "effectiveElevationDegrees": 55
+        },
+        {
+          "kind": "twin200",
+          "id": 3,
+          "size": [
+            23.900000000000006,
+            7,
+            8.5
+          ],
+          "origin": [
+            46.04375,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              71.94078601749467,
+              37.69086942260046,
+              -0.85
+            ],
+            [
+              71.94078601749467,
+              37.69086942260046,
+              0.85
+            ]
+          ],
+          "muzzleCount": 2,
+          "elevationPivot": [
+            63.55,
+            24.4,
+            0
+          ],
+          "bodyPivot": [
+            63.55,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_3",
+          "staticMesh": "refTurBody_3",
+          "effectiveElevationDegrees": 55
+        },
+        {
+          "kind": "quad500",
+          "id": 4,
+          "size": [
+            28.5,
+            9.2,
+            11.791093750000002
+          ],
+          "origin": [
+            10.21449699401856,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              121.17173921938522,
+              38.674523036978435,
+              -4.6605468750000005
+            ],
+            [
+              118.14087665551595,
+              40.79675585147731,
+              -4.6605468750000005
+            ],
+            [
+              121.17173921938522,
+              38.674523036978435,
+              4.6605468750000005
+            ],
+            [
+              118.14087665551595,
+              40.79675585147731,
+              4.6605468750000005
+            ]
+          ],
+          "muzzleCount": 4,
+          "elevationPivot": [
+            109.26828136444092,
+            24.9,
+            0
+          ],
+          "bodyPivot": [
+            107.75,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_4",
+          "staticMesh": "refTurBody_4",
+          "effectiveElevationDegrees": 55
+        },
+        {
+          "kind": "quad200",
+          "id": 5,
+          "size": [
+            19.337500000000006,
+            7.605,
+            13.57175873712557
+          ],
+          "origin": [
+            -18.681250000000006,
+            0,
+            0.0000011646270330345487
+          ],
+          "muzzles": [
+            [
+              157.8712610911569,
+              33.03043287443311,
+              -5.528190266594908
+            ],
+            [
+              156.64662878494485,
+              33.88792964677793,
+              -5.528190266594908
+            ],
+            [
+              157.8712610911569,
+              33.03043287443311,
+              5.528189101967877
+            ],
+            [
+              156.64662878494485,
+              33.88792964677793,
+              5.528189101967877
+            ]
+          ],
+          "muzzleCount": 4,
+          "elevationPivot": [
+            151.29375,
+            24.939999999999998,
+            0
+          ],
+          "bodyPivot": [
+            149.66875,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_5",
+          "staticMesh": "refTurBody_5",
+          "effectiveElevationDegrees": 55
+        },
+        {
+          "kind": "single200",
+          "id": 6,
+          "size": [
+            20.549999999999983,
+            4.2684999999999995,
+            3.9
+          ],
+          "origin": [
+            -52.59375,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              197.54378487626937,
+              38.60244681649119,
+              0
+            ]
+          ],
+          "muzzleCount": 1,
+          "elevationPivot": [
+            187.6125,
+            22.85,
+            0
+          ],
+          "bodyPivot": [
+            187.6125,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_6",
+          "staticMesh": "refTurBody_6",
+          "effectiveElevationDegrees": 55
+        },
+        {
+          "kind": "twin200Fast",
+          "id": 7,
+          "size": [
+            25.80000000000001,
+            9.100000000000001,
+            7.6
+          ],
+          "origin": [
+            -84.44375,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              239.30893135938982,
+              42.70284843676137,
+              0
+            ],
+            [
+              241.79935758044687,
+              42.423962729935845,
+              0
+            ]
+          ],
+          "muzzleCount": 2,
+          "elevationPivot": [
+            228.7875,
+            24.8,
+            0
+          ],
+          "bodyPivot": [
+            228.7875,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_7",
+          "staticMesh": "refTurBody_7",
+          "effectiveElevationDegrees": 54.99999999999999
+        }
+      ],
+      "pixelCoverage": {
+        "litPixels": 53762,
+        "minimumLitPixels": 9384,
+        "pixelCount": 1564000,
+        "fraction": 0.034374680306905374
+      },
+      "webglError": 0,
+      "fixtureVisible": false,
+      "image": "light-turret-pose-55deg.png"
+    },
+    {
+      "id": "pose-85deg",
+      "kinds": [
+        "single500",
+        "twin200",
+        "quad500",
+        "quad200",
+        "single200",
+        "twin200Fast"
+      ],
+      "requestedElevationDegrees": 85,
+      "camera": {
+        "theta": -1.03,
+        "phi": 1.05,
+        "orthographic": true,
+        "worldWidthM": 197.89000000000001
+      },
+      "models": [
+        {
+          "kind": "single500",
+          "id": 2,
+          "size": [
+            18.599999999999998,
+            7.199999999999999,
+            7.2
+          ],
+          "origin": [
+            73.34375,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              25.607336141214873,
+              36.14292047137618,
+              0
+            ]
+          ],
+          "muzzleCount": 1,
+          "elevationPivot": [
+            24.3,
+            21.2,
+            0
+          ],
+          "bodyPivot": [
+            24.3,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_2",
+          "staticMesh": "refTurBody_2",
+          "effectiveElevationDegrees": 85
+        },
+        {
+          "kind": "twin200",
+          "id": 3,
+          "size": [
+            23.900000000000006,
+            7,
+            8.5
+          ],
+          "origin": [
+            46.04375,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              64.17119913756942,
+              40.10562356710115,
+              -0.85
+            ],
+            [
+              64.17119913756942,
+              40.10562356710115,
+              0.85
+            ]
+          ],
+          "muzzleCount": 2,
+          "elevationPivot": [
+            63.55,
+            24.4,
+            0
+          ],
+          "bodyPivot": [
+            63.55,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_3",
+          "staticMesh": "refTurBody_3",
+          "effectiveElevationDegrees": 85
+        },
+        {
+          "kind": "quad500",
+          "id": 4,
+          "size": [
+            28.5,
+            9.2,
+            11.791093750000002
+          ],
+          "origin": [
+            10.21449699401856,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              112.68971674121089,
+              42.78081580250945,
+              -4.6605468750000005
+            ],
+            [
+              109.00379635827143,
+              43.10329205067578,
+              -4.6605468750000005
+            ],
+            [
+              112.68971674121089,
+              42.78081580250945,
+              4.6605468750000005
+            ],
+            [
+              109.00379635827143,
+              43.10329205067578,
+              4.6605468750000005
+            ]
+          ],
+          "muzzleCount": 4,
+          "elevationPivot": [
+            109.26828136444092,
+            24.9,
+            0
+          ],
+          "bodyPivot": [
+            107.75,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_4",
+          "staticMesh": "refTurBody_4",
+          "effectiveElevationDegrees": 85
+        },
+        {
+          "kind": "quad200",
+          "id": 5,
+          "size": [
+            19.337500000000006,
+            7.605,
+            13.57175873712557
+          ],
+          "origin": [
+            -18.681250000000006,
+            0,
+            0.0000011646270330345487
+          ],
+          "muzzles": [
+            [
+              152.94482526139922,
+              35.235275942450286,
+              -5.528190266594908
+            ],
+            [
+              151.45551418775204,
+              35.36557377785803,
+              -5.528190266594908
+            ],
+            [
+              152.94482526139922,
+              35.235275942450286,
+              5.528189101967877
+            ],
+            [
+              151.45551418775204,
+              35.36557377785803,
+              5.528189101967877
+            ]
+          ],
+          "muzzleCount": 4,
+          "elevationPivot": [
+            151.29375,
+            24.939999999999998,
+            0
+          ],
+          "bodyPivot": [
+            149.66875,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_5",
+          "staticMesh": "refTurBody_5",
+          "effectiveElevationDegrees": 85
+        },
+        {
+          "kind": "single200",
+          "id": 6,
+          "size": [
+            20.549999999999983,
+            4.2684999999999995,
+            3.9
+          ],
+          "origin": [
+            -52.59375,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              188.33702158682388,
+              41.45766155297935,
+              0
+            ]
+          ],
+          "muzzleCount": 1,
+          "elevationPivot": [
+            187.6125,
+            22.85,
+            0
+          ],
+          "bodyPivot": [
+            187.6125,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_6",
+          "staticMesh": "refTurBody_6",
+          "effectiveElevationDegrees": 85
+        },
+        {
+          "kind": "twin200Fast",
+          "id": 7,
+          "size": [
+            25.80000000000001,
+            9.100000000000001,
+            7.6
+          ],
+          "origin": [
+            -84.44375,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              228.94790262302513,
+              45.565037226032786,
+              0
+            ],
+            [
+              231.24411785012416,
+              46.568728229698024,
+              0
+            ]
+          ],
+          "muzzleCount": 2,
+          "elevationPivot": [
+            228.7875,
+            24.8,
+            0
+          ],
+          "bodyPivot": [
+            228.7875,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_7",
+          "staticMesh": "refTurBody_7",
+          "effectiveElevationDegrees": 85
+        }
+      ],
+      "pixelCoverage": {
+        "litPixels": 55307,
+        "minimumLitPixels": 9384,
+        "pixelCount": 1564000,
+        "fraction": 0.03536253196930946
+      },
+      "webglError": 0,
+      "fixtureVisible": false,
+      "image": "light-turret-pose-85deg.png"
+    },
+    {
+      "id": "detail-single500",
+      "kinds": [
+        "single500"
+      ],
+      "requestedElevationDegrees": 0,
+      "camera": {
+        "theta": -0.95,
+        "phi": 1.05,
+        "orthographic": true,
+        "worldWidthM": 31.619999999999994
+      },
+      "models": [
+        {
+          "kind": "single500",
+          "id": 2,
+          "size": [
+            18.599999999999998,
+            7.199999999999999,
+            7.2
+          ],
+          "origin": [
+            -5.6999999999999975,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              39.3,
+              21.2,
+              0
+            ]
+          ],
+          "muzzleCount": 1,
+          "elevationPivot": [
+            24.3,
+            21.2,
+            0
+          ],
+          "bodyPivot": [
+            24.3,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_2",
+          "staticMesh": "refTurBody_2",
+          "effectiveElevationDegrees": 0
+        }
+      ],
+      "pixelCoverage": {
+        "litPixels": 101312,
+        "minimumLitPixels": 8208,
+        "pixelCount": 1368000,
+        "fraction": 0.07405847953216374
+      },
+      "webglError": 0,
+      "fixtureVisible": false,
+      "image": "light-turret-detail-single500.png"
+    },
+    {
+      "id": "detail-twin200",
+      "kinds": [
+        "twin200"
+      ],
+      "requestedElevationDegrees": 0,
+      "camera": {
+        "theta": -0.95,
+        "phi": 1.05,
+        "orthographic": true,
+        "worldWidthM": 40.63000000000001
+      },
+      "models": [
+        {
+          "kind": "twin200",
+          "id": 3,
+          "size": [
+            23.900000000000006,
+            7,
+            8.5
+          ],
+          "origin": [
+            -3.75,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              79.25,
+              25.15,
+              -0.85
+            ],
+            [
+              79.25,
+              25.15,
+              0.85
+            ]
+          ],
+          "muzzleCount": 2,
+          "elevationPivot": [
+            63.55,
+            24.4,
+            0
+          ],
+          "bodyPivot": [
+            63.55,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_3",
+          "staticMesh": "refTurBody_3",
+          "effectiveElevationDegrees": 0
+        }
+      ],
+      "pixelCoverage": {
+        "litPixels": 178596,
+        "minimumLitPixels": 8208,
+        "pixelCount": 1368000,
+        "fraction": 0.13055263157894736
+      },
+      "webglError": 0,
+      "fixtureVisible": false,
+      "image": "light-turret-detail-twin200.png"
+    },
+    {
+      "id": "detail-quad500",
+      "kinds": [
+        "quad500"
+      ],
+      "requestedElevationDegrees": 0,
+      "camera": {
+        "theta": -0.95,
+        "phi": 1.05,
+        "orthographic": true,
+        "worldWidthM": 48.449999999999996
+      },
+      "models": [
+        {
+          "kind": "quad500",
+          "id": 4,
+          "size": [
+            28.5,
+            9.2,
+            11.791093750000002
+          ],
+          "origin": [
+            -5.37925300598144,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              127.37925300598144,
+              23.05,
+              -4.6605468750000005
+            ],
+            [
+              127.37925300598144,
+              26.75,
+              -4.6605468750000005
+            ],
+            [
+              127.37925300598144,
+              23.05,
+              4.6605468750000005
+            ],
+            [
+              127.37925300598144,
+              26.75,
+              4.6605468750000005
+            ]
+          ],
+          "muzzleCount": 4,
+          "elevationPivot": [
+            109.26828136444092,
+            24.9,
+            0
+          ],
+          "bodyPivot": [
+            107.75,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_4",
+          "staticMesh": "refTurBody_4",
+          "effectiveElevationDegrees": 0
+        }
+      ],
+      "pixelCoverage": {
+        "litPixels": 171785,
+        "minimumLitPixels": 8208,
+        "pixelCount": 1368000,
+        "fraction": 0.1255738304093567
+      },
+      "webglError": 0,
+      "fixtureVisible": false,
+      "image": "light-turret-detail-quad500.png"
+    },
+    {
+      "id": "detail-quad200",
+      "kinds": [
+        "quad200"
+      ],
+      "requestedElevationDegrees": 0,
+      "camera": {
+        "theta": -0.95,
+        "phi": 1.05,
+        "orthographic": true,
+        "worldWidthM": 32.87375000000001
+      },
+      "models": [
+        {
+          "kind": "quad200",
+          "id": 5,
+          "size": [
+            19.337500000000006,
+            7.605,
+            13.57175873712557
+          ],
+          "origin": [
+            -2.356250000000003,
+            0,
+            0.0000011646270330345487
+          ],
+          "muzzles": [
+            [
+              161.69375,
+              24.1925,
+              -5.528190266594908
+            ],
+            [
+              161.69375,
+              25.6875,
+              -5.528190266594908
+            ],
+            [
+              161.69375,
+              24.1925,
+              5.528189101967877
+            ],
+            [
+              161.69375,
+              25.6875,
+              5.528189101967877
+            ]
+          ],
+          "muzzleCount": 4,
+          "elevationPivot": [
+            151.29375,
+            24.939999999999998,
+            0
+          ],
+          "bodyPivot": [
+            149.66875,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_5",
+          "staticMesh": "refTurBody_5",
+          "effectiveElevationDegrees": 0
+        }
+      ],
+      "pixelCoverage": {
+        "litPixels": 289736,
+        "minimumLitPixels": 8208,
+        "pixelCount": 1368000,
+        "fraction": 0.2117953216374269
+      },
+      "webglError": 0,
+      "fixtureVisible": false,
+      "image": "light-turret-detail-quad200.png"
+    },
+    {
+      "id": "detail-single200",
+      "kinds": [
+        "single200"
+      ],
+      "requestedElevationDegrees": 0,
+      "camera": {
+        "theta": -0.95,
+        "phi": 1.05,
+        "orthographic": true,
+        "worldWidthM": 34.93499999999997
+      },
+      "models": [
+        {
+          "kind": "single200",
+          "id": 6,
+          "size": [
+            20.549999999999983,
+            4.2684999999999995,
+            3.9
+          ],
+          "origin": [
+            -8.325000000000003,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              206.2125,
+              23.75,
+              0
+            ]
+          ],
+          "muzzleCount": 1,
+          "elevationPivot": [
+            187.6125,
+            22.85,
+            0
+          ],
+          "bodyPivot": [
+            187.6125,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_6",
+          "staticMesh": "refTurBody_6",
+          "effectiveElevationDegrees": 0
+        }
+      ],
+      "pixelCoverage": {
+        "litPixels": 44412,
+        "minimumLitPixels": 8208,
+        "pixelCount": 1368000,
+        "fraction": 0.03246491228070175
+      },
+      "webglError": 0,
+      "fixtureVisible": false,
+      "image": "light-turret-detail-single200.png"
+    },
+    {
+      "id": "detail-twin200Fast",
+      "kinds": [
+        "twin200Fast"
+      ],
+      "requestedElevationDegrees": 0,
+      "camera": {
+        "theta": -0.95,
+        "phi": 1.05,
+        "orthographic": true,
+        "worldWidthM": 43.86000000000002
+      },
+      "models": [
+        {
+          "kind": "twin200Fast",
+          "id": 7,
+          "size": [
+            25.80000000000001,
+            9.100000000000001,
+            7.6
+          ],
+          "origin": [
+            -9,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              249.4875,
+              26.45,
+              0
+            ],
+            [
+              250.6875,
+              24.25,
+              0
+            ]
+          ],
+          "muzzleCount": 2,
+          "elevationPivot": [
+            228.7875,
+            24.8,
+            0
+          ],
+          "bodyPivot": [
+            228.7875,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_7",
+          "staticMesh": "refTurBody_7",
+          "effectiveElevationDegrees": 0
+        }
+      ],
+      "pixelCoverage": {
+        "litPixels": 115894,
+        "minimumLitPixels": 8208,
+        "pixelCount": 1368000,
+        "fraction": 0.08471783625730994
+      },
+      "webglError": 0,
+      "fixtureVisible": false,
+      "image": "light-turret-detail-twin200Fast.png"
+    },
+    {
+      "id": "quad500-front",
+      "kinds": [
+        "quad500"
+      ],
+      "requestedElevationDegrees": 0,
+      "camera": {
+        "theta": 0,
+        "phi": 1.42,
+        "orthographic": true,
+        "worldWidthM": 48.449999999999996
+      },
+      "models": [
+        {
+          "kind": "quad500",
+          "id": 4,
+          "size": [
+            28.5,
+            9.2,
+            11.791093750000002
+          ],
+          "origin": [
+            -5.37925300598144,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              127.37925300598144,
+              23.05,
+              -4.6605468750000005
+            ],
+            [
+              127.37925300598144,
+              26.75,
+              -4.6605468750000005
+            ],
+            [
+              127.37925300598144,
+              23.05,
+              4.6605468750000005
+            ],
+            [
+              127.37925300598144,
+              26.75,
+              4.6605468750000005
+            ]
+          ],
+          "muzzleCount": 4,
+          "elevationPivot": [
+            109.26828136444092,
+            24.9,
+            0
+          ],
+          "bodyPivot": [
+            107.75,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_4",
+          "staticMesh": "refTurBody_4",
+          "effectiveElevationDegrees": 0
+        }
+      ],
+      "pixelCoverage": {
+        "litPixels": 60681,
+        "minimumLitPixels": 8208,
+        "pixelCount": 1368000,
+        "fraction": 0.04435745614035088
+      },
+      "webglError": 0,
+      "fixtureVisible": false,
+      "image": "light-turret-quad500-front.png"
+    },
+    {
+      "id": "quad500-top",
+      "kinds": [
+        "quad500"
+      ],
+      "requestedElevationDegrees": 0,
+      "camera": {
+        "theta": -1.5707963267948966,
+        "phi": 0.025,
+        "orthographic": true,
+        "worldWidthM": 48.449999999999996
+      },
+      "models": [
+        {
+          "kind": "quad500",
+          "id": 4,
+          "size": [
+            28.5,
+            9.2,
+            11.791093750000002
+          ],
+          "origin": [
+            -5.37925300598144,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              127.37925300598144,
+              23.05,
+              -4.6605468750000005
+            ],
+            [
+              127.37925300598144,
+              26.75,
+              -4.6605468750000005
+            ],
+            [
+              127.37925300598144,
+              23.05,
+              4.6605468750000005
+            ],
+            [
+              127.37925300598144,
+              26.75,
+              4.6605468750000005
+            ]
+          ],
+          "muzzleCount": 4,
+          "elevationPivot": [
+            109.26828136444092,
+            24.9,
+            0
+          ],
+          "bodyPivot": [
+            107.75,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_4",
+          "staticMesh": "refTurBody_4",
+          "effectiveElevationDegrees": 0
+        }
+      ],
+      "pixelCoverage": {
+        "litPixels": 140193,
+        "minimumLitPixels": 8208,
+        "pixelCount": 1368000,
+        "fraction": 0.10248026315789474
+      },
+      "webglError": 0,
+      "fixtureVisible": false,
+      "image": "light-turret-quad500-top.png"
+    },
+    {
+      "id": "quad200-front",
+      "kinds": [
+        "quad200"
+      ],
+      "requestedElevationDegrees": 0,
+      "camera": {
+        "theta": 0,
+        "phi": 1.42,
+        "orthographic": true,
+        "worldWidthM": 32.87375000000001
+      },
+      "models": [
+        {
+          "kind": "quad200",
+          "id": 5,
+          "size": [
+            19.337500000000006,
+            7.605,
+            13.57175873712557
+          ],
+          "origin": [
+            -2.356250000000003,
+            0,
+            0.0000011646270330345487
+          ],
+          "muzzles": [
+            [
+              161.69375,
+              24.1925,
+              -5.528190266594908
+            ],
+            [
+              161.69375,
+              25.6875,
+              -5.528190266594908
+            ],
+            [
+              161.69375,
+              24.1925,
+              5.528189101967877
+            ],
+            [
+              161.69375,
+              25.6875,
+              5.528189101967877
+            ]
+          ],
+          "muzzleCount": 4,
+          "elevationPivot": [
+            151.29375,
+            24.939999999999998,
+            0
+          ],
+          "bodyPivot": [
+            149.66875,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_5",
+          "staticMesh": "refTurBody_5",
+          "effectiveElevationDegrees": 0
+        }
+      ],
+      "pixelCoverage": {
+        "litPixels": 157228,
+        "minimumLitPixels": 8208,
+        "pixelCount": 1368000,
+        "fraction": 0.11493274853801169
+      },
+      "webglError": 0,
+      "fixtureVisible": false,
+      "image": "light-turret-quad200-front.png"
+    },
+    {
+      "id": "ball-embedded",
+      "kinds": [
+        "single500"
+      ],
+      "requestedElevationDegrees": 25,
+      "camera": {
+        "theta": 0.8,
+        "phi": 1.15,
+        "orthographic": true,
+        "worldWidthM": 31.619999999999994
+      },
+      "models": [
+        {
+          "kind": "single500",
+          "id": 2,
+          "size": [
+            18.599999999999998,
+            7.199999999999999,
+            7.2
+          ],
+          "origin": [
+            -5.6999999999999975,
+            0,
+            0
+          ],
+          "muzzles": [
+            [
+              37.894616805549745,
+              27.53927392611049,
+              0
+            ]
+          ],
+          "muzzleCount": 1,
+          "elevationPivot": [
+            24.3,
+            21.2,
+            0
+          ],
+          "bodyPivot": [
+            24.3,
+            20,
+            0
+          ],
+          "movingMesh": "refTur_2",
+          "staticMesh": "refTurBody_2",
+          "effectiveElevationDegrees": 25
+        }
+      ],
+      "pixelCoverage": {
+        "litPixels": 42568,
+        "minimumLitPixels": 8208,
+        "pixelCount": 1368000,
+        "fraction": 0.031116959064327484
+      },
+      "webglError": 0,
+      "fixtureVisible": true,
+      "image": "light-turret-ball-embedded.png"
+    }
+  ],
+  "errors": [],
+  "screenshots": [
+    "light-turret-native-editor.png",
+    "light-turret-native-editor-ja.png",
+    "light-turret-profile-row.png",
+    "light-turret-photo-grid.png",
+    "light-turret-isometric-row.png",
+    "light-turret-scale-anchor.png",
+    "light-turret-pose-0deg.png",
+    "light-turret-pose-25deg.png",
+    "light-turret-pose-55deg.png",
+    "light-turret-pose-85deg.png",
+    "light-turret-detail-single500.png",
+    "light-turret-detail-twin200.png",
+    "light-turret-detail-quad500.png",
+    "light-turret-detail-quad200.png",
+    "light-turret-detail-single200.png",
+    "light-turret-detail-twin200Fast.png",
+    "light-turret-quad500-front.png",
+    "light-turret-quad500-top.png",
+    "light-turret-quad200-front.png",
+    "light-turret-ball-embedded.png"
+  ],
+  "scope": {
+    "verified": [
+      "Japanese and English native palette entries and body-information cards",
+      "actual native editable deck placement through rayEnv and placeFit",
+      "native canvas picking of all six models",
+      "per-barrel output and drawn triangle count, actual physical muzzle surfaces",
+      "native scale with40mISD comparison anchor",
+      "same-scale side/isometric/photo-layout views through productionWebGL",
+      "0/25/55/85 degree authored poses for all six models",
+      "source reference texture and muted color for static and moving groups",
+      "whole moving ball with lower third embedded in editable structure"
+    ],
+    "notVerified": [
+      "powered combat and sustained rapid fire",
+      "automatic combat target tracking",
+      "whole-ship engineering inspection",
+      "physical device or GPU frame rate"
+    ]
+  }
+}

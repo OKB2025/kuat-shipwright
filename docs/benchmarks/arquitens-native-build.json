@@ -2,16 +2,16 @@
   "schemaVersion": 1,
   "representation": "native-parametric-parts",
   "sourceSha256": {
-    "js/core.js": "85a8deceabf8fc184281c23d658061e748fbc4f895d16fb495b42674ca1ce513",
-    "data/reference.js": "a6fbb40e306391f04b765985d97dafe512ba0d9ad21b479d70d47384ef7f6a8b",
+    "js/core.js": "3f97bd08a2a80ea2d6481e718be55c9a6c0225e6c9a70a7be0a2d48fd25091b3",
+    "data/reference.js": "90294dce9b3f9ada56a318ba50f2e6185994fed8babcca640861f5d6728fcc89",
     "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd"
   },
-  "buildMs": 479.790581,
-  "statsMs": 9267.846286,
-  "mass": 438555.10543221864,
+  "buildMs": 302.634209,
+  "statsMs": 10091.747347,
+  "mass": 438555.1054322186,
   "cost": 2798328,
-  "accel": 4.7882703851716495e-46,
-  "profileVersion": 6,
+  "accel": 4.788270385171652e-46,
+  "profileVersion": 8,
   "structureCount": 75,
   "structureForms": [
     "loft",
@@ -2789,7 +2789,7 @@
       "kind": "pd",
       "position": [
         135,
-        32.168750286102295,
+        32.16875028610224,
         -26
       ],
       "axis": 2,
@@ -2833,7 +2833,7 @@
       "kind": "pd",
       "position": [
         182,
-        16.5,
+        16.500000000000057,
         -30
       ],
       "axis": 3,
@@ -2844,7 +2844,7 @@
       "kind": "pd",
       "position": [
         182,
-        16.5,
+        16.500000000000057,
         30
       ],
       "axis": 3,

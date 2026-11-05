@@ -2581,7 +2581,7 @@ function arcPaintBands(p,g){
 const REF_ONE=[128,128,128];
 function refTone(id,base=WHITE){const f=C.REFERENCE_TONE[id]||[1,1,1];return [0,1,2].map(i=>Math.max(0,Math.min(255,Math.round(base[i]/255*128*f[i]))));}
 function plainFitAsset(f){return C.REFERENCE_ASSETS[f.skinAsset||C.FITS[f.k]?.asset]?.plainMetal;}
-function familyReferenceAsset(f){const a=C.REFERENCE_ASSETS[f.skinAsset||C.FITS[f.k]?.asset];return a?.plainMetal&&a.nativeCalibration==='imperial-photo-family'?a:null;}
+function familyReferenceAsset(f){const a=C.REFERENCE_ASSETS[f.skinAsset||C.FITS[f.k]?.asset];return a?.plainMetal&&['imperial-photo-family','light-photo-family'].includes(a.nativeCalibration)?a:null;}
 // The supplied FBX has no texture atlas. Keep its indexed normals and geometry,
 // but render it with the ordinary fitting metal in the editor and fleet alike.
 const PLAIN_FIT_CACHE=new WeakMap();

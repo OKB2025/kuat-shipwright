@@ -1,0 +1,1343 @@
+{
+  "schemaVersion": 2,
+  "date": "2026-11-05T01:46:56.925Z",
+  "status": "PASS",
+  "profileVersion": 8,
+  "changedKinds": [
+    "quad200",
+    "quad500"
+  ],
+  "newKinds": [
+    "single500",
+    "single200",
+    "twin200",
+    "twin200Fast"
+  ],
+  "affectedExamples": [
+    "acclamator",
+    "arquitens",
+    "dreadnaught",
+    "lucrehulk",
+    "lh3210"
+  ],
+  "indirectDependency": {
+    "key": "lh3210",
+    "reason": "Its freighter recipe removes quad200 and credits fm*wm*hm to cargo rooms; the new gun envelope changes hold length even though no quad guns remain."
+  },
+  "sourceSha256": {
+    "js/core.js": "3f97bd08a2a80ea2d6481e718be55c9a6c0225e6c9a70a7be0a2d48fd25091b3",
+    "data/reference.js": "90294dce9b3f9ada56a318ba50f2e6185994fed8babcca640861f5d6728fcc89",
+    "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd"
+  },
+  "sourceHashScope": "Top-level hashes describe the latest refresh pass; each example retains the hashes of its own generation inputs.",
+  "assetRegistrySha256": {
+    "bridge_pod": "d9304c327c7fc1a3f3dfc7ab0a78ea33ba9b8026c873c46c9550416795ab9d9f",
+    "ven_tower_port": "1f3f5d70cd7e6e7e67d391c5a69bb509aa33b002697d9180168742b383aa4593",
+    "ven_tower_stbd": "cd3767d95fa30169f5e3ca1d9472b3d2c1022cd90d22ec808beaee3cf6ea8b03",
+    "ven_bridge_port": "0b1b1eace9e2df2ae4e82f4136281f5588933a01a0e4f79ff105a22edab9b732",
+    "ven_bridge_stbd": "c3e1667dda1a3b7d95bb2abf496b8e3f6ea5d265d29f16762cbf766b465e1c50",
+    "ven_spine": "cb33f861fde1e593577fd7ac18a3c51df3ac4eb247ecb05ef1cc2b12075c498f",
+    "ven_bay": "a2404e7f11030d445f091aa7f32e2ff312fd95b5b079f399d8719339dc273679",
+    "ven_door_top": "4404074ccbb840987f5efd11f47b371943cdca18de71b4d6654266ab91c54638",
+    "ven_door_side": "8b324f32c59121b1b033664be07b98ade310235c6035329d5e0ed34da1ea2872",
+    "ven_door_bottom": "966503d3484478ae44e8cd409814bd88f492deab1e2440ca987141b741106eb2",
+    "ven_outer_port": "753e81fb54982d42404009bc46e5b102e5a4884eda825e85c1319a2df0b637ca",
+    "ven_outer_stbd": "3bd3bf6206473698c09c2402f947996dbf0982ad0cf443241a732d4dad882f1d",
+    "ven_inner_port": "ee1f9614732906b755ea20ae7b4fbd4535be231c146803ee734a64e75fc2733a",
+    "ven_inner_stbd": "6b66a0348903d8f3c62171165e136c9d4d156993e4525c8c24138ca0d81fd8c7",
+    "ven_upper_port": "0f32910838882489d74641a5642fbc3ab3fbacb59f24235dd090943cbab768b7",
+    "ven_upper_stbd": "bf41667f7680c1bc8f927ea6b0e33a7a6851e2da5431893c663768bab42b8959",
+    "ven_aux_port": "746c00c1ca6e230b3913ef77a5501bcc0b60d06285186311b1e97ce080e959ed",
+    "ven_aux_stbd": "721e334a484d54709ead773a3606e034b8ca7bef99a9a7cd28e25e11e6642a5f",
+    "ven_turret": "1846bbaef62db006281ca886d6c6e53a2d946a425d379c83e6d890611abd09ea",
+    "ven_turret_0": "944a8d20df2f40333aed89a923957fe72f3f389c2cfd1b7dc81f65216e9963a3",
+    "ven_turret_1": "d1912a6f866a41edc5fd3d03ce917ad9f110b5e2e76d64b6984a4344af05afe0",
+    "ven_turret_2": "76a6b5ea7854fe97e8d14e35378e39775f8f7f1075433f317a8e0dc8fec9c042",
+    "ven_turret_3": "30866644bc7a5023251fc28800c9f605100f2e289745d3796c82f6e111228481",
+    "ven_turret_4": "5cc6b430e8650b4f1cbbb2fb22a04347b08a2bf0ee87a5d18275dab9592515ab",
+    "ven_turret_5": "075f46237beb40649fd932f877a86967a43afdab0c6488775940be4738d9198f",
+    "ven_turret_6": "cb2246f1c1ebbcd8370ef04f758daf7b6eb593af8974f6102bd8e67be4afac03",
+    "ven_turret_7": "8de79490fe595486149ac838dec59b27be5dd2ad382fd569b31f137abc300b88",
+    "ven_side_gun": "e738eb55c4d8a91fbaf0267d420c9b78e71ae980b26d9c171518679482383bb2",
+    "ven_side_port": "fc4665d225b9ba5a00e2c26bf491c2303cace9c4c12a5eeda9056c9b64e3432c",
+    "ven_side_stbd": "e874e3b51a3041d4633c1ca336c9867517aa544dbc11136634e771ad051ab8ad",
+    "isd_support": "6726218c6371b85a4c168ec0d64ac67e38f30388d60bc34cfa5c7c7b5a73c6a1",
+    "isd_bridge": "ca325cdbb22a0dc69a6e738b4446263d1e6c1246c11d1d3967c98f67cbca6fc9",
+    "isd_engine_0": "5b3440ff8f36928df40a7fde457ecca489d9cf81e5ce8472bb1fbf440caba142",
+    "isd_engine_1": "3439e5f2156e6dbb33e5bcfa0c3942981536353bbbffe4783f7e4283ca5a3072",
+    "isd_engine_3": "e0913c70bdd96a08dbabbbdfbd00da0a90602820c9b5998971aa2aa950eb59c9",
+    "isd_engine_4": "49b581dd7a80404ead0d93dc40c9eca4d9935aba448a8169904cbe8a29d84fac",
+    "isd_mast": "5b3d51507e347baf5d84871cc882753d336485a9830ea3c0b88c5ffd620a6078",
+    "isd_sensor_port": "01506df5fec68238d7ada5ab856fc858e29135f6d8ec77da1b47bf13c4d1c568",
+    "isd_engine_2": "5cd07226969d5846d26655d7980ed39b16c6effd853b579bcfb2e295f8193964",
+    "isd_engine_5": "719ea326d60dc352fd1615323a60ba642d5073cf2aaa3b48741f3c5f8d53a259",
+    "isd_engine_6": "7a33746870e9d20d0fa411371d5ad047626b02d99e3c86bfc622fb68b522857f",
+    "isd_sensor_stbd": "670f11af9d663634a203afd3516c5ec28760f1a2394818798eced2c4604ea9d9",
+    "isd_turret": "ca6bbf9644718e895499008cf78191a983431558c41964894c1400df6f68e5f1",
+    "isd_turret_0": "bb500b45d469e1b855807d9ae9af6080be7a8d6326151c3facb966bd19cd506b",
+    "isd_turret_1": "24175a8da8f1766b3ec2927efd1e5ea1cf37bcf046af9d34c2c4dfde133fdd3b",
+    "isd_turret_2": "aa74e33b17642a3784e11bab05a1c4c38791320adc939284b926fe9796f77649",
+    "isd_turret_3": "8a9c48505bb3434fc634022de0e800813d85b99f539d61954c1acc9ff56d4903",
+    "isd_turret_4": "8e744a3666d739d872e087a1284daa2e792660c4f9fb685323cb0b88945f69eb",
+    "isd_turret_5": "eab57c481d5323c02a47f4e94229c3d218223860282513ccad95260daa664c5d",
+    "isd_turret_6": "a3ddc88eab13b5aeee1768794460ed5b5f3f5619908ad5edb63e7227aeb1f0fd",
+    "isd_turret_7": "4dc3e5d91515ade4ae7f1e4c1694c6fe094c3f6fc0a83337e2935e4451a30e21",
+    "isdh_bridge": "3d4458a96b7a501143fc837fe762fe9c43c8da3c54440be3b07e8bb9378d2e0b",
+    "isdh_sensor_stbd": "830ebe696094aef6ef15237c43a001576cfa01906c483b73ac86a1b3aa752ed1",
+    "isdh_sensor_port": "f10492c7252ac50bf53598ee683380e2ba9fdc4a7b011f30fde5256260ad5a7d",
+    "isdh_mast": "003805cca00dc4b91179428f3031b25bdf8578c25184715b122920179592c190",
+    "isdh_engine_main": "8540d91c099841c909ea76ebbff437d98ba906603b0f61e7f527f2103b7bcccc",
+    "isdh_engine_aux": "81efb8f11cf37884b1cc8ca051e5a4ba1944da50b8befa0604e255fdddc21c81",
+    "isdh_turret": "3dc805be064678983be326d0cb7af053d70bb0be79c082a745e8286b19d33685",
+    "exe_bridge": "6df58105cb08ae0904e79696ade9580c05104dbfdd4f9c566b24606b2053bcd8",
+    "exe_sensor_port": "24540f24b46644197059f27ce7210a0491bd5efe9eb1411da54cbcbecd5f709e",
+    "exe_sensor_stbd": "cc8085df6cc0a468278f1396e468338f0af848fefb833332451bc624a0c05012",
+    "arq_turret_quad500": "4540633e6f9eebbbea825a6c7d7a455281260e50b6e85154972b36237fa4f94d",
+    "dby_twin40_raised": "3a0b9f74393c5ae20d9870919ab3e074803a1fa534d866471804ac7f322b5ba0",
+    "family_single40": "dabd97577c27079a08d0d7524b48add8e06d620a931940404d8ede379b2a0a9a",
+    "family_twin40_dome": "f4fa536f7b3f11205e335b3362dde28a9924aa8c5e7592d04ebc49aa32162f65",
+    "family_twin40_box": "c20ebe789b371cd27eaacd2268272e728b7d8c9046c1113ee24795b3e8aef853",
+    "family_triple40": "afa4efc3fbd4f53d28cdedc0a7ce351ebb95c0e951230737e4fcbf3a250b3acd",
+    "ven_turret70_native": "968b98f62de6dd9a7a693a8c3f69b140c0dec9ecf569f3eb05ce93beff21b4b7",
+    "family_triple70": "22fea4a39c391447be2addea81296d9f133fea94addfc8b30340ece36a401f91",
+    "family_quad70_side": "81f63ff597e7a9a0cc2224f678366e4abd472de1da77d0e3e1ecfa889c492547",
+    "family_quad40_ion": "bbd34be200a2d02991a28c16dd370fe21187ead3363b57e476da56fb001a1979",
+    "light_single500": "02cc852c0cd4082ab062f75da58e5dd1ee09dbab0812324e0edc382c35bf5ca1",
+    "light_twin200": "d24ea4e60f91d18ed3a44bec35f2f777f05a80c9f471ba169a1ce980cbd031b9",
+    "light_quad200": "5261bcacda939f87d47e24698262124059cc9378472b647a26a7b4f7135f389a",
+    "light_single200": "0bf73497cd275eaac83dfee30ad10305777be7d13fa75f24392bee07ea06fa7a",
+    "light_twin200_fast": "8a302f974ca22ce2926a6bd0787bbe762aacf59dedae5da3d8a548ed71270f0d",
+    "isd2_octuple": "52b7b7880aecbf2b459c74eda293154de041c4bdc5d2697ae92f6c9de03e5d0d",
+    "isd2_casemate": "81f0882fd2bb974e45e2865a182b22065a24f499068529305b7d4df944f42a82",
+    "isd_heavy_twin": "13cb81794711387ac1d515cd2d0f53f43d22e3a01e047bbae3d6691a558b5ce2",
+    "isd_heavy_octuple": "b9dd899b2151c61e7171a701065a9dd4532550cc5682e40b504d29f7cfaba455"
+  },
+  "unaffectedCachedRecords": {
+    "count": 22,
+    "keys": [
+      "imperial",
+      "venator",
+      "reptransport",
+      "heraklon",
+      "executor",
+      "cr90",
+      "nebulonb",
+      "gr75",
+      "gozanti",
+      "providence",
+      "munificent",
+      "recusant",
+      "providenceDn",
+      "recusantDn",
+      "mc80home",
+      "mc80liberty",
+      "mc75",
+      "mc30c",
+      "mandator2",
+      "hammerhead",
+      "onager",
+      "subjugator"
+    ],
+    "byteIdenticalJSON": true,
+    "versionMetadataCarriedForward": false,
+    "reason": "Unrelated legacy records were already missing profileVersion; they remain subject to the existing runtime lazy-refresh gate rather than receiving an unverified new version."
+  },
+  "unaffectedFigureDigests": {
+    "count": 34,
+    "byteIdenticalJSON": true
+  },
+  "lastPassUnchangedRecords": {
+    "count": 26,
+    "keys": [
+      "imperial",
+      "venator",
+      "reptransport",
+      "heraklon",
+      "dreadnaught",
+      "executor",
+      "cr90",
+      "nebulonb",
+      "gr75",
+      "gozanti",
+      "providence",
+      "munificent",
+      "recusant",
+      "lucrehulk",
+      "providenceDn",
+      "recusantDn",
+      "mc80home",
+      "mc80liberty",
+      "mc75",
+      "mc30c",
+      "mandator2",
+      "acclamator",
+      "hammerhead",
+      "onager",
+      "subjugator",
+      "lh3210"
+    ],
+    "byteIdenticalJSON": true
+  },
+  "method": "Each selected example is built by Core.buildDesign, synchronized/remounted, computed once, then serialized into both fleetProfile/designInfo and figuresDigest. Two independent worker processes maximum. Subset retention requires unchanged Core, Imperial2 and every registered asset except the corrected quad500.",
+  "refreshPasses": [
+    {
+      "recomputedExamples": [
+        "acclamator",
+        "arquitens",
+        "dreadnaught",
+        "lucrehulk",
+        "lh3210"
+      ],
+      "sourceSha256": {
+        "js/core.js": "3f97bd08a2a80ea2d6481e718be55c9a6c0225e6c9a70a7be0a2d48fd25091b3",
+        "data/reference.js": "4da816cd4db53e2160dd3cedf44bb229ab834277b5f5b037d39eef725f14aa8b",
+        "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd"
+      },
+      "method": "Initial full affected-example refresh"
+    },
+    {
+      "date": "2026-11-05T01:45:06.160Z",
+      "recomputedExamples": [
+        "arquitens"
+      ],
+      "retainedAffectedExamples": [
+        "acclamator",
+        "dreadnaught",
+        "lucrehulk",
+        "lh3210"
+      ],
+      "sourceSha256": {
+        "js/core.js": "3f97bd08a2a80ea2d6481e718be55c9a6c0225e6c9a70a7be0a2d48fd25091b3",
+        "data/reference.js": "3ec0a44eb635c49562fc66bb360dd555a000e9f7a4de00a9e24836b4f89ef944",
+        "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd"
+      },
+      "changedAssetIds": [
+        "arq_turret_quad500"
+      ],
+      "retentionProof": {
+        "coreAndImperial2Unchanged": true,
+        "otherRegisteredAssetsUnchanged": true,
+        "unchangedAssetCount": 79,
+        "retainedRecordSha256": {
+          "acclamator": "44052bedc157ebe3c90e10c13079e65366cf463535c3bb8ff96e7db694e6eaa0",
+          "dreadnaught": "62cafae23962f491df73f6e69bec6c16522e9f50f1d97f53d71880637fb01106",
+          "lucrehulk": "0b6b4c2f34d0de2141abd567a87eb2266b78e7f4e7b6f01915dbbeca708f99b3",
+          "lh3210": "360b800ac8cbc89d0b7aef364a6f19ebdebad2e721484e7b35348b9816c11335"
+        },
+        "retainedDigestSha256": {
+          "acclamator": "7b5ae6decc058b71bd0b85ecd57f149ef9845e749ea350b76520832b0b314022",
+          "dreadnaught": "24539a4d621ff9cdee1e2f02dbacae3386de8181b14dc7e01b2f4eb206673efc",
+          "lucrehulk": "86c52464af5edea4fa8322bcd74535aaa8563ddb15a1a691cb8aff79d471ee59",
+          "lh3210": "f9d96e2fbd0d9b0106a435f38910d49dfb9c291cf57fc9b015f25a3c5c04beda"
+        }
+      }
+    },
+    {
+      "date": "2026-11-05T01:46:56.922Z",
+      "recomputedExamples": [
+        "arquitens"
+      ],
+      "retainedAffectedExamples": [
+        "acclamator",
+        "dreadnaught",
+        "lucrehulk",
+        "lh3210"
+      ],
+      "sourceSha256": {
+        "js/core.js": "3f97bd08a2a80ea2d6481e718be55c9a6c0225e6c9a70a7be0a2d48fd25091b3",
+        "data/reference.js": "90294dce9b3f9ada56a318ba50f2e6185994fed8babcca640861f5d6728fcc89",
+        "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd"
+      },
+      "changedAssetIds": [
+        "arq_turret_quad500"
+      ],
+      "retentionProof": {
+        "coreAndImperial2Unchanged": true,
+        "otherRegisteredAssetsUnchanged": true,
+        "unchangedAssetCount": 79,
+        "retainedRecordSha256": {
+          "acclamator": "44052bedc157ebe3c90e10c13079e65366cf463535c3bb8ff96e7db694e6eaa0",
+          "dreadnaught": "62cafae23962f491df73f6e69bec6c16522e9f50f1d97f53d71880637fb01106",
+          "lucrehulk": "0b6b4c2f34d0de2141abd567a87eb2266b78e7f4e7b6f01915dbbeca708f99b3",
+          "lh3210": "360b800ac8cbc89d0b7aef364a6f19ebdebad2e721484e7b35348b9816c11335"
+        },
+        "retainedDigestSha256": {
+          "acclamator": "7b5ae6decc058b71bd0b85ecd57f149ef9845e749ea350b76520832b0b314022",
+          "dreadnaught": "24539a4d621ff9cdee1e2f02dbacae3386de8181b14dc7e01b2f4eb206673efc",
+          "lucrehulk": "86c52464af5edea4fa8322bcd74535aaa8563ddb15a1a691cb8aff79d471ee59",
+          "lh3210": "f9d96e2fbd0d9b0106a435f38910d49dfb9c291cf57fc9b015f25a3c5c04beda"
+        }
+      },
+      "reason": "The quad500 source description was aligned with the generator after side-wing clipping; only Arquitens was regenerated to refresh source provenance.",
+      "selectedProfileAndFigureDigestByteIdentical": true,
+      "otherFourProfileAndFigureDigestsByteIdentical": true
+    }
+  ],
+  "examples": [
+    {
+      "key": "acclamator",
+      "buildMs": 7976.1765080000005,
+      "statsMs": 1038.4405229999993,
+      "profileMs": 77.91070300000138,
+      "totalMs": 9092.527734000001,
+      "mass": 1818242.410952263,
+      "cost": 4107388246,
+      "accelG": 7.140946016881912e-30,
+      "profileVersion": 8,
+      "affectedFits": [
+        {
+          "id": 60,
+          "kind": "quad200",
+          "position": [
+            200,
+            59.34000015258789,
+            118
+          ],
+          "axis": 2,
+          "float": false
+        },
+        {
+          "id": 61,
+          "kind": "quad200",
+          "position": [
+            200,
+            59.34000015258795,
+            -118
+          ],
+          "axis": 2,
+          "float": false
+        },
+        {
+          "id": 62,
+          "kind": "quad200",
+          "position": [
+            245,
+            59.34000015258789,
+            118
+          ],
+          "axis": 2,
+          "float": false
+        },
+        {
+          "id": 63,
+          "kind": "quad200",
+          "position": [
+            245,
+            59.34000015258795,
+            -118
+          ],
+          "axis": 2,
+          "float": false
+        },
+        {
+          "id": 64,
+          "kind": "quad200",
+          "position": [
+            290,
+            59.34000015258789,
+            104
+          ],
+          "axis": 2,
+          "float": false
+        },
+        {
+          "id": 65,
+          "kind": "quad200",
+          "position": [
+            290,
+            59.34000015258789,
+            -104
+          ],
+          "axis": 2,
+          "float": false
+        },
+        {
+          "id": 66,
+          "kind": "quad200",
+          "position": [
+            340,
+            59.340000152588004,
+            96
+          ],
+          "axis": 2,
+          "float": false
+        },
+        {
+          "id": 67,
+          "kind": "quad200",
+          "position": [
+            340,
+            59.34000015258789,
+            -96
+          ],
+          "axis": 2,
+          "float": false
+        },
+        {
+          "id": 68,
+          "kind": "quad200",
+          "position": [
+            390,
+            59.34000015258795,
+            84
+          ],
+          "axis": 2,
+          "float": false
+        },
+        {
+          "id": 69,
+          "kind": "quad200",
+          "position": [
+            390,
+            59.34000015258789,
+            -84
+          ],
+          "axis": 2,
+          "float": false
+        },
+        {
+          "id": 70,
+          "kind": "quad200",
+          "position": [
+            440,
+            59.34000015258778,
+            74
+          ],
+          "axis": 2,
+          "float": false
+        },
+        {
+          "id": 71,
+          "kind": "quad200",
+          "position": [
+            440,
+            59.340000152587834,
+            -74
+          ],
+          "axis": 2,
+          "float": false
+        }
+      ],
+      "warnings": [
+        {
+          "level": "info",
+          "text": "兵装の充電速度は機械的な最大連射の 7%。余剰電力に応じて再充電します。"
+        },
+        {
+          "level": "warn",
+          "code": "legacy-refit-required",
+          "text": "機関 #16: legacy-refit-required"
+        },
+        {
+          "level": "warn",
+          "code": "legacy-refit-required",
+          "text": "機関 #17: legacy-refit-required"
+        },
+        {
+          "level": "warn",
+          "code": "legacy-refit-required",
+          "text": "機関 #19: legacy-refit-required"
+        },
+        {
+          "level": "warn",
+          "code": "legacy-refit-required",
+          "text": "機関 #21: legacy-refit-required"
+        },
+        {
+          "level": "warn",
+          "code": "charging",
+          "text": "主砲充電装置 16 基の必要容積を確保できません。自動統合の範囲内に空間を空けるか、構造を追加してください。"
+        },
+        {
+          "level": "info",
+          "code": "heat",
+          "text": "互換運転：既存設備の内蔵冷却を維持しています。厳格運転へ切り替える前に散逸設備の容量を確認してください。"
+        },
+        {
+          "level": "warn",
+          "code": "heat",
+          "text": "戦闘負荷で 39 系統の廃熱が処理しきれず蓄熱します（最短 4 分 で出力制限）。散逸装置か熱輸送路を足してください。"
+        }
+      ],
+      "generatedSourceSha256": {
+        "js/core.js": "3f97bd08a2a80ea2d6481e718be55c9a6c0225e6c9a70a7be0a2d48fd25091b3",
+        "data/reference.js": "4da816cd4db53e2160dd3cedf44bb229ab834277b5f5b037d39eef725f14aa8b",
+        "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd"
+      },
+      "assetDependencySha256": {
+        "light_quad200": "5261bcacda939f87d47e24698262124059cc9378472b647a26a7b4f7135f389a"
+      }
+    },
+    {
+      "key": "arquitens",
+      "generatedSourceSha256": {
+        "js/core.js": "3f97bd08a2a80ea2d6481e718be55c9a6c0225e6c9a70a7be0a2d48fd25091b3",
+        "data/reference.js": "90294dce9b3f9ada56a318ba50f2e6185994fed8babcca640861f5d6728fcc89",
+        "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd"
+      },
+      "assetDependencySha256": {
+        "arq_turret_quad500": "4540633e6f9eebbbea825a6c7d7a455281260e50b6e85154972b36237fa4f94d"
+      },
+      "buildMs": 302.634209,
+      "statsMs": 10091.747347,
+      "profileMs": 212.19813500000055,
+      "totalMs": 10606.579691,
+      "mass": 438555.1054322186,
+      "cost": 2798328,
+      "accelG": 4.788270385171652e-46,
+      "profileVersion": 8,
+      "affectedFits": [
+        {
+          "id": 95,
+          "kind": "quad500",
+          "position": [
+            173.2522,
+            32.18000030517578,
+            28.4337
+          ],
+          "axis": 2,
+          "float": false
+        },
+        {
+          "id": 96,
+          "kind": "quad500",
+          "position": [
+            173.2522,
+            32.18000030517578,
+            -28.4337
+          ],
+          "axis": 2,
+          "float": false
+        },
+        {
+          "id": 97,
+          "kind": "quad500",
+          "position": [
+            238.0963,
+            17.883359909057617,
+            24.0026
+          ],
+          "axis": 3,
+          "float": false
+        },
+        {
+          "id": 98,
+          "kind": "quad500",
+          "position": [
+            238.0963,
+            17.883359909057617,
+            -24.0026
+          ],
+          "axis": 3,
+          "float": false
+        }
+      ],
+      "warnings": [
+        {
+          "level": "warn",
+          "text": "生命維持・シールド・機関への給電が不足しています（稼働率 53%）。"
+        },
+        {
+          "level": "warn",
+          "text": "シールドが目標強度の 53% です。発生器の容量と給電を確認してください。"
+        },
+        {
+          "level": "warn",
+          "text": "慣性制御装置の対応質量が不足しています。"
+        },
+        {
+          "level": "warn",
+          "text": "構造維持装置の対応質量が不足しています。"
+        },
+        {
+          "level": "info",
+          "code": "heat",
+          "text": "互換運転：既存設備の内蔵冷却を維持しています。厳格運転へ切り替える前に散逸設備の容量を確認してください。"
+        },
+        {
+          "level": "warn",
+          "code": "heat",
+          "text": "戦闘負荷で 7 系統の廃熱が処理しきれず蓄熱します（最短 109 秒 で出力制限）。散逸装置か熱輸送路を足してください。"
+        }
+      ]
+    },
+    {
+      "key": "dreadnaught",
+      "buildMs": 751.682186,
+      "statsMs": 6041.259723,
+      "profileMs": 52.94932599999993,
+      "totalMs": 6845.891235,
+      "mass": 1529140.6111605312,
+      "cost": 9352320,
+      "accelG": 0,
+      "profileVersion": 8,
+      "affectedFits": [
+        {
+          "id": 58,
+          "kind": "quad200",
+          "position": [
+            470,
+            86.39959920247395,
+            -16
+          ],
+          "axis": 2,
+          "float": false
+        },
+        {
+          "id": 59,
+          "kind": "quad200",
+          "position": [
+            470,
+            86.39959920247395,
+            16
+          ],
+          "axis": 2,
+          "float": false
+        },
+        {
+          "id": 60,
+          "kind": "quad200",
+          "position": [
+            500,
+            85.70677693684894,
+            -16
+          ],
+          "axis": 2,
+          "float": false
+        },
+        {
+          "id": 61,
+          "kind": "quad200",
+          "position": [
+            500,
+            85.70677693684894,
+            16
+          ],
+          "axis": 2,
+          "float": false
+        },
+        {
+          "id": 62,
+          "kind": "quad200",
+          "position": [
+            530,
+            82.12933197021482,
+            -16
+          ],
+          "axis": 2,
+          "float": false
+        },
+        {
+          "id": 63,
+          "kind": "quad200",
+          "position": [
+            530,
+            82.12933197021482,
+            16
+          ],
+          "axis": 2,
+          "float": false
+        },
+        {
+          "id": 64,
+          "kind": "quad200",
+          "position": [
+            80,
+            88.85543365478514,
+            -22
+          ],
+          "axis": 2,
+          "float": false
+        },
+        {
+          "id": 65,
+          "kind": "quad200",
+          "position": [
+            135,
+            86.05453033447264,
+            -22
+          ],
+          "axis": 2,
+          "float": false
+        },
+        {
+          "id": 66,
+          "kind": "quad200",
+          "position": [
+            190,
+            74.12929382324216,
+            -22
+          ],
+          "axis": 2,
+          "float": false
+        },
+        {
+          "id": 67,
+          "kind": "quad200",
+          "position": [
+            245,
+            70.60093943277997,
+            -22
+          ],
+          "axis": 2,
+          "float": false
+        },
+        {
+          "id": 68,
+          "kind": "quad200",
+          "position": [
+            300,
+            74.5999984741211,
+            -22
+          ],
+          "axis": 2,
+          "float": false
+        },
+        {
+          "id": 69,
+          "kind": "quad200",
+          "position": [
+            355,
+            78.80000305175781,
+            -22
+          ],
+          "axis": 2,
+          "float": false
+        },
+        {
+          "id": 70,
+          "kind": "quad200",
+          "position": [
+            408,
+            82.74063110351562,
+            -22
+          ],
+          "axis": 2,
+          "float": false
+        },
+        {
+          "id": 71,
+          "kind": "quad200",
+          "position": [
+            80,
+            88.85543365478514,
+            22
+          ],
+          "axis": 2,
+          "float": false
+        },
+        {
+          "id": 72,
+          "kind": "quad200",
+          "position": [
+            135,
+            86.05453033447264,
+            22
+          ],
+          "axis": 2,
+          "float": false
+        },
+        {
+          "id": 73,
+          "kind": "quad200",
+          "position": [
+            190,
+            74.12929382324216,
+            22
+          ],
+          "axis": 2,
+          "float": false
+        },
+        {
+          "id": 74,
+          "kind": "quad200",
+          "position": [
+            245,
+            70.60093943277997,
+            22
+          ],
+          "axis": 2,
+          "float": false
+        },
+        {
+          "id": 75,
+          "kind": "quad200",
+          "position": [
+            300,
+            74.5999984741211,
+            22
+          ],
+          "axis": 2,
+          "float": false
+        },
+        {
+          "id": 76,
+          "kind": "quad200",
+          "position": [
+            355,
+            78.80000305175781,
+            22
+          ],
+          "axis": 2,
+          "float": false
+        },
+        {
+          "id": 77,
+          "kind": "quad200",
+          "position": [
+            408,
+            82.74063110351562,
+            22
+          ],
+          "axis": 2,
+          "float": false
+        }
+      ],
+      "warnings": [
+        {
+          "level": "info",
+          "text": "兵装の充電速度は機械的な最大連射の 9%。余剰電力に応じて再充電します。"
+        },
+        {
+          "level": "info",
+          "text": "主射界に指向できる火力が 22% です。支持台を高くするか舷側に寄せると射界が開けます。"
+        },
+        {
+          "level": "info",
+          "code": "heat",
+          "text": "互換運転：既存設備の内蔵冷却を維持しています。厳格運転へ切り替える前に散逸設備の容量を確認してください。"
+        },
+        {
+          "level": "info",
+          "code": "heat",
+          "text": "最大出力では 1 系統が蓄熱します（最短 4 分 で出力制限）。散逸装置を足すと全力運転を続けられます。"
+        }
+      ],
+      "generatedSourceSha256": {
+        "js/core.js": "3f97bd08a2a80ea2d6481e718be55c9a6c0225e6c9a70a7be0a2d48fd25091b3",
+        "data/reference.js": "4da816cd4db53e2160dd3cedf44bb229ab834277b5f5b037d39eef725f14aa8b",
+        "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd"
+      },
+      "assetDependencySha256": {
+        "light_quad200": "5261bcacda939f87d47e24698262124059cc9378472b647a26a7b4f7135f389a"
+      }
+    },
+    {
+      "key": "lucrehulk",
+      "buildMs": 6888.724414,
+      "statsMs": 11306.628318,
+      "profileMs": 105.49584999999934,
+      "totalMs": 18300.848582,
+      "mass": 276054948.5168712,
+      "cost": 7156269291,
+      "accelG": 499.2629207238933,
+      "profileVersion": 8,
+      "affectedFits": [
+        {
+          "id": 71,
+          "kind": "quad200",
+          "position": [
+            1427.279087310231,
+            418,
+            862.5664868217291
+          ],
+          "axis": 4,
+          "float": false
+        },
+        {
+          "id": 72,
+          "kind": "quad200",
+          "position": [
+            1427.279087310231,
+            418,
+            -862.5664868217291
+          ],
+          "axis": 5,
+          "float": false
+        },
+        {
+          "id": 73,
+          "kind": "quad200",
+          "position": [
+            1364.3321901447841,
+            418,
+            937.684303746237
+          ],
+          "axis": 4,
+          "float": false
+        },
+        {
+          "id": 74,
+          "kind": "quad200",
+          "position": [
+            1364.3321901447841,
+            418,
+            -937.684303746237
+          ],
+          "axis": 5,
+          "float": false
+        },
+        {
+          "id": 75,
+          "kind": "quad200",
+          "position": [
+            1296.3056937539734,
+            418,
+            1008.2524590053249
+          ],
+          "axis": 4,
+          "float": false
+        },
+        {
+          "id": 76,
+          "kind": "quad200",
+          "position": [
+            1296.3056937539734,
+            418,
+            -1008.2524590053249
+          ],
+          "axis": 5,
+          "float": false
+        },
+        {
+          "id": 77,
+          "kind": "quad200",
+          "position": [
+            1065.1767277191866,
+            418,
+            1189.321562219867
+          ],
+          "axis": 4,
+          "float": false
+        },
+        {
+          "id": 78,
+          "kind": "quad200",
+          "position": [
+            1065.1767277191866,
+            418,
+            -1189.3215622198672
+          ],
+          "axis": 5,
+          "float": false
+        },
+        {
+          "id": 79,
+          "kind": "quad200",
+          "position": [
+            980.368602588605,
+            418,
+            1238.4850188237087
+          ],
+          "axis": 4,
+          "float": false
+        },
+        {
+          "id": 80,
+          "kind": "quad200",
+          "position": [
+            980.368602588605,
+            418,
+            -1238.4850188237087
+          ],
+          "axis": 5,
+          "float": false
+        },
+        {
+          "id": 81,
+          "kind": "quad200",
+          "position": [
+            892.3515102353477,
+            418,
+            1281.6312159554927
+          ],
+          "axis": 4,
+          "float": false
+        },
+        {
+          "id": 82,
+          "kind": "quad200",
+          "position": [
+            892.3515102353477,
+            418,
+            -1281.6312159554927
+          ],
+          "axis": 5,
+          "float": false
+        },
+        {
+          "id": 83,
+          "kind": "quad200",
+          "position": [
+            613.4001022173165,
+            418,
+            1371.8734501199938
+          ],
+          "axis": 4,
+          "float": false
+        },
+        {
+          "id": 84,
+          "kind": "quad200",
+          "position": [
+            613.4001022173165,
+            418,
+            -1371.873450119994
+          ],
+          "axis": 5,
+          "float": false
+        },
+        {
+          "id": 85,
+          "kind": "quad200",
+          "position": [
+            516.9598606469722,
+            418,
+            1388.7663636481197
+          ],
+          "axis": 4,
+          "float": false
+        },
+        {
+          "id": 86,
+          "kind": "quad200",
+          "position": [
+            516.9598606469722,
+            418,
+            -1388.7663636481197
+          ],
+          "axis": 5,
+          "float": false
+        },
+        {
+          "id": 87,
+          "kind": "quad200",
+          "position": [
+            419.56833266300805,
+            418,
+            1398.919919360142
+          ],
+          "axis": 4,
+          "float": false
+        },
+        {
+          "id": 88,
+          "kind": "quad200",
+          "position": [
+            419.56833266300805,
+            418,
+            -1398.919919360142
+          ],
+          "axis": 5,
+          "float": false
+        },
+        {
+          "id": 89,
+          "kind": "quad200",
+          "position": [
+            126.44013935302834,
+            418,
+            1388.6000556332147
+          ],
+          "axis": 4,
+          "float": false
+        },
+        {
+          "id": 90,
+          "kind": "quad200",
+          "position": [
+            126.44013935302834,
+            418,
+            -1388.6000556332147
+          ],
+          "axis": 5,
+          "float": false
+        },
+        {
+          "id": 91,
+          "kind": "quad200",
+          "position": [
+            29.999897782684002,
+            418,
+            1371.6215156159317
+          ],
+          "axis": 4,
+          "float": false
+        },
+        {
+          "id": 92,
+          "kind": "quad200",
+          "position": [
+            29.999897782684002,
+            418,
+            -1371.6215156159317
+          ],
+          "axis": 5,
+          "float": false
+        },
+        {
+          "id": 93,
+          "kind": "quad200",
+          "position": [
+            -65.01921021124963,
+            418,
+            1347.9858088304873
+          ],
+          "axis": 4,
+          "float": false
+        },
+        {
+          "id": 94,
+          "kind": "quad200",
+          "position": [
+            -65.01921021124963,
+            418,
+            -1347.9858088304875
+          ],
+          "axis": 5,
+          "float": false
+        },
+        {
+          "id": 95,
+          "kind": "quad200",
+          "position": [
+            -336.9686025886043,
+            418,
+            1238.475766075765
+          ],
+          "axis": 4,
+          "float": false
+        },
+        {
+          "id": 96,
+          "kind": "quad200",
+          "position": [
+            -336.9686025886043,
+            418,
+            -1238.4757660757648
+          ],
+          "axis": 5,
+          "float": false
+        },
+        {
+          "id": 97,
+          "kind": "quad200",
+          "position": [
+            -421.7767277191863,
+            418,
+            1189.7142643361012
+          ],
+          "axis": 4,
+          "float": false
+        },
+        {
+          "id": 98,
+          "kind": "quad200",
+          "position": [
+            -421.7767277191863,
+            418,
+            -1189.7142643361015
+          ],
+          "axis": 5,
+          "float": false
+        },
+        {
+          "id": 99,
+          "kind": "quad200",
+          "position": [
+            -502.9627089663396,
+            418,
+            1134.8994554875685
+          ],
+          "axis": 4,
+          "float": false
+        },
+        {
+          "id": 100,
+          "kind": "quad200",
+          "position": [
+            -502.9627089663396,
+            418,
+            -1134.8994554875685
+          ],
+          "axis": 5,
+          "float": false
+        },
+        {
+          "id": 101,
+          "kind": "quad200",
+          "position": [
+            -720.9321901447838,
+            418,
+            937.9289724553466
+          ],
+          "axis": 4,
+          "float": false
+        },
+        {
+          "id": 102,
+          "kind": "quad200",
+          "position": [
+            -720.9321901447838,
+            418,
+            -937.9289724553466
+          ],
+          "axis": 5,
+          "float": false
+        },
+        {
+          "id": 103,
+          "kind": "quad200",
+          "position": [
+            -783.8790873102307,
+            418,
+            862.6938288150718
+          ],
+          "axis": 4,
+          "float": false
+        },
+        {
+          "id": 104,
+          "kind": "quad200",
+          "position": [
+            -783.8790873102307,
+            418,
+            -862.6938288150718
+          ],
+          "axis": 5,
+          "float": false
+        },
+        {
+          "id": 105,
+          "kind": "quad200",
+          "position": [
+            -841.4397142947234,
+            418,
+            783.2589671193575
+          ],
+          "axis": 4,
+          "float": false
+        },
+        {
+          "id": 106,
+          "kind": "quad200",
+          "position": [
+            -841.4397142947234,
+            418,
+            -783.2589671193575
+          ],
+          "axis": 5,
+          "float": false
+        },
+        {
+          "id": 107,
+          "kind": "quad200",
+          "position": [
+            -979.1389479572026,
+            418,
+            584.3859960629641
+          ],
+          "axis": 4,
+          "float": false
+        },
+        {
+          "id": 108,
+          "kind": "quad200",
+          "position": [
+            -979.1389479572026,
+            418,
+            -584.3859960629641
+          ],
+          "axis": 5,
+          "float": false
+        },
+        {
+          "id": 109,
+          "kind": "quad200",
+          "position": [
+            -1012.6322923621003,
+            418,
+            531.0865809599125
+          ],
+          "axis": 4,
+          "float": false
+        },
+        {
+          "id": 110,
+          "kind": "quad200",
+          "position": [
+            -1012.6322923621003,
+            418,
+            -531.0865809599125
+          ],
+          "axis": 5,
+          "float": false
+        },
+        {
+          "id": 111,
+          "kind": "quad200",
+          "position": [
+            -1039.624903965223,
+            418,
+            396.70441996326167
+          ],
+          "axis": 4,
+          "float": false
+        },
+        {
+          "id": 112,
+          "kind": "quad200",
+          "position": [
+            -1039.624903965223,
+            418,
+            -396.70441996326167
+          ],
+          "axis": 5,
+          "float": false
+        }
+      ],
+      "warnings": [
+        {
+          "level": "info",
+          "code": "heat",
+          "text": "互換運転：既存設備の内蔵冷却を維持しています。厳格運転へ切り替える前に散逸設備の容量を確認してください。"
+        }
+      ],
+      "generatedSourceSha256": {
+        "js/core.js": "3f97bd08a2a80ea2d6481e718be55c9a6c0225e6c9a70a7be0a2d48fd25091b3",
+        "data/reference.js": "4da816cd4db53e2160dd3cedf44bb229ab834277b5f5b037d39eef725f14aa8b",
+        "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd"
+      },
+      "assetDependencySha256": {
+        "light_quad200": "5261bcacda939f87d47e24698262124059cc9378472b647a26a7b4f7135f389a"
+      }
+    },
+    {
+      "key": "lh3210",
+      "buildMs": 3924.900178,
+      "statsMs": 9062.385809,
+      "profileMs": 98.6710579999999,
+      "totalMs": 13085.957045000001,
+      "mass": 295614672.0242308,
+      "cost": 7236959951,
+      "accelG": 466.2285499331374,
+      "profileVersion": 8,
+      "affectedFits": [],
+      "warnings": [
+        {
+          "level": "info",
+          "code": "heat",
+          "text": "互換運転：既存設備の内蔵冷却を維持しています。厳格運転へ切り替える前に散逸設備の容量を確認してください。"
+        }
+      ],
+      "generatedSourceSha256": {
+        "js/core.js": "3f97bd08a2a80ea2d6481e718be55c9a6c0225e6c9a70a7be0a2d48fd25091b3",
+        "data/reference.js": "4da816cd4db53e2160dd3cedf44bb229ab834277b5f5b037d39eef725f14aa8b",
+        "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd"
+      },
+      "assetDependencySha256": {
+        "light_quad200": "5261bcacda939f87d47e24698262124059cc9378472b647a26a7b4f7135f389a"
+      }
+    }
+  ]
+}
