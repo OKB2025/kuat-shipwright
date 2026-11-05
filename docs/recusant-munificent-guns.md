@@ -15,7 +15,9 @@ stay within the 5,000-triangle budget. The outputs were set by the user on 2026-
 | `recTwin` | Recusant turret hanging under the nose | 2 × 360 TT | 720 TT | 15 s | traversing |
 | `recKeel` | Recusant pair in the nose keel above it | 2 × 360 TT | 720 TT | 15 s | fixed, bow |
 | `munBow` | Munificent bow gun: round gunhouse, two stacked barrels | 2 × 2,500 TT | 5 PT | 1.6 s | fixed, bow |
-| `munTwin` | Munificent ventral twin, 9 a side, barrels outboard | 2 × 50 TT | 100 TT | 1 s | traversing |
+| `munTwin` | Munificent ventral twin rapid-fire cannon, 9 a side, barrels outboard | 2 × 300 GT | 600 GT | 0.2 s | traversing |
+
+The eighteen 300 GT rapid twins retain their native turret models and placements. Its 0.2 s cycle follows the existing CIS rapid-fire gun as a gameplay setting; its geometry, placement, mass and cost are retained.
 
 All of these are ordinary guns. They have no special charge-up, but like every gun they carry charging plant.
 

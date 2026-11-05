@@ -11,19 +11,19 @@ for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/c
  vm.runInContext(source,cx,{filename:file});
 }
 const C=vm.runInContext('Core',cx),ships=new Map();
-function ship(key){if(!ships.has(key))ships.set(key,C.SHIP_EXAMPLES[key]._testBuild({stage:'fitted'}));return ships.get(key);}
+function ship(key){if(!ships.has(key))ships.set(key,C.SHIP_EXAMPLES[key]._testBuild(key.startsWith('recusant')?{}:{stage:'fitted'}));return ships.get(key);}
 const plans={
  mc30c:{monCalPD:10,single500:16,cmsl:8,trc:2},
  mc75:{monCalPD:20,monCal34:12,monCal150Ion:16,cmsl:12,trc:6},
- munificent:{monCalPD:58,monCal34:26,monCal200Triple:2,monCal150Ion:2},
+ munificent:{munBow:1,munTwin:18,pd:58},
  providence:{monCalPD:58,monCal200Triple:14,monCal150Ion:2,cmsl:34,trc:4},
  providenceDn:{monCalPD:24,monCal80:34,monCal200Triple:14,monCal150Ion:2,cmsl:34,trc:10},
- recusant:{monCalPD:90,monCal34:23,monCal80:4,monCal200:1},
- recusantDn:{monCalPD:90,monCal34:24,monCal80:21,monCal200:1,monCal200Triple:8},
+ recusant:{recProw:1,recTwin:1,recKeel:1,refVen:4,pd:30,monCal34:26,monCalPD:10},
+ recusantDn:{stl:9,refVen:21,pd:90,monCal34:24},
  lucrehulk:{monCalPD:4,monCal34:28,quad1Rapid:14,trc:6},
  subjugator:{monCalPD:400,monCal34:700,monCal80:20,monCal200Triple:20,cmsl:10,trc:2}
 };
-for(const [key,counts] of Object.entries(plans))test(`${key} builds its spherical weapon roster on native hull seats`,()=>{
+for(const [key,counts] of Object.entries(plans))test(`${key} preserves its curated weapon roster and native spherical seats`,()=>{
  const s=ship(key),weapons=s.fits.filter(f=>C.FITS[f.k]?.cat==='w');
  if(key==='mc30c'){assert.equal(s.fits.filter(f=>C.fitSpec(f).ion>0).length,0,'no oversized ion batteries');for(const f of s.fits.filter(f=>f.k==='single500')){assert.equal(C.fitSpec(f).boltTT,.5);assert.equal(C.fitSpec(f).barrels,1);assert.equal(C.fitSpec(f).cycle,C.FITS.single500.cycle);}}
  for(const [kind,total] of Object.entries(counts))assert.equal(s.fits.filter(f=>f.k===kind).length,total,kind);
@@ -38,6 +38,15 @@ for(const [key,counts] of Object.entries(plans))test(`${key} builds its spherica
    assert.ok(h,'native contact '+f.k+' #'+f.id);assert.ok(C.len(C.sub(h.p,f.p))<.025,'flush spherical seat '+f.id);
   }
  }
+});
+
+test('curated CIS model-cut gun yields, cadences and native variant branches are retained',()=>{
+ for(const [key,barrels,boltTT,cycle] of [['recProw',1,2000,15],['recTwin',2,360,15],['recKeel',2,360,15],['munBow',2,2500,1.6],['munTwin',2,.3,.2]]){
+  const d=C.FITS[key];assert.equal(d.barrels,barrels,key);assert.equal(d.boltTT,boltTT,key);assert.equal(d.cycle,cycle,key);assert.equal(d.tt,barrels*boltTT,key);assert.equal(C.weaponModelScale({k:key}),1,key+' retains the source-model scale');
+ }
+ const rec=ship('recusant');assert.equal(rec.fits.filter(f=>f.k==='monCal34'&&f.batteryZone.startsWith('flank-ball')).length,16);assert.equal(rec.fits.filter(f=>f.k==='monCal34'&&/^(port|stbd)-side$/.test(f.batteryZone)).length,10);
+ const dn=ship('recusantDn');assert.equal(dn.fits.filter(f=>['recProw','recTwin','recKeel'].includes(f.k)).length,0,'the existing dreadnought branch keeps its separate armament');
+ assert.equal(ship('munificent').fits.filter(f=>C.fitSpec(f).ion>0).length,0,'the curated Munificent omits ion batteries');
 });
 test('Subjugator keeps both fixed hyper-ion cannons alongside its spherical battery refit',()=>{
  const s=ship('subjugator'),guns=s.parts.filter(p=>p.k==='hion');assert.equal(guns.length,2);

@@ -208,11 +208,11 @@ function costModelSignature(){return costSignature({model:COST_MODEL,propulsion:
 // BEGIN GENERATED CRAFT PRICES — scripts/update-craft-costs.cjs
 const CRAFT_PRICE_CATALOG={
  "modelVersion": 15,
- "modelSignature": "19w6mu0",
+ "modelSignature": "1l0ps3k",
  "entries": {
   "arc170": {
    "reference": "craft_arc170",
-   "signature": "z2hfby",
+   "signature": "1ypt5h",
    "build": 230512,
    "crew": 3000,
    "total": 233512,
@@ -2194,7 +2194,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "awing": {
    "reference": "craft_awing",
-   "signature": "1nh2jpa",
+   "signature": "12n1eet",
    "build": 159940,
    "crew": 1000,
    "total": 160940,
@@ -3491,7 +3491,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "btlb": {
    "reference": "craft_btlb",
-   "signature": "52agov",
+   "signature": "hyf248",
    "build": 205143,
    "crew": 2000,
    "total": 207143,
@@ -5227,7 +5227,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "hyena": {
    "reference": "craft_hyena",
-   "signature": "c14xtf",
+   "signature": "qfla7o",
    "build": 186068,
    "crew": 0,
    "total": 186068,
@@ -7498,7 +7498,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_in": {
    "reference": "craft_tie_in",
-   "signature": "15uqzwp",
+   "signature": "nq82me",
    "build": 99324,
    "crew": 1000,
    "total": 100324,
@@ -8833,7 +8833,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_ln": {
    "reference": "craft_tie_ln",
-   "signature": "1igadvm",
+   "signature": "zn6lep",
    "build": 84444,
    "crew": 1000,
    "total": 85444,
@@ -9904,7 +9904,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_sa": {
    "reference": "craft_tie_sa",
-   "signature": "vfonls",
+   "signature": "17uewsj",
    "build": 134209,
    "crew": 1000,
    "total": 135209,
@@ -11353,7 +11353,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "v19": {
    "reference": "craft_v19",
-   "signature": "ti3wyp",
+   "signature": "15fdg5a",
    "build": 139657,
    "crew": 1000,
    "total": 140657,
@@ -13190,7 +13190,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "vulture": {
    "reference": "craft_vulture",
-   "signature": "n2m3ce",
+   "signature": "7bn7r9",
    "build": 121700,
    "crew": 0,
    "total": 121700,
@@ -14640,7 +14640,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "vwing": {
    "reference": "craft_vwing",
-   "signature": "vzcdwk",
+   "signature": "17nzxrz",
    "build": 246592,
    "crew": 1000,
    "total": 247592,
@@ -16912,7 +16912,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "xwing": {
    "reference": "craft_xwing",
-   "signature": "1pslrnz",
+   "signature": "sdekdk",
    "build": 180995,
    "crew": 1000,
    "total": 181995,
@@ -18684,7 +18684,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "z95": {
    "reference": "craft_z95",
-   "signature": "1dmam4q",
+   "signature": "10zpbxl",
    "build": 141590,
    "crew": 1000,
    "total": 142590,
@@ -23982,7 +23982,8 @@ const WEAPON_NOTES={
  vindicator:'https://fractalsponge.net/vindicator-class-star-frigate-4k/',
  compellor:'https://fractalsponge.net/compellor-class-star-cruiser-redux/',
  design:'https://fractalsponge.net/star-wars-ship-design-technical-notes-1/',
- spreadsheet:STATS_SOURCE
+ spreadsheet:STATS_SOURCE,
+ munTwin:'ミュニフィセント級の前部船体の下面、左右の縁に並ぶ300GT連装速射砲。砲身は外側を向き、砲塔ごと旋回する。2門×300 GT、一斉射600 GT、連射間隔0.2秒。'
 };
 const calibers={
  pd:{barrels:2,boltTT:.02,cycle:.2,dualPurpose:true,name:'20GT 連装軽ターボレーザー（点防御）',short:'20GT 点防御・軽TL',evidence:'1門20GTはユーザー指定、連射間隔はゲーム用設定',desc:'2門×20 GT、0.2秒間隔の連装軽砲。点防御と軽ターボレーザーを統合し、艦載機・ミサイルの迎撃と対艦射撃を兼ねる。'},
@@ -25214,14 +25215,15 @@ for(const [key,asset,name,short,barrels,boltTT,mass,crew,cost,desc] of [
 // v22.1 The Munificent's bow gun and ventral twin turbolasers, cut from the supplied model the example is measured from
 // ("Munificent Class Star Frigate" by SomeGuyUsingBlender, CC BY 4.0; scripts/build-munificent-guns.py; the barrels keep
 // the model's radius profile at a lighter tessellation). Outputs are the user's (2026-11-05): the bow gun 2.5 PT a barrel
-// in two stacked barrels on a fixed mount, the ventral twins 50 TT a barrel. Mass, crew and cost are provisional.
+// in two stacked barrels on a fixed mount, the ventral twins are 300 GT rapid guns per the latest user instruction.
+// Their 0.2 s cadence follows the existing CIS rapid gun; mass, crew and cost are unchanged.
 const MUNIFICENT_GUN_KEYS=Object.freeze(['munBow','munTwin']);
 // The bow gun's cadence follows the rule set for the Recusant's bow guns: as fast as the example's crew still fits
 // (1.6 s: habitation 1.49; 1.5 s gives 0.96), measured with the ion cannons and the flank twins left off.
 const MUNIFICENT_BOW_CYCLE=1.6;
 for(const [key,asset,name,short,barrels,boltTT,cycle,mass,crew,cost,aa,desc] of [
  ['munBow','mun_bow_twin','艦首重ターボレーザー（固定・2.5PT×2）','艦首砲 2.5PT×2',2,2500,MUNIFICENT_BOW_CYCLE,120000,150,1.2e7,.02,'ミュニフィセント級の前部船体の下に吊るした円形の砲室と、上下に並ぶ長い砲身2門。艦首方向に固定され、1門2.5 PT、一斉射5 PT。艦の向きで照準する。'],
- ['munTwin','mun_ventral_twin50','腹部2連装ターボレーザー（50TT）','腹部連装50TT',2,50,1,4000,12,350000,.3,'ミュニフィセント級の前部船体の下面、左右の縁に並ぶ連装砲塔。砲身は外側を向き、砲塔ごと旋回する。2門×50 TT、一斉射100 TT。']]){
+ ['munTwin','mun_ventral_twin50','腹部300GT 2連装速射砲','腹部300GT連装速射',2,.3,.2,4000,12,350000,.3,WEAPON_NOTES.munTwin]]){
  const a=REFERENCE_ASSETS[asset],volleyTT=barrels*boltTT;
  FITS[key]={...FITS.stl,key,name,short,asset,barrels,boltTT,tt:volleyTT,ion:0,cycle,power:volleyTT*TT/cycle,mass,crew,cost,aa,dualPurpose:false,fm:a.size[0],hm:a.size[1],wm:a.size[2],r:Math.max(a.size[0],a.size[2])/2,nativeCalibration:'munificent-source-model',fixedMount:!!a.fixedMount,catalogHidden:false,casemate:false,wallOnly:false,fixed:false,source:a.sourceUrl,evidence:'出力はユーザー指定、形状はミュニフィセント級の提供モデル（SomeGuyUsingBlender, CC BY 4.0）',rateEvidence:'質量・乗員・費用はゲーム用仮定',desc};
 }
@@ -27065,7 +27067,7 @@ function installCraftSystems(ship,recipe){
 // Rebuild only the stock constructor's engineering. Saved and edited ships are
 // never passed through this routine. Every rating below belongs to installed
 // finite machinery; derived mass, thrust and power remain solver results.
-function shipRefitMeasure(ship){return withFrozenStructures(()=>{const old=ship._lockedCache;ship._lockedCache=cache(ship);ship._boundsPass={};try{return baseComputeStats(ship,{engineeringOnly:true});}finally{delete ship._boundsPass;if(old)ship._lockedCache=old;else delete ship._lockedCache;}});}
+function shipRefitMeasure(ship){return withFrozenStructures(()=>{const work=surfaceWorkingShip(ship),old=work._lockedCache;work._lockedCache=cache(work);work._boundsPass={};try{return baseComputeStats(work,{engineeringOnly:true});}finally{delete work._boundsPass;if(old)work._lockedCache=old;else delete work._lockedCache;}});}
 function shipRefitAnchors(ship){
  const b=shipBounds(ship),out=[],put=q=>{if(q.every(Number.isFinite)&&insideOriginalEnvelope(ship,q))out.push(q.slice());};
  for(const p of ship.parts.filter(isShapePart).sort((a,c)=>partVolume(c)-partVolume(a)))put(p.c);
@@ -27117,6 +27119,22 @@ function shipRefitFreezeRooms(ship,parts){
  }
  syncCompartments(ship);return out;
 }
+// An integral turret room keeps its authored mount. A colliding auxiliary
+// reactor can occupy a normal internal compartment with the same physical
+// volume, packed around that fixed room instead of losing the entire source.
+function shipRefitReactorClearance(ship){
+ const rooms=allOccupied(ship).filter(p=>p.turretRoom),plans=ship.parts.filter(p=>p.k==='aux'&&rooms.some(q=>overlapParts(p,q))).map(p=>({p,volume:partVolume(p),diameter:p.d}));
+ if(!plans.length)return [];
+ for(const {p,volume} of plans){
+  const d=Math.cbrt(volume),base=[d,d,d];setRoomSize(p,base);let best=base,bestError=Math.abs(unclippedPartVolume(p)-volume);
+  // Match the retained volume with actual room dimensions. Float32 mesh
+  // corners have discrete positions, so select the nearest representable box.
+  for(const axis of [2,1,0]){let lo=d*(1-1e-5),hi=d*(1+1e-5);for(let i=0;i<16;i++){const size=base.slice();size[axis]=(lo+hi)/2;setRoomSize(p,size);const actual=unclippedPartVolume(p),error=Math.abs(actual-volume);if(error<bestError){best=size;bestError=error;}if(actual<volume)lo=size[axis];else hi=size[axis];}}
+  setRoomSize(p,best);p.autoFit=true;p.customEquipment=true;delete p.equipmentId;for(const key of ['_clip','_clipKey','_packing','_packingGroup'])delete p[key];
+ }
+ syncCompartments(ship);
+ return plans.map(({p,volume,diameter})=>{const installedVolume=partVolume(p);if(Math.abs(installedVolume-volume)>Math.max(1e-6,volume*1e-7)||rooms.some(q=>overlapParts(p,q)))throw new Error(ship.name+'：反応炉 #'+p.id+' の元の容積を保つ区画が不足しています');return {id:p.id,originalVolumeM3:volume,installedVolumeM3:installedVolume,originalDiameterM:diameter};});
+}
 function refitShipPropulsion(ship,key,options={}){
  const engines=ship.parts.filter(p=>p.k==='engine'),before=engines.map(e=>resolveEngineSpec(e,ship)),oldThrust=before.reduce((n,e)=>n+e.ratedThrustN,0),casings=new Map(engines.map(e=>[e.id,{...e,c:e.c.slice(),dir:e.dir?.slice(),_originalMachineryBody:enginePaths(ship).find(p=>p.nozzle===e.id)?.machinerySegment}])),targetG=SHIP_REFERENCE[key]?.accelG;
  const mass=options.massT||0,targetThrust=targetG&&mass>0?mass*1000*G0*targetG:oldThrust,totalInput=targetThrust*DRIVE_PROFILES.standard.wattsPerNewton,weights=targetG?engines.map(e=>e.d**3):before.map(e=>e.ratedThrustN),sum=weights.reduce((a,b)=>a+b,0)||engines.length;
@@ -27150,16 +27168,25 @@ function constructShipSystems(ship,key){
   const initial=shipRefitMeasure(ship);superweaponStats(ship,initial);for(const p of ship.parts.filter(isSuperweapon))if(p.reactor==null)p.reactor=reactorFor(ship,p)?.id;const originalEngineOutlets=ship.parts.filter(p=>p.k==='engine').map(p=>({id:p.id,p:add(p.c,mul(norm(p.dir||[-1,0,0]),partDims(p).l/2))}));
   const weaponInput=f=>(fitSpec(f).power||0)/ENERGY_MODEL.eta,fullWeaponInputW=ship.fits.filter(f=>!f.float&&FITS[f.k]?.cat==='w').reduce((n,f)=>n+(fitSpec(f).power||0)/ENERGY_MODEL.eta,0);
   const propulsion=refitShipPropulsion(ship,key,{massT:initial.mass*1.08}),E=propulsion.inputW*1.1,W=ship.fits.filter(f=>!f.float&&FITS[f.k]?.cat==='w').reduce((n,f)=>n+weaponInput(f),0),Q=ship.parts.some(p=>(p.k==='shield'||p.k==='localShield')&&partVolume(p)>0)?initial.area*K.shieldStd*(ship.shieldTarget||1):0,H=(initial.draw?.hotel||0)+(initial.draw?.ray||0),SW=(initial.superweapons||[]).filter(w=>w.ok).reduce((n,w)=>n+(w.chargeW||0),0);
-  const baselinePowerW=ship.parts.filter(isReactor).reduce((n,p)=>n+reactorPower(p),0),addedReactors=[];
+  const baselinePowerW=ship.parts.filter(isReactor).reduce((n,p)=>n+reactorPower(p),0),addedReactors=[],reconfiguredReactors=shipRefitReactorClearance(ship);
   const supportMass=initial.mass*1.03,field=craftFieldGain(Math.max(.001,initial.dims?.[0]||0));
   const inertial=ship.parts.filter(p=>p.k==='inertial').reduce((n,p)=>n+partVolume(p),0),integrity=ship.parts.filter(p=>p.k==='integrity').reduce((n,p)=>n+partVolume(p),0);
   const addedInertial=shipRefitAddVolume(ship,'inertial',Math.max(0,supportMass/(120*field)-inertial),'分散慣性補償設備'),addedIntegrity=shipRefitAddVolume(ship,'integrity',Math.max(0,supportMass/(180*field)-integrity),'分散構造維持設備');
   const pumpV=ship.parts.filter(p=>p.k==='pump').reduce((n,p)=>n+partVolume(p),0),plantV=ship.parts.filter(isReactor).reduce((n,p)=>n+partVolume(p),0),addedPumps=shipRefitAddVolume(ship,'pump',Math.max(0,plantV/70*1.05-pumpV),'反応物供給設備');
   let hub=ship.parts.find(p=>p.k==='battery'&&partVolume(p)>0);if(!hub)hub=shipRefitFixedPart(ship,'battery',1,'主配電・蓄電区画');if(!hub)hub=shipRefitAddVolume(ship,'battery',1,'主配電・蓄電区画')[0];if(!hub)throw new Error(key+': 主配電区画を配置できません');
+  let weaponBusBudgetW=0,weaponBranchInputW=0;
   const wirePower=()=>{
   const ports=new Map(),put=(id,W)=>{if(W>0)ports.set(id,Math.max(ports.get(id)||0,W));};
+  // Size real gun charging circuits for the installed shared plant. The
+  // catalogue remains the gun's mechanical maximum; unavailable nameplate
+  // power does not require an imaginary cable through every crew deck.
+  const coolingW=ship.parts.filter(p=>p.k==='hdis'||p.k==='radiator').reduce((n,p)=>n+dissipatorCap(p,initial)*(HEAT.disPowerK[p.k]||0),0),weapons=ship.fits.filter(f=>!f.float&&FITS[f.k]?.cat==='w').map(f=>{const d=fitSpec(f),rapid=Number.isFinite(d.boltTT)&&d.boltTT<=1&&d.cycle>0&&d.cycle<=.2&&!d.ion;return {f,W:weaponInput(f),service:!!(weaponRoles(d).pointDefense||rapid||FITS[f.k].store||d.trac)};});
+  weaponBusBudgetW=Math.max(0,baselinePowerW*1.4-H-coolingW);
+  const serviceW=weapons.filter(w=>w.service).reduce((n,w)=>n+w.W,0),chargingW=weapons.filter(w=>!w.service).reduce((n,w)=>n+w.W,0),serviceK=serviceW>0?Math.min(1,weaponBusBudgetW/serviceW):1,chargingK=chargingW>0?Math.min(1.5,Math.max(0,weaponBusBudgetW-serviceW*serviceK)/chargingW):0;
+  weaponBranchInputW=0;for(const w of weapons){const cap=w.W*(w.service?serviceK:chargingK);weaponBranchInputW+=cap;ports.set('f'+w.f.id,cap);}
+
   for(const p of ship.parts){if(isReactor(p)||p===hub||isShapePart(p))continue;put('p'+p.id,p.k==='engine'?resolveEngineSpec(p,ship).ratedInputW*1.3:p.k==='shield'||p.k==='localShield'?shieldLoad(p)*2:p.k==='hdis'?dissipatorCap(p,initial)*HEAT.disPowerK.hdis:Math.max(H,partVolume(p)*(PARTS[p.k]?.power||0)));}
-  for(const f of ship.fits)if(!f.float)put('f'+f.id,FITS[f.k]?.cat==='w'?weaponInput(f)*1.5:Math.max(H,fitSpec(f).power||0));
+  for(const f of ship.fits)if(!f.float&&FITS[f.k]?.cat!=='w')put('f'+f.id,Math.max(H,fitSpec(f).power||0));
   ship.links=(ship.links||[]).filter(l=>l.kind!=='power');for(const r of ship.parts.filter(isReactor))ship.links.push({kind:'power',from:'p'+r.id,to:'p'+hub.id,cap:reactorPower(r)*1.4});for(const [to,cap] of ports)ship.links.push({kind:'power',from:'p'+hub.id,to,cap});
   };wirePower();
   syncCompartments(ship);
@@ -27177,7 +27204,7 @@ function constructShipSystems(ship,key){
   propulsion.engines.forEach((e,i)=>{e.ratedInputW=installedInputW*bodyCaps[i]/Math.max(1,bodyCapacityW);const density=e.ratedInputW/machineryGeometry(e,ship).volume;e.machineryGradeId=Object.keys(MACHINERY_GRADES).find(k=>!MACHINERY_GRADES[k].legacy&&density<=MACHINERY_GRADES[k].allowedInputDensityWPerM3*(1+1e-12))||'advanced';e.feedCapacityW=e.ratedInputW*1.3;if(!resolveEngineSpec(e,ship).valid)throw new Error(key+': 実装機関の実容量が不足しています');});propulsion.inputW=installedInputW;
   wirePower();refitShipThermal(ship,key,{stats:measured,powerW:baselinePowerW,E:installedInputW,W,S:Q,H,margin:1.15});syncCompartments(ship);wirePower();
   if(ship.links.length>LINK_LIMIT)throw new Error(key+': 電力・排熱経路が保存上限を超えています');
-  ship.shipSystemRefit={version:1,key,basis:propulsion.basis,targetAccelG:propulsion.targetG,referenceTargetG:propulsion.targetG,fitLimited:installedInputW<requestedInputW*(1-1e-8),baselineRatedThrustN:propulsion.oldThrustN,engineIds:propulsion.engines.map(p=>p.id),reactorIds:ship.parts.filter(isReactor).map(p=>p.id),addedReactors:addedReactors.map(p=>p.id),addedInertial:addedInertial.map(p=>p.id),addedIntegrity:addedIntegrity.map(p=>p.id),addedPumps:addedPumps.map(p=>p.id),powerBusPartId:hub.id,baselinePowerW,installedPowerW:measured.power,requestedEngineInputW:requestedInputW,installedEngineInputW:installedInputW,engineRatingShortfallW:Math.max(0,requestedInputW-installedInputW),attainableAccelG:measured.mass>0?installedInputW/DRIVE_PROFILES.standard.wattsPerNewton/(measured.mass*1000)/G0:0,fullWeaponInputW,availableWeaponInputW:W,originalEngineOutlets,thermal:ship._shipThermalRefit};
+  ship.shipSystemRefit={version:1,key,basis:propulsion.basis,targetAccelG:propulsion.targetG,referenceTargetG:propulsion.targetG,fitLimited:installedInputW<requestedInputW*(1-1e-8),baselineRatedThrustN:propulsion.oldThrustN,engineIds:propulsion.engines.map(p=>p.id),reactorIds:ship.parts.filter(isReactor).map(p=>p.id),addedReactors:addedReactors.map(p=>p.id),reconfiguredReactors,addedInertial:addedInertial.map(p=>p.id),addedIntegrity:addedIntegrity.map(p=>p.id),addedPumps:addedPumps.map(p=>p.id),powerBusPartId:hub.id,baselinePowerW,installedPowerW:measured.power,requestedEngineInputW:requestedInputW,installedEngineInputW:installedInputW,engineRatingShortfallW:Math.max(0,requestedInputW-installedInputW),attainableAccelG:measured.mass>0?installedInputW/DRIVE_PROFILES.standard.wattsPerNewton/(measured.mass*1000)/G0:0,fullWeaponInputW,availableWeaponInputW:weaponBranchInputW,weaponBusBudgetW,weaponBranchInputW,originalEngineOutlets,thermal:ship._shipThermalRefit};
   ship._shipSystemRefit=true;return ship;
  }finally{ship._building=oldBuilding;}
 }
@@ -28803,19 +28830,13 @@ registerShipExample({
   part('hyper','ハイパードライブ',[247,60.5,0],9,{length:13,dir:[0,1,0]});
   part('shield','シールド発生器',[270,103,8],10,{},true);
   room('command','艦橋',[284,108,0],[10,8,6]);
-  // Armament (12 turbolasers, 12 laser cannons, 2 tractor beams).
+  // Three 200 GT twins and five twin PD mounts on the native decks.
   const gun=(kind,x,z,axis,zone)=>{const up=AXES[axis],h=rayEnv(s,[x,axis===3?-600:600,z],mul(up,-1),{structOnly:true});if(!h)throw new Error('ネビュロンBの砲座がありません: '+x+','+z);const f={id:s.nextId++,k:kind,p:h.p,a:axis,ped:0,base:0,low:0,float:false,chargeDepth:6,batteryZone:zone};mountFit(s,f);s.fits.push(f);return f;};
   syncAviationSurfaces(s);s._lockedCache=cache(s);
   try{withFrozenStructures(()=>{
-   // Twelve turbolasers on the dorsal decks, the rails and the bow: standard 18 m mounts
-   // spaced 18 m apart, pairs abreast on the forward deck and the bow, singles on the superstructure.
-   for(const x of [195,267])for(const z of [-10,10])gun('mtl',x,z,2,'fore-dorsal');
-   for(const x of [213,231,249])gun('mtl',x,0,2,'fore-dorsal');
-   for(const x of [16,46])for(const z of [-20.25,20.25])gun('mtl',x,z,2,'aft-'+(z<0?'port':'stbd'));
-   gun('mtl',285,0,2,'bow');
-   // Twelve laser cannons under the forward hull, the bow and the block.
-   for(const [x,z] of [[200,17],[222,17],[244,17],[270,12]])for(const sg of [-1,1])gun('pd',x,sg*z,3,'fore-ventral');
-   for(const x of [22,40])for(const z of [-16,16])gun('pd',x,z,3,'aft-ventral');
+   for(const [x,z] of [[27,0],[235,0],[278,0]])gun('twin200',x,z,2,x<100?'aft-dorsal':'fore-dorsal');
+   for(const [x,z] of [[205,15],[265,12]])for(const sg of [-1,1])gun('pd',x,sg*z,3,'fore-ventral');
+   gun('pd',14,0,3,'aft-ventral');
    gun('trc',286,0,3,'bow');gun('trc',30,0,3,'stern');
   });}finally{delete s._lockedCache;}
   delete s._building;remount(s);return s;
@@ -31226,16 +31247,20 @@ function feedDijkstra(G,seeds){
 }
 function feedConduits(ship){if(!ship._surfaceWorking&&!ship._surfaceCompiling&&ship.surfaces?.version===SURFACE_VERSION)return feedConduits(surfaceWorkingShip(ship));
  const W=ship.fits.filter(f=>FITS[f.k]?.cat==='w'&&!f.float),Rp=ship.parts.filter(p=>electricalSourcePower(p)>0&&!p.surfaceUnplaced),Cp=ship.parts.filter(p=>p.k==='battery'),h=habitationSpace(ship);
- const domains=powerDomainGroups(ship),domain=p=>domains.of(p),inputFactor=ship.surfaces?.mode==='strict'?1/ENERGY_MODEL.eta:1;
- const key=JSON.stringify([ship.hull.L,inputFactor,W.map(f=>[f.id,f.k,f.p,f.scale||1,domain(f)]),Rp.map(p=>[p.id,p.c,p.d,+electricalSourcePower(p).toPrecision(6),domain(p)]),Cp.map(p=>[p.id,partAABB(p).map(v=>+v.toFixed(2)),+partVolume(p).toPrecision(6),domain(p)])]);
+ const domains=powerDomainGroups(ship),domain=p=>domains.of(p),inputFactor=ship.surfaces?.mode==='strict'?1/ENERGY_MODEL.eta:1,manualPower=(normalizeLinks(ship.links)||[]).filter(l=>l.kind==='power'),incomingCaps=new Map();
+ // A fully rated manual incoming circuit bounds its cable cross-section.
+ // Any unrated incoming path retains the automatic nameplate convention.
+ for(const l of manualPower){if(!l.to.startsWith('f'))continue;const previous=incomingCaps.get(l.to);if(previous===null)continue;if(!Number.isFinite(l.cap)){incomingCaps.set(l.to,null);continue;}const sum=(previous||0)+l.cap;incomingCaps.set(l.to,Number.isFinite(sum)?sum:null);}
+ const feedInput=f=>{const nominal=(fitSpec(f).power||0)*inputFactor,cap=incomingCaps.get('f'+f.id);return Number.isFinite(cap)?Math.min(nominal,Math.max(0,cap)):nominal;};
+ const key=JSON.stringify([ship.hull.L,inputFactor,manualPower,W.map(f=>[f.id,f.k,f.p,f.scale||1,domain(f)]),Rp.map(p=>[p.id,p.c,p.d,+electricalSourcePower(p).toPrecision(6),domain(p)]),Cp.map(p=>[p.id,partAABB(p).map(v=>+v.toFixed(2)),+partVolume(p).toPrecision(6),domain(p)])]);
  if(ship._feed?.key===key&&ship._feed.h===h)return ship._feed;
  const Lmin=Math.max(4,.015*(ship.hull.L||0)),G=h.mask?.length?feedGrid(h):null;
  const sphere=(c,r)=>q=>{const d=sub(q,c),l=len(d),u=l>1e-9?mul(d,1/l):[1,0,0];return {p:add(c,mul(u,r)),l:Math.max(0,l-r)};};
  const box=b=>q=>{const p=[0,1,2].map(i=>clamp(q[i],b[i],b[i+3]));return {p,l:len(sub(q,p))};};
  const mid=b=>[0,1,2].map(i=>(b[i]+b[i+3])/2);
- const R=Rp.map(p=>{const b=partAABB(p),sph=!!(p.c&&p.d);return {id:p.id,domain:domain(p),kind:'reactor',out:electricalSourcePower(p),c:p.c||mid(b),b,near:sph?sphere(p.c,p.d/2):box(b),left:0};}).filter(r=>r.out>0);
+ const R=Rp.map(p=>{const b=partAABB(p),sph=!!(p.c&&p.d&&PARTS[p.k]?.shape==='sphere'&&!p.room);return {id:p.id,domain:domain(p),kind:'reactor',out:electricalSourcePower(p),c:p.c||mid(b),b,near:sph?sphere(p.c,p.d/2):box(b),left:0};}).filter(r=>r.out>0);
  const Cs=Cp.map(p=>{const b=partAABB(p),E=partVolume(p)*CELL_ENERGY_DENSITY;return {id:p.id,domain:domain(p),kind:'cell',E,cap:E/CELL_DISCHARGE_S,c:mid(b),b,near:box(b),left:0};}).filter(c=>c.cap>0);
- const rows=W.map(f=>({id:f.id,k:f.k,domain:domain(f),P:(fitSpec(f).power||0)*inputFactor,p:f.p,left:0,links:[],volume:0,length:0,fromCells:0})).filter(w=>w.P>0);
+ const rows=W.map(f=>({id:f.id,k:f.k,domain:domain(f),P:feedInput(f),p:f.p,left:0,links:[],volume:0,length:0,fromCells:0})).filter(w=>w.P>0);
  const res={key,h,volume:0,branchVolume:0,chargeVolume:0,demand:0,cellDraw:0,cellCap:0,cells:[],length:0,count:rows.length,flux:FEED_FLUX,rows,charge:[],routed:!!G};
  res.demand=rows.reduce((n,w)=>n+w.P,0);for(const w of rows)w.left=w.P;
  // Routing: each source floods the interior grid once from the cells around its walls.
