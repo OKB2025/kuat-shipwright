@@ -15,7 +15,7 @@ test('the edit rotation operation changes turret heading and the actual procedur
   const f=fixture(k,17.5),before=plain(f),a=turn(f,1,90),o=a.rows[0].out;near(heading(o),a.R(heading(f)));assert.deepEqual(plain(f),before,'preview leaves original unchanged');
   const origin=C.fitOrigin(f),target=C.fitOrigin(o),apply=p=>C.add(target,a.R(C.sub(p,origin)));
   if(C.FITS[k].asset){for(const v of [[.5,.2,.1],[-.25,.5,-.5]])near(C.referenceFitPoint(o,v),apply(C.referenceFitPoint(f,v)),1e-5);}
-  else{const source=G.meshFits({fits:[f]}),dest=G.meshFits({fits:[o]});assert.equal(source.n,dest.n);for(let i=0;i<source.n;i++)near(Array.from(dest.pos.slice(i*3,i*3+3)),apply(Array.from(source.pos.slice(i*3,i*3+3))),4e-5);}
+  else{let triangles=0;for(const build of [G.meshFits,G.meshReferenceFits]){const source=build({fits:[f]}),dest=build({fits:[o]});triangles+=source.ni;assert.equal(source.n,dest.n);for(let i=0;i<source.n;i++)near(Array.from(dest.pos.slice(i*3,i*3+3)),apply(Array.from(source.pos.slice(i*3,i*3+3))),4e-5);}assert.ok(triangles>0,k+' checks its actual rendered mesh');}
  }
 });
 

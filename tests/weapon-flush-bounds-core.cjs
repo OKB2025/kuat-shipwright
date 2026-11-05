@@ -12,7 +12,7 @@ test('legacy fixed lift is normalized on import while articulated height survive
 });
 test('craft bounds enclose actual body/store vertices in every mounting frame without a spherical clearance box',()=>{
  const kinds=['claser','claserH','cion','cturret','ctorp','cmsl','cbomb','cpylon'];
- for(const k of kinds)for(let axis=0;axis<6;axis++)for(const scale of [.5,1,2]){const f={id:1,k,p:[9.75,-3.2,2.4],a:axis,ped:0,base:0,low:0,float:false,scale,...(k==='cturret'?{assetYaw:31}:{} )},g=G.meshFits({fits:[f]}),b=C.fitAABB(f);assert.ok(g.ni>0);for(let i=0;i<g.ni;i++){const j=g.idx[i]*3;for(let a=0;a<3;a++)assert.ok(g.pos[j+a]>=b[a]-4e-5&&g.pos[j+a]<=b[a+3]+4e-5,`${k} axis${axis} scale${scale} vertex${g.pos[j+a]} outside ${b}`);}}
+ for(const k of kinds)for(let axis=0;axis<6;axis++)for(const scale of [.5,1,2]){const f={id:1,k,p:[9.75,-3.2,2.4],a:axis,ped:0,base:0,low:0,float:false,scale,...(k==='cturret'?{assetYaw:31}:{} )},meshes=[G.meshFits({fits:[f]}),G.meshReferenceFits({fits:[f]})],b=C.fitAABB(f);assert.ok(meshes.some(g=>g.ni>0));for(const g of meshes)for(let i=0;i<g.ni;i++){const j=g.idx[i]*3;for(let a=0;a<3;a++)assert.ok(g.pos[j+a]>=b[a]-4e-5&&g.pos[j+a]<=b[a+3]+4e-5,`${k} axis${axis} scale${scale} vertex${g.pos[j+a]} outside ${b}`);}}
  const f={id:1,k:'claser',p:[0,0,0],a:2,ped:0,base:0,low:-99,pedSize:3,pedShape:'trap'},b=C.fitAABB(f);near(b[5]-b[2],C.FITS.claser.wm);assert.ok(b[4]-b[1]<.33);assert.ok(b[3]-b[0]<2.5,'the2.6m laser has its own long,thin body envelope');
 });
 test('dirty fixed offsets cannot affect the displayed origin, bounds or emitted mesh',()=>{

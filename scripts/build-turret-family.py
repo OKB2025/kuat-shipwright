@@ -222,6 +222,52 @@ class Mesh:
                            outerRadiusM=radius*1.1, boreRadiusM=radius*bore_ratio,
                            muzzleRecessM=recess, exposedStartX=shank_start)
 
+    def ion_barrel(self, root_x, tip_x, y, z, radius, label, bore_ratio=.66, segments=20, taper_start_x=None):
+        """A thick ion root tapers to a slender tip, with a real recessed bore.
+
+        The nominal radius is the matching TL shank. Callers can start the
+        visible taper at their actual armor face; the hidden root stays thick.
+        No extra root collar can collide with neighboring four-port barrels.
+        """
+        start=self.mark();length=tip_x-root_x;base_radius=radius*2.2;shank=radius*1.25
+        if length<=0 or radius<=0 or not 0<bore_ratio<1 or segments<6:
+            raise ValueError('Invalid ion barrel dimensions')
+        recess=min(length*.24,max(shank*1.5,length*.035))
+        collar_start=tip_x-max(shank*.8,length*.06)
+        taper_start=root_x+length*.18 if taper_start_x is None else taper_start_x
+        if not root_x<=taper_start<collar_start:
+            raise ValueError('Ion taper must start between its root and muzzle collar')
+        profile=[(root_x,0),(root_x,base_radius),(taper_start,base_radius),
+                 (collar_start,shank),(collar_start,shank*1.1),
+                 (tip_x,shank*1.1),(tip_x,shank*bore_ratio),
+                 (tip_x-recess,shank*bore_ratio),(tip_x-recess,0)]
+        rings=[]
+        for x,r in profile:
+            if r==0:
+                rings.append([len(self.points)]);self.points.append([x,y,z]);self.uvs.append((0,32768))
+            else:
+                ring=[]
+                for i in range(segments):
+                    t=2*math.pi*i/segments;ring.append(len(self.points))
+                    self.points.append([x,y+r*math.cos(t),z+r*math.sin(t)])
+                    self.uvs.append((round((x-root_x)/length*65535),round(i/segments*65535)))
+                rings.append(ring)
+        for a,b in zip(rings,rings[1:]):
+            for i in range(segments):
+                j=(i+1)%segments
+                if len(a)==1:self.indices.extend([a[0],b[j],b[i]])
+                elif len(b)==1:self.indices.extend([a[i],a[j],b[0]])
+                else:self.indices.extend([a[i],a[j],b[j],a[i],b[j],b[i]])
+        return self.record(start,label,root=[root_x,y,z],muzzle=[tip_x,y,z],
+                           centerM=[(root_x+tip_x)/2,y,z],axis=[1,0,0],
+                           outerRadiusM=shank*1.1,boreRadiusM=shank*bore_ratio,
+                           muzzleRecessM=recess,muzzleStyle='modeled-recessed',exposedStartX=taper_start,
+                           shaftRadiusM=shank,rootShaftRadiusM=base_radius,
+                           nominalTurbolaserRadiusM=radius,ionRootRadiusRatio=2.2,ionTipRadiusRatio=1.25,
+                           taperStartXM=taper_start,taperEndXM=collar_start,
+                           barrelStyle='thick-taper-ion-tube',
+                           profileStationsM=[list(p) for p in profile],radialSegments=segments)
+
 
 def thin_turntable(m, radius, segments=64):
     m.cylinder([0, .16, 0], radius, .32, 1, 'intrinsic bearing ring', segments)
@@ -299,6 +345,9 @@ def finish(m, kind, title, output, pivot, barrels, split, drives_meta, scale, **
             row[key] = [v*scale for v in row[key]]
         for key in ['outerRadiusM', 'boreRadiusM', 'muzzleRecessM', 'exposedStartX']:
             if row[key] is not None:row[key] *= scale
+        for key in ['nominalTurbolaserRadiusM','rootShaftRadiusM','taperStartXM','taperEndXM']:
+            if key in row:row[key]*=scale
+        if 'profileStationsM' in row:row['profileStationsM']=[[x*scale,r*scale] for x,r in row['profileStationsM']]
     for row in drives_meta:
         row['centerM'] = [v*scale for v in row['centerM']]
         row['radiusM'] *= scale
@@ -1231,15 +1280,24 @@ def build_quad40_ion(scale):
     m=Mesh();split=m.mark();pivot=[0,2.5,0]
     sphere=spherical_house(m,pivot,7.5,'spherical four-port ion gunhouse')
     sphere.update(normalMode='sphere',normalCenterM=pivot[:])
-    b=[]
+    # Match the octuple's forward TL shank caliber, then use the common thick
+    # parallel ion profile. Keep the existing four roots and muzzle planes.
+    src=sources()['isd_heavy_octuple_original'];F,U,R=src['frame']
+    points=[[dot(src['points'][i],axis) for axis in [F,U,R]] for i in src['groups'][15]]
+    low,high=bounds(points);cy=(low[1]+high[1])/2;cz=(low[2]+high[2])/2
+    nominal=max(math.hypot(p[1]-cy,p[2]-cz) for p in points
+                if .84<(p[0]-low[0])/(high[0]-low[0])<.855)*normal40_barrel_scale()
+    tip=5.4+(high[0]-low[0])*.55;b=[]
     for y in [1.35,3.65]:
-        for z in [-1.15,1.15]:b.append(source_barrel(m,'isd_heavy_octuple_original',15,[5.4,y,z],.55,1.0,'40TT spherical ion source barrel'))
+        for z in [-1.15,1.15]:
+            row=m.ion_barrel(5.4,tip,y,z,nominal,'40TT spherical thick tapered ion barrel',segments=20)
+            row['shaftRadiusM']*=scale;b.append(row)
     return finish(m,'quad40Ion','40TT 4連装イオン砲',40,pivot,b,split,[],scale,
                   derivedFrom='isd_heavy_octuple_original',materialReference='isd_heavy_octuple',weaponRole='ion',gunhouseElevates=True,
                   sphereRadiusM=7.5*scale,sphereCenterM=[0,2.5*scale,0],
                   sphereMeshRange={k:sphere[k] for k in ['firstVertex','vertices','firstIndex','indices']},
                   mountEmbedding={'diameterBelowMountFraction':1/3,'centerHeightRadiusRatio':1/3,'analyticCapVolumeFraction':7/27},
-                  derivation='four source40 barrels in a spherical gunhouse; ball and complete four-port gun assembly elevate together within a thin neck collar')
+                  derivation='four thick-root tapered ion barrels in the preserved spherical gunhouse; ball and complete four-port gun assembly elevate together')
 
 
 def build(octuple_length=OCTUPLE_LENGTH_M,dby_length=DBY_LENGTH_M):

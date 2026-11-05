@@ -1,0 +1,22 @@
+// Bounded reproduction: timeout -k 5s 180s node scripts/benchmark-capital-example-opening.cjs executor
+// Set KS_TEST_ROOT to an archived runtime to compare the same worker requests.
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{performance}=require('node:perf_hooks');
+const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),key=process.argv[2],cx=vm.createContext({console,performance,setTimeout,clearTimeout,structuredClone});
+for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/gfx.js','js/engine.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),cx,{filename:file});
+const {C,E}=vm.runInContext('({C:Core,E:YardEngine})',cx),oldBuild=C.buildDesign,oldSync=C.syncCompartments,oldRemount=C.remount;
+let builtShip,syncs=0,remounts=0,waiter;
+C.buildDesign=(...args)=>{const t=performance.now();console.log(JSON.stringify({key,stage:'recipe-start'}));builtShip=oldBuild(...args);console.log(JSON.stringify({key,stage:'recipe-built',ms:Math.round(performance.now()-t),fits:builtShip.fits.length}));return builtShip;};C.syncCompartments=(...args)=>{const t=performance.now(),n=++syncs;console.log(JSON.stringify({key,stage:'worker-sync-start',n}));const out=oldSync(...args);console.log(JSON.stringify({key,stage:'worker-sync-end',n,ms:Math.round(performance.now()-t)}));return out;};C.remount=(...args)=>{const t=performance.now(),n=++remounts;console.log(JSON.stringify({key,stage:'worker-remount-start',n}));const out=oldRemount(...args);console.log(JSON.stringify({key,stage:'worker-remount-end',n,ms:Math.round(performance.now()-t)}));return out;};
+const events=[],scope={postMessage(msg){if(msg.type==='ready')return;if(msg.type==='error'){waiter?.reject(Error(msg.message));return;}events.push(msg);drain();}};
+function drain(){if(!waiter)return;const i=events.findIndex(m=>m.type===waiter.type);if(i>=0){const q=waiter;waiter=null;clearTimeout(q.timer);q.resolve(events.splice(i,1)[0]);}}
+function receive(type){return new Promise((resolve,reject)=>{waiter={type,resolve,reject,timer:setTimeout(()=>reject(Error('Timed out '+type)),20*60*1000)};drain();});}
+function send(data,type){const done=receive(type);scope.onmessage({data});return done;}
+E.listenWorker(scope);
+(async()=>{const started=performance.now();console.log(JSON.stringify({key,stage:'start',utc:new Date().toISOString(),root}));const built=await send({type:'build',id:1,key},'built'),s=JSON.parse(built.state),counts={};for(const f of s.fits){counts[f.k]=(counts[f.k]||0)+1;assert.ok(C.fitAABB(f).every(Number.isFinite),'finite physical fitting bounds');}
+ const expected=key==='executor'?{refVen:750,pd:1250,ion:100,cmsl:125,podAir:1}:key==='mandator2'?{podCombat:1,podAir:1,msl:2,utl:47,stl:18,ion:6,pd:58,trc:6}:key==='subjugator'?{refVen:20,quad200:20,pd:600,broadsideBattery:500,msl:10,trc:2,podAir:1}:null;
+ console.log(JSON.stringify({key,stage:'built-before-assertions',ms:Math.round(built.ms),parts:s.parts.length,fits:s.fits.length,counts}));assert.ok(expected);assert.deepEqual(counts,expected,'the physical family update preserves canonical recipe inventory');assert.equal(new Set(s.fits.map(f=>f.id)).size,s.fits.length);
+ console.log(JSON.stringify({key,stage:'built',ms:Math.round(built.ms),parts:s.parts.length,fits:s.fits.length,counts,float:s.fits.filter(f=>f.float).length}));
+ const before={syncs,remounts},geometries=await send({type:'update',gen:1,state:built.state,what:['all'],reset:true,stats:false,view:{deferSurfaces:true}},'geometry');assert.equal(syncs,before.syncs,'warm first display avoids deriving compartments twice');assert.equal(remounts,before.remounts,'warm first display avoids remounting the built recipe');assert.equal(geometries.state,built.state,'opening preserves serialized fitting identities and poses');
+ assert.ok(Object.keys(geometries.geos).length>0);let triangles=0;for(const g of Object.values(geometries.geos))if(g?.ni)triangles+=g.ni/3;
+ const surface=await receive('surfaceGeometry');assert.equal(surface.state,built.state);assert.equal(C.publicJSON(builtShip),built.state);
+ console.log(JSON.stringify({key,stage:'opened',meshMs:Math.round(geometries.meshMs),firstDisplayMs:Math.round(geometries.totalMs),totalMs:Math.round(performance.now()-started),triangles,geometryGroups:Object.keys(geometries.geos).length,memoryMb:Math.round(process.memoryUsage().rss/1048576)}));
+})().catch(e=>{console.error(e);process.exitCode=1;});

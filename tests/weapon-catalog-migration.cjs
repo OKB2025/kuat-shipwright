@@ -36,7 +36,7 @@ function blueprint(fits) {
 
 test('one canonical catalog describes the heavy twin, octuple and generic ion gun', () => {
   for (const [k, barrels, boltTT, tt, asset] of [
-    ['stl', 2, 175, 350, 'isd_heavy_twin'],
+    ['stl', 2, 175, 350, 'capital_twin175'],
     ['oct40', 8, 40, 320, 'isd_heavy_octuple']
   ]) {
     const d = C.FITS[k];
@@ -51,7 +51,7 @@ test('one canonical catalog describes the heavy twin, octuple and generic ion gu
   assert.equal(C.FITS.ion.barrels, 2);
   assert.equal(C.FITS.ion.boltTT, 175);
   assert.equal(C.FITS.ion.ion, 350);
-  assert.equal(C.FITS.ion.asset, undefined, 'ion weapons retain their generic procedural appearance');
+  assert.equal(C.FITS.ion.asset, 'capital_twin175_ion', 'the heavy ion twin uses its photographed capital gunhouse');
   assert.equal(C.FITS.htl.barrels, 2);
   assert.equal(C.FITS.htl.tt, 140);
   assert.equal(C.FITS.refVen.tt, 140);
