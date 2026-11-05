@@ -944,10 +944,25 @@ def build_triple70(scale):
                 side_panel(x+v,x+v+.12,2.3,4.3,sign,.14,.19,'triple70 vertical ventilation frame')
         side_panel(-6.8,2.4,5.1,5.65,sign,.04,.20,'triple70 side armor belt')
     pivot=[14.0,6.25,0]
+    # Close the visible wedge between the main gunhouse and its forward
+    # mechanism with integral side armor. These cheeks meet the existing
+    # sloping case at their rear and the mount plane at their forward foot;
+    # they are structural armor, not an added display/support pedestal or
+    # usable capacitor space. The moving pod remains inside |z| <= 9.0.
+    front_armor=[];bearing_arms=[];bearing_axles=[]
     for sign in [-1,1]:
-        m.prism([[8.0,4.7],[13.5,4.9],[14.6,5.3],[14.6,7.3],[13.5,7.7],[8.0,7.9]],
-                min(sign*9.3,sign*9.75),max(sign*9.3,sign*9.75),'integral forward gun-pod bearing cheek')
-        m.cylinder([pivot[0],pivot[1],sign*8.9],.63,1.3,2,'forward pod trunnion axle',48)
+        cheek=m.prism([[6.7,0],[16.0,0],[8.0,roof_y],[6.7,roof_y]],
+                      min(sign*9.3,sign*9.75),max(sign*9.3,sign*9.75),
+                      'triple70 integral sloping front armor cheek')
+        cheek.update(componentRole='fixed-front-armor',structuralArmor=True)
+        front_armor.append(cheek)
+        arm=m.prism([[8.0,4.7],[13.5,4.9],[14.6,5.3],[14.6,7.3],[13.5,7.7],[8.0,7.9]],
+                    min(sign*9.3,sign*9.75),max(sign*9.3,sign*9.75),'integral forward gun-pod bearing cheek')
+        arm.update(componentRole='fixed-bearing-arm');bearing_arms.append(arm)
+        # The former 1.3m shaft stopped at |z|=8.25 while the moving wheel
+        # ended at |z|=8.15. A 1.8m shaft provides real bearing engagement.
+        axle=m.cylinder([pivot[0],pivot[1],sign*8.9],.63,1.8,2,'forward pod trunnion axle',48)
+        axle.update(componentRole='fixed-bearing-axle');bearing_axles.append(axle)
     split=m.mark();pod_low,pod_high=[9.75,2.6,-9.0],[17.25,height,9.0]
     xf=source_transform('ven_turret',0,pod_low,pod_high)
     pod=source_part(m,'ven_turret',0,xf,'complete detailed DBY common front gun pod')
@@ -958,12 +973,29 @@ def build_triple70(scale):
             'conservative':True,'sourceAsset':'ven_turret','sourceComponent':0,'sourceCompartmentCell':i,
             'sourceMeshRange':{k:pod[k] for k in ['firstVertex','vertices','firstIndex','indices']}})
     d=dby_drives(m,pivot,7.8,1.0)
-    m.prism([[14.1,4.4],[17.8,4.4],[18.3,5.0],[18.3,7.7],[17.8,8.3],[14.1,8.3]],
-            -7.3,7.3,'wide detailed front three-gun receiver')
+    receiver=m.prism([[14.1,4.4],[17.8,4.4],[18.3,5.0],[18.3,7.7],[17.8,8.3],[14.1,8.3]],
+                     -7.3,7.3,'wide detailed front three-gun receiver')
     ribs(m,14.4,5,.57,8.3,-6.5,6.5,.16)
     b=[source_barrel(m,'ven_turret',2,[16.25,6.25,z],1,1,'70TT full-profile forward DBY barrel') for z in [-3.0,0,3.0]]
+    # The yaw/mount centre is the midpoint of the widest main-case section,
+    # not the centre of its length or the forward barrel envelope.
+    footprint_sections={x:[z for xx,z in base if xx==x] for x,z in base}
+    widest_x,widest_z=max(footprint_sections.items(),key=lambda row:max(row[1])-min(row[1]))
+    mount_center=[widest_x*scale,0,(min(widest_z)+max(widest_z))*scale/2]
     return finish(m,'triple70','70TT 3連装重ターボレーザー',70,pivot,b,split,d,scale,
                   derivedFrom='ven_turret',materialReference='ven_turret70_native',
+                  mount=mount_center,
+                  mountAlignment={'kind':'widest-main-case-cross-section',
+                    'midpointM':mount_center,'sectionWidthM':(max(widest_z)-min(widest_z))*scale,
+                    'portEndpointM':[widest_x*scale,0,min(widest_z)*scale],
+                    'starboardEndpointM':[widest_x*scale,0,max(widest_z)*scale]},
+                  frontConnection={'armorCheekLabels':[r['label'] for r in front_armor],
+                    'bearingArmLabels':[r['label'] for r in bearing_arms],
+                    'fixedAxleLabels':[r['label'] for r in bearing_axles],
+                    'movingWheelLabels':[r['label'] for r in d],
+                    'movingPodLabels':[pod['label']],'receiverLabels':[receiver['label']],
+                    'fixedAxleDepthM':1.8*scale,'wheelEngagementM':.15*scale,
+                    'armorLateralClearanceM':.3*scale,'armorAddsCapacitorRoom':False},
                   photoMeasurements='assets/source/turret-photo-measurements.json',
                   photoFeatureComponents={'mainCase':[r['label'] for r in main],'frontPod':[pod['label']]},
                   caseStyle='closed-battleship-hexagonal-forward-pod',
@@ -1179,11 +1211,26 @@ def validate(assets):
         angles=([-10,0,20,55,85] if key=='family_triple70' else
                 [-10,0,25,55,85] if key in ['family_twin40_box','family_triple40'] else None)
         clearance=moving_case_clearance(points,indices,asset,angles) if angles else None
+        armor_clearance=None
+        if key=='family_triple70':
+            # Integral armor is intentionally not capacitor room, but its
+            # actual rendered surfaces must still clear the moving mechanism.
+            armor_cells=[]
+            for row in asset['components']:
+                if row.get('componentRole')!='fixed-front-armor':continue
+                first=row['firstVertex'];vertices=points[first:first+row['vertices']]
+                faces=[[v-first for v in indices[i:i+3]]
+                       for i in range(row['firstIndex'],row['firstIndex']+row['indices'],3)]
+                armor_cells.append({'label':row['label'],'verticesM':vertices,'faces':faces})
+            if len(armor_cells)!=2:raise ValueError('Triple70 needs two real front armor cheeks')
+            armor_asset={**asset,'turretCompartment':{'convexes':armor_cells}}
+            armor_clearance=moving_case_clearance(points,indices,armor_asset,angles)
         result[key]={'closedConvexes':len(asset['turretCompartment']['convexes']),
                      'physicalBarrels':len(asset['barrelCenters']),
                      'recessedSourceBarrels':sum(b['muzzleStyle']=='source-recessed' for b in asset['barrelCenters']),
                      'sourceCapBarrels':sum(b['muzzleStyle']=='source-cap' for b in asset['barrelCenters']),
-                     'partitionCrossings':0,**({'wholeCradleClearance':clearance} if clearance is not None else {})}
+                     'partitionCrossings':0,**({'wholeCradleClearance':clearance} if clearance is not None else {}),
+                     **({'frontArmorClearance':armor_clearance} if armor_clearance is not None else {})}
     return result
 
 
