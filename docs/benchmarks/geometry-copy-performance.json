@@ -1,0 +1,172 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "date": "2026-11-05T03:08:22.000Z",
+  "node": "v24.22.1",
+  "sourceSha256": {
+    "data/reference.js": "90294dce9b3f9ada56a318ba50f2e6185994fed8babcca640861f5d6728fcc89",
+    "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
+    "data/fleet.js": "c4fdb044a7b449520bf65c29080a127356ad6a766d275b8296ec520ea9ba026a",
+    "js/core.js": "22c833284a8ee010d7e96bb2a61a8514b4d8a28942e2192c2a39e7873b009776",
+    "js/gfx.js": "e80f29acd22fe36538a509489d1f0c93c107da31e1f1928c130054c842bb5ab0"
+  },
+  "scope": "Same current assets, fitting frames and rendered geometry; only appendGeo is replaced with its previous unpack/repack implementation for before measurements. Cold includes per-fitting mesh construction; warm reuses it. No model simplification.",
+  "cases": [
+    {
+      "kind": "quad200",
+      "count": 12,
+      "before": {
+        "coldMs": 553.159264,
+        "warmMs": [
+          115.28779199999997,
+          114.53818100000001,
+          115.07671300000015
+        ],
+        "vertices": 67128,
+        "triangles": 76728,
+        "bufferSha256": {
+          "pos": "7b784258eed284836c0497e4e6fad314de42c1b8234e4e6206862c2e821f722a",
+          "nor": "bc38baefc6071e16aabaab79dd12894441352457197ff56801c3dfb76c3d260d",
+          "uv": "70fdaccc4bfed7a07ac6582fd34589f2a64459ffab867fe1bd98c700361c8f8f",
+          "col": "fdb7d253588124e5ca85fa9e30087a2d4ec96bbdbbe7232d2834bb3a8eecb852",
+          "idx": "5f68d6737b0347e6e65c31f2b7a0532b4e913bead67ca12de78888fe17c0b25d"
+        }
+      },
+      "after": {
+        "coldMs": 327.44869600000015,
+        "warmMs": [
+          2.6664209999999002,
+          2.2566730000000916,
+          2.207510000000184
+        ],
+        "vertices": 67128,
+        "triangles": 76728,
+        "bufferSha256": {
+          "pos": "7b784258eed284836c0497e4e6fad314de42c1b8234e4e6206862c2e821f722a",
+          "nor": "bc38baefc6071e16aabaab79dd12894441352457197ff56801c3dfb76c3d260d",
+          "uv": "70fdaccc4bfed7a07ac6582fd34589f2a64459ffab867fe1bd98c700361c8f8f",
+          "col": "fdb7d253588124e5ca85fa9e30087a2d4ec96bbdbbe7232d2834bb3a8eecb852",
+          "idx": "5f68d6737b0347e6e65c31f2b7a0532b4e913bead67ca12de78888fe17c0b25d"
+        }
+      },
+      "warmSpeedup": 50.99396899772164
+    },
+    {
+      "kind": "quad200",
+      "count": 42,
+      "before": {
+        "coldMs": 1360.7522529999999,
+        "warmMs": [
+          365.4471960000001,
+          373.882787,
+          364.6541890000003
+        ],
+        "vertices": 234948,
+        "triangles": 268548,
+        "bufferSha256": {
+          "pos": "345b5a815a31ab4e766e78ef42ae70a6870d0a48cd6c10ed7294ccf614213fd4",
+          "nor": "1fb74b5c7320de440f6cbef299c41a47db29bd49afc9c53fa7ac7ee7516e7ed7",
+          "uv": "4650577956e88e68031ffdd108188d97af9e87ddbc35e42bf706e921b14c2115",
+          "col": "f18b1c2b605a2f4c6752f914ee762c1fd567ded804c6edc8c1c60d854dcdd56a",
+          "idx": "f8db54a03a1528b4d094e10040ae5694e737697e7a71951b3f35409aeba5f495"
+        }
+      },
+      "after": {
+        "coldMs": 994.1409869999998,
+        "warmMs": [
+          5.545084000000315,
+          7.582124999999905,
+          8.015057999999954
+        ],
+        "vertices": 234948,
+        "triangles": 268548,
+        "bufferSha256": {
+          "pos": "345b5a815a31ab4e766e78ef42ae70a6870d0a48cd6c10ed7294ccf614213fd4",
+          "nor": "1fb74b5c7320de440f6cbef299c41a47db29bd49afc9c53fa7ac7ee7516e7ed7",
+          "uv": "4650577956e88e68031ffdd108188d97af9e87ddbc35e42bf706e921b14c2115",
+          "col": "f18b1c2b605a2f4c6752f914ee762c1fd567ded804c6edc8c1c60d854dcdd56a",
+          "idx": "f8db54a03a1528b4d094e10040ae5694e737697e7a71951b3f35409aeba5f495"
+        }
+      },
+      "warmSpeedup": 48.19851901676702
+    },
+    {
+      "kind": "quad500",
+      "count": 4,
+      "before": {
+        "coldMs": 294.98306200000025,
+        "warmMs": [
+          81.28646499999923,
+          81.01112100000046,
+          81.70468600000004
+        ],
+        "vertices": 54480,
+        "triangles": 41768,
+        "bufferSha256": {
+          "pos": "8effc46baa9223e6e0a896749bb912df30d2c5dd64d433e46fd2f9e5d864b320",
+          "nor": "02106eccd81e4b8c4c30eddc24fee0ce7876f87219ddb4fdc20d11d1482eca96",
+          "uv": "16de01865e2c6dacdfeb323a32ce88d134d78fa4335fb8d1d09418c199312aea",
+          "col": "c622281bd087170196f644e2382e44dce05cdb8b26a024521476db5a4c5425d0",
+          "idx": "959e334de41379c24baedea12ebd4894e5eaf1c71c00b653f4620bc47923365f"
+        }
+      },
+      "after": {
+        "coldMs": 215.6504219999997,
+        "warmMs": [
+          0.8433420000001206,
+          0.8265559999999823,
+          0.6422480000001087
+        ],
+        "vertices": 54480,
+        "triangles": 41768,
+        "bufferSha256": {
+          "pos": "8effc46baa9223e6e0a896749bb912df30d2c5dd64d433e46fd2f9e5d864b320",
+          "nor": "02106eccd81e4b8c4c30eddc24fee0ce7876f87219ddb4fdc20d11d1482eca96",
+          "uv": "16de01865e2c6dacdfeb323a32ce88d134d78fa4335fb8d1d09418c199312aea",
+          "col": "c622281bd087170196f644e2382e44dce05cdb8b26a024521476db5a4c5425d0",
+          "idx": "959e334de41379c24baedea12ebd4894e5eaf1c71c00b653f4620bc47923365f"
+        }
+      },
+      "warmSpeedup": 98.34356655810491
+    },
+    {
+      "kind": "oct40",
+      "count": 8,
+      "before": {
+        "coldMs": 56.54236700000001,
+        "warmMs": [
+          42.399977000000035,
+          41.41925800000081,
+          36.54069100000015
+        ],
+        "vertices": 11488,
+        "triangles": 8832,
+        "bufferSha256": {
+          "pos": "e8f394e53145bce049263de40e649381fa56c9d3654d932e7f47a2b68b95abea",
+          "nor": "1896adfe8cd698964105fcca4247e550bc903c27e48deb0d5fcb4d77cda49261",
+          "uv": "0e9bf809fa16dae23ea83f5c637672eb2cb2c7f0ddb941f610bd2369669716ef",
+          "col": "1d1bab38ccc1554257fbe4ce907c0179b4cf0d5b06d3b59e3b704b2021035578",
+          "idx": "bd73d72cf4fcbba897515772864e8d290bbc76d356eac5db6ac08325410ba694"
+        }
+      },
+      "after": {
+        "coldMs": 56.8258450000003,
+        "warmMs": [
+          49.169426000000385,
+          50.84194500000012,
+          38.32747599999948
+        ],
+        "vertices": 11488,
+        "triangles": 8832,
+        "bufferSha256": {
+          "pos": "e8f394e53145bce049263de40e649381fa56c9d3654d932e7f47a2b68b95abea",
+          "nor": "1896adfe8cd698964105fcca4247e550bc903c27e48deb0d5fcb4d77cda49261",
+          "uv": "0e9bf809fa16dae23ea83f5c637672eb2cb2c7f0ddb941f610bd2369669716ef",
+          "col": "1d1bab38ccc1554257fbe4ce907c0179b4cf0d5b06d3b59e3b704b2021035578",
+          "idx": "bd73d72cf4fcbba897515772864e8d290bbc76d356eac5db6ac08325410ba694"
+        }
+      },
+      "warmSpeedup": 0.8423783104565932
+    }
+  ]
+}

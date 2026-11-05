@@ -1,0 +1,151 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-05T03:09:42.821740+00:00",
+  "status": "PASS",
+  "scope": "Correctness of the editor performance changes against the actual merged source, without changing engineering figures or stored fixtures.",
+  "baseline": {
+    "commit": "2e4736db5db242feb39ed033a4a147dc0b78f427",
+    "sourceSha256": {
+      "js/core.js": "3f97bd08a2a80ea2d6481e718be55c9a6c0225e6c9a70a7be0a2d48fd25091b3",
+      "data/reference.js": "90294dce9b3f9ada56a318ba50f2e6185994fed8babcca640861f5d6728fcc89",
+      "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
+      "data/fleet.js": "c4fdb044a7b449520bf65c29080a127356ad6a766d275b8296ec520ea9ba026a"
+    }
+  },
+  "finalRuntime": {
+    "sourceSha256": {
+      "js/core.js": "22c833284a8ee010d7e96bb2a61a8514b4d8a28942e2192c2a39e7873b009776",
+      "data/reference.js": "90294dce9b3f9ada56a318ba50f2e6185994fed8babcca640861f5d6728fcc89",
+      "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
+      "data/fleet.js": "c4fdb044a7b449520bf65c29080a127356ad6a766d275b8296ec520ea9ba026a"
+    },
+    "coreFrozen": true
+  },
+  "venator": {
+    "method": "Load the actual four runtime files from the baseline commit, then Core.buildDesign('venator'); Core.syncCompartments; Core.remount; Core.syncCompartments; figuresDigest(Core.computeStats(ship)). Repeat in a fresh VM with the patched working Core.",
+    "beforeDigest": {
+      "sha256": "72375f2ff215eef652a81373eb8bf734aebddd1f03129ed1a3437d2c17548057",
+      "bytes": 8555
+    },
+    "afterDigest": {
+      "sha256": "72375f2ff215eef652a81373eb8bf734aebddd1f03129ed1a3437d2c17548057",
+      "bytes": 8555
+    },
+    "comparison": {
+      "helper": "tests/helpers/figures-digest.cjs:figuresDiff",
+      "relativeTolerance": 1e-09,
+      "differences": [],
+      "byteIdenticalDigest": true
+    },
+    "selectedBefore": {
+      "mass": 7357759.466134174,
+      "area": 551517.724962145,
+      "armorMass": 2237688.12661564,
+      "framingMass": 496621.8213104788,
+      "accelG": 552.7370673363916,
+      "alphaTot": 1360
+    },
+    "selectedAfter": {
+      "mass": 7357759.466134174,
+      "area": 551517.724962145,
+      "armorMass": 2237688.12661564,
+      "framingMass": 496621.8213104788,
+      "accelG": 552.7370673363916,
+      "alphaTot": 1360
+    },
+    "inputScope": "The after digest was captured with the projection-cache, closed-hatch and combat-summary changes. The final optional enableSurfaceMode report argument was added afterward; Venator has no surface-mode configuration and does not execute that optional path. Its default behavior and the new deferred path were tested separately. The final runtime hashes above describe the released source, not a claim that the digest runner recorded a source hash at capture time."
+  },
+  "tests": {
+    "new": {
+      "status": "PASS",
+      "checks": 7,
+      "files": [
+        {
+          "path": "tests/turret-projection-cache.cjs",
+          "checks": 2,
+          "sha256": "aa4a104b51a46cf2ae463c403bf74d6f603e6220de0cf29826d1fea91d5642dd"
+        },
+        {
+          "path": "tests/closed-hatch-armor-area.cjs",
+          "checks": 2,
+          "sha256": "b608c997926708be0f0609901bf318a6c92aae6e85e50d120d18f5a4a72baecb"
+        },
+        {
+          "path": "tests/craft-combat-summary.cjs",
+          "checks": 1,
+          "sha256": "5fb2e175b9f82286669b76606695af4d467241af276fe03ed5c104f953cbc7e6"
+        },
+        {
+          "path": "tests/surface-mode-enable-report.cjs",
+          "checks": 2,
+          "sha256": "d5c14962bb0361d7c67a9ea4ffb64762457f7acbd67114a7d01f3e683baeb691"
+        }
+      ],
+      "verified": [
+        "Repeated cached gunhouse projection performs no asset-coordinate reads.",
+        "Fit and envelope edits invalidate projections and match an independent cold calculation.",
+        "Closed sliding doors preserve actual figures without building a redundant closed-door clone.",
+        "Open and mixed door states retain the original exact armor calculation.",
+        "Combat summaries retain all visible fields and do not call either tactical snapshot builder; normal snapshots remain complete.",
+        "New wedge, block, cylinder and craft hulls retain authored controls and legacy armor when the unused report is deferred.",
+        "After normal worker derivation the complete public state, figures and surface report match; compatibility permissions and the normal report API remain intact."
+      ]
+    },
+    "existingGunhouse": {
+      "status": "PASS",
+      "checks": 14,
+      "file": "tests/turret-compartment-volume.cjs"
+    },
+    "logChecksums": [
+      {
+        "artifact": "core-cold-cache-final-tests.tap",
+        "sha256": "17e4c992760a5331129adbff797d47e3b7c66544d6fc5e32d8236fc40ce918db"
+      },
+      {
+        "artifact": "core-enable-report-final-tests.tap",
+        "sha256": "38df3a6922def93f99933115caa8dec583d9da5abf1ae4b6987a36d2c4a5b59e"
+      },
+      {
+        "artifact": "core-vulture-baseline-test.tap",
+        "sha256": "8584924285bd21bfbbb11e461e3f5f228aac923254c44b8f7c2afa40aad43fa9"
+      },
+      {
+        "artifact": "core-venator-figures-final.tap",
+        "sha256": "25694dbe5f29f2874e782ad00ef050e2274cc1a309ba4b284e4c4499bfc5faca"
+      }
+    ]
+  },
+  "preExistingFailures": [
+    {
+      "file": "tests/example-figures-regression.cjs",
+      "case": "venator: computeStats figures match the recorded ones",
+      "status": "FAILS_AGAINST_ACTUAL_BASELINE",
+      "evidence": "The independently generated actual-HEAD before digest and the patched after digest are byte-identical, while the stored fixture has different figures. The fixture omits framingMass even though the baseline Core already emits it.",
+      "recordedMass": 6861216.685915435,
+      "actualBaselineMass": 7357759.466134174,
+      "patchedMass": 7357759.466134174,
+      "fixtureHasFramingMass": false,
+      "actualBaselineHasFramingMass": true
+    },
+    {
+      "file": "tests/craft-example-systems.cjs",
+      "case": "craft_vulture carries complete ordinary systems without overlaps or flight penalties",
+      "status": "FAILS_ON_UNMODIFIED_BASELINE_AND_PATCHED_SOURCE",
+      "assertion": "S.accelG > 0",
+      "baselineVerification": "Existing test executed against four unmodified runtime files extracted from commit 2e4736db5db242feb39ed033a4a147dc0b78f427",
+      "baselineLogSha256": "8584924285bd21bfbbb11e461e3f5f228aac923254c44b8f7c2afa40aad43fa9",
+      "patchedLogSha256": "17e4c992760a5331129adbff797d47e3b7c66544d6fc5e32d8236fc40ce918db"
+    }
+  ],
+  "fixtures": {
+    "modified": false,
+    "path": "tests/helpers/example-figures.json",
+    "sha256": "86edf869ee573ae9b373ddefc6d817e31303039aac2f5521cb54c5ca3ef64f2c",
+    "matchesBaselineCommit": true
+  },
+  "performanceScope": {
+    "formalNativeOpenBenchmark": "Reported separately by the real browser example-open benchmark.",
+    "includesFormalLatencyClaim": false,
+    "notes": "CPU-profiler and concurrent diagnostic timing samples are not treated as formal native opening measurements in this correctness report."
+  }
+}

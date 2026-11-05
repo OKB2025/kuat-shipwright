@@ -3,6 +3,19 @@
 "use strict";
 root.KS_EN={
  "terms": {
+ "20GT 連装軽ターボレーザー（点防御）": "20 GT Twin Light Turbolaser (Point Defense)",
+ "20GT 点防御・軽TL": "20 GT Point Defense / Light TL",
+ "側面砲列区画": "Broadside Battery Compartment",
+ "側面砲列区画の砲": "Broadside Battery Guns",
+ "1門あたりの出力": "Output per Gun",
+ "この区画の門数": "Guns in This Compartment",
+ "給電装置": "Power-feed Equipment",
+ "給電装置を透視する": "Show Power-feed Equipment in X-ray",
+ "側面砲列区画の砲を変更": "Change Broadside Battery Guns",
+ "側面砲列区画は構造物の側壁に貼り付けてください": "Attach the broadside battery compartment to a structure's sidewall.",
+ "側面砲列区画は装甲外板ではない構造物の側壁に貼り付けてください": "Attach the broadside battery compartment to a structure's sidewall, not an armor plate.",
+ "2門×20 GT、0.2秒間隔の連装軽砲。点防御と軽ターボレーザーを統合し、艦載機・ミサイルの迎撃と対艦射撃を兼ねる。": "Two 20 GT guns firing every 0.2 seconds. This shared point-defense and light-turbolaser mount engages craft, missiles and ships.",
+ "構造物の側壁に貼り付ける黒い砲門。70TT・40TTは1区画2門まで、500GT・200GTは6門まで選択。砲身を外へ出さず、区画背面の船内に各砲の威力と門数に応じた給電・充電装置を実配置する。左右±65°・上下±20°。": "A dark gun port attached to a structure's sidewall. Choose up to two 70 TT or 40 TT guns, or six 500 GT or 200 GT guns. The barrels stay inside, with real power-feed and charging equipment allocated behind the compartment. Firing arc: ±65° horizontally and ±20° vertically.",
  "500GT 単装ターボレーザー": "500 GT Single Turbolaser",
  "500GT 単装": "500 GT Single",
  "200GT 2連装高角ターボレーザー": "200 GT Twin High-angle Turbolaser",

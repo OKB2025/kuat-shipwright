@@ -11,7 +11,18 @@ for (const file of ['data/reference.js', 'data/imperial2.js', 'data/fleet.js', '
 }
 const C = vm.runInContext('Core', context);
 const plain = value => JSON.parse(JSON.stringify(value));
-const aliases = {refISD: 'stl', refISDh: 'oct40', refIon: 'ion', refIonH: 'ion', casemate40: 'oct40', refSide:'twin40', xx9:'twin40', nk7:'quad40Ion'};
+const aliases = {refISD: 'stl', refISDh: 'oct40', refIon: 'ion', refIonH: 'ion', casemate40: 'broadsideBattery', refSide:'twin40', xx9:'twin40', nk7:'quad40Ion', ltl:'pd', mtl:'quad200', htl:'refVen', casemateMid:'broadsideBattery', casemateLight:'broadsideBattery', casemateIon:'broadsideBattery', casemateIonL:'broadsideBattery'};
+const broadsideCalibers = {casemate40:'40TT', casemateMid:'40TT', casemateLight:'500GT', casemateIon:'40TT', casemateIonL:'200GT'};
+const migrationFields = k => broadsideCalibers[k] ? {batteryCaliber:broadsideCalibers[k], batteryGuns:2, batteryLegacyHull:true} : {};
+const migratedGunRow = row => {
+  const copy = [row[0], aliases[row[1]], ...row.slice(2)];
+  if (broadsideCalibers[row[1]]) {
+    copy[21] = broadsideCalibers[row[1]];
+    copy[22] = 2;
+    copy[23] = true;
+  }
+  return copy;
+};
 const fit = (k, id = 1, extra = {}) => ({id, k, p: [30+id*50, 60, 20], a: 2, ped: 0, base: 0, low: 0, float: false, ...extra});
 function blueprint(fits) {
   const ship = C.newShip({L: 600, W: 400, H: 120, plan: 'rect', sec: 'rect'}, 'Legacy weapons');
@@ -47,8 +58,8 @@ test('one canonical catalog describes the heavy twin, octuple and generic ion gu
   assert.equal(C.FITS.refVen.asset, 'ven_turret70_native');
   assert.equal(C.FITS.htl.asset,C.FITS.refVen.asset,'legacy140TT inventory adopts the same native DBY appearance');
   assert.equal(C.FITS.refSide,undefined);assert.equal(C.FITS[C.canonicalWeaponKind('refSide')].tt,80);
-  for (const legacy of Object.keys(aliases)) assert.equal(C.FITS[legacy], undefined, `${legacy} is migration input only`);
-  assert.ok(C.FLEET_PROFILE_VERSION>=6,'cached profiles from before native compartment accounting must rebuild');
+  for (const legacy of Object.keys(aliases)) assert.equal(Object.keys(C.FITS).includes(legacy), false, `${legacy} is migration input only`);
+  assert.ok(C.FLEET_PROFILE_VERSION>=9,'cached profiles from before weapon consolidation and 20 GT point defense must rebuild');
 });
 
 test('canonical kind lookup and standard fitting migrate every retired id without disturbing mount state', () => {
@@ -63,14 +74,19 @@ test('canonical kind lookup and standard fitting migrate every retired id withou
     assert.equal(C.canonicalWeaponKind(legacy), canonical);
     const source = fit(legacy, 2, plain(state));
     assert.equal(C.migrateWeaponFit(source), source, 'mutable fittings keep their identity');
-    assert.deepEqual(plain(source), {...fit(canonical, 2), ...state});
+    assert.deepEqual(plain(source), {...fit(canonical, 2), ...state, ...migrationFields(legacy)});
     const ordinary = plain(state);
     for (const field of ['surfacePatch', 'surfaceCell', 'surfacePoint']) delete ordinary[field];
     const standard = C.standardFit(fit(legacy, 2, ordinary));
     assert.equal(standard.k, canonical, `${legacy} is canonical before its dimensions are resolved`);
-    for(const field of Object.keys(ordinary))assert.deepEqual(plain(standard[field]),['base','low','slope'].includes(field)?0:ordinary[field],`${legacy} retains explicit settings and clears automatic rise ${field}`);
+    for(const field of Object.keys(ordinary)){
+      const cleared=['base','low','slope',...(broadsideCalibers[legacy]?['ped']:[])].includes(field);
+      if(broadsideCalibers[legacy]&&['pedShape','pedSize','assetYaw'].includes(field))assert.equal(standard[field],undefined,`${legacy} removes an inapplicable turret setting`);
+      else assert.deepEqual(plain(standard[field]),cleared?0:ordinary[field],`${legacy} retains explicit settings and clears automatic rise ${field}`);
+    }
+    for(const [field,value]of Object.entries(migrationFields(legacy)))assert.deepEqual(standard[field],value,`${legacy} retains ${field}`);
   }
-  for (const k of ['stl', 'oct40', 'ion', 'htl', 'refVen', 'quad40Ion', 'unknown']) assert.equal(C.canonicalWeaponKind(k), k);
+  for (const k of ['stl', 'oct40', 'ion', 'pd', 'quad200', 'refVen', 'quad40Ion', 'broadsideBattery', 'unknown']) assert.equal(C.canonicalWeaponKind(k), k);
   const frozen = Object.freeze(fit('refISD'));
   const migrated = C.migrateWeaponFit(frozen);
   assert.equal(frozen.k, 'refISD');
@@ -95,7 +111,7 @@ test('retired model skins and pose overrides cannot restore obsolete weapon geom
 test('photo-family remapping cannot resurrect old DBY source skins or support offsets',()=>{
   for(const [kind,skinAsset]of [['refVen','ven_turret_3'],['htl','ven_turret'],['twin40','dby_twin40_raised']]){
     const original=Object.freeze(fit(kind,73,{skinAsset,mountAxis:4,mountOffset:8,assetYaw:17,tw:74,chargeSalvos:2})),migrated=C.migrateWeaponFit(original);
-    assert.equal(original.skinAsset,skinAsset);assert.equal(migrated.k,kind);assert.equal(migrated.id,73);assert.equal(migrated.tw,74);assert.equal(migrated.chargeSalvos,2);assert.deepEqual(plain(migrated.p),plain(original.p));
+    assert.equal(original.skinAsset,skinAsset);assert.equal(migrated.k,C.canonicalWeaponKind(kind));assert.equal(migrated.id,73);assert.equal(migrated.tw,74);assert.equal(migrated.chargeSalvos,2);assert.deepEqual(plain(migrated.p),plain(original.p));
     assert.equal(migrated.skinAsset,undefined,'new family uses its native case instead of an old source mesh');assert.equal(migrated.mountOffset,undefined,'old support offsets cannot raise the replacement case');
     assert.deepEqual(plain(C.migrateWeaponFit(migrated)),plain(migrated));
   }
@@ -109,7 +125,11 @@ test('blueprint loading migrates before filtering and repeated saves retain all 
   for (let index = 0; index < ship.fits.length; index++) {
     const f = ship.fits[index], old = raw.fits[index];
     assert.equal(f.k, aliases[old.k]);
-    for (const field of ['id', 'p', 'a', 'ped', 'base', 'low', 'assetYaw', 'batteryZone', 'tw']) if (Object.hasOwn(old, field)) assert.deepEqual(plain(f[field]), old[field], field);
+    for (const field of ['id', 'p', 'a', 'ped', 'base', 'low', 'assetYaw', 'batteryZone', 'tw']) if (Object.hasOwn(old, field)) {
+      if(broadsideCalibers[old.k]&&field==='assetYaw')assert.equal(f.assetYaw,undefined,'a fixed window does not retain turret rotation');
+      else assert.deepEqual(plain(f[field]), old[field], field);
+    }
+    for(const [field,value]of Object.entries(migrationFields(old.k)))assert.deepEqual(f[field],value,`${old.k} retains its migrated battery configuration`);
   }
   const saved = plain(C.serialize(ship));
   const loaded = C.deserialize(saved);
@@ -124,10 +144,10 @@ test('surface battery settings and packed retained gun rows migrate without losi
   const guns = Object.keys(aliases).map((k, index) => [100+index, k, 40+index*60, 60, 0, 2, 0, 1, 0, 40+index*60, 60, 0, 0, 1, 0, 1, 1, 0, 0, 0, 'g'+index]);
   raw.surfaces = {version: 4, mode: 'strict', patches: [{id, battery: {weapon: 'casemate40', count: 5, spacing: 3, angle: 31.25, reversed: true}, aggregate: {version: 1, cells: [], guns, requested: 5, requestedEquipment: 0}}]};
   const migrated = C.normalizeSurfaces(raw.surfaces).patches[0];
-  assert.deepEqual(plain(migrated.battery), {weapon: 'oct40', count: 5, spacing: 3, angle: 31.25, reversed: true});
-  assert.deepEqual(plain(migrated.aggregate.guns), guns.map(r => [r[0], aliases[r[1]], ...r.slice(2)]));
+  assert.deepEqual(plain(migrated.battery), {weapon: 'broadsideBattery', count: 5, spacing: 3, angle: 31.25, reversed: true, caliber:'40TT', guns:2, legacyHull:true});
+  assert.deepEqual(plain(migrated.aggregate.guns), guns.map(migratedGunRow));
   const loaded = C.deserialize(raw);
-  assert.equal(loaded.surfaces.patches[0].battery.weapon, 'oct40');
+  assert.equal(loaded.surfaces.patches[0].battery.weapon, 'broadsideBattery');
   assert.deepEqual(plain(loaded.surfaces.patches[0].aggregate.guns.map(r => [r[0], r[1]])), guns.map(r => [r[0], aliases[r[1]]]));
 });
 

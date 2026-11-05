@@ -43,15 +43,21 @@ const len = (a) => Math.hypot(a[0], a[1], a[2]);
 const norm = (a) => { const l = len(a) || 1; return Math.abs(l-1)<1e-12?a.slice():[a[0] / l, a[1] / l, a[2] / l]; };
 
 // Retired catalogue entries remain readable in saves, never as duplicate weapons.
-const LEGACY_WEAPON_KINDS=Object.freeze({msl:'cmsl',refISD:'stl',refISDh:'oct40',refIon:'ion',refIonH:'ion',casemate40:'oct40',refSide:'twin40',xx9:'twin40',nk7:'quad40Ion'});
+const LEGACY_WEAPON_KINDS=Object.freeze({msl:'cmsl',refISD:'stl',refISDh:'oct40',refIon:'ion',refIonH:'ion',casemate40:'broadsideBattery',refSide:'twin40',xx9:'twin40',nk7:'quad40Ion',mtl:'quad200',htl:'refVen',ltl:'pd',casemateMid:'broadsideBattery',casemateLight:'broadsideBattery',casemateIon:'broadsideBattery',casemateIonL:'broadsideBattery'});
+const LEGACY_BROADSIDE_CALIBERS=Object.freeze({casemate40:'40TT',casemateMid:'40TT',casemateLight:'500GT',casemateIon:'40TT',casemateIonL:'200GT'});
+const BROADSIDE_BATTERY_CALIBERS=Object.freeze({'70TT':Object.freeze({boltTT:70,maxGuns:2,cycle:1}),'40TT':Object.freeze({boltTT:40,maxGuns:2,cycle:1}),'500GT':Object.freeze({boltTT:.5,maxGuns:6,cycle:.2}),'200GT':Object.freeze({boltTT:.2,maxGuns:6,cycle:.2})});
 const canonicalWeaponKind=k=>Object.hasOwn(LEGACY_WEAPON_KINDS,k)?LEGACY_WEAPON_KINDS[k]:k;
+function isBroadsideBattery(f){return canonicalWeaponKind(typeof f==='string'?f:f?.k)==='broadsideBattery';}
+function broadsideBatteryConfig(f={}){const caliber=Object.hasOwn(BROADSIDE_BATTERY_CALIBERS,f.batteryCaliber)?f.batteryCaliber:LEGACY_BROADSIDE_CALIBERS[f.k]||'40TT',d=BROADSIDE_BATTERY_CALIBERS[caliber],guns=clamp(Math.floor(Number.isFinite(f.batteryGuns)?f.batteryGuns:2),1,d.maxGuns);return {caliber,guns,maxGuns:d.maxGuns,boltTT:d.boltTT,volleyTT:d.boltTT*guns,cycle:d.cycle,power:d.boltTT*guns*TT/d.cycle};}
+function setBroadsideBattery(f,partial={}){const q=broadsideBatteryConfig({...f,batteryCaliber:partial.caliber??partial.batteryCaliber??f.batteryCaliber,batteryGuns:partial.guns??partial.batteryGuns??f.batteryGuns});f.batteryCaliber=q.caliber;f.batteryGuns=q.guns;return q;}
 const retiredWeaponSkin=id=>typeof id==='string'&&/^(?:isd_turret(?:_\d+)?|isdh_turret|isd2_octuple|isd2_casemate)$/.test(id);
 const retiredFamilySkin=f=>typeof f?.skinAsset==='string'&&(['refVen','htl','twin40','triple40','oct40'].includes(f.k)&&/^(?:ven_turret(?:_\d+)?|dby_twin40_raised)$/.test(f.skinAsset)||['refSide','twin40'].includes(f.k)&&/^ven_side_(?:gun|port|stbd)$/.test(f.skinAsset));
-function weaponFitNeedsMigration(f){return !!f&&typeof f==='object'&&(canonicalWeaponKind(f.k)!==f.k||retiredFamilySkin(f)||(['stl','oct40','ion'].includes(f.k)&&retiredWeaponSkin(f.skinAsset)));}
+function weaponFitNeedsMigration(f){return !!f&&typeof f==='object'&&(canonicalWeaponKind(f.k)!==f.k||retiredFamilySkin(f)||(['stl','oct40','ion'].includes(f.k)&&retiredWeaponSkin(f.skinAsset))||isBroadsideBattery(f)&&(f.batteryCaliber!==broadsideBatteryConfig(f).caliber||f.batteryGuns!==broadsideBatteryConfig(f).guns));}
 function migrateWeaponFit(f){
  if(!weaponFitNeedsMigration(f))return f;
  const previous=f.k,k=canonicalWeaponKind(previous),retiredSkin=retiredWeaponSkin(f.skinAsset)||retiredFamilySkin(f),sourcePose=previous!=='msl'&&(retiredSkin||k!==previous&&!f.skinAsset);
  if(Object.isFrozen(f))f={...f};f.k=k;
+ if(k==='broadsideBattery'){if(Object.hasOwn(LEGACY_BROADSIDE_CALIBERS,previous)){f.batteryCaliber=f.batteryCaliber||LEGACY_BROADSIDE_CALIBERS[previous];f.batteryLegacyHull=true;}setBroadsideBattery(f);delete f.skinAsset;}
  if(previous==='msl'){if(f.mount!=='ext'&&!f.surfacePatch)f.legacyMissileMount='vls';delete f.mount;}
  if(retiredSkin)delete f.skinAsset;
  if(sourcePose){
@@ -67,9 +73,9 @@ function migrateWeaponSurfaces(value){
  const patches=value.patches.map(p=>{
   if(!p||typeof p!=='object')return p;let out=p;
   const weapon=canonicalWeaponKind(p.battery?.weapon);
-  if(weapon!==p.battery?.weapon){out={...out,battery:{...p.battery,weapon}};changed=true;}
+  if(weapon!==p.battery?.weapon){out={...out,battery:{...p.battery,weapon,...(weapon==='broadsideBattery'?{caliber:LEGACY_BROADSIDE_CALIBERS[p.battery?.weapon]||'40TT',guns:2,legacyHull:true}:{})}};changed=true;}
   const guns=p.aggregate?.guns;if(Array.isArray(guns)){
-   let migrated=false;const next=guns.map(r=>{if(!Array.isArray(r)||canonicalWeaponKind(r[1])===r[1])return r;const q=r.slice();q[1]=canonicalWeaponKind(r[1]);migrated=true;return q;});
+   let migrated=false;const next=guns.map(r=>{if(!Array.isArray(r))return r;const f=migrateWeaponFit({k:r[1],batteryCaliber:r[21],batteryGuns:r[22],batteryLegacyHull:!!r[23]});if(f.k===r[1]&&(!isBroadsideBattery(f)||r[21]===f.batteryCaliber&&r[22]===f.batteryGuns))return r;const q=r.slice();q[1]=f.k;if(isBroadsideBattery(f)){q[21]=f.batteryCaliber;q[22]=f.batteryGuns;q[23]=!!f.batteryLegacyHull;}migrated=true;return q;});
    if(migrated||out!==p){out={...out,aggregate:{...p.aggregate,guns:next,signature:'',...(p.aggregate.manifestKey!=null?{manifestKey:''}:{})}};changed=true;}
   }
   return out;
@@ -197,11 +203,11 @@ function costModelSignature(){return costSignature({model:COST_MODEL,propulsion:
 // BEGIN GENERATED CRAFT PRICES — scripts/update-craft-costs.cjs
 const CRAFT_PRICE_CATALOG={
  "modelVersion": 12,
- "modelSignature": "1chg83r",
+ "modelSignature": "15s4y9m",
  "entries": {
   "arc170": {
    "reference": "craft_arc170",
-   "signature": "yiiqrw",
+   "signature": "1x05394",
    "build": 222030,
    "crew": 3000,
    "total": 225030,
@@ -1590,7 +1596,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 34684.08835920355
     },
-    "profileVersion": 8,
+    "profileVersion": 9,
     "heat": {
      "v": 1,
      "src": [
@@ -2151,7 +2157,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "awing": {
    "reference": "craft_awing",
-   "signature": "1c40tii",
+   "signature": "1ecjh3u",
    "build": 159054,
    "crew": 1000,
    "total": 160054,
@@ -3244,7 +3250,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 48403.665028700154
     },
-    "profileVersion": 8,
+    "profileVersion": 9,
     "heat": {
      "v": 1,
      "src": [
@@ -3478,7 +3484,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "btlb": {
    "reference": "craft_btlb",
-   "signature": "7xbrku",
+   "signature": "vzxv2",
    "build": 200851,
    "crew": 2000,
    "total": 202851,
@@ -4676,7 +4682,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 30083.838993985686
     },
-    "profileVersion": 8,
+    "profileVersion": 9,
     "heat": {
      "v": 1,
      "src": [
@@ -5101,7 +5107,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "hyena": {
    "reference": "craft_hyena",
-   "signature": "1hi93mw",
+   "signature": "qszrno",
    "build": 210146,
    "crew": 0,
    "total": 210146,
@@ -6564,7 +6570,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 24025.310576313615
     },
-    "profileVersion": 8,
+    "profileVersion": 9,
     "heat": {
      "v": 1,
      "src": [
@@ -7154,7 +7160,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_in": {
    "reference": "craft_tie_in",
-   "signature": "1ns4fbo",
+   "signature": "i2qpzk",
    "build": 109120,
    "crew": 1000,
    "total": 110120,
@@ -8263,7 +8269,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 41238.067090825636
     },
-    "profileVersion": 8,
+    "profileVersion": 9,
     "heat": {
      "v": 1,
      "src": [
@@ -8621,7 +8627,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_ln": {
    "reference": "craft_tie_ln",
-   "signature": "1ntlgsa",
+   "signature": "17v3e3u",
    "build": 98082,
    "crew": 1000,
    "total": 99082,
@@ -9512,7 +9518,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 38690.56137249803
     },
-    "profileVersion": 8,
+    "profileVersion": 9,
     "heat": {
      "v": 1,
      "src": [
@@ -9762,7 +9768,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_sa": {
    "reference": "craft_tie_sa",
-   "signature": "1s3ic9",
+   "signature": "8q265t",
    "build": 137742,
    "crew": 1000,
    "total": 138742,
@@ -10798,7 +10804,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 24854.61832886521
     },
-    "profileVersion": 8,
+    "profileVersion": 9,
     "heat": {
      "v": 1,
      "src": [
@@ -11199,7 +11205,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "v19": {
    "reference": "craft_v19",
-   "signature": "1xowpzd",
+   "signature": "194ejxd",
    "build": 170459,
    "crew": 1000,
    "total": 171459,
@@ -12435,7 +12441,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 48149.98712420482
     },
-    "profileVersion": 8,
+    "profileVersion": 9,
     "heat": {
      "v": 1,
      "src": [
@@ -12991,7 +12997,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "vulture": {
    "reference": "craft_vulture",
-   "signature": "16e0avy",
+   "signature": "13246zy",
    "build": 144544,
    "crew": 0,
    "total": 144544,
@@ -14156,7 +14162,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 7608.111077049721
     },
-    "profileVersion": 8,
+    "profileVersion": 9,
     "heat": {
      "v": 1,
      "src": [
@@ -14570,7 +14576,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "vwing": {
    "reference": "craft_vwing",
-   "signature": "179wcd0",
+   "signature": "1kin0w",
    "build": 237213,
    "crew": 1000,
    "total": 238213,
@@ -15803,7 +15809,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 49636.37425592635
     },
-    "profileVersion": 8,
+    "profileVersion": 9,
     "heat": {
      "v": 1,
      "src": [
@@ -16428,7 +16434,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "xwing": {
    "reference": "craft_xwing",
-   "signature": "1saq575",
+   "signature": "1g5a3a1",
    "build": 188341,
    "crew": 1000,
    "total": 189341,
@@ -17792,7 +17798,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 33850.49374025839
     },
-    "profileVersion": 8,
+    "profileVersion": 9,
     "heat": {
      "v": 1,
      "src": [
@@ -18263,7 +18269,7 @@ const CRAFT_PRICE_CATALOG={
   },
   "z95": {
    "reference": "craft_z95",
-   "signature": "1809nao",
+   "signature": "ui62kc",
    "build": 140315,
    "crew": 1000,
    "total": 141315,
@@ -19348,7 +19354,7 @@ const CRAFT_PRICE_CATALOG={
      "inertialFactor": 1,
      "accelerationLimitMps2": 31900.455233266242
     },
-    "profileVersion": 8,
+    "profileVersion": 9,
     "heat": {
      "v": 1,
      "src": [
@@ -20428,11 +20434,11 @@ function fitTilt(n) {
   return best >= TILT_MIN ? null : u;
 }
 function isSurfaceBattery(f){return !!(f&&typeof f==='object'&&typeof f.surfacePatch==='string'&&f.surfacePatch&&FITS[canonicalWeaponKind(f.k)]?.cat==='w');}
-function fitUp(f) { f=migrateWeaponFit(f);return isSurfaceBattery(f)?norm(f.n||f.tilt||AXES[f.mountAxis??f.a]||[0,1,0]):f.tilt || AXES[f.mountAxis ?? f.a]; }
+function fitUp(f) { f=migrateWeaponFit(f);return isSurfaceBattery(f)||isBroadsideBattery(f)?norm(f.n||f.tilt||AXES[f.mountAxis??f.a]||[0,1,0]):f.tilt || AXES[f.mountAxis ?? f.a]; }
 function fitCanRotate(f) { const d=FITS[canonicalWeaponKind(typeof f==='string'?f:f?.k)];return !!(d?.cat==='w'&&!d.wallOnly&&!d.casemate&&!d.fixed&&(d.tt>0||d.ion>0)); }
-function fitHasPedestal(f){const d=FITS[canonicalWeaponKind(typeof f==='string'?f:f?.k)];return !!d&&!(d.cat==='w'&&(d.craft||d.fixed||d.msl||typeof f==='object'&&isSurfaceBattery(f)));}
+function fitHasPedestal(f){const d=FITS[canonicalWeaponKind(typeof f==='string'?f:f?.k)];return !!d&&!(d.cat==='w'&&(d.craft||d.fixed||d.msl||d.broadsideBattery||typeof f==='object'&&isSurfaceBattery(f)));}
 function weaponWallOnly(f){return !!FITS[canonicalWeaponKind(typeof f==='string'?f:f?.k)]?.wallOnly;}
-function weaponMountAllowed(f,normal){if(!weaponWallOnly(f))return true;if(!Array.isArray(normal)||normal.length!==3||!normal.every(Number.isFinite)||len(normal)<1e-8)return false;const n=norm(normal);return Math.abs(n[2])>=.65&&Math.abs(n[1])<=.35;}
+function weaponMountAllowed(f,normal){if(!weaponWallOnly(f))return true;if(!Array.isArray(normal)||normal.length!==3||!normal.every(Number.isFinite)||len(normal)<1e-8)return false;const n=norm(normal);return isBroadsideBattery(f)?Math.abs(n[1])<.65:Math.abs(n[2])>=.65&&Math.abs(n[1])<=.35;}
 function weaponBodyFrame(f){const fw=fitUp(f);let up=sub([0,1,0],mul(fw,fw[1]));if(len(up)<1e-8)up=sub([1,0,0],mul(fw,fw[0]));up=norm(up);return {fw,up,rt:cross(fw,up)};}
 function normalizeFitMount(f){
  f=migrateWeaponFit(f);if(weaponWallOnly(f)){delete f.assetYaw;const n=f.tilt||f.n||AXES[f.mountAxis??f.a];if(!weaponMountAllowed(f,n)){f.float=true;f.wallMountInvalid=true;}else delete f.wallMountInvalid;}if(isConcussionLauncher(f)&&f.legacyMissileMount==='vls-orphan'){f.float=true;f.surfaceUnplaced=true;}
@@ -20442,7 +20448,7 @@ function normalizeFitMount(f){
 }
 function fitFrameOf(f) {
   f=migrateWeaponFit(f);
-  const surface=isSurfaceBattery(f),base=fitFrame(f.a),up=surface?fitUp(f):f.tilt||base.up;
+  const surface=isSurfaceBattery(f)||isBroadsideBattery(f),base=fitFrame(f.a),up=surface?fitUp(f):f.tilt||base.up;
   let fw=f.tilt||surface?sub(base.fw,mul(up,dot(base.fw,up))):base.fw;
   if (len(fw) < 1e-3) fw = sub(base.rt, mul(up, dot(base.rt, up)));
   fw=norm(fw);let rt=cross(fw,up);
@@ -20452,6 +20458,16 @@ function fitFrameOf(f) {
   if(fitCanRotate(f)&&!FITS[f.k].asset&&Number.isFinite(f.assetYaw)&&f.assetYaw){const r=f.assetYaw*Math.PI/180,c=Math.cos(r),s=Math.sin(r),x=add(mul(fw,c),mul(rt,s));rt=add(mul(fw,-s),mul(rt,c));fw=x;}
   return {up,fw,rt};
 }
+// A broadside compartment exposes a dark window; the guns and their charging
+// equipment remain behind it. Every selected gun fires through its own slot.
+function broadsideBatteryGeometry(f){
+ if(!isBroadsideBattery(f))return null;const d=fitSpec(f),fr=fitFrameOf(f),normal=fitUp(f),wallPoint=(f.surfacePoint||f.p).slice(),armorOffset=Number.isFinite(f.surfaceArmorOffset)?clamp(f.surfaceArmorOffset,0,100):0,point=add(wallPoint,mul(normal,armorOffset)),u=fr.fw.slice(),v=fr.rt.slice(),width=d.fm,height=d.wm,depth=d.hm,lip=.015,mouth=add(point,mul(normal,depth+lip)),n=d.barrels,span=width*.60;
+ const muzzles=Array.from({length:n},(_,i)=>add(mouth,mul(u,n===1?0:(i/(n-1)-.5)*span))),corners=[];
+ for(const x of [-.5,.5])for(const y of [-.5,.5])for(const z of [0,depth+lip])corners.push(add(point,add(add(mul(u,x*width),mul(v,y*height)),mul(normal,z))));
+ const bounds=[0,1,2].map(i=>Math.min(...corners.map(p=>p[i]))).concat([0,1,2].map(i=>Math.max(...corners.map(p=>p[i]))));
+ return {broadsideBattery:true,embedded:true,casemate:true,fixed:false,point,wallPoint,surfacePoint:wallPoint.slice(),armorOffset,normal,dir:normal.slice(),u,v,width,height,depth,lip,mouth,origin:mouth.slice(),pivot:mouth.slice(),muzzles,bounds,barrels:n};
+}
+function broadsideBatteryMuzzles(f){return broadsideBatteryGeometry(f)?.muzzles.map(p=>p.slice())||[];}
 // One concussion-launcher body is shared by ships and aircraft. The fitting's
 // normal remains the attachment normal; pitch articulates the tube above it.
 function isConcussionLauncher(f){return canonicalWeaponKind(typeof f==='string'?f:f?.k)==='cmsl';}
@@ -20490,6 +20506,7 @@ function missileLauncherSpec(f){
 // A surface battery retains its native weapon definition and internal reserved
 // footprint. Its exterior is a shallow wall embrasure, not a second turret.
 function surfaceBatteryGeometry(f){
+ if(isBroadsideBattery(f))return broadsideBatteryGeometry(f);
  if(!isSurfaceBattery(f))return null;const d=fitSpec(f),wallPoint=(f.surfacePoint||f.p)?.slice();if(!wallPoint?.every(Number.isFinite))return null;
  const normal=fitUp(f),armorOffset=Number.isFinite(f.surfaceArmorOffset)?clamp(f.surfaceArmorOffset,0,100):0,point=add(wallPoint,mul(normal,armorOffset)),fr=fitFrameOf(f);let u=norm(sub(fr.fw,mul(normal,dot(fr.fw,normal))));
  if((d.asset||!fitCanRotate(f))&&Number.isFinite(f.assetYaw)&&f.assetYaw){const a=f.assetYaw*Math.PI/180;u=norm(add(mul(u,Math.cos(a)),mul(fr.rt,Math.sin(a))));}
@@ -20679,6 +20696,7 @@ function turretClear(ship,f,dir,ctx,posedMuzzles){
   if(!authored&&facing<(port?0:-.17)||d.casemate&&(port?!surfaceBatteryInArc(port,dir):facing<Math.cos(65*Math.PI/180)||Math.abs(dir[1])>Math.sin(20*Math.PI/180)))return false;
   let starts;
   if(authored){const points=posedMuzzles??aimAuthoredTurretAt(authored,dir).muzzles;if(!Array.isArray(points)||points.length!==authored.muzzles.length||!points.every(p=>Array.isArray(p)&&p.length===3&&p.every(Number.isFinite)))return false;starts=points.map(p=>add(p,mul(dir,.02)));}
+  else if(isBroadsideBattery(f))starts=broadsideBatteryMuzzles(f).map(p=>add(p,mul(dir,.02)));
   else starts=[add(turretOrigin(f),mul(dir,port?.001:d.casemate?.2:d.r*1.1))];
   const maxT=ship.hull.L*2.2+400;
   return starts.every(start=>{
@@ -20730,14 +20748,14 @@ function basePlaceFit(ship, k, p, n, ped, mirror, options={}) {
   if (d.cat === 'b') { if (n[1] < 0.2) return {err: '艦橋は上向きの面に置いてください'}; }
   else { let bv = -2; for (let i = 0; i < 6; i++) { const v = dot(AXES[i], n); if (v > bv) { bv = v; a = i; } } }
   const tilt = (options.tilt||d.wallOnly) && d.cat === 'w' && (!options.localMount||d.wallOnly) && !d.casemate ? fitTilt(n) : null;
-  const f = mountFit(ship, {id: nid(ship), k, p: p.slice(), a, ped: ped == null ? (d.cat==='w'?0:2) : ped,...(isConcussionLauncher(k)&&Number.isFinite(options.launchPitch)&&options.launchPitch!==0?{launchPitch:clamp(options.launchPitch,-90,90)}:{}),...(fitCanRotate(k)&&Number.isFinite(options.assetYaw)?{assetYaw:clamp(options.assetYaw,-180,180)}:{}),...(options.localMount?{localMount:true}:{}),...(tilt?{tilt,n:tilt.slice()}:{})});
+  const f = mountFit(ship, {id: nid(ship), k, p: p.slice(), a, ped: ped == null ? (d.cat==='w'?0:2) : ped,...(isConcussionLauncher(k)&&Number.isFinite(options.launchPitch)&&options.launchPitch!==0?{launchPitch:clamp(options.launchPitch,-90,90)}:{}),...(fitCanRotate(k)&&Number.isFinite(options.assetYaw)?{assetYaw:clamp(options.assetYaw,-180,180)}:{}),...(options.localMount?{localMount:true}:{}),...(isBroadsideBattery(k)?{n:n.slice(),tilt:n.slice(),host:options.host,batteryCaliber:options.batteryCaliber,batteryGuns:options.batteryGuns,...(options.batteryLegacyHull?{batteryLegacyHull:true}:{})}:{}),...(tilt?{tilt,n:tilt.slice()}:{})});
   if (f.float) return {err: f._onPlate ? '装甲外板には武装・装備を取り付けられません' : '取り付ける面が見つかりません'};
   const clash = fitClash(ship, f); if (clash) return {err: clash};
   ship.fits.push(f);
   const mirrorBounds=mirror&&d.craft?fitAABB(f):null;
   if (mirror && (mirrorBounds?mirrorBounds[2]>1e-6||mirrorBounds[5]<-1e-6:Math.abs(f.p[2])>d.r)) {
     const am = a === 4 ? 5 : a === 5 ? 4 : a;
-    const g = mountFit(ship, {id: nid(ship), k, p: mirrorP(f.p), a: am, ped: f.ped,...(f.assetYaw!=null?{assetYaw:-f.assetYaw}:{}),...(isConcussionLauncher(k)&&Number.isFinite(f.launchPitch)?{launchPitch:f.launchPitch}:{}),...(f.localMount?{localMount:true}:{}),...(f.tilt?{tilt:mirrorP(f.tilt),n:mirrorP(f.tilt)}:{})});
+    const g = mountFit(ship, {id: nid(ship), k, p: mirrorP(f.p), a: am, ped: f.ped,...(f.assetYaw!=null?{assetYaw:-f.assetYaw}:{}),...(isConcussionLauncher(k)&&Number.isFinite(f.launchPitch)?{launchPitch:f.launchPitch}:{}),...(f.localMount?{localMount:true}:{}),...(isBroadsideBattery(k)?{batteryCaliber:f.batteryCaliber,batteryGuns:f.batteryGuns,...(f.batteryLegacyHull?{batteryLegacyHull:true}:{})}:{}),...(f.tilt?{tilt:mirrorP(f.tilt),n:mirrorP(f.tilt)}:{})});
     if (!g.float && !fitClash(ship, g)) { g.tw = f.id; f.tw = g.id; ship.fits.push(g); }
   }
   return {fit: f};
@@ -21720,6 +21738,7 @@ function v3SurfSamples(pt,inflate=0){
 }
 function mountFit(ship,f){
   f=migrateWeaponFit(f);normalizeFitMount(f);
+  if(isBroadsideBattery(f))return mountBroadsideBattery(ship,f);
   if(weaponWallOnly(f)&&!weaponMountAllowed(f,f.tilt||f.n||AXES[f.mountAxis??f.a])){f.float=true;f.wallMountInvalid=true;return f;}
   if(isConcussionLauncher(f)&&f.legacyMissileMount==='vls-orphan'){f.float=true;f.surfaceUnplaced=true;return f;}
   if(FITS[f.k]?.asset)return normalizeFitMount(mountReferenceFit(ship,f));
@@ -21735,6 +21754,21 @@ function mountFit(ship,f){
   if(!valid)return f;f.p=h.p;f.n=h.n;f._wallUp=structFrame(h.part).up;
   if(isShapePart(h.part)&&!f.local){f.host=h.part.id;const q=localStruct(h.part,f.p);f.local=[q[0]/h.part.s[0],q[1]/h.part.s[2],q[2]/h.part.s[1]];const nn=localStruct({...h.part,c:[0,0,0]},f.n);f.localNormal=[nn[0]*h.part.s[0],nn[1]*h.part.s[2],nn[2]*h.part.s[1]];}
   return f;
+}
+function mountBroadsideBattery(ship,f){
+ const host=f.host?ship.parts.find(p=>p.id===f.host):null,n=f.tilt||f.n||AXES[f.a],probe=(p,out)=>rayEnv(ship,add(p,mul(out,4)),mul(out,-1),{maxT:8,structOnly:true});let p=f.p,h=null;
+ if(host&&isShapePart(host)&&f.local){p=worldStruct(host,[f.local[0]*host.s[0],f.local[1]*host.s[2],f.local[2]*host.s[1]]);const localNormal=f.localNormal||[0,0,1],out=norm(worldStruct({...host,c:[0,0,0]},[localNormal[0]/host.s[0],localNormal[1]/host.s[2],localNormal[2]/host.s[1]]));h=rayPart(add(p,mul(out,4)),mul(out,-1),host);if(h)h.part=host;}
+ else if(host&&isShapePart(host)){h=rayPart(add(p,mul(n,4)),mul(n,-1),host);if(h&&h.t<=8)h.part=host;else h=null;}
+ if(h&&h.t>8)h=null;
+ if(!h)h=probe(p,n);
+ const structure=isShapePart(h?.part)&&!h.part.plate&&Math.abs(dot(h.n,structFrame(h.part).up))<.65,legacy=!!(f.batteryLegacyHull&&!h?.part&&h&&weaponMountAllowed(f,h.n));
+ f.float=!(structure||legacy);f.base=f.low=f.slope=f.ped=0;f.localMount=true;delete f.assetYaw;
+ if(h?.part?.plate)f._onPlate=true;else delete f._onPlate;
+ if(f.float)return f;
+ f.p=h.p;f.n=h.n.slice();f.tilt=h.n.slice();f.a=AXES.reduce((i,x,j)=>dot(x,h.n)>dot(AXES[i],h.n)?j:i,0);
+ if(structure){f.host=h.part.id;const q=localStruct(h.part,f.p),nn=localStruct({...h.part,c:[0,0,0]},f.n);f.local=[q[0]/h.part.s[0],q[1]/h.part.s[2],q[2]/h.part.s[1]];f.localNormal=[nn[0]*h.part.s[0],nn[1]*h.part.s[2],nn[2]*h.part.s[1]];}
+ else{delete f.host;delete f.local;delete f.localNormal;}
+ return f;
 }
 function fitOrigin(f){if(FITS[f.k]?.window)return add(f.p,mul(f.n||AXES[f.a],(f.intrinsic?0:podDepth(f))+.45));return baseFitOrigin(f);}
 // Local visual envelopes of the small-craft fittings, including their stores.
@@ -21760,7 +21794,14 @@ function fitAABB(f){
   return sub(c,e).concat(add(c,e));
 }
 function placeFit(ship,k,p,n,ped,mirror,options={}){
+  const legacyCaliber=LEGACY_BROADSIDE_CALIBERS[k],legacyBroadside=!!legacyCaliber;
   k=canonicalWeaponKind(k);
+  if(isBroadsideBattery(k)){
+    if(!weaponMountAllowed(k,n))return {err:'側面砲列区画は構造物の側壁に貼り付けてください'};
+    const pending={id:0,k,p:p.slice(),a:AXES.reduce((i,x,j)=>dot(x,n)>dot(AXES[i],n)?j:i,0),n:n.slice(),tilt:n.slice(),host:options.host,batteryCaliber:options.batteryCaliber||legacyCaliber,batteryGuns:options.batteryGuns,...(legacyBroadside?{batteryLegacyHull:true}:{})};setBroadsideBattery(pending);mountBroadsideBattery(ship,pending);
+    if(pending.float)return {err:'側面砲列区画は装甲外板ではない構造物の側壁に貼り付けてください'};
+    options={...options,localMount:true,host:pending.host,batteryCaliber:pending.batteryCaliber,batteryGuns:pending.batteryGuns,...(legacyBroadside?{batteryLegacyHull:true}:{})};
+  }
   if(weaponWallOnly(k)){if(!weaponMountAllowed(k,n))return {err:'この砲は左右の舷側面に配置してください'};options={...options,localMount:true};}
   if(FITS[k]?.casemate){if(Math.abs(n[1])>.65)return {err:'ケースメイト砲はトレンチ内壁・船体や構造の側壁に配置してください'};options={...options,localMount:true};}
   if(!FITS[k]?.window)return basePlaceFit(ship,k,p,n,ped,mirror,options);
@@ -22059,7 +22100,9 @@ function hatchMotionStats(ship,S){
 // doors from changing the mass of neighbouring structures and compartments.
 function hullMaterialContains(ship,p,inside=inHull(ship,p)){if(ship.hatches.some(h=>{if(!isSlidingHatch(ship,h))return false;const b=openingBounds(ship,h);return b&&inBox(p,b);}))return false;return inside;}
 function armoredMaterialArea(ship,currentArea){
- if(!ship.hatches.some(h=>isSlidingHatch(ship,h)))return currentArea;
+ // The surveyed surface is already the closed-door surface in this state.
+ // Rebuilding an identical clone would repeat all room and surface clipping.
+ if(!ship.hatches.some(h=>isSlidingHatch(ship,h)&&clamp(h.open??0,0,1)!==0))return currentArea;
  const state=serialize(ship);for(const h of state.hatches)if(isSlidingHatch(state,h))h.open=0;
  const key=JSON.stringify(state,(k,v)=>k==='airWings'?undefined:v);if(ship._armoredMaterial?.key===key)return ship._armoredMaterial.area;
  // The closed-door copy is rebuilt from scratch so the result never depends on
@@ -22141,6 +22184,7 @@ function normalizeSurfaces(value){
  for(const q of (Array.isArray(value.patches)?value.patches:[]).slice(0,SURFACE_MAX)){
   if(!q||typeof q.id!=='string'||q.id.length>180||!/^((hull|p\d+):[a-z]+:\d+:[a-z0-9]+)(\/[a-z0-9.-]+)?$/.test(q.id)||used.has(q.id))continue;used.add(q.id);
   const a=q.armor||{},e=q.equipment||{},b=q.battery||{},s=q.style||{},o={id:q.id,armor:{material:Object.hasOwn(SURFACE_MATERIALS,a.material)?a.material:'standard',thickness:number(a.thickness,0,100,0)},equipment:{kind:['none','hdis','radiator','machinery'].includes(e.kind)?e.kind:'none',count:Math.round(number(e.count,0,SURFACE_DEVICE_MAX,0)),depth:number(e.depth,.02,100,1)},battery:{weapon:Object.hasOwn(FITS,b.weapon)&&FITS[b.weapon].cat==='w'?b.weapon:'none',count:Math.round(number(b.count,0,SURFACE_DEVICE_MAX,0)),spacing:number(b.spacing,0,1000,2),angle:number(b.angle,-180,180,0),reversed:b.reversed===true},style:{kind:['standard','slab','machinery','rounded'].includes(s.kind)?s.kind:'standard',depth:number(s.depth,0,30,0),density:number(s.density,0,1,.25),seed:Math.round(number(s.seed,0,2147483647,1))},powerDomain:typeof q.powerDomain==='string'?q.powerDomain.slice(0,40):'main'};
+  if(isBroadsideBattery(o.battery.weapon)){const c=broadsideBatteryConfig({k:o.battery.weapon,batteryCaliber:b.caliber,batteryGuns:b.guns});Object.assign(o.battery,{caliber:c.caliber,guns:c.guns,...(b.legacyHull?{legacyHull:true}:{})});}
   o.authored=q.authored!==false;o.functionMode=['armor','equipment','legacy'].includes(q.functionMode)?q.functionMode:'legacy';o.allocation=surfaceAllocation(q.allocation);if(o.functionMode==='equipment'){if(o.equipment.kind==='none'||o.equipment.kind==='machinery')o.equipment.kind='hdis';if(o.battery.weapon==='none')o.battery.weapon='pd';if(q.legacyAllocation||value.version<3&&Number.isFinite(q.allocation?.weapons))o.legacyAllocation=surfaceLegacyAllocation(q.legacyAllocation||q.allocation);}
   if(q.aggregate)o.aggregate=surfaceNormalizeAggregate(q.aggregate);
   if(e.capacityModel==='area-v1')o.equipment.capacityModel='area-v1';
@@ -22286,11 +22330,13 @@ function surfaceSymmetryIds(ship,ids,options={}){
  const patches=surfacePatches(ship),out=new Set(),find=(p,y,z)=>{let host=p._part;if(host){if(z){if(host.tw!=null)host=ship.parts.find(q=>q.id===host.tw)||host;else if(Math.abs(host.c[2])>1e-4)return null;}if(y){if(host.vt!=null)host=ship.parts.find(q=>q.id===host.vt)||host;else if(Math.abs(host.c[1]-vmirrorPlane(ship,host.c[0]))>1e-4)return null;}}const name=host?'p'+host.id:'hull',point=y?vmirrorPoint(ship,p.center):p.center,center=z?mirrorP(point):point,n=[p.normal[0],y?-p.normal[1]:p.normal[1],z?-p.normal[2]:p.normal[2]],scale=Math.max(1,Math.sqrt(p.area));return patches.filter(q=>q.host===name&&q.exposed&&dot(q.normal,n)>.999&&Math.abs(q.area-p.area)<=Math.max(.01,p.area*.001)).sort((a,b)=>len(sub(a.center,center))-len(sub(b.center,center))).find(q=>len(sub(q.center,center))<scale*.02+.01)?.id;};
  for(const id of Array.isArray(ids)?ids:[ids]){const p=patches.find(q=>q.id===id&&q.exposed);if(!p)continue;out.add(id);for(const y of options.vmirror?[false,true]:[false])for(const z of options.mirror?[false,true]:[false]){if(!y&&!z)continue;const q=find(p,y,z);if(q)out.add(q);}}return [...out];
 }
-function enableSurfaceMode(ship,strict=true){if(!strict&&ship.surfaces?.compatAllowed===false)return {ok:false,why:'新しい設計では互換冷却を使用できません'};if(!ship.surfaces){const patches=surfacePatches(ship).filter(p=>p.exposed);if(patches.length>SURFACE_MAX)return {ok:false,why:'表面設定の上限です'};const records=patches.map(p=>({...surfaceConfig(ship,p.id),boundArea:p.area}));ship.surfaces={version:SURFACE_VERSION,mode:strict?'strict':'compat',compatAllowed:true,legacyArmor:ship.armor?.hull||0,patches:records};}else ship.surfaces.mode=strict?'strict':'compat';return {ok:true,report:surfaceReport(ship)};}
+function enableSurfaceMode(ship,strict=true,options={}){if(!strict&&ship.surfaces?.compatAllowed===false)return {ok:false,why:'新しい設計では互換冷却を使用できません'};if(!ship.surfaces){const patches=surfacePatches(ship).filter(p=>p.exposed);if(patches.length>SURFACE_MAX)return {ok:false,why:'表面設定の上限です'};const records=patches.map(p=>({...surfaceConfig(ship,p.id),boundArea:p.area}));ship.surfaces={version:SURFACE_VERSION,mode:strict?'strict':'compat',compatAllowed:true,legacyArmor:ship.armor?.hull||0,patches:records};}else ship.surfaces.mode=strict?'strict':'compat';
+ // New-design UI callers let the worker compile the derived face report.
+ return options?.report===false?{ok:true}:{ok:true,report:surfaceReport(ship)};}
 function surfaceInvalidate(ship){ship._cache=null;delete ship._feed;surfaceCache.delete(ship);surfaceStructuralCache.delete(ship);}
 function setSurfaceConfig(ship,ids,partial){
  surfaceSync(ship);
- if(!Array.isArray(ids))ids=[ids];const patches=surfacePatches(ship),selected=[...new Set(ids)].map(id=>patches.find(p=>p.id===id));if(!selected.length||selected.some(p=>!p||!p.exposed))return {ok:false,why:'船外に露出した面を選んでください'};if(partial?.battery?.weapon&&weaponWallOnly(partial.battery.weapon)&&selected.some(p=>!weaponMountAllowed(partial.battery.weapon,p.normal)))return {ok:false,why:'この砲は左右の舷側面に配置してください'};const previous=ship.surfaces?JSON.parse(JSON.stringify(ship.surfaces)):undefined;if(partial?.allocation||partial?.allocationEdits?.length||partial?.functionMode||partial?.battery||partial?.equipment)surfaceSeedEquipmentKeys(ship);const enabled=enableSurfaceMode(ship,ship.surfaces?.mode!=='compat');if(!enabled.ok)return enabled;if(new Set([...ship.surfaces.patches.map(p=>p.id),...selected.map(p=>p.id)]).size>SURFACE_MAX)return {ok:false,why:'表面設定の上限です'};
+ if(!Array.isArray(ids))ids=[ids];const patches=surfacePatches(ship),selected=[...new Set(ids)].map(id=>patches.find(p=>p.id===id));if(!selected.length||selected.some(p=>!p||!p.exposed))return {ok:false,why:'船外に露出した面を選んでください'};if(partial?.battery?.weapon&&weaponWallOnly(partial.battery.weapon)&&selected.some(p=>!weaponMountAllowed(partial.battery.weapon,p.normal)))return {ok:false,why:'この砲は左右の舷側面に配置してください'};if(partial?.battery&&!partial.battery.legacyHull&&selected.some(p=>isBroadsideBattery(partial.battery.weapon||surfaceConfig(ship,p.id).battery.weapon)&&(!isShapePart(p._part)||p._part.plate||Math.abs(dot(p.normal,structFrame(p._part).up))>=.65)))return {ok:false,why:'側面砲列区画は構造物の側壁に貼り付けてください'};const previous=ship.surfaces?JSON.parse(JSON.stringify(ship.surfaces)):undefined;if(partial?.allocation||partial?.allocationEdits?.length||partial?.functionMode||partial?.battery||partial?.equipment)surfaceSeedEquipmentKeys(ship);const enabled=enableSurfaceMode(ship,ship.surfaces?.mode!=='compat');if(!enabled.ok)return enabled;if(new Set([...ship.surfaces.patches.map(p=>p.id),...selected.map(p=>p.id)]).size>SURFACE_MAX)return {ok:false,why:'表面設定の上限です'};
  for(const p of selected){let q=surfaceConfig(ship,p.id);const wasEquipment=q.functionMode==='equipment',hadLedger=!!q.aggregate,copiedCount=partial?.aggregate?.version===1&&partial?.equipment?.capacityModel!=='area-v1';q.authored=true;for(const k of ['armor','equipment','battery','style'])if(Object.hasOwn(partial||{},k))q[k]=partial[k]===null?surfaceConfig({...ship,surfaces:null},p.id)[k]:{...q[k],...partial[k]};if(['armor','equipment','legacy'].includes(partial?.functionMode))q.functionMode=partial.functionMode;else if(q.functionMode!=='equipment'&&!partial?.allocation&&!partial?.allocationEdits&&(Object.hasOwn(partial?.battery||{},'count')||Object.hasOwn(partial?.equipment||{},'count')))q.functionMode='legacy';if(partial?.allocation||partial?.allocationEdits?.length||Object.hasOwn(partial?.battery||{},'count'))delete q.legacyAllocation;if(partial?.legacyAllocation)q.legacyAllocation=surfaceLegacyAllocation(partial.legacyAllocation);if(partial?.aggregate){q.aggregate=surfaceNormalizeAggregate(partial.aggregate);if(q.aggregate){const nodes=new Map();for(const r of [...q.aggregate.cells,...(q.aggregate.aliases||[]),...q.aggregate.guns]){if(!nodes.has(r[0]))nodes.set(r[0],nid(ship));r[0]=nodes.get(r[0]);}q.aggregate.signature='';}}if(copiedCount)delete q.equipment.capacityModel;if(q.functionMode==='equipment'&&(partial?.equipment?.capacityModel==='area-v1'||!copiedCount&&(partial?.allocation||partial?.allocationEdits?.length||Object.hasOwn(partial?.equipment||{},'depth')||Object.hasOwn(partial?.equipment||{},'kind')||(!wasEquipment||!hadLedger)&&partial?.functionMode==='equipment'))){q.equipment.capacityModel='area-v1';delete q.legacyAllocation;}if(partial?.allocation)q.allocation=surfaceAllocation({...q.allocation,...partial.allocation});for(const edit of partial?.allocationEdits||[])q.allocation=surfaceAllocation(q.allocation,edit.key,edit.value);if(typeof partial?.powerDomain==='string')q.powerDomain=partial.powerDomain;if(q.aggregate?.legacyVLS&&(partial?.battery||partial?.functionMode)){delete q.aggregate.legacyVLS;delete q.aggregate.equipmentKey;}const clean=normalizeSurfaces({version:SURFACE_VERSION,patches:[q]}).patches[0],i=ship.surfaces.patches.findIndex(x=>x.id===p.id);if(i>=0)ship.surfaces.patches[i]=clean;else if(ship.surfaces.patches.length<SURFACE_MAX)ship.surfaces.patches.push(clean);else return {ok:false,why:'表面設定の上限です'};}
  const totals=surfaceDeviceTotals(ship,patches);if(totals.parts>DESIGN_LIMITS.parts||totals.fits>DESIGN_LIMITS.fits){if(previous)ship.surfaces=previous;else delete ship.surfaces;surfaceCache.delete(ship);return {ok:false,why:'設計全体のパーツ・砲座数の上限を超えます'};}
  surfaceSync(ship);surfaceInvalidate(ship);return {ok:true,report:surfaceReport(ship)};
@@ -22393,7 +22439,7 @@ function surfaceLayoutRaw(ship,p,config){
 function surfaceSyncLegacy(ship){
  if(!ship.surfaces)return;if(ship.surfaces.version<SURFACE_VERSION)ship.surfaces=normalizeSurfaces(ship.surfaces);const patches=surfacePatches(ship),configs=ship.surfaces.patches||[],valid=new Set(),existing=new Map();for(const q of [...ship.parts,...ship.fits])if(q.surfacePatch)existing.set(q.surfacePatch+'|'+q.surfaceCell,q);
  for(const config of configs){const p=patches.find(p=>p.id===config.id);if(!p)continue;config.boundArea=p.area;const layout=surfaceLayout(ship,p,config);for(const c of layout.placed){const key=p.id+'|'+c.cell,old=existing.get(key);let q=old;
-   if(c.kind==='fit'){if(!q||q.k!==c.k){if(ship.fits.filter(x=>!x.surfacePatch||valid.has(x)||!patches.some(p=>p.id===x.surfacePatch)).length>=DESIGN_LIMITS.fits)continue;q={id:nid(ship),k:c.k,p:c.point.slice(),a:AXES.reduce((a,n,i)=>dot(n,p.normal)>dot(AXES[a],p.normal)?i:a,0),ped:0,base:0,low:0,slope:0};ship.fits.push(q);}q.p=c.point.slice();q.n=p.normal.slice();q.tilt=p.normal.slice();q.assetYaw=config.battery.angle;q.frameFlip=config.battery.reversed===true;q.localMount=true;q.float=false;if(p._part&&isShapePart(p._part)){q.host=p._part.id;const l=localStruct(p._part,q.p),n=localStruct({...p._part,c:[0,0,0]},p.normal);q.local=[l[0]/p._part.s[0],l[1]/p._part.s[2],l[2]/p._part.s[1]];q.localNormal=[n[0]*p._part.s[0],n[1]*p._part.s[2],n[2]*p._part.s[1]];}else{delete q.host;delete q.local;delete q.localNormal;}q=mountFit(ship,q);}
+   if(c.kind==='fit'){if(!q||q.k!==c.k){if(ship.fits.filter(x=>!x.surfacePatch||valid.has(x)||!patches.some(p=>p.id===x.surfacePatch)).length>=DESIGN_LIMITS.fits)continue;q={id:nid(ship),k:c.k,p:c.point.slice(),a:AXES.reduce((a,n,i)=>dot(n,p.normal)>dot(AXES[a],p.normal)?i:a,0),ped:0,base:0,low:0,slope:0};ship.fits.push(q);}q.p=c.point.slice();q.n=p.normal.slice();q.tilt=p.normal.slice();q.assetYaw=config.battery.angle;q.frameFlip=config.battery.reversed===true;q.localMount=true;q.float=false;if(p._part&&isShapePart(p._part)){q.host=p._part.id;const l=localStruct(p._part,q.p),n=localStruct({...p._part,c:[0,0,0]},p.normal);q.local=[l[0]/p._part.s[0],l[1]/p._part.s[2],l[2]/p._part.s[1]];q.localNormal=[n[0]*p._part.s[0],n[1]*p._part.s[2],n[2]*p._part.s[1]];}else{delete q.host;delete q.local;delete q.localNormal;}if(isBroadsideBattery(q)){setBroadsideBattery(q,{caliber:config.battery.caliber,guns:config.battery.guns});if(config.battery.legacyHull)q.batteryLegacyHull=true;}q=mountFit(ship,q);}
    else{if(!q||q.k!==c.k){if(ship.parts.filter(x=>!x.surfacePatch||valid.has(x)||!patches.some(p=>p.id===x.surfacePatch)).length>=DESIGN_LIMITS.parts)continue;q={id:nid(ship),k:c.k,c:[0,0,0],d:1};ship.parts.push(q);}const room=surfaceRoomAt(p,c,c.point);q.c=room.c;q.surfaceNormal=room.surfaceNormal;q.yaw=room.yaw;setRoomSize(q,room.room);q.label=(c.role==='habitation'?'表面居住区':c.role==='sensors'?'表面センサー':c.k==='hdis'?'表面内蔵散逸設備':c.k==='radiator'?'表面放熱設備':'表面機材')+' #'+(parseInt(c.cell.slice(1))+1);}
    q.surfacePatch=p.id;q.surfaceCell=c.cell;q.surfaceRole=c.role;q.surfaceDepth=c.depth;q.surfacePoint=c.point.slice();q.surfaceFootprint=[c.w,c.h];q.surfaceExposure=p.area>0?p.exposedArea/p.area:0;q.surfaceUnplaced=false;q.powerDomain=config.powerDomain||'main';if(c.kind==='fit')q.surfaceArmorOffset=surfaceArmor(config).thickness;valid.add(q);
    if(p._part&&isFoil(p._part)){const members=p._part.wing.members||(p._part.wing.members={parts:[],fits:[]}),kind=c.kind==='fit'?'fits':'parts';if(!members[kind])members[kind]=[];if(!members[kind].includes(q.id))members[kind].push(q.id);}
@@ -22460,11 +22506,11 @@ function surfaceAreaCompile(ship,p,config,guns,reserved){
  for(const [role,id]of owner)if(!aliases.some(a=>a[0]===id))aliases.push([id,role,0,...p.center]);for(const r of inactive)if(!aliases.some(a=>a[0]===r[0]))aliases.push([r[0],r[1],1,...r.slice(14,17)]);return result;
 }
 function surfaceNormalizeAggregate(a){
- if(a&&Array.isArray(a.guns))a={...a,guns:a.guns.map(r=>Array.isArray(r)&&canonicalWeaponKind(r[1])!==r[1]?[r[0],canonicalWeaponKind(r[1]),...r.slice(2)]:r)};
+ if(a&&Array.isArray(a.guns))a=migrateWeaponSurfaces({patches:[{aggregate:a}]}).patches[0].aggregate;
  if(!a||typeof a!=='object')return undefined;const area=a.version===2&&a.capacityModel===SURFACE_AREA_MODEL;
  const valid=r=>Array.isArray(r)&&r.length>=27&&r.slice(0,26).every(Number.isFinite)&&Number.isInteger(r[0])&&r[0]>0&&SURFACE_CELL_KINDS[r[2]]&&typeof r[26]==='string',raw=(Array.isArray(a.cells)?a.cells:[]).filter(valid),inventory=area?raw.filter(r=>r[30]!==1).slice(0,SURFACE_DEVICE_MAX):raw.slice(0,SURFACE_DEVICE_MAX),regions=area?raw.filter(r=>r[30]===1).slice(0,SURFACE_AREA_REGIONS):[];
  const cells=[...inventory,...regions].map(r=>{const continuum=area&&r[30]===1,c=r.slice(0,continuum?31:29);c[27]=Object.hasOwn(SENSOR_BANDS,r[27])?r[27]:'multi';c[28]=r[28]===0?0:1;for(const i of [7,8,9])c[i]=clamp(c[i],continuum?1e-6:.02,DESIGN_LIMITS.partSize);c[3]=c[3]?1:0;c[20]=clamp(c[20],0,1);if(continuum)return surfaceAreaResource(c);c[21]=clamp(c[21],0,c[7]*c[8]*c[9]);c[22]=partBuildCost({id:c[0],k:SURFACE_CELL_KINDS[c[2]]},c[21]);c[23]=Math.max(0,c[23]);c[24]=clamp(Math.cbrt(c[21]/AA_CHANNELS.podRef),.05,3);c[25]=clamp(Math.cbrt(c[21]/AA_CHANNELS.podRef),.3,2);return c;});
- const guns=(Array.isArray(a.guns)?a.guns:[]).slice(0,SURFACE_DEVICE_MAX).filter(r=>Array.isArray(r)&&r.length>=21&&Number.isInteger(r[0])&&r[0]>0&&FITS[r[1]]?.cat==='w'&&r.slice(2,20).every(Number.isFinite)&&typeof r[20]==='string').map(r=>r.slice(0,21));
+ const guns=(Array.isArray(a.guns)?a.guns:[]).slice(0,SURFACE_DEVICE_MAX).filter(r=>Array.isArray(r)&&r.length>=21&&Number.isInteger(r[0])&&r[0]>0&&FITS[r[1]]?.cat==='w'&&r.slice(2,20).every(Number.isFinite)&&typeof r[20]==='string').map(r=>{const row=r.slice(0,21);if(isBroadsideBattery(r[1])){const q=broadsideBatteryConfig({k:r[1],batteryCaliber:r[21],batteryGuns:r[22]});row.push(q.caliber,q.guns,!!r[23]);}return row;});
  const out={version:area?2:1,...(area?{capacityModel:SURFACE_AREA_MODEL}:{}),signature:typeof a.signature==='string'?a.signature.slice(0,100):'',cells,guns,errors:(Array.isArray(a.errors)?a.errors:[]).filter(v=>typeof v==='string').slice(0,32).map(v=>v.slice(0,240)),requested:Number.isFinite(a.requested)?clamp(a.requested,0,1000000):guns.length,requestedEquipment:Number.isFinite(a.requestedEquipment)?clamp(a.requestedEquipment,0,1000000):cells.length,demand:Object.fromEntries(SURFACE_ROLES.map(k=>[k,{requested:Number.isFinite(a.demand?.[k]?.requested)?clamp(a.demand[k].requested,0,1000000):0,budgetArea:Number.isFinite(a.demand?.[k]?.budgetArea)?clamp(a.demand[k].budgetArea,0,1e14):0}])),...(a.retainInventory?{retainInventory:true}:{}),...(a.legacyVLS?{legacyVLS:true}:{}),...(typeof a.equipmentKey==='string'?{equipmentKey:a.equipmentKey.slice(0,100)}:{})};
  if(area){const seen=new Set();out.aliases=(Array.isArray(a.aliases)?a.aliases:[]).filter(r=>Array.isArray(r)&&r.length===6&&r.every(Number.isFinite)&&Number.isInteger(r[0])&&r[0]>0&&r[1]>=1&&r[1]<=3&&!seen.has(r[0])&&seen.add(r[0])).slice(0,DESIGN_LIMITS.parts).map(r=>[r[0],r[1],r[2]?1:0,...r.slice(3,6)]);out.sensorMix=Object.fromEntries(Object.keys(SENSOR_BANDS).map(k=>[k,Number.isFinite(a.sensorMix?.[k])?clamp(a.sensorMix[k],0,1):k==='multi'?1:0]));const sum=Object.values(out.sensorMix).reduce((n,v)=>n+v,0);if(sum>1+1e-12)for(const k in out.sensorMix)out.sensorMix[k]/=sum;out.manifestKey=typeof a.manifestKey==='string'?a.manifestKey.slice(0,100):'';}
  return out;
@@ -22480,8 +22526,8 @@ function surfaceAggregateKey(ship){
 function surfaceTransformAggregate(a,point,vector){if(!a)return;for(const r of a.cells||[]){const fw=structFrame({surfaceNormal:r.slice(10,13),yaw:r[13]}).fw,c=point(r.slice(4,7)),n=norm(vector(r.slice(10,13))),f=vector(fw),base=structFrame({surfaceNormal:n}),p=point(r.slice(14,17));r.splice(4,3,...c);r.splice(10,3,...n);r[13]=Math.atan2(dot(f,base.rt),dot(f,base.fw))*180/Math.PI;r.splice(14,3,...p);}for(const r of a.aliases||[])r.splice(3,3,...point(r.slice(3,6)));for(const r of a.guns||[]){r.splice(2,3,...point(r.slice(2,5)));r.splice(6,3,...norm(vector(r.slice(6,9))));r.splice(9,3,...point(r.slice(9,12)));}a.signature='';}
 function surfaceEncodeCell(q){const V=partVolume(q),room=q.room||[q.d,q.d,q.d],n=q.surfaceNormal||[0,1,0],pt=q.surfacePoint||q.c,k=SURFACE_CELL_KINDS.indexOf(q.k),role=SURFACE_ROLES.indexOf(q.surfaceRole||'cooling');return [q.id,role,k,q.surfaceUnplaced?1:0,...q.c,...room,...n,q.yaw||0,...pt,...(q.surfaceFootprint||room.slice(0,2)),q.surfaceDepth||room[2],q.surfaceExposure??1,V,partBuildCost(q,V),partArea(q),clamp(Math.cbrt(V/AA_CHANNELS.podRef),.05,3),clamp(Math.cbrt(V/AA_CHANNELS.podRef),.3,2),q.surfaceCell||'e0',Object.hasOwn(SENSOR_BANDS,q.band)?q.band:'multi',/通信/.test(q.label||'')&&!/センサー|標的|追跡|走査|索敵/.test(q.label||'')?0:1];}
 function surfaceDecodeCell(r,patch){return {id:r[0],k:SURFACE_CELL_KINDS[r[2]],c:r.slice(4,7),room:r.slice(7,10),d:Math.cbrt(r[7]*r[8]*r[9]),surfaceNormal:r.slice(10,13),yaw:r[13],surfacePoint:r.slice(14,17),surfaceFootprint:r.slice(17,19),surfaceDepth:r[19],surfaceExposure:r[20],surfaceUnplaced:r[3]!==0,surfacePatch:patch,surfaceRole:SURFACE_ROLES[r[1]],surfaceCell:r[26],band:r[27]||'multi',...(r[28]===0?{label:'通信'}:{})};}
-function surfaceEncodeGun(f){const d=fitSpec(f);return [f.id,f.k,...f.p,f.a,...(f.n||AXES[f.a]||[0,1,0]),...(f.surfacePoint||f.p),...(f.surfaceFootprint||[d.fm,d.wm]),f.surfaceDepth||.2,f.surfaceArmorOffset||0,f.assetYaw||0,f.frameFlip?1:0,f.surfaceUnplaced?1:0,f.scale||1,f.surfaceCell||'w0'];}
-function surfaceDecodeGun(r,patch,host){const q={id:r[0],k:canonicalWeaponKind(r[1]),p:r.slice(2,5),a:r[5],n:r.slice(6,9),tilt:r.slice(6,9),surfacePoint:r.slice(9,12),surfaceFootprint:r.slice(12,14),surfaceDepth:r[14],surfaceArmorOffset:r[15],assetYaw:r[16],frameFlip:!!r[17],surfaceUnplaced:!!r[18],scale:r[19],surfaceCell:r[20],surfacePatch:patch,surfaceRole:'weapons',localMount:true,ped:0,base:0,low:0,slope:0,float:!!r[18]};if(host)q.host=host.id;return normalizeFitMount(q);}
+function surfaceEncodeGun(f){const d=fitSpec(f);return [f.id,f.k,...f.p,f.a,...(f.n||AXES[f.a]||[0,1,0]),...(f.surfacePoint||f.p),...(f.surfaceFootprint||[d.fm,d.wm]),f.surfaceDepth||.2,f.surfaceArmorOffset||0,f.assetYaw||0,f.frameFlip?1:0,f.surfaceUnplaced?1:0,f.scale||1,f.surfaceCell||'w0',...(isBroadsideBattery(f)?[broadsideBatteryConfig(f).caliber,broadsideBatteryConfig(f).guns,!!f.batteryLegacyHull]:[])];}
+function surfaceDecodeGun(r,patch,host){const q={id:r[0],k:canonicalWeaponKind(r[1]),p:r.slice(2,5),a:r[5],n:r.slice(6,9),tilt:r.slice(6,9),surfacePoint:r.slice(9,12),surfaceFootprint:r.slice(12,14),surfaceDepth:r[14],surfaceArmorOffset:r[15],assetYaw:r[16],frameFlip:!!r[17],surfaceUnplaced:!!r[18],scale:r[19],surfaceCell:r[20],surfacePatch:patch,surfaceRole:'weapons',localMount:true,ped:0,base:0,low:0,slope:0,float:!!r[18]};if(host)q.host=host.id;if(isBroadsideBattery(q)){setBroadsideBattery(q,{caliber:r[21],guns:r[22]});if(r[23])q.batteryLegacyHull=true;if(!q.batteryLegacyHull&&(!isShapePart(host)||host.plate||Math.abs(dot(q.n,structFrame(host).up))>=.65)){q.float=true;q.surfaceUnplaced=true;}}return normalizeFitMount(q);}
 function surfaceSync(ship){
  ship=adoptWeaponFits(ship);
  if(!ship?.surfaces||ship._surfaceWorking||ship._surfaceCompiling||ship._surfaceRenderOnly)return;
@@ -22556,7 +22602,7 @@ function surfaceStats(ship,S){if(!ship.surfaces)return S;const r=surfaceReport(s
  for(const row of r.patches){let maximum=0,sustained=0,heatGenerated=0,heatExported=0,requested=0,supplied=0,fed=0,operating=0,energy=0,volley=0;const bolts=[];for(const id of row.fitIds){const f=ship.fits.find(f=>f.id===id),d=fitSpec(f),cr=needsCapacitor(f)?S.chargeInfo?.[id]?.ratio||0:1,out=((d.tt||0)+(d.ion||0))*cr/(d.cycle||K.cycle),need=(d.power||0)*factor,got=Math.min(need,paths.filter(l=>l.ok&&l.to==='f'+id).reduce((n,l)=>n+(l.cap||0),0)),si=net?.src.findIndex(s=>s.id==='f'+id)??-1,gen=si>=0?net.src[si].rated.combat||0:0,shed=si>=0?e?.flow.out[si]||0:0,cool=gen>0?clamp(shed/gen,0,1):1,power=need>0?clamp(got/need,0,1):1;maximum+=out;sustained+=out*Math.min(power,cool,crewK);heatGenerated+=gen;heatExported+=shed;requested+=need;supplied+=got;if(power>0)fed++;if(power>0&&cool>0&&crewK>0)operating++;energy+=needsCapacitor(f)?S.chargeInfo?.[id]?.storedTT||0:(d.tt||d.ion||0);volley+=(d.tt||0)+(d.ion||0);bolts.push(((d.tt||0)+(d.ion||0))/Math.max(1,d.barrels||1));}Object.assign(row,{maximumTT:maximum,sustainedTT:sustained,heatGenerated,heatExported,chargeRequested:requested,chargeSupplied:supplied,fed,operating,maxEnergy:energy,volleyTT:volley,boltTT:bolts.length?Math.max(...bolts):0,crewAssigned:row.crew*crewK});}
  for(const row of r.patches){row.equipmentPower=(net?.dis||[]).filter(d=>row.partIds.includes(d.part)).reduce((n,d)=>n+(d.power||0),0);row.equipmentPower+=ship.parts.filter(p=>row.partIds.includes(p.id)).reduce((n,p)=>n+(PARTS[p.k]?.power||0)*partVolume(p),0);row.powerDemand+=row.equipmentPower;row.habitationPoweredCapacity=row.partIds.filter(id=>ship.parts.find(p=>p.id===id)?.k==='habitat').reduce((n,id)=>{const p=ship.parts.find(p=>p.id===id),need=partVolume(p)*(PARTS[p.k]?.power||0),fed=paths.filter(l=>l.ok&&l.to==='p'+id).reduce((n,l)=>n+(l.cap||0),0),ratio=need>0?clamp(fed/need,0,1):1;return n+(hab?.explicitByPart?.[id]||0)*ratio;},0)/personVolume(ship.hull.L);}
  S.surface=r;S.surfaceMode=ship.surfaces.mode;for(const w of r.warnings)S.warnings.push({lv:'warn',...w,targets:inspectionTargets(ship,S,w)});return S;}
-function surfaceWeaponGeometry(f,offset){const g=authoredTurretGeometry(f);if(g){const local=p=>sub(p,offset),authored={...g,yawPivot:local(g.yawPivot),elevationPivot:local(g.elevationPivot),muzzles:g.muzzles.map(local)},muzzle=mul(authored.muzzles.reduce((sum,p)=>add(sum,p),[0,0,0]),1/authored.muzzles.length);return {pivot:authored.elevationPivot,muzzle,barrelLength:len(sub(muzzle,authored.elevationPivot)),dir:g.fw.slice(),fixed:false,authored};}const port=surfaceBatteryGeometry(f);if(port)return {embedded:true,vls:!!port.vls,pivot:sub(port.pivot,offset),muzzle:sub(port.mouth,offset),barrelLength:0,dir:port.dir,u:port.u.slice(),v:port.v.slice(),casemate:port.casemate,fixed:!!fitSpec(f).fixed};const d=fitSpec(f),fr=fitFrameOf(f),r=FITS[f.k]?.asset?(f.assetYaw||0)*Math.PI/180:0,dir=norm(surfaceAdd(mul(fr.fw,Math.cos(r)),fr.rt,Math.sin(r))),fixed=!!(d.fixed||d.casemate),origin=turretOrigin(f),muzzle=d.casemate?casemateMuzzle(f):surfaceAdd(origin,dir,d.fm*.5);return {pivot:sub(origin,offset),muzzle:sub(muzzle,offset),barrelLength:d.casemate?0:d.fm*.5,dir,fixed};}
+function surfaceWeaponGeometry(f,offset){if(isBroadsideBattery(f)){const g=broadsideBatteryGeometry(f);return {broadsideBattery:true,embedded:true,casemate:true,pivot:sub(g.pivot,offset),muzzle:sub(g.mouth,offset),muzzles:g.muzzles.map(p=>sub(p,offset)),barrelLength:0,dir:g.normal.slice(),u:g.u.slice(),v:g.v.slice(),fixed:false};}const g=authoredTurretGeometry(f);if(g){const local=p=>sub(p,offset),authored={...g,yawPivot:local(g.yawPivot),elevationPivot:local(g.elevationPivot),muzzles:g.muzzles.map(local)},muzzle=mul(authored.muzzles.reduce((sum,p)=>add(sum,p),[0,0,0]),1/authored.muzzles.length);return {pivot:authored.elevationPivot,muzzle,barrelLength:len(sub(muzzle,authored.elevationPivot)),dir:g.fw.slice(),fixed:false,authored};}const port=surfaceBatteryGeometry(f);if(port)return {embedded:true,vls:!!port.vls,pivot:sub(port.pivot,offset),muzzle:sub(port.mouth,offset),barrelLength:0,dir:port.dir,u:port.u.slice(),v:port.v.slice(),casemate:port.casemate,fixed:!!fitSpec(f).fixed};const d=fitSpec(f),fr=fitFrameOf(f),r=FITS[f.k]?.asset?(f.assetYaw||0)*Math.PI/180:0,dir=norm(surfaceAdd(mul(fr.fw,Math.cos(r)),fr.rt,Math.sin(r))),fixed=!!(d.fixed||d.casemate),origin=turretOrigin(f),muzzle=d.casemate?casemateMuzzle(f):surfaceAdd(origin,dir,d.fm*.5);return {pivot:sub(origin,offset),muzzle:sub(muzzle,offset),barrelLength:d.casemate?0:d.fm*.5,dir,fixed};}
 function surfaceProfilePatch(q,offset){
  const triangles=Array.from(q.exposedTriangles??q.triangles,(v,i)=>v-offset[i%3]),local=p=>sub(p,offset);let lo=Infinity,hi=-Infinity;for(let i=0;i<triangles.length;i+=3){lo=Math.min(lo,triangles[i]);hi=Math.max(hi,triangles[i]);}
  return {id:q.id,host:q.host,face:q.face,area:q.exposedArea??q.area,physicalArea:q.area,xRange:triangles.length?[lo,hi]:[0,0],center:local(q.center),normal:q.normal.slice(),polygon:q.polygon.map(local),triangles,functionMode:q.config.functionMode,allocation:{...q.config.allocation},armor:surfaceArmor(q.config),fitIds:q.fitIds.slice(),partIds:q.partIds.slice(),powerDomain:q.config.powerDomain,exposed:q.exposed};
@@ -22812,7 +22858,7 @@ function deserialize(o){
   migrateLegacyPropulsion(s);adoptEquipment(s);
   for(const p of s.parts)if(isSuperweapon(p)){const q=o.parts.find(q=>q.id===p.id);if(q&&(q.reactor===0||s.parts.some(r=>r.id===q.reactor&&isReactor(r))))p.reactor=q.reactor;if(q&&['beam','pulse'].includes(q.fireMode))p.fireMode=q.fireMode;normalizeSuperweapon(p);}
   for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(h.tw==null)delete h.tw;if(q.portal){h.portal=true;h.face=Object.hasOwn(AVIATION_SURFACE_FACES,q.face)?q.face:'top';if(q.surface)h.surface=true;h.open=finite(q.open,0,1,1);h.aperture=finite(q.aperture,.1,1,.85);if(q.sill!=null)h.sill=finite(q.sill,0,1,.5);if(s.parts.some(p=>p.id===q.bay&&p.k==='hangar'))h.bay=q.bay;else if(Array.isArray(q.cut)&&q.cut.length===6&&q.cut.every(Number.isFinite))h.cut=q.cut.map(v=>clamp(v,-DESIGN_LIMITS.coordinate,DESIGN_LIMITS.coordinate));}}
-  s.paint=['republic','neutral','dark','cis'].includes(o.paint)?o.paint:'neutral';if(DESIGN_FACTIONS[o.faction]||/^u_[a-z0-9]{2,20}$/.test(o.faction||''))s.faction=o.faction;s.detail=finite(o.detail,0,2,1);if(o.reference)s.reference=String(o.reference).slice(0,80);for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.motion==='fixed')h.motion='fixed';else if(q.motion==='slide'||isSlidingHatch(s,h))h.motion='slide';}if(REFERENCE_ASSETS[o.hullSkin?.asset]?.kind==='hull'&&o.hullSkin.base?.hull){const b=o.hullSkin.base,valid=[b.hull.L,b.hull.W,b.hull.H].every(v=>Number.isFinite(v)&&v>0&&v<=4000)&&Array.isArray(b.hull.stations)&&b.hull.stations.length>=2&&b.hull.stations.length<=64&&b.hull.stations.every(a=>Array.isArray(a)&&a.length>=3&&a.every(Number.isFinite))&&Array.isArray(b.trenches)&&b.trenches.length<=30&&Array.isArray(b.cuts)&&b.cuts.length<=50;if(valid){s.hullSkin=JSON.parse(JSON.stringify(o.hullSkin));s.hullSkin.enabled=!!o.hullSkin.enabled;}}for(const f of s.fits){const q=o.fits.find(q=>q.id===f.id);if(q.localMount)f.localMount=true;if(Array.isArray(q.tilt)&&q.tilt.length===3&&q.tilt.every(Number.isFinite)&&len(q.tilt)>.5&&FITS[f.k].cat==='w'&&!FITS[f.k].casemate&&!f.localMount){f.tilt=norm(q.tilt);if(!f.n)f.n=f.tilt.slice();}if(typeof q.batteryZone==='string')f.batteryZone=q.batteryZone.slice(0,40);if(FITS[f.k].window){f.commandEnabled=q.commandEnabled!==false;if(q.commandDepth!=null)f.commandDepth=finite(q.commandDepth,2,200,12);if(q.commandHeight!=null)f.commandHeight=finite(q.commandHeight,2,80,8);}if(q.mount==='ext'&&FITS[f.k]?.msl)f.mount='ext';if(isConcussionLauncher(f)&&Number.isFinite(q.launchPitch))f.launchPitch=finite(q.launchPitch,-90,90,0);if(q.legacyMissileMount==='vls'||q.legacyMissileMount==='vls-orphan')f.legacyMissileMount=q.legacyMissileMount;if(Number.isFinite(q.chargeSalvos))f.chargeSalvos=finite(q.chargeSalvos,1,20,1);if(Number.isFinite(q.chargeDepth))f.chargeDepth=finite(q.chargeDepth,1,500,10);if(Number.isFinite(q.chargeScale))f.chargeScale=finite(q.chargeScale,.25,4,1);if(Number.isFinite(q.assetYaw))f.assetYaw=finite(q.assetYaw,-180,180,0);standardFit(f);if(Number.isInteger(q.mountAxis)&&q.mountAxis>=0&&q.mountAxis<=5)f.mountAxis=q.mountAxis;if(Number.isFinite(q.mountOffset))f.mountOffset=finite(q.mountOffset,-50,50,0);if(REFERENCE_ASSETS[q.skinAsset])f.skinAsset=q.skinAsset;}for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.referenceMouth)h.referenceMouth=true;if(REFERENCE_ASSETS[q.skinAsset]){h.skinAsset=q.skinAsset;if(Array.isArray(q.skinBayAnchor)&&q.skinBayAnchor.length===3&&q.skinBayAnchor.every(Number.isFinite))h.skinBayAnchor=q.skinBayAnchor.slice();}}migrateAviationSurfaces(s,o);migrateAviation(s,o);
+  s.paint=['republic','neutral','dark','cis'].includes(o.paint)?o.paint:'neutral';if(DESIGN_FACTIONS[o.faction]||/^u_[a-z0-9]{2,20}$/.test(o.faction||''))s.faction=o.faction;s.detail=finite(o.detail,0,2,1);if(o.reference)s.reference=String(o.reference).slice(0,80);for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.motion==='fixed')h.motion='fixed';else if(q.motion==='slide'||isSlidingHatch(s,h))h.motion='slide';}if(REFERENCE_ASSETS[o.hullSkin?.asset]?.kind==='hull'&&o.hullSkin.base?.hull){const b=o.hullSkin.base,valid=[b.hull.L,b.hull.W,b.hull.H].every(v=>Number.isFinite(v)&&v>0&&v<=4000)&&Array.isArray(b.hull.stations)&&b.hull.stations.length>=2&&b.hull.stations.length<=64&&b.hull.stations.every(a=>Array.isArray(a)&&a.length>=3&&a.every(Number.isFinite))&&Array.isArray(b.trenches)&&b.trenches.length<=30&&Array.isArray(b.cuts)&&b.cuts.length<=50;if(valid){s.hullSkin=JSON.parse(JSON.stringify(o.hullSkin));s.hullSkin.enabled=!!o.hullSkin.enabled;}}for(const f of s.fits){const q=o.fits.find(q=>q.id===f.id);if(isBroadsideBattery(f)){setBroadsideBattery(f,{batteryCaliber:q.batteryCaliber,batteryGuns:q.batteryGuns});if(q.batteryLegacyHull)f.batteryLegacyHull=true;const n=q.tilt||q.n;if(Array.isArray(n)&&n.length===3&&n.every(Number.isFinite)&&len(n)>.5)f.tilt=norm(n);}if(q.localMount)f.localMount=true;if(Array.isArray(q.tilt)&&q.tilt.length===3&&q.tilt.every(Number.isFinite)&&len(q.tilt)>.5&&FITS[f.k].cat==='w'&&!FITS[f.k].casemate&&!f.localMount){f.tilt=norm(q.tilt);if(!f.n)f.n=f.tilt.slice();}if(typeof q.batteryZone==='string')f.batteryZone=q.batteryZone.slice(0,40);if(FITS[f.k].window){f.commandEnabled=q.commandEnabled!==false;if(q.commandDepth!=null)f.commandDepth=finite(q.commandDepth,2,200,12);if(q.commandHeight!=null)f.commandHeight=finite(q.commandHeight,2,80,8);}if(q.mount==='ext'&&FITS[f.k]?.msl)f.mount='ext';if(isConcussionLauncher(f)&&Number.isFinite(q.launchPitch))f.launchPitch=finite(q.launchPitch,-90,90,0);if(q.legacyMissileMount==='vls'||q.legacyMissileMount==='vls-orphan')f.legacyMissileMount=q.legacyMissileMount;if(Number.isFinite(q.chargeSalvos))f.chargeSalvos=finite(q.chargeSalvos,1,20,1);if(Number.isFinite(q.chargeDepth))f.chargeDepth=finite(q.chargeDepth,1,500,10);if(Number.isFinite(q.chargeScale))f.chargeScale=finite(q.chargeScale,.25,4,1);if(Number.isFinite(q.assetYaw))f.assetYaw=finite(q.assetYaw,-180,180,0);standardFit(f);if(Number.isInteger(q.mountAxis)&&q.mountAxis>=0&&q.mountAxis<=5)f.mountAxis=q.mountAxis;if(Number.isFinite(q.mountOffset))f.mountOffset=finite(q.mountOffset,-50,50,0);if(REFERENCE_ASSETS[q.skinAsset])f.skinAsset=q.skinAsset;}for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.referenceMouth)h.referenceMouth=true;if(REFERENCE_ASSETS[q.skinAsset]){h.skinAsset=q.skinAsset;if(Array.isArray(q.skinBayAnchor)&&q.skinBayAnchor.length===3&&q.skinBayAnchor.every(Number.isFinite))h.skinBayAnchor=q.skinBayAnchor.slice();}}migrateAviationSurfaces(s,o);migrateAviation(s,o);
   // Old window rows on a model bridge repeat the role the body now carries.
   for(const p of s.parts){const q=o.parts.find(q=>q.id===p.id);if(bridgeBodyRole(p)){if(['bridge','air','hangar','combat'].includes(q.commandRole))p.commandRole=q.commandRole;if(q.commandEnabled===false)p.commandEnabled=false;}}
   const dropped=new Set(s.fits.filter(f=>f.legacyWindow&&bridgeBodyRole(s.parts.find(p=>p.id===f.host))===FITS[f.k].role).map(f=>f.id));
@@ -23289,7 +23335,6 @@ function completeReferenceArmament(ship){
   for(const x of [430,660,1170,1330])for(const zf of [-.62,.62])hull('pd',x,zf,true);
  }
  if(key==='acclamator'){
-  for(const f of ship.fits)if(f.k==='ltl')f.k='quad200';
   gunsDeck(ship,'pd',[.16,.36,.58],[.88],null,false,0);
  }
  if(key==='venator'||key==='acclamator')for(const x of key==='venator'?[250,285]:[445,545])for(const z of key==='venator'?[-150,150]:[-50,50])gun('msl',x,z);
@@ -23364,7 +23409,7 @@ const WEAPON_NOTES={
  spreadsheet:STATS_SOURCE
 };
 const calibers={
- pd:{barrels:2,boltTT:2.5,cycle:.2,dualPurpose:true,name:'小型両用ターボレーザー（連装・点防御）',short:'小型両用TL',evidence:'小型両用砲の威力・連射間隔はゲーム用設定',desc:'2門×2.5 TT、0.2秒間隔の小型両用砲。艦載機・ミサイルの迎撃と対艦射撃を兼ねる。'},
+ pd:{barrels:2,boltTT:.02,cycle:.2,dualPurpose:true,name:'20GT 連装軽ターボレーザー（点防御）',short:'20GT 点防御・軽TL',evidence:'1門20GTはユーザー指定、連射間隔はゲーム用設定',desc:'2門×20 GT、0.2秒間隔の連装軽砲。点防御と軽ターボレーザーを統合し、艦載機・ミサイルの迎撃と対艦射撃を兼ねる。'},
  ltl:{barrels:4,boltTT:.02,cycle:.5,evidence:'ゲーム用仮定',desc:'4門×20 GT。小型艦と艦載機に向く速射の軽砲。'},
  mtl:{barrels:3,boltTT:.2,cycle:.2,evidence:'指定表 Ships!S51など',source:STATS_SOURCE,desc:'3門×200 GT。三連装の中型砲。'},
  htl:{barrels:2,boltTT:70,cycle:1,evidence:'作者明記',source:WEAPON_NOTES.secutor,desc:'2門×70 TT。連装の重ターボレーザー。'},
@@ -23383,7 +23428,7 @@ FITS.quad200={...FITS.ltl,key:'quad200',name:'四連200 GTターボレーザー'
 FITS.quad500={...FITS.mtl,key:'quad500',name:'500GT 4連装中型ターボレーザー',short:'500GT 4連装中型TL',barrels:4,boltTT:.5,tt:2,cycle:.2,power:2*TT/.2,mass:2250,crew:10,cost:200e3,source:null,evidence:'砲種・1門500 GT・寸法はユーザー指定と添付arquitens.stl',rateEvidence:'連射間隔・質量・乗員・費用はゲーム用仮定',desc:'左右に縦2門ずつ、計4門の中型砲塔。1門500 GT（0.5 TT）、一斉射2 TT。参考写真に合わせ、円形駆動部の上に長く細い平行砲身と揺架を持つ。寸法は添付アーキテンスの主砲に合わせる。'};
 // XX-9 and NK-7 survive only as migration inputs for the unified photo family.
 for(const k of ['itl','trc']){FITS[k].evidence='ゲーム用仮定';/* assumption noted in evidence only */}
-function fitSpec(f){f=migrateWeaponFit(f);const d=FITS[f.k],s=f.scale||1;if(s===1)return d;const k=s*s*s;return {...d,fm:d.fm*s,wm:d.wm*s,hm:d.hm*s,r:d.r*s,mass:d.mass*k,crew:Math.ceil(d.crew*k),cost:d.cost*k,tt:d.tt?d.tt*k:undefined,ion:d.ion?d.ion*k:undefined,power:d.power*k,aa:d.aa?d.aa*s*s:undefined};}
+function fitSpec(f){f=migrateWeaponFit(f);let d=FITS[f.k];if(isBroadsideBattery(f)){const q=broadsideBatteryConfig(f),source=FITS[{'70TT':'refVen','40TT':'single40','500GT':'single500','200GT':'single200'}[q.caliber]],perGun=1/Math.max(1,source.barrels||1);d={...d,barrels:q.guns,boltTT:q.boltTT,tt:q.volleyTT,ion:0,cycle:q.cycle,power:q.power,mass:300+source.mass*perGun*q.guns,crew:2+Math.ceil(source.crew*perGun*q.guns),cost:20000+source.cost*perGun*q.guns,batteryCaliber:q.caliber,batteryGuns:q.guns};}const s=f.scale||1;if(s===1)return d;const k=s*s*s;return {...d,fm:d.fm*s,wm:d.wm*s,hm:d.hm*s,r:d.r*s,mass:d.mass*k,crew:Math.ceil(d.crew*k),cost:d.cost*k,tt:d.tt?d.tt*k:undefined,ion:d.ion?d.ion*k:undefined,power:d.power*k,aa:d.aa?d.aa*s*s:undefined};}
 
 // Licensed mesh skins and reusable modules. Internal systems remain independent.
 const REFERENCE_ASSETS=YardReferenceData.assets;
@@ -23858,10 +23903,14 @@ function turretCompartmentSolids(f){
 }
 function turretCompartmentProjection(ship,f){
  if(!ship||!f)return {housingVolume:0,externalVolume:0,embeddedVolume:0,triangles:[],embeddedTriangles:[]};
- const solids=turretCompartmentSolids(f);if(!solids.length)return {housingVolume:0,externalVolume:0,embeddedVolume:0,triangles:[],embeddedTriangles:[]};
+ const a=REFERENCE_ASSETS[f.skinAsset||FITS[f.k]?.asset],meta=a?.turretCompartment;
+ if(!a||meta?.version!==1||meta.role!=='gunhouse'||!Array.isArray(meta.convexes)||isSurfaceBattery(f))return {housingVolume:0,externalVolume:0,embeddedVolume:0,triangles:[],embeddedTriangles:[]};
  const geometryKey=turretGeometryKey(ship),pose=JSON.stringify([f.k,f.skinAsset,f.p,f.a,f.tilt,f.mountAxis,f.mountOffset,f.assetYaw,f.base,f.ped,f.scale]),old=TURRET_COMPARTMENT_SHIPS.get(ship);
  let state=old;if(!state||state.key!==geometryKey){state={key:geometryKey,byFit:new Map()};TURRET_COMPARTMENT_SHIPS.set(ship,state);}const known=state.byFit.get(pose);if(known)return known;
- const a=REFERENCE_ASSETS[f.skinAsset||FITS[f.k].asset],native=TURRET_COMPARTMENT_ASSETS.get(a.turretCompartment).houseTriangles,house=new Float64Array(native.length);for(let i=0;i<native.length;i+=3){const p=referenceFitPoint(f,[0,1,2].map(k=>(native[i+k]-a.c[k])/a.size[k]));house.set(p,i);}const envelope=turretEnvelopeGeometry(ship,solidMeshBounds(house));
+ // A cached projection already owns the transformed solids and planes. Check
+ // it before rebuilding those faces for repeated allocation and stats queries.
+ const solids=turretCompartmentSolids(f);if(!solids.length)return {housingVolume:0,externalVolume:0,embeddedVolume:0,triangles:[],embeddedTriangles:[]};
+ const native=TURRET_COMPARTMENT_ASSETS.get(meta).houseTriangles,house=new Float64Array(native.length);for(let i=0;i<native.length;i+=3){const p=referenceFitPoint(f,[0,1,2].map(k=>(native[i+k]-a.c[k])/a.size[k]));house.set(p,i);}const envelope=turretEnvelopeGeometry(ship,solidMeshBounds(house));
  const housingVolume=structuralMeshVolume(house),base=structuralMeshVolume(envelope),union=structuralJoinBoundary(envelope,house),externalVolume=clamp(structuralMeshVolume(union)-base,0,housingVolume);
  const first=structuralClipBoundary(house,envelope,true,false,true),second=structuralClipBoundary(envelope,house,false,false,true),embedded=new Float64Array(first.length+second.length);embedded.set(first);embedded.set(second,first.length);
  const planes=solids.map(T=>{const out=[];for(let i=0;i<T.length;i+=9){const p=Array.from(T.slice(i,i+3)),n=norm(cross(sub(Array.from(T.slice(i+3,i+6)),p),sub(Array.from(T.slice(i+6,i+9)),p))),d=dot(n,p);if(!out.some(q=>dot(q.n,n)>.999999&&Math.abs(q.d-d)<1e-6))out.push({n,d});}return out;});
@@ -23883,12 +23932,12 @@ function turretIntrusions(ship){
 }
 function turretRoomContains(p,q){return insideOriginalEnvelope(p._envelope,q)&&p._turretRoomPlanes.some(S=>S.every(plane=>dot(plane.n,q)<=plane.d+1e-7));}
 
-function needsCapacitor(f){const d=FITS[f?.k];return !!d&&d.cat==='w'&&!d.craft&&!d.fixed&&!d.msl&&Math.max(d.tt||0,d.ion||0)>0;}
+function needsCapacitor(f){if(f&&typeof f==='object')f=migrateWeaponFit(f);const d=FITS[f?.k];return !!d&&d.cat==='w'&&!d.craft&&!d.fixed&&!d.msl&&Math.max(d.tt||0,d.ion||0)>0;}
 function weaponChargeSpec(f){const d=fitSpec(f),barrels=Math.max(1,d.barrels||1),boltTT=Math.max(d.tt||0,d.ion||0)/barrels,salvos=clamp(f.chargeSalvos??1,1,20),volleyTT=boltTT*barrels;return {barrels,boltTT,salvos,volleyTT,volleyVolume:volleyTT/CHARGE_TT_M3,targetVolume:volleyTT*salvos/CHARGE_TT_M3};}
 function weaponCapacitors(ship){
  if(!ship._surfaceWorking&&!ship._surfaceCompiling&&ship.surfaces?.version===SURFACE_VERSION)return weaponCapacitors(surfaceWorkingShip(ship));
  if(!ship.fits.some(f=>needsCapacitor(f)&&!f.float))return [];
- const hasHousing=ship.fits.some(f=>needsCapacitor(f)&&!f.float&&REFERENCE_ASSETS[f.skinAsset||FITS[f.k]?.asset]?.turretCompartment),envelope=hasHousing?turretGeometryKey(ship):null,key=JSON.stringify(ship.fits.map(f=>[f.id,f.k,f.skinAsset,f.p,f.a,f.tilt,f.assetYaw,f.mountAxis,f.mountOffset,f.float,f.scale,f.base,f.ped,f.chargeDepth,f.chargeScale,f.chargeSalvos]));
+ const hasHousing=ship.fits.some(f=>needsCapacitor(f)&&!f.float&&REFERENCE_ASSETS[f.skinAsset||FITS[f.k]?.asset]?.turretCompartment),envelope=hasHousing?turretGeometryKey(ship):null,key=JSON.stringify(ship.fits.map(f=>[f.id,f.k,f.skinAsset,f.p,f.a,f.tilt,f.assetYaw,f.mountAxis,f.mountOffset,f.float,f.scale,f.base,f.ped,f.chargeDepth,f.chargeScale,f.chargeSalvos,f.batteryCaliber,f.batteryGuns]));
  if(ship._capacitors?.key===key&&ship._capacitors.envelope===envelope)return ship._capacitors.parts;
  const parts=[];for(const f of ship.fits){if(!needsCapacitor(f)||f.float)continue;
   const q=weaponChargeSpec(f),allocation=turretCompartment(ship,f,false),V=allocation.internalRequired;if(!(V>1e-8))continue;
@@ -24400,7 +24449,7 @@ function referenceDesign(key){
       room('battery','パワーセル',[180,94,z*75],[25,18,16]);
     }
     const logistics=room('hangar','兵站受入ベイ',[470,72,0],[100,18,30]);openBay(s,logistics,'top');
-    gunsDeck(s,'ltl',[.20,.30,.42,.54,.66,.78],[.74],null,false,0);
+    gunsDeck(s,'quad200',[.20,.30,.42,.54,.66,.78],[.74],null,false,0);
     gunsDeck(s,'pd',[.25,.48,.68],[.88],null,false,0);
   }else{
     // Measured from Heataker's ISD-I. Every terrace roof lies in the hull's
@@ -24510,15 +24559,10 @@ Object.assign(FITS.oct40,{source:null,evidence:'ユーザー指定の口径・�
 // ball mantlet and twin barrels. The gun house and its charging gear sit inside
 // the hull; only the port and the barrels show. Short ranged (the broadside
 // band), they give the most fire for the power.
-const CASEMATE_BASE={cat:'w',casemate:true,barrels:2,aa:.2,evidence:'口径・連射速度はゲーム用設定'};
-FITS.casemateMid={...CASEMATE_BASE,key:'casemateMid',name:'連装ケースメイト中砲',short:'ケースメイト中砲',boltTT:16,tt:32,cycle:1.1,power:32*TT,fm:9,wm:7,hm:12,r:4.5,mass:1400,crew:8,cost:180e3,desc:'トレンチや舷側の壁に埋め込む連装砲（2門×16 TT）。砲郭と充電装置は船体の内側にあり、外には装甲砲門と砲身だけが出る。射程は約9 kmと短いが、同じ電力で長射程砲の約1.8倍の砲火を出せる。左右±65°・上下±20°、船体で遮蔽される方向は射撃不可。'};
-FITS.casemateLight={...CASEMATE_BASE,key:'casemateLight',name:'連装ケースメイト軽砲',short:'ケースメイト軽砲',boltTT:.4,tt:.8,cycle:.25,power:.8*TT,fm:6,wm:5,hm:8,r:3,mass:300,crew:3,cost:40e3,aa:1.2,desc:'壁に埋め込む連装の軽砲（2門×400 GT）。小型艦艇と戦闘機向け。左右±65°・上下±20°、船体で遮蔽される方向は射撃不可。'};
-// v22 Ion cannons set into the wall the same way, for hulls whose batteries are recessed rather than turreted
-// (the Mon Calamari cruisers: Wookieepedia's Home One article has their "recessed weapon batteries", and the
-// films show the hulls smooth). The heavy one matches the medium casemate's twin 16 TT bolt as ion, the light
-// one the light ion cannon's 2×120 GT. The ion channel reaches the long band as every ion gun's does.
-FITS.casemateIon={...CASEMATE_BASE,key:'casemateIon',name:'連装ケースメイト・イオン砲',short:'ケースメイト・イオン',boltTT:16,ion:32,cycle:1.1,power:32*TT,fm:9,wm:7,hm:12,r:4.5,mass:1400,crew:8,cost:200e3,aa:.2,desc:'壁に埋め込む連装イオン砲（2門×16 TT 相当）。シールドと電装を麻痺させる（船体への損害は小さい）。砲郭と充電装置は船体の内側にあり、外には装甲砲門と砲身だけが出る。左右±65°・上下±20°、船体で遮蔽される方向は射撃不可。'};
-FITS.casemateIonL={...CASEMATE_BASE,key:'casemateIonL',name:'連装ケースメイト軽イオン砲',short:'ケースメイト軽イオン',boltTT:.12,ion:.24,cycle:.5,power:.48*TT,fm:6,wm:5,hm:8,r:3,mass:300,crew:3,cost:50e3,aa:.8,desc:'壁に埋め込む連装の軽イオン砲（2門×120 GT 相当）。小型艦がシールドを剥ぐための速射砲。左右±65°・上下±20°、船体で遮蔽される方向は射撃不可。'};
+// One flush broadside compartment replaces the old independent casemate guns.
+// Gun count and caliber alter the physical plant and firing specification,
+// never the fixed exterior window footprint.
+FITS.broadsideBattery={cat:'w',key:'broadsideBattery',broadsideBattery:true,casemate:true,wallOnly:true,housingFixed:true,barrels:2,boltTT:40,tt:80,ion:0,cycle:1,power:80*TT,fm:9,wm:7,hm:.35,r:4.5,mass:6300,crew:20,cost:520000,aa:.2,nativeCalibration:'broadside-battery',name:'側面砲列区画',short:'側面砲列区画',evidence:'口径・門数上限・外装形式はユーザー指定',desc:'構造物の側壁に貼り付ける黒い砲門。70TT・40TTは1区画2門まで、500GT・200GTは6門まで選択。砲身を外へ出さず、区画背面の船内に各砲の威力と門数に応じた給電・充電装置を実配置する。左右±65°・上下±20°。'};
 // Standard gun dimensions are calibrated to the actual rendered source models.
 // These measured local bounds avoid decoding meshes during Core initialization.
 const WEAPON_MODEL_SIZES={"isd2_octuple":[34.56475644,16.13737102,33.38837834],"ven_turret":[28.861991732993026,9.997709224590754,16.2580849216165],"isd_turret":[29.545964748520205,7.842183178014592,29.54586767618732],"ven_side_gun":[44.418119324749654,14.974964,37.91842155069308],"isdh_turret":[35.119098,9.432285,35.122421],"isd2_casemate":[21.54749502,3.70157903,14.88640329],"isd_heavy_twin":REFERENCE_ASSETS.isd_heavy_twin.size.slice(),"isd_heavy_octuple":REFERENCE_ASSETS.isd_heavy_octuple.size.slice()};
@@ -24537,8 +24581,10 @@ function initializeWeaponSizing(){
  }
 }
 initializeWeaponSizing();
+// Keep internal recipes readable while the editor exposes one canonical entry.
+for(const key of ['mtl','htl','ltl','casemate40','casemateMid','casemateLight','casemateIon','casemateIonL'])Object.defineProperty(FITS,key,{enumerable:false,configurable:true,get:()=>FITS[canonicalWeaponKind(key)]});
 // Where a casemate's barrels end: model casemates by their asset, the others at their muzzles.
-function casemateMuzzle(f){const d=fitSpec(f);return d.asset?referenceFitPoint(f,[.5,0,0]):add(fitOrigin(f),mul(fitUp(f),d.hm*.85));}
+function casemateMuzzle(f){if(isBroadsideBattery(f))return broadsideBatteryGeometry(f).mouth.slice();const d=fitSpec(f);return d.asset?referenceFitPoint(f,[.5,0,0]):add(fitOrigin(f),mul(fitUp(f),d.hm*.85));}
 function dreadnoughtTools(s){
  const part=(k,label,c,d,opt={})=>placePart(s,k,c,d,{label,...opt});
  const solid=(label,c,size,opt={})=>part('struct',label,c,size,{form:'chamfer',corner:.08,skin:'armor',...opt});
@@ -24662,7 +24708,17 @@ function trenchBattery(s,xs,k='casemateMid',opt={}){
 }
 // A battery position clear of the mounts already on the hull (their bases and
 // the turrets on their pedestals), moved a little fore or aft where one is in the way.
-function batteryPoint(s,x,find,k){
+function batteryPoint(s,x,find,k,opt={}){
+ // Small preset hulls can pack the fixed wall windows by their actual boxes.
+ // Their legacy turret-radius clearance would discard nonoverlapping bays.
+ if(opt.compactWindow&&isBroadsideBattery({k})){
+  for(const dx of [0,12,-12,24,-24,36,-36]){
+   const h=find(x+dx);if(!h)continue;
+   const b=fitAABB({k,p:h.p,a:4,n:h.n,tilt:h.n,ped:0,base:0,low:0});
+   if(s.fits.every(f=>{const q=fitAABB(f);return [0,1,2].some(i=>b[i+3]+.5<=q[i]||q[i+3]+.5<=b[i]);}))return h;
+  }
+  return null;
+ }
  const r=(FITS[k]?.r||4)+3;
  for(const dx of [0,16,-16,32,-32,48,-48]){
   const h=find(x+dx);if(!h)continue;let ok=true;
@@ -24678,7 +24734,7 @@ function sideBattery(s,xs,y,k='casemateMid',opt={}){
   const find=xx=>{const yy=typeof y==='number'?y:(()=>{const b=sectionBase(s.hull,xx);return b.ybot+b.h*(opt.level??.5);})();
    const h=rayEnv(s,[xx,yy,sg*20000],[0,0,-sg],{structOnly:!!opt.structOnly});if(!h||Math.abs(h.p[2])<1)return null;
    return s.parts.find(p=>p.k==='struct'&&p.plate&&inStruct(p,sub(h.p,[0,0,sg*.5])))?null:h;};
-  const h=batteryPoint(s,x,find,k);if(!h)continue;
+  const h=batteryPoint(s,x,find,k,opt);if(!h)continue;
   const f={id:s.nextId++,k,p:h.p,a:sg>0?4:5,ped:0,base:0,low:0,float:false,localMount:true,scale:opt.scale||1,chargeDepth:opt.chargeDepth||14,batteryZone:sg<0?'port-side':'stbd-side'};
   mountFit(s,f);if(f.float){s.nextId--;continue;}s.fits.push(f);out.push(f);}
  return out;
@@ -27053,11 +27109,11 @@ function mc30Build(opt={}){
   // on the centreline where the bow narrows.
   spread('msl',4,'top','cluster-bomb',[326,340],[7],{mount:'ext'});
   spread('msl',2,'top','cluster-bomb',[352,366],[0],{mount:'ext'});
-  // Rebel doctrine: ion cannons outnumber the turbolasers.
-  // v22 Mon Calamari batteries are recessed into the hull: the twelve turbolasers are twin light
-  // casemates and the sixteen light ion cannons twin light ion casemates, in rows along the head's flanks.
-  casemateRows(s,'casemateLight',12,[[.5,[200,300]],[.42,[200,300]],[.58,[200,300]]],16,{zone:'beam-tl'});
-  casemateRows(s,'casemateIonL',16,[[.34,[200,320]],[.66,[200,320]],[.27,[200,320]],[.73,[200,320]]],16,{zone:'beam-ion'});
+  // Former light-TL and light-ion casemates now share the fixed wall-window bay.
+  // Keep all twelve 500GT and sixteen 200GT bays on the head's flanks, clearing
+  // their real 9x7m boxes while their physical charging plants stay inside.
+  casemateRows(s,'casemateLight',12,[[.5,[200,300]],[.42,[200,300]],[.58,[200,300]]],12,{zone:'beam-tl',compactWindow:true});
+  casemateRows(s,'casemateIonL',16,[[.34,[200,368]],[.66,[200,368]],[.5,[260,368]]],12,{zone:'beam-ion',compactWindow:true});
   spread('trc',2,'bottom','bow-tractor',[330,348],[0]);
   // Full-size dual-purpose guns need charging space in the broad head: the narrow
   // spine, integrity plant and bow tips cannot contain their banks. Keep the ten
@@ -29044,7 +29100,7 @@ const MGLT={k:2.57,a:.42,depth:.05,ref:4,ms:20,cap:200};
 function engineDepthRatio(ship){return MGLT.ref;}
 function sublightMGLT(G,ratio=MGLT.ref){if(!(G>0))return 0;return Math.min(MGLT.cap,MGLT.k*Math.pow(G,MGLT.a)*Math.pow(clamp(ratio/MGLT.ref,.5,2),MGLT.depth));}
 // v7: the keel was replaced by the hull's framing (strength and mass), so saved profiles are recomputed.
-const FLEET_PROFILE_VERSION=8;
+const FLEET_PROFILE_VERSION=9;
 function fleetProfile(S,name,ship){
  if(ship&&!ship._surfaceWorking&&!ship._surfaceCompiling&&ship.surfaces?.version===SURFACE_VERSION)return fleetProfile(S,name,surfaceWorkingShip(ship));
  const model=ship?propulsionProfile(ship,S):S.propulsion,planningAcceleration=Math.max(0,Math.min(model?.ratedAccelMps2??S.ratedAccelMps2??0,model?.accelerationLimitMps2??S.maximumAccelMps2??0)),planningG=planningAcceleration/G0;
@@ -30436,7 +30492,9 @@ function craftGunMounts(ship,S={}){
  }
  for(const a of arcs){a.gun=gun>0?a.gun/gun:0;a.aa=aa>0?a.aa/aa:0;}return cleanCraftFireArcs(arcs);
 }
-function craftCombat(ship,S){
+// Editor summaries need the displayed ratings, while saved combat snapshots
+// retain their complete electrical profile and physical firing arcs by default.
+function craftCombat(ship,S,options={}){
  if(ship?.surfaces&&!ship._surfaceWorking&&!ship._surfaceCompiling)ship=surfaceWorkingShip(ship);
  if(!ship?.hull||!S||!Array.isArray(ship.fits))return null;let A=0,shipGun=false,armed=false;
  for(const f of ship.fits){if(!FITS[f.k])continue;const d=fitSpec(f);if(d.cat!=='w'||f.float||S.info?.[f.id]?.overlap)continue;A+=(FITS[f.k].aa||0)*(f.scale||1)**2;shipGun||=!d.craft&&!!(d.tt||d.ion||d.msl);armed||=!!(d.tt||d.ion||d.msl||d.store);}
@@ -30451,7 +30509,7 @@ function craftCombat(ship,S){
  const strike=Math.round(gun+salvo),armor=clamp((.35+.17*Math.log(Math.max(.5,S.mass||0)))*(sh?1.3:1)*(small?1:Math.cbrt(Math.max(1,Math.max(...dims)/25))),.3,small?3:20);
  const Gl=G*(S.mass>0?S.mass/(S.mass+ordMass):1);
  return {name:ship.name||'設計機',role,roleName:S.cls?.role||'',speed,...(!small?{speedMode:'ship'}:{}),aa:Math.round(air*100)/100,strike,gun,armor:Math.round(armor*100)/100,crew:Math.round(S.crew??S.seats??0),dims,size:stowSize(dims),accelG:Math.round(G),shield:sh,hyper:S.jumpOK&&Number.isFinite(S.hyperClass)&&S.hyperClass>0?S.hyperClass:null,
-  heat:craftHeat(S),powerProfile:craftPowerProfile(ship,S),fireArcs:craftGunMounts(ship,S),...(systems?{systems}:{}),stations,load,canonLoad:!!Lo.canon&&Lo.stations.length===stations.length,ord,ordMass:Math.round(ordMass*1000)/1000,mass:Math.round((S.mass||0)*100)/100,cost:Math.round(S.cost||0),costBy:costBreakdown(S.cost||0,S.costBy),priceVersion:COST_MODEL.version,speedLoaded:small?craftSpeed(Gl):Math.round(shipSpeed(Gl)),accelLoaded:Math.round(Gl)};
+  heat:craftHeat(S),...(!options?.summaryOnly?{powerProfile:craftPowerProfile(ship,S),fireArcs:craftGunMounts(ship,S)}:{}),...(systems?{systems}:{}),stations,load,canonLoad:!!Lo.canon&&Lo.stations.length===stations.length,ord,ordMass:Math.round(ordMass*1000)/1000,mass:Math.round((S.mass||0)*100)/100,cost:Math.round(S.cost||0),costBy:costBreakdown(S.cost||0,S.costBy),priceVersion:COST_MODEL.version,speedLoaded:small?craftSpeed(Gl):Math.round(shipSpeed(Gl)),accelLoaded:Math.round(Gl)};
 }
 // Aircraft retain the same connected electrical and local thermal model as their editable design.
 // Omit tactical hull geometry: this snapshot is reused by every squadron of the type.
@@ -30514,12 +30572,14 @@ function blueprintWeaponProfileAffected(blueprint){
 // Legacy combat-only snapshots remain valid; newer ones also retain the complete model and build cost.
 function cleanDesignCraft(d){
  if(!d||typeof d!=='object')return null;let c=d.craft;if(!c||typeof c!=='object'||!Object.values(CRAFT_ROLE_RTS).includes(c.role))return null;
- const needsWeaponRefresh=d.weaponProfileVersion===0||migrateWeaponDesign(d.blueprint)!==d.blueprint||d.weaponProfileVersion!==1&&blueprintWeaponProfileAffected(d.blueprint),blueprint=cleanDesignBlueprint(d.blueprint);let weaponProfileVersion=d.weaponProfileVersion===1?1:undefined;
- if((needsWeaponRefresh||!c.powerProfile||c.powerProfile.profileVersion!==FLEET_PROFILE_VERSION)&&blueprint){
+ const needsWeaponRefresh=d.weaponProfileVersion===0||migrateWeaponDesign(d.blueprint)!==d.blueprint||d.weaponProfileVersion!==1&&blueprintWeaponProfileAffected(d.blueprint)||!c.powerProfile||c.powerProfile.profileVersion!==FLEET_PROFILE_VERSION,blueprint=cleanDesignBlueprint(d.blueprint);let weaponProfileVersion=d.weaponProfileVersion===1?1:undefined;
+ if(needsWeaponRefresh&&blueprint){
   // A saved embarked model also owns cached combat figures. Rebuild them once
   // for retired batteries or the changed heavy model / sizing anchor, including
   // muzzle positions and cadence even when the saved weapon id stays the same.
-  try{const ship=deserialize(blueprint);syncCompartments(ship);remount(ship);syncCompartments(ship);const rebuilt=craftCombat(ship,computeStats(ship));if(!rebuilt)return null;c=needsWeaponRefresh?rebuilt:{...c,powerProfile:rebuilt.powerProfile};weaponProfileVersion=1;}catch(e){return null;}
+  // A stale electrical revision also means its cached combat ratings may still
+  // describe the former output of an otherwise canonical weapon such as PD.
+  try{const ship=deserialize(blueprint);syncCompartments(ship);remount(ship);syncCompartments(ship);const rebuilt=craftCombat(ship,computeStats(ship));if(!rebuilt)return null;c=rebuilt;weaponProfileVersion=1;}catch(e){return null;}
  }
  const str=(v,n)=>(typeof v==='string'?v:'').replace(/[\u0000-\u001f\u007f]/g,'').trim().slice(0,n),num=(v,lo,hi,def)=>Number.isFinite(v)?clamp(v,lo,hi):def;
  const stations=(Array.isArray(c.stations)?c.stations:[]).filter(st=>st&&FITS[st.fit]?.store&&Number.isInteger(st.count)&&st.count>=1&&st.count<=DESIGN_LIMITS.fits).slice(0,8).map(st=>({fit:st.fit,mount:FITS[st.fit].store.mount,count:st.count}));
@@ -32549,7 +32609,7 @@ function foilStep(u,dt,want,ev){
 function foilState(u){const s=u?.fo,F=u?.p?.foils;if(!s||!F?.length)return null;return F.map((f,i)=>({name:f.n,d:s.d[i],jam:s.jam[i],want:s.want[i]}));}
 
 
-return {allocateConnectedPower,solveShipPropulsion,allocateShipPower,attachShipPowerProfile,propulsionPreview,canPlaceSponson,sponsonPreview,surfaceRenderClone,surfaceWorkingShip,surfaceDerivedFits,surfaceRenderFaces,surfaceRenderKey,navigationItinerary,isSurfaceBattery,surfaceBatteryGeometry,SURFACE_VERSION,SURFACE_MATERIALS,surfaceAllocation,surfaceAutoCandidates,autoConfigureSurfaces,surfaceSymmetryIds,surfaceInwardDepth,surfaceAllocationPlan,normalizeSurfaces,surfacePatches,surfaceConfig,setSurfaceConfig,enableSurfaceMode,surfaceReport,surfaceSync,surfacePick,surfaceSplit,surfaceMerge,surfaceProfile,ENERGY_MODEL,SHIELD_MODEL,ION_MODEL,weaponEnergy,weaponInputFactor,shieldReceive,shieldStatus,ionOverload,powerDomainProfile,powerFactor,powerStatus,powerTick,heatAccrue,heatLim,heatTick,superweaponCharge,SURFACE_LIMITS,surfaceBatteryStatus,surfaceFleetFire,surfacePowerStep,surfaceRayHit,surfaceHit,surfaceRemoveConfig,surfaceReassign,surfaceCarve,surfaceManualCharge,surfaceSpend,surfaceMountEnergy,armorLayerStep,surfacePatchAt,surfaceDomainAt,powerDomainWatts,superweaponDischarge,surfaceArmorStatus,surfaceArmorSync,surfaceArmorTick,coolingPowerReserve,
+return {BROADSIDE_BATTERY_CALIBERS,isBroadsideBattery,broadsideBatteryConfig,setBroadsideBattery,broadsideBatteryGeometry,broadsideBatteryMuzzles,allocateConnectedPower,solveShipPropulsion,allocateShipPower,attachShipPowerProfile,propulsionPreview,canPlaceSponson,sponsonPreview,surfaceRenderClone,surfaceWorkingShip,surfaceDerivedFits,surfaceRenderFaces,surfaceRenderKey,navigationItinerary,isSurfaceBattery,surfaceBatteryGeometry,SURFACE_VERSION,SURFACE_MATERIALS,surfaceAllocation,surfaceAutoCandidates,autoConfigureSurfaces,surfaceSymmetryIds,surfaceInwardDepth,surfaceAllocationPlan,normalizeSurfaces,surfacePatches,surfaceConfig,setSurfaceConfig,enableSurfaceMode,surfaceReport,surfaceSync,surfacePick,surfaceSplit,surfaceMerge,surfaceProfile,ENERGY_MODEL,SHIELD_MODEL,ION_MODEL,weaponEnergy,weaponInputFactor,shieldReceive,shieldStatus,ionOverload,powerDomainProfile,powerFactor,powerStatus,powerTick,heatAccrue,heatLim,heatTick,superweaponCharge,SURFACE_LIMITS,surfaceBatteryStatus,surfaceFleetFire,surfacePowerStep,surfaceRayHit,surfaceHit,surfaceRemoveConfig,surfaceReassign,surfaceCarve,surfaceManualCharge,surfaceSpend,surfaceMountEnergy,armorLayerStep,surfacePatchAt,surfaceDomainAt,powerDomainWatts,superweaponDischarge,surfaceArmorStatus,surfaceArmorSync,surfaceArmorTick,coolingPowerReserve,
  PROPULSION_MODEL_VERSION,PROPULSION,DRIVE_PROFILES,PROPULSION_PROFILES,MACHINERY_GRADES,resolveEngineSpec,updateEngineSpec,migrateLegacyPropulsion,getEngineInputLimit,buildPropulsionRequests,resolvePropulsion,propulsionProfile,
  isShapeKind,isShapePart,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,WING_PLANFORM_PRESETS,wingPlanformPreset,wingTipSide,wingTipOffset,wingTipRange,wingShiftTip,AERO_WING_OUTLINE,AERO_WING_SECTION,AERO_PANEL_OUTLINE,SOLAR_PANEL_PRESETS,solarPanelPreset,solarPanelBraces,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT, craftHeat, cleanCraftHeat, squadFireK, squadHeatStep, SOLAR, solarPower, solarCap, solarArea, wingCap, WING, FOIL_AXES, WING_PARTS, normalizeWing, isWing, isFoil, foilHandles, wingPivot, wingMembers, wingMap, foilSweep, foilPose, foilAt, foilFrame, wingStats, EMIT, BANDS, BAND_NAMES, emitBands, EMCON, EMCON_LOW_MAX, emconOf, SENSOR_BANDS, sensorSuite, SENS, sensSNR, sensStageCap, foilInit, foilStep, foilState, HEAT, HEAT_PRESETS, HEAT_KINDS, HEAT_MODE, DISSIPATORS, dissipatorCap, heatLoads, heatWaste, heatSolve, heatNetwork, heatEvaluate, heatStats, heatProfile, heatProfileOf, heatLegacy, heatInit, heatTick, heatStatus, heatLim, heatSwLim, normalizeLinks, DESIGN_FACTIONS, ionDensity, ionReach, ionGlow, swRange, swFree, swAxis, MGLT, engineDepthRatio, sublightMGLT, AA_CHANNELS, ION_BOLT, ionDiam, ionArea, ionShare, ionPlan, ionStrike, ionBoltsStep, swMuzzle, weaponRoles, fleetDefense, fleetAim, modWorld, aimPoint, fireScreen, screenShare, escortThreat, escortStation, escortPick, SCREEN, aimHold, aimMark, modQ, exposedMod, standardFit, craftCombat, designCraftSnapshot, cleanDesignCraft, CRAFT_ROLE_RTS, ORDNANCE, ORDNANCE_EVIDENCE, STORE_MOUNTS, STORE_FITS, STORE_DEFAULT, storeCapacity, craftStations, CRAFT_LOADOUT, craftTypeOf, craftLoadout, normalizeLoad, craftOrdnance, ordnanceRuns, ordnanceSalvo, ordnanceSummary, VOLLEY, volleyMode, volleyStep, SUPERWEAPONS, SW_COMBAT, swPower, swChargeRate, swInArc, swHeading, swDecay, swOverload, swPulse, swIonWave, superweaponStep, isSuperweapon, superweaponAim, superweaponOpen, normalizeSuperweapon, superweaponStats, isCraft, partLimits, CRAFT_PART_SIZE, craftPart, craftFieldGain, TROOP_SEAT_M3, ENGINE_GLOWS, engineGlowOK, engineGlowRGB, engineLevel, MISSILE_MOUNTS, missileMount, missileCells, missileStatus, PLATE, plateThickness, shipSpan, HULL_SECTIONS, SECTION_NAMES, hullSectionShares, SHIP_LIGHT_KINDS, SHIP_EXAMPLES, registerShipExample, shipKit, SHELL_ROWS, structRows, shellSection, shellPoint, CIS_PAINT, fitTilt, fitUp, fitCanRotate, fitFrameOf, openingRimPoint, surfSamples, groundingStats, turretRayContext, turretClear, turretOrigin, turretRate, GROUND_LIMITS, GROUND_PRESETS, GROUND_KINDS, GROUND_VEHICLE_VOLUME, DROID_STORE_M3, CREW_M3_K, CREW_LIVING_M3, personVolume, RETIRED_PARTS, FEED_FLUX, CELL_ENERGY_DENSITY, CELL_DISCHARGE_S, feedConduits, normalizeGroundForces, groundStatus, planStations, bridgeBodyRole, podPoint, podDepth, intrinsicCommandFits, POD_ASSET, BRIDGE_BODY_COMMAND, REFERENCE_TONE, engineAppearance, engineSkinMesh, referenceFitYaw, rayTris, vmirrorPlane, vmirrorPoint, vmirrorPart, SHIP_CLASSES, shipClassFor, PUBLIC_LISTS, publicJSON, patchShip, patchItem, cache, AIRCRAFT_CLEARANCE, aircraftFitsBay, shipFitsBay, shipStowSize, CRAFT_TYPES, VEHICLE_TYPES, CRAFT_HINTS, VEHICLE_HINTS, craftDims, airWingDims, groundDims, stowSize, vehicleStowSize, VEHICLE_STOW_FACTOR, craftLift, boxFits, stowLoad, stowInit, stowRows, isCombatRow, COMBAT_ROLES, stowPack, stowPasses, stowStatus, aviationBays, hatchOpening, STOW_GAP, STOW_PASS, STOW_ANY_LENGTH, BUILTIN_COMPLEMENTS, builtinComplement, SHIP_STOW_CLEAR, SHIP_STOW_FACTOR, AVIATION_SIZE_VOLUME, AIR_WING_LIMITS, hangarCapacity, normalizeAirWings, aviationStatus, AVIATION_SURFACE_FACES, hatchAxes, aviationSurfaceContacts, setAviationSurfaceMode, syncAviationSurfaces, aviationHatchActive, isSlidingHatch, slidingHatchSpec, slidingHatchPanels, hatchOpenArea, ISD_HYPER_BASELINE, HYPER_CLASS_COEFFICIENT, HYPER_POWER_DENSITY, ISD_SHIELD_VOLUME, SHIELD_BUFFER_SECONDS, SHIELD_ENERGY_DENSITY, SHIELD_POWER_DENSITY, REACTOR_POWER_DENSITY, SOLID_CUT_SHAPES, SOLID_CUT_POLY_MAX, solidCutDisplayTriangles, solidCutVolume, solidCutConvexOK, convexHullFaces, solidCutThinWalls, SOLID_THIN_WALL_M, compiledSolidCut, STRUCT_MESH_LIMITS, meshTopology, MESH_IMPORT_UNITS, MESH_IMPORT_AXES, parseMeshFile, meshImportPart, simplifyMesh, ASSEMBLY_LIMITS, ASSEMBLY_MOUNTS, ASSEMBLY_ORIGINS, ASSEMBLY_CATEGORIES, assemblyLinks, assemblyCapture, normalizeAssemblyTemplate, assemblyPlace, assemblyIssues, assemblyMirrorFit, assemblyPreview, solidCutWorld, solidCutLocal, solidCutFromLocal, solidCutLocalVerts, solidCutToPoly, normalizeStructMesh, meshStructTriangles, inMeshStruct, mirrorStructMesh, structToMesh, refitStructMesh, meshEditCheck, meshMoveVertices, meshSetVertex, meshSplitEdge, meshCollapseVertex, meshExtrudeFace, meshLocalTris, normalizeSolidCut, mirrorSolidCut, solidCutTriangles, solidCutBounds, solidCutContains, solidCutsContain, applySolidCuts, solidPartCutContains, solidStructVolume, solidCutIntersectsShip, flexibleCompartment, hardConflicts, weaponChargeSpec, turretCompartment, turretCompartmentProjection, chargingStatus, DREADNOUGHT_EXAMPLES, DESIGN_LIMITS, ALIGNMENTS, alignedPosition, alignPart, replacementShape, replacementOptions, replacePart, COMMAND_ROLES, commandCompartments, commandStatus, habitationSpace, inspectionTargets, planCutEdge, normalizePlanCut, structFrame, alignStructure, FLEET_RULES, POWER_MODES, POWER_AUTO_NOTE, fleetAutoPower, AIM_KINDS, MODULE_LABEL, FLEET_MIN_CREW, powerSplit, coreDetonation, fleetModules, fleetSystems, fleetCrewEff, fleetCrewRatio, fleetAutoAvail, fleetOutReason, AUTO_M3_PER_CREW, AUTO_W_PER_CREW, AUTO_MIN_HUMAN, fleetEffective, fleetProfile, fleetUnit, fleetIntegrity, trenchBattery, sideBattery, fleetFire, fleetReach, fleetStandoff, fleetHeading, fleetBroadside, fleetPowerStep, bandFireAt, fitBand, GUN_BANDS, COMBAT, combatInit, combatIncoming, combatAdd, combatMerge, combatResolve, combatZones, combatClone, combatZoneAt, COMBAT_FACE, unpackBits, fleetFormation, fleetBattle, fleetOrder, fleetArc, fleetTick, hullHalf, hullMass, hullLocal, AIR_CTL, HF, hullField, hullShape, hullCell, hullTB, hullIn, airMouths, hullOverlap, hullSegment, fireBlocker, fireStray, hullCollide, hullGrid, hullNear, hullAlong, hullAround, hullPairs, HULL_GRID, hullImpact, HULL_HIT, HULL_FALL, hullFall, hullCarve, hullAvoid, fleetCommit, fleetFinish, fleetSample, fleetFrame, normalizeBow, bowStation, engineHullEntry, ENGINE_BASELINES, engineBaseline, resizeEngine, parametricEngine, engineRating, sourceEngine, EQUIPMENT, equipmentSpec, equipmentOptions, enforceEquipment, customizeEquipment, adoptEquipment, HYPERDRIVE_REFERENCE, hyperCapacity, arcParameters, arcPoint, arcTriangles, inArc, SEPARATIST_EXAMPLES, STATS_SOURCE, SHIP_REFERENCE, PART_RATINGS, reactorPower, nozzleThrust, nozzleDemand, shieldLoad, partRatingKeys, validOutline, outlinePoints, outlineArea, outlineTriangles, AVIATION_ROLES, CHARGE_TT_M3, aircraftCapacity, aviationConnected, needsCapacitor, weaponCapacitors, refitReferenceInterior, clipReferenceBox, referenceEnginePoint, fitSpec, weaponSizing, weaponModelScale, TURRET_FAMILY_KEYS, LIGHT_TURRET_KEYS, weaponWallOnly, weaponMountAllowed, authoredTurretGeometry, aimAuthoredTurret, authoredTurretAngles, aimAuthoredTurretAt, AUTHORED_TURRET_LIMITS, authoredTurretInArc, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface, COST_CATS, COST_K, COST_MODEL, COST_INSTALL, COST_MOUNT_INSTALL, costCategory, partBuildCost, fitBuildCost, costBreakdown, costSignature, costModelSignature, CRAFT_PRICE_CATALOG, craftCatalogPrice, quoteCostBOM, designCost,
    craftPowerProfile,cleanCraftPowerProfile,CRAFT_FIRE, cleanCraftFireArcs, craftGunMounts,

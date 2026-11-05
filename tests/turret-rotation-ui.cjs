@@ -6,11 +6,11 @@ function section(start,end){const a=app.indexOf(start),b=app.indexOf(end,a+start
 function setup(){
  const context=vm.createContext({console,C});vm.runInContext(`
  let ship=C.newShip({L:500,W:300,H:120,plan:'rect',sec:'rect'},'Turret orientation');ship.parts=[];ship.fits=[];ship.nextId=1;
- const st={tab:'arm',fit:'htl',fitTool:'place',weaponMount:'auto',gunYaw:0,ped:0,pedShape:'round',pedSize:1,mirror:false,vmirror:false,fitPairEdit:true,sel:null,template:null,alignment:'none'},listeners={},undoStack=[],redoStack=[],outputs=new Map();
+ const st={tab:'arm',fit:'refVen',fitTool:'place',weaponMount:'auto',gunYaw:0,ped:0,pedShape:'round',pedSize:1,mirror:false,vmirror:false,fitPairEdit:true,sel:null,template:null,alignment:'none'},listeners={},undoStack=[],redoStack=[],outputs=new Map(),meshStore={};
  let dragSnap=null,dragLabel='',lastOp='',hoverLines=null;
  const num=(v,d=0)=>Number(v).toFixed(d),esc=String,fmtM=v=>v+' m',deg=v=>v+'°',I18N=null;
  const panel={addEventListener:(type,fn)=>(listeners[type]||=[]).push(fn)},$=s=>s==='#panel'?panel:s.startsWith('#out-')?(outputs.has(s)||outputs.set(s,{}),outputs.get(s)):null;
- const activeEquipment=()=>null,findSel=s=>ship[s.list]?.find(q=>q.id===s.id),selItem=()=>st.sel?findSel(st.sel):null,curFit=()=>st.fit,twinOfItem=(list,p)=>ship[list].find(q=>q.id===p.tw);
+ const activeEquipment=()=>null,findSel=s=>ship[s.list]?.find(q=>q.id===s.id),selItem=()=>st.sel?findSel(st.sel):null,twinOfItem=(list,p)=>ship[list].find(q=>q.id===p.tw);
  const sndEdit=()=>{},sndUI=()=>{},touch=()=>{},kickEngine=()=>{},scheduleStats=()=>{},updateUndo=()=>{},autosave=()=>{},renderPanel=()=>{},renderPanelInfo=()=>{},updateHint=()=>{},queuePreview=()=>{},showPreview=()=>{},refreshOverlay=()=>{},hideInspect=()=>{},updateName=()=>{},reconcileSolidCutter=()=>{},requestDraw=()=>{};
  const toast=()=>{},fitPositionSliders=()=>'',fitPairHTML=()=>'',engineEditTarget=()=>null;
  function input(id,value,finish=true){const t={dataset:{sl:id},value:String(value),min:'-180',max:'180'};for(const fn of listeners.input)fn({target:t});if(finish){endDrag();for(const fn of listeners.change)fn({target:t});}}
@@ -24,11 +24,12 @@ function setup(){
  ['function placeVerticalFits(','function bind()'],['function alignFitPoint(','function tapWant('],
  ['function tapHit(','// ---------- inspect ----------']
  ])vm.runInContext(section(start,end),context);
+ vm.runInContext(app.split('\n').find(line=>line.startsWith('function curFit(')),context);
  vm.runInContext('bindReference()',context);return code=>vm.runInContext(code,context);
 }
 
 test('every rotatable procedural and reference turret exposes the same precise placement and selected controls',()=>{
- const run=setup(),keys=Object.keys(C.FITS).filter(k=>C.fitCanRotate(k));assert.ok(keys.includes('htl')&&keys.includes('oct40')&&keys.includes('cturret'));
+ const run=setup(),keys=[...new Set(Object.keys(C.FITS).map(C.canonicalWeaponKind))].filter(k=>C.fitCanRotate(k));assert.ok(keys.includes('refVen')&&keys.includes('oct40')&&keys.includes('cturret'));
  for(const key of keys){run(`st.fit=${JSON.stringify(key)}`);const fresh=run('weaponYawControls()');assert.match(fresh,/data-sl="newGunYaw"/);assert.match(fresh,/step="any"/);assert.match(fresh,/min="-180" max="180"/);
   run(`ship.fits=[{id:1,k:${JSON.stringify(key)},p:[250,60,60],a:2,ped:0,base:0,assetYaw:32.125}];st.sel={list:'fits',id:1}`);const selected=run('baseFitEditor()');assert.match(selected,/data-sl="gunYaw"/);assert.match(selected,/value="32\.125"/);
  }
@@ -38,7 +39,7 @@ test('every rotatable procedural and reference turret exposes the same precise p
 test('actual placement keeps the requested yaw for procedural, craft and reference turret families',()=>{
  const run=setup();for(const key of ['htl','stl','ion','pd','triple40','quad200','xx9','nk7','cturret','oct40','refVen','refSide']){
   run(`ship.fits=[];st.fit=${JSON.stringify(key)};input('newGunYaw',-42.125);install()`);assert.equal(run('selItem().assetYaw'),-42.125,key);assert.equal(run('selItem().float'),false,key);
-  const p=plain(run('C.deserialize(C.serialize(ship)).fits[0]'));assert.equal(p.assetYaw,-42.125,key);assert.equal(p.k,key);
+  const p=plain(run('C.deserialize(C.serialize(ship)).fits[0]'));assert.equal(p.assetYaw,-42.125,key);assert.equal(p.k,C.canonicalWeaponKind(key));
  }
 });
 
@@ -56,7 +57,7 @@ test('initial and edited left-right and vertical mirror turrets carry reflected 
 });
 
 test('copying a rotated turret into placement keeps its angle and permits a different new angle',()=>{
- const run=setup();run("install('htl',60,200);input('gunYaw',-61.125);carryToPlace()");assert.equal(run('st.gunYaw'),-61.125);assert.equal(run('st.fit'),'htl');assert.match(run('weaponYawControls()'),/value="-61\.125"/);
+ const run=setup();run("install('htl',60,200);input('gunYaw',-61.125);carryToPlace()");assert.equal(run('st.gunYaw'),-61.125);assert.equal(run('st.fit'),'refVen');assert.match(run('weaponYawControls()'),/value="-61\.125"/);
  run("install('htl',60,350)");assert.equal(run('selItem().assetYaw'),-61.125);run("carryToPlace();input('newGunYaw',22.375);install('htl',-60,350)");assert.equal(run('selItem().assetYaw'),22.375);
  assert.deepEqual(plain(run('ship.fits.map(q=>q.assetYaw)')),[-61.125,-61.125,22.375]);
 });

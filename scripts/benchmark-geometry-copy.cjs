@@ -1,0 +1,20 @@
+#!/usr/bin/env node
+// Compare the same approved reference meshes through the old unpack/repack
+// append loop and the packed-buffer append path. This isolates mesh copying;
+// native editor entry is profiled separately by browser-editor-startup-profile.
+const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),crypto=require('node:crypto'),assert=require('node:assert/strict');
+const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..'));
+const files=['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/gfx.js'];
+const legacyAppend=`function appendGeo(target,g){target.room(g.n,g.ni);const base=target.n;for(let i=0;i<g.n;i++)target.v(...g.pos.subarray(i*3,i*3+3),...Array.from(g.nor.subarray(i*3,i*3+3),v=>v/127),g.uv[i*2],g.uv[i*2+1],Array.from(g.col.subarray(i*4,i*4+3)),g.col[i*4+3]);for(let i=0;i<g.ni;i+=3)target.tri(base+g.idx[i],base+g.idx[i+1],base+g.idx[i+2]);}`;
+function appendSource(source){const a=source.indexOf('function appendGeo(target,g){'),b=source.indexOf('\nfunction meshHatches(',a);assert.ok(a>=0&&b>a);return source.slice(a,b);}
+function loadRuntime(legacy=false,snapshot){const cx=vm.createContext({console,performance});for(const file of files){let source=snapshot?.[file]??fs.readFileSync(path.join(root,file),'utf8');if(legacy&&file==='js/gfx.js')source=source.replace(appendSource(source),legacyAppend);vm.runInContext(source,cx,{filename:file});}return vm.runInContext('({C:Core,G:Gfx})',cx);}
+function activeBuffers(g){return Object.fromEntries(['pos','nor','uv','col','idx'].map(k=>{const n=k==='idx'?g.ni:g.n*(k==='col'?4:k==='uv'?2:3),v=g[k];return[k,Buffer.from(v.buffer,v.byteOffset,n*v.BYTES_PER_ELEMENT)];}));}
+const hash=x=>crypto.createHash('sha256').update(x).digest('hex');
+function hashes(g){return Object.fromEntries(Object.entries(activeBuffers(g)).map(([k,v])=>[k,hash(v)]));}
+function fittingShip(C,k,count){const s=C.newShip({assembly:true,L:1500,W:500,H:100},'Repeated native reference guns');s.parts=[];s.fits=Array.from({length:count},(_,i)=>({id:i+1,k,p:[50+i*30,10,0],a:2,ped:0,base:0,low:0,float:false}));return s;}
+async function main(){const output=path.resolve(process.argv[2]||path.join(root,'docs/benchmarks/geometry-copy-performance.json')),snapshot=Object.fromEntries(files.map(f=>[f,fs.readFileSync(path.join(root,f),'utf8')])),sourceSha256=Object.fromEntries(files.map(f=>[f,hash(snapshot[f])])),cases=[];
+ for(const[k,count]of [['quad200',12],['quad200',42],['quad500',4],['oct40',8]]){const modes={};for(const legacy of [true,false]){const{C,G}=loadRuntime(legacy,snapshot),s=fittingShip(C,k,count),samples=[];let g;for(let i=0;i<4;i++){const t=performance.now();g=G.meshReferenceFits(s);samples.push(performance.now()-t);}modes[legacy?'before':'after']={coldMs:samples[0],warmMs:samples.slice(1),vertices:g.n,triangles:g.ni/3,bufferSha256:hashes(g)};}assert.deepEqual(modes.after.bufferSha256,modes.before.bufferSha256,k+' approved mesh buffers remain byte-identical');const median=a=>a.slice().sort((a,b)=>a-b)[Math.floor(a.length/2)];cases.push({kind:k,count,...modes,warmSpeedup:median(modes.before.warmMs)/median(modes.after.warmMs)});}
+ for(const[file,sha]of Object.entries(sourceSha256))assert.equal(hash(fs.readFileSync(path.join(root,file))),sha,file+' changed during benchmark');
+ const report={schemaVersion:1,status:'PASS',date:new Date().toISOString(),node:process.version,sourceSha256,scope:'Same current assets, fitting frames and rendered geometry; only appendGeo is replaced with its previous unpack/repack implementation for before measurements. Cold includes per-fitting mesh construction; warm reuses it. No model simplification.',cases};fs.mkdirSync(path.dirname(output),{recursive:true});fs.writeFileSync(output,JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify({output,cases:cases.map(c=>({kind:c.kind,count:c.count,beforeColdMs:c.before.coldMs,afterColdMs:c.after.coldMs,warmSpeedup:c.warmSpeedup}))}));}
+module.exports={legacyAppend,appendSource,loadRuntime,activeBuffers,hashes};
+if(require.main===module)main().catch(e=>{console.error(e);process.exitCode=1;});

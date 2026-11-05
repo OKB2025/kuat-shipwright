@@ -9,10 +9,10 @@ function setup(){
  run(`
  let ship=C.newShip({L:500,W:300,H:120,plan:'rect',sec:'rect'},'Pedestal UI');ship.parts=[];ship.fits=[];ship.nextId=1;
  Object.assign(st,{tab:'arm',weaponMount:'auto',gunYaw:0,alignment:'none',vmirror:false,fitPairEdit:true,mirror:false,multi:{parts:new Set(),fits:new Set()}});
- const listeners={},undoStack=[],redoStack=[],outputs=new Map(),fleet={mode:'design'};let dragSnap=null,dragLabel='',lastOp='',hoverLines=null,previewRay=null;
+ const listeners={},undoStack=[],redoStack=[],outputs=new Map(),fleet={mode:'design'},meshStore={};let dragSnap=null,dragLabel='',lastOp='',hoverLines=null,previewRay=null;
  const panel={addEventListener:(type,fn)=>(listeners[type]||=[]).push(fn)},$=s=>s==='#panel'?panel:s.startsWith('#out-')?(outputs.has(s)||outputs.set(s,{}),outputs.get(s)):null,$$=()=>[];
  const num=(v,d=0)=>Number(v).toFixed(d),esc=String,fmtM=v=>v+' m',deg=v=>v+'°',I18N=null;
- const activeEquipment=()=>null,findSel=s=>ship[s.list]?.find(q=>q.id===s.id),selItem=()=>st.sel?findSel(st.sel):null,curFit=()=>st.tab==='bridge'?st.bridge:st.fit,twinOfItem=(list,p)=>ship[list].find(q=>q.id===p.tw);
+ const activeEquipment=()=>null,findSel=s=>ship[s.list]?.find(q=>q.id===s.id),selItem=()=>st.sel?findSel(st.sel):null,twinOfItem=(list,p)=>ship[list].find(q=>q.id===p.tw);
  const sndEdit=()=>{},sndUI=()=>{},touch=()=>{},kickEngine=()=>{},scheduleStats=()=>{},updateUndo=()=>{},autosave=()=>{},renderPanel=()=>{},renderPanelInfo=()=>{},updateHint=()=>{},queuePreview=()=>{},showPreview=()=>{},refreshOverlay=()=>{},hideInspect=()=>{},updateName=()=>{},reconcileSolidCutter=()=>{},requestDraw=()=>{},toast=()=>{};
  const fitPositionSliders=()=>'',fitPairHTML=()=>'',blockedHullControl=()=>false,selSingle=()=>true,tool=()=> 'adjust',view={ray:()=>previewRay},clipRead=()=>st.clipMem;
  const publicCopy=o=>JSON.parse(JSON.stringify(o)),xfClean=q=>q,xfDrivers=()=>[{list:'fits',it:selItem(),fol:[]}],xfUnits=d=>d;
@@ -29,6 +29,7 @@ function setup(){
  ['function alignFitPoint(','function tapWant('],['function tapHit(','// ---------- inspect ----------'],
  ['function copyWingLinks(','function multiMove('],['function fitPickHit(','function pick('],['let itemDrag =','function dragSupportY('],['function dragSelStart(','function dragSelMove(']
  ])run(section(start,end));
+ run(app.split('\n').find(line=>line.startsWith('function curFit(')));
  const bind=app.slice(app.indexOf('function bind()'));
  run(section("  $('#panel').addEventListener('click', e => {",'  // HUD',bind));
  return run;
@@ -69,7 +70,7 @@ test('template and linked mirror edits strip unsupported supports while explicit
 
 test('bulk clipboard paste normalizes old fixed supports and preserves explicit articulated supports',()=>{
  const run=setup();run("install('claser');const fixed=publicCopy(selItem());ship.fits=[];install('htl');const turret=publicCopy(selItem());fixed.ped=22;fixed.base=9;fixed.low=-4;fixed.pedShape='trap';fixed.pedSize=2;turret.ped=7;turret.pedShape='trap';turret.pedSize=1.5;st.clipMem={v:1,parts:[],fits:[fixed,turret],from:{L:ship.hull.L}};ship.fits=[];st.sel=null;st.pasteMode='same';undoStack.length=0;multiPaste()");
- const fits=plain(run('ship.fits'));assert.equal(fits.length,2);noPedestal(fits.find(f=>f.k==='claser'));const turret=fits.find(f=>f.k==='htl');assert.equal(turret.ped,7);assert.equal(turret.pedShape,'trap');assert.equal(turret.pedSize,1.5);assert.equal(run('st.multi.fits.size'),2);assert.equal(run('undoStack.length'),1);run('undo()');assert.equal(run('ship.fits.length'),0);
+ const fits=plain(run('ship.fits'));assert.equal(fits.length,2);noPedestal(fits.find(f=>f.k==='claser'));const turret=fits.find(f=>f.k===C.canonicalWeaponKind('htl'));assert.equal(turret.k,'refVen');assert.equal(turret.ped,7);assert.equal(turret.pedShape,'trap');assert.equal(turret.pedSize,1.5);assert.equal(run('st.multi.fits.size'),2);assert.equal(run('undoStack.length'),1);run('undo()');assert.equal(run('ship.fits.length'),0);
 });
 
 test('weapon picking and both drag gates require visible geometry rather than an empty region of a padded box',()=>{

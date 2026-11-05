@@ -6,7 +6,7 @@ function section(start,end){const a=app.indexOf(start),b=app.indexOf(end,a+start
 function setup(){
  const cx=vm.createContext({console,C,Gfx:G}),run=code=>vm.runInContext(code,cx);
  run(`let ship=C.newShip({L:500,W:300,H:120,plan:'rect',sec:'rect'},'Weapon family UI'),S=null;ship.parts=[];ship.fits=[];ship.nextId=1;
- const st={tab:'arm',fit:'single40',fitTool:'place',weaponMount:'auto',gunYaw:0,launchPitch:0,ped:0,pedShape:'round',pedSize:1,mirror:false,vmirror:false,fitPairEdit:true,sel:null,template:null,alignment:'none',multi:{parts:new Set(),fits:new Set()}},notes=[],undoStack=[],redoStack=[],listeners={};
+ const st={tab:'arm',fit:'single40',fitTool:'place',weaponMount:'auto',gunYaw:0,launchPitch:0,ped:0,pedShape:'round',pedSize:1,mirror:false,vmirror:false,fitPairEdit:true,sel:null,template:null,alignment:'none',multi:{parts:new Set(),fits:new Set()}},notes=[],undoStack=[],redoStack=[],listeners={},meshStore={};
  let dragSnap=null,dragLabel='',lastOp='',hoverLines=null;
  const num=(v,d=0)=>Number(v).toFixed(d),esc=String,fmtM=v=>v+' m',deg=v=>v+'°',fTT=v=>v+' TT',fPct=v=>Math.round(v*100)+'%',I18N=null;
  const panel={addEventListener:(type,fn)=>(listeners[type]||=[]).push(fn)},$=s=>s==='#panel'?panel:null,view=null,tool=()=> 'fit',activeEquipment=()=>null,findSel=s=>ship[s.list]?.find(q=>q.id===s.id),selItem=()=>st.sel?findSel(st.sel):null,curFit=()=>st.fit,twinOfItem=(list,p)=>ship[list].find(q=>q.id===p.tw);
@@ -36,13 +36,13 @@ test('the real weapon-source table renders all nine families and legacy saved al
  run("const data=C.serialize(ship);data.fits=['refSide','xx9','nk7'].map((k,i)=>({id:91+i,k,p:[100+i*100,120,0],a:2,n:[0,1,0],ped:0,base:0,low:0}));ship=C.deserialize(data)");assert.deepEqual(plain(run('ship.fits.map(f=>[f.id,f.k])')),[[91,'twin40'],[92,'twin40'],[93,'quad40Ion']]);for(const f of plain(run('ship.fits'))){assert.ok(C.FITS[f.k]);assert.equal(C.fitSpec(f).barrels,C.FITS[f.k].barrels);}
 });
 
-test('hidden legacy guns stay out of catalogs while an existing saved htl remains editable and pickable',()=>{
- const run=setup();assert.equal(C.FITS.htl.catalogHidden,true);assert.equal(run("weaponKeys().includes('htl')"),false);assert.equal(run("paletteItems().some(i=>i.type==='fit'&&i.key==='htl')"),false);assert.equal(run("weaponReplacementKeys({k:'single40'}).includes('htl')"),false);
- run("install('htl');globalThis.legacyId=selItem().id;ship=C.deserialize(C.serialize(ship));st.sel={list:'fits',id:legacyId}");assert.equal(run('selItem().k'),'htl');assert.equal(!!run('selItem().float'),false);assert.equal(run('weaponReplacementKeys(selItem())[0]'),'htl');assert.match(run('baseFitEditor()'),/data-sl="gunYaw"/);
+test('legacy htl saves join DBY-827 without losing identity, placement, aim, editing or picking',()=>{
+ const run=setup();assert.equal(C.canonicalWeaponKind('htl'),'refVen');assert.equal(run("weaponKeys().includes('htl')"),false);assert.equal(run("paletteItems().some(i=>i.type==='fit'&&i.key==='htl')"),false);assert.equal(run("weaponReplacementKeys({k:'single40'}).includes('htl')"),false);
+ run("install('refVen');const imported=C.serialize(ship);imported.fits[0].k='htl';imported.fits[0].assetYaw=37.125;globalThis.legacyId=imported.fits[0].id;globalThis.legacyPoint=imported.fits[0].p.slice();ship=C.deserialize(imported);st.sel={list:'fits',id:legacyId}");assert.equal(run('selItem().k'),'refVen');assert.equal(!!run('selItem().float'),false);assert.equal(run('selItem().id'),run('legacyId'));assert.deepEqual(plain(run('selItem().p')),plain(run('legacyPoint')));assert.equal(run('selItem().assetYaw'),37.125);assert.equal(run("weaponReplacementKeys(selItem()).filter(k=>k==='refVen').length"),1);assert.equal(run("weaponReplacementKeys(selItem()).includes('htl')"),false);assert.match(run('baseFitEditor()'),/data-sl="gunYaw"/);
  const models=[G.meshFits(run('ship')),G.meshReferenceFits(run('ship'))];assert.ok(models.some(g=>g.ni>0));let ray;
  for(const model of models)for(let i=0;i<model.ni&&!ray;i+=3){const points=Array.from(model.idx.slice(i,i+3),k=>Array.from(model.pos.slice(k*3,k*3+3))),normal=C.cross(C.sub(points[1],points[0]),C.sub(points[2],points[0]));if(C.len(normal)>1e-6){const dir=C.norm(normal),mid=points.reduce((sum,p)=>C.add(sum,C.mul(p,1/3)),[0,0,0]);ray={o:C.add(mid,C.mul(dir,2)),d:C.mul(dir,-1)};}}
- assert.ok(ray);const picked=run(`fitHit(${JSON.stringify(ray.o)},${JSON.stringify(ray.d)})`);assert.ok(picked?.fit);assert.equal(picked.fit.k,'htl');assert.equal(picked.fit.id,run('legacyId'));run(`tapHit('adjust',fitHit(${JSON.stringify(ray.o)},${JSON.stringify(ray.d)}),false)`);assert.equal(run('selItem().k'),'htl');
- run('ship.hull.L=10');assert.equal(run("weaponKeys().includes('htl')"),false,'compact craft catalogs honor the same hidden flag');
+ assert.ok(ray);const picked=run(`fitHit(${JSON.stringify(ray.o)},${JSON.stringify(ray.d)})`);assert.ok(picked?.fit);assert.equal(picked.fit.k,'refVen');assert.equal(picked.fit.id,run('legacyId'));run(`tapHit('adjust',fitHit(${JSON.stringify(ray.o)},${JSON.stringify(ray.d)}),false)`);assert.equal(run('selItem().k'),'refVen');
+ run('ship.hull.L=10');assert.equal(run("weaponKeys().includes('htl')"),false,'compact craft catalogs use the same canonical DBY entry');
 });
 
 test('actual wall-only placement rejects deck and bow taps before creating an Undo transaction',()=>{

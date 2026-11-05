@@ -5,7 +5,10 @@ The STL case receives one rigid axis transform and one uniform scale. Its flared
 side wings are cut at two lateral planes and closed with source-derived armor.
 Original barrels, drives and thin connecting rods are discarded. New external
 receivers each carry two complete round barrels and move inward with the case.
-Display cylinders in the photograph are deliberately absent.
+The major STL case keeps its exact clipped surface; six small round rear details
+are explicitly retessellated. A complete-mesh 3,000-triangle budget includes the
+integral case, bearings, shafts and recessed barrels. Display cylinders in the
+photograph are deliberately absent.
 """
 import argparse
 import base64
@@ -170,6 +173,10 @@ def triangulate_planar(poly,axis):
     return triangles
 
 CASE_HALF_WIDTH_M=3.3
+TRIANGLE_BUDGET=3000
+BARREL_SEGMENTS=8
+BEARING_SEGMENTS=16
+SOURCE_DETAIL_SEGMENTS=12
 
 
 def trim_source_component(m,source,component,transform):
@@ -212,6 +219,92 @@ def trim_source_component(m,source,component,transform):
             'selectedSourceTriangleIndices':group['triangles'],'meshRange':total}
 
 
+def remesh_source_round_detail(m,source,component,transform):
+    """Retessellate only the six tiny round rear details, preserving their extents.
+
+    The major STL armor and every source-derived case closure keep their exact
+    surfaces. These 0.57 m diameter details previously used 32 radial facets;
+    their twelve-facet replacements retain the source axis, length and all four
+    radial extrema. The source-to-render provenance explicitly marks a remesh.
+    """
+    group=source['components'][component]
+    low,high=H.bounds([transformed(source['vertices'][j],transform) for j in group['vertices']])
+    center=[(a+b)/2 for a,b in zip(low,high)]
+    ry,rz=(high[1]-low[1])/2,(high[2]-low[2])/2
+    vertices=[[x,center[1]+ry*math.cos(2*math.pi*i/SOURCE_DETAIL_SEGMENTS),
+               center[2]+rz*math.sin(2*math.pi*i/SOURCE_DETAIL_SEGMENTS)]
+              for x in [low[0],high[0]] for i in range(SOURCE_DETAIL_SEGMENTS)]
+    n=SOURCE_DETAIL_SEGMENTS
+    polygons=[list(range(n-1,-1,-1)),list(range(n,n*2))]
+    polygons.extend([[i,(i+1)%n,(i+1)%n+n,i+n] for i in range(n)])
+    raw=H.Mesh();raw.convex(vertices,polygons,'source round detail')
+    triangles=[raw.indices[i:i+3] for i in range(0,len(raw.indices),3)]
+    proxy={'vertices':raw.points,'triangles':triangles,'components':[{'triangles':list(range(len(triangles)))}]}
+    identity={'sourceOrigin':[0,0,0],'nativeOffsetM':[0,0,0],
+              'nativeAxesFromSource':[[1,0,0],[0,1,0],[0,0,1]],'uniformScale':1}
+    start=m.mark()
+    for triangle in triangles:
+        polygon=[raw.points[i] for i in triangle]
+        polygon=polygon_clip(polygon,2,-CASE_HALF_WIDTH_M,True)
+        polygon=polygon_clip(polygon,2,CASE_HALF_WIDTH_M,False)
+        if polygon:m.face(polygon)
+    remesh={'method':'closed-elliptical-cylinder-from-source-component-extrema',
+            'sourceComponent':component,'sourceTriangleIndices':group['triangles'],
+            'sourceBoundsM':[low,high],'axis':[1,0,0],'radialSegments':n,
+            'maximumRoundSurfaceDeviationM':max(ry,rz)*(1-math.cos(math.pi/n))+.0005,
+            'preserved':'axis, axial ends, center and both radial cardinal diameters; lateral clipping unchanged'}
+    outer=m.record(start,'attached STL rear detail '+str(component),sourceSTLComponent=component,
+                   sourceSTLTriangleIndices=group['triangles'],sourceAsset='arquitens_turret.stl',
+                   componentRole='retessellated-source-round-detail',sourceRemesh=remesh)
+    piece={k:outer[k] for k in ['firstVertex','vertices','firstIndex','indices']}
+    piece.update(sourceComponent=component,sourceTriangleIndices=group['triangles'],status='remeshed')
+    caps=[]
+    for value in [-CASE_HALF_WIDTH_M,CASE_HALF_WIDTH_M]:
+        if not low[2]<value<high[2]:continue
+        cap_start=m.mark()
+        for poly in section_loops(proxy,identity,2,value):
+            for triangle in triangulate_planar(poly,2):
+                if H.cross(H.sub(triangle[1],triangle[0]),H.sub(triangle[2],triangle[0]))[2]*(1 if value>0 else -1)<0:triangle.reverse()
+                m.face(triangle)
+        caps.append(m.record(cap_start,'source-derived lateral closure '+str(component)+' '+str(value),
+                             componentRole='source-lateral-closure',sourceSTLComponent=component,
+                             sourceSection={'axis':2,'valueM':value,'method':'retessellated source-round-detail plane-intersection loop'},
+                             structuralArmor=True,addsCapacitorRoom=False))
+    total={'firstVertex':start[0],'vertices':len(m.points)-start[0],
+           'firstIndex':start[1],'indices':len(m.indices)-start[1]}
+    return {'sourceComponent':component,'outer':outer,'caps':caps,'pieces':[piece],'removed':[],
+            'selectedSourceTriangleIndices':group['triangles'],'meshRange':total,'remesh':remesh}
+
+
+def concentric_bearing(m,center,sign,label):
+    """One connected skin, replacing four overlapping solid cylinders and bolts."""
+    start=m.mark()
+    # The outer hub reaches the former bolt-head extremum, preserving the
+    # complete mechanical envelope after those subpixel bolts are absorbed.
+    profile=[(-.95,0),(-.95,4.3),(.95,4.3),(.95,3.72),(1.065,3.72),
+             (1.065,2.95),(1.135,2.95),(1.135,1.57),(1.235,1.57),(1.235,0)]
+    rings=[]
+    for axial,radius in profile:
+        if radius==0:
+            rings.append([len(m.points)]);m.points.append([center[0],center[1],center[2]+sign*axial]);m.uvs.append((0,32768))
+        else:
+            ring=[]
+            for i in range(BEARING_SEGMENTS):
+                t=2*math.pi*i/BEARING_SEGMENTS
+                ring.append(len(m.points));m.points.append([center[0]+radius*math.cos(t),center[1]+radius*math.sin(t),center[2]+sign*axial]);m.uvs.append((0,0))
+            rings.append(ring)
+    for a,b in zip(rings,rings[1:]):
+        for i in range(BEARING_SEGMENTS):
+            j=(i+1)%BEARING_SEGMENTS
+            if len(a)==1:triangles=[[a[0],b[j],b[i]]]
+            elif len(b)==1:triangles=[[a[i],a[j],b[0]]]
+            else:triangles=[[a[i],a[j],b[j]],[a[i],b[j],b[i]]]
+            for triangle in triangles:m.indices.extend(triangle if sign>0 else list(reversed(triangle)))
+    return m.record(start,label,centerM=center,axis=[0,0,1],radiusM=4.3,
+                    radialSegments=BEARING_SEGMENTS,continuousConcentricProfileM=[list(p) for p in profile],
+                    removedHiddenGeometry='overlapping cylinder caps; subpixel hub fasteners merged into the outer hub envelope')
+
+
 def photo_barrel(m,root,tip,y,z,label):
     """An explicit photographed long neck, 1m shaft and 1.22m muzzle collar."""
     start=m.mark();shaft_start=tip-9.3;shaft_radius=.5;muzzle_radius=.61;bore=.34;recess=.7
@@ -221,7 +314,7 @@ def photo_barrel(m,root,tip,y,z,label):
              (tip-1.5,.5),(tip-1.5,muzzle_radius),(tip,muzzle_radius),
              (tip,bore),(tip-recess,bore),(tip-recess,0)]
     if any(b[0]<a[0]-1e-8 for a,b in zip(profile[:14],profile[1:14])):raise ValueError('Non-monotone exterior barrel profile')
-    rings=[];segments=40
+    rings=[];segments=BARREL_SEGMENTS
     for x,r in profile:
         if r==0:
             rings.append([len(m.points)]);m.points.append([x,y,z]);m.uvs.append((0,32768))
@@ -240,6 +333,7 @@ def photo_barrel(m,root,tip,y,z,label):
     return m.record(start,label,root=[root,y,z],muzzle=[tip,y,z],centerM=[(root+tip)/2,y,z],axis=[1,0,0],
                     outerRadiusM=muzzle_radius,boreRadiusM=bore,muzzleRecessM=recess,exposedStartX=shaft_start,
                     shaftRadiusM=shaft_radius,shaftLengthM=9.3,muzzleCollarLengthM=1.5,
+                    radialSegments=segments,
                     profileStationsM=[[x,r] for x,r in profile],profileEvidence='latest full-sheet measured 60–61px neck-to-lip, shaft 6.5px, muzzle 8px')
 
 
@@ -249,7 +343,9 @@ def build():
     original_half_width=max(abs(p[2]) for p in original_body_points)
     lateral_shift=original_half_width-CASE_HALF_WIDTH_M
     for i,group in enumerate(source['components']):
-        if i==0 or group['bounds'][1][2]<=-5.6:retained.append(trim_source_component(m,source,i,transform))
+        if i==0 or group['bounds'][1][2]<=-5.6:
+            retained.append(remesh_source_round_detail(m,source,i,transform) if i in [7,8,9,10,11,12]
+                            else trim_source_component(m,source,i,transform))
     body=retained[0]['outer'];source_range=retained[0]['meshRange']
     source_pieces=[p for r in retained for p in r['pieces']]
     source_outer_ranges=[{k:r['outer'][k] for k in ['firstVertex','vertices','firstIndex','indices']} for r in retained]
@@ -268,21 +364,14 @@ def build():
         verified.append({'label':label,'sampledPoints':len(probes),'insideRetainedCase':True})
     pivot=[3.0,4.9,0];shafts=[]
     for sign in [-1,1]:
-        row=m.cylinder([pivot[0],pivot[1],sign*(7.5-lateral_shift)],.94,3.5,2,'fixed STL-case trunnion shaft '+str(sign),48)
+        row=m.cylinder([pivot[0],pivot[1],sign*(7.5-lateral_shift)],.94,3.5,2,'fixed STL-case trunnion shaft '+str(sign),8)
         shafts.append(row)
         m.prism([[1.75,3.7],[4.25,3.7],[4.6,4.2],[4.6,5.8],[4.25,6.1],[1.75,6.1]],
                 min(sign*(5.8-lateral_shift),sign*(8.6-lateral_shift)),max(sign*(5.8-lateral_shift),sign*(8.6-lateral_shift)),'integral fixed bearing shoulder '+str(sign))
     split=m.mark();drives=[];receivers=[]
     for sign in [-1,1]:
         center=[pivot[0],pivot[1],sign*(9.0-lateral_shift)]
-        row=m.cylinder(center,4.3,1.9,2,'rebuilt large circular 500GT elevation bearing '+str(sign),64)
-        row.update(centerM=center,axis=[0,0,1],radiusM=4.3);drives.append(row)
-        m.cylinder([pivot[0],pivot[1],sign*(9.99-lateral_shift)],3.72,.15,2,'bearing raised concentric outer ring '+str(sign),64)
-        m.cylinder([pivot[0],pivot[1],sign*(10.09-lateral_shift)],2.95,.09,2,'bearing recessed center cover '+str(sign),64)
-        m.cylinder([pivot[0],pivot[1],sign*(10.16-lateral_shift)],1.57,.09,2,'bearing inner hub cap '+str(sign),56)
-        for i in range(16):
-            angle=i*2*math.pi/16
-            m.cylinder([pivot[0]+2.28*math.cos(angle),pivot[1]+2.28*math.sin(angle),sign*(10.17-lateral_shift)],.13,.13,2,'bearing hub fastener',12)
+        row=concentric_bearing(m,center,sign,'rebuilt large circular 500GT elevation bearing '+str(sign));drives.append(row)
         receivers.append(m.prism([[3.3,2.2],[6.6,2.2],[7.3,2.9],[7.3,7.1],[6.6,7.6],[3.3,7.6]],
                          min(sign*(8.15-lateral_shift),sign*(9.85-lateral_shift)),max(sign*(8.15-lateral_shift),sign*(9.85-lateral_shift)),'common vertical two-gun receiver '+str(sign)))
     body_bounds=H.bounds([transformed(source['vertices'][j],transform) for j in source['components'][0]['vertices']])
@@ -308,7 +397,7 @@ def build():
           sourceClip={'kind':'lateral-halfspaces','halfWidthM':CASE_HALF_WIDTH_M,'originalCaseHalfWidthM':original_half_width,
               'planes':[{'axis':2,'valueM':-CASE_HALF_WIDTH_M,'keepGreater':True},{'axis':2,'valueM':CASE_HALF_WIDTH_M,'keepGreater':False}],
               'capComponentLabels':[r['label'] for r in cap_rows]},
-          sourceGeometryPreservation={'kind':'rigid-uniform-source-frame-with-explicit-lateral-clipping',
+          sourceGeometryPreservation={'kind':'rigid-uniform-source-frame-with-lateral-clipping-and-explicit-round-detail-retessellation',
               'sourceFaces':len(source['triangles']),'selectedSourceFaces':sum(len(r['selectedSourceTriangleIndices']) for r in retained),
               'retainedComponents':[r['sourceComponent'] for r in retained],
               'unchangedSourceFaces':sum(p['status']=='unchanged' for p in source_pieces),
@@ -317,7 +406,11 @@ def build():
               'retainedFaces':sum(r['outer']['indices']//3 for r in retained),
               'retainedVertices':sum(r['outer']['vertices'] for r in retained),
               'newLateralClosureFaces':sum(r['indices']//3 for r in cap_rows),
-              'unchangedFacesAndPlanarClippedSourceSurfacesPreserved':True,'sourceTransform':transform},
+              'unchangedFacesAndPlanarClippedSourceSurfacesPreserved':False,
+              'mainGunhouseSurfacesAndLateralClosuresPreserved':True,
+              'retessellatedSourceComponents':[r['remesh'] for r in retained if 'remesh' in r],
+              'retessellatedOriginalSourceFaces':sum(len(r['selectedSourceTriangleIndices']) for r in retained if 'remesh' in r),
+              'sourceTransform':transform},
           sourceHousingVertices=sum(r['outer']['vertices'] for r in retained),sourceHousingFaces=sum(r['outer']['indices']//3 for r in retained),
           photoMeasurements='assets/source/light-turret-photo-measurements.json',
           mount=mount,mountAlignment={'kind':'preserved-maximum-width-station-after-lateral-trim','originalIntervalM':[min(stations),max(stations)],
@@ -330,6 +423,10 @@ def build():
           lateralMountAdjustment={'removedSourceFlareMPerSide':lateral_shift,'completeAssembliesMovedInwardMPerSide':lateral_shift,
               'axialAndVerticalCoordinatesPreserved':True,'caseHalfWidthM':CASE_HALF_WIDTH_M},
           caseStyle='lateral-trimmed-central-STL-gunhouse-with-inward-outboard-vertical-receivers',
+          polygonBudget={'triangles':TRIANGLE_BUDGET,'actualTriangles':len(m.indices)//3,
+              'scope':'complete fixed and elevating mesh including integral case, closure caps, bearings, shafts, receivers and all four recessed barrels',
+              'barrelRadialSegments':BARREL_SEGMENTS,'bearingRadialSegments':BEARING_SEGMENTS,
+              'sourceRoundDetailRadialSegments':SOURCE_DETAIL_SEGMENTS},
           photoFeatureComponents={'mainCase':[body['label'],*[r['label'] for r in retained[0]['caps']]],'drive':[r['label'] for r in drives],
               'receiver':[r['label'] for r in receivers]},sourceCompartmentValidation=verified)
     asset['derivedFrom']='arquitens_turret.stl'
@@ -343,6 +440,8 @@ def validate(assets):
     if len(asset['barrelCenters'])!=4:raise ValueError('Expected four physical barrels')
     if abs(asset['size'][0]-OVERALL_LENGTH_M)>.001:raise ValueError('Photo-calibrated overall length drifted')
     if asset['n']>=65536:raise ValueError('Small turret must remain a 16-bit mesh')
+    if asset['faces']>TRIANGLE_BUDGET:raise ValueError('500GT quad exceeds its complete-mesh triangle budget')
+    if len(data)!=asset['n']*10+asset['faces']*3*asset['indexBytes']:raise ValueError('Packed triangle count is inconsistent')
     if not all(math.isfinite(v) for p in asset['bounds'] for v in p):raise ValueError('Invalid bounds')
     body=asset['retainedBodyMeshRange'];points=[]
     for i in range(asset['elevationVertexStart'],asset['n']):
@@ -368,7 +467,8 @@ def validate(assets):
             'fixedShaftCaseEngagementPointsM':engagement,'fixedShaftCaseEngagementVerified':True,
             'fixedShaftMovingWheelAxialOverlapM':1.2,
             'shaftLengthM':9.3,'shaftDiameterM':1.0,'muzzleDiameterM':1.22,'fullBarrelLengthM':asset['barrelCenters'][0]['muzzle'][0]-asset['barrelCenters'][0]['root'][0],
-            'sourceGeometryPreserved':'explicit retained/clipped/removed source triangle mapping; new source-derived lateral caps','conservativeCellsInsideSource':asset['sourceCompartmentValidation'],
+            'sourceGeometryPreserved':'major STL case and closures unchanged; explicit retained/clipped/removed mapping plus bounded retessellation of six small round rear details',
+            'polygonBudget':asset['polygonBudget'],'conservativeCellsInsideSource':asset['sourceCompartmentValidation'],
             'packedSha256':hashlib.sha256(data).hexdigest()}
 
 

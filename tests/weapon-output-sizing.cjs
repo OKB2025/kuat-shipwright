@@ -78,45 +78,46 @@ test('unlisted conventional weapons retain their established salvo/barrel densit
   // guns keep the prior calibration, retained in the unchanged350TT source.
   const twinDensity=28.861991732993026*9.997709224590754*16.2580849216165/140;
   const octupleDensity=volume(Array.from(C.REFERENCE_ASSETS.isd_heavy_twin.size))/320;
-  for(const k of ['pd','ltl','mtl','stl','utl','ion','ionL']){
+  for(const k of ['pd','stl','utl','ion','ionL']){
     const f=fitting(k),d=C.FITS[k],sizing=C.weaponSizing(f),blend=Math.min(1,Math.max(0,(d.barrels-2)/6)),salvo=Math.max(d.tt||0,d.ion||0),target=salvo*(twinDensity*(1-blend)+octupleDensity*blend);
     near(sizing.anchorBlend,blend,`${k} barrel interpolation`);near(sizing.volleyTT,salvo,`${k} salvo energy`);near(sizing.sourceVolume,volume(Array.from(sizing.sourceSize)),`${k} source volume`);near(sizing.targetVolume,target,`${k} retained target volume`);near(C.weaponModelScale(f),Math.cbrt(target/sizing.sourceVolume),`${k} cube-root scale`);near(volume(dimensions(d)),target,`${k} canonical envelope volume`);
     for(let axis=0;axis<3;axis++)near(dimensions(d)[axis],sizing.sourceSize[axis]*sizing.factor,`${k} preserved aspect axis${axis}`);
   }
 });
 
-test('point defense is a procedural twin small dual-purpose turbolaser with explicit higher output', () => {
+test('point defense is a light procedural twin 20 GT dual-purpose turbolaser', () => {
   const d = C.FITS.pd, sizing = C.weaponSizing(fitting('pd'));
   assert.equal(d.asset, undefined, 'point defense no longer uses an imported model');
   assert.equal(C.REFERENCE_ASSETS.pd_turret_small, undefined, 'the removed model is not registered');
   // Ships carry dozens of these; each must stay a light procedural body (the imported mesh was 29,060 triangles).
   assert.ok(G.meshFits({fits: [fitting('pd')]}).ni/3 < 1000, 'point defense renders a light procedural body');
   assert.equal(d.barrels, 2);
-  assert.equal(d.boltTT, 2.5);
-  assert.equal(d.tt, 5);
+  assert.equal(d.boltTT, .02);
+  assert.equal(d.tt, .04);
   assert.equal(d.cycle, .2);
   assert.equal(d.aa, 6);
   assert.equal(d.dualPurpose, true);
   near(d.power, d.tt*C.TT/d.cycle, 'PD continuous electrical demand');
-  // The footprint keeps the bounds of the model it once used, so placements and figures are unchanged.
+  // The original proportions remain the calibration source; output sets their smaller physical size.
   near(sizing.sourceSize[0], 9, 'former model length');
   near(sizing.sourceSize[1], 3.1493375257895857, 'former model height');
   near(sizing.sourceSize[2], 5.729853188053728, 'former model width');
   near(d.r, 4.5*sizing.factor, 'swept radius of the former model');
-  assert.ok(d.fm > 8 && d.fm < 11, 'the explicit output produces a roughly nine-metre model');
+  assert.ok(d.fm > 1.5 && d.fm < 2.5, 'the 20 GT barrels produce a roughly two-metre twin');
 });
 
-test('resizing conventional weapons does not alter their energy, cycle, crew or price', () => {
-  for (const [k, salvo, cycle, mass, crew, cost] of [
-    ['ltl', .08, .5, 900, 6, 80e3], ['mtl', .6, .2, 2400, 10, 200e3],
-    ['htl', 140, 1, 6000, 18, 500e3]
+test('retired generic guns resolve to the canonical light quad, DBY and point-defense definitions', () => {
+  for (const [k, canonical, salvo, barrels, cycle] of [
+    ['ltl', 'pd', .04, 2, .2], ['mtl', 'quad200', .8, 4, .2],
+    ['htl', 'refVen', 140, 2, 1]
   ]) {
-    const d = C.FITS[k];
-    near(Math.max(d.tt || 0, d.ion || 0), salvo, `${k} unchanged salvo`);
-    assert.equal(d.cycle, cycle, `${k} unchanged cycle`);
-    assert.equal(d.mass, mass, `${k} unchanged mass`);
-    assert.equal(d.crew, crew, `${k} unchanged crew`);
-    assert.equal(d.cost, cost, `${k} unchanged cost`);
+    const d = C.fitSpec(fitting(k));
+    assert.equal(C.canonicalWeaponKind(k), canonical);
+    assert.equal(d, C.FITS[canonical], `${k} shares the complete canonical definition`);
+    assert.equal(Object.keys(C.FITS).includes(k), false, `${k} is absent from the catalog`);
+    near(Math.max(d.tt || 0, d.ion || 0), salvo, `${k} canonical salvo`);
+    assert.equal(d.barrels, barrels, `${k} canonical barrels`);
+    assert.equal(d.cycle, cycle, `${k} canonical cycle`);
   }
   near(C.FITS.oct40.tt, 320, 'the canonical octuple keeps its 320 TT rating');
   near(C.FITS.stl.tt, 350, 'the canonical heavy twin keeps its 350 TT rating');
@@ -175,12 +176,14 @@ test('small procedural guns scale every body vertex uniformly while explicit ped
     if (file === 'js/core.js') {
       const initialization = '\ninitializeWeaponSizing();\n';
       assert.equal(source.split(initialization).length, 2, 'the baseline disables exactly one sizing initialization');
-      source = source.replace(initialization, '\n/* Test baseline: keep authored weapon dimensions. */\n');
+      // PD's sizing pass also restores the source model's swept radius from
+      // its length. Keep that unscaled source sweep in this authored baseline.
+      source = source.replace(initialization, '\n/* Test baseline: keep authored weapon dimensions. */\nFITS.pd.r=4.5;\n');
     }
     vm.runInContext(source, baseline, {filename: file});
   }
   const {C: originalCore, G: originalGfx} = vm.runInContext('({C: Core, G: Gfx})', baseline);
-  for (const k of ['ltl', 'casemateLight', 'utl']) {
+  for (const k of ['pd', 'utl']) {
     for (const frame of [{a: 2}, {a: 4, tilt: C.norm([.2, .9, -.3])}]) {
       const f = fitting(k, {p: [13, -7, 11], assetYaw: 31, ...frame});
       const factor = C.weaponModelScale(f), origin = C.fitOrigin(f);

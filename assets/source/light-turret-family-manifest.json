@@ -1,6 +1,7 @@
 {
   "schemaVersion": 1,
   "calibration": "light-photo-family",
+  "polygonBudget": 3000,
   "order": [
     "light_single500",
     "light_twin200",
@@ -11,8 +12,8 @@
   "validation": {
     "light_single500": {
       "barrels": 1,
-      "faces": 2748,
-      "packedSha256": "2999eb6373e8c8cbc393fa65b153e04b6167ca940069d5296972979fdb5d2e2b",
+      "faces": 2204,
+      "packedSha256": "1d99d6410c3160069ed34bc4f62a982c9da115c44820ed45318474234ed3718c",
       "gunhouseVolumeM3": 193.15107427632816,
       "sizeM": [
         18.6,
@@ -39,8 +40,8 @@
     },
     "light_twin200": {
       "barrels": 2,
-      "faces": 4328,
-      "packedSha256": "4db5fd5e17f7af592cde2a1582e5ff2d2f824fdfd355303a474b0f65d7f2b02e",
+      "faces": 2760,
+      "packedSha256": "f88a93b327442a4ef0aa300b8ae134a93450316aa1fc82058a4959da603da550",
       "gunhouseVolumeM3": 266.99807999999996,
       "sizeM": [
         23.9,
@@ -83,8 +84,8 @@
     },
     "light_quad200": {
       "barrels": 4,
-      "faces": 6394,
-      "packedSha256": "c0cb7a4cc9d2383e9d47cdeb414e4bdc27491175742c78e52a022ab79c861228",
+      "faces": 2850,
+      "packedSha256": "e9327e495fc2796861c0d5905b3c193c9037b1f4f8b2fa80b2bbe978b968baa1",
       "gunhouseVolumeM3": 648.2248500000001,
       "sizeM": [
         19.3375,
@@ -136,8 +137,8 @@
     },
     "light_single200": {
       "barrels": 1,
-      "faces": 3384,
-      "packedSha256": "1fc6a9b6d1ae39aed289a9a00e5a94f097f43d1961d45cdf322122b83b8f696a",
+      "faces": 2232,
+      "packedSha256": "92b555b5c1327ebcefeb811fa9d087647653b723beb90d8ac5c934369c48f5a5",
       "gunhouseVolumeM3": 0.9052400000000002,
       "sizeM": [
         20.549999999999997,
@@ -170,8 +171,8 @@
     },
     "light_twin200_fast": {
       "barrels": 2,
-      "faces": 4608,
-      "packedSha256": "8670325d6a85ee7995e880ee42210b8af0c5b5a841b7b85f17b776fbf092605a",
+      "faces": 2976,
+      "packedSha256": "7d0bd75ce1446dbea8aa6619483472a625b3754c2552b68ac2a915afb5f358da",
       "gunhouseVolumeM3": 4.0194,
       "sizeM": [
         25.8,
@@ -220,9 +221,14 @@
       "source": "User-supplied light turret photographs; native photo scale referenced to the 40 m ISD octuple",
       "nativeCalibration": "light-photo-family",
       "catalogKind": "single500",
-      "n": 3690,
-      "faces": 2748,
+      "n": 3354,
+      "faces": 2204,
       "indexBytes": 2,
+      "polygonBudget": {
+        "unit": "triangles",
+        "maximum": 3000,
+        "countsAllFixedAndMovingGeometry": true
+      },
       "c": [
         5.7,
         1.1999999999999997,
@@ -266,10 +272,10 @@
       "barrelCenters": [
         {
           "label": "500GT ball single complete recessed barrel",
-          "firstVertex": 3088,
-          "vertices": 602,
-          "firstIndex": 4644,
-          "indices": 3600,
+          "firstVertex": 2992,
+          "vertices": 362,
+          "firstIndex": 4452,
+          "indices": 2160,
           "root": [
             2.6,
             1.2,
@@ -10590,17 +10596,17 @@
         {
           "label": "single500 axial barrel socket",
           "firstVertex": 2800,
-          "vertices": 288,
+          "vertices": 192,
           "firstIndex": 4080,
-          "indices": 564,
+          "indices": 372,
           "componentRole": "moving-receiver"
         },
         {
           "label": "500GT ball single complete recessed barrel",
-          "firstVertex": 3088,
-          "vertices": 602,
-          "firstIndex": 4644,
-          "indices": 3600,
+          "firstVertex": 2992,
+          "vertices": 362,
+          "firstIndex": 4452,
+          "indices": 2160,
           "root": [
             2.6,
             1.2,
@@ -10634,7 +10640,7 @@
           "caliberGT": 500
         }
       ],
-      "maxQuantizationErrorM": 0.00015513187340849985,
+      "maxQuantizationErrorM": 0.00015391087195468014,
       "materialReference": "ven_turret70_native",
       "photoMeasurements": "assets/source/light-turret-photo-measurements.json",
       "jointLimits": {
@@ -10698,9 +10704,14 @@
       "source": "User-supplied light turret photographs; native photo scale referenced to the 40 m ISD octuple",
       "nativeCalibration": "light-photo-family",
       "catalogKind": "twin200",
-      "n": 4652,
-      "faces": 4328,
+      "n": 3196,
+      "faces": 2760,
       "indexBytes": 2,
+      "polygonBudget": {
+        "unit": "triangles",
+        "maximum": 3000,
+        "countsAllFixedAndMovingGeometry": true
+      },
       "c": [
         3.75,
         3.5,
@@ -10744,10 +10755,10 @@
       "barrelCenters": [
         {
           "label": "200GT horizontal high-angle barrel -0.85",
-          "firstVertex": 3504,
-          "vertices": 562,
-          "firstIndex": 6228,
-          "indices": 3360,
+          "firstVertex": 2496,
+          "vertices": 338,
+          "firstIndex": 4212,
+          "indices": 2016,
           "root": [
             1.2,
             5.15,
@@ -10782,10 +10793,10 @@
         },
         {
           "label": "200GT horizontal high-angle barrel 0.85",
-          "firstVertex": 4090,
-          "vertices": 562,
-          "firstIndex": 9624,
-          "indices": 3360,
+          "firstVertex": 2858,
+          "vertices": 338,
+          "firstIndex": 6264,
+          "indices": 2016,
           "root": [
             1.2,
             5.15,
@@ -10846,17 +10857,17 @@
         4.4,
         0
       ],
-      "elevationVertexStart": 3324,
-      "elevationIndexStart": 5952,
-      "housingVertices": 3324,
-      "housingFaces": 1984,
+      "elevationVertexStart": 2316,
+      "elevationIndexStart": 3936,
+      "housingVertices": 2316,
+      "housingFaces": 1312,
       "drivePivots": [
         {
           "label": "elevation drive housing",
-          "firstVertex": 1356,
-          "vertices": 288,
-          "firstIndex": 2100,
-          "indices": 564,
+          "firstVertex": 972,
+          "vertices": 192,
+          "firstIndex": 1332,
+          "indices": 372,
           "centerM": [
             0,
             4.4,
@@ -10871,10 +10882,10 @@
         },
         {
           "label": "elevation drive housing",
-          "firstVertex": 2220,
-          "vertices": 288,
-          "firstIndex": 3792,
-          "indices": 564,
+          "firstVertex": 1548,
+          "vertices": 192,
+          "firstIndex": 2448,
+          "indices": 372,
           "centerM": [
             0,
             4.4,
@@ -11067,9 +11078,9 @@
             ],
             "volumeM3": 80.892,
             "meshRange": {
-              "firstVertex": 768,
+              "firstVertex": 384,
               "vertices": 48,
-              "firstIndex": 1512,
+              "firstIndex": 744,
               "indices": 48
             },
             "movesWithGun": false
@@ -11347,9 +11358,9 @@
             ],
             "volumeM3": 36.180479999999996,
             "meshRange": {
-              "firstVertex": 816,
+              "firstVertex": 432,
               "vertices": 90,
-              "firstIndex": 1560,
+              "firstIndex": 792,
               "indices": 90
             },
             "movesWithGun": false
@@ -11762,9 +11773,9 @@
             ],
             "volumeM3": 41.51779999999999,
             "meshRange": {
-              "firstVertex": 906,
+              "firstVertex": 522,
               "vertices": 126,
-              "firstIndex": 1650,
+              "firstIndex": 882,
               "indices": 126
             },
             "movesWithGun": false
@@ -12132,9 +12143,9 @@
             ],
             "volumeM3": 41.51780000000001,
             "meshRange": {
-              "firstVertex": 1032,
+              "firstVertex": 648,
               "vertices": 138,
-              "firstIndex": 1776,
+              "firstIndex": 1008,
               "indices": 138
             },
             "movesWithGun": false
@@ -12322,9 +12333,9 @@
             ],
             "volumeM3": 44.84,
             "meshRange": {
-              "firstVertex": 1170,
+              "firstVertex": 786,
               "vertices": 60,
-              "firstIndex": 1914,
+              "firstIndex": 1146,
               "indices": 60
             },
             "movesWithGun": false
@@ -12512,9 +12523,9 @@
             ],
             "volumeM3": 11.025,
             "meshRange": {
-              "firstVertex": 1230,
+              "firstVertex": 846,
               "vertices": 60,
-              "firstIndex": 1974,
+              "firstIndex": 1206,
               "indices": 60
             },
             "movesWithGun": false
@@ -12717,9 +12728,9 @@
             ],
             "volumeM3": 11.024999999999993,
             "meshRange": {
-              "firstVertex": 1290,
+              "firstVertex": 906,
               "vertices": 66,
-              "firstIndex": 2034,
+              "firstIndex": 1266,
               "indices": 66
             },
             "movesWithGun": false
@@ -12738,88 +12749,88 @@
         {
           "label": "intrinsic bearing ring",
           "firstVertex": 0,
-          "vertices": 384,
+          "vertices": 192,
           "firstIndex": 0,
-          "indices": 756,
+          "indices": 372,
           "componentRole": "intrinsic-bearing-ring"
         },
         {
           "label": "bearing race lip",
-          "firstVertex": 384,
-          "vertices": 384,
-          "firstIndex": 756,
-          "indices": 756,
+          "firstVertex": 192,
+          "vertices": 192,
+          "firstIndex": 372,
+          "indices": 372,
           "componentRole": "intrinsic-bearing-ring"
         },
         {
           "label": "twin200 lower high-angle armored case frame 0",
-          "firstVertex": 768,
+          "firstVertex": 384,
           "vertices": 48,
-          "firstIndex": 1512,
+          "firstIndex": 744,
           "indices": 48,
           "compartment": true,
           "componentRole": "fixed-gunhouse"
         },
         {
           "label": "twin200 lower high-angle armored case frame 1",
-          "firstVertex": 816,
+          "firstVertex": 432,
           "vertices": 90,
-          "firstIndex": 1560,
+          "firstIndex": 792,
           "indices": 90,
           "compartment": true,
           "componentRole": "fixed-gunhouse"
         },
         {
           "label": "twin200 lower high-angle armored case frame 2",
-          "firstVertex": 906,
+          "firstVertex": 522,
           "vertices": 126,
-          "firstIndex": 1650,
+          "firstIndex": 882,
           "indices": 126,
           "compartment": true,
           "componentRole": "fixed-gunhouse"
         },
         {
           "label": "twin200 lower high-angle armored case frame 3",
-          "firstVertex": 1032,
+          "firstVertex": 648,
           "vertices": 138,
-          "firstIndex": 1776,
+          "firstIndex": 1008,
           "indices": 138,
           "compartment": true,
           "componentRole": "fixed-gunhouse"
         },
         {
           "label": "twin200 canted upper high-angle armor frame 0",
-          "firstVertex": 1170,
+          "firstVertex": 786,
           "vertices": 60,
-          "firstIndex": 1914,
+          "firstIndex": 1146,
           "indices": 60,
           "compartment": true,
           "componentRole": "fixed-gunhouse"
         },
         {
           "label": "twin200 canted upper high-angle armor frame 1",
-          "firstVertex": 1230,
+          "firstVertex": 846,
           "vertices": 60,
-          "firstIndex": 1974,
+          "firstIndex": 1206,
           "indices": 60,
           "compartment": true,
           "componentRole": "fixed-gunhouse"
         },
         {
           "label": "twin200 canted upper high-angle armor frame 2",
-          "firstVertex": 1290,
+          "firstVertex": 906,
           "vertices": 66,
-          "firstIndex": 2034,
+          "firstIndex": 1266,
           "indices": 66,
           "compartment": true,
           "componentRole": "fixed-gunhouse"
         },
         {
           "label": "elevation drive housing",
-          "firstVertex": 1356,
-          "vertices": 288,
-          "firstIndex": 2100,
-          "indices": 564,
+          "firstVertex": 972,
+          "vertices": 192,
+          "firstIndex": 1332,
+          "indices": 372,
           "centerM": [
             0,
             4.4,
@@ -12834,24 +12845,24 @@
         },
         {
           "label": "drive inset ring",
-          "firstVertex": 1644,
-          "vertices": 288,
-          "firstIndex": 2664,
-          "indices": 564
+          "firstVertex": 1164,
+          "vertices": 192,
+          "firstIndex": 1704,
+          "indices": 372
         },
         {
           "label": "drive central cover",
-          "firstVertex": 1932,
-          "vertices": 288,
-          "firstIndex": 3228,
-          "indices": 564
+          "firstVertex": 1356,
+          "vertices": 192,
+          "firstIndex": 2076,
+          "indices": 372
         },
         {
           "label": "elevation drive housing",
-          "firstVertex": 2220,
-          "vertices": 288,
-          "firstIndex": 3792,
-          "indices": 564,
+          "firstVertex": 1548,
+          "vertices": 192,
+          "firstIndex": 2448,
+          "indices": 372,
           "centerM": [
             0,
             4.4,
@@ -12866,90 +12877,90 @@
         },
         {
           "label": "drive inset ring",
-          "firstVertex": 2508,
-          "vertices": 288,
-          "firstIndex": 4356,
-          "indices": 564
+          "firstVertex": 1740,
+          "vertices": 192,
+          "firstIndex": 2820,
+          "indices": 372
         },
         {
           "label": "drive central cover",
-          "firstVertex": 2796,
-          "vertices": 288,
-          "firstIndex": 4920,
-          "indices": 564
+          "firstVertex": 1932,
+          "vertices": 192,
+          "firstIndex": 3192,
+          "indices": 372
         },
         {
           "label": "twin200 fixed transverse trunnion shaft",
-          "firstVertex": 3084,
-          "vertices": 240,
-          "firstIndex": 5484,
-          "indices": 468,
+          "firstVertex": 2124,
+          "vertices": 192,
+          "firstIndex": 3564,
+          "indices": 372,
           "componentRole": "fixed-bearing-axle"
         },
         {
           "label": "twin200 elevating high-angle center hood",
-          "firstVertex": 3324,
+          "firstVertex": 2316,
           "vertices": 36,
-          "firstIndex": 5952,
+          "firstIndex": 3936,
           "indices": 60,
           "compartment": false,
           "componentRole": "moving-armored-hood"
         },
         {
           "label": "roof stiffener",
-          "firstVertex": 3360,
+          "firstVertex": 2352,
           "vertices": 24,
-          "firstIndex": 6012,
+          "firstIndex": 3996,
           "indices": 36,
           "compartment": false
         },
         {
           "label": "roof stiffener",
-          "firstVertex": 3384,
+          "firstVertex": 2376,
           "vertices": 24,
-          "firstIndex": 6048,
+          "firstIndex": 4032,
           "indices": 36,
           "compartment": false
         },
         {
           "label": "roof stiffener",
-          "firstVertex": 3408,
+          "firstVertex": 2400,
           "vertices": 24,
-          "firstIndex": 6084,
+          "firstIndex": 4068,
           "indices": 36,
           "compartment": false
         },
         {
           "label": "roof stiffener",
-          "firstVertex": 3432,
+          "firstVertex": 2424,
           "vertices": 24,
-          "firstIndex": 6120,
+          "firstIndex": 4104,
           "indices": 36,
           "compartment": false
         },
         {
           "label": "roof stiffener",
-          "firstVertex": 3456,
+          "firstVertex": 2448,
           "vertices": 24,
-          "firstIndex": 6156,
+          "firstIndex": 4140,
           "indices": 36,
           "compartment": false
         },
         {
           "label": "twin200 individual enclosed recoil receiver -0.85",
-          "firstVertex": 3480,
+          "firstVertex": 2472,
           "vertices": 24,
-          "firstIndex": 6192,
+          "firstIndex": 4176,
           "indices": 36,
           "compartment": false,
           "componentRole": "moving-receiver"
         },
         {
           "label": "200GT horizontal high-angle barrel -0.85",
-          "firstVertex": 3504,
-          "vertices": 562,
-          "firstIndex": 6228,
-          "indices": 3360,
+          "firstVertex": 2496,
+          "vertices": 338,
+          "firstIndex": 4212,
+          "indices": 2016,
           "root": [
             1.2,
             5.15,
@@ -12984,19 +12995,19 @@
         },
         {
           "label": "twin200 individual enclosed recoil receiver 0.85",
-          "firstVertex": 4066,
+          "firstVertex": 2834,
           "vertices": 24,
-          "firstIndex": 9588,
+          "firstIndex": 6228,
           "indices": 36,
           "compartment": false,
           "componentRole": "moving-receiver"
         },
         {
           "label": "200GT horizontal high-angle barrel 0.85",
-          "firstVertex": 4090,
-          "vertices": 562,
-          "firstIndex": 9624,
-          "indices": 3360,
+          "firstVertex": 2858,
+          "vertices": 338,
+          "firstIndex": 6264,
+          "indices": 2016,
           "root": [
             1.2,
             5.15,
@@ -13030,7 +13041,7 @@
           "caliberGT": 200
         }
       ],
-      "maxQuantizationErrorM": 0.0001882385162104806,
+      "maxQuantizationErrorM": 0.00019070259925456804,
       "materialReference": "ven_turret70_native",
       "photoMeasurements": "assets/source/light-turret-photo-measurements.json",
       "jointLimits": {
@@ -13131,9 +13142,14 @@
       "source": "A308 Digital",
       "nativeCalibration": "light-photo-family",
       "catalogKind": "quad200",
-      "n": 5594,
-      "faces": 6394,
+      "n": 3490,
+      "faces": 2850,
       "indexBytes": 2,
+      "polygonBudget": {
+        "unit": "triangles",
+        "maximum": 3000,
+        "countsAllFixedAndMovingGeometry": true
+      },
       "c": [
         2.35625,
         3.8024999999999998,
@@ -13177,10 +13193,10 @@
       "barrelCenters": [
         {
           "label": "200GT central external quad barrel 1",
-          "firstVertex": 3310,
-          "vertices": 562,
-          "firstIndex": 5682,
-          "indices": 3360,
+          "firstVertex": 2806,
+          "vertices": 162,
+          "firstIndex": 4650,
+          "indices": 960,
           "root": [
             1.1916666666666667,
             4.1925,
@@ -13215,10 +13231,10 @@
         },
         {
           "label": "200GT central external quad barrel 2",
-          "firstVertex": 3872,
-          "vertices": 562,
-          "firstIndex": 9042,
-          "indices": 3360,
+          "firstVertex": 2968,
+          "vertices": 162,
+          "firstIndex": 5610,
+          "indices": 960,
           "root": [
             1.1916666666666667,
             5.6875,
@@ -13253,10 +13269,10 @@
         },
         {
           "label": "200GT central external quad barrel 3",
-          "firstVertex": 4470,
-          "vertices": 562,
-          "firstIndex": 12462,
-          "indices": 3360,
+          "firstVertex": 3166,
+          "vertices": 162,
+          "firstIndex": 6630,
+          "indices": 960,
           "root": [
             1.1916666666666667,
             4.1925,
@@ -13291,10 +13307,10 @@
         },
         {
           "label": "200GT central external quad barrel 4",
-          "firstVertex": 5032,
-          "vertices": 562,
-          "firstIndex": 15822,
-          "indices": 3360,
+          "firstVertex": 3328,
+          "vertices": 162,
+          "firstIndex": 7590,
+          "indices": 960,
           "root": [
             1.1916666666666667,
             5.6875,
@@ -13365,16 +13381,16 @@
         4.9399999999999995,
         0.0
       ],
-      "elevationVertexStart": 3274,
-      "elevationIndexStart": 5622,
-      "housingVertices": 3274,
-      "housingFaces": 1874,
+      "elevationVertexStart": 2770,
+      "elevationIndexStart": 4590,
+      "housingVertices": 2770,
+      "housingFaces": 1530,
       "drivePivots": [
         {
           "label": "quad200 external complete circular trunnion port",
-          "firstVertex": 2018,
+          "firstVertex": 1634,
           "vertices": 256,
-          "firstIndex": 2862,
+          "firstIndex": 2094,
           "indices": 666,
           "sourceAsset": "ven_turret",
           "sourceComponent": 1,
@@ -13656,9 +13672,9 @@
         },
         {
           "label": "quad200 external complete circular trunnion starboard",
-          "firstVertex": 2502,
+          "firstVertex": 2046,
           "vertices": 256,
-          "firstIndex": 3960,
+          "firstIndex": 3048,
           "indices": 666,
           "sourceAsset": "ven_turret",
           "sourceComponent": 3,
@@ -14120,9 +14136,9 @@
             "conservative": true,
             "sourceMeshRange": {
               "firstVertex": 0,
-              "vertices": 2018,
+              "vertices": 1634,
               "firstIndex": 0,
-              "indices": 2862
+              "indices": 2094
             },
             "movesWithGun": false
           },
@@ -14341,9 +14357,9 @@
             "conservative": true,
             "sourceMeshRange": {
               "firstVertex": 0,
-              "vertices": 2018,
+              "vertices": 1634,
               "firstIndex": 0,
-              "indices": 2862
+              "indices": 2094
             },
             "movesWithGun": false
           },
@@ -14637,9 +14653,9 @@
             "conservative": true,
             "sourceMeshRange": {
               "firstVertex": 0,
-              "vertices": 2018,
+              "vertices": 1634,
               "firstIndex": 0,
-              "indices": 2862
+              "indices": 2094
             },
             "movesWithGun": false
           },
@@ -14813,9 +14829,9 @@
             "conservative": true,
             "sourceMeshRange": {
               "firstVertex": 0,
-              "vertices": 2018,
+              "vertices": 1634,
               "firstIndex": 0,
-              "indices": 2862
+              "indices": 2094
             },
             "movesWithGun": false
           },
@@ -14969,9 +14985,9 @@
             "conservative": true,
             "sourceMeshRange": {
               "firstVertex": 0,
-              "vertices": 2018,
+              "vertices": 1634,
               "firstIndex": 0,
-              "indices": 2862
+              "indices": 2094
             },
             "movesWithGun": false
           },
@@ -15120,9 +15136,9 @@
             "conservative": true,
             "sourceMeshRange": {
               "firstVertex": 0,
-              "vertices": 2018,
+              "vertices": 1634,
               "firstIndex": 0,
-              "indices": 2862
+              "indices": 2094
             },
             "movesWithGun": false
           },
@@ -15306,9 +15322,9 @@
             "conservative": true,
             "sourceMeshRange": {
               "firstVertex": 0,
-              "vertices": 2018,
+              "vertices": 1634,
               "firstIndex": 0,
-              "indices": 2862
+              "indices": 2094
             },
             "movesWithGun": false
           },
@@ -15547,9 +15563,9 @@
             "conservative": true,
             "sourceMeshRange": {
               "firstVertex": 0,
-              "vertices": 2018,
+              "vertices": 1634,
               "firstIndex": 0,
-              "indices": 2862
+              "indices": 2094
             },
             "movesWithGun": false
           }
@@ -15567,110 +15583,110 @@
         {
           "label": "intrinsic bearing ring",
           "firstVertex": 0,
-          "vertices": 384,
+          "vertices": 192,
           "firstIndex": 0,
-          "indices": 756
+          "indices": 372
         },
         {
           "label": "bearing race lip",
-          "firstVertex": 384,
-          "vertices": 384,
-          "firstIndex": 756,
-          "indices": 756
+          "firstVertex": 192,
+          "vertices": 192,
+          "firstIndex": 372,
+          "indices": 372
         },
         {
           "label": "photo40 common lower equipment case frame cell 0",
-          "firstVertex": 768,
+          "firstVertex": 384,
           "vertices": 54,
-          "firstIndex": 1512,
+          "firstIndex": 744,
           "indices": 54,
           "compartment": true
         },
         {
           "label": "photo40 common lower equipment case frame cell 1",
-          "firstVertex": 822,
+          "firstVertex": 438,
           "vertices": 90,
-          "firstIndex": 1566,
+          "firstIndex": 798,
           "indices": 90,
           "compartment": true
         },
         {
           "label": "photo40 common lower equipment case frame cell 2",
-          "firstVertex": 912,
+          "firstVertex": 528,
           "vertices": 144,
-          "firstIndex": 1656,
+          "firstIndex": 888,
           "indices": 144,
           "compartment": true
         },
         {
           "label": "photo40 common lower equipment case frame cell 3",
-          "firstVertex": 1056,
+          "firstVertex": 672,
           "vertices": 192,
-          "firstIndex": 1800,
+          "firstIndex": 1032,
           "indices": 192,
           "compartment": true
         },
         {
           "label": "photo40 common lower equipment case frame cell 4",
-          "firstVertex": 1248,
+          "firstVertex": 864,
           "vertices": 168,
-          "firstIndex": 1992,
+          "firstIndex": 1224,
           "indices": 168,
           "compartment": true
         },
         {
           "label": "photo40 common rear armored hood frame cell 0",
-          "firstVertex": 1416,
+          "firstVertex": 1032,
           "vertices": 42,
-          "firstIndex": 2160,
+          "firstIndex": 1392,
           "indices": 42,
           "compartment": true
         },
         {
           "label": "photo40 common rear armored hood frame cell 1",
-          "firstVertex": 1458,
+          "firstVertex": 1074,
           "vertices": 108,
-          "firstIndex": 2202,
+          "firstIndex": 1434,
           "indices": 108,
           "compartment": true
         },
         {
           "label": "photo40 common rear armored hood frame cell 2",
-          "firstVertex": 1566,
+          "firstVertex": 1182,
           "vertices": 114,
-          "firstIndex": 2310,
+          "firstIndex": 1542,
           "indices": 114,
           "compartment": true
         },
         {
           "label": "photo40 common forward sloped hood frame cell 0",
-          "firstVertex": 1680,
+          "firstVertex": 1296,
           "vertices": 42,
-          "firstIndex": 2424,
+          "firstIndex": 1656,
           "indices": 42,
           "compartment": true
         },
         {
           "label": "photo40 common forward sloped hood frame cell 1",
-          "firstVertex": 1722,
+          "firstVertex": 1338,
           "vertices": 66,
-          "firstIndex": 2466,
+          "firstIndex": 1698,
           "indices": 66,
           "compartment": true
         },
         {
           "label": "photo40 common forward sloped hood frame cell 2",
-          "firstVertex": 1788,
+          "firstVertex": 1404,
           "vertices": 66,
-          "firstIndex": 2532,
+          "firstIndex": 1764,
           "indices": 66,
           "compartment": true
         },
         {
           "label": "photo40 common shoulder service hatch",
-          "firstVertex": 1854,
+          "firstVertex": 1470,
           "vertices": 18,
-          "firstIndex": 2598,
+          "firstIndex": 1830,
           "indices": 36,
           "sourceAsset": "isd_heavy_octuple_original",
           "sourceComponent": 9,
@@ -15697,17 +15713,17 @@
         },
         {
           "label": "photo40 common side armor belt",
-          "firstVertex": 1872,
+          "firstVertex": 1488,
           "vertices": 24,
-          "firstIndex": 2634,
+          "firstIndex": 1866,
           "indices": 36,
           "compartment": false
         },
         {
           "label": "photo40 common shoulder service hatch",
-          "firstVertex": 1896,
+          "firstVertex": 1512,
           "vertices": 18,
-          "firstIndex": 2670,
+          "firstIndex": 1902,
           "indices": 36,
           "sourceAsset": "isd_heavy_octuple_original",
           "sourceComponent": 9,
@@ -15734,24 +15750,24 @@
         },
         {
           "label": "photo40 common side armor belt",
-          "firstVertex": 1914,
+          "firstVertex": 1530,
           "vertices": 24,
-          "firstIndex": 2706,
+          "firstIndex": 1938,
           "indices": 36,
           "compartment": false
         },
         {
           "label": "twin40 fitted central machinery cover",
-          "firstVertex": 1938,
+          "firstVertex": 1554,
           "vertices": 80,
-          "firstIndex": 2742,
+          "firstIndex": 1974,
           "indices": 120
         },
         {
           "label": "quad200 external complete circular trunnion port",
-          "firstVertex": 2018,
+          "firstVertex": 1634,
           "vertices": 256,
-          "firstIndex": 2862,
+          "firstIndex": 2094,
           "indices": 666,
           "sourceAsset": "ven_turret",
           "sourceComponent": 1,
@@ -16033,23 +16049,23 @@
         },
         {
           "label": "quad200 external complete circular trunnion central hexagonal axle bolt",
-          "firstVertex": 2274,
+          "firstVertex": 1890,
           "vertices": 36,
-          "firstIndex": 3528,
+          "firstIndex": 2760,
           "indices": 60
         },
         {
           "label": "quad200 external complete circular trunnion connecting axle",
-          "firstVertex": 2310,
-          "vertices": 192,
-          "firstIndex": 3588,
-          "indices": 372
+          "firstVertex": 1926,
+          "vertices": 120,
+          "firstIndex": 2820,
+          "indices": 228
         },
         {
           "label": "quad200 external complete circular trunnion starboard",
-          "firstVertex": 2502,
+          "firstVertex": 2046,
           "vertices": 256,
-          "firstIndex": 3960,
+          "firstIndex": 3048,
           "indices": 666,
           "sourceAsset": "ven_turret",
           "sourceComponent": 3,
@@ -16331,41 +16347,103 @@
         },
         {
           "label": "quad200 external complete circular trunnion central hexagonal axle bolt",
-          "firstVertex": 2758,
+          "firstVertex": 2302,
           "vertices": 36,
-          "firstIndex": 4626,
+          "firstIndex": 3714,
           "indices": 60
         },
         {
           "label": "quad200 external complete circular trunnion connecting axle",
-          "firstVertex": 2794,
-          "vertices": 192,
-          "firstIndex": 4686,
-          "indices": 372
+          "firstVertex": 2338,
+          "vertices": 120,
+          "firstIndex": 3774,
+          "indices": 228
+        },
+        {
+          "label": "fixed circular external-drive shoulder port",
+          "firstVertex": 2458,
+          "vertices": 96,
+          "firstIndex": 4002,
+          "indices": 180,
+          "componentRole": "fixed-circular-shoulder",
+          "structuralArmor": true,
+          "addsCapacitorRoom": false,
+          "side": "port",
+          "centerM": [
+            1.625,
+            4.9399999999999995,
+            -5.096096609601118
+          ],
+          "radiusM": 1.7745,
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "innerCaseZM": -3.497,
+          "driveInnerFaceZM": -4.355,
+          "outerZM": -6.6951932192022365,
+          "actualDriveContactZM": -6.685443219202236,
+          "actualDriveContactNearZM": -6.674032418541759,
+          "contactMethod": "first-hit-rays-through-actual-source-drive-triangles",
+          "contactSamples": 16,
+          "engagementM": 0.00975,
+          "radialSegments": 16
+        },
+        {
+          "label": "fixed circular external-drive shoulder starboard",
+          "firstVertex": 2554,
+          "vertices": 96,
+          "firstIndex": 4182,
+          "indices": 180,
+          "componentRole": "fixed-circular-shoulder",
+          "structuralArmor": true,
+          "addsCapacitorRoom": false,
+          "side": "starboard",
+          "centerM": [
+            1.625,
+            4.9399999999999995,
+            5.096094126761612
+          ],
+          "radiusM": 1.7745,
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "innerCaseZM": 3.497,
+          "driveInnerFaceZM": 4.355,
+          "outerZM": 6.6951882535232246,
+          "actualDriveContactZM": 6.685438253523224,
+          "actualDriveContactNearZM": 6.6740327367553025,
+          "contactMethod": "first-hit-rays-through-actual-source-drive-triangles",
+          "contactSamples": 16,
+          "engagementM": 0.00975,
+          "radialSegments": 16
         },
         {
           "label": "quad200 fixed cross-case drive shaft",
-          "firstVertex": 2986,
-          "vertices": 288,
-          "firstIndex": 5058,
-          "indices": 564,
+          "firstVertex": 2650,
+          "vertices": 120,
+          "firstIndex": 4362,
+          "indices": 228,
           "componentRole": "fixed-bearing-axle"
         },
         {
           "label": "quad200 external central two-level receiver -8.504908102453706",
-          "firstVertex": 3274,
+          "firstVertex": 2770,
           "vertices": 36,
-          "firstIndex": 5622,
+          "firstIndex": 4590,
           "indices": 60,
           "compartment": false,
           "componentRole": "moving-receiver"
         },
         {
           "label": "200GT central external quad barrel 1",
-          "firstVertex": 3310,
-          "vertices": 562,
-          "firstIndex": 5682,
-          "indices": 3360,
+          "firstVertex": 2806,
+          "vertices": 162,
+          "firstIndex": 4650,
+          "indices": 960,
           "root": [
             1.1916666666666667,
             4.1925,
@@ -16400,10 +16478,10 @@
         },
         {
           "label": "200GT central external quad barrel 2",
-          "firstVertex": 3872,
-          "vertices": 562,
-          "firstIndex": 9042,
-          "indices": 3360,
+          "firstVertex": 2968,
+          "vertices": 162,
+          "firstIndex": 5610,
+          "indices": 960,
           "root": [
             1.1916666666666667,
             5.6875,
@@ -16438,19 +16516,19 @@
         },
         {
           "label": "quad200 external central two-level receiver 8.504906310719809",
-          "firstVertex": 4434,
+          "firstVertex": 3130,
           "vertices": 36,
-          "firstIndex": 12402,
+          "firstIndex": 6570,
           "indices": 60,
           "compartment": false,
           "componentRole": "moving-receiver"
         },
         {
           "label": "200GT central external quad barrel 3",
-          "firstVertex": 4470,
-          "vertices": 562,
-          "firstIndex": 12462,
-          "indices": 3360,
+          "firstVertex": 3166,
+          "vertices": 162,
+          "firstIndex": 6630,
+          "indices": 960,
           "root": [
             1.1916666666666667,
             4.1925,
@@ -16485,10 +16563,10 @@
         },
         {
           "label": "200GT central external quad barrel 4",
-          "firstVertex": 5032,
-          "vertices": 562,
-          "firstIndex": 15822,
-          "indices": 3360,
+          "firstVertex": 3328,
+          "vertices": 162,
+          "firstIndex": 7590,
+          "indices": 960,
           "root": [
             1.1916666666666667,
             5.6875,
@@ -16522,7 +16600,7 @@
           "caliberGT": 200
         }
       ],
-      "maxQuantizationErrorM": 0.00018533509338134594,
+      "maxQuantizationErrorM": 0.0001773035233873974,
       "materialReference": "ven_turret70_native",
       "photoMeasurements": "assets/source/light-turret-photo-measurements.json",
       "jointLimits": {
@@ -16555,12 +16633,12 @@
             4.2250000000000005
           ]
         ],
-        "geometrySha256": "dd6e6767038405487ccd90df63fa2bb5e2229187f9fe74f2a5d281335a6cefd9",
+        "geometrySha256": "72d0f1d8cc3f886d2a601e6203273518808035463b661eb24723825d51ef4aae",
         "meshRange": {
           "firstVertex": 0,
-          "vertices": 1938,
+          "vertices": 1554,
           "firstIndex": 0,
-          "indices": 2742
+          "indices": 1974
         },
         "recoilBayBoundsM": [
           [
@@ -16576,7 +16654,7 @@
         ]
       },
       "parentCase": {
-        "geometrySha256": "dd6e6767038405487ccd90df63fa2bb5e2229187f9fe74f2a5d281335a6cefd9",
+        "geometrySha256": "72d0f1d8cc3f886d2a601e6203273518808035463b661eb24723825d51ef4aae",
         "unscaledBoundsM": [
           [
             -11.25,
@@ -16591,12 +16669,76 @@
         ],
         "meshRange": {
           "firstVertex": 0,
-          "vertices": 1938,
+          "vertices": 1554,
           "firstIndex": 0,
-          "indices": 2742
+          "indices": 1974
         },
         "coverLabel": "twin40 fitted central machinery cover"
       },
+      "fixedDriveShoulders": [
+        {
+          "label": "fixed circular external-drive shoulder port",
+          "firstVertex": 2458,
+          "vertices": 96,
+          "firstIndex": 4002,
+          "indices": 180,
+          "componentRole": "fixed-circular-shoulder",
+          "structuralArmor": true,
+          "addsCapacitorRoom": false,
+          "side": "port",
+          "centerM": [
+            1.625,
+            4.9399999999999995,
+            -5.096096609601118
+          ],
+          "radiusM": 1.7745,
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "innerCaseZM": -3.497,
+          "driveInnerFaceZM": -4.355,
+          "outerZM": -6.6951932192022365,
+          "actualDriveContactZM": -6.685443219202236,
+          "actualDriveContactNearZM": -6.674032418541759,
+          "contactMethod": "first-hit-rays-through-actual-source-drive-triangles",
+          "contactSamples": 16,
+          "engagementM": 0.00975,
+          "radialSegments": 16
+        },
+        {
+          "label": "fixed circular external-drive shoulder starboard",
+          "firstVertex": 2554,
+          "vertices": 96,
+          "firstIndex": 4182,
+          "indices": 180,
+          "componentRole": "fixed-circular-shoulder",
+          "structuralArmor": true,
+          "addsCapacitorRoom": false,
+          "side": "starboard",
+          "centerM": [
+            1.625,
+            4.9399999999999995,
+            5.096094126761612
+          ],
+          "radiusM": 1.7745,
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "innerCaseZM": 3.497,
+          "driveInnerFaceZM": 4.355,
+          "outerZM": 6.6951882535232246,
+          "actualDriveContactZM": 6.685438253523224,
+          "actualDriveContactNearZM": 6.6740327367553025,
+          "contactMethod": "first-hit-rays-through-actual-source-drive-triangles",
+          "contactSamples": 16,
+          "engagementM": 0.00975,
+          "radialSegments": 16
+        }
+      ],
       "photoFeatureComponents": {
         "case": [
           "photo40 common lower equipment case frame cell 0",
@@ -16634,6 +16776,10 @@
         ],
         "axle": [
           "quad200 fixed cross-case drive shaft"
+        ],
+        "shoulders": [
+          "fixed circular external-drive shoulder port",
+          "fixed circular external-drive shoulder starboard"
         ]
       },
       "centralBarrelRows": {
@@ -16751,6 +16897,24 @@
               5.59
             ]
           ]
+        },
+        "shoulders": {
+          "componentLabels": [
+            "fixed circular external-drive shoulder port",
+            "fixed circular external-drive shoulder starboard"
+          ],
+          "boundsM": [
+            [
+              -0.1495,
+              3.1654999999999998,
+              -6.6951932192022365
+            ],
+            [
+              3.3995,
+              6.7145,
+              6.6951882535232246
+            ]
+          ]
         }
       }
     },
@@ -16761,9 +16925,14 @@
       "source": "User-supplied light turret photographs; native photo scale referenced to the 40 m ISD octuple",
       "nativeCalibration": "light-photo-family",
       "catalogKind": "single200",
-      "n": 4010,
-      "faces": 3384,
+      "n": 2762,
+      "faces": 2232,
       "indexBytes": 2,
+      "polygonBudget": {
+        "unit": "triangles",
+        "maximum": 3000,
+        "countsAllFixedAndMovingGeometry": true
+      },
       "c": [
         6.124999999999999,
         2.1342499999999998,
@@ -16807,10 +16976,10 @@
       "barrelCenters": [
         {
           "label": "200GT AA single complete recessed barrel",
-          "firstVertex": 3408,
-          "vertices": 602,
-          "firstIndex": 6552,
-          "indices": 3600,
+          "firstVertex": 2400,
+          "vertices": 362,
+          "firstIndex": 4536,
+          "indices": 2160,
           "root": [
             -0.8,
             3.75,
@@ -16866,17 +17035,17 @@
         2.85,
         0
       ],
-      "elevationVertexStart": 2832,
-      "elevationIndexStart": 5508,
-      "housingVertices": 2832,
-      "housingFaces": 1836,
+      "elevationVertexStart": 1824,
+      "elevationIndexStart": 3492,
+      "housingVertices": 1824,
+      "housingFaces": 1164,
       "drivePivots": [
         {
           "label": "elevation drive housing",
-          "firstVertex": 1080,
-          "vertices": 288,
-          "firstIndex": 2088,
-          "indices": 564,
+          "firstVertex": 648,
+          "vertices": 192,
+          "firstIndex": 1224,
+          "indices": 372,
           "centerM": [
             -2.2,
             2.85,
@@ -16891,10 +17060,10 @@
         },
         {
           "label": "elevation drive housing",
-          "firstVertex": 1944,
-          "vertices": 288,
-          "firstIndex": 3780,
-          "indices": 564,
+          "firstVertex": 1224,
+          "vertices": 192,
+          "firstIndex": 2340,
+          "indices": 372,
           "centerM": [
             -2.2,
             2.85,
@@ -17022,9 +17191,9 @@
             ],
             "volumeM3": 0.9052400000000002,
             "meshRange": {
-              "firstVertex": 2808,
+              "firstVertex": 1800,
               "vertices": 24,
-              "firstIndex": 5472,
+              "firstIndex": 3456,
               "indices": 36
             },
             "movesWithGun": false
@@ -17043,60 +17212,60 @@
         {
           "label": "intrinsic bearing ring",
           "firstVertex": 0,
-          "vertices": 384,
+          "vertices": 192,
           "firstIndex": 0,
-          "indices": 756,
+          "indices": 372,
           "componentRole": "intrinsic-bearing-ring"
         },
         {
           "label": "bearing race lip",
-          "firstVertex": 384,
-          "vertices": 384,
-          "firstIndex": 756,
-          "indices": 756,
+          "firstVertex": 192,
+          "vertices": 192,
+          "firstIndex": 372,
+          "indices": 372,
           "componentRole": "intrinsic-bearing-ring"
         },
         {
           "label": "AA open fork cross-foot",
-          "firstVertex": 768,
+          "firstVertex": 384,
           "vertices": 24,
-          "firstIndex": 1512,
+          "firstIndex": 744,
           "indices": 36,
           "compartment": false,
           "componentRole": "fixed-yoke"
         },
         {
           "label": "AA open elevation fork -1",
-          "firstVertex": 792,
+          "firstVertex": 408,
           "vertices": 24,
-          "firstIndex": 1548,
+          "firstIndex": 780,
           "indices": 36,
           "compartment": false,
           "componentRole": "fixed-yoke"
         },
         {
           "label": "AA open elevation fork 1",
-          "firstVertex": 816,
+          "firstVertex": 432,
           "vertices": 24,
-          "firstIndex": 1584,
+          "firstIndex": 816,
           "indices": 36,
           "compartment": false,
           "componentRole": "fixed-yoke"
         },
         {
           "label": "AA fixed transverse trunnion axle",
-          "firstVertex": 840,
-          "vertices": 240,
-          "firstIndex": 1620,
-          "indices": 468,
+          "firstVertex": 456,
+          "vertices": 192,
+          "firstIndex": 852,
+          "indices": 372,
           "componentRole": "fixed-bearing-axle"
         },
         {
           "label": "elevation drive housing",
-          "firstVertex": 1080,
-          "vertices": 288,
-          "firstIndex": 2088,
-          "indices": 564,
+          "firstVertex": 648,
+          "vertices": 192,
+          "firstIndex": 1224,
+          "indices": 372,
           "centerM": [
             -2.2,
             2.85,
@@ -17111,24 +17280,24 @@
         },
         {
           "label": "drive inset ring",
-          "firstVertex": 1368,
-          "vertices": 288,
-          "firstIndex": 2652,
-          "indices": 564
+          "firstVertex": 840,
+          "vertices": 192,
+          "firstIndex": 1596,
+          "indices": 372
         },
         {
           "label": "drive central cover",
-          "firstVertex": 1656,
-          "vertices": 288,
-          "firstIndex": 3216,
-          "indices": 564
+          "firstVertex": 1032,
+          "vertices": 192,
+          "firstIndex": 1968,
+          "indices": 372
         },
         {
           "label": "elevation drive housing",
-          "firstVertex": 1944,
-          "vertices": 288,
-          "firstIndex": 3780,
-          "indices": 564,
+          "firstVertex": 1224,
+          "vertices": 192,
+          "firstIndex": 2340,
+          "indices": 372,
           "centerM": [
             -2.2,
             2.85,
@@ -17143,108 +17312,108 @@
         },
         {
           "label": "drive inset ring",
-          "firstVertex": 2232,
-          "vertices": 288,
-          "firstIndex": 4344,
-          "indices": 564
+          "firstVertex": 1416,
+          "vertices": 192,
+          "firstIndex": 2712,
+          "indices": 372
         },
         {
           "label": "drive central cover",
-          "firstVertex": 2520,
-          "vertices": 288,
-          "firstIndex": 4908,
-          "indices": 564
+          "firstVertex": 1608,
+          "vertices": 192,
+          "firstIndex": 3084,
+          "indices": 372
         },
         {
           "label": "single200 enclosed lower electrical cabinet",
-          "firstVertex": 2808,
+          "firstVertex": 1800,
           "vertices": 24,
-          "firstIndex": 5472,
+          "firstIndex": 3456,
           "indices": 36,
           "compartment": true,
           "componentRole": "fixed-electrical-case"
         },
         {
           "label": "single200 exposed AA breech",
-          "firstVertex": 2832,
+          "firstVertex": 1824,
           "vertices": 48,
-          "firstIndex": 5508,
+          "firstIndex": 3492,
           "indices": 84,
           "compartment": false,
           "componentRole": "moving-receiver"
         },
         {
           "label": "single200 exposed AA breech breech cover",
-          "firstVertex": 2880,
+          "firstVertex": 1872,
           "vertices": 24,
-          "firstIndex": 5592,
+          "firstIndex": 3576,
           "indices": 36,
           "compartment": false,
           "componentRole": "moving-breech"
         },
         {
           "label": "roof stiffener",
-          "firstVertex": 2904,
+          "firstVertex": 1896,
           "vertices": 24,
-          "firstIndex": 5628,
+          "firstIndex": 3612,
           "indices": 36,
           "compartment": false
         },
         {
           "label": "roof stiffener",
-          "firstVertex": 2928,
+          "firstVertex": 1920,
           "vertices": 24,
-          "firstIndex": 5664,
+          "firstIndex": 3648,
           "indices": 36,
           "compartment": false
         },
         {
           "label": "roof stiffener",
-          "firstVertex": 2952,
+          "firstVertex": 1944,
           "vertices": 24,
-          "firstIndex": 5700,
+          "firstIndex": 3684,
           "indices": 36,
           "compartment": false
         },
         {
           "label": "roof stiffener",
-          "firstVertex": 2976,
+          "firstVertex": 1968,
           "vertices": 24,
-          "firstIndex": 5736,
+          "firstIndex": 3720,
           "indices": 36,
           "compartment": false
         },
         {
           "label": "single200 upper hydraulic recoil cylinder",
-          "firstVertex": 3000,
+          "firstVertex": 1992,
           "vertices": 192,
-          "firstIndex": 5772,
+          "firstIndex": 3756,
           "indices": 372,
           "componentRole": "moving-recoil"
         },
         {
           "label": "single200 recoil piston",
-          "firstVertex": 3192,
+          "firstVertex": 2184,
           "vertices": 192,
-          "firstIndex": 6144,
+          "firstIndex": 4128,
           "indices": 372,
           "componentRole": "moving-recoil"
         },
         {
           "label": "single200 cradle below barrel",
-          "firstVertex": 3384,
+          "firstVertex": 2376,
           "vertices": 24,
-          "firstIndex": 6516,
+          "firstIndex": 4500,
           "indices": 36,
           "compartment": false,
           "componentRole": "moving-cradle"
         },
         {
           "label": "200GT AA single complete recessed barrel",
-          "firstVertex": 3408,
-          "vertices": 602,
-          "firstIndex": 6552,
-          "indices": 3600,
+          "firstVertex": 2400,
+          "vertices": 362,
+          "firstIndex": 4536,
+          "indices": 2160,
           "root": [
             -0.8,
             3.75,
@@ -17278,7 +17447,7 @@
           "caliberGT": 200
         }
       ],
-      "maxQuantizationErrorM": 0.00015922639924964606,
+      "maxQuantizationErrorM": 0.00015888468862071035,
       "materialReference": "ven_turret70_native",
       "photoMeasurements": "assets/source/light-turret-photo-measurements.json",
       "jointLimits": {
@@ -17367,9 +17536,14 @@
       "source": "User-supplied light turret photographs; native photo scale referenced to the 40 m ISD octuple",
       "nativeCalibration": "light-photo-family",
       "catalogKind": "twin200Fast",
-      "n": 4660,
-      "faces": 4608,
+      "n": 3172,
+      "faces": 2976,
       "indexBytes": 2,
+      "polygonBudget": {
+        "unit": "triangles",
+        "maximum": 3000,
+        "countsAllFixedAndMovingGeometry": true
+      },
       "c": [
         7.4,
         4.55,
@@ -17413,10 +17587,10 @@
       "barrelCenters": [
         {
           "label": "200GT staggered fast barrel 1",
-          "firstVertex": 3216,
-          "vertices": 602,
-          "firstIndex": 6180,
-          "indices": 3600,
+          "firstVertex": 2208,
+          "vertices": 362,
+          "firstIndex": 4164,
+          "indices": 2160,
           "root": [
             3.4,
             6.45,
@@ -17451,10 +17625,10 @@
         },
         {
           "label": "200GT staggered fast barrel 2",
-          "firstVertex": 4034,
-          "vertices": 602,
-          "firstIndex": 10188,
-          "indices": 3600,
+          "firstVertex": 2786,
+          "vertices": 362,
+          "firstIndex": 6732,
+          "indices": 2160,
           "root": [
             4.6,
             4.25,
@@ -17515,17 +17689,17 @@
         4.8,
         0
       ],
-      "elevationVertexStart": 2832,
-      "elevationIndexStart": 5508,
-      "housingVertices": 2832,
-      "housingFaces": 1836,
+      "elevationVertexStart": 1824,
+      "elevationIndexStart": 3492,
+      "housingVertices": 1824,
+      "housingFaces": 1164,
       "drivePivots": [
         {
           "label": "elevation drive housing",
-          "firstVertex": 1080,
-          "vertices": 288,
-          "firstIndex": 2088,
-          "indices": 564,
+          "firstVertex": 648,
+          "vertices": 192,
+          "firstIndex": 1224,
+          "indices": 372,
           "centerM": [
             -1.6,
             4.8,
@@ -17540,10 +17714,10 @@
         },
         {
           "label": "elevation drive housing",
-          "firstVertex": 1944,
-          "vertices": 288,
-          "firstIndex": 3780,
-          "indices": 564,
+          "firstVertex": 1224,
+          "vertices": 192,
+          "firstIndex": 2340,
+          "indices": 372,
           "centerM": [
             -1.6,
             4.8,
@@ -17671,9 +17845,9 @@
             ],
             "volumeM3": 4.0194,
             "meshRange": {
-              "firstVertex": 2808,
+              "firstVertex": 1800,
               "vertices": 24,
-              "firstIndex": 5472,
+              "firstIndex": 3456,
               "indices": 36
             },
             "movesWithGun": false
@@ -17692,60 +17866,60 @@
         {
           "label": "intrinsic bearing ring",
           "firstVertex": 0,
-          "vertices": 384,
+          "vertices": 192,
           "firstIndex": 0,
-          "indices": 756,
+          "indices": 372,
           "componentRole": "intrinsic-bearing-ring"
         },
         {
           "label": "bearing race lip",
-          "firstVertex": 384,
-          "vertices": 384,
-          "firstIndex": 756,
-          "indices": 756,
+          "firstVertex": 192,
+          "vertices": 192,
+          "firstIndex": 372,
+          "indices": 372,
           "componentRole": "intrinsic-bearing-ring"
         },
         {
           "label": "AA open fork cross-foot",
-          "firstVertex": 768,
+          "firstVertex": 384,
           "vertices": 24,
-          "firstIndex": 1512,
+          "firstIndex": 744,
           "indices": 36,
           "compartment": false,
           "componentRole": "fixed-yoke"
         },
         {
           "label": "AA open elevation fork -1",
-          "firstVertex": 792,
+          "firstVertex": 408,
           "vertices": 24,
-          "firstIndex": 1548,
+          "firstIndex": 780,
           "indices": 36,
           "compartment": false,
           "componentRole": "fixed-yoke"
         },
         {
           "label": "AA open elevation fork 1",
-          "firstVertex": 816,
+          "firstVertex": 432,
           "vertices": 24,
-          "firstIndex": 1584,
+          "firstIndex": 816,
           "indices": 36,
           "compartment": false,
           "componentRole": "fixed-yoke"
         },
         {
           "label": "AA fixed transverse trunnion axle",
-          "firstVertex": 840,
-          "vertices": 240,
-          "firstIndex": 1620,
-          "indices": 468,
+          "firstVertex": 456,
+          "vertices": 192,
+          "firstIndex": 852,
+          "indices": 372,
           "componentRole": "fixed-bearing-axle"
         },
         {
           "label": "elevation drive housing",
-          "firstVertex": 1080,
-          "vertices": 288,
-          "firstIndex": 2088,
-          "indices": 564,
+          "firstVertex": 648,
+          "vertices": 192,
+          "firstIndex": 1224,
+          "indices": 372,
           "centerM": [
             -1.6,
             4.8,
@@ -17760,24 +17934,24 @@
         },
         {
           "label": "drive inset ring",
-          "firstVertex": 1368,
-          "vertices": 288,
-          "firstIndex": 2652,
-          "indices": 564
+          "firstVertex": 840,
+          "vertices": 192,
+          "firstIndex": 1596,
+          "indices": 372
         },
         {
           "label": "drive central cover",
-          "firstVertex": 1656,
-          "vertices": 288,
-          "firstIndex": 3216,
-          "indices": 564
+          "firstVertex": 1032,
+          "vertices": 192,
+          "firstIndex": 1968,
+          "indices": 372
         },
         {
           "label": "elevation drive housing",
-          "firstVertex": 1944,
-          "vertices": 288,
-          "firstIndex": 3780,
-          "indices": 564,
+          "firstVertex": 1224,
+          "vertices": 192,
+          "firstIndex": 2340,
+          "indices": 372,
           "centerM": [
             -1.6,
             4.8,
@@ -17792,100 +17966,100 @@
         },
         {
           "label": "drive inset ring",
-          "firstVertex": 2232,
-          "vertices": 288,
-          "firstIndex": 4344,
-          "indices": 564
+          "firstVertex": 1416,
+          "vertices": 192,
+          "firstIndex": 2712,
+          "indices": 372
         },
         {
           "label": "drive central cover",
-          "firstVertex": 2520,
-          "vertices": 288,
-          "firstIndex": 4908,
-          "indices": 564
+          "firstVertex": 1608,
+          "vertices": 192,
+          "firstIndex": 3084,
+          "indices": 372
         },
         {
           "label": "fast200 enclosed lower electrical cabinet",
-          "firstVertex": 2808,
+          "firstVertex": 1800,
           "vertices": 24,
-          "firstIndex": 5472,
+          "firstIndex": 3456,
           "indices": 36,
           "compartment": true,
           "componentRole": "fixed-electrical-case"
         },
         {
           "label": "fast200 enlarged exposed two-level receiver",
-          "firstVertex": 2832,
+          "firstVertex": 1824,
           "vertices": 48,
-          "firstIndex": 5508,
+          "firstIndex": 3492,
           "indices": 84,
           "compartment": false,
           "componentRole": "moving-receiver"
         },
         {
           "label": "fast200 enlarged exposed two-level receiver breech cover",
-          "firstVertex": 2880,
+          "firstVertex": 1872,
           "vertices": 24,
-          "firstIndex": 5592,
+          "firstIndex": 3576,
           "indices": 36,
           "compartment": false,
           "componentRole": "moving-breech"
         },
         {
           "label": "roof stiffener",
-          "firstVertex": 2904,
+          "firstVertex": 1896,
           "vertices": 24,
-          "firstIndex": 5628,
+          "firstIndex": 3612,
           "indices": 36,
           "compartment": false
         },
         {
           "label": "roof stiffener",
-          "firstVertex": 2928,
+          "firstVertex": 1920,
           "vertices": 24,
-          "firstIndex": 5664,
+          "firstIndex": 3648,
           "indices": 36,
           "compartment": false
         },
         {
           "label": "roof stiffener",
-          "firstVertex": 2952,
+          "firstVertex": 1944,
           "vertices": 24,
-          "firstIndex": 5700,
+          "firstIndex": 3684,
           "indices": 36,
           "compartment": false
         },
         {
           "label": "roof stiffener",
-          "firstVertex": 2976,
+          "firstVertex": 1968,
           "vertices": 24,
-          "firstIndex": 5736,
+          "firstIndex": 3720,
           "indices": 36,
           "compartment": false
         },
         {
           "label": "fast200 individual recoil trough 1",
-          "firstVertex": 3000,
+          "firstVertex": 1992,
           "vertices": 24,
-          "firstIndex": 5772,
+          "firstIndex": 3756,
           "indices": 36,
           "compartment": false,
           "componentRole": "moving-receiver"
         },
         {
           "label": "fast200 recoil cylinder 1",
-          "firstVertex": 3024,
+          "firstVertex": 2016,
           "vertices": 192,
-          "firstIndex": 5808,
+          "firstIndex": 3792,
           "indices": 372,
           "componentRole": "moving-recoil"
         },
         {
           "label": "200GT staggered fast barrel 1",
-          "firstVertex": 3216,
-          "vertices": 602,
-          "firstIndex": 6180,
-          "indices": 3600,
+          "firstVertex": 2208,
+          "vertices": 362,
+          "firstIndex": 4164,
+          "indices": 2160,
           "root": [
             3.4,
             6.45,
@@ -17920,27 +18094,27 @@
         },
         {
           "label": "fast200 individual recoil trough 2",
-          "firstVertex": 3818,
+          "firstVertex": 2570,
           "vertices": 24,
-          "firstIndex": 9780,
+          "firstIndex": 6324,
           "indices": 36,
           "compartment": false,
           "componentRole": "moving-receiver"
         },
         {
           "label": "fast200 recoil cylinder 2",
-          "firstVertex": 3842,
+          "firstVertex": 2594,
           "vertices": 192,
-          "firstIndex": 9816,
+          "firstIndex": 6360,
           "indices": 372,
           "componentRole": "moving-recoil"
         },
         {
           "label": "200GT staggered fast barrel 2",
-          "firstVertex": 4034,
-          "vertices": 602,
-          "firstIndex": 10188,
-          "indices": 3600,
+          "firstVertex": 2786,
+          "vertices": 362,
+          "firstIndex": 6732,
+          "indices": 2160,
           "root": [
             4.6,
             4.25,
@@ -17975,15 +18149,15 @@
         },
         {
           "label": "fast200 upper feed and maintenance cover",
-          "firstVertex": 4636,
+          "firstVertex": 3148,
           "vertices": 24,
-          "firstIndex": 13788,
+          "firstIndex": 8892,
           "indices": 36,
           "compartment": false,
           "componentRole": "moving-feed-cover"
         }
       ],
-      "maxQuantizationErrorM": 0.00020537294351265545,
+      "maxQuantizationErrorM": 0.00020212120761192463,
       "materialReference": "ven_turret70_native",
       "photoMeasurements": "assets/source/light-turret-photo-measurements.json",
       "jointLimits": {

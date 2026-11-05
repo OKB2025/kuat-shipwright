@@ -30,6 +30,22 @@ class FoldElement{
  querySelector(selector){return this.querySelectorAll(selector)[0]||null;}
 }
 
+test('inactive surface tools clear highlights without surveying the design or changing selection',()=>{
+ const {run}=setup();run(`fixture();st.surfaceIds=['kept','deleted'];st.surfaceLast='deleted';st.surfaceDraft={'armor.thickness':.4};let surveys=0;C.surfacePatches=()=>{surveys++;throw Error('unexpected synchronous exposure survey');};`);
+ for(const tab of ['hull','mod','bridge','systems','spec']){
+  run(`st.tab=${JSON.stringify(tab)};surfaceSyncSelection()`);
+  assert.equal(run('surveys'),0,tab);assert.deepEqual(plain(run('st.surfaceIds')),['kept','deleted']);assert.equal(run('lastSelection.ship'),null);assert.deepEqual(plain(run('lastSelection.ids')),[]);
+ }
+ run("st.tab='surface';fleet.mode='review';surfaceSyncSelection()");assert.equal(run('surveys'),0);assert.equal(run('st.surfaceLast'),'deleted');assert.equal(run('st.surfaceDraft["armor.thickness"]'),.4);
+});
+
+test('a surface tab waits for current worker geometry, then validates and restores its highlight',()=>{
+ const {run}=setup();run(`fixture();ship._client=true;st.surfaceIds=['kept','deleted'];st.surfaceLast='deleted';st.surfaceDraft={'armor.thickness':.4};const eng={gen:4,adoptedGen:3};let surveys=0;C.surfacePatches=()=>{surveys++;return [{id:'kept',exposed:true,exposedArea:10}];};`);
+ run("view.pickSurface=()=>{throw Error('unexpected pending surface pick')};surfaceSyncSelection()");assert.equal(run('surfaceEditorPending()'),true);assert.equal(run('surfaceTap(10,20,false)'),false);assert.equal(run('surveys'),0);assert.deepEqual(plain(run('st.surfaceIds')),['kept','deleted']);assert.equal(run('lastSelection.ship'),null);
+ run('ship._geoProxy={surfaces:[]};surfaceSyncSelection()');assert.equal(run('surveys'),0,'an old snapshot must not trigger a survey before the current reply');
+ run('eng.adoptedGen=4;surfaceSyncSelection()');assert.equal(run('surfaceEditorPending()'),false);assert.equal(run('surveys'),1);assert.deepEqual(plain(run('st.surfaceIds')),['kept']);assert.equal(run('lastSelection.ship===ship'),true);assert.deepEqual(plain(run('lastSelection.ids')),['kept']);assert.equal(run('st.surfaceLast'),null);assert.equal(run('st.surfaceDraft["armor.thickness"]'),.4);
+});
+
 test('the real main tab and tool expose surface editing, and the list excludes interior faces',()=>{
  const {run}=setup();run('fixture();ship.parts.push({id:7,k:"command",c:[80,20,0],room:[8,8,8],d:8})');
  const html=run('surfaceEditorHTML()');assert.match(app,/\['surface', '表面'\]/);assert.match(html,/data-surface-editor/);assert.match(html,/data-surface-action="strict"/);assert.match(html,/data-surface-action="compat"/);

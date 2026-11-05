@@ -17,6 +17,7 @@ let shipGen = 0, lastStats = null; // v13 LOAD the editor's latest figures, for 
 let ship = null, hullKey = '', lastInfo = null, lastOverlap = '', view = {coded: false, habitation: false};
 const queue = [];
 let running = false;
+let inlineHost = false;
 let wakeStats = null;
 function waitForStats(ms) {
   return new Promise(resolve => {
@@ -45,7 +46,7 @@ const overlapSig = (info) => info ? Object.keys(info).filter(k => info[k] && inf
 // Caches travel to the editor with references to ship objects replaced by
 // markers, so the editor can re-point them at its own objects.
 const SHIP_SKIP = new Set(['_portalGeoFlat', '_lockedCache', '_building', '_aviationSyncing', '_clipEnvelope', '_geoProxy', '_client', '_armoredMaterial', '_armoredClosed']);
-function packCaches(s) {
+function packCaches(s, options) {
   const refs = new Map([[s, {$r: 'ship'}]]);
   for (const l of ['parts', 'fits', 'hatches']) for (const it of s[l]) refs.set(it, {$r: l, id: it.id});
   const memo = new Map();
@@ -77,8 +78,10 @@ function packCaches(s) {
   // Face picking and outlines use the same completed exposure survey as the
   // mesh. Keep it in the worker snapshot so pointer events never clip all the
   // ship's faces again. Configurations remain the editor's current settings.
-  out.geoProxy.surfaces = C.surfacePatches(s).map(({config, exposedTriangles, ...p}) => ({...conv(p), exposedTriangles: conv(exposedTriangles)}));
-  out.geoProxy.surfacePartitions = JSON.stringify(s.surfaces?.partitions || null);
+  if (!options?.deferSurfaces) {
+    out.geoProxy.surfaces = C.surfacePatches(s).map(({config, exposedTriangles, ...p}) => ({...conv(p), exposedTriangles: conv(exposedTriangles)}));
+    out.geoProxy.surfacePartitions = JSON.stringify(s.surfaces?.partitions || null);
+  }
   return out;
 }
 
@@ -138,14 +141,27 @@ function deriveState(job) {
   if (mount && !settled) { C.remount(ship); C.syncCompartments(ship); }
   return {flags, syncMs: now() - t0, touched: sync || mount};
 }
-function finishGeometry(job, out) {
+function finishGeometry(job, out, options) {
   // Build the ray-cast hierarchy here so the editor never has to.
   try { C.rayEnv(ship, [ship.hull.L / 2, 1e7, 0], [0, -1, 0]); } catch (e) { /* empty hull */ }
   const t0 = now();
   out.state = C.publicJSON(ship);
-  if(ship.surfaces)out.surfaceReport=surfaceReportOut(C.surfaceReport(ship));
-  out.caches = packCaches(ship);
+  if(ship.surfaces&&!options?.deferSurfaces)out.surfaceReport=surfaceReportOut(C.surfaceReport(ship));
+  out.caches = packCaches(ship, options);
   out.packMs = now() - t0;
+}
+
+async function yieldGeometry() {
+  await new Promise(resolve => setTimeout(resolve, 0));
+  if (!inlineHost) return;
+  // Inline delivery itself uses a timer. Let the view paint the first mesh,
+  // and accept edits posted by that delivery, before surveying every face.
+  if (typeof requestAnimationFrame === 'function' && typeof document !== 'undefined' && !document.hidden) {
+    await new Promise(resolve => {
+      const timer = setTimeout(resolve, 50);
+      requestAnimationFrame(() => { clearTimeout(timer); setTimeout(resolve, 0); });
+    });
+  } else await new Promise(resolve => setTimeout(resolve, 0));
 }
 
 async function handleUpdate(job) {
@@ -154,14 +170,23 @@ async function handleUpdate(job) {
   if (job.view) view = job.view;
   const d = deriveState(job);
   const any = Object.values(d.flags).some(Boolean);
+  const deferSurfaces = job.view?.deferSurfaces === true;
   if (any || d.touched || job.reset) {
     const out = geometryPass(job, d.flags);
-    finishGeometry(job, out);
+    finishGeometry(job, out, {deferSurfaces});
     out.syncMs = d.syncMs; out.totalMs = now() - t0;
     const transfer = out.transfer; delete out.transfer;
     post(out, transfer);
   } else {
     post({type: 'geometry', gen: job.gen, geos: {}, state: C.publicJSON(ship), caches: null, totalMs: now() - t0, noop: true});
+  }
+  if (deferSurfaces) {
+    await yieldGeometry();
+    if (queue.some(j => j.type === 'update')) return;
+    const started = now(), out = {type: 'surfaceGeometry', gen: job.gen};
+    finishGeometry(job, out);
+    out.surfaceMs = now() - started; out.totalMs = now() - t0;
+    post(out);
   }
   if (job.stats === false) return;
   // Stats wait for a short quiet period so continuous edits keep the
@@ -448,11 +473,13 @@ function receive(msg) {
 
 // ---------- hosting ----------
 function listenWorker(scope) {
+  inlineHost = false;
   post = (msg, transfer) => scope.postMessage(msg, transfer || []);
   scope.onmessage = (e) => receive(e.data);
   post({type: 'ready'});
 }
 function connectInline(deliver) {
+  inlineHost = true;
   // Same contract as a worker: every message is copied, never shared.
   const copy = (m) => (typeof structuredClone === 'function' ? structuredClone(m) : JSON.parse(JSON.stringify(m)));
   post = (msg) => { const m = copy(msg); setTimeout(() => deliver(m), 0); };

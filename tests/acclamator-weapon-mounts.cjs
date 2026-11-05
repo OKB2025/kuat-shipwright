@@ -54,6 +54,12 @@ test('Arquitens fitted presets install all four flush prong launchers',()=>{
 
 test('MC30c presets migrate two flush torpedo tubes into surface VLS and retain six external launchers',()=>{
  const s=C.SHIP_EXAMPLES.mc30c._testBuild({stage:'fitted'}),launchers=s.fits.filter(f=>f.k==='cmsl'),pending=launchers.filter(f=>f.legacyMissileMount==='vls'),external=launchers.filter(f=>!f.legacyMissileMount);assert.equal(launchers.length,8);assert.equal(pending.length,2);assert.equal(external.length,6);assert.ok(external.every(f=>C.missileMount(f)==='ext'));
+ const bays=s.fits.filter(f=>f.k==='broadsideBattery');assert.equal(bays.length,28);assert.equal(bays.filter(f=>f.batteryCaliber==='500GT').length,12);assert.equal(bays.filter(f=>f.batteryCaliber==='200GT').length,16);
+ for(let i=0;i<bays.length;i++){
+  const f=bays[i],b=C.fitAABB(f);assert.equal(f.float,false);assert.equal(f.batteryGuns,2);assert.ok(f.p[0]>=195&&f.p[0]<=368,'the migrated bays remain on the existing head');
+  assert.ok(bays.some(g=>g!==f&&Math.abs(g.p[0]-f.p[0])<1e-6&&Math.abs(g.p[2]+f.p[2])<1e-6),'every bay retains a matching opposite-side station');
+  for(const g of bays.slice(i+1)){const q=C.fitAABB(g);assert.ok([0,1,2].some(a=>b[a+3]+.49<=q[a]||q[a+3]+.49<=b[a]),'adjacent wall windows retain a physical gap');}
+ }
  for(const f of launchers){assert.equal(f.float,false);for(const k of ['ped','base','low','slope'])near(f[k],0);const roof=C.rayEnv(s,[f.p[0],1000,f.p[2]],[0,-1,0],{maxT:2000,structOnly:true});assert.ok(roof);near(C.len(C.sub(roof.p,f.p)),0,.002);}
  const originalIds=launchers.map(f=>f.id).sort((a,b)=>a-b),pendingIds=pending.map(f=>f.id).sort((a,b)=>a-b);
  C.migrateLegacyConcussionVLS(s);
@@ -61,10 +67,12 @@ test('MC30c presets migrate two flush torpedo tubes into surface VLS and retain 
  assert.equal(native.length,6);assert.ok(native.every(f=>C.missileMount(f)==='ext'&&!f.float));assert.equal(vls.length,2);assert.deepEqual(vls.map(f=>f.id).sort((a,b)=>a-b),pendingIds);
  for(const f of vls){assert.ok(C.isSurfaceVLS(f));assert.equal(C.missileMount(f),'vls');assert.equal(f.float,false);assert.equal(f.surfaceUnplaced,false);assert.equal(s.surfaces.patches.find(q=>q.id===f.surfacePatch)?.functionMode,'equipment');}
  const migratedIds=[...native,...vls].map(f=>f.id).sort((a,b)=>a-b);assert.deepEqual(plain(migratedIds),plain(originalIds),'migration retains all eight launcher IDs without replacement or duplication');
+ const stats=C.computeStats(s),capacitors=C.weaponCapacitors(s);
+ for(const f of bays){assert.ok(capacitors.some(p=>p.weaponId===f.id),'each bay owns actual charging hardware');assert.ok(stats.chargeInfo[f.id].ratio>1-1e-6,'the fitted bay has room for its full firing charge');assert.ok(stats.chargeInfo[f.id].internalVolume>0);}
 });
 
 test('the full Acclamator builder and current fleet profile complete with four usable launchers',()=>{
- const s=C.buildDesign('acclamator');assertMissiles(s);assert.deepEqual(plain(s.airWings),[]);assert.deepEqual(plain(s.groundForces),[]);
+ const s=C.buildDesign('acclamator');assertMissiles(s);assert.equal(s.fits.filter(f=>f.k==='quad200').length,12,'the completed example retains all twelve canonical quad turrets');assert.equal(s.fits.filter(f=>f.k==='pd').length,24,'weapon consolidation does not convert its independent point defenses');assert.deepEqual(plain(s.airWings),[]);assert.deepEqual(plain(s.groundForces),[]);
  const stats=C.computeStats(s),profile=C.fleetProfile(stats,s.name,s);assert.ok(Number.isFinite(stats.mass)&&stats.mass>0);assert.equal(profile.profileVersion,C.FLEET_PROFILE_VERSION);
  const launchers=profile.modules.filter(m=>m.k==='launcher');assert.equal(launchers.length,4);assert.ok(launchers.every(m=>m.stock>0));assert.ok(profile.msl>0);
 });
