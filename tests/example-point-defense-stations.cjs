@@ -16,6 +16,7 @@ for(const [key,total,groupCount,partCount,shapeCount]of [['mc30c',10,{block:4,sp
  });
  test(`${key} reserves the complete requested PD banks without bypassing allocation`,()=>{
   const s=ship(key);C.syncCompartments(s);const status=C.chargingStatus(s,new Set());
-  for(const f of s.fits.filter(f=>f.k==='pd')){const q=status[f.id];assert.ok(q,'every gun needs a real charging allocation');assert.equal(q.allocationPending,false);assert.equal(q.blocked,false);near(q.ratio,1,1e-9);near(q.volume,q.plannedVolume,1e-6);near(q.storedTT,C.weaponChargeSpec(f).volleyTT,1e-8);assert.ok(q.internalVolume>0&&q.housingUsed>0,'the exposed house and actual ship-internal bank share the reservation');}
+  for(const f of s.fits.filter(f=>f.k==='pd')){const q=status[f.id];assert.ok(q,'every gun needs a real charging allocation');assert.equal(q.allocationPending,false);assert.equal(q.blocked,false);near(q.ratio,1,1e-9);near(q.volume,q.plannedVolume,1e-6);near(q.storedTT,C.weaponChargeSpec(f).volleyTT,1e-8);// v27 The procedural PD turret has no authored gunhouse compartment (it came with the removed model), so the whole bank is ship-internal.
+  assert.ok(q.internalVolume>0,'the bank is reserved inside the ship');assert.equal(q.housingUsed||0,0,'no gunhouse share without the removed model');}
  });
 }
