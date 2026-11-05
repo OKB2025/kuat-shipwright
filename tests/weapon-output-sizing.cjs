@@ -85,9 +85,12 @@ test('unlisted conventional weapons retain their established salvo/barrel densit
   }
 });
 
-test('point defense is the uploaded twin small dual-purpose turbolaser with explicit higher output', () => {
+test('point defense is a procedural twin small dual-purpose turbolaser with explicit higher output', () => {
   const d = C.FITS.pd, sizing = C.weaponSizing(fitting('pd'));
-  assert.ok(d.asset && C.REFERENCE_ASSETS[d.asset], 'point defense uses a registered imported model');
+  assert.equal(d.asset, undefined, 'point defense no longer uses an imported model');
+  assert.equal(C.REFERENCE_ASSETS.pd_turret_small, undefined, 'the removed model is not registered');
+  // Ships carry dozens of these; each must stay a light procedural body (the imported mesh was 29,060 triangles).
+  assert.ok(G.meshFits({fits: [fitting('pd')]}).ni/3 < 1000, 'point defense renders a light procedural body');
   assert.equal(d.barrels, 2);
   assert.equal(d.boltTT, 2.5);
   assert.equal(d.tt, 5);
@@ -95,9 +98,11 @@ test('point defense is the uploaded twin small dual-purpose turbolaser with expl
   assert.equal(d.aa, 6);
   assert.equal(d.dualPurpose, true);
   near(d.power, d.tt*C.TT/d.cycle, 'PD continuous electrical demand');
-  near(sizing.sourceSize[0], 9, 'uploaded model length');
-  near(sizing.sourceSize[1], 3.1493375257895857, 'uploaded model height');
-  near(sizing.sourceSize[2], 5.729853188053728, 'uploaded model width');
+  // The footprint keeps the bounds of the model it once used, so placements and figures are unchanged.
+  near(sizing.sourceSize[0], 9, 'former model length');
+  near(sizing.sourceSize[1], 3.1493375257895857, 'former model height');
+  near(sizing.sourceSize[2], 5.729853188053728, 'former model width');
+  near(d.r, 4.5*sizing.factor, 'swept radius of the former model');
   assert.ok(d.fm > 8 && d.fm < 11, 'the explicit output produces a roughly nine-metre model');
 });
 
@@ -131,7 +136,7 @@ test('aircraft weapons, fixed launchers, missiles, tractors and bridge equipment
 });
 
 test('imported gun rendering, selection and collision use the same scaled geometry for every mount frame', () => {
-  for (const k of ['pd', 'refVen', 'oct40', 'stl', 'quad500', 'twin40']) {
+  for (const k of ['refVen', 'oct40', 'stl', 'quad500', 'twin40']) {
     for (const a of [0, 1, 2, 3, 4, 5]) {
       for (const tilt of [null, C.norm([.2, .9, -.3])]) {
         const f = fitting(k, {a, p: [31, -7, 9], assetYaw: 37, ...(tilt ? {tilt} : {})});
@@ -147,7 +152,7 @@ test('imported gun rendering, selection and collision use the same scaled geomet
 });
 
 test('model calibration preserves authored pose and mount origin while scaling the whole imported model', () => {
-  for (const k of ['pd', 'oct40', 'stl']) {
+  for (const k of ['oct40', 'stl']) {
     const f = fitting(k), sizing = C.weaponSizing(f), rendered = span(referenceBounds(f));
     for (let axis = 0; axis < 3; axis++) near(rendered[axis], sizing.sourceSize[axis]*sizing.factor, `${k} complete mesh axis ${axis}`);
     const shift = [41, -5, 3], moved = {...f, p: shift};

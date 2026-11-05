@@ -17,7 +17,7 @@ function barrelTriangles(a,mesh,row){const out=new Float32Array(row.indices*3);f
 test('the 500 GT medium quad uses four 500 GT bolts and retains its measured Arquitens envelope',()=>{
  const {spec:d,asset:a,mesh}=data();assert.equal(d.asset,'arq_turret_quad500');assert.equal(d.barrels,4);near(d.boltTT,.5,1e-12);near(d.tt,2,1e-12);near(d.power*d.cycle/C.TT,2,1e-12);
  assert.equal(a.derivedFrom,'pd_turret_small');assert.equal(a.plainMetal,true);assert.equal(a.barrels,4);assert.deepEqual(plain(a.mount),[0,0,0]);assert.deepEqual(plain(a.forward),[1,0,0]);assert.deepEqual(plain(a.up),[0,1,0]);
- assert.equal(crypto.createHash('sha256').update(Buffer.from(C.REFERENCE_ASSETS.pd_turret_small.data,'base64')).digest('hex'),a.sourcePackedSha256,'the ordinary point-defense source model remains unchanged');
+ assert.equal(C.REFERENCE_ASSETS.pd_turret_small,undefined,'the source point-defense model was removed; the derived quad keeps its own mesh');
  vector(a.size,[17.8304,5.8065,14.1041]);vector([d.fm,d.hm,d.wm],a.size);near(C.weaponModelScale('quad500'),1,1e-12);
  const b=bounds(a,mesh,Array.from({length:a.n},(_,i)=>i));near(b[1],0);vector([b[3]-b[0],b[4]-b[1],b[5]-b[2]],a.size);assert.ok(b[0]<0&&b[3]>0,'the turntable pivot is behind the projecting muzzles');
 });
