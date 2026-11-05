@@ -1580,6 +1580,12 @@ STINGERS.jump = {bpm: 100, hold: 3.2, duck: .4, next(P, s) {
 
 // ---------- recorded tracks: <base>bgm_<id>.js (base64 AAC) -> Blob URL -> <audio> -> MediaElementSource -> music bus ----------
 // Streams from an element (never decodeAudioData: minutes of PCM would not fit a phone). Synth music covers loading and absence.
+// Looping (docs/audio.md): a track whose meta has loop [start, end] plays its intro, then jumps end -> start. The musical
+// crossfade is baked into the file and the file runs on past `end` with the music after `start`, so the jump is a splice of
+// two identical passages, done by the other slot with clock-measured alignment (seam()).
+// LOOP_PASSES (provisional): in a scene with several tracks each loops back this many times before the next takes over;
+// a scene with one track loops for as long as it lasts.
+const LOOP_PASSES = 1, SPLICE = .2, sleep = ms => new Promise(f => setTimeout(f, ms));
 const XF = 2, TK = {tracks: {}, stingers: {}, base: 'data/', mime: 'audio/mp4; codecs="mp4a.40.2"'}, trk = {}, sceneIdx = {};
 let els = null, cur = null, pend = null, stT = null, noData = false, noCodec = null, anyLoaded = false, needPrime = false, silent = null, lastEvict = 0;
 const nowS = () => Date.now() / 1000;
@@ -1631,13 +1637,13 @@ async function fromBytes(u, r) { // data file bytes: ...Object.assign({meta json
  for (let i = s; i < full;) { const stop = Math.min(full, i + (1 << 20)); for (; i < stop; i += 4) { const v = B64[u[i]] << 18 | B64[u[i + 1]] << 12 | B64[u[i + 2]] << 6 | B64[u[i + 3]]; out[o++] = v >> 16; out[o++] = v >> 8 & 255; out[o++] = v & 255; } await new Promise(f => setTimeout(f, 0)); }
  if (n & 3) { const x = B64[u[full]], y = B64[u[full + 1]]; out[o++] = x << 2 | y >> 4; if ((n & 3) > 2) out[o++] = (y & 15) << 4 | B64[u[full + 2]] >> 2; }
  r.url = URL.createObjectURL(new Blob([out.subarray(0, o)], {type: K.mime || 'audio/mp4'}));
- r.meta = {id: K.id || r.id, title: K.title, credit: K.credit, url: K.url, dur: K.dur};
+ r.meta = {id: K.id || r.id, title: K.title, credit: K.credit, url: K.url, dur: K.dur, loop: K.loop};
 }
 async function blobify(K, r) { // base64 -> bytes in 1 MiB slices, yielding to the page between slices
  const b = K.b64, parts = [], CH = 1 << 20;
  for (let i = 0; i < b.length; i += CH) { const s = atob(b.slice(i, i + CH)), u = new Uint8Array(s.length); for (let j = 0; j < s.length; j++) u[j] = s.charCodeAt(j); parts.push(u); await new Promise(f => setTimeout(f, 0)); }
  r.url = URL.createObjectURL(new Blob(parts, {type: K.mime || 'audio/mp4'}));
- r.meta = {id: K.id || r.id, title: K.title, credit: K.credit, url: K.url, dur: K.dur}; delete K.b64;
+ r.meta = {id: K.id || r.id, title: K.title, credit: K.credit, url: K.url, dur: K.dur, loop: K.loop}; delete K.b64;
 }
 function trackError(i) { // the element could not play this track: drop it and let the synthesized score take over
  const s = els && els[i]; if (!s || !s.id || s.el.src === silent) return; const r = trk[s.id]; if (r) { r.bad = true; if (r.url) URL.revokeObjectURL(r.url); r.url = null; r.st = 'error'; }
@@ -1655,16 +1661,53 @@ function playTrack(id, scene) {
  const t = ctx.currentTime, a = cur && cur.slot, s = a === els[0] ? els[1] : els[0];
  if (a) { fadeTo(a, 0, t, XF); stopLater(a); }
  fadeTo(s, 0, t, .01); playOn(s, r); fadeTo(s, 1, t + .02, XF);
- cur = {id, scene, slot: s, adv: 0, pre: 0}; pend = null; return true;
+ cur = {id, scene, slot: s, adv: 0, pre: 0, pass: 0, seam: 0, spl: null}; pend = null; return true;
+}
+const loopOf = id => { const L = trk[id] && trk[id].meta && trk[id].meta.loop; return Array.isArray(L) && L[1] > L[0] + 5 ? L : null; };
+let seamLog = null; // last seam: residual offset (s), measuring rounds, outcome (diagnostics in state())
+// The loop seam. The file's audio just before `end` already is the audio just before `start` (crossfade baked in), and it
+// runs on 1.5 s past `end` with the music after `start`. The idle slot starts the same track at the matching place,
+// muted; the offset between the two element clocks is measured (median of 5 readings) and corrected by re-seeking until
+// it is within 6 ms, then the slots swap with a 0.2 s linear crossfade (identical audio, so constant amplitude) just
+// after `end`. If anything fails, trackTick falls back to seeking the playing element back by one loop.
+async function seam(my) {
+ const a = my.slot, b = a === els[0] ? els[1] : els[0], r = trk[my.id], L = loopOf(my.id); my.seam = 1;
+ if (!L || !r || !r.url) return;
+ const off = L[0] - L[1], tok = ++b.tok, live = () => cur === my && b.tok === tok && my.slot === a && !a.el.paused;
+ const quit = why => { seamLog = {err: why}; if (b.tok === tok && !(cur && cur.slot === b)) { b.el.pause(); b.was = 0; } };
+ if (b.id !== r.id || b.el.src !== r.url) { b.el.src = r.url; b.id = r.id; }
+ b.g.gain.cancelScheduledValues(0); b.g.gain.setValueAtTime(0, ctx.currentTime);
+ try { b.el.currentTime = Math.max(0, a.el.currentTime + off + .15); await b.el.play(); } catch (e) { return quit('play'); }
+ let d = 1, k = 0;
+ for (; k < 6 && Math.abs(d) > .006; k++) {
+  await sleep(k ? 250 : 150); if (!live()) return quit('moved');
+  const ds = []; for (let i = 0; i < 5; i++) { ds.push(b.el.currentTime - a.el.currentTime - off); await sleep(20); }
+  ds.sort((x, y) => x - y); d = ds[2];
+  if (Math.abs(d) > .006) try { b.el.currentTime = b.el.currentTime - d; } catch (e) { return quit('seek'); }
+ }
+ if (!live()) return quit('moved');
+ const at = Math.max(.03, L[1] + .1 - a.el.currentTime); if (L[1] + .1 - a.el.currentTime < -1) return quit('late');
+ const t = ctx.currentTime + at; fadeTo(a, 0, t, SPLICE); fadeTo(b, 1, t, SPLICE); my.spl = {t: t + SPLICE, b, tok};
+ seamLog = {d: +d.toFixed(4), rounds: k, ok: Math.abs(d) <= .006};
+ setTimeout(() => swapSeam(my), (at + SPLICE + .05) * 1000);
+}
+function swapSeam(my) {
+ const p = my.spl; if (!p || cur !== my || ctx.currentTime < p.t) return;
+ my.spl = null; if (p.b.tok !== p.tok) { my.seam = 0; return; } // the slot was taken (scene change): nothing to swap
+ const a = my.slot; my.slot = p.b; my.pass++; my.seam = 0; my.adv = 0; my.pre = 0; a.tok++; a.el.pause(); a.was = 0;
 }
 function stopTrack() { if (!cur) return; const s = cur.slot; fadeTo(s, 0, ctx.currentTime, XF); cur = null; stopLater(s); }
 function nextIn(sc) { const L = TK.tracks[sc]; return L[((sceneIdx[sc] || 0) + 1) % L.length]; }
 function trackTick() {
  if (cur) {
-  const el = cur.slot.el, d = el.duration, left = d - el.currentTime, sc = cur.scene; trk[cur.id].last = nowS();
+  if (cur.spl) swapSeam(cur);
+  const el = cur.slot.el, d = el.duration, sc = cur.scene, L = loopOf(cur.id), multi = TK.tracks[sc] && TK.tracks[sc].length > 1;
+  const last = !L || multi && cur.pass >= LOOP_PASSES, left = (L ? L[1] : d) - el.currentTime; trk[cur.id].last = nowS();
   if (d > 0 && !el.paused) {
-   if (left < 45 && !cur.pre) { cur.pre = 1; loadTrack(nextIn(sc)).catch(() => {}); }
-   if (left < XF + .25 && !cur.adv) { cur.adv = 1; const L = TK.tracks[sc], id = L[sceneIdx[sc] = ((sceneIdx[sc] || 0) + 1) % L.length]; loadTrack(id).then(() => { if (cur && cur.scene === sc && curScene === sc && trackMode(sc)) playTrack(id, sc); }, () => {}); }
+   if (L && el.currentTime > L[1] + .9 && !cur.spl) { try { el.currentTime -= L[1] - L[0]; } catch (e) {} cur.pass++; cur.seam = 0; seamLog = {err: 'fallback'}; } // no splice happened: plain jump back
+   else if (!last && left < 3 && !cur.seam) seam(cur);
+   if (left < 45 && !cur.pre && last && multi) { cur.pre = 1; loadTrack(nextIn(sc)).catch(() => {}); }
+   if (last && left < XF + .25 && !cur.adv) { cur.adv = 1; const L = TK.tracks[sc], id = L[sceneIdx[sc] = ((sceneIdx[sc] || 0) + 1) % L.length]; loadTrack(id).then(() => { if (cur && cur.scene === sc && curScene === sc && trackMode(sc)) playTrack(id, sc); }, () => {}); }
   }
  }
  const n = nowS(); if (n - lastEvict < 15) return; lastEvict = n;
@@ -1805,7 +1848,7 @@ function mountSettings(el) {
  const root = document.createElement('div'); root.className = 'ksa'; root.setAttribute('role', 'group'); root.setAttribute('aria-label', 'サウンド設定');
  root.innerHTML = '<button type="button" class="ksa-mute" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9h4l5-4v14l-5-4H4z"/><path class="ksa-w" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/><path class="ksa-x" d="M16 9l6 6M22 9l-6 6"/></svg><span>ミュート</span></button>' +
   [['master', '音量'], ['music', '音楽'], ['sfx', '効果音']].map(([k, l]) => '<label class="ksa-row"><span class="ksa-l">' + l + '</span><input type="range" min="0" max="100" step="1" data-k="' + k + '" aria-label="' + l + '"><output class="ksa-v" data-o="' + k + '"></output></label>').join('') +
-  '<div class="ksa-row ksa-src" hidden><span class="ksa-l">BGM</span><span class="ksa-seg" role="group" aria-label="BGM"><button type="button" data-src="classic">クラシック</button><button type="button" data-src="synth">合成</button></span></div>';
+  '<div class="ksa-row ksa-src" hidden><span class="ksa-l">BGM</span><span class="ksa-seg" role="group" aria-label="BGM"><button type="button" data-src="classic">録音</button><button type="button" data-src="synth">合成</button></span></div>';
  const btn = root.querySelector('.ksa-mute'), lab = btn.querySelector('span');
  const src = root.querySelector('.ksa-src');
  const sync = s => { src.hidden = !hasTracks(); for (const b of src.querySelectorAll('button')) b.setAttribute('aria-pressed', s.musicSource === b.dataset.src ? 'true' : 'false'); btn.setAttribute('aria-pressed', s.muted ? 'true' : 'false'); lab.textContent = s.muted ? 'ミュート中' : 'ミュート'; root.classList.toggle('ksa-muted', s.muted);
@@ -1832,7 +1875,7 @@ const atten = (d, near, far) => { near = near || 1; far = far || near*12; d = +d
 const panX = (x, w) => clamp((x / (w || 1))*2 - 1,-1,1)*.85;
 
 const API = {__ks: 1, version: '1.4.0', unlock, configure, preload, trackInfo, loop, setMusic, setIntensity, stinger, sfx, settings, mountSettings, state() {
- return {unlocked: everRan, ctxState: ctx ? ctx.state : 'none', scene: curScene, faction: curFac, requested: want.scene, intensity, voices: eng ? eng.voices() : 0, players: eng ? eng.players.length : 0, loops: loops.size, pendingNodes: eng ? eng.graves() : 0, hidden: isHidden(), musicSource: S.musicSource, track: cur ? {id: cur.id, scene: cur.scene, time: +cur.slot.el.currentTime.toFixed(2), playing: !cur.slot.el.paused} : null, trackPending: pend ? pend.id : null, stingerTrack: stT && nowS() < stT.end ? stT.id : null, tracksAvailable: hasTracks(), tracksReady: Object.keys(trk).filter(k => trk[k].st === 'ready'), settings: Object.assign({}, S), stats: eng ? JSON.parse(JSON.stringify(eng.stats)) : null, time: ctx ? +ctx.currentTime.toFixed(3) : 0};
+ return {unlocked: everRan, ctxState: ctx ? ctx.state : 'none', scene: curScene, faction: curFac, requested: want.scene, intensity, voices: eng ? eng.voices() : 0, players: eng ? eng.players.length : 0, loops: loops.size, pendingNodes: eng ? eng.graves() : 0, hidden: isHidden(), musicSource: S.musicSource, track: cur ? {id: cur.id, scene: cur.scene, time: +cur.slot.el.currentTime.toFixed(2), playing: !cur.slot.el.paused, pass: cur.pass, loop: loopOf(cur.id), seam: seamLog} : null, trackPending: pend ? pend.id : null, stingerTrack: stT && nowS() < stT.end ? stT.id : null, tracksAvailable: hasTracks(), tracksReady: Object.keys(trk).filter(k => trk[k].st === 'ready'), settings: Object.assign({}, S), stats: eng ? JSON.parse(JSON.stringify(eng.stats)) : null, time: ctx ? +ctx.currentTime.toFixed(3) : 0};
 }, renderOffline, createEngine, atten, panX, names: {scenes: Object.keys(SCENES), stingers: Object.keys(STINGERS), sfx: Object.keys(SFX), loops: Object.keys(LOOPS), factions: Object.keys(FLAVOR).filter(k => k !== 'none')}};
 W.KSAudio = API;
 attach();
@@ -9331,12 +9374,14 @@ function sndTick() {
 // Mute from the top bar or the 3D view; the buttons show the state (pressed = sound off).
 function sndToggle() { const A = snd();if (!A) { toast('この端末では音を鳴らせません'); return; } A.settings.set({muted: !A.settings.get().muted}); sndButtons(); }
 function sndButtons() { const A = snd(), m = !A || !!A.settings.get().muted; for (const b of document.querySelectorAll('[data-sound-toggle]')) { b.setAttribute('aria-pressed', String(m)); b.setAttribute('aria-label', m ? '音を出す' : '音を切る'); } document.documentElement.classList.toggle('ks-muted', m); }
-function soundSettingsHTML() { return `<div class="tpanel-head"><h2>音の設定</h2><button type="button" class="btn ghost sm" data-title-back>戻る</button></div><div id="soundSettings"></div><p class="note">${window.KS_FILES ? 'BGM は「クラシック」でクラシック名曲サウンドライブラリーの録音（ワーグナー、ホルスト、ムソルグスキー、チャイコフスキー）を、「合成」でこの場で合成する音楽を流します。効果音はすべて合成です。' : '音楽と効果音はすべてこの場で合成しています（この単一ファイル版にはクラシックの録音は入っていません）。'}最初に画面に触れたときに鳴り始めます。</p>`; }
-// v20.5 Classical recordings (Classical Music Sound Library; tools/mkbgm.py packs them as data/bgm_<id>.js, published
-// next to the page, never in the single-file build, which keeps the synthesized score): Meistersinger and Jupiter for
-// the title, Lohengrin while designing, Jupiter on the voyage maps, Mars, Night on Bald Mountain and the 1812 in battle,
-// the Great Gate of Kiev on a victory's result screen and the Scene from Swan Lake on a defeat's.
-const SND_TRACKS = {title: ['meister', 'jupiter'], yard: ['lohengrin'], voyage: ['jupiter'], battle: ['mars', 'bald', 'o1812'], victory: ['kiev'], defeat: ['swan']};
+function soundSettingsHTML() { return `<div class="tpanel-head"><h2>音の設定</h2><button type="button" class="btn ghost sm" data-title-back>戻る</button></div><div id="soundSettings"></div><p class="note">${window.KS_FILES ? 'BGM は「録音」でプレイヤー提供の楽曲（Gemini で制作）を継ぎ目なくループして、「合成」でこの場で合成する音楽を流します。効果音はすべて合成です。' : '音楽と効果音はすべてこの場で合成しています（この単一ファイル版には録音の楽曲は入っていません）。'}最初に画面に触れたときに鳴り始めます。</p>`; }
+// Recorded BGM: the player's own tracks made with Gemini (2026-11-05; they replace the v20.5 classical recordings).
+// scripts/pack-bgm.py packs them as data/bgm_<id>.js with baked loop seams (docs/audio.md); published next to the page,
+// never in the single-file build, which keeps the synthesized score. Scene choice by mood (provisional): Stellar Meridian
+// and Where the Stars Drift on the title, Waiting for Launch and Charting the Gilded Periphery while designing, Path
+// Through the Starlight and the Periphery on the voyage maps, the five sieges/fronts in battle, When the Heavens Break on a
+// victory's result screen, Where the Stars Drift on a defeat's.
+const SND_TRACKS = {title: ['meridian', 'drift'], yard: ['launch', 'periphery'], voyage: ['starlight', 'periphery'], battle: ['front', 'vanguard', 'gilded', 'colossus', 'sovereign'], victory: ['heavens'], defeat: ['drift']};
 const sndClassic = () => { const st = snd()?.state?.(); return !!st && st.musicSource !== 'synth' && !!st.tracksAvailable; };
 function bindSound() {
  const A = snd();if (!A) return;
