@@ -404,15 +404,6 @@ function baseMeshParts(ship, opt) {
   }
   return {g: out, glow};
 }
-function meshKeel(ship) {
-  const g = new Geo(2048), L = ship.hull.L, n = 64, col = [96, 118, 138];
-  for (let i = 0; i < n; i++) {
-    const x0 = L * i / n, x1 = L * (i + 1) / n, k = C.keelAt(ship, (x0 + x1) / 2);
-    if (!k) continue;
-    boxSolid(g, [x0, k.y0, -k.w / 2], [x1, k.y1, k.w / 2], col, 48);
-  }
-  return g;
-}
 
 // ---------- hatches (decals) ----------
 function v3MeshHatches(ship) {
@@ -1186,17 +1177,17 @@ function compile(gl, vs, fs) {
   const na = gl.getProgramParameter(p, gl.ACTIVE_ATTRIBUTES); for (let k = 0; k < na; k++) { const n = gl.getActiveAttrib(p, k).name; a[n] = gl.getAttribLocation(p, n); }
   return {p, u, a};
 }
-const MESH_TEX = {hull: 'hull', struct: 'struct', plate: 'hull', keel: 'struct', gen: 'gen', shield: 'shield', hyper: 'hyper', interior:'hyper', engine: 'hull', plant:'hull', nozzle: 'nozzle', hangar: 'hangar', hatchOpen: 'hull', hatchRay: 'ray', fits: 'fits'};
+const MESH_TEX = {hull: 'hull', struct: 'struct', plate: 'hull', gen: 'gen', shield: 'shield', hyper: 'hyper', interior:'hyper', engine: 'hull', plant:'hull', nozzle: 'nozzle', hangar: 'hangar', hatchOpen: 'hull', hatchRay: 'ray', fits: 'fits'};
 const MESH_SOURCE = {};
 Object.assign(MESH_TEX,{surfaceArmor:'hull',surfaceDevices:'surface',surfaceDetail:'surface'});
 for(const k of ['refHull','refStruct','refEngine','refPlant','refFits','refHatches','previewRef','previewRefFits'])MESH_TEX[k]='reference';
 MESH_TEX.preview='struct';MESH_TEX.previewFits='fits';
-const BACK_OWN = new Set(['gen', 'shield', 'hyper', 'engine', 'nozzle', 'hangar', 'keel', 'fits', 'preview', 'previewFits']);
+const BACK_OWN = new Set(['gen', 'shield', 'hyper', 'engine', 'nozzle', 'hangar', 'fits', 'preview', 'previewFits']);
 const REFERENCE_SHADED = new Set(['refHull','refStruct','refPlant','refFits','refHatches','previewRef','previewRefFits']);
 // Meshes that carry lit ports, and the port colours a design can choose.
 const LIGHT_MESHES = new Set(['hull', 'struct', 'refHull', 'refStruct']);
 const SHIP_LIGHTS = {white: [1.0, 0.94, 0.82], blue: [0.34, 0.58, 1.0], warm: [1.0, 0.7, 0.4]};
-const MESH_EMI = {hull: 0.9, struct: 1, keel: 0, gen: 1.1, shield: 0.8, hyper: 0.8, interior:0.8, engine: 0, plant:0, nozzle: 1.5, hangar: 0.6, hatchOpen: 1, hatchRay: 1, fits: 0.6};
+const MESH_EMI = {hull: 0.9, struct: 1, gen: 1.1, shield: 0.8, hyper: 0.8, interior:0.8, engine: 0, plant:0, nozzle: 1.5, hangar: 0.6, hatchOpen: 1, hatchRay: 1, fits: 0.6};
 Object.assign(MESH_EMI,{surfaceArmor:0,surfaceDevices:0,surfaceDetail:0});
 
 for(const k of ['refHull','refStruct','refEngine','refPlant','refFits','refHatches','previewRef','previewRefFits'])MESH_EMI[k]=0;
@@ -1488,7 +1479,7 @@ class Renderer {
     if (opt.mode === 'xray') {
       gl.enable(gl.CULL_FACE); gl.cullFace(gl.BACK);
       for (const n of solids) this.drawMesh(n, m, 1);
-      this.drawMesh('keel', m, 1);this.drawMesh('plant',m,1);this.drawMesh('refPlant',m,1);this.drawMesh('interior',m,1);this.drawMesh('preview',m,1);this.drawMesh('previewRef',m,1,0);
+      this.drawMesh('plant',m,1);this.drawMesh('refPlant',m,1);this.drawMesh('interior',m,1);this.drawMesh('preview',m,1);this.drawMesh('previewRef',m,1,0);
       gl.disable(gl.CULL_FACE); this.drawMesh('fits', m, 1);this.drawMesh('refFits', m, 1);this.drawMesh('previewFits',m,1);this.drawMesh('previewRefFits',m,1,0);
       this.drawGlow(m);
       gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA); gl.depthMask(false); gl.enable(gl.CULL_FACE);
@@ -1505,7 +1496,7 @@ class Renderer {
       for(const name of ['surfaceArmor','surfaceDevices','surfaceDetail'])this.drawMesh(name,m,1,0);
       for (const n of solids) this.drawMesh(n, m, 1);
       this.drawMesh('preview',m,1);this.drawMesh('previewRef',m,1,0);
-      if (cut){this.drawMesh('keel', m, 1);this.drawMesh('plant',m,1);this.drawMesh('refPlant',m,1);this.drawMesh('interior',m,1);}
+      if (cut){this.drawMesh('plant',m,1);this.drawMesh('refPlant',m,1);this.drawMesh('interior',m,1);}
       gl.enable(gl.POLYGON_OFFSET_FILL); gl.polygonOffset(-1, -2);
       this.drawMesh('hatchOpen', m, 1);
       gl.disable(gl.POLYGON_OFFSET_FILL);
@@ -2990,7 +2981,7 @@ class CompatRenderer {
   for(let y=0;y<h;y++){const t=y/h;for(let x=0;x<w;x++){const k=(y*w+x)*4;pixels[k]=Math.round(10-4*t);pixels[k+1]=Math.round(17-5*t);pixels[k+2]=Math.round(25-7*t);pixels[k+3]=255;}}
   this._frame={w,h,m,pixels,depth};this.portColor=opt.lights==='off'?null:SHIP_LIGHTS[opt.lights]||SHIP_LIGHTS.white;
   const external=['hull','struct','plate','surfaceArmor','surfaceDevices','surfaceDetail','refHull','refStruct','refHatches','gen','shield','hyper','engine','refEngine','nozzle','hangar','fits','refFits','hatchOpen','hatchRay','preview','previewRef','previewFits','previewRefFits'];
-  const inside=['keel','plant','refPlant','interior'];
+  const inside=['plant','refPlant','interior'];
   if(opt.fleet){const eye=this.eye(),focal=h/(2*Math.tan((this.cam.fov||.72)/2)),shell=new Set(['hull','struct','plate','surfaceArmor','refHull','refStruct']);this.lodSkipped=0;for(const unit of opt.fleet){
    if(unit.dead||unit.hidden)continue;const a=this.fleetCache.get(unit.key);if(!a)continue;this.portColor=a.lights==='off'?null:SHIP_LIGHTS[a.lights]||SHIP_LIGHTS.white;
    const px=(a.length||a.bounds?.[3]-a.bounds?.[0]||300)*focal/Math.max(1,C.len(C.sub(unit.pos,eye)));if(opt.lod&&px<2.2){this.lodSkipped++;continue;}const lod=opt.lod&&px<44&&(!unit.turrets||a.surfaceTurrets),names=lod?external.filter(n=>shell.has(n)):external;
@@ -3052,6 +3043,6 @@ class CompatRenderer {
  }
 }
 
-return {meshPreview, rayFit, fleetGeometry, foilTransform, captureDimensions, Renderer, CompatRenderer, meshSolidCutter, meshReferenceHull, meshReferenceFits, meshReferenceHatches, meshReferenceParts, sectionLines, meshHull, meshParts, meshKeel, meshHatches, meshFits, gridLines, shipBounds, lineSet, M4, Geo, surfaceVisualPlan, meshSurfaceLayers, surfaceSelectionLines};
+return {meshPreview, rayFit, fleetGeometry, foilTransform, captureDimensions, Renderer, CompatRenderer, meshSolidCutter, meshReferenceHull, meshReferenceFits, meshReferenceHatches, meshReferenceParts, sectionLines, meshHull, meshParts, meshHatches, meshFits, gridLines, shipBounds, lineSet, M4, Geo, surfaceVisualPlan, meshSurfaceLayers, surfaceSelectionLines};
 })();
 

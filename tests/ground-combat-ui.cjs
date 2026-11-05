@@ -9,14 +9,14 @@ function translatedHTML(html) {
 }
 run(`const C=Core,R=Rts,esc=s=>String(s),num=v=>String(v),fCr=v=>v+' cr',T=s=>KSI18n.t(s),I18N=KSI18n,toast=()=>{},window={addEventListener(){}},document={addEventListener(){},querySelector(){return null},head:{appendChild(){}}},$=()=>null,$$=()=>[],
  LS={get(){return null},set(){return true}},Store={init(){},db:null},voyDownload=()=>{},msOwners=()=>({kashyyyk:'cis'}),voyObTgs=ob=>ob.ctgs.flatMap(c=>c.tgs),msAt=(st,id)=>st.at[id],msReadyShips=t=>t.ships,msSysName=k=>k==='kashyyyk'?'キャッシーク':k;`);
-const a = app.indexOf('// v26 PLAN-007 / PLAN-008 ground combat'), b = app.indexOf('// (tests) the ground screens from outside', a);
+const a = app.indexOf('// v26 PLAN-007 ground combat'), b = app.indexOf('// (tests) the ground screens from outside', a);
 assert.ok(a >= 0 && b > a);run(app.slice(a, b));
 
-test('the designer\'s panels and figures read in English', () => {
-  for (const k of ['atat', 'aat', 'speeder']) { const s = run(`Ground.vehicleStats(Ground.exampleDesign('${k}'))`); context.S = s; translatedHTML(run('gdStatsHTML(S)')); translatedHTML(run('gdPreviewSVG(S)')); }
-  run(`GV.saves=[Ground.normalizeVehicleDesign({id:'vd-1',name:'私の歩行機',platform:'walker'})]`);
-  const saves = run('gdSavesHTML()');translatedHTML(saves);assert.match(saves, /私の歩行機/, 'the player\'s name is kept as written');
-  translatedHTML(run(`gdPreviewSVG(Ground.vehicleStats({platform:'vehicle',drive:'tracks',weapons:[{k:'cturret'}]}))`));
+test('the players\' walker and vehicle designer is retired; the drill keeps the built-in units', () => {
+  for (const name of ['gdDesigner', 'gdDesignRender', 'gdSavesHTML', 'VStore', 'gdRegisterSaved']) assert.equal(run(`typeof ${name}`), 'undefined', name + ' is gone');
+  assert.doesNotMatch(app, /data-gnd="design"/, 'no menu opens the designer');
+  assert.doesNotMatch(fs.readFileSync(path.join(root, 'index.html'), 'utf8'), /data-gnd="design"/, 'the title menu has no designer entry');
+  assert.equal(run('typeof gdDrillSetup'), 'function');
 });
 
 test('the mission\'s landing offer and its reasons read in English', () => {
