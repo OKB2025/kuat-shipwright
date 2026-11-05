@@ -1,0 +1,2839 @@
+{
+  "schemaVersion": 2,
+  "status": "PASS",
+  "date": "2026-11-05T03:41:43.830Z",
+  "finalSourceSha256": {
+    "data/reference.js": "90294dce9b3f9ada56a318ba50f2e6185994fed8babcca640861f5d6728fcc89",
+    "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
+    "data/fleet.js": "c4fdb044a7b449520bf65c29080a127356ad6a766d275b8296ec520ea9ba026a",
+    "js/core.js": "22c833284a8ee010d7e96bb2a61a8514b4d8a28942e2192c2a39e7873b009776",
+    "js/app.js": "14a898d6a057cb775fb4fbbda54afe73cee1077d46ff39857ecef41a3a5c1e77",
+    "js/gfx.js": "e80f29acd22fe36538a509489d1f0c93c107da31e1f1928c130054c842bb5ab0",
+    "js/lang-en.js": "bf76f0894b67cfdbbd243222de1e28ac16e306b8255c5b31cfe7badc6d4056ca",
+    "js/engine.js": "ede76361fb8f1a8f5a1c288a55a531bdd32b8e8322fdf860b614481eaefce255",
+    "index.html": "968181dfe46d37d9393a6633978231d742d2efa5d42dc1cf3956f32445efc8c9"
+  },
+  "primaryMeasuredSourceSha256": {
+    "data/reference.js": "90294dce9b3f9ada56a318ba50f2e6185994fed8babcca640861f5d6728fcc89",
+    "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
+    "data/fleet.js": "c4fdb044a7b449520bf65c29080a127356ad6a766d275b8296ec520ea9ba026a",
+    "js/core.js": "22c833284a8ee010d7e96bb2a61a8514b4d8a28942e2192c2a39e7873b009776",
+    "js/app.js": "37660a93103c38d947060e68aee4b606bbe949199c14b7801049899ccb2e50bd",
+    "js/gfx.js": "e80f29acd22fe36538a509489d1f0c93c107da31e1f1928c130054c842bb5ab0",
+    "js/lang-en.js": "bf76f0894b67cfdbbd243222de1e28ac16e306b8255c5b31cfe7badc6d4056ca",
+    "js/engine.js": "ede76361fb8f1a8f5a1c288a55a531bdd32b8e8322fdf860b614481eaefce255",
+    "index.html": "9aed2f151f615fe0eff61e39da3c0503e3925368a6c7e15314715154ef74bcf5"
+  },
+  "postBenchmarkSourceAlignment": {
+    "changedFiles": [
+      "js/app.js",
+      "index.html"
+    ],
+    "operations": [
+      "fillHangarsRemote",
+      "unchanged-drag surface snapshot retention/release/reset",
+      "explicit patrol deferred-draft preparation",
+      "failed example/saved-load menu recovery"
+    ],
+    "change": "After the six primary measurements, preserve fillHangars save identity, retain a late surface snapshot across an unchanged model drag, prepare a deferred draft for explicit current patrol, and recover the menu if a load fails. Successful opening cases do not execute the unrelated operation, failure or unchanged-model-drag branches; setting a new ship also clears the retained snapshot. Final exact-source New and Arquitens surface runs below revalidate the actual release.",
+    "preDragAppSha256": "00d0a05946e0e1a588c16c38490766f5553b109b9d97b1a2437ca4b2c18f292d",
+    "primaryToPreDragFillHangarsLineReconstructedAndHashVerified": true,
+    "loaderByteCountOnlyDifferenceVerified": true,
+    "otherSevenRuntimeFilesIdentical": true,
+    "finalExactSourceSmoke": {
+      "label": "final-exact-source-new-with-saved-venator",
+      "status": "PASS",
+      "sourceSha256": {
+        "data/reference.js": "90294dce9b3f9ada56a318ba50f2e6185994fed8babcca640861f5d6728fcc89",
+        "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
+        "data/fleet.js": "c4fdb044a7b449520bf65c29080a127356ad6a766d275b8296ec520ea9ba026a",
+        "js/core.js": "22c833284a8ee010d7e96bb2a61a8514b4d8a28942e2192c2a39e7873b009776",
+        "js/app.js": "14a898d6a057cb775fb4fbbda54afe73cee1077d46ff39857ecef41a3a5c1e77",
+        "js/gfx.js": "e80f29acd22fe36538a509489d1f0c93c107da31e1f1928c130054c842bb5ab0",
+        "js/lang-en.js": "bf76f0894b67cfdbbd243222de1e28ac16e306b8255c5b31cfe7badc6d4056ca",
+        "js/engine.js": "ede76361fb8f1a8f5a1c288a55a531bdd32b8e8322fdf860b614481eaefce255",
+        "index.html": "968181dfe46d37d9393a6633978231d742d2efa5d42dc1cf3956f32445efc8c9"
+      },
+      "emulation": {
+        "mobile": false,
+        "cpuThrottle": 1,
+        "deviceScaleFactor": 1,
+        "viewport": [
+          1440,
+          1000
+        ]
+      },
+      "measurements": {
+        "preSelectionUpdateCount": 0,
+        "nativeClickToGeometryMs": 1658.3000000044703,
+        "nativeClickToFirstGeometryFrameMs": 1676.1000000014901,
+        "nativeClickToStatisticsMs": 2642.3000000044703,
+        "buildReplyToFirstUpdateMs": null,
+        "firstWorkerGeometryRoundtripMs": 1190.7999999970198,
+        "maxMainLongTaskMs": 778,
+        "maxMainLongTaskDuringOpeningMs": 375.8999999985099
+      },
+      "totalMs": 9169,
+      "marks": [
+        {
+          "name": "domReady",
+          "elapsedMs": 195
+        },
+        {
+          "name": "engineReady",
+          "elapsedMs": 2757
+        },
+        {
+          "name": "designMenu",
+          "elapsedMs": 4430
+        },
+        {
+          "name": "newForm",
+          "elapsedMs": 4720
+        },
+        {
+          "name": "clicked",
+          "elapsedMs": 5308
+        },
+        {
+          "name": "firstGeometryReady",
+          "elapsedMs": 6588
+        },
+        {
+          "name": "earlyNativePan",
+          "elapsedMs": 7805
+        },
+        {
+          "name": "editorReady",
+          "elapsedMs": 7808
+        },
+        {
+          "name": "settled",
+          "elapsedMs": 9009
+        }
+      ],
+      "firstGeometryWorker": {
+        "syncMs": 782.2000000029802,
+        "meshMs": 326.5,
+        "packMs": 4.700000002980232,
+        "totalMs": 1180.5
+      },
+      "statsWorkerMs": 654.5,
+      "workerEvents": [
+        {
+          "kind": "created",
+          "timeMs": 514.1999999955297
+        },
+        {
+          "kind": "received",
+          "timeMs": 892.7999999970198,
+          "type": "ready"
+        },
+        {
+          "kind": "sent",
+          "timeMs": 5353.39999999851,
+          "type": "update",
+          "gen": 1
+        },
+        {
+          "kind": "received",
+          "timeMs": 6544.19999999553,
+          "type": "geometry",
+          "gen": 1,
+          "meshMs": 326.5,
+          "packMs": 4.700000002980232,
+          "syncMs": 782.2000000029802,
+          "totalMs": 1180.5
+        },
+        {
+          "kind": "received",
+          "timeMs": 6655.79999999702,
+          "type": "surfaceGeometry",
+          "gen": 1,
+          "packMs": 41.399999998509884,
+          "totalMs": 1225.5
+        },
+        {
+          "kind": "received",
+          "timeMs": 7533.79999999702,
+          "type": "stats",
+          "gen": 1,
+          "statsMs": 654.5
+        }
+      ],
+      "uiEvents": [
+        {
+          "type": "nativeClick",
+          "control": "new",
+          "timeMs": 4924.69999999553,
+          "genBefore": 0,
+          "hasShipBefore": true,
+          "geometryReadyBefore": true
+        },
+        {
+          "type": "geometryAdopted",
+          "gen": 1,
+          "timeMs": 6583
+        },
+        {
+          "type": "geometryAnimationFrame",
+          "gen": 1,
+          "timeMs": 6600.79999999702,
+          "modelIndexCount": 97344,
+          "titleHidden": true,
+          "busyHidden": true
+        },
+        {
+          "type": "statisticsAdopted",
+          "gen": 1,
+          "timeMs": 7567
+        }
+      ],
+      "earlyPan": {
+        "statsPendingAtStart": true,
+        "cameraChanged": true
+      },
+      "modelIndexCount": 97344,
+      "webglError": 0,
+      "selectedSurfaceCount": 0,
+      "errorCount": 0,
+      "sourceArtifact": "final2-new-with-venator-draft.json",
+      "mainCpuHighlights": {
+        "surfaceSyncSelection": 1,
+        "enableSurfaceMode": 313,
+        "renderSpecTargets": 10,
+        "craftCombatHTML": 3,
+        "craftPowerProfile": 0
+      }
+    },
+    "finalExactSourceSurfaceSmoke": {
+      "label": "final-exact-source-native-arquitens-and-surface-selection",
+      "status": "PASS",
+      "sourceSha256": {
+        "data/reference.js": "90294dce9b3f9ada56a318ba50f2e6185994fed8babcca640861f5d6728fcc89",
+        "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
+        "data/fleet.js": "c4fdb044a7b449520bf65c29080a127356ad6a766d275b8296ec520ea9ba026a",
+        "js/core.js": "22c833284a8ee010d7e96bb2a61a8514b4d8a28942e2192c2a39e7873b009776",
+        "js/app.js": "14a898d6a057cb775fb4fbbda54afe73cee1077d46ff39857ecef41a3a5c1e77",
+        "js/gfx.js": "e80f29acd22fe36538a509489d1f0c93c107da31e1f1928c130054c842bb5ab0",
+        "js/lang-en.js": "bf76f0894b67cfdbbd243222de1e28ac16e306b8255c5b31cfe7badc6d4056ca",
+        "js/engine.js": "ede76361fb8f1a8f5a1c288a55a531bdd32b8e8322fdf860b614481eaefce255",
+        "index.html": "968181dfe46d37d9393a6633978231d742d2efa5d42dc1cf3956f32445efc8c9"
+      },
+      "emulation": {
+        "mobile": false,
+        "cpuThrottle": 1,
+        "deviceScaleFactor": 1,
+        "viewport": [
+          1440,
+          1000
+        ]
+      },
+      "measurements": {
+        "preSelectionUpdateCount": 0,
+        "nativeClickToGeometryMs": 1534.8999999985099,
+        "nativeClickToFirstGeometryFrameMs": 2105.6999999955297,
+        "nativeClickToStatisticsMs": 17195.5,
+        "buildReplyToFirstUpdateMs": 48.20000000298023,
+        "firstWorkerGeometryRoundtripMs": 581,
+        "maxMainLongTaskMs": 680,
+        "maxMainLongTaskDuringOpeningMs": 535.7999999970198
+      },
+      "totalMs": 25248,
+      "marks": [
+        {
+          "name": "domReady",
+          "elapsedMs": 205
+        },
+        {
+          "name": "engineReady",
+          "elapsedMs": 2604
+        },
+        {
+          "name": "designMenu",
+          "elapsedMs": 4173
+        },
+        {
+          "name": "loadMenu",
+          "elapsedMs": 4854
+        },
+        {
+          "name": "clicked",
+          "elapsedMs": 5310
+        },
+        {
+          "name": "firstGeometryReady",
+          "elapsedMs": 6832
+        },
+        {
+          "name": "earlyNativePan",
+          "elapsedMs": 8425
+        },
+        {
+          "name": "editorReady",
+          "elapsedMs": 22482
+        },
+        {
+          "name": "surfaceEditorReady",
+          "elapsedMs": 22964
+        },
+        {
+          "name": "surfaceSelected",
+          "elapsedMs": 23738
+        },
+        {
+          "name": "settled",
+          "elapsedMs": 24943
+        }
+      ],
+      "firstGeometryWorker": {
+        "syncMs": 0,
+        "meshMs": 567.1000000014901,
+        "packMs": 3,
+        "totalMs": 573.5
+      },
+      "statsWorkerMs": 9445,
+      "workerEvents": [
+        {
+          "kind": "created",
+          "timeMs": 516
+        },
+        {
+          "kind": "received",
+          "timeMs": 923.9000000059605,
+          "type": "ready"
+        },
+        {
+          "kind": "sent",
+          "timeMs": 5295.9000000059605,
+          "type": "build"
+        },
+        {
+          "kind": "received",
+          "timeMs": 6150.60000000149,
+          "type": "built",
+          "buildMs": 853.8000000044703
+        },
+        {
+          "kind": "sent",
+          "timeMs": 6198.80000000447,
+          "type": "update",
+          "gen": 1
+        },
+        {
+          "kind": "received",
+          "timeMs": 6779.80000000447,
+          "type": "geometry",
+          "gen": 1,
+          "meshMs": 567.1000000014901,
+          "packMs": 3,
+          "syncMs": 0,
+          "totalMs": 573.5
+        },
+        {
+          "kind": "received",
+          "timeMs": 12793.10000000149,
+          "type": "surfaceGeometry",
+          "gen": 1,
+          "packMs": 5848,
+          "totalMs": 6427.79999999702
+        },
+        {
+          "kind": "received",
+          "timeMs": 22354.80000000447,
+          "type": "stats",
+          "gen": 1,
+          "statsMs": 9445
+        }
+      ],
+      "uiEvents": [
+        {
+          "type": "nativeClick",
+          "control": "example:arquitens",
+          "timeMs": 5293.9000000059605,
+          "genBefore": 0,
+          "hasShipBefore": false,
+          "geometryReadyBefore": false
+        },
+        {
+          "type": "geometryAdopted",
+          "gen": 1,
+          "timeMs": 6828.80000000447
+        },
+        {
+          "type": "geometryAnimationFrame",
+          "gen": 1,
+          "timeMs": 7399.60000000149,
+          "modelIndexCount": 269241,
+          "titleHidden": true,
+          "busyHidden": true
+        },
+        {
+          "type": "statisticsAdopted",
+          "gen": 1,
+          "timeMs": 22489.40000000596
+        }
+      ],
+      "earlyPan": {
+        "statsPendingAtStart": true,
+        "cameraChanged": true
+      },
+      "modelIndexCount": 269241,
+      "webglError": 0,
+      "selectedSurfaceCount": 1,
+      "errorCount": 0,
+      "sourceArtifact": "final2-native-arquitens-surface.json",
+      "mainCpuHighlights": {
+        "surfaceSyncSelection": 350,
+        "enableSurfaceMode": 0,
+        "renderSpecTargets": 13,
+        "craftCombatHTML": 3,
+        "craftPowerProfile": 0
+      }
+    },
+    "earlierHarnessAttempt": {
+      "status": "HARNESS_INTERACTION_FAILURE",
+      "reason": "The native model and engineering statistics opened successfully with no application errors or WebGL errors, but a direct details.open mutation did not persist the surface-list accordion across a panel refresh. The row selection timed out. The harness now opens the native summary and verifies a visible row. The exact-source rerun above validates selection.",
+      "sourceSha256": {
+        "data/reference.js": "90294dce9b3f9ada56a318ba50f2e6185994fed8babcca640861f5d6728fcc89",
+        "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
+        "data/fleet.js": "c4fdb044a7b449520bf65c29080a127356ad6a766d275b8296ec520ea9ba026a",
+        "js/core.js": "22c833284a8ee010d7e96bb2a61a8514b4d8a28942e2192c2a39e7873b009776",
+        "js/app.js": "14a898d6a057cb775fb4fbbda54afe73cee1077d46ff39857ecef41a3a5c1e77",
+        "js/gfx.js": "e80f29acd22fe36538a509489d1f0c93c107da31e1f1928c130054c842bb5ab0",
+        "js/lang-en.js": "bf76f0894b67cfdbbd243222de1e28ac16e306b8255c5b31cfe7badc6d4056ca",
+        "js/engine.js": "ede76361fb8f1a8f5a1c288a55a531bdd32b8e8322fdf860b614481eaefce255",
+        "index.html": "968181dfe46d37d9393a6633978231d742d2efa5d42dc1cf3956f32445efc8c9"
+      },
+      "measurements": {
+        "preSelectionUpdateCount": 0,
+        "nativeClickToGeometryMs": 2149.2999999970198,
+        "nativeClickToFirstGeometryFrameMs": 2152.6999999955297,
+        "nativeClickToStatisticsMs": 17543.89999999851,
+        "buildReplyToFirstUpdateMs": 366.1000000014901,
+        "firstWorkerGeometryRoundtripMs": 687.5,
+        "maxMainLongTaskMs": 764,
+        "maxMainLongTaskDuringOpeningMs": 305
+      },
+      "sourceArtifact": "final2-native-arquitens-surface-harness-failure.json",
+      "applicationErrors": [],
+      "webglError": 0
+    }
+  },
+  "sourceRevisionBeforeFix": "2e4736db5db242feb39ed033a4a147dc0b78f427",
+  "measurementDefinitions": {
+    "nativeClick": "Capture-phase DOM event before the application click handler.",
+    "firstGeometryFrame": "First animation-frame callback after exact geometry adoption; native model buffers must be uploaded and the title/busy overlays hidden. This is not a GPU fence or physical display latency.",
+    "statistics": "All current-generation engineering statistics adopted; this may complete later while the design is already visible and accepts camera input.",
+    "cpu": "CDP sampled CPU profiles with inclusive ancestor summaries. Emulated mobile uses844x390,touch,DPR2,main-target4xCPU; it does not reproduce physical mobile hardware, network or all worker scheduling."
+  },
+  "conditions": {
+    "nativeControlsOnly": true,
+    "syntheticSetShipFixture": false,
+    "freshIsolatedBrowserContextPerCase": true,
+    "coldSourceAndDraftCaches": true,
+    "sequentialFinalCases": true,
+    "concurrentHeavyBenchmarksDuringFinalCases": false,
+    "renderer": "Chromium headless software WebGL",
+    "sourceGuard": "Six primary runs match one frozen nine-file opening-fix snapshot before and after. Final exact-source New-with-draft and Arquitens surface runs cover the follow-up identity/drag/patrol/error-recovery fixes. The intermediate fillHangars identity line and loader byte-count-only difference are hash-verified; the follow-up source scope is recorded separately."
+  },
+  "baseline": {
+    "phase": "Merged PR44 before performance fix",
+    "cases": [
+      {
+        "label": "ordinary-new-desktop",
+        "status": "PASS",
+        "sourceSha256": {
+          "data/reference.js": "90294dce9b3f9ada56a318ba50f2e6185994fed8babcca640861f5d6728fcc89",
+          "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
+          "data/fleet.js": "c4fdb044a7b449520bf65c29080a127356ad6a766d275b8296ec520ea9ba026a",
+          "js/core.js": "3f97bd08a2a80ea2d6481e718be55c9a6c0225e6c9a70a7be0a2d48fd25091b3",
+          "js/app.js": "e6f0459fea1e4a3828b6c97daf5a6059d1fd10187f81ffc7fc244ca9c641c391",
+          "js/gfx.js": "0f047a0d35d989710de2aadee0b3c80c7626c2f84f224b85d140dfd6c3856c96",
+          "js/lang-en.js": "bf76f0894b67cfdbbd243222de1e28ac16e306b8255c5b31cfe7badc6d4056ca",
+          "js/engine.js": "b99c045397665bbd0a063aebd6ba713e584ba8630e0a4e02e0a7123d21b30239",
+          "index.html": "145f1919e9894bc121b75727748426545d9b89effa42b304aa14cf3e59b9e22b"
+        },
+        "emulation": {
+          "mobile": false,
+          "cpuThrottle": 1,
+          "viewport": [
+            1440,
+            1000
+          ]
+        },
+        "measurements": {
+          "nativeClickToGeometryMs": 2684.89999999851,
+          "nativeClickToStatisticsMs": 3641.1999999955297,
+          "buildReplyToFirstUpdateMs": null,
+          "firstWorkerGeometryRoundtripMs": 1045,
+          "maxMainLongTaskMs": 1210,
+          "maxMainLongTaskDuringOpeningMs": 1209.8999999985099
+        },
+        "totalMs": 10199,
+        "marks": [
+          {
+            "name": "domReady",
+            "elapsedMs": 203
+          },
+          {
+            "name": "engineReady",
+            "elapsedMs": 2756
+          },
+          {
+            "name": "designMenu",
+            "elapsedMs": 4511
+          },
+          {
+            "name": "newForm",
+            "elapsedMs": 4919
+          },
+          {
+            "name": "clicked",
+            "elapsedMs": 6414
+          },
+          {
+            "name": "editorReady",
+            "elapsedMs": 8850
+          },
+          {
+            "name": "settled",
+            "elapsedMs": 10051
+          }
+        ],
+        "firstGeometryWorker": {
+          "syncMs": 520.3999999985099,
+          "meshMs": 389.6000000014901,
+          "packMs": 20.799999997019768,
+          "totalMs": 1000.1000000014901
+        },
+        "statsWorkerMs": 590.8999999985099,
+        "workerEvents": [
+          {
+            "kind": "created",
+            "timeMs": 454.3999999985099
+          },
+          {
+            "kind": "received",
+            "timeMs": 806.8000000044703,
+            "type": "ready"
+          },
+          {
+            "kind": "sent",
+            "timeMs": 6802.20000000298,
+            "type": "update",
+            "gen": 1
+          },
+          {
+            "kind": "received",
+            "timeMs": 7847.20000000298,
+            "type": "geometry",
+            "gen": 1,
+            "meshMs": 389.6000000014901,
+            "packMs": 20.799999997019768,
+            "syncMs": 520.3999999985099,
+            "totalMs": 1000.1000000014901
+          },
+          {
+            "kind": "received",
+            "timeMs": 8673.20000000298,
+            "type": "stats",
+            "gen": 1,
+            "statsMs": 590.8999999985099
+          }
+        ],
+        "uiEvents": [
+          {
+            "type": "nativeClick",
+            "control": "new",
+            "timeMs": 5199.30000000447
+          },
+          {
+            "type": "geometryAdopted",
+            "gen": 1,
+            "timeMs": 7884.20000000298
+          },
+          {
+            "type": "geometryAnimationFrame",
+            "gen": 1,
+            "timeMs": 7884.60000000149
+          },
+          {
+            "type": "statisticsAdopted",
+            "gen": 1,
+            "timeMs": 8840.5
+          }
+        ],
+        "earlyPan": null,
+        "webglError": 0,
+        "selectedSurfaceCount": 0,
+        "errorCount": 0,
+        "sourceArtifact": "merged-new-desktop.json",
+        "mainCpuHighlights": {
+          "surfaceSyncSelection": 0,
+          "enableSurfaceMode": 927,
+          "renderSpecTargets": 53,
+          "craftCombatHTML": 44,
+          "craftPowerProfile": 40
+        }
+      },
+      {
+        "label": "ordinary-new-mobile-4x-dpr2",
+        "status": "PASS",
+        "sourceSha256": {
+          "data/reference.js": "90294dce9b3f9ada56a318ba50f2e6185994fed8babcca640861f5d6728fcc89",
+          "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
+          "data/fleet.js": "c4fdb044a7b449520bf65c29080a127356ad6a766d275b8296ec520ea9ba026a",
+          "js/core.js": "3f97bd08a2a80ea2d6481e718be55c9a6c0225e6c9a70a7be0a2d48fd25091b3",
+          "js/app.js": "e6f0459fea1e4a3828b6c97daf5a6059d1fd10187f81ffc7fc244ca9c641c391",
+          "js/gfx.js": "0f047a0d35d989710de2aadee0b3c80c7626c2f84f224b85d140dfd6c3856c96",
+          "js/lang-en.js": "bf76f0894b67cfdbbd243222de1e28ac16e306b8255c5b31cfe7badc6d4056ca",
+          "js/engine.js": "b99c045397665bbd0a063aebd6ba713e584ba8630e0a4e02e0a7123d21b30239",
+          "index.html": "145f1919e9894bc121b75727748426545d9b89effa42b304aa14cf3e59b9e22b"
+        },
+        "emulation": {
+          "mobile": true,
+          "cpuThrottle": 4,
+          "deviceScaleFactor": 2,
+          "viewport": [
+            844,
+            390
+          ]
+        },
+        "measurements": {
+          "nativeClickToGeometryMs": 3119.2000000029802,
+          "nativeClickToStatisticsMs": 3904,
+          "buildReplyToFirstUpdateMs": null,
+          "firstWorkerGeometryRoundtripMs": 983,
+          "maxMainLongTaskMs": 1959,
+          "maxMainLongTaskDuringOpeningMs": 1947.2000000029802
+        },
+        "totalMs": 10316,
+        "marks": [
+          {
+            "name": "domReady",
+            "elapsedMs": 316
+          },
+          {
+            "name": "engineReady",
+            "elapsedMs": 3122
+          },
+          {
+            "name": "designMenu",
+            "elapsedMs": 4420
+          },
+          {
+            "name": "newForm",
+            "elapsedMs": 4811
+          },
+          {
+            "name": "clicked",
+            "elapsedMs": 7012
+          },
+          {
+            "name": "editorReady",
+            "elapsedMs": 8948
+          },
+          {
+            "name": "settled",
+            "elapsedMs": 10150
+          }
+        ],
+        "firstGeometryWorker": {
+          "syncMs": 372.19999999552965,
+          "meshMs": 387,
+          "packMs": 30.600000001490116,
+          "totalMs": 841.6000000014901
+        },
+        "statsWorkerMs": 568.5999999940395,
+        "workerEvents": [
+          {
+            "kind": "created",
+            "timeMs": 1986.5
+          },
+          {
+            "kind": "received",
+            "timeMs": 2531.89999999851,
+            "type": "ready"
+          },
+          {
+            "kind": "sent",
+            "timeMs": 7125.30000000447,
+            "type": "update",
+            "gen": 1
+          },
+          {
+            "kind": "received",
+            "timeMs": 8108.30000000447,
+            "type": "geometry",
+            "gen": 1,
+            "meshMs": 387,
+            "packMs": 30.600000001490116,
+            "syncMs": 372.19999999552965,
+            "totalMs": 841.6000000014901
+          },
+          {
+            "kind": "received",
+            "timeMs": 8855.5,
+            "type": "stats",
+            "gen": 1,
+            "statsMs": 568.5999999940395
+          }
+        ],
+        "uiEvents": [
+          {
+            "type": "nativeClick",
+            "control": "new",
+            "timeMs": 5058.39999999851
+          },
+          {
+            "type": "geometryAdopted",
+            "gen": 1,
+            "timeMs": 8177.60000000149
+          },
+          {
+            "type": "geometryAnimationFrame",
+            "gen": 1,
+            "timeMs": 8180.20000000298
+          },
+          {
+            "type": "statisticsAdopted",
+            "gen": 1,
+            "timeMs": 8962.39999999851
+          }
+        ],
+        "earlyPan": null,
+        "modelIndexCount": 97344,
+        "webglError": 0,
+        "selectedSurfaceCount": 0,
+        "errorCount": 0,
+        "sourceArtifact": "merged-new-mobile4-dpr2.json",
+        "mainCpuHighlights": {
+          "surfaceSyncSelection": 9,
+          "enableSurfaceMode": 1588,
+          "renderSpecTargets": 0,
+          "craftCombatHTML": 0,
+          "craftPowerProfile": 0
+        }
+      },
+      {
+        "label": "native-venator-example",
+        "status": "PASS",
+        "sourceSha256": {
+          "data/reference.js": "90294dce9b3f9ada56a318ba50f2e6185994fed8babcca640861f5d6728fcc89",
+          "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
+          "data/fleet.js": "c4fdb044a7b449520bf65c29080a127356ad6a766d275b8296ec520ea9ba026a",
+          "js/core.js": "3f97bd08a2a80ea2d6481e718be55c9a6c0225e6c9a70a7be0a2d48fd25091b3",
+          "js/app.js": "e6f0459fea1e4a3828b6c97daf5a6059d1fd10187f81ffc7fc244ca9c641c391",
+          "js/gfx.js": "0f047a0d35d989710de2aadee0b3c80c7626c2f84f224b85d140dfd6c3856c96",
+          "js/lang-en.js": "bf76f0894b67cfdbbd243222de1e28ac16e306b8255c5b31cfe7badc6d4056ca",
+          "js/engine.js": "b99c045397665bbd0a063aebd6ba713e584ba8630e0a4e02e0a7123d21b30239",
+          "index.html": "145f1919e9894bc121b75727748426545d9b89effa42b304aa14cf3e59b9e22b"
+        },
+        "emulation": {
+          "mobile": false,
+          "cpuThrottle": 1,
+          "deviceScaleFactor": 1,
+          "viewport": [
+            1440,
+            1000
+          ]
+        },
+        "measurements": {
+          "nativeClickToGeometryMs": 39967.30000000447,
+          "nativeClickToFirstGeometryFrameMs": 40008.39999999851,
+          "nativeClickToStatisticsMs": 54316,
+          "buildReplyToFirstUpdateMs": 1350.1999999955297,
+          "firstWorkerGeometryRoundtripMs": 18693.80000000447,
+          "maxMainLongTaskMs": 1134,
+          "maxMainLongTaskDuringOpeningMs": 1134
+        },
+        "totalMs": 60394,
+        "marks": [
+          {
+            "name": "domReady",
+            "elapsedMs": 223
+          },
+          {
+            "name": "engineReady",
+            "elapsedMs": 2691
+          },
+          {
+            "name": "designMenu",
+            "elapsedMs": 3915
+          },
+          {
+            "name": "loadMenu",
+            "elapsedMs": 4251
+          },
+          {
+            "name": "clicked",
+            "elapsedMs": 4530
+          },
+          {
+            "name": "firstGeometryReady",
+            "elapsedMs": 44484
+          },
+          {
+            "name": "editorReady",
+            "elapsedMs": 58826
+          },
+          {
+            "name": "settled",
+            "elapsedMs": 60027
+          }
+        ],
+        "firstGeometryWorker": {
+          "syncMs": 11612.69999999553,
+          "meshMs": 3043.8000000044703,
+          "packMs": 3832.60000000149,
+          "totalMs": 18496.79999999702
+        },
+        "statsWorkerMs": 13597.10000000149,
+        "workerEvents": [
+          {
+            "kind": "created",
+            "timeMs": 555
+          },
+          {
+            "kind": "received",
+            "timeMs": 926.8000000044703,
+            "type": "ready"
+          },
+          {
+            "kind": "sent",
+            "timeMs": 4515.10000000149,
+            "type": "build"
+          },
+          {
+            "kind": "received",
+            "timeMs": 24311.90000000596,
+            "type": "built",
+            "buildMs": 19795.40000000596
+          },
+          {
+            "kind": "sent",
+            "timeMs": 25662.10000000149,
+            "type": "update",
+            "gen": 1
+          },
+          {
+            "kind": "received",
+            "timeMs": 44355.90000000596,
+            "type": "geometry",
+            "gen": 1,
+            "meshMs": 3043.8000000044703,
+            "packMs": 3832.60000000149,
+            "syncMs": 11612.69999999553,
+            "totalMs": 18496.79999999702
+          },
+          {
+            "kind": "received",
+            "timeMs": 58056.30000000447,
+            "type": "stats",
+            "gen": 1,
+            "statsMs": 13597.10000000149
+          }
+        ],
+        "uiEvents": [
+          {
+            "type": "nativeClick",
+            "control": "example:venator",
+            "timeMs": 4513.10000000149
+          },
+          {
+            "type": "geometryAdopted",
+            "gen": 1,
+            "timeMs": 44480.40000000596
+          },
+          {
+            "type": "geometryAnimationFrame",
+            "gen": 1,
+            "timeMs": 44521.5,
+            "modelIndexCount": 255399,
+            "titleHidden": true,
+            "busyHidden": true
+          },
+          {
+            "type": "statisticsAdopted",
+            "gen": 1,
+            "timeMs": 58829.10000000149
+          }
+        ],
+        "earlyPan": null,
+        "modelIndexCount": 255399,
+        "webglError": 0,
+        "selectedSurfaceCount": 0,
+        "errorCount": 0,
+        "sourceArtifact": "merged-native-venator.json",
+        "mainCpuHighlights": {
+          "surfaceSyncSelection": 910,
+          "enableSurfaceMode": 0,
+          "renderSpecTargets": 517,
+          "craftCombatHTML": 506,
+          "craftPowerProfile": 503
+        }
+      },
+      {
+        "label": "native-arquitens-worker-wire-and-main-cpu",
+        "status": "PASS",
+        "sourceSha256": {
+          "data/reference.js": "90294dce9b3f9ada56a318ba50f2e6185994fed8babcca640861f5d6728fcc89",
+          "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
+          "data/fleet.js": "c4fdb044a7b449520bf65c29080a127356ad6a766d275b8296ec520ea9ba026a",
+          "js/core.js": "3f97bd08a2a80ea2d6481e718be55c9a6c0225e6c9a70a7be0a2d48fd25091b3",
+          "js/app.js": "e6f0459fea1e4a3828b6c97daf5a6059d1fd10187f81ffc7fc244ca9c641c391",
+          "js/gfx.js": "0f047a0d35d989710de2aadee0b3c80c7626c2f84f224b85d140dfd6c3856c96",
+          "js/lang-en.js": "bf76f0894b67cfdbbd243222de1e28ac16e306b8255c5b31cfe7badc6d4056ca",
+          "js/engine.js": "b99c045397665bbd0a063aebd6ba713e584ba8630e0a4e02e0a7123d21b30239",
+          "index.html": "145f1919e9894bc121b75727748426545d9b89effa42b304aa14cf3e59b9e22b"
+        },
+        "emulation": {
+          "mobile": false,
+          "cpuThrottle": 1,
+          "deviceScaleFactor": 1
+        },
+        "measurements": null,
+        "totalMs": 29986,
+        "marks": [
+          {
+            "name": "dom",
+            "ms": 275
+          },
+          {
+            "name": "engineReady",
+            "ms": 2443
+          },
+          {
+            "name": "designMenu",
+            "ms": 3868
+          },
+          {
+            "name": "loadMenu",
+            "ms": 4370
+          },
+          {
+            "name": "clicked",
+            "ms": 4619
+          },
+          {
+            "name": "editorReady",
+            "ms": 28412
+          },
+          {
+            "name": "settled",
+            "ms": 29915
+          }
+        ],
+        "firstGeometryWorker": {
+          "syncMs": 443.29999999701977,
+          "meshMs": 810.1000000014901,
+          "packMs": 5991.5,
+          "totalMs": 7248.5
+        },
+        "statsWorkerMs": 8571.70000000298,
+        "workerEvents": [
+          {
+            "type": "workerCreated",
+            "time": 518.6999999955297,
+            "url": "blob:http://127.0.0.1:8878/7588005f-ee1b-4397-a37c-4fe6b9f2037b"
+          },
+          {
+            "type": "received",
+            "time": 824.2999999970198,
+            "keys": [
+              "type"
+            ],
+            "event": "ready"
+          },
+          {
+            "type": "sent",
+            "time": 4608.60000000149,
+            "keys": [
+              "key",
+              "type",
+              "id"
+            ],
+            "event": "build"
+          },
+          {
+            "type": "received",
+            "time": 5564.19999999553,
+            "keys": [
+              "type",
+              "id",
+              "key",
+              "state",
+              "ms",
+              "src"
+            ],
+            "event": "built",
+            "buildMs": 954.6000000014901
+          },
+          {
+            "type": "sent",
+            "time": 11069.60000000149,
+            "keys": [
+              "type",
+              "gen",
+              "reset",
+              "state",
+              "what",
+              "view"
+            ],
+            "event": "update",
+            "gen": 1
+          },
+          {
+            "type": "received",
+            "time": 18573.19999999553,
+            "keys": [
+              "type",
+              "gen",
+              "geos",
+              "dims",
+              "glow",
+              "ranges",
+              "bounds",
+              "grid",
+              "fitRanges",
+              "meshMs",
+              "state",
+              "caches",
+              "packMs",
+              "syncMs",
+              "totalMs"
+            ],
+            "event": "geometry",
+            "gen": 1,
+            "meshMs": 810.1000000014901,
+            "packMs": 5991.5,
+            "syncMs": 443.29999999701977,
+            "totalMs": 7248.5
+          },
+          {
+            "type": "received",
+            "time": 27253.60000000149,
+            "keys": [
+              "type",
+              "gen",
+              "stats",
+              "profile",
+              "statsMs"
+            ],
+            "event": "stats",
+            "gen": 1,
+            "statsMs": 8571.70000000298
+          }
+        ],
+        "uiEvents": [],
+        "earlyPan": null,
+        "selectedSurfaceCount": 0,
+        "errorCount": 4,
+        "sourceArtifact": "merged-arquitens-workers.json",
+        "mainCpuHighlights": null
+      }
+    ],
+    "nativeArquitensCpuDiagnosis": {
+      "main": {
+        "sourceArtifact": "merged-arquitens-workers.cpuprofile",
+        "inclusiveMs": {
+          "surfaceRows": 4920,
+          "surfaceSelection": 4921,
+          "surfaceSyncSelection": 4922,
+          "surfacePatches": 4901,
+          "surfaceExposedTriangles": 4095,
+          "solidSliceSegments": 2292,
+          "surfaceExposurePlane": 1978,
+          "solidSimplifyFlat": 1751
+        },
+        "top": [
+          {
+            "selfMs": 1017,
+            "stack": [
+              {
+                "name": "(root)",
+                "line": 0
+              },
+              {
+                "name": "openExample",
+                "line": 3280
+              },
+              {
+                "name": "setShip",
+                "line": 2360
+              },
+              {
+                "name": "renderPanel",
+                "line": 4781
+              },
+              {
+                "name": "surfaceSyncSelection",
+                "line": 5524
+              },
+              {
+                "name": "surfaceSelection",
+                "line": 5518
+              },
+              {
+                "name": "surfaceRows",
+                "line": 5516
+              },
+              {
+                "name": "surfacePatches",
+                "line": 22225
+              },
+              {
+                "name": "surfaceExposedTriangles",
+                "line": 22202
+              },
+              {
+                "name": "surfaceExposurePlane",
+                "line": 22176
+              },
+              {
+                "name": "solidSliceSegments",
+                "line": 30849
+              },
+              {
+                "name": "solidSimplifyFlat",
+                "line": 30808
+              },
+              {
+                "name": "node",
+                "line": 30819
+              }
+            ]
+          },
+          {
+            "selfMs": 596,
+            "stack": [
+              {
+                "name": "(root)",
+                "line": 0
+              },
+              {
+                "name": "Renderer.img.onload",
+                "line": 1260
+              },
+              {
+                "name": "tex",
+                "line": 1245
+              }
+            ]
+          },
+          {
+            "selfMs": 568,
+            "stack": [
+              {
+                "name": "(root)",
+                "line": 0
+              },
+              {
+                "name": "openExample",
+                "line": 3280
+              },
+              {
+                "name": "setShip",
+                "line": 2360
+              },
+              {
+                "name": "renderPanel",
+                "line": 4781
+              },
+              {
+                "name": "surfaceSyncSelection",
+                "line": 5524
+              },
+              {
+                "name": "surfaceSelection",
+                "line": 5518
+              },
+              {
+                "name": "surfaceRows",
+                "line": 5516
+              },
+              {
+                "name": "surfacePatches",
+                "line": 22225
+              },
+              {
+                "name": "surfaceExposedTriangles",
+                "line": 22202
+              },
+              {
+                "name": "surfaceExposureCrossings",
+                "line": 22182
+              }
+            ]
+          },
+          {
+            "selfMs": 364,
+            "stack": [
+              {
+                "name": "(root)",
+                "line": 0
+              },
+              {
+                "name": "openExample",
+                "line": 3280
+              },
+              {
+                "name": "setShip",
+                "line": 2360
+              },
+              {
+                "name": "renderPanel",
+                "line": 4781
+              },
+              {
+                "name": "surfaceSyncSelection",
+                "line": 5524
+              },
+              {
+                "name": "surfaceSelection",
+                "line": 5518
+              },
+              {
+                "name": "surfaceRows",
+                "line": 5516
+              },
+              {
+                "name": "surfacePatches",
+                "line": 22225
+              },
+              {
+                "name": "surfaceExposedTriangles",
+                "line": 22202
+              },
+              {
+                "name": "surfaceExposurePlane",
+                "line": 22176
+              },
+              {
+                "name": "solidSliceSegments",
+                "line": 30849
+              },
+              {
+                "name": "solidSimplifyFlat",
+                "line": 30808
+              }
+            ]
+          },
+          {
+            "selfMs": 338,
+            "stack": [
+              {
+                "name": "(root)",
+                "line": 0
+              },
+              {
+                "name": "openExample",
+                "line": 3280
+              },
+              {
+                "name": "setShip",
+                "line": 2360
+              },
+              {
+                "name": "renderPanel",
+                "line": 4781
+              },
+              {
+                "name": "surfaceSyncSelection",
+                "line": 5524
+              },
+              {
+                "name": "surfaceSelection",
+                "line": 5518
+              },
+              {
+                "name": "surfaceRows",
+                "line": 5516
+              },
+              {
+                "name": "surfacePatches",
+                "line": 22225
+              },
+              {
+                "name": "surfaceExposedTriangles",
+                "line": 22202
+              }
+            ]
+          }
+        ]
+      },
+      "worker": {
+        "sourceArtifact": "merged-arquitens-workers.worker0.cpuprofile",
+        "inclusiveMs": {
+          "solidSliceSegments": 6924,
+          "surfaceExposurePlane": 5659,
+          "solidSimplifyFlat": 4271,
+          "packCaches": 5502,
+          "surfacePatches": 5440,
+          "surfaceExposedTriangles": 4481
+        },
+        "top": [
+          {
+            "selfMs": 1335,
+            "stack": [
+              {
+                "name": "(root)",
+                "line": 0
+              },
+              {
+                "name": "handleUpdate",
+                "line": 40461
+              },
+              {
+                "name": "computeStats",
+                "line": 22720
+              },
+              {
+                "name": "withFrozenStructures",
+                "line": 21889
+              },
+              {
+                "name": "(anonymous)",
+                "line": 22720
+              },
+              {
+                "name": "v3ComputeStats",
+                "line": 21789
+              },
+              {
+                "name": "baseComputeStats",
+                "line": 20823
+              },
+              {
+                "name": "structuralMaterial",
+                "line": 21564
+              },
+              {
+                "name": "structuralJoinBoundary",
+                "line": 21563
+              },
+              {
+                "name": "structuralClipBoundary",
+                "line": 21544
+              },
+              {
+                "name": "surfaceExposurePlane",
+                "line": 22189
+              },
+              {
+                "name": "solidSliceSegments",
+                "line": 30862
+              },
+              {
+                "name": "solidSimplifyFlat",
+                "line": 30821
+              },
+              {
+                "name": "node",
+                "line": 30832
+              }
+            ]
+          },
+          {
+            "selfMs": 1054,
+            "stack": [
+              {
+                "name": "(root)",
+                "line": 0
+              },
+              {
+                "name": "scope.onmessage",
+                "line": 40762
+              },
+              {
+                "name": "receive",
+                "line": 40746
+              },
+              {
+                "name": "pump",
+                "line": 40726
+              },
+              {
+                "name": "handleUpdate",
+                "line": 40461
+              },
+              {
+                "name": "finishGeometry",
+                "line": 40451
+              },
+              {
+                "name": "packCaches",
+                "line": 40358
+              },
+              {
+                "name": "surfacePatches",
+                "line": 22238
+              },
+              {
+                "name": "surfaceExposedTriangles",
+                "line": 22215
+              },
+              {
+                "name": "surfaceExposurePlane",
+                "line": 22189
+              },
+              {
+                "name": "solidSliceSegments",
+                "line": 30862
+              },
+              {
+                "name": "solidSimplifyFlat",
+                "line": 30821
+              },
+              {
+                "name": "node",
+                "line": 30832
+              }
+            ]
+          },
+          {
+            "selfMs": 889,
+            "stack": [
+              {
+                "name": "(root)",
+                "line": 0
+              },
+              {
+                "name": "handleUpdate",
+                "line": 40461
+              },
+              {
+                "name": "computeStats",
+                "line": 22720
+              },
+              {
+                "name": "withFrozenStructures",
+                "line": 21889
+              },
+              {
+                "name": "(anonymous)",
+                "line": 22720
+              },
+              {
+                "name": "v3ComputeStats",
+                "line": 21789
+              },
+              {
+                "name": "baseComputeStats",
+                "line": 20823
+              },
+              {
+                "name": "structuralMaterial",
+                "line": 21564
+              },
+              {
+                "name": "structuralJoinBoundary",
+                "line": 21563
+              },
+              {
+                "name": "structuralClipBoundary",
+                "line": 21544
+              },
+              {
+                "name": "surfaceExposurePlane",
+                "line": 22189
+              },
+              {
+                "name": "solidSliceSegments",
+                "line": 30862
+              },
+              {
+                "name": "solidSliceRaw",
+                "line": 30864
+              },
+              {
+                "name": "tri",
+                "line": 30869
+              }
+            ]
+          },
+          {
+            "selfMs": 616,
+            "stack": [
+              {
+                "name": "(root)",
+                "line": 0
+              },
+              {
+                "name": "scope.onmessage",
+                "line": 40762
+              },
+              {
+                "name": "receive",
+                "line": 40746
+              },
+              {
+                "name": "pump",
+                "line": 40726
+              },
+              {
+                "name": "handleUpdate",
+                "line": 40461
+              },
+              {
+                "name": "finishGeometry",
+                "line": 40451
+              },
+              {
+                "name": "packCaches",
+                "line": 40358
+              },
+              {
+                "name": "surfacePatches",
+                "line": 22238
+              },
+              {
+                "name": "surfaceExposedTriangles",
+                "line": 22215
+              },
+              {
+                "name": "surfaceExposureCrossings",
+                "line": 22195
+              }
+            ]
+          },
+          {
+            "selfMs": 553,
+            "stack": [
+              {
+                "name": "(root)",
+                "line": 0
+              },
+              {
+                "name": "handleUpdate",
+                "line": 40461
+              },
+              {
+                "name": "computeStats",
+                "line": 22720
+              },
+              {
+                "name": "withFrozenStructures",
+                "line": 21889
+              },
+              {
+                "name": "(anonymous)",
+                "line": 22720
+              },
+              {
+                "name": "v3ComputeStats",
+                "line": 21789
+              },
+              {
+                "name": "baseComputeStats",
+                "line": 20823
+              },
+              {
+                "name": "structuralMaterial",
+                "line": 21564
+              },
+              {
+                "name": "structuralJoinBoundary",
+                "line": 21563
+              },
+              {
+                "name": "structuralClipBoundary",
+                "line": 21544
+              },
+              {
+                "name": "surfaceExposurePlane",
+                "line": 22189
+              },
+              {
+                "name": "solidSliceSegments",
+                "line": 30862
+              },
+              {
+                "name": "solidSimplifyFlat",
+                "line": 30821
+              }
+            ]
+          }
+        ]
+      },
+      "mainLongTasks": [
+        {
+          "start": 741.2999999970198,
+          "duration": 78
+        },
+        {
+          "start": 1987.1000000014901,
+          "duration": 435
+        },
+        {
+          "start": 2438.39999999851,
+          "duration": 357
+        },
+        {
+          "start": 2802.5,
+          "duration": 239
+        },
+        {
+          "start": 3072,
+          "duration": 94
+        },
+        {
+          "start": 3266.10000000149,
+          "duration": 108
+        },
+        {
+          "start": 4297.29999999702,
+          "duration": 62
+        },
+        {
+          "start": 5564.19999999553,
+          "duration": 5311
+        },
+        {
+          "start": 10876.39999999851,
+          "duration": 186
+        },
+        {
+          "start": 18459.19999999553,
+          "duration": 139
+        },
+        {
+          "start": 27252.39999999851,
+          "duration": 1048
+        },
+        {
+          "start": 28300.89999999851,
+          "duration": 117
+        }
+      ],
+      "conclusion": "The native example handler synchronously surveyed all exposed surfaces while updating an inactive surface selection. The first worker geometry packet separately forced the same expensive exposure work inside packCaches. These costs precede the first native geometry and are distinct from the subsequent engineering statistics."
+    }
+  },
+  "intermediateDiagnostic": {
+    "phase": "Common UI/Core/Gfx/worker phase fixes, before startup draft deferral",
+    "case": {
+      "label": "common-fixes-before-deferring-saved-draft",
+      "status": "PASS",
+      "sourceSha256": {
+        "data/reference.js": "90294dce9b3f9ada56a318ba50f2e6185994fed8babcca640861f5d6728fcc89",
+        "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
+        "data/fleet.js": "c4fdb044a7b449520bf65c29080a127356ad6a766d275b8296ec520ea9ba026a",
+        "js/core.js": "22c833284a8ee010d7e96bb2a61a8514b4d8a28942e2192c2a39e7873b009776",
+        "js/app.js": "28bc00e661be19aabc0ef5f09904967ce76dc8a2b038134172bf2168a3674ef1",
+        "js/gfx.js": "e80f29acd22fe36538a509489d1f0c93c107da31e1f1928c130054c842bb5ab0",
+        "js/lang-en.js": "bf76f0894b67cfdbbd243222de1e28ac16e306b8255c5b31cfe7badc6d4056ca",
+        "js/engine.js": "ede76361fb8f1a8f5a1c288a55a531bdd32b8e8322fdf860b614481eaefce255",
+        "index.html": "d97460fe10ae086546842fa26d630b8eba0c7665af0da1a5870844daedd82f4a"
+      },
+      "emulation": {
+        "mobile": false,
+        "cpuThrottle": 1,
+        "deviceScaleFactor": 1,
+        "viewport": [
+          1440,
+          1000
+        ]
+      },
+      "measurements": {
+        "nativeClickToGeometryMs": 16162.89999999851,
+        "nativeClickToFirstGeometryFrameMs": 16223.10000000149,
+        "nativeClickToStatisticsMs": 17149.69999999553,
+        "buildReplyToFirstUpdateMs": null,
+        "firstWorkerGeometryRoundtripMs": 4308.80000000447,
+        "maxMainLongTaskMs": 653,
+        "maxMainLongTaskDuringOpeningMs": 380.6000000014901
+      },
+      "totalMs": 24304,
+      "marks": [
+        {
+          "name": "domReady",
+          "elapsedMs": 301
+        },
+        {
+          "name": "engineReady",
+          "elapsedMs": 2858
+        },
+        {
+          "name": "designMenu",
+          "elapsedMs": 4824
+        },
+        {
+          "name": "newForm",
+          "elapsedMs": 5181
+        },
+        {
+          "name": "clicked",
+          "elapsedMs": 5829
+        },
+        {
+          "name": "firstGeometryReady",
+          "elapsedMs": 21669
+        },
+        {
+          "name": "earlyNativePan",
+          "elapsedMs": 22857
+        },
+        {
+          "name": "editorReady",
+          "elapsedMs": 22878
+        },
+        {
+          "name": "settled",
+          "elapsedMs": 24079
+        }
+      ],
+      "firstGeometryWorker": {
+        "syncMs": 11174.5,
+        "meshMs": 2482.10000000149,
+        "packMs": 7,
+        "totalMs": 13674.5
+      },
+      "statsWorkerMs": 713.8999999985099,
+      "workerEvents": [
+        {
+          "kind": "created",
+          "timeMs": 610.2999999970198
+        },
+        {
+          "kind": "received",
+          "timeMs": 923.1000000014901,
+          "type": "ready"
+        },
+        {
+          "kind": "sent",
+          "timeMs": 3528.2000000029802,
+          "type": "update",
+          "gen": 1
+        },
+        {
+          "kind": "received",
+          "timeMs": 17264.70000000298,
+          "type": "geometry",
+          "gen": 1,
+          "meshMs": 2482.10000000149,
+          "packMs": 7,
+          "syncMs": 11174.5,
+          "totalMs": 13674.5
+        },
+        {
+          "kind": "sent",
+          "timeMs": 17276.29999999702,
+          "type": "update",
+          "gen": 2
+        },
+        {
+          "kind": "received",
+          "timeMs": 20767,
+          "type": "surfaceGeometry",
+          "gen": 1,
+          "packMs": 3317.7999999970198,
+          "totalMs": 17027.19999999553
+        },
+        {
+          "kind": "received",
+          "timeMs": 21585.10000000149,
+          "type": "geometry",
+          "gen": 2,
+          "meshMs": 305,
+          "packMs": 0.7000000029802322,
+          "syncMs": 627.0999999940395,
+          "totalMs": 969.8999999985099
+        },
+        {
+          "kind": "received",
+          "timeMs": 21653,
+          "type": "surfaceGeometry",
+          "gen": 2,
+          "packMs": 6.0999999940395355,
+          "totalMs": 978.6999999955297
+        },
+        {
+          "kind": "received",
+          "timeMs": 22570,
+          "type": "stats",
+          "gen": 2,
+          "statsMs": 713.8999999985099
+        }
+      ],
+      "uiEvents": [
+        {
+          "type": "nativeClick",
+          "control": "new",
+          "timeMs": 5439.60000000149,
+          "genBefore": 1,
+          "geometryReadyBefore": false
+        },
+        {
+          "type": "geometryAdopted",
+          "gen": 2,
+          "timeMs": 21602.5
+        },
+        {
+          "type": "geometryAnimationFrame",
+          "gen": 2,
+          "timeMs": 21662.70000000298,
+          "modelIndexCount": 97344,
+          "titleHidden": true,
+          "busyHidden": true
+        },
+        {
+          "type": "statisticsAdopted",
+          "gen": 2,
+          "timeMs": 22589.29999999702
+        }
+      ],
+      "earlyPan": {
+        "statsPendingAtStart": true,
+        "cameraChanged": true
+      },
+      "modelIndexCount": 97344,
+      "webglError": 0,
+      "selectedSurfaceCount": 0,
+      "errorCount": 0,
+      "sourceArtifact": "final-new-with-venator-draft.json",
+      "mainCpuHighlights": {
+        "surfaceSyncSelection": 0,
+        "enableSurfaceMode": 305,
+        "renderSpecTargets": 13,
+        "craftCombatHTML": 5,
+        "craftPowerProfile": 0
+      }
+    },
+    "reason": "The saved Venator was sent to the worker before the user chose a new design. The new design update waited for obsolete draft geometry and its late surface survey."
+  },
+  "finalCases": [
+    {
+      "label": "ordinary-new-desktop",
+      "status": "PASS",
+      "sourceSha256": {
+        "data/reference.js": "90294dce9b3f9ada56a318ba50f2e6185994fed8babcca640861f5d6728fcc89",
+        "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
+        "data/fleet.js": "c4fdb044a7b449520bf65c29080a127356ad6a766d275b8296ec520ea9ba026a",
+        "js/core.js": "22c833284a8ee010d7e96bb2a61a8514b4d8a28942e2192c2a39e7873b009776",
+        "js/app.js": "37660a93103c38d947060e68aee4b606bbe949199c14b7801049899ccb2e50bd",
+        "js/gfx.js": "e80f29acd22fe36538a509489d1f0c93c107da31e1f1928c130054c842bb5ab0",
+        "js/lang-en.js": "bf76f0894b67cfdbbd243222de1e28ac16e306b8255c5b31cfe7badc6d4056ca",
+        "js/engine.js": "ede76361fb8f1a8f5a1c288a55a531bdd32b8e8322fdf860b614481eaefce255",
+        "index.html": "9aed2f151f615fe0eff61e39da3c0503e3925368a6c7e15314715154ef74bcf5"
+      },
+      "emulation": {
+        "mobile": false,
+        "cpuThrottle": 1,
+        "deviceScaleFactor": 1,
+        "viewport": [
+          1440,
+          1000
+        ]
+      },
+      "measurements": {
+        "preSelectionUpdateCount": 0,
+        "nativeClickToGeometryMs": 1743.3999999985099,
+        "nativeClickToFirstGeometryFrameMs": 1754.5,
+        "nativeClickToStatisticsMs": 2978.6999999955297,
+        "buildReplyToFirstUpdateMs": null,
+        "firstWorkerGeometryRoundtripMs": 1035.5,
+        "maxMainLongTaskMs": 504,
+        "maxMainLongTaskDuringOpeningMs": 502.79999999701977
+      },
+      "totalMs": 8975,
+      "marks": [
+        {
+          "name": "domReady",
+          "elapsedMs": 221
+        },
+        {
+          "name": "engineReady",
+          "elapsedMs": 2664
+        },
+        {
+          "name": "designMenu",
+          "elapsedMs": 3984
+        },
+        {
+          "name": "newForm",
+          "elapsedMs": 4359
+        },
+        {
+          "name": "clicked",
+          "elapsedMs": 5089
+        },
+        {
+          "name": "firstGeometryReady",
+          "elapsedMs": 6325
+        },
+        {
+          "name": "earlyNativePan",
+          "elapsedMs": 7615
+        },
+        {
+          "name": "editorReady",
+          "elapsedMs": 7619
+        },
+        {
+          "name": "settled",
+          "elapsedMs": 8820
+        }
+      ],
+      "firstGeometryWorker": {
+        "syncMs": 657.8999999985099,
+        "meshMs": 317.09999999403954,
+        "packMs": 3,
+        "totalMs": 1030.1000000014901
+      },
+      "statsWorkerMs": 774.7000000029802,
+      "workerEvents": [
+        {
+          "kind": "created",
+          "timeMs": 566.2000000029802
+        },
+        {
+          "kind": "received",
+          "timeMs": 984.3000000044703,
+          "type": "ready"
+        },
+        {
+          "kind": "sent",
+          "timeMs": 5255.39999999851,
+          "type": "update",
+          "gen": 1
+        },
+        {
+          "kind": "received",
+          "timeMs": 6290.89999999851,
+          "type": "geometry",
+          "gen": 1,
+          "meshMs": 317.09999999403954,
+          "packMs": 3,
+          "syncMs": 657.8999999985099,
+          "totalMs": 1030.1000000014901
+        },
+        {
+          "kind": "received",
+          "timeMs": 6371.10000000149,
+          "type": "surfaceGeometry",
+          "gen": 1,
+          "packMs": 10.200000002980232,
+          "totalMs": 1046.1000000014901
+        },
+        {
+          "kind": "received",
+          "timeMs": 7389.5,
+          "type": "stats",
+          "gen": 1,
+          "statsMs": 774.7000000029802
+        }
+      ],
+      "uiEvents": [
+        {
+          "type": "nativeClick",
+          "control": "new",
+          "timeMs": 4575.20000000298,
+          "genBefore": 0,
+          "hasShipBefore": false,
+          "geometryReadyBefore": false
+        },
+        {
+          "type": "geometryAdopted",
+          "gen": 1,
+          "timeMs": 6318.60000000149
+        },
+        {
+          "type": "geometryAnimationFrame",
+          "gen": 1,
+          "timeMs": 6329.70000000298,
+          "modelIndexCount": 97344,
+          "titleHidden": true,
+          "busyHidden": true
+        },
+        {
+          "type": "statisticsAdopted",
+          "gen": 1,
+          "timeMs": 7553.89999999851
+        }
+      ],
+      "earlyPan": {
+        "statsPendingAtStart": true,
+        "cameraChanged": true
+      },
+      "modelIndexCount": 97344,
+      "webglError": 0,
+      "selectedSurfaceCount": 0,
+      "errorCount": 0,
+      "sourceArtifact": "release-new-desktop.json",
+      "mainCpuHighlights": {
+        "surfaceSyncSelection": 3,
+        "enableSurfaceMode": 414,
+        "renderSpecTargets": 17,
+        "craftCombatHTML": 6,
+        "craftPowerProfile": 0
+      }
+    },
+    {
+      "label": "ordinary-new-mobile-4x-dpr2",
+      "status": "PASS",
+      "sourceSha256": {
+        "data/reference.js": "90294dce9b3f9ada56a318ba50f2e6185994fed8babcca640861f5d6728fcc89",
+        "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
+        "data/fleet.js": "c4fdb044a7b449520bf65c29080a127356ad6a766d275b8296ec520ea9ba026a",
+        "js/core.js": "22c833284a8ee010d7e96bb2a61a8514b4d8a28942e2192c2a39e7873b009776",
+        "js/app.js": "37660a93103c38d947060e68aee4b606bbe949199c14b7801049899ccb2e50bd",
+        "js/gfx.js": "e80f29acd22fe36538a509489d1f0c93c107da31e1f1928c130054c842bb5ab0",
+        "js/lang-en.js": "bf76f0894b67cfdbbd243222de1e28ac16e306b8255c5b31cfe7badc6d4056ca",
+        "js/engine.js": "ede76361fb8f1a8f5a1c288a55a531bdd32b8e8322fdf860b614481eaefce255",
+        "index.html": "9aed2f151f615fe0eff61e39da3c0503e3925368a6c7e15314715154ef74bcf5"
+      },
+      "emulation": {
+        "mobile": true,
+        "cpuThrottle": 4,
+        "deviceScaleFactor": 2,
+        "viewport": [
+          844,
+          390
+        ]
+      },
+      "measurements": {
+        "preSelectionUpdateCount": 0,
+        "nativeClickToGeometryMs": 2921.60000000149,
+        "nativeClickToFirstGeometryFrameMs": 3066.60000000149,
+        "nativeClickToStatisticsMs": 3731,
+        "buildReplyToFirstUpdateMs": null,
+        "firstWorkerGeometryRoundtripMs": 1106.1000000014901,
+        "maxMainLongTaskMs": 1452,
+        "maxMainLongTaskDuringOpeningMs": 1443.6000000014901
+      },
+      "totalMs": 10295,
+      "marks": [
+        {
+          "name": "domReady",
+          "elapsedMs": 316
+        },
+        {
+          "name": "engineReady",
+          "elapsedMs": 2876
+        },
+        {
+          "name": "designMenu",
+          "elapsedMs": 4584
+        },
+        {
+          "name": "newForm",
+          "elapsedMs": 4860
+        },
+        {
+          "name": "clicked",
+          "elapsedMs": 6588
+        },
+        {
+          "name": "firstGeometryReady",
+          "elapsedMs": 7930
+        },
+        {
+          "name": "editorReady",
+          "elapsedMs": 8860
+        },
+        {
+          "name": "settled",
+          "elapsedMs": 10063
+        }
+      ],
+      "firstGeometryWorker": {
+        "syncMs": 631.3999999985099,
+        "meshMs": 387.20000000298023,
+        "packMs": 4.5,
+        "totalMs": 1087.5
+      },
+      "statsWorkerMs": 607.8000000044703,
+      "workerEvents": [
+        {
+          "kind": "created",
+          "timeMs": 1674.2000000029802
+        },
+        {
+          "kind": "received",
+          "timeMs": 2207.3000000044703,
+          "type": "ready"
+        },
+        {
+          "kind": "sent",
+          "timeMs": 6716.30000000447,
+          "type": "update",
+          "gen": 1
+        },
+        {
+          "kind": "received",
+          "timeMs": 7822.4000000059605,
+          "type": "geometry",
+          "gen": 1,
+          "meshMs": 387.20000000298023,
+          "packMs": 4.5,
+          "syncMs": 631.3999999985099,
+          "totalMs": 1087.5
+        },
+        {
+          "kind": "received",
+          "timeMs": 8021,
+          "type": "surfaceGeometry",
+          "gen": 1,
+          "packMs": 22.69999999552965,
+          "totalMs": 1115.6000000014901
+        },
+        {
+          "kind": "received",
+          "timeMs": 8758.60000000149,
+          "type": "stats",
+          "gen": 1,
+          "statsMs": 607.8000000044703
+        }
+      ],
+      "uiEvents": [
+        {
+          "type": "nativeClick",
+          "control": "new",
+          "timeMs": 5132.10000000149,
+          "genBefore": 0,
+          "hasShipBefore": false,
+          "geometryReadyBefore": false
+        },
+        {
+          "type": "geometryAdopted",
+          "gen": 1,
+          "timeMs": 8053.70000000298
+        },
+        {
+          "type": "geometryAnimationFrame",
+          "gen": 1,
+          "timeMs": 8198.70000000298,
+          "modelIndexCount": 97344,
+          "titleHidden": true,
+          "busyHidden": true
+        },
+        {
+          "type": "statisticsAdopted",
+          "gen": 1,
+          "timeMs": 8863.10000000149
+        }
+      ],
+      "earlyPan": null,
+      "modelIndexCount": 97344,
+      "webglError": 0,
+      "selectedSurfaceCount": 0,
+      "errorCount": 0,
+      "sourceArtifact": "release-new-mobile4-dpr2.json",
+      "mainCpuHighlights": {
+        "surfaceSyncSelection": 3,
+        "enableSurfaceMode": 1037,
+        "renderSpecTargets": 0,
+        "craftCombatHTML": 0,
+        "craftPowerProfile": 0
+      }
+    },
+    {
+      "label": "ordinary-new-with-saved-venator",
+      "status": "PASS",
+      "sourceSha256": {
+        "data/reference.js": "90294dce9b3f9ada56a318ba50f2e6185994fed8babcca640861f5d6728fcc89",
+        "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
+        "data/fleet.js": "c4fdb044a7b449520bf65c29080a127356ad6a766d275b8296ec520ea9ba026a",
+        "js/core.js": "22c833284a8ee010d7e96bb2a61a8514b4d8a28942e2192c2a39e7873b009776",
+        "js/app.js": "37660a93103c38d947060e68aee4b606bbe949199c14b7801049899ccb2e50bd",
+        "js/gfx.js": "e80f29acd22fe36538a509489d1f0c93c107da31e1f1928c130054c842bb5ab0",
+        "js/lang-en.js": "bf76f0894b67cfdbbd243222de1e28ac16e306b8255c5b31cfe7badc6d4056ca",
+        "js/engine.js": "ede76361fb8f1a8f5a1c288a55a531bdd32b8e8322fdf860b614481eaefce255",
+        "index.html": "9aed2f151f615fe0eff61e39da3c0503e3925368a6c7e15314715154ef74bcf5"
+      },
+      "emulation": {
+        "mobile": false,
+        "cpuThrottle": 1,
+        "deviceScaleFactor": 1,
+        "viewport": [
+          1440,
+          1000
+        ]
+      },
+      "measurements": {
+        "preSelectionUpdateCount": 0,
+        "nativeClickToGeometryMs": 1375.8000000044703,
+        "nativeClickToFirstGeometryFrameMs": 1389.6000000014901,
+        "nativeClickToStatisticsMs": 2391.4000000059605,
+        "buildReplyToFirstUpdateMs": null,
+        "firstWorkerGeometryRoundtripMs": 986.7000000029802,
+        "maxMainLongTaskMs": 694,
+        "maxMainLongTaskDuringOpeningMs": 355.30000000447035
+      },
+      "totalMs": 9302,
+      "marks": [
+        {
+          "name": "domReady",
+          "elapsedMs": 212
+        },
+        {
+          "name": "engineReady",
+          "elapsedMs": 2868
+        },
+        {
+          "name": "designMenu",
+          "elapsedMs": 4625
+        },
+        {
+          "name": "newForm",
+          "elapsedMs": 4929
+        },
+        {
+          "name": "clicked",
+          "elapsedMs": 5522
+        },
+        {
+          "name": "firstGeometryReady",
+          "elapsedMs": 6542
+        },
+        {
+          "name": "earlyNativePan",
+          "elapsedMs": 7865
+        },
+        {
+          "name": "editorReady",
+          "elapsedMs": 7874
+        },
+        {
+          "name": "settled",
+          "elapsedMs": 9077
+        }
+      ],
+      "firstGeometryWorker": {
+        "syncMs": 538.2000000029802,
+        "meshMs": 358.30000000447035,
+        "packMs": 2.7999999970197678,
+        "totalMs": 979.3999999985099
+      },
+      "statsWorkerMs": 614.1000000014901,
+      "workerEvents": [
+        {
+          "kind": "created",
+          "timeMs": 581.2999999970198
+        },
+        {
+          "kind": "received",
+          "timeMs": 973.7000000029802,
+          "type": "ready"
+        },
+        {
+          "kind": "sent",
+          "timeMs": 5531.5,
+          "type": "update",
+          "gen": 1
+        },
+        {
+          "kind": "received",
+          "timeMs": 6518.20000000298,
+          "type": "geometry",
+          "gen": 1,
+          "meshMs": 358.30000000447035,
+          "packMs": 2.7999999970197678,
+          "syncMs": 538.2000000029802,
+          "totalMs": 979.3999999985099
+        },
+        {
+          "kind": "received",
+          "timeMs": 6578.89999999851,
+          "type": "surfaceGeometry",
+          "gen": 1,
+          "packMs": 9.5,
+          "totalMs": 993.5
+        },
+        {
+          "kind": "received",
+          "timeMs": 7417.29999999702,
+          "type": "stats",
+          "gen": 1,
+          "statsMs": 614.1000000014901
+        }
+      ],
+      "uiEvents": [
+        {
+          "type": "nativeClick",
+          "control": "new",
+          "timeMs": 5160.29999999702,
+          "genBefore": 0,
+          "hasShipBefore": true,
+          "geometryReadyBefore": true
+        },
+        {
+          "type": "geometryAdopted",
+          "gen": 1,
+          "timeMs": 6536.10000000149
+        },
+        {
+          "type": "geometryAnimationFrame",
+          "gen": 1,
+          "timeMs": 6549.89999999851,
+          "modelIndexCount": 97344,
+          "titleHidden": true,
+          "busyHidden": true
+        },
+        {
+          "type": "statisticsAdopted",
+          "gen": 1,
+          "timeMs": 7551.70000000298
+        }
+      ],
+      "earlyPan": {
+        "statsPendingAtStart": true,
+        "cameraChanged": true
+      },
+      "modelIndexCount": 97344,
+      "webglError": 0,
+      "selectedSurfaceCount": 0,
+      "errorCount": 0,
+      "sourceArtifact": "release-new-with-venator-draft.json",
+      "mainCpuHighlights": {
+        "surfaceSyncSelection": 1,
+        "enableSurfaceMode": 293,
+        "renderSpecTargets": 16,
+        "craftCombatHTML": 8,
+        "craftPowerProfile": 0
+      }
+    },
+    {
+      "label": "continue-saved-venator",
+      "status": "PASS",
+      "sourceSha256": {
+        "data/reference.js": "90294dce9b3f9ada56a318ba50f2e6185994fed8babcca640861f5d6728fcc89",
+        "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
+        "data/fleet.js": "c4fdb044a7b449520bf65c29080a127356ad6a766d275b8296ec520ea9ba026a",
+        "js/core.js": "22c833284a8ee010d7e96bb2a61a8514b4d8a28942e2192c2a39e7873b009776",
+        "js/app.js": "37660a93103c38d947060e68aee4b606bbe949199c14b7801049899ccb2e50bd",
+        "js/gfx.js": "e80f29acd22fe36538a509489d1f0c93c107da31e1f1928c130054c842bb5ab0",
+        "js/lang-en.js": "bf76f0894b67cfdbbd243222de1e28ac16e306b8255c5b31cfe7badc6d4056ca",
+        "js/engine.js": "ede76361fb8f1a8f5a1c288a55a531bdd32b8e8322fdf860b614481eaefce255",
+        "index.html": "9aed2f151f615fe0eff61e39da3c0503e3925368a6c7e15314715154ef74bcf5"
+      },
+      "emulation": {
+        "mobile": false,
+        "cpuThrottle": 1,
+        "deviceScaleFactor": 1,
+        "viewport": [
+          1440,
+          1000
+        ]
+      },
+      "measurements": {
+        "preSelectionUpdateCount": 0,
+        "nativeClickToGeometryMs": 13340.5,
+        "nativeClickToFirstGeometryFrameMs": 13365.09999999404,
+        "nativeClickToStatisticsMs": 19598.69999999553,
+        "buildReplyToFirstUpdateMs": null,
+        "firstWorkerGeometryRoundtripMs": 13105.89999999851,
+        "maxMainLongTaskMs": 1075,
+        "maxMainLongTaskDuringOpeningMs": 178
+      },
+      "totalMs": 25731,
+      "marks": [
+        {
+          "name": "domReady",
+          "elapsedMs": 266
+        },
+        {
+          "name": "engineReady",
+          "elapsedMs": 2818
+        },
+        {
+          "name": "designMenu",
+          "elapsedMs": 4412
+        },
+        {
+          "name": "clicked",
+          "elapsedMs": 4725
+        },
+        {
+          "name": "firstGeometryReady",
+          "elapsedMs": 18052
+        },
+        {
+          "name": "earlyNativePan",
+          "elapsedMs": 20514
+        },
+        {
+          "name": "editorReady",
+          "elapsedMs": 24292
+        },
+        {
+          "name": "settled",
+          "elapsedMs": 25494
+        }
+      ],
+      "firstGeometryWorker": {
+        "syncMs": 10542.39999999851,
+        "meshMs": 2509.10000000149,
+        "packMs": 9.299999997019768,
+        "totalMs": 13073
+      },
+      "statsWorkerMs": 2636.89999999851,
+      "workerEvents": [
+        {
+          "kind": "created",
+          "timeMs": 571.0999999940395
+        },
+        {
+          "kind": "received",
+          "timeMs": 983.7999999970198,
+          "type": "ready"
+        },
+        {
+          "kind": "sent",
+          "timeMs": 4771.19999999553,
+          "type": "update",
+          "gen": 1
+        },
+        {
+          "kind": "received",
+          "timeMs": 17877.09999999404,
+          "type": "geometry",
+          "gen": 1,
+          "meshMs": 2509.10000000149,
+          "packMs": 9.299999997019768,
+          "syncMs": 10542.39999999851,
+          "totalMs": 13073
+        },
+        {
+          "kind": "received",
+          "timeMs": 21387.59999999404,
+          "type": "surfaceGeometry",
+          "gen": 1,
+          "packMs": 3347.39999999851,
+          "totalMs": 16440.5
+        },
+        {
+          "kind": "received",
+          "timeMs": 24143.59999999404,
+          "type": "stats",
+          "gen": 1,
+          "statsMs": 2636.89999999851
+        }
+      ],
+      "uiEvents": [
+        {
+          "type": "nativeClick",
+          "control": "continue",
+          "timeMs": 4707,
+          "genBefore": 0,
+          "hasShipBefore": true,
+          "geometryReadyBefore": true
+        },
+        {
+          "type": "geometryAdopted",
+          "gen": 1,
+          "timeMs": 18047.5
+        },
+        {
+          "type": "geometryAnimationFrame",
+          "gen": 1,
+          "timeMs": 18072.09999999404,
+          "modelIndexCount": 255399,
+          "titleHidden": true,
+          "busyHidden": true
+        },
+        {
+          "type": "statisticsAdopted",
+          "gen": 1,
+          "timeMs": 24305.69999999553
+        }
+      ],
+      "earlyPan": {
+        "statsPendingAtStart": true,
+        "cameraChanged": true
+      },
+      "modelIndexCount": 255399,
+      "webglError": 0,
+      "selectedSurfaceCount": 0,
+      "errorCount": 0,
+      "sourceArtifact": "release-continue-venator-draft.json",
+      "mainCpuHighlights": {
+        "surfaceSyncSelection": 0,
+        "enableSurfaceMode": 0,
+        "renderSpecTargets": 18,
+        "craftCombatHTML": 7,
+        "craftPowerProfile": 0
+      }
+    },
+    {
+      "label": "native-venator-example",
+      "status": "PASS",
+      "sourceSha256": {
+        "data/reference.js": "90294dce9b3f9ada56a318ba50f2e6185994fed8babcca640861f5d6728fcc89",
+        "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
+        "data/fleet.js": "c4fdb044a7b449520bf65c29080a127356ad6a766d275b8296ec520ea9ba026a",
+        "js/core.js": "22c833284a8ee010d7e96bb2a61a8514b4d8a28942e2192c2a39e7873b009776",
+        "js/app.js": "37660a93103c38d947060e68aee4b606bbe949199c14b7801049899ccb2e50bd",
+        "js/gfx.js": "e80f29acd22fe36538a509489d1f0c93c107da31e1f1928c130054c842bb5ab0",
+        "js/lang-en.js": "bf76f0894b67cfdbbd243222de1e28ac16e306b8255c5b31cfe7badc6d4056ca",
+        "js/engine.js": "ede76361fb8f1a8f5a1c288a55a531bdd32b8e8322fdf860b614481eaefce255",
+        "index.html": "9aed2f151f615fe0eff61e39da3c0503e3925368a6c7e15314715154ef74bcf5"
+      },
+      "emulation": {
+        "mobile": false,
+        "cpuThrottle": 1,
+        "deviceScaleFactor": 1,
+        "viewport": [
+          1440,
+          1000
+        ]
+      },
+      "measurements": {
+        "preSelectionUpdateCount": 0,
+        "nativeClickToGeometryMs": 25735.69999999553,
+        "nativeClickToFirstGeometryFrameMs": 25748.29999999702,
+        "nativeClickToStatisticsMs": 32632.79999999702,
+        "buildReplyToFirstUpdateMs": 90.20000000298023,
+        "firstWorkerGeometryRoundtripMs": 2680.89999999851,
+        "maxMainLongTaskMs": 1271,
+        "maxMainLongTaskDuringOpeningMs": 338
+      },
+      "totalMs": 38632,
+      "marks": [
+        {
+          "name": "domReady",
+          "elapsedMs": 213
+        },
+        {
+          "name": "engineReady",
+          "elapsedMs": 2488
+        },
+        {
+          "name": "designMenu",
+          "elapsedMs": 3715
+        },
+        {
+          "name": "loadMenu",
+          "elapsedMs": 3996
+        },
+        {
+          "name": "clicked",
+          "elapsedMs": 4548
+        },
+        {
+          "name": "firstGeometryReady",
+          "elapsedMs": 30272
+        },
+        {
+          "name": "earlyNativePan",
+          "elapsedMs": 32842
+        },
+        {
+          "name": "editorReady",
+          "elapsedMs": 37155
+        },
+        {
+          "name": "settled",
+          "elapsedMs": 38356
+        }
+      ],
+      "firstGeometryWorker": {
+        "syncMs": 0,
+        "meshMs": 2548.10000000149,
+        "packMs": 11.100000001490116,
+        "totalMs": 2578.89999999851
+      },
+      "statsWorkerMs": 3174.39999999851,
+      "workerEvents": [
+        {
+          "kind": "created",
+          "timeMs": 524.1000000014901
+        },
+        {
+          "kind": "received",
+          "timeMs": 806,
+          "type": "ready"
+        },
+        {
+          "kind": "sent",
+          "timeMs": 4529.79999999702,
+          "type": "build"
+        },
+        {
+          "kind": "received",
+          "timeMs": 27309.39999999851,
+          "type": "built",
+          "buildMs": 22779.09999999404
+        },
+        {
+          "kind": "sent",
+          "timeMs": 27399.60000000149,
+          "type": "update",
+          "gen": 1
+        },
+        {
+          "kind": "received",
+          "timeMs": 30080.5,
+          "type": "geometry",
+          "gen": 1,
+          "meshMs": 2548.10000000149,
+          "packMs": 11.100000001490116,
+          "syncMs": 0,
+          "totalMs": 2578.89999999851
+        },
+        {
+          "kind": "received",
+          "timeMs": 33745.39999999851,
+          "type": "surfaceGeometry",
+          "gen": 1,
+          "packMs": 3528.60000000149,
+          "totalMs": 6137.20000000298
+        },
+        {
+          "kind": "received",
+          "timeMs": 37017.39999999851,
+          "type": "stats",
+          "gen": 1,
+          "statsMs": 3174.39999999851
+        }
+      ],
+      "uiEvents": [
+        {
+          "type": "nativeClick",
+          "control": "example:venator",
+          "timeMs": 4528.20000000298,
+          "genBefore": 0,
+          "hasShipBefore": false,
+          "geometryReadyBefore": false
+        },
+        {
+          "type": "geometryAdopted",
+          "gen": 1,
+          "timeMs": 30263.89999999851
+        },
+        {
+          "type": "geometryAnimationFrame",
+          "gen": 1,
+          "timeMs": 30276.5,
+          "modelIndexCount": 255399,
+          "titleHidden": true,
+          "busyHidden": true
+        },
+        {
+          "type": "statisticsAdopted",
+          "gen": 1,
+          "timeMs": 37161
+        }
+      ],
+      "earlyPan": {
+        "statsPendingAtStart": true,
+        "cameraChanged": true
+      },
+      "modelIndexCount": 255399,
+      "webglError": 0,
+      "selectedSurfaceCount": 0,
+      "errorCount": 0,
+      "sourceArtifact": "release-native-venator.json",
+      "mainCpuHighlights": {
+        "surfaceSyncSelection": 0,
+        "enableSurfaceMode": 0,
+        "renderSpecTargets": 26,
+        "craftCombatHTML": 10,
+        "craftPowerProfile": 0
+      }
+    },
+    {
+      "label": "native-arquitens-and-surface-selection",
+      "status": "PASS",
+      "sourceSha256": {
+        "data/reference.js": "90294dce9b3f9ada56a318ba50f2e6185994fed8babcca640861f5d6728fcc89",
+        "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
+        "data/fleet.js": "c4fdb044a7b449520bf65c29080a127356ad6a766d275b8296ec520ea9ba026a",
+        "js/core.js": "22c833284a8ee010d7e96bb2a61a8514b4d8a28942e2192c2a39e7873b009776",
+        "js/app.js": "37660a93103c38d947060e68aee4b606bbe949199c14b7801049899ccb2e50bd",
+        "js/gfx.js": "e80f29acd22fe36538a509489d1f0c93c107da31e1f1928c130054c842bb5ab0",
+        "js/lang-en.js": "bf76f0894b67cfdbbd243222de1e28ac16e306b8255c5b31cfe7badc6d4056ca",
+        "js/engine.js": "ede76361fb8f1a8f5a1c288a55a531bdd32b8e8322fdf860b614481eaefce255",
+        "index.html": "9aed2f151f615fe0eff61e39da3c0503e3925368a6c7e15314715154ef74bcf5"
+      },
+      "emulation": {
+        "mobile": false,
+        "cpuThrottle": 1,
+        "deviceScaleFactor": 1,
+        "viewport": [
+          1440,
+          1000
+        ]
+      },
+      "measurements": {
+        "preSelectionUpdateCount": 0,
+        "nativeClickToGeometryMs": 1695.8999999985099,
+        "nativeClickToFirstGeometryFrameMs": 1740.2999999970198,
+        "nativeClickToStatisticsMs": 18863.79999999702,
+        "buildReplyToFirstUpdateMs": 78.59999999403954,
+        "firstWorkerGeometryRoundtripMs": 690.5,
+        "maxMainLongTaskMs": 605,
+        "maxMainLongTaskDuringOpeningMs": 373
+      },
+      "totalMs": 26469,
+      "marks": [
+        {
+          "name": "domReady",
+          "elapsedMs": 264
+        },
+        {
+          "name": "engineReady",
+          "elapsedMs": 2557
+        },
+        {
+          "name": "designMenu",
+          "elapsedMs": 3974
+        },
+        {
+          "name": "loadMenu",
+          "elapsedMs": 4322
+        },
+        {
+          "name": "clicked",
+          "elapsedMs": 4572
+        },
+        {
+          "name": "firstGeometryReady",
+          "elapsedMs": 6301
+        },
+        {
+          "name": "earlyNativePan",
+          "elapsedMs": 8215
+        },
+        {
+          "name": "editorReady",
+          "elapsedMs": 23657
+        },
+        {
+          "name": "surfaceEditorReady",
+          "elapsedMs": 24181
+        },
+        {
+          "name": "surfaceSelected",
+          "elapsedMs": 24962
+        },
+        {
+          "name": "settled",
+          "elapsedMs": 26165
+        }
+      ],
+      "firstGeometryWorker": {
+        "syncMs": 0,
+        "meshMs": 677.8000000044703,
+        "packMs": 2.2000000029802322,
+        "totalMs": 682.6000000014901
+      },
+      "statsWorkerMs": 10317.89999999851,
+      "workerEvents": [
+        {
+          "kind": "created",
+          "timeMs": 542.3000000044703
+        },
+        {
+          "kind": "received",
+          "timeMs": 913.6000000014901,
+          "type": "ready"
+        },
+        {
+          "kind": "sent",
+          "timeMs": 4559.80000000447,
+          "type": "build"
+        },
+        {
+          "kind": "received",
+          "timeMs": 5465.30000000447,
+          "type": "built",
+          "buildMs": 904.3999999985099
+        },
+        {
+          "kind": "sent",
+          "timeMs": 5543.89999999851,
+          "type": "update",
+          "gen": 1
+        },
+        {
+          "kind": "received",
+          "timeMs": 6234.39999999851,
+          "type": "geometry",
+          "gen": 1,
+          "meshMs": 677.8000000044703,
+          "packMs": 2.2000000029802322,
+          "syncMs": 0,
+          "totalMs": 682.6000000014901
+        },
+        {
+          "kind": "received",
+          "timeMs": 12984.20000000298,
+          "type": "surfaceGeometry",
+          "gen": 1,
+          "packMs": 6562.29999999702,
+          "totalMs": 7251.39999999851
+        },
+        {
+          "kind": "received",
+          "timeMs": 23402.89999999851,
+          "type": "stats",
+          "gen": 1,
+          "statsMs": 10317.89999999851
+        }
+      ],
+      "uiEvents": [
+        {
+          "type": "nativeClick",
+          "control": "example:arquitens",
+          "timeMs": 4557.80000000447,
+          "genBefore": 0,
+          "hasShipBefore": false,
+          "geometryReadyBefore": false
+        },
+        {
+          "type": "geometryAdopted",
+          "gen": 1,
+          "timeMs": 6253.70000000298
+        },
+        {
+          "type": "geometryAnimationFrame",
+          "gen": 1,
+          "timeMs": 6298.10000000149,
+          "modelIndexCount": 269241,
+          "titleHidden": true,
+          "busyHidden": true
+        },
+        {
+          "type": "statisticsAdopted",
+          "gen": 1,
+          "timeMs": 23421.60000000149
+        }
+      ],
+      "earlyPan": {
+        "statsPendingAtStart": true,
+        "cameraChanged": true
+      },
+      "modelIndexCount": 269241,
+      "webglError": 0,
+      "selectedSurfaceCount": 1,
+      "errorCount": 0,
+      "sourceArtifact": "release-native-arquitens.json",
+      "mainCpuHighlights": {
+        "surfaceSyncSelection": 486,
+        "enableSurfaceMode": 0,
+        "renderSpecTargets": 13,
+        "craftCombatHTML": 3,
+        "craftPowerProfile": 0
+      }
+    }
+  ],
+  "scope": {
+    "verified": [
+      "Native ordinary new-design creation on desktop and emulated mobile",
+      "New design is not queued behind an unselected saved heavy ship",
+      "Explicit Continue preserves saved ship identity and part/fitting inventory",
+      "Exact native example geometry and final engineering statistics",
+      "Native early camera pan after first geometry while statistics are pending",
+      "Native surface editor and patch selection after late exposure data",
+      "Uploaded model index counts and WebGL error status"
+    ],
+    "notVerified": [
+      "Physical mobile hardware or network loading",
+      "Sustained frame rate",
+      "Every built-in example",
+      "Live combat performance"
+    ]
+  }
+}

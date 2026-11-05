@@ -2435,7 +2435,18 @@ function meshSlidingHatchPanel(ship,h,panel,open=0){
   for(const edge of edges.values())if(edge.count===1){const a=edge.a,b=edge.b,down=C.mul(h.n,-.98),ab=C.add(a,down),bb=C.add(b,down),n=C.norm(C.cross(C.sub(b,a),down));quad(g,[a,b,bb,ab],n,UV_WHITE,[105,117,123],255);axisFrustum(g,a,b,.18,.18,[89,98,104],false);}
   return g;
 }
-function appendGeo(target,g){target.room(g.n,g.ni);const base=target.n;for(let i=0;i<g.n;i++)target.v(...g.pos.subarray(i*3,i*3+3),...Array.from(g.nor.subarray(i*3,i*3+3),v=>v/127),g.uv[i*2],g.uv[i*2+1],Array.from(g.col.subarray(i*4,i*4+3)),g.col[i*4+3]);for(let i=0;i<g.ni;i+=3)target.tri(base+g.idx[i],base+g.idx[i+1],base+g.idx[i+2]);}
+function appendGeo(target,g){
+ // Cached meshes already contain the packed GPU attributes. Copy their active
+ // ranges directly instead of unpacking every normal/colour into temporary
+ // arrays and packing the same values again through Geo.v.
+ target.room(g.n,g.ni);const base=target.n;
+ target.pos.set(g.pos.subarray(0,g.n*3),base*3);
+ target.nor.set(g.nor.subarray(0,g.n*3),base*3);
+ target.uv.set(g.uv.subarray(0,g.n*2),base*2);
+ target.col.set(g.col.subarray(0,g.n*4),base*4);
+ for(let i=0;i<g.ni;i++)target.idx[target.ni+i]=base+g.idx[i];
+ target.n+=g.n;target.ni+=g.ni;
+}
 function meshHatches(ship){
   const out=v3MeshHatches({...ship,hatches:ship.hatches.filter(h=>!h.portal&&!h.skinAsset)});
   for(const h of ship.hatches.filter(h=>h.portal&&!h.skinAsset)){

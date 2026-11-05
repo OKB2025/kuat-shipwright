@@ -22059,7 +22059,9 @@ function hatchMotionStats(ship,S){
 // doors from changing the mass of neighbouring structures and compartments.
 function hullMaterialContains(ship,p,inside=inHull(ship,p)){if(ship.hatches.some(h=>{if(!isSlidingHatch(ship,h))return false;const b=openingBounds(ship,h);return b&&inBox(p,b);}))return false;return inside;}
 function armoredMaterialArea(ship,currentArea){
- if(!ship.hatches.some(h=>isSlidingHatch(ship,h)))return currentArea;
+ // The surveyed surface is already the closed-door surface in this state.
+ // Rebuilding an identical clone would repeat all room and surface clipping.
+ if(!ship.hatches.some(h=>isSlidingHatch(ship,h)&&clamp(h.open??0,0,1)!==0))return currentArea;
  const state=serialize(ship);for(const h of state.hatches)if(isSlidingHatch(state,h))h.open=0;
  const key=JSON.stringify(state,(k,v)=>k==='airWings'?undefined:v);if(ship._armoredMaterial?.key===key)return ship._armoredMaterial.area;
  // The closed-door copy is rebuilt from scratch so the result never depends on
@@ -22286,7 +22288,9 @@ function surfaceSymmetryIds(ship,ids,options={}){
  const patches=surfacePatches(ship),out=new Set(),find=(p,y,z)=>{let host=p._part;if(host){if(z){if(host.tw!=null)host=ship.parts.find(q=>q.id===host.tw)||host;else if(Math.abs(host.c[2])>1e-4)return null;}if(y){if(host.vt!=null)host=ship.parts.find(q=>q.id===host.vt)||host;else if(Math.abs(host.c[1]-vmirrorPlane(ship,host.c[0]))>1e-4)return null;}}const name=host?'p'+host.id:'hull',point=y?vmirrorPoint(ship,p.center):p.center,center=z?mirrorP(point):point,n=[p.normal[0],y?-p.normal[1]:p.normal[1],z?-p.normal[2]:p.normal[2]],scale=Math.max(1,Math.sqrt(p.area));return patches.filter(q=>q.host===name&&q.exposed&&dot(q.normal,n)>.999&&Math.abs(q.area-p.area)<=Math.max(.01,p.area*.001)).sort((a,b)=>len(sub(a.center,center))-len(sub(b.center,center))).find(q=>len(sub(q.center,center))<scale*.02+.01)?.id;};
  for(const id of Array.isArray(ids)?ids:[ids]){const p=patches.find(q=>q.id===id&&q.exposed);if(!p)continue;out.add(id);for(const y of options.vmirror?[false,true]:[false])for(const z of options.mirror?[false,true]:[false]){if(!y&&!z)continue;const q=find(p,y,z);if(q)out.add(q);}}return [...out];
 }
-function enableSurfaceMode(ship,strict=true){if(!strict&&ship.surfaces?.compatAllowed===false)return {ok:false,why:'新しい設計では互換冷却を使用できません'};if(!ship.surfaces){const patches=surfacePatches(ship).filter(p=>p.exposed);if(patches.length>SURFACE_MAX)return {ok:false,why:'表面設定の上限です'};const records=patches.map(p=>({...surfaceConfig(ship,p.id),boundArea:p.area}));ship.surfaces={version:SURFACE_VERSION,mode:strict?'strict':'compat',compatAllowed:true,legacyArmor:ship.armor?.hull||0,patches:records};}else ship.surfaces.mode=strict?'strict':'compat';return {ok:true,report:surfaceReport(ship)};}
+function enableSurfaceMode(ship,strict=true,options={}){if(!strict&&ship.surfaces?.compatAllowed===false)return {ok:false,why:'新しい設計では互換冷却を使用できません'};if(!ship.surfaces){const patches=surfacePatches(ship).filter(p=>p.exposed);if(patches.length>SURFACE_MAX)return {ok:false,why:'表面設定の上限です'};const records=patches.map(p=>({...surfaceConfig(ship,p.id),boundArea:p.area}));ship.surfaces={version:SURFACE_VERSION,mode:strict?'strict':'compat',compatAllowed:true,legacyArmor:ship.armor?.hull||0,patches:records};}else ship.surfaces.mode=strict?'strict':'compat';
+ // New-design UI callers let the worker compile the derived face report.
+ return options?.report===false?{ok:true}:{ok:true,report:surfaceReport(ship)};}
 function surfaceInvalidate(ship){ship._cache=null;delete ship._feed;surfaceCache.delete(ship);surfaceStructuralCache.delete(ship);}
 function setSurfaceConfig(ship,ids,partial){
  surfaceSync(ship);
@@ -23858,10 +23862,14 @@ function turretCompartmentSolids(f){
 }
 function turretCompartmentProjection(ship,f){
  if(!ship||!f)return {housingVolume:0,externalVolume:0,embeddedVolume:0,triangles:[],embeddedTriangles:[]};
- const solids=turretCompartmentSolids(f);if(!solids.length)return {housingVolume:0,externalVolume:0,embeddedVolume:0,triangles:[],embeddedTriangles:[]};
+ const a=REFERENCE_ASSETS[f.skinAsset||FITS[f.k]?.asset],meta=a?.turretCompartment;
+ if(!a||meta?.version!==1||meta.role!=='gunhouse'||!Array.isArray(meta.convexes)||isSurfaceBattery(f))return {housingVolume:0,externalVolume:0,embeddedVolume:0,triangles:[],embeddedTriangles:[]};
  const geometryKey=turretGeometryKey(ship),pose=JSON.stringify([f.k,f.skinAsset,f.p,f.a,f.tilt,f.mountAxis,f.mountOffset,f.assetYaw,f.base,f.ped,f.scale]),old=TURRET_COMPARTMENT_SHIPS.get(ship);
  let state=old;if(!state||state.key!==geometryKey){state={key:geometryKey,byFit:new Map()};TURRET_COMPARTMENT_SHIPS.set(ship,state);}const known=state.byFit.get(pose);if(known)return known;
- const a=REFERENCE_ASSETS[f.skinAsset||FITS[f.k].asset],native=TURRET_COMPARTMENT_ASSETS.get(a.turretCompartment).houseTriangles,house=new Float64Array(native.length);for(let i=0;i<native.length;i+=3){const p=referenceFitPoint(f,[0,1,2].map(k=>(native[i+k]-a.c[k])/a.size[k]));house.set(p,i);}const envelope=turretEnvelopeGeometry(ship,solidMeshBounds(house));
+ // A cached projection already owns the transformed solids and planes. Check
+ // it before rebuilding those faces for repeated allocation and stats queries.
+ const solids=turretCompartmentSolids(f);if(!solids.length)return {housingVolume:0,externalVolume:0,embeddedVolume:0,triangles:[],embeddedTriangles:[]};
+ const native=TURRET_COMPARTMENT_ASSETS.get(meta).houseTriangles,house=new Float64Array(native.length);for(let i=0;i<native.length;i+=3){const p=referenceFitPoint(f,[0,1,2].map(k=>(native[i+k]-a.c[k])/a.size[k]));house.set(p,i);}const envelope=turretEnvelopeGeometry(ship,solidMeshBounds(house));
  const housingVolume=structuralMeshVolume(house),base=structuralMeshVolume(envelope),union=structuralJoinBoundary(envelope,house),externalVolume=clamp(structuralMeshVolume(union)-base,0,housingVolume);
  const first=structuralClipBoundary(house,envelope,true,false,true),second=structuralClipBoundary(envelope,house,false,false,true),embedded=new Float64Array(first.length+second.length);embedded.set(first);embedded.set(second,first.length);
  const planes=solids.map(T=>{const out=[];for(let i=0;i<T.length;i+=9){const p=Array.from(T.slice(i,i+3)),n=norm(cross(sub(Array.from(T.slice(i+3,i+6)),p),sub(Array.from(T.slice(i+6,i+9)),p))),d=dot(n,p);if(!out.some(q=>dot(q.n,n)>.999999&&Math.abs(q.d-d)<1e-6))out.push({n,d});}return out;});
@@ -30436,7 +30444,9 @@ function craftGunMounts(ship,S={}){
  }
  for(const a of arcs){a.gun=gun>0?a.gun/gun:0;a.aa=aa>0?a.aa/aa:0;}return cleanCraftFireArcs(arcs);
 }
-function craftCombat(ship,S){
+// Editor summaries need the displayed ratings, while saved combat snapshots
+// retain their complete electrical profile and physical firing arcs by default.
+function craftCombat(ship,S,options={}){
  if(ship?.surfaces&&!ship._surfaceWorking&&!ship._surfaceCompiling)ship=surfaceWorkingShip(ship);
  if(!ship?.hull||!S||!Array.isArray(ship.fits))return null;let A=0,shipGun=false,armed=false;
  for(const f of ship.fits){if(!FITS[f.k])continue;const d=fitSpec(f);if(d.cat!=='w'||f.float||S.info?.[f.id]?.overlap)continue;A+=(FITS[f.k].aa||0)*(f.scale||1)**2;shipGun||=!d.craft&&!!(d.tt||d.ion||d.msl);armed||=!!(d.tt||d.ion||d.msl||d.store);}
@@ -30451,7 +30461,7 @@ function craftCombat(ship,S){
  const strike=Math.round(gun+salvo),armor=clamp((.35+.17*Math.log(Math.max(.5,S.mass||0)))*(sh?1.3:1)*(small?1:Math.cbrt(Math.max(1,Math.max(...dims)/25))),.3,small?3:20);
  const Gl=G*(S.mass>0?S.mass/(S.mass+ordMass):1);
  return {name:ship.name||'設計機',role,roleName:S.cls?.role||'',speed,...(!small?{speedMode:'ship'}:{}),aa:Math.round(air*100)/100,strike,gun,armor:Math.round(armor*100)/100,crew:Math.round(S.crew??S.seats??0),dims,size:stowSize(dims),accelG:Math.round(G),shield:sh,hyper:S.jumpOK&&Number.isFinite(S.hyperClass)&&S.hyperClass>0?S.hyperClass:null,
-  heat:craftHeat(S),powerProfile:craftPowerProfile(ship,S),fireArcs:craftGunMounts(ship,S),...(systems?{systems}:{}),stations,load,canonLoad:!!Lo.canon&&Lo.stations.length===stations.length,ord,ordMass:Math.round(ordMass*1000)/1000,mass:Math.round((S.mass||0)*100)/100,cost:Math.round(S.cost||0),costBy:costBreakdown(S.cost||0,S.costBy),priceVersion:COST_MODEL.version,speedLoaded:small?craftSpeed(Gl):Math.round(shipSpeed(Gl)),accelLoaded:Math.round(Gl)};
+  heat:craftHeat(S),...(!options?.summaryOnly?{powerProfile:craftPowerProfile(ship,S),fireArcs:craftGunMounts(ship,S)}:{}),...(systems?{systems}:{}),stations,load,canonLoad:!!Lo.canon&&Lo.stations.length===stations.length,ord,ordMass:Math.round(ordMass*1000)/1000,mass:Math.round((S.mass||0)*100)/100,cost:Math.round(S.cost||0),costBy:costBreakdown(S.cost||0,S.costBy),priceVersion:COST_MODEL.version,speedLoaded:small?craftSpeed(Gl):Math.round(shipSpeed(Gl)),accelLoaded:Math.round(Gl)};
 }
 // Aircraft retain the same connected electrical and local thermal model as their editable design.
 // Omit tactical hull geometry: this snapshot is reused by every squadron of the type.

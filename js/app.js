@@ -1959,7 +1959,7 @@ const eng = {ready: false, gen: 0, sentGen: 0, geoGen: 0, adoptedGen: 0, statsGe
 const meshStore = {geos: {}, glow: null, grid: null, ranges: null};
 function touch(what) {   // geometry or design changed
   if (!ship) return;
-  eng.gen++; eng.what.add(what || 'all');
+  eng.gen++; meshStore.pendingSurfaceGeometry = null; eng.what.add(what || 'all');
   if (live.active) live.gen = eng.gen;
   kickEngine(); engineStatus(); dirty.overlay = true; dirty.draw = true;
 }
@@ -1973,12 +1973,13 @@ function kickEngine() {
 }
 function sendEngineUpdate() {
   eng.scheduled = false;
-  if (!eng.ready || eng.waiting || dragSnap || !ship || eng.sentGen === eng.gen) return;
+  if (!eng.ready || eng.waiting || dragSnap || !ship || ship._deferredPreparation || eng.sentGen === eng.gen) return;
   eng.waiting = true; eng.sentGen = eng.gen;
-  const msg = {type: 'update', gen: eng.gen, reset: eng.reset, state: C.publicJSON(ship), what: [...eng.what], view: {coded: st.coded, habitation: !!st.showHabitation}};
+  const msg = {type: 'update', gen: eng.gen, reset: eng.reset, state: engineShipState(ship), what: [...eng.what], view: {coded: st.coded, habitation: !!st.showHabitation, deferSurfaces: true}};
   eng.what.clear(); eng.reset = false;
   YardEngineClient.post(msg);
 }
+function engineShipState(s) { return C.publicJSON({...s, saveId: undefined}); }
 function enginePending() { return eng.adoptedGen < eng.gen; }
 function engineStatus() {
   const el = $('#engineStatus'); if (!el) return;
@@ -2071,6 +2072,13 @@ function onEngineGeometry(msg) {
   if (eng.gen > eng.sentGen) kickEngine();
   engineStatus();
 }
+function onEngineSurfaceGeometry(msg) {
+  if (!ship || msg.gen !== eng.gen || msg.gen !== eng.geoGen) return;
+  if (dragSnap) { meshStore.pendingSurfaceGeometry = msg; return; }
+  adoptEngineState(msg);
+  if (msg.surfaceReport) surfaceRemoteReport = {ship, gen: msg.gen, report: msg.surfaceReport};
+  if (st.tab === 'surface') { surfaceSyncSelection(); renderPanel(); requestDraw(); }
+}
 function onEngineStats(msg) {
   if (dragSnap || msg.gen < eng.gen) return;
   if (msg.geos && msg.gen >= eng.geoGen) applyGeometry(msg);
@@ -2078,7 +2086,7 @@ function onEngineStats(msg) {
   eng.statsGen = msg.gen;
   eng.profile = msg.profile || null; eng.profileGen = msg.gen;
   prevS = S; S = msg.stats;
-  {const node=$('#enginePerformance'),p=selItem()?.k==='engine'?selItem():engineSelectionDrivers()[0]?.it;if(node&&p)node.innerHTML=enginePerformance(p);}
+  {const node=$('#enginePerformance');if(node){const p=selItem()?.k==='engine'?selItem():engineSelectionDrivers()[0]?.it;if(p)node.innerHTML=enginePerformance(p);}}
   if(st.tab==='surface')surfaceRefreshReport();
   renderStrip(); renderSpecTargets(); if (st.tab === 'systems' || (armMode() || st.tab === 'edit' && selSingle()) && st.sel?.list === 'fits' && !dragSnap) renderPanel();
   if (st.tab !== 'spec' && st.tab !== 'sim') renderPanelInfo();
@@ -2100,7 +2108,7 @@ function onEngineError(msg) {
 // person is in the middle of dragging a control.
 function refreshDerivedPanel() {
   if (dragSnap || fleet.mode !== 'design') return;
-  if(st.tab==='surface'){const count=(st.surfaceIds||[]).length;surfaceSelection();if(count!==(st.surfaceIds||[]).length){renderPanel();return;}}
+  if(st.tab==='surface'&&!surfaceEditorPending()){const count=(st.surfaceIds||[]).length;surfaceSelection();if(count!==(st.surfaceIds||[]).length){renderPanel();return;}}
   const a = document.activeElement;
   if (a && a.closest && a.closest('#panel') && a.matches('input, select, textarea')) return;
   const it = selItem();
@@ -2109,6 +2117,7 @@ function refreshDerivedPanel() {
 function engineHello(mode) {
   eng.mode = mode; eng.ready = true;
   YardEngineClient.on('geometry', onEngineGeometry);
+  YardEngineClient.on('surfaceGeometry', onEngineSurfaceGeometry);
   YardEngineClient.on('stats', onEngineStats);
   YardEngineClient.on('error', onEngineError);
   kickEngine(); engineStatus();
@@ -2366,14 +2375,19 @@ function setShip(s, opts) {
   // design share a destination. Imported blueprints never supply this field.
   if (!s.saveId) s.saveId = newSaveId();
   dragSnap = null; clearPreview();
-  ship = s; s._client = true; S = null; prevS = null; st.sel = null; st.multi = {parts: new Set(), fits: new Set()}; st.surfaceIds=[];st.surfaceDraft={};st.surfaceLast=null;st.surfacePage=0;st.hatchA = null; resetSolidCutter();
+  ship = s; s._client = true;if(opts?.deferPreparation)s._deferredPreparation=true;else delete s._deferredPreparation; S = null; prevS = null; st.sel = null; st.multi = {parts: new Set(), fits: new Set()}; st.surfaceIds=[];st.surfaceDraft={};st.surfaceLast=null;st.surfacePage=0;st.hatchA = null; resetSolidCutter();
   eng.profile = null; eng.profileGen = -1;
   // Loading another design remains undoable. The engine starts from scratch.
   eng.designGen = eng.gen + 1; eng.reset = true; eng.fitOnGeometry = true; eng.keepCam = !!(opts && opts.keepCam);
-  meshStore.geos = {}; meshStore.ranges = null; meshStore.pendingGeometry = null; if (view) { for (const k of Object.keys(view.meshes || {})) if (view.meshes[k]) view.meshes[k].count = 0; }
-  showBusyOverlay(opts?.busyText);
-  touch('all');
-  hideInspect(); updateName(); renderPanel(); scheduleStats(0); updateUndo(); autosave();
+  meshStore.geos = {}; meshStore.ranges = null; meshStore.pendingGeometry = null; meshStore.pendingSurfaceGeometry = null; if (view) { for (const k of Object.keys(view.meshes || {})) if (view.meshes[k]) view.meshes[k].count = 0; }
+  if(!s._deferredPreparation){showBusyOverlay(opts?.busyText);touch('all');}
+  else requestDraw();
+  hideInspect(); updateName(); renderPanel(); if(!s._deferredPreparation)scheduleStats(0); updateUndo(); autosave();
+}
+function prepareDeferredDraft() {
+  if(!ship?._deferredPreparation)return;
+  delete ship._deferredPreparation;
+  touch('all');scheduleStats(0);
 }
 function snap() {
   if (!ship.saveId) ship.saveId = newSaveId();
@@ -2407,7 +2421,10 @@ function beginDrag(label) { if (!dragSnap) { dragSnap = snap(); dragLabel = labe
 function endDrag() {
   if (!dragSnap) return;
   if (snap() !== dragSnap) { undoStack.push(dragSnap); if (undoStack.length > 60) undoStack.shift(); redoStack.length = 0; lastOp = dragLabel; scheduleStats(30); updateUndo(); autosave(); }
-  dragSnap = null; kickEngine();
+  dragSnap = null;
+  const surface = meshStore.pendingSurfaceGeometry; meshStore.pendingSurfaceGeometry = null;
+  if (surface) onEngineSurfaceGeometry(surface);
+  kickEngine();
 }
 function undo() { if (!undoStack.length) return; redoStack.push(snap()); lastOp = '元に戻す'; restore(undoStack.pop()); }
 function redo() { if (!redoStack.length) return; undoStack.push(snap()); lastOp = 'やり直し'; restore(redoStack.pop()); }
@@ -2896,7 +2913,7 @@ function craftStoresHTML(c){
 }
 // v21 A craft's figures as a carrier's complement in the voyage (the same scale as the craft types there).
 function craftCombatHTML(S){
- const c=C.craftCombat(ship,S);if(!c)return '';const row=(k,v,n)=>`<div><dt>${k}</dt><dd>${v}<small>${n}</small></dd></div>`;
+ const c=C.craftCombat(ship,S,{summaryOnly:true});if(!c)return '';const row=(k,v,n)=>`<div><dt>${k}</dt><dd>${v}<small>${n}</small></dd></div>`;
  return `<h4>艦載機としての性能（航行）</h4><dl class="kv">${row('速度',`${num(c.speed)} m/s`,`約 ${num(Math.round(c.speed/20))} MGLT・加速 ${fG(c.accelG)} から`)}${row('空戦',c.aa,`機首の砲と機動性${c.shield?'・シールド':''}${c.role==='bomber'?'（爆撃機は空戦が苦手）':''}`)}${row('対艦',num(c.strike),`1回目の攻撃航過（砲 ${num(c.gun)}・お任せの搭載）`)}${row('耐久',c.armor,`質量 ${fMass(S.mass)}${c.shield?'・シールドあり':''}`)}${row('役割',esc(S.cls.role),`格納サイズ ${num(c.size,1)}`)}</dl><p class="note">速度は MGLT（公式の亜光速性能）1 につき 20 m/s（インペリアル級 60 MGLT＝1,200 m/s）。比較：Xウイング（100 MGLT）速度 2,000・空戦 1.25・対艦 160・耐久 1.2、TIE/ln（100 MGLT）2,000・1.0・10・0.6、Aウイング（120 MGLT）2,400。母艦の「編成」→「航空」で「設計した機体・小型艦」からこの設計を選ぶと、航行ではこの性能で出撃します。</p>${craftStoresHTML(c)}`;
 }
 const CRAFT_SYSTEM_KEYS=['lifeSupport','ejectSeat','navComputer','targetComputer','maneuver','laserGas','landingGear'];
@@ -3286,7 +3303,7 @@ async function openExample(key) {
     setShip(s, {busyText: '配置見本を展開中…'}); autosave();
     toast('配置見本を開きました。全区画を編集できます。');
     return s;
-  } catch (e) { console.error(e); hideBusyOverlay(); toast('見本を開けませんでした：' + esc(e.message || '')); if (!ship) showTitle('load'); return null; }
+  } catch (e) { console.error(e); hideBusyOverlay(); toast('見本を開けませんでした：' + esc(e.message || '')); if (!ship || ship._deferredPreparation) showTitle('load'); return null; }
 }
 async function fillHangarsRemote() {
   if (!ship) return;
@@ -3399,7 +3416,7 @@ async function loadSaved(id) {
     const rec = (await Store.list()).find(r => r.id === id); if (!rec) throw new Error('見つかりません');
     const s = C.deserialize(await unpack(rec.data)); s.saveId = rec.id;
     setShip(s); closeSheet(); toast(`「${esc(s.name)}」を開きました`);
-  } catch (e) { toast('開けませんでした：' + esc(e.message || '')); }
+  } catch (e) { toast('開けませんでした：' + esc(e.message || '')); if (!ship || ship._deferredPreparation) showTitle('load'); }
 }
 async function exportDesign() {
   const json = JSON.stringify(C.serialize(ship));
@@ -3869,7 +3886,7 @@ function bind() {
     else if (b.id === 'btnSample') { closeSheet(); openExample('venator'); }
     else if (b.dataset.newhull) {
       const P = C.HULLS[b.dataset.newhull], s = C.newShip(Object.assign({}, P), '新設計艦');
-      C.enableSurfaceMode(s,true);
+      C.enableSurfaceMode(s,true,{report:false});
       s.surfaces.compatAllowed=false;
       setShip(s); closeSheet(); st.tab = 'hull'; renderPanel(); toast(`${P.name}の白紙の船体を用意しました`);
     }
@@ -3958,8 +3975,9 @@ function start(hot) {
   const engineStart = YardEngineClient.start(boot ? null : collectSources(), boot ? {workerReady: boot.workerReady} : {});
   engineStart.then(mode => { engineHello(mode); boot?.step('engine', 'done'); titleStatus(); }).catch(e => { console.error(e); toast('設計エンジンを起動できませんでした'); });
   boot?.step('view', 'done');
-  // The draft is prepared behind the title screen so "途中から設計" opens at once.
-  if (draft) { boot?.step('draft', 'run'); setShip(draft, {keepHistory: true}); }
+  // Keep the draft available without blocking New or examples behind work the
+  // player has not selected. Continue starts its preparation when requested.
+  if (draft) { boot?.step('draft', 'skip'); setShip(draft, {keepHistory: true,deferPreparation:!!(boot||hot?.title)}); }
   else boot?.step('draft', 'skip');
   if (boot || hot?.title) showTitle(); else if (!draft) openExample('venator');
 }
@@ -4018,8 +4036,8 @@ function titleStatus() {
   if (!eng.ready) { s.textContent = '設計エンジンを起動中…'; return; }
   window.KSBoot?.engineReady?.();
   const draftReady = ship && ship._geoProxy;
-  if (ship && !draftReady) { s.textContent = '下書きを先読み中…（すぐに開始できます）'; return; }
-  if (ship) window.KSBoot?.step('draft', 'done');
+  if (ship && !draftReady && !ship._deferredPreparation) { s.textContent = '下書きを先読み中…（すぐに開始できます）'; return; }
+  if (ship) window.KSBoot?.step('draft', ship._deferredPreparation?'skip':'done');
   window.KSBoot?.ready?.();
   s.textContent = `準備完了 · 計算は${eng.mode === 'worker' ? 'バックグラウンドのワーカー' : 'この画面'}で実行します`;
 }
@@ -4108,7 +4126,7 @@ function titleStartNew() {
   const s = C.newShip(Object.assign({}, P, {L: t.L, W: t.W, H: t.H}), (t.name || '新設計艦').slice(0, 40));
   s.hullLocked = false; s.shipClass = t.cls;
   if (C.SHIP_CLASSES.find(c => c.id === t.cls)?.craft) s.armor = {hull: .01, cit: 0};
-  C.enableSurfaceMode(s,true);
+  C.enableSurfaceMode(s,true,{report:false});
   s.surfaces.compatAllowed=false;
   st.tab = 'hull'; st.sel = null;
   setShip(s, {keepHistory: true}); hideTitle(); renderPanel();
@@ -4147,7 +4165,7 @@ function bindTitle() {
     if ('patrolEscClear' in d) { patrolOpt.escorts = []; patrolSave(); renderTitle(); return; }
     if (e.target.closest('[data-patrol-more]')) { const k = e.target.closest('[data-patrol-more]').dataset.patrolMore; if (patrolOpt.escorts.length < PATROL_ESCORTS) patrolOpt.escorts.push(k); else toast(`随伴艦は ${PATROL_ESCORTS} 隻までです`); patrolSave(); renderTitle(); return; }
     if (d.patrolEsc) { const k = d.patrolEsc, i = patrolOpt.escorts.indexOf(k); if (i >= 0) patrolOpt.escorts = patrolOpt.escorts.filter(x => x !== k); else if (patrolOpt.escorts.length < PATROL_ESCORTS) patrolOpt.escorts.push(k); else toast(`随伴艦は ${PATROL_ESCORTS} 隻までです`); patrolSave(); renderTitle(); return; }
-    if (d.title === 'continue') { if (ship) hideTitle(); return; }
+    if (d.title === 'continue') { if (ship) {prepareDeferredDraft();hideTitle();} return; }
     if (d.title === 'new' || d.title === 'load') { titleState.panel = titleState.panel === d.title ? null : d.title; renderTitle(); return; }
     if (d.titleClass) { const c = C.SHIP_CLASSES.find(c => c.id === d.titleClass); if (!c) return; titleState.cls = c.id; Object.assign(titleState, titleHullDims(C.HULLS[titleState.hull], c.def)); renderTitle(); return; }
     if (d.titleHull) { titleState.hull = d.titleHull; Object.assign(titleState, titleHullDims(C.HULLS[d.titleHull], titleState.L)); renderTitle(); return; }
@@ -4784,7 +4802,7 @@ function renderPanel(){st.tab=legacyTab(st.tab);if(!nativeRender&&fleet.mode==='
   if(fleet.mode!=='design'){fleetRender();return;}
   refreshSolidCutterOverlay();
 
-  if(ship&&st.tab==='surface'){markTabs();$('#panel').innerHTML=editSubHTML()+surfaceEditorHTML();updateHint();refreshOverlay();organizePanel();return;}
+  if(ship&&st.tab==='surface'){markTabs();$('#panel').innerHTML=editSubHTML()+(surfaceEditorPending()?'<p class="note" data-surface-pending-geometry>形状を計算中…</p>':surfaceEditorHTML());updateHint();refreshOverlay();organizePanel();return;}
 
   if(ship&&st.tab==='mod'&&st.group==='weapons'){compartmentWeaponsPanel();organizePanel();return;}
   if(ship&&st.tab==='mod'&&st.group==='user'&&st.partTool==='place'){markTabs();$('#panel').innerHTML=userPartPanelHTML();updateHint();refreshOverlay();organizePanel();return;}
@@ -5513,6 +5531,7 @@ const SURFACE_FIELDS={
  'battery.weapon':'text','battery.count':'number','battery.spacing':'number','battery.angle':'number',
  'style.kind':'text','style.depth':'number','style.density':'number','style.seed':'number'
 };
+function surfaceEditorPending(){return !!(ship?._client&&(!Array.isArray(ship._geoProxy?.surfaces)||typeof eng!=='undefined'&&eng.adoptedGen<eng.gen));}
 function surfaceRows(){return ship&&C.surfacePatches?C.surfacePatches(ship):[];}
 function surfaceExterior(p){return !!p?.exposed&&Number.isFinite(p.exposedArea)&&p.exposedArea>1e-8;}
 function surfaceSelection(rows=surfaceRows()){
@@ -5522,8 +5541,11 @@ function surfaceSelection(rows=surfaceRows()){
  const wanted=new Set(ids);return rows.filter(p=>surfaceExterior(p)&&wanted.has(p.id));
 }
 function surfaceSyncSelection(){
- surfaceSelection();
- if(!view)return;const active=st.tab==='surface'&&fleet.mode==='design';
+ const active=st.tab==='surface'&&fleet.mode==='design'&&!surfaceEditorPending();
+ // Surface exposure is derived in the worker. Other tabs only need to clear
+ // the highlight; surveying every face here blocks opening a large design.
+ if(active)surfaceSelection();
+ if(!view)return;
  if(view.setSurfaceSelection)view.setSurfaceSelection(active?ship:null,active?st.surfaceIds||[]:[]);
  else{view.surfaceShip=active?ship:null;view.surfaceSelection=active?st.surfaceIds||[]:[];}
 }
@@ -5541,6 +5563,7 @@ function surfaceSelectPatch(id,add=false,range=false){
  st.surfaceIds=[...ids];st.surfaceLast=id;st.surfaceDraft={};surfaceSyncSelection();renderPanel();requestDraw();return true;
 }
 function surfaceTap(px,py,add){
+ if(surfaceEditorPending())return false;
  let hit=view?.pickSurface?.(px,py,ship);if(!hit&&C.surfacePick){const ray=view?.ray(px,py);if(ray)hit=C.surfacePick(ship,ray.o,ray.d);}
  const p=hit?.patch||hit;if(!p?.id){toast('船外に露出している面を選択してください');return;}
  if(!surfaceSelectPatch(p.id,!!add||!!st.surfaceAdd,!!st.surfaceRange))toast('船外に露出している面を選択してください');
@@ -12996,7 +13019,7 @@ async function voyPatrol(source) {
  const opt = {returnTo: 'title', system: SYSTEMS[patrolOpt.sys] ? patrolOpt.sys : 'kuat', escorts: patrolOpt.escorts.slice(0, PATROL_ESCORTS), patrol: true};
  loadShow('艦を準備中…（大型艦は時間がかかります）', 'パトロール');hideTitle();
  try {
-  if (source === 'current') { if (!ship) throw new Error('設計中の艦がありません'); await waitStats(); await trialStart(opt); }
+  if (source === 'current') { if (!ship) throw new Error('設計中の艦がありません'); prepareDeferredDraft(); await waitStats(); await trialStart(opt); }
   else if (source.startsWith('save:')) { await loadSaved(source.slice(5)); if (!ship) throw new Error('保存した設計を開けません'); await waitStats(); await trialStart(opt); }
   else { const a = await fleetAsset(source, LITE); await trialStart({...opt, design: a.design}); }
   if (!trial.on) throw new Error('パトロールを開始できませんでした');

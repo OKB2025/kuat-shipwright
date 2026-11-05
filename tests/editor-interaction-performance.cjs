@@ -44,3 +44,45 @@ test('a same-generation worker response waits until release and then requests fr
  const {run,cx}=setup();run("eng.gen=5;eng.sentGen=5;eng.waiting=true;beginDrag('move');onEngineGeometry({gen:5,geos:{hull:{id:'ready'}},state:'invalid if adopted'});onEngineStats({gen:5,stats:{}});");assert.equal(run('view.uploads.length'),0);assert.equal(run('S'),null);assert.equal(run('eng.geoGen'),0);assert.equal(cx.timers.length,0);
  run('endDrag()');assert.equal(cx.timers.length,1);cx.timers.shift()();assert.equal(run('posts.length'),1);assert.equal(run('posts[0].gen'),5);assert.deepEqual(plain(run('posts[0].what')),['all']);
 });
+
+function surfacePacketFixture(run){
+ run(`ship.hatches=[];ship._client=true;ship._geoProxy={hull:{}};let surfaceSurveys=0;
+ C.surfacePatches=()=>{surfaceSurveys++;throw Error('surface exposure must stay in the worker');};
+ C.patchShip=(s,src,only)=>{for(const k of only||Object.keys(src))if(Object.hasOwn(src,k))s[k]=src[k];return s;};
+ eng.gen=eng.sentGen=eng.geoGen=eng.adoptedGen=5;eng.reset=false;
+ globalThis.surfacePacket={type:'surfaceGeometry',gen:5,state:JSON.stringify({parts:[{id:1,c:[0,0,0]}],fits:[{id:2,p:[0,0,0]}],hatches:[]}),caches:{ship:{},items:{parts:{},fits:{},hatches:{}},geoProxy:{hull:{},surfaces:[{id:'p1:top',_part:{$r:'parts',id:1},exposed:true,exposedArea:20}],surfacePartitions:'null'}},surfaceReport:{patches:[{id:'p1:top'}]}};
+ `);
+}
+
+test('a completed surface packet survives an unchanged drag and is adopted on release without another survey or mesh upload',()=>{
+ const {run,cx}=setup();surfacePacketFixture(run);
+ run("beginDrag('no-op move');onEngineSurfaceGeometry(surfacePacket)");
+ assert.equal(run('meshStore.pendingSurfaceGeometry===surfacePacket'),true);
+ assert.equal(run('ship._geoProxy.surfaces'),undefined);assert.equal(run('view.uploads.length'),0);
+ run('endDrag()');
+ assert.equal(run('meshStore.pendingSurfaceGeometry'),null);assert.equal(run('ship._geoProxy.surfaces.length'),1);
+ assert.equal(run('ship._geoProxy.surfaces[0]._part===ship.parts[0]'),true,'symbolic host references are resolved only after release');
+ assert.equal(run('eng.adoptedGen'),5);assert.equal(run('view.uploads.length'),0);assert.equal(run('surfaceSurveys'),0);
+ for(const timer of cx.timers.splice(0))timer();assert.equal(run('posts.length'),0,'the finished surface snapshot is reused');
+});
+
+test('a retained surface packet from before a real edit cannot replace the newer design after dragging',()=>{
+ const {run,cx}=setup();surfacePacketFixture(run);
+ run("beginDrag('move');onEngineSurfaceGeometry(surfacePacket);ship.parts[0].c=[3,0,0];touch('parts')");
+ assert.equal(run('meshStore.pendingSurfaceGeometry'),null,'a changed generation releases the obsolete snapshot immediately');
+ run('endDrag()');
+ assert.equal(run('meshStore.pendingSurfaceGeometry'),null);assert.equal(run('ship._geoProxy.surfaces'),undefined);
+ assert.equal(run('ship.parts[0].c[0]'),3,'stale surface state must not undo the drag');assert.equal(run('surfaceSurveys'),0);assert.equal(run('view.uploads.length'),0);
+ for(const timer of cx.timers.splice(0))timer();assert.equal(run('posts.length'),1);assert.equal(run('posts[0].gen'),6);
+});
+
+test('loading another design releases a retained surface snapshot from the previous design',()=>{
+ const {run}=setup();surfacePacketFixture(run);
+ run("beginDrag('no-op');onEngineSurfaceGeometry(surfacePacket)");
+ assert.equal(run('meshStore.pendingSurfaceGeometry===surfacePacket'),true);
+ run('const resetSolidCutter=()=>{},showBusyOverlay=()=>{},hideInspect=()=>{},updateName=()=>{},renderPanel=()=>{};');
+ const a=app.indexOf('function setShip(s, opts)'),b=app.indexOf('function prepareDeferredDraft(',a);assert.ok(a>=0&&b>a);run(app.slice(a,b));
+ run("setShip({saveId:'another-design',parts:[],fits:[],hatches:[]},{keepHistory:true,deferPreparation:true})");
+ assert.equal(run('meshStore.pendingSurfaceGeometry'),null);assert.equal(run('ship.saveId'),'another-design');assert.equal(run('ship._geoProxy'),undefined);
+ assert.equal(run('surfaceSurveys'),0);assert.equal(run('view.uploads.length'),0);
+});
