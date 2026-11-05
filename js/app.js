@@ -2666,7 +2666,7 @@ function ghostFor(hit) {
     const k = curFit(), d = C.FITS[k],normal=weaponPlacementNormal(k,hit.n);
     let a = 2; if (d.cat !== 'b') { let bv = -2; for (let i = 0; i < 6; i++) { const v = C.dot(C.AXES[i], normal); if (v > bv) { bv = v; a = i; } } }
     const tilt=weaponTiltMode(k)?C.fitTilt(normal):null;
-    const f = C.mountFit(ship, {id:-1,k,p:alignFitPoint(hit.p,hit.n).slice(),n:normal.slice(),a,ped:fitPlacementPed(k),...(C.fitCanRotate(k)?{assetYaw:st.gunYaw||0}:{}),...(C.isBallTurret?.(k)?{assetPitch:st.gunPitch||0}:{}),...(C.isConcussionLauncher?.(k)?{launchPitch:st.launchPitch||0}:{}),...(weaponLocalMount(hit)&&d.cat==='w'?{localMount:true}:{}),...(tilt?{tilt}:{})});
+    const f = C.mountFit(ship, {id:-1,k,p:alignFitPoint(hit.p,hit.n).slice(),n:normal.slice(),a,ped:fitPlacementPed(k),...(d.cat==='w'?{mountMode:st.weaponMount}:{}),...(C.fitCanRotate(k)?{assetYaw:st.gunYaw||0}:{}),...(C.isBallTurret?.(k)?{assetPitch:st.gunPitch||0}:{}),...(C.isConcussionLauncher?.(k)?{launchPitch:st.launchPitch||0}:{}),...(weaponLocalMount(hit)&&d.cat==='w'?{localMount:true}:{}),...(tilt?{tilt}:{})});
     const bad = !!weaponMountIssue(k,normal) || f.float || (d.casemate&&Math.abs(normal[1])>.65) || (d.cat === 'b' && !d.window && hit.n[1] < 0.2) || C.fitClash(ship, f);
     ls.box(C.fitAABB(f), bad ? ng : ok);
     turretHeadingLines(ls,f,bad?ng:ok);
@@ -2755,7 +2755,7 @@ function tapHit(t, hit, add) {
       if (hit.fit) { toast('その場所には装備があります'); break; }
       const k = curFit();
       const issue=weaponMountIssue(k,weaponPlacementNormal(k,hit.n));if(issue){toast(issue);break;}let err = null, made = null;
-      mutate(C.FITS[k].short + 'を設置', () => { const opts = {localMount:weaponLocalMount(hit),tilt:weaponTiltMode(k),...(C.fitCanRotate(k)?{assetYaw:st.gunYaw||0}:{}),...(C.isBallTurret?.(k)?{assetPitch:st.gunPitch||0}:{}),...(C.isConcussionLauncher?.(k)?{launchPitch:st.launchPitch||0}:{})}, r = C.placeFit(ship, k, alignFitPoint(hit.p, hit.n), weaponPlacementNormal(k,hit.n), fitPlacementPed(k), st.mirror, opts); err = r.err; made = r.fit; if (made) { placeVerticalFits(made, k, fitPlacementPed(k), opts); applyPedDefaults(made); applyFitTemplate(made); } }, 'fits', {silent: true});
+      mutate(C.FITS[k].short + 'を設置', () => { const opts = {localMount:weaponLocalMount(hit),tilt:weaponTiltMode(k),...(C.FITS[k].cat==='w'?{mountMode:st.weaponMount}:{}),...(C.fitCanRotate(k)?{assetYaw:st.gunYaw||0}:{}),...(C.isBallTurret?.(k)?{assetPitch:st.gunPitch||0}:{}),...(C.isConcussionLauncher?.(k)?{launchPitch:st.launchPitch||0}:{})}, r = C.placeFit(ship, k, alignFitPoint(hit.p, hit.n), weaponPlacementNormal(k,hit.n), fitPlacementPed(k), st.mirror, opts); err = r.err; made = r.fit; if (made) { placeVerticalFits(made, k, fitPlacementPed(k), opts); applyPedDefaults(made); applyFitTemplate(made); } }, 'fits', {silent: true});
       if (err) toast(err); else if (made) { showPreview('fits', linkedItems('fits', made)); st.sel = {list: 'fits', id: made.id}; renderPanel(); }
       break;
     }
@@ -2930,6 +2930,7 @@ function scores(S) {
     {k: '耐久', v: cl(60 * Math.min(1, S.aStruct / Math.max(1e-9, S.aThrust || 1) / 1.5) + 40 * (1 - S.vuln))},
   ];
 }
+function designAccelerationG(S){const a=S?.propulsion?.accelerationLimitMps2??S?.maximumAccelMps2;return Number.isFinite(a)?Math.max(0,a)/C.G0:Math.max(0,S?.accelG||0);}
 function engagementCapacityHTML(S){return `<div data-aa-capacity><dt>同時交戦数（対空・迎撃）</dt><dd>${num(Math.max(1,Math.round(S?.aaChannels||1)))} 枠<small>航空機4機の小隊、またはミサイル8発の斉射で1枠</small></dd></div>`;}
 function specHTML(S, opt = {}) {
   if (!S) return '<p class="muted">計算中…</p>';
@@ -2951,7 +2952,7 @@ function specHTML(S, opt = {}) {
     <div><dt>主機出力</dt><dd>${fW(S.power)}<small>ISD比 ×${S.xISD.toFixed(2)}</small></dd></div>
     <div><dt>一斉射（全砲）</dt><dd>${fTT(S.alphaTot)}<small>主射界 ${fTT(S.alphaBest)}</small></dd></div>
     ${engagementCapacityHTML(S)}
-    <div><dt>最大加速</dt><dd>${fG(S.accelG)}<small>MGLT ${S.MGLT}</small></dd></div>
+    <div><dt>計画最大加速</dt><dd>${fG(designAccelerationG(S))}<small>実加速 ${fG(S.accelG)} · 選択中の運転条件</small></dd></div>
     <div><dt>ハイパードライブ</dt><dd>${S.hyperClass ? 'クラス ' + S.hyperClass.toFixed(1) : 'なし'}<small>${S.hyperClass ? (S.jumpOK ? '跳躍電力 可' : '跳躍電力 不足') : ''}</small></dd></div>
     <div><dt>シールド強度</dt><dd>${fPct(S.shieldPct)}<small>${fW(S.shieldP)}</small></dd></div>
     <div><dt>装甲</dt><dd>外殻 ${S.armorHull.toFixed(2)} m<small>集中防御 ${S.armorCit.toFixed(1)} m${S.plateArea>0?` · 装甲外板 ${S.armorPlate.toFixed(1)} m（表面の ${fPct(S.plateShare||0)}）`:''}</small></dd></div>
@@ -3578,9 +3579,9 @@ function dragItemMove(px, py) {
   requestDraw();
 }
 // Seat a fitting at a point with a face normal: the mounting axis, tilt and surface follow the new place.
-function seatFit(g, q, m) { g.p = q.slice(); g.n = C.norm(m); if (g.mountAxis == null) g.a = C.AXES.reduce((i, x, j) => C.dot(x, g.n) > C.dot(C.AXES[i], g.n) ? j : i, 0); const tl = g.mountAxis == null && !g.localMount && weaponTiltMode(g.k) ? C.fitTilt(g.n) : null; if (tl) g.tilt = tl; else delete g.tilt; delete g.local; delete g.localNormal; delete g.host; try { C.mountFit(ship, g); } catch (e) { g.float = true; } }
+function seatFit(g, q, m) { g.p = q.slice(); g.n = C.norm(m); if (g.mountAxis == null) g.a = C.AXES.reduce((i, x, j) => C.dot(x, g.n) > C.dot(C.AXES[i], g.n) ? j : i, 0); const tl = g.mountAxis == null && !g.localMount && weaponTiltMode(g.k,g.mountMode||st.weaponMount) ? C.fitTilt(g.n) : null; if (tl) g.tilt = tl; else delete g.tilt; delete g.local; delete g.localNormal; delete g.host; try { C.mountFit(ship, g); } catch (e) { g.float = true; } }
 function moveFitTo(f, p, n0) {
-  const d = C.FITS[f.k], n = d.cat === 'w' ? weaponPlacementNormal(f.k, n0) : n0;
+  const d = C.FITS[f.k], n = d.cat === 'w' ? weaponPlacementNormal(f.k,n0,f.mountMode||st.weaponMount) : n0;
   const set = seatFit;
   const links = fitLinks(f);
   set(f, p, n);
@@ -3678,7 +3679,8 @@ function assignMirror(target, q) {
   Object.assign(target, q, {id}); delete target.tw; delete target.vt;
   if (tw != null) target.tw = tw; if (vt != null) target.vt = vt;
 }
-function copyFitSettings(from, to) { to.ped = from.ped; if (from.width) to.width = from.width; if (from.height) to.height = from.height; for (const k of ['commandDepth', 'commandHeight', 'commandEnabled', 'chargeSalvos', 'chargeDepth', 'chargeScale', 'scale', 'launchPitch', 'batteryCaliber', 'batteryGuns']) if (from[k] != null) to[k] = from[k]; if(from.assetPitch==null)delete to.assetPitch;else to.assetPitch=from.assetPitch;C.normalizeFitMount(to); }
+function refreshFitSupport(f){if(f?.mountSupport||f?.mountMode==='top'||f?.mountMode==='bottom')C.mountFit(ship,f);else C.normalizeFitMount(f);}
+function copyFitSettings(from, to) { to.ped = from.ped; if (from.width) to.width = from.width; if (from.height) to.height = from.height; for (const k of ['commandDepth', 'commandHeight', 'commandEnabled', 'chargeSalvos', 'chargeDepth', 'chargeScale', 'scale', 'launchPitch', 'batteryCaliber', 'batteryGuns']) if (from[k] != null) to[k] = from[k]; if(from.assetPitch==null)delete to.assetPitch;else to.assetPitch=from.assetPitch;refreshFitSupport(to); }
 // Fittings placed with 左右対称 / 上下対称 keep links to their counterparts
 // (tw: across the centreline, vt: top/bottom). Edits follow those links unless
 // 「対の武装も同時に編集」 is switched off; the symmetry toggles only decide
@@ -3696,11 +3698,11 @@ function syncFitTwin(from, to, link) {
   for (const k of FIT_SYNC_KEYS) { if (from[k] === undefined) delete to[k]; else to[k] = JSON.parse(JSON.stringify(from[k])); }
   // A mirror image turns the other way: one flip negates the train angle, two restore it.
   if (from.assetYaw != null || to.assetYaw != null) to.assetYaw = (from.assetYaw || 0) * ((link.z ? -1 : 1) * (link.y ? -1 : 1));
-  C.normalizeFitMount(to);
+  refreshFitSupport(to);
 }
 function editSel(fn) {   // live edit of the selected part/fit (and its mirrored twins)
   const it = selItem(); if (!it) return;
-  if (st.sel.list === 'fits') { const links = fitLinks(it); fn(it); C.enforceEquipment(it); C.normalizeFitMount(it); for (const l of links) syncFitTwin(it, l.fit, l); queuePreview('fits', [it, ...links.map(l => l.fit)]); return; }
+  if (st.sel.list === 'fits') { const links = fitLinks(it); fn(it); C.enforceEquipment(it); refreshFitSupport(it); for (const l of links) syncFitTwin(it, l.fit, l); queuePreview('fits', [it, ...links.map(l => l.fit)]); return; }
   const list = st.sel.list, find = (id) => id == null ? null : ship[list].find(q => q.id === id), tw = st.mirror ? twinOfItem(list, it) : null;
   fn(it);C.enforceEquipment(it);
   if (tw) {
@@ -3726,7 +3728,7 @@ function fitPedestalControls(f = null) {
 }
 // Switching from 編集 to 設置 keeps what was just being edited ready to place:
 // the same kind, size and settings, apart from where it sits.
-const TEMPLATE_SKIP = ['id', 'tw', 'vt', 'c', 'p', 'n', 'a', 'tilt', 'host', 'local', 'localNormal', 'base', 'low', 'slope', 'float', 'surfaceNormal', 'pitch', 'roll', 'mountAxis', 'mountOffset', 'localMount', 'batteryZone', 'assetYaw', 'assetPitch', 'launchPitch'];
+const TEMPLATE_SKIP = ['id', 'tw', 'vt', 'c', 'p', 'n', 'a', 'tilt', 'host', 'local', 'localNormal', 'base', 'low', 'slope', 'float', 'surfaceNormal', 'pitch', 'roll', 'mountAxis', 'mountOffset', 'localMount', 'mountMode', 'mountSupport', 'batteryZone', 'assetYaw', 'assetPitch', 'launchPitch'];
 // v21 'scale' is not carried: the player cannot make a turret larger or smaller than its standard.
 const FIT_TEMPLATE_KEYS = ['width', 'height', 'chargeSalvos', 'chargeDepth', 'chargeScale', 'commandDepth', 'commandHeight', 'commandEnabled', 'pedShape', 'pedSize', 'skinAsset', 'launchPitch', 'batteryCaliber', 'batteryGuns'];
 function templateFor(it, list) { const data = JSON.parse(JSON.stringify(it, (k, v) => k.startsWith('_') ? undefined : v)); for (const k of TEMPLATE_SKIP) delete data[k]; return {list, k: it.k, equipmentId: list === 'parts' ? (C.equipmentSpec(it)?.id || null) : null, data}; }
@@ -3747,17 +3749,18 @@ function carryToPlace() {
     }
   } else {
     if (C.FITS[it.k].window) st.bridge = it.k; else st.fit = it.k;
+    if(C.FITS[it.k].cat==='w')st.weaponMount=it.mountMode||((it.localMount&&!it.tilt)?'trench':it.tilt?'auto':it.a===3?'bottom':it.a===2?'top':'auto');
     st.ped = fitPedestalAllowed(it) ? it.ped || 0 : 0; st.pedShape = fitPedestalAllowed(it) ? it.pedShape || 'round' : 'round'; st.pedSize = fitPedestalAllowed(it) ? it.pedSize || 1 : 1;st.gunYaw=C.fitCanRotate(it)?it.assetYaw||0:0;st.gunPitch=ballTurretCanPitch(it)?C.ballTurretPitch(it):0;st.launchPitch=launcherCanPitch(it)?C.launcherPitch(it):0;
   }
   st.sel = null; toast(`${list === 'parts' ? C.partLabel(it) : C.FITS[it.k].name} を同じ設定で設置できます`);
 }
 function applyFitTemplate(f) {
   const t = activeTemplate('fits', f.k); if (!t) return;
-  for (const q of linkedItems('fits', f)) { for (const k of FIT_TEMPLATE_KEYS) if (t.data[k] != null) q[k] = JSON.parse(JSON.stringify(t.data[k])); C.normalizeFitMount(q); }
+  for (const q of linkedItems('fits', f)) { for (const k of FIT_TEMPLATE_KEYS) if (t.data[k] != null) q[k] = JSON.parse(JSON.stringify(t.data[k])); refreshFitSupport(q); }
 }
 function applyPedDefaults(f) {
   if (C.FITS[f.k].window || C.FITS[f.k].cat === 'b') return;
-  for (const q of linkedItems('fits', f)) { if (fitPedestalAllowed(q)) { if (st.pedShape === 'trap') q.pedShape = 'trap'; if (Math.abs(st.pedSize - 1) > 1e-6) q.pedSize = st.pedSize; } C.normalizeFitMount(q); }
+  for (const q of linkedItems('fits', f)) { if (fitPedestalAllowed(q)) { if (st.pedShape === 'trap') q.pedShape = 'trap'; if (Math.abs(st.pedSize - 1) > 1e-6) q.pedSize = st.pedSize; } refreshFitSupport(q); }
 }
 function linkedItems(list, it) {
   if (!it) return [];
@@ -3804,7 +3807,7 @@ function placeVerticalFits(f, k, ped, opts) {
   for (const g of src) {
     const n = g.n || C.AXES[g.a], p = C.vmirrorPoint(ship, g.p), n2 = [n[0], -n[1], n[2]];
     if (Math.abs(n[1]) < .2 && Math.abs(p[1] - g.p[1]) < Math.max(1, C.FITS[k].r)) continue;
-    const mirroredOpts={...opts,...(C.fitCanRotate(g)?{assetYaw:-(g.assetYaw||0)}:{})};
+    const mirroredOpts={...opts,...(g.mountMode==='top'?{mountMode:'bottom'}:g.mountMode==='bottom'?{mountMode:'top'}:{}),...(C.fitCanRotate(g)?{assetYaw:-(g.assetYaw||0)}:{})};
     const r = C.placeFit(ship, k, p, n2, ped, false, mirroredOpts);
     if (r.err || !r.fit) continue;
     copyFitSettings(g, r.fit); g.vt = r.fit.id; r.fit.vt = g.id; made.push(r.fit);
@@ -5013,7 +5016,7 @@ function referenceStatsHTML(){
  // Current design first; an example's table values sit beside it for comparison.
  if(!S)return '<div class="pgroup blueprint-card"><h4>艦の性能</h4><p class="note">計算中…</p></div>';
  const r=C.SHIP_REFERENCE[ship.reference];
- const rows=[['出力',fW(S.power),r?fW(r.power):null],['ISD比',S.xISD.toFixed(3),r?(r.power/C.ISD_W).toFixed(3):null],['最大加速度',fG(S.accelG),r?.accelG!=null?fG(r.accelG):null],['シールド蓄積量',sci(S.shieldCapacity)+' J',r?sci(r.shieldLoad)+' J':null],['全出力のエネルギー換算',num(S.power/C.TT,1)+' TT/秒',r?num(r.sustainedTT,1)+' TT/秒':null],...(S.heavyAlpha!=null?[['重兵装一斉射（イオン含む）',(S.heavyAlpha/1000).toFixed(3)+' PT',r?.alphaPT!=null?r.alphaPT.toFixed(3)+' PT':null]]:[])];
+ const rows=[['出力',fW(S.power),r?fW(r.power):null],['ISD比',S.xISD.toFixed(3),r?(r.power/C.ISD_W).toFixed(3):null],['最大加速度',fG(designAccelerationG(S)),r?.accelG!=null?fG(r.accelG):null],['シールド蓄積量',sci(S.shieldCapacity)+' J',r?sci(r.shieldLoad)+' J':null],['全出力のエネルギー換算',num(S.power/C.TT,1)+' TT/秒',r?num(r.sustainedTT,1)+' TT/秒':null],...(S.heavyAlpha!=null?[['重兵装一斉射（イオン含む）',(S.heavyAlpha/1000).toFixed(3)+' PT',r?.alphaPT!=null?r.alphaPT.toFixed(3)+' PT':null]]:[])];
  return `<div class="pgroup blueprint-card"><h4>艦の性能</h4><table class="station-table"><thead><tr><th>項目</th><th>この設計</th>${r?`<th>${esc(r.name)}</th>`:''}</tr></thead><tbody>${rows.map(a=>`<tr><td>${a[0]}</td><td><b>${a[1]}</b></td>${r?`<td>${a[2]??'—'}</td>`:''}</tr>`).join('')}</tbody></table>${r?referenceAircraftSettingHTML(r):''}${r?.armament?`<p class="note">兵装：${r.armament}。</p>`:''}<details class="trench-editor"><summary>数値の出典</summary><p class="note">1 ISD = ${fW(C.ISD_W)}（標準インペリアル級の主炉・予備炉・補助炉の合計）。${r?`<a href="${C.STATS_SOURCE}#range=B${r.row}:T${r.row}" target="_blank" rel="noopener">指定表 Ships 行${r.row} · ${esc(r.name)}</a>`:`<a href="${C.STATS_SOURCE}" target="_blank" rel="noopener">指定スプレッドシート</a>`}（確認日 2026-10-19）。表のシールド容量は最大出力10秒分のエネルギーです。</p></details></div>`;
 }
 // Fire per second by range band (best arc), as the battles use it.
@@ -5168,9 +5171,9 @@ function turretHeadingLines(ls,f,col){
  ls.seg(start,end,col);for(const sign of [-1,1])ls.seg(end,C.add(end,C.add(C.mul(fw,-length*.2),C.mul(rt,sign*length*.12))),col);
 }
 // 「面に合わせる」 stands a weapon on the face's own normal, slopes included.
-function weaponTiltMode(k){const d=C.FITS[k];return d?.cat==='w'&&!d.casemate&&st.weaponMount==='auto';}
+function weaponTiltMode(k,mode=st.weaponMount){const d=C.FITS[k];return d?.cat==='w'&&!d.casemate&&mode==='auto';}
 function weaponLocalMount(hit){return st.weaponMount==='trench'||hit?.part?.sponson===true;}
-function weaponPlacementNormal(k,n){return C.FITS[k]?.cat==='w'&&!C.weaponWallOnly?.(k)&&!['auto','trench'].includes(st.weaponMount)?(st.weaponMount==='bottom'?[0,-1,0]:[0,1,0]):n;}
+function weaponPlacementNormal(k,n,mode=st.weaponMount){return C.FITS[k]?.cat==='w'&&!C.weaponWallOnly?.(k)&&!['auto','trench'].includes(mode)?(mode==='bottom'?[0,-1,0]:[0,1,0]):n;}
 function weaponMountIssue(k,n){return C.weaponMountAllowed?.(k,n)===false?'この砲は左右の舷側面に配置してください':'';}
 // Retired UI hooks stay inert for older integrations; imported batteries are
 // converted to spherical turrets by Core before the editor receives them.
@@ -5185,7 +5188,7 @@ function turretCompartmentHTML(f){
 }
 function weaponMountControls(){
  const selected=st.sel?.list==='fits'?selItem():null,wall=C.weaponWallOnly?.(selected||curFit()),choices=wall?[['auto','舷側面に合わせる'],['trench','トレンチ内']]:[['auto','面に合わせる'],['top','上面に配置'],['bottom','下面に配置'],['trench','トレンチ内']],note=wall?'左右の舷側面に直接取り付けます。艦首・艦尾・甲板・船底には配置できません。砲室は壁に固定され、砲身と揺架だけが射界内で動きます。':'「面に合わせる」では斜めの面にも面の傾きに沿って傾けて据え付け、射界はその面の外向き半球になります。垂直に立てるときは「上面に配置」「下面に配置」。下面を選ぶと船底へ視点を切り替えます。船体・構造物の下面をタップして搭載。砲塔は下向き、充電装置は取付面の船内側に配置されます。射界は取付面の外向き半球です。「トレンチ内」では溝の床・内壁に局所固定し、外甲板へ移しません。';
- return `<div class="pgroup"><h4>武装の取付面</h4>${seg('weaponmount',choices,choices.some(q=>q[0]===st.weaponMount)?st.weaponMount:'auto')}<p class="note">${note}</p></div>${st.fitTool==='place'?weaponYawControls()+launcherPitchControls():''}`;
+ return `<div class="pgroup"><h4>武装の取付面</h4>${seg('weaponmount',choices,choices.some(q=>q[0]===st.weaponMount)?st.weaponMount:'auto')}<p class="note">${note}</p>${!wall?'<p class="note" data-auto-turret-support>「上面に配置」では斜面の高い側へ高さを揃え、隙間を埋める土台を自動生成します。手動の砲座高はその上に加わります。</p>':''}</div>${st.fitTool==='place'?weaponYawControls()+launcherPitchControls():''}`;
 }
 function chooseWeaponMount(face){
  if(!['auto','top','bottom','trench'].includes(face))return;
@@ -5849,7 +5852,7 @@ function xfMirrorOut(o,f){let q=o;if(f.y)q=C.vmirrorPart(q,ship);if(f.z)q=C.mirr
 // Model assets apply assetYaw separately, so derive both kinds from an unturned frame.
 function xfFitForward(f){if(C.isBallTurret?.(f)&&!C.isSurfaceBattery?.(f)){const g=C.authoredTurretGeometry?.(f);if(g)return g.fw;}const fr=C.fitFrameOf({...f,assetYaw:0}),r=(f.assetYaw||0)*Math.PI/180;return C.add(C.mul(fr.fw,Math.cos(r)),C.mul(fr.rt,Math.sin(r)));}
 function xfFitOut(f,p,n,fw=null){
- const o=publicCopy(f);seatFit(o,p,n);
+ const o=publicCopy(f);if(o.mountMode==='top'||o.mountMode==='bottom')o.mountMode=Math.hypot(n[0],n[2])<1e-7?(n[1]<0?'bottom':'top'):'auto';seatFit(o,p,n);
  if(fw&&C.fitCanRotate(o)){const fr=C.fitFrameOf({...o,assetYaw:0,assetPitch:0}),x=C.dot(fw,fr.fw),z=C.dot(fw,fr.rt),flat=Math.hypot(x,z);if(flat>1e-8){const yaw=Math.atan2(z,x)*180/Math.PI,delta=((yaw-(f.assetYaw||0)+540)%360)-180;if(Math.abs(delta)>1e-7)o.assetYaw=r6(yaw);}if(C.isBallTurret?.(o)&&!C.isSurfaceBattery?.(o)){const pitch=Math.atan2(C.dot(fw,fr.up),flat)*180/Math.PI;if(Math.abs(pitch-C.ballTurretPitch(f))>1e-7)o.assetPitch=r6(C.clamp(pitch,-90,90));C.normalizeFitMount(o);}}
  return o;
 }
@@ -8469,7 +8472,7 @@ function fleetControlsHTML(){
  if(u)h+=`<div class="pgroup fleet-orders"><h4>${esc(u.name)}</h4>${review?`<div class="fleet-coords">${[['0','前後 X',u.pos[0]],['1','上下 Y',u.pos[1]],['2','左右 Z',u.pos[2]],['yaw','方位 °',u.yaw*180/Math.PI]].map(([k,l,v])=>`<label>${l}<input type="number" data-fleet-pos="${k}" value="${Math.round(v)}" step="${k==='yaw'?5:100}" aria-label="${l}"></label>`).join('')}</div><button class="btn sm" data-fleet-action="position">画面上で配置する</button>`:`<p class="note">${u.team?'敵艦はAIが指揮します。戦闘開始の数秒後にハイパースペースから出現します。':u===fleetFlag()?'旗艦 — 出撃するとこの艦を操艦します。出力配分は戦闘中に ⚡ ボタンまたは P キーで切り替えます。':'僚艦 — 出撃後は旗艦を護衛します（旗艦の艦橋と敵のあいだに入り、旗艦を狙う敵を優先して撃ち、射線をふさぎます）。戦闘中に T キーまたは「随伴艦」ボタンで自由攻撃に切り替えられます。出力配分と照準をここで指定できます。'}</p>${u.team===0&&u!==fleetFlag()?`<div class="chips"><button class="chip" data-fleet-action="flagship">旗艦にする</button></div>${fleetPowerHTML(u,editable)}`:''}`}<div class="chips"><button class="chip" data-fleet-action="focus">この艦を見る</button><button class="chip" data-fleet-action="remove" ${lock||busy?'disabled':''}>編成から外す</button></div></div>`;
  h+=`<div class="pgroup"><h4>表示</h4><div class="chips"><button class="chip" data-fleet-action="fit">艦隊全体</button>${review?'<button class="chip" data-fleet-action="top">真上</button><button class="chip" data-fleet-action="iso">斜め</button>':`<button class="chip" data-fleet-action="ranges" aria-pressed="${fleet.ranges}">射程円</button>`}<button class="chip" data-fleet-action="labels" aria-pressed="${fleet.labels}">艦名表示</button>${review?`<button class="chip" data-fleet-action="orbit" aria-pressed="${fleet.orbit}">自動周回</button><button class="chip" data-fleet-action="clean">鑑賞表示</button><button class="chip" data-fleet-action="saveReview">配置を保存</button><button class="chip" data-fleet-action="loadReview">保存配置を開く</button>`:''}</div></div><p class="note">${review?'ドラッグで回転、ホイール・2本指で拡大縮小。Shift＋ドラッグで平行移動。':'友軍と敵の艦を追加し、旗艦を選んで「旗艦で出撃」。図は編成の確認用で、1本指で移動、2本指・ホイール・＋/−で拡大縮小。戦闘は出撃後の実空間で行います。'}</p>`;return h;
 }
-function fleetDetailsHTML(){const u=fleetSelected(),s=u&&fleet.assets.get(u.key)?.stats;return `<div class="spec-title"><h3>${fleet.mode==='review'?'観閲艦の諸元':'戦術情報'}</h3></div>${u&&s?`<div class="fleet-readout"><h3>${esc(u.name)}</h3><dl><dt>全長</dt><dd>${fLen(u.p.len)}</dd><dt>主出力</dt><dd>${s.xISD.toFixed(3)} ISD</dd><dt>最大加速度（設計）</dt><dd>${fG(s.accelG)}</dd><dt>航空容量</dt><dd>${(s.aviation?.capacity||0).toFixed(2)} サイズ</dd><dt>搭載</dt><dd>${s.slots} 機</dd><dt>発艦可能</dt><dd>${s.deployableSlots??s.slots} 機</dd><dt>ハイパードライブ</dt><dd>${s.hyperClass==null?'なし':'クラス '+num(s.hyperClass,2)}</dd>${fleet.mode==='tactical'?`<dt>構造</dt><dd>${fPct(u.hp/u.p.hp)}</dd><dt>シールド</dt><dd>${u.shieldMax?fPct(u.shield/u.shieldMax):'なし'}</dd><dt>パワーセル蓄電</dt><dd>${u.bankMax?fPct((u.bank??0)/u.bankMax):'なし'}</dd><dt>状態</dt><dd class="${u.dead||u.out?'fleet-bad':''}">${fleetStatusText(u)}</dd><dt>装甲</dt><dd>${fPct(u.armor??1)}</dd><dt>兵装エネルギー</dt><dd>${u.p.wCap?fPct((u.energy??0)/u.p.wCap):'—'}</dd><dt>炉心負荷</dt><dd>${fPct(u.load||0)}（誘爆 ${fPct(C.coreDetonation(u.load||0))}）</dd><dt>出力配分</dt><dd>${fleetPowerName(u)}</dd><dt>乗員</dt><dd>${num(Math.round(u.crew??0))} / ${num(u.p.crewNeed||0)} 名</dd>${u.ammo?.some(n=>n>0)||(u.p.modules||[]).some(m=>m.k==='launcher')?`<dt>ミサイル残弾</dt><dd>${num(Math.round((u.ammo||[]).reduce((n,x)=>n+x,0)))} 発</dd>`:''}<dt>出撃中</dt><dd>${Math.floor(u.air)} 機</dd><dt>戦術速度</dt><dd>${(C.len(u.velocity||[0,0,0])/1000).toFixed(2)} km/s</dd><dt>方位</dt><dd>${Math.round(((90-u.yaw*180/Math.PI)%360+360)%360)}°</dd><dt>高度</dt><dd>${(u.pos[1]/1000).toFixed(1)} km</dd>${fleetMapTarget(u)?`<dt>最寄り／指定目標距離</dt><dd>${(C.len(C.sub(fleetMapTarget(u).pos,u.pos))/1000).toFixed(1)} km</dd>`:''}${u.p.slidingHatches?`<dt>発艦ハッチ</dt><dd>${fleetHatchText(u)}</dd>`:''}`:''}</dl>${fleet.mode==='tactical'&&u.p.modules?`<p class="note keep fleet-damage"><b>損傷</b> ${esc(fleetDamageList(u)||'なし')}</p>`:''}</div>`:'<p class="note">艦を選択してください。</p>'}${fleet.mode==='tactical'?`<h4>経過記録</h4><ol class="fleet-log">${fleetLogEvents().slice(-12).map(e=>`<li class="${/撃沈|戦闘不能|誘爆/.test(e.text)?'bad':''}"><time>${fTime(e.time)}</time>${fleetLogSide(e)}${esc(e.text)}</li>`).join('')||'<li>各艦に命令を設定できます。</li>'}</ol><p class="note">青は友軍、赤は敵軍。射撃と損害は同じ時刻の状態から集計します。実行中の命令変更はできません。次のターンで変更できます。</p>`:'<p class="note">艦体・艦橋・兵装は設計画面と共通の部品構成です。艦ごとの拡大率は変えず、実寸比で表示しています。</p>'}`;}
+function fleetDetailsHTML(){const u=fleetSelected(),s=u&&fleet.assets.get(u.key)?.stats;return `<div class="spec-title"><h3>${fleet.mode==='review'?'観閲艦の諸元':'戦術情報'}</h3></div>${u&&s?`<div class="fleet-readout"><h3>${esc(u.name)}</h3><dl><dt>全長</dt><dd>${fLen(u.p.len)}</dd><dt>主出力</dt><dd>${s.xISD.toFixed(3)} ISD</dd><dt>最大加速度（設計）</dt><dd>${fG(designAccelerationG(s))}</dd><dt>航空容量</dt><dd>${(s.aviation?.capacity||0).toFixed(2)} サイズ</dd><dt>搭載</dt><dd>${s.slots} 機</dd><dt>発艦可能</dt><dd>${s.deployableSlots??s.slots} 機</dd><dt>ハイパードライブ</dt><dd>${s.hyperClass==null?'なし':'クラス '+num(s.hyperClass,2)}</dd>${fleet.mode==='tactical'?`<dt>構造</dt><dd>${fPct(u.hp/u.p.hp)}</dd><dt>シールド</dt><dd>${u.shieldMax?fPct(u.shield/u.shieldMax):'なし'}</dd><dt>パワーセル蓄電</dt><dd>${u.bankMax?fPct((u.bank??0)/u.bankMax):'なし'}</dd><dt>状態</dt><dd class="${u.dead||u.out?'fleet-bad':''}">${fleetStatusText(u)}</dd><dt>装甲</dt><dd>${fPct(u.armor??1)}</dd><dt>兵装エネルギー</dt><dd>${u.p.wCap?fPct((u.energy??0)/u.p.wCap):'—'}</dd><dt>炉心負荷</dt><dd>${fPct(u.load||0)}（誘爆 ${fPct(C.coreDetonation(u.load||0))}）</dd><dt>出力配分</dt><dd>${fleetPowerName(u)}</dd><dt>乗員</dt><dd>${num(Math.round(u.crew??0))} / ${num(u.p.crewNeed||0)} 名</dd>${u.ammo?.some(n=>n>0)||(u.p.modules||[]).some(m=>m.k==='launcher')?`<dt>ミサイル残弾</dt><dd>${num(Math.round((u.ammo||[]).reduce((n,x)=>n+x,0)))} 発</dd>`:''}<dt>出撃中</dt><dd>${Math.floor(u.air)} 機</dd><dt>戦術速度</dt><dd>${(C.len(u.velocity||[0,0,0])/1000).toFixed(2)} km/s</dd><dt>方位</dt><dd>${Math.round(((90-u.yaw*180/Math.PI)%360+360)%360)}°</dd><dt>高度</dt><dd>${(u.pos[1]/1000).toFixed(1)} km</dd>${fleetMapTarget(u)?`<dt>最寄り／指定目標距離</dt><dd>${(C.len(C.sub(fleetMapTarget(u).pos,u.pos))/1000).toFixed(1)} km</dd>`:''}${u.p.slidingHatches?`<dt>発艦ハッチ</dt><dd>${fleetHatchText(u)}</dd>`:''}`:''}</dl>${fleet.mode==='tactical'&&u.p.modules?`<p class="note keep fleet-damage"><b>損傷</b> ${esc(fleetDamageList(u)||'なし')}</p>`:''}</div>`:'<p class="note">艦を選択してください。</p>'}${fleet.mode==='tactical'?`<h4>経過記録</h4><ol class="fleet-log">${fleetLogEvents().slice(-12).map(e=>`<li class="${/撃沈|戦闘不能|誘爆/.test(e.text)?'bad':''}"><time>${fTime(e.time)}</time>${fleetLogSide(e)}${esc(e.text)}</li>`).join('')||'<li>各艦に命令を設定できます。</li>'}</ol><p class="note">青は友軍、赤は敵軍。射撃と損害は同じ時刻の状態から集計します。実行中の命令変更はできません。次のターンで変更できます。</p>`:'<p class="note">艦体・艦橋・兵装は設計画面と共通の部品構成です。艦ごとの拡大率は変えず、実寸比で表示しています。</p>'}`;}
 // The log shows finished turns plus the current turn up to the frame on screen.
 function fleetLogEvents(){const b=fleet.battle;if(!b)return [];const now=fleet.frame?.time;return [...b.events,...(b.phase==='execute'&&b.last&&now!=null?b.last.events.filter(e=>e.time<=now):[])];}
 function fleetLogSide(e){const u=fleetUnits().find(x=>x.id===e.id);return u?`<span class="fleet-log-side ${u.team?'enemy':''}">${u.team?'敵':'友'}</span>`:'';}
@@ -9232,7 +9235,7 @@ function tutGo(i,first){
 function tutSummary(){
  if(!S)return '<p class="tut-wait">性能を計算中…</p>';
  const warn=(S.warnings||[]).filter(w=>w.lv!=='info').length;
- return `<dl class="tut-sum"><div><dt>艦橋</dt><dd>${S.bridges} 基</dd></div><div><dt>最大加速</dt><dd>${fG(S.accelG)}</dd></div><div><dt>一斉射</dt><dd>${fTT(S.alphaTot)}</dd></div><div><dt>超空間</dt><dd>${S.hyperClass?'クラス '+S.hyperClass.toFixed(1):'なし'}</dd></div></dl><p class="tut-note">${warn?`注意点が ${warn} 件あります。画面下の「点検」から該当する部品へ移動できます。`:'大きな問題はありません。'}</p>`;
+ return `<dl class="tut-sum"><div><dt>艦橋</dt><dd>${S.bridges} 基</dd></div><div><dt>計画最大加速</dt><dd>${fG(designAccelerationG(S))}</dd></div><div><dt>一斉射</dt><dd>${fTT(S.alphaTot)}</dd></div><div><dt>超空間</dt><dd>${S.hyperClass?'クラス '+S.hyperClass.toFixed(1):'なし'}</dd></div></dl><p class="tut-note">${warn?`注意点が ${warn} 件あります。画面下の「点検」から該当する部品へ移動できます。`:'大きな問題はありません。'}</p>`;
 }
 function tutRender(){
  let box=$('#tut');

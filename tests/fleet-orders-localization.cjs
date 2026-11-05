@@ -13,7 +13,7 @@ run(`const C=Core,R=Rts,num=v=>String(v),esc=String,ja=String,rgb=v=>v.join(',')
  const ship=C.newShip({L:80,W:40,H:20,plan:'rect',sec:'rect'},'Tracking capacity');ship.parts=[];ship.fits=[];
  const before=C.computeStats(ship);ship.parts.push({id:1,k:'sensor',c:[40,11,0],d:2,label:'Tracking sensor'});const after=C.computeStats(ship),profile=C.fleetProfile(after,ship.name,ship);
 `);
-section('function engagementCapacityHTML(', '// v22 Store stations');
+section('function designAccelerationG(', '// v22 Store stations');
 
 test('the actual design statistics show the same simultaneous engagement capacity used by combat',()=>{
  assert.ok(run('after.aaChannels>before.aaChannels'),'installed tracking equipment must increase the displayed capacity');
@@ -23,6 +23,12 @@ test('the actual design statistics show the same simultaneous engagement capacit
  }
  assert.match(translated('同時交戦数（対空・迎撃）'),/Simultaneous/);assert.equal(translated('12 枠'),'12 Slots');
  assert.match(translated('航空機4機の小隊、またはミサイル8発の斉射で1枠'),/4 craft.*8 missiles/);
+});
+
+test('design performance distinguishes planned maximum from the selected operating acceleration',()=>{
+ run('const planningStats={...after,propulsion:{accelerationLimitMps2:3700*C.G0},accelG:1295};');
+ const html=run('specHTML(planningStats)'),row=html.match(/<div><dt>計画最大加速<\/dt>[\s\S]*?<\/div>/);assert.ok(row);assert.match(row[0],/3700 G/);assert.match(row[0],/実加速 1295 G/);assert.doesNotMatch(row[0],/MGLT/);translatedHTML(row[0]);
+ assert.equal(run('designAccelerationG({...after,propulsion:{accelerationLimitMps2:0},accelG:1295})'),0);
 });
 
 test('squadron and wing copy controls retain hierarchy and translate their actual rendered labels',()=>{

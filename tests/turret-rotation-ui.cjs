@@ -33,7 +33,7 @@ test('every rotatable procedural and reference turret exposes the same precise p
  for(const key of keys){run(`st.fit=${JSON.stringify(key)}`);const fresh=run('weaponYawControls()');assert.match(fresh,/data-sl="newGunYaw"/);assert.match(fresh,/step="any"/);assert.match(fresh,/min="-180" max="180"/);
   run(`ship.fits=[{id:1,k:${JSON.stringify(key)},p:[250,60,60],a:2,ped:0,base:0,assetYaw:32.125}];st.sel={list:'fits',id:1}`);const selected=run('baseFitEditor()');assert.match(selected,/data-sl="gunYaw"/);assert.match(selected,/value="32\.125"/);
  }
- for(const key of ['casemateMid','claser','ctorp','msl','cpylon','bridge'])if(C.FITS[key]){run(`st.fit=${JSON.stringify(key)}`);assert.equal(run('weaponYawControls()'),'');assert.equal(run(`weaponYawControls({k:${JSON.stringify(key)}})`),'');}
+ for(const key of ['quad70Side','claser','ctorp','msl','cpylon','bridge'])if(C.FITS[key]){run(`st.fit=${JSON.stringify(key)}`);assert.equal(run('weaponYawControls()'),'');assert.equal(run(`weaponYawControls({k:${JSON.stringify(key)}})`),'');}
 });
 
 test('actual placement keeps the requested yaw for procedural, craft and reference turret families',()=>{
@@ -62,8 +62,8 @@ test('copying a rotated turret into placement keeps its angle and permits a diff
  assert.deepEqual(plain(run('ship.fits.map(q=>q.assetYaw)')),[-61.125,-61.125,22.375]);
 });
 
-test('unsupported fixed weapons and casemates do not gain yaw edits through stale controls',()=>{
- const run=setup();for(const key of ['claser','casemateMid','msl']){run(`ship.fits=[{id:1,k:${JSON.stringify(key)},p:[250,60,60],a:2,ped:0,base:0}];st.sel={list:'fits',id:1};input('gunYaw',75)`);assert.equal(run('selItem().assetYaw'),undefined,key);}
+test('unsupported fixed weapons and wall mounts do not gain yaw edits through stale controls',()=>{
+ const run=setup();for(const key of ['claser','quad70Side','msl']){run(`ship.fits=[{id:1,k:${JSON.stringify(key)},p:[250,60,60],a:2,ped:0,base:0}];st.sel={list:'fits',id:1};input('gunYaw',75)`);assert.equal(run('selItem().assetYaw'),undefined,key);}
 });
 
 test('the actual rotation controls and placement guidance translate fully in English',()=>{

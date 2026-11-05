@@ -192,7 +192,7 @@ function navigationItinerary(route){
 // training, COST_K.crew cr a head. Every side's figures come from here (fleet organisation, scenario cost limits,
 // later the campaign's budget requests).
 const COST_K = {crew: 1000};
-const COST_MODEL=Object.freeze({version:13,hull:0.6,armor:30,wingInstall:1800,wingArea:18});
+const COST_MODEL=Object.freeze({version:14,hull:0.6,armor:30,wingInstall:1800,wingArea:18});
 const COST_INSTALL=Object.freeze({gen:18000,aux:6000,engine:7500,hyper:20000,shield:12000,localShield:4000,fuel:2000,battery:2500,inertial:7000,integrity:4000,repulsor:3500,sensor:3000,scanner:4000,firecontrol:6000,cockpit:6000,astromech:6000,droidbrain:5000,automation:6000,command:8000,lifeSupport:2500,ejectSeat:1500,navComputer:4500,targetComputer:4000,maneuver:3000,laserGas:2000,landingGear:2500,habitat:2000});
 const COST_MOUNT_INSTALL=Object.freeze({claser:3500,claserH:5000,cion:4500,cturret:4500,ctorp:5500,cmsl:4000,cbomb:3500,cpylon:1250,weapon:750,command:1500});
 function partBuildCost(p,volume){if(p?._surfaceAdapter)return p._surfaceAdapter.cost;const d=PARTS[p?.k];if(!d)return 0;const V=Number.isFinite(volume)?Math.max(0,volume):partVolume(p),light=isStructuralPart(p)&&p.light&&!p.plate?.25:1,area=isWing(p)?Array.isArray(p.s)?partArea(p):6*Math.pow(V,2/3):0;return V>0?V*(d.cost||0)*light+(p.id<0?0:COST_INSTALL[p.k]||0)+(isWing(p)?COST_MODEL.wingInstall+area*COST_MODEL.wingArea:0)+(p.k==='engine'&&(p.machineryId==null||p.machineryId===p.id)?resolveEngineSpec(p).cost:0):0;}
@@ -207,21 +207,21 @@ function costSignature(value){const text=JSON.stringify(value,(key,v)=>v&&typeof
 function costModelSignature(){return costSignature({model:COST_MODEL,propulsion:{model:PROPULSION,profiles:DRIVE_PROFILES,grades:MACHINERY_GRADES},systems:CRAFT_SYSTEMS,wing:WING,wingSection:AERO_WING_SECTION,wingPlanforms:WING_PLANFORM_PRESETS,wingMesh:'point-tip-v1',solar:SOLAR,solarPresets:SOLAR_PANEL_PRESETS,heat:HEAT,surface:{version:SURFACE_VERSION,materials:SURFACE_MATERIALS},energy:ENERGY_MODEL,crew:COST_K.crew,install:COST_INSTALL,mount:COST_MOUNT_INSTALL,categories:COST_KIND,parts:Object.fromEntries(Object.entries(PARTS).map(([k,d])=>[k,{cost:d.cost||0,group:d.group||''}])),fits:Object.fromEntries(Object.entries(FITS).map(([k,d])=>[k,{cost:d.cost||0,cat:d.cat||''}]))});}
 // BEGIN GENERATED CRAFT PRICES — scripts/update-craft-costs.cjs
 const CRAFT_PRICE_CATALOG={
- "modelVersion": 13,
- "modelSignature": "rib8z2",
+ "modelVersion": 14,
+ "modelSignature": "d2vo03",
  "entries": {
   "arc170": {
    "reference": "craft_arc170",
-   "signature": "11qd2bc",
-   "build": 222030,
+   "signature": "37gipx",
+   "build": 230512,
    "crew": 3000,
-   "total": 225030,
+   "total": 233512,
    "by": {
     "hull": 20,
     "armor": 29,
-    "power": 59266,
-    "drive": 59005,
-    "defense": 16503,
+    "power": 59284,
+    "drive": 67468,
+    "defense": 16504,
     "command": 32505,
     "weapons": 34201,
     "systems": 20501,
@@ -257,9 +257,9 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.000766,
-    "upS": 0.000766,
-    "down": 0.0312,
+    "up": 0.00204,
+    "upS": 0.00204,
+    "down": 0.0132,
     "T": 0
    },
    "powerProfile": {
@@ -273,6 +273,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.5015,
+      "weaponPowerW": 2510400000000000000,
       "stock": 0,
       "at": 0.688,
       "pd": true,
@@ -294,6 +295,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.5015,
+      "weaponPowerW": 2510400000000000000,
       "stock": 0,
       "at": 0.688,
       "pd": true,
@@ -315,6 +317,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.7508,
+      "weaponPowerW": 1338880000000000000,
       "stock": 0,
       "at": 0.152,
       "pd": true,
@@ -336,6 +339,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.7508,
+      "weaponPowerW": 1338880000000000000,
       "stock": 0,
       "at": 0.152,
       "pd": true,
@@ -357,6 +361,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0,
+      "weaponPowerW": 1000000000000000,
       "stock": 0,
       "at": 0.767,
       "pd": false,
@@ -441,15 +446,15 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "右舷反応炉",
-      "w": 1.2732738493087792,
+      "w": 1.877429298215496,
       "hits": 1,
-      "crew": 0.0007183775201208657,
-      "size": 1.4367550402417315,
+      "crew": 0.0012862203922572209,
+      "size": 2.5724407845144417,
       "at": 0.551,
       "part": 28,
       "y": 0.02,
       "z": 0.21,
-      "r": 0.044,
+      "r": 0.054,
       "share": 0.5,
       "domain": "main",
       "port": "p28",
@@ -458,15 +463,15 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "左舷反応炉",
-      "w": 1.2732738493087792,
+      "w": 1.877429298215496,
       "hits": 1,
-      "crew": 0.0007183775201208657,
-      "size": 1.4367550402417315,
+      "crew": 0.0012862203922572209,
+      "size": 2.5724407845144417,
       "at": 0.551,
       "part": 29,
       "y": 0.02,
       "z": -0.21,
-      "r": 0.044,
+      "r": 0.054,
       "share": 0.5,
       "domain": "main",
       "port": "p29",
@@ -484,7 +489,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.02,
       "z": 0.21,
       "r": 0.06,
-      "share": 0.4815698341701677,
+      "share": 0.48732609930588305,
       "domain": "main",
       "port": "p30",
       "powerConnected": true
@@ -501,7 +506,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.02,
       "z": -0.21,
       "r": 0.06,
-      "share": 0.4815698341701677,
+      "share": 0.48732609930588305,
       "domain": "main",
       "port": "p31",
       "powerConnected": true
@@ -883,17 +888,17 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "engine",
       "name": "自動推進機関",
-      "w": 0.2635005800740432,
+      "w": 0.20367075935777398,
       "hits": 1,
-      "crew": 0.00002705218564390238,
-      "size": 0.13526092821951188,
-      "at": 0.488,
+      "crew": 0.000018383280739892952,
+      "size": 0.09191640369946476,
+      "at": 0.483,
       "part": -30,
       "machineryOwner": 30,
       "y": 0.02,
       "z": 0.21,
-      "r": 0.02,
-      "share": 0.018430165829832344,
+      "r": 0.018,
+      "share": 0.012673900694116967,
       "domain": "main",
       "port": "p30",
       "powerConnected": true
@@ -901,17 +906,17 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "engine",
       "name": "自動推進機関",
-      "w": 0.2635005800740432,
+      "w": 0.20367075935777398,
       "hits": 1,
-      "crew": 0.00002705218564390238,
-      "size": 0.13526092821951188,
-      "at": 0.488,
+      "crew": 0.000018383280739892952,
+      "size": 0.09191640369946476,
+      "at": 0.483,
       "part": -31,
       "machineryOwner": 31,
       "y": 0.02,
       "z": -0.21,
-      "r": 0.02,
-      "share": 0.018430165829832344,
+      "r": 0.018,
+      "share": 0.012673900694116967,
       "domain": "main",
       "port": "p31",
       "powerConnected": true
@@ -1071,35 +1076,35 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.16,
       "z": 0,
       "r": 0.064,
-      "share": 0.10121012101210124,
+      "share": 0.1063583815028902,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 1.014952715313409,
+      "w": 1.0221192322973631,
       "hits": 1,
       "crew": 0,
-      "size": 17.60077641561264,
-      "at": 0.393,
+      "size": 17.787522053974577,
+      "at": 0.394,
       "y": 0,
       "z": 0,
-      "r": 0.102,
-      "share": 0.41474147414741475,
+      "r": 0.103,
+      "share": 0.4404624277456648,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央前部）",
-      "w": 0.9446204825822476,
+      "w": 0.853065413019056,
       "hits": 1,
       "crew": 0,
-      "size": 15.803349646378988,
-      "at": 0.589,
-      "y": -0.12,
+      "size": 13.562401986035733,
+      "at": 0.594,
+      "y": -0.15,
       "z": 0,
-      "r": 0.099,
-      "share": 0.3723872387238724,
+      "r": 0.094,
+      "share": 0.33583815028901737,
       "domain": "main"
      },
      {
@@ -1113,13 +1118,13 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.37,
       "z": 0,
       "r": 0.066,
-      "share": 0.11166116611661167,
+      "share": 0.11734104046242776,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 22.919909262841994,
+      "w": 23.522466885122988,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -1131,7 +1136,7 @@ const CRAFT_PRICE_CATALOG={
      "version": 0,
      "eta": 0.75
     },
-    "D": 0.003080420262310727,
+    "D": 0.003082228580376122,
     "shieldBuffer": 0.0731817485234382,
     "wCap": 0,
     "crewNeed": 3,
@@ -1141,16 +1146,16 @@ const CRAFT_PRICE_CATALOG={
     "width": 20.430400848388672,
     "height": 3.8475,
     "grid": {
-     "P": 15048582957095907000,
+     "P": 26943763873255174000,
      "fixed": 37884383780655560,
      "cooling": 0,
-     "De": 2403318379996192000,
-     "Ds": 12888478377508082000,
+     "De": 2552382382679540700,
+     "Ds": 12896044380293693000,
      "Dw": 7699560000000000000,
      "domains": [
       {
        "id": "main",
-       "P": 15048582957095907000,
+       "P": 26943763873255174000,
        "reactors": [
         9,
         10
@@ -1158,11 +1163,11 @@ const CRAFT_PRICE_CATALOG={
        "sources": [
         {
          "moduleIndex": 9,
-         "P": 7524291478547954000
+         "P": 13471881936627587000
         },
         {
          "moduleIndex": 10,
-         "P": 7524291478547954000
+         "P": 13471881936627587000
         }
        ],
        "modules": [
@@ -1221,70 +1226,6 @@ const CRAFT_PRICE_CATALOG={
       }
      ],
      "powerPaths": [
-      {
-       "kind": "power",
-       "from": "p28",
-       "to": "f39",
-       "cap": 2510400000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p29",
-       "to": "f40",
-       "cap": 2510400000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p37",
-       "to": "f41",
-       "cap": 1338880000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p37",
-       "to": "f42",
-       "cap": 1338880000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p37",
-       "to": "f43",
-       "cap": 1000000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p28",
-       "to": "p30",
-       "cap": 1201659189998096000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p29",
-       "to": "p31",
-       "cap": 1201659189998096000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p28",
-       "to": "p32",
-       "cap": 12888478377508082000,
-       "auto": true,
-       "ok": true
-      },
       {
        "kind": "power",
        "from": "p28",
@@ -1492,14 +1433,137 @@ const CRAFT_PRICE_CATALOG={
        "cap": 1515375351226222.5,
        "auto": true,
        "ok": true
-      }
-     ],
-     "trunks": [
+      },
       {
-       "port": "p37",
-       "moduleIndex": 18
+       "kind": "power",
+       "from": "p28",
+       "to": "p30",
+       "cap": 1276191191339770400,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p31",
+       "cap": 1276191191339770400,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "p32",
+       "cap": 306192435822065400000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "f39",
+       "cap": 3765600000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "f40",
+       "cap": 3765600000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "f41",
+       "cap": 2008320000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "f42",
+       "cap": 2008320000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p28",
+       "to": "f43",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p29",
+       "to": "p30",
+       "cap": 1276191191339770400,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p29",
+       "to": "p31",
+       "cap": 1276191191339770400,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p29",
+       "to": "p32",
+       "cap": 306192435822065400000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p29",
+       "to": "f39",
+       "cap": 3765600000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p29",
+       "to": "f40",
+       "cap": 3765600000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p29",
+       "to": "f41",
+       "cap": 2008320000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p29",
+       "to": "f42",
+       "cap": 2008320000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p29",
+       "to": "f43",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
       }
      ],
+     "trunks": [],
      "fixedLoads": [
       {
        "id": "hotel",
@@ -1517,22 +1581,22 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 30,
        "machineryId": 30,
-       "ratedInputW": 1201659189998096000,
+       "ratedInputW": 1276191191339770400,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 600829594.999048,
-       "effectiveMachineryVolumeM3": 0.13526092821951174,
-       "machineryVolumeM3": 0.13526092821951174,
-       "machineryLengthM": 0.2,
-       "machineryRadiusM": 0.52,
-       "machineryDiameterM": 1.04,
+       "ratedThrustN": 638095595.6698852,
+       "effectiveMachineryVolumeM3": 0.09191640369946479,
+       "machineryVolumeM3": 0.09191640369946479,
+       "machineryLengthM": 0.3,
+       "machineryRadiusM": 0.35,
+       "machineryDiameterM": 0.7,
        "machineryOffsetM": 2.25,
-       "maxInputW": 4598871559463399400,
-       "maxRatedInputW": 4598871559463399400,
-       "inputDensityWPerM3": 8884008159754396000,
+       "maxInputW": 3125157725781802500,
+       "maxRatedInputW": 3125157725781802500,
+       "inputDensityWPerM3": 13884259391963150000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 5987.5124571529,
+       "cost": 10219.356817854536,
        "powerNode": "p30",
        "heatNode": "p30",
        "reactorId": 28,
@@ -1542,7 +1606,7 @@ const CRAFT_PRICE_CATALOG={
         0,
         0
        ],
-       "legacyCoolingInputW": 1201659189998096000,
+       "legacyCoolingInputW": 0,
        "valid": true,
        "issues": [],
        "reasons": [],
@@ -1551,28 +1615,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 4598871559463399400
+       "pathCapacityW": 3125157725781802500
       },
       {
        "version": 1,
        "id": 31,
        "machineryId": 31,
-       "ratedInputW": 1201659189998096000,
+       "ratedInputW": 1276191191339770400,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 600829594.999048,
-       "effectiveMachineryVolumeM3": 0.13526092821951174,
-       "machineryVolumeM3": 0.13526092821951174,
-       "machineryLengthM": 0.2,
-       "machineryRadiusM": 0.52,
-       "machineryDiameterM": 1.04,
+       "ratedThrustN": 638095595.6698852,
+       "effectiveMachineryVolumeM3": 0.09191640369946479,
+       "machineryVolumeM3": 0.09191640369946479,
+       "machineryLengthM": 0.3,
+       "machineryRadiusM": 0.35,
+       "machineryDiameterM": 0.7,
        "machineryOffsetM": 2.25,
-       "maxInputW": 4598871559463399400,
-       "maxRatedInputW": 4598871559463399400,
-       "inputDensityWPerM3": 8884008159754396000,
+       "maxInputW": 3125157725781802500,
+       "maxRatedInputW": 3125157725781802500,
+       "inputDensityWPerM3": 13884259391963150000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 5987.5124571529,
+       "cost": 10219.356817854536,
        "powerNode": "p31",
        "heatNode": "p31",
        "reactorId": 29,
@@ -1582,7 +1646,7 @@ const CRAFT_PRICE_CATALOG={
         0,
         0
        ],
-       "legacyCoolingInputW": 1201659189998096000,
+       "legacyCoolingInputW": 0,
        "valid": true,
        "issues": [],
        "reasons": [],
@@ -1591,17 +1655,17 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 4598871559463399400
+       "pathCapacityW": 3125157725781802500
       }
      ],
-     "massKg": 34645.83464185987,
-     "ratedThrustN": 1201659189.998096,
-     "ratedAccelMps2": 34684.08835924607,
-     "structuralAccelerationLimitMps2": 225065.4930342831,
+     "massKg": 36647.503482646614,
+     "ratedThrustN": 1276191191.3397703,
+     "ratedAccelMps2": 34823.41415,
+     "structuralAccelerationLimitMps2": 225035.3079659832,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 34684.08835924607
+     "accelerationLimitMps2": 34823.41415
     },
-    "profileVersion": 13,
+    "profileVersion": 14,
     "heat": {
      "v": 1,
      "src": [
@@ -1610,13 +1674,13 @@ const CRAFT_PRICE_CATALOG={
        "id": "p28",
        "n": "右舷反応炉 #28",
        "g": "high",
-       "sh": 0.708657,
-       "st": 21669959458218107000,
+       "sh": 0.577886,
+       "st": 38799019977487450000,
        "m": [
         9
        ],
        "pc": [],
-       "sec": 4,
+       "sec": 3,
        "sw": -1,
        "gen": -1
       },
@@ -1625,13 +1689,13 @@ const CRAFT_PRICE_CATALOG={
        "id": "p29",
        "n": "左舷反応炉 #29",
        "g": "high",
-       "sh": 0.291343,
-       "st": 8908942055995432000,
+       "sh": 0.422114,
+       "st": 28340607514094227000,
        "m": [
         10
        ],
        "pc": [],
-       "sec": 4,
+       "sec": 3,
        "sw": -1,
        "gen": -1
       },
@@ -1640,8 +1704,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "p30",
        "n": "右舷IGP-440a イオン・タービン #30",
        "g": "high",
-       "sh": 0.375,
-       "st": 2162986541996572400,
+       "sh": 0.5,
+       "st": 3828573574019311000,
        "m": [
         11,
         35
@@ -1656,8 +1720,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "p31",
        "n": "左舷IGP-440a イオン・タービン #31",
        "g": "high",
-       "sh": 0.625,
-       "st": 3604977569994288000,
+       "sh": 0.5,
+       "st": 3828573574019311000,
        "m": [
         12,
         36
@@ -1673,7 +1737,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "シールド（艦尾区画）",
        "g": "high",
        "sh": 1,
-       "st": 161842777028584000000,
+       "st": 348193198267929700000,
        "m": [
         13
        ],
@@ -1687,8 +1751,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "f39",
        "n": "武装（艦首区画）",
        "g": "high",
-       "sh": 0.499849,
-       "st": 37656000000000000000,
+       "sh": 0.326045,
+       "st": 47070000000000000000,
        "m": [
         0
        ],
@@ -1702,8 +1766,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "f40",
        "n": "武装（艦首区画）",
        "g": "high",
-       "sh": 0.499849,
-       "st": 37656000000000000000,
+       "sh": 0.326045,
+       "st": 47070000000000000000,
        "m": [
         1
        ],
@@ -1717,8 +1781,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "f41",
        "n": "武装（艦尾区画）",
        "g": "high",
-       "sh": 0.000301616,
-       "st": 22722144763805990,
+       "sh": 0.347781,
+       "st": 50208000000000000000,
        "m": [
         2,
         3
@@ -1733,8 +1797,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "f43",
        "n": "武装（艦首区画）",
        "g": "high",
-       "sh": 1.12637e-7,
-       "st": 8485504587343.897,
+       "sh": 0.000129878,
+       "st": 18750000000000000,
        "m": [
         4
        ],
@@ -1843,7 +1907,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "外殻からの放熱",
        "k": "skin",
        "g": "low",
-       "cap": 966635878313106100000,
+       "cap": 967203328522026900000,
        "m": -1,
        "sec": -1,
        "src": -1
@@ -1853,7 +1917,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "右舷反応炉 #28（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 361165990970301800,
+       "cap": 559496895763180700,
        "m": -1,
        "sec": -1,
        "src": 0
@@ -1863,37 +1927,17 @@ const CRAFT_PRICE_CATALOG={
        "n": "左舷反応炉 #29（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 361165990970301800,
+       "cap": 559496895763180700,
        "m": -1,
        "sec": -1,
        "src": 1
-      },
-      {
-       "id": "int:p30",
-       "n": "右舷IGP-440a イオン・タービン #30（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 60082959499904800,
-       "m": -1,
-       "sec": -1,
-       "src": 2
-      },
-      {
-       "id": "int:p31",
-       "n": "左舷IGP-440a イオン・タービン #31（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 60082959499904800,
-       "m": -1,
-       "sec": -1,
-       "src": 3
       },
       {
        "id": "int:p32",
        "n": "シールド（艦尾区画）（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 5406124549420330000,
+       "cap": 5803219971132162000,
        "m": -1,
        "sec": -1,
        "src": 4
@@ -1943,96 +1987,84 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 9,
-       "cap": 361165990970301800,
+       "cap": 559496895763180700,
        "sec": -1
       },
       {
        "s": 0,
        "d": 0,
-       "cap": 632040484198028000,
+       "cap": 896992043644771100,
        "sec": 3
       },
       {
        "s": 0,
        "d": 6,
-       "cap": 632040484198028000,
+       "cap": 896992043644771100,
        "sec": 3
       },
       {
        "s": 1,
        "d": 10,
-       "cap": 361165990970301800,
+       "cap": 559496895763180700,
        "sec": -1
       },
       {
        "s": 1,
        "d": 1,
-       "cap": 632040484198028000,
+       "cap": 896992043644771100,
        "sec": 3
       },
       {
        "s": 1,
        "d": 7,
-       "cap": 632040484198028000,
+       "cap": 896992043644771100,
        "sec": 3
       },
       {
        "s": 2,
-       "d": 11,
-       "cap": 60082959499904800,
-       "sec": -1
-      },
-      {
-       "s": 2,
        "d": 0,
-       "cap": 79583257342768900,
+       "cap": 95714339350482780,
        "sec": 1
       },
       {
        "s": 2,
        "d": 6,
-       "cap": 79583257342768900,
+       "cap": 95714339350482780,
        "sec": 2
       },
       {
        "s": 3,
-       "d": 12,
-       "cap": 60082959499904800,
-       "sec": -1
-      },
-      {
-       "s": 3,
        "d": 1,
-       "cap": 79583257342768900,
+       "cap": 95714339350482780,
        "sec": 1
       },
       {
        "s": 3,
        "d": 7,
-       "cap": 79583257342768900,
+       "cap": 95714339350482780,
        "sec": 2
       },
       {
        "s": 4,
-       "d": 13,
-       "cap": 5406124549420330000,
+       "d": 11,
+       "cap": 5803219971132162000,
        "sec": -1
       },
       {
        "s": 4,
        "d": 0,
-       "cap": 8699722904817957000,
+       "cap": 8704829956698243000,
        "sec": 1
       },
       {
        "s": 4,
        "d": 1,
-       "cap": 8699722904817957000,
+       "cap": 8704829956698243000,
        "sec": 1
       },
       {
        "s": 5,
-       "d": 14,
+       "d": 12,
        "cap": 784500000000000000,
        "sec": -1
       },
@@ -2050,7 +2082,7 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "s": 6,
-       "d": 15,
+       "d": 13,
        "cap": 784500000000000000,
        "sec": -1
       },
@@ -2068,7 +2100,7 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "s": 7,
-       "d": 16,
+       "d": 14,
        "cap": 836800000000000000,
        "sec": -1
       },
@@ -2086,7 +2118,7 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "s": 8,
-       "d": 17,
+       "d": 15,
        "cap": 312500000000000,
        "sec": -1
       },
@@ -2153,7 +2185,7 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 9,
        "d": 8,
-       "cap": 966635878313106100000,
+       "cap": 967203328522026900000,
        "sec": -1
       }
      ]
@@ -2162,15 +2194,15 @@ const CRAFT_PRICE_CATALOG={
   },
   "awing": {
    "reference": "craft_awing",
-   "signature": "ce6uxt",
-   "build": 159054,
+   "signature": "qf9ns5",
+   "build": 159940,
    "crew": 1000,
-   "total": 160054,
+   "total": 160940,
    "by": {
     "hull": 9,
     "armor": 3,
-    "power": 22507,
-    "drive": 50733,
+    "power": 22511,
+    "drive": 51615,
     "defense": 25501,
     "command": 14501,
     "weapons": 21800,
@@ -2207,9 +2239,9 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.00169,
-    "upS": 0.00169,
-    "down": 0.0246,
+    "up": 0.00279,
+    "upS": 0.00279,
+    "down": 0.0175,
     "T": 0
    },
    "powerProfile": {
@@ -2223,6 +2255,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 1.0005,
+      "weaponPowerW": 836800000000000000,
       "stock": 0,
       "at": 0.434,
       "pd": true,
@@ -2244,6 +2277,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 1.0005,
+      "weaponPowerW": 836800000000000000,
       "stock": 0,
       "at": 0.434,
       "pd": true,
@@ -2334,15 +2368,15 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "核融合炉",
-      "w": 0.8148952635576191,
+      "w": 1.2192896366161472,
       "hits": 1,
-      "crew": 0.00036780929030188347,
-      "size": 0.735618580603767,
+      "crew": 0.0006731786412155064,
+      "size": 1.3463572824310128,
       "at": 0.289,
       "part": 14,
-      "y": -0.08,
+      "y": -0.03,
       "z": 0,
-      "r": 0.066,
+      "r": 0.08,
       "share": 1,
       "domain": "main",
       "port": "p14",
@@ -2360,7 +2394,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.13,
       "z": 0.48,
       "r": 0.083,
-      "share": 0.39480234296622074,
+      "share": 0.44829918830600873,
       "domain": "main",
       "port": "p15",
       "powerConnected": true
@@ -2377,7 +2411,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.13,
       "z": -0.48,
       "r": 0.083,
-      "share": 0.39480234296622074,
+      "share": 0.44829918830600873,
       "domain": "main",
       "port": "p16",
       "powerConnected": true
@@ -2742,17 +2776,17 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "engine",
       "name": "自動推進機関",
-      "w": 0.5435633532695409,
+      "w": 0.3110180144543289,
       "hits": 1,
-      "crew": 0.00008015031793174438,
-      "size": 0.4007515896587218,
-      "at": 0.402,
+      "crew": 0.000034690320512151496,
+      "size": 0.17345160256075748,
+      "at": 0.41,
       "part": -15,
       "machineryOwner": 15,
-      "y": -0.11,
-      "z": 0.32,
-      "r": 0.054,
-      "share": 0.10519765703377922,
+      "y": -0.1,
+      "z": 0.33,
+      "r": 0.04,
+      "share": 0.051700811693991336,
       "domain": "main",
       "port": "p15",
       "powerConnected": true
@@ -2760,17 +2794,17 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "engine",
       "name": "自動推進機関",
-      "w": 0.5435633532695409,
+      "w": 0.3110180144543289,
       "hits": 1,
-      "crew": 0.00008015031793174438,
-      "size": 0.4007515896587218,
-      "at": 0.402,
+      "crew": 0.000034690320512151496,
+      "size": 0.17345160256075748,
+      "at": 0.41,
       "part": -16,
       "machineryOwner": 16,
-      "y": -0.11,
-      "z": -0.32,
-      "r": 0.054,
-      "share": 0.10519765703377922,
+      "y": -0.1,
+      "z": -0.33,
+      "r": 0.04,
+      "share": 0.051700811693991336,
       "domain": "main",
       "port": "p16",
       "powerConnected": true
@@ -2778,43 +2812,43 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "quarters",
       "name": "居住空間（後部）",
-      "w": 0.23315772502127324,
+      "w": 0.21704123706951747,
       "hits": 1,
       "crew": 0,
-      "size": 1.937928836679447,
-      "at": 0.188,
+      "size": 1.7405098907391292,
+      "at": 0.183,
       "y": -0.04,
       "z": 0,
-      "r": 0.09,
-      "share": 0.18899803536345774,
+      "r": 0.087,
+      "share": 0.17600325931961702,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 0.34705238325816157,
+      "w": 0.33677828050247044,
       "hits": 1,
       "crew": 0,
-      "size": 3.5192948832421975,
-      "at": 0.393,
-      "y": -0.05,
+      "size": 3.364179997146233,
+      "at": 0.402,
+      "y": -0.07,
       "z": 0,
-      "r": 0.11,
-      "share": 0.3432220039292731,
+      "r": 0.109,
+      "share": 0.34019148502750046,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央前部）",
-      "w": 0.3663863095023749,
+      "w": 0.3656125260178779,
       "hits": 1,
       "crew": 0,
-      "size": 3.8174377811928815,
+      "size": 3.8053509069516376,
       "at": 0.61,
       "y": -0.14,
       "z": 0,
       "r": 0.113,
-      "share": 0.3722986247544204,
+      "share": 0.38480342228559783,
       "domain": "main"
      },
      {
@@ -2823,18 +2857,18 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.14789628801479346,
       "hits": 1,
       "crew": 0,
-      "size": 0.97903681354076,
+      "size": 0.9790368135407602,
       "at": 0.84,
       "y": -0.13,
       "z": 0,
       "r": 0.072,
-      "share": 0.0954813359528487,
+      "share": 0.09900183336728458,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 7.159838738564818,
+      "w": 7.107122331306514,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -2846,7 +2880,7 @@ const CRAFT_PRICE_CATALOG={
      "version": 0,
      "eta": 0.75
     },
-    "D": 0.0006204957003878776,
+    "D": 0.0006145788883163666,
     "shieldBuffer": 0.014246437348554762,
     "wCap": 0,
     "crewNeed": 1,
@@ -2856,23 +2890,23 @@ const CRAFT_PRICE_CATALOG={
     "width": 4.957405736643938,
     "height": 2.3886074314359576,
     "grid": {
-     "P": 3852437237016554000,
+     "P": 7050878085363967000,
      "fixed": 18380263776155636,
      "cooling": 0,
-     "De": 1022722523333859300,
-     "Ds": 2596154010422879700,
+     "De": 1074864859170744800,
+     "Ds": 2571398068715677700,
      "Dw": 1673600000000000000,
      "domains": [
       {
        "id": "main",
-       "P": 3852437237016554000,
+       "P": 7050878085363967000,
        "reactors": [
         4
        ],
        "sources": [
         {
          "moduleIndex": 4,
-         "P": 3852437237016554000
+         "P": 7050878085363967000
         }
        ],
        "modules": [
@@ -2916,70 +2950,6 @@ const CRAFT_PRICE_CATALOG={
       }
      ],
      "powerPaths": [
-      {
-       "kind": "power",
-       "from": "p14",
-       "to": "f25",
-       "cap": 836800000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p14",
-       "to": "f26",
-       "cap": 836800000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p14",
-       "to": "f27",
-       "cap": 1000000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p14",
-       "to": "f28",
-       "cap": 1000000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p14",
-       "to": "p15",
-       "cap": 511361261666929660,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p14",
-       "to": "p16",
-       "cap": 511361261666929660,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p14",
-       "to": "p18",
-       "cap": 1298077005211439900,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p14",
-       "to": "p19",
-       "cap": 1298077005211439900,
-       "auto": true,
-       "ok": true
-      },
       {
        "kind": "power",
        "from": "p14",
@@ -3139,6 +3109,70 @@ const CRAFT_PRICE_CATALOG={
        "cap": 967382304008191.4,
        "auto": true,
        "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p15",
+       "cap": 537432429585372400,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p16",
+       "cap": 537432429585372400,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p18",
+       "cap": 29803546933176560000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "p19",
+       "cap": 29803546933176560000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "f25",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "f26",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "f27",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p14",
+       "to": "f28",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
       }
      ],
      "trunks": [],
@@ -3171,22 +3205,22 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 15,
        "machineryId": 15,
-       "ratedInputW": 511361261666929660,
+       "ratedInputW": 537432429585372400,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 255680630.83346483,
-       "effectiveMachineryVolumeM3": 0.07678424742701133,
-       "machineryVolumeM3": 0.07678424742701133,
-       "machineryLengthM": 0.15,
-       "machineryRadiusM": 0.4524,
-       "machineryDiameterM": 0.9048,
+       "ratedThrustN": 268716214.7926862,
+       "effectiveMachineryVolumeM3": 0.0695715259601249,
+       "machineryVolumeM3": 0.0695715259601249,
+       "machineryLengthM": 0.3,
+       "machineryRadiusM": 0.3045,
+       "machineryDiameterM": 0.609,
        "machineryOffsetM": 1.265,
-       "maxInputW": 2610664412518385000,
-       "maxRatedInputW": 2610664412518385000,
-       "inputDensityWPerM3": 6659715746423294000,
+       "maxInputW": 2365431882644246500,
+       "maxRatedInputW": 2365431882644246500,
+       "inputDensityWPerM3": 7724890638354018000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 1860.5603880463996,
+       "cost": 2301.2850479710983,
        "powerNode": "p15",
        "heatNode": "p15",
        "reactorId": 14,
@@ -3196,7 +3230,7 @@ const CRAFT_PRICE_CATALOG={
         0,
         0
        ],
-       "legacyCoolingInputW": 511361261666929660,
+       "legacyCoolingInputW": 0,
        "valid": true,
        "issues": [],
        "reasons": [],
@@ -3205,28 +3239,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2610664412518385000
+       "pathCapacityW": 2365431882644246500
       },
       {
        "version": 1,
        "id": 16,
        "machineryId": 16,
-       "ratedInputW": 511361261666929660,
+       "ratedInputW": 537432429585372400,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 255680630.83346483,
-       "effectiveMachineryVolumeM3": 0.07678424742701133,
-       "machineryVolumeM3": 0.07678424742701133,
-       "machineryLengthM": 0.15,
-       "machineryRadiusM": 0.4524,
-       "machineryDiameterM": 0.9048,
+       "ratedThrustN": 268716214.7926862,
+       "effectiveMachineryVolumeM3": 0.0695715259601249,
+       "machineryVolumeM3": 0.0695715259601249,
+       "machineryLengthM": 0.3,
+       "machineryRadiusM": 0.3045,
+       "machineryDiameterM": 0.609,
        "machineryOffsetM": 1.265,
-       "maxInputW": 2610664412518385000,
-       "maxRatedInputW": 2610664412518385000,
-       "inputDensityWPerM3": 6659715746423294000,
+       "maxInputW": 2365431882644246500,
+       "maxRatedInputW": 2365431882644246500,
+       "inputDensityWPerM3": 7724890638354018000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 1860.5603880463996,
+       "cost": 2301.2850479710983,
        "powerNode": "p16",
        "heatNode": "p16",
        "reactorId": 14,
@@ -3236,7 +3270,7 @@ const CRAFT_PRICE_CATALOG={
         0,
         0
        ],
-       "legacyCoolingInputW": 511361261666929660,
+       "legacyCoolingInputW": 0,
        "valid": true,
        "issues": [],
        "reasons": [],
@@ -3245,17 +3279,17 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2610664412518385000
+       "pathCapacityW": 2365431882644246500
       }
      ],
-     "massKg": 10494.646256155853,
-     "ratedThrustN": 511361261.66692966,
-     "ratedAccelMps2": 48725.91692806988,
+     "massKg": 10745.65807506516,
+     "ratedThrustN": 537432429.5853724,
+     "ratedAccelMps2": 50013.91499999999,
      "structuralAccelerationLimitMps2": 629420.3027909993,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 48725.91692806988
+     "accelerationLimitMps2": 50013.91499999999
     },
-    "profileVersion": 13,
+    "profileVersion": 14,
     "heat": {
      "v": 1,
      "src": [
@@ -3265,7 +3299,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "核融合炉 #14",
        "g": "high",
        "sh": 1,
-       "st": 11095019242607675000,
+       "st": 14220672162142642000,
        "m": [
         4
        ],
@@ -3280,7 +3314,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "右舷主推進機関 #15",
        "g": "high",
        "sh": 0.5,
-       "st": 1534083785000789000,
+       "st": 1612297288756117500,
        "m": [
         5,
         28
@@ -3296,7 +3330,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "右舷主推進機関 #16",
        "g": "high",
        "sh": 0.5,
-       "st": 1534083785000789000,
+       "st": 1612297288756117500,
        "m": [
         6,
         29
@@ -3312,7 +3346,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "シールド（艦首区画）",
        "g": "high",
        "sh": 1,
-       "st": 46730772187611830000,
+       "st": 69427747855323310000,
        "m": [
         8,
         9
@@ -3328,7 +3362,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "武装（前部区画）",
        "g": "high",
        "sh": 0.998806,
-       "st": 25104000000000000000,
+       "st": 31342544760085940000,
        "m": [
         0,
         1
@@ -3344,7 +3378,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "武装（艦首区画）",
        "g": "high",
        "sh": 0.0011936,
-       "st": 30000000000000000,
+       "st": 37455239914060630,
        "m": [
         2,
         3
@@ -3374,7 +3408,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "外殻からの放熱",
        "k": "skin",
        "g": "low",
-       "cap": 194711550781715970000,
+       "cap": 192854855153675830000,
        "m": -1,
        "sec": -1,
        "src": -1
@@ -3384,37 +3418,17 @@ const CRAFT_PRICE_CATALOG={
        "n": "核融合炉 #14（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 184916987376794600,
+       "cap": 237011202702377280,
        "m": -1,
        "sec": -1,
        "src": 0
-      },
-      {
-       "id": "int:p15",
-       "n": "右舷主推進機関 #15（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 25568063083346484,
-       "m": -1,
-       "sec": -1,
-       "src": 1
-      },
-      {
-       "id": "int:p16",
-       "n": "右舷主推進機関 #16（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 25568063083346484,
-       "m": -1,
-       "sec": -1,
-       "src": 2
       },
       {
        "id": "int:p18",
        "n": "シールド（艦首区画）（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 1168269304690295800,
+       "cap": 1157129130922055000,
        "m": -1,
        "sec": -1,
        "src": 3
@@ -3444,43 +3458,31 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 1,
-       "cap": 184916987376794600,
-       "sec": -1
-      },
-      {
-       "s": 1,
-       "d": 2,
-       "cap": 25568063083346484,
-       "sec": -1
-      },
-      {
-       "s": 2,
-       "d": 3,
-       "cap": 25568063083346484,
+       "cap": 237011202702377280,
        "sec": -1
       },
       {
        "s": 3,
-       "d": 4,
-       "cap": 1168269304690295800,
+       "d": 2,
+       "cap": 1157129130922055000,
        "sec": -1
       },
       {
        "s": 4,
-       "d": 5,
+       "d": 3,
        "cap": 522375746001432300,
        "sec": -1
       },
       {
        "s": 5,
-       "d": 6,
+       "d": 4,
        "cap": 624253998567677.2,
        "sec": -1
       },
       {
        "s": 6,
        "d": 0,
-       "cap": 194711550781715970000,
+       "cap": 192854855153675830000,
        "sec": -1
       }
      ]
@@ -3489,15 +3491,15 @@ const CRAFT_PRICE_CATALOG={
   },
   "btlb": {
    "reference": "craft_btlb",
-   "signature": "1vx8tuk",
-   "build": 200851,
+   "signature": "2l1gqm",
+   "build": 205143,
    "crew": 2000,
-   "total": 202851,
+   "total": 207143,
    "by": {
     "hull": 60,
     "armor": 21,
-    "power": 63448,
-    "drive": 48114,
+    "power": 63452,
+    "drive": 52402,
     "defense": 15004,
     "command": 20503,
     "weapons": 36700,
@@ -3534,9 +3536,9 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0,
-    "upS": 0,
-    "down": 0.0435,
+    "up": 0.000901,
+    "upS": 0.000901,
+    "down": 0.0137,
     "T": 0
    },
    "powerProfile": {
@@ -3550,6 +3552,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 1.0005,
+      "weaponPowerW": 836800000000000000,
       "stock": 0,
       "at": 0.941,
       "pd": true,
@@ -3571,6 +3574,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 1.0005,
+      "weaponPowerW": 836800000000000000,
       "stock": 0,
       "at": 0.941,
       "pd": true,
@@ -3592,6 +3596,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.7508,
+      "weaponPowerW": 1338880000000000000,
       "stock": 0,
       "at": 0.756,
       "pd": true,
@@ -3613,6 +3618,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0,
+      "weaponPowerW": 1000000000000000,
       "stock": 0,
       "at": 0.725,
       "pd": false,
@@ -3634,6 +3640,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0,
+      "weaponPowerW": 1000000000000000,
       "stock": 0,
       "at": 0.725,
       "pd": false,
@@ -3655,6 +3662,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0,
+      "weaponPowerW": 1000000000000000,
       "stock": 0,
       "at": 0.469,
       "pd": false,
@@ -3705,16 +3713,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "ナセル反応炉",
-      "w": 1.0968469562317524,
+      "w": 1.1828407888641992,
       "hits": 1,
-      "crew": 0.0005751732549947313,
-      "size": 1.1503465099894625,
+      "crew": 0.0006441246687563324,
+      "size": 1.2882493375126647,
       "at": 0.141,
       "part": 11,
       "y": -0.05,
       "z": 0.8,
-      "r": 0.022,
-      "share": 0.30778929672177086,
+      "r": 0.023,
+      "share": 0.2965825874694874,
       "domain": "main",
       "port": "p11",
       "powerConnected": true
@@ -3722,16 +3730,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "ナセル反応炉",
-      "w": 1.0968469562317524,
+      "w": 1.1828407888641992,
       "hits": 1,
-      "crew": 0.0005751732549947313,
-      "size": 1.1503465099894625,
+      "crew": 0.0006441246687563324,
+      "size": 1.2882493375126647,
       "at": 0.141,
       "part": 12,
       "y": -0.05,
       "z": -0.8,
-      "r": 0.022,
-      "share": 0.30778929672177086,
+      "r": 0.023,
+      "share": 0.2965825874694874,
       "domain": "main",
       "port": "p12",
       "powerConnected": true
@@ -3748,7 +3756,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.05,
       "z": 0.8,
       "r": 0.035,
-      "share": 0.4012934820935442,
+      "share": 0.45142726696089014,
       "domain": "main",
       "port": "p13",
       "powerConnected": true
@@ -3765,7 +3773,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.05,
       "z": -0.8,
       "r": 0.035,
-      "share": 0.4012934820935442,
+      "share": 0.45142726696089014,
       "domain": "main",
       "port": "p14",
       "powerConnected": true
@@ -3773,16 +3781,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "主反応炉",
-      "w": 1.2720828604817953,
+      "w": 1.4602972702027148,
       "hits": 1,
-      "crew": 0.0007183775201208657,
-      "size": 1.4367550402417315,
+      "crew": 0.0008835729338221292,
+      "size": 1.7671458676442584,
       "at": 0.469,
       "part": 15,
       "y": 0.06,
       "z": 0,
-      "r": 0.024,
-      "share": 0.3844214065564583,
+      "r": 0.026,
+      "share": 0.40683482506102514,
       "domain": "main",
       "port": "p15",
       "powerConnected": true
@@ -3790,7 +3798,7 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "shield",
       "name": "チェンパット偏向シールド発生器",
-      "w": 0.7155466090210101,
+      "w": 0.7155456623993303,
       "hits": 1,
       "crew": 0.0002424524130407923,
       "size": 0.6061310326019808,
@@ -3807,7 +3815,7 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "hyper",
       "name": "ハイパードライブ",
-      "w": 0.5386093150840523,
+      "w": 0.5386086025389181,
       "hits": 1,
       "crew": 0.00011875220230569416,
       "size": 0.3958406743523139,
@@ -3824,7 +3832,7 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "fuel",
       "name": "反応物タンク",
-      "w": 0.5285883119415928,
+      "w": 0.5285876126535948,
       "hits": 1,
       "crew": 0.00007696902001294993,
       "size": 0.38484510006474965,
@@ -3841,7 +3849,7 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "battery",
       "name": "パワーセル",
-      "w": 0.24976615619106007,
+      "w": 0.24976582576666095,
       "hits": 1,
       "crew": 0.000025,
       "size": 0.125,
@@ -4113,17 +4121,17 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "engine",
       "name": "自動推進機関",
-      "w": 1.057850190811474,
+      "w": 0.6095904953956194,
       "hits": 1,
-      "crew": 0.00021760368656735085,
-      "size": 1.0880184328367541,
+      "crew": 0.00009518911215501843,
+      "size": 0.4759455607750921,
       "at": 0.11,
       "part": -13,
       "machineryOwner": 13,
       "y": -0.05,
       "z": 0.8,
-      "r": 0.022,
-      "share": 0.09870651790645577,
+      "r": 0.017,
+      "share": 0.048572733039109944,
       "domain": "main",
       "port": "p13",
       "powerConnected": true
@@ -4131,17 +4139,17 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "engine",
       "name": "自動推進機関",
-      "w": 1.057850190811474,
+      "w": 0.6095904953956194,
       "hits": 1,
-      "crew": 0.00021760368656735085,
-      "size": 1.0880184328367541,
+      "crew": 0.00009518911215501843,
+      "size": 0.4759455607750921,
       "at": 0.11,
       "part": -14,
       "machineryOwner": 14,
       "y": -0.05,
       "z": -0.8,
-      "r": 0.022,
-      "share": 0.09870651790645577,
+      "r": 0.017,
+      "share": 0.048572733039109944,
       "domain": "main",
       "port": "p14",
       "powerConnected": true
@@ -4185,29 +4193,29 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "quarters",
       "name": "居住空間（後部）",
-      "w": 1.2764292898408511,
+      "w": 1.3064595846338882,
       "hits": 1,
       "crew": 0,
-      "size": 24.82322783074784,
-      "at": 0.153,
+      "size": 25.704376891677022,
+      "at": 0.152,
       "y": -0.06,
       "z": 0,
-      "r": 0.062,
-      "share": 0.1780747697309012,
+      "r": 0.063,
+      "share": 0.18376529877609793,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 2.2926528984111445,
+      "w": 2.282337953203085,
       "hits": 1,
       "crew": 0,
-      "size": 59.75449417472617,
+      "size": 59.35168317544424,
       "at": 0.393,
       "y": -0.03,
       "z": 0,
       "r": 0.083,
-      "share": 0.42866173017879716,
+      "share": 0.4243160547156227,
       "domain": "main"
      },
      {
@@ -4221,7 +4229,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0,
       "r": 0.076,
-      "share": 0.3287881524291132,
+      "share": 0.3276637868970483,
       "domain": "main"
      },
      {
@@ -4235,13 +4243,13 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.12,
       "z": 0,
       "r": 0.044,
-      "share": 0.06447534766118837,
+      "share": 0.06425485961123112,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 26.451109912555612,
+      "w": 26.141147119471533,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -4253,7 +4261,7 @@ const CRAFT_PRICE_CATALOG={
      "version": 0,
      "eta": 0.75
     },
-    "D": 0.0033263739601390612,
+    "D": 0.0033263739609844566,
     "shieldBuffer": 0.08471702163444517,
     "wCap": 0,
     "crewNeed": 2,
@@ -4263,16 +4271,16 @@ const CRAFT_PRICE_CATALOG={
     "width": 10.015999794006348,
     "height": 3.2699700689315803,
     "grid": {
-     "P": 19573029363657180000,
+     "P": 22747682592261005000,
      "fixed": 56684741446013420,
      "cooling": 0,
-     "De": 3007886470253012000,
-     "Ds": 13917548649221833000,
+     "De": 2884971583390906000,
+     "Ds": 13917548652758966000,
      "Dw": 3015480000000000000,
      "domains": [
       {
        "id": "main",
-       "P": 19573029363657180000,
+       "P": 22747682592261005000,
        "reactors": [
         8,
         9,
@@ -4281,15 +4289,15 @@ const CRAFT_PRICE_CATALOG={
        "sources": [
         {
          "moduleIndex": 8,
-         "P": 6024368942554613000
+         "P": 6746566562147386000
         },
         {
          "moduleIndex": 9,
-         "P": 6024368942554613000
+         "P": 6746566562147386000
         },
         {
          "moduleIndex": 12,
-         "P": 7524291478547954000
+         "P": 9254549467966235000
         }
        ],
        "modules": [
@@ -4339,78 +4347,6 @@ const CRAFT_PRICE_CATALOG={
       }
      ],
      "powerPaths": [
-      {
-       "kind": "power",
-       "from": "p19",
-       "to": "f21",
-       "cap": 836800000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p19",
-       "to": "f22",
-       "cap": 836800000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p19",
-       "to": "f23",
-       "cap": 1338880000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p19",
-       "to": "f24",
-       "cap": 1000000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p19",
-       "to": "f25",
-       "cap": 1000000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p15",
-       "to": "f26",
-       "cap": 1000000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p11",
-       "to": "p13",
-       "cap": 1503943235126506000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p12",
-       "to": "p14",
-       "cap": 1503943235126506000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p15",
-       "to": "p16",
-       "cap": 13917548649221833000,
-       "auto": true,
-       "ok": true
-      },
       {
        "kind": "power",
        "from": "p15",
@@ -4578,14 +4514,225 @@ const CRAFT_PRICE_CATALOG={
        "cap": 2831030384201226.5,
        "auto": true,
        "ok": true
-      }
-     ],
-     "trunks": [
+      },
       {
-       "port": "p19",
-       "moduleIndex": 16
+       "kind": "power",
+       "from": "p11",
+       "to": "p13",
+       "cap": 1442485791695453000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p11",
+       "to": "p14",
+       "cap": 1442485791695453000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p11",
+       "to": "p16",
+       "cap": 354456018518518600000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p11",
+       "to": "f21",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p11",
+       "to": "f22",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p11",
+       "to": "f23",
+       "cap": 2008320000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p11",
+       "to": "f24",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p11",
+       "to": "f25",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p11",
+       "to": "f26",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p12",
+       "to": "p13",
+       "cap": 1442485791695453000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p12",
+       "to": "p14",
+       "cap": 1442485791695453000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p12",
+       "to": "p16",
+       "cap": 354456018518518600000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p12",
+       "to": "f21",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p12",
+       "to": "f22",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p12",
+       "to": "f23",
+       "cap": 2008320000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p12",
+       "to": "f24",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p12",
+       "to": "f25",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p12",
+       "to": "f26",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p13",
+       "cap": 1442485791695453000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p14",
+       "cap": 1442485791695453000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p16",
+       "cap": 354456018518518600000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "f21",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "f22",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "f23",
+       "cap": 2008320000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "f24",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "f25",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "f26",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
       }
      ],
+     "trunks": [],
      "fixedLoads": [
       {
        "id": "hotel",
@@ -4603,22 +4750,22 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 13,
        "machineryId": 13,
-       "ratedInputW": 1503943235126506000,
+       "ratedInputW": 1442485791695453000,
        "driveProfileId": "standard",
-       "machineryGradeId": "dense",
+       "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 751971617.563253,
-       "effectiveMachineryVolumeM3": 0.8587445810800362,
-       "machineryVolumeM3": 0.8587445810800362,
+       "ratedThrustN": 721242895.8477265,
+       "effectiveMachineryVolumeM3": 0.38903924253810795,
+       "machineryVolumeM3": 0.38903924253810795,
        "machineryLengthM": 0.4959999999999999,
-       "machineryRadiusM": 0.8320000000000001,
-       "machineryDiameterM": 1.6640000000000001,
+       "machineryRadiusM": 0.5599999999999999,
+       "machineryDiameterM": 1.1199999999999999,
        "machineryOffsetM": 1.1,
-       "maxInputW": 2919731575672123000,
-       "maxRatedInputW": 2919731575672123000,
-       "inputDensityWPerM3": 1751327773428286000,
-       "allowedInputDensityWPerM3": 3400000000000000000,
-       "cost": 538.0918177644897,
+       "maxInputW": 13227334246295670000,
+       "maxRatedInputW": 13227334246295670000,
+       "inputDensityWPerM3": 3707815649353562600,
+       "allowedInputDensityWPerM3": 34000000000000000000,
+       "cost": 2682.0591594970097,
        "powerNode": "p13",
        "heatNode": "p13",
        "reactorId": 11,
@@ -4628,7 +4775,7 @@ const CRAFT_PRICE_CATALOG={
         0,
         0
        ],
-       "legacyCoolingInputW": 1503943235126506000,
+       "legacyCoolingInputW": 0,
        "valid": true,
        "issues": [],
        "reasons": [],
@@ -4637,28 +4784,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2919731575672123000
+       "pathCapacityW": 13227334246295670000
       },
       {
        "version": 1,
        "id": 14,
        "machineryId": 14,
-       "ratedInputW": 1503943235126506000,
+       "ratedInputW": 1442485791695453000,
        "driveProfileId": "standard",
-       "machineryGradeId": "dense",
+       "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 751971617.563253,
-       "effectiveMachineryVolumeM3": 0.8587445810800362,
-       "machineryVolumeM3": 0.8587445810800362,
+       "ratedThrustN": 721242895.8477265,
+       "effectiveMachineryVolumeM3": 0.38903924253810795,
+       "machineryVolumeM3": 0.38903924253810795,
        "machineryLengthM": 0.4959999999999999,
-       "machineryRadiusM": 0.8320000000000001,
-       "machineryDiameterM": 1.6640000000000001,
+       "machineryRadiusM": 0.5599999999999999,
+       "machineryDiameterM": 1.1199999999999999,
        "machineryOffsetM": 1.1,
-       "maxInputW": 2919731575672123000,
-       "maxRatedInputW": 2919731575672123000,
-       "inputDensityWPerM3": 1751327773428286000,
-       "allowedInputDensityWPerM3": 3400000000000000000,
-       "cost": 538.0918177644897,
+       "maxInputW": 13227334246295670000,
+       "maxRatedInputW": 13227334246295670000,
+       "inputDensityWPerM3": 3707815649353562600,
+       "allowedInputDensityWPerM3": 34000000000000000000,
+       "cost": 2682.0591594970097,
        "powerNode": "p14",
        "heatNode": "p14",
        "reactorId": 12,
@@ -4668,7 +4815,7 @@ const CRAFT_PRICE_CATALOG={
         0,
         0
        ],
-       "legacyCoolingInputW": 1503943235126506000,
+       "legacyCoolingInputW": 0,
        "valid": true,
        "issues": [],
        "reasons": [],
@@ -4677,17 +4824,17 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 2919731575672123000
+       "pathCapacityW": 13227334246295670000
       }
      ],
-     "massKg": 49175.50272860784,
-     "ratedThrustN": 1503943235.126506,
-     "ratedAccelMps2": 30583.179666236283,
+     "massKg": 49030.871626071865,
+     "ratedThrustN": 1442485791.695453,
+     "ratedAccelMps2": 29419.95,
      "structuralAccelerationLimitMps2": 186860.72390628685,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 30583.179666236283
+     "accelerationLimitMps2": 29419.95
     },
-    "profileVersion": 13,
+    "profileVersion": 14,
     "heat": {
      "v": 1,
      "src": [
@@ -4696,8 +4843,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "p11",
        "n": "ナセル反応炉 #11",
        "g": "high",
-       "sh": 0.124943,
-       "st": 3609463764303614500,
+       "sh": 0.324377,
+       "st": 19430111698984473000,
        "m": [
         8
        ],
@@ -4711,8 +4858,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "p12",
        "n": "ナセル反応炉 #12",
        "g": "high",
-       "sh": 0.124943,
-       "st": 3609463764303614500,
+       "sh": 0.324377,
+       "st": 19430111698984473000,
        "m": [
         9
        ],
@@ -4727,7 +4874,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "イオン・ジェット・エンジン #13",
        "g": "high",
        "sh": 0.5,
-       "st": 4511829705379518000,
+       "st": 4327457375086359600,
        "m": [
         10,
         32
@@ -4743,7 +4890,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "イオン・ジェット・エンジン #14",
        "g": "high",
        "sh": 0.5,
-       "st": 4511829705379518000,
+       "st": 4327457375086359600,
        "m": [
         11,
         33
@@ -4758,8 +4905,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "p15",
        "n": "主反応炉 #15",
        "g": "high",
-       "sh": 0.750114,
-       "st": 21669959458218107000,
+       "sh": 0.351246,
+       "st": 21039523261482127000,
        "m": [
         12
        ],
@@ -4774,7 +4921,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "シールド（艦首区画）",
        "g": "high",
        "sh": 1,
-       "st": 161504370590607540000,
+       "st": 375773813624492060000,
        "m": [
         13
        ],
@@ -4788,8 +4935,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "f21",
        "n": "武装（艦首区画）",
        "g": "high",
-       "sh": 0.738974,
-       "st": 42465455763018390,
+       "sh": 0.999668,
+       "st": 56521500000000000000,
        "m": [
         0,
         1,
@@ -4807,8 +4954,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "f26",
        "n": "武装（前部区画）",
        "g": "high",
-       "sh": 0.261026,
-       "st": 15000000000000000,
+       "sh": 0.000331622,
+       "st": 18750000000000000,
        "m": [
         5
        ],
@@ -4857,7 +5004,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "外殻からの放熱",
        "k": "skin",
        "g": "low",
-       "cap": 1.0438161486916372e+21,
+       "cap": 1.0438161489569224e+21,
        "m": -1,
        "sec": -1,
        "src": -1
@@ -4867,7 +5014,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "ナセル反応炉 #11（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 289169709242621440,
+       "cap": 296087030883779800,
        "m": -1,
        "sec": -1,
        "src": 0
@@ -4877,37 +5024,17 @@ const CRAFT_PRICE_CATALOG={
        "n": "ナセル反応炉 #12（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 289169709242621440,
+       "cap": 296087030883779800,
        "m": -1,
        "sec": -1,
        "src": 1
-      },
-      {
-       "id": "int:p13",
-       "n": "イオン・ジェット・エンジン #13（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 75197161756325300,
-       "m": -1,
-       "sec": -1,
-       "src": 2
-      },
-      {
-       "id": "int:p14",
-       "n": "イオン・ジェット・エンジン #14（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 75197161756325300,
-       "m": -1,
-       "sec": -1,
-       "src": 3
       },
       {
        "id": "int:p15",
        "n": "主反応炉 #15（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 361165990970301760,
+       "cap": 406155049223291840,
        "m": -1,
        "sec": -1,
        "src": 4
@@ -4917,7 +5044,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "シールド（艦首区画）（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 6262896892149825000,
+       "cap": 6262896893741534000,
        "m": -1,
        "sec": -1,
        "src": 5
@@ -4947,114 +5074,102 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 3,
-       "cap": 289169709242621440,
+       "cap": 296087030883779800,
        "sec": -1
       },
       {
        "s": 0,
        "d": 0,
-       "cap": 475628979000575800,
+       "cap": 457545629238607100,
        "sec": 0
       },
       {
        "s": 0,
        "d": 1,
-       "cap": 475628979000575800,
+       "cap": 457545629238607100,
        "sec": 0
       },
       {
        "s": 1,
        "d": 4,
-       "cap": 289169709242621440,
+       "cap": 296087030883779800,
        "sec": -1
       },
       {
        "s": 1,
        "d": 1,
-       "cap": 475628979000575800,
+       "cap": 457545629238607100,
        "sec": 0
       },
       {
        "s": 1,
        "d": 0,
-       "cap": 475628979000575800,
+       "cap": 457545629238607100,
        "sec": 0
       },
       {
        "s": 2,
+       "d": 0,
+       "cap": 108186434377158980,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 1,
+       "cap": 108186434377158980,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 1,
+       "cap": 108186434377158980,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 0,
+       "cap": 108186434377158980,
+       "sec": 0
+      },
+      {
+       "s": 4,
        "d": 5,
-       "cap": 75197161756325300,
+       "cap": 406155049223291840,
        "sec": -1
       },
       {
-       "s": 2,
+       "s": 4,
        "d": 0,
-       "cap": 112795742634487940,
-       "sec": 0
+       "cap": 627634608009062900,
+       "sec": 3
       },
       {
-       "s": 2,
+       "s": 4,
        "d": 1,
-       "cap": 112795742634487940,
-       "sec": 0
+       "cap": 627634608009062900,
+       "sec": 3
       },
       {
-       "s": 3,
+       "s": 5,
        "d": 6,
-       "cap": 75197161756325300,
-       "sec": -1
-      },
-      {
-       "s": 3,
-       "d": 1,
-       "cap": 112795742634487940,
-       "sec": 0
-      },
-      {
-       "s": 3,
-       "d": 0,
-       "cap": 112795742634487940,
-       "sec": 0
-      },
-      {
-       "s": 4,
-       "d": 7,
-       "cap": 361165990970301760,
-       "sec": -1
-      },
-      {
-       "s": 4,
-       "d": 0,
-       "cap": 594049120790887400,
-       "sec": 3
-      },
-      {
-       "s": 4,
-       "d": 1,
-       "cap": 594049120790887400,
-       "sec": 3
-      },
-      {
-       "s": 5,
-       "d": 8,
-       "cap": 6262896892149825000,
+       "cap": 6262896893741534000,
        "sec": -1
       },
       {
        "s": 5,
        "d": 0,
-       "cap": 9394345338224736000,
+       "cap": 9394345340612300000,
        "sec": 3
       },
       {
        "s": 5,
        "d": 1,
-       "cap": 9394345338224736000,
+       "cap": 9394345340612300000,
        "sec": 3
       },
       {
        "s": 6,
-       "d": 9,
+       "d": 7,
        "cap": 942025000000000000,
        "sec": -1
       },
@@ -5072,7 +5187,7 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "s": 7,
-       "d": 10,
+       "d": 8,
        "cap": 312500000000000,
        "sec": -1
       },
@@ -5103,7 +5218,7 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 8,
        "d": 2,
-       "cap": 1.0438161486916372e+21,
+       "cap": 1.0438161489569224e+21,
        "sec": -1
       }
      ]
@@ -5112,15 +5227,15 @@ const CRAFT_PRICE_CATALOG={
   },
   "hyena": {
    "reference": "craft_hyena",
-   "signature": "13wk0ee",
-   "build": 210146,
+   "signature": "h27ma",
+   "build": 186068,
    "crew": 0,
-   "total": 210146,
+   "total": 186068,
    "by": {
     "hull": 20,
     "armor": 11,
-    "power": 85975,
-    "drive": 44539,
+    "power": 61974,
+    "drive": 44462,
     "command": 13501,
     "weapons": 49100,
     "systems": 17000
@@ -5155,9 +5270,9 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0,
-    "upS": 0,
-    "down": 0.0605,
+    "up": 0.00489,
+    "upS": 0.00489,
+    "down": 0.0394,
     "T": 0
    },
    "powerProfile": {
@@ -5171,6 +5286,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 1.0005,
+      "weaponPowerW": 836800000000000000,
       "stock": 0,
       "at": 0.754,
       "pd": true,
@@ -5192,6 +5308,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 1.0005,
+      "weaponPowerW": 836800000000000000,
       "stock": 0,
       "at": 0.754,
       "pd": true,
@@ -5213,6 +5330,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 1.0005,
+      "weaponPowerW": 836800000000000000,
       "stock": 0,
       "at": 0.754,
       "pd": true,
@@ -5234,6 +5352,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 1.0005,
+      "weaponPowerW": 836800000000000000,
       "stock": 0,
       "at": 0.754,
       "pd": true,
@@ -5255,6 +5374,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0,
+      "weaponPowerW": 1000000000000000,
       "stock": 0,
       "at": 0.644,
       "pd": false,
@@ -5276,6 +5396,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0,
+      "weaponPowerW": 1000000000000000,
       "stock": 0,
       "at": 0.644,
       "pd": false,
@@ -5371,6 +5492,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0,
+      "weaponPowerW": 1000000000000000,
       "stock": 0,
       "at": 0.475,
       "pd": false,
@@ -5455,16 +5577,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "反応炉",
-      "w": 0.20372381588940477,
+      "w": 0.8990553869898257,
       "hits": 1,
-      "crew": 0.000045976161287735434,
-      "size": 0.09195232257547087,
-      "at": 0.702,
+      "crew": 0.00009280529989562574,
+      "size": 0.46402649947812863,
+      "at": 0.743,
       "part": 17,
       "y": 0.06,
       "z": 0.84,
-      "r": 0.018,
-      "share": 0.21212531163635667,
+      "r": 0.031,
+      "share": 0.3939608448776635,
       "domain": "main",
       "port": "p17",
       "powerConnected": true
@@ -5472,16 +5594,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "反応炉",
-      "w": 0.20372381588940477,
+      "w": 0.899339258842706,
       "hits": 1,
-      "crew": 0.000045976161287735434,
-      "size": 0.09195232257547087,
-      "at": 0.702,
+      "crew": 0.00009284925751870687,
+      "size": 0.4642462875935343,
+      "at": 0.743,
       "part": 18,
       "y": 0.06,
       "z": -0.84,
-      "r": 0.018,
-      "share": 0.21212531163635667,
+      "r": 0.031,
+      "share": 0.3941474460992245,
       "domain": "main",
       "port": "p18",
       "powerConnected": true
@@ -5498,7 +5620,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.06,
       "z": 0.84,
       "r": 0.035,
-      "share": 0.16609004020120063,
+      "share": 0.16819782283494744,
       "domain": "main",
       "port": "p19",
       "powerConnected": true
@@ -5515,7 +5637,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.06,
       "z": -0.84,
       "r": 0.035,
-      "share": 0.16609004020120063,
+      "share": 0.16819782283494744,
       "domain": "main",
       "port": "p20",
       "powerConnected": true
@@ -5532,7 +5654,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.26,
       "z": 0.23,
       "r": 0.043,
-      "share": 0.29340286027278206,
+      "share": 0.29712631926421496,
       "domain": "main",
       "port": "p21",
       "powerConnected": true
@@ -5549,7 +5671,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.09,
       "z": -0.23,
       "r": 0.043,
-      "share": 0.29340286027278206,
+      "share": 0.29712631926421496,
       "domain": "main",
       "port": "p22",
       "powerConnected": true
@@ -5566,7 +5688,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.26,
       "z": 0.23,
       "r": 0.02,
-      "share": 0.2878746883636434,
+      "share": 0.10594585451155593,
       "domain": "main",
       "port": "p23",
       "powerConnected": true
@@ -5583,7 +5705,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.09,
       "z": -0.23,
       "r": 0.02,
-      "share": 0.2878746883636434,
+      "share": 0.10594585451155593,
       "domain": "main",
       "port": "p24",
       "powerConnected": true
@@ -5697,10 +5819,10 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.04287499999999999,
-      "at": 0.362,
+      "at": 0.543,
       "part": 40,
-      "y": 0.44,
-      "z": 0.23,
+      "y": 0.08,
+      "z": -0.34,
       "r": 0.014,
       "share": 0.08360734899626243,
       "domain": "main",
@@ -5714,10 +5836,10 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.04287499999999999,
-      "at": 0.362,
+      "at": 0.543,
       "part": 41,
-      "y": 0.14,
-      "z": 0.23,
+      "y": 0.08,
+      "z": -0.13,
       "r": 0.014,
       "share": 0.08360734899626243,
       "domain": "main",
@@ -5731,10 +5853,10 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.032768000000000005,
-      "at": 0.559,
+      "at": 0.541,
       "part": 42,
-      "y": 0.11,
-      "z": -0.33,
+      "y": -0.16,
+      "z": -0.23,
       "r": 0.013,
       "share": 0.06389843992791903,
       "domain": "main",
@@ -5750,8 +5872,8 @@ const CRAFT_PRICE_CATALOG={
       "size": 0.032768000000000005,
       "at": 0.559,
       "part": 43,
-      "y": 0.11,
-      "z": -0.14,
+      "y": -0.16,
+      "z": -0.23,
       "r": 0.013,
       "share": 0.06389843992791903,
       "domain": "main",
@@ -5765,10 +5887,10 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.032768000000000005,
-      "at": 0.559,
+      "at": 0.362,
       "part": 44,
-      "y": -0.16,
-      "z": -0.23,
+      "y": 0.44,
+      "z": 0.23,
       "r": 0.013,
       "share": 0.06389843992791903,
       "domain": "main",
@@ -5782,9 +5904,9 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.032768000000000005,
-      "at": 0.326,
+      "at": 0.344,
       "part": 45,
-      "y": 0.3,
+      "y": 0.44,
       "z": 0.23,
       "r": 0.013,
       "share": 0.06389843992791903,
@@ -5795,17 +5917,17 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "engine",
       "name": "自動推進機関",
-      "w": 0.14426537933702477,
+      "w": 0.16432291863915185,
       "hits": 1,
-      "crew": 0.000010959056821829991,
-      "size": 0.05479528410914995,
+      "crew": 0.000013322238545891404,
+      "size": 0.06661119272945702,
       "at": 0.679,
       "part": -19,
       "machineryOwner": 19,
       "y": 0.06,
       "z": 0.84,
-      "r": 0.015,
-      "share": 0.013300838650334029,
+      "r": 0.016,
+      "share": 0.0163741902452577,
       "domain": "main",
       "port": "p19",
       "powerConnected": true
@@ -5813,17 +5935,17 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "engine",
       "name": "自動推進機関",
-      "w": 0.14426537933702477,
+      "w": 0.16432291863915185,
       "hits": 1,
-      "crew": 0.000010959056821829991,
-      "size": 0.05479528410914995,
+      "crew": 0.000013322238545891404,
+      "size": 0.06661119272945702,
       "at": 0.679,
       "part": -20,
       "machineryOwner": 20,
       "y": 0.06,
       "z": -0.84,
-      "r": 0.015,
-      "share": 0.013300838650334029,
+      "r": 0.016,
+      "share": 0.0163741902452577,
       "domain": "main",
       "port": "p20",
       "powerConnected": true
@@ -5831,17 +5953,17 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "engine",
       "name": "自動推進機関",
-      "w": 0.23246380601013306,
+      "w": 0.17697776050304867,
       "hits": 1,
-      "crew": 0.000022416252590106824,
-      "size": 0.1120812629505341,
+      "crew": 0.000014890457399313293,
+      "size": 0.07445228699656646,
       "at": 0.531,
       "part": -21,
       "machineryOwner": 21,
       "y": 0.26,
       "z": 0.23,
-      "r": 0.019,
-      "share": 0.027206260875683265,
+      "r": 0.017,
+      "share": 0.018301667655579938,
       "domain": "main",
       "port": "p21",
       "powerConnected": true
@@ -5849,17 +5971,17 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "engine",
       "name": "自動推進機関",
-      "w": 0.23246380601013306,
+      "w": 0.17697776050304867,
       "hits": 1,
-      "crew": 0.000022416252590106824,
-      "size": 0.1120812629505341,
+      "crew": 0.000014890457399313293,
+      "size": 0.07445228699656646,
       "at": 0.531,
       "part": -22,
       "machineryOwner": 22,
       "y": 0.09,
       "z": -0.23,
-      "r": 0.019,
-      "share": 0.027206260875683265,
+      "r": 0.017,
+      "share": 0.018301667655579938,
       "domain": "main",
       "port": "p22",
       "powerConnected": true
@@ -5947,55 +6069,55 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.23,
       "z": 0,
       "r": 0.044,
-      "share": 0.045817424505380074,
+      "share": 0.04700854700854701,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 0.6815549443539448,
+      "w": 0.6837957982436479,
       "hits": 1,
       "crew": 0,
-      "size": 9.685329952663736,
+      "size": 9.733135135055955,
       "at": 0.405,
       "y": 0.1,
       "z": 0.02,
       "r": 0.086,
-      "share": 0.35161402290871224,
+      "share": 0.3625356125356125,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央前部）",
-      "w": 0.7986625631675286,
+      "w": 0.7786477666151463,
       "hits": 1,
       "crew": 0,
-      "size": 12.285931874800495,
-      "at": 0.606,
-      "y": 0.1,
+      "size": 11.827002123835182,
+      "at": 0.602,
+      "y": 0.11,
       "z": 0.01,
-      "r": 0.093,
-      "share": 0.4460256855258591,
+      "r": 0.092,
+      "share": 0.4405270655270655,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（前部）",
-      "w": 0.3973857325157515,
+      "w": 0.37956192427793384,
       "hits": 1,
       "crew": 0,
-      "size": 4.312027451778228,
-      "at": 0.823,
-      "y": 0.04,
+      "size": 4.0251963574249086,
+      "at": 0.827,
+      "y": 0.03,
       "z": 0,
-      "r": 0.066,
-      "share": 0.15654286706004858,
+      "r": 0.064,
+      "share": 0.14992877492877493,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 25.36933412223706,
+      "w": 26.140029472683047,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -6017,16 +6139,16 @@ const CRAFT_PRICE_CATALOG={
     "width": 9.32800026702881,
     "height": 3.3390000800136477,
     "grid": {
-     "P": 2270142355536483300,
+     "P": 6168401077645663000,
      "fixed": 28573630179670040,
      "cooling": 0,
-     "De": 1287217324325960700,
+     "De": 1200958422056525000,
      "Ds": 0,
      "Dw": 3350200000000000000,
      "domains": [
       {
        "id": "main",
-       "P": 2270142355536483300,
+       "P": 6168401077645663000,
        "reactors": [
         13,
         14,
@@ -6036,11 +6158,11 @@ const CRAFT_PRICE_CATALOG={
        "sources": [
         {
          "moduleIndex": 13,
-         "P": 481554654627069250
+         "P": 2430108500093576000
         },
         {
          "moduleIndex": 14,
-         "P": 481554654627069250
+         "P": 2431259531269742600
         },
         {
          "moduleIndex": 19,
@@ -6103,142 +6225,6 @@ const CRAFT_PRICE_CATALOG={
       }
      ],
      "powerPaths": [
-      {
-       "kind": "power",
-       "from": "p17",
-       "to": "f25",
-       "cap": 481554654627069250,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p14",
-       "to": "f25",
-       "cap": 355245345372930750,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p18",
-       "to": "f26",
-       "cap": 481554654627069250,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p14",
-       "to": "f26",
-       "cap": 355245345372930750,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p23",
-       "to": "f27",
-       "cap": 652516523141172400,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p14",
-       "to": "f27",
-       "cap": 184283476858827650,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p24",
-       "to": "f28",
-       "cap": 651516523141172400,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p14",
-       "to": "f28",
-       "cap": 185283476858827650,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p14",
-       "to": "f29",
-       "cap": 1000000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p24",
-       "to": "f30",
-       "cap": 1000000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p23",
-       "to": "f31",
-       "cap": 1000000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p24",
-       "to": "f32",
-       "cap": 1000000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p14",
-       "to": "f33",
-       "cap": 1000000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p17",
-       "to": "p19",
-       "cap": 232641219183631400,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p18",
-       "to": "p20",
-       "cap": 232641219183631400,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p23",
-       "to": "p21",
-       "cap": 410967442979348860,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p24",
-       "to": "p22",
-       "cap": 410967442979348860,
-       "auto": true,
-       "ok": true
-      },
       {
        "kind": "power",
        "from": "p24",
@@ -6329,7 +6315,7 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "kind": "power",
-       "from": "p23",
+       "from": "p24",
        "to": "p40",
        "cap": 1785851886229377.5,
        "auto": true,
@@ -6337,7 +6323,7 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "kind": "power",
-       "from": "p23",
+       "from": "p24",
        "to": "p41",
        "cap": 1785851886229377.5,
        "auto": true,
@@ -6361,7 +6347,7 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "kind": "power",
-       "from": "p24",
+       "from": "p23",
        "to": "p44",
        "cap": 1785851886229377.5,
        "auto": true,
@@ -6374,14 +6360,425 @@ const CRAFT_PRICE_CATALOG={
        "cap": 1785851886229377.5,
        "auto": true,
        "ok": true
-      }
-     ],
-     "trunks": [
+      },
       {
-       "port": "p14",
-       "moduleIndex": 10
+       "kind": "power",
+       "from": "p17",
+       "to": "p19",
+       "cap": 217051484792889500,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p20",
+       "cap": 217051484792889500,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p21",
+       "cap": 383427726235373000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p22",
+       "cap": 383427726235373000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "f25",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "f26",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "f27",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "f28",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "f29",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "f30",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "f31",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "f32",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "f33",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p19",
+       "cap": 217051484792889500,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p20",
+       "cap": 217051484792889500,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p21",
+       "cap": 383427726235373000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p22",
+       "cap": 383427726235373000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "f25",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "f26",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "f27",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "f28",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "f29",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "f30",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "f31",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "f32",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "f33",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "p19",
+       "cap": 217051484792889500,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "p20",
+       "cap": 217051484792889500,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "p21",
+       "cap": 383427726235373000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "p22",
+       "cap": 383427726235373000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "f25",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "f26",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "f27",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "f28",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "f29",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "f30",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "f31",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "f32",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p23",
+       "to": "f33",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p24",
+       "to": "p19",
+       "cap": 217051484792889500,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p24",
+       "to": "p20",
+       "cap": 217051484792889500,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p24",
+       "to": "p21",
+       "cap": 383427726235373000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p24",
+       "to": "p22",
+       "cap": 383427726235373000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p24",
+       "to": "f25",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p24",
+       "to": "f26",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p24",
+       "to": "f27",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p24",
+       "to": "f28",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p24",
+       "to": "f29",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p24",
+       "to": "f30",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p24",
+       "to": "f31",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p24",
+       "to": "f32",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p24",
+       "to": "f33",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
       }
      ],
+     "trunks": [],
      "fixedLoads": [
       {
        "id": "hotel",
@@ -6411,22 +6808,22 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 19,
        "machineryId": 19,
-       "ratedInputW": 232641219183631400,
+       "ratedInputW": 217051484792889500,
        "driveProfileId": "standard",
-       "machineryGradeId": "advanced",
+       "machineryGradeId": "dense",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 116320609.5918157,
-       "effectiveMachineryVolumeM3": 0.0547952841091501,
-       "machineryVolumeM3": 0.0547952841091501,
-       "machineryLengthM": 0.18600000000000044,
-       "machineryRadiusM": 0.3432,
-       "machineryDiameterM": 0.6864,
+       "ratedThrustN": 108525742.39644475,
+       "effectiveMachineryVolumeM3": 0.06661119272945695,
+       "machineryVolumeM3": 0.06661119272945695,
+       "machineryLengthM": 0.4990999999999998,
+       "machineryRadiusM": 0.23099999999999998,
+       "machineryDiameterM": 0.46199999999999997,
        "machineryOffsetM": 1,
-       "maxInputW": 1863039659711103200,
-       "maxRatedInputW": 1863039659711103200,
-       "inputDensityWPerM3": 4245643087098864600,
-       "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 507.7659650564044,
+       "maxInputW": 226478055280153630,
+       "maxRatedInputW": 226478055280153630,
+       "inputDensityWPerM3": 3258483685684020000,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "cost": 177.46912573775808,
        "powerNode": "p19",
        "heatNode": "p19",
        "reactorId": 17,
@@ -6436,7 +6833,7 @@ const CRAFT_PRICE_CATALOG={
         0,
         0
        ],
-       "legacyCoolingInputW": 232641219183631400,
+       "legacyCoolingInputW": 0,
        "valid": true,
        "issues": [],
        "reasons": [],
@@ -6445,28 +6842,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1863039659711103200
+       "pathCapacityW": 226478055280153630
       },
       {
        "version": 1,
        "id": 20,
        "machineryId": 20,
-       "ratedInputW": 232641219183631400,
+       "ratedInputW": 217051484792889500,
        "driveProfileId": "standard",
-       "machineryGradeId": "advanced",
+       "machineryGradeId": "dense",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 116320609.5918157,
-       "effectiveMachineryVolumeM3": 0.0547952841091501,
-       "machineryVolumeM3": 0.0547952841091501,
-       "machineryLengthM": 0.18600000000000044,
-       "machineryRadiusM": 0.3432,
-       "machineryDiameterM": 0.6864,
+       "ratedThrustN": 108525742.39644475,
+       "effectiveMachineryVolumeM3": 0.06661119272945695,
+       "machineryVolumeM3": 0.06661119272945695,
+       "machineryLengthM": 0.4990999999999998,
+       "machineryRadiusM": 0.23099999999999998,
+       "machineryDiameterM": 0.46199999999999997,
        "machineryOffsetM": 1,
-       "maxInputW": 1863039659711103200,
-       "maxRatedInputW": 1863039659711103200,
-       "inputDensityWPerM3": 4245643087098864600,
-       "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 507.7659650564044,
+       "maxInputW": 226478055280153630,
+       "maxRatedInputW": 226478055280153630,
+       "inputDensityWPerM3": 3258483685684020000,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "cost": 177.46912573775808,
        "powerNode": "p20",
        "heatNode": "p20",
        "reactorId": 18,
@@ -6476,7 +6873,7 @@ const CRAFT_PRICE_CATALOG={
         0,
         0
        ],
-       "legacyCoolingInputW": 232641219183631400,
+       "legacyCoolingInputW": 0,
        "valid": true,
        "issues": [],
        "reasons": [],
@@ -6485,28 +6882,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1863039659711103200
+       "pathCapacityW": 226478055280153630
       },
       {
        "version": 1,
        "id": 21,
        "machineryId": 21,
-       "ratedInputW": 410967442979348860,
+       "ratedInputW": 383427726235373000,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 205483721.48967442,
-       "effectiveMachineryVolumeM3": 0.11208126295053404,
-       "machineryVolumeM3": 0.11208126295053404,
-       "machineryLengthM": 0.20460000000000003,
-       "machineryRadiusM": 0.468,
-       "machineryDiameterM": 0.936,
+       "ratedThrustN": 191713863.1176865,
+       "effectiveMachineryVolumeM3": 0.07445228699656649,
+       "machineryVolumeM3": 0.07445228699656649,
+       "machineryLengthM": 0.3,
+       "machineryRadiusM": 0.315,
+       "machineryDiameterM": 0.63,
        "machineryOffsetM": 0.95,
-       "maxInputW": 3810762940318157300,
-       "maxRatedInputW": 3810762940318157300,
-       "inputDensityWPerM3": 3666691757039937000,
+       "maxInputW": 2531377757883260400,
+       "maxRatedInputW": 2531377757883260400,
+       "inputDensityWPerM3": 5149979157162163000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 753.9777823505945,
+       "cost": 1045.732817828371,
        "powerNode": "p21",
        "heatNode": "p21",
        "reactorId": 23,
@@ -6516,7 +6913,7 @@ const CRAFT_PRICE_CATALOG={
         0,
         0
        ],
-       "legacyCoolingInputW": 410967442979348860,
+       "legacyCoolingInputW": 0,
        "valid": true,
        "issues": [],
        "reasons": [],
@@ -6525,28 +6922,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 3810762940318157300
+       "pathCapacityW": 2531377757883260400
       },
       {
        "version": 1,
        "id": 22,
        "machineryId": 22,
-       "ratedInputW": 410967442979348860,
+       "ratedInputW": 383427726235373000,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 205483721.48967442,
-       "effectiveMachineryVolumeM3": 0.11208126295053404,
-       "machineryVolumeM3": 0.11208126295053404,
-       "machineryLengthM": 0.20460000000000003,
-       "machineryRadiusM": 0.468,
-       "machineryDiameterM": 0.936,
+       "ratedThrustN": 191713863.1176865,
+       "effectiveMachineryVolumeM3": 0.07445228699656649,
+       "machineryVolumeM3": 0.07445228699656649,
+       "machineryLengthM": 0.3,
+       "machineryRadiusM": 0.315,
+       "machineryDiameterM": 0.63,
        "machineryOffsetM": 0.95,
-       "maxInputW": 3810762940318157300,
-       "maxRatedInputW": 3810762940318157300,
-       "inputDensityWPerM3": 3666691757039937000,
+       "maxInputW": 2531377757883260400,
+       "maxRatedInputW": 2531377757883260400,
+       "inputDensityWPerM3": 5149979157162163000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 753.9777823505945,
+       "cost": 1045.732817828371,
        "powerNode": "p22",
        "heatNode": "p22",
        "reactorId": 24,
@@ -6556,7 +6953,7 @@ const CRAFT_PRICE_CATALOG={
         0,
         0
        ],
-       "legacyCoolingInputW": 410967442979348860,
+       "legacyCoolingInputW": 0,
        "valid": true,
        "issues": [],
        "reasons": [],
@@ -6565,17 +6962,17 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 3810762940318157300
+       "pathCapacityW": 2531377757883260400
       }
      ],
-     "massKg": 26637.043417632576,
-     "ratedThrustN": 643608662.1629802,
-     "ratedAccelMps2": 24162.16590077482,
-     "structuralAccelerationLimitMps2": 1969551.606843148,
+     "massKg": 27214.150535187295,
+     "ratedThrustN": 600479211.0282625,
+     "ratedAccelMps2": 22064.962499999998,
+     "structuralAccelerationLimitMps2": 1851537.0687221736,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 24162.16590077482
+     "accelerationLimitMps2": 22064.962499999998
     },
-    "profileVersion": 13,
+    "profileVersion": 14,
     "heat": {
      "v": 1,
      "src": [
@@ -6584,8 +6981,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "p17",
        "n": "反応炉 #17",
        "g": "high",
-       "sh": 0.208944,
-       "st": 1351149795219216400,
+       "sh": 0.575656,
+       "st": 6998712480269498000,
        "m": [
         13
        ],
@@ -6599,8 +6996,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "p18",
        "n": "反応炉 #18",
        "g": "high",
-       "sh": 0.208944,
-       "st": 1351149795219216400,
+       "sh": 0.418704,
+       "st": 5090519812711079000,
        "m": [
         14
        ],
@@ -6615,7 +7012,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "推進機関 #19",
        "g": "high",
        "sh": 0.180732,
-       "st": 697923657550894200,
+       "st": 651154454378668500,
        "m": [
         15,
         33
@@ -6631,7 +7028,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "推進機関 #20",
        "g": "high",
        "sh": 0.180732,
-       "st": 697923657550894200,
+       "st": 651154454378668500,
        "m": [
         16,
         34
@@ -6647,7 +7044,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "主推進機関 #21",
        "g": "high",
        "sh": 0.319268,
-       "st": 1232902328938046700,
+       "st": 1150283178706119200,
        "m": [
         17,
         35
@@ -6663,7 +7060,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "主推進機関 #22",
        "g": "high",
        "sh": 0.319268,
-       "st": 1232902328938046700,
+       "st": 1150283178706119200,
        "m": [
         18,
         36
@@ -6678,8 +7075,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "p23",
        "n": "主反応炉 #23",
        "g": "high",
-       "sh": 0.291056,
-       "st": 1882127586646576600,
+       "sh": 0,
+       "st": 1,
        "m": [
         19
        ],
@@ -6693,8 +7090,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "p24",
        "n": "主反応炉 #24",
        "g": "high",
-       "sh": 0.291056,
-       "st": 1882127586646576600,
+       "sh": 0.00564055,
+       "st": 68576712431208050,
        "m": [
         20
        ],
@@ -6708,8 +7105,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "f25",
        "n": "武装（艦首区画）",
        "g": "high",
-       "sh": 0.5,
-       "st": 17039461555670344000,
+       "sh": 0.499851,
+       "st": 31398755593341686000,
        "m": [
         0,
         2,
@@ -6726,8 +7123,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "f26",
        "n": "武装（艦首区画）",
        "g": "high",
-       "sh": 0.499607,
-       "st": 17026067666523623000,
+       "sh": 0.499851,
+       "st": 31398755593341686000,
        "m": [
         1,
         3,
@@ -6744,8 +7141,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "f33",
        "n": "武装（艦尾区画）",
        "g": "high",
-       "sh": 0.000393026,
-       "st": 13393889146720332,
+       "sh": 0.000298312,
+       "st": 18738813316627890,
        "m": [
         8
        ],
@@ -6814,7 +7211,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "外殻からの放熱",
        "k": "skin",
        "g": "low",
-       "cap": 730887489167124500000,
+       "cap": 720198405320013600000,
        "m": -1,
        "sec": -1,
        "src": -1
@@ -6824,7 +7221,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "反応炉 #17（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 23114623422099324,
+       "cap": 73066485109558300,
        "m": -1,
        "sec": -1,
        "src": 0
@@ -6834,57 +7231,17 @@ const CRAFT_PRICE_CATALOG={
        "n": "反応炉 #18（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 23114623422099324,
+       "cap": 73101093359474200,
        "m": -1,
        "sec": -1,
        "src": 1
-      },
-      {
-       "id": "int:p19",
-       "n": "推進機関 #19（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 11632060959181570,
-       "m": -1,
-       "sec": -1,
-       "src": 2
-      },
-      {
-       "id": "int:p20",
-       "n": "推進機関 #20（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 11632060959181570,
-       "m": -1,
-       "sec": -1,
-       "src": 3
-      },
-      {
-       "id": "int:p21",
-       "n": "主推進機関 #21（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 20548372148967444,
-       "m": -1,
-       "sec": -1,
-       "src": 4
-      },
-      {
-       "id": "int:p22",
-       "n": "主推進機関 #22（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 20548372148967444,
-       "m": -1,
-       "sec": -1,
-       "src": 5
       },
       {
        "id": "int:p23",
        "n": "主反応炉 #23（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 31368793110776270,
+       "cap": 19649392323472828,
        "m": -1,
        "sec": -1,
        "src": 6
@@ -6894,7 +7251,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "主反応炉 #24（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 31368793110776270,
+       "cap": 19649392323472828,
        "m": -1,
        "sec": -1,
        "src": 7
@@ -6904,7 +7261,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "武装（艦首区画）（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 336849133583561700,
+       "cap": 523312593222361400,
        "m": -1,
        "sec": -1,
        "src": 8
@@ -6914,7 +7271,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "武装（艦首区画）（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 336849133583561700,
+       "cap": 523312593222361400,
        "m": -1,
        "sec": -1,
        "src": 9
@@ -6924,7 +7281,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "武装（艦尾区画）（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 201031948904011.53,
+       "cap": 312313555277131.44,
        "m": -1,
        "sec": -1,
        "src": 10
@@ -6934,199 +7291,175 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 5,
-       "cap": 23114623422099324,
+       "cap": 73066485109558300,
        "sec": -1
       },
       {
        "s": 0,
        "d": 0,
-       "cap": 40450590988673810,
+       "cap": 109599727664337460,
        "sec": 4
       },
       {
        "s": 0,
        "d": 2,
-       "cap": 40450590988673810,
-       "sec": 3
+       "cap": 109599727664337460,
+       "sec": 4
       },
       {
        "s": 1,
        "d": 6,
-       "cap": 23114623422099324,
+       "cap": 73101093359474200,
        "sec": -1
       },
       {
        "s": 1,
        "d": 1,
-       "cap": 40450590988673810,
+       "cap": 109651640039211310,
        "sec": 4
       },
       {
        "s": 1,
        "d": 3,
-       "cap": 40450590988673810,
+       "cap": 109651640039211310,
+       "sec": 4
+      },
+      {
+       "s": 2,
+       "d": 0,
+       "cap": 16278861359466714,
        "sec": 3
       },
       {
        "s": 2,
+       "d": 2,
+       "cap": 16278861359466714,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 1,
+       "cap": 16278861359466714,
+       "sec": 3
+      },
+      {
+       "s": 3,
+       "d": 3,
+       "cap": 16278861359466714,
+       "sec": 3
+      },
+      {
+       "s": 4,
+       "d": 2,
+       "cap": 28757079467652972,
+       "sec": 1
+      },
+      {
+       "s": 4,
+       "d": 0,
+       "cap": 28757079467652972,
+       "sec": 2
+      },
+      {
+       "s": 5,
+       "d": 3,
+       "cap": 28757079467652972,
+       "sec": 1
+      },
+      {
+       "s": 5,
+       "d": 1,
+       "cap": 28757079467652972,
+       "sec": 2
+      },
+      {
+       "s": 6,
        "d": 7,
-       "cap": 11632060959181570,
+       "cap": 19649392323472828,
        "sec": -1
       },
       {
-       "s": 2,
+       "s": 6,
        "d": 0,
-       "cap": 17448091438772356,
+       "cap": 29474088485209240,
        "sec": 3
       },
       {
-       "s": 2,
+       "s": 6,
        "d": 2,
-       "cap": 17448091438772356,
+       "cap": 29474088485209240,
        "sec": 3
       },
       {
-       "s": 3,
+       "s": 7,
        "d": 8,
-       "cap": 11632060959181570,
+       "cap": 19649392323472828,
        "sec": -1
       },
       {
-       "s": 3,
+       "s": 7,
        "d": 1,
-       "cap": 17448091438772356,
+       "cap": 29474088485209240,
        "sec": 3
       },
       {
-       "s": 3,
+       "s": 7,
        "d": 3,
-       "cap": 17448091438772356,
+       "cap": 29474088485209240,
        "sec": 3
       },
       {
-       "s": 4,
+       "s": 8,
        "d": 9,
-       "cap": 20548372148967444,
+       "cap": 523312593222361400,
        "sec": -1
       },
       {
-       "s": 4,
-       "d": 2,
-       "cap": 30822558223451170,
-       "sec": 1
-      },
-      {
-       "s": 4,
+       "s": 8,
        "d": 0,
-       "cap": 30822558223451170,
-       "sec": 2
+       "cap": 784968889833542100,
+       "sec": 4
       },
       {
-       "s": 5,
+       "s": 8,
+       "d": 2,
+       "cap": 784968889833542100,
+       "sec": 4
+      },
+      {
+       "s": 9,
        "d": 10,
-       "cap": 20548372148967444,
+       "cap": 523312593222361400,
        "sec": -1
       },
       {
-       "s": 5,
-       "d": 3,
-       "cap": 30822558223451170,
-       "sec": 1
-      },
-      {
-       "s": 5,
+       "s": 9,
        "d": 1,
-       "cap": 30822558223451170,
-       "sec": 2
+       "cap": 784968889833542100,
+       "sec": 4
       },
       {
-       "s": 6,
+       "s": 9,
+       "d": 3,
+       "cap": 784968889833542100,
+       "sec": 4
+      },
+      {
+       "s": 10,
        "d": 11,
-       "cap": 31368793110776270,
-       "sec": -1
-      },
-      {
-       "s": 6,
-       "d": 0,
-       "cap": 54895387943858470,
-       "sec": 3
-      },
-      {
-       "s": 6,
-       "d": 2,
-       "cap": 54895387943858470,
-       "sec": 3
-      },
-      {
-       "s": 7,
-       "d": 12,
-       "cap": 31368793110776270,
-       "sec": -1
-      },
-      {
-       "s": 7,
-       "d": 1,
-       "cap": 54895387943858470,
-       "sec": 3
-      },
-      {
-       "s": 7,
-       "d": 3,
-       "cap": 54895387943858470,
-       "sec": 3
-      },
-      {
-       "s": 8,
-       "d": 13,
-       "cap": 336849133583561700,
-       "sec": -1
-      },
-      {
-       "s": 8,
-       "d": 0,
-       "cap": 505930205897445500,
-       "sec": 4
-      },
-      {
-       "s": 8,
-       "d": 2,
-       "cap": 505930205897445500,
-       "sec": 4
-      },
-      {
-       "s": 9,
-       "d": 14,
-       "cap": 336849133583561700,
-       "sec": -1
-      },
-      {
-       "s": 9,
-       "d": 1,
-       "cap": 505930205897445500,
-       "sec": 4
-      },
-      {
-       "s": 9,
-       "d": 3,
-       "cap": 505930205897445500,
-       "sec": 4
-      },
-      {
-       "s": 10,
-       "d": 15,
-       "cap": 201031948904011.53,
+       "cap": 312313555277131.44,
        "sec": -1
       },
       {
        "s": 10,
        "d": 3,
-       "cap": 301939726603870.6,
+       "cap": 468470332915697.1,
        "sec": 1
       },
       {
        "s": 10,
        "d": 1,
-       "cap": 301939726603870.6,
+       "cap": 468470332915697.1,
        "sec": 3
       },
       {
@@ -7156,7 +7489,7 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 11,
        "d": 4,
-       "cap": 730887489167124500000,
+       "cap": 720198405320013600000,
        "sec": -1
       }
      ]
@@ -7165,15 +7498,15 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_in": {
    "reference": "craft_tie_in",
-   "signature": "sxbdwd",
-   "build": 109120,
+   "signature": "kw0ez0",
+   "build": 99324,
    "crew": 1000,
-   "total": 110120,
+   "total": 100324,
    "by": {
     "hull": 16,
     "armor": 8,
-    "power": 33471,
-    "drive": 28023,
+    "power": 21468,
+    "drive": 30230,
     "defense": 1500,
     "command": 14502,
     "weapons": 19600,
@@ -7210,9 +7543,9 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.00452,
-    "upS": 0.00452,
-    "down": 0.0384,
+    "up": 0.00548,
+    "upS": 0.00548,
+    "down": 0.033,
     "T": 0
    },
    "powerProfile": {
@@ -7226,6 +7559,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 1.0005,
+      "weaponPowerW": 836800000000000000,
       "stock": 0,
       "at": 0.857,
       "pd": true,
@@ -7247,6 +7581,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 1.0005,
+      "weaponPowerW": 836800000000000000,
       "stock": 0,
       "at": 0.857,
       "pd": true,
@@ -7268,6 +7603,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 1.0005,
+      "weaponPowerW": 836800000000000000,
       "stock": 0,
       "at": 0.857,
       "pd": true,
@@ -7289,6 +7625,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 1.0005,
+      "weaponPowerW": 836800000000000000,
       "stock": 0,
       "at": 0.857,
       "pd": true,
@@ -7322,15 +7659,15 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "I-a3a 太陽イオン化反応炉",
-      "w": 0.65875616000904,
+      "w": 1.8613816988364742,
       "hits": 1,
-      "crew": 0.000267335749250128,
-      "size": 0.534671498500256,
-      "at": 0.411,
+      "crew": 0.00027646888847813566,
+      "size": 1.3823444423906783,
+      "at": 0.448,
       "part": 32,
-      "y": -0.03,
+      "y": -0.04,
       "z": 0,
-      "r": 0.042,
+      "r": 0.058,
       "share": 1,
       "domain": "main",
       "port": "p32",
@@ -7348,7 +7685,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.03,
       "z": 0.16,
       "r": 0.067,
-      "share": 0.4163023834957037,
+      "share": 0.46291848654995243,
       "domain": "main",
       "port": "p33",
       "powerConnected": true
@@ -7365,7 +7702,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.03,
       "z": -0.16,
       "r": 0.067,
-      "share": 0.4163023834957037,
+      "share": 0.46291848654995243,
       "domain": "main",
       "port": "p34",
       "powerConnected": true
@@ -7594,17 +7931,17 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "engine",
       "name": "自動推進機関",
-      "w": 0.5723437568138443,
+      "w": 0.30990085336483386,
       "hits": 1,
-      "crew": 0.00008659950715941374,
-      "size": 0.4329975357970687,
-      "at": 0.373,
+      "crew": 0.00003450357962070508,
+      "size": 0.1725178981035254,
+      "at": 0.376,
       "part": -33,
       "machineryOwner": 33,
       "y": -0.03,
-      "z": 0.13,
-      "r": 0.039,
-      "share": 0.08369761650429636,
+      "z": 0.15,
+      "r": 0.029,
+      "share": 0.03708151345004748,
       "domain": "main",
       "port": "p33",
       "powerConnected": true
@@ -7612,17 +7949,17 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "engine",
       "name": "自動推進機関",
-      "w": 0.5723437568138443,
+      "w": 0.30990085336483386,
       "hits": 1,
-      "crew": 0.00008659950715941374,
-      "size": 0.4329975357970687,
-      "at": 0.373,
+      "crew": 0.00003450357962070508,
+      "size": 0.1725178981035254,
+      "at": 0.376,
       "part": -34,
       "machineryOwner": 34,
       "y": -0.03,
-      "z": -0.13,
-      "r": 0.039,
-      "share": 0.08369761650429636,
+      "z": -0.15,
+      "r": 0.029,
+      "share": 0.03708151345004748,
       "domain": "main",
       "port": "p34",
       "powerConnected": true
@@ -7746,21 +8083,21 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0,
       "r": 0.125,
-      "share": 0.32299393122049896,
+      "share": 0.326072157930565,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 1.1777943669376496,
+      "w": 1.1630519512559645,
       "hits": 1,
       "crew": 0,
-      "size": 22.002261434577886,
-      "at": 0.353,
+      "size": 21.5904544023799,
+      "at": 0.35,
       "y": 0,
       "z": 0,
-      "r": 0.145,
-      "share": 0.5043830074173972,
+      "r": 0.144,
+      "share": 0.4996596324029952,
       "domain": "main"
      },
      {
@@ -7774,7 +8111,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0,
       "r": 0.089,
-      "share": 0.11463250168577208,
+      "share": 0.11572498298162015,
       "domain": "main"
      },
      {
@@ -7788,13 +8125,13 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0,
       "r": 0.071,
-      "share": 0.05799055967633176,
+      "share": 0.05854322668481961,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 22.571363892372265,
+      "w": 22.9691622821209,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -7816,16 +8153,16 @@ const CRAFT_PRICE_CATALOG={
     "width": 8.887999732971192,
     "height": 7.078812837600708,
     "grid": {
-     "P": 2837506652648493600,
+     "P": 7276773006109312000,
      "fixed": 21135216054766330,
      "cooling": 0,
-     "De": 1464502590820689000,
+     "De": 1468119096526696700,
      "Ds": 0,
      "Dw": 3347200000000000000,
      "domains": [
       {
        "id": "main",
-       "P": 2837506652648493600,
+       "P": 7276773006109312000,
        "reactors": [
         5
        ],
@@ -7856,7 +8193,7 @@ const CRAFT_PRICE_CATALOG={
         },
         {
          "moduleIndex": 5,
-         "P": 2800076622185417000
+         "P": 7239342975646236000
         }
        ],
        "modules": [
@@ -7899,158 +8236,6 @@ const CRAFT_PRICE_CATALOG={
       }
      ],
      "powerPaths": [
-      {
-       "kind": "power",
-       "from": "p7",
-       "to": "f37",
-       "cap": 8388507615769092,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p3",
-       "to": "f37",
-       "cap": 1938000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p32",
-       "to": "f37",
-       "cap": 826473492384230900,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p17",
-       "to": "f38",
-       "cap": 8388507615769092,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p32",
-       "to": "f38",
-       "cap": 318718145032724500,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p17",
-       "to": "f38",
-       "cap": 1506804053472153.8,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p3",
-       "to": "f38",
-       "cap": 348117494718552.44,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p7",
-       "to": "f38",
-       "cap": 1506804053472153.8,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p32",
-       "to": "f38",
-       "cap": 502969896148180740,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p4",
-       "to": "f38",
-       "cap": 348117494718552.44,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p18",
-       "to": "f38",
-       "cap": 1506804053472153.8,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p8",
-       "to": "f38",
-       "cap": 1506804053472153.8,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p8",
-       "to": "f39",
-       "cap": 8388507615769092,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p4",
-       "to": "f39",
-       "cap": 1938000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p32",
-       "to": "f39",
-       "cap": 826473492384230900,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p18",
-       "to": "f40",
-       "cap": 8388507615769092,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p32",
-       "to": "f40",
-       "cap": 828411492384230900,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p32",
-       "to": "p33",
-       "cap": 732251295410344400,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p32",
-       "to": "p34",
-       "cap": 732251295410344400,
-       "auto": true,
-       "ok": true
-      },
       {
        "kind": "power",
        "from": "p32",
@@ -8170,6 +8355,54 @@ const CRAFT_PRICE_CATALOG={
        "cap": 1509658289626166.2,
        "auto": true,
        "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p33",
+       "cap": 734059548263348400,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p34",
+       "cap": 734059548263348400,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "f37",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "f38",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "f39",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "f40",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
       }
      ],
      "trunks": [],
@@ -8190,22 +8423,22 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 33,
        "machineryId": 33,
-       "ratedInputW": 732251295410344400,
+       "ratedInputW": 734059548263348400,
        "driveProfileId": "standard",
-       "machineryGradeId": "dense",
+       "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 366125647.70517224,
-       "effectiveMachineryVolumeM3": 0.2585909503181481,
-       "machineryVolumeM3": 0.2585909503181481,
-       "machineryLengthM": 0.15,
-       "machineryRadiusM": 0.8302200000000001,
-       "machineryDiameterM": 1.6604400000000001,
+       "ratedThrustN": 367029774.1316742,
+       "effectiveMachineryVolumeM3": 0.17251789810352547,
+       "machineryVolumeM3": 0.17251789810352547,
+       "machineryLengthM": 0.3,
+       "machineryRadiusM": 0.4795,
+       "machineryDiameterM": 0.959,
        "machineryOffsetM": 0.7305,
-       "maxInputW": 879209231081703600,
-       "maxRatedInputW": 879209231081703600,
-       "inputDensityWPerM3": 2831697298414524400,
-       "allowedInputDensityWPerM3": 3400000000000000000,
-       "cost": 502.61140679378065,
+       "maxInputW": 5865608535519866000,
+       "maxRatedInputW": 5865608535519866000,
+       "inputDensityWPerM3": 4254976187009014000,
+       "allowedInputDensityWPerM3": 34000000000000000000,
+       "cost": 1606.2906069210462,
        "powerNode": "p33",
        "heatNode": "p33",
        "reactorId": 32,
@@ -8215,7 +8448,7 @@ const CRAFT_PRICE_CATALOG={
         0,
         0
        ],
-       "legacyCoolingInputW": 732251295410344400,
+       "legacyCoolingInputW": 0,
        "valid": true,
        "issues": [],
        "reasons": [],
@@ -8224,28 +8457,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 879209231081703600
+       "pathCapacityW": 5865608535519866000
       },
       {
        "version": 1,
        "id": 34,
        "machineryId": 34,
-       "ratedInputW": 732251295410344400,
+       "ratedInputW": 734059548263348400,
        "driveProfileId": "standard",
-       "machineryGradeId": "dense",
+       "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 366125647.70517224,
-       "effectiveMachineryVolumeM3": 0.2585909503181481,
-       "machineryVolumeM3": 0.2585909503181481,
-       "machineryLengthM": 0.15,
-       "machineryRadiusM": 0.8302200000000001,
-       "machineryDiameterM": 1.6604400000000001,
+       "ratedThrustN": 367029774.1316742,
+       "effectiveMachineryVolumeM3": 0.17251789810352547,
+       "machineryVolumeM3": 0.17251789810352547,
+       "machineryLengthM": 0.3,
+       "machineryRadiusM": 0.4795,
+       "machineryDiameterM": 0.959,
        "machineryOffsetM": 0.7305,
-       "maxInputW": 879209231081703600,
-       "maxRatedInputW": 879209231081703600,
-       "inputDensityWPerM3": 2831697298414524400,
-       "allowedInputDensityWPerM3": 3400000000000000000,
-       "cost": 502.61140679378065,
+       "maxInputW": 5865608535519866000,
+       "maxRatedInputW": 5865608535519866000,
+       "inputDensityWPerM3": 4254976187009014000,
+       "allowedInputDensityWPerM3": 34000000000000000000,
+       "cost": 1606.2906069210462,
        "powerNode": "p34",
        "heatNode": "p34",
        "reactorId": 32,
@@ -8255,7 +8488,7 @@ const CRAFT_PRICE_CATALOG={
         0,
         0
        ],
-       "legacyCoolingInputW": 732251295410344400,
+       "legacyCoolingInputW": 0,
        "valid": true,
        "issues": [],
        "reasons": [],
@@ -8264,17 +8497,17 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 879209231081703600
+       "pathCapacityW": 5865608535519866000
       }
      ],
-     "massKg": 17128.350094050988,
-     "ratedThrustN": 732251295.4103445,
-     "ratedAccelMps2": 42750.83655983128,
-     "structuralAccelerationLimitMps2": 590576.858398786,
+     "massKg": 17654.066572061092,
+     "ratedThrustN": 734059548.2633483,
+     "ratedAccelMps2": 41580.196,
+     "structuralAccelerationLimitMps2": 590576.8583987862,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 42750.83655983128
+     "accelerationLimitMps2": 41580.196
     },
-    "profileVersion": 13,
+    "profileVersion": 14,
     "heat": {
      "v": 1,
      "src": [
@@ -8284,7 +8517,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "I-a3a 太陽イオン化反応炉 #32",
        "g": "high",
        "sh": 1,
-       "st": 8064220671894001000,
+       "st": 11607490350195511000,
        "m": [
         5
        ],
@@ -8299,7 +8532,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "P-s5.6 イオン・エンジン #33",
        "g": "high",
        "sh": 0.5,
-       "st": 2196753886231033300,
+       "st": 2202178644790045000,
        "m": [
         6,
         21
@@ -8315,7 +8548,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "P-s5.6 イオン・エンジン #34",
        "g": "high",
        "sh": 0.5,
-       "st": 2196753886231033300,
+       "st": 2202178644790045000,
        "m": [
         7,
         22
@@ -8331,7 +8564,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "武装（艦首区画）",
        "g": "high",
        "sh": 0.5,
-       "st": 25104000000000000000,
+       "st": 31380000000000000000,
        "m": [
         0,
         1
@@ -8347,7 +8580,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "武装（艦首区画）",
        "g": "high",
        "sh": 0.5,
-       "st": 25104000000000000000,
+       "st": 31380000000000000000,
        "m": [
         2,
         3
@@ -8437,7 +8670,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "外殻からの放熱",
        "k": "skin",
        "g": "low",
-       "cap": 811756435686521600000,
+       "cap": 807404577362123300000,
        "m": -1,
        "sec": -1,
        "src": -1
@@ -8447,37 +8680,17 @@ const CRAFT_PRICE_CATALOG={
        "n": "I-a3a 太陽イオン化反応炉 #32（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 136200319327127710,
+       "cap": 193458172503258530,
        "m": -1,
        "sec": -1,
        "src": 0
-      },
-      {
-       "id": "int:p33",
-       "n": "P-s5.6 イオン・エンジン #33（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 36612564770517224,
-       "m": -1,
-       "sec": -1,
-       "src": 1
-      },
-      {
-       "id": "int:p34",
-       "n": "P-s5.6 イオン・エンジン #34（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 36612564770517224,
-       "m": -1,
-       "sec": -1,
-       "src": 2
       },
       {
        "id": "int:f37",
        "n": "武装（艦首区画）（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 422984095890428300,
+       "cap": 523000000000000000,
        "m": -1,
        "sec": -1,
        "src": 3
@@ -8487,7 +8700,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "武装（艦首区画）（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 422984095890428300,
+       "cap": 523000000000000000,
        "m": -1,
        "sec": -1,
        "src": 4
@@ -8497,91 +8710,79 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 7,
-       "cap": 136200319327127710,
+       "cap": 193458172503258530,
        "sec": -1
       },
       {
        "s": 0,
        "d": 4,
-       "cap": 238350558822473470,
-       "sec": 2
+       "cap": 290187258754887800,
+       "sec": 3
       },
       {
        "s": 0,
        "d": 5,
-       "cap": 238350558822473470,
-       "sec": 2
-      },
-      {
-       "s": 1,
-       "d": 8,
-       "cap": 36612564770517224,
-       "sec": -1
+       "cap": 290187258754887800,
+       "sec": 3
       },
       {
        "s": 1,
        "d": 0,
-       "cap": 54918847155775840,
+       "cap": 55054466119751120,
        "sec": 0
       },
       {
        "s": 1,
        "d": 4,
-       "cap": 54918847155775840,
+       "cap": 55054466119751120,
        "sec": 2
       },
       {
        "s": 2,
-       "d": 9,
-       "cap": 36612564770517224,
-       "sec": -1
-      },
-      {
-       "s": 2,
        "d": 1,
-       "cap": 54918847155775840,
+       "cap": 55054466119751120,
        "sec": 0
       },
       {
        "s": 2,
        "d": 5,
-       "cap": 54918847155775840,
+       "cap": 55054466119751120,
        "sec": 2
       },
       {
        "s": 3,
-       "d": 10,
-       "cap": 422984095890428300,
+       "d": 8,
+       "cap": 523000000000000000,
        "sec": -1
       },
       {
        "s": 3,
        "d": 2,
-       "cap": 644774660787353100,
+       "cap": 784500000000000000,
        "sec": 4
       },
       {
        "s": 3,
        "d": 4,
-       "cap": 644774660787353100,
+       "cap": 784500000000000000,
        "sec": 4
       },
       {
        "s": 4,
-       "d": 11,
-       "cap": 422984095890428300,
+       "d": 9,
+       "cap": 523000000000000000,
        "sec": -1
       },
       {
        "s": 4,
        "d": 3,
-       "cap": 644774660787353100,
+       "cap": 784500000000000000,
        "sec": 4
       },
       {
        "s": 4,
        "d": 5,
-       "cap": 644774660787353100,
+       "cap": 784500000000000000,
        "sec": 4
       },
       {
@@ -8623,7 +8824,7 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 5,
        "d": 6,
-       "cap": 811756435686521600000,
+       "cap": 807404577362123300000,
        "sec": -1
       }
      ]
@@ -8632,18 +8833,18 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_ln": {
    "reference": "craft_tie_ln",
-   "signature": "1dk7opl",
-   "build": 98082,
+   "signature": "1u2azg9",
+   "build": 84444,
    "crew": 1000,
-   "total": 99082,
+   "total": 85444,
    "by": {
     "hull": 8,
     "armor": 6,
-    "power": 27400,
-    "drive": 30867,
+    "power": 15398,
+    "drive": 29230,
     "defense": 1500,
     "command": 14501,
-    "weapons": 11800,
+    "weapons": 11801,
     "systems": 12000,
     "crew": 1000
    },
@@ -8677,9 +8878,9 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.00381,
-    "upS": 0.00381,
-    "down": 0.0514,
+    "up": 0.00493,
+    "upS": 0.00493,
+    "down": 0.043,
     "T": 0
    },
    "powerProfile": {
@@ -8693,6 +8894,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 1.0005,
+      "weaponPowerW": 836800000000000000,
       "stock": 0,
       "at": 0.477,
       "pd": true,
@@ -8714,6 +8916,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 1.0005,
+      "weaponPowerW": 836800000000000000,
       "stock": 0,
       "at": 0.477,
       "pd": true,
@@ -8747,15 +8950,15 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "I-a2b 太陽イオン化反応炉",
-      "w": 0.4054337802824538,
+      "w": 1.0410177626520942,
       "hits": 1,
-      "crew": 0.00012907730836110484,
-      "size": 0.2581546167222097,
+      "crew": 0.00011563260691645128,
+      "size": 0.5781630345822564,
       "at": 0.498,
       "part": 43,
-      "y": -0.2,
+      "y": -0.32,
       "z": 0,
-      "r": 0.044,
+      "r": 0.058,
       "share": 1,
       "domain": "main",
       "port": "p43",
@@ -8773,7 +8976,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.03,
       "z": 0.15,
       "r": 0.073,
-      "share": 0.4334858528990787,
+      "share": 0.4367622992551595,
       "domain": "main",
       "port": "p44",
       "powerConnected": true
@@ -8790,7 +8993,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.03,
       "z": -0.15,
       "r": 0.073,
-      "share": 0.4334858528990787,
+      "share": 0.4367622992551595,
       "domain": "main",
       "port": "p45",
       "powerConnected": true
@@ -9019,17 +9222,17 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "engine",
       "name": "自動推進機関",
-      "w": 0.32328929792223654,
+      "w": 0.31101825548028994,
       "hits": 1,
-      "crew": 0.000036763511590594954,
-      "size": 0.18381755795297475,
-      "at": 0.57,
+      "crew": 0.000034690360837481885,
+      "size": 0.1734518041874094,
+      "at": 0.585,
       "part": -44,
       "machineryOwner": 44,
-      "y": -0.09,
-      "z": 0.1,
+      "y": -0.11,
+      "z": 0.11,
       "r": 0.039,
-      "share": 0.06651414710092128,
+      "share": 0.0632377007448404,
       "domain": "main",
       "port": "p44",
       "powerConnected": true
@@ -9037,17 +9240,17 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "engine",
       "name": "自動推進機関",
-      "w": 0.32328929792223654,
+      "w": 0.31101825548028994,
       "hits": 1,
-      "crew": 0.000036763511590594954,
-      "size": 0.18381755795297475,
-      "at": 0.57,
+      "crew": 0.000034690360837481885,
+      "size": 0.1734518041874094,
+      "at": 0.585,
       "part": -45,
       "machineryOwner": 45,
-      "y": -0.09,
-      "z": -0.1,
+      "y": -0.11,
+      "z": -0.11,
       "r": 0.039,
-      "share": 0.06651414710092128,
+      "share": 0.0632377007448404,
       "domain": "main",
       "port": "p45",
       "powerConnected": true
@@ -9097,35 +9300,35 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0,
       "r": 0.113,
-      "share": 0.1320754716981132,
+      "share": 0.1338432122370937,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 0.7570085176686991,
+      "w": 0.749485373871458,
       "hits": 1,
       "crew": 0,
-      "size": 11.337420652366113,
-      "at": 0.386,
-      "y": 0,
+      "size": 11.168834471661784,
+      "at": 0.385,
+      "y": 0.01,
       "z": 0,
-      "r": 0.155,
-      "share": 0.3383647798742138,
+      "r": 0.154,
+      "share": 0.33779477374123645,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央前部）",
-      "w": 0.8427989150150408,
+      "w": 0.8312015575138089,
       "hits": 1,
       "crew": 0,
-      "size": 13.318308275641977,
-      "at": 0.594,
-      "y": 0,
+      "size": 13.044355731997442,
+      "at": 0.595,
+      "y": 0.01,
       "z": 0,
-      "r": 0.164,
-      "share": 0.39748427672955977,
+      "r": 0.163,
+      "share": 0.39451880178457616,
       "domain": "main"
      },
      {
@@ -9139,13 +9342,13 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0,
       "r": 0.113,
-      "share": 0.1320754716981132,
+      "share": 0.1338432122370937,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 10.00104698372512,
+      "w": 10.356199821437484,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -9167,16 +9370,16 @@ const CRAFT_PRICE_CATALOG={
     "width": 6.559999942779541,
     "height": 8.345999956130981,
     "grid": {
-     "P": 1412528615566401500,
+     "P": 3088413887674337000,
      "fixed": 17671191295729384,
      "cooling": 0,
-     "De": 814623260837961600,
+     "De": 837208570695812700,
      "Ds": 0,
      "Dw": 1673600000000000000,
      "domains": [
       {
        "id": "main",
-       "P": 1412528615566401500,
+       "P": 3088413887674337000,
        "reactors": [
         3
        ],
@@ -9191,7 +9394,7 @@ const CRAFT_PRICE_CATALOG={
         },
         {
          "moduleIndex": 3,
-         "P": 1351956685966401500
+         "P": 3027841958074337000
         }
        ],
        "modules": [
@@ -9228,78 +9431,6 @@ const CRAFT_PRICE_CATALOG={
       }
      ],
      "powerPaths": [
-      {
-       "kind": "power",
-       "from": "p43",
-       "to": "f48",
-       "cap": 836800000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p43",
-       "to": "f49",
-       "cap": 515156685966401540,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p2",
-       "to": "f49",
-       "cap": 30285964800000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p1",
-       "to": "f49",
-       "cap": 30285964800000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p43",
-       "to": "f49",
-       "cap": 249876143966101470,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p2",
-       "to": "f49",
-       "cap": 5597620233748489,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p1",
-       "to": "f49",
-       "cap": 5597620233748489,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p43",
-       "to": "p44",
-       "cap": 407311630418980800,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p43",
-       "to": "p45",
-       "cap": 407311630418980800,
-       "auto": true,
-       "ok": true
-      },
       {
        "kind": "power",
        "from": "p43",
@@ -9419,6 +9550,38 @@ const CRAFT_PRICE_CATALOG={
        "cap": 1262227949694956,
        "auto": true,
        "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p43",
+       "to": "p44",
+       "cap": 418604285347906370,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p43",
+       "to": "p45",
+       "cap": 418604285347906370,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p43",
+       "to": "f48",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p43",
+       "to": "f49",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
       }
      ],
      "trunks": [],
@@ -9439,22 +9602,22 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 44,
        "machineryId": 44,
-       "ratedInputW": 407311630418980800,
+       "ratedInputW": 418604285347906370,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 203655815.2094904,
-       "effectiveMachineryVolumeM3": 0.04807026609204595,
-       "machineryVolumeM3": 0.04807026609204595,
-       "machineryLengthM": 0.15,
-       "machineryRadiusM": 0.357952,
-       "machineryDiameterM": 0.715904,
+       "ratedThrustN": 209302142.67395318,
+       "effectiveMachineryVolumeM3": 0.08330420433843971,
+       "machineryVolumeM3": 0.08330420433843971,
+       "machineryLengthM": 0.3,
+       "machineryRadiusM": 0.33319999999999994,
+       "machineryDiameterM": 0.6663999999999999,
        "machineryOffsetM": 0.8415,
-       "maxInputW": 1634389047129562000,
-       "maxRatedInputW": 1634389047129562000,
-       "inputDensityWPerM3": 8473255164409783000,
+       "maxInputW": 2832342947506950000,
+       "maxRatedInputW": 2832342947506950000,
+       "inputDensityWPerM3": 5025007905330254000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 1928.3600681196735,
+       "cost": 1110.1345782191554,
        "powerNode": "p44",
        "heatNode": "p44",
        "reactorId": 43,
@@ -9464,7 +9627,7 @@ const CRAFT_PRICE_CATALOG={
         0,
         0
        ],
-       "legacyCoolingInputW": 407311630418980800,
+       "legacyCoolingInputW": 0,
        "valid": true,
        "issues": [],
        "reasons": [],
@@ -9473,28 +9636,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1634389047129562000
+       "pathCapacityW": 2832342947506950000
       },
       {
        "version": 1,
        "id": 45,
        "machineryId": 45,
-       "ratedInputW": 407311630418980800,
+       "ratedInputW": 418604285347906370,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 203655815.2094904,
-       "effectiveMachineryVolumeM3": 0.04807026609204595,
-       "machineryVolumeM3": 0.04807026609204595,
-       "machineryLengthM": 0.15,
-       "machineryRadiusM": 0.357952,
-       "machineryDiameterM": 0.715904,
+       "ratedThrustN": 209302142.67395318,
+       "effectiveMachineryVolumeM3": 0.08330420433843971,
+       "machineryVolumeM3": 0.08330420433843971,
+       "machineryLengthM": 0.3,
+       "machineryRadiusM": 0.33319999999999994,
+       "machineryDiameterM": 0.6663999999999999,
        "machineryOffsetM": 0.8415,
-       "maxInputW": 1634389047129562000,
-       "maxRatedInputW": 1634389047129562000,
-       "inputDensityWPerM3": 8473255164409783000,
+       "maxInputW": 2832342947506950000,
+       "maxRatedInputW": 2832342947506950000,
+       "inputDensityWPerM3": 5025007905330254000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 1928.3600681196735,
+       "cost": 1110.1345782191554,
        "powerNode": "p45",
        "heatNode": "p45",
        "reactorId": 43,
@@ -9504,7 +9667,7 @@ const CRAFT_PRICE_CATALOG={
         0,
         0
        ],
-       "legacyCoolingInputW": 407311630418980800,
+       "legacyCoolingInputW": 0,
        "valid": true,
        "issues": [],
        "reasons": [],
@@ -9513,17 +9676,17 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1634389047129562000
+       "pathCapacityW": 2832342947506950000
       }
      ],
-     "massKg": 10194.093392096773,
-     "ratedThrustN": 407311630.4189808,
-     "ratedAccelMps2": 39955.65027241749,
-     "structuralAccelerationLimitMps2": 3151941.201170542,
+     "massKg": 10411.160404665834,
+     "ratedThrustN": 418604285.34790635,
+     "ratedAccelMps2": 40207.26499999999,
+     "structuralAccelerationLimitMps2": 3075126.9232602096,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 39955.65027241749
+     "accelerationLimitMps2": 40207.26499999999
     },
-    "profileVersion": 13,
+    "profileVersion": 14,
     "heat": {
      "v": 1,
      "src": [
@@ -9533,7 +9696,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "I-a2b 太陽イオン化反応炉 #43",
        "g": "high",
        "sh": 1,
-       "st": 3893635255583236000,
+       "st": 6068351428779701000,
        "m": [
         3
        ],
@@ -9548,7 +9711,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "P-s4 イオン・エンジン #44",
        "g": "high",
        "sh": 0.5,
-       "st": 1221934891256942300,
+       "st": 1255812856043719200,
        "m": [
         4,
         19
@@ -9564,7 +9727,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "P-s4 イオン・エンジン #45",
        "g": "high",
        "sh": 0.5,
-       "st": 1221934891256942300,
+       "st": 1255812856043719200,
        "m": [
         5,
         20
@@ -9580,7 +9743,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "武装（艦尾区画）",
        "g": "high",
        "sh": 1,
-       "st": 25104000000000000000,
+       "st": 31380000000000000000,
        "m": [
         0,
         1
@@ -9630,7 +9793,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "外殻からの放熱",
        "k": "skin",
        "g": "low",
-       "cap": 813889332262397700000,
+       "cap": 813537246195572900000,
        "m": -1,
        "sec": -1,
        "src": -1
@@ -9640,37 +9803,17 @@ const CRAFT_PRICE_CATALOG={
        "n": "I-a2b 太陽イオン化反応炉 #43（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 67801373547187280,
+       "cap": 101139190479661700,
        "m": -1,
        "sec": -1,
        "src": 0
-      },
-      {
-       "id": "int:p44",
-       "n": "P-s4 イオン・エンジン #44（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 20365581520949040,
-       "m": -1,
-       "sec": -1,
-       "src": 1
-      },
-      {
-       "id": "int:p45",
-       "n": "P-s4 イオン・エンジン #45（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 20365581520949040,
-       "m": -1,
-       "sec": -1,
-       "src": 2
       },
       {
        "id": "int:f48",
        "n": "武装（艦尾区画）（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 419340786845988100,
+       "cap": 523000000000000000,
        "m": -1,
        "sec": -1,
        "src": 3
@@ -9680,73 +9823,61 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 3,
-       "cap": 67801373547187280,
+       "cap": 101139190479661700,
        "sec": -1
       },
       {
        "s": 0,
        "d": 0,
-       "cap": 118652403707577730,
+       "cap": 151708785719492540,
        "sec": 1
       },
       {
        "s": 0,
        "d": 1,
-       "cap": 118652403707577730,
+       "cap": 151708785719492540,
        "sec": 1
       },
       {
        "s": 1,
+       "d": 0,
+       "cap": 31395321401092980,
+       "sec": 1
+      },
+      {
+       "s": 1,
+       "d": 1,
+       "cap": 31395321401092980,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 1,
+       "cap": 31395321401092980,
+       "sec": 1
+      },
+      {
+       "s": 2,
+       "d": 0,
+       "cap": 31395321401092980,
+       "sec": 1
+      },
+      {
+       "s": 3,
        "d": 4,
-       "cap": 20365581520949040,
-       "sec": -1
-      },
-      {
-       "s": 1,
-       "d": 0,
-       "cap": 30548372281423560,
-       "sec": 1
-      },
-      {
-       "s": 1,
-       "d": 1,
-       "cap": 30548372281423560,
-       "sec": 1
-      },
-      {
-       "s": 2,
-       "d": 5,
-       "cap": 20365581520949040,
-       "sec": -1
-      },
-      {
-       "s": 2,
-       "d": 1,
-       "cap": 30548372281423560,
-       "sec": 1
-      },
-      {
-       "s": 2,
-       "d": 0,
-       "cap": 30548372281423560,
-       "sec": 1
-      },
-      {
-       "s": 3,
-       "d": 6,
-       "cap": 419340786845988100,
+       "cap": 523000000000000000,
        "sec": -1
       },
       {
        "s": 3,
        "d": 0,
-       "cap": 629011180268982100,
+       "cap": 784500000000000000,
        "sec": 1
       },
       {
        "s": 3,
        "d": 1,
-       "cap": 629011180268982100,
+       "cap": 784500000000000000,
        "sec": 1
       },
       {
@@ -9764,7 +9895,7 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 4,
        "d": 2,
-       "cap": 813889332262397700000,
+       "cap": 813537246195572900000,
        "sec": -1
       }
      ]
@@ -9773,15 +9904,15 @@ const CRAFT_PRICE_CATALOG={
   },
   "tie_sa": {
    "reference": "craft_tie_sa",
-   "signature": "31u3sa",
-   "build": 137742,
+   "signature": "196errv",
+   "build": 134209,
    "crew": 1000,
-   "total": 138742,
+   "total": 135209,
    "by": {
     "hull": 61,
-    "armor": 28,
-    "power": 52846,
-    "drive": 32504,
+    "armor": 29,
+    "power": 52845,
+    "drive": 28971,
     "defense": 1500,
     "command": 14502,
     "weapons": 24300,
@@ -9818,9 +9949,9 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.000714,
-    "upS": 0.000714,
-    "down": 0.0854,
+    "up": 0.00458,
+    "upS": 0.00458,
+    "down": 0.0738,
     "T": 0
    },
    "powerProfile": {
@@ -9834,6 +9965,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 1.0005,
+      "weaponPowerW": 836800000000000000,
       "stock": 0,
       "at": 0.743,
       "pd": true,
@@ -9855,6 +9987,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 1.0005,
+      "weaponPowerW": 836800000000000000,
       "stock": 0,
       "at": 0.743,
       "pd": true,
@@ -9876,6 +10009,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0,
+      "weaponPowerW": 1000000000000000,
       "stock": 0,
       "at": 0.797,
       "pd": false,
@@ -9897,6 +10031,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0,
+      "weaponPowerW": 1000000000000000,
       "stock": 0,
       "at": 0.57,
       "pd": false,
@@ -9973,7 +10108,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0.34,
       "r": 0.096,
-      "share": 0.4314540216970391,
+      "share": 0.44645215184163484,
       "domain": "main",
       "port": "p38",
       "powerConnected": true
@@ -9990,7 +10125,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": -0.34,
       "r": 0.096,
-      "share": 0.4314540216970391,
+      "share": 0.44645215184163484,
       "domain": "main",
       "port": "p39",
       "powerConnected": true
@@ -10219,17 +10354,17 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "engine",
       "name": "自動推進機関",
-      "w": 0.6818722806531524,
+      "w": 0.5653483547384074,
       "hits": 1,
-      "crew": 0.00011261196834658259,
-      "size": 0.5630598417329129,
+      "crew": 0.00008501669044519735,
+      "size": 0.42508345222598676,
       "at": 0.341,
       "part": -38,
       "machineryOwner": 38,
       "y": 0,
       "z": 0.34,
-      "r": 0.052,
-      "share": 0.06854597830296091,
+      "r": 0.048,
+      "share": 0.05354784815836511,
       "domain": "main",
       "port": "p38",
       "powerConnected": true
@@ -10237,17 +10372,17 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "engine",
       "name": "自動推進機関",
-      "w": 0.6818722806531524,
+      "w": 0.5653483547384074,
       "hits": 1,
-      "crew": 0.00011261196834658259,
-      "size": 0.5630598417329129,
+      "crew": 0.00008501669044519735,
+      "size": 0.42508345222598676,
       "at": 0.341,
       "part": -39,
       "machineryOwner": 39,
       "y": 0,
       "z": -0.34,
-      "r": 0.052,
-      "share": 0.06854597830296091,
+      "r": 0.048,
+      "share": 0.05354784815836511,
       "domain": "main",
       "port": "p39",
       "powerConnected": true
@@ -10371,21 +10506,21 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0,
       "r": 0.127,
-      "share": 0.10013947001394699,
+      "share": 0.09997215260373155,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 1.1643619458336665,
+      "w": 1.1692542318949328,
       "hits": 1,
       "crew": 0,
-      "size": 21.626942034162003,
+      "size": 21.76338961797375,
       "at": 0.38,
       "y": 0,
       "z": 0,
-      "r": 0.176,
-      "share": 0.26527196652719665,
+      "r": 0.177,
+      "share": 0.26649958228905596,
       "domain": "main"
      },
      {
@@ -10399,7 +10534,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.01,
       "z": 0,
       "r": 0.2,
-      "share": 0.4471408647140865,
+      "share": 0.4463937621832359,
       "domain": "main"
      },
      {
@@ -10413,13 +10548,13 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0,
       "r": 0.157,
-      "share": 0.18744769874476988,
+      "share": 0.18713450292397663,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 36.687903726305706,
+      "w": 36.551010386844766,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -10444,7 +10579,7 @@ const CRAFT_PRICE_CATALOG={
      "P": 7354377344558333000,
      "fixed": 49563360330518440,
      "cooling": 0,
-     "De": 2409994264385070000,
+     "De": 2255988867089198000,
      "Ds": 0,
      "Dw": 1675600000000000000,
      "domains": [
@@ -10530,62 +10665,6 @@ const CRAFT_PRICE_CATALOG={
       }
      ],
      "powerPaths": [
-      {
-       "kind": "power",
-       "from": "p11",
-       "to": "f42",
-       "cap": 10407921600000002,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p36",
-       "to": "f42",
-       "cap": 826392078400000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p36",
-       "to": "f43",
-       "cap": 836800000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p12",
-       "to": "f44",
-       "cap": 1000000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p36",
-       "to": "f45",
-       "cap": 1000000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p36",
-       "to": "p38",
-       "cap": 1204997132192535000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p37",
-       "to": "p39",
-       "cap": 1204997132192535000,
-       "auto": true,
-       "ok": true
-      },
       {
        "kind": "power",
        "from": "p36",
@@ -10705,6 +10784,102 @@ const CRAFT_PRICE_CATALOG={
        "cap": 3540240023608460,
        "auto": true,
        "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p36",
+       "to": "p38",
+       "cap": 1127994433544599000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p36",
+       "to": "p39",
+       "cap": 1127994433544599000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p36",
+       "to": "f42",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p36",
+       "to": "f43",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p36",
+       "to": "f44",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p36",
+       "to": "f45",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p37",
+       "to": "p38",
+       "cap": 1127994433544599000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p37",
+       "to": "p39",
+       "cap": 1127994433544599000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p37",
+       "to": "f42",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p37",
+       "to": "f43",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p37",
+       "to": "f44",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p37",
+       "to": "f45",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
       }
      ],
      "trunks": [],
@@ -10725,22 +10900,22 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 38,
        "machineryId": 38,
-       "ratedInputW": 1204997132192535000,
+       "ratedInputW": 1127994433544599000,
        "driveProfileId": "standard",
-       "machineryGradeId": "advanced",
+       "machineryGradeId": "dense",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 602498566.0962675,
-       "effectiveMachineryVolumeM3": 0.2742579143444949,
-       "machineryVolumeM3": 0.2742579143444949,
-       "machineryLengthM": 0.15,
-       "machineryRadiusM": 0.855,
-       "machineryDiameterM": 1.71,
+       "ratedThrustN": 563997216.7722995,
+       "effectiveMachineryVolumeM3": 0.33181821735506783,
+       "machineryVolumeM3": 0.33181821735506783,
+       "machineryLengthM": 0.3,
+       "machineryRadiusM": 0.6649999999999999,
+       "machineryDiameterM": 1.3299999999999998,
        "machineryOffsetM": 0.625,
-       "maxInputW": 9324769087712827000,
-       "maxRatedInputW": 9324769087712827000,
-       "inputDensityWPerM3": 4393664026333038000,
-       "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 2737.380569535454,
+       "maxInputW": 1128181939007230600,
+       "maxRatedInputW": 1128181939007230600,
+       "inputDensityWPerM3": 3399434915104643000,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "cost": 971.2853714126644,
        "powerNode": "p38",
        "heatNode": "p38",
        "reactorId": 36,
@@ -10750,7 +10925,7 @@ const CRAFT_PRICE_CATALOG={
         0,
         0
        ],
-       "legacyCoolingInputW": 1204997132192535000,
+       "legacyCoolingInputW": 0,
        "valid": true,
        "issues": [],
        "reasons": [],
@@ -10759,28 +10934,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 9324769087712827000
+       "pathCapacityW": 1128181939007230600
       },
       {
        "version": 1,
        "id": 39,
        "machineryId": 39,
-       "ratedInputW": 1204997132192535000,
+       "ratedInputW": 1127994433544599000,
        "driveProfileId": "standard",
-       "machineryGradeId": "advanced",
+       "machineryGradeId": "dense",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 602498566.0962675,
-       "effectiveMachineryVolumeM3": 0.2742579143444949,
-       "machineryVolumeM3": 0.2742579143444949,
-       "machineryLengthM": 0.15,
-       "machineryRadiusM": 0.855,
-       "machineryDiameterM": 1.71,
+       "ratedThrustN": 563997216.7722995,
+       "effectiveMachineryVolumeM3": 0.33181821735506783,
+       "machineryVolumeM3": 0.33181821735506783,
+       "machineryLengthM": 0.3,
+       "machineryRadiusM": 0.6649999999999999,
+       "machineryDiameterM": 1.3299999999999998,
        "machineryOffsetM": 0.625,
-       "maxInputW": 9324769087712827000,
-       "maxRatedInputW": 9324769087712827000,
-       "inputDensityWPerM3": 4393664026333038000,
-       "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 2737.380569535454,
+       "maxInputW": 1128181939007230600,
+       "maxRatedInputW": 1128181939007230600,
+       "inputDensityWPerM3": 3399434915104643000,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "cost": 971.2853714126644,
        "powerNode": "p39",
        "heatNode": "p39",
        "reactorId": 37,
@@ -10790,7 +10965,7 @@ const CRAFT_PRICE_CATALOG={
         0,
         0
        ],
-       "legacyCoolingInputW": 1204997132192535000,
+       "legacyCoolingInputW": 0,
        "valid": true,
        "issues": [],
        "reasons": [],
@@ -10799,17 +10974,17 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 9324769087712827000
+       "pathCapacityW": 1128181939007230600
       }
      ],
-     "massKg": 48481.207654794416,
-     "ratedThrustN": 1204997132.192535,
-     "ratedAccelMps2": 24854.93226102362,
-     "structuralAccelerationLimitMps2": 2022223.9111432116,
+     "massKg": 48329.16857286899,
+     "ratedThrustN": 1127994433.544599,
+     "ratedAccelMps2": 23339.826999999997,
+     "structuralAccelerationLimitMps2": 2035206.5632773137,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 24854.93226102362
+     "accelerationLimitMps2": 23339.826999999997
     },
-    "profileVersion": 13,
+    "profileVersion": 14,
     "heat": {
      "v": 1,
      "src": [
@@ -10818,8 +10993,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "p36",
        "n": "太陽イオン化反応炉（操縦席ポッド） #36",
        "g": "high",
-       "sh": 0.707791,
-       "st": 7005006170215329000,
+       "sh": 0.91675,
+       "st": 8759328243102624000,
        "m": [
         5
        ],
@@ -10833,8 +11008,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "p37",
        "n": "太陽イオン化反応炉（兵装ポッド） #37",
        "g": "high",
-       "sh": 0.292209,
-       "st": 2891993117262084000,
+       "sh": 0.0832503,
+       "st": 795437102704695700,
        "m": [
         6
        ],
@@ -10849,7 +11024,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "イオン・エンジン #38",
        "g": "high",
        "sh": 0.5,
-       "st": 3614991396577605000,
+       "st": 3383983300633797000,
        "m": [
         7,
         22
@@ -10865,7 +11040,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "イオン・エンジン #39",
        "g": "high",
        "sh": 0.5,
-       "st": 3614991396577605000,
+       "st": 3383983300633797000,
        "m": [
         8,
         23
@@ -10881,7 +11056,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "武装（艦首区画）",
        "g": "high",
        "sh": 0.998806,
-       "st": 25104000000000000000,
+       "st": 31380000000000000000,
        "m": [
         0,
         1
@@ -10897,7 +11072,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "武装（艦首区画）",
        "g": "high",
        "sh": 0.0011936,
-       "st": 30000000000000000,
+       "st": 37500000000000000,
        "m": [
         2,
         3
@@ -10997,7 +11172,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "太陽イオン化反応炉（操縦席ポッド） #36（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 82703152494311780,
+       "cap": 79623044548394340,
        "m": -1,
        "sec": -1,
        "src": 0
@@ -11007,30 +11182,10 @@ const CRAFT_PRICE_CATALOG={
        "n": "太陽イオン化反応炉（兵装ポッド） #37（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 82703152494311780,
+       "cap": 79623044548394340,
        "m": -1,
        "sec": -1,
        "src": 1
-      },
-      {
-       "id": "int:p38",
-       "n": "イオン・エンジン #38（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 60249856609626750,
-       "m": -1,
-       "sec": -1,
-       "src": 2
-      },
-      {
-       "id": "int:p39",
-       "n": "イオン・エンジン #39（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 60249856609626750,
-       "m": -1,
-       "sec": -1,
-       "src": 3
       },
       {
        "id": "int:f42",
@@ -11057,78 +11212,66 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 7,
-       "cap": 82703152494311780,
+       "cap": 79623044548394340,
        "sec": -1
       },
       {
        "s": 0,
        "d": 2,
-       "cap": 124054728741467660,
+       "cap": 119434566822591500,
        "sec": 0
       },
       {
        "s": 0,
        "d": 4,
-       "cap": 124054728741467660,
+       "cap": 119434566822591500,
        "sec": 0
       },
       {
        "s": 1,
        "d": 8,
-       "cap": 82703152494311780,
+       "cap": 79623044548394340,
        "sec": -1
       },
       {
        "s": 1,
        "d": 3,
-       "cap": 124054728741467660,
+       "cap": 119434566822591500,
        "sec": 0
       },
       {
        "s": 1,
        "d": 5,
-       "cap": 124054728741467660,
+       "cap": 119434566822591500,
        "sec": 0
       },
       {
        "s": 2,
-       "d": 9,
-       "cap": 60249856609626750,
-       "sec": -1
-      },
-      {
-       "s": 2,
        "d": 2,
-       "cap": 90374784914440130,
+       "cap": 84599582515844930,
        "sec": 0
       },
       {
        "s": 2,
        "d": 4,
-       "cap": 90374784914440130,
+       "cap": 84599582515844930,
        "sec": 0
       },
       {
        "s": 3,
-       "d": 10,
-       "cap": 60249856609626750,
-       "sec": -1
-      },
-      {
-       "s": 3,
        "d": 3,
-       "cap": 90374784914440130,
+       "cap": 84599582515844930,
        "sec": 0
       },
       {
        "s": 3,
        "d": 5,
-       "cap": 90374784914440130,
+       "cap": 84599582515844930,
        "sec": 0
       },
       {
        "s": 4,
-       "d": 11,
+       "d": 9,
        "cap": 523000000000000000,
        "sec": -1
       },
@@ -11146,7 +11289,7 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "s": 5,
-       "d": 12,
+       "d": 10,
        "cap": 625000000000000,
        "sec": -1
       },
@@ -11210,15 +11353,15 @@ const CRAFT_PRICE_CATALOG={
   },
   "v19": {
    "reference": "craft_v19",
-   "signature": "8mddai",
-   "build": 170459,
+   "signature": "11ckfyc",
+   "build": 139657,
    "crew": 1000,
-   "total": 171459,
+   "total": 140657,
    "by": {
     "hull": 4,
     "armor": 14,
-    "power": 68612,
-    "drive": 47027,
+    "power": 44611,
+    "drive": 40226,
     "defense": 1500,
     "command": 14501,
     "weapons": 21800,
@@ -11255,9 +11398,9 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0,
-    "upS": 0,
-    "down": 0.0642,
+    "up": 0.00289,
+    "upS": 0.00289,
+    "down": 0.0441,
     "T": 0
    },
    "powerProfile": {
@@ -11271,6 +11414,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 1.0005,
+      "weaponPowerW": 836800000000000000,
       "stock": 0,
       "at": 0.55,
       "pd": true,
@@ -11292,6 +11436,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 1.0005,
+      "weaponPowerW": 836800000000000000,
       "stock": 0,
       "at": 0.55,
       "pd": true,
@@ -11399,16 +11544,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "右舷ナセル反応炉",
-      "w": 0.26608824932493685,
+      "w": 0.6837523253910438,
       "hits": 1,
-      "crew": 0.00006862913871522024,
-      "size": 0.13725827743044047,
-      "at": 0.637,
+      "crew": 0.00006155188132198442,
+      "size": 0.30775940660992207,
+      "at": 0.658,
       "part": 16,
       "y": 0.72,
       "z": 0.28,
-      "r": 0.043,
-      "share": 0.403740712903981,
+      "r": 0.056,
+      "share": 0.4516309750335137,
       "domain": "main",
       "port": "p16",
       "powerConnected": true
@@ -11416,16 +11561,16 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "左舷ナセル反応炉",
-      "w": 0.26608824932493685,
+      "w": 0.6844502513239777,
       "hits": 1,
-      "crew": 0.00006862913871522024,
-      "size": 0.13725827743044047,
-      "at": 0.637,
+      "crew": 0.00006164614706637015,
+      "size": 0.30823073533185075,
+      "at": 0.658,
       "part": 17,
       "y": 0.72,
       "z": -0.28,
-      "r": 0.043,
-      "share": 0.403740712903981,
+      "r": 0.056,
+      "share": 0.452322640814231,
       "domain": "main",
       "port": "p17",
       "powerConnected": true
@@ -11442,7 +11587,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.43,
       "z": 0,
       "r": 0.034,
-      "share": 0.19251857419203802,
+      "share": 0.09604638415225526,
       "domain": "main",
       "port": "p18",
       "powerConnected": true
@@ -11459,7 +11604,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.72,
       "z": 0.28,
       "r": 0.098,
-      "share": 0.459716341747253,
+      "share": 0.44992166553400365,
       "domain": "main",
       "port": "p19",
       "powerConnected": true
@@ -11476,7 +11621,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.72,
       "z": -0.28,
       "r": 0.098,
-      "share": 0.459716341747253,
+      "share": 0.44992166553400365,
       "domain": "main",
       "port": "p20",
       "powerConnected": true
@@ -11493,7 +11638,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.43,
       "z": 0,
       "r": 0.05,
-      "share": 0.0607798047983147,
+      "share": 0.05948483558742837,
       "domain": "main",
       "port": "p21",
       "powerConnected": true
@@ -11773,17 +11918,17 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "engine",
       "name": "自動推進機関",
-      "w": 0.09528590609878643,
+      "w": 0.15125694757895664,
       "hits": 1,
-      "crew": 0.000005882649836765743,
-      "size": 0.029413249183828715,
-      "at": 0.567,
+      "crew": 0.000011765299673531487,
+      "size": 0.05882649836765743,
+      "at": 0.555,
       "part": -19,
       "machineryOwner": 19,
       "y": 0.72,
       "z": 0.28,
-      "r": 0.026,
-      "share": 0.008277129080127349,
+      "r": 0.032,
+      "share": 0.016201554582187465,
       "domain": "main",
       "port": "p19",
       "powerConnected": true
@@ -11791,17 +11936,17 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "engine",
       "name": "自動推進機関",
-      "w": 0.09528590609878643,
+      "w": 0.15125694757895664,
       "hits": 1,
-      "crew": 0.000005882649836765743,
-      "size": 0.029413249183828715,
-      "at": 0.567,
+      "crew": 0.000011765299673531487,
+      "size": 0.05882649836765743,
+      "at": 0.555,
       "part": -20,
       "machineryOwner": 20,
       "y": 0.72,
       "z": -0.28,
-      "r": 0.026,
-      "share": 0.008277129080127349,
+      "r": 0.032,
+      "share": 0.016201554582187465,
       "domain": "main",
       "port": "p20",
       "powerConnected": true
@@ -11809,17 +11954,17 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "engine",
       "name": "自動推進機関",
-      "w": 0.0509176898394435,
+      "w": 0.09659838746109803,
       "hits": 1,
-      "crew": 0.000002297910092486619,
-      "size": 0.011489550462433095,
+      "crew": 0.0000060046100764096546,
+      "size": 0.03002305038204827,
       "at": 0.584,
       "part": -21,
       "machineryOwner": 21,
       "y": -0.43,
       "z": 0,
-      "r": 0.019,
-      "share": 0.0032332535469247465,
+      "r": 0.026,
+      "share": 0.008268724180189365,
       "domain": "main",
       "port": "p21",
       "powerConnected": true
@@ -11920,12 +12065,12 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.08181774737529572,
       "hits": 1,
       "crew": 0,
-      "size": 0.40284167099962886,
+      "size": 0.4028416709996289,
       "at": 0.18,
       "y": 0.79,
       "z": 0,
       "r": 0.062,
-      "share": 0.05228758169934639,
+      "share": 0.056338028169014086,
       "domain": "main"
      },
      {
@@ -11939,21 +12084,21 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.37,
       "z": 0,
       "r": 0.129,
-      "share": 0.4787581699346405,
+      "share": 0.5158450704225352,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央前部）",
-      "w": 0.3457621074676917,
+      "w": 0.30824173294302365,
       "hits": 1,
       "crew": 0,
-      "size": 3.4996870168092764,
-      "at": 0.598,
-      "y": 0.3,
+      "size": 2.9457797191847863,
+      "at": 0.587,
+      "y": 0.23,
       "z": 0,
-      "r": 0.127,
-      "share": 0.4542483660130719,
+      "r": 0.119,
+      "share": 0.4119718309859155,
       "domain": "main"
      },
      {
@@ -11967,13 +12112,13 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.69,
       "z": 0,
       "r": 0.04,
-      "share": 0.014705882352941175,
+      "share": 0.01584507042253521,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 11.849591859406882,
+      "w": 12.423268949880367,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -11995,16 +12140,16 @@ const CRAFT_PRICE_CATALOG={
     "width": 13.33307933807373,
     "height": 5.850300121307373,
     "grid": {
-     "P": 1780405308135366400,
+     "P": 3568703751125112000,
      "fixed": 18202532422957864,
      "cooling": 0,
-     "De": 1184301890587012400,
+     "De": 1159544543543860500,
      "Ds": 0,
      "Dw": 1673600000000000000,
      "domains": [
       {
        "id": "main",
-       "P": 1780405308135366400,
+       "P": 3568703751125112000,
        "reactors": [
         5,
         6,
@@ -12013,11 +12158,11 @@ const CRAFT_PRICE_CATALOG={
        "sources": [
         {
          "moduleIndex": 5,
-         "P": 718822108364604800
+         "P": 1611737154726392000
         },
         {
          "moduleIndex": 6,
-         "P": 718822108364604800
+         "P": 1614205504992562700
         },
         {
          "moduleIndex": 7,
@@ -12070,78 +12215,6 @@ const CRAFT_PRICE_CATALOG={
       }
      ],
      "powerPaths": [
-      {
-       "kind": "power",
-       "from": "p16",
-       "to": "f25",
-       "cap": 717822108364604800,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p23",
-       "to": "f25",
-       "cap": 118977891635395200,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p17",
-       "to": "f26",
-       "cap": 717822108364604800,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p23",
-       "to": "f26",
-       "cap": 118977891635395200,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p16",
-       "to": "f27",
-       "cap": 1000000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p17",
-       "to": "f28",
-       "cap": 1000000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p16",
-       "to": "p19",
-       "cap": 555433581154675460,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p17",
-       "to": "p20",
-       "cap": 555433581154675460,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p18",
-       "to": "p21",
-       "cap": 73434728277661420,
-       "auto": true,
-       "ok": true
-      },
       {
        "kind": "power",
        "from": "p16",
@@ -12285,14 +12358,177 @@ const CRAFT_PRICE_CATALOG={
        "cap": 1070737201350462.6,
        "auto": true,
        "ok": true
-      }
-     ],
-     "trunks": [
+      },
       {
-       "port": "p23",
-       "moduleIndex": 12
+       "kind": "power",
+       "from": "p16",
+       "to": "p19",
+       "cap": 543822469125418240,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p20",
+       "cap": 543822469125418240,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p21",
+       "cap": 71899605293024040,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "f25",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "f26",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "f27",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "f28",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p19",
+       "cap": 543822469125418240,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p20",
+       "cap": 543822469125418240,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p21",
+       "cap": 71899605293024040,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "f25",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "f26",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "f27",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "f28",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p19",
+       "cap": 543822469125418240,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p20",
+       "cap": 543822469125418240,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p21",
+       "cap": 71899605293024040,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "f25",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "f26",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "f27",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "f28",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
       }
      ],
+     "trunks": [],
      "fixedLoads": [
       {
        "id": "hotel",
@@ -12322,22 +12558,22 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 19,
        "machineryId": 19,
-       "ratedInputW": 555433581154675460,
+       "ratedInputW": 543822469125418240,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 277716790.57733774,
-       "effectiveMachineryVolumeM3": 0.029413249183828732,
-       "machineryVolumeM3": 0.029413249183828732,
-       "machineryLengthM": 0.15,
+       "ratedThrustN": 271911234.5627091,
+       "effectiveMachineryVolumeM3": 0.058826498367657465,
+       "machineryVolumeM3": 0.058826498367657465,
+       "machineryLengthM": 0.3,
        "machineryRadiusM": 0.27999999999999997,
        "machineryDiameterM": 0.5599999999999999,
        "machineryOffsetM": 1.625,
-       "maxInputW": 1000050472250176900,
-       "maxRatedInputW": 1000050472250176900,
-       "inputDensityWPerM3": 18883788651953836000,
+       "maxInputW": 2000100944500353800,
+       "maxRatedInputW": 2000100944500353800,
+       "inputDensityWPerM3": 9244515383638903000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 6128.5221053105115,
+       "cost": 2828.256041196599,
        "powerNode": "p19",
        "heatNode": "p19",
        "reactorId": 16,
@@ -12347,7 +12583,7 @@ const CRAFT_PRICE_CATALOG={
         0,
         0
        ],
-       "legacyCoolingInputW": 555433581154675460,
+       "legacyCoolingInputW": 0,
        "valid": true,
        "issues": [],
        "reasons": [],
@@ -12356,28 +12592,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1000050472250176900
+       "pathCapacityW": 2000100944500353800
       },
       {
        "version": 1,
        "id": 20,
        "machineryId": 20,
-       "ratedInputW": 555433581154675460,
+       "ratedInputW": 543822469125418240,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 277716790.57733774,
-       "effectiveMachineryVolumeM3": 0.029413249183828732,
-       "machineryVolumeM3": 0.029413249183828732,
-       "machineryLengthM": 0.15,
+       "ratedThrustN": 271911234.5627091,
+       "effectiveMachineryVolumeM3": 0.058826498367657465,
+       "machineryVolumeM3": 0.058826498367657465,
+       "machineryLengthM": 0.3,
        "machineryRadiusM": 0.27999999999999997,
        "machineryDiameterM": 0.5599999999999999,
        "machineryOffsetM": 1.625,
-       "maxInputW": 1000050472250176900,
-       "maxRatedInputW": 1000050472250176900,
-       "inputDensityWPerM3": 18883788651953836000,
+       "maxInputW": 2000100944500353800,
+       "maxRatedInputW": 2000100944500353800,
+       "inputDensityWPerM3": 9244515383638903000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 6128.5221053105115,
+       "cost": 2828.256041196599,
        "powerNode": "p20",
        "heatNode": "p20",
        "reactorId": 17,
@@ -12387,7 +12623,7 @@ const CRAFT_PRICE_CATALOG={
         0,
         0
        ],
-       "legacyCoolingInputW": 555433581154675460,
+       "legacyCoolingInputW": 0,
        "valid": true,
        "issues": [],
        "reasons": [],
@@ -12396,28 +12632,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1000050472250176900
+       "pathCapacityW": 2000100944500353800
       },
       {
        "version": 1,
        "id": 21,
        "machineryId": 21,
-       "ratedInputW": 73434728277661420,
+       "ratedInputW": 71899605293024040,
        "driveProfileId": "standard",
-       "machineryGradeId": "advanced",
+       "machineryGradeId": "dense",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 36717364.138830714,
-       "effectiveMachineryVolumeM3": 0.011489550462433098,
-       "machineryVolumeM3": 0.011489550462433098,
-       "machineryLengthM": 0.15,
+       "ratedThrustN": 35949802.64651202,
+       "effectiveMachineryVolumeM3": 0.022979100924866196,
+       "machineryVolumeM3": 0.022979100924866196,
+       "machineryLengthM": 0.3,
        "machineryRadiusM": 0.175,
        "machineryDiameterM": 0.35,
        "machineryOffsetM": 0.55,
-       "maxInputW": 390644715722725300,
-       "maxRatedInputW": 390644715722725300,
-       "inputDensityWPerM3": 6391436159122838000,
-       "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 255.2910051374741,
+       "maxInputW": 78128943144545070,
+       "maxRatedInputW": 78128943144545070,
+       "inputDensityWPerM3": 3128912899077782500,
+       "allowedInputDensityWPerM3": 3400000000000000000,
+       "cost": 55.919402391110964,
        "powerNode": "p21",
        "heatNode": "p21",
        "reactorId": 18,
@@ -12427,7 +12663,7 @@ const CRAFT_PRICE_CATALOG={
         0,
         0
        ],
-       "legacyCoolingInputW": 73434728277661420,
+       "legacyCoolingInputW": 0,
        "valid": true,
        "issues": [],
        "reasons": [],
@@ -12436,17 +12672,17 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 390644715722725300
+       "pathCapacityW": 78128943144545070
       }
      ],
-     "massKg": 12298.049919847936,
-     "ratedThrustN": 592150945.2935061,
-     "ratedAccelMps2": 48149.98712420482,
-     "structuralAccelerationLimitMps2": 1004171.5449596551,
+     "massKg": 12589.505650785415,
+     "ratedThrustN": 579772271.7719302,
+     "ratedAccelMps2": 46052.02839999998,
+     "structuralAccelerationLimitMps2": 1008831.9086888396,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 48149.98712420482
+     "accelerationLimitMps2": 46052.02839999998
     },
-    "profileVersion": 13,
+    "profileVersion": 14,
     "heat": {
      "v": 1,
      "src": [
@@ -12455,8 +12691,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "p16",
        "n": "右舷ナセル反応炉 #16",
        "g": "high",
-       "sh": 0.479586,
-       "st": 2070207672090061800,
+       "sh": 0.609411,
+       "st": 4641803005612009000,
        "m": [
         5
        ],
@@ -12470,8 +12706,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "p17",
        "n": "左舷ナセル反応炉 #17",
        "g": "high",
-       "sh": 0.479586,
-       "st": 2070207672090061800,
+       "sh": 0.390589,
+       "st": 2975063810977023000,
        "m": [
         6
        ],
@@ -12485,8 +12721,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "p18",
        "n": "腹部ポッド反応炉 #18",
        "g": "high",
-       "sh": 0.0408287,
-       "st": 176243347866387460,
+       "sh": 0,
+       "st": 1,
        "m": [
         7
        ],
@@ -12501,7 +12737,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "右舷ナセル・イオンエンジン #19",
        "g": "high",
        "sh": 0.468997,
-       "st": 1666300743464026600,
+       "st": 1631467407376254700,
        "m": [
         8,
         27
@@ -12517,7 +12753,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "左舷ナセル・イオンエンジン #20",
        "g": "high",
        "sh": 0.468997,
-       "st": 1666300743464026600,
+       "st": 1631467407376254700,
        "m": [
         9,
         28
@@ -12533,7 +12769,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "腹部イオンエンジン #21",
        "g": "high",
        "sh": 0.0620068,
-       "st": 220304184832984300,
+       "st": 215698815879072130,
        "m": [
         10,
         29
@@ -12548,8 +12784,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "f25",
        "n": "武装（艦首区画）",
        "g": "high",
-       "sh": 0.499305,
-       "st": 10775362154479200000,
+       "sh": 0.499403,
+       "st": 15671272380042970000,
        "m": [
         0
        ],
@@ -12563,8 +12799,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "f26",
        "n": "武装（艦首区画）",
        "g": "high",
-       "sh": 0.499305,
-       "st": 10775362154479200000,
+       "sh": 0.499403,
+       "st": 15671272380042970000,
        "m": [
         1
        ],
@@ -12578,8 +12814,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "f27",
        "n": "武装（艦首区画）",
        "g": "high",
-       "sh": 0.000695065,
-       "st": 15000000000000000,
+       "sh": 0.000596801,
+       "st": 18727619957030316,
        "m": [
         2
        ],
@@ -12593,8 +12829,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "f28",
        "n": "武装（艦首区画）",
        "g": "high",
-       "sh": 0.000695065,
-       "st": 15000000000000000,
+       "sh": 0.000596801,
+       "st": 18727619957030316,
        "m": [
         3
        ],
@@ -12673,7 +12909,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "外殻からの放熱",
        "k": "skin",
        "g": "low",
-       "cap": 354712737196737360000,
+       "cap": 349057811612006400000,
        "m": -1,
        "sec": -1,
        "src": -1
@@ -12683,7 +12919,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "右舷ナセル反応炉 #16（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 34503461201501028,
+       "cap": 51510266403114100,
        "m": -1,
        "sec": -1,
        "src": 0
@@ -12693,7 +12929,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "左舷ナセル反応炉 #17（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 34503461201501028,
+       "cap": 51589153571169880,
        "m": -1,
        "sec": -1,
        "src": 1
@@ -12703,40 +12939,10 @@ const CRAFT_PRICE_CATALOG={
        "n": "腹部ポッド反応炉 #18（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 16452532387495530,
+       "cap": 10954463064388754,
        "m": -1,
        "sec": -1,
        "src": 2
-      },
-      {
-       "id": "int:p19",
-       "n": "右舷ナセル・イオンエンジン #19（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 27771679057733776,
-       "m": -1,
-       "sec": -1,
-       "src": 3
-      },
-      {
-       "id": "int:p20",
-       "n": "左舷ナセル・イオンエンジン #20（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 27771679057733776,
-       "m": -1,
-       "sec": -1,
-       "src": 4
-      },
-      {
-       "id": "int:p21",
-       "n": "腹部イオンエンジン #21（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 3671736413883071.5,
-       "m": -1,
-       "sec": -1,
-       "src": 5
       },
       {
        "id": "int:f25",
@@ -12783,114 +12989,96 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 6,
-       "cap": 34503461201501028,
+       "cap": 51510266403114100,
        "sec": -1
       },
       {
        "s": 0,
        "d": 0,
-       "cap": 60381057102626800,
+       "cap": 77265399604671140,
        "sec": 4
       },
       {
        "s": 0,
        "d": 4,
-       "cap": 60381057102626800,
+       "cap": 77265399604671140,
        "sec": 4
       },
       {
        "s": 1,
        "d": 7,
-       "cap": 34503461201501028,
+       "cap": 51589153571169880,
        "sec": -1
       },
       {
        "s": 1,
        "d": 1,
-       "cap": 60381057102626800,
+       "cap": 77383730356754820,
        "sec": 4
       },
       {
        "s": 1,
        "d": 4,
-       "cap": 60381057102626800,
+       "cap": 77383730356754820,
        "sec": 4
       },
       {
        "s": 2,
        "d": 8,
-       "cap": 16452532387495530,
+       "cap": 10954463064388754,
        "sec": -1
       },
       {
        "s": 2,
        "d": 4,
-       "cap": 28791931678117176,
+       "cap": 16431694596583132,
        "sec": 4
       },
       {
        "s": 2,
        "d": 0,
-       "cap": 28791931678117176,
+       "cap": 16431694596583132,
        "sec": 4
       },
       {
        "s": 3,
-       "d": 9,
-       "cap": 27771679057733776,
-       "sec": -1
-      },
-      {
-       "s": 3,
        "d": 0,
-       "cap": 41657518586600664,
+       "cap": 40786685184406370,
        "sec": 0
       },
       {
        "s": 3,
        "d": 4,
-       "cap": 41657518586600664,
+       "cap": 40786685184406370,
        "sec": 2
-      },
-      {
-       "s": 4,
-       "d": 10,
-       "cap": 27771679057733776,
-       "sec": -1
       },
       {
        "s": 4,
        "d": 1,
-       "cap": 41657518586600664,
+       "cap": 40786685184406370,
        "sec": 0
       },
       {
        "s": 4,
        "d": 4,
-       "cap": 41657518586600664,
+       "cap": 40786685184406370,
        "sec": 2
       },
       {
        "s": 5,
-       "d": 11,
-       "cap": 3671736413883071.5,
-       "sec": -1
-      },
-      {
-       "s": 5,
        "d": 4,
-       "cap": 5507604620824608,
+       "cap": 5392470396976803,
        "sec": 3
       },
       {
        "s": 5,
        "d": 0,
-       "cap": 5507604620824608,
+       "cap": 5392470396976803,
        "sec": 3
       },
       {
        "s": 6,
-       "d": 12,
+       "d": 9,
        "cap": 261187873000716160,
        "sec": -1
       },
@@ -12908,7 +13096,7 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "s": 7,
-       "d": 13,
+       "d": 10,
        "cap": 261187873000716160,
        "sec": -1
       },
@@ -12926,7 +13114,7 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "s": 8,
-       "d": 14,
+       "d": 11,
        "cap": 312126999283838.6,
        "sec": -1
       },
@@ -12944,7 +13132,7 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "s": 9,
-       "d": 15,
+       "d": 12,
        "cap": 312126999283838.6,
        "sec": -1
       },
@@ -12993,7 +13181,7 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 10,
        "d": 5,
-       "cap": 354712737196737360000,
+       "cap": 349057811612006400000,
        "sec": -1
       }
      ]
@@ -13002,17 +13190,17 @@ const CRAFT_PRICE_CATALOG={
   },
   "vulture": {
    "reference": "craft_vulture",
-   "signature": "940gr7",
-   "build": 144544,
+   "signature": "1k80o51",
+   "build": 121700,
    "crew": 0,
-   "total": 144544,
+   "total": 121700,
    "by": {
     "hull": 2,
     "armor": 1,
-    "power": 48324,
-    "drive": 27117,
+    "power": 18324,
+    "drive": 34272,
     "command": 13500,
-    "weapons": 38600,
+    "weapons": 38601,
     "systems": 17000
    },
    "detailed": true,
@@ -13045,14 +13233,36 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0,
-    "upS": 0,
-    "down": 0.127,
+    "up": 0.00721,
+    "upS": 0.00721,
+    "down": 0.0298,
     "T": 0
    },
    "powerProfile": {
     "name": "ヴァルチャー級ドロイド・スターファイター",
     "modules": [
+     {
+      "k": "weapon",
+      "fit": 19,
+      "name": "レーザー砲",
+      "w": 0.9984000000000001,
+      "hits": 1,
+      "crew": 0,
+      "size": 1.0005,
+      "weaponPowerW": 836800000000000000,
+      "stock": 0,
+      "at": 0.817,
+      "pd": true,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.37,
+      "z": 0.85,
+      "r": 0.172,
+      "share": 0.25,
+      "domain": "main",
+      "port": "f19",
+      "powerConnected": true
+     },
      {
       "k": "weapon",
       "fit": 20,
@@ -13061,13 +13271,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 1.0005,
+      "weaponPowerW": 836800000000000000,
       "stock": 0,
       "at": 0.817,
       "pd": true,
       "dualPurpose": false,
       "band": "close",
       "y": 0.37,
-      "z": 0.85,
+      "z": -0.85,
       "r": 0.172,
       "share": 0.25,
       "domain": "main",
@@ -13082,13 +13293,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 1.0005,
+      "weaponPowerW": 836800000000000000,
       "stock": 0,
       "at": 0.817,
       "pd": true,
       "dualPurpose": false,
       "band": "close",
-      "y": 0.37,
-      "z": -0.85,
+      "y": -0.37,
+      "z": 0.85,
       "r": 0.172,
       "share": 0.25,
       "domain": "main",
@@ -13103,27 +13315,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 1.0005,
-      "stock": 0,
-      "at": 0.817,
-      "pd": true,
-      "dualPurpose": false,
-      "band": "close",
-      "y": -0.37,
-      "z": 0.85,
-      "r": 0.172,
-      "share": 0.25,
-      "domain": "main",
-      "port": "f22",
-      "powerConnected": true
-     },
-     {
-      "k": "weapon",
-      "fit": 23,
-      "name": "レーザー砲",
-      "w": 0.9984000000000001,
-      "hits": 1,
-      "crew": 0,
-      "size": 1.0005,
+      "weaponPowerW": 836800000000000000,
       "stock": 0,
       "at": 0.817,
       "pd": true,
@@ -13133,6 +13325,28 @@ const CRAFT_PRICE_CATALOG={
       "z": -0.85,
       "r": 0.172,
       "share": 0.25,
+      "domain": "main",
+      "port": "f22",
+      "powerConnected": true
+     },
+     {
+      "k": "weapon",
+      "fit": 23,
+      "name": "魚雷発射管",
+      "w": 0.84,
+      "hits": 1,
+      "crew": 0,
+      "size": 0,
+      "weaponPowerW": 1000000000000000,
+      "stock": 0,
+      "at": 0.47,
+      "pd": false,
+      "dualPurpose": false,
+      "band": "close",
+      "y": 0.15,
+      "z": 0.12,
+      "r": 0.093,
+      "share": 0,
       "domain": "main",
       "port": "f23",
       "powerConnected": true
@@ -13145,27 +13359,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0,
-      "stock": 0,
-      "at": 0.47,
-      "pd": false,
-      "dualPurpose": false,
-      "band": "close",
-      "y": 0.15,
-      "z": 0.12,
-      "r": 0.093,
-      "share": 0,
-      "domain": "main",
-      "port": "f24",
-      "powerConnected": true
-     },
-     {
-      "k": "weapon",
-      "fit": 25,
-      "name": "魚雷発射管",
-      "w": 0.84,
-      "hits": 1,
-      "crew": 0,
-      "size": 0,
+      "weaponPowerW": 1000000000000000,
       "stock": 0,
       "at": 0.47,
       "pd": false,
@@ -13176,12 +13370,12 @@ const CRAFT_PRICE_CATALOG={
       "r": 0.093,
       "share": 0,
       "domain": "main",
-      "port": "f25",
+      "port": "f24",
       "powerConnected": true
      },
      {
       "k": "launcher",
-      "fit": 26,
+      "fit": 25,
       "name": "ミサイル発射管",
       "w": 1.0368000000000002,
       "hits": 1,
@@ -13213,7 +13407,7 @@ const CRAFT_PRICE_CATALOG={
       "r": 0.079,
       "share": 1,
       "domain": "main",
-      "port": "f26",
+      "port": "f25",
       "powerConnected": true
      },
      {
@@ -13240,10 +13434,10 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.0000016000000000000006,
       "size": 0.008000000000000002,
-      "at": 0.298,
+      "at": 0.192,
       "part": 13,
-      "y": 0.21,
-      "z": 0,
+      "y": 0.46,
+      "z": -0.1,
       "r": 0.013,
       "share": 1,
       "domain": "main",
@@ -13257,10 +13451,10 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.0000031415926535897938,
       "size": 0.015707963267948967,
-      "at": 0.364,
+      "at": 0.232,
       "part": 14,
-      "y": 0.16,
-      "z": 0,
+      "y": 0.56,
+      "z": -0.1,
       "r": 0.017,
       "share": 1,
       "domain": "main",
@@ -13286,34 +13480,34 @@ const CRAFT_PRICE_CATALOG={
      },
      {
       "k": "reactor",
-      "name": "反応炉",
-      "w": 0.11459464643779016,
+      "name": "胴体内反応炉",
+      "w": 1.4430080993510435,
       "hits": 1,
-      "crew": 0.000019396193043263377,
-      "size": 0.038792386086526756,
-      "at": 0.441,
+      "crew": 0.00018871058466082887,
+      "size": 0.9435529233041443,
+      "at": 0.384,
       "part": 16,
-      "y": 0,
-      "z": 0.86,
-      "r": 0.022,
-      "share": 0.5,
+      "y": -0.24,
+      "z": 0,
+      "r": 0.065,
+      "share": 1,
       "domain": "main",
       "port": "p16",
       "powerConnected": true
      },
      {
-      "k": "reactor",
-      "name": "反応炉",
-      "w": 0.11459464643779016,
+      "k": "engine",
+      "name": "推進機関",
+      "w": 0.34888702616969863,
       "hits": 1,
-      "crew": 0.000019396193043263377,
-      "size": 0.038792386086526756,
-      "at": 0.441,
+      "crew": 0.00008243036468195043,
+      "size": 0.20607591170487607,
+      "at": 0.327,
       "part": 17,
       "y": 0,
-      "z": -0.86,
-      "r": 0.022,
-      "share": 0.5,
+      "z": 0.86,
+      "r": 0.039,
+      "share": 0.41412558740694805,
       "domain": "main",
       "port": "p17",
       "powerConnected": true
@@ -13328,28 +13522,11 @@ const CRAFT_PRICE_CATALOG={
       "at": 0.327,
       "part": 18,
       "y": 0,
-      "z": 0.86,
-      "r": 0.039,
-      "share": 0.45283084838461274,
-      "domain": "main",
-      "port": "p18",
-      "powerConnected": true
-     },
-     {
-      "k": "engine",
-      "name": "推進機関",
-      "w": 0.34888702616969863,
-      "hits": 1,
-      "crew": 0.00008243036468195043,
-      "size": 0.20607591170487607,
-      "at": 0.327,
-      "part": 19,
-      "y": 0,
       "z": -0.86,
       "r": 0.039,
-      "share": 0.45283084838461274,
+      "share": 0.41412558740694805,
       "domain": "main",
-      "port": "p19",
+      "port": "p18",
       "powerConnected": true
      },
      {
@@ -13359,14 +13536,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.010648,
-      "at": 0.449,
-      "part": 27,
-      "y": 0,
+      "at": 0.192,
+      "part": 26,
+      "y": 0.56,
       "z": 0,
       "r": 0.015,
       "share": 0.04143038044436993,
       "domain": "main",
-      "port": "p27",
+      "port": "p26",
       "powerConnected": true
      },
      {
@@ -13377,13 +13554,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.032768000000000005,
       "at": 0.162,
-      "part": 28,
-      "y": 0.41,
+      "part": 27,
+      "y": 0.34,
       "z": 0,
       "r": 0.021,
       "share": 0.1274972489106982,
       "domain": "main",
-      "port": "p28",
+      "port": "p27",
       "powerConnected": true
      },
      {
@@ -13393,14 +13570,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.0058319999999999995,
-      "at": 0.132,
-      "part": 29,
-      "y": 0.41,
+      "at": 0.175,
+      "part": 28,
+      "y": 0.56,
       "z": 0,
       "r": 0.012,
       "share": 0.022691771107397205,
       "domain": "main",
-      "port": "p29",
+      "port": "p28",
       "powerConnected": true
      },
      {
@@ -13410,14 +13587,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.0058319999999999995,
-      "at": 0.132,
-      "part": 30,
-      "y": 0.29,
+      "at": 0.192,
+      "part": 29,
+      "y": 0.44,
       "z": 0,
       "r": 0.012,
       "share": 0.022691771107397205,
       "domain": "main",
-      "port": "p30",
+      "port": "p29",
       "powerConnected": true
      },
      {
@@ -13427,14 +13604,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.0058319999999999995,
-      "at": 0.116,
-      "part": 31,
-      "y": 0.29,
+      "at": 0.209,
+      "part": 30,
+      "y": 0.56,
       "z": 0,
       "r": 0.012,
       "share": 0.022691771107397205,
       "domain": "main",
-      "port": "p31",
+      "port": "p30",
       "powerConnected": true
      },
      {
@@ -13444,19 +13621,36 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.0058319999999999995,
-      "at": 0.132,
-      "part": 32,
-      "y": 0.29,
-      "z": -0.06,
+      "at": 0.192,
+      "part": 31,
+      "y": 0.44,
+      "z": 0.06,
       "r": 0.012,
       "share": 0.022691771107397205,
+      "domain": "main",
+      "port": "p31",
+      "powerConnected": true
+     },
+     {
+      "k": "other",
+      "name": "レーザーガス供給槽 1",
+      "w": 0.1225,
+      "hits": 1,
+      "crew": 0,
+      "size": 0.04287499999999999,
+      "at": 0.192,
+      "part": 32,
+      "y": 0.07,
+      "z": 0,
+      "r": 0.023,
+      "share": 0.1668226485304621,
       "domain": "main",
       "port": "p32",
       "powerConnected": true
      },
      {
       "k": "other",
-      "name": "レーザーガス供給槽 1",
+      "name": "レーザーガス供給槽 2",
       "w": 0.1225,
       "hits": 1,
       "crew": 0,
@@ -13473,36 +13667,19 @@ const CRAFT_PRICE_CATALOG={
      },
      {
       "k": "other",
-      "name": "レーザーガス供給槽 2",
-      "w": 0.1225,
-      "hits": 1,
-      "crew": 0,
-      "size": 0.04287499999999999,
-      "at": 0.23,
-      "part": 34,
-      "y": 0.17,
-      "z": 0.12,
-      "r": 0.023,
-      "share": 0.1668226485304621,
-      "domain": "main",
-      "port": "p34",
-      "powerConnected": true
-     },
-     {
-      "k": "other",
       "name": "歩行脚支持機構 1",
       "w": 0.048400000000000006,
       "hits": 1,
       "crew": 0,
       "size": 0.010648,
-      "at": 0.449,
-      "part": 35,
-      "y": 0,
-      "z": -0.08,
+      "at": 0.233,
+      "part": 34,
+      "y": 0.56,
+      "z": 0,
       "r": 0.015,
       "share": 0.04143038044436993,
       "domain": "main",
-      "port": "p35",
+      "port": "p34",
       "powerConnected": true
      },
      {
@@ -13512,14 +13689,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.010648,
-      "at": 0.449,
-      "part": 36,
-      "y": 0,
-      "z": 0.08,
+      "at": 0.213,
+      "part": 35,
+      "y": 0.25,
+      "z": 0.15,
       "r": 0.015,
       "share": 0.04143038044436993,
       "domain": "main",
-      "port": "p36",
+      "port": "p35",
       "powerConnected": true
      },
      {
@@ -13529,14 +13706,14 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.010648,
-      "at": 0.449,
-      "part": 37,
-      "y": 0,
-      "z": -0.15,
+      "at": 0.253,
+      "part": 36,
+      "y": 0.56,
+      "z": 0,
       "r": 0.015,
       "share": 0.04143038044436993,
       "domain": "main",
-      "port": "p37",
+      "port": "p36",
       "powerConnected": true
      },
      {
@@ -13546,50 +13723,50 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.010648,
-      "at": 0.449,
-      "part": 38,
-      "y": 0,
-      "z": 0.15,
+      "at": 0.131,
+      "part": 37,
+      "y": 0.41,
+      "z": 0,
       "r": 0.015,
       "share": 0.04143038044436993,
       "domain": "main",
-      "port": "p38",
+      "port": "p37",
       "powerConnected": true
      },
      {
       "k": "engine",
       "name": "自動推進機関",
-      "w": 0.07723832732450704,
+      "w": 0.12222854150764441,
       "hits": 1,
-      "crew": 0.000004293181861687301,
-      "size": 0.021465909308436507,
-      "at": 0.412,
+      "crew": 0.000008546512654792296,
+      "size": 0.04273256327396148,
+      "at": 0.351,
+      "part": -17,
+      "machineryOwner": 17,
+      "y": -0.05,
+      "z": 0.67,
+      "r": 0.023,
+      "share": 0.08587441259305197,
+      "domain": "main",
+      "port": "p17",
+      "powerConnected": true
+     },
+     {
+      "k": "engine",
+      "name": "自動推進機関",
+      "w": 0.12222854150764441,
+      "hits": 1,
+      "crew": 0.000008546512654792296,
+      "size": 0.04273256327396148,
+      "at": 0.351,
       "part": -18,
       "machineryOwner": 18,
-      "y": 0,
-      "z": 0.86,
-      "r": 0.018,
-      "share": 0.04716915161538727,
+      "y": -0.05,
+      "z": -0.67,
+      "r": 0.023,
+      "share": 0.08587441259305197,
       "domain": "main",
       "port": "p18",
-      "powerConnected": true
-     },
-     {
-      "k": "engine",
-      "name": "自動推進機関",
-      "w": 0.07723832732450704,
-      "hits": 1,
-      "crew": 0.000004293181861687301,
-      "size": 0.021465909308436507,
-      "at": 0.412,
-      "part": -19,
-      "machineryOwner": 19,
-      "y": 0,
-      "z": -0.86,
-      "r": 0.018,
-      "share": 0.04716915161538727,
-      "domain": "main",
-      "port": "p19",
       "powerConnected": true
      },
      {
@@ -13667,29 +13844,29 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "quarters",
       "name": "居住空間（後部）",
-      "w": 0.14745351336660145,
+      "w": 0.1414624749259084,
       "hits": 1,
       "crew": 0,
-      "size": 0.9746435179940743,
-      "at": 0.167,
-      "y": 0.12,
-      "z": 0,
-      "r": 0.066,
-      "share": 0.1885743174924166,
+      "size": 0.9158513486780778,
+      "at": 0.165,
+      "y": 0.11,
+      "z": 0.01,
+      "r": 0.064,
+      "share": 0.21191051995163238,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 0.3109042362918976,
+      "w": 0.2534395461737531,
       "hits": 1,
       "crew": 0,
-      "size": 2.9840292159496857,
-      "at": 0.37,
-      "y": 0.05,
+      "size": 2.1962141471153336,
+      "at": 0.376,
+      "y": 0.03,
       "z": 0,
-      "r": 0.095,
-      "share": 0.577350859453994,
+      "r": 0.086,
+      "share": 0.5081620314389359,
       "domain": "main"
      },
      {
@@ -13698,12 +13875,12 @@ const CRAFT_PRICE_CATALOG={
       "w": 0.14639743956833332,
       "hits": 1,
       "crew": 0,
-      "size": 0.9641915767823416,
+      "size": 0.9641915767823417,
       "at": 0.606,
       "y": 0.01,
       "z": 0,
       "r": 0.065,
-      "share": 0.1865520728008089,
+      "share": 0.22309552599758162,
       "domain": "main"
      },
      {
@@ -13717,13 +13894,13 @@ const CRAFT_PRICE_CATALOG={
       "y": 0,
       "z": 0,
       "r": 0.041,
-      "share": 0.04752275025278059,
+      "share": 0.05683192261185006,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 10.708229803400487,
+      "w": 11.452435907170225,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -13745,28 +13922,23 @@ const CRAFT_PRICE_CATALOG={
     "width": 4.008000095367432,
     "height": 1.758999959565699,
     "grid": {
-     "P": 406311739841589500,
+     "P": 4941390161528088000,
      "fixed": 16738438781802650,
      "cooling": 0,
-     "De": 140131619959315710,
+     "De": 696403389533953000,
      "Ds": 0,
      "Dw": 3349200000000000000,
      "domains": [
       {
        "id": "main",
-       "P": 406311739841589500,
+       "P": 4941390161528088000,
        "reactors": [
-        11,
-        12
+        11
        ],
        "sources": [
         {
          "moduleIndex": 11,
-         "P": 203155869920794750
-        },
-        {
-         "moduleIndex": 12,
-         "P": 203155869920794750
+         "P": 4941390161528088000
         }
        ],
        "modules": [
@@ -13806,117 +13978,12 @@ const CRAFT_PRICE_CATALOG={
         33,
         34,
         35,
-        36,
-        37
+        36
        ],
        "protection": 1
       }
      ],
      "powerPaths": [
-      {
-       "kind": "power",
-       "from": "p16",
-       "to": "f20",
-       "cap": 203155869920794750,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p13",
-       "to": "f20",
-       "cap": 633644130079205200,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p17",
-       "to": "f21",
-       "cap": 203155869920794750,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p13",
-       "to": "f21",
-       "cap": 633644130079205200,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p13",
-       "to": "f22",
-       "cap": 63045073174923010,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p16",
-       "to": "f22",
-       "cap": 773754926825077000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p17",
-       "to": "f23",
-       "cap": 805277463412538500,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p16",
-       "to": "f23",
-       "cap": 31522536587461504,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p13",
-       "to": "f24",
-       "cap": 1000000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p13",
-       "to": "f25",
-       "cap": 1000000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p13",
-       "to": "f26",
-       "cap": 1000000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p16",
-       "to": "p18",
-       "cap": 70065809979657860,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p17",
-       "to": "p19",
-       "cap": 70065809979657860,
-       "auto": true,
-       "ok": true
-      },
       {
        "kind": "power",
        "from": "p16",
@@ -13953,6 +14020,14 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p16",
        "to": "p15",
+       "cap": 1046152423862665.6,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p26",
        "cap": 1046152423862665.6,
        "auto": true,
        "ok": true
@@ -13999,7 +14074,7 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "kind": "power",
-       "from": "p17",
+       "from": "p16",
        "to": "p32",
        "cap": 1046152423862665.6,
        "auto": true,
@@ -14007,7 +14082,7 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "kind": "power",
-       "from": "p17",
+       "from": "p16",
        "to": "p33",
        "cap": 1046152423862665.6,
        "auto": true,
@@ -14023,7 +14098,7 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "kind": "power",
-       "from": "p17",
+       "from": "p16",
        "to": "p35",
        "cap": 1046152423862665.6,
        "auto": true,
@@ -14039,7 +14114,7 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "kind": "power",
-       "from": "p17",
+       "from": "p16",
        "to": "p37",
        "cap": 1046152423862665.6,
        "auto": true,
@@ -14048,18 +14123,77 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p16",
-       "to": "p38",
-       "cap": 1046152423862665.6,
-       "auto": true,
+       "to": "p17",
+       "cap": 348201694766976500,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p18",
+       "cap": 348201694766976500,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "f19",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "f20",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "f21",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "f22",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "f23",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "f24",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "f25",
+       "cap": 1500000000000000,
+       "auto": false,
        "ok": true
       }
      ],
-     "trunks": [
-      {
-       "port": "p13",
-       "moduleIndex": 8
-      }
-     ],
+     "trunks": [],
      "fixedLoads": [
       {
        "id": "hotel",
@@ -14068,8 +14202,8 @@ const CRAFT_PRICE_CATALOG={
        "domain": "main"
       },
       {
-       "id": "f26",
-       "port": "f26",
+       "id": "f25",
+       "port": "f25",
        "domain": "main",
        "weight": 1000000000000000
       }
@@ -14081,24 +14215,64 @@ const CRAFT_PRICE_CATALOG={
      "engines": [
       {
        "version": 1,
+       "id": 17,
+       "machineryId": 17,
+       "ratedInputW": 348201694766976500,
+       "driveProfileId": "standard",
+       "machineryGradeId": "advanced",
+       "wattsPerNewton": 2000000000,
+       "ratedThrustN": 174100847.38348827,
+       "effectiveMachineryVolumeM3": 0.019449511022806756,
+       "machineryVolumeM3": 0.019449511022806756,
+       "machineryLengthM": 0.3,
+       "machineryRadiusM": 0.161,
+       "machineryDiameterM": 0.322,
+       "machineryOffsetM": 0,
+       "maxInputW": 661283374775429600,
+       "maxRatedInputW": 661283374775429600,
+       "inputDensityWPerM3": 17902850840757414000,
+       "allowedInputDensityWPerM3": 34000000000000000000,
+       "cost": 3635.215915722686,
+       "powerNode": "p17",
+       "heatNode": "p17",
+       "reactorId": 16,
+       "domain": "main",
+       "direction": [
+        1,
+        0,
+        0
+       ],
+       "legacyCoolingInputW": 0,
+       "valid": true,
+       "issues": [],
+       "reasons": [],
+       "moduleIndex": 12,
+       "machineryModuleIndex": 26,
+       "available": true,
+       "connected": true,
+       "outletAvailable": true,
+       "pathCapacityW": 661283374775429600
+      },
+      {
+       "version": 1,
        "id": 18,
        "machineryId": 18,
-       "ratedInputW": 70065809979657860,
+       "ratedInputW": 348201694766976500,
        "driveProfileId": "standard",
-       "machineryGradeId": "dense",
+       "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 35032904.98982893,
-       "effectiveMachineryVolumeM3": 0.021465909308436518,
-       "machineryVolumeM3": 0.021465909308436518,
-       "machineryLengthM": 0.15,
-       "machineryRadiusM": 0.23920000000000002,
-       "machineryDiameterM": 0.47840000000000005,
-       "machineryOffsetM": 0.62,
-       "maxInputW": 72984091648684160,
-       "maxRatedInputW": 72984091648684160,
-       "inputDensityWPerM3": 3264050405361614000,
-       "allowedInputDensityWPerM3": 3400000000000000000,
-       "cost": 57.4084789285157,
+       "ratedThrustN": 174100847.38348827,
+       "effectiveMachineryVolumeM3": 0.019449511022806756,
+       "machineryVolumeM3": 0.019449511022806756,
+       "machineryLengthM": 0.3,
+       "machineryRadiusM": 0.161,
+       "machineryDiameterM": 0.322,
+       "machineryOffsetM": 0,
+       "maxInputW": 661283374775429600,
+       "maxRatedInputW": 661283374775429600,
+       "inputDensityWPerM3": 17902850840757414000,
+       "allowedInputDensityWPerM3": 34000000000000000000,
+       "cost": 3635.215915722686,
        "powerNode": "p18",
        "heatNode": "p18",
        "reactorId": 16,
@@ -14108,7 +14282,7 @@ const CRAFT_PRICE_CATALOG={
         0,
         0
        ],
-       "legacyCoolingInputW": 70065809979657860,
+       "legacyCoolingInputW": 0,
        "valid": true,
        "issues": [],
        "reasons": [],
@@ -14117,87 +14291,48 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 72984091648684160
-      },
-      {
-       "version": 1,
-       "id": 19,
-       "machineryId": 19,
-       "ratedInputW": 70065809979657860,
-       "driveProfileId": "standard",
-       "machineryGradeId": "dense",
-       "wattsPerNewton": 2000000000,
-       "ratedThrustN": 35032904.98982893,
-       "effectiveMachineryVolumeM3": 0.021465909308436518,
-       "machineryVolumeM3": 0.021465909308436518,
-       "machineryLengthM": 0.15,
-       "machineryRadiusM": 0.23920000000000002,
-       "machineryDiameterM": 0.47840000000000005,
-       "machineryOffsetM": 0.62,
-       "maxInputW": 72984091648684160,
-       "maxRatedInputW": 72984091648684160,
-       "inputDensityWPerM3": 3264050405361614000,
-       "allowedInputDensityWPerM3": 3400000000000000000,
-       "cost": 57.4084789285157,
-       "powerNode": "p19",
-       "heatNode": "p19",
-       "reactorId": 17,
-       "domain": "main",
-       "direction": [
-        1,
-        0,
-        0
-       ],
-       "legacyCoolingInputW": 70065809979657860,
-       "valid": true,
-       "issues": [],
-       "reasons": [],
-       "moduleIndex": 14,
-       "machineryModuleIndex": 28,
-       "available": true,
-       "connected": true,
-       "outletAvailable": true,
-       "pathCapacityW": 72984091648684160
+       "pathCapacityW": 661283374775429600
       }
      ],
-     "massKg": 9200.742764625225,
-     "ratedThrustN": 70065809.97965786,
-     "ratedAccelMps2": 7615.234092734888,
-     "structuralAccelerationLimitMps2": 176293.6292163333,
+     "massKg": 9862.969820563274,
+     "ratedThrustN": 348201694.76697654,
+     "ratedAccelMps2": 35303.939999999995,
+     "structuralAccelerationLimitMps2": 152598.36114259096,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 7615.234092734888
+     "accelerationLimitMps2": 35303.939999999995
     },
-    "profileVersion": 13,
+    "profileVersion": 14,
     "heat": {
      "v": 1,
      "src": [
       {
        "k": "reactor",
        "id": "p16",
-       "n": "反応炉 #16",
+       "n": "胴体内反応炉 #16",
        "g": "high",
-       "sh": 0.5,
-       "st": 585088905371888900,
+       "sh": 1,
+       "st": 10672751100284848000,
        "m": [
         11
        ],
        "pc": [],
-       "sec": 3,
+       "sec": 2,
        "sw": -1,
        "gen": -1
       },
       {
-       "k": "reactor",
+       "k": "engine",
        "id": "p17",
-       "n": "反応炉 #17",
+       "n": "推進機関 #17",
        "g": "high",
        "sh": 0.5,
-       "st": 585088905371888900,
+       "st": 1044605084300929500,
        "m": [
-        12
+        12,
+        26
        ],
        "pc": [],
-       "sec": 3,
+       "sec": 1,
        "sw": -1,
        "gen": -1
       },
@@ -14207,7 +14342,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "推進機関 #18",
        "g": "high",
        "sh": 0.5,
-       "st": 210197429938973570,
+       "st": 1044605084300929500,
        "m": [
         13,
         27
@@ -14218,28 +14353,12 @@ const CRAFT_PRICE_CATALOG={
        "gen": -1
       },
       {
-       "k": "engine",
-       "id": "p19",
-       "n": "推進機関 #19",
-       "g": "high",
-       "sh": 0.5,
-       "st": 210197429938973570,
-       "m": [
-        14,
-        28
-       ],
-       "pc": [],
-       "sec": 1,
-       "sw": -1,
-       "gen": -1
-      },
-      {
        "k": "weapon",
-       "id": "f20",
+       "id": "f19",
        "n": "武装（艦首区画）",
        "g": "high",
-       "sh": 0.48165,
-       "st": 3401666415417172500,
+       "sh": 0.499851,
+       "st": 31389377798340400000,
        "m": [
         0,
         2,
@@ -14252,11 +14371,11 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "k": "weapon",
-       "id": "f21",
+       "id": "f20",
        "n": "武装（艦首区画）",
        "g": "high",
-       "sh": 0.518063,
-       "st": 3658836989289352000,
+       "sh": 0.499851,
+       "st": 31389377798340400000,
        "m": [
         1,
         3,
@@ -14269,11 +14388,11 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "k": "weapon",
-       "id": "f26",
+       "id": "f25",
        "n": "武装（中央区画）",
        "g": "high",
-       "sh": 0.000287621,
-       "st": 2031330715046681,
+       "sh": 0.00029849,
+       "st": 18744403319204824,
        "m": [
         6
        ],
@@ -14303,7 +14422,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 22042481767955796,
-       "m": 29,
+       "m": 28,
        "sec": 3,
        "src": -1
       },
@@ -14313,7 +14432,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 22042481767955796,
-       "m": 30,
+       "m": 29,
        "sec": 3,
        "src": -1
       },
@@ -14323,7 +14442,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 22042481767955796,
-       "m": 31,
+       "m": 30,
        "sec": 3,
        "src": -1
       },
@@ -14333,7 +14452,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 22042481767955796,
-       "m": 32,
+       "m": 31,
        "sec": 3,
        "src": -1
       },
@@ -14342,47 +14461,27 @@ const CRAFT_PRICE_CATALOG={
        "n": "外殻からの放熱",
        "k": "skin",
        "g": "low",
-       "cap": 194543132533992820000,
+       "cap": 189771600157165360000,
        "m": -1,
        "sec": -1,
        "src": -1
       },
       {
        "id": "int:p16",
-       "n": "反応炉 #16（内蔵冷却）",
+       "n": "胴体内反応炉 #16（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 9751481756198148,
+       "cap": 177879185004747460,
        "m": -1,
        "sec": -1,
        "src": 0
       },
       {
-       "id": "int:p17",
-       "n": "反応炉 #17（内蔵冷却）",
+       "id": "int:f19",
+       "n": "武装（艦首区画）（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 9751481756198148,
-       "m": -1,
-       "sec": -1,
-       "src": 1
-      },
-      {
-       "id": "int:p18",
-       "n": "推進機関 #18（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 3503290498982893,
-       "m": -1,
-       "sec": -1,
-       "src": 2
-      },
-      {
-       "id": "int:p19",
-       "n": "推進機関 #19（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 3503290498982893,
+       "cap": 523156296639006660,
        "m": -1,
        "sec": -1,
        "src": 3
@@ -14392,187 +14491,147 @@ const CRAFT_PRICE_CATALOG={
        "n": "武装（艦首区画）（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 58836888682949096,
+       "cap": 523156296639006660,
        "m": -1,
        "sec": -1,
        "src": 4
       },
       {
-       "id": "int:f21",
-       "n": "武装（艦首区画）（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 58836888682949096,
-       "m": -1,
-       "sec": -1,
-       "src": 5
-      },
-      {
-       "id": "int:f26",
+       "id": "int:f25",
        "n": "武装（中央区画）（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 35134891128000.176,
+       "cap": 312406721986747.06,
        "m": -1,
        "sec": -1,
-       "src": 6
+       "src": 5
       }
      ],
      "ln": [
       {
        "s": 0,
        "d": 5,
-       "cap": 9751481756198148,
+       "cap": 177879185004747460,
        "sec": -1
       },
       {
        "s": 0,
-       "d": 0,
-       "cap": 17065093073346760,
-       "sec": 3
+       "d": 2,
+       "cap": 266818777507121180,
+       "sec": 2
       },
       {
        "s": 0,
-       "d": 2,
-       "cap": 17065093073346760,
-       "sec": 3
+       "d": 3,
+       "cap": 266818777507121180,
+       "sec": 2
       },
       {
        "s": 1,
+       "d": 0,
+       "cap": 26115127107523240,
+       "sec": 2
+      },
+      {
+       "s": 1,
+       "d": 2,
+       "cap": 26115127107523240,
+       "sec": 2
+      },
+      {
+       "s": 2,
+       "d": 1,
+       "cap": 26115127107523240,
+       "sec": 2
+      },
+      {
+       "s": 2,
+       "d": 3,
+       "cap": 26115127107523240,
+       "sec": 2
+      },
+      {
+       "s": 3,
        "d": 6,
-       "cap": 9751481756198148,
+       "cap": 523156296639006660,
        "sec": -1
       },
       {
-       "s": 1,
-       "d": 1,
-       "cap": 17065093073346760,
-       "sec": 3
+       "s": 3,
+       "d": 0,
+       "cap": 784734444958510000,
+       "sec": 4
       },
       {
-       "s": 1,
-       "d": 3,
-       "cap": 17065093073346760,
-       "sec": 3
+       "s": 3,
+       "d": 2,
+       "cap": 784734444958510000,
+       "sec": 4
       },
       {
-       "s": 2,
+       "s": 4,
        "d": 7,
-       "cap": 3503290498982893,
+       "cap": 523156296639006660,
        "sec": -1
       },
       {
-       "s": 2,
-       "d": 0,
-       "cap": 5254935748474340,
-       "sec": 2
+       "s": 4,
+       "d": 1,
+       "cap": 784734444958510000,
+       "sec": 4
       },
       {
-       "s": 2,
-       "d": 2,
-       "cap": 5254935748474340,
-       "sec": 2
+       "s": 4,
+       "d": 3,
+       "cap": 784734444958510000,
+       "sec": 4
       },
       {
-       "s": 3,
+       "s": 5,
        "d": 8,
-       "cap": 3503290498982893,
+       "cap": 312406721986747.06,
        "sec": -1
       },
       {
-       "s": 3,
-       "d": 1,
-       "cap": 5254935748474340,
-       "sec": 2
-      },
-      {
-       "s": 3,
-       "d": 3,
-       "cap": 5254935748474340,
-       "sec": 2
-      },
-      {
-       "s": 4,
-       "d": 9,
-       "cap": 58836888682949096,
-       "sec": -1
-      },
-      {
-       "s": 4,
-       "d": 0,
-       "cap": 94294082666242500,
-       "sec": 4
-      },
-      {
-       "s": 4,
+       "s": 5,
        "d": 2,
-       "cap": 94294082666242500,
-       "sec": 4
-      },
-      {
-       "s": 5,
-       "d": 10,
-       "cap": 58836888682949096,
-       "sec": -1
-      },
-      {
-       "s": 5,
-       "d": 1,
-       "cap": 94294082666242500,
-       "sec": 4
+       "cap": 468610082980120.6,
+       "sec": 2
       },
       {
        "s": 5,
        "d": 3,
-       "cap": 94294082666242500,
-       "sec": 4
-      },
-      {
-       "s": 6,
-       "d": 11,
-       "cap": 35134891128000.176,
-       "sec": -1
-      },
-      {
-       "s": 6,
-       "d": 2,
-       "cap": 56308421513341.984,
+       "cap": 468610082980120.6,
        "sec": 2
       },
       {
        "s": 6,
-       "d": 3,
-       "cap": 56308421513341.984,
-       "sec": 2
-      },
-      {
-       "s": 7,
        "d": 2,
        "cap": 25107658172703976,
        "sec": 4
       },
       {
-       "s": 7,
+       "s": 6,
        "d": 3,
        "cap": 25107658172703976,
        "sec": 4
       },
       {
-       "s": 7,
+       "s": 6,
        "d": 0,
        "cap": 25107658172703976,
        "sec": 4
       },
       {
-       "s": 7,
+       "s": 6,
        "d": 1,
        "cap": 25107658172703976,
        "sec": 4
       },
       {
-       "s": 7,
+       "s": 6,
        "d": 4,
-       "cap": 194543132533992820000,
+       "cap": 189771600157165360000,
        "sec": -1
       }
      ]
@@ -14581,15 +14640,15 @@ const CRAFT_PRICE_CATALOG={
   },
   "vwing": {
    "reference": "craft_vwing",
-   "signature": "1419i81",
-   "build": 237213,
+   "signature": "64j433",
+   "build": 246592,
    "crew": 1000,
-   "total": 238213,
+   "total": 247592,
    "by": {
     "hull": 7,
     "armor": 3,
-    "power": 104046,
-    "drive": 36355,
+    "power": 116047,
+    "drive": 33733,
     "defense": 37501,
     "command": 20501,
     "weapons": 14800,
@@ -14626,9 +14685,9 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0.00168,
-    "upS": 0.00168,
-    "down": 0.0324,
+    "up": 0.00306,
+    "upS": 0.00306,
+    "down": 0.0153,
     "T": 0
    },
    "powerProfile": {
@@ -14642,6 +14701,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.7508,
+      "weaponPowerW": 1338880000000000000,
       "stock": 0,
       "at": 0.283,
       "pd": true,
@@ -14663,6 +14723,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.7508,
+      "weaponPowerW": 1338880000000000000,
       "stock": 0,
       "at": 0.283,
       "pd": true,
@@ -14722,7 +14783,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.25,
       "z": 0,
       "r": 0.025,
-      "share": 0.09075754231479652,
+      "share": 0.04083236058008618,
       "domain": "main",
       "port": "p15",
       "powerConnected": true
@@ -14739,7 +14800,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.06,
       "z": 0,
       "r": 0.039,
-      "share": 0.31872306316144094,
+      "share": 0.1433954105440313,
       "domain": "main",
       "port": "p16",
       "powerConnected": true
@@ -14756,7 +14817,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.07,
       "z": 0,
       "r": 0.032,
-      "share": 0.1730405083584066,
+      "share": 0.07785195865864623,
       "domain": "main",
       "port": "p17",
       "powerConnected": true
@@ -14773,7 +14834,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.09,
       "z": 0.27,
       "r": 0.034,
-      "share": 0.20873944308267797,
+      "share": 0.09391312269865967,
       "domain": "main",
       "port": "p18",
       "powerConnected": true
@@ -14790,7 +14851,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.09,
       "z": -0.27,
       "r": 0.034,
-      "share": 0.20873944308267797,
+      "share": 0.09391312269865967,
       "domain": "main",
       "port": "p19",
       "powerConnected": true
@@ -14807,7 +14868,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.23,
       "z": 0,
       "r": 0.062,
-      "share": 0.3509383237078667,
+      "share": 0.3456634564426737,
       "domain": "main",
       "port": "p20",
       "powerConnected": true
@@ -14824,7 +14885,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.01,
       "z": 0,
       "r": 0.076,
-      "share": 0.6237477497491136,
+      "share": 0.6143723513824528,
       "domain": "main",
       "port": "p21",
       "powerConnected": true
@@ -14966,6 +15027,40 @@ const CRAFT_PRICE_CATALOG={
       "powerConnected": true
      },
      {
+      "k": "reactor",
+      "name": "翼根部の推進・兵装用反応炉",
+      "w": 0.8711000161574238,
+      "hits": 1,
+      "crew": 0.00008851057044803751,
+      "size": 0.44255285224018753,
+      "at": 0.283,
+      "part": 32,
+      "y": 0.05,
+      "z": -0.71,
+      "r": 0.048,
+      "share": 0.27609656065781907,
+      "domain": "main",
+      "port": "p32",
+      "powerConnected": true
+     },
+     {
+      "k": "reactor",
+      "name": "翼根部の推進・兵装用反応炉",
+      "w": 0.8666792250596849,
+      "hits": 1,
+      "crew": 0.00008783764562847766,
+      "size": 0.4391882281423883,
+      "at": 0.283,
+      "part": 33,
+      "y": 0.05,
+      "z": 0.71,
+      "r": 0.048,
+      "share": 0.2739974641620979,
+      "domain": "main",
+      "port": "p33",
+      "powerConnected": true
+     },
+     {
       "k": "other",
       "name": "生命維持装置",
       "w": 0.13690000000000002,
@@ -14973,13 +15068,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.050653,
       "at": 0.492,
-      "part": 32,
+      "part": 34,
       "y": 0.11,
       "z": -0.21,
       "r": 0.023,
       "share": 0.07198795263012063,
       "domain": "main",
-      "port": "p32",
+      "port": "p34",
       "powerConnected": true
      },
      {
@@ -14990,13 +15085,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.024388999999999997,
       "at": 0.488,
-      "part": 33,
+      "part": 35,
       "y": 0.06,
       "z": 0.17,
       "r": 0.018,
       "share": 0.03466160299875648,
       "domain": "main",
-      "port": "p33",
+      "port": "p35",
       "powerConnected": true
      },
      {
@@ -15007,13 +15102,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.010648,
       "at": 0.518,
-      "part": 34,
+      "part": 36,
       "y": 0.18,
       "z": 0,
       "r": 0.014,
       "share": 0.015132918476803437,
       "domain": "main",
-      "port": "p34",
+      "port": "p36",
       "powerConnected": true
      },
      {
@@ -15024,13 +15119,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.009260999999999998,
       "at": 0.52,
-      "part": 35,
+      "part": 37,
       "y": 0.19,
       "z": -0.06,
       "r": 0.013,
       "share": 0.01316171656777579,
       "domain": "main",
-      "port": "p35",
+      "port": "p37",
       "powerConnected": true
      },
      {
@@ -15041,13 +15136,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.0058319999999999995,
       "at": 0.541,
-      "part": 36,
+      "part": 38,
       "y": 0.16,
       "z": 0,
       "r": 0.011,
       "share": 0.008288427926062889,
       "domain": "main",
-      "port": "p36",
+      "port": "p38",
       "powerConnected": true
      },
      {
@@ -15058,13 +15153,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.0058319999999999995,
       "at": 0.541,
-      "part": 37,
+      "part": 39,
       "y": 0.16,
       "z": -0.05,
       "r": 0.011,
       "share": 0.008288427926062889,
       "domain": "main",
-      "port": "p37",
+      "port": "p39",
       "powerConnected": true
      },
      {
@@ -15075,13 +15170,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.0058319999999999995,
       "at": 0.541,
-      "part": 38,
+      "part": 40,
       "y": 0.16,
       "z": 0.05,
       "r": 0.011,
       "share": 0.008288427926062889,
       "domain": "main",
-      "port": "p38",
+      "port": "p40",
       "powerConnected": true
      },
      {
@@ -15092,13 +15187,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.0058319999999999995,
       "at": 0.509,
-      "part": 39,
+      "part": 41,
       "y": 0.2,
       "z": 0.05,
       "r": 0.011,
       "share": 0.008288427926062889,
       "domain": "main",
-      "port": "p39",
+      "port": "p41",
       "powerConnected": true
      },
      {
@@ -15109,13 +15204,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.035937000000000004,
       "at": 0.499,
-      "part": 40,
+      "part": 42,
       "y": 0.13,
       "z": 0.19,
       "r": 0.021,
       "share": 0.05107359985921161,
       "domain": "main",
-      "port": "p40",
+      "port": "p42",
       "powerConnected": true
      },
      {
@@ -15126,13 +15221,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.035937000000000004,
       "at": 0.481,
-      "part": 41,
+      "part": 43,
       "y": 0.02,
       "z": -0.19,
       "r": 0.021,
       "share": 0.05107359985921161,
       "domain": "main",
-      "port": "p41",
+      "port": "p43",
       "powerConnected": true
      },
      {
@@ -15143,13 +15238,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.013824,
       "at": 0.536,
-      "part": 42,
+      "part": 44,
       "y": 0.12,
       "z": 0,
       "r": 0.015,
       "share": 0.019646643972889812,
       "domain": "main",
-      "port": "p42",
+      "port": "p44",
       "powerConnected": true
      },
      {
@@ -15160,13 +15255,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.013824,
       "at": 0.536,
-      "part": 43,
+      "part": 45,
       "y": 0.12,
       "z": -0.07,
       "r": 0.015,
       "share": 0.019646643972889812,
       "domain": "main",
-      "port": "p43",
+      "port": "p45",
       "powerConnected": true
      },
      {
@@ -15177,29 +15272,29 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.013824,
       "at": 0.536,
-      "part": 44,
+      "part": 46,
       "y": 0.12,
       "z": 0.07,
       "r": 0.015,
       "share": 0.019646643972889812,
       "domain": "main",
-      "port": "p44",
+      "port": "p46",
       "powerConnected": true
      },
      {
       "k": "engine",
       "name": "自動推進機関",
-      "w": 0.08179933418364857,
+      "w": 0.14414967684219493,
       "hits": 1,
-      "crew": 0.000004679017275872266,
-      "size": 0.02339508637936133,
-      "at": 0.32,
+      "crew": 0.000010945875531023289,
+      "size": 0.054729377655116436,
+      "at": 0.341,
       "part": -20,
       "machineryOwner": 20,
-      "y": 0.22,
+      "y": 0.21,
       "z": 0,
-      "r": 0.018,
-      "share": 0.008533544946361483,
+      "r": 0.024,
+      "share": 0.01966291980440033,
       "domain": "main",
       "port": "p20",
       "powerConnected": true
@@ -15207,17 +15302,17 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "engine",
       "name": "自動推進機関",
-      "w": 0.12839004084009487,
+      "w": 0.1472528943122674,
       "hits": 1,
-      "crew": 0.000009200829887228748,
-      "size": 0.04600414943614374,
+      "crew": 0.00001130123108363948,
+      "size": 0.056506155418197396,
       "at": 0.546,
       "part": -21,
       "machineryOwner": 21,
       "y": -0.03,
       "z": 0,
-      "r": 0.023,
-      "share": 0.016780381596658164,
+      "r": 0.024,
+      "share": 0.020301272370472977,
       "domain": "main",
       "port": "p21",
       "powerConnected": true
@@ -15297,43 +15392,43 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "quarters",
       "name": "居住空間（後部）",
-      "w": 0.2808591591987035,
+      "w": 0.26564477643785733,
       "hits": 1,
       "crew": 0,
-      "size": 2.562099539948031,
-      "at": 0.168,
-      "y": 0.16,
+      "size": 2.356758228913945,
+      "at": 0.161,
+      "y": 0.17,
       "z": 0,
-      "r": 0.087,
-      "share": 0.29901960784313725,
+      "r": 0.084,
+      "share": 0.31134401972873,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 0.38263367669026954,
+      "w": 0.33181787144409636,
       "hits": 1,
       "crew": 0,
-      "size": 4.074158284835394,
-      "at": 0.337,
-      "y": 0.1,
+      "size": 3.2901278245234282,
+      "at": 0.346,
+      "y": 0.12,
       "z": 0,
-      "r": 0.101,
-      "share": 0.4754901960784314,
+      "r": 0.094,
+      "share": 0.434648581997534,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央前部）",
-      "w": 0.19679358749594109,
+      "w": 0.19597786131794473,
       "hits": 1,
       "crew": 0,
-      "size": 1.5027250489312678,
+      "size": 1.493391352975173,
       "at": 0.605,
       "y": 0.08,
       "z": 0,
       "r": 0.072,
-      "share": 0.17538126361655773,
+      "share": 0.19728729963008632,
       "domain": "main"
      },
      {
@@ -15347,13 +15442,13 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.08,
       "z": 0,
       "r": 0.048,
-      "share": 0.05010893246187364,
+      "share": 0.05672009864364982,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 8.254048178460726,
+      "w": 9.305336092358413,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -15365,7 +15460,7 @@ const CRAFT_PRICE_CATALOG={
      "version": 0,
      "eta": 0.75
     },
-    "D": 0.0007685253824254619,
+    "D": 0.0007631365099503737,
     "shieldBuffer": 0.02551298707898365,
     "wCap": 0,
     "crewNeed": 1,
@@ -15375,22 +15470,24 @@ const CRAFT_PRICE_CATALOG={
     "width": 4.91999993739142,
     "height": 5.881752014160156,
     "grid": {
-     "P": 3776667841194673000,
+     "P": 8394349151915561000,
      "fixed": 15273978238234222,
      "cooling": 0,
-     "De": 908529117543716000,
-     "Ds": 3215510200068132400,
+     "De": 1016417983421410600,
+     "Ds": 3192963157632363500,
      "Dw": 2677760000000000000,
      "domains": [
       {
        "id": "main",
-       "P": 3776667841194673000,
+       "P": 8394349151915561000,
        "reactors": [
         4,
         5,
         6,
         7,
-        8
+        8,
+        19,
+        20
        ],
        "sources": [
         {
@@ -15412,6 +15509,14 @@ const CRAFT_PRICE_CATALOG={
         {
          "moduleIndex": 8,
          "P": 788339541879235800
+        },
+        {
+         "moduleIndex": 19,
+         "P": 2317650929804767000
+        },
+        {
+         "moduleIndex": 20,
+         "P": 2300030380916121000
         }
        ],
        "modules": [
@@ -15457,92 +15562,14 @@ const CRAFT_PRICE_CATALOG={
         39,
         40,
         41,
-        42
+        42,
+        43,
+        44
        ],
        "protection": 1
       }
      ],
      "powerPaths": [
-      {
-       "kind": "power",
-       "from": "p15",
-       "to": "f30",
-       "cap": 342761091406156860,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p16",
-       "to": "f30",
-       "cap": 996118908593843200,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p16",
-       "to": "f31",
-       "cap": 207592234295029760,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p18",
-       "to": "f31",
-       "cap": 788339541879235800,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p19",
-       "to": "f31",
-       "cap": 342948223825734400,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p15",
-       "to": "p20",
-       "cap": 327118335055037200,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p16",
-       "to": "p21",
-       "cap": 581410782488678800,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p17",
-       "to": "p22",
-       "cap": 1534544308458474200,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p16",
-       "to": "p23",
-       "cap": 840482945804829000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p16",
-       "to": "p24",
-       "cap": 840482945804829000,
-       "auto": true,
-       "ok": true
-      },
       {
        "kind": "power",
        "from": "p16",
@@ -15610,22 +15637,6 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p19",
-       "to": "p32",
-       "cap": 763698911911711.1,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p18",
-       "to": "p33",
-       "cap": 763698911911711.1,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p16",
        "to": "p34",
        "cap": 763698911911711.1,
        "auto": true,
@@ -15633,7 +15644,7 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "kind": "power",
-       "from": "p16",
+       "from": "p18",
        "to": "p35",
        "cap": 763698911911711.1,
        "auto": true,
@@ -15673,7 +15684,7 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "kind": "power",
-       "from": "p18",
+       "from": "p16",
        "to": "p40",
        "cap": 763698911911711.1,
        "auto": true,
@@ -15681,7 +15692,7 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "kind": "power",
-       "from": "p19",
+       "from": "p16",
        "to": "p41",
        "cap": 763698911911711.1,
        "auto": true,
@@ -15689,7 +15700,7 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "kind": "power",
-       "from": "p16",
+       "from": "p18",
        "to": "p42",
        "cap": 763698911911711.1,
        "auto": true,
@@ -15697,7 +15708,7 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "kind": "power",
-       "from": "p16",
+       "from": "p19",
        "to": "p43",
        "cap": 763698911911711.1,
        "auto": true,
@@ -15709,6 +15720,414 @@ const CRAFT_PRICE_CATALOG={
        "to": "p44",
        "cap": 763698911911711.1,
        "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p45",
+       "cap": 763698911911711.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p46",
+       "cap": 763698911911711.1,
+       "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p20",
+       "cap": 365964009338216700,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p21",
+       "cap": 650453974083193900,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p22",
+       "cap": 50942766509896155000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p23",
+       "cap": 27901785714285715000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "p24",
+       "cap": 27901785714285715000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "f30",
+       "cap": 2008320000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p15",
+       "to": "f31",
+       "cap": 2008320000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p20",
+       "cap": 365964009338216700,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p21",
+       "cap": 650453974083193900,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p22",
+       "cap": 50942766509896155000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p23",
+       "cap": 27901785714285715000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "p24",
+       "cap": 27901785714285715000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "f30",
+       "cap": 2008320000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p16",
+       "to": "f31",
+       "cap": 2008320000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p20",
+       "cap": 365964009338216700,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p21",
+       "cap": 650453974083193900,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p22",
+       "cap": 50942766509896155000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p23",
+       "cap": 27901785714285715000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "p24",
+       "cap": 27901785714285715000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "f30",
+       "cap": 2008320000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p17",
+       "to": "f31",
+       "cap": 2008320000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p20",
+       "cap": 365964009338216700,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p21",
+       "cap": 650453974083193900,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p22",
+       "cap": 50942766509896155000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p23",
+       "cap": 27901785714285715000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "p24",
+       "cap": 27901785714285715000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "f30",
+       "cap": 2008320000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p18",
+       "to": "f31",
+       "cap": 2008320000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p19",
+       "to": "p20",
+       "cap": 365964009338216700,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p19",
+       "to": "p21",
+       "cap": 650453974083193900,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p19",
+       "to": "p22",
+       "cap": 50942766509896155000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p19",
+       "to": "p23",
+       "cap": 27901785714285715000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p19",
+       "to": "p24",
+       "cap": 27901785714285715000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p19",
+       "to": "f30",
+       "cap": 2008320000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p19",
+       "to": "f31",
+       "cap": 2008320000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p20",
+       "cap": 365964009338216700,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p21",
+       "cap": 650453974083193900,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p22",
+       "cap": 50942766509896155000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p23",
+       "cap": 27901785714285715000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "p24",
+       "cap": 27901785714285715000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "f30",
+       "cap": 2008320000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p32",
+       "to": "f31",
+       "cap": 2008320000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p33",
+       "to": "p20",
+       "cap": 365964009338216700,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p33",
+       "to": "p21",
+       "cap": 650453974083193900,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p33",
+       "to": "p22",
+       "cap": 50942766509896155000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p33",
+       "to": "p23",
+       "cap": 27901785714285715000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p33",
+       "to": "p24",
+       "cap": 27901785714285715000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p33",
+       "to": "f30",
+       "cap": 2008320000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p33",
+       "to": "f31",
+       "cap": 2008320000000000000,
+       "auto": false,
        "ok": true
       }
      ],
@@ -15730,22 +16149,22 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 20,
        "machineryId": 20,
-       "ratedInputW": 327118335055037200,
+       "ratedInputW": 365964009338216700,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 163559167.5275186,
-       "effectiveMachineryVolumeM3": 0.016544952665903664,
-       "machineryVolumeM3": 0.016544952665903664,
-       "machineryLengthM": 0.15,
-       "machineryRadiusM": 0.21,
-       "machineryDiameterM": 0.42,
+       "ratedThrustN": 182982004.66910836,
+       "effectiveMachineryVolumeM3": 0.04503903781273774,
+       "machineryVolumeM3": 0.04503903781273774,
+       "machineryLengthM": 0.3,
+       "machineryRadiusM": 0.24499999999999997,
+       "machineryDiameterM": 0.48999999999999994,
        "machineryOffsetM": 1.25,
-       "maxInputW": 562528390640724540,
-       "maxRatedInputW": 562528390640724540,
-       "inputDensityWPerM3": 19771488118498670000,
+       "maxInputW": 1531327285633083100,
+       "maxRatedInputW": 1531327285633083100,
+       "inputDensityWPerM3": 8125484626465896000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 3785.12882704966,
+       "cost": 1655.667407837917,
        "powerNode": "p20",
        "heatNode": "p20",
        "reactorId": 15,
@@ -15755,37 +16174,37 @@ const CRAFT_PRICE_CATALOG={
         0,
         0
        ],
-       "legacyCoolingInputW": 327118335055037200,
+       "legacyCoolingInputW": 0,
        "valid": true,
        "issues": [],
        "reasons": [],
        "moduleIndex": 9,
-       "machineryModuleIndex": 32,
+       "machineryModuleIndex": 34,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 562528390640724540
+       "pathCapacityW": 1531327285633083100
       },
       {
        "version": 1,
        "id": 21,
        "machineryId": 21,
-       "ratedInputW": 581410782488678800,
+       "ratedInputW": 650453974083193900,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 290705391.2443394,
-       "effectiveMachineryVolumeM3": 0.035340288614635,
-       "machineryVolumeM3": 0.035340288614635,
+       "ratedThrustN": 325226987.04159695,
+       "effectiveMachineryVolumeM3": 0.04810205950325319,
+       "machineryVolumeM3": 0.04810205950325319,
        "machineryLengthM": 0.3028495335971314,
-       "machineryRadiusM": 0.216,
-       "machineryDiameterM": 0.432,
+       "machineryRadiusM": 0.252,
+       "machineryDiameterM": 0.504,
        "machineryOffsetM": 2.1,
-       "maxInputW": 1201569812897590000,
-       "maxRatedInputW": 1201569812897590000,
-       "inputDensityWPerM3": 16451783652041454000,
+       "maxInputW": 1635470023110608600,
+       "maxRatedInputW": 1635470023110608600,
+       "inputDensityWPerM3": 13522372655150098000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 5559.242270129321,
+       "cost": 5066.190764146269,
        "powerNode": "p21",
        "heatNode": "p21",
        "reactorId": 16,
@@ -15795,26 +16214,26 @@ const CRAFT_PRICE_CATALOG={
         0,
         0
        ],
-       "legacyCoolingInputW": 581410782488678800,
+       "legacyCoolingInputW": 0,
        "valid": true,
        "issues": [],
        "reasons": [],
        "moduleIndex": 10,
-       "machineryModuleIndex": 33,
+       "machineryModuleIndex": 35,
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1201569812897590000
+       "pathCapacityW": 1635470023110608600
       }
      ],
-     "massKg": 9156.75783279554,
-     "ratedThrustN": 454264558.771858,
-     "ratedAccelMps2": 49609.76003371839,
-     "structuralAccelerationLimitMps2": 1693755.1926985206,
+     "massKg": 9965.941315934071,
+     "ratedThrustN": 508208991.7107053,
+     "ratedAccelMps2": 50994.58,
+     "structuralAccelerationLimitMps2": 1690661.6118690767,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 49609.76003371839
+     "accelerationLimitMps2": 50994.58
     },
-    "profileVersion": 13,
+    "profileVersion": 14,
     "heat": {
      "v": 1,
      "src": [
@@ -15823,7 +16242,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p15",
        "n": "上部機関用反応炉 #15",
        "g": "high",
-       "sh": 0.109065,
+       "sh": 0.0506464,
        "st": 987151943249731800,
        "m": [
         4
@@ -15838,7 +16257,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p16",
        "n": "下部機関用反応炉 #16",
        "g": "high",
-       "sh": 0.383015,
+       "sh": 0.17786,
        "st": 3466688091519954400,
        "m": [
         5
@@ -15853,7 +16272,7 @@ const CRAFT_PRICE_CATALOG={
        "id": "p17",
        "n": "補助反応炉（機首） #17",
        "g": "high",
-       "sh": 0.207946,
+       "sh": 0.0965636,
        "st": 1882127586646576600,
        "m": [
         6
@@ -15868,8 +16287,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "p18",
        "n": "右舷補助反応炉 #18",
        "g": "high",
-       "sh": 0.209038,
-       "st": 1892014900510166300,
+       "sh": 0.116485,
+       "st": 2270417880612199200,
        "m": [
         7
        ],
@@ -15883,8 +16302,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "p19",
        "n": "左舷補助反応炉 #19",
        "g": "high",
-       "sh": 0.090937,
-       "st": 823075737181762600,
+       "sh": 0.116485,
+       "st": 2270417880612199200,
        "m": [
         8
        ],
@@ -15898,11 +16317,11 @@ const CRAFT_PRICE_CATALOG={
        "id": "p20",
        "n": "上部イオン・エンジン #20",
        "g": "high",
-       "sh": 0.483928,
-       "st": 981355005165111600,
+       "sh": 0.360053,
+       "st": 1097892028014650100,
        "m": [
         9,
-        32
+        34
        ],
        "pc": [],
        "sec": 0,
@@ -15914,11 +16333,11 @@ const CRAFT_PRICE_CATALOG={
        "id": "p21",
        "n": "下部イオン・エンジン #21",
        "g": "high",
-       "sh": 0.516072,
-       "st": 1046539408479621800,
+       "sh": 0.639947,
+       "st": 1951361922249581800,
        "m": [
         10,
-        33
+        35
        ],
        "pc": [],
        "sec": 1,
@@ -15930,8 +16349,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "p22",
        "n": "シールド（艦首区画）",
        "g": "high",
-       "sh": 0.354306,
-       "st": 14115956899849322000,
+       "sh": 0.477232,
+       "st": 41142171744651936000,
        "m": [
         11
        ],
@@ -15945,8 +16364,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "p23",
        "n": "シールド（艦首区画）",
        "g": "high",
-       "sh": 0.322847,
-       "st": 12862614539055720000,
+       "sh": 0.261384,
+       "st": 22533916755710940000,
        "m": [
         12
        ],
@@ -15960,8 +16379,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "p24",
        "n": "シールド（艦首区画）",
        "g": "high",
-       "sh": 0.322847,
-       "st": 12862614539055720000,
+       "sh": 0.261384,
+       "st": 22533916755710940000,
        "m": [
         13
        ],
@@ -15971,12 +16390,42 @@ const CRAFT_PRICE_CATALOG={
        "gen": -1
       },
       {
+       "k": "reactor",
+       "id": "p32",
+       "n": "翼根部の推進・兵装用反応炉 #32",
+       "g": "high",
+       "sh": 0.342456,
+       "st": 6674834677837730000,
+       "m": [
+        19
+       ],
+       "pc": [],
+       "sec": 2,
+       "sw": -1,
+       "gen": -1
+      },
+      {
+       "k": "reactor",
+       "id": "p33",
+       "n": "翼根部の推進・兵装用反応炉 #33",
+       "g": "high",
+       "sh": 0.0995036,
+       "st": 1939431235902161200,
+       "m": [
+        20
+       ],
+       "pc": [],
+       "sec": 2,
+       "sw": -1,
+       "gen": -1
+      },
+      {
        "k": "weapon",
        "id": "f30",
        "n": "武装（中央区画）",
        "g": "high",
        "sh": 0.5,
-       "st": 20083200000000004000,
+       "st": 25104000000000000000,
        "m": [
         0
        ],
@@ -15991,7 +16440,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "武装（中央区画）",
        "g": "high",
        "sh": 0.5,
-       "st": 20083200000000000000,
+       "st": 25104000000000000000,
        "m": [
         1
        ],
@@ -16021,7 +16470,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 17617270153410932,
-       "m": 34,
+       "m": 36,
        "sec": 1,
        "src": -1
       },
@@ -16031,7 +16480,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 18214465751831650,
-       "m": 35,
+       "m": 37,
        "sec": 1,
        "src": -1
       },
@@ -16041,7 +16490,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 22062540926413260,
-       "m": 36,
+       "m": 38,
        "sec": 1,
        "src": -1
       },
@@ -16051,7 +16500,7 @@ const CRAFT_PRICE_CATALOG={
        "k": "wing",
        "g": "high",
        "cap": 22062540926413260,
-       "m": 37,
+       "m": 39,
        "sec": 1,
        "src": -1
       },
@@ -16060,7 +16509,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "外殻からの放熱",
        "k": "skin",
        "g": "low",
-       "cap": 241163265005109900000,
+       "cap": 239472236822427270000,
        "m": -1,
        "sec": -1,
        "src": -1
@@ -16070,7 +16519,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "上部機関用反応炉 #15（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 16452532387495530,
+       "cap": 12802129194824476,
        "m": -1,
        "sec": -1,
        "src": 0
@@ -16080,7 +16529,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "下部機関用反応炉 #16（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 57778134858665900,
+       "cap": 44958619723418150,
        "m": -1,
        "sec": -1,
        "src": 1
@@ -16090,7 +16539,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "補助反応炉（機首） #17（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 31368793110776276,
+       "cap": 24408846773953020,
        "m": -1,
        "sec": -1,
        "src": 2
@@ -16100,7 +16549,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "右舷補助反応炉 #18（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 37840298010203320,
+       "cap": 29444487479962064,
        "m": -1,
        "sec": -1,
        "src": 3
@@ -16110,37 +16559,17 @@ const CRAFT_PRICE_CATALOG={
        "n": "左舷補助反応炉 #19（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 37840298010203320,
+       "cap": 29444487479962064,
        "m": -1,
        "sec": -1,
        "src": 4
-      },
-      {
-       "id": "int:p20",
-       "n": "上部イオン・エンジン #20（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 16355916752751860,
-       "m": -1,
-       "sec": -1,
-       "src": 5
-      },
-      {
-       "id": "int:p21",
-       "n": "下部イオン・エンジン #21（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 29070539124433940,
-       "m": -1,
-       "sec": -1,
-       "src": 6
       },
       {
        "id": "int:p22",
        "n": "シールド（艦首区画）（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 646658036312768900,
+       "cap": 685702862410865500,
        "m": -1,
        "sec": -1,
        "src": 7
@@ -16150,7 +16579,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "シールド（艦首区画）（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 354180096522921500,
+       "cap": 375565279261848900,
        "m": -1,
        "sec": -1,
        "src": 8
@@ -16160,10 +16589,30 @@ const CRAFT_PRICE_CATALOG={
        "n": "シールド（艦首区画）（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 354180096522921500,
+       "cap": 375565279261848900,
        "m": -1,
        "sec": -1,
        "src": 9
+      },
+      {
+       "id": "int:p32",
+       "n": "翼根部の推進・兵装用反応炉 #32（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 86564278664602080,
+       "m": -1,
+       "sec": -1,
+       "src": 10
+      },
+      {
+       "id": "int:p33",
+       "n": "翼根部の推進・兵装用反応炉 #33（内蔵冷却）",
+       "k": "integral",
+       "g": "high",
+       "cap": 85906151038649150,
+       "m": -1,
+       "sec": -1,
+       "src": 11
       },
       {
        "id": "int:f30",
@@ -16173,7 +16622,7 @@ const CRAFT_PRICE_CATALOG={
        "cap": 418400000000000000,
        "m": -1,
        "sec": -1,
-       "src": 10
+       "src": 12
       },
       {
        "id": "int:f31",
@@ -16183,254 +16632,278 @@ const CRAFT_PRICE_CATALOG={
        "cap": 418400000000000000,
        "m": -1,
        "sec": -1,
-       "src": 11
+       "src": 13
       }
      ],
      "ln": [
       {
        "s": 0,
        "d": 5,
-       "cap": 16452532387495530,
+       "cap": 12802129194824476,
        "sec": -1
       },
       {
        "s": 0,
        "d": 0,
-       "cap": 28791931678117170,
+       "cap": 20843282720240690,
        "sec": 2
       },
       {
        "s": 0,
        "d": 1,
-       "cap": 28791931678117170,
+       "cap": 20843282720240690,
        "sec": 2
       },
       {
        "s": 1,
        "d": 6,
-       "cap": 57778134858665900,
+       "cap": 44958619723418150,
        "sec": -1
       },
       {
        "s": 1,
        "d": 0,
-       "cap": 101111736002665310,
+       "cap": 73197607003203000,
        "sec": 3
       },
       {
        "s": 1,
        "d": 1,
-       "cap": 101111736002665310,
+       "cap": 73197607003203000,
        "sec": 3
       },
       {
        "s": 2,
        "d": 7,
-       "cap": 31368793110776276,
+       "cap": 24408846773953020,
        "sec": -1
       },
       {
        "s": 2,
        "d": 0,
-       "cap": 54895387943858470,
+       "cap": 39740303073196180,
        "sec": 3
       },
       {
        "s": 2,
        "d": 1,
-       "cap": 54895387943858470,
+       "cap": 39740303073196180,
        "sec": 3
       },
       {
        "s": 3,
        "d": 8,
-       "cap": 37840298010203320,
+       "cap": 29444487479962064,
        "sec": -1
       },
       {
        "s": 3,
        "d": 0,
-       "cap": 66220521517855800,
+       "cap": 47938883271506540,
        "sec": 2
       },
       {
        "s": 3,
        "d": 2,
-       "cap": 66220521517855800,
+       "cap": 47938883271506540,
        "sec": 2
       },
       {
        "s": 4,
        "d": 9,
-       "cap": 37840298010203320,
+       "cap": 29444487479962064,
        "sec": -1
       },
       {
        "s": 4,
        "d": 1,
-       "cap": 66220521517855800,
+       "cap": 47938883271506540,
        "sec": 2
       },
       {
        "s": 4,
        "d": 3,
-       "cap": 66220521517855800,
+       "cap": 47938883271506540,
        "sec": 2
       },
       {
        "s": 5,
+       "d": 0,
+       "cap": 27447300700366256,
+       "sec": 0
+      },
+      {
+       "s": 5,
+       "d": 1,
+       "cap": 27447300700366256,
+       "sec": 0
+      },
+      {
+       "s": 6,
+       "d": 2,
+       "cap": 48784048056239540,
+       "sec": 1
+      },
+      {
+       "s": 6,
+       "d": 3,
+       "cap": 48784048056239540,
+       "sec": 1
+      },
+      {
+       "s": 7,
        "d": 10,
-       "cap": 16355916752751860,
+       "cap": 685702862410865500,
        "sec": -1
       },
       {
-       "s": 5,
+       "s": 7,
        "d": 0,
-       "cap": 14741015297936432,
-       "sec": 0
+       "cap": 1028554293616298200,
+       "sec": 4
       },
       {
-       "s": 5,
+       "s": 7,
        "d": 1,
-       "cap": 14741015297936432,
-       "sec": 0
+       "cap": 1028554293616298200,
+       "sec": 4
       },
       {
-       "s": 6,
+       "s": 8,
        "d": 11,
-       "cap": 29070539124433940,
+       "cap": 375565279261848900,
        "sec": -1
       },
       {
-       "s": 6,
+       "s": 8,
+       "d": 0,
+       "cap": 563347918892773400,
+       "sec": 3
+      },
+      {
+       "s": 8,
        "d": 2,
-       "cap": 26200259418686570,
-       "sec": 1
+       "cap": 563347918892773400,
+       "sec": 3
       },
       {
-       "s": 6,
-       "d": 3,
-       "cap": 26200259418686570,
-       "sec": 1
-      },
-      {
-       "s": 7,
+       "s": 9,
        "d": 12,
-       "cap": 646658036312768900,
-       "sec": -1
-      },
-      {
-       "s": 7,
-       "d": 0,
-       "cap": 1035817408209470000,
-       "sec": 4
-      },
-      {
-       "s": 7,
-       "d": 1,
-       "cap": 1035817408209470000,
-       "sec": 4
-      },
-      {
-       "s": 8,
-       "d": 13,
-       "cap": 354180096522921500,
-       "sec": -1
-      },
-      {
-       "s": 8,
-       "d": 0,
-       "cap": 567325988418259460,
-       "sec": 3
-      },
-      {
-       "s": 8,
-       "d": 2,
-       "cap": 567325988418259460,
-       "sec": 3
-      },
-      {
-       "s": 9,
-       "d": 14,
-       "cap": 354180096522921500,
+       "cap": 375565279261848900,
        "sec": -1
       },
       {
        "s": 9,
        "d": 1,
-       "cap": 567325988418259460,
+       "cap": 563347918892773400,
        "sec": 3
       },
       {
        "s": 9,
        "d": 3,
-       "cap": 567325988418259460,
+       "cap": 563347918892773400,
        "sec": 3
       },
       {
        "s": 10,
+       "d": 13,
+       "cap": 86564278664602080,
+       "sec": -1
+      },
+      {
+       "s": 10,
+       "d": 1,
+       "cap": 140936222890909340,
+       "sec": 1
+      },
+      {
+       "s": 10,
+       "d": 3,
+       "cap": 140936222890909340,
+       "sec": 1
+      },
+      {
+       "s": 11,
+       "d": 14,
+       "cap": 85906151038649150,
+       "sec": -1
+      },
+      {
+       "s": 11,
+       "d": 0,
+       "cap": 139864718302494190,
+       "sec": 1
+      },
+      {
+       "s": 11,
+       "d": 2,
+       "cap": 139864718302494190,
+       "sec": 1
+      },
+      {
+       "s": 12,
        "d": 15,
        "cap": 418400000000000000,
        "sec": -1
       },
       {
-       "s": 10,
+       "s": 12,
        "d": 0,
        "cap": 627600000000000000,
        "sec": 1
       },
       {
-       "s": 10,
+       "s": 12,
        "d": 2,
        "cap": 627600000000000000,
        "sec": 1
       },
       {
-       "s": 11,
+       "s": 13,
        "d": 16,
        "cap": 418400000000000000,
        "sec": -1
       },
       {
-       "s": 11,
+       "s": 13,
        "d": 1,
        "cap": 627600000000000000,
        "sec": 1
       },
       {
-       "s": 11,
+       "s": 13,
        "d": 3,
        "cap": 627600000000000000,
        "sec": 1
       },
       {
-       "s": 12,
+       "s": 14,
        "d": 2,
        "cap": 22910967357351332,
        "sec": 3
       },
       {
-       "s": 12,
+       "s": 14,
        "d": 3,
        "cap": 22910967357351332,
        "sec": 3
       },
       {
-       "s": 12,
+       "s": 14,
        "d": 0,
        "cap": 22910967357351332,
        "sec": 3
       },
       {
-       "s": 12,
+       "s": 14,
        "d": 1,
        "cap": 22910967357351332,
        "sec": 3
       },
       {
-       "s": 12,
+       "s": 14,
        "d": 4,
-       "cap": 241163265005109900000,
+       "cap": 239472236822427270000,
        "sec": -1
       }
      ]
@@ -16439,15 +16912,15 @@ const CRAFT_PRICE_CATALOG={
   },
   "xwing": {
    "reference": "craft_xwing",
-   "signature": "14ub4od",
-   "build": 188341,
+   "signature": "17rhmem",
+   "build": 180995,
    "crew": 1000,
-   "total": 189341,
+   "total": 181995,
    "by": {
-    "hull": 19,
+    "hull": 20,
     "armor": 13,
-    "power": 31264,
-    "drive": 72440,
+    "power": 19249,
+    "drive": 77108,
     "defense": 13502,
     "command": 20502,
     "weapons": 33600,
@@ -16484,9 +16957,9 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0,
-    "upS": 0.000528,
-    "down": 0.017,
+    "up": 0.000633,
+    "upS": 0.00124,
+    "down": 0.0117,
     "T": 1
    },
    "powerProfile": {
@@ -16500,6 +16973,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 1.0005,
+      "weaponPowerW": 836800000000000000,
       "stock": 0,
       "at": 0.574,
       "pd": true,
@@ -16521,6 +16995,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 1.0005,
+      "weaponPowerW": 836800000000000000,
       "stock": 0,
       "at": 0.574,
       "pd": true,
@@ -16542,6 +17017,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 1.0005,
+      "weaponPowerW": 836800000000000000,
       "stock": 0,
       "at": 0.574,
       "pd": true,
@@ -16563,6 +17039,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 1.0005,
+      "weaponPowerW": 836800000000000000,
       "stock": 0,
       "at": 0.574,
       "pd": true,
@@ -16584,6 +17061,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0,
+      "weaponPowerW": 1000000000000000,
       "stock": 0,
       "at": 0.671,
       "pd": false,
@@ -16605,6 +17083,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0,
+      "weaponPowerW": 1000000000000000,
       "stock": 0,
       "at": 0.671,
       "pd": false,
@@ -16621,15 +17100,15 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "核融合炉",
-      "w": 1.7686163544607918,
+      "w": 4.1743286506428,
       "hits": 1,
-      "crew": 0.001176035574917254,
-      "size": 2.352071149834508,
+      "crew": 0.0009284810943450106,
+      "size": 4.642405471725053,
       "at": 0.189,
       "part": 30,
       "y": -0.08,
       "z": 0,
-      "r": 0.05,
+      "r": 0.062,
       "share": 1,
       "domain": "main",
       "port": "p30",
@@ -16647,7 +17126,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.54,
       "z": 0.24,
       "r": 0.04,
-      "share": 0.20298385528325666,
+      "share": 0.2285486821030991,
       "domain": "main",
       "port": "p31",
       "powerConnected": true
@@ -16664,7 +17143,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.54,
       "z": -0.24,
       "r": 0.04,
-      "share": 0.20298385528325666,
+      "share": 0.2285486821030991,
       "domain": "main",
       "port": "p32",
       "powerConnected": true
@@ -16681,7 +17160,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.54,
       "z": 0.24,
       "r": 0.04,
-      "share": 0.20298385528325666,
+      "share": 0.2285486821030991,
       "domain": "main",
       "port": "p33",
       "powerConnected": true
@@ -16698,7 +17177,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.54,
       "z": -0.24,
       "r": 0.04,
-      "share": 0.20298385528325666,
+      "share": 0.2285486821030991,
       "domain": "main",
       "port": "p34",
       "powerConnected": true
@@ -16744,9 +17223,9 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0.00003166725394818512,
       "size": 0.1583362697409256,
-      "at": 0.107,
+      "at": 0.305,
       "part": 37,
-      "y": -0.08,
+      "y": -0.1,
       "z": 0,
       "r": 0.02,
       "share": 1,
@@ -16830,13 +17309,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.050653,
       "at": 0.544,
-      "part": 48,
+      "part": 64,
       "y": 0.09,
       "z": 0,
       "r": 0.014,
       "share": 0.04089841799033263,
       "domain": "main",
-      "port": "p48",
+      "port": "p64",
       "powerConnected": true
      },
      {
@@ -16847,13 +17326,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.024388999999999997,
       "at": 0.473,
-      "part": 49,
+      "part": 65,
       "y": -0.16,
       "z": -0.07,
       "r": 0.011,
       "share": 0.019692249548224634,
       "domain": "main",
-      "port": "p49",
+      "port": "p65",
       "powerConnected": true
      },
      {
@@ -16864,13 +17343,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.010648,
       "at": 0.521,
-      "part": 50,
+      "part": 66,
       "y": 0.09,
       "z": 0,
       "r": 0.008,
       "share": 0.008597444470437325,
       "domain": "main",
-      "port": "p50",
+      "port": "p66",
       "powerConnected": true
      },
      {
@@ -16881,13 +17360,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.029791,
       "at": 0.544,
-      "part": 51,
+      "part": 67,
       "y": -0.14,
       "z": 0,
       "r": 0.012,
       "share": 0.024053950809428848,
       "domain": "main",
-      "port": "p51",
+      "port": "p67",
       "powerConnected": true
      },
      {
@@ -16898,13 +17377,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.008000000000000002,
       "at": 0.544,
-      "part": 52,
+      "part": 68,
       "y": 0.09,
       "z": -0.05,
       "r": 0.007,
       "share": 0.006459387280568991,
       "domain": "main",
-      "port": "p52",
+      "port": "p68",
       "powerConnected": true
      },
      {
@@ -16915,13 +17394,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.008000000000000002,
       "at": 0.544,
-      "part": 53,
+      "part": 69,
       "y": 0.09,
       "z": 0.05,
       "r": 0.007,
       "share": 0.006459387280568991,
       "domain": "main",
-      "port": "p53",
+      "port": "p69",
       "powerConnected": true
      },
      {
@@ -16932,13 +17411,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.008000000000000002,
       "at": 0.544,
-      "part": 54,
+      "part": 70,
       "y": 0.24,
       "z": 0,
       "r": 0.007,
       "share": 0.006459387280568991,
       "domain": "main",
-      "port": "p54",
+      "port": "p70",
       "powerConnected": true
      },
      {
@@ -16949,13 +17428,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.008000000000000002,
       "at": 0.523,
-      "part": 55,
+      "part": 71,
       "y": 0.02,
       "z": 0,
       "r": 0.007,
       "share": 0.006459387280568991,
       "domain": "main",
-      "port": "p55",
+      "port": "p71",
       "powerConnected": true
      },
      {
@@ -16966,13 +17445,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.04287499999999999,
       "at": 0.526,
-      "part": 56,
+      "part": 72,
       "y": 0.35,
       "z": 0,
       "r": 0.013,
       "share": 0.03461827870679942,
       "domain": "main",
-      "port": "p56",
+      "port": "p72",
       "powerConnected": true
      },
      {
@@ -16983,13 +17462,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.04287499999999999,
       "at": 0.526,
-      "part": 57,
+      "part": 73,
       "y": -0.04,
       "z": -0.08,
       "r": 0.013,
       "share": 0.03461827870679942,
       "domain": "main",
-      "port": "p57",
+      "port": "p73",
       "powerConnected": true
      },
      {
@@ -17000,13 +17479,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.032768000000000005,
       "at": 0.544,
-      "part": 58,
+      "part": 74,
       "y": 0.09,
       "z": -0.08,
       "r": 0.012,
       "share": 0.026457650301210587,
       "domain": "main",
-      "port": "p58",
+      "port": "p74",
       "powerConnected": true
      },
      {
@@ -17017,13 +17496,13 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.032768000000000005,
       "at": 0.544,
-      "part": 59,
+      "part": 75,
       "y": 0.09,
       "z": 0.08,
       "r": 0.012,
       "share": 0.026457650301210587,
       "domain": "main",
-      "port": "p59",
+      "port": "p75",
       "powerConnected": true
      },
      {
@@ -17034,29 +17513,29 @@ const CRAFT_PRICE_CATALOG={
       "crew": 0,
       "size": 0.032768000000000005,
       "at": 0.544,
-      "part": 60,
+      "part": 76,
       "y": 0.33,
       "z": 0,
       "r": 0.012,
       "share": 0.026457650301210587,
       "domain": "main",
-      "port": "p60",
+      "port": "p76",
       "powerConnected": true
      },
      {
       "k": "engine",
       "name": "自動推進機関",
-      "w": 0.4340850680748681,
+      "w": 0.2369850425530182,
       "hits": 1,
-      "crew": 0.00005719950442777241,
-      "size": 0.28599752213886204,
-      "at": 0.275,
+      "crew": 0.000023073389629221554,
+      "size": 0.11536694814610776,
+      "at": 0.282,
       "part": -31,
       "machineryOwner": 31,
-      "y": 0.32,
-      "z": 0.16,
-      "r": 0.025,
-      "share": 0.04831060264707562,
+      "y": 0.35,
+      "z": 0.17,
+      "r": 0.018,
+      "share": 0.02194213149328245,
       "domain": "main",
       "port": "p31",
       "powerConnected": true
@@ -17064,17 +17543,17 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "engine",
       "name": "自動推進機関",
-      "w": 0.4340850680748681,
+      "w": 0.2369850425530182,
       "hits": 1,
-      "crew": 0.00005719950442777241,
-      "size": 0.28599752213886204,
-      "at": 0.275,
+      "crew": 0.000023073389629221554,
+      "size": 0.11536694814610776,
+      "at": 0.282,
       "part": -32,
       "machineryOwner": 32,
-      "y": 0.32,
-      "z": -0.16,
-      "r": 0.025,
-      "share": 0.04831060264707562,
+      "y": 0.35,
+      "z": -0.17,
+      "r": 0.018,
+      "share": 0.02194213149328245,
       "domain": "main",
       "port": "p32",
       "powerConnected": true
@@ -17082,17 +17561,17 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "engine",
       "name": "自動推進機関",
-      "w": 0.4184350344650479,
+      "w": 0.22986325140453018,
       "hits": 1,
-      "crew": 0.00005413424139810133,
-      "size": 0.2706712069905066,
-      "at": 0.276,
+      "crew": 0.000022041153235223228,
+      "size": 0.11020576617611613,
+      "at": 0.283,
       "part": -33,
       "machineryOwner": 33,
-      "y": -0.38,
-      "z": 0.16,
-      "r": 0.024,
-      "share": 0.04572168678641109,
+      "y": -0.4,
+      "z": 0.17,
+      "r": 0.018,
+      "share": 0.020960504300519305,
       "domain": "main",
       "port": "p33",
       "powerConnected": true
@@ -17100,17 +17579,17 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "engine",
       "name": "自動推進機関",
-      "w": 0.4184350344650479,
+      "w": 0.22986325140453018,
       "hits": 1,
-      "crew": 0.00005413424139810133,
-      "size": 0.2706712069905066,
-      "at": 0.276,
+      "crew": 0.000022041153235223228,
+      "size": 0.11020576617611613,
+      "at": 0.283,
       "part": -34,
       "machineryOwner": 34,
-      "y": -0.38,
-      "z": -0.16,
-      "r": 0.024,
-      "share": 0.04572168678641109,
+      "y": -0.4,
+      "z": -0.17,
+      "r": 0.018,
+      "share": 0.020960504300519305,
       "domain": "main",
       "port": "p34",
       "powerConnected": true
@@ -17190,29 +17669,29 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "quarters",
       "name": "居住空間（後部）",
-      "w": 1.0595672256455573,
+      "w": 0.9787980216376398,
       "hits": 1,
       "crew": 0,
-      "size": 18.773959898940955,
-      "at": 0.181,
-      "y": -0.02,
+      "size": 16.66873858922868,
+      "at": 0.18,
+      "y": -0.01,
       "z": 0,
-      "r": 0.099,
-      "share": 0.4891059353869271,
+      "r": 0.095,
+      "share": 0.4605577689243027,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 0.9004397139354664,
+      "w": 0.8969051068223237,
       "hits": 1,
       "crew": 0,
-      "size": 14.707710519907659,
-      "at": 0.326,
+      "size": 14.621194575672911,
+      "at": 0.325,
       "y": 0,
       "z": 0,
-      "r": 0.092,
-      "share": 0.3831705484598046,
+      "r": 0.091,
+      "share": 0.40398406374501994,
       "domain": "main"
      },
      {
@@ -17226,7 +17705,7 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.07,
       "z": 0,
       "r": 0.056,
-      "share": 0.08564988730277985,
+      "share": 0.09083665338645418,
       "domain": "main"
      },
      {
@@ -17240,13 +17719,13 @@ const CRAFT_PRICE_CATALOG={
       "y": 0.06,
       "z": 0,
       "r": 0.044,
-      "share": 0.04207362885048835,
+      "share": 0.044621513944223104,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 18.103829419548802,
+      "w": 19.033868340286528,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -17298,23 +17777,23 @@ const CRAFT_PRICE_CATALOG={
      }
     ],
     "grid": {
-     "P": 12317805341863060000,
-     "fixed": 25419063929610170,
+     "P": 24312294686635070000,
+     "fixed": 25446942543212250,
      "cooling": 0,
-     "De": 1634256498397410300,
-     "Ds": 11251737808466387000,
+     "De": 1860239616621243100,
+     "Ds": 11113246247697428000,
      "Dw": 3349200000000000000,
      "domains": [
       {
        "id": "main",
-       "P": 12317805341863060000,
+       "P": 24312294686635070000,
        "reactors": [
         6
        ],
        "sources": [
         {
          "moduleIndex": 6,
-         "P": 12317805341863060000
+         "P": 24312294686635070000
         }
        ],
        "modules": [
@@ -17370,96 +17849,8 @@ const CRAFT_PRICE_CATALOG={
       {
        "kind": "power",
        "from": "p30",
-       "to": "f42",
-       "cap": 836800000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p30",
-       "to": "f43",
-       "cap": 836800000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p30",
-       "to": "f44",
-       "cap": 836800000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p30",
-       "to": "f45",
-       "cap": 836800000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p41",
-       "to": "f46",
-       "cap": 1000000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p41",
-       "to": "f47",
-       "cap": 1000000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p30",
-       "to": "p31",
-       "cap": 408564124599352600,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p30",
-       "to": "p32",
-       "cap": 408564124599352600,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p30",
-       "to": "p33",
-       "cap": 408564124599352600,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p30",
-       "to": "p34",
-       "cap": 408564124599352600,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p30",
-       "to": "p39",
-       "cap": 11251737808466387000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p30",
        "to": "hotel",
-       "cap": 25419063929610170,
+       "cap": 25446942543212250,
        "auto": true,
        "ok": true
       },
@@ -17467,7 +17858,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p35",
-       "cap": 1337845469979482.5,
+       "cap": 1339312765432223.5,
        "auto": true,
        "ok": true
       },
@@ -17475,7 +17866,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p36",
-       "cap": 1337845469979482.5,
+       "cap": 1339312765432223.5,
        "auto": true,
        "ok": true
       },
@@ -17483,7 +17874,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p37",
-       "cap": 1337845469979482.5,
+       "cap": 1339312765432223.5,
        "auto": true,
        "ok": true
       },
@@ -17491,7 +17882,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p38",
-       "cap": 1337845469979482.5,
+       "cap": 1339312765432223.5,
        "auto": true,
        "ok": true
       },
@@ -17499,7 +17890,7 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p40",
-       "cap": 1337845469979482.5,
+       "cap": 1339312765432223.5,
        "auto": true,
        "ok": true
       },
@@ -17507,126 +17898,209 @@ const CRAFT_PRICE_CATALOG={
        "kind": "power",
        "from": "p30",
        "to": "p41",
-       "cap": 1337845469979482.5,
+       "cap": 1339312765432223.5,
        "auto": true,
        "ok": true
       },
       {
        "kind": "power",
        "from": "p30",
-       "to": "p48",
-       "cap": 1337845469979482.5,
+       "to": "p64",
+       "cap": 1339312765432223.5,
        "auto": true,
        "ok": true
       },
       {
        "kind": "power",
        "from": "p30",
-       "to": "p49",
-       "cap": 1337845469979482.5,
+       "to": "p65",
+       "cap": 1339312765432223.5,
        "auto": true,
        "ok": true
       },
       {
        "kind": "power",
        "from": "p30",
-       "to": "p50",
-       "cap": 1337845469979482.5,
+       "to": "p66",
+       "cap": 1339312765432223.5,
        "auto": true,
        "ok": true
       },
       {
        "kind": "power",
        "from": "p30",
-       "to": "p51",
-       "cap": 1337845469979482.5,
+       "to": "p67",
+       "cap": 1339312765432223.5,
        "auto": true,
        "ok": true
       },
       {
        "kind": "power",
        "from": "p30",
-       "to": "p52",
-       "cap": 1337845469979482.5,
+       "to": "p68",
+       "cap": 1339312765432223.5,
        "auto": true,
        "ok": true
       },
       {
        "kind": "power",
        "from": "p30",
-       "to": "p53",
-       "cap": 1337845469979482.5,
+       "to": "p69",
+       "cap": 1339312765432223.5,
        "auto": true,
        "ok": true
       },
       {
        "kind": "power",
        "from": "p30",
-       "to": "p54",
-       "cap": 1337845469979482.5,
+       "to": "p70",
+       "cap": 1339312765432223.5,
        "auto": true,
        "ok": true
       },
       {
        "kind": "power",
        "from": "p30",
-       "to": "p55",
-       "cap": 1337845469979482.5,
+       "to": "p71",
+       "cap": 1339312765432223.5,
        "auto": true,
        "ok": true
       },
       {
        "kind": "power",
        "from": "p30",
-       "to": "p56",
-       "cap": 1337845469979482.5,
+       "to": "p72",
+       "cap": 1339312765432223.5,
        "auto": true,
        "ok": true
       },
       {
        "kind": "power",
        "from": "p30",
-       "to": "p57",
-       "cap": 1337845469979482.5,
+       "to": "p73",
+       "cap": 1339312765432223.5,
        "auto": true,
        "ok": true
       },
       {
        "kind": "power",
        "from": "p30",
-       "to": "p58",
-       "cap": 1337845469979482.5,
+       "to": "p74",
+       "cap": 1339312765432223.5,
        "auto": true,
        "ok": true
       },
       {
        "kind": "power",
        "from": "p30",
-       "to": "p59",
-       "cap": 1337845469979482.5,
+       "to": "p75",
+       "cap": 1339312765432223.5,
        "auto": true,
        "ok": true
       },
       {
        "kind": "power",
        "from": "p30",
-       "to": "p60",
-       "cap": 1337845469979482.5,
+       "to": "p76",
+       "cap": 1339312765432223.5,
        "auto": true,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p31",
+       "cap": 465059904155310800,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p32",
+       "cap": 465059904155310800,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p33",
+       "cap": 465059904155310800,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p34",
+       "cap": 465059904155310800,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "p39",
+       "cap": 194755535959239660000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "f42",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "f43",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "f44",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "f45",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "f46",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p30",
+       "to": "f47",
+       "cap": 1500000000000000,
+       "auto": false,
        "ok": true
       }
      ],
-     "trunks": [
-      {
-       "port": "p41",
-       "moduleIndex": 17
-      }
-     ],
+     "trunks": [],
      "fixedLoads": [
       {
        "id": "hotel",
        "port": "hotel",
-       "weight": 25419063929610170,
+       "weight": 25446942543212250,
        "domain": "main"
       }
      ],
@@ -17639,22 +18113,22 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 31,
        "machineryId": 31,
-       "ratedInputW": 408564124599352600,
+       "ratedInputW": 465059904155310800,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 204282062.2996763,
-       "effectiveMachineryVolumeM3": 0.03652045061926817,
-       "machineryVolumeM3": 0.03652045061926817,
-       "machineryLengthM": 0.15,
-       "machineryRadiusM": 0.312,
-       "machineryDiameterM": 0.624,
+       "ratedThrustN": 232529952.0776554,
+       "effectiveMachineryVolumeM3": 0.03308990533180733,
+       "machineryVolumeM3": 0.03308990533180733,
+       "machineryLengthM": 0.3,
+       "machineryRadiusM": 0.21,
+       "machineryDiameterM": 0.42,
        "machineryOffsetM": 2.125,
-       "maxInputW": 1241695321055117600,
-       "maxRatedInputW": 1241695321055117600,
-       "inputDensityWPerM3": 11187269534505535000,
+       "maxInputW": 1125056781281449100,
+       "maxRatedInputW": 1125056781281449100,
+       "inputDensityWPerM3": 14054434411097477000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 2604.9192917531664,
+       "cost": 3771.955129440668,
        "powerNode": "p31",
        "heatNode": "p31",
        "reactorId": 30,
@@ -17664,7 +18138,7 @@ const CRAFT_PRICE_CATALOG={
         0,
         0
        ],
-       "legacyCoolingInputW": 408564124599352600,
+       "legacyCoolingInputW": 0,
        "valid": true,
        "issues": [],
        "reasons": [],
@@ -17673,28 +18147,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1241695321055117600
+       "pathCapacityW": 1125056781281449100
       },
       {
        "version": 1,
        "id": 32,
        "machineryId": 32,
-       "ratedInputW": 408564124599352600,
+       "ratedInputW": 465059904155310800,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 204282062.2996763,
-       "effectiveMachineryVolumeM3": 0.03652045061926817,
-       "machineryVolumeM3": 0.03652045061926817,
-       "machineryLengthM": 0.15,
-       "machineryRadiusM": 0.312,
-       "machineryDiameterM": 0.624,
+       "ratedThrustN": 232529952.0776554,
+       "effectiveMachineryVolumeM3": 0.03308990533180733,
+       "machineryVolumeM3": 0.03308990533180733,
+       "machineryLengthM": 0.3,
+       "machineryRadiusM": 0.21,
+       "machineryDiameterM": 0.42,
        "machineryOffsetM": 2.125,
-       "maxInputW": 1241695321055117600,
-       "maxRatedInputW": 1241695321055117600,
-       "inputDensityWPerM3": 11187269534505535000,
+       "maxInputW": 1125056781281449100,
+       "maxRatedInputW": 1125056781281449100,
+       "inputDensityWPerM3": 14054434411097477000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 2604.9192917531664,
+       "cost": 3771.955129440668,
        "powerNode": "p32",
        "heatNode": "p32",
        "reactorId": 30,
@@ -17704,7 +18178,7 @@ const CRAFT_PRICE_CATALOG={
         0,
         0
        ],
-       "legacyCoolingInputW": 408564124599352600,
+       "legacyCoolingInputW": 0,
        "valid": true,
        "issues": [],
        "reasons": [],
@@ -17713,28 +18187,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1241695321055117600
+       "pathCapacityW": 1125056781281449100
       },
       {
        "version": 1,
        "id": 33,
        "machineryId": 33,
-       "ratedInputW": 408564124599352600,
+       "ratedInputW": 465059904155310800,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 204282062.2996763,
-       "effectiveMachineryVolumeM3": 0.03652045061926817,
-       "machineryVolumeM3": 0.03652045061926817,
-       "machineryLengthM": 0.15,
-       "machineryRadiusM": 0.312,
-       "machineryDiameterM": 0.624,
+       "ratedThrustN": 232529952.0776554,
+       "effectiveMachineryVolumeM3": 0.03308990533180733,
+       "machineryVolumeM3": 0.03308990533180733,
+       "machineryLengthM": 0.3,
+       "machineryRadiusM": 0.21,
+       "machineryDiameterM": 0.42,
        "machineryOffsetM": 2.125,
-       "maxInputW": 1241695321055117600,
-       "maxRatedInputW": 1241695321055117600,
-       "inputDensityWPerM3": 11187269534505535000,
+       "maxInputW": 1125056781281449100,
+       "maxRatedInputW": 1125056781281449100,
+       "inputDensityWPerM3": 14054434411097477000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 2604.9192917531664,
+       "cost": 3771.955129440668,
        "powerNode": "p33",
        "heatNode": "p33",
        "reactorId": 30,
@@ -17744,7 +18218,7 @@ const CRAFT_PRICE_CATALOG={
         0,
         0
        ],
-       "legacyCoolingInputW": 408564124599352600,
+       "legacyCoolingInputW": 0,
        "valid": true,
        "issues": [],
        "reasons": [],
@@ -17753,28 +18227,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1241695321055117600
+       "pathCapacityW": 1125056781281449100
       },
       {
        "version": 1,
        "id": 34,
        "machineryId": 34,
-       "ratedInputW": 408564124599352600,
+       "ratedInputW": 465059904155310800,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 204282062.2996763,
-       "effectiveMachineryVolumeM3": 0.03652045061926817,
-       "machineryVolumeM3": 0.03652045061926817,
-       "machineryLengthM": 0.15,
-       "machineryRadiusM": 0.312,
-       "machineryDiameterM": 0.624,
+       "ratedThrustN": 232529952.0776554,
+       "effectiveMachineryVolumeM3": 0.03308990533180733,
+       "machineryVolumeM3": 0.03308990533180733,
+       "machineryLengthM": 0.3,
+       "machineryRadiusM": 0.21,
+       "machineryDiameterM": 0.42,
        "machineryOffsetM": 2.125,
-       "maxInputW": 1241695321055117600,
-       "maxRatedInputW": 1241695321055117600,
-       "inputDensityWPerM3": 11187269534505535000,
+       "maxInputW": 1125056781281449100,
+       "maxRatedInputW": 1125056781281449100,
+       "inputDensityWPerM3": 14054434411097477000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 2604.9192917531664,
+       "cost": 3771.955129440668,
        "powerNode": "p34",
        "heatNode": "p34",
        "reactorId": 30,
@@ -17784,7 +18258,7 @@ const CRAFT_PRICE_CATALOG={
         0,
         0
        ],
-       "legacyCoolingInputW": 408564124599352600,
+       "legacyCoolingInputW": 0,
        "valid": true,
        "issues": [],
        "reasons": [],
@@ -17793,17 +18267,17 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1241695321055117600
+       "pathCapacityW": 1125056781281449100
       }
      ],
-     "massKg": 24093.535620462328,
-     "ratedThrustN": 817128249.1987052,
-     "ratedAccelMps2": 33914.83350848386,
-     "structuralAccelerationLimitMps2": 0,
+     "massKg": 25634.00671746658,
+     "ratedThrustN": 930119808.3106216,
+     "ratedAccelMps2": 36284.60500000001,
+     "structuralAccelerationLimitMps2": 259224.6249207138,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 0
+     "accelerationLimitMps2": 36284.60500000001
     },
-    "profileVersion": 13,
+    "profileVersion": 14,
     "heat": {
      "v": 1,
      "src": [
@@ -17813,7 +18287,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "核融合炉 #30",
        "g": "high",
        "sh": 1,
-       "st": 35475279384565610000,
+       "st": 49669440431776300000,
        "m": [
         6
        ],
@@ -17828,7 +18302,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "右舷上機関 4L4 核融合推進機関 #31",
        "g": "high",
        "sh": 0.25,
-       "st": 780486352100296800,
+       "st": 1395179712465932300,
        "m": [
         7,
         31
@@ -17844,7 +18318,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "右舷上機関 4L4 核融合推進機関 #32",
        "g": "high",
        "sh": 0.25,
-       "st": 780486352100296800,
+       "st": 1395179712465932300,
        "m": [
         8,
         32
@@ -17860,7 +18334,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "右舷下機関 4L4 核融合推進機関 #33",
        "g": "high",
        "sh": 0.25,
-       "st": 780486352100296800,
+       "st": 1395179712465932300,
        "m": [
         9,
         33
@@ -17876,7 +18350,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "右舷下機関 4L4 核融合推進機関 #34",
        "g": "high",
        "sh": 0.25,
-       "st": 780486352100296800,
+       "st": 1395179712465932300,
        "m": [
         10,
         34
@@ -17892,7 +18366,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "シールド（艦首区画）",
        "g": "high",
        "sh": 1,
-       "st": 202531280552394950000,
+       "st": 300057648687830600000,
        "m": [
         15
        ],
@@ -17907,7 +18381,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "武装（艦首区画）",
        "g": "high",
        "sh": 0.5,
-       "st": 25114033841024848000,
+       "st": 31398750000000000000,
        "m": [
         0,
         2,
@@ -17924,7 +18398,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "武装（艦首区画）",
        "g": "high",
        "sh": 0.5,
-       "st": 25114033841024848000,
+       "st": 31398750000000000000,
        "m": [
         1,
         3,
@@ -17941,7 +18415,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "生活・電子設備",
        "g": "low",
        "sh": 1,
-       "st": 1525143835776610000,
+       "st": 1526816552592735000,
        "m": [],
        "pc": [],
        "sec": 4,
@@ -18007,7 +18481,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "外殻からの放熱",
        "k": "skin",
        "g": "low",
-       "cap": 843880335634978800000,
+       "cap": 833493468577307000000,
        "m": -1,
        "sec": -1,
        "src": -1
@@ -18017,57 +18491,17 @@ const CRAFT_PRICE_CATALOG={
        "n": "核融合炉 #30（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 591254656409426800,
+       "cap": 827824007196271600,
        "m": -1,
        "sec": -1,
        "src": 0
-      },
-      {
-       "id": "int:p31",
-       "n": "右舷上機関 4L4 核融合推進機関 #31（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 20428206229967628,
-       "m": -1,
-       "sec": -1,
-       "src": 1
-      },
-      {
-       "id": "int:p32",
-       "n": "右舷上機関 4L4 核融合推進機関 #32（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 20428206229967628,
-       "m": -1,
-       "sec": -1,
-       "src": 2
-      },
-      {
-       "id": "int:p33",
-       "n": "右舷下機関 4L4 核融合推進機関 #33（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 20428206229967628,
-       "m": -1,
-       "sec": -1,
-       "src": 3
-      },
-      {
-       "id": "int:p34",
-       "n": "右舷下機関 4L4 核融合推進機関 #34（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 20428206229967628,
-       "m": -1,
-       "sec": -1,
-       "src": 4
       },
       {
        "id": "int:p39",
        "n": "シールド（艦首区画）（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 4426784203891817500,
+       "cap": 5000960811463843000,
        "m": -1,
        "sec": -1,
        "src": 5
@@ -18097,132 +18531,108 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 5,
-       "cap": 591254656409426800,
+       "cap": 827824007196271600,
        "sec": -1
       },
       {
        "s": 0,
        "d": 2,
-       "cap": 1034695648716496900,
+       "cap": 1291974010794407400,
        "sec": 1
       },
       {
        "s": 0,
        "d": 3,
-       "cap": 1034695648716496900,
+       "cap": 1291974010794407400,
        "sec": 1
       },
       {
        "s": 1,
+       "d": 0,
+       "cap": 34879492811648304,
+       "sec": 0
+      },
+      {
+       "s": 1,
+       "d": 2,
+       "cap": 34879492811648304,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 1,
+       "cap": 34879492811648304,
+       "sec": 0
+      },
+      {
+       "s": 2,
+       "d": 3,
+       "cap": 34879492811648304,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 2,
+       "cap": 34879492811648304,
+       "sec": 0
+      },
+      {
+       "s": 3,
+       "d": 0,
+       "cap": 34879492811648304,
+       "sec": 0
+      },
+      {
+       "s": 4,
+       "d": 3,
+       "cap": 34879492811648304,
+       "sec": 0
+      },
+      {
+       "s": 4,
+       "d": 1,
+       "cap": 34879492811648304,
+       "sec": 0
+      },
+      {
+       "s": 5,
        "d": 6,
-       "cap": 20428206229967628,
+       "cap": 5000960811463843000,
        "sec": -1
       },
       {
-       "s": 1,
+       "s": 5,
        "d": 0,
-       "cap": 19512158802507420,
-       "sec": 0
+       "cap": 7501441217195764000,
+       "sec": 4
       },
       {
-       "s": 1,
-       "d": 2,
-       "cap": 19512158802507420,
-       "sec": 0
+       "s": 5,
+       "d": 1,
+       "cap": 7501441217195764000,
+       "sec": 4
       },
       {
-       "s": 2,
+       "s": 6,
        "d": 7,
-       "cap": 20428206229967628,
+       "cap": 523312500000000000,
        "sec": -1
       },
       {
-       "s": 2,
-       "d": 1,
-       "cap": 19512158802507420,
-       "sec": 0
+       "s": 6,
+       "d": 0,
+       "cap": 784968750000000000,
+       "sec": 3
       },
       {
-       "s": 2,
-       "d": 3,
-       "cap": 19512158802507420,
-       "sec": 0
+       "s": 6,
+       "d": 2,
+       "cap": 784968750000000000,
+       "sec": 3
       },
       {
-       "s": 3,
+       "s": 7,
        "d": 8,
-       "cap": 20428206229967628,
-       "sec": -1
-      },
-      {
-       "s": 3,
-       "d": 2,
-       "cap": 19512158802507420,
-       "sec": 0
-      },
-      {
-       "s": 3,
-       "d": 0,
-       "cap": 19512158802507420,
-       "sec": 0
-      },
-      {
-       "s": 4,
-       "d": 9,
-       "cap": 20428206229967628,
-       "sec": -1
-      },
-      {
-       "s": 4,
-       "d": 3,
-       "cap": 19512158802507420,
-       "sec": 0
-      },
-      {
-       "s": 4,
-       "d": 1,
-       "cap": 19512158802507420,
-       "sec": 0
-      },
-      {
-       "s": 5,
-       "d": 10,
-       "cap": 4426784203891817500,
-       "sec": -1
-      },
-      {
-       "s": 5,
-       "d": 0,
-       "cap": 7594923020714811000,
-       "sec": 3
-      },
-      {
-       "s": 5,
-       "d": 1,
-       "cap": 7594923020714811000,
-       "sec": 3
-      },
-      {
-       "s": 6,
-       "d": 11,
-       "cap": 523312500000000000,
-       "sec": -1
-      },
-      {
-       "s": 6,
-       "d": 0,
-       "cap": 784968750000000000,
-       "sec": 3
-      },
-      {
-       "s": 6,
-       "d": 2,
-       "cap": 784968750000000000,
-       "sec": 3
-      },
-      {
-       "s": 7,
-       "d": 12,
        "cap": 523312500000000000,
        "sec": -1
       },
@@ -18241,31 +18651,31 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 8,
        "d": 2,
-       "cap": 38128595894415250,
+       "cap": 38170413814818370,
        "sec": 3
       },
       {
        "s": 8,
        "d": 3,
-       "cap": 38128595894415250,
+       "cap": 38170413814818370,
        "sec": 3
       },
       {
        "s": 8,
        "d": 0,
-       "cap": 38128595894415250,
+       "cap": 38170413814818370,
        "sec": 3
       },
       {
        "s": 8,
        "d": 1,
-       "cap": 38128595894415250,
+       "cap": 38170413814818370,
        "sec": 3
       },
       {
        "s": 8,
        "d": 4,
-       "cap": 843880335634978800000,
+       "cap": 833493468577307000000,
        "sec": -1
       }
      ]
@@ -18274,15 +18684,15 @@ const CRAFT_PRICE_CATALOG={
   },
   "z95": {
    "reference": "craft_z95",
-   "signature": "ovh31m",
-   "build": 140315,
+   "signature": "7rlbvl",
+   "build": 141590,
    "crew": 1000,
-   "total": 141315,
+   "total": 142590,
    "by": {
     "hull": 20,
     "armor": 10,
-    "power": 45616,
-    "drive": 34467,
+    "power": 45618,
+    "drive": 35740,
     "defense": 1500,
     "command": 14501,
     "weapons": 27200,
@@ -18319,9 +18729,9 @@ const CRAFT_PRICE_CATALOG={
     "landingReady": true
    },
    "heat": {
-    "up": 0,
-    "upS": 0,
-    "down": 0.0647,
+    "up": 0.00554,
+    "upS": 0.00554,
+    "down": 0.0374,
     "T": 0
    },
    "powerProfile": {
@@ -18335,6 +18745,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 1.0005,
+      "weaponPowerW": 836800000000000000,
       "stock": 0,
       "at": 0.31,
       "pd": true,
@@ -18356,6 +18767,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 1.0005,
+      "weaponPowerW": 836800000000000000,
       "stock": 0,
       "at": 0.31,
       "pd": true,
@@ -18377,6 +18789,7 @@ const CRAFT_PRICE_CATALOG={
       "hits": 1,
       "crew": 0,
       "size": 0.0008,
+      "weaponPowerW": 1338880000000000000,
       "stock": 0,
       "at": 0.693,
       "pd": false,
@@ -18467,15 +18880,15 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "右舷ナセル核融合炉",
-      "w": 0.5498464214566077,
+      "w": 0.6758745473575788,
       "hits": 1,
-      "crew": 0.00020386004168654407,
-      "size": 0.4077200833730881,
+      "crew": 0.0002778236047275598,
+      "size": 0.5556472094551196,
       "at": 0.355,
       "part": 21,
       "y": -0.22,
       "z": 0.34,
-      "r": 0.022,
+      "r": 0.025,
       "share": 0.5,
       "domain": "main",
       "port": "p21",
@@ -18484,15 +18897,15 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "reactor",
       "name": "右舷ナセル核融合炉",
-      "w": 0.5498464214566077,
+      "w": 0.6758745473575788,
       "hits": 1,
-      "crew": 0.00020386004168654407,
-      "size": 0.4077200833730881,
+      "crew": 0.0002778236047275598,
+      "size": 0.5556472094551196,
       "at": 0.355,
       "part": 22,
       "y": -0.22,
       "z": -0.34,
-      "r": 0.022,
+      "r": 0.025,
       "share": 0.5,
       "domain": "main",
       "port": "p22",
@@ -18510,7 +18923,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.22,
       "z": 0.34,
       "r": 0.037,
-      "share": 0.4267454114761047,
+      "share": 0.46675860937867353,
       "domain": "main",
       "port": "p23",
       "powerConnected": true
@@ -18527,7 +18940,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.22,
       "z": -0.34,
       "r": 0.037,
-      "share": 0.4267454114761047,
+      "share": 0.46675860937867353,
       "domain": "main",
       "port": "p24",
       "powerConnected": true
@@ -18824,17 +19237,17 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "engine",
       "name": "自動推進機関",
-      "w": 0.4610408367186762,
+      "w": 0.2564602002353808,
       "hits": 1,
-      "crew": 0.00006260933453959729,
-      "size": 0.3130466726979864,
-      "at": 0.284,
+      "crew": 0.000025975263460184585,
+      "size": 0.12987631730092292,
+      "at": 0.283,
       "part": -23,
       "machineryOwner": 23,
       "y": -0.22,
       "z": 0.34,
-      "r": 0.02,
-      "share": 0.07325458852389526,
+      "r": 0.015,
+      "share": 0.033241390621326514,
       "domain": "main",
       "port": "p23",
       "powerConnected": true
@@ -18842,17 +19255,17 @@ const CRAFT_PRICE_CATALOG={
      {
       "k": "engine",
       "name": "自動推進機関",
-      "w": 0.4610408367186762,
+      "w": 0.2564602002353808,
       "hits": 1,
-      "crew": 0.00006260933453959729,
-      "size": 0.3130466726979864,
-      "at": 0.284,
+      "crew": 0.000025975263460184585,
+      "size": 0.12987631730092292,
+      "at": 0.283,
       "part": -24,
       "machineryOwner": 24,
       "y": -0.22,
       "z": -0.34,
-      "r": 0.02,
-      "share": 0.07325458852389526,
+      "r": 0.015,
+      "share": 0.033241390621326514,
       "domain": "main",
       "port": "p24",
       "powerConnected": true
@@ -18904,21 +19317,21 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.1,
       "z": 0,
       "r": 0.074,
-      "share": 0.35017090770983667,
+      "share": 0.35123809523809524,
       "domain": "main"
      },
      {
       "k": "quarters",
       "name": "居住空間（中央後部）",
-      "w": 1.2074291072229042,
+      "w": 1.2028446518878895,
       "hits": 1,
       "crew": 0,
-      "size": 22.837868766819795,
-      "at": 0.349,
+      "size": 22.707923567577577,
+      "at": 0.348,
       "y": -0.14,
       "z": 0,
       "r": 0.085,
-      "share": 0.5339916445119635,
+      "share": 0.5325714285714286,
       "domain": "main"
      },
      {
@@ -18932,7 +19345,7 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.23,
       "z": 0,
       "r": 0.047,
-      "share": 0.08887200911507785,
+      "share": 0.08914285714285715,
       "domain": "main"
      },
      {
@@ -18946,13 +19359,13 @@ const CRAFT_PRICE_CATALOG={
       "y": -0.22,
       "z": 0,
       "r": 0.031,
-      "share": 0.026965438663121913,
+      "share": 0.02704761904761905,
       "domain": "main"
      },
      {
       "k": "hull",
       "name": "船体構造",
-      "w": 11.684367185048268,
+      "w": 11.587353499148472,
       "hits": null,
       "crew": 0,
       "size": 1,
@@ -18974,16 +19387,16 @@ const CRAFT_PRICE_CATALOG={
     "width": 16.6200008392334,
     "height": 2.38000003695488,
     "grid": {
-     "P": 4270463179918040000,
+     "P": 5819852996623119000,
      "fixed": 24590622592056412,
      "cooling": 0,
-     "De": 1240086648681981400,
+     "De": 1272404570902172400,
      "Ds": 0,
      "Dw": 3012480000000000000,
      "domains": [
       {
        "id": "main",
-       "P": 4270463179918040000,
+       "P": 5819852996623119000,
        "reactors": [
         5,
         6
@@ -18991,11 +19404,11 @@ const CRAFT_PRICE_CATALOG={
        "sources": [
         {
          "moduleIndex": 5,
-         "P": 2135231589959020000
+         "P": 2909926498311559700
         },
         {
          "moduleIndex": 6,
-         "P": 2135231589959020000
+         "P": 2909926498311559700
         }
        ],
        "modules": [
@@ -19039,62 +19452,6 @@ const CRAFT_PRICE_CATALOG={
       }
      ],
      "powerPaths": [
-      {
-       "kind": "power",
-       "from": "p21",
-       "to": "f29",
-       "cap": 836800000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p22",
-       "to": "f30",
-       "cap": 836800000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p28",
-       "to": "f31",
-       "cap": 1338880000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p28",
-       "to": "f32",
-       "cap": 1000000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p28",
-       "to": "f33",
-       "cap": 1000000000000000,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p21",
-       "to": "p23",
-       "cap": 620043324340990700,
-       "auto": true,
-       "ok": true
-      },
-      {
-       "kind": "power",
-       "from": "p22",
-       "to": "p24",
-       "cap": 620043324340990700,
-       "auto": true,
-       "ok": true
-      },
       {
        "kind": "power",
        "from": "p21",
@@ -19238,14 +19595,121 @@ const CRAFT_PRICE_CATALOG={
        "cap": 1446507211297436,
        "auto": true,
        "ok": true
-      }
-     ],
-     "trunks": [
+      },
       {
-       "port": "p28",
-       "moduleIndex": 12
+       "kind": "power",
+       "from": "p21",
+       "to": "p23",
+       "cap": 636202285451086200,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p21",
+       "to": "p24",
+       "cap": 636202285451086200,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p21",
+       "to": "f29",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p21",
+       "to": "f30",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p21",
+       "to": "f31",
+       "cap": 2008320000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p21",
+       "to": "f32",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p21",
+       "to": "f33",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p22",
+       "to": "p23",
+       "cap": 636202285451086200,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p22",
+       "to": "p24",
+       "cap": 636202285451086200,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p22",
+       "to": "f29",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p22",
+       "to": "f30",
+       "cap": 1255200000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p22",
+       "to": "f31",
+       "cap": 2008320000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p22",
+       "to": "f32",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
+      },
+      {
+       "kind": "power",
+       "from": "p22",
+       "to": "f33",
+       "cap": 1500000000000000,
+       "auto": false,
+       "ok": true
       }
      ],
+     "trunks": [],
      "fixedLoads": [
       {
        "id": "hotel",
@@ -19275,22 +19739,22 @@ const CRAFT_PRICE_CATALOG={
        "version": 1,
        "id": 23,
        "machineryId": 23,
-       "ratedInputW": 620043324340990700,
+       "ratedInputW": 636202285451086200,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 310021662.17049533,
-       "effectiveMachineryVolumeM3": 0.05859503410469249,
-       "machineryVolumeM3": 0.05859503410469249,
-       "machineryLengthM": 0.15,
-       "machineryRadiusM": 0.3952,
-       "machineryDiameterM": 0.7904,
+       "ratedThrustN": 318101142.7255431,
+       "effectiveMachineryVolumeM3": 0.05309091477681085,
+       "machineryVolumeM3": 0.05309091477681085,
+       "machineryLengthM": 0.3,
+       "machineryRadiusM": 0.26599999999999996,
+       "machineryDiameterM": 0.5319999999999999,
        "machineryOffsetM": 2.0100000000000002,
-       "maxInputW": 1992231159559544600,
-       "maxRatedInputW": 1992231159559544600,
-       "inputDensityWPerM3": 10581840830285234000,
+       "maxInputW": 1805091102411569000,
+       "maxRatedInputW": 1805091102411569000,
+       "inputDensityWPerM3": 11983260942585375000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 3726.17483961428,
+       "cost": 4362.678699847387,
        "powerNode": "p23",
        "heatNode": "p23",
        "reactorId": 21,
@@ -19300,7 +19764,7 @@ const CRAFT_PRICE_CATALOG={
         0,
         0
        ],
-       "legacyCoolingInputW": 620043324340990700,
+       "legacyCoolingInputW": 0,
        "valid": true,
        "issues": [],
        "reasons": [],
@@ -19309,28 +19773,28 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1992231159559544600
+       "pathCapacityW": 1805091102411569000
       },
       {
        "version": 1,
        "id": 24,
        "machineryId": 24,
-       "ratedInputW": 620043324340990700,
+       "ratedInputW": 636202285451086200,
        "driveProfileId": "standard",
        "machineryGradeId": "advanced",
        "wattsPerNewton": 2000000000,
-       "ratedThrustN": 310021662.17049533,
-       "effectiveMachineryVolumeM3": 0.05859503410469249,
-       "machineryVolumeM3": 0.05859503410469249,
-       "machineryLengthM": 0.15,
-       "machineryRadiusM": 0.3952,
-       "machineryDiameterM": 0.7904,
+       "ratedThrustN": 318101142.7255431,
+       "effectiveMachineryVolumeM3": 0.05309091477681085,
+       "machineryVolumeM3": 0.05309091477681085,
+       "machineryLengthM": 0.3,
+       "machineryRadiusM": 0.26599999999999996,
+       "machineryDiameterM": 0.5319999999999999,
        "machineryOffsetM": 2.0100000000000002,
-       "maxInputW": 1992231159559544600,
-       "maxRatedInputW": 1992231159559544600,
-       "inputDensityWPerM3": 10581840830285234000,
+       "maxInputW": 1805091102411569000,
+       "maxRatedInputW": 1805091102411569000,
+       "inputDensityWPerM3": 11983260942585375000,
        "allowedInputDensityWPerM3": 34000000000000000000,
-       "cost": 3726.17483961428,
+       "cost": 4362.678699847387,
        "powerNode": "p24",
        "heatNode": "p24",
        "reactorId": 22,
@@ -19340,7 +19804,7 @@ const CRAFT_PRICE_CATALOG={
         0,
         0
        ],
-       "legacyCoolingInputW": 620043324340990700,
+       "legacyCoolingInputW": 0,
        "valid": true,
        "issues": [],
        "reasons": [],
@@ -19349,17 +19813,17 @@ const CRAFT_PRICE_CATALOG={
        "available": true,
        "connected": true,
        "outletAvailable": true,
-       "pathCapacityW": 1992231159559544600
+       "pathCapacityW": 1805091102411569000
       }
      ],
-     "massKg": 19417.058295657243,
-     "ratedThrustN": 620043324.3409907,
-     "ratedAccelMps2": 31932.91769019757,
-     "structuralAccelerationLimitMps2": 358625.4158462263,
+     "massKg": 19481.85541165419,
+     "ratedThrustN": 636202285.4510862,
+     "ratedAccelMps2": 32656.1445,
+     "structuralAccelerationLimitMps2": 358625.4158543422,
      "inertialFactor": 1,
-     "accelerationLimitMps2": 31932.91769019757
+     "accelerationLimitMps2": 32656.1445
     },
-    "profileVersion": 13,
+    "profileVersion": 14,
     "heat": {
      "v": 1,
      "src": [
@@ -19368,8 +19832,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "p21",
        "n": "右舷ナセル核融合炉 #21",
        "g": "high",
-       "sh": 0.50443,
-       "st": 3557580641232220700,
+       "sh": 0.713879,
+       "st": 8380588315137292000,
        "m": [
         5
        ],
@@ -19383,8 +19847,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "p22",
        "n": "右舷ナセル核融合炉 #22",
        "g": "high",
-       "sh": 0.49557,
-       "st": 3495091529704172000,
+       "sh": 0.286121,
+       "st": 3358916868438406700,
        "m": [
         6
        ],
@@ -19399,7 +19863,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "右舷主推進機関 #23",
        "g": "high",
        "sh": 0.5,
-       "st": 1860129973022972200,
+       "st": 1908606856353258800,
        "m": [
         7,
         26
@@ -19415,7 +19879,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "右舷主推進機関 #24",
        "g": "high",
        "sh": 0.5,
-       "st": 1860129973022972200,
+       "st": 1908606856353258800,
        "m": [
         8,
         27
@@ -19430,8 +19894,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "f29",
        "n": "武装（前部区画）",
        "g": "high",
-       "sh": 0.999136,
-       "st": 25104000000000000000,
+       "sh": 0.555187,
+       "st": 31359180488840530000,
        "m": [
         0,
         1
@@ -19446,8 +19910,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "f31",
        "n": "武装（艦首区画）",
        "g": "high",
-       "sh": 0.000862274,
-       "st": 21665244933125012,
+       "sh": 0.44415,
+       "st": 25087344391072424000,
        "m": [
         2
        ],
@@ -19461,8 +19925,8 @@ const CRAFT_PRICE_CATALOG={
        "id": "f32",
        "n": "武装（中央区画）",
        "g": "high",
-       "sh": 0.00000128805,
-       "st": 32363236336527.57,
+       "sh": 0.000663464,
+       "st": 37475120087046530,
        "m": [
         3,
         4
@@ -19512,7 +19976,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "外殻からの放熱",
        "k": "skin",
        "g": "low",
-       "cap": 673327963894564900000,
+       "cap": 673327963815822200000,
        "m": -1,
        "sec": -1,
        "src": -1
@@ -19522,7 +19986,7 @@ const CRAFT_PRICE_CATALOG={
        "n": "右舷ナセル核融合炉 #21（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 85409263598360800,
+       "cap": 86189503869884580,
        "m": -1,
        "sec": -1,
        "src": 0
@@ -19532,30 +19996,10 @@ const CRAFT_PRICE_CATALOG={
        "n": "右舷ナセル核融合炉 #22（内蔵冷却）",
        "k": "integral",
        "g": "high",
-       "cap": 85409263598360800,
+       "cap": 86189503869884580,
        "m": -1,
        "sec": -1,
        "src": 1
-      },
-      {
-       "id": "int:p23",
-       "n": "右舷主推進機関 #23（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 31002166217049536,
-       "m": -1,
-       "sec": -1,
-       "src": 2
-      },
-      {
-       "id": "int:p24",
-       "n": "右舷主推進機関 #24（内蔵冷却）",
-       "k": "integral",
-       "g": "high",
-       "cap": 31002166217049536,
-       "m": -1,
-       "sec": -1,
-       "src": 3
       },
       {
        "id": "int:f29",
@@ -19592,78 +20036,66 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 0,
        "d": 3,
-       "cap": 85409263598360800,
+       "cap": 86189503869884580,
        "sec": -1
       },
       {
        "s": 0,
        "d": 0,
-       "cap": 128113895397541200,
+       "cap": 129284255804826860,
        "sec": 3
       },
       {
        "s": 0,
        "d": 1,
-       "cap": 128113895397541200,
+       "cap": 129284255804826860,
        "sec": 3
       },
       {
        "s": 1,
        "d": 4,
-       "cap": 85409263598360800,
+       "cap": 86189503869884580,
        "sec": -1
       },
       {
        "s": 1,
        "d": 1,
-       "cap": 128113895397541200,
+       "cap": 129284255804826860,
        "sec": 3
       },
       {
        "s": 1,
        "d": 0,
-       "cap": 128113895397541200,
+       "cap": 129284255804826860,
        "sec": 3
       },
       {
        "s": 2,
-       "d": 5,
-       "cap": 31002166217049536,
-       "sec": -1
-      },
-      {
-       "s": 2,
        "d": 0,
-       "cap": 46503249325574300,
+       "cap": 47715171408831470,
        "sec": 0
       },
       {
        "s": 2,
        "d": 1,
-       "cap": 46503249325574300,
+       "cap": 47715171408831470,
        "sec": 0
       },
       {
        "s": 3,
-       "d": 6,
-       "cap": 31002166217049536,
-       "sec": -1
-      },
-      {
-       "s": 3,
        "d": 1,
-       "cap": 46503249325574300,
+       "cap": 47715171408831470,
        "sec": 0
       },
       {
        "s": 3,
        "d": 0,
-       "cap": 46503249325574300,
+       "cap": 47715171408831470,
        "sec": 0
       },
       {
        "s": 4,
-       "d": 7,
+       "d": 5,
        "cap": 522653008147342200,
        "sec": -1
       },
@@ -19681,7 +20113,7 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "s": 5,
-       "d": 8,
+       "d": 6,
        "cap": 418122406517873700,
        "sec": -1
       },
@@ -19699,7 +20131,7 @@ const CRAFT_PRICE_CATALOG={
       },
       {
        "s": 6,
-       "d": 9,
+       "d": 7,
        "cap": 624585334784108.8,
        "sec": -1
       },
@@ -19730,7 +20162,7 @@ const CRAFT_PRICE_CATALOG={
       {
        "s": 7,
        "d": 2,
-       "cap": 673327963894564900000,
+       "cap": 673327963815822200000,
        "sec": -1
       }
      ]
@@ -19898,7 +20330,7 @@ function shipBounds(ship,options={}){
  if(!ship?.hull)return[0,0,0,0,0,0];
  if(!ship.hull.assembly){if(options.simple)addBox([(ship.hull.start||0)*ship.hull.L,0,-ship.hull.W/2,ship.hull.L,ship.hull.H,ship.hull.W/2]);else addTriangles((options.hullGeometry||hullGeo(ship)).tris);}
  const reference=referenceHullGeometry(ship);if(reference?.bounds)addBox(reference.bounds);
- for(const p of options.parts||ship.parts||[]){if(!p||!PARTS[p.k]||p.surfaceUnplaced||!Array.isArray(p.c)||p.c.length!==3||!p.c.every(Number.isFinite))continue;addBox(partAABB(p));addBox(p.k==='engine'?engineSkinMesh(p)?.b:refPartBounds(p));}
+ for(const p of options.parts||ship.parts||[]){if(!p||!PARTS[p.k]||p.surfaceUnplaced||!Array.isArray(p.c)||p.c.length!==3||!p.c.every(Number.isFinite))continue;if(isInternal(p)&&p._clip)addTriangles(p._clip.tris);else addBox(partAABB(p));addBox(p.k==='engine'?engineSkinMesh(p)?.b:refPartBounds(p));}
  for(const f of options.fits||ship.fits||[]){if(!f||!FITS[f.k]||f.surfaceUnplaced||!Array.isArray(f.p)||f.p.length!==3||!f.p.every(Number.isFinite))continue;addBox(fitAABB(AXES[f.a]?f:{...f,a:2}));}
  if(!options.simple){
   for(const p of enginePaths(ship))if(!p.surfaceUnplaced)addBox(partAABB(p));
@@ -20483,7 +20915,11 @@ function normalizeFitMount(f){
  f=migrateWeaponFit(f);if(weaponWallOnly(f)){delete f.assetYaw;const n=f.tilt||f.n||AXES[f.mountAxis??f.a];if(!weaponMountAllowed(f,n)){f.float=true;f.wallMountInvalid=true;}else delete f.wallMountInvalid;}if(isConcussionLauncher(f)&&f.legacyMissileMount==='vls-orphan'){f.float=true;f.surfaceUnplaced=true;}
  if(isConcussionLauncher(f)){const angle=launcherPitch(f);if(angle)f.launchPitch=angle;else delete f.launchPitch;}
  if(f){const ballPitch=ballTurretPitch(f);if(ballPitch)f.assetPitch=ballPitch;else delete f.assetPitch;}
- if(f&&FITS[f.k]?.cat==='w'){f.base=0;f.low=0;f.slope=0;if(!fitHasPedestal(f)){f.ped=0;delete f.pedShape;delete f.pedSize;}}
+ if(f&&FITS[f.k]?.cat==='w'){
+  if(!turretSupportEligible(f)||!validTurretSupport(f.mountSupport)){delete f.mountSupport;f.base=0;f.low=0;f.slope=0;}
+  else{f.base=f.mountSupport.top;f.low=Math.min(0,...f.mountSupport.polys.flatMap(p=>p.map(q=>q[2])));f.slope=f.base-f.low;}
+  if(!fitHasPedestal(f)){f.ped=0;delete f.pedShape;delete f.pedSize;}
+ }
  return f;
 }
 function fitFrameOf(f) {
@@ -20570,10 +21006,70 @@ function presetStationPoint(ship,kind,p,axis,options={}){
  const up=AXES[axis],reach=Math.max(ship.hull.L,ship.hull.H,ship.hull.W,200)*2;
  return rayEnv(ship,add(p,mul(up,reach)),mul(up,-1),{maxT:reach*2,structOnly:true})?.p.slice()||p.slice();
 }
+// Upright weapons have a level insertion plane. Their foundation is the
+// vertical space between that plane and the actual upper envelope below the
+// turntable, rather than a drum guessed from the centre ray. Surface-normal
+// mounts and authored station offsets retain their existing mounting pose.
+function turretSupportEligible(f){
+ const d=FITS[canonicalWeaponKind(f?.k)],explicit=f?.mountMode==='top'||f?.mountMode==='bottom';
+ return !!(d?.cat==='w'&&fitHasPedestal(f)&&!d.casemate&&!d.wallOnly&&!f.tilt&&!isSurfaceBattery(f)&&f.mountMode!=='auto'&&f.mountMode!=='trench'&&(explicit||(!f.localMount&&f.mountAxis==null)));
+}
+function validTurretSupport(s){return !!(s?.version===1&&Number.isFinite(s.top)&&s.top>1e-6&&s.top<=DESIGN_LIMITS.coordinate&&Array.isArray(s.polys)&&s.polys.length>0&&s.polys.length<=4096&&s.polys.every(p=>Array.isArray(p)&&p.length>=3&&p.length<=128&&p.every(q=>Array.isArray(q)&&q.length===3&&q.every(Number.isFinite)&&q.every(v=>Math.abs(v)<=DESIGN_LIMITS.coordinate)&&q[2]<=s.top+1e-5)));}
+function supportArea(p){let a=0;for(let i=0;i<p.length;i++){const q=p[(i+1)%p.length];a+=p[i][0]*q[1]-q[0]*p[i][1];}return a/2;}
+function supportClip(poly,a,b,c){
+ const out=[];if(!poly.length)return out;let p=poly.at(-1),hp=a*p[0]+b*p[1]+c,inside=hp>=-1e-8;
+ for(const q of poly){const hq=a*q[0]+b*q[1]+c,next=hq>=-1e-8;if(next!==inside){const t=hp/(hp-hq);out.push([lerp(p[0],q[0],t),lerp(p[1],q[1],t)]);}if(next)out.push(q.slice(0,2));p=q;hp=hq;inside=next;}
+ return out.filter((q,i)=>Math.hypot(q[0]-out[(i+out.length-1)%out.length][0],q[1]-out[(i+out.length-1)%out.length][1])>1e-7);
+}
+function supportIntersection(poly,clip){let out=poly;for(let i=0;i<clip.length&&out.length>=3;i++){const a=clip[i],b=clip[(i+1)%clip.length];out=supportClip(out,a[1]-b[1],b[0]-a[0],a[0]*b[1]-a[1]*b[0]);}return out;}
+function supportSubtract(poly,clip){
+ const out=[];let rest=poly;for(let i=0;i<clip.length&&rest.length>=3;i++){const a=clip[i],b=clip[(i+1)%clip.length],A=a[1]-b[1],B=b[0]-a[0],D=a[0]*b[1]-a[1]*b[0],piece=supportClip(rest,-A,-B,-D);if(piece.length>=3&&Math.abs(supportArea(piece))>1e-7)out.push(piece);rest=supportClip(rest,A,B,D);}return out;
+}
+const TURRET_SUPPORT_FOOTPRINTS=new Map(),TURRET_SUPPORT_BVH=new WeakMap(),TURRET_SUPPORT_GEOMETRY=new WeakMap();
+function turretSupportFootprint(f){
+ const d=fitSpec(f),scale=f.scale||1,id=f.skinAsset||d.asset,a=REFERENCE_ASSETS[id],key=(id||f.k)+'|'+weaponModelScale(f)+'|'+scale;let native=TURRET_SUPPORT_FOOTPRINTS.get(key);
+ if(!native){
+  if(a?.sphereRadiusM){const r=a.sphereRadiusM*weaponModelScale(f)*scale;native=Array.from({length:32},(_,i)=>[Math.cos(i*Math.PI/16)*r,Math.sin(i*Math.PI/16)*r]);}
+  else if(a){const model=decodeReference(id),neutral={k:f.k,p:[0,0,0],a:2,ped:0,base:0,low:0,scale,...(f.skinAsset?{skinAsset:f.skinAsset}:{})},points=[];let low=Infinity;for(let i=0;i<model.pos.length;i+=3){const p=referenceFitPoint(neutral,Array.from(model.pos.subarray(i,i+3)));points.push(p);low=Math.min(low,p[1]);}native=surfaceHull2(points.filter(p=>p[1]<=low+Math.max(.03,d.hm*.025)).map(p=>[p[0],p[2]]));}
+  if(!native||native.length<3){const r=d.r*.72;native=Array.from({length:24},(_,i)=>[Math.cos(i*Math.PI/12)*r,Math.sin(i*Math.PI/12)*r]);}
+  TURRET_SUPPORT_FOOTPRINTS.set(key,native);
+ }
+ const yaw=(d.asset?f.assetYaw||0:0)*Math.PI/180,c=Math.cos(yaw),s=Math.sin(yaw),points=native.map(p=>[p[0]*c-p[1]*s,p[0]*s+p[1]*c]);
+ if((f.ped||0)>1e-6){const r=d.r*.72*(f.pedSize||1)*(f.pedShape==='trap'?1.35:(f.ped>d.r*.8?1.45:1.18));if(f.pedShape==='trap')for(const u of [-r,r])for(const v of [-r,r])points.push([u,v]);else for(let i=0;i<24;i++)points.push([Math.cos(i*Math.PI/12)*r,Math.sin(i*Math.PI/12)*r]);}
+ return surfaceHull2(points);
+}
+function mountTurretSupport(ship,f,big){
+ delete f.mountSupport;f.base=f.low=f.slope=0;if(!turretSupportEligible(f))return;
+ const fr=fitFrameOf(f),foot=turretSupportFootprint(f),corners=[];for(const q of foot)for(const h of [-big,big])corners.push(add(f.p,add(add(mul(fr.fw,q[0]),mul(fr.rt,q[1])),mul(fr.up,h))));
+ const bounds=[0,1,2].map(a=>Math.min(...corners.map(p=>p[a]))-1e-5).concat([0,1,2].map(a=>Math.max(...corners.map(p=>p[a]))+1e-5)),overlap=b=>[0,1,2].every(a=>b[a]<=bounds[a+3]&&b[a+3]>=bounds[a]),candidates=[];
+ const collect=(T,bvh)=>{
+  if(!T?.length)return;if(!bvh){bvh=TURRET_SUPPORT_BVH.get(T);if(!bvh){bvh=buildBVH(T);TURRET_SUPPORT_BVH.set(T,bvh);}}
+  const stack=[0];while(stack.length){const nd=stack.pop(),b=Array.from(bvh.B.subarray(nd*6,nd*6+6));if(!overlap(b))continue;if(!bvh.C[nd]){stack.push(bvh.L[nd],bvh.R[nd]);continue;}
+   for(let k=bvh.S[nd];k<bvh.S[nd]+bvh.C[nd];k++){const i=bvh.idx[k]*9,P=[0,3,6].map(j=>{const p=sub(Array.from(T.subarray?T.subarray(i+j,i+j+3):T.slice(i+j,i+j+3)),f.p);return [dot(p,fr.fw),dot(p,fr.rt),dot(p,fr.up)];}),det=(P[1][0]-P[0][0])*(P[2][1]-P[0][1])-(P[1][1]-P[0][1])*(P[2][0]-P[0][0]);
+    // fw x rt points opposite up. Keep outward-facing support faces only.
+    if(det>=-1e-9)continue;const poly=supportIntersection(foot,[P[0],P[2],P[1]]);if(poly.length<3||Math.abs(supportArea(poly))<1e-7)continue;
+    const A=((P[1][2]-P[0][2])*(P[2][1]-P[0][1])-(P[2][2]-P[0][2])*(P[1][1]-P[0][1]))/det,B=((P[1][0]-P[0][0])*(P[2][2]-P[0][2])-(P[2][0]-P[0][0])*(P[1][2]-P[0][2]))/det,D=P[0][2]-A*P[0][0]-B*P[0][1];
+    if(poly.every(q=>Math.abs(A*q[0]+B*q[1]+D)>big))continue;candidates.push({poly,A,B,D});
+   }
+  }
+ };
+ const g=ship._rayLock?.env||referenceHullGeometry(ship)||hullGeo(ship);collect(g.tris,g.bvh);
+ for(const p of ship.parts){if(!isShapePart(p)||p.plate||!overlap(partAABB(p)))continue;let T=ship._rayLock?.tris.get(p);if(!T){T=lockedRayTris(p);ship._rayLock?.tris.set(p,T);}collect(T);}
+ let top=0;const polys=[];for(let i=0;i<candidates.length;i++){const own=candidates[i];let pieces=[own.poly];for(let j=0;j<candidates.length&&pieces.length;j++){if(i===j)continue;const other=candidates[j],da=other.A-own.A,db=other.B-own.B,dd=other.D-own.D,coplanar=Math.abs(da)+Math.abs(db)+Math.abs(dd)<1e-7;if(coplanar&&j>i)continue;const cover=coplanar?other.poly:supportClip(other.poly,da,db,dd-1e-7);if(cover.length<3||Math.abs(supportArea(cover))<1e-7)continue;pieces=pieces.flatMap(p=>supportSubtract(p,cover));}
+  for(const poly of pieces){const p=poly.map(q=>[q[0],q[1],own.A*q[0]+own.B*q[1]+own.D]);for(const q of p)top=Math.max(top,q[2]);polys.push(p);}
+ }
+ if(top<=1e-5||!polys.length)return;f.mountSupport={version:1,top,polys};f.base=top;f.low=Math.min(0,...polys.flatMap(p=>p.map(q=>q[2])));f.slope=top-f.low;
+}
+function turretSupportGeometry(f){
+ if(!turretSupportEligible(f)||!validTurretSupport(f.mountSupport))return null;const s=f.mountSupport,fr=fitFrameOf(f),key=JSON.stringify([f.p,fr.up,fr.fw,fr.rt]),cached=TURRET_SUPPORT_GEOMETRY.get(s);if(cached?.key===key)return cached.geometry;
+ const triangles=[],world=q=>add(f.p,add(add(mul(fr.fw,q[0]),mul(fr.rt,q[1])),mul(fr.up,q[2]))),put=(a,b,c)=>{if(len(cross(sub(b,a),sub(c,a)))>1e-9)triangles.push(...a,...b,...c);};let volume=0;
+ for(const p of s.polys){const top=p.map(q=>world([q[0],q[1],s.top])),bottom=p.map(world);for(let j=1;j<p.length-1;j++){put(top[0],top[j+1],top[j]);put(bottom[0],bottom[j],bottom[j+1]);const area=Math.abs((p[j][0]-p[0][0])*(p[j+1][1]-p[0][1])-(p[j][1]-p[0][1])*(p[j+1][0]-p[0][0]))/2;volume+=area*(s.top-(p[0][2]+p[j][2]+p[j+1][2])/3);}for(let j=0;j<p.length;j++){const k=(j+1)%p.length;put(bottom[j],top[j],top[k]);put(bottom[j],top[k],bottom[k]);}}
+ const bounds=[Infinity,Infinity,Infinity,-Infinity,-Infinity,-Infinity];for(let i=0;i<triangles.length;i++){const a=i%3;bounds[a]=Math.min(bounds[a],triangles[i]);bounds[a+3]=Math.max(bounds[a+3],triangles[i]);}const geometry={triangles,bounds,volume};TURRET_SUPPORT_GEOMETRY.set(s,{key,geometry});return geometry;
+}
 function baseMountFit(ship,f){
  normalizeFitMount(f);const d=fitSpec(f),fr=fitFrameOf(f),R=d.r,gun=d.cat==='w',flush=gun&&!fitHasPedestal(f),big=f.localMount||d.casemate||flush?Math.max(2,Math.min(6,R*.25)):Math.max(ship.hull.H,ship.hull.W,200)*2,h0=rayEnv(ship,add(f.p,mul(fr.up,big)),mul(fr.up,-1),{maxT:big*2,structOnly:true});
- delete f._onPlate;if(!h0){f.float=true;f.base=0;f.low=0;f.slope=0;return f;}if(h0.part?.plate){f.float=true;f._onPlate=true;f.base=0;f.low=0;f.slope=0;return f;}
- f.float=false;f.p=h0.p;if(gun){f.base=0;f.low=0;f.slope=0;return normalizeFitMount(f);}
+ delete f._onPlate;if(!h0){f.float=true;delete f.mountSupport;f.base=0;f.low=0;f.slope=0;return f;}if(h0.part?.plate){f.float=true;f._onPlate=true;delete f.mountSupport;f.base=0;f.low=0;f.slope=0;return f;}
+ f.float=false;f.p=h0.p;if(gun){mountTurretSupport(ship,f,Math.max(ship.hull.L,ship.hull.H,ship.hull.W,200)*2);return normalizeFitMount(f);}
  let hi=0,lo=0,miss=0;for(let k=0;k<12;k++){const a=k/12*Math.PI*2,q=add(f.p,add(mul(fr.fw,Math.cos(a)*R*.95),mul(fr.rt,Math.sin(a)*R*.95))),h=rayEnv(ship,add(q,mul(fr.up,big)),mul(fr.up,-1),{maxT:big*2,structOnly:true});if(!h){miss++;continue;}const ht=dot(sub(h.p,f.p),fr.up);if(ht>hi)hi=ht;if(ht<lo)lo=ht;}f.base=hi;f.low=Math.min(lo,0)-(miss?R*.5:0);f.slope=hi-lo;return f;
 }
 function baseFitOrigin(f) { const fr = fitFrameOf(f); return add(f.p, mul(fr.up, fitHasPedestal(f)?(f.base||0)+(f.ped||0):0)); }
@@ -20788,14 +21284,14 @@ function basePlaceFit(ship, k, p, n, ped, mirror, options={}) {
   if (d.cat === 'b') { if (n[1] < 0.2) return {err: '艦橋は上向きの面に置いてください'}; }
   else { let bv = -2; for (let i = 0; i < 6; i++) { const v = dot(AXES[i], n); if (v > bv) { bv = v; a = i; } } }
   const tilt = (options.tilt||d.wallOnly) && d.cat === 'w' && (!options.localMount||d.wallOnly) && !d.casemate ? fitTilt(n) : null;
-  const f = mountFit(ship, {id: nid(ship), k, p: p.slice(), a, ped: ped == null ? (d.cat==='w'?0:2) : ped,...(isConcussionLauncher(k)&&Number.isFinite(options.launchPitch)&&options.launchPitch!==0?{launchPitch:clamp(options.launchPitch,-90,90)}:{}),...(fitCanRotate(k)&&Number.isFinite(options.assetYaw)?{assetYaw:clamp(options.assetYaw,-180,180)}:{}),...(isBallTurret(k)&&Number.isFinite(options.assetPitch)?{assetPitch:clamp(options.assetPitch,-90,90)}:{}),...(options.localMount?{localMount:true}:{}),...(isBroadsideBattery(k)?{n:n.slice(),tilt:n.slice(),host:options.host,batteryCaliber:options.batteryCaliber,batteryGuns:options.batteryGuns,...(options.batteryLegacyHull?{batteryLegacyHull:true}:{})}:{}),...(tilt?{tilt,n:tilt.slice()}:{})});
+  const f = mountFit(ship, {id: nid(ship), k, p: p.slice(), a, ped: ped == null ? (d.cat==='w'?0:2) : ped,...(isConcussionLauncher(k)&&Number.isFinite(options.launchPitch)&&options.launchPitch!==0?{launchPitch:clamp(options.launchPitch,-90,90)}:{}),...(fitCanRotate(k)&&Number.isFinite(options.assetYaw)?{assetYaw:clamp(options.assetYaw,-180,180)}:{}),...(isBallTurret(k)&&Number.isFinite(options.assetPitch)?{assetPitch:clamp(options.assetPitch,-90,90)}:{}),...(['top','bottom','auto','trench'].includes(options.mountMode)?{mountMode:options.mountMode}:{}),...(options.localMount?{localMount:true}:{}),...(isBroadsideBattery(k)?{n:n.slice(),tilt:n.slice(),host:options.host,batteryCaliber:options.batteryCaliber,batteryGuns:options.batteryGuns,...(options.batteryLegacyHull?{batteryLegacyHull:true}:{})}:{}),...(tilt?{tilt,n:tilt.slice()}:{})});
   if (f.float) return {err: f._onPlate ? '装甲外板には武装・装備を取り付けられません' : '取り付ける面が見つかりません'};
   const clash = fitClash(ship, f); if (clash) return {err: clash};
   ship.fits.push(f);
   const mirrorBounds=mirror&&d.craft?fitAABB(f):null;
   if (mirror && (mirrorBounds?mirrorBounds[2]>1e-6||mirrorBounds[5]<-1e-6:Math.abs(f.p[2])>d.r)) {
     const am = a === 4 ? 5 : a === 5 ? 4 : a;
-    const g = mountFit(ship, {id: nid(ship), k, p: mirrorP(f.p), a: am, ped: f.ped,...(f.assetYaw!=null?{assetYaw:-f.assetYaw}:{}),...(isBallTurret(f)&&f.assetPitch!=null?{assetPitch:f.assetPitch}:{}),...(isConcussionLauncher(k)&&Number.isFinite(f.launchPitch)?{launchPitch:f.launchPitch}:{}),...(f.localMount?{localMount:true}:{}),...(isBroadsideBattery(k)?{batteryCaliber:f.batteryCaliber,batteryGuns:f.batteryGuns,...(f.batteryLegacyHull?{batteryLegacyHull:true}:{})}:{}),...(f.tilt?{tilt:mirrorP(f.tilt),n:mirrorP(f.tilt)}:{})});
+    const g = mountFit(ship, {id: nid(ship), k, p: mirrorP(f.p), a: am, ped: f.ped,...(f.assetYaw!=null?{assetYaw:-f.assetYaw}:{}),...(isBallTurret(f)&&f.assetPitch!=null?{assetPitch:f.assetPitch}:{}),...(isConcussionLauncher(k)&&Number.isFinite(f.launchPitch)?{launchPitch:f.launchPitch}:{}),...(f.mountMode?{mountMode:f.mountMode}:{}),...(f.localMount?{localMount:true}:{}),...(isBroadsideBattery(k)?{batteryCaliber:f.batteryCaliber,batteryGuns:f.batteryGuns,...(f.batteryLegacyHull?{batteryLegacyHull:true}:{})}:{}),...(f.tilt?{tilt:mirrorP(f.tilt),n:mirrorP(f.tilt)}:{})});
     if (!g.float && !fitClash(ship, g)) { g.tw = f.id; f.tw = g.id; ship.fits.push(g); }
   }
   return {fit: f};
@@ -21000,7 +21496,7 @@ function baseComputeStats(ship) {
     const raw=fitSpec(f),cr=needsCapacitor(f)?(chargeInfo[f.id]?.ratio||0):1,d={...raw,power:raw.power*cr,tt:(raw.tt||0)*cr,ion:(raw.ion||0)*cr};
     if (f.float) { floatFits++; if (f._onPlate) plateFits++; }
     // v21 Craft weapons sit flush on their mount (drawn without a pedestal), so they carry no pedestal mass.
-    const ph = fitHasPedestal(f) ? Math.max(0, f.base + f.ped - (f.low || 0)) : 0, pr = d.r * 0.8, pv = Math.PI * pr * pr * ph; pedVol += pv;
+    const foundation=turretSupportGeometry(f),ph=fitHasPedestal(f)?Math.max(0,foundation?(f.ped||0):(f.base||0)+(f.ped||0)-(f.low||0)):0,pr=d.r*.8,pv=(foundation?.volume||0)+Math.PI*pr*pr*ph;pedVol+=pv;
     // v18 Each weapon needs its gun crew and as many again to feed, power and maintain it.
     const exteriorBank=chargeInfo[f.id]?.housingUsed||0, bankHardware=PARTS.capacitor;hpSum+=exteriorBank*bankHardware.dens*bankHardware.hp;crew+=exteriorBank*bankHardware.crew/1000;
     const m = d.mass + pv * 0.3 + exteriorBank*bankHardware.dens, fc = d.cat === 'w' ? (d.crew || 0) * WEAPON_CREW_K : (d.crew || 0); crew += fc; if (d.cat === 'w' && !f.float) weaponCrew += fc; const price=fitBuildCost(f,raw)+partBuildCost({id:-1,k:'capacitor'},exteriorBank);cost += price; costBy[d.cat === 'w' ? 'weapons' : 'command'] += price;
@@ -22929,7 +23425,7 @@ function deserialize(o){
   migrateLegacyPropulsion(s);adoptEquipment(s);
   for(const p of s.parts)if(isSuperweapon(p)){const q=o.parts.find(q=>q.id===p.id);if(q&&(q.reactor===0||s.parts.some(r=>r.id===q.reactor&&isReactor(r))))p.reactor=q.reactor;if(q&&['beam','pulse'].includes(q.fireMode))p.fireMode=q.fireMode;normalizeSuperweapon(p);}
   for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(h.tw==null)delete h.tw;if(q.portal){h.portal=true;h.face=Object.hasOwn(AVIATION_SURFACE_FACES,q.face)?q.face:'top';if(q.surface)h.surface=true;h.open=finite(q.open,0,1,1);h.aperture=finite(q.aperture,.1,1,.85);if(q.sill!=null)h.sill=finite(q.sill,0,1,.5);if(s.parts.some(p=>p.id===q.bay&&p.k==='hangar'))h.bay=q.bay;else if(Array.isArray(q.cut)&&q.cut.length===6&&q.cut.every(Number.isFinite))h.cut=q.cut.map(v=>clamp(v,-DESIGN_LIMITS.coordinate,DESIGN_LIMITS.coordinate));}}
-  s.paint=['republic','neutral','dark','cis'].includes(o.paint)?o.paint:'neutral';if(DESIGN_FACTIONS[o.faction]||/^u_[a-z0-9]{2,20}$/.test(o.faction||''))s.faction=o.faction;s.detail=finite(o.detail,0,2,1);if(o.reference)s.reference=String(o.reference).slice(0,80);for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.motion==='fixed')h.motion='fixed';else if(q.motion==='slide'||isSlidingHatch(s,h))h.motion='slide';}if(REFERENCE_ASSETS[o.hullSkin?.asset]?.kind==='hull'&&o.hullSkin.base?.hull){const b=o.hullSkin.base,valid=[b.hull.L,b.hull.W,b.hull.H].every(v=>Number.isFinite(v)&&v>0&&v<=4000)&&Array.isArray(b.hull.stations)&&b.hull.stations.length>=2&&b.hull.stations.length<=64&&b.hull.stations.every(a=>Array.isArray(a)&&a.length>=3&&a.every(Number.isFinite))&&Array.isArray(b.trenches)&&b.trenches.length<=30&&Array.isArray(b.cuts)&&b.cuts.length<=50;if(valid){s.hullSkin=JSON.parse(JSON.stringify(o.hullSkin));s.hullSkin.enabled=!!o.hullSkin.enabled;}}for(const f of s.fits){const q=o.fits.find(q=>q.id===f.id);if(isBroadsideBattery(f)){setBroadsideBattery(f,{batteryCaliber:q.batteryCaliber,batteryGuns:q.batteryGuns});if(q.batteryLegacyHull)f.batteryLegacyHull=true;const n=q.tilt||q.n;if(Array.isArray(n)&&n.length===3&&n.every(Number.isFinite)&&len(n)>.5)f.tilt=norm(n);}if(q.localMount)f.localMount=true;if(Array.isArray(q.tilt)&&q.tilt.length===3&&q.tilt.every(Number.isFinite)&&len(q.tilt)>.5&&FITS[f.k].cat==='w'&&!FITS[f.k].casemate&&!f.localMount){f.tilt=norm(q.tilt);if(!f.n)f.n=f.tilt.slice();}if(typeof q.batteryZone==='string')f.batteryZone=q.batteryZone.slice(0,40);if(FITS[f.k].window){f.commandEnabled=q.commandEnabled!==false;if(q.commandDepth!=null)f.commandDepth=finite(q.commandDepth,2,200,12);if(q.commandHeight!=null)f.commandHeight=finite(q.commandHeight,2,80,8);}if(q.mount==='ext'&&FITS[f.k]?.msl)f.mount='ext';if(isConcussionLauncher(f)&&Number.isFinite(q.launchPitch))f.launchPitch=finite(q.launchPitch,-90,90,0);if(q.legacyMissileMount==='vls'||q.legacyMissileMount==='vls-orphan')f.legacyMissileMount=q.legacyMissileMount;if(Number.isFinite(q.chargeSalvos))f.chargeSalvos=finite(q.chargeSalvos,1,20,1);if(Number.isFinite(q.chargeDepth))f.chargeDepth=finite(q.chargeDepth,1,500,10);if(Number.isFinite(q.chargeScale))f.chargeScale=finite(q.chargeScale,.25,4,1);if(Number.isFinite(q.assetYaw))f.assetYaw=finite(q.assetYaw,-180,180,0);if(isBallTurret(f)&&Number.isFinite(q.assetPitch))f.assetPitch=finite(q.assetPitch,-90,90,0);standardFit(f);if(Number.isInteger(q.mountAxis)&&q.mountAxis>=0&&q.mountAxis<=5)f.mountAxis=q.mountAxis;if(Number.isFinite(q.mountOffset))f.mountOffset=finite(q.mountOffset,-50,50,0);if(REFERENCE_ASSETS[q.skinAsset])f.skinAsset=q.skinAsset;}for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.referenceMouth)h.referenceMouth=true;if(REFERENCE_ASSETS[q.skinAsset]){h.skinAsset=q.skinAsset;if(Array.isArray(q.skinBayAnchor)&&q.skinBayAnchor.length===3&&q.skinBayAnchor.every(Number.isFinite))h.skinBayAnchor=q.skinBayAnchor.slice();}}migrateAviationSurfaces(s,o);migrateAviation(s,o);
+  s.paint=['republic','neutral','dark','cis'].includes(o.paint)?o.paint:'neutral';if(DESIGN_FACTIONS[o.faction]||/^u_[a-z0-9]{2,20}$/.test(o.faction||''))s.faction=o.faction;s.detail=finite(o.detail,0,2,1);if(o.reference)s.reference=String(o.reference).slice(0,80);for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.motion==='fixed')h.motion='fixed';else if(q.motion==='slide'||isSlidingHatch(s,h))h.motion='slide';}if(REFERENCE_ASSETS[o.hullSkin?.asset]?.kind==='hull'&&o.hullSkin.base?.hull){const b=o.hullSkin.base,valid=[b.hull.L,b.hull.W,b.hull.H].every(v=>Number.isFinite(v)&&v>0&&v<=4000)&&Array.isArray(b.hull.stations)&&b.hull.stations.length>=2&&b.hull.stations.length<=64&&b.hull.stations.every(a=>Array.isArray(a)&&a.length>=3&&a.every(Number.isFinite))&&Array.isArray(b.trenches)&&b.trenches.length<=30&&Array.isArray(b.cuts)&&b.cuts.length<=50;if(valid){s.hullSkin=JSON.parse(JSON.stringify(o.hullSkin));s.hullSkin.enabled=!!o.hullSkin.enabled;}}for(const f of s.fits){const q=o.fits.find(q=>q.id===f.id);if(isBroadsideBattery(f)){setBroadsideBattery(f,{batteryCaliber:q.batteryCaliber,batteryGuns:q.batteryGuns});if(q.batteryLegacyHull)f.batteryLegacyHull=true;const n=q.tilt||q.n;if(Array.isArray(n)&&n.length===3&&n.every(Number.isFinite)&&len(n)>.5)f.tilt=norm(n);}if(['top','bottom','auto','trench'].includes(q.mountMode))f.mountMode=q.mountMode;if(validTurretSupport(q.mountSupport))f.mountSupport=JSON.parse(JSON.stringify(q.mountSupport));if(q.localMount)f.localMount=true;if(Array.isArray(q.tilt)&&q.tilt.length===3&&q.tilt.every(Number.isFinite)&&len(q.tilt)>.5&&FITS[f.k].cat==='w'&&!FITS[f.k].casemate&&!f.localMount){f.tilt=norm(q.tilt);if(!f.n)f.n=f.tilt.slice();}if(typeof q.batteryZone==='string')f.batteryZone=q.batteryZone.slice(0,40);if(FITS[f.k].window){f.commandEnabled=q.commandEnabled!==false;if(q.commandDepth!=null)f.commandDepth=finite(q.commandDepth,2,200,12);if(q.commandHeight!=null)f.commandHeight=finite(q.commandHeight,2,80,8);}if(q.mount==='ext'&&FITS[f.k]?.msl)f.mount='ext';if(isConcussionLauncher(f)&&Number.isFinite(q.launchPitch))f.launchPitch=finite(q.launchPitch,-90,90,0);if(q.legacyMissileMount==='vls'||q.legacyMissileMount==='vls-orphan')f.legacyMissileMount=q.legacyMissileMount;if(Number.isFinite(q.chargeSalvos))f.chargeSalvos=finite(q.chargeSalvos,1,20,1);if(Number.isFinite(q.chargeDepth))f.chargeDepth=finite(q.chargeDepth,1,500,10);if(Number.isFinite(q.chargeScale))f.chargeScale=finite(q.chargeScale,.25,4,1);if(Number.isFinite(q.assetYaw))f.assetYaw=finite(q.assetYaw,-180,180,0);if(isBallTurret(f)&&Number.isFinite(q.assetPitch))f.assetPitch=finite(q.assetPitch,-90,90,0);standardFit(f);if(Number.isInteger(q.mountAxis)&&q.mountAxis>=0&&q.mountAxis<=5)f.mountAxis=q.mountAxis;if(Number.isFinite(q.mountOffset))f.mountOffset=finite(q.mountOffset,-50,50,0);if(REFERENCE_ASSETS[q.skinAsset])f.skinAsset=q.skinAsset;}for(const h of s.hatches){const q=o.hatches.find(q=>q.id===h.id);if(q.referenceMouth)h.referenceMouth=true;if(REFERENCE_ASSETS[q.skinAsset]){h.skinAsset=q.skinAsset;if(Array.isArray(q.skinBayAnchor)&&q.skinBayAnchor.length===3&&q.skinBayAnchor.every(Number.isFinite))h.skinBayAnchor=q.skinBayAnchor.slice();}}migrateAviationSurfaces(s,o);migrateAviation(s,o);
   // Old window rows on a model bridge repeat the role the body now carries.
   for(const p of s.parts){const q=o.parts.find(q=>q.id===p.id);if(bridgeBodyRole(p)){if(['bridge','air','hangar','combat'].includes(q.commandRole))p.commandRole=q.commandRole;if(q.commandEnabled===false)p.commandEnabled=false;}}
   const dropped=new Set(s.fits.filter(f=>f.legacyWindow&&bridgeBodyRole(s.parts.find(p=>p.id===f.host))===FITS[f.k].role).map(f=>f.id));
@@ -23667,7 +24163,7 @@ function sensorShapeRaw(p){const a=p.skinSize||[p.d,p.d,p.d],scale=p.d/Math.max(
 function mountReferenceFit(ship,f){
  // Newly placed model turrets mount directly on their selected surface.
  // Authored example poses keep their explicit mountAxis and offset.
-  if(f.localMount||FITS[f.k].casemate||f.mountAxis==null)return baseMountFit(ship,f);
+  if(f.localMount||FITS[f.k].casemate||f.mountAxis==null||f.mountMode==='top'||f.mountMode==='bottom')return baseMountFit(ship,f);
  const up=AXES[f.mountAxis??f.a],h=rayEnv(ship,add(f.p,mul(up,Math.max(ship.hull.H,ship.hull.W)*2)),mul(up,-1),{structOnly:true});f.float=!h||!!h.part?.plate;if(h?.part?.plate)f._onPlate=true;else delete f._onPlate;f.base=0;f.low=0;f.slope=0;if(h&&!h.part?.plate)f.p=add(h.p,mul(up,f.mountOffset||0));return f;
 }
 // Source turrets were extracted in the pose they had on their ship. A newly
@@ -23726,7 +24222,7 @@ function authoredTurretAngles(g,dir){
 }
 function aimAuthoredTurretAt(g,dir){return aimAuthoredTurret(g,...authoredTurretAngles(g,dir));}
 function authoredTurretInArc(g,dir){const [yaw,elevation]=authoredTurretAngles(g,dir),limits=g.limits||AUTHORED_TURRET_LIMITS;return elevation>=limits.lo-1e-10&&elevation<=limits.hi+1e-10&&(!Number.isFinite(limits.yaw)||Math.abs(yaw)<=limits.yaw+1e-10);}
-function referenceFitAABB(f){const points=[];for(const x of [-.5,.5])for(const y of [-.5,.5])for(const z of [-.5,.5])points.push(referenceFitPoint(f,[x,y,z]));if(!FITS[f.k].casemate&&!f.localMount&&f.mountAxis==null&&(f.low||0)<0)points.push(add(f.p,mul(fitFrameOf(f).up,f.low)));return [0,1,2].map(i=>Math.min(...points.map(p=>p[i]))).concat([0,1,2].map(i=>Math.max(...points.map(p=>p[i]))));}
+function referenceFitAABB(f){const points=[];for(const x of [-.5,.5])for(const y of [-.5,.5])for(const z of [-.5,.5])points.push(referenceFitPoint(f,[x,y,z]));const support=turretSupportGeometry(f);if(support)points.push(support.bounds.slice(0,3),support.bounds.slice(3));else if(!FITS[f.k].casemate&&!f.localMount&&f.mountAxis==null&&(f.low||0)<0)points.push(add(f.p,mul(fitFrameOf(f).up,f.low)));return [0,1,2].map(i=>Math.min(...points.map(p=>p[i]))).concat([0,1,2].map(i=>Math.max(...points.map(p=>p[i]))));}
 
 function clipReferenceBox(d,b){
  const pp=[],uv=[],idx=[];
@@ -24890,7 +25386,7 @@ function registerShipExample(d){
  if(!d||typeof d.key!=='string'||typeof d.build!=='function')throw new Error('作例の登録が不正です');
  const {airWings,groundForces,...example}=d;
  if(airWings?.length||groundForces?.length)EXAMPLE_COMPLEMENTS[d.key]=JSON.parse(JSON.stringify({air:airWings||[],ground:groundForces||[]}));
- SHIP_EXAMPLES[d.key]={...example,build:()=>clearDesignLoadouts(d.build())};DESIGNS[d.key]={name:d.name,hull:{L:d.length}};return SHIP_EXAMPLES[d.key];
+ SHIP_EXAMPLES[d.key]={...example,build:()=>clearDesignLoadouts(d.craft?refitCraftInterior(d.build(),d.key):d.build())};DESIGNS[d.key]={name:d.name,hull:{L:d.length}};return SHIP_EXAMPLES[d.key];
 }
 // Measured-section helpers for those builders (absolute metres, x bow, y up,
 // z starboard). Rows are [x, zMin, zMax, yMin, yMax]; the bounding box of the
@@ -25494,7 +25990,7 @@ function awingBuild(opt={}){
 }
 registerShipExample({key:'craft_awing',name:'RZ-1 Aウイング',side:'反乱同盟',role:'迎撃機',length:6.9,craft:true,craftType:'awing',
  title:'RZ1AWing',credit:'RZ1AWing.STL（ユーザー提供。作者・ライセンスの表記なし）',author:'不明（ユーザー提供の STL）',source:'ユーザー提供の STL ファイル（RZ1AWing.STL）',license:'不明（出典未記載）',
- note:'6.9 m。全長は資料により 9.6 m（Wookieepedia の正史の記事）と 6.9 m（RZ-1 の諸元。幅 4.47 m・高さ 2.47 m）に分かれる。ユーザー提供の STL ファイル（RZ1AWing.STL、作者・ライセンス表記なし）は 6.9 m に合わせると幅 4.58 m・高さ 2.40 m で後者の諸元とほぼ合うため、6.9 m とした。楔形の機体を船体として 24 断面で実測に合わせ、キャノピー後部のフェアリング、上下 4 枚の安定翼、尾部中央板、翼端のレーザー砲旋回基部と砲架、胴体内へ延びる機関を覆うフェアリングを構造物で組んだ。STL にはキャノピーのガラスがないので、操縦席の開口に着色キャノピーを加えた。艦尾の主推進機関 2 基（噴射口径 0.87 m、モデルの実測）は胴体の中ほど（艦尾から 3.15 m）まで延び、操縦席の後ろの核融合炉から給電する。操縦席 1 名（アストロメクなしで飛ぶ機体なのでソケットはない）、両舷の偏向シールド発生器（標準型の装備。反乱同盟は一部の機体から外した）、ハイパードライブ（クラス 1.0、RZ-1 の諸元どおり）、慣性補償装置 2 基、反応物タンク（約 1 週間分）、機首にパワーセル。兵装はレーザー砲 2 門（旋回基部の上外側。設計局の艦載機用レーザー砲は機首方向に固定で、正史の上下 60° の俯仰は表さない）と、機体下面の 2 つの扉の位置に震盪ミサイル発射管 2 基（お任せの搭載は正史どおり各6発・計12発）。最大加速度は約 5,100 G（RZ-1 の諸元どおり）、MGLT は設計局の換算で 170（諸元は 120）。シールドは目標強度 10%（設定の下限）、兵装の再充電は最大連射の 45%、外殻装甲 1.5 mm。STL に色がないため塗装は標準色、機関光は橙。',
+ note:'6.9 m。全長は資料により 9.6 m（Wookieepedia の正史の記事）と 6.9 m（RZ-1 の諸元。幅 4.47 m・高さ 2.47 m）に分かれる。ユーザー提供の STL ファイル（RZ1AWing.STL、作者・ライセンス表記なし）は 6.9 m に合わせると幅 4.58 m・高さ 2.40 m で後者の諸元とほぼ合うため、6.9 m とした。楔形の機体を船体として 24 断面で実測に合わせ、キャノピー後部のフェアリング、上下 4 枚の安定翼、尾部中央板、翼端のレーザー砲旋回基部と砲架、胴体内へ延びる機関を覆うフェアリングを構造物で組んだ。STL にはキャノピーのガラスがないので、操縦席の開口に着色キャノピーを加えた。艦尾の主推進機関 2 基（噴射口径 0.87 m、モデルの実測）は胴体の中ほど（艦尾から 3.15 m）まで延び、操縦席の後ろの核融合炉から給電する。操縦席 1 名（アストロメクなしで飛ぶ機体なのでソケットはない）、両舷の偏向シールド発生器（標準型の装備。反乱同盟は一部の機体から外した）、ハイパードライブ（クラス 1.0、RZ-1 の諸元どおり）、慣性補償装置 2 基、反応物タンク（約 1 週間分）、機首にパワーセル。兵装はレーザー砲 2 門（旋回基部の上外側。設計局の艦載機用レーザー砲は機首方向に固定で、正史の上下 60° の俯仰は表さない）と、機体下面の 2 つの扉の位置に震盪ミサイル発射管 2 基（お任せの搭載は正史どおり各6発・計12発）。実給電モデルでは内部の反応炉・機関・配電を再構築し、最大加速度の設計目標は RZ-1 の諸元に合わせて 5,100 G（公表速度は 120 MGLT）。シールドは目標強度 10%（設定の下限）、外殻装甲 1.5 mm。STL に色がないため塗装は標準色、機関光は橙。',
  build:awingBuild});
 }
 
@@ -25777,7 +26273,7 @@ function tieInBuild(){
 }
 registerShipExample({key:'craft_tie_in',name:'TIE/in インターセプター',side:'銀河帝国',role:'迎撃機',length:9.6,craft:true,craftType:'tie_in',
  title:'Star Wars: TIE/in Interceptor',credit:'"Star Wars: TIE/in Interceptor" by Daniel (https://sketchfab.com/DanielAndersson), CC BY 4.0',author:'Daniel',source:'https://sketchfab.com/3d-models/star-wars-tiein-interceptor-80171ec2930b4949836bcf24d9694c41',license:'CC BY 4.0',
- note:'9.6 m（正史：全長 9.6 m・全幅 7.6 m・全高 5.6 m）。Daniel 氏のモデル「Star Wars: TIE/in Interceptor」（CC BY 4.0）の実測形状を、正史の全長（翼端の砲身を含む短剣形の翼の前後長）に等倍で合わせた（モデルに合わせると全幅 8.9 m・全高 7.1 m と正史より幅広く背が高く、操縦席の球も直径 3.11 m と TIE/ln より大きくなる。形状はモデルに従った）。球形操縦席を船体とし、折れ曲がった短剣形の翼（前方に切り欠きのある垂直の中央部と、モデルに合わせて内側へ 41.5° 傾けた上下の翼板、外枠・支持腕の帯・後部の暗色パネル・外側ハブ）と翼支持腕、ドーム状の前面窓、後部ハッチを構造物として組み直した。翼と支持腕は軽構造。球の中には操縦席1席（乗員1名）、I-a3a 反応炉、P-s5.6 イオン・エンジン2基、燃料タンク、慣性補償器を重ならないように詰めた。兵装は正史どおり翼端の L-s9.3 レーザー砲 4門（短剣の外側面に取り付け、砲口はモデルの砲口の位置）で、操縦席のハードポイントは空けたまま。シールド発生器とハイパードライブは持たない（正史）。外殻装甲は 1 mm。最大加速度は約 4,230 G（正史 4,240 G）。出力 2.8×10¹⁸ W、兵装の充電は最大連射の約 68%。',
+ note:'9.6 m（正史：全長 9.6 m・全幅 7.6 m・全高 5.6 m）。Daniel 氏のモデル「Star Wars: TIE/in Interceptor」（CC BY 4.0）の実測形状を、正史の全長（翼端の砲身を含む短剣形の翼の前後長）に等倍で合わせた（モデルに合わせると全幅 8.9 m・全高 7.1 m と正史より幅広く背が高く、操縦席の球も直径 3.11 m と TIE/ln より大きくなる。形状はモデルに従った）。球形操縦席を船体とし、折れ曲がった短剣形の翼（前方に切り欠きのある垂直の中央部と、モデルに合わせて内側へ 41.5° 傾けた上下の翼板、外枠・支持腕の帯・後部の暗色パネル・外側ハブ）と翼支持腕、ドーム状の前面窓、後部ハッチを構造物として組み直した。翼と支持腕は軽構造。球の中には操縦席1席（乗員1名）、I-a3a 反応炉、P-s5.6 イオン・エンジン2基、燃料タンク、慣性補償器を重ならないように詰めた。兵装は正史どおり翼端の L-s9.3 レーザー砲 4門（短剣の外側面に取り付け、砲口はモデルの砲口の位置）で、操縦席のハードポイントは空けたまま。シールド発生器とハイパードライブは持たない（正史）。外殻装甲は 1 mm。実給電モデルに合わせて炉・機関・配電を組み直し、最大加速度の設計目標は正史に合わせた 4,240 G。',
  build(){return tieInBuild();}});
 }
 
@@ -25842,7 +26338,7 @@ function tieLnBuild(){
 }
 registerShipExample({key:'craft_tie_ln',name:'TIE/ln 制宙戦闘機',side:'銀河帝国',role:'制宙戦闘機',length:7.24,craft:true,craftType:'tie_ln',
  title:'Star Wars: TIE/ln Fighter',credit:'"Star Wars: TIE/ln Fighter" by Daniel (https://sketchfab.com/DanielAndersson), CC BY 4.0',author:'Daniel',source:'https://sketchfab.com/3d-models/star-wars-tieln-fighter-79d9403f15334c129ea5454daffe6b5c',license:'CC BY 4.0',
- note:'7.24 m（正史：全長 7.24 m・全高 8.82 m）。Daniel 氏のモデル「Star Wars: TIE/ln Fighter」（CC BY 4.0）の実測形状を、正史の全長（六角形の太陽電池翼の前後長）に等倍で合わせた（モデルに合わせると全幅 6.56 m・全高 8.35 m で、正史の全高より約 5% 低い。形状はモデルに従った）。直径 2.47 m の球形操縦席を船体とし、六角形の太陽電池翼（厚さ 0.14 m のパネル、外枠・水平桁・4本の支柱は深いリブとフランジ、中央ハブ）と翼支持柱、前面窓と窓枠、後部ハッチを構造物として組み直した。太陽電池翼と支持柱は、薄いパネルと桁の骨組みとして軽構造とした。球の中には操縦席1席（正史どおり乗員1名）、I-a2b 反応炉、P-s4 イオン・エンジン2基（推進部を球の中央帯に前後に通し、後方へ噴射）、燃料タンク、慣性補償器を重ならないように詰めた。兵装は機首下の L-s1 レーザー砲 2門（砲口はモデルの砲口の位置）。正史どおりシールド発生器とハイパードライブは持たない。外殻装甲は 0.75 mm（表面の大半を占める太陽電池翼を含めた平均）。最大加速度は約 3,960 G（正史 4,100 G）。出力 1.4×10¹⁸ W で、推進には足り、兵装の充電は最大連射の約 63%。',
+ note:'7.24 m（正史：全長 7.24 m・全高 8.82 m）。Daniel 氏のモデル「Star Wars: TIE/ln Fighter」（CC BY 4.0）の実測形状を、正史の全長（六角形の太陽電池翼の前後長）に等倍で合わせた（モデルに合わせると全幅 6.56 m・全高 8.35 m で、正史の全高より約 5% 低い。形状はモデルに従った）。直径 2.47 m の球形操縦席を船体とし、六角形の太陽電池翼（厚さ 0.14 m のパネル、外枠・水平桁・4本の支柱は深いリブとフランジ、中央ハブ）と翼支持柱、前面窓と窓枠、後部ハッチを構造物として組み直した。太陽電池翼と支持柱は、薄いパネルと桁の骨組みとして軽構造とした。球の中には操縦席1席（正史どおり乗員1名）、I-a2b 反応炉、P-s4 イオン・エンジン2基（推進部を球の中央帯に前後に通し、後方へ噴射）、燃料タンク、慣性補償器を重ならないように詰めた。兵装は機首下の L-s1 レーザー砲 2門（砲口はモデルの砲口の位置）。正史どおりシールド発生器とハイパードライブは持たない。外殻装甲は 0.75 mm（表面の大半を占める太陽電池翼を含めた平均）。実給電モデルに合わせて炉・機関・配電を組み直し、最大加速度の設計目標は正史に合わせた 4,100 G。',
  build(){return tieLnBuild();}});
 }
 
@@ -25931,7 +26427,7 @@ function tieSaBuild(){
 }
 registerShipExample({key:'craft_tie_sa',name:'TIE/sa ボマー',side:'銀河帝国',role:'爆撃機',length:7.9,craft:true,craftType:'tie_sa',
  title:'Star Wars: TIE/sa Bomber',credit:'"Star Wars: TIE/sa Bomber" by Daniel (https://sketchfab.com/DanielAndersson), CC BY 4.0',author:'Daniel',source:'https://sketchfab.com/3d-models/star-wars-tiesa-bomber-03c30934651e4f5798b67e74049ec6bc',license:'CC BY 4.0',
- note:'7.9 m（正史：全長 7.9 m・全幅 10.6 m・全高 5.4 m）。Daniel 氏のモデル「Star Wars: TIE/sa Bomber」（CC BY 4.0）の実測形状を、正史の全長（翼の前後長）に等倍で合わせた（全高は翼板の厚みを含めて 5.6 m でほぼ正史どおり、全幅はモデルに従い 9.5 m で正史より約 1 m 狭い）。船体は中心線上にしか置けないため、2つのポッドをつなぐ中央部を船体とし、右舷の操縦席ポッドと左舷の兵装ポッド（実測した半径のロフト）、操縦席ポッドの背部・腹部の隆起とドーム状の窓、兵装ポッドのミサイル発射口、両ポッド後端の機関部外殻、ガセット付きの翼支持腕、折れ曲がった翼（垂直の中央部と内側へ 39.2° 傾けた上下の翼板、外枠と縦梁）を構造物として組み直した。ポッドは通常の構造物、翼と支持腕は軽構造。操縦席ポッドの前部に操縦席1席（乗員1名）、両ポッドの後部に反応炉とイオン・エンジンを1組ずつ、燃料タンクと慣性補償器を収めた。兵装は正史の搭載に合わせ、操縦席ポッド機首下のレーザー砲 2門、兵装ポッド機首下の魚雷発射管1基（前部兵装庫からミサイル発射口を通して前方へ撃つ。正史は震盪ミサイル8発かプロトン魚雷4発で、弾倉は6発分）、兵装ポッド下の爆弾倉（主兵装庫と爆弾シュート）。搭載する弾は編成画面で選び、お任せでは正史の一例どおりプロトン魚雷4発とプロトン爆弾8発（TIE Fighter Deluxe Book and Model Set）。発射機は弾を抱える外置き。主兵装庫の積み替え（プロトン爆弾・熱爆弾・機雷・兵員6名）は爆弾倉1基で代表させた。シールド発生器とハイパードライブは持たない。外殻装甲は 2.8 mm（戦闘機より厚い）。最大加速度は約 2,390 G（正史 2,380 G。お任せの搭載 1.6 t を積むと約 2,320 G）。出力 7.3×10¹⁸ W。',
+ note:'7.9 m（正史：全長 7.9 m・全幅 10.6 m・全高 5.4 m）。Daniel 氏のモデル「Star Wars: TIE/sa Bomber」（CC BY 4.0）の実測形状を、正史の全長（翼の前後長）に等倍で合わせた（全高は翼板の厚みを含めて 5.6 m でほぼ正史どおり、全幅はモデルに従い 9.5 m で正史より約 1 m 狭い）。船体は中心線上にしか置けないため、2つのポッドをつなぐ中央部を船体とし、右舷の操縦席ポッドと左舷の兵装ポッド（実測した半径のロフト）、操縦席ポッドの背部・腹部の隆起とドーム状の窓、兵装ポッドのミサイル発射口、両ポッド後端の機関部外殻、ガセット付きの翼支持腕、折れ曲がった翼（垂直の中央部と内側へ 39.2° 傾けた上下の翼板、外枠と縦梁）を構造物として組み直した。ポッドは通常の構造物、翼と支持腕は軽構造。操縦席ポッドの前部に操縦席1席（乗員1名）、両ポッドの後部に反応炉とイオン・エンジンを1組ずつ、燃料タンクと慣性補償器を収めた。兵装は正史の搭載に合わせ、操縦席ポッド機首下のレーザー砲 2門、兵装ポッド機首下の魚雷発射管1基（前部兵装庫からミサイル発射口を通して前方へ撃つ。正史は震盪ミサイル8発かプロトン魚雷4発で、弾倉は6発分）、兵装ポッド下の爆弾倉（主兵装庫と爆弾シュート）。搭載する弾は編成画面で選び、お任せでは正史の一例どおりプロトン魚雷4発とプロトン爆弾8発（TIE Fighter Deluxe Book and Model Set）。発射機は弾を抱える外置き。主兵装庫の積み替え（プロトン爆弾・熱爆弾・機雷・兵員6名）は爆弾倉1基で代表させた。シールド発生器とハイパードライブは持たない。外殻装甲は 2.8 mm（戦闘機より厚い）。実給電モデルでは機関と配電を組み直し、最大加速度の設計目標は正史に合わせた 2,380 G。搭載弾の質量は実際の選択から加算し、加速度と速度へ反映する。',
  build(){return tieSaBuild();}});
 }
 
@@ -26026,9 +26522,9 @@ registerShipExample({key:'craft_v19',name:'V-19 トレント',side:'銀河共和
 // light structures (the canon hull is light alclad plating) and take a little of the wing gap. The
 // armour is that plating: about 1 mm of alclad (aluminium) has the mass of 0.35 mm of the yard's
 // steel-density armour.
-// The two drives sit in the wing-root knuckles beside the trailing-edge vents, each with a small
-// reactor ahead of it; the droid brain, power cells, fuel slugs and inertial compensator are in the
-// head pod. Guns and torpedo launchers are the yard's standard craft fits (they outweigh the light
+// The two drives sit in the wing-root knuckles beside the trailing-edge vents and share a compact
+// reactor clipped to the body plate. The droid brain, power cells, fuel slugs and inertial compensator
+// are in the head pod. Guns and torpedo launchers are the yard's standard craft fits (they outweigh the light
 // airframe, so the inertial compensator is sized for them: 0.24 m across, 0.5 m long). The canon buzz
 // droid missile launcher has no shape on the model and the yard has no buzz-droid payload, so the
 // nearest craft fit, a concussion-missile launcher, hangs under the body plate on the centreline.
@@ -26077,7 +26573,7 @@ const vulKit=s=>{
 };
 registerShipExample({key:'craft_vulture',name:'ヴァルチャー級ドロイド・スターファイター',side:'独立星系連合',role:'ドロイド戦闘機',length:6.96,craft:true,craftType:'vulture',
  title:'Vulture Droid',credit:'"Vulture Droid" by DrEgguin (https://sketchfab.com/DrEgguin), CC BY 4.0',author:'DrEgguin',source:'https://sketchfab.com/3d-models/vulture-droid-5542f951834e4032b229ebdee12d3310',license:'CC BY 4.0',
- note:'DrEgguin 氏のモデルの飛行形態を計測（公式の飛行時全長 6.96 m に合わせて 0.658 倍。全幅 3.95 m・全高 1.78 m で、公式の全幅 4.90 m より細身）。円盤状の胴体（後部は腹部キール、前縁はレンズ断面）を装甲楔形断面のコア船体、頭部ポッドをドーム、上下に割れた主翼を左右上下4枚の曲面板、翼の付け根の関節と翼端の砲架を箱形構造で再現。主翼はモデルでは厚さ数 cm の板ですが、曲面板の最小厚 0.2 m で作るため、公式の「軽量アルクラッド合金外板」に合わせて軽構造にしています。装甲もこの外板で、厚さ約 1 mm のアルクラッド（アルミ合金）を造船所の鋼の装甲の重さに換算した 0.35 mm。推進機関2基（公式）は翼の付け根の関節内に小型反応炉とともに収め、胴体後縁の排気口の脇から噴射。ドロイド・ブレイン、パワーセル、燃料スラグ、慣性補償装置は頭部ポッド内。武装は公式どおり連装ブラスター砲2基（各翼の上下に1門ずつ、計4門）とエネルギー魚雷発射管2基で、いずれも設計局の標準寸法（モデルの砲身より大きい）。公式のバズ・ドロイド・ミサイル発射機はモデルに形がなく、バズ・ドロイドを積む装備もないため、最も近い震盪ミサイル発射管1基（標準寸法）を胴体下面の中心線に付けています。お任せの搭載はエネルギー魚雷各2発と震盪ミサイル2発（数は正史に記載なし）。シールドとハイパードライブは公式に記載がないため搭載せず、母艦運用。標準寸法の武装は合わせて約 7.6 t で軽い機体の質量の大半を占めるため、慣性補償装置はそれに見合う大きさ（直径 0.24 m・長さ 0.5 m）にしています。最大加速度の公式値はありませんが、この武装の重さで約 800 G（MGLT 27）となり、同時代の公式の戦闘機（MGLT 90〜118）より遅くなります。',
+ note:'DrEgguin 氏のモデルの飛行形態を計測（公式の飛行時全長 6.96 m に合わせて 0.658 倍。全幅 3.95 m・全高 1.78 m で、公式の全幅 4.90 m より細身）。円盤状の胴体（後部は腹部キール、前縁はレンズ断面）を装甲楔形断面のコア船体、頭部ポッドをドーム、上下に割れた主翼を左右上下4枚の曲面板、翼の付け根の関節と翼端の砲架を箱形構造で再現。主翼はモデルでは厚さ数 cm の板ですが、曲面板の最小厚 0.2 m で作るため、公式の「軽量アルクラッド合金外板」に合わせて軽構造にしています。装甲もこの外板で、厚さ約 1 mm のアルクラッド（アルミ合金）を造船所の鋼の装甲の重さに換算した 0.35 mm。推進機関2基（公式）は翼の付け根の関節内に収め、胴体後縁の排気口の脇から噴射。実給電モデルに合わせ、胴体板の内部容積を使う反応炉から兵装と両機関へ給電します。ドロイド・ブレイン、パワーセル、燃料スラグ、慣性補償装置は頭部ポッド内。武装は公式どおり連装ブラスター砲2基（各翼の上下に1門ずつ、計4門）とエネルギー魚雷発射管2基で、いずれも設計局の標準寸法（モデルの砲身より大きい）。公式のバズ・ドロイド・ミサイル発射機はモデルに形がなく、バズ・ドロイドを積む装備もないため、最も近い震盪ミサイル発射管1基（標準寸法）を胴体下面の中心線に付けています。お任せの搭載はエネルギー魚雷各2発と震盪ミサイル2発（数は正史に記載なし）。シールドとハイパードライブは公式に記載がないため搭載せず、母艦運用。標準寸法の武装は合わせて約 7.6 t で軽い機体の質量の大半を占めるため、慣性補償装置はそれに見合う大きさ（直径 0.24 m・長さ 0.5 m）にしています。最大加速度の公式値はないため、同時代の戦闘機を参考に約 3,600 G をゲーム用の設計目標としました。機関は通常カタログの有限な入力密度と実際の機関寸法を持ち、部品の受入定格・炉の実出力・機体質量から加速を計算します。',
  build(){
   const D=VUL,L=4.43,W=3.1,H=1.775,r=(v,n=5)=>+v.toFixed(n);
   const st=D.hull.map(([x,hw,y0,y1,dw,kw,bw,cw])=>[r(x/L),r(2*hw/W,4),r((y1-y0)/H,4),r(((y0+y1)/2)/H-.5,4),dw,kw,bw,cw]);st[0][0]=0;
@@ -26097,12 +26593,15 @@ registerShipExample({key:'craft_vulture',name:'ヴァルチャー級ドロイド
   k.box('下翼ブラスター砲架',[5.3,0.445,1.565],[6.96,0.583,1.70],{corner:.1,paint:gun},true);
   // droid brain, power cells, fuel slugs and inertial compensator in the head pod
   k.part('droidbrain','ドロイド・ブレイン',[1.65,1.22,0],0.34);
-  k.part('battery','パワーセル',[2.25,1.1,0],0.2,{autoFit:false});
-  k.part('fuel','固形燃料スラグ',[2.75,1.05,0],0.2,{dir:[1,0,0],length:.5});
+  k.part('battery','パワーセル',[1.45,1.35,-.2],0.2,{autoFit:false});
+  k.part('fuel','固形燃料スラグ',[1.75,1.45,-.2],0.2,{dir:[1,0,0],length:.5});
   k.part('inertial','慣性補償装置',[1.05,1.02,0],0.24,{dir:[1,0,0],length:.5});
-  // the two drives (canon: 2 engines) in the knuckles, each fed by a small reactor ahead of it
-  const [ga,gb]=k.twin('gen','反応炉',[3.33,0.89,1.72],0.42),l=1.24;
-  const [ea,eb]=k.twin('engine','推進機関',[1.85+l/2,0.89,1.72],0.46,{dir:[-1,0,0],nozzleLength:l});ea.reactor=ga.id;eb.reactor=gb.id;
+  // The compact plant occupies the actual clipped body-plate volume. Its two
+  // outlets keep the measured exterior positions; machinery has its own rating
+  // and dimensions instead of deriving acceptance from the nozzle's length.
+  const reactor=k.part('aux','胴体内反応炉',[2.9,.65,0],2,{autoFit:false}),l=1.24;
+  k.twin('engine','推進機関',[1.85+l/2,0.89,1.72],0.46,{dir:[-1,0,0],nozzleLength:l,reactor:reactor.id,
+   propulsionModelVersion:1,ratedInputW:3.5e17,driveProfileId:'standard',machineryGradeId:'advanced',machineryLengthM:.3,machineryRadiusM:.184,machineryOffsetM:0,legacyCoolingInputW:0});
   delete s._building;
   // twin blaster cannons (one barrel in each wing half) and the energy torpedo launchers
   k.pair('claser',[6.17,1.26,1.70],4);
@@ -26172,7 +26671,7 @@ function vwBuild(){
 }
 registerShipExample({key:'craft_vwing',name:'Vウイング',side:'銀河共和国',role:'迎撃戦闘機',length:7.9,craft:true,craftType:'vwing',
  title:'Republic V-wing Starfighter',credit:'"Republic V-wing Starfighter" by DrEgguin (https://sketchfab.com/DrEgguin), CC BY 4.0',author:'DrEgguin',source:'https://sketchfab.com/3d-models/republic-v-wing-starfighter-0289dfef03054f099643150678ec830e',license:'CC BY 4.0',
- note:'7.9 m（正史）。Sketchfab の 3D モデル（DrEgguin 作、CC BY 4.0）の実測形状を正史の全長に合わせた共和国の迎撃機。楔形の胴体を断面表の船体とし、上下の放熱翼、翼基部のハブとキャップ、ハブ後方のフレーム、後部背面フィンを実測した構造物で組んだ。正史どおりハイパードライブなし・偏向シールドあり（10%）・操縦士1名とアストロメク1基。上下に重ねた2基のイオン機関とそれぞれの反応炉、シールド用の補助反応炉3基、外殻装甲 1.1 mm で最大加速 5,192 G（正史 5,200 G）。兵装は正史の「ハブに付いた旋回式の連装レーザー砲2基」を小型旋回砲塔2基としてハブ・キャップの外側に載せた（砲塔はモデルの砲より大きく、キャップから左右に約 0.6 m はみ出す）。',
+ note:'7.9 m（正史）。Sketchfab の 3D モデル（DrEgguin 作、CC BY 4.0）の実測形状を正史の全長に合わせた共和国の迎撃機。楔形の胴体を断面表の船体とし、上下の放熱翼、翼基部のハブとキャップ、ハブ後方のフレーム、後部背面フィンを実測した構造物で組んだ。正史どおりハイパードライブなし・偏向シールドあり（10%）・操縦士1名とアストロメク1基。上下に重ねた2基のイオン機関と機体内の反応炉に加え、実給電モデルでは翼根部の内部容積にも推進・兵装用反応炉を配置した。外殻装甲は 1.1 mm、最大加速度の設計目標は正史に合わせた 5,200 G。兵装は正史の「ハブに付いた旋回式の連装レーザー砲2基」を小型旋回砲塔2基としてハブ・キャップの外側に載せた（砲塔はモデルの砲より大きく、キャップから左右に約 0.6 m はみ出す）。',
  build:vwBuild});
 }
 
@@ -26304,7 +26803,7 @@ function xwingBuild(opt={}){
 }
 registerShipExample({key:'craft_xwing',name:'T-65B Xウイング',side:'反乱同盟',role:'多用途戦闘機',length:13.4,craft:true,craftType:'xwing',
  title:'Star Wars: X-Wing',credit:'This work is based on "Star Wars: X-Wing" (https://sketchfab.com/3d-models/star-wars-x-wing-a93f607a94d747568371b8910a81fb12) by Daniel (https://sketchfab.com/DanielAndersson) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',author:'Daniel',source:'https://sketchfab.com/3d-models/star-wars-x-wing-a93f607a94d747568371b8910a81fb12',license:'CC-BY-4.0',
- note:'13.4 m（正史）。Sketchfab の 3D モデル（Daniel 作、CC BY 4.0）の実測形状を正史の全長に等倍で合わせた。モデルは S フォイルを閉じた状態（左右とも上下の翼板が重なる）なので、各 S フォイル（翼板・機関ナセル・レーザー砲）を胴体側面のヒンジ線のまわりに 13° ずつ開いた攻撃位置で組んだ（全幅 11.8 m、正史 11.76 m）。胴体を船体として 23 断面で実測に合わせ、着色キャノピー、翼板 4 枚、機関ナセル、S フォイル駆動部のフェアリング、翼端のレーザー砲基部と砲身を構造物で組んだ。機関は各ナセルの全長にわたる Incom 4L4 核融合推進機関 4 基（噴射口径 0.6 m、モデルの排気管どおり）で、後部胴体の核融合炉から給電する。R2 ユニットの位置にアストロメク・ソケット、操縦席 1 名、偏向シールド発生器、ハイパードライブ（クラス 1.0、正史どおり）、慣性補償装置、反応物タンク（約 1 週間分）、機首にパワーセル。兵装は正史どおりレーザー砲 4 門（翼端の砲身の外側）とプロトン魚雷発射管 2 基（お任せの搭載は正史どおり各3発・計6発。機首下部の両側面。艦載機の発射管は外付けの箱型）。最大加速度は約 3,700 G（正史どおり）、MGLT は設計局の換算で 123（正史 100）。シールドは目標強度 10%（設定の下限）、兵装の再充電は最大連射の 69%、外殻装甲 1.5 mm。塗装はモデルに従い、灰色の機体に暗灰色のナセル、翼端寄りの赤い部隊識別帯と砲身の黄帯（薄い外板と帯の構造物）、黄色の機関光。',
+ note:'13.4 m（正史）。Sketchfab の 3D モデル（Daniel 作、CC BY 4.0）の実測形状を正史の全長に等倍で合わせた。モデルは S フォイルを閉じた状態（左右とも上下の翼板が重なる）なので、各 S フォイル（翼板・機関ナセル・レーザー砲）を胴体側面のヒンジ線のまわりに 13° ずつ開いた攻撃位置で組んだ（全幅 11.8 m、正史 11.76 m）。胴体を船体として 23 断面で実測に合わせ、着色キャノピー、翼板 4 枚、機関ナセル、S フォイル駆動部のフェアリング、翼端のレーザー砲基部と砲身を構造物で組んだ。機関は各ナセルの全長にわたる Incom 4L4 核融合推進機関 4 基（噴射口径 0.6 m、モデルの排気管どおり）で、後部胴体の核融合炉から給電する。R2 ユニットの位置にアストロメク・ソケット、操縦席 1 名、偏向シールド発生器、ハイパードライブ（クラス 1.0、正史どおり）、慣性補償装置、反応物タンク（約 1 週間分）、機首にパワーセル。兵装は正史どおりレーザー砲 4 門（翼端の砲身の外側）とプロトン魚雷発射管 2 基（お任せの搭載は正史どおり各3発・計6発。機首下部の両側面。艦載機の発射管は外付けの箱型）。実給電モデルでは反応炉・機関・配電を再構築し、推進管内の縦通支持材で翼の付け根へ荷重を伝える。最大加速度の設計目標は正史に合わせた 3,700 G（正史の速度は 100 MGLT）。シールドは目標強度 10%（設定の下限）、外殻装甲 1.5 mm。塗装はモデルに従い、灰色の機体に暗灰色のナセル、翼端寄りの赤い部隊識別帯と砲身の黄帯（薄い外板と帯の構造物）、黄色の機関光。',
  build:xwingBuild});
 }
 
@@ -26408,7 +26907,7 @@ function z95Build(opt={}){
 }
 registerShipExample({key:'craft_z95',name:'Z-95 ヘッドハンター',side:'銀河共和国',role:'多用途戦闘機',length:16.74,craft:true,craftType:null,
  title:'Z-95 Headhunter',credit:'This work is based on "Z-95 Headhunter" (https://sketchfab.com/3d-models/z-95-headhunter-9b1fe5c56ca44d3da632235f7599abc5) by A308 Digital (https://sketchfab.com/A308) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)',author:'A308 Digital',source:'https://sketchfab.com/3d-models/z-95-headhunter-9b1fe5c56ca44d3da632235f7599abc5',license:'CC-BY-4.0',
- note:'16.74 m（正史。別の資料では 11.8 m）。Sketchfab の 3D モデル（A308 Digital 作、CC BY 4.0。クローン戦争期の共和国仕様）の実測形状を正史の全長に等倍で合わせた（全幅 16.6 m）。胴体を船体として 23 断面で実測に合わせ、背部フェアリング、バブル・キャノピー、側面インテーク、カナード、主翼、2 基のナセル（排気コーン・頸部・本体・吸気口）、翼端のブラスター砲ポッドと砲身を構造物で組んだ。機関はモデルの排気口に合わせて各ナセルに 1 基（正史は「2 対」）で、ナセル前部の核融合炉から給電する。操縦席 1 名、慣性補償装置、反応物タンク、パワーセル。アストロメク・ソケットとハイパードライブは正史どおり持たず（ハイパードライブは後の改装で載せることがある）、シールドも正史に記載がないため積まない。兵装は正史どおり翼端のブラスター砲 2 門、機首下面中央のイオン砲 1 門、胴体下面の震盪ミサイル発射管 2 基（基数は正史に記載がなく想定。お任せの搭載は各6発）。正史に加速度の値はないため、Incom 社の X ウイングの先代機として X ウイング（3,700 G）の約 9 割を目安に機関を決め、最大加速度は約 3,300 G、MGLT は設計局の換算で 110。外殻装甲 1.5 mm。陣営はクローン戦争期の塗装に合わせて銀河共和国。塗装はモデルに従い、白い機体に共和国の赤（機首の帯・吸気口・砲ポッド・カナード）、紺の側面インテーク、暗色の排気コーン、紫の機関光。',
+ note:'16.74 m（正史。別の資料では 11.8 m）。Sketchfab の 3D モデル（A308 Digital 作、CC BY 4.0。クローン戦争期の共和国仕様）の実測形状を正史の全長に等倍で合わせた（全幅 16.6 m）。胴体を船体として 23 断面で実測に合わせ、背部フェアリング、バブル・キャノピー、側面インテーク、カナード、主翼、2 基のナセル（排気コーン・頸部・本体・吸気口）、翼端のブラスター砲ポッドと砲身を構造物で組んだ。機関はモデルの排気口に合わせて各ナセルに 1 基（正史は「2 対」）で、ナセル前部の核融合炉から給電する。操縦席 1 名、慣性補償装置、反応物タンク、パワーセル。アストロメク・ソケットとハイパードライブは正史どおり持たず（ハイパードライブは後の改装で載せることがある）、シールドも正史に記載がないため積まない。兵装は正史どおり翼端のブラスター砲 2 門、機首下面中央のイオン砲 1 門、胴体下面の震盪ミサイル発射管 2 基（基数は正史に記載がなく想定。お任せの搭載は各6発）。正史に加速度の値はないため、Incom 社の X ウイングの先代機として X ウイング（3,700 G）の 9 割、3,330 G を最大加速度のゲーム用設計目標とした。機関の受入定格と反応炉・配電を実給電モデルに合わせて組み直している。外殻装甲 1.5 mm。陣営はクローン戦争期の塗装に合わせて銀河共和国。塗装はモデルに従い、白い機体に共和国の赤（機首の帯・吸気口・砲ポッド・カナード）、紺の側面インテーク、暗色の排気コーン、紫の機関光。',
  build:z95Build});
 }
 
@@ -26424,11 +26923,74 @@ const CRAFT_SYSTEM_RECIPES=Object.freeze({
  craft_tie_ln:{mass:10.52,anchors:[[1.6,1.7,.5],[1,2,-.5],[1.2,2.6,0],[1.6,1,0]],landing:2,suit:true,wingStand:true},
  craft_tie_sa:{mass:51.42,anchors:[[1.5,1.2,1.6],[1.8,1.3,-1.6],[.5,1.4,1.6],[.5,1.4,-1.6]],landing:2,suit:true,wingStand:true},
  craft_v19:{mass:12.86,anchors:[[3.6,1.1,0],[2,1,0],[4.5,.7,0],[3.3,.6,0]],landing:3},
- craft_vulture:{mass:8.95,anchors:[[3.7,1.2,0],[1,1.3,0],[2,1.5,0],[2.6,1.4,0]],landing:4,walking:true},
+ craft_vulture:{mass:9.9,anchors:[[1.45,1.45,0],[1,1.3,0],[2,1.5,0],[2.6,1.4,0]],landing:4,walking:true},
  craft_vwing:{mass:8.93,anchors:[[4.4,1.25,0],[3.8,.7,0],[5.1,1,0],[6.8,.8,0]],landing:3},
  craft_xwing:{mass:23.10,anchors:[[7.3,2,0],[5.5,1.9,0],[10.5,1.8,0],[3.4,1.7,0]],landing:3},
  craft_z95:{mass:19.16,anchors:[[8.7,.8,0],[6.5,.9,0],[11.2,.6,0],[3.5,1,0]],landing:3}
 });
+// A new stock craft is built around an actual-power plant, not the old nozzle-volume law.
+// These are construction targets for ordinary, editable engine hardware. They are never applied
+// while loading player designs. Missing published figures are explicit game assumptions.
+const CRAFT_INTERIOR_TARGETS=Object.freeze({
+ craft_arc170:{g:3551,reactors:[1.7,1.7],basis:'game assumption; previous authored heavy-fighter target'},
+ craft_awing:{g:5100,reactors:[1.37],basis:'published acceleration'},
+ craft_btlb:{g:3000,reactors:[1.35,1.35,1.5],basis:'game conversion of published 100 MGLT'},
+ craft_hyena:{g:2250,basis:'game assumption; previous authored bomber target'},
+ craft_tie_in:{g:4240,basis:'published acceleration'},
+ craft_tie_ln:{g:4100,basis:'published acceleration'},
+ craft_tie_sa:{g:2380,basis:'published acceleration'},
+ craft_v19:{g:4696,basis:'game assumption; previous authored interceptor target'},
+ craft_vulture:{g:3600,basis:'game assumption; 108 MGLT on the shared conversion'},
+ craft_vwing:{g:5200,basis:'published acceleration'},
+ craft_xwing:{g:3700,basis:'published acceleration'},
+ craft_z95:{g:3330,reactors:[1.02,1.02],basis:'game assumption; 90% of X-wing acceleration'}
+});
+function refitCraftInterior(ship,key){
+ const target=CRAFT_INTERIOR_TARGETS[key];if(!target||ship._craftInteriorRefit)return ship;
+ dedicateAeroParts(ship);
+ const engines=ship.parts.filter(p=>p.k==='engine'),reactors=ship.parts.filter(isReactor);
+ if(target.reactors)reactors.forEach((p,i)=>{if(target.reactors[i])p.d=target.reactors[i];});
+ // Internal chambers are clipped to the measured airframe, so enlarging the plant uses real
+ // existing volume without growing a new external blister. Fuel is moved clear of the X-wing's
+ // larger aft plant; the Torrent's two chambers occupy the forward ends of its engine nacelles.
+ if(key==='craft_awing')reactors[0].c[1]=1.16;
+ if(key==='craft_xwing'){Object.assign(reactors[0],{k:'aux',d:2.1});ship.parts.find(p=>p.k==='fuel').c=[4.1,1.65,0];}
+ if(key==='craft_v19')for(const p of reactors.slice(0,2)){p.k='aux';p.d=1.2;p.c[0]=3.95;}
+ if(key==='craft_hyena')for(const p of reactors.slice(0,2)){p.k='aux';p.d=1.6;p.c[0]=9.225;}
+ if(key==='craft_tie_ln'){Object.assign(reactors[0],{k:'aux',d:1.6});reactors[0].c=[1.22,-.1,0];}
+ if(key==='craft_tie_in'){Object.assign(reactors[0],{k:'aux',d:1.7});reactors[0].c=[2.95,1.4,0];}
+ if(key==='craft_vwing')for(const z of [-1.75,1.75])reactors.push(placePart(ship,'aux',[2.236,.55,z],1.3,{label:'翼根部の推進・兵装用反応炉',autoFit:false}));
+ // The four X-wing exhaust tubes project aft of both its fuselage and intake nacelles. Four
+ // longitudinal casing rails per tube carry that mass into the wing root, inside the existing
+ // nozzle envelope, while keeping the exhaust end open. They travel with the same S-foil.
+ if(key==='craft_xwing')for(const e of engines){
+  const x0=e.c[0]-e.nozzleLength/2,x1=1.8,root=ship.parts.find(p=>p.wing?.members?.parts?.includes(e.id));
+  for(const y of [-1,1])for(const z of [-1,1]){const p=placePart(ship,'struct',[(x0+x1)/2,e.c[1]+y*.14,e.c[2]+z*.14],[x1-x0,.105,.105],{label:'推進管内の縦通支持材',form:'box',skin:'service'});if(root)root.wing.members.parts.push(p.id);}
+ }
+ if(key==='craft_xwing'){
+  const rails=ship.parts.filter(p=>p.label==='推進管内の縦通支持材');
+  for(const p of rails){const q=rails.find(q=>q!==p&&len(sub(q.c,mirrorP(p.c)))<1e-8);if(q)p.tw=q.id;}
+  // Explicit membership follows the same mirrored source order as the nacelle and engine.
+  for(const w of ship.parts.filter(p=>isFoil(p)&&p.c[2]>0)){const q=ship.parts.find(p=>p.id===w.tw);if(q)q.wing.members.parts=w.wing.members.parts.map(id=>ship.parts.find(p=>p.id===id)?.tw).filter(Number.isInteger);}
+ }
+ for(const e of engines){
+  // Retain every measured nozzle and outlet position. The receiving machinery is independently
+  // sized and has finite normal-catalogue density; rebuilt craft have no migration-only cooling.
+  const old=machineryGeometry(e,ship);Object.assign(e,{propulsionModelVersion:PROPULSION_MODEL_VERSION,driveProfileId:'standard',machineryGradeId:'advanced',machineryLengthM:Math.max(.3,Math.min(1,old.length)),machineryRadiusM:e.d*.35,machineryOffsetM:old.offset,machineryFeedRadiusM:Math.min(.08,e.d*.15),legacyCoolingInputW:0});
+  delete e.propulsionMigration;delete e.machineryId;
+ }
+ syncCompartments(ship);installCraftSystems(ship,CRAFT_SYSTEM_RECIPES[key]);
+ // The mass used for hardware selection includes the rebuilt plant, casing and installed flight
+ // systems. Setting component input ratings is construction, not a multiplier on derived stats.
+ const S=computeStats(ship),weights=engines.map(e=>e.d*e.d*e.nozzleLength),sum=weights.reduce((a,b)=>a+b,0),input=S.mass*1000*G0*target.g*DRIVE_PROFILES.standard.wattsPerNewton;
+ engines.forEach((e,i)=>{e.ratedInputW=input*weights[i]/sum;const density=e.ratedInputW/machineryGeometry(e,ship).volume;e.machineryGradeId=Object.keys(MACHINERY_GRADES).find(k=>!MACHINERY_GRADES[k].legacy&&density<=MACHINERY_GRADES[k].allowedInputDensityWPerM3)||'advanced';if(!resolveEngineSpec(e,ship).valid)throw new Error(key+': 機関の実容量が不足しています');});
+ // Ordinary finite electrical links form redundant crossfeeds. The former nearest-reactor-only
+ // layout could spend one wing reactor on guns and strand its engine despite spare power opposite.
+ const ports=[...engines.map(e=>({id:'p'+e.id,W:e.ratedInputW})),...ship.parts.filter(p=>p.k==='shield'||p.k==='localShield').map(p=>({id:'p'+p.id,W:Math.max(S.draw.shields,shieldLoad(p))})),...ship.fits.filter(f=>fitSpec(f).cat==='w').map(f=>({id:'f'+f.id,W:(fitSpec(f).power||0)*1.5}))];
+ const replaced=new Set(ports.map(p=>p.id));ship.links=(ship.links||[]).filter(l=>l.kind!=='power'||!replaced.has(l.to));
+ for(const r of reactors)for(const p of ports)if(p.W>0)ship.links.push({kind:'power',from:'p'+r.id,to:p.id,cap:p.W});
+ syncCompartments(ship);ship._craftInteriorRefit=true;return ship;
+}
 // Public opt-in helper: any design can install the same sized systems from a recipe. Loading a
 // saved design never invokes it, so removed or modified systems stay exactly as the user saved them.
 function installCraftSystems(ship,recipe){
@@ -29125,15 +29687,15 @@ function allocateConnectedPower({sources=[],links=[],loads=[],mode='balanced'}={
  for(let i=0;i<source.length;i++){const s=source[i];if(!sourceAt.has(s.id))sourceAt.set(s.id,[]);sourceAt.get(s.id).push(i);domain[s.domain||'main']=(domain[s.domain||'main']||0)+s.left;}
  let topology=connectedPowerTopology.get(links);if(!topology){const incoming=new Map(),edges=[];for(const l of links){if(l.ok===false||!l.from||!l.to)continue;const i=edges.length;edges.push(l);if(!incoming.has(l.to))incoming.set(l.to,[]);incoming.get(l.to).push(i);}topology={incoming,edges};connectedPowerTopology.set(links,topology);}
  const {incoming,edges}=topology,left=edges.map(l=>l.cap==null?Infinity:positive(l.cap)),P=source.reduce((a,s)=>a+s.powerW,0);
- const route=load=>{
+ const route=(load,epsilon)=>{
    let si=-1,path=[];
-   if(!links.length){si=source.findIndex(s=>s.left>0&&(s.domain||'main')===(load.domain||'main'));}
-   else if(load.port){const queue=[load.port],seen=new Set(queue),previous=new Map();for(let q=0;q<queue.length&&si<0;q++){const node=queue[q],ids=sourceAt.get(node)||[];si=ids.find(i=>source[i].left>0)??-1;if(si>=0){let at=node;while(previous.has(at)){const e=previous.get(at);path.push(e);at=edges[e].to;}break;}for(const e of incoming.get(node)||[]){const from=edges[e].from;if(!(left[e]>0)||seen.has(from))continue;seen.add(from);previous.set(from,e);queue.push(from);}}}
+   if(!links.length){si=source.findIndex(s=>s.left>epsilon&&(s.domain||'main')===(load.domain||'main'));}
+   else if(load.port){const queue=[load.port],seen=new Set(queue),previous=new Map();for(let q=0;q<queue.length&&si<0;q++){const node=queue[q],ids=sourceAt.get(node)||[];si=ids.find(i=>source[i].left>epsilon)??-1;if(si>=0){let at=node;while(previous.has(at)){const e=previous.get(at);path.push(e);at=edges[e].to;}break;}for(const e of incoming.get(node)||[]){const from=edges[e].from;if(!(left[e]>epsilon)||seen.has(from))continue;seen.add(from);previous.set(from,e);queue.push(from);}}}
    return si>=0?{si,path}:null;};
  const order=['fixed','cooling',...M.order];for(const kind of order){const selected=loads.filter(l=>l.kind===kind&&positive(l.requestedInputW)>0),total=selected.reduce((a,l)=>a+positive(l.requestedInputW),0);if(!(total>0))continue;
   // Proportional rounds avoid making an engine's ID decide which parallel
   // branch receives all the remaining shared supply.
-  for(let round=0;round<Math.max(16,source.length+edges.length);round++){const offers=[],edgeDemand=new Float64Array(edges.length),sourceDemand=new Float64Array(source.length);for(const l of selected){const need=Math.max(0,positive(l.requestedInputW)-(granted[l.id]||0)),r=need>total*1e-12?route(l):null;if(!r)continue;offers.push({l,need,...r});sourceDemand[r.si]+=need;for(const e of r.path)edgeDemand[e]+=need;}let moved=0;for(const r of offers){let ratio=Math.min(1,source[r.si].left/Math.max(1e-30,sourceDemand[r.si]));for(const e of r.path)ratio=Math.min(ratio,left[e]/Math.max(1e-30,edgeDemand[e]));r.fed=r.need*ratio;}for(const r of offers){source[r.si].left=Math.max(0,source[r.si].left-r.fed);for(const e of r.path)left[e]=Math.max(0,left[e]-r.fed);granted[r.l.id]=(granted[r.l.id]||0)+r.fed;const id=source[r.si].id;funding[r.l.id][id]=(funding[r.l.id][id]||0)+r.fed;moved+=r.fed;}if(!(moved>Math.max(1e-12,total*1e-12)))break;}
+  for(let round=0;round<Math.max(16,source.length+edges.length);round++){const offers=[],edgeDemand=new Float64Array(edges.length),sourceDemand=new Float64Array(source.length);for(const l of selected){const need=Math.max(0,positive(l.requestedInputW)-(granted[l.id]||0)),r=need>total*1e-12?route(l,Math.max(1e-12,total*1e-12)):null;if(!r)continue;offers.push({l,need,...r});sourceDemand[r.si]+=need;for(const e of r.path)edgeDemand[e]+=need;}let moved=0;for(const r of offers){let ratio=Math.min(1,source[r.si].left/Math.max(1e-30,sourceDemand[r.si]));for(const e of r.path)ratio=Math.min(ratio,left[e]/Math.max(1e-30,edgeDemand[e]));r.fed=r.need*ratio;}for(const r of offers){source[r.si].left=Math.max(0,source[r.si].left-r.fed);for(const e of r.path)left[e]=Math.max(0,left[e]-r.fed);granted[r.l.id]=(granted[r.l.id]||0)+r.fed;const id=source[r.si].id;funding[r.l.id][id]=(funding[r.l.id][id]||0)+r.fed;moved+=r.fed;}if(!(moved>Math.max(1e-12,total*1e-12)))break;}
  }
  const byKind={engines:0,shields:0,weapons:0,fixed:0,cooling:0};for(const l of loads)byKind[l.kind]=(byKind[l.kind]||0)+(granted[l.id]||0);const draw=Object.values(byKind).reduce((a,b)=>a+b,0);
  return {...byKind,granted,funding,consumers:loads.map(l=>({id:l.id,kind:l.kind,grantedInputW:granted[l.id]||0})),P,draw,load:P>0?draw/P:0,short:byKind.fixed<loads.filter(l=>l.kind==='fixed').reduce((a,l)=>a+positive(l.requestedInputW),0),sources:source.map(s=>({id:s.id,moduleIndex:s.moduleIndex,reactor:s.reactor,domain:s.domain||'main',availableW:s.powerW*M.max,drawW:s.powerW*M.max-s.left})),domains:Object.entries(domain).map(([id,availableW])=>({id,availableW,drawW:source.filter(s=>(s.domain||'main')===id).reduce((a,s)=>a+s.powerW*M.max-s.left,0)}))};
@@ -29144,7 +29706,7 @@ function solveShipPropulsion(profile,context={}){
  const requests=buildPropulsionRequests(profile?.engines||[],states,context.throttle??1),loads=[...(context.otherLoads||[]),...requests.map(r=>({id:'engine:'+r.id,kind:'engines',port:r.spec.powerNode||'p'+r.id,domain:r.spec.domain||'main',requestedInputW:r.requestedInputW}))],power=allocateConnectedPower({sources:context.sources||[],links:context.links||[],loads,mode:context.mode||'balanced'}),inputs=Object.create(null);
  for(const r of requests)inputs[r.id]=power.granted['engine:'+r.id]||0;const result=resolvePropulsion(requests,inputs,profile?.massKg),limit=Number.isFinite(profile?.accelerationLimitMps2)?Math.max(0,profile.accelerationLimitMps2):Infinity,hasSeparateLimit=Number.isFinite(profile?.structuralAccelerationLimitMps2)&&Number.isFinite(profile?.inertialFactor),actual=hasSeparateLimit?Math.min(result.freeAccelerationMps2||0,Math.max(0,profile.structuralAccelerationLimitMps2))*clamp(profile.inertialFactor,0,1):Math.min(result.freeAccelerationMps2||0,limit),ratedThrustN=profile?.ratedThrustN||0;
  const machinery=new Map();for(const e of profile?.engines||[])if(!machinery.has(e.machineryId??e.id))machinery.set(e.machineryId??e.id,e);
- return {...result,version:1,ratedInputW:[...machinery.values()].reduce((a,e)=>a+(Number.isFinite(e.ratedInputW)?Math.max(0,e.ratedInputW):0),0),ratedThrustN,ratedAccelMps2:profile?.ratedAccelMps2||0,actualInputW:result.totalActualInputW||0,actualThrustN:result.totalThrustN||0,actualAccelMps2:actual,cappedAccelerationMps2:actual,accelerationMps2:actual,outputRatio:ratedThrustN>0?clamp((result.totalThrustN||0)/ratedThrustN,0,1):0,power};
+ return {...result,version:1,...(Number.isFinite(profile?.accelerationLimitMps2)?{accelerationLimitMps2:Math.max(0,profile.accelerationLimitMps2)}:{}),...(hasSeparateLimit?{structuralAccelerationLimitMps2:Math.max(0,profile.structuralAccelerationLimitMps2),inertialFactor:clamp(profile.inertialFactor,0,1)}:{}),ratedInputW:[...machinery.values()].reduce((a,e)=>a+(Number.isFinite(e.ratedInputW)?Math.max(0,e.ratedInputW):0),0),ratedThrustN,ratedAccelMps2:profile?.ratedAccelMps2||0,actualInputW:result.totalActualInputW||0,actualThrustN:result.totalThrustN||0,actualAccelMps2:actual,cappedAccelerationMps2:actual,accelerationMps2:actual,outputRatio:ratedThrustN>0?clamp((result.totalThrustN||0)/ratedThrustN,0,1):0,power};
 }
 function propulsionModuleHeat(u,kind,index){const H=heatProfile(u.p),h=u.ht;if(!H||!h)return 1;const i=H.src.findIndex(s=>s.k===kind&&s.m?.includes(index));return i>=0?clamp(h.lm?.[i]??1,0,1):heatLim(u,kind);}
 function shipPowerSources(u,s={}){
@@ -29159,7 +29721,7 @@ function shipPowerSources(u,s={}){
 }
 function shipPowerLoads(u,want={}){
  const p=u.p,g=p.grid||{},mods=p.modules||[],loads=[],add=(kind,total,rows)=>{if(!(total>0))return;const all=rows.reduce((a,r)=>a+Math.max(0,r.weight||0),0);if(!rows.length){loads.push({id:kind,kind,domain:'main',requestedInputW:total});return;}for(const r of rows)loads.push({id:kind+':'+r.id,kind,port:r.port,domain:r.domain||'main',requestedInputW:total*Math.max(0,r.weight||0)/Math.max(1e-30,all)});};
- const rows=kind=>mods.map((m,i)=>({m,i})).filter(x=>x.m.k===kind).map(({m,i})=>({id:i,port:m.port||(m.part!=null?'p'+m.part:m.fit!=null?'f'+m.fit:null),domain:m.domain||'main',weight:Math.max(0,m.share||m.size||1)*(powerFactor(u,kind,i)>0?1:0)}));
+ const rows=kind=>mods.map((m,i)=>({m,i})).filter(x=>x.m.k===kind).map(({m,i})=>({id:i,port:m.port||(m.part!=null?'p'+m.part:m.fit!=null?'f'+m.fit:null),domain:m.domain||'main',weight:Math.max(0,kind==='weapon'&&Number.isFinite(m.weaponPowerW)?m.weaponPowerW:(m.share??m.size??1))*(powerFactor(u,kind,i)>0?1:0)}));
  add('fixed',Math.max(0,(g.fixed||0)-(g.cooling||0)),g.fixedLoads||[]);add('cooling',Math.max(0,g.cooling||0),g.coolingLoads||[]);add('shields',Math.max(0,want.shields||0),rows('shield'));add('weapons',Math.max(0,want.weapons||0),rows('weapon'));return loads;
 }
 function attachShipPowerProfile(out,ship,S){
@@ -29234,7 +29796,7 @@ function fleetModules(ship,S){
   if(d.cat==='w')k=d.msl?'launcher':'weapon';else if(d.cat==='b'&&(!d.role||d.role==='bridge'||d.role==='combat')&&(S.commandInfo?.[f.id]?.ratio??1)>0)k='bridge';if(!k)continue;
   const s=fitSpec(f);byFit.set(f.id,mods.length);
   const mm=k==='launcher'?MISSILE_MOUNTS[missileMount(f)]:null,cellK=mm&&missileMount(f)==='vls'?clamp(S.vlsInfo?.[f.id]?.ratio??1,0,1):1,launcher=k==='launcher'?missileLauncherSpec(f):null;
-  mods.push(place({k,fit:f.id,name:d.short||d.name,w:s.fm*s.wm*1.2*(mm?mm.expose:1),hits:clamp(Math.round(Math.max(s.fm,s.wm)/24),1,4),crew:s.crew||0,size:k==='weapon'?(s.tt||0)+(s.ion||0)+(s.aa||0)*.5:1,stock:launcher?(launcher.kind==='cmsl'?Math.floor(launcher.ammo*cellK+1e-9):Math.round(launcher.ammo*cellK)):0,mount:launcher?.mount,...(launcher?{missileKind:launcher.kind,salvo:launcher.salvo,cycle:launcher.cycle,tt:launcher.tt,ammo0:launcher.ammo0,muzzle:sub(launcher.origin,[(X0+X1)/2,yc,zc]),launchDir:launcher.axis.slice(),...(launcher.kind==='cmsl'?{launchPowerW:s.power||0}:{})}:{}),ion:k==='launcher'&&d.ionMsl?1:undefined,at:+clamp((f.p[0]-X0)/L,0,1).toFixed(3),pd:k==='weapon'&&weaponRoles(d).pointDefense,dualPurpose:k==='weapon'&&weaponRoles(d).dualPurpose,band:k==='weapon'?fitBand(d):undefined},f.p,Math.max(s.fm,s.wm)/2));}
+  mods.push(place({k,fit:f.id,name:d.short||d.name,w:s.fm*s.wm*1.2*(mm?mm.expose:1),hits:clamp(Math.round(Math.max(s.fm,s.wm)/24),1,4),crew:s.crew||0,size:k==='weapon'?(s.tt||0)+(s.ion||0)+(s.aa||0)*.5:1,...(k==='weapon'?{weaponPowerW:Math.max(0,s.power||0)}:{}),stock:launcher?(launcher.kind==='cmsl'?Math.floor(launcher.ammo*cellK+1e-9):Math.round(launcher.ammo*cellK)):0,mount:launcher?.mount,...(launcher?{missileKind:launcher.kind,salvo:launcher.salvo,cycle:launcher.cycle,tt:launcher.tt,ammo0:launcher.ammo0,muzzle:sub(launcher.origin,[(X0+X1)/2,yc,zc]),launchDir:launcher.axis.slice(),...(launcher.kind==='cmsl'?{launchPowerW:s.power||0}:{})}:{}),ion:k==='launcher'&&d.ionMsl?1:undefined,at:+clamp((f.p[0]-X0)/L,0,1).toFixed(3),pd:k==='weapon'&&weaponRoles(d).pointDefense,dualPurpose:k==='weapon'&&weaponRoles(d).dualPurpose,band:k==='weapon'?fitBand(d):undefined},f.p,Math.max(s.fm,s.wm)/2));}
  for(const f of intrinsicCommandFits(ship)){const d=FITS[f.k];if(!d||(d.role!=='bridge'&&d.role!=='combat')||(S.commandInfo?.[f.id]?.ratio??0)<=0)continue;mods.push(place({k:'bridge',name:d.short||d.name,w:(f.width||15)*(f.height||6)*1.2,hits:1,crew:d.crew||16,size:1,at:+clamp((f.p[0]-X0)/L,0,1).toFixed(3)},f.p,(f.width||15)/2));}
  for(const p of [...allOccupied(ship),...ship.parts.filter(isWing)]){
   if(p.windowId!=null||p.turretRoom)continue;const V=partVolume(p);if(!(V>0))continue;const k=isWing(p)?p.wing.thermal==='low'&&!p.wing.solar?'radiator':'dissipator':MODULE_PART_KIND[p.k]||'other';
@@ -29260,7 +29822,7 @@ const MGLT={k:2.57,a:.42,depth:.05,ref:4,ms:20,cap:200};
 function engineDepthRatio(ship){return MGLT.ref;}
 function sublightMGLT(G,ratio=MGLT.ref){if(!(G>0))return 0;return Math.min(MGLT.cap,MGLT.k*Math.pow(G,MGLT.a)*Math.pow(clamp(ratio/MGLT.ref,.5,2),MGLT.depth));}
 // v12: assembled dimensions and separate face-editable structures change physical profiles.
-const FLEET_PROFILE_VERSION=13;
+const FLEET_PROFILE_VERSION=14;
 function fleetProfile(S,name,ship){
  if(ship&&!ship._surfaceWorking&&!ship._surfaceCompiling&&ship.surfaces?.version===SURFACE_VERSION)return fleetProfile(S,name,surfaceWorkingShip(ship));
  const model=ship?propulsionProfile(ship,S):S.propulsion,planningAcceleration=Math.max(0,Math.min(model?.ratedAccelMps2??S.ratedAccelMps2??0,model?.accelerationLimitMps2??S.maximumAccelMps2??0)),planningG=planningAcceleration/G0;
@@ -30632,7 +31194,7 @@ function ordnanceSummary(list){return (list||[]).map(x=>`${x.name} ${x.n}`).join
 // strike (v22): the guns, 6 + their air ratings (gun, every run), and the first run's ordnance at the default
 //   loadout (strike = gun + that salvo's TT); the stations and the default load go with the snapshot.
 // toughness: 0.35 + 0.17 ln(mass in t), ×1.3 with shields.
-const craftSpeed=G=>Math.round(clamp(2070*Math.pow(Math.max(0,G)/3700,.34),500,3200));
+const craftSpeed=G=>Number.isFinite(G)&&G>0?Math.round(clamp(2070*Math.pow(G/3700,.34),500,3200)):0;
 const CRAFT_ROLE_RTS={'爆撃機':'bomber','迎撃機':'interceptor','戦闘機':'fighter','重戦闘機':'fighter','ドロイド戦闘機':'fighter','ガンシップ':'transport','揚陸艇':'transport','シャトル':'transport','非武装艇':'transport'};
 // A fixed fighter cannon only fires near its physical barrel axis. Cadence changes
 // split the same sustained power into smaller, more frequent pulses.
@@ -30744,7 +31306,7 @@ function cleanDesignCraft(d){
  const str=(v,n)=>(typeof v==='string'?v:'').replace(/[\u0000-\u001f\u007f]/g,'').trim().slice(0,n),num=(v,lo,hi,def)=>Number.isFinite(v)?clamp(v,lo,hi):def;
  const stations=(Array.isArray(c.stations)?c.stations:[]).filter(st=>st&&FITS[st.fit]?.store&&Number.isInteger(st.count)&&st.count>=1&&st.count<=DESIGN_LIMITS.fits).slice(0,8).map(st=>({fit:st.fit,mount:FITS[st.fit].store.mount,count:st.count}));
  const load=normalizeLoad(stations,Array.isArray(c.load)?c.load:null),shipSpeed=c.speedMode==='ship',dims=(needsWeaponRefresh&&blueprint?cleanDims(c.dims):null)||cleanDims(d.dims)||cleanDims(c.dims),systems=cleanCraftSystems(c.systems),hasCost=Number.isFinite(c.cost)&&c.cost>=0,build=Math.round(num(c.cost,0,1e15,0)),powerProfile=cleanCraftPowerProfile(c.powerProfile,blueprint);
- return {ref:str(d.ref,80),name:str(d.name,40)||'設計機',...(dims?{dims}:{}),...(blueprint?{blueprint}:{}),...(weaponProfileVersion!=null?{weaponProfileVersion}:{}),craft:{role:c.role,roleName:str(c.roleName,20),speed:shipSpeed?Math.round(num(c.speed,0,20000,0)):c.accelG>0&&Number.isFinite(c.accelG)?craftSpeed(c.accelG):Math.round(num(c.speed,500,3200,1500)),...(shipSpeed?{speedMode:'ship'}:{}),aa:Math.round(num(c.aa,0,2,1)*100)/100,strike:Math.round(num(c.strike,0,1e12,10)),gun:Math.round(num(c.gun,0,1e12,num(c.strike,0,1e12,10))),armor:Math.round(num(c.armor,.1,100,1)*100)/100,crew:Math.round(num(c.crew,0,1e9,1)),accelG:Math.round(num(c.accelG,0,20000,0)),shield:!!c.shield,hyper:Number.isFinite(c.hyper)&&c.hyper>0?c.hyper:null,stations,load,mass:num(c.mass,0,1e15,0)||null,...(hasCost?{cost:build,...(c.costBy&&typeof c.costBy==='object'?{costBy:costBreakdown(build,c.costBy)}:{}),...(Number.isFinite(c.priceVersion)?{priceVersion:Math.round(num(c.priceVersion,1,1e6,1))}:{})}:{}),...(systems?{systems}:{}),...(powerProfile?{powerProfile}:{}),...(Array.isArray(c.fireArcs)?{fireArcs:cleanCraftFireArcs(c.fireArcs)}:{}),...(cleanCraftHeat(c.heat)?{heat:cleanCraftHeat(c.heat)}:{})}};
+ return {ref:str(d.ref,80),name:str(d.name,40)||'設計機',...(dims?{dims}:{}),...(blueprint?{blueprint}:{}),...(weaponProfileVersion!=null?{weaponProfileVersion}:{}),craft:{role:c.role,roleName:str(c.roleName,20),speed:shipSpeed?Math.round(num(c.speed,0,20000,0)):Number.isFinite(c.accelG)?craftSpeed(Math.max(0,c.accelG)):Math.round(num(c.speed,500,3200,1500)),...(shipSpeed?{speedMode:'ship'}:{}),aa:Math.round(num(c.aa,0,2,1)*100)/100,strike:Math.round(num(c.strike,0,1e12,10)),gun:Math.round(num(c.gun,0,1e12,num(c.strike,0,1e12,10))),armor:Math.round(num(c.armor,.1,100,1)*100)/100,crew:Math.round(num(c.crew,0,1e9,1)),accelG:Math.round(num(c.accelG,0,20000,0)),shield:!!c.shield,hyper:Number.isFinite(c.hyper)&&c.hyper>0?c.hyper:null,stations,load,mass:num(c.mass,0,1e15,0)||null,...(hasCost?{cost:build,...(c.costBy&&typeof c.costBy==='object'?{costBy:costBreakdown(build,c.costBy)}:{}),...(Number.isFinite(c.priceVersion)?{priceVersion:Math.round(num(c.priceVersion,1,1e6,1))}:{})}:{}),...(systems?{systems}:{}),...(powerProfile?{powerProfile}:{}),...(Array.isArray(c.fireArcs)?{fireArcs:cleanCraftFireArcs(c.fireArcs)}:{}),...(cleanCraftHeat(c.heat)?{heat:cleanCraftHeat(c.heat)}:{})}};
 }
 function layoutStats(ship,S){
  const h=habitationSpace(ship);S.autoHabitationVolume=h.volume;S.unassignedVolume=h.volume;S.envelopeVolume=h.envelopeVolume;
@@ -31828,7 +32390,7 @@ function normalizeAssemblyTemplate(o){
 // Mirror one child across Z = 0 (USERPART-003): the same transform as the
 // ship's left-right symmetry (positions, rotations, nozzle directions, mesh
 // winding, equipment skins); fittings flip their normal and local position.
-function assemblyMirrorFit(f){const q=publicCopyOf(f);q.p=mirrorP(f.p);if(f.n)q.n=mirrorP(f.n);if(f.local)q.local=[f.local[0],f.local[1],-f.local[2]];if(f.localNormal)q.localNormal=[f.localNormal[0],f.localNormal[1],-f.localNormal[2]];if(Number.isInteger(q.a)&&q.n)q.a=AXES.reduce((i,x,j)=>dot(x,q.n)>dot(AXES[i],q.n)?j:i,0);if(fitCanRotate(f)){if(!q.n)q.a=f.a===4?5:f.a===5?4:f.a;if(q.tilt)q.tilt=mirrorP(q.tilt);if(Number.isInteger(q.mountAxis))q.mountAxis=q.mountAxis===4?5:q.mountAxis===5?4:q.mountAxis;if(q.assetYaw!=null)q.assetYaw=-q.assetYaw;}if(q.yaw)q.yaw=-q.yaw;if(q.train!=null)q.train=-q.train;return q;}
+function assemblyMirrorFit(f){const q=publicCopyOf(f);q.p=mirrorP(f.p);if(validTurretSupport(q.mountSupport))q.mountSupport={...q.mountSupport,polys:q.mountSupport.polys.map(poly=>poly.map(p=>[p[0],-p[1],p[2]]).reverse())};if(f.n)q.n=mirrorP(f.n);if(f.local)q.local=[f.local[0],f.local[1],-f.local[2]];if(f.localNormal)q.localNormal=[f.localNormal[0],f.localNormal[1],-f.localNormal[2]];if(Number.isInteger(q.a)&&q.n)q.a=AXES.reduce((i,x,j)=>dot(x,q.n)>dot(AXES[i],q.n)?j:i,0);if(fitCanRotate(f)){if(!q.n)q.a=f.a===4?5:f.a===5?4:f.a;if(q.tilt)q.tilt=mirrorP(q.tilt);if(Number.isInteger(q.mountAxis))q.mountAxis=q.mountAxis===4?5:q.mountAxis===5?4:q.mountAxis;if(q.assetYaw!=null)q.assetYaw=-q.assetYaw;}if(q.yaw)q.yaw=-q.yaw;if(q.train!=null)q.train=-q.train;return q;}
 // USERPART-002/005: place independent copies at a point. Returns the new
 // group(s) and children, or {error}. With mirror (and the point off the
 // centre line) a mirrored instance is placed too and paired child by child.
@@ -32771,13 +33333,13 @@ function foilState(u){const s=u?.fo,F=u?.p?.foils;if(!s||!F?.length)return null;
 
 return {BROADSIDE_BATTERY_CALIBERS,isBroadsideBattery,broadsideBatteryConfig,setBroadsideBattery,broadsideBatteryGeometry,broadsideBatteryMuzzles,allocateConnectedPower,solveShipPropulsion,allocateShipPower,attachShipPowerProfile,propulsionPreview,canPlaceSponson,sponsonPreview,surfaceRenderClone,surfaceWorkingShip,surfaceDerivedFits,surfaceRenderFaces,surfaceRenderKey,navigationItinerary,isSurfaceBattery,surfaceBatteryGeometry,SURFACE_VERSION,SURFACE_MATERIALS,surfaceAllocation,surfaceAutoCandidates,autoConfigureSurfaces,surfaceSymmetryIds,surfaceInwardDepth,surfaceAllocationPlan,normalizeSurfaces,surfacePatches,surfaceConfig,setSurfaceConfig,enableSurfaceMode,surfaceReport,surfaceSync,surfacePick,surfaceSplit,surfaceMerge,surfaceProfile,ENERGY_MODEL,SHIELD_MODEL,ION_MODEL,weaponEnergy,weaponInputFactor,shieldReceive,shieldStatus,ionOverload,powerDomainProfile,powerFactor,powerStatus,powerTick,heatAccrue,heatLim,heatTick,superweaponCharge,SURFACE_LIMITS,surfaceBatteryStatus,surfaceFleetFire,surfacePowerStep,surfaceRayHit,surfaceHit,surfaceRemoveConfig,surfaceReassign,surfaceCarve,surfaceManualCharge,surfaceSpend,surfaceMountEnergy,armorLayerStep,surfacePatchAt,surfaceDomainAt,powerDomainWatts,superweaponDischarge,surfaceArmorStatus,surfaceArmorSync,surfaceArmorTick,coolingPowerReserve,
  PROPULSION_MODEL_VERSION,PROPULSION,DRIVE_PROFILES,PROPULSION_PROFILES,MACHINERY_GRADES,resolveEngineSpec,updateEngineSpec,migrateLegacyPropulsion,getEngineInputLimit,buildPropulsionRequests,resolvePropulsion,propulsionProfile,
- isShapeKind,isShapePart,isStructuralPart,isFaceEditablePart,surfaceEditablePatch,structureArmorFaces,setStructureFaceArmor,surfaceArmorOnly,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,WING_PLANFORM_PRESETS,wingPlanformPreset,wingTipSide,wingTipOffset,wingTipRange,wingShiftTip,AERO_WING_OUTLINE,AERO_WING_SECTION,AERO_PANEL_OUTLINE,SOLAR_PANEL_PRESETS,solarPanelPreset,solarPanelBraces,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT, craftHeat, cleanCraftHeat, squadFireK, squadHeatStep, SOLAR, solarPower, solarCap, solarArea, wingCap, WING, FOIL_AXES, WING_PARTS, normalizeWing, isWing, isFoil, foilHandles, wingPivot, wingMembers, wingMap, foilSweep, foilPose, foilAt, foilFrame, wingStats, EMIT, BANDS, BAND_NAMES, emitBands, EMCON, EMCON_LOW_MAX, emconOf, SENSOR_BANDS, sensorSuite, SENS, sensSNR, sensStageCap, foilInit, foilStep, foilState, HEAT, HEAT_PRESETS, HEAT_KINDS, HEAT_MODE, DISSIPATORS, dissipatorCap, heatLoads, heatWaste, heatSolve, heatNetwork, heatEvaluate, heatStats, heatProfile, heatProfileOf, heatLegacy, heatInit, heatTick, heatStatus, heatLim, heatSwLim, normalizeLinks, DESIGN_FACTIONS, ionDensity, ionReach, ionGlow, swRange, swFree, swAxis, MGLT, engineDepthRatio, sublightMGLT, AA_CHANNELS, ION_BOLT, ionDiam, ionArea, ionShare, ionPlan, ionStrike, ionBoltsStep, swMuzzle, weaponRoles, fleetDefense, fleetAim, modWorld, aimPoint, fireScreen, screenShare, escortThreat, escortStation, escortPick, SCREEN, aimHold, aimMark, modQ, exposedMod, standardFit, craftCombat, designCraftSnapshot, cleanDesignCraft, CRAFT_ROLE_RTS, ORDNANCE, ORDNANCE_EVIDENCE, STORE_MOUNTS, STORE_FITS, STORE_DEFAULT, storeCapacity, craftStations, CRAFT_LOADOUT, craftTypeOf, craftLoadout, normalizeLoad, craftOrdnance, ordnanceRuns, ordnanceSalvo, ordnanceSummary, VOLLEY, volleyMode, volleyStep, SUPERWEAPONS, SW_COMBAT, swPower, swChargeRate, swInArc, swHeading, swDecay, swOverload, swPulse, swIonWave, superweaponStep, isSuperweapon, superweaponAim, superweaponOpen, normalizeSuperweapon, superweaponStats, isCraft, partLimits, CRAFT_PART_SIZE, craftPart, craftFieldGain, TROOP_SEAT_M3, ENGINE_GLOWS, engineGlowOK, engineGlowRGB, engineLevel, MISSILE_MOUNTS, missileMount, missileCells, missileStatus, PLATE, plateThickness, shipSpan, HULL_SECTIONS, SECTION_NAMES, hullSectionShares, SHIP_LIGHT_KINDS, SHIP_EXAMPLES, registerShipExample, shipKit, SHELL_ROWS, structRows, shellSection, shellPoint, CIS_PAINT, fitTilt, fitUp, fitCanRotate, isBallTurret, ballTurretPitch, fitFrameOf, openingRimPoint, surfSamples, groundingStats, turretRayContext, turretClear, turretOrigin, turretRate, GROUND_LIMITS, GROUND_PRESETS, GROUND_KINDS, GROUND_VEHICLE_VOLUME, DROID_STORE_M3, CREW_M3_K, CREW_LIVING_M3, personVolume, RETIRED_PARTS, FEED_FLUX, CELL_ENERGY_DENSITY, CELL_DISCHARGE_S, feedConduits, normalizeGroundForces, groundStatus, planStations, bridgeBodyRole, podPoint, podDepth, intrinsicCommandFits, POD_ASSET, BRIDGE_BODY_COMMAND, REFERENCE_TONE, engineAppearance, engineSkinMesh, referenceFitYaw, rayTris, vmirrorPlane, vmirrorPoint, vmirrorPart, SHIP_CLASSES, shipClassFor, PUBLIC_LISTS, publicJSON, patchShip, patchItem, cache, AIRCRAFT_CLEARANCE, aircraftFitsBay, shipFitsBay, shipStowSize, CRAFT_TYPES, VEHICLE_TYPES, CRAFT_HINTS, VEHICLE_HINTS, craftDims, airWingDims, groundDims, stowSize, vehicleStowSize, VEHICLE_STOW_FACTOR, craftLift, boxFits, stowLoad, stowInit, stowRows, isCombatRow, COMBAT_ROLES, stowPack, stowPasses, stowStatus, aviationBays, hatchOpening, STOW_GAP, STOW_PASS, STOW_ANY_LENGTH, BUILTIN_COMPLEMENTS, builtinComplement, SHIP_STOW_CLEAR, SHIP_STOW_FACTOR, AVIATION_SIZE_VOLUME, AIR_WING_LIMITS, hangarCapacity, normalizeAirWings, aviationStatus, AVIATION_SURFACE_FACES, hatchAxes, aviationSurfaceContacts, setAviationSurfaceMode, syncAviationSurfaces, aviationHatchActive, isSlidingHatch, slidingHatchSpec, slidingHatchPanels, hatchOpenArea, ISD_HYPER_BASELINE, HYPER_CLASS_COEFFICIENT, HYPER_POWER_DENSITY, ISD_SHIELD_VOLUME, SHIELD_BUFFER_SECONDS, SHIELD_ENERGY_DENSITY, SHIELD_POWER_DENSITY, REACTOR_POWER_DENSITY, SOLID_CUT_SHAPES, SOLID_CUT_POLY_MAX, solidCutDisplayTriangles, solidCutVolume, solidCutConvexOK, convexHullFaces, solidCutThinWalls, SOLID_THIN_WALL_M, compiledSolidCut, STRUCT_MESH_LIMITS, meshTopology, MESH_IMPORT_UNITS, MESH_IMPORT_AXES, parseMeshFile, meshImportPart, simplifyMesh, ASSEMBLY_LIMITS, ASSEMBLY_MOUNTS, ASSEMBLY_ORIGINS, ASSEMBLY_CATEGORIES, assemblyLinks, assemblyCapture, normalizeAssemblyTemplate, assemblyPlace, assemblyIssues, assemblyMirrorFit, assemblyPreview, solidCutWorld, solidCutLocal, solidCutFromLocal, solidCutLocalVerts, solidCutToPoly, normalizeStructMesh, meshStructTriangles, inMeshStruct, mirrorStructMesh, structToMesh, refitStructMesh, meshEditCheck, meshMoveVertices, meshSetVertex, meshSplitEdge, meshCollapseVertex, meshExtrudeFace, meshLocalTris, normalizeSolidCut, mirrorSolidCut, solidCutTriangles, solidCutBounds, solidCutContains, solidCutsContain, applySolidCuts, solidPartCutContains, solidStructVolume, solidCutIntersectsShip, flexibleCompartment, hardConflicts, weaponChargeSpec, turretCompartment, turretCompartmentProjection, chargingStatus, DREADNOUGHT_EXAMPLES, DESIGN_LIMITS, ALIGNMENTS, alignedPosition, alignPart, replacementShape, replacementOptions, replacePart, COMMAND_ROLES, commandCompartments, commandStatus, habitationSpace, inspectionTargets, planCutEdge, normalizePlanCut, structFrame, alignStructure, FLEET_RULES, POWER_MODES, POWER_AUTO_NOTE, fleetAutoPower, AIM_KINDS, MODULE_LABEL, FLEET_MIN_CREW, powerSplit, coreDetonation, fleetModules, fleetSystems, fleetCrewEff, fleetCrewRatio, fleetAutoAvail, fleetOutReason, AUTO_M3_PER_CREW, AUTO_W_PER_CREW, AUTO_MIN_HUMAN, fleetEffective, fleetProfile, fleetUnit, fleetIntegrity, trenchBattery, sideBattery, fleetFire, fleetReach, fleetStandoff, fleetHeading, fleetBroadside, fleetPowerStep, bandFireAt, fitBand, GUN_BANDS, COMBAT, combatInit, combatIncoming, combatAdd, combatMerge, combatResolve, combatZones, combatClone, combatZoneAt, COMBAT_FACE, unpackBits, fleetFormation, fleetBattle, fleetOrder, fleetArc, fleetTick, hullHalf, hullMass, hullLocal, AIR_CTL, HF, hullField, hullShape, hullCell, hullTB, hullIn, airMouths, hullOverlap, hullSegment, fireBlocker, fireStray, hullCollide, hullGrid, hullNear, hullAlong, hullAround, hullPairs, HULL_GRID, hullImpact, HULL_HIT, HULL_FALL, hullFall, hullCarve, hullAvoid, fleetCommit, fleetFinish, fleetSample, fleetFrame, normalizeBow, bowStation, engineHullEntry, ENGINE_BASELINES, engineBaseline, resizeEngine, parametricEngine, engineRating, sourceEngine, EQUIPMENT, equipmentSpec, equipmentOptions, enforceEquipment, customizeEquipment, adoptEquipment, HYPERDRIVE_REFERENCE, hyperCapacity, arcParameters, arcPoint, arcTriangles, inArc, SEPARATIST_EXAMPLES, STATS_SOURCE, SHIP_REFERENCE, PART_RATINGS, reactorPower, nozzleThrust, nozzleDemand, shieldLoad, partRatingKeys, validOutline, outlinePoints, outlineArea, outlineTriangles, AVIATION_ROLES, CHARGE_TT_M3, aircraftCapacity, aviationConnected, needsCapacitor, weaponCapacitors, refitReferenceInterior, clipReferenceBox, referenceEnginePoint, fitSpec, weaponSizing, weaponModelScale, TURRET_FAMILY_KEYS, LIGHT_TURRET_KEYS, CAPITAL_TURRET_KEYS, weaponWallOnly, weaponMountAllowed, authoredTurretGeometry, aimAuthoredTurret, authoredTurretAngles, aimAuthoredTurretAt, AUTHORED_TURRET_LIMITS, authoredTurretInArc, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface, COST_CATS, COST_K, COST_MODEL, COST_INSTALL, COST_MOUNT_INSTALL, costCategory, partBuildCost, fitBuildCost, costBreakdown, costSignature, costModelSignature, CRAFT_PRICE_CATALOG, craftCatalogPrice, quoteCostBOM, designCost,
+ isShapeKind,isShapePart,isStructuralPart,isFaceEditablePart,surfaceEditablePatch,structureArmorFaces,setStructureFaceArmor,surfaceArmorOnly,isAeroPart,normalizeAeroPart,dedicateAeroParts,aeroBake,WING_PLANFORM_PRESETS,wingPlanformPreset,wingTipSide,wingTipOffset,wingTipRange,wingShiftTip,AERO_WING_OUTLINE,AERO_WING_SECTION,AERO_PANEL_OUTLINE,SOLAR_PANEL_PRESETS,solarPanelPreset,solarPanelBraces,aeroWingMesh,aeroPanelMesh,aeroPanelRibs,aeroArea,CRAFT_INTERIOR_TARGETS,refitCraftInterior,CRAFT_SYSTEMS,CRAFT_SYSTEM_KEYS,craftSystemRequirements,craftSystemsPower,craftSystemsStats,cleanCraftSystems,installCraftSystems,CRAFT_SYSTEM_RECIPES,CRAFT_HEAT, craftHeat, cleanCraftHeat, squadFireK, squadHeatStep, SOLAR, solarPower, solarCap, solarArea, wingCap, WING, FOIL_AXES, WING_PARTS, normalizeWing, isWing, isFoil, foilHandles, wingPivot, wingMembers, wingMap, foilSweep, foilPose, foilAt, foilFrame, wingStats, EMIT, BANDS, BAND_NAMES, emitBands, EMCON, EMCON_LOW_MAX, emconOf, SENSOR_BANDS, sensorSuite, SENS, sensSNR, sensStageCap, foilInit, foilStep, foilState, HEAT, HEAT_PRESETS, HEAT_KINDS, HEAT_MODE, DISSIPATORS, dissipatorCap, heatLoads, heatWaste, heatSolve, heatNetwork, heatEvaluate, heatStats, heatProfile, heatProfileOf, heatLegacy, heatInit, heatTick, heatStatus, heatLim, heatSwLim, normalizeLinks, DESIGN_FACTIONS, ionDensity, ionReach, ionGlow, swRange, swFree, swAxis, MGLT, engineDepthRatio, sublightMGLT, AA_CHANNELS, ION_BOLT, ionDiam, ionArea, ionShare, ionPlan, ionStrike, ionBoltsStep, swMuzzle, weaponRoles, fleetDefense, fleetAim, modWorld, aimPoint, fireScreen, screenShare, escortThreat, escortStation, escortPick, SCREEN, aimHold, aimMark, modQ, exposedMod, standardFit, craftCombat, designCraftSnapshot, cleanDesignCraft, CRAFT_ROLE_RTS, ORDNANCE, ORDNANCE_EVIDENCE, STORE_MOUNTS, STORE_FITS, STORE_DEFAULT, storeCapacity, craftStations, CRAFT_LOADOUT, craftTypeOf, craftLoadout, normalizeLoad, craftOrdnance, ordnanceRuns, ordnanceSalvo, ordnanceSummary, VOLLEY, volleyMode, volleyStep, SUPERWEAPONS, SW_COMBAT, swPower, swChargeRate, swInArc, swHeading, swDecay, swOverload, swPulse, swIonWave, superweaponStep, isSuperweapon, superweaponAim, superweaponOpen, normalizeSuperweapon, superweaponStats, isCraft, partLimits, CRAFT_PART_SIZE, craftPart, craftFieldGain, TROOP_SEAT_M3, ENGINE_GLOWS, engineGlowOK, engineGlowRGB, engineLevel, MISSILE_MOUNTS, missileMount, missileCells, missileStatus, PLATE, plateThickness, shipSpan, HULL_SECTIONS, SECTION_NAMES, hullSectionShares, SHIP_LIGHT_KINDS, SHIP_EXAMPLES, registerShipExample, shipKit, SHELL_ROWS, structRows, shellSection, shellPoint, CIS_PAINT, fitTilt, fitUp, fitCanRotate, isBallTurret, ballTurretPitch, fitFrameOf, openingRimPoint, surfSamples, groundingStats, turretRayContext, turretClear, turretOrigin, turretRate, GROUND_LIMITS, GROUND_PRESETS, GROUND_KINDS, GROUND_VEHICLE_VOLUME, DROID_STORE_M3, CREW_M3_K, CREW_LIVING_M3, personVolume, RETIRED_PARTS, FEED_FLUX, CELL_ENERGY_DENSITY, CELL_DISCHARGE_S, feedConduits, normalizeGroundForces, groundStatus, planStations, bridgeBodyRole, podPoint, podDepth, intrinsicCommandFits, POD_ASSET, BRIDGE_BODY_COMMAND, REFERENCE_TONE, engineAppearance, engineSkinMesh, referenceFitYaw, rayTris, vmirrorPlane, vmirrorPoint, vmirrorPart, SHIP_CLASSES, shipClassFor, PUBLIC_LISTS, publicJSON, patchShip, patchItem, cache, AIRCRAFT_CLEARANCE, aircraftFitsBay, shipFitsBay, shipStowSize, CRAFT_TYPES, VEHICLE_TYPES, CRAFT_HINTS, VEHICLE_HINTS, craftDims, airWingDims, groundDims, stowSize, vehicleStowSize, VEHICLE_STOW_FACTOR, craftLift, boxFits, stowLoad, stowInit, stowRows, isCombatRow, COMBAT_ROLES, stowPack, stowPasses, stowStatus, aviationBays, hatchOpening, STOW_GAP, STOW_PASS, STOW_ANY_LENGTH, BUILTIN_COMPLEMENTS, builtinComplement, SHIP_STOW_CLEAR, SHIP_STOW_FACTOR, AVIATION_SIZE_VOLUME, AIR_WING_LIMITS, hangarCapacity, normalizeAirWings, aviationStatus, AVIATION_SURFACE_FACES, hatchAxes, aviationSurfaceContacts, setAviationSurfaceMode, syncAviationSurfaces, aviationHatchActive, isSlidingHatch, slidingHatchSpec, slidingHatchPanels, hatchOpenArea, ISD_HYPER_BASELINE, HYPER_CLASS_COEFFICIENT, HYPER_POWER_DENSITY, ISD_SHIELD_VOLUME, SHIELD_BUFFER_SECONDS, SHIELD_ENERGY_DENSITY, SHIELD_POWER_DENSITY, REACTOR_POWER_DENSITY, SOLID_CUT_SHAPES, SOLID_CUT_POLY_MAX, solidCutDisplayTriangles, solidCutVolume, solidCutConvexOK, convexHullFaces, solidCutThinWalls, SOLID_THIN_WALL_M, compiledSolidCut, STRUCT_MESH_LIMITS, meshTopology, MESH_IMPORT_UNITS, MESH_IMPORT_AXES, parseMeshFile, meshImportPart, simplifyMesh, ASSEMBLY_LIMITS, ASSEMBLY_MOUNTS, ASSEMBLY_ORIGINS, ASSEMBLY_CATEGORIES, assemblyLinks, assemblyCapture, normalizeAssemblyTemplate, assemblyPlace, assemblyIssues, assemblyMirrorFit, assemblyPreview, solidCutWorld, solidCutLocal, solidCutFromLocal, solidCutLocalVerts, solidCutToPoly, normalizeStructMesh, meshStructTriangles, inMeshStruct, mirrorStructMesh, structToMesh, refitStructMesh, meshEditCheck, meshMoveVertices, meshSetVertex, meshSplitEdge, meshCollapseVertex, meshExtrudeFace, meshLocalTris, normalizeSolidCut, mirrorSolidCut, solidCutTriangles, solidCutBounds, solidCutContains, solidCutsContain, applySolidCuts, solidPartCutContains, solidStructVolume, solidCutIntersectsShip, flexibleCompartment, hardConflicts, weaponChargeSpec, turretCompartment, turretCompartmentProjection, chargingStatus, DREADNOUGHT_EXAMPLES, DESIGN_LIMITS, ALIGNMENTS, alignedPosition, alignPart, replacementShape, replacementOptions, replacePart, COMMAND_ROLES, commandCompartments, commandStatus, habitationSpace, inspectionTargets, planCutEdge, normalizePlanCut, structFrame, alignStructure, FLEET_RULES, POWER_MODES, POWER_AUTO_NOTE, fleetAutoPower, AIM_KINDS, MODULE_LABEL, FLEET_MIN_CREW, powerSplit, coreDetonation, fleetModules, fleetSystems, fleetCrewEff, fleetCrewRatio, fleetAutoAvail, fleetOutReason, AUTO_M3_PER_CREW, AUTO_W_PER_CREW, AUTO_MIN_HUMAN, fleetEffective, fleetProfile, fleetUnit, fleetIntegrity, trenchBattery, sideBattery, fleetFire, fleetReach, fleetStandoff, fleetHeading, fleetBroadside, fleetPowerStep, bandFireAt, fitBand, GUN_BANDS, COMBAT, combatInit, combatIncoming, combatAdd, combatMerge, combatResolve, combatZones, combatClone, combatZoneAt, COMBAT_FACE, unpackBits, fleetFormation, fleetBattle, fleetOrder, fleetArc, fleetTick, hullHalf, hullMass, hullLocal, AIR_CTL, HF, hullField, hullShape, hullCell, hullTB, hullIn, airMouths, hullOverlap, hullSegment, fireBlocker, fireStray, hullCollide, hullGrid, hullNear, hullAlong, hullAround, hullPairs, HULL_GRID, hullImpact, HULL_HIT, HULL_FALL, hullFall, hullCarve, hullAvoid, fleetCommit, fleetFinish, fleetSample, fleetFrame, normalizeBow, bowStation, engineHullEntry, ENGINE_BASELINES, engineBaseline, resizeEngine, parametricEngine, engineRating, sourceEngine, EQUIPMENT, equipmentSpec, equipmentOptions, enforceEquipment, customizeEquipment, adoptEquipment, HYPERDRIVE_REFERENCE, hyperCapacity, arcParameters, arcPoint, arcTriangles, inArc, SEPARATIST_EXAMPLES, STATS_SOURCE, SHIP_REFERENCE, PART_RATINGS, reactorPower, nozzleThrust, nozzleDemand, shieldLoad, partRatingKeys, validOutline, outlinePoints, outlineArea, outlineTriangles, AVIATION_ROLES, CHARGE_TT_M3, aircraftCapacity, aviationConnected, needsCapacitor, weaponCapacitors, refitReferenceInterior, clipReferenceBox, referenceEnginePoint, fitSpec, weaponSizing, weaponModelScale, TURRET_FAMILY_KEYS, LIGHT_TURRET_KEYS, CAPITAL_TURRET_KEYS, weaponWallOnly, weaponMountAllowed, authoredTurretGeometry, aimAuthoredTurret, authoredTurretAngles, aimAuthoredTurretAt, AUTHORED_TURRET_LIMITS, authoredTurretInArc, WEAPON_NOTES, referenceFitPoint, REFERENCE_ASSETS, decodeReference, referencePartPoint, referenceHullGeometry, refPartBounds, attachReferenceSkin, syncCompartments, isInternal, openingHalf, openingPlanes, clipOpening, ISD_PLANT, ISD_REACTOR_VOLUME, loftProfile, loftRing, fitRoomToEnvelope, insideOriginalEnvelope, clipPoly, triangulateFan, originalSurface, originalInHull:v3InHull, openingSurfacePoint, profileAt, roomShape, openingBounds, subtractBoxMesh, openingInterior, openBay, setRoomSize, partLabel, meshVolume, STRUCT_SHAPES, GROUPS, enginePaths, allOccupied, reactorFor, isReactor, inRoute, inStruct, structTriangles, worldStruct, localStruct, frameAxis, windowFrame, windowBay, engineVented, mirrorPart, conflicts, overlapParts, volSamples, exposedSurface, COST_CATS, COST_K, COST_MODEL, COST_INSTALL, COST_MOUNT_INSTALL, costCategory, partBuildCost, fitBuildCost, costBreakdown, costSignature, costModelSignature, CRAFT_PRICE_CATALOG, craftCatalogPrice, quoteCostBOM, designCost,
    craftPowerProfile,cleanCraftPowerProfile,CRAFT_FIRE, cleanCraftFireArcs, craftGunMounts,
    surfaceCopyIdentity, surfaceCaptureConfig, surfaceCopySelection, surfacePasteConfig, surfaceRemapHosts,
   missileLauncherPowered, fleetMissileStep, missileLaunchWorld, propulsionMotion, legacyPropulsionProfile, fleetTargetCandidates, FLEET_PROFILE_VERSION, MON_CAL_TURRET_KEYS, emptyDesignProfile, canonicalWeaponKind, migrateWeaponFit, migrateWeaponDesign, isConcussionLauncher, isSurfaceVLS, launcherPitch, launcherGeometry, missileLauncherSpec, migrateLegacyConcussionVLS,
   TT, G0, ISD_W, K, PARTS, FITS, HULLS, SECTIONS, SECTORS, CLASSES, DESIGNS, AXES, AXNAME, ARMOR_MAX,
   newShip, designEnvelope, designPlacementBounds, shipBounds, shipDimensions, shipClassOf, sectionBase, sampleSection, planW, planH, hullGeo, heightfield, inHull, inEnv, inPart, partDims, partVolume, partArea, partAABB, structBox,
-  rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitHasPedestal, normalizeFitMount, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
+  rayEnv, rayPart, rayAABB, raySphere, mountFit, remount, fitFrame, fitOrigin, fitAABB, fitHasPedestal, normalizeFitMount, turretSupportGeometry, fitClash, fireArcs, placePart, placeFit, removeItem, twinOf,
   hatchGrid, hatchFrame, fillHangars, computeStats, normalizeGroups, GROUP_DEPTH, serialize, deserialize, buildDesign, profile, simulate,
   clamp, lerp, add, sub, mul, dot, cross, norm, len, mirrorP};
 })();

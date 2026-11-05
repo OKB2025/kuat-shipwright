@@ -14,12 +14,12 @@ test('stock X-wing has four independent S-foil assemblies with all carried struc
  const foils=stock.parts.filter(C.isFoil);assert.equal(foils.length,4);const allParts=new Set(),allFits=new Set();
  for(const wing of foils){
   assert.equal(wing.wing.axis,'x');assert.equal(wing.wing.stow,0);assert.equal(wing.wing.T,1);assert.equal(Math.abs(wing.wing.open),13);close(wing.wing.pivot,[2.66,1.832,Math.sign(wing.c[2])*1.05]);
-  const members=C.wingMembers(stock,wing);assert.equal(members.structs.length,6);assert.equal(members.parts.length,1);assert.equal(members.parts[0].k,'engine');assert.equal(members.fits.length,1);assert.equal(members.fits[0].k,'claser');
+  const members=C.wingMembers(stock,wing);assert.equal(members.structs.length,10);assert.equal(members.structs.filter(p=>p.label==='推進管内の縦通支持材').length,4);assert.equal(members.parts.length,1);assert.equal(members.parts[0].k,'engine');assert.equal(members.fits.length,1);assert.equal(members.fits[0].k,'claser');
   assert.deepEqual(members.structs.concat(members.parts).map(p=>p.id).sort((a,b)=>a-b),wing.wing.members.parts.slice().sort((a,b)=>a-b));assert.deepEqual(members.fits.map(f=>f.id),wing.wing.members.fits);
   for(const part of [wing,...members.structs,...members.parts]){assert.ok(!allParts.has(part.id));allParts.add(part.id);assert.equal(Math.sign(part.c[2]),Math.sign(wing.c[2]));}
   for(const fit of members.fits){assert.ok(!allFits.has(fit.id));allFits.add(fit.id);}
  }
- assert.equal(allParts.size,32);assert.equal(allFits.size,4);
+ assert.equal(allParts.size,48);assert.equal(allFits.size,4);
  for(const p of stock.parts.filter(p=>['gen','cockpit','astromech','fuel','inertial','shield','hyper','battery'].includes(p.k)))assert.ok(!allParts.has(p.id),`${p.k} stays in the fuselage`);
  for(const f of stock.fits.filter(f=>f.k==='ctorp'))assert.ok(!allFits.has(f.id),'torpedoes stay on the fuselage');
 });
@@ -30,13 +30,24 @@ test('X-wing stowing reverses the authored 13-degree deployment and preserves th
   const frame=C.foilFrame(stock,wing),members=C.wingMembers(stock,wing),upper=wing.wing.open>0;
   const engine=members.parts[0],closed=C.foilAt(frame,wing,engine.c,0);close(closed,[engine.c[0],upper?2.722:.942,Math.sign(wing.c[2])*1.643],'stowed engine');
   const nacelle=members.structs.find(p=>p.label.includes('機関ナセル'));close(C.foilAt(frame,wing,nacelle.c,0),[nacelle.c[0],upper?2.472:1.192,Math.sign(wing.c[2])*1.643],'stowed nacelle');
-  const pose=C.foilPose(stock,wing,wing.wing.stow);assert.equal(pose.parts.length,8);assert.equal(pose.fits.length,1);
+  const pose=C.foilPose(stock,wing,wing.wing.stow);assert.equal(pose.parts.length,12);assert.equal(pose.fits.length,1);
   for(const part of members.parts)close(pose.parts.find(p=>p._poseOf===part.id).c,C.foilAt(frame,wing,part.c,0));
   const fit=members.fits[0],posed=pose.fits[0];assert.ok(Math.abs(C.len(C.sub(posed.p,frame.pv))-C.len(C.sub(fit.p,frame.pv)))<1e-7,'carried laser stays at its rigid hinge radius');
  }
  assert.equal(C.publicJSON(stock),before);
  const loaded=C.deserialize(C.serialize(stock));assert.equal(loaded.parts.filter(C.isFoil).length,4);
  for(const wing of stock.parts.filter(C.isFoil)){const copy=loaded.parts.find(p=>p.id===wing.id);assert.deepEqual(plain(copy.wing),plain(wing.wing));assert.deepEqual(C.wingMembers(loaded,copy).structs.map(p=>p.id),C.wingMembers(stock,wing).structs.map(p=>p.id));}
+});
+
+test('the new internal rails stay inside their engine and mirror with it throughout S-foil travel',()=>{
+ for(const wing of stock.parts.filter(C.isFoil)){
+  const members=C.wingMembers(stock,wing),engine=members.parts.find(p=>p.k==='engine'),rails=members.structs.filter(p=>p.label==='推進管内の縦通支持材');assert.equal(rails.length,4);
+  for(const rail of rails){const mirrored=stock.parts.find(p=>p.id===rail.tw);assert.ok(mirrored);assert.equal(mirrored.tw,rail.id);close(mirrored.c,C.mirrorP(rail.c),'mirrored rail');const opposite=stock.parts.find(p=>p.id===wing.tw);assert.ok(opposite.wing.members.parts.includes(mirrored.id));}
+  for(const angle of [wing.wing.open,wing.wing.open/2,wing.wing.stow]){
+   const frame=C.foilFrame(stock,wing),pose=C.foilPose(stock,wing,angle),posedEngine=pose.parts.find(p=>p._poseOf===engine.id);
+   for(const rail of rails){const posed=pose.parts.find(p=>p._poseOf===rail.id);assert.ok(posed);close(posed.c,C.foilAt(frame,wing,rail.c,angle),'rigid rail centre');const tris=C.structTriangles(posed);for(let i=0;i<tris.length;i+=3){const x=tris[i],y=tris[i+1],z=tris[i+2];assert.ok(Math.hypot(y-posedEngine.c[1],z-posedEngine.c[2])<engine.d/2+1e-7,'rail remains within the exhaust tube radius');assert.ok(x>=posedEngine.c[0]-engine.nozzleLength/2-1e-7&&x<=posedEngine.c[0]+engine.nozzleLength/2+1e-7,'rail remains within the exhaust tube length');}}
+  }
+ }
 });
 
 test('membership normalization rejects malformed IDs, deduplicates, copies arrays and bounds lists',()=>{
@@ -71,7 +82,7 @@ test('assembly capture and mirrored placement remap pivot coordinates and carrie
  assert.deepEqual(localRoot.wing.members.parts.slice().sort((a,b)=>a-b),template.parts.filter(p=>p!==localRoot).map(p=>p.id).sort((a,b)=>a-b));assert.deepEqual(localRoot.wing.members.fits,template.fits.map(f=>f.id));
  const destination=C.newShip({L:200,W:100,H:100,assembly:true});destination.nextId=100;const placed=C.assemblyPlace(destination,template,[80,40,20],{mirror:true});assert.equal(placed.error,undefined);
  const roots=destination.parts.filter(C.isFoil);assert.equal(roots.length,2);
- for(const root of roots){const carried=C.wingMembers(destination,root);assert.equal(carried.structs.length,6);assert.equal(carried.parts.length,1);assert.equal(carried.fits.length,1);for(const id of root.wing.members.parts)assert.ok(id>=100);for(const id of root.wing.members.fits)assert.ok(id>=100);}
+ for(const root of roots){const carried=C.wingMembers(destination,root);assert.equal(carried.structs.length,10);assert.equal(carried.structs.filter(p=>p.label==='推進管内の縦通支持材').length,4);assert.equal(carried.parts.length,1);assert.equal(carried.fits.length,1);for(const id of root.wing.members.parts)assert.ok(id>=100);for(const id of root.wing.members.fits)assert.ok(id>=100);}
  const a=roots.find(p=>p.c[2]>0),b=roots.find(p=>p.c[2]<0);close(b.wing.pivot,C.mirrorP(a.wing.pivot));assert.deepEqual(a.wing.members.parts.map(id=>destination.parts.find(p=>p.id===id).tw),b.wing.members.parts);
  const rootOnly=C.assemblyCapture(stock,{parts:[wing.id],fits:[]},{name:'Root'}).template;assert.equal(rootOnly.parts[0].wing.members,undefined,'uncaptured source members must not remain linked');
 });

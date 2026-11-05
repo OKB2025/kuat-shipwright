@@ -93,3 +93,14 @@ test('flush mounting guidance translates without Japanese fragments',()=>{
  run("st.fit='claser'");for(const text of run('fitPedestalControls()').split(/<[^>]*>/))if(text.trim()){const t=lang.KSI18n.t(text);assert.doesNotMatch(t,/[\u3040-\u30ff\u3400-\u9fff]/);assert.match(t,/pedestal/);}
  assert.doesNotMatch(lang.KSI18n.t('支持台なし・上'),/[\u3040-\u30ff\u3400-\u9fff]/);assert.match(lang.KSI18n.t('支持台なし・上'),/No Pedestal/);
 });
+
+test('upright slope placements preserve their automatic bases through mirrored placement, dragging and reuse',()=>{
+ const run=setup();run(section('function seatFit(','function dragItemEnd('));run("ship=C.newShip({L:600,W:400,H:160,assembly:true},'Sloped top UI');ship.parts=[];ship.fits=[];ship.nextId=1;C.placePart(ship,'struct',[300,0,0],[560,300,80],{form:'box',pitch:18,roll:11},false);st.weaponMount='top';st.mirror=true;st.vmirror=true;st.ped=0;install('pd',60,250)");
+ assert.equal(run('ship.fits.length'),4);
+ for(const f of plain(run('ship.fits'))){assert.equal(f.mountMode,f.a===3?'bottom':'top');assert.ok(f.mountSupport?.top>0);assert.ok(C.turretSupportGeometry(f)?.volume>0);assert.equal(f.ped,0);}
+ run("const top=ship.fits.find(f=>f.mountMode==='top');st.sel={list:'fits',id:top.id};st.weaponMount='auto';const hit=C.rayEnv(ship,[350,500,60],[0,-1,0],{structOnly:true});moveFitTo(top,hit.p,hit.n)");
+ assert.equal(run('selItem().mountMode'),'top');assert.equal(run('selItem().tilt'),undefined);assert.ok(run('selItem().mountSupport.top')>0);
+ run('carryToPlace()');assert.equal(run('st.weaponMount'),'top');assert.equal(run('st.template.data.mountMode'),undefined);assert.equal(run('st.template.data.mountSupport'),undefined);
+ const newX=run('ship.fits[0].p[0]')>300?180:450;run(`st.mirror=false;st.vmirror=false;install('pd',-60,${newX})`);assert.equal(run('selItem().mountMode'),'top');assert.ok(run('selItem().mountSupport.top')>0);
+ const saved=plain(run('C.serialize(ship)')),loaded=C.deserialize(saved);for(const f of loaded.fits){assert.ok(f.mountSupport);assert.equal(f.mountMode,f.a===3?'bottom':'top');assert.ok(C.turretSupportGeometry(f).volume>0);}
+});

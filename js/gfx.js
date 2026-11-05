@@ -448,6 +448,21 @@ function pedestal(g, M, o, ph, pr, shape, col, flare) {
   cyl(g, M, o, 0, -ph / 2, 0, pr * 1.18, pr, ph, 1, col, 20);
   if (ph > flare) cyl(g, M, o, 0, -ph * 0.8, 0, pr * 1.45, pr * 1.2, ph * 0.4, 1, col, 20);
 }
+// The automatic foundation follows the actual hull below the stationary
+// turntable. Core also uses these triangles for bounds and support volume.
+function turretSupportMesh(g, support) {
+  const T = support?.triangles;
+  if (!T?.length) return;
+  g.room(T.length / 3, T.length / 3);
+  for (let i = 0; i + 8 < T.length; i += 9) {
+    const a = [T[i], T[i + 1], T[i + 2]], b = [T[i + 3], T[i + 4], T[i + 5]], c = [T[i + 6], T[i + 7], T[i + 8]], cross = C.cross(C.sub(b, a), C.sub(c, a));
+    if (C.len(cross) < 1e-10) continue;
+    const n = C.norm(cross), k = g.n;
+    for (const p of [a, b, c]) g.v(p[0], p[1], p[2], n[0], n[1], n[2], 0.25, 0.5, FC.ped, 240);
+    g.tri(k, k + 1, k + 2);
+  }
+}
+const fitPedestalHeight = f => f.mountSupport ? (f.ped || 0) : (f.base || 0) + (f.ped || 0) - (f.low || 0);
 function box(g, M, o, cx, cy, cz, sx, sy, sz, col, uvr) {
   const uv = uvr || UV_WHITE;
   const P = (x, y, z) => mx(M, o, [cx + x * sx / 2, cy + y * sy / 2, cz + z * sz / 2]);
@@ -624,21 +639,21 @@ function craftWeaponMesh(g,f){
 function meshFits(ship, filter, ranges, only, paintSource=false) {
   const g = new Geo(paintSource?64:8192), body = FC.body;
   const one = (f) => {
+    if (!paintSource && !f.float && !FIT_SKIP_PED?.has(f.id)) turretSupportMesh(g, C.turretSupportGeometry?.(f));
     if(f.k==='broadsideBattery'){if(!FIT_SKIP_BODY?.has(f.id))broadsideBatteryMesh(g,f);return;}
     if(embeddedSurfaceFit(f)){surfaceBatteryMesh(g,f,ship);return;}
     // These small turrets share the authored guns' paint and texture pass. The
     // source-only call below still uses the same inexpensive procedural shape.
     if(!paintSource&&sharedProceduralTurret(f)){
-      const d=C.fitSpec(f),ph=(f.base||0)+(f.ped||0)-(f.low||0);
+      const d=C.fitSpec(f),ph=fitPedestalHeight(f);
       if(ph>0.3&&C.fitHasPedestal(f)&&!FIT_SKIP_PED?.has(f.id))pedestal(g,frameM(f),C.fitOrigin(f),ph,d.r*.72*(f.pedSize||1),f.pedShape,FC.ped,d.r*.8);
       return;
     }
     if(C.FITS[f.k].asset){
-      // Model turrets seat on the highest point under their ring; the pedestal
-      // fills down to the lowest one so they never hang over a slope or step.
+      // A manual pedestal sits above the automatic hull-following foundation.
       if(f.float)return;
-      const d=C.fitSpec(f),ph=(f.base||0)+(f.ped||0)-(f.low||0);
-      if(!d.casemate&&!f.localMount&&f.mountAxis==null&&ph>0.3&&C.fitHasPedestal(f)&&!FIT_SKIP_PED?.has(f.id))pedestal(g,frameM(f),C.fitOrigin(f),ph,d.r*.72*(f.pedSize||1),f.pedShape,FC.ped,d.r*.8);
+      const d=C.fitSpec(f),ph=fitPedestalHeight(f);
+      if(!d.casemate&&(f.mountSupport||!f.localMount&&f.mountAxis==null)&&ph>0.3&&C.fitHasPedestal(f)&&!FIT_SKIP_PED?.has(f.id))pedestal(g,frameM(f),C.fitOrigin(f),ph,d.r*.72*(f.pedSize||1),f.pedShape,FC.ped,d.r*.8);
       if(plainFitAsset(f)&&!familyReferenceAsset(f)&&!FIT_SKIP_BODY?.has(f.id))appendPlainFit(g,f);
       return;
     }
@@ -649,7 +664,7 @@ function meshFits(ship, filter, ranges, only, paintSource=false) {
     if(C.FITS[f.k].craft){if(!FIT_SKIP_BODY?.has(f.id))craftWeaponMesh(g,f);return;}
     const d = C.fitSpec(f), M = frameM(f), o = C.fitOrigin(f), L = d.fm, W = d.wm, h = d.hm, k = f.k;
     // pedestal from below the surface up to the mount
-    const ph = f.base + f.ped - (f.low || 0);
+    const ph = fitPedestalHeight(f);
     if (ph > 0.3 && C.fitHasPedestal(f) && !FIT_SKIP_PED?.has(f.id)) pedestal(g, M, o, ph, d.r * (d.cat === 'b' ? 0.55 : 0.72) * (f.pedSize || 1), f.pedShape, FC.ped, d.r * 0.8);
     if (FIT_SKIP_BODY?.has(f.id)) return;
     if (d.cat === 'b') {
