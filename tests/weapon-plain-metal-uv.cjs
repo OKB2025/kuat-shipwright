@@ -1,15 +1,16 @@
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),assert=require('node:assert/strict'),{test}=require('node:test');
 const root=path.resolve(process.env.KS_TEST_ROOT||path.join(__dirname,'..')),cx=vm.createContext({console});
 for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/core.js','js/gfx.js'])vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),cx,{filename:file});
-const {C,G}=vm.runInContext('({C:Core,G:Gfx})',cx),fit=k=>({id:1,k,p:[60,50,0],a:k==='quad70Side'?4:2,ped:0,base:0,low:0,float:false}),familyKeys=[...C.TURRET_FAMILY_KEYS,...C.LIGHT_TURRET_KEYS].filter(k=>C.REFERENCE_ASSETS[C.FITS[k].asset]?.plainMetal);
-function metalUV(g,label){for(let i=0;i<g.n;i++){const u=g.uv[i*2],v=g.uv[i*2+1];assert.ok(Number.isFinite(u)&&Number.isFinite(v)&&u>=0&&u<.5&&v>=0&&v<=1,label+' must sample the metal half of the fittings atlas; the right half contains dark windows');}}
+const {C,G}=vm.runInContext('({C:Core,G:Gfx})',cx),fit=k=>({id:1,k,p:[60,50,0],a:k==='quad70Side'?4:2,ped:0,base:0,low:0,float:false}),familyKeys=[...C.TURRET_FAMILY_KEYS,...C.LIGHT_TURRET_KEYS,...(C.CAPITAL_TURRET_KEYS||[])].filter(k=>C.REFERENCE_ASSETS[C.FITS[k].asset]?.plainMetal);
+const paintUV=[.046142578125,.153564453125],paintColor=[143,150,155];
+function sharedPaint(g,label){for(let i=0;i<g.n;i++){assert.deepEqual(Array.from(g.uv.slice(i*2,i*2+2)),paintUV,label+' uses the ISD roof paint');assert.deepEqual(Array.from(g.col.slice(i*4,i*4+4)),[...paintColor,255],label+' uses ISD reference color scaling');}}
 
-test('the existing procedural point-defense body samples the metal atlas and stays lightweight',()=>{
- assert.equal(C.FITS.pd.asset,undefined,'point defense remains a procedural fitting');const f=fit('pd'),mesh=G.meshFits({fits:[f]});assert.ok(mesh.ni>0&&mesh.ni<3000);metalUV(mesh,'procedural point defense');const cached=G.meshFits({fits:[f]});metalUV(cached,'cached procedural point defense');assert.deepEqual(Array.from(cached.uv.slice(0,cached.n*2)),Array.from(mesh.uv.slice(0,mesh.n*2)));
+test('procedural point defense shares the reference paint without adding a second body',()=>{
+ assert.equal(C.FITS.pd.asset,undefined,'point defense remains a procedural fitting');const f=fit('pd'),mesh=G.meshReferenceFits({fits:[f]});assert.equal(G.meshFits({fits:[f]}).ni,0);assert.ok(mesh.ni>0&&mesh.ni<3000);sharedPaint(mesh,'procedural point defense');const cached=G.meshReferenceFits({fits:[f]});sharedPaint(cached,'cached procedural point defense');assert.deepEqual(Array.from(cached.uv.slice(0,cached.n*2)),Array.from(mesh.uv.slice(0,mesh.n*2)));
 });
 
-test('original textured DBY and ISD assets retain their authored UVs',()=>{
- for(const k of ['refVen','oct40']){const a=C.REFERENCE_ASSETS[C.FITS[k].asset],decoded=C.decodeReference(C.FITS[k].asset),raw=Array.from(decoded.uv),mesh=G.meshReferenceFits({fits:[fit(k)]});assert.equal(a.plainMetal,false);assert.equal(mesh.ni,a.faces*3);assert.deepEqual(Array.from(mesh.uv.slice(0,mesh.n*2)),raw,k+' keeps its actual source atlas');assert.deepEqual(Array.from(decoded.uv),raw);}
+test('original ISD UVs stay unchanged while the DBY draw copy receives ISD paint',()=>{
+ for(const k of ['refVen','oct40']){const a=C.REFERENCE_ASSETS[C.FITS[k].asset],decoded=C.decodeReference(C.FITS[k].asset),raw=Array.from(decoded.uv),mesh=G.meshReferenceFits({fits:[fit(k)]});assert.equal(a.plainMetal,false);assert.equal(mesh.ni,a.faces*3);if(k==='oct40')assert.deepEqual(Array.from(mesh.uv.slice(0,mesh.n*2)),raw,k+' keeps its actual source atlas');else sharedPaint(mesh,k);assert.deepEqual(Array.from(decoded.uv),raw,k+' keeps immutable decoded source UVs');}
 });
 
 test('textured static gunhouses and moving barrels receive the same reference material shading',()=>{
@@ -19,18 +20,11 @@ test('textured static gunhouses and moving barrels receive the same reference ma
  }
 });
 
-// A derivative keeps source machinery and newly modeled armor in the same
-// reference-material draw path. The old fits atlas brightened all copied parts
-// and stretched random panel rectangles into triangle-fan camouflage.
-test('derived families preserve source machinery UVs and give generated armor one quiet source-paint sample',()=>{
- for(const k of familyKeys){const f=fit(k),a=C.REFERENCE_ASSETS[C.FITS[k].asset],d=C.decodeReference(C.FITS[k].asset),raw=Array.from(d.uv),g=G.meshReferenceFits({fits:[f]}),source=new Set();
-  assert.equal(G.meshFits({fits:[f]}).ni,0,k+' has no duplicate generic fitting material');assert.equal(g.ni,a.faces*3);
-  for(const p of a.components||[]){if(!p.sourceVertexIndices||p.sourceVertexIndices.length!==p.vertices)continue;const anchor=p.sourceAsset==='ven_turret'?'ven_turret70_native':'isd_heavy_octuple',tone=C.REFERENCE_TONE[anchor]||[1,1,1],color=tone.map(v=>Math.round(128*v));
-   for(let i=p.firstVertex;i<p.firstVertex+p.vertices;i++){source.add(i);assert.equal(g.uv[i*2],d.uv[i*2],k+' source u');assert.equal(g.uv[i*2+1],d.uv[i*2+1],k+' source v');assert.deepEqual(Array.from(g.col.slice(i*4,i*4+3)),Array.from(color),k+' source color scale');}}
-  const expectsSource=C.TURRET_FAMILY_KEYS.includes(k)||(a.components||[]).some(p=>p.sourceVertexIndices?.length===p.vertices);assert.equal(source.size>0,expectsSource,k+' retains every required original mechanical material component');const procedural=[];for(let i=0;i<g.n;i++)if(!source.has(i))procedural.push(i);assert.ok(procedural.length>0);const first=procedural[0],paint=[g.uv[first*2],g.uv[first*2+1]];
-  const anchorKind=(a.materialReference==='ven_turret70_native'||!a.materialReference&&a.derivedFrom==='ven_turret')?'refVen':'oct40',anchorColor=Array.from(G.meshReferenceFits({fits:[fit(anchorKind)]}).col.slice(0,3));
-  for(const i of procedural){assert.equal(g.uv[i*2],paint[0],k+' generated case has no triangle-fan u');assert.equal(g.uv[i*2+1],paint[1],k+' generated case has no triangle-fan v');assert.deepEqual(Array.from(g.col.slice(i*4,i*4+3)),anchorColor,k+' generated armor uses the existing anchor color scale');}
-  assert.deepEqual(Array.from(d.uv),raw,k+' decoded source stays immutable');assert.ok([...g.col.slice(0,g.n*4)].filter((_,i)=>i%4!==3).every(v=>v<180),k+' uses reference half-color, not the brighter generic body color');
+// Paint is chosen by the renderer, including source machinery and generated
+// armor. Archive UVs remain available for geometry edits and future materials.
+test('every derived family draw copy uses the same ISD paint and preserves archived UVs',()=>{
+ for(const k of familyKeys){const f=fit(k),a=C.REFERENCE_ASSETS[C.FITS[k].asset],d=C.decodeReference(C.FITS[k].asset),raw=Array.from(d.uv),g=G.meshReferenceFits({fits:[f]});
+  assert.equal(G.meshFits({fits:[f]}).ni,0,k+' has no duplicate generic fitting material');assert.equal(g.ni,a.faces*3);sharedPaint(g,k);assert.deepEqual(Array.from(d.uv),raw,k+' decoded source stays immutable');
  }
 });
 

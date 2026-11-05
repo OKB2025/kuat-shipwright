@@ -29,8 +29,8 @@ test('procedural and reference surface guns render only compact wall openings in
 
 test('independent manual guns retain their full native procedural and reference geometry beside surface batteries',()=>{
  for(const weapon of ['pd','refVen']){const {ship,body}=fixture({weapon}),top=C.surfacePatches(ship).find(p=>p.host==='p'+body.id&&p.face==='top'),placed=C.placeFit(ship,weapon,top.center,top.normal,0,false),manual=placed.fit;assert.ok(manual,placed.err);assert.equal(C.surfaceBatteryGeometry(manual),null);
-  const render=()=>C.FITS[weapon].asset?G.meshReferenceFits(ship,null,[manual]):G.meshFits(ship,f=>f.id===manual.id),mixed=render(),isolated={...ship,surfaces:undefined,fits:[manual]},alone=C.FITS[weapon].asset?G.meshReferenceFits(isolated):G.meshFits(isolated);assert.ok(mixed.ni>0);assert.equal(mixed.ni,alone.ni);assert.deepEqual(plain(vertices(mixed)),plain(vertices(alone)),'surface rendering must not globally scale, replace or hide manual guns');
-  const distances=vertices(mixed).map(p=>C.dot(C.sub(p,manual.p),C.fitUp(manual)));assert.ok(Math.max(...distances)>1,'manual turret should still have its original raised body');const a=G.fleetGeometry(ship),t=a.turrets.find(t=>t.id===manual.id);assert.ok(t?.mesh&&a.meshes[t.mesh]?.geo.ni>0);assert.equal(t.embedded,false);
+  const render=s=>[G.meshFits(s,f=>f.id===manual.id),G.meshReferenceFits(s,null,[manual])].filter(g=>g.ni),mixedMeshes=render(ship),isolated={...ship,surfaces:undefined,fits:[manual]},aloneMeshes=render(isolated),mixed=mixedMeshes[0],alone=aloneMeshes[0];assert.equal(mixedMeshes.length,1);assert.equal(aloneMeshes.length,1);assert.ok(mixed.ni>0);assert.equal(mixed.ni,alone.ni);assert.deepEqual(plain(vertices(mixed)),plain(vertices(alone)),'surface rendering must not globally scale, replace or hide manual guns');
+  const distances=vertices(mixed).map(p=>C.dot(C.sub(p,manual.p),C.fitUp(manual)));assert.ok(Math.max(...distances)>C.fitSpec(manual).hm*.5,'manual turret should still have its original raised body');const a=G.fleetGeometry(ship),t=a.turrets.find(t=>t.id===manual.id);assert.ok(t?.mesh&&a.meshes[t.mesh]?.geo.ni>0);assert.equal(t.embedded,false);
  }
 });
 

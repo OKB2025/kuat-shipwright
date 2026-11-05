@@ -29,12 +29,7 @@ ring, placed its center at the mounting origin, and made local +X forward and
 scale of 1.3. It has two thick barrels approximately 1.766 m in diameter and
 14.107 m long, totaling 830 vertices and 600 triangles.
 
-`stl` remains 175 TT × 2, or 350 TT. Its model and its output-based size
-correction remain unchanged. The normal eight-barrel variant originally used
-the same retained housing with eight narrower barrels; that exact eight-barrel
-asset is now uniformly enlarged. A newly designed octuple house is not used.
-The two variants therefore retain their source relationship while having
-different current dimensions and usable volumes.
+`stl` remains 175 TT × 2, or 350 TT, but now uses the new angular naval gunhouse described in the [175 TT / 720 TT family](capital-turret-family.md). The historical `isd_heavy_twin` below remains archived source and a generic sizing-density anchor; it is no longer the displayed `stl` model. The normal eight-barrel asset and its dimensions remain unchanged.
 
 The twin's uncorrected native size is approximately
 29.679587 × 7.842050 × 29.679456 m. This historical envelope also preserves the
@@ -90,10 +85,9 @@ not credited as usable room. It retains ±20° pitch and ±65° traverse. The
 [current family document](turret-family-and-compartments.md) contains final
 dimensions, closed volumes and production-renderer comparison views.
 
-New 40 TT case faces use paint sampled from the existing normal octuple; new
-70 TT case faces use the DBY-827 paint. Copied mechanical components retain
-their source UVs and colors. The original anchors and global lighting remain
-unchanged. Smooth analytic normals apply only to the generated hemisphere and
+All turret display copies now use the current normal octuple paint, including
+DBY-827 and ion variants. Archived source colors and UVs remain unchanged,
+as do the octuple itself and global lighting. See the [shared paint policy](capital-turret-family.md#共通塗装). Smooth analytic normals apply only to the generated hemisphere and
 ion sphere; angular armor creases and source-component shading are retained.
 
 ## Regeneration and checks

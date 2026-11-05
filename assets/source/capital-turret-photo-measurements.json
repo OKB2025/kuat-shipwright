@@ -1,0 +1,910 @@
+{
+  "schemaVersion": 2,
+  "source": "User-supplied nine unique reference images for175TT/720TT dimensions and mechanical appearance",
+  "sourceFiles": [
+    {
+      "id": "photo1",
+      "path": "assets/source/capital-turret-reference-1.jpg",
+      "sha256": "e0ccd15a9bfaa1cf005922f4ee9d920a6c5be5255c4c7057863fdd973c928ee0",
+      "sizePixels": [
+        1280,
+        719
+      ],
+      "role": "nine-model ordering and relative forms; circular anchor remains local to ball diameter, not a uniform scale for distant angular rows"
+    },
+    {
+      "id": "photo2",
+      "path": "assets/source/capital-turret-reference-2.jpg",
+      "sha256": "9bfbb01ae0914477869aa19bca517ad1f9197d88fe21b6459a4a3953e33779ee",
+      "sizePixels": [
+        651,
+        357
+      ],
+      "role": "authoritative mounted-175TT dimensional comparison using ISD battery station pitch"
+    },
+    {
+      "id": "photo3",
+      "path": "assets/source/capital-turret-reference-3.jpg",
+      "sha256": "ec323dc0c01272d2f3e04c8acc3c6b8dae13c78d2193b8a510f0bbc4389d5073",
+      "sizePixels": [
+        1280,
+        720
+      ],
+      "role": "ISD whole-ship and stern/bow context; nominal ship length1600m"
+    },
+    {
+      "id": "photo4",
+      "path": "assets/source/capital-turret-reference-4.jpg",
+      "sha256": "a0c0aa186c3b4bd5166cd3b161845bdca6b5e9fc083bbac558567654ed4b77d3",
+      "sizePixels": [
+        1206,
+        959
+      ],
+      "role": "175TT ion-twin flattened IS-style bowl housing detail (user-corrected role)"
+    },
+    {
+      "id": "photo5",
+      "path": "assets/source/capital-turret-reference-5.jpg",
+      "sha256": "06b9c3b7e9231ee892eb802056c879a62d7fd776cc44438af53a3dc43a7f1670",
+      "sizePixels": [
+        1204,
+        1280
+      ],
+      "role": "authoring/detail reference for the normal angular 175TT TL twin; NOT a dimensional anchor",
+      "dimensionAnchor": false
+    },
+    {
+      "id": "photo6",
+      "path": "assets/source/capital-turret-reference-6.jpg",
+      "sha256": "faee9873c8f941c91939017731e77313dbe517056a54720e757655eb7bd374ed",
+      "sizePixels": [
+        1206,
+        1039
+      ],
+      "role": "175TT ion twin longitudinal flattened oval, forward mantlet and thick ion tubes",
+      "measurementUse": "authoring-and-relative-proportions-only; no independent absolute metre anchor"
+    },
+    {
+      "id": "photo7",
+      "path": "assets/source/capital-turret-reference-7.jpg",
+      "sha256": "ecf960097b5a0a627c6eb7f5e0d9266cc577f800f2a44b3ce5ad63203f110f28",
+      "sizePixels": [
+        895,
+        833
+      ],
+      "role": "Clean comparison of DBY-827 70TT twin and175TT twin/quad; shared angular case and exposed machinery",
+      "measurementUse": "authoring-and-relative-proportions-only; no independent absolute metre anchor"
+    },
+    {
+      "id": "photo8",
+      "path": "assets/source/capital-turret-reference-8.jpg",
+      "sha256": "5d092abf239b61090fb552cc5fd9239cd94443dae7c515b65ee89b7100b05853",
+      "sizePixels": [
+        588,
+        1280
+      ],
+      "role": "Authoritative175TT twin close view: complete front pod no more than half maximum house width; closed armored roof carrying machinery.",
+      "measurementUse": "authoring-and-relative-proportions-only; user constraints override earlier visual interpretation"
+    },
+    {
+      "id": "photo9",
+      "path": "assets/source/capital-turret-reference-9.jpg",
+      "sha256": "b0e1413fd94df547265da4a6f942e969600dce727d68b5754a24ddfe438e1596",
+      "sizePixels": [
+        1206,
+        850
+      ],
+      "role": "175TT ion barrel detail: thick root tapering to a narrower tip; supersedes parallel-tube interpretation.",
+      "measurementUse": "authoring-and-relative-proportions-only; user constraints override earlier visual interpretation"
+    }
+  ],
+  "anchor": {
+    "photo": "photo1",
+    "kind": "oct40",
+    "asset": "isd_heavy_octuple",
+    "feature": "outer circular mounting footprint, excluding machinery above it",
+    "metres": 40,
+    "pixelEndpoints": [
+      [
+        647,
+        414
+      ],
+      [
+        714,
+        405
+      ]
+    ],
+    "pixelSpan": 67.60177512462228,
+    "pixelUncertainty": 3,
+    "metresPerPixel": 0.5917004387275474,
+    "imageMajorUnit": [
+      0.9910982348686418,
+      -0.13313259871369815
+    ],
+    "appliesTo": [
+      "ball175TripleIon",
+      "ball175Quad",
+      "ball175QuadIon",
+      "ball720"
+    ],
+    "scope": "Local common-ball diameter estimate only. The former global angular scale inferred from this distant catalog row has been superseded by photo2 and the user correction."
+  },
+  "cameraEstimate": {
+    "workingInPlaneAngleDegrees": 26,
+    "workingImageScreenXNative": [
+      0.898794046299167,
+      0,
+      0.4383711467890774
+    ],
+    "projectionRelativeTolerance": 0.2,
+    "status": "Heuristic projection retained for interpreting photo1 only. It is not a solved camera and is NOT an absolute dimensional anchor for angular175 or twin720.",
+    "notes": [
+      "The shared image is oblique and its rows have different depths; simple screen width is not the native longitudinal length.",
+      "Only the visible circular 40m footprint supplies the absolute metre anchor. The rectangular house comparisons use a working in-plane projection and explicit reading/perspective uncertainty.",
+      "No power-ratio/cube-root calculation is used to choose these native dimensions.",
+      "Photo1 angular absolute-scale use is superseded: the user explicitly requires the mounted175TT twin to be larger than the40m ISD octuple, and photo2 station-pitch comparison supplies the stronger reference."
+    ]
+  },
+  "dimensions": {
+    "angular175SizeM": [
+      60,
+      16.425,
+      45
+    ],
+    "angular175HouseLengthM": 40.5,
+    "angular175HouseWidthM": 45,
+    "angular175HouseHeightM": 13.05,
+    "ballDiameterM": 36,
+    "ballSizeM": [
+      44.5,
+      36,
+      36
+    ],
+    "ballMuzzleXM": 26.5,
+    "ballEmbeddedHeightFraction": 0.3333333333333333,
+    "twin720SizeM": [
+      90,
+      24.75,
+      67.5
+    ],
+    "angular175PrototypeScale": 1.5,
+    "ball175RootXM": 0.25,
+    "ball720RootXM": -12.875,
+    "angular175OriginalEnvelopeM": [
+      60,
+      16.5,
+      45
+    ],
+    "twin720ScaleFromOriginal175Envelope": 1.5,
+    "twin720Original175EnvelopeM": [
+      60,
+      16.5,
+      45
+    ],
+    "twin720PreservedFromCommit": "0ef37aaf3e9b85fe1eaa30552f57c99a7c4129bb"
+  },
+  "tube175Design": {
+    "fullLengthM": 26.25,
+    "rootXM": 13.5,
+    "muzzleXM": 39.75,
+    "exposedLengthM": 15.75,
+    "shaftDiameterM": 1.65,
+    "muzzleDiameterM": 1.815,
+    "boreDiameterM": 1.089,
+    "muzzleRecessM": 1.2375,
+    "status": "175TT profile scales uniformly1.5 from the original design to fit the corrected60m mounted-turret calibration. Concealed full root, bore and recess are design values, not direct pixel measurements.",
+    "independentExposedLengthToleranceFraction": null,
+    "independentShaftDiameterToleranceM": null,
+    "supersededPhoto1TubeReading": "The original exposed10–12m/diameter1.1m estimate used the now-superseded global angular scaling of photo1. It is not a quantitative constraint on the corrected mounted175TT gun."
+  },
+  "sharedEnvelopeGroups": [
+    {
+      "name": "angular175",
+      "kinds": [
+        "ion",
+        "stl",
+        "quad175",
+        "triple175"
+      ],
+      "sizeM": [
+        60,
+        16.425,
+        45
+      ],
+      "constraint": "Same outer case family. The normal triple uses exactly the twin TL case, cradle, drives and roof, retaining the outer two tubes and adding one center tube. All175 front mechanisms shrink0.8; the unchanged roof hardware sets the measured16.425m full height."
+    },
+    {
+      "name": "ball",
+      "kinds": [
+        "ball175TripleIon",
+        "ball175Quad",
+        "ball175QuadIon",
+        "ball720"
+      ],
+      "sizeM": [
+        44.5,
+        36,
+        36
+      ],
+      "diameterM": 36,
+      "constraint": "Common sphere, front receiver, muzzle plane and conservative room reservation across four. All ball hardware is preserved from0ef37aa. Whole-body yaw/elevation and lower one third embedded."
+    }
+  ],
+  "models": {
+    "ion": {
+      "label": "175TT×2 イオン（IS型の潰れたお椀）",
+      "asset": "capital_twin175_ion",
+      "features": [
+        {
+          "name": "whole",
+          "photo": "photo1",
+          "pixelEndpoints": [
+            [
+              116,
+              223
+            ],
+            [
+              207,
+              232
+            ]
+          ],
+          "pixelSpan": 88.99174598462312,
+          "spanConvention": "major-axis",
+          "selection": "Whole gunhouse and guns; exclude lower exhibition support; rear boundary partly occluded",
+          "pixelUncertainty": 6,
+          "relativeTolerance": 0.2,
+          "supersededGlobalEstimateM": 52.656455142231955,
+          "measurementUse": "qualitativeOnlySupersededAngularAbsoluteScale",
+          "reason": "Retained original pixel picks for provenance. Do not apply the photo1 circle scale to this distant row; use the photo2 station-pitch calibration and corrected native dimensions."
+        },
+        {
+          "name": "case",
+          "photo": "photo1",
+          "pixelEndpoints": [
+            [
+              132,
+              238
+            ],
+            [
+              205,
+              221
+            ]
+          ],
+          "pixelSpan": 74.61342532354372,
+          "spanConvention": "major-axis",
+          "selection": "Visible fixed armored house; omit guns and exhibition support",
+          "pixelUncertainty": 6,
+          "relativeTolerance": 0.2,
+          "supersededGlobalEstimateM": 44.14879649890592,
+          "measurementUse": "qualitativeOnlySupersededAngularAbsoluteScale",
+          "reason": "Retained original pixel picks for provenance. Do not apply the photo1 circle scale to this distant row; use the photo2 station-pitch calibration and corrected native dimensions."
+        }
+      ],
+      "dimensionalAnchor": "angularAnchor/photo2 shared175TT case-and-pod samples"
+    },
+    "stl": {
+      "label": "175TT×2 ターボレーザー（角形・70TT×3由来）",
+      "asset": "capital_twin175",
+      "features": [
+        {
+          "name": "whole",
+          "photo": "photo1",
+          "pixelEndpoints": [
+            [
+              183,
+              239
+            ],
+            [
+              259,
+              229
+            ]
+          ],
+          "pixelSpan": 76.65479183715375,
+          "spanConvention": "major-axis",
+          "selection": "Whole twin gunhouse and guns; omit lower display cylinder",
+          "pixelUncertainty": 5,
+          "relativeTolerance": 0.2,
+          "supersededGlobalEstimateM": 45.356673960612696,
+          "measurementUse": "qualitativeOnlySupersededAngularAbsoluteScale",
+          "reason": "Retained original pixel picks for provenance. Do not apply the photo1 circle scale to this distant row; use the photo2 station-pitch calibration and corrected native dimensions."
+        },
+        {
+          "name": "case",
+          "photo": "photo1",
+          "pixelEndpoints": [
+            [
+              199,
+              247
+            ],
+            [
+              258,
+              228
+            ]
+          ],
+          "pixelSpan": 61.00431523281013,
+          "spanConvention": "major-axis",
+          "selection": "Flattened rounded IS-style main housing; omit lower display cylinder",
+          "pixelUncertainty": 5,
+          "relativeTolerance": 0.2,
+          "supersededGlobalEstimateM": 36.096280087527354,
+          "measurementUse": "qualitativeOnlySupersededAngularAbsoluteScale",
+          "reason": "Retained original pixel picks for provenance. Do not apply the photo1 circle scale to this distant row; use the photo2 station-pitch calibration and corrected native dimensions."
+        },
+        {
+          "name": "mountedCaseAndPod",
+          "photo": "photo2",
+          "stationIndex": 1,
+          "pixelEndpoints": [
+            [
+              190,
+              227
+            ],
+            [
+              318,
+              185
+            ]
+          ],
+          "pixelSpan": 130.92399414391238,
+          "spanConvention": "projected along battery station row",
+          "selection": "Actual armored175TT TL gunhouse plus complete front gun pod; omit projecting long barrels and lower mounting pad.",
+          "pixelUncertainty": 6,
+          "relativeTolerance": 0.15,
+          "targetProjectedMetres": 57.020817416439314,
+          "measurementUse": "stationRelativeProjected"
+        },
+        {
+          "name": "mountedCaseAndPod",
+          "photo": "photo2",
+          "stationIndex": 2,
+          "pixelEndpoints": [
+            [
+              333,
+              216
+            ],
+            [
+              466,
+              175
+            ]
+          ],
+          "pixelSpan": 135.82910215762973,
+          "spanConvention": "projected along battery station row",
+          "selection": "Actual armored175TT TL gunhouse plus complete front gun pod; omit projecting long barrels and lower mounting pad.",
+          "pixelUncertainty": 6,
+          "relativeTolerance": 0.15,
+          "targetProjectedMetres": 59.157120011597314,
+          "measurementUse": "stationRelativeProjected"
+        }
+      ],
+      "dimensionalAnchor": "angularAnchor/photo2 shared175TT case-and-pod samples"
+    },
+    "quad175": {
+      "label": "175TT×4 ターボレーザー",
+      "asset": "capital_quad175",
+      "features": [
+        {
+          "name": "whole",
+          "photo": "photo1",
+          "pixelEndpoints": [
+            [
+              238,
+              252
+            ],
+            [
+              316,
+              237
+            ]
+          ],
+          "pixelSpan": 79.30265130045953,
+          "spanConvention": "major-axis",
+          "selection": "Whole four-gun angular house; omit lower display cylinder",
+          "pixelUncertainty": 5,
+          "relativeTolerance": 0.2,
+          "supersededGlobalEstimateM": 46.92341356673961,
+          "measurementUse": "qualitativeOnlySupersededAngularAbsoluteScale",
+          "reason": "Retained original pixel picks for provenance. Do not apply the photo1 circle scale to this distant row; use the photo2 station-pitch calibration and corrected native dimensions."
+        },
+        {
+          "name": "case",
+          "photo": "photo1",
+          "pixelEndpoints": [
+            [
+              252,
+              259
+            ],
+            [
+              316,
+              238
+            ]
+          ],
+          "pixelSpan": 66.22607160458074,
+          "spanConvention": "major-axis",
+          "selection": "Fixed angular house around forward shared gun pod",
+          "pixelUncertainty": 5,
+          "relativeTolerance": 0.2,
+          "supersededGlobalEstimateM": 39.185995623632394,
+          "measurementUse": "qualitativeOnlySupersededAngularAbsoluteScale",
+          "reason": "Retained original pixel picks for provenance. Do not apply the photo1 circle scale to this distant row; use the photo2 station-pitch calibration and corrected native dimensions."
+        },
+        {
+          "name": "exposedBarrel",
+          "photo": "photo1",
+          "pixelEndpoints": [
+            [
+              239,
+              247
+            ],
+            [
+              251,
+              244
+            ]
+          ],
+          "pixelSpan": 12.36931687685298,
+          "spanConvention": "euclidean",
+          "selection": "Visible barrel outside front pod; exact hidden root cannot be read",
+          "pixelUncertainty": 2,
+          "relativeTolerance": 0.25,
+          "nativeAxis": [
+            1,
+            0,
+            0
+          ],
+          "projectedAxisFactor": 0.898794046299167,
+          "supersededGlobalEstimateM": 7.318930222793965,
+          "measurementUse": "qualitativeOnlySupersededAngularAbsoluteScale",
+          "reason": "Retained original pixel picks for provenance. Do not apply the photo1 circle scale to this distant row; use the photo2 station-pitch calibration and corrected native dimensions."
+        }
+      ],
+      "dimensionalAnchor": "angularAnchor/photo2 shared175TT case-and-pod samples"
+    },
+    "triple175": {
+      "label": "175TT×3 ターボレーザー",
+      "asset": "capital_triple175",
+      "features": [
+        {
+          "name": "whole",
+          "photo": "photo1",
+          "pixelEndpoints": [
+            [
+              296,
+              272
+            ],
+            [
+              374,
+              250
+            ]
+          ],
+          "pixelSpan": 80.23457949145542,
+          "spanConvention": "major-axis",
+          "selection": "Whole three-gun angular house; omit lower display cylinder",
+          "pixelUncertainty": 5,
+          "relativeTolerance": 0.2,
+          "supersededGlobalEstimateM": 47.47483588621445,
+          "measurementUse": "qualitativeOnlySupersededAngularAbsoluteScale",
+          "reason": "Retained original pixel picks for provenance. Do not apply the photo1 circle scale to this distant row; use the photo2 station-pitch calibration and corrected native dimensions."
+        },
+        {
+          "name": "case",
+          "photo": "photo1",
+          "pixelEndpoints": [
+            [
+              310,
+              280
+            ],
+            [
+              373,
+              250
+            ]
+          ],
+          "pixelSpan": 66.43316675813537,
+          "spanConvention": "major-axis",
+          "selection": "Fixed angular house around forward shared gun pod",
+          "pixelUncertainty": 5,
+          "relativeTolerance": 0.2,
+          "supersededGlobalEstimateM": 39.308533916849015,
+          "measurementUse": "qualitativeOnlySupersededAngularAbsoluteScale",
+          "reason": "Retained original pixel picks for provenance. Do not apply the photo1 circle scale to this distant row; use the photo2 station-pitch calibration and corrected native dimensions."
+        }
+      ],
+      "dimensionalAnchor": "angularAnchor/photo2 shared175TT case-and-pod samples"
+    },
+    "utl": {
+      "label": "720TT×2 ターボレーザー",
+      "asset": "capital_twin720",
+      "features": [
+        {
+          "name": "whole",
+          "photo": "photo1",
+          "pixelEndpoints": [
+            [
+              736,
+              347
+            ],
+            [
+              870,
+              322
+            ]
+          ],
+          "pixelSpan": 136.13547844024046,
+          "spanConvention": "major-axis",
+          "selection": "720TT twin gunhouse and guns; EXCLUDE broad octagonal exhibition plinth",
+          "pixelUncertainty": 7,
+          "relativeTolerance": 0.2,
+          "supersededGlobalEstimateM": 80.55142231947485,
+          "measurementUse": "qualitativeOnlySupersededAngularAbsoluteScale",
+          "reason": "Retained original pixel picks for provenance. Do not apply the photo1 circle scale to this distant row; use the photo2 station-pitch calibration and corrected native dimensions."
+        },
+        {
+          "name": "case",
+          "photo": "photo1",
+          "pixelEndpoints": [
+            [
+              767,
+              348
+            ],
+            [
+              870,
+              320
+            ]
+          ],
+          "pixelSpan": 105.81083095545365,
+          "spanConvention": "major-axis",
+          "selection": "720TT twin main armored housing; omit guns and broad plinth",
+          "pixelUncertainty": 5,
+          "relativeTolerance": 0.2,
+          "supersededGlobalEstimateM": 62.60831509846828,
+          "measurementUse": "qualitativeOnlySupersededAngularAbsoluteScale",
+          "reason": "Retained original pixel picks for provenance. Do not apply the photo1 circle scale to this distant row; use the photo2 station-pitch calibration and corrected native dimensions."
+        }
+      ],
+      "dimensionalAnchor": "angular175 group calibrated fromphoto2, enlarged uniformly1.5 as specified for720TT twin"
+    },
+    "ball175TripleIon": {
+      "label": "175TT×3 イオン・ボール",
+      "asset": "capital_ball175_triple_ion",
+      "features": [
+        {
+          "name": "sphere",
+          "photo": "photo1",
+          "pixelEndpoints": [
+            [
+              62,
+              280
+            ],
+            [
+              62,
+              336
+            ]
+          ],
+          "pixelSpan": 56.0,
+          "spanConvention": "euclidean",
+          "selection": "Front spherical silhouette only; omit rear cylinder/support",
+          "pixelUncertainty": 3,
+          "relativeTolerance": 0.15,
+          "targetProjectedMetres": 33.13522456874266,
+          "measurementUse": "localPhoto1BallDiameter"
+        }
+      ]
+    },
+    "ball175Quad": {
+      "label": "175TT×4 ボール",
+      "asset": "capital_ball175_quad",
+      "features": [
+        {
+          "name": "sphere",
+          "photo": "photo1",
+          "pixelEndpoints": [
+            [
+              111,
+              296
+            ],
+            [
+              111,
+              352
+            ]
+          ],
+          "pixelSpan": 56.0,
+          "spanConvention": "euclidean",
+          "selection": "Front spherical silhouette only; omit rear cylinder/support",
+          "pixelUncertainty": 3,
+          "relativeTolerance": 0.15,
+          "targetProjectedMetres": 33.13522456874266,
+          "measurementUse": "localPhoto1BallDiameter"
+        }
+      ]
+    },
+    "ball175QuadIon": {
+      "label": "175TT×4 イオン・ボール",
+      "asset": "capital_ball175_quad_ion",
+      "features": [
+        {
+          "name": "sphere",
+          "photo": "photo1",
+          "pixelEndpoints": [
+            [
+              172,
+              313
+            ],
+            [
+              172,
+              371
+            ]
+          ],
+          "pixelSpan": 58.0,
+          "spanConvention": "euclidean",
+          "selection": "Front spherical silhouette only; omit rear cylinder/support",
+          "pixelUncertainty": 3,
+          "relativeTolerance": 0.15,
+          "targetProjectedMetres": 34.31862544619775,
+          "measurementUse": "localPhoto1BallDiameter"
+        }
+      ]
+    },
+    "ball720": {
+      "label": "720TT×1 ボール",
+      "asset": "capital_ball720_single",
+      "features": [
+        {
+          "name": "sphere",
+          "photo": "photo1",
+          "pixelEndpoints": [
+            [
+              212,
+              352
+            ],
+            [
+              273,
+              352
+            ]
+          ],
+          "pixelSpan": 61.0,
+          "spanConvention": "euclidean",
+          "selection": "Least occluded common spherical body, horizontal diameter; omit lower support",
+          "pixelUncertainty": 3,
+          "relativeTolerance": 0.15,
+          "targetProjectedMetres": 36.09372676238039,
+          "measurementUse": "localPhoto1BallDiameter"
+        }
+      ]
+    }
+  },
+  "mountingReference": {
+    "photo": "photo2",
+    "contextPhoto": "photo3",
+    "countPerSide": 4,
+    "ionStationIndex": 0,
+    "nativeXOrder": "ascending from stern toward bow",
+    "reason": "The user identifies the leftmost mounted turret as ion. Photo3 has bow to image-right and stern to image-left, so the leftmost station is treated as aft/lowest native X.",
+    "uncertainty": "Photo2 is a close crop without an independently visible bow/stern marker; station orientation is a cross-image inference, not a survey result.",
+    "excludeSupportPedestals": true
+  },
+  "interpretations": [
+    "The user lists nine models. The175TT ION twin is the flattened IS-tank-like bowl; the normal175TT TL twin is angular and follows the new red technical detail reference.",
+    "The initial40x11x30 angular estimate and its globalphoto1 scale are explicitly superseded. Original corrected175TT was60x16.5x45m, larger than the40m ISD octuple in both plan dimensions. Compact front hardware reduces the current actual height to16.425m.",
+    "Photo2 mounted station pitch supplies the stronger angular calibration. Photo1 remains the source for model order, common ball diameter and the720/175 shape enlargement relationship.",
+    "The red technical drawing(photo5) is an authoring/detail reference only and supplies no metre or pixel scale.",
+    "Exhibition cylinders and the broad octagonal support below720TT twin are excluded from native turret envelopes."
+  ],
+  "angularAnchor": {
+    "photo": "photo2",
+    "kind": "ISD native battery station pitch",
+    "nativeStationPitchM": 62.36,
+    "nativeShipLengthM": 1600,
+    "nativeStationXCoordinatesM": [
+      281.76,
+      344.12,
+      406.48,
+      468.84
+    ],
+    "stationCentersPixels": [
+      [
+        105,
+        235
+      ],
+      [
+        243,
+        219
+      ],
+      [
+        390,
+        213
+      ],
+      [
+        533,
+        201
+      ]
+    ],
+    "stationCenterUncertaintyPx": 5,
+    "adjacentPixelPitches": [
+      138.92443989449805,
+      147.12239802287073,
+      143.50261321662404
+    ],
+    "meanPixelPitch": 143.1831503779976,
+    "batteryAxisUnitImage": [
+      0.9968595583433164,
+      -0.07918977799923543
+    ],
+    "metresPerPixelAlongBattery": 0.4355261064962754,
+    "measurementRole": "Mounted armored house plus front gun pod compared along the battery row; long barrels and the lower deck mounting pads are excluded.",
+    "caveat": "This is a projected longitudinal scale from an oblique, partly occluded ship view, not an exact reconstruction of all three native dimensions.",
+    "relativePerspectiveTolerance": 0.15,
+    "userConstraint": "175TT TL twin and common175TT family must exceed the40m ISD octuple in plan; the old40x11x30 model was too small.",
+    "normalTwinCaseAndPodSamples": [
+      {
+        "name": "mountedCaseAndPod",
+        "photo": "photo2",
+        "stationIndex": 1,
+        "pixelEndpoints": [
+          [
+            190,
+            227
+          ],
+          [
+            318,
+            185
+          ]
+        ],
+        "pixelSpan": 130.92399414391238,
+        "spanConvention": "projected along battery station row",
+        "selection": "Actual armored175TT TL gunhouse plus complete front gun pod; omit projecting long barrels and lower mounting pad.",
+        "pixelUncertainty": 6,
+        "relativeTolerance": 0.15,
+        "targetProjectedMetres": 57.020817416439314,
+        "measurementUse": "stationRelativeProjected"
+      },
+      {
+        "name": "mountedCaseAndPod",
+        "photo": "photo2",
+        "stationIndex": 2,
+        "pixelEndpoints": [
+          [
+            333,
+            216
+          ],
+          [
+            466,
+            175
+          ]
+        ],
+        "pixelSpan": 135.82910215762973,
+        "spanConvention": "projected along battery station row",
+        "selection": "Actual armored175TT TL gunhouse plus complete front gun pod; omit projecting long barrels and lower mounting pad.",
+        "pixelUncertainty": 6,
+        "relativeTolerance": 0.15,
+        "targetProjectedMetres": 59.157120011597314,
+        "measurementUse": "stationRelativeProjected"
+      }
+    ]
+  },
+  "tube720Design": {
+    "fullLengthM": 39.375,
+    "rootXM": 20.25,
+    "muzzleXM": 59.625,
+    "exposedLengthM": 23.625,
+    "shaftDiameterM": 2.475,
+    "muzzleDiameterM": 2.7225,
+    "boreDiameterM": 1.6335,
+    "muzzleRecessM": 1.85625,
+    "derivation": "Uniform1.5 enlargement of corrected175TT profile, following the specified720TT twin shape relationship; no power cube-root sizing."
+  },
+  "ballBarrelSeating": {
+    "commonMuzzleXM": 26.5,
+    "175TT": {
+      "fullLengthM": 26.25,
+      "rootXM": 0.25
+    },
+    "720TT": {
+      "fullLengthM": 39.375,
+      "rootXM": -12.875
+    },
+    "reason": "Ball diameter/envelope remains anchored independently to photo1. Larger corrected caliber profiles are seated deeper inside the common sphere instead of changing the four shared outer sizes."
+  },
+  "supersedesMeasurementSha256": "640d26af84bebb459745e4bbca1977bc2575f90d82c08913da6212fc6272a068",
+  "podWidthDesign": {
+    "caseWidth175M": 45,
+    "ratiosByBarrelCount": {
+      "2": 0.32,
+      "3": 0.32,
+      "4": 0.6
+    },
+    "widths175M": {
+      "2": 14.4,
+      "3": 14.4,
+      "4": 27
+    },
+    "barrelRowSpans175M": {
+      "2": 7.6,
+      "3": 7.6,
+      "4": 17.1
+    },
+    "reference": "photo8",
+    "completeTwinAssemblyMaximumWidthM": 22.5,
+    "completeTwinAssemblyIncludes": [
+      "moving armored pod",
+      "both circular bearings and covers",
+      "tube assembly"
+    ],
+    "appliesToTwinKinds": [
+      "stl",
+      "triple175",
+      "ion"
+    ],
+    "status": "Latest user revision: all175 front mechanisms are scaled0.8. The triple shares the complete twin model and retains its outer tube pair, with only one center tube added. Original half-house-width limit remains an upper bound; actual compact twin supports fit well inside it.",
+    "sharedBaseKinds": [
+      "stl",
+      "triple175"
+    ]
+  },
+  "ionDesign": {
+    "references": [
+      "photo4",
+      "photo6",
+      "photo9"
+    ],
+    "case175Twin": "Longitudinal flattened oval cast bowl with curved forward shoulders; narrow front mantlet advances relative to the angular TL twin. Current whole60×16.425×45m envelope; the original16.5m height is retained only as the720 scaling reference.",
+    "podForwardOffset175M": 1.65,
+    "completePodMaximumWidthM": 22.5,
+    "barrelStyle": "tapered-ion-tube",
+    "authoredRootRadiusToMatchingTL": 2.2,
+    "authoredTipShankRadiusToMatchingTL": 1.25,
+    "muzzleCollarToTipRadius": 1.1,
+    "boreToTipRadius": 0.66,
+    "taperBeginsAt": "Caller-owned visible barrel base so the exposed thick root narrows toward the muzzle.",
+    "appliesTo": [
+      "ion",
+      "ball175TripleIon",
+      "ball175QuadIon",
+      "quad40Ion",
+      "ionL",
+      "cion"
+    ],
+    "status": "Latest user correction: thick root and narrower tip. This supersedes the parallel1.5-radius tube interpretation. Numeric radius ratios are authored values and must avoid tube intersections in the existing40TT four-port layout."
+  },
+  "roofConstruction": {
+    "reference": [
+      "photo5",
+      "photo7",
+      "photo8"
+    ],
+    "closedArmoredDeck": true,
+    "machineryMountedAboveRoof": true,
+    "centralOpenCavity": false,
+    "status": "Explicit user correction. Earlier open-well interpretation is rejected. Internal recoil/equipment clearance remains reserved and is not free charging volume."
+  },
+  "frontBaseRevision": {
+    "baselineCommit": "0ef37aaf3e9b85fe1eaa30552f57c99a7c4129bb",
+    "source": "User requested the angular twin-based triple with one center barrel and smaller175TT gun bases; later explicitly excluded spherical175TT bases.",
+    "mechanismScale175": 0.8,
+    "bodyAndTubeScale": 1,
+    "angularTripleBaseKind": "stl",
+    "tripleRetainsOuterPair": true,
+    "tripleAddsCenterTubeZ": 0,
+    "affectedKinds": [
+      "ion",
+      "stl",
+      "triple175",
+      "quad175"
+    ],
+    "ballSphereAndMuzzlePlaneUnchanged": true,
+    "roomPolicy": "Reserve conservative angular mechanism space and keep it excluded from charging cells. Do not credit new interface supports.720 and all ball geometry, mechanisms and rooms are preserved.",
+    "status": "A20percent authoring adjustment, not a new image-derived metre calibration. Actual geometry, contact, bounds and unchanged720 models are checked by generators and independent tests.",
+    "unchangedKinds": [
+      "utl",
+      "ball175TripleIon",
+      "ball175Quad",
+      "ball175QuadIon",
+      "ball720"
+    ],
+    "ballHardwarePreservedFromCommit": "0ef37aaf3e9b85fe1eaa30552f57c99a7c4129bb",
+    "sideCaseFill": {
+      "source": "User requested structural filling on both sides of the reduced gun base.",
+      "fixedToCase": true,
+      "spanOriginalSocketSides": true,
+      "clipToOriginalBeveledOrOvalCase": true,
+      "maintainMovingEnvelopeClearance": true,
+      "addsCapacitorRoom": false,
+      "sharedByTwinAndTriple": true,
+      "excludesBallTurrets": true
+    }
+  }
+}

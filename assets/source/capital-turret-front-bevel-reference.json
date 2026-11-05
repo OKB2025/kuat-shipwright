@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "source": "Latest user-annotated side view: front upper armor corners slope rearward as they rise.",
+  "image": {
+    "path": "assets/source/capital-turret-reference-10.jpg",
+    "sha256": "910f0b3950c7858303f25d73982deb2dbd4428afc53b7589b7ee12f06810a790",
+    "sizePixels": [
+      1206,
+      888
+    ]
+  },
+  "scope": [
+    "stl",
+    "triple175",
+    "quad175",
+    "utl"
+  ],
+  "unchanged": [
+    "ion cast oval",
+    "overall native envelopes",
+    "lower maximum-width mounting datum",
+    "twin complete pod<=half house width",
+    "closed armored roof",
+    "barrel profiles and muzzles"
+  ],
+  "sideGuidePixelPoints": {
+    "lowerFrontKnee": [
+      400,
+      430
+    ],
+    "upperFrontRoof": [
+      608,
+      270
+    ],
+    "adjacentCheekKnee": [
+      697,
+      401
+    ],
+    "adjacentCheekRoof": [
+      875,
+      272
+    ]
+  },
+  "prototypeSideSectionM": {
+    "lowerFrontKnee": [
+      13.5,
+      3.0
+    ],
+    "upperFrontRoof": [
+      6.75,
+      8.6
+    ]
+  },
+  "actual175SideSectionM": {
+    "lowerFrontKnee": [
+      20.25,
+      4.5
+    ],
+    "upperFrontRoof": [
+      10.125,
+      12.9
+    ],
+    "roofRetreatM": 10.125
+  },
+  "construction": "Three real oblique armor planes: forward face and both adjoining forward cheeks above the skirt knee. A global X-only cut is insufficient for the second marked shoulder. Integral trunnion supports connect the recessed armor to the existing gun pivot and add no charging room.",
+  "measurementStatus": "Side landmarks are approximate reads from the supplied annotated rendering. The prototype section is an authored interpretation of the red strokes, not an independent absolute metre calibration. Main dimensional calibration remains capital-turret-photo-measurements.json."
+}

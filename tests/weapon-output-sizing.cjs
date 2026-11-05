@@ -59,7 +59,7 @@ test('DBY-827 and the canonical eight-barrel turret retain their authored size a
 });
 
 test('the photographed family and medium quad retain their own native size anchors', () => {
-  const cases=[['single500',1,.5],['single200',1,.2],['twin200',2,.4],['twin200Fast',2,.4],['quad200',4,.8],['quad500',4,2],['single40',1,40],['quad40Ion',4,160],['twin40Dome',2,80],['twin40',2,80],['triple40',3,120],['oct40',8,320],['refVen',2,140],['triple70',3,210],['quad70Side',4,280]];
+  const cases=[['single500',1,.5],['single200',1,.2],['twin200',2,.4],['twin200Fast',2,.4],['quad200',4,.8],['quad500',4,2],['single40',1,40],['quad40Ion',4,160],['twin40Dome',2,80],['twin40',2,80],['triple40',3,120],['oct40',8,320],['refVen',2,140],['triple70',3,210],['quad70Side',4,280],['stl',2,350],['ion',2,350],['triple175',3,525],['quad175',4,700],['ball175TripleIon',3,525],['ball175Quad',4,700],['ball175QuadIon',4,700],['ball720',1,720],['utl',2,1440]];
   for(const [k,barrels,volleyTT]of cases){
     // Independent photograph-ratio tests cover the chosen proportions. Here
     // the packed rendered mesh must agree with its published native size.
@@ -75,10 +75,10 @@ test('the photographed family and medium quad retain their own native size ancho
 
 test('unlisted conventional weapons retain their established salvo/barrel density calibration', () => {
   // The photographed octuple has a new independent40m case. Legacy generic
-  // guns keep the prior calibration, retained in the unchanged350TT source.
+  // guns keep the prior calibration, retained in the unchanged archived source.
   const twinDensity=28.861991732993026*9.997709224590754*16.2580849216165/140;
   const octupleDensity=volume(Array.from(C.REFERENCE_ASSETS.isd_heavy_twin.size))/320;
-  for(const k of ['pd','stl','utl','ion','ionL']){
+  for(const k of ['pd','ionL']){
     const f=fitting(k),d=C.FITS[k],sizing=C.weaponSizing(f),blend=Math.min(1,Math.max(0,(d.barrels-2)/6)),salvo=Math.max(d.tt||0,d.ion||0),target=salvo*(twinDensity*(1-blend)+octupleDensity*blend);
     near(sizing.anchorBlend,blend,`${k} barrel interpolation`);near(sizing.volleyTT,salvo,`${k} salvo energy`);near(sizing.sourceVolume,volume(Array.from(sizing.sourceSize)),`${k} source volume`);near(sizing.targetVolume,target,`${k} retained target volume`);near(C.weaponModelScale(f),Math.cbrt(target/sizing.sourceVolume),`${k} cube-root scale`);near(volume(dimensions(d)),target,`${k} canonical envelope volume`);
     for(let axis=0;axis<3;axis++)near(dimensions(d)[axis],sizing.sourceSize[axis]*sizing.factor,`${k} preserved aspect axis${axis}`);
@@ -90,7 +90,8 @@ test('point defense is a light procedural twin 20 GT dual-purpose turbolaser', (
   assert.equal(d.asset, undefined, 'point defense no longer uses an imported model');
   assert.equal(C.REFERENCE_ASSETS.pd_turret_small, undefined, 'the removed model is not registered');
   // Ships carry dozens of these; each must stay a light procedural body (the imported mesh was 29,060 triangles).
-  assert.ok(G.meshFits({fits: [fitting('pd')]}).ni/3 < 1000, 'point defense renders a light procedural body');
+  const s={fits:[fitting('pd')]},triangles=(G.meshFits(s).ni+G.meshReferenceFits(s).ni)/3;
+  assert.ok(triangles>0&&triangles<1000, 'point defense renders a light procedural body');
   assert.equal(d.barrels, 2);
   assert.equal(d.boltTT, .02);
   assert.equal(d.tt, .04);

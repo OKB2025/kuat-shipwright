@@ -100,7 +100,7 @@ test('all derived70 barrels preserve complete full-length DBY profiles and the f
 // Enlarging a neighbouring case must relocate the affected authored station,
 // rather than silently dropping guns from the built-in Imperial example.
 test('photo-sized cases retain Imperial native inventory and its forward dorsal ion pair after catalog consolidation',()=>{
- const s=C.buildDesign('imperial'),ions=s.fits.filter(f=>f.k==='quad40Ion'),other=[['pd',22],['oct40',6],['ion',2],['podAir',1],['refVen',4],['triple40',3],['quad200',2],['twin40',60],['trc',10]];
+ const s=C.buildDesign('imperial'),ions=s.fits.filter(f=>f.k==='quad40Ion'),other=[['pd',22],['stl',6],['ion',2],['podAir',1],['refVen',4],['triple40',3],['quad200',2],['twin40',60],['trc',10]];
  // The recipe attempts sixty ion stations. Smaller replacement weapons can
  // free previously obstructed stations; none of the original56 may disappear.
  assert.ok(ions.length>=56&&ions.length<=60,'consolidation can expose existing authored ion stations without duplicating the recipe');for(const[kind,n]of other)assert.equal(s.fits.filter(f=>f.k===kind).length,n,kind+' canonical inventory');assert.equal(s.fits.length,other.reduce((n,r)=>n+r[1],0)+ions.length);assert.equal(new Set(s.fits.map(f=>f.id)).size,s.fits.length);assert.equal(new Set(ions.map(f=>JSON.stringify([f.a,f.p]))).size,ions.length,'each ion occupies its own authored station');

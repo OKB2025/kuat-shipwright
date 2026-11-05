@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 1,
+  "recordedAtUTC": "2026-11-05",
+  "purpose": "Attribute dense Executor worker-build latency without changing example figures or claiming a first-display improvement.",
+  "scope": {
+    "recipe": "executor",
+    "operation": "YardEngine worker build followed by the editor first-display update",
+    "modules": [
+      "data/reference.js",
+      "data/imperial2.js",
+      "data/fleet.js",
+      "js/core.js",
+      "js/gfx.js",
+      "js/engine.js"
+    ],
+    "workerRequests": [
+      {
+        "type": "build",
+        "id": 1,
+        "key": "executor"
+      },
+      {
+        "type": "update",
+        "gen": 1,
+        "what": [
+          "all"
+        ],
+        "reset": true,
+        "stats": false,
+        "view": {
+          "deferSurfaces": true
+        }
+      }
+    ],
+    "firstDisplayMeasured": false,
+    "otherDenseRecipesOpened": false,
+    "notes": [
+      "The archived baseline is the merged main revision preceding this feature.",
+      "Both observations are limited to the build/settlement path. Neither observation completed the first-display geometry/surface messages.",
+      "No example-figures fixtures were regenerated.",
+      "The initial-current observation predates the subsequent authoring corrections (closed roof, narrow twin pods, tapered ion barrels and reserved ball machinery volume). Its source hashes identify that intermediate state; it is not final-feature performance evidence."
+    ]
+  },
+  "runtime": {
+    "node": "v24.22.1",
+    "platform": "linux",
+    "wallTimesComparable": false,
+    "reason": "The initial current run overlapped the 28.034-second targeted model suite and craft-catalog verification. The baseline was a later bounded run."
+  },
+  "baseline": {
+    "commit": "e7308e2096ed21f882f36f09268e47c9a589a15d",
+    "sourceSha256": {
+      "data/reference.js": "f8c55ec635f1d21c7b822a76a754a0a9498530eae42131248140177a752ba99a",
+      "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+      "data/fleet.js": "c4fdb044a7b449520bf65c29080a127356ad6a766d275b8296ec520ea9ba026a",
+      "js/core.js": "63b032bcdee16afc4d648936ef6bc570f0aeac5ad5dd18076cabd7098a50525c",
+      "js/gfx.js": "c71639c693418088060b889a50a05b2426d66249998e60360ac594e609863cef",
+      "js/engine.js": "ede76361fb8f1a8f5a1c288a55a531bdd32b8e8322fdf860b614481eaefce255"
+    },
+    "archiveCommand": "git archive e7308e2 data/reference.js data/imperial2.js data/fleet.js js/core.js js/gfx.js js/engine.js | tar -x -C /tmp/capital-baseline-runtime",
+    "command": "timeout -k 5s 180s env KS_TEST_ROOT=/tmp/capital-baseline-runtime node /tmp/capital-heavy-example-open.cjs executor",
+    "harnessSha256": "0a2ba025af23ace6c98a6afe0f5836ef13065d10060106f06ef6dad058bbcaeb",
+    "exitCode": 124,
+    "wallLimitSeconds": 180,
+    "phaseMilliseconds": {
+      "recipeBuild": 129769,
+      "firstWorkerSync": 3778,
+      "workerRemount": 97,
+      "secondWorkerSync": 29987,
+      "workerBuildTotal": 163643
+    },
+    "lastObservedPhase": "First-display geometry construction; no geometry response before the timeout.",
+    "parts": 314,
+    "fits": 2226,
+    "canonicalInventory": {
+      "podAir": 1,
+      "pd": 1250,
+      "refVen": 750,
+      "cmsl": 125,
+      "ion": 100
+    },
+    "existingFloatFittings": 125,
+    "firstDisplayMilliseconds": null,
+    "completeOpenMilliseconds": null,
+    "log": "/tmp/capital-heavy-open-executor-baseline.log"
+  },
+  "initialCurrent": {
+    "baseCommit": "e7308e2096ed21f882f36f09268e47c9a589a15d",
+    "uncommittedFeatureRuntime": true,
+    "sourceSha256": {
+      "data/reference.js": "82d89392f55ac7563704d762076b8b74ee43e26f58a3a0f8febad22494e0a166",
+      "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+      "data/fleet.js": "c4fdb044a7b449520bf65c29080a127356ad6a766d275b8296ec520ea9ba026a",
+      "js/core.js": "b1ce852cf86a2095684146dc7b1d16907551535063bd079d79e120b953a33051",
+      "js/gfx.js": "5d650c631340e19f2fad60cd483be06f3f407f5c0b84caad89faffa6bacd0d86",
+      "js/engine.js": "ede76361fb8f1a8f5a1c288a55a531bdd32b8e8322fdf860b614481eaefce255"
+    },
+    "hashCapture": "Source hashes captured after the initial run; Core, data and engine were frozen for this measurement.",
+    "command": "node /tmp/capital-heavy-example-open.cjs executor",
+    "logLifetimeSeconds": 186.256,
+    "logLifetimeMethod": "Filesystem log creation to last write; this is not the worker built.ms value.",
+    "workerBuildCompleted": true,
+    "workerBuildMilliseconds": null,
+    "stopReason": "Audit assertion expected legacy msl and omitted the generated podAir. The actual canonical inventory below was complete; the runtime did not report missing guns. The audit stopped before requesting first-display geometry.",
+    "canonicalInventory": {
+      "podAir": 1,
+      "pd": 1250,
+      "refVen": 750,
+      "cmsl": 125,
+      "ion": 100
+    },
+    "fits": 2226,
+    "firstDisplayMilliseconds": null,
+    "completeOpenMilliseconds": null,
+    "sampledBuildStack": [
+      "handleBuild",
+      "syncCompartments",
+      "allOccupied",
+      "turretIntrusions",
+      "turretCompartmentProjection",
+      "turretEnvelopeGeometry",
+      "structuralJoinBoundary",
+      "structuralClipBoundary",
+      "surfaceExposeTriangle",
+      "triangulateFan"
+    ],
+    "log": "/tmp/capital-heavy-open-executor.log",
+    "featureStage": "Initial capital-family implementation before the later user correction to ion/TL case roles, 175TT scale and ion barrel profiles; these hashes and timings do not describe the final corrected runtime."
+  },
+  "conclusion": "The old runtime already spends 163.643 seconds building and settling this 2226-fitting Executor example, and does not finish first display inside 180 seconds. These observations establish substantial pre-existing cost, but do not quantify the final corrected feature's performance impact or establish successful Executor first display. Native ISD browser validation is recorded separately.",
+  "reproduction": {
+    "script": "scripts/benchmark-capital-example-opening.cjs",
+    "sha256": "95ca8d721d3b47f48f24951e2b6f88010d9ec7cf1cda9be8180958ac089340e6",
+    "currentCommand": "timeout -k 5s 180s node scripts/benchmark-capital-example-opening.cjs executor",
+    "baselineCommand": "timeout -k 5s 180s env KS_TEST_ROOT=/tmp/capital-baseline-runtime node scripts/benchmark-capital-example-opening.cjs executor",
+    "notes": "The checked-in harness retains the measured worker operations and canonical inventory assertions; only its repository-root default and usage comments differ from the temporary measured script. Historical command and hash fields above identify the actual observations."
+  }
+}

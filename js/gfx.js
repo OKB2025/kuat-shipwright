@@ -508,6 +508,14 @@ function cyl(g, M, o, cx, cy, cz, r0, r1, len, axis, col, seg) {
     }
   }
 }
+// Ion tubes have a thick root that visibly narrows toward the muzzle. The
+// small collar surrounds an annulus, inner wall and recessed bore floor.
+function ionBarrel(g,M,o,root,tip,y,z,nominal,col,seg=12){
+ const length=tip-root,base=nominal*2.2,r=nominal*1.25,recess=Math.min(length*.24,Math.max(r*1.5,length*.035)),collar=tip-Math.min(length*.08,Math.max(r*.8,length*.06)),profile=[[root,0],[root,base],[root+length*.18,base],[collar,r],[collar,r*1.1],[tip,r*1.1],[tip,r*.66],[tip-recess,r*.66],[tip-recess,0]],rings=profile.map(([x,r])=>r?Array.from({length:seg},(_,i)=>mx(M,o,[x,y+r*Math.cos(i/seg*Math.PI*2),z+r*Math.sin(i/seg*Math.PI*2)])):[mx(M,o,[x,y,z])]);
+ for(let k=1;k<rings.length;k++){const a=rings[k-1],b=rings[k];for(let i=0;i<seg;i++){const j=(i+1)%seg,ps=a.length===1?[a[0],b[j],b[i]]:b.length===1?[a[i],a[j],b[0]]:[a[i],a[j],b[j],b[i]],n=C.norm(C.cross(C.sub(ps[1],ps[0]),C.sub(ps[2],ps[0])));
+  if(ps.length===4)quad(g,ps,n,[[UV_WHITE[0],UV_WHITE[1]],[UV_WHITE[2],UV_WHITE[1]],[UV_WHITE[2],UV_WHITE[3]],[UV_WHITE[0],UV_WHITE[3]]],col,240);else{g.room(3,3);const start=g.n;for(const p of ps)g.v(...p,...n,UV_WHITE[0],UV_WHITE[1],col,240);g.tri(start,start+1,start+2);}
+ }}
+}
 // Dome in the fitting frame: a half-ellipsoid (radius r, height ry) on its base
 // ring at (cx,cy,cz), closed underneath.
 function domeL(g, M, o, cx, cy, cz, r, ry, col, seg, rings) {
@@ -602,7 +610,7 @@ function craftWeaponMesh(g,f){
  const d=C.fitSpec(f),M=frameM(f),o=C.fitOrigin(f),L=d.fm,W=d.wm,h=d.hm,k=f.k,B=FC.barrel,D=FC.dark,R=FC.ring,Bd=FC.body;
  if(C.isConcussionLauncher(f)){concussionLauncherMesh(g,f);return;}
  if(k==='claser'||k==='claserH'){box(g,M,o,-L*.22,h*.5,0,L*.36,h*.9,W,Bd);cyl(g,M,o,L*.2,h*.5,0,W*.3,W*.24,L*.62,0,B,8);for(const q of [.02,.24])cyl(g,M,o,L*q,h*.5,0,W*.42,W*.42,L*.05,0,R,8);cyl(g,M,o,L*.5,h*.5,0,W*.34,W*.34,L*.06,0,D,8);return;}
- if(k==='cion'){box(g,M,o,-L*.18,h*.5,0,L*.5,h,W,Bd);cyl(g,M,o,L*.22,h*.5,0,W*.36,W*.3,L*.5,0,B,10);for(const q of [.08,.2,.32])cyl(g,M,o,L*q,h*.5,0,W*.47,W*.47,L*.04,0,R,10);return;}
+ if(k==='cion'){box(g,M,o,-L*.18,h*.5,0,L*.5,h,W,Bd);ionBarrel(g,M,o,-L*.03,L*.47,h*.5,0,W*.21,B);return;}
  if(k==='cturret'){cyl(g,M,o,0,h*.15,0,W*.5,W*.46,h*.3,1,D,10);domeL(g,M,o,0,h*.3,0,W*.42,h*.5,Bd,12,3);for(const zz of [-W*.14,W*.14])cyl(g,M,o,L*.38,h*.55,zz,W*.06,W*.05,L*.6,0,B,6);return;}
  if(k==='ctorp'){box(g,M,o,0,h*.5,0,L,h,W,Bd);cyl(g,M,o,L*.49,h*.5,0,W*.32,W*.32,L*.04,0,D,10);return;}
  if(k==='cbomb'){box(g,M,o,0,h*.5,0,L,h,W,D);box(g,M,o,0,h*.02,0,L*.92,h*.06,W*.9,R);box(g,M,o,0,h*.03,0,L*.02,h*.07,W*.92,D);return;}
@@ -612,11 +620,18 @@ function craftWeaponMesh(g,f){
   const q=f._store||(C.STORE_DEFAULT?.cpylon?{k:C.STORE_DEFAULT.cpylon[0],n:C.STORE_DEFAULT.cpylon[1]}:null),od=q&&C.ORDNANCE?.[q.k];if(!od)return;const n=Math.min(q.n,C.storeCapacity(d.store,q.k)),[rl,rd]=od.dims,zs=n>1?[-rd*.6,rd*.6]:[0];
   for(let i=0;i<n;i++){const z=zs[i]??0,y=h+rd*.55;cyl(g,M,o,-rl*.07,y,z,rd*.5,rd*.5,rl*.86,0,od.ion?R:FC.glass,10);cyl(g,M,o,rl*.43,y,z,rd*.5,rd*.08,rl*.14,0,od.ion?FC.glass:R,10);}}
 }
-function meshFits(ship, filter, ranges, only) {
-  const g = new Geo(8192), body = FC.body;
+function meshFits(ship, filter, ranges, only, paintSource=false) {
+  const g = new Geo(paintSource?64:8192), body = FC.body;
   const one = (f) => {
     if(f.k==='broadsideBattery'){if(!FIT_SKIP_BODY?.has(f.id))broadsideBatteryMesh(g,f);return;}
     if(embeddedSurfaceFit(f)){surfaceBatteryMesh(g,f,ship);return;}
+    // These small turrets share the authored guns' paint and texture pass. The
+    // source-only call below still uses the same inexpensive procedural shape.
+    if(!paintSource&&sharedProceduralTurret(f)){
+      const d=C.fitSpec(f),ph=(f.base||0)+(f.ped||0)-(f.low||0);
+      if(ph>0.3&&C.fitHasPedestal(f)&&!FIT_SKIP_PED?.has(f.id))pedestal(g,frameM(f),C.fitOrigin(f),ph,d.r*.72*(f.pedSize||1),f.pedShape,FC.ped,d.r*.8);
+      return;
+    }
     if(C.FITS[f.k].asset){
       // Model turrets seat on the highest point under their ring; the pedestal
       // fills down to the lowest one so they never hang over a slope or step.
@@ -718,8 +733,8 @@ function meshFits(ship, filter, ranges, only) {
       cyl(g, M, o, 0, h * 0.2, 0, W * 0.4, W * 0.4, h * 0.06, 1, FC.ring, 12);
       domeL(g, M, o, -L * 0.04, h * 0.22, 0, W * 0.38, h * 0.66, body, 14, 4);
       for (const zz of [-W * 0.13, W * 0.13]) {
-        cyl(g, M, o, L * 0.48, h * 0.5, zz, W * 0.055, W * 0.05, L * 0.62, 0, FC.barrel, 8);
-        for (const q of [0.3, 0.46, 0.62]) cyl(g, M, o, L * q, h * 0.5, zz, W * 0.09, W * 0.09, L * 0.035, 0, FC.ring, 8);
+        if(k==='ionL')ionBarrel(g,M,o,L*.17,L*.79,h*.5,zz,W*.045,FC.barrel);
+        else{cyl(g,M,o,L*.48,h*.5,zz,W*.055,W*.05,L*.62,0,FC.barrel,8);for(const q of [.3,.46,.62])cyl(g,M,o,L*q,h*.5,zz,W*.09,W*.09,L*.035,0,FC.ring,8);}
       }
       return;
     }
@@ -2602,7 +2617,8 @@ function arcPaintBands(p,g){
 const REF_ONE=[128,128,128];
 function refTone(id,base=WHITE){const f=C.REFERENCE_TONE[id]||[1,1,1];return [0,1,2].map(i=>Math.max(0,Math.min(255,Math.round(base[i]/255*128*f[i]))));}
 function plainFitAsset(f){return C.REFERENCE_ASSETS[f.skinAsset||C.FITS[f.k]?.asset]?.plainMetal;}
-function familyReferenceAsset(f){const a=C.REFERENCE_ASSETS[f.skinAsset||C.FITS[f.k]?.asset];return a?.plainMetal&&['imperial-photo-family','light-photo-family'].includes(a.nativeCalibration)?a:null;}
+function familyReferenceAsset(f){const id=f.skinAsset||C.FITS[f.k]?.asset,a=C.REFERENCE_ASSETS[id];return id!=='isd_heavy_octuple'&&C.FITS[f.k]?.cat==='w'&&a&&['imperial-photo-family','light-photo-family','capital-photo-family'].includes(a.nativeCalibration)?a:null;}
+function sharedProceduralTurret(f){return ['pd','ionL','cturret'].includes(f.k);}
 // The supplied FBX has no texture atlas. Keep its indexed normals and geometry,
 // but render it with the ordinary fitting metal in the editor and fleet alike.
 const PLAIN_FIT_CACHE=new WeakMap();
@@ -2615,20 +2631,22 @@ function appendPlainFit(g,f){
   item={key,mesh};PLAIN_FIT_CACHE.set(f,item);}
  appendGeo(g,item.mesh);
 }
-// Derived turret pieces keep the same authored material as their source guns.
-// Their generated armor panels use one quiet paint sample instead of stretching
-// the generic fitting atlas across every triangle fan.
+// Every gun uses the existing ISD octuple's paint. Keep the original octuple
+// untouched; recolor only cached draw copies, never decoded or archived assets.
 const FAMILY_REFERENCE_CACHE=new WeakMap();
-// Interior, non-emissive texels matching the area-weighted large roof panels
-// of the existing normal octuple and DBY-827, respectively (2048px atlas).
-const FAMILY_PAINT_UV={isd_heavy_octuple:[.046142578125,.153564453125],ven_turret70_native:[.848876953125,.522705078125]};
-function familyMaterialAnchor(a){return a.materialReference||(a.derivedFrom==='ven_turret'?'ven_turret70_native':'isd_heavy_octuple');}
+// Interior non-emissive texel matching the area-weighted original octuple roof
+// (2048px atlas). One sample avoids stretching panel rectangles into camouflage.
+const TURRET_PAINT_UV=[.046142578125,.153564453125];
+function applyTurretPaint(mesh){const color=refTone('isd_heavy_octuple');for(let i=0;i<mesh.n;i++){mesh.uv[i*2]=TURRET_PAINT_UV[0];mesh.uv[i*2+1]=TURRET_PAINT_UV[1];mesh.col.set(color,i*4);mesh.col[i*4+3]=255;}}
+const PROCEDURAL_TURRET_PAINT_CACHE=new WeakMap();
+function appendProceduralTurret(g,f){const key=JSON.stringify([f,C.fitSpec(f)],(k,v)=>k.startsWith('_')?undefined:v);let item=PROCEDURAL_TURRET_PAINT_CACHE.get(f);
+ if(!item||item.key!==key){const body=FIT_SKIP_BODY,ped=FIT_SKIP_PED;let mesh;
+  try{FIT_SKIP_BODY=null;FIT_SKIP_PED=new Set([f.id]);mesh=meshFits({fits:[f]},null,null,[f],true);}finally{FIT_SKIP_BODY=body;FIT_SKIP_PED=ped;}
+  applyTurretPaint(mesh);item={key,mesh};PROCEDURAL_TURRET_PAINT_CACHE.set(f,item);}appendGeo(g,item.mesh);
+}
 function appendFamilyReference(g,f){
  const a=familyReferenceAsset(f),id=f.skinAsset||C.FITS[f.k].asset,key=JSON.stringify([f,C.fitSpec(f)],(k,v)=>k.startsWith('_')?undefined:v);let item=FAMILY_REFERENCE_CACHE.get(f);
- if(!item||item.key!==key){const anchor=familyMaterialAnchor(a),paintUV=FAMILY_PAINT_UV[anchor],mesh=new Geo(a.n),raw=C.decodeReference(id);appendReference(mesh,id,v=>C.referenceFitPoint(f,v),null,refTone(anchor));
-  for(let i=0;i<mesh.n;i++){mesh.uv[i*2]=paintUV[0];mesh.uv[i*2+1]=paintUV[1];}
-  for(const part of a.components||[]){if(!part.sourceVertexIndices||part.sourceVertexIndices.length!==part.vertices)continue;const source=part.sourceAsset==='ven_turret'?'ven_turret70_native':'isd_heavy_octuple',color=refTone(source);
-   for(let i=part.firstVertex;i<part.firstVertex+part.vertices;i++){mesh.uv[i*2]=raw.uv[i*2];mesh.uv[i*2+1]=raw.uv[i*2+1];mesh.col.set(color,i*4);}}
+ if(!item||item.key!==key){const mesh=new Geo(a.n),raw=C.decodeReference(id);appendReference(mesh,id,v=>C.referenceFitPoint(f,v));applyTurretPaint(mesh);
   for(const part of a.components||[]){if(part.normalMode!=='sphere'||!Array.isArray(part.normalCenterM)||part.normalCenterM.length!==3||!part.normalCenterM.every(Number.isFinite))continue;
    const c=part.normalCenterM.map((v,k)=>(v-a.c[k])/a.size[k]),center=C.referenceFitPoint(f,c),up=C.norm(C.sub(C.referenceFitPoint(f,[c[0],c[1]+1/a.size[1],c[2]]),center)),eps=Math.max(.002,(a.maxQuantizationErrorM||0)*3);
    for(let i=part.firstVertex;i<part.firstVertex+part.vertices;i++){const v=Array.from(raw.pos.subarray(i*3,i*3+3)),n0=Array.from(mesh.nor.subarray(i*3,i*3+3));
@@ -2636,6 +2654,14 @@ function appendFamilyReference(g,f){
     // while the coincident vertices on the curved dome receive radial normals.
     if(Number.isFinite(part.floorYM)&&Math.abs(v[1]*a.size[1]+a.c[1]-part.floorYM)<=eps&&C.dot(n0,up)<-63.5)continue;
     const n=C.norm(C.sub(C.referenceFitPoint(f,v),center));for(let j=0;j<3;j++)mesh.nor[i*3+j]=n[j]*127;}}
+  for(const part of a.components||[]){if(part.normalMode!=='ellipsoid'||!Array.isArray(part.normalCenterM)||!Array.isArray(part.normalRadiiM)||part.normalCenterM.length!==3||part.normalRadiiM.length!==3||!part.normalCenterM.every(Number.isFinite)||!part.normalRadiiM.every(v=>Number.isFinite(v)&&v>0))continue;
+   const c=part.normalCenterM,worldCenter=C.referenceFitPoint(f,c.map((v,k)=>(v-a.c[k])/a.size[k]));
+   // A flattened cast shell follows the ellipsoid gradient. Only explicitly
+   // marked curved faces are smoothed; armor cuts and socket caps stay sharp.
+   for(let i=part.firstVertex;i<part.firstVertex+part.vertices;i++){
+    const gradient=c.map((v,k)=>(raw.pos[i*3+k]*a.size[k]+a.c[k]-v)/(part.normalRadiiM[k]**2)),tip=c.map((v,k)=>(v+gradient[k]-a.c[k])/a.size[k]),n=C.norm(C.sub(C.referenceFitPoint(f,tip),worldCenter));
+    for(let j=0;j<3;j++)mesh.nor[i*3+j]=n[j]*127;
+   }}
   item={key,mesh};FAMILY_REFERENCE_CACHE.set(f,item);}
  appendGeo(g,item.mesh);
 }
@@ -2680,8 +2706,8 @@ function meshReferenceParts(ship,ranges,only,opt={}){
  return {refStruct,refEngine,refPlant};
 }
 function meshReferenceFits(ship,ranges,only){
-  const g=new Geo(16);for(const f of only||surfaceRenderFits(ship)){const d=C.FITS[f.k];if(embeddedSurfaceFit(f)||!(d.asset||d.pod)||f.float||plainFitAsset(f)&&!familyReferenceAsset(f))continue;const before=g.ni;
-  if(familyReferenceAsset(f))appendFamilyReference(g,f);else if(d.pod)appendReference(g,C.POD_ASSET,v=>C.podPoint(f,v));else appendReference(g,f.skinAsset||d.asset,v=>C.referenceFitPoint(f,v));
+  const g=new Geo(16);for(const f of only||surfaceRenderFits(ship)){const d=C.FITS[f.k];if(embeddedSurfaceFit(f)||!(d.asset||d.pod||sharedProceduralTurret(f))||f.float&&!sharedProceduralTurret(f)||plainFitAsset(f)&&!familyReferenceAsset(f))continue;const before=g.ni;
+  if(sharedProceduralTurret(f))appendProceduralTurret(g,f);else if(familyReferenceAsset(f))appendFamilyReference(g,f);else if(d.pod)appendReference(g,C.POD_ASSET,v=>C.podPoint(f,v));else appendReference(g,f.skinAsset||d.asset,v=>C.referenceFitPoint(f,v));
   if(ranges&&g.ni>before)(ranges[f.id]||(ranges[f.id]=[])).push(['refFits',before,g.ni-before]);
  }return g;
 }
@@ -2839,7 +2865,7 @@ function trialTurrets(model,put,ranges){
  for(const f of list)if(!poses.has(f.id))poses.set(f.id,mirroredTurretPose(f,list,poses)||(()=>{const fr=C.fitFrameOf(f);return {pivot:C.fitOrigin(f),axis:fr.up,fw:fr.fw};})());
  for(const f of list){
   const d=C.fitSpec(f),spec=C.FITS[f.k],pose=poses.get(f.id),axis=C.norm(pose.axis),fw=C.norm(C.sub(pose.fw,C.mul(axis,C.dot(pose.fw,axis)))),rot=turning.has(f.id);
-  let mesh=null,bodyMesh=null,authored=null;const g=C.authoredTurretGeometry?.(f);if(rot){if(spec.asset&&(!plainFitAsset(f)||g)){const plain=plainFitAsset(f)&&!familyReferenceAsset(f),geo=plain?new Geo(16):meshReferenceFits(model,null,[f]),tex=plain?'fits':'reference',emi=plain?.6:null;if(plain)appendPlainFit(geo,f);mesh=(plain?'tur_':'refTur_')+f.id;const split=g?.indexStart;
+  let mesh=null,bodyMesh=null,authored=null;const g=C.authoredTurretGeometry?.(f);if(rot){if(sharedProceduralTurret(f)||spec.asset&&(!plainFitAsset(f)||g)){const plain=plainFitAsset(f)&&!familyReferenceAsset(f),geo=plain?new Geo(16):meshReferenceFits(model,null,[f]),tex=plain?'fits':'reference',emi=plain?.6:null;if(plain)appendPlainFit(geo,f);mesh=(plain?'tur_':'refTur_')+f.id;const split=g?.indexStart;
    if(Number.isInteger(split)&&split>=0&&split<geo.ni&&split%3===0){authored=g;bodyMesh=(plain?'turBody_':'refTurBody_')+f.id;put(bodyMesh,geoIndices(geo,geo.idx.subarray(0,split)),tex,emi);put(mesh,geoIndices(geo,geo.idx.subarray(split,geo.ni)),tex,emi);}else put(mesh,geo,tex,emi);
   }else{mesh='tur_'+f.id;FIT_SKIP_PED=all;try{put(mesh,meshFits(model,x=>x===f),'fits',.6);}finally{FIT_SKIP_PED=null;}}}
   const embedded=C.surfaceBatteryGeometry?.(f),bay=C.broadsideBatteryGeometry?.(f);out.push({id:f.id,k:f.k,name:spec.short||spec.name,mesh,...(authored?{authored,bodyMesh,bodyPivot:authored.yawPivot}:{}),...(bay?{broadsideBattery:true,muzzles:bay.muzzles.map(p=>p.slice())}:{}),pivot:authored?.elevationPivot||pose.pivot,axis:authored?.axis||axis,fw:authored?.fw||fw,origin:authored?.elevationPivot||C.turretOrigin(f),mount:C.fitUp(f),r:d.r,hm:embedded?embedded.height:d.hm,embedded:!!embedded,fixed:!!spec.fixed,portWidth:bay?.width??embedded?.width,portHeight:bay?.height??embedded?.height,port:bay?{width:bay.width,height:bay.height,depth:bay.depth}:embedded?{width:embedded.width,height:embedded.height,depth:embedded.depth}:undefined,casemate:bay?true:embedded?false:!!(spec.casemate||spec.fixed),barrels:d.barrels||(spec.fixed?1:TRIAL_BARRELS[f.k]||2),cycle:d.cycle||2.5,tt:d.tt||0,ion:!!d.ion&&!d.tt,rate:C.turretRate(f),power:d.power||0,cap:C.needsCapacitor(f)});

@@ -79,7 +79,7 @@ test('heavy models use the standardized physical pivot in editor, preview and tr
     assert.ok(asset, `${k} uses its registered physical model`);
     for (const a of [0, 1, 2, 3, 4, 5]) {
       const f = {id: 1, k, p: [30, -7, 19], a, ped: 2, base: 1, low: -.5, assetYaw: 37.125};
-      const pivot = asset.c.map((value, axis) => -value/asset.size[axis]);
+      const pivot = asset.c.map((value, axis) => ((asset.mount?.[axis]||0)-value)/asset.size[axis]);
       C.referenceFitPoint(f, pivot).forEach((value, axis) => near(value, C.fitOrigin(f)[axis], 1e-6));
     }
     const f = {id: 1, k, p: [30, -7, 19], a: 2, ped: 0, base: 0, low: 0, float: false, assetYaw: 37.125};

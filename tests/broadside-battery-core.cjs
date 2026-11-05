@@ -92,6 +92,6 @@ test('packed surface inventory retains clamped caliber/count and migrates old ca
 
 test('common engineering and fleet snapshots use dynamic output, actual capacity and every physical muzzle',()=>{
  const {s,host}=fixture(),r=place(s,host,'200GT',6);assert.ok(r.fit);C.enableSurfaceMode(s,true,{report:false});C.syncCompartments(s);C.remount(s);C.syncCompartments(s);const stats=C.computeStats(s),profile=C.fleetProfile(stats,s.name,s),mount=profile.surface.mounts.find(m=>m.id===r.fit.id);assert.ok(mount);
- assert.equal(profile.profileVersion,9);assert.equal(mount.broadsideBattery,true);assert.equal(mount.barrels,6);near(mount.volleyTT,1.2);near(mount.boltTT,.2);near(mount.power,C.fitSpec(r.fit).power*C.weaponInputFactor(profile),1e8);near(mount.capacity,1.2);assert.equal(mount.fixed,false);assert.equal(mount.muzzles.length,6);
+ assert.equal(profile.profileVersion,C.FLEET_PROFILE_VERSION);assert.equal(mount.broadsideBattery,true);assert.equal(mount.barrels,6);near(mount.volleyTT,1.2);near(mount.boltTT,.2);near(mount.power,C.fitSpec(r.fit).power*C.weaponInputFactor(profile),1e8);near(mount.capacity,1.2);assert.equal(mount.fixed,false);assert.equal(mount.muzzles.length,6);
  const offset=profile.surface.offset;mount.muzzles.forEach((p,i)=>vector(C.add(p,offset),C.broadsideBatteryMuzzles(r.fit)[i],1e-6));
 });
