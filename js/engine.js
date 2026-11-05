@@ -95,7 +95,6 @@ function geometryPass(job, flags) {
     const hullSurfaces=(ship.surfaces?.patches||[]).filter(p=>p.id.startsWith('hull:')).map(p=>[p.id,p.functionMode]);
     const key = (ship._cache && ship._cache.key) + JSON.stringify([ship.hullSkin || null, ship.paint || null, ship.detail ?? 1,hullSurfaces,ship.surfaces?.partitions||null]);
     if (key !== hullKey) { geos.hull = geoOut(G.meshHull(ship), transfer); geos.refHull = geoOut(G.meshReferenceHull(ship), transfer); hullKey = key; }
-    geos.keel = geoOut(G.meshKeel(ship), transfer);
     out.dims = [ship.hull.L, ship.hull.W, ship.hull.H];
   }
   if (flags.parts) {

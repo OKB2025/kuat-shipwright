@@ -1416,7 +1416,6 @@ button.ed-row:hover,.ed-grp .ed-pick:hover{background:var(--cyan-soft)}
           <button type="button" class="tmenu" data-title="new" disabled><b>新規設計</b><span>艦種と船体の型・全長を決めて始める</span></button>
           <button type="button" class="tmenu" data-title="load" disabled><b>設計図を読み込む</b><span>保存した設計・ファイル・配置見本から開く</span></button>
           <button type="button" class="tmenu" data-tut="start" disabled><b>チュートリアル</b><span>ごく簡素なインペリアル級を順番に作って操作を覚える</span></button>
-          <button type="button" class="tmenu" data-gnd="design" disabled><b>ウォーカー・車両設計</b><span>歩行機と戦闘車両を設計し、地上戦で試す</span></button>
         </div>
         <div class="tmenu-group" data-tgroup="voyage" hidden>
           <button type="button" class="tmenu tback" data-title-mode="sandbox"><b>← 任務</b><span>メニューに戻る</span></button>
@@ -1567,7 +1566,7 @@ button.ed-row:hover,.ed-grp .ed-pick:hover{background:var(--cyan-soft)}
         <li><b>内部区画</b>　船体と構造物の範囲で自動切取り。容量と質量は内側の実体積で計算する。指定寸法は保持され、構造物を広げると利用できる部分も増える。</li>
         <li><b>張出し</b>　主出力炉・シールド発生器・エンジンは船外へ張り出せる。武装・艦橋ポッド・センサーも外装として設置する。露出した主炉は防御上の弱点になる。</li>
         <li><b>表面積</b>　装甲の質量とシールドに要る出力は表面積に比例する。削って凹凸を増やすほど負担が増える。</li>
-        <li><b>加速と縦強度</b>　加速は「推力÷質量」と「竜骨と構造物の断面÷その断面が支える質量」の小さいほう。ラザー化で船体を削っても竜骨は残るので、どちらの上限も上がる。</li>
+        <li><b>加速と縦強度</b>　加速は「推力÷質量」と「骨組みと構造物の断面÷その断面が支える質量」の小さいほう。骨組みは船体の断面に比例し、その分の質量も各断面に載る。</li>
         <li><b>航空区画</b>　長さ・幅・高さと前後幅を指定する。船体・外装に接する面の開放型・シールド型・ハッチ化しないを選ぶ。「航空隊」で機体サイズと機数を入力する。</li>
         <li><b>射界</b>　砲ごとに6方向の射界を計算する。傾斜面の砲は支持台で水平を保ち、高くするほど射界が開ける。</li>
         <li><b>縮尺</b>　同じ形で長さを2倍にすると表面積は4倍、体積は8倍。大型艦ほどシールドと装甲は楽になり、縦強度は厳しくなる。</li>
@@ -1592,7 +1591,7 @@ button.ed-row:hover,.ed-grp .ed-pick:hover{background:var(--cyan-soft)}
         <dt>説明文</dt><dd>操作盤の説明は2行に縮めてある。タップで全文を表示</dd>
         <dt>区画の配置</dt><dd>面をタップし、配置深さを選ぶ。内部区画は外殻外を切り取るため、張り出す区画には先に構造物が必要。内部の位置は「座標を指定して配置」でも指定できる</dd>
         <dt>選択・調整</dt><dd>区画を選んで、位置と大きさをスライダーで動かす。形状と性能はバックグラウンドで再計算され、操作は止まらない</dd>
-        <dt>透視</dt><dd>内部の区画・機関・竜骨を見る。内部の区画は透視で選択できる</dd>
+        <dt>透視</dt><dd>内部の区画・機関を見る。内部の区画は透視で選択できる</dd>
         <dt>同じタブを再タップ</dt><dd>下の操作盤をたたんで表示を広くする</dd>
         <dt>公試</dt><dd>「性能」の「公試に出る」でコルサント低軌道を操艦する。左下の▲▼で速力通信機（後進〜全速）、◀▶で取舵・面舵（命令は保持）。右のスティックでピッチとロール（離すと中立）、右下の「射撃」で砲撃、その左の「ミサイル」で全発射管から8発ずつ斉射（20秒で再装填）。砲塔は視点の中心（照準）へ旋回し、大きな砲塔ほど遅い。射線が船体・構造物・他の砲塔に掛かる砲は撃てない。標的に照準を重ねるとロックし、ターボレーザーとイオン砲は見越し位置（◇）へ撃ち、ミサイルは追尾する。砲は充電装置に蓄えた「兵装エネルギー」で撃ち、1斉射ごとに減る。反応炉がシールド維持・推進の残りで再充電するので、停止中は速く、全速中は遅く撃てる。右上の「⚡」で出力配分（巡航・均衡・兵装優先・防御優先・全力）を選ぶ。兵装優先は推進を削って充電に回し、炉を上げるほど「炉心」負荷が高まる。キーボードは W/S 速力、A/D 舵、R/F・Q/E を押している間ピッチ・ロール、Space 射撃、M ミサイル、P 出力配分、Z 水平復帰、X 舵中央、V 視点</dd>
         <dt>艦隊戦</dt><dd>上部の「艦隊戦」で友軍と敵の艦を編成し、戦場（コルサント低軌道／クワットの造船リング）を選んで「旗艦で出撃」。旗艦は公試と同じ操作で自分で操艦し、僚艦と敵はAIが戦う。敵艦隊は数秒後にハイパースペースから出現する（射撃または任意の操作で演出を飛ばせる）。主砲が「遮蔽・射界外」なら、機首を下げるかロールして甲板を敵艦に向ける。敵の括弧は青がシールド、橙が船体</dd>
@@ -1611,7 +1610,7 @@ button.ed-row:hover,.ed-grp .ed-pick:hover{background:var(--cyan-soft)}
 <script>/* The English catalog (~0.9 MB) is loaded only when the page starts in English (same rule as js/i18n.js); a Japanese start goes on without it, and switching language fetches it then. */
 window.KS_EN_SRC="js/lang-en.js?v=f4725c881d";(function(){var l;try{l=localStorage.getItem("yard.language")}catch(e){}if(l==="en"||l!=="ja"&&!/^ja\b/i.test(navigator.language||"ja"))document.write('<script src="'+window.KS_EN_SRC+'"><\/script>');})();</script>
 <script src="js/i18n.js?v=4b3c56c2bb"></script>
-<script>window.KS_FILES={"data":["data/reference.js","data/textures.js","data/imperial2.js","data/fleet.js"],"core":"js/core.js","gfx":"js/gfx.js","engine":"js/engine.js","app":"js/app.js","worker":"js/worker.js","sizes":{"data/reference.js":9268455,"data/textures.js":561583,"data/imperial2.js":182482,"data/fleet.js":1756772,"js/core.js":2799675,"js/gfx.js":294685,"js/engine.js":33584,"js/app.js":1707555}};</script>
+<script>window.KS_FILES={"data":["data/reference.js","data/textures.js","data/imperial2.js","data/fleet.js"],"core":"js/core.js","gfx":"js/gfx.js","engine":"js/engine.js","app":"js/app.js","worker":"js/worker.js","sizes":{"data/reference.js":9268455,"data/textures.js":561583,"data/imperial2.js":182482,"data/fleet.js":1756772,"js/core.js":2799445,"js/gfx.js":294255,"js/engine.js":33532,"js/app.js":1684631}};</script>
 <script>
 /* ============================================================
    boot.js — title screen first, then the 3D assets, the engine

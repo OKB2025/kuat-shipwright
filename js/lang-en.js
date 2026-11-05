@@ -3829,7 +3829,7 @@ root.KS_EN={
   "チュートリアル · 艦隊戦": "Tutorial · Fleet Battle",
   "{0}を編集 →": "Edit {0} →",
   "{0}・{1}の船体を用意しました": "Prepared a {0} / {1} hull",
-  "最弱断面：艦尾から {0}。質量を削るか、構造物や竜骨を太くすると上がります。": "Weakest cross-section: {0} from the stern. Reduce mass or enlarge structures or the keel to strengthen it.",
+  "最弱断面：艦尾から {0}。質量を削るか、構造物を太くすると上がります。": "Weakest cross-section: {0} from the stern. Reduce mass or enlarge structures to strengthen it.",
   "{0} × {1} × {2} m · 指揮所を内蔵": "{0} × {1} × {2} m · Built-in Command Station",
   "第{0}飛行隊": "Air Wing {0}",
   "第{0}ストームトルーパー連隊": "Stormtrooper Regiment {0}",
@@ -3941,7 +3941,7 @@ root.KS_EN={
   "主出力炉・シールド発生器・エンジンは船外へ張り出せる。武装・艦橋ポッド・センサーも外装として設置する。露出した主炉は防御上の弱点になる。": "Reactors, shield generators, and engines may extend outside the hull. Weapons, bridge pods, and sensors also mount externally. An exposed main reactor is a defensive weakness.",
   "装甲の質量とシールドに要る出力は表面積に比例する。削って凹凸を増やすほど負担が増える。": "Armor mass and shield power requirements scale with surface area. Carving additional surface detail increases their cost.",
   "加速と縦強度": "Acceleration and Longitudinal Strength",
-  "加速は「推力÷質量」と「竜骨と構造物の断面÷その断面が支える質量」の小さいほう。ラザー化で船体を削っても竜骨は残るので、どちらの上限も上がる。": "Acceleration is limited by both thrust divided by mass and the keel/structure cross-section relative to the mass it supports. Razee cuts retain the keel, improving both limits.",
+  "加速は「推力÷質量」と「骨組みと構造物の断面÷その断面が支える質量」の小さいほう。骨組みは船体の断面に比例し、その分の質量も各断面に載る。": "Acceleration is the lower of thrust divided by mass and the framing/structure cross-section divided by the mass that section supports. The framing scales with the hull section, and its mass is carried by each section.",
   "長さ・幅・高さと前後幅を指定する。船体・外装に接する面の開放型・シールド型・ハッチ化しないを選ぶ。「航空隊」で機体サイズと機数を入力する。": "Set length, width, height, and forward/aft widths. Choose open, shielded, or no hatch on surfaces touching the hull or exterior structure. Configure craft size and count in Air Wing.",
   "砲ごとに6方向の射界を計算する。傾斜面の砲は支持台で水平を保ち、高くするほど射界が開ける。": "Each gun has firing arcs calculated in six directions. Pedestals keep guns level on sloping surfaces; raising them opens their firing arcs.",
   "縮尺": "Scale",
@@ -3962,7 +3962,7 @@ root.KS_EN={
   "区画の配置": "Placing Compartments",
   "面をタップし、配置深さを選ぶ。内部区画は外殻外を切り取るため、張り出す区画には先に構造物が必要。内部の位置は「座標を指定して配置」でも指定できる": "Tap a surface and choose placement depth. Internal compartments are clipped to the outer hull, so add structure before placing projecting compartments. You can also enter internal positions using coordinate placement.",
   "区画を選んで、位置と大きさをスライダーで動かす。形状と性能はバックグラウンドで再計算され、操作は止まらない": "Select a compartment and adjust position and size with the sliders. Shape and performance are recalculated in the background while controls stay responsive.",
-  "内部の区画・機関・竜骨を見る。内部の区画は透視で選択できる": "View internal compartments, machinery, and keel. Internal compartments can be selected in X-ray view.",
+  "内部の区画・機関を見る。内部の区画は透視で選択できる": "View internal compartments and machinery. Internal compartments can be selected in X-ray view.",
   "同じタブを再タップ": "Tap the Current Tab Again",
   "下の操作盤をたたんで表示を広くする": "Collapse the lower control panel to enlarge the view.",
   "「性能」の「公試に出る」でコルサント低軌道を操艦する。左下の▲▼で速力通信機（後進〜全速）、◀▶で取舵・面舵（命令は保持）。右のスティックでピッチとロール（離すと中立）、右下の「射撃」で砲撃、その左の「ミサイル」で全発射管から8発ずつ斉射（20秒で再装填）。砲塔は視点の中心（照準）へ旋回し、大きな砲塔ほど遅い。射線が船体・構造物・他の砲塔に掛かる砲は撃てない。標的に照準を重ねるとロックし、ターボレーザーとイオン砲は見越し位置（◇）へ撃ち、ミサイルは追尾する。砲は充電装置に蓄えた「兵装エネルギー」で撃ち、1斉射ごとに減る。反応炉がシールド維持・推進の残りで再充電するので、停止中は速く、全速中は遅く撃てる。右上の「⚡」で出力配分（巡航・均衡・兵装優先・防御優先・全力）を選ぶ。兵装優先は推進を削って充電に回し、炉を上げるほど「炉心」負荷が高まる。キーボードは W/S 速力、A/D 舵、R/F・Q/E を押している間ピッチ・ロール、Space 射撃、M ミサイル、P 出力配分、Z 水平復帰、X 舵中央、V 視点": "Start a Trial from Performance to pilot in low Coruscant orbit. ▲▼ controls the engine telegraph from reverse to full ahead; ◀▶ controls the rudder, retaining its order. The right stick controls pitch and roll, returning to neutral when released. Fire uses the guns; Missiles fires eight rounds per launcher and reloads in 20 seconds. Turrets track the center reticle, with larger turrets turning more slowly. Hulls, structures, and other turrets block shots. Aim at a target to lock it: turbolasers and ion guns lead toward ◇ while missiles home. Salvos consume stored weapon energy. Reactors recharge it after supplying shields and propulsion, so firing is faster while stopped. Use ⚡ to allocate power: cruise, balanced, weapons, shields, or overload. More reactor output increases core load. Keys: W/S speed, A/D rudder, R/F pitch, Q/E roll, Space guns, M missiles, P power, Z level, X center rudder, V camera.",
@@ -4027,7 +4027,6 @@ root.KS_EN={
   "配電路 {0} m³（{1} {2} m）": "Power Conduits {0} m³ ({1} {2} m)",
   "射界（%）：各方向へ撃てる割合": "Firing Arcs (%): fraction of firepower that can bear in each direction",
   "視界 {0}・乗員 {1}名": "Visibility {0} · Crew {1}",
-  "竜骨 幅 {0} × 高さ {1}": "Keel Width {0} × Height {1}",
   "外殻装甲 {0} m": "Outer Hull Armor {0} m",
   "{0}TT{1}／20秒": "{0} TT{1} / 20 s",
   "（イオン）": "(ion)",
@@ -4167,7 +4166,6 @@ root.KS_EN={
   "追加の高さ": "Additional Height",
   "航空区画 {0} 個": "{0} Aviation Compartments",
   "艦首・艦尾の絞り": "Bow and Stern Taper",
-  "竜骨（主構造）": "Keel (Main Structure)",
   "艦首先端の絞り率（幅・厚み）": "Bow Tip Taper (Width and Thickness)",
   "艦尾幅": "Stern Width",
   "最大幅の位置（艦尾から）": "Widest Point (From Stern)",
@@ -4415,7 +4413,7 @@ root.KS_EN={
   "腹面に発着口を開ける": "Open a Belly Launch Hatch",
   "練習用インペリアル級": "Practice Imperial-class",
   "前の設計は「元に戻す」で戻せます": "Undo restores the previous design",
-  "注意点が {0} 件あります。「系統」タブで確認できます。": "There are {0} warnings. Review them in the Systems tab.",
+  "注意点が {0} 件あります。画面下の「点検」から該当する部品へ移動できます。": "There are {0} issues. Use the Inspection bar below the view to go to the parts concerned.",
   "小さくする": "Minimize",
   "チュートリアルを終える": "End Tutorial",
   "タップで全文を表示": "Tap to show the full text",
@@ -4538,7 +4536,7 @@ root.KS_EN={
   "取り付け面を失った装備が {0} 基あります。": "{0} equipment mounts have lost their supporting surfaces.",
   "装甲外板の上に置かれた装備が {0} 基あります。装甲外板には武装・装備を取り付けられません。": "{0} equipment mounts are on armor plating. Weapons and equipment cannot attach to armor plating.",
   "重なり合っている区画があります（{0} 区画）。": "Compartments overlap ({0} compartments).",
-  "竜骨と構造物が途切れた断面があります。縦強度がゼロです。": "A cross-section has no continuous keel or structure. Longitudinal strength is zero.",
+  "骨組みと構造物が途切れた断面があります。縦強度がゼロです。": "A cross-section has no continuous framing or structure. Longitudinal strength is zero.",
   "生命維持・シールド・機関への給電が不足しています（稼働率 {0}%）。": "Life support, shields, and engines lack power (operating at {0}%).",
   "兵装の充電速度は機械的な最大連射の {0}%。余剰電力に応じて再充電します。": "Weapons recharge at {0}% of their mechanical maximum fire rate, according to surplus power.",
   "縦強度が推力に耐えられず、加速を {0}% に抑えています。構造物を足すか質量を削ってください。": "Longitudinal strength cannot withstand full thrust, limiting acceleration to {0}%. Add structure or reduce mass.",
@@ -5143,7 +5141,7 @@ root.KS_EN={
   "格納庫を設ける": "Add a Hangar",
   "<b>航空区画</b>（格納庫）を選び、下から見る視点にしました。<b>船底の中央</b>をタップすると船内に収まります。続けて「腹面に発着口を開ける」を押すと、格納庫を船底まで下げてシールド式の発着口を開けます。航空隊の編成は「航空隊」タブで決めます。": "An <b>Aviation Compartment</b> is selected and the camera is below the ship. Tap the <b>middle of the belly</b> to place it inside. Then press Open a Belly Launch Hatch to lower the hangar and open a shielded hatch. Configure squadrons in the Air Wing tab.",
   "性能を確かめて完成": "Check Performance and Finish",
-  "ごく簡素なインペリアル級の完成です。「性能」タブと右の性能諸元で出力・加速・火力を確かめ、注意点は「系統」タブで点検します。「公試に出る」でコルサント上空を操艦し、標的ブイへの射撃で砲塔の射界も確かめられます。艦名を付けて「設計図」から保存しましょう。次は装甲・トレンチ・航空隊や地上部隊の編成に挑戦できます。": "Your basic Imperial-class ship is complete. Check power, acceleration, and firepower in Performance and the specifications panel; review warnings in Systems. Start a Trial to pilot above Coruscant and test turret arcs against target buoys. Name the ship and save it through Designs. Next, try armor, trenches, air wings, and ground troops.",
+  "ごく簡素なインペリアル級の完成です。「性能」タブと右の性能諸元で出力・加速・火力を確かめ、注意点は画面下の「点検」で確かめます。「公試に出る」でコルサント上空を操艦し、標的ブイへの射撃で砲塔の射界も確かめられます。艦名を付けて「設計図」から保存しましょう。次は装甲・トレンチ・航空隊や地上部隊の編成に挑戦できます。": "Your basic Imperial-class ship is complete. Check power, acceleration, and firepower in Performance and the specifications panel; review warnings in the Inspection bar below the view. Start a Trial to pilot above Coruscant and test turret arcs against target buoys. Name the ship and save it through Designs. Next, try armor, trenches, air wings, and ground troops.",
   "3D視点": "3D View",
   "艦隊戦は<b>3D視点</b>で始まります。ドラッグで視点を回し、ピンチ（ホイール）で寄ったり離れたりできます。画面の艦をタップするとその艦を追い、上の<b>◀ ▶</b>で追う艦を替えられます。": "Fleet battles begin in <b>3D view</b>. Drag to orbit and pinch or scroll to zoom. Tap a ship to follow it, or use <b>◀ ▶</b> at the top to change the followed ship.",
   "命令を開く": "Open Orders",
@@ -5963,19 +5961,18 @@ root.KS_EN={
   "{0}は実寸の機器で、大きさは変えられません。": "{0} is full-scale equipment and cannot be resized.",
   "傾斜に合わせた自動の高さ {6} m ＋ 追加 {7} m。高くすると射界が開けますが、標的にもなりやすくなります。": "Automatic height for the slope: {6} m + extra {7} m. Raising the mount improves its firing arc but exposes it to enemy fire.",
   "区画はまだありません。": "No compartments yet.",
-  "竜骨は船底の中央を通る主構造で、縦強度の柱です。透視で見えます。区画が竜骨を断ち切ると、その断面は弱くなります。": "The keel is the main structural member along the bottom centerline, providing longitudinal strength. It is visible in X-ray view. A compartment that cuts through it weakens that section.",
   "断面を設計済みのため、最大幅の位置は下の表の「幅 %」で調整します。": "Sections are already defined. Adjust the position of maximum beam using Width % in the table below.",
   "構造物は面の上に3割ほど沈めて据えます。船台構造物で反応炉の張り出しを覆うと露出が減り、縦強度も上がります。": "Structures are seated about 30% into the mounting surface. Covering reactor bulges with supporting structures reduces exposure and increases longitudinal strength.",
   "直径 {0}・長さ {1}。{2}給電する炉は最寄りの炉に自動で接続し、選択して変えられます。": "Diameter {0}; length {1}. {2}Power connects automatically to the nearest reactor; select the weapon to change it.",
   "艦首方向に固定して置きます。": "Fixed facing the bow.",
   "置いた側の舷側方向に固定して置きます（左右対称で一対）。": "Fixed facing the side on which it is mounted (a mirrored pair when symmetry is enabled).",
-  "ほかの区画と竜骨を避けて、船体の内側だけを埋めます。": "Fills only the hull interior, avoiding other compartments and the keel.",
+  "ほかの区画を避けて、船体の内側だけを埋めます。": "Fills only the hull interior, avoiding other compartments.",
   "撤去する区画・構造物を3D表示でタップします。左右・上下対称がオンなら対の部品も外れます。「元に戻す」で取り消せます。": "Tap a compartment or structure in the 3D view to remove it. Left/right or top/bottom symmetry also removes its counterpart. Use Undo to restore it.",
   "区画をタップするか、下の一覧から選んでください。": "Tap a compartment or select one from the list below.",
   "装備をタップして選んでください。": "Tap equipment to select it.",
   "艦橋は上向きの面に置きます。周囲が開けているほど視界（命中補正）が上がります。": "Mount bridges on upward-facing surfaces. A clearer view improves visibility and the accuracy modifier.",
   "艦橋をタップして選んでください。": "Tap a bridge to select it.",
-  "断面の角を斜めに削ぎ、台形にします。竜骨は残るので質量だけが減り、加速と縦強度の余裕が上がります。表面積は変わり、装甲とシールドの負担に響きます。": "Bevels the section corners into a trapezoid. The keel remains, so reduced mass improves acceleration and longitudinal-strength margin. The changed surface area affects armor mass and shield load.",
+  "断面の角を斜めに削ぎ、台形にします。骨組みは断面に合わせて細くなりますが、質量も減るため加速の余裕が上がります。表面積は変わり、装甲とシールドの負担に響きます。": "Bevels the section corners into a trapezoid. The framing narrows with the section, but mass falls too, raising the acceleration margin. Surface area changes, affecting armor and shield load.",
   "対象の外面をタップすると、その面から箱形に切り欠きます。格納庫の開口や砲座の段差に使えます。": "Tap an exterior surface to cut a box-shaped recess from it. Use this for hangar openings or stepped gun positions.",
   "まだ削っていません。": "No cuts yet.",
   "外装だけ追従": "Move External Fittings Only",
@@ -6730,7 +6727,7 @@ root.KS_EN={
   "武装の配電路": "Weapon Power Conduits",
   "武装 1 基ごとに配電路が通り、その分だけ空き容積が減ります。配電路の太さは武装の消費電力に比例し（1 m² あたり {7}）、砲塔を大きくすると 3 乗で太くなります。武装はいちばん近いパワーセルから給電されます（1 基のセルが出せる電力は蓄電量を {8} 秒で出し切る分まで）。セルで足りない分は反応炉から直接引き、各炉が出力の割合で分担して近い武装から給電します。パワーセルは炉から充電線で充電されます。充電線に流れるのは炉が平均して賄える分（炉の出力 ÷ 武装の消費電力、最大 100%）だけなので、砲への配電路より細く済みます。砲の近くにパワーセルを置くと太い配電路が短くなりますが、セル自体も空き容積を使います。武装を増やす・大きくする・給電元から離すほど、乗れる人数が減ります。": "Each weapon requires a power conduit that consumes free volume. Its cross-section scales with weapon demand ({7} per m²), increasing with the cube of turret size. Weapons draw from the nearest power cell; each cell can discharge its stored energy over {8} seconds. Reactors supply any shortfall directly, sharing the load in proportion to their output and feeding nearby weapons first. Reactors recharge cells through charging lines carrying only the sustainable average supply (reactor output divided by weapon demand, capped at 100%), so these lines are thinner than gun conduits. Placing cells near guns shortens thick conduits, but the cells themselves occupy space. More weapons, larger weapons or longer power runs reduce personnel capacity.",
   "武装 {9} 基 · 消費電力 {10} · 平均の長さ {11} m": "{9} Weapon Mounts · Power Demand {10} · Average Run {11} m",
-  "居住区・兵員室はありません。乗員も兵員も、船体・構造の内側から機関、格納庫、指揮室、充電装置、VLS 弾庫、竜骨、開口などの区画と配電路を除いた容積で暮らします（通路・倉庫・生活設備込み）。1名あたりの容積は、居住 {14} m³ に交通路線・通路などの共用部を足したものです。共用部は大きな艦ほど累進して増えます（ドレッドノート級 601 m で 1名 {15} m³、インペリアル級 1,600 m で {16} m³、エグゼクター級 19 km で {17} m³。公式の乗員・兵員 約2万・4万・32万人に合わせた値）。乗れる人数から定員を引いた残りが兵員枠で、地上部隊の歩兵はここに乗ります。停止保管ドロイドは 1 体 {18} m³ で同じ枠を使います。武装は 1 基ごとに砲員と同数の給電・整備要員も要ります。必要乗員は、指揮区画の自動化装置（20 m³ で 1 名分）に受け持たせて減らせます。ただし装置は電力を常に使い、戦闘で止まると操艦不能になる危険があります。": "There are no separate accommodation or troop compartments. Crew and troops occupy volume within the hull and structures after subtracting engines, hangars, command rooms, chargers, VLS magazines, keel, openings and power conduits; this includes passages, stores and living facilities. Space per person comprises {14} m³ of accommodation plus shared circulation space, which increases progressively with ship size: {15} m³ per person for a 601 m Dreadnaught, {16} m³ for a 1,600 m Imperial-class and {17} m³ for a 19 km Executor, calibrated to published crew/troop totals of approximately 20,000, 40,000 and 320,000. Capacity remaining after required crew is available to ground-force infantry. Inactive stored droids use the same space at {18} m³ each. Every weapon needs power and maintenance personnel equal in number to its gunners. Command-compartment automation can replace required personnel at 20 m³ per position, but continuously consumes power; a combat failure may leave the ship uncontrollable.",
+  "居住区・兵員室はありません。乗員も兵員も、船体・構造の内側から機関、格納庫、指揮室、充電装置、VLS 弾庫、開口などの区画と配電路を除いた容積で暮らします（通路・倉庫・生活設備込み）。1名あたりの容積は、居住 {14} m³ に交通路線・通路などの共用部を足したものです。共用部は大きな艦ほど累進して増えます（ドレッドノート級 601 m で 1名 {15} m³、インペリアル級 1,600 m で {16} m³、エグゼクター級 19 km で {17} m³。公式の乗員・兵員 約2万・4万・32万人に合わせた値）。乗れる人数から定員を引いた残りが兵員枠で、地上部隊の歩兵はここに乗ります。停止保管ドロイドは 1 体 {18} m³ で同じ枠を使います。武装は 1 基ごとに砲員と同数の給電・整備要員も要ります。必要乗員は、指揮区画の自動化装置（20 m³ で 1 名分）に受け持たせて減らせます。ただし装置は電力を常に使い、戦闘で止まると操艦不能になる危険があります。": "There are no separate accommodation or troop compartments. Crew and troops occupy volume within the hull and structures after subtracting engines, hangars, command rooms, chargers, VLS magazines, openings and power conduits; this includes passages, stores and living facilities. Space per person comprises {14} m³ of accommodation plus shared circulation space, which increases progressively with ship size: {15} m³ per person for a 601 m Dreadnaught, {16} m³ for a 1,600 m Imperial-class and {17} m³ for a 19 km Executor, calibrated to published crew/troop totals of approximately 20,000, 40,000 and 320,000. Capacity remaining after required crew is available to ground-force infantry. Inactive stored droids use the same space at {18} m³ each. Every weapon needs power and maintenance personnel equal in number to its gunners. Command-compartment automation can replace required personnel at 20 m³ per position, but continuously consumes power; a combat failure may leave the ship uncontrollable.",
   "透視の緑の点は空き容積の近似範囲、橙色の管は砲への配電路、黄色の管はパワーセルの充電線です（配電路は艦内の空き容積を通る経路で表示）。": "In X-ray view, green points approximate free volume, orange tubes show gun power conduits and yellow tubes show power-cell charging lines. Conduits follow routes through available internal space.",
   "· 全持ち場 {0} 名のうち自動化装置が {1} 名分を受け持つ": "· Automation Covers {1} of {0} Personnel Positions",
   "配電路が大きい武装の上位 {1} 基（体積 · 給電元と距離）。押すとその武装を選びます。": "Top {1} weapons by conduit volume (volume, supply source and distance). Select an entry to select that weapon.",
@@ -9899,4 +9896,17 @@ Object.assign(root.KS_EN.messages,{
 "新陣営{0}": "Faction {0}"
 });
 // </faction-catalog>
+// <v27-menu-catalog>
+Object.assign(root.KS_EN.terms,{
+"部品": "Parts",
+"搭載と地上部隊": "Embarkation and Ground Forces"
+});
+Object.assign(root.KS_EN.messages,{
+"設計で決めるのは格納区画の大きさと出入口、乗せられる量だけです。航空機・搭載艦・陸戦隊を積むのは「編成」画面です。格納区画を選ぶと、用途と接触面の出入口を「編集」で変えられます。": "The design sets only the size and exits of the storage bays and how much can be carried. Craft, embarked ships and ground forces are loaded on the Order of Battle screen. Select a bay to change its role and the exits on its contact faces in Edit.",
+"航空区画はありません。「配置」から格納区画を置けます。": "There are no aviation bays. Place one from Place.",
+"{0} サイズ · {1} 両": "{0} size · {1} vehicles",
+"{0}を配置 →": "Place {0} →",
+"この項目は数値の確認だけです（編集する対象はありません）": "This item is a figure to check; there is nothing to edit for it."
+});
+// </v27-menu-catalog>
 })(typeof window==="undefined"?globalThis:window);
