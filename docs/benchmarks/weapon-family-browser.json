@@ -1,21 +1,21 @@
 {
   "schemaVersion": 1,
   "status": "PASS",
-  "date": "2026-11-04T23:39:10.491Z",
+  "date": "2026-11-05T00:41:58.288Z",
   "sourceSha256": {
-    "data/reference.js": "85f385358a1e1ec51fe7add23cfe6dee413e1a39df1ddd089d6316408e416828",
+    "data/reference.js": "769750bde03692322ac3371a45cd4d347cf9981ab3d660646133e6af9546dd80",
     "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
     "data/fleet.js": "c0341142b0b1b07f3f55b6e56e3445c33990f88e9d522a093f0e9319b6b7e416",
-    "js/core.js": "0daeebb6f6c5db2d6900d870cf8df7a6f7c1ad38a786d3b145d2d7b1835322f4",
-    "js/app.js": "64cd0762fbf608cce5b66103557441a9def930ff882b5b16b08563b48f0a4ed3",
-    "js/gfx.js": "f779b1cc185ef875664e5dfbea81d1bc9a4313c8cb0e42cd5d630df68336cfeb",
-    "js/lang-en.js": "f4725c881d9385dc490f44d33af8c3a464cee00d8d50b3e751e8670aeb77b70e",
-    "js/engine.js": "ae431a0d3b61b19b15b1f3635159b7d5664a82eaf844ac8029ef2fa6da122a3e",
-    "index.html": "bb84edb0296a60c3c9239e4f469a826efba274d83ba932ddd5d60b402f110960"
+    "js/core.js": "74f009c7bc9b937db9647ef57367fa7096baaae66d853246811ad7ae482a3725",
+    "js/app.js": "2018fbdfaf939a4b490917ac33eb0d9659b359fe7e8738e8e66221d164762121",
+    "js/gfx.js": "a07f1664e274437102e564139745ea568a0f556fb8ed009126961253d4f33a0e",
+    "js/lang-en.js": "4ec073735e434d0f31ae2f6d7663b83b6b54b994b6ee8a1820a84ff4b6068cce",
+    "js/engine.js": "b99c045397665bbd0a063aebd6ba713e584ba8630e0a4e02e0a7123d21b30239",
+    "index.html": "d022c037d0a28791864ffde89939c20142afee76bf3961f8926c5dbc36ac36bf"
   },
   "url": "http://127.0.0.1:8765",
-  "readyMs": 4139,
-  "totalElapsedMs": 77197,
+  "readyMs": 2718,
+  "totalElapsedMs": 46845,
   "config": {
     "models": [
       {
@@ -244,10 +244,10 @@
           0
         ],
         "bounds": [
-          338.40923250030255,
+          334.60923250030254,
           20,
           -12,
-          377.28888536360597,
+          373.48888536360596,
           29.99770910749268,
           12
         ]
@@ -423,7 +423,7 @@
             26.2,
             0
           ],
-          "muzzleRayErrorM": 1.6661376442073106e-05
+          "muzzleRayErrorM": 0.000016661376442073106
         }
       ]
     },
@@ -585,7 +585,7 @@
             21.562284985104323,
             -1.3308353576814616
           ],
-          "muzzleRayErrorM": 1.179370751458464e-05
+          "muzzleRayErrorM": 0.00001179370751458464
         },
         {
           "axialLengthM": 8.978961198980734,
@@ -612,7 +612,7 @@
             21.562284985104323,
             1.3308353576814616
           ],
-          "muzzleRayErrorM": 1.1811983426923689e-05
+          "muzzleRayErrorM": 0.000011811983426923689
         },
         {
           "axialLengthM": 8.978961198980734,
@@ -639,7 +639,7 @@
             24.223955700467247,
             -1.3308353576814616
           ],
-          "muzzleRayErrorM": 1.1633425913259998e-05
+          "muzzleRayErrorM": 0.000011633425913259998
         },
         {
           "axialLengthM": 8.978961198980734,
@@ -666,7 +666,7 @@
             24.223955700467247,
             1.3308353576814616
           ],
-          "muzzleRayErrorM": 1.1587306389060359e-05
+          "muzzleRayErrorM": 0.000011587306389060359
         }
       ]
     },
@@ -813,7 +813,7 @@
             35.1,
             -1
           ],
-          "muzzleRayErrorM": 2.3887856485771408e-05
+          "muzzleRayErrorM": 0.000023887856485771408
         },
         {
           "axialLengthM": 14.600224320963024,
@@ -840,7 +840,7 @@
             35.1,
             1
           ],
-          "muzzleRayErrorM": 2.390002410379566e-05
+          "muzzleRayErrorM": 0.00002390002410379566
         }
       ]
     },
@@ -987,7 +987,7 @@
             32.5,
             -8.504908102453705
           ],
-          "muzzleRayErrorM": 1.5168070603976957e-05
+          "muzzleRayErrorM": 0.000015168070603976957
         },
         {
           "axialLengthM": 13.000076361000538,
@@ -1014,7 +1014,7 @@
             32.5,
             8.50490631071981
           ],
-          "muzzleRayErrorM": 1.505661924738888e-05
+          "muzzleRayErrorM": 0.00001505661924738888
         }
       ]
     },
@@ -1166,7 +1166,7 @@
             31.9,
             -2.5
           ],
-          "muzzleRayErrorM": 9.311163040592874e-06
+          "muzzleRayErrorM": 0.000009311163040592874
         },
         {
           "axialLengthM": 12.50003431364894,
@@ -1193,7 +1193,7 @@
             31.9,
             0
           ],
-          "muzzleRayErrorM": 9.92222382478758e-06
+          "muzzleRayErrorM": 0.00000992222382478758
         },
         {
           "axialLengthM": 12.50003431364894,
@@ -1220,7 +1220,7 @@
             31.9,
             2.4999999999999996
           ],
-          "muzzleRayErrorM": 9.42857474228731e-06
+          "muzzleRayErrorM": 0.00000942857474228731
         }
       ]
     },
@@ -1397,7 +1397,7 @@
             28.406677515729264,
             -10.795006277560518
           ],
-          "muzzleRayErrorM": 9.633120896523906e-06
+          "muzzleRayErrorM": 0.000009633120896523906
         },
         {
           "axialLengthM": 19.012390971183777,
@@ -1424,7 +1424,7 @@
             28.406677515729264,
             -8.908302786431427
           ],
-          "muzzleRayErrorM": 9.634410105263669e-06
+          "muzzleRayErrorM": 0.000009634410105263669
         },
         {
           "axialLengthM": 19.012390971183777,
@@ -1451,7 +1451,7 @@
             28.406677515729264,
             -7.0215992953023365
           ],
-          "muzzleRayErrorM": 9.605438890503137e-06
+          "muzzleRayErrorM": 0.000009605438890503137
         },
         {
           "axialLengthM": 19.012390971183777,
@@ -1478,7 +1478,7 @@
             28.406677515729264,
             -5.134590611114181
           ],
-          "muzzleRayErrorM": 9.507733409463981e-06
+          "muzzleRayErrorM": 0.000009507733409463981
         },
         {
           "axialLengthM": 19.012390971183777,
@@ -1505,7 +1505,7 @@
             28.406838794914215,
             5.135766212482744
           ],
-          "muzzleRayErrorM": 9.43047086821025e-06
+          "muzzleRayErrorM": 0.00000943047086821025
         },
         {
           "axialLengthM": 19.012390971183777,
@@ -1532,7 +1532,7 @@
             28.406838794914215,
             7.0227748966708985
           ],
-          "muzzleRayErrorM": 9.523088294827176e-06
+          "muzzleRayErrorM": 0.000009523088294827176
         },
         {
           "axialLengthM": 19.012390971183777,
@@ -1559,7 +1559,7 @@
             28.406838794914215,
             8.909478387799991
           ],
-          "muzzleRayErrorM": 9.61928299147985e-06
+          "muzzleRayErrorM": 0.00000961928299147985
         },
         {
           "axialLengthM": 19.012390971183777,
@@ -1586,7 +1586,7 @@
             28.406838794914215,
             10.796181878929083
           ],
-          "muzzleRayErrorM": 9.69485500945666e-06
+          "muzzleRayErrorM": 0.00000969485500945666
         }
       ]
     },
@@ -1810,21 +1810,21 @@
         0
       ],
       "sphereMeshRange": null,
-      "triangles": 16688,
-      "drawnIndices": 50064,
+      "triangles": 16712,
+      "drawnIndices": 50136,
       "drawOutsideBounds": 0,
       "chargeInfo": {
         "required": 4200,
         "plannedVolume": 4200,
-        "housingVolume": 3465.581849087666,
-        "externalVolume": 3465.581849087666,
+        "housingVolume": 3465.58184908767,
+        "externalVolume": 3465.58184908767,
         "embeddedVolume": 0,
-        "externalUsed": 3465.581849087666,
+        "externalUsed": 3465.58184908767,
         "embeddedUsed": 0,
-        "housingUsed": 3465.581849087666,
-        "internalRequired": 734.4181509123341,
-        "internalVolume": 734.4181509123341,
-        "internalOccupiedVolume": 734.4181509123341,
+        "housingUsed": 3465.58184908767,
+        "internalRequired": 734.41815091233,
+        "internalVolume": 734.4181509123299,
+        "internalOccupiedVolume": 734.4181509123299,
         "volume": 4200,
         "ratio": 1,
         "capacityRatio": 1,
@@ -1841,7 +1841,7 @@
           0
         ],
         "elevationPivot": [
-          362.15923250030255,
+          358.35923250030254,
           26.25,
           0
         ],
@@ -1862,23 +1862,23 @@
         ],
         "muzzles": [
           [
-            377.28888536360597,
+            373.48888536360596,
             26.25,
             -3
           ],
           [
-            377.28888536360597,
+            373.48888536360596,
             26.25,
             0
           ],
           [
-            377.28888536360597,
+            373.48888536360596,
             26.25,
             3
           ]
         ],
-        "vertexStart": 10287,
-        "indexStart": 29562,
+        "vertexStart": 10335,
+        "indexStart": 29634,
         "housingFixed": false,
         "limits": {
           "yaw": null,
@@ -1892,9 +1892,9 @@
           "side": null,
           "row": null,
           "range": {
-            "firstVertex": 13438,
+            "firstVertex": 13486,
             "vertices": 1272,
-            "firstIndex": 39426,
+            "firstIndex": 39498,
             "indices": 3546
           },
           "muzzle": [
@@ -1903,25 +1903,25 @@
             -3
           ],
           "worldMuzzle": [
-            377.28888536360597,
+            373.48888536360596,
             26.25,
             -3
           ],
           "muzzleRayHit": [
-            376.0055847167969,
+            372.2055969238281,
             26.25,
             -3
           ],
-          "muzzleRayErrorM": 8.313339583310153e-05
+          "muzzleRayErrorM": 0.00007092636457173285
         },
         {
           "axialLengthM": 12.879789842883,
           "side": null,
           "row": null,
           "range": {
-            "firstVertex": 14710,
+            "firstVertex": 14758,
             "vertices": 1272,
-            "firstIndex": 42972,
+            "firstIndex": 43044,
             "indices": 3546
           },
           "muzzle": [
@@ -1930,25 +1930,25 @@
             0
           ],
           "worldMuzzle": [
-            377.28888536360597,
+            373.48888536360596,
             26.25,
             0
           ],
           "muzzleRayHit": [
-            376.0055847167969,
+            372.2055969238281,
             26.25,
             0
           ],
-          "muzzleRayErrorM": 8.313339583310153e-05
+          "muzzleRayErrorM": 0.00007092636457173285
         },
         {
           "axialLengthM": 12.879789842883,
           "side": null,
           "row": null,
           "range": {
-            "firstVertex": 15982,
+            "firstVertex": 16030,
             "vertices": 1272,
-            "firstIndex": 46518,
+            "firstIndex": 46590,
             "indices": 3546
           },
           "muzzle": [
@@ -1957,16 +1957,16 @@
             3
           ],
           "worldMuzzle": [
-            377.28888536360597,
+            373.48888536360596,
             26.25,
             3
           ],
           "muzzleRayHit": [
-            376.0055847167969,
+            372.2055969238281,
             26.25,
             3
           ],
-          "muzzleRayErrorM": 8.313339583310153e-05
+          "muzzleRayErrorM": 0.00007092636457173285
         }
       ]
     },
@@ -2123,7 +2123,7 @@
             23.7,
             33.0964241027832
           ],
-          "muzzleRayErrorM": 1.124710692579356e-05
+          "muzzleRayErrorM": 0.00001124710692579356
         },
         {
           "axialLengthM": 12.879516298303749,
@@ -2150,7 +2150,7 @@
             23.7,
             33.0964241027832
           ],
-          "muzzleRayErrorM": 1.124710692579356e-05
+          "muzzleRayErrorM": 0.00001124710692579356
         },
         {
           "axialLengthM": 12.879516298303749,
@@ -2177,7 +2177,7 @@
             28.3,
             33.0964241027832
           ],
-          "muzzleRayErrorM": 1.124710692579356e-05
+          "muzzleRayErrorM": 0.00001124710692579356
         },
         {
           "axialLengthM": 12.879516298303749,
@@ -2204,7 +2204,7 @@
             28.3,
             33.0964241027832
           ],
-          "muzzleRayErrorM": 1.124710692579356e-05
+          "muzzleRayErrorM": 0.00001124710692579356
         }
       ]
     }
@@ -2592,8 +2592,8 @@
       "kind": "triple70",
       "id": 9,
       "pixel": [
-        1092.8677597912435,
-        525.4109123647343
+        1085.981700691435,
+        526.1054584170181
       ],
       "nativeCanvasClick": true,
       "compartment": {
@@ -2887,21 +2887,21 @@
       "authored": true,
       "bodyMesh": "refTurBody_9",
       "movingMesh": "refTur_9",
-      "staticIndices": 29562,
+      "staticIndices": 29634,
       "movingIndices": 20502,
       "staticBounds": [
-        338.40924072265625,
+        334.6092224121094,
         20,
         -12,
-        362.7893981933594,
+        360.35931396484375,
         29.93775177001953,
         12
       ],
       "movingBounds": [
-        357.90899658203125,
+        354.1089782714844,
         22.599966049194336,
         -8.99981689453125,
-        377.28887939453125,
+        373.4888916015625,
         29.997709274291992,
         8.99981689453125
       ]
@@ -3247,21 +3247,21 @@
           "id": 9,
           "kind": "triple70",
           "authored": true,
-          "staticIndices": 29562,
+          "staticIndices": 29634,
           "movingIndices": 20502,
           "muzzles": [
             [
-              377.28888536360597,
+              373.48888536360596,
               26.25,
               -3
             ],
             [
-              377.28888536360597,
+              373.48888536360596,
               26.25,
               0
             ],
             [
-              377.28888536360597,
+              373.48888536360596,
               26.25,
               3
             ]
@@ -3650,21 +3650,21 @@
           "id": 9,
           "kind": "triple70",
           "authored": true,
-          "staticIndices": 29562,
+          "staticIndices": 29634,
           "movingIndices": 20502,
           "muzzles": [
             [
-              375.87135470547577,
+              372.07135470547576,
               32.64406759382949,
               -3
             ],
             [
-              375.87135470547577,
+              372.07135470547576,
               32.64406759382949,
               0
             ],
             [
-              375.87135470547577,
+              372.07135470547576,
               32.64406759382949,
               3
             ]
@@ -4053,21 +4053,21 @@
           "id": 9,
           "kind": "triple70",
           "authored": true,
-          "staticIndices": 29562,
+          "staticIndices": 29634,
           "movingIndices": 20502,
           "muzzles": [
             [
-              377.28888536360597,
+              373.48888536360596,
               26.25,
               -3
             ],
             [
-              377.28888536360597,
+              373.48888536360596,
               26.25,
               0
             ],
             [
-              377.28888536360597,
+              373.48888536360596,
               26.25,
               3
             ]
@@ -4459,21 +4459,21 @@
           "id": 9,
           "kind": "triple70",
           "authored": true,
-          "staticIndices": 29562,
+          "staticIndices": 29634,
           "movingIndices": 20502,
           "muzzles": [
             [
-              375.87135470547577,
+              372.07135470547576,
               32.64406759382949,
               -3
             ],
             [
-              375.87135470547577,
+              372.07135470547576,
               32.64406759382949,
               0
             ],
             [
-              375.87135470547577,
+              372.07135470547576,
               32.64406759382949,
               3
             ]
@@ -4673,7 +4673,7 @@
           "origin": [
             68.97500000000001,
             0,
-            1.2404311595659578e-06
+            0.0000012404311595659578
           ],
           "rotation": [
             1,
@@ -4723,7 +4723,7 @@
           "origin": [
             -2.4750000000000014,
             0,
-            1.7917338972495145e-06
+            0.0000017917338972495145
           ],
           "rotation": [
             1,
@@ -4748,7 +4748,7 @@
           "origin": [
             -36.225,
             0,
-            1.7917338972495145e-06
+            0.0000017917338972495145
           ],
           "rotation": [
             1,
@@ -4800,11 +4800,7 @@
       "referencePhoto": {
         "name": "1-写真1.jpg",
         "sha256": "3a973604ad89abfd97308b51a60063eae8ea1cadc155f977ae20be48ed5b16d4",
-        "available": true
-      },
-      "comparisonArtifact": {
-        "path": "/tmp/kuat-turret-photo-comparisons/weapon-family-photo-comparison-profile40.png",
-        "committed": false
+        "available": false
       }
     },
     {
@@ -4838,7 +4834,7 @@
           "origin": [
             111.45105251467655,
             0,
-            1.2404311595659578e-06
+            0.0000012404311595659578
           ],
           "rotation": [
             1,
@@ -4888,7 +4884,7 @@
           "origin": [
             20.001052514676545,
             0,
-            1.7917338972495145e-06
+            0.0000017917338972495145
           ],
           "rotation": [
             1,
@@ -4913,7 +4909,7 @@
           "origin": [
             -23.748947485323455,
             0,
-            1.7917338972495145e-06
+            0.0000017917338972495145
           ],
           "rotation": [
             1,
@@ -4990,11 +4986,7 @@
       "referencePhoto": {
         "name": "2-写真2.jpg",
         "sha256": "45dea2603a9f194d7a9df680b1c1bc684117da0f95064b130d845832a7cefe78",
-        "available": true
-      },
-      "comparisonArtifact": {
-        "path": "/tmp/kuat-turret-photo-comparisons/weapon-family-photo-comparison-isometric40.png",
-        "committed": false
+        "available": false
       }
     },
     {
@@ -5048,7 +5040,7 @@
             24
           ],
           "origin": [
-            -6.976052514676532,
+            -3.1760525146765204,
             0,
             0
           ],
@@ -5092,21 +5084,17 @@
         }
       ],
       "pixelCoverage": {
-        "litPixels": 64537,
+        "litPixels": 65543,
         "minimumLitPixels": 13650,
         "pixelCount": 910000,
-        "fraction": 0.07091978021978022
+        "fraction": 0.07202527472527473
       },
       "webglError": 0,
       "nativeImage": "weapon-family-photo-isometric70.png",
       "referencePhoto": {
         "name": "3-写真3.jpg",
         "sha256": "badc90e277a1e4f2bb5e26e1c47662ef6e0ad228cc6d21ff52f31a434acbfdd3",
-        "available": true
-      },
-      "comparisonArtifact": {
-        "path": "/tmp/kuat-turret-photo-comparisons/weapon-family-photo-comparison-isometric70.png",
-        "committed": false
+        "available": false
       }
     },
     {
@@ -5136,7 +5124,7 @@
           "origin": [
             19.25,
             0,
-            1.7917338972495145e-06
+            0.0000017917338972495145
           ],
           "rotation": [
             1,
@@ -5161,7 +5149,7 @@
           "origin": [
             -26.5,
             0,
-            1.7917338972495145e-06
+            0.0000017917338972495145
           ],
           "rotation": [
             1,
@@ -5188,11 +5176,7 @@
       "referencePhoto": {
         "name": "2-写真2.jpg",
         "sha256": "45dea2603a9f194d7a9df680b1c1bc684117da0f95064b130d845832a7cefe78",
-        "available": true
-      },
-      "comparisonArtifact": {
-        "path": "/tmp/kuat-turret-photo-comparisons/weapon-family-photo-comparison-common40.png",
-        "committed": false
+        "available": false
       }
     }
   ],
@@ -5229,10 +5213,7 @@
       "actual native canvas selection and body-compartment information",
       "wall-only mounting rejects deck and accepts vertical beam",
       "same-scale production-renderer pose strips with QA platform/beam meshes hidden",
-      "whole moving ion sphere and four barrels with lower 1/3 height embedded in native structure",
-      "four large photo-grounded galleries with actual WebGL pixel-coverage guards",
-      "common40TT main-case and visible cradle at rest, using a separate two-model close view",
-      "photo1 per-model barrel elevation derived from the independent pixel landmarks"
+      "whole moving ion sphere and four barrels with lower 1/3 height embedded in native structure"
     ],
     "notVerified": [
       "powered combat or sustained firing",
@@ -5240,18 +5221,5 @@
       "complete-ship engineering inspection",
       "physical mobile or GPU frame rate"
     ]
-  },
-  "evidenceState": "FINAL_PHOTO_SHARED_CASE_SOURCE",
-  "visualReview": {
-    "status": "PASS",
-    "reviewed": [
-      "photo1 five-model level profiles at the unchanged40m octuple scale and measured barrel elevations",
-      "photo2 six-model and photo3 three-model isometric approximations",
-      "large twin40/triple40 rest-pose comparison and individual close views",
-      "whole-moving mounted ion sphere and unchanged source anchors",
-      "four local source-photograph/current-renderer composites with both panels visible"
-    ],
-    "findings": "The common40TT main case is visibly the same size and shape. The triple receiver is supported by a broad connected hood/cradle through its axle; the three guns no longer float above the case. Independent photo lengths, heights and bearing proportions pass.70TT uses a broad forward pod, roof mechanisms and a real open rear carrier. Colors follow original source-anchor material paths without triangular UV patches.",
-    "limits": "Photographic display stands are excluded; models share their native mounting level. Isometric views approximate the camera and do not claim pixel-perfect perspective or IoU. Capacitor room can differ despite the shared outer case because the internal triple mechanism consumes space."
   }
 }

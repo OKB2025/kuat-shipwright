@@ -46,6 +46,14 @@ ISDの8連装は全長1,600 mの艦体との比率を参考に40 m級へ調整�
 
 70TT 3連装の全高は元のDBY-827と同じ約9.9977 m。長さ19.5 m・最大幅24 mの六角砲室は、後端から約69%の位置で最も広くなり、後部へ絞る。装甲帯、側面の点検パネル、屋根上の3列の機構を持つ。幅18 m・奥行7.5 mの共通3門ポッド全体が前面へ張り出し、砲身根元を中央と左右3 mへ集める。70TT系列の砲身はすべて元DBY-827の全長約12.87965 mを保持する。
 
+前部の左右には、本体から取付面まで連続する傾斜装甲を設ける。固定軸を円形砲基部へ重ねて接続し、前部ポッドと本体の間に見えていた隙間を塞ぐ。この装甲は構造部分として扱い、充電設備の容積へ加えない。
+
+取付・旋回中心は、最大幅断面の左右端を結ぶ線の中央へ合わせる。モデル座標では左右端が `[3.8, 0, −12]` と `[3.8, 0, 12]`、取付点が `[3.8, 0, 0]` となる。保存済みの配置座標は取付点として維持し、その位置へケースの最大幅部分を揃える。斜面や手動の砲座でも同じ変換を使う。[接続・取付中心のブラウザ検証](benchmarks/triple70-mount-browser.json) には実装ハッシュと実画面を記録する。
+
+![斜面上の70TT 3連装の前部接続](images/triple70-mount-slope-side.png)
+
+![最大幅部分の中央と手動砲座の中心](images/triple70-mount-pedestal-top.png)
+
 ![DBY-827・70TT 3連装・舷側4連装の比較](images/weapon-family-photo-isometric70.png)
 
 40TT単装は砲室の高さと長さを増やし、長い砲身との比率を整える。半球型連装は広い砲室の中央上部に機構をまとめる。箱型連装と3連装の固定外殻は、長さ22.5 m・幅13 m、下端Y0.4 mから上端Y11.4 mまでの同じ形状を使う。固定フレーム部分の形状と閉領域を共通にし、その中の機構を砲数に合わせて変える。
@@ -112,7 +120,7 @@ ISDの8連装は全長1,600 mの艦体との比率を参考に40 m級へ調整�
 python3 scripts/build-turret-family.py --check
 node --test tests/turret-photo-proportions.cjs tests/weapon-plain-metal-uv.cjs \
   tests/weapon-family-models.cjs tests/weapon-family-ui.cjs \
-  tests/turret-compartment-volume.cjs tests/authored-turret-motion.cjs
+  tests/turret-compartment-volume.cjs tests/authored-turret-motion.cjs tests/triple70-mount.cjs
 ```
 
 形状・寸法・移行・読込み・翻訳に加え、写真の測定値と実形状の比率、元部品の材質、曲面の法線を検証する。本番ブラウザで9種の選択、俯仰、砲室表示、球の埋設と写真に対応する比較画面を確認する。[実装ハッシュ付きの検証記録と画像一覧](benchmarks/weapon-family-browser.json) を同梱する。

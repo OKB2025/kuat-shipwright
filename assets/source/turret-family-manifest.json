@@ -83,6 +83,13 @@
         "20": 0,
         "55": 0,
         "85": 0
+      },
+      "frontArmorClearance": {
+        "-10": 0,
+        "0": 0,
+        "20": 0,
+        "55": 0,
+        "85": 0
       }
     },
     "family_quad70_side": {
@@ -61638,8 +61645,8 @@
       "source": "A308 Digital",
       "nativeCalibration": "imperial-photo-family",
       "catalogKind": "triple70",
-      "n": 17254,
-      "faces": 16688,
+      "n": 17302,
+      "faces": 16712,
       "indexBytes": 2,
       "c": [
         9.689826431651714,
@@ -61652,9 +61659,9 @@
         24.0
       ],
       "mount": [
+        3.8,
         0,
-        0,
-        0
+        0.0
       ],
       "forward": [
         1,
@@ -61684,9 +61691,9 @@
       "barrelCenters": [
         {
           "label": "70TT full-profile forward DBY barrel",
-          "firstVertex": 13438,
+          "firstVertex": 13486,
           "vertices": 1272,
-          "firstIndex": 39426,
+          "firstIndex": 39498,
           "indices": 3546,
           "sourceAsset": "ven_turret",
           "sourceComponent": 2,
@@ -62992,9 +62999,9 @@
         },
         {
           "label": "70TT full-profile forward DBY barrel",
-          "firstVertex": 14710,
+          "firstVertex": 14758,
           "vertices": 1272,
-          "firstIndex": 42972,
+          "firstIndex": 43044,
           "indices": 3546,
           "sourceAsset": "ven_turret",
           "sourceComponent": 2,
@@ -64300,9 +64307,9 @@
         },
         {
           "label": "70TT full-profile forward DBY barrel",
-          "firstVertex": 15982,
+          "firstVertex": 16030,
           "vertices": 1272,
-          "firstIndex": 46518,
+          "firstIndex": 46590,
           "indices": 3546,
           "sourceAsset": "ven_turret",
           "sourceComponent": 2,
@@ -65639,16 +65646,16 @@
         6.25,
         0.0
       ],
-      "elevationVertexStart": 10287,
-      "elevationIndexStart": 29562,
-      "housingVertices": 10287,
-      "housingFaces": 9854,
+      "elevationVertexStart": 10335,
+      "elevationIndexStart": 29634,
+      "housingVertices": 10335,
+      "housingFaces": 9878,
       "drivePivots": [
         {
           "label": "DBY-827 complete circular elevation bearing",
-          "firstVertex": 12770,
+          "firstVertex": 12818,
           "vertices": 256,
-          "firstIndex": 37854,
+          "firstIndex": 37926,
           "indices": 666,
           "sourceAsset": "ven_turret",
           "sourceComponent": 1,
@@ -65924,9 +65931,9 @@
         },
         {
           "label": "DBY-827 complete circular elevation bearing",
-          "firstVertex": 13026,
+          "firstVertex": 13074,
           "vertices": 256,
-          "firstIndex": 38520,
+          "firstIndex": 38592,
           "indices": 666,
           "sourceAsset": "ven_turret",
           "sourceComponent": 3,
@@ -67621,9 +67628,9 @@
             "sourceComponent": 0,
             "sourceCompartmentCell": 0,
             "sourceMeshRange": {
-              "firstVertex": 10287,
+              "firstVertex": 10335,
               "vertices": 2483,
-              "firstIndex": 29562,
+              "firstIndex": 29634,
               "indices": 8292
             }
           },
@@ -67835,9 +67842,9 @@
             "sourceComponent": 0,
             "sourceCompartmentCell": 1,
             "sourceMeshRange": {
-              "firstVertex": 10287,
+              "firstVertex": 10335,
               "vertices": 2483,
-              "firstIndex": 29562,
+              "firstIndex": 29634,
               "indices": 8292
             }
           },
@@ -68039,9 +68046,9 @@
             "sourceComponent": 0,
             "sourceCompartmentCell": 2,
             "sourceMeshRange": {
-              "firstVertex": 10287,
+              "firstVertex": 10335,
               "vertices": 2483,
-              "firstIndex": 29562,
+              "firstIndex": 29634,
               "indices": 8292
             }
           },
@@ -68268,9 +68275,9 @@
             "sourceComponent": 0,
             "sourceCompartmentCell": 3,
             "sourceMeshRange": {
-              "firstVertex": 10287,
+              "firstVertex": 10335,
               "vertices": 2483,
-              "firstIndex": 29562,
+              "firstIndex": 29634,
               "indices": 8292
             }
           },
@@ -68467,9 +68474,9 @@
             "sourceComponent": 0,
             "sourceCompartmentCell": 4,
             "sourceMeshRange": {
-              "firstVertex": 10287,
+              "firstVertex": 10335,
               "vertices": 2483,
-              "firstIndex": 29562,
+              "firstIndex": 29634,
               "indices": 8292
             }
           },
@@ -68746,9 +68753,9 @@
             "sourceComponent": 0,
             "sourceCompartmentCell": 5,
             "sourceMeshRange": {
-              "firstVertex": 10287,
+              "firstVertex": 10335,
               "vertices": 2483,
-              "firstIndex": 29562,
+              "firstIndex": 29634,
               "indices": 8292
             }
           },
@@ -68985,9 +68992,9 @@
             "sourceComponent": 0,
             "sourceCompartmentCell": 6,
             "sourceMeshRange": {
-              "firstVertex": 10287,
+              "firstVertex": 10335,
               "vertices": 2483,
-              "firstIndex": 29562,
+              "firstIndex": 29634,
               "indices": 8292
             }
           },
@@ -69184,9 +69191,9 @@
             "sourceComponent": 0,
             "sourceCompartmentCell": 7,
             "sourceMeshRange": {
-              "firstVertex": 10287,
+              "firstVertex": 10335,
               "vertices": 2483,
-              "firstIndex": 29562,
+              "firstIndex": 29634,
               "indices": 8292
             }
           },
@@ -69418,9 +69425,9 @@
             "sourceComponent": 0,
             "sourceCompartmentCell": 8,
             "sourceMeshRange": {
-              "firstVertex": 10287,
+              "firstVertex": 10335,
               "vertices": 2483,
-              "firstIndex": 29562,
+              "firstIndex": 29634,
               "indices": 8292
             }
           },
@@ -69577,9 +69584,9 @@
             "sourceComponent": 0,
             "sourceCompartmentCell": 9,
             "sourceMeshRange": {
-              "firstVertex": 10287,
+              "firstVertex": 10335,
               "vertices": 2483,
-              "firstIndex": 29562,
+              "firstIndex": 29634,
               "indices": 8292
             }
           },
@@ -69826,9 +69833,9 @@
             "sourceComponent": 0,
             "sourceCompartmentCell": 10,
             "sourceMeshRange": {
-              "firstVertex": 10287,
+              "firstVertex": 10335,
               "vertices": 2483,
-              "firstIndex": 29562,
+              "firstIndex": 29634,
               "indices": 8292
             }
           },
@@ -70045,9 +70052,9 @@
             "sourceComponent": 0,
             "sourceCompartmentCell": 11,
             "sourceMeshRange": {
-              "firstVertex": 10287,
+              "firstVertex": 10335,
               "vertices": 2483,
-              "firstIndex": 29562,
+              "firstIndex": 29634,
               "indices": 8292
             }
           },
@@ -70264,9 +70271,9 @@
             "sourceComponent": 0,
             "sourceCompartmentCell": 12,
             "sourceMeshRange": {
-              "firstVertex": 10287,
+              "firstVertex": 10335,
               "vertices": 2483,
-              "firstIndex": 29562,
+              "firstIndex": 29634,
               "indices": 8292
             }
           },
@@ -70493,9 +70500,9 @@
             "sourceComponent": 0,
             "sourceCompartmentCell": 13,
             "sourceMeshRange": {
-              "firstVertex": 10287,
+              "firstVertex": 10335,
               "vertices": 2483,
-              "firstIndex": 29562,
+              "firstIndex": 29634,
               "indices": 8292
             }
           },
@@ -70722,9 +70729,9 @@
             "sourceComponent": 0,
             "sourceCompartmentCell": 14,
             "sourceMeshRange": {
-              "firstVertex": 10287,
+              "firstVertex": 10335,
               "vertices": 2483,
-              "firstIndex": 29562,
+              "firstIndex": 29634,
               "indices": 8292
             }
           },
@@ -71171,9 +71178,9 @@
             "sourceComponent": 0,
             "sourceCompartmentCell": 15,
             "sourceMeshRange": {
-              "firstVertex": 10287,
+              "firstVertex": 10335,
               "vertices": 2483,
-              "firstIndex": 29562,
+              "firstIndex": 29634,
               "indices": 8292
             }
           },
@@ -71520,9 +71527,9 @@
             "sourceComponent": 0,
             "sourceCompartmentCell": 16,
             "sourceMeshRange": {
-              "firstVertex": 10287,
+              "firstVertex": 10335,
               "vertices": 2483,
-              "firstIndex": 29562,
+              "firstIndex": 29634,
               "indices": 8292
             }
           },
@@ -71819,9 +71826,9 @@
             "sourceComponent": 0,
             "sourceCompartmentCell": 17,
             "sourceMeshRange": {
-              "firstVertex": 10287,
+              "firstVertex": 10335,
               "vertices": 2483,
-              "firstIndex": 29562,
+              "firstIndex": 29634,
               "indices": 8292
             }
           }
@@ -79697,40 +79704,64 @@
           "compartment": false
         },
         {
-          "label": "integral forward gun-pod bearing cheek",
+          "label": "triple70 integral sloping front armor cheek",
           "firstVertex": 9639,
-          "vertices": 36,
+          "vertices": 24,
           "firstIndex": 28314,
-          "indices": 60,
-          "compartment": false
-        },
-        {
-          "label": "forward pod trunnion axle",
-          "firstVertex": 9675,
-          "vertices": 288,
-          "firstIndex": 28374,
-          "indices": 564
+          "indices": 36,
+          "compartment": false,
+          "componentRole": "fixed-front-armor",
+          "structuralArmor": true
         },
         {
           "label": "integral forward gun-pod bearing cheek",
-          "firstVertex": 9963,
+          "firstVertex": 9663,
           "vertices": 36,
-          "firstIndex": 28938,
+          "firstIndex": 28350,
           "indices": 60,
-          "compartment": false
+          "compartment": false,
+          "componentRole": "fixed-bearing-arm"
         },
         {
           "label": "forward pod trunnion axle",
-          "firstVertex": 9999,
+          "firstVertex": 9699,
           "vertices": 288,
-          "firstIndex": 28998,
-          "indices": 564
+          "firstIndex": 28410,
+          "indices": 564,
+          "componentRole": "fixed-bearing-axle"
+        },
+        {
+          "label": "triple70 integral sloping front armor cheek",
+          "firstVertex": 9987,
+          "vertices": 24,
+          "firstIndex": 28974,
+          "indices": 36,
+          "compartment": false,
+          "componentRole": "fixed-front-armor",
+          "structuralArmor": true
+        },
+        {
+          "label": "integral forward gun-pod bearing cheek",
+          "firstVertex": 10011,
+          "vertices": 36,
+          "firstIndex": 29010,
+          "indices": 60,
+          "compartment": false,
+          "componentRole": "fixed-bearing-arm"
+        },
+        {
+          "label": "forward pod trunnion axle",
+          "firstVertex": 10047,
+          "vertices": 288,
+          "firstIndex": 29070,
+          "indices": 564,
+          "componentRole": "fixed-bearing-axle"
         },
         {
           "label": "complete detailed DBY common front gun pod",
-          "firstVertex": 10287,
+          "firstVertex": 10335,
           "vertices": 2483,
-          "firstIndex": 29562,
+          "firstIndex": 29634,
           "indices": 8292,
           "sourceAsset": "ven_turret",
           "sourceComponent": 0,
@@ -82222,9 +82253,9 @@
         },
         {
           "label": "DBY-827 complete circular elevation bearing",
-          "firstVertex": 12770,
+          "firstVertex": 12818,
           "vertices": 256,
-          "firstIndex": 37854,
+          "firstIndex": 37926,
           "indices": 666,
           "sourceAsset": "ven_turret",
           "sourceComponent": 1,
@@ -82500,9 +82531,9 @@
         },
         {
           "label": "DBY-827 complete circular elevation bearing",
-          "firstVertex": 13026,
+          "firstVertex": 13074,
           "vertices": 256,
-          "firstIndex": 38520,
+          "firstIndex": 38592,
           "indices": 666,
           "sourceAsset": "ven_turret",
           "sourceComponent": 3,
@@ -82778,26 +82809,10 @@
         },
         {
           "label": "wide detailed front three-gun receiver",
-          "firstVertex": 13282,
+          "firstVertex": 13330,
           "vertices": 36,
-          "firstIndex": 39186,
+          "firstIndex": 39258,
           "indices": 60,
-          "compartment": false
-        },
-        {
-          "label": "roof stiffener",
-          "firstVertex": 13318,
-          "vertices": 24,
-          "firstIndex": 39246,
-          "indices": 36,
-          "compartment": false
-        },
-        {
-          "label": "roof stiffener",
-          "firstVertex": 13342,
-          "vertices": 24,
-          "firstIndex": 39282,
-          "indices": 36,
           "compartment": false
         },
         {
@@ -82825,10 +82840,26 @@
           "compartment": false
         },
         {
-          "label": "70TT full-profile forward DBY barrel",
+          "label": "roof stiffener",
           "firstVertex": 13438,
-          "vertices": 1272,
+          "vertices": 24,
           "firstIndex": 39426,
+          "indices": 36,
+          "compartment": false
+        },
+        {
+          "label": "roof stiffener",
+          "firstVertex": 13462,
+          "vertices": 24,
+          "firstIndex": 39462,
+          "indices": 36,
+          "compartment": false
+        },
+        {
+          "label": "70TT full-profile forward DBY barrel",
+          "firstVertex": 13486,
+          "vertices": 1272,
+          "firstIndex": 39498,
           "indices": 3546,
           "sourceAsset": "ven_turret",
           "sourceComponent": 2,
@@ -84134,9 +84165,9 @@
         },
         {
           "label": "70TT full-profile forward DBY barrel",
-          "firstVertex": 14710,
+          "firstVertex": 14758,
           "vertices": 1272,
-          "firstIndex": 42972,
+          "firstIndex": 43044,
           "indices": 3546,
           "sourceAsset": "ven_turret",
           "sourceComponent": 2,
@@ -85442,9 +85473,9 @@
         },
         {
           "label": "70TT full-profile forward DBY barrel",
-          "firstVertex": 15982,
+          "firstVertex": 16030,
           "vertices": 1272,
-          "firstIndex": 46518,
+          "firstIndex": 46590,
           "indices": 3546,
           "sourceAsset": "ven_turret",
           "sourceComponent": 2,
@@ -86752,6 +86783,53 @@
       "maxQuantizationErrorM": 0.000352143904394818,
       "derivedFrom": "ven_turret",
       "materialReference": "ven_turret70_native",
+      "mountAlignment": {
+        "kind": "widest-main-case-cross-section",
+        "midpointM": [
+          3.8,
+          0,
+          0.0
+        ],
+        "sectionWidthM": 24.0,
+        "portEndpointM": [
+          3.8,
+          0,
+          -12.0
+        ],
+        "starboardEndpointM": [
+          3.8,
+          0,
+          12.0
+        ]
+      },
+      "frontConnection": {
+        "armorCheekLabels": [
+          "triple70 integral sloping front armor cheek",
+          "triple70 integral sloping front armor cheek"
+        ],
+        "bearingArmLabels": [
+          "integral forward gun-pod bearing cheek",
+          "integral forward gun-pod bearing cheek"
+        ],
+        "fixedAxleLabels": [
+          "forward pod trunnion axle",
+          "forward pod trunnion axle"
+        ],
+        "movingWheelLabels": [
+          "DBY-827 complete circular elevation bearing",
+          "DBY-827 complete circular elevation bearing"
+        ],
+        "movingPodLabels": [
+          "complete detailed DBY common front gun pod"
+        ],
+        "receiverLabels": [
+          "wide detailed front three-gun receiver"
+        ],
+        "fixedAxleDepthM": 1.8,
+        "wheelEngagementM": 0.15,
+        "armorLateralClearanceM": 0.3,
+        "armorAddsCapacitorRoom": false
+      },
       "photoMeasurements": "assets/source/turret-photo-measurements.json",
       "photoFeatureComponents": {
         "mainCase": [
@@ -86843,9 +86921,9 @@
         "rootSideMarginM": 3.388,
         "completeSourceBodyComponent": 0,
         "movingMeshRange": {
-          "firstVertex": 10287,
+          "firstVertex": 10335,
           "vertices": 2483,
-          "firstIndex": 29562,
+          "firstIndex": 29634,
           "indices": 8292
         }
       },
@@ -86889,7 +86967,7 @@
           ]
         }
       },
-      "packedSha256": "9360094111e1eb48adcf74d7deee4be4e11a60575a913a40bdffc5003f4fa511"
+      "packedSha256": "4074640b999b7d8891e3c20a9ee625faaeb64928aacc7c6de324f71d055f2687"
     },
     "family_quad70_side": {
       "title": "70TT 4連装舷側重ターボレーザー",

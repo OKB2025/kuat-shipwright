@@ -1,0 +1,530 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "date": "2026-11-05T00:40:57.756Z",
+  "sourceSha256": {
+    "data/reference.js": "769750bde03692322ac3371a45cd4d347cf9981ab3d660646133e6af9546dd80",
+    "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
+    "data/fleet.js": "c0341142b0b1b07f3f55b6e56e3445c33990f88e9d522a093f0e9319b6b7e416",
+    "js/core.js": "74f009c7bc9b937db9647ef57367fa7096baaae66d853246811ad7ae482a3725",
+    "js/app.js": "2018fbdfaf939a4b490917ac33eb0d9659b359fe7e8738e8e66221d164762121",
+    "js/gfx.js": "a07f1664e274437102e564139745ea568a0f556fb8ed009126961253d4f33a0e",
+    "js/lang-en.js": "4ec073735e434d0f31ae2f6d7663b83b6b54b994b6ee8a1820a84ff4b6068cce",
+    "js/engine.js": "b99c045397665bbd0a063aebd6ba713e584ba8630e0a4e02e0a7123d21b30239",
+    "index.html": "d022c037d0a28791864ffde89939c20142afee76bf3961f8926c5dbc36ac36bf"
+  },
+  "url": "http://127.0.0.1:8765",
+  "readyMs": 1436,
+  "totalElapsedMs": 31676,
+  "fixture": {
+    "placements": [
+      {
+        "name": "slope",
+        "id": 3,
+        "hostId": 1,
+        "hitPoint": [
+          85,
+          16.079214701843156,
+          0
+        ],
+        "hitNormal": [
+          0.19611617548594631,
+          0.9805806676213668,
+          0
+        ],
+        "pedestalHeight": 0
+      },
+      {
+        "name": "pedestal",
+        "id": 4,
+        "hostId": 2,
+        "hitPoint": [
+          235,
+          10,
+          0
+        ],
+        "hitNormal": [
+          0,
+          1,
+          0
+        ],
+        "pedestalHeight": 4
+      }
+    ],
+    "slopeNormal": [
+      0.19611613513818402,
+      0.9805806756909201,
+      0
+    ],
+    "parts": [
+      1,
+      2
+    ],
+    "fixture": "Two ordinary editable native plates; all weapons placed through rayEnv and placeFit"
+  },
+  "measurements": {
+    "mount": [
+      3.8,
+      0,
+      0
+    ],
+    "nativeMaxWidthLine": {
+      "left": [
+        3.800210733579925,
+        0,
+        -12
+      ],
+      "right": [
+        3.800210733579925,
+        0,
+        12
+      ],
+      "mid": [
+        3.800210733579925,
+        0,
+        0
+      ],
+      "widthM": 24
+    },
+    "size": [
+      38.87965286330343,
+      9.997709107492678,
+      24
+    ],
+    "barrels": 3,
+    "rows": [
+      {
+        "name": "slope",
+        "id": 3,
+        "hostId": 1,
+        "hitPoint": [
+          85,
+          16.079214701843156,
+          0
+        ],
+        "hitNormal": [
+          0.19611617548594631,
+          0.9805806676213668,
+          0
+        ],
+        "pedestalHeight": 0,
+        "float": false,
+        "ped": 0,
+        "base": 0,
+        "low": 0,
+        "origin": [
+          84.99999999999997,
+          16.079214701843114,
+          0
+        ],
+        "yawPivot": [
+          84.99999999999997,
+          16.079214701843114,
+          0
+        ],
+        "alignmentLineWorld": [
+          [
+            85.00020664127446,
+            16.079173373579373,
+            -11.999999999999998
+          ],
+          [
+            85.00020664127446,
+            16.079173373579373,
+            11.999999999999998
+          ]
+        ],
+        "alignmentMidpointWorld": [
+          85.00020664127446,
+          16.079173373579373,
+          0
+        ],
+        "alignmentErrorM": 0.00021073357992004393,
+        "yawErrorM": 0,
+        "nativeContactErrorM": 5.1237965343830035e-14,
+        "frameNormalError": 0,
+        "frame": {
+          "up": [
+            0.19611617548594631,
+            0.9805806676213668,
+            0
+          ],
+          "fw": [
+            0.9805806676213668,
+            -0.1961161754859463,
+            0
+          ],
+          "rt": [
+            0,
+            0,
+            0.9999999999999999
+          ]
+        },
+        "bounds": [
+          71.71313195373045,
+          11.111660055905396,
+          -11.999999999999998,
+          111.79848038909799,
+          28.540149150987077,
+          11.999999999999998
+        ],
+        "drawnIndices": 50136,
+        "elevationPivot": [
+          96.22764890652508,
+          20.207458884520005,
+          0
+        ],
+        "muzzles": [
+          [
+            111.06349401210267,
+            17.24028922853894,
+            -2.9999999999999996
+          ],
+          [
+            111.06349401210267,
+            17.24028922853894,
+            0
+          ],
+          [
+            111.06349401210267,
+            17.24028922853894,
+            2.9999999999999996
+          ]
+        ],
+        "axleLabels": [
+          "forward pod trunnion axle",
+          "forward pod trunnion axle"
+        ]
+      },
+      {
+        "name": "pedestal",
+        "id": 4,
+        "hostId": 2,
+        "hitPoint": [
+          235,
+          10,
+          0
+        ],
+        "hitNormal": [
+          0,
+          1,
+          0
+        ],
+        "pedestalHeight": 4,
+        "float": false,
+        "ped": 4,
+        "base": 0,
+        "low": 0,
+        "origin": [
+          235,
+          14,
+          0
+        ],
+        "yawPivot": [
+          235,
+          14,
+          0
+        ],
+        "alignmentLineWorld": [
+          [
+            242.22194857714467,
+            14,
+            -9.583499297933232
+          ],
+          [
+            227.77838802149552,
+            14,
+            9.583752943201796
+          ]
+        ],
+        "alignmentMidpointWorld": [
+          235.00016829932008,
+          14,
+          0.00012682263428192146
+        ],
+        "alignmentErrorM": 0.0002107335799194598,
+        "yawErrorM": 0,
+        "nativeContactErrorM": 0,
+        "frameNormalError": 0,
+        "frame": {
+          "up": [
+            0,
+            1,
+            0
+          ],
+          "fw": [
+            1,
+            0,
+            0
+          ],
+          "rt": [
+            0,
+            0,
+            1
+          ]
+        },
+        "bounds": [
+          216.9567085610346,
+          14,
+          -17.738219684277766,
+          262.45094051162977,
+          23.99770910749268,
+          24.827391744929812
+        ],
+        "drawnIndices": 50376,
+        "elevationPivot": [
+          243.14608220248238,
+          20.25,
+          6.138513236150892
+        ],
+        "muzzles": [
+          [
+            257.03460530326134,
+            20.25,
+            12.847859094220418
+          ],
+          [
+            255.2291602338052,
+            20.25,
+            15.243765624362297
+          ],
+          [
+            253.42371516434906,
+            20.25,
+            17.639672154504176
+          ]
+        ],
+        "axleLabels": [
+          "forward pod trunnion axle",
+          "forward pod trunnion axle"
+        ]
+      }
+    ],
+    "renderer": true,
+    "webglError": 0,
+    "workerMode": "worker",
+    "generation": {
+      "design": 1,
+      "geometry": 1,
+      "statistics": 1
+    }
+  },
+  "nativeSelection": [
+    {
+      "name": "slope",
+      "id": 3,
+      "pixel": [
+        788.3922400222001,
+        452.21249504437463
+      ],
+      "nativeCanvasClick": true
+    },
+    {
+      "name": "pedestal",
+      "id": 4,
+      "pixel": [
+        890.4710113069021,
+        503.3799173228842
+      ],
+      "nativeCanvasClick": true
+    }
+  ],
+  "rendered": [
+    {
+      "id": "slope-side",
+      "name": "slope",
+      "requestedElevationDegrees": 0,
+      "fixtureVisible": true,
+      "pedestalHeight": 0,
+      "assetYaw": 0,
+      "camera": {
+        "theta": 1.5707963267948966,
+        "phi": 1.42,
+        "orthographic": true
+      },
+      "alignmentErrorM": 0.00021073357992004393,
+      "pixelCoverage": {
+        "modelPixels": 27589,
+        "minimumModelPixels": 27360,
+        "pixels": 1368000,
+        "fraction": 0.020167397660818712
+      },
+      "markers": null,
+      "webglError": 0,
+      "image": "triple70-mount-slope-side.png"
+    },
+    {
+      "id": "slope-iso",
+      "name": "slope",
+      "requestedElevationDegrees": 0,
+      "fixtureVisible": true,
+      "pedestalHeight": 0,
+      "assetYaw": 0,
+      "camera": {
+        "theta": 0.8,
+        "phi": 1.05,
+        "orthographic": true
+      },
+      "alignmentErrorM": 0.00021073357992004393,
+      "pixelCoverage": {
+        "modelPixels": 151131,
+        "minimumModelPixels": 27360,
+        "pixels": 1368000,
+        "fraction": 0.11047587719298245
+      },
+      "markers": null,
+      "webglError": 0,
+      "image": "triple70-mount-slope-iso.png"
+    },
+    {
+      "id": "slope-25deg",
+      "name": "slope",
+      "requestedElevationDegrees": 25,
+      "fixtureVisible": true,
+      "pedestalHeight": 0,
+      "assetYaw": 0,
+      "camera": {
+        "theta": 0.8,
+        "phi": 1.05,
+        "orthographic": true
+      },
+      "alignmentErrorM": 0.00021073357992004393,
+      "pixelCoverage": {
+        "modelPixels": 139325,
+        "minimumModelPixels": 27360,
+        "pixels": 1368000,
+        "fraction": 0.10184576023391813
+      },
+      "markers": null,
+      "webglError": 0,
+      "image": "triple70-mount-slope-25deg.png"
+    },
+    {
+      "id": "slope-55deg",
+      "name": "slope",
+      "requestedElevationDegrees": 55,
+      "fixtureVisible": true,
+      "pedestalHeight": 0,
+      "assetYaw": 0,
+      "camera": {
+        "theta": 0.8,
+        "phi": 1.05,
+        "orthographic": true
+      },
+      "alignmentErrorM": 0.00021073357992004393,
+      "pixelCoverage": {
+        "modelPixels": 116353,
+        "minimumModelPixels": 27360,
+        "pixels": 1368000,
+        "fraction": 0.08505336257309941
+      },
+      "markers": null,
+      "webglError": 0,
+      "image": "triple70-mount-slope-55deg.png"
+    },
+    {
+      "id": "pedestal-top",
+      "name": "pedestal",
+      "requestedElevationDegrees": 0,
+      "fixtureVisible": true,
+      "pedestalHeight": 4,
+      "assetYaw": 37,
+      "camera": {
+        "theta": 1.5707963267948966,
+        "phi": 0.025,
+        "orthographic": true
+      },
+      "alignmentErrorM": 0.0002107335799194598,
+      "pixelCoverage": {
+        "modelPixels": 161540,
+        "minimumModelPixels": 27360,
+        "pixels": 1368000,
+        "fraction": 0.11808479532163743
+      },
+      "markers": {
+        "source": "DOM QA overlay, not model geometry",
+        "linePixels": [
+          [
+            765.3961082897193,
+            240.65622432031637
+          ],
+          [
+            505.0105257050068,
+            586.0915725413622
+          ]
+        ],
+        "mountCenterPixel": [
+          635.2002829313278,
+          413.37161281262524
+        ]
+      },
+      "webglError": 0,
+      "image": "triple70-mount-pedestal-top.png"
+    },
+    {
+      "id": "pedestal-iso",
+      "name": "pedestal",
+      "requestedElevationDegrees": 0,
+      "fixtureVisible": true,
+      "pedestalHeight": 4,
+      "assetYaw": 37,
+      "camera": {
+        "theta": 0.8,
+        "phi": 1.05,
+        "orthographic": true
+      },
+      "alignmentErrorM": 0.0002107335799194598,
+      "pixelCoverage": {
+        "modelPixels": 142622,
+        "minimumModelPixels": 27360,
+        "pixels": 1368000,
+        "fraction": 0.10425584795321638
+      },
+      "markers": {
+        "source": "DOM QA overlay, not model geometry",
+        "linePixels": [
+          [
+            958.308088222906,
+            486.3832522558729
+          ],
+          [
+            442.32172419557435,
+            526.2967341373294
+          ]
+        ],
+        "mountCenterPixel": [
+          700.31420186162,
+          506.3377388752997
+        ]
+      },
+      "webglError": 0,
+      "image": "triple70-mount-pedestal-iso.png"
+    }
+  ],
+  "errors": [],
+  "screenshots": [
+    "triple70-mount-native-slope.png",
+    "triple70-mount-slope-side.png",
+    "triple70-mount-slope-iso.png",
+    "triple70-mount-slope-25deg.png",
+    "triple70-mount-slope-55deg.png",
+    "triple70-mount-pedestal-top.png",
+    "triple70-mount-pedestal-iso.png"
+  ],
+  "scope": {
+    "verified": [
+      "real native tilted plate and Core.placeFit placement",
+      "manual pedestal center and authored yaw pivot coincide with the actual widest-case midpoint",
+      "native canvas picking and click selection",
+      "case/front-pod appearance at source rest pose and +25/+55 degrees",
+      "actual production renderer with visible fixture surfaces",
+      "nonblank model-only WebGL coverage before any DOM labels or markers"
+    ],
+    "notVerified": [
+      "powered combat or sustained firing",
+      "physical device or GPU frame-rate target",
+      "all built-in example ships",
+      "automatic target tracking"
+    ]
+  }
+}

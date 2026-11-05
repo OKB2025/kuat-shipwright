@@ -9,7 +9,8 @@ function fitting(k='ltl',extra={}){return {id:1,k,p:[100,30,25],a:2,ped:2,base:0
 test('all procedural and model turret families share heading eligibility without changing fixed weapons or casemates',()=>{
  const procedural=['pd','ltl','mtl','htl','stl','utl','ion','ionL','triple40','quad200','xx9','nk7','cturret'];
  for(const k of procedural)assert.equal(C.fitCanRotate(k),true,k);
- for(const k of Object.keys(C.FITS)){const d=C.FITS[k];if(d.asset&&!d.casemate)assert.equal(C.fitCanRotate({k}),true,k);if(d.casemate)assert.equal(C.fitCanRotate({k}),false,k);}
+ for(const k of Object.keys(C.FITS)){const d=C.FITS[k];if(d.asset&&!d.casemate&&!d.wallOnly&&!d.fixed)assert.equal(C.fitCanRotate({k}),true,k);if(d.casemate||d.wallOnly||d.fixed)assert.equal(C.fitCanRotate({k}),false,k);}
+ assert.equal(C.fitCanRotate('quad70Side'),false,'placement heading must not turn the fixed side-only carrier; its authored gun traverse remains independent');
  for(const k of ['claser','claserH','cion','ctorp','cmsl','cbomb','cpylon','msl','itl','trc','brS','casemateMid','casemateLight','casemateIon','casemateIonL','unknown'])assert.equal(C.fitCanRotate(k),false,k);
 });
 
