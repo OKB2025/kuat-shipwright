@@ -1,0 +1,584 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "date": "2026-11-05T12:39:44.195Z",
+  "sourceSha256": {
+    "data/reference.js": "4fa7586a61c2a9b5949b88e5cad7bd58d687805ee2dc58e2a9e90a21e4a63ea5",
+    "js/core.js": "31f964a313e892ef58c18a1d9b7ae150d763c9701f2e27642a2201fadcfbecd3",
+    "js/gfx.js": "ad3ff55ec196f33f8ea7251d4dcbe00b29147b7b1f2dc52626abd66b262c3e65",
+    "js/app.js": "7863139a7916a36a2f18b8468bc70ea2ef5bec6f6e5919f5c2cf6a6eb0e0218d",
+    "js/lang-en.js": "b25d21fd95c54409755545881bf7d1f5414153a5621b7911f80fc6c9ddec9e61"
+  },
+  "sourceSha256After": {
+    "data/reference.js": "4fa7586a61c2a9b5949b88e5cad7bd58d687805ee2dc58e2a9e90a21e4a63ea5",
+    "js/core.js": "2b5fdb30d50502220ed22b0594423990d51c316a28a9a2465c6bc5b295dabf8b",
+    "js/gfx.js": "ad3ff55ec196f33f8ea7251d4dcbe00b29147b7b1f2dc52626abd66b262c3e65",
+    "js/app.js": "7863139a7916a36a2f18b8468bc70ea2ef5bec6f6e5919f5c2cf6a6eb0e0218d",
+    "js/lang-en.js": "265620a6eb28a1788b5eb1ff325d83d50085968ad07d77f048b4d8d474e8dc39"
+  },
+  "url": "http://127.0.0.1:8876",
+  "elapsedMs": 149304,
+  "models": [
+    {
+      "kind": "monCalPD",
+      "id": 2,
+      "asset": "moncal_pd_triple",
+      "size": [
+        5.13,
+        3.6,
+        3.6
+      ],
+      "triangles": 2924,
+      "barrels": 3,
+      "boltTT": 0.02,
+      "gunVolleyTT": 0.06,
+      "ionVolleyTT": 0,
+      "powerVolleyTT": 0.06,
+      "ball": true,
+      "modelScale": 1,
+      "muzzles": [
+        [
+          25.895000000000003,
+          20.599999999999945,
+          -0.342
+        ],
+        [
+          25.895000000000003,
+          20.599999999999945,
+          0
+        ],
+        [
+          25.895000000000003,
+          20.599999999999945,
+          0.342
+        ]
+      ],
+      "float": false,
+      "bounds": [
+        20.765,
+        18.799999999999944,
+        -1.8,
+        25.895000000000003,
+        22.39999999999994,
+        1.8
+      ]
+    },
+    {
+      "kind": "monCal34",
+      "id": 3,
+      "asset": "moncal_single34",
+      "size": [
+        8.55,
+        6,
+        6
+      ],
+      "triangles": 1964,
+      "barrels": 1,
+      "boltTT": 34,
+      "gunVolleyTT": 34,
+      "ionVolleyTT": 0,
+      "powerVolleyTT": 34,
+      "ball": true,
+      "modelScale": 1,
+      "muzzles": [
+        [
+          46.955,
+          20.999999999999943,
+          0
+        ]
+      ],
+      "float": false,
+      "bounds": [
+        38.404999999999994,
+        17.999999999999943,
+        -3,
+        46.955,
+        23.999999999999943,
+        3
+      ]
+    },
+    {
+      "kind": "monCal80",
+      "id": 4,
+      "asset": "moncal_single80",
+      "size": [
+        11.4,
+        8,
+        8
+      ],
+      "triangles": 1964,
+      "barrels": 1,
+      "boltTT": 80,
+      "gunVolleyTT": 80,
+      "ionVolleyTT": 0,
+      "powerVolleyTT": 80.00000000000001,
+      "ball": true,
+      "modelScale": 1,
+      "muzzles": [
+        [
+          70.78,
+          21.333333333333275,
+          0
+        ]
+      ],
+      "float": false,
+      "bounds": [
+        59.379999999999995,
+        17.333333333333275,
+        -4,
+        70.78,
+        25.333333333333275,
+        4
+      ]
+    },
+    {
+      "kind": "monCal200",
+      "id": 5,
+      "asset": "moncal_single200",
+      "size": [
+        14.25,
+        10,
+        10
+      ],
+      "triangles": 1964,
+      "barrels": 1,
+      "boltTT": 200,
+      "gunVolleyTT": 200,
+      "ionVolleyTT": 0,
+      "powerVolleyTT": 200,
+      "ball": true,
+      "modelScale": 1,
+      "muzzles": [
+        [
+          97.45499999999998,
+          21.66666666666661,
+          0
+        ]
+      ],
+      "float": false,
+      "bounds": [
+        83.20499999999998,
+        16.66666666666661,
+        -5,
+        97.45499999999998,
+        26.66666666666661,
+        5
+      ]
+    },
+    {
+      "kind": "monCal200Triple",
+      "id": 6,
+      "asset": "moncal_triple200",
+      "size": [
+        22.8,
+        16,
+        16
+      ],
+      "triangles": 2924,
+      "barrels": 3,
+      "boltTT": 200,
+      "gunVolleyTT": 600,
+      "ionVolleyTT": 0,
+      "powerVolleyTT": 600.0000000000001,
+      "ball": true,
+      "modelScale": 1,
+      "muzzles": [
+        [
+          133.53,
+          22.66666666666661,
+          -1.52
+        ],
+        [
+          133.53,
+          22.66666666666661,
+          0
+        ],
+        [
+          133.53,
+          22.66666666666661,
+          1.52
+        ]
+      ],
+      "float": false,
+      "bounds": [
+        110.72999999999999,
+        14.66666666666661,
+        -8,
+        133.53,
+        30.666666666666607,
+        8
+      ]
+    },
+    {
+      "kind": "monCal150Ion",
+      "id": 7,
+      "asset": "moncal_single150_ion",
+      "size": [
+        15.675,
+        11,
+        11
+      ],
+      "triangles": 1708,
+      "barrels": 1,
+      "boltTT": 150,
+      "gunVolleyTT": 0,
+      "ionVolleyTT": 150,
+      "powerVolleyTT": 150.00000000000003,
+      "ball": true,
+      "modelScale": 1,
+      "muzzles": [
+        [
+          160.1425,
+          21.833333333333275,
+          0
+        ]
+      ],
+      "float": false,
+      "bounds": [
+        144.4675,
+        16.333333333333275,
+        -5.5,
+        160.1425,
+        27.333333333333275,
+        5.5
+      ]
+    },
+    {
+      "kind": "pd",
+      "id": 8,
+      "asset": "pd_twin_side_laser",
+      "size": [
+        9,
+        3.12,
+        5.1000000000000005
+      ],
+      "triangles": 1904,
+      "barrels": 2,
+      "boltTT": 0.02,
+      "gunVolleyTT": 0.04,
+      "ionVolleyTT": 0,
+      "powerVolleyTT": 0.04,
+      "ball": false,
+      "modelScale": 1,
+      "muzzles": [
+        [
+          180.905,
+          22.019999999999943,
+          -2.1
+        ],
+        [
+          180.905,
+          22.019999999999943,
+          2.1
+        ]
+      ],
+      "float": false,
+      "bounds": [
+        171.905,
+        19.999999999999943,
+        -2.5500000000000003,
+        180.905,
+        23.119999999999944,
+        2.5500000000000003
+      ]
+    },
+    {
+      "kind": "quad1Rapid",
+      "id": 9,
+      "asset": "cis_rapid_quad1",
+      "size": [
+        35,
+        13.65,
+        18.8
+      ],
+      "triangles": 4320,
+      "barrels": 4,
+      "boltTT": 1,
+      "gunVolleyTT": 4,
+      "ionVolleyTT": 0,
+      "powerVolleyTT": 4,
+      "ball": false,
+      "modelScale": 1,
+      "muzzles": [
+        [
+          235.305,
+          26.499999999999943,
+          -3.1
+        ],
+        [
+          235.305,
+          26.499999999999943,
+          3.1
+        ],
+        [
+          235.305,
+          31.499999999999943,
+          -3.1
+        ],
+        [
+          235.305,
+          31.499999999999943,
+          3.1
+        ]
+      ],
+      "float": false,
+      "bounds": [
+        200.305,
+        19.999999999999943,
+        -9.4,
+        235.305,
+        33.64999999999994,
+        9.4
+      ]
+    },
+    {
+      "kind": "quad500",
+      "id": 10,
+      "asset": "arq_turret_quad500",
+      "size": [
+        28.5,
+        9.2,
+        11.791093750000002
+      ],
+      "triangles": 2966,
+      "barrels": 4,
+      "boltTT": 0.5,
+      "gunVolleyTT": 2,
+      "ionVolleyTT": 0,
+      "powerVolleyTT": 2,
+      "ball": false,
+      "modelScale": 1,
+      "muzzles": [
+        [
+          271.6842530059815,
+          23.049999999999944,
+          -4.6605468750000005
+        ],
+        [
+          271.6842530059815,
+          26.749999999999943,
+          -4.6605468750000005
+        ],
+        [
+          271.6842530059815,
+          23.049999999999944,
+          4.6605468750000005
+        ],
+        [
+          271.6842530059815,
+          26.749999999999943,
+          4.6605468750000005
+        ]
+      ],
+      "float": false,
+      "bounds": [
+        243.18425300598145,
+        19.999999999999943,
+        -5.895546875000001,
+        271.6842530059815,
+        29.199999999999942,
+        5.895546875000001
+      ]
+    }
+  ],
+  "palette": {
+    "monCalPD": 1,
+    "monCal34": 1,
+    "monCal80": 1,
+    "monCal200": 1,
+    "monCal200Triple": 1,
+    "monCal150Ion": 1,
+    "pd": 1,
+    "quad1Rapid": 1,
+    "quad500": 1,
+    "broadsideBattery": 0,
+    "ionL": 0
+  },
+  "placement": {
+    "controls": {
+      "newGunYaw": {
+        "min": "-180",
+        "max": "180",
+        "value": "37"
+      },
+      "newGunPitch": {
+        "min": "-90",
+        "max": "90",
+        "value": "25"
+      }
+    },
+    "pitch": 25,
+    "yaw": 37,
+    "muzzles": [
+      [
+        55.35619090502288,
+        44.46070847021451,
+        4.0361793496037395
+      ]
+    ],
+    "normal": [
+      0,
+      1,
+      0
+    ]
+  },
+  "poseMeshes": [
+    {
+      "kind": "monCalPD",
+      "id": 2,
+      "authored": true,
+      "staticTriangles": 0,
+      "movingTriangles": 2924
+    },
+    {
+      "kind": "monCal34",
+      "id": 3,
+      "authored": true,
+      "staticTriangles": 0,
+      "movingTriangles": 1964
+    },
+    {
+      "kind": "monCal80",
+      "id": 4,
+      "authored": true,
+      "staticTriangles": 0,
+      "movingTriangles": 1964
+    },
+    {
+      "kind": "monCal200",
+      "id": 5,
+      "authored": true,
+      "staticTriangles": 0,
+      "movingTriangles": 1964
+    },
+    {
+      "kind": "monCal200Triple",
+      "id": 6,
+      "authored": true,
+      "staticTriangles": 0,
+      "movingTriangles": 2924
+    },
+    {
+      "kind": "monCal150Ion",
+      "id": 7,
+      "authored": true,
+      "staticTriangles": 0,
+      "movingTriangles": 1708
+    },
+    {
+      "kind": "pd",
+      "id": 8,
+      "authored": true,
+      "staticTriangles": 392,
+      "movingTriangles": 1512
+    },
+    {
+      "kind": "quad1Rapid",
+      "id": 9,
+      "authored": true,
+      "staticTriangles": 564,
+      "movingTriangles": 3756
+    },
+    {
+      "kind": "quad500",
+      "id": 10,
+      "authored": true,
+      "staticTriangles": 1454,
+      "movingTriangles": 1512
+    }
+  ],
+  "rendered": [
+    {
+      "view": "moncal-ball-family",
+      "litPixels": 63070,
+      "pixels": 1350000,
+      "webglError": 0
+    },
+    {
+      "view": "moncal-pd-cis-comparison",
+      "litPixels": 89356,
+      "pixels": 1360000,
+      "webglError": 0
+    },
+    {
+      "view": "moncal-pd-detail",
+      "litPixels": 166388,
+      "pixels": 935000,
+      "webglError": 0
+    },
+    {
+      "view": "moncal-cis-detail",
+      "litPixels": 178939,
+      "pixels": 935000,
+      "webglError": 0
+    }
+  ],
+  "ships": [
+    {
+      "key": "mc80home",
+      "fits": 107,
+      "counts": {
+        "podAir": 1,
+        "monCalPD": 56,
+        "monCal80": 12,
+        "monCal34": 28,
+        "monCal150Ion": 4,
+        "trc": 6
+      },
+      "float": [],
+      "bounds": [
+        0,
+        4.519999980926514,
+        -142,
+        1300,
+        232.27999877929688,
+        151.55999755859375
+      ]
+    },
+    {
+      "key": "mc80liberty",
+      "fits": 106,
+      "counts": {
+        "monCalPD": 88,
+        "monCal200Triple": 4,
+        "monCal200": 4,
+        "monCal150Ion": 4,
+        "trc": 6
+      },
+      "float": [],
+      "bounds": [
+        0,
+        0.699999988079071,
+        -277.7300109863281,
+        1200,
+        137.5800018310547,
+        277.7300109863281
+      ]
+    }
+  ],
+  "errors": [],
+  "screenshots": [
+    "moncal-ball-family.png",
+    "moncal-pd-cis-comparison.png",
+    "moncal-pd-detail.png",
+    "moncal-cis-detail.png",
+    "moncal-mc80home-dorsal.png",
+    "moncal-mc80home-ventral.png",
+    "moncal-mc80liberty-dorsal.png",
+    "moncal-mc80liberty-ventral.png"
+  ],
+  "scope": {
+    "verified": [
+      "native palette includes all eight new or replaced guns and excludes both retired entries",
+      "full authored muzzle counts, energy and native size",
+      "ball pitch controls and serialized pose",
+      "production WebGL moving and static groups",
+      "same-scale model screenshots"
+    ],
+    "notVerified": [
+      "powered combat and sustained firing",
+      "native click placement",
+      "mobile GPU performance"
+    ]
+  }
+}

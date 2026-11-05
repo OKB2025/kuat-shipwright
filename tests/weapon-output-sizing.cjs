@@ -73,38 +73,13 @@ test('the photographed family and medium quad retain their own native size ancho
   near(C.FITS.twin40.fm/C.FITS.oct40.fm,twinPhoto.physicalTargetsM.wholeLength/photo.anchor.metres,'40 TT twin-to-octuple measured photo ratio',twinPhoto.relativeTolerance);near(C.FITS.refVen.tt,140,'DBY-827 remains a 140 TT salvo');near(C.FITS[C.canonicalWeaponKind('refSide')].tt,80,'legacy side-twin inventory keeps its80 TT salvo');
 });
 
-test('unlisted conventional weapons retain their established salvo/barrel density calibration', () => {
-  // The photographed octuple has a new independent40m case. Legacy generic
-  // guns keep the prior calibration, retained in the unchanged archived source.
-  const twinDensity=28.861991732993026*9.997709224590754*16.2580849216165/140;
-  const octupleDensity=volume(Array.from(C.REFERENCE_ASSETS.isd_heavy_twin.size))/320;
-  for(const k of ['pd','ionL']){
-    const f=fitting(k),d=C.FITS[k],sizing=C.weaponSizing(f),blend=Math.min(1,Math.max(0,(d.barrels-2)/6)),salvo=Math.max(d.tt||0,d.ion||0),target=salvo*(twinDensity*(1-blend)+octupleDensity*blend);
-    near(sizing.anchorBlend,blend,`${k} barrel interpolation`);near(sizing.volleyTT,salvo,`${k} salvo energy`);near(sizing.sourceVolume,volume(Array.from(sizing.sourceSize)),`${k} source volume`);near(sizing.targetVolume,target,`${k} retained target volume`);near(C.weaponModelScale(f),Math.cbrt(target/sizing.sourceVolume),`${k} cube-root scale`);near(volume(dimensions(d)),target,`${k} canonical envelope volume`);
-    for(let axis=0;axis<3;axis++)near(dimensions(d)[axis],sizing.sourceSize[axis]*sizing.factor,`${k} preserved aspect axis${axis}`);
-  }
-});
-
-test('point defense is a light procedural twin 20 GT dual-purpose turbolaser', () => {
-  const d = C.FITS.pd, sizing = C.weaponSizing(fitting('pd'));
-  assert.equal(d.asset, undefined, 'point defense no longer uses an imported model');
-  assert.equal(C.REFERENCE_ASSETS.pd_turret_small, undefined, 'the removed model is not registered');
-  // Ships carry dozens of these; each must stay a light procedural body (the imported mesh was 29,060 triangles).
-  const s={fits:[fitting('pd')]},triangles=(G.meshFits(s).ni+G.meshReferenceFits(s).ni)/3;
-  assert.ok(triangles>0&&triangles<1000, 'point defense renders a light procedural body');
-  assert.equal(d.barrels, 2);
-  assert.equal(d.boltTT, .02);
-  assert.equal(d.tt, .04);
-  assert.equal(d.cycle, .2);
-  assert.equal(d.aa, 6);
-  assert.equal(d.dualPurpose, true);
-  near(d.power, d.tt*C.TT/d.cycle, 'PD continuous electrical demand');
-  // The original proportions remain the calibration source; output sets their smaller physical size.
-  near(sizing.sourceSize[0], 9, 'former model length');
-  near(sizing.sourceSize[1], 3.1493375257895857, 'former model height');
-  near(sizing.sourceSize[2], 5.729853188053728, 'former model width');
-  near(d.r, 4.5*sizing.factor, 'swept radius of the former model');
-  assert.ok(d.fm > 1.5 && d.fm < 2.5, 'the 20 GT barrels produce a roughly two-metre twin');
+test('point defense adopts the photographed side-carrier model at its native scale', () => {
+ const f=fitting('pd'),d=C.FITS.pd,sizing=C.weaponSizing(f),a=C.REFERENCE_ASSETS[d.asset];
+ assert.equal(d.asset,'pd_twin_side_laser');assert.equal(d.barrels,2);assert.equal(d.boltTT,.02);assert.equal(d.tt,.04);assert.equal(d.cycle,.2);assert.equal(d.aa,6);assert.equal(d.dualPurpose,true);
+ near(d.power,d.tt*C.TT/d.cycle,'PD continuous electrical demand');near(sizing.factor,1,'PD photo scale');assert.equal(sizing.calibration,'point-defense-photo');
+ const triangles=(G.meshFits({fits:[f]}).ni+G.meshReferenceFits({fits:[f]}).ni)/3;
+ assert.equal(triangles,a.faces);assert.ok(triangles>0&&triangles<=5000,'PD remains within the modeled turret budget');
+ const rendered=span(referenceBounds(f));for(let axis=0;axis<3;axis++){near(sizing.sourceSize[axis],a.size[axis],'native source axis'+axis);near(rendered[axis],a.size[axis],'visible source axis'+axis);}near(d.r,Math.max(a.size[0],a.size[2])/2,'native swept radius');
 });
 
 test('retired generic guns resolve to the canonical light quad, DBY and point-defense definitions', () => {
@@ -168,7 +143,7 @@ test('model calibration preserves authored pose and mount origin while scaling t
   }
 });
 
-test('small procedural guns scale every body vertex uniformly while explicit pedestal height stays fixed', () => {
+test('native gun bodies retain uniform calibration while explicit pedestal height stays fixed', () => {
   // Render the real authored meshes with only the one-time sizing pass disabled.
   // This compares whole shapes rather than reproducing the renderer's dimensions.
   const baseline = vm.createContext({console, performance: {now: () => 0}});
@@ -184,11 +159,12 @@ test('small procedural guns scale every body vertex uniformly while explicit ped
     vm.runInContext(source, baseline, {filename: file});
   }
   const {C: originalCore, G: originalGfx} = vm.runInContext('({C: Core, G: Gfx})', baseline);
+  const complete=(gfx,f)=>{const a=gfx.meshFits({fits:[f]}),b=gfx.meshReferenceFits({fits:[f]}),pos=Float32Array.from([...a.pos.slice(0,a.n*3),...b.pos.slice(0,b.n*3)]),idx=Uint32Array.from([...a.idx.slice(0,a.ni),...Array.from(b.idx.slice(0,b.ni),i=>i+a.n)]);return {n:a.n+b.n,ni:a.ni+b.ni,pos,idx};};
   for (const k of ['pd', 'utl']) {
     for (const frame of [{a: 2}, {a: 4, tilt: C.norm([.2, .9, -.3])}]) {
       const f = fitting(k, {p: [13, -7, 11], assetYaw: 31, ...frame});
       const factor = C.weaponModelScale(f), origin = C.fitOrigin(f);
-      const before = originalGfx.meshFits({fits: [f]}), after = G.meshFits({fits: [f]});
+      const before = complete(originalGfx,f), after = complete(G,f);assert.ok(before.ni>0,'the complete native gun body is actually compared');
       assert.equal(after.n, before.n, `${k} keeps body topology`);
       assert.deepEqual(Array.from(after.idx.slice(0, after.ni)), Array.from(before.idx.slice(0, before.ni)), `${k} keeps triangle connectivity`);
       for (let vertex = 0; vertex < before.n; vertex++) {
@@ -200,7 +176,7 @@ test('small procedural guns scale every body vertex uniformly while explicit ped
       const lifted = {...f, base: 0, ped: 3, low: 0, pedShape: 'trap'};
       const oldLiftedOrigin = originalCore.fitOrigin(lifted), liftedOrigin = C.fitOrigin(lifted);
       assert.deepEqual(plain(liftedOrigin), plain(oldLiftedOrigin), `${k} explicit mounting height is unchanged`);
-      const oldLifted = originalGfx.meshFits({fits: [lifted]}), newLifted = G.meshFits({fits: [lifted]});
+      const oldLifted = complete(originalGfx,lifted), newLifted = complete(G,lifted);
       const supportVertices = newLifted.n-after.n;
       assert.ok(supportVertices > 0, `${k} renders the requested support`);
       assert.equal(oldLifted.n-before.n, supportVertices, `${k} keeps support topology`);

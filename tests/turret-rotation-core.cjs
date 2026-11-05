@@ -10,13 +10,14 @@ test('all procedural and model turret families share heading eligibility without
  const procedural=['pd','ltl','mtl','htl','stl','utl','ion','ionL','triple40','quad200','xx9','nk7','cturret'];
  for(const k of procedural)assert.equal(C.fitCanRotate(k),true,k);
  for(const k of Object.keys(C.FITS)){const d=C.FITS[k];if(d.asset&&!d.casemate&&!d.wallOnly&&!d.fixed)assert.equal(C.fitCanRotate({k}),true,k);if(d.casemate||d.wallOnly||d.fixed)assert.equal(C.fitCanRotate({k}),false,k);}
+ for(const k of ['casemateMid','casemateLight','casemateIon','casemateIonL'])assert.equal(C.fitCanRotate(k),true,k+' now resolves to a spherical turret');
  assert.equal(C.fitCanRotate('quad70Side'),false,'placement heading must not turn the fixed side-only carrier; its authored gun traverse remains independent');
- for(const k of ['claser','claserH','cion','ctorp','cmsl','cbomb','cpylon','msl','itl','trc','brS','casemateMid','casemateLight','casemateIon','casemateIonL','unknown'])assert.equal(C.fitCanRotate(k),false,k);
+ for(const k of ['claser','claserH','cion','ctorp','cmsl','cbomb','cpylon','msl','itl','trc','brS','unknown'])assert.equal(C.fitCanRotate(k),false,k);
 });
 
 test('procedural turret heading turns its full fitting frame on every mount axis and sloped face',()=>{
  for(const a of [0,1,2,3,4,5])for(const tilt of [null,C.norm([.22,.9,.31])]){
-  const f=fitting('ltl',{a,...(tilt?{tilt}:{}),assetYaw:90}),base=C.fitFrameOf({...f,assetYaw:0}),turned=C.fitFrameOf(f);
+  const f=fitting('cturret',{a,...(tilt?{tilt}:{}),assetYaw:90}),base=C.fitFrameOf({...f,assetYaw:0}),turned=C.fitFrameOf(f);
   vec(turned.up,base.up);vec(turned.fw,base.rt);vec(turned.rt,C.mul(base.fw,-1));near(C.len(turned.fw),1);near(C.dot(turned.fw,turned.up),0);
   vec(C.fitOrigin(f),C.fitOrigin({...f,assetYaw:0}));assert.equal(C.fitUp(f),tilt||C.AXES[a]);
  }

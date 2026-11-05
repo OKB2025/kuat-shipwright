@@ -25,8 +25,10 @@ test('actual procedural and referenced weapon triangles drive precise picking af
  }
 });
 
-test('embedded port picking matches the shallow drawn opening and does not add a hidden turret or pedestal',()=>{
- const s=ship(),p=C.placePart(s,'struct',[120,70,0],[160,100,100],{form:'box'},false),patch=C.surfacePatches(s).find(patch=>patch.host==='p'+p.id&&patch.face==='port');C.setSurfaceConfig(s,patch.id,{functionMode:'equipment',allocation:{cooling:100,sensors:0,habitation:0},equipment:{depth:1},battery:{weapon:'pd',count:1},style:{depth:4,density:0}});const f=C.surfaceDerivedFits(s).find(f=>!f.surfaceUnplaced),T=fitGeometry(f),ray=actualRay(T),hit=G.rayFit(ray.o,ray.d,f);assert.ok(hit);assert.ok(Math.abs(hit.t-ray.hit.t)<1e-5);assert.equal(G.meshReferenceFits(s,null,[f]).ni,0);const source=plain(f),g=C.surfaceBatteryGeometry(f);assert.equal(G.rayFit(C.add(g.point,C.mul(g.u,g.width*1.5)),g.normal,f),null);assert.deepEqual(plain(f),source);
+test('surface-owned point defense picking matches the new exposed articulated gun',()=>{
+ const s=ship(),p=C.placePart(s,'struct',[120,70,0],[160,100,100],{form:'box'},false),patch=C.surfacePatches(s).find(patch=>patch.host==='p'+p.id&&patch.face==='port');
+ const f={id:7,k:'pd',p:patch.center.slice(),a:5,n:patch.normal.slice(),tilt:patch.normal.slice(),ped:0,base:0,low:0,float:false,surfacePatch:patch.id,surfacePoint:patch.center.slice(),surfaceCell:'retained'};s.fits=[f];
+ const T=fitGeometry(f),ray=actualRay(T),hit=G.rayFit(ray.o,ray.d,f);assert.ok(hit);assert.ok(Math.abs(hit.t-ray.hit.t)<1e-5);assert.ok(G.meshReferenceFits(s,null,[f]).ni>0);assert.equal(G.meshFits(s,null,null,[f]).ni,0,'native model is not drawn twice');const source=plain(f);assert.equal(C.surfaceBatteryGeometry(f),null);assert.equal(C.authoredTurretGeometry(f).muzzles.length,2);assert.deepEqual(plain(f),source);
 });
 
 test('the wedge slope is a real outward-facing mesh in every orientation and after an equipment skin replaces it',()=>{

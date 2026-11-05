@@ -544,7 +544,7 @@ function subFrame(M, o, at, ang) {
 }
 function frameM(f) { const fr = C.FITS[f.k].window ? C.windowFrame(f) : C.fitFrameOf(f); return [fr.fw[0], fr.fw[1], fr.fw[2], fr.up[0], fr.up[1], fr.up[2], fr.rt[0], fr.rt[1], fr.rt[2]]; }
 let FIT_SKIP_BODY = null, FIT_SKIP_PED = null;
-const embeddedSurfaceFit=f=>!!(f?.surfacePatch&&C.FITS[f.k]?.cat==='w');
+const embeddedSurfaceFit=f=>!!(f?.surfacePatch&&C.FITS[f.k]?.cat==='w'&&!C.FITS[f.k]?.exposedSurfaceTurret);
 function surfaceRenderFits(ship){const derived=C.surfaceDerivedFits?.(ship);if(!derived?.length)return ship.fits||[];const ids=new Set(derived.map(f=>f.id));return [...(ship.fits||[]).filter(f=>!ids.has(f.id)),...derived];}
 // A surface battery is an opening in its host wall. Its visible bore stays
 // behind the shallow lip; the shared Core geometry owns the actual muzzle.
@@ -2658,8 +2658,8 @@ function arcPaintBands(p,g){
 const REF_ONE=[128,128,128];
 function refTone(id,base=WHITE){const f=C.REFERENCE_TONE[id]||[1,1,1];return [0,1,2].map(i=>Math.max(0,Math.min(255,Math.round(base[i]/255*128*f[i]))));}
 function plainFitAsset(f){return C.REFERENCE_ASSETS[f.skinAsset||C.FITS[f.k]?.asset]?.plainMetal;}
-function familyReferenceAsset(f){const id=f.skinAsset||C.FITS[f.k]?.asset,a=C.REFERENCE_ASSETS[id];return id!=='isd_heavy_octuple'&&C.FITS[f.k]?.cat==='w'&&a&&['imperial-photo-family','light-photo-family','capital-photo-family'].includes(a.nativeCalibration)?a:null;}
-function sharedProceduralTurret(f){return ['pd','ionL','cturret'].includes(f.k);}
+function familyReferenceAsset(f){const id=f.skinAsset||C.FITS[f.k]?.asset,a=C.REFERENCE_ASSETS[id];return id!=='isd_heavy_octuple'&&C.FITS[f.k]?.cat==='w'&&a&&['imperial-photo-family','light-photo-family','capital-photo-family','moncal-photo-family','point-defense-photo','cis-photo-family'].includes(a.nativeCalibration)?a:null;}
+function sharedProceduralTurret(f){return ['pd','ionL','cturret'].includes(f.k)&&!C.FITS[f.k]?.asset;}
 // The supplied FBX has no texture atlas. Keep its indexed normals and geometry,
 // but render it with the ordinary fitting metal in the editor and fleet alike.
 const PLAIN_FIT_CACHE=new WeakMap();

@@ -1,0 +1,1102 @@
+{
+  "schemaVersion": 1,
+  "source": "User-provided CIS rapid-fire cannon photograph",
+  "order": [
+    "cis_rapid_quad1"
+  ],
+  "validation": {
+    "actualTriangles": 4320,
+    "polygonLimit": 5000,
+    "physicalBarrels": 4,
+    "dimensionsLargerThanQuad500": true,
+    "closedChargingVolumeM3": 78.204,
+    "fixedAndMovingPartitions": true,
+    "zeroNormalVertices": 0,
+    "modeledBores": [
+      {
+        "label": "complete 1TT rapid-fire barrel 1",
+        "recessM": 1.35,
+        "completeMovingGun": true
+      },
+      {
+        "label": "complete 1TT rapid-fire barrel 2",
+        "recessM": 1.35,
+        "completeMovingGun": true
+      },
+      {
+        "label": "complete 1TT rapid-fire barrel 3",
+        "recessM": 1.35,
+        "completeMovingGun": true
+      },
+      {
+        "label": "complete 1TT rapid-fire barrel 4",
+        "recessM": 1.35,
+        "completeMovingGun": true
+      }
+    ],
+    "packedSha256": "4885af365830c001a4e7d98906f28b83dc034c4302dd9f9b9dd0f266beab78a2"
+  },
+  "assets": {
+    "cis_rapid_quad1": {
+      "title": "1TT 4連装ラピッドファイア砲",
+      "kind": "fit",
+      "plainMetal": true,
+      "source": "User-supplied CIS capital-ship gun photograph; parametric reconstruction",
+      "nativeCalibration": "cis-photo-family",
+      "catalogKind": "quad1Rapid",
+      "n": 4340,
+      "faces": 4320,
+      "indexBytes": 2,
+      "polygonBudget": {
+        "unit": "triangles",
+        "maximum": 5000,
+        "countsAllFixedAndMovingGeometry": true
+      },
+      "c": [
+        9.5,
+        6.825,
+        0.0
+      ],
+      "size": [
+        35,
+        13.65,
+        18.8
+      ],
+      "mount": [
+        0,
+        0,
+        0
+      ],
+      "forward": [
+        1,
+        0,
+        0
+      ],
+      "up": [
+        0,
+        1,
+        0
+      ],
+      "bounds": [
+        [
+          -8,
+          0.0,
+          -9.4
+        ],
+        [
+          27,
+          13.65,
+          9.4
+        ]
+      ],
+      "barrels": 4,
+      "boltTT": 1,
+      "volleyTT": 4,
+      "barrelCenters": [
+        {
+          "label": "complete 1TT rapid-fire barrel 1",
+          "firstVertex": 3132,
+          "vertices": 302,
+          "firstIndex": 5760,
+          "indices": 1800,
+          "root": [
+            -2,
+            6.5,
+            -3.1
+          ],
+          "muzzle": [
+            27,
+            6.5,
+            -3.1
+          ],
+          "centerM": [
+            12.5,
+            6.5,
+            -3.1
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "outerRadiusM": 0.9900000000000001,
+          "boreRadiusM": 0.549,
+          "muzzleRecessM": 1.35,
+          "exposedStartX": 6.120000000000001,
+          "componentRole": "moving-complete-barrel",
+          "shaftRadiusM": 0.9,
+          "fullBarrelLengthM": 29,
+          "radialSegments": 20,
+          "muzzleStyle": "modeled-recessed",
+          "barrelStyle": "cis-long-stepped-cannon"
+        },
+        {
+          "label": "complete 1TT rapid-fire barrel 2",
+          "firstVertex": 3434,
+          "vertices": 302,
+          "firstIndex": 7560,
+          "indices": 1800,
+          "root": [
+            -2,
+            6.5,
+            3.1
+          ],
+          "muzzle": [
+            27,
+            6.5,
+            3.1
+          ],
+          "centerM": [
+            12.5,
+            6.5,
+            3.1
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "outerRadiusM": 0.9900000000000001,
+          "boreRadiusM": 0.549,
+          "muzzleRecessM": 1.35,
+          "exposedStartX": 6.120000000000001,
+          "componentRole": "moving-complete-barrel",
+          "shaftRadiusM": 0.9,
+          "fullBarrelLengthM": 29,
+          "radialSegments": 20,
+          "muzzleStyle": "modeled-recessed",
+          "barrelStyle": "cis-long-stepped-cannon"
+        },
+        {
+          "label": "complete 1TT rapid-fire barrel 3",
+          "firstVertex": 3736,
+          "vertices": 302,
+          "firstIndex": 9360,
+          "indices": 1800,
+          "root": [
+            -2,
+            11.5,
+            -3.1
+          ],
+          "muzzle": [
+            27,
+            11.5,
+            -3.1
+          ],
+          "centerM": [
+            12.5,
+            11.5,
+            -3.1
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "outerRadiusM": 0.9900000000000001,
+          "boreRadiusM": 0.549,
+          "muzzleRecessM": 1.35,
+          "exposedStartX": 6.120000000000001,
+          "componentRole": "moving-complete-barrel",
+          "shaftRadiusM": 0.9,
+          "fullBarrelLengthM": 29,
+          "radialSegments": 20,
+          "muzzleStyle": "modeled-recessed",
+          "barrelStyle": "cis-long-stepped-cannon"
+        },
+        {
+          "label": "complete 1TT rapid-fire barrel 4",
+          "firstVertex": 4038,
+          "vertices": 302,
+          "firstIndex": 11160,
+          "indices": 1800,
+          "root": [
+            -2,
+            11.5,
+            3.1
+          ],
+          "muzzle": [
+            27,
+            11.5,
+            3.1
+          ],
+          "centerM": [
+            12.5,
+            11.5,
+            3.1
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "outerRadiusM": 0.9900000000000001,
+          "boreRadiusM": 0.549,
+          "muzzleRecessM": 1.35,
+          "exposedStartX": 6.120000000000001,
+          "componentRole": "moving-complete-barrel",
+          "shaftRadiusM": 0.9,
+          "fullBarrelLengthM": 29,
+          "radialSegments": 20,
+          "muzzleStyle": "modeled-recessed",
+          "barrelStyle": "cis-long-stepped-cannon"
+        }
+      ],
+      "muzzlePoints": [
+        [
+          27,
+          6.5,
+          -3.1
+        ],
+        [
+          27,
+          6.5,
+          3.1
+        ],
+        [
+          27,
+          11.5,
+          -3.1
+        ],
+        [
+          27,
+          11.5,
+          3.1
+        ]
+      ],
+      "barrelAxis": [
+        1,
+        0,
+        0
+      ],
+      "elevationAxis": [
+        0,
+        0,
+        1
+      ],
+      "elevationPivot": [
+        0,
+        9,
+        0
+      ],
+      "elevationVertexStart": 900,
+      "elevationIndexStart": 1692,
+      "housingVertices": 900,
+      "housingFaces": 564,
+      "drivePivots": [
+        {
+          "label": "large circular elevation wheel -1",
+          "firstVertex": 900,
+          "vertices": 240,
+          "firstIndex": 1692,
+          "indices": 468,
+          "componentRole": "moving-circular-elevation-wheel",
+          "centerM": [
+            0,
+            9,
+            -6.15
+          ],
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "radiusM": 4.5,
+          "caseOuterSideM": 9.4,
+          "innerFaceAbsZM": 4.8,
+          "outerFaceAbsZM": 7.5,
+          "caseSideClearanceM": 0.8
+        },
+        {
+          "label": "large circular elevation wheel 1",
+          "firstVertex": 2004,
+          "vertices": 240,
+          "firstIndex": 3708,
+          "indices": 468,
+          "componentRole": "moving-circular-elevation-wheel",
+          "centerM": [
+            0,
+            9,
+            6.15
+          ],
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "radiusM": 4.5,
+          "caseOuterSideM": 9.4,
+          "innerFaceAbsZM": 4.8,
+          "outerFaceAbsZM": 7.5,
+          "caseSideClearanceM": 0.8
+        }
+      ],
+      "noSupportPedestal": true,
+      "supportStandHeightM": 0,
+      "turretCompartment": {
+        "version": 1,
+        "role": "gunhouse",
+        "convexes": [
+          {
+            "label": "rear charging cell",
+            "verticesM": [
+              [
+                -7.2,
+                0.7,
+                -4.9
+              ],
+              [
+                -3.4,
+                0.7,
+                -4.9
+              ],
+              [
+                -3.4,
+                2.8,
+                -4.9
+              ],
+              [
+                -7.2,
+                2.8,
+                -4.9
+              ],
+              [
+                -7.2,
+                0.7,
+                4.9
+              ],
+              [
+                -3.4,
+                0.7,
+                4.9
+              ],
+              [
+                -3.4,
+                2.8,
+                4.9
+              ],
+              [
+                -7.2,
+                2.8,
+                4.9
+              ]
+            ],
+            "faces": [
+              [
+                3,
+                2,
+                1
+              ],
+              [
+                3,
+                1,
+                0
+              ],
+              [
+                4,
+                5,
+                6
+              ],
+              [
+                4,
+                6,
+                7
+              ],
+              [
+                0,
+                1,
+                5
+              ],
+              [
+                0,
+                5,
+                4
+              ],
+              [
+                1,
+                2,
+                6
+              ],
+              [
+                1,
+                6,
+                5
+              ],
+              [
+                2,
+                3,
+                7
+              ],
+              [
+                2,
+                7,
+                6
+              ],
+              [
+                3,
+                0,
+                4
+              ],
+              [
+                3,
+                4,
+                7
+              ]
+            ],
+            "volumeM3": 78.204,
+            "conservative": true,
+            "sourceClosure": "closed box within lower armored machinery case",
+            "sourceMeshRange": {
+              "firstVertex": 480,
+              "vertices": 36,
+              "firstIndex": 936,
+              "indices": 60
+            }
+          }
+        ],
+        "volumeM3": 78.204,
+        "excludes": [
+          "barrels",
+          "cradles",
+          "drive gears",
+          "bearing rings",
+          "display stands"
+        ]
+      },
+      "components": [
+        {
+          "label": "intrinsic bearing ring",
+          "firstVertex": 0,
+          "vertices": 240,
+          "firstIndex": 0,
+          "indices": 468
+        },
+        {
+          "label": "bearing race lip",
+          "firstVertex": 240,
+          "vertices": 240,
+          "firstIndex": 468,
+          "indices": 468
+        },
+        {
+          "label": "closed lower armored machinery case",
+          "firstVertex": 480,
+          "vertices": 36,
+          "firstIndex": 936,
+          "indices": 60,
+          "compartment": true,
+          "componentRole": "fixed-armored-machinery-case"
+        },
+        {
+          "label": "fixed sloping bearing yoke -1",
+          "firstVertex": 516,
+          "vertices": 24,
+          "firstIndex": 996,
+          "indices": 36,
+          "compartment": false,
+          "componentRole": "fixed-bearing-yoke"
+        },
+        {
+          "label": "fixed transverse bearing axle -1",
+          "firstVertex": 540,
+          "vertices": 144,
+          "firstIndex": 1032,
+          "indices": 276,
+          "componentRole": "fixed-bearing-axle"
+        },
+        {
+          "label": "rear machinery access cover -1",
+          "firstVertex": 684,
+          "vertices": 24,
+          "firstIndex": 1308,
+          "indices": 36,
+          "compartment": false,
+          "componentRole": "fixed-access-cover"
+        },
+        {
+          "label": "fixed sloping bearing yoke 1",
+          "firstVertex": 708,
+          "vertices": 24,
+          "firstIndex": 1344,
+          "indices": 36,
+          "compartment": false,
+          "componentRole": "fixed-bearing-yoke"
+        },
+        {
+          "label": "fixed transverse bearing axle 1",
+          "firstVertex": 732,
+          "vertices": 144,
+          "firstIndex": 1380,
+          "indices": 276,
+          "componentRole": "fixed-bearing-axle"
+        },
+        {
+          "label": "rear machinery access cover 1",
+          "firstVertex": 876,
+          "vertices": 24,
+          "firstIndex": 1656,
+          "indices": 36,
+          "compartment": false,
+          "componentRole": "fixed-access-cover"
+        },
+        {
+          "label": "large circular elevation wheel -1",
+          "firstVertex": 900,
+          "vertices": 240,
+          "firstIndex": 1692,
+          "indices": 468,
+          "componentRole": "moving-circular-elevation-wheel",
+          "centerM": [
+            0,
+            9,
+            -6.15
+          ],
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "radiusM": 4.5,
+          "caseOuterSideM": 9.4,
+          "innerFaceAbsZM": 4.8,
+          "outerFaceAbsZM": 7.5,
+          "caseSideClearanceM": 0.8
+        },
+        {
+          "label": "concentric bearing face -1",
+          "firstVertex": 1140,
+          "vertices": 192,
+          "firstIndex": 2160,
+          "indices": 372,
+          "componentRole": "moving-bearing-cover"
+        },
+        {
+          "label": "recessed circular bearing cover -1",
+          "firstVertex": 1332,
+          "vertices": 192,
+          "firstIndex": 2532,
+          "indices": 372,
+          "componentRole": "moving-bearing-cover"
+        },
+        {
+          "label": "central axle cover -1",
+          "firstVertex": 1524,
+          "vertices": 192,
+          "firstIndex": 2904,
+          "indices": 372,
+          "componentRole": "moving-bearing-cover"
+        },
+        {
+          "label": "radial wheel reinforcement -1 1",
+          "firstVertex": 1716,
+          "vertices": 24,
+          "firstIndex": 3276,
+          "indices": 36,
+          "compartment": false,
+          "componentRole": "moving-radial-wheel-reinforcement"
+        },
+        {
+          "label": "radial wheel reinforcement -1 2",
+          "firstVertex": 1740,
+          "vertices": 24,
+          "firstIndex": 3312,
+          "indices": 36,
+          "compartment": false,
+          "componentRole": "moving-radial-wheel-reinforcement"
+        },
+        {
+          "label": "radial wheel reinforcement -1 3",
+          "firstVertex": 1764,
+          "vertices": 24,
+          "firstIndex": 3348,
+          "indices": 36,
+          "compartment": false,
+          "componentRole": "moving-radial-wheel-reinforcement"
+        },
+        {
+          "label": "radial wheel reinforcement -1 4",
+          "firstVertex": 1788,
+          "vertices": 24,
+          "firstIndex": 3384,
+          "indices": 36,
+          "compartment": false,
+          "componentRole": "moving-radial-wheel-reinforcement"
+        },
+        {
+          "label": "radial wheel reinforcement -1 5",
+          "firstVertex": 1812,
+          "vertices": 24,
+          "firstIndex": 3420,
+          "indices": 36,
+          "compartment": false,
+          "componentRole": "moving-radial-wheel-reinforcement"
+        },
+        {
+          "label": "radial wheel reinforcement -1 6",
+          "firstVertex": 1836,
+          "vertices": 24,
+          "firstIndex": 3456,
+          "indices": 36,
+          "compartment": false,
+          "componentRole": "moving-radial-wheel-reinforcement"
+        },
+        {
+          "label": "radial wheel reinforcement -1 7",
+          "firstVertex": 1860,
+          "vertices": 24,
+          "firstIndex": 3492,
+          "indices": 36,
+          "compartment": false,
+          "componentRole": "moving-radial-wheel-reinforcement"
+        },
+        {
+          "label": "radial wheel reinforcement -1 8",
+          "firstVertex": 1884,
+          "vertices": 24,
+          "firstIndex": 3528,
+          "indices": 36,
+          "compartment": false,
+          "componentRole": "moving-radial-wheel-reinforcement"
+        },
+        {
+          "label": "radial wheel reinforcement -1 9",
+          "firstVertex": 1908,
+          "vertices": 24,
+          "firstIndex": 3564,
+          "indices": 36,
+          "compartment": false,
+          "componentRole": "moving-radial-wheel-reinforcement"
+        },
+        {
+          "label": "radial wheel reinforcement -1 10",
+          "firstVertex": 1932,
+          "vertices": 24,
+          "firstIndex": 3600,
+          "indices": 36,
+          "compartment": false,
+          "componentRole": "moving-radial-wheel-reinforcement"
+        },
+        {
+          "label": "radial wheel reinforcement -1 11",
+          "firstVertex": 1956,
+          "vertices": 24,
+          "firstIndex": 3636,
+          "indices": 36,
+          "compartment": false,
+          "componentRole": "moving-radial-wheel-reinforcement"
+        },
+        {
+          "label": "radial wheel reinforcement -1 12",
+          "firstVertex": 1980,
+          "vertices": 24,
+          "firstIndex": 3672,
+          "indices": 36,
+          "compartment": false,
+          "componentRole": "moving-radial-wheel-reinforcement"
+        },
+        {
+          "label": "large circular elevation wheel 1",
+          "firstVertex": 2004,
+          "vertices": 240,
+          "firstIndex": 3708,
+          "indices": 468,
+          "componentRole": "moving-circular-elevation-wheel",
+          "centerM": [
+            0,
+            9,
+            6.15
+          ],
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "radiusM": 4.5,
+          "caseOuterSideM": 9.4,
+          "innerFaceAbsZM": 4.8,
+          "outerFaceAbsZM": 7.5,
+          "caseSideClearanceM": 0.8
+        },
+        {
+          "label": "concentric bearing face 1",
+          "firstVertex": 2244,
+          "vertices": 192,
+          "firstIndex": 4176,
+          "indices": 372,
+          "componentRole": "moving-bearing-cover"
+        },
+        {
+          "label": "recessed circular bearing cover 1",
+          "firstVertex": 2436,
+          "vertices": 192,
+          "firstIndex": 4548,
+          "indices": 372,
+          "componentRole": "moving-bearing-cover"
+        },
+        {
+          "label": "central axle cover 1",
+          "firstVertex": 2628,
+          "vertices": 192,
+          "firstIndex": 4920,
+          "indices": 372,
+          "componentRole": "moving-bearing-cover"
+        },
+        {
+          "label": "radial wheel reinforcement 1 1",
+          "firstVertex": 2820,
+          "vertices": 24,
+          "firstIndex": 5292,
+          "indices": 36,
+          "compartment": false,
+          "componentRole": "moving-radial-wheel-reinforcement"
+        },
+        {
+          "label": "radial wheel reinforcement 1 2",
+          "firstVertex": 2844,
+          "vertices": 24,
+          "firstIndex": 5328,
+          "indices": 36,
+          "compartment": false,
+          "componentRole": "moving-radial-wheel-reinforcement"
+        },
+        {
+          "label": "radial wheel reinforcement 1 3",
+          "firstVertex": 2868,
+          "vertices": 24,
+          "firstIndex": 5364,
+          "indices": 36,
+          "compartment": false,
+          "componentRole": "moving-radial-wheel-reinforcement"
+        },
+        {
+          "label": "radial wheel reinforcement 1 4",
+          "firstVertex": 2892,
+          "vertices": 24,
+          "firstIndex": 5400,
+          "indices": 36,
+          "compartment": false,
+          "componentRole": "moving-radial-wheel-reinforcement"
+        },
+        {
+          "label": "radial wheel reinforcement 1 5",
+          "firstVertex": 2916,
+          "vertices": 24,
+          "firstIndex": 5436,
+          "indices": 36,
+          "compartment": false,
+          "componentRole": "moving-radial-wheel-reinforcement"
+        },
+        {
+          "label": "radial wheel reinforcement 1 6",
+          "firstVertex": 2940,
+          "vertices": 24,
+          "firstIndex": 5472,
+          "indices": 36,
+          "compartment": false,
+          "componentRole": "moving-radial-wheel-reinforcement"
+        },
+        {
+          "label": "radial wheel reinforcement 1 7",
+          "firstVertex": 2964,
+          "vertices": 24,
+          "firstIndex": 5508,
+          "indices": 36,
+          "compartment": false,
+          "componentRole": "moving-radial-wheel-reinforcement"
+        },
+        {
+          "label": "radial wheel reinforcement 1 8",
+          "firstVertex": 2988,
+          "vertices": 24,
+          "firstIndex": 5544,
+          "indices": 36,
+          "compartment": false,
+          "componentRole": "moving-radial-wheel-reinforcement"
+        },
+        {
+          "label": "radial wheel reinforcement 1 9",
+          "firstVertex": 3012,
+          "vertices": 24,
+          "firstIndex": 5580,
+          "indices": 36,
+          "compartment": false,
+          "componentRole": "moving-radial-wheel-reinforcement"
+        },
+        {
+          "label": "radial wheel reinforcement 1 10",
+          "firstVertex": 3036,
+          "vertices": 24,
+          "firstIndex": 5616,
+          "indices": 36,
+          "compartment": false,
+          "componentRole": "moving-radial-wheel-reinforcement"
+        },
+        {
+          "label": "radial wheel reinforcement 1 11",
+          "firstVertex": 3060,
+          "vertices": 24,
+          "firstIndex": 5652,
+          "indices": 36,
+          "compartment": false,
+          "componentRole": "moving-radial-wheel-reinforcement"
+        },
+        {
+          "label": "radial wheel reinforcement 1 12",
+          "firstVertex": 3084,
+          "vertices": 24,
+          "firstIndex": 5688,
+          "indices": 36,
+          "compartment": false,
+          "componentRole": "moving-radial-wheel-reinforcement"
+        },
+        {
+          "label": "common quad recoil receiver",
+          "firstVertex": 3108,
+          "vertices": 24,
+          "firstIndex": 5724,
+          "indices": 36,
+          "compartment": false,
+          "componentRole": "moving-recoil-receiver"
+        },
+        {
+          "label": "complete 1TT rapid-fire barrel 1",
+          "firstVertex": 3132,
+          "vertices": 302,
+          "firstIndex": 5760,
+          "indices": 1800,
+          "root": [
+            -2,
+            6.5,
+            -3.1
+          ],
+          "muzzle": [
+            27,
+            6.5,
+            -3.1
+          ],
+          "centerM": [
+            12.5,
+            6.5,
+            -3.1
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "outerRadiusM": 0.9900000000000001,
+          "boreRadiusM": 0.549,
+          "muzzleRecessM": 1.35,
+          "exposedStartX": 6.120000000000001,
+          "componentRole": "moving-complete-barrel",
+          "shaftRadiusM": 0.9,
+          "fullBarrelLengthM": 29,
+          "radialSegments": 20,
+          "muzzleStyle": "modeled-recessed",
+          "barrelStyle": "cis-long-stepped-cannon"
+        },
+        {
+          "label": "complete 1TT rapid-fire barrel 2",
+          "firstVertex": 3434,
+          "vertices": 302,
+          "firstIndex": 7560,
+          "indices": 1800,
+          "root": [
+            -2,
+            6.5,
+            3.1
+          ],
+          "muzzle": [
+            27,
+            6.5,
+            3.1
+          ],
+          "centerM": [
+            12.5,
+            6.5,
+            3.1
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "outerRadiusM": 0.9900000000000001,
+          "boreRadiusM": 0.549,
+          "muzzleRecessM": 1.35,
+          "exposedStartX": 6.120000000000001,
+          "componentRole": "moving-complete-barrel",
+          "shaftRadiusM": 0.9,
+          "fullBarrelLengthM": 29,
+          "radialSegments": 20,
+          "muzzleStyle": "modeled-recessed",
+          "barrelStyle": "cis-long-stepped-cannon"
+        },
+        {
+          "label": "complete 1TT rapid-fire barrel 3",
+          "firstVertex": 3736,
+          "vertices": 302,
+          "firstIndex": 9360,
+          "indices": 1800,
+          "root": [
+            -2,
+            11.5,
+            -3.1
+          ],
+          "muzzle": [
+            27,
+            11.5,
+            -3.1
+          ],
+          "centerM": [
+            12.5,
+            11.5,
+            -3.1
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "outerRadiusM": 0.9900000000000001,
+          "boreRadiusM": 0.549,
+          "muzzleRecessM": 1.35,
+          "exposedStartX": 6.120000000000001,
+          "componentRole": "moving-complete-barrel",
+          "shaftRadiusM": 0.9,
+          "fullBarrelLengthM": 29,
+          "radialSegments": 20,
+          "muzzleStyle": "modeled-recessed",
+          "barrelStyle": "cis-long-stepped-cannon"
+        },
+        {
+          "label": "complete 1TT rapid-fire barrel 4",
+          "firstVertex": 4038,
+          "vertices": 302,
+          "firstIndex": 11160,
+          "indices": 1800,
+          "root": [
+            -2,
+            11.5,
+            3.1
+          ],
+          "muzzle": [
+            27,
+            11.5,
+            3.1
+          ],
+          "centerM": [
+            12.5,
+            11.5,
+            3.1
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "outerRadiusM": 0.9900000000000001,
+          "boreRadiusM": 0.549,
+          "muzzleRecessM": 1.35,
+          "exposedStartX": 6.120000000000001,
+          "componentRole": "moving-complete-barrel",
+          "shaftRadiusM": 0.9,
+          "fullBarrelLengthM": 29,
+          "radialSegments": 20,
+          "muzzleStyle": "modeled-recessed",
+          "barrelStyle": "cis-long-stepped-cannon"
+        }
+      ],
+      "maxQuantizationErrorM": 0.0003041222242543439,
+      "materialReference": "isd_heavy_octuple",
+      "weaponRole": "turbolaser",
+      "jointLimits": {
+        "yaw": null,
+        "lo": -0.17453292519943295,
+        "hi": 1.4835298641951802
+      },
+      "photoFeatureComponents": {
+        "circularBearings": [
+          "large circular elevation wheel -1",
+          "large circular elevation wheel 1"
+        ],
+        "quadCannons": [
+          "complete 1TT rapid-fire barrel 1",
+          "complete 1TT rapid-fire barrel 2",
+          "complete 1TT rapid-fire barrel 3",
+          "complete 1TT rapid-fire barrel 4"
+        ],
+        "lowerCase": [
+          "closed lower armored machinery case"
+        ]
+      },
+      "comparison": {
+        "referenceAsset": "arq_turret_quad500",
+        "referenceSizeM": [
+          28.5,
+          9.2,
+          11.79109375
+        ],
+        "constraint": "native envelope at least as large along every dimension"
+      },
+      "derivation": "four complete stepped cannons and recoil receiver between two large circular side bearings; low integral armored case with fixed outboard bearing yoke",
+      "photoGeometryFeaturesM": {
+        "circularBearings": {
+          "componentLabels": [
+            "large circular elevation wheel -1",
+            "large circular elevation wheel 1"
+          ],
+          "boundsM": [
+            [
+              -4.5,
+              4.5,
+              -7.5
+            ],
+            [
+              4.5,
+              13.5,
+              7.5
+            ]
+          ]
+        },
+        "quadCannons": {
+          "componentLabels": [
+            "complete 1TT rapid-fire barrel 1",
+            "complete 1TT rapid-fire barrel 2",
+            "complete 1TT rapid-fire barrel 3",
+            "complete 1TT rapid-fire barrel 4"
+          ],
+          "boundsM": [
+            [
+              -2,
+              4.52,
+              -5.08
+            ],
+            [
+              27,
+              13.48,
+              5.08
+            ]
+          ]
+        },
+        "lowerCase": {
+          "componentLabels": [
+            "closed lower armored machinery case"
+          ],
+          "boundsM": [
+            [
+              -8,
+              0.48,
+              -5.7
+            ],
+            [
+              3,
+              3.2,
+              5.7
+            ]
+          ]
+        }
+      }
+    }
+  }
+}

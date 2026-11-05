@@ -54,9 +54,9 @@ test('Arquitens fitted presets install all four flush prong launchers',()=>{
 
 test('MC30c presets migrate two flush torpedo tubes into surface VLS and retain six external launchers',()=>{
  const s=C.SHIP_EXAMPLES.mc30c._testBuild({stage:'fitted'}),launchers=s.fits.filter(f=>f.k==='cmsl'),pending=launchers.filter(f=>f.legacyMissileMount==='vls'),external=launchers.filter(f=>!f.legacyMissileMount);assert.equal(launchers.length,8);assert.equal(pending.length,2);assert.equal(external.length,6);assert.ok(external.every(f=>C.missileMount(f)==='ext'));
- const bays=s.fits.filter(f=>f.k==='broadsideBattery');assert.equal(bays.length,28);assert.equal(bays.filter(f=>f.batteryCaliber==='500GT').length,12);assert.equal(bays.filter(f=>f.batteryCaliber==='200GT').length,16);
+ const bays=s.fits.filter(f=>f.k==='monCal34'||f.k==='monCal150Ion');assert.equal(bays.length,28);assert.equal(bays.filter(f=>f.k==='monCal34').length,12);assert.equal(bays.filter(f=>f.k==='monCal150Ion').length,16);
  for(let i=0;i<bays.length;i++){
-  const f=bays[i],b=C.fitAABB(f);assert.equal(f.float,false);assert.equal(f.batteryGuns,2);assert.ok(f.p[0]>=195&&f.p[0]<=368,'the migrated bays remain on the existing head');
+  const f=bays[i],b=C.fitAABB(f);assert.equal(f.float,false);assert.equal(C.fitSpec(f).barrels,1);assert.ok(f.p[0]>=195&&f.p[0]<=368,'the migrated bays remain on the existing head');
   assert.ok(bays.some(g=>g!==f&&Math.abs(g.p[0]-f.p[0])<1e-6&&Math.abs(g.p[2]+f.p[2])<1e-6),'every bay retains a matching opposite-side station');
   for(const g of bays.slice(i+1)){const q=C.fitAABB(g);assert.ok([0,1,2].some(a=>b[a+3]+.49<=q[a]||q[a+3]+.49<=b[a]),'adjacent wall windows retain a physical gap');}
  }

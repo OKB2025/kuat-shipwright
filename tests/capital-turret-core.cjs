@@ -29,8 +29,8 @@ test('nine capital entries use physical native models and exact per-barrel gun o
   near(C.weaponModelScale(k),1);assert.equal(C.weaponSizing(k).calibration,'capital-photo-family');
   vector([d.fm,d.hm,d.wm],a.size);assert.equal(d.casemate,false);assert.equal(d.fixed,false);assert.equal(C.fitCanRotate(k),true);
  }
- assert.equal(C.FITS.ionL.asset,undefined,'the existing 120 GT light ion cannon is not rebound to the 175 TT heavy house');
- near(C.FITS.ionL.boltTT,.12);near(C.FITS.pd.boltTT,.02);assert.ok(C.FLEET_PROFILE_VERSION>=11);
+ assert.equal(C.FITS.ionL,undefined,'the small ion cannon is retired');assert.equal(C.canonicalWeaponKind('ionL'),'monCal150Ion');
+ near(C.FITS.monCal150Ion.boltTT,150);near(C.FITS.pd.boltTT,.02);assert.ok(C.FLEET_PROFILE_VERSION>=11);
 });
 
 test('barrel counts share the corrected photographic size anchors and the ion twin owns the cast bowl',()=>{
