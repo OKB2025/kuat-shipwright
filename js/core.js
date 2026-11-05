@@ -25218,8 +25218,8 @@ for(const [key,asset,name,short,barrels,boltTT,mass,crew,cost,desc] of [
 // in two stacked barrels on a fixed mount, the ventral twins are 300 GT rapid guns per the latest user instruction.
 // Their 0.2 s cadence follows the existing CIS rapid gun; mass, crew and cost are unchanged.
 const MUNIFICENT_GUN_KEYS=Object.freeze(['munBow','munTwin']);
-// The bow gun's cadence follows the rule set for the Recusant's bow guns: as fast as the example's crew still fits
-// (1.6 s: habitation 1.49; 1.5 s gives 0.96), measured with the ion cannons and the flank twins left off.
+// Keep the native 1.6 s bow cadence. Finite charging branches independently
+// limit sustained input; the instantaneous volley and mechanical interval are unchanged.
 const MUNIFICENT_BOW_CYCLE=1.6;
 for(const [key,asset,name,short,barrels,boltTT,cycle,mass,crew,cost,aa,desc] of [
  ['munBow','mun_bow_twin','艦首重ターボレーザー（固定・2.5PT×2）','艦首砲 2.5PT×2',2,2500,MUNIFICENT_BOW_CYCLE,120000,150,1.2e7,.02,'ミュニフィセント級の前部船体の下に吊るした円形の砲室と、上下に並ぶ長い砲身2門。艦首方向に固定され、1門2.5 PT、一斉射5 PT。艦の向きで照準する。'],
@@ -29152,10 +29152,9 @@ function providenceBuild(opt={}){
  try{withFrozenStructures(()=>{
   if(!dn){
   // Fourteen triple 200 TT balls replace the carrier's former ventral main
-  // batteries; ion, dual-purpose, flak, PD, missile and tractor seats retain their counts.
+  // batteries; dual-purpose, flak, PD, missile and tractor seats retain their counts.
   spread('monCal200Triple',14,'bottom','ventral-quad',range(330,1040,26),[60,45,75,30,88]);
-  // Two single 150 TT ion balls at the bow.
-  spread('monCal150Ion',2,'top','bow-ion',range(950,1050,8).reverse(),[18,24,12,30]);
+  // The two bow ion cannons remain omitted, matching the upstream refit.
   // Thirty-four spherical triple dual-purpose guns on both faces.
   spread('monCalPD',16,'top','dorsal-laser',range(540,1040,16),[20,34,48,8,60]);
   spread('monCalPD',18,'bottom','ventral-laser',range(300,1040,16),[15,98,22,105,8]);
@@ -29172,8 +29171,7 @@ function providenceBuild(opt={}){
   }else{
   // Dreadnought: fourteen triple 200 TT balls beneath the hull.
   spread('monCal200Triple',14,'bottom','ventral-quad',mr(330,1040,22),[M(60),M(45),M(75),M(30),M(88)]);
-  // Two single 150 TT ion balls at the bow.
-  spread('monCal150Ion',2,'top','bow-ion',mr(950,1050,8).reverse(),[M(18),M(24),M(12),M(30)]);
+  // The two bow ion cannons remain omitted, matching the upstream refit.
   // Thirty-four single 80 TT balls, dorsal and ventral.
   spread('monCal80',16,'top','dorsal-laser',mr(540,1040,16),[M(20),M(34),M(48),M(8),M(60)]);
   spread('monCal80',18,'bottom','ventral-laser',mr(300,1040,16),[M(15),M(98),M(22),M(105),M(8)]);
@@ -29211,13 +29209,13 @@ const PROV_CREDIT={title:'Star Wars: The Clone Wars Providence',author:'lolqeeee
  credit:'This work is based on "Star Wars: The Clone Wars Providence" (https://sketchfab.com/3d-models/star-wars-the-clone-wars-providence-8d27764a7d254fd7948557daf6d7ccdc) by lolqeeeeeeeeee (https://sketchfab.com/lolqeeeeeeeeee) licensed under CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)'};
 registerShipExample({
  key:'providence',name:'プロヴィデンス級キャリア／デストロイヤー',side:'独立星系連合',role:'キャリア／デストロイヤー',length:1088,...PROV_CREDIT,
- note:'DK の断面図（インヴィジブル・ハンド）の配置と寸法（全長 1,088 m・幅 198 m・塔を含む高さ 347 m）に合わせ、Sketchfab の 3D モデル（lolqeeeeeeeeee 作、CC BY-NC 4.0）の実測形状を高さ方向に 0.928 倍して組み直した独立星系連合のキャリア／デストロイヤー。格納甲板上部の背部湾曲装甲殻、中央背面の装甲板、前部腹部の湾曲装甲は装甲外板（厚さ 0.6〜0.8 m）で、武装は載せない。主艦橋は艦尾上部の垂直尾翼のような塔（ウィザーズ・タワー）の頂部で、『クローン・ウォーズ』の画面と正史の資料のとおり、前端を回り込む 180 度の展望窓（模型の窓の発光テクスチャの位置）から前方を見る艦橋甲板と、その上の最上層の将官区画・展望甲板からなる。艦首上部の稜線とドーム窓（『シスの復讐』のインヴィジブル・ハンドの前部艦橋）は前部指揮所（戦闘指揮）とした。艦首に主反応炉・副反応炉・偏向シールド発生器網・ハイパードライブ反応物サイロ、中央に慣性補償装置、後半部に格納甲板（艦載機ラック、MTT と装甲車両の格納区画、整備甲板）、艦尾に補助炉・放射状イオン機関・左舷ハイパードライブ・モジュール。兵装は腹部の200TT三連装球状ターボレーザー14基、艦首の150TT単装球状イオン砲2基、背部・腹部の球状3連装両用砲34基、艦首側面の球状3連装対空砲12基、球状3連装点防御砲12基、プロトン魚雷発射機34基（3門ずつ、計102門）、トラクター・ビーム4基。艦載機はトライファイター 120 機とヴァルチャー 120 機、MTT 160 両と装甲ドロイド車両 280 両（AAT・ヘイルファイア・OG-9・LM-432）。停止保管ドロイドは DK では最大 150 万体だが、船内に収まる 12 万 5,000 体とした（v22。正史の武装を積むと砲の持ち場の乗員が増え、以前の 16 万 2,000 体は収まらない）。加速約 2,560 G、ハイパードライブ・クラス 1.5。公式の乗員は 600 体のドロイド。',
+ note:'DK の断面図（インヴィジブル・ハンド）の配置と寸法（全長 1,088 m・幅 198 m・塔を含む高さ 347 m）に合わせ、Sketchfab の 3D モデル（lolqeeeeeeeeee 作、CC BY-NC 4.0）の実測形状を高さ方向に 0.928 倍して組み直した独立星系連合のキャリア／デストロイヤー。格納甲板上部の背部湾曲装甲殻、中央背面の装甲板、前部腹部の湾曲装甲は装甲外板（厚さ 0.6〜0.8 m）で、武装は載せない。主艦橋は艦尾上部の垂直尾翼のような塔（ウィザーズ・タワー）の頂部で、『クローン・ウォーズ』の画面と正史の資料のとおり、前端を回り込む 180 度の展望窓（模型の窓の発光テクスチャの位置）から前方を見る艦橋甲板と、その上の最上層の将官区画・展望甲板からなる。艦首上部の稜線とドーム窓（『シスの復讐』のインヴィジブル・ハンドの前部艦橋）は前部指揮所（戦闘指揮）とした。艦首に主反応炉・副反応炉・偏向シールド発生器網・ハイパードライブ反応物サイロ、中央に慣性補償装置、後半部に格納甲板（艦載機ラック、MTT と装甲車両の格納区画、整備甲板）、艦尾に補助炉・放射状イオン機関・左舷ハイパードライブ・モジュール。兵装は腹部の200TT三連装球状ターボレーザー14基、背部・腹部の球状3連装両用砲34基、艦首側面の球状3連装対空砲12基、球状3連装点防御砲12基、プロトン魚雷発射機34基（3門ずつ、計102門）、トラクター・ビーム4基。艦載機はトライファイター 120 機とヴァルチャー 120 機、MTT 160 両と装甲ドロイド車両 280 両（AAT・ヘイルファイア・OG-9・LM-432）。停止保管ドロイドは DK では最大 150 万体だが、船内に収まる 12 万 5,000 体とした（v22。正史の武装を積むと砲の持ち場の乗員が増え、以前の 16 万 2,000 体は収まらない）。加速約 2,560 G、ハイパードライブ・クラス 1.5。公式の乗員は 600 体のドロイド。',
  airWings:PROV_AIR,groundForces:PROV_GROUND,
  build:providenceBuild
 });
 registerShipExample({
  key:'providenceDn',name:'プロヴィデンス級ドレッドノート',side:'独立星系連合',role:'ドレッドノート',length:2177.35,...PROV_CREDIT,
- note:'プロヴィデンス級キャリア／デストロイヤーと同じ Sketchfab の 3D モデル（lolqeeeeeeeeee 作、CC BY-NC 4.0）から組み直した船体・構造物・区画を、レジェンズの全長 2,177.35 m に合わせて全寸法 2.001 倍（ほぼ 2 倍、容積は約 8 倍）にした独立星系連合のドレッドノート。区画の配置はキャリア／デストロイヤーと同じで、主艦橋は塔の頂部、前部指揮所は艦首上部。兵装は腹部の200TT三連装球状ターボレーザー14基、背部・腹部の80TT単装球状ターボレーザー34基、艦首の150TT単装球状イオン砲2基、球状3連装対空砲12基と点防御砲12基、プロトン魚雷発射機34基（3門ずつ、計102門）、トラクター・ビーム10基。艦載機はヴァルチャー 120 機、トライファイター 120 機、ハイエナ級ボマー 10 機。停止保管バトル・ドロイドは正史の 150 万体のうち 100 万体（1 部隊の上限）、MTT 640 両と装甲ドロイド車両 1,120 両。加速約 3,130 G（装甲外板の厚さは拡大しないため質量が 8 倍より軽い）、ハイパードライブ・クラス 1.2。正史の乗員は士官 900 名とドロイドで、持ち場の約 7 割を自動化装置（ドロイド制御）が受け持つ（v19.1）。',
+ note:'プロヴィデンス級キャリア／デストロイヤーと同じ Sketchfab の 3D モデル（lolqeeeeeeeeee 作、CC BY-NC 4.0）から組み直した船体・構造物・区画を、レジェンズの全長 2,177.35 m に合わせて全寸法 2.001 倍（ほぼ 2 倍、容積は約 8 倍）にした独立星系連合のドレッドノート。区画の配置はキャリア／デストロイヤーと同じで、主艦橋は塔の頂部、前部指揮所は艦首上部。兵装は腹部の200TT三連装球状ターボレーザー14基、背部・腹部の80TT単装球状ターボレーザー34基、球状3連装対空砲12基と点防御砲12基、プロトン魚雷発射機34基（3門ずつ、計102門）、トラクター・ビーム10基。艦載機はヴァルチャー 120 機、トライファイター 120 機、ハイエナ級ボマー 10 機。停止保管バトル・ドロイドは正史の 150 万体のうち 100 万体（1 部隊の上限）、MTT 640 両と装甲ドロイド車両 1,120 両。加速約 3,130 G（装甲外板の厚さは拡大しないため質量が 8 倍より軽い）、ハイパードライブ・クラス 1.2。正史の乗員は士官 900 名とドロイドで、持ち場の約 7 割を自動化装置（ドロイド制御）が受け持つ（v19.1）。',
  airWings:PROV_DN_AIR,groundForces:PROV_DN_GROUND,
  build:(opt={})=>providenceBuild({...opt,scale:PROV_DN_K})
 });
