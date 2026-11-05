@@ -575,6 +575,15 @@ function craftLaunchers(model){
   const fr=C.fitFrameOf(f);out.push({id:f.id,origin:C.add(C.fitOrigin(f),C.mul(fr.up,d.hm*.5)),axis:fr.fw,salvo:1,cycle:1.2,tt:o.tt,ion:!!o.ion,kind:q.k,ammo:q.n,ammo0:q.n});}
  return out;
 }
+function broadsideBatteryMesh(g,f){
+ const p=C.broadsideBatteryGeometry?.(f);if(!p||f.float||f.surfaceUnplaced)return;
+ const M=[...p.u,...p.normal,...p.v],o=p.point,L=p.width,W=p.height,h=p.depth,lip=p.lip,up=p.v[1]<0?-1:1;
+ // Retain the casemate's armored wall frame, dark embrasure and short hood.
+ // Guns stay inside the compartment; the window plane owns their emitters.
+ box(g,M,o,0,h/2,0,L,h,W,FC.ring);
+ box(g,M,o,0,h+lip/2,0,L*.70,lip,W*.58,[12,16,20]);
+ box(g,M,o,0,h*.66,up*W*.36,L*.86,h*.68,W*.16,FC.body);
+}
 function concussionLauncherMesh(g,f){
  const p=C.launcherGeometry(f),[L,h,W]=p.bodySize,M=[...p.bodyFrame.fw,...p.bodyFrame.up,...p.bodyFrame.rt];
  // The body remains the aircraft's compact twin-mouth launch tube. Only the
@@ -606,6 +615,7 @@ function craftWeaponMesh(g,f){
 function meshFits(ship, filter, ranges, only) {
   const g = new Geo(8192), body = FC.body;
   const one = (f) => {
+    if(f.k==='broadsideBattery'){if(!FIT_SKIP_BODY?.has(f.id))broadsideBatteryMesh(g,f);return;}
     if(embeddedSurfaceFit(f)){surfaceBatteryMesh(g,f,ship);return;}
     if(C.FITS[f.k].asset){
       // Model turrets seat on the highest point under their ring; the pedestal
@@ -2811,6 +2821,7 @@ function mirroredTurretPose(f,fits,poses){
 }
 function turretPose(f){
  const d=C.FITS[f.k],fr=C.fitFrameOf(f);
+ const bay=C.broadsideBatteryGeometry?.(f);if(bay)return {pivot:bay.pivot,axis:bay.v,fw:bay.normal};
  const embedded=C.surfaceBatteryGeometry?.(f);if(embedded)return {pivot:embedded.pivot,axis:embedded.v,fw:embedded.normal};
  if(d.asset&&f.skinAsset&&f.skinAsset!==d.asset){const k=skinTurretPose(f);if(k)return k;return null;}
  if(d.fixed)return {pivot:C.fitOrigin(f),axis:C.fitUp(f),fw:fr.fw};
@@ -2831,7 +2842,7 @@ function trialTurrets(model,put,ranges){
   let mesh=null,bodyMesh=null,authored=null;const g=C.authoredTurretGeometry?.(f);if(rot){if(spec.asset&&(!plainFitAsset(f)||g)){const plain=plainFitAsset(f)&&!familyReferenceAsset(f),geo=plain?new Geo(16):meshReferenceFits(model,null,[f]),tex=plain?'fits':'reference',emi=plain?.6:null;if(plain)appendPlainFit(geo,f);mesh=(plain?'tur_':'refTur_')+f.id;const split=g?.indexStart;
    if(Number.isInteger(split)&&split>=0&&split<geo.ni&&split%3===0){authored=g;bodyMesh=(plain?'turBody_':'refTurBody_')+f.id;put(bodyMesh,geoIndices(geo,geo.idx.subarray(0,split)),tex,emi);put(mesh,geoIndices(geo,geo.idx.subarray(split,geo.ni)),tex,emi);}else put(mesh,geo,tex,emi);
   }else{mesh='tur_'+f.id;FIT_SKIP_PED=all;try{put(mesh,meshFits(model,x=>x===f),'fits',.6);}finally{FIT_SKIP_PED=null;}}}
-  const embedded=C.surfaceBatteryGeometry?.(f);out.push({id:f.id,k:f.k,name:spec.short||spec.name,mesh,...(authored?{authored,bodyMesh,bodyPivot:authored.yawPivot}:{}),pivot:authored?.elevationPivot||pose.pivot,axis:authored?.axis||axis,fw:authored?.fw||fw,origin:authored?.elevationPivot||C.turretOrigin(f),mount:C.fitUp(f),r:d.r,hm:embedded?embedded.height:d.hm,embedded:!!embedded,fixed:!!spec.fixed,portWidth:embedded?.width,portHeight:embedded?.height,port:embedded?{width:embedded.width,height:embedded.height,depth:embedded.depth}:undefined,casemate:embedded?false:!!(spec.casemate||spec.fixed),barrels:spec.barrels||(spec.fixed?1:TRIAL_BARRELS[f.k]||2),cycle:spec.cycle||2.5,tt:d.tt||0,ion:!!d.ion&&!d.tt,rate:C.turretRate(f),power:d.power||0,cap:C.needsCapacitor(f)});
+  const embedded=C.surfaceBatteryGeometry?.(f),bay=C.broadsideBatteryGeometry?.(f);out.push({id:f.id,k:f.k,name:spec.short||spec.name,mesh,...(authored?{authored,bodyMesh,bodyPivot:authored.yawPivot}:{}),...(bay?{broadsideBattery:true,muzzles:bay.muzzles.map(p=>p.slice())}:{}),pivot:authored?.elevationPivot||pose.pivot,axis:authored?.axis||axis,fw:authored?.fw||fw,origin:authored?.elevationPivot||C.turretOrigin(f),mount:C.fitUp(f),r:d.r,hm:embedded?embedded.height:d.hm,embedded:!!embedded,fixed:!!spec.fixed,portWidth:bay?.width??embedded?.width,portHeight:bay?.height??embedded?.height,port:bay?{width:bay.width,height:bay.height,depth:bay.depth}:embedded?{width:embedded.width,height:embedded.height,depth:embedded.depth}:undefined,casemate:bay?true:embedded?false:!!(spec.casemate||spec.fixed),barrels:d.barrels||(spec.fixed?1:TRIAL_BARRELS[f.k]||2),cycle:d.cycle||2.5,tt:d.tt||0,ion:!!d.ion&&!d.tt,rate:C.turretRate(f),power:d.power||0,cap:C.needsCapacitor(f)});
  }
  return out;
 }

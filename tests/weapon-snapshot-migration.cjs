@@ -5,9 +5,15 @@ const assert = require('node:assert/strict');
 const {test} = require('node:test');
 
 const root = path.resolve(process.env.KS_TEST_ROOT || path.join(__dirname, '..'));
-const context = vm.createContext({console});
+const context = vm.createContext({console, computeCalls:0});
 for (const file of ['data/reference.js', 'data/imperial2.js', 'data/fleet.js', 'js/core.js']) {
-  vm.runInContext(fs.readFileSync(path.join(root, file), 'utf8'), context, {filename: file});
+  let source = fs.readFileSync(path.join(root, file), 'utf8');
+  if(file==='js/core.js'){
+    const hook='function computeStats(ship){';
+    assert.equal(source.split(hook).length,2,'the refresh counter wraps exactly one real engineering entry point');
+    source=source.replace(hook,hook+'globalThis.computeCalls++;');
+  }
+  vm.runInContext(source, context, {filename: file});
 }
 const {C, R} = vm.runInContext('({C:Core,R:Rts})', context);
 const plain = value => JSON.parse(JSON.stringify(value));
@@ -79,7 +85,7 @@ test('performance-only legacy designs preserve numeric stats while canonicalizin
 });
 
 test('old canonical heavy and multi-barrel snapshots refresh geometry to match the current model', () => {
-  for (const kind of ['stl', 'oct40', 'ltl', 'mtl', 'triple40', 'quad200']) {
+  for (const kind of ['stl', 'oct40', 'ltl', 'mtl', 'htl', 'triple40', 'quad200']) {
     const old = legacySnapshot();
     old.blueprint.fits[0].k = kind;
     old.craft.fireArcs[0].k = kind;
@@ -90,6 +96,24 @@ test('old canonical heavy and multi-barrel snapshots refresh geometry to match t
     assert.notDeepEqual(plain(snapshot.craft.fireArcs[0].pos), [999, 999, 999], kind);
     assert.deepEqual(plain(C.cleanDesignCraft(JSON.parse(C.publicJSON(snapshot)))), plain(snapshot), `${kind} does not refresh again after transport`);
   }
+});
+
+test('a saved canonical point-defense snapshot refreshes combat figures from the pre-20 GT profile', () => {
+  const old = legacySnapshot();
+  old.blueprint.fits[0].k = 'pd';
+  old.weaponProfileVersion = 1;
+  const fresh = currentSnapshot(old.blueprint);
+  old.craft = {...plain(fresh.craft), gun:17, strike:17,
+    powerProfile:{...plain(fresh.craft.powerProfile), profileVersion:8}};
+  const before = plain(old), snapshot = C.cleanDesignCraft(old);
+  assert.deepEqual(old, before, 'refresh leaves the saved input immutable');
+  assert.equal(snapshot.craft.powerProfile.profileVersion, C.FLEET_PROFILE_VERSION);
+  assert.equal(snapshot.craft.gun, fresh.craft.gun, 'the former 5 TT twin cannot retain its old anti-ship output');
+  assert.equal(snapshot.craft.strike, fresh.craft.strike);
+  assert.deepEqual(plain(snapshot.craft.fireArcs), plain(fresh.craft.fireArcs));
+  const beforeValidation = context.computeCalls;
+  assert.deepEqual(plain(C.cleanDesignCraft(JSON.parse(C.publicJSON(snapshot)))), plain(snapshot), 'the refreshed snapshot remains stable');
+  assert.equal(context.computeCalls,beforeValidation,'a current revision never recomputes engineering on repeated validation');
 });
 
 test('surface battery and retained aggregate weapons also trigger the one-time geometry refresh', () => {
@@ -123,10 +147,11 @@ test('surface battery and retained aggregate weapons also trigger the one-time g
 });
 
 test('unaffected and already-current snapshots retain their cached performance', () => {
-  for (const kind of ['refVen', 'ion', 'htl', 'claser']) {
+  for (const kind of ['refVen', 'ion', 'claser']) {
     const current = legacySnapshot();
     current.blueprint.fits[0].k = kind;
     current.craft.fireArcs[0].k = kind;
+    current.craft.powerProfile = plain(currentSnapshot(current.blueprint).craft.powerProfile);
     const snapshot = C.cleanDesignCraft(current);
     assert.equal(snapshot.craft.gun, 356, kind);
     assert.equal(snapshot.craft.strike, 356, kind);
@@ -136,5 +161,6 @@ test('unaffected and already-current snapshots retain their cached performance',
   current.blueprint.fits[0].k = 'oct40';
   current.craft.fireArcs[0].k = 'oct40';
   current.weaponProfileVersion = 1;
+  current.craft.powerProfile = plain(currentSnapshot(current.blueprint).craft.powerProfile);
   assert.equal(C.cleanDesignCraft(current).craft.gun, 356, 'the current revision does not rebuild on each validation');
 });

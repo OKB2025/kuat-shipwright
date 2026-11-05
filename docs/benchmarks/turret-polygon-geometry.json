@@ -1,0 +1,227 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "sourceSnapshot": "3f306439dc98e2d1028337bc9d5528b760672070",
+  "sourceSha256": {
+    "data/reference.js": "f8c55ec635f1d21c7b822a76a754a0a9498530eae42131248140177a752ba99a",
+    "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b"
+  },
+  "numericDimensionToleranceM": 0.00001,
+  "toleranceReason": "The retained DBY profile uses exact original sampled points. One tilted-tip radial extremum changes the whole model envelope by 3.25 micrometres, far below its approximately 0.44 mm packed-position step. All actual room cells must nevertheless remain byte-exact.",
+  "models": [
+    {
+      "kind": "single40",
+      "asset": "family_single40",
+      "trianglesBefore": 1452,
+      "trianglesAfter": 1452,
+      "status": "PASS",
+      "roomsByteIdentical": true,
+      "physicalControlDeltas": []
+    },
+    {
+      "kind": "quad40Ion",
+      "asset": "family_quad40_ion",
+      "trianglesBefore": 1696,
+      "trianglesAfter": 1696,
+      "status": "PASS",
+      "roomsByteIdentical": true,
+      "physicalControlDeltas": []
+    },
+    {
+      "kind": "twin40Dome",
+      "asset": "family_twin40_dome",
+      "trianglesBefore": 4558,
+      "trianglesAfter": 4558,
+      "status": "PASS",
+      "roomsByteIdentical": true,
+      "physicalControlDeltas": []
+    },
+    {
+      "kind": "twin40",
+      "asset": "family_twin40_box",
+      "trianglesBefore": 2210,
+      "trianglesAfter": 2074,
+      "status": "PASS",
+      "roomsByteIdentical": true,
+      "physicalControlDeltas": []
+    },
+    {
+      "kind": "triple40",
+      "asset": "family_triple40",
+      "trianglesBefore": 2218,
+      "trianglesAfter": 1962,
+      "status": "PASS",
+      "roomsByteIdentical": true,
+      "physicalControlDeltas": []
+    },
+    {
+      "kind": "oct40",
+      "asset": "isd_heavy_octuple",
+      "trianglesBefore": 1104,
+      "trianglesAfter": 1104,
+      "status": "PASS",
+      "roomsByteIdentical": true,
+      "physicalControlDeltas": []
+    },
+    {
+      "kind": "refVen",
+      "asset": "ven_turret70_native",
+      "trianglesBefore": 5572,
+      "trianglesAfter": 4388,
+      "status": "PASS",
+      "roomsByteIdentical": true,
+      "physicalControlDeltas": [
+        {
+          "path": "size[0]",
+          "before": 28.861991732262666,
+          "after": 28.861988482652723,
+          "delta": -0.000003249609942912457
+        },
+        {
+          "path": "c[0]",
+          "before": 1.4075605562845146,
+          "after": 1.4075589314795423,
+          "delta": -0.000001624804972344407
+        },
+        {
+          "path": "barrels[0].muzzleRecessM",
+          "before": 1.283217513413297,
+          "after": 1.2832175134132975,
+          "delta": 4.440892098500626e-16
+        },
+        {
+          "path": "barrels[1].muzzleRecessM",
+          "before": 1.2832175134132953,
+          "after": 1.2832175134132955,
+          "delta": 2.220446049250313e-16
+        }
+      ]
+    },
+    {
+      "kind": "triple70",
+      "asset": "family_triple70",
+      "trianglesBefore": 16712,
+      "trianglesAfter": 4995,
+      "status": "PASS",
+      "roomsByteIdentical": true,
+      "physicalControlDeltas": [
+        {
+          "path": "barrels[0].muzzleRecessM",
+          "before": 1.2832175134132964,
+          "after": 1.2832175134132962,
+          "delta": -2.220446049250313e-16
+        },
+        {
+          "path": "barrels[1].muzzleRecessM",
+          "before": 1.2832175134132964,
+          "after": 1.2832175134132962,
+          "delta": -2.220446049250313e-16
+        },
+        {
+          "path": "barrels[2].muzzleRecessM",
+          "before": 1.2832175134132964,
+          "after": 1.2832175134132962,
+          "delta": -2.220446049250313e-16
+        }
+      ]
+    },
+    {
+      "kind": "quad70Side",
+      "asset": "family_quad70_side",
+      "trianglesBefore": 8712,
+      "trianglesAfter": 4479,
+      "status": "PASS",
+      "roomsByteIdentical": true,
+      "physicalControlDeltas": [
+        {
+          "path": "barrels[0].muzzleRecessM",
+          "before": 1.2832175134132986,
+          "after": 1.2832175134132977,
+          "delta": -8.881784197001252e-16
+        },
+        {
+          "path": "barrels[1].muzzleRecessM",
+          "before": 1.2832175134132986,
+          "after": 1.2832175134132977,
+          "delta": -8.881784197001252e-16
+        }
+      ]
+    },
+    {
+      "kind": "single500",
+      "asset": "light_single500",
+      "trianglesBefore": 2748,
+      "trianglesAfter": 2204,
+      "status": "PASS",
+      "roomsByteIdentical": true,
+      "physicalControlDeltas": []
+    },
+    {
+      "kind": "twin200",
+      "asset": "light_twin200",
+      "trianglesBefore": 4328,
+      "trianglesAfter": 2760,
+      "status": "PASS",
+      "roomsByteIdentical": true,
+      "physicalControlDeltas": []
+    },
+    {
+      "kind": "quad500",
+      "asset": "arq_turret_quad500",
+      "trianglesBefore": 10442,
+      "trianglesAfter": 2966,
+      "status": "PASS",
+      "roomsByteIdentical": true,
+      "physicalControlDeltas": []
+    },
+    {
+      "kind": "quad200",
+      "asset": "light_quad200",
+      "trianglesBefore": 6394,
+      "trianglesAfter": 2850,
+      "status": "PASS",
+      "roomsByteIdentical": true,
+      "physicalControlDeltas": []
+    },
+    {
+      "kind": "single200",
+      "asset": "light_single200",
+      "trianglesBefore": 3384,
+      "trianglesAfter": 2232,
+      "status": "PASS",
+      "roomsByteIdentical": true,
+      "physicalControlDeltas": []
+    },
+    {
+      "kind": "twin200Fast",
+      "asset": "light_twin200_fast",
+      "trianglesBefore": 4608,
+      "trianglesAfter": 2976,
+      "status": "PASS",
+      "roomsByteIdentical": true,
+      "physicalControlDeltas": []
+    }
+  ],
+  "changedAssetIds": [
+    "arq_turret_quad500",
+    "family_single40",
+    "family_twin40_dome",
+    "family_twin40_box",
+    "family_triple40",
+    "ven_turret70_native",
+    "family_triple70",
+    "family_quad70_side",
+    "family_quad40_ion",
+    "light_single500",
+    "light_twin200",
+    "light_quad200",
+    "light_single200",
+    "light_twin200_fast",
+    "isd_heavy_octuple"
+  ],
+  "unrelatedChangedAssets": [],
+  "unchangedAssetCount": 65,
+  "totalTrianglesBefore": 76138,
+  "totalTrianglesAfter": 42696,
+  "scope": "Comparison of the 15 reference model geometries only. Intentional catalog/output changes and the new broadside battery are validated separately."
+}

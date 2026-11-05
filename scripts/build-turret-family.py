@@ -19,6 +19,8 @@ import sys
 
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from turret_source_simplify import reduce_component
 OCTUPLE_LENGTH_M = 40.0
 DBY_LENGTH_M = 28.861991732993026
 FAMILY_ORDER = ['family_single40', 'family_twin40_dome', 'family_twin40_box',
@@ -221,9 +223,47 @@ class Mesh:
                            muzzleRecessM=recess, exposedStartX=shank_start)
 
 
-def thin_turntable(m, radius):
-    m.cylinder([0, .16, 0], radius, .32, 1, 'intrinsic bearing ring', 64)
-    m.cylinder([0, .35, 0], radius*.95, .14, 1, 'bearing race lip', 64)
+def thin_turntable(m, radius, segments=64):
+    m.cylinder([0, .16, 0], radius, .32, 1, 'intrinsic bearing ring', segments)
+    m.cylinder([0, .35, 0], radius*.95, .14, 1, 'bearing race lip', segments)
+
+
+def circular_drive_shoulders(m, pivot, case_side, drive_rows, radius_ratio=.84, segments=16):
+    """Fixed round machinery cladding joins the case to both external bearings.
+
+    These short lateral cylinders enclose the existing cross-shaft, rather than
+    adding another pedestal or crediting its occupied mechanics as capacitor room.
+    A small engagement at either end makes the visible meshes truly connect.
+    """
+    rows=[]
+    for drive in drive_rows:
+        sign=-1 if drive['centerM'][2]<0 else 1
+        inner=case_side-.12;radius=drive['radiusM']*radius_ratio;contacts=[]
+        # The imported DBY assembly has a narrow stem projecting inboard of
+        # its broad disk. Its AABB minimum is therefore not the disk's contact
+        # face. Sample the actual triangles at the new shoulder's outer ring.
+        triangles=[[m.points[v] for v in m.indices[i:i+3]]
+                   for i in range(drive['firstIndex'],drive['firstIndex']+drive['indices'],3)]
+        for i in range(segments):
+            angle=2*math.pi*i/segments
+            origin=[pivot[0]+radius*math.cos(angle),pivot[1]+radius*math.sin(angle),sign*inner]
+            hits=[t for tri in triangles if (t:=ray_triangle(origin,[0,0,sign],*tri)) is not None and t>=0]
+            if not hits:raise ValueError('Circular shoulder does not reach a real drive face')
+            contacts.append(inner+min(hits))
+        contact=max(contacts);outer=contact+.015
+        center=[pivot[0],pivot[1],sign*(inner+outer)/2]
+        row=m.cylinder(center,radius,outer-inner,2,
+                       'fixed circular external-drive shoulder '+('port' if sign<0 else 'starboard'),segments)
+        row.update(componentRole='fixed-circular-shoulder',structuralArmor=True,
+                   addsCapacitorRoom=False,side='port' if sign<0 else 'starboard',
+                   centerM=center,radiusM=radius,
+                   axis=[0,0,1],innerCaseZM=sign*inner,
+                   driveInnerFaceZM=sign*drive['innerFaceAbsZM'],outerZM=sign*outer,
+                   actualDriveContactZM=sign*contact,actualDriveContactNearZM=sign*min(contacts),
+                   contactMethod='first-hit-rays-through-actual-source-drive-triangles',
+                   contactSamples=segments,engagementM=.015,radialSegments=segments)
+        rows.append(row)
+    return rows
 
 
 def drives(m, x, y, z, radius, thickness=.55):
@@ -268,6 +308,10 @@ def finish(m, kind, title, output, pivot, barrels, split, drives_meta, scale, **
     for row in m.components:
         if 'normalCenterM' in row:row['normalCenterM']=[v*scale for v in row['normalCenterM']]
         if 'floorYM' in row:row['floorYM']*=scale
+        if row.get('componentRole')=='fixed-circular-shoulder':
+            row['centerM']=[v*scale for v in row['centerM']]
+            for key in ['radiusM','innerCaseZM','driveInnerFaceZM','outerZM',
+                        'actualDriveContactZM','actualDriveContactNearZM','engagementM']:row[key]*=scale
     pivot = [v*scale for v in pivot]
     low, high = bounds(m.points)
     size = [high[k]-low[k] for k in range(3)]
@@ -284,6 +328,8 @@ def finish(m, kind, title, output, pivot, barrels, split, drives_meta, scale, **
              'source': 'User-supplied Imperial and turret-family reference photographs; parametric reconstruction',
              'nativeCalibration': 'imperial-photo-family', 'catalogKind': kind,
              'n': n, 'faces': len(m.indices)//3, 'indexBytes': index_bytes,
+             'polygonBudget': {'unit':'triangles','maximum':3000 if output<1 else 5000,
+                               'countsAllFixedAndMovingGeometry':True},
              'c': center, 'size': size, 'mount': [0, 0, 0],
              'forward': [1, 0, 0], 'up': [0, 1, 0], 'bounds': [low, high],
              'barrels': len(barrels), 'boltTT': output, 'volleyTT': output*len(barrels),
@@ -368,6 +414,107 @@ def source_part(m,source_id,component,transform=lambda p:p,label=None):
     return row
 
 
+def reduced_dby_barrel(m, component, transform=lambda p:p, label='sampled complete DBY barrel'):
+    """Keep all 19 original axial/radial profile breaks, sample 16 of 32 sides.
+
+    The source is an open-backed surface of revolution with a recessed closed
+    bore floor. Only circumferential tessellation is reduced: each output point
+    and UV is an actual source vertex, and all profile rings remain present.
+    """
+    src=sources()['ven_turret'];group=src['groups'][component];F,U,R=src['frame']
+    q={i:[dot(src['points'][i],axis) for axis in [F,U,R]] for i in group}
+    low,high=bounds(list(q.values()));cy=(low[1]+high[1])/2;cz=(low[2]+high[2])/2
+    rings=[];ring_of={}
+    for i,p in q.items():
+        radius=math.hypot(p[1]-cy,p[2]-cz)
+        selected=next((j for j,(x,r,ids) in enumerate(rings)
+                       if abs(x-p[0])<.001 and abs(r-radius)<.002),None)
+        if selected is None:selected=len(rings);rings.append((p[0],radius,[]))
+        rings[selected][2].append(i);ring_of[i]=selected
+    links={i:set() for i in range(len(rings))};caps=set()
+    for tri in zip(src['indices'][::3],src['indices'][1::3],src['indices'][2::3]):
+        if tri[0] not in q:continue
+        profile={ring_of[i] for i in tri}
+        if len(profile)==2:
+            a,b=profile;links[a].add(b);links[b].add(a)
+        elif len(profile)==1:caps.update(profile)
+        else:raise ValueError('DBY barrel no longer has a two-ring source profile')
+    first=min((i for i in links if len(links[i])==1),key=lambda i:rings[i][0])
+    order=[];previous=None;current=first
+    while current is not None:
+        order.append(current);following=links[current]-({previous} if previous is not None else set())
+        if len(following)>1:raise ValueError('Branched DBY barrel profile')
+        previous,current=current,next(iter(following),None)
+    if len(order)!=19 or len(set(order))!=len(rings):raise ValueError('Incomplete DBY barrel profile')
+    start=m.mark();source_ids=[];selected=[];segments=16
+    for ring in order:
+        ids=rings[ring][2];row=[]
+        for j in range(segments):
+            angle=2*math.pi*j/segments
+            def error(i):
+                a=math.atan2(q[i][2]-cz,q[i][1]-cy)
+                return (abs(math.atan2(math.sin(a-angle),math.cos(a-angle))),i)
+            original=min(ids,key=error);row.append(len(m.points));source_ids.append(original)
+            m.points.append(transform(src['points'][original][:]));m.uvs.append(src['uvs'][original])
+        selected.append(row)
+    for a,b in zip(selected,selected[1:]):
+        for i in range(segments):
+            j=(i+1)%segments;m.indices.extend([a[i],a[j],b[j],a[i],b[j],b[i]])
+    # Preserve exactly the source cap/open-end decisions instead of introducing
+    # an opaque front disc or crediting a fake bore.
+    for j,ring in enumerate(order):
+        if ring not in caps:continue
+        row=selected[j]
+        for i in range(1,segments-1):m.indices.extend([row[0],row[i],row[i+1]])
+    return m.record(start,label,sourceAsset='ven_turret',sourceComponent=component,
+                    sourceVertexIndices=source_ids,
+                    simplification={'method':'source-profile-angular-sampling','sourceFaces':1182,
+                      'sourceRadialSegments':32,'radialSegments':segments,'profileRings':len(order),
+                      'axialProfilePreserved':True,'sourceVerticesAndUVsSampled':True})
+
+
+_SIMPLIFIED_SOURCE_CACHE={}
+
+
+def reduced_source_body(m, transform, label, target=900, envelope=False):
+    """Dissolve redundant source cladding without moving any surviving corner."""
+    src=sources()['ven_turret'];group=src['groups'][0];key=(target,envelope)
+    if key not in _SIMPLIFIED_SOURCE_CACHE:
+        points=[src['points'][i] for i in group];membership=set(group);local={v:i for i,v in enumerate(group)}
+        triangles=[[local[v] for v in tri] for tri in zip(src['indices'][::3],src['indices'][1::3],src['indices'][2::3]) if tri[0] in membership]
+        if envelope:
+            P,T=convex_hull(points);origins={tuple(p):i for i,p in enumerate(points)}
+            flat=[(tri,[origins[tuple(P[v])] for v in tri]) for tri in T]
+            records=[([P[v] for v in tri],old) for tri,old in flat]
+            stats={'method':'source-convex-silhouette-envelope','sourceFaces':len(triangles),
+                   'faces':len(T),'decorativeOnly':True,'sourceVertexSubsetPreserved':True}
+        else:
+            P,origins,faces,stats=reduce_component(points,triangles,target,.001)
+            records=[]
+            for tri,normal,original in faces:
+                old=[]
+                for v,wanted in zip(tri,original):
+                    uv=src['uvs'][group[wanted]]
+                    old.append(min(origins[v],key=lambda j:sum((src['uvs'][group[j]][k]-uv[k])**2 for k in range(2))))
+                records.append(([P[v] for v in tri],old))
+            stats.update(method='source-endpoint-quadric-planar-collapse',
+                         sourceVertexSubsetPreserved=True,normalFlipRejected=True,
+                         boundaryConstrained=True)
+        compact=[];ids=[];indices=[];lookup={}
+        for coords,original in records:
+            for p,j in zip(coords,original):
+                old=group[j];key2=(tuple(p),old)
+                if key2 not in lookup:
+                    lookup[key2]=len(compact);compact.append(p);ids.append(old)
+                indices.append(lookup[key2])
+        if bounds(compact)!=bounds(points):raise ValueError('Source reduction changed DBY body bounds')
+        _SIMPLIFIED_SOURCE_CACHE[key]=(compact,ids,indices,stats)
+    points,ids,indices,stats=_SIMPLIFIED_SOURCE_CACHE[key];start=m.mark();offset=len(m.points)
+    m.points.extend([transform(p[:]) for p in points]);m.uvs.extend([src['uvs'][i] for i in ids]);m.indices.extend([offset+i for i in indices])
+    return m.record(start,label,sourceAsset='ven_turret',sourceComponent=0,
+                    sourceVertexIndices=ids,simplification=stats.copy())
+
+
 def source_transform(source_id,component,low,high):
     source=sources()[source_id];a,b=bounds([source['points'][i] for i in source['groups'][component]])
     return lambda p:[low[k]+(p[k]-a[k])/(b[k]-a[k])*(high[k]-low[k]) for k in range(3)]
@@ -430,7 +577,8 @@ def source_barrel(m,source_id,component,root,axial=1,radial=1,label='source barr
     # The import API receives original vertices; identity-by-value mapping is
     # unambiguous after the source's coincident UV split vertices are joined.
     original_to_target={tuple(src['points'][i]):transformed[i] for i in group}
-    row=source_part(m,source_id,component,lambda p:original_to_target[tuple(p)],label)
+    row=(reduced_dby_barrel(m,component,lambda p:original_to_target[tuple(p)],label)
+         if source_id=='ven_turret' else source_part(m,source_id,component,lambda p:original_to_target[tuple(p)],label))
     muzzle=[root[0]+(high[0]-low[0])*axial,root[1],root[2]]
     tip_radii=[math.hypot(v[1]-cy,v[2]-cz)*radial for v in q.values() if v[0]>high[0]-.001]
     outer=max(tip_radii);bore=min(tip_radii)
@@ -704,7 +852,7 @@ def clip_skin_polygon(poly,axis,limit,lower):
 def common_photo40_case(m):
     # Both mounts have the SAME fixed armor frame and side profile. The centre
     # is a real recoil bay, not an opaque roof intersected by the moving gun.
-    start=m.mark();thin_turntable(m,6.3);raw=Mesh()
+    start=m.mark();thin_turntable(m,6.3,32);raw=Mesh()
     raw.prism([[-11.25,.4],[11.25,.4],[11.25,3.6],[9.25,5.2],[-9.65,5.2],[-11.25,3.8]],
               -6.5,6.5,'photo40 common lower equipment case',True)
     raw.prism([[-11.25,5.2],[-11.25,9.9],[-9.75,11.4],[-2.4,11.4],[.5,9.6],[.5,5.2]],
@@ -758,6 +906,7 @@ def build_box40(scale):
                 'sourceMeshRange':{'firstVertex':0,'vertices':len(m.points),'firstIndex':0,'indices':len(m.indices)}})
     pivot=[2.5,7.6,0];d,z_centers=complete_photo_drives(m,pivot,6.5,6.5,'twin40 external complete circular trunnion')
     axle=m.cylinder(pivot,.70,17.2,2,'twin40 fixed cross-case drive shaft',48)
+    shoulders=circular_drive_shoulders(m,pivot,5.5,d)
     split=m.mark();b=[];receivers=[]
     for z in z_centers:
         before=len(m.components)
@@ -768,6 +917,7 @@ def build_box40(scale):
                          {'case':context['labels'],'mainCase':context['labels'],'wheel':[d[0]['label']],
                           'receiver':receivers,'axle':[axle['label']]},
                          externalMounts=True,internalBarrels=0,fullCircularBases=True,
+                         fixedDriveShoulders=shoulders,
                          sharedCase=context['shared'],
                          mechanicalClearance={'verifiedElevationDegrees':[-10,0,25,55,85],
                            'caseMeshComponents':context['labels'],
@@ -853,7 +1003,7 @@ def build_dby70(scale):
     for component in [0,1,3]:source_part(m,'ven_turret',component,label='unchanged DBY-827 housing and circular bearing');mapping.extend(source['groups'][component])
     split=m.mark();rows=[];F,U,R=source['frame']
     for component in [2,4]:
-        row=source_part(m,'ven_turret',component,label='unchanged DBY-827 barrel');mapping.extend(source['groups'][component]);g=source['groups'][component]
+        row=reduced_dby_barrel(m,component,label='profile-preserved 16-sided DBY-827 barrel');mapping.extend(row['sourceVertexIndices']);g=source['groups'][component]
         q=[[dot(source['points'][v],axis) for axis in [F,U,R]] for v in g];low,high=bounds(q);center=[high[0],(low[1]+high[1])/2,(low[2]+high[2])/2]
         def back(p):return [sum(p[j]*source['frame'][j][k] for j in range(3)) for k in range(3)]
         muzzle=back(center);root=back([low[0],*center[1:]]);front=[p for p in q if p[0]>high[0]-.001];radii=[math.hypot(p[1]-center[1],p[2]-center[2]) for p in front];recess=source_bore_recess(m,row,muzzle,F)
@@ -865,7 +1015,7 @@ def build_dby70(scale):
     pivot=[sum(p[k] for p in pivots)/2 for k in range(3)]
     a=finish(m,'refVen','DBY-827 70TT 2連装重ターボレーザー',70,pivot,rows,split,[],scale,
              plainMetal=source['asset'].get('plainMetal',False),barrelAxis=F,elevationAxis=R,derivedFrom='ven_turret',anchorSourceId='ven_turret',sourcePackedSha256=source['sha256'],sourceVertexIndices=mapping,
-             geometryPreservation={'kind':'rigid-source-frame-and-uniform-scale-only','scale':scale,'sourceVertices':source['asset']['n'],'sourceFaces':source['asset']['faces'],'vertexAndFaceTopologyPreserved':True,'uvsPreserved':True,'sourceUp':[.02532,.99968,.00055],'sourceYawDeg':89.7,'sourceBase':[.015,-4.985,1.401],'sourceFloorCorrectionM':source['floorCorrection']})
+             geometryPreservation={'kind':'rigid-source-frame-and-uniform-scale-with-barrel-radial-sampling','scale':scale,'sourceVertices':source['asset']['n'],'sourceFaces':source['asset']['faces'],'vertexAndFaceTopologyPreserved':False,'sourceVertexSubsetPreserved':True,'uvsPreserved':True,'housingAndCircularBearingsPreserved':True,'barrelProfileRingsPreserved':19,'barrelRadialSegments':16,'sourceUp':[.02532,.99968,.00055],'sourceYawDeg':89.7,'sourceBase':[.015,-4.985,1.401],'sourceFloorCorrectionM':source['floorCorrection']})
     a['turretCompartment']=anchor_compartment('ven_turret',scale)
     return a
 
@@ -921,14 +1071,14 @@ def build_triple70(scale):
     for z in [-3.8,0,3.8]:
         m.prism([[-7.0,roof_y],[-6.2,roof_y+.65],[3.6,roof_y+.65],[4.8,roof_y]],
                 z-.85,z+.85,'triple70 longitudinal roof mechanism cover')
-        source_part(m,'ven_turret',0,
+        reduced_source_body(m,
                     source_transform('ven_turret',0,[-6.2,roof_y-.9,z-.60],[-1.2,roof_y+.75,z+.60]),
-                    'DBY roof recoil service mechanism')
+                    'DBY roof recoil service mechanism',envelope=True)
         m.box([.3,roof_y+.65,z-.55],[2.4,roof_y+.79,z+.55],
               'triple70 individual roof inspection hatch')
         for side in [-1,1]:
             m.cylinder([-1.0,roof_y+.28,z+side*.98],.13,8.0,0,
-                       'triple70 roof service conduit',24)
+                       'triple70 roof service conduit',12)
     def side_width(x,y):
         t=y/roof_y;back=-9.75*(1-t)-9.15*t;shoulder=3.8*(1-t)+3.9*t
         rear=6.4*(1-t)+5.6*t;wide=12*(1-t)+10.8*t
@@ -961,11 +1111,11 @@ def build_triple70(scale):
         arm.update(componentRole='fixed-bearing-arm');bearing_arms.append(arm)
         # The former 1.3m shaft stopped at |z|=8.25 while the moving wheel
         # ended at |z|=8.15. A 1.8m shaft provides real bearing engagement.
-        axle=m.cylinder([pivot[0],pivot[1],sign*8.9],.63,1.8,2,'forward pod trunnion axle',48)
+        axle=m.cylinder([pivot[0],pivot[1],sign*8.9],.63,1.8,2,'forward pod trunnion axle',24)
         axle.update(componentRole='fixed-bearing-axle');bearing_axles.append(axle)
     split=m.mark();pod_low,pod_high=[9.75,2.6,-9.0],[17.25,height,9.0]
     xf=source_transform('ven_turret',0,pod_low,pod_high)
-    pod=source_part(m,'ven_turret',0,xf,'complete detailed DBY common front gun pod')
+    pod=reduced_source_body(m,xf,'complete detailed DBY common front gun pod')
     for i,c in enumerate(json.loads(ANCHOR_COMPARTMENTS.read_text())['ven_turret']['convexes']):
         vertices=[xf(p) for p in c['verticesM']];faces=c['faces']
         m.compartments.append({'label':'moving front DBY gunhouse cell '+str(i),'verticesM':vertices,
@@ -1032,7 +1182,7 @@ def build_quad70_side(scale):
     m.cylinder([5.1,11.2,0],1.55,.4,1,'broadside vent pipe mounting collar',48)
     m.cylinder([13.0,6.0,0],1.25,8.0,0,'broadside fixed traverse shaft',48)
     split=m.mark();pivot=[18.0,6.0,0]
-    body=source_part(m,'ven_turret',0,
+    body=reduced_source_body(m,
                     source_transform('ven_turret',0,[14.0,1.2,-6.2],[21.8,10.8,6.2]),
                     'broadside complete square DBY gimbal body')
     body_xf=source_transform('ven_turret',0,[14.0,1.2,-6.2],[21.8,10.8,6.2])
@@ -1093,8 +1243,9 @@ def build_quad40_ion(scale):
 
 
 def build(octuple_length=OCTUPLE_LENGTH_M,dby_length=DBY_LENGTH_M):
-    # Original anchors preserve their native shape and topology exactly. The
-    # derivatives use the same source family, then follow the photo proportions.
+    # The original octuple retains its source topology. DBY retains its source
+    # housing, full drive circles and every barrel profile break, sampling only
+    # circumferential barrel tessellation for the explicit 5000-triangle budget.
     source=sources()['isd_heavy_octuple_original']['asset'];forty_scale=octuple_length/34.56475644
     anchor_scale=octuple_length/source['size'][0]
     seventy_scale=dby_length/DBY_LENGTH_M
@@ -1175,6 +1326,7 @@ def moving_case_clearance(points,indices,asset,angles,fail=True):
 def validate(assets):
     result={}
     for key,asset in assets.items():
+        if asset['faces']>5000:raise ValueError(key+': exceeds the 5000-triangle turret budget')
         # Exact topology and convexity, not a box-volume surrogate.
         for poly in asset['turretCompartment']['convexes']:
             vertices,faces=poly['verticesM'],poly['faces'];edges={}
@@ -1186,11 +1338,31 @@ def validate(assets):
             if set(edges.values())!={2}:raise ValueError(key+': open compartment '+poly['label'])
             if triangle_volume(vertices,faces)<=0:raise ValueError(key+': zero compartment volume')
         packed=base64.b64decode(asset['data']);n=asset['n'];index_bytes=asset['indexBytes']
+        if len(packed)!=n*10+asset['faces']*3*index_bytes:raise ValueError(key+': packed triangle count does not match the declared budget')
         points=[[struct.unpack_from('<h',packed,i*6+k*2)[0]/65532*asset['size'][k]+asset['c'][k] for k in range(3)] for i in range(n)]
         fmt='<H' if index_bytes==2 else '<I'
         indices=[struct.unpack_from(fmt,packed,n*10+i*index_bytes)[0] for i in range(asset['faces']*3)]
         split=asset['elevationIndexStart'];vertex_split=asset['elevationVertexStart']
         if any(i>=vertex_split for i in indices[:split]) or any(i<vertex_split for i in indices[split:]):raise ValueError(key+': crossed articulation partition')
+        normal_safety=[]
+        for row in asset['components']:
+            if row.get('simplification',{}).get('method')!='source-endpoint-quadric-planar-collapse':continue
+            # Match decodeReference's normalized Float32 coordinates and the
+            # production native mesh's Float32 positions. A source triangle
+            # that becomes a line after packing cannot supply a valid normal.
+            f32=lambda v:struct.unpack('<f',struct.pack('<f',v))[0]
+            gpu_points={i:[f32(f32(struct.unpack_from('<h',packed,i*6+k*2)[0]/65532)*asset['size'][k]+asset['c'][k]-asset['mount'][k]) for k in range(3)]
+                        for i in range(row['firstVertex'],row['firstVertex']+row['vertices'])}
+            normals={i:[0,0,0] for i in gpu_points};used=set()
+            for j in range(row['firstIndex'],row['firstIndex']+row['indices'],3):
+                ids=indices[j:j+3];a,b,c=[gpu_points[i] for i in ids];normal=cross(sub(b,a),sub(c,a))
+                if dot(normal,normal)<=1e-24:raise ValueError(key+': reduced source triangle collapses after packing in '+row['label'])
+                for i in ids:
+                    used.add(i);normals[i]=[f32(normals[i][k]+normal[k]) for k in range(3)]
+            if used!=set(gpu_points):raise ValueError(key+': reduced source contains an unreferenced vertex')
+            if any(dot(normal,normal)==0 for normal in normals.values()):raise ValueError(key+': reduced source has a zero packed normal')
+            normal_safety.append({'component':row['label'],'usedVertices':len(used),
+                                  'quantizedDegenerateTriangles':0,'zeroAccumulatedNormals':0,'orphanVertices':0})
         def ray(origin,direction):
             best=math.inf
             for j in range(0,len(indices),3):
@@ -1230,6 +1402,7 @@ def validate(assets):
                      'recessedSourceBarrels':sum(b['muzzleStyle']=='source-recessed' for b in asset['barrelCenters']),
                      'sourceCapBarrels':sum(b['muzzleStyle']=='source-cap' for b in asset['barrelCenters']),
                      'partitionCrossings':0,**({'wholeCradleClearance':clearance} if clearance is not None else {}),
+                     **({'reducedSourceNormalSafety':normal_safety} if normal_safety else {}),
                      **({'frontArmorClearance':armor_clearance} if armor_clearance is not None else {})}
     return result
 

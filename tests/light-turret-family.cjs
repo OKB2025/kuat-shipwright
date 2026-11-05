@@ -46,7 +46,7 @@ test('the light meshes contain fourteen connected circular barrels with real rec
   for(const r of a.barrelCenters){total++;assert.equal(connected(m,r),1,k+' complete connected tube');vector(r.axis,[1,0,0],1e-12);const P=points(a,m,r),b=bounds(P),T=triangles(a,m,r),[x,y,z]=r.muzzle;
    assert.ok(b[3]-b[0]>Math.max(b[4]-b[1],b[5]-b[2])*5,k+' genuinely slender +X barrel');near(b[4]-b[1],b[5]-b[2],.008);
    const back=C.rayTris(T,[x+1,y,z],[-1,0,0]),lip=C.rayTris(T,[x+1,y+(r.outerRadiusM+r.boreRadiusM)/2,z],[-1,0,0]);assert.ok(back&&lip,k+' bore and annular lip physically exist');near(lip.p[0],x,.004);near(back.p[0],x-r.muzzleRecessM,.004);assert.ok(back.t>lip.t+.01,k+' recessed bore geometry');
-   const tip=P.filter(p=>Math.abs(p[0]-x)<.004&&Math.abs(Math.hypot(p[1]-y,p[2]-z)-r.outerRadiusM)<.008);assert.ok(new Set(tip.map(p=>Math.atan2(p[2]-z,p[1]-y).toFixed(3))).size>=16,k+' round muzzle ring');
+   const tip=P.filter(p=>Math.abs(p[0]-x)<.004&&Math.abs(Math.hypot(p[1]-y,p[2]-z)-r.outerRadiusM)<.008);assert.ok(new Set(tip.map(p=>Math.atan2(p[2]-z,p[1]-y).toFixed(3))).size>=(k==='quad500'?8:16),k+' complete round muzzle ring at its budgeted tessellation');
   }
  }assert.equal(total,14);
 });

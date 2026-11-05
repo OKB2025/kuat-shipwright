@@ -1,0 +1,6555 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "date": "2026-11-05T04:40:42.269Z",
+  "phase": "after",
+  "sourceSha256": {
+    "data/reference.js": "f8c55ec635f1d21c7b822a76a754a0a9498530eae42131248140177a752ba99a",
+    "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+    "data/fleet.js": "c4fdb044a7b449520bf65c29080a127356ad6a766d275b8296ec520ea9ba026a",
+    "js/core.js": "63b032bcdee16afc4d648936ef6bc570f0aeac5ad5dd18076cabd7098a50525c",
+    "js/app.js": "eb63a92c91b3588e00cd23165a2430edb83eaff3b0b874da844035c62e8ef129",
+    "js/gfx.js": "c71639c693418088060b889a50a05b2426d66249998e60360ac594e609863cef",
+    "js/lang-en.js": "65aecde83e64e9a88cda02e4dcc2ed5d9ace1f3a51542088e678358ca4a2b2f9",
+    "js/engine.js": "ede76361fb8f1a8f5a1c288a55a531bdd32b8e8322fdf860b614481eaefce255",
+    "index.html": "f2f0627ee8c52621f89a4f2f854f11738be8aa1e18e1c7a75f17dc13cb5e46d7"
+  },
+  "sourceGuard": {
+    "unchanged": true,
+    "expectedSourceArtifact": "turret-final-runtime-hashes.json",
+    "expectedMatched": true
+  },
+  "resume": {
+    "familyCheckpointArtifact": "turret-budget-after-family-checkpoint.json",
+    "familyCheckpointSha256": "80e458cdb0ee1592cc38ef04a000328f9709f606bd6208725badf5ec6f2f1026",
+    "identicalSourceSha256": true,
+    "currentRunScope": "Native bay replay after its final screenshot accordion locator was corrected; family assertions and screenshots are reused from the exact same nine-file runtime."
+  },
+  "beforeSourceSha256": {
+    "data/reference.js": "90294dce9b3f9ada56a318ba50f2e6185994fed8babcca640861f5d6728fcc89",
+    "data/imperial2.js": "f61ee5c9be5fb7fcab971717215af197a360c05ce9b4691fd17e75821866fccd",
+    "data/fleet.js": "c4fdb044a7b449520bf65c29080a127356ad6a766d275b8296ec520ea9ba026a",
+    "js/core.js": "22c833284a8ee010d7e96bb2a61a8514b4d8a28942e2192c2a39e7873b009776",
+    "js/app.js": "14a898d6a057cb775fb4fbbda54afe73cee1077d46ff39857ecef41a3a5c1e77",
+    "js/gfx.js": "e80f29acd22fe36538a509489d1f0c93c107da31e1f1928c130054c842bb5ab0",
+    "js/lang-en.js": "bf76f0894b67cfdbbd243222de1e28ac16e306b8255c5b31cfe7badc6d4056ca",
+    "js/engine.js": "ede76361fb8f1a8f5a1c288a55a531bdd32b8e8322fdf860b614481eaefce255",
+    "index.html": "968181dfe46d37d9393a6633978231d742d2efa5d42dc1cf3956f32445efc8c9"
+  },
+  "baseline": {
+    "sourceArtifact": "turret-budget-before.json",
+    "totalTriangles": 76138,
+    "rendered": [
+      {
+        "id": "40tt-family",
+        "image": "turret-budget-before-40tt-family.png",
+        "artifact": {
+          "committed": false,
+          "path": "/tmp/turret-budget-visuals/turret-budget-before-40tt-family.png",
+          "sha256": "1fbeb58e061fa6c00508570369c2795f5f94b09d15be7aa6ba496e393c21bf85"
+        }
+      },
+      {
+        "id": "70tt-family",
+        "image": "turret-budget-before-70tt-family.png",
+        "artifact": {
+          "committed": false,
+          "path": "/tmp/turret-budget-visuals/turret-budget-before-70tt-family.png",
+          "sha256": "a87bbc2559eea31f6ee304de5c4a313e38128e493930ee21a726f3bd6c0c4f3c"
+        }
+      },
+      {
+        "id": "light-family",
+        "image": "turret-budget-before-light-family.png",
+        "artifact": {
+          "committed": false,
+          "path": "/tmp/turret-budget-visuals/turret-budget-before-light-family.png",
+          "sha256": "1ef78e6a8f9ebc37bdf8a022d559543f8388f9632c2d600d32ed9077e6a8dc3f"
+        }
+      },
+      {
+        "id": "twin40-join-minus25",
+        "image": "turret-budget-before-twin40-join-minus25.png",
+        "artifact": {
+          "committed": false,
+          "path": "/tmp/turret-budget-visuals/turret-budget-before-twin40-join-minus25.png",
+          "sha256": "d89068b7eddcdb8241dbd7c41be751bc7053c420571d1b00cfd1ac31852f1108"
+        }
+      },
+      {
+        "id": "quad200-join-minus25",
+        "image": "turret-budget-before-quad200-join-minus25.png",
+        "artifact": {
+          "committed": false,
+          "path": "/tmp/turret-budget-visuals/turret-budget-before-quad200-join-minus25.png",
+          "sha256": "9ef45761e20e1601af9655ad64111bfb30d011be01e0786c7fcd512a9c7c33b1"
+        }
+      },
+      {
+        "id": "twin40-join-plus0",
+        "image": "turret-budget-before-twin40-join-plus0.png",
+        "artifact": {
+          "committed": false,
+          "path": "/tmp/turret-budget-visuals/turret-budget-before-twin40-join-plus0.png",
+          "sha256": "df6cf49e42819990912a3e95f75c14223a7c91a7ae4b4aa245c1c31eeada89ed"
+        }
+      },
+      {
+        "id": "quad200-join-plus0",
+        "image": "turret-budget-before-quad200-join-plus0.png",
+        "artifact": {
+          "committed": false,
+          "path": "/tmp/turret-budget-visuals/turret-budget-before-quad200-join-plus0.png",
+          "sha256": "c93a7049b14754bb0e1bbfaa2ce8a54f8c503f44c0ddfbac06a94775775e6acf"
+        }
+      },
+      {
+        "id": "twin40-join-plus25",
+        "image": "turret-budget-before-twin40-join-plus25.png",
+        "artifact": {
+          "committed": false,
+          "path": "/tmp/turret-budget-visuals/turret-budget-before-twin40-join-plus25.png",
+          "sha256": "92a614993eaffc08b09c08c8e76e01120344565c2c52c4a0b36266c19e816f3f"
+        }
+      },
+      {
+        "id": "quad200-join-plus25",
+        "image": "turret-budget-before-quad200-join-plus25.png",
+        "artifact": {
+          "committed": false,
+          "path": "/tmp/turret-budget-visuals/turret-budget-before-quad200-join-plus25.png",
+          "sha256": "b3d5407914a00edf7a2690b64c50d19ccb9584f3b10c4c5b14f6c41723456ae8"
+        }
+      },
+      {
+        "id": "join-top",
+        "image": "turret-budget-before-join-top.png",
+        "artifact": {
+          "committed": true,
+          "path": "docs/images/turret-budget-before-join-top.png",
+          "sha256": "a6dc24cde1630a707bd78a21fb9150eb03baae512a396841f957e172e425e468"
+        }
+      },
+      {
+        "id": "70tt-profile",
+        "image": "turret-budget-before-70tt-profile.png",
+        "artifact": {
+          "committed": false,
+          "path": "/tmp/turret-budget-visuals/turret-budget-before-70tt-profile.png",
+          "sha256": "66cc635c9ef27c33fde5f8f0a9e96d72c95c630b320c70731a007e9e7d3b685d"
+        }
+      },
+      {
+        "id": "quad500-silhouette",
+        "image": "turret-budget-before-quad500-silhouette.png",
+        "artifact": {
+          "committed": false,
+          "path": "/tmp/turret-budget-visuals/turret-budget-before-quad500-silhouette.png",
+          "sha256": "4fe7de47a6bc84fdac5a1326072febb6c72ce41920970dff97b1a354b1ac6c9e"
+        }
+      }
+    ]
+  },
+  "url": "http://127.0.0.1:8876",
+  "totalElapsedMs": 9878,
+  "budgets": {
+    "TT40And70": 5000,
+    "GT200And500": 3000,
+    "enforced": true
+  },
+  "fixture": {
+    "rows": [
+      {
+        "kind": "single40",
+        "barrels": 1,
+        "boltTT": 40,
+        "budget": 5000,
+        "id": 2,
+        "rejectedDeck": null
+      },
+      {
+        "kind": "quad40Ion",
+        "barrels": 4,
+        "boltTT": 40,
+        "budget": 5000,
+        "id": 3,
+        "rejectedDeck": null
+      },
+      {
+        "kind": "twin40Dome",
+        "barrels": 2,
+        "boltTT": 40,
+        "budget": 5000,
+        "id": 4,
+        "rejectedDeck": null
+      },
+      {
+        "kind": "twin40",
+        "barrels": 2,
+        "boltTT": 40,
+        "budget": 5000,
+        "id": 5,
+        "rejectedDeck": null
+      },
+      {
+        "kind": "triple40",
+        "barrels": 3,
+        "boltTT": 40,
+        "budget": 5000,
+        "id": 6,
+        "rejectedDeck": null
+      },
+      {
+        "kind": "oct40",
+        "barrels": 8,
+        "boltTT": 40,
+        "budget": 5000,
+        "id": 7,
+        "rejectedDeck": null
+      },
+      {
+        "kind": "refVen",
+        "barrels": 2,
+        "boltTT": 70,
+        "budget": 5000,
+        "id": 8,
+        "rejectedDeck": null
+      },
+      {
+        "kind": "triple70",
+        "barrels": 3,
+        "boltTT": 70,
+        "budget": 5000,
+        "id": 9,
+        "rejectedDeck": null
+      },
+      {
+        "kind": "quad70Side",
+        "barrels": 4,
+        "boltTT": 70,
+        "budget": 5000,
+        "id": 11,
+        "rejectedDeck": true
+      },
+      {
+        "kind": "single500",
+        "barrels": 1,
+        "boltTT": 0.5,
+        "budget": 3000,
+        "id": 12,
+        "rejectedDeck": null
+      },
+      {
+        "kind": "twin200",
+        "barrels": 2,
+        "boltTT": 0.2,
+        "budget": 3000,
+        "id": 13,
+        "rejectedDeck": null
+      },
+      {
+        "kind": "quad500",
+        "barrels": 4,
+        "boltTT": 0.5,
+        "budget": 3000,
+        "id": 14,
+        "rejectedDeck": null
+      },
+      {
+        "kind": "quad200",
+        "barrels": 4,
+        "boltTT": 0.2,
+        "budget": 3000,
+        "id": 15,
+        "rejectedDeck": null
+      },
+      {
+        "kind": "single200",
+        "barrels": 1,
+        "boltTT": 0.2,
+        "budget": 3000,
+        "id": 16,
+        "rejectedDeck": null
+      },
+      {
+        "kind": "twin200Fast",
+        "barrels": 2,
+        "boltTT": 0.2,
+        "budget": 3000,
+        "id": 17,
+        "rejectedDeck": null
+      }
+    ],
+    "L": 635.6662085456477,
+    "deckY": 20,
+    "method": "Native rayEnv and placeFit on an editable deck; wall-only gun uses a vertical beam"
+  },
+  "models": [
+    {
+      "kind": "single40",
+      "id": 2,
+      "asset": "family_single40",
+      "triangles": 1452,
+      "vertices": 2077,
+      "size": [
+        34.6,
+        8.25,
+        13.258204572086406
+      ],
+      "modelScale": 1,
+      "barrels": 1,
+      "boltTT": 40,
+      "tt": 40,
+      "ion": 0,
+      "cycle": 1,
+      "power": 1.6736e+23,
+      "plainMetal": true,
+      "materialReference": "isd_heavy_octuple",
+      "noSupportPedestal": true,
+      "ped": 0,
+      "base": 0,
+      "low": 0,
+      "drawnIndices": 4356,
+      "drawOutsideBounds": 0,
+      "decoded": {
+        "finite": true,
+        "indexCount": 4356,
+        "indexRangeValid": true,
+        "uvRange": [
+          0,
+          1
+        ]
+      },
+      "limits": {
+        "yaw": null,
+        "lo": -0.17453292519943295,
+        "hi": 1.4835298641951802
+      },
+      "muzzles": [
+        [
+          56.8,
+          26.2,
+          0
+        ]
+      ],
+      "components": [
+        {
+          "label": "intrinsic bearing ring",
+          "indices": 756
+        },
+        {
+          "label": "bearing race lip",
+          "indices": 756
+        },
+        {
+          "label": "single40 lower armored gunhouse",
+          "indices": 60
+        },
+        {
+          "label": "single40 raised rear breech case",
+          "indices": 48
+        },
+        {
+          "label": "original normal40 roof inspection hatch",
+          "indices": 36
+        },
+        {
+          "label": "single40 complete circular trunnion port",
+          "indices": 666
+        },
+        {
+          "label": "single40 complete circular trunnion central hexagonal axle bolt",
+          "indices": 60
+        },
+        {
+          "label": "single40 complete circular trunnion connecting axle",
+          "indices": 372
+        },
+        {
+          "label": "single40 complete circular trunnion starboard",
+          "indices": 666
+        },
+        {
+          "label": "single40 complete circular trunnion central hexagonal axle bolt",
+          "indices": 60
+        },
+        {
+          "label": "single40 complete circular trunnion connecting axle",
+          "indices": 372
+        },
+        {
+          "label": "single40 angular recoil cradle",
+          "indices": 72
+        },
+        {
+          "label": "single40 angular recoil cradle roof service rail",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "40TT single photo-length source barrel",
+          "indices": 252
+        }
+      ],
+      "joinShoulders": [],
+      "barrelsPhysical": [
+        {
+          "root": [
+            -1.2,
+            6.2,
+            0
+          ],
+          "muzzle": [
+            24.5,
+            6.2,
+            0
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 25.7,
+          "muzzleRecessM": 0.00004793788774204444,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.000016661376442073106
+        }
+      ]
+    },
+    {
+      "kind": "quad40Ion",
+      "id": 3,
+      "asset": "family_quad40_ion",
+      "triangles": 1696,
+      "vertices": 3204,
+      "size": [
+        23.907414336388186,
+        17.35872205671472,
+        17.358722056714715
+      ],
+      "modelScale": 1,
+      "barrels": 4,
+      "boltTT": 40,
+      "tt": 0,
+      "ion": 160,
+      "cycle": 1,
+      "power": 6.6944e+23,
+      "plainMetal": true,
+      "materialReference": "isd_heavy_octuple",
+      "noSupportPedestal": true,
+      "ped": 0,
+      "base": 0,
+      "low": 0,
+      "drawnIndices": 5088,
+      "drawOutsideBounds": 0,
+      "decoded": {
+        "finite": true,
+        "indexCount": 5088,
+        "indexRangeValid": true,
+        "uvRange": [
+          0,
+          1
+        ]
+      },
+      "limits": {
+        "yaw": null,
+        "lo": -0.17453292519943295,
+        "hi": 1.4835298641951802
+      },
+      "muzzles": [
+        [
+          88.78176047622492,
+          21.562284985104323,
+          -1.3308353576814616
+        ],
+        [
+          88.78176047622492,
+          21.562284985104323,
+          1.3308353576814616
+        ],
+        [
+          88.78176047622492,
+          24.223955700467247,
+          -1.3308353576814616
+        ],
+        [
+          88.78176047622492,
+          24.223955700467247,
+          1.3308353576814616
+        ]
+      ],
+      "components": [
+        {
+          "label": "spherical four-port ion gunhouse",
+          "indices": 4080
+        },
+        {
+          "label": "40TT spherical ion source barrel",
+          "indices": 252
+        },
+        {
+          "label": "40TT spherical ion source barrel",
+          "indices": 252
+        },
+        {
+          "label": "40TT spherical ion source barrel",
+          "indices": 252
+        },
+        {
+          "label": "40TT spherical ion source barrel",
+          "indices": 252
+        }
+      ],
+      "joinShoulders": [],
+      "barrelsPhysical": [
+        {
+          "root": [
+            6.249139940417298,
+            1.5622849851043246,
+            -1.3308353576814616
+          ],
+          "muzzle": [
+            15.228053308030827,
+            1.5622849851043246,
+            -1.3308353576814616
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 8.97891336761353,
+          "muzzleRecessM": 0.00001674825451602988,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.00001179370751458464
+        },
+        {
+          "root": [
+            6.249139940417298,
+            1.5622849851043246,
+            1.3308353576814616
+          ],
+          "muzzle": [
+            15.228053308030827,
+            1.5622849851043246,
+            1.3308353576814616
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 8.97891336761353,
+          "muzzleRecessM": 0.00001674825451602988,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.000011811983426923689
+        },
+        {
+          "root": [
+            6.249139940417298,
+            4.223955700467248,
+            -1.3308353576814616
+          ],
+          "muzzle": [
+            15.228053308030827,
+            4.223955700467248,
+            -1.3308353576814616
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 8.97891336761353,
+          "muzzleRecessM": 0.00001674825451602988,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.000011633425913259998
+        },
+        {
+          "root": [
+            6.249139940417298,
+            4.223955700467248,
+            1.3308353576814616
+          ],
+          "muzzle": [
+            15.228053308030827,
+            4.223955700467248,
+            1.3308353576814616
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 8.97891336761353,
+          "muzzleRecessM": 0.00001674825451602988,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.000011587306389060359
+        }
+      ]
+    },
+    {
+      "kind": "twin40Dome",
+      "id": 4,
+      "asset": "family_twin40_dome",
+      "triangles": 4558,
+      "vertices": 8238,
+      "size": [
+        30.849999999999998,
+        16.35,
+        27.5
+      ],
+      "modelScale": 1,
+      "barrels": 2,
+      "boltTT": 40,
+      "tt": 80,
+      "ion": 0,
+      "cycle": 1,
+      "power": 3.3472e+23,
+      "plainMetal": true,
+      "materialReference": "isd_heavy_octuple",
+      "noSupportPedestal": true,
+      "ped": 0,
+      "base": 0,
+      "low": 0,
+      "drawnIndices": 13674,
+      "drawOutsideBounds": 0,
+      "decoded": {
+        "finite": true,
+        "indexCount": 13674,
+        "indexRangeValid": true,
+        "uvRange": [
+          0,
+          1
+        ]
+      },
+      "limits": {
+        "yaw": null,
+        "lo": -0.17453292519943295,
+        "hi": 1.4835298641951802
+      },
+      "muzzles": [
+        [
+          130.0324143363882,
+          35.1,
+          -1
+        ],
+        [
+          130.0324143363882,
+          35.1,
+          1
+        ]
+      ],
+      "components": [
+        {
+          "label": "intrinsic bearing ring",
+          "indices": 756
+        },
+        {
+          "label": "bearing race lip",
+          "indices": 756
+        },
+        {
+          "label": "hemispherical combined bearing gunhouse",
+          "indices": 9210
+        },
+        {
+          "label": "dome40 central circular bearing port",
+          "indices": 666
+        },
+        {
+          "label": "dome40 central circular bearing central hexagonal axle bolt",
+          "indices": 60
+        },
+        {
+          "label": "dome40 central circular bearing connecting axle",
+          "indices": 372
+        },
+        {
+          "label": "dome40 central circular bearing starboard",
+          "indices": 666
+        },
+        {
+          "label": "dome40 central circular bearing central hexagonal axle bolt",
+          "indices": 60
+        },
+        {
+          "label": "dome40 central circular bearing connecting axle",
+          "indices": 372
+        },
+        {
+          "label": "dome40 central twin recoil cradle",
+          "indices": 72
+        },
+        {
+          "label": "dome40 central twin recoil cradle roof service rail",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "40TT dome photo-length source barrel",
+          "indices": 252
+        },
+        {
+          "label": "40TT dome photo-length source barrel",
+          "indices": 252
+        }
+      ],
+      "joinShoulders": [],
+      "barrelsPhysical": [
+        {
+          "root": [
+            2.5,
+            15.1,
+            -1
+          ],
+          "muzzle": [
+            17.099999999999998,
+            15.1,
+            -1
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 14.599999999999998,
+          "muzzleRecessM": 0.000027233196927323178,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.000023887856485771408
+        },
+        {
+          "root": [
+            2.5,
+            15.1,
+            1
+          ],
+          "muzzle": [
+            17.099999999999998,
+            15.1,
+            1
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 14.599999999999998,
+          "muzzleRecessM": 0.000027233196927323178,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.00002390002410379566
+        }
+      ]
+    },
+    {
+      "kind": "twin40",
+      "id": 5,
+      "asset": "family_twin40_box",
+      "triangles": 2074,
+      "vertices": 3596,
+      "size": [
+        29.75,
+        13.75,
+        20.87962882634703
+      ],
+      "modelScale": 1,
+      "barrels": 2,
+      "boltTT": 40,
+      "tt": 80,
+      "ion": 0,
+      "cycle": 1,
+      "power": 3.3472e+23,
+      "plainMetal": true,
+      "materialReference": "isd_heavy_octuple",
+      "noSupportPedestal": true,
+      "ped": 0,
+      "base": 0,
+      "low": 0,
+      "drawnIndices": 6222,
+      "drawOutsideBounds": 0,
+      "decoded": {
+        "finite": true,
+        "indexCount": 6222,
+        "indexRangeValid": true,
+        "uvRange": [
+          0,
+          1
+        ]
+      },
+      "limits": {
+        "yaw": null,
+        "lo": -0.17453292519943295,
+        "hi": 1.4835298641951802
+      },
+      "muzzles": [
+        [
+          173.7324143363882,
+          32.5,
+          -8.504908102453705
+        ],
+        [
+          173.7324143363882,
+          32.5,
+          8.50490631071981
+        ]
+      ],
+      "components": [
+        {
+          "label": "intrinsic bearing ring",
+          "indices": 372
+        },
+        {
+          "label": "bearing race lip",
+          "indices": 372
+        },
+        {
+          "label": "photo40 common lower equipment case frame cell 0",
+          "indices": 54
+        },
+        {
+          "label": "photo40 common lower equipment case frame cell 1",
+          "indices": 90
+        },
+        {
+          "label": "photo40 common lower equipment case frame cell 2",
+          "indices": 144
+        },
+        {
+          "label": "photo40 common lower equipment case frame cell 3",
+          "indices": 192
+        },
+        {
+          "label": "photo40 common lower equipment case frame cell 4",
+          "indices": 168
+        },
+        {
+          "label": "photo40 common rear armored hood frame cell 0",
+          "indices": 42
+        },
+        {
+          "label": "photo40 common rear armored hood frame cell 1",
+          "indices": 108
+        },
+        {
+          "label": "photo40 common rear armored hood frame cell 2",
+          "indices": 114
+        },
+        {
+          "label": "photo40 common forward sloped hood frame cell 0",
+          "indices": 42
+        },
+        {
+          "label": "photo40 common forward sloped hood frame cell 1",
+          "indices": 66
+        },
+        {
+          "label": "photo40 common forward sloped hood frame cell 2",
+          "indices": 66
+        },
+        {
+          "label": "photo40 common shoulder service hatch",
+          "indices": 36
+        },
+        {
+          "label": "photo40 common side armor belt",
+          "indices": 36
+        },
+        {
+          "label": "photo40 common shoulder service hatch",
+          "indices": 36
+        },
+        {
+          "label": "photo40 common side armor belt",
+          "indices": 36
+        },
+        {
+          "label": "twin40 fitted central machinery cover",
+          "indices": 120
+        },
+        {
+          "label": "twin40 external complete circular trunnion port",
+          "indices": 666
+        },
+        {
+          "label": "twin40 external complete circular trunnion central hexagonal axle bolt",
+          "indices": 60
+        },
+        {
+          "label": "twin40 external complete circular trunnion connecting axle",
+          "indices": 372
+        },
+        {
+          "label": "twin40 external complete circular trunnion starboard",
+          "indices": 666
+        },
+        {
+          "label": "twin40 external complete circular trunnion central hexagonal axle bolt",
+          "indices": 60
+        },
+        {
+          "label": "twin40 external complete circular trunnion connecting axle",
+          "indices": 372
+        },
+        {
+          "label": "twin40 fixed cross-case drive shaft",
+          "indices": 564
+        },
+        {
+          "label": "fixed circular external-drive shoulder port",
+          "indices": 180
+        },
+        {
+          "label": "fixed circular external-drive shoulder starboard",
+          "indices": 180
+        },
+        {
+          "label": "twin40 external single recoil cradle",
+          "indices": 72
+        },
+        {
+          "label": "twin40 external single recoil cradle roof service rail",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "40TT external photo-length source barrel",
+          "indices": 252
+        },
+        {
+          "label": "twin40 external single recoil cradle",
+          "indices": 72
+        },
+        {
+          "label": "twin40 external single recoil cradle roof service rail",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "40TT external photo-length source barrel",
+          "indices": 252
+        }
+      ],
+      "joinShoulders": [
+        {
+          "label": "fixed circular external-drive shoulder port",
+          "firstVertex": 2890,
+          "vertices": 96,
+          "firstIndex": 4854,
+          "indices": 180,
+          "componentRole": "fixed-circular-shoulder",
+          "structuralArmor": true,
+          "addsCapacitorRoom": false,
+          "side": "port",
+          "centerM": [
+            2.5,
+            7.6,
+            -7.840148630155566
+          ],
+          "radiusM": 2.73,
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "innerCaseZM": -5.38,
+          "driveInnerFaceZM": -6.7,
+          "outerZM": -10.300297260311133,
+          "actualDriveContactZM": -10.285297260311133,
+          "actualDriveContactNearZM": -10.267742182371936,
+          "contactMethod": "first-hit-rays-through-actual-source-drive-triangles",
+          "contactSamples": 16,
+          "engagementM": 0.015,
+          "radialSegments": 16,
+          "actualBoundsM": [
+            -0.230170089751482,
+            4.8699490912258625,
+            -10.300261634086937,
+            5.2298075966537,
+            10.329915322363377,
+            -5.37985507618972
+          ],
+          "driveContactsZM": [
+            -10.285313104775433,
+            -10.284615490137682,
+            -10.2826094680386,
+            -10.279587241617495,
+            -10.276247409735284,
+            -10.272804848799918,
+            -10.270013192454115,
+            -10.268456506852587,
+            -10.26793052135006,
+            -10.268183696626732,
+            -10.270021034468025,
+            -10.272585071733669,
+            -10.275952993676118,
+            -10.279444888294643,
+            -10.282338510243656,
+            -10.2845567450347
+          ],
+          "inFixedPartition": true
+        },
+        {
+          "label": "fixed circular external-drive shoulder starboard",
+          "firstVertex": 2986,
+          "vertices": 96,
+          "firstIndex": 5034,
+          "indices": 180,
+          "componentRole": "fixed-circular-shoulder",
+          "structuralArmor": true,
+          "addsCapacitorRoom": false,
+          "side": "starboard",
+          "centerM": [
+            2.5,
+            7.6,
+            7.84014481040248
+          ],
+          "radiusM": 2.73,
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "innerCaseZM": 5.38,
+          "driveInnerFaceZM": 6.7,
+          "outerZM": 10.30028962080496,
+          "actualDriveContactZM": 10.28528962080496,
+          "actualDriveContactNearZM": 10.267742671931234,
+          "contactMethod": "first-hit-rays-through-actual-source-drive-triangles",
+          "contactSamples": 16,
+          "engagementM": 0.015,
+          "radialSegments": 16,
+          "actualBoundsM": [
+            -0.230170089751482,
+            4.8699490912258625,
+            5.379851492721924,
+            5.2298075966537,
+            10.329915322363377,
+            10.300258050619142
+          ],
+          "driveContactsZM": [
+            10.267981047090107,
+            10.268241845514968,
+            10.270097285604432,
+            10.272707333662554,
+            10.275985511459234,
+            10.27945404138729,
+            10.282324380233074,
+            10.284512144373338,
+            10.285255316439933,
+            10.284552509024497,
+            10.282535163823912,
+            10.279517922250374,
+            10.276197606473161,
+            10.272772616678054,
+            10.27002361182852,
+            10.268267515738078
+          ],
+          "inFixedPartition": true
+        }
+      ],
+      "barrelsPhysical": [
+        {
+          "root": [
+            5.5,
+            12.5,
+            -8.504908102453706
+          ],
+          "muzzle": [
+            18.5,
+            12.5,
+            -8.504908102453706
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 13,
+          "muzzleRecessM": 0.000024248736990140074,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.000015168070603976957
+        },
+        {
+          "root": [
+            5.5,
+            12.5,
+            8.504906310719809
+          ],
+          "muzzle": [
+            18.5,
+            12.5,
+            8.504906310719809
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 13,
+          "muzzleRecessM": 0.000024248736990140074,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.00001505661924738888
+        }
+      ]
+    },
+    {
+      "kind": "triple40",
+      "id": 6,
+      "asset": "family_triple40",
+      "triangles": 1962,
+      "vertices": 3359,
+      "size": [
+        27.75,
+        13.35,
+        17.87962882634703
+      ],
+      "modelScale": 1,
+      "barrels": 3,
+      "boltTT": 40,
+      "tt": 120,
+      "ion": 0,
+      "cycle": 1,
+      "power": 5.0208e+23,
+      "plainMetal": true,
+      "materialReference": "isd_heavy_octuple",
+      "noSupportPedestal": true,
+      "ped": 0,
+      "base": 0,
+      "low": 0,
+      "drawnIndices": 5886,
+      "drawOutsideBounds": 0,
+      "decoded": {
+        "finite": true,
+        "indexCount": 5886,
+        "indexRangeValid": true,
+        "uvRange": [
+          0,
+          1
+        ]
+      },
+      "limits": {
+        "yaw": null,
+        "lo": -0.17453292519943295,
+        "hi": 1.4835298641951802
+      },
+      "muzzles": [
+        [
+          212.4824143363882,
+          31.9,
+          -2.5
+        ],
+        [
+          212.4824143363882,
+          31.9,
+          0
+        ],
+        [
+          212.4824143363882,
+          31.9,
+          2.4999999999999996
+        ]
+      ],
+      "components": [
+        {
+          "label": "intrinsic bearing ring",
+          "indices": 372
+        },
+        {
+          "label": "bearing race lip",
+          "indices": 372
+        },
+        {
+          "label": "photo40 common lower equipment case frame cell 0",
+          "indices": 54
+        },
+        {
+          "label": "photo40 common lower equipment case frame cell 1",
+          "indices": 90
+        },
+        {
+          "label": "photo40 common lower equipment case frame cell 2",
+          "indices": 144
+        },
+        {
+          "label": "photo40 common lower equipment case frame cell 3",
+          "indices": 192
+        },
+        {
+          "label": "photo40 common lower equipment case frame cell 4",
+          "indices": 168
+        },
+        {
+          "label": "photo40 common rear armored hood frame cell 0",
+          "indices": 42
+        },
+        {
+          "label": "photo40 common rear armored hood frame cell 1",
+          "indices": 108
+        },
+        {
+          "label": "photo40 common rear armored hood frame cell 2",
+          "indices": 114
+        },
+        {
+          "label": "photo40 common forward sloped hood frame cell 0",
+          "indices": 42
+        },
+        {
+          "label": "photo40 common forward sloped hood frame cell 1",
+          "indices": 66
+        },
+        {
+          "label": "photo40 common forward sloped hood frame cell 2",
+          "indices": 66
+        },
+        {
+          "label": "photo40 common shoulder service hatch",
+          "indices": 36
+        },
+        {
+          "label": "photo40 common side armor belt",
+          "indices": 36
+        },
+        {
+          "label": "photo40 common shoulder service hatch",
+          "indices": 36
+        },
+        {
+          "label": "photo40 common side armor belt",
+          "indices": 36
+        },
+        {
+          "label": "triple40 complete circular bearing port",
+          "indices": 666
+        },
+        {
+          "label": "triple40 complete circular bearing central hexagonal axle bolt",
+          "indices": 60
+        },
+        {
+          "label": "triple40 complete circular bearing connecting axle",
+          "indices": 372
+        },
+        {
+          "label": "triple40 complete circular bearing starboard",
+          "indices": 666
+        },
+        {
+          "label": "triple40 complete circular bearing central hexagonal axle bolt",
+          "indices": 60
+        },
+        {
+          "label": "triple40 complete circular bearing connecting axle",
+          "indices": 372
+        },
+        {
+          "label": "triple40 fixed cross-case drive shaft",
+          "indices": 564
+        },
+        {
+          "label": "triple40 moving armored rear gun hood",
+          "indices": 60
+        },
+        {
+          "label": "triple40 broad axle-connected angular cradle",
+          "indices": 60
+        },
+        {
+          "label": "triple40 three-port angular recoil receiver",
+          "indices": 60
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "triple40 moving rear hood inspection hatch",
+          "indices": 36
+        },
+        {
+          "label": "40TT triple photo-length source barrel",
+          "indices": 252
+        },
+        {
+          "label": "40TT triple photo-length source barrel",
+          "indices": 252
+        },
+        {
+          "label": "40TT triple photo-length source barrel",
+          "indices": 252
+        }
+      ],
+      "joinShoulders": [],
+      "barrelsPhysical": [
+        {
+          "root": [
+            4,
+            11.9,
+            -2.5
+          ],
+          "muzzle": [
+            16.5,
+            11.9,
+            -2.5
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 12.5,
+          "muzzleRecessM": 0.000023316093259784232,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.000009311163040592874
+        },
+        {
+          "root": [
+            4,
+            11.9,
+            0
+          ],
+          "muzzle": [
+            16.5,
+            11.9,
+            0
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 12.5,
+          "muzzleRecessM": 0.00002331609325967321,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.00000992222382478758
+        },
+        {
+          "root": [
+            4,
+            11.9,
+            2.5
+          ],
+          "muzzle": [
+            16.5,
+            11.9,
+            2.5
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 12.5,
+          "muzzleRecessM": 0.000023316093259784232,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.00000942857474228731
+        }
+      ]
+    },
+    {
+      "kind": "oct40",
+      "id": 7,
+      "asset": "isd_heavy_octuple",
+      "triangles": 1104,
+      "vertices": 1436,
+      "size": [
+        40,
+        10.568947548408056,
+        39.999823093067505
+      ],
+      "modelScale": 1,
+      "barrels": 8,
+      "boltTT": 40,
+      "tt": 320,
+      "ion": 0,
+      "cycle": 1,
+      "power": 1.33888e+24,
+      "plainMetal": false,
+      "noSupportPedestal": true,
+      "ped": 0,
+      "base": 0,
+      "low": 0,
+      "drawnIndices": 3312,
+      "drawOutsideBounds": 0,
+      "decoded": {
+        "finite": true,
+        "indexCount": 3312,
+        "indexRangeValid": true,
+        "uvRange": [
+          0.001144426641985774,
+          0.24885939061641693
+        ]
+      },
+      "limits": {
+        "yaw": null,
+        "lo": -0.17453292519943295,
+        "hi": 1.4835298641951802
+      },
+      "muzzles": [
+        [
+          255.38926118990173,
+          28.406677515729264,
+          -10.795006277560518
+        ],
+        [
+          255.38926118990173,
+          28.406677515729264,
+          -8.908302786431427
+        ],
+        [
+          255.38926118990173,
+          28.406677515729264,
+          -7.0215992953023365
+        ],
+        [
+          255.38926118990173,
+          28.406677515729264,
+          -5.134590611114181
+        ],
+        [
+          255.38926118990173,
+          28.406838794914215,
+          5.135766212482744
+        ],
+        [
+          255.38926118990173,
+          28.406838794914215,
+          7.0227748966708985
+        ],
+        [
+          255.38926118990173,
+          28.406838794914215,
+          8.909478387799991
+        ],
+        [
+          255.38926118990173,
+          28.406838794914215,
+          10.796181878929083
+        ]
+      ],
+      "components": [
+        {
+          "label": "unchanged normal octuple housing component",
+          "indices": 138
+        },
+        {
+          "label": "unchanged normal octuple housing component",
+          "indices": 30
+        },
+        {
+          "label": "unchanged normal octuple housing component",
+          "indices": 66
+        },
+        {
+          "label": "unchanged normal octuple housing component",
+          "indices": 30
+        },
+        {
+          "label": "unchanged normal octuple housing component",
+          "indices": 138
+        },
+        {
+          "label": "unchanged normal octuple housing component",
+          "indices": 36
+        },
+        {
+          "label": "unchanged normal octuple housing component",
+          "indices": 138
+        },
+        {
+          "label": "unchanged normal octuple housing component",
+          "indices": 30
+        },
+        {
+          "label": "unchanged normal octuple housing component",
+          "indices": 78
+        },
+        {
+          "label": "unchanged normal octuple housing component",
+          "indices": 90
+        },
+        {
+          "label": "unchanged normal octuple housing component",
+          "indices": 210
+        },
+        {
+          "label": "unchanged normal octuple elevating component",
+          "indices": 108
+        },
+        {
+          "label": "unchanged normal octuple elevating component",
+          "indices": 48
+        },
+        {
+          "label": "unchanged normal octuple elevating component",
+          "indices": 108
+        },
+        {
+          "label": "unchanged normal octuple elevating component",
+          "indices": 48
+        },
+        {
+          "label": "unchanged normal octuple elevating component",
+          "indices": 252
+        },
+        {
+          "label": "unchanged normal octuple elevating component",
+          "indices": 252
+        },
+        {
+          "label": "unchanged normal octuple elevating component",
+          "indices": 252
+        },
+        {
+          "label": "unchanged normal octuple elevating component",
+          "indices": 252
+        },
+        {
+          "label": "unchanged normal octuple elevating component",
+          "indices": 252
+        },
+        {
+          "label": "unchanged normal octuple elevating component",
+          "indices": 252
+        },
+        {
+          "label": "unchanged normal octuple elevating component",
+          "indices": 252
+        },
+        {
+          "label": "unchanged normal octuple elevating component",
+          "indices": 252
+        }
+      ],
+      "joinShoulders": [],
+      "barrelsPhysical": [
+        {
+          "root": [
+            -5.480544039485302,
+            8.406677515729262,
+            -10.79500627756052
+          ],
+          "muzzle": [
+            13.531846853513539,
+            8.406677515729262,
+            -10.79500627756052
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 19.01239089299884,
+          "muzzleRecessM": 0.00003546357433209756,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.0000056216573511846946
+        },
+        {
+          "root": [
+            -5.480544039485302,
+            8.406677515729262,
+            -8.908302786431427
+          ],
+          "muzzle": [
+            13.531846853513539,
+            8.406677515729262,
+            -8.908302786431427
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 19.01239089299884,
+          "muzzleRecessM": 0.00003546357433209756,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.0000056203680856015126
+        },
+        {
+          "root": [
+            -5.480544039485302,
+            8.406677515729262,
+            -7.0215992953023365
+          ],
+          "muzzle": [
+            13.531846853513539,
+            8.406677515729262,
+            -7.0215992953023365
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 19.01239089299884,
+          "muzzleRecessM": 0.00003546357433209756,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.000005649342455171791
+        },
+        {
+          "root": [
+            -5.480544039485302,
+            8.406677515729262,
+            -5.134590611114181
+          ],
+          "muzzle": [
+            13.531846853513539,
+            8.406677515729262,
+            -5.134590611114181
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 19.01239089299884,
+          "muzzleRecessM": 0.00007660474195589788,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.0000057424315116350044
+        },
+        {
+          "root": [
+            -5.480544039485302,
+            8.406838794914217,
+            5.135766212482745
+          ],
+          "muzzle": [
+            13.531846853513539,
+            8.406838794914217,
+            5.135766212482745
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 19.01239089299884,
+          "muzzleRecessM": 0.00006769125725992225,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.000005820768819830846
+        },
+        {
+          "root": [
+            -5.480544039485302,
+            8.406838794914217,
+            7.022774896670899
+          ],
+          "muzzle": [
+            13.531846853513539,
+            8.406838794914217,
+            7.022774896670899
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 19.01239089299884,
+          "muzzleRecessM": 0.00013538251452014375,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.000005720586187862864
+        },
+        {
+          "root": [
+            -5.480544039485302,
+            8.406838794914217,
+            8.909478387799991
+          ],
+          "muzzle": [
+            13.531846853513539,
+            8.406838794914217,
+            8.909478387799991
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 19.01239089299884,
+          "muzzleRecessM": 0,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.000005639490467501673
+        },
+        {
+          "root": [
+            -5.480544039485302,
+            8.406838794914217,
+            10.796181878929083
+          ],
+          "muzzle": [
+            13.531846853513539,
+            8.406838794914217,
+            10.796181878929083
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 19.01239089299884,
+          "muzzleRecessM": 0,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.0000055639099798554525
+        }
+      ]
+    },
+    {
+      "kind": "refVen",
+      "id": 8,
+      "asset": "ven_turret70_native",
+      "triangles": 4388,
+      "vertices": 3603,
+      "size": [
+        28.861988482652723,
+        9.997709107492678,
+        16.25808446257435
+      ],
+      "modelScale": 1,
+      "barrels": 2,
+      "boltTT": 70,
+      "tt": 140,
+      "ion": 0,
+      "cycle": 1,
+      "power": 5.8576e+23,
+      "plainMetal": false,
+      "noSupportPedestal": true,
+      "ped": 0,
+      "base": 0,
+      "low": 0,
+      "drawnIndices": 13164,
+      "drawOutsideBounds": 0,
+      "decoded": {
+        "finite": true,
+        "indexCount": 13164,
+        "indexRangeValid": true,
+        "uvRange": [
+          0.5002517700195312,
+          0.999755859375
+        ]
+      },
+      "limits": {
+        "yaw": null,
+        "lo": -0.17453292519943295,
+        "hi": 1.4835298641951802
+      },
+      "muzzles": [
+        [
+          304.0619405451795,
+          24.40205877112618,
+          -6.039509018798145
+        ],
+        [
+          304.12423561342536,
+          24.402038228286205,
+          5.873711490208386
+        ]
+      ],
+      "components": [
+        {
+          "label": "unchanged DBY-827 housing and circular bearing",
+          "indices": 8292
+        },
+        {
+          "label": "unchanged DBY-827 housing and circular bearing",
+          "indices": 666
+        },
+        {
+          "label": "unchanged DBY-827 housing and circular bearing",
+          "indices": 666
+        },
+        {
+          "label": "profile-preserved 16-sided DBY-827 barrel",
+          "indices": 1770
+        },
+        {
+          "label": "profile-preserved 16-sided DBY-827 barrel",
+          "indices": 1770
+        }
+      ],
+      "joinShoulders": [],
+      "barrelsPhysical": [
+        {
+          "root": [
+            2.8940571339453345,
+            4.409142574862288,
+            -5.9721613264894
+          ],
+          "muzzle": [
+            15.773531967464963,
+            4.402058771126177,
+            -6.039509018798145
+          ],
+          "axis": [
+            0.9999861774392768,
+            -0.0005499995854929685,
+            -0.005228999028431302
+          ],
+          "axialLengthM": 12.879652863303427,
+          "muzzleRecessM": 1.2832175134132975,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.00014625655410718805
+        },
+        {
+          "root": [
+            2.9563522021912276,
+            4.409122032022315,
+            5.941059182517132
+          ],
+          "muzzle": [
+            15.835827035710857,
+            4.402038228286204,
+            5.873711490208386
+          ],
+          "axis": [
+            0.9999861774392768,
+            -0.0005499995854929685,
+            -0.005228999028431302
+          ],
+          "axialLengthM": 12.879652863303427,
+          "muzzleRecessM": 1.2832175134132955,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.00010449845915400306
+        }
+      ]
+    },
+    {
+      "kind": "triple70",
+      "id": 9,
+      "asset": "family_triple70",
+      "triangles": 4995,
+      "vertices": 4902,
+      "size": [
+        38.87965286330343,
+        9.997709107492678,
+        24
+      ],
+      "modelScale": 1,
+      "barrels": 3,
+      "boltTT": 70,
+      "tt": 210,
+      "ion": 0,
+      "cycle": 1,
+      "power": 8.7864e+23,
+      "plainMetal": true,
+      "materialReference": "ven_turret70_native",
+      "noSupportPedestal": true,
+      "ped": 0,
+      "base": 0,
+      "low": 0,
+      "drawnIndices": 14985,
+      "drawOutsideBounds": 0,
+      "decoded": {
+        "finite": true,
+        "indexCount": 14985,
+        "indexRangeValid": true,
+        "uvRange": [
+          0,
+          1
+        ]
+      },
+      "limits": {
+        "yaw": null,
+        "lo": -0.17453292519943295,
+        "hi": 1.4835298641951802
+      },
+      "muzzles": [
+        [
+          359.488882113996,
+          26.25,
+          -3
+        ],
+        [
+          359.488882113996,
+          26.25,
+          0
+        ],
+        [
+          359.488882113996,
+          26.25,
+          3
+        ]
+      ],
+      "components": [
+        {
+          "label": "triple70 port sloped armored cheek",
+          "indices": 42
+        },
+        {
+          "label": "triple70 starboard sloped armored cheek",
+          "indices": 42
+        },
+        {
+          "label": "triple70 enclosed hexagonal rear gunhouse",
+          "indices": 198
+        },
+        {
+          "label": "triple70 front socket lower armor",
+          "indices": 132
+        },
+        {
+          "label": "triple70 longitudinal roof mechanism cover",
+          "indices": 36
+        },
+        {
+          "label": "DBY roof recoil service mechanism",
+          "indices": 696
+        },
+        {
+          "label": "triple70 individual roof inspection hatch",
+          "indices": 36
+        },
+        {
+          "label": "triple70 roof service conduit",
+          "indices": 132
+        },
+        {
+          "label": "triple70 roof service conduit",
+          "indices": 132
+        },
+        {
+          "label": "triple70 longitudinal roof mechanism cover",
+          "indices": 36
+        },
+        {
+          "label": "DBY roof recoil service mechanism",
+          "indices": 696
+        },
+        {
+          "label": "triple70 individual roof inspection hatch",
+          "indices": 36
+        },
+        {
+          "label": "triple70 roof service conduit",
+          "indices": 132
+        },
+        {
+          "label": "triple70 roof service conduit",
+          "indices": 132
+        },
+        {
+          "label": "triple70 longitudinal roof mechanism cover",
+          "indices": 36
+        },
+        {
+          "label": "DBY roof recoil service mechanism",
+          "indices": 696
+        },
+        {
+          "label": "triple70 individual roof inspection hatch",
+          "indices": 36
+        },
+        {
+          "label": "triple70 roof service conduit",
+          "indices": 132
+        },
+        {
+          "label": "triple70 roof service conduit",
+          "indices": 132
+        },
+        {
+          "label": "triple70 recessed side service panel",
+          "indices": 36
+        },
+        {
+          "label": "triple70 vertical ventilation frame",
+          "indices": 36
+        },
+        {
+          "label": "triple70 vertical ventilation frame",
+          "indices": 36
+        },
+        {
+          "label": "triple70 vertical ventilation frame",
+          "indices": 36
+        },
+        {
+          "label": "triple70 vertical ventilation frame",
+          "indices": 36
+        },
+        {
+          "label": "triple70 recessed side service panel",
+          "indices": 36
+        },
+        {
+          "label": "triple70 vertical ventilation frame",
+          "indices": 36
+        },
+        {
+          "label": "triple70 vertical ventilation frame",
+          "indices": 36
+        },
+        {
+          "label": "triple70 vertical ventilation frame",
+          "indices": 36
+        },
+        {
+          "label": "triple70 vertical ventilation frame",
+          "indices": 36
+        },
+        {
+          "label": "triple70 recessed side service panel",
+          "indices": 36
+        },
+        {
+          "label": "triple70 vertical ventilation frame",
+          "indices": 36
+        },
+        {
+          "label": "triple70 vertical ventilation frame",
+          "indices": 36
+        },
+        {
+          "label": "triple70 vertical ventilation frame",
+          "indices": 36
+        },
+        {
+          "label": "triple70 vertical ventilation frame",
+          "indices": 36
+        },
+        {
+          "label": "triple70 side armor belt",
+          "indices": 36
+        },
+        {
+          "label": "triple70 recessed side service panel",
+          "indices": 36
+        },
+        {
+          "label": "triple70 vertical ventilation frame",
+          "indices": 36
+        },
+        {
+          "label": "triple70 vertical ventilation frame",
+          "indices": 36
+        },
+        {
+          "label": "triple70 vertical ventilation frame",
+          "indices": 36
+        },
+        {
+          "label": "triple70 vertical ventilation frame",
+          "indices": 36
+        },
+        {
+          "label": "triple70 recessed side service panel",
+          "indices": 36
+        },
+        {
+          "label": "triple70 vertical ventilation frame",
+          "indices": 36
+        },
+        {
+          "label": "triple70 vertical ventilation frame",
+          "indices": 36
+        },
+        {
+          "label": "triple70 vertical ventilation frame",
+          "indices": 36
+        },
+        {
+          "label": "triple70 vertical ventilation frame",
+          "indices": 36
+        },
+        {
+          "label": "triple70 recessed side service panel",
+          "indices": 36
+        },
+        {
+          "label": "triple70 vertical ventilation frame",
+          "indices": 36
+        },
+        {
+          "label": "triple70 vertical ventilation frame",
+          "indices": 36
+        },
+        {
+          "label": "triple70 vertical ventilation frame",
+          "indices": 36
+        },
+        {
+          "label": "triple70 vertical ventilation frame",
+          "indices": 36
+        },
+        {
+          "label": "triple70 side armor belt",
+          "indices": 36
+        },
+        {
+          "label": "triple70 integral sloping front armor cheek",
+          "indices": 36
+        },
+        {
+          "label": "integral forward gun-pod bearing cheek",
+          "indices": 60
+        },
+        {
+          "label": "forward pod trunnion axle",
+          "indices": 276
+        },
+        {
+          "label": "triple70 integral sloping front armor cheek",
+          "indices": 36
+        },
+        {
+          "label": "integral forward gun-pod bearing cheek",
+          "indices": 60
+        },
+        {
+          "label": "forward pod trunnion axle",
+          "indices": 276
+        },
+        {
+          "label": "complete detailed DBY common front gun pod",
+          "indices": 2697
+        },
+        {
+          "label": "DBY-827 complete circular elevation bearing",
+          "indices": 666
+        },
+        {
+          "label": "DBY-827 complete circular elevation bearing",
+          "indices": 666
+        },
+        {
+          "label": "wide detailed front three-gun receiver",
+          "indices": 60
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "70TT full-profile forward DBY barrel",
+          "indices": 1770
+        },
+        {
+          "label": "70TT full-profile forward DBY barrel",
+          "indices": 1770
+        },
+        {
+          "label": "70TT full-profile forward DBY barrel",
+          "indices": 1770
+        }
+      ],
+      "joinShoulders": [],
+      "barrelsPhysical": [
+        {
+          "root": [
+            16.25,
+            6.25,
+            -3
+          ],
+          "muzzle": [
+            29.129652863303427,
+            6.25,
+            -3
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 12.879652863303427,
+          "muzzleRecessM": 1.2832175134132962,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.00006767675461105682
+        },
+        {
+          "root": [
+            16.25,
+            6.25,
+            0
+          ],
+          "muzzle": [
+            29.129652863303427,
+            6.25,
+            0
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 12.879652863303427,
+          "muzzleRecessM": 1.2832175134132962,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.00006767675461105682
+        },
+        {
+          "root": [
+            16.25,
+            6.25,
+            3
+          ],
+          "muzzle": [
+            29.129652863303427,
+            6.25,
+            3
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 12.879652863303427,
+          "muzzleRecessM": 1.2832175134132962,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.00006767675461105682
+        }
+      ]
+    },
+    {
+      "kind": "quad70Side",
+      "id": 11,
+      "asset": "family_quad70_side",
+      "triangles": 4479,
+      "vertices": 3808,
+      "size": [
+        34.37965286330343,
+        14.700000000000001,
+        13.6
+      ],
+      "modelScale": 1,
+      "barrels": 4,
+      "boltTT": 70,
+      "tt": 280,
+      "ion": 0,
+      "cycle": 1,
+      "power": 1.17152e+24,
+      "plainMetal": true,
+      "materialReference": "ven_turret70_native",
+      "noSupportPedestal": true,
+      "ped": 0,
+      "base": 0,
+      "low": 0,
+      "drawnIndices": 13437,
+      "drawOutsideBounds": 0,
+      "decoded": {
+        "finite": true,
+        "indexCount": 13437,
+        "indexRangeValid": true,
+        "uvRange": [
+          0,
+          1
+        ]
+      },
+      "limits": {
+        "yaw": 1.1344640137963142,
+        "lo": -0.3490658503988659,
+        "hi": 0.3490658503988659
+      },
+      "muzzles": [
+        [
+          385.288882113996,
+          23.7,
+          34.37965286330343
+        ],
+        [
+          380.288882113996,
+          23.7,
+          34.37965286330343
+        ],
+        [
+          385.288882113996,
+          28.3,
+          34.37965286330343
+        ],
+        [
+          380.288882113996,
+          28.3,
+          34.37965286330343
+        ]
+      ],
+      "components": [
+        {
+          "label": "broadside carrier rear bulkhead",
+          "indices": 48
+        },
+        {
+          "label": "broadside carrier upper rail",
+          "indices": 36
+        },
+        {
+          "label": "broadside carrier lower rail",
+          "indices": 36
+        },
+        {
+          "label": "broadside carrier rear service block",
+          "indices": 36
+        },
+        {
+          "label": "broadside rear service vent frame",
+          "indices": 36
+        },
+        {
+          "label": "broadside rear service vent frame",
+          "indices": 36
+        },
+        {
+          "label": "broadside rear service vent frame",
+          "indices": 36
+        },
+        {
+          "label": "broadside rear service vent frame",
+          "indices": 36
+        },
+        {
+          "label": "broadside rear service vent frame",
+          "indices": 36
+        },
+        {
+          "label": "broadside rear service vent frame",
+          "indices": 36
+        },
+        {
+          "label": "broadside rear raised vent pipe",
+          "indices": 564
+        },
+        {
+          "label": "broadside vent pipe mounting collar",
+          "indices": 564
+        },
+        {
+          "label": "broadside fixed traverse shaft",
+          "indices": 564
+        },
+        {
+          "label": "broadside complete square DBY gimbal body",
+          "indices": 2697
+        },
+        {
+          "label": "broadside square chamfered four-port receiver",
+          "indices": 84
+        },
+        {
+          "label": "DBY-827 complete circular elevation bearing",
+          "indices": 666
+        },
+        {
+          "label": "DBY-827 complete circular elevation bearing",
+          "indices": 666
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "70TT four-port DBY barrel",
+          "indices": 1770
+        },
+        {
+          "label": "70TT four-port DBY barrel",
+          "indices": 1770
+        },
+        {
+          "label": "70TT four-port DBY barrel",
+          "indices": 1770
+        },
+        {
+          "label": "70TT four-port DBY barrel",
+          "indices": 1770
+        }
+      ],
+      "joinShoulders": [],
+      "barrelsPhysical": [
+        {
+          "root": [
+            21.5,
+            3.7,
+            -2.5
+          ],
+          "muzzle": [
+            34.37965286330343,
+            3.7,
+            -2.5
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 12.879652863303427,
+          "muzzleRecessM": 1.2832175134132977,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.00001124710692579356
+        },
+        {
+          "root": [
+            21.5,
+            3.7,
+            2.5
+          ],
+          "muzzle": [
+            34.37965286330343,
+            3.7,
+            2.5
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 12.879652863303427,
+          "muzzleRecessM": 1.2832175134132977,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.00001124710692579356
+        },
+        {
+          "root": [
+            21.5,
+            8.3,
+            -2.5
+          ],
+          "muzzle": [
+            34.37965286330343,
+            8.3,
+            -2.5
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 12.879652863303427,
+          "muzzleRecessM": 1.283217513413298,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.00001124710692579356
+        },
+        {
+          "root": [
+            21.5,
+            8.3,
+            2.5
+          ],
+          "muzzle": [
+            34.37965286330343,
+            8.3,
+            2.5
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 12.879652863303427,
+          "muzzleRecessM": 1.283217513413298,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.00001124710692579356
+        }
+      ]
+    },
+    {
+      "kind": "single500",
+      "id": 12,
+      "asset": "light_single500",
+      "triangles": 2204,
+      "vertices": 3354,
+      "size": [
+        18.6,
+        7.2,
+        7.2
+      ],
+      "modelScale": 1,
+      "barrels": 1,
+      "boltTT": 0.5,
+      "tt": 0.5,
+      "ion": 0,
+      "cycle": 0.2,
+      "power": 1.0459999999999999e+22,
+      "plainMetal": true,
+      "materialReference": "ven_turret70_native",
+      "noSupportPedestal": true,
+      "ped": 0,
+      "base": 0,
+      "low": 0,
+      "drawnIndices": 6612,
+      "drawOutsideBounds": 0,
+      "decoded": {
+        "finite": true,
+        "indexCount": 6612,
+        "indexRangeValid": true,
+        "uvRange": [
+          0,
+          1
+        ]
+      },
+      "limits": {
+        "yaw": null,
+        "lo": -0.17453292519943295,
+        "hi": 1.4835298641951802
+      },
+      "muzzles": [
+        [
+          436.2787085456477,
+          21.2,
+          0
+        ]
+      ],
+      "components": [
+        {
+          "label": "500GT single complete spherical gunhouse",
+          "indices": 4080
+        },
+        {
+          "label": "single500 axial barrel socket",
+          "indices": 372
+        },
+        {
+          "label": "500GT ball single complete recessed barrel",
+          "indices": 2160
+        }
+      ],
+      "joinShoulders": [],
+      "barrelsPhysical": [
+        {
+          "root": [
+            2.6,
+            1.2,
+            0
+          ],
+          "muzzle": [
+            15,
+            1.2,
+            0
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 12.4,
+          "muzzleRecessM": 0.8025,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.00010981372730611838
+        }
+      ]
+    },
+    {
+      "kind": "twin200",
+      "id": 13,
+      "asset": "light_twin200",
+      "triangles": 2760,
+      "vertices": 3196,
+      "size": [
+        23.9,
+        7,
+        8.5
+      ],
+      "modelScale": 1,
+      "barrels": 2,
+      "boltTT": 0.2,
+      "tt": 0.4,
+      "ion": 0,
+      "cycle": 0.2,
+      "power": 8.368e+21,
+      "plainMetal": true,
+      "materialReference": "ven_turret70_native",
+      "noSupportPedestal": true,
+      "ped": 0,
+      "base": 0,
+      "low": 0,
+      "drawnIndices": 8280,
+      "drawOutsideBounds": 0,
+      "decoded": {
+        "finite": true,
+        "indexCount": 8280,
+        "indexRangeValid": true,
+        "uvRange": [
+          0,
+          1
+        ]
+      },
+      "limits": {
+        "yaw": null,
+        "lo": -0.17453292519943295,
+        "hi": 1.4835298641951802
+      },
+      "muzzles": [
+        [
+          470.2287085456477,
+          25.15,
+          -0.85
+        ],
+        [
+          470.2287085456477,
+          25.15,
+          0.85
+        ]
+      ],
+      "components": [
+        {
+          "label": "intrinsic bearing ring",
+          "indices": 372
+        },
+        {
+          "label": "bearing race lip",
+          "indices": 372
+        },
+        {
+          "label": "twin200 lower high-angle armored case frame 0",
+          "indices": 48
+        },
+        {
+          "label": "twin200 lower high-angle armored case frame 1",
+          "indices": 90
+        },
+        {
+          "label": "twin200 lower high-angle armored case frame 2",
+          "indices": 126
+        },
+        {
+          "label": "twin200 lower high-angle armored case frame 3",
+          "indices": 138
+        },
+        {
+          "label": "twin200 canted upper high-angle armor frame 0",
+          "indices": 60
+        },
+        {
+          "label": "twin200 canted upper high-angle armor frame 1",
+          "indices": 60
+        },
+        {
+          "label": "twin200 canted upper high-angle armor frame 2",
+          "indices": 66
+        },
+        {
+          "label": "elevation drive housing",
+          "indices": 372
+        },
+        {
+          "label": "drive inset ring",
+          "indices": 372
+        },
+        {
+          "label": "drive central cover",
+          "indices": 372
+        },
+        {
+          "label": "elevation drive housing",
+          "indices": 372
+        },
+        {
+          "label": "drive inset ring",
+          "indices": 372
+        },
+        {
+          "label": "drive central cover",
+          "indices": 372
+        },
+        {
+          "label": "twin200 fixed transverse trunnion shaft",
+          "indices": 372
+        },
+        {
+          "label": "twin200 elevating high-angle center hood",
+          "indices": 60
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "twin200 individual enclosed recoil receiver -0.85",
+          "indices": 36
+        },
+        {
+          "label": "200GT horizontal high-angle barrel -0.85",
+          "indices": 2016
+        },
+        {
+          "label": "twin200 individual enclosed recoil receiver 0.85",
+          "indices": 36
+        },
+        {
+          "label": "200GT horizontal high-angle barrel 0.85",
+          "indices": 2016
+        }
+      ],
+      "joinShoulders": [],
+      "barrelsPhysical": [
+        {
+          "root": [
+            1.2,
+            5.15,
+            -0.85
+          ],
+          "muzzle": [
+            15.7,
+            5.15,
+            -0.85
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 14.5,
+          "muzzleRecessM": 0.5075000000000001,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.0001697272883234291
+        },
+        {
+          "root": [
+            1.2,
+            5.15,
+            0.85
+          ],
+          "muzzle": [
+            15.7,
+            5.15,
+            0.85
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 14.5,
+          "muzzleRecessM": 0.5075000000000001,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.0001697272883234291
+        }
+      ]
+    },
+    {
+      "kind": "quad500",
+      "id": 14,
+      "asset": "arq_turret_quad500",
+      "triangles": 2966,
+      "vertices": 4772,
+      "size": [
+        28.5,
+        9.2,
+        11.791093750000002
+      ],
+      "modelScale": 1,
+      "barrels": 4,
+      "boltTT": 0.5,
+      "tt": 2,
+      "ion": 0,
+      "cycle": 0.2,
+      "power": 4.1839999999999996e+22,
+      "plainMetal": true,
+      "materialReference": "ven_turret70_native",
+      "noSupportPedestal": true,
+      "ped": 0,
+      "base": 0,
+      "low": 0,
+      "drawnIndices": 8898,
+      "drawOutsideBounds": 0,
+      "decoded": {
+        "finite": true,
+        "indexCount": 8898,
+        "indexRangeValid": true,
+        "uvRange": [
+          0,
+          1
+        ]
+      },
+      "limits": {
+        "yaw": null,
+        "lo": -0.17453292519943295,
+        "hi": 1.4835298641951802
+      },
+      "muzzles": [
+        [
+          512.3579615516292,
+          23.05,
+          -4.6605468750000005
+        ],
+        [
+          512.3579615516292,
+          26.75,
+          -4.6605468750000005
+        ],
+        [
+          512.3579615516292,
+          23.05,
+          4.6605468750000005
+        ],
+        [
+          512.3579615516292,
+          26.75,
+          4.6605468750000005
+        ]
+      ],
+      "components": [
+        {
+          "label": "attached STL main gunhouse",
+          "indices": 1818
+        },
+        {
+          "label": "source-derived lateral closure 0 -3.3",
+          "indices": 147
+        },
+        {
+          "label": "source-derived lateral closure 0 3.3",
+          "indices": 150
+        },
+        {
+          "label": "attached STL rear detail 7",
+          "indices": 150
+        },
+        {
+          "label": "source-derived lateral closure 7 3.3",
+          "indices": 6
+        },
+        {
+          "label": "attached STL rear detail 8",
+          "indices": 150
+        },
+        {
+          "label": "source-derived lateral closure 8 3.3",
+          "indices": 6
+        },
+        {
+          "label": "attached STL rear detail 9",
+          "indices": 150
+        },
+        {
+          "label": "source-derived lateral closure 9 3.3",
+          "indices": 6
+        },
+        {
+          "label": "attached STL rear detail 10",
+          "indices": 150
+        },
+        {
+          "label": "source-derived lateral closure 10 -3.3",
+          "indices": 6
+        },
+        {
+          "label": "attached STL rear detail 11",
+          "indices": 150
+        },
+        {
+          "label": "source-derived lateral closure 11 -3.3",
+          "indices": 6
+        },
+        {
+          "label": "attached STL rear detail 12",
+          "indices": 150
+        },
+        {
+          "label": "source-derived lateral closure 12 -3.3",
+          "indices": 6
+        },
+        {
+          "label": "attached STL rear detail 13",
+          "indices": 210
+        },
+        {
+          "label": "source-derived lateral closure 13 3.3",
+          "indices": 30
+        },
+        {
+          "label": "attached STL rear detail 14",
+          "indices": 210
+        },
+        {
+          "label": "source-derived lateral closure 14 -3.3",
+          "indices": 30
+        },
+        {
+          "label": "attached STL rear detail 21",
+          "indices": 87
+        },
+        {
+          "label": "source-derived lateral closure 21 3.3",
+          "indices": 6
+        },
+        {
+          "label": "attached STL rear detail 22",
+          "indices": 90
+        },
+        {
+          "label": "source-derived lateral closure 22 -3.3",
+          "indices": 6
+        },
+        {
+          "label": "attached STL rear detail 23",
+          "indices": 66
+        },
+        {
+          "label": "attached STL rear detail 26",
+          "indices": 36
+        },
+        {
+          "label": "attached STL rear detail 29",
+          "indices": 36
+        },
+        {
+          "label": "attached STL rear detail 30",
+          "indices": 36
+        },
+        {
+          "label": "attached STL rear detail 31",
+          "indices": 36
+        },
+        {
+          "label": "attached STL rear detail 32",
+          "indices": 36
+        },
+        {
+          "label": "attached STL rear detail 35",
+          "indices": 36
+        },
+        {
+          "label": "attached STL rear detail 36",
+          "indices": 36
+        },
+        {
+          "label": "attached STL rear detail 37",
+          "indices": 36
+        },
+        {
+          "label": "fixed STL-case trunnion shaft -1",
+          "indices": 84
+        },
+        {
+          "label": "integral fixed bearing shoulder -1",
+          "indices": 60
+        },
+        {
+          "label": "fixed STL-case trunnion shaft 1",
+          "indices": 84
+        },
+        {
+          "label": "integral fixed bearing shoulder 1",
+          "indices": 60
+        },
+        {
+          "label": "rebuilt large circular 500GT elevation bearing -1",
+          "indices": 768
+        },
+        {
+          "label": "common vertical two-gun receiver -1",
+          "indices": 60
+        },
+        {
+          "label": "rebuilt large circular 500GT elevation bearing 1",
+          "indices": 768
+        },
+        {
+          "label": "common vertical two-gun receiver 1",
+          "indices": 60
+        },
+        {
+          "label": "lower rebuilt 500GT barrel -1",
+          "indices": 720
+        },
+        {
+          "label": "upper rebuilt 500GT barrel -1",
+          "indices": 720
+        },
+        {
+          "label": "lower rebuilt 500GT barrel 1",
+          "indices": 720
+        },
+        {
+          "label": "upper rebuilt 500GT barrel 1",
+          "indices": 720
+        }
+      ],
+      "joinShoulders": [],
+      "barrelsPhysical": [
+        {
+          "root": [
+            5.8,
+            3.05,
+            -4.6605468750000005
+          ],
+          "muzzle": [
+            21.110971641540527,
+            3.05,
+            -4.6605468750000005
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 15.310971641540526,
+          "muzzleRecessM": 0.7,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.00018567272286418302
+        },
+        {
+          "root": [
+            5.8,
+            6.75,
+            -4.6605468750000005
+          ],
+          "muzzle": [
+            21.110971641540527,
+            6.75,
+            -4.6605468750000005
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 15.310971641540526,
+          "muzzleRecessM": 0.7,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.00018567272286418302
+        },
+        {
+          "root": [
+            5.8,
+            3.05,
+            4.6605468750000005
+          ],
+          "muzzle": [
+            21.110971641540527,
+            3.05,
+            4.6605468750000005
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 15.310971641540526,
+          "muzzleRecessM": 0.7,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.00018567272286418302
+        },
+        {
+          "root": [
+            5.8,
+            6.75,
+            4.6605468750000005
+          ],
+          "muzzle": [
+            21.110971641540527,
+            6.75,
+            4.6605468750000005
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 15.310971641540526,
+          "muzzleRecessM": 0.7,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.00018567272286418302
+        }
+      ]
+    },
+    {
+      "kind": "quad200",
+      "id": 15,
+      "asset": "light_quad200",
+      "triangles": 2850,
+      "vertices": 3490,
+      "size": [
+        19.3375,
+        7.6049999999999995,
+        13.57175873712557
+      ],
+      "modelScale": 1,
+      "barrels": 4,
+      "boltTT": 0.2,
+      "tt": 0.8,
+      "ion": 0,
+      "cycle": 0.2,
+      "power": 1.6736e+22,
+      "plainMetal": true,
+      "materialReference": "ven_turret70_native",
+      "noSupportPedestal": true,
+      "ped": 0,
+      "base": 0,
+      "low": 0,
+      "drawnIndices": 8550,
+      "drawOutsideBounds": 0,
+      "decoded": {
+        "finite": true,
+        "indexCount": 8550,
+        "indexRangeValid": true,
+        "uvRange": [
+          0,
+          1
+        ]
+      },
+      "limits": {
+        "yaw": null,
+        "lo": -0.17453292519943295,
+        "hi": 1.4835298641951802
+      },
+      "muzzles": [
+        [
+          540.6724585456477,
+          24.1925,
+          -5.528190266594908
+        ],
+        [
+          540.6724585456477,
+          25.6875,
+          -5.528190266594908
+        ],
+        [
+          540.6724585456477,
+          24.1925,
+          5.528189101967877
+        ],
+        [
+          540.6724585456477,
+          25.6875,
+          5.528189101967877
+        ]
+      ],
+      "components": [
+        {
+          "label": "intrinsic bearing ring",
+          "indices": 372
+        },
+        {
+          "label": "bearing race lip",
+          "indices": 372
+        },
+        {
+          "label": "photo40 common lower equipment case frame cell 0",
+          "indices": 54
+        },
+        {
+          "label": "photo40 common lower equipment case frame cell 1",
+          "indices": 90
+        },
+        {
+          "label": "photo40 common lower equipment case frame cell 2",
+          "indices": 144
+        },
+        {
+          "label": "photo40 common lower equipment case frame cell 3",
+          "indices": 192
+        },
+        {
+          "label": "photo40 common lower equipment case frame cell 4",
+          "indices": 168
+        },
+        {
+          "label": "photo40 common rear armored hood frame cell 0",
+          "indices": 42
+        },
+        {
+          "label": "photo40 common rear armored hood frame cell 1",
+          "indices": 108
+        },
+        {
+          "label": "photo40 common rear armored hood frame cell 2",
+          "indices": 114
+        },
+        {
+          "label": "photo40 common forward sloped hood frame cell 0",
+          "indices": 42
+        },
+        {
+          "label": "photo40 common forward sloped hood frame cell 1",
+          "indices": 66
+        },
+        {
+          "label": "photo40 common forward sloped hood frame cell 2",
+          "indices": 66
+        },
+        {
+          "label": "photo40 common shoulder service hatch",
+          "indices": 36
+        },
+        {
+          "label": "photo40 common side armor belt",
+          "indices": 36
+        },
+        {
+          "label": "photo40 common shoulder service hatch",
+          "indices": 36
+        },
+        {
+          "label": "photo40 common side armor belt",
+          "indices": 36
+        },
+        {
+          "label": "twin40 fitted central machinery cover",
+          "indices": 120
+        },
+        {
+          "label": "quad200 external complete circular trunnion port",
+          "indices": 666
+        },
+        {
+          "label": "quad200 external complete circular trunnion central hexagonal axle bolt",
+          "indices": 60
+        },
+        {
+          "label": "quad200 external complete circular trunnion connecting axle",
+          "indices": 228
+        },
+        {
+          "label": "quad200 external complete circular trunnion starboard",
+          "indices": 666
+        },
+        {
+          "label": "quad200 external complete circular trunnion central hexagonal axle bolt",
+          "indices": 60
+        },
+        {
+          "label": "quad200 external complete circular trunnion connecting axle",
+          "indices": 228
+        },
+        {
+          "label": "fixed circular external-drive shoulder port",
+          "indices": 180
+        },
+        {
+          "label": "fixed circular external-drive shoulder starboard",
+          "indices": 180
+        },
+        {
+          "label": "quad200 fixed cross-case drive shaft",
+          "indices": 228
+        },
+        {
+          "label": "quad200 external central two-level receiver -8.504908102453706",
+          "indices": 60
+        },
+        {
+          "label": "200GT central external quad barrel 1",
+          "indices": 960
+        },
+        {
+          "label": "200GT central external quad barrel 2",
+          "indices": 960
+        },
+        {
+          "label": "quad200 external central two-level receiver 8.504906310719809",
+          "indices": 60
+        },
+        {
+          "label": "200GT central external quad barrel 3",
+          "indices": 960
+        },
+        {
+          "label": "200GT central external quad barrel 4",
+          "indices": 960
+        }
+      ],
+      "joinShoulders": [
+        {
+          "label": "fixed circular external-drive shoulder port",
+          "firstVertex": 2458,
+          "vertices": 96,
+          "firstIndex": 4002,
+          "indices": 180,
+          "componentRole": "fixed-circular-shoulder",
+          "structuralArmor": true,
+          "addsCapacitorRoom": false,
+          "side": "port",
+          "centerM": [
+            1.625,
+            4.9399999999999995,
+            -5.096096609601118
+          ],
+          "radiusM": 1.7745,
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "innerCaseZM": -3.497,
+          "driveInnerFaceZM": -4.355,
+          "outerZM": -6.6951932192022365,
+          "actualDriveContactZM": -6.685443219202236,
+          "actualDriveContactNearZM": -6.674032418541759,
+          "contactMethod": "first-hit-rays-through-actual-source-drive-triangles",
+          "contactSamples": 16,
+          "engagementM": 0.00975,
+          "radialSegments": 16,
+          "actualBoundsM": [
+            -0.14961055833846304,
+            3.165500604584813,
+            -6.6951700621565085,
+            3.3993749378249047,
+            6.71454696893692,
+            -3.496905799523318
+          ],
+          "driveContactsZM": [
+            -6.685451446266315,
+            -6.685007812626575,
+            -6.683694906316124,
+            -6.68172522736271,
+            -6.679561335086403,
+            -6.677317451772057,
+            -6.675472032367543,
+            -6.6745024753052515,
+            -6.67415968476793,
+            -6.67433265756191,
+            -6.675516058069842,
+            -6.677230191424632,
+            -6.6793767551995495,
+            -6.681630819288012,
+            -6.6834942157836625,
+            -6.6849653267440505
+          ],
+          "inFixedPartition": true
+        },
+        {
+          "label": "fixed circular external-drive shoulder starboard",
+          "firstVertex": 2554,
+          "vertices": 96,
+          "firstIndex": 4182,
+          "indices": 180,
+          "componentRole": "fixed-circular-shoulder",
+          "structuralArmor": true,
+          "addsCapacitorRoom": false,
+          "side": "starboard",
+          "centerM": [
+            1.625,
+            4.9399999999999995,
+            5.096094126761612
+          ],
+          "radiusM": 1.7745,
+          "axis": [
+            0,
+            0,
+            1
+          ],
+          "innerCaseZM": 3.497,
+          "driveInnerFaceZM": 4.355,
+          "outerZM": 6.6951882535232246,
+          "actualDriveContactZM": 6.685438253523224,
+          "actualDriveContactNearZM": 6.6740327367553025,
+          "contactMethod": "first-hit-rays-through-actual-source-drive-triangles",
+          "contactSamples": 16,
+          "engagementM": 0.00975,
+          "radialSegments": 16,
+          "actualBoundsM": [
+            -0.14961055833846304,
+            3.165500604584813,
+            3.496903470269251,
+            3.3993749378249047,
+            6.71454696893692,
+            6.695167732902442
+          ],
+          "driveContactsZM": [
+            6.674192527781153,
+            6.674370569604567,
+            6.675517176508725,
+            6.677309396957206,
+            6.679397336033422,
+            6.681635344582158,
+            6.683484852921568,
+            6.684936505934578,
+            6.685413912376269,
+            6.684966961129697,
+            6.683646121209707,
+            6.681679815699498,
+            6.679528964055885,
+            6.677298608691563,
+            6.675478607077075,
+            6.674379777078194
+          ],
+          "inFixedPartition": true
+        }
+      ],
+      "barrelsPhysical": [
+        {
+          "root": [
+            1.1916666666666667,
+            4.1925,
+            -5.528190266594909
+          ],
+          "muzzle": [
+            12.025,
+            4.1925,
+            -5.528190266594909
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 10.833333333333334,
+          "muzzleRecessM": 0.405,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.00011957935225836991
+        },
+        {
+          "root": [
+            1.1916666666666667,
+            5.6875,
+            -5.528190266594909
+          ],
+          "muzzle": [
+            12.025,
+            5.6875,
+            -5.528190266594909
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 10.833333333333334,
+          "muzzleRecessM": 0.405,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.00011957935225836991
+        },
+        {
+          "root": [
+            1.1916666666666667,
+            4.1925,
+            5.528189101967876
+          ],
+          "muzzle": [
+            12.025,
+            4.1925,
+            5.528189101967876
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 10.833333333333334,
+          "muzzleRecessM": 0.405,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.00011957935225836991
+        },
+        {
+          "root": [
+            1.1916666666666667,
+            5.6875,
+            5.528189101967876
+          ],
+          "muzzle": [
+            12.025,
+            5.6875,
+            5.528189101967876
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 10.833333333333334,
+          "muzzleRecessM": 0.405,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.00011957935225836991
+        }
+      ]
+    },
+    {
+      "kind": "single200",
+      "id": 16,
+      "asset": "light_single200",
+      "triangles": 2232,
+      "vertices": 2762,
+      "size": [
+        20.549999999999997,
+        4.2684999999999995,
+        3.9
+      ],
+      "modelScale": 1,
+      "barrels": 1,
+      "boltTT": 0.2,
+      "tt": 0.2,
+      "ion": 0,
+      "cycle": 0.2,
+      "power": 4.184e+21,
+      "plainMetal": true,
+      "materialReference": "ven_turret70_native",
+      "noSupportPedestal": true,
+      "ped": 0,
+      "base": 0,
+      "low": 0,
+      "drawnIndices": 6696,
+      "drawOutsideBounds": 0,
+      "decoded": {
+        "finite": true,
+        "indexCount": 6696,
+        "indexRangeValid": true,
+        "uvRange": [
+          0,
+          1
+        ]
+      },
+      "limits": {
+        "yaw": null,
+        "lo": -0.17453292519943295,
+        "hi": 1.4835298641951802
+      },
+      "muzzles": [
+        [
+          579.1912085456477,
+          23.75,
+          0
+        ]
+      ],
+      "components": [
+        {
+          "label": "intrinsic bearing ring",
+          "indices": 372
+        },
+        {
+          "label": "bearing race lip",
+          "indices": 372
+        },
+        {
+          "label": "AA open fork cross-foot",
+          "indices": 36
+        },
+        {
+          "label": "AA open elevation fork -1",
+          "indices": 36
+        },
+        {
+          "label": "AA open elevation fork 1",
+          "indices": 36
+        },
+        {
+          "label": "AA fixed transverse trunnion axle",
+          "indices": 372
+        },
+        {
+          "label": "elevation drive housing",
+          "indices": 372
+        },
+        {
+          "label": "drive inset ring",
+          "indices": 372
+        },
+        {
+          "label": "drive central cover",
+          "indices": 372
+        },
+        {
+          "label": "elevation drive housing",
+          "indices": 372
+        },
+        {
+          "label": "drive inset ring",
+          "indices": 372
+        },
+        {
+          "label": "drive central cover",
+          "indices": 372
+        },
+        {
+          "label": "single200 enclosed lower electrical cabinet",
+          "indices": 36
+        },
+        {
+          "label": "single200 exposed AA breech",
+          "indices": 84
+        },
+        {
+          "label": "single200 exposed AA breech breech cover",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "single200 upper hydraulic recoil cylinder",
+          "indices": 372
+        },
+        {
+          "label": "single200 recoil piston",
+          "indices": 372
+        },
+        {
+          "label": "single200 cradle below barrel",
+          "indices": 36
+        },
+        {
+          "label": "200GT AA single complete recessed barrel",
+          "indices": 2160
+        }
+      ],
+      "joinShoulders": [],
+      "barrelsPhysical": [
+        {
+          "root": [
+            -0.8,
+            3.75,
+            0
+          ],
+          "muzzle": [
+            16.4,
+            3.75,
+            0
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 17.2,
+          "muzzleRecessM": 0.602,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.00009721752269342687
+        }
+      ]
+    },
+    {
+      "kind": "twin200Fast",
+      "id": 17,
+      "asset": "light_twin200_fast",
+      "triangles": 2976,
+      "vertices": 3172,
+      "size": [
+        25.8,
+        9.1,
+        7.6
+      ],
+      "modelScale": 1,
+      "barrels": 2,
+      "boltTT": 0.2,
+      "tt": 0.4,
+      "ion": 0,
+      "cycle": 0.1,
+      "power": 1.6736e+22,
+      "plainMetal": true,
+      "materialReference": "ven_turret70_native",
+      "noSupportPedestal": true,
+      "ped": 0,
+      "base": 0,
+      "low": 0,
+      "drawnIndices": 8928,
+      "drawOutsideBounds": 0,
+      "decoded": {
+        "finite": true,
+        "indexCount": 8928,
+        "indexRangeValid": true,
+        "uvRange": [
+          0,
+          1
+        ]
+      },
+      "limits": {
+        "yaw": null,
+        "lo": -0.17453292519943295,
+        "hi": 1.4835298641951802
+      },
+      "muzzles": [
+        [
+          616.4662085456476,
+          26.45,
+          0
+        ],
+        [
+          617.6662085456476,
+          24.25,
+          0
+        ]
+      ],
+      "components": [
+        {
+          "label": "intrinsic bearing ring",
+          "indices": 372
+        },
+        {
+          "label": "bearing race lip",
+          "indices": 372
+        },
+        {
+          "label": "AA open fork cross-foot",
+          "indices": 36
+        },
+        {
+          "label": "AA open elevation fork -1",
+          "indices": 36
+        },
+        {
+          "label": "AA open elevation fork 1",
+          "indices": 36
+        },
+        {
+          "label": "AA fixed transverse trunnion axle",
+          "indices": 372
+        },
+        {
+          "label": "elevation drive housing",
+          "indices": 372
+        },
+        {
+          "label": "drive inset ring",
+          "indices": 372
+        },
+        {
+          "label": "drive central cover",
+          "indices": 372
+        },
+        {
+          "label": "elevation drive housing",
+          "indices": 372
+        },
+        {
+          "label": "drive inset ring",
+          "indices": 372
+        },
+        {
+          "label": "drive central cover",
+          "indices": 372
+        },
+        {
+          "label": "fast200 enclosed lower electrical cabinet",
+          "indices": 36
+        },
+        {
+          "label": "fast200 enlarged exposed two-level receiver",
+          "indices": 84
+        },
+        {
+          "label": "fast200 enlarged exposed two-level receiver breech cover",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "roof stiffener",
+          "indices": 36
+        },
+        {
+          "label": "fast200 individual recoil trough 1",
+          "indices": 36
+        },
+        {
+          "label": "fast200 recoil cylinder 1",
+          "indices": 372
+        },
+        {
+          "label": "200GT staggered fast barrel 1",
+          "indices": 2160
+        },
+        {
+          "label": "fast200 individual recoil trough 2",
+          "indices": 36
+        },
+        {
+          "label": "fast200 recoil cylinder 2",
+          "indices": 372
+        },
+        {
+          "label": "200GT staggered fast barrel 2",
+          "indices": 2160
+        },
+        {
+          "label": "fast200 upper feed and maintenance cover",
+          "indices": 36
+        }
+      ],
+      "joinShoulders": [],
+      "barrelsPhysical": [
+        {
+          "root": [
+            3.4,
+            6.45,
+            0
+          ],
+          "muzzle": [
+            19.1,
+            6.45,
+            0
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 15.700000000000001,
+          "muzzleRecessM": 0.5495000000000001,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.00008256908506609761
+        },
+        {
+          "root": [
+            4.6,
+            4.25,
+            0
+          ],
+          "muzzle": [
+            20.3,
+            4.25,
+            0
+          ],
+          "axis": [
+            1,
+            0,
+            0
+          ],
+          "axialLengthM": 15.700000000000001,
+          "muzzleRecessM": 0.5495000000000001,
+          "muzzleHit": true,
+          "muzzleRayErrorM": 0.00013139721011157235
+        }
+      ]
+    }
+  ],
+  "nativeSelection": [
+    {
+      "kind": "single40",
+      "pixel": [
+        709.6520290594523,
+        594.1502091587649
+      ],
+      "nativeCanvasClick": true
+    },
+    {
+      "kind": "quad40Ion",
+      "pixel": [
+        817.774015649971,
+        685.457771564797
+      ],
+      "nativeCanvasClick": true
+    },
+    {
+      "kind": "twin40Dome",
+      "pixel": [
+        617.8382084498904,
+        755.8629866304761
+      ],
+      "nativeCanvasClick": true
+    },
+    {
+      "kind": "twin40",
+      "pixel": [
+        692.8391960944273,
+        673.8265349791433
+      ],
+      "nativeCanvasClick": true
+    },
+    {
+      "kind": "triple40",
+      "pixel": [
+        696.2640836598113,
+        686.1619080672389
+      ],
+      "nativeCanvasClick": true
+    },
+    {
+      "kind": "oct40",
+      "pixel": [
+        719.8032866412786,
+        611.1699034396862
+      ],
+      "nativeCanvasClick": true
+    },
+    {
+      "kind": "refVen",
+      "pixel": [
+        881.2007448356965,
+        506.7653497080825
+      ],
+      "nativeCanvasClick": true
+    },
+    {
+      "kind": "triple70",
+      "pixel": [
+        904.86325980318,
+        502.9284404739267
+      ],
+      "nativeCanvasClick": true
+    },
+    {
+      "kind": "quad70Side",
+      "pixel": [
+        1135.5590080484096,
+        433.18224764045345
+      ],
+      "nativeCanvasClick": true
+    },
+    {
+      "kind": "single500",
+      "pixel": [
+        737.2882120170972,
+        575.8964402139865
+      ],
+      "nativeCanvasClick": true
+    },
+    {
+      "kind": "twin200",
+      "pixel": [
+        696.2013268886842,
+        618.66677750046
+      ],
+      "nativeCanvasClick": true
+    },
+    {
+      "kind": "quad500",
+      "pixel": [
+        661.2009699015638,
+        548.2389011210228
+      ],
+      "nativeCanvasClick": true
+    },
+    {
+      "kind": "quad200",
+      "pixel": [
+        692.8389903888647,
+        655.943835697406
+      ],
+      "nativeCanvasClick": true
+    },
+    {
+      "kind": "single200",
+      "pixel": [
+        634.6440081417185,
+        535.4217939264983
+      ],
+      "nativeCanvasClick": true
+    },
+    {
+      "kind": "twin200Fast",
+      "pixel": [
+        630.3791080457746,
+        590.8247743757938
+      ],
+      "nativeCanvasClick": true
+    }
+  ],
+  "partitions": [
+    {
+      "kind": "single40",
+      "id": 2,
+      "body": {
+        "indices": 3852,
+        "vertices": 1820,
+        "nonfinite": 0,
+        "badNormal": 0,
+        "zeroNormal": 0,
+        "texture": "reference",
+        "colors": {
+          "143,150,155": 1308,
+          "128,128,128": 512
+        }
+      },
+      "moving": {
+        "indices": 504,
+        "vertices": 257,
+        "nonfinite": 0,
+        "badNormal": 0,
+        "zeroNormal": 0,
+        "texture": "reference",
+        "colors": {
+          "143,150,155": 257
+        }
+      }
+    },
+    {
+      "kind": "quad40Ion",
+      "id": 3,
+      "body": {
+        "indices": 0,
+        "vertices": 0,
+        "nonfinite": 0,
+        "badNormal": 0,
+        "zeroNormal": 0,
+        "texture": "reference",
+        "colors": {}
+      },
+      "moving": {
+        "indices": 5088,
+        "vertices": 3204,
+        "nonfinite": 0,
+        "badNormal": 0,
+        "zeroNormal": 0,
+        "texture": "reference",
+        "colors": {
+          "143,150,155": 3204
+        }
+      }
+    },
+    {
+      "kind": "twin40Dome",
+      "id": 4,
+      "body": {
+        "indices": 12918,
+        "vertices": 7880,
+        "nonfinite": 0,
+        "badNormal": 0,
+        "zeroNormal": 0,
+        "texture": "reference",
+        "colors": {
+          "143,150,155": 7368,
+          "128,128,128": 512
+        }
+      },
+      "moving": {
+        "indices": 756,
+        "vertices": 358,
+        "nonfinite": 0,
+        "badNormal": 0,
+        "zeroNormal": 0,
+        "texture": "reference",
+        "colors": {
+          "143,150,155": 358
+        }
+      }
+    },
+    {
+      "kind": "twin40",
+      "id": 5,
+      "body": {
+        "indices": 5214,
+        "vertices": 3082,
+        "nonfinite": 0,
+        "badNormal": 0,
+        "zeroNormal": 0,
+        "texture": "reference",
+        "colors": {
+          "143,150,155": 2570,
+          "128,128,128": 512
+        }
+      },
+      "moving": {
+        "indices": 1008,
+        "vertices": 514,
+        "nonfinite": 0,
+        "badNormal": 0,
+        "zeroNormal": 0,
+        "texture": "reference",
+        "colors": {
+          "143,150,155": 514
+        }
+      }
+    },
+    {
+      "kind": "triple40",
+      "id": 6,
+      "body": {
+        "indices": 4734,
+        "vertices": 2810,
+        "nonfinite": 0,
+        "badNormal": 0,
+        "zeroNormal": 0,
+        "texture": "reference",
+        "colors": {
+          "143,150,155": 2298,
+          "128,128,128": 512
+        }
+      },
+      "moving": {
+        "indices": 1152,
+        "vertices": 549,
+        "nonfinite": 0,
+        "badNormal": 0,
+        "zeroNormal": 0,
+        "texture": "reference",
+        "colors": {
+          "143,150,155": 549
+        }
+      }
+    },
+    {
+      "kind": "oct40",
+      "id": 7,
+      "body": {
+        "indices": 984,
+        "vertices": 452,
+        "nonfinite": 0,
+        "badNormal": 0,
+        "zeroNormal": 0,
+        "texture": "reference",
+        "colors": {
+          "143,150,155": 452
+        }
+      },
+      "moving": {
+        "indices": 2328,
+        "vertices": 984,
+        "nonfinite": 0,
+        "badNormal": 0,
+        "zeroNormal": 0,
+        "texture": "reference",
+        "colors": {
+          "143,150,155": 984
+        }
+      }
+    },
+    {
+      "kind": "refVen",
+      "id": 8,
+      "body": {
+        "indices": 9624,
+        "vertices": 2995,
+        "nonfinite": 0,
+        "badNormal": 0,
+        "zeroNormal": 0,
+        "texture": "reference",
+        "colors": {
+          "128,128,128": 2995
+        }
+      },
+      "moving": {
+        "indices": 3540,
+        "vertices": 608,
+        "nonfinite": 0,
+        "badNormal": 0,
+        "zeroNormal": 0,
+        "texture": "reference",
+        "colors": {
+          "128,128,128": 608
+        }
+      }
+    },
+    {
+      "kind": "triple70",
+      "id": 9,
+      "body": {
+        "indices": 5406,
+        "vertices": 2520,
+        "nonfinite": 0,
+        "badNormal": 0,
+        "zeroNormal": 0,
+        "texture": "reference",
+        "colors": {
+          "128,128,128": 2520
+        }
+      },
+      "moving": {
+        "indices": 9579,
+        "vertices": 2382,
+        "nonfinite": 0,
+        "badNormal": 0,
+        "zeroNormal": 0,
+        "texture": "reference",
+        "colors": {
+          "128,128,128": 2382
+        }
+      }
+    },
+    {
+      "kind": "quad70Side",
+      "id": 11,
+      "body": {
+        "indices": 2064,
+        "vertices": 1110,
+        "nonfinite": 0,
+        "badNormal": 0,
+        "zeroNormal": 0,
+        "texture": "reference",
+        "colors": {
+          "128,128,128": 1110
+        }
+      },
+      "moving": {
+        "indices": 11373,
+        "vertices": 2698,
+        "nonfinite": 0,
+        "badNormal": 0,
+        "zeroNormal": 0,
+        "texture": "reference",
+        "colors": {
+          "128,128,128": 2698
+        }
+      }
+    },
+    {
+      "kind": "single500",
+      "id": 12,
+      "body": {
+        "indices": 0,
+        "vertices": 0,
+        "nonfinite": 0,
+        "badNormal": 0,
+        "zeroNormal": 0,
+        "texture": "reference",
+        "colors": {}
+      },
+      "moving": {
+        "indices": 6612,
+        "vertices": 3354,
+        "nonfinite": 0,
+        "badNormal": 0,
+        "zeroNormal": 0,
+        "texture": "reference",
+        "colors": {
+          "128,128,128": 3354
+        }
+      }
+    },
+    {
+      "kind": "twin200",
+      "id": 13,
+      "body": {
+        "indices": 3936,
+        "vertices": 2316,
+        "nonfinite": 0,
+        "badNormal": 0,
+        "zeroNormal": 0,
+        "texture": "reference",
+        "colors": {
+          "128,128,128": 2316
+        }
+      },
+      "moving": {
+        "indices": 4344,
+        "vertices": 880,
+        "nonfinite": 0,
+        "badNormal": 0,
+        "zeroNormal": 0,
+        "texture": "reference",
+        "colors": {
+          "128,128,128": 880
+        }
+      }
+    },
+    {
+      "kind": "quad500",
+      "id": 14,
+      "body": {
+        "indices": 4362,
+        "vertices": 3952,
+        "nonfinite": 0,
+        "badNormal": 0,
+        "zeroNormal": 6,
+        "texture": "reference",
+        "colors": {
+          "128,128,128": 3952
+        }
+      },
+      "moving": {
+        "indices": 4536,
+        "vertices": 820,
+        "nonfinite": 0,
+        "badNormal": 0,
+        "zeroNormal": 0,
+        "texture": "reference",
+        "colors": {
+          "128,128,128": 820
+        }
+      }
+    },
+    {
+      "kind": "quad200",
+      "id": 15,
+      "body": {
+        "indices": 4590,
+        "vertices": 2770,
+        "nonfinite": 0,
+        "badNormal": 0,
+        "zeroNormal": 0,
+        "texture": "reference",
+        "colors": {
+          "128,128,128": 2734,
+          "143,150,155": 36
+        }
+      },
+      "moving": {
+        "indices": 3960,
+        "vertices": 720,
+        "nonfinite": 0,
+        "badNormal": 0,
+        "zeroNormal": 0,
+        "texture": "reference",
+        "colors": {
+          "128,128,128": 720
+        }
+      }
+    },
+    {
+      "kind": "single200",
+      "id": 16,
+      "body": {
+        "indices": 3492,
+        "vertices": 1824,
+        "nonfinite": 0,
+        "badNormal": 0,
+        "zeroNormal": 0,
+        "texture": "reference",
+        "colors": {
+          "128,128,128": 1824
+        }
+      },
+      "moving": {
+        "indices": 3204,
+        "vertices": 938,
+        "nonfinite": 0,
+        "badNormal": 0,
+        "zeroNormal": 0,
+        "texture": "reference",
+        "colors": {
+          "128,128,128": 938
+        }
+      }
+    },
+    {
+      "kind": "twin200Fast",
+      "id": 17,
+      "body": {
+        "indices": 3492,
+        "vertices": 1824,
+        "nonfinite": 0,
+        "badNormal": 0,
+        "zeroNormal": 0,
+        "texture": "reference",
+        "colors": {
+          "128,128,128": 1824
+        }
+      },
+      "moving": {
+        "indices": 5436,
+        "vertices": 1348,
+        "nonfinite": 0,
+        "badNormal": 0,
+        "zeroNormal": 0,
+        "texture": "reference",
+        "colors": {
+          "128,128,128": 1348
+        }
+      }
+    }
+  ],
+  "rendered": [
+    {
+      "id": "40tt-family",
+      "requestedElevationDegrees": 0,
+      "camera": {
+        "theta": -1.03,
+        "phi": 1.05,
+        "orthographic": true,
+        "worldWidthM": 260
+      },
+      "models": [
+        {
+          "kind": "single40",
+          "triangles": 1452,
+          "size": [
+            34.6,
+            8.25,
+            13.258204572086406
+          ],
+          "muzzleCount": 1,
+          "muzzles": [
+            [
+              56.8,
+              26.2,
+              0
+            ]
+          ],
+          "effectiveElevationDegrees": 0,
+          "expectedClampedDegrees": 0,
+          "bodyFixed": false
+        },
+        {
+          "kind": "quad40Ion",
+          "triangles": 1696,
+          "size": [
+            23.907414336388186,
+            17.35872205671472,
+            17.358722056714715
+          ],
+          "muzzleCount": 4,
+          "muzzles": [
+            [
+              88.78176047622492,
+              21.562284985104323,
+              -1.3308353576814616
+            ],
+            [
+              88.78176047622492,
+              21.562284985104323,
+              1.3308353576814616
+            ],
+            [
+              88.78176047622492,
+              24.223955700467247,
+              -1.3308353576814616
+            ],
+            [
+              88.78176047622492,
+              24.223955700467247,
+              1.3308353576814616
+            ]
+          ],
+          "effectiveElevationDegrees": 0,
+          "expectedClampedDegrees": 0,
+          "bodyFixed": false
+        },
+        {
+          "kind": "twin40Dome",
+          "triangles": 4558,
+          "size": [
+            30.85000000000001,
+            16.35,
+            27.5
+          ],
+          "muzzleCount": 2,
+          "muzzles": [
+            [
+              130.0324143363882,
+              35.1,
+              -1
+            ],
+            [
+              130.0324143363882,
+              35.1,
+              1
+            ]
+          ],
+          "effectiveElevationDegrees": 0,
+          "expectedClampedDegrees": 0,
+          "bodyFixed": false
+        },
+        {
+          "kind": "twin40",
+          "triangles": 2074,
+          "size": [
+            29.75,
+            13.75,
+            20.87962882634703
+          ],
+          "muzzleCount": 2,
+          "muzzles": [
+            [
+              173.7324143363882,
+              32.5,
+              -8.504908102453705
+            ],
+            [
+              173.7324143363882,
+              32.5,
+              8.50490631071981
+            ]
+          ],
+          "effectiveElevationDegrees": 0,
+          "expectedClampedDegrees": 0,
+          "bodyFixed": false
+        },
+        {
+          "kind": "triple40",
+          "triangles": 1962,
+          "size": [
+            27.75,
+            13.350000000000001,
+            17.87962882634703
+          ],
+          "muzzleCount": 3,
+          "muzzles": [
+            [
+              212.4824143363882,
+              31.9,
+              -2.5
+            ],
+            [
+              212.4824143363882,
+              31.9,
+              0
+            ],
+            [
+              212.4824143363882,
+              31.9,
+              2.4999999999999996
+            ]
+          ],
+          "effectiveElevationDegrees": 0,
+          "expectedClampedDegrees": 0,
+          "bodyFixed": false
+        },
+        {
+          "kind": "oct40",
+          "triangles": 1104,
+          "size": [
+            40,
+            10.568947548408055,
+            39.999823093067505
+          ],
+          "muzzleCount": 8,
+          "muzzles": [
+            [
+              255.38926118990173,
+              28.406677515729264,
+              -10.795006277560518
+            ],
+            [
+              255.38926118990173,
+              28.406677515729264,
+              -8.908302786431427
+            ],
+            [
+              255.38926118990173,
+              28.406677515729264,
+              -7.0215992953023365
+            ],
+            [
+              255.38926118990173,
+              28.406677515729264,
+              -5.134590611114181
+            ],
+            [
+              255.38926118990173,
+              28.406838794914215,
+              5.135766212482744
+            ],
+            [
+              255.38926118990173,
+              28.406838794914215,
+              7.0227748966708985
+            ],
+            [
+              255.38926118990173,
+              28.406838794914215,
+              8.909478387799991
+            ],
+            [
+              255.38926118990173,
+              28.406838794914215,
+              10.796181878929083
+            ]
+          ],
+          "effectiveElevationDegrees": 0,
+          "expectedClampedDegrees": 0,
+          "bodyFixed": false
+        }
+      ],
+      "litPixels": 116277,
+      "pixelCount": 1251200,
+      "webglError": 0,
+      "image": "turret-budget-after-40tt-family.png",
+      "artifact": {
+        "committed": true,
+        "path": "docs/images/turret-budget-after-40tt-family.png",
+        "sha256": "f67892a5213375b5dfe1b4ea18c456eede383d88b0a7772d57aeea3dc8a3ffb2"
+      }
+    },
+    {
+      "id": "70tt-family",
+      "requestedElevationDegrees": 0,
+      "camera": {
+        "theta": -1.03,
+        "phi": 1.05,
+        "orthographic": true,
+        "worldWidthM": 180
+      },
+      "models": [
+        {
+          "kind": "refVen",
+          "triangles": 4388,
+          "size": [
+            28.952101779788087,
+            9.997709107492678,
+            16.40878152577366
+          ],
+          "muzzleCount": 2,
+          "muzzles": [
+            [
+              304.0619405451795,
+              24.40205877112618,
+              -6.039509018798146
+            ],
+            [
+              304.12423561342536,
+              24.402038228286205,
+              5.873711490208386
+            ]
+          ],
+          "effectiveElevationDegrees": 0,
+          "expectedClampedDegrees": 0,
+          "bodyFixed": false
+        },
+        {
+          "kind": "triple70",
+          "triangles": 4995,
+          "size": [
+            38.87965286330342,
+            9.997709107492678,
+            24
+          ],
+          "muzzleCount": 3,
+          "muzzles": [
+            [
+              359.488882113996,
+              26.25,
+              -3
+            ],
+            [
+              359.488882113996,
+              26.25,
+              0
+            ],
+            [
+              359.488882113996,
+              26.25,
+              3
+            ]
+          ],
+          "effectiveElevationDegrees": 0,
+          "expectedClampedDegrees": 0,
+          "bodyFixed": false
+        },
+        {
+          "kind": "quad70Side",
+          "triangles": 4479,
+          "size": [
+            34.37965286330343,
+            14.700000000000003,
+            13.600000000000023
+          ],
+          "muzzleCount": 4,
+          "muzzles": [
+            [
+              385.288882113996,
+              23.7,
+              34.37965286330343
+            ],
+            [
+              380.288882113996,
+              23.7,
+              34.37965286330343
+            ],
+            [
+              385.288882113996,
+              28.3,
+              34.37965286330343
+            ],
+            [
+              380.288882113996,
+              28.3,
+              34.37965286330343
+            ]
+          ],
+          "effectiveElevationDegrees": 0,
+          "expectedClampedDegrees": 0,
+          "bodyFixed": true
+        }
+      ],
+      "litPixels": 89430,
+      "pixelCount": 1180800,
+      "webglError": 0,
+      "image": "turret-budget-after-70tt-family.png",
+      "artifact": {
+        "committed": true,
+        "path": "docs/images/turret-budget-after-70tt-family.png",
+        "sha256": "5c70d43df7dda4e627e4cec1f709cab77c7b90bb48f11f47159ca103ab424ee4"
+      }
+    },
+    {
+      "id": "light-family",
+      "requestedElevationDegrees": 0,
+      "camera": {
+        "theta": -1.03,
+        "phi": 1.05,
+        "orthographic": true,
+        "worldWidthM": 200
+      },
+      "models": [
+        {
+          "kind": "single500",
+          "triangles": 2204,
+          "size": [
+            18.600000000000023,
+            7.199999999999999,
+            7.2
+          ],
+          "muzzleCount": 1,
+          "muzzles": [
+            [
+              436.2787085456477,
+              21.2,
+              0
+            ]
+          ],
+          "effectiveElevationDegrees": 0,
+          "expectedClampedDegrees": 0,
+          "bodyFixed": false
+        },
+        {
+          "kind": "twin200",
+          "triangles": 2760,
+          "size": [
+            23.899999999999977,
+            7,
+            8.5
+          ],
+          "muzzleCount": 2,
+          "muzzles": [
+            [
+              470.2287085456477,
+              25.15,
+              -0.85
+            ],
+            [
+              470.2287085456477,
+              25.15,
+              0.85
+            ]
+          ],
+          "effectiveElevationDegrees": 0,
+          "expectedClampedDegrees": 0,
+          "bodyFixed": false
+        },
+        {
+          "kind": "quad500",
+          "triangles": 2966,
+          "size": [
+            28.5,
+            9.2,
+            11.791093750000002
+          ],
+          "muzzleCount": 4,
+          "muzzles": [
+            [
+              512.3579615516292,
+              23.05,
+              -4.6605468750000005
+            ],
+            [
+              512.3579615516292,
+              26.75,
+              -4.6605468750000005
+            ],
+            [
+              512.3579615516292,
+              23.05,
+              4.6605468750000005
+            ],
+            [
+              512.3579615516292,
+              26.75,
+              4.6605468750000005
+            ]
+          ],
+          "effectiveElevationDegrees": 0,
+          "expectedClampedDegrees": 0,
+          "bodyFixed": false
+        },
+        {
+          "kind": "quad200",
+          "triangles": 2850,
+          "size": [
+            19.337499999999977,
+            7.605,
+            13.57175873712557
+          ],
+          "muzzleCount": 4,
+          "muzzles": [
+            [
+              540.6724585456477,
+              24.1925,
+              -5.528190266594908
+            ],
+            [
+              540.6724585456477,
+              25.6875,
+              -5.528190266594908
+            ],
+            [
+              540.6724585456477,
+              24.1925,
+              5.528189101967877
+            ],
+            [
+              540.6724585456477,
+              25.6875,
+              5.528189101967877
+            ]
+          ],
+          "effectiveElevationDegrees": 0,
+          "expectedClampedDegrees": 0,
+          "bodyFixed": false
+        },
+        {
+          "kind": "single200",
+          "triangles": 2232,
+          "size": [
+            20.550000000000068,
+            4.2684999999999995,
+            3.9
+          ],
+          "muzzleCount": 1,
+          "muzzles": [
+            [
+              579.1912085456477,
+              23.75,
+              0
+            ]
+          ],
+          "effectiveElevationDegrees": 0,
+          "expectedClampedDegrees": 0,
+          "bodyFixed": false
+        },
+        {
+          "kind": "twin200Fast",
+          "triangles": 2976,
+          "size": [
+            25.799999999999955,
+            9.100000000000001,
+            7.6
+          ],
+          "muzzleCount": 2,
+          "muzzles": [
+            [
+              616.4662085456476,
+              26.45,
+              0
+            ],
+            [
+              617.6662085456476,
+              24.25,
+              0
+            ]
+          ],
+          "effectiveElevationDegrees": 0,
+          "expectedClampedDegrees": 0,
+          "bodyFixed": false
+        }
+      ],
+      "litPixels": 57668,
+      "pixelCount": 1251200,
+      "webglError": 0,
+      "image": "turret-budget-after-light-family.png",
+      "artifact": {
+        "committed": true,
+        "path": "docs/images/turret-budget-after-light-family.png",
+        "sha256": "841d89033d31c075bd54684605b890f51d5f8cc2910ef05654b88ae426161f7f"
+      }
+    },
+    {
+      "id": "twin40-join-minus25",
+      "requestedElevationDegrees": -25,
+      "camera": {
+        "theta": -0.96,
+        "phi": 1.05,
+        "orthographic": true,
+        "worldWidthM": 74
+      },
+      "models": [
+        {
+          "kind": "twin40",
+          "triangles": 2074,
+          "size": [
+            29.75,
+            13.75,
+            20.87962882634703
+          ],
+          "muzzleCount": 2,
+          "muzzles": [
+            [
+              174.34021445515148,
+              29.647187147088935,
+              -8.504908102453705
+            ],
+            [
+              174.34021445515148,
+              29.647187147088935,
+              8.50490631071981
+            ]
+          ],
+          "effectiveElevationDegrees": -10,
+          "expectedClampedDegrees": -10,
+          "bodyFixed": false
+        }
+      ],
+      "litPixels": 85132,
+      "pixelCount": 896000,
+      "webglError": 0,
+      "image": "turret-budget-after-twin40-join-minus25.png",
+      "artifact": {
+        "committed": false,
+        "path": "/tmp/turret-budget-visuals/turret-budget-after-twin40-join-minus25.png",
+        "sha256": "86a20cfc82bfb94816b40a68d11259a247ae5c1e40283956e299ef8f5ed13ac0"
+      }
+    },
+    {
+      "id": "quad200-join-minus25",
+      "requestedElevationDegrees": -25,
+      "camera": {
+        "theta": -0.96,
+        "phi": 1.05,
+        "orthographic": true,
+        "worldWidthM": 34
+      },
+      "models": [
+        {
+          "kind": "quad200",
+          "triangles": 2850,
+          "size": [
+            19.337499999999977,
+            7.605,
+            13.57175873712557
+          ],
+          "muzzleCount": 4,
+          "muzzles": [
+            [
+              540.3846571641686,
+              22.3979151568873,
+              -5.528190266594908
+            ],
+            [
+              540.6442611897808,
+              23.870202747640555,
+              -5.528190266594908
+            ],
+            [
+              540.3846571641686,
+              22.3979151568873,
+              5.528189101967877
+            ],
+            [
+              540.6442611897808,
+              23.870202747640555,
+              5.528189101967877
+            ]
+          ],
+          "effectiveElevationDegrees": -10,
+          "expectedClampedDegrees": -10,
+          "bodyFixed": false
+        }
+      ],
+      "litPixels": 171073,
+      "pixelCount": 896000,
+      "webglError": 0,
+      "image": "turret-budget-after-quad200-join-minus25.png",
+      "artifact": {
+        "committed": false,
+        "path": "/tmp/turret-budget-visuals/turret-budget-after-quad200-join-minus25.png",
+        "sha256": "35833eecf266cf4e4d64d70a3b9c96cea9376a850c5db5cbddceeabd9524a18a"
+      }
+    },
+    {
+      "id": "twin40-join-plus0",
+      "requestedElevationDegrees": 0,
+      "camera": {
+        "theta": -0.96,
+        "phi": 1.05,
+        "orthographic": true,
+        "worldWidthM": 74
+      },
+      "models": [
+        {
+          "kind": "twin40",
+          "triangles": 2074,
+          "size": [
+            29.75,
+            13.75,
+            20.87962882634703
+          ],
+          "muzzleCount": 2,
+          "muzzles": [
+            [
+              173.7324143363882,
+              32.5,
+              -8.504908102453705
+            ],
+            [
+              173.7324143363882,
+              32.5,
+              8.50490631071981
+            ]
+          ],
+          "effectiveElevationDegrees": 0,
+          "expectedClampedDegrees": 0,
+          "bodyFixed": false
+        }
+      ],
+      "litPixels": 84723,
+      "pixelCount": 896000,
+      "webglError": 0,
+      "image": "turret-budget-after-twin40-join-plus0.png",
+      "artifact": {
+        "committed": false,
+        "path": "/tmp/turret-budget-visuals/turret-budget-after-twin40-join-plus0.png",
+        "sha256": "5ea541056c36e751d654d6a19d158b9f1318926409fa3cdc2009da2e0cf32134"
+      }
+    },
+    {
+      "id": "quad200-join-plus0",
+      "requestedElevationDegrees": 0,
+      "camera": {
+        "theta": -0.96,
+        "phi": 1.05,
+        "orthographic": true,
+        "worldWidthM": 34
+      },
+      "models": [
+        {
+          "kind": "quad200",
+          "triangles": 2850,
+          "size": [
+            19.337499999999977,
+            7.605,
+            13.57175873712557
+          ],
+          "muzzleCount": 4,
+          "muzzles": [
+            [
+              540.6724585456477,
+              24.1925,
+              -5.528190266594908
+            ],
+            [
+              540.6724585456477,
+              25.6875,
+              -5.528190266594908
+            ],
+            [
+              540.6724585456477,
+              24.1925,
+              5.528189101967877
+            ],
+            [
+              540.6724585456477,
+              25.6875,
+              5.528189101967877
+            ]
+          ],
+          "effectiveElevationDegrees": 0,
+          "expectedClampedDegrees": 0,
+          "bodyFixed": false
+        }
+      ],
+      "litPixels": 169324,
+      "pixelCount": 896000,
+      "webglError": 0,
+      "image": "turret-budget-after-quad200-join-plus0.png",
+      "artifact": {
+        "committed": false,
+        "path": "/tmp/turret-budget-visuals/turret-budget-after-quad200-join-plus0.png",
+        "sha256": "46e26992b6833db8e6616421842d70b36e8be6f024be40f72f49128a50ef2275"
+      }
+    },
+    {
+      "id": "twin40-join-plus25",
+      "requestedElevationDegrees": 25,
+      "camera": {
+        "theta": -0.96,
+        "phi": 1.05,
+        "orthographic": true,
+        "worldWidthM": 74
+      },
+      "models": [
+        {
+          "kind": "twin40",
+          "triangles": 2074,
+          "size": [
+            29.75,
+            13.75,
+            20.87962882634703
+          ],
+          "muzzleCount": 2,
+          "muzzles": [
+            [
+              170.16250944644517,
+              38.80280034433078,
+              -8.504908102453705
+            ],
+            [
+              170.16250944644517,
+              38.80280034433078,
+              8.50490631071981
+            ]
+          ],
+          "effectiveElevationDegrees": 25,
+          "expectedClampedDegrees": 25,
+          "bodyFixed": false
+        }
+      ],
+      "litPixels": 82507,
+      "pixelCount": 896000,
+      "webglError": 0,
+      "image": "turret-budget-after-twin40-join-plus25.png",
+      "artifact": {
+        "committed": false,
+        "path": "/tmp/turret-budget-visuals/turret-budget-after-twin40-join-plus25.png",
+        "sha256": "7f6dcc05de4a42974c5aa7fad7b527fbb25ddbb5929a50378c02063c3d912de2"
+      }
+    },
+    {
+      "id": "quad200-join-plus25",
+      "requestedElevationDegrees": 25,
+      "camera": {
+        "theta": -0.96,
+        "phi": 1.05,
+        "orthographic": true,
+        "worldWidthM": 34
+      },
+      "models": [
+        {
+          "kind": "quad200",
+          "triangles": 2850,
+          "size": [
+            19.337499999999977,
+            7.605,
+            13.57175873712557
+          ],
+          "muzzleCount": 4,
+          "muzzles": [
+            [
+              540.01396668148,
+              28.65776485129337,
+              -5.528190266594908
+            ],
+            [
+              539.3821523801777,
+              30.01269499291316,
+              -5.528190266594908
+            ],
+            [
+              540.01396668148,
+              28.65776485129337,
+              5.528189101967877
+            ],
+            [
+              539.3821523801777,
+              30.01269499291316,
+              5.528189101967877
+            ]
+          ],
+          "effectiveElevationDegrees": 25,
+          "expectedClampedDegrees": 25,
+          "bodyFixed": false
+        }
+      ],
+      "litPixels": 163393,
+      "pixelCount": 896000,
+      "webglError": 0,
+      "image": "turret-budget-after-quad200-join-plus25.png",
+      "artifact": {
+        "committed": false,
+        "path": "/tmp/turret-budget-visuals/turret-budget-after-quad200-join-plus25.png",
+        "sha256": "cd620f16f3fa719dfe41e3abcac5313e68344d2da394f337f6fdd053489f5fa6"
+      }
+    },
+    {
+      "id": "join-top",
+      "requestedElevationDegrees": 0,
+      "camera": {
+        "theta": -1.5707963267948966,
+        "phi": 0.025,
+        "orthographic": true,
+        "worldWidthM": 110
+      },
+      "models": [
+        {
+          "kind": "twin40",
+          "triangles": 2074,
+          "size": [
+            29.75,
+            13.75,
+            20.87962882634703
+          ],
+          "muzzleCount": 2,
+          "muzzles": [
+            [
+              173.7324143363882,
+              32.5,
+              -8.504908102453705
+            ],
+            [
+              173.7324143363882,
+              32.5,
+              8.50490631071981
+            ]
+          ],
+          "effectiveElevationDegrees": 0,
+          "expectedClampedDegrees": 0,
+          "bodyFixed": false
+        },
+        {
+          "kind": "quad200",
+          "triangles": 2850,
+          "size": [
+            19.337499999999977,
+            7.605,
+            13.57175873712557
+          ],
+          "muzzleCount": 4,
+          "muzzles": [
+            [
+              540.6724585456477,
+              24.1925,
+              -5.528190266594908
+            ],
+            [
+              540.6724585456477,
+              25.6875,
+              -5.528190266594908
+            ],
+            [
+              540.6724585456477,
+              24.1925,
+              5.528189101967877
+            ],
+            [
+              540.6724585456477,
+              25.6875,
+              5.528189101967877
+            ]
+          ],
+          "effectiveElevationDegrees": 0,
+          "expectedClampedDegrees": 0,
+          "bodyFixed": false
+        }
+      ],
+      "litPixels": 90886,
+      "pixelCount": 1185600,
+      "webglError": 0,
+      "image": "turret-budget-after-join-top.png",
+      "artifact": {
+        "committed": true,
+        "path": "docs/images/turret-budget-after-join-top.png",
+        "sha256": "68d3c5ab10a7ee35074eed3ad29214c83a69a14bd09df5de36c0cdcc49745bed"
+      }
+    },
+    {
+      "id": "70tt-profile",
+      "requestedElevationDegrees": 0,
+      "camera": {
+        "theta": -1.5707963267948966,
+        "phi": 1.5707963267948966,
+        "orthographic": true,
+        "worldWidthM": 180
+      },
+      "models": [
+        {
+          "kind": "refVen",
+          "triangles": 4388,
+          "size": [
+            28.952101779788087,
+            9.997709107492678,
+            16.40878152577366
+          ],
+          "muzzleCount": 2,
+          "muzzles": [
+            [
+              304.0619405451795,
+              24.40205877112618,
+              -6.039509018798146
+            ],
+            [
+              304.12423561342536,
+              24.402038228286205,
+              5.873711490208386
+            ]
+          ],
+          "effectiveElevationDegrees": 0,
+          "expectedClampedDegrees": 0,
+          "bodyFixed": false
+        },
+        {
+          "kind": "triple70",
+          "triangles": 4995,
+          "size": [
+            38.87965286330342,
+            9.997709107492678,
+            24
+          ],
+          "muzzleCount": 3,
+          "muzzles": [
+            [
+              359.488882113996,
+              26.25,
+              -3
+            ],
+            [
+              359.488882113996,
+              26.25,
+              0
+            ],
+            [
+              359.488882113996,
+              26.25,
+              3
+            ]
+          ],
+          "effectiveElevationDegrees": 0,
+          "expectedClampedDegrees": 0,
+          "bodyFixed": false
+        },
+        {
+          "kind": "quad70Side",
+          "triangles": 4479,
+          "size": [
+            34.37965286330343,
+            14.700000000000003,
+            13.600000000000023
+          ],
+          "muzzleCount": 4,
+          "muzzles": [
+            [
+              385.288882113996,
+              23.7,
+              34.37965286330343
+            ],
+            [
+              380.288882113996,
+              23.7,
+              34.37965286330343
+            ],
+            [
+              385.288882113996,
+              28.3,
+              34.37965286330343
+            ],
+            [
+              380.288882113996,
+              28.3,
+              34.37965286330343
+            ]
+          ],
+          "effectiveElevationDegrees": 0,
+          "expectedClampedDegrees": 0,
+          "bodyFixed": true
+        }
+      ],
+      "litPixels": 46218,
+      "pixelCount": 1016800,
+      "webglError": 0,
+      "image": "turret-budget-after-70tt-profile.png",
+      "artifact": {
+        "committed": false,
+        "path": "/tmp/turret-budget-visuals/turret-budget-after-70tt-profile.png",
+        "sha256": "f198becbad68dcc1b00ba25d858caf18b2df1223402113e6c7c89f2a8bbf82c3"
+      }
+    },
+    {
+      "id": "quad500-silhouette",
+      "requestedElevationDegrees": 0,
+      "camera": {
+        "theta": -0.95,
+        "phi": 1.05,
+        "orthographic": true,
+        "worldWidthM": 38
+      },
+      "models": [
+        {
+          "kind": "quad500",
+          "triangles": 2966,
+          "size": [
+            28.5,
+            9.2,
+            11.791093750000002
+          ],
+          "muzzleCount": 4,
+          "muzzles": [
+            [
+              512.3579615516292,
+              23.05,
+              -4.6605468750000005
+            ],
+            [
+              512.3579615516292,
+              26.75,
+              -4.6605468750000005
+            ],
+            [
+              512.3579615516292,
+              23.05,
+              4.6605468750000005
+            ],
+            [
+              512.3579615516292,
+              26.75,
+              4.6605468750000005
+            ]
+          ],
+          "effectiveElevationDegrees": 0,
+          "expectedClampedDegrees": 0,
+          "bodyFixed": false
+        }
+      ],
+      "litPixels": 165007,
+      "pixelCount": 896000,
+      "webglError": 0,
+      "image": "turret-budget-after-quad500-silhouette.png",
+      "artifact": {
+        "committed": true,
+        "path": "docs/images/turret-budget-after-quad500-silhouette.png",
+        "sha256": "43df3be150d8ed5600648751d7eae06a687acd38c54b19b9c891cc3d2c4b6208"
+      }
+    }
+  ],
+  "comparisons": [
+    {
+      "kind": "single40",
+      "beforeTriangles": 1452,
+      "afterTriangles": 1452,
+      "reductionFraction": 0,
+      "beforeSize": [
+        34.6,
+        8.25,
+        13.258204572086406
+      ],
+      "afterSize": [
+        34.6,
+        8.25,
+        13.258204572086406
+      ],
+      "barrelsAndOutputPreserved": true,
+      "scaleAndMaterialPreserved": true,
+      "actualStaticAndMovingColorPalettesPreserved": true
+    },
+    {
+      "kind": "quad40Ion",
+      "beforeTriangles": 1696,
+      "afterTriangles": 1696,
+      "reductionFraction": 0,
+      "beforeSize": [
+        23.907414336388186,
+        17.35872205671472,
+        17.358722056714715
+      ],
+      "afterSize": [
+        23.907414336388186,
+        17.35872205671472,
+        17.358722056714715
+      ],
+      "barrelsAndOutputPreserved": true,
+      "scaleAndMaterialPreserved": true,
+      "actualStaticAndMovingColorPalettesPreserved": true
+    },
+    {
+      "kind": "twin40Dome",
+      "beforeTriangles": 4558,
+      "afterTriangles": 4558,
+      "reductionFraction": 0,
+      "beforeSize": [
+        30.849999999999998,
+        16.35,
+        27.5
+      ],
+      "afterSize": [
+        30.849999999999998,
+        16.35,
+        27.5
+      ],
+      "barrelsAndOutputPreserved": true,
+      "scaleAndMaterialPreserved": true,
+      "actualStaticAndMovingColorPalettesPreserved": true
+    },
+    {
+      "kind": "twin40",
+      "beforeTriangles": 2210,
+      "afterTriangles": 2074,
+      "reductionFraction": 0.06153846153846154,
+      "beforeSize": [
+        29.75,
+        13.75,
+        20.87962882634703
+      ],
+      "afterSize": [
+        29.75,
+        13.75,
+        20.87962882634703
+      ],
+      "barrelsAndOutputPreserved": true,
+      "scaleAndMaterialPreserved": true,
+      "actualStaticAndMovingColorPalettesPreserved": true
+    },
+    {
+      "kind": "triple40",
+      "beforeTriangles": 2218,
+      "afterTriangles": 1962,
+      "reductionFraction": 0.11541929666366091,
+      "beforeSize": [
+        27.75,
+        13.35,
+        17.87962882634703
+      ],
+      "afterSize": [
+        27.75,
+        13.35,
+        17.87962882634703
+      ],
+      "barrelsAndOutputPreserved": true,
+      "scaleAndMaterialPreserved": true,
+      "actualStaticAndMovingColorPalettesPreserved": true
+    },
+    {
+      "kind": "oct40",
+      "beforeTriangles": 1104,
+      "afterTriangles": 1104,
+      "reductionFraction": 0,
+      "beforeSize": [
+        40,
+        10.568947548408056,
+        39.999823093067505
+      ],
+      "afterSize": [
+        40,
+        10.568947548408056,
+        39.999823093067505
+      ],
+      "barrelsAndOutputPreserved": true,
+      "scaleAndMaterialPreserved": true,
+      "actualStaticAndMovingColorPalettesPreserved": true
+    },
+    {
+      "kind": "refVen",
+      "beforeTriangles": 5572,
+      "afterTriangles": 4388,
+      "reductionFraction": 0.2124910265613783,
+      "beforeSize": [
+        28.861991732262666,
+        9.997709107492678,
+        16.25808446257435
+      ],
+      "afterSize": [
+        28.861988482652723,
+        9.997709107492678,
+        16.25808446257435
+      ],
+      "barrelsAndOutputPreserved": true,
+      "scaleAndMaterialPreserved": true,
+      "actualStaticAndMovingColorPalettesPreserved": true
+    },
+    {
+      "kind": "triple70",
+      "beforeTriangles": 16712,
+      "afterTriangles": 4995,
+      "reductionFraction": 0.7011129727142174,
+      "beforeSize": [
+        38.87965286330343,
+        9.997709107492678,
+        24
+      ],
+      "afterSize": [
+        38.87965286330343,
+        9.997709107492678,
+        24
+      ],
+      "barrelsAndOutputPreserved": true,
+      "scaleAndMaterialPreserved": true,
+      "actualStaticAndMovingColorPalettesPreserved": true
+    },
+    {
+      "kind": "quad70Side",
+      "beforeTriangles": 8712,
+      "afterTriangles": 4479,
+      "reductionFraction": 0.4858815426997245,
+      "beforeSize": [
+        34.37965286330343,
+        14.700000000000001,
+        13.6
+      ],
+      "afterSize": [
+        34.37965286330343,
+        14.700000000000001,
+        13.6
+      ],
+      "barrelsAndOutputPreserved": true,
+      "scaleAndMaterialPreserved": true,
+      "actualStaticAndMovingColorPalettesPreserved": true
+    },
+    {
+      "kind": "single500",
+      "beforeTriangles": 2748,
+      "afterTriangles": 2204,
+      "reductionFraction": 0.19796215429403208,
+      "beforeSize": [
+        18.6,
+        7.2,
+        7.2
+      ],
+      "afterSize": [
+        18.6,
+        7.2,
+        7.2
+      ],
+      "barrelsAndOutputPreserved": true,
+      "scaleAndMaterialPreserved": true,
+      "actualStaticAndMovingColorPalettesPreserved": true
+    },
+    {
+      "kind": "twin200",
+      "beforeTriangles": 4328,
+      "afterTriangles": 2760,
+      "reductionFraction": 0.3622920517560074,
+      "beforeSize": [
+        23.9,
+        7,
+        8.5
+      ],
+      "afterSize": [
+        23.9,
+        7,
+        8.5
+      ],
+      "barrelsAndOutputPreserved": true,
+      "scaleAndMaterialPreserved": true,
+      "actualStaticAndMovingColorPalettesPreserved": true
+    },
+    {
+      "kind": "quad500",
+      "beforeTriangles": 10442,
+      "afterTriangles": 2966,
+      "reductionFraction": 0.7159547979314307,
+      "beforeSize": [
+        28.5,
+        9.2,
+        11.791093750000002
+      ],
+      "afterSize": [
+        28.5,
+        9.2,
+        11.791093750000002
+      ],
+      "barrelsAndOutputPreserved": true,
+      "scaleAndMaterialPreserved": true,
+      "actualStaticAndMovingColorPalettesPreserved": true
+    },
+    {
+      "kind": "quad200",
+      "beforeTriangles": 6394,
+      "afterTriangles": 2850,
+      "reductionFraction": 0.55426962777604,
+      "beforeSize": [
+        19.3375,
+        7.6049999999999995,
+        13.57175873712557
+      ],
+      "afterSize": [
+        19.3375,
+        7.6049999999999995,
+        13.57175873712557
+      ],
+      "barrelsAndOutputPreserved": true,
+      "scaleAndMaterialPreserved": true,
+      "actualStaticAndMovingColorPalettesPreserved": true
+    },
+    {
+      "kind": "single200",
+      "beforeTriangles": 3384,
+      "afterTriangles": 2232,
+      "reductionFraction": 0.34042553191489366,
+      "beforeSize": [
+        20.549999999999997,
+        4.2684999999999995,
+        3.9
+      ],
+      "afterSize": [
+        20.549999999999997,
+        4.2684999999999995,
+        3.9
+      ],
+      "barrelsAndOutputPreserved": true,
+      "scaleAndMaterialPreserved": true,
+      "actualStaticAndMovingColorPalettesPreserved": true
+    },
+    {
+      "kind": "twin200Fast",
+      "beforeTriangles": 4608,
+      "afterTriangles": 2976,
+      "reductionFraction": 0.35416666666666663,
+      "beforeSize": [
+        25.8,
+        9.1,
+        7.6
+      ],
+      "afterSize": [
+        25.8,
+        9.1,
+        7.6
+      ],
+      "barrelsAndOutputPreserved": true,
+      "scaleAndMaterialPreserved": true,
+      "actualStaticAndMovingColorPalettesPreserved": true
+    }
+  ],
+  "nativeBay": {
+    "catalog": {
+      "entries": {
+        "quad200": {
+          "count": 1,
+          "labels": [
+            "200GT 4連装ターボレーザー800 GT・19.3×13.6×7.6 m40TT連装の外付け砲基部と砲室を縮小し、左右それぞれの砲基部の上下中央へ2門ずつ集める。4門×200 GT（0.2 TT）、一斉射0.8 TT。 連射間隔 0.2秒。"
+          ]
+        },
+        "refVen": {
+          "count": 1,
+          "labels": [
+            "DBY-827 70TT 2連装重ターボレーザー140 TT・28.9×16.3×10 m既存のDBY-827モデルの形状を保ち、参考画像を基準に寸法だけを調整。2門×70 TT、合計140 TT。 連射間隔 1秒。"
+          ]
+        },
+        "pd": {
+          "count": 1,
+          "labels": [
+            "20GT 連装軽ターボレーザー（点防御）40 GT・1.8×1.2×0.64 m2門×20 GT、0.2秒間隔の連装軽砲。点防御と軽ターボレーザーを統合し、艦載機・ミサイルの迎撃と対艦射撃を兼ねる。 連射間隔 0.2秒。"
+          ]
+        },
+        "broadsideBattery": {
+          "count": 1,
+          "labels": [
+            "側面砲列区画80 TT・9×7×0.35 m構造物の側壁に貼り付ける黒い砲門。70TT・40TTは1区画2門まで、500GT・200GTは6門まで選択。砲身を外へ出さず、区画背面の船内に各砲の威力と門数に応じた給電・充電装置を実配置する。左右±65°・上下±20°。 連射間隔 1秒。"
+          ]
+        },
+        "mtl": {
+          "count": 0,
+          "labels": []
+        },
+        "htl": {
+          "count": 0,
+          "labels": []
+        },
+        "ltl": {
+          "count": 0,
+          "labels": []
+        },
+        "casemateMid": {
+          "count": 0,
+          "labels": []
+        },
+        "casemateLight": {
+          "count": 0,
+          "labels": []
+        },
+        "casemateIon": {
+          "count": 0,
+          "labels": []
+        },
+        "casemateIonL": {
+          "count": 0,
+          "labels": []
+        }
+      },
+      "pointDefense": {
+        "barrels": 2,
+        "boltTT": 0.02,
+        "volleyTT": 0.04
+      }
+    },
+    "nativePlacementPixel": [
+      720,
+      479.5
+    ],
+    "host": 2,
+    "placementChoiceClampedFromSixToTwo": true,
+    "checks": [
+      {
+        "id": 3,
+        "host": 2,
+        "float": false,
+        "caliber": "70TT",
+        "guns": 2,
+        "options": 2,
+        "barrels": 2,
+        "boltTT": 70,
+        "volleyTT": 140,
+        "powerW": 5.8576e+23,
+        "cycle": 1,
+        "bounds": [
+          205,
+          25.500000000000178,
+          16.5,
+          205.365,
+          34.50000000000018,
+          23.5
+        ],
+        "muzzles": [
+          [
+            205.365,
+            27.30000000000018,
+            20
+          ],
+          [
+            205.365,
+            32.70000000000018,
+            20
+          ]
+        ],
+        "normal": [
+          1,
+          0,
+          0
+        ],
+        "point": [
+          205,
+          30.000000000000178,
+          20
+        ],
+        "depth": 0.35,
+        "lip": 0.015,
+        "indices": 108,
+        "darkVertices": 24,
+        "maxOutset": 0.3650054931640625,
+        "nativeWindowPick": true,
+        "charge": {
+          "required": 2800,
+          "plannedVolume": 2800,
+          "housingVolume": 0,
+          "externalVolume": 0,
+          "embeddedVolume": 0,
+          "externalUsed": 0,
+          "embeddedUsed": 0,
+          "housingUsed": 0,
+          "internalRequired": 2800,
+          "internalVolume": 2800,
+          "internalOccupiedVolume": 2800,
+          "volume": 2800,
+          "ratio": 1,
+          "capacityRatio": 1,
+          "storedTT": 140,
+          "allocationPending": false,
+          "id": -200003,
+          "blocked": false
+        },
+        "feed": {
+          "id": -200003,
+          "weaponId": 3,
+          "ready": true,
+          "volume": 2800,
+          "bounds": [
+            189,
+            22.362373841740443,
+            12.362373841740267,
+            201,
+            37.63762615825991,
+            27.637626158259735
+          ],
+          "center": [
+            195,
+            30.000000000000178,
+            20
+          ],
+          "boxSize": [
+            15.275252316519467,
+            12,
+            15.275252316519467
+          ],
+          "insideHost": true
+        },
+        "fleet": {
+          "barrels": 2,
+          "muzzles": [
+            [
+              205.365,
+              27.30000000000018,
+              20
+            ],
+            [
+              205.365,
+              32.70000000000018,
+              20
+            ]
+          ],
+          "broadsideBattery": true,
+          "staticOrMovingMesh": null
+        },
+        "webglError": 0
+      },
+      {
+        "id": 3,
+        "host": 2,
+        "float": false,
+        "caliber": "40TT",
+        "guns": 2,
+        "options": 2,
+        "barrels": 2,
+        "boltTT": 40,
+        "volleyTT": 80,
+        "powerW": 3.3472e+23,
+        "cycle": 1,
+        "bounds": [
+          205,
+          25.500000000000178,
+          16.5,
+          205.365,
+          34.50000000000018,
+          23.5
+        ],
+        "muzzles": [
+          [
+            205.365,
+            27.30000000000018,
+            20
+          ],
+          [
+            205.365,
+            32.70000000000018,
+            20
+          ]
+        ],
+        "normal": [
+          1,
+          0,
+          0
+        ],
+        "point": [
+          205,
+          30.000000000000178,
+          20
+        ],
+        "depth": 0.35,
+        "lip": 0.015,
+        "indices": 108,
+        "darkVertices": 24,
+        "maxOutset": 0.3650054931640625,
+        "nativeWindowPick": true,
+        "charge": {
+          "required": 1600,
+          "plannedVolume": 1600,
+          "housingVolume": 0,
+          "externalVolume": 0,
+          "embeddedVolume": 0,
+          "externalUsed": 0,
+          "embeddedUsed": 0,
+          "housingUsed": 0,
+          "internalRequired": 1600,
+          "internalVolume": 1600,
+          "internalOccupiedVolume": 1600,
+          "volume": 1600,
+          "ratio": 1,
+          "capacityRatio": 1,
+          "storedTT": 80,
+          "allocationPending": false,
+          "id": -200003,
+          "blocked": false
+        },
+        "feed": {
+          "id": -200003,
+          "weaponId": 3,
+          "ready": true,
+          "volume": 1600,
+          "bounds": [
+            185.25,
+            20.618058125668757,
+            10.61805812566858,
+            204.75,
+            39.3819418743316,
+            19.278312163512968
+          ],
+          "center": [
+            195,
+            30.000000000000178,
+            20
+          ],
+          "boxSize": [
+            11.547005383792516,
+            11.999999999999996,
+            11.547005383792516
+          ],
+          "insideHost": true
+        },
+        "fleet": {
+          "barrels": 2,
+          "muzzles": [
+            [
+              205.365,
+              27.30000000000018,
+              20
+            ],
+            [
+              205.365,
+              32.70000000000018,
+              20
+            ]
+          ],
+          "broadsideBattery": true,
+          "staticOrMovingMesh": null
+        },
+        "webglError": 0
+      },
+      {
+        "id": 3,
+        "host": 2,
+        "float": false,
+        "caliber": "500GT",
+        "guns": 6,
+        "options": 6,
+        "barrels": 6,
+        "boltTT": 0.5,
+        "volleyTT": 3,
+        "powerW": 6.276e+22,
+        "cycle": 0.2,
+        "bounds": [
+          205,
+          25.500000000000178,
+          16.5,
+          205.365,
+          34.50000000000018,
+          23.5
+        ],
+        "muzzles": [
+          [
+            205.365,
+            27.30000000000018,
+            20
+          ],
+          [
+            205.365,
+            28.380000000000177,
+            20
+          ],
+          [
+            205.365,
+            29.46000000000018,
+            20
+          ],
+          [
+            205.365,
+            30.540000000000177,
+            20
+          ],
+          [
+            205.365,
+            31.62000000000018,
+            20
+          ],
+          [
+            205.365,
+            32.70000000000018,
+            20
+          ]
+        ],
+        "normal": [
+          1,
+          0,
+          0
+        ],
+        "point": [
+          205,
+          30.000000000000178,
+          20
+        ],
+        "depth": 0.35,
+        "lip": 0.015,
+        "indices": 108,
+        "darkVertices": 24,
+        "maxOutset": 0.3650054931640625,
+        "nativeWindowPick": true,
+        "charge": {
+          "required": 60,
+          "plannedVolume": 60,
+          "housingVolume": 0,
+          "externalVolume": 0,
+          "embeddedVolume": 0,
+          "externalUsed": 0,
+          "embeddedUsed": 0,
+          "housingUsed": 0,
+          "internalRequired": 60,
+          "internalVolume": 59.999999999999986,
+          "internalOccupiedVolume": 59.999999999999986,
+          "volume": 59.999999999999986,
+          "ratio": 0.9999999999999998,
+          "capacityRatio": 0.9999999999999998,
+          "storedTT": 2.9999999999999996,
+          "allocationPending": false,
+          "id": -200003,
+          "blocked": false
+        },
+        "feed": {
+          "id": -200003,
+          "weaponId": 3,
+          "ready": true,
+          "volume": 59.999999999999986,
+          "bounds": [
+            191.25,
+            26.785652282344234,
+            16.785652282344056,
+            198.75,
+            33.214347717656125,
+            19.860245751406264
+          ],
+          "center": [
+            195,
+            30.000000000000178,
+            20
+          ],
+          "boxSize": [
+            2.23606797749979,
+            11.999999999999998,
+            2.23606797749979
+          ],
+          "insideHost": true
+        },
+        "fleet": {
+          "barrels": 6,
+          "muzzles": [
+            [
+              205.365,
+              27.30000000000018,
+              20
+            ],
+            [
+              205.365,
+              28.380000000000177,
+              20
+            ],
+            [
+              205.365,
+              29.46000000000018,
+              20
+            ],
+            [
+              205.365,
+              30.540000000000177,
+              20
+            ],
+            [
+              205.365,
+              31.62000000000018,
+              20
+            ],
+            [
+              205.365,
+              32.70000000000018,
+              20
+            ]
+          ],
+          "broadsideBattery": true,
+          "staticOrMovingMesh": null
+        },
+        "webglError": 0
+      },
+      {
+        "id": 3,
+        "host": 2,
+        "float": false,
+        "caliber": "200GT",
+        "guns": 6,
+        "options": 6,
+        "barrels": 6,
+        "boltTT": 0.2,
+        "volleyTT": 1.2000000000000002,
+        "powerW": 2.5104000000000004e+22,
+        "cycle": 0.2,
+        "bounds": [
+          205,
+          25.500000000000178,
+          16.5,
+          205.365,
+          34.50000000000018,
+          23.5
+        ],
+        "muzzles": [
+          [
+            205.365,
+            27.30000000000018,
+            20
+          ],
+          [
+            205.365,
+            28.380000000000177,
+            20
+          ],
+          [
+            205.365,
+            29.46000000000018,
+            20
+          ],
+          [
+            205.365,
+            30.540000000000177,
+            20
+          ],
+          [
+            205.365,
+            31.62000000000018,
+            20
+          ],
+          [
+            205.365,
+            32.70000000000018,
+            20
+          ]
+        ],
+        "normal": [
+          1,
+          0,
+          0
+        ],
+        "point": [
+          205,
+          30.000000000000178,
+          20
+        ],
+        "depth": 0.35,
+        "lip": 0.015,
+        "indices": 108,
+        "darkVertices": 24,
+        "maxOutset": 0.3650054931640625,
+        "nativeWindowPick": true,
+        "charge": {
+          "required": 24.000000000000004,
+          "plannedVolume": 24.000000000000004,
+          "housingVolume": 0,
+          "externalVolume": 0,
+          "embeddedVolume": 0,
+          "externalUsed": 0,
+          "embeddedUsed": 0,
+          "housingUsed": 0,
+          "internalRequired": 24.000000000000004,
+          "internalVolume": 24,
+          "internalOccupiedVolume": 24,
+          "volume": 24,
+          "ratio": 0.9999999999999999,
+          "capacityRatio": 0.9999999999999999,
+          "storedTT": 1.2000000000000002,
+          "allocationPending": false,
+          "id": -200003,
+          "blocked": false
+        },
+        "feed": {
+          "id": -200003,
+          "weaponId": 3,
+          "ready": true,
+          "volume": 24,
+          "bounds": [
+            192.75,
+            27.625000000000178,
+            17.625,
+            197.25,
+            32.37500000000018,
+            19.875
+          ],
+          "center": [
+            195,
+            30.000000000000178,
+            20
+          ],
+          "boxSize": [
+            1.4142135623730951,
+            12,
+            1.4142135623730951
+          ],
+          "insideHost": true
+        },
+        "fleet": {
+          "barrels": 6,
+          "muzzles": [
+            [
+              205.365,
+              27.30000000000018,
+              20
+            ],
+            [
+              205.365,
+              28.380000000000177,
+              20
+            ],
+            [
+              205.365,
+              29.46000000000018,
+              20
+            ],
+            [
+              205.365,
+              30.540000000000177,
+              20
+            ],
+            [
+              205.365,
+              31.62000000000018,
+              20
+            ],
+            [
+              205.365,
+              32.70000000000018,
+              20
+            ]
+          ],
+          "broadsideBattery": true,
+          "staticOrMovingMesh": null
+        },
+        "webglError": 0
+      },
+      {
+        "id": 3,
+        "host": 2,
+        "float": false,
+        "caliber": "70TT",
+        "guns": 2,
+        "options": 2,
+        "barrels": 2,
+        "boltTT": 70,
+        "volleyTT": 140,
+        "powerW": 5.8576e+23,
+        "cycle": 1,
+        "bounds": [
+          205,
+          25.500000000000178,
+          16.5,
+          205.365,
+          34.50000000000018,
+          23.5
+        ],
+        "muzzles": [
+          [
+            205.365,
+            27.30000000000018,
+            20
+          ],
+          [
+            205.365,
+            32.70000000000018,
+            20
+          ]
+        ],
+        "normal": [
+          1,
+          0,
+          0
+        ],
+        "point": [
+          205,
+          30.000000000000178,
+          20
+        ],
+        "depth": 0.35,
+        "lip": 0.015,
+        "indices": 108,
+        "darkVertices": 24,
+        "maxOutset": 0.3650054931640625,
+        "nativeWindowPick": true,
+        "charge": {
+          "required": 2800,
+          "plannedVolume": 2800,
+          "housingVolume": 0,
+          "externalVolume": 0,
+          "embeddedVolume": 0,
+          "externalUsed": 0,
+          "embeddedUsed": 0,
+          "housingUsed": 0,
+          "internalRequired": 2800,
+          "internalVolume": 2800,
+          "internalOccupiedVolume": 2800,
+          "volume": 2800,
+          "ratio": 1,
+          "capacityRatio": 1,
+          "storedTT": 140,
+          "allocationPending": false,
+          "id": -200003,
+          "blocked": false
+        },
+        "feed": {
+          "id": -200003,
+          "weaponId": 3,
+          "ready": true,
+          "volume": 2800,
+          "bounds": [
+            189,
+            22.362373841740443,
+            12.362373841740267,
+            201,
+            37.63762615825991,
+            27.637626158259735
+          ],
+          "center": [
+            195,
+            30.000000000000178,
+            20
+          ],
+          "boxSize": [
+            15.275252316519467,
+            12,
+            15.275252316519467
+          ],
+          "insideHost": true
+        },
+        "fleet": {
+          "barrels": 2,
+          "muzzles": [
+            [
+              205.365,
+              27.30000000000018,
+              20
+            ],
+            [
+              205.365,
+              32.70000000000018,
+              20
+            ]
+          ],
+          "broadsideBattery": true,
+          "staticOrMovingMesh": null
+        },
+        "webglError": 0
+      }
+    ],
+    "images": [
+      "turret-budget-after-bay-native.png",
+      "turret-budget-after-bay-feed.png"
+    ],
+    "scope": "Native palette and canvas placement, actual caliber/count change events, resolved physical capacitor behind the structural window and production geometry/firing muzzle data; no powered combat",
+    "fixture": {
+      "powered": false,
+      "structuralHostSizeM": [
+        110,
+        40,
+        40
+      ],
+      "purpose": "Geometry and control inspection; full physical feed volume is verified independently of recharge power."
+    },
+    "imageArtifacts": [
+      {
+        "path": "docs/images/turret-budget-after-bay-native.png",
+        "committed": true,
+        "sha256": "74578b1b2dd5a1d82887054704e2c40208cc8e205998c6ccde24dbe702851fb3"
+      },
+      {
+        "path": "docs/images/turret-budget-after-bay-feed.png",
+        "committed": true,
+        "sha256": "21052b47244b5f10960176bc1c7b45bfdd0c6af89670aeba2a70d6a6261a48c1"
+      }
+    ]
+  },
+  "errors": [],
+  "scope": {
+    "verified": [
+      "All fifteen fitted family models are rendered and natively selectable",
+      "Decoded indices/UVs are valid; packed normals are finite and nonzero vectors are unit length",
+      "Used zero-normal vertex counts do not increase from the prior family",
+      "Per-barrel muzzle picking, counts, dimensions, output, scale and material",
+      "Production geometry draw ranges match the complete source mesh",
+      "Shared cameras and metre scales for before/after silhouette inspection",
+      "Requested −25/0/+25 degree joins with unchanged native limits, actual muzzle transforms",
+      "Native structural bay placement, four caliber choices, 2/6-gun limits and actual internal feed allocation"
+    ],
+    "notVerified": [
+      "Powered combat, automatic tracking or sustained frame rate",
+      "Physical mobile GPU performance",
+      "All-ship startup or engineering performance"
+    ]
+  }
+}

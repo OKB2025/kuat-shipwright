@@ -13,7 +13,7 @@ const insideHouse=(a,p)=>a.turretCompartment.convexes.some(q=>q.faces.every(([ia
 
 test('all nine photographed weapons keep distinct regular models, barrel counts, energies and native scales',()=>{
  const ids=[];for(const [k,id,n,tt]of FAMILY){const {d,a}=data(k);ids.push(d.asset);assert.equal(d.asset,id);assert.equal(d.barrels,n);assert.equal(d.boltTT,tt);near(Math.max(d.tt||0,d.ion||0),n*tt,1e-12);if(k==='quad40Ion')assert.equal(d.tt,0);near(d.power*d.cycle/C.TT,n*tt,1e-10);near(C.weaponModelScale(k),1,1e-12);vector([d.fm,d.hm,d.wm],a.size,.001);assert.equal(a.catalogKind,k);vector(a.mount,k==='triple70'?[a.caseMaximumWidthXM,0,0]:[0,0,0],1e-12);vector(a.forward,[1,0,0],1e-12);vector(a.up,[0,1,0],1e-12);assert.ok(C.weaponSizing(k).calibration,'photo models are explicit native-size calibrations');}
- assert.equal(new Set(ids).size,9);assert.equal(C.FITS.htl.asset,C.FITS.refVen.asset,'the legacy 140 TT definition uses the same DBY appearance without losing its saved key');assert.equal(C.FITS.refSide,undefined);assert.equal(C.canonicalWeaponKind('refSide'),'twin40','old side-twin inventory joins the regular twin');assert.equal(C.FITS.stl.tt,350,'the 175 TT twin remains separate from the remade 320 TT octuple');
+ assert.equal(new Set(ids).size,9);assert.equal(C.fitSpec({k:'htl'}).asset,C.FITS.refVen.asset,'legacy DBY inventory resolves to the same budgeted native appearance');assert.equal(C.FITS.refSide,undefined);assert.equal(C.canonicalWeaponKind('refSide'),'twin40','old side-twin inventory joins the regular twin');assert.equal(C.FITS.stl.tt,350,'the 175 TT twin remains separate from the remade 320 TT octuple');
 });
 
 test('the ISD forty-metre footprint anchors the photographed family without blank support plinths',()=>{
@@ -61,14 +61,16 @@ test('packed surface inventory cannot activate the broadside quad on a deck',()=
  assert.deepEqual(plain(s.surfaces.patches[0].aggregate.guns[0]),row,'the original packed inventory remains available for remounting');assert.equal(G.meshFits(s).ni,0,'the invalid deck weapon contributes no active rendered gun');
 });
 
-test('original normal octuple and DBY meshes preserve every source vertex, face and UV under one uniform transform',()=>{
+test('the original octuple stays exact and the reduced DBY retains its source frame, sampled vertices, UVs and complete fixed housing',()=>{
  C.REFERENCE_ASSETS.original_normal_octuple=JSON.parse(fs.readFileSync(path.join(root,'assets/source/isd-heavy-octuple-original.json'),'utf8'));
  for(const [kind,sourceId,expectedHash,scale]of [['oct40','original_normal_octuple','51255c7a3d9c99088e8fd6afd3b1dd963672ae3e00f1bbe4c31c2bc777ee28e8',40/29.679587322727336],['refVen','ven_turret','8067fdea252e9627a92f4934eb33d446139fa5fce755e172d2bb4358b14506dc',1]]){
-  const {a,m}=data(kind),source=C.REFERENCE_ASSETS[sourceId],original=C.decodeReference(sourceId);let packed=source;while(packed.dataFrom)packed=C.REFERENCE_ASSETS[packed.dataFrom];assert.equal(crypto.createHash('sha256').update(Buffer.from(packed.data,'base64')).digest('hex'),expectedHash,'the original immutable payload cannot change');assert.equal(a.n,source.n);assert.equal(a.faces,source.faces);
-  const ids=a.sourceVertexIndices;assert.equal(ids.length,a.n);assert.equal(new Set(ids).size,source.n);const S=ids.map(i=>point(source,original,i)),T=ids.map((_,i)=>point(a,m,i)),delta=S.map(p=>C.sub(p,S[0]));let i1=1,i2=2;for(let i=1;i<S.length;i++)if(C.len(delta[i])>C.len(delta[i1]))i1=i;for(let i=1;i<S.length;i++)if(C.len(C.cross(delta[i1],delta[i]))>C.len(C.cross(delta[i1],delta[i2])))i2=i;
+  const {a,m}=data(kind),source=C.REFERENCE_ASSETS[sourceId],original=C.decodeReference(sourceId);let packed=source;while(packed.dataFrom)packed=C.REFERENCE_ASSETS[packed.dataFrom];assert.equal(crypto.createHash('sha256').update(Buffer.from(packed.data,'base64')).digest('hex'),expectedHash,'the original immutable payload cannot change');if(kind==='oct40'){assert.equal(a.n,source.n);assert.equal(a.faces,source.faces);}else{assert.ok(a.n<source.n&&a.faces<source.faces,'DBY barrel tessellation really is reduced');assert.ok(a.faces<=5000);}
+  const ids=a.sourceVertexIndices;assert.equal(ids.length,a.n);assert.equal(new Set(ids).size,a.n);assert.ok(ids.every(i=>Number.isInteger(i)&&i>=0&&i<source.n));const S=ids.map(i=>point(source,original,i)),T=ids.map((_,i)=>point(a,m,i)),delta=S.map(p=>C.sub(p,S[0]));let i1=1,i2=2;for(let i=1;i<S.length;i++)if(C.len(delta[i])>C.len(delta[i1]))i1=i;for(let i=1;i<S.length;i++)if(C.len(C.cross(delta[i1],delta[i]))>C.len(C.cross(delta[i1],delta[i2])))i2=i;
   const basis=(P)=>{const u=C.norm(C.sub(P[i1],P[0])),v0=C.sub(P[i2],P[0]),v=C.norm(C.sub(v0,C.mul(u,C.dot(v0,u))));return [u,v,C.cross(u,v)];},U=basis(S),V=basis(T);near(C.len(C.sub(T[i1],T[0]))/C.len(delta[i1]),scale,.0001);
   for(let i=0;i<S.length;i++)for(let j=0;j<3;j++)near(C.dot(C.sub(T[i],T[0]),V[j]),C.dot(delta[i],U[j])*scale,.003);
-  const key=v=>[v.join(','),[v[1],v[2],v[0]].join(','),[v[2],v[0],v[1]].join(',')].sort()[0],faces=(mesh,map)=>{const out=[];for(let i=0;i<mesh.idx.length;i+=3)out.push(key(Array.from(mesh.idx.subarray(i,i+3),j=>map?map[j]:j)));return out.sort();};assert.deepEqual(faces(m,ids),faces(original),'every original triangle keeps its winding and topology');
+  const key=v=>[v.join(','),[v[1],v[2],v[0]].join(','),[v[2],v[0],v[1]].join(',')].sort()[0],faces=(mesh,map)=>{const out=[];for(let i=0;i<mesh.idx.length;i+=3)out.push(key(Array.from(mesh.idx.subarray(i,i+3),j=>map?map[j]:j)));return out.sort();};if(kind==='oct40')assert.deepEqual(faces(m,ids),faces(original),'every original octuple triangle keeps its winding and topology');else{
+   for(const component of [0,1,3]){const row=a.components.find(r=>r.sourceComponent===component);assert.ok(row,'the DBY housing and both circular drive components remain complete');const wanted=new Set(row.sourceVertexIndices),sourceFaces=[];for(let i=0;i<original.idx.length;i+=3){const tri=Array.from(original.idx.subarray(i,i+3));if(tri.some(v=>wanted.has(v))){assert.ok(tri.every(v=>wanted.has(v)));sourceFaces.push(key(tri));}}const actual=[];for(let i=row.firstIndex;i<row.firstIndex+row.indices;i+=3)actual.push(key(Array.from(m.idx.subarray(i,i+3),j=>ids[j])));assert.deepEqual(actual.sort(),sourceFaces.sort(),'unchanged fixed source housing/drive topology is preserved');}
+  }
   if(m.uv&&original.uv)for(let i=0;i<a.n;i++)for(let j=0;j<2;j++)near(m.uv[i*2+j],original.uv[ids[i]*2+j],1e-6);
  }
 });
@@ -97,8 +99,11 @@ test('all derived70 barrels preserve complete full-length DBY profiles and the f
 
 // Enlarging a neighbouring case must relocate the affected authored station,
 // rather than silently dropping guns from the built-in Imperial example.
-test('photo-sized cases retain the original Imperial inventory and its forward dorsal ion pair',()=>{
- const s=C.buildDesign('imperial');assert.equal(s.fits.length,166);for(const [kind,n]of [['twin40',60],['quad40Ion',56],['triple40',3]])assert.equal(s.fits.filter(f=>f.k===kind).length,n,kind+' original inventory');
+test('photo-sized cases retain Imperial native inventory and its forward dorsal ion pair after catalog consolidation',()=>{
+ const s=C.buildDesign('imperial'),ions=s.fits.filter(f=>f.k==='quad40Ion'),other=[['pd',22],['oct40',6],['ion',2],['podAir',1],['refVen',4],['triple40',3],['quad200',2],['twin40',60],['trc',10]];
+ // The recipe attempts sixty ion stations. Smaller replacement weapons can
+ // free previously obstructed stations; none of the original56 may disappear.
+ assert.ok(ions.length>=56&&ions.length<=60,'consolidation can expose existing authored ion stations without duplicating the recipe');for(const[kind,n]of other)assert.equal(s.fits.filter(f=>f.k===kind).length,n,kind+' canonical inventory');assert.equal(s.fits.length,other.reduce((n,r)=>n+r[1],0)+ions.length);assert.equal(new Set(s.fits.map(f=>f.id)).size,s.fits.length);assert.equal(new Set(ions.map(f=>JSON.stringify([f.a,f.p]))).size,ions.length,'each ion occupies its own authored station');
  const pair=s.fits.filter(f=>f.k==='quad40Ion'&&f.a===2&&f.p[0]>1360&&f.p[0]<1405);assert.equal(pair.length,2);near(pair[0].p[0],pair[1].p[0],.001);near(pair[0].p[2],-pair[1].p[2],.001);
  C.syncCompartments(s);const status=C.chargingStatus(s,new Set());for(const f of pair){assert.equal(f.float,false);assert.equal(C.fitClash(s,f),null);const q=status[f.id];assert.ok(q);assert.equal(q.allocationPending,false);near(q.ratio,1,1e-9);near(q.storedTT,160,1e-6);}
 });

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Build the five photo-sized 200/500 GT mounts without display pedestals.
 
-The immutable 40 TT external twin supplies the small quad's case and complete
+The shared 40 TT external twin supplies the small quad's case and complete
 circular DBY machinery. Other mounts are new closed gunhouses or open AA forks;
 their bearing rings are intrinsic mechanisms, never exhibition support stands.
 """
@@ -22,6 +22,23 @@ F = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(F)
 ORDER = ['light_single500', 'light_twin200', 'light_quad200', 'light_single200', 'light_twin200_fast']
 LIMITS = {'yaw': None, 'lo': -10*math.pi/180, 'hi': 85*math.pi/180}
+POLYGON_BUDGET = 3000
+
+
+class LightMesh(F.Mesh):
+    """Keep small bearings round without spending 40–64 sides per ring.
+
+    The photo40 case is built before enabling the quad's local limit, so its
+    shared case remains an exact uniformly scaled copy of the external twin.
+    """
+    def __init__(self, circle_segments=32):
+        super().__init__()
+        self.circle_segments = circle_segments
+
+    def cylinder(self, center, radius, depth, axis, label, segments=40):
+        if self.circle_segments is not None:
+            segments = min(segments, self.circle_segments)
+        return super().cylinder(center, radius, depth, axis, label, segments)
 
 
 def role(row, name):
@@ -29,7 +46,8 @@ def role(row, name):
     return row
 
 
-def tube(m, root, tip, radius, label, muzzle_radius=None, thin_length=None):
+def tube(m, root, tip, radius, label, muzzle_radius=None, thin_length=None,
+         segments=24, compact_breech=False):
     """A complete tube with independently photo-sized shaft, neck and lip.
 
     The wide stepped receiver end is not part of the measured thin shaft.
@@ -44,16 +62,21 @@ def tube(m, root, tip, radius, label, muzzle_radius=None, thin_length=None):
     recess=max(radius*1.5,length*.035)
     cap_length=min(thin_length*.20,max(muzzle_radius*1.8,.35))
     collar0=neck+thin_length*.60;collar1=neck+thin_length*.62
-    profile=[(x0,0),(x0,radius*1.7),(x0+breech*.18,radius*1.7),
-             (x0+breech*.18,radius*1.5),(x0+breech*.62,radius*1.5),
-             (x0+breech*.62,radius*1.3),(neck,radius),(collar0,radius),
+    # The quad's stepped rear is fully enclosed by its moving receiver. A
+    # simple closed taper saves hidden bands while retaining the exact root,
+    # measured shaft neck, outside diameters and recessed annular muzzle.
+    hidden_breech = ([(x0,0),(x0,radius*1.7),(neck,radius)] if compact_breech else
+                    [(x0,0),(x0,radius*1.7),(x0+breech*.18,radius*1.7),
+                     (x0+breech*.18,radius*1.5),(x0+breech*.62,radius*1.5),
+                     (x0+breech*.62,radius*1.3),(neck,radius)])
+    profile=hidden_breech+[(collar0,radius),
              (collar0,radius*1.08),(collar1,radius*1.08),(collar1,radius),
              (tip-cap_length,radius),(tip-cap_length,muzzle_radius),
              (tip,muzzle_radius),(tip,radius*.66),(tip-recess,radius*.66),(tip-recess,0)]
     clean=[]
     for point in profile:
         if not clean or math.dist(point,clean[-1])>1e-10:clean.append(point)
-    segments=40;rings=[]
+    rings=[]
     for x,r in clean:
         if r==0:
             rings.append([len(m.points)]);m.points.append([x,y,z]);m.uvs.append((0,32768))
@@ -101,7 +124,7 @@ def finish(m, kind, title, output, pivot, barrels, split, drive, scale=1, **extr
 
 
 def build_single500():
-    m = F.Mesh()
+    m = LightMesh()
     pivot = [0, 1.2, 0]
     split = m.mark()
     sphere = F.spherical_house(m, pivot, 3.6, '500GT single complete spherical gunhouse')
@@ -147,7 +170,7 @@ def aa_receiver(m, pivot, low, high, width, label):
 
 
 def build_single200():
-    m=F.Mesh();pivot=[-2.2,2.85,0]
+    m=LightMesh();pivot=[-2.2,2.85,0]
     drive=aa_fork(m,pivot,.95,1.2)
     # Only this genuinely enclosed electrical cabinet contributes room.
     cabinet=role(m.box([-1.4,.72,-.53],[.0,1.33,.53],'single200 enclosed lower electrical cabinet',True),'fixed-electrical-case')
@@ -167,7 +190,7 @@ def build_single200():
 
 
 def build_fast200():
-    m=F.Mesh();pivot=[-1.6,4.8,0]
+    m=LightMesh();pivot=[-1.6,4.8,0]
     drive=aa_fork(m,pivot,2.8,3.9,True)
     cabinet=role(m.box([-2.0,.72,-1.45],[.2,1.35,1.45],'fast200 enclosed lower electrical cabinet',True),'fixed-electrical-case')
     split=m.mark()
@@ -190,7 +213,7 @@ def build_fast200():
 
 
 def build_twin200():
-    m=F.Mesh();ring(m,4.25)
+    m=LightMesh();ring(m,4.25)
     raw=F.Mesh()
     raw.prism([[-8.2,.4],[8.2,.4],[9.3,1.5],[7.1,3.8],[-6.8,3.8],[-8.2,2.5]],
               -4.2,4.2,'twin200 lower high-angle armored case',True)
@@ -221,8 +244,9 @@ def build_twin200():
 
 
 def build_quad200():
-    m=F.Mesh();context=F.common_photo40_case(m)
+    m=LightMesh(None);context=F.common_photo40_case(m)
     cover=F.restore_twin_case_cover(m,context)
+    m.circle_segments=20
     # Use precisely the same external-twin case, closed cover and conservative
     # real-room closures. Its copied two original barrels are never imported.
     m.compartments=[]
@@ -233,6 +257,7 @@ def build_quad200():
                 'sourceMeshRange':{'firstVertex':0,'vertices':len(m.points),'firstIndex':0,'indices':len(m.indices)}})
     pivot=[2.5,7.6,0]
     drive,zs=F.complete_photo_drives(m,pivot,6.5,6.5,'quad200 external complete circular trunnion')
+    shoulders=F.circular_drive_shoulders(m,pivot,5.5,drive,segments=16)
     axle=role(m.cylinder(pivot,.70,17.2,2,'quad200 fixed cross-case drive shaft',48),'fixed-bearing-axle')
     split=m.mark();b=[];receivers=[]
     for z in zs:
@@ -242,7 +267,8 @@ def build_quad200():
         for y in [6.45,8.75]:
             b.append(tube(m,[1.8333333333333333,y,z],18.5,.27/.65,
                           '200GT central external quad barrel '+str(len(b)+1),
-                          muzzle_radius=.27/.65,thin_length=7.8/.65))
+                          muzzle_radius=.27/.65,thin_length=7.8/.65,
+                          segments=16,compact_breech=True))
     scale=.65
     shared=context['shared']
     return finish(m,'quad200','200GT 4連装ターボレーザー',.2,pivot,b,split,drive,scale,
@@ -252,8 +278,10 @@ def build_quad200():
             'recoilBayBoundsM':[[x*scale for x in row] for row in shared['recoilBayBoundsM']]},
         parentCase={'geometrySha256':shared['geometrySha256'],'unscaledBoundsM':shared['boundsM'],
                     'meshRange':shared['meshRange'],'coverLabel':cover['label']},
+        fixedDriveShoulders=shoulders,
         photoFeatureComponents={'case':context['labels'],'mainCase':context['labels'],
-            'wheel':[r['label'] for r in drive],'receiver':receivers,'axle':[axle['label']]},
+            'wheel':[r['label'] for r in drive],'receiver':receivers,'axle':[axle['label']],
+            'shoulders':[r['label'] for r in shoulders]},
         centralBarrelRows={'verticalOffsetFromElevationPivotM':[-1.15*scale,1.15*scale],
             'centredOnElevationBearing':True},
         derivation='exact uniformly reduced 40TT external twin case with two new centrally clustered barrels on each complete external circular mount')
@@ -311,6 +339,7 @@ def validate(assets):
     result={}
     for key,a in assets.items():
         payload=base64.b64decode(a['data']);points,indices=decode(a)
+        if a['faces']>POLYGON_BUDGET:raise ValueError(key+' exceeds '+str(POLYGON_BUDGET)+' rendered triangles')
         if len(a['barrelCenters']) != a['barrels']:raise ValueError(key+' barrel count')
         if not 0 <= a['elevationVertexStart'] <= a['n']:raise ValueError(key+' moving partition')
         receivers=[r for r in a['components'] if r.get('componentRole') in
@@ -359,7 +388,7 @@ def main():
         if stale:raise SystemExit('Light turret registrations are stale: '+', '.join(stale))
     else:
         args.json_output.write_text(json.dumps(assets,ensure_ascii=False,separators=(',',':'))+'\n')
-        manifest={'schemaVersion':1,'calibration':'light-photo-family','order':ORDER,'validation':validation,
+        manifest={'schemaVersion':1,'calibration':'light-photo-family','polygonBudget':POLYGON_BUDGET,'order':ORDER,'validation':validation,
             'assets':{k:{x:y for x,y in v.items() if x!='data'} for k,v in assets.items()}}
         args.metadata_output.write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n')
     print(json.dumps(validation,ensure_ascii=False,indent=2))
