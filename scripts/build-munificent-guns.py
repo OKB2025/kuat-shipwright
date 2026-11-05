@@ -50,7 +50,7 @@ GUNS = {
      fixed=[[-9.4, 8.0, 59.2, 90.3, 187.0, 219.0], [-15.9, 14.7, 64.6, 84.9, 192.6, 212.9]],
      barrels=[[-3.5, 2.0, 80.1, 85.6, 211.9, 271.1], [-3.5, 2.0, 71.6, 77.1, 211.9, 271.1]], plane=90.0, z0=203.0,
      limits={'yaw': 2*math.pi/180, 'lo': -2*math.pi/180, 'hi': 2*math.pi/180}, fixedMount=True),
- 'munTwin': dict(asset='mun_ventral_twin50', title='ミュニフィセント腹部2連装ターボレーザー', bolt=50, xf=lambda p, x0, pl, zc=136.6: [(p[0]-x0)*S, -(p[1]-pl)*S, -(p[2]-zc)*S],
+ 'munTwin': dict(asset='mun_ventral_twin50', title='ミュニフィセント腹部300GT連装速射砲', bolt=.3, xf=lambda p, x0, pl, zc=136.6: [(p[0]-x0)*S, -(p[1]-pl)*S, -(p[2]-zc)*S],
      fixed=[], fixedTriBox=[51.0, 70.5, 86.0, 106.0, 129.1, 144.1],
      barrels=[[52.7, 71.5, 92.8, 96.4, 132.1, 135.7], [52.7, 71.5, 92.8, 96.4, 137.6, 141.2]], plane=105.2, z0=60.0,
      limits={'yaw': None, 'lo': -10*math.pi/180, 'hi': 30*math.pi/180}, fixedMount=False),

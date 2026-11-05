@@ -28,9 +28,9 @@ test('vertical reflection preserves real fixed and rotating barrel frames on eve
  }
 });
 
-test('surface templates carry strict cooling provenance only when creating a new destination policy',()=>{
- const s=fixture();s.surfaces.compatAllowed=false;const snapshot=C.surfaceCaptureConfig(s,{parts:[1]});assert.equal(snapshot.compatAllowed,false);
+test('surface templates preserve strict cooling for both new and existing destination policies',()=>{
+ const s=fixture();assert.equal(s.surfaces.compatAllowed,false);const snapshot=C.surfaceCaptureConfig(s,{parts:[1]});assert.equal(snapshot.compatAllowed,false);
  const destination=C.newShip({L:200,W:80,H:100,plan:'rect',sec:'rect'},'Destination');destination.hull.assembly=true;destination.parts=[{...JSON.parse(C.publicJSON(s.parts[0])),id:21,c:[90,15,45]}];destination.fits=[];destination.nextId=22;const parts=vm.runInContext('new Map()',cx);parts.set(1,21);C.surfacePasteConfig(destination,snapshot,{parts,fits:vm.runInContext('new Map()',cx)});
  assert.equal(destination.surfaces.compatAllowed,false);assert.equal(C.enableSurfaceMode(destination,false).ok,false);assert.equal(C.deserialize(C.serialize(destination)).surfaces.compatAllowed,false);
- const existing=fixture();assert.equal(existing.surfaces.compatAllowed,true);const id=existing.nextId++,host={...JSON.parse(C.publicJSON(s.parts[0])),id,c:[90,15,45]};existing.parts.push(host);const targetMap=vm.runInContext('new Map()',cx);targetMap.set(1,id);C.surfacePasteConfig(existing,snapshot,{parts:targetMap,fits:vm.runInContext('new Map()',cx)});assert.equal(existing.surfaces.compatAllowed,true,'an existing destination keeps its own compatibility policy');
+ const existing=fixture();assert.equal(existing.surfaces.compatAllowed,false);const id=existing.nextId++,host={...JSON.parse(C.publicJSON(s.parts[0])),id,c:[90,15,45]};existing.parts.push(host);const targetMap=vm.runInContext('new Map()',cx);targetMap.set(1,id);C.surfacePasteConfig(existing,{...snapshot,mode:'compat',compatAllowed:true},{parts:targetMap,fits:vm.runInContext('new Map()',cx)});assert.equal(existing.surfaces.mode,'strict');assert.equal(existing.surfaces.compatAllowed,false,'a legacy template cannot enable compatibility cooling on an existing destination');assert.equal(C.enableSurfaceMode(existing,false).ok,false);assert.equal(C.deserialize(C.serialize(existing)).surfaces.compatAllowed,false);
 });

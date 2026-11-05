@@ -6,6 +6,7 @@ function section(start,end){const a=app.indexOf(start),b=app.indexOf(end,a+start
 function setup(){
  const cx=vm.createContext({console,C}),run=code=>vm.runInContext(code,cx);
  run(`let ship=C.newShip({L:500,W:300,H:120,plan:'rect',sec:'rect'},'Compact launcher controls');ship.parts=[];ship.fits=[];ship.nextId=1;
+ const meshStore={pendingSurfaceGeometry:null};
  const st={tab:'arm',fit:'cmsl',fitTool:'place',weaponMount:'auto',gunYaw:0,launchPitch:0,ped:0,pedShape:'round',pedSize:1,mirror:false,vmirror:false,fitPairEdit:true,sel:null,template:null,alignment:'none',multi:{parts:new Set(),fits:new Set()}},listeners={},undoStack=[],redoStack=[],outputs=new Map();
  let dragSnap=null,dragLabel='',lastOp='',hoverLines=null;
  const num=(v,d=0)=>Number(v).toFixed(d),esc=String,fmtM=v=>v+' m',deg=v=>v+'°',I18N=null;
@@ -52,7 +53,7 @@ test('pitch editing follows linked mirrors and groups a drag into one Undo trans
 
 test('bulk angle changes affect selected compact launchers and leave other fittings alone',()=>{
  const run=setup();run("install('cmsl',50,150);const a=selItem().id;install('cmsl',-50,150);const b=selItem().id;install('cmsl',50,350);const outside=selItem().id;install('htl',-50,350);st.multi.fits=new Set([a,b,selItem().id]);st.sel=null;undoStack.length=0");
- assert.match(run('launcherPitchControls(null,true)'),/data-sl="multiLaunchPitch"/);run("input('multiLaunchPitch',63.5)");assert.equal(run('undoStack.length'),1);assert.equal(run('ship.fits.filter(f=>C.launcherPitch(f)===63.5).length'),2);assert.equal(run('C.launcherPitch(ship.fits.find(f=>f.id===outside))'),0);assert.equal(run("ship.fits.find(f=>f.k==='htl').launchPitch"),undefined);
+ assert.match(run('launcherPitchControls(null,true)'),/data-sl="multiLaunchPitch"/);run("input('multiLaunchPitch',63.5)");assert.equal(run('undoStack.length'),1);assert.equal(run('ship.fits.filter(f=>C.launcherPitch(f)===63.5).length'),2);assert.equal(run('C.launcherPitch(ship.fits.find(f=>f.id===outside))'),0);assert.equal(run("ship.fits.find(f=>f.k===C.canonicalWeaponKind('htl')).launchPitch"),undefined);
  run('undo()');assert.ok(run("ship.fits.filter(f=>f.k==='cmsl').every(f=>C.launcherPitch(f)===0)"));run('redo()');assert.equal(run('ship.fits.filter(f=>C.launcherPitch(f)===63.5).length'),2);
 });
 

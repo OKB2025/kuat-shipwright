@@ -60,7 +60,10 @@ function thermalUnit({store=1e20,cooling=0,link=true}={}){
  const R=1e18,engine=(id,moduleIndex)=>({id,machineryId:id,moduleIndex,powerNode:'p'+id,domain:'main',valid:true,available:true,connected:true,outletAvailable:true,ratedInputW:R,ratedThrustN:R/2e9,wattsPerNewton:2e9,direction:[1,0,0],pathCapacityW:R});
  const modules=[{k:'engine',part:1,size:1,share:.5,at:.1,domain:'main',powerConnected:true},{k:'engine',part:2,size:1,share:.5,at:.1,domain:'main',powerConnected:true},{k:'reactor',part:3,size:1,share:1,at:.4,domain:'main',powerConnected:true}];
  const src=(k,m,sh=1)=>({k,n:k+' '+m[0],g:'high',sh,st:store,m,pc:[],sec:-1,sw:-1,gen:-1});
- const p={name:'Local propulsion heat',hp:1e10,len:100,width:40,height:20,D:0,shieldBuffer:0,reserve:0,wCap:0,crewNeed:0,maxSpeed:100,accel:1,turnRate:.1,gunArcs:Array(6).fill(0),ionArcs:Array(6).fill(0),modules,propulsion:{version:1,engines:[engine(1,0),engine(2,1)],massKg:1e6,ratedThrustN:1e9,ratedAccelMps2:1000,accelerationLimitMps2:1000},grid:{P:4*R,fixed:0,De:2*R,Ds:0,Dw:0,domains:[{id:'main',P:4*R,sources:[{moduleIndex:2,P:4*R}],modules:[0,1,2]}],powerPaths:[{from:'p3',to:'p1',cap:R,ok:true},{from:'p3',to:'p2',cap:R,ok:true}]},heat:{v:1,src:[src('engine',[0],.5),src('engine',[1],.5),src('reactor',[2])],dis:cooling>0?[{n:'passive test sink',k:'integral',g:'high',cap:cooling,m:-1,sec:-1,src:0}]:[],ln:cooling>0?[{s:0,d:0,cap:link?cooling:0,sec:-1}]:[]}};
+ const p={name:'Local propulsion heat',hp:1e10,len:100,width:40,height:20,D:0,shieldBuffer:0,reserve:0,wCap:0,crewNeed:0,maxSpeed:100,accel:1,turnRate:.1,gunArcs:Array(6).fill(0),ionArcs:Array(6).fill(0),modules,propulsion:{version:1,engines:[engine(1,0),engine(2,1)],massKg:1e6,ratedThrustN:1e9,ratedAccelMps2:1000,accelerationLimitMps2:1000},grid:{P:4*R,fixed:0,De:2*R,Ds:0,Dw:0,domains:[{id:'main',P:4*R,sources:[{moduleIndex:2,P:4*R}],modules:[0,1,2]}],powerPaths:[{from:'p3',to:'p1',cap:R,ok:true},{from:'p3',to:'p2',cap:R,ok:true}]},heat:{v:1,src:[src('engine',[0],.5),src('engine',[1],.5),src('reactor',[2])],dis:[],ln:[]}};
+ // Thermal fixtures use installed, powered devices too. A passive compatibility
+ // sink would hide a disconnected supply under the strict-only policy.
+ if(cooling>0){const W=cooling*C.HEAT.disPowerK.hdis;p.modules.push({k:'dissipator',part:4,port:'p4',domain:'main',size:1,share:1,powerConnected:true});p.grid.fixed=W;p.grid.cooling=W;p.grid.powerPaths.push({from:'p3',to:'p4',cap:W,ok:true});p.heat.dis=[{id:'p4',n:'physical test cooler',k:'hdis',g:'high',cap:cooling,power:W,m:3,sec:-1,src:-1}];p.heat.ln=[{s:0,d:0,cap:link?cooling:0,sec:-1}];p.heat.src.push({...src('hotel',[]),g:'low',st:1e30});}
  const u=C.fleetUnit('local-propulsion','local-propulsion',p,0);u.order={...u.order,power:'balanced'};u.maneuver=1;C.heatInit(u);u.ht.t=0;u.ht.last=0;return u;
 }
 
@@ -89,7 +92,7 @@ test('ENG-T12 damaged heat transport causes limit and stop followed by cooling a
  C.heatTick({time:1,ev(){}},u,1);assert.ok(u.ht.lm[0]<1&&u.ht.lm[0]>0);near(u.ht.lm[1],1);
  u.ht.st[0]=1.1e18;C.heatTick({time:2,ev(){}},u,1);assert.equal(u.ht.md[0],2);
  C.heatTick({time:12,ev(){}},u,10);assert.equal(u.ht.md[0],3);near(u.ht.lm[0],0);
- u.p.heat.ln[0].cap=1e18;C.heatTick({time:72,ev(){}},u,60);assert.equal(u.ht.md[0],0);near(u.ht.lm[0],1);assert.ok(u.ht.st[0]>=0);
+ u.p.heat.ln[0].cap=1e18;C.allocateShipPower(u,C.fleetSystems(u),{throttle:0,weapons:0,shields:0},60,'balanced');C.heatTick({time:72,ev(){}},u,60);assert.equal(u.ht.md[0],0);near(u.ht.lm[0],1);assert.ok(u.ht.st[0]>=0);
 });
 
 test('ENG-T11 additional heat removal preserves cold force and improves sustained powered output',()=>{
@@ -120,8 +123,9 @@ test('ENG-T08/14 physical machinery damage is applied once to its own engine',()
 });
 
 test('ENG-T11 per-device cooling receives only its own connected electrical reservation',()=>{
- const u=thermalUnit();u.p.grid.cooling=20;u.p.grid.fixed=20;u.p.grid.coolingLoads=[{id:'p4',port:'p4',domain:'main',weight:10},{id:'p5',port:'p5',domain:'main',weight:10}];u.p.grid.powerPaths.push({from:'p3',to:'p4',cap:10,ok:true});
- u.p.heat.dis=[{id:'p4',n:'connected',k:'hdis',g:'high',cap:1e18,power:10,m:-1,sec:-1,src:-1},{id:'p5',n:'disconnected',k:'hdis',g:'high',cap:3e18,power:10,m:-1,sec:-1,src:-1}];u.p.heat.ln=[{s:0,d:0,cap:1e18,sec:-1},{s:0,d:1,cap:3e18,sec:-1}];u.ht.st[0]=2e19;
- C.fleetPowerStep(u,C.fleetSystems(u),null,0,1);near(u.pw.coolingReserved,10);near(u.ht.cooling.reserveByNodeJ.p4,10);near(u.ht.cooling.reserveByNodeJ.p5||0,0);
- C.heatTick({time:1,ev(){}},u,1);near(u.ht.cap,1e18,'only connected cooler capacity');assert.ok(u.ht.cooling.inputJ<=10);
+ const u=thermalUnit();u.p.grid.cooling=60;u.p.grid.fixed=60;u.p.grid.powerPaths.push({from:'p3',to:'p4',cap:15,ok:true});
+ u.p.modules.push(...[4,5].map(part=>({k:'dissipator',part,port:'p'+part,domain:'main',size:1,share:.5,powerConnected:true})));u.mods.push(1,1);
+ u.p.heat.dis=[{id:'p4',n:'connected',k:'hdis',g:'high',cap:1000,power:15,m:3,sec:-1,src:-1},{id:'p5',n:'disconnected',k:'hdis',g:'high',cap:3000,power:45,m:4,sec:-1,src:-1}];u.p.heat.ln=[{s:0,d:0,cap:1000,sec:-1},{s:0,d:1,cap:3000,sec:-1}];u.ht.st[0]=20000;
+ C.fleetPowerStep(u,C.fleetSystems(u),null,0,1);near(u.pw.coolingReserved,15);near(u.ht.cooling.reserveByNodeJ.p4,15);near(u.ht.cooling.reserveByNodeJ.p5||0,0);
+ C.heatTick({time:1,ev(){}},u,1);near(u.ht.cap,1000,'only connected cooler capacity');assert.ok(u.ht.cooling.inputJ<=15);
 });

@@ -83,7 +83,7 @@ test('the RTS launches from its actual pitched muzzle before homing toward the t
  const a={key:'missile-a',p:profile(),info:{mass:1000,hyper:null,capital:false,sensor:0}},p=profile();p.msl=0;p.modules=p.modules.slice(0,1);p.grid.fixed=0;p.grid.fixedLoads=[];
  const z={key:'missile-z',p,info:{mass:1000,hyper:null,capital:false,sensor:0}},w=R.createWorld({mode:'test',sensors:false,convoyMode:false,designs:[a,z],sides:[{faction:'empire',ai:false},{faction:'rebel',ai:false}],fleets:[[{design:a.key}],[{design:z.key}]]});
  const u=[...w.units.values()].find(q=>q.side===0),t=[...w.units.values()].find(q=>q.side===1);t.sys=u.sys;w.groups.get(t.group).sys=u.sys;
- u.pos=[0,1000,0];u.yaw=Math.PI/2;t.pos=[0,1000,20000];u.order={...u.order,type:'attack',target:t.id};t.order={...t.order,type:'hold',fire:false};
+ u.pos=[0,1000,0];u.yaw=Math.PI/2;t.pos=[0,1000,9000];u.order={...u.order,type:'attack',target:t.id};t.order={...t.order,type:'hold',fire:false};
  R.battleTick(w,u.sys,.25);const m=w.missiles.find(q=>q.from===u.id);
  assert.ok(m);assert.equal(m.n,1);assert.equal(m.tt,25);assert.equal(u.ammo[1],5);
  assert.ok(m.launchOrigin.every((v,i)=>Math.abs(v-[-3,1002,10][i])<1e-10));assert.ok(m.vel[1]>0&&m.vel[2]>0);
@@ -117,8 +117,11 @@ test('capital fitting profiles own their finite magazine, physical muzzle and on
 test('surface VLS produces the same six-round functional launcher module',()=>{
  const ship=C.newShip({L:100,W:60,H:50,assembly:true},'VLS');ship.parts=[];ship.fits=[];ship.armor={hull:0,cit:0};
  const body=C.placePart(ship,'struct',[50,20,0],[80,40,30],{form:'box'},false),panel=C.surfacePatches(ship).find(q=>q.host==='p'+body.id&&q.face==='top');
- assert.equal(C.setSurfaceConfig(ship,panel.id,{functionMode:'equipment',allocation:{cooling:100,sensors:0,habitation:0},equipment:{limit:0},battery:{weapon:'cmsl',count:1,spacing:1}}).ok,true);
- const S=C.computeStats(ship),p=C.craftPowerProfile(ship,S),m=p.modules.find(q=>q.missileKind==='cmsl');
+ // This is an authored legacy surface launcher, not the retired automatic equipment generator.
+ const f=C.placeFit(ship,'cmsl',[50,35,0],[0,1,0],0,false).fit;
+ Object.assign(f,{surfacePatch:panel.id,surfaceCell:'manual-vls',surfaceRole:'weapons',surfacePoint:f.p.slice(),surfaceFootprint:[1.2,.45],surfaceDepth:1.2,n:[0,1,0],tilt:[0,1,0],localMount:true});
+ const loaded=C.deserialize(C.serialize(ship));C.remount(loaded);
+ const S=C.computeStats(loaded),p=C.craftPowerProfile(loaded,S),m=p.modules.find(q=>q.missileKind==='cmsl');
  assert.ok(m);assert.equal(m.mount,'vls');assert.equal(m.stock,6);assert.equal(m.tt,25);assert.ok(m.launchDir[1]>.99);assert.ok(p.grid.fixedLoads.some(q=>q.port===m.port&&q.weight>0));
- const partial={...S,vlsInfo:{...S.vlsInfo,[m.fit]:{...S.vlsInfo[m.fit],ratio:.5}}},half=C.fleetModules(ship,partial).find(q=>q.fit===m.fit);assert.equal(half.stock,3,'a half-retained VLS cannot carry a full six-round magazine');
+ const partial={...S,vlsInfo:{...S.vlsInfo,[m.fit]:{...S.vlsInfo[m.fit],ratio:.5}}},half=C.fleetModules(loaded,partial).find(q=>q.fit===m.fit);assert.equal(half.stock,3,'a half-retained VLS cannot carry a full six-round magazine');
 });

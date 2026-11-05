@@ -14,12 +14,13 @@ test('legacy external launchers retain IDs, linked placement and pitch as compac
  const serial=plain(C.serialize(s)),again=C.deserialize(serial),twice=plain(C.serialize(again));assert.deepEqual(twice,serial,'a second load cannot add offsets, magazines or another pod');assert.ok(!JSON.stringify(serial).includes('legacyMissileMount'),'completed migration does not persist a work-in-progress marker');
 });
 
-test('old default and explicit VLS migrate into equipment surfaces without duplicating launcher IDs',()=>{
- const source=raw([fit(10,null,{p:[60,50,-14]}),fit(11,'vls',{p:[110,50,14]})]),before=plain(source),s=C.deserialize(source);C.syncCompartments(s);
+test('old default and VLS spellings retain two ordinary compact launchers without an automatic surface ledger',()=>{
+ const source=raw([fit(10,null,{p:[60,50,-14]}),fit(11,'vls',{p:[110,50,14]})]),before=plain(source),s=C.deserialize(source);C.remount(s);C.syncCompartments(s);
  assert.deepEqual(source,before);const rows=launchers(s);assert.equal(rows.length,2);assert.deepEqual(rows.map(f=>f.id).sort((a,b)=>a-b),[10,11]);assert.equal(new Set(rows.map(f=>f.id)).size,2);
- assert.equal(s.fits.filter(f=>C.isConcussionLauncher(f)).length,0,'old VLS cannot remain as an external fitting');
- for(const f of rows){assert.equal(f.k,'cmsl');assert.equal(C.isSurfaceVLS(f),true);assert.ok(f.surfacePatch);assert.ok(C.surfaceBatteryGeometry(f).vls);const patch=s.surfaces.patches.find(p=>p.id===f.surfacePatch);assert.ok(patch);assert.equal(patch.functionMode,'equipment');}
- const saved=plain(C.serialize(s)),again=C.deserialize(saved);C.surfaceSync(again);C.surfaceSync(again);const migrated=launchers(again);assert.equal(migrated.length,2);assert.deepEqual(migrated.map(f=>f.id).sort((a,b)=>a-b),[10,11]);assert.deepEqual(plain(C.serialize(again)),saved,'surface migration and recompilation are idempotent');
+ assert.equal(s.fits.filter(f=>C.isConcussionLauncher(f)).length,2);assert.equal(s.surfaces,undefined,'legacy spelling cannot restore automatic face equipment');
+ for(const f of rows){assert.equal(f.k,'cmsl');assert.equal(f.float,false);assert.equal(C.isSurfaceVLS(f),false);assert.equal(f.surfacePatch,undefined);assert.deepEqual(plain(C.launcherGeometry(f).bodySize),[1.2,.45,.45]);assert.equal(C.missileLauncherSpec(f).ammo,6);}
+ assert.equal(C.missileCells(s).length,0,'the compact pod carries its six rounds inside its external body, without an automatic below-deck VLS cell');const modules=C.fleetModules(s,C.computeStats(s)).filter(m=>m.k==='launcher');assert.equal(modules.length,2);for(const module of modules){assert.equal(module.stock,6);assert.equal(module.missileKind,'cmsl');assert.ok(module.muzzle.every(Number.isFinite));}
+ const saved=plain(C.serialize(s)),again=C.deserialize(saved);C.surfaceSync(again);C.surfaceSync(again);C.remount(again);const migrated=launchers(again);assert.equal(migrated.length,2);assert.deepEqual(migrated.map(f=>f.id).sort((a,b)=>a-b),[10,11]);assert.ok(migrated.every(f=>!f.float));assert.deepEqual(plain(C.serialize(again)),saved,'native migration and remounting are idempotent');
 });
 
 test('frozen nested legacy designs canonicalize without mutating their saved copies',()=>{
@@ -29,10 +30,10 @@ test('frozen nested legacy designs canonicalize without mutating their saved cop
 });
 
 test('an old VLS whose mounting face is gone remains inactive saved inventory',()=>{
- const source=raw([fit(10,'vls',{p:[400,50,15]})]),s=C.deserialize(source);C.surfaceSync(s);
- const inventory=design=>(C.serialize(design).surfaces?.patches||[]).flatMap(q=>q.aggregate?.guns||[]).filter(r=>r[0]===10);
- assert.equal(inventory(s).length,1,'a missing face cannot silently delete the launcher');assert.equal(inventory(s)[0][1],'cmsl');assert.equal(C.missileCells(s).length,0,'an orphan VLS cannot gain a working magazine');assert.equal(launchers(s).filter(f=>!f.surfaceUnplaced&&!f.float).length,0);
- const saved=plain(C.serialize(s)),again=C.deserialize(saved);C.surfaceSync(again);assert.equal(inventory(again).length,1);assert.deepEqual(plain(C.serialize(again)),saved,'orphan inventory survives an ordinary save/reload unchanged');
+ const source=raw([fit(10,'vls',{p:[400,50,15]})]),s=C.deserialize(source);C.surfaceSync(s);C.remount(s);
+ const inventory=design=>C.serialize(design).fits.filter(f=>f.id===10);
+ assert.equal(inventory(s).length,1,'a missing face cannot silently delete the launcher');assert.equal(inventory(s)[0].k,'cmsl');assert.equal(s.fits.find(f=>f.id===10).float,true);assert.equal(C.missileCells(s).length,0,'an unseated fitting cannot gain a working magazine');assert.equal(launchers(s).filter(f=>!f.float).length,0);assert.equal(s.surfaces,undefined);
+ const saved=plain(C.serialize(s)),again=C.deserialize(saved);C.surfaceSync(again);C.remount(again);assert.equal(inventory(again).length,1);assert.equal(again.fits.find(f=>f.id===10).float,true);assert.equal(C.missileCells(again).length,0);const stats=C.computeStats(again);assert.equal(stats.mslSalvo,0);assert.ok(!C.fleetModules(again,stats).some(m=>m.fit===10&&m.k==='launcher'&&m.stock>0));assert.deepEqual(plain(C.serialize(again)),saved,'inactive inventory survives an ordinary save/reload and remount unchanged');
 });
 
 test('mount-relative pitch survives mirrored templates and repeated design saves',()=>{
