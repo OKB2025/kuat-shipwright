@@ -4,48 +4,10 @@ for(const file of ['data/reference.js','data/imperial2.js','data/fleet.js','js/c
 const run=code=>vm.runInContext(code,cx);
 function translated(source){const out=cx.KSI18n.t(source);assert.doesNotMatch(out,jp,source+' => '+out);return out;}
 function translatedHTML(html){for(const text of html.split(/<[^>]*>/))if(text.trim())translated(text);for(const m of html.matchAll(/(?:aria-label|title|placeholder)="([^"]*)"/g))translated(m[1]);}
-run(`const C=Core,st={surfaceIds:[],surfaceDraft:{},surfaceFilter:'all',surfacePage:0,tab:'surface'},view={},fleet={mode:'design'},esc=String,num=(v,d)=>d==null?String(v):Number(v).toFixed(d),fMass=v=>String(v)+' t',fW=v=>String(v)+' W';
+run(`const C=Core,st={tab:'edit'},view={},fleet={mode:'design'},esc=String,num=(v,d)=>d==null?String(v):Number(v).toFixed(d),fMass=v=>String(v)+' t',fW=v=>String(v)+' W';
  let ship=null,S=null;const renderPanel=()=>{},requestDraw=()=>{},toast=()=>{},mutate=(name,fn)=>{fn();return true;};
- function fixture(){ship=C.newShip({L:120,W:60,H:24,plan:'rect',sec:'rect'},'Surface QA');delete ship.surfaces;ship.parts=[];ship.fits=[];st.surfaceIds=[];st.surfaceDraft={};st.surfaceFilter='all';S=null;return C.surfacePatches(ship).filter(p=>p.exposed);}
 `);
-const a=app.indexOf('// ---------- surface patch editing ----------'),b=app.indexOf('// ---------- multiple selection, copy and paste ----------',a);assert.ok(a>=0&&b>a);run(app.slice(a,b));
 const hudA=app.indexOf('function statusFlagsHTML('),hudB=app.indexOf('function trialSelfUpdate(',hudA);assert.ok(hudA>=0&&hudB>hudA);run(app.slice(hudA,hudB));
-
-test('the actual surface editor translates selection and explicit compatibility choices',()=>{
- const tab=app.match(/\['surface',\s*'([^']+)'\]/);assert.ok(tab,'the public Surface tab is present');assert.equal(translated(tab[1]),'Surface');
- run('fixture()');const html=run('surfaceEditorHTML()');translatedHTML(html);
- assert.match(html,/data-surface-action="strict"/);assert.match(html,/data-surface-action="compat"/);assert.match(html,/data-surface-pick=/);
- assert.equal(translated('設備を必要とする設計'),'Explicit Equipment Requirements');assert.equal(translated('旧設計の互換運転'),'Legacy Compatibility Mode');
- assert.match(translated('外面を選ぶ · 0 面選択'),/0 Selected/);
- run('C.enableSurfaceMode(ship,true);ship.surfaces.compatAllowed=false');const strict=run('surfaceEditorHTML()');assert.match(strict,/data-surface-action="compat" disabled/);translatedHTML(strict);
-});
-
-test('legacy installed surface equipment and battery reports render translated controls and counts',()=>{
- run(`fixture();ship.parts.push({id:ship.nextId++,k:'gen',c:[60,12,0],d:8});const top=C.surfacePatches(ship).find(p=>p.exposed&&p.face==='top');C.setSurfaceConfig(ship,top.id,{functionMode:'legacy',armor:{material:'dense',thickness:.3},equipment:{kind:'hdis',count:1,depth:.2},battery:{weapon:'claser',count:2,spacing:1}});st.surfaceIds=[top.id];S=C.computeStats(ship);`);
- const report=run('C.surfaceReport(ship)'),selected=report.patches.find(p=>p.id===run('st.surfaceIds[0]'));assert.ok(selected.installed>0);assert.ok(selected.installedEquipment>0);
- const before=run('JSON.stringify(C.serialize(ship))'),html=run('surfaceEditorHTML()');translatedHTML(html);
- for(const field of ['armor.material','armor.thickness','equipment.kind','equipment.count','equipment.depth','battery.weapon','battery.count','battery.spacing','battery.angle','style.kind','style.depth','style.density','style.seed'])assert.match(html,new RegExp('data-surface-field="'+field.replace('.','\\.')+'"'));
- assert.match(html,/data-surface-report/);assert.match(html,new RegExp(selected.installed+' / '+selected.requested+' 基'));assert.match(html,/砲身総数/);assert.equal(translated('砲身総数'),'Total Barrels');
- const measured=run('S.surface.patches.find(p=>p.id===st.surfaceIds[0])');for(const key of ['maximumTT','sustainedTT','chargeRequested','chargeSupplied','heatGenerated','heatExported','maxEnergy'])assert.ok(Number.isFinite(measured[key]),key);assert.ok(measured.maximumTT>0);
- for(const label of ['稼働可能な砲座','給電要求／供給','最大／持続射撃（ゲーム換算）','選択面の発熱／熱輸送','最大蓄電量（ゲーム換算）'])assert.ok(html.includes(label),label);
- assert.ok(html.includes(measured.maximumTT.toFixed(3)+' / '+measured.sustainedTT.toFixed(3)+' TT/s'));assert.ok(html.includes(measured.chargeRequested+' W / '+measured.chargeSupplied+' W'));
- assert.equal(run('JSON.stringify(C.serialize(ship))'),before,'rendering and translating do not rewrite the blueprint');
-});
-
-test('multiple surface values and pending changes translate without applying changes to the design',()=>{
- run(`fixture();const ps=C.surfacePatches(ship).filter(p=>p.exposed&&p.face==='top').slice(0,2);C.setSurfaceConfig(ship,ps[0].id,{armor:{material:'light',thickness:.1}});C.setSurfaceConfig(ship,ps[1].id,{armor:{material:'dense',thickness:.4}});st.surfaceIds=ps.map(p=>p.id);st.surfaceDraft={'armor.thickness':.2};`);
- const before=run('JSON.stringify(C.serialize(ship))'),html=run('surfaceEditorHTML()');translatedHTML(html);
- assert.match(html,/2 面に一括設定/);assert.match(html,/複数の値/);assert.match(html,/未適用の変更があります/);assert.equal(run('JSON.stringify(C.serialize(ship))'),before);
- assert.match(translated('2 面に一括設定'),/2 Surfaces/);assert.equal(translated('複数の値'),'Multiple Values');
-});
-
-test('orphaned surface settings and actual placement diagnostics remain understandable in English',()=>{
- run(`fixture();const p=C.surfacePatches(ship).find(p=>p.exposed&&p.face==='top');C.setSurfaceConfig(ship,p.id,{functionMode:'legacy',battery:{weapon:'claser',count:256,spacing:1000},equipment:{kind:'hdis',count:1,depth:100}});st.surfaceIds=[p.id];`);
- const report=run('C.surfaceReport(ship)');assert.ok(report.warnings.length>0);for(const warning of report.warnings)translated(warning.text);translatedHTML(run('surfaceEditorHTML()'));
- run(`ship.hull.plan='arrow';C.surfaceSync(ship);st.surfaceIds=C.surfacePatches(ship).filter(p=>p.exposed).slice(0,1).map(p=>p.id);`);
- const html=run('surfaceEditorHTML()');assert.match(html,/未配置の面設定/);translatedHTML(html);
- assert.match(translated('形状変更で面が失われました。設備を移設するか設定を解除してください。'),/Relocate/);
-});
 
 test('oversized surface-v1 import errors translate explicit rejections instead of hiding truncated records',()=>{
  const errors=run(`(()=>{

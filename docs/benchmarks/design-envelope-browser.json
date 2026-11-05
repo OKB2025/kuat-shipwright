@@ -1,0 +1,1585 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "date": "2026-11-05T10:25:35.828Z",
+  "browser": "Chromium headless with software WebGL",
+  "url": "http://127.0.0.1:8876",
+  "totalElapsedMs": 51644,
+  "sourceSha256": {
+    "data/reference.js": "4af956724bbf84ef200e324bbe1cf2b2394d28d8c0aea3776ac20a356eb0554f",
+    "data/imperial2.js": "28d4184bf2fb80f39d63215b270fd89bad4b9888002cf56c201635244c07270b",
+    "data/fleet.js": "c4fdb044a7b449520bf65c29080a127356ad6a766d275b8296ec520ea9ba026a",
+    "js/core.js": "4cde889f18c464465cb6eda12c5f52ebe1c7bf68189cf982f85aaf8c22ceb45b",
+    "js/app.js": "46ba56c28b670fee53832f39c85deccc80e62925925b2654a3f274d031632d2d",
+    "js/gfx.js": "a4aeb05266b8239f7197c207c3cd5aaf6619d8b1b54be1990cc8a5547512052a",
+    "js/lang-en.js": "133568979ecdbff8fd01002fd7b73ef90fce6d12bc3d0bec13ad205092e5dfb3",
+    "js/engine.js": "ede76361fb8f1a8f5a1c288a55a531bdd32b8e8322fdf860b614481eaefce255",
+    "index.html": "085b346fba5d481717c952c51ea9bf5d0a60f0e3a796af0f401537c914698c06"
+  },
+  "sourceGuard": {
+    "unchanged": true,
+    "expectedMatched": true,
+    "runtimeFiles": 9
+  },
+  "calibration": null,
+  "coreEpoch": {
+    "profileVersion": 12,
+    "costModelVersion": 13,
+    "sourceSha256": "4cde889f18c464465cb6eda12c5f52ebe1c7bf68189cf982f85aaf8c22ceb45b",
+    "runtimeStamp": "5c268cfb44f4f9435fe5"
+  },
+  "scope": {
+    "verified": [
+      "Native title-menu planned whole-craft dimensions",
+      "Single ordinary structure palette and native six-face armor thickness inputs",
+      "Native coordinate placement and canvas-mounted fitting using production geometry",
+      "Original structure mesh and skin retained under per-face armor edits",
+      "Deterministic light points for 0.2m top armor and none for 0.5m armor",
+      "Unscaled hull shrink preserves planned placement ranges and installed positions",
+      "Actual asymmetric bounds include structures, fitting, engine bell and machinery",
+      "Native hull Undo/Redo and native saved reopen",
+      "Native six-face armor edit and light positions persist after reopen"
+    ],
+    "notVerified": [
+      "Physical mobile devices",
+      "Powered combat or sustained performance"
+    ]
+  },
+  "newDesign": {
+    "nativeTitleMenu": true,
+    "plannedInputM": {
+      "L": 300,
+      "W": 160,
+      "H": 100
+    },
+    "labelsContainCompletedShipPlan": true
+  },
+  "palette": {
+    "ordinaryCards": 1,
+    "separateFaceStructureCards": 0
+  },
+  "placements": {
+    "ordinary": {
+      "id": 1,
+      "kind": "struct",
+      "center": [
+        275,
+        70,
+        45
+      ],
+      "size": [
+        80,
+        50,
+        40
+      ],
+      "nativeCoordinateButton": true
+    },
+    "engine": {
+      "id": 2,
+      "kind": "engine",
+      "center": [
+        -10,
+        20,
+        15
+      ],
+      "size": null,
+      "nativeCoordinateButton": true
+    },
+    "fitting": {
+      "id": 3,
+      "kind": "pd",
+      "position": [
+        315,
+        70.00001011535518,
+        44.999993161831554
+      ],
+      "normal": [
+        1,
+        0,
+        0
+      ],
+      "floating": false,
+      "nativeCanvasClick": true,
+      "point": [
+        315,
+        70,
+        45
+      ],
+      "pixel": [
+        729.3733364669606,
+        535.888148618862
+      ],
+      "host": 1
+    }
+  },
+  "initial": {
+    "hull": {
+      "L": 300,
+      "W": 160,
+      "H": 100
+    },
+    "planned": {
+      "L": 300,
+      "W": 160,
+      "H": 100
+    },
+    "placementBounds": [
+      -30,
+      -80,
+      -120,
+      330,
+      350,
+      120
+    ],
+    "actualBounds": [
+      0,
+      0,
+      -80,
+      300,
+      100,
+      80
+    ],
+    "actualDimensions": [
+      300,
+      160,
+      100
+    ],
+    "statsDimensions": [
+      300,
+      160,
+      100
+    ],
+    "statsLength": 300,
+    "proxyBounds": null,
+    "classification": "frigate",
+    "parts": [],
+    "fits": [],
+    "engineMachinery": [],
+    "costModelVersion": 13,
+    "runtimeStamp": "5c268cfb44f4f9435fe5",
+    "generations": {
+      "requested": 1,
+      "geometry": 1,
+      "statistics": 1,
+      "adopted": 1
+    },
+    "renderer": {
+      "type": "Renderer",
+      "renderedFrames": 5,
+      "failures": 0
+    }
+  },
+  "beforeResize": {
+    "hull": {
+      "L": 300,
+      "W": 160,
+      "H": 100
+    },
+    "planned": {
+      "L": 300,
+      "W": 160,
+      "H": 100
+    },
+    "placementBounds": [
+      -30,
+      -80,
+      -120,
+      330,
+      350,
+      120
+    ],
+    "actualBounds": [
+      -13.003562927246094,
+      0,
+      -80,
+      315.63644398298476,
+      100,
+      80
+    ],
+    "actualDimensions": [
+      328.64000691023085,
+      160,
+      100
+    ],
+    "statsDimensions": [
+      328.64000691023085,
+      160,
+      100
+    ],
+    "statsLength": 328.64000691023085,
+    "proxyBounds": null,
+    "classification": "frigate",
+    "parts": [
+      {
+        "id": 1,
+        "kind": "struct",
+        "center": [
+          275,
+          70,
+          45
+        ],
+        "size": [
+          80,
+          50,
+          40
+        ],
+        "bounds": [
+          235,
+          50,
+          20,
+          315,
+          90,
+          70
+        ],
+        "skinBounds": null
+      },
+      {
+        "id": 2,
+        "kind": "engine",
+        "center": [
+          -10,
+          20,
+          15
+        ],
+        "size": null,
+        "bounds": [
+          -13,
+          14,
+          9,
+          -7,
+          26,
+          21
+        ],
+        "skinBounds": [
+          -13.003562927246094,
+          13.999870300292969,
+          8.999823570251465,
+          -7,
+          26.00035858154297,
+          21.000314712524414
+        ]
+      }
+    ],
+    "fits": [
+      {
+        "id": 3,
+        "kind": "pd",
+        "position": [
+          315,
+          70.00001011535518,
+          44.999993161831554
+        ],
+        "normal": [
+          1,
+          0,
+          0
+        ],
+        "bounds": [
+          315,
+          68.9996734763077,
+          43.99965652278407,
+          315.63644398298476,
+          71.00034675440266,
+          46.00032980087904
+        ],
+        "floating": false
+      }
+    ],
+    "engineMachinery": [
+      {
+        "kind": "machinery",
+        "bounds": [
+          1,
+          16,
+          11,
+          49,
+          24,
+          19
+        ]
+      }
+    ],
+    "costModelVersion": 13,
+    "runtimeStamp": "5c268cfb44f4f9435fe5",
+    "generations": {
+      "requested": 4,
+      "geometry": 4,
+      "statistics": 4,
+      "adopted": 4
+    },
+    "renderer": {
+      "type": "Renderer",
+      "renderedFrames": 33,
+      "failures": 0
+    }
+  },
+  "shrunk": {
+    "hull": {
+      "L": 100,
+      "W": 60,
+      "H": 40
+    },
+    "planned": {
+      "L": 300,
+      "W": 160,
+      "H": 100
+    },
+    "placementBounds": [
+      -30,
+      -80,
+      -120,
+      330,
+      350,
+      120
+    ],
+    "actualBounds": [
+      -13.003562927246094,
+      0,
+      -30,
+      315.63644398298476,
+      90,
+      70
+    ],
+    "actualDimensions": [
+      328.64000691023085,
+      100,
+      90
+    ],
+    "statsDimensions": [
+      328.64000691023085,
+      100,
+      90
+    ],
+    "statsLength": 328.64000691023085,
+    "proxyBounds": null,
+    "classification": "frigate",
+    "parts": [
+      {
+        "id": 1,
+        "kind": "struct",
+        "center": [
+          275,
+          70,
+          45
+        ],
+        "size": [
+          80,
+          50,
+          40
+        ],
+        "bounds": [
+          235,
+          50,
+          20,
+          315,
+          90,
+          70
+        ],
+        "skinBounds": null
+      },
+      {
+        "id": 2,
+        "kind": "engine",
+        "center": [
+          -10,
+          20,
+          15
+        ],
+        "size": null,
+        "bounds": [
+          -13,
+          14,
+          9,
+          -7,
+          26,
+          21
+        ],
+        "skinBounds": [
+          -13.003562927246094,
+          13.999870300292969,
+          8.999823570251465,
+          -7,
+          26.00035858154297,
+          21.000314712524414
+        ]
+      }
+    ],
+    "fits": [
+      {
+        "id": 3,
+        "kind": "pd",
+        "position": [
+          315,
+          70.00001011535518,
+          44.999993161831554
+        ],
+        "normal": [
+          1,
+          0,
+          0
+        ],
+        "bounds": [
+          315,
+          68.9996734763077,
+          43.99965652278407,
+          315.63644398298476,
+          71.00034675440266,
+          46.00032980087904
+        ],
+        "floating": false
+      }
+    ],
+    "engineMachinery": [
+      {
+        "kind": "machinery",
+        "bounds": [
+          1,
+          16,
+          11,
+          49,
+          24,
+          19
+        ]
+      }
+    ],
+    "costModelVersion": 13,
+    "runtimeStamp": "5c268cfb44f4f9435fe5",
+    "generations": {
+      "requested": 7,
+      "geometry": 7,
+      "statistics": 7,
+      "adopted": 7
+    },
+    "renderer": {
+      "type": "Renderer",
+      "renderedFrames": 42,
+      "failures": 0
+    }
+  },
+  "dimensionLabels": {
+    "planned": "完成艦の予定寸法\n300 m × 160 m × 100 m",
+    "actual": "現在の全長×全幅×全高\n328.64 m × 100 m × 90 m"
+  },
+  "undo": {
+    "nativeThreeStepUndo": true,
+    "hull": {
+      "L": 300,
+      "W": 160,
+      "H": 100
+    },
+    "partsAndFittingsRestored": true
+  },
+  "redo": {
+    "nativeThreeStepRedo": true,
+    "hull": {
+      "L": 100,
+      "W": 60,
+      "H": 40
+    }
+  },
+  "positionControls": {
+    "before": {
+      "ex": {
+        "min": -30,
+        "max": 330,
+        "value": 275
+      },
+      "ey": {
+        "min": -80,
+        "max": 350,
+        "value": 70
+      },
+      "ez": {
+        "min": -120,
+        "max": 120,
+        "value": 45
+      }
+    },
+    "after": {
+      "ex": {
+        "min": -30,
+        "max": 330,
+        "value": 275
+      },
+      "ey": {
+        "min": -80,
+        "max": 350,
+        "value": 70
+      },
+      "ez": {
+        "min": -120,
+        "max": 120,
+        "value": 45
+      }
+    }
+  },
+  "armorEditor": {
+    "nativeSixFaceInputs": true,
+    "generalMachineryEditorAbsent": true,
+    "initialControls": [
+      {
+        "face": "fore",
+        "value": 0.5,
+        "min": 0,
+        "max": 100
+      },
+      {
+        "face": "aft",
+        "value": 0.5,
+        "min": 0,
+        "max": 100
+      },
+      {
+        "face": "top",
+        "value": 0.5,
+        "min": 0,
+        "max": 100
+      },
+      {
+        "face": "bottom",
+        "value": 0.5,
+        "min": 0,
+        "max": 100
+      },
+      {
+        "face": "port",
+        "value": 0.5,
+        "min": 0,
+        "max": 100
+      },
+      {
+        "face": "stbd",
+        "value": 0.5,
+        "min": 0,
+        "max": 100
+      }
+    ],
+    "editedControls": [
+      {
+        "face": "fore",
+        "value": 0.5,
+        "min": 0,
+        "max": 100
+      },
+      {
+        "face": "aft",
+        "value": 0.5,
+        "min": 0,
+        "max": 100
+      },
+      {
+        "face": "top",
+        "value": 0.2,
+        "min": 0,
+        "max": 100
+      },
+      {
+        "face": "bottom",
+        "value": 0.5,
+        "min": 0,
+        "max": 100
+      },
+      {
+        "face": "port",
+        "value": 0.5,
+        "min": 0,
+        "max": 100
+      },
+      {
+        "face": "stbd",
+        "value": 0.5,
+        "min": 0,
+        "max": 100
+      }
+    ],
+    "original": {
+      "partId": 1,
+      "kind": "struct",
+      "form": "box",
+      "skin": "armor",
+      "skinAsset": null,
+      "paint": null,
+      "faces": [
+        {
+          "id": "p1:port:0:cctl1g",
+          "face": "port",
+          "thickness": 0.5,
+          "mode": "armor",
+          "exposed": true
+        },
+        {
+          "id": "p1:fore:0:cctl1g",
+          "face": "fore",
+          "thickness": 0.5,
+          "mode": "armor",
+          "exposed": true
+        },
+        {
+          "id": "p1:stbd:0:cctl1g",
+          "face": "stbd",
+          "thickness": 0.5,
+          "mode": "armor",
+          "exposed": true
+        },
+        {
+          "id": "p1:aft:0:cctl1g",
+          "face": "aft",
+          "thickness": 0.5,
+          "mode": "armor",
+          "exposed": true
+        },
+        {
+          "id": "p1:bottom:0:cctl1g",
+          "face": "bottom",
+          "thickness": 0.5,
+          "mode": "armor",
+          "exposed": true
+        },
+        {
+          "id": "p1:top:0:cctl1g",
+          "face": "top",
+          "thickness": 0.5,
+          "mode": "armor",
+          "exposed": true
+        }
+      ],
+      "lights": [],
+      "allLightRows": 0,
+      "uploadedLightVertices": 0,
+      "uploadedStructureRanges": [
+        [
+          "struct",
+          0,
+          48
+        ],
+        [
+          "struct",
+          48,
+          834
+        ]
+      ],
+      "surfaceGeometry": {
+        "surfaceArmor": 0,
+        "surfaceDevices": 0,
+        "surfaceDetail": 0
+      },
+      "structureGeometrySha256": "2b4328114f8dacaa42a64ca5e90affe7d6b6fe5ad6fd1339d57a789e81d0fac1"
+    },
+    "thick": {
+      "partId": 1,
+      "kind": "struct",
+      "form": "box",
+      "skin": "armor",
+      "skinAsset": null,
+      "paint": null,
+      "faces": [
+        {
+          "id": "p1:port:0:cctl1g",
+          "face": "port",
+          "thickness": 0.5,
+          "mode": "armor",
+          "exposed": true
+        },
+        {
+          "id": "p1:fore:0:cctl1g",
+          "face": "fore",
+          "thickness": 0.5,
+          "mode": "armor",
+          "exposed": true
+        },
+        {
+          "id": "p1:stbd:0:cctl1g",
+          "face": "stbd",
+          "thickness": 0.5,
+          "mode": "armor",
+          "exposed": true
+        },
+        {
+          "id": "p1:aft:0:cctl1g",
+          "face": "aft",
+          "thickness": 0.5,
+          "mode": "armor",
+          "exposed": true
+        },
+        {
+          "id": "p1:bottom:0:cctl1g",
+          "face": "bottom",
+          "thickness": 0.5,
+          "mode": "armor",
+          "exposed": true
+        },
+        {
+          "id": "p1:top:0:cctl1g",
+          "face": "top",
+          "thickness": 0.5,
+          "mode": "armor",
+          "exposed": true
+        }
+      ],
+      "lights": [],
+      "allLightRows": 0,
+      "uploadedLightVertices": 0,
+      "uploadedStructureRanges": [
+        [
+          "struct",
+          0,
+          48
+        ],
+        [
+          "struct",
+          48,
+          834
+        ]
+      ],
+      "surfaceGeometry": {
+        "surfaceArmor": 0,
+        "surfaceDevices": 0,
+        "surfaceDetail": 0
+      },
+      "structureGeometrySha256": "2b4328114f8dacaa42a64ca5e90affe7d6b6fe5ad6fd1339d57a789e81d0fac1"
+    },
+    "thin": {
+      "partId": 1,
+      "kind": "struct",
+      "form": "box",
+      "skin": "armor",
+      "skinAsset": null,
+      "paint": null,
+      "faces": [
+        {
+          "id": "p1:port:0:cctl1g",
+          "face": "port",
+          "thickness": 0.5,
+          "mode": "armor",
+          "exposed": true
+        },
+        {
+          "id": "p1:fore:0:cctl1g",
+          "face": "fore",
+          "thickness": 0.5,
+          "mode": "armor",
+          "exposed": true
+        },
+        {
+          "id": "p1:stbd:0:cctl1g",
+          "face": "stbd",
+          "thickness": 0.5,
+          "mode": "armor",
+          "exposed": true
+        },
+        {
+          "id": "p1:aft:0:cctl1g",
+          "face": "aft",
+          "thickness": 0.5,
+          "mode": "armor",
+          "exposed": true
+        },
+        {
+          "id": "p1:bottom:0:cctl1g",
+          "face": "bottom",
+          "thickness": 0.5,
+          "mode": "armor",
+          "exposed": true
+        },
+        {
+          "id": "p1:top:0:cctl1g",
+          "face": "top",
+          "thickness": 0.2,
+          "mode": "armor",
+          "exposed": true
+        }
+      ],
+      "lights": [
+        {
+          "id": "p1:top:0:cctl1g|light|0",
+          "patch": "p1:top:0:cctl1g",
+          "host": 1,
+          "point": [
+            238.27084462510766,
+            90.02,
+            29.255601783456296
+          ],
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "points": [
+            [
+              238.8518592785078,
+              90.02,
+              29.121521478825496
+            ],
+            [
+              238.13676432047686,
+              90.02,
+              28.67458713005617
+            ],
+            [
+              237.68982997170752,
+              90.02,
+              29.389682088087095
+            ],
+            [
+              238.40492492973846,
+              90.02,
+              29.83661643685642
+            ]
+          ]
+        },
+        {
+          "id": "p1:top:0:cctl1g|light|1",
+          "patch": "p1:top:0:cctl1g",
+          "host": 1,
+          "point": [
+            293.89655857909463,
+            90.02,
+            44.3868883765212
+          ],
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "points": [
+            [
+              293.3155439256945,
+              90.02,
+              44.520968681152
+            ],
+            [
+              294.03063888372543,
+              90.02,
+              44.967903029921324
+            ],
+            [
+              294.47757323249476,
+              90.02,
+              44.2528080718904
+            ],
+            [
+              293.76247827446383,
+              90.02,
+              43.805873723121074
+            ]
+          ]
+        },
+        {
+          "id": "p1:top:0:cctl1g|light|2",
+          "patch": "p1:top:0:cctl1g",
+          "host": 1,
+          "point": [
+            302.6568001728332,
+            90.02,
+            27.220169635132255
+          ],
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "points": [
+            [
+              302.5968140293057,
+              90.02,
+              27.480109590418095
+            ],
+            [
+              302.91674012811905,
+              90.02,
+              27.280155778659758
+            ],
+            [
+              302.7167863163607,
+              90.02,
+              26.960229679846414
+            ],
+            [
+              302.3968602175473,
+              90.02,
+              27.16018349160475
+            ]
+          ]
+        },
+        {
+          "id": "p1:top:0:cctl1g|light|3",
+          "patch": "p1:top:0:cctl1g",
+          "host": 1,
+          "point": [
+            251.7135525269111,
+            90.02,
+            67.93276590169033
+          ],
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "points": [
+            [
+              251.8476328315419,
+              90.02,
+              67.3517512482902
+            ],
+            [
+              251.13253787351096,
+              90.02,
+              67.79868559705953
+            ],
+            [
+              251.5794722222803,
+              90.02,
+              68.51378055509046
+            ],
+            [
+              252.29456718031122,
+              90.02,
+              68.06684620632113
+            ]
+          ]
+        },
+        {
+          "id": "p1:top:0:cctl1g|light|4",
+          "patch": "p1:top:0:cctl1g",
+          "host": 1,
+          "point": [
+            314.3153897375298,
+            90.02,
+            34.66097118949672
+          ],
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "points": [
+            [
+              313.89086376282313,
+              90.02,
+              34.758938722121336
+            ],
+            [
+              314.41335727015445,
+              90.02,
+              35.08549716420338
+            ],
+            [
+              314.7399157122365,
+              90.02,
+              34.563003656872105
+            ],
+            [
+              314.2174222049052,
+              90.02,
+              34.23644521479006
+            ]
+          ]
+        },
+        {
+          "id": "p1:top:0:cctl1g|light|5",
+          "patch": "p1:top:0:cctl1g",
+          "host": 1,
+          "point": [
+            271.18246770386844,
+            90.02,
+            44.47635116725978
+          ],
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "points": [
+            [
+              271.7634823572686,
+              90.02,
+              44.34227086262898
+            ],
+            [
+              271.04838739923764,
+              90.02,
+              43.895336513859654
+            ],
+            [
+              270.6014530504683,
+              90.02,
+              44.61043147189058
+            ],
+            [
+              271.31654800849924,
+              90.02,
+              45.0573658206599
+            ]
+          ]
+        },
+        {
+          "id": "p1:top:0:cctl1g|light|6",
+          "patch": "p1:top:0:cctl1g",
+          "host": 1,
+          "point": [
+            289.72400789845125,
+            90.01999999999998,
+            54.06402903588723
+          ],
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "points": [
+            [
+              289.65119135743805,
+              90.01999999999998,
+              54.08083285304413
+            ],
+            [
+              289.7408117156081,
+              90.01999999999998,
+              54.13684557690045
+            ],
+            [
+              289.79682443946444,
+              90.01999999999998,
+              54.04722521873033
+            ],
+            [
+              289.7072040812944,
+              90.01999999999998,
+              53.99121249487401
+            ]
+          ]
+        }
+      ],
+      "allLightRows": 7,
+      "uploadedLightVertices": 28,
+      "uploadedStructureRanges": [
+        [
+          "struct",
+          0,
+          48
+        ],
+        [
+          "struct",
+          48,
+          834
+        ]
+      ],
+      "surfaceGeometry": {
+        "surfaceArmor": 0,
+        "surfaceDevices": 42,
+        "surfaceDetail": 0
+      },
+      "structureGeometrySha256": "2b4328114f8dacaa42a64ca5e90affe7d6b6fe5ad6fd1339d57a789e81d0fac1"
+    },
+    "reopened": {
+      "partId": 1,
+      "kind": "struct",
+      "form": "box",
+      "skin": "armor",
+      "skinAsset": null,
+      "paint": null,
+      "faces": [
+        {
+          "id": "p1:port:0:cctl1g",
+          "face": "port",
+          "thickness": 0.5,
+          "mode": "armor",
+          "exposed": true
+        },
+        {
+          "id": "p1:fore:0:cctl1g",
+          "face": "fore",
+          "thickness": 0.5,
+          "mode": "armor",
+          "exposed": true
+        },
+        {
+          "id": "p1:stbd:0:cctl1g",
+          "face": "stbd",
+          "thickness": 0.5,
+          "mode": "armor",
+          "exposed": true
+        },
+        {
+          "id": "p1:aft:0:cctl1g",
+          "face": "aft",
+          "thickness": 0.5,
+          "mode": "armor",
+          "exposed": true
+        },
+        {
+          "id": "p1:bottom:0:cctl1g",
+          "face": "bottom",
+          "thickness": 0.5,
+          "mode": "armor",
+          "exposed": true
+        },
+        {
+          "id": "p1:top:0:cctl1g",
+          "face": "top",
+          "thickness": 0.2,
+          "mode": "armor",
+          "exposed": true
+        }
+      ],
+      "lights": [
+        {
+          "id": "p1:top:0:cctl1g|light|0",
+          "patch": "p1:top:0:cctl1g",
+          "host": 1,
+          "point": [
+            238.27084462510766,
+            90.02,
+            29.255601783456296
+          ],
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "points": [
+            [
+              238.8518592785078,
+              90.02,
+              29.121521478825496
+            ],
+            [
+              238.13676432047686,
+              90.02,
+              28.67458713005617
+            ],
+            [
+              237.68982997170752,
+              90.02,
+              29.389682088087095
+            ],
+            [
+              238.40492492973846,
+              90.02,
+              29.83661643685642
+            ]
+          ]
+        },
+        {
+          "id": "p1:top:0:cctl1g|light|1",
+          "patch": "p1:top:0:cctl1g",
+          "host": 1,
+          "point": [
+            293.89655857909463,
+            90.02,
+            44.3868883765212
+          ],
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "points": [
+            [
+              293.3155439256945,
+              90.02,
+              44.520968681152
+            ],
+            [
+              294.03063888372543,
+              90.02,
+              44.967903029921324
+            ],
+            [
+              294.47757323249476,
+              90.02,
+              44.2528080718904
+            ],
+            [
+              293.76247827446383,
+              90.02,
+              43.805873723121074
+            ]
+          ]
+        },
+        {
+          "id": "p1:top:0:cctl1g|light|2",
+          "patch": "p1:top:0:cctl1g",
+          "host": 1,
+          "point": [
+            302.6568001728332,
+            90.02,
+            27.220169635132255
+          ],
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "points": [
+            [
+              302.5968140293057,
+              90.02,
+              27.480109590418095
+            ],
+            [
+              302.91674012811905,
+              90.02,
+              27.280155778659758
+            ],
+            [
+              302.7167863163607,
+              90.02,
+              26.960229679846414
+            ],
+            [
+              302.3968602175473,
+              90.02,
+              27.16018349160475
+            ]
+          ]
+        },
+        {
+          "id": "p1:top:0:cctl1g|light|3",
+          "patch": "p1:top:0:cctl1g",
+          "host": 1,
+          "point": [
+            251.7135525269111,
+            90.02,
+            67.93276590169033
+          ],
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "points": [
+            [
+              251.8476328315419,
+              90.02,
+              67.3517512482902
+            ],
+            [
+              251.13253787351096,
+              90.02,
+              67.79868559705953
+            ],
+            [
+              251.5794722222803,
+              90.02,
+              68.51378055509046
+            ],
+            [
+              252.29456718031122,
+              90.02,
+              68.06684620632113
+            ]
+          ]
+        },
+        {
+          "id": "p1:top:0:cctl1g|light|4",
+          "patch": "p1:top:0:cctl1g",
+          "host": 1,
+          "point": [
+            314.3153897375298,
+            90.02,
+            34.66097118949672
+          ],
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "points": [
+            [
+              313.89086376282313,
+              90.02,
+              34.758938722121336
+            ],
+            [
+              314.41335727015445,
+              90.02,
+              35.08549716420338
+            ],
+            [
+              314.7399157122365,
+              90.02,
+              34.563003656872105
+            ],
+            [
+              314.2174222049052,
+              90.02,
+              34.23644521479006
+            ]
+          ]
+        },
+        {
+          "id": "p1:top:0:cctl1g|light|5",
+          "patch": "p1:top:0:cctl1g",
+          "host": 1,
+          "point": [
+            271.18246770386844,
+            90.02,
+            44.47635116725978
+          ],
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "points": [
+            [
+              271.7634823572686,
+              90.02,
+              44.34227086262898
+            ],
+            [
+              271.04838739923764,
+              90.02,
+              43.895336513859654
+            ],
+            [
+              270.6014530504683,
+              90.02,
+              44.61043147189058
+            ],
+            [
+              271.31654800849924,
+              90.02,
+              45.0573658206599
+            ]
+          ]
+        },
+        {
+          "id": "p1:top:0:cctl1g|light|6",
+          "patch": "p1:top:0:cctl1g",
+          "host": 1,
+          "point": [
+            289.72400789845125,
+            90.01999999999998,
+            54.06402903588723
+          ],
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "points": [
+            [
+              289.65119135743805,
+              90.01999999999998,
+              54.08083285304413
+            ],
+            [
+              289.7408117156081,
+              90.01999999999998,
+              54.13684557690045
+            ],
+            [
+              289.79682443946444,
+              90.01999999999998,
+              54.04722521873033
+            ],
+            [
+              289.7072040812944,
+              90.01999999999998,
+              53.99121249487401
+            ]
+          ]
+        }
+      ],
+      "allLightRows": 7,
+      "uploadedLightVertices": 28,
+      "uploadedStructureRanges": [
+        [
+          "struct",
+          0,
+          48
+        ],
+        [
+          "struct",
+          48,
+          834
+        ]
+      ],
+      "surfaceGeometry": {
+        "surfaceArmor": 0,
+        "surfaceDevices": 42,
+        "surfaceDetail": 0
+      },
+      "structureGeometrySha256": "2b4328114f8dacaa42a64ca5e90affe7d6b6fe5ad6fd1339d57a789e81d0fac1"
+    }
+  },
+  "saveReopen": {
+    "nativeMenu": true,
+    "saved": {
+      "id": "ship-9d125c0d-45a9-4698-8828-fdfa58f8305f",
+      "planned": {
+        "L": 300,
+        "W": 160,
+        "H": 100
+      },
+      "hull": {
+        "L": 100,
+        "W": 60,
+        "H": 40
+      },
+      "partKinds": [
+        "struct",
+        "engine"
+      ]
+    },
+    "reopened": {
+      "hull": {
+        "L": 100,
+        "W": 60,
+        "H": 40
+      },
+      "planned": {
+        "L": 300,
+        "W": 160,
+        "H": 100
+      },
+      "placementBounds": [
+        -30,
+        -80,
+        -120,
+        330,
+        350,
+        120
+      ],
+      "actualBounds": [
+        -13.003562927246094,
+        0,
+        -30,
+        315.63644398298476,
+        90,
+        70
+      ],
+      "actualDimensions": [
+        328.64000691023085,
+        100,
+        90
+      ],
+      "statsDimensions": [
+        328.64000691023085,
+        100,
+        90
+      ],
+      "statsLength": 328.64000691023085,
+      "proxyBounds": null,
+      "classification": "frigate",
+      "parts": [
+        {
+          "id": 1,
+          "kind": "struct",
+          "center": [
+            275,
+            70,
+            45
+          ],
+          "size": [
+            80,
+            50,
+            40
+          ],
+          "bounds": [
+            235,
+            50,
+            20,
+            315,
+            90,
+            70
+          ],
+          "skinBounds": null
+        },
+        {
+          "id": 2,
+          "kind": "engine",
+          "center": [
+            -10,
+            20,
+            15
+          ],
+          "size": null,
+          "bounds": [
+            -13,
+            14,
+            9,
+            -7,
+            26,
+            21
+          ],
+          "skinBounds": [
+            -13.003562927246094,
+            13.999870300292969,
+            8.999823570251465,
+            -7,
+            26.00035858154297,
+            21.000314712524414
+          ]
+        }
+      ],
+      "fits": [
+        {
+          "id": 3,
+          "kind": "pd",
+          "position": [
+            315,
+            70.00001011535518,
+            44.999993161831554
+          ],
+          "normal": [
+            1,
+            0,
+            0
+          ],
+          "bounds": [
+            315,
+            68.9996734763077,
+            43.99965652278407,
+            315.63644398298476,
+            71.00034675440266,
+            46.00032980087904
+          ],
+          "floating": false
+        }
+      ],
+      "engineMachinery": [
+        {
+          "kind": "machinery",
+          "bounds": [
+            1,
+            16,
+            11,
+            49,
+            24,
+            19
+          ]
+        }
+      ],
+      "costModelVersion": 13,
+      "runtimeStamp": "5c268cfb44f4f9435fe5",
+      "generations": {
+        "requested": 21,
+        "geometry": 21,
+        "statistics": 21,
+        "adopted": 21
+      },
+      "renderer": {
+        "type": "Renderer",
+        "renderedFrames": 90,
+        "failures": 0
+      }
+    }
+  },
+  "images": [
+    {
+      "path": "docs/images/design-envelope-planned-and-actual.png",
+      "sha256": "eb6e222f3ed2df53b79b4e286a36a1534c1215e022b750832d23115c600a5e30"
+    },
+    {
+      "path": "docs/images/design-envelope-armor-thick-face.png",
+      "sha256": "78b7c17658149af4b8fab387c308c9d9512c0ae14cf45b2745b1cc2af63531e5"
+    },
+    {
+      "path": "docs/images/design-envelope-armor-thin-face.png",
+      "sha256": "244e08a9887747413c468f6778f2b1022f097560ff69e7aceb7e5a87a4623116"
+    }
+  ],
+  "errors": []
+}

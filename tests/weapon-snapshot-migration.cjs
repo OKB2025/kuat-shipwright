@@ -116,33 +116,21 @@ test('a saved canonical point-defense snapshot refreshes combat figures from the
   assert.equal(context.computeCalls,beforeValidation,'a current revision never recomputes engineering on repeated validation');
 });
 
-test('surface battery and retained aggregate weapons also trigger the one-time geometry refresh', () => {
-  for (const retained of [false, true]) {
-    const old = legacySnapshot();
-    old.blueprint.fits = [];
-    const model = C.deserialize(old.blueprint), id = C.surfacePatches(model).find(p => p.face === 'top').id;
-    assert.equal(C.setSurfaceConfig(model, id, {functionMode: 'legacy', battery: {weapon: 'oct40', count: 1}}).ok, true);
-    const stats = C.computeStats(model), fit = C.surfaceDerivedFits(model)[0], port = C.surfaceBatteryGeometry(fit);
-    assert.equal(stats.alphaTot, 320, 'the physical surface battery installs one 320 TT gun');
-    old.blueprint = plain(C.serialize(model));
-    if (!retained) for (const patch of old.blueprint.surfaces.patches) delete patch.aggregate;
-    const snapshot = C.cleanDesignCraft(old), fresh = currentSnapshot(old.blueprint);
-    assert.ok(snapshot);
-    assert.equal(snapshot.weaponProfileVersion, 1);
-    assert.equal(snapshot.craft.gun, 326, 'surface gun output includes the same six base points as a manual battery');
-    assert.equal(snapshot.craft.strike, 326);
-    assert.equal(snapshot.craft.fireArcs.length, 1);
-    const arc = snapshot.craft.fireArcs[0];
-    assert.equal(arc.k, 'oct40');
-    const squad = {craft: R.registerDesignCraft(snapshot), pos: [0, 0, 0], h: [1, 0, 0]};
-    assert.equal(R.squadFireArc(squad, C.mul(port.normal, 1000)), 1, 'the registered surface gun can fire through its outward mouth');
-    assert.equal(R.squadFireArc(squad, C.mul(port.normal, -1000)), 0, 'the registered surface gun cannot fire inward through its hull');
-    for (const [actual, expected] of [[arc.pos, port.mouth], [arc.dir, port.normal], [arc.up, port.normal]]) {
-      assert.ok(C.len(C.sub(actual, expected)) < 1e-7, 'the snapshot keeps its port muzzle and outward mount normal');
-    }
-    assert.equal(snapshot.blueprint.fits.length, 0, 'derived surface guns stay outside the editable fit list');
-    assert.deepEqual(plain(snapshot.craft), plain(fresh.craft));
-    assert.deepEqual(plain(C.cleanDesignCraft(JSON.parse(C.publicJSON(snapshot)))), plain(snapshot), 'surface snapshots stay stable after transport');
+test('retired surface batteries and retained ledgers refresh into zero-armor faces without ghost weapons', () => {
+  const fixture=JSON.parse(fs.readFileSync(path.join(root,'tests/helpers/retired-surface-battery-v11.json'),'utf8'));
+  assert.equal(fixture.profileVersion,11);assert.equal(fixture.snapshot.craft.gun,326);
+  for (const retained of [false,true]) {
+    const old=plain(fixture.snapshot);
+    if(!retained)for(const patch of old.blueprint.surfaces.patches)delete patch.aggregate;
+    const before=plain(old);
+    const snapshot=C.cleanDesignCraft(old),fresh=currentSnapshot(old.blueprint);assert.ok(snapshot);
+    assert.equal(snapshot.weaponProfileVersion,1);assert.equal(snapshot.craft.gun,0,'the unarmed model has no cached surface gun output');assert.equal(snapshot.craft.strike,0);assert.equal(snapshot.craft.fireArcs.length,0);
+    assert.equal(snapshot.blueprint.fits.length,0);assert.equal(snapshot.blueprint.surfaces.armorOnly,1);
+    for(const patch of snapshot.blueprint.surfaces.patches){assert.equal(patch.functionMode,'armor');assert.equal(patch.battery.count,0);assert.ok(!patch.aggregate);}
+    assert.equal(snapshot.craft.powerProfile.modules.some(m=>m.k==='weapon'||m.k==='launcher'),false,'cached virtual weapon modules are removed');
+    const registered=R.CRAFT[R.registerDesignCraft(snapshot)];assert.equal(registered.gun,0);assert.equal(registered.fireArcs.length,0);
+    assert.deepEqual(plain(snapshot.craft),plain(fresh.craft));assert.deepEqual(plain(C.cleanDesignCraft(JSON.parse(C.publicJSON(snapshot)))),plain(snapshot),'the migrated snapshot stays stable');
+    assert.deepEqual(old,before,'migration does not mutate the saved source');
   }
 });
 

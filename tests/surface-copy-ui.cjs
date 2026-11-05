@@ -10,23 +10,22 @@ run(`const C=Core;let ship,clipboard,history=[],messages=[];
  const xfDrivers=()=>{const m=multiItems();return ['parts','fits'].flatMap(list=>m[list].map(it=>({list,it,fol:[]})));};
  const xfBox=(list,q)=>list==='parts'?C.partAABB(q):C.fitAABB(q),xfUnion=boxes=>[0,1,2].map(a=>Math.min(...boxes.map(b=>b[a]))).concat([0,1,2].map(a=>Math.max(...boxes.map(b=>b[a+3])))),xfCheck=()=>new Map(),edGroups=()=>[],edLeaves=()=>({parts:[],fits:[]}),edParent=()=>null,seatFit=(f,p,n)=>{f.p=p;f.n=n;};
  function empty(){const s=C.newShip({L:500,W:300,H:150,plan:'rect',sec:'rect'},'Target');s.hull.assembly=true;s.parts=[];s.fits=[];return s;}
- function fixture(){ship=empty();ship.parts=[{id:1,k:'struct',form:'box',c:[70,30,70],s:[60,30,36],taper:0}];ship.nextId=2;C.enableSurfaceMode(ship,true);const patch=C.surfacePatches(ship).find(p=>p.face==='port');C.setSurfaceConfig(ship,[patch.id],{armor:{material:'dense',thickness:.7},equipment:{kind:'hdis',count:1,depth:2},battery:{weapon:'claser',count:3,spacing:1,angle:23},style:{kind:'machinery',density:.7,seed:71}});st.multi={parts:new Set([1]),fits:new Set()};st.sel={list:'parts',id:1};history=[];messages=[];return patch.id;}
- function deviceIds(){return (ship.surfaces?.patches||[]).flatMap(p=>[...(p.aggregate?.cells||[]),...(p.aggregate?.guns||[])].map(r=>r[0])).sort((a,b)=>a-b);}
- function sourceFaceConfig(id){const q=JSON.parse(JSON.stringify(C.surfaceConfig(ship,id)));if(q.aggregate)delete q.aggregate.signature;return JSON.stringify(q);}
+ function fixture(){ship=empty();ship.parts=[{id:1,k:'struct',form:'box',c:[70,30,70],s:[60,30,36],taper:0,skin:'service',paint:'#8195ad'}];ship.nextId=2;for(const [face,thickness]of [['port',.7],['top',.2]])if(!C.setStructureFaceArmor(ship,1,face,thickness).ok)throw Error('armor fixture failed');st.multi={parts:new Set([1]),fits:new Set()};st.sel={list:'parts',id:1};history=[];messages=[];}
+ function faceArmor(id){return C.structureArmorFaces(ship,id).map(p=>({face:p.face,thickness:p.thickness})).sort((a,b)=>a.face.localeCompare(b.face));}
 `);
 section('function multiCopy(', 'function multiDelete(');section('function copyWingLinks(', 'function multiPanelHTML(');section('function editDuplicate(', 'function editDelete(');
 
-test('the real clipboard path carries generated equipment and settings through paste and undo/redo snapshots',()=>{
- run('fixture();multiCopy();clipboard=JSON.parse(JSON.stringify(clipboard));ship=empty();const before=C.serialize(ship);multiPaste();');
- assert.equal(run('ship.parts.length'),1);assert.equal(run('ship.fits.length'),0);assert.equal(run('C.surfaceWorkingShip(ship).parts.filter(p=>p.surfacePatch).length'),1);assert.equal(run('C.surfaceDerivedFits(ship).length'),3);assert.equal(run('history.length'),1);const ids=plain(run('deviceIds()')),snapshot=run('C.serialize(ship)');assert.equal(ids.length,4);assert.equal(run('C.surfaceReport(ship).patches.some(p=>p.config.style.seed===71&&p.installed===3)'),true);
+test('the real clipboard path carries face armor and the original skin through paste and undo/redo snapshots',()=>{
+ run('fixture();const source=JSON.stringify(faceArmor(1));multiCopy();clipboard=JSON.parse(JSON.stringify(clipboard));ship=empty();multiPaste();');
+ assert.equal(run('ship.parts.length'),1);assert.equal(run('ship.fits.length'),0);assert.equal(run('C.surfaceWorkingShip(ship).parts.filter(p=>p.surfacePatch).length'),0);assert.equal(run('C.surfaceDerivedFits(ship).length'),0);assert.equal(run('history.length'),1);assert.equal(run('JSON.stringify(faceArmor(ship.parts[0].id))===source'),true);assert.equal(run('ship.parts[0].skin'),'service');assert.equal(run('ship.parts[0].paint'),'#8195ad');const armor=plain(run('faceArmor(ship.parts[0].id)')),snapshot=run('C.serialize(ship)');assert.equal(run('ship.surfaces.patches.filter(p=>p.authored).length'),2);
  run('ship=C.deserialize(history[0]);C.surfaceSync(ship)');assert.equal(run('ship.fits.length'),0);assert.equal(run('ship.parts.length'),0);
- context.savedSnapshot=snapshot;run('ship=C.deserialize(savedSnapshot);C.surfaceSync(ship)');assert.deepEqual(plain(run('deviceIds()')),ids);assert.equal(run('C.surfaceReport(ship).patches.some(p=>p.config.armor.material==="dense"&&p.installed===3)'),true);
+ context.savedSnapshot=snapshot;run('ship=C.deserialize(savedSnapshot);C.surfaceSync(ship)');assert.deepEqual(plain(run('faceArmor(ship.parts[0].id)')),armor);assert.equal(run('ship.parts[0].skin'),'service');assert.equal(run('ship.parts[0].paint'),'#8195ad');assert.equal(run('C.surfaceDerivedFits(ship).length'),0);
 });
 
-test('the real duplicate action copies a selected host and its generated cells once without changing the original',()=>{
- run('fixture();const oldIds=deviceIds();const source=sourceFaceConfig(C.surfaceDerivedFits(ship)[0].surfacePatch);editDuplicate();');
- assert.equal(run('ship.parts.filter(p=>p.k==="struct").length'),2);assert.equal(run('ship.parts.filter(p=>p.surfacePatch).length'),0);assert.equal(run('ship.fits.length'),0);assert.equal(run('C.surfaceWorkingShip(ship).parts.filter(p=>p.surfacePatch).length'),2);assert.equal(run('C.surfaceDerivedFits(ship).length'),6);assert.equal(run('new Set(deviceIds()).size'),8);assert.equal(run('history.length'),1);
- assert.equal(run('sourceFaceConfig(C.surfaceDerivedFits(ship).find(f=>oldIds.includes(f.id)).surfacePatch)===source'),true);const ids=plain(run('deviceIds()'));run('C.surfaceSync(ship)');assert.deepEqual(plain(run('deviceIds()')),ids);
+test('the real duplicate action copies a selected host and its face armor once without changing the original',()=>{
+ run('fixture();const original=C.publicJSON(ship.parts[0]),sourceArmor=JSON.stringify(faceArmor(1));editDuplicate();');
+ assert.equal(run('ship.parts.filter(p=>p.k==="struct").length'),2);assert.equal(run('ship.parts.filter(p=>p.surfacePatch).length'),0);assert.equal(run('ship.fits.length'),0);assert.equal(run('C.surfaceWorkingShip(ship).parts.filter(p=>p.surfacePatch).length'),0);assert.equal(run('C.surfaceDerivedFits(ship).length'),0);assert.equal(run('ship.surfaces.patches.filter(p=>p.authored).length'),4);assert.equal(run('new Set(ship.surfaces.patches.map(p=>p.id)).size===ship.surfaces.patches.length'),true);assert.equal(run('history.length'),1);
+ assert.equal(run('C.publicJSON(ship.parts.find(p=>p.id===1))===original'),true);assert.equal(run('JSON.stringify(faceArmor(1))===sourceArmor'),true);assert.equal(run('JSON.stringify(faceArmor(ship.parts.find(p=>p.id!==1).id))===sourceArmor'),true);const armor=plain(run('ship.parts.map(p=>faceArmor(p.id))'));run('C.surfaceSync(ship)');assert.deepEqual(plain(run('ship.parts.map(p=>faceArmor(p.id))')),armor);
 });
 
 test('surface-capacity rejection happens before paste mutates the design or consumes an undo step',()=>{
